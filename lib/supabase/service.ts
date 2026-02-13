@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/database.types";
 
 /**
  * 서비스 롤 클라이언트 (RLS 우회)
@@ -8,5 +7,5 @@ import type { Database } from "@/types/database.types";
 export function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-  return createClient<Database>(url, key);
+  return createClient(url, key);
 }
