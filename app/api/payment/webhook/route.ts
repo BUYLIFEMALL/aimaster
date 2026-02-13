@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { calcExpiresAt } from "@/lib/payapp/client";
-import { cookies } from "next/headers";
+import { sendPaymentEmail } from "@/lib/email/sender";
 
 /**
  * 페이앱 결제 완료 웹훅
@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
     const price     = parseInt(formData.get("price") as string || "0");
     const feedback  = formData.get("feedback") as string; // "0" = 성공
     const goodname  = formData.get("goodname") as string;
-    const userid    = formData.get("userid") as string;
 
     console.log("[Webhook]", { billId, orderId, price, feedback });
 
@@ -111,6 +110,42 @@ export async function POST(req: NextRequest) {
         commission_amount: commission,
         status: "pending",
       });
+    }
+
+    // 결제 완료 이메일 발송 (비동기, 실패해도 웹훅 응답에 영향 없음)
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email, name")
+        .eq("id", record.user_id)
+        .single();
+
+      const { data: program } = await supabase
+        .from("programs")
+        .select("name")
+        .eq("id", payData.programId)
+        .single();
+
+      const { data: plan } = await supabase
+        .from("pricing_plans")
+        .select("name")
+        .eq("id", payData.planId)
+        .single();
+
+      if (profile?.email) {
+        sendPaymentEmail(profile.email, {
+          name: profile.name || "회원",
+          programName: program?.name || goodname || "프로그램",
+          planName: plan?.name || "플랜",
+          billingType: payData.billingType,
+          amount: price,
+          orderId,
+          paidAt: new Date().toISOString(),
+          expiresAt: expiresAt?.toISOString() ?? null,
+        });
+      }
+    } catch (emailErr) {
+      console.error("[Webhook] 이메일 발송 오류 (무시):", emailErr);
     }
 
     console.log("[Webhook] 처리 완료:", orderId);

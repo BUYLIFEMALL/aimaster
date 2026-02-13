@@ -86,6 +86,9 @@ export default function RegisterPage() {
       }
     }
 
+    // 환영 이메일 발송 (비동기, 실패해도 가입 진행에 영향 없음)
+    fetch("/api/email/welcome", { method: "POST" }).catch(() => {});
+
     router.push("/dashboard");
     router.refresh();
     setLoading(false);
