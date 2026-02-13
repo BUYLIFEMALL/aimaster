@@ -1,15 +1,20 @@
 import { redirect } from "next/navigation";
-import { Copy, TrendingUp, DollarSign, Clock } from "lucide-react";
+import { TrendingUp, DollarSign, Clock, MousePointerClick, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import AffiliateLinkCard from "@/components/affiliate/AffiliateLinkCard";
 import { formatKRW, formatDate } from "@/lib/utils/format";
 
+export const dynamic = "force-dynamic";
+
 export default async function AffiliatePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  const serviceClient = createServiceClient();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -17,12 +22,36 @@ export default async function AffiliatePage() {
     .eq("id", user.id)
     .single();
 
-  const { data: earnings } = await supabase
-    .from("affiliate_earnings")
-    .select("*, program:programs(name)")
-    .eq("referrer_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(20);
+  const [{ data: earnings }, clickStats, { count: referralCount }] = await Promise.all([
+    supabase
+      .from("affiliate_earnings")
+      .select("*, program:programs(name)")
+      .eq("referrer_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    // 클릭 통계 (service client로 조회 — RLS 우회)
+    (async () => {
+      const { count: totalClicks } = await serviceClient
+        .from("affiliate_clicks")
+        .select("*", { count: "exact", head: true })
+        .eq("referrer_id", user.id);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const { count: todayClicks } = await serviceClient
+        .from("affiliate_clicks")
+        .select("*", { count: "exact", head: true })
+        .eq("referrer_id", user.id)
+        .gte("created_at", today.toISOString());
+
+      return { totalClicks: totalClicks ?? 0, todayClicks: todayClicks ?? 0 };
+    })(),
+    // 추천 가입자 수
+    serviceClient
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("referred_by", user.id),
+  ]);
 
   const totalPending = earnings?.filter(e => e.status === "pending")
     .reduce((s, e) => s + e.commission_amount, 0) ?? 0;
@@ -39,7 +68,40 @@ export default async function AffiliatePage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <GlassCard className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+              <MousePointerClick size={18} className="text-gold" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-white">{clickStats.totalClicks}</div>
+              <div className="text-subtext text-xs">총 클릭수</div>
+            </div>
+          </div>
+        </GlassCard>
+        <GlassCard className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+              <Users size={18} className="text-blue-400" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-blue-400">{referralCount ?? 0}</div>
+              <div className="text-subtext text-xs">추천 가입</div>
+            </div>
+          </div>
+        </GlassCard>
+        <GlassCard className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+              <TrendingUp size={18} className="text-gold" />
+            </div>
+            <div>
+              <div className="text-xl font-bold text-white">{earnings?.length ?? 0}</div>
+              <div className="text-subtext text-xs">결제 건수</div>
+            </div>
+          </div>
+        </GlassCard>
         <GlassCard className="p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
@@ -62,18 +124,18 @@ export default async function AffiliatePage() {
             </div>
           </div>
         </GlassCard>
-        <GlassCard className="p-4 col-span-2 md:col-span-1">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
-              <TrendingUp size={18} className="text-gold" />
-            </div>
-            <div>
-              <div className="text-xl font-bold text-white">{earnings?.length ?? 0}</div>
-              <div className="text-subtext text-xs">총 추천 건수</div>
-            </div>
-          </div>
-        </GlassCard>
       </div>
+
+      {/* 오늘 클릭 */}
+      {clickStats.todayClicks > 0 && (
+        <div className="mb-8">
+          <GlassCard className="p-4 border-gold/20">
+            <p className="text-sm text-subtext">
+              오늘 추천 링크 클릭: <span className="text-gold font-bold">{clickStats.todayClicks}회</span>
+            </p>
+          </GlassCard>
+        </div>
+      )}
 
       {/* Affiliate Link */}
       {profile?.affiliate_code && (

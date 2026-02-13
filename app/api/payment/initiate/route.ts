@@ -52,9 +52,9 @@ export async function POST(req: NextRequest) {
       memo: planId,
     });
 
-    // ref 쿠키로 추천인 조회
+    // 어필리에이트 쿠키로 추천인 조회
     const cookieStore = await cookies();
-    const refCode = cookieStore.get("ref")?.value;
+    const refCode = cookieStore.get("affiliate_ref")?.value;
     let referrerUserId: string | null = null;
     if (refCode) {
       const serviceClient = createServiceClient();

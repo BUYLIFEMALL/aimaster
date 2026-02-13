@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // 어필리에이트 ref 쿠키 설정
+  // 어필리에이트 ref 쿠키 설정 + 클릭 추적
   const ref = request.nextUrl.searchParams.get("ref");
   if (ref) {
     supabaseResponse.cookies.set("affiliate_ref", ref, {
@@ -39,6 +39,14 @@ export async function middleware(request: NextRequest) {
       httpOnly: true,
       sameSite: "lax",
     });
+
+    // 클릭 추적 (비동기, fire-and-forget)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    fetch(`${appUrl}/api/affiliate/track`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: ref, pageUrl: pathname }),
+    }).catch(() => {});
   }
 
   // 인증 필요 라우트 보호

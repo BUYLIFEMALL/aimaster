@@ -130,6 +130,21 @@ CREATE TABLE IF NOT EXISTS settlement_requests (
   processed_at timestamptz
 );
 
+-- 12. 어필리에이트 클릭 추적
+CREATE TABLE IF NOT EXISTS affiliate_clicks (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  affiliate_code text NOT NULL,
+  referrer_id uuid REFERENCES profiles(id),
+  ip_address text,
+  user_agent text,
+  page_url text,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_affiliate_clicks_code ON affiliate_clicks(affiliate_code);
+CREATE INDEX IF NOT EXISTS idx_affiliate_clicks_referrer ON affiliate_clicks(referrer_id);
+CREATE INDEX IF NOT EXISTS idx_affiliate_clicks_date ON affiliate_clicks(created_at);
+
 -- =============================================
 -- updated_at 자동 갱신 트리거 (programs만)
 -- =============================================
@@ -162,6 +177,7 @@ ALTER TABLE payment_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE affiliate_rates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE affiliate_earnings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settlement_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE affiliate_clicks ENABLE ROW LEVEL SECURITY;
 
 -- =============================================
 -- RLS 정책
@@ -215,6 +231,10 @@ DROP POLICY IF EXISTS "settlements_select_own" ON settlement_requests;
 DROP POLICY IF EXISTS "settlements_insert_own" ON settlement_requests;
 CREATE POLICY "settlements_select_own" ON settlement_requests FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "settlements_insert_own" ON settlement_requests FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- affiliate_clicks: 본인 추천 클릭만 조회
+DROP POLICY IF EXISTS "affiliate_clicks_select_own" ON affiliate_clicks;
+CREATE POLICY "affiliate_clicks_select_own" ON affiliate_clicks FOR SELECT USING (auth.uid() = referrer_id);
 
 -- =============================================
 -- 기본 데이터
