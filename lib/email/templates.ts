@@ -199,3 +199,73 @@ export function expiryReminderEmail(data: ExpiryReminderData) {
     html: layout("구독 만료 알림", body),
   };
 }
+
+export interface SupportInquiryData {
+  name: string;
+  email: string;
+  type: string;
+  message: string;
+}
+
+/** 관리자에게 보내는 문의 접수 알림 */
+export function supportInquiryEmail(data: SupportInquiryData) {
+  const body = `
+    <h1 style="color:#fff;font-size:24px;font-weight:800;margin:0 0 8px;">
+      새 문의가 접수되었습니다
+    </h1>
+    <p style="color:#a0a0b0;font-size:15px;margin:0 0 24px;">
+      아래 내용을 확인하고 답변해 주세요.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      ${infoRow("이름", data.name)}
+      ${infoRow("이메일", data.email)}
+      ${infoRow("문의 유형", data.type)}
+    </table>
+
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;margin-bottom:24px;">
+      <p style="color:#a0a0b0;font-size:12px;margin:0 0 8px;">문의 내용</p>
+      <p style="color:#fff;font-size:14px;line-height:1.8;margin:0;white-space:pre-wrap;">${data.message}</p>
+    </div>
+
+    ${goldButton("이메일로 답변하기", `mailto:${data.email}?subject=Re: [AI Master] ${data.type}`)}
+  `;
+
+  return {
+    subject: `[AI Master 문의] ${data.type} - ${data.name}`,
+    html: layout("고객 문의", body),
+  };
+}
+
+/** 고객에게 보내는 문의 접수 확인 */
+export function supportConfirmEmail(data: SupportInquiryData) {
+  const body = `
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="display:inline-block;width:56px;height:56px;border-radius:50%;background:rgba(16,185,129,0.2);line-height:56px;font-size:28px;">✓</div>
+    </div>
+    <h1 style="color:#fff;font-size:24px;font-weight:800;margin:0 0 8px;text-align:center;">
+      문의가 접수되었습니다
+    </h1>
+    <p style="color:#a0a0b0;font-size:15px;text-align:center;margin:0 0 32px;">
+      ${data.name}님, 빠른 시일 내에 답변 드리겠습니다.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      ${infoRow("문의 유형", data.type)}
+    </table>
+
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;">
+      <p style="color:#a0a0b0;font-size:12px;margin:0 0 8px;">내가 보낸 문의</p>
+      <p style="color:#fff;font-size:14px;line-height:1.8;margin:0;white-space:pre-wrap;">${data.message}</p>
+    </div>
+
+    <p style="color:#a0a0b0;font-size:12px;text-align:center;margin:24px 0 0;">
+      평일 24시간 이내에 답변 드리겠습니다.
+    </p>
+  `;
+
+  return {
+    subject: `[AI Master] 문의가 접수되었습니다`,
+    html: layout("문의 접수 확인", body),
+  };
+}

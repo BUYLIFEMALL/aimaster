@@ -67,11 +67,32 @@ export default function SupportPage() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: 실제 문의 전송 API 연동
-    setSubmitted(true);
+    setSending(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/support", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "전송 실패");
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "문의 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -177,9 +198,15 @@ export default function SupportPage() {
                   />
                 </div>
 
-                <GoldButton type="submit" fullWidth>
+                {error && (
+                  <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
+                    {error}
+                  </p>
+                )}
+
+                <GoldButton type="submit" fullWidth disabled={sending}>
                   <Send size={16} />
-                  문의 보내기
+                  {sending ? "전송 중..." : "문의 보내기"}
                 </GoldButton>
               </form>
             </GlassCard>

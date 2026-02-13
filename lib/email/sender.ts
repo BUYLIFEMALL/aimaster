@@ -3,9 +3,12 @@ import {
   welcomeEmail,
   paymentEmail,
   expiryReminderEmail,
+  supportInquiryEmail,
+  supportConfirmEmail,
   type WelcomeData,
   type PaymentData,
   type ExpiryReminderData,
+  type SupportInquiryData,
 } from "./templates";
 
 /** 이메일 전송 (실패해도 throw하지 않음 — 이메일 실패가 메인 로직을 중단시키면 안 됨) */
@@ -48,4 +51,17 @@ export async function sendPaymentEmail(to: string, data: PaymentData) {
 export async function sendExpiryReminderEmail(to: string, data: ExpiryReminderData) {
   const { subject, html } = expiryReminderEmail(data);
   return send(to, subject, html);
+}
+
+/** 고객 문의 이메일 (관리자에게 + 고객에게 접수 확인) */
+export async function sendSupportEmails(adminEmail: string, data: SupportInquiryData) {
+  const inquiry = supportInquiryEmail(data);
+  const confirm = supportConfirmEmail(data);
+
+  const [toAdmin, toCustomer] = await Promise.all([
+    send(adminEmail, inquiry.subject, inquiry.html),
+    send(data.email, confirm.subject, confirm.html),
+  ]);
+
+  return { toAdmin, toCustomer };
 }
