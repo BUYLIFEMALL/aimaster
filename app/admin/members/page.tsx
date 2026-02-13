@@ -1,0 +1,75 @@
+import { createClient } from "@/lib/supabase/server";
+import GlassCard from "@/components/ui/GlassCard";
+import GoldGradientText from "@/components/ui/GoldGradientText";
+import { formatDate } from "@/lib/utils/format";
+
+export default async function AdminMembersPage() {
+  const supabase = await createClient();
+  const { data: members } = await supabase
+    .from("profiles")
+    .select("*, grade:member_grades(name, color)")
+    .order("created_at", { ascending: false });
+
+  const { data: grades } = await supabase
+    .from("member_grades")
+    .select("*")
+    .order("sort_order");
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-white">
+          <GoldGradientText>회원</GoldGradientText> 관리
+        </h1>
+        <p className="text-subtext mt-1">총 {members?.length ?? 0}명의 회원</p>
+      </div>
+
+      <GlassCard className="p-0 overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-white/10">
+              <th className="text-left text-xs text-subtext font-medium p-4">회원</th>
+              <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">등급</th>
+              <th className="text-center text-xs text-subtext font-medium p-4 hidden lg:table-cell">관리자</th>
+              <th className="text-right text-xs text-subtext font-medium p-4 hidden md:table-cell">가입일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members?.map((m) => (
+              <tr key={m.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
+                <td className="p-4">
+                  <p className="text-white text-sm font-medium">{m.name ?? "(이름 없음)"}</p>
+                  <p className="text-subtext text-xs">{m.email}</p>
+                </td>
+                <td className="p-4 hidden md:table-cell">
+                  {(m.grade as { name: string; color: string } | null) ? (
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full border font-medium"
+                      style={{
+                        color: (m.grade as { color: string }).color,
+                        backgroundColor: `${(m.grade as { color: string }).color}20`,
+                        borderColor: `${(m.grade as { color: string }).color}40`,
+                      }}
+                    >
+                      {(m.grade as { name: string }).name}
+                    </span>
+                  ) : (
+                    <span className="text-subtext text-xs">기본</span>
+                  )}
+                </td>
+                <td className="p-4 text-center hidden lg:table-cell">
+                  {m.is_admin && (
+                    <span className="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full">관리자</span>
+                  )}
+                </td>
+                <td className="p-4 text-right hidden md:table-cell">
+                  <span className="text-subtext text-xs">{formatDate(m.created_at)}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </GlassCard>
+    </div>
+  );
+}
