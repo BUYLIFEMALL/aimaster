@@ -5,8 +5,12 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 
 export const metadata = {
-  title: "수익 공유 프로그램 | AI Master",
-  description: "추천 링크로 프로그램을 소개하고 판매 수수료를 받으세요",
+  title: "수익 공유 프로그램",
+  description: "AI Master 어필리에이트 프로그램으로 추천 링크를 공유하고 판매 수수료를 받으세요. 최대 30% 수익 공유.",
+  openGraph: {
+    title: "수익 공유 프로그램 | AI Master",
+    description: "추천 링크로 프로그램을 소개하고 판매 수수료를 받으세요.",
+  },
 };
 
 const STEPS = [

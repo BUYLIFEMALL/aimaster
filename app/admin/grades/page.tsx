@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GradeManager from "@/components/admin/GradeManager";
 
+export const metadata = { title: "등급 관리" };
+
 export default async function AdminGradesPage() {
   const supabase = await createClient();
 

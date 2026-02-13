@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import ProgramCard from "@/components/programs/ProgramCard";
 import CategoryNav from "@/components/programs/CategoryNav";
@@ -5,6 +6,15 @@ import ProgramSearch from "@/components/programs/ProgramSearch";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "프로그램 목록",
+  description: "AI 마케팅 자동화 프로그램을 카테고리별로 찾아보세요. SNS 자동화, 키워드 분석, 콘텐츠 생성 등 다양한 도구를 제공합니다.",
+  openGraph: {
+    title: "AI 마케팅 프로그램 목록 | AI Master",
+    description: "검증된 AI 마케팅 자동화 프로그램을 둘러보세요.",
+  },
+};
 
 interface PageProps {
   searchParams: Promise<{ category?: string; q?: string; sort?: string; page?: string }>;

@@ -5,6 +5,8 @@ import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 
+export const metadata = { title: "프로그램 관리" };
+
 export default async function AdminProgramsPage() {
   const supabase = await createClient();
   const { data: programs } = await supabase

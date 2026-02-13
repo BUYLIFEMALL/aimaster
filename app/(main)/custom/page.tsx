@@ -5,8 +5,12 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 
 export const metadata = {
-  title: "커스텀 솔루션 | AI Master",
-  description: "비즈니스에 맞춤화된 AI 마케팅 자동화 솔루션을 제작해드립니다",
+  title: "커스텀 솔루션",
+  description: "비즈니스에 맞춤화된 AI 마케팅 자동화 솔루션을 제작해드립니다. 맞춤 개발, 컨설팅, 디자인 서비스 제공.",
+  openGraph: {
+    title: "커스텀 솔루션 | AI Master",
+    description: "비즈니스에 맞춤화된 AI 마케팅 자동화 솔루션을 제작해드립니다.",
+  },
 };
 
 const SERVICES = [

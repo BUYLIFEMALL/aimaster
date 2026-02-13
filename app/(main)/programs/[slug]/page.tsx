@@ -16,11 +16,23 @@ export async function generateMetadata({ params }: PageProps) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("programs")
-    .select("name, short_desc")
+    .select("name, short_desc, thumbnail_url")
     .eq("slug", slug)
     .single();
   if (!data) return { title: "Not Found" };
-  return { title: `${data.name} | AI Master`, description: data.short_desc };
+
+  const title = data.name;
+  const description = data.short_desc || `${data.name} - AI Master 마케팅 자동화 프로그램`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${data.name} | AI Master`,
+      description,
+      ...(data.thumbnail_url && { images: [{ url: data.thumbnail_url, width: 1200, height: 630 }] }),
+    },
+  };
 }
 
 export default async function ProgramDetailPage({ params }: PageProps) {

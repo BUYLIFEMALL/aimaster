@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, Zap, Crown, Rocket } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
@@ -8,9 +9,13 @@ import { formatKRW } from "@/lib/utils/format";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "패키지 | AI Master",
-  description: "여러 프로그램을 묶어 할인된 가격으로 이용하세요",
+export const metadata: Metadata = {
+  title: "패키지 & 요금제",
+  description: "AI Master의 다양한 구독 플랜을 비교하고 나에게 맞는 요금제를 선택하세요. 월별, 6개월, 12개월, 평생 플랜 제공.",
+  openGraph: {
+    title: "패키지 & 요금제 | AI Master",
+    description: "AI 마케팅 자동화 프로그램 요금제를 비교해보세요.",
+  },
 };
 
 const PACKAGES = [

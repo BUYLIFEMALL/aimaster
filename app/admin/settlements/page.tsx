@@ -4,6 +4,8 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import SettlementActions from "@/components/admin/SettlementActions";
 import { formatKRW, formatDate } from "@/lib/utils/format";
 
+export const metadata = { title: "정산 관리" };
+
 export default async function AdminSettlementsPage() {
   const supabase = await createClient();
   const { data: settlements } = await supabase

@@ -9,6 +9,8 @@ import { formatKRW, formatDate } from "@/lib/utils/format";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = { title: "어필리에이트" };
+
 export default async function AffiliatePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

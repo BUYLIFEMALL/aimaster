@@ -4,6 +4,8 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import MemberGradeSelect from "@/components/admin/MemberGradeSelect";
 import { formatDate } from "@/lib/utils/format";
 
+export const metadata = { title: "회원 관리" };
+
 export default async function AdminMembersPage() {
   const supabase = await createClient();
   const { data: members } = await supabase

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Calendar, Clock, Package } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
+
+export const metadata = { title: "내 구독" };
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import Badge from "@/components/ui/Badge";

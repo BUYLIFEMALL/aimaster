@@ -5,6 +5,8 @@ import StatisticsCharts from "@/components/admin/StatisticsCharts";
 import { formatKRW } from "@/lib/utils/format";
 import { TrendingUp, Users, CreditCard, ShoppingBag } from "lucide-react";
 
+export const metadata = { title: "통계" };
+
 export default async function AdminStatisticsPage() {
   const supabase = await createClient();
 
