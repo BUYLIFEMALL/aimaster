@@ -12,7 +12,11 @@ const SORT_OPTIONS = [
   { value: "price_high", label: "높은 가격순" },
 ];
 
-export default function ProgramSearch() {
+interface ProgramSearchProps {
+  basePath?: string;
+}
+
+export default function ProgramSearch({ basePath = "/programs" }: ProgramSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
@@ -40,7 +44,8 @@ export default function ProgramSearch() {
     }
 
     params.delete("page");
-    router.push(`/programs?${params.toString()}`);
+    const qs = params.toString();
+    router.push(qs ? `${basePath}?${qs}` : basePath);
   }
 
   function handleSortChange(newSort: string) {

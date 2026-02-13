@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import ProgramCard from "@/components/programs/ProgramCard";
 import CategoryNav from "@/components/programs/CategoryNav";
@@ -7,26 +8,39 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "프로그램 목록",
-  description: "AI 마케팅 자동화 프로그램을 카테고리별로 찾아보세요. SNS 자동화, 키워드 분석, 콘텐츠 생성 등 다양한 도구를 제공합니다.",
-  openGraph: {
-    title: "AI 마케팅 프로그램 목록 | AI Master",
-    description: "검증된 AI 마케팅 자동화 프로그램을 둘러보세요.",
-  },
-};
-
 interface PageProps {
+  params: Promise<{ slug: string }>;
   searchParams: Promise<{ q?: string; sort?: string }>;
 }
 
-async function getPrograms(query?: string, sort?: string) {
+async function getCategory(slug: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+  return data;
+}
+
+async function getCategories() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("categories")
+    .select("*")
+    .is("parent_id", null)
+    .order("sort_order");
+  return data ?? [];
+}
+
+async function getPrograms(categoryId: string, query?: string, sort?: string) {
   const supabase = await createClient();
 
   let dbQuery = supabase
     .from("programs")
     .select("*, category:categories(*), pricing_plans(*)")
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .eq("category_id", categoryId);
 
   if (query) {
     dbQuery = dbQuery.or(`name.ilike.%${query}%,short_desc.ilike.%${query}%`);
@@ -58,20 +72,30 @@ async function getPrograms(query?: string, sort?: string) {
   return programs;
 }
 
-async function getCategories() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .is("parent_id", null)
-    .order("sort_order");
-  return data ?? [];
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const category = await getCategory(slug);
+  if (!category) return { title: "카테고리를 찾을 수 없습니다" };
+
+  return {
+    title: `${category.name} 프로그램`,
+    description: `${category.name} 카테고리의 AI 마케팅 자동화 프로그램을 확인하세요.`,
+    openGraph: {
+      title: `${category.name} | AI Master`,
+      description: `${category.name} 카테고리의 AI 마케팅 자동화 프로그램을 확인하세요.`,
+    },
+  };
 }
 
-export default async function ProgramsPage({ searchParams }: PageProps) {
-  const params = await searchParams;
+export default async function CategoryPage({ params, searchParams }: PageProps) {
+  const { slug } = await params;
+  const sp = await searchParams;
+
+  const category = await getCategory(slug);
+  if (!category) notFound();
+
   const [programs, categories] = await Promise.all([
-    getPrograms(params.q, params.sort),
+    getPrograms(category.id, sp.q, sp.sort),
     getCategories(),
   ]);
 
@@ -79,45 +103,45 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-          마케팅 자동화 프로그램
+          {category.name}
         </h1>
         <p className="text-subtext text-lg">
-          AI 기반 마케팅 도구로 비즈니스를 성장시키세요
+          {category.name} 카테고리의 마케팅 자동화 프로그램
         </p>
       </div>
 
       {/* Search + Sort */}
       <Suspense>
         <div className="mb-6">
-          <ProgramSearch />
+          <ProgramSearch basePath={`/programs/category/${slug}`} />
         </div>
       </Suspense>
 
       {/* Category Filter */}
       <Suspense>
         <div className="mb-8">
-          <CategoryNav categories={categories} />
+          <CategoryNav categories={categories} activeSlug={slug} />
         </div>
       </Suspense>
 
       {/* Results count */}
-      {params.q && (
+      {sp.q && (
         <p className="text-subtext text-sm mb-4">
-          &quot;{params.q}&quot; 검색 결과: {programs.length}개
+          &quot;{sp.q}&quot; 검색 결과: {programs.length}개
         </p>
       )}
 
       {/* Programs Grid */}
       {programs.length === 0 ? (
         <div className="text-center py-20 text-subtext">
-          {params.q ? (
+          {sp.q ? (
             <>
-              <p className="text-xl mb-2">&quot;{params.q}&quot; 검색 결과가 없습니다</p>
+              <p className="text-xl mb-2">&quot;{sp.q}&quot; 검색 결과가 없습니다</p>
               <p className="text-sm">다른 키워드로 검색해보세요</p>
             </>
           ) : (
             <>
-              <p className="text-xl mb-2">등록된 프로그램이 없습니다</p>
+              <p className="text-xl mb-2">이 카테고리에 등록된 프로그램이 없습니다</p>
               <p className="text-sm">곧 새로운 프로그램이 업로드될 예정입니다</p>
             </>
           )}

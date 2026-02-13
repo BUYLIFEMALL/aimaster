@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import type { Category } from "@/types/database.types";
 
@@ -11,17 +11,13 @@ interface CategoryNavProps {
 
 export default function CategoryNav({ categories, activeSlug }: CategoryNavProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const handleSelect = (slug: string | null) => {
-    const params = new URLSearchParams(searchParams.toString());
     if (slug) {
-      params.set("category", slug);
+      router.push(`/programs/category/${slug}`);
     } else {
-      params.delete("category");
+      router.push("/programs");
     }
-    params.delete("page");
-    router.push(`/programs?${params.toString()}`);
   };
 
   return (
