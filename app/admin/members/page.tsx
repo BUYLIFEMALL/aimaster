@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
+import MemberGradeSelect from "@/components/admin/MemberGradeSelect";
 import { formatDate } from "@/lib/utils/format";
 
 export default async function AdminMembersPage() {
@@ -42,20 +43,11 @@ export default async function AdminMembersPage() {
                   <p className="text-subtext text-xs">{m.email}</p>
                 </td>
                 <td className="p-4 hidden md:table-cell">
-                  {(m.grade as { name: string; color: string } | null) ? (
-                    <span
-                      className="text-xs px-2 py-0.5 rounded-full border font-medium"
-                      style={{
-                        color: (m.grade as { color: string }).color,
-                        backgroundColor: `${(m.grade as { color: string }).color}20`,
-                        borderColor: `${(m.grade as { color: string }).color}40`,
-                      }}
-                    >
-                      {(m.grade as { name: string }).name}
-                    </span>
-                  ) : (
-                    <span className="text-subtext text-xs">기본</span>
-                  )}
+                  <MemberGradeSelect
+                    userId={m.id}
+                    currentGradeId={m.grade_id}
+                    grades={(grades ?? []).map((g) => ({ id: g.id, name: g.name, color: g.color }))}
+                  />
                 </td>
                 <td className="p-4 text-center hidden lg:table-cell">
                   {m.is_admin && (
