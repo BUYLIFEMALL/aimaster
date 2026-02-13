@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,6 +11,8 @@ import {
   CreditCard,
   BarChart2,
   ChevronLeft,
+  Menu,
+  X,
 } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { cn } from "@/lib/utils/cn";
@@ -25,9 +28,10 @@ const NAV_ITEMS = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
-  return (
-    <aside className="w-60 min-h-screen bg-surface border-r border-gold/20 flex-shrink-0">
+  const navContent = (
+    <>
       <div className="p-5 border-b border-gold/20">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
@@ -43,6 +47,7 @@ export default function AdminSidebar() {
           <Link
             key={href}
             href={href}
+            onClick={() => setOpen(false)}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1",
               pathname === href || (href !== "/admin" && pathname.startsWith(href))
@@ -57,6 +62,7 @@ export default function AdminSidebar() {
         <div className="mt-4 pt-4 border-t border-white/10">
           <Link
             href="/"
+            onClick={() => setOpen(false)}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-subtext hover:text-white hover:bg-white/5 transition-colors"
           >
             <ChevronLeft size={16} />
@@ -64,6 +70,39 @@ export default function AdminSidebar() {
           </Link>
         </div>
       </nav>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* 모바일 헤더 */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-surface border-b border-gold/20 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
+            <span className="text-black font-bold text-xs">AI</span>
+          </div>
+          <GoldGradientText className="text-sm font-bold">ADMIN</GoldGradientText>
+        </div>
+        <button onClick={() => setOpen(!open)} className="text-subtext hover:text-white p-1">
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
+
+      {/* 모바일 오버레이 */}
+      {open && (
+        <div className="md:hidden fixed inset-0 z-30 bg-black/60" onClick={() => setOpen(false)} />
+      )}
+
+      {/* 사이드바 */}
+      <aside
+        className={cn(
+          "fixed md:static z-30 top-0 left-0 h-full w-60 bg-surface border-r border-gold/20 flex-shrink-0 transition-transform duration-200",
+          "md:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {navContent}
+      </aside>
+    </>
   );
 }

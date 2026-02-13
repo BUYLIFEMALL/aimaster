@@ -79,6 +79,7 @@ export default async function AdminDashboard() {
             {!recentPayments || recentPayments.length === 0 ? (
               <p className="text-subtext text-sm p-6 text-center">결제 내역 없음</p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
@@ -100,6 +101,7 @@ export default async function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </GlassCard>
         </div>

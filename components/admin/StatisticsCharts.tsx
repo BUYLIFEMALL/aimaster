@@ -127,8 +127,8 @@ export default function StatisticsCharts({
           {gradeDistribution.length === 0 || gradeDistribution.every((g) => g.count === 0) ? (
             <p className="text-subtext text-sm text-center py-8">등급이 배정된 회원이 없습니다</p>
           ) : (
-            <div className="flex items-center gap-6">
-              <ResponsiveContainer width="50%" height={200}>
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie
                     data={gradeDistribution.filter((g) => g.count > 0)}

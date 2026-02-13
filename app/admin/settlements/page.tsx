@@ -24,13 +24,14 @@ export default async function AdminSettlementsPage() {
         {!settlements || settlements.length === 0 ? (
           <p className="text-subtext text-center py-12">정산 요청이 없습니다</p>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[480px]">
             <thead>
               <tr className="border-b border-white/10">
                 <th className="text-left text-xs text-subtext font-medium p-4">회원</th>
                 <th className="text-right text-xs text-subtext font-medium p-4">금액</th>
                 <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">계좌 정보</th>
-                <th className="text-center text-xs text-subtext font-medium p-4">상태</th>
+                <th className="text-center text-xs text-subtext font-medium p-4 hidden sm:table-cell">상태</th>
                 <th className="text-right text-xs text-subtext font-medium p-4">관리</th>
               </tr>
             </thead>
@@ -48,7 +49,7 @@ export default async function AdminSettlementsPage() {
                     <p className="text-sm text-white">{s.bank_name} {s.account_number}</p>
                     <p className="text-xs text-subtext">{s.account_holder}</p>
                   </td>
-                  <td className="p-4 text-center">
+                  <td className="p-4 text-center hidden sm:table-cell">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       s.status === "approved"
                         ? "bg-emerald-500/20 text-emerald-400"
@@ -68,6 +69,7 @@ export default async function AdminSettlementsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </GlassCard>
     </div>

@@ -38,7 +38,8 @@ export default async function AdminProgramsPage() {
             </Link>
           </div>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px]">
             <thead>
               <tr className="border-b border-white/10">
                 <th className="text-left text-xs text-subtext font-medium p-4">프로그램명</th>
@@ -81,7 +82,8 @@ export default async function AdminProgramsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </GlassCard>
     </div>

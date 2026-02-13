@@ -40,8 +40,8 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function FieldRow({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[160px_1fr] items-start gap-4 py-3 border-b border-white/5">
-      <label className="text-sm text-subtext pt-2.5 flex items-center gap-1">
+    <div className="flex flex-col gap-1 md:grid md:grid-cols-[160px_1fr] md:items-start md:gap-4 py-3 border-b border-white/5">
+      <label className="text-sm text-subtext md:pt-2.5 flex items-center gap-1">
         {label}
         {required && <span className="text-gold text-xs">*</span>}
       </label>

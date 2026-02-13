@@ -76,9 +76,9 @@ export default function ProgramSearch() {
       </div>
 
       {/* 정렬 */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 min-w-0">
         <SlidersHorizontal size={14} className="text-subtext flex-shrink-0" />
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto">
           {SORT_OPTIONS.map((opt) => (
             <button
               key={opt.value}

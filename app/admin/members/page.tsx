@@ -26,7 +26,8 @@ export default async function AdminMembersPage() {
       </div>
 
       <GlassCard className="p-0 overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px]">
           <thead>
             <tr className="border-b border-white/10">
               <th className="text-left text-xs text-subtext font-medium p-4">회원</th>
@@ -61,6 +62,7 @@ export default async function AdminMembersPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </GlassCard>
     </div>
   );
