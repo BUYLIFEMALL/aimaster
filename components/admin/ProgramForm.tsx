@@ -6,7 +6,7 @@ import { Plus, Trash2, Save } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import GoldButton from "@/components/ui/GoldButton";
 import RichTextEditor from "@/components/ui/RichTextEditor";
-import type { Program, Category } from "@/types/database.types";
+import type { Program, Category, MemberGrade } from "@/types/database.types";
 
 interface PricingPlanInput {
   id?: string;
@@ -56,6 +56,8 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const isEdit = !!program;
 
   const [categories, setCategories] = useState<Category[]>([]);
+  const [grades, setGrades] = useState<MemberGrade[]>([]);
+  const [allowedGradeIds, setAllowedGradeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -82,9 +84,14 @@ export default function ProgramForm({ program }: ProgramFormProps) {
     supabase.from("categories").select("*").order("sort_order").then(({ data }) => {
       setCategories(data ?? []);
     });
+    supabase.from("member_grades").select("*").order("sort_order").then(({ data }) => {
+      setGrades(data ?? []);
+    });
     if (isEdit && program?.id) {
       supabase.from("affiliate_rates").select("rate").eq("program_id", program.id).single()
         .then(({ data }) => { if (data) setAffiliateRate(String(data.rate)); });
+      supabase.from("grade_program_access").select("grade_id").eq("program_id", program.id)
+        .then(({ data }) => { setAllowedGradeIds((data ?? []).map((d: { grade_id: string }) => d.grade_id)); });
     }
   }, []);
 
@@ -152,6 +159,14 @@ export default function ProgramForm({ program }: ProgramFormProps) {
 
       if (programId) {
         await supabase.from("affiliate_rates").upsert({ program_id: programId, rate: parseFloat(affiliateRate) || 10 });
+
+        // 등급별 접근 제한 저장
+        await supabase.from("grade_program_access").delete().eq("program_id", programId);
+        if (allowedGradeIds.length > 0) {
+          await supabase.from("grade_program_access").insert(
+            allowedGradeIds.map((gradeId) => ({ grade_id: gradeId, program_id: programId! }))
+          );
+        }
       }
 
       router.push("/admin/programs");
@@ -306,6 +321,42 @@ export default function ProgramForm({ program }: ProgramFormProps) {
               </div>
             </FieldRow>
           </div>
+        </div>
+
+        {/* ── 등급별 접근 제한 ── */}
+        <div className="glass-card rounded-2xl p-6">
+          <SectionTitle>등급별 접근 제한</SectionTitle>
+          <p className="text-xs text-subtext mb-4">
+            선택한 등급의 회원만 이 프로그램을 구매할 수 있습니다. 아무 등급도 선택하지 않으면 모든 회원이 구매 가능합니다.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {grades.map((grade) => {
+              const isSelected = allowedGradeIds.includes(grade.id);
+              return (
+                <button
+                  key={grade.id}
+                  type="button"
+                  onClick={() => setAllowedGradeIds(
+                    isSelected
+                      ? allowedGradeIds.filter((id) => id !== grade.id)
+                      : [...allowedGradeIds, grade.id]
+                  )}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                    isSelected
+                      ? "bg-gold text-black border-gold"
+                      : "bg-white/5 text-subtext border-white/10 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  {grade.name}
+                </button>
+              );
+            })}
+          </div>
+          {allowedGradeIds.length > 0 && (
+            <p className="text-xs text-gold/70 mt-3">
+              {grades.filter((g) => allowedGradeIds.includes(g.id)).map((g) => g.name).join(", ")} 등급만 구매 가능
+            </p>
+          )}
         </div>
 
         {error && (

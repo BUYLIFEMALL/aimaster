@@ -94,6 +94,26 @@ export interface PaymentRecord {
   created_at: string;
 }
 
+export interface AffiliateClick {
+  id: string;
+  affiliate_code: string;
+  referrer_id: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  page_url: string | null;
+  created_at: string;
+}
+
+export interface GradeProgramAccess {
+  id: string;
+  grade_id: string;
+  program_id: string;
+  created_at: string;
+  // joined
+  grade?: MemberGrade;
+  program?: Program;
+}
+
 export interface AffiliateRate {
   program_id: string;
   rate: number;

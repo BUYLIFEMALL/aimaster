@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Play } from "lucide-react";
+import { ArrowLeft, Play, Lock } from "lucide-react";
 import Link from "next/link";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import PricingTable from "@/components/programs/PricingTable";
 import PaymentController from "@/components/payment/PaymentController";
 import { createClient } from "@/lib/supabase/server";
+import type { MemberGrade } from "@/types/database.types";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -47,6 +48,27 @@ export default async function ProgramDetailPage({ params }: PageProps) {
     .single();
 
   if (!program) notFound();
+
+  // 등급별 접근 제한 확인
+  const { data: accessRows } = await supabase
+    .from("grade_program_access")
+    .select("grade_id, grade:member_grades(*)")
+    .eq("program_id", program.id);
+
+  const allowedGrades: MemberGrade[] = (accessRows ?? [])
+    .map((r: { grade: MemberGrade | MemberGrade[] | null }) => Array.isArray(r.grade) ? r.grade[0] : r.grade)
+    .filter(Boolean) as MemberGrade[];
+  const hasGradeRestriction = allowedGrades.length > 0;
+
+  // 현재 사용자 등급 확인
+  let userGradeId: string | null = null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data: profile } = await supabase.from("profiles").select("grade_id").eq("id", user.id).single();
+    userGradeId = profile?.grade_id ?? null;
+  }
+
+  const isAccessAllowed = !hasGradeRestriction || (userGradeId && allowedGrades.some((g: MemberGrade) => g.id === userGradeId));
 
   const activePlans = (program.pricing_plans ?? []).filter((p: { is_active: boolean }) => p.is_active);
 
@@ -165,8 +187,30 @@ export default async function ProgramDetailPage({ params }: PageProps) {
             요금 <GoldGradientText>플랜</GoldGradientText>
           </h2>
           <p className="text-subtext mb-8">필요에 맞는 플랜을 선택하세요</p>
-          <PricingTable plans={activePlans} programId={program.id} />
-          <PaymentController plans={activePlans} programName={program.name} />
+
+          {hasGradeRestriction && !isAccessAllowed ? (
+            <div className="glass-card rounded-2xl p-8 text-center">
+              <Lock size={40} className="text-gold mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">등급 전용 프로그램</h3>
+              <p className="text-subtext mb-4">
+                이 프로그램은{" "}
+                <span className="text-gold font-semibold">
+                  {allowedGrades.map((g) => g.name).join(", ")}
+                </span>{" "}
+                등급 회원만 구매할 수 있습니다.
+              </p>
+              {!user && (
+                <Link href="/login" className="text-gold hover:underline text-sm">
+                  로그인하여 확인하기
+                </Link>
+              )}
+            </div>
+          ) : (
+            <>
+              <PricingTable plans={activePlans} programId={program.id} />
+              <PaymentController plans={activePlans} programName={program.name} />
+            </>
+          )}
         </section>
       )}
     </div>
