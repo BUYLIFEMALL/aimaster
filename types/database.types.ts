@@ -145,3 +145,31 @@ export interface SettlementRequest {
   requested_at: string;
   processed_at: string | null;
 }
+
+export interface UserProgramAccess {
+  id: string;
+  user_id: string;
+  program_id: string;
+  granted_by: string | null;
+  granted_at: string;
+  // joined
+  program?: Program;
+}
+
+export interface UserSession {
+  id: string;
+  user_id: string;
+  session_token: string;
+  device_info: string | null;
+  ip_address: string | null;
+  last_active: string;
+  created_at: string;
+}
+
+export interface SiteSetting {
+  key: string;
+  value: unknown;
+  updated_at: string;
+}
+
+export type ConcurrentLoginPolicy = "force_logout" | "block_new";

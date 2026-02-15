@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Eye } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
@@ -36,14 +38,17 @@ export default async function AdminMembersPage() {
               <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">등급</th>
               <th className="text-center text-xs text-subtext font-medium p-4 hidden lg:table-cell">관리자</th>
               <th className="text-right text-xs text-subtext font-medium p-4 hidden md:table-cell">가입일</th>
+              <th className="text-center text-xs text-subtext font-medium p-4 w-16"></th>
             </tr>
           </thead>
           <tbody>
             {members?.map((m) => (
               <tr key={m.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
                 <td className="p-4">
-                  <p className="text-white text-sm font-medium">{m.name ?? "(이름 없음)"}</p>
-                  <p className="text-subtext text-xs">{m.email}</p>
+                  <Link href={`/admin/members/${m.id}`} className="hover:text-gold transition-colors">
+                    <p className="text-white text-sm font-medium">{m.name ?? "(이름 없음)"}</p>
+                    <p className="text-subtext text-xs">{m.email}</p>
+                  </Link>
                 </td>
                 <td className="p-4 hidden md:table-cell">
                   <MemberGradeSelect
@@ -59,6 +64,14 @@ export default async function AdminMembersPage() {
                 </td>
                 <td className="p-4 text-right hidden md:table-cell">
                   <span className="text-subtext text-xs">{formatDate(m.created_at)}</span>
+                </td>
+                <td className="p-4 text-center">
+                  <Link
+                    href={`/admin/members/${m.id}`}
+                    className="text-subtext hover:text-gold transition-colors p-1.5 rounded hover:bg-gold/10 inline-flex"
+                  >
+                    <Eye size={14} />
+                  </Link>
                 </td>
               </tr>
             ))}

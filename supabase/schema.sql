@@ -145,6 +145,37 @@ CREATE INDEX IF NOT EXISTS idx_affiliate_clicks_code ON affiliate_clicks(affilia
 CREATE INDEX IF NOT EXISTS idx_affiliate_clicks_referrer ON affiliate_clicks(referrer_id);
 CREATE INDEX IF NOT EXISTS idx_affiliate_clicks_date ON affiliate_clicks(created_at);
 
+-- 13. 개별 사용자 프로그램 접근 권한
+CREATE TABLE IF NOT EXISTS user_program_access (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  program_id uuid REFERENCES programs(id) ON DELETE CASCADE,
+  granted_by uuid REFERENCES profiles(id),
+  granted_at timestamptz DEFAULT now(),
+  UNIQUE (user_id, program_id)
+);
+
+-- 14. 사용자 세션 (동시 접속 제한용)
+CREATE TABLE IF NOT EXISTS user_sessions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  session_token text UNIQUE NOT NULL,
+  device_info text,
+  ip_address text,
+  last_active timestamptz DEFAULT now(),
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(session_token);
+
+-- 15. 사이트 설정
+CREATE TABLE IF NOT EXISTS site_settings (
+  key text PRIMARY KEY,
+  value jsonb NOT NULL,
+  updated_at timestamptz DEFAULT now()
+);
+
 -- =============================================
 -- updated_at 자동 갱신 트리거 (programs만)
 -- =============================================
@@ -178,6 +209,9 @@ ALTER TABLE affiliate_rates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE affiliate_earnings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settlement_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE affiliate_clicks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_program_access ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 -- =============================================
 -- RLS 정책
@@ -236,6 +270,18 @@ CREATE POLICY "settlements_insert_own" ON settlement_requests FOR INSERT WITH CH
 DROP POLICY IF EXISTS "affiliate_clicks_select_own" ON affiliate_clicks;
 CREATE POLICY "affiliate_clicks_select_own" ON affiliate_clicks FOR SELECT USING (auth.uid() = referrer_id);
 
+-- user_program_access: 본인만 조회
+DROP POLICY IF EXISTS "upa_select_own" ON user_program_access;
+CREATE POLICY "upa_select_own" ON user_program_access FOR SELECT USING (auth.uid() = user_id);
+
+-- user_sessions: 본인만 조회
+DROP POLICY IF EXISTS "sessions_select_own" ON user_sessions;
+CREATE POLICY "sessions_select_own" ON user_sessions FOR SELECT USING (auth.uid() = user_id);
+
+-- site_settings: 누구나 읽기
+DROP POLICY IF EXISTS "site_settings_select_all" ON site_settings;
+CREATE POLICY "site_settings_select_all" ON site_settings FOR SELECT USING (true);
+
 -- =============================================
 -- 기본 데이터
 -- =============================================
@@ -252,5 +298,9 @@ INSERT INTO member_grades (name, slug, color, sort_order) VALUES
   ('골드', 'gold', '#d4af37', 3),
   ('VIP', 'vip', '#f5c842', 4)
 ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO site_settings (key, value) VALUES
+  ('concurrent_login_policy', '"force_logout"')
+ON CONFLICT (key) DO NOTHING;
 
 SELECT 'Schema created successfully!' AS result;

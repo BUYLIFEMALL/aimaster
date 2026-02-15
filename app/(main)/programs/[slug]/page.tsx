@@ -68,7 +68,19 @@ export default async function ProgramDetailPage({ params }: PageProps) {
     userGradeId = profile?.grade_id ?? null;
   }
 
-  const isAccessAllowed = !hasGradeRestriction || (userGradeId && allowedGrades.some((g: MemberGrade) => g.id === userGradeId));
+  // 개별 사용자 접근 권한 확인
+  let hasIndividualAccess = false;
+  if (user) {
+    const { data: directAccess } = await supabase
+      .from("user_program_access")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("program_id", program.id)
+      .single();
+    hasIndividualAccess = !!directAccess;
+  }
+
+  const isAccessAllowed = !hasGradeRestriction || (userGradeId && allowedGrades.some((g: MemberGrade) => g.id === userGradeId)) || hasIndividualAccess;
 
   const activePlans = (program.pricing_plans ?? []).filter((p: { is_active: boolean }) => p.is_active);
 

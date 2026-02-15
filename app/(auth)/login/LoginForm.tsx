@@ -24,13 +24,35 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
+
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError) {
       setError("이메일 또는 비밀번호가 올바르지 않습니다.");
-    } else {
-      router.push(redirectTo);
-      router.refresh();
+      setLoading(false);
+      return;
     }
+
+    // 세션 생성 (동시 접속 제한)
+    try {
+      const sessionRes = await fetch("/api/session/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_info: navigator.userAgent }),
+      });
+
+      if (sessionRes.status === 409) {
+        const data = await sessionRes.json();
+        setError(data.error || "이미 다른 기기에서 접속 중입니다.");
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // 세션 생성 실패해도 로그인은 진행
+    }
+
+    router.push(redirectTo);
+    router.refresh();
     setLoading(false);
   };
 

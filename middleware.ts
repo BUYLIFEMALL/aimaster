@@ -60,6 +60,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // 동시 접속 제한: 세션 토큰 쿠키 확인
+  if (isAuthRequired && user) {
+    const sessionToken = request.cookies.get("session_token")?.value;
+    if (!sessionToken) {
+      // 세션 토큰 없이 접근 — 로그인 페이지로
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
   // 관리자 라우트 보호
   if (pathname.startsWith("/admin")) {
     if (!user) {

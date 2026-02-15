@@ -107,6 +107,7 @@ export default function SettingsPage() {
   }
 
   async function handleLogout() {
+    await fetch("/api/session/logout", { method: "POST" }).catch(() => {});
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();

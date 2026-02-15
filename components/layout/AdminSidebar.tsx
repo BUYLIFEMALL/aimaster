@@ -10,6 +10,8 @@ import {
   Award,
   CreditCard,
   BarChart2,
+  Shield,
+  Settings,
   ChevronLeft,
   Menu,
   X,
@@ -22,8 +24,10 @@ const NAV_ITEMS = [
   { href: "/admin/programs", icon: Package, label: "프로그램 관리" },
   { href: "/admin/members", icon: Users, label: "회원 관리" },
   { href: "/admin/grades", icon: Award, label: "등급 관리" },
+  { href: "/admin/access-matrix", icon: Shield, label: "접근 권한 관리" },
   { href: "/admin/settlements", icon: CreditCard, label: "정산 관리" },
   { href: "/admin/statistics", icon: BarChart2, label: "통계" },
+  { href: "/admin/settings", icon: Settings, label: "사이트 설정" },
 ];
 
 export default function AdminSidebar() {
