@@ -3,7 +3,6 @@ import Image from "next/image";
 import { ArrowLeft, Play, Lock } from "lucide-react";
 import Link from "next/link";
 import GoldGradientText from "@/components/ui/GoldGradientText";
-import PricingTable from "@/components/programs/PricingTable";
 import PaymentController from "@/components/payment/PaymentController";
 import { createClient } from "@/lib/supabase/server";
 import type { MemberGrade } from "@/types/database.types";
@@ -258,10 +257,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
               )}
             </div>
           ) : (
-            <>
-              <PricingTable plans={activePlans} programId={program.id} />
-              <PaymentController plans={activePlans} programName={program.name} />
-            </>
+            <PaymentController plans={activePlans} programName={program.name} programId={program.id} />
           )}
         </section>
       )}

@@ -23,9 +23,10 @@ const BILLING_FEATURES: Record<string, string[]> = {
 interface PricingTableProps {
   plans: PricingPlan[];
   programId: string;
+  onSelectPlan?: (planId: string) => void;
 }
 
-export default function PricingTable({ plans, programId }: PricingTableProps) {
+export default function PricingTable({ plans, programId, onSelectPlan }: PricingTableProps) {
   const activePlans = plans
     .filter((p) => p.is_active)
     .sort((a, b) => a.sort_order - b.sort_order);
@@ -33,8 +34,11 @@ export default function PricingTable({ plans, programId }: PricingTableProps) {
   if (activePlans.length === 0) return null;
 
   const handlePurchase = (planId: string) => {
-    // PaymentModal will handle this via event
-    window.dispatchEvent(new CustomEvent("open-payment", { detail: { planId, programId } }));
+    if (onSelectPlan) {
+      onSelectPlan(planId);
+    } else {
+      window.dispatchEvent(new CustomEvent("open-payment", { detail: { planId, programId } }));
+    }
   };
 
   return (

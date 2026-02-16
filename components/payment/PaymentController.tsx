@@ -1,34 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PaymentModal from "./PaymentModal";
+import PricingTable from "@/components/programs/PricingTable";
 import type { PricingPlan } from "@/types/database.types";
 
 interface PaymentControllerProps {
   plans: PricingPlan[];
   programName: string;
+  programId: string;
 }
 
-export default function PaymentController({ plans, programName }: PaymentControllerProps) {
+export default function PaymentController({ plans, programName, programId }: PaymentControllerProps) {
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
 
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const { planId } = (e as CustomEvent).detail;
-      const plan = plans.find((p) => p.id === planId);
-      if (plan) setSelectedPlan(plan);
-    };
-    window.addEventListener("open-payment", handler);
-    return () => window.removeEventListener("open-payment", handler);
-  }, [plans]);
-
-  if (!selectedPlan) return null;
+  const handleSelectPlan = (planId: string) => {
+    const plan = plans.find((p) => p.id === planId);
+    if (plan) setSelectedPlan(plan);
+  };
 
   return (
-    <PaymentModal
-      plan={selectedPlan}
-      programName={programName}
-      onClose={() => setSelectedPlan(null)}
-    />
+    <>
+      <PricingTable plans={plans} programId={programId} onSelectPlan={handleSelectPlan} />
+      {selectedPlan && (
+        <PaymentModal
+          plan={selectedPlan}
+          programName={programName}
+          onClose={() => setSelectedPlan(null)}
+        />
+      )}
+    </>
   );
 }
