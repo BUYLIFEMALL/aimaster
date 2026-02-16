@@ -100,7 +100,8 @@
     color: #ffffff !important;
     cursor: pointer;
   }
-  select.input-dark option {
+  select.input-dark option,
+  select option {
     background: #1a1a2e;
     color: #ffffff;
     padding: 8px 12px;
