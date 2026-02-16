@@ -6,6 +6,12 @@ import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import Modal from "@/components/ui/Modal";
 
+interface CouponUsage {
+  user_id: string;
+  used_at: string;
+  profiles?: { name: string | null; email: string } | { name: string | null; email: string }[] | null;
+}
+
 interface CouponRow {
   id: string;
   code: string;
@@ -20,6 +26,7 @@ interface CouponRow {
   created_at: string;
   programs?: { name: string } | { name: string }[] | null;
   assigned_user?: { name: string | null; email: string } | { name: string | null; email: string }[] | null;
+  usage?: CouponUsage[];
 }
 
 interface ProgramOption {
@@ -465,6 +472,22 @@ export default function CouponManager({ initialCoupons, programs, members }: Cou
                           </span></span>
                         )}
                       </div>
+
+                      {/* 사용 내역 */}
+                      {coupon.usage && coupon.usage.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-white/5 space-y-1">
+                          {coupon.usage.map((u, i) => {
+                            const uProfile = Array.isArray(u.profiles) ? u.profiles[0] : u.profiles;
+                            return (
+                              <div key={i} className="flex items-center gap-2 text-xs">
+                                <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">사용완료</span>
+                                <span className="text-white">{uProfile?.name || uProfile?.email || "알 수 없음"}</span>
+                                <span className="text-subtext">{new Date(u.used_at).toLocaleDateString("ko-KR")}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">

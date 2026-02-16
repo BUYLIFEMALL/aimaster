@@ -10,7 +10,7 @@ export default async function AdminCouponsPage() {
 
   const { data: coupons } = await supabase
     .from("coupons")
-    .select("*, programs(name), profiles!assigned_user_id(name, email)")
+    .select("*, programs(name), profiles!assigned_user_id(name, email), coupon_usage(user_id, used_at, profiles(name, email))")
     .order("created_at", { ascending: false });
 
   const { data: programs } = await supabase
@@ -29,7 +29,9 @@ export default async function AdminCouponsPage() {
   const mappedCoupons = (coupons ?? []).map((c: any) => ({
     ...c,
     assigned_user: c.profiles || null,
+    usage: c.coupon_usage || [],
     profiles: undefined,
+    coupon_usage: undefined,
   })) as any[];
 
   return (
