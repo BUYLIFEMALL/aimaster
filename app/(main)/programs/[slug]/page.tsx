@@ -42,31 +42,35 @@ export default async function ProgramDetailPage({ params }: PageProps) {
 
   const { data: program } = await supabase
     .from("programs")
-    .select("*, category:categories(*), pricing_plans(*)")
+    .select("*, category:categories(*), pricing_plans(*), required_grade:member_grades(*)")
     .eq("slug", slug)
     .eq("is_active", true)
     .single();
 
   if (!program) notFound();
 
-  // 등급별 접근 제한 확인
-  const { data: accessRows } = await supabase
-    .from("grade_program_access")
-    .select("grade_id, grade:member_grades(*)")
-    .eq("program_id", program.id);
-
-  const allowedGrades: MemberGrade[] = (accessRows ?? [])
-    .map((r: { grade: MemberGrade | MemberGrade[] | null }) => Array.isArray(r.grade) ? r.grade[0] : r.grade)
-    .filter(Boolean) as MemberGrade[];
-  const hasGradeRestriction = allowedGrades.length > 0;
+  // 필요 등급 정보 (계층적)
+  const requiredGrade: MemberGrade | null = program.required_grade
+    ? (Array.isArray(program.required_grade) ? program.required_grade[0] : program.required_grade)
+    : null;
+  const hasGradeRestriction = !!requiredGrade;
 
   // 현재 사용자 등급 확인
-  let userGradeId: string | null = null;
+  let userGrade: MemberGrade | null = null;
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    const { data: profile } = await supabase.from("profiles").select("grade_id").eq("id", user.id).single();
-    userGradeId = profile?.grade_id ?? null;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("grade_id, grade:member_grades(*)")
+      .eq("id", user.id)
+      .single();
+    if (profile?.grade) {
+      userGrade = Array.isArray(profile.grade) ? profile.grade[0] : profile.grade;
+    }
   }
+
+  // 등급 계층 체크: 사용자 등급의 sort_order >= 필요 등급의 sort_order면 접근 허용
+  const gradeAccessOk = !hasGradeRestriction || (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order);
 
   // 개별 사용자 접근 권한 확인
   let hasIndividualAccess = false;
@@ -80,7 +84,22 @@ export default async function ProgramDetailPage({ params }: PageProps) {
     hasIndividualAccess = !!directAccess;
   }
 
-  const isAccessAllowed = !hasGradeRestriction || (userGradeId && allowedGrades.some((g: MemberGrade) => g.id === userGradeId)) || hasIndividualAccess;
+  // 수량 제한 체크
+  let reachedLimit = false;
+  let maxPrograms: number | null = null;
+  if (user && userGrade) {
+    maxPrograms = userGrade.max_programs;
+    if (maxPrograms != null) {
+      const { count } = await supabase
+        .from("subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "active");
+      reachedLimit = (count ?? 0) >= maxPrograms;
+    }
+  }
+
+  const isAccessAllowed = (gradeAccessOk || hasIndividualAccess) && !reachedLimit;
 
   const activePlans = (program.pricing_plans ?? []).filter((p: { is_active: boolean }) => p.is_active);
 
@@ -139,9 +158,19 @@ export default async function ProgramDetailPage({ params }: PageProps) {
 
         {/* Info */}
         <div>
-          {program.category && (
-            <span className="text-gold/70 text-sm font-medium">{program.category.name}</span>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            {program.category && (
+              <span className="text-gold/70 text-sm font-medium">{program.category.name}</span>
+            )}
+            {requiredGrade && (
+              <span
+                className="text-xs px-2 py-0.5 rounded-full border"
+                style={{ borderColor: requiredGrade.color ?? "#d4af37", color: requiredGrade.color ?? "#d4af37" }}
+              >
+                {requiredGrade.name} 이상
+              </span>
+            )}
+          </div>
           <h1 className="text-3xl md:text-4xl font-black text-white mt-2 mb-4">
             {program.name}
           </h1>
@@ -200,17 +229,28 @@ export default async function ProgramDetailPage({ params }: PageProps) {
           </h2>
           <p className="text-subtext mb-8">필요에 맞는 플랜을 선택하세요</p>
 
-          {hasGradeRestriction && !isAccessAllowed ? (
+          {!isAccessAllowed ? (
             <div className="glass-card rounded-2xl p-8 text-center">
               <Lock size={40} className="text-gold mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">등급 전용 프로그램</h3>
-              <p className="text-subtext mb-4">
-                이 프로그램은{" "}
-                <span className="text-gold font-semibold">
-                  {allowedGrades.map((g) => g.name).join(", ")}
-                </span>{" "}
-                등급 회원만 구매할 수 있습니다.
-              </p>
+              {reachedLimit ? (
+                <>
+                  <h3 className="text-xl font-bold text-white mb-2">이용 한도 초과</h3>
+                  <p className="text-subtext mb-4">
+                    현재 등급(<span className="text-gold font-semibold">{userGrade?.name}</span>)은
+                    최대 <span className="text-gold font-semibold">{maxPrograms}개</span> 프로그램까지 이용 가능합니다.
+                    더 많은 프로그램을 이용하려면 등급을 업그레이드하세요.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl font-bold text-white mb-2">등급 전용 프로그램</h3>
+                  <p className="text-subtext mb-4">
+                    이 프로그램은{" "}
+                    <span className="text-gold font-semibold">{requiredGrade?.name}</span>{" "}
+                    등급 이상 회원만 신청할 수 있습니다.
+                  </p>
+                </>
+              )}
               {!user && (
                 <Link href="/login" className="text-gold hover:underline text-sm">
                   로그인하여 확인하기

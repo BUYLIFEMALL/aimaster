@@ -64,6 +64,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const [name, setName] = useState(program?.name ?? "");
   const [slug, setSlug] = useState(program?.slug ?? "");
   const [categoryId, setCategoryId] = useState(program?.category_id ?? "");
+  const [requiredGradeId, setRequiredGradeId] = useState(program?.required_grade_id ?? "");
   const [shortDesc, setShortDesc] = useState(program?.short_desc ?? "");
   const [description, setDescription] = useState(program?.description ?? "");
   const [thumbnailUrl, setThumbnailUrl] = useState(program?.thumbnail_url ?? "");
@@ -122,6 +123,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
       const programData = {
         name, slug,
         category_id: categoryId || null,
+        required_grade_id: requiredGradeId || null,
         short_desc: shortDesc || null,
         description: description || null,
         thumbnail_url: thumbnailUrl || null,
@@ -200,6 +202,13 @@ export default function ProgramForm({ program }: ProgramFormProps) {
                 <option value="">카테고리 선택</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
+            </FieldRow>
+            <FieldRow label="필요 등급">
+              <select value={requiredGradeId} onChange={(e) => setRequiredGradeId(e.target.value)} className="input-dark w-full">
+                <option value="">전체 공개 (등급 제한 없음)</option>
+                {grades.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+              </select>
+              <p className="text-xs text-subtext mt-1">선택한 등급 이상의 회원만 이 프로그램을 신청할 수 있습니다</p>
             </FieldRow>
             <FieldRow label="한줄 설명">
               <input type="text" value={shortDesc} onChange={(e) => setShortDesc(e.target.value)}

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       { status: auth.status }
     );
 
-  const { name, slug, color, sort_order } = await req.json();
+  const { name, slug, color, sort_order, max_programs } = await req.json();
   if (!name || !slug) {
     return NextResponse.json(
       { error: "이름과 슬러그는 필수입니다" },
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await auth.supabase
     .from("member_grades")
-    .insert({ name, slug, color: color || null, sort_order: sort_order ?? 0 })
+    .insert({ name, slug, color: color || null, sort_order: sort_order ?? 0, max_programs: max_programs ?? null })
     .select()
     .single();
 
@@ -57,13 +57,13 @@ export async function PUT(req: NextRequest) {
       { status: auth.status }
     );
 
-  const { id, name, slug, color, sort_order } = await req.json();
+  const { id, name, slug, color, sort_order, max_programs } = await req.json();
   if (!id)
     return NextResponse.json({ error: "ID 필요" }, { status: 400 });
 
   const { data, error } = await auth.supabase
     .from("member_grades")
-    .update({ name, slug, color: color || null, sort_order })
+    .update({ name, slug, color: color || null, sort_order, max_programs: max_programs ?? null })
     .eq("id", id)
     .select()
     .single();

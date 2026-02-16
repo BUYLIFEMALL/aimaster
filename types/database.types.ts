@@ -10,6 +10,7 @@ export interface MemberGrade {
   slug: string;
   color: string | null;
   sort_order: number;
+  max_programs: number | null;
   created_at: string;
 }
 
@@ -40,6 +41,7 @@ export interface Category {
 export interface Program {
   id: string;
   category_id: string | null;
+  required_grade_id: string | null;
   name: string;
   slug: string;
   short_desc: string | null;
@@ -53,6 +55,7 @@ export interface Program {
   updated_at: string;
   // joined
   category?: Category | null;
+  required_grade?: MemberGrade | null;
   pricing_plans?: PricingPlan[];
 }
 

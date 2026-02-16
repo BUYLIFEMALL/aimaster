@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS member_grades (
   slug text UNIQUE NOT NULL,
   color text DEFAULT '#d4af37',
   sort_order int DEFAULT 0,
+  max_programs int,
   created_at timestamptz DEFAULT now()
 );
 
@@ -39,6 +40,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS programs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   category_id uuid REFERENCES categories(id),
+  required_grade_id uuid REFERENCES member_grades(id),
   name text NOT NULL,
   slug text UNIQUE NOT NULL,
   short_desc text,

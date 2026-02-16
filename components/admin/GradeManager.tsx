@@ -33,6 +33,7 @@ export default function GradeManager({ initialGrades }: GradeManagerProps) {
   const [formSlug, setFormSlug] = useState("");
   const [formColor, setFormColor] = useState("#d4af37");
   const [formSortOrder, setFormSortOrder] = useState(0);
+  const [formMaxPrograms, setFormMaxPrograms] = useState("");
 
   // 삭제 확인
   const [deleteTarget, setDeleteTarget] = useState<GradeWithCount | null>(null);
@@ -43,6 +44,7 @@ export default function GradeManager({ initialGrades }: GradeManagerProps) {
     setFormSlug("");
     setFormColor("#d4af37");
     setFormSortOrder(grades.length);
+    setFormMaxPrograms("");
     setError("");
     setIsModalOpen(true);
   }
@@ -53,6 +55,7 @@ export default function GradeManager({ initialGrades }: GradeManagerProps) {
     setFormSlug(grade.slug);
     setFormColor(grade.color || "#d4af37");
     setFormSortOrder(grade.sort_order);
+    setFormMaxPrograms(grade.max_programs != null ? String(grade.max_programs) : "");
     setError("");
     setIsModalOpen(true);
   }
@@ -77,6 +80,7 @@ export default function GradeManager({ initialGrades }: GradeManagerProps) {
       slug: formSlug.trim(),
       color: formColor,
       sort_order: formSortOrder,
+      max_programs: formMaxPrograms ? parseInt(formMaxPrograms) : null,
     };
 
     try {
@@ -195,6 +199,9 @@ export default function GradeManager({ initialGrades }: GradeManagerProps) {
                     <span className="text-xs text-subtext">
                       회원: {grade.member_count}명
                     </span>
+                    <span className="text-xs text-subtext">
+                      최대: {grade.max_programs != null ? `${grade.max_programs}개` : "무제한"}
+                    </span>
                   </div>
                 </div>
 
@@ -304,6 +311,21 @@ export default function GradeManager({ initialGrades }: GradeManagerProps) {
               className="input-dark w-24"
               min={0}
             />
+            <p className="text-xs text-subtext mt-1">낮은 등급일수록 작은 숫자 (예: 일반=1, 실버=2, 골드=3, VIP=4)</p>
+          </div>
+
+          {/* 최대 프로그램 수 */}
+          <div>
+            <label className="block text-sm text-subtext mb-1.5">최대 이용 프로그램 수</label>
+            <input
+              type="number"
+              value={formMaxPrograms}
+              onChange={(e) => setFormMaxPrograms(e.target.value)}
+              className="input-dark w-28"
+              min={1}
+              placeholder="무제한"
+            />
+            <p className="text-xs text-subtext mt-1">비워두면 무제한. 이 등급 회원이 동시에 이용할 수 있는 최대 프로그램 수</p>
           </div>
 
           {/* 에러 */}
