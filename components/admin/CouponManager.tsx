@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Trash2, Plus, Copy, Ticket } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Pencil, Trash2, Plus, Copy, Ticket, Calendar, X as XIcon } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import Modal from "@/components/ui/Modal";
@@ -76,7 +76,10 @@ export default function CouponManager({ initialCoupons, programs }: CouponManage
   const [formValue, setFormValue] = useState(0);
   const [formProgramId, setFormProgramId] = useState("");
   const [formMaxUses, setFormMaxUses] = useState("");
-  const [formExpiresAt, setFormExpiresAt] = useState("");
+  const [formYear, setFormYear] = useState("");
+  const [formMonth, setFormMonth] = useState("");
+  const [formDay, setFormDay] = useState("");
+  const [formHour, setFormHour] = useState("");
 
   function openCreate() {
     setEditingCoupon(null);
@@ -85,7 +88,10 @@ export default function CouponManager({ initialCoupons, programs }: CouponManage
     setFormValue(0);
     setFormProgramId("");
     setFormMaxUses("");
-    setFormExpiresAt("");
+    setFormYear("");
+    setFormMonth("");
+    setFormDay("");
+    setFormHour("");
     setError("");
     setIsModalOpen(true);
   }
@@ -97,7 +103,18 @@ export default function CouponManager({ initialCoupons, programs }: CouponManage
     setFormValue(coupon.value);
     setFormProgramId(coupon.program_id ?? "");
     setFormMaxUses(coupon.max_uses != null ? String(coupon.max_uses) : "");
-    setFormExpiresAt(coupon.expires_at ? coupon.expires_at.slice(0, 16) : "");
+    if (coupon.expires_at) {
+      const d = new Date(coupon.expires_at);
+      setFormYear(String(d.getFullYear()));
+      setFormMonth(String(d.getMonth() + 1));
+      setFormDay(String(d.getDate()));
+      setFormHour(String(d.getHours()));
+    } else {
+      setFormYear("");
+      setFormMonth("");
+      setFormDay("");
+      setFormHour("");
+    }
     setError("");
     setIsModalOpen(true);
   }
@@ -112,7 +129,9 @@ export default function CouponManager({ initialCoupons, programs }: CouponManage
         value: formType === "free" ? 0 : formValue,
         program_id: formProgramId || null,
         max_uses: formMaxUses ? parseInt(formMaxUses) : null,
-        expires_at: formExpiresAt ? new Date(formExpiresAt).toISOString() : null,
+        expires_at: formYear && formMonth && formDay
+          ? new Date(parseInt(formYear), parseInt(formMonth) - 1, parseInt(formDay), formHour ? parseInt(formHour) : 23, 59, 59).toISOString()
+          : null,
       };
 
       const method = editingCoupon ? "PUT" : "POST";
@@ -357,13 +376,75 @@ export default function CouponManager({ initialCoupons, programs }: CouponManage
 
             {/* 만료일 */}
             <div>
-              <label className="block text-sm text-subtext mb-1">만료일 (비워두면 무기한)</label>
-              <input
-                type="datetime-local"
-                className="input-dark w-full"
-                value={formExpiresAt}
-                onChange={(e) => setFormExpiresAt(e.target.value)}
-              />
+              <label className="block text-sm text-subtext mb-1">
+                <Calendar size={14} className="inline mr-1 mb-0.5" />
+                만료일 (비워두면 무기한)
+              </label>
+              {formYear ? (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-4 gap-2">
+                    {/* 년 */}
+                    <select className="input-dark" value={formYear} onChange={(e) => { setFormYear(e.target.value); setFormDay(""); }}>
+                      <option value="">년</option>
+                      {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() + i).map((y) => (
+                        <option key={y} value={y}>{y}년</option>
+                      ))}
+                    </select>
+                    {/* 월 */}
+                    <select className="input-dark" value={formMonth} onChange={(e) => { setFormMonth(e.target.value); setFormDay(""); }}>
+                      <option value="">월</option>
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                        <option key={m} value={m}>{m}월</option>
+                      ))}
+                    </select>
+                    {/* 일 */}
+                    <select className="input-dark" value={formDay} onChange={(e) => setFormDay(e.target.value)}>
+                      <option value="">일</option>
+                      {Array.from(
+                        { length: formYear && formMonth ? new Date(parseInt(formYear), parseInt(formMonth), 0).getDate() : 31 },
+                        (_, i) => i + 1,
+                      ).map((d) => (
+                        <option key={d} value={d}>{d}일</option>
+                      ))}
+                    </select>
+                    {/* 시간 */}
+                    <select className="input-dark" value={formHour} onChange={(e) => setFormHour(e.target.value)}>
+                      <option value="">시간</option>
+                      {Array.from({ length: 24 }, (_, i) => i).map((h) => (
+                        <option key={h} value={h}>{String(h).padStart(2, "0")}시</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-subtext">
+                      {formYear && formMonth && formDay
+                        ? `${formYear}년 ${formMonth}월 ${formDay}일 ${formHour ? String(formHour).padStart(2, "0") + ":00" : "23:59"} 만료`
+                        : "날짜를 선택하세요"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setFormYear(""); setFormMonth(""); setFormDay(""); setFormHour(""); }}
+                      className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1"
+                    >
+                      <XIcon size={12} /> 초기화
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const now = new Date();
+                    setFormYear(String(now.getFullYear()));
+                    setFormMonth(String(now.getMonth() + 1));
+                    setFormDay("");
+                    setFormHour("");
+                  }}
+                  className="w-full py-2.5 rounded-lg border border-dashed border-white/20 text-subtext hover:text-white hover:border-gold/40 transition-colors text-sm"
+                >
+                  만료일 설정하기
+                </button>
+              )}
             </div>
           </div>
 
