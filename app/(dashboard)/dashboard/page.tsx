@@ -21,12 +21,21 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  const { data: subscriptions } = await supabase
+  const { data: allSubscriptions } = await supabase
     .from("subscriptions")
     .select("*, program:programs(name, slug, thumbnail_url), pricing_plan:pricing_plans(name, billing_type, price)")
     .eq("user_id", user.id)
     .eq("status", "active")
     .order("created_at", { ascending: false });
+
+  // 활성 구독과 만료 구독 분리
+  const now = new Date();
+  const subscriptions = (allSubscriptions ?? []).filter(
+    (s) => !s.expires_at || new Date(s.expires_at) > now
+  );
+  const expiredSubscriptions = (allSubscriptions ?? []).filter(
+    (s) => s.expires_at && new Date(s.expires_at) <= now
+  );
 
   // 내 쿠폰 조회 (assigned_user_id가 나인 미사용 쿠폰)
   const { data: myCoupons } = await supabase
@@ -153,7 +162,7 @@ export default async function DashboardPage() {
       <div>
         <h2 className="text-lg font-bold text-white mb-4">구독 중인 프로그램</h2>
 
-        {!subscriptions || subscriptions.length === 0 ? (
+        {subscriptions.length === 0 ? (
           <GlassCard className="text-center py-12">
             <Package size={40} className="text-subtext mx-auto mb-4" />
             <p className="text-subtext mb-4">구독 중인 프로그램이 없습니다</p>
@@ -205,6 +214,43 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Expired Subscriptions */}
+      {expiredSubscriptions.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-bold text-white mb-4">기간 만료된 프로그램</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {expiredSubscriptions.map((sub) => (
+              <GlassCard key={sub.id} className="p-5 opacity-60">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-semibold truncate">
+                      {sub.program?.name ?? "프로그램"}
+                    </h3>
+                    <p className="text-subtext text-sm">
+                      {sub.pricing_plan?.name} · {formatKRW(sub.pricing_plan?.price ?? 0)}
+                    </p>
+                  </div>
+                  <span className="ml-3 text-xs font-bold px-2.5 py-1 rounded-full bg-red-500/20 text-red-400">
+                    기간만료
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-subtext">
+                  <span>시작: {formatDate(sub.started_at)}</span>
+                  <span className="text-red-400">만료: {formatDate(sub.expires_at)}</span>
+                </div>
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <Link href={`/programs/${sub.program?.slug}`}>
+                    <GoldButton variant="outline" size="sm" fullWidth>
+                      다시 구독하기
+                    </GoldButton>
+                  </Link>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

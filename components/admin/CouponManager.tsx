@@ -9,6 +9,7 @@ import Modal from "@/components/ui/Modal";
 interface CouponUsage {
   user_id: string;
   used_at: string;
+  sub_status?: "active" | "expired" | "none";
   profiles?: { name: string | null; email: string } | { name: string | null; email: string }[] | null;
 }
 
@@ -432,6 +433,17 @@ export default function CouponManager({ initialCoupons, programs, members }: Cou
               const isUsedUp = coupon.max_uses != null && coupon.current_uses >= coupon.max_uses;
               const assignedName = getAssignedUserDisplay(coupon);
 
+              // 소진된 쿠폰의 구독 상태 확인
+              let usedUpLabel = "사용중";
+              let usedUpStyle = "bg-blue-500/20 text-blue-400";
+              if (isUsedUp && coupon.usage && coupon.usage.length > 0) {
+                const hasActiveSub = coupon.usage.some((u) => u.sub_status === "active");
+                if (!hasActiveSub) {
+                  usedUpLabel = "사용완료";
+                  usedUpStyle = "bg-gray-500/20 text-gray-400";
+                }
+              }
+
               return (
                 <GlassCard key={coupon.id}>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -449,11 +461,12 @@ export default function CouponManager({ initialCoupons, programs, members }: Cou
                           <span className="text-xs text-green-400">복사됨!</span>
                         )}
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          coupon.is_active && !isExpired && !isUsedUp
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-red-500/20 text-red-400"
+                          !coupon.is_active ? "bg-red-500/20 text-red-400"
+                            : isExpired ? "bg-red-500/20 text-red-400"
+                            : isUsedUp ? usedUpStyle
+                            : "bg-green-500/20 text-green-400"
                         }`}>
-                          {!coupon.is_active ? "비활성" : isExpired ? "만료" : isUsedUp ? "소진" : "활성"}
+                          {!coupon.is_active ? "비활성" : isExpired ? "만료" : isUsedUp ? usedUpLabel : "활성"}
                         </span>
                         {assignedName && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">
@@ -479,10 +492,10 @@ export default function CouponManager({ initialCoupons, programs, members }: Cou
                           {coupon.usage.map((u, i) => {
                             const uProfile = Array.isArray(u.profiles) ? u.profiles[0] : u.profiles;
                             return (
-                              <div key={i} className="flex items-center gap-2 text-xs">
-                                <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">사용완료</span>
+                              <div key={i} className="flex items-center gap-2 text-xs text-subtext">
+                                <span>쿠폰사용일:</span>
                                 <span className="text-white">{uProfile?.name || uProfile?.email || "알 수 없음"}</span>
-                                <span className="text-subtext">{new Date(u.used_at).toLocaleDateString("ko-KR")}</span>
+                                <span>{new Date(u.used_at).toLocaleDateString("ko-KR")}</span>
                               </div>
                             );
                           })}
