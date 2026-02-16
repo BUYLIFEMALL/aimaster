@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { Eye } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import MemberGradeSelect from "@/components/admin/MemberGradeSelect";
 import { formatDate } from "@/lib/utils/format";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "회원 관리" };
 
 export default async function AdminMembersPage() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: members } = await supabase
     .from("profiles")
     .select("*, grade:member_grades(name, color)")
