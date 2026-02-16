@@ -42,7 +42,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
 
   const { data: program } = await supabase
     .from("programs")
-    .select("*, category:categories(*), pricing_plans(*), required_grade:member_grades(*)")
+    .select("*, category:categories(*), pricing_plans(*), required_grade:member_grades!required_grade_id(*)")
     .eq("slug", slug)
     .eq("is_active", true)
     .single();
