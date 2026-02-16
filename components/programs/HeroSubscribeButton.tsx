@@ -1,18 +1,16 @@
 "use client";
 
-interface HeroSubscribeButtonProps {
-  planCount: number;
-  firstPlanId?: string;
-}
-
-export default function HeroSubscribeButton({ planCount, firstPlanId }: HeroSubscribeButtonProps) {
+export default function HeroSubscribeButton() {
   const handleClick = () => {
-    if (planCount === 1 && firstPlanId) {
-      // 플랜 1개면 바로 결제 모달 열기
-      window.dispatchEvent(new CustomEvent("open-payment", { detail: { planId: firstPlanId } }));
+    const pricingSection = document.getElementById("pricing");
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: "smooth" });
+      // 스크롤 후 첫 번째 구독 버튼 자동 클릭
+      setTimeout(() => {
+        const btn = pricingSection.querySelector<HTMLButtonElement>("button");
+        if (btn) btn.click();
+      }, 500);
     }
-    // 플랜이 여러 개면 요금 섹션으로 스크롤
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (

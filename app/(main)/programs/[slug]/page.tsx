@@ -200,7 +200,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          <HeroSubscribeButton planCount={activePlans.length} firstPlanId={activePlans[0]?.id} />
+          <HeroSubscribeButton />
         </div>
       </div>
 
