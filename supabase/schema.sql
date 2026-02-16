@@ -305,4 +305,35 @@ INSERT INTO site_settings (key, value) VALUES
   ('concurrent_login_policy', '"force_logout"')
 ON CONFLICT (key) DO NOTHING;
 
+-- =============================================
+-- 쿠폰
+-- =============================================
+CREATE TABLE IF NOT EXISTS coupons (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code text UNIQUE NOT NULL,
+  type text NOT NULL CHECK (type IN ('percentage', 'fixed', 'free')),
+  value int NOT NULL DEFAULT 0,
+  program_id uuid REFERENCES programs(id) ON DELETE SET NULL,
+  max_uses int,
+  current_uses int DEFAULT 0,
+  expires_at timestamptz,
+  is_active boolean DEFAULT true,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS coupon_usage (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  coupon_id uuid REFERENCES coupons(id) ON DELETE CASCADE,
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  payment_record_id uuid REFERENCES payment_records(id),
+  discount_amount int NOT NULL,
+  used_at timestamptz DEFAULT now(),
+  UNIQUE (coupon_id, user_id)
+);
+
+ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE coupon_usage ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Service role full access" ON coupons FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Service role full access" ON coupon_usage FOR ALL USING (true) WITH CHECK (true);
+
 SELECT 'Schema created successfully!' AS result;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, CreditCard, Shield, Clock } from "lucide-react";
+import { X, CreditCard, Shield, Clock, Ticket, Check } from "lucide-react";
 import GoldButton from "@/components/ui/GoldButton";
 
 interface PricingPlan {
@@ -29,6 +29,54 @@ export default function PaymentModal({ plan, programName, onClose }: PaymentModa
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 쿠폰 관련 상태
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    id: string;
+    code: string;
+    type: string;
+    value: number;
+  } | null>(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(plan.price);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setError("");
+    setCouponLoading(true);
+
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode, planId: plan.id }),
+      });
+
+      const data = await res.json();
+
+      if (!data.valid) {
+        setError(data.error || "유효하지 않은 쿠폰입니다");
+        return;
+      }
+
+      setAppliedCoupon(data.coupon);
+      setDiscountAmount(data.discountAmount);
+      setFinalPrice(data.finalPrice);
+    } catch {
+      setError("쿠폰 확인 중 오류가 발생했습니다");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setDiscountAmount(0);
+    setFinalPrice(plan.price);
+    setCouponCode("");
+  };
+
   const handlePay = async () => {
     setError("");
     setLoading(true);
@@ -36,13 +84,23 @@ export default function PaymentModal({ plan, programName, onClose }: PaymentModa
       const res = await fetch("/api/payment/initiate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan.id }),
+        body: JSON.stringify({
+          planId: plan.id,
+          couponCode: appliedCoupon?.code || null,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
         setError(data.error || "결제 요청에 실패했습니다.");
+        setLoading(false);
+        return;
+      }
+
+      // 무료 쿠폰으로 바로 구독 완료된 경우
+      if (data.free) {
+        window.location.href = "/dashboard";
         return;
       }
 
@@ -58,37 +116,35 @@ export default function PaymentModal({ plan, programName, onClose }: PaymentModa
 
       if (!popup) {
         setError("팝업이 차단되었습니다. 팝업 허용 후 다시 시도하세요.");
+        setLoading(false);
         return;
       }
 
-      // 팝업이 닫힐 때까지 대기
       const timer = setInterval(() => {
         if (popup.closed) {
           clearInterval(timer);
           setLoading(false);
-          // 결제 완료 후 페이지 새로고침
           window.location.href = "/dashboard";
         }
       }, 500);
 
-    } catch (err) {
+    } catch {
       setError("네트워크 오류가 발생했습니다.");
       setLoading(false);
     }
   };
 
-  const discount = plan.original_price
+  const planDiscount = plan.original_price
     ? Math.round(((plan.original_price - plan.price) / plan.original_price) * 100)
     : 0;
 
+  const isFree = finalPrice === 0;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      {/* 모달 */}
       <div className="relative glass-card rounded-2xl p-6 w-full max-w-md shadow-2xl">
-        {/* 닫기 버튼 */}
         <button
           type="button"
           onClick={onClose}
@@ -97,10 +153,55 @@ export default function PaymentModal({ plan, programName, onClose }: PaymentModa
           <X size={20} />
         </button>
 
-        {/* 헤더 */}
         <div className="mb-6">
           <h2 className="text-lg font-bold text-white mb-1">결제 확인</h2>
           <p className="text-sm text-subtext">{programName}</p>
+        </div>
+
+        {/* 쿠폰 입력 */}
+        <div className="mb-5">
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Check size={14} className="text-emerald-400" />
+                <span className="text-sm text-emerald-400 font-medium">
+                  {appliedCoupon.code} 적용됨
+                  {appliedCoupon.type === "free" && " (무료)"}
+                  {appliedCoupon.type === "percentage" && ` (${appliedCoupon.value}% 할인)`}
+                  {appliedCoupon.type === "fixed" && ` (${appliedCoupon.value.toLocaleString()}원 할인)`}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveCoupon}
+                className="text-xs text-subtext hover:text-white"
+              >
+                취소
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Ticket size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-subtext" />
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="쿠폰 코드 입력"
+                  className="input-dark w-full pl-9 text-sm"
+                  onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={couponLoading || !couponCode.trim()}
+                className="px-4 py-2 text-sm font-medium text-gold border border-gold/30 rounded-xl hover:bg-gold/10 transition-colors disabled:opacity-50"
+              >
+                {couponLoading ? "확인중..." : "적용"}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 플랜 정보 */}
@@ -117,29 +218,51 @@ export default function PaymentModal({ plan, programName, onClose }: PaymentModa
             </div>
           </div>
           <div className="h-px bg-white/10 my-3" />
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-subtext">결제 금액</span>
-            <div className="text-right">
-              {plan.original_price && plan.original_price > plan.price && (
-                <div className="flex items-center gap-2 justify-end">
-                  <span className="text-xs text-subtext line-through">
-                    {plan.original_price.toLocaleString()}원
-                  </span>
-                  <span className="text-xs text-red-400 font-bold">{discount}% 할인</span>
-                </div>
+
+          {/* 금액 정보 */}
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm text-subtext">정가</span>
+            <span className="text-sm text-subtext">
+              {plan.original_price && plan.original_price > plan.price ? (
+                <span className="line-through">{plan.original_price.toLocaleString()}원</span>
+              ) : (
+                `${plan.price.toLocaleString()}원`
               )}
-              <span className="text-xl font-bold text-gold">
-                {plan.price.toLocaleString()}원
+            </span>
+          </div>
+
+          {planDiscount > 0 && (
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-subtext">플랜 할인</span>
+              <span className="text-sm text-red-400">
+                -{(plan.original_price! - plan.price).toLocaleString()}원 ({planDiscount}%)
               </span>
             </div>
+          )}
+
+          {discountAmount > 0 && (
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-subtext">쿠폰 할인</span>
+              <span className="text-sm text-emerald-400">-{discountAmount.toLocaleString()}원</span>
+            </div>
+          )}
+
+          <div className="h-px bg-white/10 my-3" />
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-white">최종 결제 금액</span>
+            <span className="text-xl font-bold text-gold">
+              {isFree ? "무료" : `${finalPrice.toLocaleString()}원`}
+            </span>
           </div>
         </div>
 
         {/* 안내 */}
-        <div className="flex items-start gap-2 mb-5 text-xs text-subtext">
-          <Shield size={13} className="mt-0.5 text-gold flex-shrink-0" />
-          <p>결제 버튼 클릭 시 페이앱 결제창이 팝업으로 열립니다. 팝업 차단을 해제해주세요.</p>
-        </div>
+        {!isFree && (
+          <div className="flex items-start gap-2 mb-5 text-xs text-subtext">
+            <Shield size={13} className="mt-0.5 text-gold flex-shrink-0" />
+            <p>결제 버튼 클릭 시 페이앱 결제창이 팝업으로 열립니다. 팝업 차단을 해제해주세요.</p>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
@@ -147,15 +270,23 @@ export default function PaymentModal({ plan, programName, onClose }: PaymentModa
           </div>
         )}
 
-        {/* 결제 버튼 */}
         <GoldButton
           onClick={handlePay}
           disabled={loading}
           size="lg"
           className="w-full"
         >
-          <CreditCard size={18} />
-          {loading ? "결제창 열리는 중..." : `${plan.price.toLocaleString()}원 결제하기`}
+          {isFree ? (
+            <>
+              <Check size={18} />
+              {loading ? "처리 중..." : "무료로 구독하기"}
+            </>
+          ) : (
+            <>
+              <CreditCard size={18} />
+              {loading ? "결제창 열리는 중..." : `${finalPrice.toLocaleString()}원 결제하기`}
+            </>
+          )}
         </GoldButton>
 
         <button

@@ -51,6 +51,10 @@ export async function POST(req: NextRequest) {
       programId: string;
       billingType: string;
       billId: string;
+      originalAmount?: number;
+      discountAmount?: number;
+      couponId?: string;
+      referrerUserId?: string;
     };
 
     // 금액 검증
@@ -87,10 +91,24 @@ export async function POST(req: NextRequest) {
         .eq("id", record.id);
     }
 
-    // 어필리에이트 처리 (ref 쿠키 확인)
-    // 웹훅은 서버 요청이라 쿠키 직접 접근 불가 → payapp_data에 referrer 저장된 경우 처리
-    if (payData && (payData as { referrerUserId?: string }).referrerUserId) {
-      const referrerId = (payData as { referrerUserId?: string }).referrerUserId!;
+    // 쿠폰 사용 기록
+    if (payData.couponId) {
+      await supabase.from("coupon_usage").insert({
+        coupon_id: payData.couponId,
+        user_id: record.user_id,
+        payment_record_id: record.id,
+        discount_amount: payData.discountAmount || 0,
+      });
+      // current_uses 증가
+      const { data: couponData } = await supabase.from("coupons").select("current_uses").eq("id", payData.couponId).single();
+      if (couponData) {
+        await supabase.from("coupons").update({ current_uses: couponData.current_uses + 1 }).eq("id", payData.couponId);
+      }
+    }
+
+    // 어필리에이트 처리
+    if (payData.referrerUserId) {
+      const referrerId = payData.referrerUserId;
 
       // 수수료율 조회
       const { data: rateData } = await supabase

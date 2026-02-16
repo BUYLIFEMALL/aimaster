@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   Menu,
   X,
+  Ticket,
 } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { cn } from "@/lib/utils/cn";
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { href: "/admin/members", icon: Users, label: "회원 관리" },
   { href: "/admin/grades", icon: Award, label: "등급 관리" },
   { href: "/admin/access-matrix", icon: Shield, label: "접근 권한 관리" },
+  { href: "/admin/coupons", icon: Ticket, label: "쿠폰 관리" },
   { href: "/admin/settlements", icon: CreditCard, label: "정산 관리" },
   { href: "/admin/statistics", icon: BarChart2, label: "통계" },
   { href: "/admin/settings", icon: Settings, label: "사이트 설정" },

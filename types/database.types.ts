@@ -176,3 +176,29 @@ export interface SiteSetting {
 }
 
 export type ConcurrentLoginPolicy = "force_logout" | "block_new";
+
+export type CouponType = "percentage" | "fixed" | "free";
+
+export interface Coupon {
+  id: string;
+  code: string;
+  type: CouponType;
+  value: number;
+  program_id: string | null;
+  max_uses: number | null;
+  current_uses: number;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+  // joined
+  program?: Program | null;
+}
+
+export interface CouponUsage {
+  id: string;
+  coupon_id: string;
+  user_id: string;
+  payment_record_id: string | null;
+  discount_amount: number;
+  used_at: string;
+}
