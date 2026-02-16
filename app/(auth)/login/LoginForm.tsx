@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, LogIn } from "lucide-react";
@@ -18,7 +18,17 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "/dashboard";
+  const isSessionExpired = searchParams.get("session_expired") === "true";
   const supabase = createClient();
+
+  // 세션 만료로 리디렉트된 경우: Supabase 세션 클리어
+  useEffect(() => {
+    if (isSessionExpired) {
+      supabase.auth.signOut().then(() => {
+        setError("세션이 만료되었습니다. 다시 로그인해주세요.");
+      });
+    }
+  }, [isSessionExpired, supabase]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

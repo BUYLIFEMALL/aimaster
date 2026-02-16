@@ -61,13 +61,15 @@ export async function middleware(request: NextRequest) {
   }
 
   // 동시 접속 제한: 세션 토큰 쿠키 확인
+  // session_token 없으면 세션 만료로 간주하되, 로그인/가입 페이지로의 리디렉션 루프 방지
   if (isAuthRequired && user) {
     const sessionToken = request.cookies.get("session_token")?.value;
     if (!sessionToken) {
-      // 세션 토큰 없이 접근 — 로그인 페이지로
+      // Supabase 세션은 있지만 session_token이 없음 → 로그아웃 필요
+      // /login으로 보내되, 먼저 Supabase 세션을 클리어하기 위해 signout 파라미터 추가
       const url = request.nextUrl.clone();
       url.pathname = "/login";
-      url.searchParams.set("redirect", pathname);
+      url.searchParams.set("session_expired", "true");
       return NextResponse.redirect(url);
     }
   }
@@ -93,8 +95,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // 이미 로그인된 상태에서 auth 페이지 접근 시 리디렉트
+  // 단, session_expired인 경우 리디렉트하지 않음 (세션 클리어 필요)
   if (user && (pathname === "/login" || pathname === "/register")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const isSessionExpired = request.nextUrl.searchParams.get("session_expired") === "true";
+    if (!isSessionExpired) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   return supabaseResponse;

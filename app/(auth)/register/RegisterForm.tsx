@@ -86,6 +86,17 @@ export default function RegisterPage() {
       }
     }
 
+    // 세션 생성 (동시 접속 제한)
+    try {
+      await fetch("/api/session/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_info: navigator.userAgent }),
+      });
+    } catch {
+      // 세션 생성 실패해도 가입 진행
+    }
+
     // 환영 이메일 발송 (비동기, 실패해도 가입 진행에 영향 없음)
     fetch("/api/email/welcome", { method: "POST" }).catch(() => {});
 
