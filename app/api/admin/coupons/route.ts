@@ -23,11 +23,18 @@ export async function GET() {
   const serviceClient = createServiceClient();
   const { data: coupons, error } = await serviceClient
     .from("coupons")
-    .select("*, programs(name)")
+    .select("*, programs(name), profiles!assigned_user_id(name, email)")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(coupons);
+
+  // profiles → assigned_user로 매핑
+  const mapped = (coupons ?? []).map((c: Record<string, unknown>) => ({
+    ...c,
+    assigned_user: c.profiles || null,
+    profiles: undefined,
+  }));
+  return NextResponse.json(mapped);
 }
 
 // 쿠폰 생성

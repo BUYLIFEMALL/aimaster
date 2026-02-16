@@ -57,6 +57,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "사용 횟수가 초과된 쿠폰입니다." }, { status: 400 });
       if (coupon.program_id && coupon.program_id !== plan.program_id)
         return NextResponse.json({ error: "이 프로그램에 사용할 수 없는 쿠폰입니다." }, { status: 400 });
+      if (coupon.assigned_user_id && coupon.assigned_user_id !== user.id)
+        return NextResponse.json({ error: "본인에게 발행된 쿠폰이 아닙니다." }, { status: 400 });
 
       const { data: usage } = await serviceClient
         .from("coupon_usage")

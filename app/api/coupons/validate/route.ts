@@ -47,6 +47,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ valid: false, error: "이 프로그램에는 사용할 수 없는 쿠폰입니다" });
   }
 
+  // 지정 유저 확인
+  if (coupon.assigned_user_id && coupon.assigned_user_id !== user.id) {
+    return NextResponse.json({ valid: false, error: "본인에게 발행된 쿠폰이 아닙니다" });
+  }
+
   // 유저 중복 사용 확인
   const { data: usage } = await supabase
     .from("coupon_usage")

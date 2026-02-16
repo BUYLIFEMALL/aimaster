@@ -185,6 +185,7 @@ export interface Coupon {
   type: CouponType;
   value: number;
   program_id: string | null;
+  assigned_user_id: string | null;
   max_uses: number | null;
   current_uses: number;
   expires_at: string | null;
@@ -192,6 +193,7 @@ export interface Coupon {
   created_at: string;
   // joined
   program?: Program | null;
+  assigned_user?: { name: string | null; email: string } | null;
 }
 
 export interface CouponUsage {

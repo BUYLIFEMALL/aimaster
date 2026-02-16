@@ -10,7 +10,7 @@ export default async function AdminCouponsPage() {
 
   const { data: coupons } = await supabase
     .from("coupons")
-    .select("*, programs(name)")
+    .select("*, programs(name), profiles!assigned_user_id(name, email)")
     .order("created_at", { ascending: false });
 
   const { data: programs } = await supabase
@@ -18,6 +18,19 @@ export default async function AdminCouponsPage() {
     .select("id, name")
     .eq("is_active", true)
     .order("name");
+
+  const { data: members } = await supabase
+    .from("profiles")
+    .select("id, name, email")
+    .order("created_at", { ascending: false });
+
+  // profiles JOIN을 assigned_user 필드로 매핑
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mappedCoupons = (coupons ?? []).map((c: any) => ({
+    ...c,
+    assigned_user: c.profiles || null,
+    profiles: undefined,
+  })) as any[];
 
   return (
     <div>
@@ -29,8 +42,9 @@ export default async function AdminCouponsPage() {
       </div>
 
       <CouponManager
-        initialCoupons={coupons ?? []}
+        initialCoupons={mappedCoupons}
         programs={programs ?? []}
+        members={members ?? []}
       />
     </div>
   );

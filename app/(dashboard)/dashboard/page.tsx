@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Calendar, Clock, Package } from "lucide-react";
+import { Calendar, Clock, Package, Ticket } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
 
@@ -26,6 +26,14 @@ export default async function DashboardPage() {
     .select("*, program:programs(name, slug, thumbnail_url), pricing_plan:pricing_plans(name, billing_type, price)")
     .eq("user_id", user.id)
     .eq("status", "active")
+    .order("created_at", { ascending: false });
+
+  // 내 쿠폰 조회 (assigned_user_id가 나인 미사용 쿠폰)
+  const { data: myCoupons } = await supabase
+    .from("coupons")
+    .select("*, programs(name)")
+    .eq("assigned_user_id", user.id)
+    .eq("is_active", true)
     .order("created_at", { ascending: false });
 
   return (
@@ -84,6 +92,62 @@ export default async function DashboardPage() {
           </div>
         </GlassCard>
       </div>
+
+      {/* My Coupons */}
+      {myCoupons && myCoupons.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <Ticket size={18} className="text-gold" />
+            내 쿠폰
+          </h2>
+          <div className="grid md:grid-cols-2 gap-3">
+            {myCoupons.map((coupon) => {
+              const isExpired = coupon.expires_at && new Date(coupon.expires_at) < new Date();
+              const isUsedUp = coupon.max_uses != null && coupon.current_uses >= coupon.max_uses;
+              const isUsable = !isExpired && !isUsedUp;
+              const programName = coupon.programs
+                ? (Array.isArray(coupon.programs) ? coupon.programs[0]?.name : coupon.programs.name)
+                : null;
+
+              return (
+                <GlassCard key={coupon.id} className={`p-4 ${!isUsable ? "opacity-60" : ""}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-lg font-bold text-gold">{coupon.code}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      isUsable ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                    }`}>
+                      {isExpired ? "만료" : isUsedUp ? "사용완료" : "사용 가능"}
+                    </span>
+                  </div>
+                  <div className="text-sm text-subtext space-y-1">
+                    <p>
+                      {coupon.type === "free" ? "100% 무료" :
+                       coupon.type === "percentage" ? `${coupon.value}% 할인` :
+                       `${coupon.value.toLocaleString()}원 할인`}
+                      {programName ? ` · ${programName}` : " · 전체 프로그램"}
+                    </p>
+                    {coupon.expires_at && (
+                      <p className={isExpired ? "text-red-400" : ""}>
+                        만료: {new Date(coupon.expires_at).toLocaleDateString("ko-KR")}
+                      </p>
+                    )}
+                    {!coupon.expires_at && <p>기한 없음</p>}
+                  </div>
+                  {isUsable && programName && (
+                    <div className="mt-3 pt-2 border-t border-white/10">
+                      <Link href="/programs">
+                        <GoldButton variant="outline" size="sm" fullWidth>
+                          프로그램에서 사용하기
+                        </GoldButton>
+                      </Link>
+                    </div>
+                  )}
+                </GlassCard>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Subscriptions */}
       <div>

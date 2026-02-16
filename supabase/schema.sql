@@ -314,6 +314,7 @@ CREATE TABLE IF NOT EXISTS coupons (
   type text NOT NULL CHECK (type IN ('percentage', 'fixed', 'free')),
   value int NOT NULL DEFAULT 0,
   program_id uuid REFERENCES programs(id) ON DELETE SET NULL,
+  assigned_user_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
   max_uses int,
   current_uses int DEFAULT 0,
   expires_at timestamptz,
