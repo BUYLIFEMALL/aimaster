@@ -4,6 +4,7 @@ import { ArrowLeft, Play, Lock } from "lucide-react";
 import Link from "next/link";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import PaymentController from "@/components/payment/PaymentController";
+import HeroSubscribeButton from "@/components/programs/HeroSubscribeButton";
 import { createClient } from "@/lib/supabase/server";
 import type { MemberGrade } from "@/types/database.types";
 
@@ -199,11 +200,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          <Link href="#pricing">
-            <button className="btn-gold w-full py-4 text-lg rounded-xl font-bold">
-              지금 구독하기
-            </button>
-          </Link>
+          <HeroSubscribeButton planCount={activePlans.length} firstPlanId={activePlans[0]?.id} />
         </div>
       </div>
 
