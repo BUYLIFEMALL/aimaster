@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { attachCouponUsageStatus } from "@/lib/coupons/subStatus";
 
 async function checkAdmin() {
   const supabase = await createClient();
@@ -28,60 +29,7 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // 사용된 쿠폰의 구독 상태를 확인하기 위해 구독 정보 조회
-  const usageUserProgram: { user_id: string; program_id: string | null }[] = [];
-  for (const c of coupons ?? []) {
-    const usage = (c as Record<string, unknown>).coupon_usage as { user_id: string }[] | undefined;
-    if (usage && usage.length > 0) {
-      for (const u of usage) {
-        usageUserProgram.push({ user_id: u.user_id, program_id: (c as Record<string, unknown>).program_id as string | null });
-      }
-    }
-  }
-
-  // 관련 구독 조회 (user_id 기준)
-  const uniqueUserIds = Array.from(new Set(usageUserProgram.map((u) => u.user_id)));
-  let subsByUserProgram: Record<string, { status: string; expires_at: string | null }[]> = {};
-  let subsByUser: Record<string, { status: string; expires_at: string | null }[]> = {};
-  if (uniqueUserIds.length > 0) {
-    const { data: subs } = await serviceClient
-      .from("subscriptions")
-      .select("user_id, program_id, status, expires_at")
-      .in("user_id", uniqueUserIds);
-    if (subs) {
-      for (const s of subs) {
-        const upKey = `${s.user_id}_${s.program_id}`;
-        if (!subsByUserProgram[upKey]) subsByUserProgram[upKey] = [];
-        subsByUserProgram[upKey].push({ status: s.status, expires_at: s.expires_at });
-        if (!subsByUser[s.user_id]) subsByUser[s.user_id] = [];
-        subsByUser[s.user_id].push({ status: s.status, expires_at: s.expires_at });
-      }
-    }
-  }
-
-  // profiles → assigned_user, coupon_usage → usage로 매핑 + 구독 상태 추가
-  const mapped = (coupons ?? []).map((c: Record<string, unknown>) => {
-    const usage = ((c.coupon_usage as Record<string, unknown>[] | undefined) ?? []).map((u: Record<string, unknown>) => {
-      const key = `${u.user_id}_${c.program_id}`;
-      const subs = subsByUserProgram[key] || subsByUser[u.user_id as string] || [];
-      const activeSub = subs.find((s) => s.status === "active");
-      let subStatus: "active" | "expired" | "none" = "none";
-      if (activeSub) {
-        subStatus = (!activeSub.expires_at || new Date(activeSub.expires_at) > new Date()) ? "active" : "expired";
-      } else if (subs.length > 0) {
-        subStatus = "expired";
-      }
-      return { ...u, sub_status: subStatus };
-    });
-
-    return {
-      ...c,
-      assigned_user: c.profiles || null,
-      usage,
-      profiles: undefined,
-      coupon_usage: undefined,
-    };
-  });
+  const mapped = await attachCouponUsageStatus(serviceClient, (coupons ?? []) as unknown as Record<string, unknown>[]);
   return NextResponse.json(mapped);
 }
 
@@ -135,11 +83,12 @@ export async function PUT(req: NextRequest) {
     .from("coupons")
     .update(updates)
     .eq("id", id)
-    .select("*, programs(name)")
+    .select("*, programs(name), profiles!assigned_user_id(name, email), coupon_usage(user_id, used_at, profiles(name, email))")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  const [mapped] = await attachCouponUsageStatus(serviceClient, [data] as unknown as Record<string, unknown>[]);
+  return NextResponse.json(mapped);
 }
 
 // 쿠폰 삭제

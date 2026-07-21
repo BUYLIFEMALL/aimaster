@@ -433,15 +433,12 @@ export default function CouponManager({ initialCoupons, programs, members }: Cou
               const isUsedUp = coupon.max_uses != null && coupon.current_uses >= coupon.max_uses;
               const assignedName = getAssignedUserDisplay(coupon);
 
-              // 소진된 쿠폰의 구독 상태 확인
-              let usedUpLabel = "사용중";
-              let usedUpStyle = "bg-blue-500/20 text-blue-400";
-              if (isUsedUp && coupon.usage && coupon.usage.length > 0) {
-                const hasActiveSub = coupon.usage.some((u) => u.sub_status === "active");
-                if (!hasActiveSub) {
-                  usedUpLabel = "사용완료";
-                  usedUpStyle = "bg-gray-500/20 text-gray-400";
-                }
+              // 소진된 쿠폰의 구독 상태 확인 (기본은 사용완료, 활성 구독이 확인될 때만 사용중)
+              let usedUpLabel = "사용완료";
+              let usedUpStyle = "bg-gray-500/20 text-gray-400";
+              if (isUsedUp && coupon.usage?.some((u) => u.sub_status === "active")) {
+                usedUpLabel = "사용중";
+                usedUpStyle = "bg-blue-500/20 text-blue-400";
               }
 
               return (

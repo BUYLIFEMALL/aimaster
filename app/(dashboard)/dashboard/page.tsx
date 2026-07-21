@@ -15,35 +15,40 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*, grade:member_grades(*)")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { data: allSubscriptions }, { data: myCoupons }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("*, grade:member_grades(*)")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("subscriptions")
+      .select("*, program:programs(name, slug, thumbnail_url), pricing_plan:pricing_plans(name, billing_type, price)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    // 내 쿠폰 조회 (assigned_user_id가 나인 미사용 쿠폰)
+    supabase
+      .from("coupons")
+      .select("*, programs(name)")
+      .eq("assigned_user_id", user.id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false }),
+  ]);
 
-  const { data: allSubscriptions } = await supabase
-    .from("subscriptions")
-    .select("*, program:programs(name, slug, thumbnail_url), pricing_plan:pricing_plans(name, billing_type, price)")
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
-
-  // 활성 구독과 만료 구독 분리
+  // 활성 구독과 만료 구독 분리 (status와 만료일을 함께 고려 — 둘 중 하나만 보면
+  // 상태가 나중에 갱신되거나 만료일이 손상된 행이 어느 쪽에도 표시되지 않을 수 있음)
   const now = new Date();
+  const isDateExpired = (expiresAt: string | null) => {
+    if (!expiresAt) return false;
+    const d = new Date(expiresAt);
+    return !isNaN(d.getTime()) && d <= now;
+  };
   const subscriptions = (allSubscriptions ?? []).filter(
-    (s) => !s.expires_at || new Date(s.expires_at) > now
+    (s) => s.status === "active" && !isDateExpired(s.expires_at)
   );
   const expiredSubscriptions = (allSubscriptions ?? []).filter(
-    (s) => s.expires_at && new Date(s.expires_at) <= now
+    (s) => s.status !== "active" || isDateExpired(s.expires_at)
   );
-
-  // 내 쿠폰 조회 (assigned_user_id가 나인 미사용 쿠폰)
-  const { data: myCoupons } = await supabase
-    .from("coupons")
-    .select("*, programs(name)")
-    .eq("assigned_user_id", user.id)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
 
   return (
     <div>
