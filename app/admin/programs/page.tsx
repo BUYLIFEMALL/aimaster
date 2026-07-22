@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Pencil, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
@@ -54,7 +54,14 @@ export default async function AdminProgramsPage() {
               {programs.map((p) => (
                 <tr key={p.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
                   <td className="p-4">
-                    <p className="text-white font-medium text-sm">{p.name}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-white font-medium text-sm">{p.name}</p>
+                      {p.app_url && (
+                        <span title={`실행형 프로그램: ${p.app_url}`}>
+                          <ExternalLink size={12} className="text-gold" />
+                        </span>
+                      )}
+                    </div>
                     <p className="text-subtext text-xs mt-0.5">/programs/{p.slug}</p>
                   </td>
                   <td className="p-4 hidden md:table-cell">

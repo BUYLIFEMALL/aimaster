@@ -53,6 +53,8 @@ export interface Program {
   sort_order: number;
   created_at: string;
   updated_at: string;
+  // platform-hub: 실제 배포된 AI 웹앱 URL (없으면 일반 판매용 프로그램)
+  app_url: string | null;
   // joined
   category?: Category | null;
   required_grade?: MemberGrade | null;

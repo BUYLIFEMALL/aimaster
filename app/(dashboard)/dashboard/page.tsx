@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Calendar, Clock, Package, Ticket } from "lucide-react";
+import { Calendar, Clock, Package, Ticket, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
 
@@ -23,7 +23,7 @@ export default async function DashboardPage() {
       .single(),
     supabase
       .from("subscriptions")
-      .select("*, program:programs(name, slug, thumbnail_url), pricing_plan:pricing_plans(name, billing_type, price)")
+      .select("*, program:programs(name, slug, thumbnail_url, app_url), pricing_plan:pricing_plans(name, billing_type, price)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     // 내 쿠폰 조회 (assigned_user_id가 나인 미사용 쿠폰)
@@ -206,12 +206,28 @@ export default async function DashboardPage() {
                     {sub.expires_at && <span>만료: {formatDate(sub.expires_at)}</span>}
                     {!sub.expires_at && <span className="text-gold">평생 이용</span>}
                   </div>
-                  <div className="mt-3 pt-3 border-t border-white/10">
-                    <Link href={`/programs/${sub.program?.slug}`}>
-                      <GoldButton variant="outline" size="sm" fullWidth>
-                        프로그램 보기
-                      </GoldButton>
-                    </Link>
+                  <div className="mt-3 pt-3 border-t border-white/10 flex gap-2">
+                    {sub.program?.app_url ? (
+                      <>
+                        <a href={sub.program.app_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                          <GoldButton size="sm" fullWidth>
+                            <ExternalLink size={14} />
+                            실행하기
+                          </GoldButton>
+                        </a>
+                        <Link href={`/programs/${sub.program?.slug}`} className="flex-1">
+                          <GoldButton variant="outline" size="sm" fullWidth>
+                            프로그램 보기
+                          </GoldButton>
+                        </Link>
+                      </>
+                    ) : (
+                      <Link href={`/programs/${sub.program?.slug}`} className="flex-1">
+                        <GoldButton variant="outline" size="sm" fullWidth>
+                          프로그램 보기
+                        </GoldButton>
+                      </Link>
+                    )}
                   </div>
                 </GlassCard>
               );

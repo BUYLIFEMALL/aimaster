@@ -207,9 +207,10 @@ D:\Claude Code\AIMaster\             # aimaster 저장소 루트 = 판매/구독
 
 1. [x] 아키텍처 결정 승인 — 프로그램별 독립 폴더 + 단일 Supabase DB 공유 (2026-07-22)
 2. [x] 프로그램 #1(`threads/`) 구현 완료: 인증/계정 연결/게시글 CRUD/AI 생성/예약게시/사용량 로깅, `programs` 테이블 등록, DB 마이그레이션 적용
-3. [ ] aimaster 메인 대시보드에 "보유 프로그램 목록" 카드 추가 (FR-03) — `programs` 테이블 조회 + 각 프로그램 서비스 URL로 링크
-4. [ ] admin 화면에 프로그램(모듈) 등록/노출 관리 UI 추가 (FR-04)
-5. [ ] 프로그램별 서비스 URL을 저장할 컬럼이 `programs` 테이블에 필요한지 검토 (현재 threads URL을 어디에 하드코딩했는지 확인 필요)
+3. [x] `programs.app_url` 컬럼 추가 (`supabase/add-program-app-url.sql`) — 실행형 프로그램의 실제 배포 URL 저장
+4. [x] aimaster 메인 대시보드 "구독 중인 프로그램" 카드에 `app_url`이 있으면 "실행하기" 버튼 노출 (FR-03)
+5. [x] admin 프로그램 폼(`ProgramForm.tsx`)에 "앱 실행 URL" 입력 필드 추가 + 프로그램 목록에 실행형 표시(🔗) (FR-04)
+6. [ ] `auto-threads-posting` 프로그램의 `app_url` 실제 값 입력 — threads가 아직 원격/배포 미연결이라 보류 중, 배포 후 admin에서 입력
 
 ---
 
@@ -219,3 +220,4 @@ D:\Claude Code\AIMaster\             # aimaster 저장소 루트 = 판매/구독
 |---------|------|---------|--------|
 | 0.1 | 2026-07-22 | Initial draft | buylifemall@gmail.com |
 | 0.2 | 2026-07-22 | 아키텍처 결정: 단일 코드베이스(apps/[slug]) 방식 폐기 → 프로그램별 독립 폴더 + 단일 Supabase DB 공유로 확정. `threads/` 구현 완료 상태 반영 | buylifemall@gmail.com |
+| 0.3 | 2026-07-22 | FR-03/FR-04 구현: `programs.app_url` 컬럼 추가, 대시보드 "실행하기" 버튼, admin 프로그램 폼 앱 URL 입력 필드 | buylifemall@gmail.com |

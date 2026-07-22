@@ -69,6 +69,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const [description, setDescription] = useState(program?.description ?? "");
   const [thumbnailUrl, setThumbnailUrl] = useState(program?.thumbnail_url ?? "");
   const [videoUrl, setVideoUrl] = useState(program?.video_url ?? "");
+  const [appUrl, setAppUrl] = useState(program?.app_url ?? "");
   const [isActive, setIsActive] = useState(program?.is_active ?? true);
   const [sortOrder, setSortOrder] = useState(String(program?.sort_order ?? 0));
   const [affiliateRate, setAffiliateRate] = useState("10");
@@ -128,6 +129,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
         description: description || null,
         thumbnail_url: thumbnailUrl || null,
         video_url: videoUrl || null,
+        app_url: appUrl || null,
         is_active: isActive,
         sort_order: parseInt(sortOrder) || 0,
       };
@@ -228,6 +230,19 @@ export default function ProgramForm({ program }: ProgramFormProps) {
                 className="input-dark w-32" placeholder="0" />
             </FieldRow>
           </div>
+        </div>
+
+        {/* ── 실행형 프로그램 (platform-hub) ── */}
+        <div className="glass-card rounded-2xl p-6">
+          <SectionTitle>실행형 프로그램 (선택)</SectionTitle>
+          <p className="text-xs text-subtext mb-4">
+            threads처럼 실제로 배포된 AI 웹앱이 있는 프로그램이면 실행 URL을 입력하세요.
+            대시보드의 구독 카드에 &quot;실행하기&quot; 버튼이 표시됩니다. 비워두면 일반 판매 프로그램으로 동작합니다.
+          </p>
+          <FieldRow label="앱 실행 URL">
+            <input type="url" value={appUrl} onChange={(e) => setAppUrl(e.target.value)}
+              className="input-dark w-full" placeholder="https://threads.buylife.xyz" />
+          </FieldRow>
         </div>
 
         {/* ── 미디어 ── */}
