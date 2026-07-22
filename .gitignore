@@ -1,3 +1,7 @@
 node_modules
 .next
 .env*
+*.tsbuildinfo
+
+# platform-hub: 각 프로그램은 자체 git 저장소로 독립 관리 (threads/ 등)
+/threads
