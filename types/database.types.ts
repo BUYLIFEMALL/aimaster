@@ -155,6 +155,20 @@ export interface UserProgramAccess {
   program_id: string;
   granted_by: string | null;
   granted_at: string;
+  expires_at: string | null;
+  // joined
+  program?: Program;
+}
+
+export interface UsageLog {
+  id: string;
+  user_id: string;
+  program_id: string;
+  action: string;
+  quantity: number;
+  credits_used: number;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
   // joined
   program?: Program;
 }

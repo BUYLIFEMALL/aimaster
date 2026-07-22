@@ -53,6 +53,7 @@ export default function MemberDetail({
           program_id: selectedProgramId,
           granted_by: null,
           granted_at: new Date().toISOString(),
+          expires_at: null,
           program,
         },
       ]);
