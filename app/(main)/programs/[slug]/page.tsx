@@ -200,13 +200,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          <Link
-            href={program.app_url || '/blog'}
-            className="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-extrabold text-lg rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 no-underline cursor-pointer"
-          >
-            <Play size={20} className="fill-slate-950 text-slate-950" />
-            <span>지금 무료 실행 및 이용하기</span>
-          </Link>
+          <HeroSubscribeButton />
         </div>
       </div>
 
