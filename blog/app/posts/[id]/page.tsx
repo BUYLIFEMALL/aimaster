@@ -406,14 +406,14 @@ export default function PostDetailPage() {
         ) : notFound || !post ? (
           <div className="text-center py-24">
             <p className="text-zinc-500 text-lg mb-4">게시글을 찾을 수 없습니다.</p>
-            <Link href="/" className="text-[var(--primary)] font-semibold no-underline hover:underline">
+            <Link href="/blog" className="text-[var(--primary)] font-semibold no-underline hover:underline">
               홈으로 돌아가기
             </Link>
           </div>
         ) : (
           <>
             {/* Back link */}
-            <Link href="/" className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 no-underline mb-6 transition-colors">
+            <Link href="/blog" className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 no-underline mb-6 transition-colors">
               <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
               </svg>
@@ -540,7 +540,7 @@ export default function PostDetailPage() {
                         const json = await res.json()
                         if (res.ok && json.success) {
                           alert('게시글이 성공적으로 삭제되었습니다.')
-                          window.location.href = '/'
+                          window.location.href = '/blog'
                         } else {
                           alert(json.error || '게시글 삭제에 실패했습니다.')
                         }
