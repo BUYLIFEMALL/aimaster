@@ -89,7 +89,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     const body = await req.json()
     let { title, excerpt, content, category_ids } = body
 
-    // 기존 DB post 조회 (DB에 저장되어 있던 원본 고화질 이미지 추출용)
+    // 기존 DB post 조회 (원본 이미지 복원용)
     const { data: existingPost } = await supabase
       .from('blog_posts')
       .select('content')
@@ -98,15 +98,25 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
     const dbOriginalImages = existingPost ? extractBase64Images(existingPost.content || '') : []
 
-    // 클라이언트에서 치환된 __ORIGINAL_IMAGE_PLACEHOLDER_N__ 토큰에 DB 원본 이미지 100% 손실 없이 무결점 복원!
+    // 1. [첨부 이미지 N] 또는 __ORIGINAL_IMAGE_PLACEHOLDER_N__ 표기를 DB 원본 고화질 Base64 이미지로 100% 복원!
     if (typeof content === 'string' && dbOriginalImages.length > 0) {
       dbOriginalImages.forEach((imgStr: string, idx: number) => {
-        const placeholder = `__ORIGINAL_IMAGE_PLACEHOLDER_${idx}__`
-        content = content.replaceAll(placeholder, imgStr)
+        const num = idx + 1
+        const tag1 = `[첨부 이미지 ${num}]`
+        const tag2 = `[첨부 이미지${num}]`
+        const tag3 = `__ORIGINAL_IMAGE_PLACEHOLDER_${idx}__`
+
+        if (content.includes(tag1)) {
+          content = content.replaceAll(tag1, imgStr)
+        } else if (content.includes(tag2)) {
+          content = content.replaceAll(tag2, imgStr)
+        } else if (content.includes(tag3)) {
+          content = content.replaceAll(tag3, imgStr)
+        }
       })
     }
 
-    // 1. 게시글 필드 업데이트
+    // 2. 게시글 필드 업데이트
     const { data, error } = await supabase
       .from('blog_posts')
       .update({
@@ -122,7 +132,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: 'Post update error: ' + error.message }, { status: 500 })
     }
 
-    // 2. 카테고리 매핑 업데이트
+    // 3. 카테고리 매핑 업데이트
     if (Array.isArray(category_ids)) {
       await supabase.from('blog_post_categories').delete().eq('post_id', id)
 

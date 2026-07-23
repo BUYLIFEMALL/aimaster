@@ -12,16 +12,16 @@ interface Category {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Pure String Slicing Image Placeholder Utility                      */
+/*  Base64 -> [첨부 이미지 N] 표기 전환 유틸리티                        */
 /* ------------------------------------------------------------------ */
-function replaceImagesWithPlaceholders(contentStr: string): string {
+function replaceBase64WithImageTags(contentStr: string): string {
   if (!contentStr || !contentStr.includes('data:image/')) {
     return contentStr
   }
 
   let updated = contentStr
   let searchIdx = 0
-  let imageCounter = 0
+  let imageCounter = 1
 
   while (true) {
     const startIdx = updated.indexOf('data:image/', searchIdx)
@@ -37,9 +37,9 @@ function replaceImagesWithPlaceholders(contentStr: string): string {
 
     endIdx = Math.min(...validEnds)
 
-    const placeholder = `__ORIGINAL_IMAGE_PLACEHOLDER_${imageCounter}__`
-    updated = updated.slice(0, startIdx) + placeholder + updated.slice(endIdx)
-    searchIdx = startIdx + placeholder.length
+    const tag = `[첨부 이미지 ${imageCounter}]`
+    updated = updated.slice(0, startIdx) + tag + updated.slice(endIdx)
+    searchIdx = startIdx + tag.length
     imageCounter++
   }
 
@@ -80,7 +80,11 @@ export default function PostEditPage() {
         const postData = await res.json()
         setTitle(postData.title || '')
         setExcerpt(postData.excerpt || '')
-        setContent(postData.content || '')
+        
+        // 지저분한 Base64 바이너리 스트링을 [첨부 이미지 1], [첨부 이미지 2] 표기로 깔끔하게 치환!
+        const cleanedContent = replaceBase64WithImageTags(postData.content || '')
+        setContent(cleanedContent)
+
         setSelectedCategoryIds(postData.category_ids || [])
         setCategories(postData.all_categories || [])
 
@@ -102,7 +106,7 @@ export default function PostEditPage() {
     )
   }
 
-  // 2. 수정 제출 (PUT /api/posts/[id]) - 경량 텍스트 델타 전송 (Status: 413 100% 영구 차단!)
+  // 2. 수정 제출 (PUT /api/posts/[id])
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) {
@@ -113,16 +117,13 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
-      // 본문 내 Base64 이미지를 2KB 짜리 토큰으로 치환하여 전송 용량 최소화!
-      const processedContent = replaceImagesWithPlaceholders(content)
-
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           excerpt,
-          content: processedContent,
+          content,
           category_ids: selectedCategoryIds
         })
       })
@@ -148,8 +149,14 @@ export default function PostEditPage() {
     }
   }
 
+  // 미리보기용 HTML 변환 ( [첨부 이미지 N] 태그를 시각적 뱃지 카드로 표현 )
   const liveHtml = useMemo(() => {
-    return mdLiteToHtml(content)
+    let html = mdLiteToHtml(content)
+    // [첨부 이미지 N] 태그 시각화
+    html = html.replace(/\[첨부 이미지 (\d+)\]/g, (match, p1) => {
+      return `<div class="my-4 p-3 rounded-xl bg-blue-950/60 border border-blue-500/30 text-blue-400 font-bold text-xs flex items-center justify-center gap-2"><span>🖼️</span> [첨부 이미지 ${p1} - 원본 고화질 보존]</div>`
+    })
+    return html
   }, [content])
 
   if (loading) {
@@ -201,7 +208,7 @@ export default function PostEditPage() {
             disabled={saving}
             className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? '수정 중... (원본 화질 보존)' : '✓ 수정 완료'}
+            {saving ? '수정 중...' : '✓ 수정 완료'}
           </button>
         </div>
       </header>
@@ -276,7 +283,10 @@ export default function PostEditPage() {
           </div>
 
           <div className="flex-1 flex flex-col">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">본문 내용 (Markdown / HTML)</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">본문 내용 (Markdown / HTML)</label>
+              <span className="text-[11px] text-blue-400 font-semibold">💡 [첨부 이미지 N] 표기는 원본 이미지 보존 위치입니다.</span>
+            </div>
             <textarea
               ref={textareaRef}
               rows={16}
