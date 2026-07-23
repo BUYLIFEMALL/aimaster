@@ -16,7 +16,6 @@ interface Category {
 /* ------------------------------------------------------------------ */
 async function compressBase64Image(dataUrl: string, maxWidth = 1000, quality = 0.7): Promise<string> {
   if (!dataUrl || !dataUrl.startsWith('data:image/')) return dataUrl
-  // 이미 100KB 이하면 압축 스킵
   if (dataUrl.length < 100000) return dataUrl
 
   return new Promise((resolve) => {
@@ -51,16 +50,35 @@ async function compressAllImagesInContent(contentStr: string): Promise<string> {
   if (!contentStr || !contentStr.includes('data:image/')) return contentStr
 
   let updated = contentStr
-  const regex = /data:image/[a-zA-Z]+;base64,[^"')s]+/g
-  const matches = Array.from(new Set(contentStr.match(regex) || []))
+  let searchIdx = 0
 
-  for (const matchStr of matches) {
-    if (matchStr.length > 100000) {
+  while (true) {
+    const startIdx = updated.indexOf('data:image/', searchIdx)
+    if (startIdx === -1) break
+
+    let endIdx = updated.indexOf('"', startIdx)
+    const endAlt1 = updated.indexOf("'", startIdx)
+    const endAlt2 = updated.indexOf(")", startIdx)
+    const endAlt3 = updated.indexOf(" ", startIdx)
+
+    let validEnds = [endIdx, endAlt1, endAlt2, endAlt3].filter(idx => idx > startIdx)
+    if (validEnds.length === 0) break
+
+    endIdx = Math.min(...validEnds)
+    const b64Data = updated.slice(startIdx, endIdx)
+
+    if (b64Data.length > 100000) {
       try {
-        const compressed = await compressBase64Image(matchStr, 1000, 0.7)
-        updated = updated.replaceAll(matchStr, compressed)
+        const compressed = await compressBase64Image(b64Data, 1000, 0.7)
+        if (compressed.length < b64Data.length) {
+          updated = updated.slice(0, startIdx) + compressed + updated.slice(endIdx)
+          searchIdx = startIdx + compressed.length
+          continue
+        }
       } catch (e) {}
     }
+
+    searchIdx = endIdx
   }
 
   return updated
