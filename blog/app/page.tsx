@@ -342,28 +342,47 @@ export default function HomePage() {
         {/* Category Pills */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           <button
+            type="button"
             onClick={() => handleCategoryClick(null)}
-            className={`px-4.5 py-2.5 rounded-full text-xs whitespace-nowrap transition-all cursor-pointer shadow-sm ${
-              activeCategory === null
-                ? 'bg-gradient-to-r from-blue-600 to-blue-700 !text-white font-extrabold shadow-md shadow-blue-500/30 border border-blue-600 ring-2 ring-blue-400/20'
-                : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 border border-slate-200/80 font-semibold'
-            }`}
+            style={{
+              backgroundColor: activeCategory === null ? '#2563eb' : '#f1f5f9',
+              color: activeCategory === null ? '#ffffff' : '#334155',
+              fontWeight: activeCategory === null ? '800' : '600',
+              border: activeCategory === null ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
+              boxShadow: activeCategory === null ? '0 4px 12px rgba(37, 99, 235, 0.35)' : 'none',
+              padding: '8px 18px',
+              borderRadius: '9999px',
+              fontSize: '13px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out'
+            }}
           >
             전체
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.slug)}
-              className={`px-4.5 py-2.5 rounded-full text-xs whitespace-nowrap transition-all cursor-pointer shadow-sm ${
-                activeCategory === cat.slug
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 !text-white font-extrabold shadow-md shadow-blue-500/30 border border-blue-600 ring-2 ring-blue-400/20'
-                  : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 border border-slate-200/80 font-semibold'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const isActive = activeCategory === cat.slug;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => handleCategoryClick(cat.slug)}
+                style={{
+                  backgroundColor: isActive ? '#2563eb' : '#f1f5f9',
+                  color: isActive ? '#ffffff' : '#334155',
+                  fontWeight: isActive ? '800' : '600',
+                  border: isActive ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
+                  boxShadow: isActive ? '0 4px 12px rgba(37, 99, 235, 0.35)' : 'none',
+                  padding: '8px 18px',
+                  borderRadius: '9999px',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out'
+                }}
+              >
+                {cat.name}
+              </button>
+            );
+          })}
         </div>
 
         {/* Posts Grid */}
