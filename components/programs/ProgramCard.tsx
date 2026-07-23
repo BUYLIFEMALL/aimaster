@@ -13,6 +13,7 @@ interface ProgramCardProps {
 }
 
 export default function ProgramCard({ program, badge }: ProgramCardProps) {
+  const executeUrl = program.app_url || (program.slug === 'ai-auto-blog' ? '/blog' : (program.slug === 'threads' ? '/threads' : null));
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)
     .sort((a, b) => a.price - b.price)[0];
@@ -82,8 +83,8 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            {program.app_url && (
-              <Link href={program.app_url}>
+            {executeUrl && (
+              <Link href={executeUrl}>
                 <button type="button" className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-extrabold text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none">
                   <Play size={12} className="fill-slate-950 text-slate-950" />
                   <span>실행하기</span>
