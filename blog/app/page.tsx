@@ -343,10 +343,10 @@ export default function HomePage() {
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           <button
             onClick={() => handleCategoryClick(null)}
-            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-4.5 py-2.5 rounded-full text-xs whitespace-nowrap transition-all cursor-pointer shadow-sm ${
               activeCategory === null
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 !text-white font-extrabold shadow-md shadow-blue-500/30 border border-blue-600 ring-2 ring-blue-400/20'
+                : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 border border-slate-200/80 font-semibold'
             }`}
           >
             전체
@@ -355,10 +355,10 @@ export default function HomePage() {
             <button
               key={cat.id}
               onClick={() => handleCategoryClick(cat.slug)}
-              className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-4.5 py-2.5 rounded-full text-xs whitespace-nowrap transition-all cursor-pointer shadow-sm ${
                 activeCategory === cat.slug
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 font-bold'
-                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 !text-white font-extrabold shadow-md shadow-blue-500/30 border border-blue-600 ring-2 ring-blue-400/20'
+                  : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 border border-slate-200/80 font-semibold'
               }`}
             >
               {cat.name}
