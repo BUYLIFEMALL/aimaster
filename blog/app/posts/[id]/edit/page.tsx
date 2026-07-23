@@ -13,7 +13,7 @@ interface Category {
 }
 
 interface PostEditPageProps {
-  params: Promise<{ id: string }>
+  params?: any
 }
 
 /**
