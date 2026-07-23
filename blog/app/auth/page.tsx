@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/blog/utils/supabase/server'
 import AuthForm from './auth-form'
 import { signout } from './actions'
 

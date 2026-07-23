@@ -1,4 +1,4 @@
-import InfoPage from '@/app/_components/info-page'
+import InfoPage from '@/blog/app/_components/info-page'
 
 const ENTRIES = [
   {

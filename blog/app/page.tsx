@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/blog/utils/supabase/client'
 import CategoryManagementModal from './_components/CategoryManagementModal'
 
 /* ------------------------------------------------------------------ */
@@ -159,7 +159,7 @@ export default function HomePage() {
           return
         }
 
-        const authorIds = [...new Set(postsData.map((p) => p.author_id))].filter(Boolean)
+        const authorIds = Array.from(new Set(postsData.map((p) => p.author_id))).filter(Boolean)
         const { data: authorsData } = await supabase
           .from('blog_authors')
           .select('*')
@@ -172,7 +172,7 @@ export default function HomePage() {
           .select('post_id, category_id')
           .in('post_id', fetchedPostIds)
 
-        const catIds = [...new Set(pcData?.map((pc) => pc.category_id) ?? [])]
+        const catIds = Array.from(new Set(pcData?.map((pc) => pc.category_id) ?? []))
         const { data: catsData } = await supabase
           .from('blog_categories')
           .select('*')

@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/blog/utils/supabase/client'
 
 /* ------------------------------------------------------------------ */
 /*  HTML5 Canvas Image Compression Helper                              */

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/utils/supabase/admin'
-import { collect24HourNews } from '@/utils/news/collector'
-import { generateSeoPost, AutoPostOptions } from '@/utils/news/generator'
+import { createAdminClient } from '@/blog/utils/supabase/admin'
+import { collect24HourNews } from '@/blog/utils/news/collector'
+import { generateSeoPost, AutoPostOptions } from '@/blog/utils/news/generator'
 
 export async function POST(request: NextRequest) {
   try {

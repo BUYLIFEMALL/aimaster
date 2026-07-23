@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/utils/supabase/admin'
-import { mdLiteToHtml } from '@/utils/markdown'
+import { createAdminClient } from '@/blog/utils/supabase/admin'
+import { mdLiteToHtml } from '@/blog/utils/markdown'
 
 /**
  * V8 정규식 백트래킹 오버플로우를 100% 방지하는 Non-Regex Pure String 이미지 추출 함수

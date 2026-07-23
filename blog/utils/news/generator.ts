@@ -1,5 +1,5 @@
 import { CollectedNewsResult } from './collector'
-import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadableParagraphs } from '@/utils/markdown'
+import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadableParagraphs } from '@/blog/utils/markdown'
 import { generateNanoBananaImages } from './imageGenerator'
 
 export interface AutoPostOptions {

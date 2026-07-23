@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/blog/utils/supabase/client'
 
 const SUGGESTED_TOPICS = [
   'AI 콘텐츠 자동화의 미래',

@@ -3,8 +3,8 @@
 import { useEffect, useState, useMemo, useRef, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { mdLiteToHtml } from '@/utils/markdown'
-import { createClient } from '@/utils/supabase/client'
+import { mdLiteToHtml } from '@/blog/utils/markdown'
+import { createClient } from '@/blog/utils/supabase/client'
 
 interface Category {
   id: number
