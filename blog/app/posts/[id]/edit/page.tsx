@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { mdLiteToHtml } from '@/blog/utils/markdown'
 
 interface Category {
   id: number
@@ -56,11 +57,15 @@ export default function PostEditPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
 
+  // 듀얼 에디터 모드: 'visual' (비주얼 WYSIWYG 모드) | 'code' (HTML/마크다운 소스코드 모드)
+  const [editorMode, setEditorMode] = useState<'visual' | 'code'>('visual')
+
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const visualContentRef = useRef<HTMLDivElement>(null)
 
   // 1. 게시글 데이터 및 카테고리 로드
   useEffect(() => {
@@ -105,23 +110,69 @@ export default function PostEditPage() {
     )
   }
 
-  // 에디터 서식 삽입 도구 유틸리티
+  // 에디터 서식 삽입 도구 유틸리티 (마크다운 / HTML 양방향 지원)
   const insertFormatting = (prefix: string, suffix = '') => {
-    const textarea = textareaRef.current
-    if (!textarea) return
+    if (editorMode === 'code' && textareaRef.current) {
+      const textarea = textareaRef.current
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const selectedText = content.substring(start, end) || '텍스트'
+      const replacement = `${prefix}${selectedText}${suffix}`
 
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const selectedText = content.substring(start, end) || '텍스트'
-    const replacement = `${prefix}${selectedText}${suffix}`
+      const newContent = content.substring(0, start) + replacement + content.substring(end)
+      setContent(newContent)
 
-    const newContent = content.substring(0, start) + replacement + content.substring(end)
-    setContent(newContent)
+      setTimeout(() => {
+        textarea.focus()
+        textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length)
+      }, 0)
+    } else {
+      // 비주얼 모드일 때
+      document.execCommand('styleWithCSS', false, 'true')
+      if (prefix === '**') document.execCommand('bold')
+      else if (prefix === '*') document.execCommand('italic')
+      else if (prefix === '## ') document.execCommand('formatBlock', false, 'H2')
+      else if (prefix === '### ') document.execCommand('formatBlock', false, 'H3')
+      else if (prefix === '> ') document.execCommand('formatBlock', false, 'BLOCKQUOTE')
+      else if (prefix === '- ') document.execCommand('insertUnorderedList')
+      else {
+        setContent(prev => prev + `\n${prefix}텍스트${suffix}`)
+      }
 
-    setTimeout(() => {
-      textarea.focus()
-      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length)
-    }, 0)
+      if (visualContentRef.current) {
+        setContent(visualContentRef.current.innerHTML)
+      }
+    }
+  }
+
+  // 비주얼 모드 렌더링용 HTML ( [첨부 이미지 N] 태그를 시각적 뱃지 카드로 변환 )
+  const visualHtml = useMemo(() => {
+    let html = content
+    if (!html.startsWith('<') && !html.includes('<p>') && !html.includes('<div>')) {
+      html = mdLiteToHtml(content)
+    }
+
+    // [첨부 이미지 N] 태그를 실시간 비주얼 뱃지 카드로 변환
+    html = html.replace(/\[첨부 이미지 (\d+)\]/g, (_match, p1) => {
+      return `<div class="my-6 p-4 rounded-2xl bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 border border-blue-500/40 text-blue-300 font-extrabold text-sm flex items-center justify-center gap-3 shadow-xl select-none" contenteditable="false">
+        <span class="text-xl">🖼️</span>
+        <span>[첨부 이미지 ${p1} - 원본 고화질 보존]</span>
+      </div>`
+    })
+
+    return html
+  }, [content])
+
+  // 비주얼 에디터 직접 수정 핸들러
+  const handleVisualInput = () => {
+    if (visualContentRef.current) {
+      let raw = visualContentRef.current.innerHTML
+      // 시각화 카드를 다시 [첨부 이미지 N] 으로 파싱 원복
+      raw = raw.replace(/<div[^>]*>.*?[첨부 이미지 (d+)[^]]*].*?</div>/gi, (_m, p1) => {
+        return `[첨부 이미지 ${p1}]`
+      })
+      setContent(raw)
+    }
   }
 
   // 2. 수정 제출 (PUT /api/posts/[id])
@@ -135,13 +186,22 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
+      let finalContent = content
+      if (editorMode === 'visual' && visualContentRef.current) {
+        let raw = visualContentRef.current.innerHTML
+        raw = raw.replace(/<div[^>]*>.*?[첨부 이미지 (d+)[^]]*].*?</div>/gi, (_m, p1) => {
+          return `[첨부 이미지 ${p1}]`
+        })
+        finalContent = raw
+      }
+
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           excerpt,
-          content,
+          content: finalContent,
           category_ids: selectedCategoryIds
         })
       })
@@ -172,7 +232,7 @@ export default function PostEditPage() {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-8 text-white">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-slate-400">게시글 편집기를 준비 중입니다...</p>
+          <p className="text-sm font-semibold text-slate-400">듀얼 에디터 환경을 로딩하는 중입니다...</p>
         </div>
       </div>
     )
@@ -211,7 +271,7 @@ export default function PostEditPage() {
             </Link>
             <div className="flex items-center gap-2">
               <span className="text-xl">✏️</span>
-              <h1 className="text-lg font-bold text-white">게시글 에디터 (수정 페이지)</h1>
+              <h1 className="text-lg font-bold text-white">스마트 에디터 (수정 페이지)</h1>
             </div>
           </div>
           <button
@@ -295,106 +355,142 @@ export default function PostEditPage() {
           />
         </div>
 
-        {/* 4. 에디터 전용 툴바 및 본문 내용 편집기 */}
+        {/* 4. 워드프레스 스타일 듀얼 에디터 (비주얼 vs 코드 탭 전환) */}
         <div 
           style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}
           className="flex-1 flex flex-col border rounded-2xl overflow-hidden shadow-2xl"
         >
-          {/* Editor Formatting Toolbar */}
+          {/* Editor Top Control Bar: Formatting Toolbar + Mode Switcher (비주얼 / 코드) */}
           <div 
             style={{ backgroundColor: '#020617', borderColor: '#1e293b' }}
-            className="border-b p-3 flex items-center gap-1.5 flex-wrap"
+            className="border-b p-3 flex items-center justify-between gap-3 flex-wrap"
           >
-            <span className="text-xs font-bold text-slate-400 mr-2 flex items-center gap-1">
-              <span>🛠️</span> 서식 도구:
-            </span>
+            {/* Left: Formatting Toolbar Buttons */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-bold text-slate-400 mr-2 flex items-center gap-1">
+                <span>🛠️</span> 서식 도구:
+              </span>
 
-            <button
-              type="button"
-              onClick={() => insertFormatting('**', '**')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-              title="굵게 (Bold)"
-            >
-              B 굵게
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('*', '*')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold italic rounded-lg transition-colors cursor-pointer border border-slate-700"
-              title="기울임 (Italic)"
-            >
-              I 기울임
-            </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('**', '**')}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
+                title="굵게 (Bold)"
+              >
+                B 굵게
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('*', '*')}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold italic rounded-lg transition-colors cursor-pointer border border-slate-700"
+                title="기울임 (Italic)"
+              >
+                I 기울임
+              </button>
 
-            <div className="w-[1px] h-4 bg-slate-700 mx-1" />
+              <div className="w-[1px] h-4 bg-slate-700 mx-1" />
 
-            <button
-              type="button"
-              onClick={() => insertFormatting('## ')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-              title="큰 제목 (H2)"
-            >
-              H2 큰제목
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('### ')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-              title="소제목 (H3)"
-            >
-              H3 소제목
-            </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('## ')}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
+                title="큰 제목 (H2)"
+              >
+                H2 큰제목
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('### ')}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
+                title="소제목 (H3)"
+              >
+                H3 소제목
+              </button>
 
-            <div className="w-[1px] h-4 bg-slate-700 mx-1" />
+              <div className="w-[1px] h-4 bg-slate-700 mx-1" />
 
-            <button
-              type="button"
-              onClick={() => insertFormatting('> ')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-              title="인용구"
-            >
-              💬 인용구
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('- ')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-              title="글머리 기호"
-            >
-              • 목록
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('```\n', '\n```')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700 font-mono"
-              title="코드 블록"
-            >
-              &lt;/&gt; 코드
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('\n\n---\n\n')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-              title="구분선"
-            >
-              ― 구분선
-            </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('> ')}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
+                title="인용구"
+              >
+                💬 인용구
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('- ')}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
+                title="글머리 기호"
+              >
+                • 목록
+              </button>
+            </div>
 
-            <div className="ml-auto text-xs text-blue-400 font-bold flex items-center gap-1 bg-blue-950/60 px-3 py-1 rounded-full border border-blue-800/50">
-              <span>🖼️</span> [첨부 이미지 N] 표기는 원본 이미지 보존 위치입니다
+            {/* Right: WordPress Style Mode Switcher ( [비주얼] | [코드 (HTML)] ) */}
+            <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (editorMode === 'code' && textareaRef.current) {
+                    setContent(textareaRef.current.value)
+                  }
+                  setEditorMode('visual')
+                }}
+                style={{
+                  backgroundColor: editorMode === 'visual' ? '#2563eb' : 'transparent',
+                  color: editorMode === 'visual' ? '#ffffff' : '#94a3b8',
+                  fontWeight: editorMode === 'visual' ? '800' : '600'
+                }}
+                className="px-4 py-1.5 text-xs rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <span>👁️</span> 비주얼
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (editorMode === 'visual' && visualContentRef.current) {
+                    handleVisualInput()
+                  }
+                  setEditorMode('code')
+                }}
+                style={{
+                  backgroundColor: editorMode === 'code' ? '#2563eb' : 'transparent',
+                  color: editorMode === 'code' ? '#ffffff' : '#94a3b8',
+                  fontWeight: editorMode === 'code' ? '800' : '600'
+                }}
+                className="px-4 py-1.5 text-xs rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <span>&lt;/&gt;</span> 코드 (HTML)
+              </button>
             </div>
           </div>
 
-          {/* Main Full-Width Textarea Editor */}
-          <textarea
-            ref={textareaRef}
-            rows={20}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="본문 내용을 입력하세요..."
-            style={{ backgroundColor: '#0f172a', color: '#f8fafc' }}
-            className="w-full p-6 text-slate-50 font-mono text-sm leading-relaxed focus:outline-none resize-y min-h-[500px]"
-          />
+          {/* Mode 1: Visual Mode (WYSIWYG 직접 수정 모드) */}
+          {editorMode === 'visual' && (
+            <div
+              ref={visualContentRef}
+              contentEditable
+              suppressContentEditableWarning
+              onInput={handleVisualInput}
+              style={{ backgroundColor: '#0f172a', color: '#f8fafc', outline: 'none' }}
+              className="w-full p-8 font-sans text-base leading-relaxed focus:outline-none min-h-[500px] prose prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: visualHtml }}
+            />
+          )}
+
+          {/* Mode 2: Code Mode (HTML / 마크다운 원시 소스코드 직접 수정 모드) */}
+          {editorMode === 'code' && (
+            <textarea
+              ref={textareaRef}
+              rows={20}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="HTML 또는 마크다운 코드를 입력하세요..."
+              style={{ backgroundColor: '#0f172a', color: '#38bdf8' }}
+              className="w-full p-6 text-sky-400 font-mono text-sm leading-relaxed focus:outline-none resize-y min-h-[500px]"
+            />
+          )}
         </div>
       </main>
     </div>
