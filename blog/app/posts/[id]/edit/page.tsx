@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { mdLiteToHtml } from '@/blog/utils/markdown'
 
 interface Category {
   id: number
@@ -53,11 +52,16 @@ export default function PostEditPage() {
 
   const [title, setTitle] = useState('')
   const [excerpt, setExcerpt] = useState('')
-  const [content, setContent] = useState('')
+
+  // rawContent: DB 원본 그대로 (Base64 이미지 포함) — 비주얼 모드용
+  const [rawContent, setRawContent] = useState('')
+  // codeContent: [첨부 이미지 N] 태그로 치환된 경량 텍스트 — 코드 모드용
+  const [codeContent, setCodeContent] = useState('')
+
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
 
-  // 듀얼 에디터 모드: 'visual' (비주얼 WYSIWYG 모드) | 'code' (HTML/마크다운 소스코드 모드)
+  // 듀얼 에디터 모드
   const [editorMode, setEditorMode] = useState<'visual' | 'code'>('visual')
 
   const [loading, setLoading] = useState(true)
@@ -67,7 +71,7 @@ export default function PostEditPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const visualContentRef = useRef<HTMLDivElement>(null)
 
-  // 1. 게시글 데이터 및 카테고리 로드
+  // 1. 게시글 데이터 로드
   useEffect(() => {
     if (!postId) return
 
@@ -84,14 +88,15 @@ export default function PostEditPage() {
         const postData = await res.json()
         setTitle(postData.title || '')
         setExcerpt(postData.excerpt || '')
-        
-        // Base64 이미지를 [첨부 이미지 N] 표기로 변환
-        const cleanedContent = replaceBase64WithImageTags(postData.content || '')
-        setContent(cleanedContent)
+
+        const original = postData.content || ''
+        // 비주얼 모드: 원본 그대로 (실제 이미지 포함!)
+        setRawContent(original)
+        // 코드 모드: Base64 이미지를 [첨부 이미지 N] 으로 치환
+        setCodeContent(replaceBase64WithImageTags(original))
 
         setSelectedCategoryIds(postData.category_ids || [])
         setCategories(postData.all_categories || [])
-
       } catch (err: any) {
         console.error('[Edit Page Load Error]:', err)
         setError(err.message || '게시글 정보를 불러오지 못했습니다.')
@@ -105,22 +110,22 @@ export default function PostEditPage() {
 
   // 카테고리 탭 클릭 토글 핸들러
   const toggleCategory = (catId: number) => {
-    setSelectedCategoryIds(prev => 
+    setSelectedCategoryIds(prev =>
       prev.includes(catId) ? prev.filter(id => id !== catId) : [...prev, catId]
     )
   }
 
-  // 에디터 서식 삽입 도구 유틸리티 (마크다운 / HTML 양방향 지원)
+  // 에디터 서식 삽입 도구 유틸리티
   const insertFormatting = (prefix: string, suffix = '') => {
     if (editorMode === 'code' && textareaRef.current) {
       const textarea = textareaRef.current
       const start = textarea.selectionStart
       const end = textarea.selectionEnd
-      const selectedText = content.substring(start, end) || '텍스트'
+      const selectedText = codeContent.substring(start, end) || '텍스트'
       const replacement = `${prefix}${selectedText}${suffix}`
 
-      const newContent = content.substring(0, start) + replacement + content.substring(end)
-      setContent(newContent)
+      const newContent = codeContent.substring(0, start) + replacement + codeContent.substring(end)
+      setCodeContent(newContent)
 
       setTimeout(() => {
         textarea.focus()
@@ -135,48 +140,26 @@ export default function PostEditPage() {
       else if (prefix === '### ') document.execCommand('formatBlock', false, 'H3')
       else if (prefix === '> ') document.execCommand('formatBlock', false, 'BLOCKQUOTE')
       else if (prefix === '- ') document.execCommand('insertUnorderedList')
-      else {
-        setContent(prev => prev + `\n${prefix}텍스트${suffix}`)
-      }
-
-      if (visualContentRef.current) {
-        setContent(visualContentRef.current.innerHTML)
-      }
     }
   }
 
-  // 비주얼 모드 렌더링용 HTML ( [첨부 이미지 N] 태그를 시각적 뱃지 카드로 변환 )
-  const visualHtml = useMemo(() => {
-    let html = content
-    if (!html.startsWith('<') && !html.includes('<p>') && !html.includes('<div>')) {
-      html = mdLiteToHtml(content)
-    }
+  // 모드 전환 핸들러
+  const switchToVisual = () => {
+    // 코드 모드에서 비주얼로 전환 시: codeContent는 그대로 유지 (rawContent는 원본 DB 이미지를 보존하고 있음)
+    setEditorMode('visual')
+  }
 
-    // [첨부 이미지 N] 태그를 실시간 비주얼 뱃지 카드로 변환
-    html = html.replace(/\[첨부 이미지 (\d+)\]/g, (_match, p1) => {
-      return `<div class="my-6 p-4 rounded-2xl bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 border border-blue-500/40 text-blue-300 font-extrabold text-sm flex items-center justify-center gap-3 shadow-xl select-none" contenteditable="false">
-        <span class="text-xl">🖼️</span>
-        <span>[첨부 이미지 ${p1} - 원본 고화질 보존]</span>
-      </div>`
-    })
-
-    return html
-  }, [content])
-
-  // 비주얼 에디터 직접 수정 핸들러
-  const handleVisualInput = () => {
+  const switchToCode = () => {
+    // 비주얼에서 코드 전환 시: 비주얼 contentEditable의 현재 HTML을 읽어서 이미지를 태그로 치환
     if (visualContentRef.current) {
-      let raw = visualContentRef.current.innerHTML
-      // 시각화 카드를 다시 [첨부 이미지 N] 으로 파싱 원복
-      const divRegex = new RegExp('<div[^>]*>.*?\\[첨부 이미지 (\\d+)[^\\]]*\\].*?<\\/div>', 'gi')
-      raw = raw.replace(divRegex, (_m: string, p1: string) => {
-        return `[첨부 이미지 ${p1}]`
-      })
-      setContent(raw)
+      const visualHtml = visualContentRef.current.innerHTML
+      setCodeContent(replaceBase64WithImageTags(visualHtml))
+      setRawContent(visualHtml)
     }
+    setEditorMode('code')
   }
 
-  // 2. 수정 제출 (PUT /api/posts/[id])
+  // 2. 수정 제출 (PUT /api/posts/[id]) - 원본 이미지 건드리지 않고 텍스트만 반영!
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) {
@@ -187,14 +170,12 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
-      let finalContent = content
+      // 어떤 모드든 이미지를 [첨부 이미지 N] 태그로 치환하여 경량 전송
+      let finalContent: string
       if (editorMode === 'visual' && visualContentRef.current) {
-        let raw = visualContentRef.current.innerHTML
-        const divRegex2 = new RegExp('<div[^>]*>.*?\\[첨부 이미지 (\\d+)[^\\]]*\\].*?<\\/div>', 'gi')
-        raw = raw.replace(divRegex2, (_m: string, p1: string) => {
-          return `[첨부 이미지 ${p1}]`
-        })
-        finalContent = raw
+        finalContent = replaceBase64WithImageTags(visualContentRef.current.innerHTML)
+      } else {
+        finalContent = codeContent
       }
 
       const res = await fetch(`/api/posts/${postId}`, {
@@ -286,7 +267,7 @@ export default function PostEditPage() {
         </div>
       </header>
 
-      {/* Main Single Column Full-Width Editor */}
+      {/* Main Single Column Editor */}
       <main className="max-w-5xl mx-auto w-full px-6 py-8 flex-1 flex flex-col space-y-6">
         {/* 1. 카테고리 선택 탭 */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-lg">
@@ -298,7 +279,6 @@ export default function PostEditPage() {
               {selectedCategoryIds.length}개 선택됨
             </span>
           </div>
-
           <div className="flex items-center gap-2 flex-wrap pt-1">
             {categories.map((cat) => {
               const isSelected = selectedCategoryIds.includes(cat.id)
@@ -331,7 +311,7 @@ export default function PostEditPage() {
           </div>
         </div>
 
-        {/* 2. 제목 입력 섹션 */}
+        {/* 2. 제목 */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">제목</label>
           <input
@@ -344,7 +324,7 @@ export default function PostEditPage() {
           />
         </div>
 
-        {/* 3. 요약 설명 섹션 */}
+        {/* 3. 요약 설명 */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">요약 설명 (Excerpt)</label>
           <textarea
@@ -357,88 +337,36 @@ export default function PostEditPage() {
           />
         </div>
 
-        {/* 4. 워드프레스 스타일 듀얼 에디터 (비주얼 vs 코드 탭 전환) */}
-        <div 
+        {/* 4. 듀얼 에디터 (비주얼 / 코드 탭 전환) */}
+        <div
           style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}
           className="flex-1 flex flex-col border rounded-2xl overflow-hidden shadow-2xl"
         >
-          {/* Editor Top Control Bar: Formatting Toolbar + Mode Switcher (비주얼 / 코드) */}
-          <div 
+          {/* Editor Top Bar: Toolbar + Mode Switcher */}
+          <div
             style={{ backgroundColor: '#020617', borderColor: '#1e293b' }}
             className="border-b p-3 flex items-center justify-between gap-3 flex-wrap"
           >
-            {/* Left: Formatting Toolbar Buttons */}
+            {/* Left: Formatting Buttons */}
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-xs font-bold text-slate-400 mr-2 flex items-center gap-1">
-                <span>🛠️</span> 서식 도구:
+                <span>🛠️</span> 서식:
               </span>
-
-              <button
-                type="button"
-                onClick={() => insertFormatting('**', '**')}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-                title="굵게 (Bold)"
-              >
-                B 굵게
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('*', '*')}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold italic rounded-lg transition-colors cursor-pointer border border-slate-700"
-                title="기울임 (Italic)"
-              >
-                I 기울임
-              </button>
-
+              <button type="button" onClick={() => insertFormatting('**', '**')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="굵게">B 굵게</button>
+              <button type="button" onClick={() => insertFormatting('*', '*')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold italic rounded-lg transition-colors cursor-pointer border border-slate-700" title="기울임">I 기울임</button>
               <div className="w-[1px] h-4 bg-slate-700 mx-1" />
-
-              <button
-                type="button"
-                onClick={() => insertFormatting('## ')}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-                title="큰 제목 (H2)"
-              >
-                H2 큰제목
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('### ')}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-                title="소제목 (H3)"
-              >
-                H3 소제목
-              </button>
-
+              <button type="button" onClick={() => insertFormatting('## ')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="H2">H2</button>
+              <button type="button" onClick={() => insertFormatting('### ')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="H3">H3</button>
               <div className="w-[1px] h-4 bg-slate-700 mx-1" />
-
-              <button
-                type="button"
-                onClick={() => insertFormatting('> ')}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-                title="인용구"
-              >
-                💬 인용구
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('- ')}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
-                title="글머리 기호"
-              >
-                • 목록
-              </button>
+              <button type="button" onClick={() => insertFormatting('> ')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="인용구">💬 인용</button>
+              <button type="button" onClick={() => insertFormatting('- ')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="목록">• 목록</button>
             </div>
 
-            {/* Right: WordPress Style Mode Switcher ( [비주얼] | [코드 (HTML)] ) */}
+            {/* Right: Mode Switcher */}
             <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
               <button
                 type="button"
-                onClick={() => {
-                  if (editorMode === 'code' && textareaRef.current) {
-                    setContent(textareaRef.current.value)
-                  }
-                  setEditorMode('visual')
-                }}
+                onClick={switchToVisual}
                 style={{
                   backgroundColor: editorMode === 'visual' ? '#2563eb' : 'transparent',
                   color: editorMode === 'visual' ? '#ffffff' : '#94a3b8',
@@ -450,12 +378,7 @@ export default function PostEditPage() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  if (editorMode === 'visual' && visualContentRef.current) {
-                    handleVisualInput()
-                  }
-                  setEditorMode('code')
-                }}
+                onClick={switchToCode}
                 style={{
                   backgroundColor: editorMode === 'code' ? '#2563eb' : 'transparent',
                   color: editorMode === 'code' ? '#ffffff' : '#94a3b8',
@@ -468,30 +391,34 @@ export default function PostEditPage() {
             </div>
           </div>
 
-          {/* Mode 1: Visual Mode (WYSIWYG 직접 수정 모드) */}
+          {/* Visual Mode: 실제 이미지가 렌더링된 WYSIWYG 에디터 */}
           {editorMode === 'visual' && (
             <div
               ref={visualContentRef}
               contentEditable
               suppressContentEditableWarning
-              onInput={handleVisualInput}
               style={{ backgroundColor: '#0f172a', color: '#f8fafc', outline: 'none' }}
               className="w-full p-8 font-sans text-base leading-relaxed focus:outline-none min-h-[500px] prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: visualHtml }}
+              dangerouslySetInnerHTML={{ __html: rawContent }}
             />
           )}
 
-          {/* Mode 2: Code Mode (HTML / 마크다운 원시 소스코드 직접 수정 모드) */}
+          {/* Code Mode: [첨부 이미지 N] 태그로 경량화된 소스코드 에디터 */}
           {editorMode === 'code' && (
-            <textarea
-              ref={textareaRef}
-              rows={20}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="HTML 또는 마크다운 코드를 입력하세요..."
-              style={{ backgroundColor: '#0f172a', color: '#38bdf8' }}
-              className="w-full p-6 text-sky-400 font-mono text-sm leading-relaxed focus:outline-none resize-y min-h-[500px]"
-            />
+            <div className="relative">
+              <div className="absolute top-3 right-4 text-xs text-blue-400 font-bold flex items-center gap-1 bg-blue-950/60 px-3 py-1 rounded-full border border-blue-800/50 z-10">
+                <span>🖼️</span> [첨부 이미지 N] = 원본 이미지 보존 위치
+              </div>
+              <textarea
+                ref={textareaRef}
+                rows={20}
+                value={codeContent}
+                onChange={(e) => setCodeContent(e.target.value)}
+                placeholder="HTML 또는 마크다운 코드를 입력하세요..."
+                style={{ backgroundColor: '#0f172a', color: '#38bdf8' }}
+                className="w-full p-6 pt-12 text-sky-400 font-mono text-sm leading-relaxed focus:outline-none resize-y min-h-[500px]"
+              />
+            </div>
           )}
         </div>
       </main>
