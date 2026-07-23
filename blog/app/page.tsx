@@ -411,7 +411,7 @@ export default function HomePage() {
             {posts.map((post) => (
               <Link
                 key={post.id}
-                href={`/posts/${post.id}`}
+                href={`/blog/posts/${post.id}`}
                 className="group bg-white border border-slate-200/80 hover:border-indigo-200 rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/5 flex flex-col justify-between no-underline"
               >
                 <div className="space-y-3">
