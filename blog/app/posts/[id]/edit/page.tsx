@@ -68,6 +68,7 @@ export default function PostEditPage() {
   }
 
   // 2. 수정 제출 (PUT /api/posts/[id])
+    // 2. 수정 제출 (PUT /api/posts/[id])
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) {
@@ -89,20 +90,26 @@ export default function PostEditPage() {
         })
       })
 
-      const json = await res.json()
+      let json: any = {}
+      try {
+        json = await res.json()
+      } catch (e) {
+        json = { error: '서버 응답 파싱 실패 (Status: ' + res.status + ')' }
+      }
 
       if (res.ok && json.success) {
         alert('게시글이 성공적으로 수정되었습니다.')
         window.location.href = `/blog/posts/${postId}`
       } else {
-        alert(json.error || '게시글 수정 중 오류가 발생했습니다.')
+        alert('수정 실패: ' + (json.error || '알 수 없는 서버 오류 (Status: ' + res.status + ')'))
       }
     } catch (err: any) {
       console.error('[Edit Submit Error]:', err)
-      alert('서버 통신 중 오류가 발생했습니다.')
+      alert('서버 통신 오류: ' + (err.message || String(err)))
     } finally {
       setSaving(false)
     }
+  }
   }
 
   const liveHtml = useMemo(() => {
