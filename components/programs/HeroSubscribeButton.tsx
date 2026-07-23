@@ -1,24 +1,16 @@
 "use client";
 
-export default function HeroSubscribeButton() {
-  const handleClick = () => {
-    const pricingSection = document.getElementById("pricing");
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: "smooth" });
-      // 스크롤 후 첫 번째 구독 버튼 자동 클릭
-      setTimeout(() => {
-        const btn = pricingSection.querySelector<HTMLButtonElement>("button");
-        if (btn) btn.click();
-      }, 500);
-    }
-  };
+import Link from "next/link";
+import { Play } from "lucide-react";
 
+export default function HeroSubscribeButton() {
   return (
-    <button
-      onClick={handleClick}
-      className="btn-gold w-full py-4 text-lg rounded-xl font-bold"
+    <Link
+      href="/blog"
+      className="btn-gold w-full py-4 text-lg rounded-xl font-bold flex items-center justify-center gap-2 no-underline cursor-pointer transition-all hover:scale-105 active:scale-95 shadow-lg"
     >
-      지금 구독하기
-    </button>
+      <Play size={20} className="fill-slate-950 text-slate-950" />
+      <span>지금 무료 실행 및 이용하기</span>
+    </Link>
   );
 }
