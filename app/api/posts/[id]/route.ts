@@ -87,21 +87,20 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 
     const body = await req.json()
-    let { title, excerpt, content, category_ids, original_images } = body
+    let { title, excerpt, content, category_ids } = body
 
-    // 기존 DB post 조회 (원본 이미지 복원용)
+    // 기존 DB post 조회 (DB에 저장되어 있던 원본 고화질 이미지 추출용)
     const { data: existingPost } = await supabase
       .from('blog_posts')
       .select('content')
       .eq('id', id)
       .single()
 
-    const dbImages = existingPost ? extractBase64Images(existingPost.content || '') : []
-    const sourceImages = (Array.isArray(original_images) && original_images.length > 0) ? original_images : dbImages
+    const dbOriginalImages = existingPost ? extractBase64Images(existingPost.content || '') : []
 
-    // __ORIGINAL_IMAGE_PLACEHOLDER_N__ 토큰을 원본 화질 Base64 이미지로 100% 손실 없이 복원!
-    if (typeof content === 'string' && sourceImages.length > 0) {
-      sourceImages.forEach((imgStr: string, idx: number) => {
+    // 클라이언트에서 치환된 __ORIGINAL_IMAGE_PLACEHOLDER_N__ 토큰에 DB 원본 이미지 100% 손실 없이 무결점 복원!
+    if (typeof content === 'string' && dbOriginalImages.length > 0) {
+      dbOriginalImages.forEach((imgStr: string, idx: number) => {
         const placeholder = `__ORIGINAL_IMAGE_PLACEHOLDER_${idx}__`
         content = content.replaceAll(placeholder, imgStr)
       })

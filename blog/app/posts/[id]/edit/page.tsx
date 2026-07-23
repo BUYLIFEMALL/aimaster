@@ -14,16 +14,12 @@ interface Category {
 /* ------------------------------------------------------------------ */
 /*  Pure String Slicing Image Placeholder Utility                      */
 /* ------------------------------------------------------------------ */
-function extractAndReplaceImagesWithPlaceholders(contentStr: string): {
-  processedContent: string
-  originalImages: string[]
-} {
+function replaceImagesWithPlaceholders(contentStr: string): string {
   if (!contentStr || !contentStr.includes('data:image/')) {
-    return { processedContent: contentStr, originalImages: [] }
+    return contentStr
   }
 
   let updated = contentStr
-  const originalImages: string[] = []
   let searchIdx = 0
   let imageCounter = 0
 
@@ -40,8 +36,6 @@ function extractAndReplaceImagesWithPlaceholders(contentStr: string): {
     if (validEnds.length === 0) break
 
     endIdx = Math.min(...validEnds)
-    const b64Data = updated.slice(startIdx, endIdx)
-    originalImages.push(b64Data)
 
     const placeholder = `__ORIGINAL_IMAGE_PLACEHOLDER_${imageCounter}__`
     updated = updated.slice(0, startIdx) + placeholder + updated.slice(endIdx)
@@ -49,7 +43,7 @@ function extractAndReplaceImagesWithPlaceholders(contentStr: string): {
     imageCounter++
   }
 
-  return { processedContent: updated, originalImages }
+  return updated
 }
 
 export default function PostEditPage() {
@@ -108,7 +102,7 @@ export default function PostEditPage() {
     )
   }
 
-  // 2. 수정 제출 (PUT /api/posts/[id]) - 원본 화질 100% 보존 텍스트 델타 전송
+  // 2. 수정 제출 (PUT /api/posts/[id]) - 경량 텍스트 델타 전송 (Status: 413 100% 영구 차단!)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) {
@@ -119,8 +113,8 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
-      // 원본 Base64 이미지를 100% 화질 손상 없이 원형 보존 플레이스홀더로 치환
-      const { processedContent, originalImages } = extractAndReplaceImagesWithPlaceholders(content)
+      // 본문 내 Base64 이미지를 2KB 짜리 토큰으로 치환하여 전송 용량 최소화!
+      const processedContent = replaceImagesWithPlaceholders(content)
 
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
@@ -129,7 +123,6 @@ export default function PostEditPage() {
           title,
           excerpt,
           content: processedContent,
-          original_images: originalImages,
           category_ids: selectedCategoryIds
         })
       })
