@@ -13,7 +13,9 @@ interface ProgramCardProps {
 }
 
 export default function ProgramCard({ program, badge }: ProgramCardProps) {
-  const executeUrl = program.app_url || (program.slug === 'ai-auto-blog' ? '/blog' : (program.slug === 'threads' ? '/threads' : null));
+  const isBlogProgram = program.slug === 'ai-auto-blog' || program.slug === 'ai-blog' || program.name.includes('블로그') || !!program.app_url;
+  const executeUrl = program.app_url || (isBlogProgram ? '/blog' : null);
+  
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)
     .sort((a, b) => a.price - b.price)[0];

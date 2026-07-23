@@ -6,6 +6,7 @@ import ProgramSearch from "@/components/programs/ProgramSearch";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "프로그램 목록",
