@@ -527,7 +527,7 @@ export default function PostDetailPage() {
                   {compressing ? '⏳ 이미지 750KB 압축 중...' : copied ? '✓ 본문 & 이미지 복사 완료! (Ctrl+V로 붙여넣으세요)' : '📋 본문 복사하기'}
                 </button>
                 <Link
-                  href={`/posts/${post.id}/edit`}
+                  href={`/blog/posts/${post.id}/edit`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 text-xs font-semibold rounded-lg border border-slate-200 transition-all cursor-pointer no-underline shadow-sm"
                 >
                   ✏️ 수정
