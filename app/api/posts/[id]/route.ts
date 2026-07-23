@@ -11,6 +11,33 @@ const supabase = createClient(supabaseUrl, serviceKey, {
   auth: { persistSession: false }
 })
 
+// 본문 텍스트 내의 Base64 이미지 추출 유틸
+function extractBase64Images(text: string): string[] {
+  if (!text || !text.includes('data:image/')) return []
+  const images: string[] = []
+  let searchIdx = 0
+
+  while (true) {
+    const startIdx = text.indexOf('data:image/', searchIdx)
+    if (startIdx === -1) break
+
+    let endIdx = text.indexOf('"', startIdx)
+    const endAlt1 = text.indexOf("'", startIdx)
+    const endAlt2 = text.indexOf(")", startIdx)
+    const endAlt3 = text.indexOf(" ", startIdx)
+
+    let validEnds = [endIdx, endAlt1, endAlt2, endAlt3].filter(idx => idx > startIdx)
+    if (validEnds.length === 0) break
+
+    endIdx = Math.min(...validEnds)
+    const imgData = text.slice(startIdx, endIdx)
+    images.push(imgData)
+    searchIdx = endIdx
+  }
+
+  return images
+}
+
 // GET /api/posts/[id]
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -60,7 +87,25 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 
     const body = await req.json()
-    const { title, excerpt, content, category_ids } = body
+    let { title, excerpt, content, category_ids, original_images } = body
+
+    // 기존 DB post 조회 (원본 이미지 복원용)
+    const { data: existingPost } = await supabase
+      .from('blog_posts')
+      .select('content')
+      .eq('id', id)
+      .single()
+
+    const dbImages = existingPost ? extractBase64Images(existingPost.content || '') : []
+    const sourceImages = (Array.isArray(original_images) && original_images.length > 0) ? original_images : dbImages
+
+    // __ORIGINAL_IMAGE_PLACEHOLDER_N__ 토큰을 원본 화질 Base64 이미지로 100% 손실 없이 복원!
+    if (typeof content === 'string' && sourceImages.length > 0) {
+      sourceImages.forEach((imgStr: string, idx: number) => {
+        const placeholder = `__ORIGINAL_IMAGE_PLACEHOLDER_${idx}__`
+        content = content.replaceAll(placeholder, imgStr)
+      })
+    }
 
     // 1. 게시글 필드 업데이트
     const { data, error } = await supabase

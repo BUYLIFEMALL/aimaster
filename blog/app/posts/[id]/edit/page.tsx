@@ -12,45 +12,20 @@ interface Category {
 }
 
 /* ------------------------------------------------------------------ */
-/*  HTML5 Canvas Base64 Image Compression Helper                      */
+/*  Pure String Slicing Image Placeholder Utility                      */
 /* ------------------------------------------------------------------ */
-async function compressBase64Image(dataUrl: string, maxWidth = 1000, quality = 0.7): Promise<string> {
-  if (!dataUrl || !dataUrl.startsWith('data:image/')) return dataUrl
-  if (dataUrl.length < 100000) return dataUrl
-
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
-      let width = img.width
-      let height = img.height
-
-      if (width > maxWidth) {
-        height = Math.round((height * maxWidth) / width)
-        width = maxWidth
-      }
-
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return resolve(dataUrl)
-
-      ctx.drawImage(img, 0, 0, width, height)
-      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality)
-      resolve(compressedDataUrl.length < dataUrl.length ? compressedDataUrl : dataUrl)
-    }
-    img.onerror = () => resolve(dataUrl)
-    img.src = dataUrl
-  })
-}
-
-async function compressAllImagesInContent(contentStr: string): Promise<string> {
-  if (!contentStr || !contentStr.includes('data:image/')) return contentStr
+function extractAndReplaceImagesWithPlaceholders(contentStr: string): {
+  processedContent: string
+  originalImages: string[]
+} {
+  if (!contentStr || !contentStr.includes('data:image/')) {
+    return { processedContent: contentStr, originalImages: [] }
+  }
 
   let updated = contentStr
+  const originalImages: string[] = []
   let searchIdx = 0
+  let imageCounter = 0
 
   while (true) {
     const startIdx = updated.indexOf('data:image/', searchIdx)
@@ -66,22 +41,15 @@ async function compressAllImagesInContent(contentStr: string): Promise<string> {
 
     endIdx = Math.min(...validEnds)
     const b64Data = updated.slice(startIdx, endIdx)
+    originalImages.push(b64Data)
 
-    if (b64Data.length > 100000) {
-      try {
-        const compressed = await compressBase64Image(b64Data, 1000, 0.7)
-        if (compressed.length < b64Data.length) {
-          updated = updated.slice(0, startIdx) + compressed + updated.slice(endIdx)
-          searchIdx = startIdx + compressed.length
-          continue
-        }
-      } catch (e) {}
-    }
-
-    searchIdx = endIdx
+    const placeholder = `__ORIGINAL_IMAGE_PLACEHOLDER_${imageCounter}__`
+    updated = updated.slice(0, startIdx) + placeholder + updated.slice(endIdx)
+    searchIdx = startIdx + placeholder.length
+    imageCounter++
   }
 
-  return updated
+  return { processedContent: updated, originalImages }
 }
 
 export default function PostEditPage() {
@@ -140,7 +108,7 @@ export default function PostEditPage() {
     )
   }
 
-  // 2. 수정 제출 (PUT /api/posts/[id])
+  // 2. 수정 제출 (PUT /api/posts/[id]) - 원본 화질 100% 보존 텍스트 델타 전송
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) {
@@ -151,8 +119,8 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
-      // 본문 대용량 이미지 1초 경량 압축 (Status: 413 Payload Too Large 100% 차단)
-      const compressedContent = await compressAllImagesInContent(content)
+      // 원본 Base64 이미지를 100% 화질 손상 없이 원형 보존 플레이스홀더로 치환
+      const { processedContent, originalImages } = extractAndReplaceImagesWithPlaceholders(content)
 
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
@@ -160,7 +128,8 @@ export default function PostEditPage() {
         body: JSON.stringify({
           title,
           excerpt,
-          content: compressedContent,
+          content: processedContent,
+          original_images: originalImages,
           category_ids: selectedCategoryIds
         })
       })
@@ -239,7 +208,7 @@ export default function PostEditPage() {
             disabled={saving}
             className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? '수정 중... (최적화 처리)' : '✓ 수정 완료'}
+            {saving ? '수정 중... (원본 화질 보존)' : '✓ 수정 완료'}
           </button>
         </div>
       </header>
