@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { mdLiteToHtml } from '@/blog/utils/markdown'
 
 interface Category {
   id: number
@@ -81,7 +80,7 @@ export default function PostEditPage() {
         setTitle(postData.title || '')
         setExcerpt(postData.excerpt || '')
         
-        // 지저분한 Base64 바이너리 스트링을 [첨부 이미지 1], [첨부 이미지 2] 표기로 깔끔하게 치환!
+        // Base64 이미지를 [첨부 이미지 N] 표기로 변환
         const cleanedContent = replaceBase64WithImageTags(postData.content || '')
         setContent(cleanedContent)
 
@@ -104,6 +103,25 @@ export default function PostEditPage() {
     setSelectedCategoryIds(prev => 
       prev.includes(catId) ? prev.filter(id => id !== catId) : [...prev, catId]
     )
+  }
+
+  // 에디터 서식 삽입 도구 유틸리티
+  const insertFormatting = (prefix: string, suffix = '') => {
+    const textarea = textareaRef.current
+    if (!textarea) return
+
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const selectedText = content.substring(start, end) || '텍스트'
+    const replacement = `${prefix}${selectedText}${suffix}`
+
+    const newContent = content.substring(0, start) + replacement + content.substring(end)
+    setContent(newContent)
+
+    setTimeout(() => {
+      textarea.focus()
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length)
+    }, 0)
   }
 
   // 2. 수정 제출 (PUT /api/posts/[id])
@@ -149,22 +167,12 @@ export default function PostEditPage() {
     }
   }
 
-  // 미리보기용 HTML 변환 ( [첨부 이미지 N] 태그를 시각적 뱃지 카드로 표현 )
-  const liveHtml = useMemo(() => {
-    let html = mdLiteToHtml(content)
-    // [첨부 이미지 N] 태그 시각화
-    html = html.replace(/\[첨부 이미지 (\d+)\]/g, (match, p1) => {
-      return `<div class="my-4 p-3 rounded-xl bg-blue-950/60 border border-blue-500/30 text-blue-400 font-bold text-xs flex items-center justify-center gap-2"><span>🖼️</span> [첨부 이미지 ${p1} - 원본 고화질 보존]</div>`
-    })
-    return html
-  }, [content])
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-8 text-white">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-slate-600">게시글 정보를 불러오는 중입니다...</p>
+          <p className="text-sm font-semibold text-slate-400">게시글 편집기를 준비 중입니다...</p>
         </div>
       </div>
     )
@@ -190,10 +198,10 @@ export default function PostEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-30 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      {/* Header Bar */}
+      <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-30 px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               href={`/blog/posts/${postId}`}
@@ -201,7 +209,10 @@ export default function PostEditPage() {
             >
               ← 취소
             </Link>
-            <h1 className="text-lg font-bold text-white">게시글 수정</h1>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">✏️</span>
+              <h1 className="text-lg font-bold text-white">게시글 에디터 (수정 페이지)</h1>
+            </div>
           </div>
           <button
             onClick={handleSubmit}
@@ -213,127 +224,170 @@ export default function PostEditPage() {
         </div>
       </header>
 
-      {/* Editor Content */}
-      <div className="max-w-6xl mx-auto w-full px-6 py-8 flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left: Input Form */}
-        <div className="space-y-6">
-          {/* TOP CATEGORY SELECTOR (제목 위쪽 위치) */}
-          <div className="bg-slate-950 border border-slate-800/80 rounded-2xl p-4 space-y-2.5 shadow-sm">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📂</span> 카테고리 선택 (다중 선택 가능)
-              </label>
-              <span className="text-[11px] text-slate-500 font-medium">
-                {selectedCategoryIds.length}개 선택됨
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap pt-1">
-              {categories.map((cat) => {
-                const isSelected = selectedCategoryIds.includes(cat.id)
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => toggleCategory(cat.id)}
-                    style={{
-                      backgroundColor: isSelected ? '#2563eb' : '#1e293b',
-                      color: isSelected ? '#ffffff' : '#94a3b8',
-                      fontWeight: isSelected ? '800' : '600',
-                      border: isSelected ? '1px solid #3b82f6' : '1px solid #334155',
-                      boxShadow: isSelected ? '0 4px 10px rgba(37, 99, 235, 0.3)' : 'none',
-                      padding: '6px 14px',
-                      borderRadius: '9999px',
-                      fontSize: '12px',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease-in-out',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
-                  >
-                    {isSelected && <span style={{ fontSize: '11px' }}>✓</span>}
-                    {cat.name}
-                  </button>
-                )
-              })}
-            </div>
+      {/* Main Single Column Full-Width Editor */}
+      <main className="max-w-5xl mx-auto w-full px-6 py-8 flex-1 flex flex-col space-y-6">
+        {/* 1. 카테고리 선택 탭 */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-lg">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span>📂</span> 카테고리 설정 (다중 선택 가능)
+            </label>
+            <span className="text-xs text-slate-400 font-medium">
+              {selectedCategoryIds.length}개 선택됨
+            </span>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">제목</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="게시글 제목을 입력하세요..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 font-semibold focus:outline-none focus:border-blue-500 transition-colors"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">요약 설명 (Excerpt)</label>
-            <textarea
-              rows={2}
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-              placeholder="게시글 요약 문구를 입력하세요..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-300 placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none"
-            />
-          </div>
-
-          <div className="flex-1 flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">본문 내용 (Markdown / HTML)</label>
-              <span className="text-[11px] text-blue-400 font-semibold">💡 [첨부 이미지 N] 표기는 원본 이미지 보존 위치입니다.</span>
-            </div>
-            <textarea
-              ref={textareaRef}
-              rows={16}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="마크다운 또는 HTML 형식으로 본문을 입력하세요..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-200 placeholder-slate-500 font-mono text-sm leading-relaxed focus:outline-none focus:border-blue-500 transition-colors resize-y min-h-[350px]"
-            />
+          <div className="flex items-center gap-2 flex-wrap pt-1">
+            {categories.map((cat) => {
+              const isSelected = selectedCategoryIds.includes(cat.id)
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => toggleCategory(cat.id)}
+                  style={{
+                    backgroundColor: isSelected ? '#2563eb' : '#1e293b',
+                    color: isSelected ? '#ffffff' : '#94a3b8',
+                    fontWeight: isSelected ? '800' : '600',
+                    border: isSelected ? '1px solid #3b82f6' : '1px solid #334155',
+                    boxShadow: isSelected ? '0 4px 10px rgba(37, 99, 235, 0.3)' : 'none',
+                    padding: '7px 16px',
+                    borderRadius: '9999px',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease-in-out',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px'
+                  }}
+                >
+                  {isSelected && <span style={{ fontSize: '12px' }}>✓</span>}
+                  {cat.name}
+                </button>
+              )
+            })}
           </div>
         </div>
 
-        {/* Right: Live Preview */}
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col h-full overflow-hidden shadow-xl">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-            <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">실시간 뷰 미리보기</span>
-            <span className="text-xs text-slate-500">Live Preview</span>
-          </div>
-
-          <div className="flex-1 overflow-y-auto pr-2 space-y-4">
-            {/* Category Tags in Preview */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {categories
-                .filter((cat) => selectedCategoryIds.includes(cat.id))
-                .map((cat) => (
-                  <span
-                    key={cat.id}
-                    className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-600/20 text-blue-400 border border-blue-500/30"
-                  >
-                    {cat.name}
-                  </span>
-                ))}
-            </div>
-
-            <h1 className="text-xl font-bold text-white leading-snug">{title || '제목 없음'}</h1>
-            {excerpt && (
-              <p className="text-sm text-slate-400 italic bg-slate-900/50 p-3 rounded-lg border border-slate-800/50">
-                {excerpt}
-              </p>
-            )}
-            <hr className="border-slate-800" />
-            <div
-              className="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: liveHtml }}
-            />
-          </div>
+        {/* 2. 제목 입력 섹션 */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">제목</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="게시글 제목을 입력하세요..."
+            className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 text-white text-lg font-extrabold placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors shadow-inner"
+          />
         </div>
-      </div>
+
+        {/* 3. 요약 설명 섹션 */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">요약 설명 (Excerpt)</label>
+          <textarea
+            rows={2}
+            value={excerpt}
+            onChange={(e) => setExcerpt(e.target.value)}
+            placeholder="게시글 요약 문구를 입력하세요..."
+            className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-slate-300 placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none shadow-inner"
+          />
+        </div>
+
+        {/* 4. 에디터 전용 툴바 및 본문 내용 편집기 */}
+        <div className="flex-1 flex flex-col bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+          {/* Editor Formatting Toolbar */}
+          <div className="bg-slate-950/80 border-b border-slate-800 p-3 flex items-center gap-1.5 flex-wrap">
+            <span className="text-xs font-bold text-slate-400 mr-2 flex items-center gap-1">
+              <span>🛠️</span> 서식 도구:
+            </span>
+
+            <button
+              type="button"
+              onClick={() => insertFormatting('**', '**')}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              title="굵게 (Bold)"
+            >
+              B 굵게
+            </button>
+            <button
+              type="button"
+              onClick={() => insertFormatting('*', '*')}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold italic rounded-lg transition-colors cursor-pointer"
+              title="기울임 (Italic)"
+            >
+              I 기울임
+            </button>
+
+            <div className="w-[1px] h-4 bg-slate-700 mx-1" />
+
+            <button
+              type="button"
+              onClick={() => insertFormatting('## ')}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              title="큰 제목 (H2)"
+            >
+              H2 큰제목
+            </button>
+            <button
+              type="button"
+              onClick={() => insertFormatting('### ')}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              title="소제목 (H3)"
+            >
+              H3 소제목
+            </button>
+
+            <div className="w-[1px] h-4 bg-slate-700 mx-1" />
+
+            <button
+              type="button"
+              onClick={() => insertFormatting('> ')}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              title="인용구"
+            >
+              💬 인용구
+            </button>
+            <button
+              type="button"
+              onClick={() => insertFormatting('- ')}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              title="글머리 기호"
+            >
+              • 목록
+            </button>
+            <button
+              type="button"
+              onClick={() => insertFormatting('```\n', '\n```')}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer font-mono"
+              title="코드 블록"
+            >
+              &lt;/&gt; 코드
+            </button>
+            <button
+              type="button"
+              onClick={() => insertFormatting('\n\n---\n\n')}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              title="구분선"
+            >
+              ― 구분선
+            </button>
+
+            <div className="ml-auto text-xs text-blue-400 font-semibold flex items-center gap-1">
+              <span>🖼️</span> [첨부 이미지 N] 표기는 원본 이미지 보존 위치입니다
+            </div>
+          </div>
+
+          {/* Main Full-Width Textarea Editor */}
+          <textarea
+            ref={textareaRef}
+            rows={20}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="본문 내용을 입력하세요..."
+            className="w-full bg-slate-900 p-6 text-slate-100 font-mono text-sm leading-relaxed focus:outline-none resize-y min-h-[500px]"
+          />
+        </div>
+      </main>
     </div>
   )
 }
