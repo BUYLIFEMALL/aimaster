@@ -277,7 +277,8 @@ export default function PostEditPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="게시글 제목을 입력하세요..."
-            className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 text-white text-lg font-extrabold placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors shadow-inner"
+            style={{ backgroundColor: '#0f172a', color: '#ffffff', borderColor: '#1e293b' }}
+            className="w-full rounded-2xl px-5 py-4 text-white text-lg font-extrabold placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors shadow-inner border"
           />
         </div>
 
@@ -289,14 +290,21 @@ export default function PostEditPage() {
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value)}
             placeholder="게시글 요약 문구를 입력하세요..."
-            className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-slate-300 placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none shadow-inner"
+            style={{ backgroundColor: '#0f172a', color: '#f1f5f9', borderColor: '#1e293b' }}
+            className="w-full rounded-2xl p-4 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none shadow-inner border"
           />
         </div>
 
         {/* 4. 에디터 전용 툴바 및 본문 내용 편집기 */}
-        <div className="flex-1 flex flex-col bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+        <div 
+          style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}
+          className="flex-1 flex flex-col border rounded-2xl overflow-hidden shadow-2xl"
+        >
           {/* Editor Formatting Toolbar */}
-          <div className="bg-slate-950/80 border-b border-slate-800 p-3 flex items-center gap-1.5 flex-wrap">
+          <div 
+            style={{ backgroundColor: '#020617', borderColor: '#1e293b' }}
+            className="border-b p-3 flex items-center gap-1.5 flex-wrap"
+          >
             <span className="text-xs font-bold text-slate-400 mr-2 flex items-center gap-1">
               <span>🛠️</span> 서식 도구:
             </span>
@@ -304,7 +312,7 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => insertFormatting('**', '**')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
               title="굵게 (Bold)"
             >
               B 굵게
@@ -312,7 +320,7 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => insertFormatting('*', '*')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold italic rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold italic rounded-lg transition-colors cursor-pointer border border-slate-700"
               title="기울임 (Italic)"
             >
               I 기울임
@@ -323,7 +331,7 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => insertFormatting('## ')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
               title="큰 제목 (H2)"
             >
               H2 큰제목
@@ -331,7 +339,7 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => insertFormatting('### ')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
               title="소제목 (H3)"
             >
               H3 소제목
@@ -342,7 +350,7 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => insertFormatting('> ')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
               title="인용구"
             >
               💬 인용구
@@ -350,7 +358,7 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => insertFormatting('- ')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
               title="글머리 기호"
             >
               • 목록
@@ -358,7 +366,7 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => insertFormatting('```\n', '\n```')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer font-mono"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700 font-mono"
               title="코드 블록"
             >
               &lt;/&gt; 코드
@@ -366,13 +374,13 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => insertFormatting('\n\n---\n\n')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700"
               title="구분선"
             >
               ― 구분선
             </button>
 
-            <div className="ml-auto text-xs text-blue-400 font-semibold flex items-center gap-1">
+            <div className="ml-auto text-xs text-blue-400 font-bold flex items-center gap-1 bg-blue-950/60 px-3 py-1 rounded-full border border-blue-800/50">
               <span>🖼️</span> [첨부 이미지 N] 표기는 원본 이미지 보존 위치입니다
             </div>
           </div>
@@ -384,7 +392,8 @@ export default function PostEditPage() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="본문 내용을 입력하세요..."
-            className="w-full bg-slate-900 p-6 text-slate-100 font-mono text-sm leading-relaxed focus:outline-none resize-y min-h-[500px]"
+            style={{ backgroundColor: '#0f172a', color: '#f8fafc' }}
+            className="w-full p-6 text-slate-50 font-mono text-sm leading-relaxed focus:outline-none resize-y min-h-[500px]"
           />
         </div>
       </main>
