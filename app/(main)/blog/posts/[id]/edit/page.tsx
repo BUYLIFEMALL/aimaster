@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, use } from 'react'
 import PostEditPage from '@/blog/app/posts/[id]/edit/page'
 
-export default function BlogEditRoutePage() {
+export default function BlogEditRoutePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -18,5 +19,5 @@ export default function BlogEditRoutePage() {
     )
   }
 
-  return <PostEditPage />
+  return <PostEditPage params={Promise.resolve(resolvedParams)} />
 }
