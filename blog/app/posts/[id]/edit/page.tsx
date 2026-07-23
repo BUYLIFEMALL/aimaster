@@ -25,12 +25,10 @@ export default function PostEditPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
-  const [compressing, setCompressing] = useState(false)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // 1. 게시글 데이터 로드 (백엔드 /api/posts/[id] 직통 호출로 100% 보장)
+  // 1. 게시글 데이터 및 카테고리 로드
   useEffect(() => {
     if (!postId) return
 
@@ -39,7 +37,6 @@ export default function PostEditPage() {
         setLoading(true)
         setError(null)
 
-        // API 직통 호출
         const res = await fetch(`/api/posts/${postId}`)
         if (!res.ok) {
           throw new Error('게시글을 가져오는 데 실패했습니다. (Status: ' + res.status + ')')
@@ -49,15 +46,8 @@ export default function PostEditPage() {
         setTitle(postData.title || '')
         setExcerpt(postData.excerpt || '')
         setContent(postData.content || '')
-
-        // 카테고리 목록 로드 (실패 시 무시)
-        try {
-          const catRes = await fetch('/api/blog/categories')
-          if (catRes.ok) {
-            const catData = await catRes.json()
-            setCategories(catData || [])
-          }
-        } catch (e) {}
+        setSelectedCategoryIds(postData.category_ids || [])
+        setCategories(postData.all_categories || [])
 
       } catch (err: any) {
         console.error('[Edit Page Load Error]:', err)
@@ -69,6 +59,13 @@ export default function PostEditPage() {
 
     loadData()
   }, [postId])
+
+  // 카테고리 탭 클릭 토글 핸들러
+  const toggleCategory = (catId: number) => {
+    setSelectedCategoryIds(prev => 
+      prev.includes(catId) ? prev.filter(id => id !== catId) : [...prev, catId]
+    )
+  }
 
   // 2. 수정 제출 (PUT /api/posts/[id])
   const handleSubmit = async (e: React.FormEvent) => {
@@ -170,6 +167,49 @@ export default function PostEditPage() {
       <div className="max-w-6xl mx-auto w-full px-6 py-8 flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left: Input Form */}
         <div className="space-y-6">
+          {/* TOP CATEGORY SELECTOR (제목 위쪽 위치) */}
+          <div className="bg-slate-950 border border-slate-800/80 rounded-2xl p-4 space-y-2.5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>📂</span> 카테고리 선택 (다중 선택 가능)
+              </label>
+              <span className="text-[11px] text-slate-500 font-medium">
+                {selectedCategoryIds.length}개 선택됨
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap pt-1">
+              {categories.map((cat) => {
+                const isSelected = selectedCategoryIds.includes(cat.id)
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => toggleCategory(cat.id)}
+                    style={{
+                      backgroundColor: isSelected ? '#2563eb' : '#1e293b',
+                      color: isSelected ? '#ffffff' : '#94a3b8',
+                      fontWeight: isSelected ? '800' : '600',
+                      border: isSelected ? '1px solid #3b82f6' : '1px solid #334155',
+                      boxShadow: isSelected ? '0 4px 10px rgba(37, 99, 235, 0.3)' : 'none',
+                      padding: '6px 14px',
+                      borderRadius: '9999px',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease-in-out',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    {isSelected && <span style={{ fontSize: '11px' }}>✓</span>}
+                    {cat.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">제목</label>
             <input
@@ -213,6 +253,20 @@ export default function PostEditPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+            {/* Category Tags in Preview */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {categories
+                .filter((cat) => selectedCategoryIds.includes(cat.id))
+                .map((cat) => (
+                  <span
+                    key={cat.id}
+                    className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-600/20 text-blue-400 border border-blue-500/30"
+                  >
+                    {cat.name}
+                  </span>
+                ))}
+            </div>
+
             <h1 className="text-xl font-bold text-white leading-snug">{title || '제목 없음'}</h1>
             {excerpt && (
               <p className="text-sm text-slate-400 italic bg-slate-900/50 p-3 rounded-lg border border-slate-800/50">
