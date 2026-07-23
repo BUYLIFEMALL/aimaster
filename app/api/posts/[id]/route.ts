@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://esgxyikcnnvmlhygjkth.supabase.co'
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'sb_secret_vPq7LSl7-VA90DzXSQFONA_jQhutbgY'
 
-const supabase = createClient(supabaseUrl, serviceKey)
+const supabase = createClient(supabaseUrl, serviceKey, {
+  auth: { persistSession: false }
+})
 
 // GET /api/posts/[id]
 export async function GET(req: Request, { params }: { params: { id: string } }) {
@@ -75,7 +80,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
     // 2. 카테고리 매핑 업데이트
     if (Array.isArray(category_ids)) {
-      // 기존 매핑 삭제
       await supabase.from('blog_post_categories').delete().eq('post_id', id)
 
       if (category_ids.length > 0) {

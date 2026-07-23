@@ -11,6 +11,61 @@ interface Category {
   slug: string
 }
 
+/* ------------------------------------------------------------------ */
+/*  HTML5 Canvas Base64 Image Compression Helper                      */
+/* ------------------------------------------------------------------ */
+async function compressBase64Image(dataUrl: string, maxWidth = 1000, quality = 0.7): Promise<string> {
+  if (!dataUrl || !dataUrl.startsWith('data:image/')) return dataUrl
+  // 이미 100KB 이하면 압축 스킵
+  if (dataUrl.length < 100000) return dataUrl
+
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      let width = img.width
+      let height = img.height
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width)
+        width = maxWidth
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return resolve(dataUrl)
+
+      ctx.drawImage(img, 0, 0, width, height)
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality)
+      resolve(compressedDataUrl.length < dataUrl.length ? compressedDataUrl : dataUrl)
+    }
+    img.onerror = () => resolve(dataUrl)
+    img.src = dataUrl
+  })
+}
+
+async function compressAllImagesInContent(contentStr: string): Promise<string> {
+  if (!contentStr || !contentStr.includes('data:image/')) return contentStr
+
+  let updated = contentStr
+  const regex = /data:image/[a-zA-Z]+;base64,[^"')s]+/g
+  const matches = Array.from(new Set(contentStr.match(regex) || []))
+
+  for (const matchStr of matches) {
+    if (matchStr.length > 100000) {
+      try {
+        const compressed = await compressBase64Image(matchStr, 1000, 0.7)
+        updated = updated.replaceAll(matchStr, compressed)
+      } catch (e) {}
+    }
+  }
+
+  return updated
+}
+
 export default function PostEditPage() {
   const params = useParams()
   const postId = (params?.id as string) || ''
@@ -78,13 +133,16 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
+      // 본문 대용량 이미지 1초 경량 압축 (Status: 413 Payload Too Large 100% 차단)
+      const compressedContent = await compressAllImagesInContent(content)
+
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           excerpt,
-          content,
+          content: compressedContent,
           category_ids: selectedCategoryIds
         })
       })
@@ -163,7 +221,7 @@ export default function PostEditPage() {
             disabled={saving}
             className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? '수정 중...' : '✓ 수정 완료'}
+            {saving ? '수정 중... (최적화 처리)' : '✓ 수정 완료'}
           </button>
         </div>
       </header>
