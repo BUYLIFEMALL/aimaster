@@ -81,9 +81,19 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
               <span className="text-subtext text-sm">가격 문의</span>
             )}
           </div>
-          <Link href={`/programs/${program.slug}`}>
-            <GoldButton size="sm">자세히 보기</GoldButton>
-          </Link>
+          <div className="flex items-center gap-2">
+            {program.app_url && (
+              <Link href={program.app_url}>
+                <button type="button" className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-extrabold text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none">
+                  <Play size={12} className="fill-slate-950 text-slate-950" />
+                  <span>실행하기</span>
+                </button>
+              </Link>
+            )}
+            <Link href={`/programs/${program.slug}`}>
+              <GoldButton size="sm">자세히 보기</GoldButton>
+            </Link>
+          </div>
         </div>
       </div>
     </GlassCard>
