@@ -12,9 +12,7 @@ interface Category {
   slug: string
 }
 
-interface PostEditPageProps {
-  params?: any
-}
+
 
 /**
  * HTML 코드를 깨끗한 마크다운/순수 텍스트로 변환하는 정제 유틸리티 (대용량 Base64 이미지 보존)
@@ -105,9 +103,9 @@ function htmlToMarkdownWithImageStore(
   return str
 }
 
-export default function PostEditPage({ params }: PostEditPageProps) {
-  const resolvedParams = use(params)
-  const postId = resolvedParams.id
+export default function PostEditPage() {
+  const params = useParams()
+  const postId = (params?.id as string) || ''
   const router = useRouter()
 
   const [title, setTitle] = useState('')
