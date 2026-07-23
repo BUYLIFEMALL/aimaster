@@ -168,7 +168,8 @@ export default function PostEditPage() {
     if (visualContentRef.current) {
       let raw = visualContentRef.current.innerHTML
       // 시각화 카드를 다시 [첨부 이미지 N] 으로 파싱 원복
-      raw = raw.replace(/<div[^>]*>.*?[첨부 이미지 (d+)[^]]*].*?</div>/gi, (_m, p1) => {
+      const divRegex = new RegExp('<div[^>]*>.*?\\[첨부 이미지 (\\d+)[^\\]]*\\].*?<\\/div>', 'gi')
+      raw = raw.replace(divRegex, (_m: string, p1: string) => {
         return `[첨부 이미지 ${p1}]`
       })
       setContent(raw)
@@ -189,7 +190,8 @@ export default function PostEditPage() {
       let finalContent = content
       if (editorMode === 'visual' && visualContentRef.current) {
         let raw = visualContentRef.current.innerHTML
-        raw = raw.replace(/<div[^>]*>.*?[첨부 이미지 (d+)[^]]*].*?</div>/gi, (_m, p1) => {
+        const divRegex2 = new RegExp('<div[^>]*>.*?\\[첨부 이미지 (\\d+)[^\\]]*\\].*?<\\/div>', 'gi')
+        raw = raw.replace(divRegex2, (_m: string, p1: string) => {
           return `[첨부 이미지 ${p1}]`
         })
         finalContent = raw
