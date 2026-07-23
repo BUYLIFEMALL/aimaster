@@ -15,8 +15,7 @@ interface ProgramCardProps {
 }
 
 export default function ProgramCard({ program, badge }: ProgramCardProps) {
-  const isBlog = program.slug === 'ai-auto-blog' || program.name.includes('블로그') || !!program.app_url;
-  const executeTarget = program.app_url || '/blog';
+  const executeTarget = program.app_url || (program.slug.includes("blog") || program.name.includes("블로그") ? "/blog" : "/programs/" + program.slug);
 
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)
@@ -87,18 +86,16 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            {isBlog && (
-              <Link href={executeTarget}>
-                <button
-                  type="button"
-                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
-                >
-                  <Play size={12} className="fill-slate-950 text-slate-950" />
-                  <span>실행하기</span>
-                </button>
-              </Link>
-            )}
-            <Link href={`/programs/${program.slug}`}>
+            <Link href={executeTarget}>
+              <button
+                type="button"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
+              >
+                <Play size={12} className="fill-slate-950 text-slate-950" />
+                <span>실행하기</span>
+              </button>
+            </Link>
+            <Link href={"/programs/" + program.slug}>
               <GoldButton size="sm">자세히 보기</GoldButton>
             </Link>
           </div>
