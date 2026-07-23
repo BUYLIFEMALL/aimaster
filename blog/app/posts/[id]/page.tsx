@@ -214,7 +214,17 @@ export default function PostDetailPage() {
         .in('id', catIds)
       setCategories(catsData ?? [])
     } else {
-      setCategories([])
+      // REST API 백엔드 폴백으로 카테고리 수신
+      try {
+        const apiRes = await fetch('/api/posts/' + postId)
+        if (apiRes.ok) {
+          const apiJson = await apiRes.json()
+          if (apiJson.all_categories && apiJson.category_ids) {
+            const matched = apiJson.all_categories.filter((c: any) => apiJson.category_ids.includes(c.id))
+            setCategories(matched)
+          }
+        }
+      } catch (e) {}
     }
 
     const { data: commentsData } = await supabase
@@ -421,6 +431,21 @@ export default function PostDetailPage() {
             </Link>
 
             {/* Title */}
+            {/* 📂 등록된 카테고리 뱃지 (제목 바로 위 노출) */}
+            {categories.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap mb-3.5">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/blog?category=${encodeURIComponent(cat.slug)}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-600 text-white shadow-sm hover:bg-blue-700 transition-all no-underline cursor-pointer"
+                  >
+                    <span>📂</span>
+                    <span>{cat.name}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
             <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight leading-snug mb-4">
               {post.title}
             </h1>
