@@ -247,7 +247,18 @@ select.ai-form-input {
   color: #0f172a !important;
 }
 
-.blog-light-scope h1,
+.blog-light-scope main,
+.blog-light-scope article,
+.blog-light-scope section {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.blog-light-scope h1 {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
 .blog-light-scope h2,
 .blog-light-scope h3,
 .blog-light-scope h4,
@@ -260,6 +271,21 @@ select.ai-form-input {
 .blog-light-scope li,
 .blog-light-scope div {
   color: #1e293b;
+}
+
+.blog-light-scope .text-zinc-600,
+.blog-light-scope .text-zinc-500,
+.blog-light-scope .text-zinc-400,
+.blog-light-scope .text-slate-600,
+.blog-light-scope .text-slate-500 {
+  color: #334155 !important;
+}
+
+.blog-light-scope .text-zinc-900,
+.blog-light-scope .text-zinc-800,
+.blog-light-scope .text-slate-900,
+.blog-light-scope .text-slate-800 {
+  color: #0f172a !important;
 }
 
 /* 본문 마크다운 (prose) 화이트 테마 완전 강제 오버라이드 */
