@@ -241,9 +241,64 @@ select.ai-form-input {
   font-weight: 500 !important;
 }
 
-/* AutoBlog 블로그 영역 전용 화이트 라이트 테마 보장 */
+/* AutoBlog 블로그 영역 전용 화이트 라이트 테마 강제 보장 (!important) */
 .blog-light-scope {
   background-color: #ffffff !important;
-  color: #18181b !important;
+  color: #0f172a !important;
+}
+
+.blog-light-scope h1,
+.blog-light-scope h2,
+.blog-light-scope h3,
+.blog-light-scope h4,
+.blog-light-scope h5,
+.blog-light-scope h6 {
+  color: #0f172a !important;
+}
+
+.blog-light-scope p,
+.blog-light-scope li,
+.blog-light-scope div {
+  color: #1e293b;
+}
+
+/* 본문 마크다운 (prose) 화이트 테마 완전 강제 오버라이드 */
+.blog-light-scope .prose,
+.blog-light-scope article {
+  color: #1e293b !important;
+  background-color: #ffffff !important;
+}
+
+.blog-light-scope .prose p,
+.blog-light-scope .prose li,
+.blog-light-scope .prose span,
+.blog-light-scope .prose div {
+  color: #334155 !important;
+}
+
+.blog-light-scope .prose strong,
+.blog-light-scope .prose b {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+.blog-light-scope .prose h1,
+.blog-light-scope .prose h2,
+.blog-light-scope .prose h3,
+.blog-light-scope .prose h4 {
+  color: #0f172a !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+/* 요약 박스 라이트 테마 보장 */
+.blog-light-scope .bg-indigo-50\/40,
+.blog-light-scope .bg-blue-50 {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+}
+
+.blog-light-scope .bg-indigo-50\/40 p,
+.blog-light-scope .bg-blue-50 p {
+  color: #0369a1 !important;
 }
 
