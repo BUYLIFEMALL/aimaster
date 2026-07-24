@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-// import dotenv safely
-try { require('dotenv').config() } catch(e) {}
+import dotenv from 'dotenv'
 import path from 'path'
 import { GeneratedPostResult } from './generator'
 import { CollectedNewsResult } from './collector'

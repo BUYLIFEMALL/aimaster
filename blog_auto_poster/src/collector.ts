@@ -103,7 +103,7 @@ function analyzeSignals(articles: NewsArticle[]): { signals: IssueSignalScore; t
     }
   }
 
-  const sortedKeywords = Array.from(wordCounts.entries())
+  const sortedKeywords = [...wordCounts.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 8)
     .map(([w]) => w)

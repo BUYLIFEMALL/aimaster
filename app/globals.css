@@ -218,3 +218,25 @@
     border-color: rgba(212, 175, 55, 0.2);
   }
 }
+
+
+/* AI 글쓰기 폼 입력창 칠흑 검정색 폰트 강제 룰 */
+.ai-form-container input,
+.ai-form-container textarea,
+.ai-form-container select,
+input.ai-form-input,
+textarea.ai-form-input,
+select.ai-form-input {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+.ai-form-container input::placeholder,
+.ai-form-container textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  font-weight: 500 !important;
+}

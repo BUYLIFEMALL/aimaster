@@ -1,184 +1,210 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
+import { createAdminClient } from '@/utils/supabase/admin'
+import { mdLiteToHtml } from '@/utils/markdown'
 
-export const dynamic = 'force-dynamic'
-export const maxDuration = 60
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://esgxyikcnnvmlhygjkth.supabase.co'
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'sb_secret_vPq7LSl7-VA90DzXSQFONA_jQhutbgY'
-
-const supabase = createClient(supabaseUrl, serviceKey, {
-  auth: { persistSession: false }
-})
-
-// 본문 텍스트 내의 Base64 이미지 추출 유틸
-function extractBase64Images(text: string): string[] {
-  if (!text || !text.includes('data:image/')) return []
+/**
+ * V8 정규식 백트래킹 오버플로우를 100% 방지하는 Non-Regex Pure String 이미지 추출 함수
+ */
+function extractBase64ImagesPureString(htmlContent: string): string[] {
+  if (!htmlContent) return []
   const images: string[] = []
-  let searchIdx = 0
+  let searchIndex = 0
 
   while (true) {
-    const startIdx = text.indexOf('data:image/', searchIdx)
+    const startIdx = htmlContent.indexOf('data:image/', searchIndex)
     if (startIdx === -1) break
 
-    let endIdx = text.indexOf('"', startIdx)
-    const endAlt1 = text.indexOf("'", startIdx)
-    const endAlt2 = text.indexOf(")", startIdx)
-    const endAlt3 = text.indexOf(" ", startIdx)
+    let endIdx = htmlContent.indexOf('"', startIdx)
+    const endAltIdx = htmlContent.indexOf(')', startIdx)
 
-    let validEnds = [endIdx, endAlt1, endAlt2, endAlt3].filter(idx => idx > startIdx)
-    if (validEnds.length === 0) break
+    if (endIdx === -1 || (endAltIdx !== -1 && endAltIdx < endIdx)) {
+      endIdx = endAltIdx
+    }
 
-    endIdx = Math.min(...validEnds)
-    const imgData = text.slice(startIdx, endIdx)
-    images.push(imgData)
-    searchIdx = endIdx
+    if (endIdx === -1) {
+      endIdx = Math.min(htmlContent.length, startIdx + 10000)
+    }
+
+    const b64Src = htmlContent.slice(startIdx, endIdx)
+    images.push(b64Src)
+    searchIndex = endIdx
   }
 
   return images
 }
 
-// GET /api/posts/[id]
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const id = parseInt(params.id, 10)
-    if (isNaN(id)) {
-      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
+    const { id } = await params
+    const postId = Number(id)
+
+    if (isNaN(postId)) {
+      return NextResponse.json({ error: '유효하지 않은 게시글 ID입니다.' }, { status: 400 })
     }
 
-    const { data: post, error: postErr } = await supabase
+    const supabase = createAdminClient()
+
+    const { data: post, error } = await supabase
       .from('blog_posts')
-      .select('*')
-      .eq('id', id)
+      .select(`
+        id,
+        title,
+        excerpt,
+        content,
+        reading_minutes,
+        published_at,
+        created_at,
+        blog_authors (
+          id,
+          name,
+          role,
+          avatar_url
+        ),
+        blog_post_categories (
+          blog_categories (
+            id,
+            name,
+            slug
+          )
+        )
+      `)
+      .eq('id', postId)
       .single()
 
-    if (postErr || !post) {
-      return NextResponse.json({ error: 'Post not found: ' + (postErr?.message || '') }, { status: 404 })
+    if (error || !post) {
+      return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
     }
 
-    const { data: pcData } = await supabase
-      .from('blog_post_categories')
-      .select('category_id')
-      .eq('post_id', id)
-
-    const category_ids = pcData?.map((r) => r.category_id) || []
-
-    const { data: categories } = await supabase
-      .from('blog_categories')
-      .select('id, name, slug')
-      .order('id', { ascending: true })
-
-    return NextResponse.json({
-      ...post,
-      category_ids,
-      all_categories: categories || []
-    })
+    return NextResponse.json({ success: true, data: post })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Server Exception' }, { status: 500 })
+    return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.', message: err?.message }, { status: 500 })
   }
 }
 
-// PUT /api/posts/[id]
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const id = parseInt(params.id, 10)
-    if (isNaN(id)) {
-      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
+    const { id } = await params
+    const postId = Number(id)
+
+    if (isNaN(postId)) {
+      return NextResponse.json({ error: '유효하지 않은 게시글 ID입니다.' }, { status: 400 })
     }
 
-    const body = await req.json()
-    let { title, excerpt, content, category_ids } = body
+    const body = await request.json()
+    const { title, excerpt, content, categoryId } = body
 
-    // 기존 DB post 조회 (원본 이미지 복원용)
-    const { data: existingPost } = await supabase
+    if (!title || !title.trim()) {
+      return NextResponse.json({ error: '제목을 입력해 주세요.' }, { status: 400 })
+    }
+
+    const supabase = createAdminClient()
+
+    // 1. 기존 DB의 포스트 데이터 조용히 가져오기
+    const { data: existingPost, error: fetchErr } = await supabase
       .from('blog_posts')
       .select('content')
-      .eq('id', id)
+      .eq('id', postId)
       .single()
 
-    const dbOriginalImages = existingPost ? extractBase64Images(existingPost.content || '') : []
-
-    // 1. [첨부 이미지 N] 또는 __ORIGINAL_IMAGE_PLACEHOLDER_N__ 표기를 DB 원본 고화질 Base64 이미지로 100% 복원!
-    if (typeof content === 'string' && dbOriginalImages.length > 0) {
-      dbOriginalImages.forEach((imgStr: string, idx: number) => {
-        const num = idx + 1
-        const tag1 = `[첨부 이미지 ${num}]`
-        const tag2 = `[첨부 이미지${num}]`
-        const tag3 = `__ORIGINAL_IMAGE_PLACEHOLDER_${idx}__`
-
-        if (content.includes(tag1)) {
-          content = content.replaceAll(tag1, imgStr)
-        } else if (content.includes(tag2)) {
-          content = content.replaceAll(tag2, imgStr)
-        } else if (content.includes(tag3)) {
-          content = content.replaceAll(tag3, imgStr)
-        }
-      })
+    if (fetchErr || !existingPost) {
+      console.error('[Post Edit API Fetch Error]:', fetchErr)
+      return NextResponse.json({ error: '기존 게시글 정보를 불러올 수 없습니다.', details: fetchErr }, { status: 404 })
     }
 
-    // 2. 게시글 필드 업데이트
-    const { data, error } = await supabase
+    // 2. V8 정규식 백트래킹이 전면 방지되는 비-정규식 Pure String 파서로 원본 이미지 바이너리 추출
+    const existingImages = extractBase64ImagesPureString(existingPost.content || '')
+
+    // 3. 수신한 텍스트의 [첨부이미지 N] 키에 기존 이미지 바이너리 1:1 결합
+    let finalMarkdown = content || ''
+    existingImages.forEach((imgSrc, idx) => {
+      const key = `[첨부이미지 ${idx + 1}]`
+      finalMarkdown = finalMarkdown.split(key).join(imgSrc)
+    })
+
+    // 4. 최종 마크다운 ➔ HTML 변환
+    const finalHtml = mdLiteToHtml(finalMarkdown)
+
+    // 5. DB 업데이트
+    const { data: updatedPost, error: updateErr } = await supabase
       .from('blog_posts')
       .update({
-        title: title || '',
-        excerpt: excerpt || '',
-        content: content || ''
+        title: title.trim(),
+        excerpt: excerpt ? excerpt.trim() : '',
+        content: finalHtml,
       })
-      .eq('id', id)
-      .select()
+      .eq('id', postId)
+      .select('id, title, excerpt')
+      .single()
 
-    if (error) {
-      console.error('[PUT Post Update Error]:', error)
-      return NextResponse.json({ error: 'Post update error: ' + error.message }, { status: 500 })
+    if (updateErr || !updatedPost) {
+      console.error('[Post Edit API Update Error]:', updateErr)
+      return NextResponse.json({ error: '게시글 DB 수정 저장 중 오류가 발생했습니다.', details: updateErr }, { status: 500 })
     }
 
-    // 3. 카테고리 매핑 업데이트
-    if (Array.isArray(category_ids)) {
-      await supabase.from('blog_post_categories').delete().eq('post_id', id)
-
-      if (category_ids.length > 0) {
-        const mappings = category_ids.map((cid: any) => ({
-          post_id: id,
-          category_id: parseInt(cid, 10)
-        })).filter((m: any) => !isNaN(m.category_id))
-
-        if (mappings.length > 0) {
-          const { error: catErr } = await supabase.from('blog_post_categories').insert(mappings)
-          if (catErr) {
-            console.error('[PUT Category Mapping Insert Error]:', catErr)
-          }
+    // ★ 카테고리 매핑 업데이트 (기존 매핑 삭제 후 신규 매핑 등록)
+    if (categoryId !== undefined && categoryId !== null) {
+      await supabase.from('blog_post_categories').delete().eq('post_id', postId)
+      if (Number(categoryId) > 0) {
+        const { error: catErr } = await supabase
+          .from('blog_post_categories')
+          .insert([{ post_id: postId, category_id: Number(categoryId) }])
+        if (catErr) {
+          console.error('[Category Update Error]:', catErr)
         }
       }
     }
 
-    return NextResponse.json({ success: true, data })
+    return NextResponse.json({
+      success: true,
+      message: '게시글이 성공적으로 수정되었습니다.',
+      data: updatedPost,
+    })
   } catch (err: any) {
-    console.error('[PUT Server Error]:', err)
-    return NextResponse.json({ error: 'Server error: ' + (err.message || String(err)) }, { status: 500 })
+    console.error('[Post Edit PUT Exception]:', err)
+    return NextResponse.json({
+      error: '서버 내부 오류가 발생했습니다.',
+      message: err?.message,
+      details: String(err),
+    }, { status: 500 })
   }
 }
 
-// DELETE /api/posts/[id]
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const id = parseInt(params.id, 10)
-    if (isNaN(id)) {
-      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
+    const { id } = await params
+    const postId = Number(id)
+
+    if (isNaN(postId)) {
+      return NextResponse.json({ error: '유효하지 않은 게시글 ID입니다.' }, { status: 400 })
     }
 
-    await supabase.from('blog_post_categories').delete().eq('post_id', id)
+    const supabase = createAdminClient()
 
-    const { error } = await supabase
-      .from('blog_posts')
-      .delete()
-      .eq('id', id)
+    // 1. 연관 카테고리 매핑 삭제
+    await supabase.from('blog_post_categories').delete().eq('post_id', postId)
+
+    // 2. 게시글 본체 삭제
+    const { error } = await supabase.from('blog_posts').delete().eq('id', postId)
 
     if (error) {
-      return NextResponse.json({ error: 'Delete error: ' + error.message }, { status: 500 })
+      console.error('[Post Delete API Error]:', error)
+      return NextResponse.json({ error: '게시글 삭제 중 오류가 발생했습니다.', details: error }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      message: '게시글이 성공적으로 삭제되었습니다.',
+    })
   } catch (err: any) {
-    return NextResponse.json({ error: 'Delete server error: ' + (err.message || String(err)) }, { status: 500 })
+    return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.', message: err?.message }, { status: 500 })
   }
 }
