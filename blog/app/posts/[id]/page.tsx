@@ -624,7 +624,7 @@ export default function PostDetailPage() {
                         const json = await res.json()
                         if (res.ok && json.success) {
                           alert('게시글이 성공적으로 삭제되었습니다.')
-                          window.location.href = '/'
+                          window.location.href = '/blog'
                         } else {
                           alert(json.error || '게시글 삭제에 실패했습니다.')
                         }
