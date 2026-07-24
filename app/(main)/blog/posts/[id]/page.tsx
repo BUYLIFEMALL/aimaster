@@ -427,7 +427,7 @@ export default function PostDetailPage() {
   /*  Render                                                             */
   /* ------------------------------------------------------------------ */
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen blog-light-scope bg-white text-zinc-900">
       {/* =================== HEADER =================== */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center justify-between gap-4">

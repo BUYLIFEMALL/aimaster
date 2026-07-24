@@ -240,3 +240,10 @@ select.ai-form-input {
   -webkit-text-fill-color: #64748b !important;
   font-weight: 500 !important;
 }
+
+/* AutoBlog 블로그 영역 전용 화이트 라이트 테마 보장 */
+.blog-light-scope {
+  background-color: #ffffff !important;
+  color: #18181b !important;
+}
+
