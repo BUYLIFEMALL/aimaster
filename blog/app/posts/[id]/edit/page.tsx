@@ -260,7 +260,8 @@ export default function PostEditPage() {
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none' }}
+            className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-extrabold rounded-xl shadow-lg shadow-red-600/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
           >
             {saving ? '수정 중...' : '✓ 수정 완료'}
           </button>

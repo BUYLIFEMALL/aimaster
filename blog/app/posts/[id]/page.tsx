@@ -370,9 +370,7 @@ export default function PostDetailPage() {
       {/* =================== HEADER =================== */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center justify-between gap-4">
-          <Link href="/" className="text-xl font-black text-indigo-600 no-underline">
-            AutoBlog
-          </Link>
+          <Link href="/blog" className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">AutoBlog</Link>
 
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 no-underline transition-colors">탐색</Link>

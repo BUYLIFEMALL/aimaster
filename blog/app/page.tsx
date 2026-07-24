@@ -241,9 +241,7 @@ export default function HomePage() {
       {/* =================== HEADER =================== */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center justify-between gap-4">
-          <Link href="/" className="text-xl font-black text-indigo-600 no-underline">
-            AutoBlog
-          </Link>
+          <Link href="/blog" className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">AutoBlog</Link>
 
           <form onSubmit={handleSearch} className="relative flex-1 max-w-[360px] hidden sm:block">
             <input
@@ -275,12 +273,7 @@ export default function HomePage() {
           </nav>
 
           <div className="flex items-center gap-3 flex-shrink-0">
-            <Link
-              href="/write/ai-form"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition-all hover:scale-105 no-underline"
-            >
-              <span>✨ AI 글쓰기</span>
-            </Link>
+            
             {userEmail ? (
               <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
                 {userEmail}
@@ -307,12 +300,14 @@ export default function HomePage() {
             자동으로 검색엔진에 최적화된 블로그를 만들어 드립니다
           </p>
 
-          <div className="pt-2">
+          <div className="pt-3">
             <Link
-              href="/write/ai-form"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-lg shadow-indigo-200 transition-all hover:scale-105 no-underline"
+              href="/blog/write/ai-form"
+              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none' }}
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all no-underline cursor-pointer"
             >
-              <span>🚍 실시간 핫뉴스 검색 분석 및 AI 자동블로그 작성하기</span>
+              <span className="text-lg">✨</span>
+              <span>AI 글쓰기 (자동 포스팅 생성)</span>
             </Link>
           </div>
         </div>
