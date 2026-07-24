@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -18,7 +20,13 @@ const TONE_OPTIONS = ['전문적', '친근함', '설득력있는', '격식있는
 
 export default function AiFormPage() {
   const router = useRouter()
-  const supabase = useMemo(() => createClient(), [])
+  const [supabase, setSupabase] = useState<any>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSupabase(createClient())
+    }
+  }, [])
 
   const [authChecked, setAuthChecked] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -44,7 +52,7 @@ export default function AiFormPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase?.auth.getUser().then(({ data }: any) => {
       setUserEmail(data.user?.email ?? null)
       setAuthChecked(true)
     })
