@@ -42,13 +42,19 @@
 @layer components {
   /* 글래스모피즘 카드 */
   .glass-card {
-    @apply backdrop-blur-md border rounded-2xl;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border-width: 1px;
     background: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.08);
   }
 
   .glass-card-gold {
-    @apply backdrop-blur-md border rounded-2xl;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border-width: 1px;
     background: rgba(212, 175, 55, 0.05);
     border-color: rgba(212, 175, 55, 0.2);
   }

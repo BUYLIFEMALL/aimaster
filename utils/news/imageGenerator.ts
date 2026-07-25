@@ -102,28 +102,27 @@ export async function generateArticleBasedImagePrompts(
   if (activeKey) {
     try {
       const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${activeKey}`
-      const promptInstruction = `You are a world-class AI visual director for high-end tech publications.
-Analyze the following complete Korean blog post carefully:
+      const promptInstruction = `You are a world-class AI Visual Director for premium publications.
+Analyze each of the 3 specific paragraphs of this Korean blog post carefully:
 
 [Article Title]: ${articleCtx.title}
-[Article Summary]: ${articleCtx.excerpt}
-[Section 1]: ${articleCtx.body1Text.slice(0, 350)}
-[Section 2 - Technical Advantage]: ${articleCtx.body2Text.slice(0, 350)}
-[Section 3 - Future Impact]: ${articleCtx.body4Text.slice(0, 350)}
+[Paragraph 1 - Section 1]: ${articleCtx.body1Text.slice(0, 500)}
+[Paragraph 2 - Section 2]: ${articleCtx.body2Text.slice(0, 500)}
+[Paragraph 3 - Section 3]: ${articleCtx.body4Text.slice(0, 500)}
 
 Your Task:
-Generate 3 distinct, photorealistic, highly detailed image prompts in English that 100% accurately visually capture the specific concepts, technology domain, objects, and environment described in this article.
+Create 3 completely unique, distinct, highly detailed English image generation prompts that 100% accurately visually describe the specific subject matter, scene, objects, and atmosphere of Paragraph 1, Paragraph 2, and Paragraph 3 respectively.
 
 Rules:
-1. headerPrompt: Dramatic wide establishing shot representing the main topic "${articleCtx.title}".
-2. body1Prompt: Macro detail close-up shot representing the technical advantage/architecture in Section 2.
-3. body2Prompt: Cinematic environmental scene representing future strategic impact in Section 3.
-4. STRICT DOMAIN ACCURACY: If the text is about smart buildings, servers, AI, satellite, semiconductors, or law, describe THAT exact subject. Do NOT force people into the image unless human action is central to the paragraph.
+1. headerPrompt: Visually depict the exact story, scene, and main subject described in Paragraph 1.
+2. body1Prompt: Visually depict the specific technical advantage, concept, or practical example described in Paragraph 2.
+3. body2Prompt: Visually depict the specific real-world impact, future outlook, or solution described in Paragraph 3.
+4. ABSOLUTE VISUAL DIVERSITY: Do NOT use fixed shot templates (e.g. do NOT force macro shot or cinematic urban setting unless the text specifically calls for it). Tailor the composition, subject, camera angle, and style dynamically to match the unique topic of each paragraph.
 5. Return PURE JSON format only without markdown ticks:
 {
-  "headerPrompt": "English photorealistic prompt for header visual...",
-  "body1Prompt": "English photorealistic prompt for section 2 technical visual...",
-  "body2Prompt": "English photorealistic prompt for section 3 future visual..."
+  "headerPrompt": "Detailed English photorealistic prompt describing Paragraph 1...",
+  "body1Prompt": "Detailed English photorealistic prompt describing Paragraph 2...",
+  "body2Prompt": "Detailed English photorealistic prompt describing Paragraph 3..."
 }`
 
       const response = await fetch(endpoint, {
@@ -131,7 +130,7 @@ Rules:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: promptInstruction }] }],
-          generationConfig: { temperature: 0.3, responseMimeType: 'application/json' },
+          generationConfig: { temperature: 0.5, responseMimeType: 'application/json' },
         }),
       })
 
@@ -141,14 +140,14 @@ Rules:
         if (text) {
           const parsed = JSON.parse(text)
           if (parsed.headerPrompt && parsed.body1Prompt && parsed.body2Prompt) {
-            console.log('[AI Visual Director] 3 Prompts Successfully Created from Article Analysis:')
-            console.log('- Header Prompt:', parsed.headerPrompt)
-            console.log('- Body1 Prompt:', parsed.body1Prompt)
-            console.log('- Body2 Prompt:', parsed.body2Prompt)
+            console.log('[AI Visual Director] 3 Unique Paragraph-Matched Prompts Created:')
+            console.log('- Header (Para 1) Prompt:', parsed.headerPrompt)
+            console.log('- Body1 (Para 2) Prompt:', parsed.body1Prompt)
+            console.log('- Body2 (Para 3) Prompt:', parsed.body2Prompt)
             return {
-              headerPrompt: cleanAsciiPrompt(parsed.headerPrompt + ', photorealistic photography, 4K, 16:9'),
-              body1Prompt: cleanAsciiPrompt(parsed.body1Prompt + ', photorealistic photography, 4K, 16:9'),
-              body2Prompt: cleanAsciiPrompt(parsed.body2Prompt + ', photorealistic photography, 4K, 16:9'),
+              headerPrompt: cleanAsciiPrompt(parsed.headerPrompt + ', highly detailed, 4K, 16:9'),
+              body1Prompt: cleanAsciiPrompt(parsed.body1Prompt + ', highly detailed, 4K, 16:9'),
+              body2Prompt: cleanAsciiPrompt(parsed.body2Prompt + ', highly detailed, 4K, 16:9'),
             }
           }
         }
@@ -160,9 +159,9 @@ Rules:
 
   // Fallback
   return {
-    headerPrompt: cleanAsciiPrompt(`Photorealistic dramatic wide shot of ${topic}, high tech business setting, cinematic lighting, 4K, 16:9`),
-    body1Prompt: cleanAsciiPrompt(`Photorealistic macro close-up of ${topic} technical architecture, digital twin microtexture, 4K, 16:9`),
-    body2Prompt: cleanAsciiPrompt(`Photorealistic cinematic scene of ${topic} global future vision, dynamic urban background, 4K, 16:9`),
+    headerPrompt: cleanAsciiPrompt(`Detailed illustration representing ${topic} concepts and fundamentals, 4K, 16:9`),
+    body1Prompt: cleanAsciiPrompt(`Detailed visual representing ${topic} key mechanisms and practical applications, 4K, 16:9`),
+    body2Prompt: cleanAsciiPrompt(`Detailed atmospheric visual representing ${topic} real-world impact and future perspective, 4K, 16:9`),
   }
 }
 
