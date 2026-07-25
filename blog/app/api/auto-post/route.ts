@@ -90,7 +90,6 @@ export async function POST(request: NextRequest) {
         content: postData.contentHtml,
         author_id: authorId,
         reading_minutes: postData.readingMinutes,
-        like_count: 0,
       })
       .select('id, title, published_at')
       .single()
