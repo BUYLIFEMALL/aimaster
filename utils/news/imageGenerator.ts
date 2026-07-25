@@ -102,7 +102,7 @@ export async function generateArticleBasedImagePrompts(
   if (activeKey) {
     try {
       const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${activeKey}`
-      const promptInstruction = `You are a world-class AI Visual Director for premium publications.
+      const promptInstruction = `You are a world-class award-winning National Geographic & Commercial Photographer.
 Analyze each of the 3 specific paragraphs of this Korean blog post carefully:
 
 [Article Title]: ${articleCtx.title}
@@ -111,18 +111,20 @@ Analyze each of the 3 specific paragraphs of this Korean blog post carefully:
 [Paragraph 3 - Section 3]: ${articleCtx.body4Text.slice(0, 500)}
 
 Your Task:
-Create 3 completely unique, distinct, highly detailed English image generation prompts that 100% accurately visually describe the specific subject matter, scene, objects, and atmosphere of Paragraph 1, Paragraph 2, and Paragraph 3 respectively.
+Create 3 ultra-high quality, ultra-realistic PHOTOREALISTIC REAL-LIFE PHOTOGRAPHY prompts in English (NO artwork, NO illustrations, NO infographics, NO 3D renders, NO anime).
+Each prompt must 100% accurately capture the real-world scene, environment, real people/objects, natural lighting, and story of Paragraph 1, Paragraph 2, and Paragraph 3 respectively.
 
 Rules:
-1. headerPrompt: Visually depict the exact story, scene, and main subject described in Paragraph 1.
-2. body1Prompt: Visually depict the specific technical advantage, concept, or practical example described in Paragraph 2.
-3. body2Prompt: Visually depict the specific real-world impact, future outlook, or solution described in Paragraph 3.
-4. ABSOLUTE VISUAL DIVERSITY: Do NOT use fixed shot templates (e.g. do NOT force macro shot or cinematic urban setting unless the text specifically calls for it). Tailor the composition, subject, camera angle, and style dynamically to match the unique topic of each paragraph.
-5. Return PURE JSON format only without markdown ticks:
+1. MANDATORY PHOTOREALISM: Describe authentic real-world photography shots. Specify real camera lenses (e.g. 35mm lens, 85mm portrait, Hasselblad, sharp focus, natural volumetric studio lighting, high resolution, 8k).
+2. Paragraph 1 Prompt: Create a dramatic real-world photographic scene visually depicting Paragraph 1.
+3. Paragraph 2 Prompt: Create a sharp, ultra-detailed real-world photographic scene visually depicting Paragraph 2.
+4. Paragraph 3 Prompt: Create a cinematic real-world photographic scene visually depicting Paragraph 3.
+5. STRICTLY FORBID: Do NOT use words like "illustration", "infographic", "drawing", "3D render", "vector", "artistic".
+6. Return PURE JSON format only without markdown ticks:
 {
-  "headerPrompt": "Detailed English photorealistic prompt describing Paragraph 1...",
-  "body1Prompt": "Detailed English photorealistic prompt describing Paragraph 2...",
-  "body2Prompt": "Detailed English photorealistic prompt describing Paragraph 3..."
+  "headerPrompt": "Ultra-realistic 8k photo of [real scene describing Paragraph 1], taken with 35mm lens, natural lighting, sharp details",
+  "body1Prompt": "Ultra-realistic 8k photo of [real scene describing Paragraph 2], taken with 85mm lens, depth of field, sharp focus",
+  "body2Prompt": "Ultra-realistic 8k photo of [real scene describing Paragraph 3], cinematic lighting, high-end commercial photography"
 }`
 
       const response = await fetch(endpoint, {
@@ -130,7 +132,7 @@ Rules:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: promptInstruction }] }],
-          generationConfig: { temperature: 0.5, responseMimeType: 'application/json' },
+          generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },
         }),
       })
 
@@ -140,28 +142,28 @@ Rules:
         if (text) {
           const parsed = JSON.parse(text)
           if (parsed.headerPrompt && parsed.body1Prompt && parsed.body2Prompt) {
-            console.log('[AI Visual Director] 3 Unique Paragraph-Matched Prompts Created:')
-            console.log('- Header (Para 1) Prompt:', parsed.headerPrompt)
-            console.log('- Body1 (Para 2) Prompt:', parsed.body1Prompt)
-            console.log('- Body2 (Para 3) Prompt:', parsed.body2Prompt)
+            console.log('[AI Photo Director] 3 Photorealistic Paragraph-Matched Prompts Created:')
+            console.log('- Header (Para 1) Photo Prompt:', parsed.headerPrompt)
+            console.log('- Body1 (Para 2) Photo Prompt:', parsed.body1Prompt)
+            console.log('- Body2 (Para 3) Photo Prompt:', parsed.body2Prompt)
             return {
-              headerPrompt: cleanAsciiPrompt(parsed.headerPrompt + ', highly detailed, 4K, 16:9'),
-              body1Prompt: cleanAsciiPrompt(parsed.body1Prompt + ', highly detailed, 4K, 16:9'),
-              body2Prompt: cleanAsciiPrompt(parsed.body2Prompt + ', highly detailed, 4K, 16:9'),
+              headerPrompt: cleanAsciiPrompt(parsed.headerPrompt + ', award winning real photo, Hasselblad 8k, sharp focus, 16:9'),
+              body1Prompt: cleanAsciiPrompt(parsed.body1Prompt + ', award winning real photo, Hasselblad 8k, sharp focus, 16:9'),
+              body2Prompt: cleanAsciiPrompt(parsed.body2Prompt + ', award winning real photo, Hasselblad 8k, sharp focus, 16:9'),
             }
           }
         }
       }
     } catch (err) {
-      console.error('[AI Visual Director Error]:', err)
+      console.error('[AI Photo Director Error]:', err)
     }
   }
 
-  // Fallback
+  // Fallback (Ultra Photorealistic)
   return {
-    headerPrompt: cleanAsciiPrompt(`Detailed illustration representing ${topic} concepts and fundamentals, 4K, 16:9`),
-    body1Prompt: cleanAsciiPrompt(`Detailed visual representing ${topic} key mechanisms and practical applications, 4K, 16:9`),
-    body2Prompt: cleanAsciiPrompt(`Detailed atmospheric visual representing ${topic} real-world impact and future perspective, 4K, 16:9`),
+    headerPrompt: cleanAsciiPrompt(`Ultra-realistic 8k photograph of real world ${topic} scene, 35mm lens, natural lighting, Hasselblad, sharp focus, 16:9`),
+    body1Prompt: cleanAsciiPrompt(`Ultra-realistic 8k detailed photograph of real world ${topic} technology and practical scene, 85mm lens, sharp focus, 16:9`),
+    body2Prompt: cleanAsciiPrompt(`Ultra-realistic 8k cinematic photograph of real world ${topic} environment and people, cinematic lighting, high-end photography, 16:9`),
   }
 }
 
