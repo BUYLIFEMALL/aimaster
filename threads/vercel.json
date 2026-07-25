@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/posts/dispatch-scheduled",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

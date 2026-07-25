@@ -1,0 +1,589 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-07-21T23:57:50.831Z",
+  "activeFeatures": [
+    "threads",
+    "supabase",
+    "ai",
+    "posts",
+    "actions",
+    "callback",
+    "dispatch-scheduled",
+    "ui",
+    "layout",
+    "(dashboard)",
+    "dashboard",
+    "accounts",
+    "new",
+    "[id]",
+    "(auth)",
+    "login",
+    "signup"
+  ],
+  "primaryFeature": "threads",
+  "features": {
+    "threads": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:08:01.935Z",
+        "lastUpdated": "2026-07-21T23:53:50.268Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\proxy.ts"
+    },
+    "supabase": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:08:39.907Z",
+        "lastUpdated": "2026-07-21T23:09:15.816Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\lib\\supabase\\admin.ts"
+    },
+    "ai": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:13:46.297Z",
+        "lastUpdated": "2026-07-21T23:56:52.811Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\lib\\ai\\generator.ts"
+    },
+    "posts": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:16:38.180Z",
+        "lastUpdated": "2026-07-21T23:57:26.988Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\lib\\posts\\dispatch.ts"
+    },
+    "actions": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:18:31.456Z",
+        "lastUpdated": "2026-07-21T23:57:41.921Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\lib\\actions\\posts.ts"
+    },
+    "callback": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:31:47.976Z",
+        "lastUpdated": "2026-07-21T23:31:47.976Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\api\\threads\\callback\\route.ts"
+    },
+    "dispatch-scheduled": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:41:44.514Z",
+        "lastUpdated": "2026-07-21T23:57:50.831Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\api\\posts\\dispatch-scheduled\\route.ts"
+    },
+    "ui": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:45:08.517Z",
+        "lastUpdated": "2026-07-21T23:45:33.826Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\components\\ui\\Textarea.tsx"
+    },
+    "layout": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:45:49.384Z",
+        "lastUpdated": "2026-07-21T23:46:08.460Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\components\\layout\\Sidebar.tsx"
+    },
+    "(dashboard)": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:46:15.343Z",
+        "lastUpdated": "2026-07-21T23:46:15.343Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\(dashboard)\\layout.tsx"
+    },
+    "dashboard": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:46:29.644Z",
+        "lastUpdated": "2026-07-21T23:46:29.644Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\(dashboard)\\dashboard\\page.tsx"
+    },
+    "accounts": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:46:40.636Z",
+        "lastUpdated": "2026-07-21T23:46:40.636Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\(dashboard)\\accounts\\page.tsx"
+    },
+    "new": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:47:39.363Z",
+        "lastUpdated": "2026-07-21T23:47:39.363Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\(dashboard)\\posts\\new\\page.tsx"
+    },
+    "[id]": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:47:57.476Z",
+        "lastUpdated": "2026-07-21T23:47:57.476Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\(dashboard)\\posts\\[id]\\page.tsx"
+    },
+    "(auth)": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:48:05.842Z",
+        "lastUpdated": "2026-07-21T23:48:05.842Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\(auth)\\layout.tsx"
+    },
+    "login": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:48:14.516Z",
+        "lastUpdated": "2026-07-21T23:48:14.516Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\(auth)\\login\\page.tsx"
+    },
+    "signup": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-07-21T23:50:01.631Z",
+        "lastUpdated": "2026-07-21T23:50:01.631Z"
+      },
+      "lastFile": "D:\\Claude Code\\threads\\src\\app\\(auth)\\signup\\page.tsx"
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Dynamic",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-07-21T22:19:50.873Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-07-21T23:57:50.831Z"
+  },
+  "history": [
+    {
+      "timestamp": "2026-07-21T23:08:01.935Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:08:14.449Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:08:39.907Z",
+      "feature": "supabase",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:08:58.856Z",
+      "feature": "supabase",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:09:15.816Z",
+      "feature": "supabase",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:09:43.093Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:10:08.141Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:10:26.437Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:11:45.080Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:13:35.393Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:13:46.297Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:16:19.416Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:16:38.180Z",
+      "feature": "posts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:18:31.456Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:19:56.039Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:22:24.334Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:26:04.894Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:31:47.976Z",
+      "feature": "callback",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:41:44.514Z",
+      "feature": "dispatch-scheduled",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:42:54.120Z",
+      "feature": "dispatch-scheduled",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:43:09.630Z",
+      "feature": "posts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:44:32.108Z",
+      "feature": "dispatch-scheduled",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:44:36.866Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:44:55.136Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:45:08.517Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:45:14.969Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:45:27.917Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:45:33.826Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:45:40.687Z",
+      "feature": "posts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:45:49.384Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:46:03.085Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:46:08.460Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:46:15.343Z",
+      "feature": "(dashboard)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:46:29.644Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:46:40.636Z",
+      "feature": "accounts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:46:53.045Z",
+      "feature": "posts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:47:02.013Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:47:30.150Z",
+      "feature": "posts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:47:39.363Z",
+      "feature": "new",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:47:57.476Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:48:05.842Z",
+      "feature": "(auth)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:48:14.516Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:50:01.631Z",
+      "feature": "signup",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:50:15.996Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:50:34.124Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:52:43.470Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:53:50.268Z",
+      "feature": "threads",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:55:23.130Z",
+      "feature": "posts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:55:58.526Z",
+      "feature": "posts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:56:52.811Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:57:26.988Z",
+      "feature": "posts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:57:36.345Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:57:41.921Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:57:46.949Z",
+      "feature": "dispatch-scheduled",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-07-21T23:57:50.831Z",
+      "feature": "dispatch-scheduled",
+      "phase": "do",
+      "action": "updated"
+    }
+  ]
+}
