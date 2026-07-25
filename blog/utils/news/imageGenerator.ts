@@ -102,37 +102,62 @@ export async function generateArticleBasedImagePrompts(
   if (activeKey) {
     try {
       const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${activeKey}`
-      const promptInstruction = `You are a world-class award-winning National Geographic & Commercial Photographer.
-Analyze each of the 3 specific paragraphs of this Korean blog post carefully:
+      const promptInstruction = `You are an expert photorealistic image prompt engineer.
+Convert each of the 3 provided Korean paragraphs into exactly ONE high-quality English image-generation prompt for creating ONE image per paragraph.
 
-[Article Title]: ${articleCtx.title}
-[Paragraph 1 - Section 1]: ${articleCtx.body1Text.slice(0, 500)}
-[Paragraph 2 - Section 2]: ${articleCtx.body2Text.slice(0, 500)}
-[Paragraph 3 - Section 3]: ${articleCtx.body4Text.slice(0, 500)}
+Analyze the 3 paragraphs carefully:
+[Paragraph 1 - Header Visual]: ${articleCtx.body1Text.slice(0, 500)}
+[Paragraph 2 - Section 2 Visual]: ${articleCtx.body2Text.slice(0, 500)}
+[Paragraph 3 - Section 3 Visual]: ${articleCtx.body4Text.slice(0, 500)}
 
-Your Task:
-Create 3 ultra-high quality, ultra-realistic PHOTOREALISTIC REAL-LIFE PHOTOGRAPHY prompts in English (NO artwork, NO illustrations, NO infographics, NO 3D renders, NO anime).
-Each prompt must 100% accurately capture the real-world scene, environment, real people/objects, natural lighting, and story of Paragraph 1, Paragraph 2, and Paragraph 3 respectively.
+For EACH paragraph (Paragraph 1, Paragraph 2, Paragraph 3), follow these STRICT MASTER RULES:
 
-Rules:
-1. MANDATORY PHOTOREALISM: Describe authentic real-world photography shots. Specify real camera lenses (e.g. 35mm lens, 85mm portrait, Hasselblad, sharp focus, natural volumetric studio lighting, high resolution, 8k).
-2. Paragraph 1 Prompt: Create a dramatic real-world photographic scene visually depicting Paragraph 1.
-3. Paragraph 2 Prompt: Create a sharp, ultra-detailed real-world photographic scene visually depicting Paragraph 2.
-4. Paragraph 3 Prompt: Create a cinematic real-world photographic scene visually depicting Paragraph 3.
-5. STRICTLY FORBID: Do NOT use words like "illustration", "infographic", "drawing", "3D render", "vector", "artistic".
-6. Return PURE JSON format only without markdown ticks:
-{
-  "headerPrompt": "Ultra-realistic 8k photo of [real scene describing Paragraph 1], taken with 35mm lens, natural lighting, sharp details",
-  "body1Prompt": "Ultra-realistic 8k photo of [real scene describing Paragraph 2], taken with 85mm lens, depth of field, sharp focus",
-  "body2Prompt": "Ultra-realistic 8k photo of [real scene describing Paragraph 3], cinematic lighting, high-end commercial photography"
-}`
+1. PRIMARY TASK:
+   - Identify: main subject, central action/situation, real-world environment, emotional atmosphere, visual details.
+   - Create one coherent photographic scene communicating the central meaning of each paragraph.
+   - Do NOT create multiple prompts per paragraph or split screens/collages/storyboards/multi-panel images.
+
+2. IMAGE PROMPT OPENING:
+   - Every "ImagePrompt" value MUST be one continuous English paragraph beginning EXACTLY with:
+     "Create a sense of adventure, courage, and realism with a single photorealistic scene of"
+   - Do not use line breaks inside the prompt string.
+
+3. SINGLE-IMAGE & UNIFIED SCENE REQUIREMENT:
+   - Always include the phrase naturally: "one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels".
+   - Describe one unified location, one main moment, one primary subject/connected group, consistent lighting, and one coherent viewpoint.
+
+4. REALISM & HUMAN SUBJECTS:
+   - Describe real-world photography (NO artwork, NO illustrations, NO infographics, NO 3D render, NO surreal metaphors).
+   - If human figures appear, depict realistic Korean or East Asian individuals unless specified otherwise. Natural skin texture, anatomically correct hands, believable proportions.
+   - Public figures: depict setting/audience without facial impersonation. Real locations: preserve recognizable environmental characteristics without logos.
+
+5. CAMERA & LIGHTING SELECTION:
+   - Include specific camera gear: Choose one camera (Sony A7R IV, Canon EOS R5, or Nikon Z8) and one prime lens (35mm prime for wide environmental, 50mm prime for documentary, or 85mm prime for portraits/focused human moments).
+   - Include settings: aperture (f/1.8 to f/4), shutter speed (1/160 to 1/1000s), ISO (100 to 800), white balance (5200K to 6500K).
+   - Include lighting preset: Outdoor Daylight, Indoor/Office/Lab daylight, or Night/Neon practical lights.
+   - Always include: "photorealistic, documentary-quality real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, anatomically correct human features, accurate scale and perspective, realistic environmental details, no stylization, shot on a full-frame camera, 16-bit RAW photographic look, optical bokeh where appropriate, high micro-contrast, subtle chromatic aberration, slight natural sensor noise, subtle optical vignetting, focus plane precisely placed on the main subject, level and physically accurate horizon, realistic lens perspective".
+
+6. COMPOSITION & RESOLUTION:
+   - Cinematic photographic framing, rule-of-thirds, clear visual hierarchy, foreground-midground-background layering, native 16:9 aspect ratio, high-resolution 4K or higher. "no visible text" unless essential.
+
+7. MANDATORY NEGATIVE BLOCK AT THE VERY END:
+   - Append this exact negative block at the end of every prompt:
+     ", no illustration, no painting, no watercolor, no sketch, no vector art, no cartoon, no anime, no comic-book style, no 3D render, no CGI, no game-engine look, no flat shading, no cel shading, no toon style, no surreal montage, no collage, no split screen, no storyboard, no multiple panels, no duplicated subjects, no repeated faces, no extra limbs, no malformed hands, no distorted anatomy, no floating objects, no over-smoothed skin, no waxy skin, no plastic texture, no artificial facial features, no excessive HDR, no oversaturation, no unrealistic colors, no posterization, no watermark, no signature, no unwanted captions, no logo artifacts"
+
+8. Output Format:
+   Return ONLY a valid JSON object:
+   {
+     "headerPrompt": "Full English image prompt for Paragraph 1 following all rules...",
+     "body1Prompt": "Full English image prompt for Paragraph 2 following all rules...",
+     "body2Prompt": "Full English image prompt for Paragraph 3 following all rules..."
+   }`
 
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: promptInstruction }] }],
-          generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },
+          generationConfig: { temperature: 0.3, responseMimeType: 'application/json' },
         }),
       })
 
@@ -142,28 +167,31 @@ Rules:
         if (text) {
           const parsed = JSON.parse(text)
           if (parsed.headerPrompt && parsed.body1Prompt && parsed.body2Prompt) {
-            console.log('[AI Photo Director] 3 Photorealistic Paragraph-Matched Prompts Created:')
-            console.log('- Header (Para 1) Photo Prompt:', parsed.headerPrompt)
-            console.log('- Body1 (Para 2) Photo Prompt:', parsed.body1Prompt)
-            console.log('- Body2 (Para 3) Photo Prompt:', parsed.body2Prompt)
+            console.log('[Expert Photo Prompt Engine] 3 Master Prompts Successfully Created:')
+            console.log('- Paragraph 1 Master Prompt:', parsed.headerPrompt)
+            console.log('- Paragraph 2 Master Prompt:', parsed.body1Prompt)
+            console.log('- Paragraph 3 Master Prompt:', parsed.body2Prompt)
             return {
-              headerPrompt: cleanAsciiPrompt(parsed.headerPrompt + ', award winning real photo, Hasselblad 8k, sharp focus, 16:9'),
-              body1Prompt: cleanAsciiPrompt(parsed.body1Prompt + ', award winning real photo, Hasselblad 8k, sharp focus, 16:9'),
-              body2Prompt: cleanAsciiPrompt(parsed.body2Prompt + ', award winning real photo, Hasselblad 8k, sharp focus, 16:9'),
+              headerPrompt: cleanAsciiPrompt(parsed.headerPrompt),
+              body1Prompt: cleanAsciiPrompt(parsed.body1Prompt),
+              body2Prompt: cleanAsciiPrompt(parsed.body2Prompt),
             }
           }
         }
       }
     } catch (err) {
-      console.error('[AI Photo Director Error]:', err)
+      console.error('[Expert Photo Prompt Engine Error]:', err)
     }
   }
 
-  // Fallback (Ultra Photorealistic)
+  const negativeBlock = ', no illustration, no painting, no watercolor, no sketch, no vector art, no cartoon, no anime, no comic-book style, no 3D render, no CGI, no game-engine look, no flat shading, no cel shading, no toon style, no surreal montage, no collage, no split screen, no storyboard, no multiple panels, no duplicated subjects, no repeated faces, no extra limbs, no malformed hands, no distorted anatomy, no floating objects, no over-smoothed skin, no waxy skin, no plastic texture, no artificial facial features, no excessive HDR, no oversaturation, no unrealistic colors, no posterization, no watermark, no signature, no unwanted captions, no logo artifacts'
+  const mandatoryOpening = 'Create a sense of adventure, courage, and realism with a single photorealistic scene of'
+
+  // Fallback with Master Prompt Rules
   return {
-    headerPrompt: cleanAsciiPrompt(`Ultra-realistic 8k photograph of real world ${topic} scene, 35mm lens, natural lighting, Hasselblad, sharp focus, 16:9`),
-    body1Prompt: cleanAsciiPrompt(`Ultra-realistic 8k detailed photograph of real world ${topic} technology and practical scene, 85mm lens, sharp focus, 16:9`),
-    body2Prompt: cleanAsciiPrompt(`Ultra-realistic 8k cinematic photograph of real world ${topic} environment and people, cinematic lighting, high-end photography, 16:9`),
+    headerPrompt: cleanAsciiPrompt(`${mandatoryOpening} real-world ${topic} environment, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, shot on Canon EOS R5 with 35mm prime lens, f/2.8, 1/250s, ISO 200, 5600K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
+    body1Prompt: cleanAsciiPrompt(`${mandatoryOpening} detailed real-world ${topic} technology and practical workplace, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, shot on Sony A7R IV with 50mm prime lens, f/2.0, 1/320s, ISO 400, 5600K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
+    body2Prompt: cleanAsciiPrompt(`${mandatoryOpening} real-world ${topic} strategic vision scene with people, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, shot on Nikon Z8 with 85mm prime lens, f/1.8, 1/500s, ISO 100, 6000K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
   }
 }
 
