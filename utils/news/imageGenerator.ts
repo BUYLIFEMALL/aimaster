@@ -37,8 +37,11 @@ function cleanAsciiPrompt(text: string): string {
   return text
     .replace(/[가-힣]/g, ' ')
     .replace(/[^a-zA-Z0-9\s,.-]/g, ' ')
+    .replace(/\s*,\s*/g, ', ')
+    .replace(/(,\s*)+/g, ', ')
     .replace(/\s+/g, ' ')
     .trim()
+    .replace(/^,\s*/, '')
 }
 
 /**
