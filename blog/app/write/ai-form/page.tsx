@@ -453,10 +453,13 @@ export default function AiFormPage() {
                   autoComplete="new-password"
                   value={nanoBananaApiKey}
                   onChange={(e) => setNanoBananaApiKey(e.target.value)}
-                  placeholder="미입력 시 백업 AI 엔드포인트 자동 구동"
+                  placeholder="비워두면 설정에 등록된 내 키 → 없으면 앱 기본 키 사용"
                   style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1', WebkitTextSecurity: 'disc' } as any}
                   className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-extrabold text-black placeholder-slate-400 shadow-sm"
                 />
+                <p className="text-[11px] text-slate-500">
+                  <Link href="/settings" className="text-indigo-600 underline font-semibold">설정</Link>에서 API 키를 한 번 등록해두면 매번 입력하지 않아도 됩니다.
+                </p>
               </div>
             </div>
 

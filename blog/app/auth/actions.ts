@@ -29,30 +29,8 @@ export async function login(formData: FormData) {
   redirect('/')
 }
 
-export async function signup(formData: FormData) {
-  const supabase = await createClient()
-
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-
-  if (!email || !password) {
-    return { error: '이메일과 비밀번호를 입력해주세요.' }
-  }
-
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
-    },
-  })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { success: true, message: '이메일로 인증 메일이 발송되었습니다. 인증을 완료해주세요!' }
-}
+// 회원가입은 AIMaster에서만 받는다 — 모든 AI 프로그램은 AIMaster 계정/구독 권한을 공유한다.
+// (app/auth/auth-form.tsx에서 AIMaster 회원가입 페이지로 안내)
 
 export async function signout() {
   const supabase = await createClient()

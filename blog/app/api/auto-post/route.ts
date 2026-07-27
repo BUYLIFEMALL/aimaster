@@ -2,10 +2,24 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { collect24HourNews } from '@/utils/news/collector'
 import { generateSeoPost, AutoPostOptions } from '@/utils/news/generator'
+import { getSessionUser } from '@/utils/access'
+import { resolveApiKey } from '@/utils/apiKeys'
+import { getUserCloudinaryConfig } from '@/utils/cloudinary'
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser()
+    if (!user) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+    }
+
     const body = await request.json()
+
+    // 인라인으로 키를 넣지 않았으면 본인 계정에 등록된 키 -> 앱 기본 키 순으로 사용
+    const adminClient = createAdminClient()
+    const inlineKey = (body.nanoBananaApiKey || body.apiKey || '').trim()
+    const resolvedApiKey = inlineKey || (await resolveApiKey(adminClient, user.id, 'gemini')) || undefined
+    const cloudinaryConfig = (await getUserCloudinaryConfig(adminClient, user.id)) || undefined
 
     // 단일 topic 또는 세부 options 객체 수신 지원
     const options: AutoPostOptions = {
@@ -17,8 +31,9 @@ export async function POST(request: NextRequest) {
       keywords: Array.isArray(body.keywords) ? body.keywords : body.keywords ? [body.keywords] : undefined,
       referenceUrls: Array.isArray(body.referenceUrls) ? body.referenceUrls : Array.isArray(body.reference_urls) ? body.reference_urls : body.referenceUrl ? [body.referenceUrl] : undefined,
       customInstructions: body.customInstructions || body.custom_prompt,
-      nanoBananaApiKey: body.nanoBananaApiKey || body.apiKey,
+      nanoBananaApiKey: resolvedApiKey,
       imageModel: body.imageModel || body.nanoBananaModel || 'nanobanana-2-2k',
+      cloudinaryConfig,
       cta: body.cta && (body.cta.text || body.cta.url) ? { text: body.cta.text || '자세히 보기', url: body.cta.url || '#' } : undefined,
     }
 

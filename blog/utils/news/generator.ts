@@ -1,6 +1,7 @@
 import { CollectedNewsResult } from './collector'
 import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadableParagraphs } from '@/utils/markdown'
 import { generateNanoBananaImages } from './imageGenerator'
+import type { CloudinaryConfig } from '../cloudinary'
 
 export interface AutoPostOptions {
   topic: string
@@ -14,6 +15,7 @@ export interface AutoPostOptions {
   nanoBananaApiKey?: string
   nanoBananaEndpoint?: string
   imageModel?: string
+  cloudinaryConfig?: CloudinaryConfig
   cta?: {
     text: string
     url: string
@@ -173,7 +175,8 @@ ${customRule}
             body1Text,
             body2Text,
             body4Text: body3Text,
-          }
+          },
+          options.cloudinaryConfig,
         )
 
         const contentMarkdown = `
@@ -314,7 +317,8 @@ export async function generateAutoPost(
         body1Text: sec1Text,
         body2Text: sec2Text,
         body4Text: sec4Text,
-      }
+      },
+      options.cloudinaryConfig,
     )
 
     const contentMarkdown = `

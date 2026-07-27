@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
-import { login, signup } from './actions'
+import { login } from './actions'
+
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
 export default function AuthForm() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -18,20 +20,9 @@ export default function AuthForm() {
     const formData = new FormData(event.currentTarget)
     
     startTransition(async () => {
-      if (mode === 'login') {
-        const result = await login(formData)
-        if (result?.error) {
-          setError(result.error)
-        }
-      } else {
-        const result = await signup(formData)
-        if (result?.error) {
-          setError(result.error)
-        } else if (result?.success) {
-          setSuccessMsg(result.message || '인증 이메일이 발송되었습니다.')
-          const form = event.target as HTMLFormElement
-          form.reset()
-        }
+      const result = await login(formData)
+      if (result?.error) {
+        setError(result.error)
       }
     })
   }
@@ -98,7 +89,22 @@ export default function AuthForm() {
           </div>
         )}
 
-        {/* 폼 양식 */}
+        {/* 회원가입은 AIMaster에서만 받는다 — 모든 AI 프로그램은 AIMaster 계정/구독 권한을 공유한다. */}
+        {mode === 'signup' ? (
+          <div className="space-y-4 text-center">
+            <p className="text-sm text-zinc-600">
+              이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다.
+              <br />
+              AIMaster에서 회원가입 후 이 프로그램을 구독하면 이용할 수 있습니다.
+            </p>
+            <a
+              href={`${MAIN_SITE_URL}/register`}
+              className="block w-full py-3 bg-[#005acc] hover:bg-[#004bb9] text-white font-semibold rounded-xl text-sm transition-all shadow-sm"
+            >
+              AIMaster 회원가입 하러가기
+            </a>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* 이메일 주소 입력 */}
           <div>
@@ -223,6 +229,7 @@ export default function AuthForm() {
             )}
           </button>
         </form>
+        )}
 
         {/* 이용약관 및 푸터 */}
         <p className="mt-8 text-center text-[10.5px] leading-5 text-zinc-400 font-sans tracking-wide">

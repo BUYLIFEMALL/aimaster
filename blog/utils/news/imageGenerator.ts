@@ -3,6 +3,7 @@
  */
 
 import { getNanoBananaConfig } from './nanoBananaConfig'
+import { uploadDataUriToCloudinary, type CloudinaryConfig } from '../cloudinary'
 
 export interface GeneratedImagesResult {
   headerImage: string
@@ -207,7 +208,8 @@ async function fetchNanoBananaSingleImage(
   apiKey?: string,
   customEndpoint?: string,
   width = 1200,
-  height = 630
+  height = 630,
+  cloudinaryConfig?: CloudinaryConfig,
 ): Promise<SingleImageFetchResult> {
   const modelConfig = getNanoBananaConfig(model)
   const activeKey = apiKey || process.env.NANOBANANA_API_KEY || process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || ''
@@ -271,6 +273,18 @@ async function fetchNanoBananaSingleImage(
           const cleanBase64 = inlineBase64Raw.replace(/\s+/g, '')
           const finalUrl = `data:${mimeType};base64,${cleanBase64}`
           console.log(`[Gemini Image Generated Successfully (${modelConfig.modelName} ${modelConfig.imageSize} / ${sceneType})]: Size = ${finalUrl.length} bytes`)
+
+          if (cloudinaryConfig) {
+            try {
+              const cloudinaryUrl = await uploadDataUriToCloudinary(finalUrl, cloudinaryConfig)
+              console.log(`[Cloudinary Upload OK (${sceneType})]: ${cloudinaryUrl}`)
+              return { imageUrl: cloudinaryUrl, schemaText }
+            } catch (uploadErr) {
+              console.error(`[Cloudinary Upload Failed (${sceneType})]:`, uploadErr)
+              // 업로드 실패 시 base64를 그대로 사용해 글 생성 자체는 막지 않음
+            }
+          }
+
           return { imageUrl: finalUrl, schemaText }
         }
 
@@ -298,7 +312,8 @@ export async function generateNanoBananaImages(
   apiKey?: string,
   model: NanoBananaModelType = 'nanobanana-2-2k',
   customEndpoint?: string,
-  articleCtx?: ArticleContext
+  articleCtx?: ArticleContext,
+  cloudinaryConfig?: CloudinaryConfig,
 ): Promise<GeneratedImagesResult> {
   const modelConfig = getNanoBananaConfig(model)
   const uniqueTimestamp = Date.now()
@@ -334,13 +349,13 @@ export async function generateNanoBananaImages(
 
   console.log(`[NanoBanana Pipeline] Selected Model Option: "${model}" -> Official Model Name: "${modelConfig.modelName}", Endpoint: "${modelConfig.endpoint}", Resolution: "${modelConfig.imageSize}"`)
 
-  const resHeader = await fetchNanoBananaSingleImage(prompts.headerPrompt, model, topic, 'header', baseSeed + 101, apiKey, customEndpoint, headerWidth, headerHeight)
+  const resHeader = await fetchNanoBananaSingleImage(prompts.headerPrompt, model, topic, 'header', baseSeed + 101, apiKey, customEndpoint, headerWidth, headerHeight, cloudinaryConfig)
   await delay(200)
 
-  const resBody1 = await fetchNanoBananaSingleImage(prompts.body1Prompt, model, topic, 'body1', baseSeed + 505, apiKey, customEndpoint, bodyWidth, bodyHeight)
+  const resBody1 = await fetchNanoBananaSingleImage(prompts.body1Prompt, model, topic, 'body1', baseSeed + 505, apiKey, customEndpoint, bodyWidth, bodyHeight, cloudinaryConfig)
   await delay(200)
 
-  const resBody2 = await fetchNanoBananaSingleImage(prompts.body2Prompt, model, topic, 'body2', baseSeed + 909, apiKey, customEndpoint, bodyWidth, bodyHeight)
+  const resBody2 = await fetchNanoBananaSingleImage(prompts.body2Prompt, model, topic, 'body2', baseSeed + 909, apiKey, customEndpoint, bodyWidth, bodyHeight, cloudinaryConfig)
 
   return {
     headerImage: resHeader.imageUrl,
