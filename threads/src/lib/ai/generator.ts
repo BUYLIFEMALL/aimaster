@@ -15,10 +15,28 @@ const TONE_INSTRUCTIONS: Record<NonNullable<GeneratePostInput["tone"]>, string> 
   friendly: "다정하고 편안한 말투로 작성해줘.",
 };
 
-export async function generatePostContent(input: GeneratePostInput): Promise<GeneratePostResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
+// Threads 게시물 전용 카피라이팅 규칙. 제목(훅) + 본문 구조로, 짧고 스캔하기
+// 쉬운 형태로 구매욕을 자극하는 게 목적이다 (일반 블로그 장문 포스팅과는 다른 포맷).
+const THREADS_SYSTEM_PROMPT = `이 정보를 사용하여 상품을 포착하여 상품 구매욕을 일으킬 수 있는 짧고 매력적인 Threads 게시물을 만드십시오. 다음 조건을 명심하십시오.
+
+1. 제목은 10자 이내로 작성해 주세요
+2. 내용은 450자 이내로 간결하고 요점을 잡으십시오
+3. 제목 앞에 어울리는 이모티콘을 붙여주고 작성해 주세요
+4. 게시글을 시각적으로 더 매력적으로 만들기 위해 이모티콘 하나나 둘을 추가하는 것을 고려하세요. 하지만 과하지 마세요
+5. 문단을 나누어 간결하게 작성해서 읽기 쉽게 핵심 정보만 포함해 주세요
+6. 불필요한 설명은 하지 말고 반말로 작성해 주세요
+
+톤은 트렌디하고, 열정적이며, 유익해야 합니다.
+팔로워와 흥미로운 팁이나 통찰력을 공유한다고 상상해보세요.
+
+게시글을 만든 후에는 추가 해설이나 설명 없이 바로 출력하면 됩니다.`;
+
+export async function generatePostContent(
+  input: GeneratePostInput,
+  apiKey: string,
+): Promise<GeneratePostResult> {
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY가 설정되어 있지 않습니다. .env.local을 확인해주세요.");
+    throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
   }
 
   const toneInstruction = TONE_INSTRUCTIONS[input.tone ?? "casual"];
@@ -34,12 +52,11 @@ export async function generatePostContent(input: GeneratePostInput): Promise<Gen
       messages: [
         {
           role: "system",
-          content:
-            "너는 Threads(스레드) 마케팅 게시글을 작성하는 카피라이터야. 500자 이내, 해시태그 없이 자연스러운 한국어 게시글 본문만 출력해. 따옴표나 설명 없이 게시글 본문만 출력해.",
+          content: THREADS_SYSTEM_PROMPT,
         },
         {
           role: "user",
-          content: `주제: ${input.topic}\n${toneInstruction}`,
+          content: `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})`,
         },
       ],
       max_tokens: 400,
@@ -62,4 +79,121 @@ export async function generatePostContent(input: GeneratePostInput): Promise<Gen
   }
 
   return { content };
+}
+
+export interface GeneratePostImageInput {
+  prompt: string;
+  model?: NanoBananaModelType;
+}
+
+export interface GeneratePostImageResult {
+  base64: string;
+  mimeType: string;
+}
+
+// 나노바나나(NanoBanana)/제미나이(Gemini) 공식 REST 엔드포인트 및 스키마 설정.
+// blog 자동화 프로그램(blog/utils/news/nanoBananaConfig.ts)과 동일한 4종 모델을 그대로 참고한다.
+export type NanoBananaModelType =
+  | "nanobanana"
+  | "nanobanana-2-2k"
+  | "nanobanana-2-4k"
+  | "nanobanana-pro";
+
+interface NanoBananaModelConfig {
+  modelName: string;
+  endpoint: string;
+  imageSize: "1K" | "2K" | "4K";
+  temperature: number;
+}
+
+const NANO_BANANA_MODEL_CONFIGS: Record<NanoBananaModelType, NanoBananaModelConfig> = {
+  nanobanana: {
+    modelName: "gemini-2.5-flash-image",
+    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-image:generateContent",
+    imageSize: "1K",
+    temperature: 0.7,
+  },
+  "nanobanana-2-2k": {
+    modelName: "gemini-3.1-flash-image",
+    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
+    imageSize: "2K",
+    temperature: 0.7,
+  },
+  "nanobanana-2-4k": {
+    modelName: "gemini-3.1-flash-image",
+    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
+    imageSize: "4K",
+    temperature: 0.7,
+  },
+  "nanobanana-pro": {
+    modelName: "gemini-3-pro-image",
+    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3-pro-image:generateContent",
+    imageSize: "4K",
+    temperature: 0.7,
+  },
+};
+
+function getNanoBananaConfig(modelType?: string): NanoBananaModelConfig {
+  return (
+    NANO_BANANA_MODEL_CONFIGS[modelType as NanoBananaModelType] ??
+    NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"]
+  );
+}
+
+// 기본 모델은 .env.local의 GEMINI_IMAGE_MODEL로 코드 수정 없이 교체 가능
+const DEFAULT_IMAGE_MODEL = (process.env.GEMINI_IMAGE_MODEL || "nanobanana-2-2k") as NanoBananaModelType;
+
+export async function generatePostImage(
+  input: GeneratePostImageInput,
+  apiKey: string,
+): Promise<GeneratePostImageResult> {
+  if (!apiKey) {
+    throw new Error("Gemini API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
+  }
+
+  const modelConfig = getNanoBananaConfig(input.model ?? DEFAULT_IMAGE_MODEL);
+  const targetUrl = `${modelConfig.endpoint}?key=${apiKey}`;
+
+  const requestBody = {
+    contents: [{ parts: [{ text: input.prompt }] }],
+    generationConfig: {
+      responseModalities: ["Image"],
+      imageConfig: {
+        aspectRatio: "1:1",
+        imageSize: modelConfig.imageSize,
+      },
+      temperature: modelConfig.temperature,
+    },
+  };
+
+  const response = await fetch(targetUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`이미지 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+  }
+
+  const data = (await response.json()) as {
+    candidates?: {
+      content?: {
+        parts?: { inlineData?: { mimeType?: string; data?: string } }[];
+      };
+    }[];
+  };
+
+  const imagePart = data.candidates?.[0]?.content?.parts?.find(
+    (part) => part.inlineData?.data,
+  );
+  const base64 = imagePart?.inlineData?.data?.replace(/\s+/g, "");
+  const mimeType = imagePart?.inlineData?.mimeType ?? "image/png";
+
+  if (!base64) {
+    throw new Error(`나노바나나(${modelConfig.modelName})가 이미지를 반환하지 않았습니다.`);
+  }
+
+  return { base64, mimeType };
 }

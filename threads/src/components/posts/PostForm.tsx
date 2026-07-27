@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import type { PostActionState } from "@/lib/actions/posts";
-import { generateContentAction } from "@/lib/actions/ai";
+import { generateContentAction, generateImageAction } from "@/lib/actions/ai";
 import { createClient } from "@/lib/supabase/client";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -90,19 +90,42 @@ export function PostForm({
 
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState<Tone>("casual");
+  const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
   const [isGenerating, startGenerating] = useTransition();
 
   const handleGenerate = () => {
     setAiError(null);
     startGenerating(async () => {
-      const result = await generateContentAction({ topic, tone });
+      const result = await generateContentAction({ topic, tone, apiKey: openaiApiKey });
       if (result.error) {
         setAiError(result.error);
         return;
       }
       if (result.content) {
         setContent(result.content);
+      }
+    });
+  };
+
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+  const [isGeneratingImage, startGeneratingImage] = useTransition();
+  const [imageGenError, setImageGenError] = useState<string | null>(null);
+
+  const handleGenerateImage = () => {
+    const prompt = imagePrompt.trim() || topic.trim();
+    if (!prompt) return;
+
+    setImageGenError(null);
+    startGeneratingImage(async () => {
+      const result = await generateImageAction({ prompt, apiKey: geminiApiKey });
+      if (result.error) {
+        setImageGenError(result.error);
+        return;
+      }
+      if (result.imageUrl) {
+        setImageUrl(result.imageUrl);
       }
     });
   };
@@ -143,6 +166,13 @@ export function PostForm({
             {isGenerating ? "생성 중..." : "AI로 생성"}
           </Button>
         </div>
+        <Input
+          type="password"
+          value={openaiApiKey}
+          onChange={(e) => setOpenaiApiKey(e.target.value)}
+          placeholder="내 OpenAI API 키 (선택, 비워두면 설정에 저장된 키 사용)"
+          className="text-xs"
+        />
         {aiError && <p className="text-xs text-red-600">{aiError}</p>}
       </div>
 
@@ -161,6 +191,37 @@ export function PostForm({
 
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">이미지 (선택)</label>
+
+        <div className="mb-2 space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+          <label className="block text-sm font-medium text-neutral-700">
+            AI로 이미지 생성 (나노바나나, 선택)
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <Input
+              className="min-w-[200px] flex-1"
+              value={imagePrompt}
+              onChange={(e) => setImagePrompt(e.target.value)}
+              placeholder={topic ? `비워두면 "${topic}" 주제를 그대로 사용합니다` : "이미지 설명을 입력하세요"}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleGenerateImage}
+              disabled={isGeneratingImage || (!imagePrompt.trim() && !topic.trim())}
+            >
+              {isGeneratingImage ? "생성 중..." : "이미지 생성"}
+            </Button>
+          </div>
+          <Input
+            type="password"
+            value={geminiApiKey}
+            onChange={(e) => setGeminiApiKey(e.target.value)}
+            placeholder="내 Gemini API 키 (선택, 비워두면 설정에 저장된 키 사용)"
+            className="text-xs"
+          />
+          {imageGenError && <p className="text-xs text-red-600">{imageGenError}</p>}
+        </div>
+
         <div className="flex flex-wrap items-center gap-2">
           <input
             ref={fileInputRef}

@@ -1,4 +1,5 @@
 export type PostStatus = "draft" | "scheduled" | "publishing" | "published" | "failed";
+export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -75,6 +76,33 @@ export interface Database {
           username?: string | null;
           access_token?: string;
           token_expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_api_keys: {
+        Row: {
+          id: string;
+          user_id: string;
+          provider: ApiKeyProvider;
+          api_key: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          provider: ApiKeyProvider;
+          api_key: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          provider?: ApiKeyProvider;
+          api_key?: string;
           created_at?: string;
           updated_at?: string;
         };
