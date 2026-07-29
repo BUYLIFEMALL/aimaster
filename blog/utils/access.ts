@@ -1,6 +1,6 @@
 import 'server-only'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/blog/utils/supabase/server'
 
 // 이 앱(blog)은 AIMaster와 같은 Supabase 프로젝트를 공유한다.
 // 로그인 여부만으로는 부족하고, AIMaster의 programs/subscriptions/user_program_access

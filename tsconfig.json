@@ -24,9 +24,6 @@
     "paths": {
       "@/*": [
         "./*"
-      ],
-      "@blog/*": [
-        "./blog/*"
       ]
     },
     "target": "es2022",
@@ -34,13 +31,24 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "middleware.ts",
+    "tailwind.config.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "hooks/**/*.ts",
+    "hooks/**/*.tsx",
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "types/**/*.ts",
+    "types/**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "threads",
+    "blog",
     "blog_auto_poster"
   ]
 }

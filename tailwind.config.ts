@@ -5,7 +5,10 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./blog/**/*.{js,ts,jsx,tsx,mdx}",
+    // app/(main)/blog/* 라우트가 blog/app/**의 컴포넌트를 직접 import해서
+    // 렌더링하므로, 그 안에서 쓰는 Tailwind 클래스도 루트 빌드가 스캔해야 함.
+    "./blog/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./blog/utils/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {

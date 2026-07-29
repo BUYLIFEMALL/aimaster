@@ -12,12 +12,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* 시스템 다크모드와 무관하게 항상 흰 배경 유지 (blog와 동일한 가독성) */
 
 body {
   background: var(--background);

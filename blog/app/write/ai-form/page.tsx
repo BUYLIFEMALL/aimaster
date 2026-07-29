@@ -252,8 +252,8 @@ export default function AiFormPage() {
                     onClick={() => handleToggleCategory(cat.slug)}
                     className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
                       isSelected
-                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 scale-105'
-                        : 'bg-white text-slate-700 hover:bg-indigo-50 border border-slate-200'
+                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105'
+                        : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
                     }`}
                   >
                     {isSelected && <span className="text-[10px]">✓</span>}

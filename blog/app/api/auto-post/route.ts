@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/utils/supabase/admin'
-import { collect24HourNews } from '@/utils/news/collector'
-import { generateSeoPost, AutoPostOptions } from '@/utils/news/generator'
-import { getSessionUser } from '@/utils/access'
-import { resolveApiKey } from '@/utils/apiKeys'
-import { getUserCloudinaryConfig } from '@/utils/cloudinary'
+import { createAdminClient } from '@/blog/utils/supabase/admin'
+import { collect24HourNews } from '@/blog/utils/news/collector'
+import { generateSeoPost, AutoPostOptions } from '@/blog/utils/news/generator'
+import { getSessionUser } from '@/blog/utils/access'
+import { resolveApiKey } from '@/blog/utils/apiKeys'
+import { getUserCloudinaryConfig } from '@/blog/utils/cloudinary'
 
 export async function POST(request: NextRequest) {
   try {

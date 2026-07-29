@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Settings, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, Settings, KeyRound, Menu, X } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { cn } from "@/lib/utils/cn";
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "내 구독" },
   { href: "/affiliate", icon: Users, label: "어필리에이트" },
+  { href: "/api-settings", icon: KeyRound, label: "API 설정" },
   { href: "/settings", icon: Settings, label: "설정" },
 ];
 
