@@ -230,9 +230,12 @@ CREATE POLICY "profiles_update_own" ON profiles FOR UPDATE USING (auth.uid() = i
 CREATE POLICY "profiles_insert_own" ON profiles FOR INSERT
   WITH CHECK (auth.uid() = id OR current_setting('role') = 'service_role');
 
--- member_grades: 누구나 읽기
+-- member_grades: 누구나 읽기, 관리자만 쓰기
 DROP POLICY IF EXISTS "grades_select_all" ON member_grades;
 CREATE POLICY "grades_select_all" ON member_grades FOR SELECT USING (true);
+DROP POLICY IF EXISTS "admin_all_member_grades" ON member_grades;
+CREATE POLICY "admin_all_member_grades" ON member_grades FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.is_admin = true));
 
 -- categories: 누구나 읽기
 DROP POLICY IF EXISTS "categories_select_all" ON categories;
