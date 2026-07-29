@@ -10,13 +10,14 @@ const CONTACT_INFO = [
   {
     icon: Mail,
     title: "이메일",
-    value: "support@buylife.xyz",
+    value: "buylifemall@gmail.com",
     desc: "평일 24시간 이내 답변",
   },
   {
     icon: MessageCircle,
     title: "카카오톡",
-    value: "@aimaster",
+    value: "카카오채널 문의하기",
+    href: "http://pf.kakao.com/_xhdvxmxj/chat",
     desc: "실시간 상담 가능",
   },
   {
@@ -114,13 +115,24 @@ export default function SupportPage() {
 
       {/* Contact Info */}
       <div className="grid md:grid-cols-3 gap-6 mb-16">
-        {CONTACT_INFO.map(({ icon: Icon, title, value, desc }) => (
+        {CONTACT_INFO.map(({ icon: Icon, title, value, href, desc }) => (
           <GlassCard key={title} className="text-center">
             <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mx-auto mb-3">
               <Icon size={22} className="text-gold" />
             </div>
             <h3 className="text-white font-bold mb-1">{title}</h3>
-            <p className="text-gold font-medium mb-1">{value}</p>
+            {href ? (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gold font-medium mb-1 hover:underline inline-block"
+              >
+                {value}
+              </a>
+            ) : (
+              <p className="text-gold font-medium mb-1">{value}</p>
+            )}
             <p className="text-subtext text-sm">{desc}</p>
           </GlassCard>
         ))}

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   if ("error" in auth)
     return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-  const { user_id, program_id } = await req.json();
+  const { user_id, program_id, expires_at } = await req.json();
   if (!user_id || !program_id)
     return NextResponse.json({ error: "user_id와 program_id 필수" }, { status: 400 });
 
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   const { error } = await service
     .from("user_program_access")
     .upsert(
-      { user_id, program_id, granted_by: auth.user.id },
+      { user_id, program_id, granted_by: auth.user.id, expires_at: expires_at ?? null },
       { onConflict: "user_id,program_id" }
     );
 

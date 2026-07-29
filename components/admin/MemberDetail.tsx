@@ -29,19 +29,32 @@ export default function MemberDetail({
   const [sessions, setSessions] = useState(initialSessions);
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedProgramId, setSelectedProgramId] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState("unlimited");
   const [loading, setLoading] = useState(false);
 
   // 이미 접근 부여된 프로그램 ID
   const grantedIds = new Set(manualAccess.map((a) => a.program_id));
   const availablePrograms = allPrograms.filter((p) => !grantedIds.has(p.id));
 
+  const PERIOD_OPTIONS = [
+    { value: "30", label: "30일" },
+    { value: "90", label: "90일" },
+    { value: "180", label: "180일" },
+    { value: "365", label: "365일" },
+    { value: "unlimited", label: "무제한" },
+  ];
+
   const grantAccess = async () => {
     if (!selectedProgramId) return;
     setLoading(true);
+    const expiresAt =
+      selectedPeriod === "unlimited"
+        ? null
+        : new Date(Date.now() + parseInt(selectedPeriod) * 24 * 60 * 60 * 1000).toISOString();
     const res = await fetch("/api/admin/user-access", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: member.id, program_id: selectedProgramId }),
+      body: JSON.stringify({ user_id: member.id, program_id: selectedProgramId, expires_at: expiresAt }),
     });
     if (res.ok) {
       const program = allPrograms.find((p) => p.id === selectedProgramId);
@@ -53,11 +66,12 @@ export default function MemberDetail({
           program_id: selectedProgramId,
           granted_by: null,
           granted_at: new Date().toISOString(),
-          expires_at: null,
+          expires_at: expiresAt,
           program,
         },
       ]);
       setSelectedProgramId("");
+      setSelectedPeriod("unlimited");
       setShowAddModal(false);
     }
     setLoading(false);
@@ -194,20 +208,30 @@ export default function MemberDetail({
           <p className="text-subtext text-sm">수동으로 부여된 프로그램 접근이 없습니다.</p>
         ) : (
           <div className="space-y-2">
-            {manualAccess.map((access) => (
-              <div key={access.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                <div>
-                  <span className="text-white text-sm font-medium">{access.program?.name ?? access.program_id}</span>
-                  <span className="text-subtext text-xs ml-3">{formatDate(access.granted_at)}</span>
+            {manualAccess.map((access) => {
+              const isExpired = !!access.expires_at && new Date(access.expires_at) <= new Date();
+              return (
+                <div key={access.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                  <div>
+                    <span className="text-white text-sm font-medium">{access.program?.name ?? access.program_id}</span>
+                    <span className="text-subtext text-xs ml-3">{formatDate(access.granted_at)} 부여</span>
+                    {access.expires_at ? (
+                      <span className={`text-xs ml-3 ${isExpired ? "text-red-400" : "text-subtext"}`}>
+                        {isExpired ? "만료됨" : "만료"} {formatDate(access.expires_at)}
+                      </span>
+                    ) : (
+                      <span className="text-xs ml-3 text-gold/70">무제한</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => revokeAccess(access.program_id)}
+                    className="text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
-                <button
-                  onClick={() => revokeAccess(access.program_id)}
-                  className="text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -223,11 +247,21 @@ export default function MemberDetail({
                   <select
                     value={selectedProgramId}
                     onChange={(e) => setSelectedProgramId(e.target.value)}
-                    className="input-dark w-full mb-4"
+                    className="input-dark w-full mb-3"
                   >
                     <option value="">프로그램 선택</option>
                     {availablePrograms.map((p) => (
                       <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                  <label className="text-subtext text-xs mb-1 block">이용 기간</label>
+                  <select
+                    value={selectedPeriod}
+                    onChange={(e) => setSelectedPeriod(e.target.value)}
+                    className="input-dark w-full mb-4"
+                  >
+                    {PERIOD_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
                     ))}
                   </select>
                   <div className="flex gap-2">

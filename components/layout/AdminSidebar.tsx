@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
+  PackagePlus,
   Users,
   Award,
   CreditCard,
@@ -23,7 +24,8 @@ import { cn } from "@/lib/utils/cn";
 const NAV_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "대시보드" },
   { href: "/admin/programs", icon: Package, label: "프로그램 관리" },
-  { href: "/admin/members", icon: Users, label: "회원 관리" },
+  { href: "/admin/programs/new", icon: PackagePlus, label: "프로그램 추가" },
+  { href: "/admin/members", icon: Users, label: "회원 관리 (사용권한/기간)" },
   { href: "/admin/grades", icon: Award, label: "등급 관리" },
   { href: "/admin/access-matrix", icon: Shield, label: "접근 권한 관리" },
   { href: "/admin/coupons", icon: Ticket, label: "쿠폰 관리" },
@@ -35,6 +37,12 @@ const NAV_ITEMS = [
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  // 여러 항목이 겹치는 경로(예: /admin/programs, /admin/programs/new)일 때
+  // 가장 구체적인(긴) href 하나만 활성 표시되도록 계산
+  const activeHref = NAV_ITEMS
+    .filter(({ href }) => href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   const navContent = (
     <>
@@ -56,7 +64,7 @@ export default function AdminSidebar() {
             onClick={() => setOpen(false)}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1",
-              pathname === href || (href !== "/admin" && pathname.startsWith(href))
+              href === activeHref
                 ? "text-gold bg-gold/10"
                 : "text-subtext hover:text-white hover:bg-white/5"
             )}
