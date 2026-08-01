@@ -1,8 +1,11 @@
 import "server-only";
 
+// blog(AutoBlog) AI 글쓰기 폼의 5가지 톤 옵션과 동일하게 맞춘다.
+export type ThreadsTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는";
+
 export interface GeneratePostInput {
   topic: string;
-  tone?: "casual" | "professional" | "friendly";
+  tone?: ThreadsTone;
   keywords?: string[];
   referenceUrls?: string[];
 }
@@ -12,11 +15,13 @@ export interface GeneratePostResult {
 }
 
 // 반말 기조는 고정, 톤 옵션은 그 위에서 에너지/분위기만 바꾼다
-// (기존 "전문적" 옵션이 존댓말을 유도해 형식이 깨지던 문제 방지).
-const TONE_INSTRUCTIONS: Record<NonNullable<GeneratePostInput["tone"]>, string> = {
-  casual: "친근하고 캐주얼한 에너지로, 반말 유지.",
-  professional: "신뢰감 있고 정보 전달에 집중하되, 딱딱해지지 않게 반말 유지.",
-  friendly: "다정하고 편안한 느낌으로, 반말 유지.",
+// (예전 "전문적"/"격식있는" 옵션이 존댓말을 유도해 형식이 깨지던 문제 방지).
+const TONE_INSTRUCTIONS: Record<ThreadsTone, string> = {
+  전문적: "신뢰감 있고 정보 전달에 집중하되, 딱딱해지지 않게 반말 유지.",
+  친근함: "친근하고 편안한 에너지로, 반말 유지.",
+  설득력있는: "구매 욕구를 자극하는 설득력 있는 어조로, 반말 유지.",
+  격식있는: "차분하고 안정감 있는 분위기로, 존댓말이 아닌 반말을 유지하되 가볍지 않게.",
+  위트있는: "위트있고 재치있게, 반말 유지.",
 };
 
 // Threads 게시물 전용 카피라이팅 규칙. 제목(훅) + 본문 구조로, 짧고 스캔하기
@@ -45,7 +50,7 @@ export async function generatePostContent(
     throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
   }
 
-  const toneInstruction = TONE_INSTRUCTIONS[input.tone ?? "casual"];
+  const toneInstruction = TONE_INSTRUCTIONS[input.tone ?? "친근함"];
   const keywords = (input.keywords ?? []).filter((k) => k.trim().length > 0);
   const keywordLine = keywords.length > 0 ? `\n포함할 키워드: ${keywords.join(", ")}` : "";
   const referenceUrls = (input.referenceUrls ?? []).filter((u) => u.trim().length > 0);

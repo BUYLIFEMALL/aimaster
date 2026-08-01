@@ -1,22 +1,26 @@
 "use client";
 
-import { useActionState, useRef, useState, useTransition } from "react";
+import { startTransition, useActionState, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import type { PostActionState } from "@/lib/actions/posts";
 import { generateContentAction, generateImageAction } from "@/lib/actions/ai";
 import { createClient } from "@/lib/supabase/client";
+import type { ThreadsTone } from "@/lib/ai/generator";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 type PublishMode = "draft" | "schedule" | "now";
-type Tone = "casual" | "professional" | "friendly";
+type Tone = ThreadsTone;
 
+// blog(AutoBlog) AI 글쓰기 폼과 동일한 5가지 톤 옵션
 const TONE_OPTIONS: { value: Tone; label: string }[] = [
-  { value: "casual", label: "캐주얼" },
-  { value: "professional", label: "전문적" },
-  { value: "friendly", label: "다정하게" },
+  { value: "전문적", label: "전문적" },
+  { value: "친근함", label: "친근함" },
+  { value: "설득력있는", label: "설득력있는" },
+  { value: "격식있는", label: "격식있는" },
+  { value: "위트있는", label: "위트있는" },
 ];
 
 const SUGGESTED_TOPICS = [
@@ -45,6 +49,9 @@ interface PostFormProps {
   initialScheduledAtLocal?: string;
   initialPublishMode?: PublishMode;
   hasThreadsAccount: boolean;
+  // true면 별도 "생성" 버튼 없이, 제출(생성하기) 버튼 클릭 시 텍스트+이미지를
+  // 무조건 함께 생성한 뒤 그 결과로 저장까지 한 번에 처리한다 (새 글 작성 전용).
+  aiGenerateOnSubmit?: boolean;
 }
 
 const initialState: PostActionState = {};
@@ -58,6 +65,7 @@ export function PostForm({
   initialScheduledAtLocal = "",
   initialPublishMode = "draft",
   hasThreadsAccount,
+  aiGenerateOnSubmit = false,
 }: PostFormProps) {
   const [state, formAction, isPending] = useActionState(action, initialState);
   const [publishMode, setPublishMode] = useState<PublishMode>(initialPublishMode);
@@ -106,13 +114,12 @@ export function PostForm({
   };
 
   const [topic, setTopic] = useState("");
-  const [tone, setTone] = useState<Tone>("casual");
+  const [tone, setTone] = useState<Tone>("친근함");
   const [keywordInput, setKeywordInput] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
   const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
-  const [isGenerating, startGenerating] = useTransition();
 
   const handleReferenceUrlChange = (index: number, value: string) => {
     setReferenceUrls((prev) => {
@@ -139,27 +146,6 @@ export function PostForm({
       e.preventDefault();
       handleAddKeyword(keywordInput);
     }
-  };
-
-  const handleGenerate = () => {
-    setAiError(null);
-    const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
-    startGenerating(async () => {
-      const result = await generateContentAction({
-        topic,
-        tone,
-        keywords,
-        referenceUrls: validReferenceUrls,
-        apiKey: openaiApiKey,
-      });
-      if (result.error) {
-        setAiError(result.error);
-        return;
-      }
-      if (result.content) {
-        setContent(result.content);
-      }
-    });
   };
 
   const [imagePrompt, setImagePrompt] = useState("");
@@ -189,46 +175,58 @@ export function PostForm({
 
   // blog(AutoBlog)의 "AI 글 생성 시작" 방식처럼, 주제만 주면 게시글 본문과
   // 이미지를 한 번에 자동 생성한다 (텍스트 생성 후 이어서 이미지 생성).
-  const [isGeneratingAll, startGeneratingAll] = useTransition();
+  // useTransition이 아닌 일반 state로 관리한다: formAction(서버 액션 dispatch)을
+  // 별도 startTransition 콜백 안에 중첩 호출하면 redirect()가 정상 처리되지
+  // 않는 문제가 있어(저장은 되지만 화면 전환이 안 됨), handleSubmit 자체의
+  // async 흐름에서 곧바로 호출해야 한다.
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
-  const handleGenerateAll = () => {
+  const runGenerateAll = async (): Promise<{ content: string; imageUrl: string } | null> => {
     setAiError(null);
     setImageGenError(null);
     const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
 
-    startGeneratingAll(async () => {
-      setStatusMsg("AI가 Threads 트렌드를 분석해서 게시글을 작성하고 있습니다...");
-      const textResult = await generateContentAction({
-        topic,
-        tone,
-        keywords,
-        referenceUrls: validReferenceUrls,
-        apiKey: openaiApiKey,
-      });
-      if (textResult.error) {
-        setAiError(textResult.error);
-        setStatusMsg(null);
-        return;
-      }
-      if (textResult.content) {
-        setContent(textResult.content);
-      }
-
-      const prompt = imagePrompt.trim() || topic.trim();
-      if (prompt) {
-        setStatusMsg("게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다...");
-        const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
-        if (imageResult.error) {
-          // 텍스트는 이미 성공했으므로 이미지 실패로 전체를 막지 않는다
-          setImageGenError(imageResult.error);
-        } else if (imageResult.imageUrl) {
-          setImageUrl(imageResult.imageUrl);
-        }
-      }
-
-      setStatusMsg(null);
+    setStatusMsg("AI가 Threads 트렌드를 분석해서 게시글을 작성하고 있습니다...");
+    const textResult = await generateContentAction({
+      topic,
+      tone,
+      keywords,
+      referenceUrls: validReferenceUrls,
+      apiKey: openaiApiKey,
     });
+    if (textResult.error) {
+      setAiError(textResult.error);
+      setStatusMsg(null);
+      return null;
+    }
+    const finalContent = textResult.content ?? "";
+    setContent(finalContent);
+
+    let finalImageUrl = imageUrl;
+    const prompt = imagePrompt.trim() || topic.trim();
+    if (prompt) {
+      setStatusMsg("게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다...");
+      const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+      if (imageResult.error) {
+        // 텍스트는 이미 성공했으므로 이미지 실패로 전체를 막지 않는다
+        setImageGenError(imageResult.error);
+      } else if (imageResult.imageUrl) {
+        finalImageUrl = imageResult.imageUrl;
+        setImageUrl(imageResult.imageUrl);
+      }
+    }
+
+    setStatusMsg(null);
+    return { content: finalContent, imageUrl: finalImageUrl };
+  };
+
+  // handleGenerateAll: 수정 화면에서만 노출되는 수동 "함께 생성" 버튼용
+  // (aiGenerateOnSubmit=false일 때). 새 글 작성에서는 제출 시 자동으로 실행됨.
+  const handleGenerateAll = async () => {
+    setIsGeneratingAll(true);
+    await runGenerateAll();
+    setIsGeneratingAll(false);
   };
 
   const scheduledAtIso =
@@ -236,14 +234,51 @@ export function PostForm({
       ? new Date(scheduledAtLocal).toISOString()
       : "";
 
+  const buildFormData = (finalContent: string, finalImageUrl: string) => {
+    const fd = new FormData();
+    fd.set("content", finalContent);
+    fd.set("imageUrl", finalImageUrl);
+    fd.set("publishMode", publishMode);
+    fd.set("scheduledAt", scheduledAtIso);
+    return fd;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!aiGenerateOnSubmit) {
+      // formAction(useActionState의 dispatch)은 반드시 startTransition 안에서
+      // 호출해야 한다 (React 19 요구사항 — 그렇지 않으면 redirect()가 정상
+      // 처리되지 않고 저장만 되고 화면 전환이 안 되는 문제가 있었다).
+      startTransition(() => {
+        formAction(buildFormData(content, imageUrl));
+      });
+      return;
+    }
+
+    if (!topic.trim()) {
+      setAiError("주제를 입력해주세요.");
+      return;
+    }
+
+    setIsGeneratingAll(true);
+    const result = await runGenerateAll();
+    setIsGeneratingAll(false);
+    if (!result) return;
+    startTransition(() => {
+      formAction(buildFormData(result.content, result.imageUrl));
+    });
+  };
+
   return (
-    <form action={formAction} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
         <div>
-          <label className="block text-sm font-medium text-neutral-700">AI로 글+이미지 초안 생성 (선택)</label>
+          <label className="block text-sm font-medium text-neutral-700">AI로 글+이미지 자동 생성</label>
           <p className="text-xs text-neutral-500">
-            주제나 키워드를 주면 Threads 트렌드에 맞춰 500자 이내, 반말 톤으로 게시글을 쓰고,
-            이어서 나노바나나로 어울리는 이미지까지 함께 생성합니다.
+            {aiGenerateOnSubmit
+              ? `주제나 키워드를 입력하고 아래 "${submitLabel}"를 누르면, Threads 트렌드에 맞춰 500자 이내·반말 톤 게시글과 나노바나나 이미지가 무조건 함께 생성된 뒤 바로 저장됩니다.`
+              : "주제나 키워드를 주면 Threads 트렌드에 맞춰 500자 이내, 반말 톤으로 게시글을 쓰고, 이어서 나노바나나로 어울리는 이미지까지 함께 생성합니다."}
           </p>
         </div>
 
@@ -338,23 +373,15 @@ export function PostForm({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {!aiGenerateOnSubmit && (
           <Button
             type="button"
             onClick={handleGenerateAll}
-            disabled={isGeneratingAll || isGenerating || !topic.trim()}
+            disabled={isGeneratingAll || !topic.trim()}
           >
             {isGeneratingAll ? "생성 중..." : "✨ AI로 글+이미지 함께 생성"}
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleGenerate}
-            disabled={isGeneratingAll || isGenerating || !topic.trim()}
-          >
-            {isGenerating ? "생성 중..." : "텍스트만 생성"}
-          </Button>
-        </div>
+        )}
 
         {statusMsg && (
           <p className="animate-pulse rounded-md bg-neutral-900/5 px-3 py-2 text-xs font-medium text-neutral-700">
@@ -377,6 +404,11 @@ export function PostForm({
 
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">게시글 내용</label>
+        {aiGenerateOnSubmit && (
+          <p className="mb-1 text-xs text-neutral-400">
+            {`"${submitLabel}" 클릭 시 위 AI 설정으로 자동 생성되어 채워집니다.`}
+          </p>
+        )}
         <Textarea
           name="content"
           rows={6}
@@ -522,8 +554,11 @@ export function PostForm({
         </p>
       )}
 
-      <Button type="submit" disabled={isPending || (publishMode === "now" && !hasThreadsAccount)}>
-        {isPending ? "처리 중..." : submitLabel}
+      <Button
+        type="submit"
+        disabled={isPending || isGeneratingAll || (publishMode === "now" && !hasThreadsAccount)}
+      >
+        {isGeneratingAll ? "생성 중..." : isPending ? "처리 중..." : submitLabel}
       </Button>
     </form>
   );
