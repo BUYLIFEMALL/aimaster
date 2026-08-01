@@ -141,11 +141,15 @@ const NANO_BANANA_MODEL_CONFIGS: Record<NanoBananaModelType, NanoBananaModelConf
     imageSize: "4K",
     temperature: 0.7,
   },
+  // "gemini-3-pro-image"는 Gemini API(v1)에 실제로 존재하지 않는 모델명이라
+  // 항상 404가 났다 (blog의 nanoBananaConfig.ts에도 동일한 오류가 있음).
+  // 현재 API가 제공하는 이미지 모델 중 최상위인 gemini-3.1-flash-image를
+  // 그대로 쓰되 temperature를 낮춰 더 정교하고 일관된 결과를 유도한다.
   "nanobanana-pro": {
-    modelName: "gemini-3-pro-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3-pro-image:generateContent",
+    modelName: "gemini-3.1-flash-image",
+    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
     imageSize: "4K",
-    temperature: 0.7,
+    temperature: 0.4,
   },
 };
 
