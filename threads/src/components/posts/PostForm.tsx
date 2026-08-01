@@ -206,14 +206,28 @@ export function PostForm({
     let finalImageUrl = imageUrl;
     const prompt = imagePrompt.trim() || topic.trim();
     if (prompt) {
-      setStatusMsg("게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다...");
-      const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
-      if (imageResult.error) {
-        // 텍스트는 이미 성공했으므로 이미지 실패로 전체를 막지 않는다
-        setImageGenError(imageResult.error);
-      } else if (imageResult.imageUrl) {
-        finalImageUrl = imageResult.imageUrl;
-        setImageUrl(imageResult.imageUrl);
+      // 나노바나나가 프롬프트에 따라(안전 필터/모델 판단 등) 이미지를 못
+      // 돌려주는 경우가 종종 있어, 완전히 포기하기 전에 한 번 더 시도한다.
+      const MAX_IMAGE_ATTEMPTS = 2;
+      let lastError: string | undefined;
+      for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
+        setStatusMsg(
+          attempt === 1
+            ? "게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다..."
+            : `이미지 생성에 실패해서 다시 시도하고 있습니다... (${attempt}/${MAX_IMAGE_ATTEMPTS})`,
+        );
+        const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+        if (imageResult.imageUrl) {
+          finalImageUrl = imageResult.imageUrl;
+          setImageUrl(imageResult.imageUrl);
+          lastError = undefined;
+          break;
+        }
+        lastError = imageResult.error;
+      }
+      if (lastError) {
+        // 재시도까지 실패해도 텍스트는 이미 성공했으므로 전체를 막지 않는다
+        setImageGenError(lastError);
       }
     }
 
