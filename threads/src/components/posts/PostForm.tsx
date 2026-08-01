@@ -428,14 +428,6 @@ export function PostForm({
             AI로 이미지 생성 (나노바나나, 선택)
           </label>
           <div className="flex flex-wrap gap-2">
-            <Input
-              className="min-w-[200px] flex-1"
-              value={imagePrompt}
-              onChange={(e) => setImagePrompt(e.target.value)}
-              placeholder={topic ? `비워두면 "${topic}" 주제를 그대로 사용합니다` : "이미지 설명을 입력하세요"}
-              autoComplete="off"
-              name="ai_image_prompt_field"
-            />
             <select
               value={imageModel}
               onChange={(e) => setImageModel(e.target.value as typeof imageModel)}
@@ -447,6 +439,14 @@ export function PostForm({
                 </option>
               ))}
             </select>
+            <Input
+              className="min-w-[200px] flex-1"
+              value={imagePrompt}
+              onChange={(e) => setImagePrompt(e.target.value)}
+              placeholder={topic ? `비워두면 "${topic}" 주제를 그대로 사용합니다` : "이미지 설명을 입력하세요"}
+              autoComplete="off"
+              name="ai_image_prompt_field"
+            />
             <Button
               type="button"
               variant="secondary"
