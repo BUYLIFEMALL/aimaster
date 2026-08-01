@@ -6,6 +6,7 @@ import {
   generatePostContent,
   generatePostImage,
   type GeneratePostInput,
+  type NanoBananaModelType,
 } from "@/lib/ai/generator";
 import { logProgramUsage } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
@@ -52,6 +53,7 @@ export async function generateContentAction(
 export async function generateImageAction(input: {
   prompt: string;
   apiKey?: string;
+  model?: NanoBananaModelType;
 }): Promise<GenerateImageState> {
   const user = await requireUser();
 
@@ -66,7 +68,7 @@ export async function generateImageAction(input: {
       return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
     }
 
-    const result = await generatePostImage({ prompt: input.prompt }, apiKey);
+    const result = await generatePostImage({ prompt: input.prompt, model: input.model }, apiKey);
     const ext = result.mimeType.split("/")[1] ?? "png";
     const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
 
