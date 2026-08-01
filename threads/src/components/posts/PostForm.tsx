@@ -19,6 +19,15 @@ const TONE_OPTIONS: { value: Tone; label: string }[] = [
   { value: "friendly", label: "다정하게" },
 ];
 
+const SUGGESTED_TOPICS = [
+  "신제품 출시 소식",
+  "이번 주 트렌드 인사이트",
+  "고객 후기 하이라이트",
+  "업계 꿀팁 공유",
+  "한정 프로모션 안내",
+  "브랜드 스토리 한 조각",
+];
+
 interface PostFormProps {
   action: (prevState: PostActionState, formData: FormData) => Promise<PostActionState>;
   submitLabel: string;
@@ -90,14 +99,35 @@ export function PostForm({
 
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState<Tone>("casual");
+  const [keywordInput, setKeywordInput] = useState("");
+  const [keywords, setKeywords] = useState<string[]>([]);
   const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
   const [isGenerating, startGenerating] = useTransition();
 
+  const handleAddKeyword = (kw: string) => {
+    const trimmed = kw.trim();
+    if (trimmed && !keywords.includes(trimmed)) {
+      setKeywords((prev) => [...prev, trimmed]);
+    }
+    setKeywordInput("");
+  };
+
+  const handleRemoveKeyword = (target: string) => {
+    setKeywords((prev) => prev.filter((k) => k !== target));
+  };
+
+  const handleKeywordKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddKeyword(keywordInput);
+    }
+  };
+
   const handleGenerate = () => {
     setAiError(null);
     startGenerating(async () => {
-      const result = await generateContentAction({ topic, tone, apiKey: openaiApiKey });
+      const result = await generateContentAction({ topic, tone, keywords, apiKey: openaiApiKey });
       if (result.error) {
         setAiError(result.error);
         return;
@@ -137,14 +167,22 @@ export function PostForm({
 
   return (
     <form action={formAction} className="space-y-5">
-      <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-        <label className="block text-sm font-medium text-neutral-700">AI로 초안 생성 (선택)</label>
+      <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+        <div>
+          <label className="block text-sm font-medium text-neutral-700">AI로 초안 생성 (선택)</label>
+          <p className="text-xs text-neutral-500">
+            주제나 키워드를 주면 Threads 트렌드에 맞춰 500자 이내, 반말 톤으로 자동 생성합니다.
+          </p>
+        </div>
+
         <div className="flex flex-wrap gap-2">
           <Input
             className="min-w-[200px] flex-1"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="주제를 입력하세요 (예: 여름 세일 프로모션)"
+            autoComplete="off"
+            name="ai_topic_field"
           />
           <select
             value={tone}
@@ -157,21 +195,70 @@ export function PostForm({
               </option>
             ))}
           </select>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleGenerate}
-            disabled={isGenerating || !topic.trim()}
-          >
-            {isGenerating ? "생성 중..." : "AI로 생성"}
-          </Button>
         </div>
+
+        <div className="flex flex-wrap gap-1.5">
+          {SUGGESTED_TOPICS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setTopic(item)}
+              className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:text-neutral-900"
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <div className="space-y-1.5">
+          <Input
+            value={keywordInput}
+            onChange={(e) => setKeywordInput(e.target.value)}
+            onKeyDown={handleKeywordKeyDown}
+            placeholder="키워드 입력 후 Enter (선택)"
+            className="text-sm"
+            autoComplete="off"
+            name="ai_keyword_field"
+          />
+          {keywords.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {keywords.map((kw) => (
+                <span
+                  key={kw}
+                  className="inline-flex items-center gap-1 rounded-md bg-neutral-200 px-2 py-0.5 text-xs font-medium text-neutral-700"
+                >
+                  #{kw}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveKeyword(kw)}
+                    className="text-neutral-500 hover:text-neutral-900"
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleGenerate}
+          disabled={isGenerating || !topic.trim()}
+        >
+          {isGenerating ? "생성 중..." : "AI로 생성"}
+        </Button>
+
         <Input
-          type="password"
+          type="text"
+          name="openai_key_field"
+          autoComplete="new-password"
           value={openaiApiKey}
           onChange={(e) => setOpenaiApiKey(e.target.value)}
           placeholder="내 OpenAI API 키 (선택, 비워두면 설정에 저장된 키 사용)"
           className="text-xs"
+          style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
         />
         {aiError && <p className="text-xs text-red-600">{aiError}</p>}
       </div>
@@ -202,6 +289,8 @@ export function PostForm({
               value={imagePrompt}
               onChange={(e) => setImagePrompt(e.target.value)}
               placeholder={topic ? `비워두면 "${topic}" 주제를 그대로 사용합니다` : "이미지 설명을 입력하세요"}
+              autoComplete="off"
+              name="ai_image_prompt_field"
             />
             <Button
               type="button"
@@ -213,11 +302,14 @@ export function PostForm({
             </Button>
           </div>
           <Input
-            type="password"
+            type="text"
+            name="gemini_key_field"
+            autoComplete="new-password"
             value={geminiApiKey}
             onChange={(e) => setGeminiApiKey(e.target.value)}
             placeholder="내 Gemini API 키 (선택, 비워두면 설정에 저장된 키 사용)"
             className="text-xs"
+            style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
           />
           {imageGenError && <p className="text-xs text-red-600">{imageGenError}</p>}
         </div>

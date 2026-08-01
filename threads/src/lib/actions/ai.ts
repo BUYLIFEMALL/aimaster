@@ -40,7 +40,7 @@ export async function generateContentAction(
     await logProgramUsage({
       userId: user.id,
       action: "ai_generate_post",
-      metadata: { topic: input.topic, tone: input.tone },
+      metadata: { topic: input.topic, tone: input.tone, keywords: input.keywords },
     });
     return { content: result.content };
   } catch (err) {

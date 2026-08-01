@@ -3,28 +3,32 @@ import "server-only";
 export interface GeneratePostInput {
   topic: string;
   tone?: "casual" | "professional" | "friendly";
+  keywords?: string[];
 }
 
 export interface GeneratePostResult {
   content: string;
 }
 
+// 반말 기조는 고정, 톤 옵션은 그 위에서 에너지/분위기만 바꾼다
+// (기존 "전문적" 옵션이 존댓말을 유도해 형식이 깨지던 문제 방지).
 const TONE_INSTRUCTIONS: Record<NonNullable<GeneratePostInput["tone"]>, string> = {
-  casual: "친근하고 캐주얼한 말투로 작성해줘.",
-  professional: "전문적이고 신뢰감 있는 말투로 작성해줘.",
-  friendly: "다정하고 편안한 말투로 작성해줘.",
+  casual: "친근하고 캐주얼한 에너지로, 반말 유지.",
+  professional: "신뢰감 있고 정보 전달에 집중하되, 딱딱해지지 않게 반말 유지.",
+  friendly: "다정하고 편안한 느낌으로, 반말 유지.",
 };
 
 // Threads 게시물 전용 카피라이팅 규칙. 제목(훅) + 본문 구조로, 짧고 스캔하기
 // 쉬운 형태로 구매욕을 자극하는 게 목적이다 (일반 블로그 장문 포스팅과는 다른 포맷).
-const THREADS_SYSTEM_PROMPT = `이 정보를 사용하여 상품을 포착하여 상품 구매욕을 일으킬 수 있는 짧고 매력적인 Threads 게시물을 만드십시오. 다음 조건을 명심하십시오.
+const THREADS_SYSTEM_PROMPT = `이 정보를 사용하여 상품을 포착하여 상품 구매욕을 일으킬 수 있는 짧고 매력적인 Threads 게시물을 만드십시오. 다음 조건을 반드시 지키세요.
 
 1. 제목은 10자 이내로 작성해 주세요
-2. 내용은 450자 이내로 간결하고 요점을 잡으십시오
+2. 전체 게시글(제목+본문)은 공백 포함 500자를 절대 넘기지 마세요
 3. 제목 앞에 어울리는 이모티콘을 붙여주고 작성해 주세요
 4. 게시글을 시각적으로 더 매력적으로 만들기 위해 이모티콘 하나나 둘을 추가하는 것을 고려하세요. 하지만 과하지 마세요
 5. 문단을 나누어 간결하게 작성해서 읽기 쉽게 핵심 정보만 포함해 주세요
-6. 불필요한 설명은 하지 말고 반말로 작성해 주세요
+6. 무조건 반말로만 작성하세요. 존댓말(-습니다/-해요/-세요 등)은 절대 쓰지 마세요
+7. 주어진 키워드가 있다면 자연스럽게 본문에 녹여 넣으세요 (해시태그 나열 금지)
 
 톤은 트렌디하고, 열정적이며, 유익해야 합니다.
 팔로워와 흥미로운 팁이나 통찰력을 공유한다고 상상해보세요.
@@ -40,6 +44,8 @@ export async function generatePostContent(
   }
 
   const toneInstruction = TONE_INSTRUCTIONS[input.tone ?? "casual"];
+  const keywords = (input.keywords ?? []).filter((k) => k.trim().length > 0);
+  const keywordLine = keywords.length > 0 ? `\n포함할 키워드: ${keywords.join(", ")}` : "";
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -56,10 +62,10 @@ export async function generatePostContent(
         },
         {
           role: "user",
-          content: `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})`,
+          content: `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})${keywordLine}`,
         },
       ],
-      max_tokens: 400,
+      max_tokens: 600,
       temperature: 0.8,
     }),
   });
@@ -78,7 +84,8 @@ export async function generatePostContent(
     throw new Error("AI가 빈 응답을 반환했습니다.");
   }
 
-  return { content };
+  // 모델이 지시를 넘겨서 500자를 초과하는 경우를 대비한 안전장치
+  return { content: content.length > 500 ? content.slice(0, 500).trim() : content };
 }
 
 export interface GeneratePostImageInput {
