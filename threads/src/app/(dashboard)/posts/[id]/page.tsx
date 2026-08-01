@@ -1,11 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { PostForm } from "@/components/posts/PostForm";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { Button } from "@/components/ui/Button";
-import { deletePostAction, publishNowAction, updatePostAction } from "@/lib/actions/posts";
-import { toDatetimeLocalValue } from "@/lib/date";
+import { deletePostAction, publishNowAction } from "@/lib/actions/posts";
 
 export default async function PostDetailPage({
   params,
@@ -21,17 +20,14 @@ export default async function PostDetailPage({
     supabase.from("threads_accounts").select("id").eq("user_id", user.id).maybeSingle(),
   ]);
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
 
   const isEditable = post.status === "draft" || post.status === "scheduled" || post.status === "failed";
-  const boundUpdateAction = updatePostAction.bind(null, post.id);
 
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-neutral-900">게시글 상세</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900">게시글 결과</h1>
         <StatusBadge status={post.status} />
       </div>
 
@@ -56,33 +52,44 @@ export default async function PostDetailPage({
         </div>
       )}
 
-      {isEditable ? (
-        <PostForm
-          action={boundUpdateAction}
-          submitLabel="저장하기"
-          userId={user.id}
-          initialContent={post.content}
-          initialImageUrl={post.image_url ?? ""}
-          initialScheduledAtLocal={toDatetimeLocalValue(post.scheduled_at)}
-          initialPublishMode={post.status === "scheduled" ? "schedule" : "draft"}
-          hasThreadsAccount={Boolean(account)}
-        />
-      ) : (
-        <div className="space-y-4">
-          <div className="rounded-lg border border-neutral-200 bg-white p-4">
-            <p className="whitespace-pre-wrap text-sm text-neutral-900">{post.content}</p>
-            {post.image_url && (
-              <p className="mt-2 truncate text-xs text-neutral-500">이미지: {post.image_url}</p>
-            )}
-          </div>
+      {post.status === "scheduled" && post.scheduled_at && (
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+          예약 게시 시각: {new Date(post.scheduled_at).toLocaleString("ko-KR")}
         </div>
       )}
 
-      <div className="mt-6 flex flex-wrap gap-2 border-t border-neutral-200 pt-6">
+      {/* 완성된 게시글 + 이미지 미리보기 (실제 Threads에 보이는 모습과 유사하게) */}
+      <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        {post.image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={post.image_url}
+            alt="게시글 이미지"
+            className="max-h-[420px] w-full object-cover"
+          />
+        )}
+        <div className="p-5">
+          <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-900">
+            {post.content}
+          </p>
+          <p className="mt-3 text-xs text-neutral-400">
+            {new Date(post.created_at).toLocaleString("ko-KR")}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-6">
+        {isEditable && (
+          <Link href={`/posts/${post.id}/edit`}>
+            <Button type="button" variant="secondary">
+              수정하기
+            </Button>
+          </Link>
+        )}
         {isEditable && post.status !== "scheduled" && (
           <form action={publishNowAction}>
             <input type="hidden" name="postId" value={post.id} />
-            <Button type="submit" variant="secondary" disabled={!account}>
+            <Button type="submit" disabled={!account}>
               지금 게시하기
             </Button>
           </form>
@@ -94,6 +101,12 @@ export default async function PostDetailPage({
           </Button>
         </form>
       </div>
+
+      {isEditable && post.status !== "scheduled" && !account && (
+        <p className="mt-2 text-xs text-red-600">
+          Threads 계정이 연결되어 있지 않아 즉시 게시할 수 없습니다. 계정 연결 후 이용해주세요.
+        </p>
+      )}
     </div>
   );
 }
