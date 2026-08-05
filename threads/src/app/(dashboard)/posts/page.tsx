@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { POST_STATUS_LABELS, type PostStatus } from "@/types/post";
+import { deletePostAction } from "@/lib/actions/posts";
 
 const FILTERS: Array<{ value: PostStatus | "all"; label: string }> = [
   { value: "all", label: "전체" },
@@ -71,11 +72,8 @@ export default async function PostsPage({
         ) : (
           <ul className="divide-y divide-neutral-100">
             {posts.map((post) => (
-              <li key={post.id}>
-                <Link
-                  href={`/posts/${post.id}`}
-                  className="flex items-center justify-between gap-4 p-4 hover:bg-neutral-50"
-                >
+              <li key={post.id} className="flex items-center gap-2 p-4 hover:bg-neutral-50">
+                <Link href={`/posts/${post.id}`} className="flex min-w-0 flex-1 items-center gap-4">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm text-neutral-900">{post.content}</p>
                     <p className="mt-1 text-xs text-neutral-500">
@@ -86,6 +84,15 @@ export default async function PostsPage({
                   </div>
                   <StatusBadge status={post.status} />
                 </Link>
+                <form action={deletePostAction}>
+                  <input type="hidden" name="postId" value={post.id} />
+                  <button
+                    type="submit"
+                    className="flex-shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                  >
+                    삭제
+                  </button>
+                </form>
               </li>
             ))}
           </ul>
