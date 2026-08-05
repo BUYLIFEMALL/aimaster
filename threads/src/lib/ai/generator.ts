@@ -8,6 +8,7 @@ export interface GeneratePostInput {
   tone?: ThreadsTone;
   keywords?: string[];
   referenceUrls?: string[];
+  cta?: { text: string; url: string };
 }
 
 export interface GeneratePostResult {
@@ -36,6 +37,7 @@ const THREADS_SYSTEM_PROMPT = `이 정보를 사용하여 상품을 포착하여
 6. 무조건 반말로만 작성하세요. 존댓말(-습니다/-해요/-세요 등)은 절대 쓰지 마세요
 7. 주어진 키워드가 있다면 자연스럽게 본문에 녹여 넣으세요 (해시태그 나열 금지)
 8. 참고 웹페이지 링크가 주어지면 그 내용을 참고해서 사실 관계나 포인트를 반영하되, 본문에 URL 자체를 그대로 나열하지 마세요
+9. 홍보 링크(CTA)가 주어지면 게시글 맨 마지막 줄에 "CTA 문구 + 링크" 형태로 자연스럽게 추가하세요 (예: "👉 {문구}\n{링크}"). 500자 제한에 포함되니 본문 분량을 그만큼 줄여서 넣으세요
 
 톤은 트렌디하고, 열정적이며, 유익해야 합니다.
 팔로워와 흥미로운 팁이나 통찰력을 공유한다고 상상해보세요.
@@ -55,6 +57,10 @@ export async function generatePostContent(
   const keywordLine = keywords.length > 0 ? `\n포함할 키워드: ${keywords.join(", ")}` : "";
   const referenceUrls = (input.referenceUrls ?? []).filter((u) => u.trim().length > 0);
   const referenceLine = referenceUrls.length > 0 ? `\n참고 웹페이지: ${referenceUrls.join(", ")}` : "";
+  const ctaLine =
+    input.cta?.url?.trim()
+      ? `\nCTA(홍보 링크) 문구: ${input.cta.text?.trim() || "자세히 보기"}\nCTA(홍보 링크) URL: ${input.cta.url.trim()}`
+      : "";
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -71,7 +77,7 @@ export async function generatePostContent(
         },
         {
           role: "user",
-          content: `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})${keywordLine}${referenceLine}`,
+          content: `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})${keywordLine}${referenceLine}${ctaLine}`,
         },
       ],
       max_tokens: 600,

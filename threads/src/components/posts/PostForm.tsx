@@ -129,6 +129,8 @@ export function PostForm({
   const [keywordInput, setKeywordInput] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
+  const [ctaText, setCtaText] = useState("");
+  const [ctaUrl, setCtaUrl] = useState("");
   const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
 
@@ -204,6 +206,7 @@ export function PostForm({
       tone,
       keywords,
       referenceUrls: validReferenceUrls,
+      cta: ctaUrl.trim() ? { text: ctaText.trim(), url: ctaUrl.trim() } : undefined,
       apiKey: openaiApiKey,
     });
     if (textResult.error) {
@@ -396,6 +399,32 @@ export function PostForm({
                 className="text-sm"
               />
             ))}
+          </div>
+        </div>
+
+        <div className="space-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+          <label className="block text-xs font-medium text-neutral-500">
+            🔗 홍보 링크 (선택) — 게시글 하단에 자연스럽게 삽입됩니다
+          </label>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <Input
+              type="text"
+              name="cta_text_field"
+              autoComplete="off"
+              value={ctaText}
+              onChange={(e) => setCtaText(e.target.value)}
+              placeholder="추천 문구 (예: 지금 바로 확인하기)"
+              className="text-sm"
+            />
+            <Input
+              type="url"
+              name="cta_url_field"
+              autoComplete="off"
+              value={ctaUrl}
+              onChange={(e) => setCtaUrl(e.target.value)}
+              placeholder="https://example.com/offer"
+              className="text-sm"
+            />
           </div>
         </div>
 
