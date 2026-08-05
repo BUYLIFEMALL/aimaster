@@ -490,9 +490,16 @@ export function PostForm({
             accept="image/*"
             onChange={handleFileChange}
             disabled={isUploading}
-            className="text-sm text-neutral-600"
+            className="hidden"
           />
-          {isUploading && <span className="text-xs text-neutral-500">업로드 중...</span>}
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+          >
+            {isUploading ? "업로드 중..." : "파일 직접 등록하기"}
+          </Button>
         </div>
         {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
         <Input
