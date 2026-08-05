@@ -1,6 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
+import { checkProgramAccess } from '@/lib/access/checkProgramAccess'
 import { mdLiteToHtml } from '@/utils/markdown'
+
+const BLOG_PROGRAM_SLUG = 'ai-auto-blog'
+
+/** PUT/DELETE 전에 로그인 + "ai-auto-blog" 프로그램 이용 권한을 확인한다. */
+async function requireBlogProgramAccess() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { ok: false as const, error: '로그인이 필요합니다.', status: 401 }
+  }
+
+  const access = await checkProgramAccess(supabase, user.id, BLOG_PROGRAM_SLUG)
+  if (!access.allowed) {
+    return { ok: false as const, error: 'AI 자동 블로그 이용 권한이 없습니다. 구독 후 이용해주세요.', status: 403 }
+  }
+
+  return { ok: true as const }
+}
 
 /**
  * V8 정규식 백트래킹 오버플로우를 100% 방지하는 Non-Regex Pure String 이미지 추출 함수
@@ -89,6 +112,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireBlogProgramAccess()
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status })
+    }
+
     const { id } = await params
     const postId = Number(id)
 
@@ -180,6 +208,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireBlogProgramAccess()
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status })
+    }
+
     const { id } = await params
     const postId = Number(id)
 

@@ -2,16 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { collect24HourNews } from '@/blog/utils/news/collector'
 import { generateSeoPost, AutoPostOptions } from '@/blog/utils/news/generator'
-import { getSessionUser } from '@/blog/utils/access'
+import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
 import { getUserCloudinaryConfig } from '@/blog/utils/cloudinary'
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getSessionUser()
-    if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+    const access = await checkProgramAccessApi()
+    if (!access.allowed) {
+      return NextResponse.json({ error: access.error }, { status: access.status })
     }
+    const user = access.user
 
     const body = await request.json()
 

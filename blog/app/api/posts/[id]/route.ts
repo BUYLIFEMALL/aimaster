@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { checkProgramAccessApi } from '@/blog/utils/access'
 import { mdLiteToHtml } from '@/utils/markdown'
 
 /**
@@ -89,6 +90,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const access = await checkProgramAccessApi()
+    if (!access.allowed) {
+      return NextResponse.json({ error: access.error }, { status: access.status })
+    }
+
     const { id } = await params
     const postId = Number(id)
 
@@ -180,6 +186,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const access = await checkProgramAccessApi()
+    if (!access.allowed) {
+      return NextResponse.json({ error: access.error }, { status: access.status })
+    }
+
     const { id } = await params
     const postId = Number(id)
 
