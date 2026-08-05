@@ -88,7 +88,7 @@ export default async function PostsPage({
                   <input type="hidden" name="postId" value={post.id} />
                   <button
                     type="submit"
-                    className="flex-shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                    className="flex-shrink-0 rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
                   >
                     삭제
                   </button>
