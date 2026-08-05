@@ -35,6 +35,7 @@ export default async function PostEditPage({
         userId={user.id}
         initialContent={post.content}
         initialImageUrl={post.image_url ?? ""}
+        initialVideoFileName={post.video_filename ?? ""}
         initialScheduledAtLocal={toDatetimeLocalValue(post.scheduled_at)}
         initialPublishMode={post.status === "scheduled" ? "schedule" : "draft"}
         hasThreadsAccount={Boolean(account)}

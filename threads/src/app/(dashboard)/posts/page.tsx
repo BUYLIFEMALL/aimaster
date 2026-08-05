@@ -76,10 +76,17 @@ export default async function PostsPage({
                 <Link href={`/posts/${post.id}`} className="flex min-w-0 flex-1 items-center gap-4">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm text-neutral-900">{post.content}</p>
-                    <p className="mt-1 text-xs text-neutral-500">
-                      {post.status === "scheduled" && post.scheduled_at
-                        ? `예약: ${new Date(post.scheduled_at).toLocaleString("ko-KR")}`
-                        : new Date(post.created_at).toLocaleString("ko-KR")}
+                    <p className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
+                      <span>
+                        {post.status === "scheduled" && post.scheduled_at
+                          ? `예약: ${new Date(post.scheduled_at).toLocaleString("ko-KR")}`
+                          : new Date(post.created_at).toLocaleString("ko-KR")}
+                      </span>
+                      {post.video_filename && (
+                        <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-neutral-600">
+                          🎬 {post.video_filename}
+                        </span>
+                      )}
                     </p>
                   </div>
                   <StatusBadge status={post.status} />

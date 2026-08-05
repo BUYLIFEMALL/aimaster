@@ -12,6 +12,7 @@ export interface Database {
           user_id: string;
           content: string;
           image_url: string | null;
+          video_filename: string | null;
           status: PostStatus;
           scheduled_at: string | null;
           threads_post_id: string | null;
@@ -25,6 +26,7 @@ export interface Database {
           user_id: string;
           content: string;
           image_url?: string | null;
+          video_filename?: string | null;
           status?: PostStatus;
           scheduled_at?: string | null;
           threads_post_id?: string | null;
@@ -38,6 +40,7 @@ export interface Database {
           user_id?: string;
           content?: string;
           image_url?: string | null;
+          video_filename?: string | null;
           status?: PostStatus;
           scheduled_at?: string | null;
           threads_post_id?: string | null;

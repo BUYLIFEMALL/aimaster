@@ -13,6 +13,7 @@ export const postFormSchema = z
       .url("올바른 이미지 URL 형식이 아닙니다.")
       .optional()
       .or(z.literal("")),
+    videoFileName: z.string().trim().optional().or(z.literal("")),
     publishMode: z.enum(["now", "schedule", "draft"]),
     scheduledAt: z.string().optional().or(z.literal("")),
   })

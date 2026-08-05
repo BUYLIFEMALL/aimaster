@@ -35,6 +35,7 @@ function parsePostForm(formData: FormData) {
   return postFormSchema.safeParse({
     content: formData.get("content"),
     imageUrl: formData.get("imageUrl") ?? "",
+    videoFileName: formData.get("videoFileName") ?? "",
     publishMode: formData.get("publishMode"),
     scheduledAt: formData.get("scheduledAt") ?? "",
   });
@@ -51,7 +52,7 @@ export async function createPostAction(
 
   const user = await requireUser();
   const supabase = await createClient();
-  const { content, imageUrl, publishMode, scheduledAt } = parsed.data;
+  const { content, imageUrl, videoFileName, publishMode, scheduledAt } = parsed.data;
 
   const status = publishMode === "now" ? "draft" : publishMode === "schedule" ? "scheduled" : "draft";
 
@@ -61,6 +62,7 @@ export async function createPostAction(
       user_id: user.id,
       content,
       image_url: imageUrl || null,
+      video_filename: videoFileName || null,
       status,
       scheduled_at: publishMode === "schedule" ? scheduledAt : null,
     })
@@ -105,7 +107,7 @@ export async function updatePostAction(
 
   const user = await requireUser();
   const supabase = await createClient();
-  const { content, imageUrl, publishMode, scheduledAt } = parsed.data;
+  const { content, imageUrl, videoFileName, publishMode, scheduledAt } = parsed.data;
 
   const { data: existing } = await supabase
     .from("posts")
@@ -125,6 +127,7 @@ export async function updatePostAction(
     .update({
       content,
       image_url: imageUrl || null,
+      video_filename: videoFileName || null,
       status,
       scheduled_at: publishMode === "schedule" ? scheduledAt : null,
     })

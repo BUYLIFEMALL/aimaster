@@ -72,6 +72,11 @@ export default async function PostDetailPage({
           <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-900">
             {post.content}
           </p>
+          {post.video_filename && (
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
+              🎬 동영상 첨부: {post.video_filename}
+            </span>
+          )}
           <p className="mt-3 text-xs text-neutral-400">
             {new Date(post.created_at).toLocaleString("ko-KR")}
           </p>

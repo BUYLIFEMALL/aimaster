@@ -46,6 +46,7 @@ interface PostFormProps {
   userId: string;
   initialContent?: string;
   initialImageUrl?: string;
+  initialVideoFileName?: string;
   initialScheduledAtLocal?: string;
   initialPublishMode?: PublishMode;
   hasThreadsAccount: boolean;
@@ -62,6 +63,7 @@ export function PostForm({
   userId,
   initialContent = "",
   initialImageUrl = "",
+  initialVideoFileName = "",
   initialScheduledAtLocal = "",
   initialPublishMode = "draft",
   hasThreadsAccount,
@@ -73,6 +75,7 @@ export function PostForm({
   const [content, setContent] = useState(initialContent);
 
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const [videoFileName, setVideoFileName] = useState(initialVideoFileName);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -82,8 +85,15 @@ export function PostForm({
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (!file) return;
 
+    // 동영상은 저장/업로드하지 않고, 게시글에 첨부됐다는 표시(파일명)만 남긴다.
+    if (file.type.startsWith("video/")) {
+      setUploadError(null);
+      setVideoFileName(file.name);
+      return;
+    }
+
     if (!file.type.startsWith("image/")) {
-      setUploadError("이미지 파일만 업로드할 수 있습니다.");
+      setUploadError("이미지 또는 동영상 파일만 업로드할 수 있습니다.");
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
@@ -92,6 +102,7 @@ export function PostForm({
     }
 
     setUploadError(null);
+    setVideoFileName("");
     setIsUploading(true);
     try {
       const supabase = createClient();
@@ -252,6 +263,7 @@ export function PostForm({
     const fd = new FormData();
     fd.set("content", finalContent);
     fd.set("imageUrl", finalImageUrl);
+    fd.set("videoFileName", videoFileName);
     fd.set("publishMode", publishMode);
     fd.set("scheduledAt", scheduledAtIso);
     return fd;
@@ -487,7 +499,7 @@ export function PostForm({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             onChange={handleFileChange}
             disabled={isUploading}
             className="hidden"
@@ -500,7 +512,20 @@ export function PostForm({
           >
             {isUploading ? "업로드 중..." : "파일 직접 등록하기"}
           </Button>
+          {videoFileName && (
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
+              🎬 {videoFileName}
+              <button
+                type="button"
+                onClick={() => setVideoFileName("")}
+                className="text-neutral-500 hover:text-neutral-900"
+              >
+                ✕
+              </button>
+            </span>
+          )}
         </div>
+        <input type="hidden" name="videoFileName" value={videoFileName} />
         {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
         <Input
           name="imageUrl"
