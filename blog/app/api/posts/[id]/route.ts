@@ -114,13 +114,17 @@ export async function PUT(
     // 1. 기존 DB의 포스트 데이터 조용히 가져오기
     const { data: existingPost, error: fetchErr } = await supabase
       .from('blog_posts')
-      .select('content')
+      .select('content, user_id')
       .eq('id', postId)
       .single()
 
     if (fetchErr || !existingPost) {
       console.error('[Post Edit API Fetch Error]:', fetchErr)
       return NextResponse.json({ error: '기존 게시글 정보를 불러올 수 없습니다.', details: fetchErr }, { status: 404 })
+    }
+
+    if (existingPost.user_id && existingPost.user_id !== access.user.id) {
+      return NextResponse.json({ error: '본인이 작성한 게시글만 수정할 수 있습니다.' }, { status: 403 })
     }
 
     // 2. V8 정규식 백트래킹이 전면 방지되는 비-정규식 Pure String 파서로 원본 이미지 바이너리 추출
@@ -199,6 +203,17 @@ export async function DELETE(
     }
 
     const supabase = createAdminClient()
+
+    // 0. 본인 게시글인지 확인 (레거시 글처럼 user_id가 없는 경우는 그대로 허용)
+    const { data: targetPost } = await supabase
+      .from('blog_posts')
+      .select('user_id')
+      .eq('id', postId)
+      .maybeSingle()
+
+    if (targetPost?.user_id && targetPost.user_id !== access.user.id) {
+      return NextResponse.json({ error: '본인이 작성한 게시글만 삭제할 수 있습니다.' }, { status: 403 })
+    }
 
     // 1. 연관 카테고리 매핑 삭제
     await supabase.from('blog_post_categories').delete().eq('post_id', postId)

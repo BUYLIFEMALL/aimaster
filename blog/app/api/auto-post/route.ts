@@ -56,9 +56,40 @@ export async function POST(request: NextRequest) {
     // 3. Supabase DB 연동 및 저장 (Admin Client)
     const supabase = createAdminClient()
 
-    // 3.1 저자 ID 확보 (1번 시드 저자 또는 AI Auto Reporter)
-    const { data: authors } = await supabase.from('blog_authors').select('id').limit(1)
-    let authorId: number = authors && authors.length > 0 ? authors[0].id : 1
+    // 3.1 저자 ID 확보 — 게시글은 이제 작성한 AIMaster 회원 본인 명의로 귀속된다
+    // (threads처럼 사용자별로 완전히 분리: 공용 시드 저자에 몰아 붙이지 않는다).
+    let authorId: number
+    const { data: ownAuthor } = await supabase
+      .from('blog_authors')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (ownAuthor) {
+      authorId = ownAuthor.id
+    } else {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('name, email')
+        .eq('id', user.id)
+        .maybeSingle()
+      const displayName = profile?.name || profile?.email?.split('@')[0] || '회원'
+
+      const { data: createdAuthor, error: authorError } = await supabase
+        .from('blog_authors')
+        .insert({ name: displayName, role: '작성자', user_id: user.id })
+        .select('id')
+        .single()
+
+      if (authorError || !createdAuthor) {
+        console.error('[AutoPost API] 저자 프로필 생성 오류:', authorError)
+        return NextResponse.json(
+          { error: '작성자 프로필 생성 중 오류가 발생했습니다.', details: authorError },
+          { status: 500 }
+        )
+      }
+      authorId = createdAuthor.id
+    }
 
     // 3.2 카테고리 ID 가져오기 (다중 카테고리 지원)
     const requestCategorySlugs: string[] = Array.isArray(body.category_slugs)
@@ -105,6 +136,7 @@ export async function POST(request: NextRequest) {
         excerpt: postData.excerpt,
         content: postData.contentHtml,
         author_id: authorId,
+        user_id: user.id,
         reading_minutes: postData.readingMinutes,
       })
       .select('id, title, published_at')
