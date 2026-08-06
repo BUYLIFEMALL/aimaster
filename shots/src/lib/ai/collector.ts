@@ -274,7 +274,7 @@ const PERPLEXITY_SYSTEM_PROMPT = `당신은 최근 72시간 이내 한국어권�
 /** 퍼플렉시티 방식: 주어진 시드 주제로 현재 트렌딩 앵글을 검색한다. */
 export async function searchPerplexityTrending(topic: string, apiKey: string): Promise<string> {
   if (!apiKey) {
-    throw new Error("Perplexity API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
+    throw new Error("Perplexity API 키가 없습니다. 설정 > API 키 설정에서 본인의 Perplexity API 키를 등록해주세요.");
   }
 
   const response = await fetch("https://api.perplexity.ai/chat/completions", {
@@ -327,7 +327,7 @@ export async function structureCandidates(params: {
 }): Promise<ShortsCandidateDraft[]> {
   const { rawText, maxItems, apiKey } = params;
   if (!apiKey) {
-    throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
+    throw new Error("OpenAI API 키가 없습니다. 설정 > API 키 설정에서 본인의 OpenAI API 키를 등록해주세요.");
   }
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {

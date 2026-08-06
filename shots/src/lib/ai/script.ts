@@ -72,7 +72,7 @@ JSON 데이터만 출력한다. (추가 설명·주석 금지)
 /** 원본 이야기(수집된 쇼츠 후보 content)로 제목 + 하나의 완결된 쇼츠 스크립트(360~380자)를 만든다. */
 export async function generateVideoScript(story: string, apiKey: string): Promise<VideoScriptResult> {
   if (!apiKey) {
-    throw new Error("Gemini API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
+    throw new Error("Gemini API 키가 없습니다. 설정 > API 키 설정에서 본인의 Gemini API 키를 등록해주세요.");
   }
 
   const response = await fetch(
@@ -139,7 +139,7 @@ export async function generateScriptSegments(
   apiKey: string,
 ): Promise<ScriptSegmentDraft[]> {
   if (!apiKey) {
-    throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
+    throw new Error("OpenAI API 키가 없습니다. 설정 > API 키 설정에서 본인의 OpenAI API 키를 등록해주세요.");
   }
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -238,7 +238,7 @@ ${script}`;
 
 export async function generateBgmPrompt(fullScript: string, apiKey: string): Promise<BgmPromptResult> {
   if (!apiKey) {
-    throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
+    throw new Error("OpenAI API 키가 없습니다. 설정 > API 키 설정에서 본인의 OpenAI API 키를 등록해주세요.");
   }
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -293,7 +293,7 @@ export async function generateSegmentImage(
   model?: NanoBananaModelType,
 ): Promise<SegmentImageResult> {
   if (!apiKey) {
-    throw new Error("Gemini API 키가 없습니다. 설정에서 본인 키를 등록하거나 관리자에게 문의해주세요.");
+    throw new Error("Gemini API 키가 없습니다. 설정 > API 키 설정에서 본인의 Gemini API 키를 등록해주세요.");
   }
 
   const config = getNanoBananaConfig(model);

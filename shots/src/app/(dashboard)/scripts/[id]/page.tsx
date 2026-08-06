@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getRegisteredProviders } from "@/lib/apiKeys";
 import { ScriptEditor } from "@/components/candidates/ScriptEditor";
+import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
+import type { ApiKeyProvider } from "@/types/database.types";
+
+const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["gemini", "openai"];
 
 export default async function ScriptDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: videoId } = await params;
@@ -17,12 +22,16 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
 
   if (!video) notFound();
 
-  const { data: segments } = await supabase
-    .from("shorts_video_segments")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("video_id", video.id)
-    .order("segment_index", { ascending: true });
+  const [{ data: segments }, registeredProviders] = await Promise.all([
+    supabase
+      .from("shorts_video_segments")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("video_id", video.id)
+      .order("segment_index", { ascending: true }),
+    getRegisteredProviders(supabase, user.id),
+  ]);
+  const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -31,6 +40,7 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
         생성된 스크립트와 장면별 대사·이미지 프롬프트를 확인하고 필요하면 수정하세요. 수정 후
         저장하면 그 내용으로 이미지가 생성됩니다.
       </p>
+      <MissingApiKeyNotice missing={missingProviders} />
       <ScriptEditor video={video} segments={segments ?? []} />
     </div>
   );

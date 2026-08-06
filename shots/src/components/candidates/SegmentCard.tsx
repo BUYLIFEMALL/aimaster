@@ -32,6 +32,7 @@ export function SegmentCard({ videoId, segment }: { videoId: string; segment: Se
   // 두 폼이 같은 값을 공유하게 컨트롤드 state로 관리한다.
   const [narration, setNarration] = useState(segment.narration);
   const [imagePrompt, setImagePrompt] = useState(segment.image_prompt);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   return (
     <div className="rounded-lg border border-neutral-200 p-3">
@@ -104,34 +105,67 @@ export function SegmentCard({ videoId, segment }: { videoId: string; segment: Se
             {segment.image_urls.map((url, i) => {
               const isSelected = url === segment.image_url;
               return (
-                <form action={selectAction} key={url}>
-                  <input type="hidden" name="segmentId" value={segment.id} />
-                  <input type="hidden" name="videoId" value={videoId} />
-                  <input type="hidden" name="imageUrl" value={url} />
+                <div key={url} className="relative">
+                  <form action={selectAction}>
+                    <input type="hidden" name="segmentId" value={segment.id} />
+                    <input type="hidden" name="videoId" value={videoId} />
+                    <input type="hidden" name="imageUrl" value={url} />
+                    <button
+                      type="submit"
+                      disabled={isSelected}
+                      className={`relative block overflow-hidden rounded-md ring-2 ${
+                        isSelected ? "ring-blue-500" : "ring-transparent hover:ring-neutral-300"
+                      }`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`장면 ${segment.segment_index} 후보 이미지 ${i + 1}`}
+                        className="aspect-9/16 w-24 object-cover"
+                      />
+                      {isSelected && (
+                        <span className="absolute bottom-0 left-0 right-0 bg-blue-500 py-0.5 text-center text-[10px] font-medium text-white">
+                          선택됨
+                        </span>
+                      )}
+                    </button>
+                  </form>
                   <button
-                    type="submit"
-                    disabled={isSelected}
-                    className={`relative block overflow-hidden rounded-md ring-2 ${
-                      isSelected ? "ring-blue-500" : "ring-transparent hover:ring-neutral-300"
-                    }`}
+                    type="button"
+                    onClick={() => setLightboxUrl(url)}
+                    title="크게 보기"
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded bg-black/60 text-xs text-white hover:bg-black/80"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={url}
-                      alt={`장면 ${segment.segment_index} 후보 이미지 ${i + 1}`}
-                      className="aspect-9/16 w-24 object-cover"
-                    />
-                    {isSelected && (
-                      <span className="absolute bottom-0 left-0 right-0 bg-blue-500 py-0.5 text-center text-[10px] font-medium text-white">
-                        선택됨
-                      </span>
-                    )}
+                    ⤢
                   </button>
-                </form>
+                </div>
               );
             })}
           </div>
           {selectState.error && <p className="mt-1 text-xs text-red-600">{selectState.error}</p>}
+        </div>
+      )}
+
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxUrl(null)}
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-lg text-white hover:bg-white/20"
+            aria-label="닫기"
+          >
+            ✕
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lightboxUrl}
+            alt={`장면 ${segment.segment_index} 확대 이미지`}
+            className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </div>
