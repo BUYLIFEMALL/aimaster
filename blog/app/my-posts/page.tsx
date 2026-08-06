@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
+import { getBlogBasePath } from '@/blog/utils/basePath'
 
 interface MyPost {
   id: number
@@ -20,10 +21,12 @@ interface MyPost {
 export default function MyPostsPage() {
   const router = useRouter()
   const [supabase, setSupabase] = useState<any>(null)
+  const [basePath, setBasePath] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setSupabase(createClient())
+      setBasePath(getBlogBasePath())
     }
   }, [])
 
@@ -39,7 +42,7 @@ export default function MyPostsPage() {
     supabase.auth.getUser().then(async ({ data }: any) => {
       const user = data?.user
       if (!user) {
-        router.push('/auth?redirect=/my-posts')
+        router.push(`${getBlogBasePath()}/auth?redirect=${getBlogBasePath()}/my-posts`)
         return
       }
       setUserEmail(user.email ?? null)
@@ -81,11 +84,11 @@ export default function MyPostsPage() {
       {/* 헤더 */}
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/my-posts" className="text-xl font-black text-indigo-600 no-underline">
+          <Link href={`${basePath}/my-posts`} className="text-xl font-black text-indigo-600 no-underline">
             AutoBlog
           </Link>
           <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
-            {userEmail ? <span>{userEmail}</span> : <Link href="/auth">로그인</Link>}
+            {userEmail ? <span>{userEmail}</span> : <Link href={`${basePath}/auth`}>로그인</Link>}
           </div>
         </div>
       </header>
@@ -97,7 +100,7 @@ export default function MyPostsPage() {
             <p className="text-sm font-medium text-slate-500 mt-1">내가 작성한 글만 모아서 보여줍니다.</p>
           </div>
           <Link
-            href="/write/ai-form"
+            href={`${basePath}/write/ai-form`}
             className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-md shadow-blue-500/20 transition-all"
           >
             ✨ 새 글 작성
@@ -111,7 +114,7 @@ export default function MyPostsPage() {
         ) : posts.length === 0 ? (
           <div className="py-20 text-center bg-white border border-slate-200 rounded-2xl">
             <p className="text-sm text-slate-500">아직 작성한 게시글이 없습니다.</p>
-            <Link href="/write/ai-form" className="mt-3 inline-block text-sm font-bold text-blue-600 hover:underline">
+            <Link href={`${basePath}/write/ai-form`} className="mt-3 inline-block text-sm font-bold text-blue-600 hover:underline">
               첫 글 작성하러 가기
             </Link>
           </div>
@@ -122,7 +125,7 @@ export default function MyPostsPage() {
                 key={post.id}
                 className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between gap-4 hover:border-blue-300 transition-colors"
               >
-                <Link href={`/posts/${post.id}`} className="min-w-0 flex-1">
+                <Link href={`${basePath}/posts/${post.id}`} className="min-w-0 flex-1">
                   <h2 className="text-base font-bold text-slate-900 truncate">{post.title}</h2>
                   {post.excerpt && (
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2">{post.excerpt}</p>
@@ -135,7 +138,7 @@ export default function MyPostsPage() {
                 </Link>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   <Link
-                    href={`/posts/${post.id}/edit`}
+                    href={`${basePath}/posts/${post.id}/edit`}
                     className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
                   >
                     수정

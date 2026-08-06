@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { getBlogBasePath } from '@/blog/utils/basePath'
 
 interface CategoryOption {
   id: number
@@ -49,10 +50,12 @@ const IMAGE_MODEL_OPTIONS = [
 export default function AiFormPage() {
   const router = useRouter()
   const [supabase, setSupabase] = useState<any>(null)
+  const [basePath, setBasePath] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setSupabase(createClient())
+      setBasePath(getBlogBasePath())
     }
   }, [])
 
@@ -195,9 +198,9 @@ export default function AiFormPage() {
 
       const createdId = data.data?.postId || data.postId
       if (createdId) {
-        router.push(`/posts/${createdId}`)
+        router.push(`${getBlogBasePath()}/posts/${createdId}`)
       } else {
-        router.push('/')
+        router.push(`${getBlogBasePath()}/my-posts`)
       }
     } catch (err: any) {
       console.error('[AI Form Error]:', err)
@@ -213,11 +216,11 @@ export default function AiFormPage() {
       {/* 헤더 */}
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/my-posts" className="text-xl font-black text-indigo-600 no-underline">
+          <Link href={`${basePath}/my-posts`} className="text-xl font-black text-indigo-600 no-underline">
             AutoBlog
           </Link>
           <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
-            {userEmail ? <span>{userEmail}</span> : <Link href="/auth">로그인</Link>}
+            {userEmail ? <span>{userEmail}</span> : <Link href={`${basePath}/auth`}>로그인</Link>}
           </div>
         </div>
       </header>
@@ -458,7 +461,7 @@ export default function AiFormPage() {
                   className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-extrabold text-black placeholder-slate-400 shadow-sm"
                 />
                 <p className="text-[11px] text-slate-500">
-                  <Link href="/settings" className="text-indigo-600 underline font-semibold">설정</Link>에서 API 키를 한 번 등록해두면 매번 입력하지 않아도 됩니다.
+                  <Link href={`${basePath}/settings`} className="text-indigo-600 underline font-semibold">설정</Link>에서 API 키를 한 번 등록해두면 매번 입력하지 않아도 됩니다.
                 </p>
               </div>
             </div>
