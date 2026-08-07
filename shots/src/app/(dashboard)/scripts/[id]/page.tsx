@@ -5,6 +5,7 @@ import { getRegisteredProviders } from "@/lib/apiKeys";
 import { ScriptEditor } from "@/components/candidates/ScriptEditor";
 import { BgmSection } from "@/components/candidates/BgmSection";
 import { RenderSection } from "@/components/candidates/RenderSection";
+import { PostingSection } from "@/components/candidates/PostingSection";
 import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
 import type { ApiKeyProvider } from "@/types/database.types";
 
@@ -24,27 +25,35 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
 
   if (!video) notFound();
 
-  const [{ data: segments }, { data: bgmTracks }, { data: renderSettings }, registeredProviders] =
-    await Promise.all([
-      supabase
-        .from("shorts_video_segments")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("video_id", video.id)
-        .order("segment_index", { ascending: true }),
-      supabase
-        .from("shorts_bgm_tracks")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("video_id", video.id)
-        .order("created_at", { ascending: true }),
-      supabase
-        .from("user_render_settings")
-        .select("elevenlabs_voice_id")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-      getRegisteredProviders(supabase, user.id),
-    ]);
+  const [
+    { data: segments },
+    { data: bgmTracks },
+    { data: renderSettings },
+    registeredProviders,
+    { data: youtubeAccount },
+    { data: instagramAccount },
+  ] = await Promise.all([
+    supabase
+      .from("shorts_video_segments")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("video_id", video.id)
+      .order("segment_index", { ascending: true }),
+    supabase
+      .from("shorts_bgm_tracks")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("video_id", video.id)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("user_render_settings")
+      .select("elevenlabs_voice_id")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    getRegisteredProviders(supabase, user.id),
+    supabase.from("youtube_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    supabase.from("instagram_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+  ]);
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 
   return (
@@ -61,6 +70,9 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
       </div>
       <div className="mt-6">
         <RenderSection video={video} defaultVoiceId={renderSettings?.elevenlabs_voice_id ?? null} />
+      </div>
+      <div className="mt-6">
+        <PostingSection video={video} youtubeAccount={youtubeAccount ?? null} instagramAccount={instagramAccount ?? null} />
       </div>
     </div>
   );

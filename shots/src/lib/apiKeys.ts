@@ -9,11 +9,18 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   perplexity: "Perplexity",
   suno: "Suno (배경음악)",
   json2video: "JSON2Video (최종 영상 렌더링)",
+  google_client_id: "Google OAuth Client ID (유튜브 채널 연동)",
+  google_client_secret: "Google OAuth Client Secret (유튜브 채널 연동)",
+  meta_app_id: "Meta App ID (인스타그램 연동)",
+  meta_app_secret: "Meta App Secret (인스타그램 연동)",
 };
 
 // 등록 폼(설정 페이지)에 노출할 프로바이더 목록. PROVIDER_LABELS에서 그대로 뽑아 쓰기 때문에
 // 새 프로바이더 추가 시 여기 따로 안 챙겨도 자동으로 저장 허용 목록에 포함된다.
 export const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as ApiKeyProvider[];
+
+// 설정 페이지에서 그룹으로 나눠 보여주기 위한 목록.
+export const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity", "suno", "json2video"];
 
 // 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
 const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
@@ -23,6 +30,10 @@ const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
   perplexity: process.env.PERPLEXITY_API_KEY,
   suno: process.env.SUNO_API_KEY,
   json2video: process.env.JSON2VIDEO_API_KEY,
+  google_client_id: process.env.GOOGLE_CLIENT_ID,
+  google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  meta_app_id: process.env.META_APP_ID,
+  meta_app_secret: process.env.META_APP_SECRET,
 };
 
 export async function getUserApiKey(

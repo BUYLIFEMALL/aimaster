@@ -1,9 +1,20 @@
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "suno" | "json2video";
+export type ApiKeyProvider =
+  | "openai"
+  | "anthropic"
+  | "gemini"
+  | "perplexity"
+  | "suno"
+  | "json2video"
+  | "google_client_id"
+  | "google_client_secret"
+  | "meta_app_id"
+  | "meta_app_secret";
 export type ShortsSourceType = "http" | "rss" | "perplexity";
 export type ShortsCandidateStatus = "collected" | "requested";
 export type ShortsVideoStatus = "script_ready" | "images_generating" | "images_ready";
 export type BgmStatus = "processing" | "ready" | "failed";
 export type RenderStatus = "rendering" | "ready" | "failed";
+export type PostStatus = "posting" | "posted" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -69,6 +80,13 @@ export interface Database {
           render_status: RenderStatus | null;
           j2v_project_id: string | null;
           rendered_video_url: string | null;
+          youtube_category_id: string | null;
+          youtube_status: PostStatus | null;
+          youtube_video_id: string | null;
+          youtube_video_url: string | null;
+          instagram_status: PostStatus | null;
+          instagram_post_url: string | null;
+          instagram_caption: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -88,6 +106,13 @@ export interface Database {
           render_status?: RenderStatus | null;
           j2v_project_id?: string | null;
           rendered_video_url?: string | null;
+          youtube_category_id?: string | null;
+          youtube_status?: PostStatus | null;
+          youtube_video_id?: string | null;
+          youtube_video_url?: string | null;
+          instagram_status?: PostStatus | null;
+          instagram_post_url?: string | null;
+          instagram_caption?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -107,6 +132,13 @@ export interface Database {
           render_status?: RenderStatus | null;
           j2v_project_id?: string | null;
           rendered_video_url?: string | null;
+          youtube_category_id?: string | null;
+          youtube_status?: PostStatus | null;
+          youtube_video_id?: string | null;
+          youtube_video_url?: string | null;
+          instagram_status?: PostStatus | null;
+          instagram_post_url?: string | null;
+          instagram_caption?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -236,6 +268,78 @@ export interface Database {
           user_id?: string;
           elevenlabs_voice_id?: string | null;
           elevenlabs_connection_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      youtube_accounts: {
+        Row: {
+          id: string;
+          user_id: string;
+          channel_id: string | null;
+          channel_title: string | null;
+          access_token: string;
+          refresh_token: string;
+          token_expires_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          channel_id?: string | null;
+          channel_title?: string | null;
+          access_token: string;
+          refresh_token: string;
+          token_expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          channel_id?: string | null;
+          channel_title?: string | null;
+          access_token?: string;
+          refresh_token?: string;
+          token_expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      instagram_accounts: {
+        Row: {
+          id: string;
+          user_id: string;
+          ig_user_id: string;
+          ig_username: string | null;
+          page_id: string | null;
+          access_token: string;
+          token_expires_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          ig_user_id: string;
+          ig_username?: string | null;
+          page_id?: string | null;
+          access_token: string;
+          token_expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          ig_user_id?: string;
+          ig_username?: string | null;
+          page_id?: string | null;
+          access_token?: string;
+          token_expires_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
