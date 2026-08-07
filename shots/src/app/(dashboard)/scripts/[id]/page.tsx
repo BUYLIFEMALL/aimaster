@@ -3,10 +3,11 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getRegisteredProviders } from "@/lib/apiKeys";
 import { ScriptEditor } from "@/components/candidates/ScriptEditor";
+import { BgmSection } from "@/components/candidates/BgmSection";
 import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["gemini", "openai"];
+const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["gemini", "openai", "suno"];
 
 export default async function ScriptDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: videoId } = await params;
@@ -22,13 +23,19 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
 
   if (!video) notFound();
 
-  const [{ data: segments }, registeredProviders] = await Promise.all([
+  const [{ data: segments }, { data: bgmTracks }, registeredProviders] = await Promise.all([
     supabase
       .from("shorts_video_segments")
       .select("*")
       .eq("user_id", user.id)
       .eq("video_id", video.id)
       .order("segment_index", { ascending: true }),
+    supabase
+      .from("shorts_bgm_tracks")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("video_id", video.id)
+      .order("created_at", { ascending: true }),
     getRegisteredProviders(supabase, user.id),
   ]);
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
@@ -42,6 +49,9 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
       </p>
       <MissingApiKeyNotice missing={missingProviders} />
       <ScriptEditor video={video} segments={segments ?? []} />
+      <div className="mt-6">
+        <BgmSection video={video} tracks={bgmTracks ?? []} />
+      </div>
     </div>
   );
 }

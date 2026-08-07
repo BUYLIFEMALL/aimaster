@@ -54,15 +54,6 @@ export function ScriptEditor({ video, segments }: { video: Video; segments: Segm
             </p>
           </div>
 
-          {(video.bgm_prompt || video.bgm_style) && (
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-600">
-              <p className="mb-1 font-medium text-neutral-700">BGM 프롬프트 (참고용)</p>
-              {video.bgm_prompt && <p className="mb-1">{video.bgm_prompt}</p>}
-              {video.bgm_style && <p className="text-neutral-500">스타일: {video.bgm_style}</p>}
-              {video.bgm_exclude && <p className="text-neutral-500">제외: {video.bgm_exclude}</p>}
-            </div>
-          )}
-
           <div className="flex items-center gap-3">
             <Button type="submit" variant="secondary" disabled={isSaving}>
               {isSaving ? "저장 중..." : "제목 저장"}

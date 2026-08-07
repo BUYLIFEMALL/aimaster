@@ -185,54 +185,40 @@ export interface BgmPromptResult {
   excludeStyles: string;
 }
 
-// Make.com 시나리오(module 9)의 BGM 프롬프트를 그대로 이식.
-const BGM_SYSTEM_PROMPT = "넌 전세계 최고의 유투브 전문 음악 크리에이터이다";
+// Make.com Suno 자동화 시나리오(01번, module 45)의 "감정 → 음악 속성 변환 규칙"을 이식해서
+// Suno가 오해 없이 정확한 음악을 만들도록 장르/템포/에너지/악기를 구체적으로 지정하게 한다.
+const BGM_SYSTEM_PROMPT = `너는 음악 프로듀서다. 주어진 쇼츠 스크립트의 분위기를 기반으로 Suno에서 사용할
+BGM(배경음악) 생성용 프롬프트를 만든다.
+
+[반드시 지킬 것]
+1. instrumental only (보컬 없음) — vocals, singing, chorus, rap, spoken word 절대 포함 금지
+2. 감정 표현이 아닌 "사운드 중심"으로 작성 (예: "매우 슬픈 음악" X → 구체적 장르/템포/악기로 표현)
+3. BGM_Prompt는 genre, mood, tempo(느림/보통/빠름 + bpm 느낌), energy level(low/medium/high),
+   구체적 instruments, texture/atmosphere를 모두 포함한 하나의 자연스러운 영어 문장으로 작성
+
+[감정 → 음악 속성 변환 규칙]
+- 잔잔/감성/차분: slow tempo(60~80bpm), low energy, minimal arrangement, piano/cello/ambient pads, no drums or very soft percussion
+- 밝은/따뜻한/희망적: mid tempo(90~110bpm), medium energy, acoustic guitar/piano/light drums
+- 신나는/경쾌한/활기찬: fast tempo(110~130bpm), high energy, drums/bass/rhythm guitar/synth, groovy
+- 긴장/어두움/몰입/서스펜스: slow~mid tempo(70~100bpm), low~medium energy, dark pads/drones, cinematic tension
+- 웅장/영화음악/서사: mid tempo(80~110bpm), medium~high energy, orchestra/strings/brass, cinematic wide layered sound
+
+[Exclude Styles 규칙]
+반드시 "no vocals, no singing, no lyrics"를 포함하고, 분위기에 따라 어울리지 않는 요소를 추가
+(예: 잔잔 계열 → no drums, no upbeat rhythm)
+
+출력은 반드시 아래 JSON 구조만 출력하라 (설명/주석 금지).
+{
+  "BGM_Prompt": "장르/템포/에너지/악기를 담은 하나의 영어 문장",
+  "Style Description": "쉼표로 구분된 스타일 키워드 나열 (분위기, 템포, 질감, 악기)",
+  "Exclue Styles": "제외할 요소 (반드시 no vocals, no singing, no lyrics 포함)"
+}`;
 
 function buildBgmUserPrompt(script: string): string {
-  return `Below is a story that will be used to generate background music.
+  return `아래는 유튜브 쇼츠의 내레이션 스크립트다. 이 스토리의 분위기와 감정 흐름에 어울리는
+20~30초 분량의 인스트루멘탈(보컬 없는) 배경음악 프롬프트를 만들어줘.
 
-Your task is to create ONE optimized background music prompt that emotionally supports the story.
-
----
-
-### Output Format (STRICT)
-
-Return ONLY a JSON object using the exact structure below:
-
-{
-  "BGM_Prompt": "",
-  "Style Description": "",
-  "Exclue Styles": ""
-}
-
----
-
-### BGM_Prompt Rules
-• Write in natural, descriptive English
-• Designed for a 20-25 second cinematic background track
-• Emotion should flow naturally from beginning to end
-• Avoid lyrics, vocals, or spoken words
-• Avoid dramatic or aggressive shifts
-• Should feel immersive, emotional, and story-supportive
-
----
-
-### Style Description Rules
-• Use comma-separated descriptive phrases
-• Focus on mood, tempo, texture, atmosphere, and emotional progression
-• Mention instruments subtly (e.g. soft piano, ambient pads, warm strings)
-• Designed for cinematic short-form storytelling
-
----
-
-### Exclue Styles Rules
-• Clearly list styles or elements that should NOT be used
-• Include genre, rhythm, or mood exclusions
-• Keep it concise
-
----
-
-### Story Input
+스크립트:
 ${script}`;
 }
 

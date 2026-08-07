@@ -7,6 +7,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   anthropic: "Anthropic (Claude)",
   gemini: "Google (Gemini)",
   perplexity: "Perplexity",
+  suno: "Suno (배경음악)",
 };
 
 // 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
@@ -15,6 +16,7 @@ const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
   anthropic: process.env.ANTHROPIC_API_KEY,
   gemini: process.env.GEMINI_API_KEY,
   perplexity: process.env.PERPLEXITY_API_KEY,
+  suno: process.env.SUNO_API_KEY,
 };
 
 export async function getUserApiKey(

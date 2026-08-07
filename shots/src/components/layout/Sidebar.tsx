@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { href: "/candidates", label: "쇼츠 대상 수집" },
   { href: "/scripts", label: "영상스크립트 생성" },
   { href: "/images", label: "이미지 생성" },
+  { href: "/music", label: "음악 생성" },
   { href: "/settings", label: "API 키 설정" },
 ];
 
