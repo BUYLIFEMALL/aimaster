@@ -5,7 +5,6 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { VoiceIdSettings } from "@/components/settings/VoiceIdSettings";
 
 const GOOGLE_PROVIDERS = ["google_client_id", "google_client_secret"] as const;
-const META_PROVIDERS = ["meta_app_id", "meta_app_secret"] as const;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3002";
 
@@ -50,9 +49,9 @@ export default async function SettingsPage() {
         />
       </div>
 
-      <h2 className="mb-3 text-lg font-medium text-neutral-900">유튜브 · 인스타그램 연동</h2>
+      <h2 className="mb-3 text-lg font-medium text-neutral-900">유튜브 연동</h2>
 
-      <div className="mb-6 rounded-xl border border-neutral-200 p-4">
+      <div className="rounded-xl border border-neutral-200 p-4">
         <h3 className="mb-2 text-sm font-semibold text-neutral-900">🎬 유튜브 (Google)</h3>
         <p className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs font-medium text-amber-800">
           ⚠️ Google Cloud Console에서 반드시 <strong>YouTube Data API v3</strong>를 먼저 활성화 해주세요.
@@ -75,25 +74,10 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-neutral-200 p-4">
-        <h3 className="mb-2 text-sm font-semibold text-neutral-900">📸 인스타그램 (Meta)</h3>
-        <p className="mb-2 text-sm text-neutral-600">
-          아래 주소를 Meta for Developers의 &ldquo;승인된 리디렉션 URI&rdquo;에 그대로 등록하세요.
-        </p>
-        <p className="mb-4 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-600">
-          <code className="font-mono">{SITE_URL}/api/instagram/callback</code>
-        </p>
-        <div className="space-y-3">
-          {META_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-            />
-          ))}
-        </div>
-      </div>
+      <p className="mt-4 text-xs text-neutral-400">
+        인스타그램 릴스 업로드는 별도 등록 없이 &ldquo;영상포스팅&rdquo; 메뉴에서 바로 계정 연결이
+        가능합니다.
+      </p>
     </div>
   );
 }

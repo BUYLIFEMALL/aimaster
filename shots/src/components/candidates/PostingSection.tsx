@@ -19,7 +19,6 @@ import {
   disconnectInstagramAction,
   generateInstagramCaptionAction,
   postToInstagramAction,
-  type ConnectInstagramState,
   type GenerateCaptionState,
   type PostInstagramState,
 } from "@/lib/actions/instagram";
@@ -32,7 +31,6 @@ type InstagramAccount = Database["public"]["Tables"]["instagram_accounts"]["Row"
 const initialConnectYoutubeState: ConnectYoutubeState = {};
 const initialSuggestState: SuggestCategoryState = {};
 const initialPostYoutubeState: PostYoutubeState = {};
-const initialConnectInstagramState: ConnectInstagramState = {};
 const initialGenerateCaptionState: GenerateCaptionState = {};
 const initialPostInstagramState: PostInstagramState = {};
 
@@ -78,10 +76,6 @@ export function PostingSection({
     suggestState.categoryId ?? video.youtube_category_id ?? "",
   );
 
-  const [connectInstagramState, connectInstagramFormAction, isConnectingInstagram] = useActionState(
-    connectInstagramAction,
-    initialConnectInstagramState,
-  );
   const [captionState, generateCaptionAction, isGeneratingCaption] = useActionState(
     generateInstagramCaptionAction,
     initialGenerateCaptionState,
@@ -195,14 +189,11 @@ export function PostingSection({
         </div>
 
         {!instagramAccount ? (
-          <form action={connectInstagramFormAction}>
+          <form action={connectInstagramAction}>
             <p className="mb-3 text-sm text-neutral-600">인스타그램 계정을 먼저 연결해주세요.</p>
-            <Button type="submit" variant="secondary" disabled={isConnectingInstagram}>
-              {isConnectingInstagram ? "연결 중..." : "계정 연결하기"}
+            <Button type="submit" variant="secondary">
+              계정 연결하기
             </Button>
-            {connectInstagramState.error && (
-              <p className="mt-2 text-sm text-red-600">{connectInstagramState.error}</p>
-            )}
           </form>
         ) : (
           <div className="space-y-4">

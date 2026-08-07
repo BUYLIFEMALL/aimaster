@@ -8,20 +8,12 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { generateInstagramCaption } from "@/lib/ai/posting";
 import { getInstagramAuthorizeUrl, publishInstagramReel } from "@/lib/instagram/client";
 
-export interface ConnectInstagramState {
-  error?: string;
-}
-
-export async function connectInstagramAction(
-  _prevState: ConnectInstagramState,
-): Promise<ConnectInstagramState> {
+export async function connectInstagramAction() {
   const user = await requireUser();
-  const supabase = await createClient();
-  const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
-  if (!appId) {
-    return { error: "설정 페이지에서 Meta App ID를 먼저 등록해주세요." };
-  }
-  redirect(getInstagramAuthorizeUrl(user.id, appId));
+  // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용).
+  // 인스타그램은 유튜브와 달리 buylife 소유의 Meta 앱 하나로 모든 사용자를 받는다
+  // (threads와 동일한 방식 — Meta는 유튜브와 달리 앱 하나로 여러 사용자를 받는 게 정상 허용됨).
+  redirect(getInstagramAuthorizeUrl(user.id));
 }
 
 export async function disconnectInstagramAction() {

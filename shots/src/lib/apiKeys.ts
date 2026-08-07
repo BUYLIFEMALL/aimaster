@@ -11,8 +11,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   json2video: "JSON2Video (최종 영상 렌더링)",
   google_client_id: "Google OAuth Client ID (유튜브 채널 연동)",
   google_client_secret: "Google OAuth Client Secret (유튜브 채널 연동)",
-  meta_app_id: "Meta App ID (인스타그램 연동)",
-  meta_app_secret: "Meta App Secret (인스타그램 연동)",
 };
 
 // 등록 폼(설정 페이지)에 노출할 프로바이더 목록. PROVIDER_LABELS에서 그대로 뽑아 쓰기 때문에
@@ -32,8 +30,6 @@ const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
   json2video: process.env.JSON2VIDEO_API_KEY,
   google_client_id: process.env.GOOGLE_CLIENT_ID,
   google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
-  meta_app_id: process.env.META_APP_ID,
-  meta_app_secret: process.env.META_APP_SECRET,
 };
 
 export async function getUserApiKey(
