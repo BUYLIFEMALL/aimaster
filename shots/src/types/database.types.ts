@@ -1,8 +1,9 @@
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "suno";
+export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "suno" | "json2video";
 export type ShortsSourceType = "http" | "rss" | "perplexity";
 export type ShortsCandidateStatus = "collected" | "requested";
 export type ShortsVideoStatus = "script_ready" | "images_generating" | "images_ready";
 export type BgmStatus = "processing" | "ready" | "failed";
+export type RenderStatus = "rendering" | "ready" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -65,6 +66,9 @@ export interface Database {
           suno_task_id: string | null;
           bgm_status: BgmStatus | null;
           bgm_selected_track_id: string | null;
+          render_status: RenderStatus | null;
+          j2v_project_id: string | null;
+          rendered_video_url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -81,6 +85,9 @@ export interface Database {
           suno_task_id?: string | null;
           bgm_status?: BgmStatus | null;
           bgm_selected_track_id?: string | null;
+          render_status?: RenderStatus | null;
+          j2v_project_id?: string | null;
+          rendered_video_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -97,6 +104,9 @@ export interface Database {
           suno_task_id?: string | null;
           bgm_status?: BgmStatus | null;
           bgm_selected_track_id?: string | null;
+          render_status?: RenderStatus | null;
+          j2v_project_id?: string | null;
+          rendered_video_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -199,6 +209,33 @@ export interface Database {
           user_id?: string;
           username?: string;
           password?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_render_settings: {
+        Row: {
+          id: string;
+          user_id: string;
+          elevenlabs_voice_id: string | null;
+          elevenlabs_connection_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          elevenlabs_voice_id?: string | null;
+          elevenlabs_connection_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          elevenlabs_voice_id?: string | null;
+          elevenlabs_connection_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

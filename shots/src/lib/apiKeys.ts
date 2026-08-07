@@ -8,7 +8,12 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   gemini: "Google (Gemini)",
   perplexity: "Perplexity",
   suno: "Suno (배경음악)",
+  json2video: "JSON2Video (최종 영상 렌더링)",
 };
+
+// 등록 폼(설정 페이지)에 노출할 프로바이더 목록. PROVIDER_LABELS에서 그대로 뽑아 쓰기 때문에
+// 새 프로바이더 추가 시 여기 따로 안 챙겨도 자동으로 저장 허용 목록에 포함된다.
+export const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as ApiKeyProvider[];
 
 // 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
 const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
@@ -17,6 +22,7 @@ const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
   gemini: process.env.GEMINI_API_KEY,
   perplexity: process.env.PERPLEXITY_API_KEY,
   suno: process.env.SUNO_API_KEY,
+  json2video: process.env.JSON2VIDEO_API_KEY,
 };
 
 export async function getUserApiKey(
