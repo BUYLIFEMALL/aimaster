@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { parseOAuthState } from "@/lib/oauthState";
 import { exchangeYoutubeCode, getYoutubeChannelInfo } from "@/lib/youtube/client";
 
 // YouTube OAuth 리다이렉트 콜백. Access/Refresh Token은 여기서만 처리되어 DB에 저장되고
 // 브라우저로는 절대 전달되지 않습니다.
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
-  const state = request.nextUrl.searchParams.get("state");
+  const stateParam = request.nextUrl.searchParams.get("state");
   const oauthError = request.nextUrl.searchParams.get("error");
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
-  if (oauthError || !code || !state) {
+  if (oauthError || !code || !stateParam) {
     return NextResponse.redirect(`${siteUrl}/scripts?error=youtube_connect_failed`);
   }
+
+  const { userId: stateUserId, returnTo } = parseOAuthState(stateParam);
+  const redirectTarget = returnTo ?? "/scripts";
 
   const supabase = await createClient();
   const {
@@ -22,7 +26,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // state 값에 요청 시점의 user.id를 담아 보냈으므로, 콜백에서도 동일 사용자인지 확인합니다.
-  if (!user || user.id !== state) {
+  if (!user || user.id !== stateUserId) {
     return NextResponse.redirect(`${siteUrl}/login`);
   }
 
@@ -59,8 +63,8 @@ export async function GET(request: NextRequest) {
       throw new Error(error.message);
     }
 
-    return NextResponse.redirect(`${siteUrl}/scripts?youtube_connected=1`);
+    return NextResponse.redirect(`${siteUrl}${redirectTarget}?youtube_connected=1`);
   } catch {
-    return NextResponse.redirect(`${siteUrl}/scripts?error=youtube_connect_failed`);
+    return NextResponse.redirect(`${siteUrl}${redirectTarget}?error=youtube_connect_failed`);
   }
 }

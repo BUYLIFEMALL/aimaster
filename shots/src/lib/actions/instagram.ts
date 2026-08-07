@@ -5,15 +5,18 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { buildOAuthState } from "@/lib/oauthState";
 import { generateInstagramCaption } from "@/lib/ai/posting";
 import { getInstagramAuthorizeUrl, publishInstagramReel } from "@/lib/instagram/client";
 
-export async function connectInstagramAction() {
+export async function connectInstagramAction(formData: FormData) {
   const user = await requireUser();
-  // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용).
+  // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값. 인증 후 원래 있던 페이지로
+  // 돌아갈 수 있도록 returnTo 경로도 함께 실어 보낸다.
   // 인스타그램은 유튜브와 달리 buylife 소유의 Meta 앱 하나로 모든 사용자를 받는다
   // (threads와 동일한 방식 — Meta는 유튜브와 달리 앱 하나로 여러 사용자를 받는 게 정상 허용됨).
-  redirect(getInstagramAuthorizeUrl(user.id));
+  const returnTo = String(formData.get("returnTo") ?? "");
+  redirect(getInstagramAuthorizeUrl(buildOAuthState(user.id, returnTo)));
 }
 
 export async function disconnectInstagramAction() {

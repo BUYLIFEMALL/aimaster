@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { buildOAuthState } from "@/lib/oauthState";
 import { suggestYoutubeCategory } from "@/lib/ai/posting";
 import {
   getYoutubeAuthorizeUrl,
@@ -20,6 +21,7 @@ export interface ConnectYoutubeState {
 
 export async function connectYoutubeAction(
   _prevState: ConnectYoutubeState,
+  formData: FormData,
 ): Promise<ConnectYoutubeState> {
   const user = await requireUser();
   const supabase = await createClient();
@@ -27,8 +29,10 @@ export async function connectYoutubeAction(
   if (!clientId) {
     return { error: "설정 페이지에서 Google OAuth Client ID를 먼저 등록해주세요." };
   }
-  // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
-  redirect(getYoutubeAuthorizeUrl(user.id, clientId));
+  // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값. 인증 후 원래 있던 페이지로
+  // 돌아갈 수 있도록 returnTo 경로도 함께 실어 보낸다.
+  const returnTo = String(formData.get("returnTo") ?? "");
+  redirect(getYoutubeAuthorizeUrl(buildOAuthState(user.id, returnTo), clientId));
 }
 
 export async function disconnectYoutubeAction() {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { clsx } from "@/lib/clsx";
@@ -59,6 +60,7 @@ export function PostingSection({
   instagramAccount: InstagramAccount | null;
 }) {
   const canPost = video.render_status === "ready" && !!video.rendered_video_url;
+  const pathname = usePathname();
 
   const [connectYoutubeState, connectYoutubeFormAction, isConnectingYoutube] = useActionState(
     connectYoutubeAction,
@@ -96,6 +98,7 @@ export function PostingSection({
 
         {!youtubeAccount ? (
           <form action={connectYoutubeFormAction}>
+            <input type="hidden" name="returnTo" value={pathname} />
             <p className="mb-3 text-sm text-neutral-600">유튜브 채널을 먼저 연결해주세요.</p>
             <Button type="submit" variant="secondary" disabled={isConnectingYoutube}>
               {isConnectingYoutube ? "연결 중..." : "채널 연결하기"}
@@ -171,6 +174,7 @@ export function PostingSection({
                 {postYoutubeState.error}
                 {postYoutubeState.reconnectRequired && (
                   <form action={connectYoutubeFormAction} className="mt-2">
+                    <input type="hidden" name="returnTo" value={pathname} />
                     <Button type="submit" variant="secondary" disabled={isConnectingYoutube}>
                       {isConnectingYoutube ? "연결 중..." : "채널 재연결하기"}
                     </Button>
@@ -190,6 +194,7 @@ export function PostingSection({
 
         {!instagramAccount ? (
           <form action={connectInstagramAction}>
+            <input type="hidden" name="returnTo" value={pathname} />
             <p className="mb-3 text-sm text-neutral-600">인스타그램 계정을 먼저 연결해주세요.</p>
             <Button type="submit" variant="secondary">
               계정 연결하기

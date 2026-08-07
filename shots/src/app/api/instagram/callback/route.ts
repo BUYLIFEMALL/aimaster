@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { parseOAuthState } from "@/lib/oauthState";
 import {
   exchangeInstagramCode,
   exchangeForLongLivedInstagramToken,
@@ -10,21 +11,24 @@ import {
 // 브라우저로는 절대 전달되지 않습니다.
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
-  const state = request.nextUrl.searchParams.get("state");
+  const stateParam = request.nextUrl.searchParams.get("state");
   const oauthError = request.nextUrl.searchParams.get("error");
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
-  if (oauthError || !code || !state) {
+  if (oauthError || !code || !stateParam) {
     return NextResponse.redirect(`${siteUrl}/scripts?error=instagram_connect_failed`);
   }
+
+  const { userId: stateUserId, returnTo } = parseOAuthState(stateParam);
+  const redirectTarget = returnTo ?? "/scripts";
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || user.id !== state) {
+  if (!user || user.id !== stateUserId) {
     return NextResponse.redirect(`${siteUrl}/login`);
   }
 
@@ -51,8 +55,8 @@ export async function GET(request: NextRequest) {
       throw new Error(error.message);
     }
 
-    return NextResponse.redirect(`${siteUrl}/scripts?instagram_connected=1`);
+    return NextResponse.redirect(`${siteUrl}${redirectTarget}?instagram_connected=1`);
   } catch {
-    return NextResponse.redirect(`${siteUrl}/scripts?error=instagram_connect_failed`);
+    return NextResponse.redirect(`${siteUrl}${redirectTarget}?error=instagram_connect_failed`);
   }
 }
