@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Save } from "lucide-react";
+import { Plus, Trash2, Save, Pencil, X, Check, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import GoldButton from "@/components/ui/GoldButton";
 import RichTextEditor from "@/components/ui/RichTextEditor";
@@ -61,6 +61,14 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [categoryError, setCategoryError] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategorySlug, setNewCategorySlug] = useState("");
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editCategoryName, setEditCategoryName] = useState("");
+  const [editCategorySlug, setEditCategorySlug] = useState("");
+
   const [name, setName] = useState(program?.name ?? "");
   const [slug, setSlug] = useState(program?.slug ?? "");
   const [categoryId, setCategoryId] = useState(program?.category_id ?? "");
@@ -102,6 +110,63 @@ export default function ProgramForm({ program }: ProgramFormProps) {
     if (!isEdit) {
       setSlug(val.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-"));
     }
+  };
+
+  const slugify = (val: string) =>
+    val.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+
+  const refreshCategories = async () => {
+    const { data } = await supabase.from("categories").select("*").order("sort_order");
+    setCategories(data ?? []);
+  };
+
+  const handleAddCategory = async () => {
+    setCategoryError("");
+    const name = newCategoryName.trim();
+    const slug = (newCategorySlug.trim() || slugify(name));
+    if (!name || !slug) { setCategoryError("카테고리명과 슬러그를 입력해주세요."); return; }
+
+    const nextSortOrder = categories.length > 0 ? Math.max(...categories.map((c) => c.sort_order)) + 1 : 1;
+    const { data, error: e } = await supabase
+      .from("categories")
+      .insert({ name, slug, sort_order: nextSortOrder })
+      .select("id")
+      .single();
+    if (e) { setCategoryError(e.message); return; }
+
+    setNewCategoryName("");
+    setNewCategorySlug("");
+    await refreshCategories();
+    if (data?.id) setCategoryId(data.id);
+  };
+
+  const startEditCategory = (cat: Category) => {
+    setEditingCategoryId(cat.id);
+    setEditCategoryName(cat.name);
+    setEditCategorySlug(cat.slug);
+    setCategoryError("");
+  };
+
+  const handleSaveCategory = async (id: string) => {
+    setCategoryError("");
+    const name = editCategoryName.trim();
+    const slug = editCategorySlug.trim();
+    if (!name || !slug) { setCategoryError("카테고리명과 슬러그를 입력해주세요."); return; }
+
+    const { error: e } = await supabase.from("categories").update({ name, slug }).eq("id", id);
+    if (e) { setCategoryError(e.message); return; }
+
+    setEditingCategoryId(null);
+    await refreshCategories();
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    setCategoryError("");
+    const { error: e } = await supabase.from("categories").delete().eq("id", id);
+    if (e) { setCategoryError("이 카테고리를 사용 중인 프로그램이 있으면 삭제할 수 없습니다. 먼저 해당 프로그램의 카테고리를 변경해주세요."); return; }
+
+    if (categoryId === id) setCategoryId("");
+    await refreshCategories();
   };
 
   const addPlan = () => {
@@ -200,10 +265,90 @@ export default function ProgramForm({ program }: ProgramFormProps) {
               <p className="text-xs text-subtext mt-1">/programs/<span className="text-gold">{slug || "slug"}</span></p>
             </FieldRow>
             <FieldRow label="카테고리">
-              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input-dark w-full">
-                <option value="">카테고리 선택</option>
-                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+              <div className="flex items-center gap-2">
+                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input-dark w-full">
+                  <option value="">카테고리 선택</option>
+                  {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryManager(!showCategoryManager)}
+                  className="shrink-0 flex items-center gap-1 rounded-lg border border-white/10 px-3 py-2.5 text-xs text-subtext hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <Settings size={14} /> 카테고리 관리
+                </button>
+              </div>
+
+              {showCategoryManager && (
+                <div className="mt-3 rounded-xl border border-white/10 bg-white/5 p-4 space-y-2">
+                  {categories.map((cat) => (
+                    <div key={cat.id} className="flex items-center gap-2">
+                      {editingCategoryId === cat.id ? (
+                        <>
+                          <input
+                            type="text"
+                            value={editCategoryName}
+                            onChange={(e) => setEditCategoryName(e.target.value)}
+                            className="input-dark flex-1 text-sm"
+                            placeholder="카테고리명"
+                          />
+                          <input
+                            type="text"
+                            value={editCategorySlug}
+                            onChange={(e) => setEditCategorySlug(e.target.value)}
+                            className="input-dark flex-1 text-sm"
+                            placeholder="슬러그"
+                          />
+                          <button type="button" onClick={() => handleSaveCategory(cat.id)}
+                            className="shrink-0 p-1.5 rounded hover:bg-white/10 text-gold">
+                            <Check size={14} />
+                          </button>
+                          <button type="button" onClick={() => setEditingCategoryId(null)}
+                            className="shrink-0 p-1.5 rounded hover:bg-white/10 text-subtext">
+                            <X size={14} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="flex-1 text-sm text-white">{cat.name}</span>
+                          <span className="text-xs text-subtext">{cat.slug}</span>
+                          <button type="button" onClick={() => startEditCategory(cat)}
+                            className="shrink-0 p-1.5 rounded hover:bg-white/10 text-subtext hover:text-white">
+                            <Pencil size={14} />
+                          </button>
+                          <button type="button" onClick={() => handleDeleteCategory(cat.id)}
+                            className="shrink-0 p-1.5 rounded hover:bg-red-500/10 text-red-400 hover:text-red-300">
+                            <Trash2 size={14} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  ))}
+
+                  <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+                    <input
+                      type="text"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      className="input-dark flex-1 text-sm"
+                      placeholder="새 카테고리명 (예: 쇼핑몰)"
+                    />
+                    <input
+                      type="text"
+                      value={newCategorySlug}
+                      onChange={(e) => setNewCategorySlug(e.target.value)}
+                      className="input-dark flex-1 text-sm"
+                      placeholder="슬러그 (비우면 자동 생성)"
+                    />
+                    <button type="button" onClick={handleAddCategory}
+                      className="shrink-0 flex items-center gap-1 rounded-lg bg-gold/10 text-gold px-3 py-2 text-xs font-medium hover:bg-gold/20">
+                      <Plus size={14} /> 추가
+                    </button>
+                  </div>
+
+                  {categoryError && <p className="text-xs text-red-400">{categoryError}</p>}
+                </div>
+              )}
             </FieldRow>
             <FieldRow label="필요 등급">
               <select value={requiredGradeId} onChange={(e) => setRequiredGradeId(e.target.value)} className="input-dark w-full">
