@@ -57,7 +57,6 @@ export default function ProgramForm({ program }: ProgramFormProps) {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [grades, setGrades] = useState<MemberGrade[]>([]);
-  const [allowedGradeIds, setAllowedGradeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -100,8 +99,6 @@ export default function ProgramForm({ program }: ProgramFormProps) {
     if (isEdit && program?.id) {
       supabase.from("affiliate_rates").select("rate").eq("program_id", program.id).single()
         .then(({ data }) => { if (data) setAffiliateRate(String(data.rate)); });
-      supabase.from("grade_program_access").select("grade_id").eq("program_id", program.id)
-        .then(({ data }) => { setAllowedGradeIds((data ?? []).map((d: { grade_id: string }) => d.grade_id)); });
     }
   }, []);
 
@@ -228,14 +225,6 @@ export default function ProgramForm({ program }: ProgramFormProps) {
 
       if (programId) {
         await supabase.from("affiliate_rates").upsert({ program_id: programId, rate: parseFloat(affiliateRate) || 10 });
-
-        // 등급별 접근 제한 저장
-        await supabase.from("grade_program_access").delete().eq("program_id", programId);
-        if (allowedGradeIds.length > 0) {
-          await supabase.from("grade_program_access").insert(
-            allowedGradeIds.map((gradeId) => ({ grade_id: gradeId, program_id: programId! }))
-          );
-        }
       }
 
       router.push("/admin/programs");
@@ -350,12 +339,16 @@ export default function ProgramForm({ program }: ProgramFormProps) {
                 </div>
               )}
             </FieldRow>
-            <FieldRow label="필요 등급">
+            <FieldRow label="접근가능 등급">
               <select value={requiredGradeId} onChange={(e) => setRequiredGradeId(e.target.value)} className="input-dark w-full">
                 <option value="">전체 공개 (등급 제한 없음)</option>
                 {grades.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
               </select>
-              <p className="text-xs text-subtext mt-1">선택한 등급 이상의 회원만 이 프로그램을 신청할 수 있습니다</p>
+              <p className="text-xs text-subtext mt-1">
+                선택한 등급 이상의 회원만 접근 가능합니다. &lsquo;일반&rsquo;을 선택하면 회원가입만 한
+                모든 사용자(무료)가 접근 가능하고, &lsquo;실버/골드/VIP&rsquo;를 선택하면 해당 등급
+                이상인 사용자만 접근 가능합니다.
+              </p>
             </FieldRow>
             <FieldRow label="한줄 설명">
               <input type="text" value={shortDesc} onChange={(e) => setShortDesc(e.target.value)}
@@ -490,42 +483,6 @@ export default function ProgramForm({ program }: ProgramFormProps) {
               </div>
             </FieldRow>
           </div>
-        </div>
-
-        {/* ── 등급별 접근 제한 ── */}
-        <div className="glass-card rounded-2xl p-6">
-          <SectionTitle>등급별 접근 제한</SectionTitle>
-          <p className="text-xs text-subtext mb-4">
-            선택한 등급의 회원만 이 프로그램을 구매할 수 있습니다. 아무 등급도 선택하지 않으면 모든 회원이 구매 가능합니다.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {grades.map((grade) => {
-              const isSelected = allowedGradeIds.includes(grade.id);
-              return (
-                <button
-                  key={grade.id}
-                  type="button"
-                  onClick={() => setAllowedGradeIds(
-                    isSelected
-                      ? allowedGradeIds.filter((id) => id !== grade.id)
-                      : [...allowedGradeIds, grade.id]
-                  )}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-                    isSelected
-                      ? "bg-gold text-black border-gold"
-                      : "bg-white/5 text-subtext border-white/10 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  {grade.name}
-                </button>
-              );
-            })}
-          </div>
-          {allowedGradeIds.length > 0 && (
-            <p className="text-xs text-gold/70 mt-3">
-              {grades.filter((g) => allowedGradeIds.includes(g.id)).map((g) => g.name).join(", ")} 등급만 구매 가능
-            </p>
-          )}
         </div>
 
         {error && (
