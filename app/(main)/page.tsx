@@ -22,15 +22,17 @@ import { createClient } from "@/lib/supabase/server";
 async function getHomeData() {
   try {
     const supabase = await createClient();
-    const { data: programs } = await supabase
-      .from("programs")
-      .select("*, category:categories(*), pricing_plans(*)")
-      .eq("is_active", true)
-      .order("sort_order")
-      .limit(6);
-    return { programs: programs ?? [] };
+    const [{ data: programs }, { data: categories }] = await Promise.all([
+      supabase
+        .from("programs")
+        .select("*, category:categories(*), pricing_plans(*)")
+        .eq("is_active", true)
+        .order("sort_order"),
+      supabase.from("categories").select("*").is("parent_id", null).order("sort_order"),
+    ]);
+    return { programs: programs ?? [], categories: categories ?? [] };
   } catch {
-    return { programs: [] };
+    return { programs: [], categories: [] };
   }
 }
 
@@ -65,7 +67,14 @@ const STATS = [
 ];
 
 export default async function HomePage() {
-  const { programs } = await getHomeData();
+  const { programs, categories } = await getHomeData();
+
+  const categoryBlocks = categories
+    .map((category) => ({
+      category,
+      programs: programs.filter((p) => p.category_id === category.id),
+    }))
+    .filter((block) => block.programs.length > 0);
 
   return (
     <div className="overflow-hidden">
@@ -147,33 +156,49 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Programs Showcase */}
-      {programs.length > 0 && (
+      {/* Programs Showcase — 카테고리별 블록 */}
+      {categoryBlocks.length > 0 && (
         <section className="py-20 px-4 bg-surface/30">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                  인기 <GoldGradientText>프로그램</GoldGradientText>
-                </h2>
-                <p className="text-subtext">검증된 마케팅 자동화 도구들</p>
-              </div>
-              <Link href="/programs" className="hidden md:block">
-                <GoldButton variant="outline" size="sm">
-                  전체 보기 <ArrowRight size={14} />
-                </GoldButton>
-              </Link>
+            <div className="text-center mb-14">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                카테고리별 <GoldGradientText>프로그램</GoldGradientText>
+              </h2>
+              <p className="text-subtext">필요한 플랫폼에 맞는 자동화 도구를 찾아보세요</p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {programs.slice(0, 6).map((program, i) => (
-                <ProgramCard
-                  key={program.id}
-                  program={program}
-                  badge={i === 0 ? "best" : i === 1 ? "hot" : undefined}
-                />
+
+            <div className="space-y-16">
+              {categoryBlocks.map(({ category, programs: catPrograms }) => (
+                <div key={category.id}>
+                  <div className="flex items-end justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-white">{category.name}</h3>
+                    <Link href={`/programs/category/${category.slug}`} className="hidden md:block">
+                      <GoldButton variant="outline" size="sm">
+                        전체 보기 <ArrowRight size={14} />
+                      </GoldButton>
+                    </Link>
+                  </div>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {catPrograms.slice(0, 3).map((program, i) => (
+                      <ProgramCard
+                        key={program.id}
+                        program={program}
+                        badge={i === 0 ? "best" : undefined}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-6 text-center md:hidden">
+                    <Link href={`/programs/category/${category.slug}`}>
+                      <GoldButton variant="outline" size="sm">
+                        {category.name} 전체 보기
+                      </GoldButton>
+                    </Link>
+                  </div>
+                </div>
               ))}
             </div>
-            <div className="mt-8 text-center md:hidden">
+
+            <div className="mt-16 text-center">
               <Link href="/programs">
                 <GoldButton variant="outline">전체 프로그램 보기</GoldButton>
               </Link>
