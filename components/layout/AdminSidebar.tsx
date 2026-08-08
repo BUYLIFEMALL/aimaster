@@ -47,12 +47,12 @@ export default function AdminSidebar() {
   const navContent = (
     <>
       <div className="p-5 border-b border-gold/20">
-        <div className="flex items-center gap-2 mb-1">
+        <Link href="/" className="flex items-center gap-2 mb-1">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
             <span className="text-black font-bold text-xs">AI</span>
           </div>
           <GoldGradientText className="text-lg font-bold">AI Master</GoldGradientText>
-        </div>
+        </Link>
         <span className="text-xs text-gold/60 font-semibold tracking-widest">ADMIN PANEL</span>
       </div>
 
@@ -91,12 +91,12 @@ export default function AdminSidebar() {
     <>
       {/* 모바일 헤더 */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-surface border-b border-gold/20 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
             <span className="text-black font-bold text-xs">AI</span>
           </div>
           <GoldGradientText className="text-sm font-bold">ADMIN</GoldGradientText>
-        </div>
+        </Link>
         <button onClick={() => setOpen(!open)} className="text-subtext hover:text-white p-1">
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
