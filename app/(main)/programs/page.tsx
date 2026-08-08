@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import ProgramCard from "@/components/programs/ProgramCard";
 import CategoryNav from "@/components/programs/CategoryNav";
 import ProgramSearch from "@/components/programs/ProgramSearch";
@@ -72,6 +73,14 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
     getCategories(),
   ]);
 
+  const showBlocks = !sp.q;
+  const categoryBlocks = categories
+    .map((category) => ({
+      category,
+      programs: programs.filter((p) => p.category_id === category.id),
+    }))
+    .filter((block) => block.programs.length > 0);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-10">
@@ -104,7 +113,7 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
         </p>
       )}
 
-      {/* Programs Grid */}
+      {/* Programs */}
       {programs.length === 0 ? (
         <div className="text-center py-20 text-subtext">
           {sp.q ? (
@@ -115,6 +124,27 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
           ) : (
             <p className="text-xl mb-2">등록된 프로그램이 없습니다</p>
           )}
+        </div>
+      ) : showBlocks ? (
+        <div className="space-y-16">
+          {categoryBlocks.map(({ category, programs: catPrograms }) => (
+            <div key={category.id}>
+              <div className="flex items-end justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">{category.name}</h2>
+                <Link
+                  href={`/programs/category/${category.slug}`}
+                  className="text-sm text-gold hover:underline flex-shrink-0"
+                >
+                  전체 보기 →
+                </Link>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {catPrograms.map((program) => (
+                  <ProgramCard key={program.id} program={program} />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
