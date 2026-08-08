@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
+import { DeleteButton } from "@/components/posts/DeleteButton";
 import { POST_STATUS_LABELS, type PostStatus } from "@/types/post";
 import { deletePostAction } from "@/lib/actions/posts";
 
@@ -93,12 +94,7 @@ export default async function PostsPage({
                 </Link>
                 <form action={deletePostAction}>
                   <input type="hidden" name="postId" value={post.id} />
-                  <button
-                    type="submit"
-                    className="flex-shrink-0 rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                  >
-                    삭제
-                  </button>
+                  <DeleteButton className="flex-shrink-0" />
                 </form>
               </li>
             ))}

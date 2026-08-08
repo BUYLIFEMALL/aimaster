@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { deletePostAction, publishNowAction } from "@/lib/actions/posts";
+import { DeleteButton } from "@/components/posts/DeleteButton";
 
 export default async function PostDetailPage({
   params,
@@ -101,9 +102,7 @@ export default async function PostDetailPage({
         )}
         <form action={deletePostAction}>
           <input type="hidden" name="postId" value={post.id} />
-          <Button type="submit" variant="danger">
-            삭제
-          </Button>
+          <DeleteButton variant="solid" />
         </form>
       </div>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { deleteCandidateAction } from "@/lib/actions/candidates";
+import { DeleteButton } from "@/components/posts/DeleteButton";
 import type { Database, ThreadsSourceType } from "@/types/database.types";
 
 type Candidate = Database["public"]["Tables"]["threads_candidates"]["Row"];
@@ -46,12 +47,7 @@ export function CandidateList({ candidates }: CandidateListProps) {
                 </Link>
                 <form action={deleteCandidateAction}>
                   <input type="hidden" name="id" value={c.id} />
-                  <button
-                    type="submit"
-                    className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
-                  >
-                    삭제
-                  </button>
+                  <DeleteButton />
                 </form>
               </div>
             </div>
