@@ -5,6 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Communication
 
 - 답변은 기술 용어(API, RLS, 파일 경로, 함수명, 라이브러리명 등)를 제외하고 한글로 작성한다.
+- 전달 내용은 비전문가도 이해하기 쉽게, 쉬운 한글 표현으로 풀어서 설명한다. 불가피하게 기술/전문 용어를 쓸 때를 제외하면 어려운 표현이나 번역체를 피한다.
+- 이 지침은 루트 AIMaster뿐 아니라 threads, blog, shots 등 모든 서브프로젝트 작업에도 동일하게 적용되는 메인 지침이다. 각 서브프로젝트의 CLAUDE.md/AGENTS.md는 이 파일을 함께 읽도록 안내한다.
 
 ## Commands
 
