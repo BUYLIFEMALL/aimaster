@@ -20,11 +20,14 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-medium text-neutral-900">{label}</p>
+        <p className="text-base font-bold text-neutral-900">{label}</p>
         {maskedValue && (
           <form action={deleteApiKeyAction}>
             <input type="hidden" name="provider" value={provider} />
-            <button type="submit" className="text-xs text-red-600 hover:underline">
+            <button
+              type="submit"
+              className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+            >
               삭제
             </button>
           </form>

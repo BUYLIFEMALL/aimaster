@@ -61,7 +61,7 @@ export default async function CandidatesPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-2 text-2xl font-semibold text-neutral-900">쇼츠 대상 수집</h1>
+      <h1 className="mb-2 text-2xl font-semibold text-neutral-900">최신 쇼츠 주제 수집</h1>
       <p className="mb-6 text-sm text-neutral-600">
         HTTP(특정 URL), RSS(구독 피드), Perplexity(트렌드 검색) 중 하나를 선택해서 유튜브 쇼츠 영상
         주제와 대본 초안을 생성합니다.

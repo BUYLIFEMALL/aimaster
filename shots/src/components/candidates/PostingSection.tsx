@@ -252,9 +252,9 @@ export function PostingSection({
                 href={video.youtube_video_url}
                 target="_blank"
                 rel="noreferrer"
-                className="block text-sm text-blue-600 underline"
+                className="inline-block rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
               >
-                업로드된 영상 보기
+                업로드 영상보기
               </a>
             ) : (
               <form action={postYoutubeAction}>
@@ -364,7 +364,7 @@ export function PostingSection({
                 href={video.instagram_post_url}
                 target="_blank"
                 rel="noreferrer"
-                className="block text-sm text-blue-600 underline"
+                className="inline-block rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
               >
                 게시된 릴스 보기
               </a>

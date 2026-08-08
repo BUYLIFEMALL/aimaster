@@ -27,11 +27,11 @@ export default async function SettingsPage() {
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-2 text-2xl font-semibold text-neutral-900">API 키 설정</h1>
       <p className="mb-6 text-sm text-neutral-600">
-        본인의 API 키를 등록하면 쇼츠 대상 수집(콘텐츠 생성) 시 등록한 키를 우선 사용합니다.
-        등록하지 않으면 앱 기본 키로 동작합니다 (제공되는 경우).
+        본인의 API 키를 등록하면 최신 쇼츠 주제 수집(콘텐츠 생성) 시 등록한 키를 우선 사용.
+        등록하지 않으면 앱 기본 키로 동작 (추가 등록시).
       </p>
       <div className="mb-10 space-y-3">
-        {AI_PROVIDERS.map((provider) => (
+        {AI_PROVIDERS.filter((provider) => provider !== "json2video").map((provider) => (
           <ApiKeyRow
             key={provider}
             provider={provider}
@@ -41,7 +41,15 @@ export default async function SettingsPage() {
         ))}
       </div>
 
-      <h2 className="mb-2 text-lg font-medium text-neutral-900">JSON2VIDEO 영상생성</h2>
+      <div className="mb-4">
+        <ApiKeyRow
+          provider="json2video"
+          label={PROVIDER_LABELS.json2video}
+          maskedValue={keyMap.has("json2video") ? maskApiKey(keyMap.get("json2video")!) : null}
+        />
+      </div>
+
+      <h2 className="mb-2 text-lg font-bold text-neutral-900">ElevenLabs(나레이션) 연동</h2>
       <div className="mb-10">
         <VoiceIdSettings
           currentVoiceId={renderSettings?.elevenlabs_voice_id ?? null}
@@ -49,10 +57,9 @@ export default async function SettingsPage() {
         />
       </div>
 
-      <h2 className="mb-3 text-lg font-medium text-neutral-900">유튜브 연동</h2>
+      <h2 className="mb-3 text-lg font-bold text-neutral-900">🎬 YouTube 연동(Google Cloud)</h2>
 
       <div className="rounded-xl border border-neutral-200 p-4">
-        <h3 className="mb-2 text-sm font-semibold text-neutral-900">🎬 유튜브 (Google)</h3>
         <p className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs font-medium text-amber-800">
           ⚠️ Google Cloud Console에서 반드시 <strong>YouTube Data API v3</strong>를 먼저 활성화 해주세요.
         </p>
@@ -73,11 +80,6 @@ export default async function SettingsPage() {
           ))}
         </div>
       </div>
-
-      <p className="mt-4 text-xs text-neutral-400">
-        인스타그램 릴스 업로드는 별도 등록 없이 &ldquo;영상포스팅&rdquo; 메뉴에서 바로 계정 연결이
-        가능합니다.
-      </p>
     </div>
   );
 }

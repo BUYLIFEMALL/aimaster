@@ -22,7 +22,7 @@ export default async function VideosPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-neutral-900">영상포스팅</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900">영상 포스팅</h1>
         <p className="mt-1 text-sm text-neutral-600">
           영상 제작까지 완료된 쇼츠 목록입니다. 각 영상 하단에서 유튜브/인스타그램에 바로 올릴 수
           있습니다.

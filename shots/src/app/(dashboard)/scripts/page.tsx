@@ -25,20 +25,20 @@ export default async function ScriptsPage() {
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900">영상스크립트 생성</h1>
           <p className="mt-1 text-sm text-neutral-600">
-            쇼츠 대상 수집에서 만든 주제로 생성한 영상 스크립트 목록입니다.
+            최신 쇼츠 주제 수집에서 만든 주제로 생성한 영상 스크립트 목록입니다.
           </p>
         </div>
         <Link
           href="/candidates"
           className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700"
         >
-          쇼츠 대상에서 새로 만들기
+          최신 쇼츠 주제 수집에서 새로 만들기
         </Link>
       </div>
 
       {!videos || videos.length === 0 ? (
         <div className="rounded-lg border border-neutral-200 bg-white p-6 text-center text-sm text-neutral-500">
-          아직 생성된 영상 스크립트가 없습니다. 먼저 &ldquo;쇼츠 대상 수집&rdquo;에서 주제를 골라
+          아직 생성된 영상 스크립트가 없습니다. 먼저 &ldquo;최신 쇼츠 주제 수집&rdquo;에서 주제를 골라
           &ldquo;쇼츠생성&rdquo;을 눌러보세요.
         </div>
       ) : (

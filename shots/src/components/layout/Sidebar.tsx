@@ -2,12 +2,12 @@ import Link from "next/link";
 import { signOutAction } from "@/lib/actions/auth";
 
 const NAV_ITEMS = [
-  { href: "/candidates", label: "쇼츠 대상 수집" },
-  { href: "/scripts", label: "영상스크립트 생성" },
-  { href: "/images", label: "이미지 생성" },
-  { href: "/music", label: "음악 생성" },
-  { href: "/videos", label: "영상포스팅" },
-  { href: "/settings", label: "API 키 설정" },
+  { href: "/candidates", label: "1. 최신 쇼츠 주제 수집" },
+  { href: "/scripts", label: "2. 영상스크립트 생성" },
+  { href: "/images", label: "3. 이미지 생성" },
+  { href: "/music", label: "4. 음악 생성" },
+  { href: "/videos", label: "5. 영상 포스팅" },
+  { href: "/settings", label: "🔑 API 키 설정" },
 ];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {

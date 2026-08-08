@@ -8,7 +8,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   gemini: "Google (Gemini)",
   perplexity: "Perplexity",
   suno: "Suno (배경음악)",
-  json2video: "JSON2Video (최종 영상 렌더링)",
+  json2video: "JSON2VIDEO 연동(최종 영상렌더링)",
   google_client_id: "Google OAuth Client ID (유튜브 채널 연동)",
   google_client_secret: "Google OAuth Client Secret (유튜브 채널 연동)",
 };

@@ -94,3 +94,12 @@ export async function saveVoiceIdAction(
   revalidatePath("/settings");
   return { success: true };
 }
+
+export async function deleteVoiceIdAction() {
+  const user = await requireUser();
+  const supabase = await createClient();
+
+  await supabase.from("user_render_settings").delete().eq("user_id", user.id);
+
+  revalidatePath("/settings");
+}
