@@ -88,7 +88,7 @@ export function BgmSection({ video, tracks }: { video: Video; tracks: BgmTrack[]
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-neutral-500">스타일</label>
+          <label className="mb-1 block text-xs text-neutral-500">Style Description</label>
           <Textarea
             name="bgmStyle"
             value={bgmStyle}
@@ -98,7 +98,7 @@ export function BgmSection({ video, tracks }: { video: Video; tracks: BgmTrack[]
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-neutral-500">제외 요소</label>
+          <label className="mb-1 block text-xs text-neutral-500">Exclude styles</label>
           <Textarea
             name="bgmExclude"
             value={bgmExclude}

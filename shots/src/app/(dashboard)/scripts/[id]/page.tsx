@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getRegisteredProviders } from "@/lib/apiKeys";
+import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import { ScriptEditor } from "@/components/candidates/ScriptEditor";
 import { BgmSection } from "@/components/candidates/BgmSection";
 import { RenderSection } from "@/components/candidates/RenderSection";
@@ -30,7 +31,7 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
     { data: bgmTracks },
     { data: renderSettings },
     registeredProviders,
-    { data: youtubeAccount },
+    youtubeStatus,
     { data: instagramAccount },
   ] = await Promise.all([
     supabase
@@ -51,7 +52,7 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
       .eq("user_id", user.id)
       .maybeSingle(),
     getRegisteredProviders(supabase, user.id),
-    supabase.from("youtube_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getYoutubeConnectionStatus(supabase, user.id),
     supabase.from("instagram_accounts").select("*").eq("user_id", user.id).maybeSingle(),
   ]);
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
@@ -72,7 +73,12 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
         <RenderSection video={video} defaultVoiceId={renderSettings?.elevenlabs_voice_id ?? null} />
       </div>
       <div className="mt-6">
-        <PostingSection video={video} youtubeAccount={youtubeAccount ?? null} instagramAccount={instagramAccount ?? null} />
+        <PostingSection
+          video={video}
+          youtubeConnected={youtubeStatus.connected}
+          youtubeNeedsReconnect={youtubeStatus.needsReconnect}
+          instagramAccount={instagramAccount ?? null}
+        />
       </div>
     </div>
   );

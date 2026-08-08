@@ -9,9 +9,12 @@ const GRAPH_VERSION = "v21.0";
 const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_VERSION}`;
 const AUTHORIZE_BASE = "https://www.facebook.com/v21.0/dialog/oauth";
 
+// 주의: Meta 콘솔 "필수 권한 추가" 화면엔 "instagram_content_publishing"으로 표시되지만,
+// 이건 UI 설명 라벨일 뿐이고 실제 OAuth scope 파라미터 값은 "instagram_content_publish"다
+// (ing 없음). 콘솔 표기를 그대로 썼다가 "Invalid Scope" 에러가 났던 적이 있어 남겨둔다.
 const INSTAGRAM_SCOPES = [
   "instagram_basic",
-  "instagram_content_publishing",
+  "instagram_content_publish",
   "pages_show_list",
   "pages_read_engagement",
   "business_management",

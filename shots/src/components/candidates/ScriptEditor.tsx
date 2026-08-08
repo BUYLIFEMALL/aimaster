@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
 import {
   saveScriptEditsAction,
   generateSegmentImagesAction,
@@ -17,7 +18,7 @@ type Video = Database["public"]["Tables"]["shorts_videos"]["Row"];
 type Segment = Database["public"]["Tables"]["shorts_video_segments"]["Row"];
 
 const STATUS_LABELS: Record<ShortsVideoStatus, string> = {
-  script_ready: "스크립트 준비됨",
+  script_ready: "쇼츠 스토리 생성완료",
   images_generating: "이미지 생성 중...",
   images_ready: "이미지 생성 완료",
 };
@@ -43,21 +44,26 @@ export function ScriptEditor({ video, segments }: { video: Video; segments: Segm
           <input type="hidden" name="videoId" value={video.id} />
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">제목</label>
+            <label className="mb-1 block text-base font-bold text-neutral-900">제목</label>
             <Input name="title" defaultValue={video.title} required />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">전체 스크립트 (참고용)</label>
-            <p className="whitespace-pre-wrap rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-600">
-              {video.full_script}
+            <label className="mb-1 block text-base font-bold text-neutral-900">쇼츠 스토리</label>
+            <p className="mb-1 text-xs text-neutral-500">
+              앞 단계에서 생성된 원본 제목/스토리입니다. 자유롭게 수정 후 저장하세요.
             </p>
+            <Textarea name="fullScript" defaultValue={video.full_script} rows={14} className="text-neutral-800" />
           </div>
 
           <div className="flex items-center gap-3">
-            <Button type="submit" variant="secondary" disabled={isSaving}>
-              {isSaving ? "저장 중..." : "제목 저장"}
-            </Button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+            >
+              {isSaving ? "저장 중..." : "저장"}
+            </button>
             {saveState.error && <p className="text-sm text-red-600">{saveState.error}</p>}
             {saveState.success && <p className="text-sm text-green-600">저장되었습니다.</p>}
           </div>
@@ -65,7 +71,7 @@ export function ScriptEditor({ video, segments }: { video: Video; segments: Segm
       </div>
 
       <div className="space-y-4">
-        <p className="text-sm font-medium text-neutral-700">
+        <p className="text-base font-bold text-neutral-900">
           장면별 대사 · 이미지 프롬프트 · 이미지 (5초 × {segments.length}장면)
         </p>
         {segments.map((seg) => (

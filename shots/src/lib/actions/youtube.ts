@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { buildOAuthState } from "@/lib/oauthState";
-import { suggestYoutubeCategory } from "@/lib/ai/posting";
+import { suggestYoutubeCategory, generateYoutubeDescription } from "@/lib/ai/posting";
 import {
   getYoutubeAuthorizeUrl,
   refreshYoutubeAccessToken,
@@ -71,6 +71,45 @@ async function getValidYoutubeAccessToken(
   }
 }
 
+export interface YoutubeConnectionStatus {
+  connected: boolean;
+  channelTitle: string | null;
+  needsReconnect: boolean;
+}
+
+/**
+ * 페이지 진입 시 유튜브 연결 상태를 실제로 검증한다 (DB에 행이 있는지만 보지 않고,
+ * refresh_token으로 access_token 갱신을 시도해 실제로 살아있는 연결인지 확인).
+ * Google 앱이 "테스트" 상태면 refresh_token이 7일 후 만료되어 재연동이 필요해지는데,
+ * 이 함수가 그 상태를 사용자가 업로드를 시도하기 전에 미리 감지해준다.
+ */
+export async function getYoutubeConnectionStatus(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+): Promise<YoutubeConnectionStatus> {
+  const { data: account } = await supabase
+    .from("youtube_accounts")
+    .select("access_token, refresh_token, token_expires_at, channel_title")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!account) return { connected: false, channelTitle: null, needsReconnect: false };
+
+  const clientId = await resolveApiKey(supabase, userId, "google_client_id");
+  const clientSecret = await resolveApiKey(supabase, userId, "google_client_secret");
+  if (!clientId || !clientSecret) {
+    return { connected: true, channelTitle: account.channel_title, needsReconnect: false };
+  }
+
+  try {
+    await getValidYoutubeAccessToken(supabase, userId, account, clientId, clientSecret);
+    return { connected: true, channelTitle: account.channel_title, needsReconnect: false };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    const needsReconnect = message === "YOUTUBE_RECONNECT_REQUIRED";
+    return { connected: true, channelTitle: account.channel_title, needsReconnect };
+  }
+}
+
 export interface SuggestCategoryState {
   error?: string;
   categoryId?: string;
@@ -105,6 +144,68 @@ export async function suggestYoutubeCategoryAction(
   }
 }
 
+export interface GenerateDescriptionState {
+  error?: string;
+  description?: string;
+}
+
+/** 제목/쇼츠 스토리로 유튜브 쇼츠 설명란용 텍스트를 생성해 저장한다. 게시 전 화면에서 수정할 수 있다. */
+export async function generateYoutubeDescriptionAction(
+  _prevState: GenerateDescriptionState,
+  formData: FormData,
+): Promise<GenerateDescriptionState> {
+  const user = await requireUser();
+  const videoId = String(formData.get("videoId") ?? "");
+  if (!videoId) return { error: "videoId가 없습니다." };
+
+  const supabase = await createClient();
+  const { data: video } = await supabase
+    .from("shorts_videos")
+    .select("title, full_script")
+    .eq("user_id", user.id)
+    .eq("id", videoId)
+    .single();
+  if (!video) return { error: "영상을 찾을 수 없습니다." };
+
+  const apiKey = await resolveApiKey(supabase, user.id, "openai");
+  try {
+    const description = await generateYoutubeDescription(video.title, video.full_script, apiKey ?? "");
+    await supabase.from("shorts_videos").update({ youtube_description: description }).eq("id", videoId);
+    revalidatePath(`/scripts/${videoId}`);
+    return { description };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "설명 생성 중 오류가 발생했습니다." };
+  }
+}
+
+export interface SaveDescriptionState {
+  error?: string;
+  success?: boolean;
+}
+
+/** 사용자가 직접 고친 유튜브 설명을 게시 없이 저장만 한다. */
+export async function saveYoutubeDescriptionAction(
+  _prevState: SaveDescriptionState,
+  formData: FormData,
+): Promise<SaveDescriptionState> {
+  const user = await requireUser();
+  const videoId = String(formData.get("videoId") ?? "");
+  const description = String(formData.get("description") ?? "").trim();
+  if (!videoId) return { error: "videoId가 없습니다." };
+  if (!description) return { error: "설명을 입력해주세요." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("shorts_videos")
+    .update({ youtube_description: description })
+    .eq("user_id", user.id)
+    .eq("id", videoId);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/scripts/${videoId}`);
+  return { success: true };
+}
+
 export interface PostYoutubeState {
   error?: string;
   reconnectRequired?: boolean;
@@ -119,14 +220,16 @@ export async function postToYoutubeAction(
   const user = await requireUser();
   const videoId = String(formData.get("videoId") ?? "");
   const categoryId = String(formData.get("categoryId") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
   if (!videoId) return { error: "videoId가 없습니다." };
   if (!categoryId) return { error: "카테고리를 선택해주세요." };
+  if (!description) return { error: "설명을 먼저 생성하거나 입력해주세요." };
 
   const supabase = await createClient();
 
   const { data: video } = await supabase
     .from("shorts_videos")
-    .select("id, title, full_script, rendered_video_url, render_status")
+    .select("id, title, rendered_video_url, render_status")
     .eq("user_id", user.id)
     .eq("id", videoId)
     .single();
@@ -148,7 +251,10 @@ export async function postToYoutubeAction(
     return { error: "설정 페이지에서 Google OAuth Client ID/Secret을 먼저 등록해주세요." };
   }
 
-  await supabase.from("shorts_videos").update({ youtube_status: "posting" }).eq("id", videoId);
+  await supabase
+    .from("shorts_videos")
+    .update({ youtube_status: "posting", youtube_description: description })
+    .eq("id", videoId);
 
   try {
     const accessToken = await getValidYoutubeAccessToken(supabase, user.id, account, clientId, clientSecret);
@@ -161,7 +267,7 @@ export async function postToYoutubeAction(
       accessToken,
       videoBuffer,
       title: video.title,
-      description: `${video.title}\n\n${video.full_script}`,
+      description,
       categoryId,
       privacyStatus: "public",
     });

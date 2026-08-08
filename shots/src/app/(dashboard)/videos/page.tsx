@@ -1,20 +1,21 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import { PostingSection } from "@/components/candidates/PostingSection";
 
 export default async function VideosPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: videos }, { data: youtubeAccount }, { data: instagramAccount }] = await Promise.all([
+  const [{ data: videos }, youtubeStatus, { data: instagramAccount }] = await Promise.all([
     supabase
       .from("shorts_videos")
       .select("*")
       .eq("user_id", user.id)
       .eq("render_status", "ready")
       .order("created_at", { ascending: false }),
-    supabase.from("youtube_accounts").select("*").eq("user_id", user.id).maybeSingle(),
+    getYoutubeConnectionStatus(supabase, user.id),
     supabase.from("instagram_accounts").select("*").eq("user_id", user.id).maybeSingle(),
   ]);
 
@@ -65,7 +66,12 @@ export default async function VideosPage() {
               <p className="mt-3 text-xs text-neutral-400">{new Date(v.created_at).toLocaleString("ko-KR")}</p>
 
               <div className="mt-4 border-t border-neutral-100 pt-4">
-                <PostingSection video={v} youtubeAccount={youtubeAccount ?? null} instagramAccount={instagramAccount ?? null} />
+                <PostingSection
+                  video={v}
+                  youtubeConnected={youtubeStatus.connected}
+                  youtubeNeedsReconnect={youtubeStatus.needsReconnect}
+                  instagramAccount={instagramAccount ?? null}
+                />
               </div>
             </li>
           ))}

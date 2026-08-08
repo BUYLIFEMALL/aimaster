@@ -89,7 +89,7 @@ export interface SaveScriptEditsState {
   success?: boolean;
 }
 
-/** 검토 화면에서 수정한 제목을 저장한다. */
+/** 검토 화면에서 수정한 제목/쇼츠 스토리를 저장한다. 쇼츠 스토리는 유튜브 설명·인스타 캡션 생성에 그대로 쓰인다. */
 export async function saveScriptEditsAction(
   _prevState: SaveScriptEditsState,
   formData: FormData,
@@ -97,16 +97,17 @@ export async function saveScriptEditsAction(
   const user = await requireUser();
   const videoId = String(formData.get("videoId") ?? "");
   const title = String(formData.get("title") ?? "").trim();
-  if (!videoId || !title) return { error: "제목을 입력해주세요." };
+  const fullScript = String(formData.get("fullScript") ?? "").trim();
+  if (!videoId || !title || !fullScript) return { error: "제목과 쇼츠 스토리를 입력해주세요." };
 
   const supabase = await createClient();
 
-  const { error: titleError } = await supabase
+  const { error: updateError } = await supabase
     .from("shorts_videos")
-    .update({ title })
+    .update({ title, full_script: fullScript })
     .eq("user_id", user.id)
     .eq("id", videoId);
-  if (titleError) return { error: titleError.message };
+  if (updateError) return { error: updateError.message };
 
   revalidatePath(`/scripts/${videoId}`);
   return { success: true };

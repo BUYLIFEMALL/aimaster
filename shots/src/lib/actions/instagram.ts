@@ -60,6 +60,34 @@ export async function generateInstagramCaptionAction(
   }
 }
 
+export interface SaveCaptionState {
+  error?: string;
+  success?: boolean;
+}
+
+/** 사용자가 직접 고친 인스타그램 캡션을 게시 없이 저장만 한다. */
+export async function saveInstagramCaptionAction(
+  _prevState: SaveCaptionState,
+  formData: FormData,
+): Promise<SaveCaptionState> {
+  const user = await requireUser();
+  const videoId = String(formData.get("videoId") ?? "");
+  const caption = String(formData.get("caption") ?? "").trim();
+  if (!videoId) return { error: "videoId가 없습니다." };
+  if (!caption) return { error: "캡션을 입력해주세요." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("shorts_videos")
+    .update({ instagram_caption: caption })
+    .eq("user_id", user.id)
+    .eq("id", videoId);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/scripts/${videoId}`);
+  return { success: true };
+}
+
 export interface PostInstagramState {
   error?: string;
   success?: boolean;

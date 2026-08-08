@@ -204,14 +204,19 @@ BGM(배경음악) 생성용 프롬프트를 만든다.
 - 웅장/영화음악/서사: mid tempo(80~110bpm), medium~high energy, orchestra/strings/brass, cinematic wide layered sound
 
 [Exclude Styles 규칙]
-반드시 "no vocals, no singing, no lyrics"를 포함하고, 분위기에 따라 어울리지 않는 요소를 추가
-(예: 잔잔 계열 → no drums, no upbeat rhythm)
+Suno의 Exclude Styles 필드 형식대로 "no X" 문장이 아닌 쉼표로 구분된 짧은 영어 태그로 작성한다.
+반드시 vocals, singing, lyrics 세 태그를 포함하고, 분위기에 따라 어울리지 않는 요소를 추가한다
+(예: vocals, singing, lyrics, heavy drums, upbeat rhythm)
+
+[언어 규칙]
+BGM_Prompt, Style Description, Exclude Styles 세 값 모두 반드시 영어로만 작성한다
+(https://docs.sunoapi.org/ 의 Style Description/Exclude Styles 형식 기준 — 한국어 절대 포함 금지).
 
 출력은 반드시 아래 JSON 구조만 출력하라 (설명/주석 금지).
 {
   "BGM_Prompt": "장르/템포/에너지/악기를 담은 하나의 영어 문장",
-  "Style Description": "쉼표로 구분된 스타일 키워드 나열 (분위기, 템포, 질감, 악기)",
-  "Exclue Styles": "제외할 요소 (반드시 no vocals, no singing, no lyrics 포함)"
+  "Style Description": "쉼표로 구분된 영어 스타일 키워드 나열 (예: mood, tempo, texture, instruments)",
+  "Exclude Styles": "쉼표로 구분된 영어 제외 키워드 (반드시 vocals, singing, lyrics 포함)"
 }`;
 
 function buildBgmUserPrompt(script: string): string {
@@ -251,7 +256,7 @@ export async function generateBgmPrompt(fullScript: string, apiKey: string): Pro
   const raw = data.choices?.[0]?.message?.content?.trim();
   if (!raw) throw new Error("AI가 빈 응답을 반환했습니다.");
 
-  let parsed: { BGM_Prompt?: string; "Style Description"?: string; "Exclue Styles"?: string };
+  let parsed: { BGM_Prompt?: string; "Style Description"?: string; "Exclude Styles"?: string };
   try {
     parsed = JSON.parse(raw);
   } catch {
@@ -261,7 +266,7 @@ export async function generateBgmPrompt(fullScript: string, apiKey: string): Pro
   return {
     bgmPrompt: parsed.BGM_Prompt ?? "",
     styleDescription: parsed["Style Description"] ?? "",
-    excludeStyles: parsed["Exclue Styles"] ?? "",
+    excludeStyles: parsed["Exclude Styles"] ?? "",
   };
 }
 

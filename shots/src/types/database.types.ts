@@ -82,6 +82,7 @@ export interface Database {
           youtube_status: PostStatus | null;
           youtube_video_id: string | null;
           youtube_video_url: string | null;
+          youtube_description: string | null;
           instagram_status: PostStatus | null;
           instagram_post_url: string | null;
           instagram_caption: string | null;
@@ -108,6 +109,7 @@ export interface Database {
           youtube_status?: PostStatus | null;
           youtube_video_id?: string | null;
           youtube_video_url?: string | null;
+          youtube_description?: string | null;
           instagram_status?: PostStatus | null;
           instagram_post_url?: string | null;
           instagram_caption?: string | null;
@@ -134,6 +136,7 @@ export interface Database {
           youtube_status?: PostStatus | null;
           youtube_video_id?: string | null;
           youtube_video_url?: string | null;
+          youtube_description?: string | null;
           instagram_status?: PostStatus | null;
           instagram_post_url?: string | null;
           instagram_caption?: string | null;

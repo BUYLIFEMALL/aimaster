@@ -37,7 +37,7 @@ export function SegmentCard({ videoId, segment }: { videoId: string; segment: Se
   return (
     <div className="rounded-lg border border-neutral-200 p-3">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-semibold text-neutral-500">
+        <span className="text-sm font-bold text-neutral-900">
           장면 {segment.segment_index} · {segment.duration_seconds}초
         </span>
       </div>
@@ -66,9 +66,13 @@ export function SegmentCard({ videoId, segment }: { videoId: string; segment: Se
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button type="submit" variant="secondary" disabled={isSaving}>
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+          >
             {isSaving ? "저장 중..." : "대사/프롬프트 저장"}
-          </Button>
+          </button>
           {saveState.error && <p className="text-xs text-red-600">{saveState.error}</p>}
           {saveState.success && <p className="text-xs text-green-600">저장됨</p>}
         </div>
