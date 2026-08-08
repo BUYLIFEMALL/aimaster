@@ -2,7 +2,6 @@ import Link from "next/link";
 import { signOutAction } from "@/lib/actions/auth";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "대시보드" },
   { href: "/candidates", label: "쇼츠 대상 수집" },
   { href: "/scripts", label: "영상스크립트 생성" },
   { href: "/images", label: "이미지 생성" },

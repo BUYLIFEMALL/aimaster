@@ -38,7 +38,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user && isPublicPath) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/candidates", request.url));
   }
 
   return response;

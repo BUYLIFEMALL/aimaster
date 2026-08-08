@@ -31,8 +31,12 @@ async function insertCandidates(
   sourceInput: string,
   drafts: ShortsCandidateDraft[],
 ) {
+  // 한 배치로 여러 건을 insert하면 DB가 모든 행에 동일한 트랜잭션 시각을 created_at으로
+  // 부여해서, "최신 생성 순" 정렬(created_at desc)이 배치 내에서는 순서를 보장하지 못한다.
+  // 배치 내 순서(=생성 순서)를 유지하도록 1ms씩 차이 나는 타임스탬프를 명시적으로 부여한다.
+  const now = Date.now();
   const { error } = await supabase.from("shorts_candidates").insert(
-    drafts.map((d) => ({
+    drafts.map((d, i) => ({
       user_id: userId,
       source_type: sourceType,
       source_input: sourceInput,
@@ -40,6 +44,7 @@ async function insertCandidates(
       hook: d.hook ?? null,
       content: d.content,
       keywords: d.keywords ?? [],
+      created_at: new Date(now - i).toISOString(),
     })),
   );
   if (error) throw new Error(error.message);

@@ -5,9 +5,15 @@ import { getRegisteredProviders } from "@/lib/apiKeys";
 import { CandidateCollector } from "@/components/candidates/CandidateCollector";
 import { CandidateList } from "@/components/candidates/CandidateList";
 import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
-import type { ApiKeyProvider } from "@/types/database.types";
+import type { ApiKeyProvider, ShortsSourceType } from "@/types/database.types";
 
 const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
+
+const SOURCE_LABELS: Record<ShortsSourceType, string> = {
+  http: "HTTP",
+  rss: "RSS",
+  perplexity: "Perplexity",
+};
 
 export default async function CandidatesPage() {
   const user = await requireUser();
@@ -32,6 +38,11 @@ export default async function CandidatesPage() {
   const videoIdByCandidateId = new Map((videos ?? []).map((v) => [v.candidate_id, v.id]));
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 
+  const sourceCounts: Record<ShortsSourceType, number> = { http: 0, rss: 0, perplexity: 0 };
+  for (const c of candidates ?? []) {
+    sourceCounts[c.source_type] += 1;
+  }
+
   let newsblurFeeds: NewsblurFeedSummary[] = [];
   let newsblurError: string | null = null;
   if (newsblurAccount) {
@@ -55,6 +66,15 @@ export default async function CandidatesPage() {
         HTTP(특정 URL), RSS(구독 피드), Perplexity(트렌드 검색) 중 하나를 선택해서 유튜브 쇼츠 영상
         주제와 대본 초안을 생성합니다.
       </p>
+
+      <div className="mb-6 grid grid-cols-3 gap-3">
+        {(Object.keys(sourceCounts) as ShortsSourceType[]).map((type) => (
+          <div key={type} className="rounded-lg border border-neutral-200 bg-white p-4">
+            <div className="text-2xl font-semibold text-neutral-900">{sourceCounts[type]}</div>
+            <div className="mt-1 text-sm text-neutral-500">{SOURCE_LABELS[type]}로 수집</div>
+          </div>
+        ))}
+      </div>
 
       <MissingApiKeyNotice missing={missingProviders} />
 
