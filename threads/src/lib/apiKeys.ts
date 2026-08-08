@@ -42,6 +42,14 @@ export async function resolveApiKey(
   return ownKey || FALLBACK_ENV_KEYS[provider] || null;
 }
 
+export async function getRegisteredProviders(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+): Promise<Set<ApiKeyProvider>> {
+  const { data } = await supabase.from("user_api_keys").select("provider").eq("user_id", userId);
+  return new Set((data ?? []).map((row) => row.provider));
+}
+
 export function maskApiKey(key: string): string {
   if (key.length <= 8) return "••••••••";
   return `${key.slice(0, 6)}${"•".repeat(8)}${key.slice(-4)}`;

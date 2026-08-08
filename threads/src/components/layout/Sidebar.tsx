@@ -3,6 +3,7 @@ import { signOutAction } from "@/lib/actions/auth";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드" },
+  { href: "/candidates", label: "게시글 주제 수집" },
   { href: "/posts", label: "게시글 관리" },
   { href: "/accounts", label: "Threads 계정 연결" },
   { href: "/settings", label: "API 키 설정" },

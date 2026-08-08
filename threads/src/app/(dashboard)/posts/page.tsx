@@ -45,7 +45,7 @@ export default async function PostsPage({
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-neutral-900">게시글 관리</h1>
-        <Link href="/posts/new">
+        <Link href="/candidates">
           <Button>새 게시글 작성</Button>
         </Link>
       </div>

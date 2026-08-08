@@ -53,6 +53,9 @@ interface PostFormProps {
   // true면 별도 "생성" 버튼 없이, 제출(생성하기) 버튼 클릭 시 텍스트+이미지를
   // 무조건 함께 생성한 뒤 그 결과로 저장까지 한 번에 처리한다 (새 글 작성 전용).
   aiGenerateOnSubmit?: boolean;
+  // 게시글 주제 수집 페이지(/candidates)에서 넘어온 경우 미리 채워둘 값들.
+  initialTopic?: string;
+  initialKeywords?: string[];
 }
 
 const initialState: PostActionState = {};
@@ -68,6 +71,8 @@ export function PostForm({
   initialPublishMode = "draft",
   hasThreadsAccount,
   aiGenerateOnSubmit = false,
+  initialTopic = "",
+  initialKeywords = [],
 }: PostFormProps) {
   const [state, formAction, isPending] = useActionState(action, initialState);
   const [publishMode, setPublishMode] = useState<PublishMode>(initialPublishMode);
@@ -124,10 +129,10 @@ export function PostForm({
     }
   };
 
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] = useState(initialTopic);
   const [tone, setTone] = useState<Tone>("친근함");
   const [keywordInput, setKeywordInput] = useState("");
-  const [keywords, setKeywords] = useState<string[]>([]);
+  const [keywords, setKeywords] = useState<string[]>(initialKeywords);
   const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
   const [ctaText, setCtaText] = useState("");
   const [ctaUrl, setCtaUrl] = useState("");
@@ -200,26 +205,33 @@ export function PostForm({
     setImageGenError(null);
     const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
 
-    setStatusMsg("AI가 Threads 트렌드를 분석해서 게시글을 작성하고 있습니다...");
-    const textResult = await generateContentAction({
-      topic,
-      tone,
-      keywords,
-      referenceUrls: validReferenceUrls,
-      cta: ctaUrl.trim() ? { text: ctaText.trim(), url: ctaUrl.trim() } : undefined,
-      apiKey: openaiApiKey,
-    });
-    if (textResult.error) {
-      setAiError(textResult.error);
-      setStatusMsg(null);
-      return null;
+    let finalContent = content.trim();
+
+    // 만약 이미 불러와진/입력된 콘텐츠 내용이 없으면 AI로 텍스트 생성
+    if (!finalContent) {
+      setStatusMsg("AI가 Threads 트렌드를 분석해서 게시글을 작성하고 있습니다...");
+      const textResult = await generateContentAction({
+        topic,
+        tone,
+        keywords,
+        referenceUrls: validReferenceUrls,
+        cta: ctaUrl.trim() ? { text: ctaText.trim(), url: ctaUrl.trim() } : undefined,
+        apiKey: openaiApiKey,
+      });
+      if (textResult.error) {
+        setAiError(textResult.error);
+        setStatusMsg(null);
+        return null;
+      }
+      finalContent = textResult.content ?? "";
+      setContent(finalContent);
+    } else {
+      setStatusMsg("불러온 콘텐츠 내용을 채워 저장하고 있습니다...");
     }
-    const finalContent = textResult.content ?? "";
-    setContent(finalContent);
 
     let finalImageUrl = imageUrl;
     const prompt = imagePrompt.trim() || topic.trim();
-    if (prompt) {
+    if (prompt && !finalImageUrl) {
       // 나노바나나가 프롬프트에 따라(안전 필터/모델 판단 등) 이미지를 못
       // 돌려주는 경우가 종종 있어, 완전히 포기하기 전에 한 번 더 시도한다.
       const MAX_IMAGE_ATTEMPTS = 2;
