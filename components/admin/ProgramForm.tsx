@@ -340,11 +340,34 @@ export default function ProgramForm({ program }: ProgramFormProps) {
               )}
             </FieldRow>
             <FieldRow label="접근가능 등급">
-              <select value={requiredGradeId} onChange={(e) => setRequiredGradeId(e.target.value)} className="input-dark w-full">
-                <option value="">전체 공개 (등급 제한 없음)</option>
-                {grades.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-              </select>
-              <p className="text-xs text-subtext mt-1">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRequiredGradeId("")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                    requiredGradeId === ""
+                      ? "bg-gold text-black border-gold"
+                      : "bg-white/5 text-subtext border-white/10 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  전체 공개 (등급 제한 없음)
+                </button>
+                {grades.map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => setRequiredGradeId(g.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                      requiredGradeId === g.id
+                        ? "bg-gold text-black border-gold"
+                        : "bg-white/5 text-subtext border-white/10 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {g.name}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-subtext mt-2">
                 선택한 등급 이상의 회원만 접근 가능합니다. &lsquo;일반&rsquo;을 선택하면 회원가입만 한
                 모든 사용자(무료)가 접근 가능하고, &lsquo;실버/골드/VIP&rsquo;를 선택하면 해당 등급
                 이상인 사용자만 접근 가능합니다.
