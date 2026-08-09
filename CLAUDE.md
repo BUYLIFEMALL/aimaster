@@ -8,6 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 전달 내용은 비전문가도 이해하기 쉽게, 쉬운 한글 표현으로 풀어서 설명한다. 불가피하게 기술/전문 용어를 쓸 때를 제외하면 어려운 표현이나 번역체를 피한다.
 - 이 지침은 루트 AIMaster뿐 아니라 threads, blog, shots 등 모든 서브프로젝트 작업에도 동일하게 적용되는 메인 지침이다. 각 서브프로젝트의 CLAUDE.md/AGENTS.md는 이 파일을 함께 읽도록 안내한다.
 
+## Reusable Patterns
+
+- 카테고리 블록 노출, AI 3종 콘텐츠 수집(HTTP/RSS/Perplexity), SNS 게시글 AI 생성 프롬프트 규격, 이메일(SMTP) 발송, 삭제 버튼 처리중 표시 등 여러 서브프로젝트에서 재사용 가능한 패턴과 트러블슈팅은 [`docs/PLATFORM_PATTERNS.md`](docs/PLATFORM_PATTERNS.md)에 정리되어 있다. 새 프로그램을 만들거나 비슷한 기능이 필요하면 먼저 이 문서를 확인할 것.
+
 ## Commands
 
 ```bash
