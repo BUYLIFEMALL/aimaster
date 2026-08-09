@@ -58,10 +58,10 @@ export async function sendSupportEmails(adminEmail: string, data: SupportInquiry
   const inquiry = supportInquiryEmail(data);
   const confirm = supportConfirmEmail(data);
 
-  const [toAdmin, toCustomer] = await Promise.all([
-    send(adminEmail, inquiry.subject, inquiry.html),
-    send(data.email, confirm.subject, confirm.html),
-  ]);
+  // 네이버 SMTP는 동시 연결 수 제한이 있어(421 Too many concurrent connection),
+  // 동시에 두 통을 보내면 하나가 거절될 수 있다. 순차적으로 보낸다.
+  const toAdmin = await send(adminEmail, inquiry.subject, inquiry.html);
+  const toCustomer = await send(data.email, confirm.subject, confirm.html);
 
   return { toAdmin, toCustomer };
 }
