@@ -64,8 +64,8 @@ export default function Footer() {
             © 2026 AI Master. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-subtext text-xs">사업자등록번호: 000-00-00000</span>
-            <span className="text-subtext text-xs">대표: AI Master</span>
+            <span className="text-subtext text-xs">사업자등록번호: 864-25-00988</span>
+            <span className="text-subtext text-xs">대표: 유승엽</span>
           </div>
         </div>
       </div>
