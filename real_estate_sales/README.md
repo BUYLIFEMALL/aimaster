@@ -54,29 +54,23 @@
 비용이 늘어나지 않습니다. 시장 분위기(Perplexity) 조회 결과도 자치구+날짜 단위로
 캐싱해서 같은 날 여러 번 분석해도 중복 호출하지 않습니다.
 
-### 5. 실시간 모니터링 On/Off + 주기 + 시간대 (외부 스케줄러로 Hobby 플랜 cron 제한 우회)
+### 5. 실시간 모니터링 On/Off + 주기 + 시간대
 
 관심 지역마다 "실시간 모니터링"을 켜고 끌 수 있고, 켜져 있을 때만 수집 → AI 분석 →
 텔레그램 발송 파이프라인이 동작합니다. 수집 주기(30분/1시간/3시간/6시간/12시간/24시간)와
 특정 시간대만 동작하도록 제한하는 옵션도 지역별로 설정할 수 있습니다
 (`src/app/(dashboard)/districts/page.tsx`, `src/components/districts/MonitoringSettings.tsx`).
 
-**Vercel Hobby 플랜은 자체 cron을 하루 1회로 제한**하기 때문에(실제 30분 간격으로
-배포 시도 시 즉시 거부되는 것을 확인), 30분~24시간 단위의 실제 주기 제어는
-`vercel.json`의 기본 cron(하루 1회, 최소 보장용)만으로는 구현할 수 없습니다. 대신
-**무료 외부 스케줄러(cron-job.org 등)가 `/api/collect/dispatch`를 30분마다 호출**하고,
-라우트 내부에서 각 사용자-지역 조합의 `monitoring_enabled` / `collect_interval_minutes` /
-`active_hour_start` / `active_hour_end` / `last_run_at`을 보고 "이번 틱에 처리할 차례인지"를
-다시 판단합니다(`src/lib/publicdata/schedule.ts`). 즉 외부에서는 자주 두드려도, 실제
-수집/AI 분석/텔레그램 발송은 사용자가 설정한 주기·시간대·On/Off를 그대로 따릅니다.
-
-**외부 스케줄러 등록 방법** (예: [cron-job.org](https://cron-job.org), 무료):
-1. 가입 후 새 cronjob 생성
-2. URL: `https://real-estate-sales-delta.vercel.app/api/collect/dispatch`
-3. 실행 주기: **30분마다** (설정 화면에서 고를 수 있는 가장 짧은 주기가 30분이므로)
-4. HTTP Method: GET 또는 POST
-5. 커스텀 헤더 추가: `Authorization: Bearer <CRON_SECRET 값>`
-   (`CRON_SECRET` 값은 Vercel 프로젝트 → Settings → Environment Variables에서 확인)
+buylife 팀 Vercel 계정이 **Pro 플랜**이라 `vercel.json`의 자체 cron을 30분 간격
+(`*/30 * * * *`)으로 직접 등록해뒀습니다 (Hobby 플랜은 cron이 하루 1회로 제한되어
+있었는데, 실제 배포 테스트로 거부되는 것까지 확인 후 Pro로 업그레이드하며 이 방식으로
+전환함 — 외부 스케줄러 불필요). 다만 사용자별로 지역마다 고른 주기(30분~24시간)와
+시간대가 다를 수 있으므로, cron은 30분마다 `/api/collect/dispatch`를 깨우기만 하고
+실제로 이번 틱에 수집/분석/알림을 처리할지는 라우트 내부에서 각 사용자-지역 조합의
+`monitoring_enabled` / `collect_interval_minutes` / `active_hour_start` /
+`active_hour_end` / `last_run_at`을 보고 다시 판단합니다(`src/lib/publicdata/schedule.ts`).
+즉 cron 자체는 30분마다 깨어나지만, 24시간 주기로 설정한 사용자는 24시간에 한 번만
+실제로 처리됩니다.
 
 ## 핵심 기능
 
@@ -157,10 +151,11 @@ npx vercel env add <이름> production   # 환경변수 등록 (위 표 전부)
 npx vercel --prod     # 배포
 ```
 
-`vercel.json`에 `"regions": ["icn1"]`(서울 리전 고정)과 최소 보장용으로 하루 1회
-실행되는 `crons`(`/api/collect/dispatch`, 06:00 KST)가 등록되어 있습니다. 사용자가
-설정한 30분~24시간 단위 주기를 실제로 살리려면 위 "실시간 모니터링" 절의 외부
-스케줄러 등록이 별도로 필요합니다.
+`vercel.json`에 `"regions": ["icn1"]`(서울 리전 고정)과 30분마다 실행되는
+`crons`(`/api/collect/dispatch`)가 등록되어 있습니다 (buylife 팀 Vercel Pro 플랜
+기준 — Hobby 플랜은 cron이 하루 1회로 제한돼서 이 주기로 설정할 수 없습니다). 실제
+수집/분석/알림 빈도는 사용자가 관심 지역마다 설정한 주기·시간대를 따릅니다 (위
+"실시간 모니터링" 절 참고).
 
 ## 스크립트
 
