@@ -999,25 +999,40 @@ export type Database = {
       }
       real_estate_watch_districts: {
         Row: {
+          active_hour_end: number | null
+          active_hour_start: number | null
+          collect_interval_minutes: number
           created_at: string
           id: string
           is_active: boolean
+          last_run_at: string | null
+          monitoring_enabled: boolean
           sgg_cd: string
           sgg_nm: string
           user_id: string
         }
         Insert: {
+          active_hour_end?: number | null
+          active_hour_start?: number | null
+          collect_interval_minutes?: number
           created_at?: string
           id?: string
           is_active?: boolean
+          last_run_at?: string | null
+          monitoring_enabled?: boolean
           sgg_cd: string
           sgg_nm: string
           user_id: string
         }
         Update: {
+          active_hour_end?: number | null
+          active_hour_start?: number | null
+          collect_interval_minutes?: number
           created_at?: string
           id?: string
           is_active?: boolean
+          last_run_at?: string | null
+          monitoring_enabled?: boolean
           sgg_cd?: string
           sgg_nm?: string
           user_id?: string

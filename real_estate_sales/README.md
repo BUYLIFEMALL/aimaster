@@ -46,21 +46,46 @@
   이 봇이 과거에 다른 서비스(예: Make.com)에서 웹훅으로 쓰이고 있었다면 `getUpdates`와
   충돌(409)하므로, 연동 시 자동으로 기존 웹훅을 해제합니다.
 
-### 4. AI 분석은 사용자가 수동으로 트리거 (비용 관리)
+### 4. AI 분석은 설정에서 고른 모델로 자동 실행 (재호출 방지로 비용 관리)
 
-수집 단계에서는 AI 분석을 자동 실행하지 않습니다. 매물 상세 화면에서 사용자가 직접
-"AI 분석하기"를 눌러야 실행되며, 이때 본인이 고른 모델(GPT-5.6 계열 등)과 본인 API
-키가 사용됩니다. 시장 분위기(Perplexity) 조회 결과는 자치구+날짜 단위로 캐싱해서
-같은 날 여러 번 분석해도 중복 호출하지 않습니다.
+설정 화면에서 선호 모델(GPT-5.6 계열 등)을 한 번 등록해두면, 매물 상세 화면을 열 때
+또는 실시간 모니터링으로 새 매물이 잡힐 때 자동으로 분석되어 보입니다. 같은 사용자·
+같은 매물 조합은 한 번만 분석하고 캐시하므로(`real_estate_analyses`) 반복 호출로
+비용이 늘어나지 않습니다. 시장 분위기(Perplexity) 조회 결과도 자치구+날짜 단위로
+캐싱해서 같은 날 여러 번 분석해도 중복 호출하지 않습니다.
+
+### 5. 실시간 모니터링 On/Off + 주기 + 시간대 (외부 스케줄러로 Hobby 플랜 cron 제한 우회)
+
+관심 지역마다 "실시간 모니터링"을 켜고 끌 수 있고, 켜져 있을 때만 수집 → AI 분석 →
+텔레그램 발송 파이프라인이 동작합니다. 수집 주기(30분/1시간/3시간/6시간/12시간/24시간)와
+특정 시간대만 동작하도록 제한하는 옵션도 지역별로 설정할 수 있습니다
+(`src/app/(dashboard)/districts/page.tsx`, `src/components/districts/MonitoringSettings.tsx`).
+
+**Vercel Hobby 플랜은 자체 cron을 하루 1회로 제한**하기 때문에(실제 30분 간격으로
+배포 시도 시 즉시 거부되는 것을 확인), 30분~24시간 단위의 실제 주기 제어는
+`vercel.json`의 기본 cron(하루 1회, 최소 보장용)만으로는 구현할 수 없습니다. 대신
+**무료 외부 스케줄러(cron-job.org 등)가 `/api/collect/dispatch`를 30분마다 호출**하고,
+라우트 내부에서 각 사용자-지역 조합의 `monitoring_enabled` / `collect_interval_minutes` /
+`active_hour_start` / `active_hour_end` / `last_run_at`을 보고 "이번 틱에 처리할 차례인지"를
+다시 판단합니다(`src/lib/publicdata/schedule.ts`). 즉 외부에서는 자주 두드려도, 실제
+수집/AI 분석/텔레그램 발송은 사용자가 설정한 주기·시간대·On/Off를 그대로 따릅니다.
+
+**외부 스케줄러 등록 방법** (예: [cron-job.org](https://cron-job.org), 무료):
+1. 가입 후 새 cronjob 생성
+2. URL: `https://real-estate-sales-delta.vercel.app/api/collect/dispatch`
+3. 실행 주기: **30분마다** (설정 화면에서 고를 수 있는 가장 짧은 주기가 30분이므로)
+4. HTTP Method: GET 또는 POST
+5. 커스텀 헤더 추가: `Authorization: Bearer <CRON_SECRET 값>`
+   (`CRON_SECRET` 값은 Vercel 프로젝트 → Settings → Environment Variables에서 확인)
 
 ## 핵심 기능
 
 - 이메일 회원가입 / 로그인 (Supabase Auth, AIMaster 계정 공유)
-- 관심 지역(서울 25개 구) 설정
-- 매일 자동 수집(cron): 실거래가 → 건축물대장 → 공시가격 → 전월세 비교
+- 관심 지역(서울 25개 구) 설정 + 지역별 실시간 모니터링 On/Off·주기·동작 시간대
+- 자동 수집: 실거래가 → 건축물대장 → 공시가격 → 전월세 비교
 - 매물 목록 / 상세
-- AI 투자 분석 (저평가지수 · 1년 상승예측률 · 투자매력도 점수, 모델 선택 가능)
-- 텔레그램 알림 (신규 매물 발견 시 개인 봇으로 발송)
+- AI 투자 분석 (저평가지수 · 1년 상승예측률 · 투자매력도 점수, 설정에서 모델 선택)
+- 텔레그램 알림 (신규 매물 발견 시 개인 봇으로 발송, AI 분석 결과 포함)
 
 ## 폴더 구조
 
@@ -69,15 +94,15 @@ src/
 ├── app/
 │   ├── (auth)/                 # 로그인 / 회원가입
 │   ├── (dashboard)/            # 대시보드 / 관심지역 / 매물목록·상세 / 설정
-│   └── api/collect/dispatch/   # 매일 자동 수집 cron 엔드포인트 (CRON_SECRET)
+│   └── api/collect/dispatch/   # 자동 수집 엔드포인트 (CRON_SECRET, 외부 스케줄러가 호출)
 ├── components/
 │   ├── ui/                     # 공용 UI 컴포넌트
-│   ├── districts/               # 관심 지역 토글
-│   ├── listings/                 # AI 분석 버튼
-│   └── settings/                 # API 키 등록, 텔레그램 연동
+│   ├── districts/               # 관심 지역 토글 + 실시간 모니터링 설정
+│   ├── listings/                 # 재분석 버튼
+│   └── settings/                 # API 키 등록, AI 모델 선호, 텔레그램 연동
 ├── lib/
 │   ├── supabase/                 # client / server / admin 클라이언트
-│   ├── publicdata/                # 서울/공공데이터포털/VWorld API 래퍼 (서버 전용)
+│   ├── publicdata/                # 서울/공공데이터포털/VWorld API 래퍼 + 수집 주기 판정 (서버 전용)
 │   ├── telegram/                  # 텔레그램 봇 API 래퍼 (서버 전용)
 │   ├── ai/                        # 시장 분위기 캐시, 투자 분석 프롬프트, 모델 옵션
 │   ├── actions/                   # Server Actions
@@ -114,13 +139,15 @@ npm run dev
 
 ## DB 마이그레이션 적용
 
-`supabase/migrations/`의 4개 파일을 **파일명(타임스탬프) 순서대로** Supabase 대시보드
+`supabase/migrations/`의 파일을 **파일명(타임스탬프) 순서대로** Supabase 대시보드
 SQL Editor에서 실행하거나 `supabase db push`로 적용합니다.
 
 1. `20260810050751_real_estate_sales_init.sql` — 핵심 테이블 6개 + RLS
 2. `20260810053653_real_estate_telegram_per_user_bot.sql` — 텔레그램 개인 봇 컬럼 추가
 3. `20260810090459_fix_telegram_links_rls_insert_update.sql` — 텔레그램 연동 저장 안 되던 RLS 버그 수정
 4. `20260810090538_fix_district_sentiment_rls_insert_update.sql` — 시장 분위기 캐시 저장 안 되던 RLS 버그 수정
+5. `20260810110000_real_estate_user_preferences.sql` — 사용자별 선호 AI 분석 모델 저장 테이블
+6. `20260810130000_real_estate_watch_monitoring.sql` — 관심 지역별 실시간 모니터링 On/Off·주기·동작 시간대 컬럼
 
 ## Vercel 배포
 
@@ -130,8 +157,10 @@ npx vercel env add <이름> production   # 환경변수 등록 (위 표 전부)
 npx vercel --prod     # 배포
 ```
 
-`vercel.json`에 `"regions": ["icn1"]`(서울 리전 고정)과 매일 1회 실행되는
-`crons`(`/api/collect/dispatch`, 06:00 KST)가 이미 등록되어 있습니다.
+`vercel.json`에 `"regions": ["icn1"]`(서울 리전 고정)과 최소 보장용으로 하루 1회
+실행되는 `crons`(`/api/collect/dispatch`, 06:00 KST)가 등록되어 있습니다. 사용자가
+설정한 30분~24시간 단위 주기를 실제로 살리려면 위 "실시간 모니터링" 절의 외부
+스케줄러 등록이 별도로 필요합니다.
 
 ## 스크립트
 
