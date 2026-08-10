@@ -57,19 +57,19 @@
 ### 5. 실시간 모니터링 On/Off + 주기 + 시간대
 
 관심 지역마다 "실시간 모니터링"을 켜고 끌 수 있고, 켜져 있을 때만 수집 → AI 분석 →
-텔레그램 발송 파이프라인이 동작합니다. 수집 주기(30분/1시간/3시간/6시간/12시간/24시간)와
-특정 시간대만 동작하도록 제한하는 옵션도 지역별로 설정할 수 있습니다
+텔레그램 발송 파이프라인이 동작합니다. 수집 주기(5분/10분/30분/1시간/3시간/6시간/
+12시간/24시간)와 특정 시간대만 동작하도록 제한하는 옵션도 지역별로 설정할 수 있습니다
 (`src/app/(dashboard)/districts/page.tsx`, `src/components/districts/MonitoringSettings.tsx`).
 
-buylife 팀 Vercel 계정이 **Pro 플랜**이라 `vercel.json`의 자체 cron을 30분 간격
-(`*/30 * * * *`)으로 직접 등록해뒀습니다 (Hobby 플랜은 cron이 하루 1회로 제한되어
+buylife 팀 Vercel 계정이 **Pro 플랜**이라 `vercel.json`의 자체 cron을 5분 간격
+(`*/5 * * * *`)으로 직접 등록해뒀습니다 (Hobby 플랜은 cron이 하루 1회로 제한되어
 있었는데, 실제 배포 테스트로 거부되는 것까지 확인 후 Pro로 업그레이드하며 이 방식으로
-전환함 — 외부 스케줄러 불필요). 다만 사용자별로 지역마다 고른 주기(30분~24시간)와
-시간대가 다를 수 있으므로, cron은 30분마다 `/api/collect/dispatch`를 깨우기만 하고
+전환함 — 외부 스케줄러 불필요). 다만 사용자별로 지역마다 고른 주기(5분~24시간)와
+시간대가 다를 수 있으므로, cron은 5분마다 `/api/collect/dispatch`를 깨우기만 하고
 실제로 이번 틱에 수집/분석/알림을 처리할지는 라우트 내부에서 각 사용자-지역 조합의
 `monitoring_enabled` / `collect_interval_minutes` / `active_hour_start` /
 `active_hour_end` / `last_run_at`을 보고 다시 판단합니다(`src/lib/publicdata/schedule.ts`).
-즉 cron 자체는 30분마다 깨어나지만, 24시간 주기로 설정한 사용자는 24시간에 한 번만
+즉 cron 자체는 5분마다 깨어나지만, 24시간 주기로 설정한 사용자는 24시간에 한 번만
 실제로 처리됩니다.
 
 ## 핵심 기능
@@ -142,6 +142,7 @@ SQL Editor에서 실행하거나 `supabase db push`로 적용합니다.
 4. `20260810090538_fix_district_sentiment_rls_insert_update.sql` — 시장 분위기 캐시 저장 안 되던 RLS 버그 수정
 5. `20260810110000_real_estate_user_preferences.sql` — 사용자별 선호 AI 분석 모델 저장 테이블
 6. `20260810130000_real_estate_watch_monitoring.sql` — 관심 지역별 실시간 모니터링 On/Off·주기·동작 시간대 컬럼
+7. `20260811040000_real_estate_watch_interval_minutes.sql` — 수집 주기 선택지에 5분/10분 추가
 
 ## Vercel 배포
 

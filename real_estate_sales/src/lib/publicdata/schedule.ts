@@ -1,14 +1,16 @@
 // 실시간 모니터링 주기/활성 시간대 판정 (한국 시간 기준).
-// external cron(사용자가 등록한 무료 스케줄러)이 짧은 간격으로 dispatch를 계속 호출해도,
+// Vercel cron(vercel.json, 5분마다)이 dispatch를 계속 호출해도,
 // 여기서 "이번엔 처리할 차례인가"를 걸러내서 실제 수집/분석/텔레그램 빈도를 제어한다.
 
 export const COLLECT_INTERVAL_OPTIONS = [
-  { value: 30, label: "30분마다" },
-  { value: 60, label: "1시간마다" },
-  { value: 180, label: "3시간마다" },
-  { value: 360, label: "6시간마다" },
-  { value: 720, label: "12시간마다" },
-  { value: 1440, label: "24시간마다" },
+  { value: 5, label: "5분" },
+  { value: 10, label: "10분" },
+  { value: 30, label: "30분" },
+  { value: 60, label: "1시간" },
+  { value: 180, label: "3시간" },
+  { value: 360, label: "6시간" },
+  { value: 720, label: "12시간" },
+  { value: 1440, label: "24시간" },
 ] as const;
 
 export type CollectIntervalMinutes = (typeof COLLECT_INTERVAL_OPTIONS)[number]["value"];

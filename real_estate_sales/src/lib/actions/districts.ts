@@ -39,7 +39,7 @@ export async function toggleDistrictAction(formData: FormData) {
   revalidatePath("/districts");
 }
 
-const VALID_INTERVALS = [30, 60, 180, 360, 720, 1440];
+const VALID_INTERVALS = [5, 10, 30, 60, 180, 360, 720, 1440];
 
 // 관심 지역별 "실시간 모니터링" 설정 저장 (On/Off, 수집 주기, 활성 시간대).
 // 이 값들은 /api/collect/dispatch가 매번 호출될 때 "이번엔 처리할 차례인가"를

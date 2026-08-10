@@ -18,11 +18,12 @@ import { currentKstHour, isCollectDue, isWithinActiveHours } from "@/lib/publicd
 // 이 프로젝트 전체가 vercel.json의 regions: ["icn1"]로 고정되어 있어 별도 프록시 없이
 // 공공 API를 직접 호출한다 (Phase 0 스파이크로 검증됨).
 //
-// Vercel Hobby 플랜은 자체 cron을 하루 1회로 제한하기 때문에, 사용자가 대시보드에서
-// 설정한 30분~24시간 단위 "실시간 모니터링" 주기를 실제로 구현하려면 외부 무료
-// 스케줄러(cron-job.org 등)가 이 엔드포인트를 더 자주(예: 30분마다) 호출해줘야 한다.
-// 실제 수집/분석/알림 빈도는 이 라우트 내부에서 사용자별 monitoring_enabled/
-// collect_interval_minutes/active_hour_start/active_hour_end를 보고 다시 걸러낸다.
+// Vercel Pro 플랜이라 vercel.json에 5분 간격(*/5 * * * *) 자체 cron을 등록해뒀다
+// (Hobby 플랜은 cron이 하루 1회로 제한되어 이 주기를 못 씀). 사용자가 대시보드에서
+// 지역마다 고른 5분~24시간 단위 "실시간 모니터링" 주기와 시간대가 서로 다를 수 있으므로,
+// cron은 5분마다 깨우기만 하고 실제 수집/분석/알림 처리 여부는 이 라우트 내부에서
+// 사용자별 monitoring_enabled/collect_interval_minutes/active_hour_start/
+// active_hour_end/last_run_at을 보고 다시 판단한다.
 
 const MAX_NEW_LISTINGS_PER_DISTRICT = 20; // 함수 실행 시간 제한을 고려한 회당 처리 상한
 
