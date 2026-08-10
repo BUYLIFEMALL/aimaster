@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { analyzeListing } from "@/lib/ai/analyze";
@@ -17,7 +17,7 @@ export async function analyzeListingAction(
   _prevState: AnalysisActionState,
   formData: FormData,
 ): Promise<AnalysisActionState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const listingId = String(formData.get("listingId"));
   const model = String(formData.get("model") ?? "gpt-5.6-luna") as AnalysisModel;
 

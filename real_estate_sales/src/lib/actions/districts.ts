@@ -1,12 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SEOUL_DISTRICTS } from "@/lib/publicdata/districts";
 
+// 로그인 여부뿐 아니라 이 프로그램(real-estate-sales) 구독/이용 권한까지 확인한다.
+// 페이지 레이아웃의 requireProgramAccess() 가드는 Server Action을 직접 호출하는
+// 경로(폼 우회)까지는 막아주지 않으므로, 쓰기 액션 각각에서 다시 확인해야 한다.
 export async function toggleDistrictAction(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const sggCd = String(formData.get("sggCd"));
   const nextActive = formData.get("nextActive") === "true";
 

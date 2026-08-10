@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { findChatIdFromUpdates, sendTelegramMessage } from "@/lib/telegram/client";
 
@@ -14,7 +14,7 @@ export async function connectTelegramAction(
   _prevState: TelegramActionState,
   formData: FormData,
 ): Promise<TelegramActionState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const botToken = String(formData.get("botToken") ?? "").trim();
 
   if (!botToken) {
@@ -66,7 +66,7 @@ export async function connectTelegramAction(
 }
 
 export async function disconnectTelegramAction() {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
   await supabase.from("user_telegram_links").delete().eq("user_id", user.id);
   revalidatePath("/settings");
