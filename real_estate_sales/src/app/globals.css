@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0f;
+  --foreground: #f5f5f7;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* 루트 tailwind.config.ts의 다크 럭셔리 테마 토큰과 동일 (docs/PLATFORM_PATTERNS.md 참고) */
+  --color-gold: #d4af37;
+  --color-gold-light: #f5c842;
+  --color-gold-dark: #b8960c;
+  --color-dark: #0a0a0f;
+  --color-dark-50: #12121a;
+  --color-dark-100: #1a1a26;
+  --color-dark-200: #222232;
+
+  --background-image-gold-gradient: linear-gradient(135deg, #d4af37, #f5c842);
+  --background-image-dark-gradient: linear-gradient(180deg, #0a0a0f 0%, #12121a 100%);
+  --background-image-hero-gradient: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.15) 0%, transparent 70%), linear-gradient(180deg, #0a0a0f 0%, #0d0d18 100%);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.gold-text {
+  background-image: linear-gradient(135deg, #d4af37, #f5c842);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 1rem;
+}

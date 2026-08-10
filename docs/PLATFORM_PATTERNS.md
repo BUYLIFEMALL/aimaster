@@ -98,7 +98,31 @@ export function DeleteButton() {
 
 ---
 
-## 8. 검증 루틴 (모든 서브프로젝트 공통)
+## 8. "국내 IP만 허용"하는 공공 API — n8n/외부 프록시 없이 Vercel 리전 고정으로 해결
+
+real_estate_sales(부동산 실시간 매매정보)에서 서울 열린데이터광장/공공데이터포털/VWorld 3개 공공 API를 쓰는데, 전부 "국내 IP만 허용"이라 원래는 국내 서버(n8n.buylife.xyz)를 프록시로 거쳐서 호출했다. Vercel 서버리스 함수를 서울 리전에 고정하면 프록시 없이 직접 호출해도 국내 IP로 인식된다는 걸 확인함 (2026-08-10, Phase 0 스파이크로 3개 API 전부 검증).
+
+- 프로젝트 루트의 `vercel.json`에 `"regions": ["icn1"]`을 추가하면 그 프로젝트의 모든 서버리스 함수가 서울에서 실행된다. (주의: Next.js 라우트 안에 `export const preferredRegion = "icn1"`을 넣는 방식은 최신 Vercel/Fluid Compute 환경에서 무시됨 — 실제로 테스트해보니 `iad1`(미국)에서 계속 실행됐다. `vercel.json`의 `regions` 키가 현재 공식적으로 동작하는 방법.)
+- "국내 IP 차단"이라고 알려진 에러가 사실은 IP 문제가 아니라 **API 키에 등록된 `domain` 파라미터 불일치**인 경우가 있다 (VWorld가 그랬음 — `INCORRECT_KEY` 에러가 실제로는 도메인 불일치였음). 에러 메시지만 보고 "IP가 막혔다"고 단정하지 말고, 키 발급 시 등록한 도메인/IP 화이트리스트 설정부터 확인할 것.
+- 이 패턴 덕분에 n8n/Make 같은 외부 오케스트레이션 도구 없이 Next.js 서브프로젝트 하나로 통합할 수 있었다. 앞으로 국내 전용 공공 API가 필요한 서브프로젝트는 n8n 프록시부터 만들지 말고 이 방법을 먼저 시도할 것.
+
+핵심 코드: `real_estate_sales/vercel.json`.
+
+---
+
+## 9. 텔레그램 알림 연동 — 사용자 각자의 봇 (공용 봇 아님)
+
+멀티테넌시 원칙(§ CLAUDE.md)에 맞춰, 텔레그램 알림도 API 키와 동일한 철학으로 설계한다: 우리가 봇을 하나 만들어서 공용으로 쓰는 게 아니라, **각 사용자가 BotFather로 자기 봇을 직접 만들고 그 토큰을 등록**하게 한다.
+
+- OAuth 같은 리다이렉트 로그인 방식이 텔레그램엔 없다. 대신 `getUpdates` API로 "방금 사용자가 자기 봇에게 보낸 메시지"에서 `chat_id`를 읽어오는 방식을 쓴다 (사용자가 BotFather로 봇 생성 → 토큰 발급 → 자기 봇에게 아무 메시지나 1개 전송 → 우리 서버가 그 토큰으로 `getUpdates` 호출해서 chat_id 확보).
+- 공용 웹훅을 미리 등록해둘 필요가 없어서(사용자마다 봇 토큰이 다르므로 애초에 불가능) 서버리스 환경에 잘 맞는다.
+- 테이블은 프로그램 전용 접두어 없이 `user_telegram_links`(user_id unique, bot_token, chat_id, bot_username)로 만들어서, 텔레그램 알림이 필요한 다음 서브프로젝트도 그대로 재사용할 수 있게 했다.
+
+핵심 코드: `real_estate_sales/src/lib/telegram/client.ts`의 `findChatIdFromUpdates()`, `real_estate_sales/src/lib/actions/telegram.ts`.
+
+---
+
+## 10. 검증 루틴 (모든 서브프로젝트 공통)
 
 코드 변경 시마다 다음 순서로 검증 후 배포한다 — 세션 내내 이 순서를 지켰음.
 
