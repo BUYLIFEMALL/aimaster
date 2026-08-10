@@ -9,6 +9,7 @@ import {
   fetchSeoulTrades,
 } from "@/lib/publicdata/client";
 import { sendTelegramMessage } from "@/lib/telegram/client";
+import { ensureListingAnalysis } from "@/lib/actions/analysis";
 
 // 관심 지역(자치구)에 새 실거래가 매물이 올라오면 수집해서 real_estate_listings에 저장하고,
 // 그 지역을 watch 중인 사용자마다 real_estate_user_matches를 만드는 배치 잡.
@@ -163,21 +164,46 @@ async function dispatch() {
           const priceEok = row.THING_AMT
             ? (Number(String(row.THING_AMT).replace(/,/g, "")) / 10000).toFixed(1)
             : "-";
-          const message = `🏠 새 매물 발견\n\n${district.sgg_nm} ${row.STDG_NM} ${row.BLDG_NM}\n전용 ${exclusiveArea ?? "-"}m² / ${row.FLR ?? "-"}층\n거래금액 ${priceEok}억`;
+          const baseInfo = `🏠 새 매물 발견\n\n${district.sgg_nm} ${row.STDG_NM} ${row.BLDG_NM}\n전용 ${exclusiveArea ?? "-"}m² / ${row.FLR ?? "-"}층\n거래금액 ${priceEok}억`;
 
           for (const link of telegramLinks ?? []) {
             if (!link.bot_token || !link.chat_id) continue;
             try {
+              // 텔레그램으로 알리기 전에, 이 사용자의 등록 키/선호 모델로 AI 투자 분석까지
+              // 미리 돌려서 결과를 같이 전달한다 (이미 분석돼 있으면 재호출하지 않음).
+              let message = baseInfo;
+              try {
+                await ensureListingAnalysis(supabase, link.user_id, inserted.id);
+                const { data: analysis } = await supabase
+                  .from("real_estate_analyses")
+                  .select("investment_score, undervaluation_index, predicted_growth_pct, rationale")
+                  .eq("user_id", link.user_id)
+                  .eq("listing_id", inserted.id)
+                  .order("created_at", { ascending: false })
+                  .limit(1)
+                  .maybeSingle();
+
+                if (analysis) {
+                  message += `\n\n🤖 AI 투자 분석\n투자 매력도 ${analysis.investment_score ?? "-"}점 · 저평가지수 ${analysis.undervaluation_index ?? "-"} · 1년 상승예측률 ${analysis.predicted_growth_pct ?? "-"}%`;
+                  if (analysis.rationale) message += `\n${analysis.rationale}`;
+                }
+              } catch (err) {
+                console.error(`AI 분석 실패 (user ${link.user_id}):`, err);
+              }
+
               await sendTelegramMessage({
                 botToken: link.bot_token,
                 chatId: link.chat_id,
                 text: message,
               });
+              // 이미 분석까지 끝나 "analyzed"로 바뀌어 있을 수 있어, "new" 상태일 때만
+              // "notified"로 올린다 (analyzed 상태를 덮어써서 되돌리지 않도록).
               await supabase
                 .from("real_estate_user_matches")
                 .update({ status: "notified" })
                 .eq("user_id", link.user_id)
-                .eq("listing_id", inserted.id);
+                .eq("listing_id", inserted.id)
+                .eq("status", "new");
             } catch (err) {
               console.error(`텔레그램 알림 실패 (user ${link.user_id}):`, err);
             }

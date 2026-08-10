@@ -4,8 +4,10 @@ import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { Button } from "@/components/ui/Button";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { ModelPreferenceForm } from "@/components/settings/ModelPreferenceForm";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
+import type { AnalysisModel } from "@/lib/ai/models";
 
 const PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
 
@@ -13,13 +15,18 @@ export default async function SettingsPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: telegramLink }, { data: apiKeys }] = await Promise.all([
+  const [{ data: telegramLink }, { data: apiKeys }, { data: preference }] = await Promise.all([
     supabase
       .from("user_telegram_links")
       .select("bot_username, chat_id, linked_at")
       .eq("user_id", user.id)
       .maybeSingle(),
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
+    supabase
+      .from("real_estate_user_preferences")
+      .select("preferred_model")
+      .eq("user_id", user.id)
+      .maybeSingle(),
   ]);
 
   const keyMap = new Map((apiKeys ?? []).map((k) => [k.provider, k.api_key]));
@@ -48,6 +55,15 @@ export default async function SettingsPage() {
             />
           ))}
         </div>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-medium text-neutral-100">AI 분석 모델</h2>
+        <p className="mb-3 text-sm text-neutral-400">
+          여기서 고른 모델로, 새 매물을 열어볼 때 매번 누르지 않아도 자동으로 투자 분석이
+          되어 바로 보여요.
+        </p>
+        <ModelPreferenceForm currentModel={(preference?.preferred_model as AnalysisModel) ?? null} />
       </section>
 
       <section className="glass-card p-5">

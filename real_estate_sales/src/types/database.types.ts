@@ -979,6 +979,24 @@ export type Database = {
           },
         ]
       }
+      real_estate_user_preferences: {
+        Row: {
+          preferred_model: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          preferred_model?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          preferred_model?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       real_estate_watch_districts: {
         Row: {
           created_at: string
