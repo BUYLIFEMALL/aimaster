@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import {
@@ -20,7 +20,7 @@ const SEGMENT_COUNT = 6;
  * 검토/수정 화면으로 이동한다. 이미지 생성은 여기서 하지 않는다 (검토 후 별도 버튼으로 진행).
  */
 export async function generateScriptAction(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const candidateId = String(formData.get("candidateId") ?? "");
   if (!candidateId) throw new Error("candidateId가 없습니다.");
 
@@ -94,7 +94,7 @@ export async function saveScriptEditsAction(
   _prevState: SaveScriptEditsState,
   formData: FormData,
 ): Promise<SaveScriptEditsState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   const fullScript = String(formData.get("fullScript") ?? "").trim();
@@ -123,7 +123,7 @@ export async function saveSegmentAction(
   _prevState: SaveSegmentState,
   formData: FormData,
 ): Promise<SaveSegmentState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const segmentId = String(formData.get("segmentId") ?? "");
   const videoId = String(formData.get("videoId") ?? "");
   const narration = String(formData.get("narration") ?? "").trim();
@@ -194,7 +194,7 @@ export async function generateSegmentImagesAction(
   _prevState: GenerateImagesState,
   formData: FormData,
 ): Promise<GenerateImagesState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const model = String(formData.get("imageModel") ?? "nanobanana-2-2k") as NanoBananaModelType;
   if (!videoId) return { error: "videoId가 없습니다." };
@@ -259,7 +259,7 @@ export async function regenerateSegmentImageAction(
   _prevState: RegenerateImageState,
   formData: FormData,
 ): Promise<RegenerateImageState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const segmentId = String(formData.get("segmentId") ?? "");
   const videoId = String(formData.get("videoId") ?? "");
   const model = String(formData.get("imageModel") ?? "nanobanana-2-2k") as NanoBananaModelType;
@@ -317,7 +317,7 @@ export async function selectSegmentImageAction(
   _prevState: SelectImageState,
   formData: FormData,
 ): Promise<SelectImageState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const segmentId = String(formData.get("segmentId") ?? "");
   const videoId = String(formData.get("videoId") ?? "");
   const imageUrl = String(formData.get("imageUrl") ?? "");

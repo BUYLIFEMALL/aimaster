@@ -121,3 +121,86 @@ export async function logProgramUsage(params: {
     console.error("usage_logs 기록 실패:", err);
   }
 }
+
+/** 로그인한 사용자를 반환하되, 권한 검사 없이 사용자 여부만 확인한다 (API route에서 재사용). */
+export async function getSessionUser() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
+}
+
+/**
+ * requireProgramAccess()와 동일한 판정 로직이지만, API route handler에서
+ * 쓸 수 있도록 redirect() 대신 결과 객체를 반환한다.
+ * (route handler에서 redirect()를 쓰면 fetch 호출자가 HTML 리다이렉트를
+ * 받아 res.json() 파싱에 실패하는 문제가 있어 분리했다. blog/utils/access.ts와 동일 패턴.)
+ */
+export async function checkProgramAccessApi(): Promise<
+  | { allowed: true; user: NonNullable<Awaited<ReturnType<typeof getSessionUser>>> }
+  | { allowed: false; error: string; status: number }
+> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { allowed: false, error: "로그인이 필요합니다.", status: 401 };
+  }
+
+  const sb = supabase as unknown as SupabaseLike;
+
+  const { data: program } = await sb
+    .from("programs")
+    .select("id, required_grade_id")
+    .eq("slug", THIS_PROGRAM_SLUG)
+    .eq("is_active", true)
+    .single();
+
+  if (!program) {
+    return { allowed: false, error: "이용 중인 프로그램을 찾을 수 없습니다.", status: 403 };
+  }
+
+  const { data: subs } = await sb
+    .from("subscriptions")
+    .select("status, expires_at")
+    .eq("user_id", user.id)
+    .eq("program_id", program.id);
+
+  const hasActiveSub = (subs ?? []).some(
+    (s: { status: string; expires_at: string | null }) =>
+      s.status === "active" && isNotExpired(s.expires_at),
+  );
+  if (hasActiveSub) return { allowed: true, user };
+
+  const { data: grant } = await sb
+    .from("user_program_access")
+    .select("expires_at")
+    .eq("user_id", user.id)
+    .eq("program_id", program.id)
+    .maybeSingle();
+  if (grant && isNotExpired(grant.expires_at)) return { allowed: true, user };
+
+  if (!program.required_grade_id) return { allowed: true, user };
+
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("grade:member_grades(sort_order)")
+    .eq("id", user.id)
+    .single();
+
+  const { data: requiredGrade } = await sb
+    .from("member_grades")
+    .select("sort_order")
+    .eq("id", program.required_grade_id)
+    .single();
+
+  const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade;
+  if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order) {
+    return { allowed: true, user };
+  }
+
+  return { allowed: false, error: "이용 권한이 없습니다. 구독 후 이용해주세요.", status: 403 };
+}

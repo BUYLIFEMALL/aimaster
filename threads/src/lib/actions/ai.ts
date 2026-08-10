@@ -1,6 +1,5 @@
 "use server";
 
-import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
   generatePostContent,
@@ -8,7 +7,7 @@ import {
   type GeneratePostInput,
   type NanoBananaModelType,
 } from "@/lib/ai/generator";
-import { logProgramUsage } from "@/lib/access";
+import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 
 export interface GenerateContentState {
@@ -24,7 +23,7 @@ export interface GenerateImageState {
 export async function generateContentAction(
   input: GeneratePostInput & { apiKey?: string },
 ): Promise<GenerateContentState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
 
   if (!input.topic.trim()) {
     return { error: "주제를 입력해주세요." };
@@ -55,7 +54,7 @@ export async function generateImageAction(input: {
   apiKey?: string;
   model?: NanoBananaModelType;
 }): Promise<GenerateImageState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
 
   if (!input.prompt.trim()) {
     return { error: "이미지 프롬프트를 입력해주세요." };

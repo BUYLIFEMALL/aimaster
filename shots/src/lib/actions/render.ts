@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { buildMovieJson, createMovie, checkRenderStatus } from "@/lib/ai/render";
@@ -16,7 +16,7 @@ export async function requestRenderAction(
   _prevState: RequestRenderState,
   formData: FormData,
 ): Promise<RequestRenderState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const voiceId = String(formData.get("voiceId") ?? "").trim();
   if (!videoId) return { error: "videoId가 없습니다." };
@@ -97,7 +97,7 @@ export async function checkRenderStatusAction(
   _prevState: CheckRenderState,
   formData: FormData,
 ): Promise<CheckRenderState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   if (!videoId) return { error: "videoId가 없습니다." };
 

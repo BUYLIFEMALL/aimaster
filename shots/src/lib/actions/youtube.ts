@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { buildOAuthState } from "@/lib/oauthState";
@@ -23,7 +23,7 @@ export async function connectYoutubeAction(
   _prevState: ConnectYoutubeState,
   formData: FormData,
 ): Promise<ConnectYoutubeState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
   const clientId = await resolveApiKey(supabase, user.id, "google_client_id");
   if (!clientId) {
@@ -36,7 +36,7 @@ export async function connectYoutubeAction(
 }
 
 export async function disconnectYoutubeAction() {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
   await supabase.from("youtube_accounts").delete().eq("user_id", user.id);
   revalidatePath("/scripts");
@@ -120,7 +120,7 @@ export async function suggestYoutubeCategoryAction(
   _prevState: SuggestCategoryState,
   formData: FormData,
 ): Promise<SuggestCategoryState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   if (!videoId) return { error: "videoId가 없습니다." };
 
@@ -154,7 +154,7 @@ export async function generateYoutubeDescriptionAction(
   _prevState: GenerateDescriptionState,
   formData: FormData,
 ): Promise<GenerateDescriptionState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   if (!videoId) return { error: "videoId가 없습니다." };
 
@@ -188,7 +188,7 @@ export async function saveYoutubeDescriptionAction(
   _prevState: SaveDescriptionState,
   formData: FormData,
 ): Promise<SaveDescriptionState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const description = String(formData.get("description") ?? "").trim();
   if (!videoId) return { error: "videoId가 없습니다." };
@@ -217,7 +217,7 @@ export async function postToYoutubeAction(
   _prevState: PostYoutubeState,
   formData: FormData,
 ): Promise<PostYoutubeState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const categoryId = String(formData.get("categoryId") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();

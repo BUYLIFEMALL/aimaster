@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { postFormSchema } from "@/lib/validation";
 import { publishPost } from "@/lib/posts/publish-core";
 import { dispatchScheduledPostsForUser } from "@/lib/posts/dispatch";
@@ -50,7 +50,7 @@ export async function createPostAction(
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
   }
 
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
   const { content, imageUrl, videoFileName, publishMode, scheduledAt } = parsed.data;
 
@@ -105,7 +105,7 @@ export async function updatePostAction(
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
   }
 
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
   const { content, imageUrl, videoFileName, publishMode, scheduledAt } = parsed.data;
 
@@ -163,7 +163,7 @@ export async function updatePostAction(
 
 export async function deletePostAction(formData: FormData) {
   const postId = String(formData.get("postId"));
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
 
   await supabase.from("posts").delete().eq("id", postId).eq("user_id", user.id);
@@ -174,7 +174,7 @@ export async function deletePostAction(formData: FormData) {
 
 export async function publishNowAction(formData: FormData) {
   const postId = String(formData.get("postId"));
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
 
   const { data: post } = await supabase
@@ -210,7 +210,7 @@ export async function publishNowAction(formData: FormData) {
 }
 
 export async function dispatchScheduledPostsAction() {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
   await dispatchScheduledPostsForUser(supabase, user.id);
 

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { newsblurLogin } from "@/lib/ai/collector";
 
@@ -14,7 +14,7 @@ export async function saveNewsblurAccountAction(
   _prevState: SaveNewsblurAccountState,
   formData: FormData,
 ): Promise<SaveNewsblurAccountState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const username = String(formData.get("username") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
 
@@ -43,7 +43,7 @@ export async function saveNewsblurAccountAction(
 }
 
 export async function deleteNewsblurAccountAction() {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
 
   await supabase.from("newsblur_accounts").delete().eq("user_id", user.id);

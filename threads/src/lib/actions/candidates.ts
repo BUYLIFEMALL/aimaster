@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import {
@@ -61,7 +61,7 @@ export async function collectFromHttpAction(
   _prevState: CollectState,
   formData: FormData,
 ): Promise<CollectState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const url = String(formData.get("url") ?? "").trim();
   if (!url) return { error: "URL을 입력해주세요." };
 
@@ -115,7 +115,7 @@ export async function collectFromRssAction(
   _prevState: CollectState,
   formData: FormData,
 ): Promise<CollectState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const feedId = String(formData.get("feedId") ?? "").trim();
   const feedTitle = String(formData.get("feedTitle") ?? "").trim();
   if (!feedId) return { error: "구독 피드를 선택해주세요." };
@@ -151,7 +151,7 @@ export async function collectFromPerplexityAction(
   _prevState: CollectState,
   formData: FormData,
 ): Promise<CollectState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const topic = String(formData.get("topic") ?? "").trim();
   if (!topic) return { error: "주제를 입력해주세요." };
 
@@ -170,7 +170,7 @@ export async function collectFromPerplexityAction(
 }
 
 export async function deleteCandidateAction(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const id = String(formData.get("id") ?? "");
   const supabase = await createClient();
 

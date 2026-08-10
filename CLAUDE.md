@@ -53,10 +53,13 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
 ### 멀티테넌시 원칙 (필독 — 모든 서브 자동화 프로그램에 적용)
 **모든 서브 자동화 프로그램(threads, blog, 및 앞으로 추가되는 모든 프로그램)은 개발자 전용 도구가 아니라, AIMaster에 가입하고 해당 프로그램의 이용 권한(구독/개별부여/등급)을 가진 모든 회원이 각자 자신의 계정으로 동일하게 사용할 수 있는 멀티테넌트 서비스여야 한다.** 새 프로그램을 추가하거나 기존 프로그램을 수정할 때는 아래 5가지를 항상 지킬 것.
 
-1. **로그인 ≠ 이용 권한.** 페이지/레이아웃뿐 아니라 **실제로 쓰기 작업을 수행하는 모든 API route/서버 액션**은 "로그인했는가"만이 아니라 "이 프로그램(`programs.slug`)에 대한 구독/개별부여/등급 권한이 있는가"까지 확인해야 한다. UI(레이아웃)만 막고 API는 막지 않으면, UI를 우회해 API를 직접 호출하는 방식으로 결제 없이 사용할 수 있다 — 2026-08-06 감사에서 blog의 `/api/auto-post`, `/api/posts/[id]` PUT/DELETE가 로그인 확인만 하고 이 확인이 빠져 있던 것을 발견해 수정한 사례가 있음.
-   - 페이지/레이아웃(서버 컴포넌트)에서는 `requireProgramAccess()` 스타일(권한 없으면 `redirect()`)을 쓴다.
-   - API route handler에서는 절대 `redirect()`를 쓰지 말고, `{allowed, error, status}` 형태의 결과 객체를 반환하는 버전(`checkProgramAccess()` / `checkProgramAccessApi()`)을 써서 JSON 에러 응답을 내려준다 (redirect를 fetch로 받으면 클라이언트의 `res.json()` 파싱이 깨진다).
-   - 참고 구현: `lib/access/checkProgramAccess.ts`(루트), `threads/src/lib/access.ts`, `blog/utils/access.ts`(`requireProgramAccess` + `checkProgramAccessApi`).
+1. **로그인 ≠ 이용 권한. (필수 준수 — 예외 없음)** 페이지/레이아웃뿐 아니라 **실제로 쓰기 작업을 수행하는 모든 API route와 모든 Server Action("use server" 함수)은 하나도 빠짐없이** "로그인했는가"만이 아니라 "이 프로그램(`programs.slug`)에 대한 구독/개별부여/등급 권한이 있는가"까지 확인해야 한다. 페이지/레이아웃만 막고 실제 쓰기 함수는 `requireUser()`(로그인만 확인)로 남겨두면, 로그인한 비구독자가 그 화면을 그대로 우회해서(폼 직접 호출 등) 기능을 무료로 쓸 수 있다.
+   - **판단 기준**: DB에 insert/update/upsert/delete 하는 함수, 유료 외부 API(OpenAI/Gemini/Perplexity 등)를 호출하는 함수, OAuth 연동/해제처럼 실제 부수효과를 일으키는 함수는 전부 대상이다. 로그인/로그아웃 액션(`signInAction`/`signOutAction`)만 예외 — 세션이 생기기 전에 실행되므로 프로그램 권한 검사 자체가 성립하지 않는다.
+   - 페이지/레이아웃(서버 컴포넌트) + Server Action에서는 `requireProgramAccess()` 스타일(권한 없으면 `redirect()`)을 쓴다.
+   - API route handler(특히 OAuth 콜백처럼 GET이지만 DB에 쓰는 라우트 포함)에서는 절대 `redirect()`를 쓰지 말고, `{allowed, error, status}` 형태의 결과 객체를 반환하는 버전(`checkProgramAccess()` / `checkProgramAccessApi()`)을 써서 JSON 에러 응답을 내려준다 (redirect를 fetch로 받으면 클라이언트의 `res.json()` 파싱이 깨진다). CRON_SECRET으로 보호되는 시스템 간 라우트(예: `dispatch-scheduled`)는 예외.
+   - 새 서브프로젝트를 만들 때 `src/lib/access.ts`에는 `requireProgramAccess()`와 **`checkProgramAccessApi()`를 처음부터 같이 만든다** (나중에 API route/OAuth 콜백을 추가할 때 빠뜨리기 쉽다).
+   - 참고 구현: `lib/access/checkProgramAccess.ts`(루트), `threads/src/lib/access.ts`, `shots/src/lib/access.ts`, `real_estate_sales/src/lib/access.ts`, `blog/utils/access.ts`(`requireProgramAccess` + `checkProgramAccessApi`).
+   - **감사 이력**: 2026-08-06 blog의 `/api/auto-post`, `/api/posts/[id]` PUT/DELETE에서 발견·수정. 2026-08-10 전수 감사에서 threads(Server Action 17개 + Threads OAuth 콜백), shots(Server Action 30개 + Instagram/YouTube OAuth 콜백 2개), real_estate_sales(Server Action 6개)에서 전부 `requireUser()`만 쓰고 있던 것을 발견해 `requireProgramAccess()`/`checkProgramAccessApi()`로 일괄 수정함 — **거의 모든 신규 코드에서 반복되는 실수이니 새 Server Action/API route를 작성할 때마다 이 항목을 의식적으로 체크할 것.**
 2. **사용자별 데이터는 완전히 격리한다.** 사용자 소유 데이터가 들어가는 테이블(게시글, 연결 계정, API 키 등)은 반드시 `user_id` 컬럼 + RLS owner-only 정책(`auth.uid() = user_id`)을 가진다. `createServiceClient()`/admin client(서비스 롤, RLS 우회)를 쓸 때는 코드에서 반드시 `user_id`로 직접 필터링해서 다른 사용자 데이터가 섞이지 않게 한다.
 3. **API 키는 사용자 개인 키를 우선 사용한다.** 공용 `user_api_keys` 테이블(`resolveApiKey()` 패턴: 본인 키 → 없으면 앱 기본 키 폴백)을 그대로 재사용한다. 새 프로그램마다 다시 만들지 않는다.
 4. **외부 서비스 연동(OAuth 등)은 사용자별로 저장한다.** threads의 `threads_accounts`처럼 `user_id`에 unique 제약을 걸고, OAuth `state` 파라미터에 `user.id`를 실어 콜백에서 세션 사용자와 일치하는지 검증한다 (다른 사용자 명의로 계정이 연결되는 것을 방지).

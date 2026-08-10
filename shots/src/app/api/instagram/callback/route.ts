@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkProgramAccessApi } from "@/lib/access";
 import { parseOAuthState } from "@/lib/oauthState";
 import {
   exchangeInstagramCode,
@@ -30,6 +31,11 @@ export async function GET(request: NextRequest) {
 
   if (!user || user.id !== stateUserId) {
     return NextResponse.redirect(`${siteUrl}/login`);
+  }
+
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return NextResponse.redirect(`${siteUrl}${redirectTarget}?error=no_access`);
   }
 
   try {

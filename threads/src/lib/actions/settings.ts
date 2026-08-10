@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiKeyProvider } from "@/types/database.types";
 
@@ -16,7 +16,7 @@ export async function saveApiKeyAction(
   _prevState: SaveApiKeyState,
   formData: FormData,
 ): Promise<SaveApiKeyState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const provider = String(formData.get("provider")) as ApiKeyProvider;
   const apiKey = String(formData.get("apiKey") ?? "").trim();
 
@@ -41,7 +41,7 @@ export async function saveApiKeyAction(
 }
 
 export async function deleteApiKeyAction(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const provider = String(formData.get("provider")) as ApiKeyProvider;
   const supabase = await createClient();
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkProgramAccessApi } from "@/lib/access";
 import {
   exchangeCodeForToken,
   exchangeForLongLivedToken,
@@ -27,6 +28,13 @@ export async function GET(request: NextRequest) {
   // state 값에 요청 시점의 user.id를 담아 보냈으므로, 콜백에서도 동일 사용자인지 확인합니다.
   if (!user || user.id !== state) {
     return NextResponse.redirect(`${siteUrl}/login`);
+  }
+
+  // 로그인만으로는 부족 — 이 프로그램 이용 권한(구독/개별부여/등급)이 없으면
+  // OAuth 토큰을 저장하지 않는다 (로그인만 한 비구독자가 계정 연동까지 끝내는 것 방지).
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return NextResponse.redirect(`${siteUrl}/accounts?error=no_access`);
   }
 
   try {

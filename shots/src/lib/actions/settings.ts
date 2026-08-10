@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { ALL_PROVIDERS } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
@@ -15,7 +15,7 @@ export async function saveApiKeyAction(
   _prevState: SaveApiKeyState,
   formData: FormData,
 ): Promise<SaveApiKeyState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const provider = String(formData.get("provider")) as ApiKeyProvider;
   const apiKey = String(formData.get("apiKey") ?? "").trim();
 
@@ -40,7 +40,7 @@ export async function saveApiKeyAction(
 }
 
 export async function deleteApiKeyAction(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const provider = String(formData.get("provider")) as ApiKeyProvider;
   const supabase = await createClient();
 
@@ -68,7 +68,7 @@ export async function saveVoiceIdAction(
   _prevState: SaveVoiceIdState,
   formData: FormData,
 ): Promise<SaveVoiceIdState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const voiceId = String(formData.get("elevenlabsVoiceId") ?? "").trim();
   const connectionId = String(formData.get("elevenlabsConnectionId") ?? "").trim();
   if (!voiceId) {
@@ -96,7 +96,7 @@ export async function saveVoiceIdAction(
 }
 
 export async function deleteVoiceIdAction() {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const supabase = await createClient();
 
   await supabase.from("user_render_settings").delete().eq("user_id", user.id);

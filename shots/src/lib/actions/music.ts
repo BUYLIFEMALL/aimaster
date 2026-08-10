@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { requestBackgroundMusic, checkMusicGenerationStatus } from "@/lib/ai/music";
@@ -16,7 +16,7 @@ export async function saveBgmPromptAction(
   _prevState: SaveBgmPromptState,
   formData: FormData,
 ): Promise<SaveBgmPromptState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const bgmPrompt = String(formData.get("bgmPrompt") ?? "").trim();
   const bgmStyle = String(formData.get("bgmStyle") ?? "").trim();
@@ -50,7 +50,7 @@ export async function requestBgmGenerationAction(
   _prevState: RequestBgmState,
   formData: FormData,
 ): Promise<RequestBgmState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const bgmPrompt = String(formData.get("bgmPrompt") ?? "").trim();
   const bgmStyle = String(formData.get("bgmStyle") ?? "").trim();
@@ -145,7 +145,7 @@ export async function checkBgmStatusAction(
   _prevState: CheckBgmState,
   formData: FormData,
 ): Promise<CheckBgmState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   if (!videoId) return { error: "videoId가 없습니다." };
 
@@ -218,7 +218,7 @@ export async function selectBgmTrackAction(
   _prevState: SelectBgmTrackState,
   formData: FormData,
 ): Promise<SelectBgmTrackState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const trackId = String(formData.get("trackId") ?? "");
   if (!videoId || !trackId) return { error: "선택할 트랙이 없습니다." };
@@ -262,7 +262,7 @@ export async function deleteBgmTrackAction(
   _prevState: DeleteBgmTrackState,
   formData: FormData,
 ): Promise<DeleteBgmTrackState> {
-  const user = await requireUser();
+  const user = await requireProgramAccess();
   const videoId = String(formData.get("videoId") ?? "");
   const trackId = String(formData.get("trackId") ?? "");
   if (!videoId || !trackId) return { error: "삭제할 트랙이 없습니다." };

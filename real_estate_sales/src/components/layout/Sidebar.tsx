@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { signOutAction } from "@/lib/actions/auth";
 
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
+
 const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드" },
   { href: "/districts", label: "관심 지역 설정" },
@@ -12,9 +14,18 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   return (
     <aside className="flex w-full flex-col border-b border-white/10 bg-dark-50 p-4 md:h-full md:w-60 md:justify-between md:border-b-0 md:border-r">
       <div className="flex items-center justify-between md:block">
-        <div className="gold-text px-2 text-lg font-semibold md:mb-6">
+        <a
+          href={`${MAIN_SITE_URL}/programs`}
+          className="gold-text mb-1 block px-2 text-lg font-semibold hover:opacity-80 md:mb-1"
+        >
           부동산 실시간 매매정보
-        </div>
+        </a>
+        <a
+          href={`${MAIN_SITE_URL}/programs`}
+          className="mb-4 block px-2 text-xs text-neutral-500 hover:text-gold-light md:mb-6"
+        >
+          ← 다른 프로그램 보기
+        </a>
         <nav className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
           {NAV_ITEMS.map((item) => (
             <Link

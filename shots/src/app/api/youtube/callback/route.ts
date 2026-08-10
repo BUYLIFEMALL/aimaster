@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { parseOAuthState } from "@/lib/oauthState";
 import { exchangeYoutubeCode, getYoutubeChannelInfo } from "@/lib/youtube/client";
@@ -28,6 +29,11 @@ export async function GET(request: NextRequest) {
   // state 값에 요청 시점의 user.id를 담아 보냈으므로, 콜백에서도 동일 사용자인지 확인합니다.
   if (!user || user.id !== stateUserId) {
     return NextResponse.redirect(`${siteUrl}/login`);
+  }
+
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return NextResponse.redirect(`${siteUrl}${redirectTarget}?error=no_access`);
   }
 
   try {
