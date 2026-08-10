@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { resolveApiKey } from "@/lib/apiKeys";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveApiKey, resolveApiKeyWithSource } from "@/lib/apiKeys";
 import { analyzeListing } from "@/lib/ai/analyze";
 import type { AnalysisModel } from "@/lib/ai/models";
 import { getDistrictSentiment } from "@/lib/ai/sentiment";
@@ -38,16 +39,57 @@ export async function runListingAnalysis(
     return { error: "매물 정보를 찾을 수 없습니다." };
   }
 
-  const [openaiKey, perplexityKey] = await Promise.all([
-    resolveApiKey(supabase, userId, "openai"),
+  const [openaiResolved, perplexityKey] = await Promise.all([
+    resolveApiKeyWithSource(supabase, userId, "openai"),
     resolveApiKey(supabase, userId, "perplexity"),
   ]);
+  const openaiKey = openaiResolved.key;
+  const usedFallbackKey = !openaiResolved.isOwnKey;
 
   if (!openaiKey) {
     return { error: "OpenAI API 키가 없습니다. 설정에서 본인 키를 등록해주세요." };
   }
   if (!perplexityKey) {
     return { error: "Perplexity API 키가 없습니다. 설정에서 본인 키를 등록해주세요." };
+  }
+
+  // 앱 공용(폴백) 키를 쓰는 사용자끼리는, 같은 매물+같은 모델이면 이미 다른 사용자가
+  // 만들어둔 분석 결과를 그대로 복사해서 쓰고 GPT를 다시 호출하지 않는다 — 앱 계정의
+  // 실제 API 비용을 절감하기 위함. 본인 키를 쓰는 사용자는 항상 새로 분석한다(본인 비용).
+  if (usedFallbackKey) {
+    const admin = createAdminClient();
+    const { data: shared } = await admin
+      .from("real_estate_analyses")
+      .select("undervaluation_index, predicted_growth_pct, investment_score, rationale, raw_result")
+      .eq("listing_id", listingId)
+      .eq("model", model)
+      .eq("used_fallback_key", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (shared) {
+      const { error: copyError } = await supabase.from("real_estate_analyses").insert({
+        user_id: userId,
+        listing_id: listingId,
+        model,
+        undervaluation_index: shared.undervaluation_index,
+        predicted_growth_pct: shared.predicted_growth_pct,
+        investment_score: shared.investment_score,
+        rationale: shared.rationale,
+        raw_result: shared.raw_result,
+        used_fallback_key: true,
+      });
+      if (copyError) {
+        return { error: `분석 결과 저장에 실패했습니다: ${copyError.message}` };
+      }
+      await supabase
+        .from("real_estate_user_matches")
+        .update({ status: "analyzed" })
+        .eq("user_id", userId)
+        .eq("listing_id", listingId);
+      return {};
+    }
   }
 
   try {
@@ -101,6 +143,7 @@ export async function runListingAnalysis(
       investment_score: result.attractiveness_score ?? null,
       rationale: result.rationale ?? null,
       raw_result: JSON.parse(JSON.stringify(result)),
+      used_fallback_key: usedFallbackKey,
     });
 
     if (insertError) {

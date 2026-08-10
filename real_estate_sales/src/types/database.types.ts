@@ -812,6 +812,7 @@ export type Database = {
           rationale: string | null
           raw_result: Json | null
           undervaluation_index: number | null
+          used_fallback_key: boolean
           user_id: string
         }
         Insert: {
@@ -824,6 +825,7 @@ export type Database = {
           rationale?: string | null
           raw_result?: Json | null
           undervaluation_index?: number | null
+          used_fallback_key?: boolean
           user_id: string
         }
         Update: {
@@ -836,6 +838,7 @@ export type Database = {
           rationale?: string | null
           raw_result?: Json | null
           undervaluation_index?: number | null
+          used_fallback_key?: boolean
           user_id?: string
         }
         Relationships: [

@@ -42,6 +42,28 @@ export async function resolveApiKey(
   return ownKey || FALLBACK_ENV_KEYS[provider] || null;
 }
 
+export interface ResolvedApiKey {
+  key: string | null;
+  /** true면 사용자 본인이 등록한 키, false면 앱 공용 폴백 키를 쓴 것. */
+  isOwnKey: boolean;
+}
+
+/**
+ * resolveApiKey와 동일하지만, 반환된 키가 본인 키인지 앱 폴백 키인지도 함께 알려준다.
+ * 폴백 키를 쓴 경우엔 같은 입력(매물+모델)에 대한 AI 분석 결과를 사용자 간에 공유해서
+ * 캐싱할 수 있어 앱 공용 키 비용을 아낄 수 있다 — real_estate_sales의
+ * runListingAnalysis에서 사용.
+ */
+export async function resolveApiKeyWithSource(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  provider: ApiKeyProvider,
+): Promise<ResolvedApiKey> {
+  const ownKey = await getUserApiKey(supabase, userId, provider);
+  if (ownKey) return { key: ownKey, isOwnKey: true };
+  return { key: FALLBACK_ENV_KEYS[provider] ?? null, isOwnKey: false };
+}
+
 export async function getRegisteredProviders(
   supabase: SupabaseClient<Database>,
   userId: string,
