@@ -145,6 +145,8 @@ export async function fetchApartAssessedPrice(params: {
   return result?.field ?? [];
 }
 
+// 실제 필드명(GRFE=보증금, RTFE=월세, RENT_SE=전세/월세 구분)은 서울 열린데이터광장
+// 문서상 명칭과 실제 응답이 달라서, 직접 호출해서 확인한 값을 그대로 반영했다.
 export interface SeoulRentRow {
   CGG_CD: string;
   CGG_NM: string;
@@ -152,13 +154,16 @@ export interface SeoulRentRow {
   STDG_NM: string;
   BLDG_NM: string;
   CTRT_DAY: string;
-  RENT_GBN: string;
-  RENT_GTN: string;
-  RENT_FEE: string;
+  RENT_SE: string; // "전세" | "월세"
+  GRFE: string; // 보증금(만원)
+  RTFE: string; // 월세(만원)
   [key: string]: string | undefined;
 }
 
-// 전월세 비교 데이터 조회 (같은 건물의 최근 전월세 시세 참고용)
+// 전월세 비교 데이터 조회 (같은 건물의 최근 전월세 시세 참고용).
+// 이 API는 건물명으로 서버 필터링이 되지 않아(직접 확인: 요청한 건물명과 무관하게 해당
+// 법정동 전체 결과가 돌아옴), 동 단위로 넉넉히 받아온 뒤 건물명으로 클라이언트에서
+// 필터링하고 최신 계약일 순으로 정렬해서 반환한다.
 export async function fetchSeoulRentComparables(params: {
   sggCd: string;
   sggNm: string;
@@ -168,30 +173,17 @@ export async function fetchSeoulRentComparables(params: {
 }): Promise<SeoulRentRow[]> {
   const key = requireEnv("SEOUL_OPENDATA_API_KEY");
   const { sggCd, sggNm, stdgCd, bldgNm, year } = params;
-  const path = [
-    key,
-    "json",
-    "tbLnOpendataRentV",
-    "1",
-    "5",
-    String(year),
-    sggCd,
-    encodeURIComponent(sggNm),
-    stdgCd,
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    encodeURIComponent(bldgNm),
-    "",
-  ].join("/");
+  const url = `${SEOUL_BASE}/${key}/json/tbLnOpendataRentV/1/1000/${year}/${sggCd}/${encodeURIComponent(sggNm)}/${stdgCd}/`;
 
-  const res = await fetch(`${SEOUL_BASE}/${path}`, { cache: "no-store" });
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`서울 전월세 API 요청 실패 (${res.status})`);
   const data = await res.json();
-  return data?.tbLnOpendataRentV?.row ?? [];
+  const rows: SeoulRentRow[] = data?.tbLnOpendataRentV?.row ?? [];
+
+  const normalizedTarget = bldgNm.trim();
+  return rows
+    .filter((r) => r.BLDG_NM && r.BLDG_NM.trim() === normalizedTarget)
+    .sort((a, b) => (b.CTRT_DAY ?? "").localeCompare(a.CTRT_DAY ?? ""));
 }
 
 // 서울 열린데이터광장 응답은 필드가 문자열/숫자 어느 쪽으로도 올 수 있어 항상 String()으로 보정한다.

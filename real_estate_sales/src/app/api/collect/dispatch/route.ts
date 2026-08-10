@@ -95,8 +95,8 @@ async function dispatch() {
           });
           const latest = rents[0];
           if (latest) {
-            prevDeposit = Number(latest.RENT_GTN) || null;
-            prevRent = Number(latest.RENT_FEE) || null;
+            prevDeposit = Number(latest.GRFE) || null;
+            prevRent = Number(latest.RTFE) || null;
           }
         } catch (err) {
           console.error("전월세 비교 조회 실패:", err);

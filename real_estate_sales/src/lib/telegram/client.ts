@@ -17,14 +17,29 @@ export interface TelegramChatInfo {
  * chat_id를 찾아 반환한다. 메시지를 아직 안 보냈으면 null.
  */
 export async function findChatIdFromUpdates(botToken: string): Promise<TelegramChatInfo | null> {
+  // getUpdates(폴링)와 webhook은 동시에 쓸 수 없다 (409 Conflict). 이 봇이 예전에
+  // 다른 서비스(예: Make.com)에서 웹훅으로 등록된 적이 있으면 충돌하므로, 폴링 방식을
+  // 쓰기 전에 웹훅을 먼저 해제한다. 웹훅이 없었어도 안전하게 무시된다.
+  await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/deleteWebhook`, { cache: "no-store" }).catch(
+    () => {},
+  );
+
   const res = await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/getUpdates?limit=10`, {
     cache: "no-store",
   });
+  const data = await res.json().catch(() => null);
+
   if (!res.ok) {
     if (res.status === 401) throw new Error("봇 토큰이 올바르지 않습니다.");
-    throw new Error(`텔레그램 API 요청 실패 (${res.status})`);
+    if (res.status === 409) {
+      throw new Error(
+        "이 봇에 웹훅이 이미 등록되어 있어서 getUpdates를 쓸 수 없어요. BotFather나 다른 곳에서 이 봇의 웹훅을 설정한 적이 있다면 해제해야 해요.",
+      );
+    }
+    const description = data?.description ? ` — ${data.description}` : "";
+    throw new Error(`텔레그램 API 요청 실패 (${res.status})${description}`);
   }
-  const data = await res.json();
+
   const results: { message?: { chat?: { id: number } } }[] = data?.result ?? [];
   const last = [...results].reverse().find((r) => r.message?.chat?.id);
   if (!last?.message?.chat?.id) return null;

@@ -8,7 +8,7 @@ import { ANALYSIS_MODEL_OPTIONS, type AnalysisModel } from "@/lib/ai/models";
 const initialState: AnalysisActionState = {};
 
 export function AnalyzeButton({ listingId }: { listingId: string }) {
-  const [model, setModel] = useState<AnalysisModel>("gpt-4o-mini");
+  const [model, setModel] = useState<AnalysisModel>("gpt-5.6-luna");
   const [state, formAction, isPending] = useActionState(analyzeListingAction, initialState);
 
   return (

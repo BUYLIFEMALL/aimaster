@@ -19,7 +19,7 @@ export async function analyzeListingAction(
 ): Promise<AnalysisActionState> {
   const user = await requireUser();
   const listingId = String(formData.get("listingId"));
-  const model = String(formData.get("model") ?? "gpt-4o-mini") as AnalysisModel;
+  const model = String(formData.get("model") ?? "gpt-5.6-luna") as AnalysisModel;
 
   const supabase = await createClient();
 
