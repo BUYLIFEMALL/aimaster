@@ -848,6 +848,21 @@ export type Database = {
           },
         ]
       }
+      real_estate_district_collect_state: {
+        Row: {
+          last_collected_at: string
+          sgg_cd: string
+        }
+        Insert: {
+          last_collected_at?: string
+          sgg_cd: string
+        }
+        Update: {
+          last_collected_at?: string
+          sgg_cd?: string
+        }
+        Relationships: []
+      }
       real_estate_district_sentiment: {
         Row: {
           content: string

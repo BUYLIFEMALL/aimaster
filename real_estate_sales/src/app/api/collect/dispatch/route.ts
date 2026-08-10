@@ -24,8 +24,15 @@ import { currentKstHour, isCollectDue, isWithinActiveHours } from "@/lib/publicd
 // cron은 5분마다 깨우기만 하고 실제 수집/분석/알림 처리 여부는 이 라우트 내부에서
 // 사용자별 monitoring_enabled/collect_interval_minutes/active_hour_start/
 // active_hour_end/last_run_at을 보고 다시 판단한다.
+//
+// 같은 지역을 여러 사용자가 서로 다른 주기로 watch할 수 있으므로, 외부 공공 API 호출은
+// "이 지역을 원하는 가장 빠른 주기"(real_estate_district_collect_state.last_collected_at
+// 기준)로만 실행하고, 그보다 느린 주기의 사용자는 이미 DB에 쌓인 데이터 중 본인에게
+// 아직 안 보낸 것만 골라 알림을 받는다 (외부 API 재호출/재분석 없이 재사용).
 
-const MAX_NEW_LISTINGS_PER_DISTRICT = 20; // 함수 실행 시간 제한을 고려한 회당 처리 상한
+const MAX_NEW_LISTINGS_PER_DISTRICT = 20; // 함수 실행 시간 제한을 고려한 회당 수집 상한
+const MAX_MATCHES_PER_TICK = 20; // 사용자 한 명에게 한 틱에 몰아서 알림/분석하는 상한
+const MATCH_CANDIDATE_WINDOW = 100; // "아직 못 받은 매물" 확인 시 뒤져볼 최근 매물 후보 수
 
 function isAuthorized(request: NextRequest): boolean {
   const auth = request.headers.get("authorization");
@@ -37,101 +44,126 @@ async function collectDistrict(
   sggCd: string,
   sggNm: string,
   year: number,
-): Promise<{ newListingIds: string[]; newCount: number; error?: string }> {
-  const newListingIds: string[] = [];
-
+): Promise<{ newCount: number }> {
   const trades = await fetchSeoulTrades({ sggCd, year, numOfRows: 200 });
+  const validTrades = trades.filter((row) => row.CTRT_DAY && row.BLDG_NM);
 
-  for (const row of trades) {
-    if (newListingIds.length >= MAX_NEW_LISTINGS_PER_DISTRICT) break;
-
-    const dedupKey = buildDedupKey(row);
-    if (!row.CTRT_DAY || !row.BLDG_NM) continue;
-
-    const { data: existing } = await supabase
+  // 최대 200건을 매번 한 건씩 존재 여부 조회하던 것을, 한 번의 IN 쿼리로 일괄 확인하도록 변경.
+  const dedupKeys = validTrades.map((row) => buildDedupKey(row));
+  const existingSet = new Set<string>();
+  if (dedupKeys.length > 0) {
+    const { data: existingRows } = await supabase
       .from("real_estate_listings")
-      .select("id")
-      .eq("dedup_key", dedupKey)
-      .maybeSingle();
-    if (existing) continue;
+      .select("dedup_key")
+      .in("dedup_key", dedupKeys);
+    for (const r of existingRows ?? []) existingSet.add(r.dedup_key);
+  }
 
-    // 신규 매물 → 건축물대장/공시가격/전월세 순으로 보강 (하나 실패해도 나머지 저장은 진행)
-    let exclusiveArea: number | null = null;
-    let officialPrice: number | null = null;
-    let prevDeposit: number | null = null;
-    let prevRent: number | null = null;
+  let newCount = 0;
 
-    try {
-      const items = await fetchBuildingRegister({
+  for (let i = 0; i < validTrades.length; i++) {
+    if (newCount >= MAX_NEW_LISTINGS_PER_DISTRICT) break;
+
+    const row = validTrades[i];
+    const dedupKey = dedupKeys[i];
+    if (existingSet.has(dedupKey)) continue;
+
+    // 신규 매물 → 건축물대장/공시가격/전월세 3종을 병렬로 조회 (하나 실패해도 나머지는 반영).
+    const [buildingResult, priceResult, rentResult] = await Promise.allSettled([
+      fetchBuildingRegister({
         sigunguCd: row.CGG_CD,
         bjdongCd: row.STDG_CD,
         bun: row.MNO,
         ji: row.SNO,
-      });
-      const area = items[0]?.area;
+      }),
+      fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1 }),
+      fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year }),
+    ]);
+
+    let exclusiveArea: number | null = null;
+    if (buildingResult.status === "fulfilled") {
+      const area = buildingResult.value[0]?.area;
       if (area) exclusiveArea = Number(area);
-    } catch (err) {
-      console.error("건축물대장 조회 실패:", err);
+    } else {
+      console.error("건축물대장 조회 실패:", buildingResult.reason);
     }
 
-    try {
-      const pnu = buildPnu(row);
-      const priceFields = await fetchApartAssessedPrice({ pnu, stdrYear: year - 1 });
-      if (priceFields[0]?.pblntfPc) officialPrice = Number(priceFields[0].pblntfPc);
-    } catch (err) {
-      console.error("VWorld 공시가격 조회 실패:", err);
+    let officialPrice: number | null = null;
+    if (priceResult.status === "fulfilled") {
+      if (priceResult.value[0]?.pblntfPc) officialPrice = Number(priceResult.value[0].pblntfPc);
+    } else {
+      console.error("VWorld 공시가격 조회 실패:", priceResult.reason);
     }
 
-    try {
-      const rents = await fetchSeoulRentComparables({
-        sggCd,
-        sggNm,
-        stdgCd: row.STDG_CD,
-        bldgNm: row.BLDG_NM,
-        year,
-      });
-      const latest = rents[0];
+    let prevDeposit: number | null = null;
+    let prevRent: number | null = null;
+    if (rentResult.status === "fulfilled") {
+      const latest = rentResult.value[0];
       if (latest) {
         prevDeposit = Number(latest.GRFE) || null;
         prevRent = Number(latest.RTFE) || null;
       }
-    } catch (err) {
-      console.error("전월세 비교 조회 실패:", err);
+    } else {
+      console.error("전월세 비교 조회 실패:", rentResult.reason);
     }
 
-    const { data: inserted, error: insertError } = await supabase
-      .from("real_estate_listings")
-      .insert({
-        dedup_key: dedupKey,
-        sgg_cd: sggCd,
-        sgg_nm: sggNm,
-        stdg_nm: row.STDG_NM,
-        bldg_nm: row.BLDG_NM,
-        floor: row.FLR,
-        contract_date: normalizeDate(row.CTRT_DAY, year),
-        building_area: toNumberOrNull(row.ARCH_AREA),
-        exclusive_area: exclusiveArea,
-        price_amount: toNumberOrNull(row.THING_AMT),
-        official_price: officialPrice,
-        building_year: toNumberOrNull(row.ARCH_YR),
-        prev_deposit: prevDeposit,
-        prev_rent: prevRent,
-        pnu: buildPnu(row),
-        raw_data: row,
-        data_provided_at: new Date().toISOString().slice(0, 10),
-      })
-      .select("id")
-      .single();
+    const { error: insertError } = await supabase.from("real_estate_listings").insert({
+      dedup_key: dedupKey,
+      sgg_cd: sggCd,
+      sgg_nm: sggNm,
+      stdg_nm: row.STDG_NM,
+      bldg_nm: row.BLDG_NM,
+      floor: row.FLR,
+      contract_date: normalizeDate(row.CTRT_DAY, year),
+      building_area: toNumberOrNull(row.ARCH_AREA),
+      exclusive_area: exclusiveArea,
+      price_amount: toNumberOrNull(row.THING_AMT),
+      official_price: officialPrice,
+      building_year: toNumberOrNull(row.ARCH_YR),
+      prev_deposit: prevDeposit,
+      prev_rent: prevRent,
+      pnu: buildPnu(row),
+      raw_data: row,
+      data_provided_at: new Date().toISOString().slice(0, 10),
+    });
 
-    if (insertError || !inserted) {
-      console.error("매물 저장 실패:", insertError?.message);
+    if (insertError) {
+      console.error("매물 저장 실패:", insertError.message);
       continue;
     }
 
-    newListingIds.push(inserted.id);
+    newCount += 1;
   }
 
-  return { newListingIds, newCount: newListingIds.length };
+  return { newCount };
+}
+
+// 이 사용자가 이 지역 매물 중 아직 매칭(real_estate_user_matches)되지 않은 것을 찾는다.
+// 사용자의 전체 매칭 이력을 훑는 대신, 이 지역 최근 매물 후보만 먼저 좁혀서 그 안에서만
+// 매칭 여부를 확인 — 매칭 이력이 아무리 쌓여도 쿼리 비용이 늘어나지 않도록 함.
+async function findUnmatchedListingIds(
+  supabase: ReturnType<typeof createAdminClient>,
+  userId: string,
+  sggCd: string,
+): Promise<string[]> {
+  const { data: listings } = await supabase
+    .from("real_estate_listings")
+    .select("id")
+    .eq("sgg_cd", sggCd)
+    .order("collected_at", { ascending: false })
+    .limit(MATCH_CANDIDATE_WINDOW);
+
+  const candidateIds = (listings ?? []).map((l) => l.id);
+  if (candidateIds.length === 0) return [];
+
+  const { data: matched } = await supabase
+    .from("real_estate_user_matches")
+    .select("listing_id")
+    .eq("user_id", userId)
+    .in("listing_id", candidateIds);
+  const matchedSet = new Set((matched ?? []).map((m) => m.listing_id));
+
+  return candidateIds.filter((id) => !matchedSet.has(id)).slice(0, MAX_MATCHES_PER_TICK);
 }
 
 async function notifyUserForListings(
@@ -229,7 +261,9 @@ async function dispatch() {
 
   if (watchError) throw new Error(watchError.message);
 
-  const dueRows = (watchRows ?? []).filter(
+  const allRows = watchRows ?? [];
+
+  const dueRows = allRows.filter(
     (w) =>
       isCollectDue(w.last_run_at, w.collect_interval_minutes, now) &&
       isWithinActiveHours(kstHour, w.active_hour_start, w.active_hour_end),
@@ -239,41 +273,69 @@ async function dispatch() {
     return { processed: 0, summary: [] };
   }
 
-  // 같은 지역을 여러 사용자가 서로 다른 주기로 watch할 수 있으므로,
-  // 이번 틱에 실제로 수집이 필요한 지역은 한 번만 공공 API를 호출한다.
-  const districtsToCollect = new Map<string, string>();
-  for (const row of dueRows) {
-    districtsToCollect.set(row.sgg_cd, row.sgg_nm);
+  // 지역별 "이 지역을 원하는 사용자 중 가장 빠른 주기" — 그보다 최근에 이미 수집됐으면
+  // 외부 API를 다시 부르지 않고 기존 DB 데이터를 그대로 재사용한다.
+  const minIntervalByDistrict = new Map<string, number>();
+  const sggNmByDistrict = new Map<string, string>();
+  for (const row of allRows) {
+    sggNmByDistrict.set(row.sgg_cd, row.sgg_nm);
+    const cur = minIntervalByDistrict.get(row.sgg_cd);
+    if (cur === undefined || row.collect_interval_minutes < cur) {
+      minIntervalByDistrict.set(row.sgg_cd, row.collect_interval_minutes);
+    }
   }
 
-  const collectedByDistrict = new Map<string, { newListingIds: string[]; newCount: number }>();
-  const summary: Array<{ sgg_nm: string; newListings: number; error?: string }> = [];
+  const districtsNeeded = Array.from(new Set(dueRows.map((r) => r.sgg_cd)));
 
-  for (const [sggCd, sggNm] of districtsToCollect) {
+  const { data: collectStates } = await supabase
+    .from("real_estate_district_collect_state")
+    .select("sgg_cd, last_collected_at")
+    .in("sgg_cd", districtsNeeded);
+  const lastCollectedByDistrict = new Map(
+    (collectStates ?? []).map((s) => [s.sgg_cd, s.last_collected_at]),
+  );
+
+  const summary: Array<{ sgg_nm: string; newListings: number; reused: boolean; error?: string }> =
+    [];
+
+  for (const sggCd of districtsNeeded) {
+    const sggNm = sggNmByDistrict.get(sggCd) ?? sggCd;
+    const minInterval = minIntervalByDistrict.get(sggCd) ?? 1440;
+    const districtDue = isCollectDue(lastCollectedByDistrict.get(sggCd) ?? null, minInterval, now);
+
+    if (!districtDue) {
+      summary.push({ sgg_nm: sggNm, newListings: 0, reused: true });
+      continue;
+    }
+
     try {
       const result = await collectDistrict(supabase, sggCd, sggNm, year);
-      collectedByDistrict.set(sggCd, result);
-      summary.push({ sgg_nm: sggNm, newListings: result.newCount });
+      summary.push({ sgg_nm: sggNm, newListings: result.newCount, reused: false });
+      await supabase
+        .from("real_estate_district_collect_state")
+        .upsert({ sgg_cd: sggCd, last_collected_at: now.toISOString() }, { onConflict: "sgg_cd" });
     } catch (err) {
-      collectedByDistrict.set(sggCd, { newListingIds: [], newCount: 0 });
       console.error("district dispatch 실패:", err);
       summary.push({
         sgg_nm: sggNm,
         newListings: 0,
+        reused: false,
         error: err instanceof Error ? err.message : String(err),
       });
     }
   }
 
+  // 이번 틱에 새로 수집했든, 다른 사용자 덕분에 이미 쌓여있던 데이터를 재사용했든 상관없이,
+  // 각 사용자에게는 본인이 아직 못 받은 "본인이 선택한 지역"의 매물만 골라서 보낸다.
   for (const row of dueRows) {
-    const collected = collectedByDistrict.get(row.sgg_cd);
     await supabase
       .from("real_estate_watch_districts")
       .update({ last_run_at: now.toISOString() })
       .eq("id", row.id);
 
-    if (!collected || collected.newListingIds.length === 0) continue;
-    await notifyUserForListings(supabase, row.user_id, row.sgg_nm, collected.newListingIds);
+    const unmatchedIds = await findUnmatchedListingIds(supabase, row.user_id, row.sgg_cd);
+    if (unmatchedIds.length === 0) continue;
+    await notifyUserForListings(supabase, row.user_id, row.sgg_nm, unmatchedIds);
   }
 
   return { processed: dueRows.length, summary };
