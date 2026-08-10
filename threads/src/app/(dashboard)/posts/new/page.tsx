@@ -39,7 +39,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
       <h1 className="mb-6 text-2xl font-semibold text-neutral-900">새 게시글 작성</h1>
       <PostForm
         action={createPostAction}
-        submitLabel="생성하기"
+        submitLabel="게시물 생성하기"
         userId={user.id}
         hasThreadsAccount={Boolean(account)}
         aiGenerateOnSubmit

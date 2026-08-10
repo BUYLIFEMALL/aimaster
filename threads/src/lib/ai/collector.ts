@@ -1,5 +1,6 @@
 import "server-only";
 import * as cheerio from "cheerio";
+import { ensureParagraphBreaks } from "./formatContent";
 
 export interface ThreadsCandidateDraft {
   title: string;
@@ -374,7 +375,17 @@ export async function structureThreadsCandidates(params: {
     throw new Error("AI 응답을 JSON으로 해석하지 못했습니다.");
   }
 
-  const candidates = (parsed.candidates ?? []).filter((c) => c?.title && c?.content);
+  const candidates = (parsed.candidates ?? [])
+    .filter((c) => c?.title && c?.content)
+    .map((c) => {
+      // JSON 모드에서는 모델이 지시(1~2문장마다 줄바꿈)를 무시하고 컴팩트한
+      // 한 줄 문자열로 content를 채우는 경우가 잦아 코드에서 한 번 더 보정한다.
+      const content = ensureParagraphBreaks(c.content);
+      return {
+        ...c,
+        content: content.length > 450 ? content.slice(0, 450).trim() : content,
+      };
+    });
   if (candidates.length === 0) {
     throw new Error("생성된 게시글 주제 후보가 없습니다.");
   }

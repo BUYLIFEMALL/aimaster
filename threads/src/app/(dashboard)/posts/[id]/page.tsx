@@ -23,7 +23,14 @@ export default async function PostDetailPage({
 
   if (!post) notFound();
 
-  const isEditable = post.status === "draft" || post.status === "scheduled" || post.status === "failed";
+  // "publishing"은 정상적으로는 몇 초 안에 published/failed로 넘어가지만,
+  // 서버가 처리 도중 죽는 등의 이유로 그 상태에 영영 멈춰 재시도할 방법이
+  // 없어지는 경우를 막기 위해 재시도 가능한 상태로 취급한다.
+  const isEditable =
+    post.status === "draft" ||
+    post.status === "scheduled" ||
+    post.status === "failed" ||
+    post.status === "publishing";
 
   return (
     <div className="mx-auto max-w-2xl">

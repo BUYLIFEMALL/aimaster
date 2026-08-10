@@ -479,12 +479,12 @@ export function PostForm({
         <Textarea
           name="content"
           rows={6}
-          maxLength={500}
+          maxLength={450}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Threads에 게시할 내용을 입력하세요."
         />
-        <p className="mt-1 text-right text-xs text-neutral-400">{content.length} / 500</p>
+        <p className="mt-1 text-right text-xs text-neutral-400">{content.length} / 450</p>
       </div>
 
       <div>
@@ -587,7 +587,7 @@ export function PostForm({
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-neutral-700">게시 방식</label>
+        <label className="mb-2 block text-sm font-medium text-neutral-700">게시방식 결정</label>
         <div className="flex flex-wrap gap-2">
           {(
             [

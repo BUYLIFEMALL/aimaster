@@ -4,6 +4,7 @@ import type {
   PublishThreadsPostResult,
   ThreadsApiError,
   ThreadsContainerResponse,
+  ThreadsContainerStatusResponse,
   ThreadsLongLivedTokenResponse,
   ThreadsPublishResponse,
   ThreadsTokenExchangeResponse,
@@ -118,6 +119,42 @@ async function createThreadsContainer(params: {
   return result.id;
 }
 
+// 이미지 컨테이너는 Meta 서버에서 비동기로 처리되며, 고정 대기시간만으로는
+// 처리가 안 끝난 상태에서 게시를 시도해 실패하는 경우가 있다 (Threads/IG
+// Graph API 공통 이슈). status_code가 FINISHED가 될 때까지 짧은 간격으로
+// 상태를 조회(polling)해서 실제로 게시 가능한 상태인지 확인한다.
+async function waitForContainerReady(params: {
+  accessToken: string;
+  creationId: string;
+  timeoutMs?: number;
+  intervalMs?: number;
+}): Promise<void> {
+  const { accessToken, creationId, timeoutMs = 60_000, intervalMs = 2_000 } = params;
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const query = new URLSearchParams({
+      fields: "status_code,error_message",
+      access_token: accessToken,
+    });
+    const response = await fetch(`${GRAPH_BASE}/v1.0/${creationId}?${query.toString()}`);
+    const result = await parseThreadsResponse<ThreadsContainerStatusResponse>(response);
+
+    if (result.status_code === "FINISHED") return;
+    if (result.status_code === "ERROR" || result.status_code === "EXPIRED") {
+      throw new Error(
+        result.error_message
+          ? `Threads 미디어 처리에 실패했습니다: ${result.error_message}`
+          : `Threads 미디어 처리에 실패했습니다. (${result.status_code})`,
+      );
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+
+  throw new Error("Threads 미디어 처리가 너무 오래 걸려 게시를 중단했습니다. 잠시 후 다시 시도해주세요.");
+}
+
 async function publishThreadsContainer(params: {
   accessToken: string;
   threadsUserId: string;
@@ -169,8 +206,8 @@ export async function publishThreadsPost(
   });
 
   if (imageUrl) {
-    // 이미지 컨테이너는 서버 측 처리 시간이 필요할 수 있어 짧게 대기 후 게시합니다.
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    // 고정 대기 대신 실제 처리 완료(FINISHED) 상태를 확인할 때까지 대기합니다.
+    await waitForContainerReady({ accessToken, creationId });
   }
 
   const threadsPostId = await publishThreadsContainer({

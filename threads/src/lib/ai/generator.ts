@@ -1,4 +1,5 @@
 import "server-only";
+import { ensureParagraphBreaks } from "./formatContent";
 
 // blog(AutoBlog) AI 글쓰기 폼의 5가지 톤 옵션과 동일하게 맞춘다.
 export type ThreadsTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는";
@@ -94,13 +95,16 @@ export async function generatePostContent(
     choices?: { message?: { content?: string } }[];
   };
 
-  const content = data.choices?.[0]?.message?.content?.trim();
-  if (!content) {
+  const rawContent = data.choices?.[0]?.message?.content?.trim();
+  if (!rawContent) {
     throw new Error("AI가 빈 응답을 반환했습니다.");
   }
 
-  // 모델이 지시를 넘겨서 500자를 초과하는 경우를 대비한 안전장치
-  return { content: content.length > 500 ? content.slice(0, 500).trim() : content };
+  // 모델이 지시(1~2문장마다 줄바꿈)를 안 지키고 한 줄로 붙여 쓴 경우를 보정한다.
+  const content = ensureParagraphBreaks(rawContent);
+
+  // 모델이 지시를 넘겨서 450자를 초과하는 경우를 대비한 안전장치
+  return { content: content.length > 450 ? content.slice(0, 450).trim() : content };
 }
 
 export interface GeneratePostImageInput {
