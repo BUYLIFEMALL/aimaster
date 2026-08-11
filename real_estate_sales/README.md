@@ -81,12 +81,27 @@ VWorld는 리전 고정과 별개로, API 키 자체에 **등록된 도메인**�
 비용이 늘어나지 않습니다. 시장 분위기(Perplexity) 조회 결과도 자치구+날짜 단위로
 캐싱해서 같은 날 여러 번 분석해도 중복 호출하지 않습니다.
 
-### 5. 실시간 모니터링 On/Off + 주기 + 시간대
+### 5. 조회 방식 — 기본은 수동 "지금 조회하기", 예약 조회는 선택 사항
 
-관심 지역마다 "실시간 모니터링"을 켜고 끌 수 있고, 켜져 있을 때만 수집 → AI 분석 →
-텔레그램 발송 파이프라인이 동작합니다. 수집 주기(5분/10분/30분/1시간/3시간/6시간/
-12시간/24시간)와 특정 시간대만 동작하도록 제한하는 옵션도 지역별로 설정할 수 있습니다
-(`src/app/(dashboard)/districts/page.tsx`, `src/components/districts/MonitoringSettings.tsx`).
+> **컨셉 정리 (2026-08-11, 2차)**: 처음엔 "관심 지역을 켜두면 자동으로 계속 감시한다"는
+> 실시간 모니터링 중심 UX였는데, "실거래가 분석" 서비스로 컨셉을 바꾸면서 사용자가
+> 원할 때 직접 버튼을 눌러 조회 + AI 분석 + 텔레그램 발송까지 한 번에 받아보는 방식을
+> **기본 동작**으로 바꿨습니다. 기존에 만들어둔 주기/시간대 예약 기능은 버리지 않고,
+> "예약 조회"라는 이름의 선택적 보조 기능으로 그대로 남겨뒀습니다 (둘 다 같은
+> `src/lib/realestate/collect.ts` 공유 로직을 호출).
+
+- **기본: 지금 조회하기** (`src/lib/actions/query.ts`의 `queryDistrictsAction` Server
+  Action, `src/components/districts/QueryNowButton.tsx`) — `/districts`에서 버튼을
+  누르면 그 자리에서 관심 지역 전체를 즉시 수집 → AI 분석 → 텔레그램 발송까지
+  처리합니다. 같은 지역을 5분 이내 중복 조회하지 않도록(`REUSE_WINDOW_MINUTES`)
+  `real_estate_district_collect_state`를 그대로 재사용해서, 예약 조회와 API 호출을
+  이중으로 하지 않습니다. 수동 조회도 해당 지역의 `last_run_at`을 같이 갱신하므로,
+  예약 조회를 켜둔 지역이라면 방금 수동으로 확인한 직후 cron이 또 처리하지 않습니다.
+- **선택: 예약 조회** (구 "실시간 모니터링") — 관심 지역마다 켜고 끌 수 있고, 켜져
+  있을 때만 정해둔 주기(5분/10분/30분/1시간/3시간/6시간/12시간/24시간)·시간대에
+  cron이 자동으로 수집 → AI 분석 → 텔레그램 발송을 대신 해줍니다
+  (`src/app/(dashboard)/districts/page.tsx`, `src/components/districts/MonitoringSettings.tsx`).
+  꺼두면 위 "지금 조회하기" 버튼으로만 동작하고 자동으로는 아무 것도 실행되지 않습니다.
 
 buylife 팀 Vercel 계정이 **Pro 플랜**이라 `vercel.json`의 자체 cron을 5분 간격
 (`*/5 * * * *`)으로 직접 등록해뒀습니다 (Hobby 플랜은 cron이 하루 1회로 제한되어
@@ -102,8 +117,10 @@ buylife 팀 Vercel 계정이 **Pro 플랜**이라 `vercel.json`의 자체 cron�
 ## 핵심 기능
 
 - 이메일 회원가입 / 로그인 (Supabase Auth, AIMaster 계정 공유)
-- 관심 지역(서울 25개 구) 설정 + 지역별 실시간 모니터링 On/Off·주기·동작 시간대
-- 자동 수집: 실거래가 → 건축물대장 → 공시가격 → 전월세 비교
+- 관심 지역(서울 25개 구) 설정
+- 실거래가 조회: 기본은 "지금 조회하기" 수동 버튼, 선택적으로 지역별 예약 조회
+  On/Off·주기·동작 시간대 설정 가능
+- 수집 파이프라인: 실거래가 → 건축물대장 → 공시가격 → 전월세 비교
 - 매물 목록 / 상세
 - AI 투자 분석 (저평가지수 · 1년 상승예측률 · 투자매력도 점수, 설정에서 모델 선택)
 - 텔레그램 알림 (신규 매물 발견 시 개인 봇으로 발송, AI 분석 결과 포함)
@@ -118,15 +135,16 @@ src/
 │   └── api/collect/dispatch/   # 자동 수집 엔드포인트 (CRON_SECRET, 외부 스케줄러가 호출)
 ├── components/
 │   ├── ui/                     # 공용 UI 컴포넌트
-│   ├── districts/               # 관심 지역 토글 + 실시간 모니터링 설정
+│   ├── districts/               # 관심 지역 토글 + 지금 조회하기 버튼 + 예약 조회 설정
 │   ├── listings/                 # 재분석 버튼
 │   └── settings/                 # API 키 등록, AI 모델 선호, 텔레그램 연동
 ├── lib/
 │   ├── supabase/                 # client / server / admin 클라이언트
 │   ├── publicdata/                # 서울/공공데이터포털/VWorld API 래퍼 + 수집 주기 판정 (서버 전용)
+│   ├── realestate/collect.ts      # 수집→AI분석→텔레그램 발송 공유 로직 (cron·수동 조회 공통)
 │   ├── telegram/                  # 텔레그램 봇 API 래퍼 (서버 전용)
 │   ├── ai/                        # 시장 분위기 캐시, 투자 분석 프롬프트, 모델 옵션
-│   ├── actions/                   # Server Actions
+│   ├── actions/                   # Server Actions (query.ts = 지금 조회하기 등)
 │   ├── access.ts                  # 프로그램 이용 권한 확인
 │   └── apiKeys.ts                 # 사용자 개인 API 키 우선 사용
 └── types/                         # Database 타입 (Supabase 생성)
