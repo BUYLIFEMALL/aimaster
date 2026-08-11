@@ -3,9 +3,6 @@
 // 여기서 "이번엔 처리할 차례인가"를 걸러내서 실제 수집/분석/텔레그램 빈도를 제어한다.
 
 export const COLLECT_INTERVAL_OPTIONS = [
-  { value: 5, label: "5분" },
-  { value: 10, label: "10분" },
-  { value: 30, label: "30분" },
   { value: 60, label: "1시간" },
   { value: 180, label: "3시간" },
   { value: 360, label: "6시간" },

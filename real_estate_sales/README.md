@@ -98,7 +98,7 @@ VWorld는 리전 고정과 별개로, API 키 자체에 **등록된 도메인**�
   이중으로 하지 않습니다. 수동 조회도 해당 지역의 `last_run_at`을 같이 갱신하므로,
   예약 조회를 켜둔 지역이라면 방금 수동으로 확인한 직후 cron이 또 처리하지 않습니다.
 - **선택: 예약 조회** (구 "실시간 모니터링") — 관심 지역마다 켜고 끌 수 있고, 켜져
-  있을 때만 정해둔 주기(5분/10분/30분/1시간/3시간/6시간/12시간/24시간)·시간대에
+  있을 때만 정해둔 주기(1시간/3시간/6시간/12시간/24시간)·시간대에
   cron이 자동으로 수집 → AI 분석 → 텔레그램 발송을 대신 해줍니다
   (`src/app/(dashboard)/districts/page.tsx`, `src/components/districts/MonitoringSettings.tsx`).
   꺼두면 위 "지금 조회하기" 버튼으로만 동작하고 자동으로는 아무 것도 실행되지 않습니다.
@@ -106,7 +106,7 @@ VWorld는 리전 고정과 별개로, API 키 자체에 **등록된 도메인**�
 buylife 팀 Vercel 계정이 **Pro 플랜**이라 `vercel.json`의 자체 cron을 5분 간격
 (`*/5 * * * *`)으로 직접 등록해뒀습니다 (Hobby 플랜은 cron이 하루 1회로 제한되어
 있었는데, 실제 배포 테스트로 거부되는 것까지 확인 후 Pro로 업그레이드하며 이 방식으로
-전환함 — 외부 스케줄러 불필요). 다만 사용자별로 지역마다 고른 주기(5분~24시간)와
+전환함 — 외부 스케줄러 불필요). 다만 사용자별로 지역마다 고른 주기(1시간~24시간)와
 시간대가 다를 수 있으므로, cron은 5분마다 `/api/collect/dispatch`를 깨우기만 하고
 실제로 이번 틱에 수집/분석/알림을 처리할지는 라우트 내부에서 각 사용자-지역 조합의
 `monitoring_enabled` / `collect_interval_minutes` / `active_hour_start` /
@@ -189,6 +189,7 @@ SQL Editor에서 실행하거나 `supabase db push`로 적용합니다.
 5. `20260810110000_real_estate_user_preferences.sql` — 사용자별 선호 AI 분석 모델 저장 테이블
 6. `20260810130000_real_estate_watch_monitoring.sql` — 관심 지역별 실시간 모니터링 On/Off·주기·동작 시간대 컬럼
 7. `20260811040000_real_estate_watch_interval_minutes.sql` — 수집 주기 선택지에 5분/10분 추가
+8. `20260811120000_real_estate_watch_interval_remove_short.sql` — 실거래(매매) 데이터 특성상 불필요한 5분/10분/30분 선택지 제거 (최소 1시간으로 상향)
 
 ## Vercel 배포
 
@@ -198,7 +199,7 @@ npx vercel env add <이름> production   # 환경변수 등록 (위 표 전부)
 npx vercel --prod     # 배포
 ```
 
-`vercel.json`에 `"regions": ["icn1"]`(서울 리전 고정)과 30분마다 실행되는
+`vercel.json`에 `"regions": ["icn1"]`(서울 리전 고정)과 5분마다 실행되는
 `crons`(`/api/collect/dispatch`)가 등록되어 있습니다 (buylife 팀 Vercel Pro 플랜
 기준 — Hobby 플랜은 cron이 하루 1회로 제한돼서 이 주기로 설정할 수 없습니다). 실제
 수집/분석/알림 빈도는 사용자가 관심 지역마다 설정한 주기·시간대를 따릅니다 (위
