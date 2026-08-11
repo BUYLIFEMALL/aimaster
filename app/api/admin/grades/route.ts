@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 /** 관리자 권한 확인 헬퍼 */
 async function requireAdmin() {
@@ -87,8 +88,11 @@ export async function DELETE(req: NextRequest) {
   if (!id)
     return NextResponse.json({ error: "ID 필요" }, { status: 400 });
 
-  // 해당 등급을 사용하는 회원 수 확인
-  const { count } = await auth.supabase
+  // 해당 등급을 사용하는 회원 수 확인. profiles RLS는 본인 행만 조회 가능해서(admin-all
+  // SELECT 정책 없음) 세션 클라이언트로는 다른 회원의 등급 사용 여부를 볼 수 없어
+  // 이 안전장치가 항상 0으로 나올 수 있다 — service 클라이언트로 정확히 센다.
+  const service = createServiceClient();
+  const { count } = await service
     .from("profiles")
     .select("*", { count: "exact", head: true })
     .eq("grade_id", id);
