@@ -20,21 +20,28 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [bulkPending, setBulkPending] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkGradeId, setBulkGradeId] = useState("");
   // 서버 refresh를 기다리지 않고 삭제 즉시 목록에서 사라지도록 로컬 상태로도 관리한다
   // (router.refresh()만으로는 반영이 늦어 보이는 경우가 있어 낙관적 업데이트를 병행).
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
   const [suspendOverrides, setSuspendOverrides] = useState<Map<string, boolean>>(new Map());
+  const [gradeOverrides, setGradeOverrides] = useState<Map<string, string | null>>(new Map());
 
   const visibleMembers = useMemo(
     () =>
       members
         .filter((m) => !removedIds.has(m.id))
-        .map((m) =>
-          suspendOverrides.has(m.id)
-            ? { ...m, is_suspended: suspendOverrides.get(m.id)! }
-            : m,
-        ),
-    [members, removedIds, suspendOverrides],
+        .map((m) => {
+          let next = m;
+          if (suspendOverrides.has(m.id)) {
+            next = { ...next, is_suspended: suspendOverrides.get(m.id)! };
+          }
+          if (gradeOverrides.has(m.id)) {
+            next = { ...next, grade_id: gradeOverrides.get(m.id)! };
+          }
+          return next;
+        }),
+    [members, removedIds, suspendOverrides, gradeOverrides],
   );
 
   const filtered = useMemo(() => {
@@ -122,6 +129,45 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
     }
   }
 
+  async function bulkChangeGrade() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const gradeLabel = bulkGradeId
+      ? grades.find((g) => g.id === bulkGradeId)?.name ?? "선택한 등급"
+      : "미배정";
+    if (!confirm(`선택한 ${ids.length}명의 등급을 "${gradeLabel}"(으)로 한 번에 바꿀까요?`)) {
+      return;
+    }
+    setBulkPending(true);
+    try {
+      const res = await fetch("/api/admin/grades/assign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_ids: ids, grade_id: bulkGradeId || null }),
+      });
+      if (!res.ok) {
+        let message = "일괄 등급 변경 실패";
+        try {
+          message = (await res.json()).error || message;
+        } catch {
+          message = `일괄 등급 변경 실패 (서버 오류 ${res.status})`;
+        }
+        alert(message);
+        return;
+      }
+      setGradeOverrides((prev) => {
+        const next = new Map(prev);
+        ids.forEach((id) => next.set(id, bulkGradeId || null));
+        return next;
+      });
+      router.refresh();
+    } catch {
+      alert("일괄 등급 변경 중 오류가 발생했습니다.");
+    } finally {
+      setBulkPending(false);
+    }
+  }
+
   async function toggleSuspend(member: Profile) {
     const nextSuspended = !member.is_suspended;
     if (nextSuspended && !confirm(`${member.name ?? member.email} 님을 정지할까요? 정지 중에는 결제한 프로그램도 이용할 수 없게 됩니다.`)) {
@@ -198,8 +244,34 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
         </div>
 
         {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-            <span className="text-xs text-red-300">{selectedIds.size}명 선택됨</span>
+          <div className="flex flex-wrap items-center gap-3 bg-gold/10 border border-gold/20 rounded-lg px-3 py-2">
+            <span className="text-xs text-gold-light">{selectedIds.size}명 선택됨</span>
+
+            <div className="flex items-center gap-1.5">
+              <select
+                value={bulkGradeId}
+                onChange={(e) => setBulkGradeId(e.target.value)}
+                disabled={bulkPending}
+                className="text-xs bg-white/5 border border-white/10 text-white rounded-lg px-2 py-1 cursor-pointer hover:border-gold/40 transition-colors disabled:opacity-50"
+              >
+                <option value="">미배정</option>
+                {grades.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={bulkChangeGrade}
+                disabled={bulkPending}
+                className="flex items-center gap-1 text-xs text-gold-light hover:text-gold disabled:opacity-40 transition-colors"
+              >
+                {bulkPending ? "적용 중..." : "등급 일괄 적용"}
+              </button>
+            </div>
+
+            <span className="text-white/10">|</span>
+
             <button
               onClick={bulkDeleteSelected}
               disabled={bulkPending}
