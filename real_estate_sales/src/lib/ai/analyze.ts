@@ -125,6 +125,7 @@ export async function analyzeListing(
   try {
     return JSON.parse(raw) as AnalyzeListingResult;
   } catch {
+    console.error("AI 응답 JSON 파싱 실패, 원본 응답:", raw);
     throw new Error("AI 응답을 JSON으로 해석하지 못했습니다.");
   }
 }

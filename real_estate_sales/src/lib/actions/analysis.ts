@@ -131,6 +131,10 @@ export async function runListingAnalysis(
     );
 
     if (result.error) {
+      console.error(
+        `AI 분석 오류 응답 (listing ${listingId}, model ${model}):`,
+        JSON.stringify(result),
+      );
       return { error: result.error };
     }
 
