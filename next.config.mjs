@@ -3,6 +3,14 @@ const nextConfig = {
   generateBuildId: async () => {
     return `build-${Date.now()}`;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+    ],
+  },
   // threads/, blog/는 이 저장소 안에 독립적으로 존재하는 별개의 Next.js
   // 프로젝트(자체 package.json/배포)다. Next 14의 빌드 타입체크 단계가
   // tsconfig include/exclude와 무관하게 이 하위 폴더들까지 훑어 서로 다른
