@@ -33,6 +33,8 @@ export async function getDistrictSentiment(
 }
 
 async function fetchMarketSentiment(sggNm: string, apiKey: string): Promise<string> {
+  const today = new Date().toISOString().slice(0, 10);
+
   const res = await fetch("https://api.perplexity.ai/chat/completions", {
     method: "POST",
     headers: {
@@ -44,10 +46,21 @@ async function fetchMarketSentiment(sggNm: string, apiKey: string): Promise<stri
       messages: [
         {
           role: "user",
-          content: `오늘(${new Date().toISOString().slice(0, 10)}) 기준 한국의 부동산 정책에 따른 분위기와 ${sggNm}의 부동산 분위기를 조사하라`,
+          content: `오늘(${today}) 기준 최근 1주일 이내의 한국 부동산 정책·시장 동향·추이를 조사하고,
+그 내용을 바탕으로 ${sggNm} 지역의 부동산 분위기를 정리하라.
+
+조사 대상:
+- 검색엔진(구글/네이버 등)의 최신 부동산 관련 뉴스
+- 주요 뉴스 포털(경제지, 부동산 전문지 등)의 최근 1주일 보도
+- 국토교통부·기획재정부 등 정부 부동산 정책 공시/보도자료 사이트
+
+조사 결과에는 (1) 최근 1주일 이내 발표된 주요 부동산 정책 변화, (2) 전국 및 ${sggNm}
+지역의 최근 거래·가격 동향, (3) 시장 참여자들의 전반적 심리(상승/하락/관망) 를
+포함해서 정리하라.`,
         },
       ],
       temperature: 0.3,
+      search_recency_filter: "week",
     }),
   });
 
