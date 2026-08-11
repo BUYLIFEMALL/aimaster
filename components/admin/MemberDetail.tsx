@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Monitor, LogOut } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
@@ -235,48 +236,52 @@ export default function MemberDetail({
           </div>
         )}
 
-        {/* 프로그램 추가 모달 */}
-        {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowAddModal(false)}>
-            <div className="bg-surface border border-white/10 rounded-2xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-white font-bold mb-4">프로그램 접근 부여</h3>
-              {availablePrograms.length === 0 ? (
-                <p className="text-subtext text-sm">추가 가능한 프로그램이 없습니다.</p>
-              ) : (
-                <>
-                  <select
-                    value={selectedProgramId}
-                    onChange={(e) => setSelectedProgramId(e.target.value)}
-                    className="input-dark w-full mb-3"
-                  >
-                    <option value="">프로그램 선택</option>
-                    {availablePrograms.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                  <label className="text-subtext text-xs mb-1 block">이용 기간</label>
-                  <select
-                    value={selectedPeriod}
-                    onChange={(e) => setSelectedPeriod(e.target.value)}
-                    className="input-dark w-full mb-4"
-                  >
-                    {PERIOD_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
-                  </select>
-                  <div className="flex gap-2">
-                    <GoldButton onClick={grantAccess} disabled={!selectedProgramId || loading} size="sm">
-                      {loading ? "부여 중..." : "접근 부여"}
-                    </GoldButton>
-                    <GoldButton variant="ghost" size="sm" onClick={() => setShowAddModal(false)}>
-                      취소
-                    </GoldButton>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+        {/* 프로그램 추가 모달 — GlassCard의 backdrop-filter가 position:fixed 자식의
+            containing block이 되어버려 뷰포트 대신 카드 안에 갇히는 CSS 부작용이 있어,
+            body에 직접 포탈로 렌더링해서 다른 카드에 가려지지 않게 한다. */}
+        {showAddModal &&
+          createPortal(
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowAddModal(false)}>
+              <div className="bg-surface border border-white/10 rounded-2xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-white font-bold mb-4">프로그램 접근 부여</h3>
+                {availablePrograms.length === 0 ? (
+                  <p className="text-subtext text-sm">추가 가능한 프로그램이 없습니다.</p>
+                ) : (
+                  <>
+                    <select
+                      value={selectedProgramId}
+                      onChange={(e) => setSelectedProgramId(e.target.value)}
+                      className="input-dark w-full mb-3"
+                    >
+                      <option value="">프로그램 선택</option>
+                      {availablePrograms.map((p) => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                    <label className="text-subtext text-xs mb-1 block">이용 기간</label>
+                    <select
+                      value={selectedPeriod}
+                      onChange={(e) => setSelectedPeriod(e.target.value)}
+                      className="input-dark w-full mb-4"
+                    >
+                      {PERIOD_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                    <div className="flex gap-2">
+                      <GoldButton onClick={grantAccess} disabled={!selectedProgramId || loading} size="sm">
+                        {loading ? "부여 중..." : "접근 부여"}
+                      </GoldButton>
+                      <GoldButton variant="ghost" size="sm" onClick={() => setShowAddModal(false)}>
+                        취소
+                      </GoldButton>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>,
+            document.body,
+          )}
       </GlassCard>
 
       {/* 활성 세션 */}
