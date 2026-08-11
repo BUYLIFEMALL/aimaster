@@ -689,9 +689,12 @@ export type Database = {
           grade_id: string | null
           id: string
           is_admin: boolean | null
+          is_suspended: boolean
           name: string | null
           phone: string | null
           referred_by: string | null
+          suspended_at: string | null
+          suspended_reason: string | null
         }
         Insert: {
           affiliate_code?: string | null
@@ -700,9 +703,12 @@ export type Database = {
           grade_id?: string | null
           id: string
           is_admin?: boolean | null
+          is_suspended?: boolean
           name?: string | null
           phone?: string | null
           referred_by?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
         }
         Update: {
           affiliate_code?: string | null
@@ -711,9 +717,12 @@ export type Database = {
           grade_id?: string | null
           id?: string
           is_admin?: boolean | null
+          is_suspended?: boolean
           name?: string | null
           phone?: string | null
           referred_by?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
         }
         Relationships: [
           {

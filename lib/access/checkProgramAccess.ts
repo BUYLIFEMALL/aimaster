@@ -16,6 +16,7 @@ export type ProgramAccessReason =
   | "grade_access"
   | "no_restriction"
   | "not_found"
+  | "suspended"
   | "none";
 
 export interface ProgramAccessResult {
@@ -33,6 +34,16 @@ export async function checkProgramAccess(
   userId: string,
   programSlug: string
 ): Promise<ProgramAccessResult> {
+  // 정지된 계정은 구독/개별부여/등급과 무관하게 모든 프로그램 접근을 막는다.
+  const { data: suspendCheck } = await supabase
+    .from("profiles")
+    .select("is_suspended")
+    .eq("id", userId)
+    .maybeSingle();
+  if (suspendCheck?.is_suspended) {
+    return { allowed: false, reason: "suspended", programId: null };
+  }
+
   const { data: program } = await supabase
     .from("programs")
     .select("id, required_grade_id")

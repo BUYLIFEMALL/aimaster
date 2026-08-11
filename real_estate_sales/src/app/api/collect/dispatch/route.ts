@@ -261,7 +261,16 @@ async function dispatch() {
 
   if (watchError) throw new Error(watchError.message);
 
-  const allRows = watchRows ?? [];
+  // 정지된 계정은 결제 여부와 무관하게 자동 수집/분석/텔레그램 발송 대상에서 제외한다.
+  const candidateUserIds = Array.from(new Set((watchRows ?? []).map((w) => w.user_id)));
+  const { data: suspendedProfiles } = await supabase
+    .from("profiles")
+    .select("id")
+    .in("id", candidateUserIds.length > 0 ? candidateUserIds : [""])
+    .eq("is_suspended", true);
+  const suspendedUserIds = new Set((suspendedProfiles ?? []).map((p) => p.id));
+
+  const allRows = (watchRows ?? []).filter((w) => !suspendedUserIds.has(w.user_id));
 
   const dueRows = allRows.filter(
     (w) =>

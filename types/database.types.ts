@@ -24,6 +24,9 @@ export interface Profile {
   affiliate_code: string | null;
   referred_by: string | null;
   created_at: string;
+  is_suspended: boolean;
+  suspended_at: string | null;
+  suspended_reason: string | null;
   // joined
   grade?: MemberGrade | null;
 }

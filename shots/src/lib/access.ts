@@ -30,6 +30,16 @@ export async function requireProgramAccess() {
   const user = await requireUser();
   const supabase = (await createClient()) as unknown as SupabaseLike;
 
+  // 정지된 계정은 구독/개별부여/등급과 무관하게 모든 프로그램 접근을 막는다.
+  const { data: suspendCheck } = await supabase
+    .from("profiles")
+    .select("is_suspended")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (suspendCheck?.is_suspended) {
+    redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?error=suspended`);
+  }
+
   const { data: program } = await supabase
     .from("programs")
     .select("id, required_grade_id")
@@ -151,6 +161,16 @@ export async function checkProgramAccessApi(): Promise<
   }
 
   const sb = supabase as unknown as SupabaseLike;
+
+  // 정지된 계정은 구독/개별부여/등급과 무관하게 모든 프로그램 접근을 막는다.
+  const { data: suspendCheck } = await sb
+    .from("profiles")
+    .select("is_suspended")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (suspendCheck?.is_suspended) {
+    return { allowed: false, error: "계정이 정지되어 이용할 수 없습니다. 고객센터에 문의해주세요.", status: 403 };
+  }
 
   const { data: program } = await sb
     .from("programs")
