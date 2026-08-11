@@ -13,6 +13,6 @@ export const ANALYSIS_MODEL_OPTIONS: { value: AnalysisModel; label: string }[] =
   { value: "gpt-5.6-luna", label: "가성비 (GPT-5.6 Luna, 가장 빠르고 저렴)" },
   { value: "gpt-5.6-terra", label: "균형형 (GPT-5.6 Terra, 성능과 비용 절충)" },
   { value: "gpt-5.6-sol", label: "최고 정밀 분석 (GPT-5.6 Sol, 프론티어 모델 · 비용 높음)" },
-  { value: "gpt-4o", label: "gpt-4o (성능균형)" },
-  { value: "o3", label: "o3 (성능균형)" },
+  { value: "gpt-4o", label: "구형 범용형 (GPT-4o, 이전 세대 균형 모델)" },
+  { value: "o3", label: "구형 심층추론형 (o3, 이전 세대 추론 특화 모델)" },
 ];
