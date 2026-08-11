@@ -30,6 +30,24 @@
 > Vercel/Fluid Compute 환경에서 무시되는 것을 확인했습니다. 반드시 `vercel.json`의
 > `regions` 키를 쓸 것.
 
+#### VWorld API 키 도메인 등록 주의
+
+VWorld는 리전 고정과 별개로, API 키 자체에 **등록된 도메인**을 `domain` 파라미터로
+같이 보내야 통과하는 방식입니다 (`src/lib/publicdata/client.ts`). 지금 등록된 도메인은
+이 프로젝트의 실제 서비스 도메인이 아니라 **과거 n8n 서버가 쓰던 `n8n.buylife.xyz`**
+입니다 — Phase 0 스파이크 당시 이미 그 도메인으로 등록되어 있던 키를 그대로 재사용
+했기 때문입니다. 이 도메인의 DNS 레코드 자체가 없어져도(VWorld는 실시간으로 그
+도메인에 접속해보는 게 아니라 문자열만 대조하는 것으로 보임 — 그래서 지금도 동작함)
+당장 문제는 없지만, 나중에 n8n 관련 리소스를 정리하면서 VWorld 포털에서 이 도메인
+등록 자체를 지워버리면 공시가격 조회가 막힙니다.
+
+**개선 필요 시(권장)**: VWorld 개발자 포털(https://www.vworld.kr) 로그인 → **오픈API
+> 인증키 > 인증키관리** 메뉴에서 이 프로젝트의 실제 서비스 도메인(예:
+`real-estate-sales-delta.vercel.app` 또는 커스텀 도메인 연결 시 그 도메인)을 추가/변경한
+뒤, Vercel 환경변수 `VWORLD_REGISTERED_DOMAIN`을 그 값으로 설정하면 코드 수정 없이
+바로 반영됩니다 (설정 안 하면 기존 `n8n.buylife.xyz`를 그대로 씀). 이 작업은 VWorld
+계정 로그인이 필요해 사용자가 직접 해야 합니다.
+
 ### 2. 데이터 격리 — 매물은 전역 공유, 개인 정보는 사용자별 분리
 
 같은 자치구를 여러 사용자가 watch해도 매물 데이터(`real_estate_listings`)는 한 번만
@@ -123,6 +141,7 @@ npm run dev
 | `SEOUL_OPENDATA_API_KEY` | 서울 열린데이터광장 인증키 (앱 공용) |
 | `DATA_GO_KR_SERVICE_KEY` | 공공데이터포털 건축물대장정보서비스 인증키 (앱 공용) |
 | `VWORLD_API_KEY` | VWorld 공동주택 공시가격 API 키 (앱 공용) |
+| `VWORLD_REGISTERED_DOMAIN` | (선택) VWorld 키에 등록된 도메인. 미설정 시 `n8n.buylife.xyz`(과거 n8n 서버 도메인) 사용. VWorld 개발자 포털에서 도메인을 실제 서비스 도메인으로 바꾸면 이 값도 같이 바꿔야 함 — [자세한 내용](#vworld-api-키-도메인-등록-주의) |
 | `N8N_VWORLD_PROXY_URL` / `N8N_VWORLD_PROXY_TOKEN` | icn1 직접 호출이 막힐 경우의 폴백(현재 코드에서는 미사용, 참고용) |
 | `OPENAI_API_KEY` / `PERPLEXITY_API_KEY` | 사용자가 개인 키를 등록하지 않았을 때의 앱 기본 폴백 키 |
 | `CRON_SECRET` | `/api/collect/dispatch` 보호용 임의의 긴 문자열 |

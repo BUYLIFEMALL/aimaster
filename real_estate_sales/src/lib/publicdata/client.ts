@@ -11,8 +11,11 @@ const DATA_GO_KR_BASE = "http://apis.data.go.kr/1613000/BldRgstHubService";
 const VWORLD_BASE = "https://api.vworld.kr/ned/data";
 
 // VWorld 키는 원래 n8n.buylife.xyz 도메인으로 등록되어 있어(Phase 0 스파이크로 확인),
-// 그 값을 그대로 domain 파라미터로 보내야 통과한다.
-const VWORLD_REGISTERED_DOMAIN = "n8n.buylife.xyz";
+// 그 값을 그대로 domain 파라미터로 보내야 통과한다. 코드에 하드코딩하지 않고 환경변수로
+// 빼둔 이유: VWorld 개발자 포털(vworld.kr)에서 도메인을 실제 서비스 도메인으로 바꾸면,
+// 코드 배포 없이 Vercel 환경변수만 바꿔서 바로 반영할 수 있게 하기 위함
+// (n8n 서버가 나중에 정리되어 이 도메인이 없어져도 코드가 깨지지 않도록 하는 안전장치).
+const VWORLD_REGISTERED_DOMAIN = process.env.VWORLD_REGISTERED_DOMAIN ?? "n8n.buylife.xyz";
 
 function requireEnv(name: string): string {
   const v = process.env[name];
