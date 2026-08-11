@@ -9,6 +9,7 @@ import { resolveApiKey, resolveApiKeyWithSource } from "@/lib/apiKeys";
 import { analyzeListing } from "@/lib/ai/analyze";
 import type { AnalysisModel } from "@/lib/ai/models";
 import { getDistrictSentiment } from "@/lib/ai/sentiment";
+import { ensureLandInfo } from "@/lib/realestate/collect";
 import type { Database } from "@/types/database.types";
 
 export interface AnalysisActionState {
@@ -93,7 +94,10 @@ export async function runListingAnalysis(
   }
 
   try {
-    const sentiment = await getDistrictSentiment(supabase, listing.sgg_nm, perplexityKey);
+    const [sentiment, landInfo] = await Promise.all([
+      getDistrictSentiment(supabase, listing.sgg_nm, perplexityKey),
+      listing.pnu ? ensureLandInfo(listing.pnu) : Promise.resolve(null),
+    ]);
 
     // 전세가율/괴리율은 원본 API에 없어 여기서 계산한다.
     // 전세가율 = (직전 전세 보증금) / (매매가) * 100
@@ -125,6 +129,9 @@ export async function runListingAnalysis(
         sggNm: listing.sgg_nm,
         floor: listing.floor,
         marketSentiment: sentiment,
+        landPricePerM2: landInfo?.pricePerM2 ?? null,
+        landPriceStdrYear: landInfo?.priceStdrYear ?? null,
+        landUseZones: landInfo?.useZones ?? null,
       },
       model,
       openaiKey,

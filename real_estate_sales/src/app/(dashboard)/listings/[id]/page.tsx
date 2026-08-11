@@ -31,7 +31,7 @@ export default async function ListingDetailPage({
   // (이미 분석되어 있으면 다시 호출하지 않아 비용이 반복되지 않는다).
   await ensureListingAnalysis(supabase, user.id, id);
 
-  const [{ data: analyses }, { data: apiKeys }] = await Promise.all([
+  const [{ data: analyses }, { data: apiKeys }, { data: landInfo }] = await Promise.all([
     supabase
       .from("real_estate_analyses")
       .select("*")
@@ -39,6 +39,13 @@ export default async function ListingDetailPage({
       .eq("listing_id", id)
       .order("created_at", { ascending: false }),
     supabase.from("user_api_keys").select("provider").eq("user_id", user.id),
+    listing.pnu
+      ? supabase
+          .from("real_estate_land_info")
+          .select("price_per_m2, price_stdr_year, use_zones")
+          .eq("pnu", listing.pnu)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
 
   const hasKeys =
@@ -72,6 +79,24 @@ export default async function ListingDetailPage({
           {formatWon(listing.official_price ? listing.official_price / 10000 : null)}
         </span>
       </div>
+
+      {landInfo && (landInfo.price_per_m2 || landInfo.use_zones) && (
+        <div className="glass-card mb-6 grid grid-cols-2 gap-y-2 p-5 text-sm">
+          <h2 className="col-span-2 mb-1 text-base font-medium text-neutral-100">
+            토지(대지) 정보
+          </h2>
+          <span className="text-neutral-400">
+            개별공시지가{landInfo.price_stdr_year ? ` (${landInfo.price_stdr_year}년)` : ""}
+          </span>
+          <span className="text-neutral-100">
+            {landInfo.price_per_m2
+              ? `${landInfo.price_per_m2.toLocaleString("ko-KR")}원/m²`
+              : "-"}
+          </span>
+          <span className="text-neutral-400">용도지역/지구/구역</span>
+          <span className="text-neutral-100">{landInfo.use_zones ?? "-"}</span>
+        </div>
+      )}
 
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-lg font-medium text-neutral-100">AI 투자 분석</h2>

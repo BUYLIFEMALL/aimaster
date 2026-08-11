@@ -81,6 +81,15 @@ VWorld는 리전 고정과 별개로, API 키 자체에 **등록된 도메인**�
 비용이 늘어나지 않습니다. 시장 분위기(Perplexity) 조회 결과도 자치구+날짜 단위로
 캐싱해서 같은 날 여러 번 분석해도 중복 호출하지 않습니다.
 
+**토지(대지) 정보 연계 (2026-08-11 추가)**: 매물이 깔고 앉은 PNU 기준으로 VWorld
+개별공시지가(`getIndvdLandPriceAttr`)·토지이용계획(`getLandUseAttr`, 용도지역/지구/구역)을
+조회해서 `real_estate_land_info`에 PNU 단위로 캐싱하고(공시지가는 연 1회 갱신이라 한 번
+캐싱하면 충분, 같은 단지 여러 동/호가 같은 PNU를 공유), AI 분석 프롬프트에 함께 넘겨서
+재건축 가능성·대지지분 가치·용도지역 규제(토지거래허가구역 등) 관점의 코멘트까지
+받아볼 수 있습니다 (`src/lib/realestate/collect.ts`의 `ensureLandInfo`,
+`src/lib/actions/analysis.ts`, `src/lib/ai/analyze.ts`). 매물 상세 페이지에도 "토지(대지)
+정보" 섹션으로 노출됩니다.
+
 ### 5. 조회 방식 — 기본은 수동 "지금 조회하기", 예약 조회는 선택 사항
 
 > **컨셉 정리 (2026-08-11, 2차)**: 처음엔 "관심 지역을 켜두면 자동으로 계속 감시한다"는
@@ -190,6 +199,7 @@ SQL Editor에서 실행하거나 `supabase db push`로 적용합니다.
 6. `20260810130000_real_estate_watch_monitoring.sql` — 관심 지역별 실시간 모니터링 On/Off·주기·동작 시간대 컬럼
 7. `20260811040000_real_estate_watch_interval_minutes.sql` — 수집 주기 선택지에 5분/10분 추가
 8. `20260811120000_real_estate_watch_interval_remove_short.sql` — 실거래(매매) 데이터 특성상 불필요한 5분/10분/30분 선택지 제거 (최소 1시간으로 상향)
+9. `20260811150000_real_estate_land_info.sql` — 토지(대지) 개별공시지가·용도지역 캐시 테이블 추가
 
 ## Vercel 배포
 

@@ -189,6 +189,76 @@ export async function fetchSeoulRentComparables(params: {
     .sort((a, b) => (b.CTRT_DAY ?? "").localeCompare(a.CTRT_DAY ?? ""));
 }
 
+export interface VworldLandPriceField {
+  pnu: string;
+  stdrYear: string;
+  stdrMt: string;
+  pblntfDe: string;
+  pblntfPclnd: string; // 개별공시지가 (원/㎡)
+  lastUpdtDt: string;
+  [key: string]: string | undefined;
+}
+
+// 개별공시지가 조회 (PNU 19자리 필요). 같은 stdrYear에도 정정 등으로 여러 행이 올 수 있어
+// 호출부에서 lastUpdtDt 기준 최신 행을 골라 써야 한다.
+export async function fetchLandPrice(params: {
+  pnu: string;
+  stdrYear: number;
+  numOfRows?: number;
+}): Promise<VworldLandPriceField[]> {
+  const key = requireEnv("VWORLD_API_KEY");
+  const { pnu, stdrYear, numOfRows = 10 } = params;
+  const qs = new URLSearchParams({
+    pnu,
+    stdrYear: String(stdrYear),
+    format: "json",
+    numOfRows: String(numOfRows),
+    pageNo: "1",
+    key,
+    domain: VWORLD_REGISTERED_DOMAIN,
+  });
+
+  const res = await fetch(`${VWORLD_BASE}/getIndvdLandPriceAttr?${qs.toString()}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`VWorld 개별공시지가 API 요청 실패 (${res.status})`);
+  const data = await res.json();
+  return data?.indvdLandPrices?.field ?? [];
+}
+
+export interface VworldLandUseField {
+  pnu: string;
+  prposAreaDstrcCode: string;
+  prposAreaDstrcCodeNm: string; // 용도지역/지구/구역명 (예: 제2종일반주거지역, 과밀억제권역)
+  cnflcAtNm: string; // 포함 | 저촉
+  [key: string]: string | undefined;
+}
+
+// 토지이용계획(용도지역·지구·구역) 조회. 한 필지에 여러 지구/구역이 동시에 걸쳐있는 게
+// 일반적이라(용도지역 + 각종 규제구역) 배열 전체를 반환한다.
+export async function fetchLandUsePlan(params: {
+  pnu: string;
+  numOfRows?: number;
+}): Promise<VworldLandUseField[]> {
+  const key = requireEnv("VWORLD_API_KEY");
+  const { pnu, numOfRows = 100 } = params;
+  const qs = new URLSearchParams({
+    pnu,
+    format: "json",
+    numOfRows: String(numOfRows),
+    pageNo: "1",
+    key,
+    domain: VWORLD_REGISTERED_DOMAIN,
+  });
+
+  const res = await fetch(`${VWORLD_BASE}/getLandUseAttr?${qs.toString()}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`VWorld 토지이용계획 API 요청 실패 (${res.status})`);
+  const data = await res.json();
+  return data?.landUses?.field ?? [];
+}
+
 // 서울 열린데이터광장 응답은 필드가 문자열/숫자 어느 쪽으로도 올 수 있어 항상 String()으로 보정한다.
 function s(v: unknown): string {
   return v === null || v === undefined ? "" : String(v);

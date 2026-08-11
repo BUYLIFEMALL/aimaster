@@ -899,6 +899,36 @@ export type Database = {
         }
         Relationships: []
       }
+      real_estate_land_info: {
+        Row: {
+          fetched_at: string
+          pnu: string
+          price_per_m2: number | null
+          price_stdr_year: string | null
+          raw_price_data: Json | null
+          raw_use_data: Json | null
+          use_zones: string | null
+        }
+        Insert: {
+          fetched_at?: string
+          pnu: string
+          price_per_m2?: number | null
+          price_stdr_year?: string | null
+          raw_price_data?: Json | null
+          raw_use_data?: Json | null
+          use_zones?: string | null
+        }
+        Update: {
+          fetched_at?: string
+          pnu?: string
+          price_per_m2?: number | null
+          price_stdr_year?: string | null
+          raw_price_data?: Json | null
+          raw_use_data?: Json | null
+          use_zones?: string | null
+        }
+        Relationships: []
+      }
       real_estate_listings: {
         Row: {
           bldg_nm: string | null
@@ -1777,7 +1807,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_delete_user: { Args: { target_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

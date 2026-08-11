@@ -22,6 +22,7 @@
 | 2026-08-11 | `3373207` | **컨셉 피벗**: "실시간 매매정보" → "실거래 투자분석"으로 이름/문구 재정의 |
 | 2026-08-11 | `90eb6e6` | **조회 방식 재설계**: 기본 = 수동 "지금 조회하기", 선택 = 예약 조회 |
 | 2026-08-11 | `626c497` | 예약 조회 수집 주기에서 5분/10분/30분 제거 (최소 1시간) |
+| 2026-08-11 | (예정) | **토지(대지) 투자분석 확장**: VWorld 개별공시지가·토지이용계획을 AI 분석에 연계 |
 
 ## 상세 히스토리
 
@@ -115,6 +116,52 @@ Hobby 플랜은 cron이 하루 1회로 제한되어 거부되는 것을 실제 �
 5/10/30분으로 설정해둔 지역 3건은 마이그레이션(`20260811120000_...sql`)으로
 자동 1시간 이관.
 
+### 9. 토지(대지) 투자분석 확장 (2026-08-11)
+
+**배경**: real_estate_sales를 "일단 종료하고 새 서브프로젝트를 진행하자"는 요청에서
+출발해, data.seoul.go.kr/data.go.kr/vworld.kr 공공데이터를 활용할 수 있는 새 비즈니스
+아이디어를 함께 조사(콘텐츠 자동화, 상권분석 리포트, 부동산 토지분석, 거시경제 브리핑
+4가지)한 뒤, 사용자가 "기존 부동산 투자분석에 투자분석을 확장하는 형태"(가장 재사용
+자산이 많고 난이도가 낮은 방향)를 선택. **완전 신규 서브프로젝트가 아니라
+real_estate_sales의 기능 확장**으로 진행됨.
+
+**API 조사 결과**: VWorld가 이미 연동된 것과 같은 포털(`api.vworld.kr/ned/data`)로
+개별공시지가(`getIndvdLandPriceAttr`)와 토지이용계획(`getLandUseAttr`, 용도지역/지구/구역)을
+제공 — 새 API 키/도메인 등록 없이 기존 `VWORLD_API_KEY`/`VWORLD_REGISTERED_DOMAIN`을
+그대로 재사용. 실제 응답 필드명은 문서로 확인이 안 돼(브이월드 공식 문서 페이지가
+검색으로 잘 안 잡힘) **임시 디버그 라우트를 배포해 실제 PNU로 직접 호출**해서
+`pblntfPclnd`(개별공시지가, 원/㎡), `prposAreaDstrcCodeNm`(용도지역/지구/구역명) 등
+정확한 필드명을 확인한 뒤 구현, 확인 후 디버그 라우트는 삭제함 — 이 프로젝트 초기의
+"Phase 0 스파이크" 방식과 동일한 접근.
+
+**설계 결정**: 지번 주소 → PNU 변환(지오코딩) 인프라를 새로 만드는 대신, 이미 모든
+매물(`real_estate_listings.pnu`)에 PNU가 자동 계산되어 있다는 점을 활용해 **"이
+아파트가 깔고 앉은 토지" 정보를 매물 상세 페이지에 자동으로 얹는 방식**으로 스코프를
+좁힘 — 사용자 입력(주소 검색 UI) 전혀 필요 없이 기존 매물 흐름에 얹혀서 나옴. 공시지가는
+연 1회만 갱신되므로 매물마다 다시 부르지 않고 PNU 단위로 `real_estate_land_info`에
+캐싱(같은 단지 여러 동/호가 같은 PNU를 공유하는 경우가 많아 캐싱 효과가 큼).
+
+**구현**:
+- `src/lib/publicdata/client.ts` — `fetchLandPrice()`, `fetchLandUsePlan()` 추가
+  (기존 `fetchApartAssessedPrice()`와 동일한 VWorld 호출 컨벤션).
+- `src/lib/realestate/collect.ts` — `ensureLandInfo(pnu)`: 캐시 확인 → 없으면 두 API
+  병렬 호출 → 최신 `lastUpdtDt` 기준 공시지가 선택 + 용도지역/지구/구역명 전체를
+  중복제거해서 콤마 join → upsert.
+- `src/lib/actions/analysis.ts` — `runListingAnalysis`에서 `ensureLandInfo` 호출해서
+  분석 프롬프트에 토지 정보 포함.
+- `src/lib/ai/analyze.ts` — 시스템 프롬프트에 "토지 정보가 제공된 경우" 지침 추가
+  (개별공시지가 대비 거래금액의 토지가치 배율, 토지거래허가구역 등 규제 키워드,
+  용도지역 종별에 따른 재건축/용적률 관점 코멘트를 `rationale`에 반영하도록 지시).
+- `src/app/(dashboard)/listings/[id]/page.tsx` — "토지(대지) 정보" 섹션 추가.
+- 신규 테이블 `real_estate_land_info` (PNU 기준 전역 캐시, `real_estate_listings`와
+  동일하게 인증 사용자 read + service-role write RLS).
+
+**검증**: 실제 매물(청담동 아파트, PNU 1168010400100140000)로 매물 상세 페이지를 열어
+개별공시지가 16,350,000원/m², 용도지역에 "제2종일반주거지역"·"토지거래계약에관한허가구역"
+등이 정상 표시되는 것을 확인했고, AI 분석 rationale에도 "토지 개발 기회보다는 제한
+요소가 많은 것으로 판단됩니다"처럼 토지 정보가 실제로 반영된 것을 확인. DB
+(`real_estate_land_info`)에도 캐시 행이 정상 생성됨을 대조 확인.
+
 ## 알려진 이슈 / 다음 업그레이드 후보
 
 `README.md`의 "현재 상태 / 남은 작업"과 동일하게 유지되는 항목들:
@@ -138,4 +185,5 @@ Hobby 플랜은 cron이 하루 1회로 제한되어 거부되는 것을 실제 �
 - `src/lib/realestate/collect.ts` — 수집→AI분석→텔레그램 발송 공유 로직
 - `src/lib/actions/query.ts` — 수동 "지금 조회하기" Server Action
 - `src/lib/publicdata/schedule.ts` — 예약 조회 주기/시간대 판정 + 선택지 정의
+- `src/lib/publicdata/client.ts` — 서울/공공데이터포털/VWorld API 클라이언트 (개별공시지가·토지이용계획 포함)
 - `supabase/migrations/` — 스키마 변경 이력 (타임스탬프 순서대로 적용)

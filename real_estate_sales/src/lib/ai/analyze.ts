@@ -39,6 +39,17 @@ const ANALYSIS_SYSTEM_PROMPT = `# 역할 및 목표
 반영하고, \`rationale\`의 "상승 전망 근거" 문단에는 이 최신 동향 중 어떤 내용을 반영했는지
 구체적으로 언급하십시오.
 
+**토지(대지) 정보가 제공된 경우**: "개별공시지가"와 "용도지역/지구/구역"이 함께 주어지면,
+이 매물이 아파트/건물이 아니라 그 부지(토지) 자체의 가치와 재건축 가능성 관점에서도
+평가하십시오. 특히 다음을 \`rationale\`에 반영하십시오:
+- 개별공시지가 대비 거래금액의 토지 가치 배율(건물 가치를 제외한 순수 대지 가치 프리미엄)
+- 용도지역/지구/구역명에 "토지거래계약에관한허가구역", "재건축", "정비구역" 등 개발·규제
+  관련 키워드가 있으면 투자 리스크 또는 기회 요인으로 명시적으로 언급
+- 일반주거지역 종별(1종/2종/3종)이나 상업지역 여부가 확인되면 용적률·재건축 잠재력 관점에서
+  간단히 코멘트
+토지 정보가 없거나 "-"인 경우에는 이 항목을 생략하고 기존 지표만으로 분석하십시오
+(error로 처리하지 마십시오 — 토지 정보는 부가 지표입니다).
+
 ### 2. 필수 검증
 이 서비스는 매물을 수집한 **당일 즉시** 자동으로 분석하는 실시간 서비스입니다.
 데이터 수집일과 분석 시점이 같은 날짜인 것은 **정상**이며, 데이터 수집일 자체를
@@ -77,6 +88,9 @@ export interface AnalyzeListingInput {
   sggNm: string;
   floor: string | null;
   marketSentiment: string;
+  landPricePerM2: number | null;
+  landPriceStdrYear: string | null;
+  landUseZones: string | null;
 }
 
 export interface AnalyzeListingResult {
@@ -107,6 +121,8 @@ export async function analyzeListing(
 - 전용면적: ${input.exclusiveArea ?? "-"}
 - 자치구: ${input.sggNm}
 - 층: ${input.floor ?? "-"}
+- 개별공시지가(원/㎡, ${input.landPriceStdrYear ?? "-"}년 기준): ${input.landPricePerM2 ?? "-"}
+- 용도지역/지구/구역: ${input.landUseZones ?? "-"}
 - 부동산 시장 분위기: ${input.marketSentiment}`;
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {

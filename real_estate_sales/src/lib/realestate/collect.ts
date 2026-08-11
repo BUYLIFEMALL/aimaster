@@ -1,10 +1,12 @@
 import "server-only";
-import type { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   buildDedupKey,
   buildPnu,
   fetchApartAssessedPrice,
   fetchBuildingRegister,
+  fetchLandPrice,
+  fetchLandUsePlan,
   fetchSeoulRentComparables,
   fetchSeoulTrades,
 } from "@/lib/publicdata/client";
@@ -224,6 +226,74 @@ export async function notifyUserForListings(
     } catch (err) {
       console.error(`텔레그램 알림 실패 (user ${userId}):`, err);
     }
+  }
+}
+
+export interface LandInfo {
+  pnu: string;
+  pricePerM2: number | null;
+  priceStdrYear: string | null;
+  useZones: string | null;
+}
+
+// 매물이 깔고 앉은 PNU 기준으로 개별공시지가·용도지역/지구를 조회해서 캐싱한다.
+// 공시지가는 연 1회만 갱신되므로, 이미 캐싱돼 있으면 재호출하지 않는다(같은 단지 여러
+// 매물이 같은 PNU를 공유하는 경우가 많아 비용 절감 효과가 큼). 재건축/토지가치 관점의
+// AI 투자분석(analyzeListing)에 이 값을 함께 넘겨준다.
+export async function ensureLandInfo(pnu: string): Promise<LandInfo | null> {
+  if (!pnu) return null;
+  const admin = createAdminClient();
+
+  const { data: existing } = await admin
+    .from("real_estate_land_info")
+    .select("pnu, price_per_m2, price_stdr_year, use_zones")
+    .eq("pnu", pnu)
+    .maybeSingle();
+
+  if (existing) {
+    return {
+      pnu: existing.pnu,
+      pricePerM2: existing.price_per_m2,
+      priceStdrYear: existing.price_stdr_year,
+      useZones: existing.use_zones,
+    };
+  }
+
+  try {
+    const stdrYear = new Date().getFullYear() - 1; // 아파트 공시가격 조회와 동일한 관례(전년도 기준)
+    const [priceRows, useRows] = await Promise.all([
+      fetchLandPrice({ pnu, stdrYear }),
+      fetchLandUsePlan({ pnu }),
+    ]);
+
+    const latestPrice = [...priceRows].sort((a, b) =>
+      (b.lastUpdtDt ?? "").localeCompare(a.lastUpdtDt ?? ""),
+    )[0];
+    const pricePerM2 = latestPrice?.pblntfPclnd ? Number(latestPrice.pblntfPclnd) : null;
+    const priceStdrYear = latestPrice?.stdrYear ?? null;
+    const useZones =
+      useRows.length > 0
+        ? Array.from(new Set(useRows.map((r) => r.prposAreaDstrcCodeNm).filter(Boolean))).join(
+            ", ",
+          )
+        : null;
+
+    await admin.from("real_estate_land_info").upsert(
+      {
+        pnu,
+        price_per_m2: Number.isFinite(pricePerM2) ? pricePerM2 : null,
+        price_stdr_year: priceStdrYear,
+        use_zones: useZones,
+        raw_price_data: priceRows,
+        raw_use_data: useRows,
+      },
+      { onConflict: "pnu" },
+    );
+
+    return { pnu, pricePerM2, priceStdrYear, useZones };
+  } catch (err) {
+    console.error(`토지 정보 조회 실패 (pnu ${pnu}):`, err);
+    return null;
   }
 }
 
