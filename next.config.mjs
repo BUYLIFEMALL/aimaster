@@ -3,6 +3,15 @@ const nextConfig = {
   generateBuildId: async () => {
     return `build-${Date.now()}`;
   },
+  // Next.js 14의 클라이언트 Router Cache는 dynamic 페이지도 기본 30초간 캐시해서,
+  // <Link>로 다른 메뉴 갔다가 돌아오면 삭제/정지 같은 방금 반영한 변경사항이 화면에
+  // 안 보이는 문제가 있었다 (서버는 최신인데 클라이언트가 이전 렌더를 재사용).
+  // dynamic: 0으로 이 캐시를 꺼서 페이지 이동마다 항상 새로 불러오게 한다.
+  experimental: {
+    staleTimes: {
+      dynamic: 0,
+    },
+  },
   images: {
     remotePatterns: [
       {

@@ -103,9 +103,16 @@ async function deleteOneMember(
     // 이미 삭제된 사용자를 다시 삭제 시도하는 경우(중복 클릭 등)는 결과적으로
     // 목표(계정 없음)를 달성한 상태이므로 성공으로 취급한다.
     const alreadyGone = /not.*found/i.test(error.message);
-    if (!alreadyGone) {
-      console.error(`회원 삭제 실패 (${userId}):`, error.message);
-      return { user_id: userId, success: false, error: error.message };
+    if (alreadyGone) return { user_id: userId, success: true };
+
+    // Admin API(GoTrue)가 원인 불명으로 실패하는 계정이 관찰되어(SQL로는 문제없이
+    // 삭제/롤백 확인됨), public.admin_delete_user RPC(auth.users 직접 DELETE,
+    // service_role 전용)로 한 번 더 시도한다.
+    console.error(`회원 삭제 실패, RPC로 재시도 (${userId}):`, error.message);
+    const { error: rpcError } = await service.rpc("admin_delete_user", { target_id: userId });
+    if (rpcError) {
+      console.error(`회원 삭제 RPC 재시도도 실패 (${userId}):`, rpcError.message);
+      return { user_id: userId, success: false, error: rpcError.message };
     }
   }
   return { user_id: userId, success: true };
