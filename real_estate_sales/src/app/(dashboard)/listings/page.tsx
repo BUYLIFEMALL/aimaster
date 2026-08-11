@@ -24,14 +24,14 @@ export default async function ListingsPage() {
 
   return (
     <div>
-      <h1 className="gold-text mb-2 text-2xl font-semibold">매물 목록</h1>
+      <h1 className="gold-text mb-2 text-2xl font-semibold">실거래 내역</h1>
       <p className="mb-6 text-sm text-neutral-400">
-        관심 지역에서 새로 발견된 매물이에요. 매일 자동으로 새 매물이 추가됩니다.
+        관심 지역에서 새로 신고된 실거래예요. 설정한 주기로 자동 수집됩니다.
       </p>
 
       {rows.length === 0 && (
         <p className="text-sm text-neutral-500">
-          아직 매칭된 매물이 없어요. 먼저 &quot;관심 지역 설정&quot;에서 지역을 선택해주세요.
+          아직 매칭된 실거래가 없어요. 먼저 &quot;관심 지역 설정&quot;에서 지역을 선택해주세요.
         </p>
       )}
 

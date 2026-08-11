@@ -60,7 +60,7 @@ export default async function SettingsPage() {
       <section>
         <h2 className="mb-3 text-lg font-medium text-neutral-100">AI 분석 모델</h2>
         <p className="mb-3 text-sm text-neutral-400">
-          여기서 고른 모델로, 새 매물을 열어볼 때 매번 누르지 않아도 자동으로 투자 분석이
+          여기서 고른 모델로, 새 실거래를 열어볼 때 매번 누르지 않아도 자동으로 투자 분석이
           되어 바로 보여요.
         </p>
         <ModelPreferenceForm currentModel={(preference?.preferred_model as AnalysisModel) ?? null} />

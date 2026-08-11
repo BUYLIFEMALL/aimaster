@@ -55,7 +55,7 @@ export async function connectTelegramAction(
     await sendTelegramMessage({
       botToken,
       chatId: chatInfo.chatId,
-      text: "✅ 부동산 실시간 매매정보 알림 연동이 완료됐어요. 앞으로 관심 지역에 새 매물이 나오면 여기로 알려드릴게요.",
+      text: "✅ 부동산 실거래 투자분석 알림 연동이 완료됐어요. 앞으로 관심 지역에 새 실거래가 신고되면 여기로 알려드릴게요.",
     });
   } catch {
     // 저장은 이미 성공했으니, 테스트 메시지 발송 실패는 치명적이지 않음

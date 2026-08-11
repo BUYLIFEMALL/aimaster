@@ -45,15 +45,15 @@ export default async function DashboardPage() {
           <p className="gold-text mt-1 text-3xl font-semibold">{districtCount ?? 0}개</p>
         </Link>
         <Link href="/listings" className="glass-card p-5 hover:border-gold/40">
-          <p className="text-sm text-neutral-400">아직 안 본 새 매물</p>
+          <p className="text-sm text-neutral-400">아직 안 본 새 실거래</p>
           <p className="gold-text mt-1 text-3xl font-semibold">{newCount ?? 0}건</p>
         </Link>
       </div>
 
-      <h2 className="mb-3 text-lg font-medium text-neutral-100">최근 발견된 매물</h2>
+      <h2 className="mb-3 text-lg font-medium text-neutral-100">최근 발견된 실거래</h2>
       {recentListings.length === 0 ? (
         <p className="text-sm text-neutral-500">
-          아직 매칭된 매물이 없어요. 먼저 &quot;관심 지역 설정&quot;에서 지역을 선택해주세요.
+          아직 매칭된 실거래가 없어요. 먼저 &quot;관심 지역 설정&quot;에서 지역을 선택해주세요.
         </p>
       ) : (
         <div className="space-y-3">
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
             href="/listings"
             className="block text-center text-sm text-neutral-400 hover:text-gold-light"
           >
-            전체 매물 목록 보기 →
+            전체 실거래 내역 보기 →
           </Link>
         </div>
       )}

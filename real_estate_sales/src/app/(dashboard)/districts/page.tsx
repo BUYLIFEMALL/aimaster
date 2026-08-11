@@ -22,7 +22,7 @@ export default async function DistrictsPage() {
     <div>
       <h1 className="gold-text mb-2 text-2xl font-semibold">관심 지역 설정</h1>
       <p className="mb-6 text-sm text-neutral-400">
-        관심 있는 자치구를 선택하면, 그 지역에 새 실거래 매물이 올라올 때마다 알려드려요.
+        관심 있는 자치구를 선택하면, 그 지역에 새 실거래가 신고될 때마다 알려드려요.
         여러 개 선택할 수 있어요.
       </p>
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">

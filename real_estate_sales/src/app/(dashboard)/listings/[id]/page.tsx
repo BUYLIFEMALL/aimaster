@@ -27,7 +27,7 @@ export default async function ListingDetailPage({
 
   if (!listing) notFound();
 
-  // 아직 분석된 적 없는 매물이면, 설정에서 등록해둔 모델+API 키로 자동 분석해서 저장한다
+  // 아직 분석된 적 없는 실거래면, 설정에서 등록해둔 모델+API 키로 자동 분석해서 저장한다
   // (이미 분석되어 있으면 다시 호출하지 않아 비용이 반복되지 않는다).
   await ensureListingAnalysis(supabase, user.id, id);
 

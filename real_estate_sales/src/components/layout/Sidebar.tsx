@@ -6,7 +6,7 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드" },
   { href: "/districts", label: "관심 지역 설정" },
-  { href: "/listings", label: "매물 목록" },
+  { href: "/listings", label: "실거래 내역" },
   { href: "/settings", label: "설정 (API키·텔레그램)" },
 ];
 
@@ -18,7 +18,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           href={`${MAIN_SITE_URL}/programs`}
           className="gold-text mb-1 block px-2 text-lg font-semibold hover:opacity-80 md:mb-1"
         >
-          부동산 실시간 매매정보
+          부동산 실거래 투자분석
         </a>
         <a
           href={`${MAIN_SITE_URL}/programs`}
