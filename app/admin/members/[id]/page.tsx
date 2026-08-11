@@ -5,6 +5,8 @@ import { createServiceClient } from "@/lib/supabase/server";
 import MemberDetail from "@/components/admin/MemberDetail";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 interface PageProps {
   params: Promise<{ id: string }>;

@@ -32,6 +32,16 @@ export function createServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
+    {
+      auth: { persistSession: false },
+      // Next.js가 Server Component/Route Handler 안의 fetch 호출을 라우트 설정(dynamic
+      // = "force-dynamic")과 무관하게 캐시하는 경우가 있어(관리자 화면에서 변경 직후에도
+      // 예전 데이터가 보이던 버그의 원인 — lib/supabase/service.ts와 동일 수정), 이
+      // 클라이언트가 만드는 모든 요청에 명시적으로 no-store를 강제한다.
+      global: {
+        fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+          fetch(input, { ...init, cache: "no-store" }),
+      },
+    }
   );
 }

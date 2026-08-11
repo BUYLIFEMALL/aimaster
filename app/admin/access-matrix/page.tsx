@@ -4,6 +4,8 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import AccessMatrixManager from "@/components/admin/AccessMatrixManager";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 export const metadata = { title: "접근 권한 관리" };
 
 export default async function AccessMatrixPage() {

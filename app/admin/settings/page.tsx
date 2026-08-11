@@ -3,6 +3,8 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import SiteSettingsManager from "@/components/admin/SiteSettingsManager";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 export const metadata = { title: "사이트 설정" };
 
 export default async function AdminSettingsPage() {
