@@ -18,16 +18,32 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
+  // 서버 refresh를 기다리지 않고 삭제 즉시 목록에서 사라지도록 로컬 상태로도 관리한다
+  // (router.refresh()만으로는 반영이 늦어 보이는 경우가 있어 낙관적 업데이트를 병행).
+  const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
+  const [suspendOverrides, setSuspendOverrides] = useState<Map<string, boolean>>(new Map());
+
+  const visibleMembers = useMemo(
+    () =>
+      members
+        .filter((m) => !removedIds.has(m.id))
+        .map((m) =>
+          suspendOverrides.has(m.id)
+            ? { ...m, is_suspended: suspendOverrides.get(m.id)! }
+            : m,
+        ),
+    [members, removedIds, suspendOverrides],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
+    if (!q) return visibleMembers;
+    return visibleMembers.filter(
       (m) =>
         (m.name ?? "").toLowerCase().includes(q) ||
         m.email.toLowerCase().includes(q),
     );
-  }, [members, search]);
+  }, [visibleMembers, search]);
 
   async function toggleSuspend(member: Profile) {
     const nextSuspended = !member.is_suspended;
@@ -42,10 +58,16 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
         body: JSON.stringify({ user_id: member.id, is_suspended: nextSuspended }),
       });
       if (!res.ok) {
-        const data = await res.json();
-        alert(data.error || "처리 실패");
+        let message = "처리 실패";
+        try {
+          message = (await res.json()).error || message;
+        } catch {
+          message = `처리 실패 (서버 오류 ${res.status})`;
+        }
+        alert(message);
         return;
       }
+      setSuspendOverrides((prev) => new Map(prev).set(member.id, nextSuspended));
       router.refresh();
     } catch {
       alert("처리 중 오류가 발생했습니다.");
@@ -66,10 +88,16 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
         body: JSON.stringify({ user_id: member.id }),
       });
       if (!res.ok) {
-        const data = await res.json();
-        alert(data.error || "삭제 실패");
+        let message = "삭제 실패";
+        try {
+          message = (await res.json()).error || message;
+        } catch {
+          message = `삭제 실패 (서버 오류 ${res.status})`;
+        }
+        alert(message);
         return;
       }
+      setRemovedIds((prev) => new Set(prev).add(member.id));
       router.refresh();
     } catch {
       alert("삭제 중 오류가 발생했습니다.");
