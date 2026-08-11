@@ -106,7 +106,9 @@ export default async function ListingDetailPage({
             저평가지수 {latest.undervaluation_index ?? "-"} · 1년 상승예측률{" "}
             {latest.predicted_growth_pct ?? "-"}%
           </p>
-          {latest.rationale && <p className="text-neutral-400">{latest.rationale}</p>}
+          {latest.rationale && (
+            <p className="whitespace-pre-line text-neutral-400">{latest.rationale}</p>
+          )}
         </div>
       )}
 
@@ -125,7 +127,9 @@ export default async function ListingDetailPage({
                 저평가지수 {a.undervaluation_index ?? "-"} · 1년 상승예측률{" "}
                 {a.predicted_growth_pct ?? "-"}%
               </p>
-              {a.rationale && <p className="text-neutral-400">{a.rationale}</p>}
+              {a.rationale && (
+                <p className="whitespace-pre-line text-neutral-400">{a.rationale}</p>
+              )}
             </div>
           ))}
         </div>
