@@ -374,12 +374,22 @@ export function PostForm({
     }
 
     setIsGeneratingAll(true);
-    const result = await runGenerateAll();
-    setIsGeneratingAll(false);
-    if (!result) return;
-    startTransition(() => {
-      formAction(buildFormData(result.caption, result.hashtags, result.slides));
-    });
+    setAiError(null);
+    try {
+      const result = await runGenerateAll();
+      if (!result) return;
+      startTransition(() => {
+        formAction(buildFormData(result.caption, result.hashtags, result.slides));
+      });
+    } catch (err) {
+      // runGenerateAll() 내부의 각 단계는 실패 시 에러 메시지를 반환하지만, 요청 자체가
+      // 네트워크/브라우저 단에서 끊기는 경우(예: URL이 지나치게 길어 서버까지 요청이
+      // 도달하지 못하는 경우)는 예외로만 드러난다. 이 경우도 화면이 "생성 중..."에
+      // 영원히 멈추지 않고 사용자에게 실패를 알리도록 방어적으로 처리한다.
+      setAiError(err instanceof Error ? err.message : "게시물 생성 중 예기치 못한 오류가 발생했습니다.");
+    } finally {
+      setIsGeneratingAll(false);
+    }
   };
 
   return (

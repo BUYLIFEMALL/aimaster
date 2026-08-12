@@ -26,8 +26,11 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
 
   let loadedCaption = sp.caption ?? "";
   let loadedHashtags = sp.hashtags ? sp.hashtags.split(",").map((h) => h.trim()).filter(Boolean) : [];
+  let loadedKeywords = sp.keywords ? sp.keywords.split(",").map((k) => k.trim()).filter(Boolean) : [];
 
-  // candidateId나 topic이 제공된 경우 Supabase insta_candidates 테이블에서 기존 생성 콘텐츠 조회
+  // candidateId나 topic이 제공된 경우 Supabase insta_candidates 테이블에서 기존 생성 콘텐츠 조회.
+  // 후보 목록(CandidateList)은 캡션이 길어질 수 있어(900~1400자 이상) URL에 caption/hashtags/
+  // keywords를 싣지 않고 candidateId만 넘기므로, 정상 경로에서는 항상 여기서 로드된다.
   if (!loadedCaption && (sp.candidateId || sp.topic)) {
     let query = supabase.from("insta_candidates").select("caption, hashtags, keywords").eq("user_id", user.id);
     if (sp.candidateId) {
@@ -39,6 +42,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     if (cand?.caption) {
       loadedCaption = cand.caption;
       loadedHashtags = cand.hashtags ?? [];
+      loadedKeywords = cand.keywords ?? [];
     }
   }
 
@@ -60,7 +64,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         hasInstagramAccount={Boolean(account)}
         registeredProviders={Array.from(registeredProviders)}
         initialTopic={sp.topic ?? ""}
-        initialKeywords={sp.keywords ? sp.keywords.split(",").map((k) => k.trim()).filter(Boolean) : []}
+        initialKeywords={loadedKeywords}
         initialCaption={loadedCaption}
         initialHashtags={loadedHashtags}
       />
