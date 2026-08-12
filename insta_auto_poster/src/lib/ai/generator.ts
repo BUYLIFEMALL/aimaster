@@ -432,9 +432,15 @@ export async function generateVisualPrompts(
   return slides.slice(0, slideCount);
 }
 
+// 인스타그램은 세로형(9:16, 릴스/스토리와 동일 비율) 노출이 알고리즘상 유리해 기본값으로 쓰고,
+// 정사각(1:1)·가로(16:9)도 선택할 수 있게 한다. Gemini 이미지 생성 API가 이 3개 값을
+// generationConfig.imageConfig.aspectRatio로 그대로 받아준다.
+export type ImageAspectRatio = "9:16" | "1:1" | "16:9";
+
 export interface GeneratePostImageInput {
   prompt: string;
   model?: NanoBananaModelType;
+  aspectRatio?: ImageAspectRatio;
 }
 
 export interface GeneratePostImageResult {
@@ -494,8 +500,6 @@ function getNanoBananaConfig(modelType?: string): NanoBananaModelConfig {
 // 기본 모델은 .env.local의 GEMINI_IMAGE_MODEL로 코드 수정 없이 교체 가능
 const DEFAULT_IMAGE_MODEL = (process.env.GEMINI_IMAGE_MODEL || "nanobanana-2-2k") as NanoBananaModelType;
 
-// 인스타그램 피드는 정사각(1:1) 또는 4:5 세로가 표준이라 1:1로 고정한다
-// (Threads는 이미지가 선택 사항이라 이 제약이 없었지만, 인스타그램 피드는 이미지가 필수다).
 export async function generatePostImage(
   input: GeneratePostImageInput,
   apiKey: string,
@@ -512,7 +516,7 @@ export async function generatePostImage(
     generationConfig: {
       responseModalities: ["Image"],
       imageConfig: {
-        aspectRatio: "1:1",
+        aspectRatio: input.aspectRatio ?? "9:16",
         imageSize: modelConfig.imageSize,
       },
       temperature: modelConfig.temperature,

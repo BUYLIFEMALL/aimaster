@@ -8,6 +8,7 @@ import {
   generateCardNewsCaption,
   generateVisualPrompts,
   type GeneratePostInput,
+  type ImageAspectRatio,
   type NanoBananaModelType,
   type VisualPromptSlide,
 } from "@/lib/ai/generator";
@@ -70,6 +71,7 @@ export async function generateImageAction(input: {
   prompt: string;
   apiKey?: string;
   model?: NanoBananaModelType;
+  aspectRatio?: ImageAspectRatio;
 }): Promise<GenerateImageState> {
   const user = await requireProgramAccess();
 
@@ -84,7 +86,10 @@ export async function generateImageAction(input: {
       return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
     }
 
-    const result = await generatePostImage({ prompt: input.prompt, model: input.model }, apiKey);
+    const result = await generatePostImage(
+      { prompt: input.prompt, model: input.model, aspectRatio: input.aspectRatio },
+      apiKey,
+    );
     const ext = result.mimeType.split("/")[1] ?? "png";
     const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
 

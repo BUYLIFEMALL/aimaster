@@ -16,7 +16,7 @@ import { uploadCustomImageAction } from "@/lib/actions/upload";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
-import type { InstaTone } from "@/lib/ai/generator";
+import type { ImageAspectRatio, InstaTone } from "@/lib/ai/generator";
 import type { ApiKeyProvider, InstaPostType } from "@/types/database.types";
 
 type PublishMode = "draft" | "schedule" | "now";
@@ -43,6 +43,12 @@ const SUGGESTED_TOPICS = [
   "업계 꿀팁 공유",
   "한정 프로모션 안내",
   "브랜드 스토리 한 조각",
+];
+
+const ASPECT_RATIO_OPTIONS: { value: ImageAspectRatio; label: string }[] = [
+  { value: "9:16", label: "9:16 (세로, 기본)" },
+  { value: "1:1", label: "1:1 (정사각)" },
+  { value: "16:9", label: "16:9 (가로)" },
 ];
 
 const IMAGE_MODEL_OPTIONS = [
@@ -144,6 +150,7 @@ export function PostForm({
   const [imageModel, setImageModel] = useState<(typeof IMAGE_MODEL_OPTIONS)[number]["value"]>(
     "nanobanana-2-2k",
   );
+  const [aspectRatio, setAspectRatio] = useState<ImageAspectRatio>("9:16");
   const [geminiApiKey, setGeminiApiKey] = useState("");
 
   // 카드뉴스는 4개, 피드는 1개 슬라이드를 관리한다 (insta_post_slides 1행 = 1슬라이드와 동일 개념).
@@ -157,7 +164,12 @@ export function PostForm({
   async function generateOneImage(prompt: string): Promise<string | null> {
     const MAX_ATTEMPTS = 2;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-      const result = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+      const result = await generateImageAction({
+        prompt,
+        apiKey: geminiApiKey,
+        model: imageModel,
+        aspectRatio,
+      });
       if (result.imageUrl) return result.imageUrl;
     }
     return null;
@@ -408,13 +420,36 @@ export function PostForm({
           </div>
         </div>
       )}
-      {!isCreate && (
-        <p className="text-xs text-neutral-400">
-          형식: {postType === "card_news" ? "카드뉴스 (캐러셀)" : "피드 (단일 이미지)"} — 슬라이드
-          이미지는 아래 갤러리에서 관리합니다.
-        </p>
+      {isCreate && (
+        <div>
+          <label className="mb-2 block text-sm font-medium text-neutral-700">화면비율</label>
+          <div className="flex gap-2">
+            {ASPECT_RATIO_OPTIONS.map((option) => (
+              <label
+                key={option.value}
+                className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
+                  aspectRatio === option.value
+                    ? "border-neutral-900 bg-neutral-900 text-white"
+                    : "border-neutral-300 text-neutral-600"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="aspectRatioRadio"
+                  value={option.value}
+                  checked={aspectRatio === option.value}
+                  onChange={() => setAspectRatio(option.value)}
+                  className="sr-only"
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-neutral-400">
+            4장 모두 이 비율로 생성됩니다. 인스타그램은 세로(9:16)가 기본으로 유리합니다.
+          </p>
+        </div>
       )}
-
       {isCreate && (
         <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
           <div>
@@ -650,7 +685,7 @@ export function PostForm({
                     />
                   </button>
                   <Textarea
-                    rows={5}
+                    rows={10}
                     value={slide.imagePrompt}
                     onChange={(e) => handleSlidePromptChange(index, e.target.value)}
                     className="text-xs leading-relaxed"

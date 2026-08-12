@@ -91,7 +91,7 @@ function SlideCard({
         <input type="hidden" name="postId" value={postId} />
         <Textarea
           name="imagePrompt"
-          rows={5}
+          rows={10}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           className="text-xs leading-relaxed"
