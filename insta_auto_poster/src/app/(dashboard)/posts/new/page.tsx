@@ -51,7 +51,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
   const registeredProviders = await getRegisteredProviders(supabase, user.id);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-4xl">
       <h1 className="mb-6 text-2xl font-semibold text-neutral-900">새 게시글 작성</h1>
       <PostForm
         action={createPostAction}

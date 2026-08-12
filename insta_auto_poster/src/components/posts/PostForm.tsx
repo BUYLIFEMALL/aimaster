@@ -12,7 +12,9 @@ import {
   generateCardNewsCaptionAction,
   generateVisualPromptsAction,
 } from "@/lib/actions/ai";
+import { uploadCustomImageAction } from "@/lib/actions/upload";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
+import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
 import type { InstaTone } from "@/lib/ai/generator";
 import type { ApiKeyProvider, InstaPostType } from "@/types/database.types";
@@ -23,6 +25,7 @@ type Tone = InstaTone;
 interface SlideDraft {
   imagePrompt: string;
   imageUrl: string;
+  imageUrls: string[];
 }
 
 const TONE_OPTIONS: { value: Tone; label: string }[] = [
@@ -185,7 +188,7 @@ export function PostForm({
         setStatusMsg(null);
         return null;
       }
-      nextSlides.push({ imagePrompt: promptsResult.slides[i].imagePrompt, imageUrl });
+      nextSlides.push({ imagePrompt: promptsResult.slides[i].imagePrompt, imageUrl, imageUrls: [imageUrl] });
       setSlides([...nextSlides]);
     }
     return nextSlides;
@@ -284,7 +287,9 @@ export function PostForm({
     startRegenerating(async () => {
       const imageUrl = await generateOneImage(current.imagePrompt);
       if (imageUrl) {
-        setSlides((prev) => prev.map((s, i) => (i === index ? { ...s, imageUrl } : s)));
+        setSlides((prev) =>
+          prev.map((s, i) => (i === index ? { ...s, imageUrl, imageUrls: [...s.imageUrls, imageUrl] } : s)),
+        );
       } else {
         setAiError(`슬라이드 ${index + 1} 이미지 재생성에 실패했습니다.`);
       }
@@ -295,6 +300,30 @@ export function PostForm({
   const handleSlidePromptChange = (index: number, value: string) => {
     setSlides((prev) => prev.map((s, i) => (i === index ? { ...s, imagePrompt: value } : s)));
   };
+
+  const handleSelectSlideImage = (index: number, url: string) => {
+    setSlides((prev) => prev.map((s, i) => (i === index ? { ...s, imageUrl: url } : s)));
+  };
+
+  const handleUploadSlideImage = (index: number, file: File) => {
+    setRegeneratingIndex(index);
+    startRegenerating(async () => {
+      const fd = new FormData();
+      fd.set("file", file);
+      const result = await uploadCustomImageAction(fd);
+      if (result.imageUrl) {
+        const url = result.imageUrl;
+        setSlides((prev) =>
+          prev.map((s, i) => (i === index ? { ...s, imageUrl: url, imageUrls: [...s.imageUrls, url] } : s)),
+        );
+      } else {
+        setAiError(result.error ?? "이미지 업로드에 실패했습니다.");
+      }
+      setRegeneratingIndex(null);
+    });
+  };
+
+  const [zoomTarget, setZoomTarget] = useState<{ index: number; url: string } | null>(null);
 
   const scheduledAtIso =
     publishMode === "schedule" && scheduledAtLocal ? new Date(scheduledAtLocal).toISOString() : "";
@@ -595,27 +624,41 @@ export function PostForm({
           </label>
           <p className="mb-2 text-xs text-neutral-400">
             인스타그램 게시물은 이미지가 반드시 있어야 합니다. 위 &quot;{submitLabel}&quot;를 누르면 자동으로
-            채워지고, 생성 후에는 슬라이드별로 프롬프트를 고쳐 개별 재생성할 수 있습니다.
+            채워지고, 생성 후에는 이미지를 클릭해 확대해서 확인하거나, 프롬프트를 고쳐 개별 재생성하거나,
+            {postType === "feed" && " 직접 가진 이미지 파일을 올려서 쓰거나, "}이전에 생성했던 후보 중에서
+            골라 쓸 수 있습니다.
           </p>
           {slides.length === 0 ? (
             <p className="rounded-lg border border-dashed border-neutral-300 p-4 text-center text-sm text-neutral-400">
               아직 생성된 이미지가 없습니다.
             </p>
           ) : (
-            <div className={postType === "card_news" ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-3"}>
+            <div className={postType === "card_news" ? "flex gap-3 overflow-x-auto pb-2" : "grid grid-cols-1 gap-3"}>
               {slides.map((slide, index) => (
-                <div key={index} className="space-y-2 rounded-lg border border-neutral-200 bg-white p-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={slide.imageUrl}
-                    alt={`슬라이드 ${index + 1}`}
-                    className="aspect-square w-full rounded-md object-cover"
-                  />
+                <div
+                  key={index}
+                  className={`space-y-2 rounded-lg border border-neutral-200 bg-white p-3 ${
+                    postType === "card_news" ? "w-96 shrink-0" : ""
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setZoomTarget({ index, url: slide.imageUrl })}
+                    className="block w-full"
+                    title="클릭하면 확대해서 볼 수 있습니다"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={slide.imageUrl}
+                      alt={`슬라이드 ${index + 1}`}
+                      className="aspect-square w-full rounded-md object-cover"
+                    />
+                  </button>
                   <Textarea
-                    rows={2}
+                    rows={5}
                     value={slide.imagePrompt}
                     onChange={(e) => handleSlidePromptChange(index, e.target.value)}
-                    className="text-xs"
+                    className="text-xs leading-relaxed"
                   />
                   <Button
                     type="button"
@@ -624,8 +667,64 @@ export function PostForm({
                     onClick={() => handleRegenerateSlide(index)}
                     disabled={regeneratingIndex === index || isGeneratingAll}
                   >
-                    {regeneratingIndex === index ? "생성 중..." : `슬라이드 ${index + 1} 다시 생성`}
+                    {regeneratingIndex === index ? "생성/업로드 중..." : `슬라이드 ${index + 1} 다시 생성`}
                   </Button>
+
+                  {postType === "feed" && (
+                    <label className="block cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2 py-1.5 text-center text-xs text-neutral-500 hover:border-neutral-400">
+                      이미지 파일 직접 첨부 (JPG/PNG/WEBP, 10MB 이하)
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        disabled={regeneratingIndex === index || isGeneratingAll}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleUploadSlideImage(index, file);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                  )}
+
+                  {slide.imageUrls.length > 1 && (
+                    <div>
+                      <p className="mb-1 text-[11px] text-neutral-400">생성/업로드 이력 (클릭해서 선택)</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {slide.imageUrls.map((url) => {
+                          const isSelected = url === slide.imageUrl;
+                          return (
+                            <div key={url} className="relative">
+                              <button
+                                type="button"
+                                onClick={() => handleSelectSlideImage(index, url)}
+                                disabled={isSelected}
+                                className={`relative h-14 w-14 overflow-hidden rounded-md border-2 ${
+                                  isSelected ? "border-blue-500" : "border-transparent"
+                                }`}
+                              >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={url} alt="후보 이미지" className="h-full w-full object-cover" />
+                                {isSelected && (
+                                  <span className="absolute inset-0 flex items-center justify-center bg-blue-500/30 text-[9px] font-medium text-white">
+                                    선택됨
+                                  </span>
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setZoomTarget({ index, url })}
+                                className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900/80 text-[10px] text-white"
+                                title="확대해서 보기"
+                              >
+                                🔍
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -697,6 +796,18 @@ export function PostForm({
     </form>
     {missingKeyModal && (
       <ApiKeyRequiredModal missingLabels={missingKeyModal} onClose={() => setMissingKeyModal(null)} />
+    )}
+    {zoomTarget && (
+      <ImageZoomModal
+        imageUrl={zoomTarget.url}
+        title={`슬라이드 ${zoomTarget.index + 1}`}
+        isActive={zoomTarget.url === slides[zoomTarget.index]?.imageUrl}
+        onSelect={() => {
+          handleSelectSlideImage(zoomTarget.index, zoomTarget.url);
+          setZoomTarget(null);
+        }}
+        onClose={() => setZoomTarget(null)}
+      />
     )}
     </>
   );

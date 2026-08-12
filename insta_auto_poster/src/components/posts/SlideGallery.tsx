@@ -1,14 +1,16 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
+import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import {
   regenerateSlideImageAction,
   selectSlideImageAction,
+  uploadSlideCustomImageAction,
   type SlideActionState,
 } from "@/lib/actions/slides";
-import type { Database } from "@/types/database.types";
+import type { Database, InstaPostType } from "@/types/database.types";
 
 type Slide = Database["public"]["Tables"]["insta_post_slides"]["Row"];
 
@@ -22,34 +24,75 @@ const IMAGE_MODEL_OPTIONS = [
 const initialState: SlideActionState = {};
 
 // shots/src/components/candidates/SegmentCard.tsx의 "이력 갤러리 + 선택 + 재생성" 패턴을 이식.
-export function SlideGallery({ postId, slides }: { postId: string; slides: Slide[] }) {
+export function SlideGallery({
+  postId,
+  slides,
+  postType,
+}: {
+  postId: string;
+  slides: Slide[];
+  postType?: InstaPostType;
+}) {
+  // 카드뉴스(여러 장)는 2x2 격자보다, 실제 캐러셀 순서대로 한 줄로 나열해야 프롬프트를 읽기 쉽다.
+  // 화면보다 넓어지면 가로 스크롤로 넘겨 본다. 피드(1장)는 그대로 전체 너비를 쓴다.
+  const isMultiSlide = slides.length > 1;
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className={isMultiSlide ? "flex gap-4 overflow-x-auto pb-2" : "grid grid-cols-1 gap-4"}>
       {slides.map((slide) => (
-        <SlideCard key={slide.id} postId={postId} slide={slide} />
+        <SlideCard
+          key={slide.id}
+          postId={postId}
+          slide={slide}
+          allowUpload={postType === "feed"}
+          wide={isMultiSlide}
+        />
       ))}
     </div>
   );
 }
 
-function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
+function SlideCard({
+  postId,
+  slide,
+  allowUpload,
+  wide,
+}: {
+  postId: string;
+  slide: Slide;
+  allowUpload: boolean;
+  wide: boolean;
+}) {
   const [regenState, regenAction, isRegenerating] = useActionState(regenerateSlideImageAction, initialState);
   const [selectState, selectAction] = useActionState(selectSlideImageAction, initialState);
+  const [uploadState, uploadAction, isUploading] = useActionState(uploadSlideCustomImageAction, initialState);
   const [prompt, setPrompt] = useState(slide.image_prompt ?? "");
   const [model, setModel] = useState<(typeof IMAGE_MODEL_OPTIONS)[number]["value"]>("nanobanana-2-2k");
   const [apiKey, setApiKey] = useState("");
+  const [zoomUrl, setZoomUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const history = slide.image_urls ?? [];
 
   return (
-    <div className="space-y-2 rounded-lg border border-neutral-200 bg-white p-3">
+    <div
+      className={`space-y-2 rounded-lg border border-neutral-200 bg-white p-3 ${
+        wide ? "w-96 shrink-0" : ""
+      }`}
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-neutral-500">슬라이드 {slide.slide_order}</span>
       </div>
 
       {slide.image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={slide.image_url} alt={`슬라이드 ${slide.slide_order}`} className="aspect-square w-full rounded-md object-cover" />
+        <button
+          type="button"
+          onClick={() => setZoomUrl(slide.image_url)}
+          className="block w-full"
+          title="클릭하면 확대해서 볼 수 있습니다"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={slide.image_url} alt={`슬라이드 ${slide.slide_order}`} className="aspect-square w-full rounded-md object-cover" />
+        </button>
       ) : (
         <div className="flex aspect-square w-full items-center justify-center rounded-md border border-dashed border-neutral-300 text-xs text-neutral-400">
           이미지 없음
@@ -61,10 +104,10 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
         <input type="hidden" name="postId" value={postId} />
         <Textarea
           name="imagePrompt"
-          rows={2}
+          rows={5}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          className="text-xs"
+          className="text-xs leading-relaxed"
         />
         <div className="flex flex-wrap gap-1.5">
           <select
@@ -96,14 +139,39 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
         {regenState.error && <p className="text-xs text-red-600">{regenState.error}</p>}
       </form>
 
+      {allowUpload && (
+        <form
+          action={uploadAction}
+          className="space-y-1.5 border-t border-dashed border-neutral-200 pt-2"
+        >
+          <input type="hidden" name="slideId" value={slide.id} />
+          <input type="hidden" name="postId" value={postId} />
+          <p className="text-[11px] text-neutral-400">
+            AI 이미지가 마음에 안 들면 직접 가진 이미지 파일을 올려서 쓸 수도 있습니다.
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            name="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => {
+              if (e.target.files?.length) e.currentTarget.form?.requestSubmit();
+            }}
+            className="block w-full text-xs text-neutral-500 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-100 file:px-2 file:py-1 file:text-xs file:font-medium file:text-neutral-700"
+          />
+          {isUploading && <p className="text-xs text-neutral-500">업로드 중...</p>}
+          {uploadState.error && <p className="text-xs text-red-600">{uploadState.error}</p>}
+        </form>
+      )}
+
       {history.length > 1 && (
         <div>
-          <p className="mb-1 text-[11px] text-neutral-400">생성 이력 (클릭해서 선택)</p>
+          <p className="mb-1 text-[11px] text-neutral-400">생성 이력 (클릭해서 선택, 돋보기로 확대)</p>
           <div className="flex flex-wrap gap-1.5">
             {history.map((url) => {
               const isSelected = url === slide.image_url;
               return (
-                <form key={url} action={selectAction}>
+                <form key={url} action={selectAction} className="relative">
                   <input type="hidden" name="slideId" value={slide.id} />
                   <input type="hidden" name="postId" value={postId} />
                   <input type="hidden" name="imageUrl" value={url} />
@@ -122,12 +190,32 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
                       </span>
                     )}
                   </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setZoomUrl(url);
+                    }}
+                    className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900/80 text-[10px] text-white"
+                    title="확대해서 보기"
+                  >
+                    🔍
+                  </button>
                 </form>
               );
             })}
           </div>
           {selectState.error && <p className="mt-1 text-xs text-red-600">{selectState.error}</p>}
         </div>
+      )}
+
+      {zoomUrl && (
+        <ImageZoomModal
+          imageUrl={zoomUrl}
+          title={`슬라이드 ${slide.slide_order}`}
+          onClose={() => setZoomUrl(null)}
+        />
       )}
     </div>
   );
