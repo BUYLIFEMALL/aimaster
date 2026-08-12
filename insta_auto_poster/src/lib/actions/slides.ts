@@ -60,6 +60,15 @@ async function appendSlideImage(
   if (error) throw new Error(error.message);
 }
 
+/** 공개 URL에서 이 프로젝트가 관리하는 Storage 경로("{user_id}/파일명")만 추출한다.
+ *  경로가 없거나 형식이 다르면(외부 URL 등) null을 반환해 삭제를 건너뛴다. */
+function extractStoragePath(imageUrl: string): string | null {
+  const marker = "/insta-post-images/";
+  const idx = imageUrl.indexOf(marker);
+  if (idx === -1) return null;
+  return imageUrl.slice(idx + marker.length);
+}
+
 /** 슬라이드 하나의 이미지 프롬프트를 저장한다 (재생성 없이 텍스트만 수정할 때). */
 export async function saveSlidePromptAction(formData: FormData) {
   const user = await requireProgramAccess();
@@ -158,6 +167,56 @@ export async function uploadSlideCustomImageAction(
   } catch (err) {
     return { error: err instanceof Error ? err.message : "이미지 업로드에 실패했습니다." };
   }
+}
+
+/**
+ * 이력에서 이미지 하나를 완전히 삭제한다(DB의 image_urls 배열 + Storage 파일 둘 다).
+ * 삭제 안 하면 재생성/업로드할 때마다 Storage와 DB에 이미지가 계속 쌓이기만 해서 추가했다.
+ * 최소 1장은 남아 있어야 하고(카드뉴스/피드 게시에 이미지가 필수), 활성 이미지를 지우면
+ * 남은 이미지 중 가장 최근 것을 새 활성 이미지로 자동 전환한다.
+ */
+export async function deleteSlideImageAction(
+  _prevState: SlideActionState,
+  formData: FormData,
+): Promise<SlideActionState> {
+  const user = await requireProgramAccess();
+  const slideId = String(formData.get("slideId") ?? "");
+  const postId = String(formData.get("postId") ?? "");
+  const imageUrl = String(formData.get("imageUrl") ?? "");
+
+  const supabase = await createClient();
+  const { data: slide } = await supabase
+    .from("insta_post_slides")
+    .select("image_url, image_urls")
+    .eq("id", slideId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const history = slide?.image_urls ?? [];
+  if (!slide || !history.includes(imageUrl)) {
+    return { error: "삭제할 수 없는 이미지입니다." };
+  }
+  if (history.length <= 1) {
+    return { error: "이미지는 최소 1장 남아 있어야 합니다." };
+  }
+
+  const nextHistory = history.filter((url) => url !== imageUrl);
+  const nextActive = slide.image_url === imageUrl ? nextHistory[nextHistory.length - 1] : slide.image_url;
+
+  const { error } = await supabase
+    .from("insta_post_slides")
+    .update({ image_url: nextActive, image_urls: nextHistory })
+    .eq("id", slideId)
+    .eq("user_id", user.id);
+  if (error) return { error: error.message };
+
+  const path = extractStoragePath(imageUrl);
+  if (path && path.startsWith(`${user.id}/`)) {
+    await supabase.storage.from("insta-post-images").remove([path]);
+  }
+
+  if (postId) revalidatePath(`/posts/${postId}/edit`);
+  return {};
 }
 
 /** 이력 갤러리에서 후보 이미지를 클릭했을 때, 그 이미지를 활성 이미지로 전환한다. */

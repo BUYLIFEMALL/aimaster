@@ -12,7 +12,7 @@ import {
   generateCardNewsCaptionAction,
   generateVisualPromptsAction,
 } from "@/lib/actions/ai";
-import { uploadCustomImageAction } from "@/lib/actions/upload";
+import { deleteUploadedImageAction, uploadCustomImageAction } from "@/lib/actions/upload";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
@@ -315,6 +315,24 @@ export function PostForm({
 
   const handleSelectSlideImage = (index: number, url: string) => {
     setSlides((prev) => prev.map((s, i) => (i === index ? { ...s, imageUrl: url } : s)));
+  };
+
+  // 재생성/업로드할 때마다 Storage에 이미지가 계속 쌓이는 것을 막기 위한 이력 삭제.
+  // 최소 1장은 남겨야 하고(활성 이미지 없이는 게시 불가), 활성 이미지를 지우면 남은 것 중
+  // 가장 최근 것을 새 활성 이미지로 돌린다. Storage 파일도 함께 지운다(실패해도 무시).
+  const handleDeleteSlideImage = (index: number, url: string) => {
+    setSlides((prev) =>
+      prev.map((s, i) => {
+        if (i !== index) return s;
+        if (s.imageUrls.length <= 1) return s;
+        const nextUrls = s.imageUrls.filter((u) => u !== url);
+        const nextActive = s.imageUrl === url ? nextUrls[nextUrls.length - 1] : s.imageUrl;
+        return { ...s, imageUrl: nextActive, imageUrls: nextUrls };
+      }),
+    );
+    const fd = new FormData();
+    fd.set("imageUrl", url);
+    void deleteUploadedImageAction(fd);
   };
 
   const handleUploadSlideImage = (index: number, file: File) => {
@@ -670,8 +688,7 @@ export function PostForm({
           <p className="mb-2 text-xs text-neutral-400">
             인스타그램 게시물은 이미지가 반드시 있어야 합니다. 위 &quot;{submitLabel}&quot;를 누르면 자동으로
             채워지고, 생성 후에는 이미지를 클릭해 확대해서 확인하거나, 프롬프트를 고쳐 개별 재생성하거나,
-            {postType === "feed" && " 직접 가진 이미지 파일을 올려서 쓰거나, "}이전에 생성했던 후보 중에서
-            골라 쓸 수 있습니다.
+            직접 가진 이미지 파일을 올려서 쓰거나, 이전에 생성했던 후보 중에서 골라 쓸 수 있습니다.
           </p>
           {slides.length === 0 ? (
             <p className="rounded-lg border border-dashed border-neutral-300 p-4 text-center text-sm text-neutral-400">
@@ -710,26 +727,26 @@ export function PostForm({
                     {regeneratingIndex === index ? "생성/업로드 중..." : `슬라이드 ${index + 1} 다시 생성`}
                   </Button>
 
-                  {postType === "feed" && (
-                    <label className="block cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2 py-1.5 text-center text-xs text-neutral-500 hover:border-neutral-400">
-                      이미지 파일 직접 첨부 (JPG/PNG/WEBP, 10MB 이하)
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        className="hidden"
-                        disabled={regeneratingIndex === index || isGeneratingAll}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleUploadSlideImage(index, file);
-                          e.target.value = "";
-                        }}
-                      />
-                    </label>
-                  )}
+                  <label className="block cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2 py-1.5 text-center text-xs text-neutral-500 hover:border-neutral-400">
+                    이미지 파일 직접 첨부 (JPG/PNG/WEBP, 10MB 이하)
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={regeneratingIndex === index || isGeneratingAll}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleUploadSlideImage(index, file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
 
                   {slide.imageUrls.length > 1 && (
                     <div>
-                      <p className="mb-1 text-[11px] text-neutral-400">생성/업로드 이력 (클릭해서 선택)</p>
+                      <p className="mb-1 text-[11px] text-neutral-400">
+                        생성/업로드 이력 (클릭해서 선택, 돋보기로 확대, ✕로 삭제)
+                      </p>
                       <div className="flex flex-wrap gap-1.5">
                         {slide.imageUrls.map((url) => {
                           const isSelected = url === slide.imageUrl;
@@ -758,6 +775,14 @@ export function PostForm({
                                 title="확대해서 보기"
                               >
                                 🔍
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteSlideImage(index, url)}
+                                className="absolute -left-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600/90 text-[10px] text-white"
+                                title="이 이미지 삭제"
+                              >
+                                ✕
                               </button>
                             </div>
                           );

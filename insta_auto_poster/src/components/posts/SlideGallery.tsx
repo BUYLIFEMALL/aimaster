@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import {
+  deleteSlideImageAction,
   regenerateSlideImageAction,
   selectSlideImageAction,
   uploadSlideCustomImageAction,
@@ -40,6 +41,7 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
   const [regenState, regenAction, isRegenerating] = useActionState(regenerateSlideImageAction, initialState);
   const [selectState, selectAction] = useActionState(selectSlideImageAction, initialState);
   const [uploadState, uploadAction, isUploading] = useActionState(uploadSlideCustomImageAction, initialState);
+  const [deleteState, deleteAction] = useActionState(deleteSlideImageAction, initialState);
   const [prompt, setPrompt] = useState(slide.image_prompt ?? "");
   const [model, setModel] = useState<(typeof IMAGE_MODEL_OPTIONS)[number]["value"]>("nanobanana-2-2k");
   const [apiKey, setApiKey] = useState("");
@@ -132,47 +134,60 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
 
       {history.length > 1 && (
         <div>
-          <p className="mb-1 text-[11px] text-neutral-400">생성 이력 (클릭해서 선택, 돋보기로 확대)</p>
+          <p className="mb-1 text-[11px] text-neutral-400">
+            생성/업로드 이력 (클릭해서 선택, 돋보기로 확대, ✕로 삭제)
+          </p>
           <div className="flex flex-wrap gap-1.5">
             {history.map((url) => {
               const isSelected = url === slide.image_url;
               return (
-                <form key={url} action={selectAction} className="relative">
-                  <input type="hidden" name="slideId" value={slide.id} />
-                  <input type="hidden" name="postId" value={postId} />
-                  <input type="hidden" name="imageUrl" value={url} />
-                  <button
-                    type="submit"
-                    disabled={isSelected}
-                    className={`relative h-14 w-14 overflow-hidden rounded-md border-2 ${
-                      isSelected ? "border-blue-500" : "border-transparent"
-                    }`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="후보 이미지" className="h-full w-full object-cover" />
-                    {isSelected && (
-                      <span className="absolute inset-0 flex items-center justify-center bg-blue-500/30 text-[9px] font-medium text-white">
-                        선택됨
-                      </span>
-                    )}
-                  </button>
+                <div key={url} className="relative">
+                  <form action={selectAction}>
+                    <input type="hidden" name="slideId" value={slide.id} />
+                    <input type="hidden" name="postId" value={postId} />
+                    <input type="hidden" name="imageUrl" value={url} />
+                    <button
+                      type="submit"
+                      disabled={isSelected}
+                      className={`relative h-14 w-14 overflow-hidden rounded-md border-2 ${
+                        isSelected ? "border-blue-500" : "border-transparent"
+                      }`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="후보 이미지" className="h-full w-full object-cover" />
+                      {isSelected && (
+                        <span className="absolute inset-0 flex items-center justify-center bg-blue-500/30 text-[9px] font-medium text-white">
+                          선택됨
+                        </span>
+                      )}
+                    </button>
+                  </form>
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setZoomUrl(url);
-                    }}
+                    onClick={() => setZoomUrl(url)}
                     className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900/80 text-[10px] text-white"
                     title="확대해서 보기"
                   >
                     🔍
                   </button>
-                </form>
+                  <form action={deleteAction}>
+                    <input type="hidden" name="slideId" value={slide.id} />
+                    <input type="hidden" name="postId" value={postId} />
+                    <input type="hidden" name="imageUrl" value={url} />
+                    <button
+                      type="submit"
+                      className="absolute -left-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600/90 text-[10px] text-white"
+                      title="이 이미지 삭제"
+                    >
+                      ✕
+                    </button>
+                  </form>
+                </div>
               );
             })}
           </div>
           {selectState.error && <p className="mt-1 text-xs text-red-600">{selectState.error}</p>}
+          {deleteState.error && <p className="mt-1 text-xs text-red-600">{deleteState.error}</p>}
         </div>
       )}
 
