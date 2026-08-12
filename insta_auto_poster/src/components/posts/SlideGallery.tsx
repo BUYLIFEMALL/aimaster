@@ -1,16 +1,17 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { startTransition, useActionState, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import {
+  attachSlideImageUrlAction,
   deleteSlideImageAction,
   regenerateSlideImageAction,
   selectSlideImageAction,
-  uploadSlideCustomImageAction,
   type SlideActionState,
 } from "@/lib/actions/slides";
+import { uploadImageDirect } from "@/lib/uploadImageClient";
 import type { Database } from "@/types/database.types";
 
 type Slide = Database["public"]["Tables"]["insta_post_slides"]["Row"];
@@ -40,13 +41,39 @@ export function SlideGallery({ postId, slides }: { postId: string; slides: Slide
 function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
   const [regenState, regenAction, isRegenerating] = useActionState(regenerateSlideImageAction, initialState);
   const [selectState, selectAction] = useActionState(selectSlideImageAction, initialState);
-  const [uploadState, uploadAction, isUploading] = useActionState(uploadSlideCustomImageAction, initialState);
+  const [attachState, attachAction, isAttaching] = useActionState(attachSlideImageUrlAction, initialState);
   const [deleteState, deleteAction] = useActionState(deleteSlideImageAction, initialState);
   const [prompt, setPrompt] = useState(slide.image_prompt ?? "");
   const [model, setModel] = useState<(typeof IMAGE_MODEL_OPTIONS)[number]["value"]>("nanobanana-2-2k");
   const [apiKey, setApiKey] = useState("");
   const [zoomUrl, setZoomUrl] = useState<string | null>(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isUploading = isUploadingFile || isAttaching;
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    setUploadError(null);
+    setIsUploadingFile(true);
+    const result = await uploadImageDirect(file);
+    setIsUploadingFile(false);
+
+    if (!result.url) {
+      setUploadError(result.error ?? "이미지 업로드에 실패했습니다.");
+      return;
+    }
+    const fd = new FormData();
+    fd.set("slideId", slide.id);
+    fd.set("postId", postId);
+    fd.set("imageUrl", result.url);
+    startTransition(() => {
+      attachAction(fd);
+    });
+  };
 
   const history = slide.image_urls ?? [];
 
@@ -112,25 +139,23 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
         {regenState.error && <p className="text-xs text-red-600">{regenState.error}</p>}
       </form>
 
-      <form action={uploadAction} className="space-y-1.5 border-t border-dashed border-neutral-200 pt-2">
-        <input type="hidden" name="slideId" value={slide.id} />
-        <input type="hidden" name="postId" value={postId} />
+      <div className="space-y-1.5 border-t border-dashed border-neutral-200 pt-2">
         <p className="text-[11px] text-neutral-400">
           AI 이미지가 마음에 안 들면 직접 가진 이미지 파일을 올려서 쓸 수도 있습니다.
         </p>
         <input
           ref={fileInputRef}
           type="file"
-          name="file"
           accept="image/jpeg,image/png,image/webp"
-          onChange={(e) => {
-            if (e.target.files?.length) e.currentTarget.form?.requestSubmit();
-          }}
+          disabled={isUploading}
+          onChange={handleFileChange}
           className="block w-full text-xs text-neutral-500 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-100 file:px-2 file:py-1 file:text-xs file:font-medium file:text-neutral-700"
         />
         {isUploading && <p className="text-xs text-neutral-500">업로드 중...</p>}
-        {uploadState.error && <p className="text-xs text-red-600">{uploadState.error}</p>}
-      </form>
+        {(uploadError || attachState.error) && (
+          <p className="text-xs text-red-600">{uploadError || attachState.error}</p>
+        )}
+      </div>
 
       {history.length > 1 && (
         <div>

@@ -12,7 +12,8 @@ import {
   generateCardNewsCaptionAction,
   generateVisualPromptsAction,
 } from "@/lib/actions/ai";
-import { deleteUploadedImageAction, uploadCustomImageAction } from "@/lib/actions/upload";
+import { deleteUploadedImageAction } from "@/lib/actions/upload";
+import { uploadImageDirect } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
@@ -338,11 +339,9 @@ export function PostForm({
   const handleUploadSlideImage = (index: number, file: File) => {
     setRegeneratingIndex(index);
     startRegenerating(async () => {
-      const fd = new FormData();
-      fd.set("file", file);
-      const result = await uploadCustomImageAction(fd);
-      if (result.imageUrl) {
-        const url = result.imageUrl;
+      const result = await uploadImageDirect(file);
+      if (result.url) {
+        const url = result.url;
         setSlides((prev) =>
           prev.map((s, i) => (i === index ? { ...s, imageUrl: url, imageUrls: [...s.imageUrls, url] } : s)),
         );

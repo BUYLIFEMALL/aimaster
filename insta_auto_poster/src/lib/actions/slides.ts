@@ -14,9 +14,6 @@ export interface SlideActionState {
   error?: string;
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-
 async function uploadSlideImage(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
@@ -120,38 +117,28 @@ export async function regenerateSlideImageAction(
   }
 }
 
-/** AI 재생성 대신 사용자가 직접 고른 파일을 업로드해서 이력에 추가하고 활성 이미지로 설정한다. */
-export async function uploadSlideCustomImageAction(
+/**
+ * 사용자가 직접 고른 이미지 파일을 (Server Action이 아니라) 브라우저에서 Supabase
+ * Storage로 바로 업로드한 뒤, 그 결과 URL만 이력에 추가하고 활성 이미지로 설정한다.
+ * Vercel 서버리스 함수의 요청 본문 크기 제한 때문에 파일 자체를 Server Action으로
+ * 보내는 방식(uploadImageDirect 도입 전)은 실제 사진 크기에서 깨졌다 — 자세한 배경은
+ * src/lib/uploadImageClient.ts 주석 참고.
+ */
+export async function attachSlideImageUrlAction(
   _prevState: SlideActionState,
   formData: FormData,
 ): Promise<SlideActionState> {
   const user = await requireProgramAccess();
   const slideId = String(formData.get("slideId") ?? "");
   const postId = String(formData.get("postId") ?? "");
-  const file = formData.get("file");
+  const imageUrl = String(formData.get("imageUrl") ?? "");
 
-  if (!(file instanceof File) || file.size === 0) {
-    return { error: "이미지 파일을 선택해주세요." };
-  }
-  if (!ALLOWED_MIME_TYPES.has(file.type)) {
-    return { error: "JPG, PNG, WEBP 형식의 이미지만 업로드할 수 있습니다." };
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    return { error: "파일 용량은 10MB 이하만 업로드할 수 있습니다." };
+  if (!imageUrl) {
+    return { error: "이미지 업로드에 실패했습니다." };
   }
 
   try {
     const supabase = await createClient();
-    const ext = file.type.split("/")[1] ?? "jpg";
-    const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    const { error: uploadError } = await supabase.storage
-      .from("insta-post-images")
-      .upload(path, buffer, { contentType: file.type, upsert: false });
-    if (uploadError) throw new Error(uploadError.message);
-
-    const { data } = supabase.storage.from("insta-post-images").getPublicUrl(path);
     // 직접 업로드한 이미지는 AI 프롬프트가 없으므로, 다음에 "다시 생성"을 눌러도 혼동이
     // 없도록 프롬프트 텍스트는 그대로 둔다(기존 프롬프트가 있으면 유지).
     const { data: slide } = await supabase
@@ -160,12 +147,12 @@ export async function uploadSlideCustomImageAction(
       .eq("id", slideId)
       .eq("user_id", user.id)
       .single();
-    await appendSlideImage(supabase, slideId, user.id, data.publicUrl, slide?.image_prompt ?? "");
+    await appendSlideImage(supabase, slideId, user.id, imageUrl, slide?.image_prompt ?? "");
 
     if (postId) revalidatePath(`/posts/${postId}/edit`);
     return {};
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "이미지 업로드에 실패했습니다." };
+    return { error: err instanceof Error ? err.message : "이미지 저장에 실패했습니다." };
   }
 }
 
