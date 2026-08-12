@@ -630,7 +630,7 @@ export function PostForm({
         )}
         <Textarea
           name="caption"
-          rows={postType === "card_news" ? 14 : 6}
+          rows={postType === "card_news" ? 14 : 12}
           maxLength={2200}
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
