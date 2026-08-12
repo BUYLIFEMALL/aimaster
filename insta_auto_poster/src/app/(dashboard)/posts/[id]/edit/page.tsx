@@ -45,7 +45,7 @@ export default async function PostEditPage({
         <h2 className="mb-3 text-sm font-medium text-neutral-700">
           {post.post_type === "card_news" ? "카드뉴스 슬라이드" : "이미지"}
         </h2>
-        <SlideGallery postId={post.id} slides={slides ?? []} postType={post.post_type} />
+        <SlideGallery postId={post.id} slides={slides ?? []} />
       </div>
 
       <PostForm

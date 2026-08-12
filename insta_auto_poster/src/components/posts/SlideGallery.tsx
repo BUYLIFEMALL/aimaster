@@ -10,7 +10,7 @@ import {
   uploadSlideCustomImageAction,
   type SlideActionState,
 } from "@/lib/actions/slides";
-import type { Database, InstaPostType } from "@/types/database.types";
+import type { Database } from "@/types/database.types";
 
 type Slide = Database["public"]["Tables"]["insta_post_slides"]["Row"];
 
@@ -24,35 +24,19 @@ const IMAGE_MODEL_OPTIONS = [
 const initialState: SlideActionState = {};
 
 // shots/src/components/candidates/SegmentCard.tsx의 "이력 갤러리 + 선택 + 재생성" 패턴을 이식.
-export function SlideGallery({
-  postId,
-  slides,
-  postType,
-}: {
-  postId: string;
-  slides: Slide[];
-  postType?: InstaPostType;
-}) {
+export function SlideGallery({ postId, slides }: { postId: string; slides: Slide[] }) {
   // 2x2 격자로 두면 카드가 좁아져서 프롬프트가 잘 안 보인다. 캐러셀 순서대로 세로로
   // 한 장씩 나열해서(스크롤 없이 전부 보이게) 카드를 넓게 쓴다.
   return (
     <div className="flex flex-col gap-4">
       {slides.map((slide) => (
-        <SlideCard key={slide.id} postId={postId} slide={slide} allowUpload={postType === "feed"} />
+        <SlideCard key={slide.id} postId={postId} slide={slide} />
       ))}
     </div>
   );
 }
 
-function SlideCard({
-  postId,
-  slide,
-  allowUpload,
-}: {
-  postId: string;
-  slide: Slide;
-  allowUpload: boolean;
-}) {
+function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
   const [regenState, regenAction, isRegenerating] = useActionState(regenerateSlideImageAction, initialState);
   const [selectState, selectAction] = useActionState(selectSlideImageAction, initialState);
   const [uploadState, uploadAction, isUploading] = useActionState(uploadSlideCustomImageAction, initialState);
@@ -126,30 +110,25 @@ function SlideCard({
         {regenState.error && <p className="text-xs text-red-600">{regenState.error}</p>}
       </form>
 
-      {allowUpload && (
-        <form
-          action={uploadAction}
-          className="space-y-1.5 border-t border-dashed border-neutral-200 pt-2"
-        >
-          <input type="hidden" name="slideId" value={slide.id} />
-          <input type="hidden" name="postId" value={postId} />
-          <p className="text-[11px] text-neutral-400">
-            AI 이미지가 마음에 안 들면 직접 가진 이미지 파일을 올려서 쓸 수도 있습니다.
-          </p>
-          <input
-            ref={fileInputRef}
-            type="file"
-            name="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={(e) => {
-              if (e.target.files?.length) e.currentTarget.form?.requestSubmit();
-            }}
-            className="block w-full text-xs text-neutral-500 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-100 file:px-2 file:py-1 file:text-xs file:font-medium file:text-neutral-700"
-          />
-          {isUploading && <p className="text-xs text-neutral-500">업로드 중...</p>}
-          {uploadState.error && <p className="text-xs text-red-600">{uploadState.error}</p>}
-        </form>
-      )}
+      <form action={uploadAction} className="space-y-1.5 border-t border-dashed border-neutral-200 pt-2">
+        <input type="hidden" name="slideId" value={slide.id} />
+        <input type="hidden" name="postId" value={postId} />
+        <p className="text-[11px] text-neutral-400">
+          AI 이미지가 마음에 안 들면 직접 가진 이미지 파일을 올려서 쓸 수도 있습니다.
+        </p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          name="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={(e) => {
+            if (e.target.files?.length) e.currentTarget.form?.requestSubmit();
+          }}
+          className="block w-full text-xs text-neutral-500 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-100 file:px-2 file:py-1 file:text-xs file:font-medium file:text-neutral-700"
+        />
+        {isUploading && <p className="text-xs text-neutral-500">업로드 중...</p>}
+        {uploadState.error && <p className="text-xs text-red-600">{uploadState.error}</p>}
+      </form>
 
       {history.length > 1 && (
         <div>
