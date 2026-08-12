@@ -633,18 +633,13 @@ export function PostForm({
               아직 생성된 이미지가 없습니다.
             </p>
           ) : (
-            <div className={postType === "card_news" ? "flex gap-3 overflow-x-auto pb-2" : "grid grid-cols-1 gap-3"}>
+            <div className="flex flex-col gap-3">
               {slides.map((slide, index) => (
-                <div
-                  key={index}
-                  className={`space-y-2 rounded-lg border border-neutral-200 bg-white p-3 ${
-                    postType === "card_news" ? "w-96 shrink-0" : ""
-                  }`}
-                >
+                <div key={index} className="space-y-2 rounded-lg border border-neutral-200 bg-white p-3">
                   <button
                     type="button"
                     onClick={() => setZoomTarget({ index, url: slide.imageUrl })}
-                    className="block w-full"
+                    className="mx-auto block w-full max-w-sm"
                     title="클릭하면 확대해서 볼 수 있습니다"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}

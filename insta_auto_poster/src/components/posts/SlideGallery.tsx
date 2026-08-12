@@ -33,19 +33,12 @@ export function SlideGallery({
   slides: Slide[];
   postType?: InstaPostType;
 }) {
-  // 카드뉴스(여러 장)는 2x2 격자보다, 실제 캐러셀 순서대로 한 줄로 나열해야 프롬프트를 읽기 쉽다.
-  // 화면보다 넓어지면 가로 스크롤로 넘겨 본다. 피드(1장)는 그대로 전체 너비를 쓴다.
-  const isMultiSlide = slides.length > 1;
+  // 2x2 격자로 두면 카드가 좁아져서 프롬프트가 잘 안 보인다. 캐러셀 순서대로 세로로
+  // 한 장씩 나열해서(스크롤 없이 전부 보이게) 카드를 넓게 쓴다.
   return (
-    <div className={isMultiSlide ? "flex gap-4 overflow-x-auto pb-2" : "grid grid-cols-1 gap-4"}>
+    <div className="flex flex-col gap-4">
       {slides.map((slide) => (
-        <SlideCard
-          key={slide.id}
-          postId={postId}
-          slide={slide}
-          allowUpload={postType === "feed"}
-          wide={isMultiSlide}
-        />
+        <SlideCard key={slide.id} postId={postId} slide={slide} allowUpload={postType === "feed"} />
       ))}
     </div>
   );
@@ -55,12 +48,10 @@ function SlideCard({
   postId,
   slide,
   allowUpload,
-  wide,
 }: {
   postId: string;
   slide: Slide;
   allowUpload: boolean;
-  wide: boolean;
 }) {
   const [regenState, regenAction, isRegenerating] = useActionState(regenerateSlideImageAction, initialState);
   const [selectState, selectAction] = useActionState(selectSlideImageAction, initialState);
@@ -74,11 +65,7 @@ function SlideCard({
   const history = slide.image_urls ?? [];
 
   return (
-    <div
-      className={`space-y-2 rounded-lg border border-neutral-200 bg-white p-3 ${
-        wide ? "w-96 shrink-0" : ""
-      }`}
-    >
+    <div className="space-y-2 rounded-lg border border-neutral-200 bg-white p-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-neutral-500">슬라이드 {slide.slide_order}</span>
       </div>
@@ -87,14 +74,14 @@ function SlideCard({
         <button
           type="button"
           onClick={() => setZoomUrl(slide.image_url)}
-          className="block w-full"
+          className="mx-auto block w-full max-w-sm"
           title="클릭하면 확대해서 볼 수 있습니다"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={slide.image_url} alt={`슬라이드 ${slide.slide_order}`} className="aspect-square w-full rounded-md object-cover" />
         </button>
       ) : (
-        <div className="flex aspect-square w-full items-center justify-center rounded-md border border-dashed border-neutral-300 text-xs text-neutral-400">
+        <div className="mx-auto flex aspect-square w-full max-w-sm items-center justify-center rounded-md border border-dashed border-neutral-300 text-xs text-neutral-400">
           이미지 없음
         </div>
       )}
