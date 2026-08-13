@@ -2,6 +2,28 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🔒 불변의 핵심 원칙 (모든 에이전트가 예외 없이 따라야 함)
+
+이 저장소에서 일하는 모든 에이전트(Claude Code 등)는 아래 두 가지를 프로젝트 구조가 아무리
+커지고 새 서브프로젝트가 계속 늘어나도 절대 바뀌지 않는 대전제로 삼는다. 새 서브프로젝트를
+계획하거나, 기존 걸 고치거나, 구조적으로 애매한 판단을 내려야 할 때는 항상 이 원칙을 기준으로
+삼는다.
+
+1. **루트 폴더는 AIMaster이고, 모든 서브프로젝트는 각자의 서브폴더 안에서만 개발·관리·운영된다.**
+   지금 있는 threads / blog / shots / insta_auto_poster / real_estate_sales / auto-detail-page
+   뿐 아니라, **앞으로 새로 추가되는 모든 서브프로젝트도 예외 없이** `AIMaster/<프로그램명>/`
+   서브폴더 하나 안에서 자기완결적으로 개발·배포된다. 별도 git 저장소를 새로 파거나, 이 저장소
+   밖의 다른 위치(다른 로컬 클론 등)에서 독립적으로 개발하지 않는다 — 실제로 `auto-detail-page`가
+   한동안 저장소 밖에서 별도 저장소(`BUYLIFEMALL/ShopPage`)로 개발되다가 2026-08-13에 이 원칙에
+   맞춰 다시 편입된 사례가 있으니, 새 서브프로젝트를 시작할 때 처음부터 이 구조를 지킬 것
+   (자세한 내용: 아래 "Platform-hub 구조" 섹션).
+2. **모든 사용자의 모든 서브프로젝트 이용 권한(회원가입 포함)은 AIMaster 하나로 통합 관리된다.**
+   회원가입, 로그인, 등급, 구독/결제, 서브프로젝트별 이용 권한(구독/개별부여/등급)은 전부
+   AIMaster가 관리하는 Supabase DB 하나를 모든 서브프로젝트가 공유해서 나온다. 각 서브프로젝트는
+   자기만의 회원가입 화면·권한 체계·API 키 저장 방식을 절대 새로 만들지 않고, 공용
+   `requireProgramAccess()`/`checkProgramAccessApi()`/`user_api_keys`로 이 통합 권한을 확인·재사용
+   한다 (자세한 내용: 아래 "멀티테넌시 원칙" 섹션).
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.
