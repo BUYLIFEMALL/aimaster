@@ -23,6 +23,15 @@
 5. **환경변수와 API 키 변경**
 6. **유료 API 호출** (Claude 상세페이지 생성, 나노바나나/Replicate/GPT Image 1 이미지 생성 등)
 
+### 3. 🚫 건드리면 안 되는 것: `shop-page-seven.vercel.app` 프로덕션 도메인
+Vercel 프로젝트 이름은 `auto-detail-page`로 바꿨지만, **실제 프로덕션 URL은
+`shop-page-seven.vercel.app`을 그대로 쓴다** — 이름이 안 맞다고 지우거나 새 걸로 바꾸려 하지 말 것.
+Vercel이 프로젝트당 인증벽 면제 대표 도메인을 최초 생성 시점에 영구 고정해서, 이름을 바꾸거나
+`vercel alias set`으로 새 별칭을 만들어도 새 별칭은 전부 로그인 필요 인증벽에 막힌다(실제 검증함,
+2026-08-13). 이 별칭을 지워도 다음 배포 때 **똑같은 이름으로 자동 재생성**될 뿐이니, `vercel alias`/
+`vercel domains` 관련 명령을 이 프로젝트에 실행할 때 이 도메인을 대상으로 삼지 말 것. 자세한 이유는
+README.md "프로덕션 URL이 shop-page-seven인 이유" 참고.
+
 ---
 
 ## 🎯 프로젝트 목적

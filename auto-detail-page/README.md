@@ -62,11 +62,36 @@ NEXT_PUBLIC_MAIN_SITE_URL=https://buylife.xyz
 
 ## 배포 정보
 
-- Vercel 프로젝트: `buylife/shop-page`
+- Vercel 프로젝트: `buylife/auto-detail-page` (2026-08-13에 `shop-page`에서 이름 변경함)
 - 프로덕션 URL: `https://shop-page-seven.vercel.app`
 - Puppeteer(`/api/export-image`)는 Vercel 환경에서 `@sparticuz/chromium-min` + `puppeteer-core`
   조합을 쓴다. 로컬 개발 시에는 `CHROME_PATH` 환경변수(또는 기본 Windows Chrome 경로)로 설치된
   Chrome을 그대로 사용한다.
+
+### ⚠️ 프로덕션 URL이 `shop-page-seven`인 이유 (건드리지 말 것)
+
+프로젝트 이름·폴더·GitHub 소스는 전부 `auto-detail-page`로 통일했지만, **실제 프로덕션
+URL만 옛 이름(`shop-page-seven.vercel.app`)이 그대로 남아있다.** 의도적으로 안 바꾼 것이 아니라
+Vercel 플랫폼 제약 때문에 **못 바꾼 것**이다:
+
+- Vercel은 프로젝트마다 "Vercel Authentication(로그인 필요 인증벽)이 면제된 대표 도메인" 딱
+  하나를 프로젝트 최초 생성 시점에 영구 고정한다. 이후 `vercel project rename`으로 이름을 바꾸거나
+  `vercel alias set`으로 새 별칭(`auto-detail-page.vercel.app`,
+  `auto-detail-page-buylife.vercel.app` 등)을 아무리 추가해도, 그 새 별칭들은 전부 인증벽에 막혀
+  로그인한 팀 멤버만 접속 가능하고 일반 사용자는 못 들어간다(2026-08-13에 직접 재현 확인함 — 다른
+  서브프로젝트의 `<이름>-buylife.vercel.app`류 별칭도 동일하게 막혀 있고, 오직
+  `insta-auto-poster-red`/`shots-inky`/`real-estate-sales-delta`처럼 최초 배포 시 자동 할당된
+  단어 하나짜리 별칭만 예외였다).
+- 이 대표 도메인 별칭(`shop-page-seven`)을 지워봐도, 다음 `vercel --prod` 배포 시 **똑같은 이름으로
+  자동 재생성**된다 — 새 프로젝트 이름을 반영한 다른 이름으로 바뀌지 않는다.
+- 완전히 새 이름의 주소를 쓰려면 이 Vercel 프로젝트 자체를 삭제하고 새로 만드는 방법뿐인데,
+  배포 이력·환경변수를 다시 세팅해야 하고 되돌리기 어려워 진행하지 않기로 했다(사용자 확인,
+  2026-08-13). 기능·보안(로그인 게이트, RLS, API 키 정책)에는 URL 이름과 무관하게 전혀 영향 없다.
+
+**따라서 이후 다른 CLI 작업이나 이 프로젝트를 다시 정리할 때, `shop-page-seven.vercel.app`
+도메인/별칭을 "이름이 안 맞으니까" 지우거나 바꾸려고 시도하지 말 것** — 지워도 똑같이
+`shop-page-seven`으로 재생성될 뿐이고, 그 사이 실제 서비스가 일시적으로 끊긴다. `programs.app_url`
+도 이 주소를 가리키도록 이미 맞춰뒀다.
 
 ## 남은 과제
 
