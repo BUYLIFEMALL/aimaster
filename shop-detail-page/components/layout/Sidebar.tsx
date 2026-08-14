@@ -15,7 +15,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
     <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:h-full md:w-60 md:justify-between md:border-b-0 md:border-r">
       <div className="flex items-center justify-between md:block">
         <div className="px-2 text-lg font-semibold text-neutral-900 md:mb-6">
-          AI 상세페이지 이미지 자동생성기
+          AI 상세페이지 자동분석
         </div>
         <nav className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
           {NAV_ITEMS.map((item) => (
