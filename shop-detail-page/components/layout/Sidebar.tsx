@@ -6,7 +6,7 @@ import { signOutAction } from "@/lib/actions/auth";
 // 실제로 만들어질 때마다 항목을 추가한다(AGENTS.md "Phase 진행 상태" 표와 동기화할 것).
 const NAV_ITEMS = [
   { href: "/products/new", label: "1. 상품분석" },
-  { href: "/products", label: "2. 이미지 생성" },
+  { href: "/products", label: "2. 상세페이지 생성" },
   { href: "/settings", label: "🔑 API 키 설정" },
 ];
 
