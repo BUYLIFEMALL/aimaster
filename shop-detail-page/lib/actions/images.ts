@@ -120,6 +120,66 @@ export async function generateSectionImageAction(
   }
 }
 
+/**
+ * 나노바나나로 생성하지 않고, 사용자가 직접 보유한 이미지를 그 섹션의 이력에 추가하고
+ * 곧바로 활성 이미지로 지정한다(업로드는 클라이언트에서 uploadCustomSectionImage로 직접 처리).
+ */
+export async function addCustomSectionImageAction(
+  productId: string,
+  templateId: string,
+  imageUrl: string,
+): Promise<GenerateSectionImageState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data: product, error: productError } = await supabase
+    .from("shop_products")
+    .select("language")
+    .eq("id", productId)
+    .single();
+  if (productError || !product) {
+    return { error: "상품을 찾을 수 없습니다." };
+  }
+
+  const { data: template, error: templateError } = await supabase
+    .from("shop_prompt_templates")
+    .select("id, section_key, section_order")
+    .eq("id", templateId)
+    .single();
+  if (templateError || !template) {
+    return { error: "프롬프트 템플릿을 찾을 수 없습니다." };
+  }
+
+  const { data: existing } = await supabase
+    .from("shop_product_images")
+    .select("image_urls")
+    .eq("product_id", productId)
+    .eq("section_key", template.section_key)
+    .eq("language", product.language)
+    .maybeSingle();
+
+  const history = [...(existing?.image_urls ?? []), imageUrl];
+
+  const { error: upsertError } = await supabase.from("shop_product_images").upsert(
+    {
+      product_id: productId,
+      user_id: user.id,
+      template_id: template.id,
+      section_key: template.section_key,
+      section_order: template.section_order,
+      language: product.language,
+      image_url: imageUrl,
+      image_urls: history,
+    },
+    { onConflict: "product_id,section_key,language" },
+  );
+  if (upsertError) {
+    return { error: `이미지 정보 저장 실패: ${upsertError.message}` };
+  }
+
+  return { url: imageUrl, sectionKey: template.section_key };
+}
+
 /** 재생성 이력(image_urls) 중 하나를 그 섹션의 활성 이미지(image_url)로 전환한다. 새로 생성하지 않는다. */
 export async function selectSectionImageAction(
   productId: string,

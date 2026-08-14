@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   generateSectionImageAction,
+  addCustomSectionImageAction,
   selectSectionImageAction,
   setProductStatusAction,
 } from "@/lib/actions/images";
+import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import type { ImageModelKey } from "@/lib/ai/gemini";
 
@@ -17,7 +19,7 @@ interface TemplateInfo {
 }
 
 interface SectionState {
-  status: "idle" | "generating" | "done" | "error";
+  status: "idle" | "generating" | "uploading" | "done" | "error";
   url?: string;
   history: string[];
   error?: string;
@@ -52,6 +54,10 @@ export function SectionImageGrid({
   const [model, setModel] = useState<ImageModelKey>("nanobanana2");
   const [isRunning, setIsRunning] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+
+  const uploadTargetRef = useRef<TemplateInfo | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function generateOne(template: TemplateInfo) {
     setStates((prev) => ({
@@ -107,6 +113,50 @@ export function SectionImageGrid({
     }
   }
 
+  function triggerCustomUpload(template: TemplateInfo) {
+    uploadTargetRef.current = template;
+    fileInputRef.current?.click();
+  }
+
+  async function handleCustomFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    const template = uploadTargetRef.current;
+    e.target.value = "";
+    if (!file || !template) return;
+
+    setStates((prev) => ({
+      ...prev,
+      [template.section_key]: { ...prev[template.section_key], status: "uploading" },
+    }));
+
+    const uploadResult = await uploadCustomSectionImage(productId, template.section_key, file);
+    if (uploadResult.error || !uploadResult.url) {
+      setStates((prev) => ({
+        ...prev,
+        [template.section_key]: { ...prev[template.section_key], status: "error", error: uploadResult.error },
+      }));
+      return;
+    }
+
+    const result = await addCustomSectionImageAction(productId, template.id, uploadResult.url);
+    if (result.error) {
+      setStates((prev) => ({
+        ...prev,
+        [template.section_key]: { ...prev[template.section_key], status: "error", error: result.error },
+      }));
+      return;
+    }
+
+    setStates((prev) => ({
+      ...prev,
+      [template.section_key]: {
+        status: "done",
+        url: uploadResult.url,
+        history: [...prev[template.section_key].history, uploadResult.url!],
+      },
+    }));
+  }
+
   const doneCount = Object.values(states).filter((s) => s.status === "done").length;
   const hasAnyImage = doneCount > 0;
 
@@ -118,6 +168,28 @@ export function SectionImageGrid({
           onClose={() => setShowApiKeyModal(false)}
         />
       )}
+
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 cursor-zoom-out"
+          onClick={() => setLightboxUrl(null)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lightboxUrl}
+            alt="원본 이미지"
+            className="max-w-full max-h-full object-contain rounded-lg"
+          />
+        </div>
+      )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleCustomFileChange}
+      />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-gray-500">
@@ -164,10 +236,18 @@ export function SectionImageGrid({
               <div className="aspect-[4/5] bg-gray-50 flex items-center justify-center relative">
                 {state.status === "done" && state.url && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={state.url} alt={t.section_name} className="w-full h-full object-cover" />
+                  <img
+                    src={state.url}
+                    alt={t.section_name}
+                    className="w-full h-full object-cover cursor-zoom-in"
+                    onClick={() => setLightboxUrl(state.url!)}
+                  />
                 )}
                 {state.status === "generating" && (
                   <span className="text-xs text-gray-400 animate-pulse">생성 중...</span>
+                )}
+                {state.status === "uploading" && (
+                  <span className="text-xs text-gray-400 animate-pulse">업로드 중...</span>
                 )}
                 {state.status === "idle" && <span className="text-xs text-gray-300">대기중</span>}
                 {state.status === "error" && (
@@ -188,25 +268,31 @@ export function SectionImageGrid({
                 )}
               </div>
 
-              {/* 재생성 이력 - 원하는 버전을 골라 최종 이미지로 선택 */}
-              {state.history.length > 1 && (
-                <div className="flex gap-1.5 overflow-x-auto px-2 pb-2">
-                  {state.history.map((url, i) => (
-                    <button
-                      key={url}
-                      type="button"
-                      onClick={() => handleSelect(t.section_key, url)}
-                      className={`shrink-0 w-12 h-12 rounded overflow-hidden border-2 ${
-                        state.url === url ? "border-blue-500" : "border-transparent opacity-70"
-                      }`}
-                      title={`버전 ${i + 1}${state.url === url ? " (선택됨)" : ""}`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt={`버전 ${i + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
+              {/* 재생성 이력 + 직접 업로드 - 원하는 버전을 골라 최종 이미지로 선택 */}
+              <div className="flex gap-1.5 overflow-x-auto px-2 pb-2">
+                {state.history.map((url, i) => (
+                  <button
+                    key={url}
+                    type="button"
+                    onClick={() => handleSelect(t.section_key, url)}
+                    className={`shrink-0 w-12 h-12 rounded overflow-hidden border-2 ${
+                      state.url === url ? "border-blue-500" : "border-transparent opacity-70"
+                    }`}
+                    title={`버전 ${i + 1}${state.url === url ? " (선택됨)" : ""}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt={`버전 ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => triggerCustomUpload(t)}
+                  className="shrink-0 w-12 h-12 rounded border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-gray-50 flex items-center justify-center text-gray-400 text-lg transition-colors"
+                  title="직접 보유한 이미지 추가"
+                >
+                  +
+                </button>
+              </div>
             </div>
           );
         })}
