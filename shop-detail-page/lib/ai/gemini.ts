@@ -2,9 +2,16 @@ import "server-only";
 
 // n8n 워크플로우가 실제 운영에서 쓰던 모델 이름을 그대로 사용한다.
 // - 상품분석(텍스트/비전): #0.상세페이지 자동화v2 | 상품분석.json → models/gemini-3.5-flash
-// - 이미지 생성(나노바나나 프로, image-to-image): #1/#3 워크플로우 → gemini-3-pro-image-preview
 const ANALYSIS_MODEL = "gemini-3.5-flash";
-const IMAGE_MODEL = "gemini-3-pro-image-preview";
+
+// 섹션 이미지 생성 모델: 나노바나나2(저렴, 기본값) / 나노바나나 프로(고품질, 선택 시에만).
+// 나노바나나 프로 쪽은 #1/#3 n8n 워크플로우가 실제 운영에서 쓰던 모델 ID를 그대로 가져왔다.
+export const IMAGE_MODELS = {
+  nanobanana2: "gemini-3.1-flash-image-preview",
+  nanobananaPro: "gemini-3-pro-image-preview",
+} as const;
+export type ImageModelKey = keyof typeof IMAGE_MODELS;
+export const DEFAULT_IMAGE_MODEL: ImageModelKey = "nanobanana2";
 
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
@@ -65,16 +72,17 @@ export async function analyzeProductWithGemini(params: {
   return text;
 }
 
-/** 섹션 이미지 생성: 완성 프롬프트 + 원본이미지(base64)를 나노바나나 프로에 image-to-image로 요청. */
+/** 섹션 이미지 생성: 완성 프롬프트 + 원본이미지(base64)를 선택한 나노바나나 모델에 image-to-image로 요청. */
 export async function generateSectionImageWithGemini(params: {
   prompt: string;
   referenceImage: { base64: string; mimeType: string };
   aspectRatio: string;
   resolution: string;
   apiKey: string;
+  model?: ImageModelKey;
 }): Promise<{ base64: string; mimeType: string }> {
   const json = await callGemini(
-    IMAGE_MODEL,
+    IMAGE_MODELS[params.model ?? DEFAULT_IMAGE_MODEL],
     {
       contents: [
         {

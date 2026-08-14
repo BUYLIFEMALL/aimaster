@@ -3,7 +3,8 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { fetchImageAsBase64, generateSectionImageWithGemini } from "@/lib/ai/gemini";
+import { fetchImageAsBase64, generateSectionImageWithGemini, DEFAULT_IMAGE_MODEL } from "@/lib/ai/gemini";
+import type { ImageModelKey } from "@/lib/ai/gemini";
 import { applyProductVariables } from "@/lib/ai/promptTemplates";
 import type { ProductStatus } from "@/types/database.types";
 
@@ -24,6 +25,7 @@ function extFromMime(mimeType: string): string {
 export async function generateSectionImageAction(
   productId: string,
   templateId: string,
+  model: ImageModelKey = DEFAULT_IMAGE_MODEL,
 ): Promise<GenerateSectionImageState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
@@ -67,6 +69,7 @@ export async function generateSectionImageAction(
       aspectRatio: template.aspect_ratio,
       resolution: template.resolution,
       apiKey,
+      model,
     });
 
     const ext = extFromMime(generated.mimeType);
@@ -115,6 +118,43 @@ export async function generateSectionImageAction(
   } catch (err) {
     return { error: err instanceof Error ? err.message : "이미지 생성 중 오류가 발생했습니다." };
   }
+}
+
+/** 재생성 이력(image_urls) 중 하나를 그 섹션의 활성 이미지(image_url)로 전환한다. 새로 생성하지 않는다. */
+export async function selectSectionImageAction(
+  productId: string,
+  sectionKey: string,
+  language: string,
+  imageUrl: string,
+): Promise<{ error?: string }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data: row, error: rowError } = await supabase
+    .from("shop_product_images")
+    .select("image_urls")
+    .eq("product_id", productId)
+    .eq("section_key", sectionKey)
+    .eq("language", language)
+    .single();
+  if (rowError || !row) {
+    return { error: "이미지 이력을 찾을 수 없습니다." };
+  }
+  if (!row.image_urls.includes(imageUrl)) {
+    return { error: "선택한 이미지가 이력에 없습니다." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("shop_product_images")
+    .update({ image_url: imageUrl })
+    .eq("product_id", productId)
+    .eq("section_key", sectionKey)
+    .eq("language", language)
+    .eq("user_id", user.id);
+  if (updateError) {
+    return { error: updateError.message };
+  }
+  return {};
 }
 
 /** 상품 상태(생성중/완료/에러)를 갱신한다. 전체 생성 배치의 시작/종료 시 호출한다. */

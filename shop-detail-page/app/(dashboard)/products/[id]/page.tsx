@@ -38,16 +38,16 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
 
   const { data: images } = await supabase
     .from("shop_product_images")
-    .select("section_key, image_url")
+    .select("section_key, image_url, image_urls")
     .eq("product_id", product.id)
     .eq("language", product.language);
 
-  const initialImages: Record<string, string> = {};
+  const initialImages: Record<string, { url: string; history: string[] }> = {};
   for (const img of images ?? []) {
-    if (img.image_url) initialImages[img.section_key] = img.image_url;
+    if (img.image_url) {
+      initialImages[img.section_key] = { url: img.image_url, history: img.image_urls ?? [] };
+    }
   }
-
-  const hasAnyImage = Object.keys(initialImages).length > 0;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -78,19 +78,10 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
       </div>
 
       <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-gray-800">섹션별 상세페이지 이미지</h2>
-          {hasAnyImage && (
-            <a
-              href={`/api/products/${product.id}/export`}
-              className="text-sm font-semibold text-white bg-gray-900 hover:bg-black px-4 py-2 rounded-lg"
-            >
-              📥 병합 이미지 다운로드
-            </a>
-          )}
-        </div>
+        <h2 className="font-bold text-gray-800 mb-4">섹션별 상세페이지 이미지</h2>
         <SectionImageGrid
           productId={product.id}
+          language={product.language}
           templates={templates ?? []}
           initialImages={initialImages}
         />
