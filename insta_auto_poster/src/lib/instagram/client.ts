@@ -37,6 +37,30 @@ async function parseGraphResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
+// Meta Graph API가 자체 서버 사정으로 이미지 컨테이너 생성/게시 요청에 "Timeout"을 그대로
+// 돌려주는 경우가 있다(우리 쪽 코드 타임아웃이 아니라 Meta 응답 본문의 error.message가 문자 그대로
+// "Timeout"). 이런 일시적 오류는 재시도하면 대부분 성공하므로, POST 요청 몇 개에 짧은 재시도를
+// 붙인다. 무한 재시도는 route의 maxDuration(120s) 예산을 넘길 수 있어 2회로 제한한다.
+async function postGraphWithRetry<T>(
+  url: string,
+  body: URLSearchParams,
+  maxRetries = 2,
+): Promise<T> {
+  let lastError: Error = new Error("Graph API 요청이 실패했습니다.");
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, { method: "POST", body });
+      return await parseGraphResponse<T>(response);
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      const isTransient = /timeout/i.test(lastError.message);
+      if (!isTransient || attempt === maxRetries) throw lastError;
+      await new Promise((resolve) => setTimeout(resolve, 1_500 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
+
 export function getInstagramAuthorizeUrl(state: string): string {
   const params = new URLSearchParams({
     client_id: getEnv("META_APP_ID"),
@@ -125,8 +149,7 @@ async function createImageContainer(params: {
     image_url: params.imageUrl,
     caption: params.caption,
   });
-  const response = await fetch(`${GRAPH_BASE}/${params.igUserId}/media`, { method: "POST", body });
-  const data = await parseGraphResponse<{ id: string }>(response);
+  const data = await postGraphWithRetry<{ id: string }>(`${GRAPH_BASE}/${params.igUserId}/media`, body);
   return data.id;
 }
 
@@ -163,8 +186,7 @@ async function publishContainer(params: {
   creationId: string;
 }): Promise<string> {
   const body = new URLSearchParams({ access_token: params.accessToken, creation_id: params.creationId });
-  const response = await fetch(`${GRAPH_BASE}/${params.igUserId}/media_publish`, { method: "POST", body });
-  const data = await parseGraphResponse<{ id: string }>(response);
+  const data = await postGraphWithRetry<{ id: string }>(`${GRAPH_BASE}/${params.igUserId}/media_publish`, body);
   return data.id;
 }
 
@@ -226,8 +248,7 @@ async function createCarouselItemContainer(params: {
     image_url: params.imageUrl,
     is_carousel_item: "true",
   });
-  const response = await fetch(`${GRAPH_BASE}/${params.igUserId}/media`, { method: "POST", body });
-  const data = await parseGraphResponse<{ id: string }>(response);
+  const data = await postGraphWithRetry<{ id: string }>(`${GRAPH_BASE}/${params.igUserId}/media`, body);
   return data.id;
 }
 
@@ -243,8 +264,7 @@ async function createCarouselParentContainer(params: {
     children: params.childrenIds.join(","),
     caption: params.caption,
   });
-  const response = await fetch(`${GRAPH_BASE}/${params.igUserId}/media`, { method: "POST", body });
-  const data = await parseGraphResponse<{ id: string }>(response);
+  const data = await postGraphWithRetry<{ id: string }>(`${GRAPH_BASE}/${params.igUserId}/media`, body);
   return data.id;
 }
 
