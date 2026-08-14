@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { signOutAction } from "@/lib/actions/auth";
 
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
+
 const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드" },
   { href: "/candidates", label: "게시글 주제 수집" },
@@ -13,8 +15,16 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   return (
     <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:h-full md:w-60 md:justify-between md:border-b-0 md:border-r">
       <div className="flex items-center justify-between md:block">
-        <div className="px-2 text-lg font-semibold text-neutral-900 md:mb-6">
-          인스타그램 자동 포스팅
+        <div>
+          <div className="px-2 text-lg font-semibold text-neutral-900">
+            인스타그램 자동 포스팅
+          </div>
+          <a
+            href={`${MAIN_SITE_URL}/programs`}
+            className="mb-4 block px-2 text-xs text-neutral-500 hover:text-neutral-900 md:mb-6"
+          >
+            ← 다른 프로그램 보기
+          </a>
         </div>
         <nav className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
           {NAV_ITEMS.map((item) => (
