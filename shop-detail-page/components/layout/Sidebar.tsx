@@ -7,7 +7,7 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 // Phase 1(상품분석/이미지생성)만 구현됐으므로 지금은 그 두 단계만 올리고, Phase 2~4가
 // 실제로 만들어질 때마다 항목을 추가한다(AGENTS.md "Phase 진행 상태" 표와 동기화할 것).
 const NAV_ITEMS = [
-  { href: "/products/new", label: "1. 상품분석" },
+  { href: "/products/new", label: "1. 상품 및 상세페이지 분석" },
   { href: "/products", label: "2. 상세페이지 생성" },
   { href: "/settings", label: "🔑 API 키 설정" },
 ];
