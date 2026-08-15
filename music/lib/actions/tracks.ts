@@ -39,10 +39,14 @@ export interface GenerateTracksOptions {
   count?: number;
   vocalGender?: VocalGender | null;
   lang?: string;
-  // 기획 단계에서 GPT가 만든 스타일 위에, 생성 직전에 사용자가 장르/무드 태그를 추가로 얹을 수
-  // 있게 한다(선택). 지정하면 항상 새 스타일을 만들어서 반영한다 — 기획 자체는 건드리지 않는다.
+  // 기획 단계에서 GPT가 만든 스타일 위에, 생성 직전에 사용자가 장르/무드/악기/보컬톤/템포 태그를
+  // 추가로 얹을 수 있게 한다(선택). 지정하면 항상 새 스타일을 만들어서 반영한다 — 기획 자체는
+  // 건드리지 않는다. vocalTone은 보컬버전에만 적용된다(인스트루멘탈판은 무시).
   genre?: string[];
   mood?: string[];
+  instruments?: string[];
+  vocalTone?: string[];
+  tempo?: string[];
 }
 
 export async function generateTracksAction(
@@ -79,7 +83,10 @@ export async function generateTracksAction(
   const vocalGenderChanged = effectiveVocalGender !== (planning.vocal_gender ?? null);
   const genre = options.genre?.length ? options.genre : undefined;
   const mood = options.mood?.length ? options.mood : undefined;
-  const hasTagOverride = Boolean(genre || mood);
+  const instruments = options.instruments?.length ? options.instruments : undefined;
+  const vocalTone = options.vocalTone?.length ? options.vocalTone : undefined;
+  const tempo = options.tempo?.length ? options.tempo : undefined;
+  const hasTagOverride = Boolean(genre || mood || instruments || vocalTone || tempo);
 
   const openaiKey = await resolveApiKey(supabase, user.id, "openai");
   if (!openaiKey) return { needsApiKey: "openai" };
@@ -93,8 +100,8 @@ export async function generateTracksAction(
       const modeVocalGender = mode === "vocal" ? effectiveVocalGender : null;
       const modeGenderChanged = mode === "vocal" && vocalGenderChanged;
       // 인스트루멘탈판은 기획의 스타일(보컬 묘사가 섞여 있을 수 있음)을 그대로 재사용하지 않고
-      // 매번 보컬 없는 스타일을 새로 만든다. 장르/무드 태그를 추가했을 때도 마찬가지로 새 스타일이
-      // 필요하다.
+      // 매번 보컬 없는 스타일을 새로 만든다. 장르/무드/악기/보컬톤/템포 태그를 추가했을 때도
+      // 마찬가지로 새 스타일이 필요하다.
       const needsFreshStyle = mode === "instrumental" || modeGenderChanged || hasTagOverride;
 
       for (let i = 0; i < clampedCount; i++) {
@@ -109,6 +116,10 @@ export async function generateTracksAction(
               avoidStyles: usedStyles.length > 0 ? usedStyles : undefined,
               genre,
               mood,
+              instruments,
+              // 보컬톤은 보컬버전에만 의미가 있다 — 인스트루멘탈판에는 넘기지 않는다.
+              vocalTone: mode === "vocal" ? vocalTone : undefined,
+              tempo,
             },
             openaiKey,
           );
@@ -180,7 +191,18 @@ export async function generateTracksAction(
     await logProgramUsage({
       userId: user.id,
       action: "generate_tracks",
-      metadata: { planningId, modes, count: clampedCount, vocalGender: effectiveVocalGender, lang: effectiveLang, genre, mood },
+      metadata: {
+        planningId,
+        modes,
+        count: clampedCount,
+        vocalGender: effectiveVocalGender,
+        lang: effectiveLang,
+        genre,
+        mood,
+        instruments,
+        vocalTone,
+        tempo,
+      },
     });
 
     revalidatePath(`/plannings/${planningId}`);
@@ -200,10 +222,13 @@ export interface RegenerateMusicOptions {
   vocalGender: VocalGender | null;
   lang: string;
   count: number;
-  // "생성하기" 패널과 동일한 장르/무드 태그 override(선택) — 지정하면 항상 새 가사/스타일을
-  // 만든다(수정한 가사를 그대로 살리는 경로를 쓰지 않는다).
+  // "생성하기" 패널과 동일한 장르/무드/악기/보컬톤/템포 태그 override(선택) — 지정하면 항상
+  // 새 가사/스타일을 만든다(수정한 가사를 그대로 살리는 경로를 쓰지 않는다).
   genre?: string[];
   mood?: string[];
+  instruments?: string[];
+  vocalTone?: string[];
+  tempo?: string[];
 }
 
 /**
@@ -253,7 +278,10 @@ export async function regenerateMusicAction(
   const langChanged = options.lang.trim() !== planning.lang;
   const genre = options.genre?.length ? options.genre : undefined;
   const mood = options.mood?.length ? options.mood : undefined;
-  const hasTagOverride = Boolean(genre || mood);
+  const instruments = options.instruments?.length ? options.instruments : undefined;
+  const vocalTone = options.vocalTone?.length ? options.vocalTone : undefined;
+  const tempo = options.tempo?.length ? options.tempo : undefined;
+  const hasTagOverride = Boolean(genre || mood || instruments || vocalTone || tempo);
   const needsFreshLyrics = genderChanged || langChanged || clampedCount > 1 || hasTagOverride;
   const needsFreshStyle = genderChanged || hasTagOverride;
 
@@ -282,6 +310,9 @@ export async function regenerateMusicAction(
               avoidStyles: i > 0 ? usedStyles : undefined,
               genre,
               mood,
+              instruments,
+              vocalTone,
+              tempo,
             },
             openaiKey!,
           );
@@ -342,7 +373,7 @@ export async function regenerateMusicAction(
     await logProgramUsage({
       userId: user.id,
       action: "regenerate_music",
-      metadata: { trackId, count: clampedCount, genderChanged, langChanged, genre, mood },
+      metadata: { trackId, count: clampedCount, genderChanged, langChanged, genre, mood, instruments, vocalTone, tempo },
     });
     revalidatePath(`/plannings/${original.planning_id}`);
     return {};

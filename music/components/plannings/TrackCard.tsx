@@ -13,6 +13,12 @@ import {
   GENRE_MAX_SELECT,
   MOOD_OPTIONS,
   MOOD_MAX_SELECT,
+  INSTRUMENT_OPTIONS,
+  INSTRUMENT_MAX_SELECT,
+  VOCAL_TONE_OPTIONS,
+  VOCAL_TONE_MAX_SELECT,
+  TEMPO_OPTIONS,
+  TEMPO_MAX_SELECT,
 } from "@/lib/constants";
 import type { TrackMode, TrackStatus, VocalGender } from "@/types/database.types";
 
@@ -67,6 +73,9 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   const [count, setCount] = useState(1);
   const [genreTags, setGenreTags] = useState<string[]>([]);
   const [moodTags, setMoodTags] = useState<string[]>([]);
+  const [instrumentTags, setInstrumentTags] = useState<string[]>([]);
+  const [vocalToneTags, setVocalToneTags] = useState<string[]>([]);
+  const [tempoTags, setTempoTags] = useState<string[]>([]);
   const [showTagOptions, setShowTagOptions] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -102,8 +111,19 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   function toggleMood(value: string) {
     setMoodTags((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
   }
+  function toggleInstrument(value: string) {
+    setInstrumentTags((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  }
+  function toggleVocalTone(value: string) {
+    setVocalToneTags((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  }
+  function toggleTempo(value: string) {
+    setTempoTags((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  }
 
-  const hasTagOverride = genreTags.length > 0 || moodTags.length > 0;
+  const selectedTagCount =
+    genreTags.length + moodTags.length + instrumentTags.length + vocalToneTags.length + tempoTags.length;
+  const hasTagOverride = selectedTagCount > 0;
   const willUseAi =
     vocalGender !== (track.vocal_gender ?? "") || lang !== planningLang || count > 1 || hasTagOverride;
 
@@ -118,6 +138,9 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
         count,
         genre: genreTags,
         mood: moodTags,
+        instruments: instrumentTags,
+        vocalTone: vocalToneTags,
+        tempo: tempoTags,
       });
       if (result.needsApiKey) {
         setMissingProvider(result.needsApiKey);
@@ -237,8 +260,10 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
               onClick={() => setShowTagOptions((v) => !v)}
               className="text-xs font-semibold text-blue-600 hover:underline"
             >
-              {showTagOptions ? "▲ 장르/무드 추가 옵션 닫기" : "▼ 장르/무드 추가 옵션 (선택)"}
-              {hasTagOverride && !showTagOptions && ` — ${genreTags.length + moodTags.length}개 선택됨`}
+              {showTagOptions
+                ? "▲ 장르/무드/악기/보컬톤/템포 추가 옵션 닫기"
+                : "▼ 장르/무드/악기/보컬톤/템포 추가 옵션 (선택)"}
+              {hasTagOverride && !showTagOptions && ` — ${selectedTagCount}개 선택됨`}
             </button>
 
             {showTagOptions && (
@@ -253,12 +278,38 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                   <p className="mb-1.5 text-xs font-semibold text-gray-500">무드 (최대 {MOOD_MAX_SELECT}개)</p>
                   <TagChips options={MOOD_OPTIONS} selected={moodTags} max={MOOD_MAX_SELECT} onToggle={toggleMood} />
                 </div>
+                <div>
+                  <p className="mb-1.5 text-xs font-semibold text-gray-500">
+                    악기 (최대 {INSTRUMENT_MAX_SELECT}개)
+                  </p>
+                  <TagChips
+                    options={INSTRUMENT_OPTIONS}
+                    selected={instrumentTags}
+                    max={INSTRUMENT_MAX_SELECT}
+                    onToggle={toggleInstrument}
+                  />
+                </div>
+                <div>
+                  <p className="mb-1.5 text-xs font-semibold text-gray-500">
+                    보컬톤 (최대 {VOCAL_TONE_MAX_SELECT}개)
+                  </p>
+                  <TagChips
+                    options={VOCAL_TONE_OPTIONS}
+                    selected={vocalToneTags}
+                    max={VOCAL_TONE_MAX_SELECT}
+                    onToggle={toggleVocalTone}
+                  />
+                </div>
+                <div>
+                  <p className="mb-1.5 text-xs font-semibold text-gray-500">템포 (최대 {TEMPO_MAX_SELECT}개)</p>
+                  <TagChips options={TEMPO_OPTIONS} selected={tempoTags} max={TEMPO_MAX_SELECT} onToggle={toggleTempo} />
+                </div>
               </div>
             )}
 
             <p className="text-xs text-gray-400">
               {willUseAi
-                ? "성별/언어/곡수를 원래와 다르게 고르거나 장르/무드 태그를 추가하면, 위 가사 대신 AI가 새로 작사·작곡해서 생성합니다."
+                ? "성별/언어/곡수를 원래와 다르게 고르거나 태그를 추가하면, 위 가사 대신 AI가 새로 작사·작곡해서 생성합니다."
                 : "성별/언어/곡수를 그대로 두고 태그도 추가하지 않으면 위에서 수정한 가사를 그대로 살려서 재생성합니다."}
             </p>
 

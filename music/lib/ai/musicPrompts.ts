@@ -41,11 +41,11 @@ const STYLE_SYSTEM_PROMPT = `# 역할 및 목표
   - "혼성"이면 남녀가 함께 또는 번갈아 부르는 듀엣임을 명시할 것(예: "male and female duet
     vocals, alternating verses" 또는 "mixed male/female vocal duet").
   - 지정하지 않았다면 보컬 성별을 명시하지 말 것.
-* 사용자가 "지정 장르"/"지정 무드" 태그를 직접 선택해서 줬다면, 그 태그는 참고가 아니라 **반드시
-  반영해야 하는 확정 값**이다 — 임의로 다른 장르/무드로 바꾸거나 무시하지 말고, 자연스러운
-  영어 문장 안에 그 장르/무드 단어(또는 동의어)가 명확히 드러나도록 스타일 설명을 작성할 것.
-  곡 설명(자유 텍스트)과 지정 태그가 다소 안 맞아 보여도, 지정 태그를 우선하고 곡 설명은
-  분위기/상황 묘사를 보충하는 용도로만 사용할 것.
+* 사용자가 "지정 장르"/"지정 무드"/"지정 악기"/"지정 보컬톤"/"지정 템포" 태그를 직접 선택해서
+  줬다면, 그 태그들은 참고가 아니라 **반드시 반영해야 하는 확정 값**이다 — 임의로 다른 값으로
+  바꾸거나 무시하지 말고, 자연스러운 영어 문장 안에 그 단어(또는 동의어)가 명확히 드러나도록
+  스타일 설명을 작성할 것. 곡 설명(자유 텍스트)과 지정 태그가 다소 안 맞아 보여도, 지정 태그를
+  우선하고 곡 설명은 분위기/상황 묘사를 보충하는 용도로만 사용할 것.
 * 반드시 영어로만 작성할 것.
 * "이미 사용한 스타일" 목록이 주어지면, 그 목록과 겹치지 않는 새로운 장르/악기/분위기 조합을
   제안할 것 — 같은 곡 설명이라도 여러 버전을 만들 때 매번 다르게 들려야 한다.
@@ -69,16 +69,26 @@ export async function generateStyleAndExclude(
     avoidStyles?: string[];
     genre?: string[];
     mood?: string[];
+    instruments?: string[];
+    vocalTone?: string[];
+    tempo?: string[];
   },
   apiKey: string,
 ): Promise<StyleAndExcludeResult> {
   const vocalLine = input.vocalGender ? `\n보컬: ${input.vocalGender}` : "";
   const genreLine = input.genre?.length ? `\n지정 장르(반드시 반영): ${input.genre.join(", ")}` : "";
   const moodLine = input.mood?.length ? `\n지정 무드(반드시 반영): ${input.mood.join(", ")}` : "";
+  const instrumentLine = input.instruments?.length
+    ? `\n지정 악기(반드시 반영): ${input.instruments.join(", ")}`
+    : "";
+  const vocalToneLine = input.vocalTone?.length
+    ? `\n지정 보컬톤(반드시 반영): ${input.vocalTone.join(", ")}`
+    : "";
+  const tempoLine = input.tempo?.length ? `\n지정 템포(반드시 반영): ${input.tempo.join(", ")}` : "";
   const avoidLine = input.avoidStyles?.length
     ? `\n\n이미 사용한 스타일(겹치지 않게 새롭게 만들어주세요):\n${input.avoidStyles.map((s, i) => `${i + 1}. ${s}`).join("\n")}`
     : "";
-  const userPrompt = `# 요청\n${input.songDescription}${vocalLine}${genreLine}${moodLine}${avoidLine}`;
+  const userPrompt = `# 요청\n${input.songDescription}${vocalLine}${genreLine}${moodLine}${instrumentLine}${vocalToneLine}${tempoLine}${avoidLine}`;
   return callOpenAiJson<StyleAndExcludeResult>(STYLE_SYSTEM_PROMPT, userPrompt, apiKey, {
     model: "gpt-4o-mini",
     temperature: 1.1,
