@@ -1,7 +1,7 @@
 import "server-only";
 
 const SUNO_BASE = "https://api.sunoapi.org";
-export const DEFAULT_SUNO_MODEL = "V4_5";
+export const DEFAULT_SUNO_MODEL = "V5_5";
 
 export interface RequestSunoGenerationInput {
   prompt: string; // 보컬판: 가사 전문 / 인스트루멘탈판: BGM 프롬프트
