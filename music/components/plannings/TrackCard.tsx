@@ -81,7 +81,7 @@ const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno"
  * 기획을 나중에 수정해도 이미 생성된 카드의 라벨은 바뀌지 않는다. */
 function trackTitleLabel(track: Pick<TrackCardData, "mode" | "vocal_gender" | "extended_from_variant_id">): string {
   const prefix = track.extended_from_variant_id ? "🔁 연장본 · " : "";
-  if (track.mode === "instrumental") return `${prefix}🎹 인스트루멘탈버전(반주만)`;
+  if (track.mode === "instrumental") return `${prefix}🎹 BGM(배경음악)`;
   const label = track.vocal_gender ? `${VOCAL_GENDER_LABEL[track.vocal_gender]}곡` : "가사 포함";
   return `${prefix}🎤 보컬버전(${label})`;
 }

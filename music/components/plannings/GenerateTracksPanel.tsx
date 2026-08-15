@@ -123,7 +123,7 @@ export function GenerateTracksPanel({
               checked={instrumental}
               onChange={(e) => setInstrumental(e.target.checked)}
             />
-            인스트루멘탈버전 (반주만)
+            BGM(배경음악)
           </label>
         </div>
 
@@ -234,7 +234,7 @@ export function GenerateTracksPanel({
             (willUseAi
               ? "성별/언어/태그를 기획과 다르게 선택했습니다 — 기획 내용은 그대로 두고, 이번 생성만 선택한 값으로 만듭니다. "
               : "기획에서 정한 성별/언어 그대로 생성합니다. ")}
-          {instrumental && "인스트루멘탈버전은 가사/보컬 없이 반주만 생성됩니다(성별·언어와 무관). "}
+          {instrumental && "BGM(배경음악)은 가사/보컬 없이 반주만 생성됩니다(성별·언어와 무관). "}
           2곡 이상 선택하면 첫 곡은 기획된 스타일 그대로(성별을 바꿨거나 인스트루멘탈이거나 태그를
           추가했으면 새 스타일부터), 나머지는 AI가 겹치지 않는 새 스타일 변주를 만들어 각각 다른
           느낌으로 생성합니다. 선택한 버전별로 매번 OpenAI/Suno API가 호출되니 개수만큼 비용이
