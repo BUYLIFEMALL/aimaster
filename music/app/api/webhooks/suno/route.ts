@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { SunoCallbackItem, SunoCallbackPayload } from "@/lib/ai/suno";
+import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
+import type { SunoCallbackPayload } from "@/lib/ai/suno";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,10 @@ export const dynamic = "force-dynamic";
  *
  * Suno 콜백은 callbackType이 "text" → "first" → "complete" 순으로 여러 번 오므로,
  * "complete"(양쪽 트랙 모두 준비 완료)일 때만 최종 저장 처리하고 나머지는 무시한다.
+ *
+ * 이 웹훅은 로컬 개발 환경(localhost)이나 네트워크 문제로 도달하지 못할 수 있다 — 그 경우를
+ * 대비해 lib/actions/tracks.ts의 syncTrackStatusAction()으로 사용자가 직접 "상태 확인"
+ * 버튼을 눌러 record-info 폴링으로 같은 저장 로직(lib/trackSync.ts)을 수동 실행할 수 있다.
  */
 export async function POST(request: NextRequest) {
   let payload: SunoCallbackPayload;
@@ -52,97 +57,16 @@ export async function POST(request: NextRequest) {
   }
 
   if (payload.code !== 200) {
-    await admin
-      .from("music_tracks")
-      .update({ status: "failed", error_message: payload.msg ?? "알 수 없는 오류" })
-      .eq("id", track.id);
-    await syncPlanningStatus(admin, track.planning_id);
+    await markTrackFailed(admin, track, payload.msg ?? "알 수 없는 오류");
     return NextResponse.json({ ok: true });
   }
 
   const items = payload.data?.data ?? [];
-  const variants = await Promise.all(
-    items.map((item, index) => persistVariant(admin, track.user_id, track.id, item, index)),
-  );
-  const validVariants = variants.filter((v): v is NonNullable<typeof v> => v !== null);
+  const { savedCount } = await saveSunoTrackResult(admin, track, items);
 
-  if (validVariants.length === 0) {
-    await admin
-      .from("music_tracks")
-      .update({ status: "failed", error_message: "Suno가 오디오 URL을 반환하지 않았습니다." })
-      .eq("id", track.id);
-    await syncPlanningStatus(admin, track.planning_id);
-    return NextResponse.json({ ok: true });
+  if (savedCount === 0) {
+    await markTrackFailed(admin, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
   }
-
-  await admin.from("music_track_variants").insert(validVariants);
-  await admin.from("music_tracks").update({ status: "completed" }).eq("id", track.id);
-  await syncPlanningStatus(admin, track.planning_id);
 
   return NextResponse.json({ ok: true });
-}
-
-type AdminClient = ReturnType<typeof createAdminClient>;
-
-/** Suno의 임시 오디오/이미지 URL을 우리 Storage(music-audio)에 영구 저장한다. 실패하면 null. */
-async function persistVariant(
-  admin: AdminClient,
-  userId: string,
-  trackId: string,
-  item: SunoCallbackItem,
-  index: number,
-) {
-  const sourceAudioUrl = item.audio_url || item.stream_audio_url;
-  if (!sourceAudioUrl) return null;
-
-  const audioUrl = await persistToStorage(admin, `${userId}/${trackId}/${index}.mp3`, sourceAudioUrl, "audio/mpeg");
-  const imageUrl = item.image_url
-    ? await persistToStorage(admin, `${userId}/${trackId}/${index}.jpg`, item.image_url, "image/jpeg")
-    : null;
-
-  return {
-    track_id: trackId,
-    user_id: userId,
-    suno_audio_id: item.id ?? null,
-    audio_url: audioUrl,
-    image_url: imageUrl,
-    duration_seconds: item.duration != null ? Math.round(item.duration) : null,
-  };
-}
-
-/** shots/persistBgmAudio()와 동일한 패턴: 다운로드 실패 시 원본 URL을 그대로 폴백으로 쓴다. */
-async function persistToStorage(
-  admin: AdminClient,
-  path: string,
-  sourceUrl: string,
-  contentType: string,
-): Promise<string> {
-  try {
-    const response = await fetch(sourceUrl);
-    if (!response.ok) return sourceUrl;
-    const buffer = Buffer.from(await response.arrayBuffer());
-
-    const { error } = await admin.storage.from("music-audio").upload(path, buffer, { contentType, upsert: true });
-    if (error) return sourceUrl;
-
-    const { data } = admin.storage.from("music-audio").getPublicUrl(path);
-    return data.publicUrl;
-  } catch {
-    return sourceUrl;
-  }
-}
-
-/** 기획에 속한 모든 트랙이 종결 상태(completed/failed)가 되면 기획 상태도 함께 정리한다. */
-async function syncPlanningStatus(admin: AdminClient, planningId: string) {
-  const { data: tracks } = await admin.from("music_tracks").select("status").eq("planning_id", planningId);
-  if (!tracks || tracks.length === 0) return;
-
-  const stillGenerating = tracks.some((t) => t.status === "generating");
-  if (stillGenerating) return;
-
-  const allFailed = tracks.every((t) => t.status === "failed");
-  await admin
-    .from("music_plannings")
-    .update({ status: allFailed ? "error" : "completed" })
-    .eq("id", planningId);
 }

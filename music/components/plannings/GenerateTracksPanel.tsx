@@ -8,18 +8,11 @@ import type { TrackMode } from "@/types/database.types";
 
 const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno" };
 
-export function GenerateTracksPanel({
-  planningId,
-  hasVocalTrack,
-  hasInstrumentalTrack,
-}: {
-  planningId: string;
-  hasVocalTrack: boolean;
-  hasInstrumentalTrack: boolean;
-}) {
+export function GenerateTracksPanel({ planningId }: { planningId: string }) {
   const router = useRouter();
-  const [vocal, setVocal] = useState(!hasVocalTrack);
-  const [instrumental, setInstrumental] = useState(!hasInstrumentalTrack);
+  // 기본값으로 미리 체크해두지 않는다 — 사용자가 매번 원하는 버전을 직접 선택하게 한다.
+  const [vocal, setVocal] = useState(false);
+  const [instrumental, setInstrumental] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [missingProvider, setMissingProvider] = useState<string | null>(null);

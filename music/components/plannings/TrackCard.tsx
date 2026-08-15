@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { regenerateTrackAction } from "@/lib/actions/tracks";
+import { regenerateTrackAction, syncTrackStatusAction } from "@/lib/actions/tracks";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import type { TrackMode, TrackStatus } from "@/types/database.types";
 
@@ -37,6 +37,29 @@ export function TrackCard({ track }: { track: TrackCardData }) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [needsApiKey, setNeedsApiKey] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
+  /**
+   * 웹훅이 도달하지 못했을 때(로컬 개발 환경은 항상 그렇고, 배포 환경에서도 드물게 콜백이
+   * 유실될 수 있다) 대비한 수동 동기화 — Suno에 직접 완료 여부를 물어본다.
+   */
+  async function handleSyncStatus() {
+    setSyncError(null);
+    setIsSyncing(true);
+    try {
+      const result = await syncTrackStatusAction(track.id);
+      if (result.error) {
+        setSyncError(result.error);
+      } else if (result.status && result.status !== "generating") {
+        router.refresh();
+      } else {
+        setSyncError("아직 Suno에서 생성이 끝나지 않았습니다. 잠시 후 다시 확인해주세요.");
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  }
 
   async function handleRegenerate() {
     setError(null);
@@ -70,6 +93,20 @@ export function TrackCard({ track }: { track: TrackCardData }) {
 
         {track.status === "failed" && track.error_message && (
           <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{track.error_message}</p>
+        )}
+
+        {track.status === "generating" && (
+          <div className="mb-3">
+            <button
+              type="button"
+              onClick={handleSyncStatus}
+              disabled={isSyncing}
+              className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+            >
+              {isSyncing ? "확인 중..." : "지금 상태 확인 (Suno에 직접 조회)"}
+            </button>
+            {syncError && <p className="mt-1 text-xs text-red-600">{syncError}</p>}
+          </div>
         )}
 
         {track.music_track_variants.length > 0 && (

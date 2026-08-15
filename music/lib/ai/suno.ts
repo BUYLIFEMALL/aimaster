@@ -79,3 +79,68 @@ export interface SunoCallbackPayload {
     data?: SunoCallbackItem[];
   };
 }
+
+// ─────────────────────────────────────────────────────────────
+// 웹훅이 도달하지 못하는 경우(로컬 개발 환경, 혹은 배포 환경에서도 드물게 콜백 유실)를
+// 대비한 수동 동기화용 폴링. shots/src/lib/ai/music.ts의 checkMusicGenerationStatus()와
+// 동일한 record-info 엔드포인트를 쓴다.
+export type SunoPollResult =
+  | { state: "processing" }
+  | { state: "ready"; tracks: SunoCallbackItem[] }
+  | { state: "failed"; error: string };
+
+export async function checkSunoGenerationStatus(taskId: string, apiKey: string): Promise<SunoPollResult> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  }
+
+  const response = await fetch(`${SUNO_BASE}/api/v1/generate/record-info?taskId=${taskId}`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Suno 상태 조회에 실패했습니다. (${response.status}) ${errorBody}`);
+  }
+
+  const data = (await response.json()) as {
+    code: number;
+    data?: {
+      status?: string;
+      errorMessage?: string;
+      response?: {
+        sunoData?: {
+          id?: string;
+          audioUrl?: string;
+          streamAudioUrl?: string;
+          imageUrl?: string;
+          title?: string;
+          duration?: number;
+        }[];
+      };
+    };
+  };
+
+  const status = data.data?.status ?? "";
+
+  if (status === "SUCCESS") {
+    const sunoData = data.data?.response?.sunoData ?? [];
+    const tracks: SunoCallbackItem[] = sunoData.map((t) => ({
+      id: t.id,
+      audio_url: t.audioUrl,
+      stream_audio_url: t.streamAudioUrl,
+      image_url: t.imageUrl,
+      title: t.title,
+      duration: t.duration,
+    }));
+    if (tracks.length === 0) {
+      return { state: "failed", error: "Suno가 완료됐지만 오디오 URL을 찾지 못했습니다." };
+    }
+    return { state: "ready", tracks };
+  }
+
+  if (status.includes("FAILED") || status === "SENSITIVE_WORD_ERROR" || status === "CALLBACK_EXCEPTION") {
+    return { state: "failed", error: data.data?.errorMessage || `생성 실패 (${status})` };
+  }
+
+  return { state: "processing" };
+}

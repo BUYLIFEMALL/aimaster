@@ -66,6 +66,64 @@ export async function planMusicAction(formData: FormData): Promise<PlanMusicStat
   }
 }
 
+export interface UpdatePlanningState {
+  error?: string;
+  success?: boolean;
+}
+
+/**
+ * GPT가 기획한 제목/설명/스타일/제외스타일 등을 사용자가 직접 고칠 수 있게 한다.
+ * GPT를 다시 호출하지 않고 값만 그대로 저장한다 — 이후 "생성하기"를 누르면 이 수정된
+ * 값을 기준으로 트랙이 생성된다. 이미 생성된 트랙에는 소급 적용되지 않는다.
+ */
+export async function updatePlanningAction(
+  planningId: string,
+  fields: {
+    title: string;
+    description: string;
+    songDescription: string;
+    styleDescription: string;
+    excludeStyles: string;
+    vocalGender: VocalGender | null;
+    lang: string;
+  },
+): Promise<UpdatePlanningState> {
+  const user = await requireProgramAccess();
+
+  const title = fields.title.trim();
+  const songDescription = fields.songDescription.trim();
+  const styleDescription = fields.styleDescription.trim();
+  const excludeStyles = fields.excludeStyles.trim();
+  const lang = fields.lang.trim() || "한국어";
+
+  if (!title || !songDescription || !styleDescription) {
+    return { error: "제목, 곡 설명, 스타일은 비워둘 수 없습니다." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("music_plannings")
+    .update({
+      title,
+      description: fields.description.trim(),
+      song_description: songDescription,
+      style_description: styleDescription,
+      exclude_styles: excludeStyles,
+      vocal_gender: fields.vocalGender,
+      lang,
+    })
+    .eq("id", planningId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/plannings/${planningId}`);
+  revalidatePath("/plannings");
+  return { success: true };
+}
+
 /** 기획을 삭제한다(연결된 트랙/variant도 cascade로 함께 삭제됨). */
 export async function deletePlanningAction(formData: FormData) {
   const user = await requireProgramAccess();

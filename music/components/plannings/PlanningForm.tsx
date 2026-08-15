@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { planMusicAction } from "@/lib/actions/plannings";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
-
-const LANG_OPTIONS = ["한국어", "English", "Japanese", "Chinese"];
+import { LANG_OPTIONS } from "@/lib/constants";
 
 export function PlanningForm() {
   const router = useRouter();

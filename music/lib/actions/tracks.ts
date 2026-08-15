@@ -5,8 +5,9 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateLyrics, generateInstrumentalPrompt } from "@/lib/ai/musicPrompts";
-import { requestSunoGeneration, DEFAULT_SUNO_MODEL } from "@/lib/ai/suno";
-import type { TrackMode } from "@/types/database.types";
+import { requestSunoGeneration, checkSunoGenerationStatus, DEFAULT_SUNO_MODEL } from "@/lib/ai/suno";
+import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
+import type { TrackMode, TrackStatus } from "@/types/database.types";
 
 export interface GenerateTracksState {
   error?: string;
@@ -183,5 +184,66 @@ export async function regenerateTrackAction(
     return {};
   } catch (err) {
     return { error: err instanceof Error ? err.message : "재생성 요청 중 오류가 발생했습니다." };
+  }
+}
+
+export interface SyncTrackStatusState {
+  error?: string;
+  status?: TrackStatus;
+}
+
+/**
+ * Suno 웹훅이 도달하지 못한 경우(로컬 개발 환경에서는 항상 그렇고, 배포 환경에서도 드물게
+ * 콜백이 유실될 수 있다)를 대비한 수동 동기화. record-info로 직접 조회해서 웹훅이 했어야 할
+ * 저장 작업을 그대로 수행한다(lib/trackSync.ts를 웹훅 라우트와 공유).
+ */
+export async function syncTrackStatusAction(trackId: string): Promise<SyncTrackStatusState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data: track, error: trackError } = await supabase
+    .from("music_tracks")
+    .select("id, user_id, planning_id, task_id, status")
+    .eq("id", trackId)
+    .eq("user_id", user.id)
+    .single();
+  if (trackError || !track) {
+    return { error: "트랙을 찾을 수 없습니다." };
+  }
+  if (track.status !== "generating") {
+    return { status: track.status };
+  }
+  if (!track.task_id) {
+    return { error: "이 트랙은 아직 Suno에 생성 요청이 전달되지 않았습니다." };
+  }
+
+  const sunoKey = await resolveApiKey(supabase, user.id, "suno");
+  if (!sunoKey) {
+    return { error: "Suno API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+  }
+
+  try {
+    const result = await checkSunoGenerationStatus(track.task_id, sunoKey);
+
+    if (result.state === "processing") {
+      return { status: "generating" };
+    }
+    if (result.state === "failed") {
+      await markTrackFailed(supabase, track, result.error);
+      revalidatePath(`/plannings/${track.planning_id}`);
+      return { status: "failed" };
+    }
+
+    const { savedCount } = await saveSunoTrackResult(supabase, track, result.tracks);
+    if (savedCount === 0) {
+      await markTrackFailed(supabase, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
+      revalidatePath(`/plannings/${track.planning_id}`);
+      return { status: "failed" };
+    }
+
+    revalidatePath(`/plannings/${track.planning_id}`);
+    return { status: "completed" };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "상태 확인 중 오류가 발생했습니다." };
   }
 }
