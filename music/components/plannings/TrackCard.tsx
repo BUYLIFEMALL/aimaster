@@ -161,7 +161,7 @@ export function TrackCard({ track }: { track: TrackCardData }) {
                     disabled={isPending}
                     className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
                   >
-                    {isPending ? "재생성 요청 중..." : "수정해서 재생성"}
+                    {isPending ? "재생성 요청 중..." : "가사 수정후 재생성"}
                   </button>
                   <button
                     type="button"
@@ -185,7 +185,7 @@ export function TrackCard({ track }: { track: TrackCardData }) {
                   onClick={() => setEditing(true)}
                   className="mt-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                 >
-                  가사 수정 후 재생성
+                  가사 수정후 재생성
                 </button>
               </div>
             )}
