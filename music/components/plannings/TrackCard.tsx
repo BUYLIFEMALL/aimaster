@@ -159,7 +159,7 @@ export function TrackCard({ track }: { track: TrackCardData }) {
                     type="button"
                     onClick={handleRegenerate}
                     disabled={isPending}
-                    className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60"
+                    className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-60"
                   >
                     {isPending ? "재생성 요청 중..." : "가사 수정후 재생성"}
                   </button>
@@ -183,7 +183,7 @@ export function TrackCard({ track }: { track: TrackCardData }) {
                 <button
                   type="button"
                   onClick={() => setEditing(true)}
-                  className="mt-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  className="mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors"
                 >
                   가사 수정후 재생성
                 </button>
