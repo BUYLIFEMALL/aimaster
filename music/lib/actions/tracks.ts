@@ -100,6 +100,10 @@ export async function generateTracksAction(
             prompt_text: promptText,
             style_description: styleDescription,
             exclude_styles: excludeStyles,
+            // 인스트루멘탈판은 보컬이 없으므로 성별을 남기지 않는다. music_plannings.vocal_gender는
+            // 사용자가 나중에 수정할 수 있어서, 카드에 정확한 라벨("보컬버전(여성)" 등)을 보여주려면
+            // 생성 당시 값을 트랙 자신에 스냅샷해야 한다(style_description과 동일한 이유).
+            vocal_gender: mode === "vocal" ? planning.vocal_gender : null,
             suno_model: DEFAULT_SUNO_MODEL,
             status: "generating",
           })
@@ -180,6 +184,7 @@ export async function regenerateTrackAction(
         prompt_text: trimmed,
         style_description: original.style_description,
         exclude_styles: original.exclude_styles,
+        vocal_gender: original.vocal_gender,
         suno_model: original.suno_model,
         status: "generating",
       })

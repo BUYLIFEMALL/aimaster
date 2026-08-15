@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { regenerateTrackAction, syncTrackStatusAction } from "@/lib/actions/tracks";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
-import type { TrackMode, TrackStatus } from "@/types/database.types";
+import type { TrackMode, TrackStatus, VocalGender } from "@/types/database.types";
 
 export interface TrackVariant {
   id: string;
@@ -19,6 +19,7 @@ export interface TrackCardData {
   mode: TrackMode;
   title: string;
   prompt_text: string;
+  vocal_gender: VocalGender | null;
   status: TrackStatus;
   error_message: string | null;
   created_at: string;
@@ -30,6 +31,20 @@ const STATUS_LABEL: Record<TrackStatus, { label: string; className: string }> = 
   completed: { label: "완료", className: "bg-green-100 text-green-700" },
   failed: { label: "실패", className: "bg-red-100 text-red-700" },
 };
+
+const VOCAL_GENDER_LABEL: Record<VocalGender, string> = {
+  남성: "남성",
+  여성: "여성",
+  혼성: "듀엣",
+};
+
+/** 트랙 카드 제목("🎤 보컬버전(남성)" 등) — 실제 생성 당시 성별을 트랙 자신에 스냅샷해뒀으므로
+ * 기획을 나중에 수정해도 이미 생성된 카드의 라벨은 바뀌지 않는다. */
+function trackTitleLabel(track: Pick<TrackCardData, "mode" | "vocal_gender">): string {
+  if (track.mode === "instrumental") return "🎹 인스트루멘탈버전";
+  const genderLabel = track.vocal_gender ? `(${VOCAL_GENDER_LABEL[track.vocal_gender]})` : "";
+  return `🎤 보컬버전${genderLabel}`;
+}
 
 export function TrackCard({ track }: { track: TrackCardData }) {
   const router = useRouter();
@@ -87,9 +102,7 @@ export function TrackCard({ track }: { track: TrackCardData }) {
     <>
       <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <p className="font-bold text-gray-900">
-            {track.mode === "vocal" ? "🎤 보컬버전" : "🎹 인스트루멘탈버전"}
-          </p>
+          <p className="font-bold text-gray-900">{trackTitleLabel(track)}</p>
           <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>{badge.label}</span>
         </div>
 

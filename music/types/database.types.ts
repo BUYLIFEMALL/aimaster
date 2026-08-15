@@ -105,6 +105,7 @@ export interface Database {
           prompt_text: string;
           style_description: string | null;
           exclude_styles: string | null;
+          vocal_gender: VocalGender | null;
           suno_model: string;
           task_id: string | null;
           status: TrackStatus;
@@ -121,6 +122,7 @@ export interface Database {
           prompt_text: string;
           style_description?: string | null;
           exclude_styles?: string | null;
+          vocal_gender?: VocalGender | null;
           suno_model?: string;
           task_id?: string | null;
           status?: TrackStatus;
@@ -137,6 +139,7 @@ export interface Database {
           prompt_text?: string;
           style_description?: string | null;
           exclude_styles?: string | null;
+          vocal_gender?: VocalGender | null;
           suno_model?: string;
           task_id?: string | null;
           status?: TrackStatus;
