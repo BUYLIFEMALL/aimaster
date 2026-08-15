@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SectionImageGrid } from "@/components/products/SectionImageGrid";
+import type { ImageModelKey } from "@/lib/ai/imageModels";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +85,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           language={product.language}
           templates={templates ?? []}
           initialImages={initialImages}
+          initialModel={product.default_image_model as ImageModelKey}
         />
       </div>
     </div>

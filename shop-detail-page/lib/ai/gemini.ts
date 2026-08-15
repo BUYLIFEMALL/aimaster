@@ -1,17 +1,11 @@
 import "server-only";
+import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "./imageModels";
+
+export { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_OPTIONS, type ImageModelKey } from "./imageModels";
 
 // n8n 워크플로우가 실제 운영에서 쓰던 모델 이름을 그대로 사용한다.
 // - 상품분석(텍스트/비전): #0.상세페이지 자동화v2 | 상품분석.json → models/gemini-3.5-flash
 const ANALYSIS_MODEL = "gemini-3.5-flash";
-
-// 섹션 이미지 생성 모델: 나노바나나2(저렴, 기본값) / 나노바나나 프로(고품질, 선택 시에만).
-// 나노바나나 프로 쪽은 #1/#3 n8n 워크플로우가 실제 운영에서 쓰던 모델 ID를 그대로 가져왔다.
-export const IMAGE_MODELS = {
-  nanobanana2: "gemini-3.1-flash-image-preview",
-  nanobananaPro: "gemini-3-pro-image-preview",
-} as const;
-export type ImageModelKey = keyof typeof IMAGE_MODELS;
-export const DEFAULT_IMAGE_MODEL: ImageModelKey = "nanobanana2";
 
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 

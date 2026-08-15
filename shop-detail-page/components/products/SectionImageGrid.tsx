@@ -9,7 +9,7 @@ import {
 } from "@/lib/actions/images";
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
-import type { ImageModelKey } from "@/lib/ai/gemini";
+import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
 
 interface TemplateInfo {
   id: string;
@@ -25,21 +25,19 @@ interface SectionState {
   error?: string;
 }
 
-const MODEL_OPTIONS: { value: ImageModelKey; label: string; hint: string }[] = [
-  { value: "nanobanana2", label: "나노바나나2", hint: "기본 · 저렴" },
-  { value: "nanobananaPro", label: "나노바나나 프로", hint: "고품질 · 비쌈" },
-];
-
 export function SectionImageGrid({
   productId,
   language,
   templates,
   initialImages,
+  initialModel,
 }: {
   productId: string;
   language: string;
   templates: TemplateInfo[];
   initialImages: Record<string, { url: string; history: string[] }>;
+  // /products/new에서 상품 저장 시 미리 선택해둔 모델(shop_products.default_image_model).
+  initialModel?: ImageModelKey;
 }) {
   const [states, setStates] = useState<Record<string, SectionState>>(() => {
     const init: Record<string, SectionState> = {};
@@ -51,7 +49,7 @@ export function SectionImageGrid({
     }
     return init;
   });
-  const [model, setModel] = useState<ImageModelKey>("nanobanana2");
+  const [model, setModel] = useState<ImageModelKey>(initialModel ?? DEFAULT_IMAGE_MODEL);
   const [isRunning, setIsRunning] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
@@ -197,7 +195,7 @@ export function SectionImageGrid({
         </p>
         <div className="flex items-center gap-2">
           <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
-            {MODEL_OPTIONS.map((opt) => (
+            {IMAGE_MODEL_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"

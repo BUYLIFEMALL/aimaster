@@ -5,6 +5,7 @@ import { uploadImageDirect } from "@/lib/uploadImageClient";
 import { analyzeProductAction, createProductAction } from "@/lib/actions/products";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import type { FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
+import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
 
 const MAX_REFERENCE_IMAGES = 10;
 
@@ -34,6 +35,7 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
   const [fields, setFields] = useState<FlatProductAnalysis>(EMPTY_FIELDS);
   const [price, setPrice] = useState("");
   const [salePrice, setSalePrice] = useState("");
+  const [defaultImageModel, setDefaultImageModel] = useState<ImageModelKey>(DEFAULT_IMAGE_MODEL);
 
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingReference, setIsUploadingReference] = useState(false);
@@ -443,6 +445,32 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
           rows={3}
           placeholder="예: 텍스트는 최소화하고 제품 사진 위주로 구성해주세요 / 배경은 항상 화이트톤 유지 등"
         />
+      </div>
+
+      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3">
+        <h2 className="font-bold text-gray-800">6. 상세페이지 이미지 생성 모델</h2>
+        <p className="text-xs text-gray-500">
+          섹션 이미지를 생성할 때 기본으로 사용할 나노바나나 모델을 선택하세요. 상세페이지 생성 단계에서
+          언제든 다시 바꿀 수 있습니다.
+        </p>
+        <input type="hidden" name="defaultImageModel" value={defaultImageModel} />
+        <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm w-fit">
+          {IMAGE_MODEL_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setDefaultImageModel(opt.value)}
+              className={`px-4 py-2 font-medium transition-colors ${
+                defaultImageModel === opt.value
+                  ? "bg-gray-900 text-white"
+                  : "bg-white text-gray-600 hover:bg-gray-50"
+              }`}
+              title={opt.hint}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <button

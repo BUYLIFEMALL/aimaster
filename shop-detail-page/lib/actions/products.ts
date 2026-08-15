@@ -11,6 +11,7 @@ import {
 } from "@/lib/ai/gemini";
 import { buildProductAnalysisPrompt, type RawProductAnalysis } from "@/lib/ai/productAnalysisPrompt";
 import { flattenProductAnalysis, type FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
+import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
 
 export interface AnalyzeProductState {
   error?: string;
@@ -81,6 +82,10 @@ export async function createProductAction(formData: FormData) {
   const priceRaw = String(formData.get("price") ?? "").trim();
   const salePriceRaw = String(formData.get("salePrice") ?? "").trim();
 
+  const defaultImageModelRaw = String(formData.get("defaultImageModel") ?? "");
+  const defaultImageModel: ImageModelKey =
+    defaultImageModelRaw in IMAGE_MODELS ? (defaultImageModelRaw as ImageModelKey) : DEFAULT_IMAGE_MODEL;
+
   const { data, error } = await supabase
     .from("shop_products")
     .insert({
@@ -103,6 +108,7 @@ export async function createProductAction(formData: FormData) {
       source_image_url: sourceImageUrl,
       reference_image_urls: referenceImageUrls,
       image_generation_notes: String(formData.get("imageGenerationNotes") ?? "").trim() || null,
+      default_image_model: defaultImageModel,
       status: "analyzed",
     })
     .select("id")
