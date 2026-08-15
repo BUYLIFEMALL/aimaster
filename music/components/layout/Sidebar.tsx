@@ -7,7 +7,7 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 // 리믹스)가 실제로 만들어질 때마다 항목을 추가한다(AGENTS.md "Phase 진행 상태" 표와 동기화할 것).
 const NAV_ITEMS = [
   { href: "/plannings/new", label: "1. 음악 기획" },
-  { href: "/plannings", label: "2. 음악생성|관리" },
+  { href: "/plannings", label: "2. 음악 생성|관리" },
   { href: "/settings", label: "🔑 API 키 설정" },
 ];
 
