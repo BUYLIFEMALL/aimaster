@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { generateLyrics, generateInstrumentalPrompt } from "@/lib/ai/musicPrompts";
+import { generateLyrics, generateInstrumentalPrompt, generateStyleAndExclude } from "@/lib/ai/musicPrompts";
 import { requestSunoGeneration, checkSunoGenerationStatus, DEFAULT_SUNO_MODEL } from "@/lib/ai/suno";
 import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
 import type { TrackMode, TrackStatus } from "@/types/database.types";
@@ -14,19 +14,26 @@ export interface GenerateTracksState {
   needsApiKey?: string; // 어떤 provider가 없는지 ("openai" | "suno")
 }
 
+const MAX_GENERATE_COUNT = 10;
+
 /**
- * n8n(Make.com) 시나리오 01 뒷부분 대응: 기획 1건에 대해 선택된 모드(보컬/인스트루멘탈)마다
- * 트랙을 하나씩 만들고 Suno 생성을 요청한다. 블루프린트 원본은 필터 없는 라우터라 두 모드를
- * 항상 병렬로 만들었지만, 여기서는 사용자가 화면에서 체크박스로 고른 모드만 생성한다.
+ * n8n(Make.com) 시나리오 01 뒷부분 + 시나리오 31(대량생성) 대응: 기획 1건에 대해 선택된
+ * 모드(보컬/인스트루멘탈)마다 count(1~10)개의 트랙을 만들고 Suno 생성을 요청한다.
+ * count가 2 이상이면 첫 번째는 기획의 스타일을 그대로 쓰고, 나머지는 GPT로 이미 쓴 스타일과
+ * 겹치지 않는 새 변주를 만들어서 매번 다른 느낌의 곡이 나오게 한다(원본 블루프린트 31의
+ * "반복마다 GPT로 다른 스타일을 순차 생성" 방식 — 대화 컨텍스트 유지 대신, 이번 배치에서
+ * 이미 쓴 스타일 목록을 프롬프트에 함께 넘겨서 중복을 피한다).
  */
 export async function generateTracksAction(
   planningId: string,
   modes: TrackMode[],
+  count: number = 1,
 ): Promise<GenerateTracksState> {
   const user = await requireProgramAccess();
   if (modes.length === 0) {
     return { error: "생성할 버전을 하나 이상 선택해주세요." };
   }
+  const clampedCount = Math.min(Math.max(Math.round(count) || 1, 1), MAX_GENERATE_COUNT);
 
   const supabase = await createClient();
 
@@ -50,58 +57,75 @@ export async function generateTracksAction(
 
   try {
     for (const mode of modes) {
-      const promptText =
-        mode === "vocal"
-          ? await generateLyrics(
-              {
-                title: planning.title,
-                description: planning.description ?? "",
-                lang: planning.lang,
-                styleDescription: planning.style_description,
-                vocalGender: planning.vocal_gender,
-              },
-              openaiKey,
-            )
-          : await generateInstrumentalPrompt(
-              { title: planning.title, description: planning.description ?? "" },
-              openaiKey,
-            );
+      const usedStyles: string[] = [];
 
-      const { data: track, error: trackError } = await supabase
-        .from("music_tracks")
-        .insert({
-          planning_id: planningId,
-          user_id: user.id,
-          mode,
-          title: planning.title,
-          prompt_text: promptText,
-          style_description: planning.style_description,
-          exclude_styles: planning.exclude_styles,
-          suno_model: DEFAULT_SUNO_MODEL,
-          status: "generating",
-        })
-        .select("id")
-        .single();
-      if (trackError || !track) {
-        return { error: trackError?.message ?? "트랙 생성에 실패했습니다." };
+      for (let i = 0; i < clampedCount; i++) {
+        let styleDescription = planning.style_description;
+        let excludeStyles = planning.exclude_styles;
+
+        if (i > 0) {
+          const styleResult = await generateStyleAndExclude(
+            { songDescription: planning.song_description, vocalGender: planning.vocal_gender, avoidStyles: usedStyles },
+            openaiKey,
+          );
+          styleDescription = styleResult.styleDescription;
+          excludeStyles = styleResult.excludeStyles;
+        }
+        usedStyles.push(styleDescription);
+
+        const promptText =
+          mode === "vocal"
+            ? await generateLyrics(
+                {
+                  title: planning.title,
+                  description: planning.description ?? "",
+                  lang: planning.lang,
+                  styleDescription,
+                  vocalGender: planning.vocal_gender,
+                },
+                openaiKey,
+              )
+            : await generateInstrumentalPrompt(
+                { title: planning.title, description: planning.description ?? "" },
+                openaiKey,
+              );
+
+        const { data: track, error: trackError } = await supabase
+          .from("music_tracks")
+          .insert({
+            planning_id: planningId,
+            user_id: user.id,
+            mode,
+            title: planning.title,
+            prompt_text: promptText,
+            style_description: styleDescription,
+            exclude_styles: excludeStyles,
+            suno_model: DEFAULT_SUNO_MODEL,
+            status: "generating",
+          })
+          .select("id")
+          .single();
+        if (trackError || !track) {
+          return { error: trackError?.message ?? "트랙 생성에 실패했습니다." };
+        }
+
+        const taskId = await requestSunoGeneration(
+          {
+            prompt: promptText,
+            title: planning.title,
+            styleDescription,
+            excludeStyles,
+            instrumental: mode === "instrumental",
+          },
+          sunoKey,
+        );
+
+        await supabase.from("music_tracks").update({ task_id: taskId }).eq("id", track.id);
       }
-
-      const taskId = await requestSunoGeneration(
-        {
-          prompt: promptText,
-          title: planning.title,
-          styleDescription: planning.style_description,
-          excludeStyles: planning.exclude_styles,
-          instrumental: mode === "instrumental",
-        },
-        sunoKey,
-      );
-
-      await supabase.from("music_tracks").update({ task_id: taskId }).eq("id", track.id);
     }
 
     await supabase.from("music_plannings").update({ status: "generating" }).eq("id", planningId);
-    await logProgramUsage({ userId: user.id, action: "generate_tracks", metadata: { planningId, modes } });
+    await logProgramUsage({ userId: user.id, action: "generate_tracks", metadata: { planningId, modes, count: clampedCount } });
 
     revalidatePath(`/plannings/${planningId}`);
     return {};

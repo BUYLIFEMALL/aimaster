@@ -8,6 +8,9 @@ import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { PlanningHeaderCard } from "@/components/plannings/PlanningHeaderCard";
 
 export const dynamic = "force-dynamic";
+// 최대 10곡 대량생성 시 GPT 스타일/가사 호출이 순차로 여러 번 도는 generateTracksAction이
+// 이 페이지의 Server Action으로 실행되므로, 기본 함수 제한 시간보다 넉넉하게 잡아둔다.
+export const maxDuration = 300;
 
 export default async function PlanningDetailPage({ params }: { params: { id: string } }) {
   const user = await requireProgramAccess();

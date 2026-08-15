@@ -42,6 +42,8 @@ const STYLE_SYSTEM_PROMPT = `# 역할 및 목표
     vocals, alternating verses" 또는 "mixed male/female vocal duet").
   - 지정하지 않았다면 보컬 성별을 명시하지 말 것.
 * 반드시 영어로만 작성할 것.
+* "이미 사용한 스타일" 목록이 주어지면, 그 목록과 겹치지 않는 새로운 장르/악기/분위기 조합을
+  제안할 것 — 같은 곡 설명이라도 여러 버전을 만들 때 매번 다르게 들려야 한다.
 
 # 참고할 음악적 스타일 및 특징
 ${GENRE_REFERENCE_LIST}
@@ -51,15 +53,22 @@ ${GENRE_REFERENCE_LIST}
 다음 JSON 형식으로만 출력하라 (다른 설명/마크다운 금지):
 {"styleDescription": "음악적 스타일 및 특징 (영어)", "excludeStyles": "제외할 음악적 스타일 및 요소 (영어)"}`;
 
-/** 곡 설명(+보컬 성별)으로 Suno 스타일 설명/제외 스타일을 생성한다. */
+/**
+ * 곡 설명(+보컬 성별)으로 Suno 스타일 설명/제외 스타일을 생성한다. avoidStyles를 주면 그
+ * 스타일들과 겹치지 않는 새 변주를 만든다(대량생성 — 같은 곡을 여러 버전으로 만들 때 사용).
+ */
 export async function generateStyleAndExclude(
-  input: { songDescription: string; vocalGender: VocalGender | null },
+  input: { songDescription: string; vocalGender: VocalGender | null; avoidStyles?: string[] },
   apiKey: string,
 ): Promise<StyleAndExcludeResult> {
   const vocalLine = input.vocalGender ? `\n보컬: ${input.vocalGender}` : "";
-  const userPrompt = `# 요청\n${input.songDescription}${vocalLine}`;
+  const avoidLine = input.avoidStyles?.length
+    ? `\n\n이미 사용한 스타일(겹치지 않게 새롭게 만들어주세요):\n${input.avoidStyles.map((s, i) => `${i + 1}. ${s}`).join("\n")}`
+    : "";
+  const userPrompt = `# 요청\n${input.songDescription}${vocalLine}${avoidLine}`;
   return callOpenAiJson<StyleAndExcludeResult>(STYLE_SYSTEM_PROMPT, userPrompt, apiKey, {
     model: "gpt-4o-mini",
+    temperature: 1.1,
   });
 }
 
