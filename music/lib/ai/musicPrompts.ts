@@ -164,3 +164,34 @@ export async function generateInstrumentalPrompt(
   const userPrompt = `제목:\n${input.title}\n\n설명:\n${input.description}\n\n이 내용을 기반으로 Suno에서 사용할 BGM 프롬프트를 만들어줘`;
   return callOpenAiText(INSTRUMENTAL_SYSTEM_PROMPT, userPrompt, apiKey, { model: "gpt-4o-mini", temperature: 1 });
 }
+
+const RECONCILE_GENDER_SYSTEM_PROMPT = `당신은 텍스트 편집자입니다. 사용자가 준 "곡 설명" 텍스트에서 보컬 성별에 관한 언급
+(예: 남성보컬, 여성보컬, male vocal, female vocal, 남자 목소리, 여자 목소리 등)이 있다면, 지정된
+새 보컬 성별에 맞게 자연스럽게 고치세요.
+
+규칙:
+- 성별과 무관한 다른 내용(분위기, 상황, 악기, 템포, 코러스 구성 등)은 절대 바꾸지 말고 원문 그대로
+  유지하세요.
+- 원문에 보컬 성별 언급이 전혀 없었다면 새로 추가하지 말고 원문을 그대로 반환하세요.
+- 원문의 언어(한국어/영어 등)와 줄바꿈 구조를 그대로 유지하세요.
+- 결과는 수정된 곡 설명 텍스트만 출력하세요. 따옴표, 설명, 마크다운을 붙이지 마세요.`;
+
+/**
+ * 보컬 성별을 바꿨을 때, 곡 설명 자유 텍스트 안에 남아있는 예전 성별 언급("남성보컬" 등)을
+ * 새 성별에 맞게 고쳐서 반환한다. 성별과 무관한 나머지 문장은 그대로 유지된다.
+ * (2026-08-15, 성별만 바꾸고 곡 설명 텍스트를 그대로 두면 GPT가 두 신호를 절충해서
+ * 여전히 예전 성별이 섞여 나오는 문제가 있어서 추가함 — updatePlanningAction에서 호출)
+ */
+export async function reconcileSongDescriptionWithVocalGender(
+  songDescription: string,
+  vocalGender: VocalGender | null,
+  apiKey: string,
+): Promise<string> {
+  if (!vocalGender) return songDescription;
+  const userPrompt = `새 보컬 성별: ${vocalGender}\n\n곡 설명:\n${songDescription}`;
+  const result = await callOpenAiText(RECONCILE_GENDER_SYSTEM_PROMPT, userPrompt, apiKey, {
+    model: "gpt-4o-mini",
+    temperature: 0.3,
+  });
+  return result.trim();
+}

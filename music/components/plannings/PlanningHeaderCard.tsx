@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updatePlanningAction, deletePlanningAction } from "@/lib/actions/plannings";
 import { LANG_OPTIONS, VOCAL_GENDER_OPTIONS } from "@/lib/constants";
+import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import type { PlanningStatus, VocalGender } from "@/types/database.types";
 
 export interface PlanningHeaderData {
@@ -31,6 +32,8 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [needsApiKey, setNeedsApiKey] = useState(false);
+  const [restyledNotice, setRestyledNotice] = useState(false);
 
   const [title, setTitle] = useState(planning.title ?? "");
   const [description, setDescription] = useState(planning.description ?? "");
@@ -63,10 +66,16 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
         vocalGender: vocalGender || null,
         lang,
       });
-      if (result.error) {
+      if (result.needsApiKey) {
+        setNeedsApiKey(true);
+      } else if (result.error) {
         setError(result.error);
       } else {
         setEditing(false);
+        if (result.restyled) {
+          setRestyledNotice(true);
+          setTimeout(() => setRestyledNotice(false), 5000);
+        }
         router.refresh();
       }
     } finally {
@@ -78,6 +87,7 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
 
   if (editing) {
     return (
+      <>
       <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-4">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">제목</label>
@@ -134,6 +144,12 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
                 </option>
               ))}
             </select>
+            <p className="mt-1 text-xs text-gray-400">
+              성별을 바꾸면 저장 시 곡 설명에 남아있는 성별 언급(예: &ldquo;남성보컬&rdquo;)을 새
+              성별로 고치고 스타일 설명도 자동으로 다시 만듭니다(위에서 직접 고쳤어도 새로 덮어씁니다)
+              — 텍스트에 예전 성별이 그대로 남아있으면 실제 곡 생성에 섞여 나올 수 있기
+              때문입니다.
+            </p>
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">언어</label>
@@ -171,11 +187,21 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
           </button>
         </div>
       </div>
+      {needsApiKey && (
+        <ApiKeyRequiredModal missingLabels={["OpenAI"]} onClose={() => setNeedsApiKey(false)} />
+      )}
+      </>
     );
   }
 
   return (
+    <>
     <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+      {restyledNotice && (
+        <p className="mb-3 text-sm text-blue-700 bg-blue-50 rounded-lg px-3 py-2">
+          보컬 성별이 바뀌어서 곡 설명의 성별 언급과 스타일 설명을 자동으로 다시 만들었습니다.
+        </p>
+      )}
       <div className="flex items-start justify-between gap-3 mb-3">
         <h1 className="text-2xl font-black text-gray-900">{planning.title ?? "(제목 생성 전)"}</h1>
         <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>
@@ -212,7 +238,13 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
       <div className="mt-4 flex items-center gap-4">
         <button
           type="button"
-          onClick={() => setEditing(true)}
+          onClick={() => {
+            // planning prop이 저장 후 router.refresh()로 갱신돼도 이 컴포넌트는 리마운트되지
+            // 않아 로컬 상태가 그대로 남는다 — 수정 모드를 열 때마다 최신 값으로 다시 채운다
+            // (성별 변경으로 자동 재생성된 스타일/곡 설명이 다음 수정 때 예전 값으로 보이는 것 방지).
+            resetFields();
+            setEditing(true);
+          }}
           className="text-xs font-semibold text-blue-600 hover:underline"
         >
           수정
@@ -225,5 +257,9 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
         </form>
       </div>
     </div>
+    {needsApiKey && (
+      <ApiKeyRequiredModal missingLabels={["OpenAI"]} onClose={() => setNeedsApiKey(false)} />
+    )}
+    </>
   );
 }
