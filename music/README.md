@@ -80,8 +80,14 @@ GPT/Suno API 키는 관리자 환경변수로 등록하지 않는다 — 각 사
 
 ## 배포 정보
 
-- Vercel 프로젝트: 아직 미배포 (배포 시 이 섹션에 프로덕션 URL 기록)
-- `programs` 테이블: `slug = "music-automation"`, 카테고리 `음악(music)`으로 등록 완료
+- Vercel 프로젝트: `buylife/music` — 프로덕션 URL `https://music-rho-virid-22.vercel.app`
+- `programs` 테이블: `slug = "music-automation"`, 카테고리 `음악(music)`으로 등록 완료, `app_url`도
+  위 프로덕션 URL로 반영됨
+- 배포 시 Vercel 환경변수(Production)에 `NEXT_PUBLIC_SITE_URL`을 실제 배포 도메인으로 반드시
+  맞춰야 한다 — Suno 웹훅 콜백 주소가 이 값으로 만들어지는데, `NEXT_PUBLIC_`은 빌드 타임에
+  번들에 박히므로 값을 바꾸면 재배포(재빌드)까지 해야 반영된다(2026-08-15, 첫 배포 때 이 값을
+  빼먹어서 콜백이 AIMaster 루트 사이트로 잘못 가는 바람에 생성된 곡이 화면에 반영되지 않는
+  버그가 있었음 — `scripts/fix-stuck-track.mjs`로 그때 막혀있던 트랙을 수동 복구함)
 
 ## 남은 과제
 

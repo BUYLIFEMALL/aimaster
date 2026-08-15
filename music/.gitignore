@@ -32,6 +32,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+.vercel
+
 # local env files
 .env*
 !.env.local.example
