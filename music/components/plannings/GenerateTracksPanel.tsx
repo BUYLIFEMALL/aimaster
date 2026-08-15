@@ -66,7 +66,7 @@ export function GenerateTracksPanel({ planningId }: { planningId: string }) {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-gray-700 mb-1">생성 개수</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">생성 개수(대량생성)</label>
           <select
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
