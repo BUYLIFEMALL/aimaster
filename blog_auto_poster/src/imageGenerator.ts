@@ -119,7 +119,8 @@ Rules:
 2. body1Prompt: Macro detail close-up shot representing the technical advantage/architecture in Section 2.
 3. body2Prompt: Cinematic environmental scene representing future strategic impact in Section 3.
 4. STRICT DOMAIN ACCURACY: If the text is about smart buildings, servers, AI, satellite, semiconductors, or law, describe THAT exact subject. Do NOT force people into the image unless human action is central to the paragraph.
-5. Return PURE JSON format only without markdown ticks:
+5. IF human figures appear: depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality when the article specifically names a foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting that is central to the story.
+6. Return PURE JSON format only without markdown ticks:
 {
   "headerPrompt": "English photorealistic prompt for header visual...",
   "body1Prompt": "English photorealistic prompt for section 2 technical visual...",

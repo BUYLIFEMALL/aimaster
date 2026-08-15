@@ -132,7 +132,7 @@ For EACH paragraph (Paragraph 1, Paragraph 2, Paragraph 3), follow these STRICT 
 
 4. REALISM & HUMAN SUBJECTS:
    - Describe real-world photography (NO artwork, NO illustrations, NO infographics, NO 3D render, NO surreal metaphors).
-   - If human figures appear, depict realistic Korean or East Asian individuals unless specified otherwise. Natural skin texture, anatomically correct hands, believable proportions.
+   - If human figures appear, depict realistic Korean/East Asian individuals by default. Only depict a different ethnicity/nationality when the paragraph specifically names a foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting central to the story. Natural skin texture, anatomically correct hands, believable proportions.
    - Public figures: depict setting/audience without facial impersonation. Real locations: preserve recognizable environmental characteristics without logos.
 
 5. CAMERA & LIGHTING SELECTION:

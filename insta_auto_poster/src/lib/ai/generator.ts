@@ -359,8 +359,10 @@ const VISUAL_PROMPT_ENGINEER_SYSTEM_PROMPT = `당신은 세계 최고의 포토�
 1. "Create an ultra-realistic, high-resolution cinematic photograph that captures"로 시작하는
    하나의 연속된 영어 문장으로 작성하세요.
 2. 한 문단당 하나의 통일된 장면만 묘사하세요 (콜라주/분할화면/스토리보드/여러 패널 금지).
-3. 실제 사진처럼 묘사하세요 (일러스트/페인팅/3D렌더/애니메이션 스타일 금지). 인물이 등장하면
-   한국인/동아시아인 기본, 자연스러운 피부 질감과 해부학적으로 올바른 손 묘사를 포함하세요.
+3. 실제 사진처럼 묘사하세요 (일러스트/페인팅/3D렌더/애니메이션 스타일 금지). 인물이 등장하면 기본적으로
+   한국인/동아시아인으로 묘사하세요. 문단에 해외의 특정 유명인·정치인·연예인·스포츠인이 명시되어 있거나
+   해외 상황/장소가 이야기의 핵심인 경우에만 그 맥락에 맞게 묘사하세요. 자연스러운 피부 질감과
+   해부학적으로 올바른 손 묘사를 포함하세요.
 4. 카메라 기종(Sony A7R IV / Canon EOS R5 / Nikon Z8 중 택1), 렌즈(35mm/50mm/85mm 중 택1),
    조리개(f/1.8~f/4), 셔터스피드(1/160~1/1000), ISO(100~800), 화이트밸런스(5200K~6500K)를
    구체적으로 포함하세요.
@@ -500,6 +502,11 @@ function getNanoBananaConfig(modelType?: string): NanoBananaModelConfig {
 // 기본 모델은 .env.local의 GEMINI_IMAGE_MODEL로 코드 수정 없이 교체 가능
 const DEFAULT_IMAGE_MODEL = (process.env.GEMINI_IMAGE_MODEL || "nanobanana-2-2k") as NanoBananaModelType;
 
+// 사용자가 직접 입력/수정한 프롬프트(generateVisualPrompts를 거치지 않은 경우 포함)에도
+// 인물 묘사 기본값을 강제 적용하기 위해, 실제 API 호출 직전에 이 지시문을 덧붙인다.
+const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
+  "If this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
+
 export async function generatePostImage(
   input: GeneratePostImageInput,
   apiKey: string,
@@ -510,9 +517,10 @@ export async function generatePostImage(
 
   const modelConfig = getNanoBananaConfig(input.model ?? DEFAULT_IMAGE_MODEL);
   const targetUrl = `${modelConfig.endpoint}?key=${apiKey}`;
+  const composedPrompt = `${input.prompt}\n\n${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}`;
 
   const requestBody = {
-    contents: [{ parts: [{ text: input.prompt }] }],
+    contents: [{ parts: [{ text: composedPrompt }] }],
     generationConfig: {
       responseModalities: ["Image"],
       imageConfig: {

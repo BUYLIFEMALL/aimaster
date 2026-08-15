@@ -23,6 +23,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    자기만의 회원가입 화면·권한 체계·API 키 저장 방식을 절대 새로 만들지 않고, 공용
    `requireProgramAccess()`/`checkProgramAccessApi()`/`user_api_keys`로 이 통합 권한을 확인·재사용
    한다 (자세한 내용: 아래 "멀티테넌시 원칙" 섹션).
+3. **AI 이미지 생성 프롬프트에서 인물을 묘사할 때는 기본적으로 한국인으로 묘사한다.** 상세페이지
+   섹션 이미지, 인스타/쓰레드 카드뉴스, 블로그 삽화, 쇼츠 스토리 캐릭터 등 사람이 등장할 수 있는
+   이미지를 AI로 생성하는 모든 서브프로그램은, 프롬프트에 인물 묘사가 들어갈 때 별다른 지시가
+   없으면 한국인(동아시아인) 외모로 묘사하도록 지시문을 넣는다. **콘텐츠 내용이 해외의 특정
+   유명인·정치인·연예인·스포츠인을 다루거나, 명시적으로 해외 상황/장소를 묘사해야 하는 경우에만**
+   그 맥락에 맞게 묘사한다(예: 해외 뉴스 기사 삽화, 특정 국가 배경이 필수인 여행/문화 콘텐츠).
+   새 서브프로젝트에 이미지 생성 기능을 추가하거나 기존 프롬프트를 수정할 때도 이 원칙을 프롬프트
+   설계 단계에서부터 반영할 것 (실제 적용 현황: 각 서브프로젝트의 이미지 프롬프트 생성
+   함수/시스템 프롬프트 — `insta_auto_poster`/`threads`의 `generateVisualPrompts`,
+   `shots`의 `SEGMENT_SYSTEM_PROMPT`, `blog`/`blog_auto_poster`의
+   `generateArticleBasedImagePrompts`, `shop-detail-page`의 `shop_prompt_templates.korean_guide`,
+   `auto-detail-page`의 `/api/generate-image` 참고).
 
 ## Communication
 

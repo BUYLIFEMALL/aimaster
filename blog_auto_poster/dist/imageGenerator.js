@@ -1,8 +1,9 @@
 "use strict";
 /**
- * 나노바나나(NanoBanana) / 제미나이(Gemini) REST API 직접 호출 파이프라인 (독립 프로그램용)
+ * 나노바나나(NanoBanana) / 제미나이(Gemini) 공식 REST API 직접 호출 파이프라인
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateArticleBasedImagePrompts = generateArticleBasedImagePrompts;
 exports.generateNanoBananaImages = generateNanoBananaImages;
 const nanoBananaConfig_1 = require("./nanoBananaConfig");
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -13,11 +14,15 @@ function cleanAsciiPrompt(text) {
         .replace(/\s+/g, ' ')
         .trim();
 }
-function getBackupMediaUrl(topic, sceneType, width, height, seed) {
-    const sceneTag = sceneType === 'header' ? 'hero,technology' : sceneType === 'body1' ? 'hardware,engineering' : 'city,future';
-    return `https://loremflickr.com/g/${width}/${height}/${sceneTag}?lock=${seed}`;
+/**
+ * 프롬프트 문맥 100% 반영 실시간 AI 백업 엔진 (무작위 CDN이 아닌 실제 영문 프롬프트를 100% 그려내는 AI 엔진)
+ */
+function getContextualAiImageUrl(promptText, width, height, seed) {
+    const cleanPrompt = cleanAsciiPrompt(promptText);
+    const encodedPrompt = encodeURIComponent(cleanPrompt.slice(0, 200));
+    return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
 }
-async function verifyImageReady(imageUrl, topic, sceneType, width, height, seed) {
+async function verifyImageReady(imageUrl, promptText, sceneType, width, height, seed) {
     if (imageUrl.startsWith('data:image')) {
         console.log(`[Base64 Inline Image Generated (${sceneType})]: Size = ${imageUrl.length} bytes`);
         return imageUrl;
@@ -41,112 +46,83 @@ async function verifyImageReady(imageUrl, topic, sceneType, width, height, seed)
     }
     catch {
         clearTimeout(timeoutId);
-        console.log(`[Image Timeout/Fallback (${sceneType})]: Using dynamic seed backup CDN`);
+        console.log(`[Image Timeout/Fallback (${sceneType})]: Using contextual AI engine`);
     }
-    return getBackupMediaUrl(topic, sceneType, width, height, seed);
+    return getContextualAiImageUrl(promptText, width, height, seed);
 }
-async function generateEnglishPromptWithGemini(sectionText, defaultTopic, apiKey) {
-    const textToAnalyze = (sectionText || defaultTopic || 'modern high tech business innovation').trim();
-    const activeKey = apiKey || process.env.GEMINI_API_KEY || process.env.NANOBANANA_API_KEY || '';
-    if (activeKey && textToAnalyze.length > 5) {
+/**
+ * ★ [핵심] 생성 완료된 본문 전체 텍스트를 정독 및 이해하여 100% 문맥 매칭 영문 프롬프트 3개를 생성하는 AI Visual Director
+ */
+async function generateArticleBasedImagePrompts(topic, articleCtx, apiKey) {
+    const activeKey = apiKey || process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.NANOBANANA_API_KEY || '';
+    if (activeKey) {
         try {
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeKey}`;
-            const promptInstruction = `You generate a single photorealistic image prompt in English from a given Korean article paragraph.
-Read the Korean paragraph carefully and capture the primary visual subject, environment, equipment, action, and background described in the text.
+            const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${activeKey}`;
+            const promptInstruction = `You are a world-class AI visual director for high-end tech publications.
+Analyze the following complete Korean blog post carefully:
 
-Strict output rules:
-- Output ONLY one English sentence describing a real-world photographic scene that directly matches the Korean paragraph.
-- Do not include quotes, JSON, labels, bullet points, or code blocks.
-- Do not include any Korean characters.
-- Do not add any explanation or extra text.
+[Article Title]: ${articleCtx.title}
+[Article Summary]: ${articleCtx.excerpt}
+[Section 1]: ${articleCtx.body1Text.slice(0, 350)}
+[Section 2 - Technical Advantage]: ${articleCtx.body2Text.slice(0, 350)}
+[Section 3 - Future Impact]: ${articleCtx.body4Text.slice(0, 350)}
 
-Korean Article Paragraph:
-${textToAnalyze}`;
+Your Task:
+Generate 3 distinct, photorealistic, highly detailed image prompts in English that 100% accurately visually capture the specific concepts, technology domain, objects, and environment described in this article.
+
+Rules:
+1. headerPrompt: Dramatic wide establishing shot representing the main topic "${articleCtx.title}".
+2. body1Prompt: Macro detail close-up shot representing the technical advantage/architecture in Section 2.
+3. body2Prompt: Cinematic environmental scene representing future strategic impact in Section 3.
+4. STRICT DOMAIN ACCURACY: If the text is about smart buildings, servers, AI, satellite, semiconductors, or law, describe THAT exact subject. Do NOT force people into the image unless human action is central to the paragraph.
+5. IF human figures appear: depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality when the article specifically names a foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting that is central to the story.
+6. Return PURE JSON format only without markdown ticks:
+{
+  "headerPrompt": "English photorealistic prompt for header visual...",
+  "body1Prompt": "English photorealistic prompt for section 2 technical visual...",
+  "body2Prompt": "English photorealistic prompt for section 3 future visual..."
+}`;
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: promptInstruction }] }],
-                    generationConfig: { temperature: 0.2, maxOutputTokens: 120 },
+                    generationConfig: { temperature: 0.3, responseMimeType: 'application/json' },
                 }),
             });
             if (response.ok) {
                 const data = await response.json();
-                const rawResult = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (rawResult) {
-                    const cleanResult = cleanAsciiPrompt(rawResult);
-                    if (cleanResult.length > 10) {
-                        return cleanResult;
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                    const parsed = JSON.parse(text);
+                    if (parsed.headerPrompt && parsed.body1Prompt && parsed.body2Prompt) {
+                        console.log('[AI Visual Director] 3 Prompts Successfully Created from Article Analysis:');
+                        console.log('- Header Prompt:', parsed.headerPrompt);
+                        console.log('- Body1 Prompt:', parsed.body1Prompt);
+                        console.log('- Body2 Prompt:', parsed.body2Prompt);
+                        return {
+                            headerPrompt: cleanAsciiPrompt(parsed.headerPrompt + ', photorealistic photography, 4K, 16:9'),
+                            body1Prompt: cleanAsciiPrompt(parsed.body1Prompt + ', photorealistic photography, 4K, 16:9'),
+                            body2Prompt: cleanAsciiPrompt(parsed.body2Prompt + ', photorealistic photography, 4K, 16:9'),
+                        };
                     }
                 }
             }
         }
         catch (err) {
-            console.error('[Gemini Prompt Auto-generation Error]:', err);
+            console.error('[AI Visual Director Error]:', err);
         }
     }
-    return fallbackEnglishSubject(textToAnalyze, defaultTopic);
-}
-function fallbackEnglishSubject(sectionText, defaultTopic) {
-    const text = (sectionText + ' ' + defaultTopic).toLowerCase();
-    if (/k-food|k푸드|수출|식품|음식|요리|한식|식음료|라면|김치|농식품/i.test(text)) {
-        if (/유럽|중동|해외|시장|글로벌|증가/i.test(text)) {
-            return 'premium Korean gourmet export dishes, kimchi and authentic culinary cuisine served in an elegant international restaurant setting, chef presentation';
-        }
-        return 'authentic Korean food platter with rich colorful side dishes, high resolution culinary photography, natural lighting';
-    }
-    if (/위성|스타링크|저궤도|통신|안테나|네트워크|주파수/i.test(text)) {
-        if (/장비|메커니즘|모듈|구조|기술|처리/i.test(text)) {
-            return 'a close-up shot of a high-tech satellite communication transceiver antenna module with precision metallic microtexture and circuitry';
-        }
-        return 'a large satellite dish array receiving high-speed low-earth orbit data in a vast open landscape during twilight';
-    }
-    if (/ai|제미나이|인공지능|알파벳|구글|모델|클라우드|연산|빅데이터|소프트웨어/i.test(text)) {
-        if (/메커니즘|성능|구조|비동기|우위|알고리즘/i.test(text)) {
-            return 'a skilled software engineer analyzing artificial intelligence neural network data visualizations on glowing glass displays';
-        }
-        return 'sleek futuristic cloud data center server racks with ambient blue LED illumination and high-speed data flow';
-    }
-    if (/자동화|로봇|스마트|공장|물류|산업|제조/i.test(text)) {
-        return 'advanced automated robotic industrial arms operating smoothly in a modern smart manufacturing facility';
-    }
-    if (/주식|시가총액|금리|경제|투자|금융|시장|상승/i.test(text)) {
-        return 'a professional East Asian financial analyst reviewing real-time stock market data charts on multiple monitors in a modern office';
-    }
-    return 'a professional East Asian specialist working with advanced technology equipment in a modern realistic setting';
-}
-async function buildPhotorealisticPrompt(sectionText, topic, sceneType, uniqueTimestamp, apiKey) {
-    const geminiEnglishSubject = await generateEnglishPromptWithGemini(sectionText, topic, apiKey);
-    let sceneDetails = '';
-    if (sceneType === 'header') {
-        sceneDetails = `dramatic wide establishing shot of ${geminiEnglishSubject}, grand environmental perspective, emotional depth`;
-    }
-    else if (sceneType === 'body1') {
-        sceneDetails = `extreme macro detail close-up shot of ${geminiEnglishSubject}, tactile microtexture, intricate craftsmanship, focused expression`;
-    }
-    else {
-        sceneDetails = `cinematic wide environmental scene showcasing ${geminiEnglishSubject}, global city background, future strategic vision`;
-    }
-    const fullPromptText = [
-        `Photorealistic photograph of ${geminiEnglishSubject}`,
-        sceneDetails,
-        'realistic Korean or East Asian individual with detailed natural features, professional modern clothing',
-        sceneType === 'header' ? 'golden hour sunlight, soft directional key at 45 degrees' : sceneType === 'body1' ? 'cool laboratory lighting, sharp key light with micro shadows' : 'blue hour ambient glow, cinematic rim lighting',
-        'camera Sony A7R IV or Canon R5, lens 50mm prime, aperture f1.8 to f4, shutter 1/250, ISO 100, white balance 5200K, focus on main subject',
-        'photorealistic, real-world photography, physically plausible lighting, true-to-life colors, natural film grain, realistic skin texture',
-        'physically correct shadows, contact shadows, plausible reflections, real-world surface microtexture',
-        'cinematic framing, rule of thirds, layered depth, 4K resolution, 16:9 aspect ratio',
-        'no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no plastic skin, no watermark, no logo artifacts',
-    ].join(', ');
-    const cleanFullPrompt = cleanAsciiPrompt(fullPromptText);
-    console.log(`\n=================== [Official Model Prompt Used: ${sceneType}] ===================`);
-    console.log(cleanFullPrompt);
-    console.log(`==================================================================================\n`);
-    return cleanFullPrompt;
+    // Fallback
+    return {
+        headerPrompt: cleanAsciiPrompt(`Photorealistic dramatic wide shot of ${topic}, high tech business setting, cinematic lighting, 4K, 16:9`),
+        body1Prompt: cleanAsciiPrompt(`Photorealistic macro close-up of ${topic} technical architecture, digital twin microtexture, 4K, 16:9`),
+        body2Prompt: cleanAsciiPrompt(`Photorealistic cinematic scene of ${topic} global future vision, dynamic urban background, 4K, 16:9`),
+    };
 }
 async function fetchNanoBananaSingleImage(promptText, model, topic, sceneType, seed, apiKey, customEndpoint, width = 1200, height = 630) {
     const modelConfig = (0, nanoBananaConfig_1.getNanoBananaConfig)(model);
-    const activeKey = apiKey || process.env.NANOBANANA_API_KEY || process.env.GEMINI_API_KEY || '';
+    const activeKey = apiKey || process.env.NANOBANANA_API_KEY || process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
     const baseEndpoint = customEndpoint || modelConfig.endpoint;
     const targetUrl = activeKey ? `${baseEndpoint}?key=${activeKey}` : baseEndpoint;
     const requestBody = {
@@ -161,7 +137,7 @@ async function fetchNanoBananaSingleImage(promptText, model, topic, sceneType, s
             responseModalities: ['Image'],
             imageConfig: {
                 aspectRatio: '16:9',
-                imageSize: modelConfig.imageSize || '2K'
+                imageSize: modelConfig.imageSize
             },
             temperature: modelConfig.temperature || 0.7
         }
@@ -171,21 +147,20 @@ async function fetchNanoBananaSingleImage(promptText, model, topic, sceneType, s
         httpMethod: 'POST',
         selectedModelType: model,
         officialModelName: modelConfig.modelName,
+        resolutionConfig: modelConfig.imageSize,
         headers: {
             'Content-Type': 'application/json',
         },
         requestPayload: requestBody,
     }, null, 2);
-    console.log(`\n=================== [Calling Official Gemini Image Endpoint (${sceneType})] ===================`);
+    console.log(`\n=================== [Calling Official Gemini Image Endpoint (${sceneType}) - Model: ${modelConfig.modelName} (${modelConfig.imageSize})] ===================`);
     console.log(schemaText);
     console.log(`==================================================================================\n`);
     if (activeKey) {
         try {
             const response = await fetch(targetUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody),
             });
             if (response.ok) {
@@ -197,10 +172,11 @@ async function fetchNanoBananaSingleImage(promptText, model, topic, sceneType, s
                 if (inlineBase64Raw) {
                     const cleanBase64 = inlineBase64Raw.replace(/\s+/g, '');
                     const finalUrl = `data:${mimeType};base64,${cleanBase64}`;
+                    console.log(`[Gemini Image Generated Successfully (${modelConfig.modelName} ${modelConfig.imageSize} / ${sceneType})]: Size = ${finalUrl.length} bytes`);
                     return { imageUrl: finalUrl, schemaText };
                 }
                 if (imageUrl) {
-                    const verifiedUrl = await verifyImageReady(imageUrl, topic, sceneType, width, height, seed);
+                    const verifiedUrl = await verifyImageReady(imageUrl, promptText, sceneType, width, height, seed);
                     return { imageUrl: verifiedUrl, schemaText };
                 }
             }
@@ -213,37 +189,52 @@ async function fetchNanoBananaSingleImage(promptText, model, topic, sceneType, s
             console.error(`[Gemini Image API Call Error (${sceneType})]:`, error);
         }
     }
-    const verifiedUrl = await verifyImageReady(getBackupMediaUrl(topic, sceneType, width, height, seed), topic, sceneType, width, height, seed);
+    const contextualAiUrl = getContextualAiImageUrl(promptText, width, height, seed);
+    const verifiedUrl = await verifyImageReady(contextualAiUrl, promptText, sceneType, width, height, seed);
     return { imageUrl: verifiedUrl, schemaText };
 }
-async function generateNanoBananaImages(topic, keywords = [], apiKey, model = 'nanobanana-2-2k', customEndpoint, sectionTexts) {
+async function generateNanoBananaImages(topic, keywords = [], apiKey, model = 'nanobanana-2-2k', customEndpoint, articleCtx) {
+    const modelConfig = (0, nanoBananaConfig_1.getNanoBananaConfig)(model);
     const uniqueTimestamp = Date.now();
     const baseSeed = uniqueTimestamp + Math.floor(Math.random() * 1000000);
-    const promptHeader = await buildPhotorealisticPrompt(sectionTexts?.headerText, topic, 'header', uniqueTimestamp, apiKey);
-    const promptBody1 = await buildPhotorealisticPrompt(sectionTexts?.body1Text, topic, 'body1', uniqueTimestamp, apiKey);
-    const promptBody2 = await buildPhotorealisticPrompt(sectionTexts?.body2Text, topic, 'body2', uniqueTimestamp, apiKey);
+    // ★ 1. 생성 완료된 본문 전체 텍스트를 AI Visual Director가 정독 후 3개 맞춤 영문 프롬프트 추출
+    let prompts = {
+        headerPrompt: cleanAsciiPrompt(`Photorealistic dramatic wide shot of ${topic}, high tech business setting, cinematic lighting, 4K, 16:9`),
+        body1Prompt: cleanAsciiPrompt(`Photorealistic macro close-up of ${topic} technical architecture, digital twin microtexture, 4K, 16:9`),
+        body2Prompt: cleanAsciiPrompt(`Photorealistic cinematic scene of ${topic} global future vision, dynamic urban background, 4K, 16:9`),
+    };
+    if (articleCtx) {
+        prompts = await generateArticleBasedImagePrompts(topic, articleCtx, apiKey);
+    }
     let headerWidth = 2048;
     let headerHeight = 1080;
     let bodyWidth = 1920;
     let bodyHeight = 1080;
-    if (model === 'nanobanana-2-4k' || model === 'nanobanana-pro') {
+    if (modelConfig.imageSize === '1K') {
+        headerWidth = 1280;
+        headerHeight = 720;
+        bodyWidth = 1280;
+        bodyHeight = 720;
+    }
+    else if (modelConfig.imageSize === '4K') {
         headerWidth = 3840;
         headerHeight = 2160;
         bodyWidth = 2560;
         bodyHeight = 1440;
     }
-    const resHeader = await fetchNanoBananaSingleImage(promptHeader, model, topic, 'header', baseSeed + 101, apiKey, customEndpoint, headerWidth, headerHeight);
+    console.log(`[NanoBanana Pipeline] Selected Model Option: "${model}" -> Official Model Name: "${modelConfig.modelName}", Endpoint: "${modelConfig.endpoint}", Resolution: "${modelConfig.imageSize}"`);
+    const resHeader = await fetchNanoBananaSingleImage(prompts.headerPrompt, model, topic, 'header', baseSeed + 101, apiKey, customEndpoint, headerWidth, headerHeight);
     await delay(200);
-    const resBody1 = await fetchNanoBananaSingleImage(promptBody1, model, topic, 'body1', baseSeed + 505, apiKey, customEndpoint, bodyWidth, bodyHeight);
+    const resBody1 = await fetchNanoBananaSingleImage(prompts.body1Prompt, model, topic, 'body1', baseSeed + 505, apiKey, customEndpoint, bodyWidth, bodyHeight);
     await delay(200);
-    const resBody2 = await fetchNanoBananaSingleImage(promptBody2, model, topic, 'body2', baseSeed + 909, apiKey, customEndpoint, bodyWidth, bodyHeight);
+    const resBody2 = await fetchNanoBananaSingleImage(prompts.body2Prompt, model, topic, 'body2', baseSeed + 909, apiKey, customEndpoint, bodyWidth, bodyHeight);
     return {
         headerImage: resHeader.imageUrl,
         bodyImage1: resBody1.imageUrl,
         bodyImage2: resBody2.imageUrl,
-        headerPrompt: promptHeader,
-        body1Prompt: promptBody1,
-        body2Prompt: promptBody2,
+        headerPrompt: prompts.headerPrompt,
+        body1Prompt: prompts.body1Prompt,
+        body2Prompt: prompts.body2Prompt,
         headerSchema: resHeader.schemaText,
         body1Schema: resBody1.schemaText,
         body2Schema: resBody2.schemaText,

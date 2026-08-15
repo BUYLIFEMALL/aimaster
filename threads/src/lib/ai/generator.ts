@@ -173,6 +173,11 @@ function getNanoBananaConfig(modelType?: string): NanoBananaModelConfig {
 // 기본 모델은 .env.local의 GEMINI_IMAGE_MODEL로 코드 수정 없이 교체 가능
 const DEFAULT_IMAGE_MODEL = (process.env.GEMINI_IMAGE_MODEL || "nanobanana-2-2k") as NanoBananaModelType;
 
+// 사용자가 이미지 프롬프트를 직접 입력/수정하는 화면이라 프롬프트에 시스템 템플릿이 없다.
+// 실제 API 호출 직전에 이 지시문을 덧붙여 인물 묘사 기본값을 강제 적용한다.
+const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
+  "If this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
+
 export async function generatePostImage(
   input: GeneratePostImageInput,
   apiKey: string,
@@ -183,9 +188,10 @@ export async function generatePostImage(
 
   const modelConfig = getNanoBananaConfig(input.model ?? DEFAULT_IMAGE_MODEL);
   const targetUrl = `${modelConfig.endpoint}?key=${apiKey}`;
+  const composedPrompt = `${input.prompt}\n\n${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}`;
 
   const requestBody = {
-    contents: [{ parts: [{ text: input.prompt }] }],
+    contents: [{ parts: [{ text: composedPrompt }] }],
     generationConfig: {
       responseModalities: ["Image"],
       imageConfig: {

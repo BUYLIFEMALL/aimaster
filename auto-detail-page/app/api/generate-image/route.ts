@@ -23,6 +23,11 @@ const PLATFORM_PROVIDER: Record<Platform, ApiKeyProvider> = {
   replicate: "replicate",
 };
 
+// 사용자가 프롬프트를 직접 입력하는 화면이라 별도 시스템 템플릿이 없다. 실제 API
+// 호출 직전에 이 지시문을 덧붙여 인물 묘사 기본값을 강제 적용한다.
+const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
+  "\n\nIf this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
+
 /* ── 나노바나나 (Gemini 2.5 Flash Image) ── */
 async function generateWithNanobanana(
   prompt: string,
@@ -205,17 +210,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const composedPrompt = prompt + KOREAN_DEFAULT_PEOPLE_INSTRUCTION;
     let result: { base64: string; mediaType: string };
 
     switch (platform) {
       case "nanobanana":
-        result = await generateWithNanobanana(prompt, aspectRatio, apiKey);
+        result = await generateWithNanobanana(composedPrompt, aspectRatio, apiKey);
         break;
       case "replicate":
-        result = await generateWithReplicate(prompt, aspectRatio, apiKey);
+        result = await generateWithReplicate(composedPrompt, aspectRatio, apiKey);
         break;
       case "gpt-image-1":
-        result = await generateWithGptImage1(prompt, aspectRatio, apiKey);
+        result = await generateWithGptImage1(composedPrompt, aspectRatio, apiKey);
         break;
     }
 

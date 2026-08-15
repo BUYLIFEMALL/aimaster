@@ -21,6 +21,12 @@ function extFromMime(mimeType: string): string {
   return "jpg";
 }
 
+// 템플릿(시스템 기본 + 사용자 커스텀)에 인물이 등장할 경우의 기본 묘사 지침. 개별
+// 템플릿의 korean_guide를 일일이 수정하는 대신 조립 단계에서 공통 적용해, 앞으로
+// 추가되는 템플릿에도 자동으로 반영되게 한다.
+const KOREAN_DEFAULT_PEOPLE_GUIDE =
+  "\n\nIf this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly calls for a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
+
 /** n8n #1(이미지생성) 대응: 템플릿 1개 분량의 섹션 이미지를 생성해 Storage에 올리고 DB에 반영한다. */
 export async function generateSectionImageAction(
   productId: string,
@@ -58,7 +64,10 @@ export async function generateSectionImageAction(
 
   try {
     const referenceImage = await fetchImageAsBase64(product.source_image_url);
-    let finalPrompt = applyProductVariables(template.prompt_template, product) + (template.korean_guide ?? "");
+    let finalPrompt =
+      applyProductVariables(template.prompt_template, product) +
+      (template.korean_guide ?? "") +
+      KOREAN_DEFAULT_PEOPLE_GUIDE;
     if (product.image_generation_notes?.trim()) {
       finalPrompt += `\n\nAdditional instructions: ${product.image_generation_notes.trim()}`;
     }
