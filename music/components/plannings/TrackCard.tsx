@@ -235,30 +235,28 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   return (
     <>
       <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 gap-2">
           <p className="font-bold text-gray-900">{trackTitleLabel(track)}</p>
-          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>{badge.label}</span>
-        </div>
-
-        {track.status === "failed" && (
-          <div className="mb-3 space-y-2">
-            {track.error_message && (
-              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{track.error_message}</p>
-            )}
-            {/* 인스트루멘탈판은 "음악 재생성" 섹션 자체가 없어서 삭제 버튼을 둘 자리가
-                여기뿐이다 — 보컬판은 아래 "음악 재생성" 버튼 옆에 삭제 버튼이 따로 있다. */}
-            {track.mode === "instrumental" && (
+          <div className="flex items-center gap-2 shrink-0">
+            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>{badge.label}</span>
+            {/* 생성 중인 트랙은 웹훅 도착 시 대상이 사라져 혼란을 줄 수 있어 삭제를 막는다.
+                완성됐지만 마음에 안 드는 곡이나, 재시도할 방법이 없는 실패 카드나 여기서 지울 수 있다. */}
+            {track.status !== "generating" && (
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-60 transition-colors"
+                className="px-2.5 py-1 rounded-full text-xs font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-60 transition-colors"
               >
-                {isDeleting ? "삭제 중..." : "🗑 이 카드 삭제"}
+                {isDeleting ? "삭제 중..." : "🗑 삭제"}
               </button>
             )}
-            {deleteError && <p className="text-xs text-red-600">{deleteError}</p>}
           </div>
+        </div>
+        {deleteError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{deleteError}</p>}
+
+        {track.status === "failed" && track.error_message && (
+          <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{track.error_message}</p>
         )}
 
         {track.status === "generating" && (
@@ -459,28 +457,14 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
             </p>
 
             {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-            {deleteError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{deleteError}</p>}
-
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleRegenerate}
-                disabled={isPending}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 transition-colors"
-              >
-                {isPending ? "재생성 요청 중..." : "음악 재생성"}
-              </button>
-              {track.status === "failed" && (
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-60 transition-colors"
-                >
-                  {isDeleting ? "삭제 중..." : "🗑 이 카드 삭제"}
-                </button>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={handleRegenerate}
+              disabled={isPending}
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 transition-colors"
+            >
+              {isPending ? "재생성 요청 중..." : "음악 재생성"}
+            </button>
           </div>
         )}
       </div>

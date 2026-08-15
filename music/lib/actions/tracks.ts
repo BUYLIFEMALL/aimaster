@@ -560,9 +560,11 @@ export interface DeleteTrackState {
 }
 
 /**
- * 실패한 트랙 카드를 정리한다. 실패한 트랙(특히 곡 연장 실패)은 자기 자신 안에 오디오가
- * 없어서 재시도할 방법이 없고, 화면에 죽은 카드로 계속 남아 혼란을 준다 — 삭제해서 치울 수
- * 있게 한다. 완료된 트랙은 실수로 지우는 걸 막기 위해 실패 상태에서만 허용한다.
+ * 트랙 카드를 삭제한다. 실패한 트랙(특히 곡 연장 실패)은 자기 자신 안에 오디오가 없어서
+ * 재시도할 방법이 없어 화면에 죽은 카드로 남는 문제가 있었고, 완성됐지만 마음에 안 드는
+ * 곡도 정리할 수 있어야 해서 completed/failed 둘 다 허용한다. 생성 중인 트랙만 막는다 —
+ * 웹훅이 도중에 도착했을 때 대상이 사라져 있으면 혼란스러울 수 있어서, 끝날 때까지
+ * 기다리거나 실패한 뒤 지우도록 한다.
  */
 export async function deleteTrackAction(trackId: string): Promise<DeleteTrackState> {
   const user = await requireProgramAccess();
@@ -577,8 +579,8 @@ export async function deleteTrackAction(trackId: string): Promise<DeleteTrackSta
   if (trackError || !track) {
     return { error: "트랙을 찾을 수 없습니다." };
   }
-  if (track.status !== "failed") {
-    return { error: "실패한 트랙만 삭제할 수 있습니다." };
+  if (track.status === "generating") {
+    return { error: "생성 중인 트랙은 삭제할 수 없습니다. 완료되거나 실패한 뒤 삭제해주세요." };
   }
 
   const { error: deleteError } = await supabase.from("music_tracks").delete().eq("id", trackId).eq("user_id", user.id);
