@@ -245,14 +245,18 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
             {track.error_message && (
               <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{track.error_message}</p>
             )}
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-60"
-            >
-              {isDeleting ? "삭제 중..." : "🗑 이 카드 삭제"}
-            </button>
+            {/* 인스트루멘탈판은 "음악 재생성" 섹션 자체가 없어서 삭제 버튼을 둘 자리가
+                여기뿐이다 — 보컬판은 아래 "음악 재생성" 버튼 옆에 삭제 버튼이 따로 있다. */}
+            {track.mode === "instrumental" && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-60 transition-colors"
+              >
+                {isDeleting ? "삭제 중..." : "🗑 이 카드 삭제"}
+              </button>
+            )}
             {deleteError && <p className="text-xs text-red-600">{deleteError}</p>}
           </div>
         )}
@@ -455,15 +459,28 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
             </p>
 
             {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+            {deleteError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{deleteError}</p>}
 
-            <button
-              type="button"
-              onClick={handleRegenerate}
-              disabled={isPending}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 transition-colors"
-            >
-              {isPending ? "재생성 요청 중..." : "음악 재생성"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleRegenerate}
+                disabled={isPending}
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 transition-colors"
+              >
+                {isPending ? "재생성 요청 중..." : "음악 재생성"}
+              </button>
+              {track.status === "failed" && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-60 transition-colors"
+                >
+                  {isDeleting ? "삭제 중..." : "🗑 이 카드 삭제"}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
