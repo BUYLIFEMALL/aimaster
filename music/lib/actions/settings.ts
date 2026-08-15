@@ -10,7 +10,7 @@ export interface SaveApiKeyState {
   success?: boolean;
 }
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["openai", "suno"];
+const VALID_PROVIDERS: ApiKeyProvider[] = ["openai", "suno", "gemini"];
 
 // React 18(useFormState/useActionState 미탑재 버전)이라 prevState 없이 클라이언트에서
 // 직접 호출하는 형태로 둔다 (components/settings/ApiKeyRow.tsx 참고).

@@ -204,7 +204,7 @@ export async function syncTrackStatusAction(trackId: string): Promise<SyncTrackS
 
   const { data: track, error: trackError } = await supabase
     .from("music_tracks")
-    .select("id, user_id, planning_id, task_id, status")
+    .select("id, user_id, planning_id, task_id, status, title, prompt_text, style_description")
     .eq("id", trackId)
     .eq("user_id", user.id)
     .single();

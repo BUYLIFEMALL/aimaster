@@ -7,8 +7,9 @@ import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
-// 이 프로그램이 실제로 쓰는 provider만 노출한다: openai(곡 기획/가사), suno(실제 곡 생성).
-const PROVIDERS: ApiKeyProvider[] = ["openai", "suno"];
+// 이 프로그램이 실제로 쓰는 provider만 노출한다: openai(곡 기획/가사), suno(실제 곡 생성),
+// gemini(나노바나나 — 곡 분위기에 맞는 고퀄리티 앨범 커버 생성, 선택사항).
+const PROVIDERS: ApiKeyProvider[] = ["openai", "suno", "gemini"];
 
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
@@ -31,7 +32,9 @@ export default async function SettingsPage() {
         곡 기획(스타일/제목/가사)에는 본인의 OpenAI API 키가, 실제 곡 생성에는 본인의 Suno API 키가
         필요합니다.{" "}
         <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
-        등록하지 않은 상태로 생성을 시도하면 등록 안내 팝업이 뜨고 막힙니다.
+        등록하지 않은 상태로 생성을 시도하면 등록 안내 팝업이 뜨고 막힙니다. Gemini API 키는
+        선택사항으로, 등록하면 Suno가 기본으로 주는 커버 대신 곡 분위기/가사에 맞는 고퀄리티
+        앨범 커버를 나노바나나로 대신 만들어드립니다(등록 안 해도 곡 생성 자체는 정상 동작합니다).
       </p>
       <div className="space-y-3">
         {PROVIDERS.map((provider) => (
