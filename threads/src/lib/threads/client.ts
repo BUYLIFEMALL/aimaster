@@ -121,8 +121,11 @@ async function createThreadsContainer(params: {
 
 // 이미지 컨테이너는 Meta 서버에서 비동기로 처리되며, 고정 대기시간만으로는
 // 처리가 안 끝난 상태에서 게시를 시도해 실패하는 경우가 있다 (Threads/IG
-// Graph API 공통 이슈). status_code가 FINISHED가 될 때까지 짧은 간격으로
+// Graph API 공통 이슈). status가 FINISHED가 될 때까지 짧은 간격으로
 // 상태를 조회(polling)해서 실제로 게시 가능한 상태인지 확인한다.
+// 주의: 필드명은 Instagram Graph API의 "status_code"가 아니라 Threads Graph API
+// 문서 기준 "status"다 — 잘못된 필드명을 요청하면 "Tried accessing nonexisting
+// field" 에러가 나서 이미지가 있는 게시물은 매번 게시에 실패했다(2026-08-15 확인).
 async function waitForContainerReady(params: {
   accessToken: string;
   creationId: string;
@@ -134,18 +137,18 @@ async function waitForContainerReady(params: {
 
   while (Date.now() < deadline) {
     const query = new URLSearchParams({
-      fields: "status_code,error_message",
+      fields: "status,error_message",
       access_token: accessToken,
     });
     const response = await fetch(`${GRAPH_BASE}/v1.0/${creationId}?${query.toString()}`);
     const result = await parseThreadsResponse<ThreadsContainerStatusResponse>(response);
 
-    if (result.status_code === "FINISHED") return;
-    if (result.status_code === "ERROR" || result.status_code === "EXPIRED") {
+    if (result.status === "FINISHED") return;
+    if (result.status === "ERROR" || result.status === "EXPIRED") {
       throw new Error(
         result.error_message
           ? `Threads 미디어 처리에 실패했습니다: ${result.error_message}`
-          : `Threads 미디어 처리에 실패했습니다. (${result.status_code})`,
+          : `Threads 미디어 처리에 실패했습니다. (${result.status})`,
       );
     }
 

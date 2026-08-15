@@ -19,7 +19,7 @@ export interface ThreadsContainerResponse {
 }
 
 export interface ThreadsContainerStatusResponse {
-  status_code: "EXPIRED" | "ERROR" | "FINISHED" | "IN_PROGRESS" | "PUBLISHED";
+  status: "EXPIRED" | "ERROR" | "FINISHED" | "IN_PROGRESS" | "PUBLISHED";
   error_message?: string;
 }
 
