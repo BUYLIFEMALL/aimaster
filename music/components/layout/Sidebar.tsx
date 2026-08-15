@@ -6,8 +6,8 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 // Phase 1(기획 → 생성 → 저장/재생성)만 구현됐으므로 지금은 그 단계만 올리고, Phase 2(대량생성/
 // 리믹스)가 실제로 만들어질 때마다 항목을 추가한다(AGENTS.md "Phase 진행 상태" 표와 동기화할 것).
 const NAV_ITEMS = [
-  { href: "/plannings/new", label: "1. 곡 기획" },
-  { href: "/plannings", label: "2. 곡 생성/관리" },
+  { href: "/plannings/new", label: "1. 음악 기획" },
+  { href: "/plannings", label: "2. 음악생성|관리" },
   { href: "/settings", label: "🔑 API 키 설정" },
 ];
 
