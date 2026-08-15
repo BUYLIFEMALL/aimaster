@@ -18,6 +18,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      {
+        // 서브프로젝트(shop-detail-page 등)가 공용 Supabase Storage에 올리는
+        // 프로그램 썸네일/갤러리 이미지를 이 루트 사이트(programs 카탈로그)에서도 표시하기 위함.
+        protocol: "https",
+        hostname: "esgxyikcnnvmlhygjkth.supabase.co",
+      },
     ],
   },
   // threads/, blog/는 이 저장소 안에 독립적으로 존재하는 별개의 Next.js
