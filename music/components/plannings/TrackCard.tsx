@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { regenerateTrackAction, syncTrackStatusAction } from "@/lib/actions/tracks";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
+import { ImageLightbox } from "@/components/plannings/ImageLightbox";
 import type { TrackMode, TrackStatus } from "@/types/database.types";
 
 export interface TrackVariant {
@@ -39,6 +40,7 @@ export function TrackCard({ track }: { track: TrackCardData }) {
   const [needsApiKey, setNeedsApiKey] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   /**
    * 웹훅이 도달하지 못했을 때(로컬 개발 환경은 항상 그렇고, 배포 환경에서도 드물게 콜백이
@@ -115,7 +117,12 @@ export function TrackCard({ track }: { track: TrackCardData }) {
               <div key={variant.id} className="space-y-2">
                 {variant.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={variant.image_url} alt={`${track.title} 커버 ${index + 1}`} className="w-full rounded-xl aspect-square object-cover" />
+                  <img
+                    src={variant.image_url}
+                    alt={`${track.title} 커버 ${index + 1}`}
+                    className="w-full rounded-xl aspect-square object-cover cursor-zoom-in"
+                    onClick={() => setLightboxUrl(variant.image_url)}
+                  />
                 )}
                 <audio controls src={variant.audio_url} className="w-full" />
               </div>
@@ -175,6 +182,9 @@ export function TrackCard({ track }: { track: TrackCardData }) {
 
       {needsApiKey && (
         <ApiKeyRequiredModal missingLabels={["Suno"]} onClose={() => setNeedsApiKey(false)} />
+      )}
+      {lightboxUrl && (
+        <ImageLightbox src={lightboxUrl} alt={track.title} onClose={() => setLightboxUrl(null)} />
       )}
     </>
   );
