@@ -77,9 +77,25 @@ export interface RequestSunoExtendInput {
   styleDescription: string;
   excludeStyles?: string;
   instrumental: boolean;
-  prompt?: string; // instrumental이 false면 필수(원곡 가사)
+  // /generate의 prompt(가사 전문)와 필드명은 같지만 의미가 다르다 — extend의 prompt는
+  // "Description of how the music should be extended"(문서 예시: "Extend the music with
+  // more relaxing notes")다. 원곡 가사를 그대로 다시 넣으면 안 된다 — buildExtendDirection()로
+  // 만든 "이어붙이는 방향" 설명 문장을 넣을 것.
+  prompt?: string;
   vocalGender?: "m" | "f";
   model?: string;
+}
+
+/**
+ * extend API의 prompt(보컬판에만 보낸다 — 문서상 instrumental:true면 prompt 제공 자체가
+ * 금지됨)에 넣을 "어떻게 이어붙일지" 설명 문장을 만든다. 처음엔 원곡 가사 전문
+ * (original.prompt_text)을 그대로 재사용했는데, 문서를 다시 정확히 읽어보니 extend의
+ * prompt는 원곡 재전송이 아니라 이어붙는 방향에 대한 지시문이었다(2026-08-15, 사용자가
+ * "가사는 동일할텐데?"라고 지적해서 재확인 후 발견) — 원곡 가사를 그대로 보내면 Suno가
+ * 이미 있는 내용을 반복하거나 요청 의도를 오해할 수 있다.
+ */
+export function buildExtendDirection(lang: string): string {
+  return `Continue this song naturally into a new section (an additional verse, bridge, or outro) that fits the same story, emotion, and musical style as before, written in ${lang}. Do not repeat the existing lyrics verbatim.`;
 }
 
 /**

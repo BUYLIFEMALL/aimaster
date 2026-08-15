@@ -8,6 +8,7 @@ import { generateLyrics, generateInstrumentalPrompt, generateStyleAndExclude } f
 import {
   requestSunoGeneration,
   requestSunoExtend,
+  buildExtendDirection,
   checkSunoGenerationStatus,
   toSunoVocalGender,
   DEFAULT_SUNO_MODEL,
@@ -433,6 +434,12 @@ export async function extendTrackAction(variantId: string): Promise<ExtendTrackS
     return { error: "트랙을 찾을 수 없습니다." };
   }
 
+  const { data: planning } = await supabase
+    .from("music_plannings")
+    .select("lang")
+    .eq("id", original.planning_id)
+    .single();
+
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
   if (!sunoKey) return { needsApiKey: "suno" };
 
@@ -469,7 +476,7 @@ export async function extendTrackAction(variantId: string): Promise<ExtendTrackS
         styleDescription: original.style_description ?? "",
         excludeStyles: original.exclude_styles ?? undefined,
         instrumental: original.mode === "instrumental",
-        prompt: original.mode === "vocal" ? original.prompt_text : undefined,
+        prompt: original.mode === "vocal" ? buildExtendDirection(planning?.lang ?? "한국어") : undefined,
         vocalGender: toSunoVocalGender(original.vocal_gender),
         model: original.suno_model,
       },
