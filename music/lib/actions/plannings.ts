@@ -10,6 +10,7 @@ import {
   generateTitleAndDescription,
   reconcileSongDescriptionWithVocalGender,
 } from "@/lib/ai/musicPrompts";
+import { VOCAL_GENDER_OPTIONS } from "@/lib/constants";
 import type { VocalGender } from "@/types/database.types";
 
 export interface PlanMusicState {
@@ -18,12 +19,15 @@ export interface PlanMusicState {
   planningId?: string;
 }
 
+function parseVocalGender(raw: string): VocalGender | null {
+  return (VOCAL_GENDER_OPTIONS as string[]).includes(raw) ? (raw as VocalGender) : null;
+}
+
 /** n8n(Make.com) 시나리오 01 앞부분 대응: 곡 설명 → GPT로 스타일/제목/설명을 기획한다. */
 export async function planMusicAction(formData: FormData): Promise<PlanMusicState> {
   const user = await requireProgramAccess();
   const songDescription = String(formData.get("songDescription") ?? "").trim();
-  const vocalGenderRaw = String(formData.get("vocalGender") ?? "").trim();
-  const vocalGender: VocalGender | null = vocalGenderRaw === "여성" || vocalGenderRaw === "남성" ? vocalGenderRaw : null;
+  const vocalGender = parseVocalGender(String(formData.get("vocalGender") ?? "").trim());
   const lang = String(formData.get("lang") ?? "한국어").trim() || "한국어";
 
   if (!songDescription) {

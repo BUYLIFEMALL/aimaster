@@ -58,6 +58,7 @@ export async function generateTracksAction(
                 description: planning.description ?? "",
                 lang: planning.lang,
                 styleDescription: planning.style_description,
+                vocalGender: planning.vocal_gender,
               },
               openaiKey,
             )

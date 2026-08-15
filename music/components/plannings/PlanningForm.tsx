@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { planMusicAction } from "@/lib/actions/plannings";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
-import { LANG_OPTIONS } from "@/lib/constants";
+import { LANG_OPTIONS, VOCAL_GENDER_OPTIONS } from "@/lib/constants";
 
 export function PlanningForm() {
   const router = useRouter();
@@ -52,8 +52,11 @@ export function PlanningForm() {
             <label className="block text-sm font-semibold text-gray-700 mb-1">보컬 성별 (선택)</label>
             <select name="vocalGender" className="input w-full" defaultValue="">
               <option value="">미지정</option>
-              <option value="여성">여성</option>
-              <option value="남성">남성</option>
+              {VOCAL_GENDER_OPTIONS.map((g) => (
+                <option key={g} value={g}>
+                  {g === "혼성" ? "혼성(듀엣)" : g}
+                </option>
+              ))}
             </select>
           </div>
           <div>

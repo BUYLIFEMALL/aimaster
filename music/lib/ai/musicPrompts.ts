@@ -33,7 +33,14 @@ const STYLE_SYSTEM_PROMPT = `# 역할 및 목표
 * 음악적 특징을 설명할 때, "참고할 음악적 스타일 및 특징"을 기반으로 가능한 세부적인 키워드와 구체적인 예시를 활용할 것.
 * 명확히 구분된 키워드로 구성된 간결한 형태로 스타일을 설명할 것.
 * 제외 스타일을 정의할 때는 음악 장르뿐 아니라 세부 요소까지도 명확히 언급할 것.
-* 사용자가 보컬 성별을 지정했다면 스타일 설명에 "male vocals"/"female vocals"처럼 반영할 것. 지정하지 않았다면 보컬 성별을 명시하지 말 것.
+* 사용자가 보컬 성별을 지정했다면 다음과 같이 스타일 설명에 반영할 것:
+  - "남성" 또는 "여성"이면 그 성별을 리드(메인) 보컬로 표현할 것(예: "male lead vocals",
+    "female lead vocals"). 곡 설명에 후렴/코러스 보컬을 다른 성별로 하라는 언급이 있다면
+    (예: "후렴은 여성 코러스로") 그 성별도 코러스/백보컬로 함께 표현할 것 — 리드와 다른
+    성별이어도 정상이다.
+  - "혼성"이면 남녀가 함께 또는 번갈아 부르는 듀엣임을 명시할 것(예: "male and female duet
+    vocals, alternating verses" 또는 "mixed male/female vocal duet").
+  - 지정하지 않았다면 보컬 성별을 명시하지 말 것.
 * 반드시 영어로만 작성할 것.
 
 # 참고할 음악적 스타일 및 특징
@@ -121,13 +128,42 @@ const LYRICS_SYSTEM_PROMPT = `# 역할 및 목표
 
 가사는 다음과 같은 구조로 명확히 구분하여 제공합니다: **[Verse 1]**, **[Pre-Chorus]**(선택), **[Chorus]**, **[Verse 2]**, **[Bridge]**, **[Outro]**(선택). 각 섹션을 공백 줄로 구분하여 명확하게 작성하고, 가사 본문 외 다른 설명/주석은 출력하지 마세요.`;
 
-/** 제목+설명+언어+스타일설명으로 완결된 가사(Verse/Chorus 구조)를 생성한다. */
+// Suno API에는 duet(남녀 혼성)을 지정하는 공식 파라미터가 없다(docs.sunoapi.org 확인 완료 —
+// vocalGender는 m/f 단일 선택만 지원). 대신 가사(prompt) 텍스트 안에 섹션별로 [Male Vocal]/
+// [Female Vocal] 태그를 넣는 방식으로 우회한다 — 사용자의 원본 Make.com 자동화 데이터에서도
+// 이미 이 방식(예: "[Verse 1] [Male singer]")을 쓰고 있던 걸 확인했다.
+function buildVocalCompositionNote(vocalGender: VocalGender | null): string {
+  if (vocalGender === "혼성") {
+    return `\n\n## 보컬 구성 (듀엣)\n이 곡은 남녀 듀엣입니다. 각 섹션 태그 뒤에 어느 보컬이 부르는지 표시하세요
+(예: **[Verse 1 - Male Vocal]**, **[Verse 2 - Female Vocal]**, **[Chorus - Male & Female Vocals]**).
+남녀 보컬이 자연스럽게 번갈아 부르거나 후렴에서 함께 부르도록 구성하세요. 한쪽 성별만 계속
+부르지 않도록 하세요.`;
+  }
+  if (vocalGender === "남성" || vocalGender === "여성") {
+    const lead = vocalGender === "남성" ? "Male" : "Female";
+    const other = vocalGender === "남성" ? "Female" : "Male";
+    return `\n\n## 보컬 구성\n이 곡은 ${lead} 보컬이 리드합니다. 별도 지시(예: 후렴은 다른 성별로)가
+곡 설명에 없다면 태그 없이 전체를 ${lead} 보컬 기준으로 작성하세요. 만약 후렴/코러스를
+${other} 보컬로 하라는 지시가 곡 설명에 있다면, 그 섹션에만 **[Chorus - ${other} Vocal]**처럼
+태그를 붙이고 나머지 섹션은 태그 없이 두세요.`;
+  }
+  return "";
+}
+
+/** 제목+설명+언어+스타일설명(+보컬 성별)으로 완결된 가사(Verse/Chorus 구조)를 생성한다. */
 export async function generateLyrics(
-  input: { title: string; description: string; lang: string; styleDescription: string },
+  input: {
+    title: string;
+    description: string;
+    lang: string;
+    styleDescription: string;
+    vocalGender: VocalGender | null;
+  },
   apiKey: string,
 ): Promise<string> {
+  const systemPrompt = LYRICS_SYSTEM_PROMPT + buildVocalCompositionNote(input.vocalGender);
   const userPrompt = `# 요청\n제목: ${input.title}\n주제 설명: "${input.description}"\n언어 설정: ${input.lang}\n곡 설명: ${input.styleDescription}`;
-  return callOpenAiText(LYRICS_SYSTEM_PROMPT, userPrompt, apiKey, { model: "gpt-4o-mini", maxTokens: 1500 });
+  return callOpenAiText(systemPrompt, userPrompt, apiKey, { model: "gpt-4o-mini", maxTokens: 1500 });
 }
 
 // shots/src/lib/ai/script.ts의 BGM_SYSTEM_PROMPT를 그대로 재사용(이미 검증된 프롬프트) —
@@ -165,14 +201,21 @@ export async function generateInstrumentalPrompt(
   return callOpenAiText(INSTRUMENTAL_SYSTEM_PROMPT, userPrompt, apiKey, { model: "gpt-4o-mini", temperature: 1 });
 }
 
-const RECONCILE_GENDER_SYSTEM_PROMPT = `당신은 텍스트 편집자입니다. 사용자가 준 "곡 설명" 텍스트에서 보컬 성별에 관한 언급
-(예: 남성보컬, 여성보컬, male vocal, female vocal, 남자 목소리, 여자 목소리 등)이 있다면, 지정된
-새 보컬 성별에 맞게 자연스럽게 고치세요.
+const RECONCILE_GENDER_SYSTEM_PROMPT = `당신은 텍스트 편집자입니다. 사용자가 준 "곡 설명" 텍스트에서 **리드(메인) 보컬**의 성별에
+관한 언급(예: 남성보컬, 여성보컬, male vocal, female vocal, 남자 목소리, 여자 목소리 등)이
+있다면, 지정된 새 보컬 성별에 맞게 자연스럽게 고치세요.
 
 규칙:
-- 성별과 무관한 다른 내용(분위기, 상황, 악기, 템포, 코러스 구성 등)은 절대 바꾸지 말고 원문 그대로
+- **후렴/코러스/백보컬을 리드와 다른 성별로 하라는 언급(예: "후렴은 여성 코러스로")은 리드
+  보컬 언급이 아니므로 절대 건드리지 마세요** — 사용자가 의도적으로 리드와 다르게 지정한
+  것일 수 있습니다.
+- 새 보컬 성별이 "혼성"이면, 리드 보컬 언급을 "남녀 듀엣" 또는 "남녀가 번갈아 부르는" 식으로
+  자연스럽게 바꾸세요.
+- 기존에 "혼성"(듀엣)이었는데 새 성별이 "남성" 또는 "여성"이면, 듀엣/혼성 언급을 그 성별
+  리드 보컬로 바꾸세요.
+- 성별과 무관한 다른 내용(분위기, 상황, 악기, 템포 등)은 절대 바꾸지 말고 원문 그대로
   유지하세요.
-- 원문에 보컬 성별 언급이 전혀 없었다면 새로 추가하지 말고 원문을 그대로 반환하세요.
+- 원문에 리드 보컬 성별 언급이 전혀 없었다면 새로 추가하지 말고 원문을 그대로 반환하세요.
 - 원문의 언어(한국어/영어 등)와 줄바꿈 구조를 그대로 유지하세요.
 - 결과는 수정된 곡 설명 텍스트만 출력하세요. 따옴표, 설명, 마크다운을 붙이지 마세요.`;
 

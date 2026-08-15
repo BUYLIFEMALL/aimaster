@@ -15,7 +15,7 @@ export type ApiKeyProvider =
 export type PlanningStatus = "draft" | "planned" | "generating" | "completed" | "error";
 export type TrackMode = "vocal" | "instrumental";
 export type TrackStatus = "generating" | "completed" | "failed";
-export type VocalGender = "여성" | "남성";
+export type VocalGender = "여성" | "남성" | "혼성";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 

@@ -140,7 +140,7 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
               <option value="">미지정</option>
               {VOCAL_GENDER_OPTIONS.map((g) => (
                 <option key={g} value={g}>
-                  {g}
+                  {g === "혼성" ? "혼성(듀엣)" : g}
                 </option>
               ))}
             </select>
