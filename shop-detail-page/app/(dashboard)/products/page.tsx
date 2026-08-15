@@ -36,7 +36,7 @@ export default async function ProductsPage() {
       <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-black text-gray-900 mb-1">내 상품 목록</h1>
-            <p className="text-gray-500 text-sm">AI로 분석하고 상세페이지 이미지를 생성한 상품들이에요</p>
+            <p className="text-gray-500 text-sm">AI로 생성된 상세페이지 상품 목록입니다</p>
           </div>
           <Link
             href="/products/new"
