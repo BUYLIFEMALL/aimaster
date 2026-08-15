@@ -89,6 +89,10 @@ POST 콜백을 보낸다. 이 라우트는:
   분리했다. `task_id` 매칭 방식과 admin 클라이언트 사용은 동일한 원칙을 따른다. 이 API는
   상태 조회(폴링)용 엔드포인트가 문서에 없어서, 웹훅이 도달하지 못하면(로컬 개발 환경 등)
   수동으로 복구할 방법이 없다 — 배포 환경에서만 실사용 가능.
+- `/api/webhooks/suno-wav`는 "WAV로 변환" 전용 웹훅이다. Suno의 `/wav/generate`도 페이로드
+  구조가 달라서(`audioWavUrl` 하나만 옴) 별도 라우트로 분리했다. 단, vocal-removal과 달리
+  이 API는 `/wav/record-info?taskId=`로 상태 조회가 가능해서, `syncWavStatusAction()`으로
+  곡 생성과 동일하게 수동 동기화 버튼을 제공한다(로컬 개발 환경에서도 폴링으로 테스트 가능).
 
 ## 📦 Make.com 시나리오 이식 현황 (Phase 진행 상태)
 
@@ -99,7 +103,8 @@ POST 콜백을 보낸다. 이 라우트는:
 | 2 | `41`(리믹스 — 업로드 오디오를 새 스타일로 커버) | ⏳ 예정 |
 | 3 | 곡 연장(Extend) — `extendTrackAction()`, Suno `/generate/extend`, `defaultParamFlag:true`로 continueAt/style/prompt 명시 | ✅ 구현 완료 |
 | 3 | MR(보컬제거) 만들기 — `createMrAction()`, Suno `/vocal-removal/generate`(`type: separate_vocal`), 전용 웹훅 라우트 | ✅ 구현 완료 |
-| 3 | 악기별 Stem 분리(`split_stem`), 보컬-반주 추가(Add Vocals/Instrumental), 타임스탬프 가사, WAV 변환, 크레딧 조회 등 | ⏳ 예정 |
+| 3 | WAV 변환 — `createWavAction()`/`syncWavStatusAction()`, Suno `/wav/generate` + `/wav/record-info` 폴링, 전용 웹훅 라우트 | ✅ 구현 완료 |
+| 3 | 악기별 Stem 분리(`split_stem`), 보컬-반주 추가(Add Vocals/Instrumental), 타임스탬프 가사, 크레딧 조회 등 | ⏳ 예정 |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 사용자와 합의함. 새 Phase를 시작할 때는
 이 표를 갱신할 것.

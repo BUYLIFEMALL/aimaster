@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { regenerateMusicAction, syncTrackStatusAction, extendTrackAction, deleteTrackAction } from "@/lib/actions/tracks";
 import { createMrAction } from "@/lib/actions/mr";
+import { createWavAction, syncWavStatusAction } from "@/lib/actions/wav";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
 import { TagChips } from "@/components/plannings/TagChips";
@@ -21,13 +22,20 @@ import {
   TEMPO_OPTIONS,
   TEMPO_MAX_SELECT,
 } from "@/lib/constants";
-import type { TrackMode, TrackStatus, VocalGender, MrStatus } from "@/types/database.types";
+import type { TrackMode, TrackStatus, VocalGender, MrStatus, WavStatus } from "@/types/database.types";
 
 export interface MrResult {
   id: string;
   status: MrStatus;
   instrumental_url: string | null;
   vocal_url: string | null;
+  error_message: string | null;
+}
+
+export interface WavResult {
+  id: string;
+  status: WavStatus;
+  wav_url: string | null;
   error_message: string | null;
 }
 
@@ -38,6 +46,7 @@ export interface TrackVariant {
   duration_seconds: number | null;
   suno_audio_id: string | null;
   music_track_mr: MrResult[];
+  music_track_wav: WavResult[];
 }
 
 export interface TrackCardData {
@@ -100,6 +109,9 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   const [extendError, setExtendError] = useState<string | null>(null);
   const [mrPendingVariantId, setMrPendingVariantId] = useState<string | null>(null);
   const [mrError, setMrError] = useState<string | null>(null);
+  const [wavPendingVariantId, setWavPendingVariantId] = useState<string | null>(null);
+  const [wavSyncingId, setWavSyncingId] = useState<string | null>(null);
+  const [wavError, setWavError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -157,6 +169,42 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
       }
     } finally {
       setMrPendingVariantId(null);
+    }
+  }
+
+  /** "WAV로 변환" — 선택한 variant(오디오)를 고음질 WAV로 변환한다. */
+  async function handleCreateWav(variantId: string) {
+    setWavError(null);
+    setWavPendingVariantId(variantId);
+    try {
+      const result = await createWavAction(variantId);
+      if (result.needsApiKey) {
+        setMissingProvider(result.needsApiKey);
+      } else if (result.error) {
+        setWavError(result.error);
+      } else {
+        router.refresh();
+      }
+    } finally {
+      setWavPendingVariantId(null);
+    }
+  }
+
+  /** WAV 변환은 상태 조회가 되는 API라 곡 생성과 동일하게 수동 동기화 버튼을 제공한다. */
+  async function handleSyncWav(wavId: string) {
+    setWavError(null);
+    setWavSyncingId(wavId);
+    try {
+      const result = await syncWavStatusAction(wavId);
+      if (result.error) {
+        setWavError(result.error);
+      } else if (result.status && result.status !== "generating") {
+        router.refresh();
+      } else {
+        setWavError("아직 변환이 끝나지 않았습니다. 잠시 후 다시 확인해주세요.");
+      }
+    } finally {
+      setWavSyncingId(null);
     }
   }
 
@@ -263,6 +311,8 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
             {track.music_track_variants.map((variant, index) => {
               const latestMr =
                 variant.music_track_mr.length > 0 ? variant.music_track_mr[variant.music_track_mr.length - 1] : null;
+              const latestWav =
+                variant.music_track_wav.length > 0 ? variant.music_track_wav[variant.music_track_wav.length - 1] : null;
               return (
                 <div key={variant.id} className="space-y-2">
                   {variant.image_url && (
@@ -305,6 +355,26 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                           {mrPendingVariantId === variant.id ? "MR 요청 중..." : "🎧 MR 다시 시도"}
                         </button>
                       )}
+                      {!latestWav && (
+                        <button
+                          type="button"
+                          onClick={() => handleCreateWav(variant.id)}
+                          disabled={wavPendingVariantId !== null}
+                          className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                        >
+                          {wavPendingVariantId === variant.id ? "WAV 요청 중..." : "🎼 WAV로 변환"}
+                        </button>
+                      )}
+                      {latestWav?.status === "failed" && (
+                        <button
+                          type="button"
+                          onClick={() => handleCreateWav(variant.id)}
+                          disabled={wavPendingVariantId !== null}
+                          className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                        >
+                          {wavPendingVariantId === variant.id ? "WAV 요청 중..." : "🎼 WAV 다시 시도"}
+                        </button>
+                      )}
                     </div>
                   )}
                   {latestMr?.status === "generating" && (
@@ -321,6 +391,33 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                       <audio controls src={latestMr.instrumental_url} className="w-full" />
                     </div>
                   )}
+                  {latestWav?.status === "generating" && (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => handleSyncWav(latestWav.id)}
+                        disabled={wavSyncingId !== null}
+                        className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                      >
+                        {wavSyncingId === latestWav.id ? "확인 중..." : "🎼 WAV 변환 상태 확인"}
+                      </button>
+                    </div>
+                  )}
+                  {latestWav?.status === "failed" && (
+                    <p className="text-xs text-red-600">{latestWav.error_message ?? "WAV 변환에 실패했습니다."}</p>
+                  )}
+                  {latestWav?.status === "completed" && latestWav.wav_url && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-gray-500">🎼 WAV(고음질)</p>
+                      <a
+                        href={latestWav.wav_url}
+                        download
+                        className="inline-block text-xs font-semibold text-blue-600 hover:underline"
+                      >
+                        ⬇ WAV 파일 다운로드
+                      </a>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -328,6 +425,7 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
         )}
         {extendError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{extendError}</p>}
         {mrError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{mrError}</p>}
+        {wavError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{wavError}</p>}
 
         {/* 인스트루멘탈판은 "음악 재생성" 섹션이 없어서 삭제 버튼을 여기 단독으로 둔다.
             보컬판은 아래 "음악 재생성" 버튼 옆에 나란히 둔다. */}

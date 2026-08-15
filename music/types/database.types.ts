@@ -17,6 +17,7 @@ export type TrackMode = "vocal" | "instrumental";
 export type TrackStatus = "generating" | "completed" | "failed";
 export type VocalGender = "여성" | "남성" | "혼성";
 export type MrStatus = "generating" | "completed" | "failed";
+export type WavStatus = "generating" | "completed" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -220,6 +221,42 @@ export interface Database {
           status?: MrStatus;
           instrumental_url?: string | null;
           vocal_url?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      music_track_wav: {
+        Row: {
+          id: string;
+          variant_id: string;
+          user_id: string;
+          task_id: string | null;
+          status: WavStatus;
+          wav_url: string | null;
+          error_message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          variant_id: string;
+          user_id: string;
+          task_id?: string | null;
+          status?: WavStatus;
+          wav_url?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          variant_id?: string;
+          user_id?: string;
+          task_id?: string | null;
+          status?: WavStatus;
+          wav_url?: string | null;
           error_message?: string | null;
           created_at?: string;
           updated_at?: string;
