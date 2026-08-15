@@ -1,7 +1,15 @@
 import "server-only";
+import type { VocalGender } from "@/types/database.types";
 
 const SUNO_BASE = "https://api.sunoapi.org";
 export const DEFAULT_SUNO_MODEL = "V5_5";
+
+/** "혼성"/미지정은 Suno API의 vocalGender 파라미터가 지원하지 않으므로 undefined로 둔다. */
+export function toSunoVocalGender(gender: VocalGender | null): "m" | "f" | undefined {
+  if (gender === "남성") return "m";
+  if (gender === "여성") return "f";
+  return undefined;
+}
 
 export interface RequestSunoGenerationInput {
   prompt: string; // 보컬판: 가사 전문 / 인스트루멘탈판: BGM 프롬프트
@@ -10,6 +18,10 @@ export interface RequestSunoGenerationInput {
   excludeStyles: string;
   instrumental: boolean;
   model?: string;
+  // Suno API가 지원하는 보컬 성별 파라미터("m"|"f" 둘 뿐, 듀엣은 없음) — style 텍스트 안의
+  // 성별 묘사만으로는 가끔 반영이 안 되는 문제가 있어서, 있으면 이 파라미터도 같이 보내
+  // 이중으로 보장한다(docs.sunoapi.org 확인, 2026-08-15). "혼성"이거나 미지정이면 보내지 않는다.
+  vocalGender?: "m" | "f";
 }
 
 /**
@@ -41,6 +53,7 @@ export async function requestSunoGeneration(input: RequestSunoGenerationInput, a
       instrumental: input.instrumental,
       model: input.model ?? DEFAULT_SUNO_MODEL,
       negativeTags: input.excludeStyles,
+      ...(input.vocalGender ? { vocalGender: input.vocalGender } : {}),
       callBackUrl: `${siteUrl}/api/webhooks/suno`,
     }),
   });

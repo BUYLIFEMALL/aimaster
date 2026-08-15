@@ -4,11 +4,57 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { generateTracksAction } from "@/lib/actions/tracks";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
-import { LANG_OPTIONS, VOCAL_GENDER_OPTIONS } from "@/lib/constants";
+import {
+  LANG_OPTIONS,
+  VOCAL_GENDER_OPTIONS,
+  GENRE_OPTIONS,
+  GENRE_MAX_SELECT,
+  MOOD_OPTIONS,
+  MOOD_MAX_SELECT,
+} from "@/lib/constants";
 import type { TrackMode, VocalGender } from "@/types/database.types";
 
 const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno" };
 const COUNT_OPTIONS = Array.from({ length: 10 }, (_, i) => i + 1); // 1~10
+
+/** 장르/무드 칩 선택 UI — 최대 개수를 넘기면 더 이상 선택되지 않는다(눌러서 해제는 항상 가능). */
+function TagChips({
+  options,
+  selected,
+  max,
+  onToggle,
+}: {
+  options: { value: string; label: string }[];
+  selected: string[];
+  max: number;
+  onToggle: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {options.map((opt) => {
+        const isSelected = selected.includes(opt.value);
+        const disabled = !isSelected && selected.length >= max;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            disabled={disabled}
+            onClick={() => onToggle(opt.value)}
+            className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+              isSelected
+                ? "border-blue-600 bg-blue-600 text-white"
+                : disabled
+                  ? "border-gray-100 text-gray-300"
+                  : "border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600"
+            }`}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export function GenerateTracksPanel({
   planningId,
@@ -26,9 +72,19 @@ export function GenerateTracksPanel({
   const [vocalGender, setVocalGender] = useState<VocalGender | "">(planningVocalGender ?? "");
   const [lang, setLang] = useState(planningLang);
   const [count, setCount] = useState(1);
+  const [genreTags, setGenreTags] = useState<string[]>([]);
+  const [moodTags, setMoodTags] = useState<string[]>([]);
+  const [showTagOptions, setShowTagOptions] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [missingProvider, setMissingProvider] = useState<string | null>(null);
+
+  function toggleGenre(value: string) {
+    setGenreTags((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  }
+  function toggleMood(value: string) {
+    setMoodTags((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  }
 
   async function handleGenerate() {
     setError(null);
@@ -46,6 +102,8 @@ export function GenerateTracksPanel({
         count,
         vocalGender: vocalGender || null,
         lang,
+        genre: genreTags,
+        mood: moodTags,
       });
       if (result.needsApiKey) {
         setMissingProvider(result.needsApiKey);
@@ -60,7 +118,8 @@ export function GenerateTracksPanel({
   }
 
   const totalTracks = (vocal ? count : 0) + (instrumental ? count : 0);
-  const willUseAi = vocalGender !== (planningVocalGender ?? "") || lang !== planningLang;
+  const hasTagOverride = genreTags.length > 0 || moodTags.length > 0;
+  const willUseAi = vocalGender !== (planningVocalGender ?? "") || lang !== planningLang || hasTagOverride;
   // 성별/언어는 가사가 있는 보컬버전에만 의미가 있다 — 인스트루멘탈만 선택했을 때는 숨긴다.
   const showVocalOptions = vocal;
 
@@ -129,15 +188,44 @@ export function GenerateTracksPanel({
           </div>
         </div>
 
+        <button
+          type="button"
+          onClick={() => setShowTagOptions((v) => !v)}
+          className="mb-2 text-xs font-semibold text-blue-600 hover:underline"
+        >
+          {showTagOptions ? "▲ 장르/무드 추가 옵션 닫기" : "▼ 장르/무드 추가 옵션 (선택)"}
+          {hasTagOverride && !showTagOptions && ` — ${genreTags.length + moodTags.length}개 선택됨`}
+        </button>
+
+        {showTagOptions && (
+          <div className="mb-3 space-y-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+            <div>
+              <p className="mb-1.5 text-xs font-semibold text-gray-500">
+                장르 (최대 {GENRE_MAX_SELECT}개)
+              </p>
+              <TagChips options={GENRE_OPTIONS} selected={genreTags} max={GENRE_MAX_SELECT} onToggle={toggleGenre} />
+            </div>
+            <div>
+              <p className="mb-1.5 text-xs font-semibold text-gray-500">무드 (최대 {MOOD_MAX_SELECT}개)</p>
+              <TagChips options={MOOD_OPTIONS} selected={moodTags} max={MOOD_MAX_SELECT} onToggle={toggleMood} />
+            </div>
+            <p className="text-xs text-gray-400">
+              기획된 스타일 위에 이 태그들을 반드시 반영해서 새 스타일을 만듭니다(보컬/인스트루멘탈
+              둘 다 적용). 기획 자체는 바뀌지 않고, 이번 생성에만 적용됩니다.
+            </p>
+          </div>
+        )}
+
         <p className="mb-4 text-xs text-gray-400">
           {showVocalOptions &&
             (willUseAi
-              ? "성별/언어를 기획과 다르게 선택했습니다 — 기획 내용은 그대로 두고, 이번 생성만 선택한 성별/언어로 만듭니다. "
+              ? "성별/언어/태그를 기획과 다르게 선택했습니다 — 기획 내용은 그대로 두고, 이번 생성만 선택한 값으로 만듭니다. "
               : "기획에서 정한 성별/언어 그대로 생성합니다. ")}
           {instrumental && "인스트루멘탈버전은 가사/보컬 없이 반주만 생성됩니다(성별·언어와 무관). "}
-          2곡 이상 선택하면 첫 곡은 기획된 스타일 그대로(성별을 바꿨거나 인스트루멘탈이면 새
-          스타일부터), 나머지는 AI가 겹치지 않는 새 스타일 변주를 만들어 각각 다른 느낌으로
-          생성합니다. 선택한 버전별로 매번 OpenAI/Suno API가 호출되니 개수만큼 비용이 늘어납니다
+          2곡 이상 선택하면 첫 곡은 기획된 스타일 그대로(성별을 바꿨거나 인스트루멘탈이거나 태그를
+          추가했으면 새 스타일부터), 나머지는 AI가 겹치지 않는 새 스타일 변주를 만들어 각각 다른
+          느낌으로 생성합니다. 선택한 버전별로 매번 OpenAI/Suno API가 호출되니 개수만큼 비용이
+          늘어납니다
           {totalTracks > 0 && ` (이번에 총 ${totalTracks}곡 생성)`}.
         </p>
 
