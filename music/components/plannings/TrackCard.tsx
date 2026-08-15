@@ -407,7 +407,7 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                     <p className="text-xs text-red-600">{latestWav.error_message ?? "WAV 변환에 실패했습니다."}</p>
                   )}
                   {latestWav?.status === "completed" && latestWav.wav_url && (
-                    <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
                       <p className="text-xs font-semibold text-gray-500">🎼 WAV(고음질)</p>
                       <a
                         href={latestWav.wav_url}
