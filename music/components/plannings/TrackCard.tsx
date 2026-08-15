@@ -183,7 +183,7 @@ export function TrackCard({ track }: { track: TrackCardData }) {
                 <button
                   type="button"
                   onClick={() => setEditing(true)}
-                  className="mt-2 text-sm font-semibold text-blue-600 hover:underline"
+                  className="mt-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                 >
                   가사 수정 후 재생성
                 </button>

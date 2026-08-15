@@ -235,7 +235,7 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
         </div>
       </dl>
 
-      <div className="mt-4 flex items-center gap-4">
+      <div className="mt-5 flex items-center gap-2">
         <button
           type="button"
           onClick={() => {
@@ -245,13 +245,23 @@ export function PlanningHeaderCard({ planning }: { planning: PlanningHeaderData 
             resetFields();
             setEditing(true);
           }}
-          className="text-xs font-semibold text-blue-600 hover:underline"
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
         >
           수정
         </button>
-        <form action={deletePlanningAction}>
+        <form
+          action={deletePlanningAction}
+          onSubmit={(e) => {
+            if (!confirm("이 기획과 생성된 모든 곡을 삭제합니다. 되돌릴 수 없습니다. 삭제할까요?")) {
+              e.preventDefault();
+            }
+          }}
+        >
           <input type="hidden" name="planningId" value={planning.id} />
-          <button type="submit" className="text-xs text-red-500 hover:text-red-700">
+          <button
+            type="submit"
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition-colors"
+          >
             이 기획 삭제
           </button>
         </form>
