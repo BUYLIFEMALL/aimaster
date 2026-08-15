@@ -44,7 +44,11 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
 
       <PlanningHeaderCard planning={planning} />
 
-      <GenerateTracksPanel planningId={planning.id} />
+      <GenerateTracksPanel
+        planningId={planning.id}
+        planningVocalGender={planning.vocal_gender}
+        planningLang={planning.lang}
+      />
 
       {trackList.length > 0 && (
         <div className="space-y-4">

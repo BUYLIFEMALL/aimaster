@@ -24,16 +24,22 @@ const MAX_GENERATE_COUNT = 10;
  * "반복마다 GPT로 다른 스타일을 순차 생성" 방식 — 대화 컨텍스트 유지 대신, 이번 배치에서
  * 이미 쓴 스타일 목록을 프롬프트에 함께 넘겨서 중복을 피한다).
  */
+export interface GenerateTracksOptions {
+  count?: number;
+  vocalGender?: VocalGender | null;
+  lang?: string;
+}
+
 export async function generateTracksAction(
   planningId: string,
   modes: TrackMode[],
-  count: number = 1,
+  options: GenerateTracksOptions = {},
 ): Promise<GenerateTracksState> {
   const user = await requireProgramAccess();
   if (modes.length === 0) {
     return { error: "생성할 버전을 하나 이상 선택해주세요." };
   }
-  const clampedCount = Math.min(Math.max(Math.round(count) || 1, 1), MAX_GENERATE_COUNT);
+  const clampedCount = Math.min(Math.max(Math.round(options.count ?? 1) || 1, 1), MAX_GENERATE_COUNT);
 
   const supabase = await createClient();
 
@@ -50,6 +56,13 @@ export async function generateTracksAction(
     return { error: "기획이 아직 완료되지 않았습니다(스타일/제목 생성 실패). 기획을 다시 시도해주세요." };
   }
 
+  // 생성하기 패널에서 성별/언어를 기획 당시와 다르게 선택했으면, 기획에 저장된 값 대신 이번
+  // 선택값으로 만든다(트랙마다 vocal_gender를 스냅샷해두는 것과 같은 이유 — 기획을 건드리지
+  // 않고 "이번 생성만" 다르게 만들 수 있게 하기 위함).
+  const effectiveVocalGender = options.vocalGender !== undefined ? options.vocalGender : planning.vocal_gender;
+  const effectiveLang = options.lang?.trim() || planning.lang;
+  const vocalGenderChanged = effectiveVocalGender !== (planning.vocal_gender ?? null);
+
   const openaiKey = await resolveApiKey(supabase, user.id, "openai");
   if (!openaiKey) return { needsApiKey: "openai" };
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
@@ -58,14 +71,20 @@ export async function generateTracksAction(
   try {
     for (const mode of modes) {
       const usedStyles: string[] = [];
+      const modeVocalGender = mode === "vocal" ? effectiveVocalGender : planning.vocal_gender;
+      const modeGenderChanged = mode === "vocal" && vocalGenderChanged;
 
       for (let i = 0; i < clampedCount; i++) {
         let styleDescription = planning.style_description;
         let excludeStyles = planning.exclude_styles;
 
-        if (i > 0) {
+        if (i > 0 || modeGenderChanged) {
           const styleResult = await generateStyleAndExclude(
-            { songDescription: planning.song_description, vocalGender: planning.vocal_gender, avoidStyles: usedStyles },
+            {
+              songDescription: planning.song_description,
+              vocalGender: modeVocalGender,
+              avoidStyles: usedStyles.length > 0 ? usedStyles : undefined,
+            },
             openaiKey,
           );
           styleDescription = styleResult.styleDescription;
@@ -79,9 +98,9 @@ export async function generateTracksAction(
                 {
                   title: planning.title,
                   description: planning.description ?? "",
-                  lang: planning.lang,
+                  lang: effectiveLang,
                   styleDescription,
-                  vocalGender: planning.vocal_gender,
+                  vocalGender: modeVocalGender,
                 },
                 openaiKey,
               )
@@ -103,7 +122,7 @@ export async function generateTracksAction(
             // 인스트루멘탈판은 보컬이 없으므로 성별을 남기지 않는다. music_plannings.vocal_gender는
             // 사용자가 나중에 수정할 수 있어서, 카드에 정확한 라벨("보컬버전(여성)" 등)을 보여주려면
             // 생성 당시 값을 트랙 자신에 스냅샷해야 한다(style_description과 동일한 이유).
-            vocal_gender: mode === "vocal" ? planning.vocal_gender : null,
+            vocal_gender: mode === "vocal" ? modeVocalGender : null,
             suno_model: DEFAULT_SUNO_MODEL,
             status: "generating",
           })
@@ -129,7 +148,11 @@ export async function generateTracksAction(
     }
 
     await supabase.from("music_plannings").update({ status: "generating" }).eq("id", planningId);
-    await logProgramUsage({ userId: user.id, action: "generate_tracks", metadata: { planningId, modes, count: clampedCount } });
+    await logProgramUsage({
+      userId: user.id,
+      action: "generate_tracks",
+      metadata: { planningId, modes, count: clampedCount, vocalGender: effectiveVocalGender, lang: effectiveLang },
+    });
 
     revalidatePath(`/plannings/${planningId}`);
     return {};
