@@ -30,13 +30,15 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
   // 모호해서 에러 없이 조용히 빈 배열을 반환하는 문제가 있었다 — !track_id로 명시해서 해결.
   const { data: tracks } = await supabase
     .from("music_tracks")
-    .select("*, music_track_variants!track_id(*)")
+    .select("*, music_track_variants!track_id(*, music_track_mr(*))")
     .eq("planning_id", params.id)
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   const trackList = (tracks ?? []) as unknown as TrackCardData[];
-  const hasGeneratingTrack = trackList.some((t) => t.status === "generating");
+  const hasGeneratingTrack =
+    trackList.some((t) => t.status === "generating") ||
+    trackList.some((t) => t.music_track_variants.some((v) => v.music_track_mr.some((mr) => mr.status === "generating")));
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">

@@ -83,6 +83,12 @@ POST 콜백을 보낸다. 이 라우트는:
 - Suno 콜백은 `callbackType`이 `text` → `first` → `complete` 순으로 여러 번 오므로,
   **`complete`일 때만 최종 저장 처리**하고 나머지는 무시한다(중간 콜백에서 빈 데이터로 잘못
   덮어쓰는 걸 방지 — 원본 Make.com 시나리오보다 안전하게 구현한 부분).
+- `/api/webhooks/suno-vocal-removal`은 "MR(보컬제거) 만들기" 전용 웹훅이다. Suno의
+  `/vocal-removal/generate`는 `/generate`, `/generate/extend`와 콜백 페이로드 구조가 완전히
+  달라서(`callbackType`/`data` 배열이 없고 `vocal_removal_info` 하나만 옴) 별도 라우트로
+  분리했다. `task_id` 매칭 방식과 admin 클라이언트 사용은 동일한 원칙을 따른다. 이 API는
+  상태 조회(폴링)용 엔드포인트가 문서에 없어서, 웹훅이 도달하지 못하면(로컬 개발 환경 등)
+  수동으로 복구할 방법이 없다 — 배포 환경에서만 실사용 가능.
 
 ## 📦 Make.com 시나리오 이식 현황 (Phase 진행 상태)
 
@@ -91,8 +97,9 @@ POST 콜백을 보낸다. 이 라우트는:
 | 1 | `01`(기획+생성호출), `02`(음악저장/웹훅), `03`(가사수정 재생성) | ✅ 구현 완료 |
 | 2 | `31`(대량생성 — "생성 개수(대량생성)" 1~10곡 옵션으로 구현) | ✅ 구현 완료 |
 | 2 | `41`(리믹스 — 업로드 오디오를 새 스타일로 커버) | ⏳ 예정 |
-| 3 | 곡 연장(Extend) — `extendTrackAction()`, Suno `/generate/extend`, `defaultParamFlag:false`로 원본 파라미터 자동 재사용 | ✅ 구현 완료 |
-| 3 | 보컬/반주 분리(Stem), 보컬-반주 추가(Add Vocals/Instrumental), 타임스탬프 가사, WAV 변환, 크레딧 조회 등 | ⏳ 예정 |
+| 3 | 곡 연장(Extend) — `extendTrackAction()`, Suno `/generate/extend`, `defaultParamFlag:true`로 continueAt/style/prompt 명시 | ✅ 구현 완료 |
+| 3 | MR(보컬제거) 만들기 — `createMrAction()`, Suno `/vocal-removal/generate`(`type: separate_vocal`), 전용 웹훅 라우트 | ✅ 구현 완료 |
+| 3 | 악기별 Stem 분리(`split_stem`), 보컬-반주 추가(Add Vocals/Instrumental), 타임스탬프 가사, WAV 변환, 크레딧 조회 등 | ⏳ 예정 |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 사용자와 합의함. 새 Phase를 시작할 때는
 이 표를 갱신할 것.

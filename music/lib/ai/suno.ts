@@ -129,6 +129,63 @@ export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: s
   return data.data.taskId;
 }
 
+export interface RequestSunoVocalRemovalInput {
+  audioId: string; // 보컬/반주 분리할 오디오의 Suno ID (music_track_variants.suno_audio_id)
+}
+
+/**
+ * Suno `/api/v1/vocal-removal/generate` — "MR(보컬제거) 만들기". type을 지정 안 하면
+ * 기본값 "separate_vocal"이라 보컬(vocal_url)/반주(instrumental_url) 딱 두 트랙만 돌려준다
+ * (split_stem 계열은 악기별로 더 세분화하는데, 우리가 원하는 건 MR 한 장이라 필요 없다).
+ * 이 API의 웹훅 콜백은 generate/extend와 페이로드 구조가 완전히 달라서(callbackType도,
+ * data 배열도 없음) 별도 웹훅 라우트(/api/webhooks/suno-vocal-removal)에서 처리한다.
+ */
+export async function requestSunoVocalRemoval(input: RequestSunoVocalRemovalInput, apiKey: string): Promise<string> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  }
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) {
+    throw new Error("NEXT_PUBLIC_SITE_URL 환경변수가 설정되지 않았습니다 (Suno 콜백 주소 생성에 필요).");
+  }
+
+  const response = await fetch(`${SUNO_BASE}/api/v1/vocal-removal/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      audioId: input.audioId,
+      type: "separate_vocal",
+      callBackUrl: `${siteUrl}/api/webhooks/suno-vocal-removal`,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Suno MR 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+  }
+
+  const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
+  if (data.code !== 200 || !data.data?.taskId) {
+    throw new Error(`Suno MR 생성 요청이 실패했습니다: ${data.msg ?? "알 수 없는 오류"}`);
+  }
+  return data.data.taskId;
+}
+
+// vocal-removal 웹훅 콜백 페이로드(docs.sunoapi.org 확인 완료) — generate/extend와 달리
+// callbackType이나 data 배열이 없고, vocal_removal_info 안에 바로 URL이 들어온다.
+export interface SunoVocalRemovalCallbackPayload {
+  code: number;
+  msg?: string;
+  data?: {
+    task_id?: string;
+    vocal_removal_info?: {
+      vocal_url?: string;
+      instrumental_url?: string;
+      origin_url?: string;
+    };
+  };
+}
+
 // ─────────────────────────────────────────────────────────────
 // 웹훅 콜백 페이로드 타입 (docs.sunoapi.org 확인 완료).
 // callbackType은 "text"(가사만 준비) → "first"(1곡 완료) → "complete"(2곡 모두 완료) 순으로

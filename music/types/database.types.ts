@@ -16,6 +16,7 @@ export type PlanningStatus = "draft" | "planned" | "generating" | "completed" | 
 export type TrackMode = "vocal" | "instrumental";
 export type TrackStatus = "generating" | "completed" | "failed";
 export type VocalGender = "여성" | "남성" | "혼성";
+export type MrStatus = "generating" | "completed" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -183,6 +184,45 @@ export interface Database {
           image_url?: string | null;
           duration_seconds?: number | null;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      music_track_mr: {
+        Row: {
+          id: string;
+          variant_id: string;
+          user_id: string;
+          task_id: string | null;
+          status: MrStatus;
+          instrumental_url: string | null;
+          vocal_url: string | null;
+          error_message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          variant_id: string;
+          user_id: string;
+          task_id?: string | null;
+          status?: MrStatus;
+          instrumental_url?: string | null;
+          vocal_url?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          variant_id?: string;
+          user_id?: string;
+          task_id?: string | null;
+          status?: MrStatus;
+          instrumental_url?: string | null;
+          vocal_url?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

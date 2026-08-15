@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { regenerateMusicAction, syncTrackStatusAction, extendTrackAction } from "@/lib/actions/tracks";
+import { createMrAction } from "@/lib/actions/mr";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
 import { TagChips } from "@/components/plannings/TagChips";
@@ -20,7 +21,15 @@ import {
   TEMPO_OPTIONS,
   TEMPO_MAX_SELECT,
 } from "@/lib/constants";
-import type { TrackMode, TrackStatus, VocalGender } from "@/types/database.types";
+import type { TrackMode, TrackStatus, VocalGender, MrStatus } from "@/types/database.types";
+
+export interface MrResult {
+  id: string;
+  status: MrStatus;
+  instrumental_url: string | null;
+  vocal_url: string | null;
+  error_message: string | null;
+}
 
 export interface TrackVariant {
   id: string;
@@ -28,6 +37,7 @@ export interface TrackVariant {
   image_url: string | null;
   duration_seconds: number | null;
   suno_audio_id: string | null;
+  music_track_mr: MrResult[];
 }
 
 export interface TrackCardData {
@@ -88,6 +98,8 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [extendingVariantId, setExtendingVariantId] = useState<string | null>(null);
   const [extendError, setExtendError] = useState<string | null>(null);
+  const [mrPendingVariantId, setMrPendingVariantId] = useState<string | null>(null);
+  const [mrError, setMrError] = useState<string | null>(null);
 
   /** "곡 연장" — 선택한 variant(오디오)를 Suno가 이어서 늘린다. 결과는 새 트랙 카드로 추가된다. */
   async function handleExtend(variantId: string) {
@@ -104,6 +116,28 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
       }
     } finally {
       setExtendingVariantId(null);
+    }
+  }
+
+  /**
+   * "MR(보컬제거) 만들기" — 선택한 variant(오디오)에서 보컬을 제거한 반주만 만든다.
+   * 이 기능은 Suno에 상태 조회 API가 없어서(웹훅 전용) 로컬 개발 환경에서는 결과를 확인할
+   * 수 없다 — 배포 환경에서 웹훅이 도착하면 AutoRefresh가 자동으로 화면을 갱신한다.
+   */
+  async function handleCreateMr(variantId: string) {
+    setMrError(null);
+    setMrPendingVariantId(variantId);
+    try {
+      const result = await createMrAction(variantId);
+      if (result.needsApiKey) {
+        setMissingProvider(result.needsApiKey);
+      } else if (result.error) {
+        setMrError(result.error);
+      } else {
+        router.refresh();
+      }
+    } finally {
+      setMrPendingVariantId(null);
     }
   }
 
@@ -207,33 +241,74 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
 
         {track.music_track_variants.length > 0 && (
           <div className="grid gap-4 sm:grid-cols-2 mb-4">
-            {track.music_track_variants.map((variant, index) => (
-              <div key={variant.id} className="space-y-2">
-                {variant.image_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={variant.image_url}
-                    alt={`${track.title} 커버 ${index + 1}`}
-                    className="w-full rounded-xl aspect-square object-cover cursor-zoom-in"
-                    onClick={() => setLightboxUrl(variant.image_url)}
-                  />
-                )}
-                <audio controls src={variant.audio_url} className="w-full" />
-                {variant.suno_audio_id && (
-                  <button
-                    type="button"
-                    onClick={() => handleExtend(variant.id)}
-                    disabled={extendingVariantId !== null}
-                    className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
-                  >
-                    {extendingVariantId === variant.id ? "연장 요청 중..." : "🔁 이 곡 이어서 연장하기"}
-                  </button>
-                )}
-              </div>
-            ))}
+            {track.music_track_variants.map((variant, index) => {
+              const latestMr =
+                variant.music_track_mr.length > 0 ? variant.music_track_mr[variant.music_track_mr.length - 1] : null;
+              return (
+                <div key={variant.id} className="space-y-2">
+                  {variant.image_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={variant.image_url}
+                      alt={`${track.title} 커버 ${index + 1}`}
+                      className="w-full rounded-xl aspect-square object-cover cursor-zoom-in"
+                      onClick={() => setLightboxUrl(variant.image_url)}
+                    />
+                  )}
+                  <audio controls src={variant.audio_url} className="w-full" />
+                  {variant.suno_audio_id && (
+                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                      <button
+                        type="button"
+                        onClick={() => handleExtend(variant.id)}
+                        disabled={extendingVariantId !== null}
+                        className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                      >
+                        {extendingVariantId === variant.id ? "연장 요청 중..." : "🔁 이 곡 이어서 연장하기"}
+                      </button>
+                      {!latestMr && (
+                        <button
+                          type="button"
+                          onClick={() => handleCreateMr(variant.id)}
+                          disabled={mrPendingVariantId !== null}
+                          className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                        >
+                          {mrPendingVariantId === variant.id ? "MR 요청 중..." : "🎧 MR(보컬제거) 만들기"}
+                        </button>
+                      )}
+                      {latestMr?.status === "failed" && (
+                        <button
+                          type="button"
+                          onClick={() => handleCreateMr(variant.id)}
+                          disabled={mrPendingVariantId !== null}
+                          className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                        >
+                          {mrPendingVariantId === variant.id ? "MR 요청 중..." : "🎧 MR 다시 시도"}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {latestMr?.status === "generating" && (
+                    <p className="text-xs text-amber-600">
+                      MR 생성 중... (완료되면 웹훅으로 자동 반영됩니다, 잠시 후 새로고침해주세요)
+                    </p>
+                  )}
+                  {latestMr?.status === "failed" && (
+                    <p className="text-xs text-red-600">{latestMr.error_message ?? "MR 생성에 실패했습니다."}</p>
+                  )}
+                  {latestMr?.status === "completed" && latestMr.instrumental_url && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-gray-500">🎧 MR(보컬 제거)</p>
+                      <audio controls src={latestMr.instrumental_url} className="w-full" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
         {extendError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{extendError}</p>}
+        {mrError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{mrError}</p>}
 
         {track.mode === "vocal" && (
           <div className="mt-2 space-y-3">
