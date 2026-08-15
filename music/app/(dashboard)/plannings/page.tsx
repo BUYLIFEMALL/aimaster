@@ -21,7 +21,7 @@ export default async function PlanningsPage() {
     .from("music_plannings")
     .select("id, title, song_description, status, created_at")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
