@@ -200,6 +200,10 @@ export interface RegenerateMusicOptions {
   vocalGender: VocalGender | null;
   lang: string;
   count: number;
+  // "생성하기" 패널과 동일한 장르/무드 태그 override(선택) — 지정하면 항상 새 가사/스타일을
+  // 만든다(수정한 가사를 그대로 살리는 경로를 쓰지 않는다).
+  genre?: string[];
+  mood?: string[];
 }
 
 /**
@@ -247,7 +251,11 @@ export async function regenerateMusicAction(
 
   const genderChanged = (options.vocalGender ?? null) !== (original.vocal_gender ?? null);
   const langChanged = options.lang.trim() !== planning.lang;
-  const needsFreshLyrics = genderChanged || langChanged || clampedCount > 1;
+  const genre = options.genre?.length ? options.genre : undefined;
+  const mood = options.mood?.length ? options.mood : undefined;
+  const hasTagOverride = Boolean(genre || mood);
+  const needsFreshLyrics = genderChanged || langChanged || clampedCount > 1 || hasTagOverride;
+  const needsFreshStyle = genderChanged || hasTagOverride;
 
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
   if (!sunoKey) return { needsApiKey: "suno" };
@@ -266,12 +274,14 @@ export async function regenerateMusicAction(
         // 성별/언어/곡수를 그대로 두고 가사만 손댄 경우 — 수정한 텍스트를 그대로 사용.
         promptText = trimmedLyrics;
       } else {
-        if (genderChanged) {
+        if (needsFreshStyle) {
           const styleResult = await generateStyleAndExclude(
             {
               songDescription: planning.song_description,
               vocalGender: options.vocalGender,
               avoidStyles: i > 0 ? usedStyles : undefined,
+              genre,
+              mood,
             },
             openaiKey!,
           );
@@ -332,7 +342,7 @@ export async function regenerateMusicAction(
     await logProgramUsage({
       userId: user.id,
       action: "regenerate_music",
-      metadata: { trackId, count: clampedCount, genderChanged, langChanged },
+      metadata: { trackId, count: clampedCount, genderChanged, langChanged, genre, mood },
     });
     revalidatePath(`/plannings/${original.planning_id}`);
     return {};

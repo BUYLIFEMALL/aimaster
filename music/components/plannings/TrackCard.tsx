@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { regenerateMusicAction, syncTrackStatusAction } from "@/lib/actions/tracks";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
-import { LANG_OPTIONS, VOCAL_GENDER_OPTIONS } from "@/lib/constants";
+import { TagChips } from "@/components/plannings/TagChips";
+import {
+  LANG_OPTIONS,
+  VOCAL_GENDER_OPTIONS,
+  GENRE_OPTIONS,
+  GENRE_MAX_SELECT,
+  MOOD_OPTIONS,
+  MOOD_MAX_SELECT,
+} from "@/lib/constants";
 import type { TrackMode, TrackStatus, VocalGender } from "@/types/database.types";
 
 export interface TrackVariant {
@@ -57,6 +65,9 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   const [vocalGender, setVocalGender] = useState<VocalGender | "">(track.vocal_gender ?? "");
   const [lang, setLang] = useState(planningLang);
   const [count, setCount] = useState(1);
+  const [genreTags, setGenreTags] = useState<string[]>([]);
+  const [moodTags, setMoodTags] = useState<string[]>([]);
+  const [showTagOptions, setShowTagOptions] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [missingProvider, setMissingProvider] = useState<string | null>(null);
@@ -85,7 +96,16 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
     }
   }
 
-  const willUseAi = vocalGender !== (track.vocal_gender ?? "") || lang !== planningLang || count > 1;
+  function toggleGenre(value: string) {
+    setGenreTags((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  }
+  function toggleMood(value: string) {
+    setMoodTags((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  }
+
+  const hasTagOverride = genreTags.length > 0 || moodTags.length > 0;
+  const willUseAi =
+    vocalGender !== (track.vocal_gender ?? "") || lang !== planningLang || count > 1 || hasTagOverride;
 
   async function handleRegenerate() {
     setError(null);
@@ -96,6 +116,8 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
         vocalGender: vocalGender || null,
         lang,
         count,
+        genre: genreTags,
+        mood: moodTags,
       });
       if (result.needsApiKey) {
         setMissingProvider(result.needsApiKey);
@@ -210,10 +232,34 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
               </div>
             </div>
 
+            <button
+              type="button"
+              onClick={() => setShowTagOptions((v) => !v)}
+              className="text-xs font-semibold text-blue-600 hover:underline"
+            >
+              {showTagOptions ? "▲ 장르/무드 추가 옵션 닫기" : "▼ 장르/무드 추가 옵션 (선택)"}
+              {hasTagOverride && !showTagOptions && ` — ${genreTags.length + moodTags.length}개 선택됨`}
+            </button>
+
+            {showTagOptions && (
+              <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                <div>
+                  <p className="mb-1.5 text-xs font-semibold text-gray-500">
+                    장르 (최대 {GENRE_MAX_SELECT}개)
+                  </p>
+                  <TagChips options={GENRE_OPTIONS} selected={genreTags} max={GENRE_MAX_SELECT} onToggle={toggleGenre} />
+                </div>
+                <div>
+                  <p className="mb-1.5 text-xs font-semibold text-gray-500">무드 (최대 {MOOD_MAX_SELECT}개)</p>
+                  <TagChips options={MOOD_OPTIONS} selected={moodTags} max={MOOD_MAX_SELECT} onToggle={toggleMood} />
+                </div>
+              </div>
+            )}
+
             <p className="text-xs text-gray-400">
               {willUseAi
-                ? "성별/언어를 원래와 다르게 고르거나 곡수를 2 이상으로 하면, 위 가사 대신 AI가 새로 작사해서 생성합니다."
-                : "성별/언어/곡수를 그대로 두면 위에서 수정한 가사를 그대로 살려서 재생성합니다."}
+                ? "성별/언어/곡수를 원래와 다르게 고르거나 장르/무드 태그를 추가하면, 위 가사 대신 AI가 새로 작사·작곡해서 생성합니다."
+                : "성별/언어/곡수를 그대로 두고 태그도 추가하지 않으면 위에서 수정한 가사를 그대로 살려서 재생성합니다."}
             </p>
 
             {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}

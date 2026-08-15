@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { generateTracksAction } from "@/lib/actions/tracks";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
+import { TagChips } from "@/components/plannings/TagChips";
 import {
   LANG_OPTIONS,
   VOCAL_GENDER_OPTIONS,
@@ -16,45 +17,6 @@ import type { TrackMode, VocalGender } from "@/types/database.types";
 
 const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno" };
 const COUNT_OPTIONS = Array.from({ length: 10 }, (_, i) => i + 1); // 1~10
-
-/** 장르/무드 칩 선택 UI — 최대 개수를 넘기면 더 이상 선택되지 않는다(눌러서 해제는 항상 가능). */
-function TagChips({
-  options,
-  selected,
-  max,
-  onToggle,
-}: {
-  options: { value: string; label: string }[];
-  selected: string[];
-  max: number;
-  onToggle: (value: string) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {options.map((opt) => {
-        const isSelected = selected.includes(opt.value);
-        const disabled = !isSelected && selected.length >= max;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            disabled={disabled}
-            onClick={() => onToggle(opt.value)}
-            className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-              isSelected
-                ? "border-blue-600 bg-blue-600 text-white"
-                : disabled
-                  ? "border-gray-100 text-gray-300"
-                  : "border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600"
-            }`}
-          >
-            {opt.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 export function GenerateTracksPanel({
   planningId,
