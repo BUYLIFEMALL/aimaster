@@ -393,12 +393,18 @@ export interface ExtendTrackState {
   needsApiKey?: string; // "suno"
 }
 
+// 연장은 원곡 끝에서 몇 초 앞선 지점부터 이어붙여야 한다(Suno 요구사항: continueAt이 0보다
+// 크고 전체 길이보다 작아야 함). 너무 끝쪽이면 오차로 범위를 벗어날 수 있어 3초 여유를 둔다.
+const EXTEND_TAIL_MARGIN_SECONDS = 3;
+const EXTEND_FALLBACK_DURATION_SECONDS = 180;
+
 /**
  * "곡 연장" — Suno `/generate/extend`로 완성된 특정 variant(오디오)를 이어서 늘린다.
- * 원본 트랙의 스타일/제목/성별/모델을 그대로 이어받아 새 music_tracks row를 만들고
+ * 원본 트랙의 스타일/제목/가사/성별/모델을 그대로 이어받아 새 music_tracks row를 만들고
  * (이력 보존, regenerateMusicAction과 동일한 패턴), extended_from_variant_id로 어떤
- * variant를 연장한 결과인지 남긴다. defaultParamFlag:false라 style/continueAt을 우리가
- * 계산할 필요 없이 Suno가 원본 생성 파라미터를 그대로 재사용해 이어붙인다.
+ * variant를 연장한 결과인지 남긴다. defaultParamFlag:true로 continueAt/style/prompt를
+ * 명시적으로 넘긴다 — false(자동)로 시도했을 때 "Audio generation failed" 오류가 계속
+ * 발생해서(2026-08-15) 명시적 파라미터 방식으로 바꿨다.
  */
 export async function extendTrackAction(variantId: string): Promise<ExtendTrackState> {
   const user = await requireProgramAccess();
@@ -406,7 +412,7 @@ export async function extendTrackAction(variantId: string): Promise<ExtendTrackS
 
   const { data: variant, error: variantError } = await supabase
     .from("music_track_variants")
-    .select("id, track_id, suno_audio_id")
+    .select("id, track_id, suno_audio_id, duration_seconds")
     .eq("id", variantId)
     .eq("user_id", user.id)
     .single();
@@ -452,10 +458,19 @@ export async function extendTrackAction(variantId: string): Promise<ExtendTrackS
       return { error: insertError?.message ?? "연장 트랙 저장에 실패했습니다." };
     }
 
+    const baseDuration = variant.duration_seconds ?? EXTEND_FALLBACK_DURATION_SECONDS;
+    const continueAt = Math.max(1, baseDuration - EXTEND_TAIL_MARGIN_SECONDS);
+
     const taskId = await requestSunoExtend(
       {
         audioId: variant.suno_audio_id,
+        continueAt,
+        title: original.title,
+        styleDescription: original.style_description ?? "",
+        excludeStyles: original.exclude_styles ?? undefined,
         instrumental: original.mode === "instrumental",
+        prompt: original.mode === "vocal" ? original.prompt_text : undefined,
+        vocalGender: toSunoVocalGender(original.vocal_gender),
         model: original.suno_model,
       },
       sunoKey,

@@ -72,16 +72,23 @@ export async function requestSunoGeneration(input: RequestSunoGenerationInput, a
 
 export interface RequestSunoExtendInput {
   audioId: string; // 연장할 특정 오디오의 Suno ID (music_track_variants.suno_audio_id)
+  continueAt: number; // 몇 초 지점부터 이어붙일지(0보다 크고 원본 길이보다 작아야 함)
+  title: string;
+  styleDescription: string;
+  excludeStyles?: string;
   instrumental: boolean;
+  prompt?: string; // instrumental이 false면 필수(원곡 가사)
+  vocalGender?: "m" | "f";
   model?: string;
 }
 
 /**
  * Suno `/api/v1/generate/extend` — 이미 완성된 곡(특정 audioId)을 이어서 연장한다.
- * defaultParamFlag:false로 보내면 style/title/continueAt/prompt를 다시 안 넘겨도 Suno가
- * 원본 생성 당시 파라미터를 그대로 재사용해서 자동으로 이어붙인다(문서 확인 완료,
- * 2026-08-15) — 우리가 continueAt(초 단위 지점)을 직접 계산해서 넘기는 커스텀 모드보다
- * 훨씬 간단하고 안전해서 v1은 이 방식만 지원한다.
+ * 처음엔 defaultParamFlag:false(원본 파라미터 자동 재사용)로 구현했는데 실제로 호출해보니
+ * "Audio generation failed, please try again later." 로 계속 실패했다(2026-08-15,
+ * 웹훅 콜백에 실린 msg를 그대로 저장해둔 걸 확인). generate/generate 재생성처럼 defaultParamFlag:
+ * true로 continueAt/style/title/prompt를 전부 명시적으로 넘기는 방식이 우리가 이미 쓰고 있는
+ * 다른 Suno 호출들과 동일하게 안정적으로 동작해서 이 방식으로 바꿨다.
  */
 export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: string): Promise<string> {
   if (!apiKey) {
@@ -96,9 +103,15 @@ export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: s
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      defaultParamFlag: false,
+      defaultParamFlag: true,
       audioId: input.audioId,
+      continueAt: input.continueAt,
+      style: input.styleDescription,
+      title: input.title.slice(0, 80),
       instrumental: input.instrumental,
+      ...(input.instrumental ? {} : { prompt: input.prompt }),
+      ...(input.excludeStyles ? { negativeTags: input.excludeStyles } : {}),
+      ...(input.vocalGender ? { vocalGender: input.vocalGender } : {}),
       model: input.model ?? DEFAULT_SUNO_MODEL,
       callBackUrl: `${siteUrl}/api/webhooks/suno`,
     }),
