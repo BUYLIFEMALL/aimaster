@@ -245,15 +245,23 @@ export async function requestSunoWavConversion(input: RequestSunoWavConversionIn
   return data.data.taskId;
 }
 
-// wav 웹훅 콜백 페이로드(docs.sunoapi.org 확인 완료) — callbackType/data 배열 없이
-// audioWavUrl 하나만 바로 온다.
+// wav 웹훅 콜백 페이로드. 문서 예시는 data.audioWavUrl 바로 아래로 나와 있는데, 실제로
+// 받아보니 code:200 + msg:"All generated successfully."(성공 메시지)인데도 data.audioWavUrl이
+// 비어 있어서 실패로 잘못 처리된 사례가 있었다(2026-08-15) — GET /wav/record-info 응답처럼
+// data.response.audioWavUrl에 들어있을 가능성이 높아 두 경로를 모두 허용한다.
 export interface SunoWavCallbackPayload {
   code: number;
   msg?: string;
   data?: {
     task_id?: string;
     audioWavUrl?: string;
+    response?: { audioWavUrl?: string };
   };
+}
+
+/** 문서와 실제 응답이 달랐던 이력이 있어(위 주석 참고) 여러 경로를 순서대로 확인한다. */
+export function extractSunoWavUrl(payload: SunoWavCallbackPayload): string | undefined {
+  return payload.data?.audioWavUrl || payload.data?.response?.audioWavUrl;
 }
 
 export type SunoWavPollResult =

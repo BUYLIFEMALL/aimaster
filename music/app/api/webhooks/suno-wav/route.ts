@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { persistSunoAssetToStorage } from "@/lib/trackSync";
-import type { SunoWavCallbackPayload } from "@/lib/ai/suno";
+import { extractSunoWavUrl, type SunoWavCallbackPayload } from "@/lib/ai/suno";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +19,9 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ ok: false, error: "invalid json" }, { status: 400 });
   }
+  // 문서에 나온 페이로드 모양과 실제 응답이 달랐던 이력이 있어서(위 파일 상단 주석 참고),
+  // 다음에 또 어긋나면 바로 원인 파악할 수 있도록 원본 페이로드를 로그에 남긴다.
+  console.log("[suno-wav webhook] payload:", JSON.stringify(payload));
 
   const taskId = payload.data?.task_id;
   if (!taskId) {
@@ -40,7 +43,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, ignored: "already processed" });
   }
 
-  if (payload.code !== 200 || !payload.data?.audioWavUrl) {
+  const sourceWavUrl = extractSunoWavUrl(payload);
+  if (payload.code !== 200 || !sourceWavUrl) {
     await admin
       .from("music_track_wav")
       .update({ status: "failed", error_message: payload.msg ?? "Suno가 WAV URL을 반환하지 않았습니다." })
@@ -51,7 +55,7 @@ export async function POST(request: NextRequest) {
   const wavUrl = await persistSunoAssetToStorage(
     admin,
     `${wav.user_id}/${wav.variant_id}/converted.wav`,
-    payload.data.audioWavUrl,
+    sourceWavUrl,
     "audio/wav",
   );
 
