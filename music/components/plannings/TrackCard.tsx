@@ -412,9 +412,9 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                       <a
                         href={latestWav.wav_url}
                         download
-                        className="inline-block text-xs font-semibold text-blue-600 hover:underline"
+                        className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors"
                       >
-                        ⬇ WAV 파일 다운로드
+                        ⬇ WAV 파일받기
                       </a>
                     </div>
                   )}
