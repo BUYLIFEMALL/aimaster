@@ -16,6 +16,17 @@ export interface GenerateTracksState {
 
 const MAX_GENERATE_COUNT = 10;
 
+// 인스트루멘탈판은 보컬이 전혀 없어야 한다. Suno에 instrumental:true를 넘겨도, style/negativeTags에
+// 보컬 관련 언급이 남아있으면(예: 기획 스타일이 "female vocals"를 담고 있는 경우) 결과에 보컬이
+// 섞여 나올 수 있어서, style은 항상 vocalGender:null로 새로 만들고 negativeTags에도 보컬 배제
+// 태그를 강제로 덧붙인다(이중 안전장치).
+const INSTRUMENTAL_EXTRA_EXCLUDES = "vocals, singing, rap, spoken word, lyrics";
+
+function withInstrumentalExcludes(excludeStyles: string): string {
+  const already = excludeStyles.toLowerCase().includes("vocal");
+  return already ? excludeStyles : `${excludeStyles}, ${INSTRUMENTAL_EXTRA_EXCLUDES}`;
+}
+
 /**
  * n8n(Make.com) 시나리오 01 뒷부분 + 시나리오 31(대량생성) 대응: 기획 1건에 대해 선택된
  * 모드(보컬/인스트루멘탈)마다 count(1~10)개의 트랙을 만들고 Suno 생성을 요청한다.
@@ -71,14 +82,18 @@ export async function generateTracksAction(
   try {
     for (const mode of modes) {
       const usedStyles: string[] = [];
-      const modeVocalGender = mode === "vocal" ? effectiveVocalGender : planning.vocal_gender;
+      // 인스트루멘탈판은 보컬 성별 개념이 없다 — 기획의 vocal_gender와 무관하게 항상 null.
+      const modeVocalGender = mode === "vocal" ? effectiveVocalGender : null;
       const modeGenderChanged = mode === "vocal" && vocalGenderChanged;
+      // 인스트루멘탈판은 기획의 스타일(보컬 묘사가 섞여 있을 수 있음)을 그대로 재사용하지 않고
+      // 매번 보컬 없는 스타일을 새로 만든다.
+      const needsFreshStyle = mode === "instrumental" || modeGenderChanged;
 
       for (let i = 0; i < clampedCount; i++) {
         let styleDescription = planning.style_description;
         let excludeStyles = planning.exclude_styles;
 
-        if (i > 0 || modeGenderChanged) {
+        if (i > 0 || needsFreshStyle) {
           const styleResult = await generateStyleAndExclude(
             {
               songDescription: planning.song_description,
@@ -91,6 +106,9 @@ export async function generateTracksAction(
           excludeStyles = styleResult.excludeStyles;
         }
         usedStyles.push(styleDescription);
+        if (mode === "instrumental") {
+          excludeStyles = withInstrumentalExcludes(excludeStyles);
+        }
 
         const promptText =
           mode === "vocal"

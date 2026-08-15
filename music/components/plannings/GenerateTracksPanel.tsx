@@ -61,6 +61,8 @@ export function GenerateTracksPanel({
 
   const totalTracks = (vocal ? count : 0) + (instrumental ? count : 0);
   const willUseAi = vocalGender !== (planningVocalGender ?? "") || lang !== planningLang;
+  // 성별/언어는 가사가 있는 보컬버전에만 의미가 있다 — 인스트루멘탈만 선택했을 때는 숨긴다.
+  const showVocalOptions = vocal;
 
   return (
     <>
@@ -82,31 +84,35 @@ export function GenerateTracksPanel({
         </div>
 
         <div className="flex flex-wrap gap-3 mb-2">
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">성별</label>
-            <select
-              value={vocalGender}
-              onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
-              className="input w-32"
-            >
-              <option value="">미지정</option>
-              {VOCAL_GENDER_OPTIONS.map((g) => (
-                <option key={g} value={g}>
-                  {g === "혼성" ? "혼성(듀엣)" : g}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">언어</label>
-            <select value={lang} onChange={(e) => setLang(e.target.value)} className="input w-28">
-              {LANG_OPTIONS.map((l) => (
-                <option key={l} value={l}>
-                  {l}
-                </option>
-              ))}
-            </select>
-          </div>
+          {showVocalOptions && (
+            <>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">성별</label>
+                <select
+                  value={vocalGender}
+                  onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
+                  className="input w-32"
+                >
+                  <option value="">미지정</option>
+                  {VOCAL_GENDER_OPTIONS.map((g) => (
+                    <option key={g} value={g}>
+                      {g === "혼성" ? "혼성(듀엣)" : g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">언어</label>
+                <select value={lang} onChange={(e) => setLang(e.target.value)} className="input w-28">
+                  {LANG_OPTIONS.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
           <div>
             <label className="block text-xs font-semibold text-gray-500 mb-1">생성 개수(대량생성)</label>
             <select
@@ -124,12 +130,14 @@ export function GenerateTracksPanel({
         </div>
 
         <p className="mb-4 text-xs text-gray-400">
-          {willUseAi
-            ? "성별/언어를 기획과 다르게 선택했습니다 — 기획 내용은 그대로 두고, 이번 생성만 선택한 성별/언어로 만듭니다."
-            : "기획에서 정한 성별/언어 그대로 생성합니다."}{" "}
-          2곡 이상 선택하면 첫 곡은 기획된 스타일 그대로(성별을 바꿨다면 새 스타일부터), 나머지는
-          AI가 겹치지 않는 새 스타일 변주를 만들어 각각 다른 느낌으로 생성합니다. 선택한 버전별로
-          매번 OpenAI/Suno API가 호출되니 개수만큼 비용이 늘어납니다
+          {showVocalOptions &&
+            (willUseAi
+              ? "성별/언어를 기획과 다르게 선택했습니다 — 기획 내용은 그대로 두고, 이번 생성만 선택한 성별/언어로 만듭니다. "
+              : "기획에서 정한 성별/언어 그대로 생성합니다. ")}
+          {instrumental && "인스트루멘탈버전은 가사/보컬 없이 반주만 생성됩니다(성별·언어와 무관). "}
+          2곡 이상 선택하면 첫 곡은 기획된 스타일 그대로(성별을 바꿨거나 인스트루멘탈이면 새
+          스타일부터), 나머지는 AI가 겹치지 않는 새 스타일 변주를 만들어 각각 다른 느낌으로
+          생성합니다. 선택한 버전별로 매번 OpenAI/Suno API가 호출되니 개수만큼 비용이 늘어납니다
           {totalTracks > 0 && ` (이번에 총 ${totalTracks}곡 생성)`}.
         </p>
 
