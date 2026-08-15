@@ -7,7 +7,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { generateLyrics, generateInstrumentalPrompt, generateStyleAndExclude } from "@/lib/ai/musicPrompts";
 import { requestSunoGeneration, checkSunoGenerationStatus, DEFAULT_SUNO_MODEL } from "@/lib/ai/suno";
 import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
-import type { TrackMode, TrackStatus } from "@/types/database.types";
+import type { TrackMode, TrackStatus, VocalGender } from "@/types/database.types";
 
 export interface GenerateTracksState {
   error?: string;
@@ -138,23 +138,37 @@ export async function generateTracksAction(
   }
 }
 
-export interface RegenerateTrackState {
+export interface RegenerateMusicState {
   error?: string;
-  needsApiKey?: boolean;
+  needsApiKey?: string; // "openai" | "suno"
+}
+
+export interface RegenerateMusicOptions {
+  lyrics: string;
+  vocalGender: VocalGender | null;
+  lang: string;
+  count: number;
 }
 
 /**
- * n8n(Make.com) 시나리오 03 대응: 가사를 수정해서 다시 Suno 생성을 요청한다.
- * 기존 트랙의 style/title/mode는 그대로 재사용하되, 이력 보존을 위해 새 music_tracks row를
- * 만든다(shots/shop-detail-page의 재생성 이력 패턴과 동일 — 블루프린트 원본은 in-place UPDATE).
+ * "음악 재생성" — n8n(Make.com) 시나리오 03(가사수정)을 확장한 기능. 가사를 손으로 고쳐서
+ * 그대로 다시 부르게 할 수도 있고, 성별/언어/곡수를 바꿔서 AI가 새로 작사·작곡하게 할 수도
+ * 있다. 이력 보존을 위해 항상 새 music_tracks row를 만든다(원본 블루프린트는 in-place UPDATE).
+ *
+ * - 성별·언어를 트랙 생성 당시 값 그대로 두고 곡수도 1이면: textarea에 있는 가사를 그대로
+ *   Suno에 보낸다(직접 수정한 가사를 그대로 살리는 경로).
+ * - 셋 중 하나라도 바뀌면: textarea 내용은 참고하지 않고, 매 곡마다 GPT로 새 가사를 쓴다
+ *   (성별이 바뀌면 스타일도 함께 새로 만들고, 곡수가 2 이상이면 generateTracksAction과 같은
+ *   방식으로 이번 배치에서 이미 쓴 스타일과 겹치지 않게 만든다).
  */
-export async function regenerateTrackAction(
+export async function regenerateMusicAction(
   trackId: string,
-  newLyrics: string,
-): Promise<RegenerateTrackState> {
+  options: RegenerateMusicOptions,
+): Promise<RegenerateMusicState> {
   const user = await requireProgramAccess();
-  const trimmed = newLyrics.trim();
-  if (!trimmed) return { error: "가사를 입력해주세요." };
+  const trimmedLyrics = options.lyrics.trim();
+  if (!trimmedLyrics) return { error: "가사를 입력해주세요." };
+  const clampedCount = Math.min(Math.max(Math.round(options.count) || 1, 1), MAX_GENERATE_COUNT);
 
   const supabase = await createClient();
   const { data: original, error: originalError } = await supabase
@@ -167,49 +181,106 @@ export async function regenerateTrackAction(
     return { error: "트랙을 찾을 수 없습니다." };
   }
   if (original.mode !== "vocal") {
-    return { error: "가사 수정 재생성은 보컬판 트랙에서만 가능합니다." };
+    return { error: "음악 재생성은 보컬판 트랙에서만 가능합니다." };
   }
 
+  const { data: planning, error: planningError } = await supabase
+    .from("music_plannings")
+    .select("title, description, song_description, lang")
+    .eq("id", original.planning_id)
+    .single();
+  if (planningError || !planning) {
+    return { error: "기획을 찾을 수 없습니다." };
+  }
+
+  const genderChanged = (options.vocalGender ?? null) !== (original.vocal_gender ?? null);
+  const langChanged = options.lang.trim() !== planning.lang;
+  const needsFreshLyrics = genderChanged || langChanged || clampedCount > 1;
+
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
-  if (!sunoKey) return { needsApiKey: true };
+  if (!sunoKey) return { needsApiKey: "suno" };
+  const openaiKey = needsFreshLyrics ? await resolveApiKey(supabase, user.id, "openai") : null;
+  if (needsFreshLyrics && !openaiKey) return { needsApiKey: "openai" };
 
   try {
-    const { data: newTrack, error: insertError } = await supabase
-      .from("music_tracks")
-      .insert({
-        planning_id: original.planning_id,
-        user_id: user.id,
-        mode: original.mode,
-        title: original.title,
-        prompt_text: trimmed,
-        style_description: original.style_description,
-        exclude_styles: original.exclude_styles,
-        vocal_gender: original.vocal_gender,
-        suno_model: original.suno_model,
-        status: "generating",
-      })
-      .select("id")
-      .single();
-    if (insertError || !newTrack) {
-      return { error: insertError?.message ?? "재생성 트랙 저장에 실패했습니다." };
+    let styleDescription = original.style_description ?? "";
+    let excludeStyles = original.exclude_styles ?? "";
+    const usedStyles = [styleDescription];
+
+    for (let i = 0; i < clampedCount; i++) {
+      let promptText: string;
+
+      if (i === 0 && !needsFreshLyrics) {
+        // 성별/언어/곡수를 그대로 두고 가사만 손댄 경우 — 수정한 텍스트를 그대로 사용.
+        promptText = trimmedLyrics;
+      } else {
+        if (genderChanged) {
+          const styleResult = await generateStyleAndExclude(
+            {
+              songDescription: planning.song_description,
+              vocalGender: options.vocalGender,
+              avoidStyles: i > 0 ? usedStyles : undefined,
+            },
+            openaiKey!,
+          );
+          styleDescription = styleResult.styleDescription;
+          excludeStyles = styleResult.excludeStyles;
+          usedStyles.push(styleDescription);
+        }
+
+        promptText = await generateLyrics(
+          {
+            title: original.title,
+            description: planning.description ?? "",
+            lang: options.lang,
+            styleDescription,
+            vocalGender: options.vocalGender,
+          },
+          openaiKey!,
+        );
+      }
+
+      const { data: newTrack, error: insertError } = await supabase
+        .from("music_tracks")
+        .insert({
+          planning_id: original.planning_id,
+          user_id: user.id,
+          mode: "vocal",
+          title: original.title,
+          prompt_text: promptText,
+          style_description: styleDescription,
+          exclude_styles: excludeStyles,
+          vocal_gender: options.vocalGender,
+          suno_model: original.suno_model,
+          status: "generating",
+        })
+        .select("id")
+        .single();
+      if (insertError || !newTrack) {
+        return { error: insertError?.message ?? "재생성 트랙 저장에 실패했습니다." };
+      }
+
+      const taskId = await requestSunoGeneration(
+        {
+          prompt: promptText,
+          title: original.title,
+          styleDescription,
+          excludeStyles,
+          instrumental: false,
+          model: original.suno_model,
+        },
+        sunoKey,
+      );
+
+      await supabase.from("music_tracks").update({ task_id: taskId }).eq("id", newTrack.id);
     }
 
-    const taskId = await requestSunoGeneration(
-      {
-        prompt: trimmed,
-        title: original.title,
-        styleDescription: original.style_description ?? "",
-        excludeStyles: original.exclude_styles ?? "",
-        instrumental: false,
-        model: original.suno_model,
-      },
-      sunoKey,
-    );
-
-    await supabase.from("music_tracks").update({ task_id: taskId }).eq("id", newTrack.id);
     await supabase.from("music_plannings").update({ status: "generating" }).eq("id", original.planning_id);
-
-    await logProgramUsage({ userId: user.id, action: "regenerate_track", metadata: { trackId } });
+    await logProgramUsage({
+      userId: user.id,
+      action: "regenerate_music",
+      metadata: { trackId, count: clampedCount, genderChanged, langChanged },
+    });
     revalidatePath(`/plannings/${original.planning_id}`);
     return {};
   } catch (err) {
