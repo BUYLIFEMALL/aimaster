@@ -70,6 +70,52 @@ export async function requestSunoGeneration(input: RequestSunoGenerationInput, a
   return data.data.taskId;
 }
 
+export interface RequestSunoExtendInput {
+  audioId: string; // 연장할 특정 오디오의 Suno ID (music_track_variants.suno_audio_id)
+  instrumental: boolean;
+  model?: string;
+}
+
+/**
+ * Suno `/api/v1/generate/extend` — 이미 완성된 곡(특정 audioId)을 이어서 연장한다.
+ * defaultParamFlag:false로 보내면 style/title/continueAt/prompt를 다시 안 넘겨도 Suno가
+ * 원본 생성 당시 파라미터를 그대로 재사용해서 자동으로 이어붙인다(문서 확인 완료,
+ * 2026-08-15) — 우리가 continueAt(초 단위 지점)을 직접 계산해서 넘기는 커스텀 모드보다
+ * 훨씬 간단하고 안전해서 v1은 이 방식만 지원한다.
+ */
+export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: string): Promise<string> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  }
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) {
+    throw new Error("NEXT_PUBLIC_SITE_URL 환경변수가 설정되지 않았습니다 (Suno 콜백 주소 생성에 필요).");
+  }
+
+  const response = await fetch(`${SUNO_BASE}/api/v1/generate/extend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      defaultParamFlag: false,
+      audioId: input.audioId,
+      instrumental: input.instrumental,
+      model: input.model ?? DEFAULT_SUNO_MODEL,
+      callBackUrl: `${siteUrl}/api/webhooks/suno`,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Suno 연장 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+  }
+
+  const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
+  if (data.code !== 200 || !data.data?.taskId) {
+    throw new Error(`Suno 연장 요청이 실패했습니다: ${data.msg ?? "알 수 없는 오류"}`);
+  }
+  return data.data.taskId;
+}
+
 // ─────────────────────────────────────────────────────────────
 // 웹훅 콜백 페이로드 타입 (docs.sunoapi.org 확인 완료).
 // callbackType은 "text"(가사만 준비) → "first"(1곡 완료) → "complete"(2곡 모두 완료) 순으로

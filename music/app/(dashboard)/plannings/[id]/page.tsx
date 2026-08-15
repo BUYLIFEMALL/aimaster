@@ -24,9 +24,13 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
     .single();
   if (!planning) notFound();
 
+  // music_tracks.extended_from_variant_id(연장 원본 variant)가 music_track_variants를 가리키는
+  // FK가 하나 더 생겨서, music_tracks -> music_track_variants 사이에 관계가 2개(변형 목록 FK인
+  // track_id, 연장 원본 FK인 extended_from_variant_id)가 됐다. PostgREST가 어떤 FK로 조인할지
+  // 모호해서 에러 없이 조용히 빈 배열을 반환하는 문제가 있었다 — !track_id로 명시해서 해결.
   const { data: tracks } = await supabase
     .from("music_tracks")
-    .select("*, music_track_variants(*)")
+    .select("*, music_track_variants!track_id(*)")
     .eq("planning_id", params.id)
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });

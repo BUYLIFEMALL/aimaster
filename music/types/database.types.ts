@@ -110,6 +110,8 @@ export interface Database {
           task_id: string | null;
           status: TrackStatus;
           error_message: string | null;
+          // 이 트랙이 특정 variant를 "곡 연장"한 결과라면 원본 variant를 가리킨다(선택 기능).
+          extended_from_variant_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -127,6 +129,7 @@ export interface Database {
           task_id?: string | null;
           status?: TrackStatus;
           error_message?: string | null;
+          extended_from_variant_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -144,6 +147,7 @@ export interface Database {
           task_id?: string | null;
           status?: TrackStatus;
           error_message?: string | null;
+          extended_from_variant_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

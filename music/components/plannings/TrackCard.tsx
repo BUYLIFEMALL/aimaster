@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { regenerateMusicAction, syncTrackStatusAction } from "@/lib/actions/tracks";
+import { regenerateMusicAction, syncTrackStatusAction, extendTrackAction } from "@/lib/actions/tracks";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
 import { TagChips } from "@/components/plannings/TagChips";
@@ -27,6 +27,7 @@ export interface TrackVariant {
   audio_url: string;
   image_url: string | null;
   duration_seconds: number | null;
+  suno_audio_id: string | null;
 }
 
 export interface TrackCardData {
@@ -38,6 +39,7 @@ export interface TrackCardData {
   status: TrackStatus;
   error_message: string | null;
   created_at: string;
+  extended_from_variant_id: string | null;
   music_track_variants: TrackVariant[];
 }
 
@@ -58,10 +60,11 @@ const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno"
 
 /** 트랙 카드 제목("🎤 보컬버전(남성)" 등) — 실제 생성 당시 성별을 트랙 자신에 스냅샷해뒀으므로
  * 기획을 나중에 수정해도 이미 생성된 카드의 라벨은 바뀌지 않는다. */
-function trackTitleLabel(track: Pick<TrackCardData, "mode" | "vocal_gender">): string {
-  if (track.mode === "instrumental") return "🎹 인스트루멘탈버전(반주만)";
+function trackTitleLabel(track: Pick<TrackCardData, "mode" | "vocal_gender" | "extended_from_variant_id">): string {
+  const prefix = track.extended_from_variant_id ? "🔁 연장본 · " : "";
+  if (track.mode === "instrumental") return `${prefix}🎹 인스트루멘탈버전(반주만)`;
   const label = track.vocal_gender ? `${VOCAL_GENDER_LABEL[track.vocal_gender]}곡` : "가사 포함";
-  return `🎤 보컬버전(${label})`;
+  return `${prefix}🎤 보컬버전(${label})`;
 }
 
 /** planningLang: 기획의 언어 — 트랙 자신은 언어를 따로 저장하지 않아서 기본값으로 쓴다. */
@@ -83,6 +86,26 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [extendingVariantId, setExtendingVariantId] = useState<string | null>(null);
+  const [extendError, setExtendError] = useState<string | null>(null);
+
+  /** "곡 연장" — 선택한 variant(오디오)를 Suno가 이어서 늘린다. 결과는 새 트랙 카드로 추가된다. */
+  async function handleExtend(variantId: string) {
+    setExtendError(null);
+    setExtendingVariantId(variantId);
+    try {
+      const result = await extendTrackAction(variantId);
+      if (result.needsApiKey) {
+        setMissingProvider(result.needsApiKey);
+      } else if (result.error) {
+        setExtendError(result.error);
+      } else {
+        router.refresh();
+      }
+    } finally {
+      setExtendingVariantId(null);
+    }
+  }
 
   /**
    * 웹훅이 도달하지 못했을 때(로컬 개발 환경은 항상 그렇고, 배포 환경에서도 드물게 콜백이
@@ -196,10 +219,21 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                   />
                 )}
                 <audio controls src={variant.audio_url} className="w-full" />
+                {variant.suno_audio_id && (
+                  <button
+                    type="button"
+                    onClick={() => handleExtend(variant.id)}
+                    disabled={extendingVariantId !== null}
+                    className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60"
+                  >
+                    {extendingVariantId === variant.id ? "연장 요청 중..." : "🔁 이 곡 이어서 연장하기"}
+                  </button>
+                )}
               </div>
             ))}
           </div>
         )}
+        {extendError && <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{extendError}</p>}
 
         {track.mode === "vocal" && (
           <div className="mt-2 space-y-3">

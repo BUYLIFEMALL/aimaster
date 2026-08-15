@@ -5,7 +5,13 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateLyrics, generateInstrumentalPrompt, generateStyleAndExclude } from "@/lib/ai/musicPrompts";
-import { requestSunoGeneration, checkSunoGenerationStatus, toSunoVocalGender, DEFAULT_SUNO_MODEL } from "@/lib/ai/suno";
+import {
+  requestSunoGeneration,
+  requestSunoExtend,
+  checkSunoGenerationStatus,
+  toSunoVocalGender,
+  DEFAULT_SUNO_MODEL,
+} from "@/lib/ai/suno";
 import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
 import type { TrackMode, TrackStatus, VocalGender } from "@/types/database.types";
 
@@ -379,6 +385,90 @@ export async function regenerateMusicAction(
     return {};
   } catch (err) {
     return { error: err instanceof Error ? err.message : "재생성 요청 중 오류가 발생했습니다." };
+  }
+}
+
+export interface ExtendTrackState {
+  error?: string;
+  needsApiKey?: string; // "suno"
+}
+
+/**
+ * "곡 연장" — Suno `/generate/extend`로 완성된 특정 variant(오디오)를 이어서 늘린다.
+ * 원본 트랙의 스타일/제목/성별/모델을 그대로 이어받아 새 music_tracks row를 만들고
+ * (이력 보존, regenerateMusicAction과 동일한 패턴), extended_from_variant_id로 어떤
+ * variant를 연장한 결과인지 남긴다. defaultParamFlag:false라 style/continueAt을 우리가
+ * 계산할 필요 없이 Suno가 원본 생성 파라미터를 그대로 재사용해 이어붙인다.
+ */
+export async function extendTrackAction(variantId: string): Promise<ExtendTrackState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data: variant, error: variantError } = await supabase
+    .from("music_track_variants")
+    .select("id, track_id, suno_audio_id")
+    .eq("id", variantId)
+    .eq("user_id", user.id)
+    .single();
+  if (variantError || !variant) {
+    return { error: "곡을 찾을 수 없습니다." };
+  }
+  if (!variant.suno_audio_id) {
+    return { error: "이 곡은 Suno 오디오 ID가 없어서 연장할 수 없습니다." };
+  }
+
+  const { data: original, error: originalError } = await supabase
+    .from("music_tracks")
+    .select("*")
+    .eq("id", variant.track_id)
+    .eq("user_id", user.id)
+    .single();
+  if (originalError || !original) {
+    return { error: "트랙을 찾을 수 없습니다." };
+  }
+
+  const sunoKey = await resolveApiKey(supabase, user.id, "suno");
+  if (!sunoKey) return { needsApiKey: "suno" };
+
+  try {
+    const { data: newTrack, error: insertError } = await supabase
+      .from("music_tracks")
+      .insert({
+        planning_id: original.planning_id,
+        user_id: user.id,
+        mode: original.mode,
+        title: original.title,
+        prompt_text: original.prompt_text,
+        style_description: original.style_description,
+        exclude_styles: original.exclude_styles,
+        vocal_gender: original.vocal_gender,
+        suno_model: original.suno_model,
+        extended_from_variant_id: variant.id,
+        status: "generating",
+      })
+      .select("id")
+      .single();
+    if (insertError || !newTrack) {
+      return { error: insertError?.message ?? "연장 트랙 저장에 실패했습니다." };
+    }
+
+    const taskId = await requestSunoExtend(
+      {
+        audioId: variant.suno_audio_id,
+        instrumental: original.mode === "instrumental",
+        model: original.suno_model,
+      },
+      sunoKey,
+    );
+
+    await supabase.from("music_tracks").update({ task_id: taskId }).eq("id", newTrack.id);
+    await supabase.from("music_plannings").update({ status: "generating" }).eq("id", original.planning_id);
+    await logProgramUsage({ userId: user.id, action: "extend_track", metadata: { variantId, trackId: original.id } });
+
+    revalidatePath(`/plannings/${original.planning_id}`);
+    return {};
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "곡 연장 요청 중 오류가 발생했습니다." };
   }
 }
 
