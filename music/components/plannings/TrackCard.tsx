@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { regenerateMusicAction, syncTrackStatusAction, extendTrackAction } from "@/lib/actions/tracks";
+import { regenerateMusicAction, syncTrackStatusAction, extendTrackAction, deleteTrackAction } from "@/lib/actions/tracks";
 import { createMrAction } from "@/lib/actions/mr";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
@@ -100,6 +100,25 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
   const [extendError, setExtendError] = useState<string | null>(null);
   const [mrPendingVariantId, setMrPendingVariantId] = useState<string | null>(null);
   const [mrError, setMrError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  /** 실패한 트랙 카드 삭제 — 자체 재시도 방법이 없는 죽은 카드를 치운다. */
+  async function handleDelete() {
+    setDeleteError(null);
+    setIsDeleting(true);
+    try {
+      const result = await deleteTrackAction(track.id);
+      if (result.error) {
+        setDeleteError(result.error);
+        setIsDeleting(false);
+      } else {
+        router.refresh();
+      }
+    } catch {
+      setIsDeleting(false);
+    }
+  }
 
   /** "곡 연장" — 선택한 variant(오디오)를 Suno가 이어서 늘린다. 결과는 새 트랙 카드로 추가된다. */
   async function handleExtend(variantId: string) {
@@ -221,8 +240,21 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
           <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>{badge.label}</span>
         </div>
 
-        {track.status === "failed" && track.error_message && (
-          <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{track.error_message}</p>
+        {track.status === "failed" && (
+          <div className="mb-3 space-y-2">
+            {track.error_message && (
+              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{track.error_message}</p>
+            )}
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-60"
+            >
+              {isDeleting ? "삭제 중..." : "🗑 이 카드 삭제"}
+            </button>
+            {deleteError && <p className="text-xs text-red-600">{deleteError}</p>}
+          </div>
         )}
 
         {track.status === "generating" && (

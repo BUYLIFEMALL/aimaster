@@ -547,3 +547,38 @@ export async function syncTrackStatusAction(trackId: string): Promise<SyncTrackS
     return { error: err instanceof Error ? err.message : "상태 확인 중 오류가 발생했습니다." };
   }
 }
+
+export interface DeleteTrackState {
+  error?: string;
+}
+
+/**
+ * 실패한 트랙 카드를 정리한다. 실패한 트랙(특히 곡 연장 실패)은 자기 자신 안에 오디오가
+ * 없어서 재시도할 방법이 없고, 화면에 죽은 카드로 계속 남아 혼란을 준다 — 삭제해서 치울 수
+ * 있게 한다. 완료된 트랙은 실수로 지우는 걸 막기 위해 실패 상태에서만 허용한다.
+ */
+export async function deleteTrackAction(trackId: string): Promise<DeleteTrackState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data: track, error: trackError } = await supabase
+    .from("music_tracks")
+    .select("id, planning_id, status")
+    .eq("id", trackId)
+    .eq("user_id", user.id)
+    .single();
+  if (trackError || !track) {
+    return { error: "트랙을 찾을 수 없습니다." };
+  }
+  if (track.status !== "failed") {
+    return { error: "실패한 트랙만 삭제할 수 있습니다." };
+  }
+
+  const { error: deleteError } = await supabase.from("music_tracks").delete().eq("id", trackId).eq("user_id", user.id);
+  if (deleteError) {
+    return { error: deleteError.message };
+  }
+
+  revalidatePath(`/plannings/${track.planning_id}`);
+  return {};
+}
