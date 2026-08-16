@@ -96,8 +96,8 @@ export default function MyPostsPage() {
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">내 블로그 게시물</h1>
-            <p className="text-sm font-medium text-slate-500 mt-1">내가 작성한 글만 모아서 보여줍니다.</p>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">게시글 관리</h1>
+            <p className="text-sm font-medium text-slate-500 mt-1">본인이 작성한 블로그 게시글만 모아서 보여줍니다.</p>
           </div>
           <Link
             href={`${basePath}/write/ai-form`}

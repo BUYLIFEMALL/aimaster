@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { href: "/blog", icon: Home, label: "홈 (전체 글)" },
   { href: "/blog/candidates", icon: Search, label: "게시글 주제 수집" },
   { href: "/blog/write/ai-form", icon: PenSquare, label: "AI 글쓰기" },
-  { href: "/blog/my-posts", icon: FileText, label: "내 글" },
+  { href: "/blog/my-posts", icon: FileText, label: "게시글 관리" },
   { href: "/api-settings", icon: KeyRound, label: "API 키 설정" },
 ];
 
