@@ -28,9 +28,7 @@ export default async function SettingsPage() {
       </Link>
       <h1 className="mb-2 text-2xl font-black text-gray-900">API 키 설정</h1>
       <p className="mb-6 text-sm text-gray-500">
-        상품분석과 이미지 생성 기능을 쓰려면 반드시 본인의 Gemini API 키를 등록해야 합니다.{" "}
-        <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
-        등록하지 않은 상태로 생성을 시도하면 등록 안내 팝업이 뜨고 막힙니다.
+        상품분석과 이미지 생성 기능 사용 전 본인의 Gemini API 키를 등록 후 사용합니다.
       </p>
       <div className="space-y-3">
         {PROVIDERS.map((provider) => (
