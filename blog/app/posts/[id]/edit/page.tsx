@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getBlogBasePath } from '@/blog/utils/basePath'
+import { stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
 
 interface Category {
   id: number
@@ -91,7 +92,8 @@ export default function PostEditPage() {
         setTitle(postData.title || '')
         setExcerpt(postData.excerpt || '')
 
-        const original = postData.content || ''
+        // ⚙️ 이미지 생성 API 요청 스키마 디버그 블록은 편집 화면에 보일 필요가 없어 제거한다.
+        const original = stripImageGenerationSchema(postData.content || '')
         // 비주얼 모드: 원본 그대로 (실제 이미지 포함!)
         setRawContent(original)
         // 코드 모드: Base64 이미지를 [첨부 이미지 N] 으로 치환
