@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { getBlogBasePath } from '@/blog/utils/basePath'
 
 interface Category {
   id: number
@@ -85,7 +86,8 @@ export default function PostEditPage() {
           throw new Error('게시글을 가져오는 데 실패했습니다. (Status: ' + res.status + ')')
         }
 
-        const postData = await res.json()
+        const json = await res.json()
+        const postData = json.data ?? json
         setTitle(postData.title || '')
         setExcerpt(postData.excerpt || '')
 
@@ -198,7 +200,7 @@ export default function PostEditPage() {
 
       if (res.ok && json.success) {
         alert('게시글이 성공적으로 수정되었습니다.')
-        window.location.href = `/posts/${postId}`
+        window.location.href = `${getBlogBasePath()}/posts/${postId}`
       } else {
         alert('수정 실패: ' + (json.error || '알 수 없는 오류 (Status: ' + res.status + ')'))
       }
@@ -230,7 +232,7 @@ export default function PostEditPage() {
           </div>
           <h2 className="text-lg font-bold text-white">{error}</h2>
           <Link
-            href={`/posts/${postId}`}
+            href={`${getBlogBasePath()}/posts/${postId}`}
             className="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition-all cursor-pointer no-underline shadow-md"
           >
             ← 게시글로 돌아가기
@@ -247,7 +249,7 @@ export default function PostEditPage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
-              href={`/posts/${postId}`}
+              href={`${getBlogBasePath()}/posts/${postId}`}
               className="text-slate-400 hover:text-white text-sm font-semibold transition-colors no-underline flex items-center gap-1"
             >
               ← 취소

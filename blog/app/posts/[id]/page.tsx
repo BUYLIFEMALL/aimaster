@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { getBlogBasePath } from '@/blog/utils/basePath'
 
 /* ------------------------------------------------------------------ */
 /*  HTML5 Canvas Image Compression Helper                              */
@@ -285,17 +286,17 @@ export default function PostDetailPage() {
       {/* =================== HEADER =================== */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center justify-between gap-4">
-          <Link href="/blog" className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">AutoBlog</Link>
+          <Link href={getBlogBasePath() || '/'} className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">AutoBlog</Link>
 
           <div className="flex items-center gap-3 flex-shrink-0">
-            <Link href="/blog" className="p-2 text-zinc-500 hover:text-zinc-900 transition-colors" aria-label="검색">
+            <Link href={getBlogBasePath() || '/'} className="p-2 text-zinc-500 hover:text-zinc-900 transition-colors" aria-label="검색">
               <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
               </svg>
             </Link>
             {userEmail ? (
               <>
-                <Link href="/blog/write/ai-form" className="text-sm font-semibold text-white bg-[var(--primary)] hover:bg-[var(--primary-hover)] px-4 py-2 rounded-lg no-underline transition-colors">글쓰기</Link>
+                <Link href={`${getBlogBasePath()}/write/ai-form`} className="text-sm font-semibold text-white bg-[var(--primary)] hover:bg-[var(--primary-hover)] px-4 py-2 rounded-lg no-underline transition-colors">글쓰기</Link>
                 <Link href="/dashboard" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 no-underline transition-colors">
                   {userEmail}
                 </Link>
@@ -323,14 +324,14 @@ export default function PostDetailPage() {
         ) : notFound || !post ? (
           <div className="text-center py-24">
             <p className="text-zinc-500 text-lg mb-4">게시글을 찾을 수 없습니다.</p>
-            <Link href="/blog" className="text-[var(--primary)] font-semibold no-underline hover:underline">
+            <Link href={getBlogBasePath() || '/'} className="text-[var(--primary)] font-semibold no-underline hover:underline">
               홈으로 돌아가기
             </Link>
           </div>
         ) : (
           <>
             {/* Back link */}
-            <Link href="/blog" className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 no-underline mb-6 transition-colors">
+            <Link href={getBlogBasePath() || '/'} className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 no-underline mb-6 transition-colors">
               <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
               </svg>
@@ -344,7 +345,7 @@ export default function PostDetailPage() {
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
-                    href={`/blog?category=${encodeURIComponent(cat.slug)}`}
+                    href={`${getBlogBasePath() || '/'}?category=${encodeURIComponent(cat.slug)}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-600 text-white shadow-sm hover:bg-blue-700 transition-all no-underline cursor-pointer"
                   >
                     <span>📂</span>
@@ -459,7 +460,7 @@ export default function PostDetailPage() {
                   {compressing ? '⏳ 이미지 750KB 압축 중...' : copied ? '✓ 본문 & 이미지 복사 완료! (Ctrl+V로 붙여넣으세요)' : '📋 본문 복사하기'}
                 </button>
                 <Link
-                  href={`/blog/posts/${post.id}/edit`}
+                  href={`${getBlogBasePath()}/posts/${post.id}/edit`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 text-xs font-semibold rounded-lg border border-slate-200 transition-all cursor-pointer no-underline shadow-sm"
                 >
                   ✏️ 수정
@@ -472,7 +473,7 @@ export default function PostDetailPage() {
                         const json = await res.json()
                         if (res.ok && json.success) {
                           alert('게시글이 성공적으로 삭제되었습니다.')
-                          window.location.replace('/blog')
+                          window.location.replace(getBlogBasePath() || '/')
                         } else {
                           alert(json.error || '게시글 삭제에 실패했습니다.')
                         }

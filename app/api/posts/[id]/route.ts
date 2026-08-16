@@ -101,7 +101,21 @@ export async function GET(
       return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true, data: post })
+    // 수정 페이지의 카테고리 다중 선택 UI를 채우기 위해, 현재 선택된 카테고리 id 목록과
+    // 전체 카테고리 목록을 함께 내려준다 (post.blog_post_categories는 하위호환용으로 유지).
+    const categoryIds = ((post as any).blog_post_categories ?? [])
+      .map((pc: any) => pc.blog_categories?.id)
+      .filter((id: unknown): id is number => typeof id === 'number')
+
+    const { data: allCategories } = await supabase
+      .from('blog_categories')
+      .select('id, name, slug')
+      .order('id', { ascending: true })
+
+    return NextResponse.json({
+      success: true,
+      data: { ...post, category_ids: categoryIds, all_categories: allCategories ?? [] },
+    })
   } catch (err: any) {
     return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.', message: err?.message }, { status: 500 })
   }
@@ -125,7 +139,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { title, excerpt, content, categoryId } = body
+    const { title, excerpt, content, category_ids: categoryIds } = body
 
     if (!title || !title.trim()) {
       return NextResponse.json({ error: '제목을 입력해 주세요.' }, { status: 400 })
@@ -179,13 +193,15 @@ export async function PUT(
       return NextResponse.json({ error: '게시글 DB 수정 저장 중 오류가 발생했습니다.', details: updateErr }, { status: 500 })
     }
 
-    // ★ 카테고리 매핑 업데이트 (기존 매핑 삭제 후 신규 매핑 등록)
-    if (categoryId !== undefined && categoryId !== null) {
+    // ★ 카테고리 매핑 업데이트 (기존 매핑 전체 삭제 후 다중 매핑 재등록)
+    if (Array.isArray(categoryIds)) {
       await supabase.from('blog_post_categories').delete().eq('post_id', postId)
-      if (Number(categoryId) > 0) {
-        const { error: catErr } = await supabase
-          .from('blog_post_categories')
-          .insert([{ post_id: postId, category_id: Number(categoryId) }])
+      const pcRows = categoryIds
+        .map((cid: unknown) => Number(cid))
+        .filter((cid: number) => cid > 0)
+        .map((cid: number) => ({ post_id: postId, category_id: cid }))
+      if (pcRows.length > 0) {
+        const { error: catErr } = await supabase.from('blog_post_categories').insert(pcRows)
         if (catErr) {
           console.error('[Category Update Error]:', catErr)
         }
