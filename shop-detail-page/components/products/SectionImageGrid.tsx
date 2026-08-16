@@ -242,6 +242,10 @@ export function SectionImageGrid({
           <p className="font-semibold text-gray-700 mb-1.5">💡 비용 절약 팁</p>
           <ul className="space-y-1 list-disc list-inside">
             <li>먼저 Nanobanana2(가성비)로 전체 생성해보고, 마음에 드는 섹션만 Pro로 재생성하세요.</li>
+            <li>
+              Nanobanana Pro로 전체 이미지를 생성한 후 수정을 원하는 이미지만 재생성하거나, 해당 이미지를
+              다운로드 받아 수정한 후 재업로드해서 사용해보세요.
+            </li>
             <li>&quot;전체 이미지 생성&quot; 대신, 마음에 안 드는 섹션만 개별 &quot;재생성&quot; 버튼으로 다시 만들면 비용이 줄어요.</li>
             <li>이미 보유한 상품 사진이 있다면 각 섹션의 &quot;+&quot; 버튼으로 직접 업로드하세요 — AI 생성 비용이 들지 않아요.</li>
             <li>&quot;5. 이미지 생성 시 추가로 반영할 내용&quot;에 원하는 스타일을 미리 적어두면 재생성 횟수를 줄일 수 있어요.</li>
