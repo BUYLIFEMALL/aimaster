@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Search, PenSquare, FileText, KeyRound } from "lucide-react";
+import { LayoutDashboard, Home, Search, PenSquare, FileText, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
+  { href: "/blog/dashboard", icon: LayoutDashboard, label: "대시보드" },
   { href: "/blog", icon: Home, label: "홈 (전체 글)" },
-  { href: "/blog/candidates", icon: Search, label: "글감 수집" },
+  { href: "/blog/candidates", icon: Search, label: "게시글 주제 수집" },
   { href: "/blog/write/ai-form", icon: PenSquare, label: "AI 글쓰기" },
   { href: "/blog/my-posts", icon: FileText, label: "내 글" },
   { href: "/api-settings", icon: KeyRound, label: "API 키 설정" },

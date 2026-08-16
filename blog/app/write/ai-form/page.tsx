@@ -73,7 +73,7 @@ function AiFormPageInner() {
 
   // 폼 입력 상태 (복수 카테고리 지원)
   const [categorySlugs, setCategorySlugs] = useState<string[]>(['architecture'])
-  // /candidates(글감 수집)에서 "이 주제로 글쓰기"로 넘어온 경우 topic/keywords를 미리 채운다.
+  // /candidates(게시글 주제 수집)에서 "이 주제로 글쓰기"로 넘어온 경우 topic/keywords를 미리 채운다.
   const [topic, setTopic] = useState(() => searchParams.get('topic') ?? '')
   const [tone, setTone] = useState('전문적')
   const [targetAudience, setTargetAudience] = useState('')

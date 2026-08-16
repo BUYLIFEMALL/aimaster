@@ -218,7 +218,7 @@ export default function CandidatesPage() {
 
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">글감 수집</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">게시글 주제 수집</h1>
           <Link href={`${basePath}/write/ai-form`} className="text-sm font-semibold text-blue-600 hover:underline">
             수집 없이 바로 글쓰기 →
           </Link>
