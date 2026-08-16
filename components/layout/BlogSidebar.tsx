@@ -33,7 +33,7 @@ export default function BlogSidebar() {
   };
 
   return (
-    <aside className="flex w-full flex-col border-b border-slate-200 bg-white md:h-full md:w-60 md:flex-shrink-0 md:justify-between md:border-b-0 md:border-r">
+    <aside className="flex w-full flex-col border-b border-slate-200 bg-white md:w-60 md:flex-shrink-0 md:justify-between md:self-stretch md:border-b-0 md:border-r">
       <div>
         <div className="px-5 pt-4">
           <div className="text-lg font-semibold text-slate-900">AI 자동 블로그</div>

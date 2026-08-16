@@ -6,14 +6,14 @@ import BlogSidebar from '@/components/layout/BlogSidebar'
 
 export default function BlogLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  // /blog(게시글 관리 홈)는 사이드바(BlogSidebar)를 갖는 유일한 라우트이며, 나머지 블로그
-  // 하위 페이지(/blog/posts/[id], /blog/write/ai-form, /blog/candidates 등)와 동일한 화이트
-  // 라이트 테마("AutoBlog" 톤)를 쓴다. 사이드바 바깥의 루트 헤더/푸터(다크골드)는 사이트
-  // 전체 공통 프레임으로 그대로 유지된다.
-  const isHomePage = pathname === '/blog'
+  // /blog(게시글 관리 홈)와 /blog/write/ai-form(AI 글쓰기)은 사이드바(BlogSidebar)를 갖는
+  // 라우트이며, 나머지 블로그 하위 페이지(/blog/posts/[id], /blog/candidates 등)와 동일한
+  // 화이트 라이트 테마("AutoBlog" 톤)를 쓴다. 사이드바 바깥의 루트 헤더/푸터(다크골드)는
+  // 사이트 전체 공통 프레임으로 그대로 유지된다.
+  const showSidebar = pathname === '/blog' || pathname.startsWith('/blog/write')
 
   useEffect(() => {
-    if (isHomePage) return
+    if (showSidebar) return
 
     // 블로그 하위 페이지 진입 시 브라우저 body 전체 배경을 100% 순백색(#ffffff)으로 강제 지정
     const originalBg = document.body.style.backgroundColor
@@ -28,9 +28,9 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
       document.body.style.color = originalColor
       document.body.classList.remove('bg-white')
     }
-  }, [isHomePage])
+  }, [showSidebar])
 
-  if (isHomePage) {
+  if (showSidebar) {
     return (
       <div className="flex min-h-screen flex-col md:flex-row">
         <BlogSidebar />
