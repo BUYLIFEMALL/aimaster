@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useState, useMemo, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
+import { getBlogBasePath } from '@/blog/utils/basePath'
 import CategoryManagementModal from './_components/CategoryManagementModal'
 
 /* ------------------------------------------------------------------ */
@@ -14,21 +16,12 @@ interface Category {
   slug: string
 }
 
-interface Author {
-  id: number
-  name: string
-  role: string
-  avatar_url: string | null
-}
-
 interface Post {
   id: number
   title: string
   excerpt: string
   published_at: string
   reading_minutes?: number
-  author_id: number
-  author: Author | null
   categories: Category[]
 }
 
@@ -49,16 +42,11 @@ function formatDate(dateStr: string): string {
   return `${month}월 ${day}일`
 }
 
-function getInitials(name: string): string {
-  if (!name) return 'AB'
-  const parts = name.trim().split(' ')
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
-  return name.slice(0, 2).toUpperCase()
-}
-
 export default function HomePage() {
   const supabase = useMemo(() => createClient(), [])
+  const router = useRouter()
 
+  const [userId, setUserId] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [posts, setPosts] = useState<Post[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -86,8 +74,21 @@ export default function HomePage() {
     fetchCategories()
   }, [supabase])
 
-  /* ---- Fetch posts ---- */
+  /* ---- 로그인 확인: 게시글 관리 화면이라 로그인 없이는 접근할 수 없다 ---- */
   useEffect(() => {
+    supabase.auth.getUser().then(({ data }: any) => {
+      const user = data?.user
+      if (!user) {
+        router.push(`${getBlogBasePath()}/auth?redirect=${getBlogBasePath()}`)
+        return
+      }
+      setUserId(user.id)
+    })
+  }, [supabase, router])
+
+  /* ---- Fetch posts (본인이 작성한 게시글만) ---- */
+  useEffect(() => {
+    if (!userId) return
     let ignore = false
     async function loadPosts() {
       try {
@@ -111,6 +112,7 @@ export default function HomePage() {
         let countQuery = supabase
           .from('blog_posts')
           .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
         if (postIds !== null) {
           if (postIds.length === 0) {
             if (!ignore) {
@@ -132,7 +134,8 @@ export default function HomePage() {
         // ★ [핵심] 대용량 content 칼럼을 제외하고 라이트급 메타데이터만 쿼리 (Timeout 57014 방지)
         let postsQuery = supabase
           .from('blog_posts')
-          .select('id, title, excerpt, published_at, reading_minutes, author_id')
+          .select('id, title, excerpt, published_at, reading_minutes')
+          .eq('user_id', userId)
           .order('published_at', { ascending: false })
           .range(from, to)
 
@@ -150,13 +153,6 @@ export default function HomePage() {
           setLoading(false)
           return
         }
-
-        const authorIds = Array.from(new Set(postsData.map((p) => p.author_id))).filter(Boolean)
-        const { data: authorsData } = await supabase
-          .from('blog_authors')
-          .select('*')
-          .in('id', authorIds.length > 0 ? authorIds : [-1])
-        const authorsMap = new Map(authorsData?.map((a) => [a.id, a]) ?? [])
 
         const fetchedPostIds = postsData.map((p) => p.id)
         const { data: pcData } = await supabase
@@ -176,7 +172,6 @@ export default function HomePage() {
             pcData?.filter((pc) => pc.post_id === p.id).map((pc) => pc.category_id) ?? []
           return {
             ...p,
-            author: authorsMap.get(p.author_id) ?? null,
             categories: postCatIds.map((cid) => catsMap.get(cid)).filter(Boolean) as Category[],
           }
         })
@@ -197,7 +192,7 @@ export default function HomePage() {
     return () => {
       ignore = true
     }
-  }, [supabase, currentPage, activeCategory, searchQuery])
+  }, [supabase, userId, currentPage, activeCategory, searchQuery])
 
   const handleCategoryClick = (slug: string | null) => {
     setActiveCategory(slug)
@@ -331,74 +326,52 @@ export default function HomePage() {
           })}
         </div>
 
-        {/* Posts Grid */}
+        {/* Posts List — 인스타/쓰레드처럼 한 행에 한 게시글씩 세로로 나열 */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="glass-card p-5 space-y-4 animate-pulse">
+          <div className="flex flex-col gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="glass-card p-5 space-y-3 animate-pulse">
                 <div className="h-4 bg-white/10 rounded w-1/4" />
-                <div className="h-6 bg-white/10 rounded w-3/4" />
-                <div className="h-4 bg-white/10 rounded w-full" />
-                <div className="h-4 bg-white/10 rounded w-2/3" />
-                <div className="pt-4 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/10" />
-                  <div className="h-3 bg-white/10 rounded w-1/3" />
-                </div>
+                <div className="h-5 bg-white/10 rounded w-2/3" />
+                <div className="h-3 bg-white/10 rounded w-full" />
               </div>
             ))}
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-16 glass-card space-y-3">
-            <p className="text-base font-bold text-white">게시글이 존재하지 않습니다.</p>
+            <p className="text-base font-bold text-white">아직 작성한 게시글이 없습니다.</p>
             <p className="text-xs text-white/40">새로운 AI 자동 포스트를 작성해 보세요!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-3">
             {posts.map((post) => (
               <Link
                 key={post.id}
                 href={`/blog/posts/${post.id}`}
-                className="group glass-card hover:border-gold/40 p-6 transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between no-underline"
+                className="group glass-card hover:border-gold/40 p-5 transition-colors flex items-center gap-4 no-underline"
               >
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {post.categories.map((c) => (
-                      <span
-                        key={c.id}
-                        className="text-[11px] font-extrabold text-gold bg-gold/10 px-2.5 py-1 rounded-md"
-                      >
-                        {c.name}
-                      </span>
-                    ))}
-                  </div>
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  {post.categories.length > 0 && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {post.categories.map((c) => (
+                        <span
+                          key={c.id}
+                          className="text-[11px] font-extrabold text-gold bg-gold/10 px-2.5 py-1 rounded-md"
+                        >
+                          {c.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
-                  <h2 className="text-base font-bold text-white group-hover:text-gold transition-colors line-clamp-2 leading-snug">
+                  <h2 className="text-base font-bold text-white group-hover:text-gold transition-colors truncate">
                     {post.title}
                   </h2>
 
-                  <p className="text-xs text-white/50 line-clamp-3 leading-relaxed">
-                    {post.excerpt}
-                  </p>
+                  <p className="text-xs text-white/50 truncate">{post.excerpt}</p>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
-                  <div className="flex items-center gap-2.5">
-                    {post.author?.avatar_url ? (
-                      <img
-                        src={post.author.avatar_url}
-                        alt={post.author.name}
-                        className="w-7 h-7 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-7 h-7 rounded-full bg-gold/10 text-gold flex items-center justify-center font-bold text-[10px]">
-                        {getInitials(post.author?.name || 'Dev')}
-                      </div>
-                    )}
-                    <span className="font-semibold text-white/70">{post.author?.name || '에디터'}</span>
-                  </div>
-
-                  <span>{formatDate(post.published_at)}</span>
-                </div>
+                <span className="shrink-0 text-xs text-white/40">{formatDate(post.published_at)}</span>
               </Link>
             ))}
           </div>

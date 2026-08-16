@@ -81,7 +81,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href={`${basePath}/my-posts`} className="text-xl font-black text-indigo-600 no-underline">
+          <Link href={basePath || '/'} className="text-xl font-black text-indigo-600 no-underline">
             AutoBlog
           </Link>
           <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
@@ -127,7 +127,7 @@ export default function DashboardPage() {
         <div className="bg-white border border-slate-200 rounded-2xl mb-6">
           <div className="border-b border-slate-100 p-4 flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-900">최근 게시글</h2>
-            <Link href={`${basePath}/my-posts`} className="text-xs font-semibold text-blue-600 hover:underline">
+            <Link href={basePath || '/'} className="text-xs font-semibold text-blue-600 hover:underline">
               전체 보기 →
             </Link>
           </div>

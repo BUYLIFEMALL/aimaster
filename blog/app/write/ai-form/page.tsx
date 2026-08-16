@@ -213,7 +213,7 @@ function AiFormPageInner() {
       if (createdId) {
         router.push(`${getBlogBasePath()}/posts/${createdId}`)
       } else {
-        router.push(`${getBlogBasePath()}/my-posts`)
+        router.push(getBlogBasePath() || '/')
       }
     } catch (err: any) {
       console.error('[AI Form Error]:', err)
@@ -229,7 +229,7 @@ function AiFormPageInner() {
       {/* 헤더 */}
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href={`${basePath}/my-posts`} className="text-xl font-black text-indigo-600 no-underline">
+          <Link href={basePath || '/'} className="text-xl font-black text-indigo-600 no-underline">
             AutoBlog
           </Link>
           <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
