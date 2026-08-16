@@ -21,7 +21,7 @@ export default async function SettingsPage() {
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-2 text-2xl font-semibold text-neutral-900">API 키 설정</h1>
       <p className="mb-6 text-sm text-neutral-600">
-        본인의 API 키를 등록하여 게시글/이미지 생성시 사용됩니다.
+        게시글/이미지 생성요청 전 본인의 API키를 등록후 사용하여야 합니다
       </p>
       <div className="space-y-3">
         {PROVIDERS.map((provider) => (
