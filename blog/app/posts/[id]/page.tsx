@@ -67,17 +67,7 @@ interface Post {
   content: string
   published_at: string
   reading_minutes: number
-  like_count: number
   author_id: number
-}
-
-interface Comment {
-  id: number
-  post_id: number
-  user_id: string
-  author_email: string
-  content: string
-  created_at: string
 }
 
 /* ------------------------------------------------------------------ */
@@ -86,19 +76,6 @@ interface Comment {
 function formatFullDate(dateStr: string): string {
   const d = new Date(dateStr)
   return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`
-}
-
-function formatRelative(dateStr: string): string {
-  const d = new Date(dateStr)
-  const diffMs = Date.now() - d.getTime()
-  const diffMin = Math.floor(diffMs / (1000 * 60))
-  if (diffMin < 1) return '방금 전'
-  if (diffMin < 60) return `${diffMin}분 전`
-  const diffHour = Math.floor(diffMin / 60)
-  if (diffHour < 24) return `${diffHour}시간 전`
-  const diffDay = Math.floor(diffHour / 24)
-  if (diffDay < 30) return `${diffDay}일 전`
-  return formatFullDate(dateStr)
 }
 
 function getInitials(name: string): string {
@@ -135,19 +112,10 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null)
   const [author, setAuthor] = useState<Author | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
-  const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
-  const [commentText, setCommentText] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [commentError, setCommentError] = useState<string | null>(null)
-
-  const [likeCount, setLikeCount] = useState(0)
-  const [hasLiked, setHasLiked] = useState(false)
-  const [likeBusy, setLikeBusy] = useState(false)
   const [copied, setCopied] = useState(false)
   const [compressing, setCompressing] = useState(false)
 
@@ -277,24 +245,6 @@ export default function PostDetailPage() {
         }
       } catch (e) {}
 
-      // 댓글 및 좋아요 로드
-      try {
-        const { data: commentsData } = await supabase
-          .from('blog_comments')
-          .select('*')
-          .eq('post_id', postId)
-          .order('created_at', { ascending: true })
-        setComments(commentsData ?? [])
-      } catch (e) {}
-
-      try {
-        const { count: likesCount } = await supabase
-          .from('blog_likes')
-          .select('*', { count: 'exact', head: true })
-          .eq('post_id', postId)
-        setLikeCount(likesCount ?? 0)
-      } catch (e) {}
-
     } catch (err) {
       console.error('[FetchPost Error]:', err)
       setNotFound(true)
@@ -316,108 +266,12 @@ export default function PostDetailPage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUserEmail(data.user?.email ?? null)
-      setUserId(data.user?.id ?? null)
     })
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user?.email ?? null)
-      setUserId(session?.user?.id ?? null)
     })
     return () => sub.subscription.unsubscribe()
   }, [supabase])
-
-  /* ---- Check whether current user already liked this post ---- */
-  useEffect(() => {
-    async function checkLiked() {
-      if (!userId) {
-        setHasLiked(false)
-        return
-      }
-      const { data } = await supabase
-        .from('blog_likes')
-        .select('post_id')
-        .eq('post_id', postId)
-        .eq('user_id', userId)
-        .maybeSingle()
-      setHasLiked(!!data)
-    }
-    if (postId) {
-      queueMicrotask(() => {
-        checkLiked()
-      })
-    }
-  }, [supabase, postId, userId])
-
-  /* ---- Like toggle ---- */
-  const handleLikeToggle = async () => {
-    if (!userId || likeBusy) return
-    setLikeBusy(true)
-
-    if (hasLiked) {
-      setHasLiked(false)
-      setLikeCount((c) => Math.max(0, c - 1))
-      const { error } = await supabase.from('blog_likes').delete().eq('post_id', postId).eq('user_id', userId)
-      if (error) {
-        setHasLiked(true)
-        setLikeCount((c) => c + 1)
-      }
-    } else {
-      setHasLiked(true)
-      setLikeCount((c) => c + 1)
-      const { error } = await supabase.from('blog_likes').insert({ post_id: postId, user_id: userId })
-      if (error) {
-        setHasLiked(false)
-        setLikeCount((c) => Math.max(0, c - 1))
-      }
-    }
-    setLikeBusy(false)
-  }
-
-  /* ---- Comment submit ---- */
-  const handleCommentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setCommentError(null)
-    if (!commentText.trim()) return
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      setCommentError('로그인 후 댓글을 작성할 수 있습니다.')
-      return
-    }
-
-    setSubmitting(true)
-    const { data, error } = await supabase
-      .from('blog_comments')
-      .insert({
-        post_id: postId,
-        user_id: user.id,
-        author_email: user.email,
-        content: commentText.trim(),
-      })
-      .select()
-      .single()
-    setSubmitting(false)
-
-    if (error) {
-      setCommentError('댓글 등록에 실패했습니다. 다시 시도해주세요.')
-      return
-    }
-    if (data) {
-      setComments((prev) => [...prev, data])
-      setCommentText('')
-    }
-  }
-
-  /* ---- Comment delete ---- */
-  const handleCommentDelete = async (commentId: number) => {
-    const prev = comments
-    setComments((cs) => cs.filter((c) => c.id !== commentId))
-    const { error } = await supabase.from('blog_comments').delete().eq('id', commentId)
-    if (error) {
-      setComments(prev)
-    }
-  }
 
   const coverGradient = categories[0]
     ? COVER_GRADIENTS[categories[0].name] ?? DEFAULT_GRADIENT
@@ -654,102 +508,6 @@ export default function PostDetailPage() {
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 
-            {/* Action bar */}
-            <div className="flex items-center justify-between border-t border-b border-[var(--border)] py-4 my-10">
-              <div className="flex items-center gap-5 text-zinc-500 text-sm">
-                {userId ? (
-                  <button
-                    type="button"
-                    onClick={handleLikeToggle}
-                    disabled={likeBusy}
-                    className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:cursor-not-allowed ${hasLiked ? 'text-red-500 font-semibold' : 'hover:text-red-500'}`}
-                    aria-pressed={hasLiked}
-                  >
-                    <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill={hasLiked ? 'currentColor' : 'none'} viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                    </svg>
-                    {likeCount.toLocaleString()}
-                  </button>
-                ) : (
-                  <Link href="/auth" className="flex items-center gap-1.5 hover:text-red-500 transition-colors no-underline">
-                    <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                    </svg>
-                    {likeCount.toLocaleString()}
-                  </Link>
-                )}
-                <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-                  </svg>
-                  {comments.length}
-                </span>
-              </div>
-            </div>
-
-            {/* Comments */}
-            <section>
-              <h2 className="text-lg font-bold text-zinc-900 mb-4">댓글 ({comments.length})</h2>
-
-              {userEmail ? (
-                <form onSubmit={handleCommentSubmit} className="mb-8">
-                  <textarea
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="토론에 참여해보세요..."
-                    rows={3}
-                    className="w-full text-sm p-4 bg-zinc-50 border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20 transition-all resize-none"
-                  />
-                  {commentError && (
-                    <p className="text-xs text-red-600 mt-2">{commentError}</p>
-                  )}
-                  <div className="flex justify-end mt-2">
-                    <button
-                      type="submit"
-                      disabled={submitting || !commentText.trim()}
-                      className="px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
-                    >
-                      댓글 작성
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div className="mb-8 p-4 bg-zinc-50 border border-[var(--border)] rounded-xl text-sm text-zinc-500 text-center">
-                  <Link href="/auth" className="text-[var(--primary)] font-semibold no-underline hover:underline">
-                    로그인
-                  </Link>{' '}
-                  후 댓글을 작성할 수 있습니다.
-                </div>
-              )}
-
-              {comments.length === 0 ? (
-                <p className="text-sm text-zinc-400 text-center py-8">첫 댓글을 남겨보세요.</p>
-              ) : (
-                <ul className="space-y-5">
-                  {comments.map((c) => (
-                    <li key={c.id} className="flex gap-3">
-                      <div className="avatar-circle flex-shrink-0">{getInitials(c.author_email)}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-zinc-800">{c.author_email}</span>
-                          <span className="text-xs text-zinc-400">{formatRelative(c.created_at)}</span>
-                          {userId === c.user_id && (
-                            <button
-                              type="button"
-                              onClick={() => handleCommentDelete(c.id)}
-                              className="text-xs text-zinc-400 hover:text-red-600 transition-colors cursor-pointer ml-auto"
-                            >
-                              삭제
-                            </button>
-                          )}
-                        </div>
-                        <p className="text-sm text-zinc-600 mt-1 leading-relaxed break-words">{c.content}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
           </>
         )}
       </main>
