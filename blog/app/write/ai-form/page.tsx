@@ -2,8 +2,8 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
@@ -48,7 +48,16 @@ const IMAGE_MODEL_OPTIONS = [
 ]
 
 export default function AiFormPage() {
+  return (
+    <Suspense fallback={null}>
+      <AiFormPageInner />
+    </Suspense>
+  )
+}
+
+function AiFormPageInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [supabase, setSupabase] = useState<any>(null)
   const [basePath, setBasePath] = useState('')
 
@@ -64,12 +73,16 @@ export default function AiFormPage() {
 
   // 폼 입력 상태 (복수 카테고리 지원)
   const [categorySlugs, setCategorySlugs] = useState<string[]>(['architecture'])
-  const [topic, setTopic] = useState('')
+  // /candidates(글감 수집)에서 "이 주제로 글쓰기"로 넘어온 경우 topic/keywords를 미리 채운다.
+  const [topic, setTopic] = useState(() => searchParams.get('topic') ?? '')
   const [tone, setTone] = useState('전문적')
   const [targetAudience, setTargetAudience] = useState('')
   const [targetWordCount, setTargetWordCount] = useState(1000)
   const [keywordInput, setKeywordInput] = useState('')
-  const [keywords, setKeywords] = useState<string[]>([])
+  const [keywords, setKeywords] = useState<string[]>(() => {
+    const raw = searchParams.get('keywords')
+    return raw ? raw.split(',').map((k) => k.trim()).filter(Boolean) : []
+  })
   const [referenceUrls, setReferenceUrls] = useState<string[]>(['', '', ''])
   
   // 나노바나나 AI 이미지 설정 상태

@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
 import CategoryManagementModal from './_components/CategoryManagementModal'
-import GoldButton from '@/components/ui/GoldButton'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -273,11 +272,12 @@ export default function HomePage() {
           </button>
         </form>
 
-        <Link href="/blog/write/ai-form">
-          <GoldButton size="lg" className="gap-2.5">
-            <span className="text-lg">✨</span>
-            <span>AI 글쓰기 (자동 포스팅 생성)</span>
-          </GoldButton>
+        <Link
+          href="/blog/write/ai-form"
+          className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-gold to-gold-light px-8 py-4 text-lg font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:opacity-90 hover:shadow-[0_0_24px_rgba(212,175,55,0.4)]"
+        >
+          <span className="text-lg">✨</span>
+          <span>AI 글쓰기 (자동 포스팅 생성)</span>
         </Link>
       </section>
 
