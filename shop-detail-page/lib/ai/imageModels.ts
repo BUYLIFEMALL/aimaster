@@ -11,6 +11,6 @@ export const DEFAULT_IMAGE_MODEL: ImageModelKey = "nanobananaPro";
 // /products/new(상품 저장 시 선택)와 /products/[id](섹션 이미지 생성 시 선택)가 동일한
 // 옵션 목록을 공유한다.
 export const IMAGE_MODEL_OPTIONS: { value: ImageModelKey; label: string; hint: string }[] = [
-  { value: "nanobananaPro", label: "나노바나나 프로", hint: "고품질 · 비쌈" },
-  { value: "nanobanana2", label: "나노바나나2", hint: "기본 · 저렴" },
+  { value: "nanobananaPro", label: "Nanobanana Pro(고퀄리티)", hint: "고품질 · 비쌈" },
+  { value: "nanobanana2", label: "Nanobanana2(가성비)", hint: "기본 · 저렴" },
 ];
