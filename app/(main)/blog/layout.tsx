@@ -6,9 +6,10 @@ import BlogSidebar from '@/components/layout/BlogSidebar'
 
 export default function BlogLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  // 블로그 첫페이지(/blog)는 다른 서브프로젝트와 동일하게 루트 사이트의 다크골드 테마를
-  // 그대로 쓴다. 글 목록/작성 등 하위 페이지(/blog/posts/[id], /blog/write 등)는 기존에
-  // 만들어둔 화이트 라이트 테마를 그대로 유지한다 (전면 개편 전까지는 여기만 예외 처리).
+  // /blog(게시글 관리 홈)는 사이드바(BlogSidebar)를 갖는 유일한 라우트이며, 나머지 블로그
+  // 하위 페이지(/blog/posts/[id], /blog/write/ai-form, /blog/candidates 등)와 동일한 화이트
+  // 라이트 테마("AutoBlog" 톤)를 쓴다. 사이드바 바깥의 루트 헤더/푸터(다크골드)는 사이트
+  // 전체 공통 프레임으로 그대로 유지된다.
   const isHomePage = pathname === '/blog'
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
     return (
       <div className="flex min-h-screen flex-col md:flex-row">
         <BlogSidebar />
-        <div className="min-w-0 flex-1">{children}</div>
+        <div className="min-w-0 flex-1 bg-slate-50">{children}</div>
       </div>
     )
   }

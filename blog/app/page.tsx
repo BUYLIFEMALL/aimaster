@@ -227,10 +227,10 @@ export default function HomePage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* =================== HERO =================== */}
       <section className="text-center mb-12">
-        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight mb-3">
+        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">
           주제, 키워드, 참고링크를 제시하면
         </h1>
-        <p className="text-white/60 text-base mb-8">
+        <p className="text-slate-500 text-base mb-8">
           자동으로 검색엔진에 최적화된 블로그를 만들어 드립니다
         </p>
 
@@ -242,10 +242,10 @@ export default function HomePage() {
               placeholder="블로그 제목으로 검색..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="input-dark pl-9 py-2.5 text-sm"
+              className="w-full pl-9 py-2.5 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
             />
             <svg
-              className="w-4 h-4 text-white/30 absolute left-3 top-1/2 -translate-y-1/2"
+              className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -260,7 +260,7 @@ export default function HomePage() {
           </div>
           <button
             type="submit"
-            className="px-4 py-2.5 bg-gradient-to-r from-gold to-gold-light text-black font-extrabold text-xs rounded-xl transition-all hover:shadow-lg hover:shadow-gold/20 cursor-pointer flex-shrink-0 flex items-center gap-1.5"
+            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl transition-all shadow-md shadow-blue-500/20 cursor-pointer flex-shrink-0 flex items-center gap-1.5"
           >
             <span>🔍</span>
             <span>검색하기</span>
@@ -269,7 +269,7 @@ export default function HomePage() {
 
         <Link
           href="/blog/write/ai-form"
-          className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-gold to-gold-light px-8 py-4 text-lg font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:opacity-90 hover:shadow-[0_0_24px_rgba(212,175,55,0.4)]"
+          className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:bg-blue-700 shadow-lg shadow-blue-500/20"
         >
           <span className="text-lg">✨</span>
           <span>AI 글쓰기 (자동 포스팅 생성)</span>
@@ -279,16 +279,16 @@ export default function HomePage() {
       {/* =================== MAIN CONTENT =================== */}
       <div className="space-y-8">
         {/* Category Section Header & Management Button */}
-        <div className="flex items-center justify-between gap-4 pb-3 border-b border-white/10">
+        <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-extrabold text-white tracking-tight">🏷️ 카테고리 탐색</span>
-            <span className="text-[11px] font-bold text-white/40">({categories.length}개 분야)</span>
+            <span className="text-xs font-extrabold text-slate-900 tracking-tight">🏷️ 카테고리 탐색</span>
+            <span className="text-[11px] font-bold text-slate-400">({categories.length}개 분야)</span>
           </div>
 
           <button
             type="button"
             onClick={() => setIsManageModalOpen(true)}
-            className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-gold/10 hover:bg-gold/20 text-gold border border-gold/20 flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 cursor-pointer"
           >
             <span>⚙️ 카테고리 관리</span>
           </button>
@@ -301,8 +301,8 @@ export default function HomePage() {
             onClick={() => handleCategoryClick(null)}
             className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
               activeCategory === null
-                ? 'bg-gradient-to-r from-gold to-gold-light text-black shadow-lg shadow-gold/20'
-                : 'bg-white/5 text-white/60 border border-white/10 hover:border-gold/40 hover:text-white'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-blue-50'
             }`}
           >
             전체
@@ -316,8 +316,8 @@ export default function HomePage() {
                 onClick={() => handleCategoryClick(cat.slug)}
                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-gradient-to-r from-gold to-gold-light text-black shadow-lg shadow-gold/20'
-                    : 'bg-white/5 text-white/60 border border-white/10 hover:border-gold/40 hover:text-white'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-blue-50'
                 }`}
               >
                 {cat.name}
@@ -330,17 +330,17 @@ export default function HomePage() {
         {loading ? (
           <div className="flex flex-col gap-3">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="glass-card p-5 space-y-3 animate-pulse">
-                <div className="h-4 bg-white/10 rounded w-1/4" />
-                <div className="h-5 bg-white/10 rounded w-2/3" />
-                <div className="h-3 bg-white/10 rounded w-full" />
+              <div key={i} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 animate-pulse">
+                <div className="h-4 bg-slate-100 rounded w-1/4" />
+                <div className="h-5 bg-slate-100 rounded w-2/3" />
+                <div className="h-3 bg-slate-100 rounded w-full" />
               </div>
             ))}
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-16 glass-card space-y-3">
-            <p className="text-base font-bold text-white">아직 작성한 게시글이 없습니다.</p>
-            <p className="text-xs text-white/40">새로운 AI 자동 포스트를 작성해 보세요!</p>
+          <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl space-y-3">
+            <p className="text-base font-bold text-slate-900">아직 작성한 게시글이 없습니다.</p>
+            <p className="text-xs text-slate-400">새로운 AI 자동 포스트를 작성해 보세요!</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -348,7 +348,7 @@ export default function HomePage() {
               <Link
                 key={post.id}
                 href={`/blog/posts/${post.id}`}
-                className="group glass-card hover:border-gold/40 p-5 transition-colors flex items-center gap-4 no-underline"
+                className="group bg-white border border-slate-200 hover:border-blue-300 rounded-2xl p-5 transition-colors flex items-center gap-4 no-underline"
               >
                 <div className="min-w-0 flex-1 space-y-1.5">
                   {post.categories.length > 0 && (
@@ -356,7 +356,7 @@ export default function HomePage() {
                       {post.categories.map((c) => (
                         <span
                           key={c.id}
-                          className="text-[11px] font-extrabold text-gold bg-gold/10 px-2.5 py-1 rounded-md"
+                          className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md"
                         >
                           {c.name}
                         </span>
@@ -364,14 +364,14 @@ export default function HomePage() {
                     </div>
                   )}
 
-                  <h2 className="text-base font-bold text-white group-hover:text-gold transition-colors truncate">
+                  <h2 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
                     {post.title}
                   </h2>
 
-                  <p className="text-xs text-white/50 truncate">{post.excerpt}</p>
+                  <p className="text-xs text-slate-500 truncate">{post.excerpt}</p>
                 </div>
 
-                <span className="shrink-0 text-xs text-white/40">{formatDate(post.published_at)}</span>
+                <span className="shrink-0 text-xs text-slate-400">{formatDate(post.published_at)}</span>
               </Link>
             ))}
           </div>
@@ -387,14 +387,14 @@ export default function HomePage() {
                   onClick={() => setCurrentPage(page)}
                   className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
                     currentPage === page
-                      ? 'bg-gradient-to-r from-gold to-gold-light text-black shadow-lg shadow-gold/20'
-                      : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                   }`}
                 >
                   {page}
                 </button>
               ) : (
-                <span key={idx} className="px-2 text-white/30 text-xs font-bold">
+                <span key={idx} className="px-2 text-slate-300 text-xs font-bold">
                   {page}
                 </span>
               )

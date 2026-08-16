@@ -33,13 +33,13 @@ export default function BlogSidebar() {
   };
 
   return (
-    <aside className="flex w-full flex-col border-b border-white/10 md:h-full md:w-60 md:flex-shrink-0 md:justify-between md:border-b-0 md:border-r">
+    <aside className="flex w-full flex-col border-b border-slate-200 bg-white md:h-full md:w-60 md:flex-shrink-0 md:justify-between md:border-b-0 md:border-r">
       <div>
         <div className="px-5 pt-4">
-          <div className="text-lg font-semibold text-white">AI 자동 블로그</div>
+          <div className="text-lg font-semibold text-slate-900">AI 자동 블로그</div>
           <Link
             href="/programs"
-            className="mb-4 block text-xs text-white/40 hover:text-white/70 md:mb-6"
+            className="mb-4 block text-xs text-slate-400 hover:text-slate-700 md:mb-6"
           >
             ← 다른 프로그램 보기
           </Link>
@@ -52,8 +52,8 @@ export default function BlogSidebar() {
               className={cn(
                 "flex items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 pathname === href
-                  ? "bg-gold/10 text-gold"
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
+                  ? "bg-indigo-50 text-indigo-600"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               )}
             >
               <Icon size={16} />
@@ -62,12 +62,12 @@ export default function BlogSidebar() {
           ))}
         </nav>
       </div>
-      <div className="border-t border-white/10 p-3">
-        <p className="mb-2 truncate px-2 text-xs text-white/40">{userEmail}</p>
+      <div className="border-t border-slate-200 p-3">
+        <p className="mb-2 truncate px-2 text-xs text-slate-400">{userEmail}</p>
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
+          className="w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
         >
           로그아웃
         </button>
