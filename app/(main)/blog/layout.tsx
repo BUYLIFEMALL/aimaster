@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import BlogSidebar from '@/components/layout/BlogSidebar'
 
 export default function BlogLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -29,7 +30,12 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
   }, [isHomePage])
 
   if (isHomePage) {
-    return <div className="w-full min-h-screen">{children}</div>
+    return (
+      <div className="flex min-h-screen flex-col md:flex-row">
+        <BlogSidebar />
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    )
   }
 
   return (
