@@ -9,7 +9,7 @@ import {
 } from "@/lib/actions/images";
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
-import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
+import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 
 interface TemplateInfo {
   id: string;
@@ -220,6 +220,23 @@ export function SectionImageGrid({
             {isRunning ? "생성 중..." : "🎨 전체 이미지 생성"}
           </button>
         </div>
+      </div>
+
+      <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-600">
+        <p className="font-semibold text-gray-700 mb-1.5">💰 예상 비용 (2K 해상도 · Google 공식 요금 기준)</p>
+        <div className="space-y-1">
+          {IMAGE_MODEL_OPTIONS.map((opt) => {
+            const total = (IMAGE_MODEL_COST_USD[opt.value] * templates.length).toFixed(2);
+            const isSelected = model === opt.value;
+            return (
+              <p key={opt.value} className={isSelected ? "font-semibold text-gray-900" : ""}>
+                {isSelected ? "▶ " : "· "}
+                {opt.label}: 장당 ${IMAGE_MODEL_COST_USD[opt.value].toFixed(3)} · {templates.length}장 전체 생성 시 약 ${total}
+              </p>
+            );
+          })}
+        </div>
+        <p className="mt-1.5 text-gray-400">* 실제 청구 금액은 사용량과 환율에 따라 달라질 수 있는 참고용 추정치입니다.</p>
       </div>
 
       {/* 실제 병합 결과와 동일하게 세로 한 줄로 나열 */}

@@ -14,3 +14,11 @@ export const IMAGE_MODEL_OPTIONS: { value: ImageModelKey; label: string; hint: s
   { value: "nanobananaPro", label: "Nanobanana Pro(고퀄리티)", hint: "고품질 · 비쌈" },
   { value: "nanobanana2", label: "Nanobanana2(가성비)", hint: "기본 · 저렴" },
 ];
+
+// Google Gemini API 공식 요금표 기준, 2K 해상도 출력 이미지 1장당 단가(USD).
+// (섹션 템플릿이 전부 resolution:'2K'로 시딩되어 있어 이 단가를 그대로 쓴다.)
+// https://ai.google.dev/gemini-api/docs/pricing — 요금이 바뀔 수 있으니 참고용 추정치임을 UI에 함께 표기한다.
+export const IMAGE_MODEL_COST_USD: Record<ImageModelKey, number> = {
+  nanobananaPro: 0.134,
+  nanobanana2: 0.101,
+};
