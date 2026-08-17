@@ -105,7 +105,8 @@ POST 콜백을 보낸다. 이 라우트는:
 | 3 | 곡 연장(Extend) — `extendTrackAction()`, Suno `/generate/extend`, `defaultParamFlag:true`로 continueAt/style/prompt 명시 | ✅ 구현 완료 |
 | 3 | MR(보컬제거) 만들기 — `createMrAction()`, Suno `/vocal-removal/generate`(`type: separate_vocal`), 전용 웹훅 라우트 | ✅ 구현 완료 |
 | 3 | WAV 변환 — `createWavAction()`/`syncWavStatusAction()`, Suno `/wav/generate` + `/wav/record-info` 폴링, 전용 웹훅 라우트 | ✅ 구현 완료 |
-| 3 | 악기별 Stem 분리(`split_stem`), 보컬-반주 추가(Add Vocals/Instrumental), 타임스탬프 가사, 크레딧 조회 등 | ⏳ 예정 |
+| 3 | Suno API 크레딧 조회 — `checkSunoCreditsAction()`, `/settings` 페이지 하단, GET `/api/v1/generate/credit` | ✅ 구현 완료 (2026-08-17) |
+| 3 | 악기별 Stem 분리(`split_stem`), 보컬-반주 추가(Add Vocals/Instrumental), 타임스탬프 가사 등 | ⏳ 예정 |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 사용자와 합의함. 새 Phase를 시작할 때는
 이 표를 갱신할 것.
