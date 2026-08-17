@@ -156,6 +156,11 @@ export interface RequestSunoRemixInput {
   audioWeight?: number; // 0~1
   vocalGender?: "m" | "f";
   model?: string;
+  // Suno 문서상 "duration"은 선택값이고 V5_5 + customMode:true에서만 적용되며 범위는 10~360초다.
+  // 실제로 호출해보니(2026-08-17) 이 값을 안 넣으면 원곡이 3분짜리여도 결과가 33초짜리로 아주
+  // 짧게 나오는 문제가 있었다(문서에 이 기본 동작이 명시돼 있지 않아 실사용 테스트로 발견) —
+  // 그래서 항상 명시적으로 넘긴다.
+  durationSeconds: number;
 }
 
 /**
@@ -184,6 +189,7 @@ export async function requestSunoRemix(input: RequestSunoRemixInput, apiKey: str
       customMode: true,
       instrumental: input.instrumental,
       model: input.model ?? DEFAULT_SUNO_MODEL,
+      duration: input.durationSeconds,
       ...(input.instrumental ? {} : { prompt: input.prompt }),
       ...(input.styleWeight != null ? { styleWeight: input.styleWeight } : {}),
       ...(input.weirdnessConstraint != null ? { weirdnessConstraint: input.weirdnessConstraint } : {}),

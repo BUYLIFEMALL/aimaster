@@ -24,6 +24,19 @@ const MAX_SOURCE_FILE_BYTES = 50 * 1024 * 1024; // 50MB — Suno가 받는 원�
 const DEFAULT_REMIX_PROMPT =
   "Sing this song in the new style described above, keeping the same emotional theme and story as the original.";
 
+// Suno "duration" 파라미터(V5_5+customMode에서만 적용, 10~360초)를 안 넣으면 원곡이 3분짜리여도
+// 결과가 33초로 아주 짧게 나오는 문제를 실사용 테스트로 발견했다(2026-08-17, lib/ai/suno.ts 주석
+// 참고) — 항상 명시적으로 넘긴다. 기존 곡을 재사용하면 그 곡의 실제 길이를, 새로 업로드한
+// 파일이면(길이를 아직 모르므로) 기본 3분을 쓴다.
+const MIN_REMIX_DURATION_SECONDS = 10;
+const MAX_REMIX_DURATION_SECONDS = 360;
+const DEFAULT_REMIX_DURATION_SECONDS = 180;
+
+function clampDuration(seconds: number | null | undefined): number {
+  if (!seconds || Number.isNaN(seconds)) return DEFAULT_REMIX_DURATION_SECONDS;
+  return Math.min(Math.max(Math.round(seconds), MIN_REMIX_DURATION_SECONDS), MAX_REMIX_DURATION_SECONDS);
+}
+
 /**
  * n8n(Make.com) 시나리오 41(리믹스) 대응: 업로드한(또는 이미 생성한 곡에서 재사용한) 원곡
  * 오디오를 "원하는 느낌"에 맞춰 count(1~10)개의 새 스타일로 리믹스한다. count가 2 이상이면
@@ -55,16 +68,18 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
   const sourceVariantId = String(formData.get("sourceVariantId") ?? "").trim() || null;
   let sourceAudioUrl: string;
   let resolvedSourceTitle = sourceTitle;
+  let durationSeconds = DEFAULT_REMIX_DURATION_SECONDS;
 
   if (sourceVariantId) {
     const { data: variant } = await supabase
       .from("music_track_variants")
-      .select("id, audio_url, track_id")
+      .select("id, audio_url, track_id, duration_seconds")
       .eq("id", sourceVariantId)
       .eq("user_id", user.id)
       .maybeSingle();
     if (!variant) return { error: "리믹스할 원곡을 찾을 수 없습니다." };
     sourceAudioUrl = variant.audio_url;
+    durationSeconds = clampDuration(variant.duration_seconds);
 
     if (!resolvedSourceTitle) {
       const { data: track } = await supabase.from("music_tracks").select("title").eq("id", variant.track_id).maybeSingle();
@@ -145,6 +160,7 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
           weirdnessConstraint: weirdnessConstraint ?? undefined,
           audioWeight: audioWeight ?? undefined,
           vocalGender: instrumental ? undefined : toSunoVocalGender(vocalGender),
+          durationSeconds,
         },
         sunoKey,
       );
