@@ -142,6 +142,8 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
           vocal_gender: instrumental ? null : vocalGender,
           suno_model: DEFAULT_SUNO_MODEL,
           status: "generating",
+          target_duration_seconds: durationSeconds,
+          instrumental,
         })
         .select("id")
         .single();
@@ -200,7 +202,9 @@ export async function syncRemixStatusAction(remixId: string): Promise<SyncRemixS
 
   const { data: remix, error: remixError } = await supabase
     .from("music_track_remixes")
-    .select("id, user_id, task_id, status")
+    .select(
+      "id, user_id, task_id, status, source_title, style_description, vocal_gender, suno_model, instrumental, target_duration_seconds, extend_hop_count",
+    )
     .eq("id", remixId)
     .eq("user_id", user.id)
     .single();
@@ -221,7 +225,7 @@ export async function syncRemixStatusAction(remixId: string): Promise<SyncRemixS
       return { status: "failed" };
     }
 
-    const { savedCount } = await saveSunoRemixResult(supabase, remix, result.tracks);
+    const { savedCount, stillExtending } = await saveSunoRemixResult(supabase, remix, result.tracks);
     if (savedCount === 0) {
       await markRemixFailed(supabase, remix, "Suno가 오디오 URL을 반환하지 않았습니다.");
       revalidatePath("/remix");
@@ -229,7 +233,7 @@ export async function syncRemixStatusAction(remixId: string): Promise<SyncRemixS
     }
 
     revalidatePath("/remix");
-    return { status: "completed" };
+    return { status: stillExtending ? "generating" : "completed" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "상태 확인 중 오류가 발생했습니다." };
   }

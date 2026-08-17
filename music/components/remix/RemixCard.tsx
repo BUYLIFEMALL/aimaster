@@ -11,6 +11,7 @@ export interface RemixVariant {
   audio_url: string;
   image_url: string | null;
   duration_seconds: number | null;
+  created_at: string;
 }
 
 export interface RemixCardData {
@@ -21,7 +22,22 @@ export interface RemixCardData {
   status: RemixStatus;
   error_message: string | null;
   created_at: string;
+  target_duration_seconds: number | null;
+  extend_hop_count: number;
   music_track_remix_variants: RemixVariant[];
+}
+
+/**
+ * 원곡 길이만큼 자동 연장(remixSync.ts의 maybeAutoExtendRemix)될 때마다 같은 remix row에
+ * variant가 계속 쌓인다 — 화면에는 가장 최근 연장분(가장 긴 결과)만 보여주고 짧았던 이전
+ * 시도들은 숨긴다(DB/Storage에는 그대로 남아있음). 한 번에 저장된 variant들은 같은 INSERT
+ * 문으로 들어가서 created_at이 사실상 동일하므로, 가장 최신 created_at과 가까운(2초 이내)
+ * variant들만 "최신 배치"로 간주한다.
+ */
+function latestBatch(variants: RemixVariant[]): RemixVariant[] {
+  if (variants.length === 0) return [];
+  const maxTime = Math.max(...variants.map((v) => new Date(v.created_at).getTime()));
+  return variants.filter((v) => maxTime - new Date(v.created_at).getTime() < 2000);
 }
 
 const STATUS_LABEL: Record<RemixStatus, { label: string; className: string }> = {
@@ -72,6 +88,10 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
   }
 
   const badge = STATUS_LABEL[remix.status];
+  const visibleVariants = latestBatch(remix.music_track_remix_variants);
+  const currentDuration = visibleVariants.reduce((max, v) => Math.max(max, v.duration_seconds ?? 0), 0);
+  const target = remix.target_duration_seconds;
+  const isExtending = remix.status === "generating" && remix.extend_hop_count > 0;
 
   return (
     <>
@@ -84,7 +104,13 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
         </div>
 
         <p className="text-sm text-gray-500 mb-1">💭 {remix.desired_feel}</p>
-        {remix.style_description && <p className="text-xs text-gray-400 mb-3">🎨 {remix.style_description}</p>}
+        {remix.style_description && <p className="text-xs text-gray-400 mb-1">🎨 {remix.style_description}</p>}
+        {target != null && (currentDuration > 0 || isExtending) && (
+          <p className="text-xs text-gray-400 mb-3">
+            ⏱️ 현재 약 {currentDuration}초 / 목표 {target}초
+            {isExtending && ` — 원곡 길이까지 자동으로 이어붙이는 중 (${remix.extend_hop_count}번째 연장)`}
+          </p>
+        )}
 
         {remix.status === "failed" && remix.error_message && (
           <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{remix.error_message}</p>
@@ -104,9 +130,9 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
           </div>
         )}
 
-        {remix.music_track_remix_variants.length > 0 && (
+        {visibleVariants.length > 0 && (
           <div className="grid gap-4 sm:grid-cols-2 mb-4">
-            {remix.music_track_remix_variants.map((variant, index) => (
+            {visibleVariants.map((variant, index) => (
               <div key={variant.id} className="space-y-2">
                 {variant.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element

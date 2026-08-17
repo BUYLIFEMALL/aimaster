@@ -281,6 +281,9 @@ export interface Database {
           task_id: string | null;
           status: RemixStatus;
           error_message: string | null;
+          target_duration_seconds: number | null;
+          extend_hop_count: number;
+          instrumental: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -300,6 +303,9 @@ export interface Database {
           task_id?: string | null;
           status?: RemixStatus;
           error_message?: string | null;
+          target_duration_seconds?: number | null;
+          extend_hop_count?: number;
+          instrumental?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -319,6 +325,9 @@ export interface Database {
           task_id?: string | null;
           status?: RemixStatus;
           error_message?: string | null;
+          target_duration_seconds?: number | null;
+          extend_hop_count?: number;
+          instrumental?: boolean;
           created_at?: string;
           updated_at?: string;
         };
