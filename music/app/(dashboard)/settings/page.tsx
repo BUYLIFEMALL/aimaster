@@ -8,9 +8,10 @@ import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
-// 이 프로그램이 실제로 쓰는 provider만 노출한다: openai(곡 기획/가사), suno(실제 곡 생성),
-// gemini(나노바나나 — 곡 분위기에 맞는 고퀄리티 앨범 커버 생성, 선택사항).
-const PROVIDERS: ApiKeyProvider[] = ["openai", "suno", "gemini"];
+// 이 프로그램이 실제로 쓰는 provider만 노출한다: openai(곡 기획/가사), gemini(나노바나나 —
+// 곡 분위기에 맞는 고퀄리티 앨범 커버 생성, 선택사항), suno(실제 곡 생성). suno는 바로 아래
+// SunoCreditsCard(크레딧 조회)와 같은 서비스라 맨 마지막에 붙여서 두 섹션이 이어지게 한다.
+const PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "suno"];
 
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
