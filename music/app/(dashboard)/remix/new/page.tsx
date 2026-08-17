@@ -36,7 +36,7 @@ export default async function NewRemixPage({
     <div className="max-w-xl mx-auto px-4 py-10">
       <div className="text-center mb-8">
         <div className="text-5xl mb-4">🎛️</div>
-        <h1 className="text-3xl font-black text-gray-900 mb-2">리믹스</h1>
+        <h1 className="text-3xl font-black text-gray-900 mb-2">음악 Remix</h1>
         <p className="text-gray-500 text-base">
           원곡을 업로드하고 원하는 느낌을 설명하면 AI가 새로운 스타일로 리메이크해드려요
         </p>

@@ -8,7 +8,7 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 const NAV_ITEMS = [
   { href: "/plannings/new", label: "1. 음악 기획" },
   { href: "/plannings", label: "2. 음악 생성|관리" },
-  { href: "/remix", label: "3. 리믹스" },
+  { href: "/remix", label: "3. 음악 Remix" },
   { href: "/settings", label: "🔑 API 키 설정" },
 ];
 

@@ -24,7 +24,7 @@ export default async function RemixPage() {
       <AutoRefresh enabled={hasGenerating} />
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-black text-gray-900">내 리믹스</h1>
+        <h1 className="text-2xl font-black text-gray-900">음악 Remix</h1>
         <Link
           href="/remix/new"
           className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
