@@ -3,6 +3,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { SunoCreditsCard } from "@/components/settings/SunoCreditsCard";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,10 @@ export default async function SettingsPage() {
             maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
           />
         ))}
+      </div>
+
+      <div className="mt-8">
+        <SunoCreditsCard />
       </div>
     </div>
   );

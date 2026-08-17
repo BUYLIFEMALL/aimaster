@@ -462,3 +462,28 @@ export async function checkSunoGenerationStatus(taskId: string, apiKey: string):
 
   return { state: "processing" };
 }
+
+/**
+ * Suno `/api/v1/generate/credit` — 본인 Suno API 키에 남은 크레딧(정수)을 조회한다.
+ * 실제 생성 요청과 무관한 단순 조회라 곡 생성 흐름과 완전히 분리해서 설정 페이지에서만 쓴다.
+ * (docs.sunoapi.org 확인 완료, 2026-08-17)
+ */
+export async function checkSunoCredits(apiKey: string): Promise<number> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 위에서 본인의 Suno API 키를 먼저 등록해주세요.");
+  }
+
+  const response = await fetch(`${SUNO_BASE}/api/v1/generate/credit`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Suno 크레딧 조회에 실패했습니다. (${response.status}) ${errorBody}`);
+  }
+
+  const data = (await response.json()) as { code: number; msg?: string; data?: number };
+  if (data.code !== 200 || typeof data.data !== "number") {
+    throw new Error(`Suno 크레딧 조회에 실패했습니다: ${data.msg ?? "알 수 없는 오류"}`);
+  }
+  return data.data;
+}

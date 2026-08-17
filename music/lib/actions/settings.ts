@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { resolveApiKey } from "@/lib/apiKeys";
+import { checkSunoCredits } from "@/lib/ai/suno";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export interface SaveApiKeyState {
@@ -51,4 +53,27 @@ export async function deleteApiKeyAction(formData: FormData) {
     .eq("provider", provider);
 
   revalidatePath("/settings");
+}
+
+export interface CheckSunoCreditsState {
+  error?: string;
+  credits?: number;
+}
+
+/** Suno 크레딧(잔여 생성 가능 횟수) 조회 — Phase 3 예정 항목. 곡 생성과 무관한 단순 조회다. */
+export async function checkSunoCreditsAction(): Promise<CheckSunoCreditsState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const sunoKey = await resolveApiKey(supabase, user.id, "suno");
+  if (!sunoKey) {
+    return { error: "Suno API 키가 없습니다. 위에서 본인의 Suno API 키를 먼저 등록해주세요." };
+  }
+
+  try {
+    const credits = await checkSunoCredits(sunoKey);
+    return { credits };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "크레딧 조회 중 오류가 발생했습니다." };
+  }
 }
