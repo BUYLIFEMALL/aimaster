@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input {
+    @apply w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+  }
+  .input-sm {
+    @apply w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+  }
+}
+
+:root {
+  --background: #f9fafb;
+  --foreground: #111827;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* 이메일 본문 편집기(EmailRichTextEditor) 타이포그래피 — 루트 app/globals.css의
+   .prose-editor(다크 테마)를 stepmail의 라이트 테마에 맞게 옮긴 것. */
+.prose-email {
+  color: #111827;
+  line-height: 1.7;
+}
+.prose-email h1 { font-size: 1.5rem; font-weight: 700; margin: 1em 0 0.5em; }
+.prose-email h2 { font-size: 1.25rem; font-weight: 700; margin: 0.9em 0 0.45em; }
+.prose-email p { margin: 0.5em 0; }
+/* 내용이 아예 없는 <p></p>(빈 줄)는 기본적으로 높이 0으로 접힌다 — 우리 화면(미리보기, HTML
+   코드 직접 편집 경로)에서 만이라도 최소 한 줄 높이를 유지시킨다. 실제 발송 메일에서는
+   EmailRichTextEditor.tsx가 <p><br></p>로 강제 변환해서 이 CSS 없이도 살아남는다. */
+.prose-email p:empty { min-height: 1.2em; }
+.prose-email strong { color: #1d4ed8; }
+.prose-email em { color: #374151; }
+.prose-email u { text-decoration: underline; text-underline-offset: 3px; }
+.prose-email s { opacity: 0.6; }
+.prose-email mark { background: rgba(37, 99, 235, 0.15); border-radius: 2px; padding: 0 2px; }
+.prose-email a { color: #2563eb; text-decoration: underline; }
+.prose-email ul { list-style: disc; padding-left: 1.5em; margin: 0.5em 0; }
+.prose-email ol { list-style: decimal; padding-left: 1.5em; margin: 0.5em 0; }
+.prose-email li { margin: 0.25em 0; }
+.prose-email blockquote {
+  border-left: 3px solid #93c5fd;
+  padding-left: 1em;
+  margin: 1em 0;
+  color: #4b5563;
+  font-style: italic;
+}
+.prose-email hr { border: none; border-top: 1px solid #e5e7eb; margin: 1.5em 0; }
+.prose-email img { max-width: 100%; border-radius: 8px; margin: 0.5em 0; }
