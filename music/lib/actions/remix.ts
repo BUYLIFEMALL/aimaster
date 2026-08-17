@@ -17,6 +17,13 @@ export interface CreateRemixState {
 const MAX_REMIX_COUNT = 10;
 const MAX_SOURCE_FILE_BYTES = 50 * 1024 * 1024; // 50MB — Suno가 받는 원곡 업로드 크기 여유
 
+// docs.sunoapi.org 확인 결과, /generate/upload-cover는 customMode:true + instrumental:false일 때
+// prompt가 필수 필드다(비워두면 요청 자체가 거부될 수 있음). 가사를 안 넣은 보컬 리믹스에서도
+// 요청이 막히지 않도록, 가사가 없으면 "원곡의 감정/스토리를 유지하며 새 스타일로 불러달라"는
+// 일반적인 지시문으로 대체한다.
+const DEFAULT_REMIX_PROMPT =
+  "Sing this song in the new style described above, keeping the same emotional theme and story as the original.";
+
 /**
  * n8n(Make.com) 시나리오 41(리믹스) 대응: 업로드한(또는 이미 생성한 곡에서 재사용한) 원곡
  * 오디오를 "원하는 느낌"에 맞춰 count(1~10)개의 새 스타일로 리믹스한다. count가 2 이상이면
@@ -132,7 +139,7 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
           uploadUrl: sourceAudioUrl,
           title: `${resolvedSourceTitle ?? "리믹스"} Remix`,
           styleDescription: styleResult.styleDescription,
-          prompt: instrumental ? undefined : lyrics ?? undefined,
+          prompt: instrumental ? undefined : (lyrics ?? DEFAULT_REMIX_PROMPT),
           instrumental,
           styleWeight: styleWeight ?? undefined,
           weirdnessConstraint: weirdnessConstraint ?? undefined,
