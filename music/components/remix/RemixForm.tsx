@@ -98,7 +98,7 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
             checked={instrumental}
             onChange={(e) => setInstrumental(e.target.checked)}
           />
-          인스트루멘탈로 만들기 (가사/보컬 없이 반주만)
+          인스트루멘탈(BGM곡)으로 만들기 | (가사/보컬 없이 반주)
         </label>
 
         {!instrumental && (
