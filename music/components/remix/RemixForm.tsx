@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createRemixAction } from "@/lib/actions/remix";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
-import { VOCAL_GENDER_OPTIONS } from "@/lib/constants";
+import { VOCAL_GENDER_OPTIONS, LANG_OPTIONS } from "@/lib/constants";
 import type { VocalGender } from "@/types/database.types";
 
 const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno" };
@@ -19,6 +19,7 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
   const router = useRouter();
   const [instrumental, setInstrumental] = useState(false);
   const [vocalGender, setVocalGender] = useState<VocalGender | "">("");
+  const [lang, setLang] = useState("한국어");
   const [count, setCount] = useState(1);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [styleWeight, setStyleWeight] = useState(0.7);
@@ -106,22 +107,38 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
               <label className="block text-sm font-semibold text-gray-700 mb-1">가사 (선택 — 비워두면 원곡 가사를 그대로 반영)</label>
               <textarea name="lyrics" rows={6} className="input w-full font-mono text-sm whitespace-pre-wrap" />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1">보컬 성별 (선택)</label>
-              <select
-                name="vocalGender"
-                value={vocalGender}
-                onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
-                className="input w-32"
-              >
-                <option value="">미지정</option>
-                {VOCAL_GENDER_OPTIONS.map((g) => (
-                  <option key={g} value={g}>
-                    {g === "혼성" ? "혼성(듀엣)" : g}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-wrap gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">보컬 성별 (선택)</label>
+                <select
+                  name="vocalGender"
+                  value={vocalGender}
+                  onChange={(e) => setVocalGender(e.target.value as VocalGender | "")}
+                  className="input w-32"
+                >
+                  <option value="">미지정</option>
+                  {VOCAL_GENDER_OPTIONS.map((g) => (
+                    <option key={g} value={g}>
+                      {g === "혼성" ? "혼성(듀엣)" : g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">언어</label>
+                <select name="lang" value={lang} onChange={(e) => setLang(e.target.value)} className="input w-28">
+                  {LANG_OPTIONS.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+            <p className="text-[11px] text-gray-400">
+              가사를 직접 안 넣으면 이 언어로 불러달라고 AI에게 지시합니다. 직접 가사를 입력했다면
+              그 가사의 언어가 우선됩니다.
+            </p>
           </div>
         )}
 

@@ -284,6 +284,7 @@ export interface Database {
           target_duration_seconds: number | null;
           extend_hop_count: number;
           instrumental: boolean;
+          lang: string;
           created_at: string;
           updated_at: string;
         };
@@ -306,6 +307,7 @@ export interface Database {
           target_duration_seconds?: number | null;
           extend_hop_count?: number;
           instrumental?: boolean;
+          lang?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -328,6 +330,7 @@ export interface Database {
           target_duration_seconds?: number | null;
           extend_hop_count?: number;
           instrumental?: boolean;
+          lang?: string;
           created_at?: string;
           updated_at?: string;
         };

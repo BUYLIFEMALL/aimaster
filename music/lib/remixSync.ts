@@ -17,6 +17,7 @@ export interface RemixForSync {
   instrumental: boolean;
   target_duration_seconds: number | null;
   extend_hop_count: number;
+  lang: string;
 }
 
 // 리믹스 초기 생성이 원곡보다 훨씬 짧게(약 30~50초) 나오는 문제(2026-08-17, Suno "duration"
@@ -28,6 +29,16 @@ export interface RemixForSync {
 const MAX_AUTO_EXTEND_HOPS = 3;
 const AUTO_EXTEND_TOLERANCE = 0.9;
 const EXTEND_TAIL_MARGIN_SECONDS = 3;
+
+/** lib/actions/remix.ts의 buildDefaultRemixPrompt()와 동일한 이유(언어/듀엣 명시)로, 자동
+ * 연장분도 같은 언어·보컬 구성을 유지하도록 지시문에 명시한다. */
+function buildExtendContinuationPrompt(lang: string, vocalGender: VocalGender | null): string {
+  const base = `Continue this remix naturally into a new section that fits the same style and mood as before, written in ${lang}.`;
+  if (vocalGender === "혼성") {
+    return `${base} Keep alternating between male and female vocals as a duet.`;
+  }
+  return base;
+}
 
 /**
  * Suno 리믹스(/generate/upload-cover 또는 그 자동 연장분) 완료 결과를 music_track_remix_variants로
@@ -117,9 +128,7 @@ async function maybeAutoExtendRemix(
         title: `${remix.source_title ?? "리믹스"} Remix`,
         styleDescription: remix.style_description ?? "",
         instrumental: remix.instrumental,
-        prompt: remix.instrumental
-          ? undefined
-          : "Continue this remix naturally into a new section that fits the same style and mood as before.",
+        prompt: remix.instrumental ? undefined : buildExtendContinuationPrompt(remix.lang, remix.vocal_gender),
         vocalGender: toSunoVocalGender(remix.vocal_gender),
         model: remix.suno_model,
       },

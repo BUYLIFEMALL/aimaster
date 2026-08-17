@@ -73,7 +73,9 @@ export async function POST(request: NextRequest) {
 
   const { data: remix } = await admin
     .from("music_track_remixes")
-    .select("id, user_id, status, source_title, style_description, vocal_gender, suno_model, instrumental, target_duration_seconds, extend_hop_count")
+    .select(
+      "id, user_id, status, source_title, style_description, vocal_gender, suno_model, instrumental, target_duration_seconds, extend_hop_count, lang",
+    )
     .eq("task_id", taskId)
     .maybeSingle();
 

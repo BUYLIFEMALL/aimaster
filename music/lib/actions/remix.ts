@@ -20,9 +20,29 @@ const MAX_SOURCE_FILE_BYTES = 50 * 1024 * 1024; // 50MB — Suno가 받는 원�
 // docs.sunoapi.org 확인 결과, /generate/upload-cover는 customMode:true + instrumental:false일 때
 // prompt가 필수 필드다(비워두면 요청 자체가 거부될 수 있음). 가사를 안 넣은 보컬 리믹스에서도
 // 요청이 막히지 않도록, 가사가 없으면 "원곡의 감정/스토리를 유지하며 새 스타일로 불러달라"는
-// 일반적인 지시문으로 대체한다.
-const DEFAULT_REMIX_PROMPT =
-  "Sing this song in the new style described above, keeping the same emotional theme and story as the original.";
+// 일반적인 지시문으로 대체한다. 처음엔 언어를 명시하지 않아서 보컬이 영어로 나오는 경향이
+// 있었다(2026-08-17, 사용자 피드백) — 이제 사용자가 고른 언어(lang)를 지시문에 명시하고,
+// "혼성"(듀엣)을 골랐으면 남녀가 번갈아 부르라는 지시도 함께 넣는다(style_description에도
+// generateRemixStyle()이 이미 넣어주지만, 가사/prompt 레벨에서도 한 번 더 보강한다 — 곡 기획
+// 흐름의 buildVocalCompositionNote()와 같은 이유).
+function buildDefaultRemixPrompt(lang: string, vocalGender: VocalGender | null): string {
+  const base = `Sing this song in ${lang}, in the new style described above, keeping the same emotional theme and story as the original.`;
+  if (vocalGender === "혼성") {
+    return `${base} Alternate between male and female vocals across different sections (verses and chorus), like a duet.`;
+  }
+  return base;
+}
+
+/** 사용자가 직접 가사를 입력했으면 그대로 쓰되, "혼성"이면 듀엣 지시를 짧게 덧붙인다. */
+function buildRemixPrompt(userLyrics: string | null, lang: string, vocalGender: VocalGender | null): string {
+  if (userLyrics) {
+    if (vocalGender === "혼성") {
+      return `${userLyrics}\n\n[Sing as a male and female duet, alternating vocals between sections.]`;
+    }
+    return userLyrics;
+  }
+  return buildDefaultRemixPrompt(lang, vocalGender);
+}
 
 // Suno "duration" 파라미터(V5_5+customMode에서만 적용, 10~360초)를 안 넣으면 원곡이 3분짜리여도
 // 결과가 33초로 아주 짧게 나오는 문제를 실사용 테스트로 발견했다(2026-08-17, lib/ai/suno.ts 주석
@@ -60,6 +80,7 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
   const instrumental = formData.get("instrumental") === "on";
   const vocalGenderRaw = String(formData.get("vocalGender") ?? "").trim();
   const vocalGender = (vocalGenderRaw || null) as VocalGender | null;
+  const lang = String(formData.get("lang") ?? "").trim() || "한국어";
   const styleWeight = clamp01(formData.get("styleWeight"));
   const weirdnessConstraint = clamp01(formData.get("weirdnessConstraint"));
   const audioWeight = clamp01(formData.get("audioWeight"));
@@ -144,6 +165,7 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
           status: "generating",
           target_duration_seconds: durationSeconds,
           instrumental,
+          lang,
         })
         .select("id")
         .single();
@@ -156,7 +178,7 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
           uploadUrl: sourceAudioUrl,
           title: `${resolvedSourceTitle ?? "리믹스"} Remix`,
           styleDescription: styleResult.styleDescription,
-          prompt: instrumental ? undefined : (lyrics ?? DEFAULT_REMIX_PROMPT),
+          prompt: instrumental ? undefined : buildRemixPrompt(lyrics, lang, vocalGender),
           instrumental,
           styleWeight: styleWeight ?? undefined,
           weirdnessConstraint: weirdnessConstraint ?? undefined,
@@ -203,7 +225,7 @@ export async function syncRemixStatusAction(remixId: string): Promise<SyncRemixS
   const { data: remix, error: remixError } = await supabase
     .from("music_track_remixes")
     .select(
-      "id, user_id, task_id, status, source_title, style_description, vocal_gender, suno_model, instrumental, target_duration_seconds, extend_hop_count",
+      "id, user_id, task_id, status, source_title, style_description, vocal_gender, suno_model, instrumental, target_duration_seconds, extend_hop_count, lang",
     )
     .eq("id", remixId)
     .eq("user_id", user.id)
