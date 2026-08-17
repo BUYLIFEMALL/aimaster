@@ -145,6 +145,66 @@ export async function requestSunoExtend(input: RequestSunoExtendInput, apiKey: s
   return data.data.taskId;
 }
 
+export interface RequestSunoRemixInput {
+  uploadUrl: string; // 리믹스할 원곡 오디오 URL(업로드본 또는 기존 variant의 audio_url)
+  title: string; // Suno title(예: "{원곡 제목} Remix")
+  styleDescription: string; // GPT가 만든 이번 리믹스 스타일
+  prompt?: string; // 가사(보컬판일 때만 — instrumental이면 보내지 않는다)
+  instrumental: boolean;
+  styleWeight?: number; // 0~1
+  weirdnessConstraint?: number; // 0~1
+  audioWeight?: number; // 0~1
+  vocalGender?: "m" | "f";
+  model?: string;
+}
+
+/**
+ * Suno `/api/v1/generate/upload-cover` — 업로드한(또는 기존에 생성한) 오디오를 새 스타일로
+ * 커버/리믹스한다. docs.sunoapi.org로 콜백 페이로드를 확인한 결과 /generate와 완전히 동일한
+ * {code, msg, data:{callbackType, task_id, data:[...]}} 구조(text→first→complete)라서, 별도
+ * 웹훅 라우트를 만들지 않고 기존 /api/webhooks/suno가 task_id로 music_track_remixes도 함께
+ * 조회하도록 확장했다(2026-08-17, Suno 공식 문서 확인 완료).
+ */
+export async function requestSunoRemix(input: RequestSunoRemixInput, apiKey: string): Promise<string> {
+  if (!apiKey) {
+    throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  }
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) {
+    throw new Error("NEXT_PUBLIC_SITE_URL 환경변수가 설정되지 않았습니다 (Suno 콜백 주소 생성에 필요).");
+  }
+
+  const response = await fetch(`${SUNO_BASE}/api/v1/generate/upload-cover`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      uploadUrl: input.uploadUrl,
+      style: input.styleDescription,
+      title: input.title.slice(0, 80),
+      customMode: true,
+      instrumental: input.instrumental,
+      model: input.model ?? DEFAULT_SUNO_MODEL,
+      ...(input.instrumental ? {} : { prompt: input.prompt }),
+      ...(input.styleWeight != null ? { styleWeight: input.styleWeight } : {}),
+      ...(input.weirdnessConstraint != null ? { weirdnessConstraint: input.weirdnessConstraint } : {}),
+      ...(input.audioWeight != null ? { audioWeight: input.audioWeight } : {}),
+      ...(input.vocalGender ? { vocalGender: input.vocalGender } : {}),
+      callBackUrl: `${siteUrl}/api/webhooks/suno`,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Suno 리믹스 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+  }
+
+  const data = (await response.json()) as { code: number; msg: string; data?: { taskId?: string } };
+  if (data.code !== 200 || !data.data?.taskId) {
+    throw new Error(`Suno 리믹스 요청이 실패했습니다: ${data.msg ?? "알 수 없는 오류"}`);
+  }
+  return data.data.taskId;
+}
+
 export interface RequestSunoVocalRemovalInput {
   audioId: string; // 보컬/반주 분리할 오디오의 Suno ID (music_track_variants.suno_audio_id)
 }

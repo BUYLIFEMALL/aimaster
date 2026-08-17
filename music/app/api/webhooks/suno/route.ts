@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { saveSunoTrackResult, markTrackFailed } from "@/lib/trackSync";
+import { saveSunoRemixResult, markRemixFailed } from "@/lib/remixSync";
 import type { SunoCallbackPayload } from "@/lib/ai/suno";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,10 @@ export const dynamic = "force-dynamic";
  *
  * Suno 콜백은 callbackType이 "text" → "first" → "complete" 순으로 여러 번 오므로,
  * "complete"(양쪽 트랙 모두 준비 완료)일 때만 최종 저장 처리하고 나머지는 무시한다.
+ *
+ * 리믹스(/generate/upload-cover, lib/ai/suno.ts의 requestSunoRemix())도 이 라우트로 들어온다 —
+ * docs.sunoapi.org로 콜백 페이로드가 /generate와 동일한 구조임을 확인했다(2026-08-17). task_id를
+ * music_tracks에서 못 찾으면 music_track_remixes에서도 찾아본다.
  *
  * 이 웹훅은 로컬 개발 환경(localhost)이나 네트워크 문제로 도달하지 못할 수 있다 — 그 경우를
  * 대비해 lib/actions/tracks.ts의 syncTrackStatusAction()으로 사용자가 직접 "상태 확인"
@@ -47,25 +52,48 @@ export async function POST(request: NextRequest) {
     .eq("task_id", taskId)
     .maybeSingle();
 
-  if (!track) {
+  if (track) {
+    if (track.status !== "generating") {
+      // 이미 처리된 콜백(중복 전송) — 무시한다.
+      return NextResponse.json({ ok: true, ignored: "already processed" });
+    }
+
+    if (payload.code !== 200) {
+      await markTrackFailed(admin, track, payload.msg ?? "알 수 없는 오류");
+      return NextResponse.json({ ok: true });
+    }
+
+    const items = payload.data?.data ?? [];
+    const { savedCount } = await saveSunoTrackResult(admin, track, items);
+    if (savedCount === 0) {
+      await markTrackFailed(admin, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
+    }
+    return NextResponse.json({ ok: true });
+  }
+
+  const { data: remix } = await admin
+    .from("music_track_remixes")
+    .select("id, user_id, status")
+    .eq("task_id", taskId)
+    .maybeSingle();
+
+  if (!remix) {
     // 우리 DB에 없는 taskId(다른 환경 콜백 등) — 크래시 없이 안전하게 무시한다.
     return NextResponse.json({ ok: true, ignored: "unknown task_id" });
   }
-  if (track.status !== "generating") {
-    // 이미 처리된 콜백(중복 전송) — 무시한다.
+  if (remix.status !== "generating") {
     return NextResponse.json({ ok: true, ignored: "already processed" });
   }
 
   if (payload.code !== 200) {
-    await markTrackFailed(admin, track, payload.msg ?? "알 수 없는 오류");
+    await markRemixFailed(admin, remix, payload.msg ?? "알 수 없는 오류");
     return NextResponse.json({ ok: true });
   }
 
   const items = payload.data?.data ?? [];
-  const { savedCount } = await saveSunoTrackResult(admin, track, items);
-
+  const { savedCount } = await saveSunoRemixResult(admin, remix, items);
   if (savedCount === 0) {
-    await markTrackFailed(admin, track, "Suno가 오디오 URL을 반환하지 않았습니다.");
+    await markRemixFailed(admin, remix, "Suno가 오디오 URL을 반환하지 않았습니다.");
   }
 
   return NextResponse.json({ ok: true });

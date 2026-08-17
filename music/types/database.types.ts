@@ -18,6 +18,7 @@ export type TrackStatus = "generating" | "completed" | "failed";
 export type VocalGender = "여성" | "남성" | "혼성";
 export type MrStatus = "generating" | "completed" | "failed";
 export type WavStatus = "generating" | "completed" | "failed";
+export type RemixStatus = "generating" | "completed" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -260,6 +261,99 @@ export interface Database {
           error_message?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      music_track_remixes: {
+        Row: {
+          id: string;
+          user_id: string;
+          source_audio_url: string;
+          source_title: string | null;
+          desired_feel: string;
+          lyrics: string | null;
+          style_description: string | null;
+          style_weight: number | null;
+          weirdness_constraint: number | null;
+          audio_weight: number | null;
+          vocal_gender: VocalGender | null;
+          suno_model: string;
+          task_id: string | null;
+          status: RemixStatus;
+          error_message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          source_audio_url: string;
+          source_title?: string | null;
+          desired_feel: string;
+          lyrics?: string | null;
+          style_description?: string | null;
+          style_weight?: number | null;
+          weirdness_constraint?: number | null;
+          audio_weight?: number | null;
+          vocal_gender?: VocalGender | null;
+          suno_model?: string;
+          task_id?: string | null;
+          status?: RemixStatus;
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          source_audio_url?: string;
+          source_title?: string | null;
+          desired_feel?: string;
+          lyrics?: string | null;
+          style_description?: string | null;
+          style_weight?: number | null;
+          weirdness_constraint?: number | null;
+          audio_weight?: number | null;
+          vocal_gender?: VocalGender | null;
+          suno_model?: string;
+          task_id?: string | null;
+          status?: RemixStatus;
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      music_track_remix_variants: {
+        Row: {
+          id: string;
+          remix_id: string;
+          user_id: string;
+          suno_audio_id: string | null;
+          audio_url: string;
+          image_url: string | null;
+          duration_seconds: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          remix_id: string;
+          user_id: string;
+          suno_audio_id?: string | null;
+          audio_url: string;
+          image_url?: string | null;
+          duration_seconds?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          remix_id?: string;
+          user_id?: string;
+          suno_audio_id?: string | null;
+          audio_url?: string;
+          image_url?: string | null;
+          duration_seconds?: number | null;
+          created_at?: string;
         };
         Relationships: [];
       };

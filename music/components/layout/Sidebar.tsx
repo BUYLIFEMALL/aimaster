@@ -3,11 +3,12 @@ import { signOutAction } from "@/lib/actions/auth";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
-// Phase 1(기획 → 생성 → 저장/재생성)만 구현됐으므로 지금은 그 단계만 올리고, Phase 2(대량생성/
-// 리믹스)가 실제로 만들어질 때마다 항목을 추가한다(AGENTS.md "Phase 진행 상태" 표와 동기화할 것).
+// Phase 1(기획 → 생성 → 저장/재생성)+대량생성+리믹스가 구현됐다. 남은 Phase 3 항목(Stem 분리 등)이
+// 실제로 만들어질 때마다 항목을 추가한다(AGENTS.md "Phase 진행 상태" 표와 동기화할 것).
 const NAV_ITEMS = [
   { href: "/plannings/new", label: "1. 음악 기획" },
   { href: "/plannings", label: "2. 음악 생성|관리" },
+  { href: "/remix", label: "3. 리믹스" },
   { href: "/settings", label: "🔑 API 키 설정" },
 ];
 

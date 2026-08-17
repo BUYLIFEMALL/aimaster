@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { regenerateMusicAction, syncTrackStatusAction, extendTrackAction, deleteTrackAction } from "@/lib/actions/tracks";
 import { createMrAction } from "@/lib/actions/mr";
@@ -335,6 +336,12 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
                       >
                         {extendingVariantId === variant.id ? "연장 요청 중..." : "🔁 이 곡 이어서 연장하기"}
                       </button>
+                      <Link
+                        href={`/remix/new?fromVariantId=${variant.id}`}
+                        className="text-xs font-semibold text-blue-600 hover:underline"
+                      >
+                        🎛️ 이 곡으로 리믹스
+                      </Link>
                       {!latestMr && (
                         <button
                           type="button"

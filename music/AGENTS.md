@@ -63,7 +63,8 @@ music은 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 �
   프로그램 이용 권한까지 확인한다. **단, `app/api/webhooks/suno/route.ts`는 예외다** — Suno가
   보내는 진짜 외부 콜백이라 로그인 세션 자체가 없으므로 이 검사를 쓸 수 없다(아래 "웹훅 설계"
   참고).
-- 사용자 소유 데이터 테이블(`music_plannings`, `music_tracks`, `music_track_variants`)은
+- 사용자 소유 데이터 테이블(`music_plannings`, `music_tracks`, `music_track_variants`,
+  `music_track_mr`, `music_track_wav`, `music_track_remixes`, `music_track_remix_variants`)은
   `user_id` + RLS owner-only 정책으로 격리한다.
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
   그대로 쓴다. 이 프로그램은 `openai`(곡 기획/가사 생성) + `suno`(실제 곡 생성) 두 provider를
@@ -100,7 +101,7 @@ POST 콜백을 보낸다. 이 라우트는:
 |-------|---------|------|
 | 1 | `01`(기획+생성호출), `02`(음악저장/웹훅), `03`(가사수정 재생성) | ✅ 구현 완료 |
 | 2 | `31`(대량생성 — "생성 개수(대량생성)" 1~10곡 옵션으로 구현) | ✅ 구현 완료 |
-| 2 | `41`(리믹스 — 업로드 오디오를 새 스타일로 커버) | ⏳ 예정 |
+| 2 | `41`(리믹스 — 업로드 오디오를 새 스타일로 커버, `createRemixAction()`, Suno `/generate/upload-cover`, 기존 `/api/webhooks/suno`가 task_id로 `music_track_remixes`도 함께 매칭하도록 확장. 완성곡 카드의 "🎛️ 이 곡으로 리믹스" 버튼으로 업로드 없이도 재사용 가능) | ✅ 구현 완료 (2026-08-17) |
 | 3 | 곡 연장(Extend) — `extendTrackAction()`, Suno `/generate/extend`, `defaultParamFlag:true`로 continueAt/style/prompt 명시 | ✅ 구현 완료 |
 | 3 | MR(보컬제거) 만들기 — `createMrAction()`, Suno `/vocal-removal/generate`(`type: separate_vocal`), 전용 웹훅 라우트 | ✅ 구현 완료 |
 | 3 | WAV 변환 — `createWavAction()`/`syncWavStatusAction()`, Suno `/wav/generate` + `/wav/record-info` 폴링, 전용 웹훅 라우트 | ✅ 구현 완료 |

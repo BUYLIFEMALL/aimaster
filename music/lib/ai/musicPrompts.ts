@@ -95,6 +95,58 @@ export async function generateStyleAndExclude(
   });
 }
 
+const REMIX_STYLE_SYSTEM_PROMPT = `# 역할 및 목표
+
+당신은 리믹스/커버 스타일을 기획하는 음악 프로듀서입니다. 사용자가 업로드한 원곡을 "원하는 새로운
+느낌"에 맞춰 완전히 다른 스타일로 리메이크하기 위한 Suno 스타일 설명을 만드는 것이 목표입니다.
+
+# 지침
+
+* 원곡 설명(있다면)과 "원하는 느낌"을 함께 분석해서, 원곡의 정체성은 유지하되 요청받은 새로운
+  분위기/장르로 리믹스된 스타일을 제안하세요.
+* 악기, 사운드 효과, 템포, 분위기, 보컬 스타일을 포함한 구체적이고 세부적인 표현을 사용하세요.
+* 사용자가 보컬 성별을 지정했다면 다음과 같이 반영하세요:
+  - "남성" 또는 "여성"이면 그 성별을 리드 보컬로 표현할 것(예: "male lead vocals").
+  - "혼성"이면 남녀가 함께 또는 번갈아 부르는 듀엣임을 명시할 것.
+  - 지정하지 않았다면 보컬 성별을 명시하지 말 것.
+* 반드시 영어로만 작성할 것.
+* "이미 사용한 스타일" 목록이 주어지면, 그 목록과 겹치지 않는 새로운 장르/악기/분위기 조합을
+  제안할 것 — 같은 원곡이라도 여러 개의 리믹스를 만들 때 매번 다르게 들려야 합니다.
+
+# 참고할 음악적 스타일 및 특징
+${GENRE_REFERENCE_LIST}
+
+# 출력 형식
+
+다음 JSON 형식으로만 출력하라 (다른 설명/마크다운 금지):
+{"styleDescription": "리믹스 스타일 설명 (영어)"}`;
+
+export interface RemixStyleResult {
+  styleDescription: string;
+}
+
+/**
+ * "원곡 설명(선택) + 원하는 새로운 느낌"으로 리믹스용 Suno 스타일 설명을 생성한다.
+ * generateStyleAndExclude()와 달리 excludeStyles는 만들지 않는다 — Suno
+ * `/generate/upload-cover`는 audioWeight/styleWeight로 원곡 반영 정도를 조절하는 방식이라
+ * negativeTags 없이도 충분하다(원본 Make.com 시나리오도 이 호출에는 negativeTags를 쓰지 않았다).
+ */
+export async function generateRemixStyle(
+  input: { sourceDescription?: string; desiredFeel: string; vocalGender: VocalGender | null; avoidStyles?: string[] },
+  apiKey: string,
+): Promise<RemixStyleResult> {
+  const sourceLine = input.sourceDescription?.trim() ? `\n원곡 설명: ${input.sourceDescription.trim()}` : "";
+  const vocalLine = input.vocalGender ? `\n보컬: ${input.vocalGender}` : "";
+  const avoidLine = input.avoidStyles?.length
+    ? `\n\n이미 사용한 스타일(겹치지 않게 새롭게 만들어주세요):\n${input.avoidStyles.map((s, i) => `${i + 1}. ${s}`).join("\n")}`
+    : "";
+  const userPrompt = `# 요청\n원하는 느낌: ${input.desiredFeel}${sourceLine}${vocalLine}${avoidLine}`;
+  return callOpenAiJson<RemixStyleResult>(REMIX_STYLE_SYSTEM_PROMPT, userPrompt, apiKey, {
+    model: "gpt-4o-mini",
+    temperature: 1.1,
+  });
+}
+
 export interface TitleAndDescriptionResult {
   title: string;
   description: string;
