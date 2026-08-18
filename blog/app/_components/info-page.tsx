@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+
 interface InfoPageProps {
   title: string
   children: React.ReactNode
@@ -13,9 +15,14 @@ export default function InfoPage({ title, children }: InfoPageProps) {
           <Link href="/" className="text-xl font-black text-indigo-600 tracking-tight flex-shrink-0 no-underline">
             AutoBlog
           </Link>
-          <Link href="/" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 no-underline transition-colors">
-            홈으로
-          </Link>
+          <div className="flex items-center gap-4">
+            <a href={`${MAIN_SITE_URL}/programs`} className="text-sm font-medium text-zinc-500 hover:text-zinc-900 no-underline transition-colors">
+              ← 다른 프로그램 보기
+            </a>
+            <Link href="/" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 no-underline transition-colors">
+              홈으로
+            </Link>
+          </div>
         </div>
       </header>
 
