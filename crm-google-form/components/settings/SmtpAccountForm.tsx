@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSmtpAccountAction } from "@/lib/actions/smtpAccounts";
+import type { SmtpProviderPreset } from "@/lib/constants";
 
-export function SmtpAccountForm({ onSuccess }: { onSuccess?: () => void }) {
+export function SmtpAccountForm({ preset, onSuccess }: { preset: SmtpProviderPreset; onSuccess?: () => void }) {
   const router = useRouter();
+  const [host, setHost] = useState(preset.host);
+  const [port, setPort] = useState(preset.port);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
@@ -19,6 +22,8 @@ export function SmtpAccountForm({ onSuccess }: { onSuccess?: () => void }) {
         setError(result.error);
       } else {
         (e.target as HTMLFormElement).reset();
+        setHost(preset.host);
+        setPort(preset.port);
         router.refresh();
         onSuccess?.();
       }
@@ -29,12 +34,13 @@ export function SmtpAccountForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-      <h3 className="text-sm font-bold text-gray-800">+ 이메일 계정 추가</h3>
+      <h3 className="text-sm font-bold text-gray-800">+ {preset.label} 계정 추가</h3>
+      <input type="hidden" name="provider" value={preset.value} />
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">계정 별칭</label>
-          <input name="label" required placeholder="예: 네이버 메인" className="input" />
+          <input name="label" required placeholder={`예: ${preset.label} 메인`} className="input" />
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">발신자 표시 이름 (선택)</label>
@@ -45,11 +51,25 @@ export function SmtpAccountForm({ onSuccess }: { onSuccess?: () => void }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">SMTP 호스트</label>
-          <input name="smtpHost" required placeholder="smtp.naver.com" className="input" />
+          <input
+            name="smtpHost"
+            required
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
+            placeholder="smtp.example.com"
+            className="input"
+          />
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">포트</label>
-          <input name="smtpPort" type="number" required defaultValue={587} className="input" />
+          <input
+            name="smtpPort"
+            type="number"
+            required
+            value={port}
+            onChange={(e) => setPort(Number(e.target.value))}
+            className="input"
+          />
         </div>
       </div>
 

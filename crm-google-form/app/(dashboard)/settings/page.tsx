@@ -1,9 +1,10 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { SmtpAccountForm } from "@/components/settings/SmtpAccountForm";
-import { SmtpAccountCard, type SmtpAccountData } from "@/components/settings/SmtpAccountCard";
+import { ProviderAccountSection } from "@/components/settings/ProviderAccountSection";
+import type { SmtpAccountData } from "@/components/settings/SmtpAccountCard";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
+import { SMTP_PROVIDER_PRESETS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,16 @@ export default async function SettingsPage() {
       .maybeSingle(),
   ]);
 
+  // 등록 당시 provider가 프리셋 밖의 값(레거시/누락)이면 "기타" 섹션에 모아 보여준다.
+  const knownProviders = new Set(SMTP_PROVIDER_PRESETS.map((p) => p.value));
+  const accountsByProvider = new Map<string, SmtpAccountData[]>();
+  for (const account of accounts ?? []) {
+    const key = account.provider && knownProviders.has(account.provider) ? account.provider : "other";
+    const list = accountsByProvider.get(key) ?? [];
+    list.push(account);
+    accountsByProvider.set(key, list);
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
       <section>
@@ -36,12 +47,15 @@ export default async function SettingsPage() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-bold text-gray-900">✉️ 이메일 계정 (SMTP)</h2>
-        <div className="space-y-3">
-          {(accounts ?? []).map((account: SmtpAccountData) => (
-            <SmtpAccountCard key={account.id} account={account} />
+        <div className="space-y-4">
+          {SMTP_PROVIDER_PRESETS.map((preset) => (
+            <ProviderAccountSection
+              key={preset.value}
+              preset={preset}
+              accounts={accountsByProvider.get(preset.value) ?? []}
+            />
           ))}
         </div>
-        <SmtpAccountForm />
       </section>
 
       <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
