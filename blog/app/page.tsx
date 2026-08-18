@@ -7,6 +7,8 @@ import { createClient } from '@/blog/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import CategoryManagementModal from './_components/CategoryManagementModal'
 
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -225,6 +227,9 @@ export default function HomePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <a href={`${MAIN_SITE_URL}/programs`} className="mb-4 inline-block text-xs font-semibold text-slate-500 hover:text-slate-900">
+        ← 다른 프로그램 보기
+      </a>
       {/* =================== HERO =================== */}
       <section className="text-center mb-12">
         <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">

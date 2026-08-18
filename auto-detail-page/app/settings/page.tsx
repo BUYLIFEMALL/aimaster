@@ -7,6 +7,8 @@ import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
+
 // 이 프로그램이 실제로 쓰는 provider만 노출한다: anthropic(상세페이지 본문),
 // gemini(나노바나나 이미지), openai(GPT Image 1), replicate(FLUX 이미지).
 const PROVIDERS: ApiKeyProvider[] = ["anthropic", "gemini", "openai", "replicate"];
@@ -25,9 +27,15 @@ export default async function SettingsPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="max-w-2xl mx-auto px-4 py-10">
-        <Link href="/" className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4">
+        <Link href="/" className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-1">
           ← 상세페이지 만들기로 돌아가기
         </Link>
+        <a
+          href={`${MAIN_SITE_URL}/programs`}
+          className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4"
+        >
+          ← 다른 프로그램 보기
+        </a>
         <h1 className="mb-2 text-2xl font-black text-gray-900">API 키 설정</h1>
         <p className="mb-6 text-sm text-gray-500">
           상세페이지 생성(Claude)과 이미지 생성 기능을 쓰려면 반드시 본인의 API 키를 등록해야

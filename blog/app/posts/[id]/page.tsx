@@ -7,6 +7,8 @@ import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
 
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+
 /* ------------------------------------------------------------------ */
 /*  HTML5 Canvas Image Compression Helper                              */
 /* ------------------------------------------------------------------ */
@@ -290,6 +292,12 @@ export default function PostDetailPage() {
           <Link href={getBlogBasePath() || '/'} className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">AutoBlog</Link>
 
           <div className="flex items-center gap-3 flex-shrink-0">
+            <a
+              href={`${MAIN_SITE_URL}/programs`}
+              className="text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors hidden sm:inline"
+            >
+              ← 다른 프로그램 보기
+            </a>
             <Link href={getBlogBasePath() || '/'} className="p-2 text-zinc-500 hover:text-zinc-900 transition-colors" aria-label="검색">
               <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />

@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
 
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+
 interface Category {
   id: number
   name: string
@@ -260,6 +262,12 @@ export default function PostEditPage() {
               <span className="text-xl">✏️</span>
               <h1 className="text-lg font-bold text-white">스마트 에디터 (수정 페이지)</h1>
             </div>
+            <a
+              href={`${MAIN_SITE_URL}/programs`}
+              className="text-slate-400 hover:text-white text-xs font-medium transition-colors no-underline hidden sm:inline"
+            >
+              ← 다른 프로그램 보기
+            </a>
           </div>
           <button
             onClick={handleSubmit}
