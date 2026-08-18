@@ -63,16 +63,19 @@ stepmail은 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수
   반드시 redirect 대신 결과 객체를 반환하는 `checkProgramAccessApi()`로 로그인 여부뿐 아니라
   프로그램 이용 권한까지 확인한다. **단, `app/api/cron/dispatch/route.ts`는 예외다** — Vercel
   Cron이 보내는 시스템 간 호출이라 로그인 세션 자체가 없다(CRON_SECRET Bearer 인증으로 보호).
-- 사용자 소유 데이터 테이블(`stepmail_leads`, `stepmail_smtp_accounts`,
-  `stepmail_email_drafts`, `stepmail_campaigns`, `stepmail_campaign_smtp_accounts`,
-  `stepmail_send_log`)은 `user_id` + RLS owner-only 정책으로 격리한다.
+- 사용자 소유 데이터 테이블(`stepmail_leads`, `stepmail_email_drafts`, `stepmail_campaigns`,
+  `stepmail_campaign_smtp_accounts`, `stepmail_send_log`)은 `user_id` + RLS owner-only 정책으로
+  격리한다.
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
   그대로 쓴다. 이 프로그램은 `openai`(이메일 초안 작성) + `gemini`(초안 생성 시 핵심 주제를
   반영한 이미지 자동 생성, 선택 사항 — blog의 NanoBanana 이미지 생성 패턴 참고, 키 없으면
   이미지만 건너뛰고 텍스트 초안은 정상 생성) provider를 쓴다. 실제 발송 계정
   (SMTP)은 `user_api_keys`(단일 api_key 문자열 구조)와 안 맞아서 별도 테이블
-  `stepmail_smtp_accounts`(host/port/user/password)로 관리한다 — 본인 키만 허용 원칙은
-  동일하게 적용(관리자 공용 SMTP로 절대 폴백하지 않음).
+  `user_smtp_accounts`(host/port/user/password)로 관리한다 — 본인 키만 허용 원칙은
+  동일하게 적용(관리자 공용 SMTP로 절대 폴백하지 않음). 이 테이블은 텔레그램
+  (`user_telegram_links`)과 같은 이유로 프로그램 접두어 없이 공용으로 설계됐다 —
+  crm-google-form 등 다른 이메일 발송 프로그램에서도 그대로 재사용한다
+  (2026-08-18, `supabase/migrations/0006_promote_smtp_accounts_to_shared.sql`).
 - 발송은 루트 `lib/email/`(nodemailer, `docs/PLATFORM_PATTERNS.md`의 네이버 SMTP 트러블슈팅)과
   동일한 패턴을 쓰되, 계정을 여러 개(사용자별로 임의 개수) 등록할 수 있게 확장했다.
   **네이버 SMTP는 동시 연결 제한이 있어(421 Too many concurrent connection) 반드시 순차

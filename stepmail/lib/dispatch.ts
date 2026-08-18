@@ -49,7 +49,7 @@ export async function dispatchCampaign(
   if (accountIds.length === 0) return { sentCount: 0, failedCount: 0 };
 
   const { data: accountRows } = await supabase
-    .from("stepmail_smtp_accounts")
+    .from("user_smtp_accounts")
     .select("id, smtp_host, smtp_port, smtp_user, smtp_password, from_name, is_active")
     .in("id", accountIds);
 

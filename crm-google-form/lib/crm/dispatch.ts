@@ -36,7 +36,7 @@ export async function dispatchSubmissionNotifications(
 
   if (source.notify_email && submission.email) {
     const { data: smtpAccount } = await admin
-      .from("crm_smtp_accounts")
+      .from("user_smtp_accounts")
       .select("smtp_host, smtp_port, smtp_user, smtp_password, from_name, label")
       .eq("user_id", source.user_id)
       .eq("is_active", true)

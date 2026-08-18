@@ -120,6 +120,16 @@ real_estate_sales(부동산 실시간 매매정보)에서 서울 열린데이터
 
 핵심 코드: `real_estate_sales/src/lib/telegram/client.ts`의 `findChatIdFromUpdates()`, `real_estate_sales/src/lib/actions/telegram.ts`.
 
+**같은 철학으로 SMTP 이메일 계정도 공용화했다** (2026-08-18) — 원래 stepmail 전용
+`stepmail_smtp_accounts`였는데, crm-google-form을 만들면서 사용자가 "본인 이메일 계정을
+프로그램마다 또 등록해야 하냐"고 지적해서 프로그램 접두어 없는 `user_smtp_accounts`로
+승격(rename)했다. `ALTER TABLE ... RENAME TO`는 id/인덱스/트리거/RLS/기존 FK 관계를 전부
+그대로 보존하므로(Postgres가 제약조건을 OID로 추적), 데이터 이전이나 FK 재매핑 없이
+테이블명만 바꾸는 것으로 충분했다 — 실 데이터가 있는 테이블을 공용화할 때 이 방법을
+우선 고려할 것. 이메일 발송이 필요한 다음 서브프로젝트는 `user_smtp_accounts`
+(host/port/user/password, RLS owner-only)를 그대로 재사용한다. 핵심 코드:
+`stepmail/lib/email/transport.ts`, `stepmail/lib/actions/smtpAccounts.ts`.
+
 ---
 
 ## 10. 검증 루틴 (모든 서브프로젝트 공통)

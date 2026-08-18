@@ -14,7 +14,7 @@ export default async function SettingsPage() {
 
   const [{ data: accounts }, { data: telegramLink }] = await Promise.all([
     supabase
-      .from("crm_smtp_accounts")
+      .from("user_smtp_accounts")
       .select("id, label, provider, smtp_host, smtp_port, smtp_user, from_name, is_active")
       .eq("user_id", user.id)
       .order("created_at", { ascending: true }),

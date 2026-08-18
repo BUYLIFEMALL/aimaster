@@ -11,7 +11,7 @@ export default async function NewCampaignPage({ searchParams }: { searchParams: 
   const [{ data: drafts }, { data: smtpAccounts }] = await Promise.all([
     supabase.from("stepmail_email_drafts").select("id, subject").eq("user_id", user.id).order("created_at", { ascending: false }),
     supabase
-      .from("stepmail_smtp_accounts")
+      .from("user_smtp_accounts")
       .select("id, label, is_active")
       .eq("user_id", user.id)
       .order("created_at", { ascending: true }),

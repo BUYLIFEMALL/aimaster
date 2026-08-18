@@ -29,7 +29,7 @@ export async function createSmtpAccountAction(formData: FormData): Promise<Creat
   if (!smtpPassword) return { error: "비밀번호(앱 비밀번호)를 입력해주세요." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("crm_smtp_accounts").insert({
+  const { error } = await supabase.from("user_smtp_accounts").insert({
     user_id: user.id,
     label,
     provider,
@@ -72,7 +72,7 @@ export async function updateSmtpAccountAction(accountId: string, formData: FormD
   } = { label, smtp_host: smtpHost, smtp_port: smtpPort, smtp_user: smtpUser, from_name: fromName };
   if (smtpPassword) updatePayload.smtp_password = smtpPassword;
 
-  const { error } = await supabase.from("crm_smtp_accounts").update(updatePayload).eq("id", accountId).eq("user_id", user.id);
+  const { error } = await supabase.from("user_smtp_accounts").update(updatePayload).eq("id", accountId).eq("user_id", user.id);
 
   if (error) return { error: error.message };
 
@@ -85,7 +85,7 @@ export async function deleteSmtpAccountAction(accountId: string): Promise<{ erro
   const supabase = await createClient();
 
   const { error } = await supabase
-    .from("crm_smtp_accounts")
+    .from("user_smtp_accounts")
     .delete()
     .eq("id", accountId)
     .eq("user_id", user.id);
@@ -100,7 +100,7 @@ export async function toggleSmtpAccountActiveAction(accountId: string, isActive:
   const supabase = await createClient();
 
   const { error } = await supabase
-    .from("crm_smtp_accounts")
+    .from("user_smtp_accounts")
     .update({ is_active: isActive })
     .eq("id", accountId)
     .eq("user_id", user.id);
@@ -121,7 +121,7 @@ export async function testSmtpAccountAction(accountId: string): Promise<TestSmtp
   const supabase = await createClient();
 
   const { data: account, error: fetchError } = await supabase
-    .from("crm_smtp_accounts")
+    .from("user_smtp_accounts")
     .select("smtp_host, smtp_port, smtp_user, smtp_password, from_name, label")
     .eq("id", accountId)
     .eq("user_id", user.id)

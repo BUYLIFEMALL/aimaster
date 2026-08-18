@@ -86,7 +86,7 @@ export interface Database {
         };
         Relationships: [];
       };
-      crm_smtp_accounts: {
+      user_smtp_accounts: {
         Row: {
           id: string;
           user_id: string;
