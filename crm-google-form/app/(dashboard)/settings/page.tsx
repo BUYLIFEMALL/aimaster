@@ -64,6 +64,8 @@ export default async function SettingsPage() {
         </div>
       </section>
 
+      <SolapiAccountSection account={solapiAccount ?? null} />
+
       <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
 
@@ -108,8 +110,6 @@ export default async function SettingsPage() {
           </div>
         )}
       </section>
-
-      <SolapiAccountSection account={solapiAccount ?? null} />
     </div>
   );
 }
