@@ -4,6 +4,8 @@
 이메일·문자·카카오 알림톡·카카오 친구톡을 자동으로 보내고, 운영자 본인 텔레그램으로도
 신청 내역을 요약해 전달하는 CRM 자동화 프로그램입니다.
 
+**배포 URL**: https://crm-google-form.vercel.app (Vercel 프로젝트: `buylife/crm-google-form`)
+
 기존에 Make.com으로 운영하던 자동화 시나리오
 (`D:\PDS\@GoogleForm(신청접수)-Gmail-SOLAPI(SMS)-SOLAPI(알림톡)-SOLAPI(친구톡)-Telegram.blueprint.json`)를
 AIMaster 서브프로젝트로 이식한 것입니다 — 원본은 특정 구글 계정 하나가 폼 하나만 감시하는
