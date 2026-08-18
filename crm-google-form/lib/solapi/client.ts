@@ -14,6 +14,7 @@ export interface SolapiAccountCredentials {
   api_secret: string;
   sender_phone: string;
   kakao_pf_id: string | null;
+  rcs_brand_id: string | null;
 }
 
 function createService(account: Pick<SolapiAccountCredentials, "api_key" | "api_secret">) {
@@ -62,6 +63,33 @@ export async function sendFriendtalk(account: SolapiAccountCredentials, to: stri
     kakaoOptions: {
       pfId: account.kakao_pf_id,
       adFlag: false,
+    },
+  });
+}
+
+/**
+ * RCS(3세대 문자) 프로모션 메시지. 브랜드 인증(rcs_brand_id)이 SOLAPI 콘솔에서 사전 승인돼
+ * 있어야 발송 가능하다. 짧은 문구는 RCS_SMS, 긴 문구는 RCS_LMS로 자동 분기한다(일반 SMS의
+ * 45자 기준을 그대로 따름).
+ */
+export async function sendRcs(
+  account: SolapiAccountCredentials,
+  to: string,
+  text: string,
+  params?: { imageId?: string; buttons?: { buttonName: string; buttonType: "WL"; link: string }[] },
+): Promise<void> {
+  if (!account.rcs_brand_id) throw new Error("RCS 브랜드 인증 ID(brandId)가 등록되어 있지 않습니다.");
+  const service = createService(account);
+  const isLong = Array.from(text).length > 45;
+  await service.send({
+    to,
+    from: account.sender_phone,
+    type: isLong ? "RCS_LMS" : "RCS_SMS",
+    text,
+    rcsOptions: {
+      brandId: account.rcs_brand_id,
+      mmsType: params?.imageId ? "M4" : undefined,
+      buttons: params?.buttons,
     },
   });
 }

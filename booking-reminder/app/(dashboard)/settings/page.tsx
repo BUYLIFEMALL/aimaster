@@ -27,7 +27,7 @@ export default async function SettingsPage() {
       .maybeSingle(),
     supabase
       .from("user_solapi_accounts")
-      .select("api_key, sender_phone, kakao_pf_id")
+      .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id")
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);

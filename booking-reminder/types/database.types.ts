@@ -183,6 +183,7 @@ export interface Database {
           api_secret: string;
           sender_phone: string;
           kakao_pf_id: string | null;
+          rcs_brand_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -192,6 +193,7 @@ export interface Database {
           api_secret: string;
           sender_phone: string;
           kakao_pf_id?: string | null;
+          rcs_brand_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -201,6 +203,7 @@ export interface Database {
           api_secret?: string;
           sender_phone?: string;
           kakao_pf_id?: string | null;
+          rcs_brand_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

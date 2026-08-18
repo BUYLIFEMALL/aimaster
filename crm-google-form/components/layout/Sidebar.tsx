@@ -3,12 +3,10 @@ import { signOutAction } from "@/lib/actions/auth";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
-// Phase 1: 구글폼 연동(시트+Apps Script 웹훅) + 접수 내역 + 이메일(SMTP) 자동발송까지 구현한다.
-// Phase 2~3(SMS/카카오)이 실제로 만들어질 때마다 항목을 추가한다
-// (AGENTS.md/README.md "Phase 진행 상태" 표와 동기화할 것).
 const NAV_ITEMS = [
   { href: "/sources", label: "1. 구글폼 연결" },
   { href: "/submissions", label: "2. 접수 내역" },
+  { href: "/promotions", label: "📢 RCS 프로모션 발송" },
   { href: "/settings", label: "🔑 발송 계정 설정" },
 ];
 

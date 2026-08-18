@@ -91,6 +91,22 @@ https://solapi.com/notices/notices-2025-12-04). 기존 `type:"CTA"` 요청 코�
 되므로(개발자 코드 변경 불필요), `lib/solapi/client.ts`의 `sendFriendtalk()`는 그대로
 `type:"CTA"`를 명시하는 방식으로 구현했다.
 
+### 2-2-1. RCS 프로모션 발송 (Phase 5)
+SOLAPI가 `/msg` 페이지에서 소개한 RCS(3세대 문자, 브랜드 인증 로고+이미지+버튼으로 신뢰도가
+높은 채널)를 프로모션 메시지용으로 추가했다. 다른 채널(이메일/SMS/알림톡/친구톡)이 전부
+"접수 시점" 또는 "N일 후"처럼 자동 트리거 기반인 것과 달리, RCS는 **사용자가 화면에서 대상을
+직접 골라 즉시 1회성으로 보내는 프로모션 발송**이라 규칙 테이블을 따로 두지 않고
+`/promotions` 페이지 + `sendRcsPromotionAction()`으로 즉시 실행한다(자동화 규칙이 아니므로
+DB에 영구 저장하지 않음, 발송 결과만 화면에 즉시 표시).
+
+- `user_solapi_accounts`에 `rcs_brand_id`(SOLAPI 콘솔에서 사전 승인받는 RCS 브랜드 인증 ID)
+  컬럼을 추가했다 — 카카오 채널(`kakao_pf_id`)과 동일한 성격(선택 사항, 해당 채널 쓸 사용자만
+  등록).
+- `sendRcs()`는 텍스트 길이(45자 기준)로 `RCS_SMS`/`RCS_LMS` 타입을 자동 분기한다.
+- 대량 발송(실제 비용 발생)이라 서버 액션이 자동으로 실행되지 않고, 반드시 사용자가
+  `/promotions` 화면에서 수신자를 체크박스로 선택하고 버튼을 눌러야만 발송된다(브라우저
+  `confirm()`으로 한 번 더 확인).
+
 ### 2-3. 텔레그램 — 기존 공용 패턴 100% 재사용
 `docs/PLATFORM_PATTERNS.md` §9에서 이미 범용으로 설계해둔 `user_telegram_links` 테이블과
 `findChatIdFromUpdates()`/`sendTelegramMessage()`(real_estate_sales)를 코드 그대로 가져와
@@ -131,7 +147,7 @@ Next.js Data Cache에 걸리는 걸 완전히 막지 못했다 — 첫 요청 �
 - `user_smtp_accounts` — 공용 테이블(프로그램 접두어 없음). user_id, label, host, port, user,
   password, from_name (원래 stepmail 전용이었다가 승격됨, § 2-1 참고)
 - `user_solapi_accounts` — 공용 테이블(프로그램 접두어 없음, 처음부터). user_id unique, api_key,
-  api_secret, sender_phone, kakao_pf_id
+  api_secret, sender_phone, kakao_pf_id, rcs_brand_id(Phase 5에서 추가)
 - `user_telegram_links` — 공용 테이블(real_estate_sales가 원 소유), 그대로 재사용
 
 전부 `user_id` + RLS owner-only 정책 적용(웹훅/cron 라우트만 `createAdminClient()`로 service

@@ -18,6 +18,7 @@ export async function saveSolapiAccountAction(formData: FormData): Promise<Solap
   const apiSecret = String(formData.get("apiSecret") ?? "").trim();
   const senderPhone = String(formData.get("senderPhone") ?? "").trim();
   const kakaoPfId = String(formData.get("kakaoPfId") ?? "").trim() || null;
+  const rcsBrandId = String(formData.get("rcsBrandId") ?? "").trim() || null;
 
   if (!apiKey) return { error: "API Key를 입력해주세요." };
   if (!apiSecret) return { error: "API Secret을 입력해주세요." };
@@ -31,6 +32,7 @@ export async function saveSolapiAccountAction(formData: FormData): Promise<Solap
       api_secret: apiSecret,
       sender_phone: senderPhone,
       kakao_pf_id: kakaoPfId,
+      rcs_brand_id: rcsBrandId,
     },
     { onConflict: "user_id" },
   );
@@ -93,7 +95,7 @@ export async function testSolapiSmsAction(toPhone: string): Promise<TestSolapiSm
 
   const { data: account, error: fetchError } = await supabase
     .from("user_solapi_accounts")
-    .select("api_key, api_secret, sender_phone, kakao_pf_id")
+    .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id")
     .eq("user_id", user.id)
     .maybeSingle();
 

@@ -13,6 +13,7 @@ export interface SolapiAccountData {
   api_key: string;
   sender_phone: string;
   kakao_pf_id: string | null;
+  rcs_brand_id: string | null;
 }
 
 function maskApiKey(key: string): string {
@@ -88,7 +89,7 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
   return (
     <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">📱 SOLAPI (문자·카카오 알림톡·친구톡)</h2>
+        <h2 className="text-lg font-bold text-gray-900">📱 SOLAPI (문자·카카오·RCS)</h2>
         {account && !isEditing && (
           <button type="button" onClick={() => setIsEditing(true)} className="text-xs font-semibold text-blue-600 hover:underline">
             ✏️ 수정
@@ -100,8 +101,8 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
           solapi.com
         </a>
         에서 발급받은 API Key/Secret과, SOLAPI에 등록·인증된 발신번호를 등록하세요. 카카오
-        알림톡·친구톡을 쓰려면 카카오 비즈니스 채널 ID(pfId)도 함께 등록해야 합니다(SMS만 쓸
-        거면 비워둬도 됩니다).
+        알림톡·친구톡을 쓰려면 카카오 비즈니스 채널 ID(pfId)를, RCS 프로모션 메시지를 쓰려면
+        브랜드 인증 ID(brandId)를 함께 등록해야 합니다(SMS만 쓸 거면 둘 다 비워둬도 됩니다).
       </p>
 
       {account && !isEditing ? (
@@ -111,7 +112,10 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
           </p>
           <p className="text-sm text-gray-700">발신번호: {account.sender_phone}</p>
           <p className="text-sm text-gray-700">
-            카카오 채널(pfId): {account.kakao_pf_id ?? <span className="text-gray-400">미등록 (SMS만 발송 가능)</span>}
+            카카오 채널(pfId): {account.kakao_pf_id ?? <span className="text-gray-400">미등록</span>}
+          </p>
+          <p className="text-sm text-gray-700">
+            RCS 브랜드(brandId): {account.rcs_brand_id ?? <span className="text-gray-400">미등록</span>}
           </p>
 
           <div className="flex flex-wrap items-center gap-3 border-t border-gray-200 pt-3">
@@ -181,6 +185,10 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
               <label className="block text-sm font-semibold text-gray-700 mb-1">카카오 채널 ID (pfId, 선택)</label>
               <input name="kakaoPfId" defaultValue={account?.kakao_pf_id ?? ""} placeholder="KA01PF..." className="input" />
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">RCS 브랜드 인증 ID (brandId, 선택)</label>
+            <input name="rcsBrandId" defaultValue={account?.rcs_brand_id ?? ""} placeholder="RCS 프로모션 메시지를 쓸 때만 입력" className="input" />
           </div>
           {saveError && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{saveError}</p>}
           <div className="flex gap-2">
