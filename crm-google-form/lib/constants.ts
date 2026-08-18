@@ -10,5 +10,6 @@ export interface SmtpProviderPreset {
 export const SMTP_PROVIDER_PRESETS: SmtpProviderPreset[] = [
   { value: "gmail", label: "Google (Gmail)", host: "smtp.gmail.com", port: 587 },
   { value: "naver", label: "네이버 메일", host: "smtp.naver.com", port: 465 },
+  { value: "daum", label: "다음(카카오) 메일", host: "smtp.daum.net", port: 465 },
   { value: "other", label: "기타 (직접 입력)", host: "", port: 587 },
 ];
