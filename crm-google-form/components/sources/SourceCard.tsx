@@ -187,9 +187,9 @@ export function SourceCard({ source }: { source: FormSourceData }) {
         <button
           type="submit"
           disabled={isSavingMapping}
-          className="rounded-lg bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-200 disabled:opacity-60"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60"
         >
-          {isSavingMapping ? "저장 중..." : "필드 매핑 저장"}
+          {isSavingMapping ? "저장 중..." : "필드값 매핑 저장"}
         </button>
       </form>
 
