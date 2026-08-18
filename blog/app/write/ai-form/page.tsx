@@ -6,7 +6,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
-import { getBlogBasePath } from '@/blog/utils/basePath'
+import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -241,7 +241,7 @@ function AiFormPageInner() {
             >
               ← 다른 프로그램 보기
             </a>
-            {userEmail ? <span>{userEmail}</span> : <Link href={`${basePath}/auth`}>로그인</Link>}
+            {userEmail ? <span>{userEmail}</span> : <Link href={getBlogAuthPath()}>로그인</Link>}
           </div>
         </div>
       </header>

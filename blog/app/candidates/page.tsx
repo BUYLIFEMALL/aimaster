@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
-import { getBlogBasePath } from '@/blog/utils/basePath'
+import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -102,7 +102,7 @@ export default function CandidatesPage() {
     supabase.auth.getUser().then(async ({ data }: any) => {
       const user = data?.user
       if (!user) {
-        router.push(`${getBlogBasePath()}/auth?redirect=${getBlogBasePath()}/candidates`)
+        router.push(`${getBlogAuthPath()}?redirect=${getBlogBasePath()}/candidates`)
         return
       }
       setUserEmail(user.email ?? null)
@@ -219,7 +219,7 @@ export default function CandidatesPage() {
             >
               ← 다른 프로그램 보기
             </a>
-            {userEmail ? <span>{userEmail}</span> : <Link href={`${basePath}/auth`}>로그인</Link>}
+            {userEmail ? <span>{userEmail}</span> : <Link href={getBlogAuthPath()}>로그인</Link>}
           </div>
         </div>
       </header>

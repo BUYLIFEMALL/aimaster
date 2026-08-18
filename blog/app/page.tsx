@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
-import { getBlogBasePath } from '@/blog/utils/basePath'
+import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import CategoryManagementModal from './_components/CategoryManagementModal'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
@@ -81,7 +81,7 @@ export default function HomePage() {
     supabase.auth.getUser().then(({ data }: any) => {
       const user = data?.user
       if (!user) {
-        router.push(`${getBlogBasePath()}/auth?redirect=${getBlogBasePath()}`)
+        router.push(`${getBlogAuthPath()}?redirect=${getBlogBasePath()}`)
         return
       }
       setUserId(user.id)

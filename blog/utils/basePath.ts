@@ -7,3 +7,12 @@ export function getBlogBasePath(): string {
   if (typeof window === "undefined") return "";
   return window.location.pathname.startsWith("/blog") ? "/blog" : "";
 }
+
+// AIMaster 루트에 내장된 배포는 "/blog/auth"라는 경로가 존재하지 않는다
+// (blog 자체 배포에만 있는 app/auth 라우트라 루트 app/(main)/blog/*에는 옮겨오지
+// 않았음 — 2026-08-19, 로그인 세션이 잠깐이라도 비어 보이면 이 경로로 튕겨나가
+// 404가 뜨는 버그로 실사용자가 접근 불가를 겪은 것을 확인해 추가).
+// 루트 내장 배포에서는 AIMaster의 실제 로그인 페이지("/login")로 보낸다.
+export function getBlogAuthPath(): string {
+  return getBlogBasePath() === "/blog" ? "/login" : "/auth";
+}
