@@ -139,7 +139,35 @@ real_estate_sales(부동산 실시간 매매정보)에서 서울 열린데이터
 
 ---
 
-## 10. 검증 루틴 (모든 서브프로젝트 공통)
+## 10. cron/웹훅 라우트는 `dynamic = "force-dynamic"`만으로 캐시가 안 꺼질 수 있다
+
+crm-google-form의 팔로우업 cron(`app/api/cron/followup`)을 만들면서, `export const dynamic =
+"force-dynamic"`을 선언했는데도 supabase-js(`createAdminClient()`)로 조회한 결과가 **첫
+요청 시점 그대로 계속 캐싱되는 버그**를 실제로 재현했다(2026-08-18, 로컬 개발 서버 — DB를
+바꾼 뒤 같은 서버 프로세스에서 같은 라우트를 다시 호출해도 이전 응답이 그대로 나옴, 서버를
+재시작해야만 최신 데이터가 반영됨). Next.js 14 App Router의 Data Cache가 route handler
+내부에서 실행되는 라이브러리의 `fetch` 호출까지 캐싱하는데, `dynamic = "force-dynamic"`이
+이걸 항상 확실하게 꺼주지는 않는 것으로 보인다.
+
+- **cron이나 웹훅처럼 "매 요청 최신 DB 상태를 읽어야 하는" 라우트에는 반드시
+  `export const fetchCache = "force-no-store";`를 `dynamic = "force-dynamic"`과 함께
+  명시할 것.** 이게 진짜 확실한 방법이다.
+- Vercel Fluid Compute는 함수 인스턴스를 재사용(warm)하므로, 로컬에서 재현된 이 문제가
+  프로덕션에서도 "같은 warm 인스턴스가 두 번째 호출부터 오래된 데이터를 반환"하는 형태로
+  나타날 수 있다 — 배포 후 최초 1회만 정상 동작하고 이후 며칠간 안 바뀌는 것처럼 보이는
+  버그로 나타나기 쉬워서 알아차리기 어렵다.
+- 새 cron 라우트를 만들 때는 이 두 줄을 세트로 취급할 것:
+  ```ts
+  export const dynamic = "force-dynamic";
+  export const fetchCache = "force-no-store";
+  ```
+
+핵심 코드: `crm-google-form/app/api/cron/followup/route.ts`,
+`crm-google-form/app/api/webhooks/form-submit/[token]/route.ts`.
+
+---
+
+## 11. 검증 루틴 (모든 서브프로젝트 공통)
 
 코드 변경 시마다 다음 순서로 검증 후 배포한다 — 세션 내내 이 순서를 지켰음.
 

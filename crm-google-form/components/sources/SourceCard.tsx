@@ -9,6 +9,7 @@ import {
   updateFieldMappingAction,
   updateKakaoConfigAction,
 } from "@/lib/actions/sources";
+import { FollowupRulesSection, type FollowupRuleData } from "@/components/sources/FollowupRulesSection";
 
 export interface FormSourceData {
   id: string;
@@ -59,7 +60,7 @@ function CopyButton({ text }: { text: string }) {
 
 type NotifyChannel = "notify_email" | "notify_telegram" | "notify_sms" | "notify_alimtalk" | "notify_friendtalk";
 
-export function SourceCard({ source }: { source: FormSourceData }) {
+export function SourceCard({ source, followupRules }: { source: FormSourceData; followupRules: FollowupRuleData[] }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
@@ -280,6 +281,8 @@ export function SourceCard({ source }: { source: FormSourceData }) {
           </button>
         </form>
       )}
+
+      <FollowupRulesSection formSourceId={source.id} rules={followupRules} />
     </div>
   );
 }

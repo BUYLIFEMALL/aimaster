@@ -6,6 +6,13 @@ import { dispatchSubmissionNotifications } from "@/lib/crm/dispatch";
 // checkProgramAccessApi()를 쓸 수 없고, URL의 webhook_token이 crm_form_sources의 실제
 // 레코드와 매칭되는지로만 신뢰성을 확보한다 (music의 Suno 웹훅과 동일 원칙,
 // docs/ARCHITECTURE.md §1 참고).
+//
+// fetchCache를 명시적으로 꺼둔다 — Next.js Data Cache가 supabase-js의 내부 fetch를 캐싱해서
+// is_active 토글 등 최근 변경사항을 못 읽는 문제가 실제로 재현된 적이 있다(app/api/cron/followup
+// 참고). 웹훅은 매 요청 최신 상태를 읽어야 하므로 동일하게 방어적으로 적용한다.
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export async function POST(req: NextRequest, { params }: { params: { token: string } }) {
   const token = params.token;
   if (!token) {

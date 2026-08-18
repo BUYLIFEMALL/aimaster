@@ -1,4 +1,5 @@
 export type SubmissionStatus = "received" | "notified" | "failed";
+export type FollowupSendStatus = "sent" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -98,6 +99,93 @@ export interface Database {
           status?: SubmissionStatus;
           error_message?: string | null;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      crm_followup_rules: {
+        Row: {
+          id: string;
+          user_id: string;
+          form_source_id: string;
+          name: string;
+          days_after: number;
+          channel_email: boolean;
+          channel_sms: boolean;
+          channel_alimtalk: boolean;
+          channel_friendtalk: boolean;
+          message_subject: string | null;
+          message_text: string;
+          kakao_template_id: string | null;
+          kakao_variables: Record<string, string>;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          form_source_id: string;
+          name: string;
+          days_after: number;
+          channel_email?: boolean;
+          channel_sms?: boolean;
+          channel_alimtalk?: boolean;
+          channel_friendtalk?: boolean;
+          message_subject?: string | null;
+          message_text: string;
+          kakao_template_id?: string | null;
+          kakao_variables?: Record<string, string>;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          form_source_id?: string;
+          name?: string;
+          days_after?: number;
+          channel_email?: boolean;
+          channel_sms?: boolean;
+          channel_alimtalk?: boolean;
+          channel_friendtalk?: boolean;
+          message_subject?: string | null;
+          message_text?: string;
+          kakao_template_id?: string | null;
+          kakao_variables?: Record<string, string>;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      crm_followup_sends: {
+        Row: {
+          id: string;
+          user_id: string;
+          rule_id: string;
+          submission_id: string;
+          status: FollowupSendStatus;
+          error_message: string | null;
+          sent_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          rule_id: string;
+          submission_id: string;
+          status: FollowupSendStatus;
+          error_message?: string | null;
+          sent_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          rule_id?: string;
+          submission_id?: string;
+          status?: FollowupSendStatus;
+          error_message?: string | null;
+          sent_at?: string;
         };
         Relationships: [];
       };

@@ -97,6 +97,27 @@ https://solapi.com/notices/notices-2025-12-04). 기존 `type:"CTA"` 요청 코�
 쓴다. real_estate_sales에서 이미 텔레그램을 연결한 회원은 이 프로그램에서 다시 연결할
 필요 없이 바로 재사용된다(테이블이 프로그램 접두어 없이 설계된 이유).
 
+### 2-4. 접수 후 팔로우업 자동화 (SOLAPI CRM 자동화 사례 벤치마킹)
+SOLAPI `/crm` 페이지가 소개한 활용 사례(신규 고객 온보딩 — 가입 즉시 환영 → 3일 후 사용법
+안내 → 7일 후 만족도 조사, 휴면 고객 재활성화 등)를 벤치마킹해서, 폼별로 "접수 후 N일 경과
+시 자동 메시지" 규칙을 여러 개 등록할 수 있게 했다(2026-08-18). `crm_followup_rules`에
+규칙(며칠 후, 어떤 채널, 어떤 메시지)을 저장하고, 매일 도는 Vercel Cron
+(`app/api/cron/followup`, `vercel.json`에 `0 0 * * *` = KST 09:00 등록)이 조건에 맞는
+접수건을 찾아 발송한다. 중복 발송 방지는 `crm_followup_sends`에 `(rule_id, submission_id)`
+유니크 제약으로 처리한다 — 이미 보낸 건은 다시 안 보낸다.
+
+**⚠️ 발견한 버그: Next.js Data Cache가 Supabase 조회 결과를 캐싱해서 cron이 오래된 데이터를
+계속 반환하는 문제**(2026-08-18, 로컬 개발 서버에서 재현). Route Handler에
+`export const dynamic = "force-dynamic"`만 선언해서는 supabase-js 내부 `fetch` 호출이
+Next.js Data Cache에 걸리는 걸 완전히 막지 못했다 — 첫 요청 시점의 응답이 서버 프로세스가
+살아있는 동안 계속 재사용됐다(개발 서버 재시작 전까지 재현). **`export const fetchCache =
+"force-no-store"`를 명시적으로 추가**해야 매 요청 최신 데이터를 읽는다. cron과 웹훅
+라우트, 그리고 이 프로젝트의 대시보드 페이지(`settings`/`sources`/`submissions`) 전부에
+방어적으로 적용했다. Vercel Fluid Compute는 함수 인스턴스를 재사용하므로, 이 문제를 안
+고치면 프로덕션에서도 warm 인스턴스가 오래된 데이터를 계속 반환할 수 있다 — **cron이나
+웹훅처럼 "매번 최신 데이터가 필수인" 라우트를 만들 때는 항상 `fetchCache =
+"force-no-store"`를 같이 선언할 것.**
+
 ## 3. DB 스키마 개요
 
 - `crm_form_sources` — user_id, name, webhook_token(unique), field_mapping(jsonb: 질문제목→표준필드),
@@ -104,14 +125,17 @@ https://solapi.com/notices/notices-2025-12-04). 기존 `type:"CTA"` 요청 코�
   kakao_template_id(text), kakao_variables(jsonb: `#{변수명}`→질문제목), created_at
 - `crm_submissions` — user_id, form_source_id, raw_values(jsonb), name/phone/email(매핑 결과 추출),
   status(received/notified/failed), created_at
+- `crm_followup_rules` — user_id, form_source_id, name, days_after, channel_*(boolean 4종),
+  message_subject/message_text, kakao_template_id/kakao_variables, is_active
+- `crm_followup_sends` — user_id, rule_id, submission_id(unique 조합으로 중복방지), status, sent_at
 - `user_smtp_accounts` — 공용 테이블(프로그램 접두어 없음). user_id, label, host, port, user,
   password, from_name (원래 stepmail 전용이었다가 승격됨, § 2-1 참고)
 - `user_solapi_accounts` — 공용 테이블(프로그램 접두어 없음, 처음부터). user_id unique, api_key,
   api_secret, sender_phone, kakao_pf_id
 - `user_telegram_links` — 공용 테이블(real_estate_sales가 원 소유), 그대로 재사용
 
-전부 `user_id` + RLS owner-only 정책 적용(웹훅 라우트만 `createServiceClient()`로 토큰 매칭 후
-`user_id` 기준 insert).
+전부 `user_id` + RLS owner-only 정책 적용(웹훅/cron 라우트만 `createAdminClient()`로 service
+role 사용 후 `user_id` 기준 필터링).
 
 ## 4. 원본 시나리오에서 발견한 이슈 (이식 시 수정)
 

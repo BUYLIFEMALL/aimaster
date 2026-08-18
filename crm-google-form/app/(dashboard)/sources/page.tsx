@@ -2,20 +2,38 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SourceCreateForm } from "@/components/sources/SourceCreateForm";
 import { SourceCard, type FormSourceData } from "@/components/sources/SourceCard";
+import type { FollowupRuleData } from "@/components/sources/FollowupRulesSection";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export default async function SourcesPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: sources } = await supabase
-    .from("crm_form_sources")
-    .select(
-      "id, name, webhook_token, field_mapping, notify_email, notify_telegram, notify_sms, notify_alimtalk, notify_friendtalk, kakao_template_id, kakao_variables, is_active",
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [{ data: sources }, { data: rules }] = await Promise.all([
+    supabase
+      .from("crm_form_sources")
+      .select(
+        "id, name, webhook_token, field_mapping, notify_email, notify_telegram, notify_sms, notify_alimtalk, notify_friendtalk, kakao_template_id, kakao_variables, is_active",
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("crm_followup_rules")
+      .select(
+        "id, form_source_id, name, days_after, channel_email, channel_sms, channel_alimtalk, channel_friendtalk, message_subject, message_text, kakao_template_id, kakao_variables, is_active",
+      )
+      .eq("user_id", user.id)
+      .order("days_after", { ascending: true }),
+  ]);
+
+  const rulesBySource = new Map<string, FollowupRuleData[]>();
+  for (const rule of rules ?? []) {
+    const list = rulesBySource.get(rule.form_source_id) ?? [];
+    list.push(rule);
+    rulesBySource.set(rule.form_source_id, list);
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-6">
@@ -32,7 +50,7 @@ export default async function SourcesPage() {
 
       <div className="space-y-4">
         {(sources ?? []).map((source: FormSourceData) => (
-          <SourceCard key={source.id} source={source} />
+          <SourceCard key={source.id} source={source} followupRules={rulesBySource.get(source.id) ?? []} />
         ))}
         {(sources ?? []).length === 0 && (
           <p className="text-center text-sm text-gray-400 py-8">아직 연결된 구글폼이 없습니다.</p>
