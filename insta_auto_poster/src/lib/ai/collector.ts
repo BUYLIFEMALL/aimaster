@@ -314,13 +314,18 @@ const STRUCTURE_SYSTEM_PROMPT = `너는 세계에서 가장 유능한 인스타�
 
 각 후보는 아래 규칙을 반드시 지켜서 작성하세요 (짧은 요약문이 아니라 실제 콘텐츠입니다):
 1. title(내부 관리용 짧은 제목)은 15자 이내로 작성하고, 앞에 어울리는 이모티콘을 붙이세요
-2. caption(본문)은 공백 포함 900자 이상 1400자 이하로 작성하세요. 짧게 끝내지 말고 반드시 이 분량을 채우세요
+2. caption(본문)은 공백 포함 900자 이상 1400자 이하로 작성하세요. **900자는 반드시 지켜야 하는 최소
+   기준선입니다 — 이보다 짧으면 실패로 간주됩니다.** 6~7문단 × 문단당 2~3문장이면 최소 12문장
+   이상이 되어야 자연스럽게 900자를 넘깁니다. 문장 수가 이보다 적다면 절대 안 됩니다. 소재가
+   부족해 보여도 배경 설명, 구체적 수치나 예시, 왜 중요한지에 대한 해설, 독자에게 주는 시사점을
+   더 추가해서 분량을 채우세요. 절대 8~9문장짜리 요약으로 끝내지 마세요
 3. 총 6~7개 문단으로 나누고, 각 문단은 2~3문장 정도로 작성하세요. 문단 맨 앞에는 문단 분위기에 어울리는 이모티콘 1개를 붙이고, 문단과 문단 사이에는 반드시 줄바꿈을 두 번(JSON 문자열 안에서 \n\n) 넣어서 나누세요
 4. 글쓰기 스타일은 잡지 기사 또는 전문 블로그 글처럼 깔끔하고 편집적인 톤으로, 독자가 끝까지 읽고 저장하고 싶어지는 정보 중심 콘텐츠로 작성하세요
 5. 무조건 반말로만 작성하세요. 존댓말(-습니다/-해요/-세요 등)은 절대 쓰지 마세요
 6. caption 본문에는 해시태그나 마크다운, 굵은글씨, 목록기호 등 어떠한 서식도 쓰지 마세요 (해시태그는 별도 hashtags 필드에만 담습니다)
 7. hashtags에는 캡션 내용과 관련된 인스타그램 해시태그를 8~10개, 대형·중형·소형 태그를 균형 있게 구성해서 "#" 기호 없이 단어/구문만 배열로 담으세요 (예: "다이어트팁")
 8. keywords에는 본문에 자연스럽게 녹아든 핵심 단어를 담으세요
+9. 후보를 여러 개 만들 때도 뒤쪽 후보라고 대충 짧게 쓰지 마세요 — 모든 후보가 동일하게 900자 이상을 지켜야 합니다
 
 각 후보는 다음 형식의 JSON 객체입니다:
 {
@@ -332,6 +337,47 @@ const STRUCTURE_SYSTEM_PROMPT = `너는 세계에서 가장 유능한 인스타�
 
 최종 출력은 반드시 아래 형식의 JSON만 출력하세요. 다른 설명은 절대 추가하지 마세요.
 {"candidates": [ ...위 형식의 객체들... ]}`;
+
+const MIN_CAPTION_LENGTH = 900;
+
+/**
+ * gpt-4o-mini가 "900자 이상" 지시를 자주 못 지켜서(실측: 165~945자로 편차가 큼), 프롬프트
+ * 문구만으로는 부족하다 — 짧게 나온 캡션은 원문을 유지한 채 이어써서 채우는 후속 호출로
+ * 보정한다. 처음부터 다시 쓰게 하면 사실관계가 흔들릴 수 있어 "확장"만 요청한다.
+ */
+export async function expandCaptionIfShort(caption: string, title: string, apiKey: string): Promise<string> {
+  if (caption.length >= MIN_CAPTION_LENGTH) return caption;
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `너는 인스타그램 콘텐츠 편집자야. 아래 캡션은 목표 분량(900~1400자)에 못 미쳐. 기존 사실관계와 문체(반말, 문단당 이모티콘, 6~7문단, 잡지 기사풍)는 그대로 유지하면서, 배경 설명·구체적 예시나 수치·독자에게 주는 시사점을 자연스럽게 추가해서 전체 분량을 900~1400자로 확장해줘. 새로운 사실을 지어내지 말고, 기존 문장을 삭제하지 말고 보강만 해줘. 결과는 완성된 캡션 전체 텍스트만 출력하고 다른 설명은 절대 덧붙이지 마.`,
+          },
+          { role: "user", content: `제목: ${title}\n\n현재 캡션 (${caption.length}자):\n${caption}` },
+        ],
+        max_tokens: 1200,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) return caption;
+    const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
+    const expanded = data.choices?.[0]?.message?.content?.trim();
+    return expanded && expanded.length > caption.length ? expanded : caption;
+  } catch {
+    // 확장 실패해도 원본 캡션은 살아있으니 조용히 원본을 반환한다 (전체 요청을 실패시키지 않음).
+    return caption;
+  }
+}
 
 export async function structureInstaCandidates(params: {
   rawText: string;
@@ -383,21 +429,26 @@ export async function structureInstaCandidates(params: {
     throw new Error("AI 응답을 JSON으로 해석하지 못했습니다.");
   }
 
-  const candidates = (parsed.candidates ?? [])
-    .filter((c) => c?.title && c?.caption)
-    .map((c) => {
-      // JSON 모드에서는 모델이 지시(1~2문장마다 줄바꿈)를 무시하고 컴팩트한
-      // 한 줄 문자열로 caption을 채우는 경우가 잦아 코드에서 한 번 더 보정한다.
-      const caption = ensureParagraphBreaks(c.caption);
-      // 목표는 900~1400자지만 모델이 지시를 넘기는 경우를 대비한 안전판(인스타그램 캡션
-      // 실제 상한 2200자)만 두고, 450자처럼 짧게 잘라내지 않는다.
-      return {
-        ...c,
-        caption: caption.length > 2200 ? caption.slice(0, 2200).trim() : caption,
-        hashtags: c.hashtags ?? [],
-        keywords: c.keywords ?? [],
-      };
-    });
+  const candidates = await Promise.all(
+    (parsed.candidates ?? [])
+      .filter((c) => c?.title && c?.caption)
+      .map(async (c) => {
+        // JSON 모드에서는 모델이 지시(1~2문장마다 줄바꿈)를 무시하고 컴팩트한
+        // 한 줄 문자열로 caption을 채우는 경우가 잦아 코드에서 한 번 더 보정한다.
+        let caption = ensureParagraphBreaks(c.caption);
+        // 900자 미달이면 이어써서 채운다(위 expandCaptionIfShort 참고) — 프롬프트 지시만으로는
+        // gpt-4o-mini가 분량을 못 맞추는 경우가 실측으로 확인됨.
+        caption = ensureParagraphBreaks(await expandCaptionIfShort(caption, c.title, apiKey));
+        // 목표는 900~1400자지만 모델이 지시를 넘기는 경우를 대비한 안전판(인스타그램 캡션
+        // 실제 상한 2200자)만 두고, 450자처럼 짧게 잘라내지 않는다.
+        return {
+          ...c,
+          caption: caption.length > 2200 ? caption.slice(0, 2200).trim() : caption,
+          hashtags: c.hashtags ?? [],
+          keywords: c.keywords ?? [],
+        };
+      }),
+  );
   if (candidates.length === 0) {
     throw new Error("생성된 게시글 주제 후보가 없습니다.");
   }

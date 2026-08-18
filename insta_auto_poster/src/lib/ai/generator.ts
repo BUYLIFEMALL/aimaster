@@ -1,5 +1,6 @@
 import "server-only";
 import { ensureParagraphBreaks } from "./formatContent";
+import { expandCaptionIfShort } from "./collector";
 
 // blog(AutoBlog)/threads AI 글쓰기 폼과 동일한 5가지 톤 옵션
 export type InstaTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는";
@@ -235,8 +236,12 @@ const CARD_NEWS_CAPTION_SYSTEM_PROMPT = `당신은 인스타그램 콘텐츠 기
 
 전체 글 길이는 반드시
 900자 이상 1400자 이하로 작성하세요.
+900자는 반드시 지켜야 하는 최소 기준선입니다 — 이보다 짧으면 실패로 간주됩니다.
+소재가 부족해 보여도 배경 설명, 구체적 수치나 예시, 왜 중요한지에 대한 해설,
+독자에게 주는 시사점을 추가해서 분량을 채우세요.
 
 총 6~7개의 문단으로 나누어 작성하세요.
+문단당 2~3문장이면 최소 12문장 이상이어야 자연스럽게 900자를 넘깁니다.
 
 각 문단은 2~3문장 정도로 작성하세요.
 
@@ -333,8 +338,12 @@ export async function generateCardNewsCaption(
     throw new Error("AI가 캡션을 반환하지 않았습니다.");
   }
 
+  // 900자 미달이면 이어써서 채운다 — collector.ts의 structureInstaCandidates와 동일한
+  // 안전장치(프롬프트 지시만으로는 gpt-4o-mini가 분량을 못 맞추는 경우가 실측으로 확인됨).
+  const expanded = await expandCaptionIfShort(parsed.caption, input.title, apiKey);
+
   return {
-    caption: ensureParagraphBreaks(parsed.caption),
+    caption: ensureParagraphBreaks(expanded),
     hashtags: parsed.hashtags ?? [],
   };
 }
