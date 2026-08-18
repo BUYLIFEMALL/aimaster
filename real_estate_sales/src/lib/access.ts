@@ -94,6 +94,11 @@ export async function requireProgramAccess() {
     return user;
   }
 
+  // 일반 회원 (sort_order >= 1 또는 로그인 유저) 기본 접근 허용
+  if (!userGrade || userGrade.sort_order >= 1) {
+    return user;
+  }
+
   redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}`);
 }
 

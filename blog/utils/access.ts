@@ -74,13 +74,23 @@ export async function requireProgramAccess() {
     .maybeSingle()
   if (grant && isNotExpired(grant.expires_at)) return user!
 
-  if (!program.required_grade_id) return user!
-
   const { data: profile } = await sb
     .from('profiles')
-    .select('grade:member_grades(sort_order)')
+    .select('grade_id, grade:member_grades(sort_order)')
     .eq('id', user!.id)
     .single()
+
+  if (profile?.grade_id) {
+    const { data: gradeAccess } = await sb
+      .from('grade_program_access')
+      .select('can_access')
+      .eq('grade_id', profile.grade_id)
+      .eq('program_id', program.id)
+      .maybeSingle()
+    if (gradeAccess && (gradeAccess.can_access ?? true)) return user!
+  }
+
+  if (!program.required_grade_id) return user!
 
   const { data: requiredGrade } = await sb
     .from('member_grades')
@@ -90,6 +100,11 @@ export async function requireProgramAccess() {
 
   const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade
   if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order) {
+    return user!
+  }
+
+  // 일반 회원 (sort_order >= 1 또는 로그인 유저) 기본 접근 허용
+  if (!userGrade || userGrade.sort_order >= 1) {
     return user!
   }
 
@@ -165,13 +180,23 @@ export async function checkProgramAccessApi(): Promise<
     .maybeSingle()
   if (grant && isNotExpired(grant.expires_at)) return { allowed: true, user }
 
-  if (!program.required_grade_id) return { allowed: true, user }
-
   const { data: profile } = await sb
     .from('profiles')
-    .select('grade:member_grades(sort_order)')
+    .select('grade_id, grade:member_grades(sort_order)')
     .eq('id', user.id)
     .single()
+
+  if (profile?.grade_id) {
+    const { data: gradeAccess } = await sb
+      .from('grade_program_access')
+      .select('can_access')
+      .eq('grade_id', profile.grade_id)
+      .eq('program_id', program.id)
+      .maybeSingle()
+    if (gradeAccess && (gradeAccess.can_access ?? true)) return { allowed: true, user }
+  }
+
+  if (!program.required_grade_id) return { allowed: true, user }
 
   const { data: requiredGrade } = await sb
     .from('member_grades')
@@ -181,6 +206,11 @@ export async function checkProgramAccessApi(): Promise<
 
   const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade
   if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order) {
+    return { allowed: true, user }
+  }
+
+  // 일반 회원 (sort_order >= 1 또는 로그인 유저) 기본 접근 허용
+  if (!userGrade || userGrade.sort_order >= 1) {
     return { allowed: true, user }
   }
 
