@@ -142,7 +142,7 @@ export function SourceCard({ source }: { source: FormSourceData }) {
           </ol>
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <span className="font-semibold text-gray-700">웹훅 URL</span>
+              <span className="font-semibold text-gray-700">웹훅 URL (참고용)</span>
               <CopyButton text={webhookUrl} />
             </div>
             <code className="block break-all rounded-lg bg-white border border-gray-200 px-3 py-2 font-mono">{webhookUrl}</code>
