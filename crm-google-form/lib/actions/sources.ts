@@ -55,22 +55,54 @@ export async function updateFieldMappingAction(
   return {};
 }
 
+type NotifyChannel = "notify_email" | "notify_telegram" | "notify_sms" | "notify_alimtalk" | "notify_friendtalk";
+
 export async function toggleNotifyChannelAction(
   sourceId: string,
-  channel: "notify_email" | "notify_telegram",
+  channel: NotifyChannel,
   value: boolean,
 ): Promise<{ error?: string }> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const updatePayload = channel === "notify_email" ? { notify_email: value } : { notify_telegram: value };
   const { error } = await supabase
     .from("crm_form_sources")
-    .update(updatePayload)
+    .update({ [channel]: value } as Partial<Record<NotifyChannel, boolean>>)
     .eq("id", sourceId)
     .eq("user_id", user.id);
 
   if (error) return { error: error.message };
+  revalidatePath("/sources");
+  return {};
+}
+
+/** 알림톡 템플릿ID와, "#{변수명}=구글폼 질문 제목" 형식(줄바꿈 구분)의 변수 매핑을 저장한다. */
+export async function updateKakaoConfigAction(
+  sourceId: string,
+  formData: FormData,
+): Promise<FormSourceActionState> {
+  const user = await requireProgramAccess();
+
+  const templateId = String(formData.get("kakaoTemplateId") ?? "").trim() || null;
+  const variablesRaw = String(formData.get("kakaoVariables") ?? "");
+
+  const variables: Record<string, string> = {};
+  for (const line of variablesRaw.split("\n")) {
+    const [key, ...rest] = line.split("=");
+    const trimmedKey = key?.trim();
+    const value = rest.join("=").trim();
+    if (trimmedKey && value) variables[trimmedKey] = value;
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("crm_form_sources")
+    .update({ kakao_template_id: templateId, kakao_variables: variables })
+    .eq("id", sourceId)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
   revalidatePath("/sources");
   return {};
 }

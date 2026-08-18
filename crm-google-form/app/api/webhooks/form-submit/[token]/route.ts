@@ -23,7 +23,9 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
 
   const { data: source, error: sourceError } = await admin
     .from("crm_form_sources")
-    .select("id, user_id, name, field_mapping, notify_email, notify_telegram, is_active")
+    .select(
+      "id, user_id, name, field_mapping, notify_email, notify_telegram, notify_sms, notify_alimtalk, notify_friendtalk, kakao_template_id, kakao_variables, is_active",
+    )
     .eq("webhook_token", token)
     .maybeSingle();
 
@@ -62,7 +64,18 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
   }
 
   const result = await dispatchSubmissionNotifications(
-    { id: source.id, user_id: source.user_id, name: source.name, notify_email: source.notify_email, notify_telegram: source.notify_telegram },
+    {
+      id: source.id,
+      user_id: source.user_id,
+      name: source.name,
+      notify_email: source.notify_email,
+      notify_telegram: source.notify_telegram,
+      notify_sms: source.notify_sms,
+      notify_alimtalk: source.notify_alimtalk,
+      notify_friendtalk: source.notify_friendtalk,
+      kakao_template_id: source.kakao_template_id,
+      kakao_variables: source.kakao_variables as Record<string, string>,
+    },
     submission,
   );
 

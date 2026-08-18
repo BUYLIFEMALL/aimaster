@@ -62,18 +62,34 @@ function onFormSubmit(e) {
 원본은 Gmail API(`google-email:ActionSendEmail`, `from`이 응답자 이메일로 잘못 매핑돼 있던
 그 단계)를 썼지만, Gmail API 발신은 OAuth 인증 계정으로만 가능해서(§ 원본 이슈 참고)
 멀티테넌트로 그대로 옮기면 사용자마다 Google OAuth 연동이 또 필요해진다. 대신 stepmail이
-이미 검증한 **사용자 본인 SMTP 계정 등록** 패턴을 그대로 재사용한다(`crm_smtp_accounts`,
-stepmail의 `stepmail_smtp_accounts`와 동일 구조: host/port/user/password). 네이버 SMTP
+이미 검증한 **사용자 본인 SMTP 계정 등록** 패턴을 그대로 재사용한다. 처음엔 이 프로젝트
+전용 `crm_smtp_accounts`로 만들었다가, 사용자가 "stepmail에 이미 등록한 계정을 여기서
+또 등록해야 하냐"고 지적해서 텔레그램(`user_telegram_links`)과 같은 철학으로 프로그램
+접두어 없는 공용 테이블 **`user_smtp_accounts`**로 승격(rename)했다(2026-08-18,
+`docs/PLATFORM_PATTERNS.md` §9 참고 — host/port/user/password 구조는 동일). 네이버 SMTP
 동시연결 제한 등 트러블슈팅도 `docs/PLATFORM_PATTERNS.md`를 그대로 따른다.
 
 ### 2-2. SMS / 카카오 알림톡 / 카카오 친구톡 — SOLAPI (신규 provider)
-SOLAPI는 이 저장소에서 처음 쓰는 provider다. API 인증에 `apiKey`+`apiSecret` 두 값이
-필요하고, 발신번호·카카오 채널(pfId)·알림톡 템플릿ID까지 얹으면 필드가 많아서 공용
-`user_api_keys`(단일 문자열 구조)에 억지로 끼워 넣지 않는다. stepmail이
-SMTP 계정을 위해 전용 테이블을 만든 것과 같은 이유로, **전용 테이블
-`crm_solapi_accounts`**(user_id unique, api_key, api_secret, sender_phone, kakao_pf_id)를
-만든다. 카카오 알림톡 템플릿은 사용자가 SOLAPI 콘솔에서 직접 사전 등록해야 하는 별도
-심사 과정이 있어서 Phase 3으로 미룬다(Phase 1~2는 시스템 자체 검증에 집중).
+SOLAPI는 이 저장소에서 처음 쓰는 provider다. 공식 Node.js SDK(`solapi` npm 패키지,
+`SolapiMessageService`)를 그대로 쓴다 — HMAC-SHA256 서명 인증을 직접 구현하지 않고
+SDK에 맡긴다(2026-08-18, https://solapi.com/developers 확인).
+
+API 인증에 `apiKey`+`apiSecret` 두 값이 필요하고, 발신번호·카카오 채널(pfId)까지 얹으면
+필드가 많아서 공용 `user_api_keys`(단일 문자열 구조)에 억지로 끼워 넣지 않는다. SMTP·
+텔레그램과 동일한 철학으로 **처음부터 공용 테이블 `user_solapi_accounts`**
+(user_id unique, api_key, api_secret, sender_phone, kakao_pf_id)로 설계했다 — 나중에
+SMTP처럼 다시 승격하는 실수를 반복하지 않기 위함(§ PLATFORM_PATTERNS.md).
+
+카카오 알림톡 템플릿(templateId)은 사용자가 SOLAPI 콘솔에서 사전 등록·승인받아야 하는
+별도 심사 과정이 있어서, 우리 쪽에서 템플릿을 만들어주지 않는다 — 대신 `crm_form_sources`에
+`kakao_template_id`(텍스트)와 `kakao_variables`(jsonb, `{"#{변수명}": "구글폼 질문 제목"}`)를
+받아서, 접수 시점에 실제 응답값으로 변수를 채워 발송한다.
+
+**카카오 친구톡은 2025-12-31부로 서비스가 종료**되어 2026-01-01부터 SOLAPI가 서버 측에서
+자동으로 "브랜드 메시지(자유형)"로 대체 발송한다(SOLAPI 공지
+https://solapi.com/notices/notices-2025-12-04). 기존 `type:"CTA"` 요청 코드를 그대로 써도
+되므로(개발자 코드 변경 불필요), `lib/solapi/client.ts`의 `sendFriendtalk()`는 그대로
+`type:"CTA"`를 명시하는 방식으로 구현했다.
 
 ### 2-3. 텔레그램 — 기존 공용 패턴 100% 재사용
 `docs/PLATFORM_PATTERNS.md` §9에서 이미 범용으로 설계해둔 `user_telegram_links` 테이블과
@@ -81,15 +97,18 @@ SMTP 계정을 위해 전용 테이블을 만든 것과 같은 이유로, **전�
 쓴다. real_estate_sales에서 이미 텔레그램을 연결한 회원은 이 프로그램에서 다시 연결할
 필요 없이 바로 재사용된다(테이블이 프로그램 접두어 없이 설계된 이유).
 
-## 3. DB 스키마 개요 (Phase 1)
+## 3. DB 스키마 개요
 
 - `crm_form_sources` — user_id, name, webhook_token(unique), field_mapping(jsonb: 질문제목→표준필드),
-  notify_email/notify_telegram(boolean), created_at
+  notify_email/notify_telegram/notify_sms/notify_alimtalk/notify_friendtalk(boolean),
+  kakao_template_id(text), kakao_variables(jsonb: `#{변수명}`→질문제목), created_at
 - `crm_submissions` — user_id, form_source_id, raw_values(jsonb), name/phone/email(매핑 결과 추출),
   status(received/notified/failed), created_at
-- `crm_smtp_accounts` — user_id, label, host, port, user, password, from_address (stepmail 구조 재사용)
-- `crm_solapi_accounts` — user_id unique, api_key, api_secret, sender_phone, kakao_pf_id (Phase 2~3)
-- `user_telegram_links` — 기존 테이블 재사용, 신규 마이그레이션 불필요
+- `user_smtp_accounts` — 공용 테이블(프로그램 접두어 없음). user_id, label, host, port, user,
+  password, from_name (원래 stepmail 전용이었다가 승격됨, § 2-1 참고)
+- `user_solapi_accounts` — 공용 테이블(프로그램 접두어 없음, 처음부터). user_id unique, api_key,
+  api_secret, sender_phone, kakao_pf_id
+- `user_telegram_links` — 공용 테이블(real_estate_sales가 원 소유), 그대로 재사용
 
 전부 `user_id` + RLS owner-only 정책 적용(웹훅 라우트만 `createServiceClient()`로 토큰 매칭 후
 `user_id` 기준 insert).

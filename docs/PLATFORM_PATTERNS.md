@@ -130,6 +130,13 @@ real_estate_sales(부동산 실시간 매매정보)에서 서울 열린데이터
 (host/port/user/password, RLS owner-only)를 그대로 재사용한다. 핵심 코드:
 `stepmail/lib/email/transport.ts`, `stepmail/lib/actions/smtpAccounts.ts`.
 
+**문자/카카오(SOLAPI)도 처음부터 같은 철학으로 설계했다** — crm-google-form이
+`user_solapi_accounts`(api_key, api_secret, sender_phone, kakao_pf_id, RLS owner-only)를
+프로그램 접두어 없이 만들었다. 발송은 공식 Node.js SDK(`solapi` npm 패키지,
+`SolapiMessageService`)를 쓴다 — HMAC-SHA256 서명 인증을 직접 구현하지 않는다. 카카오
+친구톡은 2026-01-01부로 SOLAPI가 서버에서 자동으로 "브랜드 메시지"로 대체 발송하므로
+기존 `type:"CTA"` 요청을 그대로 쓰면 된다. 핵심 코드: `crm-google-form/lib/solapi/client.ts`.
+
 ---
 
 ## 10. 검증 루틴 (모든 서브프로젝트 공통)

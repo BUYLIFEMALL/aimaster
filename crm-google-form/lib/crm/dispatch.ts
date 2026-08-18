@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendViaSmtpAccount } from "@/lib/email/transport";
 import { sendTelegramMessage } from "@/lib/telegram/client";
+import { sendAlimtalk, sendFriendtalk, sendSms, type SolapiAccountCredentials } from "@/lib/solapi/client";
 
 interface FormSourceRow {
   id: string;
@@ -9,6 +10,11 @@ interface FormSourceRow {
   name: string;
   notify_email: boolean;
   notify_telegram: boolean;
+  notify_sms: boolean;
+  notify_alimtalk: boolean;
+  notify_friendtalk: boolean;
+  kakao_template_id: string | null;
+  kakao_variables: Record<string, string>;
 }
 
 interface SubmissionRow {
@@ -21,11 +27,10 @@ interface SubmissionRow {
 }
 
 /**
- * 웹훅으로 접수된 신청 1건에 대해, 신청자에게 이메일(SMTP)을 보내고 운영자 본인에게
- * 텔레그램 알림을 보낸다. 웹훅 라우트(로그인 세션 없음)에서 admin client로 호출되므로,
- * 여기서도 admin client(service role)를 쓰고 반드시 user_id로 직접 필터링한다.
- *
- * Phase 1 범위: 이메일 + 텔레그램만. SMS/카카오(SOLAPI)는 Phase 2~3에서 여기에 이어붙인다.
+ * 웹훅으로 접수된 신청 1건에 대해, 신청자에게 이메일(SMTP)/문자·카카오 알림톡·친구톡(SOLAPI)을
+ * 보내고 운영자 본인에게 텔레그램 알림을 보낸다. 웹훅 라우트(로그인 세션 없음)에서 admin
+ * client로 호출되므로, 여기서도 admin client(service role)를 쓰고 반드시 user_id로 직접
+ * 필터링한다.
  */
 export async function dispatchSubmissionNotifications(
   source: FormSourceRow,
@@ -76,6 +81,59 @@ export async function dispatchSubmissionNotifications(
       } catch (err) {
         errors.push(`텔레그램 알림 실패: ${err instanceof Error ? err.message : String(err)}`);
       }
+    }
+  }
+
+  const needsSolapi = source.notify_sms || source.notify_alimtalk || source.notify_friendtalk;
+  if (needsSolapi && submission.phone) {
+    const { data: solapiAccount } = await admin
+      .from("user_solapi_accounts")
+      .select("api_key, api_secret, sender_phone, kakao_pf_id")
+      .eq("user_id", source.user_id)
+      .maybeSingle();
+
+    if (solapiAccount) {
+      const account = solapiAccount as SolapiAccountCredentials;
+      const displayName = submission.name ? `${submission.name}님` : "고객님";
+
+      if (source.notify_sms) {
+        try {
+          await sendSms(account, submission.phone, `[${source.name}] ${displayName}, 신청이 정상적으로 접수되었습니다.`);
+        } catch (err) {
+          errors.push(`문자 발송 실패: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+
+      if (source.notify_alimtalk) {
+        if (!source.kakao_template_id) {
+          errors.push("알림톡 발송 실패: 알림톡 템플릿ID가 설정되지 않았습니다.");
+        } else {
+          try {
+            // kakao_variables: {"#{변수명}": "구글폼 질문 제목"} — 오른쪽 질문 제목으로 실제
+            // 접수값(raw_values)을 찾아 카카오 템플릿 변수를 채운다.
+            const variables: Record<string, string> = {};
+            for (const [kakaoVar, question] of Object.entries(source.kakao_variables)) {
+              variables[kakaoVar] = submission.raw_values[question] ?? "";
+            }
+            await sendAlimtalk(account, submission.phone, {
+              templateId: source.kakao_template_id,
+              variables,
+            });
+          } catch (err) {
+            errors.push(`알림톡 발송 실패: ${err instanceof Error ? err.message : String(err)}`);
+          }
+        }
+      }
+
+      if (source.notify_friendtalk) {
+        try {
+          await sendFriendtalk(account, submission.phone, `${displayName}, "${source.name}" 신청이 정상적으로 접수되었습니다.\n빠른 시간 내에 확인 후 연락드리겠습니다.`);
+        } catch (err) {
+          errors.push(`친구톡 발송 실패: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+    } else {
+      errors.push("SOLAPI 계정이 등록되지 않아 문자/카카오 발송을 건너뛰었습니다.");
     }
   }
 

@@ -62,14 +62,18 @@ crm-google-form은 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
   예외다** — Apps Script가 보내는 진짜 외부 콜백이라 로그인 세션 자체가 없다. `webhook_token`이
   `crm_form_sources` 테이블의 실제 레코드와 매칭되는지로만 신뢰성을 확보한다(music의 Suno
   웹훅과 동일 원칙).
-- 사용자 소유 데이터 테이블(`crm_form_sources`, `crm_submissions`, `crm_smtp_accounts`,
-  `crm_solapi_accounts`)은 `user_id` + RLS owner-only 정책으로 격리한다.
-- API 키/발송 계정은 공용 `user_api_keys` 구조에 억지로 끼워 넣지 않는다 — SMTP는 stepmail의
-  `stepmail_smtp_accounts`와 동일 구조로 `crm_smtp_accounts`를 새로 만들고, SOLAPI는
-  apiKey+apiSecret+발신번호+카카오 채널까지 필드가 많아 전용 테이블 `crm_solapi_accounts`를
-  쓴다(둘 다 본인 계정만 허용, 관리자 공용 계정으로 폴백 없음).
-- 텔레그램 알림은 새 테이블을 만들지 않고 기존 `user_telegram_links`(real_estate_sales가 만든
-  공용 테이블, `docs/PLATFORM_PATTERNS.md` §9)와 그 클라이언트 코드를 그대로 재사용한다.
+- 사용자 소유 데이터 테이블(`crm_form_sources`, `crm_submissions`)은 `user_id` + RLS
+  owner-only 정책으로 격리한다.
+- 발송 계정(이메일/문자·카카오/텔레그램)은 전부 **공용 테이블**을 쓴다 — API 키/발송 계정을
+  공용 `user_api_keys` 구조(단일 문자열)에 억지로 끼워 넣지 않되, 프로그램 접두어도 붙이지
+  않는다. 사용자 본인 발송 계정은 프로그램마다 다시 등록할 이유가 없기 때문이다
+  (`docs/PLATFORM_PATTERNS.md` §9):
+  - 이메일(SMTP): `user_smtp_accounts` (원래 stepmail 전용 `stepmail_smtp_accounts`였다가
+    2026-08-18 공용으로 승격 — rename만으로 처리, 데이터 이전 없음)
+  - SMS/카카오 알림톡·친구톡(SOLAPI): `user_solapi_accounts` (apiKey+apiSecret+발신번호+
+    카카오 채널, 처음부터 공용으로 설계)
+  - 텔레그램: `user_telegram_links` (real_estate_sales가 만든 공용 테이블)
+  세 테이블 다 본인 계정만 허용하고 관리자 공용 계정으로 폴백하지 않는다.
 
 ## 📦 Make.com 시나리오 이식 현황 (Phase 진행 상태)
 

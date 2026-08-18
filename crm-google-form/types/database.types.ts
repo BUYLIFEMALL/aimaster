@@ -14,6 +14,11 @@ export interface Database {
           field_mapping: Record<string, string>;
           notify_email: boolean;
           notify_telegram: boolean;
+          notify_sms: boolean;
+          notify_alimtalk: boolean;
+          notify_friendtalk: boolean;
+          kakao_template_id: string | null;
+          kakao_variables: Record<string, string>;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -26,6 +31,11 @@ export interface Database {
           field_mapping?: Record<string, string>;
           notify_email?: boolean;
           notify_telegram?: boolean;
+          notify_sms?: boolean;
+          notify_alimtalk?: boolean;
+          notify_friendtalk?: boolean;
+          kakao_template_id?: string | null;
+          kakao_variables?: Record<string, string>;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -38,6 +48,11 @@ export interface Database {
           field_mapping?: Record<string, string>;
           notify_email?: boolean;
           notify_telegram?: boolean;
+          notify_sms?: boolean;
+          notify_alimtalk?: boolean;
+          notify_friendtalk?: boolean;
+          kakao_template_id?: string | null;
+          kakao_variables?: Record<string, string>;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -126,6 +141,37 @@ export interface Database {
           smtp_password?: string;
           from_name?: string | null;
           is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      // 텔레그램/SMTP와 동일한 철학으로 처음부터 공용(프로그램 접두어 없음)으로 설계했다.
+      user_solapi_accounts: {
+        Row: {
+          user_id: string;
+          api_key: string;
+          api_secret: string;
+          sender_phone: string;
+          kakao_pf_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          api_key: string;
+          api_secret: string;
+          sender_phone: string;
+          kakao_pf_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          api_key?: string;
+          api_secret?: string;
+          sender_phone?: string;
+          kakao_pf_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

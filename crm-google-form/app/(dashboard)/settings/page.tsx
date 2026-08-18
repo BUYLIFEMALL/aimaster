@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProviderAccountSection } from "@/components/settings/ProviderAccountSection";
 import type { SmtpAccountData } from "@/components/settings/SmtpAccountCard";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
+import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { SMTP_PROVIDER_PRESETS } from "@/lib/constants";
 
@@ -12,7 +13,7 @@ export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: accounts }, { data: telegramLink }] = await Promise.all([
+  const [{ data: accounts }, { data: telegramLink }, { data: solapiAccount }] = await Promise.all([
     supabase
       .from("user_smtp_accounts")
       .select("id, label, provider, smtp_host, smtp_port, smtp_user, from_name, is_active")
@@ -21,6 +22,11 @@ export default async function SettingsPage() {
     supabase
       .from("user_telegram_links")
       .select("bot_username")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("user_solapi_accounts")
+      .select("api_key, sender_phone, kakao_pf_id")
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);
@@ -102,6 +108,8 @@ export default async function SettingsPage() {
           </div>
         )}
       </section>
+
+      <SolapiAccountSection account={solapiAccount ?? null} />
     </div>
   );
 }

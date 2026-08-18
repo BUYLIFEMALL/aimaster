@@ -11,7 +11,9 @@ export default async function SourcesPage() {
 
   const { data: sources } = await supabase
     .from("crm_form_sources")
-    .select("id, name, webhook_token, field_mapping, notify_email, notify_telegram, is_active")
+    .select(
+      "id, name, webhook_token, field_mapping, notify_email, notify_telegram, notify_sms, notify_alimtalk, notify_friendtalk, kakao_template_id, kakao_variables, is_active",
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 

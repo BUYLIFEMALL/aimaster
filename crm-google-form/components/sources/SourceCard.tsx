@@ -7,6 +7,7 @@ import {
   toggleFormSourceActiveAction,
   toggleNotifyChannelAction,
   updateFieldMappingAction,
+  updateKakaoConfigAction,
 } from "@/lib/actions/sources";
 
 export interface FormSourceData {
@@ -16,6 +17,11 @@ export interface FormSourceData {
   field_mapping: Record<string, string>;
   notify_email: boolean;
   notify_telegram: boolean;
+  notify_sms: boolean;
+  notify_alimtalk: boolean;
+  notify_friendtalk: boolean;
+  kakao_template_id: string | null;
+  kakao_variables: Record<string, string>;
   is_active: boolean;
 }
 
@@ -51,6 +57,8 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+type NotifyChannel = "notify_email" | "notify_telegram" | "notify_sms" | "notify_alimtalk" | "notify_friendtalk";
+
 export function SourceCard({ source }: { source: FormSourceData }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -58,6 +66,8 @@ export function SourceCard({ source }: { source: FormSourceData }) {
   const [isSavingMapping, setIsSavingMapping] = useState(false);
   const [mappingError, setMappingError] = useState<string | null>(null);
   const [showSetup, setShowSetup] = useState(false);
+  const [isSavingKakao, setIsSavingKakao] = useState(false);
+  const [kakaoError, setKakaoError] = useState<string | null>(null);
 
   const webhookUrl =
     typeof window !== "undefined"
@@ -85,7 +95,7 @@ export function SourceCard({ source }: { source: FormSourceData }) {
     }
   }
 
-  async function handleToggleNotify(channel: "notify_email" | "notify_telegram") {
+  async function handleToggleNotify(channel: NotifyChannel) {
     await toggleNotifyChannelAction(source.id, channel, !source[channel]);
     router.refresh();
   }
@@ -102,6 +112,23 @@ export function SourceCard({ source }: { source: FormSourceData }) {
       setIsSavingMapping(false);
     }
   }
+
+  async function handleSaveKakao(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setKakaoError(null);
+    setIsSavingKakao(true);
+    try {
+      const result = await updateKakaoConfigAction(source.id, new FormData(e.currentTarget));
+      if (result.error) setKakaoError(result.error);
+      else router.refresh();
+    } finally {
+      setIsSavingKakao(false);
+    }
+  }
+
+  const kakaoVariablesText = Object.entries(source.kakao_variables)
+    .map(([k, v]) => `${k}=${v}`)
+    .join("\n");
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-4">
@@ -161,7 +188,7 @@ export function SourceCard({ source }: { source: FormSourceData }) {
 
       <form onSubmit={handleSaveMapping} className="space-y-2 border-t border-gray-100 pt-4">
         <p className="text-xs font-semibold text-gray-700">
-          필드 매핑 — 구글폼 질문 제목을 정확히 입력하세요 (알림 문구에 쓰입니다)
+          필드값 매핑 — 구글폼 질문 제목을 정확히 입력하세요 (알림 문구에 쓰입니다)
         </p>
         <div className="grid grid-cols-3 gap-2">
           <input
@@ -193,16 +220,66 @@ export function SourceCard({ source }: { source: FormSourceData }) {
         </button>
       </form>
 
-      <div className="flex gap-4 border-t border-gray-100 pt-4 text-xs">
+      <div className="grid grid-cols-2 gap-2 border-t border-gray-100 pt-4 text-xs sm:grid-cols-3">
         <label className="flex items-center gap-1.5">
           <input type="checkbox" checked={source.notify_email} onChange={() => handleToggleNotify("notify_email")} />
-          신청자에게 이메일 발송
+          신청자 이메일
+        </label>
+        <label className="flex items-center gap-1.5">
+          <input type="checkbox" checked={source.notify_sms} onChange={() => handleToggleNotify("notify_sms")} />
+          신청자 문자(SMS)
+        </label>
+        <label className="flex items-center gap-1.5">
+          <input type="checkbox" checked={source.notify_alimtalk} onChange={() => handleToggleNotify("notify_alimtalk")} />
+          신청자 카카오 알림톡
+        </label>
+        <label className="flex items-center gap-1.5">
+          <input type="checkbox" checked={source.notify_friendtalk} onChange={() => handleToggleNotify("notify_friendtalk")} />
+          신청자 카카오 친구톡
         </label>
         <label className="flex items-center gap-1.5">
           <input type="checkbox" checked={source.notify_telegram} onChange={() => handleToggleNotify("notify_telegram")} />
-          운영자 텔레그램 알림
+          운영자 텔레그램
         </label>
       </div>
+      <p className="text-[11px] text-gray-400">
+        문자·알림톡·친구톡은 /settings에 SOLAPI 계정을 등록해야 실제로 발송됩니다.
+      </p>
+
+      {source.notify_alimtalk && (
+        <form onSubmit={handleSaveKakao} className="space-y-2 rounded-xl bg-gray-50 p-4 text-xs">
+          <p className="font-semibold text-gray-700">카카오 알림톡 템플릿 설정</p>
+          <div>
+            <label className="mb-1 block text-gray-600">템플릿 ID (SOLAPI 콘솔에서 승인받은 알림톡 템플릿)</label>
+            <input
+              name="kakaoTemplateId"
+              defaultValue={source.kakao_template_id ?? ""}
+              placeholder="KA01TP..."
+              className="input-sm"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-gray-600">
+              템플릿 변수 매핑 — 한 줄에 하나씩, <code className="rounded bg-white px-1">#{"{변수명}"}=구글폼 질문 제목</code> 형식
+            </label>
+            <textarea
+              name="kakaoVariables"
+              defaultValue={kakaoVariablesText}
+              placeholder={"#{성함}=성함\n#{연락처}=연락처"}
+              rows={3}
+              className="input-sm font-mono"
+            />
+          </div>
+          {kakaoError && <p className="text-red-600">{kakaoError}</p>}
+          <button
+            type="submit"
+            disabled={isSavingKakao}
+            className="rounded-lg bg-blue-600 px-4 py-2 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+          >
+            {isSavingKakao ? "저장 중..." : "알림톡 설정 저장"}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
