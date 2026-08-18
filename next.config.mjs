@@ -48,6 +48,20 @@ const nextConfig = {
       },
     ];
   },
+  // 서브프로젝트 단축 URL(예: buylife.xyz/stepmail)은 next/navigation의 redirect()를 쓰는
+  // 페이지 컴포넌트 대신 여기서 처리한다 — 외부 도메인으로 나가는 redirect()는 일반 HTTP
+  // 클라이언트(curl 등)에서 정상적인 Location 헤더 없이 __next_error__ 셸만 내려주는 문제가
+  // 실제로 발생함(2026-08-18 확인). Next.js의 redirects() 설정은 Vercel 엣지 라우팅 계층에서
+  // 바로 처리돼 훨씬 안정적이다.
+  redirects: async () => {
+    return [
+      {
+        source: '/stepmail',
+        destination: 'https://stepmail-kappa.vercel.app',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
