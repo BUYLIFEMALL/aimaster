@@ -5,7 +5,7 @@
 메시지를 이메일·문자·카카오 알림톡·카카오 친구톡으로 자동 발송해 노쇼를 줄이고 재방문을
 유도합니다.
 
-**배포 URL**: (배포 후 기입)
+**배포 URL**: https://booking-reminder.vercel.app (Vercel 프로젝트: `buylife/booking-reminder`)
 
 SOLAPI(`solapi.com/crm`)가 소개한 CRM 자동화 활용 사례(예약 자동화: "예약일 전날 리마인드
 → 당일 확인 메시지 → 방문 후 리뷰 요청")를 벤치마킹해서 AIMaster 서브프로젝트로 제품화한
