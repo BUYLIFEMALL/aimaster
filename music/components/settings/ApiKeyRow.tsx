@@ -8,9 +8,12 @@ interface ApiKeyRowProps {
   provider: ApiKeyProvider;
   label: string;
   maskedValue: string | null;
+  helpUrl?: string;
+  helpLabel?: string;
+  helpDescription?: string;
 }
 
-export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
+export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, helpDescription }: ApiKeyRowProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -69,6 +72,28 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
       )}
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       {success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
+      {helpUrl && (
+        <div className="mt-3 rounded-xl bg-blue-50 border border-blue-100 px-3.5 py-3">
+          <a
+            href={helpUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm font-bold text-blue-700 hover:underline inline-flex items-center gap-1"
+          >
+            🔑 {helpLabel ?? "API 키 발급받기"}
+          </a>
+          {helpDescription && (
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-medium text-blue-600/90">
+              {helpDescription.split("|").map((part, i, arr) => (
+                <span key={i} className="inline-flex items-center gap-2">
+                  {part.trim()}
+                  {i < arr.length - 1 && <span className="text-blue-300">|</span>}
+                </span>
+              ))}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

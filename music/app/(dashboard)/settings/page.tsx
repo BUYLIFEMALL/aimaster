@@ -45,6 +45,9 @@ export default async function SettingsPage() {
             provider={provider}
             label={PROVIDER_LABELS[provider]}
             maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            helpUrl={provider === "suno" ? "https://sunoapi.org/ko/api-key" : undefined}
+            helpLabel={provider === "suno" ? "본인 명의로 API 키를 생성해서 등록해주세요 (sunoapi.org)" : undefined}
+            helpDescription={provider === "suno" ? "최초 무료 50크레딧(3회생성) 제공 | 1회 호출시 12크레딧 사용" : undefined}
           />
         ))}
       </div>
