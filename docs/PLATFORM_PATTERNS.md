@@ -167,7 +167,27 @@ crm-google-form의 팔로우업 cron(`app/api/cron/followup`)을 만들면서, `
 
 ---
 
-## 11. 검증 루틴 (모든 서브프로젝트 공통)
+## 12. AI 이미지 생성 — Cloudinary 생성 API 대신 Gemini(나노바나나) 직접 호출 + Supabase Storage 업로드
+
+**배경**: Cloudinary MCP의 `generate-image` 도구는 자체 AI 모델이 없다. 나노바나나/Flux/GPT-Image/Recraft/Ideogram 같은 외부 모델을 대신 호출해서 결과를 자기 CDN에 자동 업로드해주는 "대행" 기능일 뿐이다. 편리하지만 이 대행 기능 자체에 **무료 플랜 월 50회**라는 별도 부가기능(add-on) 한도가 걸려 있고, 일반 저장공간/전송량 크레딧과는 완전히 별개다. 2026-08-19에 이 한도를 다 써서 프로그램 카탈로그 썸네일 생성이 막힌 적이 있다 — `get-usage-details`의 `image_generation: {usage, limit}` 필드로 확인 가능하며, 이때 스토리지 사용량이나 이미지 업로드 개수는 여유가 충분했다(무관한 한도).
+
+**앞으로 마케팅/썸네일 등 새 이미지를 AI로 생성할 때는 Cloudinary의 `generate-image`를 거치지 않는다:**
+
+1. Gemini API(나노바나나)를 **직접** 호출해서 이미지를 생성한다.
+   - 사용자 대상 기능(서브프로젝트 안에서 회원이 쓰는 이미지 생성)이면 기존 멀티테넌시 원칙 그대로 `user_api_keys`의 `resolveApiKey()`로 **본인 키만** 쓴다 — 이 항목은 정책 변경이 아니다.
+   - 플랫폼 관리자용 마케팅 자료(프로그램 카탈로그 썸네일 등)라면, 비용이 발생하는 작업이므로 관리자 본인 Gemini API 키를 그때그때 확인받아 사용한다(자동으로 DB에서 꺼내 쓰지 않음 — API 키 평문 조회는 보안상 자동화 분류기가 막는다).
+2. 생성된 이미지를 **Supabase Storage의 public 버킷**에 업로드한다. Cloudinary로는 올리지 않는다. 이미 만들어져 있고 검증된 버킷을 재사용할 것:
+   - 프로그램 카탈로그(`programs.thumbnail_url`) 썸네일: `program-images`(public) 버킷, `catalog/<program-slug>-thumbnail.jpg` 경로 — 참고: `music/scripts/upload-music-thumbnail.mjs`
+   - 그 외 서브프로젝트 자체 콘텐츠 이미지는 각자 이미 쓰고 있는 전용 public 버킷을 재사용한다 (예: `shop-detail-images`, `stepmail-images`)
+3. 결과 공개 URL을 해당 DB 컬럼(`thumbnail_url` 등)에 저장한다. **정적 파일이 아니라 DB 값이라 root 앱 재배포가 필요 없다.**
+
+**public 버킷으로 직접 서빙해도 보안이나 외부 링크 제공 문제 없음.** Cloudinary와 동일하게 인증 없는 순수 공개 HTTPS URL(`https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/<bucket>/...`)로 서빙되며, 외부 사이트·Make.com/n8n 같은 자동화 도구가 `<img>`/hotlink으로 그대로 불러다 써도 문제없다. 루트 사이트 `next.config.mjs`의 `images.remotePatterns`에 이 Supabase Storage 도메인이 이미 허용되어 있어 추가 설정도 필요 없다(커밋 `868799d`). 오히려 Cloudinary 같은 제3자 서비스의 월간 생성 한도에 다시 걸릴 위험이 없어진다는 게 장점이다.
+
+Cloudinary 자체는 계속 써도 된다 — 다만 **신규 이미지 "생성"**에만 안 쓴다는 것이 핵심이다. 이미 Cloudinary에 올라간 기존 프로그램 썸네일 9종의 조회/치환이나, 이미지 분석·변환(`get-asset-details`, `transform-asset` 등 생성이 아닌 기존 자산 조작) 용도로는 그대로 활용 가능하다.
+
+---
+
+## 13. 검증 루틴 (모든 서브프로젝트 공통)
 
 코드 변경 시마다 다음 순서로 검증 후 배포한다 — 세션 내내 이 순서를 지켰음.
 

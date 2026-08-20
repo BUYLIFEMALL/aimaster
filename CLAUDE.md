@@ -59,7 +59,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Reusable Patterns
 
-- 카테고리 블록 노출, AI 3종 콘텐츠 수집(HTTP/RSS/Perplexity), SNS 게시글 AI 생성 프롬프트 규격, 이메일(SMTP) 발송, 삭제 버튼 처리중 표시 등 여러 서브프로젝트에서 재사용 가능한 패턴과 트러블슈팅은 [`docs/PLATFORM_PATTERNS.md`](docs/PLATFORM_PATTERNS.md)에 정리되어 있다. 새 프로그램을 만들거나 비슷한 기능이 필요하면 먼저 이 문서를 확인할 것.
+- 카테고리 블록 노출, AI 3종 콘텐츠 수집(HTTP/RSS/Perplexity), SNS 게시글 AI 생성 프롬프트 규격, 이메일(SMTP) 발송, 삭제 버튼 처리중 표시, **AI 이미지 생성(마케팅/썸네일)** 등 여러 서브프로젝트에서 재사용 가능한 패턴과 트러블슈팅은 [`docs/PLATFORM_PATTERNS.md`](docs/PLATFORM_PATTERNS.md)에 정리되어 있다. 새 프로그램을 만들거나 비슷한 기능이 필요하면 먼저 이 문서를 확인할 것.
+- **AI 이미지 생성은 Cloudinary의 `generate-image`(대행 생성) API를 거치지 않는다.** Gemini(나노바나나)를 직접 호출해서 생성하고, 결과는 Cloudinary가 아닌 Supabase Storage의 public 버킷에 업로드한 뒤 그 공개 URL을 DB에 저장한다 — 이유와 구체적 방법은 `docs/PLATFORM_PATTERNS.md` §12 참고. Cloudinary의 대행 생성 기능은 월 50회라는 별도 한도가 있어(저장공간·업로드 개수와 무관) 쉽게 소진되고, 그 경우 새 이미지 생성이 막힌다.
 
 ## Commands
 
