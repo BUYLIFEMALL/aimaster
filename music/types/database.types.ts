@@ -264,10 +264,41 @@ export interface Database {
         };
         Relationships: [];
       };
+      music_remix_sources: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: "track" | "upload";
+          track_id: string | null;
+          title: string;
+          audio_url: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kind: "track" | "upload";
+          track_id?: string | null;
+          title: string;
+          audio_url: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          kind?: "track" | "upload";
+          track_id?: string | null;
+          title?: string;
+          audio_url?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       music_track_remixes: {
         Row: {
           id: string;
           user_id: string;
+          source_id: string | null;
           source_audio_url: string;
           source_title: string | null;
           desired_feel: string;
@@ -291,6 +322,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
+          source_id?: string | null;
           source_audio_url: string;
           source_title?: string | null;
           desired_feel: string;
@@ -314,6 +346,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
+          source_id?: string | null;
           source_audio_url?: string;
           source_title?: string | null;
           desired_feel?: string;

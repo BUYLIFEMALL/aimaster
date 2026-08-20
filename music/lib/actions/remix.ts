@@ -12,6 +12,7 @@ import type { RemixStatus, VocalGender } from "@/types/database.types";
 export interface CreateRemixState {
   error?: string;
   needsApiKey?: string; // "openai" | "suno"
+  sourceId?: string;
 }
 
 const MAX_REMIX_COUNT = 10;
@@ -63,10 +64,13 @@ function clampDuration(seconds: number | null | undefined): number {
  * generateTracksAction의 대량생성과 동일한 방식으로, 이번 배치에서 이미 나온 스타일과
  * 겹치지 않게 매번 새로 GPT 스타일을 만든다.
  *
- * 원본 소스는 둘 중 하나다:
+ * 원본 소스는 셋 중 하나다(music_remix_sources로 그룹화 — 2026-08-20):
+ * - sourceId가 있으면: 이미 만들어둔 리믹스 원본 그룹에 새 시도를 추가하는 경우(재업로드/재선택 불필요).
  * - sourceVariantId가 있으면: 완성곡 카드의 "이 곡으로 리믹스" 버튼으로 넘어온 경우 —
- *   해당 variant의 audio_url을 그대로 원곡으로 쓴다(업로드 불필요).
- * - 없으면: 사용자가 새로 업로드한 오디오 파일을 본인 Storage 경로에 저장하고 그 URL을 쓴다.
+ *   해당 트랙에 대한 소스 그룹이 이미 있으면 재사용, 없으면 새로 만든다(같은 곡을 여러 번
+ *   리믹스해도 소스 그룹은 하나로 유지되어야 "원곡 → 리믹스 목록" 구조가 성립함).
+ * - 둘 다 없으면: 사용자가 새로 업로드한 오디오 파일을 본인 Storage 경로에 저장하고, 그 파일을
+ *   나타내는 새 소스 그룹(kind='upload')을 만든다.
  */
 export async function createRemixAction(formData: FormData): Promise<CreateRemixState> {
   const user = await requireProgramAccess();
@@ -86,12 +90,25 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
   const audioWeight = clamp01(formData.get("audioWeight"));
   const clampedCount = Math.min(Math.max(Math.round(Number(formData.get("count")) || 1), 1), MAX_REMIX_COUNT);
 
+  const sourceIdInput = String(formData.get("sourceId") ?? "").trim() || null;
   const sourceVariantId = String(formData.get("sourceVariantId") ?? "").trim() || null;
   let sourceAudioUrl: string;
   let resolvedSourceTitle = sourceTitle;
   let durationSeconds = DEFAULT_REMIX_DURATION_SECONDS;
+  let sourceRowId: string;
 
-  if (sourceVariantId) {
+  if (sourceIdInput) {
+    const { data: existingSource } = await supabase
+      .from("music_remix_sources")
+      .select("id, title, audio_url")
+      .eq("id", sourceIdInput)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!existingSource) return { error: "리믹스 원본을 찾을 수 없습니다." };
+    sourceRowId = existingSource.id;
+    sourceAudioUrl = existingSource.audio_url;
+    resolvedSourceTitle = existingSource.title;
+  } else if (sourceVariantId) {
     const { data: variant } = await supabase
       .from("music_track_variants")
       .select("id, audio_url, track_id, duration_seconds")
@@ -105,6 +122,34 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
     if (!resolvedSourceTitle) {
       const { data: track } = await supabase.from("music_tracks").select("title").eq("id", variant.track_id).maybeSingle();
       resolvedSourceTitle = track?.title ?? null;
+    }
+
+    // 같은 트랙으로 이미 만든 소스 그룹이 있으면 재사용 — 없으면 새로 만든다.
+    const { data: reusedSource } = await supabase
+      .from("music_remix_sources")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("track_id", variant.track_id)
+      .eq("kind", "track")
+      .maybeSingle();
+    if (reusedSource) {
+      sourceRowId = reusedSource.id;
+    } else {
+      const { data: newSource, error: sourceInsertError } = await supabase
+        .from("music_remix_sources")
+        .insert({
+          user_id: user.id,
+          kind: "track",
+          track_id: variant.track_id,
+          title: resolvedSourceTitle ?? "제목 없음",
+          audio_url: sourceAudioUrl,
+        })
+        .select("id")
+        .single();
+      if (sourceInsertError || !newSource) {
+        return { error: sourceInsertError?.message ?? "리믹스 원본 생성에 실패했습니다." };
+      }
+      sourceRowId = newSource.id;
     }
   } else {
     const file = formData.get("sourceFile");
@@ -126,6 +171,21 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
 
     const { data: publicUrlData } = supabase.storage.from("music-audio").getPublicUrl(path);
     sourceAudioUrl = publicUrlData.publicUrl;
+
+    const { data: newSource, error: sourceInsertError } = await supabase
+      .from("music_remix_sources")
+      .insert({
+        user_id: user.id,
+        kind: "upload",
+        title: resolvedSourceTitle ?? "제목 없음",
+        audio_url: sourceAudioUrl,
+      })
+      .select("id")
+      .single();
+    if (sourceInsertError || !newSource) {
+      return { error: sourceInsertError?.message ?? "리믹스 원본 생성에 실패했습니다." };
+    }
+    sourceRowId = newSource.id;
   }
 
   const openaiKey = await resolveApiKey(supabase, user.id, "openai");
@@ -152,6 +212,7 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
         .from("music_track_remixes")
         .insert({
           user_id: user.id,
+          source_id: sourceRowId,
           source_audio_url: sourceAudioUrl,
           source_title: resolvedSourceTitle,
           desired_feel: desiredFeel,
@@ -199,7 +260,8 @@ export async function createRemixAction(formData: FormData): Promise<CreateRemix
     });
 
     revalidatePath("/remix");
-    return {};
+    revalidatePath(`/remix/${sourceRowId}`);
+    return { sourceId: sourceRowId };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "리믹스 요청 중 오류가 발생했습니다." };
   }

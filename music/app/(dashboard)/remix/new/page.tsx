@@ -5,25 +5,37 @@ import { RemixForm } from "@/components/remix/RemixForm";
 export const dynamic = "force-dynamic";
 
 interface RemixSource {
-  variantId: string;
   title: string;
+  variantId?: string;
+  sourceId?: string;
 }
 
 export default async function NewRemixPage({
   searchParams,
 }: {
-  searchParams: { fromVariantId?: string };
+  searchParams: { fromVariantId?: string; sourceId?: string };
 }) {
   const user = await requireProgramAccess();
+  const supabase = await createClient();
 
   let source: RemixSource | null = null;
-  const fromVariantId = searchParams.fromVariantId;
-  if (fromVariantId) {
-    const supabase = await createClient();
+
+  if (searchParams.sourceId) {
+    // 이미 만든 리믹스 원본 그룹에 새 시도를 추가하는 경우 — 재업로드/재선택 불필요.
+    const { data: existingSource } = await supabase
+      .from("music_remix_sources")
+      .select("id, title")
+      .eq("id", searchParams.sourceId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (existingSource) {
+      source = { sourceId: existingSource.id, title: existingSource.title };
+    }
+  } else if (searchParams.fromVariantId) {
     const { data: variant } = await supabase
       .from("music_track_variants")
       .select("id, track_id")
-      .eq("id", fromVariantId)
+      .eq("id", searchParams.fromVariantId)
       .eq("user_id", user.id)
       .maybeSingle();
     if (variant) {

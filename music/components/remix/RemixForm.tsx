@@ -11,8 +11,9 @@ const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno"
 const COUNT_OPTIONS = Array.from({ length: 10 }, (_, i) => i + 1); // 1~10
 
 interface RemixSource {
-  variantId: string;
   title: string;
+  variantId?: string;
+  sourceId?: string;
 }
 
 export function RemixForm({ source }: { source: RemixSource | null }) {
@@ -47,7 +48,7 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
       } else if (result.error) {
         setError(result.error);
       } else {
-        router.push("/remix");
+        router.push(result.sourceId ? `/remix/${result.sourceId}` : "/remix");
       }
     } finally {
       setIsPending(false);
@@ -61,7 +62,11 @@ export function RemixForm({ source }: { source: RemixSource | null }) {
           <div className="rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3">
             <p className="text-xs font-semibold text-blue-700 mb-0.5">🎵 원곡</p>
             <p className="text-sm font-bold text-gray-900">{source.title}</p>
-            <input type="hidden" name="sourceVariantId" value={source.variantId} />
+            {source.sourceId ? (
+              <input type="hidden" name="sourceId" value={source.sourceId} />
+            ) : (
+              <input type="hidden" name="sourceVariantId" value={source.variantId} />
+            )}
             <input type="hidden" name="sourceTitle" value={source.title} />
           </div>
         ) : (
