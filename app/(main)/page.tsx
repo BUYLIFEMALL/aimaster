@@ -179,12 +179,8 @@ export default async function HomePage() {
                     </Link>
                   </div>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {catPrograms.slice(0, 3).map((program, i) => (
-                      <ProgramCard
-                        key={program.id}
-                        program={program}
-                        badge={i === 0 ? "best" : undefined}
-                      />
+                    {catPrograms.slice(0, 3).map((program) => (
+                      <ProgramCard key={program.id} program={program} />
                     ))}
                   </div>
                   <div className="mt-6 text-center md:hidden">

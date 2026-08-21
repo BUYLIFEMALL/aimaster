@@ -6,6 +6,7 @@ import { Plus, Trash2, Save, Pencil, X, Check, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import GoldButton from "@/components/ui/GoldButton";
 import RichTextEditor from "@/components/ui/RichTextEditor";
+import Badge from "@/components/ui/Badge";
 import type { Program, Category, MemberGrade } from "@/types/database.types";
 
 interface PricingPlanInput {
@@ -21,6 +22,14 @@ interface PricingPlanInput {
 interface ProgramFormProps {
   program?: Program & { pricing_plans?: PricingPlanInput[] };
 }
+
+const BADGE_OPTIONS: { value: NonNullable<Program["badge"]>; label: string }[] = [
+  { value: "best", label: "BEST" },
+  { value: "new", label: "NEW" },
+  { value: "sale", label: "SALE" },
+  { value: "free", label: "FREE" },
+  { value: "coming", label: "COMING SOON" },
+];
 
 const BILLING_OPTIONS = [
   { value: "monthly", label: "1개월" },
@@ -75,6 +84,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const [shortDesc, setShortDesc] = useState(program?.short_desc ?? "");
   const [description, setDescription] = useState(program?.description ?? "");
   const [thumbnailUrl, setThumbnailUrl] = useState(program?.thumbnail_url ?? "");
+  const [badge, setBadge] = useState<NonNullable<Program["badge"]> | "">(program?.badge ?? "");
   const [videoUrl, setVideoUrl] = useState(program?.video_url ?? "");
   const [appUrl, setAppUrl] = useState(program?.app_url ?? "");
   const [isActive, setIsActive] = useState(program?.is_active ?? true);
@@ -190,6 +200,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
         short_desc: shortDesc || null,
         description: description || null,
         thumbnail_url: thumbnailUrl || null,
+        badge: badge || null,
         video_url: videoUrl || null,
         app_url: appUrl || null,
         is_active: isActive,
@@ -207,10 +218,28 @@ export default function ProgramForm({ program }: ProgramFormProps) {
         programId = data.id;
       }
 
-      if (plans.length > 0 && programId) {
-        if (isEdit) await supabase.from("pricing_plans").delete().eq("program_id", programId);
-        const { error: pe } = await supabase.from("pricing_plans").insert(
-          plans.map((p, i) => ({
+      if (programId) {
+        // 예전엔 매번 전체 삭제 후 재삽입했는데, 이미 결제(subscriptions)된 플랜은 FK
+        // 제약(ON DELETE NO ACTION) 때문에 삭제가 통째로 실패하면서도 에러를 확인하지
+        // 않아 무시되고, 그 뒤 insert만 계속 쌓여 저장할 때마다 플랜이 중복되는 버그가
+        // 있었다(2026-08-21, ai-auto-blog에서 28개까지 쌓인 것을 발견해 수정). 이제
+        // 기존 id가 있으면 update, 없으면 insert, 폼에서 빠진 기존 항목만 delete하는
+        // 방식으로 바꿔서 이미 결제 이력이 있는 플랜은 건드리지 않는다.
+        const existingIds = new Set((program?.pricing_plans ?? []).map((p) => p.id).filter(Boolean));
+        const currentIds = new Set(plans.map((p) => p.id).filter(Boolean));
+        const idsToDelete = [...existingIds].filter((id) => !currentIds.has(id));
+
+        if (idsToDelete.length > 0) {
+          const { error: de } = await supabase.from("pricing_plans").delete().in("id", idsToDelete as string[]);
+          if (de) {
+            throw new Error(
+              `일부 플랜은 이미 결제(구독) 이력이 있어 삭제할 수 없습니다. 삭제 대신 "비활성화"를 사용해주세요. (${de.message})`
+            );
+          }
+        }
+
+        for (const [i, p] of plans.entries()) {
+          const payload = {
             program_id: programId!,
             name: p.name || BILLING_OPTIONS.find((b) => b.value === p.billing_type)?.label || p.billing_type,
             billing_type: p.billing_type,
@@ -218,9 +247,15 @@ export default function ProgramForm({ program }: ProgramFormProps) {
             original_price: p.original_price ? parseInt(p.original_price) : null,
             is_active: p.is_active,
             sort_order: i,
-          }))
-        );
-        if (pe) throw pe;
+          };
+          if (p.id) {
+            const { error: ue } = await supabase.from("pricing_plans").update(payload).eq("id", p.id);
+            if (ue) throw ue;
+          } else {
+            const { error: ie } = await supabase.from("pricing_plans").insert(payload);
+            if (ie) throw ie;
+          }
+        }
       }
 
       if (programId) {
@@ -413,6 +448,21 @@ export default function ProgramForm({ program }: ProgramFormProps) {
             <FieldRow label="썸네일 URL">
               <input type="url" value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)}
                 className="input-dark w-full" placeholder="https://..." />
+            </FieldRow>
+            <FieldRow label="추천 뱃지">
+              <div className="flex flex-wrap items-center gap-3">
+                <select value={badge} onChange={(e) => setBadge(e.target.value as typeof badge)}
+                  className="input-dark w-48">
+                  <option value="">없음</option>
+                  {BADGE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+                {badge && <Badge variant={badge} />}
+              </div>
+              <p className="text-xs text-subtext mt-1">
+                카드 썸네일 왼쪽 위에 표시됩니다. 카테고리별 목록/전체 목록/상세 어디서든 이 값 하나로 통일해서 보여줍니다.
+              </p>
             </FieldRow>
             <FieldRow label="영상 URL">
               <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)}

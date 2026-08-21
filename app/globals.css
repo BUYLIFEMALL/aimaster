@@ -134,12 +134,6 @@
     @apply text-xs font-bold px-2.5 py-1 rounded-full text-black;
     background: linear-gradient(135deg, #d4af37, #f5c842);
   }
-  .badge-hot {
-    @apply text-xs font-bold px-2.5 py-1 rounded-full;
-    background: rgba(239, 68, 68, 0.2);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
 }
 
 /* ── Tiptap Rich Text Editor ── */
