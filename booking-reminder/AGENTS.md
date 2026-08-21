@@ -1,6 +1,6 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-이 문서는 **예약 리마인드·노쇼 방지 자동화(booking-reminder)** 프로젝트에서 AI Agent(Claude
+이 문서는 **예약(취소)방지 리마인드 자동화(booking-reminder)** 프로젝트에서 AI Agent(Claude
 Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 
 ---
