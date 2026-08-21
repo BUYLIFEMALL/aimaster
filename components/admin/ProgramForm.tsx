@@ -6,7 +6,6 @@ import { Plus, Trash2, Save, Pencil, X, Check, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import GoldButton from "@/components/ui/GoldButton";
 import RichTextEditor from "@/components/ui/RichTextEditor";
-import Badge from "@/components/ui/Badge";
 import type { Program, Category, MemberGrade } from "@/types/database.types";
 
 interface PricingPlanInput {
@@ -450,17 +449,34 @@ export default function ProgramForm({ program }: ProgramFormProps) {
                 className="input-dark w-full" placeholder="https://..." />
             </FieldRow>
             <FieldRow label="추천 뱃지">
-              <div className="flex flex-wrap items-center gap-3">
-                <select value={badge} onChange={(e) => setBadge(e.target.value as typeof badge)}
-                  className="input-dark w-48">
-                  <option value="">없음</option>
-                  {BADGE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-                {badge && <Badge variant={badge} />}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setBadge("")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                    badge === ""
+                      ? "bg-gold text-black border-gold"
+                      : "bg-white/5 text-subtext border-white/10 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  없음
+                </button>
+                {BADGE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setBadge(opt.value)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                      badge === opt.value
+                        ? "bg-gold text-black border-gold"
+                        : "bg-white/5 text-subtext border-white/10 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
-              <p className="text-xs text-subtext mt-1">
+              <p className="text-xs text-subtext mt-2">
                 카드 썸네일 왼쪽 위에 표시됩니다. 카테고리별 목록/전체 목록/상세 어디서든 이 값 하나로 통일해서 보여줍니다.
               </p>
             </FieldRow>
