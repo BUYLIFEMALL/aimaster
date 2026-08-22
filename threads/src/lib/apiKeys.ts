@@ -4,7 +4,6 @@ import type { ApiKeyProvider, Database } from "@/types/database.types";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   openai: "OpenAI (GPT)",
-  anthropic: "Anthropic (Claude)",
   gemini: "Google (Gemini)",
   perplexity: "Perplexity",
 };
@@ -12,7 +11,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
 // 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
 const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
   openai: process.env.OPENAI_API_KEY,
-  anthropic: process.env.ANTHROPIC_API_KEY,
   gemini: process.env.GEMINI_API_KEY,
   perplexity: process.env.PERPLEXITY_API_KEY,
 };

@@ -1,5 +1,5 @@
 export type PostStatus = "draft" | "scheduled" | "publishing" | "published" | "failed";
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
+export type ApiKeyProvider = "openai" | "gemini" | "perplexity";
 export type ThreadsSourceType = "http" | "rss" | "perplexity";
 export type ThreadsCandidateStatus = "collected" | "used";
 

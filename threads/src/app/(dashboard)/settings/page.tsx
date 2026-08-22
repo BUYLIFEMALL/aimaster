@@ -4,7 +4,7 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity"];
+const PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "perplexity"];
 
 export default async function SettingsPage() {
   const user = await requireUser();
