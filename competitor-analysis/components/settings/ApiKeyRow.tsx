@@ -73,12 +73,12 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       {success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
       {helpUrl && (
-        <p className="mt-2 text-xs text-gray-400">
+        <div className="mt-2 text-xs text-gray-400">
           <a href={helpUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
             {helpLabel ?? "API 키 발급받기"}
           </a>
-          {helpDescription && <span> · {helpDescription}</span>}
-        </p>
+          {helpDescription && <p className="mt-0.5">{helpDescription}</p>}
+        </div>
       )}
     </div>
   );
