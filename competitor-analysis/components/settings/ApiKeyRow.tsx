@@ -10,10 +10,19 @@ interface ApiKeyRowProps {
   maskedValue: string | null;
   helpUrl?: string;
   helpLabel?: string;
+  helpHighlight?: string;
   helpDescription?: string;
 }
 
-export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, helpDescription }: ApiKeyRowProps) {
+export function ApiKeyRow({
+  provider,
+  label,
+  maskedValue,
+  helpUrl,
+  helpLabel,
+  helpHighlight,
+  helpDescription,
+}: ApiKeyRowProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -73,11 +82,16 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       {success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
       {helpUrl && (
-        <div className="mt-2 text-xs text-gray-400">
-          <a href={helpUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+        <div className="mt-2">
+          <a href={helpUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">
             {helpLabel ?? "API 키 발급받기"}
           </a>
-          {helpDescription && <p className="mt-0.5">{helpDescription}</p>}
+          {helpHighlight && (
+            <p className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-bold text-emerald-700">
+              🎁 {helpHighlight}
+            </p>
+          )}
+          {helpDescription && <p className="mt-1 text-xs text-gray-400">{helpDescription}</p>}
         </div>
       )}
     </div>
