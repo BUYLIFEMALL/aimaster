@@ -10,9 +10,10 @@ interface ApiKeyRowProps {
   maskedValue: string | null;
   helpUrl?: string;
   helpLabel?: string;
+  helpDescription?: string;
 }
 
-export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: ApiKeyRowProps) {
+export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, helpDescription }: ApiKeyRowProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -76,6 +77,7 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: 
           <a href={helpUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
             {helpLabel ?? "API 키 발급받기"}
           </a>
+          {helpDescription && <span> · {helpDescription}</span>}
         </p>
       )}
     </div>

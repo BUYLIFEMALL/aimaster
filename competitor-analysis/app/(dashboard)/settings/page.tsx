@@ -8,8 +8,12 @@ export const dynamic = "force-dynamic";
 
 const PROVIDERS: ApiKeyProvider[] = ["serpapi", "perplexity", "openai", "anthropic"];
 
-const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string }>> = {
-  serpapi: { url: "https://serpapi.com/manage-api-key", label: "SerpApi 키 발급받기 (serpapi.com)" },
+const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string; description?: string }>> = {
+  serpapi: {
+    url: "https://serpapi.com/manage-api-key",
+    label: "SerpApi 키 발급받기 (serpapi.com)",
+    description: "무료 플랜은 월 250회 검색까지 무료(일 단위 한도는 따로 없음) · 250회 소진 후에는 유료 플랜 결제 필요",
+  },
   perplexity: { url: "https://www.perplexity.ai/settings/api", label: "Perplexity 키 발급받기" },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
   anthropic: { url: "https://console.anthropic.com/settings/keys", label: "Anthropic 키 발급받기" },
@@ -45,6 +49,7 @@ export default async function SettingsPage() {
             maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
             helpUrl={HELP_LINKS[provider]?.url}
             helpLabel={HELP_LINKS[provider]?.label}
+            helpDescription={HELP_LINKS[provider]?.description}
           />
         ))}
       </div>
