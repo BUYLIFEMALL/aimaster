@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -72,17 +71,10 @@ export default async function JobDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
-      <Link href={`/keywords/${keyword.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
-        ← {keyword.keyword} 분석 이력으로
-      </Link>
-
-      <div>
-        <h1 className="text-2xl font-black text-gray-900">{keyword.keyword}</h1>
-        <p className="text-xs text-gray-400 mt-1">
-          {new Date(job.executed_at).toLocaleString("ko-KR")} · 총 검색결과 {job.total_results?.toLocaleString() ?? "-"}건
-        </p>
-      </div>
+    <div className="space-y-6">
+      <p className="text-xs text-gray-400">
+        🕒 {new Date(job.executed_at).toLocaleString("ko-KR")} · 총 검색결과 {job.total_results?.toLocaleString() ?? "-"}건
+      </p>
 
       {analysis?.summary_text && (
         <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3">

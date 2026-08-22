@@ -53,3 +53,14 @@ export async function deleteKeywordAction(keywordId: string) {
 
   revalidatePath("/keywords");
 }
+
+/** 분석 회차(job) 하나를 삭제한다. FK on delete cascade로 해당 SERP 결과/분석도 함께 지워진다. */
+export async function deleteJobAction(keywordId: string, jobId: string) {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  await supabase.from("competitor_serp_jobs").delete().eq("id", jobId).eq("user_id", user.id);
+
+  revalidatePath(`/keywords/${keywordId}`);
+  revalidatePath("/keywords");
+}
