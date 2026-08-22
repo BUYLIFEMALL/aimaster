@@ -1,16 +1,11 @@
 import 'server-only'
 
-export type ApiKeyProvider = 'openai' | 'anthropic' | 'gemini' | 'perplexity'
+export type { ApiKeyProvider } from './apiKeyLabels'
+export { PROVIDER_LABELS, maskApiKey } from './apiKeyLabels'
+import type { ApiKeyProvider } from './apiKeyLabels'
 
 type SupabaseLike = {
   from: (table: string) => any // eslint-disable-line @typescript-eslint/no-explicit-any
-}
-
-export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
-  openai: 'OpenAI (GPT)',
-  anthropic: 'Anthropic (Claude)',
-  gemini: 'Google (Gemini)',
-  perplexity: 'Perplexity',
 }
 
 // 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
@@ -44,9 +39,4 @@ export async function resolveApiKey(
 ): Promise<string | null> {
   const ownKey = await getUserApiKey(supabase, userId, provider)
   return ownKey || FALLBACK_ENV_KEYS[provider] || null
-}
-
-export function maskApiKey(key: string): string {
-  if (key.length <= 8) return '••••••••'
-  return `${key.slice(0, 6)}${'•'.repeat(8)}${key.slice(-4)}`
 }
