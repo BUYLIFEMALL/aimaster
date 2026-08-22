@@ -3,9 +3,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ApiKeyProvider, Database } from "@/types/database.types";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
-  openai: "OpenAI (GPT)",
-  gemini: "Google (Gemini)",
-  perplexity: "Perplexity",
+  openai: "OpenAI (GPT — 게시글 생성)",
+  gemini: "Google (Gemini — 카드뉴스 이미지 생성)",
+  perplexity: "Perplexity (실시간 주제 수집)",
 };
 
 // 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.

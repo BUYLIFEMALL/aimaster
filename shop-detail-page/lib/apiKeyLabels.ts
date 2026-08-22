@@ -5,7 +5,7 @@ import type { ApiKeyProvider } from "@/types/database.types";
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   openai: "OpenAI (GPT / GPT Image 1)",
   anthropic: "Anthropic (Claude)",
-  gemini: "Google (Gemini / 나노바나나)",
+  gemini: "Google (나노바나나 — 상품분석/이미지 생성)",
   perplexity: "Perplexity",
   replicate: "Replicate (FLUX)",
 };

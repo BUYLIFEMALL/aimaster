@@ -3,10 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ApiKeyProvider, Database } from "@/types/database.types";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
-  openai: "OpenAI (GPT)",
+  openai: "OpenAI (GPT — 영상 대본 생성)",
   anthropic: "Anthropic (Claude)",
-  gemini: "Google (Gemini)",
-  perplexity: "Perplexity",
+  gemini: "Google (Gemini — 장면 이미지 생성)",
+  perplexity: "Perplexity (실시간 주제 수집)",
   suno: "Suno (배경음악)",
   json2video: "JSON2VIDEO 연동(최종 영상렌더링)",
   google_client_id: "Google OAuth Client ID (유튜브 채널 연동)",
