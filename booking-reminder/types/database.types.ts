@@ -212,6 +212,7 @@ export interface Database {
       user_telegram_links: {
         Row: {
           user_id: string;
+          program_slug: string;
           bot_token: string;
           chat_id: string;
           bot_username: string | null;
@@ -219,6 +220,7 @@ export interface Database {
         };
         Insert: {
           user_id: string;
+          program_slug: string;
           bot_token: string;
           chat_id: string;
           bot_username?: string | null;
@@ -226,6 +228,7 @@ export interface Database {
         };
         Update: {
           user_id?: string;
+          program_slug?: string;
           bot_token?: string;
           chat_id?: string;
           bot_username?: string | null;

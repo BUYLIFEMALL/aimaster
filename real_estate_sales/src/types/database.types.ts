@@ -1746,6 +1746,7 @@ export type Database = {
           chat_id: string
           id: string
           linked_at: string
+          program_slug: string
           user_id: string
         }
         Insert: {
@@ -1754,6 +1755,7 @@ export type Database = {
           chat_id: string
           id?: string
           linked_at?: string
+          program_slug: string
           user_id: string
         }
         Update: {
@@ -1762,6 +1764,7 @@ export type Database = {
           chat_id?: string
           id?: string
           linked_at?: string
+          program_slug?: string
           user_id?: string
         }
         Relationships: []

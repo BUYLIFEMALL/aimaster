@@ -20,6 +20,7 @@ export default async function SettingsPage() {
       .from("user_telegram_links")
       .select("bot_username, chat_id, linked_at")
       .eq("user_id", user.id)
+      .eq("program_slug", "real-estate-sales")
       .maybeSingle(),
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase

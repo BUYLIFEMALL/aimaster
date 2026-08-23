@@ -107,6 +107,7 @@ export async function runKeywordExpansionAction(seedId: string): Promise<RunExpa
       .from("user_telegram_links")
       .select("bot_token, chat_id")
       .eq("user_id", user.id)
+      .eq("program_slug", "longtail-keyword-expander")
       .maybeSingle();
     if (telegramLink) {
       try {

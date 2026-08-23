@@ -24,6 +24,7 @@ export default async function SettingsPage() {
       .from("user_telegram_links")
       .select("bot_username")
       .eq("user_id", user.id)
+      .eq("program_slug", "booking-reminder")
       .maybeSingle(),
     supabase
       .from("user_solapi_accounts")

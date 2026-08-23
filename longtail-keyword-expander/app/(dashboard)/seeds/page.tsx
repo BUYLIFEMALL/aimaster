@@ -37,7 +37,7 @@ export default async function SeedsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900">키워드 확장</h1>
+        <h1 className="text-2xl font-black text-gray-900">롱테일 키워드 확장</h1>
         <p className="text-sm text-gray-500 mt-1">
           키워드를 등록하고 "지금 확장하기"를 누르면 네이버(또는 구글) 검색결과를 기반으로
           연관·롱테일 키워드와 블로그 작업 지시를 만들어드립니다.

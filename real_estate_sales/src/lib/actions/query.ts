@@ -39,6 +39,7 @@ export async function queryDistrictsAction(): Promise<QueryDistrictsResult> {
     .from("user_telegram_links")
     .select("bot_token, chat_id")
     .eq("user_id", user.id)
+    .eq("program_slug", "real-estate-sales")
     .maybeSingle();
   const telegramLinked = !!(telegramLink?.bot_token && telegramLink?.chat_id);
 

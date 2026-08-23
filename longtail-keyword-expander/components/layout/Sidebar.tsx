@@ -4,8 +4,8 @@ import { signOutAction } from "@/lib/actions/auth";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
 const NAV_ITEMS = [
-  { href: "/seeds", label: "키워드 확장" },
-  { href: "/runs", label: "실행 이력" },
+  { href: "/seeds", label: "롱테일 키워드 확장" },
+  { href: "/runs", label: "롱테일 키워드 분석" },
   { href: "/settings", label: "🔑 API 키 / 알림 설정" },
 ];
 

@@ -172,6 +172,7 @@ export async function notifyUserForListings(
     .from("user_telegram_links")
     .select("bot_token, chat_id")
     .eq("user_id", userId)
+    .eq("program_slug", "real-estate-sales")
     .maybeSingle();
   if (!telegramLink?.bot_token || !telegramLink?.chat_id) return;
 

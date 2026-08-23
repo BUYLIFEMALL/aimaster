@@ -39,6 +39,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
+          program_slug: string;
           bot_token: string;
           chat_id: string;
           bot_username: string | null;
@@ -47,6 +48,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
+          program_slug: string;
           bot_token: string;
           chat_id: string;
           bot_username?: string | null;
@@ -55,6 +57,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
+          program_slug?: string;
           bot_token?: string;
           chat_id?: string;
           bot_username?: string | null;

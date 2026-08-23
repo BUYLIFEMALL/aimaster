@@ -11,8 +11,11 @@ export interface TelegramActionState {
 }
 
 // user_telegram_links는 real_estate_sales가 만든 공용 테이블이다(프로그램 접두어 없음,
-// docs/PLATFORM_PATTERNS.md §9) — 다른 프로그램에서 이미 텔레그램을 연결한 회원은 여기서
-// 다시 연결할 필요 없이 그대로 재사용된다.
+// docs/PLATFORM_PATTERNS.md §9). 프로그램마다 다른 봇을 연결할 수 있도록 (user_id,
+// program_slug) 단위로 스코프된다(2026-08-23 변경) — 다른 프로그램에서 이미 텔레그램을
+// 연결한 회원이라도, 이 프로그램에서는 별도로 연동해야 한다.
+const THIS_PROGRAM_SLUG = "longtail-keyword-expander";
+
 export async function connectTelegramAction(
   _prevState: TelegramActionState,
   formData: FormData,
@@ -42,12 +45,13 @@ export async function connectTelegramAction(
   const { error } = await supabase.from("user_telegram_links").upsert(
     {
       user_id: user.id,
+      program_slug: THIS_PROGRAM_SLUG,
       bot_token: botToken,
       chat_id: chatInfo.chatId,
       bot_username: chatInfo.botUsername ?? null,
       linked_at: new Date().toISOString(),
     },
-    { onConflict: "user_id" },
+    { onConflict: "user_id,program_slug" },
   );
 
   if (error) {
@@ -71,6 +75,10 @@ export async function connectTelegramAction(
 export async function disconnectTelegramAction() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  await supabase.from("user_telegram_links").delete().eq("user_id", user.id);
+  await supabase
+    .from("user_telegram_links")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("program_slug", THIS_PROGRAM_SLUG);
   revalidatePath("/settings");
 }

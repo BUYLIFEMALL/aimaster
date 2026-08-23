@@ -24,7 +24,7 @@ export default async function RunsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900">실행 이력</h1>
+        <h1 className="text-2xl font-black text-gray-900">롱테일 키워드 분석</h1>
         <p className="text-sm text-gray-500 mt-1">지금까지 실행한 모든 키워드 확장 결과를 최신순으로 모아서 보여드립니다.</p>
       </div>
 

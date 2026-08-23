@@ -28,7 +28,12 @@ export default async function SettingsPage() {
 
   const [{ data: keys }, { data: telegramLink }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
-    supabase.from("user_telegram_links").select("bot_username").eq("user_id", user.id).maybeSingle(),
+    supabase
+      .from("user_telegram_links")
+      .select("bot_username")
+      .eq("user_id", user.id)
+      .eq("program_slug", "longtail-keyword-expander")
+      .maybeSingle(),
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));

@@ -68,6 +68,7 @@ export async function dispatchSubmissionNotifications(
       .from("user_telegram_links")
       .select("bot_token, chat_id")
       .eq("user_id", source.user_id)
+      .eq("program_slug", "crm-google-form")
       .maybeSingle();
 
     if (telegramLink) {

@@ -116,9 +116,10 @@ real_estate_sales(부동산 실시간 매매정보)에서 서울 열린데이터
 
 - OAuth 같은 리다이렉트 로그인 방식이 텔레그램엔 없다. 대신 `getUpdates` API로 "방금 사용자가 자기 봇에게 보낸 메시지"에서 `chat_id`를 읽어오는 방식을 쓴다 (사용자가 BotFather로 봇 생성 → 토큰 발급 → 자기 봇에게 아무 메시지나 1개 전송 → 우리 서버가 그 토큰으로 `getUpdates` 호출해서 chat_id 확보).
 - 공용 웹훅을 미리 등록해둘 필요가 없어서(사용자마다 봇 토큰이 다르므로 애초에 불가능) 서버리스 환경에 잘 맞는다.
-- 테이블은 프로그램 전용 접두어 없이 `user_telegram_links`(user_id unique, bot_token, chat_id, bot_username)로 만들어서, 텔레그램 알림이 필요한 다음 서브프로젝트도 그대로 재사용할 수 있게 했다.
+- 테이블은 프로그램 전용 접두어 없이 `user_telegram_links`로 만들어서, 텔레그램 알림이 필요한 다음 서브프로젝트도 그대로 재사용할 수 있게 했다. **단, 봇 연결 자체는 프로그램별로 독립이다** — `(user_id, program_slug)` unique 제약(2026-08-23부터, 그 전엔 `user_id` 단독 unique라 모든 프로그램이 같은 봇을 강제로 공유했다). 사용자가 real_estate_sales에서 연동한 봇과 booking-reminder에서 연동한 봇이 서로 달라도 되고, 한쪽에서 "연동 해제"해도 다른 프로그램의 연결에는 영향이 없다.
+- 새 서브프로젝트에서 이 테이블을 쓸 때는 `connectTelegramAction`/`disconnectTelegramAction`/조회 쿼리 전부에 그 프로젝트의 `program_slug`(`.eq("program_slug", THIS_PROGRAM_SLUG)`, upsert `onConflict: "user_id,program_slug"`)를 반드시 넣을 것 — 빠뜨리면 다른 프로그램의 연결까지 덮어쓰거나 잘못 읽어온다.
 
-핵심 코드: `real_estate_sales/src/lib/telegram/client.ts`의 `findChatIdFromUpdates()`, `real_estate_sales/src/lib/actions/telegram.ts`.
+핵심 코드: `real_estate_sales/src/lib/telegram/client.ts`의 `findChatIdFromUpdates()`, `real_estate_sales/src/lib/actions/telegram.ts`. 실제 스키마 변경은 `real_estate_sales/supabase/migrations/20260823120000_telegram_links_per_program.sql`.
 
 **같은 철학으로 SMTP 이메일 계정도 공용화했다** (2026-08-18) — 원래 stepmail 전용
 `stepmail_smtp_accounts`였는데, crm-google-form을 만들면서 사용자가 "본인 이메일 계정을
