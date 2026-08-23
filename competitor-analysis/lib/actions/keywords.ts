@@ -18,6 +18,8 @@ export async function createKeywordAction(formData: FormData): Promise<CreateKey
   const location = String(formData.get("location") ?? "").trim() || "South Korea";
   const googleDomain = String(formData.get("googleDomain") ?? "").trim() || "google.com";
   const lang = String(formData.get("lang") ?? "").trim() || "ko";
+  const engineInput = String(formData.get("engine") ?? "").trim();
+  const engine = engineInput === "naver" ? "naver" : "google";
 
   const { error } = await supabase.from("competitor_keywords").insert({
     user_id: user.id,
@@ -25,6 +27,7 @@ export async function createKeywordAction(formData: FormData): Promise<CreateKey
     location,
     google_domain: googleDomain,
     lang,
+    engine,
   });
   if (error) return { error: error.message };
 

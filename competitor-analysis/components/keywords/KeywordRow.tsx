@@ -11,9 +11,12 @@ export interface KeywordRowData {
   id: string;
   keyword: string;
   location: string;
+  engine: "google" | "naver";
   is_active: boolean;
   analysisCount: number;
 }
+
+const ENGINE_LABEL: Record<"google" | "naver", string> = { google: "구글", naver: "네이버" };
 
 export function KeywordRow({ keyword }: { keyword: KeywordRowData }) {
   const router = useRouter();
@@ -53,7 +56,12 @@ export function KeywordRow({ keyword }: { keyword: KeywordRowData }) {
     <>
       <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
         <Link href={`/keywords/${keyword.id}`} className="min-w-0 flex-1">
-          <p className="font-bold text-gray-900 truncate">{keyword.keyword}</p>
+          <p className="font-bold text-gray-900 truncate flex items-center gap-1.5">
+            {keyword.keyword}
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+              {ENGINE_LABEL[keyword.engine]}
+            </span>
+          </p>
           <p className="text-xs text-gray-400 mt-0.5">
             {keyword.location} · 분석 {keyword.analysisCount}회
           </p>

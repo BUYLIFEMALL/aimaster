@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { searchGoogle, extractDomain } from "@/lib/serp/client";
+import { searchSerp, extractDomain } from "@/lib/serp/client";
 import { researchCompanyByDomain, extractCompanyName } from "@/lib/ai/research";
 import { analyzeKeywordCompetitors } from "@/lib/ai/analysis";
 import { generateHtmlReport } from "@/lib/ai/report";
@@ -41,7 +41,8 @@ export async function runKeywordAnalysisAction(keywordId: string): Promise<RunAn
   if (!openaiKey) return { needsApiKey: "openai" };
 
   try {
-    const serpResult = await searchGoogle(
+    const serpResult = await searchSerp(
+      keyword.engine,
       {
         keyword: keyword.keyword,
         location: keyword.location,
@@ -60,6 +61,7 @@ export async function runKeywordAnalysisAction(keywordId: string): Promise<RunAn
         location: keyword.location,
         google_domain: keyword.google_domain,
         lang: keyword.lang,
+        engine: keyword.engine,
         serp_search_id: serpResult.searchId,
       })
       .select("id")

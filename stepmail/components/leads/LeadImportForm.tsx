@@ -39,8 +39,8 @@ export function LeadImportForm() {
     <form onSubmit={handleSubmit} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
       <p className="text-sm font-bold text-gray-800 mb-2">엑셀로 리드 가져오기</p>
       <p className="text-xs text-gray-500 mb-3">
-        컬럼: 입력일 / 채널 / 닉네임 / 이메일 / 메모 / 현재Funnel / 콜드메일차수 / 마지막 콜드메일
-        발송일. 이미 등록된 이메일은 최신 정보로 갱신됩니다.
+        컬럼: 이메일(필수) / 닉네임 / 채널 / 상태(미발송, 1~5차 발송, 발송제외, 수신거부). 이미
+        등록된 이메일은 최신 정보로 갱신됩니다.
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <input
@@ -50,6 +50,12 @@ export function LeadImportForm() {
           required
           className="flex-1 min-w-[200px] text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700"
         />
+        <a
+          href="/api/leads/template"
+          className="px-3 py-2 rounded-lg text-sm font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 whitespace-nowrap"
+        >
+          입력폼 다운로드
+        </a>
         <button
           type="submit"
           disabled={isPending}

@@ -179,16 +179,9 @@ export default async function HomePage() {
                     </Link>
                   </div>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {catPrograms.slice(0, 3).map((program) => (
+                    {catPrograms.map((program) => (
                       <ProgramCard key={program.id} program={program} />
                     ))}
-                  </div>
-                  <div className="mt-6 text-center md:hidden">
-                    <Link href={`/programs/category/${category.slug}`}>
-                      <GoldButton variant="outline" size="sm">
-                        {category.name} 전체 보기
-                      </GoldButton>
-                    </Link>
                   </div>
                 </div>
               ))}

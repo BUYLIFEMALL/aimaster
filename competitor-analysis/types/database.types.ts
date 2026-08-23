@@ -1,5 +1,6 @@
 export type ApiKeyProvider = "serpapi" | "perplexity" | "openai" | "anthropic";
 export type ResultType = "organic" | "ad" | "paa" | "local";
+export type SerpEngine = "google" | "naver";
 export type CompetitorSourceKind = "track" | "upload"; // (미사용, 확장 여지로만 남김)
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
@@ -42,6 +43,7 @@ export interface Database {
           location: string;
           google_domain: string;
           lang: string;
+          engine: SerpEngine;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -53,6 +55,7 @@ export interface Database {
           location?: string;
           google_domain?: string;
           lang?: string;
+          engine?: SerpEngine;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -64,6 +67,7 @@ export interface Database {
           location?: string;
           google_domain?: string;
           lang?: string;
+          engine?: SerpEngine;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -79,6 +83,7 @@ export interface Database {
           location: string | null;
           google_domain: string | null;
           lang: string | null;
+          engine: SerpEngine;
           serp_search_id: string | null;
           executed_at: string;
           created_at: string;
@@ -91,6 +96,7 @@ export interface Database {
           location?: string | null;
           google_domain?: string | null;
           lang?: string | null;
+          engine?: SerpEngine;
           serp_search_id?: string | null;
           executed_at?: string;
           created_at?: string;
@@ -103,6 +109,7 @@ export interface Database {
           location?: string | null;
           google_domain?: string | null;
           lang?: string | null;
+          engine?: SerpEngine;
           serp_search_id?: string | null;
           executed_at?: string;
           created_at?: string;

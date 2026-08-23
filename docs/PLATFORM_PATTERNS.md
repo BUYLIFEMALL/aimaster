@@ -187,7 +187,28 @@ Cloudinary 자체는 계속 써도 된다 — 다만 **신규 이미지 "생성"
 
 ---
 
-## 13. 검증 루틴 (모든 서브프로젝트 공통)
+## 14. 공용 `user_api_keys`에 새 provider 추가할 때 체크 제약도 같이 넓힐 것
+
+새 서브프로젝트가 `user_api_keys` 테이블에 없던 provider(예: `serpapi`)를 쓰려고 하면, 코드
+(`ApiKeyProvider` 타입, `PROVIDER_LABELS`)만 고치고 실제 DB의 `user_api_keys_provider_check`
+체크 제약을 넓히는 걸 깜빡하기 쉽다. 이러면 사용자가 설정 페이지에서 키를 저장할 때
+`new row for relation "user_api_keys" violates check constraint "user_api_keys_provider_check"`
+에러만 나고 원인을 알기 어렵다(2026-08-22, competitor-analysis의 `serpapi` 추가 때 실제로 겪음 —
+auto-detail-page가 `replicate` 추가할 때도 동일 패턴 이미 있었음).
+
+새 provider를 쓰는 서브프로젝트를 만들 때 체크리스트:
+1. 서브프로젝트의 `types/database.types.ts`에 `ApiKeyProvider` 타입/`PROVIDER_LABELS` 추가
+2. **`user_api_keys_provider_check` 제약도 같이 ALTER로 넓히기** (아래 SQL, `supabase/add-*.sql`로도 남길 것)
+
+```sql
+ALTER TABLE user_api_keys DROP CONSTRAINT user_api_keys_provider_check;
+ALTER TABLE user_api_keys ADD CONSTRAINT user_api_keys_provider_check
+  CHECK (provider = ANY (ARRAY[...기존 값들..., '새provider'::text]));
+```
+
+---
+
+## 15. 검증 루틴 (모든 서브프로젝트 공통)
 
 코드 변경 시마다 다음 순서로 검증 후 배포한다 — 세션 내내 이 순서를 지켰음.
 

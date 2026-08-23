@@ -10,7 +10,10 @@ import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 export interface JobListItem {
   id: string;
   executed_at: string;
+  engine: "google" | "naver";
 }
+
+const ENGINE_LABEL: Record<"google" | "naver", string> = { google: "구글", naver: "네이버" };
 
 export function JobListSidebar({ keywordId, jobs }: { keywordId: string; jobs: JobListItem[] }) {
   const router = useRouter();
@@ -82,7 +85,12 @@ export function JobListSidebar({ keywordId, jobs }: { keywordId: string; jobs: J
                   }`}
                 >
                   <Link href={`/keywords/${keywordId}/jobs/${job.id}`} className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-gray-900">{dt.toLocaleDateString("ko-KR")}</p>
+                    <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+                      {dt.toLocaleDateString("ko-KR")}
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                        {ENGINE_LABEL[job.engine]}
+                      </span>
+                    </p>
                     <p className="text-xs text-gray-400">
                       {dt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
                     </p>

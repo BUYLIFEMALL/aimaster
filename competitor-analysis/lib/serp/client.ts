@@ -1,4 +1,5 @@
 import "server-only";
+import type { SerpEngine } from "@/types/database.types";
 
 export interface SerpSearchParams {
   keyword: string;
@@ -97,4 +98,59 @@ export async function searchGoogle(params: SerpSearchParams, apiKey: string): Pr
     totalResults: json.search_information?.total_results ?? null,
     items,
   };
+}
+
+/**
+ * SerpApi의 네이버 검색 엔진을 호출한다. 네이버 응답은 구글과 필드 이름이 전혀 달라서
+ * (조직검색결과가 organic_results가 아니라 web_results, 쿼리 파라미터도 q가 아니라
+ * query) 별도 파서로 분리했다. PAA/지역(local)에 해당하는 네이버 필드는 문서상 의미가
+ * 구글의 related_questions/local_results와 정확히 대응하지 않아(연관검색어는 질문형이
+ * 아니라 단순 검색어 제안) 잘못 매핑하는 대신 organic/ad만 채운다.
+ */
+export async function searchNaver(params: SerpSearchParams, apiKey: string): Promise<SerpSearchResult> {
+  const url = new URL("https://serpapi.com/search.json");
+  url.searchParams.set("engine", "naver");
+  url.searchParams.set("query", params.keyword);
+  url.searchParams.set("api_key", apiKey);
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`SerpApi(네이버) 호출에 실패했습니다 (${response.status}): ${text.slice(0, 300)}`);
+  }
+  const json = await response.json();
+
+  const items: SerpResultItem[] = [];
+
+  for (const r of json.web_results ?? []) {
+    items.push({
+      position: r.position ?? null,
+      resultType: "organic",
+      title: r.title ?? null,
+      link: r.link ?? null,
+      snippet: r.snippet ?? null,
+    });
+  }
+  for (const r of json.ads_results ?? []) {
+    items.push({
+      position: null,
+      resultType: "ad",
+      title: r.title ?? null,
+      link: r.link ?? null,
+      snippet: r.description ?? null,
+    });
+  }
+
+  return {
+    // 네이버는 구글과 달리 search_information.total_results를 내려주지 않는다(실측 확인,
+    // 2026-08-23) — 총 검색결과 수는 항상 null로 남는다.
+    searchId: json.search_metadata?.id ?? null,
+    totalResults: null,
+    items,
+  };
+}
+
+/** 키워드의 engine 값에 따라 적절한 SerpApi 엔진 함수로 위임한다. */
+export function searchSerp(engine: SerpEngine, params: SerpSearchParams, apiKey: string): Promise<SerpSearchResult> {
+  return engine === "naver" ? searchNaver(params, apiKey) : searchGoogle(params, apiKey);
 }

@@ -9,6 +9,7 @@ export function KeywordForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [engine, setEngine] = useState<"google" | "naver">("google");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,6 +37,15 @@ export function KeywordForm() {
           required
           className="input flex-1 min-w-[200px]"
         />
+        <select
+          name="engine"
+          value={engine}
+          onChange={(e) => setEngine(e.target.value as "google" | "naver")}
+          className="input-sm w-28"
+        >
+          <option value="google">구글</option>
+          <option value="naver">네이버</option>
+        </select>
         <button
           type="submit"
           disabled={isPending}
@@ -45,15 +55,17 @@ export function KeywordForm() {
         </button>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setShowAdvanced((v) => !v)}
-        className="text-xs font-semibold text-blue-600 hover:underline"
-      >
-        {showAdvanced ? "▲ 세부 옵션 닫기" : "▼ 세부 옵션 (지역/언어, 선택)"}
-      </button>
+      {engine === "google" && (
+        <button
+          type="button"
+          onClick={() => setShowAdvanced((v) => !v)}
+          className="text-xs font-semibold text-blue-600 hover:underline"
+        >
+          {showAdvanced ? "▲ 세부 옵션 닫기" : "▼ 세부 옵션 (지역/언어, 선택)"}
+        </button>
+      )}
 
-      {showAdvanced && (
+      {engine === "google" && showAdvanced && (
         <div className="flex flex-wrap gap-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
           <div>
             <label className="block text-xs font-semibold text-gray-500 mb-1">지역</label>

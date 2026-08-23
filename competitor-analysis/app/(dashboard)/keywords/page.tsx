@@ -15,7 +15,7 @@ export default async function KeywordsPage() {
   const [{ data: keywords }, { data: analyses }] = await Promise.all([
     supabase
       .from("competitor_keywords")
-      .select("id, keyword, location, is_active")
+      .select("id, keyword, location, engine, is_active")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase.from("competitor_analyses").select("keyword_id").eq("user_id", user.id),
@@ -30,6 +30,7 @@ export default async function KeywordsPage() {
     id: k.id,
     keyword: k.keyword,
     location: k.location,
+    engine: k.engine,
     is_active: k.is_active,
     analysisCount: countByKeyword.get(k.id) ?? 0,
   }));
@@ -39,8 +40,8 @@ export default async function KeywordsPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-black text-gray-900">키워드 분석</h1>
         <p className="text-sm text-gray-500 mt-1">
-          키워드를 등록하고 "지금 분석하기"를 누르면 구글 검색결과를 기반으로 경쟁사와 콘텐츠
-          전략을 분석해드립니다.
+          키워드를 등록하고 "지금 분석하기"를 누르면 구글(또는 네이버) 검색결과를 기반으로
+          경쟁사와 콘텐츠 전략을 분석해드립니다.
         </p>
       </div>
 

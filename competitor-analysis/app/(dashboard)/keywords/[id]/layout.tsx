@@ -17,7 +17,7 @@ export default async function KeywordLayout({ params, children }: LayoutProps) {
 
   const { data: keyword } = await supabase
     .from("competitor_keywords")
-    .select("id, keyword, location")
+    .select("id, keyword, location, engine")
     .eq("id", params.id)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -25,7 +25,7 @@ export default async function KeywordLayout({ params, children }: LayoutProps) {
 
   const { data: jobs } = await supabase
     .from("competitor_serp_jobs")
-    .select("id, executed_at")
+    .select("id, executed_at, engine")
     .eq("user_id", user.id)
     .eq("keyword_id", keyword.id)
     .order("executed_at", { ascending: false });
@@ -36,7 +36,12 @@ export default async function KeywordLayout({ params, children }: LayoutProps) {
         ← 키워드 목록으로
       </Link>
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900">{keyword.keyword}</h1>
+        <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+          {keyword.keyword}
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+            {keyword.engine === "naver" ? "네이버" : "구글"}
+          </span>
+        </h1>
         <p className="text-xs text-gray-400 mt-1">{keyword.location}</p>
       </div>
 

@@ -75,6 +75,7 @@ competitor-analysis는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 | Phase | 내용 | 상태 |
 |-------|------|------|
 | 1 | 키워드 CRUD, SerpApi 검색(organic/ad/PAA 분류), 경쟁사 리서치(전역 캐시 dedup), GPT 분석, 선택적 Claude HTML 리포트 | ✅ 구현 완료 |
+| 1 | 구글 외 네이버 검색엔진 지원 — 키워드마다 구글/네이버 선택(`competitor_keywords.engine`), `lib/serp/client.ts`의 `searchNaver()`(응답 필드가 구글과 달라 별도 파서: `web_results`→organic, `ads_results`→ad). 네이버는 PAA/지역결과에 대응하는 필드가 명확하지 않아 organic/ad만 채움 | ✅ 구현 완료 (2026-08-23) |
 | 2 | Vercel Cron 정기 모니터링 + 이전 회차 대비 순위 변동 표시 | ⏳ 예정 |
 | 2 | 여러 키워드를 가로지르는 "도메인별 노출 빈도(share of voice)" 대시보드 | ⏳ 예정 |
 | 2 | PAA 질문 중 미대응 콘텐츠 갭 제안 | ⏳ 예정 |
