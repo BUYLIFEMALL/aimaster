@@ -98,11 +98,16 @@ if (uploadErr) {
 }
 
 const { data: pub } = supabase.storage.from("program-images").getPublicUrl(storagePath);
-console.log("업로드 완료:", pub.publicUrl);
+// 파일 경로(catalog/<slug>-thumbnail.jpg)가 매번 그대로라, URL만 보고 caching하는
+// Next.js 이미지 최적화(root 앱)/브라우저가 "안 바뀐 파일"로 착각해 재생성해도 화면에
+// 예전 이미지가 계속 보이는 문제가 있었다(2026-08-23 longtail-keyword-expander에서 실제
+// 발견). URL에 버전 쿼리스트링을 붙여 매번 새 캐시 키가 되도록 한다.
+const versionedUrl = `${pub.publicUrl}?v=${Date.now()}`;
+console.log("업로드 완료:", versionedUrl);
 
 const { error: updateErr } = await supabase
   .from("programs")
-  .update({ thumbnail_url: pub.publicUrl })
+  .update({ thumbnail_url: versionedUrl })
   .eq("slug", slug);
 if (updateErr) {
   console.error("programs.thumbnail_url 갱신 실패:", updateErr.message);

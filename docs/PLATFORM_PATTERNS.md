@@ -181,6 +181,7 @@ crm-google-form의 팔로우업 cron(`app/api/cron/followup`)을 만들면서, `
    - 프로그램 카탈로그(`programs.thumbnail_url`) 썸네일: `program-images`(public) 버킷, `catalog/<program-slug>-thumbnail.jpg` 경로 — 참고: `music/scripts/upload-music-thumbnail.mjs`
    - 그 외 서브프로젝트 자체 콘텐츠 이미지는 각자 이미 쓰고 있는 전용 public 버킷을 재사용한다 (예: `shop-detail-images`, `stepmail-images`)
 3. 결과 공개 URL을 해당 DB 컬럼(`thumbnail_url` 등)에 저장한다. **정적 파일이 아니라 DB 값이라 root 앱 재배포가 필요 없다.**
+   - **같은 프로그램 썸네일을 재생성할 때는 URL에 버전 쿼리스트링(`?v=<timestamp>`)을 꼭 붙일 것.** 저장 경로(`catalog/<slug>-thumbnail.jpg`)가 매번 그대로라, URL만 보고 캐싱하는 root 앱의 Next.js 이미지 최적화가 "안 바뀐 파일"로 착각해 스토리지 원본은 새로 바뀌었는데도 화면엔 예전 이미지가 계속 보이는 문제가 있었다(2026-08-23, longtail-keyword-expander 재생성 때 실제 발견 — `scripts/generate-program-thumbnail.mjs`에 이미 반영해둠).
 
 **public 버킷으로 직접 서빙해도 보안이나 외부 링크 제공 문제 없음.** Cloudinary와 동일하게 인증 없는 순수 공개 HTTPS URL(`https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/<bucket>/...`)로 서빙되며, 외부 사이트·Make.com/n8n 같은 자동화 도구가 `<img>`/hotlink으로 그대로 불러다 써도 문제없다. 루트 사이트 `next.config.mjs`의 `images.remotePatterns`에 이 Supabase Storage 도메인이 이미 허용되어 있어 추가 설정도 필요 없다(커밋 `868799d`). 오히려 Cloudinary 같은 제3자 서비스의 월간 생성 한도에 다시 걸릴 위험이 없어진다는 게 장점이다.
 
