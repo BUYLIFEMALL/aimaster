@@ -48,9 +48,10 @@ export default async function SettingsPage() {
       <section>
         <h1 className="text-2xl font-black text-gray-900 mb-2">발송 계정 설정</h1>
         <p className="text-sm text-gray-500">
-          예약 리마인드를 보낼 이메일/문자·카카오/텔레그램 계정을 등록하세요. 다른 AIMaster
-          프로그램(crm-google-form 등)에서 이미 등록하셨다면 여기서도 그대로 재사용됩니다 —
-          다시 등록하실 필요 없습니다.
+          예약 리마인드를 보낼 이메일/문자·카카오/텔레그램 계정을 등록하세요. 이메일·문자·카카오
+          계정은 다른 AIMaster 프로그램(crm-google-form 등)에서 이미 등록하셨다면 여기서도 그대로
+          재사용됩니다. 단, 텔레그램 봇 연동은 프로그램마다 독립적이라 여기서 별도로 연동해야
+          합니다.
         </p>
       </section>
 

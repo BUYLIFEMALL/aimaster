@@ -69,8 +69,9 @@ export default async function SettingsPage() {
       <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
         <p className="text-sm text-gray-500">
-          키워드 확장이 끝나면 결과 요약을 텔레그램으로도 받아볼 수 있어요(선택 기능). 예약
-          리마인드 등 다른 AIMaster 프로그램에서 이미 연동하셨다면 여기서도 그대로 재사용됩니다.
+          키워드 확장이 끝나면 결과 요약을 텔레그램으로도 받아볼 수 있어요(선택 기능). 봇 연동은
+          프로그램마다 독립적이라, 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
+          연동해야 합니다.
         </p>
 
         {telegramLink ? (
