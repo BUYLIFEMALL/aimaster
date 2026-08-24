@@ -58,6 +58,9 @@ export async function GET(request: NextRequest) {
         access_token: token.access_token,
         refresh_token: token.refresh_token,
         token_expires_at: tokenExpiresAt,
+        needs_reconnect: false,
+        last_checked_at: new Date().toISOString(),
+        reconnect_notified_at: null,
       },
       { onConflict: "user_id" },
     );

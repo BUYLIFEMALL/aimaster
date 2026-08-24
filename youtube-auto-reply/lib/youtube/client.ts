@@ -154,13 +154,16 @@ export async function listUploadedVideos(
     nextPageToken?: string;
   };
 
+  // 업로드 재생목록에는 실제로 삭제된 영상의 항목도 남아있을 수 있는데, 이때 유튜브가
+  // 제목을 "Deleted video"로, 썸네일 없이 내려준다 — 실제 영상이 아니므로 동기화 대상에서
+  // 아예 제외한다(댓글도 없고 존재하지도 않는 영상이라 모니터링할 이유가 없음).
   const videos = (data.items ?? [])
     .map((item) => ({
       videoId: item.snippet?.resourceId?.videoId ?? "",
       title: item.snippet?.title ?? "(제목 없음)",
       thumbnailUrl: item.snippet?.thumbnails?.medium?.url ?? item.snippet?.thumbnails?.default?.url ?? null,
     }))
-    .filter((v) => v.videoId);
+    .filter((v) => v.videoId && v.title !== "Deleted video");
 
   return { videos, nextPageToken: data.nextPageToken ?? null };
 }
@@ -169,6 +172,7 @@ export interface YoutubeCommentThread {
   topLevelCommentId: string;
   authorDisplayName: string | null;
   textOriginal: string;
+  publishedAt: string | null;
 }
 
 /** 특정 영상의 최상위 댓글을 최신순으로 가져온다(대댓글에는 답글을 달지 않는다 — 원 댓글에만 응답). */
@@ -201,7 +205,7 @@ export async function listRecentCommentThreads(
       id?: string;
       snippet?: {
         topLevelComment?: {
-          snippet?: { authorDisplayName?: string; textOriginal?: string };
+          snippet?: { authorDisplayName?: string; textOriginal?: string; publishedAt?: string };
         };
       };
     }[];
@@ -212,6 +216,7 @@ export async function listRecentCommentThreads(
       topLevelCommentId: item.id ?? "",
       authorDisplayName: item.snippet?.topLevelComment?.snippet?.authorDisplayName ?? null,
       textOriginal: item.snippet?.topLevelComment?.snippet?.textOriginal ?? "",
+      publishedAt: item.snippet?.topLevelComment?.snippet?.publishedAt ?? null,
     }))
     .filter((c) => c.topLevelCommentId && c.textOriginal);
 }

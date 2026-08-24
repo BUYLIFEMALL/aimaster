@@ -4,7 +4,10 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { YoutubeConnectSection } from "@/components/settings/YoutubeConnectSection";
 import { ReplySettingsForm } from "@/components/settings/ReplySettingsForm";
+import { MonitoringSettingsForm } from "@/components/settings/MonitoringSettingsForm";
+import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
+import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +24,22 @@ export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: keys }, connectionStatus, { data: settings }] = await Promise.all([
+  const [{ data: keys }, connectionStatus, { data: settings }, { data: telegramLink }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     getYoutubeConnectionStatus(supabase, user.id),
-    supabase.from("ytreply_settings").select("default_link, ai_instructions").eq("user_id", user.id).maybeSingle(),
+    supabase
+      .from("ytreply_settings")
+      .select(
+        "default_link, ai_instructions, tone_preset, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at",
+      )
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("user_telegram_links")
+      .select("bot_username")
+      .eq("user_id", user.id)
+      .eq("program_slug", "youtube-auto-reply")
+      .maybeSingle(),
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
@@ -65,7 +80,61 @@ export default async function SettingsPage() {
 
       <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">🔗 답글 기본 설정</h2>
-        <ReplySettingsForm defaultLink={settings?.default_link ?? null} aiInstructions={settings?.ai_instructions ?? null} />
+        <ReplySettingsForm
+          defaultLink={settings?.default_link ?? null}
+          aiInstructions={settings?.ai_instructions ?? null}
+          tonePreset={settings?.tone_preset ?? null}
+        />
+      </section>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">⏱ 예약 모니터링</h2>
+        <MonitoringSettingsForm
+          enabled={settings?.monitoring_enabled ?? false}
+          intervalMinutes={settings?.monitoring_interval_minutes ?? 60}
+          startedAt={settings?.monitoring_started_at ?? null}
+          lastRunAt={settings?.last_run_at ?? null}
+        />
+      </section>
+
+      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
+        <p className="text-sm text-gray-500">
+          유튜브 채널 연결이 끊어지면(구글 미검증 앱은 7일마다 만료) 매일 자동 점검 후 텔레그램으로
+          알려드려요(선택 기능). 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
+          연동해야 합니다.
+        </p>
+
+        {telegramLink ? (
+          <div className="space-y-3">
+            <p className="text-sm text-green-600">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
+            <form action={disconnectTelegramAction}>
+              <button type="submit" className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100">
+                연동 해제
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <ol className="list-inside list-decimal space-y-2 text-sm text-gray-600">
+              <li>
+                텔레그램에서 <span className="font-semibold text-gray-900">@BotFather</span>를 검색해서 대화를 시작하세요.
+              </li>
+              <li>
+                <code className="rounded bg-gray-100 px-1 py-0.5">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요 (마지막엔
+                반드시 <code className="rounded bg-gray-100 px-1 py-0.5">bot</code>으로 끝나야 해요).
+              </li>
+              <li>
+                완료되면 BotFather가 <strong>토큰</strong>을 알려줘요. 그 값을 복사하세요.
+              </li>
+              <li>
+                방금 만든 내 봇을 텔레그램에서 열고, <strong>아무 메시지나 1개</strong> 보내세요.
+              </li>
+              <li>아래 입력창에 토큰을 붙여넣고 &quot;연동 확인하기&quot;를 눌러주세요.</li>
+            </ol>
+            <TelegramConnectForm />
+          </div>
+        )}
       </section>
     </div>
   );

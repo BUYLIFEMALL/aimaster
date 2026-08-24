@@ -26,6 +26,10 @@
    화면에서 사람이 "게시" 버튼을 직접 누르는 것 자체가 유튜브 개발자 정책(III.I.2조)이 요구하는
    "사전의 명시적 동의"이므로, 이 흐름을 우회해서 자동/일괄 게시하는 코드를 추가하지 말 것
    (Phase 2에서 "자동 승인" 옵션을 만들더라도 반드시 사용자가 설정에서 명시적으로 켠 경우에만).
+8. **Vercel Cron(vercel.json의 crons) 활성화/배포** — `/api/cron/check-connection`은 실제
+   댓글을 읽거나 게시하지 않는 순수 상태 점검용이라 다른 발송 cron보다 리스크는 낮지만, 배포되는
+   순간부터 매일 자동 실행되며 사용자에게 텔레그램 알림을 실제로 보낼 수 있으므로 다른 cron과
+   동일하게 배포 전 확인한다.
 
 ---
 
@@ -68,13 +72,17 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 사용자 소유 데이터 테이블(`ytreply_accounts`, `ytreply_videos`, `ytreply_settings`,
   `ytreply_comments`)은 `user_id` + RLS owner-only 정책으로 격리한다. 전역 공유 캐시는 없다
   (채널/댓글 데이터는 사용자마다 완전히 독립적이어야 함).
+- 텔레그램 알림은 프로그램 접두어 없는 공용 `user_telegram_links`(real_estate_sales가 만듦,
+  `docs/PLATFORM_PATTERNS.md` §9)를 `(user_id, program_slug='youtube-auto-reply')`로 스코프해서
+  재사용한다 — 다른 프로그램에서 이미 연동한 봇과는 독립적이다.
 
 ## 📦 Phase 진행 상태
 
 | Phase | 내용 | 상태 |
 |-------|------|------|
 | 1 | 유튜브 채널 OAuth 연결, 영상 동기화 + 영상별 모니터링 on/off + 링크 오버라이드, 신규 댓글 수집 + AI 답글 초안 생성, 검토 후 수동 게시 | ✅ 구현 완료 |
-| 2 | Vercel Cron으로 신규 댓글 주기적 자동 수집(게시는 여전히 사람 승인) | ⏳ 예정 |
+| 2 | 매일 Vercel Cron으로 채널 연결 상태 점검 + 끊기면 텔레그램 알림(`/api/cron/check-connection`), 화면 전체에 재연결 배너 표시 | ✅ 구현 완료 |
+| 2 | 예약 모니터링 — 사용자별 확인 주기(5분~24시간) 선택 + 시작/중지 + "이 시점 이후 댓글만" 커트오프, Vercel Cron이 5분마다 깨워서 사용자별 주기를 판정(`/api/cron/sync-comments`, `real_estate_sales`의 dispatch 패턴 재사용). 자동으로는 초안 생성까지만, 게시는 여전히 사람 승인 | ✅ 구현 완료 |
 | 2 | (선택) "자동 승인" 토글 — 사용자가 명시적으로 켠 경우에만 검토 없이 바로 게시 | ⏳ 예정 |
 | 2 | 답글 이력/성과 대시보드 | ⏳ 예정 |
 

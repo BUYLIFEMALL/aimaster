@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toggleVideoMonitorAction, setVideoLinkAction } from "@/lib/actions/videos";
+import { toggleVideoMonitorAction, setVideoLinkAction, hideVideoAction } from "@/lib/actions/videos";
 
 export interface VideoRowData {
   id: string;
@@ -13,9 +13,18 @@ export interface VideoRowData {
   custom_link: string | null;
 }
 
-export function VideoRow({ video }: { video: VideoRowData }) {
+export function VideoRow({
+  video,
+  selected,
+  onToggleSelect,
+}: {
+  video: VideoRowData;
+  selected: boolean;
+  onToggleSelect: (id: string) => void;
+}) {
   const router = useRouter();
   const [isToggling, setIsToggling] = useState(false);
+  const [isHiding, setIsHiding] = useState(false);
   const [showLinkForm, setShowLinkForm] = useState(false);
   const [isSavingLink, setIsSavingLink] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
@@ -27,6 +36,16 @@ export function VideoRow({ video }: { video: VideoRowData }) {
       router.refresh();
     } finally {
       setIsToggling(false);
+    }
+  }
+
+  async function handleHide() {
+    setIsHiding(true);
+    try {
+      await hideVideoAction(video.id);
+      router.refresh();
+    } finally {
+      setIsHiding(false);
     }
   }
 
@@ -48,6 +67,13 @@ export function VideoRow({ video }: { video: VideoRowData }) {
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-start gap-3">
+      <input
+        type="checkbox"
+        checked={selected}
+        onChange={() => onToggleSelect(video.id)}
+        aria-label={`${video.title} 선택`}
+        className="mt-1.5 shrink-0"
+      />
       {video.thumbnail_url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={video.thumbnail_url} alt="" className="w-28 h-16 object-cover rounded-lg shrink-0" />
@@ -69,9 +95,9 @@ export function VideoRow({ video }: { video: VideoRowData }) {
             <input type="hidden" name="videoId" value={video.id} />
             <input
               name="link"
-              type="url"
+              type="text"
               defaultValue={video.custom_link ?? ""}
-              placeholder="이 영상 전용 링크 (비우면 기본 링크 사용)"
+              placeholder="example.com (비우면 기본 링크 사용, https:// 생략 가능)"
               className="input-sm flex-1"
             />
             <button
@@ -104,6 +130,14 @@ export function VideoRow({ video }: { video: VideoRowData }) {
           className="text-xs text-blue-600 hover:underline"
         >
           링크 설정
+        </button>
+        <button
+          type="button"
+          onClick={handleHide}
+          disabled={isHiding}
+          className="text-xs text-gray-400 hover:text-red-600 hover:underline"
+        >
+          {isHiding ? "숨기는 중..." : "목록에서 숨기기"}
         </button>
       </div>
     </div>
