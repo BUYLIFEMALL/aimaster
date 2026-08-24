@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { saveReplySettingsAction } from "@/lib/actions/settings";
 import { TONE_PRESETS } from "@/lib/tonePresets";
-import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL } from "@/lib/ai/models";
+import {
+  REPLY_MODEL_OPTIONS,
+  DEFAULT_REPLY_MODEL,
+  REPLY_MODEL_PROVIDER_SHORT_LABELS,
+  type ReplyModelProvider,
+} from "@/lib/ai/models";
+
+const PROVIDER_GROUP_ORDER: ReplyModelProvider[] = ["openai", "anthropic", "gemini"];
 
 export function ReplySettingsForm({
   defaultLink,
@@ -53,14 +60,19 @@ export function ReplySettingsForm({
       <div>
         <label className="block text-xs font-semibold text-gray-500 mb-1">답글 생성 AI 모델</label>
         <select name="replyModel" defaultValue={replyModel ?? DEFAULT_REPLY_MODEL} className="input">
-          {REPLY_MODEL_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
+          {PROVIDER_GROUP_ORDER.map((provider) => (
+            <optgroup key={provider} label={REPLY_MODEL_PROVIDER_SHORT_LABELS[provider]}>
+              {REPLY_MODEL_OPTIONS.filter((opt) => opt.provider === provider).map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
         <p className="mt-1 text-xs text-gray-400">
-          더 똑똑한 모델일수록 답변이 자연스럽지만, OpenAI 호출 비용도 함께 올라갑니다.
+          더 똑똑한 모델일수록 답변이 자연스럽지만, 호출 비용도 함께 올라갑니다. 고른 모델에 맞는
+          provider의 API 키가 설정 상단에 등록되어 있어야 합니다.
         </p>
       </div>
       <div>

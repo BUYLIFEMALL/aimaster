@@ -12,6 +12,8 @@ interface ApiKeyRowProps {
   helpLabel?: string;
   helpHighlight?: string;
   helpDescription?: string;
+  /** 현재 선택된 답글 생성 모델이 이 provider를 쓸 때만 true — "지금 사용 중" 배지를 보여준다. */
+  isActive?: boolean;
 }
 
 export function ApiKeyRow({
@@ -22,6 +24,7 @@ export function ApiKeyRow({
   helpLabel,
   helpHighlight,
   helpDescription,
+  isActive,
 }: ApiKeyRowProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -45,9 +48,20 @@ export function ApiKeyRow({
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+    <div
+      className={`rounded-2xl border p-4 shadow-sm ${
+        isActive ? "border-blue-300 bg-blue-50/40" : "border-gray-100 bg-white"
+      }`}
+    >
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-gray-800">{label}</p>
+        <p className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+          {label}
+          {isActive && (
+            <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white">
+              지금 사용 중
+            </span>
+          )}
+        </p>
         {maskedValue && (
           <form action={deleteApiKeyAction}>
             <input type="hidden" name="provider" value={provider} />

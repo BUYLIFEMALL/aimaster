@@ -6,6 +6,7 @@ import { getValidYoutubeAccessToken } from "@/lib/actions/youtube";
 import { listRecentCommentThreads } from "@/lib/youtube/client";
 import { generateCommentReply } from "@/lib/ai/reply";
 import { getTonePresetInstruction } from "@/lib/tonePresets";
+import { getReplyModelProvider } from "@/lib/ai/models";
 import { sendTelegramMessage, sendTelegramMessageWithButtons } from "@/lib/telegram/client";
 import { postCommentReplyForUser } from "@/lib/comments/post";
 
@@ -41,8 +42,6 @@ export async function runCommentSync(
   const clientId = await getUserApiKey(supabase, userId, "google_client_id");
   const clientSecret = await getUserApiKey(supabase, userId, "google_client_secret");
   if (!clientId || !clientSecret) return { error: "설정 페이지에서 Google OAuth Client ID/Secret을 먼저 등록해주세요." };
-  const openaiKey = await getUserApiKey(supabase, userId, "openai");
-  if (!openaiKey) return { needsApiKey: "openai" };
 
   const { data: videos } = await supabase
     .from("ytreply_videos")
@@ -56,6 +55,12 @@ export async function runCommentSync(
     .select("default_link, ai_instructions, tone_preset, reply_model, auto_approve")
     .eq("user_id", userId)
     .maybeSingle();
+
+  // 답글 초안 생성에 어떤 AI를 쓸지(OpenAI/Anthropic/Gemini)는 reply_model 선택에 따라
+  // 달라지고, 그에 맞는 provider의 키가 등록되어 있어야 한다.
+  const aiProvider = getReplyModelProvider(settings?.reply_model);
+  const aiApiKey = await getUserApiKey(supabase, userId, aiProvider);
+  if (!aiApiKey) return { needsApiKey: aiProvider };
 
   const toneInstruction = getTonePresetInstruction(settings?.tone_preset ?? null);
   const combinedInstructions = [toneInstruction, settings?.ai_instructions].filter(Boolean).join(" ") || null;
@@ -106,7 +111,7 @@ export async function runCommentSync(
             link,
             customInstructions: combinedInstructions,
             model: settings?.reply_model,
-            apiKey: openaiKey,
+            apiKey: aiApiKey,
           });
         } catch (err) {
           console.error(`답글 초안 생성 실패 (comment ${thread.topLevelCommentId}):`, err);

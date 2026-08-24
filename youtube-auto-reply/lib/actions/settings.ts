@@ -7,7 +7,7 @@ import { normalizeUrl } from "@/lib/normalizeUrl";
 import { DEFAULT_REPLY_MODEL, REPLY_MODEL_OPTIONS } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["google_client_id", "google_client_secret", "openai"];
+const VALID_PROVIDERS: ApiKeyProvider[] = ["google_client_id", "google_client_secret", "openai", "anthropic", "gemini"];
 
 export interface SaveApiKeyState {
   error?: string;

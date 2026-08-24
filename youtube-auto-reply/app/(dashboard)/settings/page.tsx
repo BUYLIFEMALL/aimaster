@@ -10,16 +10,25 @@ import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { ReregisterWebhookButton } from "@/components/settings/ReregisterWebhookButton";
 import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
+import {
+  REPLY_MODEL_OPTIONS,
+  DEFAULT_REPLY_MODEL,
+  REPLY_MODEL_PROVIDER_SHORT_LABELS,
+  getReplyModelProvider,
+} from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
-const PROVIDERS: ApiKeyProvider[] = ["google_client_id", "google_client_secret", "openai"];
+const OAUTH_PROVIDERS: ApiKeyProvider[] = ["google_client_id", "google_client_secret"];
+const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini"];
 
 const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string }>> = {
   google_client_id: { url: "https://console.cloud.google.com/apis/credentials", label: "Google Cloud Console에서 발급받기" },
   google_client_secret: { url: "https://console.cloud.google.com/apis/credentials", label: "Google Cloud Console에서 발급받기" },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
+  anthropic: { url: "https://console.anthropic.com/settings/keys", label: "Anthropic Claude 키 발급받기" },
+  gemini: { url: "https://aistudio.google.com/apikey", label: "Google Gemini 키 발급받기" },
 };
 
 export default async function SettingsPage() {
@@ -45,13 +54,21 @@ export default async function SettingsPage() {
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  const activeModel = settings?.reply_model ?? DEFAULT_REPLY_MODEL;
+  const activeModelOption = REPLY_MODEL_OPTIONS.find((o) => o.value === activeModel);
+  const activeProvider = getReplyModelProvider(activeModel);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">채널 연결 / 설정</h1>
         <div className="mb-6 space-y-2 text-sm text-gray-500">
-          <p>유튜브 댓글 자동 답글에는 본인의 Google OAuth Client ID/Secret과 OpenAI 키가 필요합니다.</p>
+          <p>유튜브 댓글 자동 답글에는 본인의 Google OAuth Client ID/Secret이 필요합니다.</p>
+          <p>
+            답글 초안을 만드는 AI는 OpenAI/Anthropic Claude/Google Gemini 중 아래 "답글 생성 AI
+            모델"에서 고른 모델에 해당하는 provider의 키 하나만 등록되어 있으면 됩니다(세 개 다
+            등록할 필요 없음).
+          </p>
           <p className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
           <p>Google Cloud Console에서 만든 OAuth 클라이언트의 승인된 리디렉션 URI에 아래 주소를 추가로 등록해주셔야 합니다.</p>
           <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">
@@ -62,8 +79,9 @@ export default async function SettingsPage() {
             재사용하되, 리디렉션 URI만 위 주소로 추가하시면 됩니다.
           </p>
         </div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">유튜브 채널 연결용</p>
         <div className="space-y-3">
-          {PROVIDERS.map((provider) => (
+          {OAUTH_PROVIDERS.map((provider) => (
             <ApiKeyRow
               key={provider}
               provider={provider}
@@ -74,6 +92,34 @@ export default async function SettingsPage() {
             />
           ))}
         </div>
+
+        <div className="mb-2 mt-6 space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+          <p>
+            🎯 현재 답글 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
+          </p>
+          <p>
+            사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
+          </p>
+          <p className="text-xs text-blue-700">
+            모델은 아래 "🔗 답글 기본 설정 → 답글 생성 AI 모델"에서 바꿀 수 있어요.
+          </p>
+        </div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
+          답글 생성 AI — 선택한 모델의 provider 키 하나만 있으면 됩니다
+        </p>
+        <div className="space-y-3">
+          {AI_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              helpUrl={HELP_LINKS[provider]?.url}
+              helpLabel={HELP_LINKS[provider]?.label}
+              isActive={provider === activeProvider}
+            />
+          ))}
+        </div>
       </section>
 
       <YoutubeConnectSection
@@ -81,35 +127,6 @@ export default async function SettingsPage() {
         channelTitle={connectionStatus.channelTitle}
         needsReconnect={connectionStatus.needsReconnect}
       />
-
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">🔗 답글 기본 설정</h2>
-        <ReplySettingsForm
-          defaultLink={settings?.default_link ?? null}
-          aiInstructions={settings?.ai_instructions ?? null}
-          tonePreset={settings?.tone_preset ?? null}
-          replyModel={settings?.reply_model ?? null}
-        />
-      </section>
-
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">⏱ 예약 모니터링</h2>
-        <MonitoringSettingsForm
-          enabled={settings?.monitoring_enabled ?? false}
-          intervalMinutes={settings?.monitoring_interval_minutes ?? 60}
-          startedAt={settings?.monitoring_started_at ?? null}
-          lastRunAt={settings?.last_run_at ?? null}
-        />
-      </section>
-
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">⚡ 자동 게시 (선택, 고급)</h2>
-        <p className="text-sm text-gray-500">
-          기본적으로는 새 댓글마다 AI 초안만 만들고, 실제 게시는 웹 화면이나 텔레그램 버튼에서
-          직접 승인해야 합니다. 이 설정을 켜면 검토 없이 AI 초안이 바로 게시됩니다.
-        </p>
-        <AutoApproveSettingsForm enabled={settings?.auto_approve ?? false} />
-      </section>
 
       <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
@@ -155,6 +172,35 @@ export default async function SettingsPage() {
             <TelegramConnectForm />
           </div>
         )}
+      </section>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">🔗 답글 기본 설정</h2>
+        <ReplySettingsForm
+          defaultLink={settings?.default_link ?? null}
+          aiInstructions={settings?.ai_instructions ?? null}
+          tonePreset={settings?.tone_preset ?? null}
+          replyModel={settings?.reply_model ?? null}
+        />
+      </section>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">⏱ 예약 모니터링</h2>
+        <MonitoringSettingsForm
+          enabled={settings?.monitoring_enabled ?? false}
+          intervalMinutes={settings?.monitoring_interval_minutes ?? 60}
+          startedAt={settings?.monitoring_started_at ?? null}
+          lastRunAt={settings?.last_run_at ?? null}
+        />
+      </section>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">⚡ 자동 게시 (선택, 고급)</h2>
+        <p className="text-sm text-gray-500">
+          기본적으로는 새 댓글마다 AI 초안만 만들고, 실제 게시는 웹 화면이나 텔레그램 버튼에서
+          직접 승인해야 합니다. 이 설정을 켜면 검토 없이 AI 초안이 바로 게시됩니다.
+        </p>
+        <AutoApproveSettingsForm enabled={settings?.auto_approve ?? false} />
       </section>
     </div>
   );
