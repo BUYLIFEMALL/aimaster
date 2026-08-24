@@ -30,7 +30,7 @@ export default async function SettingsPage() {
     supabase
       .from("ytreply_settings")
       .select(
-        "default_link, ai_instructions, tone_preset, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at",
+        "default_link, ai_instructions, tone_preset, reply_model, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at",
       )
       .eq("user_id", user.id)
       .maybeSingle(),
@@ -84,6 +84,7 @@ export default async function SettingsPage() {
           defaultLink={settings?.default_link ?? null}
           aiInstructions={settings?.ai_instructions ?? null}
           tonePreset={settings?.tone_preset ?? null}
+          replyModel={settings?.reply_model ?? null}
         />
       </section>
 

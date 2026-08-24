@@ -49,7 +49,7 @@ export async function runCommentSync(
 
   const { data: settings } = await supabase
     .from("ytreply_settings")
-    .select("default_link, ai_instructions, tone_preset")
+    .select("default_link, ai_instructions, tone_preset, reply_model")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -94,6 +94,7 @@ export async function runCommentSync(
             commentText: thread.textOriginal,
             link,
             customInstructions: combinedInstructions,
+            model: settings?.reply_model,
             apiKey: openaiKey,
           });
         } catch (err) {

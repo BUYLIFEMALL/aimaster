@@ -1,4 +1,5 @@
 import "server-only";
+import { DEFAULT_REPLY_MODEL, type ReplyModel } from "@/lib/ai/models";
 
 /**
  * 댓글 하나에 대해 자연스러운 답글 초안을 생성한다. 유튜브 개발자 정책(III.I.2조)이 요구하는
@@ -12,14 +13,15 @@ export async function generateCommentReply(params: {
   link: string | null;
   customInstructions: string | null;
   apiKey: string;
+  model?: ReplyModel | string;
 }): Promise<string> {
-  const { videoTitle, commentAuthor, commentText, link, customInstructions, apiKey } = params;
+  const { videoTitle, commentAuthor, commentText, link, customInstructions, apiKey, model } = params;
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: model || DEFAULT_REPLY_MODEL,
       messages: [
         {
           role: "system",
@@ -44,7 +46,9 @@ export async function generateCommentReply(params: {
           content: `영상 제목: ${videoTitle}\n댓글 작성자: ${commentAuthor ?? "익명"}\n댓글 내용: ${commentText}`,
         },
       ],
-      temperature: 0.9,
+      // GPT-5.6 계열은 temperature를 기본값(1) 외에는 지원하지 않아(2026-08-24 실제 호출로
+      // 확인, 400 Unsupported value) 아예 지정하지 않는다 — gpt-4o 등 구형 모델도 기본값
+      // 그대로 잘 동작한다.
     }),
   });
   if (!response.ok) {

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeUrl } from "@/lib/normalizeUrl";
+import { DEFAULT_REPLY_MODEL, REPLY_MODEL_OPTIONS } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const VALID_PROVIDERS: ApiKeyProvider[] = ["google_client_id", "google_client_secret", "openai"];
@@ -53,6 +54,8 @@ export async function saveReplySettingsAction(formData: FormData): Promise<SaveR
   const defaultLink = normalizeUrl(String(formData.get("defaultLink") ?? ""));
   const aiInstructions = String(formData.get("aiInstructions") ?? "").trim();
   const tonePreset = String(formData.get("tonePreset") ?? "").trim();
+  const replyModelInput = String(formData.get("replyModel") ?? "").trim();
+  const replyModel = REPLY_MODEL_OPTIONS.some((o) => o.value === replyModelInput) ? replyModelInput : DEFAULT_REPLY_MODEL;
 
   const { error } = await supabase.from("ytreply_settings").upsert(
     {
@@ -60,6 +63,7 @@ export async function saveReplySettingsAction(formData: FormData): Promise<SaveR
       default_link: defaultLink,
       ai_instructions: aiInstructions || null,
       tone_preset: tonePreset || null,
+      reply_model: replyModel,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" },

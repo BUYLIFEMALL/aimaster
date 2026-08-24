@@ -154,6 +154,7 @@ export interface Database {
           default_link: string | null;
           ai_instructions: string | null;
           tone_preset: string | null;
+          reply_model: string;
           monitoring_enabled: boolean;
           monitoring_interval_minutes: number;
           monitoring_started_at: string | null;
@@ -167,6 +168,7 @@ export interface Database {
           default_link?: string | null;
           ai_instructions?: string | null;
           tone_preset?: string | null;
+          reply_model?: string;
           monitoring_enabled?: boolean;
           monitoring_interval_minutes?: number;
           monitoring_started_at?: string | null;
@@ -180,6 +182,7 @@ export interface Database {
           default_link?: string | null;
           ai_instructions?: string | null;
           tone_preset?: string | null;
+          reply_model?: string;
           monitoring_enabled?: boolean;
           monitoring_interval_minutes?: number;
           monitoring_started_at?: string | null;
