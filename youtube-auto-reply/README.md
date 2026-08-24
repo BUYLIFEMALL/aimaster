@@ -28,7 +28,7 @@ Policies](https://developers.google.com/youtube/terms/developer-policies) 원문
   이미 공식 API로 같은 기능을 정상 운영 중이다.
 
 **반영한 조치:**
-1. **AI가 댓글마다 다른 답글 초안을 생성 → 화면에서 사람이 검토·수정 → "게시" 버튼을 직접
+1. **AI가 댓글마다 다른 답글 초안을 생성 → 화면에서 사람이 검토·수정 → "답변승인" 버튼을 직접
    눌러야만 실제로 올라간다.** 이 버튼 클릭 자체가 정책이 요구하는 "건별 사전 명시적 동의"다
    (`lib/actions/comments.ts`의 `postReplyAction`). Phase 1은 자동 즉시게시를 하지 않는다.
 2. 모든 YouTube API 호출에 `quotaUser=user.id`를 넣어 사용자별로 요청을 구분한다
@@ -60,7 +60,7 @@ Policies](https://developers.google.com/youtube/terms/developer-policies) 원문
 1. `/settings` — Google OAuth 채널 연결
 2. `/videos` — "채널 영상 동기화" → 영상 목록(기본 전체 모니터링) → 개별 on/off, 링크 오버라이드
 3. `/comments` — "지금 새 댓글 확인하기" → 신규 댓글 수집 + AI 초안 생성(`syncCommentsAction`) →
-   초안 검토/수정 → "게시"(`postReplyAction`, 실제 유튜브 API 호출)
+   초안 검토/수정 → "답변승인"(`postReplyAction`, 실제 유튜브 API 호출)
 
 ## Phase 진행 상태
 

@@ -76,7 +76,7 @@ export interface TelegramInlineButton {
   callbackData: string;
 }
 
-/** 원본 댓글 + AI 답글 초안과 함께 "게시/보류/게시제외" 인라인 버튼을 보낸다. */
+/** 원본 댓글 + AI 답글 초안과 함께 "답변승인/답변보류/답변제외" 인라인 버튼을 보낸다. */
 export async function sendTelegramMessageWithButtons(params: {
   botToken: string;
   chatId: string;

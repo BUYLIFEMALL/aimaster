@@ -158,9 +158,9 @@ export async function runCommentSync(
                 `✍️ AI 답글 초안:\n${generatedReply}`,
               ].join("\n"),
               buttons: [
-                { text: "✅ 게시", callbackData: `post:${inserted.id}` },
-                { text: "⏸ 보류", callbackData: `hold:${inserted.id}` },
-                { text: "❌ 게시제외", callbackData: `skip:${inserted.id}` },
+                { text: "✅ 답변승인", callbackData: `post:${inserted.id}` },
+                { text: "⏸ 답변보류", callbackData: `hold:${inserted.id}` },
+                { text: "❌ 답변제외", callbackData: `skip:${inserted.id}` },
               ],
             });
             await supabase

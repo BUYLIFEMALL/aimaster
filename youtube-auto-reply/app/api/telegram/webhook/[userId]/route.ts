@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const THIS_PROGRAM_SLUG = "youtube-auto-reply";
 
 /**
- * 텔레그램 "✅ 게시 / ⏸ 보류 / ❌ 게시제외" 인라인 버튼 클릭을 받는 웹훅. 사용자마다 자기 봇을
+ * 텔레그램 "✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외" 인라인 버튼 클릭을 받는 웹훅. 사용자마다 자기 봇을
  * 쓰므로 URL 경로의 userId로 어느 사용자인지 구분하고, setWebhook 때 등록해둔
  * secret_token(computeWebhookSecret)을 X-Telegram-Bot-Api-Secret-Token 헤더로 검증해
  * URL만 알아낸 제3자가 가짜 승인 요청을 보낼 수 없게 막는다.
@@ -79,18 +79,18 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
     const result = await postCommentReplyForUser(admin, userId, commentId, comment.generated_reply ?? "");
     if (result.error) {
       toastText = result.error;
-      statusLine = `\n\n⚠️ 게시 실패: ${result.error}`;
+      statusLine = `\n\n⚠️ 답변승인 실패: ${result.error}`;
     } else {
-      toastText = "게시했습니다.";
-      statusLine = "\n\n✅ 게시 완료";
+      toastText = "답변승인했습니다.";
+      statusLine = "\n\n✅ 답변승인 완료";
     }
   } else if (action === "hold") {
-    toastText = "보류했습니다. 웹 화면에서 나중에 처리해주세요.";
-    statusLine = "\n\n⏸ 보류됨 — 웹의 \"댓글 검토/게시\" 화면에서 나중에 처리해주세요.";
+    toastText = "답변보류했습니다. 웹 화면에서 나중에 처리해주세요.";
+    statusLine = "\n\n⏸ 답변보류됨 — 웹의 \"댓글 검토/게시\" 화면에서 나중에 처리해주세요.";
   } else if (action === "skip") {
     await admin.from("ytreply_comments").update({ status: "skipped" }).eq("id", commentId);
-    toastText = "게시제외했습니다.";
-    statusLine = "\n\n❌ 게시제외";
+    toastText = "답변제외했습니다.";
+    statusLine = "\n\n❌ 답변제외";
   } else {
     return NextResponse.json({ ok: true });
   }

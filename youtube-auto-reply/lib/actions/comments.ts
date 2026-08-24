@@ -29,7 +29,7 @@ export interface PostReplyState {
   success?: boolean;
 }
 
-/** 검토 화면에서 사람이 "게시"를 눌렀을 때만 실행된다 — 실제 유튜브 공개 댓글이 달리는 행동. */
+/** 검토 화면에서 사람이 "답변승인"을 눌렀을 때만 실행된다 — 실제 유튜브 공개 댓글이 달리는 행동. */
 export async function postReplyAction(commentId: string, finalText: string): Promise<PostReplyState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();

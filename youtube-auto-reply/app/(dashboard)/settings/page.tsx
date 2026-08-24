@@ -114,7 +114,7 @@ export default async function SettingsPage() {
         <p className="text-sm text-gray-500">
           유튜브 채널 연결이 끊어지면(구글 미검증 앱은 7일마다 만료) 매일 자동 점검 후 텔레그램으로
           알려드려요. 또한 새 댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께
-          보내드리고, 텔레그램에서 바로 <strong className="text-gray-700">✅ 게시 / ⏸ 보류 / ❌ 게시제외</strong>를
+          보내드리고, 텔레그램에서 바로 <strong className="text-gray-700">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
           선택할 수 있어요(선택 기능). "보류"를 누르면 웹의 "댓글 검토/게시" 화면에 남아있어 나중에
           수정 후 게시할 수 있습니다. 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
           연동해야 합니다.

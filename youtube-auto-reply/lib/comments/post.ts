@@ -11,7 +11,7 @@ export interface PostCommentReplyResult {
 }
 
 /**
- * 실제로 유튜브에 답글을 게시하는 핵심 로직. 검토 화면의 "게시" 버튼(lib/actions/comments.ts)과
+ * 실제로 유튜브에 답글을 게시하는 핵심 로직. 검토 화면의 "답변승인" 버튼(lib/actions/comments.ts)과
  * 텔레그램 승인 버튼(app/api/telegram/webhook/[userId]/route.ts) 양쪽에서 공유한다 — 어느
  * 경로로 오든 "사람이 명시적으로 승인한 뒤에만 게시"라는 원칙은 동일하게 지킨다.
  */

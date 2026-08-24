@@ -48,7 +48,7 @@ export default async function CommentsPage() {
         <div className="mb-4">
           <h1 className="text-2xl font-black text-gray-900">댓글 검토/게시</h1>
           <p className="text-sm text-gray-500 mt-1">
-            AI가 만든 답글 초안을 확인하고 수정한 뒤 "게시"를 눌러야 실제로 유튜브에 올라갑니다.
+            AI가 만든 답글 초안을 확인하고 수정한 뒤 "답변승인"을 눌러야 실제로 유튜브에 올라갑니다.
           </p>
         </div>
 

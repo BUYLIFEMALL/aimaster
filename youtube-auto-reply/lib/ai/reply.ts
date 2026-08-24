@@ -3,7 +3,7 @@ import { DEFAULT_REPLY_MODEL, type ReplyModel } from "@/lib/ai/models";
 
 /**
  * 댓글 하나에 대해 자연스러운 답글 초안을 생성한다. 유튜브 개발자 정책(III.I.2조)이 요구하는
- * "사전의 명시적 동의"는 화면에서 사람이 이 초안을 검토하고 직접 "게시"를 눌러야 실제로
+ * "사전의 명시적 동의"는 화면에서 사람이 이 초안을 검토하고 직접 "답변승인"을 눌러야 실제로
  * 올라가는 흐름으로 충족한다 — 여기서는 초안만 만든다.
  */
 export async function generateCommentReply(params: {
