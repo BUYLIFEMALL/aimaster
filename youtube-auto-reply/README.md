@@ -1,4 +1,4 @@
-# 💬 YouTube Auto Reply — 유튜브 댓글 자동 답글
+# 💬 YouTube Auto Reply — 유튜브 댓글자동화
 
 내 유튜브 채널에 달린 댓글을 AI가 읽고 사람처럼 자연스러운 답글(원하는 링크 포함)을 초안으로
 만들어주고, 검토 후(또는 텔레그램에서 바로) 게시할 수 있는 프로그램. 라이브: https://youtube-auto-reply.vercel.app

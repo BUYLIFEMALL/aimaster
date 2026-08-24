@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
           await sendTelegramMessage({
             botToken: telegramLink.bot_token,
             chatId: telegramLink.chat_id,
-            text: `⚠️ 유튜브 채널(${account.channel_title}) 연결이 끊어졌어요. 유튜브 댓글 자동 답글 설정 페이지에서 다시 연결해주세요.`,
+            text: `⚠️ 유튜브 채널(${account.channel_title}) 연결이 끊어졌어요. 유튜브 댓글자동화 설정 페이지에서 다시 연결해주세요.`,
           });
           notified += 1;
         } catch (sendErr) {

@@ -63,7 +63,7 @@ export default async function SettingsPage() {
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">채널 연결 / 설정</h1>
         <div className="mb-6 space-y-2 text-sm text-gray-500">
-          <p>유튜브 댓글 자동 답글에는 본인의 Google OAuth Client ID/Secret이 필요합니다.</p>
+          <p>유튜브 댓글자동화에는 본인의 Google OAuth Client ID/Secret이 필요합니다.</p>
           <p>
             답글 초안을 만드는 AI는 OpenAI/Anthropic Claude/Google Gemini 중 아래 "답글 생성 AI
             모델"에서 고른 모델에 해당하는 provider의 키 하나만 등록되어 있으면 됩니다(세 개 다
