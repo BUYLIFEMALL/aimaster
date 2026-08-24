@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { saveReplySettingsAction } from "@/lib/actions/settings";
 import { TONE_PRESETS } from "@/lib/tonePresets";
 import {
@@ -23,6 +24,7 @@ export function ReplySettingsForm({
   tonePreset: string | null;
   replyModel: string | null;
 }) {
+  const router = useRouter();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -35,7 +37,12 @@ export function ReplySettingsForm({
     try {
       const result = await saveReplySettingsAction(new FormData(e.currentTarget));
       if (result.error) setError(result.error);
-      else setSuccess(true);
+      else {
+        setSuccess(true);
+        // 위쪽 "지금 사용되는 모델" 안내 배너가 서버에서 읽은 값을 그대로 보여주므로,
+        // 저장 직후 새로고침 없이 바로 최신 모델로 갱신되도록 새로 fetch한다.
+        router.refresh();
+      }
     } finally {
       setIsPending(false);
     }
