@@ -50,16 +50,18 @@ export default async function SettingsPage() {
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">채널 연결 / 설정</h1>
-        <p className="mb-6 text-sm text-gray-500">
-          유튜브 댓글 자동 답글에는 본인의 Google OAuth Client ID/Secret과 OpenAI 키가 필요합니다.
-          <span className="font-semibold text-gray-900"> 앱(관리자) 공용 키로 대신 동작하지 않습니다.</span>{" "}
-          Google Cloud Console에서 만든 OAuth 클라이언트의 승인된 리디렉션 URI에{" "}
-          <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">
+        <div className="mb-6 space-y-2 text-sm text-gray-500">
+          <p>유튜브 댓글 자동 답글에는 본인의 Google OAuth Client ID/Secret과 OpenAI 키가 필요합니다.</p>
+          <p className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
+          <p>Google Cloud Console에서 만든 OAuth 클라이언트의 승인된 리디렉션 URI에 아래 주소를 추가로 등록해주셔야 합니다.</p>
+          <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">
             {process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.vercel.app"}/api/youtube/callback
           </code>
-          을 추가로 등록해주셔야 합니다. 다른 AIMaster 프로그램(유튜브 쇼츠 자동생성 등)에서 이미
-          Client ID/Secret을 등록하셨다면 값은 재사용하되, 리디렉션 URI만 위 주소로 추가하시면 됩니다.
-        </p>
+          <p>
+            다른 AIMaster 프로그램(유튜브 쇼츠 자동생성 등)에서 이미 Client ID/Secret을 등록하셨다면 값은
+            재사용하되, 리디렉션 URI만 위 주소로 추가하시면 됩니다.
+          </p>
+        </div>
         <div className="space-y-3">
           {PROVIDERS.map((provider) => (
             <ApiKeyRow
