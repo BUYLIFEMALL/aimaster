@@ -67,8 +67,9 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
   `checkProgramAccessApi()`로 로그인 여부뿐 아니라 프로그램 이용 권한까지 확인한다.
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
   그대로 쓴다. 이 프로그램은 `google_client_id`/`google_client_secret`(유튜브 OAuth,
-  shots와 provider 공유 가능하나 리디렉션 URI는 별도 등록 필요)/`openai`(답글 초안 생성) 3개
-  provider를 쓴다.
+  shots와 provider 공유 가능하나 리디렉션 URI는 별도 등록 필요) + `openai`/`anthropic`/`gemini`
+  (답글 생성 AI, `/settings`에서 고른 모델의 provider 키 하나만 있으면 됨 — `lib/ai/models.ts`의
+  `getReplyModelProvider()`로 판정) 총 5개 provider를 쓴다.
 - 사용자 소유 데이터 테이블(`ytreply_accounts`, `ytreply_videos`, `ytreply_settings`,
   `ytreply_comments`)은 `user_id` + RLS owner-only 정책으로 격리한다. 전역 공유 캐시는 없다
   (채널/댓글 데이터는 사용자마다 완전히 독립적이어야 함).
@@ -93,6 +94,9 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 | 2 | 텔레그램 승인 버튼 — 새 댓글+AI 초안을 텔레그램으로 보내면서 "✅ 답변승인/⏸ 답변보류/❌ 답변제외" 인라인 버튼을 함께 제공. 웹 화면 없이도 텔레그램에서 바로 승인 가능(초안 수정이 필요하면 여전히 웹 화면 이용) | ✅ 구현 완료 |
 | 2 | (선택) "자동 게시" 토글 — 사용자가 설정에서 체크박스로 위험 고지에 동의하고 명시적으로 켠 경우에만 검토 없이 바로 게시(`ytreply_settings.auto_approve`, 기본값 false) | ✅ 구현 완료 |
 | 2 | 답글 이력 대시보드(`/history`) — 총 게시 수/최근 7일 게시 수/검토 대기 수 + 최근 게시된 답글 목록(최대 50건) | ✅ 구현 완료 |
+| 2 | 답글 생성 AI 다중 provider 지원 — OpenAI 외 Anthropic Claude/Google Gemini 모델 추가(`lib/ai/models.ts`, `lib/ai/reply.ts`). 각 provider 최신 세대 모델을 실제 API 호출로 검증 후 반영, 폐기된 모델(`gemini-2.5-flash-lite` 등)은 제외 | ✅ 구현 완료 |
+| 2 | `/videos` 일괄 작업 — 체크박스로 여러 영상 모니터링 시작/중지·숨기기 일괄 처리(`VideosList.tsx`, stepmail의 벌크 선택 패턴 재사용) | ✅ 구현 완료 |
+| 2 | 웹훅 재등록 버튼(`ReregisterWebhookButton.tsx`) — 텔레그램 승인 버튼이 응답하지 않을 때 사용자가 직접 웹훅을 다시 등록하는 자가 복구 기능 | ✅ 구현 완료 |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 했다. 새 Phase를 시작할 때는 이 표를
 갱신할 것.
