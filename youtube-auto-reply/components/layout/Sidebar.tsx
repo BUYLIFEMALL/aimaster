@@ -6,6 +6,7 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 const NAV_ITEMS = [
   { href: "/videos", label: "영상 관리" },
   { href: "/comments", label: "댓글 검토/게시" },
+  { href: "/history", label: "📊 답글 이력" },
   { href: "/settings", label: "🔑 채널 연결 / 설정" },
 ];
 

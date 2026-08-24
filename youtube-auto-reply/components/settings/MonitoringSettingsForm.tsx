@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { startMonitoringAction, stopMonitoringAction } from "@/lib/actions/monitoring";
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
+import { formatDateTimeKo } from "@/lib/formatDate";
 
 function toDatetimeLocalValue(iso: string | null): string {
   const d = iso ? new Date(iso) : new Date();
@@ -55,10 +56,20 @@ export function MonitoringSettingsForm({
         <p className="text-sm text-green-600">
           ✅ 예약 모니터링 실행 중 — {MONITORING_INTERVAL_OPTIONS.find((o) => o.value === intervalMinutes)?.label ?? `${intervalMinutes}분`}마다 자동 확인
         </p>
-        <p className="text-xs text-gray-400">
-          {startedAt && `${new Date(startedAt).toLocaleString("ko-KR")} 이후 댓글만 자동 처리`}
-          {lastRunAt && ` · 마지막 확인: ${new Date(lastRunAt).toLocaleString("ko-KR")}`}
-        </p>
+        <dl className="space-y-1 rounded-lg bg-gray-50 px-3 py-2 text-xs">
+          {startedAt && (
+            <div className="flex flex-wrap items-baseline gap-x-1.5">
+              <dt className="shrink-0 text-gray-400">이 시점 이후 댓글만 처리</dt>
+              <dd className="font-semibold text-gray-700">{formatDateTimeKo(startedAt)}</dd>
+            </div>
+          )}
+          {lastRunAt && (
+            <div className="flex flex-wrap items-baseline gap-x-1.5">
+              <dt className="shrink-0 text-gray-400">마지막 확인</dt>
+              <dd className="font-semibold text-gray-700">{formatDateTimeKo(lastRunAt)}</dd>
+            </div>
+          )}
+        </dl>
         <p className="text-xs text-gray-400">
           자동으로는 답글 초안까지만 만들고, 실제 게시는 "댓글 검토/게시" 화면에서 직접 눌러야 합니다.
         </p>

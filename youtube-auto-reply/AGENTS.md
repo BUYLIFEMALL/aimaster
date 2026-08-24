@@ -75,6 +75,13 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 텔레그램 알림은 프로그램 접두어 없는 공용 `user_telegram_links`(real_estate_sales가 만듦,
   `docs/PLATFORM_PATTERNS.md` §9)를 `(user_id, program_slug='youtube-auto-reply')`로 스코프해서
   재사용한다 — 다른 프로그램에서 이미 연동한 봇과는 독립적이다.
+- 텔레그램 승인 버튼(게시/보류/게시제외)은 사용자마다 자기 봇을 쓰는 구조라 사용자 식별용
+  웹훅을 새로 등록한다(`setTelegramWebhook`, `lib/actions/telegram.ts`의 연동/해제 시점에
+  등록/해제). 웹훅 URL(`/api/telegram/webhook/[userId]`)에 담긴 user_id만으로는 제3자가
+  URL을 알아내 가짜 승인 요청을 보낼 수 있으므로, `CRON_SECRET`을 시드로 한 HMAC
+  (`computeWebhookSecret()`)을 텔레그램의 `secret_token`으로 함께 등록해 매 요청마다
+  `X-Telegram-Bot-Api-Secret-Token` 헤더로 검증한다. "보류"는 별도 상태값 없이 그냥
+  `pending_review`로 남겨서 웹 검토 화면에 계속 보이게 하는 방식이다.
 
 ## 📦 Phase 진행 상태
 
@@ -83,8 +90,9 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 | 1 | 유튜브 채널 OAuth 연결, 영상 동기화 + 영상별 모니터링 on/off + 링크 오버라이드, 신규 댓글 수집 + AI 답글 초안 생성, 검토 후 수동 게시 | ✅ 구현 완료 |
 | 2 | 매일 Vercel Cron으로 채널 연결 상태 점검 + 끊기면 텔레그램 알림(`/api/cron/check-connection`), 화면 전체에 재연결 배너 표시 | ✅ 구현 완료 |
 | 2 | 예약 모니터링 — 사용자별 확인 주기(5분~24시간) 선택 + 시작/중지 + "이 시점 이후 댓글만" 커트오프, Vercel Cron이 5분마다 깨워서 사용자별 주기를 판정(`/api/cron/sync-comments`, `real_estate_sales`의 dispatch 패턴 재사용). 자동으로는 초안 생성까지만, 게시는 여전히 사람 승인 | ✅ 구현 완료 |
-| 2 | (선택) "자동 승인" 토글 — 사용자가 명시적으로 켠 경우에만 검토 없이 바로 게시 | ⏳ 예정 |
-| 2 | 답글 이력/성과 대시보드 | ⏳ 예정 |
+| 2 | 텔레그램 승인 버튼 — 새 댓글+AI 초안을 텔레그램으로 보내면서 "✅ 게시/⏸ 보류/❌ 게시제외" 인라인 버튼을 함께 제공. 웹 화면 없이도 텔레그램에서 바로 승인 가능(초안 수정이 필요하면 여전히 웹 화면 이용) | ✅ 구현 완료 |
+| 2 | (선택) "자동 게시" 토글 — 사용자가 설정에서 체크박스로 위험 고지에 동의하고 명시적으로 켠 경우에만 검토 없이 바로 게시(`ytreply_settings.auto_approve`, 기본값 false) | ✅ 구현 완료 |
+| 2 | 답글 이력 대시보드(`/history`) — 총 게시 수/최근 7일 게시 수/검토 대기 수 + 최근 게시된 답글 목록(최대 50건) | ✅ 구현 완료 |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 했다. 새 Phase를 시작할 때는 이 표를
 갱신할 것.

@@ -5,7 +5,9 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { YoutubeConnectSection } from "@/components/settings/YoutubeConnectSection";
 import { ReplySettingsForm } from "@/components/settings/ReplySettingsForm";
 import { MonitoringSettingsForm } from "@/components/settings/MonitoringSettingsForm";
+import { AutoApproveSettingsForm } from "@/components/settings/AutoApproveSettingsForm";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
+import { ReregisterWebhookButton } from "@/components/settings/ReregisterWebhookButton";
 import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import type { ApiKeyProvider } from "@/types/database.types";
@@ -30,7 +32,7 @@ export default async function SettingsPage() {
     supabase
       .from("ytreply_settings")
       .select(
-        "default_link, ai_instructions, tone_preset, reply_model, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at",
+        "default_link, ai_instructions, tone_preset, reply_model, auto_approve, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at",
       )
       .eq("user_id", user.id)
       .maybeSingle(),
@@ -98,22 +100,37 @@ export default async function SettingsPage() {
         />
       </section>
 
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">⚡ 자동 게시 (선택, 고급)</h2>
+        <p className="text-sm text-gray-500">
+          기본적으로는 새 댓글마다 AI 초안만 만들고, 실제 게시는 웹 화면이나 텔레그램 버튼에서
+          직접 승인해야 합니다. 이 설정을 켜면 검토 없이 AI 초안이 바로 게시됩니다.
+        </p>
+        <AutoApproveSettingsForm enabled={settings?.auto_approve ?? false} />
+      </section>
+
       <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
         <p className="text-sm text-gray-500">
           유튜브 채널 연결이 끊어지면(구글 미검증 앱은 7일마다 만료) 매일 자동 점검 후 텔레그램으로
-          알려드려요(선택 기능). 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
+          알려드려요. 또한 새 댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께
+          보내드리고, 텔레그램에서 바로 <strong className="text-gray-700">✅ 게시 / ⏸ 보류 / ❌ 게시제외</strong>를
+          선택할 수 있어요(선택 기능). "보류"를 누르면 웹의 "댓글 검토/게시" 화면에 남아있어 나중에
+          수정 후 게시할 수 있습니다. 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
           연동해야 합니다.
         </p>
 
         {telegramLink ? (
           <div className="space-y-3">
             <p className="text-sm text-green-600">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
-            <form action={disconnectTelegramAction}>
-              <button type="submit" className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100">
-                연동 해제
-              </button>
-            </form>
+            <div className="flex flex-wrap items-center gap-2">
+              <form action={disconnectTelegramAction}>
+                <button type="submit" className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100">
+                  연동 해제
+                </button>
+              </form>
+              <ReregisterWebhookButton />
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

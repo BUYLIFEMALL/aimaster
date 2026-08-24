@@ -155,6 +155,7 @@ export interface Database {
           ai_instructions: string | null;
           tone_preset: string | null;
           reply_model: string;
+          auto_approve: boolean;
           monitoring_enabled: boolean;
           monitoring_interval_minutes: number;
           monitoring_started_at: string | null;
@@ -169,6 +170,7 @@ export interface Database {
           ai_instructions?: string | null;
           tone_preset?: string | null;
           reply_model?: string;
+          auto_approve?: boolean;
           monitoring_enabled?: boolean;
           monitoring_interval_minutes?: number;
           monitoring_started_at?: string | null;
@@ -183,6 +185,7 @@ export interface Database {
           ai_instructions?: string | null;
           tone_preset?: string | null;
           reply_model?: string;
+          auto_approve?: boolean;
           monitoring_enabled?: boolean;
           monitoring_interval_minutes?: number;
           monitoring_started_at?: string | null;
@@ -205,6 +208,8 @@ export interface Database {
           posted_reply_id: string | null;
           fetched_at: string;
           replied_at: string | null;
+          telegram_chat_id: string | null;
+          telegram_message_id: number | null;
         };
         Insert: {
           id?: string;
@@ -218,6 +223,8 @@ export interface Database {
           posted_reply_id?: string | null;
           fetched_at?: string;
           replied_at?: string | null;
+          telegram_chat_id?: string | null;
+          telegram_message_id?: number | null;
         };
         Update: {
           id?: string;
@@ -231,6 +238,8 @@ export interface Database {
           posted_reply_id?: string | null;
           fetched_at?: string;
           replied_at?: string | null;
+          telegram_chat_id?: string | null;
+          telegram_message_id?: number | null;
         };
         Relationships: [];
       };

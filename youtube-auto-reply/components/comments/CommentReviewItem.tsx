@@ -31,10 +31,15 @@ export function CommentReviewItem({ comment }: { comment: CommentReviewData }) {
   }
 
   async function handleSkip() {
+    setError(null);
     setIsSkipping(true);
     try {
       await skipReplyAction(comment.id);
       router.refresh();
+    } catch (err) {
+      // 배포 직후처럼 브라우저가 이전 빌드의 페이지를 그대로 들고 있으면 서버 액션 호출이
+      // 조용히 실패할 수 있어(구버전 액션 ID) 화면에 원인을 보여주고 새로고침을 안내한다.
+      setError(err instanceof Error ? `${err.message} (페이지를 새로고침한 뒤 다시 시도해주세요)` : "게시제외에 실패했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.");
     } finally {
       setIsSkipping(false);
     }
@@ -71,7 +76,7 @@ export function CommentReviewItem({ comment }: { comment: CommentReviewData }) {
           disabled={isSkipping}
           className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 border border-gray-200 bg-gray-50 hover:bg-gray-100 disabled:opacity-60"
         >
-          건너뛰기
+          ❌ 게시제외
         </button>
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}

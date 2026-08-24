@@ -73,3 +73,19 @@ export async function saveReplySettingsAction(formData: FormData): Promise<SaveR
   revalidatePath("/settings");
   return { success: true };
 }
+
+/**
+ * (선택) 자동 게시 — 켜면 새 댓글에 대해 사람 검토 없이 AI 초안을 바로 게시한다.
+ * 반드시 사용자가 설정 화면에서 명시적으로 켠 경우에만 동작해야 한다(AGENTS.md 7번 규칙).
+ */
+export async function setAutoApproveAction(enabled: boolean) {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  await supabase
+    .from("ytreply_settings")
+    .upsert({ user_id: user.id, auto_approve: enabled, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+
+  revalidatePath("/settings");
+  revalidatePath("/comments");
+}

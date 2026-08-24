@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { findChatIdFromUpdates, sendTelegramMessage } from "@/lib/telegram/client";
+import { deleteTelegramWebhook, findChatIdFromUpdates, sendTelegramMessage, setTelegramWebhook } from "@/lib/telegram/client";
+import { computeWebhookSecret } from "@/lib/telegram/webhookSecret";
 
 export interface TelegramActionState {
   error?: string;
@@ -62,19 +63,74 @@ export async function connectTelegramAction(
     await sendTelegramMessage({
       botToken,
       chatId: chatInfo.chatId,
-      text: "✅ 유튜브 댓글 자동 답글 알림 연동이 완료됐어요. 유튜브 채널 연결이 끊어지면 여기로 알려드릴게요.",
+      text: "✅ 유튜브 댓글 자동 답글 알림 연동이 완료됐어요. 유튜브 채널 연결이 끊어지면 여기로 알려드리고, 새 댓글이 오면 여기서 바로 게시/보류/게시제외를 선택할 수 있어요.",
     });
   } catch {
     // 저장은 이미 성공했으니, 테스트 메시지 발송 실패는 치명적이지 않음
+  }
+
+  try {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.vercel.app";
+    await setTelegramWebhook({
+      botToken,
+      url: `${siteUrl}/api/telegram/webhook/${user.id}`,
+      secretToken: computeWebhookSecret(user.id),
+    });
+  } catch (err) {
+    // 웹훅 등록 실패해도 알림 자체(끊김 알림 등)는 정상 동작하니 연동 자체를 실패시키지 않음 —
+    // 다만 텔레그램에서 게시/보류/게시제외 버튼은 동작하지 않게 됨
+    console.error("텔레그램 웹훅 등록 실패:", err);
   }
 
   revalidatePath("/settings");
   return { success: `@${chatInfo.botUsername ?? "봇"} 연동이 완료됐어요.` };
 }
 
+/**
+ * 텔레그램 웹훅을 다시 등록한다. 연동 자체는 살아있는데(연결 표시는 됨) 어떤 이유로든 웹훅이
+ * 빠져 있어(예: 연동 직후 일시적 오류) 승인 버튼이 응답하지 않는 경우를 위한 자가 복구 버튼.
+ */
+export async function reregisterTelegramWebhookAction(): Promise<TelegramActionState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data: link } = await supabase
+    .from("user_telegram_links")
+    .select("bot_token")
+    .eq("user_id", user.id)
+    .eq("program_slug", THIS_PROGRAM_SLUG)
+    .maybeSingle();
+  if (!link) return { error: "먼저 텔레그램을 연동해주세요." };
+
+  try {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.vercel.app";
+    await setTelegramWebhook({
+      botToken: link.bot_token,
+      url: `${siteUrl}/api/telegram/webhook/${user.id}`,
+      secretToken: computeWebhookSecret(user.id),
+    });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "웹훅 재등록에 실패했습니다." };
+  }
+
+  revalidatePath("/settings");
+  return { success: "웹훅을 다시 등록했어요." };
+}
+
 export async function disconnectTelegramAction() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("user_telegram_links")
+    .select("bot_token")
+    .eq("user_id", user.id)
+    .eq("program_slug", THIS_PROGRAM_SLUG)
+    .maybeSingle();
+  if (existing) {
+    await deleteTelegramWebhook(existing.bot_token);
+  }
+
   await supabase
     .from("user_telegram_links")
     .delete()

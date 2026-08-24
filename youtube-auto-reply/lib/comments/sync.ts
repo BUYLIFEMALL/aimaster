@@ -6,6 +6,10 @@ import { getValidYoutubeAccessToken } from "@/lib/actions/youtube";
 import { listRecentCommentThreads } from "@/lib/youtube/client";
 import { generateCommentReply } from "@/lib/ai/reply";
 import { getTonePresetInstruction } from "@/lib/tonePresets";
+import { sendTelegramMessage, sendTelegramMessageWithButtons } from "@/lib/telegram/client";
+import { postCommentReplyForUser } from "@/lib/comments/post";
+
+const THIS_PROGRAM_SLUG = "youtube-auto-reply";
 
 export interface RunCommentSyncResult {
   error?: string;
@@ -49,12 +53,19 @@ export async function runCommentSync(
 
   const { data: settings } = await supabase
     .from("ytreply_settings")
-    .select("default_link, ai_instructions, tone_preset, reply_model")
+    .select("default_link, ai_instructions, tone_preset, reply_model, auto_approve")
     .eq("user_id", userId)
     .maybeSingle();
 
   const toneInstruction = getTonePresetInstruction(settings?.tone_preset ?? null);
   const combinedInstructions = [toneInstruction, settings?.ai_instructions].filter(Boolean).join(" ") || null;
+
+  const { data: telegramLink } = await supabase
+    .from("user_telegram_links")
+    .select("bot_token, chat_id")
+    .eq("user_id", userId)
+    .eq("program_slug", THIS_PROGRAM_SLUG)
+    .maybeSingle();
 
   try {
     const accessToken = await getValidYoutubeAccessToken(supabase, userId, account, clientId, clientSecret);
@@ -101,16 +112,65 @@ export async function runCommentSync(
           console.error(`답글 초안 생성 실패 (comment ${thread.topLevelCommentId}):`, err);
         }
 
-        const { error } = await supabase.from("ytreply_comments").insert({
-          user_id: userId,
-          video_id: video.id,
-          youtube_comment_id: thread.topLevelCommentId,
-          author_display_name: thread.authorDisplayName,
-          comment_text: thread.textOriginal,
-          generated_reply: generatedReply,
-          status: "pending_review",
-        });
-        if (!error) newCount += 1;
+        const { data: inserted, error } = await supabase
+          .from("ytreply_comments")
+          .insert({
+            user_id: userId,
+            video_id: video.id,
+            youtube_comment_id: thread.topLevelCommentId,
+            author_display_name: thread.authorDisplayName,
+            comment_text: thread.textOriginal,
+            generated_reply: generatedReply,
+            status: "pending_review",
+          })
+          .select("id")
+          .single();
+        if (error || !inserted) continue;
+        newCount += 1;
+
+        // 자동 게시(선택 기능, 기본 off)가 켜져 있으면 사람 검토 없이 바로 게시하고, 텔레그램에는
+        // 버튼 없는 결과 알림만 보낸다. 꺼져 있으면(기본값) 기존처럼 승인 버튼 메시지를 보낸다.
+        if (settings?.auto_approve && generatedReply) {
+          const postResult = await postCommentReplyForUser(supabase, userId, inserted.id, generatedReply);
+          if (telegramLink) {
+            const text = postResult.success
+              ? [
+                  `🤖 자동 게시 완료`,
+                  `🎬 ${video.title}`,
+                  `💬 ${thread.authorDisplayName ?? "익명"}: ${thread.textOriginal}`,
+                  "",
+                  `✅ 게시된 답글:\n${generatedReply}`,
+                ].join("\n")
+              : `⚠️ 자동 게시 실패 (${video.title}): ${postResult.error ?? "알 수 없는 오류"}`;
+            await sendTelegramMessage({ botToken: telegramLink.bot_token, chatId: telegramLink.chat_id, text }).catch(
+              (sendErr) => console.error(`텔레그램 자동 게시 알림 발송 실패 (comment ${inserted.id}):`, sendErr),
+            );
+          }
+        } else if (telegramLink && generatedReply) {
+          try {
+            const { messageId } = await sendTelegramMessageWithButtons({
+              botToken: telegramLink.bot_token,
+              chatId: telegramLink.chat_id,
+              text: [
+                `🎬 ${video.title}`,
+                `💬 ${thread.authorDisplayName ?? "익명"}: ${thread.textOriginal}`,
+                "",
+                `✍️ AI 답글 초안:\n${generatedReply}`,
+              ].join("\n"),
+              buttons: [
+                { text: "✅ 게시", callbackData: `post:${inserted.id}` },
+                { text: "⏸ 보류", callbackData: `hold:${inserted.id}` },
+                { text: "❌ 게시제외", callbackData: `skip:${inserted.id}` },
+              ],
+            });
+            await supabase
+              .from("ytreply_comments")
+              .update({ telegram_chat_id: telegramLink.chat_id, telegram_message_id: messageId })
+              .eq("id", inserted.id);
+          } catch (sendErr) {
+            console.error(`텔레그램 승인 메시지 발송 실패 (comment ${inserted.id}):`, sendErr);
+          }
+        }
       }
     }
 
