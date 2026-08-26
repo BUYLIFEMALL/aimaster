@@ -189,6 +189,53 @@ Cloudinary 자체는 계속 써도 된다 — 다만 **신규 이미지 "생성"
 
 ---
 
+## 13. 프로그램 카탈로그 썸네일 — 반드시 "실사(포토리얼)" 스타일로, 프롬프트 템플릿 고정
+
+**배경**: 2026-08-26, `threads-comment-reply` 썸네일을 즉흥적으로 만든 프롬프트로 생성했더니 다른
+프로그램들(실사 인물 사진 스타일)과 달리 **플랫 벡터 일러스트(만화/아이콘 스타일)**로 나와서
+카탈로그 화면에서 스타일이 튀는 문제가 있었다. 이후로는 매번 프롬프트를 새로 고민하지 말고
+**아래 템플릿을 그대로 채워서 쓴다** — "실사 스타일"이라는 말만으로는 Gemini가 가끔 일러스트로
+해석하므로, 아래처럼 사진 특유의 디테일(피부 질감/렌즈 아웃포커스/조명)을 명시적으로 못 박아야
+한다.
+
+### 프롬프트 템플릿
+
+```
+A photorealistic, professional editorial/stock-photography portrait for a marketing thumbnail
+of a Korean SaaS automation program. A [나이대/성별] Korean [인물 묘사 — 예: 20대 여성,
+비즈니스 캐주얼 차림] [행동 — 예: 웃으며 스마트폰 화면을 보고 있다 / 노트북 앞에서 만족스러운
+표정을 짓고 있다], holding/using [기기 — 스마트폰/노트북] that shows [화면에 보일 UI 힌트 —
+예: a dark chat interface with message bubbles / a dashboard with a rising graph]. [선택:
+글로우 효과가 있는 작은 아이콘 오버레이 1~3개로 핵심 기능을 암시 — 예: floating glowing
+speech-bubble and heart icons near the phone]. Natural skin texture, shallow depth of field,
+soft cinematic lighting, photographed with a professional camera (85mm portrait lens look),
+[배경 — 예: softly blurred pastel gradient background / blurred modern office interior with
+warm bokeh lights]. 16:9 aspect ratio. No visible text, logos, or watermarks in the image.
+```
+
+### 고정 규칙
+
+1. **"photorealistic" + "shallow depth of field" + "natural skin texture" + "85mm portrait
+   lens"를 항상 넣는다** — 이 네 표현이 빠지면 일러스트로 나올 확률이 높다(2026-08-26 실제
+   확인).
+2. **인물은 기본적으로 한국인으로 묘사한다** (루트 `CLAUDE.md` 3번째 불변 원칙과 동일). 프로그램
+   성격에 맞는 연령대/성별/복장을 자유롭게 정하되(예: 부동산 프로그램 → 40대 정장 남성, 인스타
+   댓글자동화 → 20~30대 캐주얼 여성), 특정 실존 인물을 연상시키지 않게 한다.
+3. **화면 속 UI/아이콘은 프로그램의 핵심 기능을 한눈에 암시**하게 고른다(댓글 자동화 → 채팅
+   말풍선, 부동산 → 그래프/게이지, 음악 생성 → 음파/노트 아이콘 등). 텍스트가 이미지 안에
+   그대로 렌더링되면 깨져 보이는 경우가 많으므로 **이미지 안에 문구/로고를 넣지 않는다**(마지막
+   문장 "No visible text..."로 항상 명시).
+4. **비율은 16:9로 통일**한다(카탈로그 카드 썸네일 영역과 맞음).
+5. 실행은 `scripts/generate-program-thumbnail.mjs`를 그대로 재사용한다(§12의 Gemini 직접 호출
+   + Supabase Storage 업로드 + DB 반영 로직이 이미 들어있음):
+   ```
+   node scripts/generate-program-thumbnail.mjs <program-slug> <geminiUserId> "<위 템플릿을 채운 프롬프트>"
+   ```
+6. 결과물을 **반드시 육안으로 다른 프로그램 썸네일과 나란히 비교**해서 실사 톤이 맞는지 확인한
+   뒤 커밋한다 — 스타일이 튀면 바로 재생성.
+
+---
+
 ## 14. 공용 `user_api_keys`에 새 provider 추가할 때 체크 제약도 같이 넓힐 것
 
 새 서브프로젝트가 `user_api_keys` 테이블에 없던 provider(예: `serpapi`)를 쓰려고 하면, 코드
