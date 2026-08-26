@@ -36,7 +36,7 @@ export default function BlogSidebar() {
     <aside className="flex w-full flex-col border-b border-slate-200 bg-white md:w-60 md:flex-shrink-0 md:justify-between md:self-stretch md:border-b-0 md:border-r">
       <div>
         <div className="px-5 pt-4">
-          <div className="text-lg font-semibold text-slate-900">AI 자동 블로그</div>
+          <div className="text-lg font-semibold text-slate-900">BLOG(원문)생성 자동화</div>
           <Link
             href="/programs"
             className="mb-4 block text-xs text-slate-400 hover:text-slate-700 md:mb-6"

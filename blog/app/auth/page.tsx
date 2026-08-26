@@ -14,10 +14,10 @@ export default async function AuthPage() {
     <div className="auth-grid-bg flex flex-col flex-1 items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       {user ? (
         <div className="w-full max-w-[440px] px-4 animate-fade-in">
-          {/* AutoBlog 인증 완료 로고 헤더 */}
+          {/* BLOG(원문)생성 자동화 인증 완료 로고 헤더 */}
           <div className="flex flex-col items-center mb-8 text-center">
             <Link href="/" className="text-2xl font-black text-indigo-600 tracking-tight no-underline">
-              AutoBlog
+              BLOG(원문)생성 자동화
             </Link>
             <p className="text-sm font-medium text-zinc-500">
               세션이 정상적으로 인증되었습니다.

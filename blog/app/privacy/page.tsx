@@ -3,7 +3,7 @@ import InfoPage from '@/blog/app/_components/info-page'
 export default function PrivacyPage() {
   return (
     <InfoPage title="개인정보 처리방침">
-      <p>DevFlow는 회원가입 및 로그인을 위해 이메일 주소를 수집하며, 인증은 Supabase Auth를 통해 처리됩니다.</p>
+      <p>BLOG(원문)생성 자동화는 회원가입 및 로그인을 위해 이메일 주소를 수집하며, 인증은 Supabase Auth를 통해 처리됩니다.</p>
       <ul className="list-disc pl-5 space-y-2">
         <li>수집 항목: 이메일 주소, 비밀번호(암호화 저장), 로그인 세션 쿠키</li>
         <li>이용 목적: 회원 인증, 댓글·좋아요·게시글 작성자 식별</li>
