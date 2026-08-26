@@ -8,6 +8,7 @@ export interface SettingsSummaryData {
   defaultLink: string | null;
   tonePreset: string | null;
   replyModel: string | null;
+  autoApprove: boolean;
   monitoringEnabled: boolean;
   monitoringIntervalMinutes: number | null;
   monitoringStartedAt: string | null;
@@ -41,6 +42,12 @@ export function SettingsSummary({ data }: { data: SettingsSummaryData }) {
           <div className="flex justify-between gap-2">
             <dt className="shrink-0">AI 모델</dt>
             <dd className="text-right text-gray-700">{modelLabel}</dd>
+          </div>
+          <div className="flex justify-between gap-2">
+            <dt className="shrink-0">자동 게시</dt>
+            <dd className={`text-right font-semibold ${data.autoApprove ? "text-amber-600" : "text-gray-400"}`}>
+              {data.autoApprove ? "⚡ 켜짐(검토 없이 즉시 게시)" : "꺼짐"}
+            </dd>
           </div>
         </dl>
       </div>

@@ -137,6 +137,7 @@ export interface Database {
           ai_instructions: string | null;
           tone_preset: string | null;
           reply_model: string;
+          auto_approve: boolean;
           monitoring_enabled: boolean;
           monitoring_interval_minutes: number;
           monitoring_started_at: string | null;
@@ -151,6 +152,7 @@ export interface Database {
           ai_instructions?: string | null;
           tone_preset?: string | null;
           reply_model?: string;
+          auto_approve?: boolean;
           monitoring_enabled?: boolean;
           monitoring_interval_minutes?: number;
           monitoring_started_at?: string | null;
@@ -165,6 +167,7 @@ export interface Database {
           ai_instructions?: string | null;
           tone_preset?: string | null;
           reply_model?: string;
+          auto_approve?: boolean;
           monitoring_enabled?: boolean;
           monitoring_interval_minutes?: number;
           monitoring_started_at?: string | null;
