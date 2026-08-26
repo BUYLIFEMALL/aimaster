@@ -121,6 +121,48 @@ export default async function SettingsPage() {
         <BotEnabledForm enabled={settings?.bot_enabled ?? false} startedAt={settings?.bot_started_at ?? null} />
       </section>
 
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">🤖 답장 생성 AI</h2>
+        <p className="text-sm text-gray-500">
+          아래 "답장 기본 설정"에서 고른 모델의 provider 키 하나만 등록되어 있으면 됩니다(세 개 다
+          등록할 필요 없음).
+        </p>
+
+        <div className="space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+          <p>
+            🎯 현재 답장 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
+          </p>
+          <p>
+            사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {AI_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              helpUrl={HELP_LINKS[provider]?.url}
+              helpLabel={HELP_LINKS[provider]?.label}
+              isActive={provider === activeProvider}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">🔗 답장 기본 설정</h2>
+        <ReplySettingsForm
+          defaultLink={settings?.default_link ?? null}
+          aiInstructions={settings?.ai_instructions ?? null}
+          tonePreset={settings?.tone_preset ?? null}
+          replyModel={settings?.reply_model ?? null}
+          disclosureMessage={settings?.disclosure_message ?? null}
+        />
+      </section>
+
       <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
         <p className="text-sm text-gray-500">
@@ -163,48 +205,6 @@ export default async function SettingsPage() {
             <TelegramConnectForm />
           </div>
         )}
-      </section>
-
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">🤖 답장 생성 AI</h2>
-        <p className="text-sm text-gray-500">
-          아래 "답장 기본 설정"에서 고른 모델의 provider 키 하나만 등록되어 있으면 됩니다(세 개 다
-          등록할 필요 없음).
-        </p>
-
-        <div className="space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-          <p>
-            🎯 현재 답장 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
-          </p>
-          <p>
-            사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {AI_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-              helpUrl={HELP_LINKS[provider]?.url}
-              helpLabel={HELP_LINKS[provider]?.label}
-              isActive={provider === activeProvider}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">🔗 답장 기본 설정</h2>
-        <ReplySettingsForm
-          defaultLink={settings?.default_link ?? null}
-          aiInstructions={settings?.ai_instructions ?? null}
-          tonePreset={settings?.tone_preset ?? null}
-          replyModel={settings?.reply_model ?? null}
-          disclosureMessage={settings?.disclosure_message ?? null}
-        />
       </section>
 
       <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
