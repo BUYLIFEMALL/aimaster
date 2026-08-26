@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "인스타그램 댓글자동화",
+  title: "INSTA 댓글자동화",
   description: "내 인스타그램 게시물에 달린 댓글을 AI가 읽고 자연스러운 답글(원하는 링크 포함)을 초안으로 만들어, 검토 후 게시해드립니다.",
 };
 
