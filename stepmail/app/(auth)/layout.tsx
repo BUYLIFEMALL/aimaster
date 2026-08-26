@@ -4,7 +4,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">✉️</div>
-          <h1 className="text-xl font-black text-gray-900">STEP Mail</h1>
+          <h1 className="text-xl font-black text-gray-900">대량 메일발송 자동화(Step Mail)</h1>
         </div>
         {children}
       </div>

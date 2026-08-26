@@ -191,7 +191,7 @@ export async function checkProgramAccessApi(): Promise<
     return { allowed: true, user };
   }
 
-  return { allowed: false, error: "STEP Mail 이용 권한이 없습니다. 구독 후 이용해주세요.", status: 403 };
+  return { allowed: false, error: "대량 메일발송 자동화(Step Mail) 이용 권한이 없습니다. 구독 후 이용해주세요.", status: 403 };
 }
 
 /**
