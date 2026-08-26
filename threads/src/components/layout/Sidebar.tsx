@@ -17,7 +17,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       <div className="flex items-center justify-between md:block">
         <div>
           <div className="px-2 text-lg font-semibold text-neutral-900">
-            Threads 자동 포스팅
+            Threads 포스팅 자동화
           </div>
           <a
             href={`${MAIN_SITE_URL}/programs`}

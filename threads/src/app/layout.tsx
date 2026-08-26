@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Threads 자동 포스팅 관리",
+  title: "Threads 포스팅 자동화",
   description: "Threads 게시글 작성, 즉시 게시, 예약 게시를 관리하는 마케팅 자동화 웹",
 };
 
