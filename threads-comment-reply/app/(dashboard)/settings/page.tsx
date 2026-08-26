@@ -5,6 +5,7 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { ThreadsConnectSection } from "@/components/settings/ThreadsConnectSection";
 import { ReplySettingsForm } from "@/components/settings/ReplySettingsForm";
 import { MonitoringSettingsForm } from "@/components/settings/MonitoringSettingsForm";
+import { AutoApproveSettingsForm } from "@/components/settings/AutoApproveSettingsForm";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { ReregisterWebhookButton } from "@/components/settings/ReregisterWebhookButton";
 import { getThreadsConnectionStatus } from "@/lib/actions/threads";
@@ -40,7 +41,7 @@ export default async function SettingsPage() {
     supabase
       .from("th_settings")
       .select(
-        "default_link, ai_instructions, tone_preset, reply_model, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at",
+        "default_link, ai_instructions, tone_preset, reply_model, auto_approve, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at",
       )
       .eq("user_id", user.id)
       .maybeSingle(),
@@ -192,6 +193,15 @@ export default async function SettingsPage() {
           startedAt={settings?.monitoring_started_at ?? null}
           lastRunAt={settings?.last_run_at ?? null}
         />
+      </section>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">⚡ 자동 게시 (선택, 고급)</h2>
+        <p className="text-sm text-gray-500">
+          기본적으로는 새 댓글마다 AI 초안만 만들고, 실제 게시는 웹 화면이나 텔레그램 버튼에서
+          직접 승인해야 합니다. 이 설정을 켜면 검토 없이 AI 초안이 바로 게시됩니다.
+        </p>
+        <AutoApproveSettingsForm enabled={settings?.auto_approve ?? false} />
       </section>
     </div>
   );

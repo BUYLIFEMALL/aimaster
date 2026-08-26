@@ -26,8 +26,9 @@ instagram-comment-reply를 만들 때와 동일하게, Meta 공식 개발자 문
 1. **AI가 댓글마다 다른 답글 초안을 생성 → 사람이 검토·수정 → "답변승인"을 직접 눌러야만
    실제로 올라간다.** (`lib/comments/post.ts`의 `postCommentReplyForUser`, 웹 화면과 텔레그램
    승인 버튼 양쪽에서 공유)
-2. **(선택) 자동 게시 기능은 Phase 1에 만들지 않는다** — instagram-comment-reply와 동일한
-   안전 마진.
+2. **(선택, 고급) 자동 게시**는 기본 꺼짐이고, 설정 화면에서 위험 고지에 동의해야만 켤 수
+   있다. 켜져 있어도 댓글마다 AI가 매번 새로 생성한 답글만 게시된다(youtube-auto-reply와 동일한
+   `auto_approve` 패턴, 2026-08-26 추가).
 3. 한 번 동기화당 게시물별 최근 댓글 20개까지만 가져온다.
 
 ## 쓰레드 OAuth — 기존 `threads/` 서브프로젝트와 같은 흐름, 사용자별 본인 앱

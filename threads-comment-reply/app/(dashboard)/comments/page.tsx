@@ -20,7 +20,7 @@ export default async function CommentsPage() {
       .order("fetched_at", { ascending: false }),
     supabase
       .from("th_settings")
-      .select("default_link, tone_preset, reply_model, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at")
+      .select("default_link, tone_preset, reply_model, auto_approve, monitoring_enabled, monitoring_interval_minutes, monitoring_started_at, last_run_at")
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);
@@ -55,6 +55,7 @@ export default async function CommentsPage() {
             defaultLink: settings?.default_link ?? null,
             tonePreset: settings?.tone_preset ?? null,
             replyModel: settings?.reply_model ?? null,
+            autoApprove: settings?.auto_approve ?? false,
             monitoringEnabled: settings?.monitoring_enabled ?? false,
             monitoringIntervalMinutes: settings?.monitoring_interval_minutes ?? null,
             monitoringStartedAt: settings?.monitoring_started_at ?? null,
