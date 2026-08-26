@@ -191,7 +191,7 @@ export async function checkProgramAccessApi(): Promise<
     return { allowed: true, user };
   }
 
-  return { allowed: false, error: "상세페이지 이미지 생성 이용 권한이 없습니다. 구독 후 이용해주세요.", status: 403 };
+  return { allowed: false, error: "상세페이지 자동화(15p) 이용 권한이 없습니다. 구독 후 이용해주세요.", status: 403 };
 }
 
 /**
