@@ -4,7 +4,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">🔎</div>
-          <h1 className="text-xl font-black text-gray-900">경쟁사 키워드 분석</h1>
+          <h1 className="text-xl font-black text-gray-900">경쟁사 키워드분석 자동화</h1>
         </div>
         {children}
       </div>

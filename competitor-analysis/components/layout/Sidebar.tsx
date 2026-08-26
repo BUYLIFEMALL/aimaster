@@ -15,7 +15,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
     <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:h-full md:w-60 md:justify-between md:border-b-0 md:border-r">
       <div className="flex items-center justify-between md:block">
         <div>
-          <div className="px-2 text-lg font-semibold text-neutral-900">경쟁사 키워드 분석</div>
+          <div className="px-2 text-lg font-semibold text-neutral-900">경쟁사 키워드분석 자동화</div>
           <a
             href={`${MAIN_SITE_URL}/programs`}
             className="mb-4 block px-2 text-xs text-neutral-500 hover:text-neutral-900 md:mb-6"
