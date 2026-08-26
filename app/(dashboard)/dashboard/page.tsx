@@ -15,7 +15,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: profile }, { data: allSubscriptions }, { data: myCoupons }] = await Promise.all([
+  const [{ data: profile }, { data: allSubscriptions }, { data: myCoupons }, { data: individualGrants }, { data: allPrograms }] = await Promise.all([
     supabase
       .from("profiles")
       .select("*, grade:member_grades(*)")
@@ -33,6 +33,15 @@ export default async function DashboardPage() {
       .eq("assigned_user_id", user.id)
       .eq("is_active", true)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("user_program_access")
+      .select("program_id, expires_at")
+      .eq("user_id", user.id),
+    supabase
+      .from("programs")
+      .select("id, name, slug, thumbnail_url, app_url, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true }),
   ]);
 
   // 활성 구독과 만료 구독 분리 (status와 만료일을 함께 고려 — 둘 중 하나만 보면
@@ -49,6 +58,29 @@ export default async function DashboardPage() {
   const expiredSubscriptions = (allSubscriptions ?? []).filter(
     (s) => s.status !== "active" || isDateExpired(s.expires_at)
   );
+
+  // 이용 가능한 프로그램 계산: 구독 결제 연동 전 임시 정책으로, 등급 제한이 없는(현재 전체)
+  // 프로그램은 "일반" 등급을 포함한 모든 로그인 회원에게 자동으로 열려 있다. 실제 유료화는
+  // 나중에 프로그램별 required_grade_id를 지정하는 것만으로 그대로 반영되도록 설계했다
+  // (각 서브프로젝트의 requireProgramAccess()와 동일한 판정 순서: 구독 -> 개별부여 -> 등급).
+  const subscribedProgramIds = new Set(subscriptions.map((s) => s.program_id));
+  const now2 = new Date();
+  const grantedProgramIds = new Set(
+    (individualGrants ?? [])
+      .filter((g) => !g.expires_at || new Date(g.expires_at) > now2)
+      .map((g) => g.program_id)
+  );
+  const userGradeSortOrder = (() => {
+    const grade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade;
+    return grade?.sort_order ?? null;
+  })();
+
+  const accessiblePrograms = (allPrograms ?? []).filter((p) => {
+    if (subscribedProgramIds.has(p.id) || grantedProgramIds.has(p.id)) return true;
+    if (!p.required_grade_id) return true;
+    const requiredGrade = Array.isArray(p.required_grade) ? p.required_grade[0] : p.required_grade;
+    return userGradeSortOrder != null && requiredGrade && userGradeSortOrder >= requiredGrade.sort_order;
+  });
 
   return (
     <div>
@@ -67,7 +99,7 @@ export default async function DashboardPage() {
             />
           )}
         </div>
-        <p className="text-subtext">구독 중인 프로그램을 확인하세요</p>
+        <p className="text-subtext">이용 가능한 프로그램을 확인하세요</p>
       </div>
 
       {/* Stats */}
@@ -163,66 +195,72 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Subscriptions */}
+      {/* 이용 가능한 프로그램: 결제 연동 전에는 등급 제한이 없는 프로그램은 구독 여부와
+          무관하게 모두 실행 가능하다 (accessiblePrograms 계산 로직 참고) */}
       <div>
-        <h2 className="text-lg font-bold text-white mb-4">구독 중인 프로그램</h2>
+        <h2 className="text-lg font-bold text-white mb-4">이용 가능한 프로그램</h2>
 
-        {subscriptions.length === 0 ? (
+        {accessiblePrograms.length === 0 ? (
           <GlassCard className="text-center py-12">
             <Package size={40} className="text-subtext mx-auto mb-4" />
-            <p className="text-subtext mb-4">구독 중인 프로그램이 없습니다</p>
+            <p className="text-subtext mb-4">이용 가능한 프로그램이 없습니다</p>
             <Link href="/programs">
               <GoldButton>프로그램 둘러보기</GoldButton>
             </Link>
           </GlassCard>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
-            {subscriptions.map((sub) => {
-              const remaining = daysRemaining(sub.expires_at);
-              const isExpiringSoon = sub.expires_at &&
+            {accessiblePrograms.map((program) => {
+              const sub = subscriptions.find((s) => s.program_id === program.id);
+              const remaining = sub ? daysRemaining(sub.expires_at) : null;
+              const isExpiringSoon = sub?.expires_at &&
                 Math.ceil((new Date(sub.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 7;
 
               return (
-                <GlassCard key={sub.id} className="p-5">
+                <GlassCard key={program.id} className="p-5">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 min-w-0">
                       <h3 className="text-white font-semibold truncate">
-                        {sub.program?.name ?? "프로그램"}
+                        {program.name}
                       </h3>
                       <p className="text-subtext text-sm">
-                        {sub.pricing_plan?.name} · {formatKRW(sub.pricing_plan?.price ?? 0)}
+                        {sub ? `${sub.pricing_plan?.name} · ${formatKRW(sub.pricing_plan?.price ?? 0)}` : "무료 이용 중"}
                       </p>
                     </div>
-                    <span className={`ml-3 text-xs font-bold px-2.5 py-1 rounded-full ${
-                      isExpiringSoon
-                        ? "bg-orange-500/20 text-orange-400"
-                        : "bg-emerald-500/20 text-emerald-400"
-                    }`}>
-                      {remaining}
-                    </span>
+                    {sub && (
+                      <span className={`ml-3 text-xs font-bold px-2.5 py-1 rounded-full ${
+                        isExpiringSoon
+                          ? "bg-orange-500/20 text-orange-400"
+                          : "bg-emerald-500/20 text-emerald-400"
+                      }`}>
+                        {remaining}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between text-xs text-subtext">
-                    <span>시작: {formatDate(sub.started_at)}</span>
-                    {sub.expires_at && <span>만료: {formatDate(sub.expires_at)}</span>}
-                    {!sub.expires_at && <span className="text-gold">평생 이용</span>}
-                  </div>
+                  {sub && (
+                    <div className="flex items-center justify-between text-xs text-subtext">
+                      <span>시작: {formatDate(sub.started_at)}</span>
+                      {sub.expires_at && <span>만료: {formatDate(sub.expires_at)}</span>}
+                      {!sub.expires_at && <span className="text-gold">평생 이용</span>}
+                    </div>
+                  )}
                   <div className="mt-3 pt-3 border-t border-white/10 flex gap-2">
-                    {sub.program?.app_url ? (
+                    {program.app_url ? (
                       <>
-                        <a href={sub.program.app_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                        <a href={program.app_url} target="_blank" rel="noopener noreferrer" className="flex-1">
                           <GoldButton size="sm" fullWidth>
                             <ExternalLink size={14} />
                             실행하기
                           </GoldButton>
                         </a>
-                        <Link href={`/programs/${sub.program?.slug}`} className="flex-1">
+                        <Link href={`/programs/${program.slug}`} className="flex-1">
                           <GoldButton variant="outline" size="sm" fullWidth>
                             프로그램 보기
                           </GoldButton>
                         </Link>
                       </>
                     ) : (
-                      <Link href={`/programs/${sub.program?.slug}`} className="flex-1">
+                      <Link href={`/programs/${program.slug}`} className="flex-1">
                         <GoldButton variant="outline" size="sm" fullWidth>
                           프로그램 보기
                         </GoldButton>

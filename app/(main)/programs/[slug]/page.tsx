@@ -200,7 +200,18 @@ export default async function ProgramDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          <HeroSubscribeButton />
+          {isAccessAllowed && program.app_url ? (
+            <a href={program.app_url} target="_blank" rel="noopener noreferrer" className="block">
+              <button
+                type="button"
+                className="btn-gold w-full py-4 text-lg rounded-xl font-bold cursor-pointer transition-all hover:scale-105 active:scale-95 shadow-lg"
+              >
+                지금 바로 이용하기
+              </button>
+            </a>
+          ) : (
+            <HeroSubscribeButton />
+          )}
         </div>
       </div>
 

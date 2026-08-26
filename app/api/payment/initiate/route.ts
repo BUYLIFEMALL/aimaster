@@ -36,6 +36,17 @@ export async function POST(req: NextRequest) {
 
     if (existing) return NextResponse.json({ error: "이미 구독 중인 프로그램입니다." }, { status: 409 });
 
+    // 결제 연동 전 임시 정책: "일반" 등급 회원은 요금이 설정되어 있어도 실제 페이앱 결제로
+    // 넘기지 않고 구독 신청만으로 바로 이용 가능하게 한다. 실제 유료화는 나중에 이 블록만
+    // 제거(또는 조건 변경)하면 그대로 반영된다.
+    const { data: profileForGrade } = await supabase
+      .from("profiles")
+      .select("grade:member_grades(slug)")
+      .eq("id", user.id)
+      .single();
+    const userGrade = Array.isArray(profileForGrade?.grade) ? profileForGrade?.grade[0] : profileForGrade?.grade;
+    const isPrelaunchFreeAccess = userGrade?.slug === "basic";
+
     // 쿠폰 검증 (서버사이드 재검증)
     let couponId: string | null = null;
     let discountAmount = 0;
@@ -105,9 +116,11 @@ export async function POST(req: NextRequest) {
       ...(referrerUserId ? { referrerUserId } : {}),
     };
 
-    // 100% 무료 쿠폰: Payapp 호출 없이 즉시 구독 생성
-    if (finalPrice === 0) {
+    // 100% 무료 쿠폰이거나, 결제 연동 전 "일반" 등급 임시 무료 정책 대상이면
+    // Payapp 호출 없이 즉시 구독 생성
+    if (finalPrice === 0 || isPrelaunchFreeAccess) {
       const serviceClient = createServiceClient();
+      const marker = finalPrice === 0 && couponId ? "FREE" : "PRELAUNCH_FREE";
 
       // payment_records 생성 (completed)
       const { data: payRecord } = await serviceClient.from("payment_records").insert({
@@ -115,7 +128,7 @@ export async function POST(req: NextRequest) {
         amount: 0,
         status: "completed",
         payapp_order_id: orderId,
-        payapp_data: { ...payappDataBase, billId: "FREE", payId: "FREE" },
+        payapp_data: { ...payappDataBase, billId: marker, payId: marker },
         paid_at: new Date().toISOString(),
       }).select("id").single();
 
