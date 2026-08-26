@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI 음악 자동생성기",
+  title: "음악 자동화",
   description: "곡 설명을 입력하면 AI가 장르/제목/가사를 기획하고 Suno로 실제 곡을 자동 생성합니다.",
 };
 

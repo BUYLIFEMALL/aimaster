@@ -18,7 +18,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       <div className="flex items-center justify-between md:block">
         <div>
           <div className="px-2 text-lg font-semibold text-neutral-900">
-            AI 음악 자동생성기
+            음악 자동화
           </div>
           <a
             href={`${MAIN_SITE_URL}/programs`}
