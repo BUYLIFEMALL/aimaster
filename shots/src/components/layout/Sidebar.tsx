@@ -17,7 +17,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
     <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:h-full md:w-60 md:justify-between md:border-b-0 md:border-r">
       <div className="flex items-center justify-between md:block">
         <div>
-          <div className="px-2 text-lg font-semibold text-neutral-900">유튜브 쇼츠 자동 생성</div>
+          <div className="px-2 text-lg font-semibold text-neutral-900">유튜브 쇼츠자동화(이미지 스토리)</div>
           <a
             href={`${MAIN_SITE_URL}/programs`}
             className="mb-4 block px-2 text-xs text-neutral-500 hover:text-neutral-900 md:mb-6"
