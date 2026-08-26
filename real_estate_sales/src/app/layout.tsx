@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "부동산 실거래 투자분석",
+  title: "부동산 실거래 투자분석 자동화",
   description: "관심 지역의 최근 실거래가를 자동으로 알려드리고, AI가 투자 매력도를 분석해주는 서비스",
 };
 

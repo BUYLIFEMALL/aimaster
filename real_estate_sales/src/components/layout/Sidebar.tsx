@@ -18,7 +18,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           href={`${MAIN_SITE_URL}/programs`}
           className="gold-text mb-1 block px-2 text-lg font-semibold hover:opacity-80 md:mb-1"
         >
-          부동산 실거래 투자분석
+          부동산 실거래 투자분석 자동화
         </a>
         <a
           href={`${MAIN_SITE_URL}/programs`}
