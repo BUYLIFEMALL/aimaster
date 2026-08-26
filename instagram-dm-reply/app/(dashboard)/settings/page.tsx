@@ -166,20 +166,9 @@ export default async function SettingsPage() {
       </section>
 
       <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">🔗 답장 기본 설정</h2>
-        <ReplySettingsForm
-          defaultLink={settings?.default_link ?? null}
-          aiInstructions={settings?.ai_instructions ?? null}
-          tonePreset={settings?.tone_preset ?? null}
-          replyModel={settings?.reply_model ?? null}
-          disclosureMessage={settings?.disclosure_message ?? null}
-        />
-      </section>
-
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">🤖 답장 생성 AI</h2>
         <p className="text-sm text-gray-500">
-          위 "답장 기본 설정"에서 고른 모델의 provider 키 하나만 등록되어 있으면 됩니다(세 개 다
+          아래 "답장 기본 설정"에서 고른 모델의 provider 키 하나만 등록되어 있으면 됩니다(세 개 다
           등록할 필요 없음).
         </p>
 
@@ -205,6 +194,17 @@ export default async function SettingsPage() {
             />
           ))}
         </div>
+      </section>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">🔗 답장 기본 설정</h2>
+        <ReplySettingsForm
+          defaultLink={settings?.default_link ?? null}
+          aiInstructions={settings?.ai_instructions ?? null}
+          tonePreset={settings?.tone_preset ?? null}
+          replyModel={settings?.reply_model ?? null}
+          disclosureMessage={settings?.disclosure_message ?? null}
+        />
       </section>
 
       <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
