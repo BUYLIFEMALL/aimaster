@@ -104,6 +104,12 @@ export default function ProgramForm({ program }: ProgramFormProps) {
     });
     supabase.from("member_grades").select("*").order("sort_order").then(({ data }) => {
       setGrades(data ?? []);
+      // 새 프로그램 등록 시 기본값은 "전체 공개"가 아니라 가장 낮은 등급("일반")으로 시작한다.
+      // 등록 후에는 이 화면에서 언제든 다른 등급/전체 공개로 바꿀 수 있다.
+      if (!isEdit) {
+        const basicGrade = (data ?? []).find((g) => g.slug === "basic") ?? (data ?? [])[0];
+        if (basicGrade) setRequiredGradeId(basicGrade.id);
+      }
     });
     if (isEdit && program?.id) {
       supabase.from("affiliate_rates").select("rate").eq("program_id", program.id).single()
