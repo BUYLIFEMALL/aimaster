@@ -64,7 +64,7 @@ ManyChat 등 상용 서비스가 이미 이 방식으로 검증했다.
 
 | 기능 | 필요 권한 | 상태 |
 |---|---|---|
-| **DM 자동응답 챗봇** | `instagram_business_manage_messages` | ⏳ 대기(1순위 추천) |
+| **DM 자동응답 챗봇** | `instagram_business_manage_messages` | 🚧 진행 중(`instagram-dm-reply` 서브프로젝트, 2026-08-26 착수 — Phase 1 코드 완료, 실사용자 Meta 앱/웹훅 등록 및 배포 대기) |
 | 멘션(태그) 감사 답글 | Mentions API | ⏳ 대기 |
 | 성과 리포트 자동 발송 | Insights API | ⏳ 대기 |
 | 악성 댓글 자동 숨김 | `instagram_business_manage_comments`(instagram-comment-reply가 이미 보유) | ⏳ 대기 |
