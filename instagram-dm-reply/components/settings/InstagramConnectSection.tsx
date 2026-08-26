@@ -8,10 +8,13 @@ export function InstagramConnectSection({
   connected,
   username,
   needsReconnect,
+  bare,
 }: {
   connected: boolean;
   username: string | null;
   needsReconnect: boolean;
+  /** true면 카드 외곽선/제목 없이 내용만 렌더링한다(다른 섹션 안에 이어붙일 때 사용). */
+  bare?: boolean;
 }) {
   const pathname = usePathname();
   const [error, setError] = useState<string | null>(null);
@@ -31,10 +34,8 @@ export function InstagramConnectSection({
     }
   }
 
-  return (
-    <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-gray-900">📸 인스타그램 계정 연결</h2>
-
+  const content = (
+    <>
       {needsReconnect && (
         <p className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-xs font-medium text-amber-800">
           ⚠️ 인스타그램 연결이 만료되었습니다. 아래에서 다시 연결해주세요.
@@ -69,6 +70,15 @@ export function InstagramConnectSection({
           {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
         </form>
       )}
+    </>
+  );
+
+  if (bare) return <div className="space-y-3">{content}</div>;
+
+  return (
+    <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <h2 className="text-lg font-bold text-gray-900">📸 인스타그램 계정 연결</h2>
+      {content}
     </section>
   );
 }

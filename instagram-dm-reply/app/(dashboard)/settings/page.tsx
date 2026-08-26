@@ -64,15 +64,18 @@ export default async function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
-      <section>
+      <div>
         <h1 className="mb-2 text-2xl font-black text-gray-900">계정 연결 / 설정</h1>
-        <div className="mb-6 space-y-2 text-sm text-gray-500">
+        <p className="mb-6 text-sm text-gray-500">
+          인스타그램 계정 연결과 답장 생성 AI는 서로 다른 키를 씁니다 — 아래에서 순서대로
+          등록해주세요.
+        </p>
+      </div>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">📸 인스타그램 계정 연결</h2>
+        <div className="space-y-2 text-sm text-gray-500">
           <p>인스타 DM 자동응답에는 본인의 Meta App ID/Secret이 필요합니다.</p>
-          <p>
-            답장 초안을 만드는 AI는 OpenAI/Anthropic Claude/Google Gemini 중 아래 "답장 생성 AI
-            모델"에서 고른 모델에 해당하는 provider의 키 하나만 등록되어 있으면 됩니다(세 개 다
-            등록할 필요 없음).
-          </p>
           <p className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
           <p>
             Meta App Dashboard에서 만든 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가로
@@ -85,7 +88,6 @@ export default async function SettingsPage() {
           <p>인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).</p>
         </div>
 
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">인스타그램 계정 연결용</p>
         <div className="space-y-3">
           {META_PROVIDERS.map((provider) => (
             <ApiKeyRow
@@ -99,40 +101,15 @@ export default async function SettingsPage() {
           ))}
         </div>
 
-        <div className="mb-2 mt-6 space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-          <p>
-            🎯 현재 답장 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
-          </p>
-          <p>
-            사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
-          </p>
-          <p className="text-xs text-blue-700">
-            모델은 아래 "🔗 답장 기본 설정 → 답장 생성 AI 모델"에서 바꿀 수 있어요.
-          </p>
-        </div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
-          답장 생성 AI — 선택한 모델의 provider 키 하나만 있으면 됩니다
-        </p>
-        <div className="space-y-3">
-          {AI_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-              helpUrl={HELP_LINKS[provider]?.url}
-              helpLabel={HELP_LINKS[provider]?.label}
-              isActive={provider === activeProvider}
-            />
-          ))}
+        <div className="border-t border-gray-100 pt-4">
+          <InstagramConnectSection
+            connected={connectionStatus.connected}
+            username={connectionStatus.username}
+            needsReconnect={connectionStatus.needsReconnect}
+            bare
+          />
         </div>
       </section>
-
-      <InstagramConnectSection
-        connected={connectionStatus.connected}
-        username={connectionStatus.username}
-        needsReconnect={connectionStatus.needsReconnect}
-      />
 
       <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">🔌 DM 웹훅 설정</h2>
@@ -197,6 +174,37 @@ export default async function SettingsPage() {
           replyModel={settings?.reply_model ?? null}
           disclosureMessage={settings?.disclosure_message ?? null}
         />
+      </section>
+
+      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900">🤖 답장 생성 AI</h2>
+        <p className="text-sm text-gray-500">
+          위 "답장 기본 설정"에서 고른 모델의 provider 키 하나만 등록되어 있으면 됩니다(세 개 다
+          등록할 필요 없음).
+        </p>
+
+        <div className="space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+          <p>
+            🎯 현재 답장 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
+          </p>
+          <p>
+            사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {AI_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              helpUrl={HELP_LINKS[provider]?.url}
+              helpLabel={HELP_LINKS[provider]?.label}
+              isActive={provider === activeProvider}
+            />
+          ))}
+        </div>
       </section>
 
       <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
