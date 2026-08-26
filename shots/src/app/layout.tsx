@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "유튜브 쇼츠자동화(이미지 스토리)",
+  title: "YOUTUBE Shots(이미지 스토리) 자동화",
   description: "유튜브 쇼츠 주제/콘텐츠 수집 및 제작 자동화",
 };
 
