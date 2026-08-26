@@ -1,4 +1,4 @@
-# 📸 인스타그램 자동 포스팅 관리 (insta_auto_poster)
+# 📸 INSTA 포스팅 자동화 (insta_auto_poster)
 
 인스타그램 **피드(단일 이미지) + 카드뉴스(4장 캐러셀)** 게시물을 AI로 자동 생성하고 즉시/예약
 게시까지 관리하는 마케팅 자동화 웹입니다. AIMaster 안의 threads(`threads/`)와 거의 동일한 파이프라인
