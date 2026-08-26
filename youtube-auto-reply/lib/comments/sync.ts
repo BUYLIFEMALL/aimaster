@@ -34,7 +34,7 @@ export async function runCommentSync(
 ): Promise<RunCommentSyncResult> {
   const { data: account } = await supabase
     .from("ytreply_accounts")
-    .select("access_token, refresh_token, token_expires_at")
+    .select("access_token, refresh_token, token_expires_at, channel_title")
     .eq("user_id", userId)
     .maybeSingle();
   if (!account) return { error: "유튜브 채널이 연결되어 있지 않습니다." };
@@ -79,7 +79,15 @@ export async function runCommentSync(
     const cutoffMs = cutoffAt ? new Date(cutoffAt).getTime() : null;
 
     for (const video of videos) {
-      const threads = await listRecentCommentThreads(accessToken, video.youtube_video_id, userId, 20);
+      const rawThreads = await listRecentCommentThreads(accessToken, video.youtube_video_id, userId, 20);
+      // commentThreads.list는 최상위 댓글만 반환하고 답글(대댓글)은 같은 스레드 안에 중첩되어
+      // 따로 나오지 않는 구조라, threads-comment-reply에서 발견한 "본인 답글을 새 댓글로 착각"
+      // 하는 무한 루프는 구조적으로 재현되지 않는다(2026-08-26 확인). 다만 채널 소유자가 자기
+      // 영상에 본인 명의로 고정 댓글 등을 남긴 경우까지 AI가 답글을 달지 않도록, 동일한 안전장치를
+      // 방어적으로 추가한다.
+      const threads = rawThreads.filter(
+        (t) => (t.authorDisplayName ?? "").toLowerCase() !== account.channel_title.toLowerCase(),
+      );
       if (threads.length === 0) continue;
 
       const inWindow = cutoffMs

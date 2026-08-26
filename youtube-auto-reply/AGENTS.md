@@ -97,6 +97,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 | 2 | 답글 생성 AI 다중 provider 지원 — OpenAI 외 Anthropic Claude/Google Gemini 모델 추가(`lib/ai/models.ts`, `lib/ai/reply.ts`). 각 provider 최신 세대 모델을 실제 API 호출로 검증 후 반영, 폐기된 모델(`gemini-2.5-flash-lite` 등)은 제외 | ✅ 구현 완료 |
 | 2 | `/videos` 일괄 작업 — 체크박스로 여러 영상 모니터링 시작/중지·숨기기 일괄 처리(`VideosList.tsx`, stepmail의 벌크 선택 패턴 재사용) | ✅ 구현 완료 |
 | 2 | 웹훅 재등록 버튼(`ReregisterWebhookButton.tsx`) — 텔레그램 승인 버튼이 응답하지 않을 때 사용자가 직접 웹훅을 다시 등록하는 자가 복구 기능 | ✅ 구현 완료 |
+| 2 | 채널 소유자 본인 댓글 필터 — `commentThreads.list`는 최상위 댓글만 반환하는 구조라 threads-comment-reply에서 발견한 "본인 답글을 새 댓글로 착각"하는 무한 루프는 구조적으로 재현되지 않지만, 채널 소유자가 본인 명의로 남긴 최상위 댓글까지 AI가 답글 달지 않도록 방어적으로 필터 추가(2026-08-26) | ✅ 구현 완료 |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 했다. 새 Phase를 시작할 때는 이 표를
 갱신할 것.
