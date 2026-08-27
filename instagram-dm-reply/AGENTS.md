@@ -1,6 +1,6 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-이 문서는 **인스타 DM 자동응답(instagram-dm-reply)** 프로젝트에서 AI Agent(Claude Code 등)가
+이 문서는 **INSTA DM답변 자동화(instagram-dm-reply)** 프로젝트에서 AI Agent(Claude Code 등)가
 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 
 ---

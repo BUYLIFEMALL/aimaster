@@ -75,7 +75,7 @@ export default async function SettingsPage() {
       <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">📸 인스타그램 계정 연결</h2>
         <div className="space-y-2 text-sm text-gray-500">
-          <p>인스타 DM 자동응답에는 본인의 Meta App ID/Secret이 필요합니다.</p>
+          <p>INSTA DM답변 자동화에는 본인의 Meta App ID/Secret이 필요합니다.</p>
           <p className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
           <p>
             Meta App Dashboard에서 만든 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가로

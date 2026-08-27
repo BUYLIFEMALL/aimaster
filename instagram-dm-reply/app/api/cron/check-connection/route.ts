@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
           await sendTelegramMessage({
             botToken: telegramLink.bot_token,
             chatId: telegramLink.chat_id,
-            text: `⚠️ 인스타그램 계정(@${account.username}) 연결이 끊어졌어요. 인스타 DM 자동응답 설정 페이지에서 다시 연결해주세요.`,
+            text: `⚠️ 인스타그램 계정(@${account.username}) 연결이 끊어졌어요. INSTA DM답변 자동화 설정 페이지에서 다시 연결해주세요.`,
           });
           notified += 1;
         } catch (sendErr) {

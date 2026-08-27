@@ -63,7 +63,7 @@ export async function connectTelegramAction(
     await sendTelegramMessage({
       botToken,
       chatId: chatInfo.chatId,
-      text: "✅ 인스타 DM 자동응답 알림 연동이 완료됐어요. 인스타그램 계정 연결이 끊어지면 여기로 알려드리고, 새 DM이 오면 여기서 바로 답변승인/답변보류/답변제외를 선택할 수 있어요.",
+      text: "✅ INSTA DM답변 자동화 알림 연동이 완료됐어요. 인스타그램 계정 연결이 끊어지면 여기로 알려드리고, 새 DM이 오면 여기서 바로 답변승인/답변보류/답변제외를 선택할 수 있어요.",
     });
   } catch {
     // 저장은 이미 성공했으니, 테스트 메시지 발송 실패는 치명적이지 않음
