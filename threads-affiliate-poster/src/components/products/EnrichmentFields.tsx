@@ -23,7 +23,9 @@ interface EnrichmentFieldsProps {
 // AI가 설명/핵심 셀링포인트를 제안해준다 — 결과는 자동 저장되지 않고 아래 입력칸에
 // 채워지기만 하므로, 사용자가 검토·수정 후 등록 버튼을 눌러야 반영된다.
 export function EnrichmentFields({ detailPages, onDetailPageSelect }: EnrichmentFieldsProps) {
-  const [open, setOpen] = useState(false);
+  // 기본값을 펼친 상태로 바꿨다(2026-08-28) — 접혀있어서 이미지 업로드/소구점 분석 기능을
+  // 못 찾겠다는 피드백이 있었다. 접었다 펴는 토글 자체는 유지하되, 처음 진입 시 바로 보이게 한다.
+  const [open, setOpen] = useState(true);
   const [description, setDescription] = useState("");
   const [keySellingPoints, setKeySellingPoints] = useState("");
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);

@@ -53,6 +53,11 @@ export function CoupangProductForm({ detailPages }: { detailPages: DetailPageSum
         </Button>
       </div>
       {searchError && <p className="text-xs text-red-600">{searchError}</p>}
+      {!selected && (
+        <p className="text-[11px] text-neutral-400">
+          검색 후 상품을 선택하면, 그 아래에 이미지/텍스트로 소구점을 분석·입력하는 칸이 나타납니다.
+        </p>
+      )}
 
       {results.length > 0 && (
         <ul className="space-y-2">
