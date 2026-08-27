@@ -6,10 +6,17 @@ import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
 import { registerNaverProductAction, type RegisterProductState } from "@/lib/actions/products";
 import type { DetailPageSummary } from "@/lib/detailPages";
+import type { RegistrationMode } from "./PlatformTabs";
 
 const initialState: RegisterProductState = {};
 
-export function NaverProductForm({ detailPages }: { detailPages: DetailPageSummary[] }) {
+export function NaverProductForm({
+  detailPages,
+  mode,
+}: {
+  detailPages: DetailPageSummary[];
+  mode: RegistrationMode;
+}) {
   const [state, formAction, isPending] = useActionState(registerNaverProductAction, initialState);
 
   return (
@@ -18,6 +25,9 @@ export function NaverProductForm({ detailPages }: { detailPages: DetailPageSumma
         네이버 브랜드커넥트는 공식 API가 없어, 브랜드커넥트 사이트에서 직접 발급받은 링크를
         붙여넣어야 합니다.
       </p>
+
+      {mode === "analyze" && <EnrichmentFields detailPages={detailPages} />}
+
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
         <Input name="productName" placeholder="상품명을 입력하세요" required />
@@ -28,8 +38,6 @@ export function NaverProductForm({ detailPages }: { detailPages: DetailPageSumma
         </label>
         <Input name="affiliateUrl" type="url" placeholder="https://..." required />
       </div>
-
-      <EnrichmentFields detailPages={detailPages} />
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "등록 중..." : "이 링크로 등록"}

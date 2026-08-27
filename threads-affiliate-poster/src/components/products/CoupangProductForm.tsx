@@ -11,10 +11,17 @@ import {
 } from "@/lib/actions/products";
 import type { CoupangProduct } from "@/lib/coupang/client";
 import type { DetailPageSummary } from "@/lib/detailPages";
+import type { RegistrationMode } from "./PlatformTabs";
 
 const initialState: RegisterProductState = {};
 
-export function CoupangProductForm({ detailPages }: { detailPages: DetailPageSummary[] }) {
+export function CoupangProductForm({
+  detailPages,
+  mode,
+}: {
+  detailPages: DetailPageSummary[];
+  mode: RegistrationMode;
+}) {
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState<CoupangProduct[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -53,7 +60,7 @@ export function CoupangProductForm({ detailPages }: { detailPages: DetailPageSum
         </Button>
       </div>
       {searchError && <p className="text-xs text-red-600">{searchError}</p>}
-      {!selected && (
+      {!selected && mode === "analyze" && (
         <p className="text-[11px] text-neutral-400">
           검색 후 상품을 선택하면, 그 아래에 이미지/텍스트로 소구점을 분석·입력하는 칸이 나타납니다.
         </p>
@@ -88,7 +95,7 @@ export function CoupangProductForm({ detailPages }: { detailPages: DetailPageSum
           <input type="hidden" name="price" value={selected.productPrice} />
           <input type="hidden" name="imageUrl" value={selected.productImage} />
 
-          <EnrichmentFields detailPages={detailPages} />
+          {mode === "analyze" && <EnrichmentFields detailPages={detailPages} />}
 
           <Button type="submit" disabled={isPending}>
             {isPending ? "등록 중..." : "이 상품으로 등록 (딥링크 자동 생성)"}

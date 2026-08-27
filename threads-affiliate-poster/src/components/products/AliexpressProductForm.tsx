@@ -6,14 +6,23 @@ import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
 import { registerAliexpressProductAction, type RegisterProductState } from "@/lib/actions/products";
 import type { DetailPageSummary } from "@/lib/detailPages";
+import type { RegistrationMode } from "./PlatformTabs";
 
 const initialState: RegisterProductState = {};
 
-export function AliexpressProductForm({ detailPages }: { detailPages: DetailPageSummary[] }) {
+export function AliexpressProductForm({
+  detailPages,
+  mode,
+}: {
+  detailPages: DetailPageSummary[];
+  mode: RegistrationMode;
+}) {
   const [state, formAction, isPending] = useActionState(registerAliexpressProductAction, initialState);
 
   return (
     <form action={formAction} className="space-y-3">
+      {mode === "analyze" && <EnrichmentFields detailPages={detailPages} />}
+
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
         <Input name="productName" placeholder="상품명을 입력하세요" required />
@@ -25,8 +34,6 @@ export function AliexpressProductForm({ detailPages }: { detailPages: DetailPage
           붙여넣으면 알리익스프레스 Affiliate API로 제휴 링크가 자동 생성됩니다.
         </p>
       </div>
-
-      <EnrichmentFields detailPages={detailPages} />
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "등록 중..." : "제휴 링크 자동 생성 후 등록"}

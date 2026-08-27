@@ -11,11 +11,12 @@ interface EnrichmentFieldsProps {
   onDetailPageSelect?: (page: DetailPageSummary | null) => void;
 }
 
-// 상품 등록 폼(쿠팡/알리익스프레스/네이버 공통) 안에 이어붙여서 쓰는 "상품정보 직접
-// 입력(선택)" 섹션. 여기 값이 하나라도 채워지면 서버 액션에서 input_mode가 자동으로
-// "manual"이 되어, 캡션 생성 시 이 내용까지 AI 프롬프트에 반영된다. 비워두면 URL/링크
-// 기반 최소 정보(input_mode="url")만 쓰인다 — 두 방식은 어느 쪽을 골라도 제휴 링크
-// 등록 절차 자체와는 무관한 별개의 축이다.
+// "상품 및 상세페이지 분석" 모드에서 쓰는 입력 섹션. 이 필드가 채워지면 서버 액션에서
+// input_mode가 자동으로 "manual"이 되어, 캡션 생성 시 이 내용까지 AI 프롬프트에 반영된다.
+// (2026-08-28 개편) 예전에는 "URL 입력" 폼 안에 접힌 상태로 숨어있는 선택 항목이었는데,
+// 찾기 어렵다는 피드백을 받아 PlatformTabs의 최상단 모드 토글("🔗 링크로 등록" /
+// "🔍 상품·상세페이지 분석으로 등록")로 분리했다 — 이 컴포넌트는 이제 "분석" 모드를
+// 선택했을 때만 렌더링되고, 접혀있지 않고 항상 펼쳐진 상태로 보인다.
 //
 // "상품/상세페이지 이미지로 소구점 자동 분석" — auto-detail-page(상세페이지 자동화)가
 // 업로드된 이미지를 보고 콘텐츠를 만드는 방식을 참고해서 추가한 기능이다. 이미지 파일을
@@ -23,9 +24,6 @@ interface EnrichmentFieldsProps {
 // AI가 설명/핵심 셀링포인트를 제안해준다 — 결과는 자동 저장되지 않고 아래 입력칸에
 // 채워지기만 하므로, 사용자가 검토·수정 후 등록 버튼을 눌러야 반영된다.
 export function EnrichmentFields({ detailPages, onDetailPageSelect }: EnrichmentFieldsProps) {
-  // 기본값을 펼친 상태로 바꿨다(2026-08-28) — 접혀있어서 이미지 업로드/소구점 분석 기능을
-  // 못 찾겠다는 피드백이 있었다. 접었다 펴는 토글 자체는 유지하되, 처음 진입 시 바로 보이게 한다.
-  const [open, setOpen] = useState(true);
   const [description, setDescription] = useState("");
   const [keySellingPoints, setKeySellingPoints] = useState("");
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
@@ -57,95 +55,88 @@ export function EnrichmentFields({ detailPages, onDetailPageSelect }: Enrichment
       }
       setDescription(res.result.description);
       setKeySellingPoints(res.result.keySellingPoints.join("\n"));
-      setOpen(true);
     });
   }
 
   return (
-    <div ref={containerRef} className="rounded-lg border border-dashed border-neutral-300 p-3">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="text-xs font-medium text-neutral-600 hover:text-neutral-900"
-      >
-        {open ? "▾" : "▸"} 상품정보 직접 입력 (선택 — 캡션 품질을 높이고 싶을 때)
-      </button>
+    <div ref={containerRef} className="space-y-3 rounded-lg border border-neutral-300 bg-white p-4">
+      <h3 className="text-sm font-semibold text-neutral-900">🔍 상품 및 상세페이지 분석</h3>
+      <p className="text-xs text-neutral-500">
+        이미지를 올리고 분석하거나, 아래에 직접 상품 설명을 입력해주세요. 여기 입력한 내용은
+        게시글 캡션을 만들 때 AI가 참고합니다.
+      </p>
 
-      {open && (
-        <div className="mt-3 space-y-3">
-          {detailPages.length > 0 && (
-            <div>
-              <label className="mb-1 block text-xs font-medium text-neutral-500">
-                기존 상세페이지에서 가져오기 (선택)
-              </label>
-              <select
-                name="detailPageId"
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700"
-                onChange={(e) => {
-                  const page = detailPages.find((p) => p.id === e.target.value) ?? null;
-                  onDetailPageSelect?.(page);
-                }}
-                defaultValue=""
-              >
-                <option value="">선택 안 함</option>
-                {detailPages.map((page) => (
-                  <option key={page.id} value={page.id}>
-                    {page.product_name} ({page.template})
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-[11px] text-neutral-400">
-                &quot;상세페이지 자동화(15P)&quot;로 만든 페이지의 내용을 캡션 생성 참고자료로
-                가져옵니다.
-              </p>
-            </div>
-          )}
-
-          <div className="rounded-lg bg-neutral-50 p-3">
-            <label className="mb-1 block text-xs font-medium text-neutral-500">
-              상품/상세페이지 이미지로 소구점 자동 분석 (선택)
-            </label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="block w-full text-xs text-neutral-600 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-900 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white"
-            />
-            <div className="mt-2 flex items-center gap-2">
-              <Button type="button" variant="secondary" onClick={handleAnalyze} disabled={isAnalyzing}>
-                {isAnalyzing ? "분석 중..." : "🔍 이미지로 소구점 분석하기"}
-              </Button>
-              <p className="text-[11px] text-neutral-400">OpenAI 키 필요 · 결과는 검토 후 저장됩니다</p>
-            </div>
-            {analyzeError && <p className="mt-1 text-xs text-red-600">{analyzeError}</p>}
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-500">상품 설명 (선택)</label>
-            <Textarea
-              name="description"
-              rows={3}
-              placeholder="상품의 특징이나 장점을 자유롭게 적어주세요."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-500">
-              핵심 셀링포인트 (선택, 한 줄에 하나씩)
-            </label>
-            <Textarea
-              name="keySellingPoints"
-              rows={3}
-              placeholder={"예: 24시간 로켓배송\n1+1 한정 특가\n누적 판매 10만개"}
-              value={keySellingPoints}
-              onChange={(e) => setKeySellingPoints(e.target.value)}
-            />
-          </div>
+      {detailPages.length > 0 && (
+        <div>
+          <label className="mb-1 block text-xs font-medium text-neutral-500">
+            기존 상세페이지에서 가져오기 (선택)
+          </label>
+          <select
+            name="detailPageId"
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700"
+            onChange={(e) => {
+              const page = detailPages.find((p) => p.id === e.target.value) ?? null;
+              onDetailPageSelect?.(page);
+            }}
+            defaultValue=""
+          >
+            <option value="">선택 안 함</option>
+            {detailPages.map((page) => (
+              <option key={page.id} value={page.id}>
+                {page.product_name} ({page.template})
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-[11px] text-neutral-400">
+            &quot;상세페이지 자동화(15P)&quot;로 만든 페이지의 내용을 캡션 생성 참고자료로
+            가져옵니다.
+          </p>
         </div>
       )}
+
+      <div className="rounded-lg bg-neutral-50 p-3">
+        <label className="mb-1 block text-xs font-medium text-neutral-500">
+          상품/상세페이지 이미지 업로드
+        </label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="block w-full text-xs text-neutral-600 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-900 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white"
+        />
+        <div className="mt-2 flex items-center gap-2">
+          <Button type="button" variant="secondary" onClick={handleAnalyze} disabled={isAnalyzing}>
+            {isAnalyzing ? "분석 중..." : "🔍 이미지로 소구점 분석하기"}
+          </Button>
+          <p className="text-[11px] text-neutral-400">OpenAI 키 필요 · 결과는 검토 후 저장됩니다</p>
+        </div>
+        {analyzeError && <p className="mt-1 text-xs text-red-600">{analyzeError}</p>}
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-medium text-neutral-500">상품 설명</label>
+        <Textarea
+          name="description"
+          rows={3}
+          placeholder="상품의 특징이나 장점을 자유롭게 적어주세요."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-medium text-neutral-500">
+          핵심 셀링포인트 (한 줄에 하나씩)
+        </label>
+        <Textarea
+          name="keySellingPoints"
+          rows={3}
+          placeholder={"예: 24시간 로켓배송\n1+1 한정 특가\n누적 판매 10만개"}
+          value={keySellingPoints}
+          onChange={(e) => setKeySellingPoints(e.target.value)}
+        />
+      </div>
     </div>
   );
 }
