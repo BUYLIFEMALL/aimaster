@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchProducts as searchCoupangProducts, createDeeplink, type CoupangProduct } from "@/lib/coupang/client";
 import { getPromotionLinks } from "@/lib/aliexpress/client";
+import { analyzeProductAppeal, type ProductAppealAnalysis } from "@/lib/ai/productAnalyzer";
 
 function parseEnrichmentFields(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
@@ -195,6 +196,55 @@ export async function registerNaverProductAction(
   await logProgramUsage({ userId: user.id, action: "register_naver_product" });
   revalidatePath("/products");
   return { success: true };
+}
+
+export interface AnalyzeProductImagesState {
+  result?: ProductAppealAnalysis;
+  error?: string;
+}
+
+/**
+ * 업로드된 상품/상세페이지 이미지(+ 이미 입력된 상품명/설명)를 보고 핵심 소구점을
+ * 추출한다. auto-detail-page(상세페이지 자동화)가 이미지를 보고 콘텐츠를 만드는 방식을
+ * 참고해서 만들었다 — 결과는 저장하지 않고 화면에 반환만 하며, 사용자가 검토·수정 후
+ * "상품 설명"/"핵심 셀링포인트" 칸에 반영할지 직접 선택한다.
+ */
+export async function analyzeProductImagesAction(formData: FormData): Promise<AnalyzeProductImagesState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const apiKey = await resolveApiKey(supabase, user.id, "openai");
+  if (!apiKey) {
+    return { error: "OpenAI API 키가 없습니다. 설정 페이지에서 본인 키를 먼저 등록해주세요." };
+  }
+
+  const files = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
+  if (files.length === 0) {
+    return { error: "분석할 이미지를 1장 이상 선택해주세요." };
+  }
+
+  try {
+    const images = await Promise.all(
+      files.map(async (file) => ({
+        base64: Buffer.from(await file.arrayBuffer()).toString("base64"),
+        mimeType: file.type || "image/jpeg",
+      })),
+    );
+
+    const productName = String(formData.get("productName") ?? "").trim();
+    const existingDescription = String(formData.get("existingDescription") ?? "").trim();
+
+    const result = await analyzeProductAppeal(
+      images,
+      { productName: productName || null, existingDescription: existingDescription || null },
+      apiKey,
+    );
+
+    await logProgramUsage({ userId: user.id, action: "analyze_product_images" });
+    return { result };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "이미지 분석에 실패했습니다." };
+  }
 }
 
 export async function deleteProductAction(formData: FormData) {
