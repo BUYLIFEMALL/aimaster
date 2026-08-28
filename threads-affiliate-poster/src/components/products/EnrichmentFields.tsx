@@ -109,7 +109,7 @@ export function EnrichmentFields({
   const [referenceError, setReferenceError] = useState<string | null>(null);
 
   const [postImageUrl, setPostImageUrl] = useState(initialImageUrl ?? "");
-  const [imagePrompt, setImagePrompt] = useState("");
+  const [extraImageInstructions, setExtraImageInstructions] = useState("");
   const [imageActionError, setImageActionError] = useState<string | null>(null);
   const [isUploadingImage, startUploadingImage] = useTransition();
   const [isGeneratingImage, startGeneratingImage] = useTransition();
@@ -215,20 +215,19 @@ export function EnrichmentFields({
 
   function handleGenerateImage() {
     setImageActionError(null);
-    const basePrompt =
-      imagePrompt.trim() ||
-      [
-        `상품명: ${productName || "등록 중인 상품"}`,
-        fields.category ? `카테고리: ${fields.category}` : null,
-        fields.keyFeatures ? `핵심특징: ${fields.keyFeatures.replace(/\n/g, ", ")}` : null,
-        fields.mainColor || fields.subColor
-          ? `컬러톤: ${[fields.mainColor, fields.subColor].filter(Boolean).join(", ")}`
-          : null,
-        fields.moodKeywords ? `분위기: ${fields.moodKeywords}` : null,
-        "SNS(Threads) 홍보 게시글에 어울리는 깔끔하고 눈에 띄는 상품 홍보 이미지로 만들어주세요.",
-      ]
-        .filter(Boolean)
-        .join("\n");
+    const basePrompt = [
+      `상품명: ${productName || "등록 중인 상품"}`,
+      fields.category ? `카테고리: ${fields.category}` : null,
+      fields.keyFeatures ? `핵심특징: ${fields.keyFeatures.replace(/\n/g, ", ")}` : null,
+      fields.mainColor || fields.subColor
+        ? `컬러톤: ${[fields.mainColor, fields.subColor].filter(Boolean).join(", ")}`
+        : null,
+      fields.moodKeywords ? `분위기: ${fields.moodKeywords}` : null,
+      "SNS(Threads) 홍보 게시글에 어울리는 깔끔하고 눈에 띄는 상품 홍보 이미지로 만들어주세요.",
+      extraImageInstructions.trim() ? `추가 반영 사항: ${extraImageInstructions.trim()}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     startGeneratingImage(async () => {
       const res = await generateImageAction({ prompt: basePrompt });
@@ -486,11 +485,17 @@ export function EnrichmentFields({
 
         <div>
           <p className="mb-1 text-[11px] text-neutral-500">(B) AI로 새로 생성</p>
+          <p className="mb-1 text-xs font-medium text-neutral-700">
+            이미지 생성 시 추가로 반영할 내용 (선택)
+          </p>
+          <p className="mb-1 text-[11px] text-neutral-500">
+            여기에 적은 내용은 대표 이미지를 생성할 때 프롬프트에 함께 반영됩니다.
+          </p>
           <Textarea
             rows={2}
-            placeholder="비워두면 상품명/설명/셀링포인트를 바탕으로 자동으로 프롬프트를 만듭니다."
-            value={imagePrompt}
-            onChange={(e) => setImagePrompt(e.target.value)}
+            placeholder="예: 배경은 흰색으로, 상품이 화면 중앙에 크게 보이게 해주세요."
+            value={extraImageInstructions}
+            onChange={(e) => setExtraImageInstructions(e.target.value)}
           />
           <div className="mt-2 flex items-center gap-2">
             <Button type="button" variant="secondary" onClick={handleGenerateImage} disabled={isGeneratingImage}>

@@ -421,6 +421,28 @@ export function ProductPostForm({
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">이미지 (선택)</label>
 
+        {selectedProduct?.image_url && (
+          <div className="mb-2 flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={selectedProduct.image_url}
+              alt="상품 등록 이미지"
+              className="h-14 w-14 rounded object-cover"
+            />
+            <div className="flex-1 text-xs text-neutral-500">
+              상품 등록 시 선택한 대표 이미지가 있습니다.
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setImageUrl(selectedProduct.image_url ?? "")}
+              disabled={imageUrl === selectedProduct.image_url}
+            >
+              {imageUrl === selectedProduct.image_url ? "사용 중" : "이 이미지 사용하기"}
+            </Button>
+          </div>
+        )}
+
         <div className="mb-2 space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
           <label className="block text-sm font-medium text-neutral-700">
             AI로 이미지 생성 (나노바나나, 선택)
