@@ -28,6 +28,9 @@ export function CoupangProductForm({
   const [isSearching, startSearching] = useTransition();
   const [selected, setSelected] = useState<CoupangProduct | null>(null);
   const [analyzeProductName, setAnalyzeProductName] = useState("");
+  const [manualName, setManualName] = useState("");
+  const [manualUrl, setManualUrl] = useState("");
+  const [manualError, setManualError] = useState<string | null>(null);
   const [state, formAction, isPending] = useActionState(registerCoupangProductAction, initialState);
 
   const handleSelect = (product: CoupangProduct) => {
@@ -49,6 +52,23 @@ export function CoupangProductForm({
     });
   };
 
+  const handleUseManualUrl = () => {
+    setManualError(null);
+    if (!manualUrl.trim()) {
+      setManualError("쿠팡 상품 URL을 입력해주세요.");
+      return;
+    }
+    handleSelect({
+      productId: -Date.now(),
+      productName: manualName.trim() || "상품명 미입력",
+      productImage: "",
+      productPrice: 0,
+      productUrl: manualUrl.trim(),
+      isRocket: false,
+      isFreeShipping: false,
+    });
+  };
+
   return (
     <form action={formAction} className="space-y-4">
       <p className="text-xs text-neutral-500">
@@ -66,6 +86,24 @@ export function CoupangProductForm({
         </Button>
       </div>
       {searchError && <p className="text-xs text-red-600">{searchError}</p>}
+
+      <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
+        <p className="text-xs font-medium text-neutral-700">또는 쿠팡 상품 URL 직접 입력</p>
+        <Input
+          value={manualName}
+          onChange={(e) => setManualName(e.target.value)}
+          placeholder="상품명 (선택)"
+        />
+        <Input
+          value={manualUrl}
+          onChange={(e) => setManualUrl(e.target.value)}
+          placeholder="https://www.coupang.com/vp/products/..."
+        />
+        <Button type="button" variant="secondary" onClick={handleUseManualUrl}>
+          이 URL로 사용하기
+        </Button>
+        {manualError && <p className="text-xs text-red-600">{manualError}</p>}
+      </div>
 
       {results.length > 0 && (
         <ul className="space-y-2">
