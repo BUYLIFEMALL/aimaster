@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { analyzeProductImagesAction, uploadProductImageAction } from "@/lib/actions/products";
@@ -19,6 +20,60 @@ interface EnrichmentFieldsProps {
 }
 
 const MAX_REFERENCE_IMAGES = 10;
+
+interface AnalysisFields {
+  category: string;
+  regularPrice: string;
+  discountPrice: string;
+  keyFeatures: string; // 줄바꿈으로 구분
+  specs: string;
+  howToUse: string;
+  targetCustomer: string;
+  mainColor: string;
+  subColor: string;
+  backgroundStyle: string;
+  fontStyle: string;
+  layoutDensity: string;
+  moodKeywords: string; // 쉼표로 구분
+}
+
+const EMPTY_ANALYSIS_FIELDS: AnalysisFields = {
+  category: "",
+  regularPrice: "",
+  discountPrice: "",
+  keyFeatures: "",
+  specs: "",
+  howToUse: "",
+  targetCustomer: "",
+  mainColor: "",
+  subColor: "",
+  backgroundStyle: "",
+  fontStyle: "",
+  layoutDensity: "",
+  moodKeywords: "",
+};
+
+/** 세분화된 분석 결과를 캡션 생성용 description/keySellingPoints 텍스트로 합친다. */
+function buildDescription(f: AnalysisFields): string {
+  const priceLine = [f.regularPrice && `정상가 ${f.regularPrice}`, f.discountPrice && `할인가 ${f.discountPrice}`]
+    .filter(Boolean)
+    .join(", ");
+  const designLine = [f.mainColor, f.subColor, f.backgroundStyle, f.fontStyle, f.layoutDensity]
+    .filter(Boolean)
+    .join(", ");
+
+  return [
+    f.category && `카테고리: ${f.category}`,
+    priceLine && `가격: ${priceLine}`,
+    f.specs && `상세스펙: ${f.specs}`,
+    f.howToUse && `사용방법: ${f.howToUse}`,
+    f.targetCustomer && `타겟고객: ${f.targetCustomer}`,
+    designLine && `디자인 톤: ${designLine}`,
+    f.moodKeywords && `분위기키워드: ${f.moodKeywords}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
 interface ImageCandidate {
   key: string;
@@ -41,8 +96,7 @@ export function EnrichmentFields({
   onProductNameSuggested,
   initialImageUrl,
 }: EnrichmentFieldsProps) {
-  const [description, setDescription] = useState("");
-  const [keySellingPoints, setKeySellingPoints] = useState("");
+  const [fields, setFields] = useState<AnalysisFields>(EMPTY_ANALYSIS_FIELDS);
   const [sourceText, setSourceText] = useState("");
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [analyzed, setAnalyzed] = useState(false);
@@ -102,10 +156,27 @@ export function EnrichmentFields({
       if (res.result.productName && !productName?.trim()) {
         onProductNameSuggested?.(res.result.productName);
       }
-      setDescription(res.result.description);
-      setKeySellingPoints(res.result.keySellingPoints.join("\n"));
+      setFields({
+        category: res.result.category,
+        regularPrice: res.result.regularPrice,
+        discountPrice: res.result.discountPrice,
+        keyFeatures: res.result.keyFeatures.join("\n"),
+        specs: res.result.specs,
+        howToUse: res.result.howToUse,
+        targetCustomer: res.result.targetCustomer,
+        mainColor: res.result.mainColor,
+        subColor: res.result.subColor,
+        backgroundStyle: res.result.backgroundStyle,
+        fontStyle: res.result.fontStyle,
+        layoutDensity: res.result.layoutDensity,
+        moodKeywords: res.result.moodKeywords.join(", "),
+      });
       setAnalyzed(true);
     });
+  }
+
+  function setField<K extends keyof AnalysisFields>(key: K, value: string) {
+    setFields((prev) => ({ ...prev, [key]: value }));
   }
 
   const imageCandidates: ImageCandidate[] = [
@@ -148,8 +219,12 @@ export function EnrichmentFields({
       imagePrompt.trim() ||
       [
         `상품명: ${productName || "등록 중인 상품"}`,
-        description ? `설명: ${description}` : null,
-        keySellingPoints ? `핵심 셀링포인트: ${keySellingPoints.replace(/\n/g, ", ")}` : null,
+        fields.category ? `카테고리: ${fields.category}` : null,
+        fields.keyFeatures ? `핵심특징: ${fields.keyFeatures.replace(/\n/g, ", ")}` : null,
+        fields.mainColor || fields.subColor
+          ? `컬러톤: ${[fields.mainColor, fields.subColor].filter(Boolean).join(", ")}`
+          : null,
+        fields.moodKeywords ? `분위기: ${fields.moodKeywords}` : null,
         "SNS(Threads) 홍보 게시글에 어울리는 깔끔하고 눈에 띄는 상품 홍보 이미지로 만들어주세요.",
       ]
         .filter(Boolean)
@@ -266,28 +341,112 @@ export function EnrichmentFields({
       {/* 4. 분석 결과 확인 및 수정 */}
       <div className="space-y-3 rounded-lg border border-neutral-200 p-3">
         <p className="text-xs font-medium text-neutral-700">4. 분석 결과 확인 및 수정</p>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-neutral-500">상품 설명</label>
-          <Textarea
-            name="description"
-            rows={3}
-            placeholder="상품의 특징이나 장점을 자유롭게 적어주세요."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">카테고리</label>
+            <Input
+              value={fields.category}
+              onChange={(e) => setField("category", e.target.value)}
+              placeholder="예: 생활가전 > 소형가전"
+            />
+          </div>
+          <div />
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">정상가</label>
+            <Input
+              value={fields.regularPrice}
+              onChange={(e) => setField("regularPrice", e.target.value)}
+              placeholder="예: 39,000원"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">할인가</label>
+            <Input
+              value={fields.discountPrice}
+              onChange={(e) => setField("discountPrice", e.target.value)}
+              placeholder="예: 29,000원"
+            />
+          </div>
         </div>
+
         <div>
           <label className="mb-1 block text-xs font-medium text-neutral-500">
-            핵심 셀링포인트 (한 줄에 하나씩)
+            핵심특징 (줄바꿈으로 구분)
           </label>
           <Textarea
-            name="keySellingPoints"
             rows={3}
             placeholder={"예: 24시간 로켓배송\n1+1 한정 특가\n누적 판매 10만개"}
-            value={keySellingPoints}
-            onChange={(e) => setKeySellingPoints(e.target.value)}
+            value={fields.keyFeatures}
+            onChange={(e) => setField("keyFeatures", e.target.value)}
           />
         </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-neutral-500">상세스펙</label>
+          <Textarea
+            rows={3}
+            placeholder={"예: 소재: 스테인리스\n용량: 1.5L"}
+            value={fields.specs}
+            onChange={(e) => setField("specs", e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-neutral-500">사용방법</label>
+          <Textarea
+            rows={2}
+            value={fields.howToUse}
+            onChange={(e) => setField("howToUse", e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-neutral-500">타겟고객</label>
+          <Textarea
+            rows={2}
+            value={fields.targetCustomer}
+            onChange={(e) => setField("targetCustomer", e.target.value)}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">메인컬러</label>
+            <Input value={fields.mainColor} onChange={(e) => setField("mainColor", e.target.value)} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">서브컬러</label>
+            <Input value={fields.subColor} onChange={(e) => setField("subColor", e.target.value)} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">배경스타일</label>
+            <Input value={fields.backgroundStyle} onChange={(e) => setField("backgroundStyle", e.target.value)} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">폰트스타일</label>
+            <Input value={fields.fontStyle} onChange={(e) => setField("fontStyle", e.target.value)} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">레이아웃밀도</label>
+            <Input value={fields.layoutDensity} onChange={(e) => setField("layoutDensity", e.target.value)} />
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-neutral-500">
+            분위기키워드 (쉼표로 구분)
+          </label>
+          <Input
+            value={fields.moodKeywords}
+            onChange={(e) => setField("moodKeywords", e.target.value)}
+            placeholder="예: 미니멀, 프리미엄"
+          />
+        </div>
+
+        {/* 캡션 생성 액션이 읽는 실제 저장 필드 — 위 세분화 항목을 합쳐서 채운다 */}
+        <input type="hidden" name="description" value={buildDescription(fields)} />
+        <input type="hidden" name="keySellingPoints" value={fields.keyFeatures} />
       </div>
 
       {/* 5. 게시글용 대표 이미지 */}
@@ -357,10 +516,15 @@ export function EnrichmentFields({
       <div className="rounded-lg border border-dashed border-neutral-300 p-3 text-xs text-neutral-600">
         <p className="mb-1 font-medium text-neutral-700">6. 최종 확인 및 등록</p>
         <p>상품명: {productName || "미입력"}</p>
-        <p>상품 설명: {description ? `${description.slice(0, 40)}${description.length > 40 ? "..." : ""}` : "미입력"}</p>
+        <p>카테고리: {fields.category || "미입력"}</p>
         <p>
-          핵심 셀링포인트:{" "}
-          {keySellingPoints ? `${keySellingPoints.split("\n").filter(Boolean).length}개` : "미입력"}
+          가격:{" "}
+          {fields.regularPrice || fields.discountPrice
+            ? [fields.regularPrice, fields.discountPrice].filter(Boolean).join(" / ")
+            : "미입력"}
+        </p>
+        <p>
+          핵심특징: {fields.keyFeatures ? `${fields.keyFeatures.split("\n").filter(Boolean).length}개` : "미입력"}
         </p>
         <p>대표 이미지: {postImageUrl ? "선택됨" : "미선택"}</p>
         <p className="mt-1 text-neutral-400">아래 등록 버튼을 눌러 저장하세요.</p>
