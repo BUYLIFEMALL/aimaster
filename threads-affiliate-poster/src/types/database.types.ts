@@ -5,7 +5,8 @@ export type ApiKeyProvider =
   | "coupang_access_key"
   | "coupang_secret_key"
   | "aliexpress_app_key"
-  | "aliexpress_app_secret";
+  | "aliexpress_app_secret"
+  | "aliexpress_tracking_id";
 export type AffiliatePlatform = "coupang" | "aliexpress" | "naver";
 export type AffiliateInputMode = "url" | "manual";
 

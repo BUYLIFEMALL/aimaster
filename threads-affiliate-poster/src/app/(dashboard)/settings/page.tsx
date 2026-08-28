@@ -8,7 +8,11 @@ import type { ApiKeyProvider } from "@/types/database.types";
 
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini"];
 const COUPANG_PROVIDERS: ApiKeyProvider[] = ["coupang_access_key", "coupang_secret_key"];
-const ALIEXPRESS_PROVIDERS: ApiKeyProvider[] = ["aliexpress_app_key", "aliexpress_app_secret"];
+const ALIEXPRESS_PROVIDERS: ApiKeyProvider[] = [
+  "aliexpress_app_key",
+  "aliexpress_app_secret",
+  "aliexpress_tracking_id",
+];
 
 export default async function SettingsPage({
   searchParams,

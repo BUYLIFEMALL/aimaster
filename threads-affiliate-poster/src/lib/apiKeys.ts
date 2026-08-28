@@ -9,6 +9,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   coupang_secret_key: "쿠팡파트너스 Secret Key (상품검색/딥링크 생성)",
   aliexpress_app_key: "알리익스프레스 App Key (제휴 링크 생성)",
   aliexpress_app_secret: "알리익스프레스 App Secret (제휴 링크 생성)",
+  aliexpress_tracking_id: "알리익스프레스 Tracking ID (제휴 포털 → 계정 → 트래킹ID)",
 };
 
 export async function getUserApiKey(

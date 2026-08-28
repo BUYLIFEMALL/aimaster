@@ -129,19 +129,23 @@ export async function registerAliexpressProductAction(
   }
 
   const supabase = await createClient();
-  const [appKey, appSecret] = await Promise.all([
+  const [appKey, appSecret, trackingId] = await Promise.all([
     resolveApiKey(supabase, user.id, "aliexpress_app_key"),
     resolveApiKey(supabase, user.id, "aliexpress_app_secret"),
+    resolveApiKey(supabase, user.id, "aliexpress_tracking_id"),
   ]);
   if (!appKey || !appSecret) {
     return { error: "알리익스프레스 App Key/Secret이 없습니다. 설정 페이지에서 먼저 등록해주세요." };
+  }
+  if (!trackingId) {
+    return { error: "알리익스프레스 Tracking ID가 없습니다. 설정 페이지에서 먼저 등록해주세요." };
   }
 
   try {
     const [link] = await getPromotionLinks([productUrl], {
       appKey,
       appSecret,
-      trackingId: "threads_affiliate_poster",
+      trackingId,
     });
     if (!link?.promotionLink) {
       return { error: "제휴 링크 생성에 실패했습니다." };

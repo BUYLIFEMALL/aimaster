@@ -84,12 +84,18 @@ URI" 목록에 `https://threads-affiliate-poster.vercel.app/api/threads/callback
 등록해야 한다(기존 threads/ 콜백 URI는 그대로 둔 채 추가만 하는 것 — instagram-comment-reply/
 instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록했던 것과 동일한 패턴).
 
-### 제휴 API 클라이언트(쿠팡/알리익스프레스) — 실제 계정 연동 전 재검증 필요
+### 제휴 API 클라이언트(쿠팡/알리익스프레스)
 - `src/lib/coupang/client.ts`, `src/lib/aliexpress/client.ts`는 커뮤니티 SDK/공식 문서를
   근거로 구현했고, 엔드포인트/서명 방식(쿠팡: CEA HmacSHA256, 알리익스프레스: TOP API MD5)을
-  1차 소스로 재확인까지 마쳤다(2026-08-27). 다만 **실제 Access/Secret Key로 첫 호출을 해본
-  적은 없으니**, 사용자가 실제 키를 등록하고 처음 연동을 시도할 때 오류가 나면 이 두 파일의
-  엔드포인트/파라미터를 공식 문서와 다시 대조할 것.
+  1차 소스로 재확인까지 마쳤다(2026-08-27).
+- **알리익스프레스는 2026-08-28에 실제 발급받은 App Key/Secret + Tracking ID(`buylife`)로
+  `aliexpress.affiliate.link.generate` 실호출까지 검증 완료**했다(HTTP 200, `resp_code: 200`,
+  "Call succeeds" — 테스트에 쓴 상품 하나가 판매 불가 지역이라는 데이터성 메시지만 있었고
+  서명/엔드포인트/파라미터는 전부 정상). Tracking ID는 `aliexpress_tracking_id`라는 이름으로
+  공용 `user_api_keys`에 provider를 추가해서(0002 마이그레이션) 본인 값만 쓰도록 고쳤다 —
+  예전엔 `"threads_affiliate_poster"`라는 값이 코드에 하드코딩되어 있었다.
+- **쿠팡은 아직 미검증 상태다** — 사용자가 발급받은 키가 쿠팡 쪽에서 아직 활성화되지 않아
+  (`"Specified key is not registered."`, HTTP 401) 계속 대기 중이다. 활성화되면 재검증할 것.
 - 쿠팡 상품검색 API는 시간당 호출 제한(약 10회, 커뮤니티 정보)이 있다고 알려져 있어, 검색
   결과를 `affiliate_products`에 저장해 재검색을 줄이는 방향으로 설계했다.
 
@@ -98,7 +104,8 @@ instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록�
 | Phase | 내용 | 상태 |
 |-------|------|------|
 | 1 | Threads OAuth 연결(공용 앱 재사용), AI 캡션 생성(`generatePostContent`/`generateAffiliatePostContent`), 이미지 생성(NanoBanana), 즉시/예약 게시, 예약 발행 dispatch(admin/user 이중화 + CRON_SECRET 보호 라우트) | ✅ 구현 완료 |
-| 1 | 쿠팡파트너스 클라이언트(키워드 검색 + 딥링크 생성), 알리익스프레스 클라이언트(URL → 제휴 링크 변환) | ✅ 구현 완료(실계정 미검증) |
+| 1 | 쿠팡파트너스 클라이언트(키워드 검색 + 딥링크 생성) | ✅ 구현 완료(실계정 키 활성화 대기 중) |
+| 1 | 알리익스프레스 클라이언트(URL → 제휴 링크 변환) | ✅ 구현 완료 + 실계정 실호출 검증 완료(2026-08-28) |
 | 1 | 네이버 브랜드커넥트 — 공식 API 없음, 직접 발급받은 링크를 수동으로 등록하는 방식으로 구현 | ✅ 구현 완료(구조적으로 계속 수동) |
 | 1 | 상품 등록 2가지 입력 방식(URL 간단 입력 / 상품정보+상세페이지 직접 입력) — `affiliate_products.input_mode`, `auto-detail-page`의 `detail_pages` 읽기 전용 참조 | ✅ 구현 완료 |
 | 1 | "분석으로 등록" 6단계 흐름(`EnrichmentFields`) — 1.대표이미지 2.상세페이지 이미지(선택,최대10) 3.상품 원본 정보 4.분석 결과 확인/수정 5.게시글용 대표 이미지(업로드 선택 또는 NanoBanana AI 생성) 6.최종 확인. `shop-detail-page`(별도 서브프로젝트, `/products/new`)의 AI 분석 UX를 참고해서 설계했다 — `auto-detail-page`와는 다른 프로젝트이니 혼동 주의. | ✅ 구현 완료(2026-08-28) |
