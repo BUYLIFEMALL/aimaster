@@ -57,7 +57,7 @@ const BADGE_OPTIONS: {
   {
     value: "coming",
     label: "COMING SOON",
-    selectedClassName: "bg-red-500 text-black border-red-500",
+    selectedClassName: "bg-red-600 text-white border-red-500",
     idleClassName: "bg-white/5 text-red-400 border-red-500/40 hover:bg-white/10",
   },
 ];

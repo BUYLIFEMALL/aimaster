@@ -12,7 +12,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   new: "badge-new",
   best: "badge-best",
   sale: "bg-orange-500/20 text-orange-400 border border-orange-500/30",
-  coming: "bg-red-500/20 text-red-400 border border-red-500/30",
+  coming: "bg-red-600 text-white border border-red-500",
   free: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
   custom: "",
 };
