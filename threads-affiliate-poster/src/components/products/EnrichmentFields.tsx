@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { analyzeProductImagesAction } from "@/lib/actions/products";
@@ -9,6 +10,7 @@ import type { DetailPageSummary } from "@/lib/detailPages";
 interface EnrichmentFieldsProps {
   detailPages: DetailPageSummary[];
   onDetailPageSelect?: (page: DetailPageSummary | null) => void;
+  initialProductName?: string;
 }
 
 // "상품 및 상세페이지 분석" 모드에서 쓰는 입력 섹션. 이 필드가 채워지면 서버 액션에서
@@ -23,7 +25,12 @@ interface EnrichmentFieldsProps {
 // 선택하고 분석 버튼을 누르면, 이 필드가 속한 <form>의 현재 상품명까지 함께 서버로 보내
 // AI가 설명/핵심 셀링포인트를 제안해준다 — 결과는 자동 저장되지 않고 아래 입력칸에
 // 채워지기만 하므로, 사용자가 검토·수정 후 등록 버튼을 눌러야 반영된다.
-export function EnrichmentFields({ detailPages, onDetailPageSelect }: EnrichmentFieldsProps) {
+export function EnrichmentFields({
+  detailPages,
+  onDetailPageSelect,
+  initialProductName,
+}: EnrichmentFieldsProps) {
+  const [productName, setProductName] = useState(initialProductName ?? "");
   const [description, setDescription] = useState("");
   const [keySellingPoints, setKeySellingPoints] = useState("");
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
@@ -40,9 +47,6 @@ export function EnrichmentFields({ detailPages, onDetailPageSelect }: Enrichment
       return;
     }
 
-    const form = containerRef.current?.closest("form");
-    const productName = form ? String(new FormData(form).get("productName") ?? "") : "";
-
     const payload = new FormData();
     Array.from(files).forEach((file) => payload.append("images", file));
     payload.set("productName", productName);
@@ -54,6 +58,9 @@ export function EnrichmentFields({ detailPages, onDetailPageSelect }: Enrichment
         setAnalyzeError(res.error ?? "분석에 실패했습니다.");
         return;
       }
+      if (res.result.productName && !productName.trim()) {
+        setProductName(res.result.productName);
+      }
       setDescription(res.result.description);
       setKeySellingPoints(res.result.keySellingPoints.join("\n"));
       setAnalyzed(true);
@@ -64,9 +71,20 @@ export function EnrichmentFields({ detailPages, onDetailPageSelect }: Enrichment
     <div ref={containerRef} className="space-y-3 rounded-lg border border-neutral-300 bg-white p-4">
       <h3 className="text-sm font-semibold text-neutral-900">🔍 상품 및 상세페이지 분석</h3>
       <p className="text-xs text-neutral-500">
-        이미지를 올리고 분석하거나, 아래에 직접 상품 설명을 입력해주세요. 여기 입력한 내용은
+        이미지를 올리고 분석하거나, 아래에 직접 상품 정보를 입력해주세요. 여기 입력한 내용은
         게시글 캡션을 만들 때 AI가 참고합니다.
       </p>
+
+      <div>
+        <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
+        <Input
+          name="productName"
+          placeholder="상품명을 입력하거나, 아래 이미지 분석 결과로 자동 채워보세요."
+          value={productName}
+          onChange={(e) => setProductName(e.target.value)}
+          required
+        />
+      </div>
 
       {detailPages.length > 0 && (
         <div>

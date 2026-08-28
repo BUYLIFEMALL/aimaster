@@ -14,9 +14,11 @@ const SYSTEM_PROMPT = [
   "쓸 수 있는 핵심 소구점을 뽑아내세요.",
   "",
   "반드시 아래 JSON 형식으로만 답하세요(다른 설명 문장 없이):",
-  '{"description": "상품을 2~3문장으로 요약한 설명", "keySellingPoints": ["소구점1", "소구점2", "소구점3"]}',
+  '{"productName": "이미지에서 파악한 상품명(간결하게)", "description": "상품을 2~3문장으로 요약한 설명", "keySellingPoints": ["소구점1", "소구점2", "소구점3"]}',
   "",
   "규칙:",
+  "- productName은 이미지/텍스트에 이미 상품명이 있으면 그대로, 없으면 이미지를 보고 가장 적절한",
+  "  상품명을 짧게 지어내세요(브랜드명+제품 종류 정도).",
   "- keySellingPoints는 3~5개, 각각 한 문장 이내로 짧게(예: \"24시간 로켓배송\", \"1+1 한정 특가\")",
   "- 이미지에 실제로 보이는 내용(디자인, 소재, 가격/할인 표시, 인증마크, 리뷰 수치 등)을",
   "  최대한 반영하세요 — 이미지에 없는 내용을 지어내지 마세요.",
@@ -29,6 +31,7 @@ export interface ProductImageInput {
 }
 
 export interface ProductAppealAnalysis {
+  productName: string;
   description: string;
   keySellingPoints: string[];
 }
@@ -93,6 +96,7 @@ export async function analyzeProductAppeal(
   }
 
   return {
+    productName: String(parsed.productName ?? "").trim(),
     description: String(parsed.description).trim(),
     keySellingPoints: parsed.keySellingPoints.map((p) => String(p).trim()).filter(Boolean).slice(0, 5),
   };

@@ -89,14 +89,20 @@ export function CoupangProductForm({
       {selected && (
         <div className="rounded-lg border border-neutral-300 bg-neutral-50 p-3">
           <p className="text-sm font-medium text-neutral-900">선택한 상품: {selected.productName}</p>
-          <input type="hidden" name="productName" value={selected.productName} />
+          {mode !== "analyze" && <input type="hidden" name="productName" value={selected.productName} />}
           <input type="hidden" name="productUrl" value={selected.productUrl} />
           <input type="hidden" name="price" value={selected.productPrice} />
           <input type="hidden" name="imageUrl" value={selected.productImage} />
         </div>
       )}
 
-      {mode === "analyze" && <EnrichmentFields detailPages={detailPages} />}
+      {mode === "analyze" && (
+        <EnrichmentFields
+          key={selected?.productId ?? "none"}
+          detailPages={detailPages}
+          initialProductName={selected?.productName ?? ""}
+        />
+      )}
 
       <Button type="submit" disabled={isPending || !selected}>
         {isPending ? "등록 중..." : selected ? "이 상품으로 등록 (딥링크 자동 생성)" : "먼저 상품을 검색·선택해주세요"}

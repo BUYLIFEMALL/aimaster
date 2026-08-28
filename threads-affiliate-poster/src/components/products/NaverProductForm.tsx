@@ -28,10 +28,12 @@ export function NaverProductForm({
 
       {mode === "analyze" && <EnrichmentFields detailPages={detailPages} />}
 
-      <div>
-        <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
-        <Input name="productName" placeholder="상품명을 입력하세요" required />
-      </div>
+      {mode !== "analyze" && (
+        <div>
+          <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
+          <Input name="productName" placeholder="상품명을 입력하세요" required />
+        </div>
+      )}
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-500">
           네이버 브랜드커넥트 링크
