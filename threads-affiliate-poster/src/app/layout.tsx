@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "쓰레드 쇼핑제휴 자동화",
+  title: "Threads 쇼핑제휴 자동화",
   description: "상품 정보를 넣으면 쿠팡파트너스/알리익스프레스/네이버 브랜드커넥트 제휴 링크를 붙여 Threads 홍보 게시글을 자동으로 만들고 게시하는 마케팅 자동화 웹",
 };
 

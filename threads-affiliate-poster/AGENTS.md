@@ -1,6 +1,6 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-이 문서는 **쓰레드 쇼핑제휴 자동화(threads-affiliate-poster)** 프로젝트에서 AI Agent(Claude
+이 문서는 **Threads 쇼핑제휴 자동화(threads-affiliate-poster)** 프로젝트에서 AI Agent(Claude
 Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 
 ---

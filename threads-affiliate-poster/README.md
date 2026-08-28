@@ -1,4 +1,4 @@
-# 🛍️ Threads Affiliate Poster — 쓰레드 쇼핑제휴 자동화
+# 🛍️ Threads Affiliate Poster — Threads 쇼핑제휴 자동화
 
 쿠팡파트너스/알리익스프레스/네이버 브랜드커넥트 제휴 링크를 자동으로 붙여서 쓰레드 홍보
 게시글을 만들어주는 프로그램. `threads/`(쓰레드 자동 포스팅)와 `auto-detail-page/`(상세페이지
