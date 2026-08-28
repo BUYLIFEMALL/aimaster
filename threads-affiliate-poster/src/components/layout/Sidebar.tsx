@@ -7,8 +7,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드" },
   { href: "/products", label: "상품 관리" },
   { href: "/posts", label: "게시글 관리" },
-  { href: "/accounts", label: "Threads 계정 연결" },
-  { href: "/settings", label: "API 키 설정" },
+  { href: "/settings", label: "API키 설정 및 연결" },
 ];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {

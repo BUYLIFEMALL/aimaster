@@ -55,7 +55,7 @@ export default async function DashboardPage() {
       {!account && (
         <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
           Threads 계정이 연결되어 있지 않습니다.{" "}
-          <Link href="/accounts" className="font-medium underline">
+          <Link href="/settings" className="font-medium underline">
             계정 연결하러 가기
           </Link>
         </div>

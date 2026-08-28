@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
   if (oauthError || !code || !state) {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=connect_failed`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
   }
 
   const supabase = await createClient();
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
   const access = await checkProgramAccessApi();
   if (!access.allowed) {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=no_access`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=no_access`);
   }
 
   try {
@@ -56,8 +56,8 @@ export async function GET(request: NextRequest) {
       throw new Error(error.message);
     }
 
-    return NextResponse.redirect(`${siteUrl}/accounts?connected=1`);
+    return NextResponse.redirect(`${siteUrl}/settings?connected=1`);
   } catch {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=connect_failed`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
   }
 }

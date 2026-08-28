@@ -19,5 +19,5 @@ export async function disconnectThreadsAccountAction() {
 
   await supabase.from("tap_accounts").delete().eq("user_id", user.id);
 
-  revalidatePath("/accounts");
+  revalidatePath("/settings");
 }
