@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
@@ -17,13 +17,30 @@ export function AliexpressProductForm({
   detailPages: DetailPageSummary[];
   mode: RegistrationMode;
 }) {
+  const [analyzeProductName, setAnalyzeProductName] = useState("");
   const [state, formAction, isPending] = useActionState(registerAliexpressProductAction, initialState);
 
   return (
     <form action={formAction} className="space-y-3">
-      {mode === "analyze" && <EnrichmentFields detailPages={detailPages} />}
-
-      {mode !== "analyze" && (
+      {mode === "analyze" ? (
+        <>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
+            <Input
+              name="productName"
+              placeholder="상품명을 입력하거나, 아래 이미지 분석 결과로 자동 채워보세요."
+              value={analyzeProductName}
+              onChange={(e) => setAnalyzeProductName(e.target.value)}
+              required
+            />
+          </div>
+          <EnrichmentFields
+            detailPages={detailPages}
+            productName={analyzeProductName}
+            onProductNameSuggested={setAnalyzeProductName}
+          />
+        </>
+      ) : (
         <div>
           <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
           <Input name="productName" placeholder="상품명을 입력하세요" required />

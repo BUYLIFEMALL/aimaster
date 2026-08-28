@@ -16,6 +16,7 @@ function parseEnrichmentFields(formData: FormData) {
     .map((line) => line.trim())
     .filter(Boolean);
   const detailPageId = String(formData.get("detailPageId") ?? "").trim();
+  const imageUrl = String(formData.get("imageUrl") ?? "").trim();
 
   const hasEnrichment = Boolean(description || keySellingPoints.length > 0 || detailPageId);
 
@@ -24,6 +25,7 @@ function parseEnrichmentFields(formData: FormData) {
     description: description || null,
     key_selling_points: keySellingPoints.length > 0 ? keySellingPoints : null,
     detail_page_id: detailPageId || null,
+    image_url: imageUrl || null,
   };
 }
 
@@ -72,7 +74,6 @@ export async function registerCoupangProductAction(
   const productName = String(formData.get("productName") ?? "").trim();
   const productUrl = String(formData.get("productUrl") ?? "").trim();
   const priceRaw = String(formData.get("price") ?? "").trim();
-  const imageUrl = String(formData.get("imageUrl") ?? "").trim();
 
   if (!productName || !productUrl) {
     return { error: "상품 정보가 올바르지 않습니다. 다시 검색해서 선택해주세요." };
@@ -102,7 +103,6 @@ export async function registerCoupangProductAction(
       product_url: productUrl,
       affiliate_url: deeplink.shortenUrl,
       price: priceRaw ? Number(priceRaw) : null,
-      image_url: imageUrl || null,
       ...enrichment,
     });
     if (error) return { error: error.message };
@@ -232,11 +232,11 @@ export async function analyzeProductImagesAction(formData: FormData): Promise<An
     );
 
     const productName = String(formData.get("productName") ?? "").trim();
-    const existingDescription = String(formData.get("existingDescription") ?? "").trim();
+    const sourceText = String(formData.get("sourceText") ?? "").trim();
 
     const result = await analyzeProductAppeal(
       images,
-      { productName: productName || null, existingDescription: existingDescription || null },
+      { productName: productName || null, sourceText: sourceText || null },
       apiKey,
     );
 
@@ -244,6 +244,38 @@ export async function analyzeProductImagesAction(formData: FormData): Promise<An
     return { result };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "이미지 분석에 실패했습니다." };
+  }
+}
+
+export interface UploadProductImageState {
+  url?: string;
+  error?: string;
+}
+
+/** 분석 단계에서 업로드한 이미지 1장을 게시글용 대표 이미지로 확정해 Storage에 저장한다. */
+export async function uploadProductImageAction(formData: FormData): Promise<UploadProductImageState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const file = formData.get("image");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "업로드할 이미지를 선택해주세요." };
+  }
+
+  try {
+    const ext = (file.type.split("/")[1] || "jpg").replace(/[^a-z0-9]/gi, "") || "jpg";
+    const path = `${user.id}/products/${crypto.randomUUID()}.${ext}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    const { error: uploadError } = await supabase.storage
+      .from("post-images")
+      .upload(path, buffer, { contentType: file.type || "image/jpeg", upsert: false });
+    if (uploadError) throw new Error(uploadError.message);
+
+    const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+    return { url: data.publicUrl };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "이미지 업로드에 실패했습니다." };
   }
 }
 

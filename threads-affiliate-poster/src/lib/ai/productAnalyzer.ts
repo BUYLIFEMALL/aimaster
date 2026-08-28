@@ -38,7 +38,7 @@ export interface ProductAppealAnalysis {
 
 export async function analyzeProductAppeal(
   images: ProductImageInput[],
-  context: { productName?: string | null; existingDescription?: string | null },
+  context: { productName?: string | null; sourceText?: string | null },
   apiKey: string,
 ): Promise<ProductAppealAnalysis> {
   if (images.length === 0) {
@@ -47,7 +47,7 @@ export async function analyzeProductAppeal(
 
   const contextLines = [
     context.productName ? `상품명: ${context.productName}` : null,
-    context.existingDescription ? `기존 설명: ${context.existingDescription}` : null,
+    context.sourceText ? `상품 원본 정보: ${context.sourceText}` : null,
   ].filter(Boolean);
 
   const userContent: Array<
