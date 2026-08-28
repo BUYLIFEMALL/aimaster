@@ -7,10 +7,8 @@ import type { AffiliatePlatform } from "@/types/product";
 // 브랜드커넥트는 자체 정책에 위임하고 여기서는 강제로 붙이지 않는다.
 // AGENTS.md에 명시된 정책 준수 장치이니 이 매핑을 임의로 지우면 안 된다.
 const DISCLOSURE_TEXT: Record<AffiliatePlatform, string | null> = {
-  coupang:
-    "\n\n(광고) 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받을 수 있습니다.",
-  aliexpress:
-    "\n\n(광고) 이 포스팅은 제휴 마케팅 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받을 수 있습니다.",
+  coupang: "\n\n(광고) 쿠팡파트너스 활동으로 수수료를 받을 수 있습니다.",
+  aliexpress: "\n\n(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
   naver: null,
 };
 
