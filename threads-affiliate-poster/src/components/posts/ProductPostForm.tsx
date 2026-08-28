@@ -12,6 +12,7 @@ import type { AffiliateProduct } from "@/types/product";
 import { PLATFORM_LABELS } from "@/types/product";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 1024 * 1024 * 1024; // Threads 공식 제한(1GB, 최대 5분, MP4/MOV)
 
 type PublishMode = "draft" | "schedule" | "now";
 type Tone = ThreadsTone;
@@ -46,6 +47,7 @@ interface ProductPostFormProps {
   products: AffiliateProduct[];
   initialContent?: string;
   initialImageUrl?: string;
+  initialVideoUrl?: string;
   initialScheduledAtLocal?: string;
   initialPublishMode?: PublishMode;
   initialProductId?: string;
@@ -63,6 +65,7 @@ export function ProductPostForm({
   products,
   initialContent = "",
   initialImageUrl = "",
+  initialVideoUrl = "",
   initialScheduledAtLocal = "",
   initialPublishMode = "draft",
   initialProductId = "",
@@ -108,10 +111,53 @@ export function ProductPostForm({
 
       const { data } = supabase.storage.from("post-images").getPublicUrl(path);
       setImageUrl(data.publicUrl);
+      setVideoUrl(""); // Threads는 이미지/영상을 동시에 첨부할 수 없어 서로 배타적으로 둔다
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const [videoUrl, setVideoUrl] = useState(initialVideoUrl);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [videoUploadError, setVideoUploadError] = useState<string | null>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (videoInputRef.current) videoInputRef.current.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("video/")) {
+      setVideoUploadError("영상 파일만 업로드할 수 있습니다(MP4, MOV).");
+      return;
+    }
+    if (file.size > MAX_VIDEO_BYTES) {
+      setVideoUploadError("영상 크기는 1GB를 넘을 수 없습니다(Threads 제한).");
+      return;
+    }
+
+    setVideoUploadError(null);
+    setIsUploadingVideo(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split(".").pop() ?? "mp4";
+      const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+
+      const { error } = await supabase.storage.from("post-images").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+      setVideoUrl(data.publicUrl);
+      setImageUrl(""); // 이미지/영상 배타적 첨부
+    } catch (err) {
+      setVideoUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
+    } finally {
+      setIsUploadingVideo(false);
     }
   };
 
@@ -244,7 +290,7 @@ export function ProductPostForm({
     const fd = new FormData();
     fd.set("content", finalContent);
     fd.set("imageUrl", finalImageUrl);
-    fd.set("videoFileName", "");
+    fd.set("videoUrl", videoUrl);
     fd.set("publishMode", publishMode);
     fd.set("scheduledAt", scheduledAtIso);
     fd.set("productId", productId);
@@ -516,7 +562,10 @@ export function ProductPostForm({
           name="imageUrl"
           type="url"
           value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
+          onChange={(e) => {
+            setImageUrl(e.target.value);
+            if (e.target.value) setVideoUrl("");
+          }}
           placeholder="https://example.com/image.jpg (또는 위에서 직접 업로드)"
           className="mt-2"
         />
@@ -526,6 +575,52 @@ export function ProductPostForm({
             src={imageUrl}
             alt="첨부 이미지 미리보기"
             className="mt-2 max-h-40 rounded-lg border border-neutral-200 object-contain"
+          />
+        )}
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-neutral-700">영상 (선택)</label>
+        <p className="mb-2 text-xs text-neutral-500">
+          이미지와 영상은 동시에 첨부할 수 없습니다 — 영상을 등록하면 이미지는 자동으로 해제됩니다.
+          Threads 영상 규격: MP4/MOV, 최대 1GB, 최대 5분.
+        </p>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            onChange={handleVideoFileChange}
+            disabled={isUploadingVideo}
+            className="hidden"
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => videoInputRef.current?.click()}
+            disabled={isUploadingVideo}
+          >
+            {isUploadingVideo ? "업로드 중..." : "영상 직접 등록하기"}
+          </Button>
+        </div>
+        {videoUploadError && <p className="mt-1 text-xs text-red-600">{videoUploadError}</p>}
+        <Input
+          name="videoUrl"
+          type="url"
+          value={videoUrl}
+          onChange={(e) => {
+            setVideoUrl(e.target.value);
+            if (e.target.value) setImageUrl("");
+          }}
+          placeholder="https://example.com/video.mp4 (또는 위에서 직접 업로드)"
+          className="mt-2"
+        />
+        {videoUrl && (
+          <video
+            src={videoUrl}
+            controls
+            className="mt-2 max-h-40 rounded-lg border border-neutral-200"
           />
         )}
       </div>

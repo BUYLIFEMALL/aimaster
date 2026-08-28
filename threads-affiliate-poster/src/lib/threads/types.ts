@@ -40,6 +40,7 @@ export interface PublishThreadsPostParams {
   threadsUserId: string;
   text: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
 }
 
 export interface PublishThreadsPostResult {

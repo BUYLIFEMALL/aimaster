@@ -13,12 +13,24 @@ export const postFormSchema = z
       .url("올바른 이미지 URL 형식이 아닙니다.")
       .optional()
       .or(z.literal("")),
-    videoFileName: z.string().trim().optional().or(z.literal("")),
+    videoUrl: z
+      .string()
+      .trim()
+      .url("올바른 영상 URL 형식이 아닙니다.")
+      .optional()
+      .or(z.literal("")),
     publishMode: z.enum(["now", "schedule", "draft"]),
     scheduledAt: z.string().optional().or(z.literal("")),
     productId: z.string().uuid().optional().or(z.literal("")),
   })
   .superRefine((data, ctx) => {
+    if (data.imageUrl && data.videoUrl) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "이미지와 영상은 동시에 첨부할 수 없습니다. 하나만 선택해주세요.",
+        path: ["videoUrl"],
+      });
+    }
     if (data.publishMode === "schedule") {
       if (!data.scheduledAt) {
         ctx.addIssue({

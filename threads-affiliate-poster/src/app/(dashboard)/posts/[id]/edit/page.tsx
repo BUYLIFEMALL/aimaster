@@ -41,6 +41,7 @@ export default async function PostEditPage({
         products={products ?? []}
         initialContent={post.content}
         initialImageUrl={post.image_url ?? ""}
+        initialVideoUrl={post.video_url ?? ""}
         initialScheduledAtLocal={toDatetimeLocalValue(post.scheduled_at)}
         initialPublishMode={post.status === "scheduled" ? "schedule" : "draft"}
         initialProductId={post.product_id ?? ""}

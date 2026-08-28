@@ -54,6 +54,7 @@ async function dispatchDuePosts(
       userId: post.user_id,
       content: post.content,
       imageUrl: post.image_url,
+      videoUrl: post.video_url,
       threadsUserId: account.threads_user_id,
       accessToken: account.access_token,
     });

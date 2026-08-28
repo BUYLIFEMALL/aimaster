@@ -64,13 +64,17 @@ export default async function PostDetailPage({
       )}
 
       <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        {post.image_url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={post.image_url}
-            alt="게시글 이미지"
-            className="max-h-[420px] w-full object-cover"
-          />
+        {post.video_url ? (
+          <video src={post.video_url} controls className="max-h-[420px] w-full object-cover" />
+        ) : (
+          post.image_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={post.image_url}
+              alt="게시글 이미지"
+              className="max-h-[420px] w-full object-cover"
+            />
+          )
         )}
         <div className="p-5">
           <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-900">

@@ -102,15 +102,19 @@ async function createThreadsContainer(params: {
   threadsUserId: string;
   text: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
 }): Promise<string> {
-  const { accessToken, threadsUserId, text, imageUrl } = params;
+  const { accessToken, threadsUserId, text, imageUrl, videoUrl } = params;
 
+  const mediaType = videoUrl ? "VIDEO" : imageUrl ? "IMAGE" : "TEXT";
   const body = new URLSearchParams({
     access_token: accessToken,
     text,
-    media_type: imageUrl ? "IMAGE" : "TEXT",
+    media_type: mediaType,
   });
-  if (imageUrl) {
+  if (videoUrl) {
+    body.set("video_url", videoUrl);
+  } else if (imageUrl) {
     body.set("image_url", imageUrl);
   }
 
@@ -200,20 +204,25 @@ async function getThreadsPostPermalink(params: {
   return result.permalink;
 }
 
-// 미디어 컨테이너 생성 -> (이미지의 경우 처리 대기) -> 게시 -> permalink 조회 순서로 진행합니다.
+// 미디어 컨테이너 생성 -> (이미지/영상의 경우 처리 대기) -> 게시 -> permalink 조회 순서로 진행합니다.
+// 영상은 Meta 서버 처리에 이미지보다 오래 걸리는 게 공식 문서 기준이라(평균 30초 이상)
+// 타임아웃을 더 길게 준다.
 export async function publishThreadsPost(
   params: PublishThreadsPostParams,
 ): Promise<PublishThreadsPostResult> {
-  const { accessToken, threadsUserId, text, imageUrl } = params;
+  const { accessToken, threadsUserId, text, imageUrl, videoUrl } = params;
 
   const creationId = await createThreadsContainer({
     accessToken,
     threadsUserId,
     text,
     imageUrl,
+    videoUrl,
   });
 
-  if (imageUrl) {
+  if (videoUrl) {
+    await waitForContainerReady({ accessToken, creationId, timeoutMs: 180_000, intervalMs: 3_000 });
+  } else if (imageUrl) {
     await waitForContainerReady({ accessToken, creationId });
   }
 

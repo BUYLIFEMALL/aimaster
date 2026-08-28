@@ -35,7 +35,7 @@ function parsePostForm(formData: FormData) {
   return postFormSchema.safeParse({
     content: formData.get("content"),
     imageUrl: formData.get("imageUrl") ?? "",
-    videoFileName: formData.get("videoFileName") ?? "",
+    videoUrl: formData.get("videoUrl") ?? "",
     publishMode: formData.get("publishMode"),
     scheduledAt: formData.get("scheduledAt") ?? "",
     productId: formData.get("productId") ?? "",
@@ -53,7 +53,7 @@ export async function createPostAction(
 
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { content, imageUrl, videoFileName, publishMode, scheduledAt, productId } = parsed.data;
+  const { content, imageUrl, videoUrl, publishMode, scheduledAt, productId } = parsed.data;
 
   const status = publishMode === "now" ? "draft" : publishMode === "schedule" ? "scheduled" : "draft";
 
@@ -64,7 +64,7 @@ export async function createPostAction(
       product_id: productId || null,
       content,
       image_url: imageUrl || null,
-      video_filename: videoFileName || null,
+      video_url: videoUrl || null,
       status,
       scheduled_at: publishMode === "schedule" ? scheduledAt : null,
     })
@@ -84,6 +84,7 @@ export async function createPostAction(
         userId: user.id,
         content,
         imageUrl: imageUrl || null,
+        videoUrl: videoUrl || null,
         threadsUserId: account.threads_user_id,
         accessToken: account.access_token,
       });
@@ -109,7 +110,7 @@ export async function updatePostAction(
 
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { content, imageUrl, videoFileName, publishMode, scheduledAt } = parsed.data;
+  const { content, imageUrl, videoUrl, publishMode, scheduledAt } = parsed.data;
 
   const { data: existing } = await supabase
     .from("tap_posts")
@@ -129,7 +130,7 @@ export async function updatePostAction(
     .update({
       content,
       image_url: imageUrl || null,
-      video_filename: videoFileName || null,
+      video_url: videoUrl || null,
       status,
       scheduled_at: publishMode === "schedule" ? scheduledAt : null,
     })
@@ -149,6 +150,7 @@ export async function updatePostAction(
         userId: user.id,
         content,
         imageUrl: imageUrl || null,
+        videoUrl: videoUrl || null,
         threadsUserId: account.threads_user_id,
         accessToken: account.access_token,
       });
@@ -198,6 +200,7 @@ export async function publishNowAction(formData: FormData) {
       userId: user.id,
       content: post.content,
       imageUrl: post.image_url,
+      videoUrl: post.video_url,
       threadsUserId: account.threads_user_id,
       accessToken: account.access_token,
     });

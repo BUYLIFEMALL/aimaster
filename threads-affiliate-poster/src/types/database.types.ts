@@ -22,7 +22,7 @@ export interface Database {
           product_id: string | null;
           content: string;
           image_url: string | null;
-          video_filename: string | null;
+          video_url: string | null;
           status: PostStatus;
           scheduled_at: string | null;
           threads_post_id: string | null;
@@ -37,7 +37,7 @@ export interface Database {
           product_id?: string | null;
           content: string;
           image_url?: string | null;
-          video_filename?: string | null;
+          video_url?: string | null;
           status?: PostStatus;
           scheduled_at?: string | null;
           threads_post_id?: string | null;
@@ -52,7 +52,7 @@ export interface Database {
           product_id?: string | null;
           content?: string;
           image_url?: string | null;
-          video_filename?: string | null;
+          video_url?: string | null;
           status?: PostStatus;
           scheduled_at?: string | null;
           threads_post_id?: string | null;

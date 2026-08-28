@@ -9,6 +9,7 @@ interface PublishPostParams {
   userId: string;
   content: string;
   imageUrl: string | null;
+  videoUrl: string | null;
   threadsUserId: string;
   accessToken: string;
 }
@@ -21,7 +22,7 @@ interface PublishPostOutcome {
 // posts/accounts 테이블 RLS를 우회해야 하는 예약 게시 배치와, 사용자 세션으로
 // 실행되는 즉시 게시 양쪽에서 재사용하는 게시 처리 로직입니다.
 export async function publishPost(params: PublishPostParams): Promise<PublishPostOutcome> {
-  const { supabase, postId, userId, content, imageUrl, threadsUserId, accessToken } = params;
+  const { supabase, postId, userId, content, imageUrl, videoUrl, threadsUserId, accessToken } = params;
 
   await supabase
     .from("tap_posts")
@@ -35,6 +36,7 @@ export async function publishPost(params: PublishPostParams): Promise<PublishPos
       threadsUserId,
       text: content,
       imageUrl,
+      videoUrl,
     });
 
     await supabase
