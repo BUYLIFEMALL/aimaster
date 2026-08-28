@@ -2,14 +2,14 @@ import "server-only";
 import { generatePostContent, type GeneratePostInput, type ThreadsTone } from "./generator";
 import type { AffiliatePlatform } from "@/types/product";
 
-// 플랫폼별 제휴 고지 문구. 쿠팡파트너스는 자체 운영정책 + 표시광고법상 고지가
-// 필수이고, 알리익스프레스도 제휴 마케팅 활동이라 동일하게 취급한다. 네이버
-// 브랜드커넥트는 자체 정책에 위임하고 여기서는 강제로 붙이지 않는다.
-// AGENTS.md에 명시된 정책 준수 장치이니 이 매핑을 임의로 지우면 안 된다.
+// 플랫폼별 제휴 고지 문구. 표시광고법은 특정 플랫폼이 아니라 "커미션을 받는
+// 제휴 마케팅 콘텐츠 전반"에 적용되는 규정이라, API 연동 여부와 무관하게
+// 쿠팡파트너스/알리익스프레스/네이버 브랜드커넥트 셋 다 고지 문구를 자동으로
+// 붙인다. AGENTS.md에 명시된 정책 준수 장치이니 이 매핑을 임의로 지우면 안 된다.
 const DISCLOSURE_TEXT: Record<AffiliatePlatform, string | null> = {
   coupang: "\n\n(광고) 쿠팡파트너스 활동으로 수수료를 받을 수 있습니다.",
   aliexpress: "\n\n(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
-  naver: null,
+  naver: "\n\n(광고) 브랜드 제휴 활동으로 수수료를 받을 수 있습니다.",
 };
 
 const PLATFORM_DEFAULT_CTA_TEXT: Record<AffiliatePlatform, string> = {
