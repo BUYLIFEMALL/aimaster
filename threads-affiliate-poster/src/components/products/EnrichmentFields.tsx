@@ -27,6 +27,7 @@ export function EnrichmentFields({ detailPages, onDetailPageSelect }: Enrichment
   const [description, setDescription] = useState("");
   const [keySellingPoints, setKeySellingPoints] = useState("");
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [analyzed, setAnalyzed] = useState(false);
   const [isAnalyzing, startAnalyzing] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +56,7 @@ export function EnrichmentFields({ detailPages, onDetailPageSelect }: Enrichment
       }
       setDescription(res.result.description);
       setKeySellingPoints(res.result.keySellingPoints.join("\n"));
+      setAnalyzed(true);
     });
   }
 
@@ -107,9 +109,12 @@ export function EnrichmentFields({ detailPages, onDetailPageSelect }: Enrichment
         />
         <div className="mt-2 flex items-center gap-2">
           <Button type="button" variant="secondary" onClick={handleAnalyze} disabled={isAnalyzing}>
-            {isAnalyzing ? "분석 중..." : "🔍 이미지로 소구점 분석하기"}
+            {isAnalyzing ? "AI 분석 중..." : "✨ AI로 상품 분석하기"}
           </Button>
           <p className="text-[11px] text-neutral-400">OpenAI 키 필요 · 결과는 검토 후 저장됩니다</p>
+          {analyzed && !isAnalyzing && (
+            <span className="text-[11px] font-medium text-green-600">✅ AI 분석 완료</span>
+          )}
         </div>
         {analyzeError && <p className="mt-1 text-xs text-red-600">{analyzeError}</p>}
       </div>
