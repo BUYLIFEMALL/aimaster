@@ -22,12 +22,44 @@ interface ProgramFormProps {
   program?: Program & { pricing_plans?: PricingPlanInput[] };
 }
 
-const BADGE_OPTIONS: { value: NonNullable<Program["badge"]>; label: string }[] = [
-  { value: "best", label: "BEST" },
-  { value: "new", label: "NEW" },
-  { value: "sale", label: "SALE" },
-  { value: "free", label: "FREE" },
-  { value: "coming", label: "COMING SOON" },
+// 실제 뱃지 색상(components/ui/Badge.tsx)과 동일하게 맞춰서, 편집 화면에서도
+// 어떤 색으로 노출되는지 미리 볼 수 있게 한다.
+const BADGE_OPTIONS: {
+  value: NonNullable<Program["badge"]>;
+  label: string;
+  selectedClassName: string;
+  idleClassName: string;
+}[] = [
+  {
+    value: "best",
+    label: "BEST",
+    selectedClassName: "bg-gold text-black border-gold",
+    idleClassName: "bg-white/5 text-[#f5c842] border-[#f5c842]/40 hover:bg-white/10",
+  },
+  {
+    value: "new",
+    label: "NEW",
+    selectedClassName: "bg-green-500 text-black border-green-500",
+    idleClassName: "bg-white/5 text-green-400 border-green-500/40 hover:bg-white/10",
+  },
+  {
+    value: "sale",
+    label: "SALE",
+    selectedClassName: "bg-orange-500 text-black border-orange-500",
+    idleClassName: "bg-white/5 text-orange-400 border-orange-500/40 hover:bg-white/10",
+  },
+  {
+    value: "free",
+    label: "FREE",
+    selectedClassName: "bg-blue-500 text-black border-blue-500",
+    idleClassName: "bg-white/5 text-blue-400 border-blue-500/40 hover:bg-white/10",
+  },
+  {
+    value: "coming",
+    label: "COMING SOON",
+    selectedClassName: "bg-red-500 text-black border-red-500",
+    idleClassName: "bg-white/5 text-red-400 border-red-500/40 hover:bg-white/10",
+  },
 ];
 
 const BILLING_OPTIONS = [
@@ -473,9 +505,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
                     type="button"
                     onClick={() => setBadge(opt.value)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-                      badge === opt.value
-                        ? "bg-gold text-black border-gold"
-                        : "bg-white/5 text-subtext border-white/10 hover:bg-white/10 hover:text-white"
+                      badge === opt.value ? opt.selectedClassName : opt.idleClassName
                     }`}
                   >
                     {opt.label}
