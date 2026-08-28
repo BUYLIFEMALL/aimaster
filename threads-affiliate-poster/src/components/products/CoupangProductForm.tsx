@@ -44,7 +44,7 @@ export function CoupangProductForm({
   };
 
   return (
-    <div className="space-y-4">
+    <form action={formAction} className="space-y-4">
       <p className="text-xs text-neutral-500">
         쿠팡파트너스 검색 API는 시간당 호출 횟수 제한이 있습니다. 필요한 만큼만 검색해주세요.
       </p>
@@ -60,18 +60,17 @@ export function CoupangProductForm({
         </Button>
       </div>
       {searchError && <p className="text-xs text-red-600">{searchError}</p>}
-      {!selected && mode === "analyze" && (
-        <p className="text-[11px] text-neutral-400">
-          검색 후 상품을 선택하면, 그 아래에 이미지/텍스트로 소구점을 분석·입력하는 칸이 나타납니다.
-        </p>
-      )}
 
       {results.length > 0 && (
         <ul className="space-y-2">
           {results.map((product) => (
             <li
               key={product.productId}
-              className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3"
+              className={`flex items-center gap-3 rounded-lg border p-3 ${
+                selected?.productId === product.productId
+                  ? "border-neutral-900 bg-neutral-50"
+                  : "border-neutral-200"
+              }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={product.productImage} alt={product.productName} className="h-14 w-14 rounded object-cover" />
@@ -80,7 +79,7 @@ export function CoupangProductForm({
                 <p className="text-xs text-neutral-500">{product.productPrice.toLocaleString()}원</p>
               </div>
               <Button type="button" variant="secondary" onClick={() => setSelected(product)}>
-                선택
+                {selected?.productId === product.productId ? "선택됨" : "선택"}
               </Button>
             </li>
           ))}
@@ -88,22 +87,22 @@ export function CoupangProductForm({
       )}
 
       {selected && (
-        <form action={formAction} className="space-y-3 rounded-lg border border-neutral-300 bg-neutral-50 p-4">
+        <div className="rounded-lg border border-neutral-300 bg-neutral-50 p-3">
           <p className="text-sm font-medium text-neutral-900">선택한 상품: {selected.productName}</p>
           <input type="hidden" name="productName" value={selected.productName} />
           <input type="hidden" name="productUrl" value={selected.productUrl} />
           <input type="hidden" name="price" value={selected.productPrice} />
           <input type="hidden" name="imageUrl" value={selected.productImage} />
-
-          {mode === "analyze" && <EnrichmentFields detailPages={detailPages} />}
-
-          <Button type="submit" disabled={isPending}>
-            {isPending ? "등록 중..." : "이 상품으로 등록 (딥링크 자동 생성)"}
-          </Button>
-          {state.error && <p className="text-xs text-red-600">{state.error}</p>}
-          {state.success && <p className="text-xs text-green-600">등록되었습니다.</p>}
-        </form>
+        </div>
       )}
-    </div>
+
+      {mode === "analyze" && <EnrichmentFields detailPages={detailPages} />}
+
+      <Button type="submit" disabled={isPending || !selected}>
+        {isPending ? "등록 중..." : selected ? "이 상품으로 등록 (딥링크 자동 생성)" : "먼저 상품을 검색·선택해주세요"}
+      </Button>
+      {state.error && <p className="text-xs text-red-600">{state.error}</p>}
+      {state.success && <p className="text-xs text-green-600">등록되었습니다.</p>}
+    </form>
   );
 }
