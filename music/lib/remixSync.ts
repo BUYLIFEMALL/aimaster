@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, VocalGender } from "@/types/database.types";
-import { requestSunoExtend, toSunoVocalGender, type SunoCallbackItem } from "@/lib/ai/suno";
+import { requestSunoExtend, toSunoVocalGender, translateSunoErrorMessage, type SunoCallbackItem } from "@/lib/ai/suno";
 import { persistSunoAssetToStorage } from "@/lib/trackSync";
 
 // createAdminClient()(웹훅, 세션 없음)와 createClient()(로그인 사용자) 둘 다 이 타입을 만족한다.
@@ -148,5 +148,8 @@ async function maybeAutoExtendRemix(
 
 /** 리믹스를 실패로 표시한다. */
 export async function markRemixFailed(supabase: SupabaseLike, remix: { id: string }, errorMessage: string) {
-  await supabase.from("music_track_remixes").update({ status: "failed", error_message: errorMessage }).eq("id", remix.id);
+  await supabase
+    .from("music_track_remixes")
+    .update({ status: "failed", error_message: translateSunoErrorMessage(errorMessage) })
+    .eq("id", remix.id);
 }

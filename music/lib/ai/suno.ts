@@ -11,6 +11,22 @@ export function toSunoVocalGender(gender: VocalGender | null): "m" | "f" | undef
   return undefined;
 }
 
+/**
+ * Suno가 웹훅/폴링으로 보내는 원문 에러 메시지를 사용자가 이해하기 쉬운 한글 안내로 바꾼다.
+ * 알려진 패턴이 아니면 원문을 그대로 반환한다.
+ *
+ * "File fetch failed. Check access settings..." — 2026-08-29, 곡 완성 직후(약 1~2분 이내)
+ * 연장(extend)을 시도했다가 Suno 서버 쪽에서 방금 만든 원본 오디오를 아직 못 찾아서 나는
+ * 것으로 추정되는 오류를 확인했다(요청 자체는 defaultParamFlag:true로 이미 검증된 안전한
+ * 형식이라 우리 쪽 파라미터 문제는 아님). 재현 확정은 아니라 원문도 함께 보여준다.
+ */
+export function translateSunoErrorMessage(raw: string): string {
+  if (/file fetch failed/i.test(raw)) {
+    return `원본 곡을 아직 Suno 서버에서 찾지 못했습니다(방금 생성된 곡이면 1~2분 정도 기다렸다가 다시 연장을 시도해주세요). 원본 오류: ${raw}`;
+  }
+  return raw;
+}
+
 export interface RequestSunoGenerationInput {
   prompt: string; // 보컬판: 가사 전문 / 인스트루멘탈판: BGM 프롬프트
   title: string;

@@ -102,7 +102,7 @@ POST 콜백을 보낸다. 이 라우트는:
 | 1 | `01`(기획+생성호출), `02`(음악저장/웹훅), `03`(가사수정 재생성) | ✅ 구현 완료 |
 | 2 | `31`(대량생성 — "생성 개수(대량생성)" 1~10곡 옵션으로 구현) | ✅ 구현 완료 |
 | 2 | `41`(리믹스 — 업로드 오디오를 새 스타일로 커버, `createRemixAction()`, Suno `/generate/upload-cover`, 기존 `/api/webhooks/suno`가 task_id로 `music_track_remixes`도 함께 매칭하도록 확장. 완성곡 카드의 "🎛️ 이 곡으로 리믹스" 버튼으로 업로드 없이도 재사용 가능) | ✅ 구현 완료 (2026-08-17) |
-| 3 | 곡 연장(Extend) — `extendTrackAction()`, Suno `/generate/extend`, `defaultParamFlag:true`로 continueAt/style/prompt 명시 | ✅ 구현 완료 |
+| 3 | 곡 연장(Extend) — `extendTrackAction()`, Suno `/generate/extend`, `defaultParamFlag:true`로 continueAt/style/prompt 명시. **2026-08-29 추가 관찰**: 원곡 생성 완료 직후(약 1~2분 이내) 연장을 시도하면 Suno가 웹훅으로 `"File fetch failed. Check access settings..."` 오류를 보내는 사례를 확인함(요청 파라미터 자체는 정상 — 2026-08-15에 이미 검증된 안전한 형식). Suno 서버가 방금 만든 오디오를 아직 못 찾는 것으로 추정되어, `translateSunoErrorMessage()`(`lib/ai/suno.ts`)로 이 패턴을 감지해 "잠시 후 다시 시도해달라"는 한글 안내를 덧붙이도록 개선함(`markTrackFailed`/`markRemixFailed` 공통 적용). 확정된 원인은 아니라 재발 시 추가 조사 필요 | ✅ 구현 완료 |
 | 3 | MR(보컬제거) 만들기 — `createMrAction()`, Suno `/vocal-removal/generate`(`type: separate_vocal`), 전용 웹훅 라우트 | ✅ 구현 완료 |
 | 3 | WAV 변환 — `createWavAction()`/`syncWavStatusAction()`, Suno `/wav/generate` + `/wav/record-info` 폴링, 전용 웹훅 라우트 | ✅ 구현 완료 |
 | 3 | Suno API 크레딧 조회 — `checkSunoCreditsAction()`, `/settings` 페이지 하단, GET `/api/v1/generate/credit` | ✅ 구현 완료 (2026-08-17) |

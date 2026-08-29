@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import type { SunoCallbackItem } from "@/lib/ai/suno";
+import { translateSunoErrorMessage } from "@/lib/ai/suno";
 import { generateAlbumCoverPrompt } from "@/lib/ai/musicPrompts";
 import { generateAlbumCoverImage } from "@/lib/ai/nanobanana";
 
@@ -137,7 +138,10 @@ export async function saveSunoTrackResult(
 
 /** 트랙을 실패로 표시하고, 기획에 속한 모든 트랙이 종결 상태가 됐으면 기획 상태도 함께 정리한다. */
 export async function markTrackFailed(supabase: SupabaseLike, track: { id: string; planning_id: string }, errorMessage: string) {
-  await supabase.from("music_tracks").update({ status: "failed", error_message: errorMessage }).eq("id", track.id);
+  await supabase
+    .from("music_tracks")
+    .update({ status: "failed", error_message: translateSunoErrorMessage(errorMessage) })
+    .eq("id", track.id);
   await syncPlanningStatus(supabase, track.planning_id);
 }
 
