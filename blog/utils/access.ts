@@ -28,7 +28,13 @@ export async function requireProgramAccess() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth')
+    // blog는 자체 Vercel 배포 없이 www.buylife.xyz/blog로 루트 앱에 내장되는데,
+    // 루트에는 "/auth"가 없고 "/login"만 있다. "/auth"로 보내면 404가 떠서 실제로는
+    // 로그인만 다시 하면 되는 사용자가 "접근 안 됨"으로 오해하게 된다
+    // (2026-08-19에 dashboard/candidates/write-ai-form 등 다른 페이지에서 같은
+    // 버그를 이미 한 번 고쳤는데, 모든 페이지가 공통으로 거치는 이 access.ts
+    // 자체는 그때 빠뜨렸다 — judee1004 계정 "접근 안 됨" 신고로 재발견, 2026-08-29).
+    redirect('/login')
   }
 
   const sb = supabase as unknown as SupabaseLike
