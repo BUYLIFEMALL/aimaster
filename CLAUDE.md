@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 🔒 불변의 핵심 원칙 (모든 에이전트가 예외 없이 따라야 함)
 
-이 저장소에서 일하는 모든 에이전트(Claude Code 등)는 아래 두 가지를 프로젝트 구조가 아무리
+이 저장소에서 일하는 모든 에이전트(Claude Code 등)는 아래 네 가지를 프로젝트 구조가 아무리
 커지고 새 서브프로젝트가 계속 늘어나도 절대 바뀌지 않는 대전제로 삼는다. 새 서브프로젝트를
 계획하거나, 기존 걸 고치거나, 구조적으로 애매한 판단을 내려야 할 때는 항상 이 원칙을 기준으로
 삼는다.
@@ -35,6 +35,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    `shots`의 `SEGMENT_SYSTEM_PROMPT`, `blog`/`blog_auto_poster`의
    `generateArticleBasedImagePrompts`, `shop-detail-page`의 `shop_prompt_templates.korean_guide`,
    `auto-detail-page`의 `/api/generate-image` 참고).
+4. **모든 자동화 프로그램은 "엔진은 우리(사용자+AI 에이전트)가 함께 만들고, 그 엔진을 돌리는
+   연료(API 키·외부 계정)는 이용하는 각 회원이 본인 것을 연동해서 쓰는" 구조다.** 이 플랫폼에서
+   개발자(사용자)와 AI 에이전트가 함께 만드는 것은 자동화가 실제로 돌아가는 코드·로직·UI(엔진)뿐이다
+   — 그 엔진을 구동시키는 API 키(OpenAI/Gemini/Perplexity 등)와 외부 계정(Threads/Instagram/
+   YouTube OAuth, 쿠팡파트너스/알리익스프레스 등)은 이 프로그램을 이용하는 각 회원이 설정
+   페이지에서 **본인 것을 직접 연동**해서 각자 자신만의 자동화 시스템을 구축해 쓴다. 운영자
+   (buylifemall)의 API 키나 계정을 다른 회원이 대신 쓰는 구조는 절대 만들지 않는다.
+   - 이 컨셉은 이미 아래 "멀티테넌시 원칙" 3번(API 키는 본인 키만 사용, 폴백 금지)과 4번(외부
+     계정은 사용자별로 저장)에 기술적으로 구현돼 있다 — 이 항목은 그 두 규칙이 "왜" 존재하는지의
+     제품 근본 컨셉을 명시해둔 것이다.
+   - **새 서브프로젝트를 기획하는 첫 단계부터 이 기준으로 판단할 것**: "이 기능에 필요한 API나
+     외부 계정을 회원이 본인 걸로 연동해서 각자 자기 자동화를 돌릴 수 있는 구조인가?"를 가장
+     먼저 확인한다. 여기서 벗어나는 아이디어(예: 운영자 개인 데이터·계정에만 의존해서 다른
+     회원은 절대 쓸 수 없는 내부 도구성 기능)는 이 플랫폼의 표준 판매 모델과 맞지 않으니, 그런
+     요청이 들어오면 "이게 회원용 SaaS 기능인지, 운영자 전용 내부 도구인지"부터 사용자와 확인하고
+     내부 도구라면 이 저장소 밖(또는 별도로 명확히 구분된 위치)에서 관리할지 상의한다.
 
 ## Communication
 
