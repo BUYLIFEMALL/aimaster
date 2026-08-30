@@ -140,7 +140,8 @@ real_estate_sales(부동산 실시간 매매정보)에서 서울 열린데이터
 
 ---
 
-## 10. cron/웹훅 라우트는 `dynamic = "force-dynamic"`만으로 캐시가 안 꺼질 수 있다
+## 10. 인증/권한 체크가 들어가는 layout.tsx·route.ts는 전부 `dynamic = "force-dynamic"` +
+## `fetchCache = "force-no-store"` 두 줄을 세트로 선언해야 한다 (cron/웹훅만의 문제가 아니다)
 
 crm-google-form의 팔로우업 cron(`app/api/cron/followup`)을 만들면서, `export const dynamic =
 "force-dynamic"`을 선언했는데도 supabase-js(`createAdminClient()`)로 조회한 결과가 **첫
@@ -150,7 +151,7 @@ crm-google-form의 팔로우업 cron(`app/api/cron/followup`)을 만들면서, `
 내부에서 실행되는 라이브러리의 `fetch` 호출까지 캐싱하는데, `dynamic = "force-dynamic"`이
 이걸 항상 확실하게 꺼주지는 않는 것으로 보인다.
 
-- **cron이나 웹훅처럼 "매 요청 최신 DB 상태를 읽어야 하는" 라우트에는 반드시
+- **매 요청 최신 DB/세션 상태를 읽어야 하는 라우트·레이아웃에는 반드시
   `export const fetchCache = "force-no-store";`를 `dynamic = "force-dynamic"`과 함께
   명시할 것.** 이게 진짜 확실한 방법이다.
 - Vercel Fluid Compute는 함수 인스턴스를 재사용(warm)하므로, 로컬에서 재현된 이 문제가
@@ -165,6 +166,40 @@ crm-google-form의 팔로우업 cron(`app/api/cron/followup`)을 만들면서, `
 
 핵심 코드: `crm-google-form/app/api/cron/followup/route.ts`,
 `crm-google-form/app/api/webhooks/form-submit/[token]/route.ts`.
+
+### 🚨 2026-08-30 플랫폼 전수 감사 — 이 버그가 cron/웹훅뿐 아니라 "인증/권한 체크가 들어간
+### 모든 페이지"에도 그대로 적용된다는 것을 발견함 (필독)
+
+bugang530@gmail.com 사용자가 blog(`ai-auto-blog`)에서 "접근 권한 없음"을 겪은 사건을
+조사하다가, blog의 `app/write/layout.tsx`·API route 9개에 이 두 줄이 빠져 있었던 것을
+발견했다. Vercel이 `requireProgramAccess()`/`checkProgramAccessApi()`(로그인+구독/권한
+확인, 내부적으로 Supabase 세션 쿠키를 읽음)의 실행 결과 자체를 정적 캐싱해, **실제 로그인
+상태·권한 상태와 무관하게 빌드 시점 또는 첫 요청 시점의 응답을 모든 사용자에게 그대로
+서빙**하는 것을 `curl -s -D - -o /dev/null <url>`의 `X-Vercel-Cache: PRERENDER`/`HIT`
+헤더로 실측 확인했다(`MISS`가 나와야 정상). blog를 고친 뒤 "모든 사용자·앞으로 가입할
+사용자에게도 적용되도록" 나머지 17개 서브프로젝트 전체를 감사한 결과, **총 31개 파일**
+(`(dashboard)/layout.tsx` 16개 + OAuth 콜백 등 `route.ts` 15개)에서 동일하게 두 줄이
+누락돼 있었다 — 즉 이 저장소의 거의 모든 서브프로젝트가 한동안 "로그인만 하면 권한 검사가
+정적으로 캐시된 과거 응답으로 우회될 수 있는" 상태였다.
+
+- **판단 기준**: `requireProgramAccess()`/`checkProgramAccessApi()`를 호출하는 모든
+  `layout.tsx`·`page.tsx`(Server Component)와 모든 `route.ts`(Route Handler)가 대상이다.
+  Server Action(`"use server"` 함수, `lib/actions/*.ts`)은 Next.js가 애초에 정적 캐싱하지
+  않으므로 이 버그의 대상이 아니다 — 감사 범위에서 제외해도 된다.
+- **새 서브프로젝트를 만들 때부터 반드시 지킬 것**: `requireProgramAccess()`를 쓰는 대시보드
+  레이아웃(`app/(dashboard)/layout.tsx`)과 `checkProgramAccessApi()`를 쓰는 모든 API
+  route(특히 OAuth 콜백처럼 GET인데 DB에 쓰는 라우트)를 만드는 즉시, 파일 맨 위에 아래
+  두 줄을 같이 넣는다. 나중에 추가하는 게 아니라 파일을 만드는 시점에 습관적으로 넣을 것.
+  ```ts
+  export const dynamic = "force-dynamic";
+  export const fetchCache = "force-no-store";
+  ```
+- **로컬 `npm run build`의 ○(Static)/ƒ(Dynamic) 표시는 이 버그 진단에 신뢰할 수 없다** —
+  두 줄을 정확히 추가해도 로컬 빌드 로그가 여전히 `○ Static`으로 표시되는 경우를 실제로
+  겪었다. 반드시 배포 후 `curl -s -D - -o /dev/null <live-url>`로 `X-Vercel-Cache` 헤더가
+  `MISS`인지 직접 확인해야 한다(미들웨어로 보호되는 라우트는 이 헤더 자체가 없는 것이 정상).
+- 이 감사에서 수정한 31개 파일 목록과 진단 과정은 이 저장소의 git 커밋 이력(2026-08-30,
+  `fix(<서브프로젝트>): 레이아웃/OAuth 콜백에 force-dynamic 누락 수정` 커밋들)에 남아있다.
 
 ---
 
