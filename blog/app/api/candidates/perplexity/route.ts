@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
+
+export const dynamic = 'force-dynamic'
 import { searchPerplexityTrending, structureBlogCandidates, type BlogCandidateDraft } from '@/blog/utils/ai/collector'
 
 async function insertCandidates(

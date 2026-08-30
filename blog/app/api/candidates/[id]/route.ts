@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 
+export const dynamic = 'force-dynamic'
+
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const access = await checkProgramAccessApi()
   if (!access.allowed) {

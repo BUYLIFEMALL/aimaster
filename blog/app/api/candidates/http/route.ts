@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
+
+export const dynamic = 'force-dynamic'
+
 import {
   fetchUrlText,
   fetchHtmlForLinks,

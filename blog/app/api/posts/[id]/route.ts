@@ -3,6 +3,8 @@ import { createAdminClient } from '@/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { mdLiteToHtml } from '@/utils/markdown'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * V8 정규식 백트래킹 오버플로우를 100% 방지하는 Non-Regex Pure String 이미지 추출 함수
  */

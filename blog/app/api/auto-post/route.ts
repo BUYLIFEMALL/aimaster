@@ -6,6 +6,8 @@ import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
 import { getUserCloudinaryConfig } from '@/blog/utils/cloudinary'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const access = await checkProgramAccessApi()
