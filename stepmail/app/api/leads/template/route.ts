@@ -1,6 +1,9 @@
 import * as XLSX from "xlsx";
 import { checkProgramAccessApi } from "@/lib/access";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 /**
  * LeadImportForm의 "가져오기"가 실제로 읽는 컬럼(lib/leads.ts의 parseLeadsWorkbook)과
  * 이름/순서를 맞춘 샘플 엑셀 양식을 내려준다. 리드 목록 화면에 실제로 쓰이는 항목만 담는다
