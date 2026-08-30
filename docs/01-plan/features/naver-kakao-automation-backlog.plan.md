@@ -16,6 +16,8 @@ variables:
 > 바로 실현 가능한 자동화 아이디어와 우선순위 로드맵으로 정리했다. 새 서브프로젝트를 시작할 때
 > 이 문서를 먼저 확인하고, 이 중 하나를 골라서 착수한다.
 >
+> 💡 **에이전트 기술 검수 & 시너지 확장 지침**: [naver-kakao-automation-review.plan.md](file:///d:/Claude%20Code/AIMaster/docs/01-plan/features/naver-kakao-automation-review.plan.md) (개발 착수 전 필독)
+>
 > **Project**: ai-master
 > **Author**: buylifemall@gmail.com
 > **Date**: 2026-08-30
@@ -165,3 +167,4 @@ https://claude.ai/code/artifact/5251ae2d-9bc2-451a-acad-06ce4834612e
 | 버전 | 날짜 | 변경 내용 |
 |---|---|---|
 | 1.0 | 2026-08-30 | 최초 작성 — 4개 포크 에이전트 조사 결과 취합, 33개 아이디어 카탈로그화 |
+| 1.1 | 2026-08-30 | Gemini 3.6 Flash 기술 검수 리포트 및 아키텍처/시너지 가이드(naver-kakao-automation-review.plan.md) 연동 |
