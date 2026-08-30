@@ -1,6 +1,9 @@
 import { requireProgramAccess } from "@/lib/access";
 import { Sidebar } from "@/components/layout/Sidebar";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireProgramAccess();
 
