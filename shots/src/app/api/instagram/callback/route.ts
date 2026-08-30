@@ -8,6 +8,9 @@ import {
   findInstagramBusinessAccount,
 } from "@/lib/instagram/client";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 // Instagram(Meta) OAuth 리다이렉트 콜백. Access Token은 여기서만 처리되어 DB에 저장되고
 // 브라우저로는 절대 전달되지 않습니다.
 export async function GET(request: NextRequest) {
