@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { getPersistedConnectionFlag } from "@/lib/actions/threads";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
