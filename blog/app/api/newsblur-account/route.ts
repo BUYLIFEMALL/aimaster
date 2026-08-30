@@ -4,6 +4,7 @@ import { checkProgramAccessApi } from '@/blog/utils/access'
 import { newsblurLogin } from '@/blog/utils/ai/collector'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 /** NewsBlur 계정을 연결한다 (저장 전에 실제로 로그인이 되는지 먼저 확인한다). */
 export async function POST(request: NextRequest) {

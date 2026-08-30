@@ -4,6 +4,7 @@ import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 import {
   newsblurLogin,

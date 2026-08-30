@@ -4,6 +4,7 @@ import { checkProgramAccessApi } from '@/blog/utils/access'
 import { newsblurLogin, fetchNewsblurFeeds } from '@/blog/utils/ai/collector'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 /** 연결된 NewsBlur 계정의 구독 피드 목록을 가져온다. */
 export async function GET() {
