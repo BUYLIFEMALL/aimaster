@@ -5,6 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 
 const TARGET_WIDTH = 860;
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 /** n8n #6(이미지병합) 대응: GraphicsMagick CLI 대신 sharp로 섹션 이미지를 세로로 병합한다. */
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const access = await checkProgramAccessApi();
