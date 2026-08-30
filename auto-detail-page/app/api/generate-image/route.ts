@@ -5,6 +5,8 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 type Platform = "nanobanana" | "replicate" | "gpt-image-1";
 

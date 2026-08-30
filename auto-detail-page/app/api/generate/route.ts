@@ -8,6 +8,9 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { TemplateInput } from "@/types/product";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {

@@ -3,6 +3,9 @@ import { getPage } from "@/lib/store";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
