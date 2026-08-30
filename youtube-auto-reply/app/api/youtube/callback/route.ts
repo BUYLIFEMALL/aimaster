@@ -5,6 +5,9 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { parseOAuthState } from "@/lib/oauthState";
 import { exchangeYoutubeCode, getYoutubeChannelInfo } from "@/lib/youtube/client";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 // YouTube OAuth 리다이렉트 콜백. Access/Refresh Token은 여기서만 처리되어 DB에 저장되고
 // 브라우저로는 절대 전달되지 않습니다. (shots/src/app/api/youtube/callback/route.ts와 동일 패턴)
 export async function GET(request: NextRequest) {
