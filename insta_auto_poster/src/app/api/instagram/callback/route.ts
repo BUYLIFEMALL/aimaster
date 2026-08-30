@@ -8,6 +8,9 @@ import {
 } from "@/lib/instagram/client";
 import { PENDING_INSTAGRAM_CONNECTION_COOKIE, type PendingInstagramConnection } from "@/lib/instagram/pendingConnection";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 // Instagram(Meta) OAuth 리다이렉트 콜백. Access Token은 여기서만 처리되고, 브라우저로는
 // 절대 직접 전달되지 않습니다 (짧게 사는 httpOnly 쿠키에 담아 선택 화면으로만 넘깁니다).
 export async function GET(request: NextRequest) {
