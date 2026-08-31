@@ -18,6 +18,8 @@ export function CandidateFinder() {
   const [categoryName, setCategoryName] = useState("");
   const [categoryCode, setCategoryCode] = useState("");
   const [addedKeywords, setAddedKeywords] = useState<Set<string>>(new Set());
+  const [addingKeyword, setAddingKeyword] = useState<string | null>(null);
+  const [addErrors, setAddErrors] = useState<Record<string, string>>({});
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -47,13 +49,30 @@ export function CandidateFinder() {
   }
 
   async function handleAdd(keyword: string) {
-    const formData = new FormData();
-    formData.set("categoryName", categoryName);
-    formData.set("naverCategoryCode", categoryCode);
-    formData.set("keyword", keyword);
-    const result = await addCandidateToWatchlistAction(formData);
-    if (!result.error) {
-      setAddedKeywords((prev) => new Set(prev).add(keyword));
+    setAddingKeyword(keyword);
+    setAddErrors((prev) => {
+      const next = { ...prev };
+      delete next[keyword];
+      return next;
+    });
+    try {
+      const formData = new FormData();
+      formData.set("categoryName", categoryName);
+      formData.set("naverCategoryCode", categoryCode);
+      formData.set("keyword", keyword);
+      const result = await addCandidateToWatchlistAction(formData);
+      if (result.error) {
+        setAddErrors((prev) => ({ ...prev, [keyword]: result.error! }));
+      } else {
+        setAddedKeywords((prev) => new Set(prev).add(keyword));
+      }
+    } catch (err) {
+      setAddErrors((prev) => ({
+        ...prev,
+        [keyword]: err instanceof Error ? err.message : "추가 중 오류가 발생했습니다.",
+      }));
+    } finally {
+      setAddingKeyword(null);
     }
   }
 
@@ -156,10 +175,14 @@ export function CandidateFinder() {
                   </span>
                   <button
                     onClick={() => handleAdd(c.keyword)}
-                    disabled={addedKeywords.has(c.keyword)}
+                    disabled={addedKeywords.has(c.keyword) || addingKeyword === c.keyword}
                     className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
                   >
-                    {addedKeywords.has(c.keyword) ? "추가됨" : "관심 목록에 추가"}
+                    {addedKeywords.has(c.keyword)
+                      ? "✅ 추가됨"
+                      : addingKeyword === c.keyword
+                        ? "추가 중..."
+                        : "관심 목록에 추가"}
                   </button>
                 </div>
               </div>
@@ -170,6 +193,11 @@ export function CandidateFinder() {
                 {c.trendChangePct != null && ` · 관심도 변화율 ${c.trendChangePct > 0 ? "+" : ""}${c.trendChangePct.toFixed(1)}%`}
               </p>
               {c.reason && <p className="mt-1 text-xs text-gray-700">{c.reason}</p>}
+              {addErrors[c.keyword] && (
+                <p className="mt-1 text-xs font-semibold text-red-600 bg-red-50 rounded px-2 py-1">
+                  ⚠️ {addErrors[c.keyword]}
+                </p>
+              )}
             </div>
           ))}
         </div>
