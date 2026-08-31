@@ -1,11 +1,12 @@
 import { requireUser } from "@/lib/auth";
 import { TrendExplorer } from "@/components/trends/TrendExplorer";
+import { MarketResearch } from "@/components/trends/MarketResearch";
 
 export default async function TrendsPage() {
   await requireUser();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-3xl space-y-10">
       <div>
         <h1 className="mb-2 text-2xl font-semibold text-neutral-900">트렌드 키워드 찾기</h1>
         <p className="text-sm text-neutral-600">
@@ -15,6 +16,8 @@ export default async function TrendsPage() {
         </p>
       </div>
       <TrendExplorer />
+      <hr className="border-neutral-200" />
+      <MarketResearch />
     </div>
   );
 }
