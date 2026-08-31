@@ -1,5 +1,6 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { MarginPanel } from "@/components/reports/MarginPanel";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -106,6 +107,7 @@ export default async function ReportsPage() {
                     {item.minPrice != null && ` · ${item.minPrice.toLocaleString()}~${item.maxPrice?.toLocaleString()}원`}
                   </p>
                   {item.reason && <p className="mt-1 text-xs text-gray-700">{item.reason}</p>}
+                  <MarginPanel keyword={item.keyword} />
                 </div>
               ))}
             </div>

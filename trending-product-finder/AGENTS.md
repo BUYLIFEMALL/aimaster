@@ -64,7 +64,10 @@ trending-product-finder는 AIMaster 저장소 안의 서브프로젝트다. 개�
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
   그대로 쓴다. 이 프로그램은 `naver_client_id`/`naver_client_secret`(쇼핑인사이트),
   `naver_ads_api_key`/`naver_ads_secret_key`/`naver_ads_customer_id`(검색광고 키워드도구,
-  카테고리 후보 추천 기능 전용), `openai`/`gemini`(기존 provider, 택1) 를 쓴다.
+  카테고리 후보 추천 기능 전용), `aliexpress_app_key`/`aliexpress_app_secret`/
+  `aliexpress_tracking_id`(알리 원가 비교 전용 — `threads-affiliate-poster`가 이미 추가해둔
+  provider라 이 프로젝트에서 새 마이그레이션 없이 그대로 재사용, 회원이 그쪽에서 이미
+  등록했다면 여기서도 자동으로 쓰임), `openai`/`gemini`(기존 provider, 택1) 를 쓴다.
 - 사용자 소유 데이터 테이블(`trend_watchlist`, `trend_snapshots`, `shopping_competition`,
   `recommendation_reports`)은 `user_id` + RLS owner-only 정책으로 격리한다.
 
@@ -99,7 +102,7 @@ Phase 1을 처음 구현할 때는 구(舊) `developers.naver.com` 방식(`X-Nav
 | 1 | 관심 카테고리+키워드 등록, 네이버클라우드 API HUB 쇼핑인사이트 관심도 추이 조회, 기회 점수 계산(관심도만), AI 추천 사유 생성, 리포트 뷰 | ✅ 구현 완료, 실계정(buylifemall) E2E 검증 완료 (2026-08-31) |
 | 1.5 | 카테고리+시드 키워드 → 네이버 검색광고 키워드도구(연관키워드+월간검색수+경쟁정도) 자동 조회 → 상위 후보는 관심도 추이까지 결합해 후보점수 산정 → 마음에 드는 후보만 관심 목록에 추가 | ✅ 구현 완료, 실계정(buylifemall) E2E 검증 완료 (2026-08-31) |
 | 2 | 쿠팡파트너스 검색 API로 경쟁 상품 수 확보(경쟁도 지표 부활) → `threads-affiliate-poster` 원클릭 연동 | ⏸️ 보류 — 쿠팡파트너스 API 키가 매출 15만원 요건 미충족으로 아직 미승인(`threads-affiliate-poster/AGENTS.md` 참고). **승인된 뒤 착수할 것, 그 전엔 시작하지 않는다**(사용자 지시, 2026-09-01) |
-| 3 | 알리익스프레스 원가 비교 + 마진 시뮬레이션 | ⏳ 예정 |
+| 3 | 알리익스프레스 원가 비교 + 마진 시뮬레이션 — 리포트의 키워드별 "🌏 알리 원가 비교" 버튼 → `aliexpress.affiliate.product.query`로 소싱 후보 검색(원화 환산) → 상품 선택 시 관세/부가세/운송비/플랫폼수수료 반영한 착한 마진 계산기 | ✅ 구현 완료, 실계정(buylifemall) API 검증 완료(2026-09-01, threads-affiliate-poster에 이미 등록된 알리 키를 공용 테이블로 그대로 재사용) |
 | 4 | Google Ads API(선택), Vercel Cron 정기 자동 리포트 | ⏳ 예정 |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 했다(사용자 지시: "단계별로 하나씩

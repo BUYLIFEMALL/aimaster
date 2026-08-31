@@ -4,6 +4,9 @@ export type ApiKeyProvider =
   | "naver_ads_api_key"
   | "naver_ads_secret_key"
   | "naver_ads_customer_id"
+  | "aliexpress_app_key"
+  | "aliexpress_app_secret"
+  | "aliexpress_tracking_id"
   | "openai"
   | "gemini";
 

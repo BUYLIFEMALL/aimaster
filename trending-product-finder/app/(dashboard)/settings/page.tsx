@@ -13,6 +13,9 @@ const PROVIDERS: ApiKeyProvider[] = [
   "naver_ads_api_key",
   "naver_ads_secret_key",
   "naver_ads_customer_id",
+  "aliexpress_app_key",
+  "aliexpress_app_secret",
+  "aliexpress_tracking_id",
   "openai",
   "gemini",
 ];
@@ -59,6 +62,21 @@ const HELP_LINKS: Partial<
       </>
     ),
   },
+  aliexpress_app_key: {
+    url: "https://portals.aliexpress.com",
+    label: "알리익스프레스 포털에서 App Key/Secret 발급받기",
+    description:
+      "무료. portals.aliexpress.com에서 제휴 계정 가입 후 앱을 등록하면 App Key/App Secret이 발급됩니다. 리포트의 키워드별 \"알리 원가 비교\"에 쓰입니다.",
+  },
+  aliexpress_app_secret: {
+    url: "https://portals.aliexpress.com",
+    label: "알리익스프레스 포털에서 App Key/Secret 발급받기",
+  },
+  aliexpress_tracking_id: {
+    url: "https://portals.aliexpress.com",
+    label: "알리익스프레스 포털에서 Tracking ID 확인하기",
+    description: "제휴 계정의 트래킹 ID(캠페인 식별용, 기본값 사용 가능)입니다.",
+  },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
   gemini: { url: "https://aistudio.google.com/apikey", label: "Gemini 키 발급받기" },
 };
@@ -77,7 +95,8 @@ export default async function SettingsPage() {
         <p className="mb-6 text-sm text-gray-500">
           상품소싱 자동화에는 본인의 네이버클라우드 API HUB Client ID/Secret(관심도 추이 조회)과,
           OpenAI 또는 Gemini 중 1개(추천 사유 생성) 키가 필요합니다. 네이버 검색광고 키 3종은
-          &quot;카테고리로 후보 상품군 추천받기&quot; 기능에만 필요한 선택 항목입니다.{" "}
+          &quot;카테고리로 후보 상품군 추천받기&quot; 기능에만, 알리익스프레스 키 3종은
+          &quot;알리 원가 비교&quot; 기능에만 필요한 선택 항목입니다.{" "}
           <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
           등록하지 않은 상태로 실행을 시도하면 등록 안내가 뜨고 막힙니다.
         </p>
