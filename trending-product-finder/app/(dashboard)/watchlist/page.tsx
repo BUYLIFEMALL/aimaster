@@ -1,8 +1,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
-import { WatchlistRow } from "@/components/watchlist/WatchlistRow";
-import { CandidateFinder } from "@/components/watchlist/CandidateFinder";
+import { WatchlistWorkspace } from "@/components/watchlist/WatchlistWorkspace";
+import type { WatchlistEntry } from "@/lib/actions/watchlist";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -13,9 +12,17 @@ export default async function WatchlistPage() {
 
   const { data: watchlist } = await supabase
     .from("trend_watchlist")
-    .select("id, category_name, keywords, is_active")
+    .select("id, category_name, naver_category_code, keywords, is_active")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
+
+  const initialEntries: WatchlistEntry[] = (watchlist ?? []).map((w) => ({
+    id: w.id,
+    categoryName: w.category_name,
+    naverCategoryCode: w.naver_category_code,
+    keywords: w.keywords,
+    isActive: w.is_active,
+  }));
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
@@ -28,28 +35,7 @@ export default async function WatchlistPage() {
         </p>
       </section>
 
-      <section>
-        <CandidateFinder />
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-lg font-bold text-gray-900">직접 키워드 등록</h2>
-        <WatchlistForm />
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-bold text-gray-900">등록된 관심 목록</h2>
-        {!watchlist?.length && <p className="text-sm text-gray-400">아직 등록된 관심 목록이 없습니다.</p>}
-        {watchlist?.map((w) => (
-          <WatchlistRow
-            key={w.id}
-            id={w.id}
-            categoryName={w.category_name}
-            keywords={w.keywords}
-            isActive={w.is_active}
-          />
-        ))}
-      </section>
+      <WatchlistWorkspace initialEntries={initialEntries} />
     </div>
   );
 }

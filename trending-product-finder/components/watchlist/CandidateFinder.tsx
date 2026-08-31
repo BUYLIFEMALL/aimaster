@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { findCandidatesAction, addCandidateToWatchlistAction, type CandidateItem } from "@/lib/actions/candidates";
 import { NAVER_TOP_CATEGORIES } from "@/lib/naver/categories";
+import type { WatchlistEntry } from "@/lib/actions/watchlist";
 
 function scoreColor(score: number) {
   if (score >= 60) return "bg-emerald-50 text-emerald-700 border-emerald-200";
@@ -11,8 +11,11 @@ function scoreColor(score: number) {
   return "bg-gray-50 text-gray-500 border-gray-200";
 }
 
-export function CandidateFinder() {
-  const router = useRouter();
+interface CandidateFinderProps {
+  onEntryUpserted: (entry: WatchlistEntry) => void;
+}
+
+export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [candidates, setCandidates] = useState<CandidateItem[] | null>(null);
@@ -67,10 +70,11 @@ export function CandidateFinder() {
         setAddErrors((prev) => ({ ...prev, [keyword]: result.error! }));
       } else {
         setAddedKeywords((prev) => new Set(prev).add(keyword));
-        // revalidatePath만으로는 같은 화면의 "등록된 관심 목록" 섹션이 즉시 갱신되지
-        // 않는 경우가 있어(2026-08-31 실계정 테스트로 확인 — DB엔 정상 저장되는데 화면에
-        // 안 보임), 명시적으로 라우터를 새로고침해 서버 컴포넌트 데이터를 다시 받아온다.
-        router.refresh();
+        // 서버 컴포넌트 재검증(revalidatePath) 타이밍에 의존하지 않고, 액션이 돌려준
+        // 최신 entry로 부모(WatchlistWorkspace)의 목록 상태를 그 자리에서 직접 갱신한다
+        // (2026-08-31 실계정 테스트 — revalidatePath만으로는 같은 화면의 "등록된 관심
+        // 목록" 섹션이 즉시 반영되지 않는 문제가 재현됨).
+        if (result.entry) onEntryUpserted(result.entry);
       }
     } catch (err) {
       setAddErrors((prev) => ({

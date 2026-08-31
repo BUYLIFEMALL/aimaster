@@ -7,6 +7,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { getRelatedKeywords, sanitizeSeedKeyword, type NaverAdsAuth } from "@/lib/naver/searchAd";
 import { getCategoryKeywordTrend, calcTrendChangePct, type NaverAuth } from "@/lib/naver/datalab";
 import { runReasonPrompt } from "@/lib/ai/opportunity";
+import type { WatchlistEntry } from "@/lib/actions/watchlist";
 
 export interface CandidateItem {
   keyword: string;
@@ -175,9 +176,33 @@ export async function findCandidatesAction(formData: FormData): Promise<FindCand
 
 export interface AddCandidateState {
   error?: string;
+  entry?: WatchlistEntry;
 }
 
-/** 후보 키워드 1개를 해당 카테고리의 관심 목록에 추가한다(없으면 새로 만든다). */
+const SELECT_COLUMNS = "id, category_name, naver_category_code, keywords, is_active";
+
+function toEntry(row: {
+  id: string;
+  category_name: string;
+  naver_category_code: string | null;
+  keywords: string[];
+  is_active: boolean;
+}): WatchlistEntry {
+  return {
+    id: row.id,
+    categoryName: row.category_name,
+    naverCategoryCode: row.naver_category_code,
+    keywords: row.keywords,
+    isActive: row.is_active,
+  };
+}
+
+/**
+ * 후보 키워드 1개를 해당 카테고리의 관심 목록에 추가한다(없으면 새로 만든다).
+ * 성공 시 최신 상태의 entry를 반환해서, 클라이언트가 서버 컴포넌트 재검증 타이밍에
+ * 의존하지 않고 화면 상태를 즉시 갱신할 수 있게 한다(2026-08-31: revalidatePath만으로는
+ * 같은 화면의 "등록된 관심 목록" 영역이 곧바로 갱신되지 않는 문제가 실계정에서 재현됨).
+ */
 export async function addCandidateToWatchlistAction(formData: FormData): Promise<AddCandidateState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
@@ -190,34 +215,41 @@ export async function addCandidateToWatchlistAction(formData: FormData): Promise
 
   const { data: existing } = await supabase
     .from("trend_watchlist")
-    .select("id, keywords")
+    .select(SELECT_COLUMNS)
     .eq("user_id", user.id)
     .eq("naver_category_code", categoryCode)
     .maybeSingle();
 
   if (existing) {
     if (existing.keywords.includes(keyword)) {
-      revalidatePath("/watchlist");
-      return {};
+      return { entry: toEntry(existing) };
     }
     if (existing.keywords.length >= 10) {
       return { error: "이 카테고리는 이미 키워드 10개가 등록되어 있습니다. 관심 목록에서 정리 후 다시 추가해주세요." };
     }
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("trend_watchlist")
       .update({ keywords: [...existing.keywords, keyword] })
-      .eq("id", existing.id);
+      .eq("id", existing.id)
+      .select(SELECT_COLUMNS)
+      .single();
     if (error) return { error: error.message };
-  } else {
-    const { error } = await supabase.from("trend_watchlist").insert({
+    revalidatePath("/watchlist");
+    return { entry: toEntry(data) };
+  }
+
+  const { data, error } = await supabase
+    .from("trend_watchlist")
+    .insert({
       user_id: user.id,
       category_name: categoryName,
       naver_category_code: categoryCode,
       keywords: [keyword],
-    });
-    if (error) return { error: error.message };
-  }
+    })
+    .select(SELECT_COLUMNS)
+    .single();
+  if (error) return { error: error.message };
 
   revalidatePath("/watchlist");
-  return {};
+  return { entry: toEntry(data) };
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createWatchlistAction } from "@/lib/actions/watchlist";
+import { createWatchlistAction, type WatchlistEntry } from "@/lib/actions/watchlist";
 import { NAVER_TOP_CATEGORIES } from "@/lib/naver/categories";
 
-export function WatchlistForm() {
-  const router = useRouter();
+interface WatchlistFormProps {
+  onCreated: (entry: WatchlistEntry) => void;
+}
+
+export function WatchlistForm({ onCreated }: WatchlistFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
@@ -25,7 +27,7 @@ export function WatchlistForm() {
         setError(result.error);
       } else {
         form.reset();
-        router.refresh();
+        if (result.entry) onCreated(result.entry);
       }
     } finally {
       setIsPending(false);
