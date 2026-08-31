@@ -42,11 +42,27 @@ export default async function ReportsPage() {
     <div className="max-w-3xl mx-auto space-y-8">
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">트렌드 리포트</h1>
-        <p className="mb-6 text-sm text-gray-500">
+        <p className="mb-4 text-sm text-gray-500">
           관심 키워드 등록 페이지에서 &quot;지금 리포트 생성&quot;을 누르면 이곳에 결과가 쌓입니다.
           기회 점수는 현재 네이버쇼핑인사이트 관심도 지수 기반이며, 경쟁 상품 수 지표는 Phase 2에서
           추가될 예정입니다.
         </p>
+        <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-xs leading-relaxed text-emerald-900">
+          <p className="mb-1 font-bold">📊 관심도 지수·변화율이 뜻하는 것</p>
+          <p className="mb-1">
+            <span className="font-semibold">관심도 지수(0~100)</span>는 실제 검색 횟수나 판매량이 아니라,
+            최근 90일 구간 안에서 가장 관심이 높았던 시점을 100으로 두고 나머지를 상대적으로 환산한
+            값입니다. 예를 들어 지수 50은 &quot;가장 관심이 뜨거웠던 주의 절반 수준&quot;이라는 뜻이지,
+            검색량이 정확히 50건이라는 뜻이 아닙니다.
+          </p>
+          <p>
+            <span className="font-semibold">변화율(%)</span>은 <span className="font-semibold">가장 최근 1주</span>의
+            관심도 지수를, <span className="font-semibold">지난 90일 구간의 앞쪽 절반(초반) 평균</span>과
+            비교한 값입니다. 예를 들어 +23%면 &quot;최근 1주 관심도가, 90일 전반부 평균보다 23% 더
+            높다&quot;는 뜻으로, 최근 들어 관심이 오르고 있는지를 보여주는 지표입니다. 데이터가 부족하면
+            변화율은 표시되지 않습니다(N/A).
+          </p>
+        </div>
       </section>
 
       {!reports?.length && <p className="text-sm text-gray-400">아직 생성된 리포트가 없습니다.</p>}
