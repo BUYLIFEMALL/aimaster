@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
@@ -53,15 +53,6 @@ export function CoupangProductForm({
       setResults(result.results ?? []);
     });
   };
-
-  // 트렌드/시장 반응 검색에서 "이 키워드로 쿠팡 소싱하기"를 눌러 들어온 경우, 검색창에
-  // 채워두는 것만이 아니라 바로 검색까지 자동 실행해 발굴→소싱 흐름을 한 번에 이어준다.
-  useEffect(() => {
-    if (initialKeyword?.trim()) {
-      handleSearch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleUseManualUrl = () => {
     setManualError(null);
