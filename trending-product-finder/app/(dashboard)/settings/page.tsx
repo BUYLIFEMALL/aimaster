@@ -17,7 +17,9 @@ const PROVIDERS: ApiKeyProvider[] = [
   "gemini",
 ];
 
-const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string; description?: string }>> = {
+const HELP_LINKS: Partial<
+  Record<ApiKeyProvider, { url: string; label: string; description?: string; warning?: React.ReactNode }>
+> = {
   naver_client_id: {
     url: "https://console.ncloud.com/naver-api-hub/application",
     label: "네이버클라우드 API HUB에서 애플리케이션 등록하기",
@@ -41,8 +43,21 @@ const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string; d
   naver_ads_customer_id: {
     url: "https://searchad.naver.com",
     label: "네이버 검색광고에서 개인광고주로 가입 후 API 사용신청",
-    description:
-      "⚠️ 광고 대시보드 URL(ads.naver.com/manage/ad-accounts/숫자)의 숫자가 아닙니다. 반드시 '도구 > SA API 사용 관리' 화면에 표시된 CUSTOMER ID 값을 넣어주세요 — 다른 값이면 인증이 실패합니다.",
+    warning: (
+      <>
+        <p>
+          광고 대시보드 URL(<span className="font-mono">ads.naver.com/manage/ad-accounts/숫자</span>)의
+          숫자가 <span className="font-bold underline">아닙니다.</span>
+        </p>
+        <p>
+          반드시 <span className="font-bold">&apos;도구 &gt; SA API 사용 관리&apos;</span> 화면에 표시된{" "}
+          <span className="font-bold">CUSTOMER ID</span> 값을 넣어주세요.
+        </p>
+        <p>
+          다른 값이면 <span className="font-bold">인증이 실패합니다.</span>
+        </p>
+      </>
+    ),
   },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
   gemini: { url: "https://aistudio.google.com/apikey", label: "Gemini 키 발급받기" },
@@ -76,6 +91,7 @@ export default async function SettingsPage() {
               helpUrl={HELP_LINKS[provider]?.url}
               helpLabel={HELP_LINKS[provider]?.label}
               helpDescription={HELP_LINKS[provider]?.description}
+              helpWarning={HELP_LINKS[provider]?.warning}
             />
           ))}
         </div>

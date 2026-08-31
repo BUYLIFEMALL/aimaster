@@ -11,9 +11,10 @@ interface ApiKeyRowProps {
   helpUrl?: string;
   helpLabel?: string;
   helpDescription?: string;
+  helpWarning?: React.ReactNode;
 }
 
-export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, helpDescription }: ApiKeyRowProps) {
+export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, helpDescription, helpWarning }: ApiKeyRowProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -72,6 +73,12 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, he
       )}
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       {success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
+      {helpWarning && (
+        <div className="mt-2 space-y-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-relaxed text-red-800">
+          <p className="font-bold">⚠️ 주의</p>
+          {helpWarning}
+        </div>
+      )}
       {helpUrl && (
         <div className="mt-2">
           <a href={helpUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">
