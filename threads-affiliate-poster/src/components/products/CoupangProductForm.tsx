@@ -18,11 +18,13 @@ const initialState: RegisterProductState = {};
 export function CoupangProductForm({
   detailPages,
   mode,
+  initialKeyword,
 }: {
   detailPages: DetailPageSummary[];
   mode: RegistrationMode;
+  initialKeyword?: string;
 }) {
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(initialKeyword ?? "");
   const [results, setResults] = useState<CoupangProduct[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [isSearching, startSearching] = useTransition();
