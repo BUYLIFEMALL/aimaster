@@ -41,6 +41,8 @@ const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string; d
   naver_ads_customer_id: {
     url: "https://searchad.naver.com",
     label: "네이버 검색광고에서 개인광고주로 가입 후 API 사용신청",
+    description:
+      "⚠️ 광고 대시보드 URL(ads.naver.com/manage/ad-accounts/숫자)의 숫자가 아닙니다. 반드시 '도구 > SA API 사용 관리' 화면에 표시된 CUSTOMER ID 값을 넣어주세요 — 다른 값이면 인증이 실패합니다.",
   },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
   gemini: { url: "https://aistudio.google.com/apikey", label: "Gemini 키 발급받기" },

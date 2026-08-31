@@ -97,7 +97,7 @@ Phase 1을 처음 구현할 때는 구(舊) `developers.naver.com` 방식(`X-Nav
 | Phase | 내용 | 상태 |
 |-------|------|------|
 | 1 | 관심 카테고리+키워드 등록, 네이버클라우드 API HUB 쇼핑인사이트 관심도 추이 조회, 기회 점수 계산(관심도만), AI 추천 사유 생성, 리포트 뷰 | ✅ 구현 완료, 실계정(buylifemall) E2E 검증 완료 (2026-08-31) |
-| 1.5 | 카테고리+시드 키워드 → 네이버 검색광고 키워드도구(연관키워드+월간검색수+경쟁정도) 자동 조회 → 상위 후보는 관심도 추이까지 결합해 후보점수 산정 → 마음에 드는 후보만 관심 목록에 추가 | ✅ 구현 완료 (2026-08-31) — 실계정 라이브 테스트는 미완료(아래 참고) |
+| 1.5 | 카테고리+시드 키워드 → 네이버 검색광고 키워드도구(연관키워드+월간검색수+경쟁정도) 자동 조회 → 상위 후보는 관심도 추이까지 결합해 후보점수 산정 → 마음에 드는 후보만 관심 목록에 추가 | ✅ 구현 완료, 실계정(buylifemall) E2E 검증 완료 (2026-08-31) |
 | 2 | 쿠팡파트너스 검색 API로 경쟁 상품 수 확보(경쟁도 지표 부활) → `threads-affiliate-poster` 원클릭 연동 | ⏳ 예정 |
 | 3 | 알리익스프레스 원가 비교 + 마진 시뮬레이션 | ⏳ 예정 |
 | 4 | Google Ads API(선택), Vercel Cron 정기 자동 리포트 | ⏳ 예정 |
@@ -113,10 +113,18 @@ Phase 1을 처음 구현할 때는 구(舊) `developers.naver.com` 방식(`X-Nav
   직접 대조.
 - `trend_snapshots.source` 값을 `naver_datalab`에서 `naver_shopping_insight`로 바꿨는데,
   기존에 (있다면) 쌓인 레거시 행과 값이 섞일 수 있다는 점 참고.
-- **`lib/naver/searchAd.ts`(검색광고 키워드도구)는 아직 실계정 라이브 테스트를 못 했다** —
-  회원이 아직 이 3종 키(`naver_ads_api_key`/`naver_ads_secret_key`/`naver_ads_customer_id`)를
-  등록하지 않은 상태에서 문서 조사만으로 구현했다. HMAC 서명 원문(`{timestamp}.{method}.{uri}`,
-  uri는 쿼리스트링 제외한 경로만)과 헤더 이름(`X-Timestamp`/`X-API-KEY`/`X-Customer`/
-  `X-Signature`)은 공식 저장소(naver/searchad-apidoc) 기반 자료로 확인했지만, 실제 호출까지는
-  검증 전이다. 회원이 키를 등록하면 반드시 실계정으로 1회 end-to-end 테스트할 것 — 이전에
-  쇼핑인사이트도 문서상 맞는 걸로 보였지만 실제로는 발급 경로 자체가 바뀌어 있었던 전례가 있다.
+### ✅ 검색광고 키워드도구 실계정 검증 완료 (2026-08-31) — CUSTOMER_ID 주의사항
+
+`lib/naver/searchAd.ts`를 실계정(buylifemall)으로 end-to-end 검증 완료했다. 서명 로직(SECRET_KEY를
+raw UTF-8 문자열로 그대로 HMAC 키에 사용, uri는 쿼리스트링 제외한 경로만)은 GitHub
+`naver/searchad-apidoc/python-sample/examples/signaturehelper.py` 공식 샘플과 대조해서
+정확함을 재확인했고, 코드 수정은 필요 없었다.
+
+**실제 걸림돌은 CUSTOMER_ID였다** — 처음엔 광고 대시보드 URL
+(`ads.naver.com/manage/ad-accounts/<숫자>/dashboard`)에 보이는 숫자를 CUSTOMER_ID로
+추측했는데, 이건 틀렸다(그 값으로는 `auth-failed`라는 포괄적 인증 실패만 뜨고, 심지어
+SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-signature` 에러로 넘어가지
+않았다 — 즉 CUSTOMER_ID가 틀리면 서명 검증 단계까지 가지도 못한다). **정확한 CUSTOMER_ID는
+광고시스템 → 도구 → "SA API 사용 관리" 화면에 직접 표시된 값**이며, 대시보드 URL의 숫자와
+다를 수 있다(네이버 광고의 "통합 로그인 계정" 구조 때문으로 추정). 새 회원이 이 기능을 쓸 때
+인증이 안 되면 가장 먼저 CUSTOMER_ID를 SA API 사용 관리 화면에서 다시 확인하게 안내할 것.
