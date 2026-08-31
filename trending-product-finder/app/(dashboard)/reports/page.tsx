@@ -48,19 +48,31 @@ export default async function ReportsPage() {
           추가될 예정입니다.
         </p>
         <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-xs leading-relaxed text-emerald-900">
-          <p className="mb-1 font-bold">📊 관심도 지수·변화율이 뜻하는 것</p>
+          <p className="mb-1 font-bold">📊 관심도 지수·변화율·기회점수가 뜻하는 것</p>
           <p className="mb-1">
             <span className="font-semibold">관심도 지수(0~100)</span>는 실제 검색 횟수나 판매량이 아니라,
             최근 90일 구간 안에서 가장 관심이 높았던 시점을 100으로 두고 나머지를 상대적으로 환산한
             값입니다. 예를 들어 지수 50은 &quot;가장 관심이 뜨거웠던 주의 절반 수준&quot;이라는 뜻이지,
             검색량이 정확히 50건이라는 뜻이 아닙니다.
           </p>
-          <p>
+          <p className="mb-1">
             <span className="font-semibold">변화율(%)</span>은 <span className="font-semibold">가장 최근 1주</span>의
             관심도 지수를, <span className="font-semibold">지난 90일 구간의 앞쪽 절반(초반) 평균</span>과
             비교한 값입니다. 예를 들어 +23%면 &quot;최근 1주 관심도가, 90일 전반부 평균보다 23% 더
             높다&quot;는 뜻으로, 최근 들어 관심이 오르고 있는지를 보여주는 지표입니다. 데이터가 부족하면
             변화율은 표시되지 않습니다(N/A).
+          </p>
+          <p>
+            <span className="font-semibold">기회점수(0~100)</span>는 AI가 아니라 정해진 계산식으로
+            산출합니다 — &quot;관심도 지수&quot;에 가장 큰 비중을 두고, 관심도가 &quot;상승 중&quot;이면
+            보너스를 더하는 방식입니다(하락 중이어도 감점은 하지 않습니다). 즉 점수가 높을수록
+            &quot;지금 관심이 많고, 최근 들어 더 오르고 있는&quot; 키워드라는 뜻입니다. 색으로도
+            구분됩니다 —
+            <span className="mx-1 rounded-full border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 font-semibold text-emerald-700">60점 이상: 눈여겨볼 만함</span>
+            <span className="mx-1 rounded-full border border-amber-200 bg-amber-50 px-1.5 py-0.5 font-semibold text-amber-700">35~59점: 보통</span>
+            <span className="mx-1 rounded-full border border-gray-200 bg-gray-50 px-1.5 py-0.5 font-semibold text-gray-500">35점 미만: 아직 신호 약함</span>
+            . 지금은 관심도만 반영하며, 실제 판매 경쟁이 얼마나 치열한지(등록 상품 수)는 Phase 2에서
+            추가되면 점수 계산식도 함께 바뀔 예정입니다.
           </p>
         </div>
       </section>
