@@ -63,8 +63,9 @@ ${rows}
 
 각 키워드에 대해, 왜 지금 소싱을 고려할 만한지(또는 만하지 않은지) 1~2문장의 한글 추천 사유를 작성하세요. ${competitionNote} 관심도가 낮으면 "시기상조"로 판단하는 식으로 구체적인 숫자를 근거로 설명하세요.
 
-반드시 아래 JSON 배열 형식으로만 응답하세요 (다른 텍스트 없이):
-[{"keyword": "키워드명", "reason": "추천 사유 문장"}]`;
+반드시 아래 JSON 객체 형식으로만 응답하세요 (다른 텍스트 없이). 키워드가 몇 개든 "items" 배열
+안에 전부 포함하세요:
+{"items": [{"keyword": "키워드명", "reason": "추천 사유 문장"}, ...]}`;
 }
 
 interface ReasonItem {
@@ -110,11 +111,23 @@ async function callGemini(apiKey: string, prompt: string): Promise<ReasonItem[]>
   return parseReasonItems(content);
 }
 
+/**
+ * OpenAI의 response_format: json_object는 최상위가 객체여야 한다는 제약이 있어,
+ * "배열로만 응답하라"는 지시와 부딪히면 모델이 {"items":[...]} 대신 키워드가 1개일 때
+ * 단일 평면 객체({"keyword":..., "reason":...})로 응답하는 경우가 실제로 관찰됐다
+ * (2026-08-31 실계정 테스트에서 발견 — 이 케이스를 놓치면 추천 사유가 전부 조용히
+ * 사라진다). 그래서 여러 응답 형태를 방어적으로 처리한다.
+ */
 function parseReasonItems(content: string): ReasonItem[] {
   try {
     const parsed = JSON.parse(content);
     if (Array.isArray(parsed)) return parsed;
-    if (Array.isArray(parsed.items)) return parsed.items;
+    if (Array.isArray(parsed?.items)) return parsed.items;
+    if (Array.isArray(parsed?.results)) return parsed.results;
+    if (Array.isArray(parsed?.recommendations)) return parsed.recommendations;
+    if (parsed && typeof parsed === "object" && typeof parsed.keyword === "string") {
+      return [parsed as ReasonItem];
+    }
     return [];
   } catch {
     return [];
