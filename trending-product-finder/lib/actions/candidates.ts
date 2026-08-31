@@ -80,10 +80,10 @@ export async function findCandidatesAction(formData: FormData): Promise<FindCand
   const seedKeyword = String(formData.get("seedKeyword") ?? "").trim();
 
   if (!categoryName || !categoryCode) return { error: "카테고리를 선택해주세요." };
-  if (!seedKeyword) return { error: "카테고리를 대표하는 시드 키워드를 1개 입력해주세요 (예: 청소기, 캠핑용품)." };
+  if (!seedKeyword) return { error: "카테고리를 대표하는 기준 키워드를 1개 입력해주세요 (예: 청소기, 캠핑용품)." };
 
   const cleanSeed = sanitizeSeedKeyword(seedKeyword);
-  if (!cleanSeed) return { error: "유효한 시드 키워드를 입력해주세요." };
+  if (!cleanSeed) return { error: "유효한 기준 키워드를 입력해주세요." };
 
   const [adsApiKey, adsSecretKey, adsCustomerId, naverClientId, naverClientSecret, openaiKey, geminiKey] = await Promise.all([
     resolveApiKey(supabase, user.id, "naver_ads_api_key"),

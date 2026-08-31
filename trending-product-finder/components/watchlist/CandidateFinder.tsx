@@ -96,6 +96,20 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
           많은데 경쟁이 낮은 후보를 우선 보여줍니다.
         </p>
       </div>
+
+      <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs leading-relaxed text-gray-600">
+        <p className="font-bold text-gray-800">💡 기준 키워드가 뭔가요?</p>
+        <p className="mt-0.5">검색의 출발점이 되는 대표 단어 1개를 말합니다.</p>
+        <p className="mt-0.5">
+          예를 들어 <span className="font-semibold">&quot;청소기&quot;</span>를 기준 키워드로 넣으면,
+        </p>
+        <p className="mt-0.5">
+          &quot;무선청소기&quot;, &quot;로봇청소기&quot;, &quot;물걸레청소기&quot;처럼 관련된 키워드들을
+        </p>
+        <p className="mt-0.5">시스템이 자동으로 찾아서 보여드립니다.</p>
+        <p className="mt-0.5">뭘 검색할지 감이 안 잡힐 때, 대략적인 단어 하나만 던져주시면 됩니다.</p>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="flex flex-wrap gap-2">
           <select name="naverCategoryCode" required className="input-sm flex-1 min-w-[160px]">
@@ -109,7 +123,7 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
           <input
             name="seedKeyword"
             type="text"
-            placeholder="대표 시드 키워드 (예: 청소기, 캠핑용품 — 띄어쓰기 없이)"
+            placeholder="기준 키워드 (예: 청소기, 캠핑용품 — 띄어쓰기 없이)"
             required
             className="input-sm flex-1 min-w-[160px]"
           />
@@ -147,7 +161,7 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
       </div>
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800">
-        <p className="font-bold">⚠️ 시드 키워드 입력 시 주의사항</p>
+        <p className="font-bold">⚠️ 기준 키워드 입력 시 주의사항</p>
         <p className="mt-0.5">
           네이버 검색광고 API는 <span className="font-bold">띄어쓰기가 하나라도 들어가면 요청 자체를
           거부</span>합니다. &quot;캠핑 의자&quot;처럼 띄어쓰기가 있으면 저희가 자동으로
@@ -170,7 +184,7 @@ export function CandidateFinder({ onEntryUpserted }: CandidateFinderProps) {
       )}
 
       {candidates && candidates.length === 0 && (
-        <p className="text-sm text-gray-400">연관 키워드를 찾지 못했습니다. 다른 시드 키워드로 시도해보세요.</p>
+        <p className="text-sm text-gray-400">연관 키워드를 찾지 못했습니다. 다른 기준 키워드로 시도해보세요.</p>
       )}
 
       {candidates && candidates.length > 0 && (
