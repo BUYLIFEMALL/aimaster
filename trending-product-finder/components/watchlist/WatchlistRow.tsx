@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { deleteWatchlistAction, toggleWatchlistActiveAction } from "@/lib/actions/watchlist";
 import { generateReportAction } from "@/lib/actions/reports";
 
@@ -12,6 +13,7 @@ interface WatchlistRowProps {
 }
 
 export function WatchlistRow({ id, categoryName, keywords, isActive }: WatchlistRowProps) {
+  const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
   const [genSuccess, setGenSuccess] = useState(false);
@@ -28,6 +30,7 @@ export function WatchlistRow({ id, categoryName, keywords, isActive }: Watchlist
         setGenError(result.error);
       } else {
         setGenSuccess(true);
+        router.refresh();
       }
     } finally {
       setIsGenerating(false);
