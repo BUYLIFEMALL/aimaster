@@ -135,6 +135,14 @@ export default async function SettingsPage({
       </section>
 
       <section className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+        <h2 className="mb-1 text-sm font-semibold text-neutral-900">📈 네이버 검색어트렌드</h2>
+        <p className="text-xs text-neutral-500">
+          검색어트렌드는 회원 개인 데이터가 아니라 공개 시장 데이터라 별도 키 등록이 필요 없습니다.
+          &quot;트렌드 키워드 찾기&quot; 메뉴에서 바로 조회할 수 있습니다.
+        </p>
+      </section>
+
+      <section className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
         <h2 className="mb-1 text-sm font-semibold text-neutral-900">📎 네이버 브랜드커넥트</h2>
         <p className="text-xs text-neutral-500">
           네이버 브랜드커넥트는 공식 API가 없어 별도 키 등록이 필요 없습니다. &quot;상품

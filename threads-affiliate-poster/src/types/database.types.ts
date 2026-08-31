@@ -171,6 +171,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      naver_trend_cache: {
+        Row: {
+          id: string;
+          cache_key: string;
+          period_months: number;
+          time_unit: string;
+          groups: Json;
+          results: Json;
+          fetched_at: string;
+        };
+        Insert: {
+          id?: string;
+          cache_key: string;
+          period_months: number;
+          time_unit: string;
+          groups: Json;
+          results: Json;
+          fetched_at?: string;
+        };
+        Update: {
+          id?: string;
+          cache_key?: string;
+          period_months?: number;
+          time_unit?: string;
+          groups?: Json;
+          results?: Json;
+          fetched_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
