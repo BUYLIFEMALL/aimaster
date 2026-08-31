@@ -18,7 +18,7 @@ alter table user_api_keys add constraint user_api_keys_provider_check
 -- 2) programs 카탈로그 등록 (이커머스 카테고리, 일반 등급)
 insert into programs (name, slug, category_id, short_desc, is_active, required_grade_id, sort_order)
 values (
-  'AI 소싱 트렌드 발굴',
+  '상품소싱 자동화',
   'trending-product-finder',
   (select id from categories where slug = 'ecommerce'),
   '네이버 데이터랩·쇼핑검색 데이터로 관심도는 오르는데 경쟁은 적은 소싱 기회를 자동으로 찾아드립니다.',

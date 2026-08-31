@@ -1,6 +1,6 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-이 문서는 **AI 소싱 트렌드 발굴(trending-product-finder)** 프로젝트에서 AI Agent(Claude Code
+이 문서는 **상품소싱 자동화(trending-product-finder)** 프로젝트에서 AI Agent(Claude Code
 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 
 ---

@@ -1,4 +1,4 @@
-# 📈 AI 소싱 트렌드 발굴 (trending-product-finder)
+# 📈 상품소싱 자동화 (trending-product-finder)
 
 잘 팔리는 상품, 사람들이 많이 검색하는 상품, 지금 시즌/트렌드에 맞는 상품을 자동으로 발굴·추천해주는 AIMaster 서브프로젝트입니다.
 

@@ -35,7 +35,7 @@ export default async function SettingsPage() {
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">API 키 설정</h1>
         <p className="mb-6 text-sm text-gray-500">
-          AI 소싱 트렌드 발굴에는 본인의 네이버 개발자센터 Client ID/Secret(관심도 추이·경쟁 상품
+          상품소싱 자동화에는 본인의 네이버 개발자센터 Client ID/Secret(관심도 추이·경쟁 상품
           수 조회)과, OpenAI 또는 Gemini 중 1개(추천 사유 생성) 키가 필요합니다.{" "}
           <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
           등록하지 않은 상태로 실행을 시도하면 등록 안내가 뜨고 막힙니다.
