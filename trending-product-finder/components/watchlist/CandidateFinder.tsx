@@ -94,6 +94,29 @@ export function CandidateFinder() {
         </div>
       </form>
 
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs leading-relaxed text-emerald-900">
+        <p className="font-bold">📊 후보점수(0~100)는 이렇게 계산됩니다</p>
+        <p className="mt-0.5">
+          <span className="font-bold">① 검색량 (최대 60점)</span> — 월간 검색수(PC+모바일 합계)가
+          많을수록 높습니다. 5,000건 이상이면 만점(60점)입니다.
+        </p>
+        <p className="mt-0.5">
+          <span className="font-bold">② 경쟁정도 (최대 25점)</span> — 네이버 검색광고가 매기는
+          경쟁 수준이 <span className="font-semibold">낮음이면 25점, 중간이면 12점, 높음이면 0점</span>입니다.
+          경쟁이 적을수록 유리합니다.
+        </p>
+        <p className="mt-0.5">
+          <span className="font-bold">③ 관심도 상승 보너스 (최대 15점)</span> — 쇼핑인사이트로 확인한
+          최근 관심도가 오르고 있으면 추가 점수를 줍니다(하락 중이어도 감점은 없습니다).
+        </p>
+        <p className="mt-0.5">
+          이 세 가지를 더한 값이 후보점수이며, AI가 아니라 정해진 계산식으로 산출됩니다.
+          <span className="mx-1 rounded-full border border-emerald-200 bg-white px-1.5 py-0.5 font-semibold text-emerald-700">60점 이상: 눈여겨볼 만함</span>
+          <span className="mx-1 rounded-full border border-amber-200 bg-white px-1.5 py-0.5 font-semibold text-amber-700">35~59점: 보통</span>
+          <span className="mx-1 rounded-full border border-gray-200 bg-white px-1.5 py-0.5 font-semibold text-gray-500">35점 미만: 신호 약함</span>
+        </p>
+      </div>
+
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800">
         <p className="font-bold">⚠️ 시드 키워드 입력 시 주의사항</p>
         <p className="mt-0.5">
