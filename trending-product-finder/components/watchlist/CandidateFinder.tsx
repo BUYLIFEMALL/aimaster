@@ -109,12 +109,12 @@ export function CandidateFinder() {
           <span className="font-bold">③ 관심도 상승 보너스 (최대 15점)</span> — 쇼핑인사이트로 확인한
           최근 관심도가 오르고 있으면 추가 점수를 줍니다(하락 중이어도 감점은 없습니다).
         </p>
-        <p className="mt-0.5">
-          이 세 가지를 더한 값이 후보점수이며, AI가 아니라 정해진 계산식으로 산출됩니다.
-          <span className="mx-1 rounded-full border border-emerald-200 bg-white px-1.5 py-0.5 font-semibold text-emerald-700">60점 이상: 눈여겨볼 만함</span>
-          <span className="mx-1 rounded-full border border-amber-200 bg-white px-1.5 py-0.5 font-semibold text-amber-700">35~59점: 보통</span>
-          <span className="mx-1 rounded-full border border-gray-200 bg-white px-1.5 py-0.5 font-semibold text-gray-500">35점 미만: 신호 약함</span>
-        </p>
+        <p className="mt-0.5">이 세 가지를 더한 값이 후보점수이며, AI가 아니라 정해진 계산식으로 산출됩니다.</p>
+        <div className="mt-1 flex flex-wrap gap-1.5">
+          <span className="rounded-full border border-emerald-200 bg-white px-1.5 py-0.5 font-semibold text-emerald-700">60점 이상: 눈여겨볼 만함</span>
+          <span className="rounded-full border border-amber-200 bg-white px-1.5 py-0.5 font-semibold text-amber-700">35~59점: 보통</span>
+          <span className="rounded-full border border-gray-200 bg-white px-1.5 py-0.5 font-semibold text-gray-500">35점 미만: 신호 약함</span>
+        </div>
       </div>
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800">
