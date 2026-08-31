@@ -1,11 +1,17 @@
 import "server-only";
 
-// 네이버 데이터랩 쇼핑인사이트 API 클라이언트.
-// 공식 문서: https://developers.naver.com/docs/serviceapi/datalab/shopping/shopping.md
+// NAVER API HUB - Shopping Insight API 클라이언트.
+// 공식 문서: https://api.ncloud-docs.com/docs/naver-api-hub-shopping-insight-categories
+//           https://api.ncloud-docs.com/docs/naver-api-hub-shopping-insight-keywords
+//
+// 2026-07-31부로 구(舊) developers.naver.com 방식 신규 발급이 종료되어, 신규 사용자는
+// 네이버클라우드 플랫폼(NCP) 개인/사업자 계정으로 console.ncloud.com/naver-api-hub 에서
+// 새로 신청해야 한다. 요청/응답 바디 형식은 기존과 거의 동일하고, base URL과 인증 헤더
+// 이름만 바뀌었다 (X-Naver-Client-Id → X-NCP-APIGW-API-KEY-ID 등).
+//
 // 주의: 절대 검색량/매출이 아니라 조회 구간 내 최댓값을 100으로 둔 "상대 지수"다.
-// 일 호출 한도 1,000회 — 반드시 trend_snapshots에 캐시해서 재호출을 최소화한다.
 
-const DATALAB_BASE = "https://openapi.naver.com/v1/datalab/shopping";
+const API_HUB_BASE = "https://naverapihub.apigw.ntruss.com/shopping/v1";
 
 export interface NaverAuth {
   clientId: string;
@@ -19,21 +25,21 @@ export interface TrendPoint {
   ratio: number;
 }
 
-interface DatalabResponseGroup {
+interface ApiHubResponseGroup {
   title: string;
   data: TrendPoint[];
 }
 
-interface DatalabResponse {
-  results: DatalabResponseGroup[];
+interface ApiHubResponse {
+  results: ApiHubResponseGroup[];
 }
 
-async function callDatalab(auth: NaverAuth, path: string, body: Record<string, unknown>): Promise<DatalabResponse> {
-  const res = await fetch(`${DATALAB_BASE}${path}`, {
+async function callShoppingInsight(auth: NaverAuth, path: string, body: Record<string, unknown>): Promise<ApiHubResponse> {
+  const res = await fetch(`${API_HUB_BASE}${path}`, {
     method: "POST",
     headers: {
-      "X-Naver-Client-Id": auth.clientId,
-      "X-Naver-Client-Secret": auth.clientSecret,
+      "X-NCP-APIGW-API-KEY-ID": auth.clientId,
+      "X-NCP-APIGW-API-KEY": auth.clientSecret,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
@@ -41,7 +47,7 @@ async function callDatalab(auth: NaverAuth, path: string, body: Record<string, u
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`네이버 데이터랩 API 호출 실패 (${res.status}): ${text || res.statusText}`);
+    throw new Error(`NAVER API HUB 쇼핑인사이트 호출 실패 (${res.status}): ${text || res.statusText}`);
   }
 
   return res.json();
@@ -58,7 +64,7 @@ export async function getCategoryTrend(
     timeUnit?: TimeUnit;
   },
 ): Promise<TrendPoint[]> {
-  const res = await callDatalab(auth, "/categories", {
+  const res = await callShoppingInsight(auth, "/categories", {
     startDate: params.startDate,
     endDate: params.endDate,
     timeUnit: params.timeUnit ?? "week",
@@ -79,7 +85,7 @@ export async function getCategoryKeywordTrend(
     timeUnit?: TimeUnit;
   },
 ): Promise<TrendPoint[]> {
-  const res = await callDatalab(auth, "/category/keywords", {
+  const res = await callShoppingInsight(auth, "/category/keywords", {
     startDate: params.startDate,
     endDate: params.endDate,
     timeUnit: params.timeUnit ?? "week",

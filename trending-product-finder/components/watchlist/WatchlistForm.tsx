@@ -52,7 +52,7 @@ export function WatchlistForm() {
           className="input"
         />
         <p className="mt-1 text-xs text-gray-400">
-          데이터랩 API 일일 호출 한도(1,000회) 보호를 위해 키워드 수를 제한합니다.
+          API 호출량 보호를 위해 한 번에 등록 가능한 키워드 수를 제한합니다.
         </p>
       </div>
       {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}

@@ -11,13 +11,14 @@ const PROVIDERS: ApiKeyProvider[] = ["naver_client_id", "naver_client_secret", "
 
 const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string; description?: string }>> = {
   naver_client_id: {
-    url: "https://developers.naver.com/apps/#/register",
-    label: "네이버 개발자센터에서 애플리케이션 등록하기",
-    description: "사용 API로 '검색'과 '데이터랩(쇼핑인사이트)'을 함께 선택해야 두 기능 모두 사용 가능합니다.",
+    url: "https://console.ncloud.com/naver-api-hub/application",
+    label: "네이버클라우드 API HUB에서 애플리케이션 등록하기",
+    description:
+      "개인 회원가입으로 무료 이용 가능(사업자등록 불필요). NCP 계정 로그인 후 애플리케이션 등록 시 '쇼핑인사이트'를 선택하세요. 기존 developers.naver.com 방식은 2026-07-31부로 신규 발급이 종료되었습니다.",
   },
   naver_client_secret: {
-    url: "https://developers.naver.com/apps/#/register",
-    label: "네이버 개발자센터에서 애플리케이션 등록하기",
+    url: "https://console.ncloud.com/naver-api-hub/application",
+    label: "네이버클라우드 API HUB에서 애플리케이션 등록하기",
   },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
   gemini: { url: "https://aistudio.google.com/apikey", label: "Gemini 키 발급받기" },
@@ -35,8 +36,8 @@ export default async function SettingsPage() {
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">API 키 설정</h1>
         <p className="mb-6 text-sm text-gray-500">
-          상품소싱 자동화에는 본인의 네이버 개발자센터 Client ID/Secret(관심도 추이·경쟁 상품
-          수 조회)과, OpenAI 또는 Gemini 중 1개(추천 사유 생성) 키가 필요합니다.{" "}
+          상품소싱 자동화에는 본인의 네이버클라우드 API HUB Client ID/Secret(관심도 추이 조회)과,
+          OpenAI 또는 Gemini 중 1개(추천 사유 생성) 키가 필요합니다.{" "}
           <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
           등록하지 않은 상태로 실행을 시도하면 등록 안내가 뜨고 막힙니다.
         </p>

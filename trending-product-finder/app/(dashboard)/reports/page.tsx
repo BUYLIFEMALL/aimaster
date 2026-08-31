@@ -44,7 +44,8 @@ export default async function ReportsPage() {
         <h1 className="mb-2 text-2xl font-black text-gray-900">트렌드 리포트</h1>
         <p className="mb-6 text-sm text-gray-500">
           관심 키워드 등록 페이지에서 &quot;지금 리포트 생성&quot;을 누르면 이곳에 결과가 쌓입니다.
-          기회 점수는 관심도(데이터랩)와 경쟁도(등록 상품 수)를 함께 반영한 상대 지표입니다.
+          기회 점수는 현재 네이버쇼핑인사이트 관심도 지수 기반이며, 경쟁 상품 수 지표는 Phase 2에서
+          추가될 예정입니다.
         </p>
       </section>
 
@@ -73,8 +74,7 @@ export default async function ReportsPage() {
                   <p className="text-xs text-gray-500">
                     관심도 {item.trendIndex ?? "N/A"}
                     {item.trendChangePct != null && ` (전기 대비 ${item.trendChangePct > 0 ? "+" : ""}${item.trendChangePct.toFixed(1)}%)`}
-                    {" · "}
-                    등록상품 {item.productCount?.toLocaleString() ?? "N/A"}개
+                    {item.productCount != null && ` · 등록상품 ${item.productCount.toLocaleString()}개`}
                     {item.minPrice != null && ` · ${item.minPrice.toLocaleString()}~${item.maxPrice?.toLocaleString()}원`}
                   </p>
                   {item.reason && <p className="mt-1 text-xs text-gray-700">{item.reason}</p>}

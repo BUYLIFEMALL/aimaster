@@ -5,7 +5,6 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getCategoryKeywordTrend, calcTrendChangePct, type NaverAuth } from "@/lib/naver/datalab";
-import { getShoppingCompetition } from "@/lib/naver/shoppingSearch";
 import { calcOpportunityScore, generateReasons, type OpportunityResult } from "@/lib/ai/opportunity";
 import type { Json } from "@/types/database.types";
 
@@ -64,8 +63,6 @@ export async function generateReportAction(formData: FormData): Promise<Generate
       const trendIndex = trendPoints.length ? trendPoints[trendPoints.length - 1].ratio : null;
       const trendChangePct = calcTrendChangePct(trendPoints);
 
-      const competition = await getShoppingCompetition(auth, keyword);
-
       await supabase.from("trend_snapshots").insert({
         user_id: user.id,
         watchlist_id: watchlist.id,
@@ -74,35 +71,29 @@ export async function generateReportAction(formData: FormData): Promise<Generate
         period_start: startDateStr,
         period_end: endDateStr,
         time_unit: "week",
-        source: "naver_datalab",
+        source: "naver_shopping_insight",
         raw: trendPoints as unknown as Json,
       });
 
-      await supabase.from("shopping_competition").insert({
-        user_id: user.id,
-        watchlist_id: watchlist.id,
-        keyword,
-        product_count: competition.productCount,
-        min_price: competition.minPrice,
-        max_price: competition.maxPrice,
-      });
-
+      // 경쟁도(등록 상품 수) 지표: 네이버 쇼핑검색 API가 2026-07-31부로 완전 종료되어
+      // 공식 대체 API가 없다. Phase 2에서 쿠팡파트너스 검색 API로 경쟁도를 대체할 예정 —
+      // 그 전까지는 관심도 지수만으로 기회 점수를 계산한다.
       const opportunityScore = calcOpportunityScore({
         keyword,
         trendIndex,
         trendChangePct,
-        productCount: competition.productCount,
-        minPrice: competition.minPrice,
-        maxPrice: competition.maxPrice,
+        productCount: null,
+        minPrice: null,
+        maxPrice: null,
       });
 
       results.push({
         keyword,
         trendIndex,
         trendChangePct,
-        productCount: competition.productCount,
-        minPrice: competition.minPrice,
-        maxPrice: competition.maxPrice,
+        productCount: null,
+        minPrice: null,
+        maxPrice: null,
         opportunityScore,
       });
     } catch (err) {

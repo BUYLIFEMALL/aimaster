@@ -21,7 +21,7 @@
 3. **실제 서비스 배포 (Vercel 프로덕션)**
 4. **데이터베이스 데이터 삭제**
 5. **환경변수와 API 키 변경**
-6. **유료 API 호출** (데이터랩/쇼핑검색은 사용자 본인 키로 무료 한도 내 호출, OpenAI/Gemini는
+6. **유료 API 호출** (쇼핑인사이트는 사용자 본인 NCP 계정으로 무료 호출, OpenAI/Gemini는
    본인 키로 소량 과금 발생 — "지금 리포트 생성" 1회당 등록 키워드 수만큼 호출됨)
 
 ---
@@ -29,9 +29,10 @@
 ## 🎯 프로젝트 목적
 
 잘 팔리는 상품, 사람들이 많이 검색하는 상품, 지금 시즌/트렌드에 맞는 상품을 자동으로
-발굴·추천해주는 프로그램. 회원이 관심 카테고리+키워드를 등록하면, 네이버 데이터랩(관심도
-추이)과 네이버쇼핑 검색(경쟁 상품 수)을 결합해 "관심도는 오르는데 경쟁은 적은" 기회를
-점수화하고, AI가 추천 사유를 문장으로 설명해준다.
+발굴·추천해주는 프로그램. 회원이 관심 카테고리+키워드를 등록하면, 네이버클라우드 API HUB
+쇼핑인사이트(관심도 추이)를 기반으로 "관심도가 오르는" 기회를 점수화하고, AI가 추천 사유를
+문장으로 설명해준다. 경쟁 상품 수 지표는 Phase 2에서 쿠팡파트너스로 추가될 예정이다(네이버쇼핑
+검색 API는 2026-07-31부로 완전 종료됨).
 
 **주의**: `sourcing/`(제조 공장 견적서·위챗 대화 비교 코파일럿)과는 완전히 다른, 별개의
 서브프로젝트다. 이름이 비슷해 보일 수 있으니 혼동하지 말 것.
@@ -66,12 +67,36 @@ trending-product-finder는 AIMaster 저장소 안의 서브프로젝트다. 개�
 - 사용자 소유 데이터 테이블(`trend_watchlist`, `trend_snapshots`, `shopping_competition`,
   `recommendation_reports`)은 `user_id` + RLS owner-only 정책으로 격리한다.
 
+## 🚨 네이버 API 발급 경로 변경 이력 (2026-08-31, 필독)
+
+Phase 1을 처음 구현할 때는 구(舊) `developers.naver.com` 방식(`X-Naver-Client-Id` 헤더,
+`openapi.naver.com/v1/datalab/shopping` 도메인)으로 만들었는데, **이 방식은 2026년 7월 31일
+부로 신규 발급이 전면 종료**된 상태였다는 걸 사용자가 실제 등록 화면을 보다가 발견했다.
+`api.ncloud-docs.com` 공식 문서로 재조사해서 다음과 같이 고쳤다:
+
+- **네이버쇼핑 검색 API**(구 경쟁 상품 수 조회용): **완전 종료, 공식 대체 API 없음.**
+  `lib/naver/shoppingSearch.ts`를 삭제하고, `shopping_competition` 관련 로직을 리포트
+  생성 플로우에서 뺐다. Phase 2에서 쿠팡파트너스 검색 API로 경쟁도를 대체할 예정.
+- **데이터랩 쇼핑인사이트**: 신규 발급은 가능하지만 **네이버클라우드 플랫폼(NCP) 계정**으로
+  `console.ncloud.com/naver-api-hub`에서 새로 신청해야 한다(개인 회원가입 가능, 무료).
+  `lib/naver/datalab.ts`를 NAVER API HUB 스펙으로 재작성함:
+  - base URL: `https://naverapihub.apigw.ntruss.com/shopping/v1`
+  - 인증 헤더: `X-NCP-APIGW-API-KEY-ID`(Client ID) / `X-NCP-APIGW-API-KEY`(Client Secret)
+  - 경로(`/categories`, `/category/keywords`)와 요청/응답 바디 구조는 기존과 거의 동일
+  - 참고 문서: `api.ncloud-docs.com/docs/naver-api-hub-shopping-insight-categories`,
+    `.../naver-api-hub-shopping-insight-keywords`
+- 설정 페이지의 발급 안내 링크도 `console.ncloud.com/naver-api-hub/application`으로 교체함.
+
+**교훈**: API 서비스명이 그대로여도("데이터랩 쇼핑인사이트") 발급 경로/인증 방식이 통째로
+바뀔 수 있다. 신규 API를 연동할 때는 문서만 믿지 말고, 가능하면 실제 발급 화면까지 확인해서
+검증할 것.
+
 ## 📦 Phase 진행 상태
 
 | Phase | 내용 | 상태 |
 |-------|------|------|
-| 1 | 관심 카테고리+키워드 등록, 데이터랩 관심도 추이 + 쇼핑검색 경쟁도 조회, 기회 점수 계산, AI 추천 사유 생성, 리포트 뷰 | ✅ 구현 완료 (2026-08-30) |
-| 2 | 쿠팡파트너스 결합 → 실제 판매 가능 후보 매칭, `threads-affiliate-poster` 원클릭 연동 | ⏳ 예정 |
+| 1 | 관심 카테고리+키워드 등록, 네이버클라우드 API HUB 쇼핑인사이트 관심도 추이 조회, 기회 점수 계산(관심도만), AI 추천 사유 생성, 리포트 뷰 | ✅ 구현 완료 (2026-08-31, NCP API HUB로 재작성) |
+| 2 | 쿠팡파트너스 검색 API로 경쟁 상품 수 확보(경쟁도 지표 부활) → `threads-affiliate-poster` 원클릭 연동 | ⏳ 예정 |
 | 3 | 알리익스프레스 원가 비교 + 마진 시뮬레이션 | ⏳ 예정 |
 | 4 | Google Ads API(선택), Vercel Cron 정기 자동 리포트 | ⏳ 예정 |
 
@@ -84,5 +109,7 @@ trending-product-finder는 AIMaster 저장소 안의 서브프로젝트다. 개�
   정확하다고 보장할 수 없다. 실제 회원이 네이버 API 키를 등록하고 첫 리포트를 생성해볼 때
   반드시 실제 응답으로 재검증할 것 — 필요하면 네이버쇼핑 카테고리 URL의 `cat_id` 값으로
   직접 대조.
-- 아직 실제 네이버 Client ID/Secret으로 라이브 테스트를 하지 않았다. 배포 전 최소 1회
+- 아직 실제 NCP API HUB Client ID/Secret으로 라이브 테스트를 하지 않았다. 배포 전 최소 1회
   실계정으로 관심 키워드 등록 → 리포트 생성까지 end-to-end 테스트 필요.
+- `trend_snapshots.source` 값을 `naver_datalab`에서 `naver_shopping_insight`로 바꿨는데,
+  기존에 (있다면) 쌓인 레거시 행과 값이 섞일 수 있다는 점 참고.

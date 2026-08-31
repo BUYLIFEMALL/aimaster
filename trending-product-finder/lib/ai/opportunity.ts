@@ -17,15 +17,22 @@ export interface OpportunityResult extends OpportunityInput {
  * 기회 점수는 AI가 아니라 코드로 결정적으로 계산한다(재현 가능성/신뢰성을 위해).
  * AI는 이 숫자들을 근거로 한 "추천 사유" 문장 생성에만 쓴다.
  *
- * score = 관심도(트렌드 지수) * 0.5 + 상승폭 보너스 * 0.3 - 경쟁도 페널티 * 0.2
+ * 경쟁도(등록 상품 수) 데이터가 있을 때: 관심도*0.5 + 상승폭 보너스*0.3 − 경쟁도 페널티*0.2
+ * 경쟁도 데이터가 없을 때(현재 Phase 1 — 네이버 쇼핑검색 API 종료로 공식 취득 불가):
+ *   관심도*0.7 + 상승폭 보너스*0.3 으로 재배분한다. Phase 2에서 쿠팡파트너스 검색 API로
+ * 경쟁도를 확보하면 원래 가중치로 되돌린다.
  */
 export function calcOpportunityScore(input: OpportunityInput): number {
-  const trendPart = (input.trendIndex ?? 0) * 0.5;
-
   const changePct = input.trendChangePct ?? 0;
   const changeBonus = Math.max(0, Math.min(changePct, 100)) * 0.3;
 
-  const competitionIndex = input.productCount != null ? Math.min(input.productCount / 10000, 1) * 100 : 50;
+  if (input.productCount == null) {
+    const raw = (input.trendIndex ?? 0) * 0.7 + changeBonus;
+    return Math.max(0, Math.min(100, Math.round(raw * 10) / 10));
+  }
+
+  const trendPart = (input.trendIndex ?? 0) * 0.5;
+  const competitionIndex = Math.min(input.productCount / 10000, 1) * 100;
   const competitionPenalty = competitionIndex * 0.2;
 
   const raw = trendPart + changeBonus - competitionPenalty;
@@ -33,20 +40,28 @@ export function calcOpportunityScore(input: OpportunityInput): number {
 }
 
 function buildPrompt(items: OpportunityResult[]): string {
+  const hasCompetitionData = items.some((i) => i.productCount != null);
+
   const rows = items
-    .map(
-      (i) =>
-        `- ${i.keyword}: 관심도지수=${i.trendIndex ?? "N/A"}, 변화율=${
-          i.trendChangePct != null ? i.trendChangePct.toFixed(1) + "%" : "N/A"
-        }, 등록상품수=${i.productCount ?? "N/A"}, 가격대=${i.minPrice ?? "?"}~${i.maxPrice ?? "?"}원, 기회점수=${i.opportunityScore}`,
-    )
+    .map((i) => {
+      const base = `- ${i.keyword}: 관심도지수=${i.trendIndex ?? "N/A"}, 변화율=${
+        i.trendChangePct != null ? i.trendChangePct.toFixed(1) + "%" : "N/A"
+      }, 기회점수=${i.opportunityScore}`;
+      return hasCompetitionData
+        ? `${base}, 등록상품수=${i.productCount ?? "N/A"}, 가격대=${i.minPrice ?? "?"}~${i.maxPrice ?? "?"}원`
+        : base;
+    })
     .join("\n");
 
-  return `당신은 이커머스 상품 소싱 전문가입니다. 아래는 네이버 데이터랩(관심도 지수)과 네이버쇼핑(등록 상품 수·가격대)에서 수집한 키워드별 지표입니다.
+  const competitionNote = hasCompetitionData
+    ? "관심도가 오르는데 등록 상품 수(경쟁)가 적으면 \"기회\"로, 관심도는 높지만 경쟁도 매우 치열하면 \"레드오션 주의\"로 판단하세요."
+    : "경쟁 상품 수 데이터는 아직 없으니(추후 추가 예정), 관심도 지수와 변화율만으로 판단하세요.";
+
+  return `당신은 이커머스 상품 소싱 전문가입니다. 아래는 네이버 쇼핑인사이트에서 수집한 키워드별 관심도 지표입니다.
 
 ${rows}
 
-각 키워드에 대해, 왜 지금 소싱을 고려할 만한지(또는 만하지 않은지) 1~2문장의 한글 추천 사유를 작성하세요. 관심도가 오르는데 등록 상품 수(경쟁)가 적으면 "기회"로, 관심도는 높지만 경쟁도 매우 치열하면 "레드오션 주의"로, 관심도가 낮으면 "시기상조"로 판단하는 식으로 구체적인 숫자를 근거로 설명하세요.
+각 키워드에 대해, 왜 지금 소싱을 고려할 만한지(또는 만하지 않은지) 1~2문장의 한글 추천 사유를 작성하세요. ${competitionNote} 관심도가 낮으면 "시기상조"로 판단하는 식으로 구체적인 숫자를 근거로 설명하세요.
 
 반드시 아래 JSON 배열 형식으로만 응답하세요 (다른 텍스트 없이):
 [{"keyword": "키워드명", "reason": "추천 사유 문장"}]`;
