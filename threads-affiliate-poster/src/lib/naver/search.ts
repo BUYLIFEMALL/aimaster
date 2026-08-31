@@ -64,7 +64,8 @@ export async function searchNaver(
 ): Promise<NaverSearchItem[]> {
   const qs = `?query=${encodeURIComponent(query)}&display=${display}&sort=date`;
 
-  const hubResult = await callEndpoint(`${HUB_BASE}/${type}.json${qs}`, {
+  // Hub는 legacy와 달리 타입 경로에 .json 접미사가 없다(MCP 소스: `${searchBaseUrl}/${type}`, GET).
+  const hubResult = await callEndpoint(`${HUB_BASE}/${type}${qs}`, {
     "X-NCP-APIGW-API-KEY-ID": auth.clientId,
     "X-NCP-APIGW-API-KEY": auth.clientSecret,
   });
@@ -79,7 +80,8 @@ export async function searchNaver(
     });
     if (!legacyResult.ok) {
       throw new Error(
-        `네이버 ${type} 검색에 실패했습니다. API HUB(${hubResult.status})와 구방식(${legacyResult.status}) 둘 다 실패했습니다.`,
+        `네이버 ${type} 검색에 실패했습니다. API HUB(${hubResult.status}: ${hubResult.body.slice(0, 200)}) ` +
+          `구방식(${legacyResult.status}: ${legacyResult.body.slice(0, 200)})`,
       );
     }
     raw = legacyResult.data!;
