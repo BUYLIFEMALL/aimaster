@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { getRelatedKeywords, type NaverAdsAuth } from "@/lib/naver/searchAd";
+import { getRelatedKeywords, sanitizeSeedKeyword, type NaverAdsAuth } from "@/lib/naver/searchAd";
 import { getCategoryKeywordTrend, calcTrendChangePct, type NaverAuth } from "@/lib/naver/datalab";
 import { runReasonPrompt } from "@/lib/ai/opportunity";
 
@@ -22,6 +22,7 @@ export interface CandidateItem {
 export interface FindCandidatesState {
   error?: string;
   candidates?: CandidateItem[];
+  searchedSeed?: string;
 }
 
 function formatDate(d: Date): string {
@@ -79,6 +80,9 @@ export async function findCandidatesAction(formData: FormData): Promise<FindCand
 
   if (!categoryName || !categoryCode) return { error: "카테고리를 선택해주세요." };
   if (!seedKeyword) return { error: "카테고리를 대표하는 시드 키워드를 1개 입력해주세요 (예: 청소기, 캠핑용품)." };
+
+  const cleanSeed = sanitizeSeedKeyword(seedKeyword);
+  if (!cleanSeed) return { error: "유효한 시드 키워드를 입력해주세요." };
 
   const [adsApiKey, adsSecretKey, adsCustomerId, naverClientId, naverClientSecret, openaiKey, geminiKey] = await Promise.all([
     resolveApiKey(supabase, user.id, "naver_ads_api_key"),
@@ -166,7 +170,7 @@ export async function findCandidatesAction(formData: FormData): Promise<FindCand
     }
   }
 
-  return { candidates };
+  return { candidates, searchedSeed: cleanSeed };
 }
 
 export interface AddCandidateState {

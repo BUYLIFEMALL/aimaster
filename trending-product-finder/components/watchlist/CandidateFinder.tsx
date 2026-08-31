@@ -14,6 +14,7 @@ export function CandidateFinder() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [candidates, setCandidates] = useState<CandidateItem[] | null>(null);
+  const [searchedSeed, setSearchedSeed] = useState<string | null>(null);
   const [categoryName, setCategoryName] = useState("");
   const [categoryCode, setCategoryCode] = useState("");
   const [addedKeywords, setAddedKeywords] = useState<Set<string>>(new Set());
@@ -22,6 +23,7 @@ export function CandidateFinder() {
     e.preventDefault();
     setError(null);
     setCandidates(null);
+    setSearchedSeed(null);
     setAddedKeywords(new Set());
     setIsPending(true);
     try {
@@ -37,6 +39,7 @@ export function CandidateFinder() {
         setError(result.error);
       } else {
         setCandidates(result.candidates ?? []);
+        setSearchedSeed(result.searchedSeed ?? null);
       }
     } finally {
       setIsPending(false);
@@ -77,7 +80,7 @@ export function CandidateFinder() {
           <input
             name="seedKeyword"
             type="text"
-            placeholder="대표 시드 키워드 (예: 청소기)"
+            placeholder="대표 시드 키워드 (예: 청소기, 캠핑용품 — 띄어쓰기 없이)"
             required
             className="input-sm flex-1 min-w-[160px]"
           />
@@ -90,7 +93,29 @@ export function CandidateFinder() {
           </button>
         </div>
       </form>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800">
+        <p className="font-bold">⚠️ 시드 키워드 입력 시 주의사항</p>
+        <p className="mt-0.5">
+          네이버 검색광고 API는 <span className="font-bold">띄어쓰기가 하나라도 들어가면 요청 자체를
+          거부</span>합니다. &quot;캠핑 의자&quot;처럼 띄어쓰기가 있으면 저희가 자동으로
+          &quot;캠핑의자&quot;로 붙여서 검색하니 참고해주세요(검색 결과 상단에 실제로 검색된 키워드를
+          보여드립니다).
+        </p>
+        <p className="mt-0.5">그 외에도 특수문자(!@#$% 등)가 섞이면 거부될 수 있으니, 가능하면 순수 한글/영문 단어로 입력해주세요.</p>
+        <p className="mt-0.5">
+          네이버 API 호출 한도(초당 몇 회) 때문에 짧은 시간에 여러 번 연속으로 누르면
+          <span className="font-bold"> &quot;호출 한도를 초과했습니다&quot;</span> 에러가 날 수 있습니다 —
+          이 경우 몇 초 후 다시 시도해주세요.
+        </p>
+      </div>
+
       {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+      {searchedSeed && candidates && candidates.length > 0 && (
+        <p className="text-xs text-gray-400">
+          실제 검색어: <span className="font-mono font-semibold text-gray-600">{searchedSeed}</span>
+        </p>
+      )}
 
       {candidates && candidates.length === 0 && (
         <p className="text-sm text-gray-400">연관 키워드를 찾지 못했습니다. 다른 시드 키워드로 시도해보세요.</p>

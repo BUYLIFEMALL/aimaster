@@ -41,11 +41,23 @@ function parseSearchCount(value: unknown): number {
 }
 
 /**
+ * hintKeywords 파라미터는 띄어쓰기가 한 칸이라도 들어가면 무조건 400(코드 11001,
+ * "hintKeywords 파라미터가 유효하지 않습니다")으로 거부한다 — 앞뒤 공백은 물론 단어
+ * 사이 공백도 전부 안 된다(2026-08-31 실계정 테스트로 확인, 예: "캠핑 의자"는 실패,
+ * "캠핑용품"은 성공). 자연스러운 한글 표현은 대부분 공백을 빼도 그대로 유효한 복합어가
+ * 되므로, 사용자가 "캠핑 의자"라고 입력해도 자동으로 "캠핑의자"로 붙여서 보낸다.
+ */
+export function sanitizeSeedKeyword(raw: string): string {
+  return raw.replace(/\s+/g, "");
+}
+
+/**
  * 시드 키워드로 연관 키워드 + 월간 검색수를 조회한다. 최대 5개까지 시드를 콤마로 묶어
  * 보낼 수 있지만, 여기서는 카테고리 대표 시드 1개만 받는다(사용성을 단순하게 유지).
  */
 export async function getRelatedKeywords(auth: NaverAdsAuth, seedKeyword: string): Promise<RelatedKeyword[]> {
-  const query = `hintKeywords=${encodeURIComponent(seedKeyword)}&showDetail=1`;
+  const cleanSeed = sanitizeSeedKeyword(seedKeyword);
+  const query = `hintKeywords=${encodeURIComponent(cleanSeed)}&showDetail=1`;
   const uri = `${KEYWORDS_TOOL_PATH}?${query}`;
   const timestamp = Date.now().toString();
   const signature = generateSignature(timestamp, "GET", KEYWORDS_TOOL_PATH, auth.secretKey);
@@ -62,7 +74,16 @@ export async function getRelatedKeywords(auth: NaverAdsAuth, seedKeyword: string
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`네이버 검색광고 API 호출 실패 (${res.status}): ${text || res.statusText}`);
+    if (res.status === 429) {
+      throw new Error("네이버 검색광고 API 호출 한도를 초과했습니다. 잠시 후 다시 시도해주세요.");
+    }
+    let apiMessage: string | null = null;
+    try {
+      apiMessage = JSON.parse(text)?.message ?? null;
+    } catch {
+      // JSON이 아니면 무시하고 원문을 그대로 노출
+    }
+    throw new Error(`네이버 검색광고 API 호출 실패 (${res.status}): ${apiMessage ?? text ?? res.statusText}`);
   }
 
   const data = await res.json();
