@@ -4,9 +4,14 @@ import { listUserDetailPages } from "@/lib/detailPages";
 import { PlatformTabs } from "@/components/products/PlatformTabs";
 import { ProductList } from "@/components/products/ProductList";
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ keyword?: string }>;
+}) {
   const user = await requireUser();
   const supabase = await createClient();
+  const { keyword } = await searchParams;
 
   const [{ data: products }, detailPages] = await Promise.all([
     supabase
@@ -28,7 +33,7 @@ export default async function ProductsPage() {
       </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
-        <PlatformTabs detailPages={detailPages} />
+        <PlatformTabs detailPages={detailPages} initialKeyword={keyword} />
       </section>
 
       <section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { fetchMarketResearchAction, type MarketResearchState } from "@/lib/actions/search";
@@ -91,9 +92,17 @@ export function MarketResearch() {
 
       {(state.news || state.blog || state.cafe) && (
         <div className="space-y-2">
-          <p className="text-[11px] text-neutral-400">
-            {state.fromCache ? "캐시된 결과입니다 (최근 12시간 이내 같은 키워드로 조회된 값)" : "방금 새로 조회한 결과입니다"}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] text-neutral-400">
+              {state.fromCache ? "캐시된 결과입니다 (최근 12시간 이내 같은 키워드로 조회된 값)" : "방금 새로 조회한 결과입니다"}
+            </p>
+            <Link
+              href={`/products?keyword=${encodeURIComponent(query)}`}
+              className="text-xs font-medium text-neutral-900 underline hover:text-neutral-600"
+            >
+              &quot;{query}&quot; 쿠팡에서 소싱하기 →
+            </Link>
+          </div>
           <div className="flex flex-col gap-4 sm:flex-row">
             {COLUMNS.map((col) => (
               <ResultColumn key={col.key} label={col.label} items={state[col.key]} />

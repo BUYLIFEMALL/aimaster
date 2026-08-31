@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { fetchTrendAction, type FetchTrendState } from "@/lib/actions/trend";
@@ -74,7 +75,18 @@ function TrendCard({ group }: { group: TrendResultGroup }) {
       <div className="mb-2 flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-neutral-900">{group.title}</p>
-          <p className="text-xs text-neutral-500">{group.keywords.join(", ")}</p>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {group.keywords.map((kw) => (
+              <Link
+                key={kw}
+                href={`/products?keyword=${encodeURIComponent(kw)}`}
+                className="rounded-full border border-neutral-200 px-2 py-0.5 text-[11px] text-neutral-600 hover:border-neutral-900 hover:text-neutral-900"
+                title={`"${kw}" 키워드로 쿠팡 소싱하기`}
+              >
+                {kw} →
+              </Link>
+            ))}
+          </div>
         </div>
         <div className="text-right">
           <p className="text-lg font-semibold text-neutral-900">{last?.ratio.toFixed(1) ?? "-"}</p>

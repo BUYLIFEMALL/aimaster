@@ -19,7 +19,13 @@ export type RegistrationMode = "link" | "analyze";
 // 두 모드 모두 플랫폼(쿠팡/알리익스프레스/네이버)은 동일하게 고르지만, "분석" 모드에서는
 // EnrichmentFields(이미지 업로드+소구점 분석)를 링크 입력란보다 먼저, 항상 펼친 채로 보여주고,
 // "링크" 모드에서는 아예 렌더링하지 않아 빠르고 단순하게 유지한다.
-export function PlatformTabs({ detailPages }: { detailPages: DetailPageSummary[] }) {
+export function PlatformTabs({
+  detailPages,
+  initialKeyword,
+}: {
+  detailPages: DetailPageSummary[];
+  initialKeyword?: string;
+}) {
   const [mode, setMode] = useState<RegistrationMode>("link");
   const [platform, setPlatform] = useState<AffiliatePlatform>("coupang");
 
@@ -70,7 +76,9 @@ export function PlatformTabs({ detailPages }: { detailPages: DetailPageSummary[]
         ))}
       </div>
 
-      {platform === "coupang" && <CoupangProductForm detailPages={detailPages} mode={mode} />}
+      {platform === "coupang" && (
+        <CoupangProductForm detailPages={detailPages} mode={mode} initialKeyword={initialKeyword} />
+      )}
       {platform === "aliexpress" && <AliexpressProductForm detailPages={detailPages} mode={mode} />}
       {platform === "naver" && <NaverProductForm detailPages={detailPages} mode={mode} />}
     </div>
