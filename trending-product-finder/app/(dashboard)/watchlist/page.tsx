@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
 import { WatchlistRow } from "@/components/watchlist/WatchlistRow";
+import { CandidateFinder } from "@/components/watchlist/CandidateFinder";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -21,9 +22,18 @@ export default async function WatchlistPage() {
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">관심 키워드 등록</h1>
         <p className="mb-6 text-sm text-gray-500">
-          카테고리와 추적하고 싶은 키워드를 등록해두면, 네이버 데이터랩(관심도 추이)과
-          네이버쇼핑(경쟁 상품 수)을 결합해 기회 점수를 계산해드립니다.
+          카테고리와 추적하고 싶은 키워드를 등록해두면, 네이버클라우드 API HUB 쇼핑인사이트(관심도
+          추이)를 기반으로 기회 점수를 계산해드립니다. 어떤 키워드를 등록할지 모르겠다면 아래
+          &quot;카테고리로 후보 상품군 추천받기&quot;를 먼저 써보세요.
         </p>
+      </section>
+
+      <section>
+        <CandidateFinder />
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-bold text-gray-900">직접 키워드 등록</h2>
         <WatchlistForm />
       </section>
 

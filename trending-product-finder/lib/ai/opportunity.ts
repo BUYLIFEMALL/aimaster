@@ -68,7 +68,7 @@ ${rows}
 {"items": [{"keyword": "키워드명", "reason": "추천 사유 문장"}, ...]}`;
 }
 
-interface ReasonItem {
+export interface ReasonItem {
   keyword: string;
   reason: string;
 }
@@ -134,12 +134,14 @@ function parseReasonItems(content: string): ReasonItem[] {
   }
 }
 
-/** OpenAI 또는 Gemini 중 등록된 키로 추천 사유를 생성한다. 둘 다 없으면 null을 반환한다. */
-export async function generateReasons(
-  items: OpportunityResult[],
+/**
+ * 임의의 프롬프트를 OpenAI 또는 Gemini 중 등록된 키로 실행해 {keyword, reason}[] 를
+ * 받아온다. 기회 점수 리포트와 후보 상품군 추천 두 기능이 이 공통 실행기를 재사용한다.
+ */
+export async function runReasonPrompt(
+  prompt: string,
   keys: { openai?: string | null; gemini?: string | null },
 ): Promise<Map<string, string>> {
-  const prompt = buildPrompt(items);
   let reasons: ReasonItem[] = [];
 
   if (keys.openai) {
@@ -149,4 +151,12 @@ export async function generateReasons(
   }
 
   return new Map(reasons.map((r) => [r.keyword, r.reason]));
+}
+
+/** OpenAI 또는 Gemini 중 등록된 키로 추천 사유를 생성한다. 둘 다 없으면 null을 반환한다. */
+export async function generateReasons(
+  items: OpportunityResult[],
+  keys: { openai?: string | null; gemini?: string | null },
+): Promise<Map<string, string>> {
+  return runReasonPrompt(buildPrompt(items), keys);
 }

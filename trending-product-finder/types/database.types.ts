@@ -1,4 +1,11 @@
-export type ApiKeyProvider = "naver_client_id" | "naver_client_secret" | "openai" | "gemini";
+export type ApiKeyProvider =
+  | "naver_client_id"
+  | "naver_client_secret"
+  | "naver_ads_api_key"
+  | "naver_ads_secret_key"
+  | "naver_ads_customer_id"
+  | "openai"
+  | "gemini";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 

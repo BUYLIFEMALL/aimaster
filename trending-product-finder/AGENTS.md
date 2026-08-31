@@ -62,8 +62,9 @@ trending-product-finder는 AIMaster 저장소 안의 서브프로젝트다. 개�
   2026-08-30 플랫폼 전수 감사에서 이 두 줄 누락이 Vercel의 정적 캐싱으로 이어져 권한 체크
   자체가 무력화되는 버그가 발견됐다 (`docs/PLATFORM_PATTERNS.md` §10 참고).
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
-  그대로 쓴다. 이 프로그램은 `naver_client_id`/`naver_client_secret`(신규 provider, 이
-  마이그레이션에서 추가)과 `openai`/`gemini`(기존 provider, 택1) 를 쓴다.
+  그대로 쓴다. 이 프로그램은 `naver_client_id`/`naver_client_secret`(쇼핑인사이트),
+  `naver_ads_api_key`/`naver_ads_secret_key`/`naver_ads_customer_id`(검색광고 키워드도구,
+  카테고리 후보 추천 기능 전용), `openai`/`gemini`(기존 provider, 택1) 를 쓴다.
 - 사용자 소유 데이터 테이블(`trend_watchlist`, `trend_snapshots`, `shopping_competition`,
   `recommendation_reports`)은 `user_id` + RLS owner-only 정책으로 격리한다.
 
@@ -95,7 +96,8 @@ Phase 1을 처음 구현할 때는 구(舊) `developers.naver.com` 방식(`X-Nav
 
 | Phase | 내용 | 상태 |
 |-------|------|------|
-| 1 | 관심 카테고리+키워드 등록, 네이버클라우드 API HUB 쇼핑인사이트 관심도 추이 조회, 기회 점수 계산(관심도만), AI 추천 사유 생성, 리포트 뷰 | ✅ 구현 완료 (2026-08-31, NCP API HUB로 재작성) |
+| 1 | 관심 카테고리+키워드 등록, 네이버클라우드 API HUB 쇼핑인사이트 관심도 추이 조회, 기회 점수 계산(관심도만), AI 추천 사유 생성, 리포트 뷰 | ✅ 구현 완료, 실계정(buylifemall) E2E 검증 완료 (2026-08-31) |
+| 1.5 | 카테고리+시드 키워드 → 네이버 검색광고 키워드도구(연관키워드+월간검색수+경쟁정도) 자동 조회 → 상위 후보는 관심도 추이까지 결합해 후보점수 산정 → 마음에 드는 후보만 관심 목록에 추가 | ✅ 구현 완료 (2026-08-31) — 실계정 라이브 테스트는 미완료(아래 참고) |
 | 2 | 쿠팡파트너스 검색 API로 경쟁 상품 수 확보(경쟁도 지표 부활) → `threads-affiliate-poster` 원클릭 연동 | ⏳ 예정 |
 | 3 | 알리익스프레스 원가 비교 + 마진 시뮬레이션 | ⏳ 예정 |
 | 4 | Google Ads API(선택), Vercel Cron 정기 자동 리포트 | ⏳ 예정 |
@@ -109,7 +111,12 @@ Phase 1을 처음 구현할 때는 구(舊) `developers.naver.com` 방식(`X-Nav
   정확하다고 보장할 수 없다. 실제 회원이 네이버 API 키를 등록하고 첫 리포트를 생성해볼 때
   반드시 실제 응답으로 재검증할 것 — 필요하면 네이버쇼핑 카테고리 URL의 `cat_id` 값으로
   직접 대조.
-- 아직 실제 NCP API HUB Client ID/Secret으로 라이브 테스트를 하지 않았다. 배포 전 최소 1회
-  실계정으로 관심 키워드 등록 → 리포트 생성까지 end-to-end 테스트 필요.
 - `trend_snapshots.source` 값을 `naver_datalab`에서 `naver_shopping_insight`로 바꿨는데,
   기존에 (있다면) 쌓인 레거시 행과 값이 섞일 수 있다는 점 참고.
+- **`lib/naver/searchAd.ts`(검색광고 키워드도구)는 아직 실계정 라이브 테스트를 못 했다** —
+  회원이 아직 이 3종 키(`naver_ads_api_key`/`naver_ads_secret_key`/`naver_ads_customer_id`)를
+  등록하지 않은 상태에서 문서 조사만으로 구현했다. HMAC 서명 원문(`{timestamp}.{method}.{uri}`,
+  uri는 쿼리스트링 제외한 경로만)과 헤더 이름(`X-Timestamp`/`X-API-KEY`/`X-Customer`/
+  `X-Signature`)은 공식 저장소(naver/searchad-apidoc) 기반 자료로 확인했지만, 실제 호출까지는
+  검증 전이다. 회원이 키를 등록하면 반드시 실계정으로 1회 end-to-end 테스트할 것 — 이전에
+  쇼핑인사이트도 문서상 맞는 걸로 보였지만 실제로는 발급 경로 자체가 바뀌어 있었던 전례가 있다.
