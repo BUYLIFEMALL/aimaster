@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-08-30T09:30:56.130Z",
+  "lastUpdated": "2026-08-31T05:16:25.261Z",
   "activeFeatures": [
     "platform-hub",
     "programs",
@@ -139,7 +139,11 @@
     "conversations",
     "threads-affiliate-poster",
     "coupang",
-    "aliexpress"
+    "aliexpress",
+    "trending-product-finder",
+    "naver",
+    "watchlist",
+    "reports"
   ],
   "primaryFeature": "platform-hub",
   "features": {
@@ -232,9 +236,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T09:15:15.802Z",
-        "lastUpdated": "2026-08-28T05:53:45.502Z"
+        "lastUpdated": "2026-08-31T03:17:37.833Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\threads-affiliate-poster\\src\\components\\layout\\Sidebar.tsx"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\components\\layout\\Sidebar.tsx"
     },
     "user-access": {
       "phase": "do",
@@ -336,9 +340,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T09:18:06.294Z",
-        "lastUpdated": "2026-08-28T10:41:03.466Z"
+        "lastUpdated": "2026-08-31T05:15:51.914Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\threads-affiliate-poster\\src\\app\\(dashboard)\\settings\\page.tsx"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\app\\(dashboard)\\settings\\page.tsx"
     },
     "providers": {
       "phase": "do",
@@ -362,9 +366,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T09:18:26.898Z",
-        "lastUpdated": "2026-08-30T09:30:06.485Z"
+        "lastUpdated": "2026-08-30T10:51:31.414Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\competitor-analysis\\app\\(dashboard)\\layout.tsx"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\app\\(dashboard)\\layout.tsx"
     },
     "login": {
       "phase": "do",
@@ -375,9 +379,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T09:18:36.653Z",
-        "lastUpdated": "2026-08-27T02:58:16.558Z"
+        "lastUpdated": "2026-08-30T10:51:22.967Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\threads-affiliate-poster\\src\\app\\(auth)\\login\\page.tsx"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\app\\(auth)\\login\\page.tsx"
     },
     "grades": {
       "phase": "do",
@@ -531,9 +535,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-07-22T01:44:46.824Z",
-        "lastUpdated": "2026-08-28T11:39:51.431Z"
+        "lastUpdated": "2026-08-31T05:14:55.803Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\threads-affiliate-poster\\src\\lib\\actions\\posts.ts"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\lib\\actions\\reports.ts"
     },
     "signup": {
       "phase": "do",
@@ -544,9 +548,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-07-22T01:45:24.921Z",
-        "lastUpdated": "2026-08-27T02:58:20.911Z"
+        "lastUpdated": "2026-08-30T10:51:26.992Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\threads-affiliate-poster\\src\\app\\(auth)\\signup\\page.tsx"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\app\\(auth)\\signup\\page.tsx"
     },
     "ai": {
       "phase": "do",
@@ -557,9 +561,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-07-22T03:22:01.739Z",
-        "lastUpdated": "2026-08-29T09:34:12.806Z"
+        "lastUpdated": "2026-08-31T05:15:27.318Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\music\\lib\\ai\\suno.ts"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\lib\\ai\\opportunity.ts"
     },
     "posts": {
       "phase": "do",
@@ -752,9 +756,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-08-06T03:50:40.628Z",
-        "lastUpdated": "2026-08-27T02:58:28.001Z"
+        "lastUpdated": "2026-08-30T10:48:45.461Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\threads-affiliate-poster\\src\\lib\\supabase\\admin.ts"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\lib\\supabase\\admin.ts"
     },
     "ui": {
       "phase": "do",
@@ -778,9 +782,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-08-06T03:57:25.022Z",
-        "lastUpdated": "2026-08-28T05:53:42.165Z"
+        "lastUpdated": "2026-08-31T03:17:36.647Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\threads-affiliate-poster\\src\\app\\(auth)\\layout.tsx"
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\app\\(auth)\\layout.tsx"
     },
     "candidates": {
       "phase": "do",
@@ -1938,6 +1942,58 @@
         "lastUpdated": "2026-08-27T03:01:56.719Z"
       },
       "lastFile": "D:\\Claude Code\\AIMaster\\threads-affiliate-poster\\src\\lib\\aliexpress\\client.ts"
+    },
+    "trending-product-finder": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-08-30T10:48:19.703Z",
+        "lastUpdated": "2026-08-31T05:15:35.163Z"
+      },
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\lib\\apiKeyLabels.ts"
+    },
+    "naver": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-08-30T10:49:50.177Z",
+        "lastUpdated": "2026-08-31T05:14:25.909Z"
+      },
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\lib\\naver\\datalab.ts"
+    },
+    "watchlist": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-08-30T10:51:49.000Z",
+        "lastUpdated": "2026-08-31T05:16:08.953Z"
+      },
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\components\\watchlist\\WatchlistForm.tsx"
+    },
+    "reports": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-08-30T10:52:38.358Z",
+        "lastUpdated": "2026-08-31T05:16:25.261Z"
+      },
+      "lastFile": "D:\\Claude Code\\AIMaster\\trending-product-finder\\app\\(dashboard)\\reports\\page.tsx"
     }
   },
   "pipeline": {
@@ -1948,7 +2004,7 @@
   "session": {
     "startedAt": "2026-02-13T23:47:40.727Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-08-30T09:30:56.130Z"
+    "lastActivity": "2026-08-31T05:16:25.261Z"
   },
   "history": [
     {
@@ -19594,6 +19650,312 @@
     {
       "timestamp": "2026-08-30T09:30:56.130Z",
       "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:48:19.703Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:48:30.535Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:48:41.653Z",
+      "feature": "supabase",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:48:42.965Z",
+      "feature": "supabase",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:48:45.461Z",
+      "feature": "supabase",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:48:46.423Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:49:08.842Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:49:25.205Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:49:30.270Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:49:35.963Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:49:50.177Z",
+      "feature": "naver",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:49:58.966Z",
+      "feature": "naver",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:50:06.023Z",
+      "feature": "naver",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:50:29.319Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:50:36.360Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:50:40.130Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:50:48.833Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:07.470Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:15.968Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:17.495Z",
+      "feature": "(auth)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:22.967Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:26.992Z",
+      "feature": "signup",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:31.414Z",
+      "feature": "(dashboard)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:36.900Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:49.000Z",
+      "feature": "watchlist",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:51:55.475Z",
+      "feature": "watchlist",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:52:03.014Z",
+      "feature": "watchlist",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:52:14.200Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:52:23.105Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:52:38.358Z",
+      "feature": "reports",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:52:52.153Z",
+      "feature": "reports",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:52:56.274Z",
+      "feature": "reports",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:56:08.335Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:56:11.392Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-30T10:56:14.578Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T03:17:35.304Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T03:17:36.647Z",
+      "feature": "(auth)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T03:17:37.833Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T03:17:39.319Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T03:17:40.443Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:14:25.909Z",
+      "feature": "naver",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:14:46.015Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:14:55.803Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:15:12.668Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:15:27.318Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:15:35.163Z",
+      "feature": "trending-product-finder",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:15:47.276Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:15:51.914Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:16:08.953Z",
+      "feature": "watchlist",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:16:19.564Z",
+      "feature": "reports",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-08-31T05:16:25.261Z",
+      "feature": "reports",
       "phase": "do",
       "action": "updated"
     }
