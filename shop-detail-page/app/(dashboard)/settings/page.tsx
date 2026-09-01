@@ -30,15 +30,21 @@ export default async function SettingsPage() {
       <p className="mb-6 text-sm text-gray-500">
         상품분석과 이미지 생성 기능 사용 전 본인의 Gemini API 키를 등록 후 사용합니다.
       </p>
-      <div className="space-y-3">
-        {PROVIDERS.map((provider) => (
-          <ApiKeyRow
-            key={provider}
-            provider={provider}
-            label={PROVIDER_LABELS[provider]}
-            maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-          />
-        ))}
+      <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-gray-900">🤖 Gemini</h2>
+          <p className="text-xs text-gray-500">상품분석과 상세페이지 섹션 이미지(나노바나나) 생성에 사용됩니다.</p>
+        </div>
+        <div className="space-y-3">
+          {PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
