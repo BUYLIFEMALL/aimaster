@@ -34,35 +34,42 @@ export default async function AccountsPage({
         </div>
       )}
 
-      <div className="rounded-lg border border-neutral-200 bg-white p-6">
-        {account ? (
-          <div>
-            <p className="text-sm text-neutral-500">연결된 계정</p>
-            <p className="mt-1 text-lg font-medium text-neutral-900">
-              @{account.ig_username ?? account.ig_user_id}
-            </p>
-            {account.token_expires_at && (
-              <p className="mt-1 text-xs text-neutral-500">
-                토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR")}
+      <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-neutral-900">📷 연동 계정</h2>
+          <p className="text-xs text-neutral-500">
+            비즈니스/크리에이터 계정이 Facebook 페이지와 연결되어 있어야 합니다.
+          </p>
+        </div>
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+          {account ? (
+            <div>
+              <p className="text-sm text-neutral-500">연결된 계정</p>
+              <p className="mt-1 text-lg font-medium text-neutral-900">
+                @{account.ig_username ?? account.ig_user_id}
               </p>
-            )}
-            <form action={disconnectInstagramAccountAction} className="mt-4">
-              <Button type="submit" variant="danger">
-                연결 해제
-              </Button>
-            </form>
-          </div>
-        ) : (
-          <div>
-            <p className="mb-4 text-sm text-neutral-600">
-              게시글을 자동으로 게시하려면 먼저 인스타그램 계정을 연결해야 합니다. (비즈니스/크리에이터
-              계정이 Facebook 페이지와 연결되어 있어야 합니다.)
-            </p>
-            <form action={connectInstagramAccountAction}>
-              <Button type="submit">인스타그램 계정 연결하기</Button>
-            </form>
-          </div>
-        )}
+              {account.token_expires_at && (
+                <p className="mt-1 text-xs text-neutral-500">
+                  토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR")}
+                </p>
+              )}
+              <form action={disconnectInstagramAccountAction} className="mt-4">
+                <Button type="submit" variant="danger">
+                  연결 해제
+                </Button>
+              </form>
+            </div>
+          ) : (
+            <div>
+              <p className="mb-4 text-sm text-neutral-600">
+                게시글을 자동으로 게시하려면 먼저 인스타그램 계정을 연결해야 합니다.
+              </p>
+              <form action={connectInstagramAccountAction}>
+                <Button type="submit">인스타그램 계정 연결하기</Button>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
