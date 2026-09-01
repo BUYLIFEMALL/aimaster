@@ -57,6 +57,15 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
       setSourcePrice(String(product.salePriceKrw));
       setSellingPrice(String(Math.round(product.salePriceKrw * 2.5)));
     }
+    // 이전에 직접 수정했던 값이 남아있지 않도록, 상품을 새로 선택할 때마다
+    // 나머지 비용 항목도 전부 기본값으로 되돌려서 다시 채운다.
+    setCustomsDutyRate(String(MARGIN_DEFAULTS.customsDutyRate));
+    setVatRate(String(MARGIN_DEFAULTS.vatRate));
+    setShippingPerUnit(String(MARGIN_DEFAULTS.shippingPerUnitKrw));
+    setDomesticFee(String(MARGIN_DEFAULTS.domesticFeePerUnitKrw));
+    setPlatformFeeRate(String(MARGIN_DEFAULTS.platformFeeRate));
+    setDeliveryFee(String(MARGIN_DEFAULTS.deliveryFeeKrw));
+    setMarketingFee(String(MARGIN_DEFAULTS.marketingFeeKrw));
   }
 
   function handleReset() {
@@ -161,8 +170,10 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
 
         <p className="text-xs text-gray-500">
           아래 값은 모두 <span className="font-semibold text-gray-700">기본 추정치가 미리 채워져</span> 있습니다.
-          위에서 상품을 검색·선택하면 알리 원가/예상 판매가만 자동으로 채워지고, 그 외에는 언제든
-          직접 수정해서 즉시 다시 계산됩니다.
+          <br />
+          위에서 상품을 검색·선택하면 알리 원가/예상 판매가만 자동으로 채워지고,
+          <br />
+          다른 값은 수정시 즉시 다시 계산됩니다.
         </p>
 
         <div className="grid grid-cols-2 gap-3 text-sm">
