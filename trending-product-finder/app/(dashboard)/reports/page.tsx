@@ -111,7 +111,7 @@ export default async function ReportsPage() {
                     href={`/sourcing?keyword=${encodeURIComponent(item.keyword)}`}
                     className="mt-1 inline-block rounded-lg bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700 hover:bg-sky-100"
                   >
-                    🌏 소싱 원가 계산기로 보기
+                    🌏 상품소싱 원가계산기로 보기
                   </Link>
                 </div>
               ))}
