@@ -5,8 +5,23 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
-const PROVIDERS: ApiKeyProvider[] = ["serpapi", "perplexity", "openai", "anthropic"];
+// 프로바이더를 성격별 섹션으로 묶어서 보여준다 — 검색결과 수집용 키와 AI 리서치/분석용
+// 키가 한눈에 구분되도록 그룹핑한다.
+const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[] }[] = [
+  {
+    title: "🔍 검색결과 수집 (SerpApi)",
+    description: "구글/네이버 검색결과에서 상위 노출 도메인을 가져오는 필수 키",
+    providers: ["serpapi"],
+  },
+  {
+    title: "🤖 AI 리서치·분석 (Perplexity / OpenAI / Anthropic)",
+    description:
+      "경쟁사 리서치와 분석 리포트를 만드는 AI 키 — Perplexity/OpenAI는 필수, Anthropic은 리포트를 HTML로 변환하는 선택 기능",
+    providers: ["perplexity", "openai", "anthropic"],
+  },
+];
 
 const HELP_LINKS: Partial<
   Record<ApiKeyProvider, { url: string; label: string; highlight?: string; description?: string }>
@@ -43,18 +58,28 @@ export default async function SettingsPage() {
         리서치와 분석 리포트 작성에 쓰이고, Anthropic은 리포트를 보기 좋은 HTML로 변환하는
         선택 기능에만 쓰입니다(등록 안 해도 분석 자체는 정상 동작).
       </p>
-      <div className="space-y-3">
-        {PROVIDERS.map((provider) => (
-          <ApiKeyRow
-            key={provider}
-            provider={provider}
-            label={PROVIDER_LABELS[provider]}
-            maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-            helpUrl={HELP_LINKS[provider]?.url}
-            helpLabel={HELP_LINKS[provider]?.label}
-            helpHighlight={HELP_LINKS[provider]?.highlight}
-            helpDescription={HELP_LINKS[provider]?.description}
-          />
+      <div className="space-y-5">
+        {SECTIONS.map((section) => (
+          <div key={section.title} className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+            <div className="mb-3">
+              <h2 className="text-sm font-bold text-gray-900">{section.title}</h2>
+              <p className="text-xs text-gray-500">{section.description}</p>
+            </div>
+            <div className="space-y-3">
+              {section.providers.map((provider) => (
+                <ApiKeyRow
+                  key={provider}
+                  provider={provider}
+                  label={PROVIDER_LABELS[provider]}
+                  maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                  helpUrl={HELP_LINKS[provider]?.url}
+                  helpLabel={HELP_LINKS[provider]?.label}
+                  helpHighlight={HELP_LINKS[provider]?.highlight}
+                  helpDescription={HELP_LINKS[provider]?.description}
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </div>
