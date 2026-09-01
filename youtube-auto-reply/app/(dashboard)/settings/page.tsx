@@ -62,14 +62,23 @@ export default async function SettingsPage() {
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">채널 연결 / 설정</h1>
-        <div className="mb-6 space-y-2 text-sm text-gray-500">
-          <p>유튜브 댓글자동화에는 본인의 Google OAuth Client ID/Secret이 필요합니다.</p>
-          <p>
-            답글 초안을 만드는 AI는 OpenAI/Anthropic Claude/Google Gemini 중 아래 "답글 생성 AI
-            모델"에서 고른 모델에 해당하는 provider의 키 하나만 등록되어 있으면 됩니다(세 개 다
-            등록할 필요 없음).
+        <p className="mb-6 text-sm text-gray-500">
+          유튜브 댓글자동화에는 본인의 Google OAuth Client ID/Secret과, 답글 초안을 만드는
+          OpenAI/Anthropic Claude/Google Gemini 중 고른 모델의 provider 키 하나가 필요합니다.{" "}
+          <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</span>
+        </p>
+      </section>
+
+      {/* 그룹 1: 유튜브 채널 연결 */}
+      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📺 유튜브 채널 연결</h2>
+          <p className="text-sm text-gray-500">
+            Google OAuth Client ID/Secret을 등록하고 채널을 연결해야 댓글을 읽고 답글을 달 수 있어요.
           </p>
-          <p className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
+        </div>
+
+        <div className="space-y-2 text-sm text-gray-500">
           <p>Google Cloud Console에서 만든 OAuth 클라이언트의 승인된 리디렉션 URI에 아래 주소를 추가로 등록해주셔야 합니다.</p>
           <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">
             {process.env.NEXT_PUBLIC_SITE_URL ?? "https://youtube-auto-reply.vercel.app"}/api/youtube/callback
@@ -79,7 +88,7 @@ export default async function SettingsPage() {
             재사용하되, 리디렉션 URI만 위 주소로 추가하시면 됩니다.
           </p>
         </div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">유튜브 채널 연결용</p>
+
         <div className="space-y-3">
           {OAUTH_PROVIDERS.map((provider) => (
             <ApiKeyRow
@@ -93,20 +102,34 @@ export default async function SettingsPage() {
           ))}
         </div>
 
-        <div className="mb-2 mt-6 space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+        <div className="space-y-3 border-t border-gray-100 pt-4">
+          <YoutubeConnectSection
+            connected={connectionStatus.connected}
+            channelTitle={connectionStatus.channelTitle}
+            needsReconnect={connectionStatus.needsReconnect}
+          />
+        </div>
+      </section>
+
+      {/* 그룹 2: AI 답글 생성 키 */}
+      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">🤖 AI 답글 생성 키</h2>
+          <p className="text-sm text-gray-500">
+            아래 "🔗 답글 기본 설정 → 답글 생성 AI 모델"에서 고른 모델에 해당하는 provider의 키
+            하나만 등록되어 있으면 됩니다(세 개 다 등록할 필요 없음).
+          </p>
+        </div>
+
+        <div className="space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
           <p>
             🎯 현재 답글 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
           </p>
           <p>
             사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
           </p>
-          <p className="text-xs text-blue-700">
-            모델은 아래 "🔗 답글 기본 설정 → 답글 생성 AI 모델"에서 바꿀 수 있어요.
-          </p>
         </div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
-          답글 생성 AI — 선택한 모델의 provider 키 하나만 있으면 됩니다
-        </p>
+
         <div className="space-y-3">
           {AI_PROVIDERS.map((provider) => (
             <ApiKeyRow
@@ -122,22 +145,19 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      <YoutubeConnectSection
-        connected={connectionStatus.connected}
-        channelTitle={connectionStatus.channelTitle}
-        needsReconnect={connectionStatus.needsReconnect}
-      />
-
-      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
-        <p className="text-sm text-gray-500">
-          유튜브 채널 연결이 끊어지면(구글 미검증 앱은 7일마다 만료) 매일 자동 점검 후 텔레그램으로
-          알려드려요. 또한 새 댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께
-          보내드리고, 텔레그램에서 바로 <strong className="text-gray-700">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
-          선택할 수 있어요(선택 기능). "보류"를 누르면 웹의 "댓글 검토/게시" 화면에 남아있어 나중에
-          수정 후 게시할 수 있습니다. 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
-          연동해야 합니다.
-        </p>
+      {/* 그룹 3: 텔레그램 알림 연동 */}
+      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📱 텔레그램 알림 연동</h2>
+          <p className="text-sm text-gray-500">
+            유튜브 채널 연결이 끊어지면(구글 미검증 앱은 7일마다 만료) 매일 자동 점검 후 텔레그램으로
+            알려드려요. 또한 새 댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께
+            보내드리고, 텔레그램에서 바로 <strong className="text-gray-700">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
+            선택할 수 있어요(선택 기능). "보류"를 누르면 웹의 "댓글 검토/게시" 화면에 남아있어 나중에
+            수정 후 게시할 수 있습니다. 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
+            연동해야 합니다.
+          </p>
+        </div>
 
         {telegramLink ? (
           <div className="space-y-3">
@@ -174,7 +194,7 @@ export default async function SettingsPage() {
         )}
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="glass-card space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">🔗 답글 기본 설정</h2>
         <ReplySettingsForm
           defaultLink={settings?.default_link ?? null}
@@ -184,7 +204,7 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="glass-card space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">⏱ 예약 모니터링</h2>
         <MonitoringSettingsForm
           enabled={settings?.monitoring_enabled ?? false}
@@ -194,7 +214,7 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="glass-card space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">⚡ 자동 게시 (선택, 고급)</h2>
         <p className="text-sm text-gray-500">
           기본적으로는 새 댓글마다 AI 초안만 만들고, 실제 게시는 웹 화면이나 텔레그램 버튼에서

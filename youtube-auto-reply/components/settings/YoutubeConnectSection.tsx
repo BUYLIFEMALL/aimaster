@@ -32,9 +32,7 @@ export function YoutubeConnectSection({
   }
 
   return (
-    <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-gray-900">📺 유튜브 채널 연결</h2>
-
+    <div className="space-y-3">
       {needsReconnect && (
         <p className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-xs font-medium text-amber-800">
           ⚠️ 유튜브 연결이 만료되었습니다(테스트 앱은 7일마다 재연결이 필요합니다). 아래에서 다시
@@ -68,6 +66,6 @@ export function YoutubeConnectSection({
           {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
         </form>
       )}
-    </section>
+    </div>
   );
 }
