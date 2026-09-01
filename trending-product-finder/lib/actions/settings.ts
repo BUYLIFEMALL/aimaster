@@ -3,9 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["naver_client_id", "naver_client_secret", "openai", "gemini"];
+// PROVIDER_LABELS(=ApiKeyProvider 전체 union)에서 직접 뽑아 쓴다 — 예전에 이 배열을
+// 별도로 하드코딩해뒀다가 naver_ads_*/aliexpress_*/domeggook_api_key가 추가된 뒤에도
+// 갱신이 안 돼서, 설정 페이지에 그 항목들이 노출되는데도 저장 버튼을 누르면 전부
+// "잘못된 provider입니다" 에러로 막히는 버그가 있었다(2026-09-01, 도매매 키 저장
+// 시도 중 발견). 다시는 이렇게 벌어지지 않도록 라벨 목록에서 자동으로 유도한다.
+const VALID_PROVIDERS: ApiKeyProvider[] = Object.keys(PROVIDER_LABELS) as ApiKeyProvider[];
 
 export interface SaveApiKeyState {
   error?: string;
