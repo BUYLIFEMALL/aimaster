@@ -131,10 +131,16 @@ Phase 5~7의 상세 조사 근거(공식 API 유무, 개인 발급 가능 여부
 - `trend_snapshots.source` 값을 `naver_datalab`에서 `naver_shopping_insight`로 바꿨는데,
   기존에 (있다면) 쌓인 레거시 행과 값이 섞일 수 있다는 점 참고.
 - `lib/domeggook/client.ts`(도매매 상품리스트 API)는 공식 문서(openapi.domeggook.com)만 보고
-  구현했고 아직 실계정으로 검증하지 못했다. JSON 응답의 최상위 키가 `domeggook`이라는 가정은
-  문서의 XML 예시 구조를 그대로 따른 추정이다 — 실제 회원이 도매매 API 키를 등록하고 처음
-  검색해볼 때 응답이 이 가정과 다르면(특히 필드명 `no`/`title`/`price`/`thumb`/`url`/`id`/
-  `unitQty`) 로그를 보고 바로 수정할 것.
+  구현했고 아직 실계정으로 검증하지 못했다. 2026-09-01에 문서를 재차 정독해서 다음은
+  확인됨: (1) 엔드포인트 `www.domeggook.com/ssl/api/`가 2026-08-11 공지로 바뀐 최신 주소와
+  일치, (2) `getItemList`(상품리스트)는 "Open API" 카테고리 소속이라 **Private API 승인
+  없이 API Key만으로 즉시 호출 가능**(회원 문의 "Open API 키와 Private API 권한신청 둘 다
+  해야 하나" → Open API 키만 있으면 됨, 2026-09-01). 다만 응답 JSON의 최상위 wrapper 키가
+  `domeggook`이라는 가정은 문서의 XML 예시 구조를 따른 추정이라 여전히 미확정 — 그래서
+  `findByPaths()`로 `domeggook.list.item`/`list.item`/`result.list.item` 등 여러 후보
+  경로를 순서대로 탐색하도록 방어적으로 작성해뒀다. 실제 회원이 키를 등록하고 첫 검색을
+  해볼 때 결과가 안 나오면, 우선 (a) 설정 페이지에 키가 실제로 저장됐는지, (b) Open API
+  키 발급이 제대로 됐는지부터 확인하고, 그래도 안 되면 응답 필드명을 로그로 재확인할 것.
 
 ### ✅ 검색광고 키워드도구 실계정 검증 완료 (2026-08-31) — CUSTOMER_ID 주의사항
 
