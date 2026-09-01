@@ -6,8 +6,16 @@ import "server-only";
 // market=supply로 고정해 도매매(위탁소싱, 소량구매 가능) 결과만 받는다 — market=dome은
 // 도매꾹(대량 사입 전용)이라 개인 셀러의 소싱 목적과 맞지 않아 의도적으로 제외.
 //
-// 참고: 실계정으로 아직 검증 전이라 응답 필드명은 공식 문서 기준으로 작성했다.
-// 첫 실사용 시 실제 응답과 다르면(특히 item.url, item.deli 등 부가 필드) 조정이 필요할 수 있다.
+// 2026-09-01 확인: 엔드포인트는 2026-08-11 공지("[중요] openAPI Endpoint 변경 안내")로
+// domeggook.com → www.domeggook.com 으로 바뀐 최신 주소를 쓰고 있고(구 주소는 자동
+// 리다이렉트되지만 지연 발생 가능), getItemList는 공식 "Open API" 카테고리 소속이라
+// Private API 승인 없이 바로 호출 가능함을 문서로 재확인했다.
+//
+// 다만 문서 페이지의 응답 예시가 접이식 UI라 스크래핑으로 완전히 확인되지 않아,
+// 최상위 wrapper 키("domeggook")는 XML 예시(<domeggook><header/><list/></domeggook>)를
+// 근거로 한 추정이다. 실제 응답이 다를 가능성에 대비해 findList/findHeader가 여러
+// 후보 경로를 순서대로 탐색하도록 방어적으로 작성했다 — 실계정 검증 시 실제 구조가
+// 확인되면 이 탐색 순서를 정리해도 된다.
 
 const BASE_URL = "https://www.domeggook.com/ssl/api/";
 
@@ -29,6 +37,29 @@ interface DomeggookRawItem {
   url?: string;
   id?: string;
   unitQty?: string | number;
+}
+
+type JsonObject = Record<string, unknown>;
+
+function isObject(value: unknown): value is JsonObject {
+  return typeof value === "object" && value !== null;
+}
+
+/** 후보 경로들을 순서대로 시도해서 처음 발견되는 객체를 반환한다(대소문자 무시). */
+function findByPaths(root: unknown, paths: string[][]): unknown {
+  for (const path of paths) {
+    let cur: unknown = root;
+    for (const key of path) {
+      if (!isObject(cur)) {
+        cur = undefined;
+        break;
+      }
+      const matchKey = Object.keys(cur).find((k) => k.toLowerCase() === key.toLowerCase());
+      cur = matchKey ? cur[matchKey] : undefined;
+    }
+    if (cur !== undefined) return cur;
+  }
+  return undefined;
 }
 
 /** 키워드로 도매매 소싱 후보 상품을 검색한다. */
@@ -55,20 +86,28 @@ export async function searchProducts(
     throw new Error(`도매매 API 요청이 실패했습니다. (${response.status}) ${text.slice(0, 300)}`);
   }
 
-  const data = (await response.json()) as {
-    domeggook?: {
-      header?: { errMsg?: string; errCode?: string };
-      list?: { item?: DomeggookRawItem | DomeggookRawItem[] };
-    };
-  };
+  const data: unknown = await response.json();
 
-  const errMsg = data.domeggook?.header?.errMsg;
+  const header = findByPaths(data, [["domeggook", "header"], ["header"], ["result", "header"], ["response", "header"]]);
+  const errMsg = isObject(header) ? (header.errMsg as string | undefined) ?? (header.errmsg as string | undefined) : undefined;
   if (errMsg) {
     throw new Error(`도매매 API 오류: ${errMsg}`);
   }
 
-  const rawItem = data.domeggook?.list?.item;
-  const items: DomeggookRawItem[] = !rawItem ? [] : Array.isArray(rawItem) ? rawItem : [rawItem];
+  const rawList = findByPaths(data, [
+    ["domeggook", "list", "item"],
+    ["list", "item"],
+    ["result", "list", "item"],
+    ["response", "list", "item"],
+    ["domeggook", "items"],
+    ["items"],
+  ]);
+
+  const items: DomeggookRawItem[] = !rawList
+    ? []
+    : Array.isArray(rawList)
+      ? (rawList as DomeggookRawItem[])
+      : [rawList as DomeggookRawItem];
 
   const parsePrice = (value?: string | number): number | null => {
     if (value === undefined || value === null || value === "") return null;
