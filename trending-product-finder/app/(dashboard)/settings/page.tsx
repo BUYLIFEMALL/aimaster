@@ -7,19 +7,39 @@ import type { ApiKeyProvider } from "@/types/database.types";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const PROVIDERS: ApiKeyProvider[] = [
-  "naver_client_id",
-  "naver_client_secret",
-  "naver_ads_api_key",
-  "naver_ads_secret_key",
-  "naver_ads_customer_id",
-  "aliexpress_app_key",
-  "aliexpress_app_secret",
-  "aliexpress_tracking_id",
-  "domeggook_api_key",
-  "youtube_api_key",
-  "openai",
-  "gemini",
+// 프로바이더를 성격별 섹션으로 묶어서 보여준다 — 어떤 키가 어떤 기능에 쓰이는지
+// 한눈에 구분되도록(예: 네이버 관련 3그룹, 알리/도매매/유튜브 각 1그룹, AI 1그룹).
+const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[] }[] = [
+  {
+    title: "☁️ 네이버클라우드 API HUB",
+    description: "쇼핑인사이트 관심도 추이 조회 — 기회 점수 계산의 기본 데이터",
+    providers: ["naver_client_id", "naver_client_secret"],
+  },
+  {
+    title: "🔍 네이버 검색광고",
+    description: '"카테고리로 후보 상품군 추천받기" 기능 전용(선택)',
+    providers: ["naver_ads_api_key", "naver_ads_secret_key", "naver_ads_customer_id"],
+  },
+  {
+    title: "🌏 알리익스프레스",
+    description: '"상품소싱 마진계산기"의 해외 소싱 채널 전용(선택)',
+    providers: ["aliexpress_app_key", "aliexpress_app_secret", "aliexpress_tracking_id"],
+  },
+  {
+    title: "🏠 도매매(도매꾹)",
+    description: '"상품소싱 마진계산기"의 국내 소싱 채널 전용(선택)',
+    providers: ["domeggook_api_key"],
+  },
+  {
+    title: "📺 YouTube",
+    description: "기회 점수에 영상 트렌드 신호(업로드량·조회수)를 더하는 용도(선택)",
+    providers: ["youtube_api_key"],
+  },
+  {
+    title: "🤖 AI (OpenAI / Gemini)",
+    description: "기회 점수 추천 사유 생성 — 둘 중 1개만 등록하면 됩니다",
+    providers: ["openai", "gemini"],
+  },
 ];
 
 const HELP_LINKS: Partial<
@@ -115,18 +135,28 @@ export default async function SettingsPage() {
           <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
           등록하지 않은 상태로 실행을 시도하면 등록 안내가 뜨고 막힙니다.
         </p>
-        <div className="space-y-3">
-          {PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-              helpUrl={HELP_LINKS[provider]?.url}
-              helpLabel={HELP_LINKS[provider]?.label}
-              helpDescription={HELP_LINKS[provider]?.description}
-              helpWarning={HELP_LINKS[provider]?.warning}
-            />
+        <div className="space-y-6">
+          {SECTIONS.map((section) => (
+            <div key={section.title}>
+              <div className="mb-2">
+                <h2 className="text-sm font-bold text-gray-900">{section.title}</h2>
+                <p className="text-xs text-gray-400">{section.description}</p>
+              </div>
+              <div className="space-y-3">
+                {section.providers.map((provider) => (
+                  <ApiKeyRow
+                    key={provider}
+                    provider={provider}
+                    label={PROVIDER_LABELS[provider]}
+                    maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                    helpUrl={HELP_LINKS[provider]?.url}
+                    helpLabel={HELP_LINKS[provider]?.label}
+                    helpDescription={HELP_LINKS[provider]?.description}
+                    helpWarning={HELP_LINKS[provider]?.warning}
+                  />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </section>
