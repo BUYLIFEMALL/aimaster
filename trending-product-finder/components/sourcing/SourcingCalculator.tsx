@@ -120,7 +120,13 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
                   {p.evaluateRate && ` · 평점 ${p.evaluateRate}`}
                 </p>
               </div>
-              <span className="shrink-0 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700">
+              <span
+                className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${
+                  selectedTitle === p.title
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-sky-600 text-white"
+                }`}
+              >
                 {selectedTitle === p.title ? "✅ 선택됨" : "상품 선택"}
               </span>
             </button>
@@ -132,8 +138,11 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-gray-900">💰 마진 계산기</p>
           {selectedTitle && (
-            <button onClick={handleReset} className="text-xs text-sky-600 hover:underline">
-              선택 해제하고 직접 입력
+            <button
+              onClick={handleReset}
+              className="rounded-lg border border-sky-300 bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 hover:bg-sky-100"
+            >
+              직접입력
             </button>
           )}
         </div>
@@ -244,32 +253,95 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
           </label>
         </div>
 
-        <div
-          className={`rounded-xl border p-4 text-sm ${
+        {(() => {
+          const dutyAndVatKrw = Math.round(
+            (Number(sourcePrice) || 0) * ((Number(customsDutyRate) || 0) + (Number(vatRate) || 0)) / 100,
+          );
+          const tone =
             marginResult.marginRatePct >= 20
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+              ? { badge: "bg-emerald-600", box: "border-emerald-200 bg-emerald-50", text: "text-emerald-900" }
               : marginResult.marginRatePct >= 0
-                ? "border-amber-200 bg-amber-50 text-amber-900"
-                : "border-red-200 bg-red-50 text-red-900"
-          }`}
-        >
-          <p>
-            최종 수입 단가(관세+부가세+운송+입고 포함):{" "}
-            <span className="font-bold">{marginResult.landedCostKrw.toLocaleString()}원</span>
-          </p>
-          <p className="mt-1">
-            판매 수수료: <span className="font-bold">{marginResult.platformFeeKrw.toLocaleString()}원</span>
-          </p>
-          <p className="mt-1">
-            총 비용: <span className="font-bold">{marginResult.totalCostKrw.toLocaleString()}원</span>
-          </p>
-          <p className="mt-2 text-base">
-            예상 공헌이익:{" "}
-            <span className="font-bold">
-              {marginResult.contributionProfitKrw.toLocaleString()}원 (마진율 {marginResult.marginRatePct}%)
-            </span>
-          </p>
-        </div>
+                ? { badge: "bg-amber-500", box: "border-amber-200 bg-amber-50", text: "text-amber-900" }
+                : { badge: "bg-red-600", box: "border-red-200 bg-red-50", text: "text-red-900" };
+
+          return (
+            <div className={`rounded-xl border ${tone.box} overflow-hidden`}>
+              {/* 핵심 결과 — 한눈에 보이는 요약 */}
+              <div className="flex items-center justify-between gap-4 p-4">
+                <div>
+                  <p className={`text-xs font-semibold ${tone.text} opacity-80`}>예상 공헌이익 (개당)</p>
+                  <p className={`text-2xl font-extrabold tabular-nums ${tone.text}`}>
+                    {marginResult.contributionProfitKrw.toLocaleString()}원
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full ${tone.badge} px-4 py-1.5 text-sm font-bold text-white tabular-nums`}
+                >
+                  마진율 {marginResult.marginRatePct}%
+                </span>
+              </div>
+
+              {/* 계산 과정 상세 — 영수증 형태로 항목별 표시 */}
+              <div className="border-t border-black/5 bg-white/60 px-4 py-3 text-sm">
+                <p className="mb-1.5 text-xs font-bold text-gray-500">최종 수입 단가 계산</p>
+                <div className="space-y-1 text-gray-700">
+                  <div className="flex justify-between">
+                    <span>알리 원가</span>
+                    <span className="tabular-nums">{(Number(sourcePrice) || 0).toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>+ 관세·부가세 ({(Number(customsDutyRate) || 0) + (Number(vatRate) || 0)}%)</span>
+                    <span className="tabular-nums">{dutyAndVatKrw.toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>+ 해외 운송비</span>
+                    <span className="tabular-nums">{(Number(shippingPerUnit) || 0).toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>+ 국내 입고/검수비</span>
+                    <span className="tabular-nums">{(Number(domesticFee) || 0).toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between border-t border-dashed border-gray-300 pt-1 font-bold text-gray-900">
+                    <span>= 최종 수입 단가</span>
+                    <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
+                  </div>
+                </div>
+
+                <p className="mb-1.5 mt-3 text-xs font-bold text-gray-500">판매 비용 + 최종 결과</p>
+                <div className="space-y-1 text-gray-700">
+                  <div className="flex justify-between">
+                    <span>최종 수입 단가</span>
+                    <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>+ 플랫폼 수수료 ({platformFeeRate || 0}%)</span>
+                    <span className="tabular-nums">{marginResult.platformFeeKrw.toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>+ 택배비</span>
+                    <span className="tabular-nums">{(Number(deliveryFee) || 0).toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>+ 마케팅비</span>
+                    <span className="tabular-nums">{(Number(marketingFee) || 0).toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between border-t border-dashed border-gray-300 pt-1 font-bold text-gray-900">
+                    <span>= 총 비용</span>
+                    <span className="tabular-nums">{marginResult.totalCostKrw.toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
+                    <span>예상 판매가</span>
+                    <span className="tabular-nums">{(Number(sellingPrice) || 0).toLocaleString()}원</span>
+                  </div>
+                  <div className={`flex justify-between border-t border-gray-300 pt-1 text-base font-extrabold ${tone.text}`}>
+                    <span>= 공헌이익</span>
+                    <span className="tabular-nums">{marginResult.contributionProfitKrw.toLocaleString()}원</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         <p className="text-xs text-gray-400">
           ※ 관세/부가세율은 품목·통관 방식에 따라 달라지는 추정치입니다. 실제 세율은 관세청 또는
