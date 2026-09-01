@@ -135,12 +135,12 @@ export default async function SettingsPage() {
           <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
           등록하지 않은 상태로 실행을 시도하면 등록 안내가 뜨고 막힙니다.
         </p>
-        <div className="space-y-6">
+        <div className="space-y-5">
           {SECTIONS.map((section) => (
-            <div key={section.title}>
-              <div className="mb-2">
+            <div key={section.title} className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4">
+              <div className="mb-3">
                 <h2 className="text-sm font-bold text-gray-900">{section.title}</h2>
-                <p className="text-xs text-gray-400">{section.description}</p>
+                <p className="text-xs text-gray-500">{section.description}</p>
               </div>
               <div className="space-y-3">
                 {section.providers.map((provider) => (
