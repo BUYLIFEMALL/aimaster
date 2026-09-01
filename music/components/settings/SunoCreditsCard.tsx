@@ -25,7 +25,7 @@ export function SunoCreditsCard() {
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-sm font-semibold text-gray-800">🎫 Suno API 크레딧</p>
         <button
