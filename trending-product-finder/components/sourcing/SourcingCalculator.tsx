@@ -17,6 +17,7 @@ interface NormalizedProduct {
   imageUrl: string;
   priceKrw: number | null;
   metaText: string;
+  detailUrl: string;
 }
 
 interface PlatformResult {
@@ -47,6 +48,7 @@ async function fetchAliexpress(keyword: string): Promise<PlatformResult> {
       ]
         .filter(Boolean)
         .join(" · "),
+      detailUrl: p.detailUrl,
     })),
   };
 }
@@ -69,6 +71,7 @@ async function fetchDomeggook(keyword: string): Promise<PlatformResult> {
       ]
         .filter(Boolean)
         .join(" · "),
+      detailUrl: p.detailUrl,
     })),
   };
 }
@@ -236,36 +239,46 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
             {!result.error && result.products.length === 0 && (
               <p className="text-sm text-gray-400">검색된 상품이 없습니다. 다른 키워드로 시도해보세요.</p>
             )}
-            {result.products.map((prod) => (
-              <button
-                key={prod.key}
-                onClick={() => handleSelect(prod)}
-                className={`flex w-full items-center gap-3 rounded-xl border bg-white p-3 text-left hover:border-sky-300 ${
-                  selectedTitle === prod.title && selectedPlatform === prod.platform
-                    ? "border-sky-400 bg-sky-50"
-                    : "border-gray-200"
-                }`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {prod.imageUrl && <img src={prod.imageUrl} alt={prod.title} className="h-14 w-14 rounded object-cover" />}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-gray-900">{prod.title}</p>
-                  <p className="text-xs text-gray-500">
-                    {prod.priceKrw ? `${prod.priceKrw.toLocaleString()}원` : "가격 정보 없음"}
-                    {prod.metaText && ` · ${prod.metaText}`}
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${
-                    selectedTitle === prod.title && selectedPlatform === prod.platform
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-sky-600 text-white"
+            {result.products.map((prod) => {
+              const isSelected = selectedTitle === prod.title && selectedPlatform === prod.platform;
+              return (
+                <div
+                  key={prod.key}
+                  className={`flex w-full items-center gap-3 rounded-xl border bg-white p-3 ${
+                    isSelected ? "border-sky-400 bg-sky-50" : "border-gray-200"
                   }`}
                 >
-                  {selectedTitle === prod.title && selectedPlatform === prod.platform ? "✅ 선택됨" : "상품 선택"}
-                </span>
-              </button>
-            ))}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {prod.imageUrl && <img src={prod.imageUrl} alt={prod.title} className="h-14 w-14 rounded object-cover" />}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm text-gray-900">{prod.title}</p>
+                    <p className="text-xs text-gray-500">
+                      {prod.priceKrw ? `${prod.priceKrw.toLocaleString()}원` : "가격 정보 없음"}
+                      {prod.metaText && ` · ${prod.metaText}`}
+                    </p>
+                  </div>
+                  {prod.detailUrl && (
+                    <a
+                      href={prod.detailUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50"
+                    >
+                      🔗 상품 보기
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleSelect(prod)}
+                    className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${
+                      isSelected ? "bg-emerald-100 text-emerald-700" : "bg-sky-600 text-white hover:bg-sky-700"
+                    }`}
+                  >
+                    {isSelected ? "✅ 선택됨" : "상품 선택"}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         );
       })}
