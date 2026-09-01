@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCategoryKeywordTrend, calcTrendChangePct, type NaverAuth } from "@/lib/naver/datalab";
 import { calcOpportunityScore, generateReasons, type OpportunityResult } from "@/lib/ai/opportunity";
+import { getYoutubeSignal } from "@/lib/youtube/client";
 import { resolveApiKey } from "@/lib/apiKeys";
 import type { Json, Database } from "@/types/database.types";
 
@@ -32,11 +33,12 @@ export async function generateReportForWatchlist(
   supabase: SupabaseClient<Database>,
   watchlist: WatchlistRow,
 ): Promise<GenerateReportResult> {
-  const [naverClientId, naverClientSecret, openaiKey, geminiKey] = await Promise.all([
+  const [naverClientId, naverClientSecret, openaiKey, geminiKey, youtubeApiKey] = await Promise.all([
     resolveApiKey(supabase, watchlist.user_id, "naver_client_id"),
     resolveApiKey(supabase, watchlist.user_id, "naver_client_secret"),
     resolveApiKey(supabase, watchlist.user_id, "openai"),
     resolveApiKey(supabase, watchlist.user_id, "gemini"),
+    resolveApiKey(supabase, watchlist.user_id, "youtube_api_key"),
   ]);
 
   if (!naverClientId || !naverClientSecret) {
@@ -77,6 +79,18 @@ export async function generateReportForWatchlist(
         raw: trendPoints as unknown as Json,
       });
 
+      let youtubeScore: number | null = null;
+      let youtubeUploadCount: number | null = null;
+      if (youtubeApiKey) {
+        try {
+          const signal = await getYoutubeSignal(keyword, youtubeApiKey);
+          youtubeScore = signal.score;
+          youtubeUploadCount = signal.recentUploadCount;
+        } catch (err) {
+          console.error(`[trending-product-finder] "${keyword}" 유튜브 신호 조회 실패:`, err);
+        }
+      }
+
       const opportunityScore = calcOpportunityScore({
         keyword,
         trendIndex,
@@ -84,11 +98,33 @@ export async function generateReportForWatchlist(
         productCount: null,
         minPrice: null,
         maxPrice: null,
+        youtubeScore,
+        youtubeUploadCount,
       });
 
-      results.push({ keyword, trendIndex, trendChangePct, productCount: null, minPrice: null, maxPrice: null, opportunityScore });
+      results.push({
+        keyword,
+        trendIndex,
+        trendChangePct,
+        productCount: null,
+        minPrice: null,
+        maxPrice: null,
+        youtubeScore,
+        youtubeUploadCount,
+        opportunityScore,
+      });
     } catch (err) {
-      results.push({ keyword, trendIndex: null, trendChangePct: null, productCount: null, minPrice: null, maxPrice: null, opportunityScore: 0 });
+      results.push({
+        keyword,
+        trendIndex: null,
+        trendChangePct: null,
+        productCount: null,
+        minPrice: null,
+        maxPrice: null,
+        youtubeScore: null,
+        youtubeUploadCount: null,
+        opportunityScore: 0,
+      });
       console.error(`[trending-product-finder] "${keyword}" 조회 실패:`, err);
     }
   }

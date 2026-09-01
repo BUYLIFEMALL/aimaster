@@ -112,7 +112,7 @@ Phase 1을 처음 구현할 때는 구(舊) `developers.naver.com` 방식(`X-Nav
 | 4a | Vercel Cron으로 활성 관심 목록 정기 자동 리포트(`/api/cron/generate-reports`, 매일 UTC 00:00=KST 09:00) — 리포트 생성 핵심 로직을 `lib/reportEngine.ts`로 분리해 사용자 액션/Cron 양쪽이 재사용. 회원 본인 키가 없으면 자동으로 건너뜀(실패 아님) | ✅ 구현 완료, 실계정 4건 전부 정상 생성 검증 완료(2026-09-01) |
 | 4b | Google Ads API(선택 연동, 글로벌 검색량) | ⏸️ 보류 — 회원별 Google Ads 계정+개발자 토큰 승인이 필요해 온보딩이 무겁고, 현재 네이버 검색광고로 이미 국내 실검색량을 확보하고 있어 우선순위 낮음. 필요해지면 착수 |
 | 5 | 도매매(dome.co.kr) Open API를 `/sourcing`에 알리익스프레스와 나란히 추가 — 국내 위탁소싱이라 관세/부가세/해외운송비 계산 불필요, 개인 ID 로그인만으로 API Key 즉시 무료 발급 가능해 BYOK 원칙에 가장 적합 | ✅ 구현 완료, 실계정(buylifemall) E2E 검증 완료(2026-09-01) — `lib/domeggook/client.ts`(상품리스트 API, market=supply), `/sourcing`에 알리익스프레스/도매매 채널 체크박스(중복선택) UI. 실제 키로 "마스크" 검색 → 정상 응답 확인(응답 root 키가 `domeggook`이라는 가정이 실제와 100% 일치). 검증 과정에서 설정 페이지 저장 버그(신규 provider 전부 "잘못된 provider" 에러로 거부)를 발견해 함께 수정 |
-| 6 | YouTube Data API v3로 키워드 관련 영상 조회수/업로드량을 기회 점수의 세 번째 신호로 추가 | ⏸️ **대기 2순위** — 무료·즉시 발급 |
+| 6 | YouTube Data API v3로 키워드 관련 영상 조회수/업로드량을 기회 점수의 세 번째 신호로 추가 | ✅ 구현 완료(2026-09-01) — `lib/youtube/client.ts`(search.list로 최근 30일 관련 영상 수 조회 → videos.list로 조회수 합산, 0~100 점수화), `lib/ai/opportunity.ts`의 `calcOpportunityScore()`에 유튜브 신호 있을 때 가중치 재배분 로직 추가, 리포트 화면에 "📺 최근 30일 관련영상 N개" 노출. **선택 항목**(youtube_api_key 미등록이어도 기존과 동일하게 동작). **실계정 미검증**: YouTube API 키는 Google Cloud Console 설정이 필요해 이번 세션에서 직접 발급받아 테스트하지 못함 — 회원이 키를 등록하고 첫 리포트를 생성해볼 때 재확인 필요 |
 | 7 | 11번가 오픈API로 국내 오픈마켓 상품검색 추가(쿠팡 승인 대기 중 대안) | ⏸️ **대기 3순위** — 개인셀러 전환이 선행조건이라 진입장벽 있음 |
 
 Phase 5~7의 상세 조사 근거(공식 API 유무, 개인 발급 가능 여부, 비용, 탈락시킨 후보 목록과

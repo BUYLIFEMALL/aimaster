@@ -12,6 +12,8 @@ interface ReportItem {
   productCount: number | null;
   minPrice: number | null;
   maxPrice: number | null;
+  youtubeScore: number | null;
+  youtubeUploadCount: number | null;
   opportunityScore: number;
   reason: string | null;
 }
@@ -72,8 +74,11 @@ export default async function ReportsPage() {
             <span className="mx-1 rounded-full border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 font-semibold text-emerald-700">60점 이상: 눈여겨볼 만함</span>
             <span className="mx-1 rounded-full border border-amber-200 bg-amber-50 px-1.5 py-0.5 font-semibold text-amber-700">35~59점: 보통</span>
             <span className="mx-1 rounded-full border border-gray-200 bg-gray-50 px-1.5 py-0.5 font-semibold text-gray-500">35점 미만: 아직 신호 약함</span>
-            . 지금은 관심도만 반영하며, 실제 판매 경쟁이 얼마나 치열한지(등록 상품 수)는 Phase 2에서
-            추가되면 점수 계산식도 함께 바뀔 예정입니다.
+            . 기본은 관심도만 반영하지만, 설정 페이지에 <span className="font-semibold">YouTube Data API 키</span>를
+            등록하면 최근 30일간 관련 영상이 얼마나 많이 올라오는지(업로드량·조회수)도 함께
+            반영됩니다 — 콘텐츠/마케팅으로도 화제성이 있는 키워드를 더 잘 잡아내기 위해서입니다.
+            실제 판매 경쟁이 얼마나 치열한지(등록 상품 수)는 Phase 2에서 추가되면 점수 계산식도
+            함께 바뀔 예정입니다.
           </p>
         </div>
       </section>
@@ -105,6 +110,8 @@ export default async function ReportsPage() {
                     {item.trendChangePct != null && ` (전기 대비 ${item.trendChangePct > 0 ? "+" : ""}${item.trendChangePct.toFixed(1)}%)`}
                     {item.productCount != null && ` · 등록상품 ${item.productCount.toLocaleString()}개`}
                     {item.minPrice != null && ` · ${item.minPrice.toLocaleString()}~${item.maxPrice?.toLocaleString()}원`}
+                    {item.youtubeUploadCount != null &&
+                      ` · 📺 최근 30일 관련영상 ${item.youtubeUploadCount.toLocaleString()}개`}
                   </p>
                   {item.reason && <p className="mt-1 text-xs text-gray-700">{item.reason}</p>}
                   <Link
