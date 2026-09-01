@@ -12,10 +12,16 @@ type Platform = "aliexpress" | "domeggook";
 
 interface NormalizedProduct {
   key: string;
+  platform: Platform;
   title: string;
   imageUrl: string;
   priceKrw: number | null;
   metaText: string;
+}
+
+interface PlatformResult {
+  products: NormalizedProduct[];
+  error?: string;
 }
 
 const PLATFORMS: { value: Platform; label: string; description: string }[] = [
@@ -23,18 +29,67 @@ const PLATFORMS: { value: Platform; label: string; description: string }[] = [
   { value: "domeggook", label: "🏠 도매매 (국내)", description: "통관 절차 없음, 최소구매수량 확인 필요" },
 ];
 
+async function fetchAliexpress(keyword: string): Promise<PlatformResult> {
+  const formData = new FormData();
+  formData.set("keyword", keyword);
+  const result = await findSourcingCandidatesAction(formData);
+  if (result.error) return { products: [], error: result.error };
+  return {
+    products: (result.products ?? []).map((p) => ({
+      key: p.productId,
+      platform: "aliexpress" as const,
+      title: p.title,
+      imageUrl: p.imageUrl,
+      priceKrw: p.salePriceKrw,
+      metaText: [
+        p.volume != null ? `판매량 ${p.volume.toLocaleString()}` : null,
+        p.evaluateRate ? `평점 ${p.evaluateRate}` : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    })),
+  };
+}
+
+async function fetchDomeggook(keyword: string): Promise<PlatformResult> {
+  const formData = new FormData();
+  formData.set("keyword", keyword);
+  const result = await findDomeggookCandidatesAction(formData);
+  if (result.error) return { products: [], error: result.error };
+  return {
+    products: (result.products ?? []).map((p) => ({
+      key: p.itemNo,
+      platform: "domeggook" as const,
+      title: p.title,
+      imageUrl: p.thumbUrl,
+      priceKrw: p.priceKrw,
+      metaText: [
+        p.minOrderQty != null ? `최소구매수량 ${p.minOrderQty.toLocaleString()}개` : null,
+        p.sellerId ? `판매자 ${p.sellerId}` : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    })),
+  };
+}
+
 export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) {
-  const [platform, setPlatform] = useState<Platform>("aliexpress");
+  // 토글(단일 선택) 대신 체크박스로 여러 채널을 동시에 선택해서, 검색 한 번으로
+  // 알리익스프레스/도매매 결과를 채널별로 나눠 보고 그 안에서 상품을 고를 수 있게 한다.
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Set<Platform>>(new Set<Platform>(["aliexpress"]));
   const [keyword, setKeyword] = useState(initialKeyword ?? "");
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [products, setProducts] = useState<NormalizedProduct[] | null>(null);
+  const [results, setResults] = useState<Record<Platform, PlatformResult | null>>({
+    aliexpress: null,
+    domeggook: null,
+  });
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
 
   // 계산기 입력값 — 전부 기본값을 미리 채워두고, 상품을 선택하지 않아도 바로 수정하며
-  // 시뮬레이션할 수 있게 한다. 검색 후 상품을 고르면 "원가"/"예상 판매가"만
-  // 자동으로 채워주고, 나머지 값은 계속 자유롭게 조정 가능하다.
+  // 시뮬레이션할 수 있게 한다. 검색 후 상품을 고르면 원가/예상 판매가만 자동으로
+  // 채워주고, 나머지 값은 계속 자유롭게 조정 가능하다.
   const [sourcePrice, setSourcePrice] = useState("0");
   const [sellingPrice, setSellingPrice] = useState("0");
   const [customsDutyRate, setCustomsDutyRate] = useState(String(MARGIN_DEFAULTS.customsDutyRate));
@@ -55,67 +110,31 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
     setMarketingFee(String(defaults.marketingFeeKrw));
   }
 
-  function handlePlatformChange(next: Platform) {
-    setPlatform(next);
-    setProducts(null);
-    setError(null);
-    setSelectedTitle(null);
-    setSelectedImage(null);
-    applyDefaults(next === "aliexpress" ? MARGIN_DEFAULTS : DOMESTIC_MARGIN_DEFAULTS);
+  function togglePlatform(p: Platform) {
+    setSelectedPlatforms((prev) => {
+      const next = new Set(prev);
+      if (next.has(p)) {
+        if (next.size === 1) return prev; // 최소 1개는 선택되어 있어야 한다
+        next.delete(p);
+      } else {
+        next.add(p);
+      }
+      return next;
+    });
   }
 
   async function handleSearch(e?: React.FormEvent) {
     e?.preventDefault();
-    if (!keyword.trim()) return;
+    if (!keyword.trim() || selectedPlatforms.size === 0) return;
     setIsSearching(true);
-    setError(null);
     try {
-      const formData = new FormData();
-      formData.set("keyword", keyword.trim());
-
-      if (platform === "aliexpress") {
-        const result = await findSourcingCandidatesAction(formData);
-        if (result.error) {
-          setError(result.error);
-          setProducts(null);
-        } else {
-          setProducts(
-            (result.products ?? []).map((p) => ({
-              key: p.productId,
-              title: p.title,
-              imageUrl: p.imageUrl,
-              priceKrw: p.salePriceKrw,
-              metaText: [
-                p.volume != null ? `판매량 ${p.volume.toLocaleString()}` : null,
-                p.evaluateRate ? `평점 ${p.evaluateRate}` : null,
-              ]
-                .filter(Boolean)
-                .join(" · "),
-            })),
-          );
-        }
-      } else {
-        const result = await findDomeggookCandidatesAction(formData);
-        if (result.error) {
-          setError(result.error);
-          setProducts(null);
-        } else {
-          setProducts(
-            (result.products ?? []).map((p) => ({
-              key: p.itemNo,
-              title: p.title,
-              imageUrl: p.thumbUrl,
-              priceKrw: p.priceKrw,
-              metaText: [
-                p.minOrderQty != null ? `최소구매수량 ${p.minOrderQty.toLocaleString()}개` : null,
-                p.sellerId ? `판매자 ${p.sellerId}` : null,
-              ]
-                .filter(Boolean)
-                .join(" · "),
-            })),
-          );
-        }
-      }
+      const targets = Array.from(selectedPlatforms);
+      const entries = await Promise.all(
+        targets.map(async (p) => [p, await (p === "aliexpress" ? fetchAliexpress(keyword.trim()) : fetchDomeggook(keyword.trim()))] as const),
+      );
+      const next: Record<Platform, PlatformResult | null> = { aliexpress: null, domeggook: null };
+      for (const [p, r] of entries) next[p] = r;
+      setResults(next);
     } finally {
       setIsSearching(false);
     }
@@ -124,13 +143,14 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
   function handleSelect(product: NormalizedProduct) {
     setSelectedTitle(product.title);
     setSelectedImage(product.imageUrl || null);
+    setSelectedPlatform(product.platform);
     if (product.priceKrw) {
       setSourcePrice(String(product.priceKrw));
       setSellingPrice(String(Math.round(product.priceKrw * 2.5)));
     }
     // 이전에 직접 수정했던 값이 남아있지 않도록, 상품을 새로 선택할 때마다
-    // 나머지 비용 항목도 전부 (플랫폼에 맞는) 기본값으로 되돌려서 다시 채운다.
-    applyDefaults(platform === "aliexpress" ? MARGIN_DEFAULTS : DOMESTIC_MARGIN_DEFAULTS);
+    // 나머지 비용 항목도 전부 (선택한 상품의 채널에 맞는) 기본값으로 되돌려서 다시 채운다.
+    applyDefaults(product.platform === "domeggook" ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS);
   }
 
   function handleReset() {
@@ -138,6 +158,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
     // "직접입력"이 실제로 다른 동작을 하도록 자동 채워졌던 원가/판매가도 함께 비운다.
     setSelectedTitle(null);
     setSelectedImage(null);
+    setSelectedPlatform(null);
     setSourcePrice("");
     setSellingPrice("");
   }
@@ -154,29 +175,39 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
     sellingPriceKrw: Number(sellingPrice) || 0,
   });
 
-  const isDomestic = platform === "domeggook";
+  const isDomestic = selectedPlatform === "domeggook";
+  const activeDefaults = isDomestic ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS;
 
   return (
     <div className="space-y-4">
-      {/* 소싱 채널 선택 */}
+      {/* 소싱 채널 선택 — 중복 선택 가능, 선택한 채널 결과를 한 번에 나눠서 보여준다 */}
       <div className="grid grid-cols-2 gap-2">
-        {PLATFORMS.map((p) => (
-          <button
-            key={p.value}
-            type="button"
-            onClick={() => handlePlatformChange(p.value)}
-            className={`rounded-2xl border p-3 text-left transition-colors ${
-              platform === p.value
-                ? "border-sky-400 bg-sky-50"
-                : "border-gray-200 bg-white hover:border-sky-200"
-            }`}
-          >
-            <p className={`text-sm font-bold ${platform === p.value ? "text-sky-700" : "text-gray-800"}`}>
-              {p.label}
-            </p>
-            <p className="mt-0.5 text-xs text-gray-500">{p.description}</p>
-          </button>
-        ))}
+        {PLATFORMS.map((p) => {
+          const checked = selectedPlatforms.has(p.value);
+          return (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => togglePlatform(p.value)}
+              aria-pressed={checked}
+              className={`flex items-start gap-2 rounded-2xl border p-3 text-left transition-colors ${
+                checked ? "border-sky-400 bg-sky-50" : "border-gray-200 bg-white hover:border-sky-200"
+              }`}
+            >
+              <span
+                className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                  checked ? "border-sky-600 bg-sky-600 text-white" : "border-gray-300 bg-white"
+                }`}
+              >
+                {checked && "✓"}
+              </span>
+              <span>
+                <p className={`text-sm font-bold ${checked ? "text-sky-700" : "text-gray-800"}`}>{p.label}</p>
+                <p className="mt-0.5 text-xs text-gray-500">{p.description}</p>
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <form onSubmit={handleSearch} className="flex gap-2 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
@@ -195,44 +226,49 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
         </button>
       </form>
 
-      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-
-      {products && products.length === 0 && (
-        <p className="text-sm text-gray-400">검색된 상품이 없습니다. 다른 키워드로 시도해보세요.</p>
-      )}
-
-      {products && products.length > 0 && (
-        <div className="space-y-2">
-          {products.map((p) => (
-            <button
-              key={p.key}
-              onClick={() => handleSelect(p)}
-              className={`flex w-full items-center gap-3 rounded-xl border bg-white p-3 text-left hover:border-sky-300 ${
-                selectedTitle === p.title ? "border-sky-400 bg-sky-50" : "border-gray-200"
-              }`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              {p.imageUrl && <img src={p.imageUrl} alt={p.title} className="h-14 w-14 rounded object-cover" />}
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-gray-900">{p.title}</p>
-                <p className="text-xs text-gray-500">
-                  {p.priceKrw ? `${p.priceKrw.toLocaleString()}원` : "가격 정보 없음"}
-                  {p.metaText && ` · ${p.metaText}`}
-                </p>
-              </div>
-              <span
-                className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${
-                  selectedTitle === p.title
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-sky-600 text-white"
+      {/* 채널별 검색 결과 — 선택한 채널마다 구분해서 보여주고, 그 안에서 상품을 고른다 */}
+      {PLATFORMS.filter((p) => selectedPlatforms.has(p.value) && results[p.value]).map((p) => {
+        const result = results[p.value]!;
+        return (
+          <div key={p.value} className="space-y-2">
+            <p className="text-xs font-bold text-gray-500">{p.label} 검색결과</p>
+            {result.error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{result.error}</p>}
+            {!result.error && result.products.length === 0 && (
+              <p className="text-sm text-gray-400">검색된 상품이 없습니다. 다른 키워드로 시도해보세요.</p>
+            )}
+            {result.products.map((prod) => (
+              <button
+                key={prod.key}
+                onClick={() => handleSelect(prod)}
+                className={`flex w-full items-center gap-3 rounded-xl border bg-white p-3 text-left hover:border-sky-300 ${
+                  selectedTitle === prod.title && selectedPlatform === prod.platform
+                    ? "border-sky-400 bg-sky-50"
+                    : "border-gray-200"
                 }`}
               >
-                {selectedTitle === p.title ? "✅ 선택됨" : "상품 선택"}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {prod.imageUrl && <img src={prod.imageUrl} alt={prod.title} className="h-14 w-14 rounded object-cover" />}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-gray-900">{prod.title}</p>
+                  <p className="text-xs text-gray-500">
+                    {prod.priceKrw ? `${prod.priceKrw.toLocaleString()}원` : "가격 정보 없음"}
+                    {prod.metaText && ` · ${prod.metaText}`}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${
+                    selectedTitle === prod.title && selectedPlatform === prod.platform
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-sky-600 text-white"
+                  }`}
+                >
+                  {selectedTitle === prod.title && selectedPlatform === prod.platform ? "✅ 선택됨" : "상품 선택"}
+                </span>
+              </button>
+            ))}
+          </div>
+        );
+      })}
 
       <div className="space-y-3 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
         <div className="flex items-center justify-between">
@@ -251,7 +287,12 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
           <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {selectedImage && <img src={selectedImage} alt={selectedTitle} className="h-10 w-10 rounded object-cover" />}
-            <p className="truncate text-xs text-gray-700">{selectedTitle}</p>
+            <div className="min-w-0">
+              <p className="truncate text-xs text-gray-700">{selectedTitle}</p>
+              <p className="text-[11px] text-gray-400">
+                {PLATFORMS.find((p) => p.value === selectedPlatform)?.label}
+              </p>
+            </div>
           </div>
         )}
 
@@ -265,7 +306,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
             <>
               <br />
               <span className="font-semibold text-emerald-700">
-                국내 소싱(도매매)이라 관세·부가세·해외운송비는 기본 0원으로 채워집니다.
+                국내 소싱(도매매) 상품이라 관세·부가세·해외운송비는 기본 0원으로 채워집니다.
               </span>
             </>
           )}
@@ -273,7 +314,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
 
         <div className="grid grid-cols-2 gap-3 text-sm">
           <label className="space-y-1">
-            <span className="text-xs font-semibold text-gray-800">{isDomestic ? "도매매 원가(원) *" : "알리 원가(원) *"}</span>
+            <span className="text-xs font-semibold text-gray-800">원가(원) *</span>
             <input
               type="number"
               value={sourcePrice}
@@ -291,10 +332,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
             />
           </label>
           <label className="space-y-1">
-            <span className="text-xs text-gray-600">
-              관세율(%) — 기본 {isDomestic ? DOMESTIC_MARGIN_DEFAULTS.customsDutyRate : MARGIN_DEFAULTS.customsDutyRate}%
-              {isDomestic && " (국내소싱)"}
-            </span>
+            <span className="text-xs text-gray-600">관세율(%) — 기본 {activeDefaults.customsDutyRate}%</span>
             <input
               type="number"
               value={customsDutyRate}
@@ -303,10 +341,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
             />
           </label>
           <label className="space-y-1">
-            <span className="text-xs text-gray-600">
-              부가세율(%) — 기본 {isDomestic ? DOMESTIC_MARGIN_DEFAULTS.vatRate : MARGIN_DEFAULTS.vatRate}%
-              {isDomestic && " (국내소싱)"}
-            </span>
+            <span className="text-xs text-gray-600">부가세율(%) — 기본 {activeDefaults.vatRate}%</span>
             <input
               type="number"
               value={vatRate}
@@ -316,9 +351,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
           </label>
           <label className="space-y-1">
             <span className="text-xs text-gray-600">
-              개당 해외 운송비(원) — 기본{" "}
-              {(isDomestic ? DOMESTIC_MARGIN_DEFAULTS.shippingPerUnitKrw : MARGIN_DEFAULTS.shippingPerUnitKrw).toLocaleString()}
-              원{isDomestic && " (국내소싱)"}
+              개당 해외 운송비(원) — 기본 {activeDefaults.shippingPerUnitKrw.toLocaleString()}원
             </span>
             <input
               type="number"
@@ -404,7 +437,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
                 <p className="mb-1.5 text-xs font-bold text-gray-500">최종 수입 단가 계산</p>
                 <div className="space-y-1 text-gray-700">
                   <div className="flex justify-between">
-                    <span>{isDomestic ? "도매매 원가" : "알리 원가"}</span>
+                    <span>원가</span>
                     <span className="tabular-nums">{(Number(sourcePrice) || 0).toLocaleString()}원</span>
                   </div>
                   <div className="flex justify-between">
