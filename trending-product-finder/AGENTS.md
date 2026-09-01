@@ -130,6 +130,16 @@ Phase 5~7의 상세 조사 근거(공식 API 유무, 개인 발급 가능 여부
   직접 대조.
 - `trend_snapshots.source` 값을 `naver_datalab`에서 `naver_shopping_insight`로 바꿨는데,
   기존에 (있다면) 쌓인 레거시 행과 값이 섞일 수 있다는 점 참고.
+- **알리익스프레스 한글 키워드 버그(2026-09-01 발견·수정)**: `aliexpress.affiliate.product.query`의
+  `keywords` 파라미터는 한글 검색어를 사실상 무시한다 — 에러 없이 "Call succeeds"로 응답하지만
+  키워드와 무관한 인기상품(판매량 기준 베스트셀러로 추정)을 반환한다. 실계정으로 직접 확인:
+  "자전거 렌턴"/"자전거 랜턴" → 스퀴시 장난감/테이프 등 무관 상품, "bike light"/"bicycle
+  lantern"(영어) → 정확한 자전거 라이트 상품. `lib/ai/translateKeyword.ts`를 새로 만들어
+  한글이 섞인 키워드는 검색 전에 등록된 OpenAI/Gemini 키로 영어로 번역한 뒤 검색하도록
+  고쳤다(`findSourcingCandidatesAction`에서 처리). AI 키가 없으면 번역 없이 원본 키워드로
+  검색하되 UI에 "검색 결과가 부정확할 수 있다"는 경고를 띄운다. 번역이 실제로 일어나면
+  UI에 "실제 검색어: OO(영어)"로 투명하게 보여준다. 도매매(국내)는 한글 검색이 정상 동작해서
+  이 문제가 없다.
 - `lib/domeggook/client.ts`(도매매 상품리스트 API)는 공식 문서(openapi.domeggook.com)만 보고
   구현했고 아직 실계정으로 검증하지 못했다. 2026-09-01에 문서를 재차 정독해서 다음은
   확인됨: (1) 엔드포인트 `www.domeggook.com/ssl/api/`가 2026-08-11 공지로 바뀐 최신 주소와

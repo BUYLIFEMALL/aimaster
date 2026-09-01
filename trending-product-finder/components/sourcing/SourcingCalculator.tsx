@@ -23,6 +23,8 @@ interface NormalizedProduct {
 interface PlatformResult {
   products: NormalizedProduct[];
   error?: string;
+  translatedKeyword?: string;
+  warning?: string;
 }
 
 const PLATFORMS: { value: Platform; label: string; description: string }[] = [
@@ -50,6 +52,8 @@ async function fetchAliexpress(keyword: string): Promise<PlatformResult> {
         .join(" · "),
       detailUrl: p.detailUrl,
     })),
+    translatedKeyword: result.translatedKeyword,
+    warning: result.warning,
   };
 }
 
@@ -235,6 +239,16 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
         return (
           <div key={p.value} className="space-y-2">
             <p className="text-xs font-bold text-gray-500">{p.label} 검색결과</p>
+            {result.translatedKeyword && (
+              <p className="text-xs text-gray-400">
+                알리익스프레스는 한글 검색어를 잘 인식하지 못해, 실제 검색어를{" "}
+                <span className="font-semibold text-gray-600">&quot;{result.translatedKeyword}&quot;</span>(영어)로
+                자동 번역해서 검색했습니다.
+              </p>
+            )}
+            {result.warning && (
+              <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">⚠️ {result.warning}</p>
+            )}
             {result.error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{result.error}</p>}
             {!result.error && result.products.length === 0 && (
               <p className="text-sm text-gray-400">검색된 상품이 없습니다. 다른 키워드로 시도해보세요.</p>
