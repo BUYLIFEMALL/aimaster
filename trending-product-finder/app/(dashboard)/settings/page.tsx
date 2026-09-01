@@ -16,6 +16,7 @@ const PROVIDERS: ApiKeyProvider[] = [
   "aliexpress_app_key",
   "aliexpress_app_secret",
   "aliexpress_tracking_id",
+  "domeggook_api_key",
   "openai",
   "gemini",
 ];
@@ -77,6 +78,12 @@ const HELP_LINKS: Partial<
     label: "알리익스프레스 포털에서 Tracking ID 확인하기",
     description: "제휴 계정의 트래킹 ID(캠페인 식별용, 기본값 사용 가능)입니다.",
   },
+  domeggook_api_key: {
+    url: "https://mobile.domeggook.com/APIs/gate",
+    label: "도매매(도매꾹)에서 Open API Key 발급받기",
+    description:
+      "무료, 승인 절차 없이 즉시 발급(Open API 등급). 도매꾹과 아이디를 공유하므로 도매꾹 로그인 후 위 링크에서 API Key 발급 및 관리를 진행하면 됩니다(1개 아이디당 최대 5개까지 발급 가능). 관세/부가세/해외운송비 계산이 필요 없는 국내 위탁소싱 원가 비교에 쓰입니다.",
+  },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
   gemini: { url: "https://aistudio.google.com/apikey", label: "Gemini 키 발급받기" },
 };
@@ -95,8 +102,9 @@ export default async function SettingsPage() {
         <p className="mb-6 text-sm text-gray-500">
           상품소싱 자동화에는 본인의 네이버클라우드 API HUB Client ID/Secret(관심도 추이 조회)과,
           OpenAI 또는 Gemini 중 1개(추천 사유 생성) 키가 필요합니다. 네이버 검색광고 키 3종은
-          &quot;카테고리로 후보 상품군 추천받기&quot; 기능에만, 알리익스프레스 키 3종은
-          &quot;알리 원가 비교&quot; 기능에만 필요한 선택 항목입니다.{" "}
+          &quot;카테고리로 후보 상품군 추천받기&quot; 기능에만, 알리익스프레스 키 3종과 도매매
+          키는 각각 &quot;상품소싱 마진계산기&quot;의 해외/국내 소싱 채널에만 필요한 선택
+          항목입니다.{" "}
           <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
           등록하지 않은 상태로 실행을 시도하면 등록 안내가 뜨고 막힙니다.
         </p>

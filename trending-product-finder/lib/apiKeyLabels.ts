@@ -9,6 +9,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   aliexpress_app_key: "알리익스프레스 App Key (알리 원가 비교)",
   aliexpress_app_secret: "알리익스프레스 App Secret (알리 원가 비교)",
   aliexpress_tracking_id: "알리익스프레스 Tracking ID (알리 원가 비교)",
+  domeggook_api_key: "도매매 API Key (국내 위탁소싱 원가 비교)",
   openai: "OpenAI (기회 점수 산정, 추천 사유 생성)",
   gemini: "Gemini (기회 점수 산정, 추천 사유 생성 — OpenAI 대체 가능)",
 };

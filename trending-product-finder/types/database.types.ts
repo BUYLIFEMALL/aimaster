@@ -7,6 +7,7 @@ export type ApiKeyProvider =
   | "aliexpress_app_key"
   | "aliexpress_app_secret"
   | "aliexpress_tracking_id"
+  | "domeggook_api_key"
   | "openai"
   | "gemini";
 

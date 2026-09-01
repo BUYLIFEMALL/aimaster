@@ -44,7 +44,7 @@ export function calcMargin(input: MarginInput): MarginResult {
   return { landedCostKrw, platformFeeKrw, totalCostKrw: Math.round(totalCostKrw), contributionProfitKrw, marginRatePct };
 }
 
-/** UI 기본값 — 일반적인 국내 오픈마켓 판매를 가정한 보수적 추정치. */
+/** UI 기본값(해외 소싱=알리익스프레스 기준) — 일반적인 국내 오픈마켓 판매를 가정한 보수적 추정치. */
 export const MARGIN_DEFAULTS = {
   customsDutyRate: 8,
   vatRate: 10,
@@ -53,4 +53,15 @@ export const MARGIN_DEFAULTS = {
   platformFeeRate: 10.8,
   deliveryFeeKrw: 3000,
   marketingFeeKrw: 0,
+};
+
+/**
+ * 국내 소싱(도매매 등) 기본값 — 통관을 거치지 않으므로 관세/부가세/해외운송비가 0이다.
+ * 나머지(입고비/플랫폼수수료/택배비/마케팅비)는 해외 소싱과 동일한 보수적 추정치를 쓴다.
+ */
+export const DOMESTIC_MARGIN_DEFAULTS = {
+  ...MARGIN_DEFAULTS,
+  customsDutyRate: 0,
+  vatRate: 0,
+  shippingPerUnitKrw: 0,
 };
