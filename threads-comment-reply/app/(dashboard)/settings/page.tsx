@@ -62,72 +62,93 @@ export default async function SettingsPage() {
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">채널 연결 / 설정</h1>
-        <div className="mb-6 space-y-2 text-sm text-gray-500">
-          <p>Threads 댓글자동화에는 본인의 Meta App ID/Secret이 필요합니다.</p>
-          <p>
-            답글 초안을 만드는 AI는 OpenAI/Anthropic Claude/Google Gemini 중 아래 "답글 생성 AI
-            모델"에서 고른 모델에 해당하는 provider의 키 하나만 등록되어 있으면 됩니다(세 개 다
-            등록할 필요 없음).
-          </p>
-          <p className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
-          <p>
-            Meta App Dashboard에서 만든 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가로
-            등록해주셔야 합니다. 또한 그 앱의 "역할" 메뉴에서 본인 쓰레드 계정을
-            테스터(tester)로 추가해두어야 App Review 없이 바로 연결할 수 있습니다.
-          </p>
-          <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs text-gray-800">
-            {process.env.NEXT_PUBLIC_SITE_URL ?? "https://threads-comment-reply.vercel.app"}/api/threads/callback
-          </code>
-        </div>
-
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">쓰레드 계정 연결용</p>
-        <div className="space-y-3">
-          {META_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-              helpUrl={HELP_LINKS[provider]?.url}
-              helpLabel={HELP_LINKS[provider]?.label}
-            />
-          ))}
-        </div>
-
-        <div className="mb-2 mt-6 space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-          <p>
-            🎯 현재 답글 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
-          </p>
-          <p>
-            사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
-          </p>
-          <p className="text-xs text-blue-700">
-            모델은 아래 "🔗 답글 기본 설정 → 답글 생성 AI 모델"에서 바꿀 수 있어요.
-          </p>
-        </div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
-          답글 생성 AI — 선택한 모델의 provider 키 하나만 있으면 됩니다
+        <p className="mb-6 text-sm text-gray-500">
+          Threads 댓글자동화에는 본인의 Meta App ID/Secret과, 답글 초안을 만드는 AI 키(아래
+          "답글 생성 AI 모델"에서 고른 모델에 해당하는 provider 하나)가 필요합니다.{" "}
+          <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</span>
         </p>
-        <div className="space-y-3">
-          {AI_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-              helpUrl={HELP_LINKS[provider]?.url}
-              helpLabel={HELP_LINKS[provider]?.label}
-              isActive={provider === activeProvider}
+
+        <div className="space-y-5">
+          {/* 🧵 Threads 계정 연결 그룹 */}
+          <div className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+            <div>
+              <h2 className="text-sm font-bold text-gray-900">🧵 Threads 계정 연결</h2>
+              <p className="text-xs text-gray-500">
+                쓰레드 게시물·댓글을 읽고 답글을 게시하기 위한 Meta App ID/Secret 등록과 OAuth
+                계정 연결입니다.
+              </p>
+            </div>
+
+            <div className="space-y-2 text-xs text-gray-500">
+              <p>
+                Meta App Dashboard에서 만든 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가로
+                등록해주셔야 합니다. 또한 그 앱의 "역할" 메뉴에서 본인 쓰레드 계정을
+                테스터(tester)로 추가해두어야 App Review 없이 바로 연결할 수 있습니다.
+              </p>
+              <code className="block break-all rounded bg-gray-100 px-2 py-1.5 text-gray-800">
+                {process.env.NEXT_PUBLIC_SITE_URL ?? "https://threads-comment-reply.vercel.app"}/api/threads/callback
+              </code>
+            </div>
+
+            <div className="space-y-3">
+              {META_PROVIDERS.map((provider) => (
+                <ApiKeyRow
+                  key={provider}
+                  provider={provider}
+                  label={PROVIDER_LABELS[provider]}
+                  maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                  helpUrl={HELP_LINKS[provider]?.url}
+                  helpLabel={HELP_LINKS[provider]?.label}
+                />
+              ))}
+            </div>
+
+            <ThreadsConnectSection
+              connected={connectionStatus.connected}
+              username={connectionStatus.username}
+              needsReconnect={connectionStatus.needsReconnect}
             />
-          ))}
+          </div>
+
+          {/* 🤖 AI 답글 생성 키 그룹 */}
+          <div className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+            <div>
+              <h2 className="text-sm font-bold text-gray-900">🤖 AI 답글 생성 키</h2>
+              <p className="text-xs text-gray-500">
+                댓글에 대한 답글 초안을 만드는 AI 키입니다. OpenAI/Anthropic Claude/Google
+                Gemini 중 "답글 생성 AI 모델"에서 고른 모델에 해당하는 provider의 키 하나만
+                등록되어 있으면 됩니다(세 개 다 등록할 필요 없음).
+              </p>
+            </div>
+
+            <div className="space-y-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              <p>
+                🎯 현재 답글 생성에 사용되는 모델: <strong>{activeModelOption?.shortLabel ?? activeModel}</strong>
+              </p>
+              <p>
+                사용하는 API 키: <strong>{REPLY_MODEL_PROVIDER_SHORT_LABELS[activeProvider]}</strong>
+              </p>
+              <p className="text-xs text-blue-700">
+                모델은 아래 "🔗 답글 기본 설정 → 답글 생성 AI 모델"에서 바꿀 수 있어요.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {AI_PROVIDERS.map((provider) => (
+                <ApiKeyRow
+                  key={provider}
+                  provider={provider}
+                  label={PROVIDER_LABELS[provider]}
+                  maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                  helpUrl={HELP_LINKS[provider]?.url}
+                  helpLabel={HELP_LINKS[provider]?.label}
+                  isActive={provider === activeProvider}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
-
-      <ThreadsConnectSection
-        connected={connectionStatus.connected}
-        username={connectionStatus.username}
-        needsReconnect={connectionStatus.needsReconnect}
-      />
 
       <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
