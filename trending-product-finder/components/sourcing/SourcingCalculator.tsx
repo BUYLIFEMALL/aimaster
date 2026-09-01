@@ -60,8 +60,12 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
   }
 
   function handleReset() {
+    // 선택 정보만 지우면 값은 이미 수정 가능한 상태라 버튼이 의미가 없어진다.
+    // "직접입력"이 실제로 다른 동작을 하도록 자동 채워졌던 원가/판매가도 함께 비운다.
     setSelectedTitle(null);
     setSelectedImage(null);
+    setSourcePrice("");
+    setSellingPrice("");
   }
 
   const marginResult: MarginResult = calcMargin({
