@@ -87,22 +87,27 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
   }
 
   return (
-    <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+    <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">📱 SOLAPI (문자·카카오·RCS)</h2>
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📱 문자·카카오 (SOLAPI)</h2>
+          <p className="mt-1 text-xs text-gray-500">
+            <a href="https://solapi.com/" target="_blank" rel="noreferrer" className="font-semibold text-blue-600 hover:underline">
+              solapi.com
+            </a>
+            에서 발급받은 API Key/Secret과 발신번호로 문자·알림톡·친구톡·RCS를 발송합니다.
+          </p>
+        </div>
         {account && !isEditing && (
-          <button type="button" onClick={() => setIsEditing(true)} className="text-xs font-semibold text-blue-600 hover:underline">
+          <button type="button" onClick={() => setIsEditing(true)} className="shrink-0 text-xs font-semibold text-blue-600 hover:underline">
             ✏️ 수정
           </button>
         )}
       </div>
-      <p className="text-sm text-gray-500">
-        <a href="https://solapi.com/" target="_blank" rel="noreferrer" className="font-semibold text-blue-600 hover:underline">
-          solapi.com
-        </a>
-        에서 발급받은 API Key/Secret과, SOLAPI에 등록·인증된 발신번호를 등록하세요. 카카오
-        알림톡·친구톡을 쓰려면 카카오 비즈니스 채널 ID(pfId)를, RCS 프로모션 메시지를 쓰려면
-        브랜드 인증 ID(brandId)를 함께 등록해야 합니다(SMS만 쓸 거면 둘 다 비워둬도 됩니다).
+      <p className="text-xs text-gray-500">
+        카카오 알림톡·친구톡을 쓰려면 카카오 비즈니스 채널 ID(pfId)를, RCS 프로모션 메시지를
+        쓰려면 브랜드 인증 ID(brandId)를 함께 등록해야 합니다(SMS만 쓸 거면 둘 다 비워둬도
+        됩니다).
       </p>
 
       {account && !isEditing ? (

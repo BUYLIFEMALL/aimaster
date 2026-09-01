@@ -55,8 +55,13 @@ export default async function SettingsPage() {
         </p>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">✉️ 이메일 계정 (SMTP)</h2>
+      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">✉️ 이메일 발송 (SMTP)</h2>
+          <p className="mt-1 text-xs text-gray-500">
+            리마인드/리뷰요청 메일을 보낼 SMTP 계정입니다. 구글·네이버 등 플랫폼별로 여러 계정을 등록할 수 있어요.
+          </p>
+        </div>
         <div className="space-y-4">
           {SMTP_PROVIDER_PRESETS.map((preset) => (
             <ProviderAccountSection key={preset.value} preset={preset} accounts={accountsByProvider.get(preset.value) ?? []} />
@@ -66,8 +71,11 @@ export default async function SettingsPage() {
 
       <SolapiAccountSection account={solapiAccount ?? null} />
 
-      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
+      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
+          <p className="mt-1 text-xs text-gray-500">봇을 연동해두면 예약 리마인드를 텔레그램으로도 받을 수 있어요.</p>
+        </div>
 
         {telegramLink ? (
           <div className="space-y-3">
