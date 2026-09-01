@@ -69,6 +69,16 @@ const BILLING_OPTIONS = [
   { value: "lifetime", label: "평생" },
 ];
 
+// 새 프로그램을 등록할 때마다 매번 4개 플랜을 처음부터 입력하는 게 번거롭다는
+// 피드백으로 추가한 기본값 — 등록 화면에 미리 채워두고, 필요하면 그 자리에서
+// 바로 수정/삭제해서 쓴다(가장 흔한 가격 구성을 기본으로 채택).
+const DEFAULT_PLANS: PricingPlanInput[] = [
+  { name: "1개월", billing_type: "monthly", price: "10000", original_price: "10000", is_active: true, sort_order: 0 },
+  { name: "6개월", billing_type: "biannual", price: "50000", original_price: "50000", is_active: true, sort_order: 1 },
+  { name: "12개월", billing_type: "annual", price: "100000", original_price: "100000", is_active: true, sort_order: 2 },
+  { name: "평생", billing_type: "lifetime", price: "150000", original_price: "150000", is_active: true, sort_order: 3 },
+];
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 mb-5">
@@ -127,7 +137,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
       ...p,
       price: String(p.price),
       original_price: String(p.original_price ?? ""),
-    })) ?? []
+    })) ?? (isEdit ? [] : DEFAULT_PLANS)
   );
 
   useEffect(() => {
