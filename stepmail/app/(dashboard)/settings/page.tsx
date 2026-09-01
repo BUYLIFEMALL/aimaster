@@ -5,11 +5,13 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 // 이 프로그램이 실제로 쓰는 provider: openai(이메일 초안 작성), gemini(이메일 핵심 주제를
 // 반영한 이미지 생성 — blog의 NanoBanana 이미지 생성 패턴 참고, 선택 사항). 실제 발송 계정
 // (SMTP)은 user_api_keys 구조(단일 api_key 문자열)와 안 맞아서 /accounts 페이지에서 별도로
-// 관리한다.
+// 관리한다. provider가 openai+gemini 2개뿐이라 그룹을 억지로 쪼개지 않고 "AI 이메일 작성"
+// 박스 하나로 묶는다(trending-product-finder 설정 페이지의 그룹 박스 패턴 참고).
 const PROVIDERS: ApiKeyProvider[] = ["openai", "gemini"];
 
 export default async function SettingsPage() {
@@ -38,15 +40,21 @@ export default async function SettingsPage() {
         </a>{" "}
         페이지에서 등록합니다.
       </p>
-      <div className="space-y-3">
-        {PROVIDERS.map((provider) => (
-          <ApiKeyRow
-            key={provider}
-            provider={provider}
-            label={PROVIDER_LABELS[provider]}
-            maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-          />
-        ))}
+      <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-gray-900">🤖 AI 이메일 작성</h2>
+          <p className="text-xs text-gray-500">이메일 초안(제목/본문) 생성 및 이미지 자동 생성(선택)</p>
+        </div>
+        <div className="space-y-3">
+          {PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
