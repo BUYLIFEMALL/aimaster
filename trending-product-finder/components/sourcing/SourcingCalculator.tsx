@@ -121,7 +121,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
                 </p>
               </div>
               <span className="shrink-0 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700">
-                {selectedTitle === p.title ? "✅ 선택됨" : "이 값으로 채우기"}
+                {selectedTitle === p.title ? "✅ 선택됨" : "상품 선택"}
               </span>
             </button>
           ))}
