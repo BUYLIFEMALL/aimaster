@@ -137,7 +137,7 @@ export default async function SettingsPage() {
         </p>
         <div className="space-y-5">
           {SECTIONS.map((section) => (
-            <div key={section.title} className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4">
+            <div key={section.title} className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
               <div className="mb-3">
                 <h2 className="text-sm font-bold text-gray-900">{section.title}</h2>
                 <p className="text-xs text-gray-500">{section.description}</p>
