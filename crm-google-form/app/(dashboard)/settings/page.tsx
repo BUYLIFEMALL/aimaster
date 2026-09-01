@@ -53,8 +53,13 @@ export default async function SettingsPage() {
         </p>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">✉️ 이메일 계정 (SMTP)</h2>
+      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📧 이메일(SMTP) 발송 계정</h2>
+          <p className="text-sm text-gray-500">
+            신청자에게 접수 확인 이메일을 보낼 계정입니다. 플랫폼별로 여러 개 등록할 수 있어요.
+          </p>
+        </div>
         <div className="space-y-4">
           {SMTP_PROVIDER_PRESETS.map((preset) => (
             <ProviderAccountSection
@@ -69,7 +74,10 @@ export default async function SettingsPage() {
       <SolapiAccountSection account={solapiAccount ?? null} />
 
       <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📱 텔레그램 연동</h2>
+          <p className="text-sm text-gray-500">운영자 본인 텔레그램으로 신청 내역을 요약해서 받아보세요.</p>
+        </div>
 
         {telegramLink ? (
           <div className="space-y-3">

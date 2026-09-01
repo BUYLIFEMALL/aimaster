@@ -89,7 +89,7 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
   return (
     <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">📱 SOLAPI (문자·카카오·RCS)</h2>
+        <h2 className="text-lg font-bold text-gray-900">💬 SMS/카카오(SOLAPI) 발송 계정</h2>
         {account && !isEditing && (
           <button type="button" onClick={() => setIsEditing(true)} className="text-xs font-semibold text-blue-600 hover:underline">
             ✏️ 수정
