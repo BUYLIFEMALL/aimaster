@@ -284,7 +284,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
               {/* 핵심 결과 — 한눈에 보이는 요약 */}
               <div className="flex items-center justify-between gap-4 p-4">
                 <div>
-                  <p className={`text-xs font-semibold ${tone.text} opacity-80`}>예상 공헌이익 (개당)</p>
+                  <p className={`text-xs font-semibold ${tone.text} opacity-80`}>개당 예상 마진(수익)</p>
                   <p className={`text-2xl font-extrabold tabular-nums ${tone.text}`}>
                     {marginResult.contributionProfitKrw.toLocaleString()}원
                   </p>
@@ -349,7 +349,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
                     <span className="tabular-nums">{(Number(sellingPrice) || 0).toLocaleString()}원</span>
                   </div>
                   <div className={`flex justify-between border-t border-gray-300 pt-1 text-base font-extrabold ${tone.text}`}>
-                    <span>= 공헌이익</span>
+                    <span>= 마진(수익)</span>
                     <span className="tabular-nums">{marginResult.contributionProfitKrw.toLocaleString()}원</span>
                   </div>
                 </div>
