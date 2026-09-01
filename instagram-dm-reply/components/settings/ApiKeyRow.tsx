@@ -39,7 +39,7 @@ export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel, is
   return (
     <div
       className={`rounded-2xl border p-4 shadow-sm ${
-        isActive ? "border-blue-300 bg-blue-50/40" : "border-gray-100 bg-white"
+        isActive ? "border-blue-300 bg-blue-50/40" : "border-gray-200 bg-gray-50"
       }`}
     >
       <div className="mb-2 flex items-center justify-between">

@@ -72,8 +72,11 @@ export default async function SettingsPage() {
         </p>
       </div>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">📸 인스타그램 계정 연결</h2>
+      <section className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📸 Instagram 계정 연결</h2>
+          <p className="text-xs text-gray-500">Meta App 키 등록과 OAuth 연결까지 — 인스타그램 비즈니스 계정을 이 프로그램에 붙이는 단계입니다.</p>
+        </div>
         <div className="space-y-2 text-sm text-gray-500">
           <p>INSTA DM답변 자동화에는 본인의 Meta App ID/Secret이 필요합니다.</p>
           <p className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
@@ -111,18 +114,21 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">🔌 DM 웹훅 설정</h2>
         <WebhookSetupInfo callbackUrl={webhookCallbackUrl} verifyToken={webhookVerifyToken} />
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">🤖 봇 활성화</h2>
         <BotEnabledForm enabled={settings?.bot_enabled ?? false} startedAt={settings?.bot_started_at ?? null} />
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">🤖 답장 생성 AI</h2>
+      <section className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">🤖 AI 답장 생성 키</h2>
+          <p className="text-xs text-gray-500">답장 초안을 만드는 AI 모델의 API 키 등록입니다 — 인스타그램 연결과는 별개의 키입니다.</p>
+        </div>
         <p className="text-sm text-gray-500">
           아래 "답장 기본 설정"에서 고른 모델의 provider 키 하나만 등록되어 있으면 됩니다(세 개 다
           등록할 필요 없음).
@@ -152,7 +158,7 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">🔗 답장 기본 설정</h2>
         <ReplySettingsForm
           defaultLink={settings?.default_link ?? null}
@@ -163,7 +169,7 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
         <p className="text-sm text-gray-500">
           인스타그램 계정 연결이 끊어지면 매일 자동 점검 후 텔레그램으로 알려드려요. 또한 새 DM이
@@ -207,7 +213,7 @@ export default async function SettingsPage() {
         )}
       </section>
 
-      <section className="glass-card space-y-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900">⚡ 자동 발송 (선택, 고급)</h2>
         <p className="text-sm text-gray-500">
           기본적으로는 새 DM마다 AI 초안만 만들고, 실제 발송은 웹 화면이나 텔레그램 버튼에서 직접
