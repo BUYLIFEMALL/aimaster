@@ -51,16 +51,24 @@ export default async function SettingsPage({
         </div>
       )}
 
-      <section className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-        <h2 className="mb-1 text-sm font-semibold text-neutral-900">📈 네이버 검색어트렌드</h2>
+      {/* 플랫폼/계열별로 그룹 박스를 나눠서 어떤 키가 어떤 기능에 쓰이는지 한눈에 구분되도록 한다.
+          박스 배경(neutral-100)은 페이지 body(neutral-50)와 뚜렷이 대비되도록 하고, border-2 +
+          shadow-sm으로 테두리를 확실히 보이게 한다. */}
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <h2 className="mb-1 text-sm font-bold text-neutral-900">📈 네이버 검색어트렌드</h2>
         <p className="text-xs text-neutral-500">
           검색어트렌드는 회원 개인 데이터가 아니라 공개 시장 데이터라 별도 키 등록이 필요 없습니다.
           &quot;트렌드 키워드 찾기&quot; 메뉴에서 바로 조회할 수 있습니다.
         </p>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-neutral-900">🧵 Threads 계정 연결</h2>
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🧵 Threads 계정 연결</h2>
+          <p className="text-xs text-neutral-500">
+            게시글을 자동으로 게시할 Threads 계정을 연결합니다(OAuth).
+          </p>
+        </div>
         <div className="rounded-lg border border-neutral-200 bg-white p-4">
           {account ? (
             <div>
@@ -94,56 +102,71 @@ export default async function SettingsPage({
         </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-neutral-900">🤖 캡션/이미지 생성 AI</h2>
-        {AI_PROVIDERS.map((provider) => (
-          <ApiKeyRow
-            key={provider}
-            provider={provider}
-            label={PROVIDER_LABELS[provider]}
-            maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-          />
-        ))}
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🤖 캡션/이미지 생성 AI</h2>
+          <p className="text-xs text-neutral-500">
+            게시글 캡션과 이미지(NanoBanana) 자동 생성에 쓰입니다. 둘 중 1개만 등록해도 됩니다.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {AI_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-neutral-900">🛒 쿠팡파트너스</h2>
-        <p className="text-xs text-neutral-500">
-          <a href="https://partners.coupang.com" target="_blank" rel="noreferrer" className="underline">
-            partners.coupang.com
-          </a>
-          에서 API 신청 후 발급받은 Access Key/Secret Key를 등록해주세요.
-        </p>
-        {COUPANG_PROVIDERS.map((provider) => (
-          <ApiKeyRow
-            key={provider}
-            provider={provider}
-            label={PROVIDER_LABELS[provider]}
-            maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-          />
-        ))}
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🛒 쿠팡파트너스</h2>
+          <p className="text-xs text-neutral-500">
+            <a href="https://partners.coupang.com" target="_blank" rel="noreferrer" className="underline">
+              partners.coupang.com
+            </a>
+            에서 API 신청 후 발급받은 Access Key/Secret Key를 등록해주세요.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {COUPANG_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-neutral-900">🛍️ 알리익스프레스</h2>
-        <p className="text-xs text-neutral-500">
-          <a href="https://portals.aliexpress.com" target="_blank" rel="noreferrer" className="underline">
-            portals.aliexpress.com
-          </a>
-          에서 Affiliate API 신청 후 발급받은 App Key/Secret을 등록해주세요.
-        </p>
-        {ALIEXPRESS_PROVIDERS.map((provider) => (
-          <ApiKeyRow
-            key={provider}
-            provider={provider}
-            label={PROVIDER_LABELS[provider]}
-            maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-          />
-        ))}
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🌏 알리익스프레스</h2>
+          <p className="text-xs text-neutral-500">
+            <a href="https://portals.aliexpress.com" target="_blank" rel="noreferrer" className="underline">
+              portals.aliexpress.com
+            </a>
+            에서 Affiliate API 신청 후 발급받은 App Key/Secret을 등록해주세요.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {ALIEXPRESS_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
       </section>
 
-      <section className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-        <h2 className="mb-1 text-sm font-semibold text-neutral-900">📎 네이버 브랜드커넥트</h2>
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <h2 className="mb-1 text-sm font-bold text-neutral-900">📎 네이버 브랜드커넥트</h2>
         <p className="text-xs text-neutral-500">
           네이버 브랜드커넥트는 공식 API가 없어 별도 키 등록이 필요 없습니다. &quot;상품
           관리&quot; 화면에서 직접 발급받은 링크를 붙여넣어 등록해주세요.
