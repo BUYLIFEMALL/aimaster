@@ -18,7 +18,7 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
   const [state, formAction, isPending] = useActionState(saveApiKeyAction, initialState);
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+    <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-base font-bold text-neutral-900">{label}</p>
         {maskedValue && (

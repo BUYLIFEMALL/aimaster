@@ -17,7 +17,7 @@ export function VoiceIdSettings({
   const isSet = !!currentVoiceId;
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+    <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
       {isSet && (
         <div className="mb-2 flex items-center justify-end">
           <form action={deleteVoiceIdAction}>
