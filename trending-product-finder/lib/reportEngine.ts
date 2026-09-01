@@ -1,0 +1,118 @@
+import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { getCategoryKeywordTrend, calcTrendChangePct, type NaverAuth } from "@/lib/naver/datalab";
+import { calcOpportunityScore, generateReasons, type OpportunityResult } from "@/lib/ai/opportunity";
+import { resolveApiKey } from "@/lib/apiKeys";
+import type { Json, Database } from "@/types/database.types";
+
+// 리포트 생성 핵심 로직 — 사용자가 직접 누르는 Server Action(lib/actions/reports.ts)과
+// Vercel Cron(app/api/cron/generate-reports/route.ts) 양쪽에서 재사용한다. RLS가 걸린
+// 사용자 세션 클라이언트든, service role(admin) 클라이언트든 둘 다 SupabaseClient<Database>
+// 타입이라 그대로 넘길 수 있다.
+
+function formatDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+export interface WatchlistRow {
+  id: string;
+  user_id: string;
+  category_name: string;
+  naver_category_code: string | null;
+  keywords: string[];
+}
+
+export type GenerateReportResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * 관심 목록 1건에 대해 관심도 조회 → 기회 점수 계산 → AI 사유 생성 → 리포트 저장까지
+ * 전부 수행한다. Phase 1 리포트 생성 액션과 정확히 동일한 로직이다.
+ */
+export async function generateReportForWatchlist(
+  supabase: SupabaseClient<Database>,
+  watchlist: WatchlistRow,
+): Promise<GenerateReportResult> {
+  const [naverClientId, naverClientSecret, openaiKey, geminiKey] = await Promise.all([
+    resolveApiKey(supabase, watchlist.user_id, "naver_client_id"),
+    resolveApiKey(supabase, watchlist.user_id, "naver_client_secret"),
+    resolveApiKey(supabase, watchlist.user_id, "openai"),
+    resolveApiKey(supabase, watchlist.user_id, "gemini"),
+  ]);
+
+  if (!naverClientId || !naverClientSecret) {
+    return { ok: false, error: "네이버 API 키 미등록" };
+  }
+
+  const auth: NaverAuth = { clientId: naverClientId, clientSecret: naverClientSecret };
+
+  const endDate = new Date();
+  const startDate = new Date(endDate.getTime() - 90 * 24 * 60 * 60 * 1000);
+  const startDateStr = formatDate(startDate);
+  const endDateStr = formatDate(endDate);
+
+  const results: OpportunityResult[] = [];
+
+  for (const keyword of watchlist.keywords) {
+    try {
+      const trendPoints = await getCategoryKeywordTrend(auth, {
+        categoryName: watchlist.category_name,
+        categoryCode: watchlist.naver_category_code ?? "",
+        keyword,
+        startDate: startDateStr,
+        endDate: endDateStr,
+        timeUnit: "week",
+      });
+      const trendIndex = trendPoints.length ? trendPoints[trendPoints.length - 1].ratio : null;
+      const trendChangePct = calcTrendChangePct(trendPoints);
+
+      await supabase.from("trend_snapshots").insert({
+        user_id: watchlist.user_id,
+        watchlist_id: watchlist.id,
+        keyword,
+        trend_index: trendIndex,
+        period_start: startDateStr,
+        period_end: endDateStr,
+        time_unit: "week",
+        source: "naver_shopping_insight",
+        raw: trendPoints as unknown as Json,
+      });
+
+      const opportunityScore = calcOpportunityScore({
+        keyword,
+        trendIndex,
+        trendChangePct,
+        productCount: null,
+        minPrice: null,
+        maxPrice: null,
+      });
+
+      results.push({ keyword, trendIndex, trendChangePct, productCount: null, minPrice: null, maxPrice: null, opportunityScore });
+    } catch (err) {
+      results.push({ keyword, trendIndex: null, trendChangePct: null, productCount: null, minPrice: null, maxPrice: null, opportunityScore: 0 });
+      console.error(`[trending-product-finder] "${keyword}" 조회 실패:`, err);
+    }
+  }
+
+  let reasons = new Map<string, string>();
+  if (openaiKey || geminiKey) {
+    try {
+      reasons = await generateReasons(results, { openai: openaiKey, gemini: geminiKey });
+    } catch (err) {
+      console.error("[trending-product-finder] AI 추천 사유 생성 실패:", err);
+    }
+  }
+
+  const items = results
+    .map((r) => ({ ...r, reason: reasons.get(r.keyword) ?? null }))
+    .sort((a, b) => b.opportunityScore - a.opportunityScore);
+
+  const { error: insertError } = await supabase.from("recommendation_reports").insert({
+    user_id: watchlist.user_id,
+    watchlist_id: watchlist.id,
+    ai_summary: openaiKey || geminiKey ? null : "AI 키가 등록되지 않아 추천 사유 없이 지표만 계산했습니다.",
+    items: items as unknown as Json,
+  });
+  if (insertError) return { ok: false, error: insertError.message };
+
+  return { ok: true };
+}

@@ -3,17 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { resolveApiKey } from "@/lib/apiKeys";
-import { getCategoryKeywordTrend, calcTrendChangePct, type NaverAuth } from "@/lib/naver/datalab";
-import { calcOpportunityScore, generateReasons, type OpportunityResult } from "@/lib/ai/opportunity";
-import type { Json } from "@/types/database.types";
+import { generateReportForWatchlist } from "@/lib/reportEngine";
 
 export interface GenerateReportState {
   error?: string;
-}
-
-function formatDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
 }
 
 export async function generateReportAction(formData: FormData): Promise<GenerateReportState> {
@@ -23,113 +16,20 @@ export async function generateReportAction(formData: FormData): Promise<Generate
 
   const { data: watchlist } = await supabase
     .from("trend_watchlist")
-    .select("id, category_name, naver_category_code, keywords")
+    .select("id, user_id, category_name, naver_category_code, keywords")
     .eq("id", watchlistId)
     .eq("user_id", user.id)
     .single();
 
   if (!watchlist) return { error: "관심 목록을 찾을 수 없습니다." };
 
-  const [naverClientId, naverClientSecret, openaiKey, geminiKey] = await Promise.all([
-    resolveApiKey(supabase, user.id, "naver_client_id"),
-    resolveApiKey(supabase, user.id, "naver_client_secret"),
-    resolveApiKey(supabase, user.id, "openai"),
-    resolveApiKey(supabase, user.id, "gemini"),
-  ]);
-
-  if (!naverClientId || !naverClientSecret) {
-    return { error: "네이버 Client ID/Secret이 등록되어 있지 않습니다. 설정 페이지에서 본인 키를 등록해주세요." };
-  }
-
-  const auth: NaverAuth = { clientId: naverClientId, clientSecret: naverClientSecret };
-
-  const endDate = new Date();
-  const startDate = new Date(endDate.getTime() - 90 * 24 * 60 * 60 * 1000);
-  const startDateStr = formatDate(startDate);
-  const endDateStr = formatDate(endDate);
-
-  const results: OpportunityResult[] = [];
-
-  for (const keyword of watchlist.keywords) {
-    try {
-      const trendPoints = await getCategoryKeywordTrend(auth, {
-        categoryName: watchlist.category_name,
-        categoryCode: watchlist.naver_category_code ?? "",
-        keyword,
-        startDate: startDateStr,
-        endDate: endDateStr,
-        timeUnit: "week",
-      });
-      const trendIndex = trendPoints.length ? trendPoints[trendPoints.length - 1].ratio : null;
-      const trendChangePct = calcTrendChangePct(trendPoints);
-
-      await supabase.from("trend_snapshots").insert({
-        user_id: user.id,
-        watchlist_id: watchlist.id,
-        keyword,
-        trend_index: trendIndex,
-        period_start: startDateStr,
-        period_end: endDateStr,
-        time_unit: "week",
-        source: "naver_shopping_insight",
-        raw: trendPoints as unknown as Json,
-      });
-
-      // 경쟁도(등록 상품 수) 지표: 네이버 쇼핑검색 API가 2026-07-31부로 완전 종료되어
-      // 공식 대체 API가 없다. Phase 2에서 쿠팡파트너스 검색 API로 경쟁도를 대체할 예정 —
-      // 그 전까지는 관심도 지수만으로 기회 점수를 계산한다.
-      const opportunityScore = calcOpportunityScore({
-        keyword,
-        trendIndex,
-        trendChangePct,
-        productCount: null,
-        minPrice: null,
-        maxPrice: null,
-      });
-
-      results.push({
-        keyword,
-        trendIndex,
-        trendChangePct,
-        productCount: null,
-        minPrice: null,
-        maxPrice: null,
-        opportunityScore,
-      });
-    } catch (err) {
-      results.push({
-        keyword,
-        trendIndex: null,
-        trendChangePct: null,
-        productCount: null,
-        minPrice: null,
-        maxPrice: null,
-        opportunityScore: 0,
-      });
-      console.error(`[trending-product-finder] "${keyword}" 조회 실패:`, err);
+  const result = await generateReportForWatchlist(supabase, watchlist);
+  if (!result.ok) {
+    if (result.error === "네이버 API 키 미등록") {
+      return { error: "네이버 API 키가 등록되어 있지 않습니다. 설정 페이지에서 본인 키를 등록해주세요." };
     }
+    return { error: result.error };
   }
-
-  let reasons = new Map<string, string>();
-  if (openaiKey || geminiKey) {
-    try {
-      reasons = await generateReasons(results, { openai: openaiKey, gemini: geminiKey });
-    } catch (err) {
-      console.error("[trending-product-finder] AI 추천 사유 생성 실패:", err);
-    }
-  }
-
-  const items = results
-    .map((r) => ({ ...r, reason: reasons.get(r.keyword) ?? null }))
-    .sort((a, b) => b.opportunityScore - a.opportunityScore);
-
-  const { error: insertError } = await supabase.from("recommendation_reports").insert({
-    user_id: user.id,
-    watchlist_id: watchlist.id,
-    ai_summary: openaiKey || geminiKey ? null : "AI 키가 등록되지 않아 추천 사유 없이 지표만 계산했습니다.",
-    items: items as unknown as Json,
-  });
-  if (insertError) return { error: insertError.message };
 
   await logProgramUsage({
     userId: user.id,
