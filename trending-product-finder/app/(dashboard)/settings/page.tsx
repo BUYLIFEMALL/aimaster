@@ -2,6 +2,9 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { ProviderAccountSection } from "@/components/settings/ProviderAccountSection";
+import type { SmtpAccountData } from "@/components/settings/SmtpAccountCard";
+import { SMTP_PROVIDER_PRESETS } from "@/lib/constants";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
@@ -130,8 +133,26 @@ export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: keys } = await supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id);
+  const [{ data: keys }, { data: smtpAccounts }] = await Promise.all([
+    supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
+    supabase
+      .from("user_smtp_accounts")
+      .select("id, label, provider, smtp_host, smtp_port, smtp_user, from_name, is_active")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+  ]);
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+
+  // 다른 AIMaster 프로그램(stepmail 등)에서 이미 SMTP 계정을 등록했다면 공용 테이블이라
+  // 여기서도 그대로 보인다.
+  const knownSmtpProviders = new Set(SMTP_PROVIDER_PRESETS.map((p) => p.value));
+  const smtpAccountsByProvider = new Map<string, SmtpAccountData[]>();
+  for (const account of smtpAccounts ?? []) {
+    const key = account.provider && knownSmtpProviders.has(account.provider) ? account.provider : "other";
+    const list = smtpAccountsByProvider.get(key) ?? [];
+    list.push(account);
+    smtpAccountsByProvider.set(key, list);
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
@@ -169,6 +190,25 @@ export default async function SettingsPage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+          <div className="mb-3">
+            <h2 className="text-sm font-bold text-gray-900">📧 리포트 이메일 알림 (선택)</h2>
+            <p className="text-xs text-gray-500">
+              매일 자동 생성되는 트렌드 리포트를 로그인 없이도 이메일로 요약 받아볼 수 있습니다.
+              본인 이메일 계정(SMTP)을 등록해두면 활성 상태인 관심 키워드에 한해, 자동 생성 시마다
+              등록해둔 계정 중 &quot;사용 중&quot;인 것으로 발송됩니다. 다른 AIMaster 프로그램
+              (STEP Mail 등)에서 이미 등록하셨다면 여기서도 그대로 재사용됩니다.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {SMTP_PROVIDER_PRESETS.map((preset) => (
+              <ProviderAccountSection key={preset.value} preset={preset} accounts={smtpAccountsByProvider.get(preset.value) ?? []} />
+            ))}
+          </div>
         </div>
       </section>
     </div>

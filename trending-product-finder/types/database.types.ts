@@ -180,6 +180,53 @@ export interface Database {
         };
         Relationships: [];
       };
+      // 공용 테이블(프로그램 접두어 없음) — stepmail/crm-google-form/booking-reminder가
+      // 이미 만들어둔 것을 그대로 재사용(Phase 10, 2026-09-02). 마이그레이션 불필요.
+      user_smtp_accounts: {
+        Row: {
+          id: string;
+          user_id: string;
+          label: string;
+          provider: string | null;
+          smtp_host: string;
+          smtp_port: number;
+          smtp_user: string;
+          smtp_password: string;
+          from_name: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          label: string;
+          provider?: string | null;
+          smtp_host: string;
+          smtp_port?: number;
+          smtp_user: string;
+          smtp_password: string;
+          from_name?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          label?: string;
+          provider?: string | null;
+          smtp_host?: string;
+          smtp_port?: number;
+          smtp_user?: string;
+          smtp_password?: string;
+          from_name?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

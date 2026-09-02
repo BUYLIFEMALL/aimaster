@@ -5,7 +5,7 @@ import { calcOpportunityScore, generateReasons, type OpportunityResult } from "@
 import { getYoutubeSignal } from "@/lib/youtube/client";
 import { getCompetition } from "@/lib/elevenst/client";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { sendEmail } from "@/lib/email/client";
+import { sendViaSmtpAccount } from "@/lib/email/transport";
 import { buildReportEmail } from "@/lib/email/reportSummary";
 import type { Json, Database } from "@/types/database.types";
 
@@ -170,16 +170,26 @@ export async function generateReportForWatchlist(
   if (insertError) return { ok: false, error: insertError.message };
 
   // Phase 10 — cron 자동 생성분만 이메일로 알림(버튼으로 직접 생성한 경우는 이미 화면을
-  // 보고 있으니 중복 알림이라 보내지 않음). 발송 실패는 리포트 생성 자체를 실패로 치지
-  // 않는다.
+  // 보고 있으니 중복 알림이라 보내지 않음). 운영자 공용 SMTP가 아니라 회원이 설정
+  // 페이지에서 등록한 본인 SMTP 계정(user_smtp_accounts, BYOK)을 쓴다 — 계정이 없으면
+  // 조용히 건너뛴다(에러 아님). 발송 실패도 리포트 생성 자체를 실패로 치지 않는다.
   if (options?.notifyEmail) {
     try {
       const { createAdminClient } = await import("@/lib/supabase/admin");
       const admin = createAdminClient();
-      const { data } = await admin.auth.admin.getUserById(watchlist.user_id);
-      if (data.user?.email) {
+      const [{ data: userData }, { data: smtpAccount }] = await Promise.all([
+        admin.auth.admin.getUserById(watchlist.user_id),
+        admin
+          .from("user_smtp_accounts")
+          .select("smtp_host, smtp_port, smtp_user, smtp_password, from_name")
+          .eq("user_id", watchlist.user_id)
+          .eq("is_active", true)
+          .limit(1)
+          .maybeSingle(),
+      ]);
+      if (userData.user?.email && smtpAccount) {
         const { subject, html } = buildReportEmail(watchlist.category_name, items);
-        await sendEmail(data.user.email, subject, html);
+        await sendViaSmtpAccount(smtpAccount, userData.user.email, subject, html);
       }
     } catch (err) {
       console.error(`[trending-product-finder] "${watchlist.category_name}" 리포트 이메일 발송 실패:`, err);
