@@ -160,7 +160,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
   return (
     <div>
       {/* 필터 바 */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+      <div className="flex flex-wrap items-center gap-3 mb-3">
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
@@ -185,33 +185,12 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
             </option>
           ))}
         </select>
-        <div className="flex items-center gap-1.5">
-          <select
-            value={bulkStatusValue}
-            onChange={(e) => setBulkStatusValue(e.target.value)}
-            disabled={selectedIds.size === 0}
-            className="input-dark sm:w-36 disabled:opacity-40"
-          >
-            <option value="">선택 항목 공개유무 변경...</option>
-            <option value="active">공개</option>
-            <option value="inactive">비공개</option>
-          </select>
-          <button
-            type="button"
-            disabled={bulkLoading || selectedIds.size === 0 || !bulkStatusValue}
-            onClick={handleBulkStatus}
-            className="shrink-0 text-xs font-medium bg-gold/15 text-gold hover:bg-gold/25 px-3 py-2.5 rounded-xl transition-colors disabled:opacity-40"
-          >
-            적용
-          </button>
-        </div>
-        <p className="text-xs text-subtext self-center sm:ml-auto">
-          {selectedIds.size > 0 && <span className="text-gold font-medium">{selectedIds.size}개 선택됨 · </span>}
+        <p className="text-xs text-subtext sm:ml-auto">
           {filteredPrograms.length}개 표시 중 (전체 {programs.length}개)
         </p>
       </div>
 
-      {/* 상단 고정 일괄 처리 툴바 — 항상 노출, 선택 없으면 버튼만 비활성화 */}
+      {/* 상단 고정 일괄 처리 툴바 — 항상 노출, 선택 없으면 컨트롤만 비활성화 */}
       <div className="flex flex-wrap items-center gap-3 mb-5 rounded-xl border border-gold/30 bg-gold/10 px-4 py-3">
         <button
           type="button"
@@ -233,6 +212,29 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
         </button>
 
         <span className="text-sm text-white font-medium shrink-0">{selectedIds.size}개 선택됨</span>
+
+        <div className="hidden sm:block w-px h-5 bg-white/10" />
+
+        <div className="flex items-center gap-1.5">
+          <select
+            value={bulkStatusValue}
+            onChange={(e) => setBulkStatusValue(e.target.value)}
+            disabled={selectedIds.size === 0}
+            className="input-dark text-xs py-1.5 !w-auto disabled:opacity-40"
+          >
+            <option value="">공개유무 변경...</option>
+            <option value="active">공개</option>
+            <option value="inactive">비공개</option>
+          </select>
+          <button
+            type="button"
+            disabled={bulkLoading || selectedIds.size === 0 || !bulkStatusValue}
+            onClick={handleBulkStatus}
+            className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+          >
+            적용
+          </button>
+        </div>
 
         <div className="hidden sm:block w-px h-5 bg-white/10" />
 
