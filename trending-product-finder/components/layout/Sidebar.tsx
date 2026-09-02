@@ -32,7 +32,10 @@ const FLOW_STEPS = [
   },
 ];
 
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
+const UTILITY_ITEMS = [
+  { href: "/fees", icon: "📊", label: "플랫폼·카테고리별 판매수수료" },
+  { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
+];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();

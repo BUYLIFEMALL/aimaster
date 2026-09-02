@@ -361,11 +361,8 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         )}
 
         <p className="text-xs text-gray-500">
-          아래 값은 모두 <span className="font-semibold text-gray-700">기본 추정치가 미리 채워져</span> 있습니다.
-          <br />
-          위에서 상품을 검색·선택하면 원가/예상 판매가만 자동으로 채워지고,
-          <br />
-          다른 값은 수정시 즉시 다시 계산됩니다.
+          상품 선택시 <span className="font-semibold text-gray-700">원가/예상 판매가만 자동으로
+          채워지고</span>, 다른 값은 수정시 즉시 다시 계산됩니다.
           {isDomestic && (
             <>
               <br />
@@ -450,6 +447,13 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               onChange={(e) => setPlatformFeeRate(e.target.value)}
               className="input-sm w-full"
             />
+            <p className="text-[11px] leading-snug text-gray-400">
+              판매 플랫폼과 상품 카테고리마다 수수료율이 다릅니다. 실제 판매하실 플랫폼·카테고리
+              기준으로 직접 수정해서 사용해주세요.{" "}
+              <a href="/fees" className="font-semibold text-sky-600 underline">
+                플랫폼별 수수료 보기
+              </a>
+            </p>
           </label>
           <label className="space-y-1">
             <span className="text-xs text-gray-600">
@@ -461,6 +465,10 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               onChange={(e) => setDeliveryFee(e.target.value)}
               className="input-sm w-full"
             />
+            <p className="text-[11px] leading-snug text-gray-400">
+              상품의 무게·부피·배송 지역에 따라 실제 택배비가 달라질 수 있습니다. 본인 상황에
+              맞게 직접 수정해서 사용해주세요.
+            </p>
           </label>
           <label className="col-span-2 space-y-1">
             <span className="text-xs text-gray-600">개당 마케팅비(원, 선택)</span>
