@@ -58,3 +58,10 @@ export function buildReportEmail(
 
   return { subject, html };
 }
+
+/** 카카오톡 친구톡/텔레그램용 순수 텍스트 요약(HTML 불가한 채널) */
+export function buildReportText(categoryName: string, items: ReportEmailItem[]): string {
+  const top = items.slice(0, MAX_ITEMS);
+  const lines = top.map((i) => `• ${i.keyword} (기회점수 ${i.opportunityScore})${i.reason ? `\n  ${i.reason}` : ""}`);
+  return [`📈 "${categoryName}" 오늘의 기회 리포트`, "", ...lines, "", `전체 보기: ${APP_URL}/reports`].join("\n");
+}

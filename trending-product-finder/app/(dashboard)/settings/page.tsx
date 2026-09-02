@@ -4,6 +4,9 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { ProviderAccountSection } from "@/components/settings/ProviderAccountSection";
 import type { SmtpAccountData } from "@/components/settings/SmtpAccountCard";
+import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
+import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
+import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { SMTP_PROVIDER_PRESETS } from "@/lib/constants";
 import type { ApiKeyProvider } from "@/types/database.types";
 
@@ -133,13 +136,24 @@ export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: keys }, { data: smtpAccounts }] = await Promise.all([
+  const [{ data: keys }, { data: smtpAccounts }, { data: solapiAccount }, { data: telegramLink }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase
       .from("user_smtp_accounts")
       .select("id, label, provider, smtp_host, smtp_port, smtp_user, from_name, is_active")
       .eq("user_id", user.id)
       .order("created_at", { ascending: true }),
+    supabase
+      .from("user_solapi_accounts")
+      .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("user_telegram_links")
+      .select("bot_username")
+      .eq("user_id", user.id)
+      .eq("program_slug", "trending-product-finder")
+      .maybeSingle(),
   ]);
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
 
@@ -193,15 +207,22 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      <section>
+      <section className="space-y-5">
+        <div>
+          <h2 className="mb-1 text-lg font-black text-gray-900">📣 리포트 자동 알림 (선택)</h2>
+          <p className="text-xs text-gray-500">
+            매일 자동 생성되는 트렌드 리포트를 로그인 없이도 이메일·카카오톡·텔레그램으로 요약
+            받아볼 수 있습니다. 아래 중 등록해둔 채널로 자동 생성 시마다 발송됩니다. 다른
+            AIMaster 프로그램(STEP Mail 등)에서 이미 등록하셨다면 이메일·카카오톡 계정은 공용
+            테이블이라 여기서도 그대로 재사용됩니다(텔레그램은 프로그램마다 별도 연동).
+          </p>
+        </div>
+
         <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
           <div className="mb-3">
-            <h2 className="text-sm font-bold text-gray-900">📧 리포트 이메일 알림 (선택)</h2>
+            <h2 className="text-sm font-bold text-gray-900">📧 이메일 (SMTP)</h2>
             <p className="text-xs text-gray-500">
-              매일 자동 생성되는 트렌드 리포트를 로그인 없이도 이메일로 요약 받아볼 수 있습니다.
-              본인 이메일 계정(SMTP)을 등록해두면 활성 상태인 관심 키워드에 한해, 자동 생성 시마다
-              등록해둔 계정 중 &quot;사용 중&quot;인 것으로 발송됩니다. 다른 AIMaster 프로그램
-              (STEP Mail 등)에서 이미 등록하셨다면 여기서도 그대로 재사용됩니다.
+              본인 이메일 계정을 등록해두면 등록해둔 계정 중 &quot;사용 중&quot;인 것으로 발송됩니다.
             </p>
           </div>
           <div className="space-y-3">
@@ -209,6 +230,42 @@ export default async function SettingsPage() {
               <ProviderAccountSection key={preset.value} preset={preset} accounts={smtpAccountsByProvider.get(preset.value) ?? []} />
             ))}
           </div>
+        </div>
+
+        <SolapiAccountSection account={solapiAccount ?? null} />
+
+        <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+          <div className="mb-3">
+            <h2 className="text-sm font-bold text-gray-900">📨 텔레그램 알림</h2>
+            <p className="text-xs text-gray-500">봇을 연동해두면 리포트 요약을 텔레그램으로도 받을 수 있어요.</p>
+          </div>
+
+          {telegramLink ? (
+            <div className="space-y-3">
+              <p className="text-sm text-emerald-600">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
+              <form action={disconnectTelegramAction}>
+                <button type="submit" className="rounded-lg bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100">
+                  연동 해제
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <ol className="list-inside list-decimal space-y-2 text-xs text-gray-600">
+                <li>
+                  텔레그램에서 <span className="font-semibold text-gray-900">@BotFather</span>를 검색해서 대화를 시작하세요.
+                </li>
+                <li>
+                  <code className="rounded bg-gray-100 px-1 py-0.5">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요
+                  (마지막엔 반드시 <code className="rounded bg-gray-100 px-1 py-0.5">bot</code>으로 끝나야 해요).
+                </li>
+                <li>완료되면 BotFather가 토큰을 알려줘요. 그 값을 복사하세요.</li>
+                <li>방금 만든 내 봇을 텔레그램에서 열고, 아무 메시지나 1개 보내세요.</li>
+                <li>아래 입력창에 토큰을 붙여넣고 &quot;연동 확인하기&quot;를 눌러주세요.</li>
+              </ol>
+              <TelegramConnectForm />
+            </div>
+          )}
         </div>
       </section>
     </div>

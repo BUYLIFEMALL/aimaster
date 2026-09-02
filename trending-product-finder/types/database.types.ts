@@ -18,6 +18,15 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
+      // 루트 AIMaster 공용 회원 프로필 테이블 — 카카오톡 알림 발송 대상 번호(phone)
+      // 조회에만 쓴다(Phase 10). 이 프로젝트가 소유/관리하는 테이블이 아니라 필요한
+      // 컬럼만 최소로 선언.
+      profiles: {
+        Row: { id: string; phone: string | null };
+        Insert: { id: string; phone?: string | null };
+        Update: { id?: string; phone?: string | null };
+        Relationships: [];
+      };
       user_api_keys: {
         Row: {
           id: string;
@@ -224,6 +233,66 @@ export interface Database {
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_solapi_accounts: {
+        Row: {
+          user_id: string;
+          api_key: string;
+          api_secret: string;
+          sender_phone: string;
+          kakao_pf_id: string | null;
+          rcs_brand_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          api_key: string;
+          api_secret: string;
+          sender_phone: string;
+          kakao_pf_id?: string | null;
+          rcs_brand_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          api_key?: string;
+          api_secret?: string;
+          sender_phone?: string;
+          kakao_pf_id?: string | null;
+          rcs_brand_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_telegram_links: {
+        Row: {
+          user_id: string;
+          program_slug: string;
+          bot_token: string;
+          chat_id: string;
+          bot_username: string | null;
+          linked_at: string;
+        };
+        Insert: {
+          user_id: string;
+          program_slug: string;
+          bot_token: string;
+          chat_id: string;
+          bot_username?: string | null;
+          linked_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          program_slug?: string;
+          bot_token?: string;
+          chat_id?: string;
+          bot_username?: string | null;
+          linked_at?: string;
         };
         Relationships: [];
       };

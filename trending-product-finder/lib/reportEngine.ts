@@ -6,7 +6,9 @@ import { getYoutubeSignal } from "@/lib/youtube/client";
 import { getCompetition } from "@/lib/elevenst/client";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { sendViaSmtpAccount } from "@/lib/email/transport";
-import { buildReportEmail } from "@/lib/email/reportSummary";
+import { buildReportEmail, buildReportText } from "@/lib/email/reportSummary";
+import { sendFriendtalk } from "@/lib/solapi/client";
+import { sendTelegramMessage } from "@/lib/telegram/client";
 import type { Json, Database } from "@/types/database.types";
 
 // 리포트 생성 핵심 로직 — 사용자가 직접 누르는 Server Action(lib/actions/reports.ts)과
@@ -35,7 +37,7 @@ export type GenerateReportResult = { ok: true } | { ok: false; error: string };
 export async function generateReportForWatchlist(
   supabase: SupabaseClient<Database>,
   watchlist: WatchlistRow,
-  options?: { notifyEmail?: boolean },
+  options?: { notify?: boolean },
 ): Promise<GenerateReportResult> {
   const [naverClientId, naverClientSecret, openaiKey, geminiKey, youtubeApiKey, elevenstApiKey] = await Promise.all([
     resolveApiKey(supabase, watchlist.user_id, "naver_client_id"),
@@ -169,30 +171,68 @@ export async function generateReportForWatchlist(
   });
   if (insertError) return { ok: false, error: insertError.message };
 
-  // Phase 10 — cron 자동 생성분만 이메일로 알림(버튼으로 직접 생성한 경우는 이미 화면을
-  // 보고 있으니 중복 알림이라 보내지 않음). 운영자 공용 SMTP가 아니라 회원이 설정
-  // 페이지에서 등록한 본인 SMTP 계정(user_smtp_accounts, BYOK)을 쓴다 — 계정이 없으면
-  // 조용히 건너뛴다(에러 아님). 발송 실패도 리포트 생성 자체를 실패로 치지 않는다.
-  if (options?.notifyEmail) {
+  // Phase 10 — cron 자동 생성분만 알림(버튼으로 직접 생성한 경우는 이미 화면을 보고 있으니
+  // 중복 알림이라 보내지 않음). 운영자 공용 계정이 아니라 회원이 설정 페이지에서 등록한
+  // 본인 계정(SMTP/SOLAPI/텔레그램, 전부 BYOK)을 쓴다 — 채널별로 등록이 없으면 그 채널만
+  // 조용히 건너뛰고, 한 채널 발송 실패가 다른 채널이나 리포트 생성 자체를 막지 않는다.
+  if (options?.notify) {
     try {
       const { createAdminClient } = await import("@/lib/supabase/admin");
       const admin = createAdminClient();
-      const [{ data: userData }, { data: smtpAccount }] = await Promise.all([
-        admin.auth.admin.getUserById(watchlist.user_id),
-        admin
-          .from("user_smtp_accounts")
-          .select("smtp_host, smtp_port, smtp_user, smtp_password, from_name")
-          .eq("user_id", watchlist.user_id)
-          .eq("is_active", true)
-          .limit(1)
-          .maybeSingle(),
-      ]);
+      const [{ data: userData }, { data: profile }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }] =
+        await Promise.all([
+          admin.auth.admin.getUserById(watchlist.user_id),
+          admin.from("profiles").select("phone").eq("id", watchlist.user_id).maybeSingle(),
+          admin
+            .from("user_smtp_accounts")
+            .select("smtp_host, smtp_port, smtp_user, smtp_password, from_name")
+            .eq("user_id", watchlist.user_id)
+            .eq("is_active", true)
+            .limit(1)
+            .maybeSingle(),
+          admin
+            .from("user_solapi_accounts")
+            .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id")
+            .eq("user_id", watchlist.user_id)
+            .maybeSingle(),
+          admin
+            .from("user_telegram_links")
+            .select("bot_token, chat_id")
+            .eq("user_id", watchlist.user_id)
+            .eq("program_slug", "trending-product-finder")
+            .maybeSingle(),
+        ]);
+
       if (userData.user?.email && smtpAccount) {
-        const { subject, html } = buildReportEmail(watchlist.category_name, items);
-        await sendViaSmtpAccount(smtpAccount, userData.user.email, subject, html);
+        try {
+          const { subject, html } = buildReportEmail(watchlist.category_name, items);
+          await sendViaSmtpAccount(smtpAccount, userData.user.email, subject, html);
+        } catch (err) {
+          console.error(`[trending-product-finder] "${watchlist.category_name}" 이메일 알림 발송 실패:`, err);
+        }
+      }
+
+      if (profile?.phone && solapiAccount?.kakao_pf_id) {
+        try {
+          await sendFriendtalk(solapiAccount, profile.phone, buildReportText(watchlist.category_name, items));
+        } catch (err) {
+          console.error(`[trending-product-finder] "${watchlist.category_name}" 카카오톡 알림 발송 실패:`, err);
+        }
+      }
+
+      if (telegramLink?.bot_token && telegramLink?.chat_id) {
+        try {
+          await sendTelegramMessage({
+            botToken: telegramLink.bot_token,
+            chatId: telegramLink.chat_id,
+            text: buildReportText(watchlist.category_name, items),
+          });
+        } catch (err) {
+          console.error(`[trending-product-finder] "${watchlist.category_name}" 텔레그램 알림 발송 실패:`, err);
+        }
       }
     } catch (err) {
-      console.error(`[trending-product-finder] "${watchlist.category_name}" 리포트 이메일 발송 실패:`, err);
+      console.error(`[trending-product-finder] "${watchlist.category_name}" 리포트 알림 조회 실패:`, err);
     }
   }
 
