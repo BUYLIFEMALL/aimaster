@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   findSourcingCandidatesAction,
   findDomeggookCandidatesAction,
   findElevenstCandidatesAction,
 } from "@/lib/actions/sourcing";
+import { saveSourcingProductAction } from "@/lib/actions/savedProducts";
 import { calcMargin, MARGIN_DEFAULTS, DOMESTIC_MARGIN_DEFAULTS, type MarginResult } from "@/lib/margin";
 
 type Platform = "aliexpress" | "domeggook" | "elevenst";
@@ -116,6 +118,7 @@ const FETCHERS: Record<Platform, (keyword: string) => Promise<PlatformResult>> =
 };
 
 export function SourcingCalculator({ initialKeyword, registeredPlatforms }: SourcingCalculatorProps) {
+  const router = useRouter();
   // 토글(단일 선택) 대신 체크박스로 여러 채널을 동시에 선택해서, 검색 한 번으로
   // 알리익스프레스/도매매/11번가 결과를 채널별로 나눠 보고 그 안에서 상품을 고를 수 있게 한다.
   // 기본 선택값은 회원이 이미 API 키를 등록해둔 채널 — 없으면 기존처럼 알리익스프레스만 선택.
@@ -124,6 +127,10 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
   );
   const [keyword, setKeyword] = useState(initialKeyword ?? "");
   const [isSearching, setIsSearching] = useState(false);
+  // Phase 14 — 저장 직후 버튼을 "⭐ 저장됨"으로 바꿔주기 위한 로컬 표시용 상태(진짜 저장
+  // 여부는 서버의 sourcing_saved_products가 진실 공급원). 새로 검색하면 초기화된다.
+  const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set());
+  const [savingKey, setSavingKey] = useState<string | null>(null);
   const [results, setResults] = useState<Record<Platform, PlatformResult | null>>({
     aliexpress: null,
     domeggook: null,
@@ -195,6 +202,27 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
     // 이전에 직접 수정했던 값이 남아있지 않도록, 상품을 새로 선택할 때마다
     // 나머지 비용 항목도 전부 (선택한 상품의 채널에 맞는) 기본값으로 되돌려서 다시 채운다.
     applyDefaults(DOMESTIC_PLATFORMS.includes(product.platform) ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS);
+  }
+
+  async function handleSaveProduct(product: NormalizedProduct) {
+    const savedKey = `${product.platform}:${product.key}`;
+    setSavingKey(savedKey);
+    try {
+      const formData = new FormData();
+      formData.set("keyword", keyword.trim());
+      formData.set("platform", product.platform);
+      formData.set("productKey", product.key);
+      formData.set("title", product.title);
+      formData.set("detailUrl", product.detailUrl);
+      if (product.priceKrw != null) formData.set("priceKrw", String(product.priceKrw));
+      const result = await saveSourcingProductAction(formData);
+      if (!result.error) {
+        setSavedKeys((prev) => new Set(prev).add(savedKey));
+        router.refresh();
+      }
+    } finally {
+      setSavingKey(null);
+    }
   }
 
   function handleReset() {
@@ -415,6 +443,24 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                       🔗 상품 링크
                     </a>
                   )}
+                  {(() => {
+                    const savedKey = `${prod.platform}:${prod.key}`;
+                    const isSaved = savedKeys.has(savedKey);
+                    const isSaving = savingKey === savedKey;
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => handleSaveProduct(prod)}
+                        disabled={isSaved || isSaving}
+                        title="가격/품절 변화가 있을 때만 알림을 받습니다"
+                        className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold disabled:opacity-70 ${
+                          isSaved ? "bg-amber-100 text-amber-700" : "bg-white text-amber-600 border border-amber-300 hover:bg-amber-50"
+                        }`}
+                      >
+                        {isSaving ? "저장 중..." : isSaved ? "⭐ 저장됨" : "⭐ 관심상품 저장"}
+                      </button>
+                    );
+                  })()}
                   <button
                     type="button"
                     onClick={() => handleSelect(prod)}

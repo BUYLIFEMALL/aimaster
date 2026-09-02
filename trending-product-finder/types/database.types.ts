@@ -248,6 +248,54 @@ export interface Database {
         };
         Relationships: [];
       };
+      sourcing_saved_products: {
+        Row: {
+          id: string;
+          user_id: string;
+          keyword: string;
+          platform: string;
+          product_key: string;
+          title: string;
+          detail_url: string;
+          last_price_krw: number | null;
+          last_status: string;
+          last_checked_at: string | null;
+          alert_interval_minutes: number;
+          alert_channels: string[];
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          keyword: string;
+          platform: string;
+          product_key: string;
+          title: string;
+          detail_url: string;
+          last_price_krw?: number | null;
+          last_status?: string;
+          last_checked_at?: string | null;
+          alert_interval_minutes?: number;
+          alert_channels?: string[];
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          keyword?: string;
+          platform?: string;
+          product_key?: string;
+          title?: string;
+          detail_url?: string;
+          last_price_krw?: number | null;
+          last_status?: string;
+          last_checked_at?: string | null;
+          alert_interval_minutes?: number;
+          alert_channels?: string[];
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       user_solapi_accounts: {
         Row: {
           user_id: string;

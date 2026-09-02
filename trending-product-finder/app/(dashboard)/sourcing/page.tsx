@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getRegisteredProviders } from "@/lib/apiKeys";
 import { SourcingCalculator } from "@/components/sourcing/SourcingCalculator";
 import { BatchMarginCalculator } from "@/components/sourcing/BatchMarginCalculator";
+import { SavedProductsPanel } from "@/components/sourcing/SavedProductsPanel";
+import type { SavedProductEntry } from "@/lib/actions/savedProducts";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -39,6 +41,24 @@ export default async function SourcingPage({
     .filter((w) => w.keywords.length > 0)
     .map((w) => ({ categoryName: w.category_name, keywords: w.keywords }));
 
+  const { data: savedProductRows } = await supabase
+    .from("sourcing_saved_products")
+    .select("id, keyword, platform, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  const savedProducts: SavedProductEntry[] = (savedProductRows ?? []).map((r) => ({
+    id: r.id,
+    keyword: r.keyword,
+    platform: r.platform as SavedProductEntry["platform"],
+    title: r.title,
+    detailUrl: r.detail_url,
+    lastPriceKrw: r.last_price_krw,
+    lastStatus: r.last_status as SavedProductEntry["lastStatus"],
+    lastCheckedAt: r.last_checked_at,
+    alertIntervalMinutes: r.alert_interval_minutes,
+    alertChannels: r.alert_channels,
+  }));
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <section>
@@ -51,6 +71,8 @@ export default async function SourcingPage({
       </section>
 
       <SourcingCalculator initialKeyword={keyword} registeredPlatforms={registeredPlatforms} />
+
+      <SavedProductsPanel products={savedProducts} />
 
       <BatchMarginCalculator watchlistGroups={watchlistGroups} registeredPlatforms={registeredPlatforms} />
     </div>
