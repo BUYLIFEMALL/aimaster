@@ -48,6 +48,8 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
   const [programs, setPrograms] = useState(initialPrograms);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<(typeof STATUS_OPTIONS)[number]["value"]>("all");
+  const [gradeFilter, setGradeFilter] = useState("all");
+  const [badgeFilter, setBadgeFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
@@ -65,9 +67,17 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
       }
       if (statusFilter === "active" && !p.is_active) return false;
       if (statusFilter === "inactive" && p.is_active) return false;
+      if (gradeFilter !== "all") {
+        const key = p.required_grade_id ?? NONE_VALUE;
+        if (key !== gradeFilter) return false;
+      }
+      if (badgeFilter !== "all") {
+        const key = p.badge ?? NONE_VALUE;
+        if (key !== badgeFilter) return false;
+      }
       return true;
     });
-  }, [programs, categoryFilter, statusFilter]);
+  }, [programs, categoryFilter, statusFilter, gradeFilter, badgeFilter]);
 
   const groups = useMemo(() => {
     const byCategory = new Map<string, ProgramRow[]>();
@@ -182,6 +192,32 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={gradeFilter}
+          onChange={(e) => setGradeFilter(e.target.value)}
+          className="input-dark sm:w-44"
+        >
+          <option value="all">전체 접근등급</option>
+          <option value={NONE_VALUE}>전체 공개 (등급 제한 없음)</option>
+          {grades.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={badgeFilter}
+          onChange={(e) => setBadgeFilter(e.target.value)}
+          className="input-dark sm:w-40"
+        >
+          <option value="all">전체 추천뱃지</option>
+          <option value={NONE_VALUE}>뱃지 없음</option>
+          {BADGE_OPTIONS.map((b) => (
+            <option key={b.value} value={b.value}>
+              {b.label}
             </option>
           ))}
         </select>
