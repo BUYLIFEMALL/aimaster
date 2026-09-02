@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { deleteWatchlistAction, toggleWatchlistActiveAction, type WatchlistEntry } from "@/lib/actions/watchlist";
 import { generateReportAction } from "@/lib/actions/reports";
+import { SourcingAlertControls } from "./SourcingAlertControls";
 
 interface WatchlistRowProps {
   entry: WatchlistEntry;
@@ -109,6 +110,8 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
       </div>
       {genError && <p className="text-xs text-red-600">{genError}</p>}
       {rowError && <p className="text-xs text-red-600">{rowError}</p>}
+
+      <SourcingAlertControls entry={entry} onUpdated={onUpdated} />
     </div>
   );
 }

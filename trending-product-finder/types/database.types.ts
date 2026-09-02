@@ -64,6 +64,10 @@ export interface Database {
           is_active: boolean;
           created_at: string;
           updated_at: string;
+          sourcing_alert_enabled: boolean;
+          sourcing_alert_interval_minutes: number | null;
+          sourcing_alert_channels: string[];
+          sourcing_alert_last_run_at: string | null;
         };
         Insert: {
           id?: string;
@@ -74,6 +78,10 @@ export interface Database {
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
+          sourcing_alert_enabled?: boolean;
+          sourcing_alert_interval_minutes?: number | null;
+          sourcing_alert_channels?: string[];
+          sourcing_alert_last_run_at?: string | null;
         };
         Update: {
           id?: string;
@@ -84,6 +92,10 @@ export interface Database {
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
+          sourcing_alert_enabled?: boolean;
+          sourcing_alert_interval_minutes?: number | null;
+          sourcing_alert_channels?: string[];
+          sourcing_alert_last_run_at?: string | null;
         };
         Relationships: [];
       };

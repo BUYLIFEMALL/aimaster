@@ -13,3 +13,13 @@ export const SMTP_PROVIDER_PRESETS: SmtpProviderPreset[] = [
   { value: "daum", label: "다음(카카오) 메일", host: "smtp.daum.net", port: 465 },
   { value: "other", label: "기타 (직접 입력)", host: "", port: 587 },
 ];
+
+export type AlertChannel = "email" | "kakao" | "telegram" | "sms";
+
+// 예약 소싱 알림(Phase 12)에서 회원이 채널별로 켜고 끌 수 있는 발송 채널 목록.
+export const ALERT_CHANNEL_OPTIONS: { value: AlertChannel; label: string }[] = [
+  { value: "email", label: "📧 이메일" },
+  { value: "kakao", label: "💬 카카오톡" },
+  { value: "telegram", label: "📨 텔레그램" },
+  { value: "sms", label: "💌 문자(SMS)" },
+];

@@ -10,6 +10,9 @@ export interface WatchlistEntry {
   naverCategoryCode: string | null;
   keywords: string[];
   isActive: boolean;
+  sourcingAlertEnabled: boolean;
+  sourcingAlertIntervalMinutes: number | null;
+  sourcingAlertChannels: string[];
 }
 
 export interface WatchlistActionState {
@@ -17,12 +20,18 @@ export interface WatchlistActionState {
   entry?: WatchlistEntry;
 }
 
+const WATCHLIST_SELECT =
+  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels";
+
 function toEntry(row: {
   id: string;
   category_name: string;
   naver_category_code: string | null;
   keywords: string[];
   is_active: boolean;
+  sourcing_alert_enabled: boolean;
+  sourcing_alert_interval_minutes: number | null;
+  sourcing_alert_channels: string[];
 }): WatchlistEntry {
   return {
     id: row.id,
@@ -30,6 +39,9 @@ function toEntry(row: {
     naverCategoryCode: row.naver_category_code,
     keywords: row.keywords,
     isActive: row.is_active,
+    sourcingAlertEnabled: row.sourcing_alert_enabled,
+    sourcingAlertIntervalMinutes: row.sourcing_alert_interval_minutes,
+    sourcingAlertChannels: row.sourcing_alert_channels,
   };
 }
 
@@ -63,7 +75,7 @@ export async function createWatchlistAction(formData: FormData): Promise<Watchli
       naver_category_code: naverCategoryCode,
       keywords,
     })
-    .select("id, category_name, naver_category_code, keywords, is_active")
+    .select(WATCHLIST_SELECT)
     .single();
   if (error) return { error: error.message };
 
@@ -82,7 +94,32 @@ export async function toggleWatchlistActiveAction(formData: FormData): Promise<W
     .update({ is_active: nextActive })
     .eq("id", id)
     .eq("user_id", user.id)
-    .select("id, category_name, naver_category_code, keywords, is_active")
+    .select(WATCHLIST_SELECT)
+    .single();
+  if (error) return { error: error.message };
+
+  revalidatePath("/watchlist");
+  return { entry: toEntry(data) };
+}
+
+export async function updateSourcingAlertAction(formData: FormData): Promise<WatchlistActionState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const id = String(formData.get("id") ?? "");
+  const enabled = String(formData.get("enabled") ?? "false") === "true";
+  const intervalMinutes = Number(formData.get("intervalMinutes")) || null;
+  const channels = formData.getAll("channels").map(String);
+
+  const { data, error } = await supabase
+    .from("trend_watchlist")
+    .update({
+      sourcing_alert_enabled: enabled,
+      sourcing_alert_interval_minutes: intervalMinutes,
+      sourcing_alert_channels: channels,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select(WATCHLIST_SELECT)
     .single();
   if (error) return { error: error.message };
 
