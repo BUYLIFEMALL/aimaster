@@ -308,9 +308,9 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
                       href={prod.detailUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="shrink-0 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50"
+                      className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
                     >
-                      🔗 상품 보기
+                      🔗 상품 링크
                     </a>
                   )}
                   <button
