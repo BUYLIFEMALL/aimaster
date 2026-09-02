@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { currentKstHour, isAlertDue, isWithinActiveHours } from "@/lib/schedule";
 import { runSourcingAlertForWatchlist } from "@/lib/sourcingAlert";
+import type { Json } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -24,7 +25,7 @@ async function dispatch() {
   const { data: rows, error } = await admin
     .from("trend_watchlist")
     .select(
-      "id, user_id, category_name, keywords, sourcing_alert_channels, sourcing_alert_interval_minutes, sourcing_alert_last_run_at, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end",
+      "id, user_id, category_name, keywords, sourcing_alert_channels, sourcing_alert_interval_minutes, sourcing_alert_last_run_at, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end, sourcing_alert_notify_mode, sourcing_alert_last_snapshot",
     )
     .eq("is_active", true)
     .eq("sourcing_alert_enabled", true);
@@ -45,10 +46,14 @@ async function dispatch() {
   for (const row of dueRows) {
     try {
       const result = await runSourcingAlertForWatchlist(admin, row);
-      await admin.from("trend_watchlist").update({ sourcing_alert_last_run_at: now.toISOString() }).eq("id", row.id);
+      const updatePayload: { sourcing_alert_last_run_at: string; sourcing_alert_last_snapshot?: Json } = {
+        sourcing_alert_last_run_at: now.toISOString(),
+      };
+      if (result.snapshot !== undefined) updatePayload.sourcing_alert_last_snapshot = result.snapshot as unknown as Json;
+      await admin.from("trend_watchlist").update(updatePayload).eq("id", row.id);
       if (result.ok) {
         sent++;
-        details.push({ watchlistId: row.id, result: "sent" });
+        details.push({ watchlistId: row.id, result: result.notified ? "sent" : "no change" });
       } else {
         failed++;
         details.push({ watchlistId: row.id, result: `skipped: ${result.error}` });

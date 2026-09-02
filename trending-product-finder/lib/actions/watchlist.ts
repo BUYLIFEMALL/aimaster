@@ -15,6 +15,7 @@ export interface WatchlistEntry {
   sourcingAlertChannels: string[];
   sourcingAlertActiveHourStart: number | null;
   sourcingAlertActiveHourEnd: number | null;
+  sourcingAlertNotifyMode: "always" | "changes_only";
 }
 
 export interface WatchlistActionState {
@@ -23,7 +24,7 @@ export interface WatchlistActionState {
 }
 
 const WATCHLIST_SELECT =
-  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end";
+  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end, sourcing_alert_notify_mode";
 
 function toEntry(row: {
   id: string;
@@ -36,6 +37,7 @@ function toEntry(row: {
   sourcing_alert_channels: string[];
   sourcing_alert_active_hour_start: number | null;
   sourcing_alert_active_hour_end: number | null;
+  sourcing_alert_notify_mode: string;
 }): WatchlistEntry {
   return {
     id: row.id,
@@ -48,6 +50,7 @@ function toEntry(row: {
     sourcingAlertChannels: row.sourcing_alert_channels,
     sourcingAlertActiveHourStart: row.sourcing_alert_active_hour_start,
     sourcingAlertActiveHourEnd: row.sourcing_alert_active_hour_end,
+    sourcingAlertNotifyMode: row.sourcing_alert_notify_mode === "changes_only" ? "changes_only" : "always",
   };
 }
 
@@ -120,6 +123,7 @@ export async function updateSourcingAlertAction(formData: FormData): Promise<Wat
   const hoursRestricted = String(formData.get("hoursRestricted") ?? "false") === "true";
   const startHourRaw = formData.get("activeHourStart");
   const endHourRaw = formData.get("activeHourEnd");
+  const notifyMode = String(formData.get("notifyMode") ?? "always") === "changes_only" ? "changes_only" : "always";
 
   const activeHourStart = hoursRestricted ? Number(startHourRaw) : null;
   const activeHourEnd = hoursRestricted ? Number(endHourRaw) : null;
@@ -135,6 +139,7 @@ export async function updateSourcingAlertAction(formData: FormData): Promise<Wat
       sourcing_alert_channels: channels,
       sourcing_alert_active_hour_start: activeHourStart,
       sourcing_alert_active_hour_end: activeHourEnd,
+      sourcing_alert_notify_mode: notifyMode,
     })
     .eq("id", id)
     .eq("user_id", user.id)

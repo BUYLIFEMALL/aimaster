@@ -34,6 +34,7 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
     hoursRestricted?: boolean;
     startHour?: number;
     endHour?: number;
+    notifyMode?: "always" | "changes_only";
   }) {
     const merged = {
       enabled: next.enabled ?? entry.sourcingAlertEnabled,
@@ -42,6 +43,7 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
       hoursRestricted: next.hoursRestricted ?? hoursRestricted,
       startHour: next.startHour ?? startHour,
       endHour: next.endHour ?? endHour,
+      notifyMode: next.notifyMode ?? entry.sourcingAlertNotifyMode,
     };
     setError(null);
     setIsSaving(true);
@@ -54,6 +56,7 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
       formData.set("hoursRestricted", String(merged.hoursRestricted));
       formData.set("activeHourStart", String(merged.startHour));
       formData.set("activeHourEnd", String(merged.endHour));
+      formData.set("notifyMode", merged.notifyMode);
       const result = await updateSourcingAlertAction(formData);
       if (result.error) {
         setError(result.error);
@@ -168,6 +171,37 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
               </div>
             )}
           </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-16 shrink-0 text-[11px] text-gray-500">발송 방식</span>
+            <div className="flex overflow-hidden rounded-lg border border-gray-300">
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={() => save({ notifyMode: "always" })}
+                className={`px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
+                  entry.sourcingAlertNotifyMode === "always" ? "bg-sky-600 text-white" : "bg-white text-gray-500 hover:bg-gray-50"
+                }`}
+              >
+                매번 전체 발송
+              </button>
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={() => save({ notifyMode: "changes_only" })}
+                className={`border-l border-gray-300 px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50 ${
+                  entry.sourcingAlertNotifyMode === "changes_only" ? "bg-sky-600 text-white" : "bg-white text-gray-500 hover:bg-gray-50"
+                }`}
+              >
+                변경사항만 발송
+              </button>
+            </div>
+          </div>
+          {entry.sourcingAlertNotifyMode === "changes_only" && (
+            <p className="text-[11px] leading-snug text-sky-700">
+              직전 확인 대비 새 상품이 나타나거나, 가격이 5% 이상 바뀌거나, 검색결과에서 사라진(품절 추정) 경우에만 알려드려요. 변화가 없으면 조용히 넘어갑니다.
+            </p>
+          )}
 
           <div className="flex flex-wrap gap-1.5">
             {ALERT_CHANNEL_OPTIONS.map((c) => {
