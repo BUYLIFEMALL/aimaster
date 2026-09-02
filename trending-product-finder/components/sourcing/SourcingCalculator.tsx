@@ -1,14 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { findSourcingCandidatesAction, findDomeggookCandidatesAction } from "@/lib/actions/sourcing";
+import {
+  findSourcingCandidatesAction,
+  findDomeggookCandidatesAction,
+  findElevenstCandidatesAction,
+} from "@/lib/actions/sourcing";
 import { calcMargin, MARGIN_DEFAULTS, DOMESTIC_MARGIN_DEFAULTS, type MarginResult } from "@/lib/margin";
 
 interface SourcingCalculatorProps {
   initialKeyword?: string;
 }
 
-type Platform = "aliexpress" | "domeggook";
+type Platform = "aliexpress" | "domeggook" | "elevenst";
+
+// 도매매/11번가는 국내 소싱이라 통관 절차가 없다 — 관세/부가세/해외운송비 기본값을
+// 0원으로 채우는 대상 채널.
+const DOMESTIC_PLATFORMS: Platform[] = ["domeggook", "elevenst"];
 
 interface NormalizedProduct {
   key: string;
@@ -30,6 +38,7 @@ interface PlatformResult {
 const PLATFORMS: { value: Platform; label: string; description: string }[] = [
   { value: "aliexpress", label: "🌏 알리익스프레스 (해외)", description: "관세·부가세·해외운송비 반영" },
   { value: "domeggook", label: "🏠 도매매 (국내)", description: "통관 절차 없음, 최소구매수량 확인 필요" },
+  { value: "elevenst", label: "🏪 11번가 (국내)", description: "통관 절차 없음, 오픈마켓 실판매가 비교" },
 ];
 
 async function fetchAliexpress(keyword: string): Promise<PlatformResult> {
@@ -80,6 +89,30 @@ async function fetchDomeggook(keyword: string): Promise<PlatformResult> {
   };
 }
 
+async function fetchElevenst(keyword: string): Promise<PlatformResult> {
+  const formData = new FormData();
+  formData.set("keyword", keyword);
+  const result = await findElevenstCandidatesAction(formData);
+  if (result.error) return { products: [], error: result.error };
+  return {
+    products: (result.products ?? []).map((p) => ({
+      key: p.productCode,
+      platform: "elevenst" as const,
+      title: p.title,
+      imageUrl: p.imageUrl,
+      priceKrw: p.salePriceKrw ?? p.priceKrw,
+      metaText: p.seller ? `판매자 ${p.seller}` : "",
+      detailUrl: p.detailUrl,
+    })),
+  };
+}
+
+const FETCHERS: Record<Platform, (keyword: string) => Promise<PlatformResult>> = {
+  aliexpress: fetchAliexpress,
+  domeggook: fetchDomeggook,
+  elevenst: fetchElevenst,
+};
+
 export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) {
   // 토글(단일 선택) 대신 체크박스로 여러 채널을 동시에 선택해서, 검색 한 번으로
   // 알리익스프레스/도매매 결과를 채널별로 나눠 보고 그 안에서 상품을 고를 수 있게 한다.
@@ -89,6 +122,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
   const [results, setResults] = useState<Record<Platform, PlatformResult | null>>({
     aliexpress: null,
     domeggook: null,
+    elevenst: null,
   });
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -136,10 +170,8 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
     setIsSearching(true);
     try {
       const targets = Array.from(selectedPlatforms);
-      const entries = await Promise.all(
-        targets.map(async (p) => [p, await (p === "aliexpress" ? fetchAliexpress(keyword.trim()) : fetchDomeggook(keyword.trim()))] as const),
-      );
-      const next: Record<Platform, PlatformResult | null> = { aliexpress: null, domeggook: null };
+      const entries = await Promise.all(targets.map(async (p) => [p, await FETCHERS[p](keyword.trim())] as const));
+      const next: Record<Platform, PlatformResult | null> = { aliexpress: null, domeggook: null, elevenst: null };
       for (const [p, r] of entries) next[p] = r;
       setResults(next);
     } finally {
@@ -157,7 +189,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
     }
     // 이전에 직접 수정했던 값이 남아있지 않도록, 상품을 새로 선택할 때마다
     // 나머지 비용 항목도 전부 (선택한 상품의 채널에 맞는) 기본값으로 되돌려서 다시 채운다.
-    applyDefaults(product.platform === "domeggook" ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS);
+    applyDefaults(DOMESTIC_PLATFORMS.includes(product.platform) ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS);
   }
 
   function handleReset() {
@@ -182,13 +214,13 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
     sellingPriceKrw: Number(sellingPrice) || 0,
   });
 
-  const isDomestic = selectedPlatform === "domeggook";
+  const isDomestic = selectedPlatform != null && DOMESTIC_PLATFORMS.includes(selectedPlatform);
   const activeDefaults = isDomestic ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS;
 
   return (
     <div className="space-y-4">
       {/* 소싱 채널 선택 — 중복 선택 가능, 선택한 채널 결과를 한 번에 나눠서 보여준다 */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {PLATFORMS.map((p) => {
           const checked = selectedPlatforms.has(p.value);
           return (
@@ -333,7 +365,7 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
             <>
               <br />
               <span className="font-semibold text-emerald-700">
-                국내 소싱(도매매) 상품이라 관세·부가세·해외운송비는 기본 0원으로 채워집니다.
+                국내 소싱(도매매/11번가) 상품이라 관세·부가세·해외운송비는 기본 0원으로 채워집니다.
               </span>
             </>
           )}

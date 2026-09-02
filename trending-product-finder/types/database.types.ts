@@ -9,6 +9,7 @@ export type ApiKeyProvider =
   | "aliexpress_tracking_id"
   | "domeggook_api_key"
   | "youtube_api_key"
+  | "elevenst_api_key"
   | "openai"
   | "gemini";
 

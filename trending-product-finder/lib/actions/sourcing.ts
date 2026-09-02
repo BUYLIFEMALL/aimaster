@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchProducts as searchAliexpress, type AliexpressProduct } from "@/lib/aliexpress/client";
 import { searchProducts as searchDomeggook, type DomeggookProduct } from "@/lib/domeggook/client";
+import { searchProducts as searchElevenst, type ElevenstProduct } from "@/lib/elevenst/client";
 import { translateToEnglishKeyword, containsKorean } from "@/lib/ai/translateKeyword";
 
 export interface FindSourcingCandidatesState {
@@ -79,5 +80,31 @@ export async function findDomeggookCandidatesAction(formData: FormData): Promise
     return { products };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "도매매 검색에 실패했습니다." };
+  }
+}
+
+export interface FindElevenstCandidatesState {
+  error?: string;
+  products?: ElevenstProduct[];
+}
+
+/** 키워드로 11번가(국내 오픈마켓) 후보를 찾는다. 결과는 저장하지 않는다. */
+export async function findElevenstCandidatesAction(formData: FormData): Promise<FindElevenstCandidatesState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const keyword = String(formData.get("keyword") ?? "").trim();
+  if (!keyword) return { error: "키워드가 없습니다." };
+
+  const apiKey = await resolveApiKey(supabase, user.id, "elevenst_api_key");
+  if (!apiKey) {
+    return { error: "11번가 API 키가 등록되어 있지 않습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+  }
+
+  try {
+    const products = await searchElevenst(keyword, { apiKey, pageSize: 30 });
+    return { products };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "11번가 검색에 실패했습니다." };
   }
 }
