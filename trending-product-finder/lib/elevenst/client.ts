@@ -6,10 +6,16 @@ import "server-only";
 // 가능한 낮은 권한이라 소싱 후보 검색 용도에 딱 맞는다. 공식 문서: openapi.11st.co.kr
 // "개발가이드 > 상품검색"(categoryNo=54).
 //
-// 2026-09-02 확인: 응답은 XML, CP949(EUC-KR 계열) 인코딩. 최상위 wrapper 태그 이름은 문서
-// 페이지 스크래핑으로 확인 못 해서, 특정 루트/컨테이너 태그에 의존하지 않고 <ProductCode> 등장
-// 위치를 기준으로 상품 단위를 스스로 분리하는 방식으로 방어적으로 구현했다. API 키 유효기간이
-// 180일이라는 정책이 있으니, 회원 안내에 이 점을 명시할 것.
+// 2026-09-02 확인: 응답은 XML, CP949(EUC-KR 계열) 인코딩. 최상위 wrapper 태그는
+// <ProductSearchResponse><Products><Product>...</Product></Products></ProductSearchResponse>
+// 지만, 특정 루트/컨테이너 태그에 의존하지 않고 <ProductCode> 등장 위치를 기준으로 상품
+// 단위를 스스로 분리하는 방식으로 방어적으로 구현했다. API 키 유효기간이 180일이라는 정책이
+// 있으니, 회원 안내에 이 점을 명시할 것.
+//
+// 실계정(buylifemall) E2E 검증 완료(2026-09-02, "무선청소기" 검색): 이미지/상세URL 필드는
+// 문서 추정과 실제가 달랐다 — 이미지는 ImageUrl이 아니라 ProductImage/ProductImage100~300
+// (사이즈별로 여러 개), 상세페이지 URL은 ProductDetailUrl이 아니라 DetailPageUrl, 판매자
+// 표시명은 SellerNick(닉네임)이 Seller(아이디)보다 더 읽기 좋음 — 전부 실제 필드명으로 수정.
 
 const BASE_URL = "https://openapi.11st.co.kr/openapi/OpenApiService.tmall";
 
@@ -83,10 +89,10 @@ export async function searchProducts(
   return chunks.map((chunk) => ({
     productCode: extractField(chunk, "ProductCode") ?? "",
     title: extractField(chunk, "ProductName") ?? "",
-    imageUrl: extractField(chunk, "ImageUrl") ?? "",
-    detailUrl: extractField(chunk, "ProductDetailUrl") ?? "",
+    imageUrl: extractField(chunk, "ProductImage200") ?? extractField(chunk, "ProductImage") ?? "",
+    detailUrl: (extractField(chunk, "DetailPageUrl") ?? "").replace(/^http:/, "https:"),
     priceKrw: parsePrice(extractField(chunk, "ProductPrice")),
     salePriceKrw: parsePrice(extractField(chunk, "SalePrice")),
-    seller: extractField(chunk, "Seller"),
+    seller: extractField(chunk, "SellerNick") ?? extractField(chunk, "Seller"),
   }));
 }
