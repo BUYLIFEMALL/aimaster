@@ -8,11 +8,13 @@ import {
 } from "@/lib/actions/sourcing";
 import { calcMargin, MARGIN_DEFAULTS, DOMESTIC_MARGIN_DEFAULTS, type MarginResult } from "@/lib/margin";
 
+type Platform = "aliexpress" | "domeggook" | "elevenst";
+
 interface SourcingCalculatorProps {
   initialKeyword?: string;
+  /** 회원이 이미 API 키를 등록해둔 채널 — 검색 체크박스 기본 선택값으로 쓴다 */
+  registeredPlatforms?: Platform[];
 }
-
-type Platform = "aliexpress" | "domeggook" | "elevenst";
 
 // 도매매/11번가는 국내 소싱이라 통관 절차가 없다 — 관세/부가세/해외운송비 기본값을
 // 0원으로 채우는 대상 채널.
@@ -113,10 +115,13 @@ const FETCHERS: Record<Platform, (keyword: string) => Promise<PlatformResult>> =
   elevenst: fetchElevenst,
 };
 
-export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) {
+export function SourcingCalculator({ initialKeyword, registeredPlatforms }: SourcingCalculatorProps) {
   // 토글(단일 선택) 대신 체크박스로 여러 채널을 동시에 선택해서, 검색 한 번으로
-  // 알리익스프레스/도매매 결과를 채널별로 나눠 보고 그 안에서 상품을 고를 수 있게 한다.
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Set<Platform>>(new Set<Platform>(["aliexpress"]));
+  // 알리익스프레스/도매매/11번가 결과를 채널별로 나눠 보고 그 안에서 상품을 고를 수 있게 한다.
+  // 기본 선택값은 회원이 이미 API 키를 등록해둔 채널 — 없으면 기존처럼 알리익스프레스만 선택.
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Set<Platform>>(
+    new Set<Platform>(registeredPlatforms && registeredPlatforms.length > 0 ? registeredPlatforms : ["aliexpress"]),
+  );
   const [keyword, setKeyword] = useState(initialKeyword ?? "");
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<Record<Platform, PlatformResult | null>>({
@@ -269,8 +274,8 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
       {PLATFORMS.filter((p) => selectedPlatforms.has(p.value) && results[p.value]).map((p) => {
         const result = results[p.value]!;
         return (
-          <div key={p.value} className="space-y-2">
-            <p className="text-xs font-bold text-gray-500">{p.label} 검색결과</p>
+          <div key={p.value} className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+            <p className="text-base font-extrabold text-gray-900">{p.label} 검색결과</p>
             {result.translatedKeyword && (
               <p className="text-xs text-gray-400">
                 알리익스프레스는 한글 검색어를 잘 인식하지 못해, 실제 검색어를{" "}
@@ -290,8 +295,8 @@ export function SourcingCalculator({ initialKeyword }: SourcingCalculatorProps) 
               return (
                 <div
                   key={prod.key}
-                  className={`flex w-full items-center gap-3 rounded-xl border bg-white p-3 ${
-                    isSelected ? "border-sky-400 bg-sky-50" : "border-gray-200"
+                  className={`flex w-full items-center gap-3 rounded-xl border p-3 ${
+                    isSelected ? "border-sky-400 bg-sky-50" : "border-gray-200 bg-gray-50"
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}

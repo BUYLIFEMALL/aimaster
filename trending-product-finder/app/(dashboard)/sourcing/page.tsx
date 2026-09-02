@@ -1,4 +1,6 @@
 import { requireProgramAccess } from "@/lib/access";
+import { createClient } from "@/lib/supabase/server";
+import { getRegisteredProviders } from "@/lib/apiKeys";
 import { SourcingCalculator } from "@/components/sourcing/SourcingCalculator";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +11,23 @@ export default async function SourcingPage({
 }: {
   searchParams: Promise<{ keyword?: string }>;
 }) {
-  await requireProgramAccess();
+  const user = await requireProgramAccess();
   const { keyword } = await searchParams;
+
+  // 회원이 이미 등록해둔 API 키가 있는 채널은 검색 체크박스가 자동으로 선택되게 한다
+  // (매번 직접 체크할 필요 없게). 아무 키도 없으면 기존처럼 알리익스프레스만 기본 선택.
+  const supabase = await createClient();
+  const registered = await getRegisteredProviders(supabase, user.id);
+  const registeredPlatforms: ("aliexpress" | "domeggook" | "elevenst")[] = [];
+  if (
+    registered.has("aliexpress_app_key") &&
+    registered.has("aliexpress_app_secret") &&
+    registered.has("aliexpress_tracking_id")
+  ) {
+    registeredPlatforms.push("aliexpress");
+  }
+  if (registered.has("domeggook_api_key")) registeredPlatforms.push("domeggook");
+  if (registered.has("elevenst_api_key")) registeredPlatforms.push("elevenst");
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -23,7 +40,7 @@ export default async function SourcingPage({
         </p>
       </section>
 
-      <SourcingCalculator initialKeyword={keyword} />
+      <SourcingCalculator initialKeyword={keyword} registeredPlatforms={registeredPlatforms} />
     </div>
   );
 }
