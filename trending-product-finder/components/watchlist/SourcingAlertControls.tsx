@@ -57,20 +57,23 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
   }
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+    <div className="rounded-xl border-2 border-sky-200 bg-sky-50/50 p-3">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-bold text-gray-700">🔔 예약 소싱 알림</p>
+        <p className="text-sm font-bold text-sky-900">🔔 예약 소싱 알림</p>
         <button
           type="button"
           onClick={toggleEnabled}
           disabled={isSaving}
-          className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-colors disabled:opacity-50 ${
-            entry.sourcingAlertEnabled ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-500"
+          className={`rounded-full px-3 py-1 text-xs font-bold transition-colors disabled:opacity-50 ${
+            entry.sourcingAlertEnabled ? "bg-sky-600 text-white" : "border border-sky-300 bg-white text-sky-600"
           }`}
         >
-          {entry.sourcingAlertEnabled ? "사용 중" : "꺼짐"}
+          {entry.sourcingAlertEnabled ? "사용 중" : "꺼짐 (누르면 켜기)"}
         </button>
       </div>
+      <p className="mt-1 text-[11px] leading-snug text-sky-700/80">
+        정해둔 주기마다 이 키워드로 소싱 후보 상품을 검색해서 등록된 채널로 요약을 보내드려요.
+      </p>
 
       {entry.sourcingAlertEnabled && (
         <div className="mt-2 space-y-2">
