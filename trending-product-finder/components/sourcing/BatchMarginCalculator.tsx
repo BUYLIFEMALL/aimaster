@@ -231,6 +231,52 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
         })}
       </div>
 
+      {/* 실행 직전 미리보기 — "선택했던 걸 깜빡 잊고 새 키워드만 검색한 줄 알았는데 다 같이 돌아갔다"는
+          혼선을 막기 위해, 체크박스 선택 + 직접입력이 합쳐진 최종 실행 대상을 항상 눈에 보이게 한다. */}
+      <div className="rounded-xl border border-sky-200 bg-sky-50/60 p-3">
+        <div className="mb-1.5 flex items-center justify-between">
+          <p className="text-xs font-bold text-sky-800">🎯 이번에 계산할 키워드 ({totalSelected}개)</p>
+          {totalSelected > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedKeywords(new Set());
+                setManualInput("");
+              }}
+              className="text-[11px] font-semibold text-sky-600 hover:text-sky-800 hover:underline"
+            >
+              전체 해제
+            </button>
+          )}
+        </div>
+        {totalSelected === 0 ? (
+          <p className="text-xs text-gray-400">관심 키워드를 선택하거나 직접 입력하면 여기에 표시됩니다.</p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {Array.from(selectedKeywords).map((k) => (
+              <span
+                key={`w-${k}`}
+                className="inline-flex items-center gap-1 rounded-full bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white"
+              >
+                {k}
+                <button type="button" onClick={() => toggleKeyword(k)} className="hover:text-sky-200" aria-label={`${k} 선택 해제`}>
+                  ✕
+                </button>
+              </span>
+            ))}
+            {manualKeywords.map((k) => (
+              <span
+                key={`m-${k}`}
+                className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white"
+                title="직접 입력한 키워드"
+              >
+                {k}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="flex items-center gap-3">
         <button
           type="button"
