@@ -56,12 +56,15 @@ export const MARGIN_DEFAULTS = {
 };
 
 /**
- * 국내 소싱(도매매 등) 기본값 — 통관을 거치지 않으므로 관세/부가세/해외운송비가 0이다.
- * 나머지(입고비/플랫폼수수료/택배비/마케팅비)는 해외 소싱과 동일한 보수적 추정치를 쓴다.
+ * 국내 소싱(도매매/11번가 등) 기본값 — 통관 절차 자체가 없으므로 관세/부가세/해외운송비/
+ * 국내 입고·검수비를 전부 0으로 두고 계산에서 제외한다(2026-09-02, 사용자 요청 —
+ * 국내 도매 사이트에서 공급자가 최종 구매자에게 바로 배송하는 위탁 구조를 가정).
+ * 나머지(플랫폼수수료/택배비/마케팅비)는 해외 소싱과 동일한 보수적 추정치를 쓴다.
  */
 export const DOMESTIC_MARGIN_DEFAULTS = {
   ...MARGIN_DEFAULTS,
   customsDutyRate: 0,
   vatRate: 0,
   shippingPerUnitKrw: 0,
+  domesticFeePerUnitKrw: 0,
 };

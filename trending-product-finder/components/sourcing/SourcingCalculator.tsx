@@ -370,7 +370,8 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
             <>
               <br />
               <span className="font-semibold text-emerald-700">
-                국내 소싱(도매매/11번가) 상품이라 관세·부가세·해외운송비는 기본 0원으로 채워집니다.
+                국내 소싱(도매매/11번가) 상품이라 관세·부가세·해외운송비·국내 입고/검수비는
+                계산에서 제외됩니다(입력창도 숨김 처리됩니다).
               </span>
             </>
           )}
@@ -395,46 +396,50 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               className="input-sm w-full border-sky-300"
             />
           </label>
-          <label className="space-y-1">
-            <span className="text-xs text-gray-600">관세율(%) — 기본 {activeDefaults.customsDutyRate}%</span>
-            <input
-              type="number"
-              value={customsDutyRate}
-              onChange={(e) => setCustomsDutyRate(e.target.value)}
-              className="input-sm w-full"
-            />
-          </label>
-          <label className="space-y-1">
-            <span className="text-xs text-gray-600">부가세율(%) — 기본 {activeDefaults.vatRate}%</span>
-            <input
-              type="number"
-              value={vatRate}
-              onChange={(e) => setVatRate(e.target.value)}
-              className="input-sm w-full"
-            />
-          </label>
-          <label className="space-y-1">
-            <span className="text-xs text-gray-600">
-              개당 해외 운송비(원) — 기본 {activeDefaults.shippingPerUnitKrw.toLocaleString()}원
-            </span>
-            <input
-              type="number"
-              value={shippingPerUnit}
-              onChange={(e) => setShippingPerUnit(e.target.value)}
-              className="input-sm w-full"
-            />
-          </label>
-          <label className="space-y-1">
-            <span className="text-xs text-gray-600">
-              국내 입고/검수비(원) — 기본 {MARGIN_DEFAULTS.domesticFeePerUnitKrw.toLocaleString()}원
-            </span>
-            <input
-              type="number"
-              value={domesticFee}
-              onChange={(e) => setDomesticFee(e.target.value)}
-              className="input-sm w-full"
-            />
-          </label>
+          {!isDomestic && (
+            <>
+              <label className="space-y-1">
+                <span className="text-xs text-gray-600">관세율(%) — 기본 {activeDefaults.customsDutyRate}%</span>
+                <input
+                  type="number"
+                  value={customsDutyRate}
+                  onChange={(e) => setCustomsDutyRate(e.target.value)}
+                  className="input-sm w-full"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-xs text-gray-600">부가세율(%) — 기본 {activeDefaults.vatRate}%</span>
+                <input
+                  type="number"
+                  value={vatRate}
+                  onChange={(e) => setVatRate(e.target.value)}
+                  className="input-sm w-full"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-xs text-gray-600">
+                  개당 해외 운송비(원) — 기본 {activeDefaults.shippingPerUnitKrw.toLocaleString()}원
+                </span>
+                <input
+                  type="number"
+                  value={shippingPerUnit}
+                  onChange={(e) => setShippingPerUnit(e.target.value)}
+                  className="input-sm w-full"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-xs text-gray-600">
+                  국내 입고/검수비(원) — 기본 {activeDefaults.domesticFeePerUnitKrw.toLocaleString()}원
+                </span>
+                <input
+                  type="number"
+                  value={domesticFee}
+                  onChange={(e) => setDomesticFee(e.target.value)}
+                  className="input-sm w-full"
+                />
+              </label>
+            </>
+          )}
           <label className="space-y-1">
             <span className="text-xs text-gray-600">
               판매 플랫폼 수수료율(%) — 기본 {MARGIN_DEFAULTS.platformFeeRate}%
@@ -498,34 +503,43 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
 
               {/* 계산 과정 상세 — 영수증 형태로 항목별 표시 */}
               <div className="border-t border-black/5 bg-white/60 px-4 py-3 text-sm">
-                <p className="mb-1.5 text-xs font-bold text-gray-500">최종 수입 단가 계산</p>
-                <div className="space-y-1 text-gray-700">
-                  <div className="flex justify-between">
-                    <span>원가</span>
-                    <span className="tabular-nums">{(Number(sourcePrice) || 0).toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>+ 관세·부가세 ({(Number(customsDutyRate) || 0) + (Number(vatRate) || 0)}%)</span>
-                    <span className="tabular-nums">{dutyAndVatKrw.toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>+ 해외 운송비</span>
-                    <span className="tabular-nums">{(Number(shippingPerUnit) || 0).toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>+ 국내 입고/검수비</span>
-                    <span className="tabular-nums">{(Number(domesticFee) || 0).toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between border-t border-dashed border-gray-300 pt-1 font-bold text-gray-900">
-                    <span>= 최종 수입 단가</span>
-                    <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
-                  </div>
-                </div>
+                {isDomestic ? (
+                  <p className="mb-1.5 text-xs text-gray-500">
+                    국내 소싱이라 관세·부가세·해외운송비·국내 입고/검수비는 계산에서 제외됩니다 —
+                    원가 그대로가 최종 원가입니다.
+                  </p>
+                ) : (
+                  <>
+                    <p className="mb-1.5 text-xs font-bold text-gray-500">최종 수입 단가 계산</p>
+                    <div className="space-y-1 text-gray-700">
+                      <div className="flex justify-between">
+                        <span>원가</span>
+                        <span className="tabular-nums">{(Number(sourcePrice) || 0).toLocaleString()}원</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>+ 관세·부가세 ({(Number(customsDutyRate) || 0) + (Number(vatRate) || 0)}%)</span>
+                        <span className="tabular-nums">{dutyAndVatKrw.toLocaleString()}원</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>+ 해외 운송비</span>
+                        <span className="tabular-nums">{(Number(shippingPerUnit) || 0).toLocaleString()}원</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>+ 국내 입고/검수비</span>
+                        <span className="tabular-nums">{(Number(domesticFee) || 0).toLocaleString()}원</span>
+                      </div>
+                      <div className="flex justify-between border-t border-dashed border-gray-300 pt-1 font-bold text-gray-900">
+                        <span>= 최종 수입 단가</span>
+                        <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <p className="mb-1.5 mt-3 text-xs font-bold text-gray-500">판매 비용 + 최종 결과</p>
                 <div className="space-y-1 text-gray-700">
                   <div className="flex justify-between">
-                    <span>최종 수입 단가</span>
+                    <span>{isDomestic ? "최종 원가" : "최종 수입 단가"}</span>
                     <span className="tabular-nums">{marginResult.landedCostKrw.toLocaleString()}원</span>
                   </div>
                   <div className="flex justify-between">
