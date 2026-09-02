@@ -116,7 +116,8 @@ export default async function FeesPage() {
       <section className="space-y-2 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
         <h2 className="text-base font-extrabold text-gray-900">🛍️ 네이버 스마트스토어</h2>
         <p className="text-xs leading-relaxed text-gray-600">
-          다른 오픈마켓과 달리 카테고리별로 수수료가 나뉘어 있지 않고, <span className="font-semibold">결제수단·유입경로</span> 기준으로 정해집니다. 2025-06-02 개편 이후에는{" "}
+          다른 오픈마켓과 달리 카테고리별로 수수료가 나뉘어 있지 않고, <span className="font-semibold">결제수단·유입경로</span> 기준으로 정해집니다.
+          <br />
           <span className="font-semibold">결제수수료 + 판매수수료</span>가 각각 별도로 붙습니다(둘 다 부가세 포함 표기).
         </p>
 
