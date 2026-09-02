@@ -27,7 +27,7 @@ interface ProgramsAdminBoardProps {
 }
 
 const STATUS_OPTIONS = [
-  { value: "all", label: "전체 상태" },
+  { value: "all", label: "공개유무" },
   { value: "active", label: "공개" },
   { value: "inactive", label: "비공개" },
 ] as const;
@@ -51,6 +51,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkStatusValue, setBulkStatusValue] = useState("");
   const [bulkGradeValue, setBulkGradeValue] = useState("");
   const [bulkBadgeValue, setBulkBadgeValue] = useState("");
 
@@ -119,12 +120,13 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     setPrograms((prev) => prev.map((p) => (ids.includes(p.id) ? { ...p, ...patch } : p)));
   };
 
-  const handleBulk = async (isActive: boolean) => {
-    if (selectedIds.size === 0) return;
+  const handleBulkStatus = async () => {
+    if (selectedIds.size === 0 || !bulkStatusValue) return;
     setBulkLoading(true);
-    await applyUpdate([...selectedIds], { is_active: isActive });
+    await applyUpdate([...selectedIds], { is_active: bulkStatusValue === "active" });
     setBulkLoading(false);
     setSelectedIds(new Set());
+    setBulkStatusValue("");
   };
 
   const handleBulkGrade = async () => {
@@ -183,97 +185,119 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
             </option>
           ))}
         </select>
+        <div className="flex items-center gap-1.5">
+          <select
+            value={bulkStatusValue}
+            onChange={(e) => setBulkStatusValue(e.target.value)}
+            disabled={selectedIds.size === 0}
+            className="input-dark sm:w-36 disabled:opacity-40"
+          >
+            <option value="">선택 항목 공개유무 변경...</option>
+            <option value="active">공개</option>
+            <option value="inactive">비공개</option>
+          </select>
+          <button
+            type="button"
+            disabled={bulkLoading || selectedIds.size === 0 || !bulkStatusValue}
+            onClick={handleBulkStatus}
+            className="shrink-0 text-xs font-medium bg-gold/15 text-gold hover:bg-gold/25 px-3 py-2.5 rounded-xl transition-colors disabled:opacity-40"
+          >
+            적용
+          </button>
+        </div>
         <p className="text-xs text-subtext self-center sm:ml-auto">
+          {selectedIds.size > 0 && <span className="text-gold font-medium">{selectedIds.size}개 선택됨 · </span>}
           {filteredPrograms.length}개 표시 중 (전체 {programs.length}개)
         </p>
       </div>
 
-      {/* 선택 시 일괄 처리 툴바 */}
-      {selectedIds.size > 0 && (
-        <div className="flex flex-wrap items-center gap-3 mb-4 rounded-xl border border-gold/30 bg-gold/10 px-4 py-3">
-          <span className="text-sm text-white font-medium">{selectedIds.size}개 선택됨</span>
+      {/* 상단 고정 일괄 처리 툴바 — 항상 노출, 선택 없으면 버튼만 비활성화 */}
+      <div className="flex flex-wrap items-center gap-3 mb-5 rounded-xl border border-gold/30 bg-gold/10 px-4 py-3">
+        <button
+          type="button"
+          onClick={() =>
+            setSelectedIds(
+              filteredPrograms.every((p) => selectedIds.has(p.id)) && filteredPrograms.length > 0
+                ? new Set()
+                : new Set(filteredPrograms.map((p) => p.id))
+            )
+          }
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-subtext hover:text-white transition-colors shrink-0"
+        >
+          {filteredPrograms.length > 0 && filteredPrograms.every((p) => selectedIds.has(p.id)) ? (
+            <CheckSquare size={16} className="text-gold" />
+          ) : (
+            <Square size={16} />
+          )}
+          현재 목록 전체 선택
+        </button>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={bulkLoading}
-              onClick={() => handleBulk(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-            >
-              <Eye size={13} /> 일괄 공개
-            </button>
-            <button
-              type="button"
-              disabled={bulkLoading}
-              onClick={() => handleBulk(false)}
-              className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-            >
-              <EyeOff size={13} /> 일괄 비공개
-            </button>
-          </div>
+        <span className="text-sm text-white font-medium shrink-0">{selectedIds.size}개 선택됨</span>
 
-          <div className="hidden sm:block w-px h-5 bg-white/10" />
+        <div className="hidden sm:block w-px h-5 bg-white/10" />
 
-          <div className="flex items-center gap-1.5">
-            <select
-              value={bulkGradeValue}
-              onChange={(e) => setBulkGradeValue(e.target.value)}
-              className="input-dark text-xs py-1.5 !w-auto"
-            >
-              <option value="">접근등급 변경...</option>
-              <option value={NONE_VALUE}>전체 공개 (등급 제한 없음)</option>
-              {grades.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              disabled={bulkLoading || !bulkGradeValue}
-              onClick={handleBulkGrade}
-              className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
-            >
-              적용
-            </button>
-          </div>
-
-          <div className="hidden sm:block w-px h-5 bg-white/10" />
-
-          <div className="flex items-center gap-1.5">
-            <select
-              value={bulkBadgeValue}
-              onChange={(e) => setBulkBadgeValue(e.target.value)}
-              className="input-dark text-xs py-1.5 !w-auto"
-            >
-              <option value="">추천 뱃지 변경...</option>
-              <option value={NONE_VALUE}>없음</option>
-              {BADGE_OPTIONS.map((b) => (
-                <option key={b.value} value={b.value}>
-                  {b.label}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              disabled={bulkLoading || !bulkBadgeValue}
-              onClick={handleBulkBadge}
-              className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
-            >
-              적용
-            </button>
-          </div>
-
-          <div className="flex-1" />
+        <div className="flex items-center gap-1.5">
+          <select
+            value={bulkGradeValue}
+            onChange={(e) => setBulkGradeValue(e.target.value)}
+            disabled={selectedIds.size === 0}
+            className="input-dark text-xs py-1.5 !w-auto disabled:opacity-40"
+          >
+            <option value="">접근등급 변경...</option>
+            <option value={NONE_VALUE}>전체 공개 (등급 제한 없음)</option>
+            {grades.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
           <button
             type="button"
-            onClick={() => setSelectedIds(new Set())}
-            className="text-xs text-subtext hover:text-white px-2 py-1.5"
+            disabled={bulkLoading || selectedIds.size === 0 || !bulkGradeValue}
+            onClick={handleBulkGrade}
+            className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
           >
-            선택 해제
+            적용
           </button>
         </div>
-      )}
+
+        <div className="hidden sm:block w-px h-5 bg-white/10" />
+
+        <div className="flex items-center gap-1.5">
+          <select
+            value={bulkBadgeValue}
+            onChange={(e) => setBulkBadgeValue(e.target.value)}
+            disabled={selectedIds.size === 0}
+            className="input-dark text-xs py-1.5 !w-auto disabled:opacity-40"
+          >
+            <option value="">추천 뱃지 변경...</option>
+            <option value={NONE_VALUE}>없음</option>
+            {BADGE_OPTIONS.map((b) => (
+              <option key={b.value} value={b.value}>
+                {b.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            disabled={bulkLoading || selectedIds.size === 0 || !bulkBadgeValue}
+            onClick={handleBulkBadge}
+            className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+          >
+            적용
+          </button>
+        </div>
+
+        <div className="flex-1" />
+        <button
+          type="button"
+          disabled={selectedIds.size === 0}
+          onClick={() => setSelectedIds(new Set())}
+          className="text-xs text-subtext hover:text-white px-2 py-1.5 disabled:opacity-40"
+        >
+          선택 해제
+        </button>
+      </div>
 
       {filteredPrograms.length === 0 ? (
         <div className="glass-card rounded-2xl text-center py-12">
