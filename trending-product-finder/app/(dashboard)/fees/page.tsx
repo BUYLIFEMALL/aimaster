@@ -108,15 +108,28 @@ export default async function FeesPage() {
       <section className="space-y-2 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
         <h2 className="text-base font-extrabold text-gray-900">🛍️ 네이버 스마트스토어</h2>
         <p className="text-xs leading-relaxed text-gray-600">
-          다른 오픈마켓과 달리 카테고리별로 수수료가 나뉘어 있지 않고, <span className="font-semibold">결제수단·유입경로</span> 기준으로 정해집니다.
+          다른 오픈마켓과 달리 카테고리별로 수수료가 나뉘어 있지 않고, <span className="font-semibold">결제수단·유입경로</span> 기준으로 정해집니다. 2025-06-02 개편 이후에는{" "}
+          <span className="font-semibold">결제수수료 + 판매수수료</span>가 각각 별도로 붙습니다(둘 다 부가세 별도).
           <br />
-          · 네이버페이 결제수수료: <span className="font-semibold">3.74%</span>(영세·중소 사업자
-          기준, 연매출 3억 이상이면 상향)
+          · 결제수수료: <span className="font-semibold">3.74%</span>(영세·중소 사업자 기준, 연매출
+          3억 이상이면 상향)
           <br />
-          · 네이버쇼핑 매출연동수수료: 쇼핑탭을 거쳐 유입된 주문에는{" "}
-          <span className="font-semibold">2%</span>가 추가로 붙어(합계 5.74%), 스토어에 직접
-          접속해서 산 주문은 결제수수료 3.74%만 적용됩니다.
+          · 판매수수료(일반 유입 — 네이버쇼핑 검색 등): <span className="font-semibold">2.73%</span>
+          <br />· 판매수수료(<span className="font-semibold text-emerald-700">마케팅 링크</span> 유입):{" "}
+          <span className="font-semibold text-emerald-700">0.91%</span> — 일반 유입 대비 약 1/3
+          수준
         </p>
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 text-xs leading-relaxed text-emerald-900">
+          <p className="font-bold">💡 마케팅 링크를 쓰면 수수료가 더 낮아집니다</p>
+          <p className="mt-1">
+            판매자센터에서 스토어홈·카테고리·상품상세·쇼핑스토리 페이지별로 &quot;마케팅
+            링크&quot;를 발급받아, 그 링크로 블로그·SNS·검색광고 등 <span className="font-semibold">직접 마케팅</span>을 통해 고객이 들어오면 판매수수료가 2.73% →{" "}
+            <span className="font-semibold">0.91%</span>로 낮아집니다(합계 기준 일반 유입
+            6.47% → 마케팅 링크 유입 4.65%). 유입 후 스토어를 이탈하지 않고 다른 상품을
+            구매해도 똑같이 적용되지만, 네이버플러스스토어·가격비교 등 다른 경로로 이탈하면
+            적용되지 않습니다.
+          </p>
+        </div>
       </section>
 
       <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 text-xs leading-relaxed text-amber-900">
