@@ -1,18 +1,22 @@
 import Link from "next/link";
-import { Plus, Pencil, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
+import ProgramsAdminBoard from "@/components/admin/ProgramsAdminBoard";
 
 export const metadata = { title: "프로그램 관리" };
 
 export default async function AdminProgramsPage() {
   const supabase = await createClient();
-  const { data: programs } = await supabase
-    .from("programs")
-    .select("*, category:categories(name), pricing_plans(count)")
-    .order("sort_order");
+  const [{ data: programs }, { data: categories }] = await Promise.all([
+    supabase
+      .from("programs")
+      .select("id, name, slug, app_url, is_active, sort_order, category_id")
+      .order("sort_order"),
+    supabase.from("categories").select("*").order("sort_order"),
+  ]);
 
   return (
     <div>
@@ -31,70 +35,16 @@ export default async function AdminProgramsPage() {
         </Link>
       </div>
 
-      <GlassCard className="p-0 overflow-hidden">
-        {!programs || programs.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-subtext mb-4">등록된 프로그램이 없습니다</p>
-            <Link href="/admin/programs/new">
-              <GoldButton>첫 프로그램 등록하기</GoldButton>
-            </Link>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[480px]">
-            <thead>
-              <tr className="border-b border-white/10">
-                <th className="text-left text-xs text-subtext font-medium p-4">프로그램명</th>
-                <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">카테고리</th>
-                <th className="text-center text-xs text-subtext font-medium p-4 hidden md:table-cell">상태</th>
-                <th className="text-right text-xs text-subtext font-medium p-4">관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {programs.map((p) => (
-                <tr key={p.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-white font-medium text-sm">{p.name}</p>
-                      {p.app_url && (
-                        <span title={`실행형 프로그램: ${p.app_url}`}>
-                          <ExternalLink size={12} className="text-gold" />
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-subtext text-xs mt-0.5">/programs/{p.slug}</p>
-                  </td>
-                  <td className="p-4 hidden md:table-cell">
-                    <span className="text-subtext text-sm">{(p.category as { name: string } | null)?.name ?? "-"}</span>
-                  </td>
-                  <td className="p-4 hidden md:table-cell text-center">
-                    {p.is_active ? (
-                      <span className="inline-flex items-center gap-1 text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">
-                        <Eye size={10} />
-                        공개
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-xs bg-white/10 text-subtext px-2 py-0.5 rounded-full">
-                        <EyeOff size={10} />
-                        비공개
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-4 text-right">
-                    <Link href={`/admin/programs/${p.id}/edit`}>
-                      <button className="inline-flex items-center gap-1.5 text-sm text-subtext hover:text-gold hover:bg-gold/10 px-3 py-1.5 rounded-lg transition-colors">
-                        <Pencil size={13} />
-                        편집
-                      </button>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            </table>
-          </div>
-        )}
-      </GlassCard>
+      {!programs || programs.length === 0 ? (
+        <GlassCard className="text-center py-12">
+          <p className="text-subtext mb-4">등록된 프로그램이 없습니다</p>
+          <Link href="/admin/programs/new">
+            <GoldButton>첫 프로그램 등록하기</GoldButton>
+          </Link>
+        </GlassCard>
+      ) : (
+        <ProgramsAdminBoard programs={programs} categories={categories ?? []} />
+      )}
     </div>
   );
 }
