@@ -25,6 +25,14 @@ const COUPANG_FEES: FeeRow[] = [
   { category: "쥬얼리(순금/골드바)", values: ["4.0%"] },
 ];
 
+const NAVERPAY_FEES: FeeRow[] = [
+  { category: "영세 — 연매출 3억원 미만", values: ["1.87%"] },
+  { category: "중소1 — 연매출 3억~5억원", values: ["2.53%"] },
+  { category: "중소2 — 연매출 5억~10억원", values: ["2.695%"] },
+  { category: "중소3 — 연매출 10억~30억원", values: ["2.97%"] },
+  { category: "일반 — 연매출 30억원 이상", values: ["3.74%"] },
+];
+
 const OPENMARKET_HEADERS = ["카테고리", "11번가", "옥션", "G마켓"];
 const OPENMARKET_FEES: FeeRow[] = [
   { category: "패션·의류·잡화", values: ["11%", "10%", "10%"] },
@@ -109,25 +117,36 @@ export default async function FeesPage() {
         <h2 className="text-base font-extrabold text-gray-900">🛍️ 네이버 스마트스토어</h2>
         <p className="text-xs leading-relaxed text-gray-600">
           다른 오픈마켓과 달리 카테고리별로 수수료가 나뉘어 있지 않고, <span className="font-semibold">결제수단·유입경로</span> 기준으로 정해집니다. 2025-06-02 개편 이후에는{" "}
-          <span className="font-semibold">결제수수료 + 판매수수료</span>가 각각 별도로 붙습니다(둘 다 부가세 별도).
-          <br />
-          · 결제수수료: <span className="font-semibold">3.74%</span>(영세·중소 사업자 기준, 연매출
-          3억 이상이면 상향)
-          <br />
-          · 판매수수료(일반 유입 — 네이버쇼핑 검색 등): <span className="font-semibold">2.73%</span>
-          <br />· 판매수수료(<span className="font-semibold text-emerald-700">마케팅 링크</span> 유입):{" "}
-          <span className="font-semibold text-emerald-700">0.91%</span> — 일반 유입 대비 약 1/3
-          수준
+          <span className="font-semibold">결제수수료 + 판매수수료</span>가 각각 별도로 붙습니다(둘 다 부가세 포함 표기).
         </p>
+
+        <div>
+          <p className="mb-1 text-xs font-semibold text-gray-700">
+            ① 결제수수료 — 직전연도 매출 등급에 따라 5단계로 다릅니다
+          </p>
+          <FeeTable headers={["매출 등급", "결제수수료"]} rows={NAVERPAY_FEES} />
+        </div>
+
+        <div>
+          <p className="mb-1 mt-2 text-xs font-semibold text-gray-700">② 판매수수료 — 유입경로 기준(매출 등급 무관, 정액)</p>
+          <FeeTable
+            headers={["유입경로", "판매수수료"]}
+            rows={[
+              { category: "일반 유입(네이버쇼핑 검색 등)", values: ["2.73%"] },
+              { category: "마케팅 링크 유입", values: ["0.91%"] },
+            ]}
+          />
+        </div>
         <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 text-xs leading-relaxed text-emerald-900">
           <p className="font-bold">💡 마케팅 링크를 쓰면 수수료가 더 낮아집니다</p>
           <p className="mt-1">
             판매자센터에서 스토어홈·카테고리·상품상세·쇼핑스토리 페이지별로 &quot;마케팅
             링크&quot;를 발급받아, 그 링크로 블로그·SNS·검색광고 등 <span className="font-semibold">직접 마케팅</span>을 통해 고객이 들어오면 판매수수료가 2.73% →{" "}
-            <span className="font-semibold">0.91%</span>로 낮아집니다(합계 기준 일반 유입
-            6.47% → 마케팅 링크 유입 4.65%). 유입 후 스토어를 이탈하지 않고 다른 상품을
-            구매해도 똑같이 적용되지만, 네이버플러스스토어·가격비교 등 다른 경로로 이탈하면
-            적용되지 않습니다.
+            <span className="font-semibold">0.91%</span>로 낮아집니다. 예를 들어 &quot;일반&quot;
+            등급(결제수수료 3.74%)이라면, 총 부담이 일반 유입 6.47% → 마케팅 링크 유입 4.65%로
+            줄어듭니다(본인 매출 등급의 결제수수료를 위 표에서 확인해 판매수수료와 더하면 됩니다).
+            유입 후 스토어를 이탈하지 않고 다른 상품을 구매해도 똑같이 적용되지만,
+            네이버플러스스토어·가격비교 등 다른 경로로 이탈하면 적용되지 않습니다.
           </p>
         </div>
       </section>
@@ -138,10 +157,11 @@ export default async function FeesPage() {
           <a href="/sourcing" className="font-semibold text-sky-700 underline">
             상품소싱 마진계산기
           </a>
-          의 &quot;판매 플랫폼 수수료율&quot; 입력창에, 위 표에서 실제 판매하실 플랫폼·카테고리에
-          해당하는 값을 그대로 넣어주시면 됩니다. 프로모션(할인)을 자주 진행하신다면, 쿠팡은
-          최종 결제금액 기준·11번가/옥션/G마켓은 할인 전 가격 기준으로 수수료를 매긴다는 점도
-          참고해주세요.
+          의 &quot;판매 플랫폼 수수료율&quot; 입력창에, 위 표를 참고하여 판매하실 플랫폼/카테고리에
+          해당하는 값을 입력 후 사용하시면 됩니다.
+          <br />
+          프로모션(할인) 판매시 쿠팡은 최종 결제금액 기준, 11번가/옥션/G마켓은 할인 전 가격
+          기준으로 수수료가 책정됩니다.
         </p>
       </section>
     </div>
