@@ -84,11 +84,11 @@ export function SourcingAlertControls({ entry, onUpdated }: SourcingAlertControl
           type="button"
           onClick={() => save({ enabled: !entry.sourcingAlertEnabled })}
           disabled={isSaving}
-          className={`rounded-full px-3 py-1 text-xs font-bold transition-colors disabled:opacity-50 ${
-            entry.sourcingAlertEnabled ? "bg-sky-600 text-white" : "border border-sky-300 bg-white text-sky-600"
+          className={`rounded-full px-3 py-1 text-xs font-bold text-white transition-colors disabled:opacity-50 ${
+            entry.sourcingAlertEnabled ? "bg-sky-600 hover:bg-sky-700" : "bg-red-500 hover:bg-red-600"
           }`}
         >
-          {entry.sourcingAlertEnabled ? "사용 중" : "꺼짐 (누르면 켜기)"}
+          {entry.sourcingAlertEnabled ? "ON" : "OFF"}
         </button>
       </div>
       <p className="mt-1 text-[11px] leading-snug text-sky-700/80">

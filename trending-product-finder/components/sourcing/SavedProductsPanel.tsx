@@ -125,11 +125,11 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
             setEnabled(next);
             save({ enabled: next });
           }}
-          className={`rounded-full px-3 py-1 text-[11px] font-bold transition-colors disabled:opacity-50 ${
-            enabled ? "bg-amber-500 text-white" : "border border-gray-300 bg-white text-gray-400"
+          className={`rounded-full px-3 py-1 text-[11px] font-bold text-white transition-colors disabled:opacity-50 ${
+            enabled ? "bg-sky-600 hover:bg-sky-700" : "bg-red-500 hover:bg-red-600"
           }`}
         >
-          {enabled ? "추적 ON" : "추적 OFF"}
+          {enabled ? "ON" : "OFF"}
         </button>
       </div>
 
@@ -258,7 +258,7 @@ export function SavedProductsPanel({ products }: SavedProductsPanelProps) {
         <p className="text-base font-extrabold text-gray-900">⭐ 관심 상품 예약 알림 {products.length > 0 && `(${products.length})`}</p>
         <p className="mt-1 text-xs text-gray-500">
           찜해둔 상품마다 정한 주기로 가격·품절 여부를 다시 확인해, <span className="font-semibold text-gray-700">실제로 바뀐 경우에만</span> 선택한 채널로 알려드립니다. 추적을 잠시 멈추고
-          싶으면 삭제하지 않고 &quot;추적 OFF&quot;로 꺼둘 수 있어요.
+          싶으면 삭제하지 않고 &quot;OFF&quot;로 꺼둘 수 있어요.
         </p>
       </div>
       {products.length === 0 ? (
