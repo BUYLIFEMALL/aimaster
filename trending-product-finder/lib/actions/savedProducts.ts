@@ -15,6 +15,9 @@ export interface SavedProductEntry {
   lastCheckedAt: string | null;
   alertIntervalMinutes: number;
   alertChannels: string[];
+  alertEnabled: boolean;
+  activeHourStart: number | null;
+  activeHourEnd: number | null;
 }
 
 export interface SavedProductActionState {
@@ -23,7 +26,7 @@ export interface SavedProductActionState {
 }
 
 const SELECT_COLUMNS =
-  "id, keyword, platform, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels";
+  "id, keyword, platform, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels, alert_enabled, active_hour_start, active_hour_end";
 
 function toEntry(row: {
   id: string;
@@ -36,6 +39,9 @@ function toEntry(row: {
   last_checked_at: string | null;
   alert_interval_minutes: number;
   alert_channels: string[];
+  alert_enabled: boolean;
+  active_hour_start: number | null;
+  active_hour_end: number | null;
 }): SavedProductEntry {
   return {
     id: row.id,
@@ -48,6 +54,9 @@ function toEntry(row: {
     lastCheckedAt: row.last_checked_at,
     alertIntervalMinutes: row.alert_interval_minutes,
     alertChannels: row.alert_channels,
+    alertEnabled: row.alert_enabled,
+    activeHourStart: row.active_hour_start,
+    activeHourEnd: row.active_hour_end,
   };
 }
 
@@ -105,16 +114,39 @@ export async function deleteSavedProductAction(formData: FormData): Promise<{ er
   return {};
 }
 
+const VALID_INTERVALS = [60, 180, 360, 720, 1440];
+
+/** real_estate_sales의 updateMonitoringSettingsAction과 동일한 패턴 — 켜짐 여부/주기/채널/
+ * 동작 시간대를 한 번에 저장한다(호출부는 매번 현재 상태 전체를 다시 보낸다). */
 export async function updateSavedProductAlertAction(formData: FormData): Promise<SavedProductActionState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   const id = String(formData.get("id") ?? "");
-  const intervalMinutes = Number(formData.get("intervalMinutes")) || 1440;
+  const enabled = String(formData.get("enabled") ?? "true") === "true";
+  const intervalMinutes = Number(formData.get("intervalMinutes"));
   const channels = formData.getAll("channels").map(String);
+  const hoursRestricted = String(formData.get("hoursRestricted") ?? "false") === "true";
+  const startHourRaw = formData.get("activeHourStart");
+  const endHourRaw = formData.get("activeHourEnd");
+
+  if (!id) return { error: "잘못된 요청입니다." };
+  if (!VALID_INTERVALS.includes(intervalMinutes)) return { error: "잘못된 주기입니다." };
+
+  const activeHourStart = hoursRestricted ? Number(startHourRaw) : null;
+  const activeHourEnd = hoursRestricted ? Number(endHourRaw) : null;
+  if (hoursRestricted && (!Number.isInteger(activeHourStart) || !Number.isInteger(activeHourEnd))) {
+    return { error: "동작 시간대를 다시 선택해주세요." };
+  }
 
   const { data, error } = await supabase
     .from("sourcing_saved_products")
-    .update({ alert_interval_minutes: intervalMinutes, alert_channels: channels })
+    .update({
+      alert_enabled: enabled,
+      alert_interval_minutes: intervalMinutes,
+      alert_channels: channels,
+      active_hour_start: activeHourStart,
+      active_hour_end: activeHourEnd,
+    })
     .eq("id", id)
     .eq("user_id", user.id)
     .select(SELECT_COLUMNS)

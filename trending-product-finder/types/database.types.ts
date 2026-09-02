@@ -262,6 +262,9 @@ export interface Database {
           last_checked_at: string | null;
           alert_interval_minutes: number;
           alert_channels: string[];
+          alert_enabled: boolean;
+          active_hour_start: number | null;
+          active_hour_end: number | null;
           created_at: string;
         };
         Insert: {
@@ -277,6 +280,9 @@ export interface Database {
           last_checked_at?: string | null;
           alert_interval_minutes?: number;
           alert_channels?: string[];
+          alert_enabled?: boolean;
+          active_hour_start?: number | null;
+          active_hour_end?: number | null;
           created_at?: string;
         };
         Update: {
@@ -292,6 +298,9 @@ export interface Database {
           last_checked_at?: string | null;
           alert_interval_minutes?: number;
           alert_channels?: string[];
+          alert_enabled?: boolean;
+          active_hour_start?: number | null;
+          active_hour_end?: number | null;
           created_at?: string;
         };
         Relationships: [];

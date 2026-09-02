@@ -17,3 +17,17 @@ export function isAlertDue(lastRunAt: string | null, intervalMinutes: number, no
   const elapsedMs = now.getTime() - new Date(lastRunAt).getTime();
   return elapsedMs >= intervalMinutes * 60 * 1000;
 }
+
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+export function currentKstHour(now: Date = new Date()): number {
+  return new Date(now.getTime() + KST_OFFSET_MS).getUTCHours();
+}
+
+/** real_estate_sales의 "동작 시간대" 판정과 동일한 규칙(자정을 넘기는 구간도 지원). */
+export function isWithinActiveHours(kstHour: number, startHour: number | null, endHour: number | null): boolean {
+  if (startHour === null || endHour === null) return true;
+  if (startHour === endHour) return true; // 00~24, 사실상 종일
+  if (startHour < endHour) return kstHour >= startHour && kstHour < endHour;
+  return kstHour >= startHour || kstHour < endHour; // 자정을 넘기는 경우 (예: 22시~6시)
+}

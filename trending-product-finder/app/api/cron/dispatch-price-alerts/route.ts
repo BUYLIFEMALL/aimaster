@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAlertDue } from "@/lib/schedule";
+import { currentKstHour, isAlertDue, isWithinActiveHours } from "@/lib/schedule";
 import { checkSavedProduct, type SavedProductRow } from "@/lib/priceAlert";
 
 export const dynamic = "force-dynamic";
@@ -18,16 +18,22 @@ function isAuthorized(request: NextRequest): boolean {
 async function dispatch() {
   const admin = createAdminClient();
   const now = new Date();
+  const kstHour = currentKstHour(now);
 
   const { data: rows, error } = await admin
     .from("sourcing_saved_products")
     .select(
-      "id, user_id, keyword, platform, product_key, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels",
-    );
+      "id, user_id, keyword, platform, product_key, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels, alert_enabled, active_hour_start, active_hour_end",
+    )
+    .eq("alert_enabled", true);
 
   if (error) throw new Error(error.message);
 
-  const dueRows = (rows ?? []).filter((r) => isAlertDue(r.last_checked_at, r.alert_interval_minutes, now));
+  const dueRows = (rows ?? []).filter(
+    (r) =>
+      isAlertDue(r.last_checked_at, r.alert_interval_minutes, now) &&
+      isWithinActiveHours(kstHour, r.active_hour_start, r.active_hour_end),
+  );
 
   let changed = 0;
   let unchanged = 0;

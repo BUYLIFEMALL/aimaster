@@ -43,7 +43,9 @@ export default async function SourcingPage({
 
   const { data: savedProductRows } = await supabase
     .from("sourcing_saved_products")
-    .select("id, keyword, platform, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels")
+    .select(
+      "id, keyword, platform, title, detail_url, last_price_krw, last_status, last_checked_at, alert_interval_minutes, alert_channels, alert_enabled, active_hour_start, active_hour_end",
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   const savedProducts: SavedProductEntry[] = (savedProductRows ?? []).map((r) => ({
@@ -57,6 +59,9 @@ export default async function SourcingPage({
     lastCheckedAt: r.last_checked_at,
     alertIntervalMinutes: r.alert_interval_minutes,
     alertChannels: r.alert_channels,
+    alertEnabled: r.alert_enabled,
+    activeHourStart: r.active_hour_start,
+    activeHourEnd: r.active_hour_end,
   }));
 
   return (
