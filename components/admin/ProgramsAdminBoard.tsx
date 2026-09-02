@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { Category } from "@/types/database.types";
+import type { Category, MemberGrade, Program } from "@/types/database.types";
+
+type BadgeValue = NonNullable<Program["badge"]>;
 
 interface ProgramRow {
   id: string;
@@ -14,11 +16,14 @@ interface ProgramRow {
   is_active: boolean;
   sort_order: number;
   category_id: string | null;
+  required_grade_id: string | null;
+  badge: BadgeValue | null;
 }
 
 interface ProgramsAdminBoardProps {
   programs: ProgramRow[];
   categories: Category[];
+  grades: MemberGrade[];
 }
 
 const STATUS_OPTIONS = [
@@ -27,9 +32,18 @@ const STATUS_OPTIONS = [
   { value: "inactive", label: "비공개" },
 ] as const;
 
+const BADGE_OPTIONS: { value: BadgeValue; label: string }[] = [
+  { value: "best", label: "BEST" },
+  { value: "new", label: "NEW" },
+  { value: "sale", label: "SALE" },
+  { value: "free", label: "FREE" },
+  { value: "coming", label: "COMING SOON" },
+];
+
+const NONE_VALUE = "__none__";
 const UNCATEGORIZED_KEY = "__uncategorized__";
 
-export default function ProgramsAdminBoard({ programs: initialPrograms, categories }: ProgramsAdminBoardProps) {
+export default function ProgramsAdminBoard({ programs: initialPrograms, categories, grades }: ProgramsAdminBoardProps) {
   const supabase = createClient();
   const [programs, setPrograms] = useState(initialPrograms);
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -37,6 +51,10 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkGradeValue, setBulkGradeValue] = useState("");
+  const [bulkBadgeValue, setBulkBadgeValue] = useState("");
+
+  const gradeMeta = useMemo(() => new Map(grades.map((g) => [g.id, g])), [grades]);
 
   const filteredPrograms = useMemo(() => {
     return programs.filter((p) => {
@@ -91,27 +109,45 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     });
   };
 
-  const applyIsActive = async (ids: string[], isActive: boolean) => {
+  const applyUpdate = async (ids: string[], patch: Partial<Pick<ProgramRow, "is_active" | "required_grade_id" | "badge">>) => {
     if (ids.length === 0) return;
-    const { error } = await supabase.from("programs").update({ is_active: isActive }).in("id", ids);
+    const { error } = await supabase.from("programs").update(patch).in("id", ids);
     if (error) {
-      alert(`상태 변경 중 오류가 발생했습니다: ${error.message}`);
+      alert(`변경 중 오류가 발생했습니다: ${error.message}`);
       return;
     }
-    setPrograms((prev) => prev.map((p) => (ids.includes(p.id) ? { ...p, is_active: isActive } : p)));
+    setPrograms((prev) => prev.map((p) => (ids.includes(p.id) ? { ...p, ...patch } : p)));
   };
 
   const handleBulk = async (isActive: boolean) => {
     if (selectedIds.size === 0) return;
     setBulkLoading(true);
-    await applyIsActive([...selectedIds], isActive);
+    await applyUpdate([...selectedIds], { is_active: isActive });
     setBulkLoading(false);
     setSelectedIds(new Set());
   };
 
+  const handleBulkGrade = async () => {
+    if (selectedIds.size === 0 || !bulkGradeValue) return;
+    setBulkLoading(true);
+    await applyUpdate([...selectedIds], { required_grade_id: bulkGradeValue === NONE_VALUE ? null : bulkGradeValue });
+    setBulkLoading(false);
+    setSelectedIds(new Set());
+    setBulkGradeValue("");
+  };
+
+  const handleBulkBadge = async () => {
+    if (selectedIds.size === 0 || !bulkBadgeValue) return;
+    setBulkLoading(true);
+    await applyUpdate([...selectedIds], { badge: bulkBadgeValue === NONE_VALUE ? null : (bulkBadgeValue as BadgeValue) });
+    setBulkLoading(false);
+    setSelectedIds(new Set());
+    setBulkBadgeValue("");
+  };
+
   const handleToggleSingle = async (p: ProgramRow) => {
     setPendingIds((prev) => new Set(prev).add(p.id));
-    await applyIsActive([p.id], !p.is_active);
+    await applyUpdate([p.id], { is_active: !p.is_active });
     setPendingIds((prev) => {
       const next = new Set(prev);
       next.delete(p.id);
@@ -154,25 +190,81 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
 
       {/* 선택 시 일괄 처리 툴바 */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 mb-4 rounded-xl border border-gold/30 bg-gold/10 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-3 mb-4 rounded-xl border border-gold/30 bg-gold/10 px-4 py-3">
           <span className="text-sm text-white font-medium">{selectedIds.size}개 선택됨</span>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={bulkLoading}
+              onClick={() => handleBulk(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <Eye size={13} /> 일괄 공개
+            </button>
+            <button
+              type="button"
+              disabled={bulkLoading}
+              onClick={() => handleBulk(false)}
+              className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <EyeOff size={13} /> 일괄 비공개
+            </button>
+          </div>
+
+          <div className="hidden sm:block w-px h-5 bg-white/10" />
+
+          <div className="flex items-center gap-1.5">
+            <select
+              value={bulkGradeValue}
+              onChange={(e) => setBulkGradeValue(e.target.value)}
+              className="input-dark text-xs py-1.5 !w-auto"
+            >
+              <option value="">접근등급 변경...</option>
+              <option value={NONE_VALUE}>전체 공개 (등급 제한 없음)</option>
+              {grades.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              disabled={bulkLoading || !bulkGradeValue}
+              onClick={handleBulkGrade}
+              className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+            >
+              적용
+            </button>
+          </div>
+
+          <div className="hidden sm:block w-px h-5 bg-white/10" />
+
+          <div className="flex items-center gap-1.5">
+            <select
+              value={bulkBadgeValue}
+              onChange={(e) => setBulkBadgeValue(e.target.value)}
+              className="input-dark text-xs py-1.5 !w-auto"
+            >
+              <option value="">추천 뱃지 변경...</option>
+              <option value={NONE_VALUE}>없음</option>
+              {BADGE_OPTIONS.map((b) => (
+                <option key={b.value} value={b.value}>
+                  {b.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              disabled={bulkLoading || !bulkBadgeValue}
+              onClick={handleBulkBadge}
+              className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+            >
+              적용
+            </button>
+          </div>
+
           <div className="flex-1" />
-          <button
-            type="button"
-            disabled={bulkLoading}
-            onClick={() => handleBulk(true)}
-            className="inline-flex items-center gap-1.5 text-xs font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-          >
-            <Eye size={13} /> 일괄 공개
-          </button>
-          <button
-            type="button"
-            disabled={bulkLoading}
-            onClick={() => handleBulk(false)}
-            className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-          >
-            <EyeOff size={13} /> 일괄 비공개
-          </button>
           <button
             type="button"
             onClick={() => setSelectedIds(new Set())}
@@ -194,17 +286,20 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
             const allSelected = groupIds.every((id) => selectedIds.has(id));
             return (
               <div key={group.key} className="glass-card rounded-2xl p-0 overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-white/[0.03]">
+                <div className="flex items-center gap-3 px-5 py-4 border-b border-gold/20 bg-gold/[0.06]">
                   <button
                     type="button"
                     onClick={() => toggleSelectGroup(group.programs)}
-                    className="text-subtext hover:text-gold transition-colors"
+                    className="text-subtext hover:text-gold transition-colors shrink-0"
                     title="그룹 전체 선택/해제"
                   >
-                    {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
+                    {allSelected ? <CheckSquare size={18} /> : <Square size={18} />}
                   </button>
-                  <h2 className="text-sm font-bold text-white">{group.name}</h2>
-                  <span className="text-xs text-subtext">{group.programs.length}개</span>
+                  <span className="w-1 self-stretch rounded-full bg-gold/60 shrink-0" />
+                  <h2 className="text-lg font-extrabold tracking-tight text-white">{group.name}</h2>
+                  <span className="text-xs font-semibold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
+                    {group.programs.length}개
+                  </span>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -230,7 +325,26 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                                 </span>
                               )}
                             </div>
-                            <p className="text-subtext text-xs mt-0.5">/programs/{p.slug}</p>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+                              <p className="text-subtext text-xs">/programs/{p.slug}</p>
+                              <span
+                                className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-white/5 text-subtext"
+                                style={p.required_grade_id ? { color: gradeMeta.get(p.required_grade_id)?.color ?? undefined } : undefined}
+                              >
+                                {p.required_grade_id && (
+                                  <span
+                                    className="w-1.5 h-1.5 rounded-full"
+                                    style={{ backgroundColor: gradeMeta.get(p.required_grade_id)?.color ?? "#666" }}
+                                  />
+                                )}
+                                {p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.name ?? "알 수 없음") : "전체 공개"}
+                              </span>
+                              {p.badge && (
+                                <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-gold/10 text-gold">
+                                  {BADGE_OPTIONS.find((b) => b.value === p.badge)?.label ?? p.badge}
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="p-4 text-center">
                             <button

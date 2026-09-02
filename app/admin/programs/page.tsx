@@ -10,12 +10,13 @@ export const metadata = { title: "프로그램 관리" };
 
 export default async function AdminProgramsPage() {
   const supabase = await createClient();
-  const [{ data: programs }, { data: categories }] = await Promise.all([
+  const [{ data: programs }, { data: categories }, { data: grades }] = await Promise.all([
     supabase
       .from("programs")
-      .select("id, name, slug, app_url, is_active, sort_order, category_id")
+      .select("id, name, slug, app_url, is_active, sort_order, category_id, required_grade_id, badge")
       .order("sort_order"),
     supabase.from("categories").select("*").order("sort_order"),
+    supabase.from("member_grades").select("*").order("sort_order"),
   ]);
 
   return (
@@ -43,7 +44,7 @@ export default async function AdminProgramsPage() {
           </Link>
         </GlassCard>
       ) : (
-        <ProgramsAdminBoard programs={programs} categories={categories ?? []} />
+        <ProgramsAdminBoard programs={programs} categories={categories ?? []} grades={grades ?? []} />
       )}
     </div>
   );
