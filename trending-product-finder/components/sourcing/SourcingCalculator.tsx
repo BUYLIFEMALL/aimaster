@@ -134,7 +134,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
 
   // 계산기 입력값 — 전부 기본값을 미리 채워두고, 상품을 선택하지 않아도 바로 수정하며
-  // 시뮬레이션할 수 있게 한다. 검색 후 상품을 고르면 원가/예상 판매가만 자동으로
+  // 시뮬레이션할 수 있게 한다. 검색 후 상품을 고르면 원가/추천판매가만 자동으로
   // 채워주고, 나머지 값은 계속 자유롭게 조정 가능하다.
   const [sourcePrice, setSourcePrice] = useState("0");
   const [sellingPrice, setSellingPrice] = useState("0");
@@ -271,7 +271,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
   function handleDownloadResultsCsv() {
     if (resultMarginRows.length === 0) return;
     const escape = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
-    const header = ["키워드", "채널", "상품명", "원가(원)", "예상판매가(원)", "마진율(%)", "마진(원)", "상품링크"];
+    const header = ["키워드", "채널", "상품명", "원가(원)", "추천판매가(원)", "마진율(%)", "마진(원)", "상품링크"];
     const lines = [header.map(escape).join(",")];
     for (const r of resultMarginRows) {
       lines.push(
@@ -354,7 +354,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
           <div>
             <p className="text-sm font-bold text-emerald-900">📊 &quot;{keyword}&quot; 검색결과 {resultMarginRows.length}건 마진 계산 완료</p>
             <p className="mt-0.5 text-xs text-emerald-700">
-              지금 검색된 상품 전체를 마진율 순으로 정리했습니다(예상 판매가는 원가×2.5 기준 추정치). 엑셀에서 비교해보세요.
+              지금 검색된 상품 전체를 마진율 순으로 정리했습니다(추천판매가는 원가×2.5 기준 추정치). 엑셀에서 비교해보세요.
             </p>
           </div>
           <button
@@ -458,7 +458,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         )}
 
         <p className="text-xs text-gray-500">
-          상품 선택시 <span className="font-semibold text-gray-700">원가/예상 판매가만 자동으로
+          상품 선택시 <span className="font-semibold text-gray-700">원가/추천판매가만 자동으로
           채워지고</span>, 다른 값은 수정시 즉시 다시 계산됩니다.
           {isDomestic && (
             <>
@@ -482,7 +482,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
             />
           </label>
           <label className="space-y-1">
-            <span className="text-xs font-semibold text-gray-800">예상 판매가(원) *</span>
+            <span className="text-xs font-semibold text-gray-800">추천판매가(원) *</span>
             <input
               type="number"
               value={sellingPrice}
@@ -593,7 +593,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               {/* 핵심 결과 — 한눈에 보이는 요약 */}
               <div className="flex items-center justify-between gap-4 p-4">
                 <div>
-                  <p className={`text-xs font-semibold ${tone.text} opacity-80`}>개당 예상 마진(수익)</p>
+                  <p className={`text-xs font-semibold ${tone.text} opacity-80`}>개당 예상 마진</p>
                   <p className={`text-2xl font-extrabold tabular-nums ${tone.text}`}>
                     {marginResult.contributionProfitKrw.toLocaleString()}원
                   </p>
@@ -663,11 +663,11 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                     <span className="tabular-nums">{marginResult.totalCostKrw.toLocaleString()}원</span>
                   </div>
                   <div className="flex justify-between text-gray-700">
-                    <span>예상 판매가</span>
+                    <span>추천판매가</span>
                     <span className="tabular-nums">{(Number(sellingPrice) || 0).toLocaleString()}원</span>
                   </div>
                   <div className={`flex justify-between border-t border-gray-300 pt-1 text-base font-extrabold ${tone.text}`}>
-                    <span>= 마진(수익)</span>
+                    <span>= 마진</span>
                     <span className="tabular-nums">{marginResult.contributionProfitKrw.toLocaleString()}원</span>
                   </div>
                 </div>

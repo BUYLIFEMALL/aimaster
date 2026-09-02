@@ -24,7 +24,7 @@ const MAX_KEYWORDS = 20;
 function toCsv(rows: BatchMarginRow[]): string {
   const platformLabel: Record<Platform, string> = { aliexpress: "알리익스프레스", domeggook: "도매매", elevenst: "11번가" };
   const escape = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
-  const header = ["키워드", "채널", "상품명(최저가 기준)", "원가(원)", "예상판매가(원)", "마진율(%)", "마진(원)", "상품링크"];
+  const header = ["키워드", "채널", "상품명(최저가 기준)", "원가(원)", "추천판매가(원)", "마진율(%)", "마진(원)", "상품링크"];
   const lines = [header.map(escape).join(",")];
   for (const r of rows) {
     lines.push(
@@ -149,7 +149,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
         <p className="text-base font-extrabold text-gray-900">📋 관심 키워드 일괄 마진계산</p>
         <p className="mt-1 text-xs text-gray-500">
           선택한 키워드마다 채널별로 검색해 <span className="font-semibold text-gray-700">최저가 상품을 대표값</span>
-          으로 마진을 한 번에 계산합니다(예상 판매가는 원가×2.5 기준 추정치). 정확한 최종 결정은
+          으로 마진을 한 번에 계산합니다(추천판매가는 원가×2.5 기준 추정치). 정확한 최종 결정은
           아래 상세 계산기에서 상품을 직접 골라 다시 확인해주세요.
         </p>
       </div>
@@ -320,10 +320,10 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
                 <th className="whitespace-nowrap px-3 py-2 font-semibold">키워드</th>
                 <th className="whitespace-nowrap px-3 py-2 font-semibold">채널</th>
                 <th className="px-3 py-2 font-semibold">상품명(최저가)</th>
-                <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">원가</th>
-                <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">예상 판매가</th>
+                <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">원가(원)</th>
+                <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">추천판매가(원)</th>
                 <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">마진율</th>
-                <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">마진(수익)</th>
+                <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">마진(원)</th>
                 <th className="px-3 py-2 font-semibold"></th>
               </tr>
             </thead>
@@ -335,8 +335,8 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
                   <td className="max-w-[220px] truncate px-3 py-2 text-gray-700" title={r.title}>
                     {r.title}
                   </td>
-                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.sourcePriceKrw.toLocaleString()}원</td>
-                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.sellingPriceKrw.toLocaleString()}원</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.sourcePriceKrw.toLocaleString()}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.sellingPriceKrw.toLocaleString()}</td>
                   <td
                     className={`whitespace-nowrap px-3 py-2 text-right tabular-nums font-bold ${
                       r.marginRatePct >= 20 ? "text-emerald-600" : r.marginRatePct >= 0 ? "text-amber-600" : "text-red-600"
@@ -344,7 +344,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
                   >
                     {r.marginRatePct}%
                   </td>
-                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.contributionProfitKrw.toLocaleString()}원</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-gray-700">{r.contributionProfitKrw.toLocaleString()}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-right">
                     {r.detailUrl && (
                       <a
