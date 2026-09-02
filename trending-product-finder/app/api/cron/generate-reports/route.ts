@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
   for (const watchlist of watchlists ?? []) {
     try {
-      const result = await generateReportForWatchlist(admin, watchlist);
+      const result = await generateReportForWatchlist(admin, watchlist, { notifyEmail: true });
       if (result.ok) {
         generated++;
         details.push({ watchlistId: watchlist.id, result: "generated" });
