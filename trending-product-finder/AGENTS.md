@@ -125,6 +125,7 @@ Phase 1을 처음 구현할 때는 구(舊) `developers.naver.com` 방식(`X-Nav
 | 15 | 기회 점수가 임계값(예: 80점) 이상인 키워드만 즉시 알림 | ⏸️ 대기 — 2순위(2026-09-02 백로그 등록). Phase 10(이메일 알림) 완료 후 이어서 착수하면 자연스러움 |
 | 16 | 네이버 커머스API센터 상품등록 API로 소싱 후보를 스마트스토어 초안 상품으로 바로 등록 | ⏸️ 대기 — 3순위, 신중 검토(2026-09-02 백로그 등록). 개인 판매자도 앱 등록이 가능한지 실제 신청 화면에서 재확인 필요 |
 | 17 | 쿠팡 Wing Open API(파트너스와 별개, 셀러 어드민 발급)로 상품/가격/재고 등록 | ⏸️ 대기 — 3순위, 신중 검토(2026-09-02 백로그 등록). 쿠팡 셀러 가입 자체에 사업자등록이 필요할 가능성이 높아 BYOK 진입장벽이 가장 큼 |
+| 18 | 관심 키워드별 "예약 소싱 알림" — 회원이 정한 주기(1/3/6/12시간, 매일)마다 실제 소싱 후보 상품 리스트를 검색해 이메일/카카오톡/텔레그램/문자 중 켜둔 채널로 발송 | ✅ 구현 완료, 배포됨(2026-09-02) — 사용자가 "예약 발송 켜놓으면 그 시간마다 키워드로 검색해 상품리스트를 등록된 채널로 보내달라"고 제안, "이미 정기예약 발송 구현한 프로그램 참고"라는 힌트로 real_estate_sales의 예약 조회 패턴(`collect_interval_minutes`/`last_run_at`, 5분 tick cron + 각 행에서 due 여부 재판단)을 그대로 재사용. `trend_watchlist`에 `sourcing_alert_enabled/interval_minutes/channels/last_run_at` 컬럼 추가(기본 전부 꺼짐, 기존 회원 무영향). 채널은 키워드마다 독립적으로 이메일/카카오톡/텔레그램/문자 중 원하는 것만 켜고 끌 수 있음(요청사항 그대로 반영) — Phase 10에서 만든 4채널 발송 인프라(SMTP/SOLAPI/텔레그램)를 그대로 재사용. `lib/schedule.ts`(ALERT_INTERVAL_OPTIONS/isAlertDue), `lib/sourcingAlert.ts`(키워드별 소싱 후보 검색 + best-effort 4채널 발송), `app/api/cron/dispatch-sourcing-alerts/route.ts`(5분 tick, `vercel.json` 등록 확인됨 — `vercel cron ls`로 2개 크론 정상 등록 확인), `components/watchlist/SourcingAlertControls.tsx`(키워드별 토글/주기/채널 UI, `/watchlist` 각 행에 임베드). **미검증**: 코드/배포/크론 등록까지 확인했으나 실제 예약 발송 1건이 정상 도착하는지는 아직 실사용 확인 전 |
 
 Phase 5~7의 상세 조사 근거(공식 API 유무, 개인 발급 가능 여부, 비용, 탈락시킨 후보 목록과
 이유)는 `README.md`의 "사용 가능한 API 소싱 매트릭스"와 "조사했지만 채택 보류한 소싱처"
