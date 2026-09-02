@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   findSourcingCandidatesAction,
   findDomeggookCandidatesAction,
@@ -222,6 +222,85 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
   const isDomestic = selectedPlatform != null && DOMESTIC_PLATFORMS.includes(selectedPlatform);
   const activeDefaults = isDomestic ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS;
 
+  // 지금 검색한 결과물 전체를 CSV로 내려받는 용도 — 채널별 검색결과 상품 하나하나에
+  // 원가×2.5 기준 추정 판매가로 마진을 계산해 마진율 순으로 정렬해둔다(관심 키워드
+  // 일괄계산과 달리 최저가 1건이 아니라 결과 전체를 대상으로 함).
+  const resultMarginRows = useMemo(() => {
+    const rows: {
+      platform: Platform;
+      title: string;
+      sourcePriceKrw: number;
+      sellingPriceKrw: number;
+      marginRatePct: number;
+      contributionProfitKrw: number;
+      detailUrl: string;
+    }[] = [];
+
+    for (const p of PLATFORMS) {
+      const result = results[p.value];
+      if (!result) continue;
+      const defaults = DOMESTIC_PLATFORMS.includes(p.value) ? DOMESTIC_MARGIN_DEFAULTS : MARGIN_DEFAULTS;
+      for (const prod of result.products) {
+        if (prod.priceKrw == null) continue;
+        const sellingPriceKrw = Math.round(prod.priceKrw * 2.5);
+        const margin = calcMargin({
+          sourcePriceKrw: prod.priceKrw,
+          customsDutyRate: defaults.customsDutyRate,
+          vatRate: defaults.vatRate,
+          shippingPerUnitKrw: defaults.shippingPerUnitKrw,
+          domesticFeePerUnitKrw: defaults.domesticFeePerUnitKrw,
+          platformFeeRate: defaults.platformFeeRate,
+          deliveryFeeKrw: defaults.deliveryFeeKrw,
+          marketingFeeKrw: defaults.marketingFeeKrw,
+          sellingPriceKrw,
+        });
+        rows.push({
+          platform: p.value,
+          title: prod.title,
+          sourcePriceKrw: prod.priceKrw,
+          sellingPriceKrw,
+          marginRatePct: margin.marginRatePct,
+          contributionProfitKrw: margin.contributionProfitKrw,
+          detailUrl: prod.detailUrl,
+        });
+      }
+    }
+    return rows.sort((a, b) => b.marginRatePct - a.marginRatePct);
+  }, [results]);
+
+  function handleDownloadResultsCsv() {
+    if (resultMarginRows.length === 0) return;
+    const escape = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+    const header = ["키워드", "채널", "상품명", "원가(원)", "예상판매가(원)", "마진율(%)", "마진(원)", "상품링크"];
+    const lines = [header.map(escape).join(",")];
+    for (const r of resultMarginRows) {
+      lines.push(
+        [
+          keyword,
+          PLATFORMS.find((p) => p.value === r.platform)?.label ?? r.platform,
+          r.title,
+          r.sourcePriceKrw,
+          r.sellingPriceKrw,
+          r.marginRatePct,
+          r.contributionProfitKrw,
+          r.detailUrl,
+        ]
+          .map(escape)
+          .join(","),
+      );
+    }
+    const csv = "﻿" + lines.join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `상품소싱_${keyword || "검색결과"}_마진계산_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="space-y-4">
       {/* 소싱 채널 선택 — 중복 선택 가능, 선택한 채널 결과를 한 번에 나눠서 보여준다 */}
@@ -269,6 +348,24 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
           {isSearching ? "검색 중..." : "검색"}
         </button>
       </form>
+
+      {resultMarginRows.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-2xl border-2 border-emerald-200 bg-emerald-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-bold text-emerald-900">📊 &quot;{keyword}&quot; 검색결과 {resultMarginRows.length}건 마진 계산 완료</p>
+            <p className="mt-0.5 text-xs text-emerald-700">
+              지금 검색된 상품 전체를 마진율 순으로 정리했습니다(예상 판매가는 원가×2.5 기준 추정치). 엑셀에서 비교해보세요.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleDownloadResultsCsv}
+            className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700"
+          >
+            📥 검색결과 전체 CSV 다운로드
+          </button>
+        </div>
+      )}
 
       {/* 채널별 검색 결과 — 선택한 채널마다 구분해서 보여주고, 그 안에서 상품을 고른다 */}
       {PLATFORMS.filter((p) => selectedPlatforms.has(p.value) && results[p.value]).map((p) => {
