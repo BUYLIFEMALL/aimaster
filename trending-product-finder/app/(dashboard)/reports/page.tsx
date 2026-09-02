@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 
@@ -128,12 +127,6 @@ export default async function ReportsPage() {
                       ` · 📺 최근 30일 관련영상 ${item.youtubeUploadCount.toLocaleString()}개`}
                   </p>
                   {item.reason && <p className="mt-1 text-xs text-gray-700">{item.reason}</p>}
-                  <Link
-                    href={`/sourcing?keyword=${encodeURIComponent(item.keyword)}`}
-                    className="mt-1 inline-block rounded-lg bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700 hover:bg-sky-100"
-                  >
-                    🌏 상품소싱 마진계산기로 보기
-                  </Link>
                 </div>
               ))}
             </div>
