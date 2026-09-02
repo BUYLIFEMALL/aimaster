@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getRegisteredProviders } from "@/lib/apiKeys";
 import { SourcingCalculator } from "@/components/sourcing/SourcingCalculator";
+import { BatchMarginCalculator } from "@/components/sourcing/BatchMarginCalculator";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,6 +30,15 @@ export default async function SourcingPage({
   if (registered.has("domeggook_api_key")) registeredPlatforms.push("domeggook");
   if (registered.has("elevenst_api_key")) registeredPlatforms.push("elevenst");
 
+  const { data: watchlist } = await supabase
+    .from("trend_watchlist")
+    .select("category_name, keywords")
+    .eq("user_id", user.id)
+    .order("category_name");
+  const watchlistGroups = (watchlist ?? [])
+    .filter((w) => w.keywords.length > 0)
+    .map((w) => ({ categoryName: w.category_name, keywords: w.keywords }));
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <section>
@@ -41,6 +51,8 @@ export default async function SourcingPage({
       </section>
 
       <SourcingCalculator initialKeyword={keyword} registeredPlatforms={registeredPlatforms} />
+
+      <BatchMarginCalculator watchlistGroups={watchlistGroups} registeredPlatforms={registeredPlatforms} />
     </div>
   );
 }
