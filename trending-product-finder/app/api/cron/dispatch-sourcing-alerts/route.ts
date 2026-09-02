@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAlertDue } from "@/lib/schedule";
+import { currentKstHour, isAlertDue, isWithinActiveHours } from "@/lib/schedule";
 import { runSourcingAlertForWatchlist } from "@/lib/sourcingAlert";
 
 export const dynamic = "force-dynamic";
@@ -19,17 +19,23 @@ function isAuthorized(request: NextRequest): boolean {
 async function dispatch() {
   const admin = createAdminClient();
   const now = new Date();
+  const kstHour = currentKstHour(now);
 
   const { data: rows, error } = await admin
     .from("trend_watchlist")
-    .select("id, user_id, category_name, keywords, sourcing_alert_channels, sourcing_alert_interval_minutes, sourcing_alert_last_run_at")
+    .select(
+      "id, user_id, category_name, keywords, sourcing_alert_channels, sourcing_alert_interval_minutes, sourcing_alert_last_run_at, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end",
+    )
     .eq("is_active", true)
     .eq("sourcing_alert_enabled", true);
 
   if (error) throw new Error(error.message);
 
   const dueRows = (rows ?? []).filter(
-    (r) => r.sourcing_alert_interval_minutes != null && isAlertDue(r.sourcing_alert_last_run_at, r.sourcing_alert_interval_minutes, now),
+    (r) =>
+      r.sourcing_alert_interval_minutes != null &&
+      isAlertDue(r.sourcing_alert_last_run_at, r.sourcing_alert_interval_minutes, now) &&
+      isWithinActiveHours(kstHour, r.sourcing_alert_active_hour_start, r.sourcing_alert_active_hour_end),
   );
 
   let sent = 0;

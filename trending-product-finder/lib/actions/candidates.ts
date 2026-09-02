@@ -180,7 +180,7 @@ export interface AddCandidateState {
 }
 
 const SELECT_COLUMNS =
-  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels";
+  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end";
 
 function toEntry(row: {
   id: string;
@@ -191,6 +191,8 @@ function toEntry(row: {
   sourcing_alert_enabled: boolean;
   sourcing_alert_interval_minutes: number | null;
   sourcing_alert_channels: string[];
+  sourcing_alert_active_hour_start: number | null;
+  sourcing_alert_active_hour_end: number | null;
 }): WatchlistEntry {
   return {
     id: row.id,
@@ -201,6 +203,8 @@ function toEntry(row: {
     sourcingAlertEnabled: row.sourcing_alert_enabled,
     sourcingAlertIntervalMinutes: row.sourcing_alert_interval_minutes,
     sourcingAlertChannels: row.sourcing_alert_channels,
+    sourcingAlertActiveHourStart: row.sourcing_alert_active_hour_start,
+    sourcingAlertActiveHourEnd: row.sourcing_alert_active_hour_end,
   };
 }
 

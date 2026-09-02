@@ -68,6 +68,8 @@ export interface Database {
           sourcing_alert_interval_minutes: number | null;
           sourcing_alert_channels: string[];
           sourcing_alert_last_run_at: string | null;
+          sourcing_alert_active_hour_start: number | null;
+          sourcing_alert_active_hour_end: number | null;
         };
         Insert: {
           id?: string;
@@ -82,6 +84,8 @@ export interface Database {
           sourcing_alert_interval_minutes?: number | null;
           sourcing_alert_channels?: string[];
           sourcing_alert_last_run_at?: string | null;
+          sourcing_alert_active_hour_start?: number | null;
+          sourcing_alert_active_hour_end?: number | null;
         };
         Update: {
           id?: string;
@@ -96,6 +100,8 @@ export interface Database {
           sourcing_alert_interval_minutes?: number | null;
           sourcing_alert_channels?: string[];
           sourcing_alert_last_run_at?: string | null;
+          sourcing_alert_active_hour_start?: number | null;
+          sourcing_alert_active_hour_end?: number | null;
         };
         Relationships: [];
       };

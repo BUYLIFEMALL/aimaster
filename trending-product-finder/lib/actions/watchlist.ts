@@ -13,6 +13,8 @@ export interface WatchlistEntry {
   sourcingAlertEnabled: boolean;
   sourcingAlertIntervalMinutes: number | null;
   sourcingAlertChannels: string[];
+  sourcingAlertActiveHourStart: number | null;
+  sourcingAlertActiveHourEnd: number | null;
 }
 
 export interface WatchlistActionState {
@@ -21,7 +23,7 @@ export interface WatchlistActionState {
 }
 
 const WATCHLIST_SELECT =
-  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels";
+  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end";
 
 function toEntry(row: {
   id: string;
@@ -32,6 +34,8 @@ function toEntry(row: {
   sourcing_alert_enabled: boolean;
   sourcing_alert_interval_minutes: number | null;
   sourcing_alert_channels: string[];
+  sourcing_alert_active_hour_start: number | null;
+  sourcing_alert_active_hour_end: number | null;
 }): WatchlistEntry {
   return {
     id: row.id,
@@ -42,6 +46,8 @@ function toEntry(row: {
     sourcingAlertEnabled: row.sourcing_alert_enabled,
     sourcingAlertIntervalMinutes: row.sourcing_alert_interval_minutes,
     sourcingAlertChannels: row.sourcing_alert_channels,
+    sourcingAlertActiveHourStart: row.sourcing_alert_active_hour_start,
+    sourcingAlertActiveHourEnd: row.sourcing_alert_active_hour_end,
   };
 }
 
@@ -102,6 +108,8 @@ export async function toggleWatchlistActiveAction(formData: FormData): Promise<W
   return { entry: toEntry(data) };
 }
 
+/** 관심상품(lib/actions/savedProducts.ts의 updateSavedProductAlertAction)과 동일한
+ * merge 패턴 — 켜짐 여부/주기/채널/동작 시간대를 한 번에 저장한다. */
 export async function updateSourcingAlertAction(formData: FormData): Promise<WatchlistActionState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
@@ -109,6 +117,15 @@ export async function updateSourcingAlertAction(formData: FormData): Promise<Wat
   const enabled = String(formData.get("enabled") ?? "false") === "true";
   const intervalMinutes = Number(formData.get("intervalMinutes")) || null;
   const channels = formData.getAll("channels").map(String);
+  const hoursRestricted = String(formData.get("hoursRestricted") ?? "false") === "true";
+  const startHourRaw = formData.get("activeHourStart");
+  const endHourRaw = formData.get("activeHourEnd");
+
+  const activeHourStart = hoursRestricted ? Number(startHourRaw) : null;
+  const activeHourEnd = hoursRestricted ? Number(endHourRaw) : null;
+  if (hoursRestricted && (!Number.isInteger(activeHourStart) || !Number.isInteger(activeHourEnd))) {
+    return { error: "동작 시간대를 다시 선택해주세요." };
+  }
 
   const { data, error } = await supabase
     .from("trend_watchlist")
@@ -116,6 +133,8 @@ export async function updateSourcingAlertAction(formData: FormData): Promise<Wat
       sourcing_alert_enabled: enabled,
       sourcing_alert_interval_minutes: intervalMinutes,
       sourcing_alert_channels: channels,
+      sourcing_alert_active_hour_start: activeHourStart,
+      sourcing_alert_active_hour_end: activeHourEnd,
     })
     .eq("id", id)
     .eq("user_id", user.id)

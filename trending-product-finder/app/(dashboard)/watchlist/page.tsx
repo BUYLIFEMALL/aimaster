@@ -13,7 +13,7 @@ export default async function WatchlistPage() {
   const { data: watchlist } = await supabase
     .from("trend_watchlist")
     .select(
-      "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels",
+      "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
@@ -27,6 +27,8 @@ export default async function WatchlistPage() {
     sourcingAlertEnabled: w.sourcing_alert_enabled,
     sourcingAlertIntervalMinutes: w.sourcing_alert_interval_minutes,
     sourcingAlertChannels: w.sourcing_alert_channels,
+    sourcingAlertActiveHourStart: w.sourcing_alert_active_hour_start,
+    sourcingAlertActiveHourEnd: w.sourcing_alert_active_hour_end,
   }));
 
   return (
