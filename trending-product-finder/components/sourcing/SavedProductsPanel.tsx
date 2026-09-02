@@ -248,22 +248,31 @@ function SavedProductRow({ product }: { product: SavedProductEntry }) {
 }
 
 export function SavedProductsPanel({ products }: SavedProductsPanelProps) {
-  if (products.length === 0) return null;
-
+  // 이전엔 저장된 상품이 0개면 이 섹션 자체를 숨겼는데, 그러면 회원이 한 번도 안 써봤을 때
+  // "관심상품 예약 알림" 기능이 페이지에 있는지조차 알 수 없다는 문제가 있었다(실사용자가
+  // "예약 기능이 안 보인다"고 보고해서 발견, 2026-09-03). 이제는 비어 있어도 항상 표시하고
+  // 사용법을 안내한다.
   return (
     <div className="space-y-3 rounded-2xl border-2 border-amber-200 bg-white p-4 shadow-sm">
       <div>
-        <p className="text-base font-extrabold text-gray-900">⭐ 관심 상품 ({products.length})</p>
+        <p className="text-base font-extrabold text-gray-900">⭐ 관심 상품 예약 알림 {products.length > 0 && `(${products.length})`}</p>
         <p className="mt-1 text-xs text-gray-500">
           찜해둔 상품마다 정한 주기로 가격·품절 여부를 다시 확인해, <span className="font-semibold text-gray-700">실제로 바뀐 경우에만</span> 선택한 채널로 알려드립니다. 추적을 잠시 멈추고
           싶으면 삭제하지 않고 &quot;추적 OFF&quot;로 꺼둘 수 있어요.
         </p>
       </div>
-      <div className="space-y-2">
-        {products.map((p) => (
-          <SavedProductRow key={p.id} product={p} />
-        ))}
-      </div>
+      {products.length === 0 ? (
+        <p className="rounded-lg bg-amber-50 px-3 py-3 text-xs text-amber-800">
+          아직 찜해둔 상품이 없습니다. 위 검색 결과에서 <span className="font-semibold">&quot;⭐ 관심상품 저장&quot;</span> 버튼을 누르면
+          여기에 나타납니다.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {products.map((p) => (
+            <SavedProductRow key={p.id} product={p} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
