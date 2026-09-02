@@ -121,7 +121,7 @@ export default async function ReportsPage() {
                   <p className="text-xs text-gray-500">
                     관심도 {item.trendIndex ?? "N/A"}
                     {item.trendChangePct != null && ` (전기 대비 ${item.trendChangePct > 0 ? "+" : ""}${item.trendChangePct.toFixed(1)}%)`}
-                    {item.productCount != null && ` · 등록상품 ${item.productCount.toLocaleString()}개`}
+                    {item.productCount != null && ` · 🏪 11번가 등록상품 ${item.productCount.toLocaleString()}개`}
                     {item.minPrice != null && ` · ${item.minPrice.toLocaleString()}~${item.maxPrice?.toLocaleString()}원`}
                     {item.youtubeUploadCount != null &&
                       ` · 📺 최근 30일 관련영상 ${item.youtubeUploadCount.toLocaleString()}개`}

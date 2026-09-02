@@ -4,7 +4,7 @@ export interface OpportunityInput {
   keyword: string;
   trendIndex: number | null; // 0~100, 데이터랩 상대 지수 최근값
   trendChangePct: number | null; // 전 구간 대비 변화율(%)
-  productCount: number | null; // 네이버쇼핑 등록 상품 수(경쟁도 프록시)
+  productCount: number | null; // 등록 상품 수(경쟁도 프록시, Phase 8부터 11번가 검색 API로 확보 — elevenst_api_key 등록시에만)
   minPrice: number | null;
   maxPrice: number | null;
   youtubeScore: number | null; // 0~100, 최근 관련 영상 업로드량+조회수 기반(Phase 6, 선택)
@@ -26,8 +26,15 @@ export interface OpportunityResult extends OpportunityInput {
  * - 경쟁도 있음 + 유튜브 없음(Phase 2 이후): 관심도*0.5 + 상승폭*0.3 − 경쟁도 페널티*0.2
  * - 경쟁도 있음 + 유튜브 있음: 관심도*0.4 + 상승폭*0.2 − 경쟁도 페널티*0.2 + 유튜브*0.2
  *
- * 경쟁도(등록 상품 수)는 현재 Phase 1이라 항상 null(네이버 쇼핑검색 API 종료로 공식
- * 취득 불가) — Phase 2에서 쿠팡파트너스 검색 API로 확보하면 두 아래쪽 분기가 쓰인다.
+ * 경쟁도(등록 상품 수)는 Phase 8부터 11번가 상품검색 API의 <TotalCount>로 확보한다
+ * (elevenst_api_key 미등록 시 여전히 null이라 위쪽 두 분기가 쓰임 — 완전히 선택 항목).
+ * Phase 2(쿠팡파트너스)는 매출요건 승인 대기 중이라 아직 별도 신호로는 못 쓴다.
+ *
+ * 주의: 11번가 TotalCount는 "동일 키워드 텍스트가 포함된 전체 검색결과 수"라 상품명에
+ * 키워드가 들어간 액세서리/부속품까지 다 잡혀 실제 "동일 상품 판매자 수"보다 훨씬 크게
+ * 나온다(예: "무선청소기" 검색 시 13만건대). 그래서 10,000건을 넘으면 페널티가 그냥
+ * 최댓값으로 포화되도록 설계했다 — "매우 치열함"들 사이의 미세한 차이는 구분하지 않고,
+ * 저경쟁 블루오션 키워드만 상대적으로 도드라지게 하는 용도로 쓴다.
  */
 export function calcOpportunityScore(input: OpportunityInput): number {
   const changePct = Math.max(0, Math.min(input.trendChangePct ?? 0, 100));

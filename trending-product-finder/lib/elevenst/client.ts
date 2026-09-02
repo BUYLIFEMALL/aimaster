@@ -96,3 +96,55 @@ export async function searchProducts(
     seller: extractField(chunk, "SellerNick") ?? extractField(chunk, "Seller"),
   }));
 }
+
+export interface ElevenstCompetition {
+  totalCount: number; // 키워드 전체 검색결과 수(경쟁도 프록시)
+  minPriceKrw: number | null; // 상위 노출 표본 기준 최저가(참고용, 전수조사 아님)
+  maxPriceKrw: number | null;
+  sampleSize: number;
+}
+
+/**
+ * 트렌드 리포트의 "경쟁도" 신호용(Phase 8). <Products><TotalCount> 태그로 전체 검색결과
+ * 수를 얻고, 상위 노출 상품 표본(기본 20건)의 가격 범위를 곁들인다 — 쇼핑인사이트
+ * 관심도만으로는 "관심은 느는데 이미 레드오션인지"를 구분할 수 없어서 추가한다.
+ * 2026-09-02 실계정 확인: <Products> 바로 아래(첫 <Product> 이전)에 <TotalCount> 존재.
+ */
+export async function getCompetition(
+  keyword: string,
+  auth: { apiKey: string; sampleSize?: number },
+): Promise<ElevenstCompetition> {
+  const sampleSize = auth.sampleSize ?? 20;
+  const params = new URLSearchParams({
+    key: auth.apiKey,
+    apiCode: "ProductSearch",
+    keyword,
+    pageNum: "1",
+    pageSize: String(sampleSize),
+  });
+
+  const response = await fetch(`${BASE_URL}?${params.toString()}`);
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`11번가 API 요청이 실패했습니다. (${response.status}) ${text.slice(0, 300)}`);
+  }
+
+  const buffer = await response.arrayBuffer();
+  const xml = new TextDecoder("euc-kr").decode(buffer);
+
+  const firstProductIdx = xml.indexOf("<ProductCode>");
+  const header = firstProductIdx === -1 ? xml : xml.slice(0, firstProductIdx);
+  const totalCount = Number(extractField(header, "TotalCount") ?? "0") || 0;
+
+  const chunks = splitProductChunks(xml);
+  const prices = chunks
+    .map((chunk) => parsePrice(extractField(chunk, "SalePrice")) ?? parsePrice(extractField(chunk, "ProductPrice")))
+    .filter((p): p is number => p != null);
+
+  return {
+    totalCount,
+    minPriceKrw: prices.length ? Math.min(...prices) : null,
+    maxPriceKrw: prices.length ? Math.max(...prices) : null,
+    sampleSize: chunks.length,
+  };
+}

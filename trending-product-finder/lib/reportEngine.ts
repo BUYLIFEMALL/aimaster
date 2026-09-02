@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCategoryKeywordTrend, calcTrendChangePct, type NaverAuth } from "@/lib/naver/datalab";
 import { calcOpportunityScore, generateReasons, type OpportunityResult } from "@/lib/ai/opportunity";
 import { getYoutubeSignal } from "@/lib/youtube/client";
+import { getCompetition } from "@/lib/elevenst/client";
 import { resolveApiKey } from "@/lib/apiKeys";
 import type { Json, Database } from "@/types/database.types";
 
@@ -33,12 +34,13 @@ export async function generateReportForWatchlist(
   supabase: SupabaseClient<Database>,
   watchlist: WatchlistRow,
 ): Promise<GenerateReportResult> {
-  const [naverClientId, naverClientSecret, openaiKey, geminiKey, youtubeApiKey] = await Promise.all([
+  const [naverClientId, naverClientSecret, openaiKey, geminiKey, youtubeApiKey, elevenstApiKey] = await Promise.all([
     resolveApiKey(supabase, watchlist.user_id, "naver_client_id"),
     resolveApiKey(supabase, watchlist.user_id, "naver_client_secret"),
     resolveApiKey(supabase, watchlist.user_id, "openai"),
     resolveApiKey(supabase, watchlist.user_id, "gemini"),
     resolveApiKey(supabase, watchlist.user_id, "youtube_api_key"),
+    resolveApiKey(supabase, watchlist.user_id, "elevenst_api_key"),
   ]);
 
   if (!naverClientId || !naverClientSecret) {
@@ -91,13 +93,27 @@ export async function generateReportForWatchlist(
         }
       }
 
+      let productCount: number | null = null;
+      let minPrice: number | null = null;
+      let maxPrice: number | null = null;
+      if (elevenstApiKey) {
+        try {
+          const competition = await getCompetition(keyword, { apiKey: elevenstApiKey });
+          productCount = competition.totalCount;
+          minPrice = competition.minPriceKrw;
+          maxPrice = competition.maxPriceKrw;
+        } catch (err) {
+          console.error(`[trending-product-finder] "${keyword}" 11번가 경쟁도 조회 실패:`, err);
+        }
+      }
+
       const opportunityScore = calcOpportunityScore({
         keyword,
         trendIndex,
         trendChangePct,
-        productCount: null,
-        minPrice: null,
-        maxPrice: null,
+        productCount,
+        minPrice,
+        maxPrice,
         youtubeScore,
         youtubeUploadCount,
       });
@@ -106,9 +122,9 @@ export async function generateReportForWatchlist(
         keyword,
         trendIndex,
         trendChangePct,
-        productCount: null,
-        minPrice: null,
-        maxPrice: null,
+        productCount,
+        minPrice,
+        maxPrice,
         youtubeScore,
         youtubeUploadCount,
         opportunityScore,

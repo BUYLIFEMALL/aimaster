@@ -32,7 +32,7 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
   },
   {
     title: "🏪 11번가",
-    description: '"상품소싱 마진계산기"의 국내 오픈마켓 소싱 채널 전용(선택)',
+    description: '"상품소싱 마진계산기"의 국내 오픈마켓 소싱 채널 + 트렌드 리포트 경쟁도 지표(선택)',
     providers: ["elevenst_api_key"],
   },
   {
