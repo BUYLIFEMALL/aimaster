@@ -448,8 +448,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
               className="input-sm w-full"
             />
             <p className="text-[11px] leading-snug text-gray-400">
-              판매 플랫폼과 상품 카테고리마다 수수료율이 다릅니다. 실제 판매하실 플랫폼·카테고리
-              기준으로 직접 수정해서 사용해주세요.{" "}
+              실제 판매하실 플랫폼·카테고리 기준으로 직접 수정해서 사용해주세요.{" "}
               <a href="/fees" className="font-semibold text-sky-600 underline">
                 플랫폼별 수수료 보기
               </a>
