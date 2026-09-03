@@ -151,6 +151,40 @@ export async function updateSourcingAlertAction(formData: FormData): Promise<Wat
   return { entry: toEntry(data) };
 }
 
+/** 카테고리 전체를 지우지 않고 그 안의 키워드 목록만 추가/삭제/수정할 때 쓴다
+ * ("무선청소기, 에어프라이어, ..." 처럼 한 카테고리에 여러 키워드가 묶여 등록되는데,
+ * 그중 하나만 빼거나 고치고 싶어도 지금까지는 전체 삭제 후 재등록밖에 방법이 없었다는
+ * 사용자 피드백으로 추가, 2026-09-03). */
+export async function updateWatchlistKeywordsAction(formData: FormData): Promise<WatchlistActionState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const id = String(formData.get("id") ?? "");
+  const keywords = formData
+    .getAll("keywords")
+    .map(String)
+    .map((k) => k.trim())
+    .filter(Boolean);
+
+  if (keywords.length === 0) {
+    return { error: "키워드가 1개 이상 있어야 해요. 전부 지우려면 이 카테고리 자체를 삭제해주세요." };
+  }
+  if (keywords.length > 10) {
+    return { error: "키워드는 한 카테고리에 최대 10개까지 등록할 수 있어요 (데이터랩 API 일일 호출 한도 보호)." };
+  }
+
+  const { data, error } = await supabase
+    .from("trend_watchlist")
+    .update({ keywords })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select(WATCHLIST_SELECT)
+    .single();
+  if (error) return { error: error.message };
+
+  revalidatePath("/watchlist");
+  return { entry: toEntry(data) };
+}
+
 export async function deleteWatchlistAction(formData: FormData): Promise<WatchlistActionState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
