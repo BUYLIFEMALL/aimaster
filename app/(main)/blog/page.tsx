@@ -26,7 +26,7 @@ export default function BlogRoutePage() {
         // 2. 관리자 확인
         const { data: profile } = await supabase
           .from('profiles')
-          .select('is_admin')
+          .select('is_admin, grade_id, grade:member_grades(sort_order)')
           .eq('id', user.id)
           .single()
 
@@ -36,22 +36,65 @@ export default function BlogRoutePage() {
           return
         }
 
-        // 3. 구독/권한 확인 (user_program_access 또는 active subscriptions)
         const { data: program } = await supabase
           .from('programs')
-          .select('id')
+          .select('id, required_grade_id')
           .eq('slug', 'ai-auto-blog')
           .single()
 
-        if (program) {
-          const { data: access } = await supabase
-            .from('user_program_access')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('program_id', program.id)
-            .single()
+        if (!program) {
+          alert('프로그램 정보를 찾을 수 없습니다.')
+          router.push('/programs/ai-auto-blog')
+          return
+        }
 
-          if (access) {
+        const now = new Date()
+
+        // 3. 활성 구독 확인
+        const { data: subs } = await supabase
+          .from('subscriptions')
+          .select('status, expires_at')
+          .eq('user_id', user.id)
+          .eq('program_id', program.id)
+        const hasActiveSub = (subs ?? []).some(
+          (s) => s.status === 'active' && (!s.expires_at || new Date(s.expires_at) > now)
+        )
+        if (hasActiveSub) {
+          setHasAccess(true)
+          setLoading(false)
+          return
+        }
+
+        // 4. 개별 부여(user_program_access) 확인
+        const { data: access } = await supabase
+          .from('user_program_access')
+          .select('expires_at')
+          .eq('user_id', user.id)
+          .eq('program_id', program.id)
+          .maybeSingle()
+        if (access && (!access.expires_at || new Date(access.expires_at) > now)) {
+          setHasAccess(true)
+          setLoading(false)
+          return
+        }
+
+        // 5. 등급 기반 접근 확인 — 이전 코드는 이 단계 자체가 없어서, 등급을 아무리
+        // 올려도 구독/개별부여가 없으면 무조건 막혔다(누락된 등급 체크 버그, 2026-09-03
+        // a01039390116 계정 "일반 등급인데도 접근 안 됨" 신고로 발견). 다른 페이지들
+        // (/dashboard, /programs/[slug])과 동일한 판정 방식으로 맞춤.
+        if (!program.required_grade_id) {
+          setHasAccess(true)
+          setLoading(false)
+          return
+        }
+        const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade
+        if (userGrade?.sort_order != null) {
+          const { data: requiredGrade } = await supabase
+            .from('member_grades')
+            .select('sort_order')
+            .eq('id', program.required_grade_id)
+            .single()
+          if (requiredGrade && userGrade.sort_order >= requiredGrade.sort_order) {
             setHasAccess(true)
             setLoading(false)
             return
