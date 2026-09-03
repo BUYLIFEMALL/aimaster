@@ -419,8 +419,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
             <div>
               <p className="text-sm font-bold text-rose-900">🎯 프로모션 상품만 골라보기</p>
               <p className="mt-0.5 text-xs text-rose-700">
-                상품명에 공동구매/할인/이벤트 등 문구가 있으면서, 마진율도 조건을 넘는 상품만 걸러줍니다. 단순 프로모션
-                문구만으로는 홍보할 가치가 없어서 마진율 조건을 함께 걸었습니다.
+                상품명에 공동구매/할인/이벤트 등 문구가 있으면서, 설정 마진율 조건을 넘는 상품만 걸러줍니다.
               </p>
             </div>
             <button
