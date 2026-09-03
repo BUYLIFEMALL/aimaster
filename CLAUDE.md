@@ -156,6 +156,27 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
    - 각 프로그램의 `.env.local`/Vercel 환경변수에 등록하는 `OPENAI_API_KEY`/`GEMINI_API_KEY` 등은 더 이상 폴백용으로 쓰지 않는다 — AI SDK 등 다른 용도가 없다면 아예 등록하지 않는 것을 권장한다.
 4. **외부 서비스 연동(OAuth 등)은 사용자별로 저장한다.** threads의 `threads_accounts`처럼 `user_id`에 unique 제약을 걸고, OAuth `state` 파라미터에 `user.id`를 실어 콜백에서 세션 사용자와 일치하는지 검증한다 (다른 사용자 명의로 계정이 연결되는 것을 방지).
 5. **새 프로그램 체크리스트**: (1) `programs` 테이블에 slug 등록 (2) 대시보드 레이아웃에 `requireProgramAccess()` 게이트 (3) 모든 쓰기 API에 entitlement 체크 (4) 사용자별 데이터 테이블에 `user_id` + RLS (5) 외부 계정 연동은 사용자별로 저장 (6) API 키는 공용 `user_api_keys` 구조를 재사용하되 폴백 없이 본인 키만 허용하고, 미등록 시 등록 안내 팝업을 띄운다 (7) **(2)의 레이아웃과 (3)의 모든 API route에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"` 두 줄을 반드시 같이 넣는다** — 위 1번 항목의 캐싱 버그 참고.
+6. **루트 AIMaster 앱(서브프로젝트 폴더가 아닌 `app/` 최상위)에서 "이 사용자가 이 프로그램을
+   이용할 수 있는가"를 판정해야 하는 화면은, 절대 화면마다 구독/개별부여/등급 비교 로직을 새로
+   작성하지 않고 반드시 `lib/access/checkProgramAccess.ts`를 그대로 재사용한다.**
+   - 단일 프로그램 판정(예: 프로그램 상세 페이지, 서브프로젝트 임베드 진입 화면)에는
+     `checkProgramAccess(supabase, userId, programSlug)`를 쓴다.
+   - 여러 프로그램을 한 번에 판정해야 하는 화면(예: "내 구독" 대시보드처럼 프로그램 목록을
+     순회하며 접근 가능 여부를 계산하는 경우)은 이미 가져온 데이터로 DB 재조회 없이 판정만
+     하는 순수 함수 `evaluateProgramAccess()`를 쓴다.
+   - 이 6번은 위 1번(서브프로젝트 폴더 안에서 그 서브프로젝트 자신이 "로그인한 사용자가 이
+     프로그램을 쓸 수 있는지" 판단하는 `requireProgramAccess()`/`checkProgramAccessApi()`)과는
+     대상이 다르다 — 1번은 서브프로젝트 내부용, 6번은 **루트 앱이 프로그램 접근 가능 여부를
+     판정해야 하는 모든 지점**(신규 프로그램의 소개/상세 페이지, 대시보드의 "이용 가능한
+     프로그램" 목록, 루트에 서브프로젝트를 직접 import해서 렌더링하는 임베드 페이지 등)에 적용된다.
+   - **감사 이력**: 2026-09-03, a01039390116 계정이 "일반 등급으로 바꿨는데도 블로그 접근이 안
+     된다"고 신고 → 조사 결과 `app/(main)/programs/[slug]/page.tsx`, `app/(dashboard)/dashboard/
+     page.tsx`, `app/(main)/blog/page.tsx` 세 화면이 전부 이 판정 로직을 각자 새로 작성해서 써온
+     것이 원인이었음(그중 `blog/page.tsx`는 구독·등급 체크 자체가 통째로 빠져 있었고,
+     `programs/[slug]`는 구독 여부를 아예 확인하지 않는 별도 버그도 있었음). "판정 규칙을 한
+     함수로 모아둬도, 그 함수를 실제로 안 불러 쓰면 소용없다"는 교훈으로 세 화면 모두 공용
+     함수로 교체해 재발을 막음 — **새 프로그램/새 화면을 만들 때 이 판정이 필요하면 반드시
+     이 공용 함수부터 확인할 것, 절대 직접 새로 짜지 않는다.**
 
 ### Route Groups
 - `app/(main)/` — Public pages (Header + Footer layout), `dynamic = "force-dynamic"` required for Supabase calls
