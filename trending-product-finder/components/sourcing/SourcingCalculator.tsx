@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/sourcing";
 import { saveSourcingProductAction } from "@/lib/actions/savedProducts";
 import { calcMargin, MARGIN_DEFAULTS, DOMESTIC_MARGIN_DEFAULTS, type MarginResult } from "@/lib/margin";
+import { isPromoProduct, matchedPromoKeyword } from "@/lib/promoKeywords";
 
 type Platform = "aliexpress" | "domeggook" | "elevenst";
 
@@ -256,12 +257,14 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
   const resultMarginRows = useMemo(() => {
     const rows: {
       platform: Platform;
+      key: string;
       title: string;
       sourcePriceKrw: number;
       sellingPriceKrw: number;
       marginRatePct: number;
       contributionProfitKrw: number;
       detailUrl: string;
+      isPromo: boolean;
     }[] = [];
 
     for (const p of PLATFORMS) {
@@ -284,17 +287,32 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         });
         rows.push({
           platform: p.value,
+          key: prod.key,
           title: prod.title,
           sourcePriceKrw: prod.priceKrw,
           sellingPriceKrw,
           marginRatePct: margin.marginRatePct,
           contributionProfitKrw: margin.contributionProfitKrw,
           detailUrl: prod.detailUrl,
+          isPromo: isPromoProduct(prod.title),
         });
       }
     }
     return rows.sort((a, b) => b.marginRatePct - a.marginRatePct);
   }, [results]);
+
+  // 프로모션 키워드(공동구매/할인/이벤트 등) + 마진율 조건을 동시에 만족하는 상품만
+  // 골라서 보고 싶을 때 쓰는 필터. 키워드만으로는 "홍보할 가치가 있는지"를 보장 못 한다는
+  // 피드백에 따라 마진율 하한을 함께 걸도록 설계함(2026-09-03).
+  const [promoFilterEnabled, setPromoFilterEnabled] = useState(false);
+  const [minMarginPct, setMinMarginPct] = useState("20");
+  const promoFilteredKeys = useMemo(() => {
+    const threshold = Number(minMarginPct) || 0;
+    return new Set(
+      resultMarginRows.filter((r) => r.isPromo && r.marginRatePct >= threshold).map((r) => `${r.platform}:${r.key}`),
+    );
+  }, [resultMarginRows, minMarginPct]);
+  const promoMatchCount = promoFilteredKeys.size;
 
   function handleDownloadResultsCsv() {
     if (resultMarginRows.length === 0) return;
@@ -395,6 +413,44 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         </div>
       )}
 
+      {resultMarginRows.length > 0 && (
+        <div className="rounded-2xl border-2 border-rose-200 bg-rose-50/60 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-bold text-rose-900">🎯 프로모션 상품만 골라보기</p>
+              <p className="mt-0.5 text-xs text-rose-700">
+                상품명에 공동구매/할인/이벤트 등 문구가 있으면서, 마진율도 조건을 넘는 상품만 걸러줍니다. 단순 프로모션
+                문구만으로는 홍보할 가치가 없어서 마진율 조건을 함께 걸었습니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPromoFilterEnabled((v) => !v)}
+              className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold text-white transition-colors ${
+                promoFilterEnabled ? "bg-sky-600 hover:bg-sky-700" : "bg-red-500 hover:bg-red-600"
+              }`}
+            >
+              {promoFilterEnabled ? "ON" : "OFF"}
+            </button>
+          </div>
+          {promoFilterEnabled && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] text-rose-700">최소 마진율</span>
+              <input
+                type="number"
+                value={minMarginPct}
+                onChange={(e) => setMinMarginPct(e.target.value)}
+                className="input-sm w-20 text-xs"
+              />
+              <span className="text-[11px] text-rose-700">% 이상</span>
+              <span className="ml-2 rounded-full bg-rose-100 px-2.5 py-1 text-[11px] font-bold text-rose-700">
+                조건 만족 {promoMatchCount}건
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 채널별 검색 결과 — 선택한 채널마다 구분해서 보여주고, 그 안에서 상품을 고른다 */}
       {PLATFORMS.filter((p) => selectedPlatforms.has(p.value) && results[p.value]).map((p) => {
         const result = results[p.value]!;
@@ -415,8 +471,14 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
             {!result.error && result.products.length === 0 && (
               <p className="text-sm text-gray-400">검색된 상품이 없습니다. 다른 키워드로 시도해보세요.</p>
             )}
-            {result.products.map((prod) => {
+            {promoFilterEnabled && result.products.length > 0 && !result.products.some((prod) => promoFilteredKeys.has(`${prod.platform}:${prod.key}`)) && (
+              <p className="text-sm text-gray-400">조건(프로모션 문구 + 마진율 {minMarginPct}% 이상)을 만족하는 상품이 없습니다.</p>
+            )}
+            {result.products
+              .filter((prod) => !promoFilterEnabled || promoFilteredKeys.has(`${prod.platform}:${prod.key}`))
+              .map((prod) => {
               const isSelected = selectedTitle === prod.title && selectedPlatform === prod.platform;
+              const promoKeyword = matchedPromoKeyword(prod.title);
               return (
                 <div
                   key={prod.key}
@@ -427,7 +489,14 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {prod.imageUrl && <img src={prod.imageUrl} alt={prod.title} className="h-14 w-14 rounded object-cover" />}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-gray-900">{prod.title}</p>
+                    <p className="truncate text-sm text-gray-900">
+                      {promoKeyword && (
+                        <span className="mr-1 shrink-0 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                          🎯 {promoKeyword}
+                        </span>
+                      )}
+                      {prod.title}
+                    </p>
                     <p className="text-xs text-gray-500">
                       {prod.priceKrw ? `${prod.priceKrw.toLocaleString()}원` : "가격 정보 없음"}
                       {prod.metaText && ` · ${prod.metaText}`}
