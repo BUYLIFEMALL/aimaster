@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // 인라인으로 키를 넣지 않았으면 본인 계정에 등록된 키 -> 앱 기본 키 순으로 사용
+    // 인라인으로 키를 넣지 않았으면 본인 계정에 등록된 키를 사용(앱 공용 키 폴백 없음, 2026-08-12 정책)
     const adminClient = createAdminClient()
     const inlineKey = (body.nanoBananaApiKey || body.apiKey || '').trim()
     const resolvedApiKey = inlineKey || (await resolveApiKey(adminClient, user.id, 'gemini')) || undefined

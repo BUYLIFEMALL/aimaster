@@ -8,13 +8,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   perplexity: "Perplexity (실시간 주제 수집)",
 };
 
-// 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
-const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
-  openai: process.env.OPENAI_API_KEY,
-  gemini: process.env.GEMINI_API_KEY,
-  perplexity: process.env.PERPLEXITY_API_KEY,
-};
-
 export async function getUserApiKey(
   supabase: SupabaseClient<Database>,
   userId: string,
@@ -30,14 +23,15 @@ export async function getUserApiKey(
   return data?.api_key ?? null;
 }
 
-/** 본인 키가 등록돼 있으면 그 키를, 없으면 앱 공용 키로 폴백한다. 기본적으로 본인 키를 우선한다. */
+/** 본인 키만 사용한다 — 앱/운영자 공용 키로 폴백하지 않는다(2026-08-12 정책, 루트 CLAUDE.md
+ * 멀티테넌시 원칙 3번). 본인 키가 없으면 null을 반환하니, 호출부는 반드시 "API 키 등록 필요"
+ * 안내로 이어가야 한다(조용히 실패시키지 말 것). */
 export async function resolveApiKey(
   supabase: SupabaseClient<Database>,
   userId: string,
   provider: ApiKeyProvider,
 ): Promise<string | null> {
-  const ownKey = await getUserApiKey(supabase, userId, provider);
-  return ownKey || FALLBACK_ENV_KEYS[provider] || null;
+  return getUserApiKey(supabase, userId, provider);
 }
 
 export async function getRegisteredProviders(
