@@ -6,6 +6,7 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import PaymentController from "@/components/payment/PaymentController";
 import HeroSubscribeButton from "@/components/programs/HeroSubscribeButton";
 import { createClient } from "@/lib/supabase/server";
+import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import type { MemberGrade } from "@/types/database.types";
 
 interface PageProps {
@@ -69,22 +70,12 @@ export default async function ProgramDetailPage({ params }: PageProps) {
     }
   }
 
-  // 등급 계층 체크: 사용자 등급의 sort_order >= 필요 등급의 sort_order면 접근 허용
-  const gradeAccessOk = !hasGradeRestriction || (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order);
+  // 접근 판정(구독 -> 개별부여 -> 등급)은 lib/access/checkProgramAccess.ts로 통일 —
+  // 이 페이지가 예전에 자체 등급 비교만 하고 구독 여부를 아예 안 봤던 것과 같은 재발을
+  // 막기 위해 화면마다 새로 짜지 않고 이 공용 함수를 재사용한다.
+  const accessResult = user ? await checkProgramAccess(supabase, user.id, slug) : null;
 
-  // 개별 사용자 접근 권한 확인
-  let hasIndividualAccess = false;
-  if (user) {
-    const { data: directAccess } = await supabase
-      .from("user_program_access")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("program_id", program.id)
-      .single();
-    hasIndividualAccess = !!directAccess;
-  }
-
-  // 수량 제한 체크
+  // 수량 제한 체크 (프로그램별 접근 판정과는 별개 개념이라 여기서 따로 계산)
   let reachedLimit = false;
   let maxPrograms: number | null = null;
   if (user && userGrade) {
@@ -99,7 +90,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
     }
   }
 
-  const isAccessAllowed = (gradeAccessOk || hasIndividualAccess) && !reachedLimit;
+  const isAccessAllowed = !!accessResult?.allowed && !reachedLimit;
 
   const activePlans = (program.pricing_plans ?? []).filter((p: { is_active: boolean }) => p.is_active);
 

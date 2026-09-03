@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Calendar, Clock, Package, Ticket, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
 import GlassCard from "@/components/ui/GlassCard";
 
 export const metadata = { title: "내 구독" };
@@ -59,10 +60,10 @@ export default async function DashboardPage() {
     (s) => s.status !== "active" || isDateExpired(s.expires_at)
   );
 
-  // 이용 가능한 프로그램 계산: 구독 결제 연동 전 임시 정책으로, 등급 제한이 없는(현재 전체)
-  // 프로그램은 "일반" 등급을 포함한 모든 로그인 회원에게 자동으로 열려 있다. 실제 유료화는
-  // 나중에 프로그램별 required_grade_id를 지정하는 것만으로 그대로 반영되도록 설계했다
-  // (각 서브프로젝트의 requireProgramAccess()와 동일한 판정 순서: 구독 -> 개별부여 -> 등급).
+  // 이용 가능한 프로그램 계산: 판정 규칙은 lib/access/checkProgramAccess.ts의
+  // evaluateProgramAccess()로 통일(구독 -> 개별부여 -> 등급, /programs/[slug]·blog와 동일
+  // 규칙). 이 페이지는 프로그램 여러 개를 한 번에 계산해야 해서, 이미 병렬로 받아둔 데이터로
+  // DB 재조회 없이 판정만 재사용한다.
   const subscribedProgramIds = new Set(subscriptions.map((s) => s.program_id));
   const now2 = new Date();
   const grantedProgramIds = new Set(
@@ -76,10 +77,16 @@ export default async function DashboardPage() {
   })();
 
   const accessiblePrograms = (allPrograms ?? []).filter((p) => {
-    if (subscribedProgramIds.has(p.id) || grantedProgramIds.has(p.id)) return true;
-    if (!p.required_grade_id) return true;
     const requiredGrade = Array.isArray(p.required_grade) ? p.required_grade[0] : p.required_grade;
-    return userGradeSortOrder != null && requiredGrade && userGradeSortOrder >= requiredGrade.sort_order;
+    return evaluateProgramAccess({
+      isAdmin: !!profile?.is_admin,
+      isSuspended: !!profile?.is_suspended,
+      requiredGradeId: p.required_grade_id,
+      hasActiveSubscription: subscribedProgramIds.has(p.id),
+      hasIndividualGrant: grantedProgramIds.has(p.id),
+      userGradeSortOrder,
+      requiredGradeSortOrder: requiredGrade?.sort_order ?? null,
+    }).allowed;
   });
 
   return (
