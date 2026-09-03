@@ -85,9 +85,11 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
           <button
             onClick={handleToggle}
             disabled={isToggling}
-            className="text-xs text-gray-500 hover:text-gray-900 disabled:opacity-50"
+            className={`rounded-full px-3 py-1 text-xs font-bold text-white transition-colors disabled:opacity-50 ${
+              isActive ? "bg-sky-600 hover:bg-sky-700" : "bg-red-500 hover:bg-red-600"
+            }`}
           >
-            {isActive ? "활성" : "비활성"}
+            {isActive ? "ON" : "OFF"}
           </button>
           <button
             onClick={handleDelete}
