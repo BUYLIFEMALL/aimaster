@@ -190,12 +190,20 @@ For EACH paragraph (Paragraph 1, Paragraph 2, Paragraph 3), follow these STRICT 
 
   const negativeBlock = ', no illustration, no painting, no watercolor, no sketch, no vector art, no cartoon, no anime, no comic-book style, no 3D render, no CGI, no game-engine look, no flat shading, no cel shading, no toon style, no surreal montage, no collage, no split screen, no storyboard, no multiple panels, no duplicated subjects, no repeated faces, no extra limbs, no malformed hands, no distorted anatomy, no floating objects, no over-smoothed skin, no waxy skin, no plastic texture, no artificial facial features, no excessive HDR, no oversaturation, no unrealistic colors, no posterization, no watermark, no signature, no unwanted captions, no logo artifacts'
   const mandatoryOpening = 'Create a sense of adventure, courage, and realism with a single photorealistic scene of'
+  // 이 함수의 1차 경로(위 Gemini 호출)가 실패했을 때만 여기로 온다. 1차 경로의 마스터 룰(4번 항목)에는
+  // "인물은 기본적으로 한국인/동아시아인으로 묘사, 해외 유명인·정치인·연예인·운동선수 등장이나 해외
+  // 배경이 명시된 경우에만 예외" 규칙이 있는데, 이 fallback 문구에는 그 규칙이 빠져 있어서 Gemini 호출이
+  // 실패할 때마다(네트워크 오류, JSON 파싱 실패 등, catch에서 콘솔 로그만 남기고 조용히 여기로 넘어옴)
+  // 이미지 생성 모델이 인물의 인종을 지정받지 못해 기본 편향대로 외국인을 그리는 문제가 있었다
+  // (2026-09-03, "등장인물이 전부 외국인" 신고로 발견 — 루트 CLAUDE.md 불변의 핵심 원칙 3번).
+  const ethnicityRule =
+    'If human figures appear, depict realistic Korean/East Asian individuals by default, natural skin texture, anatomically correct hands, believable proportions, '
 
   // Fallback with Master Prompt Rules
   return {
-    headerPrompt: cleanAsciiPrompt(`${mandatoryOpening} real-world ${topic} environment, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, shot on Canon EOS R5 with 35mm prime lens, f/2.8, 1/250s, ISO 200, 5600K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
-    body1Prompt: cleanAsciiPrompt(`${mandatoryOpening} detailed real-world ${topic} technology and practical workplace, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, shot on Sony A7R IV with 50mm prime lens, f/2.0, 1/320s, ISO 400, 5600K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
-    body2Prompt: cleanAsciiPrompt(`${mandatoryOpening} real-world ${topic} strategic vision scene with people, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, shot on Nikon Z8 with 85mm prime lens, f/1.8, 1/500s, ISO 100, 6000K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
+    headerPrompt: cleanAsciiPrompt(`${mandatoryOpening} real-world ${topic} environment, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, ${ethnicityRule}shot on Canon EOS R5 with 35mm prime lens, f/2.8, 1/250s, ISO 200, 5600K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
+    body1Prompt: cleanAsciiPrompt(`${mandatoryOpening} detailed real-world ${topic} technology and practical workplace, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, ${ethnicityRule}shot on Sony A7R IV with 50mm prime lens, f/2.0, 1/320s, ISO 400, 5600K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
+    body2Prompt: cleanAsciiPrompt(`${mandatoryOpening} real-world ${topic} strategic vision scene with people, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, ${ethnicityRule}shot on Nikon Z8 with 85mm prime lens, f/1.8, 1/500s, ISO 100, 6000K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
   }
 }
 
@@ -320,10 +328,12 @@ export async function generateNanoBananaImages(
   const baseSeed = uniqueTimestamp + Math.floor(Math.random() * 1000000)
 
   // ★ 1. 생성 완료된 본문 전체 텍스트를 AI Visual Director가 정독 후 3개 맞춤 영문 프롬프트 추출
+  // articleCtx가 없을 때만 쓰이는 최후 보루 프롬프트라 인물 인종 규칙도 기본값으로 명시해둔다
+  // (루트 CLAUDE.md 불변의 핵심 원칙 3번 — 인물은 기본 한국인/동아시아인으로 묘사).
   let prompts = {
-    headerPrompt: cleanAsciiPrompt(`Photorealistic dramatic wide shot of ${topic}, high tech business setting, cinematic lighting, 4K, 16:9`),
-    body1Prompt: cleanAsciiPrompt(`Photorealistic macro close-up of ${topic} technical architecture, digital twin microtexture, 4K, 16:9`),
-    body2Prompt: cleanAsciiPrompt(`Photorealistic cinematic scene of ${topic} global future vision, dynamic urban background, 4K, 16:9`),
+    headerPrompt: cleanAsciiPrompt(`Photorealistic dramatic wide shot of ${topic}, high tech business setting, cinematic lighting, if human figures appear depict realistic Korean/East Asian individuals by default, 4K, 16:9`),
+    body1Prompt: cleanAsciiPrompt(`Photorealistic macro close-up of ${topic} technical architecture, digital twin microtexture, if human figures appear depict realistic Korean/East Asian individuals by default, 4K, 16:9`),
+    body2Prompt: cleanAsciiPrompt(`Photorealistic cinematic scene of ${topic} global future vision, dynamic urban background, if human figures appear depict realistic Korean/East Asian individuals by default, 4K, 16:9`),
   }
 
   if (articleCtx) {
