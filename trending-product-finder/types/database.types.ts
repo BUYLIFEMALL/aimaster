@@ -350,6 +350,30 @@ export interface Database {
         };
         Relationships: [];
       };
+      user_kakao_alimtalk_templates: {
+        Row: {
+          user_id: string;
+          sourcing_template_id: string | null;
+          price_template_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          sourcing_template_id?: string | null;
+          price_template_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          sourcing_template_id?: string | null;
+          price_template_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       user_telegram_links: {
         Row: {
           user_id: string;

@@ -6,7 +6,7 @@ import { searchProducts as searchDomeggook } from "@/lib/domeggook/client";
 import { searchProducts as searchElevenst } from "@/lib/elevenst/client";
 import { translateToEnglishKeyword } from "@/lib/ai/translateKeyword";
 import { sendViaSmtpAccount } from "@/lib/email/transport";
-import { sendFriendtalk, sendSms } from "@/lib/solapi/client";
+import { sendAlimtalk, sendFriendtalk, sendSms } from "@/lib/solapi/client";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import type { AlertChannel } from "@/lib/constants";
 import type { Database } from "@/types/database.types";
@@ -315,7 +315,7 @@ export async function runSourcingAlertForWatchlist(
 
   const { createAdminClient } = await import("@/lib/supabase/admin");
   const admin = createAdminClient();
-  const [{ data: userData }, { data: profile }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }] =
+  const [{ data: userData }, { data: profile }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }, { data: kakaoTemplate }] =
     await Promise.all([
       admin.auth.admin.getUserById(watchlist.user_id),
       admin.from("profiles").select("phone").eq("id", watchlist.user_id).maybeSingle(),
@@ -336,6 +336,11 @@ export async function runSourcingAlertForWatchlist(
         .select("bot_token, chat_id")
         .eq("user_id", watchlist.user_id)
         .eq("program_slug", "trending-product-finder")
+        .maybeSingle(),
+      admin
+        .from("user_kakao_alimtalk_templates")
+        .select("sourcing_template_id")
+        .eq("user_id", watchlist.user_id)
         .maybeSingle(),
     ]);
 
@@ -379,6 +384,21 @@ export async function runSourcingAlertForWatchlist(
         await sendSms(solapiAccount, profile.phone, text.slice(0, 2000));
       } catch (err) {
         console.error(`[trending-product-finder] "${watchlist.category_name}" 예약 알림 문자 발송 실패:`, err);
+      }
+    }
+
+    if (channels.has("alimtalk") && profile?.phone && solapiAccount?.kakao_pf_id) {
+      if (kakaoTemplate?.sourcing_template_id) {
+        try {
+          await sendAlimtalk(solapiAccount, profile.phone, {
+            templateId: kakaoTemplate.sourcing_template_id,
+            variables: { 내용: text },
+          });
+        } catch (err) {
+          console.error(`[trending-product-finder] "${watchlist.category_name}" 예약 알림 알림톡 발송 실패:`, err);
+        }
+      } else {
+        console.warn(`[trending-product-finder] 알림톡 템플릿 미등록으로 건너뜀 (user ${watchlist.user_id})`);
       }
     }
 

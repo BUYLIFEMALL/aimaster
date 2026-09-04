@@ -30,6 +30,29 @@ export async function sendSms(account: SolapiAccountCredentials, to: string, tex
 }
 
 /**
+ * 카카오 알림톡. 사전 승인된 템플릿으로만 발송 가능하며, 친구톡과 달리 채널 친구가
+ * 아닌 수신자에게도 발송할 수 있다(정보성 메시지 — 주문/배송/가격변동 등). crm-google-form/
+ * booking-reminder의 sendAlimtalk와 동일 구현(Phase 21, 2026-09-04 추가).
+ */
+export async function sendAlimtalk(
+  account: SolapiAccountCredentials,
+  to: string,
+  params: { templateId: string; variables: Record<string, string> },
+): Promise<void> {
+  if (!account.kakao_pf_id) throw new Error("카카오 채널 ID(pfId)가 등록되어 있지 않습니다.");
+  const service = createService(account);
+  await service.send({
+    to,
+    from: account.sender_phone,
+    kakaoOptions: {
+      pfId: account.kakao_pf_id,
+      templateId: params.templateId,
+      variables: params.variables,
+    },
+  });
+}
+
+/**
  * 카카오 친구톡(자유형). type:"CTA"로 명시한다 — 2026-01-01부로 SOLAPI가 서버에서 자동으로
  * 브랜드 메시지(자유형)로 대체 발송하지만, 요청 필드 자체는 바뀌지 않는다. Phase 10 리포트
  * 이메일 알림과 나란히, 리포트 요약을 카카오톡으로도 받아볼 수 있게 쓴다.

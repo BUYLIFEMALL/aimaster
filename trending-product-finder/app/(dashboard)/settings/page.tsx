@@ -5,6 +5,7 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { ProviderAccountSection } from "@/components/settings/ProviderAccountSection";
 import type { SmtpAccountData } from "@/components/settings/SmtpAccountCard";
 import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
+import { KakaoTemplateSection } from "@/components/settings/KakaoTemplateSection";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { SMTP_PROVIDER_PRESETS } from "@/lib/constants";
@@ -136,7 +137,7 @@ export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: keys }, { data: smtpAccounts }, { data: solapiAccount }, { data: telegramLink }] = await Promise.all([
+  const [{ data: keys }, { data: smtpAccounts }, { data: solapiAccount }, { data: telegramLink }, { data: kakaoTemplates }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase
       .from("user_smtp_accounts")
@@ -153,6 +154,11 @@ export default async function SettingsPage() {
       .select("bot_username")
       .eq("user_id", user.id)
       .eq("program_slug", "trending-product-finder")
+      .maybeSingle(),
+    supabase
+      .from("user_kakao_alimtalk_templates")
+      .select("sourcing_template_id, price_template_id")
+      .eq("user_id", user.id)
       .maybeSingle(),
   ]);
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
@@ -233,6 +239,7 @@ export default async function SettingsPage() {
         </div>
 
         <SolapiAccountSection account={solapiAccount ?? null} />
+        <KakaoTemplateSection templates={kakaoTemplates ?? null} />
 
         <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
           <div className="mb-3">

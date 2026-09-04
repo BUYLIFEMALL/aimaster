@@ -14,12 +14,16 @@ export const SMTP_PROVIDER_PRESETS: SmtpProviderPreset[] = [
   { value: "other", label: "기타 (직접 입력)", host: "", port: 587 },
 ];
 
-export type AlertChannel = "email" | "kakao" | "telegram" | "sms";
+export type AlertChannel = "email" | "kakao" | "telegram" | "sms" | "alimtalk";
 
 // 예약 소싱 알림(Phase 12)에서 회원이 채널별로 켜고 끌 수 있는 발송 채널 목록.
+// "kakao"(친구톡 — 채널 친구에게만, 2026-01-01부터 Solapi가 자동으로 브랜드 메시지로
+// 대체 발송)와 "alimtalk"(알림톡 — 비친구에게도 발송 가능한 정보성 메시지, 사전승인 템플릿
+// 필요)는 서로 다른 카카오 비즈메시지 상품이라 별도 채널로 분리했다(Phase 21, 2026-09-04).
 export const ALERT_CHANNEL_OPTIONS: { value: AlertChannel; label: string }[] = [
   { value: "email", label: "📧 이메일" },
-  { value: "kakao", label: "💬 카카오톡" },
+  { value: "kakao", label: "💬 카카오톡(친구톡)" },
+  { value: "alimtalk", label: "🔔 카카오 알림톡" },
   { value: "telegram", label: "📨 텔레그램" },
   { value: "sms", label: "💌 문자(SMS)" },
 ];

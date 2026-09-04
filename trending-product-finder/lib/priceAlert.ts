@@ -6,7 +6,7 @@ import { searchProducts as searchDomeggook } from "@/lib/domeggook/client";
 import { searchProducts as searchElevenst } from "@/lib/elevenst/client";
 import { translateToEnglishKeyword } from "@/lib/ai/translateKeyword";
 import { sendViaSmtpAccount } from "@/lib/email/transport";
-import { sendFriendtalk, sendSms } from "@/lib/solapi/client";
+import { sendAlimtalk, sendFriendtalk, sendSms } from "@/lib/solapi/client";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import type { AlertChannel } from "@/lib/constants";
 import type { Database } from "@/types/database.types";
@@ -126,7 +126,7 @@ async function notifyChange(supabase: SupabaseClient<Database>, row: SavedProduc
 
   const { createAdminClient } = await import("@/lib/supabase/admin");
   const admin = createAdminClient();
-  const [{ data: userData }, { data: profile }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }] =
+  const [{ data: userData }, { data: profile }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }, { data: kakaoTemplate }] =
     await Promise.all([
       admin.auth.admin.getUserById(row.user_id),
       admin.from("profiles").select("phone").eq("id", row.user_id).maybeSingle(),
@@ -147,6 +147,11 @@ async function notifyChange(supabase: SupabaseClient<Database>, row: SavedProduc
         .select("bot_token, chat_id")
         .eq("user_id", row.user_id)
         .eq("program_slug", "trending-product-finder")
+        .maybeSingle(),
+      admin
+        .from("user_kakao_alimtalk_templates")
+        .select("price_template_id")
+        .eq("user_id", row.user_id)
         .maybeSingle(),
     ]);
 
@@ -176,6 +181,20 @@ async function notifyChange(supabase: SupabaseClient<Database>, row: SavedProduc
       await sendSms(solapiAccount, profile.phone, text.slice(0, 2000));
     } catch (err) {
       console.error("관심상품 문자 알림 실패:", err);
+    }
+  }
+  if (channels.has("alimtalk") && profile?.phone && solapiAccount?.kakao_pf_id) {
+    if (kakaoTemplate?.price_template_id) {
+      try {
+        await sendAlimtalk(solapiAccount, profile.phone, {
+          templateId: kakaoTemplate.price_template_id,
+          variables: { 내용: text },
+        });
+      } catch (err) {
+        console.error("관심상품 알림톡 알림 실패:", err);
+      }
+    } else {
+      console.warn(`[trending-product-finder] 알림톡 템플릿 미등록으로 건너뜀 (user ${row.user_id})`);
     }
   }
   if (channels.has("telegram") && telegramLink?.bot_token && telegramLink?.chat_id) {
