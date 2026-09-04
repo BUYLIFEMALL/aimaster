@@ -238,8 +238,10 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <SolapiAccountSection account={solapiAccount ?? null} />
-        <KakaoTemplateSection templates={kakaoTemplates ?? null} />
+        <div className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+          <SolapiAccountSection account={solapiAccount ?? null} />
+          <KakaoTemplateSection templates={kakaoTemplates ?? null} />
+        </div>
 
         <div className="rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
           <div className="mb-3">

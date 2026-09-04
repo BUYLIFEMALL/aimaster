@@ -83,8 +83,12 @@ export default async function SettingsPage() {
         <ModelPreferenceForm currentModel={(preference?.preferred_model as AnalysisModel) ?? null} />
       </section>
 
-      <SolapiAccountSection account={solapiAccount ?? null} />
-      <KakaoTemplateSection templateId={kakaoTemplate?.template_id ?? null} />
+      <section>
+        <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5 space-y-4">
+          <SolapiAccountSection account={solapiAccount ?? null} />
+          <KakaoTemplateSection templateId={kakaoTemplate?.template_id ?? null} />
+        </div>
+      </section>
 
       <section>
         <div className="mb-3">

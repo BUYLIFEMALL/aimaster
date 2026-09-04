@@ -34,7 +34,7 @@ export function KakaoTemplateSection({ templates }: { templates: KakaoTemplateDa
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+    <div className="space-y-3 border-t border-gray-200 pt-4">
       <h2 className="text-sm font-bold text-gray-900">🔔 카카오 알림톡 템플릿 (선택)</h2>
       <p className="text-xs text-gray-500">
         위 SOLAPI 계정에 등록된 카카오 채널로 <b>알림톡</b>을 받으려면, 먼저 SOLAPI에서 발송

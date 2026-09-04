@@ -87,7 +87,7 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold text-gray-900">💬 카카오톡 알림 (SOLAPI)</h2>
         {account && !isEditing && (

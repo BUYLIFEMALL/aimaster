@@ -77,7 +77,7 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
   }
 
   return (
-    <section>
+    <div>
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-medium text-neutral-100">💬 카카오톡/문자 알림 (SOLAPI)</h2>
@@ -95,7 +95,7 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
         )}
       </div>
 
-      <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
+      <div>
         {account && !isEditing ? (
           <div className="space-y-3 rounded-xl border border-white/5 bg-dark-50 p-4">
             <p className="text-sm text-neutral-300">
@@ -183,6 +183,6 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
           </form>
         )}
       </div>
-    </section>
+    </div>
   );
 }
