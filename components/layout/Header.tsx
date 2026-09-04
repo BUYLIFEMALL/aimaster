@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { href: "/packages", label: "패키지" },
   { href: "/revenue-share", label: "수익 공유" },
   { href: "/custom", label: "커스텀" },
+  { href: "/support/notice", label: "공지사항" },
   { href: "/support", label: "고객지원" },
 ];
 
@@ -25,6 +26,12 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+
+  // "/support"와 "/support/notice"처럼 경로가 겹치는 링크가 동시에 활성 표시되지 않도록,
+  // 가장 구체적인(긴) href 하나만 활성으로 계산한다 (AdminSidebar와 동일한 패턴).
+  const activeHref = NAV_LINKS.filter((link) => pathname.startsWith(link.href)).sort(
+    (a, b) => b.href.length - a.href.length
+  )[0]?.href;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -87,7 +94,7 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  pathname.startsWith(link.href)
+                  link.href === activeHref
                     ? "text-gold bg-gold/10"
                     : "text-subtext hover:text-white hover:bg-white/5"
                 }`}
@@ -184,7 +191,7 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  pathname.startsWith(link.href)
+                  link.href === activeHref
                     ? "text-gold bg-gold/10"
                     : "text-subtext hover:text-white hover:bg-white/5"
                 }`}

@@ -18,6 +18,7 @@ import {
   X,
   Ticket,
   HelpCircle,
+  Megaphone,
 } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { cn } from "@/lib/utils/cn";
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { href: "/admin/access-matrix", icon: Shield, label: "접근 권한 관리" },
   { href: "/admin/coupons", icon: Ticket, label: "쿠폰 관리" },
   { href: "/admin/faq", icon: HelpCircle, label: "FAQ 관리" },
+  { href: "/admin/notices", icon: Megaphone, label: "공지사항 관리" },
   { href: "/admin/settlements", icon: CreditCard, label: "정산 관리" },
   { href: "/admin/statistics", icon: BarChart2, label: "통계" },
   { href: "/admin/settings", icon: Settings, label: "사이트 설정" },
