@@ -13,18 +13,13 @@ const FOOTER_LINKS = {
     { href: "/support/faq", label: "자주 묻는 질문" },
     { href: "/support/notice", label: "공지사항" },
   ],
-  약관: [
-    { href: "/terms", label: "이용약관" },
-    { href: "/privacy", label: "개인정보처리방침" },
-    { href: "/refund", label: "환불정책" },
-  ],
 };
 
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-surface/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
