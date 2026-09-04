@@ -59,14 +59,16 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="border-t border-white/10 pt-6 flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="text-subtext text-xs">사업자등록번호: 864-25-00988</span>
+            <span className="text-subtext text-xs">대표: 유승엽</span>
+            <span className="text-subtext text-xs">연락처: 1644-3686</span>
+            <span className="text-subtext text-xs">주소: 경기도 고양시 일산동구 장항로 203-21 바동</span>
+          </div>
           <p className="text-subtext text-sm">
             © 2026 AI Master. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <span className="text-subtext text-xs">사업자등록번호: 864-25-00988</span>
-            <span className="text-subtext text-xs">대표: 유승엽</span>
-          </div>
         </div>
       </div>
     </footer>
