@@ -2,6 +2,8 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
+import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
+import { KakaoTemplateSection } from "@/components/settings/KakaoTemplateSection";
 import { Button } from "@/components/ui/Button";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { ModelPreferenceForm } from "@/components/settings/ModelPreferenceForm";
@@ -15,7 +17,7 @@ export default async function SettingsPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: telegramLink }, { data: apiKeys }, { data: preference }] = await Promise.all([
+  const [{ data: telegramLink }, { data: apiKeys }, { data: preference }, { data: solapiAccount }, { data: kakaoTemplate }] = await Promise.all([
     supabase
       .from("user_telegram_links")
       .select("bot_username, chat_id, linked_at")
@@ -26,6 +28,16 @@ export default async function SettingsPage() {
     supabase
       .from("real_estate_user_preferences")
       .select("preferred_model")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("user_solapi_accounts")
+      .select("api_key, sender_phone, kakao_pf_id")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("real_estate_kakao_templates")
+      .select("template_id")
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);
@@ -70,6 +82,9 @@ export default async function SettingsPage() {
         </p>
         <ModelPreferenceForm currentModel={(preference?.preferred_model as AnalysisModel) ?? null} />
       </section>
+
+      <SolapiAccountSection account={solapiAccount ?? null} />
+      <KakaoTemplateSection templateId={kakaoTemplate?.template_id ?? null} />
 
       <section>
         <div className="mb-3">

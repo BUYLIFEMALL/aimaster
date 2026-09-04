@@ -12,7 +12,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -71,6 +71,54 @@ export type Database = {
           },
         ]
       }
+      affiliate_products: {
+        Row: {
+          affiliate_url: string
+          created_at: string
+          description: string | null
+          detail_page_id: string | null
+          id: string
+          image_url: string | null
+          input_mode: string
+          key_selling_points: string[] | null
+          platform: string
+          price: number | null
+          product_name: string
+          product_url: string | null
+          user_id: string
+        }
+        Insert: {
+          affiliate_url: string
+          created_at?: string
+          description?: string | null
+          detail_page_id?: string | null
+          id?: string
+          image_url?: string | null
+          input_mode?: string
+          key_selling_points?: string[] | null
+          platform: string
+          price?: number | null
+          product_name: string
+          product_url?: string | null
+          user_id: string
+        }
+        Update: {
+          affiliate_url?: string
+          created_at?: string
+          description?: string | null
+          detail_page_id?: string | null
+          id?: string
+          image_url?: string | null
+          input_mode?: string
+          key_selling_points?: string[] | null
+          platform?: string
+          price?: number | null
+          product_name?: string
+          product_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       affiliate_rates: {
         Row: {
           program_id: string
@@ -118,6 +166,42 @@ export type Database = {
           name?: string
           role?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      blog_candidates: {
+        Row: {
+          created_at: string
+          id: string
+          keywords: string[]
+          source_input: string
+          source_type: string
+          summary: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          keywords?: string[]
+          source_input: string
+          source_type: string
+          summary?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          keywords?: string[]
+          source_input?: string
+          source_type?: string
+          summary?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -280,6 +364,144 @@ export type Database = {
           },
         ]
       }
+      booking_reminder_rules: {
+        Row: {
+          channel_alimtalk: boolean
+          channel_email: boolean
+          channel_friendtalk: boolean
+          channel_sms: boolean
+          created_at: string
+          id: string
+          is_active: boolean
+          kakao_template_id: string | null
+          kakao_variables: Json
+          message_subject: string | null
+          message_text: string
+          name: string
+          offset_minutes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_alimtalk?: boolean
+          channel_email?: boolean
+          channel_friendtalk?: boolean
+          channel_sms?: boolean
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kakao_template_id?: string | null
+          kakao_variables?: Json
+          message_subject?: string | null
+          message_text: string
+          name: string
+          offset_minutes: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_alimtalk?: boolean
+          channel_email?: boolean
+          channel_friendtalk?: boolean
+          channel_sms?: boolean
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kakao_template_id?: string | null
+          kakao_variables?: Json
+          message_subject?: string | null
+          message_text?: string
+          name?: string
+          offset_minutes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      booking_reminder_sends: {
+        Row: {
+          error_message: string | null
+          id: string
+          reservation_id: string
+          rule_id: string
+          sent_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          error_message?: string | null
+          id?: string
+          reservation_id: string
+          rule_id: string
+          sent_at?: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          error_message?: string | null
+          id?: string
+          reservation_id?: string
+          rule_id?: string
+          sent_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_reminder_sends_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "booking_reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_reminder_sends_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "booking_reminder_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_reservations: {
+        Row: {
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          id: string
+          memo: string | null
+          reservation_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          id?: string
+          memo?: string | null
+          reservation_at: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          id?: string
+          memo?: string | null
+          reservation_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           id: string
@@ -308,6 +530,214 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_analyses: {
+        Row: {
+          created_at: string
+          html_report: string | null
+          id: string
+          job_id: string
+          keyword_id: string
+          summary_text: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          html_report?: string | null
+          id?: string
+          job_id: string
+          keyword_id: string
+          summary_text?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          html_report?: string | null
+          id?: string
+          job_id?: string
+          keyword_id?: string
+          summary_text?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_analyses_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "competitor_serp_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitor_analyses_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "competitor_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_keywords: {
+        Row: {
+          created_at: string
+          engine: string
+          google_domain: string
+          id: string
+          is_active: boolean
+          keyword: string
+          lang: string
+          location: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          engine?: string
+          google_domain?: string
+          id?: string
+          is_active?: boolean
+          keyword: string
+          lang?: string
+          location?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          engine?: string
+          google_domain?: string
+          id?: string
+          is_active?: boolean
+          keyword?: string
+          lang?: string
+          location?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      competitor_profiles: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          domain: string
+          id: string
+          researched_at: string
+          summary: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          domain: string
+          id?: string
+          researched_at?: string
+          summary?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          domain?: string
+          id?: string
+          researched_at?: string
+          summary?: string | null
+        }
+        Relationships: []
+      }
+      competitor_serp_jobs: {
+        Row: {
+          created_at: string
+          engine: string
+          executed_at: string
+          google_domain: string | null
+          id: string
+          keyword_id: string
+          lang: string | null
+          location: string | null
+          serp_search_id: string | null
+          total_results: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          engine?: string
+          executed_at?: string
+          google_domain?: string | null
+          id?: string
+          keyword_id: string
+          lang?: string | null
+          location?: string | null
+          serp_search_id?: string | null
+          total_results?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          engine?: string
+          executed_at?: string
+          google_domain?: string | null
+          id?: string
+          keyword_id?: string
+          lang?: string | null
+          location?: string | null
+          serp_search_id?: string | null
+          total_results?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_serp_jobs_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "competitor_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_serp_results: {
+        Row: {
+          created_at: string
+          domain: string | null
+          id: string
+          job_id: string
+          link: string | null
+          position: number | null
+          result_type: string
+          snippet: string | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          domain?: string | null
+          id?: string
+          job_id: string
+          link?: string | null
+          position?: number | null
+          result_type: string
+          snippet?: string | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string | null
+          id?: string
+          job_id?: string
+          link?: string | null
+          position?: number | null
+          result_type?: string
+          snippet?: string | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_serp_results_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "competitor_serp_jobs"
             referencedColumns: ["id"]
           },
         ]
@@ -418,6 +848,456 @@ export type Database = {
           },
         ]
       }
+      crm_followup_rules: {
+        Row: {
+          channel_alimtalk: boolean
+          channel_email: boolean
+          channel_friendtalk: boolean
+          channel_sms: boolean
+          created_at: string
+          days_after: number
+          form_source_id: string
+          id: string
+          is_active: boolean
+          kakao_template_id: string | null
+          kakao_variables: Json
+          message_subject: string | null
+          message_text: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_alimtalk?: boolean
+          channel_email?: boolean
+          channel_friendtalk?: boolean
+          channel_sms?: boolean
+          created_at?: string
+          days_after: number
+          form_source_id: string
+          id?: string
+          is_active?: boolean
+          kakao_template_id?: string | null
+          kakao_variables?: Json
+          message_subject?: string | null
+          message_text: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_alimtalk?: boolean
+          channel_email?: boolean
+          channel_friendtalk?: boolean
+          channel_sms?: boolean
+          created_at?: string
+          days_after?: number
+          form_source_id?: string
+          id?: string
+          is_active?: boolean
+          kakao_template_id?: string | null
+          kakao_variables?: Json
+          message_subject?: string | null
+          message_text?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_followup_rules_form_source_id_fkey"
+            columns: ["form_source_id"]
+            isOneToOne: false
+            referencedRelation: "crm_form_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_followup_sends: {
+        Row: {
+          error_message: string | null
+          id: string
+          rule_id: string
+          sent_at: string
+          status: string
+          submission_id: string
+          user_id: string
+        }
+        Insert: {
+          error_message?: string | null
+          id?: string
+          rule_id: string
+          sent_at?: string
+          status: string
+          submission_id: string
+          user_id: string
+        }
+        Update: {
+          error_message?: string | null
+          id?: string
+          rule_id?: string
+          sent_at?: string
+          status?: string
+          submission_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_followup_sends_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "crm_followup_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_followup_sends_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "crm_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_form_sources: {
+        Row: {
+          created_at: string
+          field_mapping: Json
+          id: string
+          is_active: boolean
+          kakao_template_id: string | null
+          kakao_variables: Json
+          name: string
+          notify_alimtalk: boolean
+          notify_email: boolean
+          notify_friendtalk: boolean
+          notify_sms: boolean
+          notify_telegram: boolean
+          updated_at: string
+          user_id: string
+          webhook_token: string
+        }
+        Insert: {
+          created_at?: string
+          field_mapping?: Json
+          id?: string
+          is_active?: boolean
+          kakao_template_id?: string | null
+          kakao_variables?: Json
+          name: string
+          notify_alimtalk?: boolean
+          notify_email?: boolean
+          notify_friendtalk?: boolean
+          notify_sms?: boolean
+          notify_telegram?: boolean
+          updated_at?: string
+          user_id: string
+          webhook_token?: string
+        }
+        Update: {
+          created_at?: string
+          field_mapping?: Json
+          id?: string
+          is_active?: boolean
+          kakao_template_id?: string | null
+          kakao_variables?: Json
+          name?: string
+          notify_alimtalk?: boolean
+          notify_email?: boolean
+          notify_friendtalk?: boolean
+          notify_sms?: boolean
+          notify_telegram?: boolean
+          updated_at?: string
+          user_id?: string
+          webhook_token?: string
+        }
+        Relationships: []
+      }
+      crm_submissions: {
+        Row: {
+          created_at: string
+          email: string | null
+          error_message: string | null
+          form_source_id: string
+          id: string
+          name: string | null
+          phone: string | null
+          raw_values: Json
+          response_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          form_source_id: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          raw_values?: Json
+          response_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          form_source_id?: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          raw_values?: Json
+          response_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_submissions_form_source_id_fkey"
+            columns: ["form_source_id"]
+            isOneToOne: false
+            referencedRelation: "crm_form_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      detail_pages: {
+        Row: {
+          created_at: string
+          html: string
+          id: string
+          product_name: string
+          template: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          html: string
+          id?: string
+          product_name: string
+          template: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          html?: string
+          id?: string
+          product_name?: string
+          template?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      dm_accounts: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          instagram_user_id: string
+          last_checked_at: string | null
+          needs_reconnect: boolean
+          reconnect_notified_at: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          instagram_user_id: string
+          last_checked_at?: string | null
+          needs_reconnect?: boolean
+          reconnect_notified_at?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          instagram_user_id?: string
+          last_checked_at?: string | null
+          needs_reconnect?: boolean
+          reconnect_notified_at?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      dm_conversations: {
+        Row: {
+          created_at: string
+          customer_username: string | null
+          disclosure_sent_at: string | null
+          id: string
+          ig_scoped_id: string
+          last_inbound_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_username?: string | null
+          disclosure_sent_at?: string | null
+          id?: string
+          ig_scoped_id: string
+          last_inbound_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_username?: string | null
+          disclosure_sent_at?: string | null
+          id?: string
+          ig_scoped_id?: string
+          last_inbound_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      dm_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          direction: string
+          generated_reply: string | null
+          id: string
+          ig_message_id: string
+          message_text: string
+          posted_message_id: string | null
+          replied_at: string | null
+          status: string
+          telegram_chat_id: string | null
+          telegram_message_id: number | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          direction: string
+          generated_reply?: string | null
+          id?: string
+          ig_message_id: string
+          message_text: string
+          posted_message_id?: string | null
+          replied_at?: string | null
+          status?: string
+          telegram_chat_id?: string | null
+          telegram_message_id?: number | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          direction?: string
+          generated_reply?: string | null
+          id?: string
+          ig_message_id?: string
+          message_text?: string
+          posted_message_id?: string | null
+          replied_at?: string | null
+          status?: string
+          telegram_chat_id?: string | null
+          telegram_message_id?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dm_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "dm_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dm_settings: {
+        Row: {
+          ai_instructions: string | null
+          auto_approve: boolean
+          bot_enabled: boolean
+          bot_started_at: string | null
+          created_at: string
+          default_link: string | null
+          disclosure_message: string | null
+          id: string
+          reply_model: string
+          tone_preset: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_instructions?: string | null
+          auto_approve?: boolean
+          bot_enabled?: boolean
+          bot_started_at?: string | null
+          created_at?: string
+          default_link?: string | null
+          disclosure_message?: string | null
+          id?: string
+          reply_model?: string
+          tone_preset?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_instructions?: string | null
+          auto_approve?: boolean
+          bot_enabled?: boolean
+          bot_started_at?: string | null
+          created_at?: string
+          default_link?: string | null
+          disclosure_message?: string | null
+          id?: string
+          reply_model?: string
+          tone_preset?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      faq_items: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          question: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          answer: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          question: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          question?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       grade_program_access: {
         Row: {
           can_access: boolean | null
@@ -450,6 +1330,373 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ig_accounts: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          ig_user_id: string
+          last_checked_at: string | null
+          needs_reconnect: boolean
+          reconnect_notified_at: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          ig_user_id: string
+          last_checked_at?: string | null
+          needs_reconnect?: boolean
+          reconnect_notified_at?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          ig_user_id?: string
+          last_checked_at?: string | null
+          needs_reconnect?: boolean
+          reconnect_notified_at?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      ig_comments: {
+        Row: {
+          author_username: string | null
+          comment_text: string
+          fetched_at: string
+          generated_reply: string | null
+          id: string
+          ig_comment_id: string
+          media_id: string
+          posted_reply_id: string | null
+          replied_at: string | null
+          status: string
+          telegram_chat_id: string | null
+          telegram_message_id: number | null
+          user_id: string
+        }
+        Insert: {
+          author_username?: string | null
+          comment_text: string
+          fetched_at?: string
+          generated_reply?: string | null
+          id?: string
+          ig_comment_id: string
+          media_id: string
+          posted_reply_id?: string | null
+          replied_at?: string | null
+          status?: string
+          telegram_chat_id?: string | null
+          telegram_message_id?: number | null
+          user_id: string
+        }
+        Update: {
+          author_username?: string | null
+          comment_text?: string
+          fetched_at?: string
+          generated_reply?: string | null
+          id?: string
+          ig_comment_id?: string
+          media_id?: string
+          posted_reply_id?: string | null
+          replied_at?: string | null
+          status?: string
+          telegram_chat_id?: string | null
+          telegram_message_id?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ig_comments_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "ig_media"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ig_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          custom_link: string | null
+          id: string
+          ig_media_id: string
+          is_hidden: boolean
+          is_monitored: boolean
+          media_type: string
+          permalink: string | null
+          thumbnail_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          custom_link?: string | null
+          id?: string
+          ig_media_id: string
+          is_hidden?: boolean
+          is_monitored?: boolean
+          media_type: string
+          permalink?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          custom_link?: string | null
+          id?: string
+          ig_media_id?: string
+          is_hidden?: boolean
+          is_monitored?: boolean
+          media_type?: string
+          permalink?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ig_settings: {
+        Row: {
+          ai_instructions: string | null
+          auto_approve: boolean
+          created_at: string
+          default_link: string | null
+          id: string
+          last_run_at: string | null
+          monitoring_enabled: boolean
+          monitoring_interval_minutes: number
+          monitoring_started_at: string | null
+          reply_model: string
+          tone_preset: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_instructions?: string | null
+          auto_approve?: boolean
+          created_at?: string
+          default_link?: string | null
+          id?: string
+          last_run_at?: string | null
+          monitoring_enabled?: boolean
+          monitoring_interval_minutes?: number
+          monitoring_started_at?: string | null
+          reply_model?: string
+          tone_preset?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_instructions?: string | null
+          auto_approve?: boolean
+          created_at?: string
+          default_link?: string | null
+          id?: string
+          last_run_at?: string | null
+          monitoring_enabled?: boolean
+          monitoring_interval_minutes?: number
+          monitoring_started_at?: string | null
+          reply_model?: string
+          tone_preset?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      insta_accounts: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          ig_user_id: string
+          ig_username: string | null
+          page_id: string
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          ig_user_id: string
+          ig_username?: string | null
+          page_id: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          ig_user_id?: string
+          ig_username?: string | null
+          page_id?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      insta_candidates: {
+        Row: {
+          caption: string
+          created_at: string
+          hashtags: string[]
+          id: string
+          keywords: string[]
+          source_input: string
+          source_type: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caption: string
+          created_at?: string
+          hashtags?: string[]
+          id?: string
+          keywords?: string[]
+          source_input: string
+          source_type: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          hashtags?: string[]
+          id?: string
+          keywords?: string[]
+          source_input?: string
+          source_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      insta_post_slides: {
+        Row: {
+          created_at: string
+          id: string
+          image_prompt: string | null
+          image_url: string | null
+          image_urls: string[]
+          post_id: string
+          slide_order: number
+          source_paragraph: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_prompt?: string | null
+          image_url?: string | null
+          image_urls?: string[]
+          post_id: string
+          slide_order: number
+          source_paragraph?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_prompt?: string | null
+          image_url?: string | null
+          image_urls?: string[]
+          post_id?: string
+          slide_order?: number
+          source_paragraph?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insta_post_slides_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "insta_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insta_posts: {
+        Row: {
+          caption: string
+          cover_image_url: string | null
+          created_at: string
+          error_message: string | null
+          hashtags: string[]
+          id: string
+          ig_media_id: string | null
+          ig_permalink: string | null
+          image_url: string | null
+          post_type: string
+          scheduled_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caption: string
+          cover_image_url?: string | null
+          created_at?: string
+          error_message?: string | null
+          hashtags?: string[]
+          id?: string
+          ig_media_id?: string | null
+          ig_permalink?: string | null
+          image_url?: string | null
+          post_type?: string
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string
+          cover_image_url?: string | null
+          created_at?: string
+          error_message?: string | null
+          hashtags?: string[]
+          id?: string
+          ig_media_id?: string | null
+          ig_permalink?: string | null
+          image_url?: string | null
+          post_type?: string
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       instagram_accounts: {
         Row: {
@@ -487,6 +1734,178 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_documents: {
+        Row: {
+          content: string
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      longtail_expansions: {
+        Row: {
+          created_at: string
+          id: string
+          keyword: string
+          related_id: string | null
+          seed_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          keyword: string
+          related_id?: string | null
+          seed_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          keyword?: string
+          related_id?: string | null
+          seed_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "longtail_expansions_related_id_fkey"
+            columns: ["related_id"]
+            isOneToOne: false
+            referencedRelation: "longtail_related_keywords"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "longtail_expansions_seed_id_fkey"
+            columns: ["seed_id"]
+            isOneToOne: false
+            referencedRelation: "longtail_seed_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      longtail_related_keywords: {
+        Row: {
+          created_at: string
+          id: string
+          keyword: string
+          relevance_score: number | null
+          seed_id: string
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          keyword: string
+          relevance_score?: number | null
+          seed_id: string
+          source?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          keyword?: string
+          relevance_score?: number | null
+          seed_id?: string
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "longtail_related_keywords_seed_id_fkey"
+            columns: ["seed_id"]
+            isOneToOne: false
+            referencedRelation: "longtail_seed_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      longtail_runs: {
+        Row: {
+          executed_at: string
+          expansion_count: number
+          id: string
+          related_count: number
+          seed_id: string
+          summary_text: string | null
+          user_id: string
+        }
+        Insert: {
+          executed_at?: string
+          expansion_count?: number
+          id?: string
+          related_count?: number
+          seed_id: string
+          summary_text?: string | null
+          user_id: string
+        }
+        Update: {
+          executed_at?: string
+          expansion_count?: number
+          id?: string
+          related_count?: number
+          seed_id?: string
+          summary_text?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "longtail_runs_seed_id_fkey"
+            columns: ["seed_id"]
+            isOneToOne: false
+            referencedRelation: "longtail_seed_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      longtail_seed_keywords: {
+        Row: {
+          created_at: string
+          engine: string
+          id: string
+          is_active: boolean
+          keyword: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          engine?: string
+          id?: string
+          is_active?: boolean
+          keyword: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          engine?: string
+          id?: string
+          is_active?: boolean
+          keyword?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       member_grades: {
         Row: {
           color: string | null
@@ -517,6 +1936,474 @@ export type Database = {
         }
         Relationships: []
       }
+      music_plannings: {
+        Row: {
+          created_at: string
+          description: string | null
+          exclude_styles: string | null
+          id: string
+          lang: string
+          song_description: string
+          status: string
+          style_description: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+          vocal_gender: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          exclude_styles?: string | null
+          id?: string
+          lang?: string
+          song_description: string
+          status?: string
+          style_description?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          vocal_gender?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          exclude_styles?: string | null
+          id?: string
+          lang?: string
+          song_description?: string
+          status?: string
+          style_description?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          vocal_gender?: string | null
+        }
+        Relationships: []
+      }
+      music_remix_sources: {
+        Row: {
+          audio_url: string
+          created_at: string
+          id: string
+          kind: string
+          title: string
+          track_id: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          id?: string
+          kind: string
+          title: string
+          track_id?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          title?: string
+          track_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_remix_sources_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "music_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_track_mr: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          instrumental_url: string | null
+          status: string
+          task_id: string | null
+          updated_at: string
+          user_id: string
+          variant_id: string
+          vocal_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          instrumental_url?: string | null
+          status?: string
+          task_id?: string | null
+          updated_at?: string
+          user_id: string
+          variant_id: string
+          vocal_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          instrumental_url?: string | null
+          status?: string
+          task_id?: string | null
+          updated_at?: string
+          user_id?: string
+          variant_id?: string
+          vocal_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_track_mr_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "music_track_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_track_remix_variants: {
+        Row: {
+          audio_url: string
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          image_url: string | null
+          remix_id: string
+          suno_audio_id: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          image_url?: string | null
+          remix_id: string
+          suno_audio_id?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          image_url?: string | null
+          remix_id?: string
+          suno_audio_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_track_remix_variants_remix_id_fkey"
+            columns: ["remix_id"]
+            isOneToOne: false
+            referencedRelation: "music_track_remixes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_track_remixes: {
+        Row: {
+          audio_weight: number | null
+          created_at: string
+          desired_feel: string
+          error_message: string | null
+          extend_hop_count: number
+          id: string
+          instrumental: boolean
+          lang: string
+          lyrics: string | null
+          source_audio_url: string
+          source_id: string | null
+          source_title: string | null
+          status: string
+          style_description: string | null
+          style_weight: number | null
+          suno_model: string
+          target_duration_seconds: number | null
+          task_id: string | null
+          updated_at: string
+          user_id: string
+          vocal_gender: string | null
+          weirdness_constraint: number | null
+        }
+        Insert: {
+          audio_weight?: number | null
+          created_at?: string
+          desired_feel: string
+          error_message?: string | null
+          extend_hop_count?: number
+          id?: string
+          instrumental?: boolean
+          lang?: string
+          lyrics?: string | null
+          source_audio_url: string
+          source_id?: string | null
+          source_title?: string | null
+          status?: string
+          style_description?: string | null
+          style_weight?: number | null
+          suno_model?: string
+          target_duration_seconds?: number | null
+          task_id?: string | null
+          updated_at?: string
+          user_id: string
+          vocal_gender?: string | null
+          weirdness_constraint?: number | null
+        }
+        Update: {
+          audio_weight?: number | null
+          created_at?: string
+          desired_feel?: string
+          error_message?: string | null
+          extend_hop_count?: number
+          id?: string
+          instrumental?: boolean
+          lang?: string
+          lyrics?: string | null
+          source_audio_url?: string
+          source_id?: string | null
+          source_title?: string | null
+          status?: string
+          style_description?: string | null
+          style_weight?: number | null
+          suno_model?: string
+          target_duration_seconds?: number | null
+          task_id?: string | null
+          updated_at?: string
+          user_id?: string
+          vocal_gender?: string | null
+          weirdness_constraint?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_track_remixes_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "music_remix_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_track_variants: {
+        Row: {
+          audio_url: string
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          image_url: string | null
+          suno_audio_id: string | null
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          image_url?: string | null
+          suno_audio_id?: string | null
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          image_url?: string | null
+          suno_audio_id?: string | null
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_track_variants_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "music_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_track_wav: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          status: string
+          task_id: string | null
+          updated_at: string
+          user_id: string
+          variant_id: string
+          wav_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          task_id?: string | null
+          updated_at?: string
+          user_id: string
+          variant_id: string
+          wav_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          task_id?: string | null
+          updated_at?: string
+          user_id?: string
+          variant_id?: string
+          wav_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_track_wav_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "music_track_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_tracks: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          exclude_styles: string | null
+          extended_from_variant_id: string | null
+          id: string
+          mode: string
+          planning_id: string
+          prompt_text: string
+          status: string
+          style_description: string | null
+          suno_model: string
+          task_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          vocal_gender: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          exclude_styles?: string | null
+          extended_from_variant_id?: string | null
+          id?: string
+          mode: string
+          planning_id: string
+          prompt_text: string
+          status?: string
+          style_description?: string | null
+          suno_model?: string
+          task_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          vocal_gender?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          exclude_styles?: string | null
+          extended_from_variant_id?: string | null
+          id?: string
+          mode?: string
+          planning_id?: string
+          prompt_text?: string
+          status?: string
+          style_description?: string | null
+          suno_model?: string
+          task_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          vocal_gender?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_tracks_extended_from_variant_id_fkey"
+            columns: ["extended_from_variant_id"]
+            isOneToOne: false
+            referencedRelation: "music_track_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "music_tracks_planning_id_fkey"
+            columns: ["planning_id"]
+            isOneToOne: false
+            referencedRelation: "music_plannings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      naver_search_cache: {
+        Row: {
+          cache_key: string
+          fetched_at: string
+          id: string
+          items: Json
+          query: string
+          search_type: string
+        }
+        Insert: {
+          cache_key: string
+          fetched_at?: string
+          id?: string
+          items: Json
+          query: string
+          search_type: string
+        }
+        Update: {
+          cache_key?: string
+          fetched_at?: string
+          id?: string
+          items?: Json
+          query?: string
+          search_type?: string
+        }
+        Relationships: []
+      }
+      naver_trend_cache: {
+        Row: {
+          cache_key: string
+          fetched_at: string
+          groups: Json
+          id: string
+          period_months: number
+          results: Json
+          time_unit: string
+        }
+        Insert: {
+          cache_key: string
+          fetched_at?: string
+          groups: Json
+          id?: string
+          period_months: number
+          results: Json
+          time_unit: string
+        }
+        Update: {
+          cache_key?: string
+          fetched_at?: string
+          groups?: Json
+          id?: string
+          period_months?: number
+          results?: Json
+          time_unit?: string
+        }
+        Relationships: []
+      }
       newsblur_accounts: {
         Row: {
           created_at: string
@@ -541,6 +2428,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string
+        }
+        Relationships: []
+      }
+      notices: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_pinned: boolean | null
+          title: string
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_pinned?: boolean | null
+          title: string
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_pinned?: boolean | null
+          title?: string
+          updated_at?: string | null
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -744,6 +2664,7 @@ export type Database = {
       programs: {
         Row: {
           app_url: string | null
+          badge: string | null
           category_id: string | null
           created_at: string | null
           description: string | null
@@ -761,6 +2682,7 @@ export type Database = {
         }
         Insert: {
           app_url?: string | null
+          badge?: string | null
           category_id?: string | null
           created_at?: string | null
           description?: string | null
@@ -778,6 +2700,7 @@ export type Database = {
         }
         Update: {
           app_url?: string | null
+          badge?: string | null
           category_id?: string | null
           created_at?: string | null
           description?: string | null
@@ -896,6 +2819,27 @@ export type Database = {
           id?: string
           sentiment_date?: string
           sgg_nm?: string
+        }
+        Relationships: []
+      }
+      real_estate_kakao_templates: {
+        Row: {
+          created_at: string | null
+          template_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          template_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          template_id?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1096,6 +3040,41 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendation_reports: {
+        Row: {
+          ai_summary: string | null
+          generated_at: string
+          id: string
+          items: Json
+          user_id: string
+          watchlist_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          generated_at?: string
+          id?: string
+          items?: Json
+          user_id: string
+          watchlist_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          generated_at?: string
+          id?: string
+          items?: Json
+          user_id?: string
+          watchlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendation_reports_watchlist_id_fkey"
+            columns: ["watchlist_id"]
+            isOneToOne: false
+            referencedRelation: "trend_watchlist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settlement_requests: {
         Row: {
           account_holder: string | null
@@ -1139,6 +3118,271 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_page_exports: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          language: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          language?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          language?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_page_exports_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_product_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          image_urls: string[]
+          language: string
+          product_id: string
+          prompt_used: string | null
+          section_key: string
+          section_order: number
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          image_urls?: string[]
+          language?: string
+          product_id: string
+          prompt_used?: string | null
+          section_key: string
+          section_order: number
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          image_urls?: string[]
+          language?: string
+          product_id?: string
+          prompt_used?: string | null
+          section_key?: string
+          section_order?: number
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_product_images_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "shop_prompt_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_products: {
+        Row: {
+          background_style: string | null
+          category: string | null
+          created_at: string
+          currency: string
+          default_image_model: string
+          font_style: string | null
+          how_to_use: string | null
+          id: string
+          image_generation_notes: string | null
+          key_features: string | null
+          language: string
+          layout_density: string | null
+          main_color: string | null
+          mood_keywords: string[]
+          name: string | null
+          price: number | null
+          product_label: string | null
+          reference_image_urls: string[]
+          sale_price: number | null
+          source_image_url: string | null
+          specs: string | null
+          status: string
+          sub_color: string | null
+          target_customer: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_style?: string | null
+          category?: string | null
+          created_at?: string
+          currency?: string
+          default_image_model?: string
+          font_style?: string | null
+          how_to_use?: string | null
+          id?: string
+          image_generation_notes?: string | null
+          key_features?: string | null
+          language?: string
+          layout_density?: string | null
+          main_color?: string | null
+          mood_keywords?: string[]
+          name?: string | null
+          price?: number | null
+          product_label?: string | null
+          reference_image_urls?: string[]
+          sale_price?: number | null
+          source_image_url?: string | null
+          specs?: string | null
+          status?: string
+          sub_color?: string | null
+          target_customer?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_style?: string | null
+          category?: string | null
+          created_at?: string
+          currency?: string
+          default_image_model?: string
+          font_style?: string | null
+          how_to_use?: string | null
+          id?: string
+          image_generation_notes?: string | null
+          key_features?: string | null
+          language?: string
+          layout_density?: string | null
+          main_color?: string | null
+          mood_keywords?: string[]
+          name?: string | null
+          price?: number | null
+          product_label?: string | null
+          reference_image_urls?: string[]
+          sale_price?: number | null
+          source_image_url?: string | null
+          specs?: string | null
+          status?: string
+          sub_color?: string | null
+          target_customer?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shop_prompt_templates: {
+        Row: {
+          aspect_ratio: string
+          created_at: string
+          id: string
+          is_active: boolean
+          korean_guide: string
+          prompt_template: string
+          resolution: string
+          section_key: string
+          section_name: string
+          section_order: number
+          user_id: string | null
+        }
+        Insert: {
+          aspect_ratio?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          korean_guide?: string
+          prompt_template: string
+          resolution?: string
+          section_key: string
+          section_name: string
+          section_order: number
+          user_id?: string | null
+        }
+        Update: {
+          aspect_ratio?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          korean_guide?: string
+          prompt_template?: string
+          resolution?: string
+          section_key?: string
+          section_name?: string
+          section_order?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      shopping_competition: {
+        Row: {
+          fetched_at: string
+          id: string
+          keyword: string
+          max_price: number | null
+          min_price: number | null
+          product_count: number | null
+          user_id: string
+          watchlist_id: string | null
+        }
+        Insert: {
+          fetched_at?: string
+          id?: string
+          keyword: string
+          max_price?: number | null
+          min_price?: number | null
+          product_count?: number | null
+          user_id: string
+          watchlist_id?: string | null
+        }
+        Update: {
+          fetched_at?: string
+          id?: string
+          keyword?: string
+          max_price?: number | null
+          min_price?: number | null
+          product_count?: number | null
+          user_id?: string
+          watchlist_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_competition_watchlist_id_fkey"
+            columns: ["watchlist_id"]
+            isOneToOne: false
+            referencedRelation: "trend_watchlist"
             referencedColumns: ["id"]
           },
         ]
@@ -1393,6 +3637,306 @@ export type Database = {
         }
         Relationships: []
       }
+      sourcing_saved_products: {
+        Row: {
+          active_hour_end: number | null
+          active_hour_start: number | null
+          alert_channels: string[]
+          alert_enabled: boolean
+          alert_interval_minutes: number
+          created_at: string
+          detail_url: string
+          id: string
+          keyword: string
+          last_checked_at: string | null
+          last_price_krw: number | null
+          last_status: string
+          platform: string
+          product_key: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          active_hour_end?: number | null
+          active_hour_start?: number | null
+          alert_channels?: string[]
+          alert_enabled?: boolean
+          alert_interval_minutes?: number
+          created_at?: string
+          detail_url: string
+          id?: string
+          keyword: string
+          last_checked_at?: string | null
+          last_price_krw?: number | null
+          last_status?: string
+          platform: string
+          product_key: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          active_hour_end?: number | null
+          active_hour_start?: number | null
+          alert_channels?: string[]
+          alert_enabled?: boolean
+          alert_interval_minutes?: number
+          created_at?: string
+          detail_url?: string
+          id?: string
+          keyword?: string
+          last_checked_at?: string | null
+          last_price_krw?: number | null
+          last_status?: string
+          platform?: string
+          product_key?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stepmail_campaign_smtp_accounts: {
+        Row: {
+          campaign_id: string
+          smtp_account_id: string
+          sort_order: number
+        }
+        Insert: {
+          campaign_id: string
+          smtp_account_id: string
+          sort_order?: number
+        }
+        Update: {
+          campaign_id?: string
+          smtp_account_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stepmail_campaign_smtp_accounts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "stepmail_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stepmail_campaign_smtp_accounts_smtp_account_id_fkey"
+            columns: ["smtp_account_id"]
+            isOneToOne: false
+            referencedRelation: "user_smtp_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stepmail_campaigns: {
+        Row: {
+          created_at: string
+          draft_id: string
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          name: string
+          quantity_per_run: number
+          recurrence: string
+          send_hour: number
+          send_minute: number
+          target_send_count: number
+          updated_at: string
+          user_id: string
+          weekly_day: number | null
+        }
+        Insert: {
+          created_at?: string
+          draft_id: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          name: string
+          quantity_per_run?: number
+          recurrence?: string
+          send_hour?: number
+          send_minute?: number
+          target_send_count?: number
+          updated_at?: string
+          user_id: string
+          weekly_day?: number | null
+        }
+        Update: {
+          created_at?: string
+          draft_id?: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          name?: string
+          quantity_per_run?: number
+          recurrence?: string
+          send_hour?: number
+          send_minute?: number
+          target_send_count?: number
+          updated_at?: string
+          user_id?: string
+          weekly_day?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stepmail_campaigns_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "stepmail_email_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stepmail_email_drafts: {
+        Row: {
+          body_html: string
+          created_at: string
+          cta_text: string | null
+          cta_url: string | null
+          custom_prompt: string | null
+          id: string
+          image_url: string | null
+          keywords: string[]
+          reference_urls: string[]
+          subject: string
+          topic: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body_html: string
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          custom_prompt?: string | null
+          id?: string
+          image_url?: string | null
+          keywords?: string[]
+          reference_urls?: string[]
+          subject: string
+          topic: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body_html?: string
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          custom_prompt?: string | null
+          id?: string
+          image_url?: string | null
+          keywords?: string[]
+          reference_urls?: string[]
+          subject?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stepmail_leads: {
+        Row: {
+          channel: string | null
+          created_at: string
+          email: string
+          id: string
+          input_date: string | null
+          last_sent_at: string | null
+          memo: string | null
+          nickname: string | null
+          send_count: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          input_date?: string | null
+          last_sent_at?: string | null
+          memo?: string | null
+          nickname?: string | null
+          send_count?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          input_date?: string | null
+          last_sent_at?: string | null
+          memo?: string | null
+          nickname?: string | null
+          send_count?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stepmail_send_log: {
+        Row: {
+          campaign_id: string | null
+          error_message: string | null
+          id: string
+          lead_id: string
+          sent_at: string
+          smtp_account_id: string | null
+          status: string
+          subject: string | null
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          error_message?: string | null
+          id?: string
+          lead_id: string
+          sent_at?: string
+          smtp_account_id?: string | null
+          status: string
+          subject?: string | null
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          error_message?: string | null
+          id?: string
+          lead_id?: string
+          sent_at?: string
+          smtp_account_id?: string | null
+          status?: string
+          subject?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stepmail_send_log_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "stepmail_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stepmail_send_log_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "stepmail_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stepmail_send_log_smtp_account_id_fkey"
+            columns: ["smtp_account_id"]
+            isOneToOne: false
+            referencedRelation: "user_smtp_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string | null
@@ -1450,6 +3994,280 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tap_accounts: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          threads_user_id: string
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          threads_user_id: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          threads_user_id?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      tap_posts: {
+        Row: {
+          content: string
+          created_at: string
+          error_message: string | null
+          id: string
+          image_url: string | null
+          product_id: string | null
+          scheduled_at: string | null
+          status: string
+          threads_permalink: string | null
+          threads_post_id: string | null
+          updated_at: string
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          image_url?: string | null
+          product_id?: string | null
+          scheduled_at?: string | null
+          status?: string
+          threads_permalink?: string | null
+          threads_post_id?: string | null
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          image_url?: string | null
+          product_id?: string | null
+          scheduled_at?: string | null
+          status?: string
+          threads_permalink?: string | null
+          threads_post_id?: string | null
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tap_posts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      th_accounts: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          last_checked_at: string | null
+          needs_reconnect: boolean
+          reconnect_notified_at: string | null
+          threads_user_id: string
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          needs_reconnect?: boolean
+          reconnect_notified_at?: string | null
+          threads_user_id: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          needs_reconnect?: boolean
+          reconnect_notified_at?: string | null
+          threads_user_id?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      th_comments: {
+        Row: {
+          author_username: string | null
+          comment_text: string
+          fetched_at: string
+          generated_reply: string | null
+          id: string
+          post_id: string
+          posted_reply_id: string | null
+          replied_at: string | null
+          status: string
+          telegram_chat_id: string | null
+          telegram_message_id: number | null
+          threads_reply_id: string
+          user_id: string
+        }
+        Insert: {
+          author_username?: string | null
+          comment_text: string
+          fetched_at?: string
+          generated_reply?: string | null
+          id?: string
+          post_id: string
+          posted_reply_id?: string | null
+          replied_at?: string | null
+          status?: string
+          telegram_chat_id?: string | null
+          telegram_message_id?: number | null
+          threads_reply_id: string
+          user_id: string
+        }
+        Update: {
+          author_username?: string | null
+          comment_text?: string
+          fetched_at?: string
+          generated_reply?: string | null
+          id?: string
+          post_id?: string
+          posted_reply_id?: string | null
+          replied_at?: string | null
+          status?: string
+          telegram_chat_id?: string | null
+          telegram_message_id?: number | null
+          threads_reply_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "th_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "th_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      th_posts: {
+        Row: {
+          created_at: string
+          custom_link: string | null
+          id: string
+          is_hidden: boolean
+          is_monitored: boolean
+          permalink: string | null
+          text: string | null
+          threads_post_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_link?: string | null
+          id?: string
+          is_hidden?: boolean
+          is_monitored?: boolean
+          permalink?: string | null
+          text?: string | null
+          threads_post_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_link?: string | null
+          id?: string
+          is_hidden?: boolean
+          is_monitored?: boolean
+          permalink?: string | null
+          text?: string | null
+          threads_post_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      th_settings: {
+        Row: {
+          ai_instructions: string | null
+          auto_approve: boolean
+          created_at: string
+          default_link: string | null
+          id: string
+          last_run_at: string | null
+          monitoring_enabled: boolean
+          monitoring_interval_minutes: number
+          monitoring_started_at: string | null
+          reply_model: string
+          tone_preset: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_instructions?: string | null
+          auto_approve?: boolean
+          created_at?: string
+          default_link?: string | null
+          id?: string
+          last_run_at?: string | null
+          monitoring_enabled?: boolean
+          monitoring_interval_minutes?: number
+          monitoring_started_at?: string | null
+          reply_model?: string
+          tone_preset?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_instructions?: string | null
+          auto_approve?: boolean
+          created_at?: string
+          default_link?: string | null
+          id?: string
+          last_run_at?: string | null
+          monitoring_enabled?: boolean
+          monitoring_interval_minutes?: number
+          monitoring_started_at?: string | null
+          reply_model?: string
+          tone_preset?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       threads_accounts: {
         Row: {
@@ -1518,6 +4336,113 @@ export type Database = {
           source_type?: string
           status?: string
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trend_snapshots: {
+        Row: {
+          fetched_at: string
+          id: string
+          keyword: string | null
+          period_end: string
+          period_start: string
+          raw: Json | null
+          source: string
+          time_unit: string
+          trend_index: number | null
+          user_id: string
+          watchlist_id: string
+        }
+        Insert: {
+          fetched_at?: string
+          id?: string
+          keyword?: string | null
+          period_end: string
+          period_start: string
+          raw?: Json | null
+          source?: string
+          time_unit?: string
+          trend_index?: number | null
+          user_id: string
+          watchlist_id: string
+        }
+        Update: {
+          fetched_at?: string
+          id?: string
+          keyword?: string | null
+          period_end?: string
+          period_start?: string
+          raw?: Json | null
+          source?: string
+          time_unit?: string
+          trend_index?: number | null
+          user_id?: string
+          watchlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trend_snapshots_watchlist_id_fkey"
+            columns: ["watchlist_id"]
+            isOneToOne: false
+            referencedRelation: "trend_watchlist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trend_watchlist: {
+        Row: {
+          category_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          naver_category_code: string | null
+          sourcing_alert_active_hour_end: number | null
+          sourcing_alert_active_hour_start: number | null
+          sourcing_alert_channels: string[]
+          sourcing_alert_enabled: boolean
+          sourcing_alert_interval_minutes: number | null
+          sourcing_alert_last_run_at: string | null
+          sourcing_alert_last_snapshot: Json | null
+          sourcing_alert_notify_mode: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          naver_category_code?: string | null
+          sourcing_alert_active_hour_end?: number | null
+          sourcing_alert_active_hour_start?: number | null
+          sourcing_alert_channels?: string[]
+          sourcing_alert_enabled?: boolean
+          sourcing_alert_interval_minutes?: number | null
+          sourcing_alert_last_run_at?: string | null
+          sourcing_alert_last_snapshot?: Json | null
+          sourcing_alert_notify_mode?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          naver_category_code?: string | null
+          sourcing_alert_active_hour_end?: number | null
+          sourcing_alert_active_hour_start?: number | null
+          sourcing_alert_channels?: string[]
+          sourcing_alert_enabled?: boolean
+          sourcing_alert_interval_minutes?: number | null
+          sourcing_alert_last_run_at?: string | null
+          sourcing_alert_last_snapshot?: Json | null
+          sourcing_alert_notify_mode?: string
           updated_at?: string
           user_id?: string
         }
@@ -1621,6 +4546,30 @@ export type Database = {
           cloud_name?: string
           created_at?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_kakao_alimtalk_templates: {
+        Row: {
+          created_at: string | null
+          price_template_id: string | null
+          sourcing_template_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          price_template_id?: string | null
+          sourcing_template_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          price_template_id?: string | null
+          sourcing_template_id?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1739,6 +4688,84 @@ export type Database = {
           },
         ]
       }
+      user_smtp_accounts: {
+        Row: {
+          created_at: string
+          from_name: string | null
+          id: string
+          is_active: boolean
+          label: string
+          provider: string | null
+          smtp_host: string
+          smtp_password: string
+          smtp_port: number
+          smtp_user: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_name?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          provider?: string | null
+          smtp_host: string
+          smtp_password: string
+          smtp_port?: number
+          smtp_user: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          from_name?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          provider?: string | null
+          smtp_host?: string
+          smtp_password?: string
+          smtp_port?: number
+          smtp_user?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_solapi_accounts: {
+        Row: {
+          api_key: string
+          api_secret: string
+          created_at: string
+          kakao_pf_id: string | null
+          rcs_brand_id: string | null
+          sender_phone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          api_secret: string
+          created_at?: string
+          kakao_pf_id?: string | null
+          rcs_brand_id?: string | null
+          sender_phone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          api_secret?: string
+          created_at?: string
+          kakao_pf_id?: string | null
+          rcs_brand_id?: string | null
+          sender_phone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_telegram_links: {
         Row: {
           bot_token: string | null
@@ -1765,6 +4792,30 @@ export type Database = {
           id?: string
           linked_at?: string
           program_slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_tracked_competitors: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          note?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1805,6 +4856,191 @@ export type Database = {
         }
         Relationships: []
       }
+      ytreply_accounts: {
+        Row: {
+          access_token: string
+          channel_id: string
+          channel_title: string
+          created_at: string
+          id: string
+          last_checked_at: string | null
+          needs_reconnect: boolean
+          reconnect_notified_at: string | null
+          refresh_token: string
+          token_expires_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          channel_id: string
+          channel_title: string
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          needs_reconnect?: boolean
+          reconnect_notified_at?: string | null
+          refresh_token: string
+          token_expires_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          channel_id?: string
+          channel_title?: string
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          needs_reconnect?: boolean
+          reconnect_notified_at?: string | null
+          refresh_token?: string
+          token_expires_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ytreply_comments: {
+        Row: {
+          author_display_name: string | null
+          comment_text: string
+          fetched_at: string
+          generated_reply: string | null
+          id: string
+          posted_reply_id: string | null
+          replied_at: string | null
+          status: string
+          telegram_chat_id: string | null
+          telegram_message_id: number | null
+          user_id: string
+          video_id: string
+          youtube_comment_id: string
+        }
+        Insert: {
+          author_display_name?: string | null
+          comment_text: string
+          fetched_at?: string
+          generated_reply?: string | null
+          id?: string
+          posted_reply_id?: string | null
+          replied_at?: string | null
+          status?: string
+          telegram_chat_id?: string | null
+          telegram_message_id?: number | null
+          user_id: string
+          video_id: string
+          youtube_comment_id: string
+        }
+        Update: {
+          author_display_name?: string | null
+          comment_text?: string
+          fetched_at?: string
+          generated_reply?: string | null
+          id?: string
+          posted_reply_id?: string | null
+          replied_at?: string | null
+          status?: string
+          telegram_chat_id?: string | null
+          telegram_message_id?: number | null
+          user_id?: string
+          video_id?: string
+          youtube_comment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ytreply_comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "ytreply_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ytreply_settings: {
+        Row: {
+          ai_instructions: string | null
+          auto_approve: boolean
+          created_at: string
+          default_link: string | null
+          id: string
+          last_run_at: string | null
+          monitoring_enabled: boolean
+          monitoring_interval_minutes: number
+          monitoring_started_at: string | null
+          reply_model: string
+          tone_preset: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_instructions?: string | null
+          auto_approve?: boolean
+          created_at?: string
+          default_link?: string | null
+          id?: string
+          last_run_at?: string | null
+          monitoring_enabled?: boolean
+          monitoring_interval_minutes?: number
+          monitoring_started_at?: string | null
+          reply_model?: string
+          tone_preset?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_instructions?: string | null
+          auto_approve?: boolean
+          created_at?: string
+          default_link?: string | null
+          id?: string
+          last_run_at?: string | null
+          monitoring_enabled?: boolean
+          monitoring_interval_minutes?: number
+          monitoring_started_at?: string | null
+          reply_model?: string
+          tone_preset?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ytreply_videos: {
+        Row: {
+          created_at: string
+          custom_link: string | null
+          id: string
+          is_hidden: boolean
+          is_monitored: boolean
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_link?: string | null
+          id?: string
+          is_hidden?: boolean
+          is_monitored?: boolean
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_link?: string | null
+          id?: string
+          is_hidden?: boolean
+          is_monitored?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1829,12 +5065,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1858,11 +5094,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1883,11 +5119,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1908,11 +5144,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1925,11 +5161,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

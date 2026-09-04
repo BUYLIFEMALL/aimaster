@@ -11,6 +11,7 @@ import {
   fetchSeoulTrades,
 } from "@/lib/publicdata/client";
 import { sendTelegramMessage } from "@/lib/telegram/client";
+import { sendAlimtalk } from "@/lib/solapi/client";
 import { ensureListingAnalysis } from "@/lib/actions/analysis";
 
 // 실거래 수집 → AI 분석 → 텔레그램 발송의 핵심 로직. cron 기반 예약 조회
@@ -168,13 +169,25 @@ export async function notifyUserForListings(
     ignoreDuplicates: true,
   });
 
-  const { data: telegramLink } = await supabase
-    .from("user_telegram_links")
-    .select("bot_token, chat_id")
-    .eq("user_id", userId)
-    .eq("program_slug", "real-estate-sales")
-    .maybeSingle();
-  if (!telegramLink?.bot_token || !telegramLink?.chat_id) return;
+  const [{ data: telegramLink }, { data: solapiAccount }, { data: kakaoTemplate }, { data: profile }] = await Promise.all([
+    supabase
+      .from("user_telegram_links")
+      .select("bot_token, chat_id")
+      .eq("user_id", userId)
+      .eq("program_slug", "real-estate-sales")
+      .maybeSingle(),
+    supabase
+      .from("user_solapi_accounts")
+      .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    supabase.from("real_estate_kakao_templates").select("template_id").eq("user_id", userId).maybeSingle(),
+    supabase.from("profiles").select("phone").eq("id", userId).maybeSingle(),
+  ]);
+
+  const hasTelegram = !!(telegramLink?.bot_token && telegramLink?.chat_id);
+  const hasAlimtalk = !!(solapiAccount?.kakao_pf_id && kakaoTemplate?.template_id && profile?.phone);
+  if (!hasTelegram && !hasAlimtalk) return;
 
   for (const listingId of listingIds) {
     try {
@@ -211,21 +224,46 @@ export async function notifyUserForListings(
         console.error(`AI 분석 실패 (user ${userId}):`, err);
       }
 
-      await sendTelegramMessage({
-        botToken: telegramLink.bot_token,
-        chatId: telegramLink.chat_id,
-        text: message,
-      });
+      let sentAny = false;
+
+      if (hasTelegram) {
+        try {
+          await sendTelegramMessage({
+            botToken: telegramLink!.bot_token!,
+            chatId: telegramLink!.chat_id!,
+            text: message,
+          });
+          sentAny = true;
+        } catch (err) {
+          console.error(`텔레그램 알림 실패 (user ${userId}):`, err);
+        }
+      }
+
+      if (hasAlimtalk) {
+        try {
+          await sendAlimtalk(solapiAccount!, profile!.phone!, {
+            templateId: kakaoTemplate!.template_id!,
+            variables: { 내용: message },
+          });
+          sentAny = true;
+        } catch (err) {
+          console.error(`카카오 알림톡 알림 실패 (user ${userId}):`, err);
+        }
+      }
+
       // 이미 분석까지 끝나 "analyzed"로 바뀌어 있을 수 있어, "new" 상태일 때만
-      // "notified"로 올린다 (analyzed 상태를 덮어써서 되돌리지 않도록).
-      await supabase
-        .from("real_estate_user_matches")
-        .update({ status: "notified" })
-        .eq("user_id", userId)
-        .eq("listing_id", listingId)
-        .eq("status", "new");
+      // "notified"로 올린다 (analyzed 상태를 덮어써서 되돌리지 않도록). 채널 중 하나라도
+      // 성공했을 때만 notified로 표시한다(전부 실패하면 다음 회차에 다시 시도됨).
+      if (sentAny) {
+        await supabase
+          .from("real_estate_user_matches")
+          .update({ status: "notified" })
+          .eq("user_id", userId)
+          .eq("listing_id", listingId)
+          .eq("status", "new");
+      }
     } catch (err) {
-      console.error(`텔레그램 알림 실패 (user ${userId}):`, err);
+      console.error(`실거래 알림 처리 실패 (user ${userId}):`, err);
     }
   }
 }
