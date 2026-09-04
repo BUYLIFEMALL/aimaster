@@ -15,9 +15,12 @@ export function KakaoTemplateSection({ templateId }: { templateId: string | null
       <div className="mb-3">
         <h2 className="text-lg font-medium text-neutral-100">🔔 카카오 알림톡 템플릿 (선택)</h2>
         <p className="text-sm text-neutral-400">
-          위 SOLAPI 계정에 등록된 카카오 채널로 <b>알림톡</b>을 받으려면, 먼저 SOLAPI에서 발송
-          문구 전체를 담는 변수 1개(예: <code className="rounded bg-dark-200 px-1 py-0.5">#{"{내용}"}</code>)로
-          구성한 템플릿을 만들어 승인받은 뒤, 그 템플릿 ID를 아래에 등록하세요.
+          <span className="font-medium text-neutral-200">SOLAPI 계정에 등록된 카카오 채널로 알림톡 받는 방법</span>
+          <br />
+          SOLAPI에서 발송 문구 전체를 담는 변수 1개(예: <code className="rounded bg-dark-200 px-1 py-0.5">#{"{내용}"}</code>)로
+          구성한 템플릿을 만들어 승인받은 뒤, 템플릿 ID를 아래에 등록해주세요
+          <br />
+          친구톡과 달리 채널을 추가하지 않은 회원에게도 발송할 수 있는 정보성 메시지입니다.
         </p>
       </div>
       <form action={formAction} className="flex flex-wrap items-end gap-3 rounded-xl border border-white/5 bg-dark-50 p-4">
