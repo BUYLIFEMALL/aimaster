@@ -61,6 +61,7 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-6 flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="text-subtext text-xs">상호명: 바이라이프</span>
             <span className="text-subtext text-xs">사업자등록번호: 864-25-00988</span>
             <span className="text-subtext text-xs">대표: 유승엽</span>
             <span className="text-subtext text-xs">연락처: 1644-3686</span>
