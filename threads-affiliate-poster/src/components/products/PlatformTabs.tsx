@@ -5,11 +5,12 @@ import { clsx } from "@/lib/clsx";
 import { CoupangProductForm } from "./CoupangProductForm";
 import { AliexpressProductForm } from "./AliexpressProductForm";
 import { NaverProductForm } from "./NaverProductForm";
+import { TossProductForm } from "./TossProductForm";
 import type { DetailPageSummary } from "@/lib/detailPages";
 import type { AffiliatePlatform } from "@/types/product";
 import { PLATFORM_LABELS } from "@/types/product";
 
-const PLATFORMS: AffiliatePlatform[] = ["coupang", "aliexpress", "naver"];
+const PLATFORMS: AffiliatePlatform[] = ["coupang", "aliexpress", "naver", "toss"];
 
 export type RegistrationMode = "link" | "analyze";
 
@@ -81,6 +82,7 @@ export function PlatformTabs({
       )}
       {platform === "aliexpress" && <AliexpressProductForm detailPages={detailPages} mode={mode} />}
       {platform === "naver" && <NaverProductForm detailPages={detailPages} mode={mode} />}
+      {platform === "toss" && <TossProductForm detailPages={detailPages} mode={mode} />}
     </div>
   );
 }

@@ -8,4 +8,5 @@ export const PLATFORM_LABELS: Record<AffiliatePlatform, string> = {
   coupang: "쿠팡파트너스",
   aliexpress: "알리익스프레스",
   naver: "네이버 브랜드커넥트",
+  toss: "토스쇼핑 쉐어링크",
 };

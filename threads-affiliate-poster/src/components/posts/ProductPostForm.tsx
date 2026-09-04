@@ -38,6 +38,7 @@ const DISCLOSURE_PREVIEW: Record<AffiliateProduct["platform"], string | null> = 
   coupang: "(광고) 쿠팡파트너스 활동으로 수수료를 받을 수 있습니다.",
   aliexpress: "(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
   naver: "(광고) 브랜드 제휴 활동으로 수수료를 받을 수 있습니다.",
+  toss: "(광고) 토스쇼핑 쉐어링크 활동으로 수수료를 받을 수 있습니다.",
 };
 
 interface ProductPostFormProps {

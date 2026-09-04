@@ -10,12 +10,14 @@ const DISCLOSURE_TEXT: Record<AffiliatePlatform, string | null> = {
   coupang: "\n\n(광고) 쿠팡파트너스 활동으로 수수료를 받을 수 있습니다.",
   aliexpress: "\n\n(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
   naver: "\n\n(광고) 브랜드 제휴 활동으로 수수료를 받을 수 있습니다.",
+  toss: "\n\n(광고) 토스쇼핑 쉐어링크 활동으로 수수료를 받을 수 있습니다.",
 };
 
 const PLATFORM_DEFAULT_CTA_TEXT: Record<AffiliatePlatform, string> = {
   coupang: "지금 쿠팡에서 확인하기",
   aliexpress: "지금 알리익스프레스에서 확인하기",
   naver: "지금 확인하기",
+  toss: "지금 토스쇼핑에서 확인하기",
 };
 
 export function getDisclosureText(platform: AffiliatePlatform): string | null {

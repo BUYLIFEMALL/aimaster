@@ -119,7 +119,9 @@ instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록�
 | 1 | 게시글 영상 첨부 — Threads API `media_type=VIDEO`+`video_url`(공식 스펙: MP4/MOV, 최대 1GB, 최대 5분). 이미지와 동시 첨부는 불가해 UI/서버 양쪽에서 배타적으로 처리. `tap_posts.video_filename`(미사용 스텁)을 `video_url`로 교체(0003 마이그레이션) | ✅ 구현 완료(2026-08-28, 공식 문서 기준 구현 — 실제 영상 게시 테스트는 아직 안 함) |
 | 1 | `programs` 카탈로그 등록 + 썸네일(Gemini 생성) | ✅ 구현 완료(2026-08-27) |
 | 1 | Vercel 배포(`buylife` 팀, 공용 Threads 앱 env 재사용) | ✅ 구현 완료(2026-08-27) |
+| 1 | 토스쇼핑 쉐어링크 연동 — `src/lib/toss/client.ts`(OAuth2 client_credentials 토큰 발급, 베스트/카테고리/오늘의특가 상품 조회, 쉐어링크 발급). Toss Open API는 사전 등록된 고정 IP에서만 호출을 허용하는데 Vercel 서버리스는 고정 IP가 없어, **Fixie(usefixie.com) 프록시**를 붙여 해결했다 — 모든 요청이 `undici`의 `ProxyAgent`(`dispatcher` 옵션, `FIXIE_URL` env)를 거쳐 고정 IP 2개(`52.87.82.133`, `52.5.155.132`)로 나간다. `user_api_keys`에 `toss_access_key`/`toss_secret_key`/`toss_publisher_id` 3종 추가(0006 마이그레이션), `affiliate_products.platform`에 `'toss'` 추가, 설정 페이지에 고정 IP를 본인 토스 어드민 "허용 IP"에 등록하라는 안내 포함, 제휴 고지 문구도 토스용으로 추가. 키워드 검색 API가 없어 UI는 베스트/카테고리별/오늘의 특가 브라우징 방식으로 구현. **미검증**: 베스트/카테고리/오늘의특가 응답 필드명은 문서의 예시가 부족해 REST 관례 기반으로 추정 구현했다 — 실계정 키 발급 후 첫 실호출 때 필드명이 다르면 `TossProduct`/`normalizeTossProduct()` 쪽을 조정할 것. | ✅ 1차 구현 완료(2026-09-04, 실계정 미검증) |
 | 2 | 실사용자가 쿠팡/알리익스프레스 API 키 발급 후 실제 연동 검증, Meta 앱에 새 리디렉션 URI 등록, Vercel Cron 활성화 | ⏳ 예정(의도적으로 미착수) |
+| 2 | 토스쇼핑 쉐어링크 실계정 검증 — Access/Secret Key·Publisher ID 발급, Fixie 고정 IP 2개를 토스 어드민 허용 IP에 등록, 베스트/카테고리/오늘의특가 실호출로 응답 필드명 확인·필요시 클라이언트 파싱 로직 수정 | ⏳ 예정(의도적으로 미착수) |
 | 2+ | 알리익스프레스 키워드 검색(`listPromotionProduct`), 상품 가격/재고 변동 알림, 다른 채널 동시 배포 | ⏳ 예정 |
 
 한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 했다. 새 Phase를 시작할 때는 이 표를

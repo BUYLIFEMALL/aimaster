@@ -6,6 +6,15 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchProducts as searchCoupangProducts, createDeeplink, type CoupangProduct } from "@/lib/coupang/client";
 import { getPromotionLinks } from "@/lib/aliexpress/client";
+import {
+  getBestSelling,
+  getCategories,
+  getCategoryBestSelling,
+  getTodayDeals,
+  issueShareLink,
+  type TossProduct,
+  type TossCategory,
+} from "@/lib/toss/client";
 import { analyzeProductAppeal, type ProductAppealAnalysis } from "@/lib/ai/productAnalyzer";
 
 function parseEnrichmentFields(formData: FormData) {
@@ -291,4 +300,124 @@ export async function deleteProductAction(formData: FormData) {
   await supabase.from("affiliate_products").delete().eq("id", productId).eq("user_id", user.id);
 
   revalidatePath("/products");
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 토스쇼핑 쉐어링크 — 키워드 검색 API가 없어서(공식 문서 기준) 쿠팡/알리익스프레스와
+// 달리 "베스트 상품/카테고리별/오늘의 특가" 중 하나를 골라 목록에서 상품을 선택하는
+// 방식으로 등록한다. 선택 즉시 검색하지 않고, 등록 버튼을 누를 때만 쉐어링크(제휴
+// 추적 링크)를 발급해서 API 발급 한도(일 1만 건)를 아낀다.
+// ─────────────────────────────────────────────────────────────────────────
+
+async function resolveTossAuth(userId: string, supabase: Awaited<ReturnType<typeof createClient>>) {
+  const [accessKey, secretKey, publisherId] = await Promise.all([
+    resolveApiKey(supabase, userId, "toss_access_key"),
+    resolveApiKey(supabase, userId, "toss_secret_key"),
+    resolveApiKey(supabase, userId, "toss_publisher_id"),
+  ]);
+  if (!accessKey || !secretKey || !publisherId) return null;
+  return { accessKey, secretKey, publisherId };
+}
+
+export interface BrowseTossState {
+  products?: TossProduct[];
+  categories?: TossCategory[];
+  error?: string;
+}
+
+/** 토스 쉐어링크 상품 목록을 불러온다. mode에 따라 베스트/카테고리별/오늘의 특가 중 하나. */
+export async function browseTossProductsAction(
+  mode: "best" | "category" | "today",
+  categoryId?: string,
+): Promise<BrowseTossState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const auth = await resolveTossAuth(user.id, supabase);
+  if (!auth) {
+    return { error: "토스쇼핑 쉐어링크 Access Key/Secret Key/Publisher ID가 없습니다. 설정 페이지에서 먼저 등록해주세요." };
+  }
+
+  try {
+    if (mode === "best") {
+      const { products } = await getBestSelling(auth, { size: 30 });
+      return { products };
+    }
+    if (mode === "today") {
+      const { products } = await getTodayDeals(auth, { size: 30 });
+      return { products };
+    }
+    if (!categoryId) return { error: "카테고리를 먼저 선택해주세요." };
+    const { products } = await getCategoryBestSelling(auth, categoryId, { size: 30 });
+    return { products };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "토스 쉐어링크 상품 조회에 실패했습니다." };
+  }
+}
+
+/** 카테고리 목록만 별도로 불러온다(하루 정도 캐시해서 재사용 권장 — 우선은 매번 조회). */
+export async function fetchTossCategoriesAction(): Promise<BrowseTossState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const auth = await resolveTossAuth(user.id, supabase);
+  if (!auth) {
+    return { error: "토스쇼핑 쉐어링크 Access Key/Secret Key/Publisher ID가 없습니다. 설정 페이지에서 먼저 등록해주세요." };
+  }
+
+  try {
+    const categories = await getCategories(auth);
+    return { categories };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "토스 쉐어링크 카테고리 조회에 실패했습니다." };
+  }
+}
+
+/** 선택한 토스쇼핑 상품의 쉐어링크(제휴 추적 링크)를 발급해서 등록한다. */
+export async function registerTossProductAction(
+  _prevState: RegisterProductState,
+  formData: FormData,
+): Promise<RegisterProductState> {
+  const user = await requireProgramAccess();
+  const productName = String(formData.get("productName") ?? "").trim();
+  const tacaIdRaw = String(formData.get("tacaId") ?? "").trim();
+  const tacaItemIdRaw = String(formData.get("tacaItemId") ?? "").trim();
+  const imageUrl = String(formData.get("imageUrl") ?? "").trim();
+  const priceRaw = String(formData.get("price") ?? "").trim();
+
+  if (!productName || (!tacaIdRaw && !tacaItemIdRaw)) {
+    return { error: "상품 정보가 올바르지 않습니다. 다시 목록에서 선택해주세요." };
+  }
+
+  const supabase = await createClient();
+  const auth = await resolveTossAuth(user.id, supabase);
+  if (!auth) {
+    return { error: "토스쇼핑 쉐어링크 Access Key/Secret Key/Publisher ID가 없습니다. 설정 페이지에서 먼저 등록해주세요." };
+  }
+
+  try {
+    const link = await issueShareLink(auth, {
+      tacaItemId: tacaItemIdRaw ? Number(tacaItemIdRaw) : undefined,
+      tacaId: tacaIdRaw ? Number(tacaIdRaw) : undefined,
+      subTagId: user.id.replace(/[^a-zA-Z0-9\-_.]/g, "").slice(0, 64) || undefined,
+    });
+
+    const enrichment = parseEnrichmentFields(formData);
+
+    const { error } = await supabase.from("affiliate_products").insert({
+      user_id: user.id,
+      platform: "toss",
+      product_name: productName,
+      product_url: link.originUrl,
+      affiliate_url: link.shortUrl,
+      price: priceRaw ? Number(priceRaw) : null,
+      ...enrichment,
+      image_url: enrichment.image_url ?? (imageUrl || null),
+    });
+    if (error) return { error: error.message };
+
+    await logProgramUsage({ userId: user.id, action: "register_toss_product" });
+    revalidatePath("/products");
+    return { success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "토스 쉐어링크 발급에 실패했습니다." };
+  }
 }

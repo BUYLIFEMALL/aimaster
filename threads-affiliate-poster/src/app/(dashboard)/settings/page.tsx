@@ -13,6 +13,11 @@ const ALIEXPRESS_PROVIDERS: ApiKeyProvider[] = [
   "aliexpress_app_secret",
   "aliexpress_tracking_id",
 ];
+const TOSS_PROVIDERS: ApiKeyProvider[] = ["toss_access_key", "toss_secret_key", "toss_publisher_id"];
+// 토스 쉐어링크 API는 호출 서버의 고정 아웃바운드 IP를 미리 등록해야 발송을 허용한다.
+// 회원마다 다른 IP가 아니라, 이 플랫폼(Vercel)이 고정 IP 프록시(Fixie)로 내보내는
+// IP 2개를 모든 회원이 각자 본인 토스 어드민에 그대로 등록하면 된다.
+const TOSS_FIXED_IPS = ["52.87.82.133", "52.5.155.132"];
 
 export default async function SettingsPage({
   searchParams,
@@ -155,6 +160,42 @@ export default async function SettingsPage({
         </div>
         <div className="space-y-3">
           {ALIEXPRESS_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">💙 토스쇼핑 쉐어링크</h2>
+          <p className="text-xs text-neutral-500">
+            <a href="https://sharelink.toss.im" target="_blank" rel="noreferrer" className="underline">
+              sharelink.toss.im
+            </a>
+            에서 크리에이터 신청 후, 관리자콘솔에서 발급받은 Access Key/Secret Key와 Publisher
+            ID(발급 주체 UUID)를 등록해주세요.
+          </p>
+          <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+            <p className="font-semibold">⚠️ 허용 IP 등록이 꼭 필요합니다</p>
+            <p className="mt-1">
+              토스 쉐어링크는 호출 서버의 고정 IP를 미리 등록해야 발급이 됩니다. 본인 토스
+              어드민의 &quot;허용 IP&quot; 설정에 아래 IP 2개를 그대로 등록해주세요(이 두 IP는
+              모든 회원이 동일하게 등록하는, 이 플랫폼이 사용하는 고정 IP입니다).
+            </p>
+            <ul className="mt-2 space-y-0.5 font-mono">
+              {TOSS_FIXED_IPS.map((ip) => (
+                <li key={ip}>{ip}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {TOSS_PROVIDERS.map((provider) => (
             <ApiKeyRow
               key={provider}
               provider={provider}

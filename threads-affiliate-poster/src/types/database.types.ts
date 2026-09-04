@@ -6,8 +6,11 @@ export type ApiKeyProvider =
   | "coupang_secret_key"
   | "aliexpress_app_key"
   | "aliexpress_app_secret"
-  | "aliexpress_tracking_id";
-export type AffiliatePlatform = "coupang" | "aliexpress" | "naver";
+  | "aliexpress_tracking_id"
+  | "toss_access_key"
+  | "toss_secret_key"
+  | "toss_publisher_id";
+export type AffiliatePlatform = "coupang" | "aliexpress" | "naver" | "toss";
 export type AffiliateInputMode = "url" | "manual";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];

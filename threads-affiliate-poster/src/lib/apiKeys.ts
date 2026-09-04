@@ -10,6 +10,9 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   aliexpress_app_key: "알리익스프레스 App Key (제휴 링크 생성)",
   aliexpress_app_secret: "알리익스프레스 App Secret (제휴 링크 생성)",
   aliexpress_tracking_id: "알리익스프레스 Tracking ID (제휴 포털 → 계정 → 트래킹ID)",
+  toss_access_key: "토스쇼핑 쉐어링크 Access Key (Open API 연동 정보)",
+  toss_secret_key: "토스쇼핑 쉐어링크 Secret Key (Open API 연동 정보)",
+  toss_publisher_id: "토스쇼핑 쉐어링크 Publisher ID (발급 주체 UUID)",
 };
 
 export async function getUserApiKey(
