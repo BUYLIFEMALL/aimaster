@@ -35,12 +35,22 @@ export async function resolveApiKey(
   return getUserApiKey(supabase, userId, provider);
 }
 
+// user_api_keys는 AIMaster 전체가 공유하는 테이블이라, 다른 서브프로그램이 등록한
+// provider(예: coupang_access_key, naver_client_id, suno 등)도 같은 사용자 행에 섞여
+// 있다. 이 앱이 실제로 쓰는 4종(openai/anthropic/gemini/perplexity)만 걸러야 한다 —
+// 안 그러면 select 옵션에 PROVIDER_LABELS가 없는 provider가 섞여 빈 텍스트로 표시된다.
+const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity"];
+
 export async function getRegisteredProviders(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<Set<ApiKeyProvider>> {
-  const { data } = await supabase.from("user_api_keys").select("provider").eq("user_id", userId);
-  return new Set((data ?? []).map((row) => row.provider));
+  const { data } = await supabase
+    .from("user_api_keys")
+    .select("provider")
+    .eq("user_id", userId)
+    .in("provider", AI_PROVIDERS);
+  return new Set((data ?? []).map((row) => row.provider as ApiKeyProvider));
 }
 
 export function maskApiKey(key: string): string {
