@@ -42,12 +42,34 @@ set WEB_CRAWLER_SERVICE_SECRET=...
 ..\.venv\Scripts\python.exe -m uvicorn main:app --reload --port 8000
 ```
 
-## 배포 (Render.com, 아직 미배포 — 사용자 승인 필요)
+## 배포 (Render.com) — ✅ 배포 완료 (2026-09-05)
 
-`service/Dockerfile`을 루트로 하되 빌드 컨텍스트는 **`web-crawler/` 전체**로 잡아야 한다
-(상위 `scripts/`, `requirements.txt`를 함께 COPY하기 때문). Render 대시보드에서 "Root
-Directory"는 비워두고 Dockerfile 경로만 `service/Dockerfile`로 지정할 것.
+`web-crawler-saas-service`라는 이름으로 Render Web Service(Docker, Oregon 리전,
+$7/month·0.5 CPU·512MB RAM 플랜)에 배포됨. Live URL: `https://web-crawler-saas-service.onrender.com`.
 
-환경변수: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`(service role — RLS 우회),
-`WEB_CRAWLER_SERVICE_SECRET`(Next.js와 공유하는 시크릿, `threads`의 `CRON_SECRET`과
-동일한 패턴).
+**실제 동작한 설정값** (Render가 "Next.js 감지, 필드 자동 채움"을 하면서 최초 시도 때
+아래 실수가 있었다 — 다음에 재배포/재설정할 때 참고):
+- **Root Directory는 반드시 빈칸으로 둘 것.** `web-crawler`를 넣으면 Render가 그 뒤
+  Dockerfile Path/Docker Build Context Directory까지 전부 그 기준 상대경로로 다시
+  해석해서 `web-crawler/web-crawler`라는 존재하지 않는 경로를 찾다가 빌드가
+  `exit status 1`로 실패한다 (`lstat ... no such file or directory`).
+- Root Directory를 비우면 Render의 "Verify Settings" 팝업이 Docker Build Context
+  Directory를 `.`(레포 루트)로 자동 리셋하는데, 이것도 틀린 값이다 — 다시
+  **`web-crawler/`**로 고쳐야 한다 (Dockerfile의 `COPY requirements.txt`,
+  `COPY scripts/` 등이 이 폴더 기준 상대경로이기 때문).
+- 최종 정답: Root Directory 빈칸 / Dockerfile Path `web-crawler/service/Dockerfile` /
+  Docker Build Context Directory `web-crawler/` — 전부 저장소 실제 루트(`aimaster`) 기준
+  경로다.
+- Health Check Path는 `/health`(코드의 실제 라우트)로 지정. 화면에 예시로 뜨는
+  `/healthz`는 placeholder일 뿐 실제 경로가 아니다.
+
+환경변수(Render 대시보드에 등록 완료): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+(service role — RLS 우회), `WEB_CRAWLER_SERVICE_SECRET`(Next.js와 공유하는 시크릿,
+`threads`의 `CRON_SECRET`과 동일한 패턴).
+
+`webapp/`은 Vercel `buylife` 팀에 `web-crawler-saas` 프로젝트로 배포됨
+(`https://web-crawler-saas.vercel.app`) — `vercel deploy --prod`(CLI 업로드) 방식,
+이 저장소의 다른 서브프로젝트와 동일. Production 환경변수 6종(`NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL`,
+`WEB_CRAWLER_SERVICE_URL`, `WEB_CRAWLER_SERVICE_SECRET`)은 Vercel 프로젝트 설정에
+등록 완료. `programs.is_active`는 아직 `false`(비공개) — 실사용 검증 후 공개 예정.
