@@ -1,4 +1,4 @@
-export type JobStatus = "pending" | "running" | "completed" | "failed";
+export type JobStatus = "pending" | "running" | "blocked" | "completed" | "failed";
 export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
@@ -17,6 +17,9 @@ export interface Database {
           row_count: number | null;
           error_message: string | null;
           pii_warning: boolean | null;
+          ai_provider: string | null;
+          ai_model: string | null;
+          max_rows: number | null;
           created_at: string;
           completed_at: string | null;
         };
@@ -30,6 +33,9 @@ export interface Database {
           row_count?: number | null;
           error_message?: string | null;
           pii_warning?: boolean | null;
+          ai_provider?: string | null;
+          ai_model?: string | null;
+          max_rows?: number | null;
           created_at?: string;
           completed_at?: string | null;
         };
@@ -43,6 +49,9 @@ export interface Database {
           row_count?: number | null;
           error_message?: string | null;
           pii_warning?: boolean | null;
+          ai_provider?: string | null;
+          ai_model?: string | null;
+          max_rows?: number | null;
           created_at?: string;
           completed_at?: string | null;
         };

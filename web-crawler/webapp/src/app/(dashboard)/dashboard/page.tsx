@@ -21,6 +21,7 @@ export default async function DashboardPage() {
   const counts: Record<JobStatus, number> = {
     pending: 0,
     running: 0,
+    blocked: 0,
     completed: 0,
     failed: 0,
   };

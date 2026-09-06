@@ -10,9 +10,13 @@ COPY service/requirements.txt ./service/requirements.txt
 RUN pip install --no-cache-dir -r service/requirements.txt
 
 # 베이스 이미지에 Chromium이 이미 있지만, scrapling이 기대하는 위치와 정확히 맞추기 위해
-# 한 번 더 명시 설치한다(이미 있으면 빠르게 스킵됨). Phase 1은 patchright(StealthyFetcher)를
-# 쓰지 않으므로 그쪽 브라우저는 설치하지 않는다.
+# 한 번 더 명시 설치한다(이미 있으면 빠르게 스킵됨).
 RUN python -m playwright install chromium --with-deps
+
+# Phase 2: 사다리 B(CAPTCHA/WAF 통지-확인 후 진행)의 StealthyFetcher가 patchright 런타임을
+# 쓴다 — playwright와는 별도 브라우저 캐시라 따로 설치해야 한다(Phase 1에서는 안 썼어서
+# 생략했었음).
+RUN python -m patchright install chromium --with-deps
 
 COPY scripts/ ./scripts/
 COPY service/ ./service/

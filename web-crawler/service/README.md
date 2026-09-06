@@ -16,18 +16,48 @@ Python 크롤링 엔진(안티봇 사다리, 도메인 프로필, PII 감지, �
 
 ## Phase 1 범위 — 중요한 제약
 
-- **"사다리 A"(자동 접근 차단이 없는 사이트)만 지원한다.** robots.txt가 막았거나
-  CAPTCHA/WAF 등 소프트블록이 감지되면 즉시 작업을 실패 처리한다 — 원본 CLI 도구처럼
-  "우회할지 확인"을 묻는 대신, 사람이 실시간으로 없는 자동화 서비스라 아예 시도하지
-  않는다. 통지-확인 UI(사다리 B 대응)는 Phase 2.
+- **"사다리 A"(자동 접근 차단이 없는 사이트)만 자동으로 처리한다.** robots.txt가 막은
+  경우는 여전히 즉시 실패 처리한다(사이트가 명시적으로 금지한 것이라 우회 대상이 아님).
+  CAPTCHA/WAF 소프트블록은 Phase 2에서 "확인 대기" 상태로 바뀌었다 — 아래 참고.
 - **정찰(사이트 구조 파악)을 LLM 1회 호출로 자동화한다** (`llm.py`의
   `extract_selectors()`) — 회원 본인의 AI 키(OpenAI/Gemini)로 페이지 HTML을 분석해
   반복 아이템 셀렉터 + 필드 매핑을 뽑아낸다. 원본 도구는 이 판단을 AI 에이전트가
   대화하며 했지만, 이 서비스는 사람 개입 없이 1회 호출로 대체한다 — **이 저장소에서
   가장 새로운/미검증 로직**이다. 실제 다양한 사이트로 테스트하며 프롬프트를 계속
   다듬어야 할 가능성이 높다.
-- 도메인 프로필 캐시(`fingerprints/`)는 Phase 1에서 아직 연동하지 않았다(재정찰 비용을
-  줄이는 최적화이지 정확성 문제는 아니라서 후순위로 미룸) — Phase 2 후보.
+
+## Phase 2 — CAPTCHA/WAF 통지-확인 UI + 도메인 프로필 캐시 (✅ 구현 완료, 2026-09-06)
+
+**CAPTCHA/WAF 통지-확인 UI** (`pipeline.py`, `escalation.py`): 소프트블록이 감지되면
+즉시 실패시키지 않고 `web_crawler_jobs.status='blocked'`로 멈춘다. webapp
+(`JobsList.tsx`)이 "우회해서 계속 진행"/"중단하기" 버튼을 보여주고, 진행을 고르면
+`resumeJobAction()` → `POST /jobs/{id}/resume`(`escalate=True`)로 다시 시도한다.
+
+- 우회는 **curl_cffi 그리드 → StealthyFetcher(Cloudflare `solve_cloudflare=True`)** 2단계까지만
+  구현했다. CLI 도구의 사다리 6단(Chrome CDP)은 **이식하지 않았다** — 그 단계는 사용자
+  본인의 로컬 PC에 이미 로그인된 실제 브라우저가 있어야 작동하는데, Render 서버는
+  헤드리스라 그런 브라우저가 존재할 수 없다. 즉 Akamai급 고급 WAF는 사용자가 "진행"을
+  눌러도 원리적으로 못 넘는다 — `escalation.looks_like_akamai()`로 감지되면 애초에
+  "확인 대기"로 멈추지 않고 바로 최종 실패 처리해서 헛수고를 막는다(그리드/Stealthy를
+  돌려봐야 어차피 안 뚫림).
+- StealthyFetcher는 patchright 런타임을 쓰는데, playwright와는 별도 브라우저 캐시라
+  Dockerfile에 `python -m patchright install chromium --with-deps`를 추가로 넣었다
+  (Phase 1은 이 경로를 안 써서 생략했었음 — 다음에 이 서비스를 처음부터 다시 빌드할 때
+  이 줄이 빠지면 StealthyFetcher가 조용히 실패하니 주의).
+- `web_crawler_jobs`에 `ai_provider`/`ai_model`/`max_rows` 컬럼을 추가했다 — resume 시
+  API 키는 저장하지 않고 그때 다시 `resolveApiKey()`로 조회하지만, 어떤 provider/model/
+  건수였는지는 알아야 하므로 최초 생성 시점부터 같이 저장해둔다.
+
+**도메인 프로필 캐시** (`domain_cache.py`): 같은 도메인+수집항목 조합을 재수집할 때
+`extract_selectors()`(LLM 호출)를 다시 하지 않도록 이전 셀렉터를 재사용한다. CLI 도구의
+파일 기반 `fingerprints/profile.json`과 같은 목적이지만, **Render 컨테이너는 재배포마다
+파일시스템이 초기화**되므로 그 방식을 그대로 못 쓴다 — 대신 Supabase 테이블
+(`web_crawler_domain_profiles`, service role 전용 RLS)에 저장한다. 캐시된 셀렉터가
+사이트 구조 변경으로 더 이상 안 맞으면(0건) 자동으로 버리고 재정찰한다. **범위 제한**:
+이 캐시는 셀렉터 재사용에만 관여하고, 어떤 fetch 티어(사다리 A/그리드/Stealthy)로
+가져올지는 결정하지 않는다 — 즉 사다리 B로 뚫었던 도메인도 다음 신규 작업은 사다리 A부터
+다시 시도해서 다시 한번 "확인 대기"를 거친다(재정찰 LLM 비용만 아낀다는 원래 목적에는
+충분하다고 보고 fetch 티어까지 캐싱하는 건 범위에서 뺐다).
 
 ## 로컬 실행
 

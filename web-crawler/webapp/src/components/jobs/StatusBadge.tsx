@@ -4,6 +4,7 @@ import type { JobStatus } from "@/types/database.types";
 export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
   pending: "대기 중",
   running: "수집 중",
+  blocked: "확인 필요",
   completed: "완료",
   failed: "실패",
 };
@@ -11,6 +12,7 @@ export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
 const STATUS_CLASSES: Record<JobStatus, string> = {
   pending: "bg-neutral-100 text-neutral-600",
   running: "bg-blue-100 text-blue-700",
+  blocked: "bg-amber-100 text-amber-700",
   completed: "bg-green-100 text-green-700",
   failed: "bg-red-100 text-red-700",
 };

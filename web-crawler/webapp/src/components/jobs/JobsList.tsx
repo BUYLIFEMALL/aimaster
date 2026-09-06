@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/jobs/StatusBadge";
+import { resumeJobAction, cancelJobAction } from "@/lib/actions/jobs";
 import type { Database, JobStatus } from "@/types/database.types";
 
 type Job = Database["public"]["Tables"]["web_crawler_jobs"]["Row"];
@@ -71,6 +72,35 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
               </p>
               {job.status === "failed" && job.error_message && (
                 <p className="mt-1 text-xs text-red-600">{job.error_message}</p>
+              )}
+              {job.status === "blocked" && job.error_message && (
+                <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 p-2.5 text-xs text-amber-800">
+                  <p>{job.error_message}</p>
+                  <p className="mt-1 text-amber-600">
+                    우회를 시도하면 더 강한 방식으로 다시 접속해봅니다. 성공을 보장하지는
+                    않으며, 사이트 보호가 강할 경우에도 결국 실패할 수 있습니다.
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <form action={resumeJobAction}>
+                      <input type="hidden" name="jobId" value={job.id} />
+                      <button
+                        type="submit"
+                        className="rounded-md bg-amber-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-700"
+                      >
+                        우회해서 계속 진행
+                      </button>
+                    </form>
+                    <form action={cancelJobAction}>
+                      <input type="hidden" name="jobId" value={job.id} />
+                      <button
+                        type="submit"
+                        className="rounded-md border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-800 hover:bg-amber-100"
+                      >
+                        중단하기
+                      </button>
+                    </form>
+                  </div>
+                </div>
               )}
               {job.status === "completed" && job.pii_warning && (
                 <p className="mt-1 text-xs text-amber-600">

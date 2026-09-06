@@ -27,6 +27,20 @@ class JobRequest(BaseModel):
     max_rows: int = Field(gt=0, le=MAX_ROWS)
 
 
+class ResumeJobRequest(BaseModel):
+    """job_id는 URL path에 있으므로 여기엔 없다. status='blocked'인 작업을 사다리 B
+    (curl_cffi 그리드 → StealthyFetcher)로 다시 시도할 때 웹앱이 보낸다 — API 키는 저장해두지
+    않으므로 매번 새로 받는다."""
+
+    user_id: str
+    url: str
+    target_fields: list[str]
+    ai_provider: str
+    ai_model: str
+    ai_api_key: str
+    max_rows: int = Field(gt=0, le=MAX_ROWS)
+
+
 def _verify_secret(authorization: str | None):
     if not SERVICE_SECRET:
         raise HTTPException(status_code=500, detail="WEB_CRAWLER_SERVICE_SECRET이 서버에 설정되지 않았습니다.")
@@ -59,3 +73,30 @@ def create_job(req: JobRequest, background_tasks: BackgroundTasks, authorization
         max_rows=req.max_rows,
     )
     return {"accepted": True, "job_id": req.job_id}
+
+
+@app.post("/jobs/{job_id}/resume", status_code=202)
+def resume_job(
+    job_id: str,
+    req: ResumeJobRequest,
+    background_tasks: BackgroundTasks,
+    authorization: str | None = Header(default=None),
+):
+    _verify_secret(authorization)
+
+    if not req.target_fields:
+        raise HTTPException(status_code=400, detail="target_fields가 비어 있습니다.")
+
+    background_tasks.add_task(
+        run_job,
+        job_id=job_id,
+        user_id=req.user_id,
+        url=req.url,
+        target_fields=req.target_fields,
+        ai_provider=req.ai_provider,
+        ai_model=req.ai_model,
+        ai_api_key=req.ai_api_key,
+        max_rows=req.max_rows,
+        escalate=True,
+    )
+    return {"accepted": True, "job_id": job_id}
