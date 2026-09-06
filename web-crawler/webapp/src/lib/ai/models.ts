@@ -14,7 +14,7 @@ export type AiModel =
   | "gpt-5.6-luna"
   | "gpt-5.6-terra"
   | "gpt-5.6-sol"
-  | "gpt-4o-mini"
+  | "gpt-4.1"
   | "claude-haiku-4-5"
   | "claude-sonnet-5"
   | "claude-opus-5"
@@ -35,7 +35,7 @@ export const AI_MODEL_OPTIONS: AiModelOption[] = [
   { value: "gpt-5.6-luna", label: "가성비 (GPT-5.6 Luna, 빠르고 저렴 · 추천)", provider: "openai" },
   { value: "gpt-5.6-terra", label: "균형형 (GPT-5.6 Terra)", provider: "openai" },
   { value: "gpt-5.6-sol", label: "고급형 (GPT-5.6 Sol, 복잡한 페이지 구조에 강함)", provider: "openai" },
-  { value: "gpt-4o-mini", label: "구형 가성비 (GPT-4o mini, 이전 세대)", provider: "openai" },
+  { value: "gpt-4.1", label: "구형 (GPT-4.1, 이전 세대)", provider: "openai" },
 
   { value: "claude-haiku-4-5", label: "가성비 (Claude Haiku 4.5, 빠르고 저렴 · 추천)", provider: "anthropic" },
   { value: "claude-sonnet-5", label: "균형형 (Claude Sonnet 5)", provider: "anthropic" },
