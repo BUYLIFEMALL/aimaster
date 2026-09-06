@@ -5,8 +5,8 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveApiKey, PROVIDER_LABELS } from "@/lib/apiKeys";
+import { getAiModelProvider } from "@/lib/ai/models";
 import { jobFormSchema, parseTargetFields } from "@/lib/validation";
-import type { ApiKeyProvider } from "@/types/database.types";
 
 export interface CreateJobState {
   error?: string;
@@ -16,7 +16,7 @@ function parseJobForm(formData: FormData) {
   return jobFormSchema.safeParse({
     url: formData.get("url"),
     targetFields: formData.get("targetFields"),
-    aiProvider: formData.get("aiProvider"),
+    aiModel: formData.get("aiModel"),
   });
 }
 
@@ -37,7 +37,8 @@ export async function createJobAction(
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const aiProvider = parsed.data.aiProvider as ApiKeyProvider;
+  const aiModel = parsed.data.aiModel;
+  const aiProvider = getAiModelProvider(aiModel);
   const apiKey = await resolveApiKey(supabase, user.id, aiProvider);
   if (!apiKey) {
     return {
@@ -84,6 +85,7 @@ export async function createJobAction(
           url: parsed.data.url,
           target_fields: targetFields,
           ai_provider: aiProvider,
+          ai_model: aiModel,
           ai_api_key: apiKey,
         }),
         signal: controller.signal,

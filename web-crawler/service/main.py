@@ -22,6 +22,7 @@ class JobRequest(BaseModel):
     url: str
     target_fields: list[str]
     ai_provider: str
+    ai_model: str
     ai_api_key: str
 
 
@@ -52,6 +53,7 @@ def create_job(req: JobRequest, background_tasks: BackgroundTasks, authorization
         url=req.url,
         target_fields=req.target_fields,
         ai_provider=req.ai_provider,
+        ai_model=req.ai_model,
         ai_api_key=req.ai_api_key,
     )
     return {"accepted": True, "job_id": req.job_id}

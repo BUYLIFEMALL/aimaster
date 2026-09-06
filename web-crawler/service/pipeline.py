@@ -47,12 +47,20 @@ class PipelineError(Exception):
     """사용자에게 그대로 보여줘도 되는, 예상된 실패."""
 
 
-def run_job(job_id: str, user_id: str, url: str, target_fields: list[str], ai_provider: str, ai_api_key: str):
+def run_job(
+    job_id: str,
+    user_id: str,
+    url: str,
+    target_fields: list[str],
+    ai_provider: str,
+    ai_model: str,
+    ai_api_key: str,
+):
     supabase = get_service_client()
     _update_job(supabase, job_id, status="running")
     filepath = f"/tmp/{job_id}.xlsx"
     try:
-        rows, pii_warnings = _crawl(url, target_fields, ai_provider, ai_api_key)
+        rows, pii_warnings = _crawl(url, target_fields, ai_provider, ai_model, ai_api_key)
         export_to_excel(rows, filepath, sheet_name="수집 데이터")
         result_url = _upload_result(supabase, job_id, user_id, filepath)
         _update_job(
@@ -81,7 +89,7 @@ def run_job(job_id: str, user_id: str, url: str, target_fields: list[str], ai_pr
             os.remove(filepath)
 
 
-def _crawl(url: str, target_fields: list[str], ai_provider: str, ai_api_key: str):
+def _crawl(url: str, target_fields: list[str], ai_provider: str, ai_model: str, ai_api_key: str):
     if not validate_url(url):
         raise PipelineError("올바르지 않은 URL입니다.")
 
@@ -102,7 +110,7 @@ def _crawl(url: str, target_fields: list[str], ai_provider: str, ai_api_key: str
             "현재 버전에서는 이런 사이트를 지원하지 않습니다."
         )
 
-    plan = extract_selectors(html, target_fields, ai_provider, ai_api_key)
+    plan = extract_selectors(html, target_fields, ai_provider, ai_model, ai_api_key)
     item_selector = plan["item_selector"]
     field_selectors = plan["field_selectors"]
     next_page_selector = plan.get("next_page_selector")

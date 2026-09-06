@@ -32,7 +32,7 @@ export default async function NewJobPage() {
 
       <div className="mt-10 space-y-4">
         <div className="rounded-lg border border-neutral-200 bg-white p-5">
-          <h2 className="mb-1 text-sm font-semibold text-neutral-900">💡 이렇게 입력하면 됩니다 (예시)</h2>
+          <h2 className="mb-1 text-sm font-semibold text-neutral-900">💡 사용방법 (예시)</h2>
           <p className="mb-4 text-xs text-neutral-500">
             상세 페이지 1개가 아니라, 여러 항목이 함께 나열된 <b>목록/리스트 페이지</b> URL을
             넣어야 여러 건을 한 번에 수집할 수 있습니다.
@@ -85,7 +85,7 @@ export default async function NewJobPage() {
         </div>
 
         <div className="rounded-lg border border-red-200 bg-red-50 p-5">
-          <h2 className="mb-3 text-sm font-semibold text-red-800">🚫 이런 경우엔 수집이 안 됩니다</h2>
+          <h2 className="mb-3 text-sm font-semibold text-red-800">🚫 데이터 수집이 제한되는 경우</h2>
           <ul className="list-disc space-y-1.5 pl-5 text-xs text-red-800">
             <li>로그인해야만 보이는 페이지 (마이페이지, 회원 전용 게시판 등)</li>
             <li>

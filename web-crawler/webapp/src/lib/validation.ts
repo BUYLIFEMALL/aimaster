@@ -11,9 +11,7 @@ export const jobFormSchema = z.object({
     .string()
     .trim()
     .min(1, "수집할 항목을 1개 이상 입력해주세요."),
-  aiProvider: z.enum(["openai", "anthropic", "gemini", "perplexity"], {
-    message: "AI 제공자를 선택해주세요.",
-  }),
+  aiModel: z.string().trim().min(1, "분석에 사용할 AI 모델을 선택해주세요."),
 });
 
 export type JobFormValues = z.infer<typeof jobFormSchema>;

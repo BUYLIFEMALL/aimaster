@@ -52,7 +52,9 @@ JSON 스키마:
 페이지네이션 링크(다음/next/> 등)가 명확히 보이지 않으면 next_page_selector는 null로 두세요."""
 
 
-def extract_selectors(html: str, target_fields: list[str], provider: str, api_key: str) -> dict:
+def extract_selectors(
+    html: str, target_fields: list[str], provider: str, model: str, api_key: str
+) -> dict:
     simplified = simplify_html(html)
     user_prompt = (
         f"수집하고 싶은 항목: {', '.join(target_fields)}\n\n"
@@ -68,7 +70,7 @@ def extract_selectors(html: str, target_fields: list[str], provider: str, api_ke
     caller = callers.get(provider)
     if caller is None:
         raise LLMError(f"지원하지 않는 AI 제공자입니다: {provider}")
-    raw = caller(_SYSTEM_PROMPT, user_prompt, api_key)
+    raw = caller(_SYSTEM_PROMPT, user_prompt, model, api_key)
 
     return _parse_plan(raw)
 
@@ -90,19 +92,20 @@ def _parse_plan(raw: str) -> dict:
     return plan
 
 
-def _call_openai(system_prompt: str, user_prompt: str, api_key: str) -> str:
+def _call_openai(system_prompt: str, user_prompt: str, model: str, api_key: str) -> str:
     try:
         resp = httpx.post(
             "https://api.openai.com/v1/chat/completions",
             headers={"Authorization": f"Bearer {api_key}"},
             json={
-                "model": "gpt-4o-mini",
+                "model": model,
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
                 "response_format": {"type": "json_object"},
-                "temperature": 0,
+                # GPT-5.6 계열은 temperature를 기본값(1) 외에는 지원하지 않는다(threads-comment-reply
+                # 에서 2026-08-24 실제 호출로 확인, 400 Unsupported value) — 아예 지정하지 않는다.
             },
             timeout=60,
         )
@@ -119,7 +122,7 @@ def _call_openai(system_prompt: str, user_prompt: str, api_key: str) -> str:
         raise LLMError(f"OpenAI 응답 형식이 예상과 다릅니다: {data}") from exc
 
 
-def _call_anthropic(system_prompt: str, user_prompt: str, api_key: str) -> str:
+def _call_anthropic(system_prompt: str, user_prompt: str, model: str, api_key: str) -> str:
     try:
         resp = httpx.post(
             "https://api.anthropic.com/v1/messages",
@@ -129,11 +132,10 @@ def _call_anthropic(system_prompt: str, user_prompt: str, api_key: str) -> str:
                 "content-type": "application/json",
             },
             json={
-                "model": "claude-haiku-4-5-20251001",
+                "model": model,
                 "max_tokens": 4096,
                 "system": system_prompt,
                 "messages": [{"role": "user", "content": user_prompt}],
-                "temperature": 0,
             },
             timeout=60,
         )
@@ -150,14 +152,14 @@ def _call_anthropic(system_prompt: str, user_prompt: str, api_key: str) -> str:
         raise LLMError(f"Claude 응답 형식이 예상과 다릅니다: {data}") from exc
 
 
-def _call_perplexity(system_prompt: str, user_prompt: str, api_key: str) -> str:
+def _call_perplexity(system_prompt: str, user_prompt: str, model: str, api_key: str) -> str:
     # Perplexity API는 OpenAI 호환 스키마(chat/completions)를 쓴다.
     try:
         resp = httpx.post(
             "https://api.perplexity.ai/chat/completions",
             headers={"Authorization": f"Bearer {api_key}"},
             json={
-                "model": "sonar",
+                "model": model,
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
@@ -180,10 +182,10 @@ def _call_perplexity(system_prompt: str, user_prompt: str, api_key: str) -> str:
         raise LLMError(f"Perplexity 응답 형식이 예상과 다릅니다: {data}") from exc
 
 
-def _call_gemini(system_prompt: str, user_prompt: str, api_key: str) -> str:
+def _call_gemini(system_prompt: str, user_prompt: str, model: str, api_key: str) -> str:
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.5-flash:generateContent?key={api_key}"
+        f"{model}:generateContent?key={api_key}"
     )
     try:
         resp = httpx.post(
