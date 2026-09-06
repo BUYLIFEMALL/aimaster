@@ -17,6 +17,7 @@ function parseJobForm(formData: FormData) {
     url: formData.get("url"),
     targetFields: formData.get("targetFields"),
     aiModel: formData.get("aiModel"),
+    maxRows: formData.get("maxRows"),
   });
 }
 
@@ -87,6 +88,7 @@ export async function createJobAction(
           ai_provider: aiProvider,
           ai_model: aiModel,
           ai_api_key: apiKey,
+          max_rows: parsed.data.maxRows,
         }),
         signal: controller.signal,
       });

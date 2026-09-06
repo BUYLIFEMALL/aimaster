@@ -7,9 +7,9 @@ Next.js와의 통신은 왕복 콜백 없이 단방향(트리거만)이다.
 import os
 
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from pipeline import run_job
+from pipeline import MAX_ROWS, run_job
 
 app = FastAPI(title="web-crawler-saas service")
 
@@ -24,6 +24,7 @@ class JobRequest(BaseModel):
     ai_provider: str
     ai_model: str
     ai_api_key: str
+    max_rows: int = Field(gt=0, le=MAX_ROWS)
 
 
 def _verify_secret(authorization: str | None):
@@ -55,5 +56,6 @@ def create_job(req: JobRequest, background_tasks: BackgroundTasks, authorization
         ai_provider=req.ai_provider,
         ai_model=req.ai_model,
         ai_api_key=req.ai_api_key,
+        max_rows=req.max_rows,
     )
     return {"accepted": True, "job_id": req.job_id}

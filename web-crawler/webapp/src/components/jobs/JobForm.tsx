@@ -11,6 +11,7 @@ import {
   AI_MODEL_PROVIDER_SHORT_LABELS,
   DEFAULT_MODEL_BY_PROVIDER,
 } from "@/lib/ai/models";
+import { DEFAULT_MAX_ROWS, MAX_ROWS_CEILING } from "@/lib/validation";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const initialState: CreateJobState = {};
@@ -33,6 +34,23 @@ export function JobForm({ providers }: { providers: ApiKeyProvider[] }) {
           쉼표(,)로 구분해서 입력해주세요. 예: 상품명, 가격, 평점
         </p>
         <Textarea name="targetFields" rows={3} required placeholder="상품명, 가격, 평점" />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-neutral-700">최대 수집 건수</label>
+        <Input
+          name="maxRows"
+          type="number"
+          required
+          min={1}
+          max={MAX_ROWS_CEILING}
+          defaultValue={DEFAULT_MAX_ROWS}
+          className="max-w-[160px]"
+        />
+        <p className="mt-1 text-xs text-neutral-500">
+          이 건수에 도달하면 그 즉시 수집을 멈춥니다. 최대 {MAX_ROWS_CEILING.toLocaleString()}건까지
+          지정할 수 있습니다.
+        </p>
       </div>
 
       <div>

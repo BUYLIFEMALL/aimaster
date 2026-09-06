@@ -55,12 +55,16 @@ def run_job(
     ai_provider: str,
     ai_model: str,
     ai_api_key: str,
+    max_rows: int,
 ):
     supabase = get_service_client()
     _update_job(supabase, job_id, status="running")
     filepath = f"/tmp/{job_id}.xlsx"
     try:
-        rows, pii_warnings = _crawl(url, target_fields, ai_provider, ai_model, ai_api_key)
+        # main.py에서 이미 1~MAX_ROWS 범위로 검증하지만, 서비스 자체 안전 상한도 한 번 더
+        # 강제한다(방어적 이중 체크 — API 스펙이 바뀌어도 이 함수 하나만 보면 안전함을 알 수 있게).
+        effective_max_rows = min(max_rows, MAX_ROWS)
+        rows, pii_warnings = _crawl(url, target_fields, ai_provider, ai_model, ai_api_key, effective_max_rows)
         export_to_excel(rows, filepath, sheet_name="수집 데이터")
         result_url = _upload_result(supabase, job_id, user_id, filepath)
         _update_job(
@@ -89,7 +93,14 @@ def run_job(
             os.remove(filepath)
 
 
-def _crawl(url: str, target_fields: list[str], ai_provider: str, ai_model: str, ai_api_key: str):
+def _crawl(
+    url: str,
+    target_fields: list[str],
+    ai_provider: str,
+    ai_model: str,
+    ai_api_key: str,
+    max_rows: int,
+):
     if not validate_url(url):
         raise PipelineError("올바르지 않은 URL입니다.")
 
@@ -131,9 +142,9 @@ def _crawl(url: str, target_fields: list[str], ai_provider: str, ai_model: str, 
         for item in items:
             row = {field: str(item.css(sel).get("")).strip() for field, sel in field_selectors.items()}
             rows.append(row)
-            if len(rows) >= MAX_ROWS:
+            if len(rows) >= max_rows:
                 break
-        if len(rows) >= MAX_ROWS or not next_page_selector or page_num >= MAX_PAGES:
+        if len(rows) >= max_rows or not next_page_selector or page_num >= MAX_PAGES:
             break
 
         next_href = current_page.css(next_page_selector).get()
