@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { X, CreditCard, Shield, Clock, Ticket, Check } from "lucide-react";
 import GoldButton from "@/components/ui/GoldButton";
 
@@ -298,6 +299,15 @@ export default function PaymentModal({ plan, programName, onClose }: PaymentModa
         >
           취소
         </button>
+
+        <p className="text-center text-[11px] text-subtext/70 mt-2">
+          결제대행사(PG) 정책상 카드 결제는 1개월/2개월/3개월 단위만 지원됩니다.
+          6개월/12개월/평생 이용을 원하시면{" "}
+          <Link href="/support" className="text-gold/80 hover:text-gold hover:underline">
+            관리자에게 문의
+          </Link>
+          해주세요.
+        </p>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Check } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
@@ -46,7 +47,8 @@ export default function PricingTable({ plans, programId, onSelectPlan }: Pricing
   };
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div>
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
       {activePlans.map((plan) => {
         const meta = BILLING_LABELS[plan.billing_type] ?? { label: plan.billing_type, period: "" };
         const features = BILLING_FEATURES[plan.billing_type] ?? [];
@@ -105,6 +107,16 @@ export default function PricingTable({ plans, programId, onSelectPlan }: Pricing
           </GlassCard>
         );
       })}
+      </div>
+
+      <p className="text-center text-xs text-subtext/70 mt-6">
+        결제대행사(PG) 정책상 카드 결제는 1개월/2개월/3개월 단위만 지원됩니다.
+        6개월/12개월/평생 이용을 원하시면{" "}
+        <Link href="/support" className="text-gold/80 hover:text-gold hover:underline">
+          관리자에게 문의
+        </Link>
+        해주세요.
+      </p>
     </div>
   );
 }
