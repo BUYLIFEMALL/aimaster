@@ -13,33 +13,46 @@ export const metadata = { title: "회원 관리" };
 
 export default async function AdminMembersPage() {
   const supabase = createServiceClient();
-  const [{ data: members }, { data: grades }, { data: activeSubs }, { data: programs }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("*, grade:member_grades(name, color)")
-      .order("created_at", { ascending: false }),
-    supabase.from("member_grades").select("*").order("sort_order"),
-    // 목록에 "사용만료기간"을 보여주기 위해 전체 회원의 활성 구독을 한 번에 조회한다.
-    supabase.from("subscriptions").select("user_id, expires_at").eq("status", "active"),
-    // 목록에서 바로 "만료일 설정" 모달을 열 때 프로그램을 고를 수 있어야 한다.
-    supabase.from("programs").select("id, name, slug").eq("is_active", true).order("sort_order"),
-  ]);
+  const nowIso = new Date().toISOString();
+  const [{ data: members }, { data: grades }, { data: activeSubs }, { data: activeAccess }, { data: programs }] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("*, grade:member_grades(name, color)")
+        .order("created_at", { ascending: false }),
+      supabase.from("member_grades").select("*").order("sort_order"),
+      // 목록에 "사용만료기간"을 보여주기 위해 전체 회원의 활성 구독을 한 번에 조회한다.
+      supabase.from("subscriptions").select("user_id, expires_at").eq("status", "active"),
+      // "만료기간 설정" 모달(회원 목록/상세 공통)이 실제로 기록하는 곳은 user_program_access다
+      // — 여기를 함께 조회하지 않으면 모달로 설정해도 목록에 반영되지 않는 것처럼 보인다
+      // (실제로 이 조회가 빠져 있어 발생한 버그, 2026-09-08 수정). 이미 지난 만료일은
+      // 더 이상 유효하지 않으므로 평생(null) 또는 아직 안 지난 것만 가져온다.
+      supabase
+        .from("user_program_access")
+        .select("user_id, expires_at")
+        .or(`expires_at.is.null,expires_at.gt.${nowIso}`),
+      // 목록에서 바로 "만료일 설정" 모달을 열 때 프로그램을 고를 수 있어야 한다.
+      supabase.from("programs").select("id, name, slug").eq("is_active", true).order("sort_order"),
+    ]);
 
-  // user_id별로 "가장 빨리 끝나는 만료일"과 활성 구독 개수를 계산한다. 평생(expires_at=null)
-  // 구독만 있으면 "평생"으로, 유료 만료일이 하나라도 있으면 그중 가장 이른 날짜를 보여준다
-  // (여러 프로그램을 구독 중이면 관리 화면에서 상세로 들어가 개별 확인).
+  // user_id별로 "가장 빨리 끝나는 만료일"과 유효한 이용 권한 개수를 계산한다. 구독
+  // (subscriptions)과 관리자 수동 부여(user_program_access) 두 출처를 합산한다. 평생
+  // (expires_at=null)인 것만 있으면 "평생"으로, 유료/유한 만료일이 하나라도 있으면 그중
+  // 가장 이른 날짜를 보여준다(여러 프로그램이면 상세 화면에서 개별 확인).
   const expiryByUserId = new Map<string, { soonest: string | null; hasLifetime: boolean; count: number }>();
-  for (const sub of activeSubs ?? []) {
-    if (!sub.user_id) continue;
-    const entry = expiryByUserId.get(sub.user_id) ?? { soonest: null, hasLifetime: false, count: 0 };
+  function addExpiryEntry(userId: string | null, expiresAt: string | null) {
+    if (!userId) return;
+    const entry = expiryByUserId.get(userId) ?? { soonest: null, hasLifetime: false, count: 0 };
     entry.count += 1;
-    if (sub.expires_at === null) {
+    if (expiresAt === null) {
       entry.hasLifetime = true;
-    } else if (entry.soonest === null || sub.expires_at < entry.soonest) {
-      entry.soonest = sub.expires_at;
+    } else if (entry.soonest === null || expiresAt < entry.soonest) {
+      entry.soonest = expiresAt;
     }
-    expiryByUserId.set(sub.user_id, entry);
+    expiryByUserId.set(userId, entry);
   }
+  for (const sub of activeSubs ?? []) addExpiryEntry(sub.user_id, sub.expires_at);
+  for (const access of activeAccess ?? []) addExpiryEntry(access.user_id, access.expires_at);
 
   return (
     <div>
