@@ -42,6 +42,9 @@ export default function MemberDetail({
   const [loading, setLoading] = useState(false);
   const [subPending, setSubPending] = useState<string | null>(null);
   const [accessExtendPending, setAccessExtendPending] = useState<string | null>(null);
+  // 행별 "정확한 날짜로 설정" 입력값 — id별로 독립된 date input 상태를 들고 있는다.
+  const [subDateInputs, setSubDateInputs] = useState<Map<string, string>>(new Map());
+  const [accessDateInputs, setAccessDateInputs] = useState<Map<string, string>>(new Map());
 
   // 이미 접근 부여된 프로그램 ID
   const grantedIds = new Set(manualAccess.map((a) => a.program_id));
@@ -154,6 +157,58 @@ export default function MemberDetail({
     setSubPending(null);
   };
 
+  /** 구독 만료일을 입력한 정확한 날짜로 직접 설정한다(상대적 연장이 아니라 절대 지정). */
+  const setSubscriptionExpiry = async (sub: Subscription) => {
+    const dateValue = subDateInputs.get(sub.id);
+    if (!dateValue) return;
+    setSubPending(sub.id);
+    const res = await fetch("/api/admin/subscriptions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription_id: sub.id, action: "set_expiry", expires_at: dateValue }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setSubscriptions((prev) =>
+        prev.map((s) => (s.id === sub.id ? { ...s, expires_at: data.expires_at, status: "active" } : s)),
+      );
+      setSubDateInputs((prev) => {
+        const next = new Map(prev);
+        next.delete(sub.id);
+        return next;
+      });
+    } else {
+      alert(data.error ?? "설정에 실패했습니다.");
+    }
+    setSubPending(null);
+  };
+
+  /** 수동 접근의 만료일을 입력한 정확한 날짜로 직접 설정한다(기존 POST 업서트 재사용). */
+  const setAccessExpiry = async (access: UserProgramAccess) => {
+    const dateValue = accessDateInputs.get(access.id);
+    if (!dateValue) return;
+    setAccessExtendPending(access.id);
+    const newExpiresAt = new Date(dateValue).toISOString();
+    const res = await fetch("/api/admin/user-access", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: member.id, program_id: access.program_id, expires_at: newExpiresAt }),
+    });
+    if (res.ok) {
+      setManualAccess((prev) =>
+        prev.map((a) => (a.id === access.id ? { ...a, expires_at: newExpiresAt } : a)),
+      );
+      setAccessDateInputs((prev) => {
+        const next = new Map(prev);
+        next.delete(access.id);
+        return next;
+      });
+    } else {
+      alert("설정에 실패했습니다.");
+    }
+    setAccessExtendPending(null);
+  };
+
   const forceLogout = async (sessionId: string) => {
     const res = await fetch("/api/admin/sessions", {
       method: "DELETE",
@@ -256,33 +311,54 @@ export default function MemberDetail({
                         {sub.expires_at ? formatDate(sub.expires_at) : "평생"}
                       </td>
                       <td className="py-3">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {!isLifetime &&
-                            EXTEND_OPTIONS.map((opt) => (
-                              <button
-                                key={opt.value}
-                                type="button"
-                                disabled={isPending}
-                                onClick={() => extendSubscription(sub, opt.value)}
-                                title={`만료일 ${opt.label}`}
-                                className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-50"
-                              >
-                                {opt.label}
-                              </button>
-                            ))}
-                          <button
-                            type="button"
-                            disabled={isPending}
-                            onClick={() => toggleSubscription(sub)}
-                            title={sub.status === "cancelled" ? "재개" : "중지"}
-                            className={`p-1.5 rounded-md transition-colors disabled:opacity-50 ${
-                              sub.status === "cancelled"
-                                ? "text-green-400 hover:bg-green-500/10"
-                                : "text-red-400 hover:bg-red-500/10"
-                            }`}
-                          >
-                            {sub.status === "cancelled" ? <RotateCcw size={14} /> : <Ban size={14} />}
-                          </button>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {!isLifetime &&
+                              EXTEND_OPTIONS.map((opt) => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  disabled={isPending}
+                                  onClick={() => extendSubscription(sub, opt.value)}
+                                  title={`만료일 ${opt.label}`}
+                                  className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-50"
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => toggleSubscription(sub)}
+                              title={sub.status === "cancelled" ? "재개" : "중지"}
+                              className={`p-1.5 rounded-md transition-colors disabled:opacity-50 ${
+                                sub.status === "cancelled"
+                                  ? "text-green-400 hover:bg-green-500/10"
+                                  : "text-red-400 hover:bg-red-500/10"
+                              }`}
+                            >
+                              {sub.status === "cancelled" ? <RotateCcw size={14} /> : <Ban size={14} />}
+                            </button>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="date"
+                              disabled={isPending}
+                              value={subDateInputs.get(sub.id) ?? ""}
+                              onChange={(e) =>
+                                setSubDateInputs((prev) => new Map(prev).set(sub.id, e.target.value))
+                              }
+                              className="input-dark text-xs py-1 px-2 w-[130px]"
+                            />
+                            <button
+                              type="button"
+                              disabled={isPending || !subDateInputs.get(sub.id)}
+                              onClick={() => setSubscriptionExpiry(sub)}
+                              className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-40"
+                            >
+                              설정
+                            </button>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -339,6 +415,23 @@ export default function MemberDetail({
                           {opt.label}
                         </button>
                       ))}
+                    <input
+                      type="date"
+                      disabled={accessExtendPending === access.id}
+                      value={accessDateInputs.get(access.id) ?? ""}
+                      onChange={(e) =>
+                        setAccessDateInputs((prev) => new Map(prev).set(access.id, e.target.value))
+                      }
+                      className="input-dark text-xs py-1 px-2 w-[130px]"
+                    />
+                    <button
+                      type="button"
+                      disabled={accessExtendPending === access.id || !accessDateInputs.get(access.id)}
+                      onClick={() => setAccessExpiry(access)}
+                      className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-40"
+                    >
+                      설정
+                    </button>
                     <button
                       onClick={() => revokeAccess(access.program_id)}
                       className="text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors"

@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, Search, Ban, RotateCcw, Trash2 } from "lucide-react";
+import { Eye, Search, Ban, RotateCcw, Trash2, CalendarClock } from "lucide-react";
 import MemberGradeSelect from "@/components/admin/MemberGradeSelect";
+import SetExpiryModal from "@/components/admin/SetExpiryModal";
 import { formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
-import type { Profile, MemberGrade } from "@/types/database.types";
+import type { Profile, MemberGrade, Program } from "@/types/database.types";
 
 interface MemberExpiryInfo {
   soonest: string | null;
@@ -20,14 +21,17 @@ interface MembersTableProps {
   grades: MemberGrade[];
   /** user_id → 활성 구독 만료 요약(가장 이른 만료일/평생 여부/개수). 없으면 활성 구독 없음. */
   expiryByUserId?: Record<string, MemberExpiryInfo>;
+  /** 목록에서 바로 "만료일 설정" 모달을 열 때 고를 프로그램 목록. */
+  programs?: Pick<Program, "id" | "name">[];
 }
 
-export default function MembersTable({ members, grades, expiryByUserId = {} }: MembersTableProps) {
+export default function MembersTable({ members, grades, expiryByUserId = {}, programs = [] }: MembersTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [bulkPending, setBulkPending] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [expirySettingMember, setExpirySettingMember] = useState<Profile | null>(null);
   const [bulkGradeId, setBulkGradeId] = useState("");
   // 서버 refresh를 기다리지 않고 삭제 즉시 목록에서 사라지도록 로컬 상태로도 관리한다
   // (router.refresh()만으로는 반영이 늦어 보이는 경우가 있어 낙관적 업데이트를 병행).
@@ -395,6 +399,13 @@ export default function MembersTable({ members, grades, expiryByUserId = {} }: M
                       >
                         <Eye size={14} />
                       </Link>
+                      <button
+                        onClick={() => setExpirySettingMember(m)}
+                        className="text-subtext hover:text-gold transition-colors p-1.5 rounded hover:bg-gold/10 inline-flex"
+                        title="사용만료기간 설정"
+                      >
+                        <CalendarClock size={14} />
+                      </button>
                       {!m.is_admin && (
                         <>
                           <button
@@ -428,6 +439,15 @@ export default function MembersTable({ members, grades, expiryByUserId = {} }: M
           </table>
         </div>
       </div>
+
+      {expirySettingMember && (
+        <SetExpiryModal
+          member={expirySettingMember}
+          programs={programs}
+          onClose={() => setExpirySettingMember(null)}
+          onSaved={() => router.refresh()}
+        />
+      )}
     </div>
   );
 }

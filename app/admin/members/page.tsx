@@ -13,7 +13,7 @@ export const metadata = { title: "회원 관리" };
 
 export default async function AdminMembersPage() {
   const supabase = createServiceClient();
-  const [{ data: members }, { data: grades }, { data: activeSubs }] = await Promise.all([
+  const [{ data: members }, { data: grades }, { data: activeSubs }, { data: programs }] = await Promise.all([
     supabase
       .from("profiles")
       .select("*, grade:member_grades(name, color)")
@@ -21,6 +21,8 @@ export default async function AdminMembersPage() {
     supabase.from("member_grades").select("*").order("sort_order"),
     // 목록에 "사용만료기간"을 보여주기 위해 전체 회원의 활성 구독을 한 번에 조회한다.
     supabase.from("subscriptions").select("user_id, expires_at").eq("status", "active"),
+    // 목록에서 바로 "만료일 설정" 모달을 열 때 프로그램을 고를 수 있어야 한다.
+    supabase.from("programs").select("id, name, slug").eq("is_active", true).order("sort_order"),
   ]);
 
   // user_id별로 "가장 빨리 끝나는 만료일"과 활성 구독 개수를 계산한다. 평생(expires_at=null)
@@ -52,6 +54,7 @@ export default async function AdminMembersPage() {
         members={members ?? []}
         grades={grades ?? []}
         expiryByUserId={Object.fromEntries(expiryByUserId)}
+        programs={programs ?? []}
       />
     </div>
   );

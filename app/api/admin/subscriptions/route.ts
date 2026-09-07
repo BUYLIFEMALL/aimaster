@@ -18,10 +18,10 @@ async function requireAdmin() {
 }
 
 /**
- * PATCH — 구독 1건을 중지/재개하거나 만료일을 연장한다.
- * action: "suspend"(status→cancelled) | "reactivate"(status→active) | "extend"(days만큼 연장)
- * 연장은 이미 지난 만료일(또는 지금)부터가 아니라 "현재 만료일"부터 더한다 — 아직 남은
- * 기간 위에 추가되는 게 자연스럽다(이미 만료된 구독을 연장하는 경우만 지금 시각 기준으로).
+ * PATCH — 구독 1건을 중지/재개하거나 만료일을 바꾼다.
+ * action: "suspend"(status→cancelled) | "reactivate"(status→active)
+ *       | "extend"(현재 만료일 기준 days만큼 상대적으로 연장)
+ *       | "set_expiry"(expires_at을 정확한 날짜로 직접 지정, null이면 평생)
  */
 export async function PATCH(req: NextRequest) {
   try {
@@ -29,7 +29,7 @@ export async function PATCH(req: NextRequest) {
     if ("error" in auth)
       return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const { subscription_id, action, days } = await req.json();
+    const { subscription_id, action, days, expires_at } = await req.json();
     if (!subscription_id || !action)
       return NextResponse.json({ error: "subscription_id와 action 필수" }, { status: 400 });
 
@@ -51,6 +51,17 @@ export async function PATCH(req: NextRequest) {
         .eq("id", subscription_id);
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       return NextResponse.json({ success: true });
+    }
+
+    if (action === "set_expiry") {
+      // expires_at이 null/undefined면 평생으로 설정, 그 외엔 전달된 ISO 날짜 문자열을 그대로 쓴다.
+      const newExpiresAt = expires_at ? new Date(expires_at).toISOString() : null;
+      const { error } = await service
+        .from("subscriptions")
+        .update({ expires_at: newExpiresAt, status: "active" })
+        .eq("id", subscription_id);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true, expires_at: newExpiresAt });
     }
 
     if (action === "extend") {
