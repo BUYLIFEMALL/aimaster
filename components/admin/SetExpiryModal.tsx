@@ -89,28 +89,27 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
     setSaving(true);
     setError(null);
     try {
-      const programIdList = Array.from(programIds);
       const expiresAtValue = unlimited ? null : new Date(expiresAt).toISOString();
 
-      // 회원마다 한 번씩 호출(회원당 프로그램은 program_ids 배열로 한 번에 처리) —
-      // 회원 여러 명을 선택한 경우 병렬로 처리한다.
-      const results = await Promise.all(
-        members.map(async (member) => {
-          const res = await fetch("/api/admin/user-access", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: member.id, program_ids: programIdList, expires_at: expiresAtValue }),
-          });
-          return { member, ok: res.ok };
+      // 회원×프로그램 조합 전체를 한 번의 API 호출(=한 번의 DB upsert)로 처리한다.
+      // 예전엔 회원마다 fetch를 따로 보내 Promise.all로 병렬 실행했는데, 회원 수가 많으면
+      // (예: 전체 선택 79명) 동시 요청이 몰려 일부가 조용히 실패하는 문제가 있었다
+      // (2026-09-08 발견 — "일부 회원만 사용만료기간이 반영됨"). 단일 호출로 바꿔서
+      // 이 경합 문제 자체를 없앴다.
+      const res = await fetch("/api/admin/user-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_ids: members.map((m) => m.id),
+          program_ids: Array.from(programIds),
+          expires_at: expiresAtValue,
         }),
-      );
+      });
 
-      const failed = results.filter((r) => !r.ok);
-      if (failed.length > 0) {
-        setError(
-          `${failed.length}명 처리에 실패했습니다: ${failed.map((f) => f.member.name ?? f.member.email).join(", ")}`,
-        );
-        if (failed.length === results.length) return;
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "저장에 실패했습니다.");
+        return;
       }
 
       onSaved();
