@@ -33,11 +33,12 @@ export default async function MemberDetailPage({ params }: PageProps) {
 
   const [{ data: subscriptions }, { data: manualAccess }, { data: sessions }, { data: allPrograms }] =
     await Promise.all([
+      // 취소/만료된 구독도 함께 보여줘야 관리자가 "재개" 조작을 할 대상을 찾을 수 있다
+      // (활성만 보여주면 중지시키는 순간 목록에서 사라져 되돌릴 방법이 없어짐).
       supabase
         .from("subscriptions")
         .select("*, program:programs(name, slug), pricing_plan:pricing_plans(name, billing_type, price)")
         .eq("user_id", id)
-        .eq("status", "active")
         .order("created_at", { ascending: false }),
       supabase
         .from("user_program_access")

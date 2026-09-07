@@ -13,15 +13,31 @@ export const metadata = { title: "회원 관리" };
 
 export default async function AdminMembersPage() {
   const supabase = createServiceClient();
-  const { data: members } = await supabase
-    .from("profiles")
-    .select("*, grade:member_grades(name, color)")
-    .order("created_at", { ascending: false });
+  const [{ data: members }, { data: grades }, { data: activeSubs }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("*, grade:member_grades(name, color)")
+      .order("created_at", { ascending: false }),
+    supabase.from("member_grades").select("*").order("sort_order"),
+    // 목록에 "사용만료기간"을 보여주기 위해 전체 회원의 활성 구독을 한 번에 조회한다.
+    supabase.from("subscriptions").select("user_id, expires_at").eq("status", "active"),
+  ]);
 
-  const { data: grades } = await supabase
-    .from("member_grades")
-    .select("*")
-    .order("sort_order");
+  // user_id별로 "가장 빨리 끝나는 만료일"과 활성 구독 개수를 계산한다. 평생(expires_at=null)
+  // 구독만 있으면 "평생"으로, 유료 만료일이 하나라도 있으면 그중 가장 이른 날짜를 보여준다
+  // (여러 프로그램을 구독 중이면 관리 화면에서 상세로 들어가 개별 확인).
+  const expiryByUserId = new Map<string, { soonest: string | null; hasLifetime: boolean; count: number }>();
+  for (const sub of activeSubs ?? []) {
+    if (!sub.user_id) continue;
+    const entry = expiryByUserId.get(sub.user_id) ?? { soonest: null, hasLifetime: false, count: 0 };
+    entry.count += 1;
+    if (sub.expires_at === null) {
+      entry.hasLifetime = true;
+    } else if (entry.soonest === null || sub.expires_at < entry.soonest) {
+      entry.soonest = sub.expires_at;
+    }
+    expiryByUserId.set(sub.user_id, entry);
+  }
 
   return (
     <div>
@@ -32,7 +48,11 @@ export default async function AdminMembersPage() {
         <p className="text-subtext mt-1">총 {members?.length ?? 0}명의 회원</p>
       </div>
 
-      <MembersTable members={members ?? []} grades={grades ?? []} />
+      <MembersTable
+        members={members ?? []}
+        grades={grades ?? []}
+        expiryByUserId={Object.fromEntries(expiryByUserId)}
+      />
     </div>
   );
 }

@@ -3,12 +3,19 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Monitor, LogOut } from "lucide-react";
+import { Plus, Trash2, Monitor, LogOut, Ban, RotateCcw, CalendarPlus } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { formatDate } from "@/lib/utils/format";
 import type { Profile, Program, Subscription, UserProgramAccess, UserSession } from "@/types/database.types";
+
+// 만료일 연장 시 선택할 기간 — ProgramForm.tsx의 요금제 기간과 통일된 관례를 참고했다.
+const EXTEND_OPTIONS = [
+  { value: 30, label: "+30일" },
+  { value: 60, label: "+60일" },
+  { value: 90, label: "+90일" },
+];
 
 interface MemberDetailProps {
   member: Profile;
@@ -20,18 +27,21 @@ interface MemberDetailProps {
 
 export default function MemberDetail({
   member,
-  subscriptions,
+  subscriptions: initialSubscriptions,
   manualAccess: initialAccess,
   sessions: initialSessions,
   allPrograms,
 }: MemberDetailProps) {
   const router = useRouter();
+  const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
   const [manualAccess, setManualAccess] = useState(initialAccess);
   const [sessions, setSessions] = useState(initialSessions);
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedProgramId, setSelectedProgramId] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("unlimited");
   const [loading, setLoading] = useState(false);
+  const [subPending, setSubPending] = useState<string | null>(null);
+  const [accessExtendPending, setAccessExtendPending] = useState<string | null>(null);
 
   // 이미 접근 부여된 프로그램 ID
   const grantedIds = new Set(manualAccess.map((a) => a.program_id));
@@ -87,6 +97,61 @@ export default function MemberDetail({
     if (res.ok) {
       setManualAccess((prev) => prev.filter((a) => a.program_id !== programId));
     }
+  };
+
+  /** 수동 접근의 만료일을 연장한다 — 기존 POST(upsert)를 그대로 재사용한다. */
+  const extendAccess = async (access: UserProgramAccess, days: number) => {
+    setAccessExtendPending(access.id);
+    const base =
+      access.expires_at && new Date(access.expires_at) > new Date() ? new Date(access.expires_at) : new Date();
+    const newExpiresAt = new Date(base.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+    const res = await fetch("/api/admin/user-access", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: member.id, program_id: access.program_id, expires_at: newExpiresAt }),
+    });
+    if (res.ok) {
+      setManualAccess((prev) =>
+        prev.map((a) => (a.id === access.id ? { ...a, expires_at: newExpiresAt } : a)),
+      );
+    }
+    setAccessExtendPending(null);
+  };
+
+  /** 구독 1건을 중지(cancelled)하거나 재개(active)한다. */
+  const toggleSubscription = async (sub: Subscription) => {
+    setSubPending(sub.id);
+    const nextStatus = sub.status === "cancelled" ? "reactivate" : "suspend";
+    const res = await fetch("/api/admin/subscriptions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription_id: sub.id, action: nextStatus }),
+    });
+    if (res.ok) {
+      setSubscriptions((prev) =>
+        prev.map((s) => (s.id === sub.id ? { ...s, status: nextStatus === "suspend" ? "cancelled" : "active" } : s)),
+      );
+    }
+    setSubPending(null);
+  };
+
+  /** 구독 만료일을 days만큼 연장한다(평생 이용권은 서버에서 거부됨). */
+  const extendSubscription = async (sub: Subscription, days: number) => {
+    setSubPending(sub.id);
+    const res = await fetch("/api/admin/subscriptions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription_id: sub.id, action: "extend", days }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setSubscriptions((prev) =>
+        prev.map((s) => (s.id === sub.id ? { ...s, expires_at: data.expires_at, status: "active" } : s)),
+      );
+    } else {
+      alert(data.error ?? "연장에 실패했습니다.");
+    }
+    setSubPending(null);
   };
 
   const forceLogout = async (sessionId: string) => {
@@ -151,13 +216,13 @@ export default function MemberDetail({
         </div>
       </GlassCard>
 
-      {/* 활성 구독 */}
+      {/* 구독 (활성/만료/취소 전체 — 중지시킨 뒤 재개할 대상을 찾을 수 있도록 전체를 보여준다) */}
       <GlassCard>
         <h2 className="text-lg font-bold text-white mb-4">
-          활성 <GoldGradientText>구독</GoldGradientText>
+          <GoldGradientText>구독</GoldGradientText> 관리
         </h2>
         {subscriptions.length === 0 ? (
-          <p className="text-subtext text-sm">활성 구독이 없습니다.</p>
+          <p className="text-subtext text-sm">구독 이력이 없습니다.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -166,28 +231,63 @@ export default function MemberDetail({
                   <th className="text-left text-xs text-subtext font-medium pb-3">프로그램</th>
                   <th className="text-left text-xs text-subtext font-medium pb-3">플랜</th>
                   <th className="text-left text-xs text-subtext font-medium pb-3">상태</th>
-                  <th className="text-right text-xs text-subtext font-medium pb-3">만료일</th>
+                  <th className="text-right text-xs text-subtext font-medium pb-3">사용만료기간</th>
+                  <th className="text-right text-xs text-subtext font-medium pb-3">관리</th>
                 </tr>
               </thead>
               <tbody>
-                {subscriptions.map((sub) => (
-                  <tr key={sub.id} className="border-b border-white/5">
-                    <td className="py-3 text-white">{sub.program?.name ?? "-"}</td>
-                    <td className="py-3 text-subtext">{sub.pricing_plan?.name ?? "-"}</td>
-                    <td className="py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        sub.status === "active" ? "bg-green-500/20 text-green-400" :
-                        sub.status === "expired" ? "bg-red-500/20 text-red-400" :
-                        "bg-gray-500/20 text-gray-400"
-                      }`}>
-                        {sub.status === "active" ? "활성" : sub.status === "expired" ? "만료" : "취소"}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right text-subtext">
-                      {sub.expires_at ? formatDate(sub.expires_at) : "평생"}
-                    </td>
-                  </tr>
-                ))}
+                {subscriptions.map((sub) => {
+                  const isLifetime = sub.expires_at === null;
+                  const isPending = subPending === sub.id;
+                  return (
+                    <tr key={sub.id} className="border-b border-white/5">
+                      <td className="py-3 text-white">{sub.program?.name ?? "-"}</td>
+                      <td className="py-3 text-subtext">{sub.pricing_plan?.name ?? "-"}</td>
+                      <td className="py-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          sub.status === "active" ? "bg-green-500/20 text-green-400" :
+                          sub.status === "expired" ? "bg-red-500/20 text-red-400" :
+                          "bg-gray-500/20 text-gray-400"
+                        }`}>
+                          {sub.status === "active" ? "활성" : sub.status === "expired" ? "만료" : "취소"}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right text-subtext">
+                        {sub.expires_at ? formatDate(sub.expires_at) : "평생"}
+                      </td>
+                      <td className="py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {!isLifetime &&
+                            EXTEND_OPTIONS.map((opt) => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => extendSubscription(sub, opt.value)}
+                                title={`만료일 ${opt.label}`}
+                                className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-50"
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() => toggleSubscription(sub)}
+                            title={sub.status === "cancelled" ? "재개" : "중지"}
+                            className={`p-1.5 rounded-md transition-colors disabled:opacity-50 ${
+                              sub.status === "cancelled"
+                                ? "text-green-400 hover:bg-green-500/10"
+                                : "text-red-400 hover:bg-red-500/10"
+                            }`}
+                          >
+                            {sub.status === "cancelled" ? <RotateCcw size={14} /> : <Ban size={14} />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -224,12 +324,28 @@ export default function MemberDetail({
                       <span className="text-xs ml-3 text-gold/70">무제한</span>
                     )}
                   </div>
-                  <button
-                    onClick={() => revokeAccess(access.program_id)}
-                    className="text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {access.expires_at &&
+                      EXTEND_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          disabled={accessExtendPending === access.id}
+                          onClick={() => extendAccess(access, opt.value)}
+                          title={`만료일 ${opt.label}`}
+                          className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-50"
+                        >
+                          <CalendarPlus size={11} className="inline -mt-0.5 mr-0.5" />
+                          {opt.label}
+                        </button>
+                      ))}
+                    <button
+                      onClick={() => revokeAccess(access.program_id)}
+                      className="text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               );
             })}

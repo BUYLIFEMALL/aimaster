@@ -9,12 +9,20 @@ import { formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import type { Profile, MemberGrade } from "@/types/database.types";
 
+interface MemberExpiryInfo {
+  soonest: string | null;
+  hasLifetime: boolean;
+  count: number;
+}
+
 interface MembersTableProps {
   members: Profile[];
   grades: MemberGrade[];
+  /** user_id → 활성 구독 만료 요약(가장 이른 만료일/평생 여부/개수). 없으면 활성 구독 없음. */
+  expiryByUserId?: Record<string, MemberExpiryInfo>;
 }
 
-export default function MembersTable({ members, grades }: MembersTableProps) {
+export default function MembersTable({ members, grades, expiryByUserId = {} }: MembersTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -307,6 +315,7 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
                 <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">등급</th>
                 <th className="text-center text-xs text-subtext font-medium p-4">상태</th>
                 <th className="text-center text-xs text-subtext font-medium p-4 hidden lg:table-cell">관리자</th>
+                <th className="text-right text-xs text-subtext font-medium p-4 hidden lg:table-cell">사용만료기간</th>
                 <th className="text-right text-xs text-subtext font-medium p-4 hidden md:table-cell">가입일</th>
                 <th className="text-center text-xs text-subtext font-medium p-4 w-32">관리</th>
               </tr>
@@ -314,7 +323,7 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-subtext text-sm">
+                  <td colSpan={8} className="p-8 text-center text-subtext text-sm">
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -360,6 +369,19 @@ export default function MembersTable({ members, grades }: MembersTableProps) {
                     {m.is_admin && (
                       <span className="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full">관리자</span>
                     )}
+                  </td>
+                  <td className="p-4 text-right hidden lg:table-cell">
+                    {(() => {
+                      const info = expiryByUserId[m.id];
+                      if (!info) return <span className="text-subtext text-xs">-</span>;
+                      const label = info.soonest ? formatDate(info.soonest) : info.hasLifetime ? "평생" : "-";
+                      return (
+                        <Link href={`/admin/members/${m.id}`} className="text-xs hover:text-gold transition-colors">
+                          <span className="text-subtext">{label}</span>
+                          {info.count > 1 && <span className="text-subtext/60 ml-1">({info.count}개)</span>}
+                        </Link>
+                      );
+                    })()}
                   </td>
                   <td className="p-4 text-right hidden md:table-cell">
                     <span className="text-subtext text-xs">{formatDate(m.created_at)}</span>
