@@ -56,6 +56,7 @@ async function dispatchDuePosts(
       hashtags: post.hashtags ?? [],
       igUserId: account.ig_user_id,
       accessToken: account.access_token,
+      authMethod: account.auth_method,
     });
 
     results.push({ postId: post.id, success: outcome.success, errorMessage: outcome.errorMessage });

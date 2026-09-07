@@ -1,5 +1,9 @@
 export type PostStatus = "draft" | "scheduled" | "publishing" | "published" | "failed";
 export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "meta_app_id" | "meta_app_secret";
+// facebook_login: 운영자 공용 앱 + Facebook 페이지(기본/1차 방식). instagram_login: 회원 본인
+// Meta 앱(BYOK, 대체/fallback 방식). src/lib/instagram/client.ts의 graphBaseFor()가 이 값으로
+// 게시 시 사용할 Graph API host를 결정한다.
+export type InstagramAuthMethod = "facebook_login" | "instagram_login";
 export type InstaSourceType = "http" | "rss" | "perplexity";
 export type InstaCandidateStatus = "collected" | "used";
 export type InstaPostType = "feed" | "card_news";
@@ -106,6 +110,7 @@ export interface Database {
           ig_user_id: string;
           ig_username: string | null;
           page_id: string | null;
+          auth_method: InstagramAuthMethod;
           access_token: string;
           token_expires_at: string | null;
           created_at: string;
@@ -117,6 +122,7 @@ export interface Database {
           ig_user_id: string;
           ig_username?: string | null;
           page_id?: string | null;
+          auth_method?: InstagramAuthMethod;
           access_token: string;
           token_expires_at?: string | null;
           created_at?: string;
@@ -128,6 +134,7 @@ export interface Database {
           ig_user_id?: string;
           ig_username?: string | null;
           page_id?: string | null;
+          auth_method?: InstagramAuthMethod;
           access_token?: string;
           token_expires_at?: string | null;
           created_at?: string;

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
@@ -46,16 +47,17 @@ export default async function SettingsPage() {
         캡션/이미지 AI 생성 기능 사용전 본인의 API 키를 등록해야 합니다.
       </p>
       <div className="space-y-5">
-        {/* 📷 Instagram 계정 연결 그룹 */}
+        {/* 🔑 API 키 등록 및 연동 그룹 (Instagram Login, BYOK 방식 — 대체/fallback 연결 방법) */}
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <div className="mb-3">
-            <h2 className="text-sm font-bold text-neutral-900">📷 Instagram 계정 연결</h2>
+            <h2 className="text-sm font-bold text-neutral-900">🔑 API 키 등록 및 연동</h2>
             <p className="text-xs text-neutral-500">
-              게시글을 인스타그램에 자동으로 올리기 위한 Meta App ID/Secret 등록입니다. 등록 후
-              <a href="/accounts" className="mx-1 font-medium text-blue-600 hover:underline">
+              <Link href="/accounts" className="font-medium text-blue-600 hover:underline">
                 계정 연결 페이지
-              </a>
-              에서 실제 계정을 연결해주세요.
+              </Link>
+              의 기본(Facebook) 방식으로 연결이 안 될 때 쓰는 대체 연결 방법입니다. 본인 소유의
+              Meta 앱 App ID/Secret을 등록한 뒤, 계정 연결 페이지에서 &quot;API 키 방식으로
+              연결하기&quot;를 눌러주세요.
             </p>
           </div>
 
@@ -66,7 +68,7 @@ export default async function SettingsPage() {
               테스터(tester)로 추가해두어야 App Review 없이 바로 연결할 수 있습니다.
             </p>
             <code className="block break-all rounded bg-neutral-100 px-2 py-1.5 text-neutral-800">
-              {process.env.NEXT_PUBLIC_SITE_URL ?? "https://insta-auto-poster.vercel.app"}/api/instagram/callback
+              {process.env.NEXT_PUBLIC_SITE_URL ?? "https://insta-auto-poster.vercel.app"}/api/instagram/callback/byok
             </code>
             <p>인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).</p>
           </div>

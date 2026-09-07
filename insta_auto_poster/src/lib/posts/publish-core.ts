@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/database.types";
-import { publishInstagramPost, publishInstagramCarousel } from "@/lib/instagram/client";
+import type { Database, InstagramAuthMethod } from "@/types/database.types";
+import { publishInstagramPost, publishInstagramCarousel, graphBaseFor } from "@/lib/instagram/client";
 
 interface PublishPostParams {
   supabase: SupabaseClient<Database>;
@@ -11,6 +11,7 @@ interface PublishPostParams {
   hashtags: string[];
   igUserId: string;
   accessToken: string;
+  authMethod: InstagramAuthMethod;
 }
 
 interface PublishPostOutcome {
@@ -30,7 +31,8 @@ export function buildInstagramCaption(caption: string, hashtags: string[]): stri
 // 슬라이드(insta_post_slides)를 slide_order 순으로 조회해서, 1장이면 피드(IMAGE), 2장 이상이면
 // 카드뉴스(CAROUSEL)로 자동 분기합니다 (insta_auto_poster/README.md "카드뉴스 아키텍처 결정" 참고).
 export async function publishPost(params: PublishPostParams): Promise<PublishPostOutcome> {
-  const { supabase, postId, userId, caption, hashtags, igUserId, accessToken } = params;
+  const { supabase, postId, userId, caption, hashtags, igUserId, accessToken, authMethod } = params;
+  const graphBase = graphBaseFor(authMethod);
 
   await supabase
     .from("insta_posts")
@@ -56,8 +58,8 @@ export async function publishPost(params: PublishPostParams): Promise<PublishPos
     const finalCaption = buildInstagramCaption(caption, hashtags);
     const { mediaId, permalink } =
       imageUrls.length === 1
-        ? await publishInstagramPost({ accessToken, igUserId, imageUrl: imageUrls[0], caption: finalCaption })
-        : await publishInstagramCarousel({ accessToken, igUserId, imageUrls, caption: finalCaption });
+        ? await publishInstagramPost({ graphBase, accessToken, igUserId, imageUrl: imageUrls[0], caption: finalCaption })
+        : await publishInstagramCarousel({ graphBase, accessToken, igUserId, imageUrls, caption: finalCaption });
 
     await supabase
       .from("insta_posts")

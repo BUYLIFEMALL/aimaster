@@ -147,6 +147,7 @@ export async function createPostAction(
         hashtags,
         igUserId: account.ig_user_id,
         accessToken: account.access_token,
+        authMethod: account.auth_method,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : "게시에 실패했습니다.";
@@ -216,6 +217,7 @@ export async function updatePostAction(
         hashtags,
         igUserId: account.ig_user_id,
         accessToken: account.access_token,
+        authMethod: account.auth_method,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : "게시에 실패했습니다.";
@@ -273,6 +275,7 @@ export async function publishNowAction(formData: FormData) {
         hashtags: post.hashtags ?? [],
         igUserId: account.ig_user_id,
         accessToken: account.access_token,
+        authMethod: account.auth_method,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : "게시에 실패했습니다.";

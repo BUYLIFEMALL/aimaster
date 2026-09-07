@@ -7,6 +7,11 @@ import { connectInstagramAccountAction, disconnectInstagramAccountAction } from 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+const AUTH_METHOD_LABELS: Record<string, string> = {
+  facebook_login: "Facebook 계정 연동",
+  instagram_login: "API 키 등록 및 연동",
+};
+
 export default async function AccountsPage({
   searchParams,
 }: {
@@ -46,8 +51,7 @@ export default async function AccountsPage({
         <div className="mb-3">
           <h2 className="text-sm font-bold text-neutral-900">📷 연동 계정</h2>
           <p className="text-xs text-neutral-500">
-            인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가,
-            Facebook 페이지 연결은 필요 없습니다).
+            인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).
           </p>
         </div>
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
@@ -56,6 +60,9 @@ export default async function AccountsPage({
               <p className="text-sm text-neutral-500">연결된 계정</p>
               <p className="mt-1 text-lg font-medium text-neutral-900">
                 @{account.ig_username ?? account.ig_user_id}
+              </p>
+              <p className="mt-1 text-xs text-neutral-500">
+                연결 방식: {AUTH_METHOD_LABELS[account.auth_method] ?? account.auth_method}
               </p>
               {account.token_expires_at && (
                 <p className="mt-1 text-xs text-neutral-500">
@@ -68,21 +75,38 @@ export default async function AccountsPage({
                 </Button>
               </form>
             </div>
-          ) : hasMetaKeys ? (
+          ) : (
             <div>
               <p className="mb-4 text-sm text-neutral-600">
-                게시글을 자동으로 게시하려면 먼저 인스타그램 계정을 연결해야 합니다.
+                게시글을 자동으로 게시하려면 먼저 인스타그램 계정을 연결해야 합니다. 별도 설정 없이
+                바로 아래 버튼으로 연결해보세요.
               </p>
               <form action={connectInstagramAccountAction}>
+                <input type="hidden" name="method" value="facebook_login" />
                 <Button type="submit">인스타그램 계정 연결하기</Button>
               </form>
-            </div>
-          ) : (
-            <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
-              Meta App ID/Secret 등록이 먼저 필요합니다.{" "}
-              <Link href="/settings" className="font-medium underline">
-                설정 페이지로 이동
-              </Link>
+
+              <div className="mt-5 border-t border-neutral-200 pt-4">
+                <p className="text-xs text-neutral-500">
+                  위 방법으로 연결이 안 되시나요? 본인 소유의 Meta 앱(API 키)으로 대신 연결할 수
+                  있습니다.
+                </p>
+                {hasMetaKeys ? (
+                  <form action={connectInstagramAccountAction} className="mt-3">
+                    <input type="hidden" name="method" value="instagram_login" />
+                    <Button type="submit" variant="secondary">
+                      API 키 방식으로 연결하기
+                    </Button>
+                  </form>
+                ) : (
+                  <Link
+                    href="/settings"
+                    className="mt-2 inline-block text-xs font-medium text-blue-600 hover:underline"
+                  >
+                    설정 페이지에서 API 키 등록 및 연동하기 →
+                  </Link>
+                )}
+              </div>
             </div>
           )}
         </div>
