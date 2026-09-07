@@ -31,7 +31,10 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [bulkPending, setBulkPending] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [expirySettingMember, setExpirySettingMember] = useState<Profile | null>(null);
+  // 단일 회원(행의 CalendarClock 버튼) 또는 다중 회원(체크박스 선택 + 일괄 버튼) 모두
+  // 이 배열 하나로 다룬다 — SetExpiryModal이 회원 배열을 받아 인원수에 따라 자동으로
+  // 단건/일괄 문구와 처리 방식을 맞춘다.
+  const [expirySettingMembers, setExpirySettingMembers] = useState<Profile[] | null>(null);
   const [bulkGradeId, setBulkGradeId] = useState("");
   // 서버 refresh를 기다리지 않고 삭제 즉시 목록에서 사라지도록 로컬 상태로도 관리한다
   // (router.refresh()만으로는 반영이 늦어 보이는 경우가 있어 낙관적 업데이트를 병행).
@@ -285,6 +288,16 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
             <span className="text-white/10">|</span>
 
             <button
+              onClick={() => setExpirySettingMembers(filtered.filter((m) => selectedIds.has(m.id)))}
+              className="flex items-center gap-1 text-xs text-gold-light hover:text-gold transition-colors"
+            >
+              <CalendarClock size={12} />
+              만료기간 일괄 설정
+            </button>
+
+            <span className="text-white/10">|</span>
+
+            <button
               onClick={bulkDeleteSelected}
               disabled={bulkPending}
               className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 disabled:opacity-40 transition-colors"
@@ -400,7 +413,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                         <Eye size={14} />
                       </Link>
                       <button
-                        onClick={() => setExpirySettingMember(m)}
+                        onClick={() => setExpirySettingMembers([m])}
                         className="text-subtext hover:text-gold transition-colors p-1.5 rounded hover:bg-gold/10 inline-flex"
                         title="사용만료기간 설정"
                       >
@@ -440,11 +453,11 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
         </div>
       </div>
 
-      {expirySettingMember && (
+      {expirySettingMembers && expirySettingMembers.length > 0 && (
         <SetExpiryModal
-          member={expirySettingMember}
+          members={expirySettingMembers}
           programs={programs}
-          onClose={() => setExpirySettingMember(null)}
+          onClose={() => setExpirySettingMembers(null)}
           onSaved={() => router.refresh()}
         />
       )}

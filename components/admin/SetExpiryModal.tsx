@@ -20,27 +20,38 @@ function formatDateInputValue(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
+type MemberSummary = Pick<Profile, "id" | "name" | "email">;
+
 interface SetExpiryModalProps {
-  member: Profile;
+  members: MemberSummary[];
   programs: Pick<Program, "id" | "name">[];
   onClose: () => void;
   onSaved: () => void;
 }
 
 /**
- * 회원 목록에서 상세 페이지로 들어가지 않고 바로 프로그램(복수 선택 가능)의
+ * 회원 목록에서 상세 페이지로 들어가지 않고 바로 회원(복수)×프로그램(복수)의
  * 사용만료기간을 정확한 날짜로 설정하는 모달. 기존 "수동 프로그램 접근 부여"
  * 메커니즘(/api/admin/user-access POST, program_ids 배열 지원)을 그대로 재사용한다 —
  * 이미 결제한 구독이 있어도 없어도 똑같이 동작해서, 상세 페이지에 안 들어가고도
- * 여러 프로그램의 이용 권한/만료일을 한 번에 지정할 수 있다.
+ * 여러 회원의 여러 프로그램 이용 권한/만료일을 한 번에 지정할 수 있다.
  */
-export default function SetExpiryModal({ member, programs, onClose, onSaved }: SetExpiryModalProps) {
+export default function SetExpiryModal({ members, programs, onClose, onSaved }: SetExpiryModalProps) {
   const [programIds, setProgramIds] = useState<Set<string>>(new Set());
   const [expiresAt, setExpiresAt] = useState("");
   const [unlimited, setUnlimited] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [quickPreset, setQuickPreset] = useState("30");
+
+  const isBulk = members.length > 1;
+
+  const saveLabelSuffix = (() => {
+    const parts: string[] = [];
+    if (isBulk) parts.push(`회원 ${members.length}명`);
+    if (programIds.size > 1) parts.push(`프로그램 ${programIds.size}개`);
+    return parts.length > 0 ? ` (${parts.join(" · ")})` : "";
+  })();
 
   /** 오늘부터 선택한 기간만큼(또는 평생) 만료일 입력값을 한 번에 채워 넣는다. */
   function applyQuickPreset() {
@@ -62,7 +73,7 @@ export default function SetExpiryModal({ member, programs, onClose, onSaved }: S
     });
   }
 
-  function toggleAll() {
+  function toggleAllPrograms() {
     setProgramIds((prev) => (prev.size === programs.length ? new Set() : new Set(programs.map((p) => p.id))));
   }
 
@@ -78,20 +89,30 @@ export default function SetExpiryModal({ member, programs, onClose, onSaved }: S
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/user-access", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: member.id,
-          program_ids: Array.from(programIds),
-          expires_at: unlimited ? null : new Date(expiresAt).toISOString(),
+      const programIdList = Array.from(programIds);
+      const expiresAtValue = unlimited ? null : new Date(expiresAt).toISOString();
+
+      // 회원마다 한 번씩 호출(회원당 프로그램은 program_ids 배열로 한 번에 처리) —
+      // 회원 여러 명을 선택한 경우 병렬로 처리한다.
+      const results = await Promise.all(
+        members.map(async (member) => {
+          const res = await fetch("/api/admin/user-access", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: member.id, program_ids: programIdList, expires_at: expiresAtValue }),
+          });
+          return { member, ok: res.ok };
         }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "저장에 실패했습니다.");
-        return;
+      );
+
+      const failed = results.filter((r) => !r.ok);
+      if (failed.length > 0) {
+        setError(
+          `${failed.length}명 처리에 실패했습니다: ${failed.map((f) => f.member.name ?? f.member.email).join(", ")}`,
+        );
+        if (failed.length === results.length) return;
       }
+
       onSaved();
       onClose();
     } finally {
@@ -107,15 +128,25 @@ export default function SetExpiryModal({ member, programs, onClose, onSaved }: S
       >
         <h3 className="text-white font-bold mb-1">사용만료기간 설정</h3>
         <p className="text-subtext text-xs mb-4">
-          {member.name ?? member.email} 님의 프로그램 이용 만료일을 지정합니다. 여러 프로그램을 함께
-          선택하면 동일한 만료일이 한 번에 적용됩니다.
+          {isBulk ? (
+            <>선택한 회원 {members.length}명</>
+          ) : (
+            <>{members[0]?.name ?? members[0]?.email} 님</>
+          )}
+          의 프로그램 이용 만료일을 지정합니다. 회원·프로그램을 여러 개 선택하면 동일한
+          만료일이 한 번에 적용됩니다.
         </p>
+        {isBulk && (
+          <div className="mb-3 max-h-20 overflow-y-auto rounded-lg bg-white/5 px-3 py-2 text-xs text-subtext">
+            {members.map((m) => m.name ?? m.email).join(", ")}
+          </div>
+        )}
 
         <div className="flex items-center justify-between mb-1">
           <label className="text-subtext text-xs">프로그램 (복수 선택 가능)</label>
           <button
             type="button"
-            onClick={toggleAll}
+            onClick={toggleAllPrograms}
             className="text-xs text-gold/80 hover:text-gold hover:underline"
           >
             {programIds.size === programs.length ? "전체 해제" : "전체 선택"}
@@ -182,7 +213,7 @@ export default function SetExpiryModal({ member, programs, onClose, onSaved }: S
 
         <div className="flex gap-2">
           <GoldButton onClick={handleSave} disabled={saving} size="sm">
-            {saving ? "저장 중..." : `설정${programIds.size > 1 ? ` (${programIds.size}개)` : ""}`}
+            {saving ? "저장 중..." : `설정${saveLabelSuffix}`}
           </GoldButton>
           <GoldButton variant="ghost" size="sm" onClick={onClose}>
             취소
