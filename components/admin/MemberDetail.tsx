@@ -10,11 +10,15 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import { formatDate } from "@/lib/utils/format";
 import type { Profile, Program, Subscription, UserProgramAccess, UserSession } from "@/types/database.types";
 
-// 만료일 연장 시 선택할 기간 — ProgramForm.tsx의 요금제 기간과 통일된 관례를 참고했다.
-const EXTEND_OPTIONS = [
-  { value: 30, label: "+30일" },
-  { value: 60, label: "+60일" },
-  { value: 90, label: "+90일" },
+// 만료일 연장 시 선택할 기간 — 버튼을 여러 개 늘어놓으면 칸이 부족해서 select 하나로
+// 통합했다. "lifetime"은 숫자 연장이 아니라 평생(expires_at=null)으로 직접 설정한다.
+const EXTEND_SELECT_OPTIONS: { value: string; label: string }[] = [
+  { value: "30", label: "+30일" },
+  { value: "60", label: "+60일" },
+  { value: "90", label: "+90일" },
+  { value: "180", label: "+180일 (6개월)" },
+  { value: "365", label: "+365일 (1년)" },
+  { value: "lifetime", label: "평생으로 설정" },
 ];
 
 interface MemberDetailProps {
@@ -45,6 +49,9 @@ export default function MemberDetail({
   // 행별 "정확한 날짜로 설정" 입력값 — id별로 독립된 date input 상태를 들고 있는다.
   const [subDateInputs, setSubDateInputs] = useState<Map<string, string>>(new Map());
   const [accessDateInputs, setAccessDateInputs] = useState<Map<string, string>>(new Map());
+  // 행별 연장 select 선택값(기본 +30일).
+  const [subExtendSelect, setSubExtendSelect] = useState<Map<string, string>>(new Map());
+  const [accessExtendSelect, setAccessExtendSelect] = useState<Map<string, string>>(new Map());
 
   // 이미 접근 부여된 프로그램 ID
   const grantedIds = new Set(manualAccess.map((a) => a.program_id));
@@ -209,6 +216,50 @@ export default function MemberDetail({
     setAccessExtendPending(null);
   };
 
+  /** select에서 고른 값(일수 또는 "lifetime")을 구독에 적용한다. */
+  const applySubExtend = async (sub: Subscription) => {
+    const selected = subExtendSelect.get(sub.id) ?? "30";
+    if (selected === "lifetime") {
+      setSubPending(sub.id);
+      const res = await fetch("/api/admin/subscriptions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription_id: sub.id, action: "set_expiry", expires_at: null }),
+      });
+      if (res.ok) {
+        setSubscriptions((prev) =>
+          prev.map((s) => (s.id === sub.id ? { ...s, expires_at: null, status: "active" } : s)),
+        );
+      } else {
+        alert("설정에 실패했습니다.");
+      }
+      setSubPending(null);
+      return;
+    }
+    await extendSubscription(sub, Number(selected));
+  };
+
+  /** select에서 고른 값(일수 또는 "lifetime")을 수동 접근에 적용한다. */
+  const applyAccessExtend = async (access: UserProgramAccess) => {
+    const selected = accessExtendSelect.get(access.id) ?? "30";
+    if (selected === "lifetime") {
+      setAccessExtendPending(access.id);
+      const res = await fetch("/api/admin/user-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: member.id, program_id: access.program_id, expires_at: null }),
+      });
+      if (res.ok) {
+        setManualAccess((prev) => prev.map((a) => (a.id === access.id ? { ...a, expires_at: null } : a)));
+      } else {
+        alert("설정에 실패했습니다.");
+      }
+      setAccessExtendPending(null);
+      return;
+    }
+    await extendAccess(access, Number(selected));
+  };
+
   const forceLogout = async (sessionId: string) => {
     const res = await fetch("/api/admin/sessions", {
       method: "DELETE",
@@ -292,7 +343,6 @@ export default function MemberDetail({
               </thead>
               <tbody>
                 {subscriptions.map((sub) => {
-                  const isLifetime = sub.expires_at === null;
                   const isPending = subPending === sub.id;
                   return (
                     <tr key={sub.id} className="border-b border-white/5">
@@ -313,19 +363,28 @@ export default function MemberDetail({
                       <td className="py-3">
                         <div className="flex flex-col items-end gap-1.5">
                           <div className="flex items-center justify-end gap-1.5">
-                            {!isLifetime &&
-                              EXTEND_OPTIONS.map((opt) => (
-                                <button
-                                  key={opt.value}
-                                  type="button"
-                                  disabled={isPending}
-                                  onClick={() => extendSubscription(sub, opt.value)}
-                                  title={`만료일 ${opt.label}`}
-                                  className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-50"
-                                >
+                            <select
+                              disabled={isPending}
+                              value={subExtendSelect.get(sub.id) ?? "30"}
+                              onChange={(e) =>
+                                setSubExtendSelect((prev) => new Map(prev).set(sub.id, e.target.value))
+                              }
+                              className="input-dark text-xs py-1 px-2 w-[130px]"
+                            >
+                              {EXTEND_SELECT_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
                                   {opt.label}
-                                </button>
+                                </option>
                               ))}
+                            </select>
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => applySubExtend(sub)}
+                              className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-50"
+                            >
+                              적용
+                            </button>
                             <button
                               type="button"
                               disabled={isPending}
@@ -401,20 +460,33 @@ export default function MemberDetail({
                     )}
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {access.expires_at &&
-                      EXTEND_OPTIONS.map((opt) => (
+                    {access.expires_at && (
+                      <>
+                        <select
+                          disabled={accessExtendPending === access.id}
+                          value={accessExtendSelect.get(access.id) ?? "30"}
+                          onChange={(e) =>
+                            setAccessExtendSelect((prev) => new Map(prev).set(access.id, e.target.value))
+                          }
+                          className="input-dark text-xs py-1 px-2 w-[130px]"
+                        >
+                          {EXTEND_SELECT_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
                         <button
-                          key={opt.value}
                           type="button"
                           disabled={accessExtendPending === access.id}
-                          onClick={() => extendAccess(access, opt.value)}
-                          title={`만료일 ${opt.label}`}
+                          onClick={() => applyAccessExtend(access)}
                           className="text-xs px-2 py-1 rounded-md bg-white/5 text-subtext hover:bg-gold/10 hover:text-gold transition-colors disabled:opacity-50"
                         >
                           <CalendarPlus size={11} className="inline -mt-0.5 mr-0.5" />
-                          {opt.label}
+                          적용
                         </button>
-                      ))}
+                      </>
+                    )}
                     <input
                       type="date"
                       disabled={accessExtendPending === access.id}
