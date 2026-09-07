@@ -5,6 +5,21 @@ import { createPortal } from "react-dom";
 import GoldButton from "@/components/ui/GoldButton";
 import type { Profile, Program } from "@/types/database.types";
 
+// 날짜를 직접 고르기 번거로운 흔한 기간을 빠르게 채워 넣는 옵션 — MemberDetail.tsx의
+// 연장 select와 동일한 기간 구성(1/2/3/6개월, 1년, 평생)을 재사용했다.
+const QUICK_PRESET_OPTIONS: { value: string; label: string }[] = [
+  { value: "30", label: "1개월" },
+  { value: "60", label: "2개월" },
+  { value: "90", label: "3개월" },
+  { value: "180", label: "6개월" },
+  { value: "365", label: "1년" },
+  { value: "lifetime", label: "평생" },
+];
+
+function formatDateInputValue(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
 interface SetExpiryModalProps {
   member: Profile;
   programs: Pick<Program, "id" | "name">[];
@@ -25,6 +40,18 @@ export default function SetExpiryModal({ member, programs, onClose, onSaved }: S
   const [unlimited, setUnlimited] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quickPreset, setQuickPreset] = useState("30");
+
+  /** 오늘부터 선택한 기간만큼(또는 평생) 만료일 입력값을 한 번에 채워 넣는다. */
+  function applyQuickPreset() {
+    if (quickPreset === "lifetime") {
+      setUnlimited(true);
+      return;
+    }
+    setUnlimited(false);
+    const target = new Date(Date.now() + Number(quickPreset) * 24 * 60 * 60 * 1000);
+    setExpiresAt(formatDateInputValue(target));
+  }
 
   function toggleProgram(id: string) {
     setProgramIds((prev) => {
@@ -132,6 +159,24 @@ export default function SetExpiryModal({ member, programs, onClose, onSaved }: S
           />
           무제한(평생)
         </label>
+
+        <label className="text-subtext text-xs mb-1 block">빠른 설정 (오늘부터 기준)</label>
+        <div className="flex items-center gap-2 mb-4">
+          <select
+            value={quickPreset}
+            onChange={(e) => setQuickPreset(e.target.value)}
+            className="input-dark text-xs py-1.5 px-2 flex-1"
+          >
+            {QUICK_PRESET_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <GoldButton type="button" variant="outline" size="sm" onClick={applyQuickPreset}>
+            적용
+          </GoldButton>
+        </div>
 
         {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
 
