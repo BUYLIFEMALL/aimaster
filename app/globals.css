@@ -112,6 +112,16 @@
     color: #ffffff;
     padding: 8px 12px;
   }
+  /* input[type=date]/time 등 네이티브 폼 컨트롤은 color-scheme을 명시하지 않으면
+     브라우저가 밝은(라이트) 색상으로 달력 아이콘·텍스트를 그려서, 어두운 배경 위에서
+     보이지 않거나(검정 아이콘) 값이 안 보이는 것처럼 느껴진다(실제로 값은 들어가지만
+     안 보여서 "설정이 안 된다"고 오인하기 쉽다). 이 카드 자체를 다크 스킴으로
+     선언해서 네이티브 위젯도 밝은 텍스트/아이콘으로 그려지게 한다. */
+  input.input-dark[type="date"],
+  input.input-dark[type="time"],
+  input.input-dark[type="datetime-local"] {
+    color-scheme: dark;
+  }
 
   /* 섹션 구분선 */
   .gold-divider {
