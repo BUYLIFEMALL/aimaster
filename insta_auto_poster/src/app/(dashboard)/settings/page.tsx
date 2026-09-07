@@ -47,6 +47,28 @@ export default async function SettingsPage() {
         캡션/이미지 AI 생성 기능 사용전 본인의 API 키를 등록해야 합니다.
       </p>
       <div className="space-y-5">
+        {SECTIONS.map((section) => (
+          <div
+            key={section.title}
+            className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm"
+          >
+            <div className="mb-3">
+              <h2 className="text-sm font-bold text-neutral-900">{section.title}</h2>
+              <p className="text-xs text-neutral-500">{section.description}</p>
+            </div>
+            <div className="space-y-3">
+              {section.providers.map((provider) => (
+                <ApiKeyRow
+                  key={provider}
+                  provider={provider}
+                  label={PROVIDER_LABELS[provider]}
+                  maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
         {/* 🔑 API 키 등록 및 연동 그룹 (Instagram Login, BYOK 방식 — 대체/fallback 연결 방법) */}
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <div className="mb-3">
@@ -86,28 +108,6 @@ export default async function SettingsPage() {
             ))}
           </div>
         </div>
-
-        {SECTIONS.map((section) => (
-          <div
-            key={section.title}
-            className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm"
-          >
-            <div className="mb-3">
-              <h2 className="text-sm font-bold text-neutral-900">{section.title}</h2>
-              <p className="text-xs text-neutral-500">{section.description}</p>
-            </div>
-            <div className="space-y-3">
-              {section.providers.map((provider) => (
-                <ApiKeyRow
-                  key={provider}
-                  provider={provider}
-                  label={PROVIDER_LABELS[provider]}
-                  maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
