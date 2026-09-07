@@ -1,5 +1,5 @@
 export type PostStatus = "draft" | "scheduled" | "publishing" | "published" | "failed";
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
+export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "meta_app_id" | "meta_app_secret";
 export type InstaSourceType = "http" | "rss" | "perplexity";
 export type InstaCandidateStatus = "collected" | "used";
 export type InstaPostType = "feed" | "card_news";
@@ -105,7 +105,7 @@ export interface Database {
           user_id: string;
           ig_user_id: string;
           ig_username: string | null;
-          page_id: string;
+          page_id: string | null;
           access_token: string;
           token_expires_at: string | null;
           created_at: string;
@@ -116,7 +116,7 @@ export interface Database {
           user_id: string;
           ig_user_id: string;
           ig_username?: string | null;
-          page_id: string;
+          page_id?: string | null;
           access_token: string;
           token_expires_at?: string | null;
           created_at?: string;
@@ -127,7 +127,7 @@ export interface Database {
           user_id?: string;
           ig_user_id?: string;
           ig_username?: string | null;
-          page_id?: string;
+          page_id?: string | null;
           access_token?: string;
           token_expires_at?: string | null;
           created_at?: string;

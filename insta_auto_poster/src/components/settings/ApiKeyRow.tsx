@@ -10,17 +10,31 @@ interface ApiKeyRowProps {
   provider: ApiKeyProvider;
   label: string;
   maskedValue: string | null;
+  helpUrl?: string;
+  helpLabel?: string;
 }
 
 const initialState: SaveApiKeyState = {};
 
-export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
+export function ApiKeyRow({ provider, label, maskedValue, helpUrl, helpLabel }: ApiKeyRowProps) {
   const [state, formAction, isPending] = useActionState(saveApiKeyAction, initialState);
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-medium text-neutral-900">{label}</p>
+        <div>
+          <p className="text-sm font-medium text-neutral-900">{label}</p>
+          {helpUrl && !maskedValue && (
+            <a
+              href={helpUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-blue-600 hover:underline"
+            >
+              {helpLabel ?? "발급받기"}
+            </a>
+          )}
+        </div>
         {maskedValue && (
           <form action={deleteApiKeyAction}>
             <input type="hidden" name="provider" value={provider} />

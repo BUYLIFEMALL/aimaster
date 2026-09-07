@@ -7,4 +7,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   anthropic: "Anthropic (Claude)",
   gemini: "Google (Gemini — 카드뉴스 이미지 생성)",
   perplexity: "Perplexity (실시간 주제 수집)",
+  meta_app_id: "Meta App ID (인스타그램 계정 연결)",
+  meta_app_secret: "Meta App Secret (인스타그램 계정 연결)",
 };

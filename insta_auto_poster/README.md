@@ -12,7 +12,7 @@
 | 1 | **게시글 주제 수집** (`/candidates`) | HTTP(URL 지정) / RSS(NewsBlur) / Perplexity(트렌드 검색) 중 하나로 게시글 주제(제목·캡션·해시태그·키워드) 자동 수집 |
 | 2 | **게시글 작성** (`/posts/new`, `/posts/[id]/edit`) | 주제만 주면 AI가 인스타그램 톤(반말, 450자 이내)으로 캡션+해시태그를 생성하고, 나노바나나(Gemini)로 1:1 이미지까지 함께 생성 |
 | 3 | **게시글 관리** (`/posts`) | 임시저장/예약/즉시 게시 관리, 실패 시 재시도 |
-| 4 | **인스타그램 계정 연결** (`/accounts`) | Meta Graph API OAuth로 비즈니스/크리에이터 계정 연결 (buylife 소유 Meta 앱 하나로 모든 사용자를 받음 — threads/shots와 동일 방식) |
+| 4 | **인스타그램 계정 연결** (`/accounts`) | Instagram API with Instagram Login으로 비즈니스/크리에이터 계정 연결. 회원 본인이 만든 Meta 앱(`meta_app_id`/`meta_app_secret`, `/settings`에서 등록)을 사용 — Facebook 페이지 연결 불필요 (2026-09-07 변경, 아래 참고) |
 | 5 | **API 키 설정** (`/settings`) | 본인 OpenAI/Gemini/Perplexity API 키 등록 (필수 — 앱 공용 키로 폴백하지 않음, 아래 "API 키 정책" 참고) |
 
 ## 설계 배경 / 왜 이렇게 만들었는가
@@ -264,3 +264,38 @@ Meta 앱은 threads/shots와 같은 buylife 소유 앱(App ID `2093051114755163`
 
 `OPENAI_API_KEY`/`GEMINI_API_KEY`/`PERPLEXITY_API_KEY`는 더 이상 앱 폴백용으로 쓰지 않는다 — 위
 "API 키 정책" 참고. 모든 사용자는 반드시 `/settings`에서 본인 키를 등록해야 한다.
+
+## 인스타그램 계정 연결 방식 전면 교체 — Instagram Login (2026-09-07)
+
+기존에는 threads/shots와 같은 buylife 소유 Meta 앱(App ID `2093051114755163`) 하나를 모든
+사용자가 공유하는 구조였다. AIMaster 루트 `CLAUDE.md`의 "API 키는 본인 것만 사용, 관리자 공용
+키 폴백 금지" 원칙에 어긋나는 구조였고, 무엇보다 **그 공용 앱이 Meta의 App Review(Live 전환)를
+받은 적이 없어서, 실제로는 운영자 본인 계정(테스터/관리자로 자동 등록됨) 외에는 작동하지
+않았을 가능성이 크다** — 개발 모드(Development) 앱은 그 앱의 관리자/테스터 계정만 로그인할 수
+있기 때문이다. `/accounts`에 연결되어 있던 `@buylife.co.kr`/`@buylife.kr`도 운영자 본인 소유
+계정이었다.
+
+`instagram-comment-reply`/`instagram-dm-reply`/`threads-comment-reply`가 이미 쓰던 "회원이
+각자 본인 Meta 앱을 만들어 App ID/Secret을 등록"하는 패턴(App Review 불필요 — 본인 앱에 본인을
+테스터로 등록하면 심사 없이 바로 사용 가능)으로 통일했다.
+
+- **로그인 방식**: `facebook.com/v21.0/dialog/oauth`(Facebook 로그인) → **`instagram.com/oauth/authorize`
+  (Instagram Login)**. 공식 문서(developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/)
+  확인 결과, 이 방식은 **Facebook 페이지 연결 없이도 콘텐츠 퍼블리싱(`instagram_business_content_publish`
+  스코프)을 지원**한다 — 그래서 굳이 옛 방식을 유지할 이유가 없었다.
+- **App ID/Secret**: 환경변수 `META_APP_ID`/`META_APP_SECRET`(운영자 공용) → 공용 `user_api_keys`
+  테이블의 `meta_app_id`/`meta_app_secret` provider(본인 키, 이미 다른 서브프로젝트가 체크
+  제약에 추가해둬서 이 프로젝트는 재사용만 함). `/settings`에 등록 UI 추가.
+- **페이지 선택 화면 제거**: Instagram Login은 계정이 하나만 나오므로, 2026-08-12에 추가했던
+  `/accounts/select`(Facebook 페이지 여러 개 중 선택) 화면과 `pendingConnection.ts`(임시 쿠키)를
+  통째로 삭제했다. 콜백에서 바로 `insta_accounts`에 저장한다(instagram-comment-reply와 동일).
+- **DB**: `insta_accounts.page_id`는 더 이상 채우지 않아 `NOT NULL` 제약을 해제했다(컬럼 자체는
+  과거 데이터 보존을 위해 남겨둠). `supabase/migrations/0005_instagram_login_migration.sql` 참고.
+- **주의(운영 영향)**: 이 변경 이후 기존에 연결되어 있던 계정(예: `@buylife.co.kr`)은 예전
+  Facebook 로그인 토큰이라 새 게시 호출(`graph.instagram.com`)이 실패할 수 있다 — `/accounts`에서
+  **연결 해제 후, `/settings`에 본인 Meta 앱 등록 → 다시 연결**해야 한다.
+- **미검증**: `graph.instagram.com`을 통한 실제 피드/카드뉴스 게시(`/media`, `/media_publish`)는
+  아직 실계정으로 테스트하지 않았다 — Instagram Login 토큰으로 이 엔드포인트가 동일하게 동작하는지는
+  공식 문서상 지원된다고 명시되어 있지만(콘텐츠 퍼블리싱 문서), 이 저장소에서 실제 호출로 검증된
+  적은 없다(comment-reply/dm-reply는 댓글 조회·답글만 검증됨). 재배포 후 실제 계정으로 처음 게시할
+  때 결과를 확인할 것.

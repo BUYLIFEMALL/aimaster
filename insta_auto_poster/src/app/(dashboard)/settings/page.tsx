@@ -4,6 +4,11 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import type { ApiKeyProvider } from "@/types/database.types";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
+const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
+
 // 성격별로 묶어서 어떤 키가 어떤 기능에 쓰이는지 한눈에 구분되도록 그룹핑한다.
 const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[] }[] = [
   {
@@ -41,6 +46,45 @@ export default async function SettingsPage() {
         캡션/이미지 AI 생성 기능 사용전 본인의 API 키를 등록해야 합니다.
       </p>
       <div className="space-y-5">
+        {/* 📷 Instagram 계정 연결 그룹 */}
+        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
+          <div className="mb-3">
+            <h2 className="text-sm font-bold text-neutral-900">📷 Instagram 계정 연결</h2>
+            <p className="text-xs text-neutral-500">
+              게시글을 인스타그램에 자동으로 올리기 위한 Meta App ID/Secret 등록입니다. 등록 후
+              <a href="/accounts" className="mx-1 font-medium text-blue-600 hover:underline">
+                계정 연결 페이지
+              </a>
+              에서 실제 계정을 연결해주세요.
+            </p>
+          </div>
+
+          <div className="mb-3 space-y-2 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-500">
+            <p>
+              Meta App Dashboard에서 만든 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가로
+              등록해주셔야 합니다. 또한 그 앱의 &quot;역할&quot; 메뉴에서 본인 인스타그램 계정을
+              테스터(tester)로 추가해두어야 App Review 없이 바로 연결할 수 있습니다.
+            </p>
+            <code className="block break-all rounded bg-neutral-100 px-2 py-1.5 text-neutral-800">
+              {process.env.NEXT_PUBLIC_SITE_URL ?? "https://insta-auto-poster.vercel.app"}/api/instagram/callback
+            </code>
+            <p>인스타그램 비즈니스 또는 크리에이터(전문) 계정만 연결할 수 있습니다(개인 계정 불가).</p>
+          </div>
+
+          <div className="space-y-3">
+            {META_PROVIDERS.map((provider) => (
+              <ApiKeyRow
+                key={provider}
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                helpUrl="https://developers.facebook.com/apps"
+                helpLabel="Meta App Dashboard에서 발급받기"
+              />
+            ))}
+          </div>
+        </div>
+
         {SECTIONS.map((section) => (
           <div
             key={section.title}
