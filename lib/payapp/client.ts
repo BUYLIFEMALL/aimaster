@@ -138,6 +138,8 @@ export function calcExpiresAt(billingType: string): Date | null {
   const now = new Date();
   switch (billingType) {
     case "monthly":   { const d = new Date(now); d.setDate(d.getDate() + 30);  return d; }
+    case "bimonthly": { const d = new Date(now); d.setDate(d.getDate() + 60);  return d; }
+    case "quarterly": { const d = new Date(now); d.setDate(d.getDate() + 90);  return d; }
     case "biannual":  { const d = new Date(now); d.setDate(d.getDate() + 180); return d; }
     case "annual":    { const d = new Date(now); d.setDate(d.getDate() + 365); return d; }
     case "lifetime":  return null;

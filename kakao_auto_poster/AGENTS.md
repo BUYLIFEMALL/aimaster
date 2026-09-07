@@ -1,0 +1,98 @@
+# 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
+
+이 문서는 **카카오톡 정보 콘텐츠 자동화(kakao_auto_poster)** 프로젝트에서 AI Agent(Claude Code
+등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
+
+---
+
+## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
+
+### 1. 자율 진행 허용 작업
+다음 작업은 사용자 사전 승인 없이 자율적으로 수행합니다:
+- 파일 생성 및 코드 수정
+- 패키지 설치 (`npm` 등)
+- 로컬 테스트 및 빌드 실행
+- 스키마 추가/마이그레이션
+
+### 2. 사전 승인 필수 작업 (🚨 승인 없이 금지)
+다음 작업은 실행하기 전 **반드시 사용자에게 명확히 확인 및 승인**을 받으세요:
+1. **파일이나 폴더 삭제**
+2. **Git push**
+3. **실제 서비스 배포 (Vercel 프로덕션)**
+4. **데이터베이스 데이터 삭제**
+5. **환경변수와 API 키 변경**
+6. **유료 API 호출** (Perplexity/OpenAI는 회원 본인 키로 소량 과금 발생)
+7. **Vercel Cron 스케줄/활성화 변경** (Phase 3 도입 이후)
+
+---
+
+## 🎯 프로젝트 목적
+
+회원이 관심 주제/키워드를 등록해두면, 관련 최신 뉴스·정보·정책·트렌드·분석 자료를 AI가
+자동으로 찾아 정리한 뒤, 카카오톡 채널로 정기 발송해주는 프로그램입니다.
+
+**설계 배경(2026-09-07)**: 처음엔 "카카오톡 오픈채팅방에 자동 포스팅"을 검토했으나, 조사
+결과 카카오톡 **오픈채팅방**에는 외부 봇/webhook 연동용 공식 API가 존재하지 않는다(카카오톡
+채널의 오픈빌더도 채널에만 연동되고 오픈채팅방엔 연동 안 됨). 비공식(리버스엔지니어링)
+방식은 계정 정지 위험이 있어 이 저장소의 "공식 API + BYOK만 사용" 원칙과 맞지 않아 배제했다.
+대신 **카카오톡 "채널"** 메시지 발송(친구톡→브랜드메시지/알림톡)은 공식 API로 지원되고,
+AIMaster의 여러 서브프로젝트(trending-product-finder, crm-google-form, booking-reminder,
+real_estate_sales)가 SOLAPI 경유로 이미 실사용 검증까지 마쳤다. 그래서 이 프로젝트는
+**카카오톡 채널 발송**을 실제 배포 채널로 삼는다. 오픈채팅방은 (원한다면) 채널 링크를
+공유하는 안내 용도로만 쓸 수 있다.
+
+**재사용 원조 패턴**:
+- 콘텐츠 수집+생성 파이프라인: `insta_auto_poster`의 "주제 등록 → Perplexity 수집 → AI
+  구조화" 패턴(`src/lib/ai/collector.ts`)을 그대로 가져와 SNS 캡션이 아닌 뉴스/정보 톤으로
+  프롬프트만 바꿨다.
+- 카카오 채널 발송: `trending-product-finder`/`crm-google-form`이 만든 공용
+  `user_solapi_accounts` 테이블 + `lib/solapi/client.ts`(`sendFriendtalk`/`sendAlimtalk`)를
+  Phase 2에서 새 마이그레이션 없이 그대로 재사용할 예정이다.
+
+---
+
+## 📂 프로젝트 작업 디렉토리
+* **메인 모듈 경로**: `kakao_auto_poster/`
+* 모든 관련 소스 코드(Next.js App Router), API 라우트, 서버 액션은 이 폴더 내에서 개발 및
+  관리합니다.
+
+---
+
+## 🔗 AIMaster 플랫폼 공통 원칙
+
+kakao_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시 루트의
+`../CLAUDE.md`를 **메인 지침**으로 반드시 함께 읽을 것 — "Communication"(답변은 쉬운 한글로
+작성), "Platform-hub 구조", "멀티테넌시 원칙" 섹션을 포함한 전체 내용이 이 서브프로젝트에도
+그대로 적용된다. 핵심 요약:
+
+- 개발자 전용 도구가 아니라, AIMaster 회원 중 이 프로그램(`programs.slug =
+  "kakao-auto-posting"`) 이용 권한(구독/개별부여/등급)이 있는 모든 사용자가 각자 자신의
+  계정으로 동일하게 쓸 수 있어야 한다.
+- 페이지/레이아웃은 `requireProgramAccess()`(권한 없으면 redirect), API route(Phase 3 크론
+  등)는 redirect 대신 결과 객체를 반환하는 `checkProgramAccessApi()`로 로그인 여부뿐 아니라
+  프로그램 이용 권한까지 확인한다. **이 둘을 쓰는 모든 layout.tsx/route.ts에는
+  `export const dynamic = "force-dynamic"`과 `export const fetchCache = "force-no-store"`
+  두 줄을 반드시 같이 선언한다** — 누락 시 Vercel 정적 캐싱으로 권한 체크가 무력화되는 버그가
+  있다(`docs/PLATFORM_PATTERNS.md` §10 참고).
+- 사용자 소유 데이터 테이블(`kakao_topics`, `kakao_reports`)은 `user_id` + RLS owner-only
+  정책으로 격리한다.
+- API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
+  그대로 쓴다. 이 프로그램은 `openai`/`anthropic`(택1)/`gemini`(예비)/`perplexity`(필수)를
+  쓴다. Phase 2부터는 공용 `user_solapi_accounts`(카카오 채널 발송)도 함께 쓴다.
+
+## 📦 Phase 진행 상태
+
+| Phase | 내용 | 상태 |
+|-------|------|------|
+| 1 | 프로젝트 뼈대, 관심 주제/키워드 등록(`kakao_topics`), Perplexity 기반 "지금 생성" 수동 버튼, 생성된 콘텐츠(`kakao_reports`)를 보는 웹 리포트 페이지 | ✅ 구현 완료, 미검증(실계정 API 키로 첫 생성 테스트 필요) |
+| 2 | 설정 페이지에 카카오 채널(SOLAPI) 연동 섹션 추가(`user_solapi_accounts` 공용 테이블 재사용), 리포트 상세 페이지에 "💬 카카오로 발송" 버튼(`sendReportToKakaoAction`) — 수신 번호는 `profiles.phone`(trending-product-finder Phase 10과 동일 패턴) | ✅ 구현 완료, 미검증(실계정 SOLAPI 계정으로 첫 발송 테스트 필요) |
+| 3 | 주제별 발송 주기 설정 + 5분 tick 크론으로 정기 자동 생성·발송(`vercel.json` 등록 필수) | ⏸️ 예정 |
+| 4 | HTTP/RSS 소스 추가, 이메일/텔레그램 채널 추가, `programs` 등록(4단계 기본 요금제는 관리자 화면 `ProgramForm.tsx`의 `DEFAULT_PLANS`가 자동 처리) | ⏸️ 예정 |
+
+## ⚠️ 미검증 항목 (실사용 전 반드시 확인)
+
+- Phase 1 전체(주제 등록 → Perplexity 검색 → AI 구조화 → 리포트 저장/조회)는 아직 실계정
+  API 키로 end-to-end 테스트하지 않았다. 첫 사용 시 반드시 실제로 주제를 등록하고 "지금
+  생성"을 눌러 리포트가 정상적으로 만들어지는지 확인할 것.
+- `programs` 테이블에 `kakao-auto-posting` slug가 아직 등록되지 않았다 — 관리자 화면에서
+  등록해야 `requireProgramAccess()`가 통과한다(등록 전까지는 모든 회원이 접근 불가).

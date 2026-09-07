@@ -108,6 +108,8 @@ export interface PaymentData {
 
 const BILLING_LABELS: Record<string, string> = {
   monthly: "월간",
+  bimonthly: "2개월",
+  quarterly: "3개월",
   biannual: "반기",
   annual: "연간",
   lifetime: "평생",

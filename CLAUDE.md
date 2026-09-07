@@ -223,7 +223,12 @@ NEXT_PUBLIC_APP_URL=
 `member_grades`, `profiles`, `categories`, `programs`, `pricing_plans`, `grade_program_access`, `subscriptions`, `payment_records`, `affiliate_rates`, `affiliate_earnings`, `settlement_requests`
 
 ### Billing Types
-`monthly` (30일) | `biannual` (180일) | `annual` (365일) | `lifetime` (null expires_at)
+`monthly` (30일) | `bimonthly` (60일) | `quarterly` (90일) | `biannual` (180일) | `annual` (365일) | `lifetime` (null expires_at)
+
+새 프로그램 등록 시 기본 요금제(`components/admin/ProgramForm.tsx`의 `DEFAULT_PLANS`)는
+2026-09-07부터 `monthly`/`bimonthly`/`quarterly`(1·2·3개월, 1만/2만/3만원) 3단계 구성이다
+(사용자 지시로 기존 1/6/12개월+평생 4단계 기본값을 대체함). `biannual`/`annual`/`lifetime`은
+여전히 선택 가능한 billing_type이며, 개별 프로그램에서 필요하면 수동으로 추가할 수 있다.
 
 ### Payapp 결제 흐름
 `POST /api/payment/initiate` → 페이앱 URL 생성 → `payment_records (pending)` → 팝업

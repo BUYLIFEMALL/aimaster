@@ -1,4 +1,4 @@
-export type BillingType = "monthly" | "biannual" | "annual" | "lifetime";
+export type BillingType = "monthly" | "bimonthly" | "quarterly" | "biannual" | "annual" | "lifetime";
 export type SubscriptionStatus = "active" | "expired" | "cancelled";
 export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
 export type AffiliateStatus = "pending" | "settled" | "rejected";

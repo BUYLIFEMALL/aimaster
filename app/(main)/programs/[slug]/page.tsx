@@ -178,6 +178,8 @@ export default async function ProgramDetailPage({ params }: PageProps) {
                   <div key={plan.id} className="text-center">
                     <div className="text-xs text-subtext mb-0.5">
                       {plan.billing_type === "monthly" ? "1개월"
+                        : plan.billing_type === "bimonthly" ? "2개월"
+                        : plan.billing_type === "quarterly" ? "3개월"
                         : plan.billing_type === "biannual" ? "6개월"
                         : plan.billing_type === "annual" ? "12개월"
                         : "평생"}

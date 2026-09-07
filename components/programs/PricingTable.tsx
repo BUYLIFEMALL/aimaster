@@ -8,6 +8,8 @@ import type { PricingPlan } from "@/types/database.types";
 
 const BILLING_LABELS: Record<string, { label: string; period: string }> = {
   monthly: { label: "1개월", period: "/ 월" },
+  bimonthly: { label: "2개월", period: "/ 2개월" },
+  quarterly: { label: "3개월", period: "/ 3개월" },
   biannual: { label: "6개월", period: "/ 6개월" },
   annual: { label: "12개월", period: "/ 12개월" },
   lifetime: { label: "평생", period: "" },
@@ -15,6 +17,8 @@ const BILLING_LABELS: Record<string, { label: string; period: string }> = {
 
 const BILLING_FEATURES: Record<string, string[]> = {
   monthly: ["1개월 이용권", "모든 기능 포함", "고객 지원"],
+  bimonthly: ["2개월 이용권", "모든 기능 포함", "고객 지원"],
+  quarterly: ["3개월 이용권", "모든 기능 포함", "우선 고객 지원"],
   biannual: ["6개월 이용권", "모든 기능 포함", "우선 고객 지원", "업데이트 포함"],
   annual: ["12개월 이용권", "모든 기능 포함", "전담 고객 지원", "신기능 우선 접근"],
   lifetime: ["평생 이용권", "모든 기능 포함", "VIP 고객 지원", "모든 업데이트 영구 포함"],

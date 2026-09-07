@@ -1,0 +1,77 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { requireProgramAccess } from "@/lib/access";
+import { createClient } from "@/lib/supabase/server";
+import { SendKakaoButton } from "@/components/reports/SendKakaoButton";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
+export default async function ReportDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const user = await requireProgramAccess();
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: report } = await supabase
+    .from("kakao_reports")
+    .select("id, topic_id, title, summary, content, kakao_sent_at, kakao_send_error, created_at")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!report) notFound();
+
+  const [{ data: topic }, { data: profile }, { data: solapiAccount }] = await Promise.all([
+    supabase.from("kakao_topics").select("topic_name").eq("id", report.topic_id).maybeSingle(),
+    supabase.from("profiles").select("phone").eq("id", user.id).maybeSingle(),
+    supabase.from("user_solapi_accounts").select("kakao_pf_id").eq("user_id", user.id).maybeSingle(),
+  ]);
+
+  const canSendKakao = Boolean(profile?.phone && solapiAccount?.kakao_pf_id);
+
+  return (
+    <div className="mx-auto max-w-2xl">
+      <Link href="/reports" className="mb-4 inline-block text-sm text-neutral-500 hover:text-neutral-900">
+        ← 리포트 목록
+      </Link>
+
+      <div className="rounded-2xl border-2 border-neutral-300 bg-white p-6 shadow-sm">
+        {topic && <p className="mb-2 text-xs font-medium text-yellow-700">📌 {topic.topic_name}</p>}
+        <h1 className="mb-2 text-xl font-semibold text-neutral-900">{report.title}</h1>
+        <p className="mb-6 text-xs text-neutral-400">
+          {new Date(report.created_at).toLocaleString("ko-KR")}
+        </p>
+
+        <div className="mb-6 rounded-lg bg-yellow-50 p-4">
+          <p className="mb-1 text-xs font-bold text-yellow-800">💬 카카오톡 발송 요약</p>
+          <p className="whitespace-pre-line text-sm text-neutral-700">{report.summary}</p>
+        </div>
+
+        <div className="mb-6 whitespace-pre-line text-sm leading-relaxed text-neutral-800">{report.content}</div>
+
+        <div className="border-t border-neutral-200 pt-4">
+          {report.kakao_sent_at && (
+            <p className="mb-2 text-xs text-green-600">
+              ✓ {new Date(report.kakao_sent_at).toLocaleString("ko-KR")}에 카카오톡으로 발송됨
+            </p>
+          )}
+          {report.kakao_send_error && !report.kakao_sent_at && (
+            <p className="mb-2 text-xs text-red-600">직전 발송 실패: {report.kakao_send_error}</p>
+          )}
+
+          {canSendKakao ? (
+            <SendKakaoButton reportId={report.id} />
+          ) : (
+            <p className="text-xs text-neutral-500">
+              카카오톡으로 발송하려면{" "}
+              <Link href="/settings" className="font-medium text-blue-600 hover:underline">
+                설정 페이지
+              </Link>
+              에서 카카오 채널(SOLAPI)을 연동하고, AIMaster 프로필에 전화번호를 등록해주세요.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

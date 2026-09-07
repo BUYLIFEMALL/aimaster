@@ -20,6 +20,8 @@ interface PaymentModalProps {
 
 const BILLING_LABEL: Record<string, string> = {
   monthly: "1개월",
+  bimonthly: "2개월",
+  quarterly: "3개월",
   biannual: "6개월",
   annual: "12개월",
   lifetime: "평생",
