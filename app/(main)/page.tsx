@@ -198,6 +198,51 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* 이용 안내 — 첫 방문자가 스크롤 한 번으로 바로 보도록 히어로 바로 아래에 배치
+          (2026-09-08: 프로그램 목록 아래에 뒀더니 등록 프로그램이 많아 스크롤을 한참
+          내려야 보인다는 신고로 위치를 옮김) */}
+      <section className="px-4 pb-16">
+        <div className="max-w-4xl mx-auto">
+          {/* 로그아웃 상태: 등록된 프로그램 수만. 로그인 상태: 회원 개인의 이용 가능
+              프로그램 수 + 가장 빠른 만료일까지 함께 보여준다 */}
+          <div className={`grid gap-4 mb-4 ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
+            <GlassCard className="p-4 text-center">
+              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
+              <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
+            </GlassCard>
+            {userAccess && (
+              <>
+                <GlassCard className="p-4 text-center">
+                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.accessibleCount}</div>
+                  <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
+                </GlassCard>
+                <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
+                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.expiryLabel}</div>
+                  <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
+                </GlassCard>
+              </>
+            )}
+          </div>
+
+          <div className="glass-card rounded-2xl border border-gold/30 bg-gold/[0.04] p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center shrink-0">
+                <Info size={18} className="text-gold" />
+              </div>
+              <h2 className="text-lg md:text-xl font-bold text-white">이용 안내</h2>
+            </div>
+            <ul className="space-y-3">
+              {NOTICE_ITEMS.map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-subtext text-sm md:text-base leading-relaxed">
+                  <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gold/60 shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* Stats */}
       <section className="py-16 px-4 border-y border-white/10">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -274,49 +319,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* 이용 안내 — 첫 방문자가 꼭 보고 넘어가도록 박스로 강조 */}
-      <section className="px-4 pb-20">
-        <div className="max-w-4xl mx-auto">
-          {/* 로그아웃 상태: 등록된 프로그램 수만. 로그인 상태: 회원 개인의 이용 가능
-              프로그램 수 + 가장 빠른 만료일까지 함께 보여준다 */}
-          <div className={`grid gap-4 mb-4 ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
-            <GlassCard className="p-4 text-center">
-              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
-              <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
-            </GlassCard>
-            {userAccess && (
-              <>
-                <GlassCard className="p-4 text-center">
-                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.accessibleCount}</div>
-                  <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
-                </GlassCard>
-                <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
-                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.expiryLabel}</div>
-                  <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
-                </GlassCard>
-              </>
-            )}
-          </div>
-
-          <div className="glass-card rounded-2xl border border-gold/30 bg-gold/[0.04] p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center shrink-0">
-                <Info size={18} className="text-gold" />
-              </div>
-              <h2 className="text-lg md:text-xl font-bold text-white">이용 안내</h2>
-            </div>
-            <ul className="space-y-3">
-              {NOTICE_ITEMS.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-subtext text-sm md:text-base leading-relaxed">
-                  <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gold/60 shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
 
       {/* CTA */}
       <section className="py-20 px-4">
