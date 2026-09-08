@@ -67,7 +67,7 @@ export function TelegramSection({ link }: { link: TelegramLinkData | null }) {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-bold text-neutral-900">📮 텔레그램 사전 검토 (카카오 발행 전)</h2>
+      <h2 className="text-sm font-bold text-neutral-900">📮 텔레그램 연동</h2>
       <p className="text-xs text-neutral-500">
         연동해두면 리포트가 생성될 때마다 텔레그램으로 요약을 보내드리고, &quot;✅ 카카오로
         발행 / ❌ 발행 안 함&quot; 버튼으로 그 자리에서 발행 여부를 결정할 수 있습니다.
