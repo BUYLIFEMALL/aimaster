@@ -12,13 +12,13 @@ import type { Program } from "@/types/database.types";
 
 interface ProgramCardProps {
   program: Program;
-  // 명시적으로 넘기면 그걸 우선 쓰고, 안 넘기면 관리자가 프로그램 편집에서 지정한
-  // program.badge(DB 값)를 그대로 보여준다.
+  // 명시적으로 넘기면 그것만 단독으로 쓰고, 안 넘기면 관리자가 프로그램 편집에서 지정한
+  // program.badges(DB 값, 여러 개 가능)를 전부 보여준다.
   badge?: "new" | "best" | "sale" | "coming" | "free";
 }
 
 export default function ProgramCard({ program, badge }: ProgramCardProps) {
-  const resolvedBadge = badge ?? program.badge ?? undefined;
+  const resolvedBadges = badge ? [badge] : (program.badges ?? []);
   const executeTarget = program.app_url || (program.slug.includes("blog") || program.name.includes("블로그") ? "/blog" : "/programs/" + program.slug);
 
   const minPrice = program.pricing_plans
@@ -43,9 +43,11 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
             </div>
           </div>
         )}
-        {resolvedBadge && (
-          <div className="absolute top-3 left-3">
-            <Badge variant={resolvedBadge} />
+        {resolvedBadges.length > 0 && (
+          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+            {resolvedBadges.map((b) => (
+              <Badge key={b} variant={b} />
+            ))}
           </div>
         )}
         {program.video_url && (

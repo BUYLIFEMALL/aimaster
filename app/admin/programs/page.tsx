@@ -13,7 +13,7 @@ export default async function AdminProgramsPage() {
   const [{ data: programs }, { data: categories }, { data: grades }] = await Promise.all([
     supabase
       .from("programs")
-      .select("id, name, slug, app_url, is_active, sort_order, category_id, required_grade_id, badge")
+      .select("id, name, slug, app_url, is_active, sort_order, category_id, required_grade_id, badges")
       .order("sort_order"),
     supabase.from("categories").select("*").order("sort_order"),
     supabase.from("member_grades").select("*").order("sort_order"),

@@ -58,8 +58,9 @@ export interface Program {
   updated_at: string;
   // platform-hub: 실제 배포된 AI 웹앱 URL (없으면 일반 판매용 프로그램)
   app_url: string | null;
-  // 관리자가 수동으로 다는 추천 뱃지 (Badge 컴포넌트 variant와 동일한 값). null이면 뱃지 없음.
-  badge: "new" | "best" | "sale" | "coming" | "free" | null;
+  // 관리자가 수동으로 다는 추천 뱃지 (Badge 컴포넌트 variant와 동일한 값). 여러 개(예: FREE +
+  // NEW) 동시에 달 수 있어 배열이다. 빈 배열이면 뱃지 없음.
+  badges: ("new" | "best" | "sale" | "coming" | "free")[];
   // joined
   category?: Category | null;
   required_grade?: MemberGrade | null;

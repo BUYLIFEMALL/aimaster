@@ -5,9 +5,10 @@ import Link from "next/link";
 import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Badge from "@/components/ui/Badge";
+import { getContrastTextColor } from "@/lib/utils/color";
 import type { Category, MemberGrade, Program } from "@/types/database.types";
 
-type BadgeValue = NonNullable<Program["badge"]>;
+type BadgeValue = Program["badges"][number];
 
 interface ProgramRow {
   id: string;
@@ -18,7 +19,7 @@ interface ProgramRow {
   sort_order: number;
   category_id: string | null;
   required_grade_id: string | null;
-  badge: BadgeValue | null;
+  badges: BadgeValue[];
 }
 
 interface ProgramsAdminBoardProps {
@@ -56,7 +57,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkStatusValue, setBulkStatusValue] = useState("");
   const [bulkGradeValue, setBulkGradeValue] = useState("");
-  const [bulkBadgeValue, setBulkBadgeValue] = useState("");
+  const [bulkBadgeValues, setBulkBadgeValues] = useState<Set<BadgeValue>>(new Set());
 
   const gradeMeta = useMemo(() => new Map(grades.map((g) => [g.id, g])), [grades]);
 
@@ -73,8 +74,8 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
         if (key !== gradeFilter) return false;
       }
       if (badgeFilter !== "all") {
-        const key = p.badge ?? NONE_VALUE;
-        if (key !== badgeFilter) return false;
+        const hasBadge = badgeFilter === NONE_VALUE ? p.badges.length === 0 : p.badges.includes(badgeFilter as BadgeValue);
+        if (!hasBadge) return false;
       }
       return true;
     });
@@ -121,7 +122,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     });
   };
 
-  const applyUpdate = async (ids: string[], patch: Partial<Pick<ProgramRow, "is_active" | "required_grade_id" | "badge">>) => {
+  const applyUpdate = async (ids: string[], patch: Partial<Pick<ProgramRow, "is_active" | "required_grade_id" | "badges">>) => {
     if (ids.length === 0) return;
     const { error } = await supabase.from("programs").update(patch).in("id", ids);
     if (error) {
@@ -149,13 +150,24 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     setBulkGradeValue("");
   };
 
+  const toggleBulkBadge = (value: BadgeValue) => {
+    setBulkBadgeValues((prev) => {
+      const next = new Set(prev);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
+  };
+
+  // 체크된 뱃지 조합으로 선택된 프로그램들의 badges를 통째로 교체한다(추가가 아니라 설정).
+  // 전부 해제한 채로 적용하면 뱃지를 모두 지우는 것과 같다.
   const handleBulkBadge = async () => {
-    if (selectedIds.size === 0 || !bulkBadgeValue) return;
+    if (selectedIds.size === 0) return;
     setBulkLoading(true);
-    await applyUpdate([...selectedIds], { badge: bulkBadgeValue === NONE_VALUE ? null : (bulkBadgeValue as BadgeValue) });
+    await applyUpdate([...selectedIds], { badges: [...bulkBadgeValues] });
     setBulkLoading(false);
     setSelectedIds(new Set());
-    setBulkBadgeValue("");
+    setBulkBadgeValues(new Set());
   };
 
   const handleToggleSingle = async (p: ProgramRow) => {
@@ -302,26 +314,32 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
 
         <div className="hidden sm:block w-px h-5 bg-white/10" />
 
-        <div className="flex items-center gap-1.5">
-          <select
-            value={bulkBadgeValue}
-            onChange={(e) => setBulkBadgeValue(e.target.value)}
-            disabled={selectedIds.size === 0}
-            className="input-dark text-xs py-1.5 !w-auto disabled:opacity-40"
-          >
-            <option value="">추천 뱃지 변경...</option>
-            <option value={NONE_VALUE}>없음</option>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-subtext shrink-0">추천 뱃지(복수 선택)</span>
+          <div className="flex items-center gap-2 flex-wrap">
             {BADGE_OPTIONS.map((b) => (
-              <option key={b.value} value={b.value}>
+              <label
+                key={b.value}
+                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg cursor-pointer select-none ${
+                  selectedIds.size === 0 ? "opacity-40 cursor-not-allowed" : "bg-white/5 hover:bg-white/10"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={bulkBadgeValues.has(b.value)}
+                  onChange={() => toggleBulkBadge(b.value)}
+                  disabled={selectedIds.size === 0}
+                  className="rounded border-white/20 bg-white/5 accent-gold"
+                />
                 {b.label}
-              </option>
+              </label>
             ))}
-          </select>
+          </div>
           <button
             type="button"
-            disabled={bulkLoading || selectedIds.size === 0 || !bulkBadgeValue}
+            disabled={bulkLoading || selectedIds.size === 0}
             onClick={handleBulkBadge}
-            className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+            className="text-xs font-medium bg-white/10 text-subtext hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40 shrink-0"
           >
             적용
           </button>
@@ -390,17 +408,20 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                             </div>
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
                               <p className="text-subtext text-xs">/programs/{p.slug}</p>
-                              <span
-                                className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-white/5"
-                                style={{ color: p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.color ?? undefined) : "#ffffff" }}
-                              >
-                                <span
-                                  className="w-1.5 h-1.5 rounded-full"
-                                  style={{ backgroundColor: p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.color ?? "#666") : "#ffffff" }}
-                                />
-                                {p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.name ?? "알 수 없음") : "전체 공개"}
-                              </span>
-                              {p.badge && <Badge variant={p.badge} className="text-[11px] px-1.5 py-0.5" />}
+                              {(() => {
+                                const gradeColor = p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.color ?? "#666666") : "#ffffff";
+                                return (
+                                  <span
+                                    className="inline-flex items-center text-[11px] font-semibold px-1.5 py-0.5 rounded-full"
+                                    style={{ backgroundColor: gradeColor, color: getContrastTextColor(gradeColor) }}
+                                  >
+                                    {p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.name ?? "알 수 없음") : "전체 공개"}
+                                  </span>
+                                );
+                              })()}
+                              {p.badges.map((b) => (
+                                <Badge key={b} variant={b} className="text-[11px] px-1.5 py-0.5" />
+                              ))}
                             </div>
                           </td>
                           <td className="p-4 text-center">

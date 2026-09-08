@@ -25,7 +25,7 @@ interface ProgramFormProps {
 // 실제 뱃지 색상(components/ui/Badge.tsx)과 동일하게 맞춰서, 편집 화면에서도
 // 어떤 색으로 노출되는지 미리 볼 수 있게 한다.
 const BADGE_OPTIONS: {
-  value: NonNullable<Program["badge"]>;
+  value: Program["badges"][number];
   label: string;
   selectedClassName: string;
   idleClassName: string;
@@ -127,7 +127,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const [shortDesc, setShortDesc] = useState(program?.short_desc ?? "");
   const [description, setDescription] = useState(program?.description ?? "");
   const [thumbnailUrl, setThumbnailUrl] = useState(program?.thumbnail_url ?? "");
-  const [badge, setBadge] = useState<NonNullable<Program["badge"]> | "">(program?.badge ?? "");
+  const [badges, setBadges] = useState<Set<Program["badges"][number]>>(new Set(program?.badges ?? []));
   const [videoUrl, setVideoUrl] = useState(program?.video_url ?? "");
   const [appUrl, setAppUrl] = useState(program?.app_url ?? "");
   const [isActive, setIsActive] = useState(program?.is_active ?? true);
@@ -231,6 +231,15 @@ export default function ProgramForm({ program }: ProgramFormProps) {
 
   const removePlan = (i: number) => setPlans(plans.filter((_, idx) => idx !== i));
 
+  const toggleBadge = (value: Program["badges"][number]) => {
+    setBadges((prev) => {
+      const next = new Set(prev);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
+  };
+
   const updatePlan = (i: number, field: keyof PricingPlanInput, value: string | boolean | number) => {
     setPlans(plans.map((p, idx) => (idx === i ? { ...p, [field]: value } : p)));
   };
@@ -249,7 +258,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
         short_desc: shortDesc || null,
         description: description || null,
         thumbnail_url: thumbnailUrl || null,
-        badge: badge || null,
+        badges: [...badges],
         video_url: videoUrl || null,
         app_url: appUrl || null,
         is_active: isActive,
@@ -498,34 +507,30 @@ export default function ProgramForm({ program }: ProgramFormProps) {
               <input type="url" value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)}
                 className="input-dark w-full" placeholder="https://..." />
             </FieldRow>
-            <FieldRow label="추천 뱃지">
+            <FieldRow label="추천 뱃지(복수 선택)">
               <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setBadge("")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-                    badge === ""
-                      ? "bg-gold text-black border-gold"
-                      : "bg-white/5 text-subtext border-white/10 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  없음
-                </button>
-                {BADGE_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setBadge(opt.value)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-                      badge === opt.value ? opt.selectedClassName : opt.idleClassName
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+                {BADGE_OPTIONS.map((opt) => {
+                  const checked = badges.has(opt.value);
+                  return (
+                    <label
+                      key={opt.value}
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all border cursor-pointer select-none ${
+                        checked ? opt.selectedClassName : opt.idleClassName
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleBadge(opt.value)}
+                        className="rounded border-white/20"
+                      />
+                      {opt.label}
+                    </label>
+                  );
+                })}
               </div>
               <p className="text-xs text-subtext mt-2">
-                카드 썸네일 왼쪽 위에 표시됩니다. 카테고리별 목록/전체 목록/상세 어디서든 이 값 하나로 통일해서 보여줍니다.
+                카드 썸네일 왼쪽 위에 표시됩니다. 여러 개를 동시에 체크하면(예: FREE + NEW) 모두 함께 표시됩니다. 전부 해제하면 뱃지가 표시되지 않습니다.
               </p>
             </FieldRow>
             <FieldRow label="영상 URL">

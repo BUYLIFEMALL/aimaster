@@ -11,6 +11,7 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import Badge from "@/components/ui/Badge";
 import { formatKRW, formatDate, daysRemaining } from "@/lib/utils/format";
+import { getContrastTextColor } from "@/lib/utils/color";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -107,8 +108,7 @@ export default async function DashboardPage() {
             <Badge
               variant="custom"
               label={profile.grade.name}
-              style={{ backgroundColor: `${profile.grade.color}20`, color: profile.grade.color, borderColor: `${profile.grade.color}40` }}
-              className="border"
+              style={{ backgroundColor: profile.grade.color, color: getContrastTextColor(profile.grade.color) }}
             />
           )}
         </div>
