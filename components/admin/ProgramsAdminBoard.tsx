@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import Badge from "@/components/ui/Badge";
 import type { Category, MemberGrade, Program } from "@/types/database.types";
 
 type BadgeValue = NonNullable<Program["badge"]>;
@@ -401,11 +402,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                                 )}
                                 {p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.name ?? "알 수 없음") : "전체 공개"}
                               </span>
-                              {p.badge && (
-                                <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-gold/10 text-gold">
-                                  {BADGE_OPTIONS.find((b) => b.value === p.badge)?.label ?? p.badge}
-                                </span>
-                              )}
+                              {p.badge && <Badge variant={p.badge} className="text-[11px] px-1.5 py-0.5" />}
                             </div>
                           </td>
                           <td className="p-4 text-center">
