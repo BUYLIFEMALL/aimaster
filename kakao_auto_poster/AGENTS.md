@@ -1,10 +1,10 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-이 문서는 **뉴스레터 자동화(kakao_auto_poster, 폴더/slug는 하위호환을 위해 그대로 유지)**
+이 문서는 **카카오톡 뉴스레터 자동화(kakao_auto_poster, 폴더/slug는 하위호환을 위해 그대로 유지)**
 프로젝트에서 AI Agent(Claude Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
-(2026-09-08: 화면 표시 이름을 "카카오톡 정보 콘텐츠 자동화"에서 "뉴스레터 자동화"로 변경 —
-`programs.name`과 앱 내 표시 문자열만 바뀌었고, 폴더명/`programs.slug`(`kakao-auto-posting`)는
-그대로다.)
+(2026-09-08: 화면 표시 이름을 "카카오톡 정보 콘텐츠 자동화" → "뉴스레터 자동화" → "카카오톡
+뉴스레터 자동화"로 변경 — `programs.name`과 앱 내 표시 문자열만 바뀌었고, 폴더명/
+`programs.slug`(`kakao-auto-posting`)는 그대로다.)
 
 ---
 

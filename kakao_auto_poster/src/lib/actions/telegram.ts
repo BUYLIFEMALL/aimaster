@@ -62,7 +62,7 @@ export async function connectTelegramAction(
     await sendTelegramMessage({
       botToken,
       chatId: chatInfo.chatId,
-      text: "✅ 뉴스레터 자동화 알림 연동이 완료됐어요. 리포트가 만들어지면 여기로 요약을 보내드리고, 카카오톡으로 발행할지 여기서 바로 결정할 수 있어요.",
+      text: "✅ 카카오톡 뉴스레터 자동화 알림 연동이 완료됐어요. 리포트가 만들어지면 여기로 요약을 보내드리고, 카카오톡으로 발행할지 여기서 바로 결정할 수 있어요.",
     });
   } catch {
     // 저장은 이미 성공했으니, 테스트 메시지 발송 실패는 치명적이지 않음

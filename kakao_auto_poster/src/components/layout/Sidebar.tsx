@@ -38,7 +38,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       <div>
         <div className="mb-4 md:mb-6">
           <div className="px-2 text-lg font-semibold text-neutral-900">
-            뉴스레터 자동화
+            카카오톡 뉴스레터 자동화
           </div>
           <a
             href={`${MAIN_SITE_URL}/programs`}
