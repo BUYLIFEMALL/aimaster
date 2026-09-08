@@ -14,15 +14,17 @@ interface ReportEditorProps {
   userId: string;
   title: string;
   content: string;
+  /** /reports 목록의 "수정" 링크(?edit=1)로 들어왔을 때 바로 편집 모드로 연다. */
+  initialEditing?: boolean;
 }
 
 /**
  * 리포트 상세 화면의 제목/본문을 직접 수정하거나 삭제하는 UI. 평소엔 생성된 그대로
  * 보여주다가 "✏️ 수정" 버튼을 누르면 RichTextEditor(이미지/영상 삽입 가능)로 바뀐다.
  */
-export function ReportEditor({ reportId, userId, title, content }: ReportEditorProps) {
+export function ReportEditor({ reportId, userId, title, content, initialEditing = false }: ReportEditorProps) {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(initialEditing);
   const [editTitle, setEditTitle] = useState(title);
   const [editContent, setEditContent] = useState(() => toEditorHtml(content));
   const [state, formAction, isSaving] = useActionState(updateReportAction, updateInitialState);

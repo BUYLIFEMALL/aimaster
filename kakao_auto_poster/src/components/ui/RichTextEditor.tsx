@@ -11,8 +11,9 @@ import { Table, TableRow, TableHeader, TableCell } from "@tiptap/extension-table
 import { Highlight } from "@tiptap/extension-highlight";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
-import { useCallback, useRef, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { generateReportImageAction, type GenerateImageState } from "@/lib/actions/reports";
 import {
   Bold,
   Italic,
@@ -38,7 +39,10 @@ import {
   Redo,
   Quote,
   Baseline,
+  Sparkles,
 } from "lucide-react";
+
+const generateImageInitialState: GenerateImageState = {};
 
 // 루트 AIMaster의 components/ui/RichTextEditor.tsx(Tiptap 기반, 이미지 업로드+YouTube
 // 삽입)와 동일한 구성/툴바를 그대로 재사용하되, 이 프로젝트는 별도 Next.js 프로젝트라
@@ -94,6 +98,12 @@ function Toolbar({ editor, userId }: { editor: Editor; userId: string }) {
   const [uploading, setUploading] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showAiImageInput, setShowAiImageInput] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [genState, genFormAction, isGeneratingImage] = useActionState(
+    generateReportImageAction,
+    generateImageInitialState,
+  );
 
   const TEXT_COLORS = [
     { label: "기본", value: "" },
@@ -150,6 +160,18 @@ function Toolbar({ editor, userId }: { editor: Editor; userId: string }) {
   const addTable = useCallback(() => {
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   }, [editor]);
+
+  // AI 이미지 생성(docs/PLATFORM_PATTERNS.md §12 — Gemini 직접 호출 + Storage 업로드) 결과가
+  // 오면 자동으로 본문에 삽입한다. insertedUrlRef로 같은 결과를 두 번 넣지 않게 막는다.
+  const insertedUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (genState.url && genState.url !== insertedUrlRef.current) {
+      insertedUrlRef.current = genState.url;
+      editor.chain().focus().setImage({ src: genState.url }).run();
+      setAiPrompt("");
+      setShowAiImageInput(false);
+    }
+  }, [genState.url, editor]);
 
   return (
     <div className="border-b border-neutral-200">
@@ -323,6 +345,50 @@ function Toolbar({ editor, userId }: { editor: Editor; userId: string }) {
           >
             {uploading ? <span className="animate-pulse text-[10px] text-blue-600">...</span> : <ImageIcon size={15} />}
           </ToolbarButton>
+        </div>
+
+        <div className="relative">
+          <ToolbarButton
+            title="AI 이미지 생성"
+            active={showAiImageInput}
+            disabled={isGeneratingImage}
+            onClick={() => {
+              setShowAiImageInput(!showAiImageInput);
+              setShowLinkInput(false);
+              setShowYoutubeInput(false);
+            }}
+          >
+            {isGeneratingImage ? (
+              <span className="animate-pulse text-[10px] text-blue-600">...</span>
+            ) : (
+              <Sparkles size={15} />
+            )}
+          </ToolbarButton>
+          {showAiImageInput && (
+            <form
+              action={genFormAction}
+              className="absolute top-full left-0 z-10 mt-1 min-w-[320px] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl"
+            >
+              <p className="mb-2 text-xs text-neutral-500">어떤 이미지를 만들까요? (한글로 설명해주세요)</p>
+              <textarea
+                name="prompt"
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="예: 카페에서 노트북으로 이커머스 데이터를 분석하는 사람"
+                rows={2}
+                className="mb-2 w-full resize-none rounded-lg border border-neutral-300 px-2 py-1.5 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+                autoFocus
+              />
+              {genState.error && <p className="mb-2 text-[11px] text-red-600">{genState.error}</p>}
+              <button
+                type="submit"
+                disabled={isGeneratingImage || !aiPrompt.trim()}
+                className="rounded bg-blue-100 px-3 py-1.5 text-xs text-blue-700 transition-colors hover:bg-blue-200 disabled:opacity-50"
+              >
+                {isGeneratingImage ? "생성 중... (몇 초 걸려요)" : "✨ 생성해서 삽입"}
+              </button>
+            </form>
+          )}
         </div>
 
         <div className="relative">

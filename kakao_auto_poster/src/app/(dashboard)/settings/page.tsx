@@ -28,7 +28,7 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
   },
   {
     title: "🎨 (선택) 이미지 생성 AI",
-    description: "추후 카드뉴스형 콘텐츠를 지원할 때를 대비한 예비 등록입니다. 지금은 쓰이지 않습니다.",
+    description: "리포트 수정 화면에서 \"AI 이미지 생성\" 버튼을 쓰려면 등록해주세요.",
     providers: ["gemini"],
   },
 ];

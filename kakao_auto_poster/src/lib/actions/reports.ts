@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { sendReportToKakaoCore } from "@/lib/kakaoSend";
+import { resolveApiKey } from "@/lib/apiKeys";
+import { generateReportImage } from "@/lib/ai/reportImage";
 
 export interface SendKakaoState {
   error?: string;
@@ -76,4 +78,49 @@ export async function deleteReportAction(formData: FormData) {
 
   revalidatePath("/reports");
   redirect("/reports");
+}
+
+export interface GenerateImageState {
+  error?: string;
+  url?: string;
+}
+
+/**
+ * 수정 화면(RichTextEditor)에서 "✨ AI 이미지 생성" 버튼으로 호출한다. Gemini(나노바나나)를
+ * 직접 호출해서 이미지를 만들고(docs/PLATFORM_PATTERNS.md §12), 이 프로젝트 전용 공개 버킷
+ * kakao-report-images(본인 폴더)에 업로드한 뒤 공개 URL을 반환한다 — 에디터가 그 URL을
+ * <img>로 삽입한다. 회원 본인의 gemini 키가 없으면 등록 안내로 막는다(폴백 없음).
+ */
+export async function generateReportImageAction(
+  _prevState: GenerateImageState,
+  formData: FormData,
+): Promise<GenerateImageState> {
+  const user = await requireProgramAccess();
+  const prompt = String(formData.get("prompt") ?? "").trim();
+  if (!prompt) return { error: "이미지로 만들 내용을 입력해주세요." };
+
+  const supabase = await createClient();
+  const apiKey = await resolveApiKey(supabase, user.id, "gemini");
+  if (!apiKey) {
+    return { error: "Gemini API 키가 등록되어 있지 않습니다. 설정 페이지에서 먼저 등록해주세요." };
+  }
+
+  try {
+    const dataUri = await generateReportImage(prompt, apiKey);
+    const match = /^data:(.+?);base64,(.+)$/.exec(dataUri);
+    if (!match) throw new Error("이미지 데이터 형식이 올바르지 않습니다.");
+    const [, mimeType, base64] = match;
+    const ext = mimeType.split("/")[1] ?? "png";
+    const path = `${user.id}/ai-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("kakao-report-images")
+      .upload(path, Buffer.from(base64, "base64"), { contentType: mimeType, upsert: false });
+    if (uploadError) return { error: uploadError.message };
+
+    const { data: urlData } = supabase.storage.from("kakao-report-images").getPublicUrl(path);
+    return { url: urlData.publicUrl };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "이미지 생성에 실패했습니다." };
+  }
 }

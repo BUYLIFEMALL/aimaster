@@ -8,9 +8,16 @@ import { ReportEditor } from "@/components/reports/ReportEditor";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export default async function ReportDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ReportDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
+}) {
   const user = await requireProgramAccess();
   const { id } = await params;
+  const { edit } = await searchParams;
   const supabase = await createClient();
 
   const { data: report } = await supabase
@@ -48,7 +55,13 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
           <p className="whitespace-pre-line text-sm text-neutral-700">{report.summary}</p>
         </div>
 
-        <ReportEditor reportId={report.id} userId={user.id} title={report.title} content={report.content} />
+        <ReportEditor
+          reportId={report.id}
+          userId={user.id}
+          title={report.title}
+          content={report.content}
+          initialEditing={edit === "1"}
+        />
 
         <div className="border-t border-neutral-200 pt-4">
           {report.telegram_review_status === "pending" && (

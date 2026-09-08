@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { ReportListRow } from "@/components/reports/ReportListRow";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -40,22 +41,14 @@ export default async function ReportsPage() {
           </p>
         ) : (
           (reports ?? []).map((r) => (
-            <Link
+            <ReportListRow
               key={r.id}
-              href={`/reports/${r.id}`}
-              className="block rounded-lg border border-neutral-200 bg-white p-4 transition-colors hover:border-neutral-900"
-            >
-              <div className="mb-1 flex items-center justify-between gap-2">
-                <p className="text-sm font-bold text-neutral-900">{r.title}</p>
-                <span className="shrink-0 text-xs text-neutral-400">
-                  {new Date(r.created_at).toLocaleString("ko-KR")}
-                </span>
-              </div>
-              {topicNameById.has(r.topic_id) && (
-                <p className="mb-1 text-xs text-yellow-700">📌 {topicNameById.get(r.topic_id)}</p>
-              )}
-              <p className="whitespace-pre-line text-xs text-neutral-500">{r.summary}</p>
-            </Link>
+              id={r.id}
+              title={r.title}
+              summary={r.summary}
+              createdAt={r.created_at}
+              topicName={topicNameById.get(r.topic_id) ?? null}
+            />
           ))
         )}
       </div>
