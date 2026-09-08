@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { sendReportToKakaoCore } from "@/lib/kakaoSend";
@@ -28,4 +29,51 @@ export async function sendReportToKakaoAction(
   const result = await sendReportToKakaoCore(supabase, user.id, reportId);
   revalidatePath(`/reports/${reportId}`);
   return result;
+}
+
+export interface UpdateReportState {
+  error?: string;
+}
+
+/**
+ * 리포트의 제목/본문을 직접 수정한다. 본문은 RichTextEditor(components/ui/RichTextEditor.tsx)로
+ * 편집하므로 HTML로 저장된다 — AI가 처음 생성한 리포트는 일반 텍스트라, 상세 페이지에서
+ * HTML 태그 포함 여부로 렌더링 방식을 구분한다(app/(dashboard)/reports/[id]/page.tsx).
+ */
+export async function updateReportAction(
+  _prevState: UpdateReportState,
+  formData: FormData,
+): Promise<UpdateReportState> {
+  const user = await requireProgramAccess();
+  const id = String(formData.get("id") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  const content = String(formData.get("content") ?? "");
+
+  if (!id) return { error: "리포트를 찾을 수 없습니다." };
+  if (!title) return { error: "제목을 입력해주세요." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("kakao_reports")
+    .update({ title, content })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/reports/${id}`);
+  revalidatePath("/reports");
+  return {};
+}
+
+export async function deleteReportAction(formData: FormData) {
+  const user = await requireProgramAccess();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const supabase = await createClient();
+  await supabase.from("kakao_reports").delete().eq("id", id).eq("user_id", user.id);
+
+  revalidatePath("/reports");
+  redirect("/reports");
 }

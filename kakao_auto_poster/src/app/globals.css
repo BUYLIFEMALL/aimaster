@@ -15,3 +15,71 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* 리포트 에디터(components/ui/RichTextEditor.tsx)와 상세 화면의 렌더링된 리포트 본문이
+   함께 쓰는 기본 서식 — 루트 AIMaster의 prose-editor와 같은 역할, 이 프로젝트 밝은
+   테마에 맞춰 새로 작성했다. */
+.prose-report h1 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  margin: 1em 0 0.5em;
+}
+.prose-report h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 1em 0 0.5em;
+}
+.prose-report h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0.8em 0 0.4em;
+}
+.prose-report p {
+  margin: 0.6em 0;
+}
+.prose-report ul,
+.prose-report ol {
+  margin: 0.6em 0;
+  padding-left: 1.4em;
+}
+.prose-report ul {
+  list-style: disc;
+}
+.prose-report ol {
+  list-style: decimal;
+}
+.prose-report blockquote {
+  border-left: 3px solid #d4d4d4;
+  padding-left: 0.8em;
+  color: #525252;
+  margin: 0.8em 0;
+}
+.prose-report img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 0.6em 0;
+}
+.prose-report a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.prose-report table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.8em 0;
+}
+.prose-report th,
+.prose-report td {
+  border: 1px solid #e5e5e5;
+  padding: 0.4em 0.6em;
+  font-size: 0.85em;
+}
+.prose-report th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+.prose-report hr {
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 1em 0;
+}

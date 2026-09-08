@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SendKakaoButton } from "@/components/reports/SendKakaoButton";
+import { ReportEditor } from "@/components/reports/ReportEditor";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -40,17 +41,14 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
 
       <div className="rounded-2xl border-2 border-neutral-300 bg-white p-6 shadow-sm">
         {topic && <p className="mb-2 text-xs font-medium text-yellow-700">📌 {topic.topic_name}</p>}
-        <h1 className="mb-2 text-xl font-semibold text-neutral-900">{report.title}</h1>
-        <p className="mb-6 text-xs text-neutral-400">
-          {new Date(report.created_at).toLocaleString("ko-KR")}
-        </p>
+        <p className="mb-2 text-xs text-neutral-400">{new Date(report.created_at).toLocaleString("ko-KR")}</p>
 
         <div className="mb-6 rounded-lg bg-yellow-50 p-4">
           <p className="mb-1 text-xs font-bold text-yellow-800">💬 카카오톡 발송 요약</p>
           <p className="whitespace-pre-line text-sm text-neutral-700">{report.summary}</p>
         </div>
 
-        <div className="mb-6 whitespace-pre-line text-sm leading-relaxed text-neutral-800">{report.content}</div>
+        <ReportEditor reportId={report.id} userId={user.id} title={report.title} content={report.content} />
 
         <div className="border-t border-neutral-200 pt-4">
           {report.telegram_review_status === "pending" && (
