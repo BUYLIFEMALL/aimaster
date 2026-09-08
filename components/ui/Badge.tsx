@@ -8,12 +8,15 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   label?: string;
 }
 
+// 예전엔 sale/coming/free가 반투명 배경(bg-*/20)이라 배경 위에 얹히는 곳(홈 화면 카드 등)에서
+// 글자가 잘 안 보인다는 신고가 있었다(2026-09-08). new/best처럼 불투명하게 색을 꽉 채워서
+// 어떤 배경 위에서도 대비가 유지되도록 통일했다.
 const variantStyles: Record<BadgeVariant, string> = {
   new: "badge-new",
   best: "badge-best",
-  sale: "bg-orange-500/20 text-orange-400 border border-orange-500/30",
-  coming: "bg-neutral-500/20 text-neutral-400 border border-neutral-500/30",
-  free: "bg-red-500/20 text-red-400 border border-red-500/30",
+  sale: "bg-orange-500 text-black",
+  coming: "bg-neutral-500 text-white",
+  free: "bg-red-500 text-white",
   custom: "",
 };
 
