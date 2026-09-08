@@ -92,9 +92,13 @@ kakao_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 | 1 | 프로젝트 뼈대, 관심 주제/키워드 등록(`kakao_topics`), Perplexity 기반 "지금 생성" 수동 버튼, 생성된 콘텐츠(`kakao_reports`)를 보는 웹 리포트 페이지 | ✅ 구현 완료, 미검증(실계정 API 키로 첫 생성 테스트 필요) |
 | 2 | 설정 페이지에 카카오 채널(SOLAPI) 연동 섹션 추가(`user_solapi_accounts` 공용 테이블 재사용), 리포트 상세 페이지에 "💬 카카오로 발송" 버튼(`sendReportToKakaoAction`) — 수신 번호는 `profiles.phone`(trending-product-finder Phase 10과 동일 패턴) | ✅ 구현 완료, 미검증(실계정 SOLAPI 계정으로 첫 발송 테스트 필요) |
 | 3 | ① 날짜 앵커링 수정 — `lib/ai/collector.ts`가 Perplexity/OpenAI 프롬프트에 오늘 날짜(KST)를 명시적으로 주입해 학습 데이터 시점을 "현재"로 착각하는 문제 해결. ② 데이터 조회 범위 회원 선택(`kakao_topics.lookback_days`, 3일/1주/2주/1개월/3개월, `TopicForm`/`TopicRow` UI). ③ 예약(정기 자동 생성) on/off — `kakao_topics.schedule_enabled`/`interval_minutes`/`last_run_at`, 기본값 꺼짐, 5분 tick 크론(`/api/cron/generate-reports`, `vercel.json` 등록). ④ 카카오 발송 전 텔레그램 사전 검토 — 공용 `user_telegram_links` 재사용, 리포트 생성 시(수동/예약 모두) 텔레그램으로 "✅ 카카오로 발행/❌ 발행 안 함" 인라인 버튼 발송(`lib/telegramReview.ts`, `app/api/telegram/webhook/[userId]/route.ts`), 텔레그램 미연동 시 기존처럼 웹 화면에서만 수동 발송 | ✅ 구현 완료, 미검증(실계정으로 예약 자동 생성 1주기 + 텔레그램 승인/거부 버튼 동작 확인 필요) |
-| 4 | HTTP/RSS 소스 추가, `programs` 등록 확인(4단계 기본 요금제는 관리자 화면 `ProgramForm.tsx`의 `DEFAULT_PLANS`가 자동 처리) | ⏸️ 예정 |
+| 4 | 카카오 로그인("나에게 보내기" 무료 API) 연동 추가 — 회원이 카카오톡 채널 개설/SOLAPI 계정 없이 카카오 로그인 동의 1회만으로 본인 "나와의 채팅방"으로 리포트를 받을 수 있다. 기본 템플릿(피드형)에 제목/요약/링크를 매번 JSON으로 동적으로 채워 넣는 방식이라 콘솔에서 템플릿을 미리 만들어둘 필요가 없다(`lib/kakao/client.ts`의 `sendReportMemoToMe`). `lib/kakaoSend.ts`가 `user_kakao_accounts` 연동이 있으면 이 채널을 우선 사용하고, 없으면 기존 SOLAPI 경로로 자동 전환한다 — SOLAPI 방식을 대체하는 게 아니라 진입장벽 낮은 대안으로 나란히 제공 | ✅ 구현 완료, 미검증(카카오 개발자 앱 등록 필요 — 아래 참고) |
+| 5 | HTTP/RSS 소스 추가, `programs` 등록 확인(4단계 기본 요금제는 관리자 화면 `ProgramForm.tsx`의 `DEFAULT_PLANS`가 자동 처리) | ⏸️ 예정 |
 
 ## ⚠️ 미검증 항목 (실사용 전 반드시 확인)
+
+- **Phase 4(카카오 로그인) 실사용 전 필수 설정**: https://developers.kakao.com 에서 이 프로젝트용 앱을 하나 등록하고(threads의 Meta 앱과 동일한 성격 — 앱은 프로젝트당 1개, 회원 각자는 이 앱을 통해 개별 로그인/동의), "카카오 로그인" 활성화 + 동의항목에서 `talk_message` 사용 설정, Redirect URI에 `{배포 URL}/api/kakao/callback`을 등록해야 한다. 발급받은 REST API 키/시크릿을 `.env.local`(로컬)과 Vercel 환경변수(배포)에 `KAKAO_REST_API_KEY`/`KAKAO_CLIENT_SECRET`/`KAKAO_REDIRECT_URI`로 등록할 것 — 아직 등록 전이라 실계정으로 연동/발송을 테스트하지 못했다.
+- 카카오 access_token은 짧게(몇 시간) 만료되고 refresh_token으로 자동 갱신하도록 구현했지만(`lib/kakao/account.ts`), 실제 refresh_token 만료 주기(카카오 콘솔 설정에 따라 다름)에 걸친 장기 동작은 아직 검증하지 못했다 — 회원이 오래 방치했다가 다시 발송을 시도하는 시나리오를 한 번은 확인할 것.
 
 - Phase 1 전체(주제 등록 → Perplexity 검색 → AI 구조화 → 리포트 저장/조회)는 아직 실계정
   API 키로 end-to-end 테스트하지 않았다. 첫 사용 시 반드시 실제로 주제를 등록하고 "지금

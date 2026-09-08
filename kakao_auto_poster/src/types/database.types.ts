@@ -203,6 +203,45 @@ export interface Database {
         };
         Relationships: [];
       };
+      user_kakao_accounts: {
+        Row: {
+          id: string;
+          user_id: string;
+          kakao_user_id: string;
+          nickname: string | null;
+          access_token: string;
+          refresh_token: string;
+          token_expires_at: string;
+          refresh_token_expires_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kakao_user_id: string;
+          nickname?: string | null;
+          access_token: string;
+          refresh_token: string;
+          token_expires_at: string;
+          refresh_token_expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          kakao_user_id?: string;
+          nickname?: string | null;
+          access_token?: string;
+          refresh_token?: string;
+          token_expires_at?: string;
+          refresh_token_expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

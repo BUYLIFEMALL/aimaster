@@ -21,13 +21,16 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
 
   if (!report) notFound();
 
-  const [{ data: topic }, { data: profile }, { data: solapiAccount }] = await Promise.all([
+  const [{ data: topic }, { data: profile }, { data: solapiAccount }, { data: kakaoAccount }] = await Promise.all([
     supabase.from("kakao_topics").select("topic_name").eq("id", report.topic_id).maybeSingle(),
     supabase.from("profiles").select("phone").eq("id", user.id).maybeSingle(),
     supabase.from("user_solapi_accounts").select("kakao_pf_id").eq("user_id", user.id).maybeSingle(),
+    supabase.from("user_kakao_accounts").select("id").eq("user_id", user.id).maybeSingle(),
   ]);
 
-  const canSendKakao = Boolean(profile?.phone && solapiAccount?.kakao_pf_id);
+  // 카카오 로그인(무료) 또는 SOLAPI(카카오 채널) 둘 중 하나만 연동돼 있어도 발송 가능하다 —
+  // lib/kakaoSend.ts가 카카오 로그인을 우선 사용하고 없으면 SOLAPI로 자동 전환한다.
+  const canSendKakao = Boolean(kakaoAccount) || Boolean(profile?.phone && solapiAccount?.kakao_pf_id);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -75,7 +78,8 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
               <Link href="/settings" className="font-medium text-blue-600 hover:underline">
                 설정 페이지
               </Link>
-              에서 카카오 채널(SOLAPI)을 연동하고, AIMaster 프로필에 전화번호를 등록해주세요.
+              에서 카카오 로그인(무료, 추천)으로 연동하거나 카카오 채널(SOLAPI)을 연동하고
+              AIMaster 프로필에 전화번호를 등록해주세요.
             </p>
           )}
         </div>
