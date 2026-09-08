@@ -8,7 +8,6 @@ export interface GeneratePostInput {
   tone?: ThreadsTone;
   keywords?: string[];
   referenceUrls?: string[];
-  cta?: { text: string; url: string };
 }
 
 export interface GeneratePostResult {
@@ -55,10 +54,6 @@ export async function generatePostContent(
   const keywordLine = keywords.length > 0 ? `\n포함할 키워드: ${keywords.join(", ")}` : "";
   const referenceUrls = (input.referenceUrls ?? []).filter((u) => u.trim().length > 0);
   const referenceLine = referenceUrls.length > 0 ? `\n참고 웹페이지: ${referenceUrls.join(", ")}` : "";
-  const ctaLine =
-    input.cta?.url?.trim()
-      ? `\n\n[CTA 지시사항] 게시글 맨 마지막 줄에 아래 문구와 URL을 "👉 {문구}\n{URL}" 형태로 자연스럽게 추가하세요 (450자 제한에 포함되니 본문 분량을 그만큼 줄여서 넣으세요).\nCTA 문구: ${input.cta.text?.trim() || "자세히 보기"}\nCTA URL: ${input.cta.url.trim()}`
-      : "";
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -72,7 +67,7 @@ export async function generatePostContent(
         { role: "system", content: THREADS_SYSTEM_PROMPT },
         {
           role: "user",
-          content: `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})${keywordLine}${referenceLine}${ctaLine}`,
+          content: `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})${keywordLine}${referenceLine}`,
         },
       ],
       max_tokens: 600,

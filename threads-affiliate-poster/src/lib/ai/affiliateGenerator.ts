@@ -55,10 +55,14 @@ function buildTopic(product: AffiliateProductContext): string {
 }
 
 /**
- * 제휴 상품 캡션을 생성한다. 일반 generatePostContent()를 감싸서 (1) cta.url에
- * 제휴 링크를 자동으로 넣고 (2) 플랫폼별 고지 문구를 캡션 끝에 자동으로 붙인다.
- * 고지 문구는 사용자가 지울 수 없도록 이 함수 결과에 항상 포함시켜야 한다 —
- * 게시 직전 어느 경로(즉시 게시/예약)로 가든 이 함수를 거치도록 호출부에서 보장할 것.
+ * 제휴 상품 캡션을 생성한다. 일반 generatePostContent()를 감싸서 (1) 제휴 링크와
+ * (2) 플랫폼별 고지 문구를 캡션 끝에 자동으로 붙인다.
+ *
+ * 제휴 링크는 AI에게 프롬프트로 "URL을 그대로 써달라"고 시키지 않는다 — 실제로
+ * gpt-4o-mini가 실제 URL 대신 "{링크}" 같은 placeholder 문자열을 그대로 출력해버려
+ * 게시글에 링크가 아예 안 걸리는 사고가 있었다(2026-09-09). 그래서 AI에게는 본문
+ * 카피만 만들게 하고, 실제 URL은 여기서 코드로 직접 이어붙여 항상 정확하게 들어가도록
+ * 보장한다. 고지 문구도 같은 이유로 이미 코드로 붙이고 있었다.
  */
 export async function generateAffiliatePostContent(
   product: AffiliateProductContext,
@@ -69,18 +73,18 @@ export async function generateAffiliatePostContent(
     topic: buildTopic(product),
     tone: options.tone,
     keywords: options.keywords,
-    cta: { text: PLATFORM_DEFAULT_CTA_TEXT[product.platform], url: product.affiliateUrl },
   };
 
   const { content } = await generatePostContent(input, apiKey);
 
-  const disclosure = DISCLOSURE_TEXT[product.platform];
-  if (!disclosure) return { content };
+  const ctaText = PLATFORM_DEFAULT_CTA_TEXT[product.platform];
+  const ctaBlock = `\n\n${ctaText} 👉\n${product.affiliateUrl}`;
+  const disclosure = DISCLOSURE_TEXT[product.platform] ?? "";
 
-  // Threads 게시글 최대 길이(500자) 안에 고지 문구가 반드시 들어가도록, 본문을
-  // 필요한 만큼 줄여서 고지 문구가 잘리거나 누락되지 않게 한다.
-  const maxContentLength = 500 - disclosure.length;
+  // Threads 게시글 최대 길이(500자) 안에 제휴 링크와 고지 문구가 반드시 들어가도록,
+  // 본문을 필요한 만큼 줄여서 링크나 고지 문구가 잘리거나 누락되지 않게 한다.
+  const maxContentLength = 500 - ctaBlock.length - disclosure.length;
   const trimmedContent = content.length > maxContentLength ? content.slice(0, maxContentLength).trim() : content;
 
-  return { content: `${trimmedContent}${disclosure}` };
+  return { content: `${trimmedContent}${ctaBlock}${disclosure}` };
 }
