@@ -33,6 +33,10 @@ interface TopicRowProps {
 const generateInitialState: GenerateReportState = {};
 const scheduleInitialState: UpdateScheduleState = {};
 
+// trending-product-finder의 watchlist(관심 목록) 카드와 동일한 레이아웃 — 예약 패널을
+// 별도 버튼 뒤에 숨기지 않고 카드 안에 항상 펼쳐서 보여준다. 상단은 이름/키워드 +
+// 활성 ON/OFF + 삭제, 그 아래 "지금 리포트 생성" 알약 버튼, 그리고 그 아래 항상 보이는
+// "🔔 예약 리포트 알림" 패널(자체 ON/OFF + 주기/동작시간대/알림채널)로 구성한다.
 export function TopicRow({
   id,
   topicName,
@@ -46,10 +50,10 @@ export function TopicRow({
   notifyChannels,
 }: TopicRowProps) {
   const [genState, genFormAction, isGenerating] = useActionState(generateReportAction, generateInitialState);
-  const [showSettings, setShowSettings] = useState(false);
 
-  // ── 예약(정기 자동 생성) 설정 — real_estate_sales의 MonitoringSettings.tsx와 동일하게,
-  // 버튼/셀렉트를 바꾸는 즉시 자동 저장한다(별도 "저장" 버튼 없음).
+  // ── 예약(정기 자동 생성) 설정 — real_estate_sales의 MonitoringSettings.tsx /
+  // trending-product-finder의 SourcingAlertControls.tsx와 동일하게, 버튼/셀렉트를 바꾸는
+  // 즉시 자동 저장한다(별도 "저장" 버튼 없음).
   const [lookback, setLookback] = useState(lookbackDays);
   const [enabled, setEnabled] = useState(scheduleEnabled);
   const [interval, setInterval_] = useState(intervalMinutes ?? 1440);
@@ -223,223 +227,195 @@ export function TopicRow({
             </div>
           )}
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-              isActive ? "bg-yellow-100 text-yellow-800" : "bg-neutral-100 text-neutral-500"
-            }`}
-          >
-            {isActive ? "활성" : "비활성"}
-          </span>
-          {scheduleEnabled && (
-            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-              ⏰ 예약 켜짐
-            </span>
-          )}
+        <div className="flex shrink-0 items-center gap-2">
+          <form action={toggleTopicActiveAction}>
+            <input type="hidden" name="id" value={id} />
+            <input type="hidden" name="isActive" value={String(isActive)} />
+            <button
+              type="submit"
+              className={clsx(
+                "rounded-full px-3 py-1 text-xs font-bold text-white transition-colors",
+                isActive ? "bg-blue-600 hover:bg-blue-700" : "bg-red-500 hover:bg-red-600",
+              )}
+            >
+              {isActive ? "ON" : "OFF"}
+            </button>
+          </form>
+          <form action={deleteTopicAction}>
+            <input type="hidden" name="id" value={id} />
+            <button type="submit" className="text-xs font-semibold text-red-500 hover:underline">
+              삭제
+            </button>
+          </form>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-3">
-        <form action={genFormAction}>
-          <input type="hidden" name="topicId" value={id} />
-          <Button type="submit" variant="info" disabled={isGenerating}>
-            {isGenerating ? "생성 중..." : "✨ 지금 생성"}
-          </Button>
-        </form>
-        <form action={toggleTopicActiveAction}>
-          <input type="hidden" name="id" value={id} />
-          <input type="hidden" name="isActive" value={String(isActive)} />
-          <Button type="submit" variant="muted">
-            {isActive ? "비활성화" : "활성화"}
-          </Button>
-        </form>
-        <Button type="button" variant="warning" onClick={() => setShowSettings((v) => !v)}>
-          ⚙️ 조회 범위/예약 설정
-        </Button>
-        <form action={deleteTopicAction}>
-          <input type="hidden" name="id" value={id} />
-          <Button type="submit" variant="danger">
-            삭제
-          </Button>
-        </form>
-      </div>
+      <form action={genFormAction}>
+        <input type="hidden" name="topicId" value={id} />
+        <button
+          type="submit"
+          disabled={isGenerating}
+          className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700 transition-colors hover:bg-green-200 disabled:opacity-50"
+        >
+          {isGenerating ? "생성 중..." : "✨ 지금 리포트 생성"}
+        </button>
+      </form>
       {genState.error && <p className="mt-2 text-xs text-red-600">{genState.error}</p>}
 
-      {showSettings && (
-        <div className="mt-3 space-y-4 rounded-lg border-2 border-blue-200 bg-blue-50 p-3">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-neutral-700">데이터 조회 범위</label>
-            <select
-              value={lookback}
-              disabled={isSavingSchedule}
-              onChange={(e) => {
-                const next = Number(e.target.value);
-                setLookback(next);
-                saveSchedule({ lookback: next });
-              }}
-              className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-900"
-            >
-              {LOOKBACK_DAYS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="mt-3 rounded-xl border-2 border-blue-200 bg-blue-50/50 p-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-bold text-blue-900">🔔 예약 리포트 알림</p>
+          <button
+            type="button"
+            onClick={() => {
+              const next = !enabled;
+              setEnabled(next);
+              saveSchedule({ enabled: next });
+            }}
+            disabled={isSavingSchedule}
+            className={clsx(
+              "rounded-full px-3 py-1 text-xs font-bold text-white transition-colors disabled:opacity-50",
+              enabled ? "bg-blue-600 hover:bg-blue-700" : "bg-red-500 hover:bg-red-600",
+            )}
+          >
+            {enabled ? "ON" : "OFF"}
+          </button>
+        </div>
+        <p className="mt-1 text-[11px] leading-snug text-blue-700/80">
+          정해둔 주기마다 이 주제로 최신 정보를 검색해서 리포트를 만들고, 등록된 채널로
+          알려드려요. 카카오톡 발행은 항상 별도 승인(텔레그램 버튼 또는 리포트 화면의 발송
+          버튼)이 필요합니다.
+        </p>
 
-          <div className="border-t border-blue-100 pt-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-neutral-700">예약 발송 (주기적으로 자동 생성)</span>
+        {enabled && (
+          <div className="mt-2 space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="w-16 shrink-0 text-[11px] text-neutral-500">조회 범위</span>
+              <select
+                value={lookback}
+                disabled={isSavingSchedule}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  setLookback(next);
+                  saveSchedule({ lookback: next });
+                }}
+                className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+              >
+                {LOOKBACK_DAYS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="w-16 shrink-0 text-[11px] text-neutral-500">주기</span>
+              <select
+                value={interval}
+                disabled={isSavingSchedule}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  setInterval_(next);
+                  saveSchedule({ interval: next });
+                }}
+                className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+              >
+                {SCHEDULE_INTERVAL_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="w-16 shrink-0 text-[11px] text-neutral-500">동작 시간대</span>
               <button
                 type="button"
                 disabled={isSavingSchedule}
                 onClick={() => {
-                  const next = !enabled;
-                  setEnabled(next);
-                  saveSchedule({ enabled: next });
+                  const next = !hoursRestricted;
+                  setHoursRestricted(next);
+                  saveSchedule({ hoursRestricted: next });
                 }}
                 className={clsx(
-                  "rounded-full px-3 py-1 text-xs font-bold transition-colors disabled:opacity-50",
-                  enabled ? "bg-blue-600 text-white" : "border border-neutral-300 bg-white text-neutral-500",
+                  "rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50",
+                  hoursRestricted ? "border-blue-400 bg-blue-100 text-blue-700" : "border-neutral-300 bg-white text-neutral-500",
                 )}
               >
-                {enabled ? "ON" : "OFF"}
+                {hoursRestricted ? "특정 시간대만" : "종일"}
               </button>
-            </div>
-            <p className="mt-1 text-[11px] text-neutral-500">
-              켜두면 아래 주기마다 자동으로 리포트를 생성합니다. 카카오톡 발송은 항상 별도
-              승인이 필요합니다 — 텔레그램을 연동해두면 발행 전 검토 알림을 받을 수 있고,
-              연동하지 않았다면 웹 화면에서 직접 확인 후 발송해주세요.
-            </p>
 
-            {enabled && (
-              <div className="mt-3 space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-neutral-700">예약 주기</label>
+              {hoursRestricted && (
+                <div className="flex items-center gap-1.5 text-xs">
                   <select
-                    value={interval}
+                    value={startHour}
                     disabled={isSavingSchedule}
                     onChange={(e) => {
                       const next = Number(e.target.value);
-                      setInterval_(next);
-                      saveSchedule({ interval: next });
+                      setStartHour(next);
+                      saveSchedule({ startHour: next });
                     }}
-                    className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+                    className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900"
                   >
-                    {SCHEDULE_INTERVAL_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
+                    {HOUR_OPTIONS.map((h) => (
+                      <option key={h} value={h}>
+                        {h}시
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-neutral-400">~</span>
+                  <select
+                    value={endHour}
+                    disabled={isSavingSchedule}
+                    onChange={(e) => {
+                      const next = Number(e.target.value);
+                      setEndHour(next);
+                      saveSchedule({ endHour: next });
+                    }}
+                    className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900"
+                  >
+                    {HOUR_OPTIONS.map((h) => (
+                      <option key={h} value={h}>
+                        {h}시
                       </option>
                     ))}
                   </select>
                 </div>
+              )}
+            </div>
 
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-neutral-700">동작 시간대</label>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      disabled={isSavingSchedule}
-                      onClick={() => {
-                        const next = !hoursRestricted;
-                        setHoursRestricted(next);
-                        saveSchedule({ hoursRestricted: next });
-                      }}
-                      className={clsx(
-                        "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50",
-                        hoursRestricted
-                          ? "border-blue-400 bg-white text-blue-700"
-                          : "border-neutral-300 bg-white text-neutral-500",
-                      )}
-                    >
-                      {hoursRestricted ? "특정 시간대만" : "종일"}
-                    </button>
-
-                    {hoursRestricted && (
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={startHour}
-                          disabled={isSavingSchedule}
-                          onChange={(e) => {
-                            const next = Number(e.target.value);
-                            setStartHour(next);
-                            saveSchedule({ startHour: next });
-                          }}
-                          className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
-                        >
-                          {HOUR_OPTIONS.map((h) => (
-                            <option key={h} value={h}>
-                              {h}시
-                            </option>
-                          ))}
-                        </select>
-                        <span className="text-neutral-400">~</span>
-                        <select
-                          value={endHour}
-                          disabled={isSavingSchedule}
-                          onChange={(e) => {
-                            const next = Number(e.target.value);
-                            setEndHour(next);
-                            saveSchedule({ endHour: next });
-                          }}
-                          className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900"
-                        >
-                          {HOUR_OPTIONS.map((h) => (
-                            <option key={h} value={h}>
-                              {h}시
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+            <div className="flex flex-wrap gap-1.5">
+              {NOTIFY_CHANNEL_OPTIONS.map((c) => {
+                const checked = channels.includes(c.value);
+                return (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => toggleChannel(c.value)}
+                    disabled={isSavingSchedule}
+                    className={clsx(
+                      "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50",
+                      checked ? "border-blue-500 bg-blue-500 text-white" : "border-neutral-300 bg-white text-neutral-500",
                     )}
-                  </div>
-                  <p className="mt-1 text-[11px] text-neutral-500">
-                    "특정 시간대만"으로 설정하면 그 시간대(한국시간)에만 예약 자동 생성이
-                    실행됩니다 — 예: 22시~6시로 두면 밤중엔 실행되지 않습니다.
-                  </p>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-neutral-700">알림 채널</label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {NOTIFY_CHANNEL_OPTIONS.map((c) => {
-                      const checked = channels.includes(c.value);
-                      return (
-                        <button
-                          key={c.value}
-                          type="button"
-                          disabled={isSavingSchedule}
-                          onClick={() => toggleChannel(c.value)}
-                          className={clsx(
-                            "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50",
-                            checked ? "border-blue-500 bg-blue-500 text-white" : "border-neutral-300 bg-white text-neutral-500",
-                          )}
-                        >
-                          {c.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {channels.length === 0 && (
-                    <p className="mt-1 text-[11px] text-amber-600">
-                      채널을 선택하지 않으면 리포트가 생성돼도 알림이 가지 않습니다(카카오톡
-                      발행은 아래 리포트 화면에서 항상 수동으로 가능합니다).
-                    </p>
-                  )}
-                  <p className="mt-1 text-[11px] text-neutral-500">
-                    설정 페이지에 등록해둔 채널로 이 주제의 리포트 생성을 알려드립니다. 카카오톡
-                    발행은 여기 포함되지 않습니다 — 항상 별도 승인(텔레그램 버튼 또는 리포트
-                    화면의 발송 버튼)이 필요합니다.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {scheduleState.error && <p className="mt-2 text-xs text-red-600">{scheduleState.error}</p>}
-            {scheduleSaved && <p className="mt-2 text-xs text-green-600">저장됐어요.</p>}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+            {channels.length === 0 && <p className="text-[11px] text-amber-600">채널을 최소 1개 선택해야 알림이 발송됩니다.</p>}
+            <p className="text-[11px] leading-snug text-neutral-400">
+              설정 페이지에 등록해둔 채널(이메일/텔레그램) 중 선택한 것으로, 이 주제의 리포트
+              생성 소식을 보내드립니다.
+            </p>
+            {scheduleSaved && <p className="text-[11px] text-emerald-600">저장됐어요.</p>}
           </div>
-        </div>
-      )}
+        )}
+
+        {scheduleState.error && <p className="mt-2 text-[11px] text-red-600">{scheduleState.error}</p>}
+      </div>
     </div>
   );
 }
