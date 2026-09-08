@@ -243,7 +243,10 @@ export function TopicRow({
           </form>
           <form action={deleteTopicAction}>
             <input type="hidden" name="id" value={id} />
-            <button type="submit" className="text-xs font-semibold text-red-500 hover:underline">
+            <button
+              type="submit"
+              className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-red-500"
+            >
               삭제
             </button>
           </form>
