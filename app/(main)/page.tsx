@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 import Link from "next/link";
-import { ArrowRight, Zap, Shield, TrendingUp, Users, Info } from "lucide-react";
+import { ArrowRight, Zap, Shield, TrendingUp, Users, Info, GraduationCap } from "lucide-react";
 import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GlassCard from "@/components/ui/GlassCard";
@@ -146,19 +146,24 @@ const NOTICE_ITEMS: NoticeItem[] = [
     highlights: [],
   },
   {
-    text: "본 서비스는 프로그램 안정화를 위해 현재 베타(무료)로 서비스 중이며, 사용자들의 사용 트래픽 및 서버 사용량이 증가 시 일부 서비스는 유료로 전환될 예정임을 사전에 공지드립니다.",
+    text: "본 서비스는 프로그램 안정화를 위해 현재 베타(무료)로 서비스 중이며, 사용자들의 사용 트래픽 및 서버 사용량이 증가 시 일부 서비스는 유료로 전환될 예정임을 공지드립니다.",
     highlights: ["베타(무료)", "일부 서비스는 유료로 전환"],
   },
+];
+
+// 드림팀(수강생) 혜택만 따로 묶어서 보여준다 — 일반 안내와 섞여 있으면 "나는 해당 없는
+// 내용"으로 오해하기 쉬워, 소제목으로 구분했다.
+const DREAM_TEAM_ITEMS: NoticeItem[] = [
   {
-    text: "드림팀(수강생)의 경우 대부분의 프로그램을 무료로 이용할 수 있으며, 드림팀 혜택 제공을 위해 실명으로 가입하셔야 합니다.",
-    highlights: ["드림팀(수강생)", "무료로 이용", "드림팀 혜택", "실명으로 가입"],
+    text: "드림팀 회원의 경우 대부분의 프로그램을 무료로 이용할 수 있습니다.",
+    highlights: ["드림팀 회원", "무료로 이용"],
   },
   {
-    text: "실명확인이 안될 경우 일반사용자 등급으로 서비스가 제공됩니다.",
-    highlights: ["실명확인이 안될 경우", "일반사용자 등급"],
+    text: "드림팀 혜택 제공을 위해 실명으로 가입해야 하며, 실명 확인이 안될 경우 일반사용자 등급으로 서비스가 제공됩니다.",
+    highlights: ["실명으로 가입", "실명 확인이 안될 경우", "일반사용자 등급"],
   },
   {
-    text: "다만 트래픽 발생량이 많거나 서버 저장공간을 많이 사용하는 일부 프로그램은 유료(할인가 적용)로 제공됩니다.",
+    text: "트래픽 발생량이 많거나 서버 저장공간을 많이 사용하는 일부 프로그램은 유료(할인가 적용)로 제공됩니다.",
     highlights: ["일부 프로그램은 유료(할인가 적용)"],
   },
 ];
@@ -286,6 +291,22 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
+
+            {/* 드림팀(수강생) 혜택 — 일반 안내와 섞이지 않도록 소제목으로 구분 */}
+            <div className="mt-6 pt-5 border-t border-gold/20">
+              <div className="flex items-center gap-2 mb-3">
+                <GraduationCap size={16} className="text-gold" />
+                <h3 className="text-sm md:text-base font-bold text-gold">드림팀·드림AI팀 - 수강생 혜택</h3>
+              </div>
+              <ul className="space-y-3">
+                {DREAM_TEAM_ITEMS.map((item) => (
+                  <li key={item.text} className="flex items-start gap-2.5 text-subtext text-sm md:text-base leading-relaxed">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gold/60 shrink-0" />
+                    <span>{renderNoticeText(item)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
