@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { KakaoAccountSection } from "@/components/settings/KakaoAccountSection";
+import { SmtpAccountSection } from "@/components/settings/SmtpAccountSection";
 import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
 import { TelegramSection } from "@/components/settings/TelegramSection";
 import type { ApiKeyProvider } from "@/types/database.types";
@@ -36,21 +37,27 @@ export default async function SettingsPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: keys }, { data: kakaoAccount }, { data: solapiAccount }, { data: telegramLink }] = await Promise.all([
-    supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
-    supabase.from("user_kakao_accounts").select("nickname").eq("user_id", user.id).maybeSingle(),
-    supabase
-      .from("user_solapi_accounts")
-      .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id")
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("user_telegram_links")
-      .select("bot_username")
-      .eq("user_id", user.id)
-      .eq("program_slug", TELEGRAM_PROGRAM_SLUG)
-      .maybeSingle(),
-  ]);
+  const [{ data: keys }, { data: kakaoAccount }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }] =
+    await Promise.all([
+      supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
+      supabase.from("user_kakao_accounts").select("nickname").eq("user_id", user.id).maybeSingle(),
+      supabase
+        .from("user_smtp_accounts")
+        .select("smtp_host, smtp_port, smtp_user, from_name")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("user_solapi_accounts")
+        .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("user_telegram_links")
+        .select("bot_username")
+        .eq("user_id", user.id)
+        .eq("program_slug", TELEGRAM_PROGRAM_SLUG)
+        .maybeSingle(),
+    ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
 
@@ -82,6 +89,10 @@ export default async function SettingsPage() {
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <KakaoAccountSection account={kakaoAccount ?? null} />
+        </div>
+
+        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
+          <SmtpAccountSection account={smtpAccount ?? null} />
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">

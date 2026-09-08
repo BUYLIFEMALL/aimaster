@@ -12,7 +12,9 @@ export default async function TopicsPage() {
 
   const { data: topics } = await supabase
     .from("kakao_topics")
-    .select("id, topic_name, keywords, is_active, lookback_days, schedule_enabled, interval_minutes")
+    .select(
+      "id, topic_name, keywords, is_active, lookback_days, schedule_enabled, interval_minutes, active_hour_start, active_hour_end",
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -45,6 +47,8 @@ export default async function TopicsPage() {
               lookbackDays={t.lookback_days}
               scheduleEnabled={t.schedule_enabled}
               intervalMinutes={t.interval_minutes}
+              activeHourStart={t.active_hour_start}
+              activeHourEnd={t.active_hour_end}
             />
           ))
         )}

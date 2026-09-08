@@ -17,6 +17,8 @@ export interface Database {
           schedule_enabled: boolean;
           interval_minutes: number | null;
           last_run_at: string | null;
+          active_hour_start: number | null;
+          active_hour_end: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -30,6 +32,8 @@ export interface Database {
           schedule_enabled?: boolean;
           interval_minutes?: number | null;
           last_run_at?: string | null;
+          active_hour_start?: number | null;
+          active_hour_end?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -43,6 +47,8 @@ export interface Database {
           schedule_enabled?: boolean;
           interval_minutes?: number | null;
           last_run_at?: string | null;
+          active_hour_start?: number | null;
+          active_hour_end?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -237,6 +243,51 @@ export interface Database {
           refresh_token?: string;
           token_expires_at?: string;
           refresh_token_expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_smtp_accounts: {
+        Row: {
+          id: string;
+          user_id: string;
+          label: string;
+          provider: string | null;
+          smtp_host: string;
+          smtp_port: number;
+          smtp_user: string;
+          smtp_password: string;
+          from_name: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          label: string;
+          provider?: string | null;
+          smtp_host: string;
+          smtp_port?: number;
+          smtp_user: string;
+          smtp_password: string;
+          from_name?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          label?: string;
+          provider?: string | null;
+          smtp_host?: string;
+          smtp_port?: number;
+          smtp_user?: string;
+          smtp_password?: string;
+          from_name?: string | null;
+          is_active?: boolean;
           created_at?: string;
           updated_at?: string;
         };

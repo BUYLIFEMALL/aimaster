@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isScheduleDue } from "@/lib/schedule";
+import { currentKstHour, isScheduleDue, isWithinActiveHours } from "@/lib/schedule";
 import { generateReportForTopic } from "@/lib/reportEngine";
 
 export const dynamic = "force-dynamic";
@@ -24,14 +24,18 @@ async function dispatch() {
 
   const { data: rows, error } = await admin
     .from("kakao_topics")
-    .select("id, user_id, topic_name, keywords, lookback_days, interval_minutes, last_run_at")
+    .select("id, user_id, topic_name, keywords, lookback_days, interval_minutes, last_run_at, active_hour_start, active_hour_end")
     .eq("is_active", true)
     .eq("schedule_enabled", true);
 
   if (error) throw new Error(error.message);
 
+  const kstHour = currentKstHour(now);
   const dueRows = (rows ?? []).filter(
-    (r) => r.interval_minutes != null && isScheduleDue(r.last_run_at, r.interval_minutes, now),
+    (r) =>
+      r.interval_minutes != null &&
+      isScheduleDue(r.last_run_at, r.interval_minutes, now) &&
+      isWithinActiveHours(kstHour, r.active_hour_start, r.active_hour_end),
   );
 
   let generated = 0;

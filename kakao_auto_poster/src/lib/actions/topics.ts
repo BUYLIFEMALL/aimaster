@@ -83,6 +83,12 @@ export async function updateTopicScheduleAction(
   const lookbackDays = Number(formData.get("lookbackDays") ?? 14);
   const scheduleEnabled = formData.get("scheduleEnabled") === "true";
   const intervalMinutes = Number(formData.get("intervalMinutes") ?? 1440);
+  // "동작 시간대"(종일/특정 시간대만) — real_estate_sales의 MonitoringSettings.tsx /
+  // trending-product-finder Phase 14·18과 동일한 패턴. hoursRestricted가 false면
+  // active_hour_start/end를 null로 저장해 "종일"을 의미한다.
+  const hoursRestricted = formData.get("hoursRestricted") === "true";
+  const activeHourStart = hoursRestricted ? Number(formData.get("activeHourStart") ?? 9) : null;
+  const activeHourEnd = hoursRestricted ? Number(formData.get("activeHourEnd") ?? 22) : null;
 
   if (!id) return { error: "주제를 찾을 수 없습니다." };
 
@@ -93,6 +99,8 @@ export async function updateTopicScheduleAction(
       lookback_days: lookbackDays,
       schedule_enabled: scheduleEnabled,
       interval_minutes: intervalMinutes,
+      active_hour_start: activeHourStart,
+      active_hour_end: activeHourEnd,
     })
     .eq("id", id)
     .eq("user_id", user.id);
@@ -101,6 +109,47 @@ export async function updateTopicScheduleAction(
 
   revalidatePath("/topics");
   return {};
+}
+
+export interface UpdateKeywordsState {
+  error?: string;
+  keywords?: string[];
+}
+
+/**
+ * 주제 하나에 등록된 키워드 배열만 수정한다(개별 키워드 추가/삭제) — 전에는 카테고리
+ * 전체(주제 전체)를 지우고 다시 등록해야 특정 키워드 하나를 뺄 수 있었다. 카테고리에
+ * 여러 키워드가 묶여 있을 때 필요 없어진 키워드만 골라 빼는 실사용성 공백을 메운다
+ * (trending-product-finder의 updateWatchlistKeywordsAction과 동일한 패턴).
+ */
+export async function updateTopicKeywordsAction(formData: FormData): Promise<UpdateKeywordsState> {
+  const user = await requireProgramAccess();
+  const id = String(formData.get("id") ?? "");
+  const keywords = formData
+    .getAll("keywords")
+    .map(String)
+    .map((k) => k.trim())
+    .filter(Boolean);
+
+  if (!id) return { error: "주제를 찾을 수 없습니다." };
+  if (keywords.length === 0) {
+    return { error: "키워드가 1개 이상 있어야 합니다. 전부 지우려면 이 주제 자체를 삭제해주세요." };
+  }
+  if (keywords.length > 10) {
+    return { error: "키워드는 주제 하나당 최대 10개까지 등록할 수 있습니다." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("kakao_topics")
+    .update({ keywords })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/topics");
+  return { keywords };
 }
 
 export interface GenerateReportState {
