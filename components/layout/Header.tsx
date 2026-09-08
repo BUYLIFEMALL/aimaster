@@ -122,7 +122,7 @@ export default function Header() {
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl py-1 shadow-xl">
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-surface border border-white/10 rounded-xl py-1 shadow-xl">
                     <Link
                       href="/dashboard"
                       className="flex items-center gap-2 px-4 py-2.5 text-sm text-subtext hover:text-white hover:bg-white/5 transition-colors"
