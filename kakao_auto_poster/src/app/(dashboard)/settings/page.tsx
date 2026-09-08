@@ -27,8 +27,8 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
     providers: ["openai", "anthropic"],
   },
   {
-    title: "🎨 (선택) 이미지 생성 AI",
-    description: "리포트 수정 화면에서 \"AI 이미지 생성\" 버튼을 쓰려면 등록해주세요.",
+    title: "🎨 이미지 생성 AI",
+    description: "리포트를 생성할 때마다 주제에 맞는 대표 이미지를 함께 만드는 데 쓰입니다. 필수입니다.",
     providers: ["gemini"],
   },
 ];

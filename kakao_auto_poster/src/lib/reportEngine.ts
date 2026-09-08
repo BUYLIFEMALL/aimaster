@@ -35,26 +35,16 @@ export async function generateReportForTopic(
   const draft = await structureKakaoReport({ rawText, apiKey: openaiKey ?? "" });
 
   // 콘텐츠 생성과 함께 대표 이미지도 자동으로 만들어 본문 맨 위에 넣는다(docs/PLATFORM_PATTERNS.md
-  // §12 — Gemini 직접 호출 + Supabase Storage 업로드, 회원 본인 gemini 키 필요). 키가 없거나
-  // 생성이 실패해도 리포트 생성 자체는 막지 않고 원래대로(일반 텍스트) 저장한다 — 이미지는
-  // 나중에 수정 화면에서 "✨ AI 이미지 생성" 버튼으로 언제든 추가할 수 있다.
-  let content: string = draft.content;
+  // §12 — Gemini 직접 호출 + Supabase Storage 업로드, 회원 본인 gemini 키 필요). 이미지 생성은
+  // 선택이 아니라 필수라서, perplexity/openai 키와 동일하게 키가 없거나 생성이 실패하면
+  // 리포트 생성 자체를 막고 에러를 그대로 보여준다(사용자 명시 지시, 2026-09-08).
   const geminiKey = await resolveApiKey(supabase, userId, "gemini");
-  if (geminiKey) {
-    try {
-      const imageUrl = await generateAndUploadReportImage(
-        supabase,
-        userId,
-        geminiKey,
-        `${topic.topic_name}: ${draft.title}`,
-      );
-      if (imageUrl) {
-        content = `<img src="${imageUrl}" alt="${draft.title}" />${toEditorHtml(draft.content)}`;
-      }
-    } catch (err) {
-      console.error("리포트 자동 이미지 생성 실패:", err);
-    }
+  if (!geminiKey) {
+    throw new Error("Gemini API 키가 없습니다. 설정 > API 키 설정에서 본인의 Gemini API 키를 등록해주세요.");
   }
+  const imageUrl = await generateAndUploadReportImage(supabase, userId, geminiKey, `${topic.topic_name}: ${draft.title}`);
+  if (!imageUrl) throw new Error("리포트 이미지 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+  const content = `<img src="${imageUrl}" alt="${draft.title}" />${toEditorHtml(draft.content)}`;
 
   const { data: inserted, error: insertError } = await supabase
     .from("kakao_reports")
