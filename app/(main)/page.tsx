@@ -131,14 +131,59 @@ const FEATURES = [
   },
 ];
 
-const NOTICE_ITEMS = [
-  "서비스 중인 자동화 프로그램은 회원 개인별로 플랫폼별 본인의 API 키와 계정을 연동하여 사용할 수 있도록 제공됩니다.",
-  "사용자별로 생성된 데이터는 본인만 볼 수 있으며, 보안이 적용된 서버에 개인별로 분리되어 저장됩니다.",
-  "본 서비스는 프로그램 안정화를 위해 현재 베타(무료)로 서비스 중이며, 사용자들의 사용 트래픽 및 서버 사용량이 증가 시 일부 서비스는 유료로 전환될 예정임을 사전에 공지드립니다.",
-  "드림팀(수강생)의 경우 대부분의 프로그램을 무료로 이용할 수 있으며, 드림팀 혜택 제공을 위해 실명으로 가입하셔야 합니다.",
-  "수강생 확인이 안될 경우 일반사용자 등급으로 서비스가 제공됩니다.",
-  "다만 트래픽 발생량이 많거나 서버 저장공간을 많이 사용하는 일부 프로그램은 유료(할인가 적용)로 제공됩니다.",
+interface NoticeItem {
+  text: string;
+  highlights: string[];
+}
+
+const NOTICE_ITEMS: NoticeItem[] = [
+  {
+    text: "서비스 중인 자동화 프로그램은 회원 개인별로 플랫폼별 본인의 API 키와 계정을 연동하여 사용할 수 있도록 제공됩니다.",
+    highlights: ["자동화 프로그램", "개인별", "플랫폼별", "API 키와 계정"],
+  },
+  {
+    text: "사용자별로 생성된 데이터는 본인만 볼 수 있으며, 보안이 적용된 서버에 개인별로 분리되어 저장됩니다.",
+    highlights: [],
+  },
+  {
+    text: "본 서비스는 프로그램 안정화를 위해 현재 베타(무료)로 서비스 중이며, 사용자들의 사용 트래픽 및 서버 사용량이 증가 시 일부 서비스는 유료로 전환될 예정임을 사전에 공지드립니다.",
+    highlights: ["베타(무료)", "일부 서비스는 유료로 전환"],
+  },
+  {
+    text: "드림팀(수강생)의 경우 대부분의 프로그램을 무료로 이용할 수 있으며, 드림팀 혜택 제공을 위해 실명으로 가입하셔야 합니다.",
+    highlights: ["드림팀(수강생)", "무료로 이용", "드림팀 혜택", "실명으로 가입"],
+  },
+  {
+    text: "실명확인이 안될 경우 일반사용자 등급으로 서비스가 제공됩니다.",
+    highlights: ["실명확인이 안될 경우", "일반사용자 등급"],
+  },
+  {
+    text: "다만 트래픽 발생량이 많거나 서버 저장공간을 많이 사용하는 일부 프로그램은 유료(할인가 적용)로 제공됩니다.",
+    highlights: ["일부 프로그램은 유료(할인가 적용)"],
+  },
 ];
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** 문구 중 강조하고 싶은 구절만 볼드 + 골드 색상으로 감싼다. */
+function renderNoticeText(item: NoticeItem) {
+  if (item.highlights.length === 0) return item.text;
+  const pattern = new RegExp(`(${item.highlights.map(escapeRegExp).join("|")})`, "g");
+  return item.text
+    .split(pattern)
+    .filter((part) => part.length > 0)
+    .map((part, i) =>
+      item.highlights.includes(part) ? (
+        <strong key={i} className="font-bold text-gold">
+          {part}
+        </strong>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
+}
 
 const STATS = [
   { value: "1,200+", label: "활성 사용자" },
@@ -235,9 +280,9 @@ export default async function HomePage() {
             </div>
             <ul className="space-y-3">
               {NOTICE_ITEMS.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-subtext text-sm md:text-base leading-relaxed">
+                <li key={item.text} className="flex items-start gap-2.5 text-subtext text-sm md:text-base leading-relaxed">
                   <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gold/60 shrink-0" />
-                  {item}
+                  <span>{renderNoticeText(item)}</span>
                 </li>
               ))}
             </ul>
