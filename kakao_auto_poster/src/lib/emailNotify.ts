@@ -26,6 +26,9 @@ export async function notifyReportByEmail(
       .select("smtp_host, smtp_port, smtp_user, smtp_password, from_name")
       .eq("user_id", userId)
       .eq("is_active", true)
+      // 다른 프로그램에서 이미 여러 개(예: Gmail+네이버) 등록해둔 경우 가장 최근 것을 쓴다
+      // (설정 페이지 SmtpAccountSection의 정렬과 동일한 기준).
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
   ]);

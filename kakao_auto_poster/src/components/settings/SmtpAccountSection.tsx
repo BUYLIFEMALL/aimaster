@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/Button";
 import { saveSmtpAccountAction, deleteSmtpAccountAction, type SaveSmtpAccountState } from "@/lib/actions/smtpAccount";
 
 export interface SmtpAccountData {
+  id: string;
   smtp_host: string;
   smtp_port: number;
   smtp_user: string;
   from_name: string | null;
+  is_active: boolean;
 }
 
 const PROVIDER_PRESETS = [
@@ -24,19 +26,18 @@ const saveInitialState: SaveSmtpAccountState = {};
 
 /**
  * 예약 자동 생성된 리포트를 이메일로도 받아볼 수 있게 하는 설정 섹션 — 공용
- * `user_smtp_accounts` 테이블을 재사용한다(다른 프로그램에서 이미 등록했다면 여기서도
- * 그대로 보임). SolapiAccountSection/TelegramSection과 같은 "계정 1개" 단순 UI.
+ * `user_smtp_accounts` 테이블을 재사용한다. 다른 프로그램에서 이미 등록한 계정이 있으면
+ * (실사용 중 Gmail+네이버 2개가 이미 존재하는 회원이 확인됨) 여기서도 전부 그대로 보이고,
+ * 그중 활성화된 것 중 하나로 발송된다(lib/emailNotify.ts).
  */
-export function SmtpAccountSection({ account }: { account: SmtpAccountData | null }) {
+export function SmtpAccountSection({ accounts }: { accounts: SmtpAccountData[] }) {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(!account);
-  const [preset, setPreset] = useState(
-    PROVIDER_PRESETS.find((p) => p.host === account?.smtp_host)?.value ?? "other",
-  );
-  const [host, setHost] = useState(account?.smtp_host ?? "");
-  const [port, setPort] = useState(account?.smtp_port ?? 587);
+  const [showForm, setShowForm] = useState(accounts.length === 0);
+  const [preset, setPreset] = useState("other");
+  const [host, setHost] = useState("");
+  const [port, setPort] = useState(587);
   const [state, formAction, isSaving] = useActionState(saveSmtpAccountAction, saveInitialState);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   function handlePresetChange(value: string) {
     setPreset(value);
@@ -47,14 +48,14 @@ export function SmtpAccountSection({ account }: { account: SmtpAccountData | nul
     }
   }
 
-  async function handleDelete() {
-    if (!confirm("이메일 알림 계정을 삭제할까요? 예약 리포트 이메일 발송이 중단됩니다.")) return;
-    setIsDeleting(true);
+  async function handleDelete(id: string) {
+    if (!confirm("이 이메일 계정을 삭제할까요? 다른 AIMaster 프로그램에서도 이 계정으로 발송하고 있었다면 그쪽에도 영향을 줍니다.")) return;
+    setDeletingId(id);
     try {
-      await deleteSmtpAccountAction();
+      await deleteSmtpAccountAction(id);
       router.refresh();
     } finally {
-      setIsDeleting(false);
+      setDeletingId(null);
     }
   }
 
@@ -62,9 +63,9 @@ export function SmtpAccountSection({ account }: { account: SmtpAccountData | nul
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold text-neutral-900">📧 이메일 알림 (SMTP)</h2>
-        {account && !isEditing && (
-          <button type="button" onClick={() => setIsEditing(true)} className="text-xs font-bold text-blue-600 hover:underline">
-            ✏️ 수정
+        {accounts.length > 0 && (
+          <button type="button" onClick={() => setShowForm((v) => !v)} className="text-xs font-bold text-blue-600 hover:underline">
+            {showForm ? "닫기" : "+ 계정 추가"}
           </button>
         )}
       </div>
@@ -74,17 +75,32 @@ export function SmtpAccountSection({ account }: { account: SmtpAccountData | nul
         입력해주세요. 다른 AIMaster 프로그램에서 이미 등록하셨다면 여기서도 그대로 재사용됩니다.
       </p>
 
-      {account && !isEditing ? (
-        <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <p className="text-sm text-green-600">✅ {account.smtp_user}로 연동되어 있어요.</p>
-          <p className="text-xs text-neutral-500">
-            {account.smtp_host}:{account.smtp_port}
-          </p>
-          <Button type="button" variant="ghost" className="text-red-600 hover:bg-red-50" onClick={handleDelete} disabled={isDeleting}>
-            {isDeleting ? "삭제 중..." : "삭제"}
-          </Button>
+      {accounts.length > 0 && (
+        <div className="space-y-2">
+          {accounts.map((account) => (
+            <div key={account.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+              <div>
+                <p className="text-sm text-green-600">
+                  ✅ {account.smtp_user} {!account.is_active && <span className="text-neutral-400">(비활성)</span>}
+                </p>
+                <p className="text-xs text-neutral-500">
+                  {account.smtp_host}:{account.smtp_port}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDelete(account.id)}
+                disabled={deletingId === account.id}
+                className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-50"
+              >
+                {deletingId === account.id ? "삭제 중..." : "삭제"}
+              </button>
+            </div>
+          ))}
         </div>
-      ) : (
+      )}
+
+      {showForm && (
         <form action={formAction} className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
           <div>
             <label className="mb-1 block text-xs font-semibold text-neutral-700">메일 서비스</label>
@@ -114,28 +130,23 @@ export function SmtpAccountSection({ account }: { account: SmtpAccountData | nul
           </div>
           <div>
             <label className="mb-1 block text-xs font-semibold text-neutral-700">이메일 주소</label>
-            <Input name="smtpUser" required defaultValue={account?.smtp_user ?? ""} placeholder="you@gmail.com" autoComplete="off" />
+            <Input name="smtpUser" required placeholder="you@gmail.com" autoComplete="off" />
           </div>
           <div>
             <label className="mb-1 block text-xs font-semibold text-neutral-700">비밀번호 (앱 비밀번호)</label>
-            <Input
-              name="smtpPassword"
-              type="password"
-              autoComplete="new-password"
-              placeholder={account ? "변경하려면 새로 입력" : ""}
-            />
+            <Input name="smtpPassword" type="password" required autoComplete="new-password" />
           </div>
           <div>
             <label className="mb-1 block text-xs font-semibold text-neutral-700">보내는 사람 이름 (선택)</label>
-            <Input name="fromName" defaultValue={account?.from_name ?? ""} placeholder="카카오톡 뉴스레터 자동화" />
+            <Input name="fromName" placeholder="카카오톡 뉴스레터 자동화" />
           </div>
           {state.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{state.error}</p>}
           <div className="flex gap-2">
             <Button type="submit" disabled={isSaving}>
               {isSaving ? "저장 중..." : "저장"}
             </Button>
-            {account && (
-              <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} disabled={isSaving}>
+            {accounts.length > 0 && (
+              <Button type="button" variant="ghost" onClick={() => setShowForm(false)} disabled={isSaving}>
                 취소
               </Button>
             )}

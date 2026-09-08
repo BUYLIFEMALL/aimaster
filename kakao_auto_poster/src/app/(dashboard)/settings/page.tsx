@@ -43,9 +43,11 @@ export default async function SettingsPage() {
       supabase.from("user_kakao_accounts").select("nickname").eq("user_id", user.id).maybeSingle(),
       supabase
         .from("user_smtp_accounts")
-        .select("smtp_host, smtp_port, smtp_user, from_name")
+        // 다른 프로그램에서 이미 여러 개(예: Gmail+네이버) 등록해둔 경우를 대비해 배열로
+        // 받는다 — .maybeSingle()은 행이 2개 이상이면 에러를 던진다.
+        .select("id, smtp_host, smtp_port, smtp_user, from_name, is_active, created_at")
         .eq("user_id", user.id)
-        .maybeSingle(),
+        .order("created_at", { ascending: false }),
       supabase
         .from("user_solapi_accounts")
         .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id")
@@ -92,11 +94,11 @@ export default async function SettingsPage() {
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
-          <SmtpAccountSection account={smtpAccount ?? null} />
+          <SolapiAccountSection account={solapiAccount ?? null} />
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
-          <SolapiAccountSection account={solapiAccount ?? null} />
+          <SmtpAccountSection accounts={smtpAccount ?? []} />
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
