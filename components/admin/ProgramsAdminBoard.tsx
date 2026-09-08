@@ -391,15 +391,13 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
                               <p className="text-subtext text-xs">/programs/{p.slug}</p>
                               <span
-                                className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-white/5 text-subtext"
-                                style={p.required_grade_id ? { color: gradeMeta.get(p.required_grade_id)?.color ?? undefined } : undefined}
+                                className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-white/5"
+                                style={{ color: p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.color ?? undefined) : "#ffffff" }}
                               >
-                                {p.required_grade_id && (
-                                  <span
-                                    className="w-1.5 h-1.5 rounded-full"
-                                    style={{ backgroundColor: gradeMeta.get(p.required_grade_id)?.color ?? "#666" }}
-                                  />
-                                )}
+                                <span
+                                  className="w-1.5 h-1.5 rounded-full"
+                                  style={{ backgroundColor: p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.color ?? "#666") : "#ffffff" }}
+                                />
                                 {p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.name ?? "알 수 없음") : "전체 공개"}
                               </span>
                               {p.badge && <Badge variant={p.badge} className="text-[11px] px-1.5 py-0.5" />}
@@ -414,12 +412,12 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                               className="disabled:opacity-40"
                             >
                               {p.is_active ? (
-                                <span className="inline-flex items-center gap-1 text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full hover:bg-emerald-500/30 transition-colors">
+                                <span className="inline-flex items-center gap-1 text-xs bg-yellow-400/20 text-yellow-300 px-2 py-0.5 rounded-full hover:bg-yellow-400/30 transition-colors">
                                   <Eye size={10} />
                                   공개
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 text-xs bg-white/10 text-subtext px-2 py-0.5 rounded-full hover:bg-white/20 transition-colors">
+                                <span className="inline-flex items-center gap-1 text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full hover:bg-red-500/30 transition-colors">
                                   <EyeOff size={10} />
                                   비공개
                                 </span>
