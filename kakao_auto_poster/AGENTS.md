@@ -1,7 +1,10 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-이 문서는 **카카오톡 정보 콘텐츠 자동화(kakao_auto_poster)** 프로젝트에서 AI Agent(Claude Code
-등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
+이 문서는 **뉴스레터 자동화(kakao_auto_poster, 폴더/slug는 하위호환을 위해 그대로 유지)**
+프로젝트에서 AI Agent(Claude Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
+(2026-09-08: 화면 표시 이름을 "카카오톡 정보 콘텐츠 자동화"에서 "뉴스레터 자동화"로 변경 —
+`programs.name`과 앱 내 표시 문자열만 바뀌었고, 폴더명/`programs.slug`(`kakao-auto-posting`)는
+그대로다.)
 
 ---
 
@@ -78,7 +81,9 @@ kakao_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
   정책으로 격리한다.
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
   그대로 쓴다. 이 프로그램은 `openai`/`anthropic`(택1)/`gemini`(예비)/`perplexity`(필수)를
-  쓴다. Phase 2부터는 공용 `user_solapi_accounts`(카카오 채널 발송)도 함께 쓴다.
+  쓴다. Phase 2부터는 공용 `user_solapi_accounts`(카카오 채널 발송), Phase 3부터는 공용
+  `user_telegram_links`(카카오 발행 전 사전 검토, `program_slug='kakao-auto-posting'`)도
+  함께 쓴다.
 
 ## 📦 Phase 진행 상태
 
@@ -86,13 +91,19 @@ kakao_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
 |-------|------|------|
 | 1 | 프로젝트 뼈대, 관심 주제/키워드 등록(`kakao_topics`), Perplexity 기반 "지금 생성" 수동 버튼, 생성된 콘텐츠(`kakao_reports`)를 보는 웹 리포트 페이지 | ✅ 구현 완료, 미검증(실계정 API 키로 첫 생성 테스트 필요) |
 | 2 | 설정 페이지에 카카오 채널(SOLAPI) 연동 섹션 추가(`user_solapi_accounts` 공용 테이블 재사용), 리포트 상세 페이지에 "💬 카카오로 발송" 버튼(`sendReportToKakaoAction`) — 수신 번호는 `profiles.phone`(trending-product-finder Phase 10과 동일 패턴) | ✅ 구현 완료, 미검증(실계정 SOLAPI 계정으로 첫 발송 테스트 필요) |
-| 3 | 주제별 발송 주기 설정 + 5분 tick 크론으로 정기 자동 생성·발송(`vercel.json` 등록 필수) | ⏸️ 예정 |
-| 4 | HTTP/RSS 소스 추가, 이메일/텔레그램 채널 추가, `programs` 등록(4단계 기본 요금제는 관리자 화면 `ProgramForm.tsx`의 `DEFAULT_PLANS`가 자동 처리) | ⏸️ 예정 |
+| 3 | ① 날짜 앵커링 수정 — `lib/ai/collector.ts`가 Perplexity/OpenAI 프롬프트에 오늘 날짜(KST)를 명시적으로 주입해 학습 데이터 시점을 "현재"로 착각하는 문제 해결. ② 데이터 조회 범위 회원 선택(`kakao_topics.lookback_days`, 3일/1주/2주/1개월/3개월, `TopicForm`/`TopicRow` UI). ③ 예약(정기 자동 생성) on/off — `kakao_topics.schedule_enabled`/`interval_minutes`/`last_run_at`, 기본값 꺼짐, 5분 tick 크론(`/api/cron/generate-reports`, `vercel.json` 등록). ④ 카카오 발송 전 텔레그램 사전 검토 — 공용 `user_telegram_links` 재사용, 리포트 생성 시(수동/예약 모두) 텔레그램으로 "✅ 카카오로 발행/❌ 발행 안 함" 인라인 버튼 발송(`lib/telegramReview.ts`, `app/api/telegram/webhook/[userId]/route.ts`), 텔레그램 미연동 시 기존처럼 웹 화면에서만 수동 발송 | ✅ 구현 완료, 미검증(실계정으로 예약 자동 생성 1주기 + 텔레그램 승인/거부 버튼 동작 확인 필요) |
+| 4 | HTTP/RSS 소스 추가, `programs` 등록 확인(4단계 기본 요금제는 관리자 화면 `ProgramForm.tsx`의 `DEFAULT_PLANS`가 자동 처리) | ⏸️ 예정 |
 
 ## ⚠️ 미검증 항목 (실사용 전 반드시 확인)
 
 - Phase 1 전체(주제 등록 → Perplexity 검색 → AI 구조화 → 리포트 저장/조회)는 아직 실계정
   API 키로 end-to-end 테스트하지 않았다. 첫 사용 시 반드시 실제로 주제를 등록하고 "지금
   생성"을 눌러 리포트가 정상적으로 만들어지는지 확인할 것.
-- `programs` 테이블에 `kakao-auto-posting` slug가 아직 등록되지 않았다 — 관리자 화면에서
-  등록해야 `requireProgramAccess()`가 통과한다(등록 전까지는 모든 회원이 접근 불가).
+- `programs` 테이블에 `kakao-auto-posting` slug가 이미 등록돼 있는지(이름은 "뉴스레터
+  자동화"로 변경 완료, 2026-09-08) 재확인할 것 — 없으면 `requireProgramAccess()`가 막는다.
+- Phase 3 예약 자동 생성 크론과 텔레그램 웹훅은 `CRON_SECRET` 환경변수가 Vercel 프로젝트에
+  실제로 설정돼 있어야 동작한다 — 배포 전 반드시 확인할 것(`.env.local.example` 참고).
+  없으면 크론은 401로 실패하고, 텔레그램 웹훅 시크릿 계산(`computeWebhookSecret`)도
+  에러를 던진다.
+- 텔레그램 사전 검토 흐름(연동 → 리포트 생성 → 버튼으로 발행/거부 → 실제 카카오 발송)은
+  아직 실계정으로 E2E 검증하지 않았다.

@@ -3,7 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
+import { TelegramSection } from "@/components/settings/TelegramSection";
 import type { ApiKeyProvider } from "@/types/database.types";
+
+const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -32,12 +35,18 @@ export default async function SettingsPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: keys }, { data: solapiAccount }] = await Promise.all([
+  const [{ data: keys }, { data: solapiAccount }, { data: telegramLink }] = await Promise.all([
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase
       .from("user_solapi_accounts")
       .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id")
       .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("user_telegram_links")
+      .select("bot_username")
+      .eq("user_id", user.id)
+      .eq("program_slug", TELEGRAM_PROGRAM_SLUG)
       .maybeSingle(),
   ]);
 
@@ -71,6 +80,10 @@ export default async function SettingsPage() {
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <SolapiAccountSection account={solapiAccount ?? null} />
+        </div>
+
+        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
+          <TelegramSection link={telegramLink ?? null} />
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
 
   const { data: report } = await supabase
     .from("kakao_reports")
-    .select("id, topic_id, title, summary, content, kakao_sent_at, kakao_send_error, created_at")
+    .select("id, topic_id, title, summary, content, kakao_sent_at, kakao_send_error, telegram_review_status, created_at")
     .eq("id", id)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -50,6 +50,14 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
         <div className="mb-6 whitespace-pre-line text-sm leading-relaxed text-neutral-800">{report.content}</div>
 
         <div className="border-t border-neutral-200 pt-4">
+          {report.telegram_review_status === "pending" && (
+            <p className="mb-2 text-xs text-blue-600">
+              📮 텔레그램으로 검토 요청을 보냈습니다. 텔레그램에서 발행 여부를 결정하거나, 아래에서 바로 발송할 수 있습니다.
+            </p>
+          )}
+          {report.telegram_review_status === "rejected" && !report.kakao_sent_at && (
+            <p className="mb-2 text-xs text-neutral-500">❌ 텔레그램에서 발행 안 함으로 처리됐습니다. 필요하면 아래에서 다시 발송할 수 있습니다.</p>
+          )}
           {report.kakao_sent_at && (
             <p className="mb-2 text-xs text-green-600">
               ✓ {new Date(report.kakao_sent_at).toLocaleString("ko-KR")}에 카카오톡으로 발송됨

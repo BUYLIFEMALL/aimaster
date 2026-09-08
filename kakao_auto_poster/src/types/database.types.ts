@@ -13,6 +13,10 @@ export interface Database {
           topic_name: string;
           keywords: string[];
           is_active: boolean;
+          lookback_days: number;
+          schedule_enabled: boolean;
+          interval_minutes: number | null;
+          last_run_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -22,6 +26,10 @@ export interface Database {
           topic_name: string;
           keywords?: string[];
           is_active?: boolean;
+          lookback_days?: number;
+          schedule_enabled?: boolean;
+          interval_minutes?: number | null;
+          last_run_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -31,6 +39,10 @@ export interface Database {
           topic_name?: string;
           keywords?: string[];
           is_active?: boolean;
+          lookback_days?: number;
+          schedule_enabled?: boolean;
+          interval_minutes?: number | null;
+          last_run_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -47,6 +59,10 @@ export interface Database {
           source_type: ReportSourceType;
           kakao_sent_at: string | null;
           kakao_send_error: string | null;
+          telegram_review_status: "not_requested" | "pending" | "approved" | "rejected";
+          telegram_chat_id: string | null;
+          telegram_message_id: number | null;
+          generated_via: "manual" | "scheduled";
           created_at: string;
           updated_at: string;
         };
@@ -60,6 +76,10 @@ export interface Database {
           source_type?: ReportSourceType;
           kakao_sent_at?: string | null;
           kakao_send_error?: string | null;
+          telegram_review_status?: "not_requested" | "pending" | "approved" | "rejected";
+          telegram_chat_id?: string | null;
+          telegram_message_id?: number | null;
+          generated_via?: "manual" | "scheduled";
           created_at?: string;
           updated_at?: string;
         };
@@ -73,8 +93,42 @@ export interface Database {
           source_type?: ReportSourceType;
           kakao_sent_at?: string | null;
           kakao_send_error?: string | null;
+          telegram_review_status?: "not_requested" | "pending" | "approved" | "rejected";
+          telegram_chat_id?: string | null;
+          telegram_message_id?: number | null;
+          generated_via?: "manual" | "scheduled";
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_telegram_links: {
+        Row: {
+          id: string;
+          user_id: string;
+          program_slug: string;
+          bot_token: string;
+          chat_id: string;
+          bot_username: string | null;
+          linked_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          program_slug: string;
+          bot_token: string;
+          chat_id: string;
+          bot_username?: string | null;
+          linked_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          program_slug?: string;
+          bot_token?: string;
+          chat_id?: string;
+          bot_username?: string | null;
+          linked_at?: string;
         };
         Relationships: [];
       };

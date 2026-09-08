@@ -12,7 +12,7 @@ export default async function TopicsPage() {
 
   const { data: topics } = await supabase
     .from("kakao_topics")
-    .select("id, topic_name, keywords, is_active")
+    .select("id, topic_name, keywords, is_active, lookback_days, schedule_enabled, interval_minutes")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -36,7 +36,16 @@ export default async function TopicsPage() {
           </p>
         ) : (
           (topics ?? []).map((t) => (
-            <TopicRow key={t.id} id={t.id} topicName={t.topic_name} keywords={t.keywords} isActive={t.is_active} />
+            <TopicRow
+              key={t.id}
+              id={t.id}
+              topicName={t.topic_name}
+              keywords={t.keywords}
+              isActive={t.is_active}
+              lookbackDays={t.lookback_days}
+              scheduleEnabled={t.schedule_enabled}
+              intervalMinutes={t.interval_minutes}
+            />
           ))
         )}
       </div>

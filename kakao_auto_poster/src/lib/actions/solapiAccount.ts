@@ -105,7 +105,7 @@ export async function testSolapiSmsAction(toPhone: string): Promise<TestSolapiSm
   if (fetchError || !account) return { error: "등록된 SOLAPI 계정이 없습니다." };
 
   try {
-    await sendSms(account, to, "[카카오톡 정보 콘텐츠 자동화] SOLAPI 계정 테스트 문자입니다.");
+    await sendSms(account, to, "[뉴스레터 자동화] SOLAPI 계정 테스트 문자입니다.");
     return { success: true };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "테스트 발송에 실패했습니다." };
