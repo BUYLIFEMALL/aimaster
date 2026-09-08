@@ -31,10 +31,10 @@ const BADGE_OPTIONS: {
   idleClassName: string;
 }[] = [
   {
-    value: "best",
-    label: "BEST",
-    selectedClassName: "bg-gold text-black border-gold",
-    idleClassName: "bg-white/5 text-[#f5c842] border-[#f5c842]/40 hover:bg-white/10",
+    value: "free",
+    label: "FREE",
+    selectedClassName: "bg-red-500 text-black border-red-500",
+    idleClassName: "bg-white/5 text-red-400 border-red-500/40 hover:bg-white/10",
   },
   {
     value: "new",
@@ -43,16 +43,16 @@ const BADGE_OPTIONS: {
     idleClassName: "bg-white/5 text-green-400 border-green-500/40 hover:bg-white/10",
   },
   {
+    value: "best",
+    label: "BEST",
+    selectedClassName: "bg-gold text-black border-gold",
+    idleClassName: "bg-white/5 text-[#f5c842] border-[#f5c842]/40 hover:bg-white/10",
+  },
+  {
     value: "sale",
     label: "SALE",
     selectedClassName: "bg-orange-500 text-black border-orange-500",
     idleClassName: "bg-white/5 text-orange-400 border-orange-500/40 hover:bg-white/10",
-  },
-  {
-    value: "free",
-    label: "FREE",
-    selectedClassName: "bg-red-500 text-black border-red-500",
-    idleClassName: "bg-white/5 text-red-400 border-red-500/40 hover:bg-white/10",
   },
   {
     value: "coming",

@@ -35,10 +35,10 @@ const STATUS_OPTIONS = [
 ] as const;
 
 const BADGE_OPTIONS: { value: BadgeValue; label: string }[] = [
-  { value: "best", label: "BEST" },
-  { value: "new", label: "NEW" },
-  { value: "sale", label: "SALE" },
   { value: "free", label: "FREE" },
+  { value: "new", label: "NEW" },
+  { value: "best", label: "BEST" },
+  { value: "sale", label: "SALE" },
   { value: "coming", label: "COMING SOON" },
 ];
 
