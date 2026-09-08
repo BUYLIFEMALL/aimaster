@@ -1,20 +1,24 @@
 "use client";
 
+import { Suspense, useActionState } from "react";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { signInAction, type AuthActionState } from "@/lib/actions/auth";
 
 const initialState: AuthActionState = {};
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? "";
   const [state, formAction, isPending] = useActionState(signInAction, initialState);
 
   return (
     <div className="glass-card p-6">
       <h2 className="mb-4 text-lg font-medium text-neutral-100">로그인</h2>
       <form action={formAction} className="space-y-4">
+        <input type="hidden" name="redirect" value={redirectTo} />
         <div>
           <label className="mb-1 block text-sm font-medium text-neutral-300">이메일</label>
           <Input name="email" type="email" required autoComplete="email" />
@@ -35,5 +39,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

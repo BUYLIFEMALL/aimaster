@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { signInAction } from "@/lib/actions/auth";
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? "";
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
@@ -26,6 +29,7 @@ export default function LoginPage() {
     <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
       <h2 className="mb-4 text-lg font-bold text-gray-800">로그인</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <input type="hidden" name="redirect" value={redirectTo} />
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">이메일</label>
           <input name="email" type="email" required autoComplete="email" className="input" />
@@ -56,5 +60,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -8,6 +8,12 @@ export interface AuthActionState {
   error?: string;
 }
 
+/** "/"로 시작하는 내부 경로만 허용해서, 조작된 redirect 값으로 외부 사이트로 보내지는 것을 막는다. */
+function sanitizeRedirect(path: string | null): string {
+  if (!path || !path.startsWith("/") || path.startsWith("//")) return "/candidates";
+  return path;
+}
+
 export async function signInAction(
   _prevState: AuthActionState,
   formData: FormData,
@@ -31,7 +37,7 @@ export async function signInAction(
     return { error: "이메일 또는 비밀번호가 올바르지 않습니다." };
   }
 
-  redirect("/candidates");
+  redirect(sanitizeRedirect(String(formData.get("redirect") ?? "")));
 }
 
 export async function signOutAction() {

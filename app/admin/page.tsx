@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { Users, Package, CreditCard, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
@@ -10,7 +11,13 @@ export const metadata = { title: "관리자 대시보드" };
 export default async function AdminDashboard() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) {
+    // 루트 middleware.ts가 이미 /admin을 ?redirect= 포함해서 막아주지만("이미 그렇게
+    // 되어 있나" 문의에 대한 답 — 여기는 그 백스톱), 미들웨어 매처를 벗어나는 경우를
+    // 대비해 이 페이지 자체도 동일하게 딥링크 복귀를 지원한다.
+    const currentPath = (await headers()).get("x-pathname") ?? "/admin";
+    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
+  }
 
   const { data: profile } = await supabase
     .from("profiles")

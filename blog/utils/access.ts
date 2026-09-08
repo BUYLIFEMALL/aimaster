@@ -1,5 +1,6 @@
 import 'server-only'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/blog/utils/supabase/server'
 
 // 이 앱(blog)은 AIMaster와 같은 Supabase 프로젝트를 공유한다.
@@ -34,7 +35,11 @@ export async function requireProgramAccess() {
     // (2026-08-19에 dashboard/candidates/write-ai-form 등 다른 페이지에서 같은
     // 버그를 이미 한 번 고쳤는데, 모든 페이지가 공통으로 거치는 이 access.ts
     // 자체는 그때 빠뜨렸다 — judee1004 계정 "접근 안 됨" 신고로 재발견, 2026-08-29).
-    redirect('/login')
+    // 딥링크로 바로 들어왔다면 로그인 후 그 페이지로 바로 이어지도록, 루트
+    // middleware.ts가 실어준 현재 경로를 /login의 ?redirect=로 넘긴다 — 루트의
+    // LoginForm.tsx가 이미 이 파라미터를 읽어 로그인 후 그 경로로 이동시켜준다.
+    const currentPath = (await headers()).get('x-pathname') ?? '/blog'
+    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`)
   }
 
   const sb = supabase as unknown as SupabaseLike

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { Calendar, Clock, Package, Ticket, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -14,7 +15,12 @@ import { formatKRW, formatDate, daysRemaining } from "@/lib/utils/format";
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) {
+    // 루트 middleware.ts가 이미 /dashboard를 ?redirect= 포함해서 막아주지만, 미들웨어
+    // 매처를 벗어나는 경우를 대비해 이 페이지 자체도 동일하게 딥링크 복귀를 지원한다.
+    const currentPath = (await headers()).get("x-pathname") ?? "/dashboard";
+    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
+  }
 
   const [{ data: profile }, { data: allSubscriptions }, { data: myCoupons }, { data: individualGrants }, { data: allPrograms }] = await Promise.all([
     supabase
