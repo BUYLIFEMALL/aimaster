@@ -20,6 +20,23 @@ interface CoupangAuthParams {
 }
 
 /**
+ * "Specified key is not registered."(401)는 서명/코드 오류가 아니라, 쿠팡파트너스 계정의
+ * 누적 매출이 15만원을 넘기 전까지 API 키 자체가 활성화되지 않아서 나는 정상적인 대기
+ * 상태다(AGENTS.md에 2026-09-01 확인 기록, 여러 날짜에 재현해도 서명 로직은 항상 정상
+ * 작동했음). 이 문구를 감지하면 재발급/코드 문제로 오해하지 않도록 원인을 그대로 안내한다.
+ */
+function buildCoupangErrorMessage(action: string, status: number, body: string): string {
+  if (status === 401 && body.includes("Specified key is not registered")) {
+    return (
+      `쿠팡 ${action}에 실패했습니다. (401) 쿠팡파트너스 API 키가 아직 활성화되지 않았습니다 — ` +
+      `쿠팡파트너스는 계정의 누적 매출이 15만원을 넘어야 API 키를 활성화해줍니다. 키를 다시 ` +
+      `발급받거나 코드를 수정해야 하는 문제가 아니라, 매출 요건을 채우면 자동으로 해결됩니다.`
+    );
+  }
+  return `쿠팡 ${action}에 실패했습니다. (${status}) ${body.slice(0, 300)}`;
+}
+
+/**
  * 쿠팡파트너스 API 서명(HMAC-SHA256, "CEA" 인증 스킴).
  * signed-date 형식: yyMMdd'T'HHmmss'Z' (UTC), 서명 대상 문자열: signedDate + method + path(+쿼리스트링).
  */
@@ -71,7 +88,7 @@ export async function searchProducts(
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`쿠팡 상품 검색에 실패했습니다. (${response.status}) ${body.slice(0, 300)}`);
+    throw new Error(buildCoupangErrorMessage("상품 검색", response.status, body));
   }
 
   const data = (await response.json()) as {
@@ -132,7 +149,7 @@ export async function createDeeplink(
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`쿠팡 딥링크 생성에 실패했습니다. (${response.status}) ${text.slice(0, 300)}`);
+    throw new Error(buildCoupangErrorMessage("딥링크 생성", response.status, text));
   }
 
   const data = (await response.json()) as {
