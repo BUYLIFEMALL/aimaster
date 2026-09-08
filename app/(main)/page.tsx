@@ -158,7 +158,7 @@ export default async function HomePage() {
   return (
     <div className="overflow-hidden">
       {/* Hero */}
-      <section className="relative min-h-[85vh] flex items-center justify-center px-4">
+      <section className="relative min-h-[55vh] flex items-center justify-center px-4 pt-24 pb-8">
         {/* Background glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/5 rounded-full blur-[120px]" />
