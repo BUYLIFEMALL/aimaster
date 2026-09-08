@@ -12,17 +12,25 @@ export const metadata: Metadata = {
 };
 
 import Link from "next/link";
-import { ArrowRight, Zap, Shield, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, Zap, Shield, TrendingUp, Users, Info } from "lucide-react";
 import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GlassCard from "@/components/ui/GlassCard";
 import ProgramCard from "@/components/programs/ProgramCard";
 import { createClient } from "@/lib/supabase/server";
+import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
+import { daysRemaining } from "@/lib/utils/format";
+
+interface UserAccessSummary {
+  accessibleCount: number;
+  expiryLabel: string;
+}
 
 async function getHomeData() {
   try {
     const supabase = await createClient();
-    const [{ data: programs }, { data: categories }] = await Promise.all([
+    const [{ data: { user } }, { data: programs }, { data: categories }] = await Promise.all([
+      supabase.auth.getUser(),
       supabase
         .from("programs")
         .select("*, category:categories(*), pricing_plans(*)")
@@ -30,9 +38,73 @@ async function getHomeData() {
         .order("sort_order"),
       supabase.from("categories").select("*").is("parent_id", null).order("sort_order"),
     ]);
-    return { programs: programs ?? [], categories: categories ?? [] };
+
+    // 로그인한 회원에게만 "내가 이용 가능한 프로그램 수 / 가장 빠른 만료일"을 보여준다.
+    // 판정 규칙은 반드시 lib/access/checkProgramAccess.ts의 evaluateProgramAccess()를
+    // 재사용한다 — /dashboard와 동일한 규칙(구독 -> 개별부여 -> 등급)이어야 두 화면의
+    // 숫자가 서로 어긋나지 않는다.
+    let userAccess: UserAccessSummary | null = null;
+    if (user) {
+      const [{ data: profile }, { data: subs }, { data: grants }, { data: grades }] = await Promise.all([
+        supabase.from("profiles").select("is_admin, is_suspended, grade:member_grades(sort_order)").eq("id", user.id).maybeSingle(),
+        supabase.from("subscriptions").select("program_id, status, expires_at").eq("user_id", user.id),
+        supabase.from("user_program_access").select("program_id, expires_at").eq("user_id", user.id),
+        supabase.from("member_grades").select("id, sort_order"),
+      ]);
+
+      const now = new Date();
+      const gradeSortMap = new Map((grades ?? []).map((g) => [g.id, g.sort_order]));
+      const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade;
+
+      const subExpiryMap = new Map<string, string | null>(
+        (subs ?? [])
+          .filter((s) => s.status === "active" && (!s.expires_at || new Date(s.expires_at) > now))
+          .map((s) => [s.program_id, s.expires_at])
+      );
+      const grantMap = new Map<string, string | null>(
+        (grants ?? [])
+          .filter((g) => !g.expires_at || new Date(g.expires_at) > now)
+          .map((g) => [g.program_id, g.expires_at])
+      );
+
+      const accessiblePrograms = (programs ?? []).filter((p) =>
+        evaluateProgramAccess({
+          isAdmin: !!profile?.is_admin,
+          isSuspended: !!profile?.is_suspended,
+          requiredGradeId: p.required_grade_id,
+          hasActiveSubscription: subExpiryMap.has(p.id),
+          hasIndividualGrant: grantMap.has(p.id),
+          individualGrantExpiresAt: grantMap.get(p.id) ?? null,
+          userGradeSortOrder: userGrade?.sort_order ?? null,
+          requiredGradeSortOrder: p.required_grade_id ? (gradeSortMap.get(p.required_grade_id) ?? null) : null,
+        }).allowed
+      );
+
+      // 여러 프로그램 중 가장 빨리 끝나는 만료일 하나만 대표로 보여준다(개별 확인은
+      // /dashboard에서). 구독/개별부여 둘 다 없이 등급만으로 이용 중인 프로그램은
+      // 만료 개념이 없어 계산에서 제외한다.
+      let soonestDatedExpiry: string | null = null;
+      let hasAnyTimedAccess = false;
+      for (const p of accessiblePrograms) {
+        const expiry = subExpiryMap.has(p.id) ? subExpiryMap.get(p.id)! : grantMap.has(p.id) ? grantMap.get(p.id)! : undefined;
+        if (expiry === undefined) continue;
+        hasAnyTimedAccess = true;
+        if (expiry !== null && (!soonestDatedExpiry || expiry < soonestDatedExpiry)) soonestDatedExpiry = expiry;
+      }
+
+      userAccess = {
+        accessibleCount: accessiblePrograms.length,
+        expiryLabel: hasAnyTimedAccess
+          ? daysRemaining(soonestDatedExpiry)
+          : accessiblePrograms.length > 0
+            ? "등급 기준 무제한"
+            : "-",
+      };
+    }
+
+    return { programs: programs ?? [], categories: categories ?? [], userAccess };
   } catch {
-    return { programs: [], categories: [] };
+    return { programs: [], categories: [], userAccess: null as UserAccessSummary | null };
   }
 }
 
@@ -59,6 +131,13 @@ const FEATURES = [
   },
 ];
 
+const NOTICE_ITEMS = [
+  "현재 서비스 중인 자동화 프로그램은 회원 개인별로 플랫폼별 본인의 API 키와 계정을 연동하여 사용할 수 있도록 제공됩니다.",
+  "사용자별로 생성된 데이터는 본인만 볼 수 있으며, 보안이 적용된 서버에 개인별로 분리되어 저장됩니다.",
+  "본 서비스는 프로그램 안정화를 위해 현재 베타(무료)로 서비스 중이며, 트래픽 및 서버 사용량이 증가하면 일부 서비스는 유료로 전환될 예정임을 사전에 공지드립니다.",
+  "드림팀(수강생)의 경우 무료로 이용할 수 있는 프로그램 수 확대 및 이용료 할인 혜택이 추가로 제공됩니다.",
+];
+
 const STATS = [
   { value: "1,200+", label: "활성 사용자" },
   { value: "15+", label: "마케팅 프로그램" },
@@ -67,7 +146,7 @@ const STATS = [
 ];
 
 export default async function HomePage() {
-  const { programs, categories } = await getHomeData();
+  const { programs, categories, userAccess } = await getHomeData();
 
   const categoryBlocks = categories
     .map((category) => ({
@@ -195,6 +274,49 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* 이용 안내 — 첫 방문자가 꼭 보고 넘어가도록 박스로 강조 */}
+      <section className="px-4 pb-20">
+        <div className="max-w-4xl mx-auto">
+          {/* 로그아웃 상태: 등록된 프로그램 수만. 로그인 상태: 회원 개인의 이용 가능
+              프로그램 수 + 가장 빠른 만료일까지 함께 보여준다 */}
+          <div className={`grid gap-4 mb-4 ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
+            <GlassCard className="p-4 text-center">
+              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
+              <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
+            </GlassCard>
+            {userAccess && (
+              <>
+                <GlassCard className="p-4 text-center">
+                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.accessibleCount}</div>
+                  <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
+                </GlassCard>
+                <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
+                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.expiryLabel}</div>
+                  <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
+                </GlassCard>
+              </>
+            )}
+          </div>
+
+          <div className="glass-card rounded-2xl border border-gold/30 bg-gold/[0.04] p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center shrink-0">
+                <Info size={18} className="text-gold" />
+              </div>
+              <h2 className="text-lg md:text-xl font-bold text-white">이용 안내</h2>
+            </div>
+            <ul className="space-y-3">
+              {NOTICE_ITEMS.map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-subtext text-sm md:text-base leading-relaxed">
+                  <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gold/60 shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="py-20 px-4">
