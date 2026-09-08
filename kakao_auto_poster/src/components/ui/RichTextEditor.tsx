@@ -11,7 +11,7 @@ import { Table, TableRow, TableHeader, TableCell } from "@tiptap/extension-table
 import { Highlight } from "@tiptap/extension-highlight";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { generateReportImageAction, type GenerateImageState } from "@/lib/actions/reports";
 import {
@@ -100,10 +100,26 @@ function Toolbar({ editor, userId }: { editor: Editor; userId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAiImageInput, setShowAiImageInput] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
-  const [genState, genFormAction, isGeneratingImage] = useActionState(
-    generateReportImageAction,
-    generateImageInitialState,
-  );
+  const [genState, setGenState] = useState<GenerateImageState>(generateImageInitialState);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
+  // 이 팝오버는 ReportEditor.tsx의 저장용 <form> 안에 렌더링되므로, 여기서 또 <form
+  // action={...}>을 쓰면 HTML이 <form> 중첩을 허용하지 않아 브라우저가 조용히 폼을 깨버린다
+  // (React 하이드레이션 에러 #418로만 나타나 원인 파악이 어려웠음). 그래서 폼 대신 버튼
+  // onClick에서 서버 액션을 직접 호출한다.
+  async function handleGenerateImage() {
+    if (!aiPrompt.trim()) return;
+    setIsGeneratingImage(true);
+    setGenState({});
+    try {
+      const fd = new FormData();
+      fd.set("prompt", aiPrompt);
+      const result = await generateReportImageAction(generateImageInitialState, fd);
+      setGenState(result);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  }
 
   const TEXT_COLORS = [
     { label: "기본", value: "" },
@@ -365,13 +381,9 @@ function Toolbar({ editor, userId }: { editor: Editor; userId: string }) {
             )}
           </ToolbarButton>
           {showAiImageInput && (
-            <form
-              action={genFormAction}
-              className="absolute top-full left-0 z-10 mt-1 min-w-[320px] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl"
-            >
+            <div className="absolute top-full left-0 z-10 mt-1 min-w-[320px] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl">
               <p className="mb-2 text-xs text-neutral-500">어떤 이미지를 만들까요? (한글로 설명해주세요)</p>
               <textarea
-                name="prompt"
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 placeholder="예: 카페에서 노트북으로 이커머스 데이터를 분석하는 사람"
@@ -381,13 +393,14 @@ function Toolbar({ editor, userId }: { editor: Editor; userId: string }) {
               />
               {genState.error && <p className="mb-2 text-[11px] text-red-600">{genState.error}</p>}
               <button
-                type="submit"
+                type="button"
+                onClick={handleGenerateImage}
                 disabled={isGeneratingImage || !aiPrompt.trim()}
                 className="rounded bg-blue-100 px-3 py-1.5 text-xs text-blue-700 transition-colors hover:bg-blue-200 disabled:opacity-50"
               >
                 {isGeneratingImage ? "생성 중... (몇 초 걸려요)" : "✨ 생성해서 삽입"}
               </button>
-            </form>
+            </div>
           )}
         </div>
 
