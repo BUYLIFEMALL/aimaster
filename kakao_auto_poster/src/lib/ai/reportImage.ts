@@ -36,3 +36,44 @@ export async function generateReportImage(prompt: string, apiKey: string): Promi
 
   return `data:${mimeType};base64,${base64.replace(/\s+/g, "")}`;
 }
+
+type SupabaseLike = {
+  storage: {
+    from: (bucket: string) => {
+      upload: (
+        path: string,
+        body: Buffer,
+        options: { contentType: string; upsert: boolean },
+      ) => Promise<{ error: { message: string } | null }>;
+      getPublicUrl: (path: string) => { data: { publicUrl: string } };
+    };
+  };
+};
+
+/**
+ * 이미지 생성 + kakao-report-images 업로드를 한 번에 처리한다. 수동 버튼
+ * (lib/actions/reports.ts의 generateReportImageAction)과 예약/수동 리포트 생성 시
+ * 자동 삽입(lib/reportEngine.ts) 양쪽이 공유한다. gemini 키가 없거나 생성이 실패하면
+ * null을 반환한다 — 호출부가 "이미지 없이 계속 진행"할지 "에러로 막을지"를 정한다.
+ */
+export async function generateAndUploadReportImage(
+  supabase: SupabaseLike,
+  userId: string,
+  apiKey: string,
+  prompt: string,
+): Promise<string | null> {
+  const dataUri = await generateReportImage(prompt, apiKey);
+  const match = /^data:(.+?);base64,(.+)$/.exec(dataUri);
+  if (!match) return null;
+  const [, mimeType, base64] = match;
+  const ext = mimeType.split("/")[1] ?? "png";
+  const path = `${userId}/ai-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("kakao-report-images")
+    .upload(path, Buffer.from(base64, "base64"), { contentType: mimeType, upsert: false });
+  if (error) return null;
+
+  const { data: urlData } = supabase.storage.from("kakao-report-images").getPublicUrl(path);
+  return urlData.publicUrl;
+}

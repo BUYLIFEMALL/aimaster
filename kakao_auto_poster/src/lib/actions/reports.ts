@@ -6,7 +6,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { sendReportToKakaoCore } from "@/lib/kakaoSend";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { generateReportImage } from "@/lib/ai/reportImage";
+import { generateAndUploadReportImage } from "@/lib/ai/reportImage";
 
 export interface SendKakaoState {
   error?: string;
@@ -106,20 +106,9 @@ export async function generateReportImageAction(
   }
 
   try {
-    const dataUri = await generateReportImage(prompt, apiKey);
-    const match = /^data:(.+?);base64,(.+)$/.exec(dataUri);
-    if (!match) throw new Error("이미지 데이터 형식이 올바르지 않습니다.");
-    const [, mimeType, base64] = match;
-    const ext = mimeType.split("/")[1] ?? "png";
-    const path = `${user.id}/ai-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("kakao-report-images")
-      .upload(path, Buffer.from(base64, "base64"), { contentType: mimeType, upsert: false });
-    if (uploadError) return { error: uploadError.message };
-
-    const { data: urlData } = supabase.storage.from("kakao-report-images").getPublicUrl(path);
-    return { url: urlData.publicUrl };
+    const url = await generateAndUploadReportImage(supabase, user.id, apiKey, prompt);
+    if (!url) return { error: "이미지 업로드에 실패했습니다." };
+    return { url };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "이미지 생성에 실패했습니다." };
   }

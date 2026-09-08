@@ -6,6 +6,8 @@ import { searchPerplexityInfo, structureKakaoReport } from "@/lib/ai/collector";
 import { requestTelegramReviewForReport } from "@/lib/telegramReview";
 import { notifyReportByEmail } from "@/lib/emailNotify";
 import { sendReportToKakaoCore } from "@/lib/kakaoSend";
+import { generateAndUploadReportImage } from "@/lib/ai/reportImage";
+import { toEditorHtml } from "@/lib/reportContent";
 
 export interface TopicForGeneration {
   id: string;
@@ -32,6 +34,28 @@ export async function generateReportForTopic(
   const rawText = await searchPerplexityInfo(topic.topic_name, topic.keywords, perplexityKey ?? "", topic.lookback_days);
   const draft = await structureKakaoReport({ rawText, apiKey: openaiKey ?? "" });
 
+  // 콘텐츠 생성과 함께 대표 이미지도 자동으로 만들어 본문 맨 위에 넣는다(docs/PLATFORM_PATTERNS.md
+  // §12 — Gemini 직접 호출 + Supabase Storage 업로드, 회원 본인 gemini 키 필요). 키가 없거나
+  // 생성이 실패해도 리포트 생성 자체는 막지 않고 원래대로(일반 텍스트) 저장한다 — 이미지는
+  // 나중에 수정 화면에서 "✨ AI 이미지 생성" 버튼으로 언제든 추가할 수 있다.
+  let content: string = draft.content;
+  const geminiKey = await resolveApiKey(supabase, userId, "gemini");
+  if (geminiKey) {
+    try {
+      const imageUrl = await generateAndUploadReportImage(
+        supabase,
+        userId,
+        geminiKey,
+        `${topic.topic_name}: ${draft.title}`,
+      );
+      if (imageUrl) {
+        content = `<img src="${imageUrl}" alt="${draft.title}" />${toEditorHtml(draft.content)}`;
+      }
+    } catch (err) {
+      console.error("리포트 자동 이미지 생성 실패:", err);
+    }
+  }
+
   const { data: inserted, error: insertError } = await supabase
     .from("kakao_reports")
     .insert({
@@ -39,7 +63,7 @@ export async function generateReportForTopic(
       topic_id: topic.id,
       title: draft.title,
       summary: draft.summary,
-      content: draft.content,
+      content,
       generated_via: generatedVia,
     })
     .select("id, title, summary")
