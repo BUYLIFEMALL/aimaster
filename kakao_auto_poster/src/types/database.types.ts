@@ -19,6 +19,7 @@ export interface Database {
           last_run_at: string | null;
           active_hour_start: number | null;
           active_hour_end: number | null;
+          notify_channels: string[];
           created_at: string;
           updated_at: string;
         };
@@ -34,6 +35,7 @@ export interface Database {
           last_run_at?: string | null;
           active_hour_start?: number | null;
           active_hour_end?: number | null;
+          notify_channels?: string[];
           created_at?: string;
           updated_at?: string;
         };
@@ -49,6 +51,7 @@ export interface Database {
           last_run_at?: string | null;
           active_hour_start?: number | null;
           active_hour_end?: number | null;
+          notify_channels?: string[];
           created_at?: string;
           updated_at?: string;
         };

@@ -89,6 +89,9 @@ export async function updateTopicScheduleAction(
   const hoursRestricted = formData.get("hoursRestricted") === "true";
   const activeHourStart = hoursRestricted ? Number(formData.get("activeHourStart") ?? 9) : null;
   const activeHourEnd = hoursRestricted ? Number(formData.get("activeHourEnd") ?? 22) : null;
+  // 알림 채널 칩(이메일/텔레그램) — trending-product-finder의 SourcingAlertControls.tsx와
+  // 동일한 방식. 카카오톡은 포함하지 않는다(위 파일 상단 주석 참고).
+  const notifyChannels = formData.getAll("notifyChannels").map(String);
 
   if (!id) return { error: "주제를 찾을 수 없습니다." };
 
@@ -101,6 +104,7 @@ export async function updateTopicScheduleAction(
       interval_minutes: intervalMinutes,
       active_hour_start: activeHourStart,
       active_hour_end: activeHourEnd,
+      notify_channels: notifyChannels,
     })
     .eq("id", id)
     .eq("user_id", user.id);
@@ -172,7 +176,7 @@ export async function generateReportAction(
   const supabase = await createClient();
   const { data: topic, error: topicError } = await supabase
     .from("kakao_topics")
-    .select("id, topic_name, keywords, lookback_days")
+    .select("id, topic_name, keywords, lookback_days, notify_channels")
     .eq("id", topicId)
     .eq("user_id", user.id)
     .maybeSingle();

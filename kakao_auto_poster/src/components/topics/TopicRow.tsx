@@ -12,7 +12,7 @@ import {
   type UpdateScheduleState,
 } from "@/lib/actions/topics";
 import { LOOKBACK_DAYS_OPTIONS } from "@/lib/validation";
-import { SCHEDULE_INTERVAL_OPTIONS } from "@/lib/schedule";
+import { NOTIFY_CHANNEL_OPTIONS, SCHEDULE_INTERVAL_OPTIONS, type NotifyChannel } from "@/lib/schedule";
 import { clsx } from "@/lib/clsx";
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => h);
@@ -27,6 +27,7 @@ interface TopicRowProps {
   intervalMinutes: number | null;
   activeHourStart: number | null;
   activeHourEnd: number | null;
+  notifyChannels: string[];
 }
 
 const generateInitialState: GenerateReportState = {};
@@ -42,6 +43,7 @@ export function TopicRow({
   intervalMinutes,
   activeHourStart,
   activeHourEnd,
+  notifyChannels,
 }: TopicRowProps) {
   const [genState, genFormAction, isGenerating] = useActionState(generateReportAction, generateInitialState);
   const [showSettings, setShowSettings] = useState(false);
@@ -54,6 +56,7 @@ export function TopicRow({
   const [hoursRestricted, setHoursRestricted] = useState(activeHourStart !== null && activeHourEnd !== null);
   const [startHour, setStartHour] = useState(activeHourStart ?? 9);
   const [endHour, setEndHour] = useState(activeHourEnd ?? 22);
+  const [channels, setChannels] = useState<string[]>(notifyChannels);
   const [isSavingSchedule, startSavingSchedule] = useTransition();
   const [scheduleState, setScheduleState] = useState<UpdateScheduleState>(scheduleInitialState);
   const [scheduleSaved, setScheduleSaved] = useState(false);
@@ -65,6 +68,7 @@ export function TopicRow({
     hoursRestricted?: boolean;
     startHour?: number;
     endHour?: number;
+    channels?: string[];
   }) {
     const merged = {
       lookback: next.lookback ?? lookback,
@@ -73,6 +77,7 @@ export function TopicRow({
       hoursRestricted: next.hoursRestricted ?? hoursRestricted,
       startHour: next.startHour ?? startHour,
       endHour: next.endHour ?? endHour,
+      channels: next.channels ?? channels,
     };
     const fd = new FormData();
     fd.set("id", id);
@@ -82,6 +87,7 @@ export function TopicRow({
     fd.set("hoursRestricted", String(merged.hoursRestricted));
     fd.set("activeHourStart", String(merged.startHour));
     fd.set("activeHourEnd", String(merged.endHour));
+    merged.channels.forEach((c) => fd.append("notifyChannels", c));
     startSavingSchedule(async () => {
       const result = await updateTopicScheduleAction(scheduleInitialState, fd);
       setScheduleState(result);
@@ -90,6 +96,15 @@ export function TopicRow({
         setTimeout(() => setScheduleSaved(false), 1500);
       }
     });
+  }
+
+  function toggleChannel(channel: NotifyChannel) {
+    const current = new Set(channels);
+    if (current.has(channel)) current.delete(channel);
+    else current.add(channel);
+    const next = Array.from(current);
+    setChannels(next);
+    saveSchedule({ channels: next });
   }
 
   // ── 키워드 개별 추가/삭제
@@ -227,23 +242,23 @@ export function TopicRow({
       <div className="flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-3">
         <form action={genFormAction}>
           <input type="hidden" name="topicId" value={id} />
-          <Button type="submit" variant="secondary" disabled={isGenerating}>
+          <Button type="submit" variant="info" disabled={isGenerating}>
             {isGenerating ? "생성 중..." : "✨ 지금 생성"}
           </Button>
         </form>
         <form action={toggleTopicActiveAction}>
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="isActive" value={String(isActive)} />
-          <Button type="submit" variant="ghost">
+          <Button type="submit" variant="muted">
             {isActive ? "비활성화" : "활성화"}
           </Button>
         </form>
-        <Button type="button" variant="ghost" onClick={() => setShowSettings((v) => !v)}>
+        <Button type="button" variant="warning" onClick={() => setShowSettings((v) => !v)}>
           ⚙️ 조회 범위/예약 설정
         </Button>
         <form action={deleteTopicAction}>
           <input type="hidden" name="id" value={id} />
-          <Button type="submit" variant="ghost" className="text-red-600 hover:bg-red-50">
+          <Button type="submit" variant="danger">
             삭제
           </Button>
         </form>
@@ -381,6 +396,40 @@ export function TopicRow({
                   <p className="mt-1 text-[11px] text-neutral-500">
                     "특정 시간대만"으로 설정하면 그 시간대(한국시간)에만 예약 자동 생성이
                     실행됩니다 — 예: 22시~6시로 두면 밤중엔 실행되지 않습니다.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-neutral-700">알림 채널</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {NOTIFY_CHANNEL_OPTIONS.map((c) => {
+                      const checked = channels.includes(c.value);
+                      return (
+                        <button
+                          key={c.value}
+                          type="button"
+                          disabled={isSavingSchedule}
+                          onClick={() => toggleChannel(c.value)}
+                          className={clsx(
+                            "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50",
+                            checked ? "border-blue-500 bg-blue-500 text-white" : "border-neutral-300 bg-white text-neutral-500",
+                          )}
+                        >
+                          {c.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {channels.length === 0 && (
+                    <p className="mt-1 text-[11px] text-amber-600">
+                      채널을 선택하지 않으면 리포트가 생성돼도 알림이 가지 않습니다(카카오톡
+                      발행은 아래 리포트 화면에서 항상 수동으로 가능합니다).
+                    </p>
+                  )}
+                  <p className="mt-1 text-[11px] text-neutral-500">
+                    설정 페이지에 등록해둔 채널로 이 주제의 리포트 생성을 알려드립니다. 카카오톡
+                    발행은 여기 포함되지 않습니다 — 항상 별도 승인(텔레그램 버튼 또는 리포트
+                    화면의 발송 버튼)이 필요합니다.
                   </p>
                 </div>
               </div>

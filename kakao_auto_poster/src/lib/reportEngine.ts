@@ -11,6 +11,7 @@ export interface TopicForGeneration {
   topic_name: string;
   keywords: string[];
   lookback_days: number;
+  notify_channels: string[];
 }
 
 /**
@@ -45,13 +46,17 @@ export async function generateReportForTopic(
 
   if (insertError || !inserted) throw new Error(insertError?.message ?? "리포트 저장에 실패했습니다.");
 
-  await requestTelegramReviewForReport(supabase, userId, inserted);
+  // 주제별 알림 채널 칩(이메일/텔레그램, TopicRow.tsx) 선택에 따라 각각 독립적으로
+  // 보낸다 — trending-product-finder의 SourcingAlertControls.tsx와 동일한 방식.
+  if (topic.notify_channels.includes("telegram")) {
+    await requestTelegramReviewForReport(supabase, userId, inserted);
+  }
 
   // 이메일은 순수 알림이라(승인/거부 같은 필수 액션이 없음) 예약 자동 생성분에만 보낸다 —
   // "지금 생성" 버튼은 이미 화면을 보고 있어 중복 알림이라 제외(trending-product-finder
   // Phase 10과 동일한 판단). 관리자 클라이언트가 필요해 여기서 새로 만든다(전달받은
   // supabase는 수동 생성 시 사용자 세션 클라이언트라 auth.admin API를 쓸 수 없다).
-  if (generatedVia === "scheduled") {
+  if (generatedVia === "scheduled" && topic.notify_channels.includes("email")) {
     const { createAdminClient } = await import("@/lib/supabase/admin");
     await notifyReportByEmail(createAdminClient(), userId, inserted);
   }

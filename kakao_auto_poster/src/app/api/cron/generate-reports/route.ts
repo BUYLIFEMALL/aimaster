@@ -24,7 +24,9 @@ async function dispatch() {
 
   const { data: rows, error } = await admin
     .from("kakao_topics")
-    .select("id, user_id, topic_name, keywords, lookback_days, interval_minutes, last_run_at, active_hour_start, active_hour_end")
+    .select(
+      "id, user_id, topic_name, keywords, lookback_days, interval_minutes, last_run_at, active_hour_start, active_hour_end, notify_channels",
+    )
     .eq("is_active", true)
     .eq("schedule_enabled", true);
 
@@ -47,7 +49,13 @@ async function dispatch() {
       const result = await generateReportForTopic(
         admin,
         row.user_id,
-        { id: row.id, topic_name: row.topic_name, keywords: row.keywords, lookback_days: row.lookback_days },
+        {
+          id: row.id,
+          topic_name: row.topic_name,
+          keywords: row.keywords,
+          lookback_days: row.lookback_days,
+          notify_channels: row.notify_channels,
+        },
         "scheduled",
       );
       await admin.from("kakao_topics").update({ last_run_at: now.toISOString() }).eq("id", row.id);
