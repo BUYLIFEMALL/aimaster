@@ -17,6 +17,10 @@ import { clsx } from "@/lib/clsx";
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => h);
 
+function todayDateInputValue(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 interface TopicRowProps {
   id: string;
   topicName: string;
@@ -61,6 +65,10 @@ export function TopicRow({
   const [startHour, setStartHour] = useState(activeHourStart ?? 9);
   const [endHour, setEndHour] = useState(activeHourEnd ?? 22);
   const [channels, setChannels] = useState<string[]>(notifyChannels);
+  // 회원 이용 만료일 설정(components/admin/SetExpiryModal.tsx)의 "빠른 설정" 캘린더
+  // 패턴과 동일 — 날짜를 고르면 오늘까지의 경과일을 계산해서 기존 lookbackDays 값에
+  // 그대로 채워 넣는다(새 컬럼 없이 기존 필드 재사용).
+  const [startDateInput, setStartDateInput] = useState("");
   const [isSavingSchedule, startSavingSchedule] = useTransition();
   const [scheduleState, setScheduleState] = useState<UpdateScheduleState>(scheduleInitialState);
   const [scheduleSaved, setScheduleSaved] = useState(false);
@@ -109,6 +117,14 @@ export function TopicRow({
     const next = Array.from(current);
     setChannels(next);
     saveSchedule({ channels: next });
+  }
+
+  function applyStartDate() {
+    if (!startDateInput) return;
+    const start = new Date(`${startDateInput}T00:00:00`);
+    const days = Math.max(1, Math.round((Date.now() - start.getTime()) / (24 * 60 * 60 * 1000)));
+    setLookback(days);
+    saveSchedule({ lookback: days });
   }
 
   // ── 키워드 개별 추가/삭제
@@ -285,9 +301,9 @@ export function TopicRow({
           </button>
         </div>
         <p className="mt-1 text-[11px] leading-snug text-blue-700/80">
-          정해둔 주기마다 이 주제로 최신 정보를 검색해서 리포트를 만들고, 등록된 채널로
-          알려드려요. 카카오톡 발행은 항상 별도 승인(텔레그램 버튼 또는 리포트 화면의 발송
-          버튼)이 필요합니다.
+          정해둔 주기마다 이 주제로 최신 정보를 검색해서 리포트를 만들고, 아래에서 켜둔
+          채널로 보내드려요. 카카오톡을 켜두면 검토 없이 바로 발행되니, 확인 후 보내고
+          싶으면 텔레그램만 켜두고 리포트 화면에서 직접 발송해주세요.
         </p>
 
         {enabled && (
@@ -311,6 +327,30 @@ export function TopicRow({
                 ))}
               </select>
             </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="w-16 shrink-0 text-[11px] text-neutral-500">시작일 직접 선택</span>
+              <input
+                type="date"
+                value={startDateInput}
+                max={todayDateInputValue()}
+                onChange={(e) => setStartDateInput(e.target.value)}
+                disabled={isSavingSchedule}
+                className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+              />
+              <button
+                type="button"
+                disabled={isSavingSchedule || !startDateInput}
+                onClick={applyStartDate}
+                className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+              >
+                적용
+              </button>
+            </div>
+            <p className="pl-[72px] text-[11px] text-neutral-400">
+              달력에서 날짜를 고르면 그날부터 오늘까지의 정보만 검색하도록 위 조회 범위가
+              자동으로 계산돼요(회원 이용 만료일 설정과 동일한 방식).
+            </p>
 
             <div className="flex items-center gap-2">
               <span className="w-16 shrink-0 text-[11px] text-neutral-500">주기</span>
@@ -408,10 +448,11 @@ export function TopicRow({
                 );
               })}
             </div>
-            {channels.length === 0 && <p className="text-[11px] text-amber-600">채널을 최소 1개 선택해야 알림이 발송됩니다.</p>}
+            {channels.length === 0 && <p className="text-[11px] text-amber-600">채널을 최소 1개 선택해야 발송됩니다.</p>}
             <p className="text-[11px] leading-snug text-neutral-400">
-              설정 페이지에 등록해둔 채널(이메일/텔레그램) 중 선택한 것으로, 이 주제의 리포트
-              생성 소식을 보내드립니다.
+              설정 페이지에 등록해둔 채널(카카오톡/텔레그램/이메일) 중 선택한 것으로 이
+              주제의 리포트를 보내드립니다. 카카오톡은 검토 없이 즉시 발행되니 신중하게
+              켜주세요.
             </p>
             {scheduleSaved && <p className="text-[11px] text-emerald-600">저장됐어요.</p>}
           </div>

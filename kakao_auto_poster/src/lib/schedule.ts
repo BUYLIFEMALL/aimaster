@@ -12,13 +12,14 @@ export const SCHEDULE_INTERVAL_OPTIONS = [
   { value: 1440, label: "매일" },
 ] as const;
 
-// trending-product-finder의 ALERT_CHANNEL_OPTIONS와 같은 성격의 "알림 채널 칩" — 다만
-// 카카오톡은 여기 포함하지 않는다. 이메일/텔레그램은 순수 알림이지만, 카카오는 실제
-// 발행 액션(수동 버튼 또는 텔레그램 승인)이라 이 칩으로 자동 on 시키면 검토 없이 카카오톡이
-// 나가는 큰 동작 변경이 되기 때문이다.
+// trending-product-finder의 ALERT_CHANNEL_OPTIONS와 동일한 성격의 "알림 채널 칩". 카카오톡을
+// 켜면 리포트 생성 즉시 검토 없이 바로 카카오로 발행된다(사용자 명시 지시, 2026-09-08 —
+// 처음엔 "카카오는 승인 필요 액션이라 제외"로 설계했으나, 채널로 명시적으로 켜고 끄고 싶다는
+// 요청에 따라 포함시킴). 텔레그램/이메일은 그대로 순수 알림.
 export const NOTIFY_CHANNEL_OPTIONS = [
-  { value: "email", label: "📧 이메일" },
+  { value: "kakao", label: "💬 카카오톡" },
   { value: "telegram", label: "📨 텔레그램" },
+  { value: "email", label: "📧 이메일" },
 ] as const;
 
 export type NotifyChannel = (typeof NOTIFY_CHANNEL_OPTIONS)[number]["value"];
