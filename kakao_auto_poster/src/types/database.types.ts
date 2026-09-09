@@ -123,6 +123,7 @@ export interface Database {
           user_id: string;
           phone: string;
           label: string | null;
+          group_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -130,6 +131,7 @@ export interface Database {
           user_id: string;
           phone: string;
           label?: string | null;
+          group_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -137,6 +139,28 @@ export interface Database {
           user_id?: string;
           phone?: string;
           label?: string | null;
+          group_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      kakao_broadcast_groups: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
           created_at?: string;
         };
         Relationships: [];

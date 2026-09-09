@@ -21,6 +21,7 @@ export async function addBroadcastRecipientAction(
   const user = await requireProgramAccess();
   const phone = normalizePhone(String(formData.get("phone") ?? ""));
   const label = String(formData.get("label") ?? "").trim();
+  const groupId = String(formData.get("groupId") ?? "").trim() || null;
 
   if (!phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
 
@@ -29,11 +30,12 @@ export async function addBroadcastRecipientAction(
     user_id: user.id,
     phone,
     label: label || null,
+    group_id: groupId,
   });
 
   if (error) return { error: error.message };
 
-  revalidatePath("/settings");
+  revalidatePath("/recipients");
   return {};
 }
 
@@ -60,6 +62,7 @@ export async function addBulkBroadcastRecipientsAction(
 ): Promise<BulkAddBroadcastRecipientsState> {
   const user = await requireProgramAccess();
   const raw = String(formData.get("bulkPhones") ?? "");
+  const groupId = String(formData.get("groupId") ?? "").trim() || null;
   const lines = raw
     .split("\n")
     .map((l) => l.trim())
@@ -73,7 +76,7 @@ export async function addBulkBroadcastRecipientsAction(
   const existingPhones = new Set((existing ?? []).map((r) => r.phone));
 
   const results: BulkAddResultRow[] = [];
-  const toInsert: { user_id: string; phone: string; label: string | null }[] = [];
+  const toInsert: { user_id: string; phone: string; label: string | null; group_id: string | null }[] = [];
   const seenInBatch = new Set<string>();
 
   for (const line of lines) {
@@ -91,7 +94,7 @@ export async function addBulkBroadcastRecipientsAction(
       continue;
     }
     seenInBatch.add(phone);
-    toInsert.push({ user_id: user.id, phone, label });
+    toInsert.push({ user_id: user.id, phone, label, group_id: groupId });
     results.push({ line, ok: true });
   }
 
@@ -100,7 +103,7 @@ export async function addBulkBroadcastRecipientsAction(
     if (error) return { error: error.message };
   }
 
-  revalidatePath("/settings");
+  revalidatePath("/recipients");
   return { results };
 }
 
@@ -119,6 +122,7 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
  */
 export async function importBroadcastRecipientsAction(formData: FormData): Promise<ImportBroadcastRecipientsState> {
   const user = await requireProgramAccess();
+  const groupId = String(formData.get("groupId") ?? "").trim() || null;
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
@@ -146,7 +150,7 @@ export async function importBroadcastRecipientsAction(formData: FormData): Promi
 
   const toInsert = parsed
     .filter((row) => !existingPhones.has(row.phone))
-    .map((row) => ({ user_id: user.id, phone: row.phone, label: row.label }));
+    .map((row) => ({ user_id: user.id, phone: row.phone, label: row.label, group_id: groupId }));
   const skippedCount = parsed.length - toInsert.length;
 
   if (toInsert.length > 0) {
@@ -154,7 +158,7 @@ export async function importBroadcastRecipientsAction(formData: FormData): Promi
     if (error) return { error: error.message };
   }
 
-  revalidatePath("/settings");
+  revalidatePath("/recipients");
   return { importedCount: toInsert.length, skippedCount };
 }
 
@@ -164,5 +168,48 @@ export async function deleteBroadcastRecipientAction(id: string) {
 
   await supabase.from("kakao_broadcast_recipients").delete().eq("id", id).eq("user_id", user.id);
 
-  revalidatePath("/settings");
+  revalidatePath("/recipients");
+}
+
+export interface UpdateBroadcastRecipientState {
+  error?: string;
+}
+
+/** 삭제 버튼 옆 "수정"으로 이름/전화번호를 고친다. */
+export async function updateBroadcastRecipientAction(
+  id: string,
+  values: { label: string; phone: string },
+): Promise<UpdateBroadcastRecipientState> {
+  const user = await requireProgramAccess();
+  const phone = normalizePhone(values.phone);
+  if (!phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("kakao_broadcast_recipients")
+    .update({ phone, label: values.label.trim() || null })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/recipients");
+  return {};
+}
+
+/** 수신자 목록 화면의 그룹 선택 드롭다운에서 즉시 저장하는 그룹 이동 기능. */
+export async function moveBroadcastRecipientGroupAction(id: string, groupId: string | null): Promise<{ error?: string }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("kakao_broadcast_recipients")
+    .update({ group_id: groupId })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/recipients");
+  return {};
 }

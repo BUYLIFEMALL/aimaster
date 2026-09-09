@@ -16,10 +16,10 @@ export default async function RecipientsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: broadcastRecipients }, { data: solapiAccount }] = await Promise.all([
+  const [{ data: broadcastRecipients }, { data: solapiAccount }, { data: groups }] = await Promise.all([
     supabase
       .from("kakao_broadcast_recipients")
-      .select("id, phone, label")
+      .select("id, phone, label, group_id")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase
@@ -27,6 +27,11 @@ export default async function RecipientsPage() {
       .select("kakao_pf_id, channel_friend_url, alimtalk_template_id")
       .eq("user_id", user.id)
       .maybeSingle(),
+    supabase
+      .from("kakao_broadcast_groups")
+      .select("id, name")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
   ]);
 
   return (
@@ -43,6 +48,7 @@ export default async function RecipientsPage() {
       <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
         <BroadcastRecipientsSection
           recipients={broadcastRecipients ?? []}
+          groups={groups ?? []}
           hasSolapiChannel={Boolean(solapiAccount?.kakao_pf_id)}
           channelFriendUrl={solapiAccount?.channel_friend_url ?? null}
           hasAlimtalkTemplate={Boolean(solapiAccount?.alimtalk_template_id)}
