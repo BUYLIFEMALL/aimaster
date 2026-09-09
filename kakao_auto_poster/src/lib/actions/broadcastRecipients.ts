@@ -234,3 +234,24 @@ export async function moveManyBroadcastRecipientsGroupAction(
   revalidatePath("/recipients");
   return {};
 }
+
+/**
+ * 수신이 안 되는 사람을 발송 대상에서 제외/재포함한다 — stepmail 리드의 "발송제외 처리"와
+ * 같은 개념. 제외된 사람은 리포트 자동 발송(lib/kakaoSend.ts)과 수동 메시지 발송
+ * (lib/actions/broadcastSend.ts) 양쪽 모두에서 대상 조회 시 걸러진다.
+ */
+export async function toggleBroadcastRecipientExcludedAction(id: string, excluded: boolean): Promise<{ error?: string }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("kakao_broadcast_recipients")
+    .update({ excluded })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/recipients");
+  return {};
+}

@@ -30,6 +30,7 @@ const FLOW_STEPS = [
 
 const UTILITY_ITEMS = [
   { href: "/recipients", icon: "📣", label: "카카오톡 수신자 목록" },
+  { href: "/broadcast-log", icon: "📨", label: "발송 내역" },
   { href: "/settings", icon: "🔑", label: "API키등록" },
 ];
 

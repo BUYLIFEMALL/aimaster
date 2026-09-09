@@ -11,6 +11,7 @@ import {
   importBroadcastRecipientsAction,
   moveBroadcastRecipientGroupAction,
   moveManyBroadcastRecipientsGroupAction,
+  toggleBroadcastRecipientExcludedAction,
   updateBroadcastRecipientAction,
   type AddBroadcastRecipientState,
   type BulkAddBroadcastRecipientsState,
@@ -23,6 +24,7 @@ export interface BroadcastRecipientData {
   phone: string;
   label: string | null;
   group_id: string | null;
+  excluded: boolean;
 }
 
 export interface BroadcastGroupData {
@@ -39,6 +41,7 @@ const UNGROUPED = "__ungrouped__";
 // 미분류로 이동해버려(이미 미분류였다면 겉보기엔 아무 일도 안 일어난 것처럼 보임) 사용자가
 // "이동이 안 된다"고 착각하는 버그가 있었다(2026-09-09).
 const UNSELECTED = "__unselected__";
+const EXCLUDED_FILTER = "__excluded__";
 
 function maskPhone(phone: string): string {
   if (phone.length < 8) return phone;
@@ -92,9 +95,11 @@ export function BroadcastRecipientsSection({
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendResults, setSendResults] = useState<BroadcastSendResultRow[] | null>(null);
+  const [togglingExcludedId, setTogglingExcludedId] = useState<string | null>(null);
 
   const filteredRecipients = recipients.filter((r) => {
     if (activeFilter === "all") return true;
+    if (activeFilter === EXCLUDED_FILTER) return r.excluded;
     if (activeFilter === UNGROUPED) return !r.group_id;
     return r.group_id === activeFilter;
   });
@@ -106,18 +111,21 @@ export function BroadcastRecipientsSection({
     const phoneMatch = searchDigits.length > 0 && r.phone.includes(searchDigits);
     return Boolean(labelMatch) || phoneMatch;
   });
-  const defaultGroupForNew = activeFilter !== "all" && activeFilter !== UNGROUPED ? activeFilter : "";
-  const allVisibleSelected = visibleRecipients.length > 0 && visibleRecipients.every((r) => selectedIds.has(r.id));
+  const defaultGroupForNew = activeFilter !== "all" && activeFilter !== UNGROUPED && activeFilter !== EXCLUDED_FILTER ? activeFilter : "";
+  // 발송제외 처리된 사람은 체크박스로 선택해서 보내는 대상에 포함시키지 않는다.
+  const selectableVisibleRecipients = visibleRecipients.filter((r) => !r.excluded);
+  const allVisibleSelected =
+    selectableVisibleRecipients.length > 0 && selectableVisibleRecipients.every((r) => selectedIds.has(r.id));
 
   function toggleSelectAll() {
     setSelectedIds((prev) => {
       if (allVisibleSelected) {
         const next = new Set(prev);
-        visibleRecipients.forEach((r) => next.delete(r.id));
+        selectableVisibleRecipients.forEach((r) => next.delete(r.id));
         return next;
       }
       const next = new Set(prev);
-      visibleRecipients.forEach((r) => next.add(r.id));
+      selectableVisibleRecipients.forEach((r) => next.add(r.id));
       return next;
     });
   }
@@ -248,6 +256,22 @@ export function BroadcastRecipientsSection({
     }
   }
 
+  async function handleToggleExcluded(id: string, excluded: boolean) {
+    setTogglingExcludedId(id);
+    try {
+      await toggleBroadcastRecipientExcludedAction(id, excluded);
+      setSelectedIds((prev) => {
+        if (!prev.has(id)) return prev;
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      router.refresh();
+    } finally {
+      setTogglingExcludedId(null);
+    }
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -336,9 +360,18 @@ export function BroadcastRecipientsSection({
         </div>
       )}
 
-      {groups.length > 0 && (
+      {recipients.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {[{ id: "all", name: `전체 (${recipients.length})` }, { id: UNGROUPED, name: `미분류 (${recipients.filter((r) => !r.group_id).length})` }, ...groups.map((g) => ({ id: g.id, name: `${g.name} (${recipients.filter((r) => r.group_id === g.id).length})` }))].map((tab) => (
+          {[
+            { id: "all", name: `전체 (${recipients.length})` },
+            ...(groups.length > 0
+              ? [
+                  { id: UNGROUPED, name: `미분류 (${recipients.filter((r) => !r.group_id).length})` },
+                  ...groups.map((g) => ({ id: g.id, name: `${g.name} (${recipients.filter((r) => r.group_id === g.id).length})` })),
+                ]
+              : []),
+            { id: EXCLUDED_FILTER, name: `발송제외 (${recipients.filter((r) => r.excluded).length})` },
+          ].map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -435,7 +468,7 @@ export function BroadcastRecipientsSection({
 
           <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
             <label className="flex items-center gap-2 text-xs font-semibold text-neutral-500">
-              <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectAll} disabled={visibleRecipients.length === 0} />
+              <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectAll} disabled={selectableVisibleRecipients.length === 0} />
               {searchText || activeFilter !== "all" ? `${visibleRecipients.length.toLocaleString()}명 표시 중` : `등록됨 ${recipients.length.toLocaleString()}명`}
             </label>
             {visibleRecipients.length === 0 && (
@@ -461,12 +494,27 @@ export function BroadcastRecipientsSection({
                   </div>
                 </div>
               ) : (
-                <div key={recipient.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+                <div
+                  key={recipient.id}
+                  className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 ${
+                    recipient.excluded ? "border-neutral-200 bg-neutral-100 opacity-60" : "border-neutral-200 bg-neutral-50"
+                  }`}
+                >
                   <div className="flex items-center gap-2">
-                    <input type="checkbox" checked={selectedIds.has(recipient.id)} onChange={() => toggleSelectOne(recipient.id)} />
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(recipient.id)}
+                      onChange={() => toggleSelectOne(recipient.id)}
+                      disabled={recipient.excluded}
+                    />
                     <p className="text-sm text-neutral-900">
                       {recipient.label ? `${recipient.label} ` : ""}
                       <span className="text-neutral-500">{maskPhone(recipient.phone)}</span>
+                      {recipient.excluded && (
+                        <span className="ml-2 rounded-full bg-neutral-300 px-2 py-0.5 text-xs font-semibold text-neutral-700">
+                          발송제외
+                        </span>
+                      )}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -487,6 +535,14 @@ export function BroadcastRecipientsSection({
                     )}
                     <button type="button" onClick={() => startEdit(recipient)} className="text-xs font-semibold text-blue-600 hover:underline">
                       수정
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleExcluded(recipient.id, !recipient.excluded)}
+                      disabled={togglingExcludedId === recipient.id}
+                      className="text-xs font-semibold text-neutral-600 hover:underline disabled:opacity-50"
+                    >
+                      {togglingExcludedId === recipient.id ? "처리 중..." : recipient.excluded ? "제외 해제" : "발송제외 처리"}
                     </button>
                     <button
                       type="button"

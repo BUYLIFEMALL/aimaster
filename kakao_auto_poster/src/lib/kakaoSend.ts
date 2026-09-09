@@ -99,7 +99,8 @@ async function broadcastReportToRecipients(
   const { data: recipients } = await supabase
     .from("kakao_broadcast_recipients")
     .select("phone")
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .eq("excluded", false);
 
   if (!recipients || recipients.length === 0) return;
 

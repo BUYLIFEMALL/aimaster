@@ -19,7 +19,7 @@ export default async function RecipientsPage() {
   const [{ data: broadcastRecipients }, { data: solapiAccount }, { data: groups }] = await Promise.all([
     supabase
       .from("kakao_broadcast_recipients")
-      .select("id, phone, label, group_id")
+      .select("id, phone, label, group_id, excluded")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase

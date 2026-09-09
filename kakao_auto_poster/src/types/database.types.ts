@@ -124,6 +124,7 @@ export interface Database {
           phone: string;
           label: string | null;
           group_id: string | null;
+          excluded: boolean;
           created_at: string;
         };
         Insert: {
@@ -132,6 +133,7 @@ export interface Database {
           phone: string;
           label?: string | null;
           group_id?: string | null;
+          excluded?: boolean;
           created_at?: string;
         };
         Update: {
@@ -140,6 +142,7 @@ export interface Database {
           phone?: string;
           label?: string | null;
           group_id?: string | null;
+          excluded?: boolean;
           created_at?: string;
         };
         Relationships: [];
@@ -161,6 +164,42 @@ export interface Database {
           id?: string;
           user_id?: string;
           name?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      kakao_broadcast_send_log: {
+        Row: {
+          id: string;
+          user_id: string;
+          recipient_id: string | null;
+          recipient_label: string | null;
+          recipient_phone: string;
+          message: string;
+          ok: boolean;
+          error: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          recipient_id?: string | null;
+          recipient_label?: string | null;
+          recipient_phone: string;
+          message: string;
+          ok: boolean;
+          error?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          recipient_id?: string | null;
+          recipient_label?: string | null;
+          recipient_phone?: string;
+          message?: string;
+          ok?: boolean;
+          error?: string | null;
           created_at?: string;
         };
         Relationships: [];

@@ -49,27 +49,56 @@ export async function sendCustomBroadcastAction(
 
   const { data: targets, error: fetchError } = await supabase
     .from("kakao_broadcast_recipients")
-    .select("label, phone")
+    .select("id, label, phone")
     .eq("user_id", user.id)
+    .eq("excluded", false)
     .in("id", recipientIds);
 
   if (fetchError) return { error: fetchError.message };
-  if (!targets || targets.length === 0) return { error: "선택한 수신자를 찾을 수 없습니다." };
+  if (!targets || targets.length === 0) return { error: "선택한 수신자를 찾을 수 없습니다(발송제외 처리된 사람은 제외됩니다)." };
 
   const results: BroadcastSendResultRow[] = [];
+  const logRows: {
+    user_id: string;
+    recipient_id: string;
+    recipient_label: string | null;
+    recipient_phone: string;
+    message: string;
+    ok: boolean;
+    error: string | null;
+  }[] = [];
+
   for (const target of targets) {
     try {
       await sendFriendtalk(solapiAccount, target.phone, text);
       results.push({ label: target.label, phone: target.phone, ok: true });
+      logRows.push({
+        user_id: user.id,
+        recipient_id: target.id,
+        recipient_label: target.label,
+        recipient_phone: target.phone,
+        message: text,
+        ok: true,
+        error: null,
+      });
     } catch (err) {
-      results.push({
-        label: target.label,
-        phone: target.phone,
+      const errorMessage = err instanceof Error ? err.message : "발송 실패";
+      results.push({ label: target.label, phone: target.phone, ok: false, error: errorMessage });
+      logRows.push({
+        user_id: user.id,
+        recipient_id: target.id,
+        recipient_label: target.label,
+        recipient_phone: target.phone,
+        message: text,
         ok: false,
-        error: err instanceof Error ? err.message : "발송 실패",
+        error: errorMessage,
       });
     }
   }
+
+  // 발송 내역 화면(/broadcast-log)에서 나중에 조회할 수 있도록 기록한다. 로그 저장이
+  // 실패해도 이미 나간 메시지 자체는 되돌릴 수 없으므로, 발송 결과 자체는 그대로 반환한다.
+  await supabase.from("kakao_broadcast_send_log").insert(logRows);
 
   return { results };
 }
