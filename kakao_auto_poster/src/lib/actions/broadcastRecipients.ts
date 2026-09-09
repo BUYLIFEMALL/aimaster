@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { parseBroadcastRecipientsWorkbook } from "@/lib/broadcastRecipients";
+import { normalizePhone, parseBroadcastRecipientsWorkbook } from "@/lib/broadcastRecipients";
 
 export interface AddBroadcastRecipientState {
   error?: string;
@@ -19,10 +19,10 @@ export async function addBroadcastRecipientAction(
   formData: FormData,
 ): Promise<AddBroadcastRecipientState> {
   const user = await requireProgramAccess();
-  const phone = String(formData.get("phone") ?? "").replace(/[^0-9]/g, "");
+  const phone = normalizePhone(String(formData.get("phone") ?? ""));
   const label = String(formData.get("label") ?? "").trim();
 
-  if (!/^0\d{9,10}$/.test(phone)) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
+  if (!phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
 
   const supabase = await createClient();
   const { error } = await supabase.from("kakao_broadcast_recipients").insert({
@@ -80,9 +80,9 @@ export async function addBulkBroadcastRecipientsAction(
     const parts = line.split(",").map((p) => p.trim());
     // 이름 없이 전화번호만 한 줄에 있는 경우와, "이름,전화번호" 두 열인 경우를 모두 지원한다.
     const [label, phoneRaw] = parts.length === 1 ? [null, parts[0]] : [parts[0] || null, parts[1]];
-    const phone = (phoneRaw ?? "").replace(/[^0-9]/g, "");
+    const phone = normalizePhone(phoneRaw ?? "");
 
-    if (!/^0\d{9,10}$/.test(phone)) {
+    if (!phone) {
       results.push({ line, ok: false, error: "번호 형식 오류" });
       continue;
     }
