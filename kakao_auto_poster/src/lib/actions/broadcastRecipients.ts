@@ -213,3 +213,24 @@ export async function moveBroadcastRecipientGroupAction(id: string, groupId: str
   revalidatePath("/recipients");
   return {};
 }
+
+/** 체크박스로 선택한 여러 수신자를 한 번에 원하는 그룹으로 이동한다. */
+export async function moveManyBroadcastRecipientsGroupAction(
+  ids: string[],
+  groupId: string | null,
+): Promise<{ error?: string }> {
+  const user = await requireProgramAccess();
+  if (ids.length === 0) return {};
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("kakao_broadcast_recipients")
+    .update({ group_id: groupId })
+    .eq("user_id", user.id)
+    .in("id", ids);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/recipients");
+  return {};
+}

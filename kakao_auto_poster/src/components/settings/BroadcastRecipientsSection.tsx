@@ -10,6 +10,7 @@ import {
   deleteBroadcastRecipientAction,
   importBroadcastRecipientsAction,
   moveBroadcastRecipientGroupAction,
+  moveManyBroadcastRecipientsGroupAction,
   updateBroadcastRecipientAction,
   type AddBroadcastRecipientState,
   type BulkAddBroadcastRecipientsState,
@@ -76,14 +77,60 @@ export function BroadcastRecipientsSection({
   const [editError, setEditError] = useState<string | null>(null);
   const [isEditSaving, setIsEditSaving] = useState(false);
   const [movingId, setMovingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkMoveGroupId, setBulkMoveGroupId] = useState("");
+  const [isBulkMoving, setIsBulkMoving] = useState(false);
 
-  const groupNameById = new Map(groups.map((g) => [g.id, g.name]));
   const filteredRecipients = recipients.filter((r) => {
     if (activeFilter === "all") return true;
     if (activeFilter === UNGROUPED) return !r.group_id;
     return r.group_id === activeFilter;
   });
+  const searchDigits = searchQuery.replace(/[^0-9]/g, "");
+  const searchText = searchQuery.trim().toLowerCase();
+  const visibleRecipients = filteredRecipients.filter((r) => {
+    if (!searchText) return true;
+    const labelMatch = r.label?.toLowerCase().includes(searchText);
+    const phoneMatch = searchDigits.length > 0 && r.phone.includes(searchDigits);
+    return Boolean(labelMatch) || phoneMatch;
+  });
   const defaultGroupForNew = activeFilter !== "all" && activeFilter !== UNGROUPED ? activeFilter : "";
+  const allVisibleSelected = visibleRecipients.length > 0 && visibleRecipients.every((r) => selectedIds.has(r.id));
+
+  function toggleSelectAll() {
+    setSelectedIds((prev) => {
+      if (allVisibleSelected) {
+        const next = new Set(prev);
+        visibleRecipients.forEach((r) => next.delete(r.id));
+        return next;
+      }
+      const next = new Set(prev);
+      visibleRecipients.forEach((r) => next.add(r.id));
+      return next;
+    });
+  }
+
+  function toggleSelectOne(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function handleBulkMove() {
+    if (selectedIds.size === 0) return;
+    setIsBulkMoving(true);
+    try {
+      await moveManyBroadcastRecipientsGroupAction(Array.from(selectedIds), bulkMoveGroupId || null);
+      setSelectedIds(new Set());
+      router.refresh();
+    } finally {
+      setIsBulkMoving(false);
+    }
+  }
 
   async function handleImportSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -272,71 +319,105 @@ export function BroadcastRecipientsSection({
       )}
 
       {recipients.length > 0 && (
-        <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
-          <p className="text-xs font-semibold text-neutral-500">
-            {activeFilter === "all" ? `등록됨 ${recipients.length.toLocaleString()}명` : `${filteredRecipients.length.toLocaleString()}명 표시 중`}
-          </p>
-          {filteredRecipients.length === 0 && (
-            <p className="rounded-lg border border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400">
-              이 그룹에는 아직 수신자가 없습니다.
-            </p>
+        <div className="space-y-2">
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="이름 또는 전화번호 검색"
+          />
+
+          {selectedIds.size > 0 && (
+            <div className="flex flex-wrap items-center gap-2 rounded-lg bg-yellow-50 px-3 py-2">
+              <span className="text-xs font-semibold text-yellow-800">{selectedIds.size}명 선택됨</span>
+              <select
+                value={bulkMoveGroupId}
+                onChange={(e) => setBulkMoveGroupId(e.target.value)}
+                className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-700 outline-none"
+              >
+                <option value="">미분류로 이동</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    &quot;{g.name}&quot;(으)로 이동
+                  </option>
+                ))}
+              </select>
+              <Button type="button" onClick={handleBulkMove} disabled={isBulkMoving}>
+                {isBulkMoving ? "이동 중..." : "이동"}
+              </Button>
+              <button type="button" onClick={() => setSelectedIds(new Set())} className="text-xs font-semibold text-neutral-500 hover:underline">
+                선택 해제
+              </button>
+            </div>
           )}
-          {filteredRecipients.map((recipient) =>
-            editingId === recipient.id ? (
-              <div key={recipient.id} className="space-y-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3">
-                <div className="flex flex-wrap gap-2">
-                  <Input value={editLabel} onChange={(e) => setEditLabel(e.target.value)} placeholder="이름/메모" className="min-w-[100px] flex-1" />
-                  <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="전화번호" className="min-w-[140px] flex-1" />
+
+          <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
+            <label className="flex items-center gap-2 text-xs font-semibold text-neutral-500">
+              <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectAll} disabled={visibleRecipients.length === 0} />
+              {searchText || activeFilter !== "all" ? `${visibleRecipients.length.toLocaleString()}명 표시 중` : `등록됨 ${recipients.length.toLocaleString()}명`}
+            </label>
+            {visibleRecipients.length === 0 && (
+              <p className="rounded-lg border border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400">
+                {searchText ? "검색 결과가 없습니다." : "이 그룹에는 아직 수신자가 없습니다."}
+              </p>
+            )}
+            {visibleRecipients.map((recipient) =>
+              editingId === recipient.id ? (
+                <div key={recipient.id} className="space-y-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3">
+                  <div className="flex flex-wrap gap-2">
+                    <Input value={editLabel} onChange={(e) => setEditLabel(e.target.value)} placeholder="이름/메모" className="min-w-[100px] flex-1" />
+                    <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="전화번호" className="min-w-[140px] flex-1" />
+                  </div>
+                  {editError && <p className="text-xs text-red-600">{editError}</p>}
+                  <div className="flex gap-2">
+                    <Button type="button" onClick={() => handleEditSave(recipient.id)} disabled={isEditSaving}>
+                      {isEditSaving ? "저장 중..." : "저장"}
+                    </Button>
+                    <Button type="button" variant="ghost" onClick={() => setEditingId(null)} disabled={isEditSaving}>
+                      취소
+                    </Button>
+                  </div>
                 </div>
-                {editError && <p className="text-xs text-red-600">{editError}</p>}
-                <div className="flex gap-2">
-                  <Button type="button" onClick={() => handleEditSave(recipient.id)} disabled={isEditSaving}>
-                    {isEditSaving ? "저장 중..." : "저장"}
-                  </Button>
-                  <Button type="button" variant="ghost" onClick={() => setEditingId(null)} disabled={isEditSaving}>
-                    취소
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div key={recipient.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-                <div>
-                  <p className="text-sm text-neutral-900">
-                    {recipient.label ? `${recipient.label} ` : ""}
-                    <span className="text-neutral-500">{maskPhone(recipient.phone)}</span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {groups.length > 0 && (
-                    <select
-                      value={recipient.group_id ?? ""}
-                      onChange={(e) => handleMoveGroup(recipient.id, e.target.value)}
-                      disabled={movingId === recipient.id}
-                      className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-700 outline-none disabled:opacity-50"
+              ) : (
+                <div key={recipient.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" checked={selectedIds.has(recipient.id)} onChange={() => toggleSelectOne(recipient.id)} />
+                    <p className="text-sm text-neutral-900">
+                      {recipient.label ? `${recipient.label} ` : ""}
+                      <span className="text-neutral-500">{maskPhone(recipient.phone)}</span>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {groups.length > 0 && (
+                      <select
+                        value={recipient.group_id ?? ""}
+                        onChange={(e) => handleMoveGroup(recipient.id, e.target.value)}
+                        disabled={movingId === recipient.id}
+                        className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-700 outline-none disabled:opacity-50"
+                      >
+                        <option value="">미분류</option>
+                        {groups.map((g) => (
+                          <option key={g.id} value={g.id}>
+                            {g.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <button type="button" onClick={() => startEdit(recipient)} className="text-xs font-semibold text-blue-600 hover:underline">
+                      수정
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(recipient.id)}
+                      disabled={deletingId === recipient.id}
+                      className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-50"
                     >
-                      <option value="">미분류</option>
-                      {groups.map((g) => (
-                        <option key={g.id} value={g.id}>
-                          {g.name}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  <button type="button" onClick={() => startEdit(recipient)} className="text-xs font-semibold text-blue-600 hover:underline">
-                    수정
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(recipient.id)}
-                    disabled={deletingId === recipient.id}
-                    className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-50"
-                  >
-                    {deletingId === recipient.id ? "삭제 중..." : "삭제"}
-                  </button>
+                      {deletingId === recipient.id ? "삭제 중..." : "삭제"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ),
-          )}
+              ),
+            )}
+          </div>
         </div>
       )}
 
