@@ -191,9 +191,9 @@ export function BroadcastRecipientsSection({
       {formMode === "bulk" && (
         <div className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
           <form onSubmit={handleImportSubmit} className="space-y-2">
-            <label className="block text-xs font-semibold text-neutral-700">방법 1. 엑셀 양식 업로드</label>
+            <label className="block text-xs font-semibold text-neutral-700">방법 1. 엑셀로 수신자 가져오기</label>
             <p className="text-xs text-neutral-400">
-              양식을 내려받아 &quot;이름&quot;/&quot;전화번호&quot; 컬럼에 채운 뒤 그대로 올려주세요.
+              컬럼: 이름 / 전화번호(필수). 이미 등록된 전화번호는 건너뜁니다.
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <input
@@ -207,12 +207,16 @@ export function BroadcastRecipientsSection({
                 href="/api/broadcast-recipients/template"
                 className="whitespace-nowrap rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
               >
-                📥 양식 다운로드
+                입력폼 다운로드
               </a>
               <Button type="submit" disabled={isImporting}>
                 {isImporting ? "가져오는 중..." : "가져오기"}
               </Button>
             </div>
+            <p className="text-xs text-neutral-400">
+              파일 1개당 최대 5MB까지 올릴 수 있어요. 그보다 많으면 파일을 나눠서 여러 번
+              올려주세요 — 누적 등록 건수에는 제한이 없습니다.
+            </p>
             {importResult && <p className="text-xs text-green-600">{importResult}</p>}
             {importError && <p className="text-xs text-red-600">{importError}</p>}
           </form>
