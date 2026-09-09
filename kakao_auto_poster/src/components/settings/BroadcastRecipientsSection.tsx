@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import {
   addBroadcastRecipientAction,
+  addBulkBroadcastRecipientsAction,
   deleteBroadcastRecipientAction,
   type AddBroadcastRecipientState,
+  type BulkAddBroadcastRecipientsState,
 } from "@/lib/actions/broadcastRecipients";
 
 export interface BroadcastRecipientData {
@@ -17,6 +19,7 @@ export interface BroadcastRecipientData {
 }
 
 const addInitialState: AddBroadcastRecipientState = {};
+const bulkInitialState: BulkAddBroadcastRecipientsState = {};
 
 function maskPhone(phone: string): string {
   if (phone.length < 8) return phone;
@@ -41,8 +44,9 @@ export function BroadcastRecipientsSection({
   hasAlimtalkTemplate: boolean;
 }) {
   const router = useRouter();
-  const [showForm, setShowForm] = useState(recipients.length === 0);
+  const [formMode, setFormMode] = useState<"none" | "single" | "bulk">(recipients.length === 0 ? "single" : "none");
   const [state, formAction, isSaving] = useActionState(addBroadcastRecipientAction, addInitialState);
+  const [bulkState, bulkFormAction, isBulkSaving] = useActionState(addBulkBroadcastRecipientsAction, bulkInitialState);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
@@ -60,11 +64,22 @@ export function BroadcastRecipientsSection({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold text-neutral-900">📣 카카오톡 수신자 목록</h2>
-        {recipients.length > 0 && (
-          <button type="button" onClick={() => setShowForm((v) => !v)} className="text-xs font-bold text-blue-600 hover:underline">
-            {showForm ? "닫기" : "+ 수신자 추가"}
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setFormMode((v) => (v === "single" ? "none" : "single"))}
+            className="text-xs font-bold text-blue-600 hover:underline"
+          >
+            {formMode === "single" ? "닫기" : "+ 수신자 추가"}
           </button>
-        )}
+          <button
+            type="button"
+            onClick={() => setFormMode((v) => (v === "bulk" ? "none" : "bulk"))}
+            className="text-xs font-bold text-blue-600 hover:underline"
+          >
+            {formMode === "bulk" ? "닫기" : "+ 여러 명 한번에 추가"}
+          </button>
+        </div>
       </div>
       <p className="text-xs text-neutral-500">
         여기 등록한 전화번호로도 리포트가 카카오톡으로 함께 발송됩니다.{" "}
@@ -119,7 +134,7 @@ export function BroadcastRecipientsSection({
         </div>
       )}
 
-      {showForm && (
+      {formMode === "single" && (
         <form action={formAction} className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
           <div>
             <label className="mb-1 block text-xs font-semibold text-neutral-700">전화번호</label>
@@ -135,11 +150,51 @@ export function BroadcastRecipientsSection({
               {isSaving ? "추가 중..." : "추가"}
             </Button>
             {recipients.length > 0 && (
-              <Button type="button" variant="ghost" onClick={() => setShowForm(false)} disabled={isSaving}>
+              <Button type="button" variant="ghost" onClick={() => setFormMode("none")} disabled={isSaving}>
                 취소
               </Button>
             )}
           </div>
+        </form>
+      )}
+
+      {formMode === "bulk" && (
+        <form action={bulkFormAction} className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-neutral-700">
+              여러 명 한번에 추가 (한 줄에 한 명씩, &quot;전화번호,이름&quot; 형식 — 이름은 생략 가능)
+            </label>
+            <textarea
+              name="bulkPhones"
+              required
+              rows={8}
+              placeholder={"01012345678,친구1\n01098765432,고객A\n01055556666"}
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs text-neutral-900 outline-none focus:border-neutral-900"
+            />
+            <p className="mt-1 text-xs text-neutral-400">엑셀/스프레드시트에서 두 열(전화번호, 이름)을 복사해 붙여넣어도 됩니다. 한 번에 최대 500명.</p>
+          </div>
+          {bulkState.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{bulkState.error}</p>}
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isBulkSaving}>
+              {isBulkSaving ? "등록 중..." : "일괄 등록"}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setFormMode("none")} disabled={isBulkSaving}>
+              취소
+            </Button>
+          </div>
+          {bulkState.results && (
+            <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
+              <p className="mb-1 font-semibold text-neutral-700">
+                등록 결과: 성공 {bulkState.results.filter((r) => r.ok).length}건 / 실패{" "}
+                {bulkState.results.filter((r) => !r.ok).length}건
+              </p>
+              {bulkState.results.map((r, i) => (
+                <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
+                  {r.line} — {r.ok ? "등록됨" : r.error}
+                </p>
+              ))}
+            </div>
+          )}
         </form>
       )}
     </div>
