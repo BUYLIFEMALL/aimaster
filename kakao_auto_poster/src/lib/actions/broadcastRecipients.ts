@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { parseBroadcastRecipientsWorkbook } from "@/lib/broadcastRecipients";
 
 export interface AddBroadcastRecipientState {
   error?: string;
@@ -48,10 +49,10 @@ export interface BulkAddBroadcastRecipientsState {
 }
 
 /**
- * 여러 명을 한 번에 등록한다. 한 줄에 한 명씩, "전화번호" 또는 "전화번호,이름" 형식으로
- * 붙여넣는 방식 — crm-google-form의 RCS 프로모션 발송(sendRcsPromotionAction)이 결과를
- * 대상별로 {name, phone, ok, error} 배열로 돌려주는 것과 같은 방식으로, 줄 단위 성공/실패를
- * 리포트한다.
+ * 여러 명을 한 번에 등록한다. 한 줄에 한 명씩, "이름,전화번호"(이름 생략 시 전화번호만)
+ * 형식으로 붙여넣는 방식 — crm-google-form의 RCS 프로모션 발송(sendRcsPromotionAction)이
+ * 결과를 대상별로 {name, phone, ok, error} 배열로 돌려주는 것과 같은 방식으로, 줄 단위
+ * 성공/실패를 리포트한다.
  */
 export async function addBulkBroadcastRecipientsAction(
   _prevState: BulkAddBroadcastRecipientsState,
@@ -76,9 +77,10 @@ export async function addBulkBroadcastRecipientsAction(
   const seenInBatch = new Set<string>();
 
   for (const line of lines) {
-    const [phoneRaw, ...labelParts] = line.split(",");
+    const parts = line.split(",").map((p) => p.trim());
+    // 이름 없이 전화번호만 한 줄에 있는 경우와, "이름,전화번호" 두 열인 경우를 모두 지원한다.
+    const [label, phoneRaw] = parts.length === 1 ? [null, parts[0]] : [parts[0] || null, parts[1]];
     const phone = (phoneRaw ?? "").replace(/[^0-9]/g, "");
-    const label = labelParts.join(",").trim() || null;
 
     if (!/^0\d{9,10}$/.test(phone)) {
       results.push({ line, ok: false, error: "번호 형식 오류" });
@@ -100,6 +102,60 @@ export async function addBulkBroadcastRecipientsAction(
 
   revalidatePath("/settings");
   return { results };
+}
+
+export interface ImportBroadcastRecipientsState {
+  error?: string;
+  importedCount?: number;
+  skippedCount?: number;
+}
+
+const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
+
+/**
+ * 엑셀(xlsx) 파일을 업로드해서 수신자를 대량 등록한다 — stepmail의
+ * lib/actions/leads.ts의 importLeadsAction과 동일한 패턴. 이미 등록된 전화번호는
+ * 건너뛴다(중복 등록 방지).
+ */
+export async function importBroadcastRecipientsAction(formData: FormData): Promise<ImportBroadcastRecipientsState> {
+  const user = await requireProgramAccess();
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "엑셀 파일을 선택해주세요." };
+  }
+  if (file.size > MAX_FILE_BYTES) {
+    return { error: "파일 용량이 너무 큽니다 (최대 5MB)." };
+  }
+
+  let parsed;
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    parsed = parseBroadcastRecipientsWorkbook(buffer);
+  } catch (err) {
+    return { error: `엑셀 파일을 읽지 못했습니다: ${err instanceof Error ? err.message : "알 수 없는 오류"}` };
+  }
+
+  if (parsed.length === 0) {
+    return { error: "가져올 수신자가 없습니다 (전화번호 컬럼을 확인해주세요)." };
+  }
+
+  const supabase = await createClient();
+  const { data: existing } = await supabase.from("kakao_broadcast_recipients").select("phone").eq("user_id", user.id);
+  const existingPhones = new Set((existing ?? []).map((r) => r.phone));
+
+  const toInsert = parsed
+    .filter((row) => !existingPhones.has(row.phone))
+    .map((row) => ({ user_id: user.id, phone: row.phone, label: row.label }));
+  const skippedCount = parsed.length - toInsert.length;
+
+  if (toInsert.length > 0) {
+    const { error } = await supabase.from("kakao_broadcast_recipients").insert(toInsert);
+    if (error) return { error: error.message };
+  }
+
+  revalidatePath("/settings");
+  return { importedCount: toInsert.length, skippedCount };
 }
 
 export async function deleteBroadcastRecipientAction(id: string) {

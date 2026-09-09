@@ -8,6 +8,7 @@ import {
   addBroadcastRecipientAction,
   addBulkBroadcastRecipientsAction,
   deleteBroadcastRecipientAction,
+  importBroadcastRecipientsAction,
   type AddBroadcastRecipientState,
   type BulkAddBroadcastRecipientsState,
 } from "@/lib/actions/broadcastRecipients";
@@ -48,6 +49,34 @@ export function BroadcastRecipientsSection({
   const [state, formAction, isSaving] = useActionState(addBroadcastRecipientAction, addInitialState);
   const [bulkState, bulkFormAction, isBulkSaving] = useActionState(addBulkBroadcastRecipientsAction, bulkInitialState);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importResult, setImportResult] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+
+  async function handleImportSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setImportError(null);
+    setImportResult(null);
+    const formData = new FormData(e.currentTarget);
+    const file = formData.get("file");
+    if (!(file instanceof File) || file.size === 0) {
+      setImportError("엑셀 파일을 선택해주세요.");
+      return;
+    }
+    setIsImporting(true);
+    try {
+      const res = await importBroadcastRecipientsAction(formData);
+      if (res.error) {
+        setImportError(res.error);
+      } else {
+        setImportResult(`${res.importedCount ?? 0}명 등록 완료${res.skippedCount ? ` (이미 등록됨 ${res.skippedCount}건 제외)` : ""}`);
+        (e.target as HTMLFormElement).reset();
+        router.refresh();
+      }
+    } finally {
+      setIsImporting(false);
+    }
+  }
 
   async function handleDelete(id: string) {
     if (!confirm("이 수신자를 목록에서 삭제할까요? 앞으로 리포트가 이 번호로 발송되지 않습니다.")) return;
@@ -137,12 +166,12 @@ export function BroadcastRecipientsSection({
       {formMode === "single" && (
         <form action={formAction} className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-neutral-700">전화번호</label>
-            <Input name="phone" required placeholder="01012345678" autoComplete="off" />
-          </div>
-          <div>
             <label className="mb-1 block text-xs font-semibold text-neutral-700">이름/메모 (선택)</label>
             <Input name="label" placeholder="예: 친구1, 고객A" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-neutral-700">전화번호</label>
+            <Input name="phone" required placeholder="01012345678" autoComplete="off" />
           </div>
           {state.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{state.error}</p>}
           <div className="flex gap-2">
@@ -159,43 +188,73 @@ export function BroadcastRecipientsSection({
       )}
 
       {formMode === "bulk" && (
-        <form action={bulkFormAction} className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-neutral-700">
-              여러 명 한번에 추가 (한 줄에 한 명씩, &quot;전화번호,이름&quot; 형식 — 이름은 생략 가능)
-            </label>
-            <textarea
-              name="bulkPhones"
-              required
-              rows={8}
-              placeholder={"01012345678,친구1\n01098765432,고객A\n01055556666"}
-              className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs text-neutral-900 outline-none focus:border-neutral-900"
-            />
-            <p className="mt-1 text-xs text-neutral-400">엑셀/스프레드시트에서 두 열(전화번호, 이름)을 복사해 붙여넣어도 됩니다. 한 번에 최대 500명.</p>
-          </div>
-          {bulkState.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{bulkState.error}</p>}
-          <div className="flex gap-2">
-            <Button type="submit" disabled={isBulkSaving}>
-              {isBulkSaving ? "등록 중..." : "일괄 등록"}
-            </Button>
-            <Button type="button" variant="ghost" onClick={() => setFormMode("none")} disabled={isBulkSaving}>
-              취소
-            </Button>
-          </div>
-          {bulkState.results && (
-            <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
-              <p className="mb-1 font-semibold text-neutral-700">
-                등록 결과: 성공 {bulkState.results.filter((r) => r.ok).length}건 / 실패{" "}
-                {bulkState.results.filter((r) => !r.ok).length}건
-              </p>
-              {bulkState.results.map((r, i) => (
-                <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
-                  {r.line} — {r.ok ? "등록됨" : r.error}
-                </p>
-              ))}
+        <div className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+          <form onSubmit={handleImportSubmit} className="space-y-2">
+            <label className="block text-xs font-semibold text-neutral-700">방법 1. 엑셀 양식 업로드</label>
+            <p className="text-xs text-neutral-400">
+              양식을 내려받아 &quot;이름&quot;/&quot;전화번호&quot; 컬럼에 채운 뒤 그대로 올려주세요.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="file"
+                name="file"
+                accept=".xlsx,.xls,.csv"
+                required
+                className="min-w-[180px] flex-1 text-xs text-neutral-700 file:mr-2 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-neutral-700"
+              />
+              <a
+                href="/api/broadcast-recipients/template"
+                className="whitespace-nowrap rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
+              >
+                📥 양식 다운로드
+              </a>
+              <Button type="submit" disabled={isImporting}>
+                {isImporting ? "가져오는 중..." : "가져오기"}
+              </Button>
             </div>
-          )}
-        </form>
+            {importResult && <p className="text-xs text-green-600">{importResult}</p>}
+            {importError && <p className="text-xs text-red-600">{importError}</p>}
+          </form>
+
+          <div className="border-t border-neutral-200 pt-4">
+            <form action={bulkFormAction} className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-neutral-700">
+                  방법 2. 직접 텍스트로 붙여넣기 (한 줄에 한 명씩, &quot;이름,전화번호&quot; 형식 — 이름은 생략 가능)
+                </label>
+                <textarea
+                  name="bulkPhones"
+                  required
+                  rows={8}
+                  placeholder={"친구1,01012345678\n고객A,01098765432\n01055556666"}
+                  className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs text-neutral-900 outline-none focus:border-neutral-900"
+                />
+                <p className="mt-1 text-xs text-neutral-400">한 번에 최대 500명.</p>
+              </div>
+              {bulkState.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{bulkState.error}</p>}
+              <Button type="submit" disabled={isBulkSaving}>
+                {isBulkSaving ? "등록 중..." : "일괄 등록"}
+              </Button>
+              {bulkState.results && (
+                <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
+                  <p className="mb-1 font-semibold text-neutral-700">
+                    등록 결과: 성공 {bulkState.results.filter((r) => r.ok).length}건 / 실패{" "}
+                    {bulkState.results.filter((r) => !r.ok).length}건
+                  </p>
+                  {bulkState.results.map((r, i) => (
+                    <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
+                      {r.line} — {r.ok ? "등록됨" : r.error}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </form>
+          </div>
+
+          <Button type="button" variant="ghost" onClick={() => setFormMode("none")}>
+            닫기
+          </Button>
+        </div>
       )}
     </div>
   );
