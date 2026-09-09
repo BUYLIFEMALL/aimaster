@@ -6,7 +6,6 @@ import { KakaoAccountSection } from "@/components/settings/KakaoAccountSection";
 import { SmtpAccountSection } from "@/components/settings/SmtpAccountSection";
 import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
 import { TelegramSection } from "@/components/settings/TelegramSection";
-import { BroadcastRecipientsSection } from "@/components/settings/BroadcastRecipientsSection";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
@@ -38,7 +37,7 @@ export default async function SettingsPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: keys }, { data: kakaoAccount }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }, { data: broadcastRecipients }] =
+  const [{ data: keys }, { data: kakaoAccount }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }] =
     await Promise.all([
       supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
       supabase.from("user_kakao_accounts").select("nickname").eq("user_id", user.id).maybeSingle(),
@@ -60,11 +59,6 @@ export default async function SettingsPage() {
         .eq("user_id", user.id)
         .eq("program_slug", TELEGRAM_PROGRAM_SLUG)
         .maybeSingle(),
-      supabase
-        .from("kakao_broadcast_recipients")
-        .select("id, phone, label")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false }),
     ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
@@ -101,15 +95,13 @@ export default async function SettingsPage() {
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <SolapiAccountSection account={solapiAccount ?? null} />
-        </div>
-
-        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
-          <BroadcastRecipientsSection
-            recipients={broadcastRecipients ?? []}
-            hasSolapiChannel={Boolean(solapiAccount?.kakao_pf_id)}
-            channelFriendUrl={solapiAccount?.channel_friend_url ?? null}
-            hasAlimtalkTemplate={Boolean(solapiAccount?.alimtalk_template_id)}
-          />
+          <p className="mt-3 border-t border-neutral-200 pt-3 text-xs text-neutral-500">
+            리포트를 함께 받아볼 사람들은{" "}
+            <a href="/recipients" className="font-medium text-yellow-700 hover:underline">
+              카카오톡 수신자 목록
+            </a>{" "}
+            메뉴에서 등록/관리합니다.
+          </p>
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">

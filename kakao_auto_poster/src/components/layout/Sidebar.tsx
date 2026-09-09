@@ -28,7 +28,10 @@ const FLOW_STEPS = [
   },
 ];
 
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록" }];
+const UTILITY_ITEMS = [
+  { href: "/recipients", icon: "📣", label: "카카오톡 수신자 목록" },
+  { href: "/settings", icon: "🔑", label: "API키등록" },
+];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
