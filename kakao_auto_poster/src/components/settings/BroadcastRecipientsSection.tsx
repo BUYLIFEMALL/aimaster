@@ -16,6 +16,7 @@ import {
   type BulkAddBroadcastRecipientsState,
 } from "@/lib/actions/broadcastRecipients";
 import { createBroadcastGroupAction, deleteBroadcastGroupAction, type CreateGroupState } from "@/lib/actions/broadcastGroups";
+import { sendCustomBroadcastAction, type BroadcastSendResultRow } from "@/lib/actions/broadcastSend";
 
 export interface BroadcastRecipientData {
   id: string;
@@ -86,6 +87,11 @@ export function BroadcastRecipientsSection({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkMoveGroupId, setBulkMoveGroupId] = useState(UNSELECTED);
   const [isBulkMoving, setIsBulkMoving] = useState(false);
+  const [showSendPanel, setShowSendPanel] = useState(false);
+  const [sendMessage, setSendMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendResults, setSendResults] = useState<BroadcastSendResultRow[] | null>(null);
 
   const filteredRecipients = recipients.filter((r) => {
     if (activeFilter === "all") return true;
@@ -123,6 +129,29 @@ export function BroadcastRecipientsSection({
       else next.add(id);
       return next;
     });
+  }
+
+  async function handleSend() {
+    if (selectedIds.size === 0) return;
+    if (!sendMessage.trim()) {
+      setSendError("발송할 메시지를 입력해주세요.");
+      return;
+    }
+    if (!confirm(`선택한 ${selectedIds.size}명에게 카카오톡을 실제로 발송합니다. 계속할까요?`)) return;
+
+    setSendError(null);
+    setSendResults(null);
+    setIsSending(true);
+    try {
+      const res = await sendCustomBroadcastAction(Array.from(selectedIds), sendMessage);
+      if (res.error) {
+        setSendError(res.error);
+      } else {
+        setSendResults(res.results ?? []);
+      }
+    } finally {
+      setIsSending(false);
+    }
   }
 
   async function handleBulkMove() {
@@ -355,14 +384,56 @@ export function BroadcastRecipientsSection({
               </Button>
               <button
                 type="button"
+                onClick={() => setShowSendPanel((v) => !v)}
+                className="text-xs font-bold text-blue-600 hover:underline"
+              >
+                {showSendPanel ? "발송 닫기" : "📤 메시지 발송"}
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   setSelectedIds(new Set());
                   setBulkMoveGroupId(UNSELECTED);
+                  setShowSendPanel(false);
                 }}
                 className="text-xs font-semibold text-neutral-500 hover:underline"
               >
                 선택 해제
               </button>
+            </div>
+          )}
+
+          {selectedIds.size > 0 && showSendPanel && (
+            <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+              <p className="text-xs text-neutral-500">
+                선택한 {selectedIds.size}명에게 지금 바로 카카오톡(브랜드메시지)을 보냅니다 — 채널을
+                친구 추가한 사람에게만 도달합니다. 알림톡 템플릿은 정보성 고정 문구만 가능해 자유
+                메시지 발송에는 쓸 수 없습니다.
+              </p>
+              <textarea
+                value={sendMessage}
+                onChange={(e) => setSendMessage(e.target.value)}
+                rows={4}
+                placeholder="보낼 메시지를 입력하세요."
+                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+              />
+              {sendError && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{sendError}</p>}
+              <Button type="button" onClick={handleSend} disabled={isSending}>
+                {isSending ? "발송 중..." : `선택한 ${selectedIds.size}명에게 발송`}
+              </Button>
+              {sendResults && (
+                <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
+                  <p className="mb-1 font-semibold text-neutral-700">
+                    발송 결과: 성공 {sendResults.filter((r) => r.ok).length}건 / 실패{" "}
+                    {sendResults.filter((r) => !r.ok).length}건
+                  </p>
+                  {sendResults.map((r, i) => (
+                    <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
+                      {r.label ?? "이름 없음"} ({maskPhone(r.phone)}) — {r.ok ? "성공" : `실패: ${r.error}`}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
