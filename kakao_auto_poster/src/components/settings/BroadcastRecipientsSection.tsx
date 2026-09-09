@@ -255,6 +255,13 @@ export function BroadcastRecipientsSection({
         <div className="flex flex-wrap justify-end gap-3">
           <button
             type="button"
+            onClick={() => setShowSendPanel((v) => !v)}
+            className="text-xs font-bold text-blue-600 hover:underline"
+          >
+            {showSendPanel ? "닫기" : "📤 메시지 발송"}
+          </button>
+          <button
+            type="button"
             onClick={() => setShowGroupManager((v) => !v)}
             className="text-xs font-bold text-blue-600 hover:underline"
           >
@@ -384,17 +391,9 @@ export function BroadcastRecipientsSection({
               </Button>
               <button
                 type="button"
-                onClick={() => setShowSendPanel((v) => !v)}
-                className="text-xs font-bold text-blue-600 hover:underline"
-              >
-                {showSendPanel ? "발송 닫기" : "📤 메시지 발송"}
-              </button>
-              <button
-                type="button"
                 onClick={() => {
                   setSelectedIds(new Set());
                   setBulkMoveGroupId(UNSELECTED);
-                  setShowSendPanel(false);
                 }}
                 className="text-xs font-semibold text-neutral-500 hover:underline"
               >
@@ -403,13 +402,19 @@ export function BroadcastRecipientsSection({
             </div>
           )}
 
-          {selectedIds.size > 0 && showSendPanel && (
+          {showSendPanel && (
             <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-              <p className="text-xs text-neutral-500">
-                선택한 {selectedIds.size}명에게 지금 바로 카카오톡(브랜드메시지)을 보냅니다 — 채널을
-                친구 추가한 사람에게만 도달합니다. 알림톡 템플릿은 정보성 고정 문구만 가능해 자유
-                메시지 발송에는 쓸 수 없습니다.
-              </p>
+              {selectedIds.size === 0 ? (
+                <p className="text-xs text-yellow-700">
+                  아래 목록에서 체크박스로 먼저 보낼 대상을 선택해주세요.
+                </p>
+              ) : (
+                <p className="text-xs text-neutral-500">
+                  선택한 {selectedIds.size}명에게 지금 바로 카카오톡(브랜드메시지)을 보냅니다 — 채널을
+                  친구 추가한 사람에게만 도달합니다. 알림톡 템플릿은 정보성 고정 문구만 가능해 자유
+                  메시지 발송에는 쓸 수 없습니다.
+                </p>
+              )}
               <textarea
                 value={sendMessage}
                 onChange={(e) => setSendMessage(e.target.value)}
@@ -418,8 +423,8 @@ export function BroadcastRecipientsSection({
                 className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
               />
               {sendError && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{sendError}</p>}
-              <Button type="button" onClick={handleSend} disabled={isSending}>
-                {isSending ? "발송 중..." : `선택한 ${selectedIds.size}명에게 발송`}
+              <Button type="button" onClick={handleSend} disabled={isSending || selectedIds.size === 0}>
+                {isSending ? "발송 중..." : selectedIds.size > 0 ? `선택한 ${selectedIds.size}명에게 발송` : "발송"}
               </Button>
               {sendResults && (
                 <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
