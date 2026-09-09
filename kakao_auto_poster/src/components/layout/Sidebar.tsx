@@ -28,11 +28,13 @@ const FLOW_STEPS = [
   },
 ];
 
-const UTILITY_ITEMS = [
+// 수신자 관리 메뉴는 API키등록보다 자주 쓰이는 화면이라 분리해서 위쪽에 배치한다.
+const RECIPIENT_ITEMS = [
   { href: "/recipients", icon: "📣", label: "카카오톡 수신자 목록" },
   { href: "/broadcast-log", icon: "📨", label: "발송 내역" },
-  { href: "/settings", icon: "🔑", label: "API키등록" },
 ];
+
+const SETTINGS_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
@@ -94,7 +96,24 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </nav>
 
         <div className="mt-6 border-t border-neutral-200 pt-3">
-          {UTILITY_ITEMS.map((item) => {
+          {RECIPIENT_ITEMS.map((item) => {
+            const isActive = pathname?.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block rounded-lg px-3 py-2 text-sm font-medium ${
+                  isActive ? "bg-yellow-50 text-yellow-800" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+                }`}
+              >
+                {item.icon} {item.label}
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="mt-3 border-t border-neutral-200 pt-3">
+          {SETTINGS_ITEMS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
               <Link
