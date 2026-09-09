@@ -16,6 +16,8 @@ export interface SolapiAccountData {
   sender_phone: string;
   kakao_pf_id: string | null;
   rcs_brand_id: string | null;
+  channel_friend_url: string | null;
+  alimtalk_template_id: string | null;
 }
 
 function maskApiKey(key: string): string {
@@ -118,6 +120,19 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
           <p className="text-sm text-neutral-700">
             카카오 채널(pfId): {account.kakao_pf_id ?? <span className="text-neutral-400">미등록 — 리포트 카카오톡 발송 안 됨</span>}
           </p>
+          <p className="text-sm text-neutral-700">
+            채널 친구추가 링크:{" "}
+            {account.channel_friend_url ? (
+              <a href={account.channel_friend_url} target="_blank" rel="noreferrer" className="text-yellow-700 hover:underline">
+                {account.channel_friend_url}
+              </a>
+            ) : (
+              <span className="text-neutral-400">미등록 — 수신자 목록에 안내 링크가 표시되지 않음</span>
+            )}
+          </p>
+          <p className="text-sm text-neutral-700">
+            알림톡 템플릿 ID: {account.alimtalk_template_id ?? <span className="text-neutral-400">미등록 — 채널 친구인 수신자에게만 발송됨</span>}
+          </p>
 
           <div className="flex flex-wrap items-center gap-3 border-t border-neutral-200 pt-3">
             <button
@@ -180,6 +195,31 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
               <label className="mb-1 block text-xs font-semibold text-neutral-700">카카오 채널 ID (pfId, 선택)</label>
               <Input name="kakaoPfId" defaultValue={account?.kakao_pf_id ?? ""} placeholder="KA01PF..." />
             </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-neutral-700">채널 친구추가 링크 (선택)</label>
+            <Input
+              name="channelFriendUrl"
+              defaultValue={account?.channel_friend_url ?? ""}
+              placeholder="https://pf.kakao.com/_xxxxx/friend"
+            />
+            <p className="mt-1 text-xs text-neutral-400">
+              브랜드메시지는 이 채널을 친구 추가한 사람에게만 도달합니다. 여기 등록하면 수신자 목록
+              화면에 이 링크를 안내해드립니다.
+            </p>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-neutral-700">알림톡 템플릿 ID (선택)</label>
+            <Input
+              name="alimtalkTemplateId"
+              defaultValue={account?.alimtalk_template_id ?? ""}
+              placeholder="카카오/SOLAPI에서 승인받은 템플릿 ID"
+            />
+            <p className="mt-1 text-xs text-neutral-400">
+              등록하면 채널 친구가 아닌 수신자에게도 도달합니다. 단 템플릿을 변수명
+              #{"{title}"}, #{"{url}"}로 정확히 등록해서 승인받아야 합니다(정보성 메시지만
+              가능).
+            </p>
           </div>
           <input type="hidden" name="rcsBrandId" value={account?.rcs_brand_id ?? ""} />
           {saveError && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{saveError}</p>}

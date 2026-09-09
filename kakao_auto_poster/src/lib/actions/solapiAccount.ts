@@ -22,6 +22,8 @@ export async function saveSolapiAccountAction(formData: FormData): Promise<Solap
   const senderPhone = String(formData.get("senderPhone") ?? "").trim();
   const kakaoPfId = String(formData.get("kakaoPfId") ?? "").trim() || null;
   const rcsBrandId = String(formData.get("rcsBrandId") ?? "").trim() || null;
+  const channelFriendUrl = String(formData.get("channelFriendUrl") ?? "").trim() || null;
+  const alimtalkTemplateId = String(formData.get("alimtalkTemplateId") ?? "").trim() || null;
 
   if (!apiKey) return { error: "API Key를 입력해주세요." };
   if (!apiSecret) return { error: "API Secret을 입력해주세요." };
@@ -36,6 +38,8 @@ export async function saveSolapiAccountAction(formData: FormData): Promise<Solap
       sender_phone: senderPhone,
       kakao_pf_id: kakaoPfId,
       rcs_brand_id: rcsBrandId,
+      channel_friend_url: channelFriendUrl,
+      alimtalk_template_id: alimtalkTemplateId,
     },
     { onConflict: "user_id" },
   );

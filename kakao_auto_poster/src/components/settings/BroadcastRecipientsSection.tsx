@@ -32,9 +32,13 @@ function maskPhone(phone: string): string {
 export function BroadcastRecipientsSection({
   recipients,
   hasSolapiChannel,
+  channelFriendUrl,
+  hasAlimtalkTemplate,
 }: {
   recipients: BroadcastRecipientData[];
   hasSolapiChannel: boolean;
+  channelFriendUrl: string | null;
+  hasAlimtalkTemplate: boolean;
 }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(recipients.length === 0);
@@ -63,14 +67,33 @@ export function BroadcastRecipientsSection({
         )}
       </div>
       <p className="text-xs text-neutral-500">
-        여기 등록한 전화번호로도 리포트가 카카오톡으로 함께 발송됩니다. 카카오톡 채널을
-        친구 추가하지 않은 사람에게도 도달합니다(SOLAPI 브랜드메시지, 건당 비용 발생).
+        여기 등록한 전화번호로도 리포트가 카카오톡으로 함께 발송됩니다.{" "}
+        {hasAlimtalkTemplate
+          ? "알림톡 템플릿이 등록돼 있어 채널 친구가 아니어도 도달합니다."
+          : "단, 브랜드메시지는 채널을 친구 추가한 사람에게만 도달합니다 — 아직 친구 추가하지 않았다면 먼저 추가하도록 안내해주세요."}
       </p>
       {!hasSolapiChannel && (
         <p className="rounded-lg bg-yellow-50 px-3 py-2 text-xs text-yellow-800">
           아래 SOLAPI(카카오 채널) 계정을 함께 연동해야 실제로 발송됩니다. 수신자만
           등록해두고 나중에 연동해도 됩니다.
         </p>
+      )}
+      {hasSolapiChannel && !hasAlimtalkTemplate && (
+        <div className="rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-800">
+          {channelFriendUrl ? (
+            <>
+              📎 수신자에게 먼저 이 링크로 채널 친구 추가를 요청해주세요:{" "}
+              <a href={channelFriendUrl} target="_blank" rel="noreferrer" className="font-semibold underline">
+                {channelFriendUrl}
+              </a>
+            </>
+          ) : (
+            <>
+              채널 친구추가 링크를 아래 SOLAPI 설정에 등록해두면 여기에 안내 링크를
+              보여드립니다. (또는 알림톡 템플릿을 등록하면 친구 추가 없이도 도달합니다.)
+            </>
+          )}
+        </div>
       )}
 
       {recipients.length > 0 && (

@@ -1,5 +1,5 @@
 import "server-only";
-import { sendFriendtalk, type SolapiAccountCredentials } from "@/lib/solapi/client";
+import { sendAlimtalk, sendFriendtalk, type SolapiAccountCredentials } from "@/lib/solapi/client";
 import { getValidKakaoAccessToken } from "@/lib/kakao/account";
 import { sendReportMemoToMe } from "@/lib/kakao/client";
 
@@ -31,7 +31,7 @@ export async function sendReportToKakaoCore(
 
   const { data: solapiAccount } = await supabase
     .from("user_solapi_accounts")
-    .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id")
+    .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id, alimtalk_template_id")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -73,12 +73,17 @@ export async function sendReportToKakaoCore(
     return { error: message };
   }
 
-  // 본인 알림과는 별개로, 등록해둔 수신자 목록(카카오톡 친구/구독자)에도 SOLAPI
-  // 브랜드메시지로 함께 보낸다 — SOLAPI 채널(pfId)이 연동돼 있어야 하며, 수신자가
-  // 없거나 채널이 없으면 조용히 건너뛴다(본인 알림은 이미 위에서 성공했으므로 실패로
-  // 취급하지 않는다).
+  // 본인 알림과는 별개로, 등록해둔 수신자 목록에도 함께 보낸다 — SOLAPI 채널(pfId)이
+  // 연동돼 있어야 하며, 수신자가 없거나 채널이 없으면 조용히 건너뛴다(본인 알림은 이미
+  // 위에서 성공했으므로 실패로 취급하지 않는다). 알림톡 템플릿(alimtalk_template_id)이
+  // 등록돼 있으면 채널 친구 여부와 무관하게 도달하는 알림톡을 쓰고, 없으면 브랜드메시지
+  // (채널을 친구 추가한 사람에게만 도달 — SOLAPI 공식 문서 기준, 2026-09-09 재확인)를 쓴다.
   if (solapiAccount?.kakao_pf_id) {
-    await broadcastReportToRecipients(supabase, userId, reportId, solapiAccount, text);
+    await broadcastReportToRecipients(supabase, userId, reportId, solapiAccount, {
+      title: report.title,
+      url: reportUrl,
+      text,
+    });
   }
 
   return { success: true };
@@ -88,8 +93,8 @@ async function broadcastReportToRecipients(
   supabase: SupabaseLike,
   userId: string,
   reportId: string,
-  solapiAccount: SolapiAccountCredentials,
-  text: string,
+  solapiAccount: SolapiAccountCredentials & { alimtalk_template_id: string | null },
+  report: { title: string; url: string; text: string },
 ): Promise<void> {
   const { data: recipients } = await supabase
     .from("kakao_broadcast_recipients")
@@ -101,7 +106,14 @@ async function broadcastReportToRecipients(
   const failures: string[] = [];
   for (const recipient of recipients as { phone: string }[]) {
     try {
-      await sendFriendtalk(solapiAccount, recipient.phone, text);
+      if (solapiAccount.alimtalk_template_id) {
+        await sendAlimtalk(solapiAccount, recipient.phone, {
+          templateId: solapiAccount.alimtalk_template_id,
+          variables: { "#{title}": report.title, "#{url}": report.url },
+        });
+      } else {
+        await sendFriendtalk(solapiAccount, recipient.phone, report.text);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "발송 실패";
       failures.push(`${recipient.phone.slice(-4)}: ${message}`);

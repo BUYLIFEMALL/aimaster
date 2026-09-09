@@ -51,7 +51,7 @@ export default async function SettingsPage() {
         .order("created_at", { ascending: false }),
       supabase
         .from("user_solapi_accounts")
-        .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id")
+        .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id, channel_friend_url, alimtalk_template_id")
         .eq("user_id", user.id)
         .maybeSingle(),
       supabase
@@ -107,6 +107,8 @@ export default async function SettingsPage() {
           <BroadcastRecipientsSection
             recipients={broadcastRecipients ?? []}
             hasSolapiChannel={Boolean(solapiAccount?.kakao_pf_id)}
+            channelFriendUrl={solapiAccount?.channel_friend_url ?? null}
+            hasAlimtalkTemplate={Boolean(solapiAccount?.alimtalk_template_id)}
           />
         </div>
 
