@@ -1,5 +1,5 @@
 import "server-only";
-import { sendFriendtalk } from "@/lib/solapi/client";
+import { sendFriendtalk, type SolapiAccountCredentials } from "@/lib/solapi/client";
 import { getValidKakaoAccessToken } from "@/lib/kakao/account";
 import { sendReportMemoToMe } from "@/lib/kakao/client";
 
@@ -27,6 +27,13 @@ export async function sendReportToKakaoCore(
   if (!report) return { error: "리포트를 찾을 수 없습니다." };
 
   const reportUrl = `${APP_URL}/reports/${report.id}`;
+  const text = [`📨 ${report.title}`, "", report.summary, "", `전체 보기: ${reportUrl}`].join("\n");
+
+  const { data: solapiAccount } = await supabase
+    .from("user_solapi_accounts")
+    .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id")
+    .eq("user_id", userId)
+    .maybeSingle();
 
   try {
     // 카카오 로그인("나에게 보내기")이 연동되어 있으면 무료 채널을 우선 사용하고, 없으면
@@ -39,14 +46,7 @@ export async function sendReportToKakaoCore(
         url: reportUrl,
       });
     } else {
-      const [{ data: profile }, { data: solapiAccount }] = await Promise.all([
-        supabase.from("profiles").select("phone").eq("id", userId).maybeSingle(),
-        supabase
-          .from("user_solapi_accounts")
-          .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id")
-          .eq("user_id", userId)
-          .maybeSingle(),
-      ]);
+      const { data: profile } = await supabase.from("profiles").select("phone").eq("id", userId).maybeSingle();
 
       if (!solapiAccount) {
         return {
@@ -60,7 +60,6 @@ export async function sendReportToKakaoCore(
         return { error: "카카오 채널 ID(pfId)가 등록되어 있지 않습니다. 설정 페이지에서 등록해주세요." };
       }
 
-      const text = [`📨 ${report.title}`, "", report.summary, "", `전체 보기: ${reportUrl}`].join("\n");
       await sendFriendtalk(solapiAccount, profile.phone, text);
     }
 
@@ -68,10 +67,54 @@ export async function sendReportToKakaoCore(
       .from("kakao_reports")
       .update({ kakao_sent_at: new Date().toISOString(), kakao_send_error: null })
       .eq("id", reportId);
-    return { success: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : "발송에 실패했습니다.";
     await supabase.from("kakao_reports").update({ kakao_send_error: message }).eq("id", reportId);
     return { error: message };
   }
+
+  // 본인 알림과는 별개로, 등록해둔 수신자 목록(카카오톡 친구/구독자)에도 SOLAPI
+  // 브랜드메시지로 함께 보낸다 — SOLAPI 채널(pfId)이 연동돼 있어야 하며, 수신자가
+  // 없거나 채널이 없으면 조용히 건너뛴다(본인 알림은 이미 위에서 성공했으므로 실패로
+  // 취급하지 않는다).
+  if (solapiAccount?.kakao_pf_id) {
+    await broadcastReportToRecipients(supabase, userId, reportId, solapiAccount, text);
+  }
+
+  return { success: true };
+}
+
+async function broadcastReportToRecipients(
+  supabase: SupabaseLike,
+  userId: string,
+  reportId: string,
+  solapiAccount: SolapiAccountCredentials,
+  text: string,
+): Promise<void> {
+  const { data: recipients } = await supabase
+    .from("kakao_broadcast_recipients")
+    .select("phone")
+    .eq("user_id", userId);
+
+  if (!recipients || recipients.length === 0) return;
+
+  const failures: string[] = [];
+  for (const recipient of recipients as { phone: string }[]) {
+    try {
+      await sendFriendtalk(solapiAccount, recipient.phone, text);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "발송 실패";
+      failures.push(`${recipient.phone.slice(-4)}: ${message}`);
+    }
+  }
+
+  const succeeded = recipients.length - failures.length;
+  await supabase
+    .from("kakao_reports")
+    .update({
+      broadcast_sent_at: new Date().toISOString(),
+      broadcast_error:
+        failures.length > 0 ? `${succeeded}/${recipients.length}명 발송 성공, 실패: ${failures.join(", ")}` : null,
+    })
+    .eq("id", reportId);
 }

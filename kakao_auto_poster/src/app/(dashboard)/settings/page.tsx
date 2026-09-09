@@ -6,6 +6,7 @@ import { KakaoAccountSection } from "@/components/settings/KakaoAccountSection";
 import { SmtpAccountSection } from "@/components/settings/SmtpAccountSection";
 import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
 import { TelegramSection } from "@/components/settings/TelegramSection";
+import { BroadcastRecipientsSection } from "@/components/settings/BroadcastRecipientsSection";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
@@ -37,7 +38,7 @@ export default async function SettingsPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: keys }, { data: kakaoAccount }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }] =
+  const [{ data: keys }, { data: kakaoAccount }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }, { data: broadcastRecipients }] =
     await Promise.all([
       supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
       supabase.from("user_kakao_accounts").select("nickname").eq("user_id", user.id).maybeSingle(),
@@ -59,6 +60,11 @@ export default async function SettingsPage() {
         .eq("user_id", user.id)
         .eq("program_slug", TELEGRAM_PROGRAM_SLUG)
         .maybeSingle(),
+      supabase
+        .from("kakao_broadcast_recipients")
+        .select("id, phone, label")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
     ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
@@ -95,6 +101,13 @@ export default async function SettingsPage() {
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <SolapiAccountSection account={solapiAccount ?? null} />
+        </div>
+
+        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
+          <BroadcastRecipientsSection
+            recipients={broadcastRecipients ?? []}
+            hasSolapiChannel={Boolean(solapiAccount?.kakao_pf_id)}
+          />
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">

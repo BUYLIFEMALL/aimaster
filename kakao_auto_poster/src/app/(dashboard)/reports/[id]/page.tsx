@@ -22,7 +22,9 @@ export default async function ReportDetailPage({
 
   const { data: report } = await supabase
     .from("kakao_reports")
-    .select("id, topic_id, title, summary, content, kakao_sent_at, kakao_send_error, telegram_review_status, created_at")
+    .select(
+      "id, topic_id, title, summary, content, kakao_sent_at, kakao_send_error, broadcast_sent_at, broadcast_error, telegram_review_status, created_at",
+    )
     .eq("id", id)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -79,6 +81,16 @@ export default async function ReportDetailPage({
           )}
           {report.kakao_send_error && !report.kakao_sent_at && (
             <p className="mb-2 text-xs text-red-600">직전 발송 실패: {report.kakao_send_error}</p>
+          )}
+          {report.broadcast_sent_at && (
+            <p className="mb-2 text-xs text-neutral-500">
+              📣 수신자 목록 발송 결과:{" "}
+              {report.broadcast_error ? (
+                <span className="text-yellow-700">{report.broadcast_error}</span>
+              ) : (
+                <span className="text-green-600">전원 발송 성공</span>
+              )}
+            </p>
           )}
 
           {canSendKakao ? (

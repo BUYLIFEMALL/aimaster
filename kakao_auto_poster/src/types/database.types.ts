@@ -72,6 +72,8 @@ export interface Database {
           telegram_chat_id: string | null;
           telegram_message_id: number | null;
           generated_via: "manual" | "scheduled";
+          broadcast_sent_at: string | null;
+          broadcast_error: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -89,6 +91,8 @@ export interface Database {
           telegram_chat_id?: string | null;
           telegram_message_id?: number | null;
           generated_via?: "manual" | "scheduled";
+          broadcast_sent_at?: string | null;
+          broadcast_error?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -106,8 +110,34 @@ export interface Database {
           telegram_chat_id?: string | null;
           telegram_message_id?: number | null;
           generated_via?: "manual" | "scheduled";
+          broadcast_sent_at?: string | null;
+          broadcast_error?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      kakao_broadcast_recipients: {
+        Row: {
+          id: string;
+          user_id: string;
+          phone: string;
+          label: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          phone: string;
+          label?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          phone?: string;
+          label?: string | null;
+          created_at?: string;
         };
         Relationships: [];
       };
