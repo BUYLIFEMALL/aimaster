@@ -33,6 +33,11 @@ const addInitialState: AddBroadcastRecipientState = {};
 const bulkInitialState: BulkAddBroadcastRecipientsState = {};
 const groupInitialState: CreateGroupState = {};
 const UNGROUPED = "__ungrouped__";
+// 다중 선택 이동 드롭다운의 "아직 아무것도 안 골랐다"는 상태를 "미분류로 이동"(value="")과
+// 구분하기 위한 값 — 기본값을 ""로 두면 그룹을 안 고르고 바로 "이동"을 눌렀을 때 조용히
+// 미분류로 이동해버려(이미 미분류였다면 겉보기엔 아무 일도 안 일어난 것처럼 보임) 사용자가
+// "이동이 안 된다"고 착각하는 버그가 있었다(2026-09-09).
+const UNSELECTED = "__unselected__";
 
 function maskPhone(phone: string): string {
   if (phone.length < 8) return phone;
@@ -79,7 +84,7 @@ export function BroadcastRecipientsSection({
   const [movingId, setMovingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [bulkMoveGroupId, setBulkMoveGroupId] = useState("");
+  const [bulkMoveGroupId, setBulkMoveGroupId] = useState(UNSELECTED);
   const [isBulkMoving, setIsBulkMoving] = useState(false);
 
   const filteredRecipients = recipients.filter((r) => {
@@ -121,11 +126,12 @@ export function BroadcastRecipientsSection({
   }
 
   async function handleBulkMove() {
-    if (selectedIds.size === 0) return;
+    if (selectedIds.size === 0 || bulkMoveGroupId === UNSELECTED) return;
     setIsBulkMoving(true);
     try {
       await moveManyBroadcastRecipientsGroupAction(Array.from(selectedIds), bulkMoveGroupId || null);
       setSelectedIds(new Set());
+      setBulkMoveGroupId(UNSELECTED);
       router.refresh();
     } finally {
       setIsBulkMoving(false);
@@ -334,6 +340,9 @@ export function BroadcastRecipientsSection({
                 onChange={(e) => setBulkMoveGroupId(e.target.value)}
                 className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-700 outline-none"
               >
+                <option value={UNSELECTED} disabled>
+                  이동할 그룹 선택...
+                </option>
                 <option value="">미분류로 이동</option>
                 {groups.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -341,10 +350,17 @@ export function BroadcastRecipientsSection({
                   </option>
                 ))}
               </select>
-              <Button type="button" onClick={handleBulkMove} disabled={isBulkMoving}>
+              <Button type="button" onClick={handleBulkMove} disabled={isBulkMoving || bulkMoveGroupId === UNSELECTED}>
                 {isBulkMoving ? "이동 중..." : "이동"}
               </Button>
-              <button type="button" onClick={() => setSelectedIds(new Set())} className="text-xs font-semibold text-neutral-500 hover:underline">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedIds(new Set());
+                  setBulkMoveGroupId(UNSELECTED);
+                }}
+                className="text-xs font-semibold text-neutral-500 hover:underline"
+              >
                 선택 해제
               </button>
             </div>
