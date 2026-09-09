@@ -393,13 +393,9 @@ export function BroadcastRecipientsSection({
               >
                 선택 해제
               </button>
-              <button
-                type="button"
-                onClick={() => setShowSendPanel((v) => !v)}
-                className="text-xs font-bold text-blue-600 hover:underline"
-              >
+              <Button type="button" variant="info" onClick={() => setShowSendPanel((v) => !v)} className="text-xs">
                 {showSendPanel ? "발송 닫기" : "📤 메시지 발송"}
-              </button>
+              </Button>
             </div>
           )}
 
