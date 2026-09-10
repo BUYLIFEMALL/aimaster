@@ -294,6 +294,7 @@ export interface Database {
           rcs_brand_id: string | null;
           channel_friend_url: string | null;
           alimtalk_template_id: string | null;
+          email_dual_send_enabled: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -306,6 +307,7 @@ export interface Database {
           rcs_brand_id?: string | null;
           channel_friend_url?: string | null;
           alimtalk_template_id?: string | null;
+          email_dual_send_enabled?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -318,6 +320,7 @@ export interface Database {
           rcs_brand_id?: string | null;
           channel_friend_url?: string | null;
           alimtalk_template_id?: string | null;
+          email_dual_send_enabled?: boolean;
           created_at?: string;
           updated_at?: string;
         };

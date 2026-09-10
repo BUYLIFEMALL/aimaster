@@ -50,6 +50,32 @@ export async function saveSolapiAccountAction(formData: FormData): Promise<Solap
   return {};
 }
 
+/**
+ * 카카오 발송과 이메일을 함께/대체로 쓸지 켜고 끄는 토글 — 수신자 목록 화면의 "자유
+ * 메시지 발송" 버튼 옆에 둔다(사용자 지시, 2026-09-10). ON이면 카카오 발송이 성공해도
+ * 이메일이 등록된 사람에게는 이메일도 함께 보내고, 카카오 발송이 실패하면 이메일로
+ * 대체 발송한다. OFF면 이 자동화 발송 경로들에서 이메일을 전혀 건드리지 않고 카카오만
+ * 시도한다(전화번호 없는 이메일 전용 수신자는 이 설정과 무관하게 항상 이메일로 받는다).
+ * SOLAPI 계정이 아직 없으면 켤 대상 자체가 없으므로 에러를 반환한다.
+ */
+export async function setEmailDualSendEnabledAction(enabled: boolean): Promise<{ error?: string }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("user_solapi_accounts")
+    .update({ email_dual_send_enabled: enabled })
+    .eq("user_id", user.id)
+    .select("user_id")
+    .maybeSingle();
+
+  if (error) return { error: error.message };
+  if (!data) return { error: "SOLAPI 계정을 먼저 등록해주세요." };
+
+  revalidatePath("/recipients");
+  return {};
+}
+
 export async function deleteSolapiAccountAction(): Promise<{ error?: string }> {
   const user = await requireProgramAccess();
   const supabase = await createClient();

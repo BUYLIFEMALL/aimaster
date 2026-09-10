@@ -25,7 +25,7 @@ export default async function RecipientsPage() {
         .order("created_at", { ascending: false }),
       supabase
         .from("user_solapi_accounts")
-        .select("kakao_pf_id, channel_friend_url, alimtalk_template_id")
+        .select("kakao_pf_id, channel_friend_url, alimtalk_template_id, email_dual_send_enabled")
         .eq("user_id", user.id)
         .maybeSingle(),
       supabase
@@ -70,6 +70,7 @@ export default async function RecipientsPage() {
           channelFriendUrl={solapiAccount?.channel_friend_url ?? null}
           hasAlimtalkTemplate={Boolean(solapiAccount?.alimtalk_template_id)}
           hasSmtpAccount={Boolean(smtpAccount)}
+          emailDualSendEnabled={solapiAccount?.email_dual_send_enabled ?? true}
           recentReports={recentReports ?? []}
         />
       </div>

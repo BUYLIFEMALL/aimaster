@@ -23,6 +23,7 @@ import {
   sendReportEmailToRecipientsAction,
   type BroadcastSendResultRow,
 } from "@/lib/actions/broadcastSend";
+import { setEmailDualSendEnabledAction } from "@/lib/actions/solapiAccount";
 
 export interface BroadcastRecipientData {
   id: string;
@@ -82,6 +83,7 @@ export function BroadcastRecipientsSection({
   channelFriendUrl,
   hasAlimtalkTemplate,
   hasSmtpAccount,
+  emailDualSendEnabled,
   recentReports,
 }: {
   recipients: BroadcastRecipientData[];
@@ -90,9 +92,14 @@ export function BroadcastRecipientsSection({
   channelFriendUrl: string | null;
   hasAlimtalkTemplate: boolean;
   hasSmtpAccount: boolean;
+  emailDualSendEnabled: boolean;
   recentReports: RecentReportData[];
 }) {
   const router = useRouter();
+  // 카카오 발송 시 이메일을 함께/대체로 쓸지 켜고 끄는 토글 — 서버 값으로 낙관적 갱신한다.
+  const [emailDualSendOn, setEmailDualSendOn] = useState(emailDualSendEnabled);
+  const [isTogglingEmailDualSend, setIsTogglingEmailDualSend] = useState(false);
+  const [emailDualSendError, setEmailDualSendError] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<"none" | "single" | "bulk">(recipients.length === 0 ? "single" : "none");
   const [state, formAction, isSaving] = useActionState(addBroadcastRecipientAction, addInitialState);
   const [bulkState, bulkFormAction, isBulkSaving] = useActionState(addBulkBroadcastRecipientsAction, bulkInitialState);
@@ -257,6 +264,29 @@ export function BroadcastRecipientsSection({
       }
     } finally {
       setIsSendingEmail(false);
+    }
+  }
+
+  /**
+   * ON이면 카카오 발송이 성공해도 이메일이 등록된 사람에게 이메일을 함께 보내고,
+   * 카카오 발송이 실패하면 이메일로 대체 발송한다. OFF면 카카오만 시도한다(사용자
+   * 지시, 2026-09-10). 낙관적으로 먼저 바꾸고, 실패하면 되돌린다.
+   */
+  async function handleToggleEmailDualSend() {
+    const next = !emailDualSendOn;
+    setEmailDualSendOn(next);
+    setEmailDualSendError(null);
+    setIsTogglingEmailDualSend(true);
+    try {
+      const res = await setEmailDualSendEnabledAction(next);
+      if (res.error) {
+        setEmailDualSendOn(!next);
+        setEmailDualSendError(res.error);
+      } else {
+        router.refresh();
+      }
+    } finally {
+      setIsTogglingEmailDualSend(false);
     }
   }
 
@@ -730,10 +760,27 @@ export function BroadcastRecipientsSection({
                 >
                   {showSendPanel ? "발송 닫기" : "📤 자유 메시지 발송"}
                 </Button>
+                {hasSolapiChannel ? (
+                  <Button
+                    type="button"
+                    variant={emailDualSendOn ? "success" : "muted"}
+                    onClick={handleToggleEmailDualSend}
+                    disabled={isTogglingEmailDualSend}
+                    className="text-xs"
+                    title="카카오 발송 시 이메일이 등록된 사람에게 이메일을 함께/대체로 보낼지 켜고 끕니다"
+                  >
+                    📧 이메일 함께 발송 {emailDualSendOn ? "ON" : "OFF"}
+                  </Button>
+                ) : (
+                  <span className="text-xs text-neutral-400">
+                    (SOLAPI 카카오 채널을 연동하면 이메일 함께 발송 여부를 설정할 수 있어요)
+                  </span>
+                )}
+                <span className="mx-1 text-neutral-300">|</span>
                 {hasSmtpAccount ? (
                   <Button
                     type="button"
-                    variant="info"
+                    variant="success"
                     onClick={() => {
                       setShowEmailPanel((v) => !v);
                       setShowSendPanel(false);
@@ -767,6 +814,7 @@ export function BroadcastRecipientsSection({
                   </span>
                 )}
               </div>
+              {emailDualSendError && <p className="text-xs text-red-600">{emailDualSendError}</p>}
             </div>
           )}
 

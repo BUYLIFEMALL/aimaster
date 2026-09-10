@@ -45,7 +45,7 @@ export async function sendCustomBroadcastAction(
   const supabase = await createClient();
   const { data: solapiAccount } = await supabase
     .from("user_solapi_accounts")
-    .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id")
+    .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id, email_dual_send_enabled")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -81,36 +81,47 @@ export async function sendCustomBroadcastAction(
   }[] = [];
 
   for (const target of targets) {
-    // 전화번호가 없는(이메일 전용) 수신자는 브랜드메시지를 아예 시도하지 않고 바로
-    // 이메일로 보낸다 — 전화번호가 있는 사람은 브랜드메시지가 실패했을 때만 이메일로
-    // 대체한다(사용자 지시, 2026-09-10).
-    let kakaoError: string | null = null;
+    // 전화번호가 없는(이메일 전용) 수신자는 이 토글과 무관하게 항상 이메일로 보낸다.
+    // 전화번호가 있는 사람은 email_dual_send_enabled가 ON일 때만 이메일이 관여한다 —
+    // 브랜드메시지가 성공해도 이메일을 함께 보내고, 실패하면 이메일로 대체한다. OFF면
+    // 브랜드메시지만 시도한다(사용자 지시, 2026-09-10).
     if (target.phone) {
+      let kakaoError: string | null = null;
       try {
         await sendFriendtalk(solapiAccount, target.phone, text);
-        results.push({ label: target.label, phone: target.phone, ok: true });
-        logRows.push({
-          user_id: user.id,
-          recipient_id: target.id,
-          recipient_label: target.label,
-          recipient_phone: target.phone,
-          recipient_email: target.email,
-          message: text,
-          ok: true,
-          error: null,
-          channel: "brand",
-          fallback_email: false,
-        });
-        continue;
       } catch (err) {
         kakaoError = err instanceof Error ? err.message : "발송 실패";
       }
-    } else {
-      kakaoError = "전화번호가 등록되어 있지 않습니다.";
+
+      let handledByEmail = false;
+      if (solapiAccount.email_dual_send_enabled && target.email) {
+        const subject = "[카카오톡 뉴스레터 자동화] 새 메시지가 도착했습니다";
+        const html = `<div style="font-family:-apple-system,sans-serif;max-width:560px;margin:0 auto;"><p style="white-space:pre-line;color:#333;line-height:1.6;">${escapeHtml(text)}</p></div>`;
+        if (kakaoError) {
+          const fallback = await sendEmailFallback(supabase, user.id, target.email, subject, html);
+          handledByEmail = fallback.ok;
+        } else {
+          await sendEmailFallback(supabase, user.id, target.email, subject, html);
+        }
+      }
+
+      const ok = !kakaoError || handledByEmail;
+      results.push({ label: target.label, phone: target.phone, ok, error: ok ? undefined : (kakaoError ?? undefined), viaEmail: Boolean(kakaoError) && handledByEmail });
+      logRows.push({
+        user_id: user.id,
+        recipient_id: target.id,
+        recipient_label: target.label,
+        recipient_phone: target.phone,
+        recipient_email: target.email,
+        message: text,
+        ok,
+        error: ok ? null : kakaoError,
+        channel: "brand",
+        fallback_email: Boolean(kakaoError) && handledByEmail,
+      });
+      continue;
     }
 
-    // 카카오(브랜드메시지)가 실패했거나 전화번호가 없고, 이메일이 등록돼 있으면
-    // 대체 발송을 시도한다 — 성공하면 결과는 "성공(이메일로 대체)"으로 표시한다.
     let handledByEmail = false;
     if (target.email) {
       const subject = "[카카오톡 뉴스레터 자동화] 새 메시지가 도착했습니다";
@@ -118,7 +129,13 @@ export async function sendCustomBroadcastAction(
       const fallback = await sendEmailFallback(supabase, user.id, target.email, subject, html);
       handledByEmail = fallback.ok;
     }
-    results.push({ label: target.label, phone: target.phone, ok: handledByEmail, error: handledByEmail ? undefined : kakaoError, viaEmail: handledByEmail });
+    results.push({
+      label: target.label,
+      phone: target.phone,
+      ok: handledByEmail,
+      error: handledByEmail ? undefined : "전화번호가 등록되어 있지 않습니다.",
+      viaEmail: handledByEmail,
+    });
     logRows.push({
       user_id: user.id,
       recipient_id: target.id,
@@ -127,7 +144,7 @@ export async function sendCustomBroadcastAction(
       recipient_email: target.email,
       message: text,
       ok: handledByEmail,
-      error: handledByEmail ? null : kakaoError,
+      error: handledByEmail ? null : "전화번호가 등록되어 있지 않습니다.",
       channel: "brand",
       fallback_email: handledByEmail,
     });
@@ -166,7 +183,7 @@ export async function sendReportAlimtalkToRecipientsAction(
   const [{ data: solapiAccount }, { data: report }] = await Promise.all([
     supabase
       .from("user_solapi_accounts")
-      .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id, alimtalk_template_id")
+      .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id, alimtalk_template_id, email_dual_send_enabled")
       .eq("user_id", user.id)
       .maybeSingle(),
     supabase.from("kakao_reports").select("id, title, summary").eq("id", reportId).eq("user_id", user.id).maybeSingle(),
@@ -206,32 +223,43 @@ export async function sendReportAlimtalkToRecipientsAction(
   }[] = [];
 
   for (const target of targets) {
-    let kakaoError: string | null = null;
     if (target.phone) {
+      let kakaoError: string | null = null;
       try {
         await sendAlimtalk(solapiAccount, target.phone, {
           templateId: solapiAccount.alimtalk_template_id,
           variables: { "#{title}": report.title, "#{url}": reportUrl },
         });
-        results.push({ label: target.label, phone: target.phone, ok: true });
-        logRows.push({
-          user_id: user.id,
-          recipient_id: target.id,
-          recipient_label: target.label,
-          recipient_phone: target.phone,
-          recipient_email: target.email,
-          message: `[알림톡] ${report.title}`,
-          ok: true,
-          error: null,
-          channel: "alimtalk",
-          fallback_email: false,
-        });
-        continue;
       } catch (err) {
         kakaoError = err instanceof Error ? err.message : "발송 실패";
       }
-    } else {
-      kakaoError = "전화번호가 등록되어 있지 않습니다.";
+
+      let handledByEmail = false;
+      if (solapiAccount.email_dual_send_enabled && target.email) {
+        const { subject, html } = buildReportNotificationEmail({ id: report.id, title: report.title, summary: report.summary });
+        if (kakaoError) {
+          const fallback = await sendEmailFallback(supabase, user.id, target.email, subject, html);
+          handledByEmail = fallback.ok;
+        } else {
+          await sendEmailFallback(supabase, user.id, target.email, subject, html);
+        }
+      }
+
+      const ok = !kakaoError || handledByEmail;
+      results.push({ label: target.label, phone: target.phone, ok, error: ok ? undefined : (kakaoError ?? undefined), viaEmail: Boolean(kakaoError) && handledByEmail });
+      logRows.push({
+        user_id: user.id,
+        recipient_id: target.id,
+        recipient_label: target.label,
+        recipient_phone: target.phone,
+        recipient_email: target.email,
+        message: `[알림톡] ${report.title}`,
+        ok,
+        error: ok ? null : kakaoError,
+        channel: "alimtalk",
+        fallback_email: Boolean(kakaoError) && handledByEmail,
+      });
+      continue;
     }
 
     let handledByEmail = false;
@@ -240,7 +268,13 @@ export async function sendReportAlimtalkToRecipientsAction(
       const fallback = await sendEmailFallback(supabase, user.id, target.email, subject, html);
       handledByEmail = fallback.ok;
     }
-    results.push({ label: target.label, phone: target.phone, ok: handledByEmail, error: handledByEmail ? undefined : kakaoError, viaEmail: handledByEmail });
+    results.push({
+      label: target.label,
+      phone: target.phone,
+      ok: handledByEmail,
+      error: handledByEmail ? undefined : "전화번호가 등록되어 있지 않습니다.",
+      viaEmail: handledByEmail,
+    });
     logRows.push({
       user_id: user.id,
       recipient_id: target.id,
@@ -249,7 +283,7 @@ export async function sendReportAlimtalkToRecipientsAction(
       recipient_email: target.email,
       message: `[알림톡] ${report.title}`,
       ok: handledByEmail,
-      error: handledByEmail ? null : kakaoError,
+      error: handledByEmail ? null : "전화번호가 등록되어 있지 않습니다.",
       channel: "alimtalk",
       fallback_email: handledByEmail,
     });

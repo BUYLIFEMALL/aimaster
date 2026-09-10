@@ -33,7 +33,7 @@ export async function sendReportToKakaoCore(
 
   const { data: solapiAccount } = await supabase
     .from("user_solapi_accounts")
-    .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id, alimtalk_template_id")
+    .select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id, alimtalk_template_id, email_dual_send_enabled")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -97,7 +97,7 @@ async function broadcastReportToRecipients(
   supabase: SupabaseLike,
   userId: string,
   reportId: string,
-  solapiAccount: SolapiAccountCredentials & { alimtalk_template_id: string | null },
+  solapiAccount: SolapiAccountCredentials & { alimtalk_template_id: string | null; email_dual_send_enabled: boolean },
   report: { id: string; title: string; summary: string; url: string; text: string },
 ): Promise<void> {
   const { data: recipients } = await supabase
@@ -110,11 +110,13 @@ async function broadcastReportToRecipients(
 
   const failures: string[] = [];
   for (const recipient of recipients as { phone: string | null; email: string | null }[]) {
-    // 전화번호가 없는(이메일 전용) 수신자는 카카오를 아예 시도하지 않고 바로 이메일로
-    // 보낸다 — 전화번호가 있는 사람은 카카오 발송이 실패했을 때만 이메일로 대체한다
+    // 전화번호 없는(이메일 전용) 수신자는 이 토글과 무관하게 항상 이메일로 받는다(애초에
+    // 카카오 발송 자체가 없으므로). 전화번호가 있는 사람은 email_dual_send_enabled가
+    // ON일 때만 이메일이 관여한다 — 카카오 발송이 성공해도 이메일을 함께 보내고, 실패하면
+    // 이메일로 대체 발송한다. OFF면 카카오만 시도하고 이메일은 전혀 건드리지 않는다
     // (사용자 지시, 2026-09-10).
-    let kakaoError: string | null = null;
     if (recipient.phone) {
+      let kakaoError: string | null = null;
       try {
         if (solapiAccount.alimtalk_template_id) {
           await sendAlimtalk(solapiAccount, recipient.phone, {
@@ -124,20 +126,35 @@ async function broadcastReportToRecipients(
         } else {
           await sendFriendtalk(solapiAccount, recipient.phone, report.text);
         }
-        continue; // 카카오 발송 성공
       } catch (err) {
         kakaoError = err instanceof Error ? err.message : "발송 실패";
       }
-    } else {
-      kakaoError = "전화번호 미등록(이메일 전용 수신자)";
+
+      if (solapiAccount.email_dual_send_enabled && recipient.email) {
+        const { subject, html } = buildReportNotificationEmail({ id: report.id, title: report.title, summary: report.summary });
+        if (kakaoError) {
+          // 카카오 실패 → 이메일로 대체. 이메일까지 성공하면 이 사람은 실패 집계에서 빠진다.
+          const fallback = await sendEmailFallback(supabase, userId, recipient.email, subject, html);
+          if (fallback.ok) continue;
+        } else {
+          // 카카오 성공 → 이메일도 함께 보낸다(best-effort, 실패해도 카카오는 이미 성공이므로
+          // 전체 실패로 잡지 않는다).
+          await sendEmailFallback(supabase, userId, recipient.email, subject, html);
+        }
+      }
+
+      if (!kakaoError) continue;
+      failures.push(`${recipient.phone.slice(-4)}: ${kakaoError}`);
+      continue;
     }
 
+    // 전화번호 없음(이메일 전용) — 토글과 무관하게 항상 이메일 시도
     if (recipient.email) {
       const { subject, html } = buildReportNotificationEmail({ id: report.id, title: report.title, summary: report.summary });
       const fallback = await sendEmailFallback(supabase, userId, recipient.email, subject, html);
       if (fallback.ok) continue;
     }
-    failures.push(`${recipient.phone ? recipient.phone.slice(-4) : (recipient.email ?? "대상불명")}: ${kakaoError}`);
+    failures.push(`${recipient.email ?? "대상불명"}: 전화번호 미등록(이메일 전용 수신자)`);
   }
 
   const succeeded = recipients.length - failures.length;
