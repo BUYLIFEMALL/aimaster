@@ -9,8 +9,10 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 // 대시보드는 순서 개념이 없는 개요 화면이라 번호 없이 스텝퍼 위에 별도로 둔다.
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
-// "주제 등록 → 리포트 확인"은 순서가 있는 핵심 작업 흐름이라 번호 스텝퍼로 표시한다
-// (insta_auto_poster Sidebar.tsx와 동일한 패턴).
+// "주제 등록 → 리포트 확인 → 수신자 목록 → 발송 내역"은 순서가 있는 핵심 작업 흐름이라
+// 번호 스텝퍼로 표시한다(insta_auto_poster Sidebar.tsx와 동일한 패턴). 수신자 목록/발송
+// 내역은 API키등록보다 자주 쓰이는 화면이라 이 스텝퍼 안(3, 4번)에 포함시켰다
+// (사용자 피드백, 2026-09-10).
 const FLOW_STEPS = [
   {
     step: 1,
@@ -26,12 +28,20 @@ const FLOW_STEPS = [
     label: "리포트 확인",
     description: "AI가 생성한 정보 콘텐츠 보기",
   },
-];
-
-// 수신자 관리 메뉴는 API키등록보다 자주 쓰이는 화면이라 분리해서 위쪽에 배치한다.
-const RECIPIENT_ITEMS = [
-  { href: "/recipients", icon: "📣", label: "카카오톡 수신자 목록" },
-  { href: "/broadcast-log", icon: "📨", label: "발송 내역" },
+  {
+    step: 3,
+    href: "/recipients",
+    icon: "📣",
+    label: "카카오톡 수신자 목록",
+    description: "함께 받아볼 사람 등록/관리",
+  },
+  {
+    step: 4,
+    href: "/broadcast-log",
+    icon: "📨",
+    label: "발송 내역",
+    description: "수동 발송 결과 확인",
+  },
 ];
 
 const SETTINGS_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록" }];
@@ -96,23 +106,6 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </nav>
 
         <div className="mt-6 border-t border-neutral-200 pt-3">
-          {RECIPIENT_ITEMS.map((item) => {
-            const isActive = pathname?.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`block rounded-lg px-3 py-2 text-sm font-medium ${
-                  isActive ? "bg-yellow-50 text-yellow-800" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-                }`}
-              >
-                {item.icon} {item.label}
-              </Link>
-            );
-          })}
-        </div>
-
-        <div className="mt-3 border-t border-neutral-200 pt-3">
           {SETTINGS_ITEMS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
