@@ -17,6 +17,10 @@ const VALID_PROVIDERS: ApiKeyProvider[] = [
   "coupang_secret_key",
   "aliexpress_app_key",
   "aliexpress_app_secret",
+  "aliexpress_tracking_id",
+  "toss_access_key",
+  "toss_secret_key",
+  "toss_publisher_id",
 ];
 
 export async function saveApiKeyAction(
