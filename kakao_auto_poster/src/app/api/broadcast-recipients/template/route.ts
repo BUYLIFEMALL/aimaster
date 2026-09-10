@@ -42,7 +42,7 @@ export async function GET() {
   return new Response(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": 'attachment; filename="kakao_broadcast_recipients_template.xlsx"',
+      "Content-Disposition": 'attachment; filename="aimaster_phone_email_input.xlsx"',
     },
   });
 }
