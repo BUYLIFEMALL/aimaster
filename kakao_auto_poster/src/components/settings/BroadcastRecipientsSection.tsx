@@ -763,7 +763,7 @@ export function BroadcastRecipientsSection({
                 {hasSolapiChannel ? (
                   <Button
                     type="button"
-                    variant={emailDualSendOn ? "success" : "muted"}
+                    variant={emailDualSendOn ? "info" : "muted"}
                     onClick={handleToggleEmailDualSend}
                     disabled={isTogglingEmailDualSend}
                     className="text-xs"
