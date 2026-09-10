@@ -95,9 +95,6 @@ async function callApi<T>(
   }
 
   const data = (await response.json()) as TossEnvelope<T>;
-  if (path.includes("categories")) {
-    console.log(`[toss-debug] ${path} raw response:`, JSON.stringify(data).slice(0, 3000));
-  }
   if (data.resultType !== "SUCCESS" || !data.success) {
     throw new Error(`토스 쉐어링크 응답 오류: ${data.error?.reason ?? data.error?.errorCode ?? "알 수 없는 오류"}`);
   }
@@ -149,10 +146,18 @@ export interface TossCategory {
   name: string;
 }
 
-/** 카테고리 목록. 자주 안 바뀌므로(문서 권장) 호출부에서 하루 정도 캐시해서 재사용할 것. */
+/**
+ * 카테고리 목록(대분류, level 1). 자주 안 바뀌므로(문서 권장) 호출부에서 하루 정도
+ * 캐시해서 재사용할 것. 실제 응답 필드명은 displayName이다(2026-09-10 실계정 확인 —
+ * name으로 잘못 추정 구현했던 게 원인으로 드롭다운이 전부 빈 값처럼 보였음). 각 항목에
+ * 하위 카테고리(children)가 트리로 딸려오지만, 지금 UI는 대분류 선택만 지원한다.
+ */
 export async function getCategories(auth: Pick<TossAuth, "accessKey" | "secretKey">): Promise<TossCategory[]> {
   const data = await callApi<{ categories?: Record<string, unknown>[] }>(auth, "/categories");
-  return (data.categories ?? []).map((c) => ({ categoryId: String(c.categoryId), name: String(c.name) }));
+  return (data.categories ?? []).map((c) => ({
+    categoryId: String(c.categoryId),
+    name: String(c.displayName ?? c.name ?? ""),
+  }));
 }
 
 /** 특정 카테고리 안의 베스트 상품. */
