@@ -291,7 +291,9 @@ export function BroadcastRecipientsSection({
       } else {
         setImportResult(
           `${res.importedCount ?? 0}명 등록 완료${
-            res.duplicateCount ? ` (그중 ${res.duplicateCount}건은 전화번호/이메일이 기존과 겹쳐 "중복등록" 그룹으로 분류됨 — 확인 후 필요하면 직접 삭제해주세요)` : ""
+            res.duplicateCount
+              ? ` (그중 ${res.duplicateCount}건은 전화번호/이메일이 기존과 겹쳐 "중복등록" 그룹으로 분류 + 자동 발송제외 처리됨 — 확인 후 필요하면 제외 해제하거나 삭제해주세요)`
+              : ""
           }`,
         );
         (e.target as HTMLFormElement).reset();
@@ -404,18 +406,19 @@ export function BroadcastRecipientsSection({
         </div>
       </div>
       <p className="text-xs text-neutral-500">
-        여기 등록한 전화번호로도 리포트가 카카오톡으로 함께 발송됩니다.{" "}
-        {hasAlimtalkTemplate
-          ? "알림톡 템플릿이 등록돼 있어 채널 친구가 아니어도 도달합니다."
-          : "단, 브랜드메시지는 채널을 친구 추가한 사람에게만 도달합니다 — 아직 친구 추가하지 않았다면 먼저 추가하도록 안내해주세요."}
-        {" "}이메일을 함께 등록해두면, 카카오톡 발송이 실패했을 때만(항상 이중 발송하지 않음)
-        그 이메일로 대체 발송합니다. 전화번호 없이 이메일만 등록하는 것도 가능합니다 — 이
-        경우 카카오톡 채널 없이 이메일로만 정보성 콘텐츠를 받습니다.
+        등록한 전화번호로 리포트가 카카오톡으로 함께 발송됩니다.
+        <br />
+        브랜드 메시지는 채널친구에게만 발송되며, 친구 추가하지 않았다면 먼저 추가하도록
+        안내해주세요.
+        <br />
+        이메일을 함께 등록해두면 카카오톡 발송이 실패시 이메일로 대체 발송합니다(이메일
+        발송 기능 ON/OFF). 전화번호 없이 이메일만 등록하는 것도 가능합니다 — 이 경우 카카오톡
+        채널 없이 이메일로만 정보성 콘텐츠를 받습니다.
       </p>
       <p className="text-xs text-neutral-500">
-        📤 자유 메시지 발송(브랜드메시지 — 자유 문구, 채널 친구만 도달) / 📨 알림톡으로 리포트
-        발송(고정 템플릿 — 자유 문구 불가, 비친구도 도달) / 📧 이메일로 리포트 발송(전화번호
-        없는 이메일 전용 수신자용)은 서로 다른 발송 경로이니 상황에 맞게 선택해서 쓰세요.
+        📤 자유 메시지 발송(브랜드메시지 — 자유 문구, 채널 친구만 도달) / 📧 이메일로 리포트
+        발송(전화번호 없는 이메일 전용 수신자용) / 📨 알림톡으로 리포트 발송(고정 템플릿 —
+        자유 문구 불가, 비친구도 도달)은 서로 다른 발송 경로이니 상황에 맞게 선택해서 쓰세요.
       </p>
       {!hasSolapiChannel && (
         <p className="rounded-lg bg-yellow-50 px-3 py-2 text-xs text-yellow-800">
@@ -527,8 +530,9 @@ export function BroadcastRecipientsSection({
             <label className="block text-xs font-semibold text-neutral-700">방법 1. 엑셀로 수신자 가져오기</label>
             <p className="text-xs text-neutral-400">
               컬럼: 이름 / 전화번호 / 이메일 — 전화번호와 이메일 중 하나는 있어야 합니다
-              (이메일만 있으면 이메일 전용 수신자로 등록됩니다). 이미 등록된 전화번호/이메일은
-              건너뜁니다.
+              (이메일만 있으면 이메일 전용 수신자로 등록). 이미 등록된 전화번호/이메일은
+              자동으로 발송제외 처리됩니다(&quot;중복등록&quot; 그룹으로 분류 — 확인 후
+              필요하면 제외 해제하거나 삭제하세요).
             </p>
             {groups.length > 0 && (
               <select
@@ -574,9 +578,10 @@ export function BroadcastRecipientsSection({
             <form action={bulkFormAction} className="space-y-3">
               <div>
                 <label className="mb-1 block text-xs font-semibold text-neutral-700">
-                  방법 2. 직접 텍스트로 붙여넣기 (한 줄에 한 명씩, &quot;이름,전화번호,이메일&quot;
-                  형식 — 이름/전화번호/이메일 각각 생략 가능하되 전화번호나 이메일 중 하나는
-                  필요. 이메일만 등록하려면 전화번호 자리를 비워두세요)
+                  방법 2. 직접 텍스트로 붙여넣기 (한 줄에 한 명씩, &quot;이름,전화번호,이메일&quot; 형식)
+                  <span className="block font-normal text-neutral-500">
+                    - 이름/전화번호/이메일 각각 생략 가능하나 전화번호나 이메일 중 하나는 필요
+                  </span>
                 </label>
                 <textarea
                   name="bulkPhones"
@@ -585,7 +590,9 @@ export function BroadcastRecipientsSection({
                   placeholder={"친구1,01012345678,friend1@example.com\n고객A,01098765432\n이메일만,,email-only@example.com"}
                   className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs text-neutral-900 outline-none focus:border-neutral-900"
                 />
-                <p className="mt-1 text-xs text-neutral-400">한 번에 최대 500명.</p>
+                <p className="mt-1 text-xs text-neutral-400">
+                  한 번에 최대 500명. 이메일만 등록하려면 전화번호 자리를 비워두세요.
+                </p>
               </div>
               {groups.length > 0 && (
                 <select
@@ -609,12 +616,12 @@ export function BroadcastRecipientsSection({
                 <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
                   <p className="mb-1 font-semibold text-neutral-700">
                     등록 결과: 성공 {bulkState.results.filter((r) => r.ok && !r.duplicate).length}건 / 중복{" "}
-                    {bulkState.results.filter((r) => r.duplicate).length}건(&quot;중복등록&quot; 그룹으로 분류) / 실패{" "}
+                    {bulkState.results.filter((r) => r.duplicate).length}건(&quot;중복등록&quot; 그룹 분류 + 발송제외) / 실패{" "}
                     {bulkState.results.filter((r) => !r.ok).length}건
                   </p>
                   {bulkState.results.map((r, i) => (
                     <p key={i} className={!r.ok ? "text-red-600" : r.duplicate ? "text-amber-600" : "text-green-600"}>
-                      {r.line} — {r.ok ? (r.duplicate ? `등록됨 (중복 — "중복등록" 그룹으로 분류)` : "등록됨") : r.error}
+                      {r.line} — {r.ok ? (r.duplicate ? `등록됨 (중복 — "중복등록" 그룹 분류 + 발송제외)` : "등록됨") : r.error}
                     </p>
                   ))}
                 </div>
@@ -670,87 +677,94 @@ export function BroadcastRecipientsSection({
           />
 
           {selectedIds.size > 0 && (
-            <div className="flex flex-wrap items-center gap-2 rounded-lg bg-yellow-50 px-3 py-2">
-              <span className="text-xs font-semibold text-yellow-800">{selectedIds.size}명 선택됨</span>
-              <select
-                value={bulkMoveGroupId}
-                onChange={(e) => setBulkMoveGroupId(e.target.value)}
-                className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-700 outline-none"
-              >
-                <option value={UNSELECTED} disabled>
-                  이동할 그룹 선택...
-                </option>
-                <option value="">미분류로 이동</option>
-                {groups.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    &quot;{g.name}&quot;(으)로 이동
+            <div className="space-y-2 rounded-lg bg-yellow-50 px-3 py-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-yellow-800">{selectedIds.size}명 선택됨</span>
+                <select
+                  value={bulkMoveGroupId}
+                  onChange={(e) => setBulkMoveGroupId(e.target.value)}
+                  className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-700 outline-none"
+                >
+                  <option value={UNSELECTED} disabled>
+                    이동할 그룹 선택...
                   </option>
-                ))}
-              </select>
-              <Button type="button" onClick={handleBulkMove} disabled={isBulkMoving || bulkMoveGroupId === UNSELECTED}>
-                {isBulkMoving ? "이동 중..." : "이동"}
-              </Button>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedIds(new Set());
-                  setBulkMoveGroupId(UNSELECTED);
-                  setShowSendPanel(false);
-                  setShowAlimtalkPanel(false);
-                  setShowEmailPanel(false);
-                }}
-                className="text-xs font-semibold text-neutral-500 hover:underline"
-              >
-                선택 해제
-              </button>
-              <Button
-                type="button"
-                variant="info"
-                onClick={() => {
-                  setShowSendPanel((v) => !v);
-                  setShowAlimtalkPanel(false);
-                  setShowEmailPanel(false);
-                }}
-                className="text-xs"
-              >
-                {showSendPanel ? "발송 닫기" : "📤 자유 메시지 발송"}
-              </Button>
-              {hasAlimtalkTemplate ? (
+                  <option value="">미분류로 이동</option>
+                  {groups.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      &quot;{g.name}&quot;(으)로 이동
+                    </option>
+                  ))}
+                </select>
+                <Button type="button" onClick={handleBulkMove} disabled={isBulkMoving || bulkMoveGroupId === UNSELECTED}>
+                  {isBulkMoving ? "이동 중..." : "이동"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedIds(new Set());
+                    setBulkMoveGroupId(UNSELECTED);
+                    setShowSendPanel(false);
+                    setShowAlimtalkPanel(false);
+                    setShowEmailPanel(false);
+                  }}
+                  className="text-xs font-semibold text-neutral-500 hover:underline"
+                >
+                  선택 해제
+                </button>
+              </div>
+              {/* 발송 버튼 3개는 그룹이동 컨트롤과 같은 줄에 두면 화면 폭이 좁을 때 "자유
+                  메시지 발송" 버튼만 먼저 줄바꿈돼 다른 버튼들과 멀리 떨어져 보인다 — 버튼끼리
+                  항상 붙어 보이도록 별도 줄로 분리한다(사용자 피드백, 2026-09-10). */}
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="info"
                   onClick={() => {
-                    setShowAlimtalkPanel((v) => !v);
-                    setShowSendPanel(false);
+                    setShowSendPanel((v) => !v);
+                    setShowAlimtalkPanel(false);
                     setShowEmailPanel(false);
                   }}
                   className="text-xs"
                 >
-                  {showAlimtalkPanel ? "발송 닫기" : "📨 알림톡으로 리포트 발송"}
+                  {showSendPanel ? "발송 닫기" : "📤 자유 메시지 발송"}
                 </Button>
-              ) : (
-                <span className="text-xs text-neutral-400">
-                  (알림톡 템플릿을 등록하면 채널 친구가 아니어도 리포트를 보낼 수 있어요)
-                </span>
-              )}
-              {hasSmtpAccount ? (
-                <Button
-                  type="button"
-                  variant="info"
-                  onClick={() => {
-                    setShowEmailPanel((v) => !v);
-                    setShowSendPanel(false);
-                    setShowAlimtalkPanel(false);
-                  }}
-                  className="text-xs"
-                >
-                  {showEmailPanel ? "발송 닫기" : "📧 이메일로 리포트 발송"}
-                </Button>
-              ) : (
-                <span className="text-xs text-neutral-400">
-                  (설정 페이지에 SMTP 계정을 등록하면 이메일 전용 수신자에게도 리포트를 보낼 수 있어요)
-                </span>
-              )}
+                {hasSmtpAccount ? (
+                  <Button
+                    type="button"
+                    variant="info"
+                    onClick={() => {
+                      setShowEmailPanel((v) => !v);
+                      setShowSendPanel(false);
+                      setShowAlimtalkPanel(false);
+                    }}
+                    className="text-xs"
+                  >
+                    {showEmailPanel ? "발송 닫기" : "📧 이메일로 리포트 발송"}
+                  </Button>
+                ) : (
+                  <span className="text-xs text-neutral-400">
+                    (설정 페이지에 SMTP 계정을 등록하면 이메일 전용 수신자에게도 리포트를 보낼 수 있어요)
+                  </span>
+                )}
+                {hasAlimtalkTemplate ? (
+                  <Button
+                    type="button"
+                    variant="info"
+                    onClick={() => {
+                      setShowAlimtalkPanel((v) => !v);
+                      setShowSendPanel(false);
+                      setShowEmailPanel(false);
+                    }}
+                    className="text-xs"
+                  >
+                    {showAlimtalkPanel ? "발송 닫기" : "📨 알림톡으로 리포트 발송"}
+                  </Button>
+                ) : (
+                  <span className="text-xs text-neutral-400">
+                    (알림톡 템플릿을 등록하면 채널 친구가 아니어도 리포트를 보낼 수 있어요)
+                  </span>
+                )}
+              </div>
             </div>
           )}
 

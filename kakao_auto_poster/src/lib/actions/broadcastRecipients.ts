@@ -87,12 +87,20 @@ export async function addBulkBroadcastRecipientsAction(
   const existingEmails = new Set((existing ?? []).map((r) => r.email).filter((e): e is string => Boolean(e)));
 
   const results: BulkAddResultRow[] = [];
-  const toInsert: { user_id: string; phone: string | null; label: string | null; email: string | null; group_id: string | null }[] = [];
+  const toInsert: {
+    user_id: string;
+    phone: string | null;
+    label: string | null;
+    email: string | null;
+    group_id: string | null;
+    excluded: boolean;
+  }[] = [];
   const seenPhonesInBatch = new Set<string>();
   const seenEmailsInBatch = new Set<string>();
   // 전화번호나 이메일 중 하나라도 겹치면 조용히 건너뛰지 않고 "중복등록" 그룹으로 몰아서
-  // 등록한다 — 회원이 직접 보고 삭제 여부를 판단할 수 있게 한다(사용자 지시, 2026-09-10).
-  // 그룹은 실제로 중복이 하나라도 나올 때만 생성한다(불필요한 빈 그룹 방지).
+  // 등록하고, 실수로 같은 사람에게 두 번 발송되는 일이 없도록 자동으로 발송제외 처리한다
+  // — 회원이 직접 확인 후 제외 해제하거나 삭제할지 판단할 수 있게 한다(사용자 지시,
+  // 2026-09-10). 그룹은 실제로 중복이 하나라도 나올 때만 생성한다(불필요한 빈 그룹 방지).
   let duplicateGroupId: string | null = null;
   async function getDuplicateGroupId(): Promise<string> {
     if (!duplicateGroupId) duplicateGroupId = await findOrCreateDuplicateGroupId(supabase, user.id);
@@ -124,12 +132,12 @@ export async function addBulkBroadcastRecipientsAction(
     if (email) seenEmailsInBatch.add(email);
 
     const rowGroupId = isDuplicate ? await getDuplicateGroupId() : groupId;
-    toInsert.push({ user_id: user.id, phone, label, email, group_id: rowGroupId });
+    toInsert.push({ user_id: user.id, phone, label, email, group_id: rowGroupId, excluded: isDuplicate });
     results.push({
       line,
       ok: true,
       duplicate: isDuplicate,
-      error: isDuplicate ? `전화번호 또는 이메일이 이미 등록돼 있어 "${DUPLICATE_GROUP_NAME}" 그룹으로 분류됨` : undefined,
+      error: isDuplicate ? `전화번호 또는 이메일이 이미 등록돼 있어 "${DUPLICATE_GROUP_NAME}" 그룹으로 분류 + 자동 발송제외 처리됨` : undefined,
     });
   }
 
@@ -154,8 +162,9 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
 /**
  * 엑셀(xlsx) 파일을 업로드해서 수신자를 대량 등록한다 — stepmail의
  * lib/actions/leads.ts의 importLeadsAction과 동일한 패턴. 전화번호나 이메일 중 하나라도
- * 기존 수신자와 겹치면 건너뛰지 않고 "중복등록" 그룹으로 몰아서 등록한다 — 회원이 직접
- * 보고 삭제 여부를 판단할 수 있게 한다(사용자 지시, 2026-09-10).
+ * 기존 수신자와 겹치면 건너뛰지 않고 "중복등록" 그룹으로 몰아서 등록하고 자동으로
+ * 발송제외 처리한다 — 회원이 직접 보고 제외 해제하거나 삭제할지 판단할 수 있게 한다
+ * (사용자 지시, 2026-09-10).
  */
 export async function importBroadcastRecipientsAction(formData: FormData): Promise<ImportBroadcastRecipientsState> {
   const user = await requireProgramAccess();
@@ -188,7 +197,14 @@ export async function importBroadcastRecipientsAction(formData: FormData): Promi
 
   let duplicateGroupId: string | null = null;
   let duplicateCount = 0;
-  const toInsert: { user_id: string; phone: string | null; label: string | null; email: string | null; group_id: string | null }[] = [];
+  const toInsert: {
+    user_id: string;
+    phone: string | null;
+    label: string | null;
+    email: string | null;
+    group_id: string | null;
+    excluded: boolean;
+  }[] = [];
 
   for (const row of parsed) {
     const isDuplicate = (row.phone !== null && existingPhones.has(row.phone)) || (row.email !== null && existingEmails.has(row.email));
@@ -198,7 +214,7 @@ export async function importBroadcastRecipientsAction(formData: FormData): Promi
       if (!duplicateGroupId) duplicateGroupId = await findOrCreateDuplicateGroupId(supabase, user.id);
       rowGroupId = duplicateGroupId;
     }
-    toInsert.push({ user_id: user.id, phone: row.phone, label: row.label, email: row.email, group_id: rowGroupId });
+    toInsert.push({ user_id: user.id, phone: row.phone, label: row.label, email: row.email, group_id: rowGroupId, excluded: isDuplicate });
   }
 
   if (toInsert.length > 0) {

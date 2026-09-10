@@ -55,11 +55,11 @@ export default async function RecipientsPage() {
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-2 text-2xl font-semibold text-neutral-900">카카오톡 수신자 목록</h1>
       <p className="mb-6 text-sm text-neutral-600">
-        여기 등록한 사람들에게 리포트를 함께 발송합니다. 발송 계정은{" "}
+        여기에 등록된 사람들에게 리포트를 함께 발송되며, 발송 계정은{" "}
         <a href="/settings" className="font-medium text-yellow-700 hover:underline">
           설정 페이지
         </a>
-        의 카카오톡 채널(SOLAPI) 연동에서 관리합니다.
+        의 카카오톡 채널(SOLAPI) 연동에서 관리됩니다.
       </p>
 
       <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
