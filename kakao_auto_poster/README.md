@@ -70,6 +70,9 @@ Phase별 상세 내용과 실계정 검증 현황은 이 폴더의 [`AGENTS.md`]
   `kakao_topics`를 참조(on delete cascade). `user_id` + RLS owner-only.
 - `kakao_broadcast_recipients.email`(선택): 카카오톡 발송이 실패했을 때만 쓰는 이메일 대체
   발송용 주소(`0013_recipient_email_fallback.sql`) — 항상 이중 발송하지 않는다.
+- `kakao_broadcast_recipients.phone`은 nullable — 전화번호 없이 이메일만으로도 수신자 등록이
+  가능하다(`0014_email_only_recipients.sql`, "전화번호 또는 이메일 중 하나는 필수" check
+  제약). 이 경우 카카오 없이 이메일로만 정보성 콘텐츠를 받는다.
 - `user_api_keys`/`user_solapi_accounts`/`user_smtp_accounts`는 AIMaster 플랫폼 공용 테이블을
   그대로 재사용한다 — 이 프로젝트에서 새로 만들지 않는다.
 

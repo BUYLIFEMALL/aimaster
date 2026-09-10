@@ -109,27 +109,35 @@ async function broadcastReportToRecipients(
   if (!recipients || recipients.length === 0) return;
 
   const failures: string[] = [];
-  for (const recipient of recipients as { phone: string; email: string | null }[]) {
-    try {
-      if (solapiAccount.alimtalk_template_id) {
-        await sendAlimtalk(solapiAccount, recipient.phone, {
-          templateId: solapiAccount.alimtalk_template_id,
-          variables: { "#{title}": report.title, "#{url}": report.url },
-        });
-      } else {
-        await sendFriendtalk(solapiAccount, recipient.phone, report.text);
+  for (const recipient of recipients as { phone: string | null; email: string | null }[]) {
+    // 전화번호가 없는(이메일 전용) 수신자는 카카오를 아예 시도하지 않고 바로 이메일로
+    // 보낸다 — 전화번호가 있는 사람은 카카오 발송이 실패했을 때만 이메일로 대체한다
+    // (사용자 지시, 2026-09-10).
+    let kakaoError: string | null = null;
+    if (recipient.phone) {
+      try {
+        if (solapiAccount.alimtalk_template_id) {
+          await sendAlimtalk(solapiAccount, recipient.phone, {
+            templateId: solapiAccount.alimtalk_template_id,
+            variables: { "#{title}": report.title, "#{url}": report.url },
+          });
+        } else {
+          await sendFriendtalk(solapiAccount, recipient.phone, report.text);
+        }
+        continue; // 카카오 발송 성공
+      } catch (err) {
+        kakaoError = err instanceof Error ? err.message : "발송 실패";
       }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "발송 실패";
-      // 카카오 발송이 실패한 사람만 이메일이 등록돼 있으면 대체 발송을 시도한다 —
-      // 성공하면 그 사람은 실패 집계에서 빠진다(사용자 지시: 실패 시에만 보완).
-      if (recipient.email) {
-        const { subject, html } = buildReportNotificationEmail({ id: report.id, title: report.title, summary: report.summary });
-        const fallback = await sendEmailFallback(supabase, userId, recipient.email, subject, html);
-        if (fallback.ok) continue;
-      }
-      failures.push(`${recipient.phone.slice(-4)}: ${message}`);
+    } else {
+      kakaoError = "전화번호 미등록(이메일 전용 수신자)";
     }
+
+    if (recipient.email) {
+      const { subject, html } = buildReportNotificationEmail({ id: report.id, title: report.title, summary: report.summary });
+      const fallback = await sendEmailFallback(supabase, userId, recipient.email, subject, html);
+      if (fallback.ok) continue;
+    }
+    failures.push(`${recipient.phone ? recipient.phone.slice(-4) : (recipient.email ?? "대상불명")}: ${kakaoError}`);
   }
 
   const succeeded = recipients.length - failures.length;

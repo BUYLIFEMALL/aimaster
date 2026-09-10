@@ -2,7 +2,7 @@ import "server-only";
 import * as XLSX from "xlsx";
 
 export interface ParsedRecipientRow {
-  phone: string;
+  phone: string | null;
   label: string | null;
   email: string | null;
 }
@@ -54,14 +54,21 @@ export function parseBroadcastRecipientsWorkbook(buffer: Buffer): ParsedRecipien
 
   const result: ParsedRecipientRow[] = [];
   const seenPhones = new Set<string>();
+  const seenEmails = new Set<string>();
 
   for (const row of rows) {
     const phone = normalizePhone(cellToText(row["전화번호"]));
-    if (!phone) continue; // 형식이 안 맞는 행은 건너뜀
-    if (seenPhones.has(phone)) continue; // 같은 파일 안 중복 방지
-    seenPhones.add(phone);
+    const email = normalizeEmail(cellToText(row["이메일"]));
+    if (!phone && !email) continue; // 전화번호/이메일 둘 다 없으면 건너뜀(이메일 전용 등록 지원, 2026-09-10)
+    if (phone) {
+      if (seenPhones.has(phone)) continue; // 같은 파일 안 중복 방지
+      seenPhones.add(phone);
+    } else if (email) {
+      if (seenEmails.has(email)) continue; // 전화번호가 없는 행은 이메일 기준으로 중복 방지
+      seenEmails.add(email);
+    }
 
-    result.push({ phone, label: cellToText(row["이름"]), email: normalizeEmail(cellToText(row["이메일"])) });
+    result.push({ phone, label: cellToText(row["이름"]), email });
   }
 
   return result;

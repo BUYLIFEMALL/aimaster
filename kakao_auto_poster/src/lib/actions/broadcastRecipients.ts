@@ -12,27 +12,32 @@ export interface AddBroadcastRecipientState {
 /**
  * 리포트를 본인뿐 아니라 함께 받아볼 사람(카카오톡 친구/구독자)에게도 보낼 수 있도록
  * 전화번호를 등록한다. 실제 발송은 SOLAPI 브랜드메시지(lib/kakaoSend.ts)를 거치므로,
- * 카카오톡 채널 친구가 아니어도 전화번호만 맞으면 도달한다.
+ * 카카오톡 채널 친구가 아니어도 전화번호만 맞으면 도달한다. 전화번호 없이 이메일만
+ * 등록하는 것도 허용한다 — 카카오 채널 없이 이메일로만 정보성 콘텐츠를 받고 싶은
+ * 사람을 위한 경로다(사용자 지시, 2026-09-10). 단, 둘 다 없으면 등록할 수 없다.
  */
 export async function addBroadcastRecipientAction(
   _prevState: AddBroadcastRecipientState,
   formData: FormData,
 ): Promise<AddBroadcastRecipientState> {
   const user = await requireProgramAccess();
-  const phone = normalizePhone(String(formData.get("phone") ?? ""));
+  const phoneRaw = String(formData.get("phone") ?? "").trim();
+  const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
   const label = String(formData.get("label") ?? "").trim();
   const emailRaw = String(formData.get("email") ?? "").trim();
+  const email = normalizeEmail(emailRaw);
   const groupId = String(formData.get("groupId") ?? "").trim() || null;
 
-  if (!phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
-  if (emailRaw && !normalizeEmail(emailRaw)) return { error: "이메일 형식이 올바르지 않습니다." };
+  if (phoneRaw && !phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
+  if (emailRaw && !email) return { error: "이메일 형식이 올바르지 않습니다." };
+  if (!phone && !email) return { error: "전화번호 또는 이메일 중 하나는 입력해주세요." };
 
   const supabase = await createClient();
   const { error } = await supabase.from("kakao_broadcast_recipients").insert({
     user_id: user.id,
     phone,
     label: label || null,
-    email: normalizeEmail(emailRaw),
+    email,
     group_id: groupId,
   });
 
@@ -71,34 +76,49 @@ export async function addBulkBroadcastRecipientsAction(
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
 
-  if (lines.length === 0) return { error: "등록할 전화번호를 한 줄에 한 명씩 입력해주세요." };
+  if (lines.length === 0) return { error: "등록할 전화번호 또는 이메일을 한 줄에 한 명씩 입력해주세요." };
   if (lines.length > 500) return { error: "한 번에 최대 500명까지만 등록할 수 있습니다." };
 
   const supabase = await createClient();
-  const { data: existing } = await supabase.from("kakao_broadcast_recipients").select("phone").eq("user_id", user.id);
-  const existingPhones = new Set((existing ?? []).map((r) => r.phone));
+  const { data: existing } = await supabase.from("kakao_broadcast_recipients").select("phone, email").eq("user_id", user.id);
+  const existingPhones = new Set((existing ?? []).map((r) => r.phone).filter((p): p is string => Boolean(p)));
+  const existingEmails = new Set((existing ?? []).map((r) => r.email).filter((e): e is string => Boolean(e)));
 
   const results: BulkAddResultRow[] = [];
-  const toInsert: { user_id: string; phone: string; label: string | null; email: string | null; group_id: string | null }[] = [];
-  const seenInBatch = new Set<string>();
+  const toInsert: { user_id: string; phone: string | null; label: string | null; email: string | null; group_id: string | null }[] = [];
+  const seenPhonesInBatch = new Set<string>();
+  const seenEmailsInBatch = new Set<string>();
 
   for (const line of lines) {
     const parts = line.split(",").map((p) => p.trim());
     // 전화번호만(1열), "이름,전화번호"(2열), "이름,전화번호,이메일"(3열) 모두 지원한다.
+    // 전화번호 자리를 비워두면("친구1,,friend@example.com") 이메일 전용 등록도 가능하다.
     const label = parts.length >= 2 ? parts[0] || null : null;
     const phoneRaw = parts.length >= 2 ? parts[1] : parts[0];
     const email = parts.length >= 3 ? normalizeEmail(parts[2]) : null;
-    const phone = normalizePhone(phoneRaw ?? "");
+    const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
 
-    if (!phone) {
+    if (phoneRaw && !phone) {
       results.push({ line, ok: false, error: "번호 형식 오류" });
       continue;
     }
-    if (existingPhones.has(phone) || seenInBatch.has(phone)) {
-      results.push({ line, ok: false, error: "이미 등록됨" });
+    if (!phone && !email) {
+      results.push({ line, ok: false, error: "전화번호 또는 이메일이 필요합니다" });
       continue;
     }
-    seenInBatch.add(phone);
+    if (phone) {
+      if (existingPhones.has(phone) || seenPhonesInBatch.has(phone)) {
+        results.push({ line, ok: false, error: "이미 등록됨" });
+        continue;
+      }
+      seenPhonesInBatch.add(phone);
+    } else if (email) {
+      if (existingEmails.has(email) || seenEmailsInBatch.has(email)) {
+        results.push({ line, ok: false, error: "이미 등록됨" });
+        continue;
+      }
+      seenEmailsInBatch.add(email);
+    }
     toInsert.push({ user_id: user.id, phone, label, email, group_id: groupId });
     results.push({ line, ok: true });
   }
@@ -146,15 +166,16 @@ export async function importBroadcastRecipientsAction(formData: FormData): Promi
   }
 
   if (parsed.length === 0) {
-    return { error: "가져올 수신자가 없습니다 (전화번호 컬럼을 확인해주세요)." };
+    return { error: "가져올 수신자가 없습니다 (전화번호 또는 이메일 컬럼을 확인해주세요)." };
   }
 
   const supabase = await createClient();
-  const { data: existing } = await supabase.from("kakao_broadcast_recipients").select("phone").eq("user_id", user.id);
-  const existingPhones = new Set((existing ?? []).map((r) => r.phone));
+  const { data: existing } = await supabase.from("kakao_broadcast_recipients").select("phone, email").eq("user_id", user.id);
+  const existingPhones = new Set((existing ?? []).map((r) => r.phone).filter((p): p is string => Boolean(p)));
+  const existingEmails = new Set((existing ?? []).map((r) => r.email).filter((e): e is string => Boolean(e)));
 
   const toInsert = parsed
-    .filter((row) => !existingPhones.has(row.phone))
+    .filter((row) => (row.phone ? !existingPhones.has(row.phone) : !(row.email && existingEmails.has(row.email))))
     .map((row) => ({ user_id: user.id, phone: row.phone, label: row.label, email: row.email, group_id: groupId }));
   const skippedCount = parsed.length - toInsert.length;
 
@@ -180,21 +201,24 @@ export interface UpdateBroadcastRecipientState {
   error?: string;
 }
 
-/** 삭제 버튼 옆 "수정"으로 이름/전화번호/이메일을 고친다. */
+/** 삭제 버튼 옆 "수정"으로 이름/전화번호/이메일을 고친다. 전화번호를 비워도 이메일이 있으면 저장된다. */
 export async function updateBroadcastRecipientAction(
   id: string,
   values: { label: string; phone: string; email: string },
 ): Promise<UpdateBroadcastRecipientState> {
   const user = await requireProgramAccess();
-  const phone = normalizePhone(values.phone);
-  if (!phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
+  const phoneTrimmed = values.phone.trim();
+  const phone = phoneTrimmed ? normalizePhone(phoneTrimmed) : null;
+  if (phoneTrimmed && !phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
   const emailTrimmed = values.email.trim();
-  if (emailTrimmed && !normalizeEmail(emailTrimmed)) return { error: "이메일 형식이 올바르지 않습니다." };
+  const email = normalizeEmail(emailTrimmed);
+  if (emailTrimmed && !email) return { error: "이메일 형식이 올바르지 않습니다." };
+  if (!phone && !email) return { error: "전화번호 또는 이메일 중 하나는 입력해주세요." };
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("kakao_broadcast_recipients")
-    .update({ phone, label: values.label.trim() || null, email: normalizeEmail(emailTrimmed) })
+    .update({ phone, label: values.label.trim() || null, email })
     .eq("id", id)
     .eq("user_id", user.id);
 

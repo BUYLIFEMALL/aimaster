@@ -121,7 +121,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          phone: string;
+          phone: string | null;
           label: string | null;
           email: string | null;
           group_id: string | null;
@@ -131,7 +131,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          phone: string;
+          phone?: string | null;
           label?: string | null;
           email?: string | null;
           group_id?: string | null;
@@ -141,7 +141,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
-          phone?: string;
+          phone?: string | null;
           label?: string | null;
           email?: string | null;
           group_id?: string | null;
@@ -177,7 +177,8 @@ export interface Database {
           user_id: string;
           recipient_id: string | null;
           recipient_label: string | null;
-          recipient_phone: string;
+          recipient_phone: string | null;
+          recipient_email: string | null;
           message: string;
           ok: boolean;
           error: string | null;
@@ -190,7 +191,8 @@ export interface Database {
           user_id: string;
           recipient_id?: string | null;
           recipient_label?: string | null;
-          recipient_phone: string;
+          recipient_phone?: string | null;
+          recipient_email?: string | null;
           message: string;
           ok: boolean;
           error?: string | null;
@@ -203,7 +205,8 @@ export interface Database {
           user_id?: string;
           recipient_id?: string | null;
           recipient_label?: string | null;
-          recipient_phone?: string;
+          recipient_phone?: string | null;
+          recipient_email?: string | null;
           message?: string;
           ok?: boolean;
           error?: string | null;

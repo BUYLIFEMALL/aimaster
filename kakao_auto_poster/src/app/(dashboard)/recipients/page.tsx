@@ -16,30 +16,40 @@ export default async function RecipientsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: broadcastRecipients }, { data: solapiAccount }, { data: groups }, { data: recentReports }] = await Promise.all([
-    supabase
-      .from("kakao_broadcast_recipients")
-      .select("id, phone, label, email, group_id, excluded")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("user_solapi_accounts")
-      .select("kakao_pf_id, channel_friend_url, alimtalk_template_id")
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("kakao_broadcast_groups")
-      .select("id, name")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true }),
-    // "알림톡으로 리포트 발송" 패널에서 고를 최근 리포트 목록(최신순 20건).
-    supabase
-      .from("kakao_reports")
-      .select("id, title, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(20),
-  ]);
+  const [{ data: broadcastRecipients }, { data: solapiAccount }, { data: groups }, { data: recentReports }, { data: smtpAccount }] =
+    await Promise.all([
+      supabase
+        .from("kakao_broadcast_recipients")
+        .select("id, phone, label, email, group_id, excluded")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("user_solapi_accounts")
+        .select("kakao_pf_id, channel_friend_url, alimtalk_template_id")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("kakao_broadcast_groups")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true }),
+      // "알림톡으로 리포트 발송"/"이메일로 리포트 발송" 패널에서 고를 최근 리포트 목록(최신순 20건).
+      supabase
+        .from("kakao_reports")
+        .select("id, title, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20),
+      // "이메일로 리포트 발송" 버튼 노출 여부 — 이메일 전용 수신자에게 보내려면 회원 본인의
+      // SMTP 계정이 등록돼 있어야 한다(BYOK, lib/emailFallback.ts와 동일한 원칙).
+      supabase
+        .from("user_smtp_accounts")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -59,6 +69,7 @@ export default async function RecipientsPage() {
           hasSolapiChannel={Boolean(solapiAccount?.kakao_pf_id)}
           channelFriendUrl={solapiAccount?.channel_friend_url ?? null}
           hasAlimtalkTemplate={Boolean(solapiAccount?.alimtalk_template_id)}
+          hasSmtpAccount={Boolean(smtpAccount)}
           recentReports={recentReports ?? []}
         />
       </div>

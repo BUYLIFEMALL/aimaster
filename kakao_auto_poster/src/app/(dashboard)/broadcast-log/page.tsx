@@ -4,10 +4,17 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-function maskPhone(phone: string): string {
+function maskPhone(phone: string | null): string | null {
+  if (!phone) return null;
   if (phone.length < 8) return phone;
   return `${phone.slice(0, 3)}-****-${phone.slice(-4)}`;
 }
+
+const CHANNEL_LABEL: Record<string, string> = {
+  brand: "브랜드메시지",
+  alimtalk: "알림톡",
+  email: "이메일",
+};
 
 /**
  * "📤 메시지 발송"(lib/actions/broadcastSend.ts)으로 보낸 메시지의 결과를 조회하는
@@ -21,7 +28,7 @@ export default async function BroadcastLogPage() {
 
   const { data: logs } = await supabase
     .from("kakao_broadcast_send_log")
-    .select("id, recipient_label, recipient_phone, message, ok, error, created_at")
+    .select("id, recipient_label, recipient_phone, recipient_email, message, ok, error, channel, fallback_email, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(200);
@@ -44,15 +51,21 @@ export default async function BroadcastLogPage() {
             <div className="mb-1 flex items-center justify-between gap-2">
               <p className="text-sm font-bold text-neutral-900">
                 {log.recipient_label ? `${log.recipient_label} ` : ""}
-                <span className="font-normal text-neutral-500">{maskPhone(log.recipient_phone)}</span>
+                <span className="font-normal text-neutral-500">{maskPhone(log.recipient_phone) ?? log.recipient_email ?? "-"}</span>
               </p>
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                  log.ok ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                }`}
-              >
-                {log.ok ? "성공" : "실패"}
-              </span>
+              <div className="flex shrink-0 items-center gap-1">
+                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-600">
+                  {CHANNEL_LABEL[log.channel] ?? log.channel}
+                  {log.fallback_email ? "→이메일 대체" : ""}
+                </span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                    log.ok ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {log.ok ? "성공" : "실패"}
+                </span>
+              </div>
             </div>
             <p className="whitespace-pre-line text-sm text-neutral-700">{log.message}</p>
             {!log.ok && log.error && <p className="mt-1 text-xs text-red-600">사유: {log.error}</p>}

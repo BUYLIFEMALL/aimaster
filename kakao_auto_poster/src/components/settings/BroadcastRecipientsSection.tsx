@@ -17,11 +17,16 @@ import {
   type BulkAddBroadcastRecipientsState,
 } from "@/lib/actions/broadcastRecipients";
 import { createBroadcastGroupAction, deleteBroadcastGroupAction, type CreateGroupState } from "@/lib/actions/broadcastGroups";
-import { sendCustomBroadcastAction, sendReportAlimtalkToRecipientsAction, type BroadcastSendResultRow } from "@/lib/actions/broadcastSend";
+import {
+  sendCustomBroadcastAction,
+  sendReportAlimtalkToRecipientsAction,
+  sendReportEmailToRecipientsAction,
+  type BroadcastSendResultRow,
+} from "@/lib/actions/broadcastSend";
 
 export interface BroadcastRecipientData {
   id: string;
-  phone: string;
+  phone: string | null;
   label: string | null;
   email: string | null;
   group_id: string | null;
@@ -49,12 +54,16 @@ const UNGROUPED = "__ungrouped__";
 // "이동이 안 된다"고 착각하는 버그가 있었다(2026-09-09).
 const UNSELECTED = "__unselected__";
 const EXCLUDED_FILTER = "__excluded__";
+// 전화번호 없이 이메일만 등록한 수신자를 따로 볼 수 있는 필터 — 이 사람들은 카카오톡 채널
+// 없이 이메일로만 정보성 콘텐츠를 받는다(사용자 지시, 2026-09-10).
+const EMAIL_ONLY_FILTER = "__email_only__";
 // stepmail의 리드 목록(app/(dashboard)/leads/page.tsx)과 동일한 페이지당 표시 수 —
 // 수백 명 단위에서 스크롤 박스 대신 하단 페이지 번호로 넘겨보는 게 참고 화면과 더 가깝다
 // (사용자 피드백, 2026-09-10).
 const RECIPIENTS_PAGE_SIZE = 50;
 
-function maskPhone(phone: string): string {
+function maskPhone(phone: string | null): string {
+  if (!phone) return "-";
   if (phone.length < 8) return phone;
   return `${phone.slice(0, 3)}-****-${phone.slice(-4)}`;
 }
@@ -72,6 +81,7 @@ export function BroadcastRecipientsSection({
   hasSolapiChannel,
   channelFriendUrl,
   hasAlimtalkTemplate,
+  hasSmtpAccount,
   recentReports,
 }: {
   recipients: BroadcastRecipientData[];
@@ -79,6 +89,7 @@ export function BroadcastRecipientsSection({
   hasSolapiChannel: boolean;
   channelFriendUrl: string | null;
   hasAlimtalkTemplate: boolean;
+  hasSmtpAccount: boolean;
   recentReports: RecentReportData[];
 }) {
   const router = useRouter();
@@ -119,10 +130,18 @@ export function BroadcastRecipientsSection({
   const [isSendingAlimtalk, setIsSendingAlimtalk] = useState(false);
   const [alimtalkError, setAlimtalkError] = useState<string | null>(null);
   const [alimtalkResults, setAlimtalkResults] = useState<BroadcastSendResultRow[] | null>(null);
+  // 이메일로 리포트 직접 발송 — 전화번호 없이 이메일만 등록한 수신자를 위한 세 번째
+  // 발송 경로다(사용자 지시, 2026-09-10). 알림톡 패널과 동일한 구조.
+  const [showEmailPanel, setShowEmailPanel] = useState(false);
+  const [selectedEmailReportId, setSelectedEmailReportId] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailResults, setEmailResults] = useState<BroadcastSendResultRow[] | null>(null);
 
   const filteredRecipients = recipients.filter((r) => {
     if (activeFilter === "all") return true;
     if (activeFilter === EXCLUDED_FILTER) return r.excluded;
+    if (activeFilter === EMAIL_ONLY_FILTER) return !r.phone && Boolean(r.email);
     if (activeFilter === UNGROUPED) return !r.group_id;
     return r.group_id === activeFilter;
   });
@@ -131,10 +150,14 @@ export function BroadcastRecipientsSection({
   const visibleRecipients = filteredRecipients.filter((r) => {
     if (!searchText) return true;
     const labelMatch = r.label?.toLowerCase().includes(searchText);
-    const phoneMatch = searchDigits.length > 0 && r.phone.includes(searchDigits);
-    return Boolean(labelMatch) || phoneMatch;
+    const phoneMatch = Boolean(r.phone) && searchDigits.length > 0 && r.phone!.includes(searchDigits);
+    const emailMatch = r.email?.toLowerCase().includes(searchText);
+    return Boolean(labelMatch) || phoneMatch || Boolean(emailMatch);
   });
-  const defaultGroupForNew = activeFilter !== "all" && activeFilter !== UNGROUPED && activeFilter !== EXCLUDED_FILTER ? activeFilter : "";
+  const defaultGroupForNew =
+    activeFilter !== "all" && activeFilter !== UNGROUPED && activeFilter !== EXCLUDED_FILTER && activeFilter !== EMAIL_ONLY_FILTER
+      ? activeFilter
+      : "";
   // 발송제외 처리된 사람은 체크박스로 선택해서 보내는 대상에 포함시키지 않는다.
   const selectableVisibleRecipients = visibleRecipients.filter((r) => !r.excluded);
   const allVisibleSelected =
@@ -214,6 +237,29 @@ export function BroadcastRecipientsSection({
     }
   }
 
+  async function handleSendEmail() {
+    if (selectedIds.size === 0) return;
+    if (!selectedEmailReportId) {
+      setEmailError("보낼 리포트를 선택해주세요.");
+      return;
+    }
+    if (!confirm(`선택한 수신자 중 이메일이 등록된 사람에게 실제로 이메일을 발송합니다. 계속할까요?`)) return;
+
+    setEmailError(null);
+    setEmailResults(null);
+    setIsSendingEmail(true);
+    try {
+      const res = await sendReportEmailToRecipientsAction(Array.from(selectedIds), selectedEmailReportId);
+      if (res.error) {
+        setEmailError(res.error);
+      } else {
+        setEmailResults(res.results ?? []);
+      }
+    } finally {
+      setIsSendingEmail(false);
+    }
+  }
+
   async function handleBulkMove() {
     if (selectedIds.size === 0 || bulkMoveGroupId === UNSELECTED) return;
     setIsBulkMoving(true);
@@ -278,7 +324,7 @@ export function BroadcastRecipientsSection({
   function startEdit(recipient: BroadcastRecipientData) {
     setEditingId(recipient.id);
     setEditLabel(recipient.label ?? "");
-    setEditPhone(recipient.phone);
+    setEditPhone(recipient.phone ?? "");
     setEditEmail(recipient.email ?? "");
     setEditError(null);
   }
@@ -359,12 +405,13 @@ export function BroadcastRecipientsSection({
           ? "알림톡 템플릿이 등록돼 있어 채널 친구가 아니어도 도달합니다."
           : "단, 브랜드메시지는 채널을 친구 추가한 사람에게만 도달합니다 — 아직 친구 추가하지 않았다면 먼저 추가하도록 안내해주세요."}
         {" "}이메일을 함께 등록해두면, 카카오톡 발송이 실패했을 때만(항상 이중 발송하지 않음)
-        그 이메일로 대체 발송합니다.
+        그 이메일로 대체 발송합니다. 전화번호 없이 이메일만 등록하는 것도 가능합니다 — 이
+        경우 카카오톡 채널 없이 이메일로만 정보성 콘텐츠를 받습니다.
       </p>
       <p className="text-xs text-neutral-500">
-        📤 자유 메시지 발송(브랜드메시지 — 자유 문구, 채널 친구만 도달)과 📨 알림톡으로 리포트
-        발송(고정 템플릿 — 자유 문구 불가, 비친구도 도달)은 서로 다른 두 그룹이니 상황에 맞게
-        선택해서 쓰세요.
+        📤 자유 메시지 발송(브랜드메시지 — 자유 문구, 채널 친구만 도달) / 📨 알림톡으로 리포트
+        발송(고정 템플릿 — 자유 문구 불가, 비친구도 도달) / 📧 이메일로 리포트 발송(전화번호
+        없는 이메일 전용 수신자용)은 서로 다른 발송 경로이니 상황에 맞게 선택해서 쓰세요.
       </p>
       {!hasSolapiChannel && (
         <p className="rounded-lg bg-yellow-50 px-3 py-2 text-xs text-yellow-800">
@@ -420,6 +467,162 @@ export function BroadcastRecipientsSection({
         </div>
       )}
 
+      {/* 추가 폼은 버튼 바로 아래(목록 위)에 둔다 — 수백 명짜리 목록 맨 아래에 있으면
+          클릭해도 화면 안에 폼이 보이지 않아 "추가가 안 된다"고 오해하기 쉽다
+          (사용자 피드백, 2026-09-10). */}
+      {formMode === "single" && (
+        <form action={formAction} className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-neutral-700">이름/메모 (선택)</label>
+            <Input name="label" placeholder="예: 친구1, 고객A" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-neutral-700">전화번호 (이메일만 등록할 경우 생략 가능)</label>
+            <Input name="phone" placeholder="01012345678" autoComplete="off" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-neutral-700">
+              이메일 (전화번호 생략 시 필수 — 카카오 발송 실패 시 대체 발송, 또는 이메일 전용 발송용)
+            </label>
+            <Input name="email" type="email" placeholder="friend1@example.com" autoComplete="off" />
+          </div>
+          {groups.length > 0 && (
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-neutral-700">그룹 (선택)</label>
+              <select
+                name="groupId"
+                defaultValue={defaultGroupForNew}
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none"
+              >
+                <option value="">미분류</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {state.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{state.error}</p>}
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? "추가 중..." : "추가"}
+            </Button>
+            {recipients.length > 0 && (
+              <Button type="button" variant="ghost" onClick={() => setFormMode("none")} disabled={isSaving}>
+                취소
+              </Button>
+            )}
+          </div>
+        </form>
+      )}
+
+      {formMode === "bulk" && (
+        <div className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+          <form onSubmit={handleImportSubmit} className="space-y-2">
+            <label className="block text-xs font-semibold text-neutral-700">방법 1. 엑셀로 수신자 가져오기</label>
+            <p className="text-xs text-neutral-400">
+              컬럼: 이름 / 전화번호 / 이메일 — 전화번호와 이메일 중 하나는 있어야 합니다
+              (이메일만 있으면 이메일 전용 수신자로 등록됩니다). 이미 등록된 전화번호/이메일은
+              건너뜁니다.
+            </p>
+            {groups.length > 0 && (
+              <select
+                name="groupId"
+                defaultValue={defaultGroupForNew}
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-900 outline-none"
+              >
+                <option value="">가져온 수신자를 미분류로 등록</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    &quot;{g.name}&quot; 그룹으로 등록
+                  </option>
+                ))}
+              </select>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="file"
+                name="file"
+                accept=".xlsx,.xls,.csv"
+                required
+                className="min-w-[180px] flex-1 text-xs text-neutral-700 file:mr-2 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-neutral-700"
+              />
+              <a
+                href="/api/broadcast-recipients/template"
+                className="whitespace-nowrap rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
+              >
+                입력폼 다운로드
+              </a>
+              <Button type="submit" disabled={isImporting}>
+                {isImporting ? "가져오는 중..." : "가져오기"}
+              </Button>
+            </div>
+            <p className="text-xs text-neutral-400">
+              파일 1개당 최대 5MB까지 올릴 수 있어요. 그보다 많으면 파일을 나눠서 여러 번
+              올려주세요 — 누적 등록 건수에는 제한이 없습니다.
+            </p>
+            {importResult && <p className="text-xs text-green-600">{importResult}</p>}
+            {importError && <p className="text-xs text-red-600">{importError}</p>}
+          </form>
+
+          <div className="border-t border-neutral-200 pt-4">
+            <form action={bulkFormAction} className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-neutral-700">
+                  방법 2. 직접 텍스트로 붙여넣기 (한 줄에 한 명씩, &quot;이름,전화번호,이메일&quot;
+                  형식 — 이름/전화번호/이메일 각각 생략 가능하되 전화번호나 이메일 중 하나는
+                  필요. 이메일만 등록하려면 전화번호 자리를 비워두세요)
+                </label>
+                <textarea
+                  name="bulkPhones"
+                  required
+                  rows={8}
+                  placeholder={"친구1,01012345678,friend1@example.com\n고객A,01098765432\n이메일만,,email-only@example.com"}
+                  className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs text-neutral-900 outline-none focus:border-neutral-900"
+                />
+                <p className="mt-1 text-xs text-neutral-400">한 번에 최대 500명.</p>
+              </div>
+              {groups.length > 0 && (
+                <select
+                  name="groupId"
+                  defaultValue={defaultGroupForNew}
+                  className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-900 outline-none"
+                >
+                  <option value="">등록할 수신자를 미분류로 등록</option>
+                  {groups.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      &quot;{g.name}&quot; 그룹으로 등록
+                    </option>
+                  ))}
+                </select>
+              )}
+              {bulkState.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{bulkState.error}</p>}
+              <Button type="submit" disabled={isBulkSaving}>
+                {isBulkSaving ? "등록 중..." : "일괄 등록"}
+              </Button>
+              {bulkState.results && (
+                <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
+                  <p className="mb-1 font-semibold text-neutral-700">
+                    등록 결과: 성공 {bulkState.results.filter((r) => r.ok).length}건 / 실패{" "}
+                    {bulkState.results.filter((r) => !r.ok).length}건
+                  </p>
+                  {bulkState.results.map((r, i) => (
+                    <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
+                      {r.line} — {r.ok ? "등록됨" : r.error}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </form>
+          </div>
+
+          <Button type="button" variant="ghost" onClick={() => setFormMode("none")}>
+            닫기
+          </Button>
+        </div>
+      )}
+
       {recipients.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {[
@@ -430,6 +633,7 @@ export function BroadcastRecipientsSection({
                   ...groups.map((g) => ({ id: g.id, name: `${g.name} (${recipients.filter((r) => r.group_id === g.id).length})` })),
                 ]
               : []),
+            { id: EMAIL_ONLY_FILTER, name: `이메일 전용 (${recipients.filter((r) => !r.phone && r.email).length})` },
             { id: EXCLUDED_FILTER, name: `발송제외 (${recipients.filter((r) => r.excluded).length})` },
           ].map((tab) => (
             <button
@@ -488,6 +692,7 @@ export function BroadcastRecipientsSection({
                   setBulkMoveGroupId(UNSELECTED);
                   setShowSendPanel(false);
                   setShowAlimtalkPanel(false);
+                  setShowEmailPanel(false);
                 }}
                 className="text-xs font-semibold text-neutral-500 hover:underline"
               >
@@ -499,6 +704,7 @@ export function BroadcastRecipientsSection({
                 onClick={() => {
                   setShowSendPanel((v) => !v);
                   setShowAlimtalkPanel(false);
+                  setShowEmailPanel(false);
                 }}
                 className="text-xs"
               >
@@ -511,6 +717,7 @@ export function BroadcastRecipientsSection({
                   onClick={() => {
                     setShowAlimtalkPanel((v) => !v);
                     setShowSendPanel(false);
+                    setShowEmailPanel(false);
                   }}
                   className="text-xs"
                 >
@@ -519,6 +726,24 @@ export function BroadcastRecipientsSection({
               ) : (
                 <span className="text-xs text-neutral-400">
                   (알림톡 템플릿을 등록하면 채널 친구가 아니어도 리포트를 보낼 수 있어요)
+                </span>
+              )}
+              {hasSmtpAccount ? (
+                <Button
+                  type="button"
+                  variant="info"
+                  onClick={() => {
+                    setShowEmailPanel((v) => !v);
+                    setShowSendPanel(false);
+                    setShowAlimtalkPanel(false);
+                  }}
+                  className="text-xs"
+                >
+                  {showEmailPanel ? "발송 닫기" : "📧 이메일로 리포트 발송"}
+                </Button>
+              ) : (
+                <span className="text-xs text-neutral-400">
+                  (설정 페이지에 SMTP 계정을 등록하면 이메일 전용 수신자에게도 리포트를 보낼 수 있어요)
                 </span>
               )}
             </div>
@@ -596,6 +821,49 @@ export function BroadcastRecipientsSection({
                     <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
                       {r.label ?? "이름 없음"} ({maskPhone(r.phone)}) —{" "}
                       {r.ok ? (r.viaEmail ? "성공(이메일로 대체)" : "성공") : `실패: ${r.error}`}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedIds.size > 0 && showEmailPanel && (
+            <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+              <p className="text-xs text-neutral-500">
+                선택한 수신자 중 이메일이 등록된 사람에게만 이미 생성된 리포트를 이메일로 직접
+                보냅니다 — 전화번호가 없어도(이메일 전용 수신자) 도달합니다. 카카오 발송의
+                대체가 아니라 이메일이 주 발송 경로입니다.
+              </p>
+              {recentReports.length === 0 ? (
+                <p className="text-xs text-neutral-400">아직 생성된 리포트가 없습니다.</p>
+              ) : (
+                <select
+                  value={selectedEmailReportId}
+                  onChange={(e) => setSelectedEmailReportId(e.target.value)}
+                  className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none"
+                >
+                  <option value="">보낼 리포트 선택...</option>
+                  {recentReports.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.title}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {emailError && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{emailError}</p>}
+              <Button type="button" onClick={handleSendEmail} disabled={isSendingEmail || recentReports.length === 0}>
+                {isSendingEmail ? "발송 중..." : "이메일로 리포트 발송"}
+              </Button>
+              {emailResults && (
+                <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
+                  <p className="mb-1 font-semibold text-neutral-700">
+                    발송 결과: 성공 {emailResults.filter((r) => r.ok).length}건 / 실패{" "}
+                    {emailResults.filter((r) => !r.ok).length}건
+                  </p>
+                  {emailResults.map((r, i) => (
+                    <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
+                      {r.label ?? "이름 없음"} — {r.ok ? "성공" : `실패: ${r.error}`}
                     </p>
                   ))}
                 </div>
@@ -683,7 +951,7 @@ export function BroadcastRecipientsSection({
                             checked={selectedIds.has(recipient.id)}
                             onChange={() => toggleSelectOne(recipient.id)}
                             disabled={recipient.excluded}
-                            aria-label={`${recipient.label ?? recipient.phone} 선택`}
+                            aria-label={`${recipient.label ?? recipient.phone ?? recipient.email ?? "수신자"} 선택`}
                           />
                         </td>
                         <td className="px-3 py-2 text-sm text-neutral-900 whitespace-nowrap">{recipient.label ?? "-"}</td>
@@ -768,155 +1036,6 @@ export function BroadcastRecipientsSection({
                 ))}
             </div>
           )}
-        </div>
-      )}
-
-      {formMode === "single" && (
-        <form action={formAction} className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-neutral-700">이름/메모 (선택)</label>
-            <Input name="label" placeholder="예: 친구1, 고객A" />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-neutral-700">전화번호</label>
-            <Input name="phone" required placeholder="01012345678" autoComplete="off" />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-neutral-700">이메일 (선택 — 카카오 발송 실패 시 대체 발송용)</label>
-            <Input name="email" type="email" placeholder="friend1@example.com" autoComplete="off" />
-          </div>
-          {groups.length > 0 && (
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-neutral-700">그룹 (선택)</label>
-              <select
-                name="groupId"
-                defaultValue={defaultGroupForNew}
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none"
-              >
-                <option value="">미분류</option>
-                {groups.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-          {state.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{state.error}</p>}
-          <div className="flex gap-2">
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? "추가 중..." : "추가"}
-            </Button>
-            {recipients.length > 0 && (
-              <Button type="button" variant="ghost" onClick={() => setFormMode("none")} disabled={isSaving}>
-                취소
-              </Button>
-            )}
-          </div>
-        </form>
-      )}
-
-      {formMode === "bulk" && (
-        <div className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <form onSubmit={handleImportSubmit} className="space-y-2">
-            <label className="block text-xs font-semibold text-neutral-700">방법 1. 엑셀로 수신자 가져오기</label>
-            <p className="text-xs text-neutral-400">
-              컬럼: 이름 / 전화번호(필수) / 이메일(선택 — 카카오 발송 실패 시 대체 발송용).
-              이미 등록된 전화번호는 건너뜁니다.
-            </p>
-            {groups.length > 0 && (
-              <select
-                name="groupId"
-                defaultValue={defaultGroupForNew}
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-900 outline-none"
-              >
-                <option value="">가져온 수신자를 미분류로 등록</option>
-                {groups.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    &quot;{g.name}&quot; 그룹으로 등록
-                  </option>
-                ))}
-              </select>
-            )}
-            <div className="flex flex-wrap items-center gap-2">
-              <input
-                type="file"
-                name="file"
-                accept=".xlsx,.xls,.csv"
-                required
-                className="min-w-[180px] flex-1 text-xs text-neutral-700 file:mr-2 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-neutral-700"
-              />
-              <a
-                href="/api/broadcast-recipients/template"
-                className="whitespace-nowrap rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
-              >
-                입력폼 다운로드
-              </a>
-              <Button type="submit" disabled={isImporting}>
-                {isImporting ? "가져오는 중..." : "가져오기"}
-              </Button>
-            </div>
-            <p className="text-xs text-neutral-400">
-              파일 1개당 최대 5MB까지 올릴 수 있어요. 그보다 많으면 파일을 나눠서 여러 번
-              올려주세요 — 누적 등록 건수에는 제한이 없습니다.
-            </p>
-            {importResult && <p className="text-xs text-green-600">{importResult}</p>}
-            {importError && <p className="text-xs text-red-600">{importError}</p>}
-          </form>
-
-          <div className="border-t border-neutral-200 pt-4">
-            <form action={bulkFormAction} className="space-y-3">
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-neutral-700">
-                  방법 2. 직접 텍스트로 붙여넣기 (한 줄에 한 명씩, &quot;이름,전화번호,이메일&quot;
-                  형식 — 이름/이메일은 생략 가능)
-                </label>
-                <textarea
-                  name="bulkPhones"
-                  required
-                  rows={8}
-                  placeholder={"친구1,01012345678,friend1@example.com\n고객A,01098765432\n01055556666"}
-                  className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs text-neutral-900 outline-none focus:border-neutral-900"
-                />
-                <p className="mt-1 text-xs text-neutral-400">한 번에 최대 500명.</p>
-              </div>
-              {groups.length > 0 && (
-                <select
-                  name="groupId"
-                  defaultValue={defaultGroupForNew}
-                  className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-900 outline-none"
-                >
-                  <option value="">등록할 수신자를 미분류로 등록</option>
-                  {groups.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      &quot;{g.name}&quot; 그룹으로 등록
-                    </option>
-                  ))}
-                </select>
-              )}
-              {bulkState.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{bulkState.error}</p>}
-              <Button type="submit" disabled={isBulkSaving}>
-                {isBulkSaving ? "등록 중..." : "일괄 등록"}
-              </Button>
-              {bulkState.results && (
-                <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
-                  <p className="mb-1 font-semibold text-neutral-700">
-                    등록 결과: 성공 {bulkState.results.filter((r) => r.ok).length}건 / 실패{" "}
-                    {bulkState.results.filter((r) => !r.ok).length}건
-                  </p>
-                  {bulkState.results.map((r, i) => (
-                    <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
-                      {r.line} — {r.ok ? "등록됨" : r.error}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </form>
-          </div>
-
-          <Button type="button" variant="ghost" onClick={() => setFormMode("none")}>
-            닫기
-          </Button>
         </div>
       )}
     </div>
