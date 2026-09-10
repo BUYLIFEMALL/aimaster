@@ -42,6 +42,10 @@ const UNGROUPED = "__ungrouped__";
 // "이동이 안 된다"고 착각하는 버그가 있었다(2026-09-09).
 const UNSELECTED = "__unselected__";
 const EXCLUDED_FILTER = "__excluded__";
+// stepmail의 리드 목록(app/(dashboard)/leads/page.tsx)과 동일한 페이지당 표시 수 —
+// 수백 명 단위에서 스크롤 박스 대신 하단 페이지 번호로 넘겨보는 게 참고 화면과 더 가깝다
+// (사용자 피드백, 2026-09-10).
+const RECIPIENTS_PAGE_SIZE = 50;
 
 function maskPhone(phone: string): string {
   if (phone.length < 8) return phone;
@@ -87,6 +91,7 @@ export function BroadcastRecipientsSection({
   const [isEditSaving, setIsEditSaving] = useState(false);
   const [movingId, setMovingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkMoveGroupId, setBulkMoveGroupId] = useState(UNSELECTED);
   const [isBulkMoving, setIsBulkMoving] = useState(false);
@@ -116,6 +121,12 @@ export function BroadcastRecipientsSection({
   const selectableVisibleRecipients = visibleRecipients.filter((r) => !r.excluded);
   const allVisibleSelected =
     selectableVisibleRecipients.length > 0 && selectableVisibleRecipients.every((r) => selectedIds.has(r.id));
+  const totalPages = Math.max(1, Math.ceil(visibleRecipients.length / RECIPIENTS_PAGE_SIZE));
+  const currentPageSafe = Math.min(currentPage, totalPages);
+  const pagedRecipients = visibleRecipients.slice(
+    (currentPageSafe - 1) * RECIPIENTS_PAGE_SIZE,
+    currentPageSafe * RECIPIENTS_PAGE_SIZE,
+  );
 
   function toggleSelectAll() {
     setSelectedIds((prev) => {
@@ -375,7 +386,10 @@ export function BroadcastRecipientsSection({
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveFilter(tab.id)}
+              onClick={() => {
+                setActiveFilter(tab.id);
+                setCurrentPage(1);
+              }}
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
                 activeFilter === tab.id ? "bg-yellow-100 text-yellow-800" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
               }`}
@@ -390,7 +404,10 @@ export function BroadcastRecipientsSection({
         <div className="space-y-2">
           <Input
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder="이름 또는 전화번호 검색"
           />
 
@@ -477,10 +494,11 @@ export function BroadcastRecipientsSection({
           ) : (
             // stepmail의 리드 목록(LeadsTable)과 동일하게 카드형 박스 대신 얇은 구분선의
             // 표 형태로 렌더링한다(사용자 피드백, 2026-09-10) — 행마다 테두리 박스를 치지 않고
-            // 한 카드 안에서 표처럼 촘촘하게 보여주는 편이 수백 명 단위에서 더 읽기 쉽다.
-            <div className="max-h-[28rem] overflow-y-auto rounded-2xl border border-neutral-200 bg-white">
+            // 한 카드 안에서 표처럼 촘촘하게 보여주는 편이 수백 명 단위에서 더 읽기 쉽다. 내부
+            // 스크롤 박스 대신 stepmail 리드 페이지와 동일하게 하단 페이지 번호로 넘겨본다.
+            <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm">
               <table className="w-full">
-                <thead className="sticky top-0 bg-white">
+                <thead>
                   <tr className="border-b border-neutral-100 text-left">
                     <th className="w-8 px-3 py-2">
                       <input
@@ -499,7 +517,7 @@ export function BroadcastRecipientsSection({
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleRecipients.map((recipient) =>
+                  {pagedRecipients.map((recipient) =>
                     editingId === recipient.id ? (
                       <tr key={recipient.id} className="border-b border-neutral-50 bg-yellow-50 last:border-0">
                         <td className="px-3 py-2"></td>
@@ -581,7 +599,7 @@ export function BroadcastRecipientsSection({
                               type="button"
                               onClick={() => handleToggleExcluded(recipient.id, !recipient.excluded)}
                               disabled={togglingExcludedId === recipient.id}
-                              className="text-xs font-semibold text-neutral-600 hover:underline disabled:opacity-50"
+                              className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-50 whitespace-nowrap"
                             >
                               {togglingExcludedId === recipient.id ? "처리 중..." : recipient.excluded ? "제외 해제" : "발송제외 처리"}
                             </button>
@@ -589,7 +607,7 @@ export function BroadcastRecipientsSection({
                               type="button"
                               onClick={() => handleDelete(recipient.id)}
                               disabled={deletingId === recipient.id}
-                              className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-50"
+                              className="text-xs font-semibold text-neutral-400 hover:underline disabled:opacity-50"
                             >
                               {deletingId === recipient.id ? "삭제 중..." : "삭제"}
                             </button>
@@ -600,6 +618,29 @@ export function BroadcastRecipientsSection({
                   )}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPageSafe) <= 2)
+                .map((p, idx, arr) => (
+                  <span key={p} className="flex items-center gap-2">
+                    {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-xs text-neutral-300">…</span>}
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage(p)}
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold ${
+                        p === currentPageSafe
+                          ? "bg-yellow-500 text-white"
+                          : "border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  </span>
+                ))}
             </div>
           )}
         </div>
