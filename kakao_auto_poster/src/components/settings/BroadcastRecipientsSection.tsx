@@ -466,97 +466,142 @@ export function BroadcastRecipientsSection({
             </div>
           )}
 
-          <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
-            <label className="flex items-center gap-2 text-xs font-semibold text-neutral-500">
-              <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectAll} disabled={selectableVisibleRecipients.length === 0} />
-              {searchText || activeFilter !== "all" ? `${visibleRecipients.length.toLocaleString()}명 표시 중` : `등록됨 ${recipients.length.toLocaleString()}명`}
-            </label>
-            {visibleRecipients.length === 0 && (
-              <p className="rounded-lg border border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400">
-                {searchText ? "검색 결과가 없습니다." : "이 그룹에는 아직 수신자가 없습니다."}
-              </p>
-            )}
-            {visibleRecipients.map((recipient) =>
-              editingId === recipient.id ? (
-                <div key={recipient.id} className="space-y-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3">
-                  <div className="flex flex-wrap gap-2">
-                    <Input value={editLabel} onChange={(e) => setEditLabel(e.target.value)} placeholder="이름/메모" className="min-w-[100px] flex-1" />
-                    <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="전화번호" className="min-w-[140px] flex-1" />
-                  </div>
-                  {editError && <p className="text-xs text-red-600">{editError}</p>}
-                  <div className="flex gap-2">
-                    <Button type="button" onClick={() => handleEditSave(recipient.id)} disabled={isEditSaving}>
-                      {isEditSaving ? "저장 중..." : "저장"}
-                    </Button>
-                    <Button type="button" variant="ghost" onClick={() => setEditingId(null)} disabled={isEditSaving}>
-                      취소
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  key={recipient.id}
-                  className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 ${
-                    recipient.excluded ? "border-neutral-200 bg-neutral-100 opacity-60" : "border-neutral-200 bg-neutral-50"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(recipient.id)}
-                      onChange={() => toggleSelectOne(recipient.id)}
-                      disabled={recipient.excluded}
-                    />
-                    <p className="text-sm text-neutral-900">
-                      {recipient.label ? `${recipient.label} ` : ""}
-                      <span className="text-neutral-500">{maskPhone(recipient.phone)}</span>
-                      {recipient.excluded && (
-                        <span className="ml-2 rounded-full bg-neutral-300 px-2 py-0.5 text-xs font-semibold text-neutral-700">
-                          발송제외
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {groups.length > 0 && (
-                      <select
-                        value={recipient.group_id ?? ""}
-                        onChange={(e) => handleMoveGroup(recipient.id, e.target.value)}
-                        disabled={movingId === recipient.id}
-                        className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-700 outline-none disabled:opacity-50"
-                      >
-                        <option value="">미분류</option>
-                        {groups.map((g) => (
-                          <option key={g.id} value={g.id}>
-                            {g.name}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    <button type="button" onClick={() => startEdit(recipient)} className="text-xs font-semibold text-blue-600 hover:underline">
-                      수정
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleToggleExcluded(recipient.id, !recipient.excluded)}
-                      disabled={togglingExcludedId === recipient.id}
-                      className="text-xs font-semibold text-neutral-600 hover:underline disabled:opacity-50"
-                    >
-                      {togglingExcludedId === recipient.id ? "처리 중..." : recipient.excluded ? "제외 해제" : "발송제외 처리"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(recipient.id)}
-                      disabled={deletingId === recipient.id}
-                      className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-50"
-                    >
-                      {deletingId === recipient.id ? "삭제 중..." : "삭제"}
-                    </button>
-                  </div>
-                </div>
-              ),
-            )}
-          </div>
+          <p className="text-xs font-semibold text-neutral-500">
+            {searchText || activeFilter !== "all" ? `${visibleRecipients.length.toLocaleString()}명 표시 중` : `등록됨 ${recipients.length.toLocaleString()}명`}
+          </p>
+
+          {visibleRecipients.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400">
+              {searchText ? "검색 결과가 없습니다." : "이 그룹에는 아직 수신자가 없습니다."}
+            </p>
+          ) : (
+            // stepmail의 리드 목록(LeadsTable)과 동일하게 카드형 박스 대신 얇은 구분선의
+            // 표 형태로 렌더링한다(사용자 피드백, 2026-09-10) — 행마다 테두리 박스를 치지 않고
+            // 한 카드 안에서 표처럼 촘촘하게 보여주는 편이 수백 명 단위에서 더 읽기 쉽다.
+            <div className="max-h-[28rem] overflow-y-auto rounded-2xl border border-neutral-200 bg-white">
+              <table className="w-full">
+                <thead className="sticky top-0 bg-white">
+                  <tr className="border-b border-neutral-100 text-left">
+                    <th className="w-8 px-3 py-2">
+                      <input
+                        type="checkbox"
+                        checked={allVisibleSelected}
+                        onChange={toggleSelectAll}
+                        disabled={selectableVisibleRecipients.length === 0}
+                        aria-label="전체 선택"
+                      />
+                    </th>
+                    <th className="px-3 py-2 text-xs font-semibold text-neutral-500">이름</th>
+                    <th className="px-3 py-2 text-xs font-semibold text-neutral-500">전화번호</th>
+                    {groups.length > 0 && <th className="px-3 py-2 text-xs font-semibold text-neutral-500">그룹</th>}
+                    <th className="px-3 py-2 text-xs font-semibold text-neutral-500">상태</th>
+                    <th className="px-3 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleRecipients.map((recipient) =>
+                    editingId === recipient.id ? (
+                      <tr key={recipient.id} className="border-b border-neutral-50 bg-yellow-50 last:border-0">
+                        <td className="px-3 py-2"></td>
+                        <td className="px-3 py-2">
+                          <Input value={editLabel} onChange={(e) => setEditLabel(e.target.value)} placeholder="이름/메모" className="text-xs" />
+                        </td>
+                        <td className="px-3 py-2">
+                          <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="전화번호" className="text-xs" />
+                        </td>
+                        {groups.length > 0 && <td className="px-3 py-2"></td>}
+                        <td className="px-3 py-2"></td>
+                        <td className="px-3 py-2">
+                          <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                            {editError && <span className="text-xs text-red-600">{editError}</span>}
+                            <button
+                              type="button"
+                              onClick={() => handleEditSave(recipient.id)}
+                              disabled={isEditSaving}
+                              className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-50"
+                            >
+                              {isEditSaving ? "저장 중..." : "저장"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingId(null)}
+                              disabled={isEditSaving}
+                              className="text-xs font-semibold text-neutral-500 hover:underline disabled:opacity-50"
+                            >
+                              취소
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr key={recipient.id} className={`border-b border-neutral-50 last:border-0 ${recipient.excluded ? "opacity-60" : ""}`}>
+                        <td className="px-3 py-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(recipient.id)}
+                            onChange={() => toggleSelectOne(recipient.id)}
+                            disabled={recipient.excluded}
+                            aria-label={`${recipient.label ?? recipient.phone} 선택`}
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-sm text-neutral-900 whitespace-nowrap">{recipient.label ?? "-"}</td>
+                        <td className="px-3 py-2 text-sm text-neutral-500 whitespace-nowrap">{maskPhone(recipient.phone)}</td>
+                        {groups.length > 0 && (
+                          <td className="px-3 py-2">
+                            <select
+                              value={recipient.group_id ?? ""}
+                              onChange={(e) => handleMoveGroup(recipient.id, e.target.value)}
+                              disabled={movingId === recipient.id}
+                              className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-700 outline-none disabled:opacity-50"
+                            >
+                              <option value="">미분류</option>
+                              {groups.map((g) => (
+                                <option key={g.id} value={g.id}>
+                                  {g.name}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        )}
+                        <td className="px-3 py-2">
+                          {recipient.excluded ? (
+                            <span className="whitespace-nowrap rounded-full bg-neutral-300 px-2 py-0.5 text-xs font-semibold text-neutral-700">
+                              발송제외
+                            </span>
+                          ) : (
+                            <span className="text-xs text-neutral-300">-</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                            <button type="button" onClick={() => startEdit(recipient)} className="text-xs font-semibold text-blue-600 hover:underline">
+                              수정
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleToggleExcluded(recipient.id, !recipient.excluded)}
+                              disabled={togglingExcludedId === recipient.id}
+                              className="text-xs font-semibold text-neutral-600 hover:underline disabled:opacity-50"
+                            >
+                              {togglingExcludedId === recipient.id ? "처리 중..." : recipient.excluded ? "제외 해제" : "발송제외 처리"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(recipient.id)}
+                              disabled={deletingId === recipient.id}
+                              className="text-xs font-semibold text-red-500 hover:underline disabled:opacity-50"
+                            >
+                              {deletingId === recipient.id ? "삭제 중..." : "삭제"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
