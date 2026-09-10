@@ -95,6 +95,9 @@ async function callApi<T>(
   }
 
   const data = (await response.json()) as TossEnvelope<T>;
+  if (path.includes("categories")) {
+    console.log(`[toss-debug] ${path} raw response:`, JSON.stringify(data).slice(0, 3000));
+  }
   if (data.resultType !== "SUCCESS" || !data.success) {
     throw new Error(`토스 쉐어링크 응답 오류: ${data.error?.reason ?? data.error?.errorCode ?? "알 수 없는 오류"}`);
   }
