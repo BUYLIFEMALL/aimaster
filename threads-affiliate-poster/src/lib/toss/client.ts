@@ -95,6 +95,8 @@ async function callApi<T>(
   }
 
   const data = (await response.json()) as TossEnvelope<T>;
+  // TEMP DEBUG(2026-09-10): 실계정 첫 실호출 응답 필드명 확인용 — 원인 파악 후 제거할 것.
+  console.log(`[toss-debug] ${path} raw response:`, JSON.stringify(data).slice(0, 2000));
   if (data.resultType !== "SUCCESS" || !data.success) {
     throw new Error(`토스 쉐어링크 응답 오류: ${data.error?.reason ?? data.error?.errorCode ?? "알 수 없는 오류"}`);
   }
