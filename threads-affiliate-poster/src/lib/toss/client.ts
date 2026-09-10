@@ -95,8 +95,6 @@ async function callApi<T>(
   }
 
   const data = (await response.json()) as TossEnvelope<T>;
-  // TEMP DEBUG(2026-09-10): 실계정 첫 실호출 응답 필드명 확인용 — 원인 파악 후 제거할 것.
-  console.log(`[toss-debug] ${path} raw response:`, JSON.stringify(data).slice(0, 2000));
   if (data.resultType !== "SUCCESS" || !data.success) {
     throw new Error(`토스 쉐어링크 응답 오류: ${data.error?.reason ?? data.error?.errorCode ?? "알 수 없는 오류"}`);
   }
@@ -112,13 +110,17 @@ export interface TossProduct {
   productUrl: string | null;
 }
 
+// 실계정 첫 실호출로 확인한 실제 응답 필드명(2026-09-10): displayName/thumbnailUrl/
+// displayPrice — 문서 예시 부족으로 처음엔 productName/imageUrl/price로 추정 구현했던 것을
+// 실제 응답 기준으로 수정. tacaId는 베스트/카테고리/오늘의특가 목록 응답에 아예 없고
+// tacaItemId만 내려온다(쉐어링크 발급은 tacaItemId로 처리되므로 문제 없음).
 function normalizeTossProduct(raw: Record<string, unknown>): TossProduct {
   return {
-    tacaId: Number(raw.tacaId),
+    tacaId: raw.tacaId != null ? Number(raw.tacaId) : NaN,
     tacaItemId: raw.tacaItemId != null ? Number(raw.tacaItemId) : null,
-    productName: String(raw.productName ?? raw.name ?? ""),
-    imageUrl: (raw.mainImageUrl as string) ?? (raw.imageUrl as string) ?? null,
-    price: raw.price != null ? Number(raw.price) : null,
+    productName: String(raw.displayName ?? raw.productName ?? raw.name ?? ""),
+    imageUrl: (raw.thumbnailUrl as string) ?? (raw.mainImageUrl as string) ?? (raw.imageUrl as string) ?? null,
+    price: raw.displayPrice != null ? Number(raw.displayPrice) : raw.price != null ? Number(raw.price) : null,
     productUrl: (raw.productUrl as string) ?? null,
   };
 }
