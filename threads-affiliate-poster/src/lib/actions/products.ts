@@ -394,10 +394,15 @@ export async function registerTossProductAction(
   }
 
   try {
+    // subTagId는 넘기면 안 된다 — 토스 API 문서(2026-09-10 확인) 기준 subTagId는
+    // POST /openapi/sub-tags/create로 미리 등록해둔 값만 쓸 수 있고, 등록 안 된 값을
+    // 보내면 SHARELINK_OPENAPI_ACCESS_DENIED("접근 권한이 없습니다")로 거부된다.
+    // 예전엔 회원 user_id를 그냥 subTagId로 써도 되는 줄 알고 자동으로 채워 보냈던 것이
+    // 원인이었다. subTagId는 선택 필드라 생략하면 정상 발급된다 — 회원별 서브채널 실적
+    // 분리 추적이 필요해지면 그때 sub-tags/create로 사전 등록하는 흐름을 별도로 구현할 것.
     const link = await issueShareLink(auth, {
       tacaItemId: tacaItemIdRaw ? Number(tacaItemIdRaw) : undefined,
       tacaId: tacaIdRaw ? Number(tacaIdRaw) : undefined,
-      subTagId: user.id.replace(/[^a-zA-Z0-9\-_.]/g, "").slice(0, 64) || undefined,
     });
 
     const enrichment = parseEnrichmentFields(formData);

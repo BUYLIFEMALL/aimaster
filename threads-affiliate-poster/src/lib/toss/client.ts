@@ -194,8 +194,10 @@ export interface TossShareLink {
 
 /**
  * 쉐어링크(제휴 추적 링크) 발급. tacaItemId 또는 tacaId 중 최소 하나가 필요하다
- * (tacaItemId가 있으면 우선). subTagId를 넘기면 하위 채널(이 경우 우리 회원 단위)별로
- * 실적을 분리 추적할 수 있다 — 필요해지면 회원 user_id를 subTagId로 등록해서 쓰면 된다.
+ * (tacaItemId가 있으면 우선). subTagId는 임의 문자열을 바로 쓸 수 없다 — 반드시
+ * POST /openapi/sub-tags/create로 미리 등록해둔 값만 허용되며, 등록 안 된 값을 보내면
+ * SHARELINK_OPENAPI_ACCESS_DENIED로 거부된다(2026-09-10 실계정 검증 중 확인). 선택
+ * 필드라 생략 가능 — 회원 단위 실적 분리가 필요해지면 사전 등록 흐름부터 구현할 것.
  */
 export async function issueShareLink(
   auth: TossAuth,
