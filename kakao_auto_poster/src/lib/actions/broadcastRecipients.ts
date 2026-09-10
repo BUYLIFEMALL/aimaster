@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeEmail, normalizePhone, parseBroadcastRecipientsWorkbook } from "@/lib/broadcastRecipients";
+import { DUPLICATE_GROUP_NAME, findOrCreateDuplicateGroupId } from "@/lib/duplicateGroup";
 
 export interface AddBroadcastRecipientState {
   error?: string;
@@ -51,6 +52,7 @@ export interface BulkAddResultRow {
   line: string;
   ok: boolean;
   error?: string;
+  duplicate?: boolean;
 }
 
 export interface BulkAddBroadcastRecipientsState {
@@ -88,6 +90,14 @@ export async function addBulkBroadcastRecipientsAction(
   const toInsert: { user_id: string; phone: string | null; label: string | null; email: string | null; group_id: string | null }[] = [];
   const seenPhonesInBatch = new Set<string>();
   const seenEmailsInBatch = new Set<string>();
+  // 전화번호나 이메일 중 하나라도 겹치면 조용히 건너뛰지 않고 "중복등록" 그룹으로 몰아서
+  // 등록한다 — 회원이 직접 보고 삭제 여부를 판단할 수 있게 한다(사용자 지시, 2026-09-10).
+  // 그룹은 실제로 중복이 하나라도 나올 때만 생성한다(불필요한 빈 그룹 방지).
+  let duplicateGroupId: string | null = null;
+  async function getDuplicateGroupId(): Promise<string> {
+    if (!duplicateGroupId) duplicateGroupId = await findOrCreateDuplicateGroupId(supabase, user.id);
+    return duplicateGroupId;
+  }
 
   for (const line of lines) {
     const parts = line.split(",").map((p) => p.trim());
@@ -106,21 +116,21 @@ export async function addBulkBroadcastRecipientsAction(
       results.push({ line, ok: false, error: "전화번호 또는 이메일이 필요합니다" });
       continue;
     }
-    if (phone) {
-      if (existingPhones.has(phone) || seenPhonesInBatch.has(phone)) {
-        results.push({ line, ok: false, error: "이미 등록됨" });
-        continue;
-      }
-      seenPhonesInBatch.add(phone);
-    } else if (email) {
-      if (existingEmails.has(email) || seenEmailsInBatch.has(email)) {
-        results.push({ line, ok: false, error: "이미 등록됨" });
-        continue;
-      }
-      seenEmailsInBatch.add(email);
-    }
-    toInsert.push({ user_id: user.id, phone, label, email, group_id: groupId });
-    results.push({ line, ok: true });
+
+    const isDuplicate =
+      (phone !== null && (existingPhones.has(phone) || seenPhonesInBatch.has(phone))) ||
+      (email !== null && (existingEmails.has(email) || seenEmailsInBatch.has(email)));
+    if (phone) seenPhonesInBatch.add(phone);
+    if (email) seenEmailsInBatch.add(email);
+
+    const rowGroupId = isDuplicate ? await getDuplicateGroupId() : groupId;
+    toInsert.push({ user_id: user.id, phone, label, email, group_id: rowGroupId });
+    results.push({
+      line,
+      ok: true,
+      duplicate: isDuplicate,
+      error: isDuplicate ? `전화번호 또는 이메일이 이미 등록돼 있어 "${DUPLICATE_GROUP_NAME}" 그룹으로 분류됨` : undefined,
+    });
   }
 
   if (toInsert.length > 0) {
@@ -136,14 +146,16 @@ export interface ImportBroadcastRecipientsState {
   error?: string;
   importedCount?: number;
   skippedCount?: number;
+  duplicateCount?: number;
 }
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
 
 /**
  * 엑셀(xlsx) 파일을 업로드해서 수신자를 대량 등록한다 — stepmail의
- * lib/actions/leads.ts의 importLeadsAction과 동일한 패턴. 이미 등록된 전화번호는
- * 건너뛴다(중복 등록 방지).
+ * lib/actions/leads.ts의 importLeadsAction과 동일한 패턴. 전화번호나 이메일 중 하나라도
+ * 기존 수신자와 겹치면 건너뛰지 않고 "중복등록" 그룹으로 몰아서 등록한다 — 회원이 직접
+ * 보고 삭제 여부를 판단할 수 있게 한다(사용자 지시, 2026-09-10).
  */
 export async function importBroadcastRecipientsAction(formData: FormData): Promise<ImportBroadcastRecipientsState> {
   const user = await requireProgramAccess();
@@ -174,10 +186,20 @@ export async function importBroadcastRecipientsAction(formData: FormData): Promi
   const existingPhones = new Set((existing ?? []).map((r) => r.phone).filter((p): p is string => Boolean(p)));
   const existingEmails = new Set((existing ?? []).map((r) => r.email).filter((e): e is string => Boolean(e)));
 
-  const toInsert = parsed
-    .filter((row) => (row.phone ? !existingPhones.has(row.phone) : !(row.email && existingEmails.has(row.email))))
-    .map((row) => ({ user_id: user.id, phone: row.phone, label: row.label, email: row.email, group_id: groupId }));
-  const skippedCount = parsed.length - toInsert.length;
+  let duplicateGroupId: string | null = null;
+  let duplicateCount = 0;
+  const toInsert: { user_id: string; phone: string | null; label: string | null; email: string | null; group_id: string | null }[] = [];
+
+  for (const row of parsed) {
+    const isDuplicate = (row.phone !== null && existingPhones.has(row.phone)) || (row.email !== null && existingEmails.has(row.email));
+    let rowGroupId = groupId;
+    if (isDuplicate) {
+      duplicateCount += 1;
+      if (!duplicateGroupId) duplicateGroupId = await findOrCreateDuplicateGroupId(supabase, user.id);
+      rowGroupId = duplicateGroupId;
+    }
+    toInsert.push({ user_id: user.id, phone: row.phone, label: row.label, email: row.email, group_id: rowGroupId });
+  }
 
   if (toInsert.length > 0) {
     const { error } = await supabase.from("kakao_broadcast_recipients").insert(toInsert);
@@ -185,7 +207,7 @@ export async function importBroadcastRecipientsAction(formData: FormData): Promi
   }
 
   revalidatePath("/recipients");
-  return { importedCount: toInsert.length, skippedCount };
+  return { importedCount: toInsert.length, skippedCount: 0, duplicateCount };
 }
 
 export async function deleteBroadcastRecipientAction(id: string) {

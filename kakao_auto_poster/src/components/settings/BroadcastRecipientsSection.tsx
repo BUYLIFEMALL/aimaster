@@ -289,7 +289,11 @@ export function BroadcastRecipientsSection({
       if (res.error) {
         setImportError(res.error);
       } else {
-        setImportResult(`${res.importedCount ?? 0}명 등록 완료${res.skippedCount ? ` (이미 등록됨 ${res.skippedCount}건 제외)` : ""}`);
+        setImportResult(
+          `${res.importedCount ?? 0}명 등록 완료${
+            res.duplicateCount ? ` (그중 ${res.duplicateCount}건은 전화번호/이메일이 기존과 겹쳐 "중복등록" 그룹으로 분류됨 — 확인 후 필요하면 직접 삭제해주세요)` : ""
+          }`,
+        );
         (e.target as HTMLFormElement).reset();
         router.refresh();
       }
@@ -604,12 +608,13 @@ export function BroadcastRecipientsSection({
               {bulkState.results && (
                 <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
                   <p className="mb-1 font-semibold text-neutral-700">
-                    등록 결과: 성공 {bulkState.results.filter((r) => r.ok).length}건 / 실패{" "}
+                    등록 결과: 성공 {bulkState.results.filter((r) => r.ok && !r.duplicate).length}건 / 중복{" "}
+                    {bulkState.results.filter((r) => r.duplicate).length}건(&quot;중복등록&quot; 그룹으로 분류) / 실패{" "}
                     {bulkState.results.filter((r) => !r.ok).length}건
                   </p>
                   {bulkState.results.map((r, i) => (
-                    <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
-                      {r.line} — {r.ok ? "등록됨" : r.error}
+                    <p key={i} className={!r.ok ? "text-red-600" : r.duplicate ? "text-amber-600" : "text-green-600"}>
+                      {r.line} — {r.ok ? (r.duplicate ? `등록됨 (중복 — "중복등록" 그룹으로 분류)` : "등록됨") : r.error}
                     </p>
                   ))}
                 </div>
