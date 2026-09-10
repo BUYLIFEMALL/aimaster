@@ -183,11 +183,10 @@ export default async function SettingsPage({
           <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
             <p className="font-semibold">⚠️ 허용 IP 등록이 꼭 필요합니다</p>
             <p className="mt-1">
-              토스 쉐어링크는 호출 서버의 고정 IP를 미리 등록해야 발급이 됩니다. 본인 토스
-              어드민의 &quot;허용 IP&quot; 설정에 아래 IP 2개를 그대로 등록해주세요(이 두 IP는
-              모든 회원이 동일하게 등록하는, 이 플랫폼이 사용하는 고정 IP입니다).
+              토스 쉐어링크는 호출 서버의 고정 IP를 미리 등록해야 발급이 됩니다.
+              본인 토스 어드민의 &quot;허용 IP&quot; 설정에 아래 IP 2개를 그대로 등록해주세요
             </p>
-            <ul className="mt-2 space-y-0.5 font-mono">
+            <ul className="mt-2 space-y-0.5 font-mono text-sm font-bold text-amber-900">
               {TOSS_FIXED_IPS.map((ip) => (
                 <li key={ip}>{ip}</li>
               ))}
