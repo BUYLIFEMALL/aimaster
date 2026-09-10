@@ -3,7 +3,7 @@
 관심 주제/키워드를 등록해두면, 관련 최신 뉴스·정보·정책·트렌드·분석 자료를 AI가 자동으로
 찾아 정리해서 카카오톡 채널로 발송해주는 AIMaster 서브프로젝트입니다.
 
-## 핵심 흐름 (Phase 1, 현재 구현)
+## 핵심 흐름 (기본 골격 — 이후 Phase에서 예약 자동화·다중 채널 발송 등이 추가됨, 아래 "Phase 로드맵" 참고)
 
 1. `/settings`에서 본인 Perplexity/OpenAI 키를 등록
 2. `/topics`에서 관심 주제 이름 + 관련 키워드(콤마 구분, 최대 10개)를 등록
@@ -57,12 +57,10 @@
 
 ## Phase 로드맵
 
-| Phase | 내용 | 상태 |
-|---|---|---|
-| 1 | 관심 주제 등록, Perplexity 기반 "지금 생성"(수동), 웹 리포트 페이지 | ✅ 구현 완료, 실계정 미검증 |
-| 2 | 설정 페이지에 카카오 채널(SOLAPI) 연동 + 리포트 상세 페이지 즉시 발송 버튼 | ✅ 구현 완료, 실계정 미검증 |
-| 3 | 주제별 발송 주기 설정 + 5분 tick 크론으로 정기 자동 생성·발송 | ⏸️ 예정 |
-| 4 | HTTP/RSS 소스 추가, 이메일/텔레그램 채널 추가, `programs` 정식 등록(4단계 기본 요금제 포함) | ⏸️ 예정 |
+Phase별 상세 내용과 실계정 검증 현황은 이 폴더의 [`AGENTS.md`](AGENTS.md)의 "📦 Phase 진행
+상태" 표에서 관리한다(README와 이중 관리하면 둘 중 하나가 낡아 어긋나기 쉬워, 여기서는
+중복 기재하지 않는다). 2026-09-10 기준 Phase 1~6-2까지 구현 및 실계정 검증 완료, Phase 7
+(HTTP/RSS 소스 추가)만 착수 전이다.
 
 ## DB 스키마
 
@@ -70,20 +68,23 @@
 - `kakao_reports`: 주제별로 AI가 생성한 리포트(title/summary/content) + 카카오 발송 여부
   추적(`kakao_sent_at`/`kakao_send_error`, `0002_kakao_send_tracking.sql`). `topic_id`로
   `kakao_topics`를 참조(on delete cascade). `user_id` + RLS owner-only.
-- `user_api_keys`/`user_solapi_accounts`는 AIMaster 플랫폼 공용 테이블을 그대로 재사용
-  한다 — 이 프로젝트에서 새로 만들지 않는다.
+- `kakao_broadcast_recipients.email`(선택): 카카오톡 발송이 실패했을 때만 쓰는 이메일 대체
+  발송용 주소(`0013_recipient_email_fallback.sql`) — 항상 이중 발송하지 않는다.
+- `user_api_keys`/`user_solapi_accounts`/`user_smtp_accounts`는 AIMaster 플랫폼 공용 테이블을
+  그대로 재사용한다 — 이 프로젝트에서 새로 만들지 않는다.
 
 ## 환경 변수
 
-`.env.local.example` 참고. Supabase 접속 정보 + `CRON_SECRET`(Phase 3용)뿐이며, AI 키/카카오
-연동은 전부 회원 본인이 `/settings`에서 등록하는 BYOK 방식이라 이 앱 자체의 환경변수로는
-등록하지 않는다.
+`.env.local.example` 참고. Supabase 접속 정보 + `CRON_SECRET`(Phase 3용) + Phase 4 카카오
+로그인용 앱 자격증명(`KAKAO_REST_API_KEY`/`KAKAO_CLIENT_SECRET`/`KAKAO_REDIRECT_URI` — threads의
+Meta 앱과 동일한 성격으로, 프로젝트당 1개만 등록하고 회원 각자는 이 앱을 통해 개별 로그인/동의)
+이 전부다(2026-09-10 Vercel 프로덕션에 전부 등록 완료 확인). Perplexity/OpenAI 등 AI 키와
+SOLAPI/SMTP 연동은 전부 회원 본인이 `/settings`에서 등록하는 BYOK 방식이라 이 앱 자체의
+환경변수로는 등록하지 않는다.
 
 ## 남은 작업 / 미검증 항목
 
-- Phase 1 전체가 아직 실계정 API 키로 end-to-end 검증되지 않았다. 첫 사용 시 실제로 주제를
-  등록하고 "지금 생성"을 눌러 리포트가 정상적으로 만들어지는지 확인이 필요하다.
-- `programs` 테이블에 `kakao-auto-posting` slug가 아직 등록되지 않았다 — 등록해야
-  `requireProgramAccess()`가 통과해서 실제로 화면에 접근할 수 있다(관리자 화면에서 등록 시
-  4단계 기본 요금제가 자동으로 채워진다, `components/admin/ProgramForm.tsx`의
-  `DEFAULT_PLANS` 참고).
+최신 미검증 항목 목록은 [`AGENTS.md`](AGENTS.md)의 "⚠️ 미검증 항목" 섹션 참고(2026-09-10
+전수 점검 결과, Phase 5 이메일 실제 도착 여부·Phase 3 텔레그램 버튼 조작·Phase 4
+refresh_token 장기 만료·Phase 6 알림톡 비친구 도달·Phase 7만 남아 있다). `programs` 테이블
+`kakao-auto-posting` slug는 등록·활성화까지 확인 완료.

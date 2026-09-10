@@ -2,6 +2,8 @@ import "server-only";
 import { sendAlimtalk, sendFriendtalk, type SolapiAccountCredentials } from "@/lib/solapi/client";
 import { getValidKakaoAccessToken } from "@/lib/kakao/account";
 import { sendReportMemoToMe } from "@/lib/kakao/client";
+import { sendEmailFallback } from "@/lib/emailFallback";
+import { buildReportNotificationEmail } from "@/lib/email/reportEmail";
 
 const APP_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kakao-auto-poster.vercel.app";
 
@@ -80,7 +82,9 @@ export async function sendReportToKakaoCore(
   // (채널을 친구 추가한 사람에게만 도달 — SOLAPI 공식 문서 기준, 2026-09-09 재확인)를 쓴다.
   if (solapiAccount?.kakao_pf_id) {
     await broadcastReportToRecipients(supabase, userId, reportId, solapiAccount, {
+      id: report.id,
       title: report.title,
+      summary: report.summary,
       url: reportUrl,
       text,
     });
@@ -94,18 +98,18 @@ async function broadcastReportToRecipients(
   userId: string,
   reportId: string,
   solapiAccount: SolapiAccountCredentials & { alimtalk_template_id: string | null },
-  report: { title: string; url: string; text: string },
+  report: { id: string; title: string; summary: string; url: string; text: string },
 ): Promise<void> {
   const { data: recipients } = await supabase
     .from("kakao_broadcast_recipients")
-    .select("phone")
+    .select("phone, email")
     .eq("user_id", userId)
     .eq("excluded", false);
 
   if (!recipients || recipients.length === 0) return;
 
   const failures: string[] = [];
-  for (const recipient of recipients as { phone: string }[]) {
+  for (const recipient of recipients as { phone: string; email: string | null }[]) {
     try {
       if (solapiAccount.alimtalk_template_id) {
         await sendAlimtalk(solapiAccount, recipient.phone, {
@@ -117,6 +121,13 @@ async function broadcastReportToRecipients(
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "발송 실패";
+      // 카카오 발송이 실패한 사람만 이메일이 등록돼 있으면 대체 발송을 시도한다 —
+      // 성공하면 그 사람은 실패 집계에서 빠진다(사용자 지시: 실패 시에만 보완).
+      if (recipient.email) {
+        const { subject, html } = buildReportNotificationEmail({ id: report.id, title: report.title, summary: report.summary });
+        const fallback = await sendEmailFallback(supabase, userId, recipient.email, subject, html);
+        if (fallback.ok) continue;
+      }
       failures.push(`${recipient.phone.slice(-4)}: ${message}`);
     }
   }

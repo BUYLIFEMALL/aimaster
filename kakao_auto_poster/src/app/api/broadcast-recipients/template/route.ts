@@ -9,8 +9,8 @@ export const fetchCache = "force-no-store";
  * (lib/broadcastRecipients.ts의 parseBroadcastRecipientsWorkbook)과 이름/순서를 맞춘
  * 샘플 엑셀 양식을 내려준다 — stepmail의 app/api/leads/template/route.ts와 동일한 패턴.
  */
-const HEADERS = ["이름", "전화번호"];
-const SAMPLE_ROW = ["친구1", "01012345678"];
+const HEADERS = ["이름", "전화번호", "이메일"];
+const SAMPLE_ROW = ["친구1", "01012345678", "friend1@example.com"];
 
 export async function GET() {
   const access = await checkProgramAccessApi();

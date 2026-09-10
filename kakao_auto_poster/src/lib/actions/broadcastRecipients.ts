@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { normalizePhone, parseBroadcastRecipientsWorkbook } from "@/lib/broadcastRecipients";
+import { normalizeEmail, normalizePhone, parseBroadcastRecipientsWorkbook } from "@/lib/broadcastRecipients";
 
 export interface AddBroadcastRecipientState {
   error?: string;
@@ -21,15 +21,18 @@ export async function addBroadcastRecipientAction(
   const user = await requireProgramAccess();
   const phone = normalizePhone(String(formData.get("phone") ?? ""));
   const label = String(formData.get("label") ?? "").trim();
+  const emailRaw = String(formData.get("email") ?? "").trim();
   const groupId = String(formData.get("groupId") ?? "").trim() || null;
 
   if (!phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
+  if (emailRaw && !normalizeEmail(emailRaw)) return { error: "이메일 형식이 올바르지 않습니다." };
 
   const supabase = await createClient();
   const { error } = await supabase.from("kakao_broadcast_recipients").insert({
     user_id: user.id,
     phone,
     label: label || null,
+    email: normalizeEmail(emailRaw),
     group_id: groupId,
   });
 
@@ -76,13 +79,15 @@ export async function addBulkBroadcastRecipientsAction(
   const existingPhones = new Set((existing ?? []).map((r) => r.phone));
 
   const results: BulkAddResultRow[] = [];
-  const toInsert: { user_id: string; phone: string; label: string | null; group_id: string | null }[] = [];
+  const toInsert: { user_id: string; phone: string; label: string | null; email: string | null; group_id: string | null }[] = [];
   const seenInBatch = new Set<string>();
 
   for (const line of lines) {
     const parts = line.split(",").map((p) => p.trim());
-    // 이름 없이 전화번호만 한 줄에 있는 경우와, "이름,전화번호" 두 열인 경우를 모두 지원한다.
-    const [label, phoneRaw] = parts.length === 1 ? [null, parts[0]] : [parts[0] || null, parts[1]];
+    // 전화번호만(1열), "이름,전화번호"(2열), "이름,전화번호,이메일"(3열) 모두 지원한다.
+    const label = parts.length >= 2 ? parts[0] || null : null;
+    const phoneRaw = parts.length >= 2 ? parts[1] : parts[0];
+    const email = parts.length >= 3 ? normalizeEmail(parts[2]) : null;
     const phone = normalizePhone(phoneRaw ?? "");
 
     if (!phone) {
@@ -94,7 +99,7 @@ export async function addBulkBroadcastRecipientsAction(
       continue;
     }
     seenInBatch.add(phone);
-    toInsert.push({ user_id: user.id, phone, label, group_id: groupId });
+    toInsert.push({ user_id: user.id, phone, label, email, group_id: groupId });
     results.push({ line, ok: true });
   }
 
@@ -150,7 +155,7 @@ export async function importBroadcastRecipientsAction(formData: FormData): Promi
 
   const toInsert = parsed
     .filter((row) => !existingPhones.has(row.phone))
-    .map((row) => ({ user_id: user.id, phone: row.phone, label: row.label, group_id: groupId }));
+    .map((row) => ({ user_id: user.id, phone: row.phone, label: row.label, email: row.email, group_id: groupId }));
   const skippedCount = parsed.length - toInsert.length;
 
   if (toInsert.length > 0) {
@@ -175,19 +180,21 @@ export interface UpdateBroadcastRecipientState {
   error?: string;
 }
 
-/** 삭제 버튼 옆 "수정"으로 이름/전화번호를 고친다. */
+/** 삭제 버튼 옆 "수정"으로 이름/전화번호/이메일을 고친다. */
 export async function updateBroadcastRecipientAction(
   id: string,
-  values: { label: string; phone: string },
+  values: { label: string; phone: string; email: string },
 ): Promise<UpdateBroadcastRecipientState> {
   const user = await requireProgramAccess();
   const phone = normalizePhone(values.phone);
   if (!phone) return { error: "올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)" };
+  const emailTrimmed = values.email.trim();
+  if (emailTrimmed && !normalizeEmail(emailTrimmed)) return { error: "이메일 형식이 올바르지 않습니다." };
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("kakao_broadcast_recipients")
-    .update({ phone, label: values.label.trim() || null })
+    .update({ phone, label: values.label.trim() || null, email: normalizeEmail(emailTrimmed) })
     .eq("id", id)
     .eq("user_id", user.id);
 

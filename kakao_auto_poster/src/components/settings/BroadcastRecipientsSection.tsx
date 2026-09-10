@@ -17,12 +17,13 @@ import {
   type BulkAddBroadcastRecipientsState,
 } from "@/lib/actions/broadcastRecipients";
 import { createBroadcastGroupAction, deleteBroadcastGroupAction, type CreateGroupState } from "@/lib/actions/broadcastGroups";
-import { sendCustomBroadcastAction, type BroadcastSendResultRow } from "@/lib/actions/broadcastSend";
+import { sendCustomBroadcastAction, sendReportAlimtalkToRecipientsAction, type BroadcastSendResultRow } from "@/lib/actions/broadcastSend";
 
 export interface BroadcastRecipientData {
   id: string;
   phone: string;
   label: string | null;
+  email: string | null;
   group_id: string | null;
   excluded: boolean;
 }
@@ -30,6 +31,12 @@ export interface BroadcastRecipientData {
 export interface BroadcastGroupData {
   id: string;
   name: string;
+}
+
+export interface RecentReportData {
+  id: string;
+  title: string;
+  created_at: string;
 }
 
 const addInitialState: AddBroadcastRecipientState = {};
@@ -65,12 +72,14 @@ export function BroadcastRecipientsSection({
   hasSolapiChannel,
   channelFriendUrl,
   hasAlimtalkTemplate,
+  recentReports,
 }: {
   recipients: BroadcastRecipientData[];
   groups: BroadcastGroupData[];
   hasSolapiChannel: boolean;
   channelFriendUrl: string | null;
   hasAlimtalkTemplate: boolean;
+  recentReports: RecentReportData[];
 }) {
   const router = useRouter();
   const [formMode, setFormMode] = useState<"none" | "single" | "bulk">(recipients.length === 0 ? "single" : "none");
@@ -87,6 +96,7 @@ export function BroadcastRecipientsSection({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [editError, setEditError] = useState<string | null>(null);
   const [isEditSaving, setIsEditSaving] = useState(false);
   const [movingId, setMovingId] = useState<string | null>(null);
@@ -101,6 +111,14 @@ export function BroadcastRecipientsSection({
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendResults, setSendResults] = useState<BroadcastSendResultRow[] | null>(null);
   const [togglingExcludedId, setTogglingExcludedId] = useState<string | null>(null);
+  // 알림톡으로 리포트 보내기 — 자유 문구 발송(브랜드메시지)과는 완전히 별개 패널이다.
+  // 두 그룹(자유 메시지=브랜드메시지 / 정보 콘텐츠=알림톡)을 헷갈리지 않도록 버튼과 안내
+  // 문구를 분리해뒀다(사용자 지시, 2026-09-10).
+  const [showAlimtalkPanel, setShowAlimtalkPanel] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState("");
+  const [isSendingAlimtalk, setIsSendingAlimtalk] = useState(false);
+  const [alimtalkError, setAlimtalkError] = useState<string | null>(null);
+  const [alimtalkResults, setAlimtalkResults] = useState<BroadcastSendResultRow[] | null>(null);
 
   const filteredRecipients = recipients.filter((r) => {
     if (activeFilter === "all") return true;
@@ -173,6 +191,29 @@ export function BroadcastRecipientsSection({
     }
   }
 
+  async function handleSendAlimtalk() {
+    if (selectedIds.size === 0) return;
+    if (!selectedReportId) {
+      setAlimtalkError("보낼 리포트를 선택해주세요.");
+      return;
+    }
+    if (!confirm(`선택한 ${selectedIds.size}명에게 알림톡을 실제로 발송합니다. 계속할까요?`)) return;
+
+    setAlimtalkError(null);
+    setAlimtalkResults(null);
+    setIsSendingAlimtalk(true);
+    try {
+      const res = await sendReportAlimtalkToRecipientsAction(Array.from(selectedIds), selectedReportId);
+      if (res.error) {
+        setAlimtalkError(res.error);
+      } else {
+        setAlimtalkResults(res.results ?? []);
+      }
+    } finally {
+      setIsSendingAlimtalk(false);
+    }
+  }
+
   async function handleBulkMove() {
     if (selectedIds.size === 0 || bulkMoveGroupId === UNSELECTED) return;
     setIsBulkMoving(true);
@@ -238,6 +279,7 @@ export function BroadcastRecipientsSection({
     setEditingId(recipient.id);
     setEditLabel(recipient.label ?? "");
     setEditPhone(recipient.phone);
+    setEditEmail(recipient.email ?? "");
     setEditError(null);
   }
 
@@ -245,7 +287,7 @@ export function BroadcastRecipientsSection({
     setEditError(null);
     setIsEditSaving(true);
     try {
-      const res = await updateBroadcastRecipientAction(id, { label: editLabel, phone: editPhone });
+      const res = await updateBroadcastRecipientAction(id, { label: editLabel, phone: editPhone, email: editEmail });
       if (res.error) {
         setEditError(res.error);
         return;
@@ -316,6 +358,13 @@ export function BroadcastRecipientsSection({
         {hasAlimtalkTemplate
           ? "알림톡 템플릿이 등록돼 있어 채널 친구가 아니어도 도달합니다."
           : "단, 브랜드메시지는 채널을 친구 추가한 사람에게만 도달합니다 — 아직 친구 추가하지 않았다면 먼저 추가하도록 안내해주세요."}
+        {" "}이메일을 함께 등록해두면, 카카오톡 발송이 실패했을 때만(항상 이중 발송하지 않음)
+        그 이메일로 대체 발송합니다.
+      </p>
+      <p className="text-xs text-neutral-500">
+        📤 자유 메시지 발송(브랜드메시지 — 자유 문구, 채널 친구만 도달)과 📨 알림톡으로 리포트
+        발송(고정 템플릿 — 자유 문구 불가, 비친구도 도달)은 서로 다른 두 그룹이니 상황에 맞게
+        선택해서 쓰세요.
       </p>
       {!hasSolapiChannel && (
         <p className="rounded-lg bg-yellow-50 px-3 py-2 text-xs text-yellow-800">
@@ -438,14 +487,40 @@ export function BroadcastRecipientsSection({
                   setSelectedIds(new Set());
                   setBulkMoveGroupId(UNSELECTED);
                   setShowSendPanel(false);
+                  setShowAlimtalkPanel(false);
                 }}
                 className="text-xs font-semibold text-neutral-500 hover:underline"
               >
                 선택 해제
               </button>
-              <Button type="button" variant="info" onClick={() => setShowSendPanel((v) => !v)} className="text-xs">
-                {showSendPanel ? "발송 닫기" : "📤 메시지 발송"}
+              <Button
+                type="button"
+                variant="info"
+                onClick={() => {
+                  setShowSendPanel((v) => !v);
+                  setShowAlimtalkPanel(false);
+                }}
+                className="text-xs"
+              >
+                {showSendPanel ? "발송 닫기" : "📤 자유 메시지 발송"}
               </Button>
+              {hasAlimtalkTemplate ? (
+                <Button
+                  type="button"
+                  variant="info"
+                  onClick={() => {
+                    setShowAlimtalkPanel((v) => !v);
+                    setShowSendPanel(false);
+                  }}
+                  className="text-xs"
+                >
+                  {showAlimtalkPanel ? "발송 닫기" : "📨 알림톡으로 리포트 발송"}
+                </Button>
+              ) : (
+                <span className="text-xs text-neutral-400">
+                  (알림톡 템플릿을 등록하면 채널 친구가 아니어도 리포트를 보낼 수 있어요)
+                </span>
+              )}
             </div>
           )}
 
@@ -475,7 +550,52 @@ export function BroadcastRecipientsSection({
                   </p>
                   {sendResults.map((r, i) => (
                     <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
-                      {r.label ?? "이름 없음"} ({maskPhone(r.phone)}) — {r.ok ? "성공" : `실패: ${r.error}`}
+                      {r.label ?? "이름 없음"} ({maskPhone(r.phone)}) —{" "}
+                      {r.ok ? (r.viaEmail ? "성공(이메일로 대체)" : "성공") : `실패: ${r.error}`}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedIds.size > 0 && showAlimtalkPanel && (
+            <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+              <p className="text-xs text-neutral-500">
+                선택한 {selectedIds.size}명에게 이미 생성된 리포트를 알림톡(고정 템플릿)으로
+                보냅니다 — 채널 친구가 아니어도 도달합니다. 알림톡은 승인된 템플릿의 제목/URL
+                자리만 채워 보내므로 자유 문구는 입력할 수 없습니다.
+              </p>
+              {recentReports.length === 0 ? (
+                <p className="text-xs text-neutral-400">아직 생성된 리포트가 없습니다.</p>
+              ) : (
+                <select
+                  value={selectedReportId}
+                  onChange={(e) => setSelectedReportId(e.target.value)}
+                  className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none"
+                >
+                  <option value="">보낼 리포트 선택...</option>
+                  {recentReports.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.title}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {alimtalkError && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{alimtalkError}</p>}
+              <Button type="button" onClick={handleSendAlimtalk} disabled={isSendingAlimtalk || recentReports.length === 0}>
+                {isSendingAlimtalk ? "발송 중..." : `선택한 ${selectedIds.size}명에게 알림톡 발송`}
+              </Button>
+              {alimtalkResults && (
+                <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg bg-white p-3 text-xs">
+                  <p className="mb-1 font-semibold text-neutral-700">
+                    발송 결과: 성공 {alimtalkResults.filter((r) => r.ok).length}건 / 실패{" "}
+                    {alimtalkResults.filter((r) => !r.ok).length}건
+                  </p>
+                  {alimtalkResults.map((r, i) => (
+                    <p key={i} className={r.ok ? "text-green-600" : "text-red-600"}>
+                      {r.label ?? "이름 없음"} ({maskPhone(r.phone)}) —{" "}
+                      {r.ok ? (r.viaEmail ? "성공(이메일로 대체)" : "성공") : `실패: ${r.error}`}
                     </p>
                   ))}
                 </div>
@@ -511,6 +631,7 @@ export function BroadcastRecipientsSection({
                     </th>
                     <th className="px-3 py-2 text-xs font-semibold text-neutral-500">이름</th>
                     <th className="px-3 py-2 text-xs font-semibold text-neutral-500">전화번호</th>
+                    <th className="px-3 py-2 text-xs font-semibold text-neutral-500">이메일</th>
                     {groups.length > 0 && <th className="px-3 py-2 text-xs font-semibold text-neutral-500">그룹</th>}
                     <th className="px-3 py-2 text-xs font-semibold text-neutral-500">상태</th>
                     <th className="px-3 py-2"></th>
@@ -526,6 +647,9 @@ export function BroadcastRecipientsSection({
                         </td>
                         <td className="px-3 py-2">
                           <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="전화번호" className="text-xs" />
+                        </td>
+                        <td className="px-3 py-2">
+                          <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="이메일(선택)" className="text-xs" />
                         </td>
                         {groups.length > 0 && <td className="px-3 py-2"></td>}
                         <td className="px-3 py-2"></td>
@@ -564,6 +688,7 @@ export function BroadcastRecipientsSection({
                         </td>
                         <td className="px-3 py-2 text-sm text-neutral-900 whitespace-nowrap">{recipient.label ?? "-"}</td>
                         <td className="px-3 py-2 text-sm text-neutral-500 whitespace-nowrap">{maskPhone(recipient.phone)}</td>
+                        <td className="px-3 py-2 text-sm text-neutral-500 whitespace-nowrap">{recipient.email ?? "-"}</td>
                         {groups.length > 0 && (
                           <td className="px-3 py-2">
                             <select
@@ -656,6 +781,10 @@ export function BroadcastRecipientsSection({
             <label className="mb-1 block text-xs font-semibold text-neutral-700">전화번호</label>
             <Input name="phone" required placeholder="01012345678" autoComplete="off" />
           </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-neutral-700">이메일 (선택 — 카카오 발송 실패 시 대체 발송용)</label>
+            <Input name="email" type="email" placeholder="friend1@example.com" autoComplete="off" />
+          </div>
           {groups.length > 0 && (
             <div>
               <label className="mb-1 block text-xs font-semibold text-neutral-700">그룹 (선택)</label>
@@ -692,7 +821,8 @@ export function BroadcastRecipientsSection({
           <form onSubmit={handleImportSubmit} className="space-y-2">
             <label className="block text-xs font-semibold text-neutral-700">방법 1. 엑셀로 수신자 가져오기</label>
             <p className="text-xs text-neutral-400">
-              컬럼: 이름 / 전화번호(필수). 이미 등록된 전화번호는 건너뜁니다.
+              컬럼: 이름 / 전화번호(필수) / 이메일(선택 — 카카오 발송 실패 시 대체 발송용).
+              이미 등록된 전화번호는 건너뜁니다.
             </p>
             {groups.length > 0 && (
               <select
@@ -738,13 +868,14 @@ export function BroadcastRecipientsSection({
             <form action={bulkFormAction} className="space-y-3">
               <div>
                 <label className="mb-1 block text-xs font-semibold text-neutral-700">
-                  방법 2. 직접 텍스트로 붙여넣기 (한 줄에 한 명씩, &quot;이름,전화번호&quot; 형식 — 이름은 생략 가능)
+                  방법 2. 직접 텍스트로 붙여넣기 (한 줄에 한 명씩, &quot;이름,전화번호,이메일&quot;
+                  형식 — 이름/이메일은 생략 가능)
                 </label>
                 <textarea
                   name="bulkPhones"
                   required
                   rows={8}
-                  placeholder={"친구1,01012345678\n고객A,01098765432\n01055556666"}
+                  placeholder={"친구1,01012345678,friend1@example.com\n고객A,01098765432\n01055556666"}
                   className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs text-neutral-900 outline-none focus:border-neutral-900"
                 />
                 <p className="mt-1 text-xs text-neutral-400">한 번에 최대 500명.</p>

@@ -4,6 +4,15 @@ import * as XLSX from "xlsx";
 export interface ParsedRecipientRow {
   phone: string;
   label: string | null;
+  email: string | null;
+}
+
+/** 형식이 명백히 이메일이 아니면(예: 빈 값, "@" 없음) null로 버린다 — 필수 항목이 아니라 조용히 건너뛴다. */
+export function normalizeEmail(raw: string | null): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return null;
+  return trimmed;
 }
 
 function cellToText(value: unknown): string | null {
@@ -52,7 +61,7 @@ export function parseBroadcastRecipientsWorkbook(buffer: Buffer): ParsedRecipien
     if (seenPhones.has(phone)) continue; // 같은 파일 안 중복 방지
     seenPhones.add(phone);
 
-    result.push({ phone, label: cellToText(row["이름"]) });
+    result.push({ phone, label: cellToText(row["이름"]), email: normalizeEmail(cellToText(row["이메일"])) });
   }
 
   return result;

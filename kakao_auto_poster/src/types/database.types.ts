@@ -123,6 +123,7 @@ export interface Database {
           user_id: string;
           phone: string;
           label: string | null;
+          email: string | null;
           group_id: string | null;
           excluded: boolean;
           created_at: string;
@@ -132,6 +133,7 @@ export interface Database {
           user_id: string;
           phone: string;
           label?: string | null;
+          email?: string | null;
           group_id?: string | null;
           excluded?: boolean;
           created_at?: string;
@@ -141,6 +143,7 @@ export interface Database {
           user_id?: string;
           phone?: string;
           label?: string | null;
+          email?: string | null;
           group_id?: string | null;
           excluded?: boolean;
           created_at?: string;
@@ -178,6 +181,8 @@ export interface Database {
           message: string;
           ok: boolean;
           error: string | null;
+          channel: string;
+          fallback_email: boolean;
           created_at: string;
         };
         Insert: {
@@ -189,6 +194,8 @@ export interface Database {
           message: string;
           ok: boolean;
           error?: string | null;
+          channel?: string;
+          fallback_email?: boolean;
           created_at?: string;
         };
         Update: {
@@ -200,6 +207,8 @@ export interface Database {
           message?: string;
           ok?: boolean;
           error?: string | null;
+          channel?: string;
+          fallback_email?: boolean;
           created_at?: string;
         };
         Relationships: [];
