@@ -347,6 +347,8 @@ export function DraftComposer({
             {referenceUrls.map((url, idx) => (
               <Input
                 key={idx}
+                name={`ref_no_autofill_${idx + 1}`}
+                autoComplete="new-password"
                 value={url}
                 onChange={(e) => handleUrlChange(idx, e.target.value)}
                 placeholder={`https://example.com/reference-${idx + 1}`}
@@ -401,11 +403,13 @@ export function DraftComposer({
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-neutral-700">나노바나나 API 키 (API Key)</label>
             <Input
-              type="password"
+              type="text"
+              name="nb_api_key_field"
               value={imageApiKey}
               onChange={(e) => setImageApiKey(e.target.value)}
               placeholder="비워두면 설정에 등록된 내 키 사용"
-              autoComplete="off"
+              autoComplete="new-password"
+              style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
             />
           </div>
         </div>
