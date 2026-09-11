@@ -94,14 +94,18 @@ instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록�
   서명/엔드포인트/파라미터는 전부 정상). Tracking ID는 `aliexpress_tracking_id`라는 이름으로
   공용 `user_api_keys`에 provider를 추가해서(0002 마이그레이션) 본인 값만 쓰도록 고쳤다 —
   예전엔 `"threads_affiliate_poster"`라는 값이 코드에 하드코딩되어 있었다.
-- **쿠팡은 아직 미검증 상태다** — 사용자가 발급받은 키가 쿠팡 쪽에서 아직 활성화되지 않아
-  (`"Specified key is not registered."`, HTTP 401) 계속 대기 중이다. 활성화되면 재검증할 것.
-  **원인 확인됨(2026-09-01)**: 쿠팡파트너스 API는 **누적 매출 15만원 이상**이 되어야 키가
-  활성화된다고 함 — 코드/서명 문제가 아니라 매출 요건 미충족으로 인한 정상적인 대기 상태다.
-  2026-08-27 발급 후 2026-08-31/09-01에도 동일 401을 재현 확인했으나(서명 로직은 매번 정상
-  작동, "키가 등록 안 됨"이라는 명확한 응답만 옴), 매출 요건을 채우면 자동으로 해결될
-  사안이니 코드를 다시 의심하지 말 것 — 매출 15만원 달성 후에도 계속 401이 나올 때만
-  재검증하면 된다.
+- **쿠팡은 2026-09-11 실계정 실호출로 검증 완료했다.** 매출 요건을 채워 키가 활성화된 뒤
+  실제로 검색(GET)/딥링크(POST) 흐름을 테스트하다 두 가지를 발견·수정했다.
+  1. **서명 버그**: `buildAuthorizationHeader`가 서명 대상 문자열에 path와 query 사이 "?"를
+     포함시키고 있었다("Invalid signature" 401). 공식 문서(PHP/Python 예제)대로 `datetime+
+     method+path+query`를 "?" 없이 이어붙이도록 수정(실제 요청 URL에는 "?"가 그대로 필요).
+  2. **"url convert failed"(400) 딥링크 오류**: 검색 API가 돌려주는 `productUrl`은 이미 본인
+     파트너스 키로 추적되는 제휴 링크(`link.coupang.com/re/AFFSDP?...`)였다 — 여기에 딥링크
+     변환을 다시 걸면 쿠팡이 거부한다. 검색 결과로 고른 상품은 그 `productUrl`을 그대로
+     `affiliate_url`로 쓰고, "URL 직접 입력"으로 받은 일반 상품 URL만 `createDeeplink`로
+     변환하도록 분기했다(`registerCoupangProductAction`의 `skipDeeplink`, 판단 기준은
+     `CoupangProductForm`에서 검색 결과 선택 시 `productId`가 실제 쿠팡 ID(양수)라는 점).
+  두 수정 모두 반영 후 실제 상품(무선 이어폰 검색 → 선택 → 등록)으로 end-to-end 성공 확인.
 - 쿠팡 상품검색 API는 시간당 호출 제한(약 10회, 커뮤니티 정보)이 있다고 알려져 있어, 검색
   결과를 `affiliate_products`에 저장해 재검색을 줄이는 방향으로 설계했다.
 
@@ -110,7 +114,7 @@ instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록�
 | Phase | 내용 | 상태 |
 |-------|------|------|
 | 1 | Threads OAuth 연결(공용 앱 재사용), AI 캡션 생성(`generatePostContent`/`generateAffiliatePostContent`), 이미지 생성(NanoBanana), 즉시/예약 게시, 예약 발행 dispatch(admin/user 이중화 + CRON_SECRET 보호 라우트) | ✅ 구현 완료 |
-| 1 | 쿠팡파트너스 클라이언트(키워드 검색 + 딥링크 생성) | ✅ 구현 완료(실계정 키 활성화 대기 중) |
+| 1 | 쿠팡파트너스 클라이언트(키워드 검색 + 딥링크 생성) | ✅ 구현 완료 + 실계정 실호출 검증 완료(2026-09-11) |
 | 1 | 알리익스프레스 클라이언트(URL → 제휴 링크 변환) | ✅ 구현 완료 + 실계정 실호출 검증 완료(2026-08-28) |
 | 1 | 네이버 브랜드커넥트 — 공식 API 없음, 직접 발급받은 링크를 수동으로 등록하는 방식으로 구현 | ✅ 구현 완료(구조적으로 계속 수동) |
 | 1 | 상품 등록 2가지 입력 방식(URL 간단 입력 / 상품정보+상세페이지 직접 입력) — `affiliate_products.input_mode`, `auto-detail-page`의 `detail_pages` 읽기 전용 참조 | ✅ 구현 완료 |
@@ -120,7 +124,8 @@ instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록�
 | 1 | `programs` 카탈로그 등록 + 썸네일(Gemini 생성) | ✅ 구현 완료(2026-08-27) |
 | 1 | Vercel 배포(`buylife` 팀, 공용 Threads 앱 env 재사용) | ✅ 구현 완료(2026-08-27) |
 | 1 | 토스쇼핑 쉐어링크 연동 — `src/lib/toss/client.ts`(OAuth2 client_credentials 토큰 발급, 베스트/카테고리/오늘의특가 상품 조회, 쉐어링크 발급). Toss Open API는 사전 등록된 고정 IP에서만 호출을 허용하는데 Vercel 서버리스는 고정 IP가 없어, **Fixie(usefixie.com) 프록시**를 붙여 해결했다 — 모든 요청이 `undici`의 `ProxyAgent`(`dispatcher` 옵션, `FIXIE_URL` env)를 거쳐 고정 IP 2개(`52.87.82.133`, `52.5.155.132`)로 나간다. `user_api_keys`에 `toss_access_key`/`toss_secret_key`/`toss_publisher_id` 3종 추가(0006 마이그레이션), `affiliate_products.platform`에 `'toss'` 추가, 설정 페이지에 고정 IP를 본인 토스 어드민 "허용 IP"에 등록하라는 안내 포함, 제휴 고지 문구도 토스용으로 추가. 키워드 검색 API가 없어 UI는 베스트/카테고리별/오늘의 특가 브라우징 방식으로 구현. **실계정 실호출로 응답 필드명 확인 완료(2026-09-10)**: 문서 예시 부족으로 처음엔 `productName`/`imageUrl`/`price`로 추정 구현했으나, 실제 응답은 `displayName`/`thumbnailUrl`/`displayPrice`였다(그래서 상품 목록은 뜨는데 이름/이미지/가격이 전부 비어 보이는 버그가 있었음) — `normalizeTossProduct()`를 실제 필드명 기준으로 수정. 또한 목록 응답에는 `tacaId` 필드 자체가 없고 `tacaItemId`만 내려온다(쉐어링크 발급은 `tacaItemId` 기준이라 문제 없음). 카테고리 목록(`/categories`)도 같은 이유로 `name`이 아니라 `displayName`이 실제 필드명이라 드롭다운이 빈 값으로 보이던 버그가 있었음 — 수정 완료. 베스트/카테고리별/오늘의특가 3개 탭 전부 실계정으로 상품명·가격·이미지 정상 노출 확인. 쉐어링크 발급(`POST /links`)도 `subTagId`에 회원 user_id를 임의로 채워 보내던 게 원인으로 `SHARELINK_OPENAPI_ACCESS_DENIED`("접근 권한이 없습니다") 오류가 났었다 — subTagId는 `POST /openapi/sub-tags/create`로 사전 등록한 값만 허용되므로 자동 전송 로직을 제거(선택 필드라 생략 가능). 실제 상품으로 쉐어링크 발급까지 end-to-end 성공 확인(2026-09-10). | ✅ 구현 완료 + 실계정 전체 플로우(브라우징 3종+쉐어링크 발급) 검증 완료(2026-09-10) |
-| 2 | 실사용자가 쿠팡/알리익스프레스 API 키 발급 후 실제 연동 검증, Meta 앱에 새 리디렉션 URI 등록, Vercel Cron 활성화 | ⏳ 예정(의도적으로 미착수) |
+| 2 | 실사용자 쿠팡 API 키 실연동 검증 | ✅ 완료(2026-09-11, 위 참고) |
+| 2 | 실사용자 알리익스프레스 API 키 실연동 검증, Meta 앱에 새 리디렉션 URI 등록, Vercel Cron 활성화 | ⏳ 예정(의도적으로 미착수) |
 | 2 | 토스쇼핑 쉐어링크 실계정 검증 — Access/Secret Key·Publisher ID 발급, Fixie 고정 IP 2개를 토스 어드민 허용 IP에 등록, 베스트/카테고리/오늘의특가 실호출로 응답 필드명 확인·필요시 클라이언트 파싱 로직 수정 | ⏳ 예정(의도적으로 미착수) |
 | 2+ | 알리익스프레스 키워드 검색(`listPromotionProduct`), 상품 가격/재고 변동 알림, 다른 채널 동시 배포 | ⏳ 예정 |
 

@@ -4,11 +4,12 @@ import crypto from "crypto";
 // 쿠팡파트너스 오픈 API 클라이언트. "server-only" 가드로 Access/Secret Key가
 // 클라이언트 번들에 절대 포함되지 않도록 한다.
 //
-// 참고: 아래 엔드포인트/서명 방식은 커뮤니티 SDK(mooooburg-dev/coupang-partners-sdk-standalone)
-// README와 여러 개발 블로그에서 공통적으로 확인한 구조를 재현한 것이다. 공식 문서
-// (https://partners.coupang.com → API 신청 후 제공되는 가이드 PDF)에서 실제 계정으로
-// 검증하지는 못했으니, 사용자가 API 키를 발급받아 첫 연동을 시도할 때 응답 오류가 나면
-// 이 파일의 엔드포인트/서명 로직을 공식 가이드와 다시 대조해야 한다.
+// 2026-09-11 실계정 실호출로 검증 완료: 검색(GET)/딥링크(POST) 서명, 엔드포인트 모두 정상
+// 작동한다. 검색 API가 돌려주는 productUrl은 이미 본인 파트너스 키로 추적되는 제휴 링크
+// (link.coupang.com/re/AFFSDP?...)이므로, 검색 결과로 선택한 상품은 딥링크 변환을 다시
+// 걸면 안 된다("url convert failed" 400) — createDeeplink는 사용자가 직접 입력한 일반
+// 상품 URL(https://www.coupang.com/vp/products/...)을 변환할 때만 호출한다
+// (호출부: src/lib/actions/products.ts의 skipDeeplink 분기).
 
 const API_GATEWAY = "https://api-gateway.coupang.com";
 const DEEPLINK_PATH = "/v2/providers/affiliate_open_api/apis/openapi/v1/deeplink";
@@ -165,10 +166,6 @@ export async function createDeeplink(
     rMessage?: string;
     data?: { originalUrl: string; shortenUrl: string; landingUrl: string }[];
   };
-  // TEMP DEBUG(2026-09-11): "url convert failed" 원인 파악용 — 확인 후 제거할 것.
-  console.log("[coupang-debug] deeplink request urls:", JSON.stringify(coupangUrls));
-  console.log("[coupang-debug] deeplink response:", JSON.stringify(data).slice(0, 1000));
-
   if (data.rCode && data.rCode !== "0") {
     throw new Error(`쿠팡 딥링크 생성 응답 오류: ${data.rMessage ?? data.rCode}`);
   }

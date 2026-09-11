@@ -83,6 +83,11 @@ export async function registerCoupangProductAction(
   const productName = String(formData.get("productName") ?? "").trim();
   const productUrl = String(formData.get("productUrl") ?? "").trim();
   const priceRaw = String(formData.get("price") ?? "").trim();
+  // 검색 API가 돌려주는 productUrl은 이미 본인 파트너스 키로 추적 처리된 제휴 링크
+  // (link.coupang.com/re/AFFSDP?...)라, 여기에 딥링크 변환을 다시 걸면 쿠팡이
+  // "url convert failed"(400)로 거부한다 — 딥링크 변환 API는 일반 상품 URL
+  // (직접 입력한 https://www.coupang.com/vp/products/... 등)을 위한 것이다.
+  const skipDeeplink = String(formData.get("skipDeeplink") ?? "") === "1";
 
   if (!productName || !productUrl) {
     return { error: "상품 정보가 올바르지 않습니다. 다시 검색해서 선택해주세요." };
@@ -98,9 +103,13 @@ export async function registerCoupangProductAction(
   }
 
   try {
-    const [deeplink] = await createDeeplink([productUrl], { accessKey, secretKey });
-    if (!deeplink?.shortenUrl) {
-      return { error: "딥링크 생성에 실패했습니다." };
+    let affiliateUrl = productUrl;
+    if (!skipDeeplink) {
+      const [deeplink] = await createDeeplink([productUrl], { accessKey, secretKey });
+      if (!deeplink?.shortenUrl) {
+        return { error: "딥링크 생성에 실패했습니다." };
+      }
+      affiliateUrl = deeplink.shortenUrl;
     }
 
     const enrichment = parseEnrichmentFields(formData);
@@ -110,7 +119,7 @@ export async function registerCoupangProductAction(
       platform: "coupang",
       product_name: productName,
       product_url: productUrl,
-      affiliate_url: deeplink.shortenUrl,
+      affiliate_url: affiliateUrl,
       price: priceRaw ? Number(priceRaw) : null,
       ...enrichment,
     });

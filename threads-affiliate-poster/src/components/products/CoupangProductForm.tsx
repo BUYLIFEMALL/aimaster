@@ -143,6 +143,11 @@ export function CoupangProductForm({
           )}
           <input type="hidden" name="productUrl" value={selected.productUrl} />
           <input type="hidden" name="price" value={selected.productPrice} />
+          {/* 검색 결과로 선택한 상품은 productId가 실제 쿠팡 productId(양수)이고,
+              이미 본인 키로 추적되는 제휴 링크(link.coupang.com/re/AFFSDP...)를
+              받은 상태다. "URL 직접 입력"은 productId를 -Date.now()로 채워
+              음수가 되므로, 이때만 서버에서 딥링크 변환을 수행하도록 구분한다. */}
+          <input type="hidden" name="skipDeeplink" value={selected.productId >= 0 ? "1" : "0"} />
         </div>
       )}
 
