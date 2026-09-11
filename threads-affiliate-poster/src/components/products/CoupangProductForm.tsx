@@ -108,7 +108,7 @@ export function CoupangProductForm({
           placeholder="https://link.coupang.com/a/..."
         />
         <Button type="button" variant="muted" onClick={handleUseManualUrl}>
-          이 URL로 사용하기
+          이 링크로 등록
         </Button>
         {manualError && <p className="text-xs text-red-600">{manualError}</p>}
       </div>
