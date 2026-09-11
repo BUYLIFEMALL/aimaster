@@ -95,19 +95,25 @@ instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록�
   공용 `user_api_keys`에 provider를 추가해서(0002 마이그레이션) 본인 값만 쓰도록 고쳤다 —
   예전엔 `"threads_affiliate_poster"`라는 값이 코드에 하드코딩되어 있었다.
 - **쿠팡은 2026-09-11 실계정 실호출로 검증 완료했다.** 매출 요건을 채워 키가 활성화된 뒤
-  실제로 검색(GET)/딥링크(POST) 흐름을 테스트하다 두 가지를 발견·수정했다.
+  실제로 검색(GET)/딥링크(POST) 흐름을 테스트하다 두 가지를 발견했다.
   1. **서명 버그**: `buildAuthorizationHeader`가 서명 대상 문자열에 path와 query 사이 "?"를
      포함시키고 있었다("Invalid signature" 401). 공식 문서(PHP/Python 예제)대로 `datetime+
      method+path+query`를 "?" 없이 이어붙이도록 수정(실제 요청 URL에는 "?"가 그대로 필요).
   2. **"url convert failed"(400) 딥링크 오류**: 검색 API가 돌려주는 `productUrl`은 이미 본인
      파트너스 키로 추적되는 제휴 링크(`link.coupang.com/re/AFFSDP?...`)였다 — 여기에 딥링크
-     변환을 다시 걸면 쿠팡이 거부한다. 검색 결과로 고른 상품은 그 `productUrl`을 그대로
-     `affiliate_url`로 쓰고, "URL 직접 입력"으로 받은 일반 상품 URL만 `createDeeplink`로
-     변환하도록 분기했다(`registerCoupangProductAction`의 `skipDeeplink`, 판단 기준은
-     `CoupangProductForm`에서 검색 결과 선택 시 `productId`가 실제 쿠팡 ID(양수)라는 점).
-  두 수정 모두 반영 후 실제 상품(무선 이어폰 검색 → 선택 → 등록)으로 end-to-end 성공 확인.
-- 쿠팡 상품검색 API는 시간당 호출 제한(약 10회, 커뮤니티 정보)이 있다고 알려져 있어, 검색
-  결과를 `affiliate_products`에 저장해 재검색을 줄이는 방향으로 설계했다.
+     변환을 다시 걸면 쿠팡이 거부한다.
+  → 이 두 번째 발견을 계기로 **딥링크 변환 API(`createDeeplink`) 자체를 제거**했다. 검색
+  결과로 고른 상품은 `productUrl`이 이미 추적 링크라 그대로 `affiliate_url`로 저장하고,
+  "URL 직접 입력"도 네이버 브랜드커넥트(`registerNaverProductAction`)와 동일하게 사용자가
+  쿠팡파트너스 사이트에서 직접 발급받은 본인 제휴 링크를 그대로 붙여넣는다는 전제로 바꿨다
+  (2026-09-11). 그래서 `registerCoupangProductAction`은 이제 Access/Secret Key를 전혀
+  요구하지 않는다 — 그 키는 상품 검색(`searchCoupangProductsAction`)에만 필요하다. 매출
+  15만원 미달로 검색 API 키가 아직 활성화되지 않은 회원도 "URL 직접 입력"으로는 등록할 수
+  있다. 실제 상품(무선 이어폰 검색 → 선택 → 등록)으로 end-to-end 성공 확인.
+- 쿠팡 상품검색 API는 시간당 호출 제한(약 10회, 커뮤니티 정보 — 쿠팡이 발급 시 제공하는
+  가이드 PDF에만 적혀 있고 공개 문서 포털에는 없음)이 있다고 알려져 있어, 화면에도 안내
+  문구를 노출하고 검색 결과를 `affiliate_products`에 저장해 재검색을 줄이는 방향으로
+  설계했다.
 
 ## 📦 Phase 진행 상태
 

@@ -4,15 +4,16 @@ import crypto from "crypto";
 // 쿠팡파트너스 오픈 API 클라이언트. "server-only" 가드로 Access/Secret Key가
 // 클라이언트 번들에 절대 포함되지 않도록 한다.
 //
-// 2026-09-11 실계정 실호출로 검증 완료: 검색(GET)/딥링크(POST) 서명, 엔드포인트 모두 정상
-// 작동한다. 검색 API가 돌려주는 productUrl은 이미 본인 파트너스 키로 추적되는 제휴 링크
-// (link.coupang.com/re/AFFSDP?...)이므로, 검색 결과로 선택한 상품은 딥링크 변환을 다시
-// 걸면 안 된다("url convert failed" 400) — createDeeplink는 사용자가 직접 입력한 일반
-// 상품 URL(https://www.coupang.com/vp/products/...)을 변환할 때만 호출한다
-// (호출부: src/lib/actions/products.ts의 skipDeeplink 분기).
+// 2026-09-11 실계정 실호출로 검증 완료: 검색(GET) 서명/엔드포인트 정상 작동한다. 검색
+// API가 돌려주는 productUrl은 이미 본인 파트너스 키로 추적되는 제휴 링크
+// (link.coupang.com/re/AFFSDP?...)이므로, 등록 시 별도 딥링크 변환 없이 그대로 저장한다
+// (딥링크 변환 API를 붙였다가 "url convert failed"(400)만 발생시켜서 제거함 — 이미
+// 변환된 링크를 다시 변환하려 했던 것). "URL 직접 입력"으로 등록하는 경우도 네이버
+// 브랜드커넥트(registerNaverProductAction)와 동일하게, 사용자가 쿠팡파트너스 사이트에서
+// 직접 발급받은 제휴 링크를 그대로 붙여넣는다는 전제라 API 키가 필요 없다
+// (호출부: src/lib/actions/products.ts).
 
 const API_GATEWAY = "https://api-gateway.coupang.com";
-const DEEPLINK_PATH = "/v2/providers/affiliate_open_api/apis/openapi/v1/deeplink";
 const SEARCH_PATH = "/v2/providers/affiliate_open_api/apis/openapi/products/search";
 
 interface CoupangAuthParams {
@@ -48,12 +49,7 @@ function buildCoupangErrorMessage(action: string, status: number, body: string):
  * 서명 계산에는 넣으면 안 된다 — 2026-09-11 실계정 첫 실호출에서 "Invalid signature"(401)로
  * 이 차이를 확인했다(이전엔 계정 매출 요건 미달로 서명 검증 자체를 못 받아봤다).
  */
-function buildAuthorizationHeader(
-  method: "GET" | "POST",
-  path: string,
-  query: string,
-  auth: CoupangAuthParams,
-): string {
+function buildAuthorizationHeader(method: "GET", path: string, query: string, auth: CoupangAuthParams): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   const signedDate =
@@ -129,46 +125,4 @@ export async function searchProducts(
     isRocket: Boolean(p.isRocket),
     isFreeShipping: Boolean(p.isFreeShipping),
   }));
-}
-
-export interface CoupangDeeplink {
-  originalUrl: string;
-  shortenUrl: string;
-  landingUrl: string;
-}
-
-/** 쿠팡 상품 URL을 파트너스 제휴 딥링크로 변환한다(최대 여러 개 한 번에 처리 가능). */
-export async function createDeeplink(
-  coupangUrls: string[],
-  auth: CoupangAuthParams & { subId?: string },
-): Promise<CoupangDeeplink[]> {
-  const body = JSON.stringify({
-    coupangUrls,
-    ...(auth.subId ? { subId: auth.subId } : {}),
-  });
-
-  const response = await fetch(`${API_GATEWAY}${DEEPLINK_PATH}`, {
-    method: "POST",
-    headers: {
-      Authorization: buildAuthorizationHeader("POST", DEEPLINK_PATH, "", auth),
-      "Content-Type": "application/json",
-    },
-    body,
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(buildCoupangErrorMessage("딥링크 생성", response.status, text));
-  }
-
-  const data = (await response.json()) as {
-    rCode?: string;
-    rMessage?: string;
-    data?: { originalUrl: string; shortenUrl: string; landingUrl: string }[];
-  };
-  if (data.rCode && data.rCode !== "0") {
-    throw new Error(`쿠팡 딥링크 생성 응답 오류: ${data.rMessage ?? data.rCode}`);
-  }
-
-  return data.data ?? [];
 }

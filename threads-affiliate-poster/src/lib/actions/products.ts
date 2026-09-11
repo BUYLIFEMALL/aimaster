@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { searchProducts as searchCoupangProducts, createDeeplink, type CoupangProduct } from "@/lib/coupang/client";
+import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
 import { getPromotionLinks } from "@/lib/aliexpress/client";
 import {
   getBestSelling,
@@ -74,7 +74,15 @@ export interface RegisterProductState {
   success?: boolean;
 }
 
-/** 쿠팡 검색 결과에서 고른 상품 1건을 딥링크로 변환해 등록한다. */
+/**
+ * 쿠팡 상품을 등록한다. productUrl은 이미 제휴 추적이 되는 링크라고 보고 그대로 저장한다.
+ * - 검색 결과에서 고른 상품: 검색 API 자체가 본인 파트너스 키로 인증해서 받아온 결과라,
+ *   productUrl이 이미 추적 링크(link.coupang.com/re/AFFSDP?...)다.
+ * - "URL 직접 입력": 네이버 브랜드커넥트(registerNaverProductAction)와 동일하게, 사용자가
+ *   쿠팡파트너스 사이트에서 직접 발급받은 본인 제휴 링크를 그대로 붙여넣는다는 전제다.
+ *   그래서 API 키가 없어도(매출 15만원 미달로 API 키가 아직 활성화되지 않았어도) 등록할 수
+ *   있다 — Access/Secret Key는 검색 API를 쓸 때만 필요하다.
+ */
 export async function registerCoupangProductAction(
   _prevState: RegisterProductState,
   formData: FormData,
@@ -83,54 +91,28 @@ export async function registerCoupangProductAction(
   const productName = String(formData.get("productName") ?? "").trim();
   const productUrl = String(formData.get("productUrl") ?? "").trim();
   const priceRaw = String(formData.get("price") ?? "").trim();
-  // 검색 API가 돌려주는 productUrl은 이미 본인 파트너스 키로 추적 처리된 제휴 링크
-  // (link.coupang.com/re/AFFSDP?...)라, 여기에 딥링크 변환을 다시 걸면 쿠팡이
-  // "url convert failed"(400)로 거부한다 — 딥링크 변환 API는 일반 상품 URL
-  // (직접 입력한 https://www.coupang.com/vp/products/... 등)을 위한 것이다.
-  const skipDeeplink = String(formData.get("skipDeeplink") ?? "") === "1";
 
   if (!productName || !productUrl) {
-    return { error: "상품 정보가 올바르지 않습니다. 다시 검색해서 선택해주세요." };
+    return { error: "상품 정보가 올바르지 않습니다. 다시 검색해서 선택하거나 URL을 입력해주세요." };
   }
 
   const supabase = await createClient();
-  const [accessKey, secretKey] = await Promise.all([
-    resolveApiKey(supabase, user.id, "coupang_access_key"),
-    resolveApiKey(supabase, user.id, "coupang_secret_key"),
-  ]);
-  if (!accessKey || !secretKey) {
-    return { error: "쿠팡파트너스 Access Key/Secret Key가 없습니다. 설정 페이지에서 먼저 등록해주세요." };
-  }
+  const enrichment = parseEnrichmentFields(formData);
 
-  try {
-    let affiliateUrl = productUrl;
-    if (!skipDeeplink) {
-      const [deeplink] = await createDeeplink([productUrl], { accessKey, secretKey });
-      if (!deeplink?.shortenUrl) {
-        return { error: "딥링크 생성에 실패했습니다." };
-      }
-      affiliateUrl = deeplink.shortenUrl;
-    }
+  const { error } = await supabase.from("affiliate_products").insert({
+    user_id: user.id,
+    platform: "coupang",
+    product_name: productName,
+    product_url: productUrl,
+    affiliate_url: productUrl,
+    price: priceRaw ? Number(priceRaw) : null,
+    ...enrichment,
+  });
+  if (error) return { error: error.message };
 
-    const enrichment = parseEnrichmentFields(formData);
-
-    const { error } = await supabase.from("affiliate_products").insert({
-      user_id: user.id,
-      platform: "coupang",
-      product_name: productName,
-      product_url: productUrl,
-      affiliate_url: affiliateUrl,
-      price: priceRaw ? Number(priceRaw) : null,
-      ...enrichment,
-    });
-    if (error) return { error: error.message };
-
-    await logProgramUsage({ userId: user.id, action: "register_coupang_product" });
-    revalidatePath("/products");
-    return { success: true };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : "쿠팡 딥링크 생성에 실패했습니다." };
-  }
+  await logProgramUsage({ userId: user.id, action: "register_coupang_product" });
+  revalidatePath("/products");
+  return { success: true };
 }
 
 /** 알리익스프레스 상품 URL을 제휴 링크로 변환해 등록한다. */

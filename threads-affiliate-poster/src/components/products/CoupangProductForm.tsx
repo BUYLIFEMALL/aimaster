@@ -93,7 +93,10 @@ export function CoupangProductForm({
       {searchError && <p className="text-xs text-red-600">{searchError}</p>}
 
       <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
-        <p className="text-xs font-medium text-neutral-700">또는 쿠팡 상품 URL 직접 입력</p>
+        <p className="text-xs font-medium text-neutral-700">쿠팡 상품URL 직접 입력(API키 등록X)</p>
+        <p className="text-xs text-neutral-500">
+          쿠팡파트너스 사이트에서 직접 발급받은 본인 제휴 링크를 붙여넣어주세요.
+        </p>
         <Input
           value={manualName}
           onChange={(e) => setManualName(e.target.value)}
@@ -102,7 +105,7 @@ export function CoupangProductForm({
         <Input
           value={manualUrl}
           onChange={(e) => setManualUrl(e.target.value)}
-          placeholder="https://www.coupang.com/vp/products/..."
+          placeholder="https://link.coupang.com/a/..."
         />
         <Button type="button" variant="muted" onClick={handleUseManualUrl}>
           이 URL로 사용하기
@@ -146,11 +149,6 @@ export function CoupangProductForm({
           )}
           <input type="hidden" name="productUrl" value={selected.productUrl} />
           <input type="hidden" name="price" value={selected.productPrice} />
-          {/* 검색 결과로 선택한 상품은 productId가 실제 쿠팡 productId(양수)이고,
-              이미 본인 키로 추적되는 제휴 링크(link.coupang.com/re/AFFSDP...)를
-              받은 상태다. "URL 직접 입력"은 productId를 -Date.now()로 채워
-              음수가 되므로, 이때만 서버에서 딥링크 변환을 수행하도록 구분한다. */}
-          <input type="hidden" name="skipDeeplink" value={selected.productId >= 0 ? "1" : "0"} />
         </div>
       )}
 
@@ -180,7 +178,7 @@ export function CoupangProductForm({
         disabled={isPending || !selected}
         className="disabled:!bg-neutral-900 disabled:!text-white disabled:!opacity-100"
       >
-        {isPending ? "등록 중..." : selected ? "이 상품으로 등록 (딥링크 자동 생성)" : "먼저 상품을 검색·선택해주세요"}
+        {isPending ? "등록 중..." : selected ? "이 상품으로 등록" : "먼저 상품을 검색·선택해주세요"}
       </Button>
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
       {state.success && <p className="text-xs text-green-600">등록되었습니다.</p>}
