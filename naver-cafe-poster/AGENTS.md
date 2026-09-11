@@ -99,9 +99,9 @@ naver-cafe-poster는 AIMaster 저장소 안의 서브프로젝트다. 루트 `..
 
 | Phase | 내용 | 상태 |
 |-------|------|------|
-| 1 | 네이버 로그인 OAuth 연결(공용 앱), 카페 게시판(club_id/menu_id) 수동 등록, AI 게시글 생성(OpenAI, 제목+본문), 즉시 게시(`createCafeArticle`), 게시 이력 관리 | ✅ 코드 구현 완료 — **실계정 미검증**(네이버 개발자센터 앱 등록 대기 중, 2026-09-11) |
-| 1 | `programs` 카탈로그 등록 | ⏳ 예정 |
-| 1 | Vercel 배포 | ⏳ 예정(네이버 앱 등록 후) |
+| 1 | 네이버 로그인 OAuth 연결(공용 앱), 카페 게시판(club_id/menu_id) 수동 등록, AI 게시글 생성(OpenAI, 제목+본문), 즉시 게시(`createCafeArticle`), 게시 이력 관리 | ✅ 코드 구현 완료 — **네이버 로그인 자체는 네이버 심사 대기 중이라 카페 연동/게시 실계정 미검증**(2026-09-11) |
+| 1 | `programs`/`pricing_plans` 카탈로그 등록(네이버 카테고리, required_grade_id=일반, 1/2/3개월 기본 3단계 요금제) | ✅ 완료(2026-09-11) — 등록 전엔 로그인 후 `/dashboard` 등 진입 시 `requireProgramAccess()`가 `buylife.xyz/programs/naver-cafe-poster`로 리다이렉트했는데 그 프로그램 자체가 카탈로그에 없어 404가 났었다(사용자가 직접 발견해 알려줌) — 등록 후 200 확인 |
+| 1 | Vercel 배포(Client ID/Secret, Supabase 접속정보 env 설정) | ✅ 완료(2026-09-11) — `vercel env pull`로 다른 프로젝트 값을 옮기려다 이 환경이 pull 결과값을 "[SENSITIVE]" 자리표시자로 치환하는 걸 모르고 그대로 넣어 Supabase URL 등이 전부 깨졌던 사고가 있었다. Supabase URL/anon key는 Supabase MCP(`get_project_url`/`get_publishable_keys`)로, service_role key는 사용자에게 직접 복사해서 받아 해결했다. **교훈: 이 환경에서 `vercel env pull`로 받은 파일의 값은 그대로 다른 곳에 재사용하지 말 것** — 항상 [SENSITIVE]로 치환되어 있을 수 있다. Supabase 값은 MCP로, 그 외 비밀값은 사용자에게 직접 요청해서 받을 것.
 | 2 | 카페 가입 유도 자동화(`POST /v1/cafe/{clubid}/members`) — 회원이 본인 카페 초대 링크를 만들어 자신의 고객/구독자가 그 링크로 네이버 로그인하면 자동으로 그 카페에 가입되는 흐름 | ⏳ 예정(의도적으로 미착수, 이번 세션 범위는 게시글 자동 포스팅까지) |
 | 2+ | 게시글 이미지 첨부, 예약 게시 | ⏳ 예정(필요성 확인 후) |
 
