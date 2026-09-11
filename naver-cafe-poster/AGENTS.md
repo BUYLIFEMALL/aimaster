@@ -1,0 +1,109 @@
+# 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
+
+이 문서는 **네이버 카페 자동화(naver-cafe-poster)** 프로젝트에서 AI Agent(Claude Code 등)가
+협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
+
+---
+
+## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
+
+### 1. 자율 진행 허용 작업
+파일 생성/코드 수정, 패키지 설치, 로컬 테스트/빌드, 스키마 추가/마이그레이션.
+
+### 2. 사전 승인 필수 작업 (🚨 승인 없이 금지)
+1. 파일이나 폴더 삭제
+2. Git push
+3. 실제 서비스 배포(Vercel 프로덕션)
+4. 데이터베이스 데이터 삭제
+5. 환경변수와 API 키 변경
+6. 유료 API 호출(AI 게시글 생성 등)
+7. **실제 게시(`publishCafePost`)** — 사람이 대시보드에서 내용을 직접 확인·수정한 뒤 "게시"
+   버튼을 눌러야만 실행된다. 예약 게시 개념 자체가 없다(즉시 게시만 지원).
+
+---
+
+## 🎯 프로젝트 목적
+
+AIMaster 회원이 각자 본인 네이버 계정을 연동하고, 본인이 운영/활동하는 카페의 게시판을
+등록하면, AI가 만든 게시글을 그 카페에 자동으로 등록해주는 멀티테넌시 SaaS 프로그램.
+
+**중요 — 이 프로젝트는 buylifemall 내부 도구가 아니다.** "공동구매 공식카페 가입 연결",
+"강의 수강생 전용카페 가입" 같은 아이디어가 처음 논의됐을 때 표현만 보면 운영자 전용 도구처럼
+보였지만, 2026-09-11 사용자에게 직접 확인한 결과 **AIMaster 회원이 각자 본인 카페를 연동해
+쓰는 SaaS 기능**으로 확정됐다(threads-affiliate-poster 등 기존 서브프로젝트와 동일한 멀티테넌시
+원칙 적용). 카페 "가입 유도 자동화"는 아직 구현 전(Phase 2)이며, 착수 전에 이 문서의 Phase
+표부터 갱신할 것.
+
+---
+
+## 📂 프로젝트 작업 디렉토리
+* **메인 모듈 경로**: `naver-cafe-poster/`
+* Next.js 16(App Router, `src/` 디렉토리 구조) — `threads-affiliate-poster/`를 스캐폴드
+  템플릿으로 복제해서 시작했다(2026-09-11). 인증/레이아웃/UI 컴포넌트 등 범용 코드는
+  그대로 재사용했고, Threads/쿠팡/알리익스프레스/토스 관련 코드는 전부 제거했다.
+
+---
+
+## 🔗 AIMaster 플랫폼 공통 원칙
+
+naver-cafe-poster는 AIMaster 저장소 안의 서브프로젝트다. 루트 `../CLAUDE.md`를 메인 지침으로
+함께 따른다. 핵심 요약:
+
+- `programs.slug = "naver-cafe-poster"` 이용 권한(구독/개별부여/등급)이 있는 모든 AIMaster
+  회원이 각자 계정으로 쓸 수 있는 멀티테넌시 SaaS다.
+- 페이지는 `requireProgramAccess()`, API route는 `checkProgramAccessApi()`로 권한을 확인한다
+  (`src/lib/access.ts`).
+- 사용자 소유 데이터(`ncafe_accounts`, `ncafe_targets`, `ncafe_posts`)는 `user_id` + RLS
+  owner-only로 격리한다.
+- **API 키는 본인 키만 사용, 관리자 키 폴백 없음** — `src/lib/apiKeys.ts` (openai만 사용).
+
+### 테이블명이 다른 서브프로젝트와 겹치지 않도록 접두어를 붙였다
+공용 Supabase 프로젝트에 이미 `naver_search_cache`/`naver_trend_cache`(threads-affiliate-poster,
+검색어트렌드 기능용) 테이블이 있어서, 이 프로젝트는 **`ncafe_accounts`/`ncafe_targets`/
+`ncafe_posts`**(naver-cafe-poster 접두어)로 분리했다(2026-09-11, `information_schema.tables`
+전체 대조 후 결정). 새 테이블을 추가할 때도 이름이 겹치지 않는지 먼저 확인할 것.
+
+### 네이버 로그인 OAuth — 공유 앱 + 회원별 연동 구조
+- Threads/Instagram(threads-affiliate-poster, threads/, instagram-comment-reply 등)이 공용
+  Meta 앱을 재사용하는 것과 같은 구조다: 이 프로젝트가 네이버 개발자센터에 앱을 **하나만**
+  등록(`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`)하고, 모든 회원이 그 앱을 통해 각자 본인
+  네이버 계정으로 로그인해 access token을 받는다. 그 토큰으로는 **연동한 본인 명의로만**
+  카페 가입/글쓰기가 된다.
+- 네이버 로그인 authorize 엔드포인트(`https://nid.naver.com/oauth2.0/authorize`)는 OAuth2
+  표준과 달리 `scope` 파라미터가 없다 — 카페 가입/글쓰기 같은 "제공 정보" 접근 권한은
+  개발자센터 앱 등록 화면에서 미리 체크해둔 설정으로 결정된다(2026-09-11 확인,
+  blog.itcode.dev의 OAuth 가이드 근거).
+- **앱 등록 시 필요한 것**: 개발자센터에서 애플리케이션 등록 → "로그인 오픈 API" 체크 →
+  사용 API에 "카페" 추가 → Callback URL에 `https://naver-cafe-poster.vercel.app/api/naver/callback`
+  등록 → 발급받은 Client ID/Secret을 Vercel 환경변수에 설정.
+
+### 네이버 카페 오픈API의 구조적 한계 (설계에 반영됨)
+2026-09-11 확인: 네이버 카페 오픈API는 **가입(`POST /v1/cafe/{clubid}/members`)과 글쓰기
+(`POST /v1/cafe/{clubid}/menu/{menuid}/articles`) 딱 2개뿐**이고, "내 카페 목록 조회"나
+"게시판(메뉴) 목록 조회" API가 아예 없다. 그래서:
+- 회원이 게시할 카페의 `club_id`/`menu_id`를 **직접 입력**해야 한다(`ncafe_targets` 테이블,
+  설정 페이지의 `CafeTargetManager`) — 본인 카페 관리 화면 URL의 쿼리스트링에서 확인 가능.
+- 글쓰기 API의 정확한 요청 파라미터는 커뮤니티 문서로 확인했다(`subject`/`content`/`openyn`,
+  URL-encoded POST body, `Authorization: Bearer {token}` 헤더) — 이건 신뢰도가 높다.
+- **하지만 성공 응답의 정확한 JSON 필드명(게시글 ID/URL 등)은 아직 확인 못 했다** —
+  developers.naver.com 상세 문서는 로그인이 필요해 이 환경(WebFetch)에서 접근이 막혀 있다.
+  그래서 `src/lib/naver/client.ts`의 `createCafeArticle()`은 HTTP status만으로 성공/실패를
+  판단하고, 원본 응답 전체를 `ncafe_posts.raw_response`(jsonb)에 그대로 저장해둔다.
+  **실계정으로 첫 게시 테스트를 할 때 이 raw_response를 확인해서, 응답에서 게시글 URL 등을
+  파싱해 보여줄 가치가 있는 필드가 있으면 그때 클라이언트/화면 코드를 보강할 것** — 이
+  프로젝트에서 처음으로 실제 API를 두드려보는 순간이니, 쿠팡파트너스 때처럼 가정과 실제
+  응답이 다를 가능성을 염두에 둘 것(threads-affiliate-poster의 쿠팡 서명/딥링크 버그 사례
+  참고).
+
+## 📦 Phase 진행 상태
+
+| Phase | 내용 | 상태 |
+|-------|------|------|
+| 1 | 네이버 로그인 OAuth 연결(공용 앱), 카페 게시판(club_id/menu_id) 수동 등록, AI 게시글 생성(OpenAI, 제목+본문), 즉시 게시(`createCafeArticle`), 게시 이력 관리 | ✅ 코드 구현 완료 — **실계정 미검증**(네이버 개발자센터 앱 등록 대기 중, 2026-09-11) |
+| 1 | `programs` 카탈로그 등록 | ⏳ 예정 |
+| 1 | Vercel 배포 | ⏳ 예정(네이버 앱 등록 후) |
+| 2 | 카페 가입 유도 자동화(`POST /v1/cafe/{clubid}/members`) — 회원이 본인 카페 초대 링크를 만들어 자신의 고객/구독자가 그 링크로 네이버 로그인하면 자동으로 그 카페에 가입되는 흐름 | ⏳ 예정(의도적으로 미착수, 이번 세션 범위는 게시글 자동 포스팅까지) |
+| 2+ | 게시글 이미지 첨부, 예약 게시 | ⏳ 예정(필요성 확인 후) |
+
+한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 했다. 새 Phase를 시작할 때는 이 표를
+갱신할 것.

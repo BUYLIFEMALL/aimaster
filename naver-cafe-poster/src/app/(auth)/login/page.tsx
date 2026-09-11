@@ -1,0 +1,51 @@
+"use client";
+
+import { Suspense, useActionState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { signInAction, type AuthActionState } from "@/lib/actions/auth";
+
+const initialState: AuthActionState = {};
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? "";
+  const [state, formAction, isPending] = useActionState(signInAction, initialState);
+
+  return (
+    <div className="rounded-lg border border-neutral-200 bg-white p-6">
+      <h2 className="mb-4 text-lg font-medium text-neutral-900">로그인</h2>
+      <form action={formAction} className="space-y-4">
+        <input type="hidden" name="redirect" value={redirectTo} />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-neutral-700">이메일</label>
+          <Input name="email" type="email" required autoComplete="email" />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-neutral-700">비밀번호</label>
+          <Input name="password" type="password" required autoComplete="current-password" />
+        </div>
+        {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? "로그인 중..." : "로그인"}
+        </Button>
+      </form>
+      <p className="mt-4 text-center text-sm text-neutral-500">
+        계정이 없으신가요?{" "}
+        <Link href="/signup" className="font-medium text-neutral-900 underline">
+          AIMaster에서 회원가입
+        </Link>
+      </p>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
