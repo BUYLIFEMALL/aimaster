@@ -1,32 +1,47 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import { createPostAction, type PostActionState } from "@/lib/actions/posts";
+import { saveDraftAction, type PostActionState } from "@/lib/actions/posts";
 import { generateCafePostAction } from "@/lib/actions/ai";
 import type { CafeTarget } from "@/types/post";
 
 const initialState: PostActionState = {};
 
-export function CafePostForm({
+export function DraftComposer({
   targets,
-  hasNaverAccount,
   initialTitle = "",
   initialContent = "",
 }: {
   targets: CafeTarget[];
-  hasNaverAccount: boolean;
   initialTitle?: string;
   initialContent?: string;
 }) {
-  const [state, formAction, isPending] = useActionState(createPostAction, initialState);
+  const [state, formAction, isPending] = useActionState(saveDraftAction, initialState);
   const [topic, setTopic] = useState("");
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
+  const [targetId, setTargetId] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
   const [isGenerating, startGenerating] = useTransition();
+
+  // 후보(candidates)에서 "이 후보로 글쓰기"로 넘어오면 title/content가 바뀐다 — 그때마다 반영.
+  useEffect(() => {
+    setTitle(initialTitle);
+    setContent(initialContent);
+  }, [initialTitle, initialContent]);
+
+  // 저장 성공 시 다음 초안을 바로 이어서 쓸 수 있게 입력값을 비운다.
+  useEffect(() => {
+    if (state.success) {
+      setTopic("");
+      setTitle("");
+      setContent("");
+      setTargetId("");
+    }
+  }, [state.success]);
 
   const handleGenerate = () => {
     if (!topic.trim()) {
@@ -46,7 +61,7 @@ export function CafePostForm({
   };
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4">
       <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
         <p className="text-xs font-medium text-neutral-700">🤖 AI로 글감 만들기</p>
         <div className="flex gap-2">
@@ -63,27 +78,6 @@ export function CafePostForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-neutral-500">등록할 카페</label>
-        <select
-          name="targetId"
-          required
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
-        >
-          <option value="">카페를 선택하세요</option>
-          {targets.map((target) => (
-            <option key={target.id} value={target.id}>
-              {target.label}
-            </option>
-          ))}
-        </select>
-        {targets.length === 0 && (
-          <p className="mt-1 text-xs text-red-600">
-            등록된 카페가 없습니다. 설정 페이지에서 먼저 카페 게시판을 등록해주세요.
-          </p>
-        )}
-      </div>
-
-      <div>
         <label className="mb-1 block text-xs font-medium text-neutral-500">제목</label>
         <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
       </div>
@@ -94,18 +88,33 @@ export function CafePostForm({
           name="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={12}
+          rows={10}
           required
         />
       </div>
 
-      <Button type="submit" disabled={isPending || !hasNaverAccount || targets.length === 0}>
-        {isPending ? "게시 중..." : "이 내용으로 게시하기"}
+      <div>
+        <label className="mb-1 block text-xs font-medium text-neutral-500">등록할 카페 (나중에 골라도 됩니다)</label>
+        <select
+          name="targetId"
+          value={targetId}
+          onChange={(e) => setTargetId(e.target.value)}
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+        >
+          <option value="">아직 안 정함</option>
+          {targets.map((target) => (
+            <option key={target.id} value={target.id}>
+              {target.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <Button type="submit" disabled={isPending}>
+        {isPending ? "저장 중..." : "초안으로 저장"}
       </Button>
-      {!hasNaverAccount && (
-        <p className="text-xs text-red-600">네이버 계정이 연결되어 있지 않아 게시할 수 없습니다.</p>
-      )}
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
+      {state.success && <p className="text-xs text-green-600">초안이 저장되었습니다. 아래 목록에서 검수 후 배포하세요.</p>}
     </form>
   );
 }

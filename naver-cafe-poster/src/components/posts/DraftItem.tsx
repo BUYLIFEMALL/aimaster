@@ -1,0 +1,114 @@
+"use client";
+
+import { useActionState, useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
+import { StatusBadge } from "@/components/posts/StatusBadge";
+import { DeleteButton } from "@/components/posts/DeleteButton";
+import { updateDraftAction, deployDraftAction, deletePostAction, type PostActionState } from "@/lib/actions/posts";
+import type { CafePost, CafeTarget, PostStatus } from "@/types/post";
+
+const initialState: PostActionState = {};
+
+export function DraftItem({
+  post,
+  targets,
+  hasNaverAccount,
+  startInEdit = false,
+}: {
+  post: CafePost;
+  targets: CafeTarget[];
+  hasNaverAccount: boolean;
+  startInEdit?: boolean;
+}) {
+  const [isEditing, setIsEditing] = useState(startInEdit);
+  const [state, formAction, isPending] = useActionState(updateDraftAction, initialState);
+  const [title, setTitle] = useState(post.title);
+  const [content, setContent] = useState(post.content);
+  const [targetId, setTargetId] = useState(post.target_id ?? "");
+
+  const status = post.status as PostStatus;
+  const targetLabel = targets.find((t) => t.id === post.target_id)?.label ?? null;
+
+  useEffect(() => {
+    if (state.success) setIsEditing(false);
+  }, [state.success]);
+
+  if (isEditing) {
+    return (
+      <li className="space-y-3 rounded-lg border border-neutral-300 bg-neutral-50 p-4">
+        <form action={formAction} className="space-y-3">
+          <input type="hidden" name="postId" value={post.id} />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} name="title" required />
+          <Textarea value={content} onChange={(e) => setContent(e.target.value)} name="content" rows={8} required />
+          <select
+            name="targetId"
+            value={targetId}
+            onChange={(e) => setTargetId(e.target.value)}
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+          >
+            <option value="">아직 안 정함</option>
+            {targets.map((target) => (
+              <option key={target.id} value={target.id}>
+                {target.label}
+              </option>
+            ))}
+          </select>
+          <div className="flex gap-2">
+            <Button type="submit" variant="secondary" disabled={isPending}>
+              {isPending ? "저장 중..." : "저장"}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setIsEditing(false)}>
+              취소
+            </Button>
+          </div>
+          {state.error && <p className="text-xs text-red-600">{state.error}</p>}
+        </form>
+      </li>
+    );
+  }
+
+  return (
+    <li className="rounded-lg border border-neutral-200 bg-white p-4">
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-neutral-900">{post.title}</p>
+          <p className="mt-1 text-xs text-neutral-500">{targetLabel ?? "카페 미지정"}</p>
+        </div>
+        <StatusBadge status={status} />
+      </div>
+      <p className="whitespace-pre-wrap text-sm text-neutral-700 line-clamp-4">{post.content}</p>
+      {status === "failed" && post.error_message && (
+        <p className="mt-2 text-xs text-red-600">실패 사유: {post.error_message}</p>
+      )}
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-3">
+        <Button type="button" variant="secondary" onClick={() => setIsEditing(true)}>
+          수정
+        </Button>
+        <form action={deployDraftAction}>
+          <input type="hidden" name="postId" value={post.id} />
+          <Button type="submit" disabled={!hasNaverAccount || !post.target_id}>
+            검수 완료 · 배포
+          </Button>
+        </form>
+        <form action={deletePostAction}>
+          <input type="hidden" name="postId" value={post.id} />
+          <input type="hidden" name="redirectTo" value="/drafts" />
+          <DeleteButton />
+        </form>
+        <Link href={`/posts/${post.id}`} className="ml-auto text-xs text-neutral-500 hover:underline">
+          상세 보기
+        </Link>
+      </div>
+      {!hasNaverAccount && (
+        <p className="mt-2 text-xs text-red-600">네이버 계정이 연결되어 있지 않아 배포할 수 없습니다.</p>
+      )}
+      {hasNaverAccount && !post.target_id && (
+        <p className="mt-2 text-xs text-amber-600">등록할 카페를 아직 안 골랐습니다 — 수정에서 지정해주세요.</p>
+      )}
+    </li>
+  );
+}

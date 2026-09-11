@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
-import { postFormSchema } from "@/lib/validation";
+import { draftFormSchema } from "@/lib/validation";
 import { publishCafePost } from "@/lib/posts/publish-core";
 
 export interface PostActionState {
   error?: string;
+  success?: boolean;
 }
 
 async function getNaverAccountOrError(
@@ -43,19 +44,20 @@ async function getTargetOrError(
   return data;
 }
 
-function parsePostForm(formData: FormData) {
-  return postFormSchema.safeParse({
+function parseDraftForm(formData: FormData) {
+  return draftFormSchema.safeParse({
     title: formData.get("title"),
     content: formData.get("content"),
-    targetId: formData.get("targetId"),
+    targetId: formData.get("targetId") ?? "",
   });
 }
 
-export async function createPostAction(
+/** "AI 글쓰기"에서 초안을 저장한다 — 게시하지 않는다(생성 → 수정 → 검수 → 배포는 별도 단계). */
+export async function saveDraftAction(
   _prevState: PostActionState,
   formData: FormData,
 ): Promise<PostActionState> {
-  const parsed = parsePostForm(formData);
+  const parsed = parseDraftForm(formData);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
   }
@@ -64,45 +66,64 @@ export async function createPostAction(
   const supabase = await createClient();
   const { title, content, targetId } = parsed.data;
 
-  const { data: inserted, error } = await supabase
-    .from("ncafe_posts")
-    .insert({
-      user_id: user.id,
-      target_id: targetId,
-      title,
-      content,
-      status: "draft",
-    })
-    .select("id")
-    .single();
+  const { error } = await supabase.from("ncafe_posts").insert({
+    user_id: user.id,
+    target_id: targetId || null,
+    title,
+    content,
+    status: "draft",
+  });
 
-  if (error || !inserted) {
-    return { error: error?.message ?? "게시글 저장에 실패했습니다." };
+  if (error) {
+    return { error: error.message };
   }
 
-  try {
-    const account = await getNaverAccountOrError(supabase, user.id);
-    const target = await getTargetOrError(supabase, user.id, targetId);
-    await publishCafePost({
-      supabase,
-      postId: inserted.id,
-      userId: user.id,
-      title,
-      content,
-      accessToken: account.access_token,
-      clubId: target.club_id,
-      menuId: target.menu_id,
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "게시에 실패했습니다.";
-    await supabase.from("ncafe_posts").update({ status: "failed", error_message: message }).eq("id", inserted.id);
-  }
-
-  revalidatePath("/posts");
-  redirect(`/posts/${inserted.id}`);
+  revalidatePath("/drafts");
+  return { success: true };
 }
 
-export async function retryPublishAction(formData: FormData) {
+/** 기존 초안(draft/failed)의 제목/본문/카페를 수정한다. 이미 게시된 글은 수정할 수 없다. */
+export async function updateDraftAction(
+  _prevState: PostActionState,
+  formData: FormData,
+): Promise<PostActionState> {
+  const postId = String(formData.get("postId") ?? "");
+  const parsed = parseDraftForm(formData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
+  }
+
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const { title, content, targetId } = parsed.data;
+
+  const { data: existing } = await supabase
+    .from("ncafe_posts")
+    .select("status")
+    .eq("id", postId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!existing || existing.status === "published" || existing.status === "publishing") {
+    return { error: "게시 완료되었거나 게시 중인 글은 수정할 수 없습니다." };
+  }
+
+  const { error } = await supabase
+    .from("ncafe_posts")
+    .update({ title, content, target_id: targetId || null })
+    .eq("id", postId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/drafts");
+  return { success: true };
+}
+
+/** 검수가 끝난 초안을 실제 카페에 배포한다. */
+export async function deployDraftAction(formData: FormData) {
   const postId = String(formData.get("postId"));
   const user = await requireProgramAccess();
   const supabase = await createClient();
@@ -114,8 +135,11 @@ export async function retryPublishAction(formData: FormData) {
     .eq("user_id", user.id)
     .single();
 
-  if (!post || !post.target_id) {
-    redirect("/posts");
+  if (!post) {
+    redirect("/drafts");
+  }
+  if (!post.target_id) {
+    return;
   }
 
   try {
@@ -136,18 +160,20 @@ export async function retryPublishAction(formData: FormData) {
     await supabase.from("ncafe_posts").update({ status: "failed", error_message: message }).eq("id", postId);
   }
 
+  revalidatePath("/drafts");
   revalidatePath("/posts");
   revalidatePath(`/posts/${postId}`);
-  redirect(`/posts/${postId}`);
 }
 
 export async function deletePostAction(formData: FormData) {
   const postId = String(formData.get("postId"));
+  const redirectTo = String(formData.get("redirectTo") ?? "/posts");
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
   await supabase.from("ncafe_posts").delete().eq("id", postId).eq("user_id", user.id);
 
   revalidatePath("/posts");
-  redirect("/posts");
+  revalidatePath("/drafts");
+  redirect(redirectTo);
 }

@@ -1,9 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { Button } from "@/components/ui/Button";
-import { deletePostAction, retryPublishAction } from "@/lib/actions/posts";
+import { deletePostAction, deployDraftAction } from "@/lib/actions/posts";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import type { PostStatus } from "@/types/post";
 
@@ -61,15 +62,23 @@ export default async function PostDetailPage({
 
       <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-6">
         {status === "failed" && (
-          <form action={retryPublishAction}>
-            <input type="hidden" name="postId" value={post.id} />
-            <Button type="submit" disabled={!account}>
-              다시 게시하기
-            </Button>
-          </form>
+          <>
+            <Link href={`/drafts?edit=${post.id}`}>
+              <Button type="button" variant="secondary">
+                AI 글쓰기에서 수정
+              </Button>
+            </Link>
+            <form action={deployDraftAction}>
+              <input type="hidden" name="postId" value={post.id} />
+              <Button type="submit" disabled={!account || !post.target_id}>
+                다시 게시하기
+              </Button>
+            </form>
+          </>
         )}
         <form action={deletePostAction}>
           <input type="hidden" name="postId" value={post.id} />
+          <input type="hidden" name="redirectTo" value="/posts" />
           <DeleteButton variant="solid" />
         </form>
       </div>
@@ -77,6 +86,11 @@ export default async function PostDetailPage({
       {status === "failed" && !account && (
         <p className="mt-2 text-xs text-red-600">
           네이버 계정이 연결되어 있지 않아 다시 게시할 수 없습니다. 계정 연결 후 이용해주세요.
+        </p>
+      )}
+      {status === "failed" && account && !post.target_id && (
+        <p className="mt-2 text-xs text-red-600">
+          등록할 카페가 지정되어 있지 않습니다. "AI 글쓰기에서 수정"에서 카페를 선택해주세요.
         </p>
       )}
     </div>

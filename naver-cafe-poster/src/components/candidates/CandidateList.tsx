@@ -19,12 +19,9 @@ export function CandidateList({ candidates }: CandidateListProps) {
   return (
     <ul className="space-y-3">
       {candidates.map((c) => {
-        const writeParams = new URLSearchParams({ title: c.title, candidateId: c.id });
+        const writeParams = new URLSearchParams({ title: c.title });
         if (c.content) {
           writeParams.set("content", c.content);
-        }
-        if (c.keywords && c.keywords.length > 0) {
-          writeParams.set("keywords", c.keywords.join(","));
         }
         return (
           <li key={c.id} className="rounded-lg border border-neutral-200 bg-white p-4">
@@ -32,10 +29,10 @@ export function CandidateList({ candidates }: CandidateListProps) {
               <h3 className="text-sm font-semibold text-neutral-900">{c.title}</h3>
               <div className="flex shrink-0 items-center gap-2">
                 <Link
-                  href={`/posts/new?${writeParams.toString()}`}
+                  href={`/drafts?${writeParams.toString()}`}
                   className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100"
                 >
-                  이 후보로 글쓰기
+                  이 후보로 AI 글쓰기
                 </Link>
                 <form action={deleteCandidateAction}>
                   <input type="hidden" name="id" value={c.id} />

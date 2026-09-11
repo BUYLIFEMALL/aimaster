@@ -18,10 +18,17 @@ const FLOW_STEPS = [
   },
   {
     step: 2,
+    href: "/drafts",
+    icon: "🤖",
+    label: "AI 글쓰기",
+    description: "생성 → 수정 → 검수 → 배포",
+  },
+  {
+    step: 3,
     href: "/posts",
-    icon: "📝",
+    icon: "📋",
     label: "게시글 관리",
-    description: "AI로 작성하고 카페에 게시",
+    description: "배포 이력 확인",
   },
 ];
 
