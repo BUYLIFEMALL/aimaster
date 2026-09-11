@@ -108,13 +108,8 @@ export async function generateCafePostContent(
     throw new Error("AI가 빈 응답을 반환했습니다.");
   }
 
-  const titleMatch = rawContent.match(/^제목:\s*(.+)$/m);
-  const title = titleMatch?.[1]?.trim() ?? input.topic.slice(0, 20);
-  const bodyWithoutTitle = titleMatch
-    ? rawContent.slice((titleMatch.index ?? 0) + titleMatch[0].length).trim()
-    : rawContent;
-
-  let content = ensureParagraphBreaks(bodyWithoutTitle);
+  const { title, content: parsedContent } = parseTitleContent(rawContent, input.topic.slice(0, 20));
+  let content = parsedContent;
 
   // CTA는 프롬프트가 아니라 생성 후 코드에서 직접 덧붙인다 — 시스템 프롬프트에 예시로
   // 넣으면 AI가 실제 CTA 데이터가 없을 때도 placeholder를 지어내는 문제가 있다
@@ -124,4 +119,77 @@ export async function generateCafePostContent(
   }
 
   return { title, content };
+}
+
+function parseTitleContent(rawContent: string, fallbackTitle: string): GenerateCafePostResult {
+  const titleMatch = rawContent.match(/^제목:\s*(.+)$/m);
+  const title = titleMatch?.[1]?.trim() ?? fallbackTitle;
+  const bodyWithoutTitle = titleMatch
+    ? rawContent.slice((titleMatch.index ?? 0) + titleMatch[0].length).trim()
+    : rawContent;
+  return { title, content: ensureParagraphBreaks(bodyWithoutTitle) };
+}
+
+export interface ReviseCafePostInput {
+  title: string;
+  content: string;
+  instruction: string;
+}
+
+const REVISE_SYSTEM_PROMPT = `너는 네이버 카페 운영 경험이 많은 카페 매니저야. 사용자가 이미 작성된 카페 게시글을
+어떻게 고치고 싶은지 지시사항을 줄 거야. 그 지시사항만 반영해서 게시글을 수정해줘 — 지시하지 않은
+부분은 원문 스타일과 내용을 최대한 그대로 유지하세요. 정중한 존댓말(-습니다/-해요체)은 항상 유지하고,
+1~2문장마다 문단을 끊어 줄바꿈을 두 번 넣는 형식도 그대로 유지하세요.
+
+출력 형식은 반드시 아래와 같이 하세요:
+제목: (수정된 제목)
+(빈 줄)
+(수정된 본문)
+
+추가 해설이나 설명 없이 바로 출력하세요.`;
+
+/** 이미 생성/저장된 초안을 사용자의 자연어 지시에 따라 AI가 다시 고쳐 쓴다. */
+export async function reviseCafePostContent(
+  input: ReviseCafePostInput,
+  apiKey: string,
+): Promise<GenerateCafePostResult> {
+  if (!apiKey) {
+    throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록해주세요.");
+  }
+  if (!input.instruction.trim()) {
+    throw new Error("수정 지시사항을 입력해주세요.");
+  }
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: REVISE_SYSTEM_PROMPT },
+        {
+          role: "user",
+          content: `기존 제목: ${input.title}\n\n기존 본문:\n${input.content}\n\n수정 지시사항: ${input.instruction}`,
+        },
+      ],
+      max_tokens: 1800,
+      temperature: 0.6,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`AI 수정 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+  }
+
+  const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
+  const rawContent = data.choices?.[0]?.message?.content?.trim();
+  if (!rawContent) {
+    throw new Error("AI가 빈 응답을 반환했습니다.");
+  }
+
+  return parseTitleContent(rawContent, input.title);
 }

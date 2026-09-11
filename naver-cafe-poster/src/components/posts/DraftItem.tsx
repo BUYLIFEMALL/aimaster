@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { updateDraftAction, deployDraftAction, deletePostAction, type PostActionState } from "@/lib/actions/posts";
+import { reviseCafePostAction } from "@/lib/actions/ai";
 import type { CafePost, CafeTarget, PostStatus } from "@/types/post";
 
 const initialState: PostActionState = {};
@@ -29,6 +30,9 @@ export function DraftItem({
   const [content, setContent] = useState(post.content);
   const [targetId, setTargetId] = useState(post.target_id ?? "");
   const [imageUrl, setImageUrl] = useState(post.image_url ?? "");
+  const [reviseInstruction, setReviseInstruction] = useState("");
+  const [reviseError, setReviseError] = useState<string | null>(null);
+  const [isRevising, startRevising] = useTransition();
 
   const status = post.status as PostStatus;
   const targetLabel = targets.find((t) => t.id === post.target_id)?.label ?? null;
@@ -37,6 +41,24 @@ export function DraftItem({
     if (state.success) setIsEditing(false);
   }, [state.success]);
 
+  const handleRevise = () => {
+    if (!reviseInstruction.trim()) {
+      setReviseError("어떻게 고칠지 지시사항을 입력해주세요.");
+      return;
+    }
+    setReviseError(null);
+    startRevising(async () => {
+      const result = await reviseCafePostAction({ title, content, instruction: reviseInstruction });
+      if (result.error) {
+        setReviseError(result.error);
+        return;
+      }
+      setTitle(result.title ?? title);
+      setContent(result.content ?? content);
+      setReviseInstruction("");
+    });
+  };
+
   if (isEditing) {
     return (
       <li className="space-y-3 rounded-lg border border-neutral-300 bg-neutral-50 p-4">
@@ -44,6 +66,22 @@ export function DraftItem({
           <input type="hidden" name="postId" value={post.id} />
           <Input value={title} onChange={(e) => setTitle(e.target.value)} name="title" required />
           <Textarea value={content} onChange={(e) => setContent(e.target.value)} name="content" rows={8} required />
+
+          <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 bg-white p-3">
+            <p className="text-xs font-medium text-neutral-700">✏️ AI에게 수정 요청하기</p>
+            <div className="flex gap-2">
+              <Input
+                value={reviseInstruction}
+                onChange={(e) => setReviseInstruction(e.target.value)}
+                placeholder="예: 결론 부분을 더 강조해줘"
+              />
+              <Button type="button" variant="secondary" onClick={handleRevise} disabled={isRevising}>
+                {isRevising ? "수정 중..." : "수정 요청"}
+              </Button>
+            </div>
+            {reviseError && <p className="text-xs text-red-600">{reviseError}</p>}
+          </div>
+
           <select
             name="targetId"
             value={targetId}
