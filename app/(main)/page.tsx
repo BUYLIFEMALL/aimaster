@@ -242,12 +242,12 @@ export default async function HomePage() {
               </GoldButton>
             </Link>
             <Link href="/guides">
-              <GoldButton variant="outline" size="lg">
+              <GoldButton variant="ghost" size="lg" className="bg-white text-black hover:bg-white/90">
                 API키생성|플랫폼연동
               </GoldButton>
             </Link>
             <Link href="/revenue-share">
-              <GoldButton variant="outline" size="lg">
+              <GoldButton variant="ghost" size="lg" className="bg-neutral-600 text-white hover:bg-neutral-500">
                 수익 공유 알아보기
               </GoldButton>
             </Link>
