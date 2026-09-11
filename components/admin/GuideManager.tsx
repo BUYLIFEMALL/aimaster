@@ -38,6 +38,7 @@ export default function GuideManager({ initialGuides, initialCategories }: Guide
   const [deleteTarget, setDeleteTarget] = useState<GuideRow | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [guideBusyId, setGuideBusyId] = useState<string | null>(null);
 
   const [formCategory, setFormCategory] = useState("");
   const [formTitle, setFormTitle] = useState("");
@@ -156,6 +157,39 @@ export default function GuideManager({ initialGuides, initialCategories }: Guide
       alert(err instanceof Error ? err.message : "삭제 실패");
     } finally {
       setLoading(false);
+    }
+  }
+
+  // 같은 카테고리 안에서만 순서를 바꾼다 — items는 grouped에서 이미 sort_order순으로 정렬돼 있다.
+  async function moveGuide(guide: GuideRow, items: GuideRow[], direction: "up" | "down") {
+    const index = items.findIndex((g) => g.id === guide.id);
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= items.length) return;
+
+    const target = items[targetIndex];
+    setGuideBusyId(guide.id);
+    setError("");
+    try {
+      const [res1, res2] = await Promise.all([
+        fetch("/api/admin/guides", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: guide.id, sort_order: target.sort_order }),
+        }),
+        fetch("/api/admin/guides", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: target.id, sort_order: guide.sort_order }),
+        }),
+      ]);
+      const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
+      if (!res1.ok) throw new Error(data1.error);
+      if (!res2.ok) throw new Error(data2.error);
+      setGuides((prev) => sortGuides(prev.map((g) => (g.id === data1.id ? data1 : g.id === data2.id ? data2 : g))));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "순서 변경 실패");
+    } finally {
+      setGuideBusyId(null);
     }
   }
 
@@ -304,12 +338,30 @@ export default function GuideManager({ initialGuides, initialCategories }: Guide
             <div key={category}>
               <h3 className="text-sm font-bold text-gold mb-3">{category}</h3>
               <div className="space-y-3">
-                {items.map((guide) => (
+                {items.map((guide, index) => (
                   <GlassCard key={guide.id} className="p-5">
                     <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-white font-semibold text-sm mb-1">{guide.title}</p>
-                        <p className="text-subtext text-xs">{formatDate(guide.created_at)}</p>
+                      <div className="flex min-w-0 flex-1 items-start gap-3">
+                        <div className="flex shrink-0 flex-col pt-0.5">
+                          <button
+                            onClick={() => moveGuide(guide, items, "up")}
+                            disabled={index === 0 || guideBusyId === guide.id}
+                            className="text-subtext hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
+                          >
+                            <ArrowUp size={13} />
+                          </button>
+                          <button
+                            onClick={() => moveGuide(guide, items, "down")}
+                            disabled={index === items.length - 1 || guideBusyId === guide.id}
+                            className="text-subtext hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
+                          >
+                            <ArrowDown size={13} />
+                          </button>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-white font-semibold text-sm mb-1">{guide.title}</p>
+                          <p className="text-subtext text-xs">{formatDate(guide.created_at)}</p>
+                        </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         <button
