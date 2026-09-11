@@ -197,7 +197,11 @@ export function TossProductForm({
         </>
       )}
 
-      <Button type="submit" disabled={isPending || !selected}>
+      <Button
+        type="submit"
+        disabled={isPending || !selected}
+        className="disabled:!bg-neutral-900 disabled:!text-white disabled:!opacity-100"
+      >
         {isPending ? "등록 중..." : selected ? "이 상품으로 등록 (쉐어링크 자동 발급)" : "먼저 상품을 선택해주세요"}
       </Button>
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
