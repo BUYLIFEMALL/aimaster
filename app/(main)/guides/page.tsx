@@ -60,8 +60,8 @@ export default async function GuideListPage() {
         </h1>
         <p className="text-subtext text-lg max-w-2xl mx-auto">
           자동화 시스템 구축은 생성형 AI플랫폼의 동작원리를 이해하고 연동하는 작업입니다.
-          플랫폼별 본인의 API키를 생성하거나 연동하여 AIMaster 자동화 프로그램을 사용할 수
-          있습니다.
+          <br />
+          플랫폼별 본인의 API키를 생성/연동하여 AIMaster 자동화 프로그램을 사용할 수 있습니다.
         </p>
       </div>
 
