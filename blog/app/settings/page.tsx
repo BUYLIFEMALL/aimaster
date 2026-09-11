@@ -12,7 +12,6 @@ import { CloudinaryConfigRow } from './CloudinaryConfigRow'
 
 const PRIMARY_PROVIDERS: ApiKeyProvider[] = ['gemini']
 const RESERVE_PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'perplexity']
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
 interface CloudinaryConfig {
   cloud_name: string
@@ -73,9 +72,6 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <a href={`${MAIN_SITE_URL}/programs`} className="mb-4 inline-block text-sm text-zinc-500 hover:text-zinc-900">
-        ← 다른 프로그램 보기
-      </a>
       <h1 className="mb-2 text-2xl font-bold text-zinc-900">API 키 설정</h1>
       <p className="mb-6 text-sm text-zinc-600">
         본인의 API 키를 등록하면 AI 글/이미지 생성 시 등록한 키를 우선 사용합니다. 이 키는
