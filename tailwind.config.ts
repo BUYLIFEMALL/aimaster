@@ -34,6 +34,14 @@ const config: Config = {
         surface: {
           DEFAULT: "#12121a",
         },
+        // "surface"와 같은 이유(2026-09-08)로 발견된 동일 유형의 버그: 사이드바 등 여러 곳이
+        // text-subtext를 쓰고 있었는데 이 토큰도 theme에 등록돼 있지 않아 해당 유틸리티 클래스
+        // 자체가 생성되지 않았다 — <a> 태그(Link)는 브라우저 기본 링크색이 다크 배경 위에서
+        // 거의 안 보이게 렌더링되어 "/api-settings 좌측 메뉴 글자가 안 보인다" 버그로 발견
+        // (2026-09-11). 다크 배경 위에서 잘 읽히는 톤 다운된 회색으로 등록한다.
+        subtext: {
+          DEFAULT: "#9ca3af",
+        },
       },
       backgroundImage: {
         "gold-gradient": "linear-gradient(135deg, #d4af37, #f5c842)",

@@ -13,6 +13,17 @@ const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   gemini: "Google (Gemini)",
   perplexity: "Perplexity",
 };
+// 어떤 키가 어느 자동화 프로그램에서 실제로 쓰이는지 각 서브프로젝트 코드 기준으로 정리한 설명.
+// (resolveApiKey 호출부 기준) OpenAI는 거의 모든 프로그램의 게시글 본문 생성에, Gemini는
+// 나노바나나 이미지 생성(블로그/카페/쓰레드/인스타/쇼츠 등)에, Perplexity는 글감 수집·경쟁사
+// 분석의 최신 정보 검색에, Anthropic은 경쟁사 분석처럼 정교한 텍스트 분석이 필요한 일부
+// 프로그램에서 사용된다.
+const PROVIDER_DESCRIPTIONS: Record<ApiKeyProvider, string> = {
+  openai: "블로그·네이버 카페·쓰레드·인스타 등 대부분의 프로그램에서 게시글 제목/본문을 생성할 때 사용됩니다.",
+  anthropic: "경쟁사 분석처럼 정교한 텍스트 분석이 필요한 일부 프로그램에서 사용됩니다.",
+  gemini: "나노바나나로 대표 이미지를 생성할 때(블로그·네이버 카페·쓰레드·인스타·쇼츠 등) 사용됩니다.",
+  perplexity: "게시글 주제 수집(최신 트렌드 검색)과 경쟁사 분석에서 최신 정보를 검색할 때 사용됩니다.",
+};
 const PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity"];
 
 function maskSecret(key: string): string {
@@ -162,7 +173,7 @@ export default function ApiSettingsPage() {
               const saved = apiKeys[provider];
               return (
                 <div key={provider} className="rounded-xl border border-slate-200 p-4">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-1">
                     <p className="text-sm font-medium text-slate-900">{PROVIDER_LABELS[provider]}</p>
                     {saved && (
                       <button
@@ -174,6 +185,7 @@ export default function ApiSettingsPage() {
                       </button>
                     )}
                   </div>
+                  <p className="mb-2 text-xs text-slate-500">{PROVIDER_DESCRIPTIONS[provider]}</p>
 
                   {saved ? (
                     <p className="font-mono text-sm text-slate-500">{maskSecret(saved)} · 등록됨</p>
