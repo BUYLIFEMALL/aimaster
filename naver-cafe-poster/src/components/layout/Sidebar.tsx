@@ -11,26 +11,21 @@ const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" 
 const FLOW_STEPS = [
   {
     step: 1,
-    href: "/settings",
-    icon: "🔑",
-    label: "네이버 연동·카페 등록",
-    description: "네이버 계정 연결 및 게시판 등록",
-  },
-  {
-    step: 2,
     href: "/candidates",
     icon: "🔍",
     label: "글감 수집",
     description: "HTTP/RSS/Perplexity로 게시글 후보 생성",
   },
   {
-    step: 3,
+    step: 2,
     href: "/posts",
     icon: "📝",
     label: "게시글 관리",
     description: "AI로 작성하고 카페에 게시",
   },
 ];
+
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "네이버 연동·카페 등록" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
@@ -96,6 +91,23 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             })}
           </div>
         </nav>
+
+        <div className="mt-6 border-t border-neutral-200 pt-3">
+          {UTILITY_ITEMS.map((item) => {
+            const isActive = pathname?.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block rounded-lg px-3 py-2 text-sm font-medium ${
+                  isActive ? "bg-sky-50 text-sky-700" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+                }`}
+              >
+                {item.icon} {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-4 border-t border-neutral-200 pt-4 md:mt-0">
