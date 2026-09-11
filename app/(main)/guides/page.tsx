@@ -59,8 +59,9 @@ export default async function GuideListPage() {
           <GoldGradientText>AI Master</GoldGradientText> 이용 가이드
         </h1>
         <p className="text-subtext text-lg max-w-2xl mx-auto">
-          자동화 프로그램을 쓰려면 본인 API 키/계정을 직접 연동해야 합니다. 플랫폼별 발급·연동
-          방법을 순서대로 따라해보세요.
+          자동화 시스템을 구축한다는 것은 수많은 생성형 AI플랫폼의 동작원리를 이해하고 연동하는
+          작업입니다. 플랫폼별 본인의 API키를 생성하거나 연동하여 AIMaster 자동화 프로그램을
+          사용할 수 있습니다.
         </p>
       </div>
 
