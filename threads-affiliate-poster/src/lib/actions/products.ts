@@ -171,41 +171,6 @@ export async function registerAliexpressProductAction(
   }
 }
 
-/**
- * 알리익스프레스 App Key/Secret이 없는 사용자를 위해, 이미 알리익스프레스에서 직접
- * 발급받은 제휴 링크를 그대로 저장한다(네이버 브랜드커넥트/쿠팡 URL 직접 입력과 동일한
- * 방식 — API 호출 없이 사용자가 붙여넣은 링크를 신뢰한다).
- */
-export async function registerAliexpressManualLinkAction(
-  _prevState: RegisterProductState,
-  formData: FormData,
-): Promise<RegisterProductState> {
-  const user = await requireProgramAccess();
-  const productName = String(formData.get("productName") ?? "").trim();
-  const affiliateUrl = String(formData.get("affiliateUrl") ?? "").trim();
-
-  if (!productName || !affiliateUrl) {
-    return { error: "상품명과 알리익스프레스에서 발급받은 제휴 링크를 입력해주세요." };
-  }
-
-  const supabase = await createClient();
-  const enrichment = parseEnrichmentFields(formData);
-
-  const { error } = await supabase.from("affiliate_products").insert({
-    user_id: user.id,
-    platform: "aliexpress",
-    product_name: productName,
-    product_url: null,
-    affiliate_url: affiliateUrl,
-    ...enrichment,
-  });
-  if (error) return { error: error.message };
-
-  await logProgramUsage({ userId: user.id, action: "register_aliexpress_product" });
-  revalidatePath("/products");
-  return { success: true };
-}
-
 /** 네이버 브랜드커넥트는 공식 API가 없어, 사용자가 직접 발급받은 링크를 그대로 저장한다. */
 export async function registerNaverProductAction(
   _prevState: RegisterProductState,

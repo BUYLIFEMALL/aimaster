@@ -94,12 +94,6 @@ instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록�
   서명/엔드포인트/파라미터는 전부 정상). Tracking ID는 `aliexpress_tracking_id`라는 이름으로
   공용 `user_api_keys`에 provider를 추가해서(0002 마이그레이션) 본인 값만 쓰도록 고쳤다 —
   예전엔 `"threads_affiliate_poster"`라는 값이 코드에 하드코딩되어 있었다.
-- **2026-09-11: App Key/Secret이 없는 사용자를 위한 수동 등록 경로 추가**
-  (`registerAliexpressManualLinkAction`) — 쿠팡 URL 직접 입력/네이버 브랜드커넥트와 동일하게,
-  사용자가 알리익스프레스 어필리에이트 사이트에서 직접 발급받은 제휴 링크를 그대로
-  붙여넣으면 API 호출 없이 저장한다. 기존 "상품 URL 붙여넣기 → API 자동 변환" 경로
-  (`registerAliexpressProductAction`)는 그대로 두고, `AliexpressProductForm`에 두 번째
-  폼으로 나란히 추가했다.
 - **쿠팡은 2026-09-11 실계정 실호출로 검증 완료했다.** 매출 요건을 채워 키가 활성화된 뒤
   실제로 검색(GET)/딥링크(POST) 흐름을 테스트하다 두 가지를 발견했다.
   1. **서명 버그**: `buildAuthorizationHeader`가 서명 대상 문자열에 path와 query 사이 "?"를
