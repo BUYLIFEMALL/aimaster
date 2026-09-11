@@ -189,57 +189,62 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
 
   // 카테고리 블록 자체의 위/아래 순서(메인 /programs 페이지 노출 순서)를 바꾼다.
   // 카테고리 필터가 걸려 있으면(하나만 보이는 상태) 헷갈리므로 "전체 카테고리"일 때만 노출한다.
+  //
+  // 단순히 두 항목의 sort_order를 맞바꾸는 방식은 쓰지 않는다 — 실제 데이터에 sort_order가
+  // 중복(주로 0)인 행이 많아서, 값이 같은 두 항목을 "맞바꾸면" 0↔0처럼 변화가 없는 것과
+  // 똑같아 눈에 보이는 순서가 절대 바뀌지 않는 버그가 있었다(2026-09-11 실사용 중 발견).
+  // 그래서 이동할 때마다 전체 그룹을 원하는 순서로 배열한 뒤 0,1,2...로 통째로 다시
+  // 번호를 매긴다 — 기존에 어떤 sort_order 값이었든 이번 이동을 계기로 항상 유일한
+  // 값으로 정규화되어, 다음 이동부터도 계속 정상 동작한다.
   const moveCategory = async (category: Category, direction: "up" | "down") => {
     const index = sortedCategoriesForGrouping.findIndex((c) => c.id === category.id);
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= sortedCategoriesForGrouping.length) return;
-    const target = sortedCategoriesForGrouping[targetIndex];
+
+    const reordered = [...sortedCategoriesForGrouping];
+    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
+    const updates = reordered.map((c, i) => ({ id: c.id, sort_order: i }));
 
     setReorderBusyId(category.id);
-    const [res1, res2] = await Promise.all([
-      supabase.from("categories").update({ sort_order: target.sort_order }).eq("id", category.id),
-      supabase.from("categories").update({ sort_order: category.sort_order }).eq("id", target.id),
-    ]);
+    const results = await Promise.all(
+      updates.map((u) => supabase.from("categories").update({ sort_order: u.sort_order }).eq("id", u.id)),
+    );
     setReorderBusyId(null);
 
-    if (res1.error || res2.error) {
-      alert(`순서 변경 중 오류가 발생했습니다: ${(res1.error ?? res2.error)?.message}`);
+    const firstError = results.find((r) => r.error)?.error;
+    if (firstError) {
+      alert(`순서 변경 중 오류가 발생했습니다: ${firstError.message}`);
       return;
     }
-    setCategories((prev) =>
-      prev.map((c) => {
-        if (c.id === category.id) return { ...c, sort_order: target.sort_order };
-        if (c.id === target.id) return { ...c, sort_order: category.sort_order };
-        return c;
-      }),
-    );
+    const sortMap = new Map(updates.map((u) => [u.id, u.sort_order]));
+    setCategories((prev) => prev.map((c) => (sortMap.has(c.id) ? { ...c, sort_order: sortMap.get(c.id)! } : c)));
   };
 
   // 같은 카테고리 안에서만 프로그램 순서를 바꾼다 — groupPrograms는 이미 sort_order순 정렬됨.
+  // moveCategory와 동일한 이유로 그룹 전체를 0,1,2...로 재정규화한다(단순 맞바꿈은 sort_order
+  // 중복 시 무효과였음).
   const moveProgram = async (program: ProgramRow, groupPrograms: ProgramRow[], direction: "up" | "down") => {
     const index = groupPrograms.findIndex((p) => p.id === program.id);
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= groupPrograms.length) return;
-    const target = groupPrograms[targetIndex];
+
+    const reordered = [...groupPrograms];
+    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
+    const updates = reordered.map((p, i) => ({ id: p.id, sort_order: i }));
 
     setReorderBusyId(program.id);
-    const [res1, res2] = await Promise.all([
-      supabase.from("programs").update({ sort_order: target.sort_order }).eq("id", program.id),
-      supabase.from("programs").update({ sort_order: program.sort_order }).eq("id", target.id),
-    ]);
+    const results = await Promise.all(
+      updates.map((u) => supabase.from("programs").update({ sort_order: u.sort_order }).eq("id", u.id)),
+    );
     setReorderBusyId(null);
 
-    if (res1.error || res2.error) {
-      alert(`순서 변경 중 오류가 발생했습니다: ${(res1.error ?? res2.error)?.message}`);
+    const firstError = results.find((r) => r.error)?.error;
+    if (firstError) {
+      alert(`순서 변경 중 오류가 발생했습니다: ${firstError.message}`);
       return;
     }
-    setPrograms((prev) =>
-      prev.map((p) => {
-        if (p.id === program.id) return { ...p, sort_order: target.sort_order };
-        if (p.id === target.id) return { ...p, sort_order: program.sort_order };
-        return p;
-      }),
-    );
+    const sortMap = new Map(updates.map((u) => [u.id, u.sort_order]));
+    setPrograms((prev) => prev.map((p) => (sortMap.has(p.id) ? { ...p, sort_order: sortMap.get(p.id)! } : p)));
   };
 
   return (
