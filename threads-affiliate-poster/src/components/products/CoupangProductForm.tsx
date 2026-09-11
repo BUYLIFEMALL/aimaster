@@ -76,6 +76,8 @@ export function CoupangProductForm({
       <p className="text-xs text-neutral-500">
         쿠팡파트너스 검색 <span className="font-semibold text-red-600">API</span>는 시간당{" "}
         <span className="font-semibold text-red-600">10회 호출제한</span>이 있습니다.
+        <br />
+        쿠팡 검색 API는 쿠팡파트너스 매출 15만원 달성 후 생성 가능합니다.
       </p>
       <div className="flex gap-2">
         <Input
