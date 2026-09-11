@@ -104,7 +104,12 @@ export function CoupangProductForm({
           onChange={(e) => setManualUrl(e.target.value)}
           placeholder="https://www.coupang.com/vp/products/..."
         />
-        <Button type="button" variant="secondary" onClick={handleUseManualUrl}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleUseManualUrl}
+          className="bg-neutral-600 text-white border-neutral-600 hover:bg-neutral-500"
+        >
           이 URL로 사용하기
         </Button>
         {manualError && <p className="text-xs text-red-600">{manualError}</p>}
@@ -175,7 +180,11 @@ export function CoupangProductForm({
         </>
       )}
 
-      <Button type="submit" disabled={isPending || !selected}>
+      <Button
+        type="submit"
+        disabled={isPending || !selected}
+        className="disabled:bg-neutral-900 disabled:text-white disabled:opacity-100"
+      >
         {isPending ? "등록 중..." : selected ? "이 상품으로 등록 (딥링크 자동 생성)" : "먼저 상품을 검색·선택해주세요"}
       </Button>
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
