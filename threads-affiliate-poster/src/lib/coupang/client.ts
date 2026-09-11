@@ -165,6 +165,9 @@ export async function createDeeplink(
     rMessage?: string;
     data?: { originalUrl: string; shortenUrl: string; landingUrl: string }[];
   };
+  // TEMP DEBUG(2026-09-11): "url convert failed" 원인 파악용 — 확인 후 제거할 것.
+  console.log("[coupang-debug] deeplink request urls:", JSON.stringify(coupangUrls));
+  console.log("[coupang-debug] deeplink response:", JSON.stringify(data).slice(0, 1000));
 
   if (data.rCode && data.rCode !== "0") {
     throw new Error(`쿠팡 딥링크 생성 응답 오류: ${data.rMessage ?? data.rCode}`);
