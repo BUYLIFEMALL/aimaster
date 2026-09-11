@@ -6,11 +6,16 @@ import type { AffiliatePlatform } from "@/types/product";
 // 제휴 마케팅 콘텐츠 전반"에 적용되는 규정이라, API 연동 여부와 무관하게
 // 쿠팡파트너스/알리익스프레스/네이버 브랜드커넥트 셋 다 고지 문구를 자동으로
 // 붙인다. AGENTS.md에 명시된 정책 준수 장치이니 이 매핑을 임의로 지우면 안 된다.
+//
+// 고지 문구는 게시글 맨 끝이 아니라 첫 줄에 와야 한다(표시광고 심사지침 —
+// "더보기"에 가려지거나 스크롤해야 보이는 위치는 인정되지 않음, 2026-09-11
+// 사용자 지시로 위치 수정). 그래서 값에 앞뒤 줄바꿈을 넣지 않고, 조립하는
+// 쪽(generateAffiliatePostContent)에서 맨 앞 줄로 붙인다.
 const DISCLOSURE_TEXT: Record<AffiliatePlatform, string | null> = {
-  coupang: "\n\n(광고) 쿠팡파트너스 활동으로 수수료를 받을 수 있습니다.",
-  aliexpress: "\n\n(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
-  naver: "\n\n(광고) 브랜드 제휴 활동으로 수수료를 받을 수 있습니다.",
-  toss: "\n\n(광고) 토스쇼핑 쉐어링크 활동으로 수수료를 받을 수 있습니다.",
+  coupang: "(광고) 쿠팡파트너스 활동으로 수수료를 받을 수 있습니다.",
+  aliexpress: "(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
+  naver: "(광고) 브랜드 제휴 활동으로 수수료를 받을 수 있습니다.",
+  toss: "(광고) 토스쇼핑 쉐어링크 활동으로 수수료를 받을 수 있습니다.",
 };
 
 const PLATFORM_DEFAULT_CTA_TEXT: Record<AffiliatePlatform, string> = {
@@ -55,14 +60,19 @@ function buildTopic(product: AffiliateProductContext): string {
 }
 
 /**
- * 제휴 상품 캡션을 생성한다. 일반 generatePostContent()를 감싸서 (1) 제휴 링크와
- * (2) 플랫폼별 고지 문구를 캡션 끝에 자동으로 붙인다.
+ * 제휴 상품 캡션을 생성한다. 일반 generatePostContent()를 감싸서 (1) 플랫폼별 고지
+ * 문구를 캡션 맨 첫 줄에, (2) 제휴 링크를 캡션 끝에 자동으로 붙인다.
+ *
+ * 고지 문구가 첫 줄에 와야 하는 이유(2026-09-11): 표시광고 심사지침상 "더보기"를
+ * 눌러야 보이거나 본문 끝에 파묻힌 고지는 인정되지 않는다 — 제목이 따로 없는
+ * Threads 게시글 특성상 "첫 줄"이 사실상 제목 역할을 하므로 여기 배치한다.
  *
  * 제휴 링크는 AI에게 프롬프트로 "URL을 그대로 써달라"고 시키지 않는다 — 실제로
  * gpt-4o-mini가 실제 URL 대신 "{링크}" 같은 placeholder 문자열을 그대로 출력해버려
  * 게시글에 링크가 아예 안 걸리는 사고가 있었다(2026-09-09). 그래서 AI에게는 본문
  * 카피만 만들게 하고, 실제 URL은 여기서 코드로 직접 이어붙여 항상 정확하게 들어가도록
- * 보장한다. 고지 문구도 같은 이유로 이미 코드로 붙이고 있었다.
+ * 보장한다. 고지 문구도 같은 이유로 AI 프롬프트가 아니라 코드로 직접 붙인다 — AI가
+ * 법적으로 고정된 문구를 매번 토씨 하나 안 틀리고 그대로 낸다고 보장할 수 없어서다.
  */
 export async function generateAffiliatePostContent(
   product: AffiliateProductContext,
@@ -79,12 +89,13 @@ export async function generateAffiliatePostContent(
 
   const ctaText = PLATFORM_DEFAULT_CTA_TEXT[product.platform];
   const ctaBlock = `\n\n${ctaText} 👉\n${product.affiliateUrl}`;
-  const disclosure = DISCLOSURE_TEXT[product.platform] ?? "";
+  const disclosureLine = DISCLOSURE_TEXT[product.platform] ?? "";
+  const disclosureBlock = disclosureLine ? `${disclosureLine}\n\n` : "";
 
-  // Threads 게시글 최대 길이(500자) 안에 제휴 링크와 고지 문구가 반드시 들어가도록,
-  // 본문을 필요한 만큼 줄여서 링크나 고지 문구가 잘리거나 누락되지 않게 한다.
-  const maxContentLength = 500 - ctaBlock.length - disclosure.length;
+  // Threads 게시글 최대 길이(500자) 안에 고지 문구와 제휴 링크가 반드시 들어가도록,
+  // 본문을 필요한 만큼 줄여서 잘리거나 누락되지 않게 한다.
+  const maxContentLength = 500 - disclosureBlock.length - ctaBlock.length;
   const trimmedContent = content.length > maxContentLength ? content.slice(0, maxContentLength).trim() : content;
 
-  return { content: `${trimmedContent}${ctaBlock}${disclosure}` };
+  return { content: `${disclosureBlock}${trimmedContent}${ctaBlock}` };
 }
