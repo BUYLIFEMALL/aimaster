@@ -241,6 +241,11 @@ export default async function HomePage() {
                 프로그램 둘러보기 <ArrowRight size={18} />
               </GoldButton>
             </Link>
+            <Link href="/guides">
+              <GoldButton variant="outline" size="lg">
+                API키생성|플랫폼연동
+              </GoldButton>
+            </Link>
             <Link href="/revenue-share">
               <GoldButton variant="outline" size="lg">
                 수익 공유 알아보기
