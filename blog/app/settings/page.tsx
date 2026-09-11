@@ -10,7 +10,8 @@ import { PROVIDER_LABELS, maskApiKey, type ApiKeyProvider } from '@/blog/utils/a
 import { ApiKeyRow } from './ApiKeyRow'
 import { CloudinaryConfigRow } from './CloudinaryConfigRow'
 
-const PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'gemini', 'perplexity']
+const PRIMARY_PROVIDERS: ApiKeyProvider[] = ['gemini']
+const RESERVE_PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'perplexity']
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
 interface CloudinaryConfig {
@@ -77,25 +78,62 @@ export default function SettingsPage() {
       </a>
       <h1 className="mb-2 text-2xl font-bold text-zinc-900">API 키 설정</h1>
       <p className="mb-6 text-sm text-zinc-600">
-        본인의 API 키를 등록하면 AI 글/이미지 생성 시 등록한 키를 우선 사용합니다. 등록하지
-        않으면 앱 기본 키로 동작합니다 (제공되는 경우). 이 키는 AIMaster 계정에 연결되어
-        threads 등 다른 프로그램에서도 동일하게 사용됩니다. 현재 실제 생성 기능에 사용되는
-        것은 Gemini(글+이미지 생성)이고, 나머지는 저장만 됩니다.
+        본인의 API 키를 등록하면 AI 글/이미지 생성 시 등록한 키를 우선 사용합니다. 이 키는
+        AIMaster 계정에 연결되어 threads 등 다른 프로그램에서도 동일하게 사용됩니다.
       </p>
-      <div className="space-y-3">
-        {PROVIDERS.map((provider) => (
-          <ApiKeyRow
-            key={provider}
-            provider={provider}
-            label={PROVIDER_LABELS[provider]}
-            maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+
+      <div className="space-y-6">
+        <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+          <div className="mb-4">
+            <h2 className="text-sm font-bold text-zinc-900">🤖 AI 글/이미지 생성 (Gemini)</h2>
+            <p className="text-xs text-zinc-500">
+              실제로 블로그 글과 이미지를 생성하는 데 쓰이는 키입니다 — 등록해야 "AI 글쓰기"가
+              동작합니다.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {PRIMARY_PROVIDERS.map((provider) => (
+              <ApiKeyRow
+                key={provider}
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+          <div className="mb-4">
+            <h2 className="text-sm font-bold text-zinc-900">☁️ 이미지 클라우드 저장 (Cloudinary)</h2>
+            <p className="text-xs text-zinc-500">생성된 이미지를 업로드해 보관하는 저장소 설정입니다.</p>
+          </div>
+          <CloudinaryConfigRow
+            cloudName={cloudinaryConfig?.cloud_name ?? null}
+            maskedApiKey={cloudinaryConfig ? maskApiKey(cloudinaryConfig.api_key) : null}
+            maskedApiSecret={cloudinaryConfig ? maskApiKey(cloudinaryConfig.api_secret) : null}
           />
-        ))}
-        <CloudinaryConfigRow
-          cloudName={cloudinaryConfig?.cloud_name ?? null}
-          maskedApiKey={cloudinaryConfig ? maskApiKey(cloudinaryConfig.api_key) : null}
-          maskedApiSecret={cloudinaryConfig ? maskApiKey(cloudinaryConfig.api_secret) : null}
-        />
+        </section>
+
+        <section className="rounded-2xl border border-dashed border-zinc-300 bg-white p-5">
+          <div className="mb-4">
+            <h2 className="text-sm font-bold text-zinc-700">🔑 예비 등록 (아직 미사용)</h2>
+            <p className="text-xs text-zinc-500">
+              다른 AIMaster 프로그램에서 쓰일 수 있도록 미리 등록해두는 키입니다 — 이 블로그
+              자동화 자체에서는 아직 실제로 호출하지 않습니다.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {RESERVE_PROVIDERS.map((provider) => (
+              <ApiKeyRow
+                key={provider}
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   )
