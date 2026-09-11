@@ -53,6 +53,33 @@ export async function addCafeTargetAction(
   return {};
 }
 
+export async function updateCafeTargetAction(
+  _prevState: TargetActionState,
+  formData: FormData,
+): Promise<TargetActionState> {
+  const user = await requireProgramAccess();
+  const targetId = String(formData.get("targetId") ?? "").trim();
+  const label = String(formData.get("label") ?? "").trim();
+  const clubId = String(formData.get("clubId") ?? "").trim();
+  const menuId = String(formData.get("menuId") ?? "").trim();
+
+  if (!targetId || !label || !clubId || !menuId) {
+    return { error: "카페 이름, club_id, menu_id를 모두 입력해주세요." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("ncafe_targets")
+    .update({ label, club_id: clubId, menu_id: menuId })
+    .eq("id", targetId)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/settings");
+  return {};
+}
+
 export async function deleteCafeTargetAction(formData: FormData) {
   const targetId = String(formData.get("targetId"));
   const user = await requireProgramAccess();
