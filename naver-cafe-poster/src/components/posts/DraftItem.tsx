@@ -28,6 +28,7 @@ export function DraftItem({
   const [title, setTitle] = useState(post.title);
   const [content, setContent] = useState(post.content);
   const [targetId, setTargetId] = useState(post.target_id ?? "");
+  const [imageUrl, setImageUrl] = useState(post.image_url ?? "");
 
   const status = post.status as PostStatus;
   const targetLabel = targets.find((t) => t.id === post.target_id)?.label ?? null;
@@ -56,6 +57,19 @@ export function DraftItem({
               </option>
             ))}
           </select>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">대표 이미지 URL (선택)</label>
+            <Input
+              name="imageUrl"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://..."
+            />
+            {imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imageUrl} alt="대표 이미지" className="mt-2 max-h-40 rounded-lg border border-neutral-200" />
+            )}
+          </div>
           <div className="flex gap-2">
             <Button type="submit" variant="secondary" disabled={isPending}>
               {isPending ? "저장 중..." : "저장"}
@@ -79,6 +93,10 @@ export function DraftItem({
         </div>
         <StatusBadge status={status} />
       </div>
+      {post.image_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={post.image_url} alt="대표 이미지" className="mb-2 max-h-32 rounded-lg border border-neutral-200" />
+      )}
       <p className="whitespace-pre-wrap text-sm text-neutral-700 line-clamp-4">{post.content}</p>
       {status === "failed" && post.error_message && (
         <p className="mt-2 text-xs text-red-600">실패 사유: {post.error_message}</p>

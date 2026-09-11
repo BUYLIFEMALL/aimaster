@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { saveDraftAction, type PostActionState } from "@/lib/actions/posts";
-import { generateCafePostAction } from "@/lib/actions/ai";
+import { generateCafePostAction, generateCafeImageAction } from "@/lib/actions/ai";
 import { CAFE_TONE_OPTIONS, type CafeTone } from "@/lib/ai/tone";
 import type { CafeTarget } from "@/types/post";
 
@@ -18,6 +18,13 @@ const SUGGESTED_TOPICS = [
   "회원들이 남긴 후기 하이라이트",
   "초보자를 위한 시작 가이드",
 ];
+
+const IMAGE_MODEL_OPTIONS = [
+  { label: "NanoBanana 2-2K (2K 고화질 비주얼 - 추천)", value: "nanobanana-2-2k" },
+  { label: "NanoBanana 2-4K (4K 울트라 HD)", value: "nanobanana-2-4k" },
+  { label: "NanoBanana Pro (프로페셔널 인포그래픽)", value: "nanobanana-pro" },
+  { label: "NanoBanana Standard (기본 모델)", value: "nanobanana" },
+] as const;
 
 export function DraftComposer({
   targets,
@@ -38,13 +45,21 @@ export function DraftComposer({
   const [showOptions, setShowOptions] = useState(false);
   const [tone, setTone] = useState<CafeTone>("친근함");
   const [targetAudience, setTargetAudience] = useState("");
-  const [wordCount, setWordCount] = useState(600);
+  const [wordCount, setWordCount] = useState(1000);
   const [keywordInput, setKeywordInput] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
   const [ctaText, setCtaText] = useState("");
   const [ctaUrl, setCtaUrl] = useState("");
   const [customInstructions, setCustomInstructions] = useState("");
+
+  const [imageModel, setImageModel] = useState("nanobanana-2-2k");
+  const [imageApiKey, setImageApiKey] = useState("");
+  const [imageEndpoint, setImageEndpoint] = useState("");
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [isGeneratingImage, startGeneratingImage] = useTransition();
 
   const [aiError, setAiError] = useState<string | null>(null);
   const [isGenerating, startGenerating] = useTransition();
@@ -68,6 +83,8 @@ export function DraftComposer({
       setCtaText("");
       setCtaUrl("");
       setCustomInstructions("");
+      setImagePrompt("");
+      setImageUrl("");
     }
   }, [state.success]);
 
@@ -117,6 +134,28 @@ export function DraftComposer({
       }
       setTitle(result.title ?? "");
       setContent(result.content ?? "");
+    });
+  };
+
+  const handleGenerateImage = () => {
+    const prompt = imagePrompt.trim() || title.trim() || topic.trim();
+    if (!prompt) {
+      setImageError("이미지 프롬프트(또는 제목/주제)를 입력해주세요.");
+      return;
+    }
+    setImageError(null);
+    startGeneratingImage(async () => {
+      const result = await generateCafeImageAction({
+        prompt,
+        apiKey: imageApiKey.trim() || undefined,
+        model: imageModel as never,
+        endpoint: imageEndpoint.trim() || undefined,
+      });
+      if (result.error) {
+        setImageError(result.error);
+        return;
+      }
+      setImageUrl(result.imageUrl ?? "");
     });
   };
 
@@ -187,9 +226,9 @@ export function DraftComposer({
               </div>
               <input
                 type="range"
-                min={300}
-                max={1500}
-                step={100}
+                min={500}
+                max={2000}
+                step={250}
                 value={wordCount}
                 onChange={(e) => setWordCount(Number(e.target.value))}
                 className="w-full accent-neutral-900"
@@ -267,6 +306,77 @@ export function DraftComposer({
         </Button>
         {aiError && <p className="text-xs text-red-600">{aiError}</p>}
       </div>
+
+      <div className="space-y-3 rounded-lg border border-dashed border-amber-300 bg-amber-50/40 p-3">
+        <p className="text-xs font-medium text-amber-900">🖼️ AI 이미지 생성 설정 (NanoBanana AI)</p>
+        <p className="text-[11px] text-amber-800">
+          대표 이미지를 만들어 초안에 첨부합니다. 네이버 카페 글쓰기 API가 이미지를 실제로
+          렌더링해주는지는 아직 확인 전이라, 배포 시 게시글 맨 위에 이미지 링크로 붙습니다.
+        </p>
+
+        <Textarea
+          value={imagePrompt}
+          onChange={(e) => setImagePrompt(e.target.value)}
+          rows={2}
+          placeholder="이미지 프롬프트 (비워두면 제목/주제를 그대로 사용)"
+        />
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">이미지 모델</label>
+            <select
+              value={imageModel}
+              onChange={(e) => setImageModel(e.target.value)}
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            >
+              {IMAGE_MODEL_OPTIONS.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-500">나노바나나 API 키 (선택)</label>
+            <Input
+              type="password"
+              value={imageApiKey}
+              onChange={(e) => setImageApiKey(e.target.value)}
+              placeholder="비워두면 설정에 등록된 내 Gemini 키 사용"
+              autoComplete="off"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-neutral-500">커스텀 API 엔드포인트 (선택)</label>
+          <Input
+            value={imageEndpoint}
+            onChange={(e) => setImageEndpoint(e.target.value)}
+            placeholder="https://generativelanguage.googleapis.com/v1beta/models/..."
+          />
+        </div>
+
+        <Button type="button" variant="secondary" onClick={handleGenerateImage} disabled={isGeneratingImage}>
+          {isGeneratingImage ? "이미지 생성 중..." : "🖼️ 대표 이미지 생성"}
+        </Button>
+        {imageError && <p className="text-xs text-red-600">{imageError}</p>}
+        {imageUrl && (
+          <div className="space-y-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageUrl} alt="생성된 대표 이미지" className="max-h-48 rounded-lg border border-neutral-200" />
+            <button
+              type="button"
+              onClick={() => setImageUrl("")}
+              className="text-xs text-red-600 hover:underline"
+            >
+              이미지 제거
+            </button>
+          </div>
+        )}
+      </div>
+
+      <input type="hidden" name="imageUrl" value={imageUrl} />
 
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-500">제목</label>

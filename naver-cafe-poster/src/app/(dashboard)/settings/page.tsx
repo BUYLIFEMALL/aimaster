@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { connectNaverAccountAction, disconnectNaverAccountAction } from "@/lib/actions/accounts";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
+const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity", "gemini"];
 
 export default async function SettingsPage({
   searchParams,

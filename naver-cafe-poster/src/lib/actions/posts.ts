@@ -49,6 +49,7 @@ function parseDraftForm(formData: FormData) {
     title: formData.get("title"),
     content: formData.get("content"),
     targetId: formData.get("targetId") ?? "",
+    imageUrl: formData.get("imageUrl") ?? "",
   });
 }
 
@@ -64,13 +65,14 @@ export async function saveDraftAction(
 
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { title, content, targetId } = parsed.data;
+  const { title, content, targetId, imageUrl } = parsed.data;
 
   const { error } = await supabase.from("ncafe_posts").insert({
     user_id: user.id,
     target_id: targetId || null,
     title,
     content,
+    image_url: imageUrl || null,
     status: "draft",
   });
 
@@ -82,7 +84,7 @@ export async function saveDraftAction(
   return { success: true };
 }
 
-/** 기존 초안(draft/failed)의 제목/본문/카페를 수정한다. 이미 게시된 글은 수정할 수 없다. */
+/** 기존 초안(draft/failed)의 제목/본문/카페/이미지를 수정한다. 이미 게시된 글은 수정할 수 없다. */
 export async function updateDraftAction(
   _prevState: PostActionState,
   formData: FormData,
@@ -95,7 +97,7 @@ export async function updateDraftAction(
 
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { title, content, targetId } = parsed.data;
+  const { title, content, targetId, imageUrl } = parsed.data;
 
   const { data: existing } = await supabase
     .from("ncafe_posts")
@@ -110,7 +112,7 @@ export async function updateDraftAction(
 
   const { error } = await supabase
     .from("ncafe_posts")
-    .update({ title, content, target_id: targetId || null })
+    .update({ title, content, target_id: targetId || null, image_url: imageUrl || null })
     .eq("id", postId)
     .eq("user_id", user.id);
 
@@ -151,6 +153,7 @@ export async function deployDraftAction(formData: FormData) {
       userId: user.id,
       title: post.title,
       content: post.content,
+      imageUrl: post.image_url,
       accessToken: account.access_token,
       clubId: target.club_id,
       menuId: target.menu_id,

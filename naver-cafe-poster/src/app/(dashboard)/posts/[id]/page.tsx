@@ -51,6 +51,14 @@ export default async function PostDetailPage({
         <div className="p-5">
           <p className="mb-1 text-xs text-neutral-500">{target?.label ?? "카페 미지정"}</p>
           <h2 className="text-lg font-semibold text-neutral-900">{post.title}</h2>
+          {post.image_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={post.image_url}
+              alt="대표 이미지"
+              className="mt-3 max-h-64 rounded-lg border border-neutral-200"
+            />
+          )}
           <p className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-900">
             {post.content}
           </p>

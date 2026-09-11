@@ -2719,6 +2719,7 @@ export type Database = {
           created_at: string
           error_message: string | null
           id: string
+          image_url: string | null
           raw_response: Json | null
           status: string
           target_id: string | null
@@ -2732,6 +2733,7 @@ export type Database = {
           created_at?: string
           error_message?: string | null
           id?: string
+          image_url?: string | null
           raw_response?: Json | null
           status?: string
           target_id?: string | null
@@ -2745,6 +2747,7 @@ export type Database = {
           created_at?: string
           error_message?: string | null
           id?: string
+          image_url?: string | null
           raw_response?: Json | null
           status?: string
           target_id?: string | null

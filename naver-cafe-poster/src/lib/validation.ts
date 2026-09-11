@@ -6,6 +6,7 @@ export const draftFormSchema = z.object({
   title: z.string().trim().min(1, "제목을 입력해주세요.").max(100, "제목은 100자를 초과할 수 없습니다."),
   content: z.string().trim().min(1, "게시글 내용을 입력해주세요."),
   targetId: z.string().uuid().optional().or(z.literal("")),
+  imageUrl: z.string().url().optional().or(z.literal("")),
 });
 
 export type DraftFormValues = z.infer<typeof draftFormSchema>;
