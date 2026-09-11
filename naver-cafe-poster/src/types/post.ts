@@ -3,6 +3,15 @@ import type { Database } from "./database.types";
 export type CafePost = Database["public"]["Tables"]["ncafe_posts"]["Row"];
 export type CafeTarget = Database["public"]["Tables"]["ncafe_targets"]["Row"];
 export type NaverAccount = Database["public"]["Tables"]["ncafe_accounts"]["Row"];
+export type CafeCandidate = Database["public"]["Tables"]["ncafe_candidates"]["Row"];
+
+export type CandidateSourceType = "http" | "rss" | "perplexity";
+
+export const CANDIDATE_SOURCE_LABELS: Record<CandidateSourceType, string> = {
+  http: "HTTP",
+  rss: "RSS",
+  perplexity: "Perplexity",
+};
 
 export type PostStatus = "draft" | "publishing" | "published" | "failed";
 

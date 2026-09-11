@@ -18,6 +18,13 @@ const FLOW_STEPS = [
   },
   {
     step: 2,
+    href: "/candidates",
+    icon: "🔍",
+    label: "글감 수집",
+    description: "HTTP/RSS/Perplexity로 게시글 후보 생성",
+  },
+  {
+    step: 3,
     href: "/posts",
     icon: "📝",
     label: "게시글 관리",

@@ -13,14 +13,18 @@ const initialState: PostActionState = {};
 export function CafePostForm({
   targets,
   hasNaverAccount,
+  initialTitle = "",
+  initialContent = "",
 }: {
   targets: CafeTarget[];
   hasNaverAccount: boolean;
+  initialTitle?: string;
+  initialContent?: string;
 }) {
   const [state, formAction, isPending] = useActionState(createPostAction, initialState);
   const [topic, setTopic] = useState("");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
   const [aiError, setAiError] = useState<string | null>(null);
   const [isGenerating, startGenerating] = useTransition();
 

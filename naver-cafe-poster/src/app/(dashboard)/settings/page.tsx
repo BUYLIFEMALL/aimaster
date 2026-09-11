@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { connectNaverAccountAction, disconnectNaverAccountAction } from "@/lib/actions/accounts";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const AI_PROVIDERS: ApiKeyProvider[] = ["openai"];
+const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
 
 export default async function SettingsPage({
   searchParams,
@@ -94,9 +94,11 @@ export default async function SettingsPage({
 
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <div className="mb-4">
-          <h2 className="text-sm font-bold text-neutral-900">🤖 AI 게시글 생성</h2>
+          <h2 className="text-sm font-bold text-neutral-900">🤖 AI 게시글 생성 · 글감 수집</h2>
           <p className="text-xs text-neutral-500">
-            주제만 입력하면 AI가 카페 게시글 제목/본문을 만들어줍니다.
+            주제만 입력해도 AI가 카페 게시글 제목/본문을 만들어줍니다(OpenAI). Perplexity 키를
+            등록하면 "글감 수집" 메뉴에서 최신 트렌드를 검색해 게시글 후보까지 자동으로 만들 수
+            있습니다.
           </p>
         </div>
         <div className="space-y-3">
