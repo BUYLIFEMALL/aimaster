@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useState, useTransition } from 'react'
 import {
   saveCloudinaryConfigAction,
   deleteCloudinaryConfigAction,
@@ -13,11 +13,20 @@ interface CloudinaryConfigRowProps {
   maskedApiSecret: string | null
 }
 
-const initialState: SaveCloudinaryState = {}
-
+// ApiKeyRow.tsx와 같은 이유로 useActionState 대신 useState+useTransition을 쓴다 — 루트 사이트가
+// 이 컴포넌트를 React 18로 번들링해서 useActionState가 런타임 크래시를 냈다(2026-09-11).
 export function CloudinaryConfigRow({ cloudName, maskedApiKey, maskedApiSecret }: CloudinaryConfigRowProps) {
-  const [state, formAction, isPending] = useActionState(saveCloudinaryConfigAction, initialState)
+  const [state, setState] = useState<SaveCloudinaryState>({})
+  const [isPending, startTransition] = useTransition()
   const isConfigured = !!cloudName
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(async () => {
+      setState(await saveCloudinaryConfigAction(state, formData))
+    })
+  }
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-4">
@@ -43,7 +52,7 @@ export function CloudinaryConfigRow({ cloudName, maskedApiKey, maskedApiSecret }
           <p>API Secret: {maskedApiSecret}</p>
         </div>
       ) : (
-        <form action={formAction} className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <input
             name="cloudName"
             type="text"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useState, useTransition } from 'react'
 import { saveApiKeyAction, deleteApiKeyAction, type SaveApiKeyState } from './actions'
 import type { ApiKeyProvider } from '@/utils/apiKeys'
 
@@ -10,10 +10,21 @@ interface ApiKeyRowProps {
   maskedValue: string | null
 }
 
-const initialState: SaveApiKeyState = {}
-
+// 루트 사이트(app/(embedded)/blog/*)가 이 컴포넌트를 직접 import해서 루트 자체 React(18,
+// useActionState 없음)로 번들링하므로 useActionState를 쓰면 "블로그 자체 배포(React 19)에서는
+// 멀쩡히 동작하다가 루트에 내장됐을 때만" 런타임 크래시가 난다 — useState+useTransition으로
+// 동일한 pending/에러 상태를 대체 구현한다(2026-09-11, /blog/settings 실배포에서 발견).
 export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
-  const [state, formAction, isPending] = useActionState(saveApiKeyAction, initialState)
+  const [state, setState] = useState<SaveApiKeyState>({})
+  const [isPending, startTransition] = useTransition()
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(async () => {
+      setState(await saveApiKeyAction(state, formData))
+    })
+  }
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-4">
@@ -32,7 +43,7 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
       {maskedValue ? (
         <p className="font-mono text-sm text-zinc-500">{maskedValue} · 등록됨</p>
       ) : (
-        <form action={formAction} className="flex flex-wrap gap-2">
+        <form onSubmit={handleSubmit} className="flex flex-wrap gap-2">
           <input type="hidden" name="provider" value={provider} />
           <input
             name="apiKey"
