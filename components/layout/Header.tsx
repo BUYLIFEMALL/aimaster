@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { href: "/packages", label: "패키지" },
   { href: "/revenue-share", label: "수익 공유" },
   { href: "/custom", label: "커스텀" },
+  { href: "/guides", label: "API생성|플랫폼연동" },
   { href: "/support/notice", label: "공지사항" },
   { href: "/support", label: "고객지원" },
 ];

@@ -13,6 +13,7 @@ import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { useCallback, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { applyWatermark } from "@/lib/utils/watermark";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
@@ -26,6 +27,10 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  // 첨부하는 이미지에 "AIMaster" 워터마크를 자동으로 삽입할지 여부. 다운로드해서
+  // 다른 곳에 무단 재사용하는 걸 막아야 하는 콘텐츠(가이드 게시판 캡쳐 이미지 등)에서만
+  // true로 켠다 — 기본은 false로, 기존 사용처(프로그램 소개 등)의 동작은 그대로 유지한다.
+  watermarkImages?: boolean;
 }
 
 function ToolbarButton({
@@ -62,7 +67,7 @@ function Divider() {
   return <div className="w-px h-5 bg-white/10 mx-1" />;
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({ editor, watermarkImages }: { editor: Editor; watermarkImages?: boolean }) {
   const supabase = createClient();
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -104,7 +109,8 @@ function Toolbar({ editor }: { editor: Editor }) {
     try {
       const ext = file.name.split(".").pop();
       const path = `editor/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("program-images").upload(path, file, { upsert: false });
+      const uploadBody = watermarkImages ? await applyWatermark(file) : file;
+      const { error } = await supabase.storage.from("program-images").upload(path, uploadBody, { upsert: false });
       if (error) throw error;
       const { data: urlData } = supabase.storage.from("program-images").getPublicUrl(path);
       editor.chain().focus().setImage({ src: urlData.publicUrl }).run();
@@ -114,7 +120,7 @@ function Toolbar({ editor }: { editor: Editor }) {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  }, [editor, supabase]);
+  }, [editor, supabase, watermarkImages]);
 
   const addYoutube = useCallback(() => {
     if (youtubeUrl) {
@@ -427,6 +433,7 @@ export default function RichTextEditor({
   onChange,
   placeholder = "내용을 입력하세요...",
   className = "",
+  watermarkImages = false,
 }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
@@ -460,7 +467,7 @@ export default function RichTextEditor({
 
   return (
     <div className={`border border-white/10 rounded-xl overflow-hidden bg-white/3 ${className}`}>
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} watermarkImages={watermarkImages} />
       <EditorContent editor={editor} />
     </div>
   );
