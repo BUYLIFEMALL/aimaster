@@ -8,11 +8,17 @@ export const metadata = { title: "API/플랫폼 가이드 관리" };
 export default async function AdminGuidesPage() {
   const supabase = createServiceClient();
 
-  const { data: guides } = await supabase
-    .from("platform_guides")
-    .select("*")
-    .order("category", { ascending: true })
-    .order("sort_order", { ascending: true });
+  const [{ data: guides }, { data: categories }] = await Promise.all([
+    supabase
+      .from("platform_guides")
+      .select("*")
+      .order("category", { ascending: true })
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("platform_guide_categories")
+      .select("*")
+      .order("sort_order", { ascending: true }),
+  ]);
 
   return (
     <div>
@@ -25,7 +31,7 @@ export default async function AdminGuidesPage() {
         </p>
       </div>
 
-      <GuideManager initialGuides={guides ?? []} />
+      <GuideManager initialGuides={guides ?? []} initialCategories={categories ?? []} />
     </div>
   );
 }

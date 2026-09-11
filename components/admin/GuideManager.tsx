@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Pencil, Trash2, Plus, KeyRound } from "lucide-react";
+import { Pencil, Trash2, Plus, KeyRound, FolderCog, ArrowUp, ArrowDown, Check, X } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import Modal from "@/components/ui/Modal";
@@ -18,12 +18,21 @@ interface GuideRow {
   created_at: string;
 }
 
-interface GuideManagerProps {
-  initialGuides: GuideRow[];
+interface CategoryRow {
+  id: string;
+  name: string;
+  sort_order: number;
 }
 
-export default function GuideManager({ initialGuides }: GuideManagerProps) {
+interface GuideManagerProps {
+  initialGuides: GuideRow[];
+  initialCategories: CategoryRow[];
+}
+
+export default function GuideManager({ initialGuides, initialCategories }: GuideManagerProps) {
   const [guides, setGuides] = useState<GuideRow[]>(initialGuides);
+  const [categories, setCategories] = useState<CategoryRow[]>(initialCategories);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGuide, setEditingGuide] = useState<GuideRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<GuideRow | null>(null);
@@ -35,24 +44,42 @@ export default function GuideManager({ initialGuides }: GuideManagerProps) {
   const [formContent, setFormContent] = useState("");
   const [formSortOrder, setFormSortOrder] = useState("0");
 
-  const categories = useMemo(() => {
-    const set = new Set(guides.map((g) => g.category));
-    return Array.from(set);
-  }, [guides]);
+  // 카테고리 관리 모달 상태
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [categoryError, setCategoryError] = useState("");
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [categoryBusyId, setCategoryBusyId] = useState<string | null>(null);
+  const [deleteCategoryTarget, setDeleteCategoryTarget] = useState<CategoryRow | null>(null);
 
+  const categoryNames = useMemo(() => categories.map((c) => c.name), [categories]);
+
+  // 카테고리 목록의 순서(sort_order)를 기준으로 묶는다. 아직 카테고리 테이블에 없는
+  // (레거시) category 값이 있으면 맨 뒤에 붙여서 데이터가 누락되지 않게 한다.
   const grouped = useMemo(() => {
-    const map = new Map<string, GuideRow[]>();
+    const byCategory = new Map<string, GuideRow[]>();
     for (const guide of guides) {
-      const list = map.get(guide.category) ?? [];
+      const list = byCategory.get(guide.category) ?? [];
       list.push(guide);
-      map.set(guide.category, list);
+      byCategory.set(guide.category, list);
     }
-    return Array.from(map.entries());
-  }, [guides]);
+    const ordered: [string, GuideRow[]][] = [];
+    for (const cat of categories) {
+      if (byCategory.has(cat.name)) {
+        ordered.push([cat.name, byCategory.get(cat.name)!]);
+        byCategory.delete(cat.name);
+      }
+    }
+    for (const [name, items] of byCategory) {
+      ordered.push([name, items]);
+    }
+    return ordered;
+  }, [guides, categories]);
 
   function openCreate() {
     setEditingGuide(null);
-    setFormCategory(categories[0] ?? "LLM");
+    setFormCategory(categoryNames[0] ?? "");
     setFormTitle("");
     setFormContent("");
     setFormSortOrder("0");
@@ -78,15 +105,15 @@ export default function GuideManager({ initialGuides }: GuideManagerProps) {
   }
 
   async function handleSave() {
-    if (!formTitle.trim() || !formContent.trim()) {
-      setError("제목과 내용을 입력해주세요.");
+    if (!formCategory.trim() || !formTitle.trim() || !formContent.trim()) {
+      setError("카테고리, 제목, 내용을 입력해주세요.");
       return;
     }
     setLoading(true);
     setError("");
     try {
       const body: Record<string, unknown> = {
-        category: formCategory.trim() || "기타",
+        category: formCategory.trim(),
         title: formTitle.trim(),
         content: formContent,
         sort_order: parseInt(formSortOrder) || 0,
@@ -144,9 +171,122 @@ export default function GuideManager({ initialGuides }: GuideManagerProps) {
     }
   }
 
+  // ── 카테고리 관리 ──────────────────────────────────────────────
+
+  async function handleAddCategory() {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    setCategoryError("");
+    try {
+      const res = await fetch("/api/admin/guide-categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setCategories((prev) => [...prev, data].sort((a, b) => a.sort_order - b.sort_order));
+      setNewCategoryName("");
+    } catch (err) {
+      setCategoryError(err instanceof Error ? err.message : "추가 실패");
+    }
+  }
+
+  function startRename(cat: CategoryRow) {
+    setRenamingId(cat.id);
+    setRenameValue(cat.name);
+    setCategoryError("");
+  }
+
+  async function confirmRename(cat: CategoryRow) {
+    const name = renameValue.trim();
+    if (!name || name === cat.name) {
+      setRenamingId(null);
+      return;
+    }
+    setCategoryBusyId(cat.id);
+    setCategoryError("");
+    try {
+      const res = await fetch("/api/admin/guide-categories", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: cat.id, name }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setCategories((prev) => prev.map((c) => (c.id === cat.id ? data : c)));
+      // 이 카테고리에 속한 가이드들의 category 값도 서버에서 함께 바꿔줬으니 화면에도 반영한다.
+      setGuides((prev) => prev.map((g) => (g.category === cat.name ? { ...g, category: name } : g)));
+      setRenamingId(null);
+    } catch (err) {
+      setCategoryError(err instanceof Error ? err.message : "이름 변경 실패");
+    } finally {
+      setCategoryBusyId(null);
+    }
+  }
+
+  async function moveCategory(cat: CategoryRow, direction: "up" | "down") {
+    const sorted = [...categories].sort((a, b) => a.sort_order - b.sort_order);
+    const index = sorted.findIndex((c) => c.id === cat.id);
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= sorted.length) return;
+
+    const target = sorted[targetIndex];
+    setCategoryBusyId(cat.id);
+    setCategoryError("");
+    try {
+      const [res1, res2] = await Promise.all([
+        fetch("/api/admin/guide-categories", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: cat.id, sort_order: target.sort_order }),
+        }),
+        fetch("/api/admin/guide-categories", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: target.id, sort_order: cat.sort_order }),
+        }),
+      ]);
+      const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
+      if (!res1.ok) throw new Error(data1.error);
+      if (!res2.ok) throw new Error(data2.error);
+      setCategories((prev) =>
+        prev
+          .map((c) => (c.id === data1.id ? data1 : c.id === data2.id ? data2 : c))
+          .sort((a, b) => a.sort_order - b.sort_order),
+      );
+    } catch (err) {
+      setCategoryError(err instanceof Error ? err.message : "순서 변경 실패");
+    } finally {
+      setCategoryBusyId(null);
+    }
+  }
+
+  async function confirmDeleteCategory() {
+    const cat = deleteCategoryTarget;
+    if (!cat) return;
+    setCategoryBusyId(cat.id);
+    setCategoryError("");
+    try {
+      const res = await fetch(`/api/admin/guide-categories?id=${cat.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setCategories((prev) => prev.filter((c) => c.id !== cat.id));
+      setDeleteCategoryTarget(null);
+    } catch (err) {
+      setCategoryError(err instanceof Error ? err.message : "삭제 실패");
+    } finally {
+      setCategoryBusyId(null);
+    }
+  }
+
   return (
     <div>
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-end gap-2 mb-6">
+        <GoldButton variant="outline" onClick={() => setIsCategoryModalOpen(true)}>
+          <FolderCog size={16} />
+          카테고리 관리
+        </GoldButton>
         <GoldButton onClick={openCreate}>
           <Plus size={16} />
           가이드 추가
@@ -215,10 +355,13 @@ export default function GuideManager({ initialGuides }: GuideManagerProps) {
               list="guide-categories"
             />
             <datalist id="guide-categories">
-              {categories.map((c) => (
+              {categoryNames.map((c) => (
                 <option key={c} value={c} />
               ))}
             </datalist>
+            {categoryNames.length === 0 && (
+              <p className="text-xs text-subtext mt-1">등록된 카테고리가 없습니다. 먼저 &quot;카테고리 관리&quot;에서 만들어주세요.</p>
+            )}
           </div>
 
           <div>
@@ -275,6 +418,121 @@ export default function GuideManager({ initialGuides }: GuideManagerProps) {
               {loading ? "삭제 중..." : "삭제"}
             </GoldButton>
             <GoldButton variant="outline" onClick={() => setDeleteTarget(null)} fullWidth>
+              취소
+            </GoldButton>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 카테고리 관리 모달 */}
+      <Modal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} title="카테고리 관리" size="md">
+        <div className="p-6 space-y-4">
+          <div className="flex gap-2">
+            <input
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+              className="input-dark flex-1"
+              placeholder="새 카테고리 이름 (예: SNS)"
+            />
+            <GoldButton onClick={handleAddCategory}>
+              <Plus size={16} />
+              추가
+            </GoldButton>
+          </div>
+
+          {categoryError && (
+            <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{categoryError}</p>
+          )}
+
+          {categories.length === 0 ? (
+            <p className="text-subtext text-sm text-center py-6">등록된 카테고리가 없습니다.</p>
+          ) : (
+            <div className="space-y-2">
+              {[...categories]
+                .sort((a, b) => a.sort_order - b.sort_order)
+                .map((cat, index, arr) => (
+                  <div key={cat.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/3 px-3 py-2">
+                    <div className="flex flex-col">
+                      <button
+                        onClick={() => moveCategory(cat, "up")}
+                        disabled={index === 0 || categoryBusyId === cat.id}
+                        className="text-subtext hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
+                      >
+                        <ArrowUp size={13} />
+                      </button>
+                      <button
+                        onClick={() => moveCategory(cat, "down")}
+                        disabled={index === arr.length - 1 || categoryBusyId === cat.id}
+                        className="text-subtext hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
+                      >
+                        <ArrowDown size={13} />
+                      </button>
+                    </div>
+
+                    {renamingId === cat.id ? (
+                      <>
+                        <input
+                          value={renameValue}
+                          onChange={(e) => setRenameValue(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && confirmRename(cat)}
+                          className="input-dark flex-1 py-1"
+                          autoFocus
+                        />
+                        <button onClick={() => confirmRename(cat)} className="p-1.5 text-green-400 hover:bg-green-500/10 rounded">
+                          <Check size={15} />
+                        </button>
+                        <button onClick={() => setRenamingId(null)} className="p-1.5 text-subtext hover:bg-white/10 rounded">
+                          <X size={15} />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex-1 text-sm text-white">{cat.name}</span>
+                        <button
+                          onClick={() => startRename(cat)}
+                          disabled={categoryBusyId === cat.id}
+                          className="p-1.5 text-subtext hover:text-white hover:bg-white/10 rounded transition-colors"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={() => setDeleteCategoryTarget(cat)}
+                          disabled={categoryBusyId === cat.id}
+                          className="p-1.5 text-subtext hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ))}
+            </div>
+          )}
+
+          <div className="pt-2">
+            <GoldButton variant="outline" onClick={() => setIsCategoryModalOpen(false)} fullWidth>
+              닫기
+            </GoldButton>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 카테고리 삭제 확인 모달 */}
+      <Modal isOpen={!!deleteCategoryTarget} onClose={() => setDeleteCategoryTarget(null)} title="카테고리 삭제" size="sm">
+        <div className="p-6 space-y-4">
+          <p className="text-subtext text-sm">
+            <span className="text-white font-semibold">&quot;{deleteCategoryTarget?.name}&quot;</span> 카테고리를 삭제할까요?
+            이 카테고리에 가이드가 남아있으면 삭제되지 않습니다.
+          </p>
+          {categoryError && (
+            <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{categoryError}</p>
+          )}
+          <div className="flex gap-3">
+            <GoldButton onClick={confirmDeleteCategory} disabled={categoryBusyId === deleteCategoryTarget?.id} fullWidth>
+              {categoryBusyId === deleteCategoryTarget?.id ? "삭제 중..." : "삭제"}
+            </GoldButton>
+            <GoldButton variant="outline" onClick={() => setDeleteCategoryTarget(null)} fullWidth>
               취소
             </GoldButton>
           </div>

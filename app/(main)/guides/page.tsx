@@ -16,20 +16,36 @@ interface GuideRow {
 
 export default async function GuideListPage() {
   const supabase = await createClient();
-  const { data: guides } = await supabase
-    .from("platform_guides")
-    .select("id, category, title, sort_order")
-    .eq("is_active", true)
-    .order("category", { ascending: true })
-    .order("sort_order", { ascending: true });
+  const [{ data: guides }, { data: categories }] = await Promise.all([
+    supabase
+      .from("platform_guides")
+      .select("id, category, title, sort_order")
+      .eq("is_active", true)
+      .order("category", { ascending: true })
+      .order("sort_order", { ascending: true }),
+    supabase.from("platform_guide_categories").select("name, sort_order").order("sort_order", { ascending: true }),
+  ]);
 
   const list = (guides ?? []) as GuideRow[];
 
-  const grouped = new Map<string, GuideRow[]>();
+  const byCategory = new Map<string, GuideRow[]>();
   for (const guide of list) {
-    const items = grouped.get(guide.category) ?? [];
+    const items = byCategory.get(guide.category) ?? [];
     items.push(guide);
-    grouped.set(guide.category, items);
+    byCategory.set(guide.category, items);
+  }
+
+  // 카테고리 순서(sort_order)대로 정렬한다. 아직 카테고리 테이블에 없는 레거시
+  // category 값은 맨 뒤에 붙인다 — 활성 가이드가 있는 카테고리만 보여준다.
+  const grouped = new Map<string, GuideRow[]>();
+  for (const cat of categories ?? []) {
+    if (byCategory.has(cat.name)) {
+      grouped.set(cat.name, byCategory.get(cat.name)!);
+      byCategory.delete(cat.name);
+    }
+  }
+  for (const [name, items] of byCategory) {
+    grouped.set(name, items);
   }
 
   return (
