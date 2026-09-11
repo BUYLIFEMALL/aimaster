@@ -55,7 +55,6 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
   const [badgeFilter, setBadgeFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
-  const [reorderBusyId, setReorderBusyId] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkStatusValue, setBulkStatusValue] = useState("");
   const [bulkGradeValue, setBulkGradeValue] = useState("");
@@ -196,6 +195,14 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
   // 그래서 이동할 때마다 전체 그룹을 원하는 순서로 배열한 뒤 0,1,2...로 통째로 다시
   // 번호를 매긴다 — 기존에 어떤 sort_order 값이었든 이번 이동을 계기로 항상 유일한
   // 값으로 정규화되어, 다음 이동부터도 계속 정상 동작한다.
+  // 낙관적(optimistic) 업데이트로 처리한다 — 네트워크 왕복이 끝난 뒤에야 화면 순서가
+  // 바뀌면, 그 사이(수백 ms) 사용자가 "안 바뀌었네" 하고 같은 자리를 또 클릭하는 순간
+  // 이미 그 자리엔 다른 항목이 올라와 있어(방금 이동한 항목이 그 자리를 벗어났으므로)
+  // 엉뚱한 항목이 움직이거나, 화면 갱신 전에 겹쳐 들어온 두 번째 클릭이 아직 갱신 안 된
+  // 옛 배열을 기준으로 계산돼 두 번째 이동이 씹히는 문제가 있었다(2026-09-11 실사용 중
+  // "한 번은 되는데 두 번째는 안 움직인다"로 재현). 그래서 클릭하자마자 로컬 state부터
+  // 새 순서로 즉시 반영하고, DB 반영은 그 뒤에 백그라운드로 실행한다 — 실패하면 그때
+  // 화면을 원래 상태로 되돌린다.
   const moveCategory = async (category: Category, direction: "up" | "down") => {
     const index = sortedCategoriesForGrouping.findIndex((c) => c.id === category.id);
     const targetIndex = direction === "up" ? index - 1 : index + 1;
@@ -204,25 +211,24 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     const reordered = [...sortedCategoriesForGrouping];
     [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
     const updates = reordered.map((c, i) => ({ id: c.id, sort_order: i }));
+    const sortMap = new Map(updates.map((u) => [u.id, u.sort_order]));
 
-    setReorderBusyId(category.id);
+    const previous = categories;
+    setCategories((prev) => prev.map((c) => (sortMap.has(c.id) ? { ...c, sort_order: sortMap.get(c.id)! } : c)));
+
     const results = await Promise.all(
       updates.map((u) => supabase.from("categories").update({ sort_order: u.sort_order }).eq("id", u.id)),
     );
-    setReorderBusyId(null);
 
     const firstError = results.find((r) => r.error)?.error;
     if (firstError) {
       alert(`순서 변경 중 오류가 발생했습니다: ${firstError.message}`);
-      return;
+      setCategories(previous);
     }
-    const sortMap = new Map(updates.map((u) => [u.id, u.sort_order]));
-    setCategories((prev) => prev.map((c) => (sortMap.has(c.id) ? { ...c, sort_order: sortMap.get(c.id)! } : c)));
   };
 
   // 같은 카테고리 안에서만 프로그램 순서를 바꾼다 — groupPrograms는 이미 sort_order순 정렬됨.
-  // moveCategory와 동일한 이유로 그룹 전체를 0,1,2...로 재정규화한다(단순 맞바꿈은 sort_order
-  // 중복 시 무효과였음).
+  // moveCategory와 동일한 이유(낙관적 업데이트)로 클릭 즉시 로컬 state부터 반영한다.
   const moveProgram = async (program: ProgramRow, groupPrograms: ProgramRow[], direction: "up" | "down") => {
     const index = groupPrograms.findIndex((p) => p.id === program.id);
     const targetIndex = direction === "up" ? index - 1 : index + 1;
@@ -231,20 +237,20 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     const reordered = [...groupPrograms];
     [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
     const updates = reordered.map((p, i) => ({ id: p.id, sort_order: i }));
+    const sortMap = new Map(updates.map((u) => [u.id, u.sort_order]));
 
-    setReorderBusyId(program.id);
+    const previous = programs;
+    setPrograms((prev) => prev.map((p) => (sortMap.has(p.id) ? { ...p, sort_order: sortMap.get(p.id)! } : p)));
+
     const results = await Promise.all(
       updates.map((u) => supabase.from("programs").update({ sort_order: u.sort_order }).eq("id", u.id)),
     );
-    setReorderBusyId(null);
 
     const firstError = results.find((r) => r.error)?.error;
     if (firstError) {
       alert(`순서 변경 중 오류가 발생했습니다: ${firstError.message}`);
-      return;
+      setPrograms(previous);
     }
-    const sortMap = new Map(updates.map((u) => [u.id, u.sort_order]));
-    setPrograms((prev) => prev.map((p) => (sortMap.has(p.id) ? { ...p, sort_order: sortMap.get(p.id)! } : p)));
   };
 
   return (
@@ -457,7 +463,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                       <button
                         type="button"
                         title="카테고리 위로 이동"
-                        disabled={reorderBusyId === category.id || categoryIndex <= 0}
+                        disabled={categoryIndex <= 0}
                         onClick={() => moveCategory(category, "up")}
                         className="rounded-lg p-1.5 text-subtext hover:bg-white/10 hover:text-gold transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
                       >
@@ -466,7 +472,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                       <button
                         type="button"
                         title="카테고리 아래로 이동"
-                        disabled={reorderBusyId === category.id || categoryIndex >= realCategoryCount - 1}
+                        disabled={categoryIndex >= realCategoryCount - 1}
                         onClick={() => moveCategory(category, "down")}
                         className="rounded-lg p-1.5 text-subtext hover:bg-white/10 hover:text-gold transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
                       >
@@ -486,7 +492,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                               <button
                                 type="button"
                                 title="위로 이동"
-                                disabled={reorderBusyId === p.id || programIndex === 0}
+                                disabled={programIndex === 0}
                                 onClick={() => moveProgram(p, group.programs, "up")}
                                 className="rounded p-1 text-subtext hover:bg-white/10 hover:text-gold transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
                               >
@@ -495,7 +501,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                               <button
                                 type="button"
                                 title="아래로 이동"
-                                disabled={reorderBusyId === p.id || programIndex === group.programs.length - 1}
+                                disabled={programIndex === group.programs.length - 1}
                                 onClick={() => moveProgram(p, group.programs, "down")}
                                 className="rounded p-1 text-subtext hover:bg-white/10 hover:text-gold transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
                               >
