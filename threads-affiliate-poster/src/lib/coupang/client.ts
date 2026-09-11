@@ -38,11 +38,19 @@ function buildCoupangErrorMessage(action: string, status: number, body: string):
 
 /**
  * 쿠팡파트너스 API 서명(HMAC-SHA256, "CEA" 인증 스킴).
- * signed-date 형식: yyMMdd'T'HHmmss'Z' (UTC), 서명 대상 문자열: signedDate + method + path(+쿼리스트링).
+ * signed-date 형식: yyMMdd'T'HHmmss'Z' (UTC).
+ *
+ * 서명 대상 문자열은 signedDate + method + path + query 네 요소를 그대로 이어붙인 것이다 —
+ * 공식 문서(developers.coupang.com/ko/getting-started/creating-hmac-signature)의 PHP/Python
+ * 예제 전부 `$message = $datetime.$method.$path.$query;` 형태로, path와 query 사이에
+ * "?" 문자가 들어가지 않는다. 실제 HTTP 요청 URL에는 "?"가 필요하지만(query string 구분자),
+ * 서명 계산에는 넣으면 안 된다 — 2026-09-11 실계정 첫 실호출에서 "Invalid signature"(401)로
+ * 이 차이를 확인했다(이전엔 계정 매출 요건 미달로 서명 검증 자체를 못 받아봤다).
  */
 function buildAuthorizationHeader(
   method: "GET" | "POST",
-  pathWithQuery: string,
+  path: string,
+  query: string,
   auth: CoupangAuthParams,
 ): string {
   const now = new Date();
@@ -51,7 +59,7 @@ function buildAuthorizationHeader(
     `${String(now.getUTCFullYear()).slice(2)}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}` +
     `T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
 
-  const message = `${signedDate}${method}${pathWithQuery}`;
+  const message = `${signedDate}${method}${path}${query}`;
   const signature = crypto.createHmac("sha256", auth.secretKey).update(message).digest("hex");
 
   return `CEA algorithm=HmacSHA256, access-key=${auth.accessKey}, signed-date=${signedDate}, signature=${signature}`;
@@ -76,12 +84,12 @@ export async function searchProducts(
   auth: CoupangAuthParams & { limit?: number },
 ): Promise<CoupangProduct[]> {
   const params = new URLSearchParams({ keyword, limit: String(auth.limit ?? 10) });
-  const pathWithQuery = `${SEARCH_PATH}?${params.toString()}`;
+  const query = params.toString();
 
-  const response = await fetch(`${API_GATEWAY}${pathWithQuery}`, {
+  const response = await fetch(`${API_GATEWAY}${SEARCH_PATH}?${query}`, {
     method: "GET",
     headers: {
-      Authorization: buildAuthorizationHeader("GET", pathWithQuery, auth),
+      Authorization: buildAuthorizationHeader("GET", SEARCH_PATH, query, auth),
       "Content-Type": "application/json",
     },
   });
@@ -141,7 +149,7 @@ export async function createDeeplink(
   const response = await fetch(`${API_GATEWAY}${DEEPLINK_PATH}`, {
     method: "POST",
     headers: {
-      Authorization: buildAuthorizationHeader("POST", DEEPLINK_PATH, auth),
+      Authorization: buildAuthorizationHeader("POST", DEEPLINK_PATH, "", auth),
       "Content-Type": "application/json",
     },
     body,
