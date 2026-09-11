@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square } from "lucide-react";
+import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square, ArrowUp, ArrowDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Badge from "@/components/ui/Badge";
 import { getContrastTextColor } from "@/lib/utils/color";
@@ -45,15 +45,17 @@ const BADGE_OPTIONS: { value: BadgeValue; label: string }[] = [
 const NONE_VALUE = "__none__";
 const UNCATEGORIZED_KEY = "__uncategorized__";
 
-export default function ProgramsAdminBoard({ programs: initialPrograms, categories, grades }: ProgramsAdminBoardProps) {
+export default function ProgramsAdminBoard({ programs: initialPrograms, categories: initialCategories, grades }: ProgramsAdminBoardProps) {
   const supabase = createClient();
   const [programs, setPrograms] = useState(initialPrograms);
+  const [categories, setCategories] = useState(initialCategories);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<(typeof STATUS_OPTIONS)[number]["value"]>("all");
   const [gradeFilter, setGradeFilter] = useState("all");
   const [badgeFilter, setBadgeFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [reorderBusyId, setReorderBusyId] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkStatusValue, setBulkStatusValue] = useState("");
   const [bulkGradeValue, setBulkGradeValue] = useState("");
@@ -81,6 +83,11 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     });
   }, [programs, categoryFilter, statusFilter, gradeFilter, badgeFilter]);
 
+  const sortedCategoriesForGrouping = useMemo(
+    () => [...categories].sort((a, b) => a.sort_order - b.sort_order),
+    [categories],
+  );
+
   const groups = useMemo(() => {
     const byCategory = new Map<string, ProgramRow[]>();
     for (const p of filteredPrograms) {
@@ -89,9 +96,9 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
       byCategory.get(key)!.push(p);
     }
 
-    const categoryMeta = new Map(categories.map((c) => [c.id, c]));
+    const categoryMeta = new Map(sortedCategoriesForGrouping.map((c) => [c.id, c]));
     const orderedKeys = [
-      ...categories.map((c) => c.id).filter((id) => byCategory.has(id)),
+      ...sortedCategoriesForGrouping.map((c) => c.id).filter((id) => byCategory.has(id)),
       ...(byCategory.has(UNCATEGORIZED_KEY) ? [UNCATEGORIZED_KEY] : []),
     ];
 
@@ -100,7 +107,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
       name: key === UNCATEGORIZED_KEY ? "미분류" : (categoryMeta.get(key)?.name ?? "알 수 없음"),
       programs: byCategory.get(key)!.sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name)),
     }));
-  }, [filteredPrograms, categories]);
+  }, [filteredPrograms, sortedCategoriesForGrouping]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
@@ -178,6 +185,61 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
       next.delete(p.id);
       return next;
     });
+  };
+
+  // 카테고리 블록 자체의 위/아래 순서(메인 /programs 페이지 노출 순서)를 바꾼다.
+  // 카테고리 필터가 걸려 있으면(하나만 보이는 상태) 헷갈리므로 "전체 카테고리"일 때만 노출한다.
+  const moveCategory = async (category: Category, direction: "up" | "down") => {
+    const index = sortedCategoriesForGrouping.findIndex((c) => c.id === category.id);
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= sortedCategoriesForGrouping.length) return;
+    const target = sortedCategoriesForGrouping[targetIndex];
+
+    setReorderBusyId(category.id);
+    const [res1, res2] = await Promise.all([
+      supabase.from("categories").update({ sort_order: target.sort_order }).eq("id", category.id),
+      supabase.from("categories").update({ sort_order: category.sort_order }).eq("id", target.id),
+    ]);
+    setReorderBusyId(null);
+
+    if (res1.error || res2.error) {
+      alert(`순서 변경 중 오류가 발생했습니다: ${(res1.error ?? res2.error)?.message}`);
+      return;
+    }
+    setCategories((prev) =>
+      prev.map((c) => {
+        if (c.id === category.id) return { ...c, sort_order: target.sort_order };
+        if (c.id === target.id) return { ...c, sort_order: category.sort_order };
+        return c;
+      }),
+    );
+  };
+
+  // 같은 카테고리 안에서만 프로그램 순서를 바꾼다 — groupPrograms는 이미 sort_order순 정렬됨.
+  const moveProgram = async (program: ProgramRow, groupPrograms: ProgramRow[], direction: "up" | "down") => {
+    const index = groupPrograms.findIndex((p) => p.id === program.id);
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= groupPrograms.length) return;
+    const target = groupPrograms[targetIndex];
+
+    setReorderBusyId(program.id);
+    const [res1, res2] = await Promise.all([
+      supabase.from("programs").update({ sort_order: target.sort_order }).eq("id", program.id),
+      supabase.from("programs").update({ sort_order: program.sort_order }).eq("id", target.id),
+    ]);
+    setReorderBusyId(null);
+
+    if (res1.error || res2.error) {
+      alert(`순서 변경 중 오류가 발생했습니다: ${(res1.error ?? res2.error)?.message}`);
+      return;
+    }
+    setPrograms((prev) =>
+      prev.map((p) => {
+        if (p.id === program.id) return { ...p, sort_order: target.sort_order };
+        if (p.id === target.id) return { ...p, sort_order: program.sort_order };
+        return p;
+      }),
+    );
   };
 
   return (
@@ -365,6 +427,10 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
           {groups.map((group) => {
             const groupIds = group.programs.map((p) => p.id);
             const allSelected = groupIds.every((id) => selectedIds.has(id));
+            const category = group.key === UNCATEGORIZED_KEY ? null : sortedCategoriesForGrouping.find((c) => c.id === group.key);
+            const realCategoryCount = sortedCategoriesForGrouping.length;
+            const categoryIndex = category ? sortedCategoriesForGrouping.findIndex((c) => c.id === category.id) : -1;
+            const canReorderCategory = categoryFilter === "all" && category;
             return (
               <div key={group.key} className="glass-card rounded-2xl p-0 overflow-hidden">
                 <div className="flex items-center gap-3 px-5 py-4 border-b border-gold/20 bg-gold/[0.06]">
@@ -381,13 +447,57 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                   <span className="text-xs font-semibold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
                     {group.programs.length}개
                   </span>
+                  {canReorderCategory && (
+                    <div className="ml-auto flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        title="카테고리 위로 이동"
+                        disabled={reorderBusyId === category.id || categoryIndex <= 0}
+                        onClick={() => moveCategory(category, "up")}
+                        className="rounded-lg p-1.5 text-subtext hover:bg-white/10 hover:text-gold transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        title="카테고리 아래로 이동"
+                        disabled={reorderBusyId === category.id || categoryIndex >= realCategoryCount - 1}
+                        onClick={() => moveCategory(category, "down")}
+                        className="rounded-lg p-1.5 text-subtext hover:bg-white/10 hover:text-gold transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[480px]">
                     <tbody>
-                      {group.programs.map((p) => (
+                      {group.programs.map((p, programIndex) => (
                         <tr key={p.id} className="border-b border-white/5 last:border-b-0 hover:bg-white/[0.03] transition-colors">
+                          <td className="p-4 w-16">
+                            <div className="flex items-center gap-0.5">
+                              <button
+                                type="button"
+                                title="위로 이동"
+                                disabled={reorderBusyId === p.id || programIndex === 0}
+                                onClick={() => moveProgram(p, group.programs, "up")}
+                                className="rounded p-1 text-subtext hover:bg-white/10 hover:text-gold transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                              >
+                                <ArrowUp size={13} />
+                              </button>
+                              <button
+                                type="button"
+                                title="아래로 이동"
+                                disabled={reorderBusyId === p.id || programIndex === group.programs.length - 1}
+                                onClick={() => moveProgram(p, group.programs, "down")}
+                                className="rounded p-1 text-subtext hover:bg-white/10 hover:text-gold transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                              >
+                                <ArrowDown size={13} />
+                              </button>
+                            </div>
+                          </td>
                           <td className="p-4 w-10">
                             <button
                               type="button"
