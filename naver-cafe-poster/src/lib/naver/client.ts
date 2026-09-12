@@ -178,10 +178,19 @@ export async function createCafeArticle(params: CreateCafeArticleParams): Promis
   }
 
   if (!response.ok) {
-    const message =
+    // rawResponse.message가 문자열이 아니라 객체(예: {errorCode, errorMessage})인 경우
+    // String(obj)를 쓰면 "[object Object]"로 실제 내용이 사라진다(2026-09-12, 403 에러
+    // 디버깅 중 발견) — JSON.stringify로 실제 내용을 보존한다.
+    const rawMessage =
       rawResponse && typeof rawResponse === "object" && "message" in rawResponse
-        ? String((rawResponse as { message?: unknown }).message)
-        : text.slice(0, 300);
+        ? (rawResponse as { message?: unknown }).message
+        : undefined;
+    const message =
+      typeof rawMessage === "string"
+        ? rawMessage
+        : rawMessage !== undefined
+          ? JSON.stringify(rawMessage)
+          : text.slice(0, 300);
     throw new Error(`네이버 카페 게시글 등록에 실패했습니다. (${response.status}) ${message}`);
   }
 

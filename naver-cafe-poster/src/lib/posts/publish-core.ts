@@ -36,6 +36,20 @@ function extractArticleUrl(rawResponse: unknown): string | null {
   return typeof articleUrl === "string" ? articleUrl : null;
 }
 
+/** 카페 글쓰기 API의 content는 그대로 HTML로 저장된다(응답에서 <p>...</p>로 감싸 반환하는 것으로
+ * 확인) — 우리가 보내는 일반 텍스트의 개행 문자는 HTML에서 공백으로 무시되므로 <br>로
+ * 바꿔줘야 하고, 사용자가 입력한 텍스트에 우연히 <, >, & 같은 문자가 있으면 HTML 구조가
+ * 깨지므로 이스케이프해야 한다. */
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function textToHtml(text: string): string {
+  return escapeHtml(text)
+    .split("\n")
+    .join("<br>");
+}
+
 export async function publishCafePost(params: PublishCafePostParams): Promise<PublishPostOutcome> {
   const { supabase, postId, userId, title, content, imageUrl, videoUrl, accessToken, clubId, menuId } = params;
 
@@ -45,13 +59,19 @@ export async function publishCafePost(params: PublishCafePostParams): Promise<Pu
     .eq("id", postId)
     .eq("user_id", userId);
 
-  // 네이버 카페 글쓰기 오픈API가 본문 안에서 이미지/영상 URL을 실제 미디어로 렌더링해주는지
-  // 아직 확인 못 했다(공식 문서 접근 불가) — 우선 본문 맨 위에 URL 한 줄로 덧붙이는
-  // 최선의 시도로 넣고, 실계정 첫 배포 후 실제로 렌더링되는지 확인해서 필요하면
-  // API 파라미터(예: contentType=HTML, <img>/<video> 태그)를 다시 조정할 것.
-  // 이미지/영상은 UI에서 서로 배타적으로 관리되므로 동시에 둘 다 값이 있을 일은 없다.
-  const mediaUrl = imageUrl || videoUrl;
-  const bodyWithMedia = mediaUrl ? `${mediaUrl}\n\n${content}` : content;
+  // 실계정 테스트 게시로 두 가지를 확인했다(2026-09-12):
+  // 1) content는 HTML로 그대로 저장된다 — 일반 텍스트의 개행(\n)은 HTML에서 공백 취급되어
+  //    문단 구분이 전부 사라지고 한 줄로 붙어버렸다. textToHtml()로 <br> 변환해서 해결.
+  // 2) 이미지 URL을 그냥 텍스트로 붙이면 실제 이미지로 렌더링되지 않고 일반 링크(<a>)가 되며,
+  //    바로 뒤에 공백 없이 본문이 이어지면 네이버의 자동 링크 인식이 뒤 텍스트까지 링크에
+  //    같이 삼켜버려 링크 자체가 깨지는 것까지 확인했다 — <img>/<a> 태그로 직접 감싸서 넣으면
+  //    이 문제가 없다. 영상은 HTML5 <video> 임베드 지원 여부가 불확실해 링크로만 넣는다.
+  const mediaHtml = imageUrl
+    ? `<img src="${imageUrl}" /><br><br>`
+    : videoUrl
+      ? `<a href="${videoUrl}" target="_blank">${videoUrl}</a><br><br>`
+      : "";
+  const bodyWithMedia = `${mediaHtml}${textToHtml(content)}`;
 
   // 네이버 API가 국내 리전 기준으로 서비스되어서인지, 해외 리전(Vercel 기본 리전)에서 호출할 때
   // 가끔 응답이 지연되며 "Gateway Timeout"(HTTP 표준 504 사유구문)만 그대로 떨어지는 현상을
