@@ -109,7 +109,7 @@ export default async function PostsPage({
                       disabled={!hasNaverAccount || !post.target_id}
                       className="flex-shrink-0 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-600"
                     >
-                      {post.status === "failed" ? "다시 게시" : "배포"}
+                      {post.status === "failed" ? "다시 게시" : "게시"}
                     </button>
                   </form>
                 )}

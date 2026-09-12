@@ -410,7 +410,7 @@ export function DraftItem({
         <form action={deployDraftAction}>
           <input type="hidden" name="postId" value={post.id} />
           <Button type="submit" disabled={!hasNaverAccount || !post.target_id}>
-            검수 완료 · 배포
+            검수 완료 · 게시
           </Button>
         </form>
         <form action={deletePostAction}>
@@ -423,7 +423,7 @@ export function DraftItem({
         </Link>
       </div>
       {!hasNaverAccount && (
-        <p className="mt-2 text-xs text-red-600">네이버 계정이 연결되어 있지 않아 배포할 수 없습니다.</p>
+        <p className="mt-2 text-xs text-red-600">네이버 계정이 연결되어 있지 않아 게시할 수 없습니다.</p>
       )}
       {hasNaverAccount && !post.target_id && (
         <p className="mt-2 text-xs text-amber-600">등록할 카페를 아직 안 골랐습니다 — 수정에서 지정해주세요.</p>

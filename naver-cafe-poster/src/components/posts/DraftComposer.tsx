@@ -550,7 +550,7 @@ export function DraftComposer({
         </Button>
         {state.error && <p className="text-xs text-red-600">{state.error}</p>}
         {state.success && (
-          <p className="text-xs text-green-600">초안이 저장되었습니다. 아래 목록에서 검수 후 배포하세요.</p>
+          <p className="text-xs text-green-600">초안이 저장되었습니다. 아래 목록에서 검수 후 게시하세요.</p>
         )}
       </div>
     </form>

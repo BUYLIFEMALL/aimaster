@@ -32,8 +32,8 @@ export default async function DraftsPage({
       <div>
         <h1 className="text-2xl font-semibold text-neutral-900">AI 글쓰기</h1>
         <p className="mt-1 text-sm text-neutral-600">
-          자동 생성 → 수정 → 검수 → 배포 순서로 진행합니다. 저장한 초안은 실제 카페에
-          게시되지 않으며, 아래 목록에서 검토를 마친 뒤 "배포" 버튼을 눌러야 게시됩니다.
+          자동 생성 → 수정 → 검수 → 게시 순서로 진행합니다. 저장한 초안은 실제 카페에
+          게시되지 않으며, 아래 목록에서 검토를 마친 뒤 "게시" 버튼을 눌러야 게시됩니다.
         </p>
       </div>
 

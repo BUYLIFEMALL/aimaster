@@ -88,7 +88,7 @@ export default async function PostDetailPage({
           <form action={deployDraftAction}>
             <input type="hidden" name="postId" value={post.id} />
             <Button type="submit" disabled={!account || !post.target_id}>
-              {status === "failed" ? "다시 게시하기" : "검수 완료 · 배포"}
+              {status === "failed" ? "다시 게시하기" : "검수 완료 · 게시"}
             </Button>
           </form>
         )}
