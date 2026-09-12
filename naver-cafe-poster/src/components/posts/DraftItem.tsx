@@ -112,7 +112,11 @@ export function DraftItem({
             />
             {imageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={imageUrl} alt="대표 이미지" className="mt-2 max-h-40 rounded-lg border border-neutral-200" />
+              <img
+                src={imageUrl}
+                alt="대표 이미지"
+                className="mt-2 h-auto w-full max-h-96 rounded-lg border border-neutral-200 object-cover"
+              />
             )}
           </div>
           <div className="flex gap-2">
@@ -140,7 +144,11 @@ export function DraftItem({
       </div>
       {post.image_url && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={post.image_url} alt="대표 이미지" className="mb-2 max-h-32 rounded-lg border border-neutral-200" />
+        <img
+          src={post.image_url}
+          alt="대표 이미지"
+          className="mb-2 h-auto w-full max-h-96 rounded-lg border border-neutral-200 object-cover"
+        />
       )}
       <p className="whitespace-pre-wrap text-sm text-neutral-700">{post.content}</p>
       {status === "failed" && post.error_message && (

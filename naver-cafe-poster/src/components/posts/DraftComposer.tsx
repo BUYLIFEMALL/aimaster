@@ -467,7 +467,11 @@ export function DraftComposer({
         {imageUrl && (
           <div className="space-y-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageUrl} alt="생성된 대표 이미지" className="max-h-48 rounded-lg border border-neutral-200" />
+            <img
+              src={imageUrl}
+              alt="생성된 대표 이미지"
+              className="h-auto w-full max-h-96 rounded-lg border border-neutral-200 object-cover"
+            />
             <button type="button" onClick={() => setImageUrl("")} className="text-xs text-red-600 hover:underline">
               이미지 제거
             </button>
