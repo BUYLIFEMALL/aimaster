@@ -170,17 +170,28 @@ export function DraftComposer({
     }
     setImageError(null);
     startGeneratingImage(async () => {
-      const result = await generateCafeImageAction({
-        prompt,
-        apiKey: imageApiKey.trim() || undefined,
-        model: imageModel as never,
-        endpoint: imageEndpoint.trim() || undefined,
-      });
-      if (result.error) {
-        setImageError(result.error);
-        return;
+      // 나노바나나(Gemini)가 같은 프롬프트에도 가끔 이미지 없이 응답하는 비결정적 특성이
+      // 있어서(2026-09-12, /drafts 실사용 중 재현·확인), threads-affiliate-poster와 동일하게
+      // 최대 2회까지 자동 재시도한다 — 한 번 실패했다고 바로 에러로 끝내지 않는다.
+      const MAX_IMAGE_ATTEMPTS = 2;
+      let lastError: string | undefined;
+      for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
+        const result = await generateCafeImageAction({
+          prompt,
+          apiKey: imageApiKey.trim() || undefined,
+          model: imageModel as never,
+          endpoint: imageEndpoint.trim() || undefined,
+        });
+        if (result.imageUrl) {
+          setImageUrl(result.imageUrl);
+          lastError = undefined;
+          break;
+        }
+        lastError = result.error;
       }
-      setImageUrl(result.imageUrl ?? "");
+      if (lastError) {
+        setImageError(lastError);
+      }
     });
   };
 
