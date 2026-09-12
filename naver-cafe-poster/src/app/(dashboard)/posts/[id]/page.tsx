@@ -59,6 +59,9 @@ export default async function PostDetailPage({
               className="mt-3 max-h-64 rounded-lg border border-neutral-200"
             />
           )}
+          {post.video_url && (
+            <video src={post.video_url} controls className="mt-3 max-h-64 rounded-lg border border-neutral-200" />
+          )}
           <p className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-900">
             {post.content}
           </p>

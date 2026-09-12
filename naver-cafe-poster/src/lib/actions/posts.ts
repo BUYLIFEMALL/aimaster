@@ -50,6 +50,7 @@ function parseDraftForm(formData: FormData) {
     content: formData.get("content"),
     targetId: formData.get("targetId") ?? "",
     imageUrl: formData.get("imageUrl") ?? "",
+    videoUrl: formData.get("videoUrl") ?? "",
   });
 }
 
@@ -65,7 +66,7 @@ export async function saveDraftAction(
 
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { title, content, targetId, imageUrl } = parsed.data;
+  const { title, content, targetId, imageUrl, videoUrl } = parsed.data;
 
   const { error } = await supabase.from("ncafe_posts").insert({
     user_id: user.id,
@@ -73,6 +74,7 @@ export async function saveDraftAction(
     title,
     content,
     image_url: imageUrl || null,
+    video_url: videoUrl || null,
     status: "draft",
   });
 
@@ -97,7 +99,7 @@ export async function updateDraftAction(
 
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { title, content, targetId, imageUrl } = parsed.data;
+  const { title, content, targetId, imageUrl, videoUrl } = parsed.data;
 
   const { data: existing } = await supabase
     .from("ncafe_posts")
@@ -112,7 +114,13 @@ export async function updateDraftAction(
 
   const { error } = await supabase
     .from("ncafe_posts")
-    .update({ title, content, target_id: targetId || null, image_url: imageUrl || null })
+    .update({
+      title,
+      content,
+      target_id: targetId || null,
+      image_url: imageUrl || null,
+      video_url: videoUrl || null,
+    })
     .eq("id", postId)
     .eq("user_id", user.id);
 
@@ -154,6 +162,7 @@ export async function deployDraftAction(formData: FormData) {
       title: post.title,
       content: post.content,
       imageUrl: post.image_url,
+      videoUrl: post.video_url,
       accessToken: account.access_token,
       clubId: target.club_id,
       menuId: target.menu_id,

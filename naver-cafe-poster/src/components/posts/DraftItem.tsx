@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { createClient } from "@/lib/supabase/client";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { updateDraftAction, deployDraftAction, deletePostAction, type PostActionState } from "@/lib/actions/posts";
@@ -12,6 +13,10 @@ import { reviseCafePostAction, generateCafeImageAction, generateCafeImagePromptA
 import type { CafePost, CafeTarget, PostStatus } from "@/types/post";
 
 const initialState: PostActionState = {};
+
+// 네이버 카페 오픈API의 영상 첨부 규격은 공식 문서로 확인 못 했다 — 우선
+// threads-affiliate-poster의 영상 첨부 제한(1GB)을 그대로 가져와 안전장치로 둔다.
+const MAX_VIDEO_BYTES = 1024 * 1024 * 1024;
 
 const IMAGE_MODEL_OPTIONS = [
   { label: "NanoBanana 2-2K (2K 고화질 비주얼 - 추천)", value: "nanobanana-2-2k" },
@@ -37,6 +42,10 @@ export function DraftItem({
   const [content, setContent] = useState(post.content);
   const [targetId, setTargetId] = useState(post.target_id ?? "");
   const [imageUrl, setImageUrl] = useState(post.image_url ?? "");
+  const [videoUrl, setVideoUrl] = useState(post.video_url ?? "");
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [videoUploadError, setVideoUploadError] = useState<string | null>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const [reviseInstruction, setReviseInstruction] = useState("");
   const [reviseError, setReviseError] = useState<string | null>(null);
   const [isRevising, startRevising] = useTransition();
@@ -98,6 +107,7 @@ export function DraftItem({
       });
       if (result.imageUrl) {
         setImageUrl(result.imageUrl);
+        setVideoUrl(""); // 이미지/영상은 서로 배타적으로 관리한다
         lastError = undefined;
         break;
       }
@@ -125,6 +135,43 @@ export function DraftItem({
       }
       await runImageGeneration(prompt);
     });
+  };
+
+  const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (videoInputRef.current) videoInputRef.current.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("video/")) {
+      setVideoUploadError("영상 파일만 업로드할 수 있습니다.");
+      return;
+    }
+    if (file.size > MAX_VIDEO_BYTES) {
+      setVideoUploadError("영상 크기는 1GB를 넘을 수 없습니다.");
+      return;
+    }
+
+    setVideoUploadError(null);
+    setIsUploadingVideo(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split(".").pop() ?? "mp4";
+      const path = `${post.user_id}/${crypto.randomUUID()}.${ext}`;
+
+      const { error } = await supabase.storage.from("post-images").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+      setVideoUrl(data.publicUrl);
+      setImageUrl(""); // 이미지/영상은 서로 배타적으로 관리한다(threads-affiliate-poster와 동일)
+    } catch (err) {
+      setVideoUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
+    } finally {
+      setIsUploadingVideo(false);
+    }
   };
 
   if (isEditing) {
@@ -230,10 +277,61 @@ export function DraftItem({
               <Input
                 name="imageUrl"
                 value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
+                onChange={(e) => {
+                  setImageUrl(e.target.value);
+                  if (e.target.value) setVideoUrl("");
+                }}
                 placeholder="https://..."
               />
             </div>
+          </div>
+
+          <div className="space-y-2 rounded-xl border border-neutral-300 bg-neutral-50 p-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-neutral-700">🎬 영상 (선택)</p>
+            <p className="text-xs text-neutral-500">
+              이미지와 영상은 동시에 첨부할 수 없습니다 — 영상을 등록하면 이미지는 자동으로 해제됩니다.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/*"
+                onChange={handleVideoFileChange}
+                disabled={isUploadingVideo}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => videoInputRef.current?.click()}
+                disabled={isUploadingVideo}
+              >
+                {isUploadingVideo ? "업로드 중..." : "영상 직접 등록하기"}
+              </Button>
+            </div>
+            {videoUploadError && <p className="text-xs text-red-600">{videoUploadError}</p>}
+            <Input
+              name="videoUrl"
+              type="url"
+              value={videoUrl}
+              onChange={(e) => {
+                setVideoUrl(e.target.value);
+                if (e.target.value) setImageUrl("");
+              }}
+              placeholder="https://example.com/video.mp4 (또는 위에서 직접 업로드)"
+            />
+            {videoUrl && (
+              <div className="space-y-1">
+                <video src={videoUrl} controls className="max-h-64 w-full rounded-lg border border-neutral-200" />
+                <button
+                  type="button"
+                  onClick={() => setVideoUrl("")}
+                  className="text-xs text-red-600 hover:underline"
+                >
+                  영상 제거
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <Button type="submit" variant="secondary" disabled={isPending}>
@@ -265,6 +363,9 @@ export function DraftItem({
           alt="대표 이미지"
           className="mb-2 h-auto w-full max-h-96 rounded-lg border border-neutral-200 object-cover"
         />
+      )}
+      {post.video_url && (
+        <video src={post.video_url} controls className="mb-2 max-h-96 w-full rounded-lg border border-neutral-200" />
       )}
       <p className="whitespace-pre-wrap text-sm text-neutral-700">{post.content}</p>
       {status === "failed" && post.error_message && (

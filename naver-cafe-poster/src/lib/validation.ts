@@ -7,6 +7,7 @@ export const draftFormSchema = z.object({
   content: z.string().trim().min(1, "게시글 내용을 입력해주세요."),
   targetId: z.string().uuid().optional().or(z.literal("")),
   imageUrl: z.string().url().optional().or(z.literal("")),
+  videoUrl: z.string().url().optional().or(z.literal("")),
 });
 
 export type DraftFormValues = z.infer<typeof draftFormSchema>;
