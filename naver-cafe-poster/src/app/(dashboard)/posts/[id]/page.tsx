@@ -69,20 +69,22 @@ export default async function PostDetailPage({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-6">
+        {/* 배포 완료/배포 중인 글은 이미 카페에 올라갔거나 올라가는 중이라 수정할 수 없다
+            (updateDraftAction이 서버에서도 동일하게 막음) — 초안/실패한 글만 수정 가능. */}
+        {(status === "draft" || status === "failed") && (
+          <Link href={`/drafts?edit=${post.id}`}>
+            <Button type="button" variant="secondary">
+              AI 글쓰기에서 수정
+            </Button>
+          </Link>
+        )}
         {status === "failed" && (
-          <>
-            <Link href={`/drafts?edit=${post.id}`}>
-              <Button type="button" variant="secondary">
-                AI 글쓰기에서 수정
-              </Button>
-            </Link>
-            <form action={deployDraftAction}>
-              <input type="hidden" name="postId" value={post.id} />
-              <Button type="submit" disabled={!account || !post.target_id}>
-                다시 게시하기
-              </Button>
-            </form>
-          </>
+          <form action={deployDraftAction}>
+            <input type="hidden" name="postId" value={post.id} />
+            <Button type="submit" disabled={!account || !post.target_id}>
+              다시 게시하기
+            </Button>
+          </form>
         )}
         <form action={deletePostAction}>
           <input type="hidden" name="postId" value={post.id} />

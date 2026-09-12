@@ -83,6 +83,17 @@ export default async function PostsPage({
                   </div>
                   <StatusBadge status={post.status as PostStatus} />
                 </Link>
+                {/* 배포 완료/배포 중인 글은 이미 카페에 올라갔거나 올라가는 중이라 수정할 수 없다
+                    (updateDraftAction이 서버에서도 동일하게 막음) — 초안/실패한 글만 "AI 글쓰기"
+                    화면(/drafts)의 수정 모드로 바로 들어갈 수 있게 한다. */}
+                {(post.status === "draft" || post.status === "failed") && (
+                  <Link
+                    href={`/drafts?edit=${post.id}`}
+                    className="flex-shrink-0 rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+                  >
+                    수정
+                  </Link>
+                )}
                 <form action={deletePostAction}>
                   <input type="hidden" name="postId" value={post.id} />
                   <DeleteButton className="flex-shrink-0" />
