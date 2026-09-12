@@ -204,19 +204,50 @@ export function DraftItem({
             {reviseError && <p className="text-xs text-red-600">{reviseError}</p>}
           </div>
 
-          <select
-            name="targetId"
-            value={targetId}
-            onChange={(e) => setTargetId(e.target.value)}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
-          >
-            <option value="">아직 안 정함</option>
-            {targets.map((target) => (
-              <option key={target.id} value={target.id}>
-                {target.label}
-              </option>
-            ))}
-          </select>
+          {/* 새 글 작성 화면(DraftComposer)의 "📁 등록할 카페 선택"과 같은 스타일로 맞춘다 —
+              예전엔 제목 없는 평범한 select 하나뿐이라 카페를 고르는 기능 자체를 못 찾겠다는
+              지적(2026-09-12)이 있었다. 초안 저장 시엔 카페를 "나중에 선택 가능"으로 건너뛰는
+              게 정상 흐름이라, 이후 수정 화면에서 반드시 눈에 띄어야 한다. */}
+          <div className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-50/80 p-3">
+            <div className="flex items-center justify-between">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-700">
+                📁 등록할 카페 선택
+              </p>
+              <span className="rounded-md border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-600">
+                {targetId ? "1개 선택됨" : "아직 안 정함"}
+              </span>
+            </div>
+            <input type="hidden" name="targetId" value={targetId} />
+            <div className="flex flex-wrap gap-2 pt-1">
+              {targets.map((target) => {
+                const isSelected = targetId === target.id;
+                return (
+                  <button
+                    key={target.id}
+                    type="button"
+                    onClick={() => setTargetId(isSelected ? "" : target.id)}
+                    className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                      isSelected
+                        ? "scale-105 bg-blue-600 text-white shadow-md shadow-blue-500/30"
+                        : "border border-neutral-200 bg-white text-neutral-700 hover:bg-blue-50"
+                    }`}
+                  >
+                    {isSelected && "✓ "}
+                    {target.label}
+                  </button>
+                );
+              })}
+              {targets.length === 0 && (
+                <p className="text-xs text-neutral-500">
+                  등록된 카페가 없습니다 —{" "}
+                  <Link href="/settings" className="font-medium underline">
+                    설정 페이지에서 먼저 등록해주세요
+                  </Link>
+                  .
+                </p>
+              )}
+            </div>
+          </div>
           <div className="space-y-3 rounded-xl border border-amber-200/80 bg-amber-50/60 p-3">
             <p className="text-xs font-bold uppercase tracking-wider text-amber-900">
               🖼️ AI 이미지 생성/수정 (NANOBANANA AI)
