@@ -1,5 +1,4 @@
 import "server-only";
-import iconv from "iconv-lite";
 
 // 네이버 로그인 오픈 API 클라이언트. "server-only" 가드로 Client Secret/Access Token이
 // 클라이언트 번들에 절대 포함되지 않도록 한다.
@@ -138,27 +137,18 @@ export interface CreateCafeArticleResult {
 }
 
 /**
- * 네이버 카페 글쓰기 오픈API는 한글 파라미터(subject/content)를 UTF-8이 아니라 MS949(CP949,
- * 확장 완성형 EUC-KR)로 인코딩해서 보내야 한다 — 실계정 첫 게시 테스트에서 한글이 전부
- * "�"로 깨져서 올라간 것을 확인(2026-09-12)했고, 다른 개발자들의 동일 증상 보고와 해결법
- * (UTF-8 문자열을 MS949로 재인코딩 후 퍼센트 인코딩)을 참고해 반영했다. `URLSearchParams`는
- * 항상 UTF-8로만 퍼센트 인코딩하므로 쓸 수 없어, 바이트 단위로 직접 퍼센트 인코딩한다.
+ * 네이버 카페 글쓰기 오픈API는 subject/content에 담긴 한글을 그냥 한 번만 퍼센트 인코딩해서
+ * 보내면 깨진다 — 실계정 첫 게시 테스트에서 한글이 "�"(대체 문자)로 깨져서 올라간 것을 확인
+ * (2026-09-12)했다. 처음엔 MS949(CP949)로 재인코딩해서 보내봤지만, 실제 저장된 값을 다시
+ * 조회해보니(내부 cafe-articleapi로 raw JSON 확인) 오히려 "占쌓쏙옙" 식의 다른 깨짐 패턴이
+ * 나왔다 — 이는 UTF-8 바이트를 다른 인코딩으로 잘못 재해석했을 때 나오는 전형적인 증상이라,
+ * MS949는 틀린 방향이었다. 그 대신 여러 개발자들이 보고한 해결법(UTF-8로 한 번 인코딩한 값을
+ * 한 번 더 퍼센트 인코딩 — 서버가 폼 파싱 단계에서 디코딩을 두 번 하는 것으로 추정)을 적용해,
+ * 실계정 테스트 게시 후 내부 cafe-articleapi로 raw JSON을 다시 조회해 한글이 정상 표시되는
+ * 것까지 확인했다(2026-09-12).
  */
-function encodeMs949Component(value: string): string {
-  const bytes = iconv.encode(value, "cp949");
-  let result = "";
-  for (const byte of bytes) {
-    const isUnreserved =
-      (byte >= 0x30 && byte <= 0x39) || // 0-9
-      (byte >= 0x41 && byte <= 0x5a) || // A-Z
-      (byte >= 0x61 && byte <= 0x7a) || // a-z
-      byte === 0x2d || // -
-      byte === 0x2e || // .
-      byte === 0x5f || // _
-      byte === 0x7e; // ~
-    result += isUnreserved ? String.fromCharCode(byte) : `%${byte.toString(16).toUpperCase().padStart(2, "0")}`;
-  }
-  return result;
+function doubleEncodeComponent(value: string): string {
+  return encodeURIComponent(encodeURIComponent(value));
 }
 
 /**
@@ -168,7 +158,7 @@ function encodeMs949Component(value: string): string {
 export async function createCafeArticle(params: CreateCafeArticleParams): Promise<CreateCafeArticleResult> {
   const { accessToken, clubId, menuId, subject, content } = params;
 
-  const body = `subject=${encodeMs949Component(subject)}&content=${encodeMs949Component(content)}&openyn=true`;
+  const body = `subject=${doubleEncodeComponent(subject)}&content=${doubleEncodeComponent(content)}&openyn=true`;
 
   const response = await fetch(`${CAFE_BASE}/${clubId}/menu/${menuId}/articles`, {
     method: "POST",
