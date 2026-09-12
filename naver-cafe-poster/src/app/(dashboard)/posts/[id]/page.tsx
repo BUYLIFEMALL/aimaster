@@ -81,11 +81,14 @@ export default async function PostDetailPage({
             </Button>
           </Link>
         )}
-        {status === "failed" && (
+        {/* /drafts 목록에만 배포 버튼이 있어서, 상세 화면에서 이 글을 본 사람은 실제로 게시하려면
+            어디로 가야 할지 못 찾겠다는 지적(2026-09-12)이 있었다 — draft 상태도 여기서 바로
+            배포할 수 있게 한다(이전엔 failed 상태의 재게시만 지원했음). */}
+        {(status === "draft" || status === "failed") && (
           <form action={deployDraftAction}>
             <input type="hidden" name="postId" value={post.id} />
             <Button type="submit" disabled={!account || !post.target_id}>
-              다시 게시하기
+              {status === "failed" ? "다시 게시하기" : "검수 완료 · 배포"}
             </Button>
           </form>
         )}
@@ -96,12 +99,12 @@ export default async function PostDetailPage({
         </form>
       </div>
 
-      {status === "failed" && !account && (
+      {(status === "draft" || status === "failed") && !account && (
         <p className="mt-2 text-xs text-red-600">
-          네이버 계정이 연결되어 있지 않아 다시 게시할 수 없습니다. 계정 연결 후 이용해주세요.
+          네이버 계정이 연결되어 있지 않아 게시할 수 없습니다. 계정 연결 후 이용해주세요.
         </p>
       )}
-      {status === "failed" && account && !post.target_id && (
+      {(status === "draft" || status === "failed") && account && !post.target_id && (
         <p className="mt-2 text-xs text-red-600">
           등록할 카페가 지정되어 있지 않습니다. "AI 글쓰기에서 수정"에서 카페를 선택해주세요.
         </p>

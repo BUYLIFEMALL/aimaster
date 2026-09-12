@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { POST_STATUS_LABELS, type PostStatus } from "@/types/post";
-import { deletePostAction } from "@/lib/actions/posts";
+import { deletePostAction, deployDraftAction } from "@/lib/actions/posts";
 
 const FILTERS: Array<{ value: PostStatus | "all"; label: string }> = [
   { value: "all", label: "전체" },
@@ -39,7 +39,11 @@ export default async function PostsPage({
     query = query.eq("status", status);
   }
 
-  const { data: posts } = await query;
+  const [{ data: posts }, { data: account }] = await Promise.all([
+    query,
+    supabase.from("ncafe_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+  ]);
+  const hasNaverAccount = Boolean(account);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -93,6 +97,21 @@ export default async function PostsPage({
                   >
                     수정
                   </Link>
+                )}
+                {/* /drafts 목록에만 배포 버튼이 있어서, "게시글 관리"(/posts)에서 이 글을 본 사람은
+                    실제로 게시하려면 어디로 가야 할지 못 찾겠다는 지적(2026-09-12)이 있었다 —
+                    여기서도 바로 배포할 수 있게 동일한 deployDraftAction을 노출한다. */}
+                {(post.status === "draft" || post.status === "failed") && (
+                  <form action={deployDraftAction}>
+                    <input type="hidden" name="postId" value={post.id} />
+                    <button
+                      type="submit"
+                      disabled={!hasNaverAccount || !post.target_id}
+                      className="flex-shrink-0 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-600"
+                    >
+                      {post.status === "failed" ? "다시 게시" : "배포"}
+                    </button>
+                  </form>
                 )}
                 <form action={deletePostAction}>
                   <input type="hidden" name="postId" value={post.id} />
