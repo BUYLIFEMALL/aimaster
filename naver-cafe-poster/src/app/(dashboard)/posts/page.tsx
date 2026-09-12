@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
+import { DeployButton } from "@/components/posts/DeployButton";
 import { POST_STATUS_LABELS, type PostStatus } from "@/types/post";
 import { deletePostAction, deployDraftAction } from "@/lib/actions/posts";
 
@@ -104,13 +105,11 @@ export default async function PostsPage({
                 {(post.status === "draft" || post.status === "failed") && (
                   <form action={deployDraftAction}>
                     <input type="hidden" name="postId" value={post.id} />
-                    <button
-                      type="submit"
+                    <DeployButton
                       disabled={!hasNaverAccount || !post.target_id}
-                      className="flex-shrink-0 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-600"
-                    >
-                      {post.status === "failed" ? "다시 게시" : "게시"}
-                    </button>
+                      label={post.status === "failed" ? "다시 게시" : "게시"}
+                      className="flex-shrink-0 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-700 disabled:bg-neutral-300 disabled:text-neutral-600"
+                    />
                   </form>
                 )}
                 <form action={deletePostAction}>

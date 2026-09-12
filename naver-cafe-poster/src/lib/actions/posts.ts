@@ -43,7 +43,28 @@ async function getNaverAccountOrError(
     throw new Error("네이버 로그인이 만료되었습니다. 설정 페이지에서 네이버 계정을 다시 연결해주세요.");
   }
 
-  const refreshed = await refreshNaverToken(data.refresh_token);
+  // 네이버 로그인 서버 호출이 간헐적으로 "Gateway Timeout" 같은 원시 네트워크 오류로 실패하는
+  // 현상을 실계정 게시 시도에서 재현했다(2026-09-12) — 카페 글쓰기 API 재시도(publish-core.ts)와
+  // 동일하게 한 번 더 시도해본다.
+  let refreshed: Awaited<ReturnType<typeof refreshNaverToken>> | undefined;
+  let refreshError: unknown;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      refreshed = await refreshNaverToken(data.refresh_token);
+      refreshError = undefined;
+      break;
+    } catch (err) {
+      refreshError = err;
+    }
+  }
+  if (!refreshed) {
+    const rawMessage = refreshError instanceof Error ? refreshError.message : "알 수 없는 오류가 발생했습니다.";
+    throw new Error(
+      rawMessage.startsWith("네이버 토큰 갱신에 실패했습니다")
+        ? rawMessage
+        : `네이버 로그인 서버 응답이 지연되어 토큰 갱신에 실패했습니다 (${rawMessage}). 잠시 후 다시 시도해주세요.`,
+    );
+  }
   const expiresInSeconds = Number(refreshed.expires_in);
   const tokenExpiresAt = Number.isFinite(expiresInSeconds)
     ? new Date(Date.now() + expiresInSeconds * 1000).toISOString()

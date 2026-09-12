@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/posts/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { deletePostAction, deployDraftAction } from "@/lib/actions/posts";
 import { DeleteButton } from "@/components/posts/DeleteButton";
+import { DeployButton } from "@/components/posts/DeployButton";
 import type { PostStatus } from "@/types/post";
 
 export default async function PostDetailPage({
@@ -87,9 +88,11 @@ export default async function PostDetailPage({
         {(status === "draft" || status === "failed") && (
           <form action={deployDraftAction}>
             <input type="hidden" name="postId" value={post.id} />
-            <Button type="submit" disabled={!account || !post.target_id}>
-              {status === "failed" ? "다시 게시하기" : "검수 완료 · 게시"}
-            </Button>
+            <DeployButton
+              disabled={!account || !post.target_id}
+              label={status === "failed" ? "다시 게시하기" : "검수 완료 · 게시"}
+              className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-700 disabled:bg-neutral-300 disabled:text-neutral-600"
+            />
           </form>
         )}
         <form action={deletePostAction}>

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { createClient } from "@/lib/supabase/client";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
+import { DeployButton } from "@/components/posts/DeployButton";
 import { updateDraftAction, deployDraftAction, deletePostAction, type PostActionState } from "@/lib/actions/posts";
 import { reviseCafePostAction, generateCafeImageAction, generateCafeImagePromptAction } from "@/lib/actions/ai";
 import type { CafePost, CafeTarget, PostStatus } from "@/types/post";
@@ -409,9 +410,11 @@ export function DraftItem({
         </Button>
         <form action={deployDraftAction}>
           <input type="hidden" name="postId" value={post.id} />
-          <Button type="submit" disabled={!hasNaverAccount || !post.target_id}>
-            검수 완료 · 게시
-          </Button>
+          <DeployButton
+            disabled={!hasNaverAccount || !post.target_id}
+            label="검수 완료 · 게시"
+            className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-700 disabled:bg-neutral-300 disabled:text-neutral-600"
+          />
         </form>
         <form action={deletePostAction}>
           <input type="hidden" name="postId" value={post.id} />
