@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -50,10 +50,21 @@ export function DraftItem({
 
   const status = post.status as PostStatus;
   const targetLabel = targets.find((t) => t.id === post.target_id)?.label ?? null;
+  const editRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
     if (state.success) setIsEditing(false);
   }, [state.success]);
+
+  // /posts나 후보 목록에서 "?edit=<id>" 링크로 바로 들어왔을 때, 위쪽 "새 초안 만들기" 폼을
+  // 지나쳐 스크롤해야 이 항목이 보이는 문제가 있었다 — 처음 렌더링될 때 이 항목으로 자동
+  // 스크롤해서 바로 눈에 띄게 한다(2026-09-12).
+  useEffect(() => {
+    if (startInEdit) {
+      editRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleRevise = () => {
     if (!reviseInstruction.trim()) {
@@ -118,7 +129,7 @@ export function DraftItem({
 
   if (isEditing) {
     return (
-      <li className="space-y-3 rounded-lg border border-neutral-300 bg-neutral-50 p-4">
+      <li ref={editRef} className="space-y-3 rounded-lg border border-neutral-300 bg-neutral-50 p-4">
         <form action={formAction} className="space-y-3">
           <input type="hidden" name="postId" value={post.id} />
           <Input value={title} onChange={(e) => setTitle(e.target.value)} name="title" required />

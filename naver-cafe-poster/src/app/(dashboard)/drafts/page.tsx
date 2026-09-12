@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { DraftComposer } from "@/components/posts/DraftComposer";
+import { DraftComposerSection } from "@/components/posts/DraftComposerSection";
 import { DraftList } from "@/components/posts/DraftList";
 
 export default async function DraftsPage({
@@ -37,7 +37,15 @@ export default async function DraftsPage({
         </p>
       </div>
 
-      <DraftComposer targets={targets ?? []} initialTitle={title ?? ""} initialContent={content ?? ""} />
+      {/* ?edit=<id>로 "기존 초안 하나만 고치러" 들어온 경우엔 이 새 글 생성 폼이 작업과
+          무관하니 기본으로 접어둔다 — 단, 글감 수집에서 title/content를 들고 넘어온 경우는
+          그 자체가 "이 내용으로 새 글을 만드는" 흐름이라 접지 않는다(2026-09-12). */}
+      <DraftComposerSection
+        targets={targets ?? []}
+        initialTitle={title ?? ""}
+        initialContent={content ?? ""}
+        defaultCollapsed={Boolean(edit) && !title && !content}
+      />
 
       <div>
         <h2 className="mb-3 text-lg font-medium text-neutral-900">
