@@ -49,6 +49,23 @@ export default async function SettingsPage({
       )}
 
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-neutral-900">🤖 콘텐츠 생성 AI 키</h2>
+          <p className="text-xs text-neutral-500">게시글 작성, 카드뉴스 이미지 생성, 실시간 주제 수집에 쓰이는 AI 키입니다</p>
+        </div>
+        <div className="space-y-3">
+          {PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <div className="mb-4">
           <h2 className="text-sm font-bold text-neutral-900">🧵 Threads 계정 연결</h2>
           <p className="text-xs text-neutral-500">게시글을 자동으로 게시할 Threads 계정을 연결합니다(OAuth).</p>
@@ -81,23 +98,6 @@ export default async function SettingsPage({
               </form>
             </div>
           )}
-        </div>
-      </section>
-
-      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-        <div className="mb-3">
-          <h2 className="text-sm font-bold text-neutral-900">🤖 콘텐츠 생성 AI 키</h2>
-          <p className="text-xs text-neutral-500">게시글 작성, 카드뉴스 이미지 생성, 실시간 주제 수집에 쓰이는 AI 키입니다</p>
-        </div>
-        <div className="space-y-3">
-          {PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-            />
-          ))}
         </div>
       </section>
     </div>
