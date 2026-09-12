@@ -36,20 +36,6 @@ function extractArticleUrl(rawResponse: unknown): string | null {
   return typeof articleUrl === "string" ? articleUrl : null;
 }
 
-/** 카페 글쓰기 API의 content는 그대로 HTML로 저장된다(응답에서 <p>...</p>로 감싸 반환하는 것으로
- * 확인) — 우리가 보내는 일반 텍스트의 개행 문자는 HTML에서 공백으로 무시되므로 <br>로
- * 바꿔줘야 하고, 사용자가 입력한 텍스트에 우연히 <, >, & 같은 문자가 있으면 HTML 구조가
- * 깨지므로 이스케이프해야 한다. */
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function textToHtml(text: string): string {
-  return escapeHtml(text)
-    .split("\n")
-    .join("<br>");
-}
-
 export async function publishCafePost(params: PublishCafePostParams): Promise<PublishPostOutcome> {
   const { supabase, postId, userId, title, content, imageUrl, videoUrl, accessToken, clubId, menuId } = params;
 
@@ -59,19 +45,17 @@ export async function publishCafePost(params: PublishCafePostParams): Promise<Pu
     .eq("id", postId)
     .eq("user_id", userId);
 
-  // 실계정 테스트 게시로 두 가지를 확인했다(2026-09-12):
-  // 1) content는 HTML로 그대로 저장된다 — 일반 텍스트의 개행(\n)은 HTML에서 공백 취급되어
-  //    문단 구분이 전부 사라지고 한 줄로 붙어버렸다. textToHtml()로 <br> 변환해서 해결.
-  // 2) 이미지 URL을 그냥 텍스트로 붙이면 실제 이미지로 렌더링되지 않고 일반 링크(<a>)가 되며,
-  //    바로 뒤에 공백 없이 본문이 이어지면 네이버의 자동 링크 인식이 뒤 텍스트까지 링크에
-  //    같이 삼켜버려 링크 자체가 깨지는 것까지 확인했다 — <img>/<a> 태그로 직접 감싸서 넣으면
-  //    이 문제가 없다. 영상은 HTML5 <video> 임베드 지원 여부가 불확실해 링크로만 넣는다.
-  const mediaHtml = imageUrl
-    ? `<img src="${imageUrl}" /><br><br>`
-    : videoUrl
-      ? `<a href="${videoUrl}" target="_blank">${videoUrl}</a><br><br>`
-      : "";
-  const bodyWithMedia = `${mediaHtml}${textToHtml(content)}`;
+  // <img>/<br> 같은 HTML 태그를 content에 직접 넣어보는 시도(2026-09-12 한때 배포)는 실제로는
+  // 더 나쁜 결과를 냈다 — 이미지가 있으면서 본문이 긴 실제 게시글이 전부 403(내부 오류코드 999,
+  // "오류가 발생하였습니다")으로 실패하는 걸 재현·확인했다. 이 API는 content를 순수 텍스트로
+  // 받아 자기 쪽에서 <p>로 감싸는 것으로 보이고, 우리가 <img>/<br> 태그를 직접 넣으면 그 형식을
+  // 서버가 거부하는 것으로 판단해 원래의 "URL을 텍스트로 앞에 붙이는" 방식으로 되돌렸다.
+  // 다만 URL 바로 뒤에 공백 없이 본문이 이어지면 네이버의 자동 링크 인식이 뒤 텍스트까지
+  // 링크 안으로 삼켜버리는 것도 확인했으므로, 최소한 공백 하나는 반드시 넣어 경계를 준다
+  // (줄바꿈은 이 API에서 어차피 렌더링되지 않아 공백 하나와 동일하게 취급된다).
+  // 이미지/영상은 UI에서 서로 배타적으로 관리되므로 동시에 둘 다 값이 있을 일은 없다.
+  const mediaUrl = imageUrl || videoUrl;
+  const bodyWithMedia = mediaUrl ? `${mediaUrl} ${content}` : content;
 
   // 네이버 API가 국내 리전 기준으로 서비스되어서인지, 해외 리전(Vercel 기본 리전)에서 호출할 때
   // 가끔 응답이 지연되며 "Gateway Timeout"(HTTP 표준 504 사유구문)만 그대로 떨어지는 현상을
