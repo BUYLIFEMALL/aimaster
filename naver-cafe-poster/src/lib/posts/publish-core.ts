@@ -45,17 +45,12 @@ export async function publishCafePost(params: PublishCafePostParams): Promise<Pu
     .eq("id", postId)
     .eq("user_id", userId);
 
-  // <img>/<br> 같은 HTML 태그를 content에 직접 넣어보는 시도(2026-09-12 한때 배포)는 실제로는
-  // 더 나쁜 결과를 냈다 — 이미지가 있으면서 본문이 긴 실제 게시글이 전부 403(내부 오류코드 999,
-  // "오류가 발생하였습니다")으로 실패하는 걸 재현·확인했다. 이 API는 content를 순수 텍스트로
-  // 받아 자기 쪽에서 <p>로 감싸는 것으로 보이고, 우리가 <img>/<br> 태그를 직접 넣으면 그 형식을
-  // 서버가 거부하는 것으로 판단해 원래의 "URL을 텍스트로 앞에 붙이는" 방식으로 되돌렸다.
-  // 다만 URL 바로 뒤에 공백 없이 본문이 이어지면 네이버의 자동 링크 인식이 뒤 텍스트까지
-  // 링크 안으로 삼켜버리는 것도 확인했으므로, 최소한 공백 하나는 반드시 넣어 경계를 준다
-  // (줄바꿈은 이 API에서 어차피 렌더링되지 않아 공백 하나와 동일하게 취급된다).
-  // 이미지/영상은 UI에서 서로 배타적으로 관리되므로 동시에 둘 다 값이 있을 일은 없다.
-  const mediaUrl = imageUrl || videoUrl;
-  const bodyWithMedia = mediaUrl ? `${mediaUrl} ${content}` : content;
+  // 이미지는 이제 createCafeArticle()이 실제 파일(image[0])로 첨부한다(2026-09-12, 커뮤니티에
+  // 공개된 구현 사례로 이 API가 multipart/form-data + image[0] 파일 첨부를 지원한다는 것을
+  // 확인) — 더 이상 본문에 URL을 텍스트로 붙이지 않는다. 영상은 이 방식으로 첨부 가능한지
+  // 아직 미확인이라, 기존처럼 링크로만 넣는다(뒤에 본문이 바로 붙으면 네이버의 자동 링크
+  // 인식이 본문 앞부분까지 삼켜버리는 것을 확인했으므로 공백으로 경계를 준다).
+  const bodyWithMedia = videoUrl ? `${videoUrl} ${content}` : content;
 
   // 네이버 API가 국내 리전 기준으로 서비스되어서인지, 해외 리전(Vercel 기본 리전)에서 호출할 때
   // 가끔 응답이 지연되며 "Gateway Timeout"(HTTP 표준 504 사유구문)만 그대로 떨어지는 현상을
@@ -70,7 +65,14 @@ export async function publishCafePost(params: PublishCafePostParams): Promise<Pu
 
     for (let attempt = 1; attempt <= MAX_PUBLISH_ATTEMPTS; attempt += 1) {
       try {
-        result = await createCafeArticle({ accessToken, clubId, menuId, subject: title, content: bodyWithMedia });
+        result = await createCafeArticle({
+          accessToken,
+          clubId,
+          menuId,
+          subject: title,
+          content: bodyWithMedia,
+          imageUrl,
+        });
         lastError = undefined;
         break;
       } catch (err) {

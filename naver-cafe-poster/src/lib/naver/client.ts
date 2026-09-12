@@ -13,11 +13,11 @@ import "server-only";
 // 체크해둔 "제공 정보" 설정으로 결정된다(2026-09-11, blog.itcode.dev OAuth 가이드로 확인).
 //
 // 카페 글쓰기 API(POST /v1/cafe/{clubid}/menu/{menuid}/articles)의 정확한 응답 JSON 스키마는
-// 네이버 개발자센터 상세 문서(로그인 필요, 이 환경에서 접근 불가)에서만 확인 가능해서 아직
-// 실계정으로 검증하지 못했다 — subject/content/openyn 요청 파라미터까지는 커뮤니티 문서로
-// 확인했지만, 성공 응답 필드명은 모른다. 그래서 HTTP status만으로 성공/실패를 판단하고,
-// 원본 응답 전체를 raw_response에 그대로 저장해둔다 — 첫 실계정 테스트 후 이 부분을
-// 실제 응답 기준으로 다시 손봐야 한다.
+// 네이버 개발자센터 상세 문서(로그인 필요, 이 환경에서 접근 불가)에서 확인할 수 없었지만,
+// 2026-09-12 실계정 게시 성공 응답으로 { message: { result: { articleId, articleUrl, ... } } }
+// 형태임을 확인했다(publish-core.ts의 extractArticleUrl 참고). 여전히 모든 경우의 응답
+// 스키마를 보장할 수는 없어 HTTP status로 성공/실패를 판단하고, 원본 응답 전체는
+// raw_response에 그대로 저장해둔다.
 
 const AUTHORIZE_URL = "https://nid.naver.com/oauth2.0/authorize";
 const TOKEN_URL = "https://nid.naver.com/oauth2.0/token";
@@ -129,6 +129,8 @@ export interface CreateCafeArticleParams {
   menuId: string;
   subject: string;
   content: string;
+  /** 실제 이미지로 첨부할 이미지의 공개 URL(있으면 서버에서 내려받아 파일로 첨부한다). */
+  imageUrl?: string | null;
 }
 
 export interface CreateCafeArticleResult {
@@ -137,36 +139,69 @@ export interface CreateCafeArticleResult {
 }
 
 /**
- * 네이버 카페 글쓰기 오픈API는 subject/content에 담긴 한글을 그냥 한 번만 퍼센트 인코딩해서
- * 보내면 깨진다 — 실계정 첫 게시 테스트에서 한글이 "�"(대체 문자)로 깨져서 올라간 것을 확인
- * (2026-09-12)했다. 처음엔 MS949(CP949)로 재인코딩해서 보내봤지만, 실제 저장된 값을 다시
- * 조회해보니(내부 cafe-articleapi로 raw JSON 확인) 오히려 "占쌓쏙옙" 식의 다른 깨짐 패턴이
- * 나왔다 — 이는 UTF-8 바이트를 다른 인코딩으로 잘못 재해석했을 때 나오는 전형적인 증상이라,
- * MS949는 틀린 방향이었다. 그 대신 여러 개발자들이 보고한 해결법(UTF-8로 한 번 인코딩한 값을
- * 한 번 더 퍼센트 인코딩 — 서버가 폼 파싱 단계에서 디코딩을 두 번 하는 것으로 추정)을 적용해,
- * 실계정 테스트 게시 후 내부 cafe-articleapi로 raw JSON을 다시 조회해 한글이 정상 표시되는
- * 것까지 확인했다(2026-09-12).
+ * 이미지 URL을 텍스트로 본문에 붙이면 실제 이미지가 아니라 링크로만 보인다는 걸 실계정
+ * 테스트로 확인했다(2026-09-12). 커뮤니티에 공개된 다른 개발자들의 구현(C#/멀티파트 예제)을
+ * 조사해보니, 이 API는 원래 multipart/form-data로 이미지 "파일"을 image[0], image[1]... 필드에
+ * 직접 첨부하는 방식을 지원한다 — 우리는 이미지를 Supabase Storage의 공개 URL로만 갖고
+ * 있으므로, 그 URL에서 실제 바이트를 내려받아 파일 파트로 첨부한다.
  */
-function doubleEncodeComponent(value: string): string {
-  return encodeURIComponent(encodeURIComponent(value));
+async function fetchImageAsBlob(imageUrl: string): Promise<Blob | null> {
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) return null;
+    const buffer = await response.arrayBuffer();
+    const contentType = response.headers.get("content-type") ?? "image/jpeg";
+    return new Blob([buffer], { type: contentType });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * multipart/form-data의 텍스트 필드(subject/content) 값을 그냥 UTF-8 그대로 보내면
+ * "&#65533;"류 HTML 엔티티로 깨진다(2026-09-12, 실계정 테스트로 확인) — 반면
+ * x-www-form-urlencoded에서 통했던 "이중 퍼센트 인코딩"을 그대로 가져오면 이번엔 정반대로
+ * 퍼센트 인코딩 문자열이 디코딩되지 않고 그대로("%EC%9D%B4..." 형태로) 저장됐다(마찬가지로
+ * 실계정 테스트로 확인). 즉 이 서버는 전송 방식에 따라 디코딩 횟수가 다르다 —
+ * x-www-form-urlencoded는 두 번, multipart는 한 번만 디코딩하는 것으로 보인다. 그래서
+ * multipart에서는 인코딩을 한 번만 적용한다.
+ */
+function singleEncodeComponent(value: string): string {
+  return encodeURIComponent(value);
 }
 
 /**
  * 네이버 카페 게시판에 글을 등록한다. 응답 성공 여부 판단 기준(정확한 필드명)이 아직
  * 미확인이라, HTTP status만으로 판단하고 원본 응답은 호출부에서 raw_response로 저장한다.
+ *
+ * multipart/form-data로 보낸다 — 실제 이미지 파일을 함께 보내려면 이 API가 원래 지원하는
+ * 방식(multipart, image[0] 파일 파트)을 써야 한다(커뮤니티 구현 사례로 확인). fetch의
+ * FormData를 쓰면 boundary 처리가 자동으로 된다.
  */
 export async function createCafeArticle(params: CreateCafeArticleParams): Promise<CreateCafeArticleResult> {
-  const { accessToken, clubId, menuId, subject, content } = params;
+  const { accessToken, clubId, menuId, subject, content, imageUrl } = params;
 
-  const body = `subject=${doubleEncodeComponent(subject)}&content=${doubleEncodeComponent(content)}&openyn=true`;
+  const formData = new FormData();
+  formData.append("subject", singleEncodeComponent(subject));
+  formData.append("content", singleEncodeComponent(content));
+  formData.append("openyn", "true");
 
+  if (imageUrl) {
+    const imageBlob = await fetchImageAsBlob(imageUrl);
+    if (imageBlob) {
+      const ext = imageBlob.type.split("/")[1]?.split("+")[0] || "jpg";
+      formData.append("image[0]", imageBlob, `image.${ext}`);
+    }
+  }
+
+  // Content-Type은 fetch가 FormData 바디에 맞춰 boundary까지 포함해 자동으로 설정하므로
+  // 직접 지정하지 않는다(직접 지정하면 boundary가 빠져 파싱이 깨진다).
   const response = await fetch(`${CAFE_BASE}/${clubId}/menu/${menuId}/articles`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/x-www-form-urlencoded",
     },
-    body,
+    body: formData,
   });
 
   const text = await response.text();
