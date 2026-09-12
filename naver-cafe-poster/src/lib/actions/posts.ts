@@ -6,12 +6,19 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { draftFormSchema } from "@/lib/validation";
 import { publishCafePost } from "@/lib/posts/publish-core";
+import { refreshNaverToken } from "@/lib/naver/client";
 
 export interface PostActionState {
   error?: string;
   success?: boolean;
 }
 
+/**
+ * 네이버 access token은 발급 후 약 1시간이면 만료된다 — 게시 직전에 만료(또는 임박) 여부를
+ * 확인해서 필요하면 refresh_token으로 갱신하고 DB에도 반영한다. 이 확인 없이 저장된
+ * access_token을 그대로 쓰면, 연결한 지 1시간이 지난 뒤 게시할 때 401 "Authentication failed"로
+ * 실패한다(2026-09-12, 실계정 게시 시도에서 재현·확인한 실제 원인).
+ */
 async function getNaverAccountOrError(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
@@ -24,7 +31,41 @@ async function getNaverAccountOrError(
 
   if (error) throw new Error(error.message);
   if (!data) throw new Error("먼저 네이버 계정을 연결해주세요.");
-  return data;
+
+  const expiresAt = data.token_expires_at ? new Date(data.token_expires_at).getTime() : 0;
+  const isExpiringSoon = expiresAt - Date.now() < 5 * 60 * 1000; // 5분 여유를 두고 미리 갱신
+
+  if (!isExpiringSoon) {
+    return data;
+  }
+
+  if (!data.refresh_token) {
+    throw new Error("네이버 로그인이 만료되었습니다. 설정 페이지에서 네이버 계정을 다시 연결해주세요.");
+  }
+
+  const refreshed = await refreshNaverToken(data.refresh_token);
+  const expiresInSeconds = Number(refreshed.expires_in);
+  const tokenExpiresAt = Number.isFinite(expiresInSeconds)
+    ? new Date(Date.now() + expiresInSeconds * 1000).toISOString()
+    : null;
+
+  const { error: updateError } = await supabase
+    .from("ncafe_accounts")
+    .update({
+      access_token: refreshed.access_token,
+      refresh_token: refreshed.refresh_token ?? data.refresh_token,
+      token_expires_at: tokenExpiresAt,
+    })
+    .eq("user_id", userId);
+
+  if (updateError) throw new Error(updateError.message);
+
+  return {
+    ...data,
+    access_token: refreshed.access_token,
+    refresh_token: refreshed.refresh_token ?? data.refresh_token,
+    token_expires_at: tokenExpiresAt,
+  };
 }
 
 async function getTargetOrError(

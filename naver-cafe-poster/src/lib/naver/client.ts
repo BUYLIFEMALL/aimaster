@@ -72,6 +72,34 @@ export async function exchangeNaverCode(code: string, state: string): Promise<Na
   return data;
 }
 
+/**
+ * 네이버 access token은 발급 후 약 1시간이면 만료된다(로그인 시 받은 refresh_token으로
+ * 재발급 가능) — 카페 글쓰기 API를 부를 때마다 만료 여부를 확인해 필요하면 이 함수로
+ * 갱신한다(2026-09-12, 실계정 게시 시도에서 만료 토큰으로 인한 401 "Authentication failed"
+ * 재현·확인).
+ */
+export async function refreshNaverToken(refreshToken: string): Promise<NaverTokenResponse> {
+  const params = new URLSearchParams({
+    grant_type: "refresh_token",
+    client_id: getEnv("NAVER_CLIENT_ID"),
+    client_secret: getEnv("NAVER_CLIENT_SECRET"),
+    refresh_token: refreshToken,
+  });
+
+  const response = await fetch(`${TOKEN_URL}?${params.toString()}`);
+  const data = (await response.json()) as NaverTokenResponse & { error?: string; error_description?: string };
+
+  if (!response.ok || data.error) {
+    throw new Error(
+      data.error_description
+        ? `네이버 토큰 갱신에 실패했습니다: ${data.error_description}`
+        : `네이버 토큰 갱신에 실패했습니다. (${response.status})`,
+    );
+  }
+
+  return data;
+}
+
 export interface NaverProfile {
   id: string;
   nickname: string | null;
