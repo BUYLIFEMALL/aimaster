@@ -65,7 +65,14 @@ export function DraftItem({
         <form action={formAction} className="space-y-3">
           <input type="hidden" name="postId" value={post.id} />
           <Input value={title} onChange={(e) => setTitle(e.target.value)} name="title" required />
-          <Textarea value={content} onChange={(e) => setContent(e.target.value)} name="content" rows={8} required />
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            name="content"
+            rows={8}
+            autoGrow
+            required
+          />
 
           <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 bg-white p-3">
             <p className="text-xs font-medium text-neutral-700">✏️ AI에게 수정 요청하기</p>

@@ -418,6 +418,7 @@ export function DraftComposer({
           value={imagePrompt}
           onChange={(e) => setImagePrompt(e.target.value)}
           rows={2}
+          autoGrow
           placeholder="이미지 프롬프트 (비워두면 제목/주제를 그대로 사용)"
         />
 
@@ -510,7 +511,14 @@ export function DraftComposer({
         </div>
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-neutral-700">본문</label>
-          <Textarea name="content" value={content} onChange={(e) => setContent(e.target.value)} rows={10} required />
+          <Textarea
+            name="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={10}
+            autoGrow
+            required
+          />
         </div>
 
         <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
