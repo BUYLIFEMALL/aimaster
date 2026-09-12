@@ -94,8 +94,26 @@ export async function generateAffiliatePostContent(
 
   // Threads 게시글 최대 길이(500자) 안에 고지 문구와 제휴 링크가 반드시 들어가도록,
   // 본문을 필요한 만큼 줄여서 잘리거나 누락되지 않게 한다.
-  const maxContentLength = 500 - disclosureBlock.length - ctaBlock.length;
+  //
+  // 2026-09-12 버그 수정: maxContentLength가 음수로 내려갈 수 있는데(쿠팡 검색 결과
+  // productUrl이 이미 추적 링크라 딥링크 변환 없이 그대로 쓰게 되면서 — 2026-09-11
+  // 변경 — 링크 자체가 꽤 길다), 이때 `content.slice(0, 음수)`는 본문을 비우는 게
+  // 아니라 "뒤에서 |음수|글자만큼 잘라낸" 결과를 돌려줘서(JS slice의 음수 인덱스
+  // 규칙) 본문이 거의 그대로 남는 사고가 있었다. 그 결과 disclosureBlock+본문+
+  // ctaBlock 합계가 500자를 초과해 postFormSchema 검증에서 계속 막혔다("500자를
+  // 초과할 수 없습니다" 에러만 뜨고 원인을 알 수 없는 상태). 0으로 clamp해서 본문이
+  // 실제로 필요한 만큼(0자까지) 줄어들게 고친다.
+  const maxContentLength = Math.max(0, 500 - disclosureBlock.length - ctaBlock.length);
   const trimmedContent = content.length > maxContentLength ? content.slice(0, maxContentLength).trim() : content;
+
+  // 본문을 0자로 줄여도 고지 문구+CTA+링크만으로 이미 500자를 넘는 경우 — 더 줄일 게
+  // 없으니 조용히 잘못된 결과를 만들지 말고 원인을 명확히 알려준다(쿠팡 제휴 링크가
+  // 특히 길 때 발생하기 쉽다).
+  if (disclosureBlock.length + ctaBlock.length > 500) {
+    throw new Error(
+      `제휴 링크가 너무 길어서 고지 문구·CTA·링크만으로 이미 Threads 500자 제한(${disclosureBlock.length + ctaBlock.length}자)을 초과합니다. 더 짧은 제휴 링크를 사용해주세요.`,
+    );
+  }
 
   return { content: `${disclosureBlock}${trimmedContent}${ctaBlock}` };
 }
