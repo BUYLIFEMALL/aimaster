@@ -32,12 +32,18 @@ export default async function ProductsPage({
         </p>
       </div>
 
-      <section className="rounded-lg border border-neutral-200 bg-white p-4">
-        <PlatformTabs detailPages={detailPages} initialKeyword={keyword} />
+      {/* 검색/등록 블록과 등록된 상품 목록 블록을 뚜렷한 박스(border-2 + shadow, 다른
+          서브프로젝트 설정 페이지와 동일한 블록 구분 스타일)로 분리해 두 영역을 한눈에
+          구분할 수 있게 한다(2026-09-12). */}
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-bold text-neutral-900">🔎 상품 검색·등록</h2>
+        <div className="rounded-lg border border-neutral-200 bg-white p-4">
+          <PlatformTabs detailPages={detailPages} initialKeyword={keyword} />
+        </div>
       </section>
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-neutral-900">등록된 상품</h2>
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-bold text-neutral-900">📦 등록된 상품</h2>
         <div className="rounded-lg border border-neutral-200 bg-white">
           <ProductList products={products ?? []} />
         </div>
