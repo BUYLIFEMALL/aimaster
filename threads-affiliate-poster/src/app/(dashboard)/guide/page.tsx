@@ -2,11 +2,7 @@ export default function GuidePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="mb-2 text-2xl font-semibold text-neutral-900">사용방법</h1>
-        <p className="text-sm text-neutral-600">
-          &quot;상품 관리&quot; 화면(검색·등록 → 등록된 상품)을 어떤 순서로 쓰면 되는지
-          정리했습니다.
-        </p>
+        <h1 className="text-2xl font-semibold text-neutral-900">사용방법</h1>
       </div>
 
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
