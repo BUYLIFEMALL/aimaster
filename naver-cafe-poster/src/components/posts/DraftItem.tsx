@@ -8,10 +8,17 @@ import { Textarea } from "@/components/ui/Textarea";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { updateDraftAction, deployDraftAction, deletePostAction, type PostActionState } from "@/lib/actions/posts";
-import { reviseCafePostAction } from "@/lib/actions/ai";
+import { reviseCafePostAction, generateCafeImageAction, generateCafeImagePromptAction } from "@/lib/actions/ai";
 import type { CafePost, CafeTarget, PostStatus } from "@/types/post";
 
 const initialState: PostActionState = {};
+
+const IMAGE_MODEL_OPTIONS = [
+  { label: "NanoBanana 2-2K (2K 고화질 비주얼 - 추천)", value: "nanobanana-2-2k" },
+  { label: "NanoBanana 2-4K (4K 울트라 HD)", value: "nanobanana-2-4k" },
+  { label: "NanoBanana Pro (프로페셔널 인포그래픽)", value: "nanobanana-pro" },
+  { label: "NanoBanana Standard (기본 모델)", value: "nanobanana" },
+] as const;
 
 export function DraftItem({
   post,
@@ -33,6 +40,13 @@ export function DraftItem({
   const [reviseInstruction, setReviseInstruction] = useState("");
   const [reviseError, setReviseError] = useState<string | null>(null);
   const [isRevising, startRevising] = useTransition();
+
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [imageModel, setImageModel] = useState("nanobanana-2-2k");
+  const [imageApiKey, setImageApiKey] = useState("");
+  const [imageEndpoint, setImageEndpoint] = useState("");
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [isGeneratingImage, startGeneratingImage] = useTransition();
 
   const status = post.status as PostStatus;
   const targetLabel = targets.find((t) => t.id === post.target_id)?.label ?? null;
@@ -56,6 +70,49 @@ export function DraftItem({
       setTitle(result.title ?? title);
       setContent(result.content ?? content);
       setReviseInstruction("");
+    });
+  };
+
+  /** 나노바나나(Gemini)가 같은 프롬프트에도 가끔 이미지 없이 응답하는 비결정적 특성이 있어서
+   * DraftComposer와 동일하게 최대 2회까지 자동 재시도한다. */
+  const runImageGeneration = async (prompt: string) => {
+    const MAX_IMAGE_ATTEMPTS = 2;
+    let lastError: string | undefined;
+    for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
+      const result = await generateCafeImageAction({
+        prompt,
+        apiKey: imageApiKey.trim() || undefined,
+        model: imageModel as never,
+        endpoint: imageEndpoint.trim() || undefined,
+      });
+      if (result.imageUrl) {
+        setImageUrl(result.imageUrl);
+        lastError = undefined;
+        break;
+      }
+      lastError = result.error;
+    }
+    if (lastError) {
+      setImageError(lastError);
+    }
+  };
+
+  const handleGenerateImage = () => {
+    setImageError(null);
+    startGeneratingImage(async () => {
+      // 프롬프트를 직접 안 적었으면, 지금 편집 중인(수정 요청으로 바뀌었을 수도 있는) 제목/본문을
+      // 분석해서 그 내용을 묘사하는 이미지 프롬프트를 만든다(DraftComposer의 자동 생성 흐름과 동일).
+      let prompt = imagePrompt.trim();
+      if (!prompt) {
+        const promptResult = await generateCafeImagePromptAction({ title, content });
+        if (promptResult.error && !promptResult.prompt) {
+          setImageError(promptResult.error);
+          return;
+        }
+        prompt = promptResult.prompt || title;
+        if (promptResult.prompt) setImagePrompt(promptResult.prompt);
+      }
+      await runImageGeneration(prompt);
     });
   };
 
@@ -102,22 +159,70 @@ export function DraftItem({
               </option>
             ))}
           </select>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-500">대표 이미지 URL (선택)</label>
-            <Input
-              name="imageUrl"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://..."
+          <div className="space-y-3 rounded-xl border border-amber-200/80 bg-amber-50/60 p-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-900">
+              🖼️ AI 이미지 생성/수정 (NANOBANANA AI)
+            </p>
+            <Textarea
+              value={imagePrompt}
+              onChange={(e) => setImagePrompt(e.target.value)}
+              rows={2}
+              autoGrow
+              placeholder="이미지 프롬프트 (비워두면 지금 위 제목/본문 내용을 분석해서 자동 생성)"
             />
-            {imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={imageUrl}
-                alt="대표 이미지"
-                className="mt-2 h-auto w-full max-h-96 rounded-lg border border-neutral-200 object-cover"
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <select
+                value={imageModel}
+                onChange={(e) => setImageModel(e.target.value)}
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm"
+              >
+                {IMAGE_MODEL_OPTIONS.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+              <Input
+                type="text"
+                value={imageApiKey}
+                onChange={(e) => setImageApiKey(e.target.value)}
+                placeholder="나노바나나 API 키 (비워두면 등록된 내 키 사용)"
+                autoComplete="new-password"
+                style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
               />
+            </div>
+            <Button type="button" variant="secondary" onClick={handleGenerateImage} disabled={isGeneratingImage}>
+              {isGeneratingImage ? "이미지 생성 중..." : imageUrl ? "🖼️ 이미지 다시 생성" : "🖼️ 이미지 생성"}
+            </Button>
+            {imageError && <p className="text-xs text-red-600">{imageError}</p>}
+            {imageUrl && (
+              <div className="space-y-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={imageUrl}
+                  alt="대표 이미지"
+                  className="h-auto w-full max-h-96 rounded-lg border border-neutral-200 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl("")}
+                  className="text-xs text-red-600 hover:underline"
+                >
+                  이미지 제거
+                </button>
+              </div>
             )}
+            <div>
+              <label className="mb-1 block text-xs font-medium text-neutral-500">
+                또는 이미지 URL 직접 입력 (선택)
+              </label>
+              <Input
+                name="imageUrl"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
           </div>
           <div className="flex gap-2">
             <Button type="submit" variant="secondary" disabled={isPending}>
