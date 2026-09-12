@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { saveDraftAction, type PostActionState } from "@/lib/actions/posts";
-import { generateCafePostAction, generateCafeImageAction, reviseCafePostAction } from "@/lib/actions/ai";
+import {
+  generateCafePostAction,
+  generateCafeImageAction,
+  generateCafeImagePromptAction,
+  reviseCafePostAction,
+} from "@/lib/actions/ai";
 import { CAFE_TONE_OPTIONS, type CafeTone } from "@/lib/ai/tone";
 import type { CafeTarget } from "@/types/post";
 
@@ -135,9 +140,52 @@ export function DraftComposer({
         setAiError(result.error);
         return;
       }
-      setTitle(result.title ?? "");
-      setContent(result.content ?? "");
+      const newTitle = result.title ?? "";
+      const newContent = result.content ?? "";
+      setTitle(newTitle);
+      setContent(newContent);
+
+      // 본문이 만들어지면 그 내용을 분석해 대표 이미지도 이어서 자동 생성한다(blog(BLOG(원문)
+      // 생성 자동화)의 AI 글쓰기와 동일한 흐름 — 2026-09-12 사용자 요청). 제목만 그대로
+      // 이미지 프롬프트로 쓰는 게 아니라, 본문 내용을 분석한 프롬프트를 먼저 만든다.
+      if (newContent.trim()) {
+        startGeneratingImage(async () => {
+          setImageError(null);
+          const promptResult = await generateCafeImagePromptAction({ title: newTitle, content: newContent });
+          if (promptResult.prompt) {
+            setImagePrompt(promptResult.prompt);
+          }
+          const prompt = promptResult.prompt || newTitle;
+          await runImageGeneration(prompt);
+        });
+      }
     });
+  };
+
+  /** 나노바나나(Gemini)가 같은 프롬프트에도 가끔 이미지 없이 응답하는 비결정적 특성이 있어서
+   * (2026-09-12, /drafts 실사용 중 재현·확인), threads-affiliate-poster와 동일하게 최대 2회까지
+   * 자동 재시도한다 — 한 번 실패했다고 바로 에러로 끝내지 않는다. 자동 생성 흐름과 수동
+   * "대표 이미지 생성" 버튼이 이 재시도 로직을 공유한다. */
+  const runImageGeneration = async (prompt: string) => {
+    const MAX_IMAGE_ATTEMPTS = 2;
+    let lastError: string | undefined;
+    for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
+      const result = await generateCafeImageAction({
+        prompt,
+        apiKey: imageApiKey.trim() || undefined,
+        model: imageModel as never,
+        endpoint: imageEndpoint.trim() || undefined,
+      });
+      if (result.imageUrl) {
+        setImageUrl(result.imageUrl);
+        lastError = undefined;
+        break;
+      }
+      lastError = result.error;
+    }
+    if (lastError) {
+      setImageError(lastError);
+    }
   };
 
   const handleRevise = () => {
@@ -169,30 +217,7 @@ export function DraftComposer({
       return;
     }
     setImageError(null);
-    startGeneratingImage(async () => {
-      // 나노바나나(Gemini)가 같은 프롬프트에도 가끔 이미지 없이 응답하는 비결정적 특성이
-      // 있어서(2026-09-12, /drafts 실사용 중 재현·확인), threads-affiliate-poster와 동일하게
-      // 최대 2회까지 자동 재시도한다 — 한 번 실패했다고 바로 에러로 끝내지 않는다.
-      const MAX_IMAGE_ATTEMPTS = 2;
-      let lastError: string | undefined;
-      for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
-        const result = await generateCafeImageAction({
-          prompt,
-          apiKey: imageApiKey.trim() || undefined,
-          model: imageModel as never,
-          endpoint: imageEndpoint.trim() || undefined,
-        });
-        if (result.imageUrl) {
-          setImageUrl(result.imageUrl);
-          lastError = undefined;
-          break;
-        }
-        lastError = result.error;
-      }
-      if (lastError) {
-        setImageError(lastError);
-      }
-    });
+    startGeneratingImage(() => runImageGeneration(prompt));
   };
 
   return (

@@ -2,7 +2,7 @@
 
 import { generateCafePostContent, reviseCafePostContent } from "@/lib/ai/cafeGenerator";
 import type { CafeTone } from "@/lib/ai/tone";
-import { generatePostImage, type NanoBananaModelType } from "@/lib/ai/imageGenerator";
+import { generatePostImage, generateContentImagePrompt, type NanoBananaModelType } from "@/lib/ai/imageGenerator";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
@@ -80,6 +80,43 @@ export async function reviseCafePostAction(input: {
     return result;
   } catch (err) {
     const message = err instanceof Error ? err.message : "AI 수정에 실패했습니다.";
+    return { error: message };
+  }
+}
+
+export interface GenerateImagePromptState {
+  prompt?: string;
+  error?: string;
+}
+
+/**
+ * 방금 생성된 제목/본문을 분석해서 그 내용을 묘사하는 영문 이미지 프롬프트 1개를 만든다
+ * (blog의 generateArticleBasedImagePrompts()를 1장짜리로 단순화해서 이식, 2026-09-12).
+ * "AI 글 생성 시작"을 누르면 텍스트 생성 직후 이 액션으로 프롬프트를 뽑아 곧바로
+ * generateCafeImageAction에 넘기는 자동 흐름에 쓴다 — 제목만 그대로 이미지 프롬프트로
+ * 쓰던 것보다 실제 본문 내용을 반영한 이미지가 나온다.
+ */
+export async function generateCafeImagePromptAction(input: {
+  title: string;
+  content: string;
+}): Promise<GenerateImagePromptState> {
+  const user = await requireProgramAccess();
+
+  if (!input.content.trim()) {
+    return { error: "본문이 없어서 이미지 프롬프트를 만들 수 없습니다." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const apiKey = await resolveApiKey(supabase, user.id, "gemini");
+    if (!apiKey) {
+      return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+    }
+
+    const prompt = await generateContentImagePrompt(input.title, input.content, apiKey);
+    return { prompt };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "이미지 프롬프트 생성에 실패했습니다.";
     return { error: message };
   }
 }
