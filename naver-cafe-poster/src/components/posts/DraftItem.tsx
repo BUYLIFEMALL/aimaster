@@ -142,7 +142,7 @@ export function DraftItem({
         // eslint-disable-next-line @next/next/no-img-element
         <img src={post.image_url} alt="대표 이미지" className="mb-2 max-h-32 rounded-lg border border-neutral-200" />
       )}
-      <p className="whitespace-pre-wrap text-sm text-neutral-700 line-clamp-4">{post.content}</p>
+      <p className="whitespace-pre-wrap text-sm text-neutral-700">{post.content}</p>
       {status === "failed" && post.error_message && (
         <p className="mt-2 text-xs text-red-600">실패 사유: {post.error_message}</p>
       )}
