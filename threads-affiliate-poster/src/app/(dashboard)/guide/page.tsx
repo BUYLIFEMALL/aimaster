@@ -31,7 +31,9 @@ export default function GuidePage() {
         <h2 className="mb-3 text-sm font-bold text-neutral-900">2️⃣ 플랫폼 탭 선택</h2>
         <p className="mb-3 text-xs text-neutral-500">
           쿠팡파트너스 / 알리익스프레스 / 네이버 브랜드커넥트 / 토스쇼핑 쉐어링크 중 하나를
-          고릅니다. 플랫폼마다 등록 방법과 필요한 API 키가 다릅니다.
+          고릅니다.
+          <br />
+          플랫폼마다 등록 방법과 필요한 API 키가 다릅니다.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] border-collapse text-xs">
