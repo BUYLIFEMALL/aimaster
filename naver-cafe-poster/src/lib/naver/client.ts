@@ -1,4 +1,5 @@
 import "server-only";
+import iconv from "iconv-lite";
 
 // 네이버 로그인 오픈 API 클라이언트. "server-only" 가드로 Client Secret/Access Token이
 // 클라이언트 번들에 절대 포함되지 않도록 한다.
@@ -137,13 +138,37 @@ export interface CreateCafeArticleResult {
 }
 
 /**
+ * 네이버 카페 글쓰기 오픈API는 한글 파라미터(subject/content)를 UTF-8이 아니라 MS949(CP949,
+ * 확장 완성형 EUC-KR)로 인코딩해서 보내야 한다 — 실계정 첫 게시 테스트에서 한글이 전부
+ * "�"로 깨져서 올라간 것을 확인(2026-09-12)했고, 다른 개발자들의 동일 증상 보고와 해결법
+ * (UTF-8 문자열을 MS949로 재인코딩 후 퍼센트 인코딩)을 참고해 반영했다. `URLSearchParams`는
+ * 항상 UTF-8로만 퍼센트 인코딩하므로 쓸 수 없어, 바이트 단위로 직접 퍼센트 인코딩한다.
+ */
+function encodeMs949Component(value: string): string {
+  const bytes = iconv.encode(value, "cp949");
+  let result = "";
+  for (const byte of bytes) {
+    const isUnreserved =
+      (byte >= 0x30 && byte <= 0x39) || // 0-9
+      (byte >= 0x41 && byte <= 0x5a) || // A-Z
+      (byte >= 0x61 && byte <= 0x7a) || // a-z
+      byte === 0x2d || // -
+      byte === 0x2e || // .
+      byte === 0x5f || // _
+      byte === 0x7e; // ~
+    result += isUnreserved ? String.fromCharCode(byte) : `%${byte.toString(16).toUpperCase().padStart(2, "0")}`;
+  }
+  return result;
+}
+
+/**
  * 네이버 카페 게시판에 글을 등록한다. 응답 성공 여부 판단 기준(정확한 필드명)이 아직
  * 미확인이라, HTTP status만으로 판단하고 원본 응답은 호출부에서 raw_response로 저장한다.
  */
 export async function createCafeArticle(params: CreateCafeArticleParams): Promise<CreateCafeArticleResult> {
   const { accessToken, clubId, menuId, subject, content } = params;
 
-  const body = new URLSearchParams({ subject, content, openyn: "true" });
+  const body = `subject=${encodeMs949Component(subject)}&content=${encodeMs949Component(content)}&openyn=true`;
 
   const response = await fetch(`${CAFE_BASE}/${clubId}/menu/${menuId}/articles`, {
     method: "POST",
@@ -151,7 +176,7 @@ export async function createCafeArticle(params: CreateCafeArticleParams): Promis
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: body.toString(),
+    body,
   });
 
   const text = await response.text();

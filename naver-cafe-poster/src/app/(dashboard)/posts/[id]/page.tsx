@@ -45,6 +45,16 @@ export default async function PostDetailPage({
       {status === "published" && (
         <div className="mb-6 rounded-lg border border-green-300 bg-green-50 p-4 text-sm text-green-800">
           <p className="font-medium">네이버 카페에 게시되었습니다.</p>
+          {post.cafe_article_url && (
+            <a
+              href={post.cafe_article_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-block font-medium underline"
+            >
+              카페에서 실제 글 확인하기 →
+            </a>
+          )}
         </div>
       )}
 

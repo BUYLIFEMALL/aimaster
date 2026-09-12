@@ -21,6 +21,21 @@ interface PublishPostOutcome {
   errorMessage?: string;
 }
 
+/**
+ * 실계정 첫 게시 성공 응답(2026-09-12)으로 실제 필드명을 처음 확인했다 —
+ * { message: { result: { articleId, articleUrl, cafeUrl, msg: "Success" } } } 형태.
+ * 이 URL을 저장해두면 게시글 상세 화면에서 실제 카페 글로 바로 이동할 수 있다.
+ */
+function extractArticleUrl(rawResponse: unknown): string | null {
+  if (!rawResponse || typeof rawResponse !== "object") return null;
+  const message = (rawResponse as { message?: unknown }).message;
+  if (!message || typeof message !== "object") return null;
+  const result = (message as { result?: unknown }).result;
+  if (!result || typeof result !== "object") return null;
+  const articleUrl = (result as { articleUrl?: unknown }).articleUrl;
+  return typeof articleUrl === "string" ? articleUrl : null;
+}
+
 export async function publishCafePost(params: PublishCafePostParams): Promise<PublishPostOutcome> {
   const { supabase, postId, userId, title, content, imageUrl, videoUrl, accessToken, clubId, menuId } = params;
 
@@ -66,6 +81,7 @@ export async function publishCafePost(params: PublishCafePostParams): Promise<Pu
       .update({
         status: "published",
         raw_response: result.rawResponse as never,
+        cafe_article_url: extractArticleUrl(result.rawResponse),
         error_message: null,
       })
       .eq("id", postId)
