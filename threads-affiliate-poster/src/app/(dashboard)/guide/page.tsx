@@ -48,8 +48,9 @@ export default function GuidePage() {
               <tr>
                 <td className="py-2 pr-3 align-top font-medium text-neutral-900">🛒 쿠팡파트너스</td>
                 <td className="py-2 pr-3 align-top text-neutral-700">
-                  (A) 키워드 검색 → 결과에서 상품 &quot;선택&quot; 또는 (B) 쿠팡파트너스 사이트에서
-                  직접 발급받은 제휴 링크 URL을 붙여넣기
+                  (A) 키워드 검색 → 결과에서 상품 &quot;선택&quot;
+                  <br />
+                  (B) 쿠팡파트너스 사이트에서 직접 발급받은 제휴 링크 URL을 붙여넣기
                 </td>
                 <td className="py-2 align-top text-neutral-500">
                   (A)만 Access/Secret Key 필요 — 매출 15만원 달성해야 발급됨. (B)는 키 없이 바로
