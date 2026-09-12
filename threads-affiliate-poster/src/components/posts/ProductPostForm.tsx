@@ -35,7 +35,7 @@ const IMAGE_MODEL_OPTIONS = [
 // 플랫폼별 제휴 고지 문구 미리보기(실제 삽입은 서버의 generateAffiliatePostContent()가
 // 담당한다 — 여기서는 사용자에게 "이 문구가 자동으로 붙습니다"를 미리 보여주는 용도).
 const DISCLOSURE_PREVIEW: Record<AffiliateProduct["platform"], string | null> = {
-  coupang: "(광고) 쿠팡파트너스 활동으로 수수료를 받을 수 있습니다.",
+  coupang: "(광고)쿠팡파트너스 활동으로 수수료를 받을 수 있음",
   aliexpress: "(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
   naver: "(광고) 브랜드 제휴 활동으로 수수료를 받을 수 있습니다.",
   toss: "(광고) 토스쇼핑 쉐어링크 활동으로 수수료를 받을 수 있습니다.",
