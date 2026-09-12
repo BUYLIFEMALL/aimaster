@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
   if (oauthError || !code || !state) {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=connect_failed`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
   }
 
   const supabase = await createClient();
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
   // OAuth 토큰을 저장하지 않는다 (로그인만 한 비구독자가 계정 연동까지 끝내는 것 방지).
   const access = await checkProgramAccessApi();
   if (!access.allowed) {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=no_access`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=no_access`);
   }
 
   try {
@@ -62,8 +62,8 @@ export async function GET(request: NextRequest) {
       throw new Error(error.message);
     }
 
-    return NextResponse.redirect(`${siteUrl}/accounts?connected=1`);
+    return NextResponse.redirect(`${siteUrl}/settings?connected=1`);
   } catch {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=connect_failed`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
   }
 }

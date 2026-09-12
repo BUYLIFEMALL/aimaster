@@ -7,7 +7,9 @@ import { signOutAction } from "@/lib/actions/auth";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
 // 대시보드는 순서 개념 없는 개요라 번호 없이 최상단에 두고, "주제 수집 → 게시글 관리"는
-// 순차 흐름이라 스텝퍼로 보여준다. 플랫폼연동/API키등록은 흐름의 일부가 아닌 별도 유틸리티.
+// 순차 흐름이라 스텝퍼로 보여준다. 플랫폼연동/API키등록은 흐름의 일부가 아닌 별도 유틸리티라
+// threads-affiliate-poster와 동일하게 한 메뉴("API키등록·플랫폼연동")로 합쳐 /settings 한
+// 화면에서 같이 관리한다(2026-09-12, 예전엔 /accounts·/settings로 나뉘어 있었음).
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
 const FLOW_STEPS = [
@@ -25,10 +27,7 @@ const FLOW_STEPS = [
   },
 ];
 
-const UTILITY_ITEMS = [
-  { href: "/accounts", icon: "🔗", label: "플랫폼연동" },
-  { href: "/settings", icon: "🔑", label: "API키등록" },
-];
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
