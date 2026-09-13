@@ -2,21 +2,48 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Search, Sparkles, PenSquare, FileText, KeyRound } from "lucide-react";
 import { signOutAction } from "@/lib/actions/auth";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
-// "AI 맞춤 자동 글쓰기"(주제 기반 새 글 생성)를 별도 메뉴 "AI 글쓰기"로 분리하고, 기존
-// /drafts(제목/본문 검토·저장) 메뉴는 "AI 자동 초안생성"으로 이름을 바꿨다(2026-09-13).
-const NAV_ITEMS = [
-  { href: "/dashboard", icon: LayoutGrid, label: "대시보드" },
-  { href: "/candidates", icon: Search, label: "게시글 주제 수집" },
-  { href: "/write", icon: Sparkles, label: "AI 글쓰기" },
-  { href: "/drafts", icon: PenSquare, label: "AI 자동 초안생성" },
-  { href: "/posts", icon: FileText, label: "게시글 관리" },
-  { href: "/settings", icon: KeyRound, label: "네이버 연동·카페 등록" },
+// threads-affiliate-poster의 번호/이모지 스텝퍼 레이아웃을 그대로 참고했다(2026-09-13
+// 사용자 요청) — 대시보드는 순서 개념 없는 개요라 번호 없이 최상단에 두고, "글감 수집 →
+// 초안 확인·저장 → AI 글쓰기(생성) → 게시글 관리"를 순차 흐름으로 스텝퍼에 보여준다.
+// AI 자동 초안생성이 AI 글쓰기보다 먼저 오는 건 사용자가 명시적으로 지정한 순서다.
+const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
+
+const FLOW_STEPS = [
+  {
+    step: 1,
+    href: "/candidates",
+    icon: "🔍",
+    label: "게시글 주제 수집",
+    description: "카페에 올릴 글감 자동 수집",
+  },
+  {
+    step: 2,
+    href: "/drafts",
+    icon: "📝",
+    label: "AI 자동 초안생성",
+    description: "제목/본문 확인·수정 후 초안 저장",
+  },
+  {
+    step: 3,
+    href: "/write",
+    icon: "✨",
+    label: "AI 글쓰기",
+    description: "주제를 입력해 AI로 새 글 생성",
+  },
+  {
+    step: 4,
+    href: "/posts",
+    icon: "📋",
+    label: "게시글 관리",
+    description: "저장한 초안을 카페에 게시",
+  },
 ];
+
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "네이버 연동·카페 등록" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
@@ -34,24 +61,71 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           </a>
         </div>
 
-        <nav className="flex flex-col gap-1">
-          {NAV_ITEMS.map((item) => {
+        <nav className="flex flex-col">
+          <Link
+            href={OVERVIEW_ITEM.href}
+            className={`mb-2 block rounded-lg px-3 py-2 text-sm font-medium ${
+              pathname?.startsWith(OVERVIEW_ITEM.href)
+                ? "bg-sky-50 text-sky-700"
+                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+            }`}
+          >
+            {OVERVIEW_ITEM.icon} {OVERVIEW_ITEM.label}
+          </Link>
+
+          <div className="relative flex flex-col">
+            {FLOW_STEPS.map((item, idx) => {
+              const isActive = pathname?.startsWith(item.href);
+              const isLast = idx === FLOW_STEPS.length - 1;
+              return (
+                <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-1">
+                  {/* 스텝 번호 + 연결선 */}
+                  <div className="flex flex-col items-center">
+                    <span
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                        isActive
+                          ? "bg-sky-600 text-white"
+                          : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+                      }`}
+                    >
+                      {item.step}
+                    </span>
+                    {!isLast && <span className="mt-1 w-px flex-1 bg-neutral-200" />}
+                  </div>
+
+                  {/* 라벨 + 설명 */}
+                  <div
+                    className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 ${
+                      isActive ? "bg-sky-50" : "group-hover:bg-neutral-50"
+                    }`}
+                  >
+                    <p className={`text-sm font-bold ${isActive ? "text-sky-700" : "text-neutral-800"}`}>
+                      {item.icon} {item.label}
+                    </p>
+                    <p className="text-xs text-neutral-500">{item.description}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+
+        <div className="mt-6 border-t border-neutral-200 pt-3">
+          {UTILITY_ITEMS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
-            const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium ${
+                className={`block rounded-lg px-3 py-2 text-sm font-medium ${
                   isActive ? "bg-sky-50 text-sky-700" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
                 }`}
               >
-                <Icon size={16} />
-                {item.label}
+                {item.icon} {item.label}
               </Link>
             );
           })}
-        </nav>
+        </div>
       </div>
 
       <div className="mt-4 border-t border-neutral-200 pt-4 md:mt-0">
