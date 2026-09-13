@@ -13,10 +13,10 @@ import type { ApiKeyProvider } from "@/types/database.types";
 // "연결하기"만 누르면 되는 구조라 API 키 발급은 필요 없지만, 게시판(club_id/menu_id) 등록
 // 방법은 직접 찾아야 해서 별도 가이드로 추가했다(2026-09-13, category="네이버").
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
-  { guideId: "ec45e4bd-fccc-4f14-92e8-3e2df3ced50b", label: "네이버 계정 연동 및 게시판 등록하기" },
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
   { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
   { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
+  { guideId: "ec45e4bd-fccc-4f14-92e8-3e2df3ced50b", label: "네이버 계정 연동 및 게시판 등록하기" },
 ];
 
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity", "gemini"];

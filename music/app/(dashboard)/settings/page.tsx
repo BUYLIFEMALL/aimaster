@@ -4,10 +4,19 @@ import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { SunoCreditsCard } from "@/components/settings/SunoCreditsCard";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API에 해당하는 매뉴얼만
+// 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장, 2026-09-13).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "0ecb9a3c-e4f7-4229-8fc3-f74fdb6dc6fd", label: "SUNO(수노) API 연동하기" },
+];
 
 // 프로바이더를 성격별 그룹으로 묶어서 보여준다 — 텍스트/이미지 생성용 AI(OpenAI/Gemini)와
 // 실제 곡을 만드는 음악 생성 AI(Suno)는 역할이 완전히 다르므로 구분한다. Suno 그룹에는
@@ -79,6 +88,21 @@ export default async function SettingsPage() {
             )}
           </div>
         ))}
+
+        <div className="rounded-2xl border-2 border-gray-200 bg-gray-100 p-5 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-sm font-bold text-gray-900">📖 연동 매뉴얼</h2>
+            <p className="text-xs text-gray-500">
+              이 프로그램에서 사용하는 API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할
+              수 있습니다.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {GUIDE_LINKS.map((guide) => (
+              <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,11 +4,21 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
 const PROVIDERS: ApiKeyProvider[] = ["serpapi", "openai"];
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
+// 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
+// 2026-09-13). SerpApi는 아직 등록된 매뉴얼이 없어 대상에서 뺐다(추후 /admin/guides에
+// 추가되면 여기에도 연결할 것).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
+];
 
 const HELP_LINKS: Partial<
   Record<ApiKeyProvider, { url: string; label: string; highlight?: string; description?: string }>
@@ -112,6 +122,21 @@ export default async function SettingsPage() {
                 <TelegramConnectForm />
               </div>
             )}
+          </div>
+
+          <div className="rounded-2xl border-2 border-gray-200 bg-gray-100 p-5 shadow-sm">
+            <div className="mb-4">
+              <h2 className="text-sm font-bold text-gray-900">📖 연동 매뉴얼</h2>
+              <p className="text-xs text-gray-500">
+                이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+                따라 할 수 있습니다.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {GUIDE_LINKS.map((guide) => (
+                <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
