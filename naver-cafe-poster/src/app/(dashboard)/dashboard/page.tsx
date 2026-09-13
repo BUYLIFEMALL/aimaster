@@ -36,7 +36,7 @@ export default async function DashboardPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-neutral-900">대시보드</h1>
         <Link href="/drafts">
-          <Button>AI 글쓰기</Button>
+          <Button>AI 자동 글쓰기(초안)</Button>
         </Link>
       </div>
 

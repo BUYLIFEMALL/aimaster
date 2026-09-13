@@ -32,7 +32,7 @@ export function CandidateList({ candidates }: CandidateListProps) {
                   href={`/drafts?${writeParams.toString()}`}
                   className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100"
                 >
-                  이 후보로 AI 글쓰기
+                  이 후보로 초안 만들기
                 </Link>
                 <form action={deleteCandidateAction}>
                   <input type="hidden" name="id" value={c.id} />

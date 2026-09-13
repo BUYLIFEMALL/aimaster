@@ -259,7 +259,7 @@ export function DraftComposer({
       <div className="space-y-1">
         <h2 className="text-lg font-bold text-neutral-900">📝 초안 확인 및 저장</h2>
         <p className="text-xs text-neutral-500">
-          글감 수집이나 AI 글쓰기에서 넘어온 제목/본문(또는 직접 입력한 내용)을 참고 자료로,
+          글감 수집이나 AI 자동 글쓰기(수동)에서 넘어온 제목/본문(또는 직접 입력한 내용)을 참고 자료로,
           아래 세부 옵션을 반영해 "AI 초안생성"을 누르면 AI가 완성도 있는 본문과 대표 이미지를
           새로 만들어 바로 초안으로 저장합니다.
         </p>

@@ -1,6 +1,11 @@
 import "server-only";
 import { ensureParagraphBreaks } from "./formatContent";
+import { fetchWithTimeout } from "./fetchWithTimeout";
 import type { CafeTone } from "./tone";
+
+// OpenAI 응답이 60초를 넘기면 버튼이 "생성 중..."에 무한정 갇히는 대신 명확한 에러로
+// 실패시킨다(fetchWithTimeout.ts 주석 참고).
+const OPENAI_TIMEOUT_MS = 60_000;
 
 export type { CafeTone };
 
@@ -130,26 +135,30 @@ export async function generateCafePostContent(
     ? `\n\n다음은 참고할 원본 자료입니다. 그대로 베끼지 말고, 이 내용을 바탕으로 카페 톤에 맞는 완성도 있는 글로 다시 작성해주세요:\n${cleanedReferenceContent}`
     : "";
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+  const response = await fetchWithTimeout(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: CAFE_SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: `주제: ${input.topic}${ruleLines ? `\n\n다음 세부 옵션을 반영해주세요:\n${ruleLines}` : ""}${referenceBlock}`,
+          },
+        ],
+        max_tokens: 1800,
+        temperature: 0.8,
+      }),
     },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: CAFE_SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `주제: ${input.topic}${ruleLines ? `\n\n다음 세부 옵션을 반영해주세요:\n${ruleLines}` : ""}${referenceBlock}`,
-        },
-      ],
-      max_tokens: 1800,
-      temperature: 0.8,
-    }),
-  });
-
+    OPENAI_TIMEOUT_MS,
+    "AI 글 생성 요청이 60초 넘게 응답이 없어 중단했습니다. 잠시 후 다시 시도해주세요.",
+  );
   if (!response.ok) {
     const errorBody = await response.text();
     throw new Error(`AI 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
@@ -233,22 +242,27 @@ export async function reviseCafePostContent(
     .filter(Boolean)
     .join("\n\n");
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+  const response = await fetchWithTimeout(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: REVISE_SYSTEM_PROMPT },
+          { role: "user", content: userContent },
+        ],
+        max_tokens: 1800,
+        temperature: 0.6,
+      }),
     },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: REVISE_SYSTEM_PROMPT },
-        { role: "user", content: userContent },
-      ],
-      max_tokens: 1800,
-      temperature: 0.6,
-    }),
-  });
+    OPENAI_TIMEOUT_MS,
+    "AI 수정 요청이 60초 넘게 응답이 없어 중단했습니다. 잠시 후 다시 시도해주세요.",
+  );
 
   if (!response.ok) {
     const errorBody = await response.text();

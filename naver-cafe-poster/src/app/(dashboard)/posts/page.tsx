@@ -51,7 +51,7 @@ export default async function PostsPage({
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-neutral-900">게시글 관리</h1>
         <Link href="/drafts">
-          <Button>AI 글쓰기로 이동</Button>
+          <Button>AI 자동 글쓰기(초안)로 이동</Button>
         </Link>
       </div>
 

@@ -24,14 +24,14 @@ const FLOW_STEPS = [
     step: 2,
     href: "/drafts",
     icon: "📝",
-    label: "AI 자동 초안생성",
+    label: "AI 자동 글쓰기(초안)",
     description: "제목/본문 확인·수정 후 초안 저장",
   },
   {
     step: 3,
     href: "/write",
     icon: "✨",
-    label: "AI 글쓰기",
+    label: "AI 자동 글쓰기(수동)",
     description: "주제를 입력해 AI로 새 글 생성",
   },
   {

@@ -30,11 +30,11 @@ export default async function DraftsPage({
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900">AI 자동 초안생성</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900">AI 자동 글쓰기(초안)</h1>
         <p className="mt-1 text-sm text-neutral-600">
           제목/본문을 확인·수정 → 검수 → 게시 순서로 진행합니다. 새 글을 AI로 만들려면
-          "AI 글쓰기" 메뉴를 이용하세요. 저장한 초안은 실제 카페에 게시되지 않으며, 아래
-          목록에서 검토를 마친 뒤 "게시" 버튼을 눌러야 게시됩니다.
+          "AI 자동 글쓰기(수동)" 메뉴를 이용하세요. 저장한 초안은 실제 카페에 게시되지 않으며,
+          아래 목록에서 검토를 마친 뒤 "게시" 버튼을 눌러야 게시됩니다.
         </p>
       </div>
 

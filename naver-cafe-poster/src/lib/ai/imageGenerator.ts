@@ -1,4 +1,10 @@
 import "server-only";
+import { fetchWithTimeout } from "./fetchWithTimeout";
+
+// Gemini 호출이 응답 없이 멈추는 것을 막는다(fetchWithTimeout.ts 주석 참고) — 이미지 프롬프트
+// 생성은 텍스트만 다루므로 짧게, 실제 이미지 생성은 4K 등 무거운 요청도 있어 여유 있게 잡는다.
+const GEMINI_TEXT_TIMEOUT_MS = 45_000;
+const GEMINI_IMAGE_TIMEOUT_MS = 90_000;
 
 // blog(BLOG(원문)생성 자동화)의 나노바나나(Gemini) 이미지 생성 기능을 그대로 이식했다
 // (threads-affiliate-poster/src/lib/ai/generator.ts의 generatePostImage와 동일 구조).
@@ -53,14 +59,18 @@ STRICT RULES:
 8. Output ONLY a valid JSON object: { "imagePrompt": "..." }`;
 
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: instruction }] }],
-        generationConfig: { temperature: 0.3, responseMimeType: "application/json" },
-      }),
-    });
+    const response = await fetchWithTimeout(
+      endpoint,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: instruction }] }],
+          generationConfig: { temperature: 0.3, responseMimeType: "application/json" },
+        }),
+      },
+      GEMINI_TEXT_TIMEOUT_MS,
+    );
 
     if (response.ok) {
       const data = await response.json();
@@ -160,11 +170,16 @@ export async function generatePostImage(input: GeneratePostImageInput, apiKey: s
     },
   };
 
-  const response = await fetch(targetUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(requestBody),
-  });
+  const response = await fetchWithTimeout(
+    targetUrl,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    },
+    GEMINI_IMAGE_TIMEOUT_MS,
+    "이미지 생성 요청이 90초 넘게 응답이 없어 중단했습니다. 잠시 후 다시 시도해주세요.",
+  );
 
   if (!response.ok) {
     const errorBody = await response.text();

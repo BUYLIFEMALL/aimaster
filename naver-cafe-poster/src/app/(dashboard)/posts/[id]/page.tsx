@@ -88,7 +88,7 @@ export default async function PostDetailPage({
         {(status === "draft" || status === "failed") && (
           <Link href={`/drafts?edit=${post.id}`}>
             <Button type="button" variant="secondary">
-              AI 글쓰기에서 수정
+              AI 자동 글쓰기(초안)에서 수정
             </Button>
           </Link>
         )}
@@ -119,7 +119,7 @@ export default async function PostDetailPage({
       )}
       {(status === "draft" || status === "failed") && account && !post.target_id && (
         <p className="mt-2 text-xs text-red-600">
-          등록할 카페가 지정되어 있지 않습니다. "AI 글쓰기에서 수정"에서 카페를 선택해주세요.
+          등록할 카페가 지정되어 있지 않습니다. "AI 자동 글쓰기(초안)에서 수정"에서 카페를 선택해주세요.
         </p>
       )}
     </div>

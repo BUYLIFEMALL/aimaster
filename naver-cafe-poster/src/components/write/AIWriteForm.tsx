@@ -168,7 +168,7 @@ export function AIWriteForm({ targets }: { targets: CafeTarget[] }) {
         <h2 className="text-lg font-bold text-neutral-900">AI 맞춤 자동 글쓰기</h2>
         <p className="text-xs text-neutral-500">
           카페, 주제, AI 이미지 설정 및 추천링크를 지정하시면 카페 게시글이 자동 생성됩니다.
-          생성이 끝나면 "AI 자동 초안생성" 화면으로 이동해 검토·저장할 수 있습니다.
+          생성이 끝나면 "AI 자동 글쓰기(초안)" 화면으로 이동해 검토·저장할 수 있습니다.
         </p>
       </div>
 

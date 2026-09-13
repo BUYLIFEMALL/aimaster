@@ -51,7 +51,7 @@ export default async function SettingsPage({
         <div className="mb-4">
           <h2 className="text-sm font-bold text-neutral-900">🤖 AI 게시글 생성 · 글감 수집</h2>
           <p className="text-xs text-neutral-500">
-            "AI 글쓰기"에서 주제·분위기·대상 독자·분량·키워드·참고링크 등을 지정하면 AI가 카페
+            "AI 자동 글쓰기(수동)"에서 주제·분위기·대상 독자·분량·키워드·참고링크 등을 지정하면 AI가 카페
             게시글 제목/본문을 만들어줍니다(OpenAI). Gemini 키를 등록하면 나노바나나로 대표
             이미지도 함께 생성할 수 있고, Perplexity 키를 등록하면 "글감 수집" 메뉴에서 최신
             트렌드를 검색해 게시글 후보까지 자동으로 만들 수 있습니다.
