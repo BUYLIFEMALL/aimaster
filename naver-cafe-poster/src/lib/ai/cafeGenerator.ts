@@ -46,14 +46,17 @@ const CAFE_SYSTEM_PROMPT = `너는 네이버 카페 운영 경험이 많은 카�
 
 게시글을 만든 후에는 추가 해설이나 설명 없이 바로 출력하면 됩니다.`;
 
-export async function generateCafePostContent(
-  input: GenerateCafePostInput,
-  apiKey: string,
-): Promise<GenerateCafePostResult> {
-  if (!apiKey) {
-    throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록해주세요.");
-  }
+interface DetailOptions {
+  tone?: CafeTone;
+  targetAudience?: string;
+  wordCount?: number;
+  keywords?: string[];
+  referenceUrls?: string[];
+  customInstructions?: string;
+}
 
+/** generate/revise가 공유하는 세부 옵션 → 프롬프트 규칙 변환. */
+function buildDetailRuleLines(input: DetailOptions): string {
   const keywords = (input.keywords ?? []).filter((k) => k.trim().length > 0);
   const referenceUrls = (input.referenceUrls ?? []).filter((u) => u.trim().length > 0);
 
@@ -70,9 +73,27 @@ export async function generateCafePostContent(
     ? `- 추가 필수 지시사항: ${input.customInstructions} (★ 이 지침을 최우선으로 반영할 것)`
     : "";
 
-  const ruleLines = [toneRule, audienceRule, wordCountRule, keywordRule, referenceRule, customRule]
-    .filter(Boolean)
-    .join("\n");
+  return [toneRule, audienceRule, wordCountRule, keywordRule, referenceRule, customRule].filter(Boolean).join("\n");
+}
+
+/** CTA는 프롬프트가 아니라 생성 후 코드에서 직접 덧붙인다 — 시스템 프롬프트에 예시로 넣으면
+ * AI가 실제 CTA 데이터가 없을 때도 placeholder를 지어내는 문제가 있다(docs/PLATFORM_PATTERNS.md
+ * §3). 이미 같은 CTA가 본문에 있으면(재수정 시 중복 방지) 다시 붙이지 않는다. */
+function appendCtaIfNeeded(content: string, cta?: { text: string; url: string }): string {
+  if (!cta?.text || !cta?.url) return content;
+  if (content.includes(cta.url)) return content;
+  return `${content}\n\n📢 ${cta.text}\n${cta.url}`;
+}
+
+export async function generateCafePostContent(
+  input: GenerateCafePostInput,
+  apiKey: string,
+): Promise<GenerateCafePostResult> {
+  if (!apiKey) {
+    throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록해주세요.");
+  }
+
+  const ruleLines = buildDetailRuleLines(input);
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -109,14 +130,7 @@ export async function generateCafePostContent(
   }
 
   const { title, content: parsedContent } = parseTitleContent(rawContent, input.topic.slice(0, 20));
-  let content = parsedContent;
-
-  // CTA는 프롬프트가 아니라 생성 후 코드에서 직접 덧붙인다 — 시스템 프롬프트에 예시로
-  // 넣으면 AI가 실제 CTA 데이터가 없을 때도 placeholder를 지어내는 문제가 있다
-  // (docs/PLATFORM_PATTERNS.md §3, threads 프로젝트에서 확인된 문제 패턴).
-  if (input.cta?.text && input.cta?.url) {
-    content += `\n\n📢 ${input.cta.text}\n${input.cta.url}`;
-  }
+  const content = appendCtaIfNeeded(parsedContent, input.cta);
 
   return { title, content };
 }
@@ -134,6 +148,16 @@ export interface ReviseCafePostInput {
   title: string;
   content: string;
   instruction: string;
+  // "AI 자동 초안생성" 화면에도 세부 옵션·이미지·CTA 설정을 옮겨오면서(2026-09-13), 주제가
+  // 없는 이 화면에서는 "AI에게 수정 요청하기"가 유일한 AI 텍스트 작업이라 여기에 반영한다 —
+  // generateCafePostContent()의 세부 옵션과 동일한 필드를 그대로 받는다.
+  tone?: CafeTone;
+  targetAudience?: string;
+  wordCount?: number;
+  keywords?: string[];
+  referenceUrls?: string[];
+  customInstructions?: string;
+  cta?: { text: string; url: string };
 }
 
 const REVISE_SYSTEM_PROMPT = `너는 네이버 카페 운영 경험이 많은 카페 매니저야. 사용자가 이미 작성된 카페 게시글을
@@ -160,6 +184,16 @@ export async function reviseCafePostContent(
     throw new Error("수정 지시사항을 입력해주세요.");
   }
 
+  const ruleLines = buildDetailRuleLines(input);
+  const userContent = [
+    `기존 제목: ${input.title}`,
+    `기존 본문:\n${input.content}`,
+    `수정 지시사항: ${input.instruction}`,
+    ruleLines ? `다음 세부 옵션도 함께 반영해주세요:\n${ruleLines}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -170,10 +204,7 @@ export async function reviseCafePostContent(
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: REVISE_SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `기존 제목: ${input.title}\n\n기존 본문:\n${input.content}\n\n수정 지시사항: ${input.instruction}`,
-        },
+        { role: "user", content: userContent },
       ],
       max_tokens: 1800,
       temperature: 0.6,
@@ -191,5 +222,7 @@ export async function reviseCafePostContent(
     throw new Error("AI가 빈 응답을 반환했습니다.");
   }
 
-  return parseTitleContent(rawContent, input.title);
+  const { title, content: parsedContent } = parseTitleContent(rawContent, input.title);
+  const content = appendCtaIfNeeded(parsedContent, input.cta);
+  return { title, content };
 }

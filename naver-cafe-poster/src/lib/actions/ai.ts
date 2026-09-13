@@ -1,6 +1,6 @@
 "use server";
 
-import { generateCafePostContent, reviseCafePostContent } from "@/lib/ai/cafeGenerator";
+import { generateCafePostContent, reviseCafePostContent, type ReviseCafePostInput } from "@/lib/ai/cafeGenerator";
 import type { CafeTone } from "@/lib/ai/tone";
 import { generatePostImage, generateContentImagePrompt, type NanoBananaModelType } from "@/lib/ai/imageGenerator";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
@@ -54,12 +54,9 @@ export async function generateCafePostAction(input: GenerateCafePostInput): Prom
   }
 }
 
-/** 이미 생성/저장된 초안을 자연어 지시로 다시 고쳐 쓴다("생성"과 별개인 "수정 요청"). */
-export async function reviseCafePostAction(input: {
-  title: string;
-  content: string;
-  instruction: string;
-}): Promise<GenerateContentState> {
+/** 이미 생성/저장된 초안을 자연어 지시로 다시 고쳐 쓴다("생성"과 별개인 "수정 요청").
+ * "AI 자동 초안생성" 화면에 옮겨온 세부 옵션/CTA(2026-09-13)도 여기서 함께 반영된다. */
+export async function reviseCafePostAction(input: ReviseCafePostInput): Promise<GenerateContentState> {
   const user = await requireProgramAccess();
 
   if (!input.instruction.trim()) {
