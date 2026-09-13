@@ -6,11 +6,26 @@ import { signOutAction } from "@/lib/actions/auth";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
+// 대시보드는 순서 개념 없는 개요라 번호 없이 최상단에 두고, "새 작업 만들기 → 작업 목록
+// 확인"은 순차 흐름이라 다른 서브프로젝트와 동일한 번호 스텝퍼로 보여준다(2026-09-13,
+// 넘버링 통일 요청). API키등록·플랫폼연동은 이 흐름과 무관한 별도 유틸리티라 계속 분리해둔다.
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
-const NAV_ITEMS = [
-  { href: "/jobs/new", icon: "➕", label: "작업 목록 새로 만들기" },
-  { href: "/jobs", icon: "📋", label: "작업 목록" },
+const FLOW_STEPS = [
+  {
+    step: 1,
+    href: "/jobs/new",
+    icon: "➕",
+    label: "작업 목록 새로 만들기",
+    description: "수집할 URL과 항목을 등록",
+  },
+  {
+    step: 2,
+    href: "/jobs",
+    icon: "📋",
+    label: "작업 목록",
+    description: "진행 상황 확인 및 결과 다운로드",
+  },
 ];
 
 const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
@@ -31,29 +46,48 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           </a>
         </div>
 
-        <nav className="flex flex-col gap-1">
-          <Link
-            href={OVERVIEW_ITEM.href}
-            className={`block rounded-lg px-3 py-2 text-sm font-medium ${
-              pathname?.startsWith(OVERVIEW_ITEM.href)
-                ? "bg-sky-50 text-sky-700"
-                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-            }`}
-          >
-            {OVERVIEW_ITEM.icon} {OVERVIEW_ITEM.label}
-          </Link>
+        <Link
+          href={OVERVIEW_ITEM.href}
+          className={`mb-2 block rounded-lg px-3 py-2 text-sm font-medium ${
+            pathname?.startsWith(OVERVIEW_ITEM.href)
+              ? "bg-sky-50 text-sky-700"
+              : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+          }`}
+        >
+          {OVERVIEW_ITEM.icon} {OVERVIEW_ITEM.label}
+        </Link>
 
-          {NAV_ITEMS.map((item) => {
+        <nav className="relative flex flex-col">
+          {FLOW_STEPS.map((item, idx) => {
             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+            const isLast = idx === FLOW_STEPS.length - 1;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`block rounded-lg px-3 py-2 text-sm font-medium ${
-                  isActive ? "bg-sky-50 text-sky-700" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-                }`}
-              >
-                {item.icon} {item.label}
+              <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-1">
+                {/* 스텝 번호 + 연결선 */}
+                <div className="flex flex-col items-center">
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                      isActive
+                        ? "bg-sky-600 text-white"
+                        : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+                    }`}
+                  >
+                    {item.step}
+                  </span>
+                  {!isLast && <span className="mt-1 w-px flex-1 bg-neutral-200" />}
+                </div>
+
+                {/* 라벨 + 설명 */}
+                <div
+                  className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 ${
+                    isActive ? "bg-sky-50" : "group-hover:bg-neutral-50"
+                  }`}
+                >
+                  <p className={`text-sm font-bold ${isActive ? "text-sky-700" : "text-neutral-800"}`}>
+                    {item.icon} {item.label}
+                  </p>
+                  <p className="text-xs text-neutral-500">{item.description}</p>
+                </div>
               </Link>
             );
           })}
