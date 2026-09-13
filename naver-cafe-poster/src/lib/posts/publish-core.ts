@@ -46,8 +46,10 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// OpenAI 응답이 가끔 \r\n(CRLF)로 오는 경우가 있어(2026-09-13, 실계정 테스트로 확인 —
+// "성과 측정 자동화" 초안), \n만 기준으로 나누면 \r가 그대로 남는다. 먼저 \n으로 통일한다.
 function textToHtml(text: string): string {
-  return escapeHtml(text).split("\n").join("<br>");
+  return escapeHtml(text.replace(/\r\n/g, "\n")).split("\n").join("<br>");
 }
 
 // cafeGenerator.ts의 appendCtaIfNeeded()가 본문 끝에 "\n\n📢 {문구} {URL}" 형태로 순수
@@ -58,7 +60,10 @@ function textToHtml(text: string): string {
 // 거부하는 것으로 보인다. 대신 네이버 카페 자체가 본문에 있는 "http(s)://"로 시작하는 URL을
 // 자동으로 링크로 바꿔주는 것을 다른 이미지 URL 사례에서 이미 확인했으므로, URL에 프로토콜만
 // 보장해서 순수 텍스트로 남겨두면 네이버가 알아서 클릭 가능한 링크로 바꿔준다.
-const CTA_SUFFIX_PATTERN = /\n\n📢 (.+) (\S+)$/;
+// \r\n(CRLF) 앞에 붙는 경우도 허용한다 — AI 응답이 가끔 CRLF로 오는 것을 실계정 테스트로
+// 확인했다(위 textToHtml 주석 참고). appendCtaIfNeeded()가 항상 "문구 URL"을 같은 줄에
+// 공백 하나로 붙여 생성하므로 정상 케이스는 계속 이 형식과 일치한다.
+const CTA_SUFFIX_PATTERN = /\r?\n\r?\n📢 (.+) (\S+)\s*$/;
 
 function splitCta(content: string): { body: string; ctaText: string; ctaUrl: string } | null {
   const match = content.match(CTA_SUFFIX_PATTERN);
