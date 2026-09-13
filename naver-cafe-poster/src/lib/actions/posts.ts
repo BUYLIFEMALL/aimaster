@@ -244,6 +244,90 @@ export async function deployDraftAction(formData: FormData) {
   redirect("/posts");
 }
 
+/**
+ * 이미 게시(완료/실패)된 글도 제목/본문/이미지/영상/카페를 수정하고, 그 자리에서 바로
+ * 다시 게시한다. 지금까지는 draft/failed만 updateDraftAction으로 고칠 수 있었고 published는
+ * 아예 손댈 방법이 없었다 — "/posts에 편집 기능을 추가해서 수정한 내용을 다시 등록할 수
+ * 있게 해달라"는 요청(2026-09-13)으로 새로 추가했다.
+ *
+ * 네이버 카페 오픈API에는 글쓰기(POST) 엔드포인트만 있고 수정 엔드포인트가 없다(AGENTS.md
+ * "네이버 카페 오픈API의 구조적 한계" 참고) — 그래서 이미 게시된 글의 "다시 등록"은 기존
+ * 글을 고치는 게 아니라 항상 새 글을 하나 더 쓰는 것과 같다. 기존에 카페에 올라간 글은
+ * 그대로 남고, 이 액션은 우리 쪽 레코드 최신 내용으로 새 글을 게시해 그 결과(articleUrl 등)로
+ * 덮어쓴다 — 화면(PostEditForm)에서 이 사실을 미리 안내한다.
+ */
+export async function updateAndRepublishPostAction(
+  _prevState: PostActionState,
+  formData: FormData,
+): Promise<PostActionState> {
+  const postId = String(formData.get("postId") ?? "");
+  const parsed = parseDraftForm(formData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
+  }
+
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const { title, content, targetId, imageUrl, videoUrl } = parsed.data;
+
+  const { data: existing } = await supabase
+    .from("ncafe_posts")
+    .select("status")
+    .eq("id", postId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!existing) {
+    return { error: "게시글을 찾을 수 없습니다." };
+  }
+  if (existing.status === "publishing") {
+    return { error: "게시가 진행 중입니다. 완료된 뒤 다시 시도해주세요." };
+  }
+  if (!targetId) {
+    return { error: "등록할 카페를 선택해주세요." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("ncafe_posts")
+    .update({
+      title,
+      content,
+      target_id: targetId,
+      image_url: imageUrl || null,
+      video_url: videoUrl || null,
+    })
+    .eq("id", postId)
+    .eq("user_id", user.id);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  try {
+    const account = await getNaverAccountOrError(supabase, user.id);
+    const target = await getTargetOrError(supabase, user.id, targetId);
+    await publishCafePost({
+      supabase,
+      postId,
+      userId: user.id,
+      title,
+      content,
+      imageUrl: imageUrl || null,
+      videoUrl: videoUrl || null,
+      accessToken: account.access_token,
+      clubId: target.club_id,
+      menuId: target.menu_id,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "게시에 실패했습니다.";
+    await supabase.from("ncafe_posts").update({ status: "failed", error_message: message }).eq("id", postId);
+  }
+
+  revalidatePath("/posts");
+  revalidatePath(`/posts/${postId}`);
+  redirect(`/posts/${postId}`);
+}
+
 export async function deletePostAction(formData: FormData) {
   const postId = String(formData.get("postId"));
   const redirectTo = String(formData.get("redirectTo") ?? "/posts");

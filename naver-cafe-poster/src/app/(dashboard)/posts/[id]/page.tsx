@@ -83,12 +83,22 @@ export default async function PostDetailPage({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-6">
-        {/* 배포 완료/배포 중인 글은 이미 카페에 올라갔거나 올라가는 중이라 수정할 수 없다
-            (updateDraftAction이 서버에서도 동일하게 막음) — 초안/실패한 글만 수정 가능. */}
+        {/* 초안/실패한 글은 AI 세부 옵션까지 갖춘 "AI 자동 글쓰기(초안)" 화면에서 수정한다. */}
         {(status === "draft" || status === "failed") && (
           <Link href={`/drafts?edit=${post.id}`}>
             <Button type="button" variant="secondary">
               AI 자동 글쓰기(초안)에서 수정
+            </Button>
+          </Link>
+        )}
+        {/* 이미 게시된 글은 그동안 전혀 수정할 방법이 없었다 — "편집 기능을 추가해서 수정한
+            내용을 다시 등록할 수 있게 해달라"는 요청(2026-09-13)으로 전용 편집 페이지를
+            추가했다. 네이버 오픈API에 수정 엔드포인트가 없어 "다시 등록"은 새 글 게시와
+            같다는 점은 그 페이지에서 안내한다. */}
+        {status === "published" && (
+          <Link href={`/posts/${post.id}/edit`}>
+            <Button type="button" variant="secondary">
+              수정 후 다시 등록
             </Button>
           </Link>
         )}

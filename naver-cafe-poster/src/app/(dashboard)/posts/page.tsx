@@ -88,12 +88,21 @@ export default async function PostsPage({
                   </div>
                   <StatusBadge status={post.status as PostStatus} />
                 </Link>
-                {/* 배포 완료/배포 중인 글은 이미 카페에 올라갔거나 올라가는 중이라 수정할 수 없다
-                    (updateDraftAction이 서버에서도 동일하게 막음) — 초안/실패한 글만 "AI 글쓰기"
-                    화면(/drafts)의 수정 모드로 바로 들어갈 수 있게 한다. */}
+                {/* 초안/실패한 글은 AI 세부 옵션까지 갖춘 "AI 자동 글쓰기(초안)" 화면의 수정
+                    모드로 바로 들어간다. */}
                 {(post.status === "draft" || post.status === "failed") && (
                   <Link
                     href={`/drafts?edit=${post.id}`}
+                    className="flex-shrink-0 rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+                  >
+                    수정
+                  </Link>
+                )}
+                {/* 이미 게시된 글은 그동안 수정할 방법이 아예 없었다 — 전용 편집 페이지(/posts/[id]/edit)
+                    에서 수정 후 "다시 등록"(재게시)할 수 있게 추가했다(2026-09-13 요청). */}
+                {post.status === "published" && (
+                  <Link
+                    href={`/posts/${post.id}/edit`}
                     className="flex-shrink-0 rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
                   >
                     수정
