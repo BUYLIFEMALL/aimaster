@@ -9,9 +9,11 @@ import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼(OpenAI·Gemini·
-// Perplexity)에 해당하는 매뉴얼만 골랐다. 네이버 로그인은 공유 앱을 통해 회원이 "연결하기"만
-//누르면 되는 구조라(AGENTS.md 참고) 본인이 API 키를 발급받을 필요가 없어 매뉴얼 대상에서 뺐다.
+// Perplexity·네이버)에 해당하는 매뉴얼만 골랐다. 네이버 로그인 자체는 공유 앱을 통해 회원이
+// "연결하기"만 누르면 되는 구조라 API 키 발급은 필요 없지만, 게시판(club_id/menu_id) 등록
+// 방법은 직접 찾아야 해서 별도 가이드로 추가했다(2026-09-13, category="네이버").
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "ec45e4bd-fccc-4f14-92e8-3e2df3ced50b", label: "네이버 계정 연동 및 게시판 등록하기" },
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
   { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
   { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },

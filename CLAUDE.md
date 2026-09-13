@@ -162,7 +162,31 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
    - 호출부(AI 생성/수집 액션 등)는 `resolveApiKey()`가 `null`을 반환하면 **조용히 실패시키지 말고**, 프론트엔드에 "API 키 등록이 필요합니다" 팝업(모달)을 띄워 설정 페이지로 안내해야 한다 (참고 구현: `insta_auto_poster/src/components/settings/ApiKeyRequiredModal.tsx`). 서버 액션의 에러 메시지도 "OpenAI API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." 처럼 등록 위치를 명시한다.
    - 각 프로그램의 `.env.local`/Vercel 환경변수에 등록하는 `OPENAI_API_KEY`/`GEMINI_API_KEY` 등은 더 이상 폴백용으로 쓰지 않는다 — AI SDK 등 다른 용도가 없다면 아예 등록하지 않는 것을 권장한다.
 4. **외부 서비스 연동(OAuth 등)은 사용자별로 저장한다.** threads의 `threads_accounts`처럼 `user_id`에 unique 제약을 걸고, OAuth `state` 파라미터에 `user.id`를 실어 콜백에서 세션 사용자와 일치하는지 검증한다 (다른 사용자 명의로 계정이 연결되는 것을 방지).
-5. **새 프로그램 체크리스트**: (1) `programs` 테이블에 slug 등록 (2) 대시보드 레이아웃에 `requireProgramAccess()` 게이트 (3) 모든 쓰기 API에 entitlement 체크 (4) 사용자별 데이터 테이블에 `user_id` + RLS (5) 외부 계정 연동은 사용자별로 저장 (6) API 키는 공용 `user_api_keys` 구조를 재사용하되 폴백 없이 본인 키만 허용하고, 미등록 시 등록 안내 팝업을 띄운다 (7) **(2)의 레이아웃과 (3)의 모든 API route에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"` 두 줄을 반드시 같이 넣는다** — 위 1번 항목의 캐싱 버그 참고.
+5. **새 프로그램 체크리스트**: (1) `programs` 테이블에 slug 등록 (2) 대시보드 레이아웃에 `requireProgramAccess()` 게이트 (3) 모든 쓰기 API에 entitlement 체크 (4) 사용자별 데이터 테이블에 `user_id` + RLS (5) 외부 계정 연동은 사용자별로 저장 (6) API 키는 공용 `user_api_keys` 구조를 재사용하되 폴백 없이 본인 키만 허용하고, 미등록 시 등록 안내 팝업을 띄운다 (7) **(2)의 레이아웃과 (3)의 모든 API route에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"` 두 줄을 반드시 같이 넣는다** — 위 1번 항목의 캐싱 버그 참고. (8) API 키 등록/외부 계정 연동 설정 페이지를 만들 때는 아래 "API키등록·플랫폼연동 페이지 표준" 섹션을 그대로 따른다(메뉴명 통일 + 하단 연동 매뉴얼 박스).
+
+### API키등록·플랫폼연동 페이지 표준 (모든 서브프로젝트 공통, 2026-09-13부터 필수)
+서브프로젝트가 API 키를 등록하거나 외부 플랫폼 계정을 연동하는 설정 화면을 만들 때는 예외 없이
+아래 두 가지를 지킨다 — naver-cafe-poster의 `src/app/(dashboard)/settings/page.tsx`가 기준
+구현이다.
+1. **사이드바/메뉴 라벨은 반드시 "API키등록·플랫폼연동"으로 통일한다.** threads-affiliate-poster가
+   먼저 쓰던 이름이고, 2026-09-13에 naver-cafe-poster도 이 이름으로 맞췄다(예전엔 "네이버
+   연동·카페 등록"처럼 프로그램마다 제각각이었음) — 새 프로그램도, 기존 프로그램의 이 메뉴를
+   고칠 일이 생겨도 이 이름을 그대로 쓴다.
+2. **그 설정 페이지 맨 하단에 "📖 연동 매뉴얼" 박스를 반드시 추가한다.** 이 프로그램이 실제로
+   쓰는 API/플랫폼(OpenAI, Gemini, Perplexity, 각 SNS 등) 각각에 대해, 루트 AIMaster의
+   `platform_guides` 테이블(관리 화면: `/admin/guides`, 공개 상세 페이지: `/guides/[id]`)에
+   등록된 매뉴얼 게시글로 연결되는 버튼을 배치한다. 클릭하면 `window.open(url, "platform-guide-popup",
+   "width=720,height=860,scrollbars=yes,resizable=yes")` 형태의 **팝업창**으로 열리게 해서(전체
+   탭 이동이 아니라) 설정 화면 옆에 두고 그대로 따라 할 수 있게 한다 — 참고 구현:
+   `naver-cafe-poster/src/components/settings/GuideLinkButton.tsx`.
+   - 이 프로그램에 맞는 매뉴얼이 `platform_guides`에 아직 없으면(카테고리 포함) 먼저
+     `/admin/guides`에 해당 카테고리·게시글을 등록한 뒤 그 `id`를 연결한다(네이버 카페
+     자동화 때 category="네이버"로 새로 추가한 사례 참고). 이미 존재하는 카테고리(LLM AI/SNS/
+     이커머스/메신저 | 알림/이미지 | 음악 | 나레이션/구글 워크스페이스 연동/정보수집 |
+     웹스크랩핑)에 맞는 게시글이 이미 있으면 새로 만들지 않고 그 `id`를 그대로 재사용한다.
+   - 회원이 API 키를 직접 발급받을 필요가 없는 연동(예: 공유 앱을 통한 "계정 연결하기" OAuth
+     버튼 한 번으로 끝나는 방식)은 매뉴얼 대상에서 제외해도 되지만, 그 대신 club_id/menu_id
+     찾기처럼 회원이 직접 알아내야 하는 값이 있다면 그 절차를 설명하는 매뉴얼은 반드시 추가한다.
 6. **루트 AIMaster 앱(서브프로젝트 폴더가 아닌 `app/` 최상위)에서 "이 사용자가 이 프로그램을
    이용할 수 있는가"를 판정해야 하는 화면은, 절대 화면마다 구독/개별부여/등급 비교 로직을 새로
    작성하지 않고 반드시 `lib/access/checkProgramAccess.ts`를 그대로 재사용한다.**
