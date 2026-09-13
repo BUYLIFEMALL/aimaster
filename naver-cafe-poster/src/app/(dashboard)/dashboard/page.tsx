@@ -9,7 +9,7 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: posts }, { data: account }, { count: targetCount }] = await Promise.all([
+  const [{ data: posts }, { data: account }, { count: targetCount }, { data: program }] = await Promise.all([
     supabase
       .from("ncafe_posts")
       .select("*")
@@ -17,6 +17,10 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: false }),
     supabase.from("ncafe_accounts").select("*").eq("user_id", user.id).maybeSingle(),
     supabase.from("ncafe_targets").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+    // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/
+    // short_desc)를 그대로 가져와 보여준다(2026-09-13 요청) — 이 프로그램만의 별도 텍스트를
+    // 새로 쓰지 않고, 판매 페이지 내용과 항상 같은 소스를 쓰게 해서 나중에 어긋나지 않게 한다.
+    supabase.from("programs").select("description, short_desc").eq("slug", "naver-cafe-poster").maybeSingle(),
   ]);
 
   const counts: Record<PostStatus, number> = {
@@ -39,6 +43,19 @@ export default async function DashboardPage() {
           <Button>AI 자동 글쓰기(초안)</Button>
         </Link>
       </div>
+
+      {(program?.description || program?.short_desc) && (
+        <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+          {program.description ? (
+            <div
+              className="text-sm leading-relaxed text-neutral-700 [&_p]:mb-2 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: program.description }}
+            />
+          ) : (
+            <p className="text-sm leading-relaxed text-neutral-700">{program.short_desc}</p>
+          )}
+        </div>
+      )}
 
       {!account && (
         <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
