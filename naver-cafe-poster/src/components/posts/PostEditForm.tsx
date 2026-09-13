@@ -5,29 +5,33 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { createClient } from "@/lib/supabase/client";
 import { updateAndRepublishPostAction, type PostActionState } from "@/lib/actions/posts";
 import type { CafePost, CafeTarget, PostStatus } from "@/types/post";
 
 const initialState: PostActionState = {};
 
+// DraftItem.tsx의 영상 첨부 규격(threads-affiliate-poster 기준 1GB)과 동일하게 맞춘다 —
+// 네이버 카페 오픈API의 공식 영상 첨부 규격은 문서로 확인 못 했다.
+const MAX_VIDEO_BYTES = 1024 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+
 /** 네이버 카페 오픈API는 content를 그대로 HTML로 저장하고(<p>로 감싸짐), 속성이 있는
  * HTML 태그(<img src=...>, <a href=...> 등)가 섞이면 403으로 거부한다는 것을 실계정
- * 테스트로 이미 확인했다(publish-core.ts 주석 참고) — 그래서 이 에디터는 실제로 검증되지
+ * 테스트로 이미 확인했다(publish-core.ts 참고) — 그래서 이 에디터는 실제로 검증되지
  * 않은 굵게/기울임 같은 HTML 서식 버튼은 넣지 않는다. 대신 실제로 카페에 그대로 반영되는
- * "일반 텍스트 + 줄바꿈(<br>)" 모델에 맞는 서식 도구(문단 나누기/구분선/글머리 기호/강조
- * 괄호)만 제공하고, 발행 시 실제로 어떻게 보일지 아래 미리보기에서 바로 확인할 수 있게 했다.
+ * "일반 텍스트 + 줄바꿈(<br>)" 모델에 맞는 서식 도구만 제공한다(네이버 스마트에디터의
+ * 툴바 구성을 참고하되, 실제로 결과에 반영되는 것만 골랐다 — 2026-09-13 요청).
  */
-const TOOLBAR_ACTIONS: { label: string; title: string; before: string; after?: string }[] = [
-  { label: "¶ 문단 나누기", title: "커서 위치에 빈 줄을 추가합니다", before: "\n\n" },
-  { label: "— 구분선", title: "구분선을 추가합니다", before: "\n──────────\n" },
-  { label: "• 목록", title: "글머리 기호가 있는 줄을 추가합니다", before: "\n• " },
-  { label: "【강조】", title: "선택한 글자를 【 】로 감쌉니다", before: "【", after: "】" },
-  { label: "📢 안내", title: "안내 문구용 이모지를 추가합니다", before: "\n📢 " },
+const TEXT_ACTIONS: { icon: string; label: string; title: string; before: string; after?: string }[] = [
+  { icon: "¶", label: "문단", title: "문단을 나눕니다", before: "\n\n" },
+  { icon: "―", label: "구분선", title: "구분선을 추가합니다", before: "\n──────────\n" },
+  { icon: "•", label: "목록", title: "글머리 기호 목록을 추가합니다", before: "\n• " },
+  { icon: "①", label: "번호목록", title: "번호 목록을 추가합니다", before: "\n1. " },
+  { icon: "❝", label: "인용구", title: "인용구 스타일 줄을 추가합니다", before: "\n❝ ", after: " ❞" },
+  { icon: "★", label: "강조", title: "선택한 글자를 【 】로 감쌉니다", before: "【", after: "】" },
+  { icon: "📢", label: "안내", title: "안내 문구용 이모지를 추가합니다", before: "\n📢 " },
 ];
-
-function escapeForPreview(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
 
 export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeTarget[] }) {
   const [state, formAction, isPending] = useActionState(updateAndRepublishPostAction, initialState);
@@ -36,7 +40,16 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
   const [targetId, setTargetId] = useState(post.target_id ?? "");
   const [imageUrl, setImageUrl] = useState(post.image_url ?? "");
   const [videoUrl, setVideoUrl] = useState(post.video_url ?? "");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [videoUploadError, setVideoUploadError] = useState<string | null>(null);
+
   const contentRef = useRef<HTMLTextAreaElement>(null);
+  // 툴바의 "🖼 사진"/"🎬 동영상" 버튼이 여는 실제 파일 선택창(숨김 input) — 아래 URL
+  // 입력칸(링크로 직접 붙여넣기)과는 별개다: 하나는 "파일 첨부", 하나는 "링크 입력".
+  const imageFileRef = useRef<HTMLInputElement>(null);
+  const videoFileRef = useRef<HTMLInputElement>(null);
 
   const status = post.status as PostStatus;
 
@@ -58,15 +71,88 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
     });
   };
 
-  const previewHtml = escapeForPreview(content).split("\n").join("<br>");
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (imageFileRef.current) imageFileRef.current.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setImageUploadError("이미지 파일만 업로드할 수 있습니다.");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setImageUploadError("이미지 크기는 20MB를 넘을 수 없습니다.");
+      return;
+    }
+
+    setImageUploadError(null);
+    setIsUploadingImage(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `${post.user_id}/${crypto.randomUUID()}.${ext}`;
+
+      const { error } = await supabase.storage.from("post-images").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+      setImageUrl(data.publicUrl);
+      setVideoUrl(""); // 이미지/영상은 서로 배타적으로 관리한다(DraftItem.tsx와 동일)
+    } catch (err) {
+      setImageUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (videoFileRef.current) videoFileRef.current.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("video/")) {
+      setVideoUploadError("영상 파일만 업로드할 수 있습니다.");
+      return;
+    }
+    if (file.size > MAX_VIDEO_BYTES) {
+      setVideoUploadError("영상 크기는 1GB를 넘을 수 없습니다.");
+      return;
+    }
+
+    setVideoUploadError(null);
+    setIsUploadingVideo(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split(".").pop() ?? "mp4";
+      const path = `${post.user_id}/${crypto.randomUUID()}.${ext}`;
+
+      const { error } = await supabase.storage.from("post-images").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+      setVideoUrl(data.publicUrl);
+      setImageUrl("");
+    } catch (err) {
+      setVideoUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
+    } finally {
+      setIsUploadingVideo(false);
+    }
+  };
+
   const charCount = content.length;
 
   return (
     <form action={formAction} className="space-y-0">
       <input type="hidden" name="postId" value={post.id} />
 
-      {/* 블로그(원문) 서브프로젝트의 "스마트 에디터" 헤더 레이아웃을 참고해, 상단에 고정된
-          바에서 취소/등록을 항상 누를 수 있게 했다(2026-09-13 요청 — "고급 버전의 수정기능"). */}
+      {/* 네이버 스마트에디터 스타일 — 상단 고정 헤더 + 아이콘 툴바 + 넓은 단일 캔버스
+          (2026-09-13 요청: "네이버 편집기 스타일로", 미리보기 패널은 제거). */}
       <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between border-b border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
         <div className="flex items-center gap-2">
           <Link href={`/posts/${post.id}`} className="text-sm font-medium text-neutral-500 hover:text-neutral-900">
@@ -90,11 +176,6 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
       )}
 
       <div className="space-y-4">
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-neutral-700">제목</label>
-          <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} required className="text-base font-bold" />
-        </div>
-
         <div className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-50/80 p-3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold uppercase tracking-wider text-neutral-700">📁 등록할 카페 선택</p>
@@ -134,81 +215,135 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
           </div>
         </div>
 
-        {/* 듀얼 패널 에디터: 왼쪽은 실제 입력, 오른쪽은 게시됐을 때 실제로 보일 모습(줄바꿈
-            반영) 미리보기 — 큰 화면에서는 나란히, 작은 화면에서는 위아래로 배치. */}
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
-          <div className="flex flex-wrap items-center gap-1.5 border-b border-neutral-200 bg-neutral-50 p-2">
-            <span className="mr-1 text-xs font-bold text-neutral-500">🛠️ 서식:</span>
-            {TOOLBAR_ACTIONS.map((action) => (
-              <button
-                key={action.label}
-                type="button"
-                title={action.title}
-                onClick={() => insertAtCursor(action.before, action.after)}
-                className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 hover:bg-blue-50 hover:text-blue-700"
-              >
-                {action.label}
-              </button>
+        {/* 네이버 카페/블로그 에디터처럼 "제목 + 툴바 + 넓은 흰색 캔버스"를 하나의 종이처럼
+            묶은 레이아웃. */}
+        <div className="overflow-hidden rounded-2xl border border-neutral-300 bg-white shadow-sm">
+          <input
+            name="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            placeholder="제목을 입력하세요"
+            className="w-full border-b border-neutral-200 px-5 py-4 text-lg font-bold text-neutral-900 outline-none placeholder:font-normal placeholder:text-neutral-400"
+          />
+
+          <div className="flex flex-wrap items-center gap-0.5 border-b border-neutral-200 bg-neutral-50 px-3 py-1.5">
+            {TEXT_ACTIONS.map((action, idx) => (
+              <div key={action.label} className="flex items-center">
+                {(idx === 4 || idx === 5) && <span className="mx-1 h-5 w-px bg-neutral-300" />}
+                <button
+                  type="button"
+                  title={action.title}
+                  onClick={() => insertAtCursor(action.before, action.after)}
+                  className="flex flex-col items-center gap-0.5 rounded-md px-2.5 py-1.5 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900"
+                >
+                  <span className="text-sm leading-none">{action.icon}</span>
+                  <span className="text-[10px] leading-none">{action.label}</span>
+                </button>
+              </div>
             ))}
-            <span className="ml-auto text-xs text-neutral-400">{charCount.toLocaleString()}자</span>
-          </div>
-          <div className="grid grid-cols-1 divide-neutral-200 lg:grid-cols-2 lg:divide-x">
-            <div className="p-3">
-              <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-neutral-500">본문 입력</p>
-              <Textarea
-                ref={contentRef}
-                name="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={18}
-                required
-                className="border-0 p-0 text-sm leading-relaxed focus:ring-0"
-              />
-            </div>
-            <div className="border-t border-neutral-200 p-3 lg:border-t-0">
-              <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
-                👁️ 게시 미리보기
-              </p>
-              <div
-                className="min-h-[420px] whitespace-pre-wrap break-words text-sm leading-relaxed text-neutral-900"
-                dangerouslySetInnerHTML={{ __html: previewHtml || "<span class='text-neutral-400'>본문을 입력하면 여기에 실제 게시 모습이 미리 보입니다.</span>" }}
-              />
-            </div>
-          </div>
-        </div>
+            <span className="mx-1 h-5 w-px bg-neutral-300" />
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-neutral-700">대표 이미지 URL (선택)</label>
-            <Input
-              name="imageUrl"
-              value={imageUrl}
-              onChange={(e) => {
-                setImageUrl(e.target.value);
-                if (e.target.value) setVideoUrl("");
-              }}
-              placeholder="https://..."
+            <input
+              ref={imageFileRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageFileChange}
+              disabled={isUploadingImage}
+              className="hidden"
             />
-            {imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={imageUrl} alt="대표 이미지" className="mt-2 max-h-48 rounded-lg border border-neutral-200" />
-            )}
-          </div>
+            <button
+              type="button"
+              title="이미지 파일 첨부"
+              onClick={() => imageFileRef.current?.click()}
+              disabled={isUploadingImage}
+              className="flex flex-col items-center gap-0.5 rounded-md px-2.5 py-1.5 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 disabled:opacity-50"
+            >
+              <span className="text-sm leading-none">🖼</span>
+              <span className="text-[10px] leading-none">{isUploadingImage ? "업로드 중" : "사진"}</span>
+            </button>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-neutral-700">영상 URL (선택)</label>
-            <Input
-              name="videoUrl"
-              value={videoUrl}
-              onChange={(e) => {
-                setVideoUrl(e.target.value);
-                if (e.target.value) setImageUrl("");
-              }}
-              placeholder="https://..."
+            <input
+              ref={videoFileRef}
+              type="file"
+              accept="video/*"
+              onChange={handleVideoFileChange}
+              disabled={isUploadingVideo}
+              className="hidden"
             />
-            {videoUrl && (
-              <video src={videoUrl} controls className="mt-2 max-h-48 w-full rounded-lg border border-neutral-200" />
-            )}
+            <button
+              type="button"
+              title="영상 파일 첨부"
+              onClick={() => videoFileRef.current?.click()}
+              disabled={isUploadingVideo}
+              className="flex flex-col items-center gap-0.5 rounded-md px-2.5 py-1.5 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 disabled:opacity-50"
+            >
+              <span className="text-sm leading-none">🎬</span>
+              <span className="text-[10px] leading-none">{isUploadingVideo ? "업로드 중" : "동영상"}</span>
+            </button>
+
+            <span className="ml-auto pr-1 text-xs text-neutral-400">{charCount.toLocaleString()}자</span>
+          </div>
+          {(imageUploadError || videoUploadError) && (
+            <p className="border-b border-neutral-200 bg-red-50 px-3 py-1.5 text-xs text-red-600">
+              {imageUploadError || videoUploadError}
+            </p>
+          )}
+
+          <Textarea
+            ref={contentRef}
+            name="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={22}
+            required
+            placeholder="본문 내용을 입력하세요"
+            className="w-full border-0 px-5 py-4 text-[15px] leading-relaxed text-neutral-900 outline-none focus:ring-0"
+          />
+
+          <div className="grid grid-cols-1 gap-4 border-t border-neutral-200 bg-neutral-50/60 p-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-neutral-700">🖼 대표 이미지 링크 (직접 입력도 가능)</label>
+              <Input
+                name="imageUrl"
+                value={imageUrl}
+                onChange={(e) => {
+                  setImageUrl(e.target.value);
+                  if (e.target.value) setVideoUrl("");
+                }}
+                placeholder="https://... (또는 위 툴바에서 파일 첨부)"
+              />
+              {imageUrl && (
+                <div className="space-y-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={imageUrl} alt="대표 이미지" className="mt-2 max-h-48 rounded-lg border border-neutral-200" />
+                  <button type="button" onClick={() => setImageUrl("")} className="text-xs text-red-600 hover:underline">
+                    이미지 제거
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-neutral-700">🎬 영상 링크 (직접 입력도 가능)</label>
+              <Input
+                name="videoUrl"
+                value={videoUrl}
+                onChange={(e) => {
+                  setVideoUrl(e.target.value);
+                  if (e.target.value) setImageUrl("");
+                }}
+                placeholder="https://... (또는 위 툴바에서 파일 첨부)"
+              />
+              {videoUrl && (
+                <div className="space-y-1">
+                  <video src={videoUrl} controls className="mt-2 max-h-48 w-full rounded-lg border border-neutral-200" />
+                  <button type="button" onClick={() => setVideoUrl("")} className="text-xs text-red-600 hover:underline">
+                    영상 제거
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
