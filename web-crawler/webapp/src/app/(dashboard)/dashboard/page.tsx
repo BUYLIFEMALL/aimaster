@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge, JOB_STATUS_LABELS } from "@/components/jobs/StatusBadge";
+import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import type { JobStatus } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
@@ -51,14 +52,11 @@ export default async function DashboardPage() {
 
       {(program?.description || program?.short_desc) && (
         <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-          {program.description ? (
-            <div
-              className="text-sm leading-relaxed text-neutral-700 [&_p]:mb-2 [&_p:last-child]:mb-0"
-              dangerouslySetInnerHTML={{ __html: program.description }}
-            />
-          ) : (
-            <p className="text-sm leading-relaxed text-neutral-700">{program.short_desc}</p>
-          )}
+          {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
+            <p key={i} className="mb-2 text-sm leading-relaxed text-neutral-700 last:mb-0">
+              {sentence}
+            </p>
+          ))}
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 
 function formatWon(amountManwon: number | null): string {
   if (!amountManwon) return "-";
@@ -50,14 +51,11 @@ export default async function DashboardPage() {
 
       {(program?.description || program?.short_desc) && (
         <div className="glass-card mb-6 p-5">
-          {program.description ? (
-            <div
-              className="text-sm leading-relaxed text-neutral-300 [&_p]:mb-2 [&_p:last-child]:mb-0"
-              dangerouslySetInnerHTML={{ __html: program.description }}
-            />
-          ) : (
-            <p className="text-sm leading-relaxed text-neutral-300">{program.short_desc}</p>
-          )}
+          {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
+            <p key={i} className="mb-2 text-sm leading-relaxed text-neutral-300 last:mb-0">
+              {sentence}
+            </p>
+          ))}
         </div>
       )}
 

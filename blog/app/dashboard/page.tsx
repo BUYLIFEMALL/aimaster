@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
+import { splitIntoSentenceParagraphs } from '@/blog/utils/formatProgramDescription'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -126,14 +127,11 @@ export default function DashboardPage() {
 
         {(programDescription || programShortDesc) && (
           <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
-            {programDescription ? (
-              <div
-                className="text-sm leading-relaxed text-slate-600 [&_p]:mb-2 [&_p:last-child]:mb-0"
-                dangerouslySetInnerHTML={{ __html: programDescription }}
-              />
-            ) : (
-              <p className="text-sm leading-relaxed text-slate-600">{programShortDesc}</p>
-            )}
+            {splitIntoSentenceParagraphs(programDescription || programShortDesc || '').map((sentence, i) => (
+              <p key={i} className="mb-2 text-sm leading-relaxed text-slate-600 last:mb-0">
+                {sentence}
+              </p>
+            ))}
           </div>
         )}
 

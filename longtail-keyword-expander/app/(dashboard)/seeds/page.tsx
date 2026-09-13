@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SeedForm } from "@/components/seeds/SeedForm";
 import { SeedRow, type SeedRowData } from "@/components/seeds/SeedRow";
+import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 
 export const dynamic = "force-dynamic";
 // SerpApi + GPT 3단계(연관 키워드 → 롱테일 확장 → 작업 지시 메시지)를 한 번에 처리하는
@@ -56,14 +57,11 @@ export default async function SeedsPage() {
 
       {(program?.description || program?.short_desc) && (
         <div className="mb-6 rounded-2xl border-2 border-gray-200 bg-gray-100 p-5 shadow-sm">
-          {program.description ? (
-            <div
-              className="text-sm leading-relaxed text-gray-700 [&_p]:mb-2 [&_p:last-child]:mb-0"
-              dangerouslySetInnerHTML={{ __html: program.description }}
-            />
-          ) : (
-            <p className="text-sm leading-relaxed text-gray-700">{program.short_desc}</p>
-          )}
+          {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
+            <p key={i} className="mb-2 text-sm leading-relaxed text-gray-700 last:mb-0">
+              {sentence}
+            </p>
+          ))}
         </div>
       )}
 
