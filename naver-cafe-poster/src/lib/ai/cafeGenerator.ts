@@ -86,7 +86,9 @@ function buildDetailRuleLines(input: DetailOptions): string {
 function appendCtaIfNeeded(content: string, cta?: { text: string; url: string }): string {
   if (!cta?.text || !cta?.url) return content;
   if (content.includes(cta.url)) return content;
-  return `${content}\n\n📢 ${cta.text}\n${cta.url}`;
+  // 문구와 URL 사이에 줄바꿈을 넣지 않는다 — URL이 문구 바로 우측에 이어지도록(2026-09-13
+  // 사용자 요청). publish-core.ts의 splitCta()가 같은 형식(공백 하나로 구분)을 기대한다.
+  return `${content}\n\n📢 ${cta.text} ${cta.url}`;
 }
 
 export async function generateCafePostContent(

@@ -50,14 +50,15 @@ function textToHtml(text: string): string {
   return escapeHtml(text).split("\n").join("<br>");
 }
 
-// cafeGenerator.ts의 appendCtaIfNeeded()가 본문 끝에 "\n\n📢 {문구}\n{URL}" 형태로 순수
-// 텍스트를 붙여둔다. 처음엔 이 부분을 직접 <a href> 태그로 바꿔서 보내봤는데, 실계정
-// 게시에서 403(내부 오류코드 999)으로 거부당하는 것을 확인했다(2026-09-13) — <img> 태그
-// 때와 마찬가지로, 이 API는 <br> 외의 임의 HTML 태그(속성이 있는 <a> 등)가 섞이면 거부하는
-// 것으로 보인다. 대신 네이버 카페 자체가 본문에 있는 "http(s)://"로 시작하는 URL을 자동으로
-// 링크로 바꿔주는 것을 다른 이미지 URL 사례에서 이미 확인했으므로, URL에 프로토콜만
+// cafeGenerator.ts의 appendCtaIfNeeded()가 본문 끝에 "\n\n📢 {문구} {URL}" 형태로 순수
+// 텍스트를 붙여둔다(문구와 URL은 줄바꿈 없이 공백 하나로 붙여 URL이 문구 바로 우측에 보이게
+// 한다 — 2026-09-13 사용자 요청). 처음엔 이 부분을 직접 <a href> 태그로 바꿔서 보내봤는데,
+// 실계정 게시에서 403(내부 오류코드 999)으로 거부당하는 것을 확인했다(2026-09-13) — <img>
+// 태그 때와 마찬가지로, 이 API는 <br> 외의 임의 HTML 태그(속성이 있는 <a> 등)가 섞이면
+// 거부하는 것으로 보인다. 대신 네이버 카페 자체가 본문에 있는 "http(s)://"로 시작하는 URL을
+// 자동으로 링크로 바꿔주는 것을 다른 이미지 URL 사례에서 이미 확인했으므로, URL에 프로토콜만
 // 보장해서 순수 텍스트로 남겨두면 네이버가 알아서 클릭 가능한 링크로 바꿔준다.
-const CTA_SUFFIX_PATTERN = /\n\n📢 (.+)\n(\S+)$/;
+const CTA_SUFFIX_PATTERN = /\n\n📢 (.+) (\S+)$/;
 
 function splitCta(content: string): { body: string; ctaText: string; ctaUrl: string } | null {
   const match = content.match(CTA_SUFFIX_PATTERN);
