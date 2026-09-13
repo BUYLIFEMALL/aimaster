@@ -34,7 +34,7 @@ export default async function PostsPage({
     .from("ncafe_posts")
     .select("*, target:ncafe_targets(label)")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
   if (status && status !== "all" && isPostStatus(status)) {
     query = query.eq("status", status);
