@@ -95,7 +95,7 @@ function HttpForm() {
         </p>
       </div>
       <Button type="submit" disabled={isPending}>
-        {isPending ? "수집 중..." : "이 페이지로 게시글 후보 생성"}
+        {isPending ? "수집 중..." : "글감 수집"}
       </Button>
       <ResultMessage state={state} />
     </form>
@@ -196,7 +196,7 @@ function PerplexityForm() {
         <Input name="topic" required placeholder="예: 다이어트 보조제" />
       </div>
       <Button type="submit" disabled={isPending}>
-        {isPending ? "검색 중..." : "현재 트렌딩 앵글로 게시글 후보 생성"}
+        {isPending ? "검색 중..." : "글감 수집"}
       </Button>
       <ResultMessage state={state} />
     </form>
