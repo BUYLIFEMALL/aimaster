@@ -13,6 +13,10 @@ export type { CafeTone };
 
 export interface GenerateCafePostInput {
   topic: string;
+  // "AI 자동 초안생성" 화면(2026-09-13)에서는 글감 수집 등으로 이미 원본 텍스트가 있는
+  // 상태에서 "제대로 된 콘텐츠로 다시 만들어달라"는 요청이 있었다 — 그 원본을 참고 자료로
+  // 넘기면 AI가 그 내용을 바탕으로 카페 톤에 맞게 다시 작성한다(단순히 그대로 베끼지 않음).
+  referenceContent?: string;
   tone?: CafeTone;
   targetAudience?: string;
   wordCount?: number;
@@ -94,6 +98,9 @@ export async function generateCafePostContent(
   }
 
   const ruleLines = buildDetailRuleLines(input);
+  const referenceBlock = input.referenceContent?.trim()
+    ? `\n\n다음은 참고할 원본 자료입니다. 그대로 베끼지 말고, 이 내용을 바탕으로 카페 톤에 맞는 완성도 있는 글로 다시 작성해주세요:\n${input.referenceContent.trim()}`
+    : "";
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -107,7 +114,7 @@ export async function generateCafePostContent(
         { role: "system", content: CAFE_SYSTEM_PROMPT },
         {
           role: "user",
-          content: `주제: ${input.topic}${ruleLines ? `\n\n다음 세부 옵션을 반영해주세요:\n${ruleLines}` : ""}`,
+          content: `주제: ${input.topic}${ruleLines ? `\n\n다음 세부 옵션을 반영해주세요:\n${ruleLines}` : ""}${referenceBlock}`,
         },
       ],
       max_tokens: 1800,

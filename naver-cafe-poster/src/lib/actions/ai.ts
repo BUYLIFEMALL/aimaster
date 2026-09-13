@@ -20,6 +20,7 @@ export interface GenerateImageState {
 
 export interface GenerateCafePostInput {
   topic: string;
+  referenceContent?: string;
   tone?: CafeTone;
   targetAudience?: string;
   wordCount?: number;

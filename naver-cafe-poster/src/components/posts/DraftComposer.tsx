@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { saveDraftAction, type PostActionState } from "@/lib/actions/posts";
 import {
+  generateCafePostAction,
   reviseCafePostAction,
   generateCafeImageAction,
   generateCafeImagePromptAction,
@@ -22,24 +23,14 @@ const IMAGE_MODEL_OPTIONS = [
   { label: "NanoBanana Standard (기본 모델)", value: "nanobanana" },
 ] as const;
 
-/** 📢 CTA는 "AI에게 수정 요청하기"를 안 눌러도 저장 시 바로 반영되어야 하므로, 서버 AI 호출
- * 없이 클라이언트에서 직접 본문 끝에 붙인다(서버 쪽 cafeGenerator.ts의 appendCtaIfNeeded와
- * 동일한 규칙 — 이미 같은 URL이 본문에 있으면 중복으로 붙이지 않는다). */
-function appendCtaIfNeeded(text: string, ctaText: string, ctaUrl: string): string {
-  const trimmedText = ctaText.trim();
-  const trimmedUrl = ctaUrl.trim();
-  if (!trimmedText || !trimmedUrl) return text;
-  if (text.includes(trimmedUrl)) return text;
-  return `${text}\n\n📢 ${trimmedText}\n${trimmedUrl}`;
-}
-
 /**
  * "AI 맞춤 자동 글쓰기"(주제 기반 새 글 생성)는 별도 메뉴 "AI 글쓰기"(/write)로 분리했다
- * (2026-09-13 사용자 요청) — 이 컴포넌트는 "이미 있는 제목/본문(글감 수집 후보, /write의
- * AI 생성 결과, 또는 직접 입력)을 검토·수정하고 초안으로 저장"하는 역할을 한다. 카페 선택·
- * 세부 옵션·이미지 생성·CTA는 "AI 글쓰기"에 있던 것과 동일한 내용을 "주제(필수)" 입력만 빼고
- * 그대로 옮겨왔다 — 주제는 이미 제목/본문이 넘어온 이 화면에서는 필요 없기 때문이다. 세부
- * 옵션/CTA는 "AI에게 수정 요청하기"에 반영되고, CTA는 저장 시에도 본문에 자동으로 붙는다.
+ * (2026-09-13 사용자 요청). 이 컴포넌트("AI 자동 초안생성")는 글감 수집/후보 등에서 넘어온
+ * 원본 제목·본문을 "그대로" 저장하지 않는다 — "AI 초안생성" 버튼을 누르면 제목을 주제로,
+ * 기존 본문을 참고 자료로 삼아 세부 옵션(분위기·대상독자·분량·키워드·참고URL·추가지시사항·
+ * CTA)을 반영해 AI가 완성도 있는 본문을 새로 쓰고, 그 내용으로 대표 이미지까지 자동 생성한
+ * 뒤 바로 초안으로 저장한다(단순 저장이 아니라 "생성 후 저장"이라는 지적을 반영, 2026-09-13).
+ * "AI에게 수정 요청하기"는 그렇게 만들어진 결과를 부분적으로 다듬고 싶을 때 쓰는 별도 기능이다.
  */
 export function DraftComposer({
   targets,
@@ -81,6 +72,9 @@ export function DraftComposer({
   const [reviseInstruction, setReviseInstruction] = useState("");
   const [reviseError, setReviseError] = useState<string | null>(null);
   const [isRevising, startRevising] = useTransition();
+
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [isGeneratingDraft, startGeneratingDraft] = useTransition();
 
   // 후보(candidates)나 "AI 글쓰기"(/write)에서 결과를 들고 넘어오면 값이 바뀐다 — 그때마다 반영.
   useEffect(() => {
@@ -167,8 +161,9 @@ export function DraftComposer({
   };
 
   /** 나노바나나(Gemini)가 같은 프롬프트에도 가끔 이미지 없이 응답하는 비결정적 특성이 있어서
-   * 최대 2회까지 자동 재시도한다(threads-affiliate-poster/AIWriteForm과 동일한 패턴). */
-  const runImageGeneration = async (prompt: string) => {
+   * 최대 2회까지 자동 재시도한다(threads-affiliate-poster/AIWriteForm과 동일한 패턴). 생성된
+   * URL을 반환해서 handleGenerateAndSave에서 저장 직전에 바로 쓸 수 있게 한다. */
+  const runImageGeneration = async (prompt: string): Promise<string> => {
     const MAX_IMAGE_ATTEMPTS = 2;
     let lastError: string | undefined;
     for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
@@ -180,12 +175,12 @@ export function DraftComposer({
       });
       if (result.imageUrl) {
         setImageUrl(result.imageUrl);
-        lastError = undefined;
-        break;
+        return result.imageUrl;
       }
       lastError = result.error;
     }
     if (lastError) setImageError(lastError);
+    return "";
   };
 
   const handleGenerateImage = () => {
@@ -206,15 +201,67 @@ export function DraftComposer({
     });
   };
 
-  const finalContent = appendCtaIfNeeded(content, ctaText, ctaUrl);
+  /** "AI 초안생성" 버튼의 실제 동작 — 예전엔 그냥 저장만 했는데, "위에 가져온 글을 그대로
+   * 쓰지 말고 제대로 된 콘텐츠와 이미지까지 같이 만들어야 한다"는 지적(2026-09-13)에 따라
+   * 고쳤다: 제목을 주제로, 기존 본문(글감 수집 등에서 넘어온 원본)을 참고 자료로 삼아
+   * 세부 옵션(분위기/대상독자/분량/키워드/참고URL/추가지시사항)을 반영해 AI가 본문을 새로
+   * 작성하고, 그 내용으로 대표 이미지까지 자동 생성한 뒤 초안으로 저장한다. */
+  const handleGenerateAndSave = () => {
+    if (!title.trim()) {
+      setGenerateError("제목을 입력해주세요 — AI가 이 제목을 주제로 삼아 본문을 새로 작성합니다.");
+      return;
+    }
+    setGenerateError(null);
+    startGeneratingDraft(async () => {
+      const result = await generateCafePostAction({
+        topic: title,
+        referenceContent: content.trim() || undefined,
+        tone,
+        targetAudience: targetAudience.trim() || undefined,
+        wordCount,
+        keywords,
+        referenceUrls: referenceUrls.map((u) => u.trim()).filter(Boolean),
+        customInstructions: customInstructions.trim() || undefined,
+        cta: ctaText.trim() || ctaUrl.trim() ? { text: ctaText.trim() || "자세히 보기", url: ctaUrl.trim() || "#" } : undefined,
+      });
+      if (result.error) {
+        setGenerateError(result.error);
+        return;
+      }
+      const newTitle = result.title ?? title;
+      const newContent = result.content ?? content;
+      setTitle(newTitle);
+      setContent(newContent);
+
+      let generatedImageUrl = imageUrl;
+      if (newContent.trim()) {
+        setImageError(null);
+        const promptResult = await generateCafeImagePromptAction({ title: newTitle, content: newContent });
+        if (promptResult.prompt) setImagePrompt(promptResult.prompt);
+        const prompt = promptResult.prompt || newTitle;
+        generatedImageUrl = await runImageGeneration(prompt);
+      }
+
+      const formData = new FormData();
+      formData.set("title", newTitle);
+      formData.set("content", newContent);
+      formData.set("targetId", targetId);
+      formData.set("imageUrl", generatedImageUrl);
+      formAction(formData);
+    });
+  };
 
   return (
-    <form action={formAction} className="space-y-4 rounded-2xl border-2 border-neutral-300 bg-neutral-50/50 p-5">
+    // "AI 초안생성" 버튼이 AI 생성(비동기) 후 formAction을 직접 호출하는 방식으로 바뀌면서
+    // 네이티브 <form> 제출에 더 이상 의존하지 않는다 — <form>으로 두면 입력창에서 Enter를 눌렀을 때
+    // 이름 없는 필드들로 빈 네이티브 제출이 실수로 발생할 수 있어 <div>로 바꿨다.
+    <div className="space-y-4 rounded-2xl border-2 border-neutral-300 bg-neutral-50/50 p-5">
       <div className="space-y-1">
         <h2 className="text-lg font-bold text-neutral-900">📝 초안 확인 및 저장</h2>
         <p className="text-xs text-neutral-500">
-          이미 준비된 제목/본문이 있다면(글감 수집이나 AI 글쓰기에서 넘어온 경우 등) 여기서
-          검토·수정하고 저장하세요. 새로 AI에게 글을 써달라고 하려면 "AI 글쓰기" 메뉴를 이용하세요.
+          글감 수집이나 AI 글쓰기에서 넘어온 제목/본문(또는 직접 입력한 내용)을 참고 자료로,
+          아래 세부 옵션을 반영해 "AI 초안생성"을 누르면 AI가 완성도 있는 본문과 대표 이미지를
+          새로 만들어 바로 초안으로 저장합니다.
         </p>
       </div>
 
@@ -229,7 +276,6 @@ export function DraftComposer({
             {targetId ? "1개 선택됨" : "나중에 선택 가능"}
           </span>
         </div>
-        <input type="hidden" name="targetId" value={targetId} />
         <div className="flex flex-wrap gap-2 pt-1">
           {targets.map((target) => {
             const isSelected = targetId === target.id;
@@ -369,26 +415,25 @@ export function DraftComposer({
 
       <div className="space-y-1.5">
         <label className="text-xs font-bold text-neutral-700">제목</label>
-        <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+        <p className="text-[11px] text-neutral-500">
+          "AI 초안생성"을 누르면 이 제목을 주제로 삼아 AI가 본문을 새로 작성합니다.
+        </p>
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-bold text-neutral-700">본문</label>
+        <label className="text-xs font-bold text-neutral-700">본문 (참고 자료)</label>
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={10}
           autoGrow
-          required
         />
-        {ctaText.trim() && ctaUrl.trim() && (
-          <p className="text-[11px] text-indigo-600">
-            저장 시 아래 추천 링크가 본문 끝에 자동으로 붙습니다.
-          </p>
-        )}
+        <p className="text-[11px] text-neutral-500">
+          여기 있는 내용(글감 수집 등에서 넘어온 원본)은 AI가 참고할 자료입니다. "AI 초안생성"을
+          누르면 이 내용을 바탕으로 세부 옵션을 반영해 완성도 있는 본문으로 새로 작성됩니다.
+          {ctaText.trim() && ctaUrl.trim() && " 추천 링크도 끝에 자동으로 붙습니다."}
+        </p>
       </div>
-      {/* 실제 제출되는 본문은 이 hidden input 값이다 — 위 Textarea는 편집용, CTA가 있으면
-          여기서 자동으로 덧붙여진다(appendCtaIfNeeded). */}
-      <input type="hidden" name="content" value={finalContent} />
 
       {/* AI 이미지 생성 설정 — "AI 글쓰기"와 동일하게 실제 생성/재생성이 가능하다(예전엔
           미리보기+제거만 가능했는데, "같은 기능을 구현해달라"는 요청으로 전체 컨트롤을 옮겨왔다). */}
@@ -464,10 +509,9 @@ export function DraftComposer({
           </div>
         )}
       </div>
-      <input type="hidden" name="imageUrl" value={imageUrl} />
 
-      {/* 하단 추천/홍보 링크(CTA) — "AI 글쓰기"와 동일한 항목. 저장 시 본문 끝에 자동으로
-          붙는다(위 finalContent 참고). */}
+      {/* 하단 추천/홍보 링크(CTA) — "AI 글쓰기"와 동일한 항목. "AI 초안생성" 클릭 시 AI가
+          생성한 본문 끝에 서버(cafeGenerator.ts appendCtaIfNeeded)에서 자동으로 붙여준다. */}
       <div className="space-y-3 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5">
         <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-900">
           🔗 하단 추천/홍보 링크 지정 (CTA - 행동 유도 버튼)
@@ -504,13 +548,19 @@ export function DraftComposer({
         {reviseError && <p className="text-xs text-red-600">{reviseError}</p>}
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "저장 중..." : "AI 초안생성"}
+      <Button
+        type="button"
+        onClick={handleGenerateAndSave}
+        disabled={isGeneratingDraft || isPending}
+        className="w-full"
+      >
+        {isGeneratingDraft ? "AI 생성 중..." : isPending ? "저장 중..." : "AI 초안생성"}
       </Button>
+      {generateError && <p className="text-xs text-red-600">{generateError}</p>}
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
       {state.success && (
         <p className="text-xs text-green-600">초안이 저장되었습니다. 아래 목록에서 검수 후 게시하세요.</p>
       )}
-    </form>
+    </div>
   );
 }
