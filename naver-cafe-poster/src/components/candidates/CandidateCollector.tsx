@@ -177,7 +177,7 @@ function NewsblurForm({
           <input type="hidden" name="feedId" value={selectedFeed?.id ?? ""} />
           <input type="hidden" name="feedTitle" value={selectedFeed?.title ?? ""} />
           <Button type="submit" disabled={isPending || !selectedFeed}>
-            {isPending ? "수집 중..." : "이 피드로 게시글 후보 생성"}
+            {isPending ? "수집 중..." : "글감 수집"}
           </Button>
           <ResultMessage state={state} />
         </form>
