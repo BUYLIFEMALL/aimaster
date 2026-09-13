@@ -278,9 +278,10 @@ export function DraftComposer({
         )}
       </div>
 
-      {/* AI 맞춤 자동 글쓰기 — 새 글을 AI로 생성하는 기능. 위 "초안 확인 및 저장"과 구분되게
-          아래로 내렸다(2026-09-13 사용자 요청). */}
-      <div className="space-y-1 border-t border-neutral-100 pt-6">
+      {/* AI 맞춤 자동 글쓰기 — 새 글을 AI로 생성하는 기능. 위 "초안 확인 및 저장"과 한눈에
+          구분되게 별도 박스로 감쌌다(2026-09-13 사용자 요청). */}
+      <div className="space-y-6 rounded-2xl border-2 border-indigo-200 bg-indigo-50/20 p-5">
+      <div className="space-y-1">
         <h2 className="text-lg font-bold text-neutral-900">AI 맞춤 자동 글쓰기</h2>
         <p className="text-xs text-neutral-500">
           카페, 주제, AI 이미지 설정 및 추천링크를 지정하시면 카페 게시글이 자동 생성됩니다.
@@ -562,6 +563,7 @@ export function DraftComposer({
           {isGenerating ? "AI 글 생성 중..." : "✨ AI 글 생성 시작"}
         </Button>
         {aiError && <p className="mt-2 text-xs text-red-600">{aiError}</p>}
+      </div>
       </div>
     </form>
   );
