@@ -2,7 +2,18 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API 중 매뉴얼이 있는
+// 것만 골랐다(2026-09-13, naver-cafe-poster 패턴을 전체 서브프로젝트로 확대 적용). SerpApi는
+// platform_guides에 아직 등록된 매뉴얼이 없어 대상에서 뺐다 — 대신 이 페이지에 이미 있는
+// HELP_LINKS.serpapi(공식 발급 페이지 직접 링크)로 안내한다.
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
+];
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -81,6 +92,21 @@ export default async function SettingsPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-5 rounded-2xl border-2 border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-gray-900">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-gray-500">
+            이 프로그램에서 사용하는 API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할 수
+            있습니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GUIDE_LINKS.map((guide) => (
+            <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+          ))}
+        </div>
       </div>
     </div>
   );

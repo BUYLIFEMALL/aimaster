@@ -9,9 +9,16 @@ import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import { PROVIDER_LABELS, maskApiKey, type ApiKeyProvider } from '@/blog/utils/apiKeyLabels'
 import { ApiKeyRow } from './ApiKeyRow'
 import { CloudinaryConfigRow } from './CloudinaryConfigRow'
+import { GuideLinkButton } from '@/blog/components/settings/GuideLinkButton'
 
 const PRIMARY_PROVIDERS: ApiKeyProvider[] = ['gemini']
 const RESERVE_PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'perplexity']
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API(Gemini)에 해당하는
+// 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster 패턴을 전체 서브프로젝트로 확대 적용).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: 'f442cd37-f1e0-42a7-a3de-f9a9acf47cc4', label: 'Google Gemini API 키 발급받기' },
+]
 
 interface CloudinaryConfig {
   cloud_name: string
@@ -127,6 +134,21 @@ export default function SettingsPage() {
                 label={PROVIDER_LABELS[provider]}
                 maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
               />
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+          <div className="mb-4">
+            <h2 className="text-sm font-bold text-zinc-900">📖 연동 매뉴얼</h2>
+            <p className="text-xs text-zinc-500">
+              이 프로그램에서 사용하는 API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할
+              수 있습니다.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {GUIDE_LINKS.map((guide) => (
+              <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
             ))}
           </div>
         </section>

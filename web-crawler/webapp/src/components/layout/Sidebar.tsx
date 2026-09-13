@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { href: "/jobs", icon: "📋", label: "작업 목록" },
 ];
 
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "설정" }];
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();

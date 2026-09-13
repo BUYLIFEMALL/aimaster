@@ -6,9 +6,23 @@ import { KakaoAccountSection } from "@/components/settings/KakaoAccountSection";
 import { SmtpAccountSection } from "@/components/settings/SmtpAccountSection";
 import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
 import { TelegramSection } from "@/components/settings/TelegramSection";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
+// 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
+// 2026-09-13). 카카오 로그인("나에게 보내기")은 아직 매뉴얼이 없어 대상에서 뺐다.
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "eb8f5eaf-6ef7-46b8-9b05-994e944fe69a", label: "SOLAPI(카카오톡 알림톡/친구톡) API 키 발급받기" },
+  { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
+  { guideId: "1dbea19b-4c83-4453-ae41-0b59d7f27b5f", label: "네이버 메일(SMTP) 연동하기" },
+];
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -110,6 +124,21 @@ export default async function SettingsPage() {
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <TelegramSection link={telegramLink ?? null} />
+        </div>
+
+        <div className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
+            <p className="text-xs text-neutral-500">
+              이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+              따라 할 수 있습니다.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {GUIDE_LINKS.map((guide) => (
+              <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

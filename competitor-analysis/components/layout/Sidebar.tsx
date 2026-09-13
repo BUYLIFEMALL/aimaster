@@ -36,7 +36,9 @@ const SECONDARY_ITEMS = [
   },
 ];
 
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록" }];
+// "API키등록·플랫폼연동"은 naver-cafe-poster/threads-affiliate-poster 등에서 이미 쓰고 있는
+// 표준 메뉴명이다 — 이 프로젝트도 같은 이름으로 통일한다(2026-09-13).
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();

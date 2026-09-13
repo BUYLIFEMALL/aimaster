@@ -40,7 +40,9 @@ const FLOW_STEPS = [
   },
 ];
 
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록" }];
+// "API키등록·플랫폼연동"은 threads-affiliate-poster 등 다른 서브프로젝트가 이미 쓰는
+// 표준 메뉴명이다 — 2026-09-13 플랫폼 표준으로 통일.
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();

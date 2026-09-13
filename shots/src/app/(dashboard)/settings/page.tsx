@@ -3,9 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { VoiceIdSettings } from "@/components/settings/VoiceIdSettings";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3002";
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
+// 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster에서 시작된 플랫폼 표준을 그대로 적용).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "0ecb9a3c-e4f7-4229-8fc3-f74fdb6dc6fd", label: "SUNO(수노) API 연동하기" },
+  { guideId: "b632a359-d9fd-4e0c-8920-3283094a4892", label: "JSON2Video API 연동하기" },
+  { guideId: "9457687a-75ed-40d8-bc4a-9415173eba70", label: "ElevenLabs API 연동하기" },
+  { guideId: "523e7401-7393-44f5-ba45-dd437e10fa2d", label: "Google OAuth 클라이언트 만들기 (YouTube 연동)" },
+];
 
 // 파이프라인 단계(1~5) + 나레이션/플랫폼 연동 순서로 API 키를 그룹핑해서 보여준다.
 // 어떤 키가 파이프라인의 어느 단계에 쓰이는지 한눈에 구분되도록 묶는다.
@@ -119,6 +133,21 @@ export default async function SettingsPage() {
           ))}
         </div>
       </div>
+
+      <section className="mt-5 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-neutral-500">
+            이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+            따라 할 수 있습니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GUIDE_LINKS.map((guide) => (
+            <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

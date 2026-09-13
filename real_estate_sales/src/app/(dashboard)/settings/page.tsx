@@ -7,11 +7,22 @@ import { KakaoTemplateSection } from "@/components/settings/KakaoTemplateSection
 import { Button } from "@/components/ui/Button";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { ModelPreferenceForm } from "@/components/settings/ModelPreferenceForm";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
 import type { AnalysisModel } from "@/lib/ai/models";
 
 const PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
+// 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
+// 2026-09-13).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
+  { guideId: "eb8f5eaf-6ef7-46b8-9b05-994e944fe69a", label: "SOLAPI(카카오톡 알림톡/친구톡) API 키 발급받기" },
+  { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
+];
 
 export default async function SettingsPage() {
   const user = await requireUser();
@@ -134,6 +145,23 @@ export default async function SettingsPage() {
               <TelegramConnectForm />
             </div>
           )}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <h2 className="text-lg font-medium text-neutral-100">📖 연동 매뉴얼</h2>
+          <p className="text-sm text-neutral-400">
+            이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+            따라 할 수 있어요.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
+          <div className="flex flex-wrap gap-2">
+            {GUIDE_LINKS.map((guide) => (
+              <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+            ))}
+          </div>
         </div>
       </section>
     </div>

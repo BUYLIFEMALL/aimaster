@@ -26,7 +26,7 @@ const FLOW_STEPS = [
   },
 ];
 
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록" }];
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
 
 function isFlowStepActive(pathname: string | null, href: string) {
   if (!pathname) return false;

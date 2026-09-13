@@ -6,9 +6,18 @@ import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { SMTP_PROVIDER_PRESETS } from "@/lib/constants";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+
+// platform_guides.id — 이 프로그램이 실제로 쓰는 발송 계정(SMTP/SOLAPI/텔레그램)에 해당하는
+// 매뉴얼만 골랐다(2026-09-13, 플랫폼 표준 "API키등록·플랫폼연동 페이지" 규칙).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1dbea19b-4c83-4453-ae41-0b59d7f27b5f", label: "네이버 메일(SMTP) 연동하기" },
+  { guideId: "eb8f5eaf-6ef7-46b8-9b05-994e944fe69a", label: "SOLAPI(카카오톡 알림톡/친구톡) API 키 발급받기" },
+  { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
+];
 
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
@@ -119,6 +128,21 @@ export default async function SettingsPage() {
             <TelegramConnectForm />
           </div>
         )}
+      </section>
+
+      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📖 연동 매뉴얼</h2>
+          <p className="text-sm text-gray-500">
+            이 프로그램에서 사용하는 발송 계정 연동 방법을 팝업창으로 열어 옆에 두고 그대로 따라
+            할 수 있습니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GUIDE_LINKS.map((guide) => (
+            <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+          ))}
+        </div>
       </section>
     </div>
   );

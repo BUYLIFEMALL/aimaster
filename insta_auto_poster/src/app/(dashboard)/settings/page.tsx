@@ -3,10 +3,22 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+
+// platform_guides.id — 이 페이지가 실제로 등록받는 API 키(OpenAI/Claude/Gemini/Perplexity)에
+// 해당하는 매뉴얼만 골랐다(2026-09-13, 플랫폼 표준 "API키등록·플랫폼연동 페이지" 규칙). Meta
+// App(Instagram) 연동은 아직 "피드 포스팅" 전용 가이드가 없어(기존 SNS 카테고리 가이드는
+// "댓글·DM 자동화" 대상이라 딱 맞지 않음) 대상에서 뺐다 — 필요 시 별도로 추가할 것.
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
+];
 
 const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
 
@@ -105,6 +117,21 @@ export default async function SettingsPage() {
                 helpUrl="https://developers.facebook.com/apps"
                 helpLabel="Meta App Dashboard에서 발급받기"
               />
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
+          <div className="mb-3">
+            <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
+            <p className="text-xs text-neutral-500">
+              이 프로그램에서 사용하는 API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라
+              할 수 있습니다.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {GUIDE_LINKS.map((guide) => (
+              <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
             ))}
           </div>
         </div>

@@ -3,12 +3,19 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
 // 이 프로그램이 실제로 쓰는 provider만 노출한다: gemini(상품분석 + 나노바나나 이미지생성).
 const PROVIDERS: ApiKeyProvider[] = ["gemini"];
+
+// app/(main)/guides의 platform_guides.id (naver-cafe-poster의 "연동 매뉴얼" 패턴을 전
+// 서브프로젝트로 확장, 2026-09-13).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+];
 
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
@@ -43,6 +50,21 @@ export default async function SettingsPage() {
               label={PROVIDER_LABELS[provider]}
               maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
             />
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border-2 border-gray-200 bg-gray-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-gray-900">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-gray-500">
+            이 프로그램에서 사용하는 API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할
+            수 있습니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GUIDE_LINKS.map((guide) => (
+            <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
           ))}
         </div>
       </div>

@@ -3,6 +3,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,15 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 // 이 프로그램이 실제로 쓰는 provider만 노출한다: anthropic(상세페이지 본문),
 // gemini(나노바나나 이미지), openai(GPT Image 1), replicate(FLUX 이미지).
 const PROVIDERS: ApiKeyProvider[] = ["anthropic", "gemini", "openai", "replicate"];
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API에 해당하는
+// 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster 패턴을 전체 서브프로젝트로 확대 적용).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "78a00b16-eef5-42be-810b-80c513d57ab4", label: "Replicate(FLUX) API 키 발급받기" },
+];
 
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
@@ -53,6 +63,21 @@ export default async function SettingsPage() {
             />
           ))}
         </div>
+
+        <section className="mt-8 rounded-2xl border-2 border-gray-200 bg-gray-50 p-5 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-sm font-bold text-gray-900">📖 연동 매뉴얼</h2>
+            <p className="text-xs text-gray-500">
+              이 프로그램에서 사용하는 API 키 발급 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할
+              수 있습니다.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {GUIDE_LINKS.map((guide) => (
+              <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );

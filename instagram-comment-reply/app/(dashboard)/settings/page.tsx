@@ -8,6 +8,7 @@ import { MonitoringSettingsForm } from "@/components/settings/MonitoringSettings
 import { AutoApproveSettingsForm } from "@/components/settings/AutoApproveSettingsForm";
 import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { ReregisterWebhookButton } from "@/components/settings/ReregisterWebhookButton";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { getInstagramConnectionStatus } from "@/lib/actions/instagram";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import {
@@ -22,6 +23,16 @@ export const dynamic = "force-dynamic";
 
 const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini"];
+
+// platform_guides.id — 이 프로그램이 실제로 쓰는 Meta 앱(댓글·DM 자동화)/AI/텔레그램에
+// 해당하는 매뉴얼만 골랐다(2026-09-13, 플랫폼 표준 "API키등록·플랫폼연동 페이지" 규칙).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "4115e455-1585-4304-89b4-d29859fd7a5a", label: "인스타그램 계정 연동하기 (댓글·DM 자동화)" },
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
+];
 
 const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string }>> = {
   meta_app_id: { url: "https://developers.facebook.com/apps", label: "Meta App Dashboard에서 발급받기" },
@@ -223,6 +234,21 @@ export default async function SettingsPage() {
           직접 승인해야 합니다. 이 설정을 켜면 검토 없이 AI 초안이 바로 게시됩니다.
         </p>
         <AutoApproveSettingsForm enabled={settings?.auto_approve ?? false} />
+      </section>
+
+      <section className="glass-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">📖 연동 매뉴얼</h2>
+          <p className="text-sm text-gray-500">
+            이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+            따라 할 수 있습니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GUIDE_LINKS.map((guide) => (
+            <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+          ))}
+        </div>
       </section>
     </div>
   );

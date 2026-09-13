@@ -44,7 +44,7 @@ const FLOW_STEPS = [
   },
 ];
 
-const SETTINGS_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록" }];
+const SETTINGS_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();

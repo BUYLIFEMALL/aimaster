@@ -4,7 +4,21 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { Button } from "@/components/ui/Button";
 import { connectThreadsAccountAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
+// 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster에서 시작된 플랫폼 표준을 그대로 적용). 검색어
+// 트렌드는 공개 데이터라 키/매뉴얼이 필요 없어 대상에서 뺐다.
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "343996d3-8c77-455d-9bd4-54bcd47a34cd", label: "쓰레드(Threads) 계정 연동하기" },
+  { guideId: "117ffedb-c554-458a-9b92-e9ed6ee33988", label: "쿠팡파트너스 API 키 발급받기" },
+  { guideId: "0eb4180e-a076-4ee6-b75e-6b3c3c9ec442", label: "알리익스프레스 API 키 발급받기" },
+  { guideId: "de6e2878-1615-455a-a219-c9b0b3d0795a", label: "토스쇼핑 쉐어링크 API 키 발급받기" },
+  { guideId: "e39a02e3-2b00-45a1-92ed-2e33d0d331d2", label: "네이버 브랜드커넥트 링크 등록하기" },
+];
 
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini"];
 const COUPANG_PROVIDERS: ApiKeyProvider[] = ["coupang_access_key", "coupang_secret_key"];
@@ -211,6 +225,21 @@ export default async function SettingsPage({
           네이버 브랜드커넥트는 공식 API가 없어 별도 키 등록이 필요 없습니다. &quot;상품
           관리&quot; 화면에서 직접 발급받은 링크를 붙여넣어 등록해주세요.
         </p>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-neutral-500">
+            이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+            따라 할 수 있습니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GUIDE_LINKS.map((guide) => (
+            <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+          ))}
+        </div>
       </section>
     </div>
   );
