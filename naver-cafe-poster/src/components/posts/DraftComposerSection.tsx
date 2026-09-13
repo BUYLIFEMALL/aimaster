@@ -15,11 +15,15 @@ export function DraftComposerSection({
   targets,
   initialTitle,
   initialContent,
+  initialImageUrl,
+  initialTargetId,
   defaultCollapsed,
 }: {
   targets: CafeTarget[];
   initialTitle: string;
   initialContent: string;
+  initialImageUrl?: string;
+  initialTargetId?: string;
   defaultCollapsed: boolean;
 }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
@@ -31,14 +35,20 @@ export function DraftComposerSection({
         onClick={() => setCollapsed(false)}
         className="w-full rounded-2xl border border-dashed border-neutral-300 bg-white p-4 text-left text-sm font-medium text-neutral-600 hover:border-neutral-400 hover:bg-neutral-50"
       >
-        + 새 초안 만들기 (주제를 입력해 AI로 새로 작성)
+        + 새 초안 만들기
       </button>
     );
   }
 
   return (
     <div className="space-y-2">
-      <DraftComposer targets={targets} initialTitle={initialTitle} initialContent={initialContent} />
+      <DraftComposer
+        targets={targets}
+        initialTitle={initialTitle}
+        initialContent={initialContent}
+        initialImageUrl={initialImageUrl}
+        initialTargetId={initialTargetId}
+      />
       <button
         type="button"
         onClick={() => setCollapsed(true)}

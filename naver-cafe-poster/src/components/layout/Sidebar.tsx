@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Search, PenSquare, FileText, KeyRound } from "lucide-react";
+import { LayoutGrid, Search, Sparkles, PenSquare, FileText, KeyRound } from "lucide-react";
 import { signOutAction } from "@/lib/actions/auth";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
+// "AI 맞춤 자동 글쓰기"(주제 기반 새 글 생성)를 별도 메뉴 "AI 글쓰기"로 분리하고, 기존
+// /drafts(제목/본문 검토·저장) 메뉴는 "AI 자동 초안생성"으로 이름을 바꿨다(2026-09-13).
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutGrid, label: "대시보드" },
   { href: "/candidates", icon: Search, label: "게시글 주제 수집" },
-  { href: "/drafts", icon: PenSquare, label: "AI 글쓰기" },
+  { href: "/write", icon: Sparkles, label: "AI 글쓰기" },
+  { href: "/drafts", icon: PenSquare, label: "AI 자동 초안생성" },
   { href: "/posts", icon: FileText, label: "게시글 관리" },
   { href: "/settings", icon: KeyRound, label: "네이버 연동·카페 등록" },
 ];
