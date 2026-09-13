@@ -6,6 +6,41 @@ import { createClient } from "@/lib/supabase/server";
 import { getValidInstagramAccessToken } from "@/lib/actions/instagram";
 import { listInstagramMedia } from "@/lib/instagram/client";
 import { normalizeUrl } from "@/lib/normalizeUrl";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+/**
+ * 인스타그램이 내려주는 media_url/thumbnail_url은 서명이 걸린 임시 CDN 링크라 시간이 지나면
+ * 403을 반환한다(2026-09-13, /media 썸네일이 전부 깨져 보이는 문제의 원인). 동기화 시점에
+ * 서버에서 즉시 내려받아 우리 Storage(ig-media-thumbnails, public)에 영구 저장하고, 그 공개
+ * URL을 대신 반환한다 — 실패하면(네트워크 오류 등) 원본 URL을 그대로 반환해 최소한의 폴백을 둔다.
+ */
+async function reuploadThumbnail(
+  supabase: SupabaseClient,
+  userId: string,
+  mediaId: string,
+  sourceUrl: string | null,
+): Promise<string | null> {
+  if (!sourceUrl) return null;
+  try {
+    // 타임아웃 없이 fetch만 걸면 일부 요청이 응답 없이 계속 매달릴 때(네트워크 이슈 등)
+    // Promise.all 전체가 무한정 대기하게 되어 동기화 자체가 끝나지 않는다 — 반드시
+    // AbortSignal로 상한을 둔다(naver-cafe-poster의 fetchWithTimeout.ts와 동일한 이유).
+    const response = await fetch(sourceUrl, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) return sourceUrl;
+    const contentType = response.headers.get("content-type") ?? "image/jpeg";
+    const ext = contentType.includes("png") ? "png" : "jpg";
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const path = `${userId}/${mediaId}.${ext}`;
+    const { error } = await supabase.storage
+      .from("ig-media-thumbnails")
+      .upload(path, buffer, { contentType, upsert: true });
+    if (error) return sourceUrl;
+    const { data } = supabase.storage.from("ig-media-thumbnails").getPublicUrl(path);
+    return data.publicUrl;
+  } catch {
+    return sourceUrl;
+  }
+}
 
 export interface SyncMediaState {
   error?: string;
@@ -31,23 +66,41 @@ export async function syncMediaAction(): Promise<SyncMediaState> {
   try {
     const accessToken = await getValidInstagramAccessToken(supabase, user.id, account);
 
+    // 이미 우리 Storage(ig-media-thumbnails)로 재호스팅된 썸네일은 동기화할 때마다 매번
+    // 다시 내려받지 않는다 — 그렇지 않으면 게시물이 많은 계정은 "동기화" 버튼을 누를 때마다
+    // 수백 장을 전부 재다운로드하게 되어 매번 몇 분씩 걸리게 된다(2026-09-13 확인).
+    const { data: existingRows } = await supabase
+      .from("ig_media")
+      .select("ig_media_id, thumbnail_url")
+      .eq("user_id", user.id);
+    const existingThumbnails = new Map((existingRows ?? []).map((r) => [r.ig_media_id, r.thumbnail_url]));
+
     let syncedCount = 0;
     let pageToken: string | undefined;
     do {
       const { media, nextPageToken } = await listInstagramMedia(accessToken, account.ig_user_id, pageToken);
       if (media.length > 0) {
-        const { error } = await supabase.from("ig_media").upsert(
-          media.map((m) => ({
-            user_id: user.id,
-            ig_media_id: m.mediaId,
-            caption: m.caption,
-            permalink: m.permalink,
-            media_type: m.mediaType,
-            thumbnail_url: m.thumbnailUrl,
-            updated_at: new Date().toISOString(),
-          })),
-          { onConflict: "user_id,ig_media_id", ignoreDuplicates: false },
+        const rows = await Promise.all(
+          media.map(async (m) => {
+            const existingThumbnail = existingThumbnails.get(m.mediaId);
+            const alreadyMigrated = existingThumbnail && !existingThumbnail.includes("cdninstagram.com");
+            return {
+              user_id: user.id,
+              ig_media_id: m.mediaId,
+              caption: m.caption,
+              permalink: m.permalink,
+              media_type: m.mediaType,
+              thumbnail_url: alreadyMigrated
+                ? existingThumbnail
+                : await reuploadThumbnail(supabase, user.id, m.mediaId, m.thumbnailUrl),
+              updated_at: new Date().toISOString(),
+            };
+          }),
         );
+        const { error } = await supabase.from("ig_media").upsert(rows, {
+          onConflict: "user_id,ig_media_id",
+          ignoreDuplicates: false,
+        });
         if (error) return { error: error.message };
         syncedCount += media.length;
       }
