@@ -5,7 +5,17 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { CafeTargetManager } from "@/components/settings/CafeTargetManager";
 import { Button } from "@/components/ui/Button";
 import { connectNaverAccountAction, disconnectNaverAccountAction } from "@/lib/actions/accounts";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼(OpenAI·Gemini·
+// Perplexity)에 해당하는 매뉴얼만 골랐다. 네이버 로그인은 공유 앱을 통해 회원이 "연결하기"만
+//누르면 되는 구조라(AGENTS.md 참고) 본인이 API 키를 발급받을 필요가 없어 매뉴얼 대상에서 뺐다.
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
+];
 
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity", "gemini"];
 
@@ -112,6 +122,21 @@ export default async function SettingsPage({
           </p>
         </div>
         <CafeTargetManager targets={targets ?? []} />
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-neutral-500">
+            이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+            따라 할 수 있습니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GUIDE_LINKS.map((guide) => (
+            <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+          ))}
+        </div>
       </section>
     </div>
   );
