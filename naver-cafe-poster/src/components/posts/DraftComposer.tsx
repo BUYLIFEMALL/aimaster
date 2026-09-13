@@ -222,7 +222,65 @@ export function DraftComposer({
 
   return (
     <form action={formAction} className="space-y-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-      <div className="space-y-1 border-b border-neutral-100 pb-4">
+      {/* 0. 초안 확인/수정 + 저장 — 후보(글감 수집)에서 제목/본문이 이미 넘어온 경우 AI로
+          새로 쓸 필요 없이 바로 검토하고 저장할 수 있다는 게 안 보인다는 지적(2026-09-13)이
+          있어, 이 블록을 맨 위로 올리고 아래 "AI 맞춤 자동 글쓰기"와 구분되게 박스로 감쌌다. */}
+      <div className="space-y-4 rounded-2xl border-2 border-neutral-300 bg-neutral-50/50 p-5">
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-neutral-900">📝 초안 확인 및 저장</h2>
+          <p className="text-xs text-neutral-500">
+            이미 준비된 제목/본문이 있다면(글감 수집에서 넘어온 경우 등) 바로 검토·수정하고
+            저장하세요. 새로 AI에게 글을 써달라고 하려면 아래 "AI 맞춤 자동 글쓰기"를 이용하세요.
+          </p>
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-neutral-700">제목</label>
+          <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-neutral-700">본문</label>
+          <Textarea
+            name="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={10}
+            autoGrow
+            required
+          />
+        </div>
+
+        <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 bg-white p-3">
+          <p className="text-xs font-medium text-neutral-700">✏️ AI에게 수정 요청하기</p>
+          <p className="text-[11px] text-neutral-500">
+            처음부터 다시 만들지 않고, 위 제목/본문에서 원하는 부분만 고쳐달라고 요청할 수 있습니다.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              value={reviseInstruction}
+              onChange={(e) => setReviseInstruction(e.target.value)}
+              placeholder="예: 결론 부분을 더 강조해줘 / 좀 더 짧게 줄여줘"
+            />
+            <Button type="button" variant="secondary" onClick={handleRevise} disabled={isRevising}>
+              {isRevising ? "수정 중..." : "수정 요청"}
+            </Button>
+          </div>
+          {reviseError && <p className="text-xs text-red-600">{reviseError}</p>}
+        </div>
+
+        <input type="hidden" name="targetId" value={targetId} />
+
+        <Button type="submit" disabled={isPending} className="w-full">
+          {isPending ? "저장 중..." : "초안으로 저장"}
+        </Button>
+        {state.error && <p className="text-xs text-red-600">{state.error}</p>}
+        {state.success && (
+          <p className="text-xs text-green-600">초안이 저장되었습니다. 아래 목록에서 검수 후 게시하세요.</p>
+        )}
+      </div>
+
+      {/* AI 맞춤 자동 글쓰기 — 새 글을 AI로 생성하는 기능. 위 "초안 확인 및 저장"과 구분되게
+          아래로 내렸다(2026-09-13 사용자 요청). */}
+      <div className="space-y-1 border-t border-neutral-100 pt-6">
         <h2 className="text-lg font-bold text-neutral-900">AI 맞춤 자동 글쓰기</h2>
         <p className="text-xs text-neutral-500">
           카페, 주제, AI 이미지 설정 및 추천링크를 지정하시면 카페 게시글이 자동 생성됩니다.
@@ -504,54 +562,6 @@ export function DraftComposer({
           {isGenerating ? "AI 글 생성 중..." : "✨ AI 글 생성 시작"}
         </Button>
         {aiError && <p className="mt-2 text-xs text-red-600">{aiError}</p>}
-      </div>
-
-      {/* 생성 결과 확인/수정 + 저장 — blog와 달리 생성 즉시 게시하지 않고, 여기서 검수 후
-          저장한다(생성 → 수정 → 검수 → 배포 단계 분리, 사용자 요청 사항). */}
-      <div className="space-y-4 border-t border-neutral-100 pt-4">
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-neutral-700">제목</label>
-          <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-neutral-700">본문</label>
-          <Textarea
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-            autoGrow
-            required
-          />
-        </div>
-
-        <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
-          <p className="text-xs font-medium text-neutral-700">✏️ AI에게 수정 요청하기</p>
-          <p className="text-[11px] text-neutral-500">
-            처음부터 다시 만들지 않고, 위 제목/본문에서 원하는 부분만 고쳐달라고 요청할 수 있습니다.
-          </p>
-          <div className="flex gap-2">
-            <Input
-              value={reviseInstruction}
-              onChange={(e) => setReviseInstruction(e.target.value)}
-              placeholder="예: 결론 부분을 더 강조해줘 / 좀 더 짧게 줄여줘"
-            />
-            <Button type="button" variant="secondary" onClick={handleRevise} disabled={isRevising}>
-              {isRevising ? "수정 중..." : "수정 요청"}
-            </Button>
-          </div>
-          {reviseError && <p className="text-xs text-red-600">{reviseError}</p>}
-        </div>
-
-        <input type="hidden" name="targetId" value={targetId} />
-
-        <Button type="submit" disabled={isPending} className="w-full">
-          {isPending ? "저장 중..." : "초안으로 저장"}
-        </Button>
-        {state.error && <p className="text-xs text-red-600">{state.error}</p>}
-        {state.success && (
-          <p className="text-xs text-green-600">초안이 저장되었습니다. 아래 목록에서 검수 후 게시하세요.</p>
-        )}
       </div>
     </form>
   );
