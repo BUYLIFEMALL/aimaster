@@ -86,7 +86,7 @@ export default async function PostDetailPage({
         {/* 초안/실패한 글은 AI 세부 옵션까지 갖춘 "AI 자동 글쓰기(초안)" 화면에서 수정한다. */}
         {(status === "draft" || status === "failed") && (
           <Link href={`/drafts?edit=${post.id}`}>
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="info">
               AI 자동 글쓰기(초안)에서 수정
             </Button>
           </Link>
@@ -97,7 +97,7 @@ export default async function PostDetailPage({
             같다는 점은 그 페이지에서 안내한다. */}
         {status === "published" && (
           <Link href={`/posts/${post.id}/edit`}>
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="info">
               수정 후 다시 등록
             </Button>
           </Link>
