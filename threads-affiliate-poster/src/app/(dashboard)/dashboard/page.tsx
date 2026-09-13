@@ -10,7 +10,7 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: posts }, { data: account }, { count: productCount }] = await Promise.all([
+  const [{ data: posts }, { data: account }, { count: productCount }, { data: program }] = await Promise.all([
     supabase
       .from("tap_posts")
       .select("*")
@@ -18,6 +18,13 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: false }),
     supabase.from("tap_accounts").select("*").eq("user_id", user.id).maybeSingle(),
     supabase.from("affiliate_products").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+    // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/
+    // short_desc)를 그대로 가져와 보여준다(naver-cafe-poster에서 먼저 만든 패턴, 2026-09-13).
+    // 이 프로젝트의 database.types.ts는 아직 programs 테이블을 포함하지 않아(루트 공용 테이블이라
+    // 타입 재생성이 안 돼 있음) 결과 타입을 직접 지정한다.
+    supabase.from("programs").select("description, short_desc").eq("slug", "threads-affiliate-poster").maybeSingle() as unknown as Promise<{
+      data: { description: string | null; short_desc: string | null } | null;
+    }>,
   ]);
 
   const counts: Record<PostStatus, number> = {
@@ -51,6 +58,19 @@ export default async function DashboardPage() {
           </form>
         </div>
       </div>
+
+      {(program?.description || program?.short_desc) && (
+        <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+          {program.description ? (
+            <div
+              className="text-sm leading-relaxed text-neutral-700 [&_p]:mb-2 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: program.description }}
+            />
+          ) : (
+            <p className="text-sm leading-relaxed text-neutral-700">{program.short_desc}</p>
+          )}
+        </div>
+      )}
 
       {!account && (
         <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">

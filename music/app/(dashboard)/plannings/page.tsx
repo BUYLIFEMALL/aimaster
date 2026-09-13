@@ -17,11 +17,23 @@ export default async function PlanningsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: plannings } = await supabase
-    .from("music_plannings")
-    .select("id, title, song_description, status, created_at")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [{ data: plannings }, { data: program }] = await Promise.all([
+    supabase
+      .from("music_plannings")
+      .select("id, title, song_description, status, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+    // 이 프로젝트는 별도 "대시보드" 화면이 없어 이 페이지가 사실상 첫 화면이다 — 요청대로
+    // 첫 화면 제목 바로 아래에 메인 페이지 프로그램 소개(programs.short_desc — 이 프로그램은
+    // description이 비어있어 short_desc로 대체)를 박스로 보여준다(2026-09-13).
+    // AIMaster Database 타입에는 없는 테이블이라(access.ts와 동일한 이유) 제네릭 타입 충돌을
+    // 피하기 위해 from()을 느슨한 타입으로 캐스팅한다.
+    (supabase as unknown as { from: (table: string) => any }) // eslint-disable-line @typescript-eslint/no-explicit-any
+      .from("programs")
+      .select("description, short_desc")
+      .eq("slug", "music-automation")
+      .maybeSingle() as Promise<{ data: { description: string | null; short_desc: string | null } | null }>,
+  ]);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -34,6 +46,19 @@ export default async function PlanningsPage() {
           + 새 기획
         </Link>
       </div>
+
+      {(program?.description || program?.short_desc) && (
+        <div className="mb-6 rounded-2xl border-2 border-gray-200 bg-gray-100 p-5 shadow-sm">
+          {program.description ? (
+            <div
+              className="text-sm leading-relaxed text-gray-700 [&_p]:mb-2 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: program.description }}
+            />
+          ) : (
+            <p className="text-sm leading-relaxed text-gray-700">{program.short_desc}</p>
+          )}
+        </div>
+      )}
 
       {!plannings || plannings.length === 0 ? (
         <div className="text-center py-20 text-gray-400">

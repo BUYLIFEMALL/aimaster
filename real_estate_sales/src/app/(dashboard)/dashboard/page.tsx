@@ -11,7 +11,7 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ count: districtCount }, { count: newCount }, { data: recentMatches }] =
+  const [{ count: districtCount }, { count: newCount }, { data: recentMatches }, { data: program }] =
     await Promise.all([
       supabase
         .from("real_estate_watch_districts")
@@ -29,6 +29,15 @@ export default async function DashboardPage() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(5),
+      // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/
+      // short_desc)를 그대로 가져와 보여준다(2026-09-13 요청, naver-cafe-poster 패턴을 전
+      // 서브프로젝트로 확대 적용). AIMaster Database 타입에는 없는 테이블이라(access.ts와
+      // 동일한 이유) 제네릭 타입 충돌을 피하기 위해 from()을 느슨한 타입으로 캐스팅한다.
+      (supabase as unknown as { from: (table: string) => any }) // eslint-disable-line @typescript-eslint/no-explicit-any
+        .from("programs")
+        .select("description, short_desc")
+        .eq("slug", "real-estate-sales")
+        .maybeSingle() as Promise<{ data: { description: string | null; short_desc: string | null } | null }>,
     ]);
 
   const recentListings = (recentMatches ?? [])
@@ -38,6 +47,19 @@ export default async function DashboardPage() {
   return (
     <div>
       <h1 className="gold-text mb-6 text-2xl font-semibold">대시보드</h1>
+
+      {(program?.description || program?.short_desc) && (
+        <div className="glass-card mb-6 p-5">
+          {program.description ? (
+            <div
+              className="text-sm leading-relaxed text-neutral-300 [&_p]:mb-2 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: program.description }}
+            />
+          ) : (
+            <p className="text-sm leading-relaxed text-neutral-300">{program.short_desc}</p>
+          )}
+        </div>
+      )}
 
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-2">
         <Link href="/districts" className="glass-card p-5 hover:border-gold/40">

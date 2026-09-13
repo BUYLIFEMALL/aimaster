@@ -9,19 +9,44 @@ export default async function DashboardPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ count: topicCount }, { count: activeTopicCount }, { count: reportCount }] = await Promise.all([
-    supabase.from("kakao_topics").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-    supabase
-      .from("kakao_topics")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("is_active", true),
-    supabase.from("kakao_reports").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-  ]);
+  const [{ count: topicCount }, { count: activeTopicCount }, { count: reportCount }, { data: program }] =
+    await Promise.all([
+      supabase.from("kakao_topics").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      supabase
+        .from("kakao_topics")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_active", true),
+      supabase.from("kakao_reports").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/
+      // short_desc)를 그대로 가져와 보여준다(2026-09-13 요청, naver-cafe-poster 패턴을 전
+      // 서브프로젝트로 확대 적용) — 이 프로그램만의 별도 텍스트를 새로 쓰지 않고, 판매 페이지
+      // 내용과 항상 같은 소스를 쓰게 해서 나중에 어긋나지 않게 한다.
+      // AIMaster Database 타입에는 없는 테이블이라(access.ts와 동일한 이유) 제네릭 타입 충돌을
+      // 피하기 위해 from()을 느슨한 타입으로 캐스팅한다.
+      (supabase as unknown as { from: (table: string) => any }) // eslint-disable-line @typescript-eslint/no-explicit-any
+        .from("programs")
+        .select("description, short_desc")
+        .eq("slug", "kakao-auto-posting")
+        .maybeSingle() as Promise<{ data: { description: string | null; short_desc: string | null } | null }>,
+    ]);
 
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-6 text-2xl font-semibold text-neutral-900">대시보드</h1>
+
+      {(program?.description || program?.short_desc) && (
+        <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+          {program.description ? (
+            <div
+              className="text-sm leading-relaxed text-neutral-700 [&_p]:mb-2 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: program.description }}
+            />
+          ) : (
+            <p className="text-sm leading-relaxed text-neutral-700">{program.short_desc}</p>
+          )}
+        </div>
+      )}
 
       <div className="mb-6 grid grid-cols-3 gap-3">
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 text-center">

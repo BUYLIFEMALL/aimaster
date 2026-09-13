@@ -19,6 +19,16 @@ export default async function DashboardPage() {
     supabase.from("insta_accounts").select("*").eq("user_id", user.id).maybeSingle(),
   ]);
 
+  // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지 programs.description/
+  // short_desc)를 그대로 가져와 보여준다(2026-09-13 요청, naver-cafe-poster 패턴 확대 적용).
+  // "programs" 테이블은 이 프로젝트의 로컬 database.types.ts에 없어(공용 테이블이라 다른
+  // 서브프로젝트 스키마 생성 시점엔 빠져있었음) 타입 단언으로 우회한다.
+  const { data: program } = (await supabase
+    .from("programs")
+    .select("description, short_desc")
+    .eq("slug", "auto-instagram-posting")
+    .maybeSingle()) as unknown as { data: { description: string | null; short_desc: string | null } | null };
+
   const counts: Record<PostStatus, number> = {
     draft: 0,
     scheduled: 0,
@@ -50,6 +60,19 @@ export default async function DashboardPage() {
           </form>
         </div>
       </div>
+
+      {program && (program.description || program.short_desc) && (
+        <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+          {program.description ? (
+            <div
+              className="text-sm leading-relaxed text-neutral-700 [&_p]:mb-2 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: program.description }}
+            />
+          ) : (
+            <p className="text-sm leading-relaxed text-neutral-700">{program.short_desc}</p>
+          )}
+        </div>
+      )}
 
       {!account && (
         <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">

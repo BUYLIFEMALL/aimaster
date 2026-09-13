@@ -42,6 +42,8 @@ export default function DashboardPage() {
   const [categoryCount, setCategoryCount] = useState(0)
   const [recentPosts, setRecentPosts] = useState<RecentPost[]>([])
   const [recentCandidates, setRecentCandidates] = useState<RecentCandidate[]>([])
+  const [programDescription, setProgramDescription] = useState<string | null>(null)
+  const [programShortDesc, setProgramShortDesc] = useState<string | null>(null)
 
   useEffect(() => {
     if (!supabase) return
@@ -54,7 +56,7 @@ export default function DashboardPage() {
       }
       setUserEmail(user.email ?? null)
 
-      const [postsRes, candidatesRes, categoriesRes] = await Promise.all([
+      const [postsRes, candidatesRes, categoriesRes, programRes] = await Promise.all([
         supabase
           .from('blog_posts')
           .select('id, title, published_at, created_at', { count: 'exact' })
@@ -68,6 +70,9 @@ export default function DashboardPage() {
           .order('created_at', { ascending: false })
           .limit(3),
         supabase.from('blog_categories').select('id', { count: 'exact', head: true }),
+        // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지
+        // programs.description/short_desc)를 그대로 가져와 보여준다(2026-09-13 요청).
+        supabase.from('programs').select('description, short_desc').eq('slug', 'ai-auto-blog').maybeSingle(),
       ])
 
       setRecentPosts(postsRes.data ?? [])
@@ -75,6 +80,8 @@ export default function DashboardPage() {
       setRecentCandidates(candidatesRes.data ?? [])
       setCandidateCount(candidatesRes.count ?? 0)
       setCategoryCount(categoriesRes.count ?? 0)
+      setProgramDescription(programRes.data?.description ?? null)
+      setProgramShortDesc(programRes.data?.short_desc ?? null)
       setLoading(false)
     })
   }, [supabase, router])
@@ -116,6 +123,19 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+
+        {(programDescription || programShortDesc) && (
+          <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+            {programDescription ? (
+              <div
+                className="text-sm leading-relaxed text-slate-600 [&_p]:mb-2 [&_p:last-child]:mb-0"
+                dangerouslySetInnerHTML={{ __html: programDescription }}
+              />
+            ) : (
+              <p className="text-sm leading-relaxed text-slate-600">{programShortDesc}</p>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-3 mb-8">
           <div className="rounded-2xl border border-slate-200 bg-white p-4">

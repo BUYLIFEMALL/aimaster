@@ -12,11 +12,20 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const { data: jobs } = await supabase
-    .from("web_crawler_jobs")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const [{ data: jobs }, { data: program }] = await Promise.all([
+    supabase
+      .from("web_crawler_jobs")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    // 대시보드 상단 설명 박스 — AIMaster 메인 사이트(programs.description)의 프로그램 소개
+    // 문구를 그대로 가져와 보여준다(2026-09-13 요청, naver-cafe-poster 패턴). 이 프로젝트의
+    // database.types.ts에는 programs 테이블이 생성돼 있지 않아(공용 테이블이라 여기서는
+    // 직접 안 쓰였던 탓) as unknown으로 타입만 좁혀서 캐스팅한다.
+    supabase.from("programs").select("description, short_desc").eq("slug", "web-crawler-saas").maybeSingle() as unknown as Promise<{
+      data: { description: string | null; short_desc: string | null } | null;
+    }>,
+  ]);
 
   const counts: Record<JobStatus, number> = {
     pending: 0,
@@ -39,6 +48,19 @@ export default async function DashboardPage() {
           <Button>새 작업 만들기</Button>
         </Link>
       </div>
+
+      {(program?.description || program?.short_desc) && (
+        <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+          {program.description ? (
+            <div
+              className="text-sm leading-relaxed text-neutral-700 [&_p]:mb-2 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: program.description }}
+            />
+          ) : (
+            <p className="text-sm leading-relaxed text-neutral-700">{program.short_desc}</p>
+          )}
+        </div>
+      )}
 
       {(jobs ?? []).length === 0 && (
         <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
