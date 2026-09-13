@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { createClient } from "@/lib/supabase/client";
 import { updateAndRepublishPostAction, type PostActionState } from "@/lib/actions/posts";
+import { generateCafeImageAction, generateCafeImagePromptAction } from "@/lib/actions/ai";
 import type { CafePost, CafeTarget, PostStatus } from "@/types/post";
 
 const initialState: PostActionState = {};
@@ -15,6 +16,13 @@ const initialState: PostActionState = {};
 // 네이버 카페 오픈API의 공식 영상 첨부 규격은 문서로 확인 못 했다.
 const MAX_VIDEO_BYTES = 1024 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+
+const IMAGE_MODEL_OPTIONS = [
+  { label: "NanoBanana 2-2K (2K 고화질 비주얼 - 추천)", value: "nanobanana-2-2k" },
+  { label: "NanoBanana 2-4K (4K 울트라 HD)", value: "nanobanana-2-4k" },
+  { label: "NanoBanana Pro (프로페셔널 인포그래픽)", value: "nanobanana-pro" },
+  { label: "NanoBanana Standard (기본 모델)", value: "nanobanana" },
+] as const;
 
 /** 네이버 카페 오픈API는 content를 그대로 HTML로 저장하고(<p>로 감싸짐), 속성이 있는
  * HTML 태그(<img src=...>, <a href=...> 등)가 섞이면 403으로 거부한다는 것을 실계정
@@ -44,6 +52,16 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [videoUploadError, setVideoUploadError] = useState<string | null>(null);
+
+  // AI 이미지 (재)생성 — DraftItem.tsx/DraftComposer.tsx와 동일한 나노바나나 패턴을
+  // 그대로 가져왔다("이미지를 새로 AI로 생성하거나 직접 추가한 이미지/영상 링크로 최종
+  // 결과물을 만들 수 있게 해달라"는 요청, 2026-09-13).
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [imageModel, setImageModel] = useState("nanobanana-2-2k");
+  const [imageApiKey, setImageApiKey] = useState("");
+  const [imageEndpoint, setImageEndpoint] = useState("");
+  const [imageGenError, setImageGenError] = useState<string | null>(null);
+  const [isGeneratingImage, startGeneratingImage] = useTransition();
 
   const contentRef = useRef<HTMLTextAreaElement>(null);
   // 툴바의 "🖼 사진"/"🎬 동영상" 버튼이 여는 실제 파일 선택창(숨김 input) — 아래 URL
@@ -143,6 +161,48 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
     } finally {
       setIsUploadingVideo(false);
     }
+  };
+
+  /** 나노바나나(Gemini)가 같은 프롬프트에도 가끔 이미지 없이 응답하는 비결정적 특성이 있어서
+   * DraftItem.tsx/DraftComposer.tsx와 동일하게 최대 2회까지 자동 재시도한다. */
+  const runImageGeneration = async (prompt: string) => {
+    const MAX_IMAGE_ATTEMPTS = 2;
+    let lastError: string | undefined;
+    for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
+      const result = await generateCafeImageAction({
+        prompt,
+        apiKey: imageApiKey.trim() || undefined,
+        model: imageModel as never,
+        endpoint: imageEndpoint.trim() || undefined,
+      });
+      if (result.imageUrl) {
+        setImageUrl(result.imageUrl);
+        setVideoUrl(""); // 이미지/영상은 서로 배타적으로 관리한다
+        lastError = undefined;
+        break;
+      }
+      lastError = result.error;
+    }
+    if (lastError) setImageGenError(lastError);
+  };
+
+  const handleGenerateImage = () => {
+    setImageGenError(null);
+    startGeneratingImage(async () => {
+      // 프롬프트를 직접 안 적었으면, 지금 편집 중인 제목/본문을 분석해서 이미지 프롬프트를
+      // 자동으로 만든다(DraftComposer와 동일한 흐름).
+      let prompt = imagePrompt.trim();
+      if (!prompt) {
+        const promptResult = await generateCafeImagePromptAction({ title, content });
+        if (promptResult.error && !promptResult.prompt) {
+          setImageGenError(promptResult.error);
+          return;
+        }
+        prompt = promptResult.prompt || title;
+        if (promptResult.prompt) setImagePrompt(promptResult.prompt);
+      }
+      await runImageGeneration(prompt);
+    });
   };
 
   const charCount = content.length;
@@ -301,48 +361,107 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
             className="w-full border-0 px-5 py-4 text-[15px] leading-relaxed text-neutral-900 outline-none focus:ring-0"
           />
 
-          <div className="grid grid-cols-1 gap-4 border-t border-neutral-200 bg-neutral-50/60 p-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-neutral-700">🖼 대표 이미지 링크 (직접 입력도 가능)</label>
-              <Input
-                name="imageUrl"
-                value={imageUrl}
-                onChange={(e) => {
-                  setImageUrl(e.target.value);
-                  if (e.target.value) setVideoUrl("");
-                }}
-                placeholder="https://... (또는 위 툴바에서 파일 첨부)"
+          <div className="border-t border-neutral-200 bg-neutral-50/60 p-4">
+            {/* AI 이미지 새로 생성 — DraftItem.tsx와 동일한 나노바나나 패턴. 새로 생성한
+                이미지, 직접 첨부한 이미지, 링크로 붙여넣은 이미지 중 마지막에 정해진 것이
+                최종 대표 이미지가 된다(모두 같은 imageUrl 상태를 공유). */}
+            <div className="space-y-3 rounded-xl border border-amber-200/80 bg-amber-50/60 p-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-amber-900">
+                🖼️ 대표 이미지 — AI로 새로 생성하거나 직접 첨부/링크로 지정
+              </p>
+              <Textarea
+                value={imagePrompt}
+                onChange={(e) => setImagePrompt(e.target.value)}
+                rows={2}
+                autoGrow
+                placeholder="이미지 프롬프트 (비워두면 지금 제목/본문 내용을 분석해서 자동 생성)"
               />
-              {imageUrl && (
-                <div className="space-y-1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={imageUrl} alt="대표 이미지" className="mt-2 max-h-48 rounded-lg border border-neutral-200" />
-                  <button type="button" onClick={() => setImageUrl("")} className="text-xs text-red-600 hover:underline">
-                    이미지 제거
-                  </button>
-                </div>
-              )}
-            </div>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <select
+                  value={imageModel}
+                  onChange={(e) => setImageModel(e.target.value)}
+                  className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm"
+                >
+                  {IMAGE_MODEL_OPTIONS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+                <Input
+                  type="text"
+                  value={imageApiKey}
+                  onChange={(e) => setImageApiKey(e.target.value)}
+                  placeholder="나노바나나 API 키 (비워두면 설정에 등록된 내 키 사용)"
+                  autoComplete="new-password"
+                  style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
+                />
+              </div>
+              <Button type="button" variant="secondary" onClick={handleGenerateImage} disabled={isGeneratingImage}>
+                {isGeneratingImage ? "이미지 생성 중..." : imageUrl ? "🖼️ 이미지 다시 생성" : "🖼️ 대표 이미지 생성"}
+              </Button>
+              {imageGenError && <p className="text-xs text-red-600">{imageGenError}</p>}
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-neutral-700">🎬 영상 링크 (직접 입력도 가능)</label>
-              <Input
-                name="videoUrl"
-                value={videoUrl}
-                onChange={(e) => {
-                  setVideoUrl(e.target.value);
-                  if (e.target.value) setImageUrl("");
-                }}
-                placeholder="https://... (또는 위 툴바에서 파일 첨부)"
-              />
-              {videoUrl && (
-                <div className="space-y-1">
-                  <video src={videoUrl} controls className="mt-2 max-h-48 w-full rounded-lg border border-neutral-200" />
-                  <button type="button" onClick={() => setVideoUrl("")} className="text-xs text-red-600 hover:underline">
-                    영상 제거
-                  </button>
+              <div className="grid grid-cols-1 gap-4 pt-1 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-neutral-700">또는 이미지 링크 직접 입력</label>
+                  <Input
+                    name="imageUrl"
+                    value={imageUrl}
+                    onChange={(e) => {
+                      setImageUrl(e.target.value);
+                      if (e.target.value) setVideoUrl("");
+                    }}
+                    placeholder="https://... (또는 위 툴바에서 파일 첨부)"
+                  />
+                  {imageUrl && (
+                    <div className="space-y-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageUrl}
+                        alt="대표 이미지"
+                        className="mt-2 max-h-48 rounded-lg border border-neutral-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl("")}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        이미지 제거
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-neutral-700">🎬 영상 링크 (직접 입력도 가능)</label>
+                  <Input
+                    name="videoUrl"
+                    value={videoUrl}
+                    onChange={(e) => {
+                      setVideoUrl(e.target.value);
+                      if (e.target.value) setImageUrl("");
+                    }}
+                    placeholder="https://... (또는 위 툴바에서 파일 첨부)"
+                  />
+                  {videoUrl && (
+                    <div className="space-y-1">
+                      <video
+                        src={videoUrl}
+                        controls
+                        className="mt-2 max-h-48 w-full rounded-lg border border-neutral-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setVideoUrl("")}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        영상 제거
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
