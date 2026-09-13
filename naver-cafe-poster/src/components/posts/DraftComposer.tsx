@@ -270,7 +270,7 @@ export function DraftComposer({
         <input type="hidden" name="targetId" value={targetId} />
 
         <Button type="submit" disabled={isPending} className="w-full">
-          {isPending ? "저장 중..." : "초안으로 저장"}
+          {isPending ? "저장 중..." : "AI 초안생성"}
         </Button>
         {state.error && <p className="text-xs text-red-600">{state.error}</p>}
         {state.success && (
