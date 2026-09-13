@@ -41,10 +41,31 @@ const TEXT_ACTIONS: { icon: string; label: string; title: string; before: string
   { icon: "📢", label: "안내", title: "안내 문구용 이모지를 추가합니다", before: "\n📢 " },
 ];
 
+// cafeGenerator.ts/publish-core.ts와 동일한 CTA 형식("\n\n📢 문구 URL", 같은 줄 공백 하나)을
+// 그대로 따른다 — 이미 CTA가 붙어있는 글을 수정 모드로 열면 본문에서 분리해 별도 입력칸으로
+// 보여주고, 저장 시 같은 형식으로 다시 합쳐서 보낸다("추천 링크 기능도 추가해달라",
+// 2026-09-13 요청).
+const CTA_SUFFIX_PATTERN = /\r?\n\r?\n📢 (.+) (\S+)\s*$/;
+
+function splitInitialCta(raw: string): { body: string; ctaText: string; ctaUrl: string } {
+  const match = raw.match(CTA_SUFFIX_PATTERN);
+  if (!match) return { body: raw, ctaText: "", ctaUrl: "" };
+  const [full, ctaText, ctaUrl] = match;
+  return { body: raw.slice(0, raw.length - full.length), ctaText, ctaUrl };
+}
+
+function buildFinalContent(body: string, ctaText: string, ctaUrl: string): string {
+  if (!ctaText.trim() || !ctaUrl.trim()) return body;
+  return `${body}\n\n📢 ${ctaText.trim()} ${ctaUrl.trim()}`;
+}
+
 export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeTarget[] }) {
   const [state, formAction, isPending] = useActionState(updateAndRepublishPostAction, initialState);
   const [title, setTitle] = useState(post.title);
-  const [content, setContent] = useState(post.content);
+  const initialSplit = useState(() => splitInitialCta(post.content))[0];
+  const [content, setContent] = useState(initialSplit.body);
+  const [ctaText, setCtaText] = useState(initialSplit.ctaText);
+  const [ctaUrl, setCtaUrl] = useState(initialSplit.ctaUrl);
   const [targetId, setTargetId] = useState(post.target_id ?? "");
   const [imageUrl, setImageUrl] = useState(post.image_url ?? "");
   const [videoUrl, setVideoUrl] = useState(post.video_url ?? "");
@@ -350,9 +371,12 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
             </p>
           )}
 
+          {/* 실제 전송되는 값은 본문 + CTA를 합친 최종 결과다 — 아래 보이는 입력창은
+              CTA를 뺀 본문만 다룬다(cafeGenerator.ts의 stripTrailingCta/appendCtaIfNeeded와
+              동일한 분리 방식). */}
+          <input type="hidden" name="content" value={buildFinalContent(content, ctaText, ctaUrl)} />
           <Textarea
             ref={contentRef}
-            name="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={22}
@@ -462,6 +486,29 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 🔗 추천 링크(CTA) — DraftComposer.tsx/AIWriteForm.tsx와 동일한 항목("추천 링크
+            기능도 하단에 추가해달라", 2026-09-13 요청). 저장 시 본문 끝에
+            "\n\n📢 문구 URL"(같은 줄, 공백 하나) 형식으로 합쳐져서 publish-core.ts의
+            splitCta()가 그대로 인식한다. */}
+        <div className="space-y-3 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5">
+          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-900">
+            🔗 하단 추천 링크 (CTA)
+          </label>
+          <p className="text-xs text-indigo-700">
+            저장 시 본문 끝에 추천 링크가 자동으로 삽입됩니다. 비워두면 추천 링크 없이 저장됩니다.
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-neutral-700">추천 버튼 문구</label>
+              <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="예: 자세히 보기" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-neutral-700">추천 대상 URL</label>
+              <Input value={ctaUrl} onChange={(e) => setCtaUrl(e.target.value)} placeholder="https://example.com/offer" />
             </div>
           </div>
         </div>
