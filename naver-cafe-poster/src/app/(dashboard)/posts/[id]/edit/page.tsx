@@ -25,14 +25,7 @@ export default async function PostEditPage({
   if (!post) notFound();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-neutral-900">게시글 수정</h1>
-        <p className="mt-1 text-sm text-neutral-600">
-          내용을 수정한 뒤 "수정 내용 다시 등록"을 누르면 바로 카페에 게시됩니다.
-        </p>
-      </div>
-
+    <div className="mx-auto max-w-5xl">
       {post.status === "publishing" ? (
         <div className="rounded-lg border border-neutral-200 bg-white p-5 text-sm text-neutral-600">
           게시가 진행 중인 글은 수정할 수 없습니다. 완료된 뒤 다시 시도해주세요.
