@@ -237,6 +237,11 @@ export async function deployDraftAction(formData: FormData) {
   revalidatePath("/drafts");
   revalidatePath("/posts");
   revalidatePath(`/posts/${postId}`);
+  // 배포는 /drafts(AI 글쓰기), /posts(게시글 관리), /posts/[id](상세) 세 곳 어디서든 누를 수
+  // 있는데, 원래는 redirect가 없어 "AI 글쓰기" 화면에서 누르면 그대로 그 화면에 남아있었다 —
+  // 사용자가 "게시글 관리 화면으로 넘어가야 하는데 그대로 있다"고 지적(2026-09-13)해서,
+  // 결과(성공/실패)를 바로 확인할 수 있는 게시글 관리 목록으로 항상 이동시킨다.
+  redirect("/posts");
 }
 
 export async function deletePostAction(formData: FormData) {

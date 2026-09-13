@@ -36,6 +36,20 @@ function extractArticleUrl(rawResponse: unknown): string | null {
   return typeof articleUrl === "string" ? articleUrl : null;
 }
 
+/** 카페 글쓰기 API는 content를 그대로 HTML로 저장한다(<p>...</p>로 감싸서 반환하는 것으로
+ * 확인) — 일반 텍스트의 개행(\n)은 HTML에서 공백으로 무시되어 문단 구분이 전부 사라지고
+ * 한 줄로 붙어버리는 것을 실계정 게시로 확인했다(2026-09-13). <br>로 변환해서 넣는다.
+ * (2026-09-12에 <img>+<br> 조합을 한 번 시도했다가 403 오류가 났었는데, 그건 이미지 URL을
+ * 본문에 텍스트로 넣던 옛 방식과 겹쳐서 난 문제였다 — 이제 이미지는 별도 파일 파트로 분리돼
+ * 있어 <br>만 단독으로 쓰는 건 문제 없다는 것을 재확인했다.) */
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function textToHtml(text: string): string {
+  return escapeHtml(text).split("\n").join("<br>");
+}
+
 export async function publishCafePost(params: PublishCafePostParams): Promise<PublishPostOutcome> {
   const { supabase, postId, userId, title, content, imageUrl, videoUrl, accessToken, clubId, menuId } = params;
 
@@ -45,12 +59,13 @@ export async function publishCafePost(params: PublishCafePostParams): Promise<Pu
     .eq("id", postId)
     .eq("user_id", userId);
 
-  // 이미지는 이제 createCafeArticle()이 실제 파일(image[0])로 첨부한다(2026-09-12, 커뮤니티에
+  // 이미지는 createCafeArticle()이 실제 파일(image[0])로 첨부한다(2026-09-12, 커뮤니티에
   // 공개된 구현 사례로 이 API가 multipart/form-data + image[0] 파일 첨부를 지원한다는 것을
   // 확인) — 더 이상 본문에 URL을 텍스트로 붙이지 않는다. 영상은 이 방식으로 첨부 가능한지
   // 아직 미확인이라, 기존처럼 링크로만 넣는다(뒤에 본문이 바로 붙으면 네이버의 자동 링크
   // 인식이 본문 앞부분까지 삼켜버리는 것을 확인했으므로 공백으로 경계를 준다).
-  const bodyWithMedia = videoUrl ? `${videoUrl} ${content}` : content;
+  const htmlContent = textToHtml(content);
+  const bodyWithMedia = videoUrl ? `${videoUrl} ${htmlContent}` : htmlContent;
 
   // 네이버 API가 국내 리전 기준으로 서비스되어서인지, 해외 리전(Vercel 기본 리전)에서 호출할 때
   // 가끔 응답이 지연되며 "Gateway Timeout"(HTTP 표준 504 사유구문)만 그대로 떨어지는 현상을
