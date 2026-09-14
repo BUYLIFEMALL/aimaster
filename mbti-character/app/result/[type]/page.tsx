@@ -40,7 +40,7 @@ export async function generateMetadata({
 
   const { img } = await searchParams;
   const title = `나와 닮은 캐릭터는 ${character.name} (${character.code})`;
-  const description = character.quote;
+  const description = `"${character.quote}"\n\n${character.description}`;
   const ogImageUrl = getTrustedImageUrl(img) ?? `${SITE_URL}/api/og?type=${character.code}`;
 
   return {

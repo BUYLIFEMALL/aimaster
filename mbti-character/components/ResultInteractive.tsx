@@ -204,7 +204,7 @@ export function ResultInteractive({
         <ShareButtons
           shareUrl={shareUrl}
           shareText={`나와 닮은 캐릭터는 ${character.name}(${character.code})! 너도 확인해봐`}
-          shareDescription={character.quote}
+          shareDescription={`"${character.quote}"\n\n${character.description}`}
           imageUrl={shareImageUrl}
         />
         <Link href="/test" className="text-sm text-neutral-400 hover:text-neutral-700 underline">
