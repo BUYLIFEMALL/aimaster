@@ -36,10 +36,13 @@ export async function middleware(request: NextRequest) {
   const isAuthRequired = AUTH_REQUIRED_PATHS.some((p) => pathname.startsWith(p));
 
   if (isAuthRequired && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("redirect", pathname + request.nextUrl.search);
-    return NextResponse.redirect(url);
+    // request.nextUrl.clone()으로 만들면 원래 있던 쿼리스트링(예: 공유 링크의 ?img=...)이
+    // /login URL에 그대로 남아 redirect 파라미터와 뒤섞여버린다(2026-09-14 실기기 확인 —
+    // 공유 링크를 비로그인 상태로 열었을 때 /login?img=...&redirect=... 형태로 지저분하게
+    // 붙는 버그). /login에는 redirect 파라미터 하나만 깨끗하게 실어 보낸다.
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname + request.nextUrl.search);
+    return NextResponse.redirect(loginUrl);
   }
 
   if (user && pathname === "/login") {
