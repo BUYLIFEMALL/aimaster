@@ -56,6 +56,7 @@ export default async function ResultPage({
 
   const strengths = await searchParams;
   const shareUrl = `${SITE_URL}/result/${type.code}`;
+  const isFullTest = strengths.mode === "full";
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
@@ -64,6 +65,11 @@ export default async function ResultPage({
           className="px-6 py-10 text-center text-white"
           style={{ background: `linear-gradient(135deg, ${type.color}, #111827)` }}
         >
+          {isFullTest && (
+            <span className="inline-block mb-3 px-3 py-1 rounded-full bg-white/20 text-[11px] font-bold tracking-wide">
+              ✅ 정식판(60문항) 결과
+            </span>
+          )}
           <div className="text-6xl mb-3">{type.emoji}</div>
           <p className="text-sm opacity-80 mb-1">나의 성격코드는</p>
           <h1 className="text-4xl font-black mb-2">{type.code}</h1>
@@ -114,7 +120,10 @@ export default async function ResultPage({
 
       <div className="flex flex-col items-center gap-4">
         <ShareButtons shareUrl={shareUrl} shareText={`나의 성격코드는 ${type.code} - ${type.epithet}! 너도 확인해봐`} />
-        <Link href="/test" className="text-sm text-neutral-400 hover:text-neutral-700 underline">
+        <Link
+          href={isFullTest ? "/test/full" : "/test"}
+          className="text-sm text-neutral-400 hover:text-neutral-700 underline"
+        >
           다시 검사하기
         </Link>
       </div>

@@ -1,4 +1,4 @@
-import { QUESTIONS, type Dimension } from "./questions";
+import type { Dimension, Question } from "./questions";
 
 /** 문항 id → 1~5점 응답. */
 export type Answers = Record<number, number>;
@@ -22,22 +22,32 @@ export interface ScoringResult {
   dimensions: DimensionResult[];
 }
 
-/** 지표별 5문항 합산(5~25점)을 바탕으로 4글자 유형과 각 지표의 강도(%)를 계산한다. */
-export function scoreAnswers(answers: Answers): ScoringResult {
+/**
+ * 지표별 문항 합산을 바탕으로 4글자 유형과 각 지표의 강도(%)를 계산한다. 문항 수는
+ * 검사 종류(축약판 5문항/지표, 정식판 15문항/지표)에 따라 달라지므로 실제 전달된
+ * `questions` 배열에서 지표별 문항 수를 세어 최소/최대 점수 범위를 동적으로 계산한다.
+ */
+export function scoreAnswers(questions: Question[], answers: Answers): ScoringResult {
   const sums: Record<Dimension, number> = { EI: 0, SN: 0, TF: 0, JP: 0 };
+  const counts: Record<Dimension, number> = { EI: 0, SN: 0, TF: 0, JP: 0 };
 
-  for (const q of QUESTIONS) {
+  for (const q of questions) {
     sums[q.dimension] += answers[q.id] ?? 3;
+    counts[q.dimension] += 1;
   }
 
   const dimensions: DimensionResult[] = (Object.keys(sums) as Dimension[]).map((dimension) => {
     const sum = sums[dimension];
-    // 5문항 x 1~5점 = 5~25점, 중간값 15점 기준으로 극을 결정한다.
+    const count = counts[dimension];
+    const min = count; // 문항당 최저 1점
+    const max = count * 5; // 문항당 최고 5점
+    const mid = (min + max) / 2;
+
     const [lowLetter, highLetter] = DIMENSION_LETTERS[dimension];
-    const isHigh = sum >= 15;
+    const isHigh = sum >= mid;
     const letter = isHigh ? highLetter : lowLetter;
     // 0~100 스케일로 정규화한 뒤, 결정된 쪽 극 기준 강도로 변환한다.
-    const percentHigh = Math.round(((sum - 5) / 20) * 100);
+    const percentHigh = Math.round(((sum - min) / (max - min)) * 100);
     const strength = isHigh ? percentHigh : 100 - percentHigh;
     return { dimension, letter, strength: Math.max(50, Math.min(100, strength)) };
   });
