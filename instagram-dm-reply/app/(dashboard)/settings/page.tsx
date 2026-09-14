@@ -29,10 +29,10 @@ const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini"];
 // platform_guides.id — 이 프로그램이 실제로 쓰는 Meta 앱(댓글·DM 자동화)/AI/텔레그램에
 // 해당하는 매뉴얼만 골랐다(2026-09-13, 플랫폼 표준 "API키등록·플랫폼연동 페이지" 규칙).
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
-  { guideId: "4115e455-1585-4304-89b4-d29859fd7a5a", label: "인스타그램 계정 연동하기 (댓글·DM 자동화)" },
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
   { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
   { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "4115e455-1585-4304-89b4-d29859fd7a5a", label: "인스타그램 계정 연동하기 (댓글·DM 자동화)" },
   { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
 ];
 

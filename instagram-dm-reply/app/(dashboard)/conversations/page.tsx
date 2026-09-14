@@ -45,8 +45,10 @@ export default async function ConversationsPage() {
           <h1 className="text-2xl font-black text-gray-900">DM 검토/발송</h1>
           <p className="text-sm text-gray-500 mt-1">
             AI가 만든 답장 초안을 확인하고 수정한 뒤 "답변승인"을 눌러야 실제로 인스타그램 DM으로
-            나갑니다. 새 DM은 웹훅으로 실시간 수신되므로 별도로 새로고침할 필요는 없어요(단,
-            화면은 새로고침해야 최신 목록이 보입니다).
+            나갑니다.
+            <br />
+            새 DM은 웹훅으로 실시간 수신되므로 별도로 새로고침할 필요는 없어요(단, 화면은
+            새로고침해야 최신 목록이 보입니다).
           </p>
         </div>
 
