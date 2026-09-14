@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { KakaoScript } from "@/components/KakaoScript";
 import "./globals.css";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-rho-two.vercel.app";
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body>
+        <KakaoScript />
         <div className="min-h-screen flex flex-col">
           <header className="px-4 py-3 flex items-center justify-between max-w-xl mx-auto w-full">
             <a href="/" className="font-black text-lg text-neutral-900">

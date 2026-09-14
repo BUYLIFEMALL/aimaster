@@ -57,6 +57,7 @@ export default async function ResultPage({
   const strengths = await searchParams;
   const shareUrl = `${SITE_URL}/result/${type.code}`;
   const isFullTest = strengths.mode === "full";
+  const ogImageUrl = `${SITE_URL}/api/og?type=${type.code}`;
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
@@ -119,7 +120,12 @@ export default async function ResultPage({
       </div>
 
       <div className="flex flex-col items-center gap-4">
-        <ShareButtons shareUrl={shareUrl} shareText={`나의 성격코드는 ${type.code} - ${type.epithet}! 너도 확인해봐`} />
+        <ShareButtons
+          shareUrl={shareUrl}
+          shareText={`나의 성격코드는 ${type.code} - ${type.epithet}! 너도 확인해봐`}
+          shareDescription={type.oneLiner}
+          imageUrl={ogImageUrl}
+        />
         <Link
           href={isFullTest ? "/test/full" : "/test"}
           className="text-sm text-neutral-400 hover:text-neutral-700 underline"

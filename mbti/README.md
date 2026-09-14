@@ -64,7 +64,8 @@
 | 1 (MVP) | 20문항 축약 검사(`/test`) + 결과 페이지 + 동적 OG 공유카드 | ✅ 구현 완료, 배포됨(mbti-rho-two.vercel.app) |
 | 1.5 | 60문항 정식 검사(`/test/full`) — 축약판과 채점 로직 공유, 결과 배지로 구분 | ✅ 구현 완료 |
 | 1.5 | `NEXT_PUBLIC_SITE_URL` Vercel 환경변수 반영 + `programs` 카탈로그 등록(무료, 요금제 없음) | ✅ 구현 완료 |
-| 2 | 궁합/밈 등 파생 콘텐츠, 카카오톡 공유 SDK(카카오 디벨로퍼스 앱키 필요) | ⏳ 예정 |
+| 1.5 | 카카오톡 공유 SDK 연동(`components/KakaoScript.tsx` + `ShareButtons`) | ✅ 구현 완료 |
+| 2 | 궁합/밈 등 파생 콘텐츠 | ⏳ 예정 |
 | 2 | 광고(구글 애드센스/카카오 애드핏) 삽입, 유형별 제휴 링크 | ⏳ 예정 |
 | 3 | 이메일 수집형 심화 리포트 | ⏳ 예정 |
 
@@ -73,6 +74,12 @@
 ```
 NEXT_PUBLIC_SITE_URL=       # 배포된 실제 도메인 (OG 이미지 절대경로 생성에 사용)
 NEXT_PUBLIC_MAIN_SITE_URL=  # https://buylife.xyz (기본값에 이미 하드코딩되어 있어 선택사항)
+NEXT_PUBLIC_KAKAO_JS_KEY=   # 카카오 디벨로퍼스 앱의 JavaScript 키(REST API 키 아님).
+                            # 카카오 디벨로퍼스 "플랫폼 키 > JavaScript 키" 화면에서 이
+                            # 사이트 도메인(https://mbti-rho-two.vercel.app)을 "JavaScript
+                            # SDK 도메인"으로 등록해둬야 실제로 동작한다(2026-09-14 등록 완료).
+                            # 값이 없으면 KakaoScript가 아예 렌더링되지 않고, 카카오톡 공유
+                            # 버튼도 조용히 숨겨진다(다른 공유 버튼은 그대로 작동).
 ```
 
 ## 배포
