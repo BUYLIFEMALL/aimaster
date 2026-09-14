@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
 import { getUserApiKey, PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { StylePreferencePicker } from "@/components/StylePreferencePicker";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -61,6 +62,7 @@ export default async function LandingPage() {
             label={PROVIDER_LABELS.gemini}
             maskedValue={geminiKey ? maskApiKey(geminiKey) : null}
           />
+          <StylePreferencePicker />
         </div>
       )}
 

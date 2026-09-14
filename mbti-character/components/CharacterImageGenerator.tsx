@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { IMAGE_STYLES } from "@/lib/imageStyles";
+import { useEffect, useState } from "react";
+import { IMAGE_STYLES, STYLE_PREFERENCE_STORAGE_KEY } from "@/lib/imageStyles";
 import type { Character } from "@/lib/characters";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
+import { StyleButtonGrid } from "@/components/StyleButtonGrid";
 
 export function CharacterImageGenerator({
   character,
@@ -17,6 +18,22 @@ export function CharacterImageGenerator({
   const [error, setError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [showKeyModal, setShowKeyModal] = useState(false);
+
+  // 랜딩 페이지(StylePreferencePicker)에서 미리 골라둔 스타일이 있으면 그걸 기본값으로
+  // 이어받는다.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STYLE_PREFERENCE_STORAGE_KEY);
+      if (saved && IMAGE_STYLES.some((s) => s.id === saved)) setStyleId(saved);
+    } catch {}
+  }, []);
+
+  function handleSelectStyle(id: string) {
+    setStyleId(id);
+    try {
+      localStorage.setItem(STYLE_PREFERENCE_STORAGE_KEY, id);
+    } catch {}
+  }
 
   async function handleGenerate() {
     if (!hasApiKey) {
@@ -76,22 +93,7 @@ export function CharacterImageGenerator({
       <div className="flex flex-col gap-3">
         <div>
           <label className="text-xs font-semibold text-neutral-600 mb-1.5 block">캐릭터 스타일</label>
-          <div className="grid grid-cols-2 gap-2">
-            {IMAGE_STYLES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setStyleId(s.id)}
-                className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-colors ${
-                  styleId === s.id
-                    ? "border-neutral-900 bg-neutral-900 text-white"
-                    : "border-neutral-200 text-neutral-600 hover:border-neutral-400"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
+          <StyleButtonGrid selectedId={styleId} onSelect={handleSelectStyle} />
         </div>
 
         {error && <p className="text-xs text-red-500">{error}</p>}

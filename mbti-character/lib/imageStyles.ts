@@ -48,3 +48,11 @@ export const IMAGE_STYLES: ImageStyle[] = [
 export function getImageStyle(id: string): ImageStyle | undefined {
   return IMAGE_STYLES.find((s) => s.id === id);
 }
+
+/**
+ * 랜딩 페이지에서 미리 골라둔 스타일을 결과 페이지의 CharacterImageGenerator가 그대로
+ * 이어받아 쓰기 위한 localStorage 키. 로그인 여부와 무관하게 이 브라우저에서의 취향
+ * 기억용이라 서버에는 저장하지 않는다.
+ */
+export const STYLE_PREFERENCE_STORAGE_KEY = "mbti-character:preferred-style";
+
