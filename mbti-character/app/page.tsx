@@ -1,6 +1,12 @@
 import Link from "next/link";
+import { getSessionUser } from "@/lib/auth";
 
-export default function LandingPage() {
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
+export default async function LandingPage() {
+  const user = await getSessionUser();
+
   return (
     <div className="max-w-xl mx-auto px-4 py-16 text-center">
       <div className="text-6xl mb-6">🎭</div>
@@ -11,16 +17,35 @@ export default function LandingPage() {
       </p>
 
       <div className="flex flex-col gap-3 items-center">
-        <Link
-          href="/test"
-          className="w-full max-w-xs px-8 py-4 rounded-2xl bg-neutral-900 text-white font-bold text-lg hover:bg-neutral-800 transition-colors"
-        >
-          내 캐릭터 찾기
-        </Link>
+        {user ? (
+          <Link
+            href="/test"
+            className="w-full max-w-xs px-8 py-4 rounded-2xl bg-neutral-900 text-white font-bold text-lg hover:bg-neutral-800 transition-colors"
+          >
+            내 캐릭터 찾기
+          </Link>
+        ) : (
+          <>
+            <Link
+              href="/login?redirect=/test"
+              className="w-full max-w-xs px-8 py-4 rounded-2xl bg-neutral-900 text-white font-bold text-lg hover:bg-neutral-800 transition-colors"
+            >
+              로그인하고 시작하기
+            </Link>
+            <p className="text-xs text-neutral-400">
+              계정이 없으신가요?{" "}
+              <Link href="/signup" className="underline hover:text-neutral-600">
+                회원가입
+              </Link>
+            </p>
+          </>
+        )}
         <p className="text-xs text-neutral-400">20문항 · 약 2분 소요</p>
       </div>
 
-      <p className="mt-4 text-xs text-neutral-400">로그인 불필요</p>
+      <p className="mt-4 text-xs text-neutral-400">
+        AIMaster 계정 하나로 캐릭코드는 물론 다른 프로그램도 함께 이용할 수 있어요.
+      </p>
 
       <p className="mt-16 text-[11px] text-neutral-300 leading-relaxed">
         이 검사는 융(Jung) 심리유형론에서 널리 쓰이는 4개 이분지표 개념을 참고해 자체

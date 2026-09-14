@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { KakaoScript } from "@/components/KakaoScript";
+import { getSessionUser } from "@/lib/auth";
+import { signOutAction } from "@/lib/actions/auth";
 import "./globals.css";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.vercel.app";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
@@ -16,7 +21,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const user = await getSessionUser();
+
   return (
     <html lang="ko">
       <body>
@@ -26,12 +33,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <a href="/" className="font-black text-lg text-neutral-900">
               🎭 캐릭코드
             </a>
-            <a
-              href={`${MAIN_SITE_URL}/programs`}
-              className="text-xs text-neutral-400 hover:text-neutral-700"
-            >
-              다른 프로그램 보기 →
-            </a>
+            <div className="flex flex-col items-end gap-0.5">
+              <a
+                href={`${MAIN_SITE_URL}/programs`}
+                className="text-xs text-neutral-400 hover:text-neutral-700"
+              >
+                다른 프로그램 보기 →
+              </a>
+              {user ? (
+                <form action={signOutAction}>
+                  <button type="submit" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
+                    {user.email} · 로그아웃
+                  </button>
+                </form>
+              ) : (
+                <a href="/login" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
+                  로그인
+                </a>
+              )}
+            </div>
           </header>
           <main className="flex-1">{children}</main>
         </div>

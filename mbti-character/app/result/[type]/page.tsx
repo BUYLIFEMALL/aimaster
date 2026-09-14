@@ -4,6 +4,12 @@ import Link from "next/link";
 import { CHARACTERS, ALL_TYPE_CODES } from "@/lib/characters";
 import { ShareButtons } from "@/components/ShareButtons";
 import { CharacterImageGenerator } from "@/components/CharacterImageGenerator";
+import { requireProgramAccess } from "@/lib/access";
+
+// 로그인 여부(쿠키)에 따라 접근을 막아야 하는 페이지라 빌드 타임에 미리 정적 생성할 수 없다
+// — generateStaticParams를 쓰지 않고 매 요청마다 동적으로 렌더링한다.
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.vercel.app";
 
@@ -17,10 +23,6 @@ const DIMENSION_LABELS: Record<string, string> = {
 function getCharacter(typeParam: string) {
   const code = typeParam.toUpperCase();
   return ALL_TYPE_CODES.includes(code) ? CHARACTERS[code] : null;
-}
-
-export function generateStaticParams() {
-  return ALL_TYPE_CODES.map((type) => ({ type }));
 }
 
 export async function generateMetadata({
@@ -51,6 +53,8 @@ export default async function ResultPage({
   params: Promise<{ type: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
+  await requireProgramAccess();
+
   const { type: typeParam } = await params;
   const character = getCharacter(typeParam);
   if (!character) notFound();
