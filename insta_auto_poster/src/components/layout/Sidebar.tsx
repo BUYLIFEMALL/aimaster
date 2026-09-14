@@ -27,12 +27,9 @@ const FLOW_STEPS = [
   },
 ];
 
-// API 키 등록과 인스타그램 계정 연동은 각각 별도 페이지로 나뉘어 있어 유틸리티 섹션에
-// 개별 항목으로 둔다(스텝퍼 흐름에 속하지 않는 부가 설정).
-const UTILITY_ITEMS = [
-  { href: "/settings", icon: "🔑", label: "API키등록" },
-  { href: "/accounts", icon: "🔗", label: "플랫폼연동" },
-];
+// API 키 등록과 인스타그램 계정 연동을 한 페이지(/settings)로 합쳤다(2026-09-14, 플랫폼
+// 표준 "API키등록·플랫폼연동" 메뉴명 규칙에 맞춤 — 다른 서브프로젝트와 동일하게 통일).
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();

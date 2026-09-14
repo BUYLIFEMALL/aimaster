@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // Facebook 로그인(운영자 공용 앱) 방식의 Instagram OAuth 콜백. 별도 설정 없이 바로 연결
-// 가능한 기본(1차) 연결 방법이다 — 이 방식으로 안 되는 회원은 /accounts에서 API 키(BYOK)
+// 가능한 기본(1차) 연결 방법이다 — 이 방식으로 안 되는 회원은 /settings에서 API 키(BYOK)
 // 방식(/api/instagram/callback/byok)으로 대체 연결할 수 있다.
 // Access Token은 여기서만 처리되고, 브라우저로는 절대 직접 전달되지 않습니다 (짧게 사는
 // httpOnly 쿠키에 담아 선택 화면으로만 넘깁니다).
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
   if (oauthError || !code || !state) {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=connect_failed`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
   }
 
   const supabase = await createClient();
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
   // OAuth 토큰을 저장하지 않는다 (로그인만 한 비구독자가 계정 연동까지 끝내는 것 방지).
   const access = await checkProgramAccessApi();
   if (!access.allowed) {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=no_access`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=no_access`);
   }
 
   try {
@@ -80,6 +80,6 @@ export async function GET(request: NextRequest) {
     // 항상 사람이 읽을 설명 문자열) 노출 걱정 없이 그대로 보여줘도 된다.
     const message = err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.";
     console.error("[instagram/callback] 계정 연결 실패:", message);
-    return NextResponse.redirect(`${siteUrl}/accounts?error=connect_failed&reason=${encodeURIComponent(message)}`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed&reason=${encodeURIComponent(message)}`);
   }
 }

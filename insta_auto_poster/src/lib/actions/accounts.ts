@@ -24,7 +24,7 @@ export async function connectInstagramAccountAction(formData: FormData) {
     const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
     if (!appId) {
       redirect(
-        `/accounts?error=connect_failed&reason=${encodeURIComponent(
+        `/settings?error=connect_failed&reason=${encodeURIComponent(
           `${PROVIDER_LABELS.meta_app_id}가 없습니다. 설정 페이지에서 본인 Meta 앱을 먼저 등록해주세요.`,
         )}`,
       );
@@ -44,7 +44,7 @@ export async function confirmInstagramAccountAction(formData: FormData) {
   const raw = cookieStore.get(PENDING_INSTAGRAM_CONNECTION_COOKIE)?.value;
 
   if (!raw) {
-    redirect(`/accounts?error=connect_failed&reason=${encodeURIComponent("연결 세션이 만료되었습니다. 다시 시도해주세요.")}`);
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent("연결 세션이 만료되었습니다. 다시 시도해주세요.")}`);
   }
 
   let pending: PendingInstagramConnection;
@@ -52,12 +52,12 @@ export async function confirmInstagramAccountAction(formData: FormData) {
     pending = JSON.parse(raw);
   } catch {
     cookieStore.delete(PENDING_INSTAGRAM_CONNECTION_COOKIE);
-    redirect(`/accounts?error=connect_failed&reason=${encodeURIComponent("연결 세션을 해석하지 못했습니다. 다시 시도해주세요.")}`);
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent("연결 세션을 해석하지 못했습니다. 다시 시도해주세요.")}`);
   }
 
   const chosen = pending.candidates.find((c) => c.pageId === pageId);
   if (!chosen) {
-    redirect(`/accounts?error=connect_failed&reason=${encodeURIComponent("선택한 페이지를 찾지 못했습니다. 다시 시도해주세요.")}`);
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent("선택한 페이지를 찾지 못했습니다. 다시 시도해주세요.")}`);
   }
 
   const tokenExpiresAt = new Date(Date.now() + pending.expiresInSeconds * 1000).toISOString();
@@ -78,11 +78,11 @@ export async function confirmInstagramAccountAction(formData: FormData) {
   cookieStore.delete(PENDING_INSTAGRAM_CONNECTION_COOKIE);
 
   if (error) {
-    redirect(`/accounts?error=connect_failed&reason=${encodeURIComponent(error.message)}`);
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent(error.message)}`);
   }
 
-  revalidatePath("/accounts");
-  redirect("/accounts?connected=1");
+  revalidatePath("/settings");
+  redirect("/settings?connected=1");
 }
 
 export async function disconnectInstagramAccountAction() {
@@ -91,5 +91,5 @@ export async function disconnectInstagramAccountAction() {
 
   await supabase.from("insta_accounts").delete().eq("user_id", user.id);
 
-  revalidatePath("/accounts");
+  revalidatePath("/settings");
 }

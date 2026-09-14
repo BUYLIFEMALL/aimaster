@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
   if (oauthError || !code || !stateParam) {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=connect_failed`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
   }
 
   const supabase = await createClient();
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
   const access = await checkProgramAccessApi();
   if (!access.allowed) {
-    return NextResponse.redirect(`${siteUrl}/accounts?error=no_access`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=no_access`);
   }
 
   try {
@@ -74,11 +74,11 @@ export async function GET(request: NextRequest) {
       throw new Error(error.message);
     }
 
-    return NextResponse.redirect(`${siteUrl}/accounts?connected=1`);
+    return NextResponse.redirect(`${siteUrl}/settings?connected=1`);
   } catch (err) {
     // 원인 진단용: 서버 콘솔에 실제 에러를 남기고, 화면에도 메시지를 보여준다.
     const message = err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.";
     console.error("[instagram/callback/byok] 계정 연결 실패:", message);
-    return NextResponse.redirect(`${siteUrl}/accounts?error=connect_failed&reason=${encodeURIComponent(message)}`);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed&reason=${encodeURIComponent(message)}`);
   }
 }

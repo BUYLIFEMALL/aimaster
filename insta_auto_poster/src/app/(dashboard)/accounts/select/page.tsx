@@ -16,14 +16,14 @@ export default async function SelectInstagramAccountPage() {
   const raw = cookieStore.get(PENDING_INSTAGRAM_CONNECTION_COOKIE)?.value;
 
   if (!raw) {
-    redirect(`/accounts?error=connect_failed&reason=${encodeURIComponent("연결 세션이 만료되었습니다. 다시 시도해주세요.")}`);
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent("연결 세션이 만료되었습니다. 다시 시도해주세요.")}`);
   }
 
   let pending: PendingInstagramConnection;
   try {
     pending = JSON.parse(raw);
   } catch {
-    redirect(`/accounts?error=connect_failed&reason=${encodeURIComponent("연결 세션을 해석하지 못했습니다. 다시 시도해주세요.")}`);
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent("연결 세션을 해석하지 못했습니다. 다시 시도해주세요.")}`);
   }
 
   return (
