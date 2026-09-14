@@ -1,0 +1,44 @@
+/**
+ * AI 캐릭터 이미지 생성 시 고를 수 있는 아트 스타일. 프롬프트 조립은 항상 서버
+ * (app/api/generate-character-image/route.ts)에서만 이 목록 + lib/characters.ts의 고정
+ * 데이터로 이뤄진다 — 클라이언트가 자유 텍스트 프롬프트를 보내게 허용하면, 방문자가 각자
+ * 넣은 Gemini API 키를 우리 서버가 임의 프롬프트를 대신 전달해주는 범용 릴레이로 악용할
+ * 여지가 생기기 때문에, 반드시 style id + type code 조합만 받도록 제한한다.
+ */
+
+export interface ImageStyle {
+  id: string;
+  label: string;
+  promptModifier: string;
+}
+
+export const IMAGE_STYLES: ImageStyle[] = [
+  {
+    id: "cute",
+    label: "🎀 귀여운 캐릭터",
+    promptModifier:
+      "cute chibi-style character illustration, big sparkling eyes, soft pastel color palette, adorable simplified proportions, clean flat vector illustration, kawaii aesthetic",
+  },
+  {
+    id: "realistic",
+    label: "📷 실사 캐릭터",
+    promptModifier:
+      "photorealistic portrait illustration of a Korean person, realistic skin texture and natural lighting, cinematic photographic detail, shallow depth of field",
+  },
+  {
+    id: "anime",
+    label: "🌸 애니메이션풍",
+    promptModifier:
+      "Japanese anime/manga style illustration, vibrant colors, clean line art, expressive anime-style eyes, dynamic pose",
+  },
+  {
+    id: "watercolor",
+    label: "🎨 수채화 일러스트",
+    promptModifier:
+      "soft watercolor painting style, gentle visible brush strokes, dreamy pastel atmosphere, artistic paper texture",
+  },
+];
+
+export function getImageStyle(id: string): ImageStyle | undefined {
+  return IMAGE_STYLES.find((s) => s.id === id);
+}

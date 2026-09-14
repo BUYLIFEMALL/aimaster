@@ -57,8 +57,12 @@ mbti-character는 AIMaster 저장소 안의 서브프로젝트이므로 "Platfor
   서비스에는 로그인 자체가 없다.
 - 공용 Supabase DB 연결 — 검사 응답/결과가 서버에 저장되지 않고 전부 클라이언트+URL에서만
   처리된다.
-- `user_api_keys`/API 키 등록 페이지 — 이 프로젝트는 현재 외부 유료 API를 호출하지 않는다
-  (카카오 공유 SDK는 무료 앱키만 필요).
+- `user_api_keys`/API 키 등록 페이지 — 카카오 공유 SDK는 무료 앱키만 필요해 해당 없다.
+  AI 캐릭터 이미지 생성(Gemini)은 유료 API 호출이 맞지만, 회원 계정이 없어 공용
+  `user_api_keys` 테이블에 저장할 대상이 없으므로 그 표준 패턴 대신 BYOK(방문자가 결과
+  화면에서 직접 키 입력 → localStorage에만 보관 → 서버는 무상태 프록시)로 구현했다.
+  자세한 이유는 README.md "AI 캐릭터 이미지 생성" 참고. 이 프로젝트에 로그인 기능을
+  나중에 추가하지 않는 한, 이 방식을 표준 `user_api_keys` 패턴으로 바꾸지 말 것.
 
 AIMaster 플랫폼과의 연결은 헤더의 "다른 프로그램 보기" 링크(`buylife.xyz/programs`)와,
 `programs` 카탈로그 등록 정도로 가볍게만 유지한다(README.md "남은 작업" 참고).

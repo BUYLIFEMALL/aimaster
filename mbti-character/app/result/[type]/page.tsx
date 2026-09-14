@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CHARACTERS, ALL_TYPE_CODES } from "@/lib/characters";
 import { ShareButtons } from "@/components/ShareButtons";
+import { CharacterImageGenerator } from "@/components/CharacterImageGenerator";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-character.vercel.app";
 
@@ -68,8 +69,8 @@ export default async function ResultPage({
           <div className="text-6xl mb-3">{character.emoji}</div>
           <p className="text-sm opacity-80 mb-1">나와 닮은 캐릭터는</p>
           <h1 className="text-4xl font-black mb-1">{character.name}</h1>
-          <p className="text-sm opacity-80 mb-2">{character.role}</p>
-          <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-xs font-bold tracking-widest">
+          <p className="text-sm opacity-80 mb-3">{character.role}</p>
+          <span className="inline-block px-5 py-2 rounded-full bg-white/20 text-3xl font-black tracking-widest">
             {character.code}
           </span>
         </div>
@@ -78,6 +79,8 @@ export default async function ResultPage({
           <p className="text-sm text-neutral-500 leading-relaxed">{character.description}</p>
         </div>
       </div>
+
+      <CharacterImageGenerator character={character} />
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-5 mb-6">
         <h2 className="text-sm font-bold text-neutral-900 mb-4">나의 성향 지표</h2>
