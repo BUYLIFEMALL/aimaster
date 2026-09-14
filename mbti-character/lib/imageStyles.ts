@@ -21,9 +21,15 @@ export const IMAGE_STYLES: ImageStyle[] = [
   },
   {
     id: "realistic",
-    label: "📷 실사 캐릭터",
+    label: "📷 실물 캐릭터",
     promptModifier:
       "photorealistic portrait illustration of a Korean person, realistic skin texture and natural lighting, cinematic photographic detail, shallow depth of field",
+  },
+  {
+    id: "animal",
+    label: "🐾 귀여운 동물 캐릭터",
+    promptModifier:
+      "cute anthropomorphic animal mascot character illustration (choose an animal species that fits the personality described), big round eyes, soft rounded proportions, fluffy fur texture, adorable Pixar/mascot-style character design, simple clean shading",
   },
   {
     id: "anime",

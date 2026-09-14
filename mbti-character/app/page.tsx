@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
-import { getUserApiKey } from "@/lib/apiKeys";
+import { getUserApiKey, PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
+import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -45,30 +46,21 @@ export default async function LandingPage() {
         <p className="text-xs text-neutral-400">20문항 · 약 2분 소요</p>
       </div>
 
-      {/* API키등록·플랫폼연동 — 눈에 잘 띄도록 CTA 바로 아래, 계정 안내 문구 위에 배치.
-          로그인했지만 Gemini 키를 아직 연동하지 않은 경우 강조 스타일로 바로 연동을
-          진행할 수 있게 안내한다(2026-09-14 사용자 요청). */}
+      {/* API키등록·플랫폼연동 — 눈에 잘 띄도록 CTA 바로 아래, 계정 안내 문구 위에 배치하고
+          /settings로 보내는 링크 대신 등록 폼을 이 페이지에 바로 노출한다(2026-09-14
+          사용자 요청: "바로 밑에 API키 등록폼을 바로 보여주고"). */}
       {user && (
-        <div className="mt-8 w-full max-w-xs mx-auto">
-          {geminiKey ? (
-            <Link
-              href="/settings"
-              className="flex items-center justify-between px-4 py-3 rounded-2xl border border-neutral-200 bg-white text-sm hover:border-neutral-400 transition-colors"
-            >
-              <span className="text-neutral-600">✅ API키등록·플랫폼연동</span>
-              <span className="text-neutral-400 text-xs">관리 →</span>
-            </Link>
-          ) : (
-            <Link
-              href="/settings"
-              className="flex flex-col gap-1 px-4 py-3 rounded-2xl border-2 border-amber-400 bg-amber-50 hover:bg-amber-100 transition-colors"
-            >
-              <span className="text-sm font-bold text-amber-800">🔑 API키등록·플랫폼연동이 필요해요</span>
-              <span className="text-xs text-amber-700">
-                AI 캐릭터 이미지를 생성하려면 Gemini 연동이 필요합니다 — 지금 연동하기 →
-              </span>
-            </Link>
-          )}
+        <div className="mt-8 w-full max-w-sm mx-auto text-left">
+          <p
+            className={`text-sm font-bold mb-2 ${geminiKey ? "text-neutral-600" : "text-amber-700"}`}
+          >
+            {geminiKey ? "✅ API키등록·플랫폼연동 완료" : "🔑 AI 캐릭터 이미지 생성을 위한 API키등록이 필요"}
+          </p>
+          <ApiKeyRow
+            provider="gemini"
+            label={PROVIDER_LABELS.gemini}
+            maskedValue={geminiKey ? maskApiKey(geminiKey) : null}
+          />
         </div>
       )}
 
