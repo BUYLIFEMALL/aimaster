@@ -201,10 +201,15 @@ export function ResultInteractive({
       </div>
 
       <div className="flex flex-col items-center gap-4">
+        {/* 카카오톡 Feed 템플릿의 채팅 버블은 description을 약 2줄로 무조건 잘라서
+            "..."로 표시한다(카카오 자체 UI 제약, API로 보내는 길이와 무관) — 대사+설명
+            전체를 보냈더니 설명 문단이 통째로 안 보이고 어색하게 잘렸다(2026-09-14 실기기
+            확인). 그래서 짧은 대사 한 줄만 보내 자연스럽게 끝나도록 되돌렸다. 전체 설명은
+            카드를 눌러 결과 페이지로 들어오면 보인다. */}
         <ShareButtons
           shareUrl={shareUrl}
           shareText={`나와 닮은 캐릭터는 ${character.name}(${character.code})! 너도 확인해봐`}
-          shareDescription={`"${character.quote}"\n\n${character.description}`}
+          shareDescription={character.quote}
           imageUrl={shareImageUrl}
         />
         <Link href="/test" className="text-sm text-neutral-400 hover:text-neutral-700 underline">
