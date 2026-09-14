@@ -92,4 +92,3 @@ Windows에서 `Invalid URL` 오류가 난다(`join(import.meta.url, ...)`가 백
 ## 남은 작업
 - 카카오톡 공유 SDK 연동(카카오 디벨로퍼스 앱키 발급 필요 — 유료/키 등록 항목이라 사용자 승인 후 진행)
 - 궁합 테스트 등 파생 콘텐츠 페이지 추가
-- 카탈로그 썸네일(`programs.thumbnail_url`) 생성 — 현재 null
