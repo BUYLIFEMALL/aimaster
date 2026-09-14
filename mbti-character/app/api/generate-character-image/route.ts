@@ -3,6 +3,9 @@ import { CHARACTERS, ALL_TYPE_CODES } from "@/lib/characters";
 import { getImageStyle } from "@/lib/imageStyles";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { createClient } from "@/lib/supabase/server";
+
+const STORAGE_BUCKET = "mbti-character-images";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,6 +25,13 @@ export const fetchCache = "force-no-store";
  * 클라이언트가 자유 텍스트 프롬프트를 직접 보내게 하지 않는다 — 그러면 방문자가 우리 서버를
  * 임의 프롬프트 릴레이로 악용할 수 있으므로, 반드시 CHARACTERS/IMAGE_STYLES에 미리 정의된
  * 조합(typeCode + styleId)만 받아 서버에서 프롬프트를 조립한다.
+ *
+ * 생성된 이미지는 base64로만 돌려주지 않고 Supabase Storage(mbti-character-images, 공개
+ * 버킷)에 회원 본인 폴더(`${user.id}/...`)로 업로드해 공개 URL을 반환한다 — 카카오톡
+ * 공유(Kakao.Share의 imageUrl)와 링크 공유 시 og:image 둘 다 실제 HTTP(S) 이미지 URL이
+ * 있어야 미리보기가 뜨기 때문이다(base64 데이터 URL은 두 경우 모두 쓸 수 없다). 업로드는
+ * 로그인 세션이 실린 서버 클라이언트로 하므로 RLS가 그대로 적용되어 본인 폴더에만 쓸 수
+ * 있다(instagram-comment-reply의 ig-media-thumbnails 버킷과 동일 패턴).
  */
 const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image";
 
@@ -114,5 +124,22 @@ export async function POST(request: NextRequest) {
   }
 
   const { mimeType, data: base64 } = imagePart.inlineData;
-  return NextResponse.json({ imageDataUrl: `data:${mimeType};base64,${base64}` });
+  const buffer = Buffer.from(base64, "base64");
+  const ext = mimeType?.includes("png") ? "png" : mimeType?.includes("webp") ? "webp" : "jpg";
+  const objectPath = `${access.user.id}/${typeCode.toUpperCase()}-${styleId}-${Date.now()}.${ext}`;
+
+  const supabase = await createClient();
+  const { error: uploadError } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .upload(objectPath, buffer, { contentType: mimeType ?? "image/png", upsert: true });
+
+  if (uploadError) {
+    return NextResponse.json(
+      { error: "이미지 저장에 실패했습니다. 잠시 후 다시 시도해주세요." },
+      { status: 502 },
+    );
+  }
+
+  const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(objectPath);
+  return NextResponse.json({ imageUrl: pub.publicUrl });
 }
