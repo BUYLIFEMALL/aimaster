@@ -54,9 +54,15 @@ export function ShareButtons({
   }
 
   async function copyLink() {
-    // navigator.clipboard.writeText()가 임베디드 브라우저(카카오톡 인앱 등)에서 권한 처리
-    // 단계에 멈춰 응답이 영영 안 오는 사례를 직접 확인했다(2026-09-14) — 800ms 안에 끝나지
-    // 않거나 실패하면 곧바로 구식 execCommand 방식으로 넘어간다.
+    // 처음엔 navigator.share()를 쓰고 알려진 인앱 브라우저(카카오톡 등)만 예외 처리했는데,
+    // 그렇게 감지한 목록에 없는 환경(예: iOS 카카오톡 인앱 브라우저)에서도 똑같이 빈 팝업만
+    // 뜬다는 신고가 이어져(2026-09-14), User-Agent로 환경을 구분하는 방식 자체를 포기하고
+    // 이 버튼은 항상 "링크 복사"만 하도록 단순화했다 — 카카오톡 공유는 옆의 전용 버튼이
+    // 이미 담당하므로, 이 버튼까지 공유 시트를 흉내낼 필요가 없다.
+    //
+    // navigator.clipboard.writeText()도 임베디드 브라우저에서 권한 처리 단계에 멈춰 응답이
+    // 영영 안 오는 사례를 직접 확인했다 — 800ms 안에 끝나지 않거나 실패하면 곧바로 구식
+    // execCommand 방식으로 넘어간다.
     let done = false;
     try {
       await Promise.race([
@@ -73,28 +79,6 @@ export function ShareButtons({
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function handleShare() {
-    // 카카오톡/인스타그램 등 인앱 브라우저는 navigator.share가 "있다"고 보고하면서도
-    // 실제로는 빈 공유 시트만 띄우는 경우가 많다(2026-09-14 실사용자가 카카오톡 인앱
-    // 브라우저에서 "빈 팝업만 뜬다"고 보고해 확인함). 이 버튼은 정확히 카카오톡 안에서
-    // 눌릴 일이 많아 이 문제를 그대로 노출하므로, 알려진 인앱 브라우저에서는 navigator.share
-    // 자체를 시도하지 않고 클립보드 복사로 바로 넘어간다.
-    const ua = navigator.userAgent;
-    const isBrokenInAppBrowser = /KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(ua);
-
-    if (navigator.share && !isBrokenInAppBrowser) {
-      try {
-        await navigator.share({ title: shareText, url: shareUrl });
-        return;
-      } catch (err) {
-        // 사용자가 공유 시트를 직접 취소한 경우(AbortError)는 그대로 두고, 그 외
-        // 오류(공유 시트 자체가 깨진 경우 등)는 클립보드 복사로 폴백한다.
-        if (err instanceof Error && err.name === "AbortError") return;
-      }
-    }
-    await copyLink();
   }
 
   function handleKakaoShare() {
@@ -130,10 +114,10 @@ export function ShareButtons({
         )}
         <button
           type="button"
-          onClick={handleShare}
+          onClick={copyLink}
           className="px-6 py-3 rounded-2xl bg-neutral-900 text-white font-bold hover:bg-neutral-800 transition-colors"
         >
-          📤 결과 공유하기
+          🔗 링크 복사
         </button>
       </div>
       {copied && <p className="text-xs text-neutral-400">링크가 복사되었어요!</p>}
