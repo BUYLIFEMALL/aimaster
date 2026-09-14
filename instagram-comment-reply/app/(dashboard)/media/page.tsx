@@ -26,6 +26,7 @@ export default async function MediaPage() {
         <h1 className="text-2xl font-black text-gray-900">게시물 관리</h1>
         <p className="text-sm text-gray-500 mt-1">
           계정을 연결한 뒤 동기화하면 모든 게시물이 기본적으로 댓글 자동 답글 대상으로 등록됩니다.
+          <br />
           원치 않는 게시물은 개별로 꺼두거나, 목록에서 아예 숨길 수 있어요.
         </p>
       </div>
