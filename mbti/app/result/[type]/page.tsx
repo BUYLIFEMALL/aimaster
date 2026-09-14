@@ -4,7 +4,7 @@ import Link from "next/link";
 import { PERSONALITY_TYPES, ALL_TYPE_CODES } from "@/lib/types";
 import { ShareButtons } from "@/components/ShareButtons";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-rho-two.vercel.app";
 
 const DIMENSION_LABELS: Record<string, string> = {
   EI: "외향-내향",

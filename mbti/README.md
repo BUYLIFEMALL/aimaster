@@ -13,8 +13,14 @@
 `user_api_keys` 등)을 의도적으로 적용하지 않는다 — 애초에 로그인이 필요 없는 무료
 공개 서비스이기 때문이다. AIMaster 플랫폼과는 "가볍게"만 연동한다:
 - 헤더에 "다른 프로그램 보기" 링크로 `buylife.xyz/programs`로 트래픽을 보낸다.
-- (남은 작업) `programs` 테이블에 카탈로그 항목으로 등록해 buylife.xyz 방문자에게도
-  노출되도록 한다 — 실제 서비스 URL이 확정된 뒤 진행할 것.
+- `programs` 테이블에 카탈로그 항목으로 등록되어 있다(slug: `personality-code`,
+  category: 기타, `supabase/migrations/0001_register_program.sql`). **다른 서브프로젝트와
+  달리 `pricing_plans`/`grade_program_access` 행은 만들지 않았다** — 이 사이트는 로그인·
+  구독이 전혀 필요 없는 완전 무료 서비스라(2026-09-14 사용자 결정: "요금제 없이 무료로만
+  등록"), 유료 요금제를 붙이면 오히려 오해를 산다. 카탈로그 카드에는 `badges: ["free"]`로
+  무료 표시만 해뒀다. `required_grade_id`는 다른 모든 프로그램과 동일하게 "일반"(최하위
+  기본 등급) 값을 넣어뒀지만 카탈로그 표시 목적일 뿐, 실제 mbti 사이트 자체에는 어떤
+  로그인·권한 체크도 없다.
 
 ### 왜 "MBTI"라는 이름을 쓰지 않았는가
 공식 MBTI(Myers-Briggs Type Indicator)는 The Myers-Briggs Company의 등록상표이자
@@ -57,7 +63,8 @@
 |-------|------|------|
 | 1 (MVP) | 20문항 축약 검사(`/test`) + 결과 페이지 + 동적 OG 공유카드 | ✅ 구현 완료, 배포됨(mbti-rho-two.vercel.app) |
 | 1.5 | 60문항 정식 검사(`/test/full`) — 축약판과 채점 로직 공유, 결과 배지로 구분 | ✅ 구현 완료 |
-| 2 | 궁합/밈 등 파생 콘텐츠, 카카오톡 공유 SDK(카카오 디벨로퍼스 앱키 필요), `programs` 카탈로그 등록 | ⏳ 예정 |
+| 1.5 | `NEXT_PUBLIC_SITE_URL` Vercel 환경변수 반영 + `programs` 카탈로그 등록(무료, 요금제 없음) | ✅ 구현 완료 |
+| 2 | 궁합/밈 등 파생 콘텐츠, 카카오톡 공유 SDK(카카오 디벨로퍼스 앱키 필요) | ⏳ 예정 |
 | 2 | 광고(구글 애드센스/카카오 애드핏) 삽입, 유형별 제휴 링크 | ⏳ 예정 |
 | 3 | 이메일 수집형 심화 리포트 | ⏳ 예정 |
 
@@ -83,6 +90,6 @@ Windows에서 `Invalid URL` 오류가 난다(`join(import.meta.url, ...)`가 백
 한다. Windows에서 로컬 확인이 필요하면 WSL2 안에서 `npm run dev`를 실행할 것.
 
 ## 남은 작업
-- 실제 도메인 확정 후 `NEXT_PUBLIC_SITE_URL` 반영 및 `programs` 테이블 등록
 - 카카오톡 공유 SDK 연동(카카오 디벨로퍼스 앱키 발급 필요 — 유료/키 등록 항목이라 사용자 승인 후 진행)
 - 궁합 테스트 등 파생 콘텐츠 페이지 추가
+- 카탈로그 썸네일(`programs.thumbnail_url`) 생성 — 현재 null
