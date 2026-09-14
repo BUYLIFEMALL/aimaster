@@ -33,13 +33,22 @@ export function ShareButtons({
   }, []);
 
   async function handleShare() {
-    if (navigator.share) {
+    // 카카오톡/인스타그램 등 인앱 브라우저는 navigator.share가 "있다"고 보고하면서도
+    // 실제로는 빈 공유 시트만 띄우는 경우가 많다(2026-09-14 실사용자가 카카오톡 인앱
+    // 브라우저에서 "빈 팝업만 뜬다"고 보고해 확인함). 이 버튼은 정확히 카카오톡 안에서
+    // 눌릴 일이 많아 이 문제를 그대로 노출하므로, 알려진 인앱 브라우저에서는 navigator.share
+    // 자체를 시도하지 않고 클립보드 복사로 바로 넘어간다.
+    const ua = navigator.userAgent;
+    const isBrokenInAppBrowser = /KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(ua);
+
+    if (navigator.share && !isBrokenInAppBrowser) {
       try {
         await navigator.share({ title: shareText, url: shareUrl });
         return;
-      } catch {
-        // 사용자가 공유 시트를 취소한 경우 등 — 조용히 무시하고 복사 폴백으로 넘어가지 않는다.
-        return;
+      } catch (err) {
+        // 사용자가 공유 시트를 직접 취소한 경우(AbortError)는 그대로 두고, 그 외
+        // 오류(공유 시트 자체가 깨진 경우 등)는 클립보드 복사로 폴백한다.
+        if (err instanceof Error && err.name === "AbortError") return;
       }
     }
     await navigator.clipboard.writeText(shareUrl);
