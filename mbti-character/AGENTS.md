@@ -60,19 +60,21 @@ threads/blog 등과 동일한 멀티테넌시 표준 패턴도 대부분 적용�
   루트 CLAUDE.md 멀티테넌시 원칙 1번 감사 이력 참고).
 - 로그인 확인이 들어가는 파일에는 `dynamic = "force-dynamic"` + `fetchCache =
   "force-no-store"`를 반드시 같이 선언한다 — 이미 `middleware.ts`, `app/layout.tsx`,
-  `app/page.tsx`, `app/test/page.tsx`, `app/result/[type]/page.tsx`,
+  `app/page.tsx`, `app/test/page.tsx`, `app/result/[type]/page.tsx`, `app/settings/page.tsx`,
   `app/api/generate-character-image/route.ts`에 적용돼 있다.
-- 공용 Supabase 프로젝트(esgxyikcnnvmlhygjkth)를 그대로 쓰되, 이 프로젝트 자체 데이터
-  테이블(`user_id` + RLS owner-only)은 아직 없다 — 검사 응답/결과가 여전히 클라이언트+URL
-  파라미터로만 오가고 서버에 저장되지 않기 때문이다. 결과를 서버에 저장하는 기능(예: 검사
-  이력)을 추가하게 되면 그때 이 원칙을 적용할 것.
-- **예외: `user_api_keys` 표준 패턴은 아직 쓰지 않는다.** AI 캐릭터 이미지 생성(Gemini)은
-  유료 API 호출이 맞지만, 회원별로 키를 저장해두는 표준 `user_api_keys` 테이블 대신
-  BYOK(방문자가 결과 화면에서 직접 키 입력 → localStorage에만 보관 → 서버는 무상태
-  프록시, `checkProgramAccessApi()`로 로그인만 확인)로 구현했다 — 계정 수가 적은 신규
-  서비스에서 오버엔지니어링을 피하기 위한 의도적 선택이다. 자세한 이유는 README.md
-  "AI 캐릭터 이미지 생성" 참고. 트래픽/계정이 늘어 회원별 키 저장이 필요해지면 그때
-  표준 패턴으로 전환할 것.
+- 공용 Supabase 프로젝트(esgxyikcnnvmlhygjkth)를 그대로 쓰되, 검사 응답/결과 저장용 이
+  프로젝트 자체 데이터 테이블(`user_id` + RLS owner-only)은 아직 없다 — 검사 응답/결과가
+  여전히 클라이언트+URL 파라미터로만 오가고 서버에 저장되지 않기 때문이다. 결과를 서버에
+  저장하는 기능(예: 검사 이력)을 추가하게 되면 그때 이 원칙을 적용할 것.
+- **`user_api_keys` 표준 패턴을 그대로 쓴다(BYOK/localStorage 방식 아님).** 2026-09-14
+  처음엔 로그인이 없어 BYOK(방문자가 결과 화면에서 직접 키 입력 → localStorage 보관)로
+  만들었지만, 로그인이 필수가 된 뒤에도 전환을 깜빡해서 사용자가 "API 키 등록 절차가
+  빠졌다"고 지적한 뒤 표준 패턴으로 바꿨다 — `lib/apiKeys.ts`의 `resolveApiKey()`가
+  공용 `user_api_keys`(provider="gemini")에서 회원 본인 키만 조회하고, `/settings`
+  (헤더 라벨 "API키등록·플랫폼연동")에서 등록/삭제한다. **새로운 유료 API 연동을
+  추가할 때 로그인 기반 회원 시스템이 이미 있다면, 절대 BYOK/localStorage로 되돌아가지
+  말고 처음부터 이 표준 패턴을 쓸 것** — 이 프로젝트가 그 실수를 겪은 전례다. 자세한
+  히스토리는 README.md "AI 캐릭터 이미지 생성" 참고.
 - **예외: `/api/og`는 로그인 체크에서 제외한다.** 카카오톡/페이스북 크롤러가 로그인 없이
   이 URL을 긁어가야 공유 미리보기 카드가 정상 노출되므로, `middleware.ts`의 matcher에서
   `api/og` 경로 자체를 뺐다. 이 경로에 실수로 로그인 체크를 추가하지 말 것.

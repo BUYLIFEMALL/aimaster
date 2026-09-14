@@ -48,11 +48,10 @@ GitHub에서 실제 배포된 MBTI 관련 오픈소스를 조사하던 중 `tian
 - `/api/og`(공유 카드 이미지)는 카카오톡/페이스북 같은 크롤러가 로그인 없이 긁어가야 하므로
   예외적으로 로그인 체크에서 제외했다(`middleware.ts`의 matcher에서 `api/og` 경로 자체를
   뺐다) — 그렇지 않으면 공유 링크의 미리보기 카드가 깨진다.
-- AI 캐릭터 이미지 생성(`/api/generate-character-image`)은 비용을 방문자 본인 Gemini
-  키로 부담하는 BYOK 방식은 그대로 유지하되(아래 "AI 캐릭터 이미지 생성" 참고), 로그인
-  없이 아무나 우리 서버를 프록시로 쓰지 못하도록 `checkProgramAccessApi()` 게이트만
-  추가했다 — 회원별로 키를 저장하는 표준 `user_api_keys` 테이블까지는 아직 두지 않았다
-  (계정 수가 적어 오버엔지니어링을 피함 — 필요해지면 추가할 것).
+- AI 캐릭터 이미지 생성(`/api/generate-character-image`)도 다른 서브프로젝트와 동일하게
+  `/settings`에서 등록한 회원별 `user_api_keys`(provider="gemini")를 `resolveApiKey()`로
+  꺼내 쓰는 표준 패턴으로 되어 있다 — 자세한 내용과 변경 히스토리는 아래 "AI 캐릭터
+  이미지 생성" 참고.
 - AIMaster 플랫폼과는 계속 가볍게 연동한다: 헤더의 "다른 프로그램 보기" 링크(`buylife.xyz/
   programs`), `programs` 테이블 카탈로그 등록(slug: `mbti-character`, category: 기타,
   `supabase/migrations/0001_register_program.sql`).
@@ -92,31 +91,37 @@ CLAUDE.md 원칙 때문이다. 문항 문구(`lib/questions.ts`)도 캐릭코드
 반복적으로 실패했고, "카카오 SDK 공유 버튼 + 항상 링크 복사 버튼(클립보드 API 800ms
 타임아웃 후 `execCommand('copy')` 폴백)" 조합만이 모든 환경에서 안정적으로 동작했다.
 
-### AI 캐릭터 이미지 생성 — 왜 운영자 키가 아니라 방문자 본인 키(BYOK)인가
-결과 페이지에서 방문자가 스타일(귀여운/실사/애니메이션풍/수채화, `lib/imageStyles.ts`)을
-고르면 Gemini 이미지 생성 모델("나노바나나", `gemini-2.5-flash-image`)로 그 캐릭터의
-일러스트를 즉석에서 만들어 보여준다(`components/CharacterImageGenerator.tsx`).
+### AI 캐릭터 이미지 생성 — 본인 키만 사용, `/settings`에서 등록(표준 패턴)
+결과 페이지에서 스타일(귀여운/실사/애니메이션풍/수채화, `lib/imageStyles.ts`)을 고르면
+Gemini 이미지 생성 모델("나노바나나", `gemini-2.5-flash-image`)로 그 캐릭터의 일러스트를
+즉석에서 만들어 보여준다(`components/CharacterImageGenerator.tsx`).
 
-루트 CLAUDE.md의 멀티테넌시 원칙 3번("API 키는 반드시 본인 키만 사용, 운영자 키로 폴백
-금지")은 원래 로그인한 회원을 전제로 한 규칙이지만, 이 사이트는 애초에 로그인/회원 계정이
-없다. 그렇다고 운영자 Gemini API 키로 대신 생성해주면, 로그인도 요청 제한도 없는 완전
-공개 사이트 특성상(게다가 바이럴 확산이 목표라 트래픽이 늘수록 오히려 위험이 커짐)
-방문자 수만큼 비용이 무제한으로 늘어난다(2026-09-14 사용자 결정: "각 사용자별로... 본인
-API로 진행하도록... 안그러면 토큰비용이 너무 많이 나와").
-
-그래서 이 기능은 **BYOK(Bring Your Own Key)** 방식으로 만들었다:
-- 방문자가 본인의 무료 Gemini API 키(https://aistudio.google.com/apikey)를 결과 화면에서
-  직접 입력한다. 로그인이 없으므로 서버 DB에는 저장하지 않고, 같은 브라우저 재방문 시
-  다시 입력하지 않도록 `localStorage`에만 남긴다(`CharacterImageGenerator.tsx`의
-  `STORAGE_KEY`).
-- `app/api/generate-character-image/route.ts`는 이 키를 받아 Gemini API에 그대로
-  전달만 하고 서버 어디에도 저장·로깅하지 않는 무상태(stateless) 프록시다. 운영자는
-  이 기능으로 어떤 비용도 부담하지 않는다.
-- 클라이언트가 자유 텍스트 프롬프트를 직접 보내게 하면, 방문자가 넣은 (남의 것일 수도
-  있는) API 키로 우리 서버를 임의 프롬프트 릴레이로 악용할 수 있다. 이를 막기 위해
-  클라이언트는 `typeCode`(16개 중 하나)와 `styleId`(4개 중 하나) 조합만 보내고, 실제
-  프롬프트 조립은 서버가 `lib/characters.ts`/`lib/imageStyles.ts`의 고정 데이터로만
-  수행한다.
+**히스토리(왜 두 번 바뀌었는지 기록해둔다):** 원래 이 사이트는 로그인이 없었기 때문에, 방문자가
+결과 화면에서 그때그때 본인 Gemini API 키를 직접 입력하고 브라우저 `localStorage`에만
+남기는 BYOK 방식으로 처음 만들었다 — 로그인한 회원을 전제로 하는 루트 CLAUDE.md
+멀티테넌시 원칙 3번("본인 키만 사용")을 적용할 "회원" 자체가 없었기 때문이다. 이후
+로그인이 필수로 바뀌면서(위 "왜 로그인이 필요한가" 참고) 이 BYOK 방식을 표준 패턴으로
+전환했어야 했는데 그대로 방치돼 있었고, 사용자가 "이미지 생성과 콘텐츠를 생성하려면
+API 키를 등록해야 하지 않아? 프로그램 시작할 때 등록하게 하는 내용이 빠져있네"라고
+지적해서 발견·수정했다(2026-09-14). 지금은 다른 서브프로젝트(naver-cafe-poster 등)와
+완전히 동일한 표준 패턴이다:
+- `/settings`("API키등록·플랫폼연동") 페이지에서 로그인한 회원이 본인 Gemini API 키를
+  입력하면 공용 `user_api_keys` 테이블(provider="gemini")에 저장된다(`lib/apiKeys.ts`,
+  `lib/actions/settings.ts`). 헤더 우측에 로그인 상태일 때만 이 링크가 보인다
+  (`app/layout.tsx`).
+- `app/api/generate-character-image/route.ts`는 더 이상 클라이언트로부터 API 키를 받지
+  않는다 — `checkProgramAccessApi()`로 로그인을 확인한 뒤, `resolveApiKey(userId,
+  "gemini")`로 그 회원이 등록해둔 키를 서버에서 직접 조회해 쓴다. 앱/운영자 공용 키로
+  폴백하지 않으므로, 키가 없으면 `NO_API_KEY` 에러를 반환한다.
+- 결과 페이지(`app/result/[type]/page.tsx`)는 미리 `getUserApiKey()`로 등록 여부를 확인해
+  `hasApiKey` prop을 넘긴다. 키가 없는 상태에서 "생성하기"를 누르면 `ApiKeyRequiredModal`이
+  뜨고 `/settings`로 안내한다(`insta_auto_poster`의 동일 컴포넌트와 같은 패턴).
+- 클라이언트가 자유 텍스트 프롬프트를 직접 보내게 하면 우리 서버가 임의 프롬프트 릴레이로
+  악용될 수 있으므로, 여전히 `typeCode`(16개 중 하나)와 `styleId`(4개 중 하나) 조합만
+  받고 실제 프롬프트는 서버가 `lib/characters.ts`/`lib/imageStyles.ts`의 고정 데이터로만
+  조립한다 — 이 부분은 BYOK 시절 설계를 그대로 유지했다.
+- `user_api_keys_provider_check` 체크 제약에 `gemini`가 이미 포함돼 있어(다른
+  서브프로젝트에서 이미 사용 중) DB 마이그레이션은 필요 없었다.
 
 ## Phase 진행 상태
 

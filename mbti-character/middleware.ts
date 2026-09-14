@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // 2026-09-14 사용자 결정: 이 프로그램은 더 이상 로그인 없는 완전 공개 사이트가 아니다 —
 // AIMaster 회원가입 유도 채널로도 쓰기 위해 검사(/test)와 결과(/result) 이용에 로그인을
 // 요구한다. 랜딩 페이지(/)는 비로그인 방문자도 볼 수 있는 마케팅 화면으로 남겨둔다.
-const AUTH_REQUIRED_PATHS = ["/test", "/result"];
+const AUTH_REQUIRED_PATHS = ["/test", "/result", "/settings"];
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

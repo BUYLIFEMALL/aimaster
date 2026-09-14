@@ -5,6 +5,7 @@ import { CHARACTERS, ALL_TYPE_CODES } from "@/lib/characters";
 import { ShareButtons } from "@/components/ShareButtons";
 import { CharacterImageGenerator } from "@/components/CharacterImageGenerator";
 import { requireProgramAccess } from "@/lib/access";
+import { getUserApiKey } from "@/lib/apiKeys";
 
 // 로그인 여부(쿠키)에 따라 접근을 막아야 하는 페이지라 빌드 타임에 미리 정적 생성할 수 없다
 // — generateStaticParams를 쓰지 않고 매 요청마다 동적으로 렌더링한다.
@@ -53,13 +54,13 @@ export default async function ResultPage({
   params: Promise<{ type: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  await requireProgramAccess();
+  const user = await requireProgramAccess();
 
   const { type: typeParam } = await params;
   const character = getCharacter(typeParam);
   if (!character) notFound();
 
-  const strengths = await searchParams;
+  const [strengths, geminiKey] = await Promise.all([searchParams, getUserApiKey(user.id, "gemini")]);
   const shareUrl = `${SITE_URL}/result/${character.code}`;
   const ogImageUrl = `${SITE_URL}/api/og?type=${character.code}`;
 
@@ -84,7 +85,7 @@ export default async function ResultPage({
         </div>
       </div>
 
-      <CharacterImageGenerator character={character} />
+      <CharacterImageGenerator character={character} hasApiKey={!!geminiKey} />
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-5 mb-6">
         <h2 className="text-sm font-bold text-neutral-900 mb-4">나의 성향 지표</h2>

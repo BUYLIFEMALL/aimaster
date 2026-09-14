@@ -41,11 +41,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 다른 프로그램 보기 →
               </a>
               {user ? (
-                <form action={signOutAction}>
-                  <button type="submit" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
-                    {user.email} · 로그아웃
-                  </button>
-                </form>
+                <div className="flex items-center gap-2">
+                  <a href="/settings" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
+                    API키등록·플랫폼연동
+                  </a>
+                  <form action={signOutAction}>
+                    <button type="submit" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
+                      {user.email} · 로그아웃
+                    </button>
+                  </form>
+                </div>
               ) : (
                 <a href="/login" className="text-[11px] text-neutral-400 hover:text-neutral-700 underline">
                   로그인
