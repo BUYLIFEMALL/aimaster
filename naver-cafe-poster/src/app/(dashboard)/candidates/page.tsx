@@ -104,7 +104,11 @@ export default async function CandidatesPage() {
       </div>
 
       <div className="mb-8">
-        <ScheduledSourceManager sources={(scheduledSources ?? []) as ScheduledSource[]} targets={targets ?? []} />
+        <ScheduledSourceManager
+          sources={(scheduledSources ?? []) as ScheduledSource[]}
+          targets={targets ?? []}
+          categories={(categories ?? []) as CafeCategory[]}
+        />
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-4">

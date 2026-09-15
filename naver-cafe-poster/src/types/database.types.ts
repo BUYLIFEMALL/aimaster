@@ -2825,6 +2825,7 @@ export type Database = {
       ncafe_scheduled_sources: {
         Row: {
           auto_post: boolean
+          category_ids: string[]
           created_at: string
           id: string
           interval_minutes: number | null
@@ -2840,6 +2841,7 @@ export type Database = {
         }
         Insert: {
           auto_post?: boolean
+          category_ids?: string[]
           created_at?: string
           id?: string
           interval_minutes?: number | null
@@ -2855,6 +2857,7 @@ export type Database = {
         }
         Update: {
           auto_post?: boolean
+          category_ids?: string[]
           created_at?: string
           id?: string
           interval_minutes?: number | null

@@ -10,11 +10,12 @@ import {
   type UpdateScheduledSourceState,
   type RunNowState,
 } from "@/lib/actions/scheduledSources";
-import type { ScheduledSource } from "@/types/post";
+import type { CafeCategory, ScheduledSource } from "@/types/post";
 
 interface ScheduledSourceManagerProps {
   sources: ScheduledSource[];
   targets: { id: string; label: string }[];
+  categories: CafeCategory[];
 }
 
 /**
@@ -23,7 +24,7 @@ interface ScheduledSourceManagerProps {
  * 두지 않기 위해 등록은 CandidateCollector 쪽 폼에 통합했다(2026-09-15, 사용자 피드백으로
  * 중복 탭을 제거).
  */
-export function ScheduledSourceManager({ sources, targets }: ScheduledSourceManagerProps) {
+export function ScheduledSourceManager({ sources, targets, categories }: ScheduledSourceManagerProps) {
   if (sources.length === 0) return null;
 
   return (
@@ -36,14 +37,22 @@ export function ScheduledSourceManager({ sources, targets }: ScheduledSourceMana
 
       <div className="space-y-2">
         {sources.map((s) => (
-          <SourceCard key={s.id} source={s} targets={targets} />
+          <SourceCard key={s.id} source={s} targets={targets} categories={categories} />
         ))}
       </div>
     </div>
   );
 }
 
-function SourceCard({ source, targets }: { source: ScheduledSource; targets: { id: string; label: string }[] }) {
+function SourceCard({
+  source,
+  targets,
+  categories,
+}: {
+  source: ScheduledSource;
+  targets: { id: string; label: string }[];
+  categories: CafeCategory[];
+}) {
   const [enabled, setEnabled] = useState(source.schedule_enabled);
   const [interval, setInterval_] = useState(source.interval_minutes ?? 1440);
   const [autoPost, setAutoPost] = useState(source.auto_post);
@@ -53,6 +62,9 @@ function SourceCard({ source, targets }: { source: ScheduledSource; targets: { i
   const [runState, runAction, isRunning] = useActionState(runScheduledSourceNowAction, {} as RunNowState);
 
   const targetLabel = targets.find((t) => t.id === source.target_id)?.label ?? "알 수 없는 카페";
+  const categoryNames = (source.category_ids ?? [])
+    .map((id) => categories.find((c) => c.id === id)?.name)
+    .filter((name): name is string => !!name);
 
   function save(next: { enabled?: boolean; interval?: number; autoPost?: boolean }) {
     const merged = {
@@ -81,6 +93,15 @@ function SourceCard({ source, targets }: { source: ScheduledSource; targets: { i
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-neutral-900">{source.source_label}</p>
           <p className="text-[11px] text-neutral-400">→ {targetLabel}</p>
+          {categoryNames.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {categoryNames.map((name) => (
+                <span key={name} className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+                  {name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <button

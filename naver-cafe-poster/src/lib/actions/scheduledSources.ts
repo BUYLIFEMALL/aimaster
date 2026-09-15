@@ -29,6 +29,7 @@ export async function createScheduledSourceAction(
   const autoPost = formData.get("autoPost") === "true";
   const scheduleEnabled = formData.get("scheduleEnabled") !== "false";
   const intervalMinutes = Number(formData.get("intervalMinutes") ?? 1440);
+  const categoryIds = formData.getAll("categoryIds").map(String).filter(Boolean);
 
   if (!["http", "rss", "perplexity"].includes(sourceType)) {
     return { error: "알 수 없는 수집 방식입니다." };
@@ -46,6 +47,7 @@ export async function createScheduledSourceAction(
     auto_post: autoPost,
     schedule_enabled: scheduleEnabled,
     interval_minutes: intervalMinutes,
+    category_ids: categoryIds,
   });
 
   if (error) return { error: error.message };

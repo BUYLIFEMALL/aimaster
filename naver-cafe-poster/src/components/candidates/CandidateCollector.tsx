@@ -123,6 +123,49 @@ function CategorySelect({
   );
 }
 
+/** 예약 자동화 등록 시 카테고리를 여러 개 선택할 수 있는 체크박스 그룹. */
+function CategoryCheckboxGroup({
+  categories,
+  selectedIds,
+  onChange,
+}: {
+  categories: CafeCategory[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  if (categories.length === 0) return null;
+
+  function toggle(id: string) {
+    onChange(selectedIds.includes(id) ? selectedIds.filter((v) => v !== id) : [...selectedIds, id]);
+  }
+
+  return (
+    <div>
+      <label className="mb-1 block text-xs font-medium text-neutral-700">카테고리 (여러 개 선택 가능)</label>
+      <div className="flex flex-wrap gap-2">
+        {categories.map((c) => (
+          <label
+            key={c.id}
+            className={`flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors ${
+              selectedIds.includes(c.id)
+                ? "border-blue-400 bg-blue-100 text-blue-800"
+                : "border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={selectedIds.includes(c.id)}
+              onChange={() => toggle(c.id)}
+              className="h-3.5 w-3.5"
+            />
+            {c.name}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ResultMessage({ state }: { state: CollectState }) {
   if (state.error) return <p className="mt-2 text-sm text-red-600">{state.error}</p>;
   if (state.success) return <p className="mt-2 text-sm text-green-600">게시글 후보 {state.count}건을 수집했습니다.</p>;
@@ -140,6 +183,9 @@ function ScheduleToggle({
   onAutoPost,
   interval,
   onInterval,
+  categories,
+  categoryIds,
+  onCategoryIds,
 }: {
   enabled: boolean;
   onToggle: (v: boolean) => void;
@@ -150,6 +196,9 @@ function ScheduleToggle({
   onAutoPost: (v: boolean) => void;
   interval: number;
   onInterval: (v: number) => void;
+  categories: CafeCategory[];
+  categoryIds: string[];
+  onCategoryIds: (ids: string[]) => void;
 }) {
   return (
     <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3">
@@ -210,6 +259,8 @@ function ScheduleToggle({
             />
             자동 포스팅(검토 없이 바로 게시) — 끄면 초안으로만 저장됩니다
           </label>
+
+          <CategoryCheckboxGroup categories={categories} selectedIds={categoryIds} onChange={onCategoryIds} />
         </div>
       )}
     </div>
@@ -233,6 +284,7 @@ function HttpForm({ targets, categories }: { targets: { id: string; label: strin
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
   const [interval, setInterval_] = useState(1440);
+  const [scheduleCategoryIds, setScheduleCategoryIds] = useState<string[]>([]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -246,6 +298,7 @@ function HttpForm({ targets, categories }: { targets: { id: string; label: strin
         fd.set("autoPost", String(autoPost));
         fd.set("scheduleEnabled", "true");
         fd.set("intervalMinutes", String(interval));
+        scheduleCategoryIds.forEach((id) => fd.append("categoryIds", id));
         const result = await createScheduledSourceAction(initialScheduleState, fd);
         setScheduleState(result);
         if (!result.error) setUrl("");
@@ -291,6 +344,9 @@ function HttpForm({ targets, categories }: { targets: { id: string; label: strin
         onAutoPost={setAutoPost}
         interval={interval}
         onInterval={setInterval_}
+        categories={categories}
+        categoryIds={scheduleCategoryIds}
+        onCategoryIds={setScheduleCategoryIds}
       />
 
       <Button type="submit" disabled={isPending || (scheduleMode && !targetId)}>
@@ -328,6 +384,7 @@ function NewsblurForm({
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
   const [interval, setInterval_] = useState(1440);
+  const [scheduleCategoryIds, setScheduleCategoryIds] = useState<string[]>([]);
 
   if (!connected) {
     return (
@@ -366,6 +423,7 @@ function NewsblurForm({
         fd.set("autoPost", String(autoPost));
         fd.set("scheduleEnabled", "true");
         fd.set("intervalMinutes", String(interval));
+        scheduleCategoryIds.forEach((id) => fd.append("categoryIds", id));
         const result = await createScheduledSourceAction(initialScheduleState, fd);
         setScheduleState(result);
       } else {
@@ -427,6 +485,9 @@ function NewsblurForm({
             onAutoPost={setAutoPost}
             interval={interval}
             onInterval={setInterval_}
+            categories={categories}
+            categoryIds={scheduleCategoryIds}
+            onCategoryIds={setScheduleCategoryIds}
           />
 
           <Button type="submit" disabled={isPending || !selectedFeed || (scheduleMode && !targetId)}>
@@ -451,6 +512,7 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
   const [interval, setInterval_] = useState(1440);
+  const [scheduleCategoryIds, setScheduleCategoryIds] = useState<string[]>([]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -464,6 +526,7 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
         fd.set("autoPost", String(autoPost));
         fd.set("scheduleEnabled", "true");
         fd.set("intervalMinutes", String(interval));
+        scheduleCategoryIds.forEach((id) => fd.append("categoryIds", id));
         const result = await createScheduledSourceAction(initialScheduleState, fd);
         setScheduleState(result);
         if (!result.error) setTopic("");
@@ -498,6 +561,9 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
         onAutoPost={setAutoPost}
         interval={interval}
         onInterval={setInterval_}
+        categories={categories}
+        categoryIds={scheduleCategoryIds}
+        onCategoryIds={setScheduleCategoryIds}
       />
 
       <Button type="submit" disabled={isPending || (scheduleMode && !targetId)}>
