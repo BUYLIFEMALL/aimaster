@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
@@ -14,6 +14,8 @@ import {
   deleteNewsblurAccountAction,
   type SaveNewsblurAccountState,
 } from "@/lib/actions/newsblurAccount";
+import { createScheduledSourceAction, type ScheduledSourceState } from "@/lib/actions/scheduledSources";
+import { SCHEDULE_INTERVAL_OPTIONS } from "@/lib/schedule";
 import type { NewsblurFeedSummary } from "@/lib/ai/collector";
 
 type Method = "http" | "rss" | "perplexity";
@@ -26,12 +28,14 @@ const METHOD_LABELS: Record<Method, string> = {
 
 const initialCollectState: CollectState = {};
 const initialSaveState: SaveNewsblurAccountState = {};
+const initialScheduleState: ScheduledSourceState = {};
 
 interface CandidateCollectorProps {
   newsblurConnected: boolean;
   newsblurUsername: string | null;
   newsblurFeeds: NewsblurFeedSummary[];
   newsblurError: string | null;
+  targets: { id: string; label: string }[];
 }
 
 export function CandidateCollector({
@@ -39,6 +43,7 @@ export function CandidateCollector({
   newsblurUsername,
   newsblurFeeds,
   newsblurError,
+  targets,
 }: CandidateCollectorProps) {
   const [method, setMethod] = useState<Method>("http");
 
@@ -61,16 +66,17 @@ export function CandidateCollector({
         ))}
       </div>
 
-      {method === "http" && <HttpForm />}
+      {method === "http" && <HttpForm targets={targets} />}
       {method === "rss" && (
         <NewsblurForm
           connected={newsblurConnected}
           username={newsblurUsername}
           feeds={newsblurFeeds}
           loadError={newsblurError}
+          targets={targets}
         />
       )}
-      {method === "perplexity" && <PerplexityForm />}
+      {method === "perplexity" && <PerplexityForm targets={targets} />}
     </div>
   );
 }
@@ -81,23 +87,169 @@ function ResultMessage({ state }: { state: CollectState }) {
   return null;
 }
 
-function HttpForm() {
-  const [state, formAction, isPending] = useActionState(collectFromHttpAction, initialCollectState);
+/** "글감 수집"(1회성) / "🔔 예약 자동화로 등록"(주기적 자동 생성) 중 하나를 고르는 공용 토글 UI. */
+function ScheduleToggle({
+  enabled,
+  onToggle,
+  targets,
+  targetId,
+  onTargetId,
+  autoPost,
+  onAutoPost,
+  interval,
+  onInterval,
+}: {
+  enabled: boolean;
+  onToggle: (v: boolean) => void;
+  targets: { id: string; label: string }[];
+  targetId: string;
+  onTargetId: (v: string) => void;
+  autoPost: boolean;
+  onAutoPost: (v: boolean) => void;
+  interval: number;
+  onInterval: (v: number) => void;
+}) {
+  return (
+    <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3">
+      <label className="flex items-center gap-2 text-sm font-medium text-blue-900">
+        <input
+          type="checkbox"
+          checked={enabled}
+          onChange={(e) => onToggle(e.target.checked)}
+          className="h-4 w-4"
+        />
+        🔔 예약 자동화로 등록 — 1회 수집 대신, 정해둔 주기마다 자동으로 콘텐츠를 만듭니다
+      </label>
+
+      {enabled && (
+        <div className="mt-3 space-y-2">
+          {targets.length === 0 ? (
+            <p className="rounded-lg bg-white p-2 text-xs text-neutral-500">
+              먼저 설정 페이지에서 게시할 카페 게시판을 등록해주세요.
+            </p>
+          ) : (
+            <div>
+              <label className="mb-1 block text-xs font-medium text-neutral-700">게시할 카페</label>
+              <select
+                value={targetId}
+                onChange={(e) => onTargetId(e.target.value)}
+                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+              >
+                {targets.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-neutral-700">주기</label>
+            <select
+              value={interval}
+              onChange={(e) => onInterval(Number(e.target.value))}
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+            >
+              {SCHEDULE_INTERVAL_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <label className="flex items-center gap-2 text-xs text-neutral-700">
+            <input
+              type="checkbox"
+              checked={autoPost}
+              onChange={(e) => onAutoPost(e.target.checked)}
+              className="h-4 w-4"
+            />
+            자동 포스팅(검토 없이 바로 게시) — 끄면 초안으로만 저장됩니다
+          </label>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScheduleResultMessage({ state }: { state: ScheduledSourceState | null }) {
+  if (!state) return null;
+  if (state.error) return <p className="mt-2 text-sm text-red-600">{state.error}</p>;
+  return <p className="mt-2 text-sm text-green-600">예약 자동화로 등록했습니다. 아래 "수집된 게시글 후보" 위 목록에서 확인·관리할 수 있습니다.</p>;
+}
+
+function HttpForm({ targets }: { targets: { id: string; label: string }[] }) {
+  const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
+  const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const [url, setUrl] = useState("");
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
+  const [autoPost, setAutoPost] = useState(false);
+  const [interval, setInterval_] = useState(1440);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    startTransition(async () => {
+      if (scheduleMode) {
+        const fd = new FormData();
+        fd.set("sourceType", "http");
+        fd.set("sourceInput", url);
+        fd.set("sourceLabel", url);
+        fd.set("targetId", targetId);
+        fd.set("autoPost", String(autoPost));
+        fd.set("scheduleEnabled", "true");
+        fd.set("intervalMinutes", String(interval));
+        const result = await createScheduledSourceAction(initialScheduleState, fd);
+        setScheduleState(result);
+        if (!result.error) setUrl("");
+      } else {
+        const fd = new FormData();
+        fd.set("url", url);
+        const result = await collectFromHttpAction(initialCollectState, fd);
+        setCollectState(result);
+      }
+    });
+  }
 
   return (
-    <form action={formAction} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">대상 페이지 URL</label>
-        <Input name="url" type="url" required placeholder="https://example.com/article/123" />
+        <Input
+          type="url"
+          required
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://example.com/article/123"
+        />
         <p className="mt-1 text-xs text-neutral-500">
           특정 게시글 URL이면 그 글로 1건, 카테고리/목록 페이지 URL이면 그 안의 게시글 중 무작위로
-          최대 5건을 골라 각각 게시글 후보를 생성합니다.
+          최대 5건을 골라 각각 게시글 후보를 생성합니다. (예약 자동화 등록 시에는 매번 1건만
+          생성합니다.)
         </p>
       </div>
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "수집 중..." : "글감 수집"}
+
+      <ScheduleToggle
+        enabled={scheduleMode}
+        onToggle={setScheduleMode}
+        targets={targets}
+        targetId={targetId}
+        onTargetId={setTargetId}
+        autoPost={autoPost}
+        onAutoPost={setAutoPost}
+        interval={interval}
+        onInterval={setInterval_}
+      />
+
+      <Button type="submit" disabled={isPending || (scheduleMode && !targetId)}>
+        {isPending ? (scheduleMode ? "등록 중..." : "수집 중...") : scheduleMode ? "예약 자동화 등록" : "글감 수집"}
       </Button>
-      <ResultMessage state={state} />
+
+      {scheduleMode ? <ScheduleResultMessage state={scheduleState} /> : <ResultMessage state={collectState} />}
     </form>
   );
 }
@@ -107,15 +259,24 @@ function NewsblurForm({
   username,
   feeds,
   loadError,
+  targets,
 }: {
   connected: boolean;
   username: string | null;
   feeds: NewsblurFeedSummary[];
   loadError: string | null;
+  targets: { id: string; label: string }[];
 }) {
-  const [state, formAction, isPending] = useActionState(collectFromRssAction, initialCollectState);
+  const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
+  const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
+  const [isPending, startTransition] = useTransition();
   const [saveState, saveAction, isSaving] = useActionState(saveNewsblurAccountAction, initialSaveState);
+
   const [selectedFeed, setSelectedFeed] = useState<NewsblurFeedSummary | null>(feeds[0] ?? null);
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
+  const [autoPost, setAutoPost] = useState(false);
+  const [interval, setInterval_] = useState(1440);
 
   if (!connected) {
     return (
@@ -141,6 +302,31 @@ function NewsblurForm({
     );
   }
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!selectedFeed) return;
+    startTransition(async () => {
+      if (scheduleMode) {
+        const fd = new FormData();
+        fd.set("sourceType", "rss");
+        fd.set("sourceInput", selectedFeed.id);
+        fd.set("sourceLabel", selectedFeed.title);
+        fd.set("targetId", targetId);
+        fd.set("autoPost", String(autoPost));
+        fd.set("scheduleEnabled", "true");
+        fd.set("intervalMinutes", String(interval));
+        const result = await createScheduledSourceAction(initialScheduleState, fd);
+        setScheduleState(result);
+      } else {
+        const fd = new FormData();
+        fd.set("feedId", selectedFeed.id);
+        fd.set("feedTitle", selectedFeed.title);
+        const result = await collectFromRssAction(initialCollectState, fd);
+        setCollectState(result);
+      }
+    });
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-sm">
@@ -159,7 +345,7 @@ function NewsblurForm({
       )}
 
       {feeds.length > 0 && (
-        <form action={formAction} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="mb-1 block text-sm font-medium text-neutral-700">구독 피드 선택</label>
             <select
@@ -174,31 +360,89 @@ function NewsblurForm({
               ))}
             </select>
           </div>
-          <input type="hidden" name="feedId" value={selectedFeed?.id ?? ""} />
-          <input type="hidden" name="feedTitle" value={selectedFeed?.title ?? ""} />
-          <Button type="submit" disabled={isPending || !selectedFeed}>
-            {isPending ? "수집 중..." : "글감 수집"}
+
+          <ScheduleToggle
+            enabled={scheduleMode}
+            onToggle={setScheduleMode}
+            targets={targets}
+            targetId={targetId}
+            onTargetId={setTargetId}
+            autoPost={autoPost}
+            onAutoPost={setAutoPost}
+            interval={interval}
+            onInterval={setInterval_}
+          />
+
+          <Button type="submit" disabled={isPending || !selectedFeed || (scheduleMode && !targetId)}>
+            {isPending ? (scheduleMode ? "등록 중..." : "수집 중...") : scheduleMode ? "예약 자동화 등록" : "글감 수집"}
           </Button>
-          <ResultMessage state={state} />
+
+          {scheduleMode ? <ScheduleResultMessage state={scheduleState} /> : <ResultMessage state={collectState} />}
         </form>
       )}
     </div>
   );
 }
 
-function PerplexityForm() {
-  const [state, formAction, isPending] = useActionState(collectFromPerplexityAction, initialCollectState);
+function PerplexityForm({ targets }: { targets: { id: string; label: string }[] }) {
+  const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
+  const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const [topic, setTopic] = useState("");
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
+  const [autoPost, setAutoPost] = useState(false);
+  const [interval, setInterval_] = useState(1440);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    startTransition(async () => {
+      if (scheduleMode) {
+        const fd = new FormData();
+        fd.set("sourceType", "perplexity");
+        fd.set("sourceInput", topic);
+        fd.set("sourceLabel", topic);
+        fd.set("targetId", targetId);
+        fd.set("autoPost", String(autoPost));
+        fd.set("scheduleEnabled", "true");
+        fd.set("intervalMinutes", String(interval));
+        const result = await createScheduledSourceAction(initialScheduleState, fd);
+        setScheduleState(result);
+        if (!result.error) setTopic("");
+      } else {
+        const fd = new FormData();
+        fd.set("topic", topic);
+        const result = await collectFromPerplexityAction(initialCollectState, fd);
+        setCollectState(result);
+      }
+    });
+  }
 
   return (
-    <form action={formAction} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">시드 주제</label>
-        <Input name="topic" required placeholder="예: 다이어트 보조제" />
+        <Input required value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 다이어트 보조제" />
       </div>
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "검색 중..." : "글감 수집"}
+
+      <ScheduleToggle
+        enabled={scheduleMode}
+        onToggle={setScheduleMode}
+        targets={targets}
+        targetId={targetId}
+        onTargetId={setTargetId}
+        autoPost={autoPost}
+        onAutoPost={setAutoPost}
+        interval={interval}
+        onInterval={setInterval_}
+      />
+
+      <Button type="submit" disabled={isPending || (scheduleMode && !targetId)}>
+        {isPending ? (scheduleMode ? "등록 중..." : "검색 중...") : scheduleMode ? "예약 자동화 등록" : "글감 수집"}
       </Button>
-      <ResultMessage state={state} />
+
+      {scheduleMode ? <ScheduleResultMessage state={scheduleState} /> : <ResultMessage state={collectState} />}
     </form>
   );
 }

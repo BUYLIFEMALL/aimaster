@@ -86,6 +86,7 @@ export default async function CandidatesPage() {
           newsblurUsername={newsblurAccount?.username ?? null}
           newsblurFeeds={newsblurFeeds}
           newsblurError={newsblurError}
+          targets={targets ?? []}
         />
       </div>
 
@@ -93,8 +94,6 @@ export default async function CandidatesPage() {
         <ScheduledSourceManager
           sources={(scheduledSources ?? []) as ScheduledSource[]}
           targets={targets ?? []}
-          newsblurConnected={!!newsblurAccount}
-          newsblurFeeds={newsblurFeeds}
         />
       </div>
 

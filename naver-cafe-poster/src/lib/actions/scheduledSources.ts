@@ -12,8 +12,10 @@ export interface ScheduledSourceState {
 
 /**
  * 글감 소스(HTTP/RSS/Perplexity) + 게시할 카페 게시판 + 자동 포스팅 여부를 등록한다.
- * 예약(schedule_enabled)은 기본 꺼짐 — 회원이 명시적으로 켜야만 크론 대상이 된다
- * (kakao_auto_poster의 kakao_topics.schedule_enabled와 동일한 기본값 원칙).
+ * "글감 수집" 폼에서 "예약 자동화로 등록" 토글을 켜서 바로 만드는 경로이므로,
+ * scheduleEnabled/intervalMinutes를 명시하면 등록과 동시에 예약이 켜진 상태로 시작한다
+ * (kakao_auto_poster의 kakao_topics.schedule_enabled 기본값 원칙과 달리, 이 프로젝트는
+ * 등록 폼 자체가 "예약하겠다"는 명시적 의사표시이므로 기본을 켬으로 둔다).
  */
 export async function createScheduledSourceAction(
   _prevState: ScheduledSourceState,
@@ -25,6 +27,8 @@ export async function createScheduledSourceAction(
   const sourceLabel = String(formData.get("sourceLabel") ?? sourceInput).trim();
   const targetId = String(formData.get("targetId") ?? "");
   const autoPost = formData.get("autoPost") === "true";
+  const scheduleEnabled = formData.get("scheduleEnabled") !== "false";
+  const intervalMinutes = Number(formData.get("intervalMinutes") ?? 1440);
 
   if (!["http", "rss", "perplexity"].includes(sourceType)) {
     return { error: "알 수 없는 수집 방식입니다." };
@@ -40,6 +44,8 @@ export async function createScheduledSourceAction(
     source_label: sourceLabel || sourceInput,
     target_id: targetId,
     auto_post: autoPost,
+    schedule_enabled: scheduleEnabled,
+    interval_minutes: intervalMinutes,
   });
 
   if (error) return { error: error.message };
