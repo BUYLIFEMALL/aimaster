@@ -55,12 +55,37 @@
   발송" 버튼(`sendReportToKakaoAction`)이 SOLAPI 계정 + 프로필 전화번호가 모두 등록된
   경우에만 노출된다.
 
+## 설계 배경 — 자동 발송(SOLAPI/카카오 로그인)과 "원하는 채팅방에 공유"는 왜 별개 기능인가 (2026-09-15)
+
+Phase 2/4/6에서 만든 카카오 발송(SOLAPI 채널, 카카오 로그인 "나에게 보내기", 알림톡)은 전부
+**서버가 정해진 대상(본인 전화번호, 등록해둔 수신자 목록)에게 자동으로 쏘는** 방식이다. 반면
+사용자가 요청한 "생성된 콘텐츠를 카카오톡 공유 기능으로 원하는 채팅방에 공유"는 **회원이
+그때그때 버튼을 눌러 본인 카카오톡의 친구/채팅방 선택 창을 띄우고 직접 고르는** 방식이라 —
+Kakao 서버 API가 아니라 **클라이언트 JS SDK(`Kakao.Share.sendDefault()`)** 로 구현한다. 이
+저장소의 mbti/mbti-character 서브프로젝트에서 실기기까지 검증을 마친 것과 동일한 패턴이다.
+
+이 기능을 제대로 쓰려면 **공유받은 사람이 로그인 없이도 내용을 읽을 수 있어야 한다**(사용자
+명시적 요구 — 채팅방 사람들이 대부분 AIMaster 회원이 아닐 것이므로). 기존 `/reports/[id]`는
+`requireProgramAccess()`로 로그인이 필요해 그대로 공유하면 받는 사람이 로그인 화면만 보게
+된다. 그래서:
+- `kakao_reports.share_token`(uuid, `supabase/migrations/0016_report_share_token.sql`) —
+  `report_id`를 그대로 노출하는 대신 추측 불가능한 별도 토큰으로만 접근 가능하게 했다.
+- `/share/[token]` — 로그인 없이 열리는 공개 읽기 전용 페이지. RLS를 anon에 풀어주는 대신,
+  admin(service role) 클라이언트로 이 서버 라우트 자체가 유일한 공개 진입점이 되도록
+  설계했다(anon 키로 테이블 전체가 노출되는 위험을 피하기 위함).
+- `/api/og?token=` — 카카오톡 Feed 템플릿의 `content.imageUrl`은 사실상 필수라, 리포트에
+  회원이 직접 이미지를 넣지 않아도 항상 보여줄 브랜드 카드를 텍스트만으로 동적 생성한다
+  (Gemini 유료 생성 없음, mbti/mbti-character의 `/api/og`와 동일 패턴).
+- `components/reports/KakaoShareButtons.tsx` — mbti/mbti-character의 `ShareButtons.tsx`를
+  그대로 가져왔다. `/reports/[id]` 상세 화면에서 로그인한 회원만 이 버튼을 누른다.
+
 ## Phase 로드맵
 
 Phase별 상세 내용과 실계정 검증 현황은 이 폴더의 [`AGENTS.md`](AGENTS.md)의 "📦 Phase 진행
 상태" 표에서 관리한다(README와 이중 관리하면 둘 중 하나가 낡아 어긋나기 쉬워, 여기서는
 중복 기재하지 않는다). 2026-09-10 기준 Phase 1~6-2까지 구현 및 실계정 검증 완료, Phase 7
-(HTTP/RSS 소스 추가)만 착수 전이다.
+(HTTP/RSS 소스 추가)은 착수 전이며, Phase 12(카카오톡 공유)는 코드 구현은 끝났으나 카카오
+개발자 콘솔 도메인 등록 및 실배포·실기기 검증이 아직 남아있다(AGENTS.md "미검증 항목" 참고).
 
 ## DB 스키마
 
@@ -68,6 +93,9 @@ Phase별 상세 내용과 실계정 검증 현황은 이 폴더의 [`AGENTS.md`]
 - `kakao_reports`: 주제별로 AI가 생성한 리포트(title/summary/content) + 카카오 발송 여부
   추적(`kakao_sent_at`/`kakao_send_error`, `0002_kakao_send_tracking.sql`). `topic_id`로
   `kakao_topics`를 참조(on delete cascade). `user_id` + RLS owner-only.
+  `share_token`(uuid, `0016_report_share_token.sql`)은 `/share/[token]` 공개 읽기 전용
+  페이지 접근용 — owner-only RLS와 별개로, 이 토큰을 아는 사람만 admin 클라이언트 경유로
+  그 리포트 한 건을 읽을 수 있다.
 - `kakao_broadcast_recipients.email`(선택): 카카오톡 발송이 실패했을 때만 쓰는 이메일 대체
   발송용 주소(`0013_recipient_email_fallback.sql`) — 항상 이중 발송하지 않는다.
 - `kakao_broadcast_recipients.phone`은 nullable — 전화번호 없이 이메일만으로도 수신자 등록이

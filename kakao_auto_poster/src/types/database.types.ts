@@ -74,6 +74,7 @@ export interface Database {
           generated_via: "manual" | "scheduled";
           broadcast_sent_at: string | null;
           broadcast_error: string | null;
+          share_token: string;
           created_at: string;
           updated_at: string;
         };
@@ -93,6 +94,7 @@ export interface Database {
           generated_via?: "manual" | "scheduled";
           broadcast_sent_at?: string | null;
           broadcast_error?: string | null;
+          share_token?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -112,6 +114,7 @@ export interface Database {
           generated_via?: "manual" | "scheduled";
           broadcast_sent_at?: string | null;
           broadcast_error?: string | null;
+          share_token?: string;
           created_at?: string;
           updated_at?: string;
         };

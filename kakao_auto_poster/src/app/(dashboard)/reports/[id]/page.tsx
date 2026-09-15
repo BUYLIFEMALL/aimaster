@@ -4,9 +4,12 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SendKakaoButton } from "@/components/reports/SendKakaoButton";
 import { ReportEditor } from "@/components/reports/ReportEditor";
+import { KakaoShareButtons } from "@/components/reports/KakaoShareButtons";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kakaoautoposter.vercel.app";
 
 export default async function ReportDetailPage({
   params,
@@ -23,7 +26,7 @@ export default async function ReportDetailPage({
   const { data: report } = await supabase
     .from("kakao_reports")
     .select(
-      "id, topic_id, title, summary, content, kakao_sent_at, kakao_send_error, broadcast_sent_at, broadcast_error, telegram_review_status, created_at",
+      "id, topic_id, title, summary, content, kakao_sent_at, kakao_send_error, broadcast_sent_at, broadcast_error, telegram_review_status, created_at, share_token",
     )
     .eq("id", id)
     .eq("user_id", user.id)
@@ -64,6 +67,22 @@ export default async function ReportDetailPage({
           content={report.content}
           initialEditing={edit === "1"}
         />
+
+        <div className="mb-6 border-t border-neutral-200 pt-4">
+          <p className="mb-2 text-xs font-bold text-neutral-700">
+            🔗 원하는 채팅방에 공유하기
+          </p>
+          <p className="mb-3 text-xs text-neutral-500">
+            아래 버튼으로 카카오톡 친구/채팅방을 직접 골라 공유할 수 있어요. 받는 사람은
+            AIMaster 회원이 아니어도 로그인 없이 바로 내용을 읽을 수 있습니다.
+          </p>
+          <KakaoShareButtons
+            shareUrl={`${SITE_URL}/share/${report.share_token}`}
+            shareText={report.title}
+            shareDescription={report.summary}
+            imageUrl={`${SITE_URL}/api/og?token=${report.share_token}`}
+          />
+        </div>
 
         <div className="border-t border-neutral-200 pt-4">
           {report.telegram_review_status === "pending" && (
