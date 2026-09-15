@@ -54,7 +54,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
     <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:h-full md:w-64 md:justify-between md:border-b-0 md:border-r">
       <div>
         <div className="mb-4 md:mb-6">
-          <div className="px-2 text-lg font-semibold text-neutral-900">네이버 카페 자동화</div>
+          <div className="px-2 text-lg font-semibold text-neutral-900">네이버 카페 포스팅 자동화</div>
           <a
             href={`${MAIN_SITE_URL}/programs`}
             className="block px-2 text-xs text-neutral-500 hover:text-neutral-900"

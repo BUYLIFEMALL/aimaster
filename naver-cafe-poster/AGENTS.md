@@ -1,7 +1,10 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-이 문서는 **네이버 카페 자동화(naver-cafe-poster)** 프로젝트에서 AI Agent(Claude Code 등)가
-협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
+이 문서는 **네이버 카페 포스팅 자동화(naver-cafe-poster, 폴더/slug는 하위호환을 위해 그대로
+유지)** 프로젝트에서 AI Agent(Claude Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및
+규칙입니다. (2026-09-15: 화면 표시 이름을 "네이버 카페 자동화" → "네이버 카페 포스팅
+자동화"로 변경 — `programs.name`과 앱 내 표시 문자열만 바뀌었고, 폴더명/`programs.slug`
+(`naver-cafe-poster`)는 그대로다.)
 
 ---
 

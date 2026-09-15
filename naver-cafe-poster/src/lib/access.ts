@@ -208,5 +208,5 @@ export async function checkProgramAccessApi(): Promise<
     return { allowed: true, user };
   }
 
-  return { allowed: false, error: "네이버 카페 자동화 이용 권한이 없습니다. 구독 후 이용해주세요.", status: 403 };
+  return { allowed: false, error: "네이버 카페 포스팅 자동화 이용 권한이 없습니다. 구독 후 이용해주세요.", status: 403 };
 }
