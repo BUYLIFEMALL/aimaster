@@ -25,7 +25,7 @@ const FLOW_STEPS = [
     step: 2,
     href: "/reports",
     icon: "📰",
-    label: "리포트 확인",
+    label: "생성리포트 목록",
     description: "AI가 생성한 정보 콘텐츠 보기",
   },
   {
