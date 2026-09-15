@@ -25,7 +25,7 @@ export default async function ReportsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-2 text-2xl font-semibold text-neutral-900">리포트</h1>
+      <h1 className="mb-2 text-2xl font-semibold text-neutral-900">생성리포트 목록</h1>
       <p className="mb-6 text-sm text-neutral-600">
         등록한 주제에서 AI가 생성한 정보 콘텐츠 목록입니다.
       </p>
