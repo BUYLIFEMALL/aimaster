@@ -2688,6 +2688,7 @@ export type Database = {
           source_input: string
           source_type: string
           title: string
+          use_for_schedule: boolean
           user_id: string
         }
         Insert: {
@@ -2698,6 +2699,7 @@ export type Database = {
           source_input: string
           source_type: string
           title: string
+          use_for_schedule?: boolean
           user_id: string
         }
         Update: {
@@ -2708,6 +2710,7 @@ export type Database = {
           source_input?: string
           source_type?: string
           title?: string
+          use_for_schedule?: boolean
           user_id?: string
         }
         Relationships: []

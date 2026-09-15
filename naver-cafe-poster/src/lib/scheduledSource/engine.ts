@@ -67,6 +67,34 @@ async function collectRawText(
 }
 
 /**
+ * "🎲 후보함에서 랜덤 선택" 소스 전용 — 새로 AI를 호출해 콘텐츠를 만드는 대신, 회원이
+ * "예약용 ON"으로 켜둔 게시글 후보(ncafe_candidates) 중 하나를 무작위로 골라 그대로
+ * 재료로 쓴다. 한 번 뽑힌 후보는 다시 뽑히지 않도록 use_for_schedule을 꺼서 "소모"시킨다.
+ */
+async function pickFromCandidatePool(
+  supabase: SupabaseLike,
+  userId: string,
+): Promise<{ title: string; content: string }> {
+  const { data: candidates, error } = await supabase
+    .from("ncafe_candidates")
+    .select("id, title, content")
+    .eq("user_id", userId)
+    .eq("use_for_schedule", true);
+  if (error) throw new Error(error.message);
+  if (!candidates || candidates.length === 0) {
+    throw new Error("예약용으로 켜둔(ON) 게시글 후보가 없습니다. 후보 목록에서 사용할 글감을 켜주세요.");
+  }
+
+  const picked = candidates[Math.floor(Math.random() * candidates.length)] as {
+    id: string;
+    title: string;
+    content: string;
+  };
+  await supabase.from("ncafe_candidates").update({ use_for_schedule: false }).eq("id", picked.id);
+  return { title: picked.title, content: picked.content };
+}
+
+/**
  * 예약 자동 실행 1회분 — 크론(app/api/cron/generate-and-post)과 "지금 실행" 수동 버튼
  * (lib/actions/scheduledSources.ts) 양쪽이 이 함수를 그대로 호출한다. auto_post가 켜져
  * 있으면 생성 즉시 실제 카페에 게시하고, 꺼져 있으면 초안(status='draft')으로만 저장해
@@ -79,18 +107,29 @@ export async function runScheduledSource(
 ): Promise<{ success: boolean; error?: string; postId?: string }> {
   try {
     const typedSupabase = supabase as unknown as SupabaseClient<Database>;
-    const [openaiKey, perplexityKey] = await Promise.all([
-      resolveApiKey(typedSupabase, userId, "openai"),
-      resolveApiKey(typedSupabase, userId, "perplexity"),
-    ]);
 
-    const rawText = await collectRawText(supabase, userId, source, perplexityKey ?? "");
-    const [draft] = await structureCafeCandidates({ rawText, maxItems: 1, apiKey: openaiKey ?? "" });
-    if (!draft) throw new Error("콘텐츠 생성 결과가 비어있습니다.");
+    let title: string;
+    let content: string;
+
+    if (source.source_type === "candidate_pool") {
+      const picked = await pickFromCandidatePool(supabase, userId);
+      title = picked.title;
+      content = picked.content;
+    } else {
+      const [openaiKey, perplexityKey] = await Promise.all([
+        resolveApiKey(typedSupabase, userId, "openai"),
+        resolveApiKey(typedSupabase, userId, "perplexity"),
+      ]);
+      const rawText = await collectRawText(supabase, userId, source, perplexityKey ?? "");
+      const [draft] = await structureCafeCandidates({ rawText, maxItems: 1, apiKey: openaiKey ?? "" });
+      if (!draft) throw new Error("콘텐츠 생성 결과가 비어있습니다.");
+      title = draft.title;
+      content = draft.content;
+    }
 
     const { data: inserted, error: insertError } = await supabase
       .from("ncafe_posts")
-      .insert({ user_id: userId, target_id: source.target_id, title: draft.title, content: draft.content, status: "draft" })
+      .insert({ user_id: userId, target_id: source.target_id, title, content, status: "draft" })
       .select("id")
       .single();
     if (insertError || !inserted) throw new Error(insertError?.message ?? "글 저장에 실패했습니다.");
@@ -102,8 +141,8 @@ export async function runScheduledSource(
         supabase: typedSupabase,
         postId: inserted.id,
         userId,
-        title: draft.title,
-        content: draft.content,
+        title,
+        content,
         accessToken: account.access_token,
         clubId: target.club_id,
         menuId: target.menu_id,

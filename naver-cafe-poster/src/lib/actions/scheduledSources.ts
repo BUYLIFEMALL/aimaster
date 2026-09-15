@@ -23,17 +23,20 @@ export async function createScheduledSourceAction(
 ): Promise<ScheduledSourceState> {
   const user = await requireProgramAccess();
   const sourceType = String(formData.get("sourceType") ?? "");
-  const sourceInput = String(formData.get("sourceInput") ?? "").trim();
-  const sourceLabel = String(formData.get("sourceLabel") ?? sourceInput).trim();
+  const isPool = sourceType === "candidate_pool";
+  const sourceInput = isPool ? "candidate_pool" : String(formData.get("sourceInput") ?? "").trim();
+  const sourceLabel = isPool
+    ? "🎲 후보함에서 랜덤 선택"
+    : String(formData.get("sourceLabel") ?? sourceInput).trim();
   const targetId = String(formData.get("targetId") ?? "");
   const autoPost = formData.get("autoPost") === "true";
   const scheduleEnabled = formData.get("scheduleEnabled") !== "false";
   const intervalMinutes = Number(formData.get("intervalMinutes") ?? 1440);
 
-  if (!["http", "rss", "perplexity"].includes(sourceType)) {
+  if (!["http", "rss", "perplexity", "candidate_pool"].includes(sourceType)) {
     return { error: "알 수 없는 수집 방식입니다." };
   }
-  if (!sourceInput) return { error: "수집 대상을 입력해주세요." };
+  if (!isPool && !sourceInput) return { error: "수집 대상을 입력해주세요." };
   if (!targetId) return { error: "게시할 카페를 선택해주세요." };
 
   const supabase = await createClient();
