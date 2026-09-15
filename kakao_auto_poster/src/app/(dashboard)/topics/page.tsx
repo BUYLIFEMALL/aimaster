@@ -77,11 +77,11 @@ export default async function TopicsPage() {
         </p>
         <div className="space-y-2.5">
           <div className="rounded-lg bg-white p-2.5">
-            <p className="text-xs font-bold text-neutral-900">① 카드 우측 상단 ON/OFF — 주제 자체 스위치</p>
+            <p className="text-xs font-bold text-neutral-900">① 카드 우측 상단 ON/OFF — 등록된 주제 사용여부</p>
             <p className="mt-1 text-[11px] leading-relaxed text-neutral-600">
-              이 주제를 통째로 켜둘지/쉬게 할지 정해요. <strong>꺼도 &ldquo;지금 생성&rdquo;
-              버튼은 그대로 작동</strong>하고, 예약 자동 생성 대상에서만 빠집니다. 삭제하지
-              않고 잠시 쉬게 하고 싶을 때 꺼두세요.
+              OFF — <strong>&ldquo;지금 생성&rdquo; 버튼은 정상 작동</strong>하고, 예약
+              자동생성 대상에서만 제외됩니다. 등록된 주제를 삭제하지 않고 유지하고 싶을 때
+              꺼두세요.
             </p>
           </div>
           <div className="rounded-lg bg-white p-2.5">
