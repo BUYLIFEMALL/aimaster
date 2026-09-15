@@ -12,7 +12,7 @@ export default async function ReportsPage() {
 
   const { data: reports } = await supabase
     .from("kakao_reports")
-    .select("id, topic_id, title, summary, created_at")
+    .select("id, topic_id, title, summary, content, share_token, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -46,6 +46,8 @@ export default async function ReportsPage() {
               id={r.id}
               title={r.title}
               summary={r.summary}
+              content={r.content}
+              shareToken={r.share_token}
               createdAt={r.created_at}
               topicName={topicNameById.get(r.topic_id) ?? null}
             />
