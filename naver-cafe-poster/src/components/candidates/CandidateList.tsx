@@ -1,30 +1,62 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { deleteCandidateAction, setCandidateUseForScheduleAction } from "@/lib/actions/candidates";
+import { Button } from "@/components/ui/Button";
+import {
+  deleteCandidateAction,
+  setCandidateUseForScheduleAction,
+  moveCandidatesToCategoryAction,
+  type MoveCandidatesState,
+} from "@/lib/actions/candidates";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { CandidateScheduleToggleButton } from "@/components/candidates/CandidateScheduleToggleButton";
-import { CANDIDATE_SOURCE_LABELS, type CafeCandidate, type CandidateSourceType } from "@/types/post";
+import { CANDIDATE_SOURCE_LABELS, type CafeCandidate, type CafeCategory, type CandidateSourceType } from "@/types/post";
 
 interface CandidateListProps {
   candidates: CafeCandidate[];
+  categories: CafeCategory[];
 }
 
-export function CandidateList({ candidates }: CandidateListProps) {
+export function CandidateList({ candidates, categories }: CandidateListProps) {
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [moveCategoryId, setMoveCategoryId] = useState("");
+  const [isMoving, startMoving] = useTransition();
+  const [moveState, setMoveState] = useState<MoveCandidatesState | null>(null);
 
-  const categories = useMemo(
-    () => Array.from(new Set(candidates.map((c) => c.category).filter((c) => !!c))).sort(),
-    [candidates],
-  );
+  const categoryName = useMemo(() => {
+    const map = new Map(categories.map((c) => [c.id, c.name]));
+    return (id: string | null) => (id ? map.get(id) ?? null : null);
+  }, [categories]);
 
   const filtered =
     categoryFilter === "all"
       ? candidates
       : categoryFilter === "__none__"
-        ? candidates.filter((c) => !c.category)
-        : candidates.filter((c) => c.category === categoryFilter);
+        ? candidates.filter((c) => !c.category_id)
+        : candidates.filter((c) => c.category_id === categoryFilter);
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function handleMove() {
+    if (selected.size === 0) return;
+    startMoving(async () => {
+      const fd = new FormData();
+      selected.forEach((id) => fd.append("ids", id));
+      fd.set("categoryId", moveCategoryId);
+      const result = await moveCandidatesToCategoryAction(fd);
+      setMoveState(result);
+      if (!result.error) setSelected(new Set());
+    });
+  }
 
   if (candidates.length === 0) {
     return (
@@ -42,8 +74,8 @@ export function CandidateList({ candidates }: CandidateListProps) {
         OFF로 바뀌어 중복 게시되지 않습니다.
       </p>
 
-      {categories.length > 0 && (
-        <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+        <div className="flex items-center gap-2">
           <label className="text-xs font-medium text-neutral-700">카테고리 필터</label>
           <select
             value={categoryFilter}
@@ -52,14 +84,38 @@ export function CandidateList({ candidates }: CandidateListProps) {
           >
             <option value="all">전체</option>
             {categories.map((c) => (
-              <option key={c} value={c}>
-                {c}
+              <option key={c.id} value={c.id}>
+                {c.name}
               </option>
             ))}
             <option value="__none__">카테고리 없음</option>
           </select>
         </div>
-      )}
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-neutral-600">{selected.size}건 선택됨</span>
+          <select
+            value={moveCategoryId}
+            onChange={(e) => setMoveCategoryId(e.target.value)}
+            className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900"
+          >
+            <option value="">카테고리 없음</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <Button type="button" variant="secondary" disabled={selected.size === 0 || isMoving} onClick={handleMove}>
+            {isMoving ? "이동 중..." : "선택한 후보 이동"}
+          </Button>
+        </div>
+
+        {moveState?.error && <span className="text-xs text-red-600">{moveState.error}</span>}
+        {moveState?.count && !moveState.error && (
+          <span className="text-xs text-emerald-600">{moveState.count}건을 이동했습니다.</span>
+        )}
+      </div>
 
       <ul className="space-y-3">
         {filtered.map((c) => {
@@ -70,7 +126,16 @@ export function CandidateList({ candidates }: CandidateListProps) {
           return (
             <li key={c.id} className="rounded-lg border border-neutral-200 bg-white p-4">
               <div className="mb-1 flex items-start justify-between gap-3">
-                <h3 className="text-sm font-semibold text-neutral-900">{c.title}</h3>
+                <div className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(c.id)}
+                    onChange={() => toggleSelect(c.id)}
+                    className="mt-1 h-4 w-4"
+                    aria-label="이동할 후보 선택"
+                  />
+                  <h3 className="text-sm font-semibold text-neutral-900">{c.title}</h3>
+                </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <form action={setCandidateUseForScheduleAction}>
                     <input type="hidden" name="id" value={c.id} />
@@ -100,9 +165,9 @@ export function CandidateList({ candidates }: CandidateListProps) {
                 </div>
               )}
               <p className="mt-2 text-xs text-neutral-400">
-                {c.category && (
+                {categoryName(c.category_id) && (
                   <span className="mr-1 rounded-full bg-blue-50 px-2 py-0.5 font-medium text-blue-600">
-                    {c.category}
+                    {categoryName(c.category_id)}
                   </span>
                 )}
                 {CANDIDATE_SOURCE_LABELS[c.source_type as CandidateSourceType]} · {c.source_input} ·{" "}

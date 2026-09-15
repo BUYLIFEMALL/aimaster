@@ -24,11 +24,12 @@ export async function createScheduledSourceAction(
   const user = await requireProgramAccess();
   const sourceType = String(formData.get("sourceType") ?? "");
   const isPool = sourceType === "candidate_pool";
-  // candidate_pool 타입은 별도 컬럼 없이 source_input에 "카테고리 필터"(빈 문자열=전체)를 담는다.
-  const category = String(formData.get("category") ?? "").trim();
-  const sourceInput = isPool ? category : String(formData.get("sourceInput") ?? "").trim();
+  // candidate_pool 타입은 별도 컬럼 없이 source_input에 "카테고리 필터"(카테고리 id, 빈
+  // 문자열=전체)를 담는다. 실제 카테고리 이름 표시는 화면에서 categories 목록으로 조회한다.
+  const categoryId = String(formData.get("categoryId") ?? "").trim();
+  const sourceInput = isPool ? categoryId : String(formData.get("sourceInput") ?? "").trim();
   const sourceLabel = isPool
-    ? `🎲 후보함(${category ? `카테고리: ${category}` : "전체"})`
+    ? "🎲 후보함에서 랜덤 선택"
     : String(formData.get("sourceLabel") ?? sourceInput).trim();
   const targetId = String(formData.get("targetId") ?? "");
   const autoPost = formData.get("autoPost") === "true";

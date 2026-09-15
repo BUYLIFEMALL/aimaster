@@ -17,6 +17,7 @@ import {
 import { createScheduledSourceAction, type ScheduledSourceState } from "@/lib/actions/scheduledSources";
 import { SCHEDULE_INTERVAL_OPTIONS } from "@/lib/schedule";
 import type { NewsblurFeedSummary } from "@/lib/ai/collector";
+import type { CafeCategory } from "@/types/post";
 
 type Method = "http" | "rss" | "perplexity" | "candidate_pool";
 
@@ -37,7 +38,7 @@ interface CandidateCollectorProps {
   newsblurFeeds: NewsblurFeedSummary[];
   newsblurError: string | null;
   targets: { id: string; label: string }[];
-  categories: string[];
+  categories: CafeCategory[];
 }
 
 export function CandidateCollector({
@@ -86,37 +87,40 @@ export function CandidateCollector({
   );
 }
 
-/** 게시글 후보 수집/후보함 필터에서 공용으로 쓰는 카테고리 입력(기존 카테고리 자동완성 제공). */
-function CategoryInput({
+/** 게시글 후보 수집/후보함 필터에서 공용으로 쓰는 카테고리 선택(회원이 미리 등록해둔 카테고리만 고를 수 있다). */
+function CategorySelect({
   id,
   value,
   onChange,
   categories,
   label = "카테고리",
-  placeholder = "예: 다이어트 (선택 입력)",
+  noneLabel = "카테고리 없음",
 }: {
   id: string;
   value: string;
   onChange: (v: string) => void;
-  categories: string[];
+  categories: CafeCategory[];
   label?: string;
-  placeholder?: string;
+  noneLabel?: string;
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-neutral-700">{label}</label>
-      <input
-        list={id}
+      <label htmlFor={id} className="mb-1 block text-xs font-medium text-neutral-700">
+        {label}
+      </label>
+      <select
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
         className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
-      />
-      <datalist id={id}>
+      >
+        <option value="">{noneLabel}</option>
         {categories.map((c) => (
-          <option key={c} value={c} />
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
         ))}
-      </datalist>
+      </select>
     </div>
   );
 }
@@ -220,13 +224,13 @@ function ScheduleResultMessage({ state }: { state: ScheduledSourceState | null }
   return <p className="mt-2 text-sm text-green-600">예약 자동화로 등록했습니다. 아래 "수집된 게시글 후보" 위 목록에서 확인·관리할 수 있습니다.</p>;
 }
 
-function HttpForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: string[] }) {
+function HttpForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: CafeCategory[] }) {
   const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const [url, setUrl] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [scheduleMode, setScheduleMode] = useState(false);
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
@@ -250,7 +254,7 @@ function HttpForm({ targets, categories }: { targets: { id: string; label: strin
       } else {
         const fd = new FormData();
         fd.set("url", url);
-        fd.set("category", category);
+        fd.set("categoryId", categoryId);
         const result = await collectFromHttpAction(initialCollectState, fd);
         setCollectState(result);
       }
@@ -276,7 +280,7 @@ function HttpForm({ targets, categories }: { targets: { id: string; label: strin
       </div>
 
       {!scheduleMode && (
-        <CategoryInput id="cat-http" value={category} onChange={setCategory} categories={categories} />
+        <CategorySelect id="cat-http" value={categoryId} onChange={setCategoryId} categories={categories} />
       )}
 
       <ScheduleToggle
@@ -313,7 +317,7 @@ function NewsblurForm({
   feeds: NewsblurFeedSummary[];
   loadError: string | null;
   targets: { id: string; label: string }[];
-  categories: string[];
+  categories: CafeCategory[];
 }) {
   const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
@@ -321,7 +325,7 @@ function NewsblurForm({
   const [saveState, saveAction, isSaving] = useActionState(saveNewsblurAccountAction, initialSaveState);
 
   const [selectedFeed, setSelectedFeed] = useState<NewsblurFeedSummary | null>(feeds[0] ?? null);
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [scheduleMode, setScheduleMode] = useState(false);
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
@@ -370,7 +374,7 @@ function NewsblurForm({
         const fd = new FormData();
         fd.set("feedId", selectedFeed.id);
         fd.set("feedTitle", selectedFeed.title);
-        fd.set("category", category);
+        fd.set("categoryId", categoryId);
         const result = await collectFromRssAction(initialCollectState, fd);
         setCollectState(result);
       }
@@ -412,7 +416,7 @@ function NewsblurForm({
           </div>
 
           {!scheduleMode && (
-            <CategoryInput id="cat-rss" value={category} onChange={setCategory} categories={categories} />
+            <CategorySelect id="cat-rss" value={categoryId} onChange={setCategoryId} categories={categories} />
           )}
 
           <ScheduleToggle
@@ -438,13 +442,13 @@ function NewsblurForm({
   );
 }
 
-function PerplexityForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: string[] }) {
+function PerplexityForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: CafeCategory[] }) {
   const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const [topic, setTopic] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [scheduleMode, setScheduleMode] = useState(false);
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
@@ -468,7 +472,7 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
       } else {
         const fd = new FormData();
         fd.set("topic", topic);
-        fd.set("category", category);
+        fd.set("categoryId", categoryId);
         const result = await collectFromPerplexityAction(initialCollectState, fd);
         setCollectState(result);
       }
@@ -483,7 +487,7 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
       </div>
 
       {!scheduleMode && (
-        <CategoryInput id="cat-perplexity" value={category} onChange={setCategory} categories={categories} />
+        <CategorySelect id="cat-perplexity" value={categoryId} onChange={setCategoryId} categories={categories} />
       )}
 
       <ScheduleToggle
@@ -513,11 +517,11 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
  * 1회성 "글감 수집" 개념이 없으므로(이미 있는 후보를 재활용하는 것뿐) 다른 방식과 달리
  * 예약 등록만 지원한다.
  */
-function CandidatePoolForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: string[] }) {
+function CandidatePoolForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: CafeCategory[] }) {
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
   const [isPending, startTransition] = useTransition();
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [autoPost, setAutoPost] = useState(false);
   const [interval, setInterval_] = useState(1440);
 
@@ -526,7 +530,7 @@ function CandidatePoolForm({ targets, categories }: { targets: { id: string; lab
     startTransition(async () => {
       const fd = new FormData();
       fd.set("sourceType", "candidate_pool");
-      fd.set("category", category);
+      fd.set("categoryId", categoryId);
       fd.set("targetId", targetId);
       fd.set("autoPost", String(autoPost));
       fd.set("scheduleEnabled", "true");
@@ -544,13 +548,13 @@ function CandidatePoolForm({ targets, categories }: { targets: { id: string; lab
         바뀌어 중복 게시되지 않습니다. 카테고리를 지정하면 그 카테고리 후보 중에서만 고릅니다.
       </p>
 
-      <CategoryInput
+      <CategorySelect
         id="cat-pool-filter"
-        value={category}
-        onChange={setCategory}
+        value={categoryId}
+        onChange={setCategoryId}
         categories={categories}
         label="카테고리 필터"
-        placeholder="비워두면 전체 후보 중에서 고릅니다"
+        noneLabel="전체(카테고리 구분 없이 전부)"
       />
 
       {targets.length === 0 ? (

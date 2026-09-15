@@ -70,28 +70,28 @@ async function collectRawText(
  * "🎲 후보함에서 랜덤 선택" 소스 전용 — 새로 AI를 호출해 콘텐츠를 만드는 대신, 회원이
  * "예약용 ON"으로 켜둔 게시글 후보(ncafe_candidates) 중 하나를 무작위로 골라 그대로
  * 재료로 쓴다. 한 번 뽑힌 후보는 다시 뽑히지 않도록 use_for_schedule을 꺼서 "소모"시킨다.
- * `category`가 있으면(별도 컬럼 없이 source_input에 담아 재사용, 빈 문자열=전체) 그
- * 카테고리로 태그된 후보 중에서만 고른다 — 원하는 카테고리의 글을 원하는 게시판
+ * `categoryId`가 있으면(별도 컬럼 없이 source_input에 담아 재사용, 빈 문자열=전체) 그
+ * 카테고리로 분류된 후보 중에서만 고른다 — 원하는 카테고리의 글을 원하는 게시판
  * (source.target_id)에 등록하고 싶을 때 쓴다.
  */
 async function pickFromCandidatePool(
   supabase: SupabaseLike,
   userId: string,
-  category: string,
+  categoryId: string,
 ): Promise<{ title: string; content: string }> {
   let query = supabase
     .from("ncafe_candidates")
     .select("id, title, content")
     .eq("user_id", userId)
     .eq("use_for_schedule", true);
-  if (category) query = query.eq("category", category);
+  if (categoryId) query = query.eq("category_id", categoryId);
 
   const { data: candidates, error } = await query;
   if (error) throw new Error(error.message);
   if (!candidates || candidates.length === 0) {
     throw new Error(
-      category
-        ? `"${category}" 카테고리에 예약용으로 켜둔(ON) 게시글 후보가 없습니다.`
+      categoryId
+        ? "지정한 카테고리에 예약용으로 켜둔(ON) 게시글 후보가 없습니다."
         : "예약용으로 켜둔(ON) 게시글 후보가 없습니다. 후보 목록에서 사용할 글감을 켜주세요.",
     );
   }

@@ -2681,7 +2681,7 @@ export type Database = {
       }
       ncafe_candidates: {
         Row: {
-          category: string
+          category_id: string | null
           content: string
           created_at: string
           id: string
@@ -2693,7 +2693,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          category?: string
+          category_id?: string | null
           content: string
           created_at?: string
           id?: string
@@ -2705,7 +2705,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          category?: string
+          category_id?: string | null
           content?: string
           created_at?: string
           id?: string
@@ -2714,6 +2714,27 @@ export type Database = {
           source_type?: string
           title?: string
           use_for_schedule?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ncafe_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
           user_id?: string
         }
         Relationships: []

@@ -4,6 +4,7 @@ export type CafePost = Database["public"]["Tables"]["ncafe_posts"]["Row"];
 export type CafeTarget = Database["public"]["Tables"]["ncafe_targets"]["Row"];
 export type NaverAccount = Database["public"]["Tables"]["ncafe_accounts"]["Row"];
 export type CafeCandidate = Database["public"]["Tables"]["ncafe_candidates"]["Row"];
+export type CafeCategory = Database["public"]["Tables"]["ncafe_categories"]["Row"];
 export type ScheduledSource = Database["public"]["Tables"]["ncafe_scheduled_sources"]["Row"];
 
 export type CandidateSourceType = "http" | "rss" | "perplexity";
