@@ -62,26 +62,51 @@ export default async function DashboardPage() {
       </div>
 
       <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4">
-        <h2 className="mb-2 text-sm font-bold text-neutral-900">시작하기</h2>
-        <ol className="list-inside list-decimal space-y-1 text-sm text-neutral-600">
+        <h2 className="mb-3 text-sm font-bold text-neutral-900">사용방법</h2>
+        <ol className="list-inside list-decimal space-y-3 text-sm text-neutral-600">
           <li>
             <Link href="/settings" className="font-medium text-blue-600 hover:underline">
-              API 키 설정
+              API키등록·플랫폼연동
             </Link>
-            에서 본인 Perplexity/OpenAI 키를 등록합니다.
+            에서 본인 Perplexity(필수)/OpenAI(필수)/Gemini(이미지 생성용) 키를 등록합니다.
           </li>
           <li>
             <Link href="/topics" className="font-medium text-blue-600 hover:underline">
               관심 주제 등록
             </Link>
-            에서 정보를 받아볼 주제와 키워드를 등록합니다.
+            에서 정보를 받아볼 주제 이름과 키워드(최대 10개), 검색할 기간을 등록합니다.
           </li>
           <li>
-            등록한 주제에서 &quot;지금 생성&quot;을 눌러 AI가 만든 정보 콘텐츠를{" "}
+            바로 확인만 하려면 <strong>&quot;✨ 지금 리포트 생성&quot;</strong>을 눌러 즉시
+            만들거나, 주기적으로 자동으로 받고 싶으면 <strong>&quot;🔔 예약 리포트 알림&quot;</strong>을
+            켜고 주기·조회 범위·동작 시간대를 정합니다.
+          </li>
+          <li>
+            같은 패널의 <strong>알림 채널</strong>에서 발송 방식을 고릅니다 — 💬 카카오톡은
+            검토 없이 즉시 발송(본인 카카오 + 수신자 목록까지 자동 발송), 📨 텔레그램은
+            승인 요청 후 직접 발행, 📧 이메일은 예약 자동 생성 시에만 알림 메일을
+            보냅니다. 카카오톡 발송 대상은 <strong>전체 수신자</strong> 또는 특정{" "}
+            <strong>그룹</strong>으로 좁힐 수 있습니다.
+          </li>
+          <li>
             <Link href="/reports" className="font-medium text-blue-600 hover:underline">
-              리포트
+              생성리포트 목록
             </Link>
-            에서 확인합니다.
+            에서 만들어진 콘텐츠를 확인합니다. 각 카드 하단의{" "}
+            <strong>💬 카카오톡 공유</strong> 버튼으로 원하는 채팅방에 직접 골라 공유할
+            수 있고, 받는 사람은 로그인 없이 바로 읽을 수 있습니다. 🔗 링크 복사·✏️
+            수정·삭제도 목록에서 바로 할 수 있습니다.
+          </li>
+          <li>
+            <Link href="/recipients" className="font-medium text-blue-600 hover:underline">
+              카카오톡 수신자 목록
+            </Link>
+            에서 함께 받아볼 사람의 전화번호/이메일을 등록하고 그룹으로 묶어 관리합니다.
+            발송 결과는{" "}
+            <Link href="/broadcast-log" className="font-medium text-blue-600 hover:underline">
+              발송 내역
+            </Link>
+            에서 확인할 수 있습니다.
           </li>
         </ol>
       </div>
