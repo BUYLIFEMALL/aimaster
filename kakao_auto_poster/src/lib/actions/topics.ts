@@ -92,6 +92,12 @@ export async function updateTopicScheduleAction(
   // 알림 채널 칩(이메일/텔레그램) — trending-product-finder의 SourcingAlertControls.tsx와
   // 동일한 방식. 카카오톡은 포함하지 않는다(위 파일 상단 주석 참고).
   const notifyChannels = formData.getAll("notifyChannels").map(String);
+  // 카카오톡 발송 대상 그룹 — 비워두면(빈 문자열) 기존과 동일하게 전체 수신자(미분류 포함)
+  // 대상이다. 특정 그룹을 고르면 그 그룹에 속한 수신자에게만 나간다(사용자 지시,
+  // 2026-09-15). "카카오로 발송" 수동 버튼과 텔레그램 승인 발행도 이 값을 그대로 따른다
+  // (lib/kakaoSend.ts 참고) — 트리거 방식과 무관하게 이 주제의 리포트는 항상 같은
+  // 대상으로 나가야 하기 때문이다.
+  const targetGroupId = String(formData.get("targetGroupId") ?? "").trim() || null;
 
   if (!id) return { error: "주제를 찾을 수 없습니다." };
 
@@ -105,6 +111,7 @@ export async function updateTopicScheduleAction(
       active_hour_start: activeHourStart,
       active_hour_end: activeHourEnd,
       notify_channels: notifyChannels,
+      target_group_id: targetGroupId,
     })
     .eq("id", id)
     .eq("user_id", user.id);

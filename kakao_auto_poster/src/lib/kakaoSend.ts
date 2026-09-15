@@ -22,11 +22,22 @@ export async function sendReportToKakaoCore(
 ): Promise<{ error?: string; success?: boolean }> {
   const { data: report } = await supabase
     .from("kakao_reports")
-    .select("id, title, summary")
+    .select("id, title, summary, topic_id")
     .eq("id", reportId)
     .eq("user_id", userId)
     .maybeSingle();
   if (!report) return { error: "리포트를 찾을 수 없습니다." };
+
+  // 이 리포트가 속한 주제가 특정 그룹만 골라뒀으면(target_group_id) 수신자 목록 발송을
+  // 그 그룹에만 한정한다 — null이면 기존과 동일하게 전체 수신자(미분류 포함) 대상이다.
+  // 트리거 방식(카카오 채널 즉시 발송/텔레그램 승인/리포트 화면 수동 발송)과 무관하게 이
+  // 함수 하나만 거치므로, 여기서 한 번만 조회하면 세 경로 모두에 일관되게 적용된다.
+  const { data: topic } = await supabase
+    .from("kakao_topics")
+    .select("target_group_id")
+    .eq("id", report.topic_id)
+    .maybeSingle();
+  const targetGroupId = topic?.target_group_id ?? null;
 
   const reportUrl = `${APP_URL}/reports/${report.id}`;
   const text = [`📨 ${report.title}`, "", report.summary, "", `전체 보기: ${reportUrl}`].join("\n");
@@ -81,7 +92,7 @@ export async function sendReportToKakaoCore(
   // 등록돼 있으면 채널 친구 여부와 무관하게 도달하는 알림톡을 쓰고, 없으면 브랜드메시지
   // (채널을 친구 추가한 사람에게만 도달 — SOLAPI 공식 문서 기준, 2026-09-09 재확인)를 쓴다.
   if (solapiAccount?.kakao_pf_id) {
-    await broadcastReportToRecipients(supabase, userId, reportId, solapiAccount, {
+    await broadcastReportToRecipients(supabase, userId, reportId, solapiAccount, targetGroupId, {
       id: report.id,
       title: report.title,
       summary: report.summary,
@@ -98,13 +109,18 @@ async function broadcastReportToRecipients(
   userId: string,
   reportId: string,
   solapiAccount: SolapiAccountCredentials & { alimtalk_template_id: string | null; email_dual_send_enabled: boolean },
+  targetGroupId: string | null,
   report: { id: string; title: string; summary: string; url: string; text: string },
 ): Promise<void> {
-  const { data: recipients } = await supabase
+  let query = supabase
     .from("kakao_broadcast_recipients")
     .select("phone, email")
     .eq("user_id", userId)
     .eq("excluded", false);
+  // target_group_id가 있으면 그 그룹에 속한 수신자로만 좁힌다(미분류/다른 그룹 제외).
+  // null이면 전체 수신자(미분류 포함) 그대로 둔다 — 기존 동작과 하위 호환.
+  if (targetGroupId) query = query.eq("group_id", targetGroupId);
+  const { data: recipients } = await query;
 
   if (!recipients || recipients.length === 0) return;
 

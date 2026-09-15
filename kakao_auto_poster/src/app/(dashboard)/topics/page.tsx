@@ -10,13 +10,16 @@ export default async function TopicsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: topics } = await supabase
-    .from("kakao_topics")
-    .select(
-      "id, topic_name, keywords, is_active, lookback_days, schedule_enabled, interval_minutes, active_hour_start, active_hour_end, notify_channels",
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const [{ data: topics }, { data: groups }] = await Promise.all([
+    supabase
+      .from("kakao_topics")
+      .select(
+        "id, topic_name, keywords, is_active, lookback_days, schedule_enabled, interval_minutes, active_hour_start, active_hour_end, notify_channels, target_group_id",
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase.from("kakao_broadcast_groups").select("id, name").eq("user_id", user.id).order("created_at"),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -41,7 +44,8 @@ export default async function TopicsPage() {
           <li>
             <strong>💬 카카오톡</strong> — 검토 절차 없이 <strong>즉시 발송</strong>됩니다.
             본인 카카오뿐 아니라, 카카오 채널이 연동돼 있으면{" "}
-            <strong>등록해둔 수신자 목록 전체</strong>에도 자동으로 함께 나갑니다.
+            <strong>수신자 목록(아래 &ldquo;발송 대상&rdquo;에서 전체 또는 특정 그룹 선택)</strong>
+            에도 자동으로 함께 나갑니다.
           </li>
           <li>
             <strong>📨 텔레그램</strong> — 발송 전 &ldquo;✅ 발행 / ❌ 발행 안 함&rdquo; 승인
@@ -120,6 +124,8 @@ export default async function TopicsPage() {
               activeHourStart={t.active_hour_start}
               activeHourEnd={t.active_hour_end}
               notifyChannels={t.notify_channels}
+              targetGroupId={t.target_group_id}
+              groups={groups ?? []}
             />
           ))
         )}

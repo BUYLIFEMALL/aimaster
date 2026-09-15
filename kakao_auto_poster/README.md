@@ -90,6 +90,9 @@ Phase별 상세 내용과 실계정 검증 현황은 이 폴더의 [`AGENTS.md`]
 ## DB 스키마
 
 - `kakao_topics`: 회원이 등록한 관심 주제/키워드. `user_id` + RLS owner-only.
+  `target_group_id`(uuid, `0017_topic_target_group.sql`, `kakao_broadcast_groups` 참조,
+  on delete set null)는 이 주제의 카카오톡 수신자 목록 발송을 특정 그룹으로 좁힌다 —
+  null이면 전체 수신자(미분류 포함) 대상.
 - `kakao_reports`: 주제별로 AI가 생성한 리포트(title/summary/content) + 카카오 발송 여부
   추적(`kakao_sent_at`/`kakao_send_error`, `0002_kakao_send_tracking.sql`). `topic_id`로
   `kakao_topics`를 참조(on delete cascade). `user_id` + RLS owner-only.

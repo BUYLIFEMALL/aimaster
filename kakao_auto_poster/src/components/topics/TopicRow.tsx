@@ -32,6 +32,8 @@ interface TopicRowProps {
   activeHourStart: number | null;
   activeHourEnd: number | null;
   notifyChannels: string[];
+  targetGroupId: string | null;
+  groups: { id: string; name: string }[];
 }
 
 const generateInitialState: GenerateReportState = {};
@@ -52,6 +54,8 @@ export function TopicRow({
   activeHourStart,
   activeHourEnd,
   notifyChannels,
+  targetGroupId,
+  groups,
 }: TopicRowProps) {
   const [genState, genFormAction, isGenerating] = useActionState(generateReportAction, generateInitialState);
 
@@ -65,6 +69,7 @@ export function TopicRow({
   const [startHour, setStartHour] = useState(activeHourStart ?? 9);
   const [endHour, setEndHour] = useState(activeHourEnd ?? 22);
   const [channels, setChannels] = useState<string[]>(notifyChannels);
+  const [groupId, setGroupId] = useState<string>(targetGroupId ?? "");
   // 회원 이용 만료일 설정(components/admin/SetExpiryModal.tsx)의 "빠른 설정" 캘린더
   // 패턴과 동일 — 날짜를 고르면 오늘까지의 경과일을 계산해서 기존 lookbackDays 값에
   // 그대로 채워 넣는다(새 컬럼 없이 기존 필드 재사용).
@@ -81,6 +86,7 @@ export function TopicRow({
     startHour?: number;
     endHour?: number;
     channels?: string[];
+    groupId?: string;
   }) {
     const merged = {
       lookback: next.lookback ?? lookback,
@@ -90,6 +96,7 @@ export function TopicRow({
       startHour: next.startHour ?? startHour,
       endHour: next.endHour ?? endHour,
       channels: next.channels ?? channels,
+      groupId: next.groupId ?? groupId,
     };
     const fd = new FormData();
     fd.set("id", id);
@@ -99,6 +106,7 @@ export function TopicRow({
     fd.set("hoursRestricted", String(merged.hoursRestricted));
     fd.set("activeHourStart", String(merged.startHour));
     fd.set("activeHourEnd", String(merged.endHour));
+    fd.set("targetGroupId", merged.groupId);
     merged.channels.forEach((c) => fd.append("notifyChannels", c));
     startSavingSchedule(async () => {
       const result = await updateTopicScheduleAction(scheduleInitialState, fd);
@@ -455,6 +463,33 @@ export function TopicRow({
               설정 페이지에 등록해둔 채널(카카오톡/텔레그램/이메일) 중 선택한 것으로 이
               주제의 리포트를 보내드립니다. 카카오톡은 검토 없이 즉시 발행되니 신중하게
               켜주세요.
+            </p>
+
+            <div className="flex items-center gap-2 pt-1">
+              <span className="w-16 shrink-0 text-[11px] text-neutral-500">발송 대상</span>
+              <select
+                value={groupId}
+                disabled={isSavingSchedule}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setGroupId(next);
+                  saveSchedule({ groupId: next });
+                }}
+                className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+              >
+                <option value="">전체 수신자</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <p className="pl-[72px] text-[11px] text-neutral-400">
+              카카오톡(즉시 발송·텔레그램 승인 발행·리포트 화면 수동 발송 모두 포함)이 이
+              주제의 수신자 목록 발송 대상을 정해요. &ldquo;전체 수신자&rdquo;를 두면 등록된
+              모든 수신자(미분류 포함)에게, 그룹을 고르면 그 그룹에 속한 수신자에게만
+              나갑니다. 본인 알림(나에게 보내기/카카오 채널)에는 영향 없어요.
             </p>
             {scheduleSaved && <p className="text-[11px] text-emerald-600">저장됐어요.</p>}
           </div>
