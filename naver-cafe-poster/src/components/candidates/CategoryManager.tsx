@@ -7,6 +7,7 @@ import {
   createCategoryAction,
   renameCategoryAction,
   deleteCategoryAction,
+  moveCategoryAction,
   type CategoryActionState,
 } from "@/lib/actions/categories";
 import type { CafeCategory } from "@/types/post";
@@ -49,7 +50,7 @@ export function CategoryManager({ categories }: { categories: CafeCategory[] }) 
 
       {categories.length > 0 && (
         <ul className="mb-3 space-y-2">
-          {categories.map((cat) =>
+          {categories.map((cat, index) =>
             editingId === cat.id ? (
               <EditCategoryRow key={cat.id} category={cat} onCancel={() => setEditingId(null)} />
             ) : (
@@ -57,7 +58,33 @@ export function CategoryManager({ categories }: { categories: CafeCategory[] }) 
                 key={cat.id}
                 className="flex items-center justify-between rounded-lg border border-neutral-200 p-2"
               >
-                <span className="text-sm text-neutral-800">{cat.name}</span>
+                <div className="flex items-center gap-1">
+                  <form action={moveCategoryAction}>
+                    <input type="hidden" name="id" value={cat.id} />
+                    <input type="hidden" name="direction" value="up" />
+                    <button
+                      type="submit"
+                      disabled={index === 0}
+                      className="rounded px-1.5 py-0.5 text-xs text-neutral-500 hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30"
+                      aria-label="위로 이동"
+                    >
+                      ▲
+                    </button>
+                  </form>
+                  <form action={moveCategoryAction}>
+                    <input type="hidden" name="id" value={cat.id} />
+                    <input type="hidden" name="direction" value="down" />
+                    <button
+                      type="submit"
+                      disabled={index === categories.length - 1}
+                      className="rounded px-1.5 py-0.5 text-xs text-neutral-500 hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30"
+                      aria-label="아래로 이동"
+                    >
+                      ▼
+                    </button>
+                  </form>
+                  <span className="ml-1 text-sm text-neutral-800">{cat.name}</span>
+                </div>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"

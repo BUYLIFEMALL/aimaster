@@ -38,7 +38,7 @@ export default async function CandidatesPage() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase.from("ncafe_targets").select("id, label").eq("user_id", user.id).order("created_at"),
-    supabase.from("ncafe_categories").select("*").eq("user_id", user.id).order("created_at"),
+    supabase.from("ncafe_categories").select("*").eq("user_id", user.id).order("sort_order"),
   ]);
 
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));

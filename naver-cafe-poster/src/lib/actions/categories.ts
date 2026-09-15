@@ -15,7 +15,7 @@ function friendlyError(message: string): string {
   return message;
 }
 
-/** 글감 후보를 분류할 카테고리를 새로 만든다. */
+/** 글감 후보를 분류할 카테고리를 새로 만든다. 새 카테고리는 항상 맨 뒤에 추가된다. */
 export async function createCategoryAction(
   _prevState: CategoryActionState,
   formData: FormData,
@@ -25,7 +25,18 @@ export async function createCategoryAction(
   if (!name) return { error: "카테고리 이름을 입력해주세요." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("ncafe_categories").insert({ user_id: user.id, name });
+  const { data: last } = await supabase
+    .from("ncafe_categories")
+    .select("sort_order")
+    .eq("user_id", user.id)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextSortOrder = (last?.sort_order ?? 0) + 1;
+
+  const { error } = await supabase
+    .from("ncafe_categories")
+    .insert({ user_id: user.id, name, sort_order: nextSortOrder });
 
   if (error) return { error: friendlyError(error.message) };
 
@@ -66,6 +77,44 @@ export async function deleteCategoryAction(formData: FormData) {
 
   const supabase = await createClient();
   await supabase.from("ncafe_categories").delete().eq("id", id).eq("user_id", user.id);
+
+  revalidatePath("/candidates");
+}
+
+/** 카테고리 목록에서 한 칸 위/아래로 순서를 바꾼다(바로 옆 카테고리와 sort_order를 맞바꾼다). */
+export async function moveCategoryAction(formData: FormData) {
+  const user = await requireProgramAccess();
+  const id = String(formData.get("id") ?? "");
+  const direction = String(formData.get("direction") ?? "");
+  if (!id || (direction !== "up" && direction !== "down")) return;
+
+  const supabase = await createClient();
+  const { data: categories } = await supabase
+    .from("ncafe_categories")
+    .select("id, sort_order")
+    .eq("user_id", user.id)
+    .order("sort_order", { ascending: true });
+
+  if (!categories) return;
+  const index = categories.findIndex((c) => c.id === id);
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+  if (index === -1 || swapIndex < 0 || swapIndex >= categories.length) return;
+
+  const current = categories[index];
+  const swapWith = categories[swapIndex];
+
+  await Promise.all([
+    supabase
+      .from("ncafe_categories")
+      .update({ sort_order: swapWith.sort_order })
+      .eq("id", current.id)
+      .eq("user_id", user.id),
+    supabase
+      .from("ncafe_categories")
+      .update({ sort_order: current.sort_order })
+      .eq("id", swapWith.id)
+      .eq("user_id", user.id),
+  ]);
 
   revalidatePath("/candidates");
 }
