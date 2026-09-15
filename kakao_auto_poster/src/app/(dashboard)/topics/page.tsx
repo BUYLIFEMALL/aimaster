@@ -80,8 +80,9 @@ export default async function TopicsPage() {
             <p className="text-xs font-bold text-neutral-900">① 카드 우측 상단 ON/OFF — 등록된 주제 사용여부</p>
             <p className="mt-1 text-[11px] leading-relaxed text-neutral-600">
               OFF — <strong>&ldquo;지금 생성&rdquo; 버튼은 정상 작동</strong>하고, 예약
-              자동생성 대상에서만 제외됩니다. 등록된 주제를 삭제하지 않고 유지하고 싶을 때
-              꺼두세요.
+              자동생성 대상에서만 제외됩니다.
+              <br />
+              등록된 주제를 삭제하지 않고 유지하고 싶을 때 꺼두세요.
             </p>
           </div>
           <div className="rounded-lg bg-white p-2.5">
