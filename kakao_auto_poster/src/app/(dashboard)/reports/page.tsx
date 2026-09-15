@@ -27,7 +27,8 @@ export default async function ReportsPage() {
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-2 text-2xl font-semibold text-neutral-900">생성리포트 목록</h1>
       <p className="mb-6 text-sm text-neutral-600">
-        등록한 주제에서 AI가 생성한 정보 콘텐츠 목록입니다.
+        등록된 주제로 AI가 생성한 콘텐츠 목록입니다. 카카오톡 공유를 통해서 친구 및
+        단톡방에 공유할 수 있습니다.
       </p>
 
       <div className="space-y-3">
