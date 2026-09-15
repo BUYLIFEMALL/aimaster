@@ -5,8 +5,9 @@ import { newsblurLogin, fetchNewsblurFeeds, type NewsblurFeedSummary } from "@/l
 import { getRegisteredProviders } from "@/lib/apiKeys";
 import { CandidateCollector } from "@/components/candidates/CandidateCollector";
 import { CandidateList } from "@/components/candidates/CandidateList";
+import { ScheduledSourceManager } from "@/components/candidates/ScheduledSourceManager";
 import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
-import { CANDIDATE_SOURCE_LABELS, type CandidateSourceType } from "@/types/post";
+import { CANDIDATE_SOURCE_LABELS, type CandidateSourceType, type ScheduledSource } from "@/types/post";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
@@ -15,15 +16,22 @@ export default async function CandidatesPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: candidates }, { data: newsblurAccount }, registeredProviders] = await Promise.all([
-    supabase
-      .from("ncafe_candidates")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false }),
-    supabase.from("newsblur_accounts").select("username").eq("user_id", user.id).maybeSingle(),
-    getRegisteredProviders(supabase, user.id),
-  ]);
+  const [{ data: candidates }, { data: newsblurAccount }, registeredProviders, { data: scheduledSources }, { data: targets }] =
+    await Promise.all([
+      supabase
+        .from("ncafe_candidates")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase.from("newsblur_accounts").select("username").eq("user_id", user.id).maybeSingle(),
+      getRegisteredProviders(supabase, user.id),
+      supabase
+        .from("ncafe_scheduled_sources")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase.from("ncafe_targets").select("id, label").eq("user_id", user.id).order("created_at"),
+    ]);
 
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 
@@ -72,12 +80,21 @@ export default async function CandidatesPage() {
 
       <MissingApiKeyNotice missing={missingProviders} />
 
-      <div className="mb-8">
+      <div className="mb-4">
         <CandidateCollector
           newsblurConnected={!!newsblurAccount}
           newsblurUsername={newsblurAccount?.username ?? null}
           newsblurFeeds={newsblurFeeds}
           newsblurError={newsblurError}
+        />
+      </div>
+
+      <div className="mb-8">
+        <ScheduledSourceManager
+          sources={(scheduledSources ?? []) as ScheduledSource[]}
+          targets={targets ?? []}
+          newsblurConnected={!!newsblurAccount}
+          newsblurFeeds={newsblurFeeds}
         />
       </div>
 

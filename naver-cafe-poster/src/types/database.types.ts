@@ -2795,6 +2795,54 @@ export type Database = {
         }
         Relationships: []
       }
+      ncafe_scheduled_sources: {
+        Row: {
+          auto_post: boolean
+          created_at: string
+          id: string
+          interval_minutes: number | null
+          is_active: boolean
+          last_error: string | null
+          last_run_at: string | null
+          schedule_enabled: boolean
+          source_input: string
+          source_label: string
+          source_type: string
+          target_id: string
+          user_id: string
+        }
+        Insert: {
+          auto_post?: boolean
+          created_at?: string
+          id?: string
+          interval_minutes?: number | null
+          is_active?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          schedule_enabled?: boolean
+          source_input: string
+          source_label: string
+          source_type: string
+          target_id: string
+          user_id: string
+        }
+        Update: {
+          auto_post?: boolean
+          created_at?: string
+          id?: string
+          interval_minutes?: number | null
+          is_active?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          schedule_enabled?: boolean
+          source_input?: string
+          source_label?: string
+          source_type?: string
+          target_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       newsblur_accounts: {
         Row: {
           created_at: string
