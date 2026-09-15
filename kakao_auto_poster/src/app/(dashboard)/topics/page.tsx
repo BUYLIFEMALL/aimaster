@@ -54,8 +54,10 @@ export default async function TopicsPage() {
         </ul>
         <p className="rounded-lg bg-amber-100 p-2 text-xs font-semibold text-amber-800">
           ⚠️ 카카오톡과 텔레그램을 같이 켜두면, 텔레그램 승인 요청보다 카카오 발송이 먼저
-          실행돼서 검토 기능이 의미 없어져요. <strong>결과를 먼저 확인하고 보내고 싶다면
-          텔레그램만 켜두고</strong>, 리포트 화면에서 확인 후 직접 발송해주세요.
+          실행돼서 검토 기능이 의미 없어져요.
+          <br />
+          <strong>결과를 먼저 확인하고 보내고 싶다면 텔레그램만 켜두고</strong>, 리포트
+          화면에서 확인 후 직접 발송해주세요.
         </p>
       </div>
 
