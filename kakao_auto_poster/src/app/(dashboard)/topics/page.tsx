@@ -66,6 +66,39 @@ export default async function TopicsPage() {
         <TopicForm />
       </div>
 
+      {/* 아래 주제 카드마다 ON/OFF 스위치가 두 개(카드 자체 ON/OFF + 예약 리포트 알림
+          ON/OFF)라 헷갈리기 쉽다는 사용자 피드백으로, 주제 목록을 보기 전에 먼저 차이를
+          짚어주는 안내 박스를 추가했다(2026-09-15 사용자 요청). */}
+      <div className="mb-6 rounded-2xl border-2 border-blue-200 bg-blue-50 p-4">
+        <p className="mb-2 text-sm font-bold text-blue-900">🔀 ON/OFF 스위치, 두 종류예요</p>
+        <p className="mb-3 text-xs leading-relaxed text-blue-900">
+          아래 주제 카드마다 ON/OFF 버튼이 두 곳에 있어요. 서로 다른 걸 켜고 끄는 별개의
+          스위치이니 헷갈리지 마세요.
+        </p>
+        <div className="space-y-2.5">
+          <div className="rounded-lg bg-white p-2.5">
+            <p className="text-xs font-bold text-neutral-900">① 카드 우측 상단 ON/OFF — 주제 자체 스위치</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-neutral-600">
+              이 주제를 통째로 켜둘지/쉬게 할지 정해요. <strong>꺼도 &ldquo;지금 생성&rdquo;
+              버튼은 그대로 작동</strong>하고, 예약 자동 생성 대상에서만 빠집니다. 삭제하지
+              않고 잠시 쉬게 하고 싶을 때 꺼두세요.
+            </p>
+          </div>
+          <div className="rounded-lg bg-white p-2.5">
+            <p className="text-xs font-bold text-neutral-900">
+              ② &ldquo;🔔 예약 리포트 알림&rdquo; 패널 안 ON/OFF — 자동 생성 스위치
+            </p>
+            <p className="mt-1 text-[11px] leading-relaxed text-neutral-600">
+              정해둔 주기(매일/매주 등)마다 <strong>자동으로 리포트를 만들지</strong> 정해요.
+              꺼두면 자동 생성 없이 &ldquo;지금 생성&rdquo; 버튼을 직접 눌러야만 만들어집니다.
+            </p>
+          </div>
+        </div>
+        <p className="mt-3 text-[11px] font-semibold text-blue-800">
+          👉 정기 자동 생성이 실제로 돌아가려면 <strong>①과 ② 둘 다 켜져 있어야</strong> 해요.
+        </p>
+      </div>
+
       <div className="space-y-3">
         {(topics ?? []).length === 0 ? (
           <p className="rounded-lg border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">
