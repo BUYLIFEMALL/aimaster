@@ -30,6 +30,7 @@ async function insertCandidates(
   sourceType: CandidateSourceType,
   sourceInput: string,
   drafts: CafeCandidateDraft[],
+  category: string,
 ) {
   // 한 배치로 여러 건을 insert하면 DB가 모든 행에 동일한 트랜잭션 시각을 created_at으로
   // 부여해서, "최신 생성 순" 정렬(created_at desc)이 배치 내에서는 순서를 보장하지 못한다.
@@ -42,6 +43,7 @@ async function insertCandidates(
       title: d.title,
       content: d.content,
       keywords: d.keywords ?? [],
+      category,
       created_at: new Date(now - i).toISOString(),
     })),
   );
@@ -61,6 +63,7 @@ export async function collectFromHttpAction(
 ): Promise<CollectState> {
   const user = await requireProgramAccess();
   const url = String(formData.get("url") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim();
   if (!url) return { error: "URL을 입력해주세요." };
 
   try {
@@ -91,14 +94,14 @@ export async function collectFromHttpAction(
         .map((a, i) => `[${i + 1}] ${a.title}\n${a.text}\n출처: ${a.url}`)
         .join("\n\n");
       const drafts = await structureCafeCandidates({ rawText, maxItems: valid.length, apiKey: apiKey ?? "" });
-      await insertCandidates(supabase, user.id, "http", url, drafts);
+      await insertCandidates(supabase, user.id, "http", url, drafts, category);
       revalidatePath("/candidates");
       return { success: true, count: drafts.length };
     }
 
     const text = await fetchUrlText(url);
     const drafts = await structureCafeCandidates({ rawText: text, maxItems: 1, apiKey: apiKey ?? "" });
-    await insertCandidates(supabase, user.id, "http", url, drafts);
+    await insertCandidates(supabase, user.id, "http", url, drafts, category);
     revalidatePath("/candidates");
     return { success: true, count: drafts.length };
   } catch (err) {
@@ -114,6 +117,7 @@ export async function collectFromRssAction(
   const user = await requireProgramAccess();
   const feedId = String(formData.get("feedId") ?? "").trim();
   const feedTitle = String(formData.get("feedTitle") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim();
   if (!feedId) return { error: "구독 피드를 선택해주세요." };
 
   try {
@@ -134,7 +138,7 @@ export async function collectFromRssAction(
       .map((item, i) => `[${i + 1}] ${item.title}\n${item.text}\n출처: ${item.link}`)
       .join("\n\n");
     const drafts = await structureCafeCandidates({ rawText, maxItems: items.length, apiKey: apiKey ?? "" });
-    await insertCandidates(supabase, user.id, "rss", feedTitle || feedId, drafts);
+    await insertCandidates(supabase, user.id, "rss", feedTitle || feedId, drafts, category);
     revalidatePath("/candidates");
     return { success: true, count: drafts.length };
   } catch (err) {
@@ -149,6 +153,7 @@ export async function collectFromPerplexityAction(
 ): Promise<CollectState> {
   const user = await requireProgramAccess();
   const topic = String(formData.get("topic") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim();
   if (!topic) return { error: "주제를 입력해주세요." };
 
   try {
@@ -157,7 +162,7 @@ export async function collectFromPerplexityAction(
     const openaiKey = await resolveApiKey(supabase, user.id, "openai");
     const trendText = await searchPerplexityTrending(topic, perplexityKey ?? "");
     const drafts = await structureCafeCandidates({ rawText: trendText, maxItems: 5, apiKey: openaiKey ?? "" });
-    await insertCandidates(supabase, user.id, "perplexity", topic, drafts);
+    await insertCandidates(supabase, user.id, "perplexity", topic, drafts, category);
     revalidatePath("/candidates");
     return { success: true, count: drafts.length };
   } catch (err) {

@@ -40,6 +40,10 @@ export default async function CandidatesPage() {
     sourceCounts[c.source_type as CandidateSourceType] += 1;
   }
 
+  const categories = Array.from(
+    new Set((candidates ?? []).map((c) => c.category).filter((c): c is string => !!c)),
+  ).sort();
+
   let newsblurFeeds: NewsblurFeedSummary[] = [];
   let newsblurError: string | null = null;
   if (newsblurAccount) {
@@ -87,6 +91,7 @@ export default async function CandidatesPage() {
           newsblurFeeds={newsblurFeeds}
           newsblurError={newsblurError}
           targets={targets ?? []}
+          categories={categories}
         />
       </div>
 

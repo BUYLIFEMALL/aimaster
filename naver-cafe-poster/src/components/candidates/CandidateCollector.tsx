@@ -37,6 +37,7 @@ interface CandidateCollectorProps {
   newsblurFeeds: NewsblurFeedSummary[];
   newsblurError: string | null;
   targets: { id: string; label: string }[];
+  categories: string[];
 }
 
 export function CandidateCollector({
@@ -45,6 +46,7 @@ export function CandidateCollector({
   newsblurFeeds,
   newsblurError,
   targets,
+  categories,
 }: CandidateCollectorProps) {
   const [method, setMethod] = useState<Method>("http");
 
@@ -67,7 +69,7 @@ export function CandidateCollector({
         ))}
       </div>
 
-      {method === "http" && <HttpForm targets={targets} />}
+      {method === "http" && <HttpForm targets={targets} categories={categories} />}
       {method === "rss" && (
         <NewsblurForm
           connected={newsblurConnected}
@@ -75,10 +77,46 @@ export function CandidateCollector({
           feeds={newsblurFeeds}
           loadError={newsblurError}
           targets={targets}
+          categories={categories}
         />
       )}
-      {method === "perplexity" && <PerplexityForm targets={targets} />}
-      {method === "candidate_pool" && <CandidatePoolForm targets={targets} />}
+      {method === "perplexity" && <PerplexityForm targets={targets} categories={categories} />}
+      {method === "candidate_pool" && <CandidatePoolForm targets={targets} categories={categories} />}
+    </div>
+  );
+}
+
+/** 게시글 후보 수집/후보함 필터에서 공용으로 쓰는 카테고리 입력(기존 카테고리 자동완성 제공). */
+function CategoryInput({
+  id,
+  value,
+  onChange,
+  categories,
+  label = "카테고리",
+  placeholder = "예: 다이어트 (선택 입력)",
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  categories: string[];
+  label?: string;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="mb-1 block text-xs font-medium text-neutral-700">{label}</label>
+      <input
+        list={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+      />
+      <datalist id={id}>
+        {categories.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
     </div>
   );
 }
@@ -182,12 +220,13 @@ function ScheduleResultMessage({ state }: { state: ScheduledSourceState | null }
   return <p className="mt-2 text-sm text-green-600">예약 자동화로 등록했습니다. 아래 "수집된 게시글 후보" 위 목록에서 확인·관리할 수 있습니다.</p>;
 }
 
-function HttpForm({ targets }: { targets: { id: string; label: string }[] }) {
+function HttpForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: string[] }) {
   const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const [url, setUrl] = useState("");
+  const [category, setCategory] = useState("");
   const [scheduleMode, setScheduleMode] = useState(false);
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
@@ -211,6 +250,7 @@ function HttpForm({ targets }: { targets: { id: string; label: string }[] }) {
       } else {
         const fd = new FormData();
         fd.set("url", url);
+        fd.set("category", category);
         const result = await collectFromHttpAction(initialCollectState, fd);
         setCollectState(result);
       }
@@ -234,6 +274,10 @@ function HttpForm({ targets }: { targets: { id: string; label: string }[] }) {
           생성합니다.)
         </p>
       </div>
+
+      {!scheduleMode && (
+        <CategoryInput id="cat-http" value={category} onChange={setCategory} categories={categories} />
+      )}
 
       <ScheduleToggle
         enabled={scheduleMode}
@@ -262,12 +306,14 @@ function NewsblurForm({
   feeds,
   loadError,
   targets,
+  categories,
 }: {
   connected: boolean;
   username: string | null;
   feeds: NewsblurFeedSummary[];
   loadError: string | null;
   targets: { id: string; label: string }[];
+  categories: string[];
 }) {
   const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
@@ -275,6 +321,7 @@ function NewsblurForm({
   const [saveState, saveAction, isSaving] = useActionState(saveNewsblurAccountAction, initialSaveState);
 
   const [selectedFeed, setSelectedFeed] = useState<NewsblurFeedSummary | null>(feeds[0] ?? null);
+  const [category, setCategory] = useState("");
   const [scheduleMode, setScheduleMode] = useState(false);
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
@@ -323,6 +370,7 @@ function NewsblurForm({
         const fd = new FormData();
         fd.set("feedId", selectedFeed.id);
         fd.set("feedTitle", selectedFeed.title);
+        fd.set("category", category);
         const result = await collectFromRssAction(initialCollectState, fd);
         setCollectState(result);
       }
@@ -363,6 +411,10 @@ function NewsblurForm({
             </select>
           </div>
 
+          {!scheduleMode && (
+            <CategoryInput id="cat-rss" value={category} onChange={setCategory} categories={categories} />
+          )}
+
           <ScheduleToggle
             enabled={scheduleMode}
             onToggle={setScheduleMode}
@@ -386,12 +438,13 @@ function NewsblurForm({
   );
 }
 
-function PerplexityForm({ targets }: { targets: { id: string; label: string }[] }) {
+function PerplexityForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: string[] }) {
   const [collectState, setCollectState] = useState<CollectState>(initialCollectState);
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const [topic, setTopic] = useState("");
+  const [category, setCategory] = useState("");
   const [scheduleMode, setScheduleMode] = useState(false);
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
   const [autoPost, setAutoPost] = useState(false);
@@ -415,6 +468,7 @@ function PerplexityForm({ targets }: { targets: { id: string; label: string }[] 
       } else {
         const fd = new FormData();
         fd.set("topic", topic);
+        fd.set("category", category);
         const result = await collectFromPerplexityAction(initialCollectState, fd);
         setCollectState(result);
       }
@@ -427,6 +481,10 @@ function PerplexityForm({ targets }: { targets: { id: string; label: string }[] 
         <label className="mb-1 block text-sm font-medium text-neutral-700">시드 주제</label>
         <Input required value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 다이어트 보조제" />
       </div>
+
+      {!scheduleMode && (
+        <CategoryInput id="cat-perplexity" value={category} onChange={setCategory} categories={categories} />
+      )}
 
       <ScheduleToggle
         enabled={scheduleMode}
@@ -455,10 +513,11 @@ function PerplexityForm({ targets }: { targets: { id: string; label: string }[] 
  * 1회성 "글감 수집" 개념이 없으므로(이미 있는 후보를 재활용하는 것뿐) 다른 방식과 달리
  * 예약 등록만 지원한다.
  */
-function CandidatePoolForm({ targets }: { targets: { id: string; label: string }[] }) {
+function CandidatePoolForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: string[] }) {
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
   const [isPending, startTransition] = useTransition();
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
+  const [category, setCategory] = useState("");
   const [autoPost, setAutoPost] = useState(false);
   const [interval, setInterval_] = useState(1440);
 
@@ -467,6 +526,7 @@ function CandidatePoolForm({ targets }: { targets: { id: string; label: string }
     startTransition(async () => {
       const fd = new FormData();
       fd.set("sourceType", "candidate_pool");
+      fd.set("category", category);
       fd.set("targetId", targetId);
       fd.set("autoPost", String(autoPost));
       fd.set("scheduleEnabled", "true");
@@ -481,8 +541,17 @@ function CandidatePoolForm({ targets }: { targets: { id: string; label: string }
       <p className="text-sm text-neutral-600">
         아래 "수집된 게시글 후보" 목록에서 "🎲 예약용 ON"으로 켜둔 후보 중 하나를 정해둔
         주기마다 무작위로 골라 카페 게시글을 만듭니다. 한 번 쓰인 후보는 자동으로 OFF로
-        바뀌어 중복 게시되지 않습니다.
+        바뀌어 중복 게시되지 않습니다. 카테고리를 지정하면 그 카테고리 후보 중에서만 고릅니다.
       </p>
+
+      <CategoryInput
+        id="cat-pool-filter"
+        value={category}
+        onChange={setCategory}
+        categories={categories}
+        label="카테고리 필터"
+        placeholder="비워두면 전체 후보 중에서 고릅니다"
+      />
 
       {targets.length === 0 ? (
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-500">
