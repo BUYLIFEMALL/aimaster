@@ -111,8 +111,10 @@ export default async function CandidatesPage() {
         />
       </div>
 
-      <h2 className="mb-3 text-lg font-medium text-neutral-900">수집된 게시글 후보</h2>
-      <CandidateList candidates={candidates ?? []} categories={(categories ?? []) as CafeCategory[]} />
+      <div className="rounded-lg border border-neutral-200 bg-white p-4">
+        <h2 className="mb-3 text-lg font-medium text-neutral-900">수집된 게시글 후보</h2>
+        <CandidateList candidates={candidates ?? []} categories={(categories ?? []) as CafeCategory[]} />
+      </div>
     </div>
   );
 }
