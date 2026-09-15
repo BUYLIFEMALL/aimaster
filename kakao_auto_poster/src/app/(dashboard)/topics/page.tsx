@@ -91,7 +91,8 @@ export default async function TopicsPage() {
             </p>
             <p className="mt-1 text-[11px] leading-relaxed text-neutral-600">
               정해둔 주기(매일/매주 등)마다 <strong>자동으로 리포트를 만들지</strong> 정해요.
-              꺼두면 자동 생성 없이 &ldquo;지금 생성&rdquo; 버튼을 직접 눌러야만 만들어집니다.
+              <br />
+              OFF시 자동 생성 없이 &ldquo;지금 생성&rdquo; 버튼을 직접 눌러야만 만들어집니다.
             </p>
           </div>
         </div>
