@@ -37,11 +37,25 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
         ? candidates.filter((c) => !c.category_id)
         : candidates.filter((c) => c.category_id === categoryFilter);
 
+  const allFilteredSelected = filtered.length > 0 && filtered.every((c) => selected.has(c.id));
+
   function toggleSelect(id: string) {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allFilteredSelected) {
+        filtered.forEach((c) => next.delete(c.id));
+      } else {
+        filtered.forEach((c) => next.add(c.id));
+      }
       return next;
     });
   }
@@ -93,6 +107,10 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1 text-xs font-medium text-neutral-700">
+            <input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} className="h-4 w-4" />
+            전체 선택
+          </label>
           <span className="text-xs text-neutral-600">{selected.size}건 선택됨</span>
           <select
             value={moveCategoryId}
