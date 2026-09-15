@@ -83,6 +83,44 @@ export default async function DashboardPage() {
         ))}
       </div>
 
+      <div className="mb-8 rounded-lg border border-neutral-200 bg-white p-5">
+        <h2 className="mb-3 text-sm font-semibold text-neutral-900">📖 사용방법</h2>
+        <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-neutral-700">
+          <li>
+            <strong>API키등록·플랫폼연동</strong>에서 네이버 계정을 연동하고, 게시할 카페의
+            게시판(club_id/menu_id)을 등록합니다. AI 글쓰기에 쓸 OpenAI/Perplexity API 키도
+            여기서 본인 것으로 등록합니다.
+          </li>
+          <li>
+            <strong>게시글 주제 수집</strong> 화면 상단 "🗂 카테고리 관리"에서 원하는 카테고리를
+            미리 만들어두면, 이후 글감을 카테고리별로 정리해서 관리할 수 있습니다.
+          </li>
+          <li>
+            HTTP(URL 지정)/RSS(NewsBlur 구독 피드)/Perplexity(트렌드 검색) 중 하나를 골라
+            카테고리를 지정하고 "글감 수집"을 누르면 AI가 게시글 후보를 만들어줍니다. 이미
+            모아둔 후보를 다시 쓰고 싶으면 "🎲 후보함(랜덤 선택)"을 이용합니다.
+          </li>
+          <li>
+            같은 화면에서 "🔔 예약 자동화로 등록"을 켜면, 정해둔 주기마다 자동으로 글감을
+            만듭니다. "자동 포스팅"을 켜두면 검토 없이 바로 카페에 게시되고, 꺼두면 초안으로만
+            저장됩니다.
+          </li>
+          <li>
+            "수집된 게시글 후보" 목록에서 카테고리 필터·이동, "🎲 예약용 ON/OFF" 지정(켜둔
+            후보만 "후보함(랜덤 선택)" 예약의 재료가 됨), "이 후보로 초안 만들기"를 할 수
+            있습니다.
+          </li>
+          <li>
+            <strong>AI 자동 글쓰기(초안)</strong>에서 저장된 초안의 제목·본문을 확인·수정한 뒤
+            "검수 완료·배포"를 눌러 카페에 게시합니다. 수집 없이 바로 새 글을 만들고 싶다면{" "}
+            <strong>AI 자동 글쓰기(수동)</strong>에서 주제를 입력해 즉시 생성할 수 있습니다.
+          </li>
+          <li>
+            <strong>게시글 관리</strong>에서 지금까지 게시된 글 전체 이력을 확인할 수 있습니다.
+          </li>
+        </ol>
+      </div>
+
       <div className="rounded-lg border border-neutral-200 bg-white">
         <div className="border-b border-neutral-200 p-4">
           <h2 className="text-sm font-semibold text-neutral-900">최근 게시글</h2>
