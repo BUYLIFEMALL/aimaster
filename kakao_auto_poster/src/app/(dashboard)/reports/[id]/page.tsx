@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SendKakaoButton } from "@/components/reports/SendKakaoButton";
 import { ReportEditor } from "@/components/reports/ReportEditor";
 import { KakaoShareButtons } from "@/components/reports/KakaoShareButtons";
+import { extractFirstImageUrl } from "@/lib/reportContent";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -45,6 +46,13 @@ export default async function ReportDetailPage({
   // lib/kakaoSend.ts가 카카오 로그인을 우선 사용하고 없으면 SOLAPI로 자동 전환한다.
   const canSendKakao = Boolean(kakaoAccount) || Boolean(profile?.phone && solapiAccount?.kakao_pf_id);
 
+  // 회원이 본문에 이미지를 넣어둔 리포트라면(직접 삽입 또는 예약 생성 시 자동 삽입) 카카오톡
+  // 공유 카드에 그 이미지를 그대로 보여준다 — 없을 때만 /api/og 브랜드 카드로 대체한다
+  // (2026-09-15 사용자 요청: "생성된 콘텐츠에 이미지가 있을경우 카카오톡 카드 이미지가
+  // 표시되게 할수 있나? 지금은 그냥 제목만 표시되네").
+  const kakaoShareImageUrl =
+    extractFirstImageUrl(report.content) ?? `${SITE_URL}/api/og?token=${report.share_token}`;
+
   return (
     <div className="mx-auto max-w-2xl">
       <Link href="/reports" className="mb-4 inline-block text-sm text-neutral-500 hover:text-neutral-900">
@@ -80,7 +88,7 @@ export default async function ReportDetailPage({
             shareUrl={`${SITE_URL}/share/${report.share_token}`}
             shareText={report.title}
             shareDescription={report.summary}
-            imageUrl={`${SITE_URL}/api/og?token=${report.share_token}`}
+            imageUrl={kakaoShareImageUrl}
           />
         </div>
 

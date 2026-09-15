@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isHtmlContent } from "@/lib/reportContent";
+import { isHtmlContent, extractFirstImageUrl } from "@/lib/reportContent";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -44,7 +44,9 @@ export async function generateMetadata({
   const report = await getSharedReport(token);
   if (!report) return {};
 
-  const ogImageUrl = `${SITE_URL}/api/og?token=${token}`;
+  // 리포트 본문에 이미지가 있으면 그 이미지를, 없으면 브랜드 카드(/api/og)를 링크 미리보기에
+  // 쓴다 — 카카오톡 공유 버튼(reports/[id]/page.tsx)과 동일한 우선순위.
+  const ogImageUrl = extractFirstImageUrl(report.content) ?? `${SITE_URL}/api/og?token=${token}`;
 
   return {
     title: report.title,
