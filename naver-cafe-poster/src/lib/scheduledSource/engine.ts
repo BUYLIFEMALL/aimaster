@@ -67,45 +67,6 @@ async function collectRawText(
 }
 
 /**
- * "🎲 후보함에서 랜덤 선택" 소스 전용 — 새로 AI를 호출해 콘텐츠를 만드는 대신, 회원이
- * "예약용 ON"으로 켜둔 게시글 후보(ncafe_candidates) 중 하나를 무작위로 골라 그대로
- * 재료로 쓴다. 한 번 뽑힌 후보는 다시 뽑히지 않도록 use_for_schedule을 꺼서 "소모"시킨다.
- * `categoryId`가 있으면(별도 컬럼 없이 source_input에 담아 재사용, 빈 문자열=전체) 그
- * 카테고리로 분류된 후보 중에서만 고른다 — 원하는 카테고리의 글을 원하는 게시판
- * (source.target_id)에 등록하고 싶을 때 쓴다.
- */
-async function pickFromCandidatePool(
-  supabase: SupabaseLike,
-  userId: string,
-  categoryId: string,
-): Promise<{ title: string; content: string }> {
-  let query = supabase
-    .from("ncafe_candidates")
-    .select("id, title, content")
-    .eq("user_id", userId)
-    .eq("use_for_schedule", true);
-  if (categoryId) query = query.eq("category_id", categoryId);
-
-  const { data: candidates, error } = await query;
-  if (error) throw new Error(error.message);
-  if (!candidates || candidates.length === 0) {
-    throw new Error(
-      categoryId
-        ? "지정한 카테고리에 예약용으로 켜둔(ON) 게시글 후보가 없습니다."
-        : "예약용으로 켜둔(ON) 게시글 후보가 없습니다. 후보 목록에서 사용할 글감을 켜주세요.",
-    );
-  }
-
-  const picked = candidates[Math.floor(Math.random() * candidates.length)] as {
-    id: string;
-    title: string;
-    content: string;
-  };
-  await supabase.from("ncafe_candidates").update({ use_for_schedule: false }).eq("id", picked.id);
-  return { title: picked.title, content: picked.content };
-}
-
-/**
  * 예약 자동 실행 1회분 — 크론(app/api/cron/generate-and-post)과 "지금 실행" 수동 버튼
  * (lib/actions/scheduledSources.ts) 양쪽이 이 함수를 그대로 호출한다. auto_post가 켜져
  * 있으면 생성 즉시 실제 카페에 게시하고, 꺼져 있으면 초안(status='draft')으로만 저장해
@@ -119,24 +80,15 @@ export async function runScheduledSource(
   try {
     const typedSupabase = supabase as unknown as SupabaseClient<Database>;
 
-    let title: string;
-    let content: string;
-
-    if (source.source_type === "candidate_pool") {
-      const picked = await pickFromCandidatePool(supabase, userId, source.source_input);
-      title = picked.title;
-      content = picked.content;
-    } else {
-      const [openaiKey, perplexityKey] = await Promise.all([
-        resolveApiKey(typedSupabase, userId, "openai"),
-        resolveApiKey(typedSupabase, userId, "perplexity"),
-      ]);
-      const rawText = await collectRawText(supabase, userId, source, perplexityKey ?? "");
-      const [draft] = await structureCafeCandidates({ rawText, maxItems: 1, apiKey: openaiKey ?? "" });
-      if (!draft) throw new Error("콘텐츠 생성 결과가 비어있습니다.");
-      title = draft.title;
-      content = draft.content;
-    }
+    const [openaiKey, perplexityKey] = await Promise.all([
+      resolveApiKey(typedSupabase, userId, "openai"),
+      resolveApiKey(typedSupabase, userId, "perplexity"),
+    ]);
+    const rawText = await collectRawText(supabase, userId, source, perplexityKey ?? "");
+    const [draft] = await structureCafeCandidates({ rawText, maxItems: 1, apiKey: openaiKey ?? "" });
+    if (!draft) throw new Error("콘텐츠 생성 결과가 비어있습니다.");
+    const title = draft.title;
+    const content = draft.content;
 
     const { data: inserted, error: insertError } = await supabase
       .from("ncafe_posts")

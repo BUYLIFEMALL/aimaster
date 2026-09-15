@@ -43,8 +43,8 @@ export function CategoryManager({ categories }: { categories: CafeCategory[] }) 
     <div className="rounded-lg border border-neutral-200 bg-white p-4">
       <p className="mb-1 text-sm font-bold text-neutral-900">🗂 카테고리 관리</p>
       <p className="mb-3 text-xs text-neutral-500">
-        카테고리를 만들어두면 글감 수집 시 어느 카테고리에 넣을지 고를 수 있고, 예약 자동화에서
-        특정 카테고리의 후보만 골라 원하는 게시판에 자동 포스팅할 수 있습니다. 카테고리를
+        카테고리를 만들어두면 글감 수집 시 어느 카테고리에 넣을지 고를 수 있고, 아래 "수집된
+        게시글 후보" 목록에서 카테고리별로 필터링·이동해서 관리할 수 있습니다. 카테고리를
         삭제해도 그 카테고리로 분류돼 있던 후보는 삭제되지 않고 "카테고리 없음"으로 돌아갑니다.
       </p>
 

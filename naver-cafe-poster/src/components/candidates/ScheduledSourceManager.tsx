@@ -10,12 +10,11 @@ import {
   type UpdateScheduledSourceState,
   type RunNowState,
 } from "@/lib/actions/scheduledSources";
-import type { CafeCategory, ScheduledSource } from "@/types/post";
+import type { ScheduledSource } from "@/types/post";
 
 interface ScheduledSourceManagerProps {
   sources: ScheduledSource[];
   targets: { id: string; label: string }[];
-  categories: CafeCategory[];
 }
 
 /**
@@ -24,7 +23,7 @@ interface ScheduledSourceManagerProps {
  * 두지 않기 위해 등록은 CandidateCollector 쪽 폼에 통합했다(2026-09-15, 사용자 피드백으로
  * 중복 탭을 제거).
  */
-export function ScheduledSourceManager({ sources, targets, categories }: ScheduledSourceManagerProps) {
+export function ScheduledSourceManager({ sources, targets }: ScheduledSourceManagerProps) {
   if (sources.length === 0) return null;
 
   return (
@@ -37,22 +36,14 @@ export function ScheduledSourceManager({ sources, targets, categories }: Schedul
 
       <div className="space-y-2">
         {sources.map((s) => (
-          <SourceCard key={s.id} source={s} targets={targets} categories={categories} />
+          <SourceCard key={s.id} source={s} targets={targets} />
         ))}
       </div>
     </div>
   );
 }
 
-function SourceCard({
-  source,
-  targets,
-  categories,
-}: {
-  source: ScheduledSource;
-  targets: { id: string; label: string }[];
-  categories: CafeCategory[];
-}) {
+function SourceCard({ source, targets }: { source: ScheduledSource; targets: { id: string; label: string }[] }) {
   const [enabled, setEnabled] = useState(source.schedule_enabled);
   const [interval, setInterval_] = useState(source.interval_minutes ?? 1440);
   const [autoPost, setAutoPost] = useState(source.auto_post);
@@ -62,12 +53,6 @@ function SourceCard({
   const [runState, runAction, isRunning] = useActionState(runScheduledSourceNowAction, {} as RunNowState);
 
   const targetLabel = targets.find((t) => t.id === source.target_id)?.label ?? "알 수 없는 카페";
-  const categoryLabel =
-    source.source_type === "candidate_pool"
-      ? source.source_input
-        ? (categories.find((c) => c.id === source.source_input)?.name ?? "삭제된 카테고리")
-        : "전체 카테고리"
-      : null;
 
   function save(next: { enabled?: boolean; interval?: number; autoPost?: boolean }) {
     const merged = {
@@ -95,10 +80,7 @@ function SourceCard({
       <div className="mb-1 flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-neutral-900">{source.source_label}</p>
-          <p className="text-[11px] text-neutral-400">
-            → {targetLabel}
-            {categoryLabel && ` · ${categoryLabel}`}
-          </p>
+          <p className="text-[11px] text-neutral-400">→ {targetLabel}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <button

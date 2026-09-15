@@ -5,12 +5,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import {
   deleteCandidateAction,
-  setCandidateUseForScheduleAction,
   moveCandidatesToCategoryAction,
   type MoveCandidatesState,
 } from "@/lib/actions/candidates";
 import { DeleteButton } from "@/components/posts/DeleteButton";
-import { CandidateScheduleToggleButton } from "@/components/candidates/CandidateScheduleToggleButton";
 import { CANDIDATE_SOURCE_LABELS, type CafeCandidate, type CafeCategory, type CandidateSourceType } from "@/types/post";
 
 interface CandidateListProps {
@@ -82,12 +80,6 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
 
   return (
     <>
-      <p className="mb-3 text-xs text-neutral-500">
-        각 후보의 "🎲 예약용 ON/OFF"를 켜두면, 예약 자동화의 "🎲 후보함에서 랜덤 선택" 소스가
-        ON인 후보 중 하나를 무작위로 골라 카페 게시글을 만듭니다. 한 번 쓰인 후보는 자동으로
-        OFF로 바뀌어 중복 게시되지 않습니다.
-      </p>
-
       <div className="mb-3 flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
         <div className="flex items-center gap-2">
           <label className="text-xs font-medium text-neutral-700">카테고리 필터</label>
@@ -155,11 +147,6 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
                   <h3 className="text-sm font-semibold text-neutral-900">{c.title}</h3>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <form action={setCandidateUseForScheduleAction}>
-                    <input type="hidden" name="id" value={c.id} />
-                    <input type="hidden" name="useForSchedule" value={String(!c.use_for_schedule)} />
-                    <CandidateScheduleToggleButton on={c.use_for_schedule} />
-                  </form>
                   <Link
                     href={`/drafts?${writeParams.toString()}`}
                     className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100"

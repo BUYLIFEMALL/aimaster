@@ -180,25 +180,6 @@ export async function deleteCandidateAction(formData: FormData) {
   revalidatePath("/candidates");
 }
 
-/**
- * 이 게시글 후보를 "🎲 후보함에서 랜덤 선택" 예약 소스의 재료 풀에 포함시킬지 ON/OFF한다.
- * ON인 후보 중에서만 예약 실행 시 무작위로 하나가 뽑힌다(lib/scheduledSource/engine.ts).
- */
-export async function setCandidateUseForScheduleAction(formData: FormData) {
-  const user = await requireProgramAccess();
-  const id = String(formData.get("id") ?? "");
-  const useForSchedule = formData.get("useForSchedule") === "true";
-  const supabase = await createClient();
-
-  await supabase
-    .from("ncafe_candidates")
-    .update({ use_for_schedule: useForSchedule })
-    .eq("user_id", user.id)
-    .eq("id", id);
-
-  revalidatePath("/candidates");
-}
-
 export interface MoveCandidatesState {
   error?: string;
   count?: number;
