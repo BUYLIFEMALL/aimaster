@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
+import { resolveApiKey } from "@/lib/apiKeys";
 import {
   exchangeCodeForToken,
   exchangeForLongLivedToken,
@@ -38,8 +39,15 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const shortLived = await exchangeCodeForToken(code);
-    const longLived = await exchangeForLongLivedToken(shortLived.access_token);
+    // 본인 계정의 Meta App ID/Secret으로만 토큰을 교환한다 (앱 공용 키 폴백 없음).
+    const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
+    const appSecret = await resolveApiKey(supabase, user.id, "meta_app_secret");
+    if (!appId || !appSecret) {
+      return NextResponse.redirect(`${siteUrl}/settings?error=meta_app_missing`);
+    }
+
+    const shortLived = await exchangeCodeForToken(code, appId, appSecret);
+    const longLived = await exchangeForLongLivedToken(shortLived.access_token, appSecret);
     const profile = await getThreadsUserProfile(longLived.access_token);
 
     const tokenExpiresAt = new Date(Date.now() + longLived.expires_in * 1000).toISOString();

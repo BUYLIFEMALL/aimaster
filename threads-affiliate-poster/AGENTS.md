@@ -77,12 +77,20 @@ threads-affiliate-poster는 AIMaster 저장소 안의 서브프로젝트다. 루
 보고 테이블명이 안 겹칠 거라고 가정하면 안 된다. `information_schema.tables`로 실제 라이브
 스키마와 대조하고 결정할 것.
 
-### Threads OAuth — 새 Meta 앱을 만들지 않고 `threads/`의 공용 앱을 재사용한다
-`THREADS_APP_ID`/`THREADS_APP_SECRET` 값은 `threads/.env.local`에 있는 것과 동일한 값을 그대로
-쓴다(새 권한이 필요 없어서 앱을 새로 만들 이유가 없음). 대신 그 Meta 앱의 "유효한 리디렉션
-URI" 목록에 `https://threads-affiliate-poster.vercel.app/api/threads/callback`을 **추가로**
-등록해야 한다(기존 threads/ 콜백 URI는 그대로 둔 채 추가만 하는 것 — instagram-comment-reply/
-instagram-dm-reply가 같은 Meta 앱에 리디렉션 URI를 여러 개 등록했던 것과 동일한 패턴).
+### Threads OAuth — 회원 각자 본인 Meta 앱을 등록하는 BYOK 방식 (2026-09-16 변경)
+예전엔 `THREADS_APP_ID`/`THREADS_APP_SECRET` 환경변수로 `threads/`와 같은 공용 Meta 앱을
+재사용했으나, 그 앱이 Meta의 Development 모드라 앱의 "역할" 메뉴에 Tester로 등록된 계정
+(운영자 본인)만 OAuth를 완료할 수 있어 다른 회원은 이 프로그램에서 Threads 계정을 연결할 수
+없는 문제가 있었다. `threads-comment-reply`가 쓰는 BYOK 패턴으로 전환해서, 회원마다 본인이
+만든 Meta 앱의 App ID/Secret을 설정 페이지에서 공용 `user_api_keys`(`meta_app_id`/
+`meta_app_secret`, `resolveApiKey()`)에 등록하고 그 값으로 OAuth를 수행한다
+(`src/lib/threads/client.ts`가 `appId`/`appSecret`을 파라미터로 받도록 변경, `src/lib/
+actions/accounts.ts`와 `src/app/api/threads/callback/route.ts`가 `resolveApiKey()`로 조회).
+운영자 본인(buylifemall@gmail.com)은 기존에 등록해둔 Meta App ID `2111332943153443`가
+`meta_app_id`/`meta_app_secret`로 이미 등록되어 있어 별도 재등록 없이 그대로 동작한다.
+각 회원은 본인 Meta 앱의 "유효한 리디렉션 URI" 목록에
+`https://threads-affiliate-poster.vercel.app/api/threads/callback`을 등록하고, "역할" 메뉴에서
+본인 쓰레드 계정을 테스터로 추가해야 한다(설정 페이지에 안내 문구 포함).
 
 ### 제휴 API 클라이언트(쿠팡/알리익스프레스)
 - `src/lib/coupang/client.ts`, `src/lib/aliexpress/client.ts`는 커뮤니티 SDK/공식 문서를

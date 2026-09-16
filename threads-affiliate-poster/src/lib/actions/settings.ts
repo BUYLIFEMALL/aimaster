@@ -13,6 +13,8 @@ export interface SaveApiKeyState {
 const VALID_PROVIDERS: ApiKeyProvider[] = [
   "openai",
   "gemini",
+  "meta_app_id",
+  "meta_app_secret",
   "coupang_access_key",
   "coupang_secret_key",
   "aliexpress_app_key",

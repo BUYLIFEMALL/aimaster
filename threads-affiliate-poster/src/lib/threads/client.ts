@@ -14,10 +14,13 @@ import type {
 // 이 모듈은 서버 코드(Server Action / Route Handler)에서만 import 해야 합니다.
 // Access Token이 브라우저로 절대 전달되지 않도록 여기서만 Threads API를 호출합니다.
 //
-// threads/(자동 포스팅) 서브프로젝트가 이미 쓰는 공용 단일 Meta 앱(THREADS_APP_ID/
-// THREADS_APP_SECRET)을 그대로 재사용한다 — 새 권한이 필요 없고(threads_basic,
-// threads_content_publish 그대로), 그 앱의 "유효한 리디렉션 URI"에 이 프로젝트의
-// 콜백 주소만 추가로 등록하면 된다.
+// 2026-09-16 변경: 예전에는 threads/(자동 포스팅) 서브프로젝트가 쓰는 앱(관리자) 공용 단일
+// Meta 앱(THREADS_APP_ID/THREADS_APP_SECRET 환경변수)을 그대로 재사용했지만, 그 Meta 앱이
+// Development 모드라 그 앱의 Tester로 등록된 계정(운영자 본인)만 OAuth를 완료할 수 있어 다른
+// 회원은 이 프로그램에서 Threads 계정을 연결할 수 없었다. threads-comment-reply가 쓰는
+// BYOK(본인 Meta 앱 등록) 패턴으로 전환해서, 회원마다 본인이 만든 Meta 앱의 App ID/Secret을
+// user_api_keys에 등록하고 그 값을 파라미터로 받아 쓰도록 바꿨다. 스코프(threads_basic,
+// threads_content_publish)는 그대로 유지한다.
 
 const GRAPH_BASE = "https://graph.threads.net";
 const AUTHORIZE_BASE = "https://threads.net/oauth/authorize";
@@ -41,9 +44,9 @@ async function parseThreadsResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
-export function getThreadsAuthorizeUrl(state: string): string {
+export function getThreadsAuthorizeUrl(state: string, appId: string): string {
   const params = new URLSearchParams({
-    client_id: getEnv("THREADS_APP_ID"),
+    client_id: appId,
     redirect_uri: getEnv("THREADS_REDIRECT_URI"),
     scope: THREADS_SCOPES,
     response_type: "code",
@@ -54,10 +57,12 @@ export function getThreadsAuthorizeUrl(state: string): string {
 
 export async function exchangeCodeForToken(
   code: string,
+  appId: string,
+  appSecret: string,
 ): Promise<ThreadsTokenExchangeResponse> {
   const form = new URLSearchParams({
-    client_id: getEnv("THREADS_APP_ID"),
-    client_secret: getEnv("THREADS_APP_SECRET"),
+    client_id: appId,
+    client_secret: appSecret,
     grant_type: "authorization_code",
     redirect_uri: getEnv("THREADS_REDIRECT_URI"),
     code,
@@ -74,10 +79,11 @@ export async function exchangeCodeForToken(
 
 export async function exchangeForLongLivedToken(
   shortLivedToken: string,
+  appSecret: string,
 ): Promise<ThreadsLongLivedTokenResponse> {
   const params = new URLSearchParams({
     grant_type: "th_exchange_token",
-    client_secret: getEnv("THREADS_APP_SECRET"),
+    client_secret: appSecret,
     access_token: shortLivedToken,
   });
 
