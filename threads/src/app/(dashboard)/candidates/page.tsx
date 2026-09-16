@@ -79,6 +79,28 @@ export default async function CandidatesPage() {
         </p>
       </div>
 
+      <div className="grid grid-cols-3 gap-3">
+        {(Object.keys(sourceCounts) as ThreadsSourceType[]).map((type) => (
+          <div key={type} className="rounded-lg border border-neutral-200 bg-white p-4">
+            <div className="text-2xl font-semibold text-neutral-900">{sourceCounts[type]}</div>
+            <div className="mt-1 text-sm text-neutral-500">{SOURCE_LABELS[type]}로 수집</div>
+          </div>
+        ))}
+      </div>
+
+      <MissingApiKeyNotice missing={missingProviders} />
+
+      <div className="space-y-3">
+        <CategoryManager categories={categories} />
+        <CandidateCollector
+          newsblurConnected={!!newsblurAccount}
+          newsblurUsername={newsblurAccount?.username ?? null}
+          newsblurFeeds={newsblurFeeds}
+          newsblurError={newsblurError}
+          categories={categories}
+        />
+      </div>
+
       {/* 프로세스 분석 기반 사용방법 가이드 박스 */}
       <div className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-bold text-neutral-900">📖 게시글 주제 수집 및 카테고리 분류 사용법</h2>
@@ -102,28 +124,6 @@ export default async function CandidatesPage() {
             <strong>⚡ 수집된 주제 분류 및 글쓰기</strong> — 아래 수집 목록에서 카테고리 필터 탭으로 분류해서 보거나, 체크박스로 다중 선택하여 카테고리를 일괄 이동시킬 수 있습니다. 원하는 주제의 <strong>[이 주제로 글쓰기]</strong> 버튼을 누르면 AI 캡션이 채워진 포스트 작성 화면으로 즉시 이동합니다.
           </li>
         </ol>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
-        {(Object.keys(sourceCounts) as ThreadsSourceType[]).map((type) => (
-          <div key={type} className="rounded-lg border border-neutral-200 bg-white p-4">
-            <div className="text-2xl font-semibold text-neutral-900">{sourceCounts[type]}</div>
-            <div className="mt-1 text-sm text-neutral-500">{SOURCE_LABELS[type]}로 수집</div>
-          </div>
-        ))}
-      </div>
-
-      <MissingApiKeyNotice missing={missingProviders} />
-
-      <div className="space-y-3">
-        <CategoryManager categories={categories} />
-        <CandidateCollector
-          newsblurConnected={!!newsblurAccount}
-          newsblurUsername={newsblurAccount?.username ?? null}
-          newsblurFeeds={newsblurFeeds}
-          newsblurError={newsblurError}
-          categories={categories}
-        />
       </div>
 
       <div>
