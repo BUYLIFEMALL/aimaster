@@ -41,6 +41,8 @@ export interface PublishThreadsPostParams {
   text: string;
   imageUrl?: string | null;
   videoUrl?: string | null;
+  imageUrls?: string[] | null;
+  mediaItems?: Array<{ url: string; type?: "IMAGE" | "VIDEO" }> | null;
 }
 
 export interface PublishThreadsPostResult {

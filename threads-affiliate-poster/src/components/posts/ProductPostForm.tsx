@@ -78,22 +78,23 @@ export function ProductPostForm({
   const [scheduledAtLocal, setScheduledAtLocal] = useState(initialScheduledAtLocal);
   const [content, setContent] = useState(initialContent);
 
-  const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const parseInitialImages = (raw: string): string[] => {
+    if (!raw) return [];
+    return raw.split(",").map((u) => u.trim()).filter(Boolean);
+  };
+
+  const [imageUrls, setImageUrls] = useState<string[]>(parseInitialImages(initialImageUrl));
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files ?? []);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (!file) return;
+    if (files.length === 0) return;
 
-    if (!file.type.startsWith("image/")) {
-      setUploadError("이미지 파일만 업로드할 수 있습니다.");
-      return;
-    }
-    if (file.size > MAX_IMAGE_BYTES) {
-      setUploadError("이미지 크기는 5MB를 넘을 수 없습니다.");
+    if (imageUrls.length + files.length > 20) {
+      setUploadError("Threads에는 캐러셀 이미지를 최대 20장까지 등록할 수 있습니다.");
       return;
     }
 
@@ -101,23 +102,44 @@ export function ProductPostForm({
     setIsUploading(true);
     try {
       const supabase = createClient();
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+      const uploadedUrls: string[] = [];
 
-      const { error } = await supabase.storage.from("post-images").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-      if (error) throw error;
+      for (const file of files) {
+        if (!file.type.startsWith("image/")) {
+          setUploadError("이미지 파일만 업로드할 수 있습니다.");
+          continue;
+        }
+        if (file.size > MAX_IMAGE_BYTES) {
+          setUploadError("이미지 크기는 개당 5MB를 넘을 수 없습니다.");
+          continue;
+        }
 
-      const { data } = supabase.storage.from("post-images").getPublicUrl(path);
-      setImageUrl(data.publicUrl);
-      setVideoUrl(""); // Threads는 이미지/영상을 동시에 첨부할 수 없어 서로 배타적으로 둔다
+        const ext = file.name.split(".").pop() ?? "jpg";
+        const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+
+        const { error } = await supabase.storage.from("post-images").upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        if (error) throw error;
+
+        const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+        uploadedUrls.push(data.publicUrl);
+      }
+
+      if (uploadedUrls.length > 0) {
+        setImageUrls((prev) => [...prev, ...uploadedUrls].slice(0, 20));
+        setVideoUrl(""); // 이미지와 동영상은 배타적
+      }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setImageUrls((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const [videoUrl, setVideoUrl] = useState(initialVideoUrl);
@@ -154,7 +176,7 @@ export function ProductPostForm({
 
       const { data } = supabase.storage.from("post-images").getPublicUrl(path);
       setVideoUrl(data.publicUrl);
-      setImageUrl(""); // 이미지/영상 배타적 첨부
+      setImageUrls([]); // 동영상 추가 시 이미지는 해제
     } catch (err) {
       setVideoUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
     } finally {
@@ -201,6 +223,11 @@ export function ProductPostForm({
     const prompt = imagePrompt.trim() || selectedProduct?.product_name.trim() || "";
     if (!prompt) return;
 
+    if (imageUrls.length >= 20) {
+      setImageGenError("이미지는 최대 20장까지 등록할 수 있습니다.");
+      return;
+    }
+
     setImageGenError(null);
     startGeneratingImage(async () => {
       const result = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
@@ -209,7 +236,8 @@ export function ProductPostForm({
         return;
       }
       if (result.imageUrl) {
-        setImageUrl(result.imageUrl);
+        setImageUrls((prev) => [...prev, result.imageUrl!].slice(0, 20));
+        setVideoUrl("");
       }
     });
   };
@@ -247,9 +275,9 @@ export function ProductPostForm({
       setStatusMsg("입력된 내용을 저장하고 있습니다...");
     }
 
-    let finalImageUrl = imageUrl;
+    let finalImageUrl = imageUrls.join(",");
     const prompt = imagePrompt.trim() || selectedProduct?.product_name.trim() || "";
-    if (prompt && !finalImageUrl) {
+    if (prompt && imageUrls.length === 0) {
       const MAX_IMAGE_ATTEMPTS = 2;
       let lastError: string | undefined;
       for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
@@ -261,7 +289,7 @@ export function ProductPostForm({
         const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
         if (imageResult.imageUrl) {
           finalImageUrl = imageResult.imageUrl;
-          setImageUrl(imageResult.imageUrl);
+          setImageUrls([imageResult.imageUrl]);
           lastError = undefined;
           break;
         }
@@ -303,7 +331,7 @@ export function ProductPostForm({
 
     if (!aiGenerateOnSubmit) {
       startTransition(() => {
-        formAction(buildFormData(content, imageUrl));
+        formAction(buildFormData(content, imageUrls.join(",")));
       });
       return;
     }
@@ -466,7 +494,20 @@ export function ProductPostForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">이미지 (선택)</label>
+        <div className="flex items-center justify-between">
+          <label className="mb-1 block text-sm font-medium text-neutral-700">
+            이미지 (선택, 최대 20장 - 캐러셀 포스팅 지원 🎠)
+          </label>
+          <span className="text-xs font-semibold text-neutral-500">
+            {imageUrls.length} / 20장
+          </span>
+        </div>
+
+        {imageUrls.length >= 2 && (
+          <div className="mb-2 rounded-lg border border-purple-200 bg-purple-50 p-2.5 text-xs text-purple-800">
+            🎠 <strong>캐러셀 모드 적용됨</strong>: 2장 이상의 이미지가 등록되어 Threads API <strong>CAROUSEL</strong> 규격으로 한 포스트에 슬라이드로 포스팅됩니다. (최대 20장 지원)
+          </div>
+        )}
 
         {selectedProduct?.image_url && (
           <div className="mb-2 flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
@@ -482,17 +523,22 @@ export function ProductPostForm({
             <Button
               type="button"
               variant="secondary"
-              onClick={() => setImageUrl(selectedProduct.image_url ?? "")}
-              disabled={imageUrl === selectedProduct.image_url}
+              onClick={() => {
+                if (!imageUrls.includes(selectedProduct.image_url!)) {
+                  setImageUrls((prev) => [...prev, selectedProduct.image_url!].slice(0, 20));
+                  setVideoUrl("");
+                }
+              }}
+              disabled={imageUrls.includes(selectedProduct.image_url!)}
             >
-              {imageUrl === selectedProduct.image_url ? "사용 중" : "이 이미지 사용하기"}
+              {imageUrls.includes(selectedProduct.image_url!) ? "추가됨" : "+ 대표 이미지 추가"}
             </Button>
           </div>
         )}
 
         <div className="mb-2 space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
           <label className="block text-sm font-medium text-neutral-700">
-            AI로 이미지 생성 (나노바나나, 선택)
+            AI로 이미지 생성 (나노바나나, 연속 생성하여 슬라이드 구성 가능)
           </label>
           <div className="flex flex-wrap gap-2">
             <select
@@ -512,8 +558,8 @@ export function ProductPostForm({
               onChange={(e) => setImagePrompt(e.target.value)}
               placeholder={
                 selectedProduct
-                  ? `비워두면 "${selectedProduct.product_name}"를 그대로 사용합니다`
-                  : "이미지 설명을 입력하세요"
+                  ? `비워두면 "${selectedProduct.product_name}"를 프롬프트로 사용`
+                  : "이미지 설명 프롬프트 입력"
               }
               autoComplete="off"
               name="ai_image_prompt_field"
@@ -522,9 +568,9 @@ export function ProductPostForm({
               type="button"
               variant="secondary"
               onClick={handleGenerateImage}
-              disabled={isGeneratingImage || isGeneratingAll || (!imagePrompt.trim() && !selectedProduct)}
+              disabled={isGeneratingImage || isGeneratingAll || imageUrls.length >= 20 || (!imagePrompt.trim() && !selectedProduct)}
             >
-              {isGeneratingImage ? "생성 중..." : "이미지만 다시 생성"}
+              {isGeneratingImage ? "생성 중..." : "✨ AI 이미지 생성/추가"}
             </Button>
           </div>
           <Input
@@ -545,39 +591,49 @@ export function ProductPostForm({
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            multiple
             onChange={handleFileChange}
-            disabled={isUploading}
+            disabled={isUploading || imageUrls.length >= 20}
             className="hidden"
           />
           <Button
             type="button"
             variant="secondary"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
+            disabled={isUploading || imageUrls.length >= 20}
           >
-            {isUploading ? "업로드 중..." : "이미지 직접 등록하기"}
+            {isUploading ? "업로드 중..." : "+ 이미지 다중 업로드 (최대 20장)"}
           </Button>
         </div>
         {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
-        <Input
-          name="imageUrl"
-          type="url"
-          value={imageUrl}
-          onChange={(e) => {
-            setImageUrl(e.target.value);
-            if (e.target.value) setVideoUrl("");
-          }}
-          placeholder="https://example.com/image.jpg (또는 위에서 직접 업로드)"
-          className="mt-2"
-        />
-        {imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt="첨부 이미지 미리보기"
-            className="mt-2 max-h-40 rounded-lg border border-neutral-200 object-contain"
-          />
+
+        {imageUrls.length > 0 && (
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-5">
+            {imageUrls.map((url, idx) => (
+              <div key={idx} className="group relative rounded-lg border border-neutral-200 bg-neutral-100 p-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt={`첨부 이미지 ${idx + 1}`}
+                  className="h-24 w-full rounded object-cover"
+                />
+                <span className="absolute bottom-1.5 left-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {idx + 1} / {imageUrls.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700 text-xs font-bold"
+                  title="삭제"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
         )}
+
+        <input type="hidden" name="imageUrl" value={imageUrls.join(",")} />
       </div>
 
       <div>
@@ -612,7 +668,7 @@ export function ProductPostForm({
           value={videoUrl}
           onChange={(e) => {
             setVideoUrl(e.target.value);
-            if (e.target.value) setImageUrl("");
+            if (e.target.value) setImageUrls([]);
           }}
           placeholder="https://example.com/video.mp4 (또는 위에서 직접 업로드)"
           className="mt-2"
