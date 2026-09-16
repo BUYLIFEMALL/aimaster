@@ -435,7 +435,7 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
                   <label className="text-xs font-bold text-neutral-700">
                     생성된 이미지 중 게시에 쓸 것을 선택하세요 ({imageOptions.length}개)
                   </label>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div className="flex flex-wrap gap-2">
                     {imageOptions.map((url, idx) => {
                       const isSelected = imageUrl === url;
                       return (
@@ -454,7 +454,7 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
                           <img
                             src={url}
                             alt={`이미지 후보 ${idx + 1}`}
-                            className="max-h-40 w-full bg-neutral-100 object-contain"
+                            className="block max-h-40 w-auto"
                           />
                           {isSelected && (
                             <span className="absolute right-1 top-1 rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
