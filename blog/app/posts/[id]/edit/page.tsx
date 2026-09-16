@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
+import RichTextEditor from '@/blog/components/RichTextEditor'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -30,7 +31,12 @@ interface Category {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Base64 -> [첨부 이미지 N] 표기 전환 유틸리티                        */
+/*  Base64 -> [첨부이미지 N] 표기 전환 유틸리티                        */
+/*  주의: 이 태그 문자열("첨부이미지", 공백 없음)은 반드시                */
+/*  app/api/posts/[id]/route.ts PUT 핸들러가 복원 시 찾는 키와           */
+/*  정확히 일치해야 한다 — 예전엔 여기만 "첨부 이미지"(공백 있음)로       */
+/*  써서 저장할 때 이미지가 복원 안 되고 이 텍스트가 그대로 남는 버그가    */
+/*  있었다(2026-09-16, 에디터 개편 중 발견해 수정).                       */
 /* ------------------------------------------------------------------ */
 function replaceBase64WithImageTags(contentStr: string): string {
   if (!contentStr || !contentStr.includes('data:image/')) {
@@ -55,7 +61,7 @@ function replaceBase64WithImageTags(contentStr: string): string {
 
     endIdx = Math.min(...validEnds)
 
-    const tag = `[첨부 이미지 ${imageCounter}]`
+    const tag = `[첨부이미지 ${imageCounter}]`
     updated = updated.slice(0, startIdx) + tag + updated.slice(endIdx)
     searchIdx = startIdx + tag.length
     imageCounter++
@@ -74,7 +80,7 @@ export default function PostEditPage() {
 
   // rawContent: DB 원본 그대로 (Base64 이미지 포함) — 비주얼 모드용
   const [rawContent, setRawContent] = useState('')
-  // codeContent: [첨부 이미지 N] 태그로 치환된 경량 텍스트 — 코드 모드용
+  // codeContent: [첨부이미지 N] 태그로 치환된 경량 텍스트 — 코드 모드용
   const [codeContent, setCodeContent] = useState('')
 
   const [categories, setCategories] = useState<Category[]>([])
@@ -95,7 +101,6 @@ export default function PostEditPage() {
   const [linkUrlInput, setLinkUrlInput] = useState('')
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const visualContentRef = useRef<HTMLDivElement>(null)
 
   // 1. 게시글 데이터 로드
   useEffect(() => {
@@ -120,7 +125,7 @@ export default function PostEditPage() {
         const original = stripImageGenerationSchema(postData.content || '')
         // 비주얼 모드: 원본 그대로 (실제 이미지 포함!)
         setRawContent(original)
-        // 코드 모드: Base64 이미지를 [첨부 이미지 N] 으로 치환
+        // 코드 모드: Base64 이미지를 [첨부이미지 N] 으로 치환
         setCodeContent(replaceBase64WithImageTags(original))
 
         setSelectedCategoryIds(postData.category_ids || [])
@@ -143,76 +148,58 @@ export default function PostEditPage() {
     )
   }
 
-  // 에디터 서식 삽입 도구 유틸리티
+  // 에디터 서식 삽입 도구 유틸리티 — 코드 모드 전용(마크다운 문법 삽입). 비주얼 모드는
+  // RichTextEditor(Tiptap) 자체 툴바가 서식을 전담하므로 이 함수를 거치지 않는다
+  // (2026-09-16, kakao_auto_poster의 RichTextEditor 전체 이식에 맞춰 execCommand 분기 제거).
   const insertFormatting = (prefix: string, suffix = '') => {
-    if (editorMode === 'code' && textareaRef.current) {
-      const textarea = textareaRef.current
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const selectedText = codeContent.substring(start, end) || '텍스트'
-      const replacement = `${prefix}${selectedText}${suffix}`
+    if (!textareaRef.current) return
+    const textarea = textareaRef.current
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const selectedText = codeContent.substring(start, end) || '텍스트'
+    const replacement = `${prefix}${selectedText}${suffix}`
 
-      const newContent = codeContent.substring(0, start) + replacement + codeContent.substring(end)
-      setCodeContent(newContent)
+    const newContent = codeContent.substring(0, start) + replacement + codeContent.substring(end)
+    setCodeContent(newContent)
 
-      setTimeout(() => {
-        textarea.focus()
-        textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length)
-      }, 0)
-    } else {
-      // 비주얼 모드일 때
-      document.execCommand('styleWithCSS', false, 'true')
-      if (prefix === '**') document.execCommand('bold')
-      else if (prefix === '*') document.execCommand('italic')
-      else if (prefix === '## ') document.execCommand('formatBlock', false, 'H2')
-      else if (prefix === '### ') document.execCommand('formatBlock', false, 'H3')
-      else if (prefix === '> ') document.execCommand('formatBlock', false, 'BLOCKQUOTE')
-      else if (prefix === '- ') document.execCommand('insertUnorderedList')
-    }
+    setTimeout(() => {
+      textarea.focus()
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length)
+    }, 0)
   }
 
-  // 링크 삽입 — 코드 모드는 기존 서식 버튼들(## , > , - 등)과 동일하게 마크다운 문법
-  // ([텍스트](URL))으로 넣고, 비주얼 모드는 다른 서식 버튼들과 동일하게 execCommand로
-  // 실제 <a href> 태그를 만든다.
+  // 링크 삽입 — 코드 모드 전용, 기존 서식 버튼들(## , > , - 등)과 동일하게 마크다운 문법
+  // ([텍스트](URL))으로 넣는다. 비주얼 모드는 RichTextEditor 자체 링크 버튼(실제 <a href>)을 쓴다.
   const insertLink = () => {
     const raw = linkUrlInput.trim()
-    if (!raw) return
+    if (!raw || !textareaRef.current) return
     const href = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
 
-    if (editorMode === 'code' && textareaRef.current) {
-      const textarea = textareaRef.current
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const selectedText = codeContent.substring(start, end) || '링크'
-      const replacement = `[${selectedText}](${href})`
-      const newContent = codeContent.substring(0, start) + replacement + codeContent.substring(end)
-      setCodeContent(newContent)
-      setTimeout(() => {
-        textarea.focus()
-        textarea.setSelectionRange(start + replacement.length, start + replacement.length)
-      }, 0)
-    } else {
-      document.execCommand('styleWithCSS', false, 'true')
-      document.execCommand('createLink', false, href)
-    }
+    const textarea = textareaRef.current
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const selectedText = codeContent.substring(start, end) || '링크'
+    const replacement = `[${selectedText}](${href})`
+    const newContent = codeContent.substring(0, start) + replacement + codeContent.substring(end)
+    setCodeContent(newContent)
+    setTimeout(() => {
+      textarea.focus()
+      textarea.setSelectionRange(start + replacement.length, start + replacement.length)
+    }, 0)
 
     setLinkUrlInput('')
     setShowLinkPopover(false)
   }
 
-  // 모드 전환 핸들러
+  // 모드 전환 핸들러 — rawContent는 RichTextEditor의 onChange로 항상 최신 상태라
+  // 더 이상 DOM ref에서 innerHTML을 직접 읽어올 필요가 없다.
   const switchToVisual = () => {
     // 코드 모드에서 비주얼로 전환 시: codeContent는 그대로 유지 (rawContent는 원본 DB 이미지를 보존하고 있음)
     setEditorMode('visual')
   }
 
   const switchToCode = () => {
-    // 비주얼에서 코드 전환 시: 비주얼 contentEditable의 현재 HTML을 읽어서 이미지를 태그로 치환
-    if (visualContentRef.current) {
-      const visualHtml = visualContentRef.current.innerHTML
-      setCodeContent(replaceBase64WithImageTags(visualHtml))
-      setRawContent(visualHtml)
-    }
+    setCodeContent(replaceBase64WithImageTags(rawContent))
     setEditorMode('code')
   }
 
@@ -227,13 +214,8 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
-      // 어떤 모드든 이미지를 [첨부 이미지 N] 태그로 치환하여 경량 전송
-      let finalContent: string
-      if (editorMode === 'visual' && visualContentRef.current) {
-        finalContent = replaceBase64WithImageTags(visualContentRef.current.innerHTML)
-      } else {
-        finalContent = codeContent
-      }
+      // 어떤 모드든 이미지를 [첨부이미지 N] 태그로 치환하여 경량 전송
+      const finalContent = editorMode === 'visual' ? replaceBase64WithImageTags(rawContent) : codeContent
 
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
@@ -390,62 +372,10 @@ export default function PostEditPage() {
 
         {/* 4. 듀얼 에디터 (비주얼 / 코드 탭 전환) */}
         <div className="flex-1 flex flex-col border border-neutral-200 rounded-2xl overflow-hidden shadow-sm bg-white">
-          {/* Editor Top Bar: Toolbar + Mode Switcher */}
-          <div className="border-b border-neutral-200 bg-neutral-50 p-3 flex items-center justify-between gap-3 flex-wrap">
-            {/* Left: Formatting Buttons */}
-            <div className="flex items-center gap-1 flex-wrap">
-              <span className="text-xs font-bold text-neutral-500 mr-1 flex items-center gap-1">
-                🛠️ 서식:
-              </span>
-              <button type="button" onClick={() => insertFormatting('**', '**')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="굵게"><Bold size={14} /> 굵게</button>
-              <button type="button" onClick={() => insertFormatting('*', '*')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="기울임"><Italic size={14} /> 기울임</button>
-              <span className="mx-1 h-4 w-px bg-neutral-300" />
-              <button type="button" onClick={() => insertFormatting('## ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="H2"><Heading2 size={14} /> H2</button>
-              <button type="button" onClick={() => insertFormatting('### ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="H3"><Heading3 size={14} /> H3</button>
-              <span className="mx-1 h-4 w-px bg-neutral-300" />
-              <button type="button" onClick={() => insertFormatting('> ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="인용구"><Quote size={14} /> 인용</button>
-              <button type="button" onClick={() => insertFormatting('- ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="목록"><List size={14} /> 목록</button>
-
-              {/* 링크 삽입 — 카카오/네이버 카페 편집기와 동일한 팝오버 UX. 블로그는 실제
-                  HTML을 저장하므로 진짜 <a href>(비주얼)/마크다운 링크(코드)를 만든다. */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowLinkPopover((prev) => !prev)}
-                  className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-bold transition-colors ${
-                    showLinkPopover ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900'
-                  }`}
-                  title="링크 삽입"
-                >
-                  <LinkIcon size={14} /> 링크
-                </button>
-                {showLinkPopover && (
-                  <div className="absolute top-full left-0 z-20 mt-1 min-w-[280px] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl">
-                    <p className="mb-2 text-xs text-neutral-500">링크 URL</p>
-                    <div className="flex gap-2">
-                      <input
-                        type="url"
-                        value={linkUrlInput}
-                        onChange={(e) => setLinkUrlInput(e.target.value)}
-                        placeholder="https://..."
-                        className="flex-1 rounded-lg border border-neutral-300 px-2 py-1.5 text-xs text-neutral-900 outline-none focus:border-neutral-900"
-                        onKeyDown={(e) => e.key === 'Enter' && insertLink()}
-                        autoFocus
-                      />
-                      <button
-                        type="button"
-                        onClick={insertLink}
-                        className="rounded bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200"
-                      >
-                        삽입
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Right: Mode Switcher */}
+          {/* Mode Switcher — 비주얼 모드는 RichTextEditor(Tiptap) 자체 툴바를 쓰므로,
+              여기서는 모드 전환 탭만 상시 보여준다(2026-09-16, kakao_auto_poster의
+              RichTextEditor 전체 이식). */}
+          <div className="border-b border-neutral-200 bg-neutral-50 p-3 flex items-center justify-end">
             <div className="flex items-center bg-neutral-100 rounded-xl p-1 gap-1">
               <button
                 type="button"
@@ -468,32 +398,80 @@ export default function PostEditPage() {
             </div>
           </div>
 
-          {/* Visual Mode: 실제 이미지가 렌더링된 WYSIWYG 에디터 */}
+          {/* Visual Mode: kakao_auto_poster의 RichTextEditor(Tiptap) — 서식/색상/정렬/
+              이미지 첨부/AI 이미지 생성/YouTube/표/실행취소까지 자체 툴바로 제공한다. */}
           {editorMode === 'visual' && (
-            <div
-              ref={visualContentRef}
-              contentEditable
-              suppressContentEditableWarning
-              className="w-full p-8 bg-white text-neutral-900 font-sans text-base leading-relaxed outline-none focus:outline-none min-h-[500px] prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: rawContent }}
-            />
+            <RichTextEditor value={rawContent} onChange={setRawContent} className="rounded-none border-0" />
           )}
 
-          {/* Code Mode: [첨부 이미지 N] 태그로 경량화된 소스코드 에디터 */}
+          {/* Code Mode: [첨부이미지 N] 태그로 경량화된 소스코드 에디터 — 마크다운 서식
+              버튼은 이 모드 전용이다(비주얼 모드는 RichTextEditor 툴바가 대신한다). */}
           {editorMode === 'code' && (
-            <div className="relative">
-              <div className="absolute top-3 right-4 text-xs text-blue-600 font-bold flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 z-10">
-                🖼️ [첨부 이미지 N] = 원본 이미지 보존 위치
+            <>
+              <div className="border-b border-neutral-200 bg-neutral-50 p-3 flex items-center gap-1 flex-wrap">
+                <span className="text-xs font-bold text-neutral-500 mr-1 flex items-center gap-1">
+                  🛠️ 서식:
+                </span>
+                <button type="button" onClick={() => insertFormatting('**', '**')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="굵게"><Bold size={14} /> 굵게</button>
+                <button type="button" onClick={() => insertFormatting('*', '*')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="기울임"><Italic size={14} /> 기울임</button>
+                <span className="mx-1 h-4 w-px bg-neutral-300" />
+                <button type="button" onClick={() => insertFormatting('## ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="H2"><Heading2 size={14} /> H2</button>
+                <button type="button" onClick={() => insertFormatting('### ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="H3"><Heading3 size={14} /> H3</button>
+                <span className="mx-1 h-4 w-px bg-neutral-300" />
+                <button type="button" onClick={() => insertFormatting('> ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="인용구"><Quote size={14} /> 인용</button>
+                <button type="button" onClick={() => insertFormatting('- ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="목록"><List size={14} /> 목록</button>
+
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowLinkPopover((prev) => !prev)}
+                    className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-bold transition-colors ${
+                      showLinkPopover ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900'
+                    }`}
+                    title="링크 삽입"
+                  >
+                    <LinkIcon size={14} /> 링크
+                  </button>
+                  {showLinkPopover && (
+                    <div className="absolute top-full left-0 z-20 mt-1 min-w-[280px] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl">
+                      <p className="mb-2 text-xs text-neutral-500">링크 URL</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={linkUrlInput}
+                          onChange={(e) => setLinkUrlInput(e.target.value)}
+                          placeholder="https://..."
+                          className="flex-1 rounded-lg border border-neutral-300 px-2 py-1.5 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+                          onKeyDown={(e) => e.key === 'Enter' && insertLink()}
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          onClick={insertLink}
+                          className="rounded bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200"
+                        >
+                          삽입
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <textarea
-                ref={textareaRef}
-                rows={20}
-                value={codeContent}
-                onChange={(e) => setCodeContent(e.target.value)}
-                placeholder="HTML 또는 마크다운 코드를 입력하세요..."
-                className="w-full p-6 pt-12 bg-white text-neutral-800 font-mono text-sm leading-relaxed outline-none focus:outline-none resize-y min-h-[500px]"
-              />
-            </div>
+
+              <div className="relative">
+                <div className="absolute top-3 right-4 text-xs text-blue-600 font-bold flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 z-10">
+                  🖼️ [첨부이미지 N] = 원본 이미지 보존 위치
+                </div>
+                <textarea
+                  ref={textareaRef}
+                  rows={20}
+                  value={codeContent}
+                  onChange={(e) => setCodeContent(e.target.value)}
+                  placeholder="HTML 또는 마크다운 코드를 입력하세요..."
+                  className="w-full p-6 pt-12 bg-white text-neutral-800 font-mono text-sm leading-relaxed outline-none focus:outline-none resize-y min-h-[500px]"
+                />
+              </div>
+            </>
           )}
         </div>
       </main>
