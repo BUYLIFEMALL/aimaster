@@ -36,7 +36,7 @@ const FLOW_STEPS = [
   },
 ];
 
-const UTILITY_ITEMS = [{ href: "/blog/settings", icon: "🔑", label: "API 키 설정" }];
+const UTILITY_ITEMS = [{ href: "/blog/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
 
 export default function BlogSidebar() {
   const pathname = usePathname();

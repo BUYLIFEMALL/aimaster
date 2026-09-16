@@ -11,13 +11,19 @@ import { ApiKeyRow } from './ApiKeyRow'
 import { CloudinaryConfigRow } from './CloudinaryConfigRow'
 import { GuideLinkButton } from '@/blog/components/settings/GuideLinkButton'
 
-const PRIMARY_PROVIDERS: ApiKeyProvider[] = ['gemini']
-const RESERVE_PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'perplexity']
+// 이 프로그램이 실제로 쓰는 건 gemini(글쓰기·이미지 생성)와 perplexity(글감 수집)뿐이지만,
+// user_api_keys는 AIMaster 전체가 공유하는 테이블이라 openai/anthropic 키도 여기서 함께
+// 등록해두면 threads 등 다른 프로그램에서 바로 쓸 수 있다 — "미사용" 취급이 아니라 다른
+// 프로그램에서는 정상적으로 쓰이는 키라서 하나의 섹션으로 합쳤다(2026-09-16 사용자 피드백).
+const ALL_PROVIDERS: ApiKeyProvider[] = ['gemini', 'perplexity', 'openai', 'anthropic']
 
-// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API(Gemini)에 해당하는
-// 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster 패턴을 전체 서브프로젝트로 확대 적용).
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼(Gemini·
+// Perplexity·Cloudinary)에 해당하는 매뉴얼만 골랐다(2026-09-13 naver-cafe-poster 패턴 확대
+// 적용, 2026-09-16 Perplexity·Cloudinary 추가).
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: 'f442cd37-f1e0-42a7-a3de-f9a9acf47cc4', label: 'Google Gemini API 키 발급받기' },
+  { guideId: '1df95d8b-6a27-4de0-b1d9-8bbc218534ad', label: 'Perplexity API 키 발급받기' },
+  { guideId: 'e2004c0f-160d-4360-bcbf-98f4409edde2', label: 'Cloudinary API 연동하기' },
 ]
 
 interface CloudinaryConfig {
@@ -88,14 +94,16 @@ export default function SettingsPage() {
       <div className="space-y-6">
         <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
           <div className="mb-4">
-            <h2 className="text-sm font-bold text-zinc-900">🤖 AI 글/이미지 생성 (Gemini)</h2>
+            <h2 className="text-sm font-bold text-zinc-900">🤖 AI 모델 API 키</h2>
             <p className="text-xs text-zinc-500">
-              실제로 블로그 글과 이미지를 생성하는 데 쓰이는 키입니다 — 등록해야 "AI 글쓰기"가
-              동작합니다.
+              Gemini는 실제 글/이미지 생성에, Perplexity는 "글감 수집"에 쓰입니다 — 등록해야 해당
+              기능이 동작합니다. OpenAI·Anthropic 키는 이 블로그 자동화에서는 아직 직접 호출하지
+              않지만, AIMaster 계정에 연결되어 threads 등 다른 프로그램에서 동일하게 쓰이는
+              키라 여기서 함께 등록해두면 편리합니다.
             </p>
           </div>
           <div className="space-y-3">
-            {PRIMARY_PROVIDERS.map((provider) => (
+            {ALL_PROVIDERS.map((provider) => (
               <ApiKeyRow
                 key={provider}
                 provider={provider}
@@ -116,26 +124,6 @@ export default function SettingsPage() {
             maskedApiKey={cloudinaryConfig ? maskApiKey(cloudinaryConfig.api_key) : null}
             maskedApiSecret={cloudinaryConfig ? maskApiKey(cloudinaryConfig.api_secret) : null}
           />
-        </section>
-
-        <section className="rounded-2xl border border-dashed border-zinc-300 bg-white p-5">
-          <div className="mb-4">
-            <h2 className="text-sm font-bold text-zinc-700">🔑 예비 등록 (아직 미사용)</h2>
-            <p className="text-xs text-zinc-500">
-              다른 AIMaster 프로그램에서 쓰일 수 있도록 미리 등록해두는 키입니다 — 이 블로그
-              자동화 자체에서는 아직 실제로 호출하지 않습니다.
-            </p>
-          </div>
-          <div className="space-y-3">
-            {RESERVE_PROVIDERS.map((provider) => (
-              <ApiKeyRow
-                key={provider}
-                provider={provider}
-                label={PROVIDER_LABELS[provider]}
-                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-              />
-            ))}
-          </div>
         </section>
 
         <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
