@@ -25,7 +25,14 @@ function generateSlug(name: string): string {
 }
 
 export default function CategoryManagementModal({ isOpen, onClose, onCategoriesUpdated }: Props) {
-  const supabase = createClient()
+  // createClient()를 렌더 본문에서 바로 호출하면, 이 모달을 <Modal isOpen={false} .../> 형태로
+  // 항상 마운트해두는 페이지(candidates/page.tsx 등)가 루트 앱에 내장돼 정적 프리렌더링될 때
+  // 서버 사이드에서도 실행돼 "Supabase URL/API key 필요" 빌드 에러를 낸다(2026-09-16 발견).
+  // 다른 blog 클라이언트 컴포넌트와 동일하게 useEffect에서 지연 생성한다.
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
+  useEffect(() => {
+    setSupabase(createClient())
+  }, [])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
   const [newCatName, setNewCatName] = useState('')
@@ -34,6 +41,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const fetchCategories = async () => {
+    if (!supabase) return
     setLoading(true)
     setErrorMsg(null)
     const { data, error } = await supabase
@@ -62,7 +70,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
   // 1. 카테고리 추가
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newCatName.trim()) return
+    if (!newCatName.trim() || !supabase) return
 
     const slug = generateSlug(newCatName)
     setErrorMsg(null)
@@ -84,7 +92,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
 
   // 2. 카테고리 수정 저장
   const handleSaveEdit = async (id: number) => {
-    if (!editingName.trim()) return
+    if (!editingName.trim() || !supabase) return
     setErrorMsg(null)
     setLoading(true)
 
@@ -106,7 +114,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
 
   // 3. 카테고리 삭제
   const handleDeleteCategory = async (id: number, name: string) => {
-    if (!confirm(`'${name}' 카테고리를 정말 삭제하시겠습니까?`)) return
+    if (!confirm(`'${name}' 카테고리를 정말 삭제하시겠습니까?`) || !supabase) return
 
     setErrorMsg(null)
     setLoading(true)

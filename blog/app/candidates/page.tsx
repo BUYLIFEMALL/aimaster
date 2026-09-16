@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
+import CategoryManagementModal from '@/blog/app/_components/CategoryManagementModal'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -17,7 +18,14 @@ interface Candidate {
   title: string
   summary: string
   keywords: string[]
+  category_id: number | null
   created_at: string
+}
+
+interface CategoryOption {
+  id: number
+  name: string
+  slug: string
 }
 
 interface NewsblurFeed {
@@ -56,6 +64,10 @@ export default function CandidatesPage() {
   const [loading, setLoading] = useState(true)
   const [candidates, setCandidates] = useState<Candidate[]>([])
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [categories, setCategories] = useState<CategoryOption[]>([])
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [updatingCategoryId, setUpdatingCategoryId] = useState<string | null>(null)
 
   const [method, setMethod] = useState<Method>('http')
   const [collecting, setCollecting] = useState(false)
@@ -83,6 +95,11 @@ export default function CandidatesPage() {
     setCandidates(data ?? [])
   }
 
+  const loadCategories = async (sb: any) => {
+    const { data } = await sb.from('blog_categories').select('id, name, slug').order('id', { ascending: true })
+    setCategories(data ?? [])
+  }
+
   const loadNewsblurFeeds = async () => {
     try {
       const res = await fetch('/api/newsblur-account/feeds')
@@ -106,10 +123,23 @@ export default function CandidatesPage() {
         return
       }
       setUserEmail(user.email ?? null)
-      await Promise.all([loadCandidates(supabase, user.id), loadNewsblurFeeds()])
+      await Promise.all([loadCandidates(supabase, user.id), loadCategories(supabase), loadNewsblurFeeds()])
       setLoading(false)
     })
   }, [supabase, router])
+
+  const handleCategoryChange = async (candidateId: string, newCategoryId: string) => {
+    setUpdatingCategoryId(candidateId)
+    const categoryId = newCategoryId === '' ? null : Number(newCategoryId)
+    const { error } = await supabase
+      .from('blog_candidates')
+      .update({ category_id: categoryId })
+      .eq('id', candidateId)
+    if (!error) {
+      setCandidates((prev) => prev.map((c) => (c.id === candidateId ? { ...c, category_id: categoryId } : c)))
+    }
+    setUpdatingCategoryId(null)
+  }
 
   const handleCollect = async (endpoint: string, body: Record<string, unknown>) => {
     setCollecting(true)
@@ -205,6 +235,14 @@ export default function CandidatesPage() {
   const sourceCounts: Record<Method, number> = { http: 0, rss: 0, perplexity: 0 }
   for (const c of candidates) sourceCounts[c.source_type] += 1
 
+  const filteredCandidates = candidates.filter((c) => {
+    if (categoryFilter === 'all') return true
+    if (categoryFilter === 'uncategorized') return c.category_id === null
+    return c.category_id === Number(categoryFilter)
+  })
+
+  const categoryNameById = new Map(categories.map((cat) => [cat.id, cat.name]))
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
@@ -243,6 +281,55 @@ export default function CandidatesPage() {
               <div className="mt-1 text-xs font-semibold text-slate-500">{SOURCE_LABELS[type]}로 수집</div>
             </div>
           ))}
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-6">
+          <h2 className="mb-3 text-sm font-bold text-slate-900">📋 글감 수집 · 카테고리 사용법</h2>
+          <ol className="list-inside list-decimal space-y-2 text-sm text-slate-600">
+            <li>
+              아래에서 <strong>HTTP/RSS/Perplexity</strong> 중 하나를 골라 블로그 주제 후보를
+              수집합니다.
+            </li>
+            <li>
+              <strong>카테고리 관리</strong>에서 후보를 분류할 카테고리를 미리 만들어두면(블로그
+              게시글 카테고리와 동일한 목록을 공유합니다), 아래 후보 카드마다 원하는 카테고리를
+              바로 지정할 수 있습니다.
+            </li>
+            <li>
+              <strong>카테고리 필터</strong>로 원하는 카테고리의 후보만 모아보고, 각 카드의
+              드롭다운으로 언제든 카테고리를 다시 바꿀 수 있습니다.
+            </li>
+            <li>
+              마음에 드는 후보를 찾으면 <strong>&quot;이 주제로 글쓰기&quot;</strong>를 눌러 AI
+              글쓰기로 넘어갑니다.
+            </li>
+          </ol>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-8">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-slate-900">🗂 카테고리 관리</h2>
+            <button
+              type="button"
+              onClick={() => setShowCategoryModal(true)}
+              className="rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 hover:bg-indigo-100"
+            >
+              ⚙️ 카테고리 추가·수정·삭제
+            </button>
+          </div>
+          {categories.length === 0 ? (
+            <p className="text-xs text-slate-500">
+              등록된 카테고리가 없습니다. 위 버튼을 눌러 후보를 분류할 카테고리를 만들어보세요.
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <span key={cat.id} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                  {cat.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-8">
@@ -406,16 +493,37 @@ export default function CandidatesPage() {
           {errorMsg && <p className="mt-3 text-sm font-semibold text-red-600">{errorMsg}</p>}
         </div>
 
-        <h2 className="mb-3 text-lg font-bold text-slate-900">수집된 블로그 주제</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-bold text-slate-900">수집된 블로그 주제</h2>
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-bold text-slate-500">카테고리 필터</label>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
+              className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-black"
+            >
+              <option value="all">전체</option>
+              <option value="uncategorized">카테고리 없음</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         {loading ? (
           <div className="py-20 text-center text-sm text-slate-400">불러오는 중...</div>
-        ) : candidates.length === 0 ? (
+        ) : filteredCandidates.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-            아직 수집된 블로그 주제가 없습니다. 위에서 방식을 선택해 첫 주제를 만들어보세요.
+            {candidates.length === 0
+              ? '아직 수집된 블로그 주제가 없습니다. 위에서 방식을 선택해 첫 주제를 만들어보세요.'
+              : '이 카테고리에 해당하는 후보가 없습니다.'}
           </div>
         ) : (
           <ul className="space-y-3">
-            {candidates.map((c) => {
+            {filteredCandidates.map((c) => {
               const writeParams = new URLSearchParams({ topic: c.title })
               if (c.keywords && c.keywords.length > 0) writeParams.set('keywords', c.keywords.join(','))
               return (
@@ -439,6 +547,25 @@ export default function CandidatesPage() {
                       </button>
                     </div>
                   </div>
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="text-[11px] font-bold text-slate-400">
+                      {c.category_id !== null ? categoryNameById.get(c.category_id) ?? '카테고리 없음' : '카테고리 없음'}
+                    </span>
+                    <select
+                      value={c.category_id ?? ''}
+                      onChange={(e) => handleCategoryChange(c.id, e.target.value)}
+                      disabled={updatingCategoryId === c.id}
+                      style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #e2e8f0' }}
+                      className="rounded-lg px-2 py-1 text-[11px] font-semibold text-black disabled:opacity-50"
+                    >
+                      <option value="">카테고리 없음</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   {c.summary && <p className="whitespace-pre-wrap text-sm text-slate-600">{c.summary}</p>}
                   {c.keywords && c.keywords.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
@@ -458,6 +585,18 @@ export default function CandidatesPage() {
           </ul>
         )}
       </main>
+
+      <CategoryManagementModal
+        isOpen={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        onCategoriesUpdated={() => {
+          if (!supabase) return
+          loadCategories(supabase)
+          supabase.auth.getUser().then(({ data }: any) => {
+            if (data?.user) loadCandidates(supabase, data.user.id)
+          })
+        }}
+      />
     </div>
   )
 }
