@@ -451,7 +451,11 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
                           }`}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={url} alt={`이미지 후보 ${idx + 1}`} className="h-24 w-full object-cover" />
+                          <img
+                            src={url}
+                            alt={`이미지 후보 ${idx + 1}`}
+                            className="max-h-40 w-full bg-neutral-100 object-contain"
+                          />
                           {isSelected && (
                             <span className="absolute right-1 top-1 rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
                               선택됨
