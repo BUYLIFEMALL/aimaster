@@ -2,6 +2,18 @@
 
 import { useActionState, useRef, useState, useTransition } from "react";
 import Link from "next/link";
+import {
+  Pilcrow,
+  Minus,
+  List,
+  ListOrdered,
+  Quote,
+  Brackets,
+  Megaphone,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  Link as LinkIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -26,19 +38,30 @@ const IMAGE_MODEL_OPTIONS = [
 
 /** 네이버 카페 오픈API는 content를 그대로 HTML로 저장하고(<p>로 감싸짐), 속성이 있는
  * HTML 태그(<img src=...>, <a href=...> 등)가 섞이면 403으로 거부한다는 것을 실계정
- * 테스트로 이미 확인했다(publish-core.ts 참고) — 그래서 이 에디터는 실제로 검증되지
- * 않은 굵게/기울임 같은 HTML 서식 버튼은 넣지 않는다. 대신 실제로 카페에 그대로 반영되는
- * "일반 텍스트 + 줄바꿈(<br>)" 모델에 맞는 서식 도구만 제공한다(네이버 스마트에디터의
- * 툴바 구성을 참고하되, 실제로 결과에 반영되는 것만 골랐다 — 2026-09-13 요청).
+ * 테스트로 이미 확인했다(publish-core.ts 참고) — 실제로 publish-core.ts의 textToHtml()이
+ * "<"/">"를 전부 HTML 엔티티로 escape한 뒤 "\n"만 "<br>"로 바꾸므로, 굵게/기울임/색상 같은
+ * 실제 HTML 서식 태그는 애초에 넣어도 escape되어 화면에 "<b>"라는 글자 그대로 보인다 —
+ * kakao_auto_poster의 Tiptap 리치 에디터(RichTextEditor.tsx)처럼 실제 HTML을 만드는 방식은
+ * 이 프로젝트에 통째로 옮길 수 없다(사용자 요청으로 카카오 편집기를 검토한 뒤 확인, 2026-09-16).
+ * 대신 실제로 카페에 그대로 반영되는 "일반 텍스트 + 줄바꿈(<br>)" 모델에 맞는 서식 도구만
+ * 제공하고(네이버 스마트에디터의 툴바 구성을 참고하되, 실제로 결과에 반영되는 것만 골랐다 —
+ * 2026-09-13 요청), 아이콘만 카카오 에디터와 동일한 lucide-react로 맞춰 시각적 완성도를
+ * 끌어올렸다.
  */
-const TEXT_ACTIONS: { icon: string; label: string; title: string; before: string; after?: string }[] = [
-  { icon: "¶", label: "문단", title: "문단을 나눕니다", before: "\n\n" },
-  { icon: "―", label: "구분선", title: "구분선을 추가합니다", before: "\n──────────\n" },
-  { icon: "•", label: "목록", title: "글머리 기호 목록을 추가합니다", before: "\n• " },
-  { icon: "①", label: "번호목록", title: "번호 목록을 추가합니다", before: "\n1. " },
-  { icon: "❝", label: "인용구", title: "인용구 스타일 줄을 추가합니다", before: "\n❝ ", after: " ❞" },
-  { icon: "★", label: "강조", title: "선택한 글자를 【 】로 감쌉니다", before: "【", after: "】" },
-  { icon: "📢", label: "안내", title: "안내 문구용 이모지를 추가합니다", before: "\n📢 " },
+const TEXT_ACTIONS: {
+  icon: React.ComponentType<{ size?: number }>;
+  label: string;
+  title: string;
+  before: string;
+  after?: string;
+}[] = [
+  { icon: Pilcrow, label: "문단", title: "문단을 나눕니다", before: "\n\n" },
+  { icon: Minus, label: "구분선", title: "구분선을 추가합니다", before: "\n──────────\n" },
+  { icon: List, label: "목록", title: "글머리 기호 목록을 추가합니다", before: "\n• " },
+  { icon: ListOrdered, label: "번호목록", title: "번호 목록을 추가합니다", before: "\n1. " },
+  { icon: Quote, label: "인용구", title: "인용구 스타일 줄을 추가합니다", before: "\n❝ ", after: " ❞" },
+  { icon: Brackets, label: "강조", title: "선택한 글자를 【 】로 감쌉니다", before: "【", after: "】" },
+  { icon: Megaphone, label: "안내", title: "안내 문구용 이모지를 추가합니다", before: "\n📢 " },
 ];
 
 // cafeGenerator.ts/publish-core.ts와 동일한 CTA 형식("\n\n📢 문구 URL", 같은 줄 공백 하나)을
@@ -81,6 +104,13 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [videoUploadError, setVideoUploadError] = useState<string | null>(null);
 
+  // 카카오 편집기(RichTextEditor.tsx)의 "링크 삽입" 팝오버를 참고했지만, 실제 <a href>
+  // 태그는 escape되어 그대로 텍스트로 보이므로 만들 수 없다 — 대신 프로토콜을 보장한 순수
+  // 텍스트 URL을 커서 위치에 넣는다. 네이버 카페가 본문 안의 "http(s)://" URL을 자동으로
+  // 클릭 가능한 링크로 바꿔주는 것을 publish-core.ts에서 이미 확인했다(2026-09-16).
+  const [showLinkPopover, setShowLinkPopover] = useState(false);
+  const [linkUrlInput, setLinkUrlInput] = useState("");
+
   // AI 이미지 (재)생성 — DraftItem.tsx/DraftComposer.tsx와 동일한 나노바나나 패턴을
   // 그대로 가져왔다("이미지를 새로 AI로 생성하거나 직접 추가한 이미지/영상 링크로 최종
   // 결과물을 만들 수 있게 해달라"는 요청, 2026-09-13).
@@ -115,6 +145,15 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
       el.focus();
       el.setSelectionRange(cursorPos, cursorPos);
     });
+  };
+
+  const insertLink = () => {
+    const raw = linkUrlInput.trim();
+    if (!raw) return;
+    const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    insertAtCursor(`${url} `);
+    setLinkUrlInput("");
+    setShowLinkPopover(false);
   };
 
   const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -322,7 +361,7 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
                   onClick={() => insertAtCursor(action.before, action.after)}
                   className="flex flex-col items-center gap-0.5 rounded-md px-2.5 py-1.5 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900"
                 >
-                  <span className="text-sm leading-none">{action.icon}</span>
+                  <action.icon size={15} />
                   <span className="text-[10px] leading-none">{action.label}</span>
                 </button>
               </div>
@@ -344,7 +383,7 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
               disabled={isUploadingImage}
               className="flex flex-col items-center gap-0.5 rounded-md px-2.5 py-1.5 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 disabled:opacity-50"
             >
-              <span className="text-sm leading-none">🖼</span>
+              <ImageIcon size={15} />
               <span className="text-[10px] leading-none">{isUploadingImage ? "업로드 중" : "사진"}</span>
             </button>
 
@@ -363,9 +402,51 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
               disabled={isUploadingVideo}
               className="flex flex-col items-center gap-0.5 rounded-md px-2.5 py-1.5 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 disabled:opacity-50"
             >
-              <span className="text-sm leading-none">🎬</span>
+              <VideoIcon size={15} />
               <span className="text-[10px] leading-none">{isUploadingVideo ? "업로드 중" : "동영상"}</span>
             </button>
+
+            {/* 링크 삽입 — 카카오 편집기의 링크 팝오버 UX를 참고했지만, 실제 <a href>가 아니라
+                프로토콜을 보장한 순수 텍스트 URL을 커서 위치에 넣는다(위 insertLink 참고). */}
+            <div className="relative">
+              <button
+                type="button"
+                title="링크 삽입"
+                onClick={() => setShowLinkPopover((prev) => !prev)}
+                className={`flex flex-col items-center gap-0.5 rounded-md px-2.5 py-1.5 transition-colors ${
+                  showLinkPopover ? "bg-neutral-200 text-neutral-900" : "text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900"
+                }`}
+              >
+                <LinkIcon size={15} />
+                <span className="text-[10px] leading-none">링크</span>
+              </button>
+              {showLinkPopover && (
+                <div className="absolute top-full left-0 z-20 mt-1 min-w-[280px] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl">
+                  <p className="mb-2 text-xs text-neutral-500">
+                    링크 URL — 실제 하이퍼링크 태그가 아니라 텍스트로 삽입되며, 네이버 카페가
+                    자동으로 클릭 가능한 링크로 바꿔줍니다.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={linkUrlInput}
+                      onChange={(e) => setLinkUrlInput(e.target.value)}
+                      placeholder="https://..."
+                      className="flex-1 rounded-lg border border-neutral-300 px-2 py-1.5 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+                      onKeyDown={(e) => e.key === "Enter" && insertLink()}
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={insertLink}
+                      className="rounded bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200"
+                    >
+                      삽입
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <span className="ml-auto pr-1 text-xs text-neutral-400">{charCount.toLocaleString()}자</span>
           </div>
