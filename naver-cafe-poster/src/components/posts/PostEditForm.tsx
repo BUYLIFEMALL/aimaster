@@ -64,7 +64,7 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
   const [title, setTitle] = useState(post.title);
   const initialSplit = useState(() => splitInitialCta(post.content))[0];
   const [content, setContent] = useState(initialSplit.body);
-  const [ctaText, setCtaText] = useState(initialSplit.ctaText);
+  const [ctaText, setCtaText] = useState(initialSplit.ctaText || "추천링크");
   const [ctaUrl, setCtaUrl] = useState(initialSplit.ctaUrl);
   const [targetId, setTargetId] = useState(post.target_id ?? "");
   const [imageUrl, setImageUrl] = useState(post.image_url ?? "");
