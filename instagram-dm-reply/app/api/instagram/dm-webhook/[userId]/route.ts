@@ -11,6 +11,7 @@ interface MetaMessagingEvent {
   recipient?: { id?: string };
   timestamp?: number;
   message?: { mid?: string; text?: string; is_echo?: boolean };
+  postback?: { mid?: string; payload?: string; title?: string };
 }
 
 interface MetaWebhookBody {
@@ -73,8 +74,8 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
       if (messaging.message?.is_echo) continue;
 
       const senderId = messaging.sender?.id;
-      const text = messaging.message?.text;
-      const mid = messaging.message?.mid;
+      const text = messaging.message?.text || messaging.postback?.title || messaging.postback?.payload;
+      const mid = messaging.message?.mid || messaging.postback?.mid || `postback_${messaging.timestamp ?? Date.now()}`;
       if (!senderId || !text || !mid) continue;
 
       try {

@@ -27,9 +27,9 @@ export default async function ConversationsPage() {
   const conversationIds = Array.from(new Set((messages ?? []).map((m) => m.conversation_id)));
   const { data: conversationList } = await supabase
     .from("dm_conversations")
-    .select("id, customer_username")
+    .select("id, customer_username, last_inbound_at")
     .in("id", conversationIds.length > 0 ? conversationIds : ["__none__"]);
-  const usernameByConversationId = new Map((conversationList ?? []).map((c) => [c.id, c.customer_username]));
+  const conversationMap = new Map((conversationList ?? []).map((c) => [c.id, c]));
 
   const groupedByConversation = new Map<string, typeof messages>();
   for (const m of messages ?? []) {
@@ -38,17 +38,39 @@ export default async function ConversationsPage() {
     groupedByConversation.set(m.conversation_id, list);
   }
 
+  function getWindowBadge(lastInboundAt?: string | null) {
+    if (!lastInboundAt) return null;
+    const inboundTime = new Date(lastInboundAt).getTime();
+    const elapsedHours = (Date.now() - inboundTime) / (1000 * 60 * 60);
+    const remainingHours = Math.max(0, 24 - elapsedHours);
+
+    if (remainingHours <= 0) {
+      return (
+        <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700">
+          ⚠️ 24시간 윈도우 만료 (메시지 응답 제한)
+        </span>
+      );
+    }
+    const hours = Math.floor(remainingHours);
+    const mins = Math.floor((remainingHours % 1) * 60);
+    const isUrgent = remainingHours < 4;
+    return (
+      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${isUrgent ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
+        ⏳ 24시간 윈도우 {hours}시간 {mins}분 남음
+      </span>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="sticky top-0 z-10 -mx-4 bg-gray-50 px-4 pb-4 pt-1">
         <div className="mb-4">
           <h1 className="text-2xl font-black text-gray-900">DM 검토/발송</h1>
           <p className="text-sm text-gray-500 mt-1">
-            AI가 만든 답장 초안을 확인하고 수정한 뒤 "답변승인"을 눌러야 실제로 인스타그램 DM으로
+            AI가 만든 답장 초안을 확인하고 수정한 뒤 &quot;답변승인&quot;을 눌러야 실제로 인스타그램 DM으로
             나갑니다.
             <br />
-            새 DM은 웹훅으로 실시간 수신되므로 별도로 새로고침할 필요는 없어요(단, 화면은
-            새로고침해야 최신 목록이 보입니다).
+            새 DM은 웹훅으로 실시간 수신되며, Meta 24시간 메시징 윈도우 이내에 답변을 승인해야 합니다.
           </p>
         </div>
 
@@ -72,26 +94,33 @@ export default async function ConversationsPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            {Array.from(groupedByConversation.entries()).map(([conversationId, convMessages]) => (
-              <div key={conversationId}>
-                <h2 className="text-sm font-bold text-gray-700 mb-3">
-                  👤 {usernameByConversationId.get(conversationId) || "익명 고객"}
-                </h2>
-                <div className="space-y-3">
-                  {(convMessages ?? []).map((m) => (
-                    <ConversationReviewItem
-                      key={m.id}
-                      message={{
-                        id: m.id,
-                        sender_username: usernameByConversationId.get(conversationId) ?? null,
-                        message_text: m.message_text,
-                        generated_reply: m.generated_reply,
-                      }}
-                    />
-                  ))}
+            {Array.from(groupedByConversation.entries()).map(([conversationId, convMessages]) => {
+              const conv = conversationMap.get(conversationId);
+              const username = conv?.customer_username;
+              return (
+                <div key={conversationId}>
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="text-sm font-bold text-gray-700">
+                      👤 {username || "익명 고객"}
+                    </h2>
+                    {getWindowBadge(conv?.last_inbound_at)}
+                  </div>
+                  <div className="space-y-3">
+                    {(convMessages ?? []).map((m) => (
+                      <ConversationReviewItem
+                        key={m.id}
+                        message={{
+                          id: m.id,
+                          sender_username: username ?? null,
+                          message_text: m.message_text,
+                          generated_reply: m.generated_reply,
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
