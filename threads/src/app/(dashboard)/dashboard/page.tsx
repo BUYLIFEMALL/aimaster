@@ -7,6 +7,9 @@ import { dispatchScheduledPostsAction } from "@/lib/actions/posts";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import type { PostStatus } from "@/types/post";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
@@ -68,6 +71,37 @@ export default async function DashboardPage() {
           ))}
         </div>
       )}
+
+      {/* 프로세스 분석 기반 사용방법 가이드 */}
+      <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-bold text-neutral-900">사용방법</h2>
+        <ol className="list-inside list-decimal space-y-3 text-sm text-neutral-700">
+          <li>
+            <Link href="/settings" className="font-semibold text-neutral-900 underline hover:text-black">
+              API 키 및 계정 설정
+            </Link>
+            에서 본인의 Meta App ID / App Secret 및 OpenAI API 키를 입력하고, <strong>[Threads 계정 연결]</strong> 버튼을 눌러 쓰레드 계정을 연동합니다.
+          </li>
+          <li>
+            <Link href="/candidates" className="font-semibold text-neutral-900 underline hover:text-black">
+              후보 및 주제 관리
+            </Link>
+            에서 포스팅할 텍스트 아이디어, 주제 키워드, 소구점 분석을 등록하고 AI를 활용해 바이럴 홍보 캡션을 자동 생성합니다.
+          </li>
+          <li>
+            <Link href="/posts" className="font-semibold text-neutral-900 underline hover:text-black">
+              게시글 관리 및 예약
+            </Link>
+            에서 생성된 게시글에 이미지/동영상을 첨부하고 원하는 게시 시각을 지정하여 예약 등록하거나 즉시 게시합니다.
+          </li>
+          <li>
+            <Link href="/dashboard" className="font-semibold text-neutral-900 underline hover:text-black">
+              대시보드 모니터링
+            </Link>
+            에서 게시 상태(임시저장/예약중/게시됨/실패)를 모니터링하고 상단의 <strong>[예약 게시 실행]</strong> 버튼을 눌러 일정을 자동으로 처리합니다.
+          </li>
+        </ol>
+      </div>
 
       {!account && (
         <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">

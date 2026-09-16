@@ -10,6 +10,9 @@ import type { ApiKeyProvider, ThreadsSourceType } from "@/types/database.types";
 
 const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 const SOURCE_LABELS: Record<ThreadsSourceType, string> = {
   http: "HTTP",
   rss: "RSS",
