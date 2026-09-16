@@ -69,6 +69,13 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
   const [targetId, setTargetId] = useState(post.target_id ?? "");
   const [imageUrl, setImageUrl] = useState(post.image_url ?? "");
   const [videoUrl, setVideoUrl] = useState(post.video_url ?? "");
+  // "이미지 다시 생성"을 누를 때마다 기존 이미지를 덮어쓰지 않고 후보로 함께 쌓아둔다 —
+  // 여러 시안 중 마음에 드는 것을 직접 골라서 게시에 쓸 수 있게 한다(사용자 요청, 2026-09-16).
+  const [imageOptions, setImageOptions] = useState<string[]>(post.image_url ? [post.image_url] : []);
+  const addImageOption = (url: string) => {
+    if (!url) return;
+    setImageOptions((prev) => (prev.includes(url) ? prev : [...prev, url]));
+  };
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
@@ -139,6 +146,7 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
 
       const { data } = supabase.storage.from("post-images").getPublicUrl(path);
       setImageUrl(data.publicUrl);
+      addImageOption(data.publicUrl);
       setVideoUrl(""); // 이미지/영상은 서로 배타적으로 관리한다(DraftItem.tsx와 동일)
     } catch (err) {
       setImageUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
@@ -198,6 +206,7 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
       });
       if (result.imageUrl) {
         setImageUrl(result.imageUrl);
+        addImageOption(result.imageUrl);
         setVideoUrl(""); // 이미지/영상은 서로 배타적으로 관리한다
         lastError = undefined;
         break;
@@ -420,6 +429,40 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
                 {isGeneratingImage ? "이미지 생성 중..." : imageUrl ? "🖼️ 이미지 다시 생성" : "🖼️ 대표 이미지 생성"}
               </Button>
               {imageGenError && <p className="text-xs text-red-600">{imageGenError}</p>}
+
+              {imageOptions.length > 1 && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-neutral-700">
+                    생성된 이미지 중 게시에 쓸 것을 선택하세요 ({imageOptions.length}개)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {imageOptions.map((url, idx) => {
+                      const isSelected = imageUrl === url;
+                      return (
+                        <button
+                          key={url}
+                          type="button"
+                          onClick={() => {
+                            setImageUrl(url);
+                            setVideoUrl("");
+                          }}
+                          className={`relative overflow-hidden rounded-lg border-2 transition-colors ${
+                            isSelected ? "border-blue-600 ring-2 ring-blue-300" : "border-neutral-200 hover:border-neutral-400"
+                          }`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={url} alt={`이미지 후보 ${idx + 1}`} className="h-24 w-full object-cover" />
+                          {isSelected && (
+                            <span className="absolute right-1 top-1 rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                              선택됨
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 gap-4 pt-1 sm:grid-cols-2">
                 <div className="space-y-1.5">
