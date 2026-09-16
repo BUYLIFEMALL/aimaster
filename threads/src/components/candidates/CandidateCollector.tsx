@@ -226,7 +226,7 @@ function PerplexityForm({ categoryId }: { categoryId: string }) {
         <Input name="topic" required placeholder="예: 다이어트 보조제" />
       </div>
       <Button type="submit" disabled={isPending}>
-        {isPending ? "검색 중..." : "현재 트렌딩 앵글로 게시글 주제 생성"}
+        {isPending ? "수집 중..." : "글감 수집"}
       </Button>
       <ResultMessage state={state} />
     </form>
