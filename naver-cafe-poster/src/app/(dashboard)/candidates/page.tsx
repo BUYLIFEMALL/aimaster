@@ -88,6 +88,32 @@ export default async function CandidatesPage() {
 
       <MissingApiKeyNotice missing={missingProviders} />
 
+      <div className="mb-4 rounded-lg border border-neutral-200 bg-white p-5">
+        <h2 className="mb-3 text-sm font-semibold text-neutral-900">📖 예약 자동화 · 후보함 사용법</h2>
+        <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-neutral-700">
+          <li>
+            <strong>예약 자동화 등록</strong> — 아래 "글감 수집"에서 HTTP/RSS/Perplexity 중 하나를
+            고른 뒤 "🔔 예약 자동화로 등록"을 켜고, 게시할 카페 · 주기 · 자동 포스팅 여부 ·
+            (선택) 카테고리를 정해 등록합니다. 정해둔 주기마다 AI가 새 글감을 자동으로 만듭니다.
+          </li>
+          <li>
+            <strong>후보함 "예약포스팅" ON/OFF</strong> — 아래 "수집된 게시글 후보" 목록에서
+            각 후보 카드의 "예약포스팅 ON/OFF" 버튼으로, 나중에 자동 발행할 후보를 미리
+            골라둘 수 있습니다.
+          </li>
+          <li>
+            <strong>후보함에서 예약 발행</strong> — "글감 수집"에서 "🗂️ 후보함에서 예약 발행"을
+            선택해 게시할 카페 · 주기 · (선택) 카테고리를 정해 등록해두면, "예약포스팅 ON"으로
+            켜둔 후보를 켠 순서대로(먼저 켠 것부터) 하나씩 골라 자동으로 카페에 올립니다. 한
+            번 쓰인 후보는 자동으로 OFF로 바뀌어 중복 게시되지 않습니다.
+          </li>
+          <li>
+            두 방식 모두 "자동 포스팅"을 켜두면 검토 없이 바로 카페에 게시되고, 꺼두면
+            초안으로 저장되어 <strong>AI 자동 글쓰기(초안)</strong>에서 검수 후 직접 배포합니다.
+          </li>
+        </ol>
+      </div>
+
       <div className="mb-4">
         <CategoryManager categories={(categories ?? []) as CafeCategory[]} />
       </div>
