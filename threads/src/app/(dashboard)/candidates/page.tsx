@@ -104,8 +104,6 @@ export default async function CandidatesPage() {
         </ol>
       </div>
 
-      <CategoryManager categories={categories} />
-
       <div className="grid grid-cols-3 gap-3">
         {(Object.keys(sourceCounts) as ThreadsSourceType[]).map((type) => (
           <div key={type} className="rounded-lg border border-neutral-200 bg-white p-4">
@@ -117,7 +115,8 @@ export default async function CandidatesPage() {
 
       <MissingApiKeyNotice missing={missingProviders} />
 
-      <div>
+      <div className="space-y-3">
+        <CategoryManager categories={categories} />
         <CandidateCollector
           newsblurConnected={!!newsblurAccount}
           newsblurUsername={newsblurAccount?.username ?? null}
