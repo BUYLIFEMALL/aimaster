@@ -67,6 +67,44 @@ async function collectRawText(
 }
 
 /**
+ * candidate_pool 소스 전용 — 새로 AI를 호출해 콘텐츠를 만드는 대신, 회원이 후보함에서
+ * "예약포스팅 ON"으로 켜둔 게시글 후보(ncafe_candidates) 중 가장 먼저 켜진 것 하나를 그대로
+ * 재료로 쓴다(무작위가 아니라 FIFO — 회원이 채워둔 큐를 순서대로 소비하는 편이 예측 가능하다).
+ * 한 번 쓰인 후보는 다시 뽑히지 않도록 use_for_schedule을 꺼서 "소모"시킨다. categoryIds가
+ * 있으면(소스에 등록해둔 카테고리들) 그 카테고리로 분류된 후보 중에서만 고른다 — 비어있으면
+ * 전체 대상. 후보가 이미 갖고 있던 category_id를 그대로 생성되는 글의 분류로 이어받는다.
+ */
+async function pickFromCandidatePool(
+  supabase: SupabaseLike,
+  userId: string,
+  categoryIds: string[],
+): Promise<{ id: string; title: string; content: string; categoryId: string | null }> {
+  let query = supabase
+    .from("ncafe_candidates")
+    .select("id, title, content, category_id")
+    .eq("user_id", userId)
+    .eq("use_for_schedule", true)
+    .order("created_at", { ascending: true })
+    .limit(1);
+  if (categoryIds.length > 0) query = query.in("category_id", categoryIds);
+
+  const { data: candidates, error } = await query;
+  if (error) throw new Error(error.message);
+  const picked = candidates?.[0] as
+    | { id: string; title: string; content: string; category_id: string | null }
+    | undefined;
+  if (!picked) {
+    throw new Error(
+      categoryIds.length > 0
+        ? "지정한 카테고리에 예약포스팅으로 켜둔(ON) 게시글 후보가 없습니다."
+        : "예약포스팅으로 켜둔(ON) 게시글 후보가 없습니다. 후보 목록에서 사용할 글감을 켜주세요.",
+    );
+  }
+  await supabase.from("ncafe_candidates").update({ use_for_schedule: false }).eq("id", picked.id);
+  return { id: picked.id, title: picked.title, content: picked.content, categoryId: picked.category_id };
+}
+
+/**
  * 예약 자동 실행 1회분 — 크론(app/api/cron/generate-and-post)과 "지금 실행" 수동 버튼
  * (lib/actions/scheduledSources.ts) 양쪽이 이 함수를 그대로 호출한다. auto_post가 켜져
  * 있으면 생성 즉시 실제 카페에 게시하고, 꺼져 있으면 초안(status='draft')으로만 저장해
@@ -79,41 +117,51 @@ export async function runScheduledSource(
 ): Promise<{ success: boolean; error?: string; postId?: string }> {
   try {
     const typedSupabase = supabase as unknown as SupabaseClient<Database>;
-
-    const [openaiKey, perplexityKey] = await Promise.all([
-      resolveApiKey(typedSupabase, userId, "openai"),
-      resolveApiKey(typedSupabase, userId, "perplexity"),
-    ]);
-
-    // 소스에 등록된 카테고리(category_ids)로 생성 글을 실제 분류한다 — 1개면 그대로 쓰고,
-    // 2개 이상이면 AI에게 후보 이름 목록을 주고 방금 생성한 글에 가장 알맞은 것 하나를
-    // 고르게 한다(등록된 카테고리 목록 화면 배지 표시용이던 것을 실제 분류로 확장, 2026-09-16).
     const registeredCategoryIds = source.category_ids ?? [];
-    let categoryRows: { id: string; name: string }[] = [];
-    if (registeredCategoryIds.length > 1) {
-      const { data } = await supabase
-        .from("ncafe_categories")
-        .select("id, name")
-        .in("id", registeredCategoryIds);
-      categoryRows = data ?? [];
-    }
 
-    const rawText = await collectRawText(supabase, userId, source, perplexityKey ?? "");
-    const [draft] = await structureCafeCandidates({
-      rawText,
-      maxItems: 1,
-      apiKey: openaiKey ?? "",
-      categoryOptions: categoryRows.map((c) => c.name),
-    });
-    if (!draft) throw new Error("콘텐츠 생성 결과가 비어있습니다.");
-    const title = draft.title;
-    const content = draft.content;
-
+    let title: string;
+    let content: string;
     let categoryId: string | null = null;
-    if (registeredCategoryIds.length === 1) {
-      categoryId = registeredCategoryIds[0];
-    } else if (categoryRows.length > 0) {
-      categoryId = categoryRows.find((c) => c.name === draft.categoryName)?.id ?? null;
+
+    if (source.source_type === "candidate_pool") {
+      const picked = await pickFromCandidatePool(supabase, userId, registeredCategoryIds);
+      title = picked.title;
+      content = picked.content;
+      categoryId = picked.categoryId;
+    } else {
+      const [openaiKey, perplexityKey] = await Promise.all([
+        resolveApiKey(typedSupabase, userId, "openai"),
+        resolveApiKey(typedSupabase, userId, "perplexity"),
+      ]);
+
+      // 소스에 등록된 카테고리(category_ids)로 생성 글을 실제 분류한다 — 1개면 그대로 쓰고,
+      // 2개 이상이면 AI에게 후보 이름 목록을 주고 방금 생성한 글에 가장 알맞은 것 하나를
+      // 고르게 한다(등록된 카테고리 목록 화면 배지 표시용이던 것을 실제 분류로 확장, 2026-09-16).
+      let categoryRows: { id: string; name: string }[] = [];
+      if (registeredCategoryIds.length > 1) {
+        const { data } = await supabase
+          .from("ncafe_categories")
+          .select("id, name")
+          .in("id", registeredCategoryIds);
+        categoryRows = data ?? [];
+      }
+
+      const rawText = await collectRawText(supabase, userId, source, perplexityKey ?? "");
+      const [draft] = await structureCafeCandidates({
+        rawText,
+        maxItems: 1,
+        apiKey: openaiKey ?? "",
+        categoryOptions: categoryRows.map((c) => c.name),
+      });
+      if (!draft) throw new Error("콘텐츠 생성 결과가 비어있습니다.");
+      title = draft.title;
+      content = draft.content;
+
+      if (registeredCategoryIds.length === 1) {
+        categoryId = registeredCategoryIds[0];
+      } else if (categoryRows.length > 0) {
+        categoryId = categoryRows.find((c) => c.name === draft.categoryName)?.id ?? null;
+      }
     }
 
     const { data: inserted, error: insertError } = await supabase

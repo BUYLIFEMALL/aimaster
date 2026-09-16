@@ -19,12 +19,13 @@ import { SCHEDULE_INTERVAL_OPTIONS } from "@/lib/schedule";
 import type { NewsblurFeedSummary } from "@/lib/ai/collector";
 import type { CafeCategory } from "@/types/post";
 
-type Method = "http" | "rss" | "perplexity";
+type Method = "http" | "rss" | "perplexity" | "candidate_pool";
 
 const METHOD_LABELS: Record<Method, string> = {
   http: "HTTP (URL 지정)",
   rss: "RSS (NewsBlur 구독 피드)",
   perplexity: "Perplexity (트렌드 검색)",
+  candidate_pool: "🗂️ 후보함에서 예약 발행",
 };
 
 const initialCollectState: CollectState = {};
@@ -81,6 +82,7 @@ export function CandidateCollector({
         />
       )}
       {method === "perplexity" && <PerplexityForm targets={targets} categories={categories} />}
+      {method === "candidate_pool" && <CandidatePoolForm targets={targets} categories={categories} />}
     </div>
   );
 }
@@ -571,6 +573,100 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
       </Button>
 
       {scheduleMode ? <ScheduleResultMessage state={scheduleState} /> : <ResultMessage state={collectState} />}
+    </form>
+  );
+}
+
+/**
+ * 새로 수집하는 대신, 아래 "수집된 게시글 후보" 목록에서 "예약포스팅 ON"으로 켜둔 후보를
+ * 켠 순서대로(FIFO) 하나씩 골라 카페 게시글을 만드는 예약 전용 소스. 1회성 "글감 수집"
+ * 개념이 없으므로(이미 있는 후보를 재활용하는 것뿐) 다른 방식과 달리 예약 등록만 지원한다.
+ */
+function CandidatePoolForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: CafeCategory[] }) {
+  const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [targetId, setTargetId] = useState(targets[0]?.id ?? "");
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const [autoPost, setAutoPost] = useState(false);
+  const [interval, setInterval_] = useState(1440);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set("sourceType", "candidate_pool");
+      fd.set("targetId", targetId);
+      fd.set("autoPost", String(autoPost));
+      fd.set("scheduleEnabled", "true");
+      fd.set("intervalMinutes", String(interval));
+      categoryIds.forEach((id) => fd.append("categoryIds", id));
+      const result = await createScheduledSourceAction(initialScheduleState, fd);
+      setScheduleState(result);
+    });
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <p className="text-sm text-neutral-600">
+        아래 "수집된 게시글 후보" 목록에서 "예약포스팅 ON"으로 켜둔 후보를 정해둔 주기마다
+        켠 순서대로 하나씩 골라 카페 게시글로 만듭니다. 한 번 쓰인 후보는 자동으로 OFF로
+        바뀌어 중복 게시되지 않습니다. 카테고리를 선택하면 그 카테고리 후보 중에서만 고릅니다
+        (선택 안 하면 전체 대상).
+      </p>
+
+      <CategoryCheckboxGroup categories={categories} selectedIds={categoryIds} onChange={setCategoryIds} />
+
+      {targets.length === 0 ? (
+        <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-500">
+          먼저 설정 페이지에서 게시할 카페 게시판을 등록해주세요.
+        </p>
+      ) : (
+        <div>
+          <label className="mb-1 block text-sm font-medium text-neutral-700">게시할 카페</label>
+          <select
+            value={targetId}
+            onChange={(e) => setTargetId(e.target.value)}
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+          >
+            {targets.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-neutral-700">주기</label>
+        <select
+          value={interval}
+          onChange={(e) => setInterval_(Number(e.target.value))}
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+        >
+          {SCHEDULE_INTERVAL_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <label className="flex items-center gap-2 text-xs text-neutral-700">
+        <input
+          type="checkbox"
+          checked={autoPost}
+          onChange={(e) => setAutoPost(e.target.checked)}
+          className="h-4 w-4"
+        />
+        자동 포스팅(검토 없이 바로 게시) — 끄면 초안으로만 저장됩니다
+      </label>
+
+      <Button type="submit" disabled={isPending || !targetId}>
+        {isPending ? "등록 중..." : "예약 자동화 등록"}
+      </Button>
+
+      <ScheduleResultMessage state={scheduleState} />
     </form>
   );
 }

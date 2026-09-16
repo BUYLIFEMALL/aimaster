@@ -23,18 +23,24 @@ export async function createScheduledSourceAction(
 ): Promise<ScheduledSourceState> {
   const user = await requireProgramAccess();
   const sourceType = String(formData.get("sourceType") ?? "");
-  const sourceInput = String(formData.get("sourceInput") ?? "").trim();
-  const sourceLabel = String(formData.get("sourceLabel") ?? sourceInput).trim();
+  const isPool = sourceType === "candidate_pool";
+  // candidate_pool은 새로 수집하는 대상이 없다 — 후보함에서 "예약포스팅 ON"으로 켜둔 후보를
+  // 그대로 재료로 쓰므로 sourceInput이 필요 없다. 어느 카테고리 후보만 쓸지는 아래
+  // categoryIds(모든 소스 타입이 공유하는 배지/필터 필드)를 그대로 재사용한다.
+  const sourceInput = isPool ? "" : String(formData.get("sourceInput") ?? "").trim();
+  const sourceLabel = isPool
+    ? "🗂️ 후보함에서 예약 발행"
+    : String(formData.get("sourceLabel") ?? sourceInput).trim();
   const targetId = String(formData.get("targetId") ?? "");
   const autoPost = formData.get("autoPost") === "true";
   const scheduleEnabled = formData.get("scheduleEnabled") !== "false";
   const intervalMinutes = Number(formData.get("intervalMinutes") ?? 1440);
   const categoryIds = formData.getAll("categoryIds").map(String).filter(Boolean);
 
-  if (!["http", "rss", "perplexity"].includes(sourceType)) {
+  if (!["http", "rss", "perplexity", "candidate_pool"].includes(sourceType)) {
     return { error: "알 수 없는 수집 방식입니다." };
   }
-  if (!sourceInput) return { error: "수집 대상을 입력해주세요." };
+  if (!isPool && !sourceInput) return { error: "수집 대상을 입력해주세요." };
   if (!targetId) return { error: "게시할 카페를 선택해주세요." };
 
   const supabase = await createClient();

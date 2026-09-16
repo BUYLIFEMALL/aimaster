@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/Button";
 import {
   deleteCandidateAction,
   moveCandidatesToCategoryAction,
+  setCandidateUseForScheduleAction,
   type MoveCandidatesState,
 } from "@/lib/actions/candidates";
 import { DeleteButton } from "@/components/posts/DeleteButton";
+import { CandidateScheduleToggleButton } from "@/components/candidates/CandidateScheduleToggleButton";
 import { CANDIDATE_SOURCE_LABELS, type CafeCandidate, type CafeCategory, type CandidateSourceType } from "@/types/post";
 
 interface CandidateListProps {
@@ -147,6 +149,11 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
                   <h3 className="text-sm font-semibold text-neutral-900">{c.title}</h3>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
+                  <form action={setCandidateUseForScheduleAction}>
+                    <input type="hidden" name="id" value={c.id} />
+                    <input type="hidden" name="useForSchedule" value={String(!c.use_for_schedule)} />
+                    <CandidateScheduleToggleButton on={c.use_for_schedule} />
+                  </form>
                   <Link
                     href={`/drafts?${writeParams.toString()}`}
                     className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100"

@@ -170,6 +170,23 @@ export async function collectFromPerplexityAction(
   }
 }
 
+/** 게시글 후보 하나를 "예약포스팅"용으로 켜고 끈다 — ON으로 켜둔 후보만 candidate_pool
+ * 예약 소스가 골라서 자동 발행/초안화한다(engine.ts의 pickFromCandidatePool). */
+export async function setCandidateUseForScheduleAction(formData: FormData) {
+  const user = await requireProgramAccess();
+  const id = String(formData.get("id") ?? "");
+  const useForSchedule = formData.get("useForSchedule") === "true";
+  const supabase = await createClient();
+
+  await supabase
+    .from("ncafe_candidates")
+    .update({ use_for_schedule: useForSchedule })
+    .eq("user_id", user.id)
+    .eq("id", id);
+
+  revalidatePath("/candidates");
+}
+
 export async function deleteCandidateAction(formData: FormData) {
   const user = await requireProgramAccess();
   const id = String(formData.get("id") ?? "");
