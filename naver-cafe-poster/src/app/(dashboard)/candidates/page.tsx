@@ -89,7 +89,7 @@ export default async function CandidatesPage() {
       <MissingApiKeyNotice missing={missingProviders} />
 
       <div className="mb-4 rounded-lg border border-neutral-200 bg-white p-5">
-        <h2 className="mb-3 text-sm font-semibold text-neutral-900">📖 예약 자동화 · 후보함 사용법</h2>
+        <h2 className="mb-3 text-sm font-semibold text-neutral-900">📖 예약 자동화 · 수집된 게시글 사용법</h2>
         <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-neutral-700">
           <li>
             <strong>예약 자동화 등록</strong> — 아래 "글감 수집"에서 HTTP/RSS/Perplexity 중 하나를
