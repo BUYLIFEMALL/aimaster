@@ -4,6 +4,9 @@ import { listUserDetailPages } from "@/lib/detailPages";
 import { PlatformTabs } from "@/components/products/PlatformTabs";
 import { ProductList } from "@/components/products/ProductList";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function ProductsPage({
   searchParams,
 }: {

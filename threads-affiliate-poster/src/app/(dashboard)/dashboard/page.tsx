@@ -7,6 +7,9 @@ import { dispatchScheduledPostsAction } from "@/lib/actions/posts";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import type { PostStatus } from "@/types/post";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
