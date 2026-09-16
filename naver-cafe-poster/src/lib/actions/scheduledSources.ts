@@ -29,7 +29,7 @@ export async function createScheduledSourceAction(
   // categoryIds(모든 소스 타입이 공유하는 배지/필터 필드)를 그대로 재사용한다.
   const sourceInput = isPool ? "" : String(formData.get("sourceInput") ?? "").trim();
   const sourceLabel = isPool
-    ? "🗂️ 후보함에서 예약 발행"
+    ? "🗂️ 게시글 후보에서 예약발행"
     : String(formData.get("sourceLabel") ?? sourceInput).trim();
   const targetId = String(formData.get("targetId") ?? "");
   const autoPost = formData.get("autoPost") === "true";

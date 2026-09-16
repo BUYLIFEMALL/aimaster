@@ -25,7 +25,7 @@ const METHOD_LABELS: Record<Method, string> = {
   http: "HTTP (URL 지정)",
   rss: "RSS (NewsBlur 구독 피드)",
   perplexity: "Perplexity (트렌드 검색)",
-  candidate_pool: "🗂️ 후보함에서 예약 발행",
+  candidate_pool: "🗂️ 게시글 후보에서 예약발행",
 };
 
 const initialCollectState: CollectState = {};
