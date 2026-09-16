@@ -154,13 +154,16 @@ function SourceCard({
           <button
             type="button"
             onClick={() => setIsEditing((prev) => !prev)}
-            className="rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50"
+            className="rounded-full bg-green-600 px-2.5 py-1 text-[11px] font-bold text-white transition-colors hover:bg-green-700"
           >
             {isEditing ? "수정 닫기" : "수정"}
           </button>
           <form action={deleteScheduledSourceAction}>
             <input type="hidden" name="id" value={source.id} />
-            <button type="submit" className="text-[11px] text-red-500 hover:underline">
+            <button
+              type="submit"
+              className="rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-bold text-white transition-colors hover:bg-red-600"
+            >
               삭제
             </button>
           </form>
