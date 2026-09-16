@@ -9,7 +9,13 @@ import { createClient } from "@/lib/supabase/client";
 import { StatusBadge } from "@/components/posts/StatusBadge";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { DeployButton } from "@/components/posts/DeployButton";
-import { updateDraftAction, deployDraftAction, deletePostAction, type PostActionState } from "@/lib/actions/posts";
+import {
+  updateDraftAction,
+  saveAndDeployDraftAction,
+  deployDraftAction,
+  deletePostAction,
+  type PostActionState,
+} from "@/lib/actions/posts";
 import { reviseCafePostAction, generateCafeImageAction, generateCafeImagePromptAction } from "@/lib/actions/ai";
 import type { CafeCategory, CafePost, CafeTarget, PostStatus } from "@/types/post";
 
@@ -41,6 +47,7 @@ export function DraftItem({
 }) {
   const [isEditing, setIsEditing] = useState(startInEdit);
   const [state, formAction, isPending] = useActionState(updateDraftAction, initialState);
+  const [deployState, deployFormAction, isDeploying] = useActionState(saveAndDeployDraftAction, initialState);
   const [title, setTitle] = useState(post.title);
   const [content, setContent] = useState(post.content);
   const [targetId, setTargetId] = useState(post.target_id ?? "");
@@ -368,15 +375,24 @@ export function DraftItem({
               </div>
             )}
           </div>
-          <div className="flex gap-2">
-            <Button type="submit" variant="secondary" disabled={isPending}>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" variant="secondary" disabled={isPending || isDeploying}>
               {isPending ? "저장 중..." : "저장"}
             </Button>
-            <Button type="button" variant="ghost" onClick={() => setIsEditing(false)}>
+            <Button
+              type="submit"
+              formAction={deployFormAction}
+              disabled={isPending || isDeploying || !hasNaverAccount || !targetId}
+              title={!hasNaverAccount ? "네이버 계정이 연결되어 있지 않습니다." : !targetId ? "등록할 카페를 먼저 선택해주세요." : undefined}
+            >
+              {isDeploying ? "게시 중..." : "저장 후 게시하기"}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} disabled={isPending || isDeploying}>
               취소
             </Button>
           </div>
           {state.error && <p className="text-xs text-red-600">{state.error}</p>}
+          {deployState.error && <p className="text-xs text-red-600">{deployState.error}</p>}
         </form>
       </li>
     );

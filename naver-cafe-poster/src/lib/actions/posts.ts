@@ -101,6 +101,82 @@ export async function updateDraftAction(
   return { success: true };
 }
 
+/**
+ * 초안(draft/failed)을 수정한 내용 그대로 저장하고, 바로 이어서 실제 카페에 게시한다 —
+ * "저장" 따로, "검수 완료·게시" 따로 두 번 누르지 않고 한 번에 끝내고 싶을 때 쓴다
+ * (사용자 요청, 2026-09-16). updateDraftAction과 같은 검증을 거친 뒤 deployDraftAction의
+ * 게시 로직을 그대로 이어서 실행하고, 결과 확인이 쉽도록 항상 게시글 관리로 이동시킨다.
+ */
+export async function saveAndDeployDraftAction(
+  _prevState: PostActionState,
+  formData: FormData,
+): Promise<PostActionState> {
+  const postId = String(formData.get("postId") ?? "");
+  const parsed = parseDraftForm(formData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
+  }
+
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const { title, content, targetId, imageUrl, videoUrl } = parsed.data;
+
+  const { data: existing } = await supabase
+    .from("ncafe_posts")
+    .select("status")
+    .eq("id", postId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!existing || existing.status === "published" || existing.status === "publishing") {
+    return { error: "게시 완료되었거나 게시 중인 글은 이 방식으로 게시할 수 없습니다." };
+  }
+  if (!targetId) {
+    return { error: "등록할 카페를 선택해주세요." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("ncafe_posts")
+    .update({
+      title,
+      content,
+      target_id: targetId,
+      image_url: imageUrl || null,
+      video_url: videoUrl || null,
+    })
+    .eq("id", postId)
+    .eq("user_id", user.id);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  try {
+    const account = await getNaverAccountOrError(supabase, user.id);
+    const target = await getTargetOrError(supabase, user.id, targetId);
+    await publishCafePost({
+      supabase,
+      postId,
+      userId: user.id,
+      title,
+      content,
+      imageUrl: imageUrl || null,
+      videoUrl: videoUrl || null,
+      accessToken: account.access_token,
+      clubId: target.club_id,
+      menuId: target.menu_id,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "게시에 실패했습니다.";
+    await supabase.from("ncafe_posts").update({ status: "failed", error_message: message }).eq("id", postId);
+  }
+
+  revalidatePath("/drafts");
+  revalidatePath("/posts");
+  revalidatePath(`/posts/${postId}`);
+  redirect("/posts");
+}
+
 /** 검수가 끝난 초안을 실제 카페에 배포한다. */
 export async function deployDraftAction(formData: FormData) {
   const postId = String(formData.get("postId"));
