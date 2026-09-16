@@ -216,6 +216,21 @@ export async function moveCategoryAction(formData: FormData) {
   // sort_order 갱신
   const finalSorted = updated.map((item, idx) => ({ ...item, sort_order: idx + 1 }));
 
+  // 1차 시도: DB threads_categories 테이블의 sort_order 업데이트
+  try {
+    const updatePromises = finalSorted.map((cat) =>
+      supabase
+        .from("threads_categories")
+        .update({ sort_order: cat.sort_order })
+        .eq("id", cat.id)
+        .eq("user_id", user.id),
+    );
+    await Promise.all(updatePromises);
+  } catch {
+    // ignore
+  }
+
+  // 2차 Fallback: user_api_keys 저장소 업데이트
   try {
     await saveFallbackCategories(supabase, user.id, finalSorted);
   } catch {
