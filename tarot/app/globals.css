@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f7f5fb;
+  --foreground: #1f2937;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* 카드 뽑기 화면의 간단한 셔플/플립 연출용 유틸리티. framer-motion 같은 별도 라이브러리
+   없이 순수 CSS 트랜지션만으로 구현했다 — MVP 범위에서는 이 정도면 충분하다는 판단. */
+.card-flip-scene {
+  perspective: 1000px;
+}
+
+.card-flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.card-flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+.card-flip-face.card-flip-back {
+  transform: rotateY(180deg);
+}
+
+@keyframes card-shuffle-pulse {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-6px) rotate(-2deg);
+  }
+  75% {
+    transform: translateY(-6px) rotate(2deg);
+  }
+}
+
+.card-shuffle-anim {
+  animation: card-shuffle-pulse 0.9s ease-in-out infinite;
+}

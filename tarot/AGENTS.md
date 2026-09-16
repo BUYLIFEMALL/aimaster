@@ -1,0 +1,90 @@
+# 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
+
+이 문서는 **AI 타로(tarot)** 프로젝트에서 AI Agent(Claude Code 등)가 협업할 때 준수해야
+할 필수 가이드라인입니다. mbti-character를 스캐폴드 템플릿으로 삼아 만들었으며, 로그인
+필수/API 키 표준 패턴 등 대부분의 구조를 그대로 따릅니다.
+
+---
+
+## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
+
+### 1. 자율 진행 허용 작업
+다음 작업은 사용자 사전 승인 없이 자율적으로 수행합니다:
+- 파일 생성 및 코드 수정
+- 패키지 설치 (`npm` 등)
+- 로컬 테스트 및 빌드 실행
+- Supabase 스키마 추가/마이그레이션(MCP 포함)
+
+### 2. 사전 승인 필수 작업 (🚨 승인 없이 금지)
+1. **파일이나 폴더 삭제**
+2. **Git push**
+3. **실제 서비스 배포 (Vercel 프로덕션)**
+4. **환경변수와 API 키 변경**(카카오 공유 SDK 앱키 등)
+5. **데이터베이스 실제 데이터 삭제**
+
+---
+
+## 🎯 프로젝트 목적
+
+AIMaster 계정으로 **로그인해야 이용할 수 있는 AI 타로 리딩 웹사이트**. 랜딩 페이지(`/`)는
+비로그인 방문자도 볼 수 있는 마케팅 화면이고, 카드 뽑기(`/draw`)와 결과(`/result`)는
+로그인이 필요하다 — mbti-character와 동일하게 "AIMaster 회원가입 유도 채널" 역할도 겸한다.
+
+핵심 흐름: 로그인 → 질문 입력(선택) → 78장 중 3장 뽑기(과거-현재-미래) → 결과 화면에서
+등록된 API 키에 따라 AI 카드 일러스트(Gemini)와 AI 종합 해석(OpenAI)을 자동 생성 →
+카카오톡/링크 공유. 설계 배경(왜 AI 생성 카드 이미지인지, 왜 3카드 스프레드만 만들었는지,
+왜 해석 생성에 OpenAI를 썼는지)은 README.md 참고.
+
+---
+
+## 📂 프로젝트 작업 디렉토리
+* **메인 모듈 경로**: `tarot/`
+* 모든 관련 소스 코드는 이 폴더 내에서 개발 및 관리합니다.
+
+---
+
+## ⚠️ 카드 이미지/콘텐츠 작성 시 반드시 지킬 것
+
+- **특정 상업 타로 덱(예: Rider-Waite-Smith의 U.S. Games Systems 채색 재판)의 실제
+  아트워크나 사진을 스캔·모사해서 쓰지 않는다.** 카드 이미지는 항상
+  `app/api/generate-card-image/route.ts`가 카드 이름·수트·아르카나 종류·정/역방향 같은
+  고정 메타데이터만으로 그때그때 새로 생성하는 AI 일러스트여야 한다. 참고 자료로 조사한
+  타로 API/오픈소스 저장소의 이미지 에셋을 이 프로젝트에 복사해 쓰지 않는다.
+- `lib/cards.ts`의 78장 카드 문구(키워드/정방향/역방향 설명)는 전통 타로 상징(공유
+  민속 지식)을 참고하되 문장은 전부 새로 쓴 것이다. 카드를 추가/수정할 때도 특정 타로
+  API·책·웹사이트의 문구를 그대로 베끼지 않는다.
+- 카드 이미지 생성 프롬프트(`buildPrompt()`)에는 "사람이 등장하면 특별한 맥락이 없는 한
+  한국인(동아시아인) 외모로 그린다"는 지시가 모든 카드에 공통으로 들어가 있다(루트
+  CLAUDE.md 플랫폼 공통 원칙 3번). 프롬프트를 수정할 때 이 지시를 빼지 않는다.
+
+---
+
+## 🔗 AIMaster 플랫폼 공통 원칙 적용 현황
+
+tarot은 AIMaster 저장소 안의 서브프로젝트이므로 "Platform-hub 구조"(서브폴더 안에서
+자기완결적으로 개발·배포)를 그대로 따른다:
+- `lib/access.ts`의 `requireProgramAccess()`(페이지/레이아웃)와 `checkProgramAccessApi()`
+  (API route)로 로그인 + `tarot-reading` 프로그램 이용 권한을 확인한다. 새 페이지나 API
+  route를 추가할 때 이 체크를 빠뜨리지 말 것.
+- 로그인 확인이 들어가는 파일에는 `dynamic = "force-dynamic"` + `fetchCache =
+  "force-no-store"`를 반드시 같이 선언한다 — `middleware.ts`, `app/layout.tsx`,
+  `app/page.tsx`, `app/draw/page.tsx`, `app/result/page.tsx`, `app/settings/page.tsx`,
+  `app/api/generate-card-image/route.ts`, `app/api/generate-reading/route.ts`에 이미
+  적용돼 있다.
+- 공용 Supabase 프로젝트(esgxyikcnnvmlhygjkth)를 그대로 쓰되, 리딩 이력을 서버에 저장하는
+  테이블은 아직 없다(의도적으로 MVP 범위에서 제외 — README.md "남은 작업" 참고). 뽑힌
+  카드/질문은 URL 쿼리스트링(`/result?cards=...&q=...`)으로만 오간다.
+- **`user_api_keys` 표준 패턴을 그대로 쓴다.** `lib/apiKeys.ts`의 `resolveApiKey()`가
+  공용 `user_api_keys`에서 회원 본인 키만 조회한다(provider: `gemini`, `openai`).
+  `/settings`(헤더 라벨 "API키등록·플랫폼연동")에서 등록/수정/삭제한다. **새로운 유료
+  API 연동을 추가할 때 BYOK/localStorage로 되돌아가지 말 것.**
+- **예외: `/api/og`는 로그인 체크에서 제외한다.** 카카오톡/페이스북 크롤러가 로그인 없이
+  이 URL을 긁어가야 공유 미리보기 카드가 정상 노출되므로, `middleware.ts`의 matcher에서
+  `api/og` 경로 자체를 뺐다. 이 경로에 실수로 로그인 체크를 추가하지 말 것.
+
+AIMaster 플랫폼과의 연결은 헤더의 "다른 프로그램 보기" 링크(`buylife.xyz/programs`)와,
+`programs`/`pricing_plans` 카탈로그 등록으로 유지한다.
+
+## 📦 Phase 진행 상태
+
+상세 내용은 README.md의 "Phase 진행 상태" 표 참고.
