@@ -33,7 +33,7 @@ variables:
 
 | 항목 | 비고 |
 |---|---|
-| threads-affiliate-poster(쓰레드 쇼핑제휴 자동화) 착수 | 계획서 있음(`C:\Users\Administrator\.claude\plans\imperative-sparking-flute.md`), 미착수. 쿠팡파트너스 API 미승인 상태 — 알리익스프레스부터 먼저 할지, 쿠팡 승인 기다릴지 결정 필요 |
+| threads-affiliate-poster(쓰레드 쇼핑제휴 자동화) 착수 | 쿠팡 파트너스 API 승인/키 등록 및 상품검색 200 OK 실호출 검증 완료. 언제든지 `threads-affiliate-poster` 자동화 작업 착수 가능 |
 | 카카오톡 자동화 백로그 나머지 | 카카오톡 공유(추천인 시스템과 결합, 프론트엔드 SDK만 필요해 가벼움), 카카오싱크(로그인 체계 확장, 큰 결정 필요) |
 
 ## 🟢 구현 완료, 실사용 검증 전
