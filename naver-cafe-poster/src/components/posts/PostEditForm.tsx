@@ -234,16 +234,11 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
 
       {/* 네이버 스마트에디터 스타일 — 상단 고정 헤더 + 아이콘 툴바 + 넓은 단일 캔버스
           (2026-09-13 요청: "네이버 편집기 스타일로", 미리보기 패널은 제거). */}
-      <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between border-b border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
-        <div className="flex items-center gap-2">
-          <Link href={`/posts/${post.id}`} className="text-sm font-medium text-neutral-500 hover:text-neutral-900">
-            ← 취소
-          </Link>
-          <span className="text-sm font-bold text-neutral-900">✏️ 게시글 편집기</span>
-        </div>
-        <Button type="submit" variant="info" disabled={isPending}>
-          {isPending ? "게시 중..." : "수정 내용 다시 등록"}
-        </Button>
+      <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center gap-2 border-b border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
+        <Link href={`/posts/${post.id}`} className="text-sm font-medium text-neutral-500 hover:text-neutral-900">
+          ← 취소
+        </Link>
+        <span className="text-sm font-bold text-neutral-900">✏️ 게시글 편집기</span>
       </div>
 
       {state.error && <p className="mb-4 text-xs text-red-600">{state.error}</p>}
@@ -511,6 +506,12 @@ export function PostEditForm({ post, targets }: { post: CafePost; targets: CafeT
               <Input value={ctaUrl} onChange={(e) => setCtaUrl(e.target.value)} placeholder="https://example.com/offer" />
             </div>
           </div>
+        </div>
+
+        <div className="flex justify-start">
+          <Button type="submit" variant="info" disabled={isPending}>
+            {isPending ? "게시 중..." : "수정 내용 다시 등록"}
+          </Button>
         </div>
       </div>
     </form>
