@@ -7,12 +7,13 @@ interface DeleteButtonProps {
   className?: string;
   label?: string;
   pendingLabel?: string;
-  variant?: "pill" | "solid";
+  variant?: "pill" | "solid" | "compact";
 }
 
 const VARIANT_CLASSES: Record<NonNullable<DeleteButtonProps["variant"]>, string> = {
   pill: "rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100",
   solid: "inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500",
+  compact: "rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-red-600",
 };
 
 export function DeleteButton({ className, label = "삭제", pendingLabel = "삭제 중...", variant = "pill" }: DeleteButtonProps) {
