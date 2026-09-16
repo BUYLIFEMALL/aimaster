@@ -16,6 +16,8 @@ import {
 } from "@/lib/actions/newsblurAccount";
 import type { NewsblurFeedSummary } from "@/lib/ai/collector";
 
+import type { ThreadsCategory } from "@/types/post";
+
 type Method = "http" | "rss" | "perplexity";
 
 const METHOD_LABELS: Record<Method, string> = {
@@ -32,6 +34,7 @@ interface CandidateCollectorProps {
   newsblurUsername: string | null;
   newsblurFeeds: NewsblurFeedSummary[];
   newsblurError: string | null;
+  categories: ThreadsCategory[];
 }
 
 export function CandidateCollector({
@@ -39,38 +42,60 @@ export function CandidateCollector({
   newsblurUsername,
   newsblurFeeds,
   newsblurError,
+  categories,
 }: CandidateCollectorProps) {
   const [method, setMethod] = useState<Method>("http");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4">
-      <div className="mb-4 flex gap-2 border-b border-neutral-200 pb-3">
-        {(Object.keys(METHOD_LABELS) as Method[]).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => setMethod(m)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-              method === m
-                ? "bg-neutral-900 text-white"
-                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
-            }`}
-          >
-            {METHOD_LABELS[m]}
-          </button>
-        ))}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 pb-3">
+        <div className="flex gap-2">
+          {(Object.keys(METHOD_LABELS) as Method[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMethod(m)}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                method === m
+                  ? "bg-neutral-900 text-white"
+                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+              }`}
+            >
+              {METHOD_LABELS[m]}
+            </button>
+          ))}
+        </div>
+        {categories.length > 0 && (
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-neutral-700">저장할 카테고리</label>
+            <select
+              value={selectedCategoryId}
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+            >
+              <option value="">카테고리 없음</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
-      {method === "http" && <HttpForm />}
+      {method === "http" && <HttpForm categoryId={selectedCategoryId} />}
       {method === "rss" && (
         <NewsblurForm
           connected={newsblurConnected}
           username={newsblurUsername}
           feeds={newsblurFeeds}
           loadError={newsblurError}
+          categoryId={selectedCategoryId}
         />
       )}
-      {method === "perplexity" && <PerplexityForm />}
+      {method === "perplexity" && <PerplexityForm categoryId={selectedCategoryId} />}
     </div>
   );
 }
@@ -81,11 +106,12 @@ function ResultMessage({ state }: { state: CollectState }) {
   return null;
 }
 
-function HttpForm() {
+function HttpForm({ categoryId }: { categoryId: string }) {
   const [state, formAction, isPending] = useActionState(collectFromHttpAction, initialCollectState);
 
   return (
     <form action={formAction} className="space-y-3">
+      <input type="hidden" name="categoryId" value={categoryId} />
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">대상 페이지 URL</label>
         <Input name="url" type="url" required placeholder="https://example.com/article/123" />
@@ -107,11 +133,13 @@ function NewsblurForm({
   username,
   feeds,
   loadError,
+  categoryId,
 }: {
   connected: boolean;
   username: string | null;
   feeds: NewsblurFeedSummary[];
   loadError: string | null;
+  categoryId: string;
 }) {
   const [state, formAction, isPending] = useActionState(collectFromRssAction, initialCollectState);
   const [saveState, saveAction, isSaving] = useActionState(saveNewsblurAccountAction, initialSaveState);
@@ -160,6 +188,7 @@ function NewsblurForm({
 
       {feeds.length > 0 && (
         <form action={formAction} className="space-y-3">
+          <input type="hidden" name="categoryId" value={categoryId} />
           <div>
             <label className="mb-1 block text-sm font-medium text-neutral-700">구독 피드 선택</label>
             <select
@@ -186,11 +215,12 @@ function NewsblurForm({
   );
 }
 
-function PerplexityForm() {
+function PerplexityForm({ categoryId }: { categoryId: string }) {
   const [state, formAction, isPending] = useActionState(collectFromPerplexityAction, initialCollectState);
 
   return (
     <form action={formAction} className="space-y-3">
+      <input type="hidden" name="categoryId" value={categoryId} />
       <div>
         <label className="mb-1 block text-sm font-medium text-neutral-700">시드 주제</label>
         <Input name="topic" required placeholder="예: 다이어트 보조제" />

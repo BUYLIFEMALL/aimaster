@@ -24,12 +24,38 @@ export interface CollectState {
   count?: number;
 }
 
+export interface MoveCandidatesState {
+  error?: string;
+  count?: number;
+}
+
+export async function moveCandidatesToCategoryAction(formData: FormData): Promise<MoveCandidatesState> {
+  const user = await requireProgramAccess();
+  const ids = formData.getAll("ids").map(String).filter(Boolean);
+  const categoryId = String(formData.get("categoryId") ?? "").trim() || null;
+
+  if (ids.length === 0) return { error: "이동할 글감 후보를 선택해주세요." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("threads_candidates")
+    .update({ category_id: categoryId })
+    .in("id", ids)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/candidates");
+  return { count: ids.length };
+}
+
 async function insertCandidates(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
   sourceType: ThreadsSourceType,
   sourceInput: string,
   drafts: ThreadsCandidateDraft[],
+  categoryId?: string | null,
 ) {
   // 한 배치로 여러 건을 insert하면 DB가 모든 행에 동일한 트랜잭션 시각을 created_at으로
   // 부여해서, "최신 생성 순" 정렬(created_at desc)이 배치 내에서는 순서를 보장하지 못한다.
@@ -43,6 +69,7 @@ async function insertCandidates(
       title: d.title,
       content: d.content,
       keywords: d.keywords ?? [],
+      category_id: categoryId || null,
       created_at: new Date(now - i).toISOString(),
     })),
   );
@@ -63,6 +90,7 @@ export async function collectFromHttpAction(
 ): Promise<CollectState> {
   const user = await requireProgramAccess();
   const url = String(formData.get("url") ?? "").trim();
+  const categoryId = String(formData.get("categoryId") ?? "").trim() || null;
   if (!url) return { error: "URL을 입력해주세요." };
 
   try {
@@ -94,7 +122,7 @@ export async function collectFromHttpAction(
         .map((a, i) => `[${i + 1}] ${a.title}\n${a.text}\n출처: ${a.url}`)
         .join("\n\n");
       const drafts = await structureThreadsCandidates({ rawText, maxItems: valid.length, apiKey: apiKey ?? "" });
-      await insertCandidates(supabase, user.id, "http", url, drafts);
+      await insertCandidates(supabase, user.id, "http", url, drafts, categoryId);
       revalidatePath("/candidates");
       return { success: true, count: drafts.length };
     }
@@ -102,7 +130,7 @@ export async function collectFromHttpAction(
     // 개별 게시글 페이지
     const text = await fetchUrlText(url);
     const drafts = await structureThreadsCandidates({ rawText: text, maxItems: 1, apiKey: apiKey ?? "" });
-    await insertCandidates(supabase, user.id, "http", url, drafts);
+    await insertCandidates(supabase, user.id, "http", url, drafts, categoryId);
     revalidatePath("/candidates");
     return { success: true, count: drafts.length };
   } catch (err) {
@@ -118,6 +146,7 @@ export async function collectFromRssAction(
   const user = await requireProgramAccess();
   const feedId = String(formData.get("feedId") ?? "").trim();
   const feedTitle = String(formData.get("feedTitle") ?? "").trim();
+  const categoryId = String(formData.get("categoryId") ?? "").trim() || null;
   if (!feedId) return { error: "구독 피드를 선택해주세요." };
 
   try {
@@ -138,7 +167,7 @@ export async function collectFromRssAction(
       .map((item, i) => `[${i + 1}] ${item.title}\n${item.text}\n출처: ${item.link}`)
       .join("\n\n");
     const drafts = await structureThreadsCandidates({ rawText, maxItems: items.length, apiKey: apiKey ?? "" });
-    await insertCandidates(supabase, user.id, "rss", feedTitle || feedId, drafts);
+    await insertCandidates(supabase, user.id, "rss", feedTitle || feedId, drafts, categoryId);
     revalidatePath("/candidates");
     return { success: true, count: drafts.length };
   } catch (err) {
@@ -153,6 +182,7 @@ export async function collectFromPerplexityAction(
 ): Promise<CollectState> {
   const user = await requireProgramAccess();
   const topic = String(formData.get("topic") ?? "").trim();
+  const categoryId = String(formData.get("categoryId") ?? "").trim() || null;
   if (!topic) return { error: "주제를 입력해주세요." };
 
   try {
@@ -161,7 +191,7 @@ export async function collectFromPerplexityAction(
     const openaiKey = await resolveApiKey(supabase, user.id, "openai");
     const trendText = await searchPerplexityTrending(topic, perplexityKey ?? "");
     const drafts = await structureThreadsCandidates({ rawText: trendText, maxItems: 5, apiKey: openaiKey ?? "" });
-    await insertCandidates(supabase, user.id, "perplexity", topic, drafts);
+    await insertCandidates(supabase, user.id, "perplexity", topic, drafts, categoryId);
     revalidatePath("/candidates");
     return { success: true, count: drafts.length };
   } catch (err) {

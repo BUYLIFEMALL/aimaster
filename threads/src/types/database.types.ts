@@ -96,6 +96,7 @@ export interface Database {
           content: string;
           keywords: string[];
           status: ThreadsCandidateStatus;
+          category_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -108,6 +109,7 @@ export interface Database {
           content: string;
           keywords?: string[];
           status?: ThreadsCandidateStatus;
+          category_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -120,8 +122,36 @@ export interface Database {
           content?: string;
           keywords?: string[];
           status?: ThreadsCandidateStatus;
+          category_id?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      threads_categories: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          color: string | null;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          color?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          color?: string | null;
+          sort_order?: number;
+          created_at?: string;
         };
         Relationships: [];
       };

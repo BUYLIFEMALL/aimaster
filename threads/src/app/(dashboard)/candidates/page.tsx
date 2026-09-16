@@ -5,8 +5,10 @@ import { newsblurLogin, fetchNewsblurFeeds, type NewsblurFeedSummary } from "@/l
 import { getRegisteredProviders } from "@/lib/apiKeys";
 import { CandidateCollector } from "@/components/candidates/CandidateCollector";
 import { CandidateList } from "@/components/candidates/CandidateList";
+import { CategoryManager } from "@/components/candidates/CategoryManager";
 import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
 import type { ApiKeyProvider, ThreadsSourceType } from "@/types/database.types";
+import type { ThreadsCategory } from "@/types/post";
 
 const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
 
@@ -23,7 +25,7 @@ export default async function CandidatesPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: candidates }, { data: newsblurAccount }, registeredProviders] = await Promise.all([
+  const [{ data: candidates }, { data: newsblurAccount }, registeredProviders, { data: categoriesData }] = await Promise.all([
     supabase
       .from("threads_candidates")
       .select("*")
@@ -31,8 +33,14 @@ export default async function CandidatesPage() {
       .order("created_at", { ascending: false }),
     supabase.from("newsblur_accounts").select("username").eq("user_id", user.id).maybeSingle(),
     getRegisteredProviders(supabase, user.id),
+    supabase
+      .from("threads_categories")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("sort_order", { ascending: true }) as unknown as Promise<{ data: ThreadsCategory[] | null }>,
   ]);
 
+  const categories: ThreadsCategory[] = categoriesData ?? [];
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 
   const sourceCounts: Record<ThreadsSourceType, number> = { http: 0, rss: 0, perplexity: 0 };
@@ -57,19 +65,23 @@ export default async function CandidatesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-neutral-900">게시글 주제 수집</h1>
-        <Link href="/posts/new" className="text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:underline">
-          수집 없이 바로 글쓰기 →
-        </Link>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <div>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold text-neutral-900">게시글 주제 수집 및 분류</h1>
+          <Link href="/posts/new" className="text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:underline">
+            수집 없이 바로 글쓰기 →
+          </Link>
+        </div>
+        <p className="text-sm text-neutral-600">
+          HTTP(특정 URL), RSS(구독 피드), Perplexity(트렌드 검색) 중 하나를 선택해서 Threads에 올릴
+          게시글 주제와 초안을 생성하고 카테고리별로 분류 관리합니다.
+        </p>
       </div>
-      <p className="mb-6 text-sm text-neutral-600">
-        HTTP(특정 URL), RSS(구독 피드), Perplexity(트렌드 검색) 중 하나를 선택해서 Threads에 올릴
-        게시글 주제와 초안을 생성합니다.
-      </p>
 
-      <div className="mb-6 grid grid-cols-3 gap-3">
+      <CategoryManager categories={categories} />
+
+      <div className="grid grid-cols-3 gap-3">
         {(Object.keys(sourceCounts) as ThreadsSourceType[]).map((type) => (
           <div key={type} className="rounded-lg border border-neutral-200 bg-white p-4">
             <div className="text-2xl font-semibold text-neutral-900">{sourceCounts[type]}</div>
@@ -80,17 +92,20 @@ export default async function CandidatesPage() {
 
       <MissingApiKeyNotice missing={missingProviders} />
 
-      <div className="mb-8">
+      <div>
         <CandidateCollector
           newsblurConnected={!!newsblurAccount}
           newsblurUsername={newsblurAccount?.username ?? null}
           newsblurFeeds={newsblurFeeds}
           newsblurError={newsblurError}
+          categories={categories}
         />
       </div>
 
-      <h2 className="mb-3 text-lg font-medium text-neutral-900">수집된 게시글 주제</h2>
-      <CandidateList candidates={candidates ?? []} />
+      <div>
+        <h2 className="mb-3 text-lg font-medium text-neutral-900">수집된 게시글 주제 ({candidates?.length ?? 0}건)</h2>
+        <CandidateList candidates={candidates ?? []} categories={categories} />
+      </div>
     </div>
   );
 }

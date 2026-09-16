@@ -2,6 +2,8 @@ import type { Database, PostStatus } from "./database.types";
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 export type ThreadsAccount = Database["public"]["Tables"]["threads_accounts"]["Row"];
+export type ThreadsCandidate = Database["public"]["Tables"]["threads_candidates"]["Row"];
+export type ThreadsCategory = Database["public"]["Tables"]["threads_categories"]["Row"];
 
 export type { PostStatus };
 
