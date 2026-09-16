@@ -156,7 +156,9 @@ export default function DashboardPage() {
                 게시글 주제 수집
               </Link>
               에서 최신 트렌드·키워드로 글감 후보를 모으거나, 바로 AI 글쓰기로 넘어가 주제를 직접
-              입력해도 됩니다.
+              입력해도 됩니다. 카테고리 관리에서 만들어둔 카테고리를 수집 시 바로 지정할 수 있고,
+              이미 모아둔 후보도 체크박스로 1건씩 또는 여러 건을 한꺼번에 선택해 카테고리를
+              재분류할 수 있습니다.
             </li>
             <li>
               <Link href={`${basePath}/write/ai-form`} className="font-medium text-blue-600 hover:underline">
