@@ -158,7 +158,7 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
                     href={`/drafts?${writeParams.toString()}`}
                     className="rounded-full bg-green-600 px-2.5 py-1 text-[11px] font-bold text-white transition-colors hover:bg-green-700"
                   >
-                    이 후보로 초안 만들기
+                    이 주제로 게시글 만들기
                   </Link>
                   <form action={deleteCandidateAction}>
                     <input type="hidden" name="id" value={c.id} />
