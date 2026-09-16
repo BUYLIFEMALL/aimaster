@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { computeWebhookSecret } from "@/lib/telegram/webhookSecret";
 import { answerTelegramCallbackQuery, editTelegramMessageStatus } from "@/lib/telegram/client";
 import { sendReportToKakaoCore } from "@/lib/kakaoSend";
+import { resolveKakaoAppCredentials } from "@/lib/kakao/account";
 
 export const dynamic = "force-dynamic";
 
@@ -76,7 +77,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   let statusLine = "";
 
   if (action === "kakao_send") {
-    const result = await sendReportToKakaoCore(admin, userId, reportId);
+    const kakaoCredentials = await resolveKakaoAppCredentials(admin, userId);
+    const result = await sendReportToKakaoCore(admin, userId, reportId, kakaoCredentials);
     if (result.error) {
       await admin.from("kakao_reports").update({ telegram_review_status: "approved" }).eq("id", reportId);
       toastText = result.error;

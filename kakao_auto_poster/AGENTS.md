@@ -84,6 +84,19 @@ kakao_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
   쓴다. Phase 2부터는 공용 `user_solapi_accounts`(카카오 채널 발송), Phase 3부터는 공용
   `user_telegram_links`(카카오 발행 전 사전 검토, `program_slug='kakao-auto-posting'`)도
   함께 쓴다.
+- **카카오 로그인("나에게 보내기")도 2026-09-16부터 BYOK로 전환됨**: 예전엔
+  `KAKAO_REST_API_KEY`/`KAKAO_CLIENT_SECRET` 환경변수(앱 공용 카카오 앱)로 OAuth를 했으나,
+  그 앱이 카카오의 "비즈니스 앱 전환" 심사를 받지 않은 동안은 앱의 테스터로 등록된 계정
+  (운영자 본인)만 로그인을 완료할 수 있는 문제가 있었다(threads의 meta_app_id 전환과 동일한
+  원인). 회원마다 본인이 만든 카카오 앱의 REST API 키/Client Secret을 설정 페이지에서
+  `user_api_keys`(`kakao_rest_api_key`/`kakao_client_secret`, 마이그레이션
+  `0018_kakao_login_byok.sql`)에 등록하고 `resolveKakaoAppCredentials()`(`lib/kakao/account.ts`)로
+  조회해서 쓰는 방식으로 바꿨다(`lib/kakao/client.ts`가 `restApiKey`/`clientSecret`을
+  파라미터로 받음). `KAKAO_REDIRECT_URI`(콜백 주소, 회원과 무관하게 고정)만 env var로 남고
+  `KAKAO_REST_API_KEY`/`KAKAO_CLIENT_SECRET`은 더 이상 코드에서 읽지 않는다. 전환 전 이미
+  연동된 기존 `user_kakao_accounts` 토큰은 삭제하지 않아 access_token이 살아있는 동안은 계속
+  동작하지만, refresh가 필요해지는 시점부터는 본인 앱 등록이 있어야 갱신되고(없으면
+  SOLAPI 경로로 자동 폴백), 재연결도 본인 앱 등록이 선행돼야 한다.
 
 ## 📦 Phase 진행 상태
 

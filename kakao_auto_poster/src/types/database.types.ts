@@ -1,4 +1,10 @@
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
+export type ApiKeyProvider =
+  | "openai"
+  | "anthropic"
+  | "gemini"
+  | "perplexity"
+  | "kakao_rest_api_key"
+  | "kakao_client_secret";
 export type ReportSourceType = "perplexity";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];

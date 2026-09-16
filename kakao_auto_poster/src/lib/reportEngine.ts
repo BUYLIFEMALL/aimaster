@@ -6,6 +6,7 @@ import { searchPerplexityInfo, structureKakaoReport } from "@/lib/ai/collector";
 import { requestTelegramReviewForReport } from "@/lib/telegramReview";
 import { notifyReportByEmail } from "@/lib/emailNotify";
 import { sendReportToKakaoCore } from "@/lib/kakaoSend";
+import { resolveKakaoAppCredentials } from "@/lib/kakao/account";
 import { generateAndUploadReportImage } from "@/lib/ai/reportImage";
 import { toEditorHtml } from "@/lib/reportContent";
 
@@ -67,7 +68,8 @@ export async function generateReportForTopic(
   // 같이 켜둔 경우 승인 요청 메시지도 별도로 가는데, 이미 발행된 뒤라 그 버튼은
   // 형식상 의미가 없어진다는 점은 참고.
   if (topic.notify_channels.includes("kakao")) {
-    await sendReportToKakaoCore(supabase, userId, inserted.id);
+    const kakaoCredentials = await resolveKakaoAppCredentials(supabase, userId);
+    await sendReportToKakaoCore(supabase, userId, inserted.id, kakaoCredentials);
   }
 
   if (topic.notify_channels.includes("telegram")) {

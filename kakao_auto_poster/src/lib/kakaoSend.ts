@@ -1,6 +1,6 @@
 import "server-only";
 import { sendAlimtalk, sendFriendtalk, type SolapiAccountCredentials } from "@/lib/solapi/client";
-import { getValidKakaoAccessToken } from "@/lib/kakao/account";
+import { getValidKakaoAccessToken, type KakaoAppCredentials } from "@/lib/kakao/account";
 import { sendReportMemoToMe } from "@/lib/kakao/client";
 import { sendEmailFallback } from "@/lib/emailFallback";
 import { buildReportNotificationEmail } from "@/lib/email/reportEmail";
@@ -19,6 +19,11 @@ export async function sendReportToKakaoCore(
   supabase: SupabaseLike,
   userId: string,
   reportId: string,
+  // 회원 본인의 카카오 앱 REST API 키/Client Secret(resolveKakaoAppCredentials()로 호출부가
+  // 미리 조회해서 넘긴다 — 이 함수는 SupabaseLike 타입만 받아 resolveApiKey()가 요구하는
+  // SupabaseClient<Database> 타입을 직접 호출할 수 없다). 없으면(본인 앱 미등록) 카카오
+  // 로그인 발송은 자동으로 건너뛰고 SOLAPI 경로로 폴백한다.
+  kakaoCredentials: KakaoAppCredentials | null = null,
 ): Promise<{ error?: string; success?: boolean }> {
   const { data: report } = await supabase
     .from("kakao_reports")
@@ -51,7 +56,7 @@ export async function sendReportToKakaoCore(
   try {
     // 카카오 로그인("나에게 보내기")이 연동되어 있으면 무료 채널을 우선 사용하고, 없으면
     // 기존 SOLAPI(카카오 채널) 경로로 자동 전환한다 — 둘 다 없으면 설정 안내로 에러를 준다.
-    const kakaoAccessToken = await getValidKakaoAccessToken(supabase, userId);
+    const kakaoAccessToken = await getValidKakaoAccessToken(supabase, userId, kakaoCredentials);
     if (kakaoAccessToken) {
       await sendReportMemoToMe(kakaoAccessToken, {
         title: report.title,

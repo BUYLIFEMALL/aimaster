@@ -6,6 +6,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { sendReportToKakaoCore } from "@/lib/kakaoSend";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { resolveKakaoAppCredentials } from "@/lib/kakao/account";
 import { generateAndUploadReportImage } from "@/lib/ai/reportImage";
 
 export interface SendKakaoState {
@@ -28,7 +29,8 @@ export async function sendReportToKakaoAction(
   if (!reportId) return { error: "리포트를 찾을 수 없습니다." };
 
   const supabase = await createClient();
-  const result = await sendReportToKakaoCore(supabase, user.id, reportId);
+  const kakaoCredentials = await resolveKakaoAppCredentials(supabase, user.id);
+  const result = await sendReportToKakaoCore(supabase, user.id, reportId, kakaoCredentials);
   revalidatePath(`/reports/${reportId}`);
   return result;
 }

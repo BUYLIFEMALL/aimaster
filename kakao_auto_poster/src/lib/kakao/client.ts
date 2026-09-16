@@ -9,6 +9,14 @@ import "server-only";
 // 클릭 없이 즉시 발송된다 — https://developers.kakao.com/docs/ko/kakaotalk-message/common
 // 참고. 기존 SOLAPI 방식(카카오 채널 개설 + SOLAPI 계정 필요, 건당 과금)의 진입장벽을 낮추는
 // 대안 채널이다.
+//
+// REST API 키/Client Secret은 더 이상 앱(운영자) 공용 환경변수(KAKAO_REST_API_KEY/
+// KAKAO_CLIENT_SECRET)를 읽지 않고, 호출부(Server Action/콜백 라우트)가
+// resolveKakaoAppCredentials()로 조회한 "본인 계정의" 값을 파라미터로 받는다 — 카카오 앱이
+// 카카오의 "비즈니스 앱 전환" 심사를 받지 않은 동안은 그 앱에 테스터로 등록된 계정만 로그인을
+// 완료할 수 있어, 운영자 공용 앱 하나로는 운영자 본인 외 다른 회원이 연결할 수 없었기
+// 때문이다(threads/threads-affiliate-poster의 meta_app_id/meta_app_secret 전환과 동일한
+// BYOK 패턴, 2026-09-16).
 const AUTHORIZE_BASE = "https://kauth.kakao.com/oauth/authorize";
 const TOKEN_BASE = "https://kauth.kakao.com/oauth/token";
 const API_BASE = "https://kapi.kakao.com";
@@ -46,9 +54,9 @@ async function parseKakaoResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
-export function getKakaoAuthorizeUrl(state: string): string {
+export function getKakaoAuthorizeUrl(state: string, restApiKey: string): string {
   const params = new URLSearchParams({
-    client_id: getEnv("KAKAO_REST_API_KEY"),
+    client_id: restApiKey,
     redirect_uri: getEnv("KAKAO_REDIRECT_URI"),
     response_type: "code",
     scope: KAKAO_SCOPES,
@@ -57,16 +65,19 @@ export function getKakaoAuthorizeUrl(state: string): string {
   return `${AUTHORIZE_BASE}?${params.toString()}`;
 }
 
-export async function exchangeCodeForToken(code: string): Promise<KakaoTokenResponse> {
+export async function exchangeCodeForToken(
+  code: string,
+  restApiKey: string,
+  clientSecret?: string | null,
+): Promise<KakaoTokenResponse> {
   const form: Record<string, string> = {
     grant_type: "authorization_code",
-    client_id: getEnv("KAKAO_REST_API_KEY"),
+    client_id: restApiKey,
     redirect_uri: getEnv("KAKAO_REDIRECT_URI"),
     code,
   };
   // Client Secret은 카카오 개발자 콘솔에서 "활성화" 설정을 켠 경우에만 필요하다 — 안 켰으면
-  // 빈 값으로 둬도 되므로 필수 환경변수로 강제하지 않는다.
-  const clientSecret = process.env.KAKAO_CLIENT_SECRET;
+  // 등록하지 않아도 되므로 필수로 강제하지 않는다.
   if (clientSecret) form.client_secret = clientSecret;
 
   const response = await fetch(TOKEN_BASE, {
@@ -77,13 +88,16 @@ export async function exchangeCodeForToken(code: string): Promise<KakaoTokenResp
   return parseKakaoResponse<KakaoTokenResponse>(response);
 }
 
-export async function refreshAccessToken(refreshToken: string): Promise<KakaoTokenResponse> {
+export async function refreshAccessToken(
+  refreshToken: string,
+  restApiKey: string,
+  clientSecret?: string | null,
+): Promise<KakaoTokenResponse> {
   const form: Record<string, string> = {
     grant_type: "refresh_token",
-    client_id: getEnv("KAKAO_REST_API_KEY"),
+    client_id: restApiKey,
     refresh_token: refreshToken,
   };
-  const clientSecret = process.env.KAKAO_CLIENT_SECRET;
   if (clientSecret) form.client_secret = clientSecret;
 
   const response = await fetch(TOKEN_BASE, {

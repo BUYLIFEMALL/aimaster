@@ -10,7 +10,14 @@ export interface SaveApiKeyState {
   success?: boolean;
 }
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity"];
+const VALID_PROVIDERS: ApiKeyProvider[] = [
+  "openai",
+  "anthropic",
+  "gemini",
+  "perplexity",
+  "kakao_rest_api_key",
+  "kakao_client_secret",
+];
 
 export async function saveApiKeyAction(
   _prevState: SaveApiKeyState,

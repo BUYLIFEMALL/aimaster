@@ -109,12 +109,26 @@ Phase별 상세 내용과 실계정 검증 현황은 이 폴더의 [`AGENTS.md`]
 
 ## 환경 변수
 
-`.env.local.example` 참고. Supabase 접속 정보 + `CRON_SECRET`(Phase 3용) + Phase 4 카카오
-로그인용 앱 자격증명(`KAKAO_REST_API_KEY`/`KAKAO_CLIENT_SECRET`/`KAKAO_REDIRECT_URI` — threads의
-Meta 앱과 동일한 성격으로, 프로젝트당 1개만 등록하고 회원 각자는 이 앱을 통해 개별 로그인/동의)
-이 전부다(2026-09-10 Vercel 프로덕션에 전부 등록 완료 확인). Perplexity/OpenAI 등 AI 키와
-SOLAPI/SMTP 연동은 전부 회원 본인이 `/settings`에서 등록하는 BYOK 방식이라 이 앱 자체의
-환경변수로는 등록하지 않는다.
+`.env.local.example` 참고. Supabase 접속 정보 + `CRON_SECRET`(Phase 3용) + `KAKAO_REDIRECT_URI`
+(카카오 로그인 OAuth 콜백 주소, 이 앱 배포 도메인 기준으로 고정된 값이라 회원과 무관하게
+환경변수로 둔다)가 전부다. Perplexity/OpenAI 등 AI 키, SOLAPI/SMTP 연동, 그리고 카카오 로그인
+앱 자격증명(`kakao_rest_api_key`/`kakao_client_secret`)까지 전부 회원 본인이 `/settings`에서
+등록하는 BYOK 방식이라 이 앱 자체의 환경변수로는 등록하지 않는다.
+
+**카카오 로그인 BYOK 전환(2026-09-16)**: 처음엔 `KAKAO_REST_API_KEY`/`KAKAO_CLIENT_SECRET`
+환경변수(운영자 공용 카카오 앱) 하나로 전 회원이 로그인했는데, 그 앱이 카카오의 "비즈니스 앱
+전환" 심사를 받지 않은 동안은 카카오 개발자 콘솔에 테스터로 등록된 계정(운영자 본인)만
+로그인을 완료할 수 있어, 다른 회원은 카카오 로그인 연동 자체가 불가능했다(threads의 Meta 앱
+Development 모드 제약과 동일한 구조의 문제 — 2026-09-16 threads/threads-affiliate-poster에서
+먼저 발견·수정됨). `user_api_keys`에 `kakao_rest_api_key`/`kakao_client_secret` provider를
+추가해(`supabase/migrations/0018_kakao_login_byok.sql`) 회원마다 본인이 만든 카카오 앱의 REST
+API 키/Client Secret을 설정 페이지에 등록하고 `resolveKakaoAppCredentials()`
+(`lib/kakao/account.ts`)로 조회해서 쓰도록 바꿨다. `KAKAO_REDIRECT_URI`(콜백 주소 자체는
+회원과 무관하게 이 앱의 고정 도메인 값)만 환경변수로 남긴다. 전환 전에 이미 연동됐던 기존
+`user_kakao_accounts` 토큰(예: buylifemall@gmail.com)은 삭제하지 않아 access_token이 유효한
+동안은 그대로 발송되지만, 만료돼 refresh_token으로 갱신해야 하는 시점부터는 본인 카카오 앱을
+등록해야만 갱신되고(안 하면 `getValidKakaoAccessToken()`이 null을 반환해 SOLAPI 발송 경로로
+자연스럽게 폴백), 재연결(연동 해제 후 재로그인) 자체도 본인 앱 등록이 있어야만 시작된다.
 
 ## 남은 작업 / 미검증 항목
 

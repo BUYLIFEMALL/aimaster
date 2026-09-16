@@ -11,6 +11,13 @@ import type { ApiKeyProvider } from "@/types/database.types";
 
 const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
 
+// 카카오 로그인("나에게 보내기") 연동에 필요한 회원 본인의 카카오 앱 자격증명 — 2026-09-16부터
+// 앱(운영자) 공용 카카오 앱 대신 회원 각자 본인 앱을 등록하는 BYOK 방식으로 전환했다(카카오
+// 앱이 "비즈니스 앱 전환" 심사를 받지 않은 동안은 테스터로 등록된 계정만 로그인이 가능해,
+// 공용 앱 하나로는 운영자 본인 외 다른 회원이 연결할 수 없었기 때문 — threads의
+// meta_app_id/meta_app_secret 전환과 동일한 이유).
+const KAKAO_PROVIDERS: ApiKeyProvider[] = ["kakao_rest_api_key", "kakao_client_secret"];
+
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
 // 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
 // 2026-09-13). 카카오 로그인("나에게 보내기")은 아직 매뉴얼이 없어 대상에서 뺐다.
@@ -47,9 +54,14 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
   },
 ];
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kakao_connected?: string; error?: string }>;
+}) {
   const user = await requireUser();
   const supabase = await createClient();
+  const { kakao_connected, error } = await searchParams;
 
   const [{ data: keys }, { data: kakaoAccount }, { data: smtpAccount }, { data: solapiAccount }, { data: telegramLink }] =
     await Promise.all([
@@ -83,6 +95,24 @@ export default async function SettingsPage() {
       <p className="mb-6 text-sm text-neutral-600">
         정보 콘텐츠 생성 기능 사용 전 본인의 API 키를 등록해야 합니다.
       </p>
+
+      {kakao_connected && (
+        <div className="mb-5 rounded-lg border border-green-300 bg-green-50 p-4 text-sm text-green-800">
+          카카오 로그인이 성공적으로 연동되었습니다.
+        </div>
+      )}
+      {error === "kakao_app_missing" && (
+        <div className="mb-5 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          카카오 로그인으로 연동하려면 먼저 아래 &quot;💛 카카오 로그인으로 받기&quot; 섹션에서
+          본인의 카카오 REST API 키를 등록해주세요.
+        </div>
+      )}
+      {error && error !== "kakao_app_missing" && (
+        <div className="mb-5 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          카카오 로그인 연동에 실패했습니다. 다시 시도해주세요.
+        </div>
+      )}
+
       <div className="space-y-5">
         {SECTIONS.map((section) => (
           <div key={section.title} className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
@@ -104,6 +134,37 @@ export default async function SettingsPage() {
         ))}
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
+          <div className="mb-4 space-y-2 text-xs text-neutral-500">
+            <p className="text-sm font-bold text-neutral-900">🔑 카카오 앱 등록 (카카오 로그인 연동용)</p>
+            <p>
+              카카오 로그인은 developers.kakao.com에서 <b>본인 명의로 카카오 앱을 직접 만들고</b>
+              아래 REST API 키를 등록해야 연동할 수 있습니다(앱이 카카오의 &quot;비즈니스 앱
+              전환&quot; 심사를 받지 않은 동안은, 그 앱의 &quot;앱 설정 &gt; 카카오 로그인 &gt;
+              보안&quot; 또는 &quot;역할&quot; 메뉴에서 테스터로 등록된 계정만 로그인을 완료할 수
+              있으니, 본인 카카오 계정도 함께 테스터로 추가해주세요).
+            </p>
+            <p>
+              앱 생성 후 &quot;제품 설정 &gt; 카카오 로그인 &gt; Redirect URI&quot;에 아래 콜백
+              주소를 등록하고, &quot;앱 설정 &gt; 앱 키&quot;에서 REST API 키를 복사해 아래에
+              입력해주세요. Client Secret은 &quot;보안 &gt; Client Secret&quot;을 활성화한
+              경우에만 필요합니다(활성화하지 않았다면 비워둬도 됩니다).
+            </p>
+            <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">
+              {process.env.NEXT_PUBLIC_SITE_URL ?? "https://kakaoautoposter.vercel.app"}/api/kakao/callback
+            </code>
+          </div>
+
+          <div className="mb-4 space-y-3">
+            {KAKAO_PROVIDERS.map((provider) => (
+              <ApiKeyRow
+                key={provider}
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+            ))}
+          </div>
+
           <KakaoAccountSection account={kakaoAccount ?? null} />
         </div>
 

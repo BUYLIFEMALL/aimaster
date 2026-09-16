@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { exchangeCodeForToken, getKakaoUserProfile } from "@/lib/kakao/client";
+import { resolveKakaoAppCredentials } from "@/lib/kakao/account";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -36,8 +37,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${siteUrl}/settings?error=no_access`);
   }
 
+  // 본인 카카오 앱의 REST API 키가 등록돼 있어야 토큰 교환이 가능하다 — 연결 시작 시점
+  // (connectKakaoAccountAction)에서 이미 확인했지만, 콜백에 직접 요청이 오는 경로(재시도 등)
+  // 대비로 여기서도 한 번 더 확인한다.
+  const credentials = await resolveKakaoAppCredentials(supabase, user.id);
+  if (!credentials) {
+    return NextResponse.redirect(`${siteUrl}/settings?error=kakao_app_missing`);
+  }
+
   try {
-    const token = await exchangeCodeForToken(code);
+    const token = await exchangeCodeForToken(code, credentials.restApiKey, credentials.clientSecret);
     const profile = await getKakaoUserProfile(token.access_token);
 
     const tokenExpiresAt = new Date(Date.now() + token.expires_in * 1000).toISOString();

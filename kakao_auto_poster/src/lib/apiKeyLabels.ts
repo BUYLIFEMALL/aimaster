@@ -7,4 +7,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   anthropic: "Anthropic (Claude)",
   gemini: "Google (Gemini)",
   perplexity: "Perplexity (실시간 뉴스/정보 검색)",
+  kakao_rest_api_key: "카카오 REST API 키 (카카오 로그인 연동)",
+  kakao_client_secret: "카카오 Client Secret (선택)",
 };
