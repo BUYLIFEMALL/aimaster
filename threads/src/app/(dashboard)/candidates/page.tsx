@@ -10,6 +10,8 @@ import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
 import type { ApiKeyProvider, ThreadsSourceType } from "@/types/database.types";
 import type { ThreadsCategory } from "@/types/post";
 
+import { getThreadsCategories } from "@/lib/actions/categories";
+
 const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
 
 export const dynamic = "force-dynamic";
@@ -25,7 +27,7 @@ export default async function CandidatesPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: candidates }, { data: newsblurAccount }, registeredProviders, { data: categoriesData }] = await Promise.all([
+  const [{ data: candidates }, { data: newsblurAccount }, registeredProviders, categories] = await Promise.all([
     supabase
       .from("threads_candidates")
       .select("*")
@@ -33,14 +35,9 @@ export default async function CandidatesPage() {
       .order("created_at", { ascending: false }),
     supabase.from("newsblur_accounts").select("username").eq("user_id", user.id).maybeSingle(),
     getRegisteredProviders(supabase, user.id),
-    supabase
-      .from("threads_categories")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("sort_order", { ascending: true }) as unknown as Promise<{ data: ThreadsCategory[] | null }>,
+    getThreadsCategories(supabase, user.id),
   ]);
 
-  const categories: ThreadsCategory[] = categoriesData ?? [];
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 
   const sourceCounts: Record<ThreadsSourceType, number> = { http: 0, rss: 0, perplexity: 0 };
