@@ -19,7 +19,7 @@ import {
   SquarePen,
 } from 'lucide-react'
 import { getBlogBasePath } from '@/blog/utils/basePath'
-import { stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
+import { stripImageGenerationSchema, wrapImagePromptSection, unwrapImagePromptSection } from '@/blog/utils/stripImageSchema'
 import RichTextEditor from '@/blog/components/RichTextEditor'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
@@ -123,9 +123,12 @@ export default function PostEditPage() {
 
         // ⚙️ 이미지 생성 API 요청 스키마 디버그 블록은 편집 화면에 보일 필요가 없어 제거한다.
         const original = stripImageGenerationSchema(postData.content || '')
-        // 비주얼 모드: 원본 그대로 (실제 이미지 포함!)
-        setRawContent(original)
-        // 코드 모드: Base64 이미지를 [첨부이미지 N] 으로 치환
+        // 비주얼 모드: 원본 그대로(실제 이미지 포함!) + "생성 이미지 AI 프롬프트" 섹션은
+        // 실제 본문과 구분되도록 박스로 감싸서 보여준다(화면 표시용 — 저장 시에는
+        // unwrapImagePromptSection으로 다시 풀어서 저장 콘텐츠 구조에 영향 없게 한다).
+        setRawContent(wrapImagePromptSection(original))
+        // 코드 모드: 저장되는 실제 형태 그대로 보여준다(박스 래핑 없이) — Base64 이미지는
+        // [첨부이미지 N] 으로 치환.
         setCodeContent(replaceBase64WithImageTags(original))
 
         setSelectedCategoryIds(postData.category_ids || [])
@@ -199,7 +202,9 @@ export default function PostEditPage() {
   }
 
   const switchToCode = () => {
-    setCodeContent(replaceBase64WithImageTags(rawContent))
+    // 코드 모드는 실제 저장 형태를 그대로 보여줘야 하므로, 화면 표시용으로 씌운
+    // AI 프롬프트 박스 래핑을 먼저 풀고 나서 이미지를 [첨부이미지 N]으로 치환한다.
+    setCodeContent(replaceBase64WithImageTags(unwrapImagePromptSection(rawContent)))
     setEditorMode('code')
   }
 
@@ -214,8 +219,11 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
-      // 어떤 모드든 이미지를 [첨부이미지 N] 태그로 치환하여 경량 전송
-      const finalContent = editorMode === 'visual' ? replaceBase64WithImageTags(rawContent) : codeContent
+      // 어떤 모드든 이미지를 [첨부이미지 N] 태그로 치환하여 경량 전송. 비주얼 모드는 화면
+      // 표시용으로 씌운 AI 프롬프트 박스 래핑을 저장 전에 반드시 풀어서, 실제 저장되는
+      // 콘텐츠 구조가 이 화면 표시 방식과 무관하게 그대로 유지되게 한다.
+      const finalContent =
+        editorMode === 'visual' ? replaceBase64WithImageTags(unwrapImagePromptSection(rawContent)) : codeContent
 
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',

@@ -18,3 +18,37 @@ export function stripImageGenerationSchema(html: string): string {
     .replace(SCHEMA_TITLE_SUFFIX_PATTERN, '')
     .replace(SCHEMA_INTRO_PHRASE_PATTERN, '')
 }
+
+// "🎨 생성 이미지 AI 프롬프트"(utils/news/generator.ts가 "### 🎨 생성 이미지 AI 프롬프트..."로
+// 만드는 마크다운 → mdLiteToHtml이 <h3>로 변환)로 시작해서 콘텐츠 맨 끝까지 이어지는 섹션을
+// 에디터 화면에서만 실제 본문과 구분되는 박스로 감싼다(사용자 지시, 2026-09-16 — "생성 이미지
+// AI 프롬프트 위에 콘텐츠 내용과 분리되도록 박스쳐서 분리"). 저장되는 실제 콘텐츠 구조는
+// 건드리지 않도록, posts/[id]/edit/page.tsx가 화면에 보여줄 때만 감싸고 저장 직전에는
+// unwrapImagePromptSection()으로 다시 풀어서 보낸다.
+const PROMPT_SECTION_HEADING_MARKER = '🎨 생성 이미지 AI 프롬프트'
+export const AI_IMAGE_PROMPT_BOX_CLASS = 'ai-image-prompt-box'
+const AI_IMAGE_PROMPT_BOX_STYLE =
+  'margin-top:2rem;padding:1.25rem 1.5rem;border:1px solid #e2e8f0;border-radius:0.75rem;background:#f8fafc;'
+
+export function wrapImagePromptSection(html: string): string {
+  if (!html || html.includes(AI_IMAGE_PROMPT_BOX_CLASS)) return html
+  const markerIdx = html.indexOf(PROMPT_SECTION_HEADING_MARKER)
+  if (markerIdx === -1) return html
+  const h3Idx = html.lastIndexOf('<h3', markerIdx)
+  if (h3Idx === -1) return html
+  const before = html.slice(0, h3Idx)
+  const section = html.slice(h3Idx)
+  return `${before}<div class="${AI_IMAGE_PROMPT_BOX_CLASS}" style="${AI_IMAGE_PROMPT_BOX_STYLE}">${section}</div>`
+}
+
+const WRAP_OPEN_PATTERN = new RegExp(`<div class="${AI_IMAGE_PROMPT_BOX_CLASS}"[^>]*>`)
+
+export function unwrapImagePromptSection(html: string): string {
+  if (!html || !html.includes(AI_IMAGE_PROMPT_BOX_CLASS)) return html
+  let result = html.replace(WRAP_OPEN_PATTERN, '')
+  const lastDivIdx = result.lastIndexOf('</div>')
+  if (lastDivIdx !== -1) {
+    result = result.slice(0, lastDivIdx) + result.slice(lastDivIdx + '</div>'.length)
+  }
+  return result
+}
