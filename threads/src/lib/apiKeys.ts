@@ -22,7 +22,13 @@ export async function getUserApiKey(
     .eq("provider", provider)
     .maybeSingle();
 
-  return data?.api_key ?? null;
+  if (!data?.api_key) return null;
+  // Fallback JSON 데이터로 오염된 값은 실제 API key로 취급하지 않는다.
+  if (data.api_key.startsWith("CAT_JSON:") || data.api_key.startsWith("CAND_MAP_JSON:")) {
+    return null;
+  }
+
+  return data.api_key;
 }
 
 /** 본인 키만 사용한다 — 앱/운영자 공용 키로 폴백하지 않는다(2026-08-12 정책, 루트 CLAUDE.md

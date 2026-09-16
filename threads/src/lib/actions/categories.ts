@@ -30,13 +30,13 @@ export async function getThreadsCategories(
     // ignore table missing error
   }
 
-  // Fallback: user_api_keys 에서 'threads_categories_backup' 호환 키 조회
+  // Fallback: user_api_keys 에서 'threads_categories_backup' 호환 키 조회 (meta_app_secret 분리 저장소)
   try {
     const { data } = await supabase
       .from("user_api_keys")
       .select("api_key")
       .eq("user_id", userId)
-      .eq("provider", "openai")
+      .eq("provider", "meta_app_secret")
       .maybeSingle();
 
     if (data?.api_key && data.api_key.startsWith("CAT_JSON:")) {
@@ -61,7 +61,7 @@ async function saveFallbackCategories(
   await supabase
     .from("user_api_keys")
     .upsert(
-      { user_id: userId, provider: "openai", api_key: jsonVal, updated_at: new Date().toISOString() },
+      { user_id: userId, provider: "meta_app_secret", api_key: jsonVal, updated_at: new Date().toISOString() },
       { onConflict: "user_id,provider" },
     );
 }
@@ -76,7 +76,7 @@ export async function getCandidateCategoryMap(
       .from("user_api_keys")
       .select("api_key")
       .eq("user_id", userId)
-      .eq("provider", "perplexity")
+      .eq("provider", "meta_app_id")
       .maybeSingle();
 
     if (data?.api_key && data.api_key.startsWith("CAND_MAP_JSON:")) {
@@ -99,7 +99,7 @@ export async function saveCandidateCategoryMap(
   await supabase
     .from("user_api_keys")
     .upsert(
-      { user_id: userId, provider: "perplexity", api_key: jsonVal, updated_at: new Date().toISOString() },
+      { user_id: userId, provider: "meta_app_id", api_key: jsonVal, updated_at: new Date().toISOString() },
       { onConflict: "user_id,provider" },
     );
 }

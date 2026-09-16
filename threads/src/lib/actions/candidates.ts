@@ -262,14 +262,26 @@ export async function collectFromPerplexityAction(
   try {
     const supabase = await createClient();
     const perplexityKey = await resolveApiKey(supabase, user.id, "perplexity");
+    if (!perplexityKey) {
+      return {
+        error: "Perplexity API 키가 등록되어 있지 않습니다. [설정 페이지](/settings)에서 Perplexity API 키(pplx-...)를 먼저 등록해 주세요.",
+      };
+    }
+
     const openaiKey = await resolveApiKey(supabase, user.id, "openai");
-    const trendText = await searchPerplexityTrending(topic, perplexityKey ?? "");
+    const trendText = await searchPerplexityTrending(topic, perplexityKey);
     const drafts = await structureThreadsCandidates({ rawText: trendText, maxItems: 5, apiKey: openaiKey ?? "" });
     await insertCandidates(supabase, user.id, "perplexity", topic, drafts, categoryId);
     revalidatePath("/candidates");
     return { success: true, count: drafts.length };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다." };
+    const msg = err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.";
+    if (msg.includes("401") || msg.includes("invalid_api_key") || msg.includes("Invalid API key")) {
+      return {
+        error: "Perplexity API 키가 유효하지 않습니다(401). [설정 페이지](/settings)에서 발급받으신 Perplexity API 키(pplx-...)를 다시 입력해 주세요.",
+      };
+    }
+    return { error: msg };
   }
 }
 
