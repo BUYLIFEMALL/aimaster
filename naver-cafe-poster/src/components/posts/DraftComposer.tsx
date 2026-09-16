@@ -265,6 +265,30 @@ export function DraftComposer({
         </p>
       </div>
 
+      {/* 제목/본문(참고 자료) — 이 화면에 들어와서 가장 먼저 눈에 띄고 손대야 하는 내용이라
+          맨 위 블록으로 옮겼다(2026-09-16 사용자 요청). */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-bold text-neutral-700">제목</label>
+        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+        <p className="text-[11px] text-neutral-500">
+          "AI 초안생성"을 누르면 이 제목을 주제로 삼아 AI가 본문을 새로 작성합니다.
+        </p>
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-xs font-bold text-neutral-700">본문 (참고 자료)</label>
+        <Textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows={10}
+          autoGrow
+        />
+        <p className="text-[11px] text-neutral-500">
+          여기 있는 내용(글감 수집 등에서 넘어온 원본)은 AI가 참고할 자료입니다. "AI 초안생성"을
+          누르면 이 내용을 바탕으로 세부 옵션을 반영해 완성도 있는 본문으로 새로 작성됩니다.
+          {ctaText.trim() && ctaUrl.trim() && " 추천 링크도 끝에 자동으로 붙습니다."}
+        </p>
+      </div>
+
       {/* 카페 선택 — 예전엔 "AI 맞춤 자동 글쓰기" 섹션에만 있었는데, 그 섹션이 별도 메뉴로
           빠지면서 여기로 옮겨왔다. 저장할 때 어느 카페에 등록할지는 이 화면에서 정한다. */}
       <div className="space-y-2 rounded-xl border border-neutral-200 bg-white p-4">
@@ -411,28 +435,6 @@ export function DraftComposer({
             placeholder="꼭 다뤄야 할 내용, 피해야 할 내용, 특정 브랜드/서비스 언급 등 (선택)"
           />
         </div>
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-xs font-bold text-neutral-700">제목</label>
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-        <p className="text-[11px] text-neutral-500">
-          "AI 초안생성"을 누르면 이 제목을 주제로 삼아 AI가 본문을 새로 작성합니다.
-        </p>
-      </div>
-      <div className="space-y-1.5">
-        <label className="text-xs font-bold text-neutral-700">본문 (참고 자료)</label>
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={10}
-          autoGrow
-        />
-        <p className="text-[11px] text-neutral-500">
-          여기 있는 내용(글감 수집 등에서 넘어온 원본)은 AI가 참고할 자료입니다. "AI 초안생성"을
-          누르면 이 내용을 바탕으로 세부 옵션을 반영해 완성도 있는 본문으로 새로 작성됩니다.
-          {ctaText.trim() && ctaUrl.trim() && " 추천 링크도 끝에 자동으로 붙습니다."}
-        </p>
       </div>
 
       {/* AI 이미지 생성 설정 — "AI 글쓰기"와 동일하게 실제 생성/재생성이 가능하다(예전엔
