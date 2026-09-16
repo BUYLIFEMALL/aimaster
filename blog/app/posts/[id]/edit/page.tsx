@@ -19,7 +19,7 @@ import {
   SquarePen,
 } from 'lucide-react'
 import { getBlogBasePath } from '@/blog/utils/basePath'
-import { stripImageGenerationSchema, wrapImagePromptSection, unwrapImagePromptSection } from '@/blog/utils/stripImageSchema'
+import { stripImageGenerationSchema, splitImagePromptSection } from '@/blog/utils/stripImageSchema'
 import RichTextEditor from '@/blog/components/RichTextEditor'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
@@ -123,12 +123,11 @@ export default function PostEditPage() {
 
         // ⚙️ 이미지 생성 API 요청 스키마 디버그 블록은 편집 화면에 보일 필요가 없어 제거한다.
         const original = stripImageGenerationSchema(postData.content || '')
-        // 비주얼 모드: 원본 그대로(실제 이미지 포함!) + "생성 이미지 AI 프롬프트" 섹션은
-        // 실제 본문과 구분되도록 박스로 감싸서 보여준다(화면 표시용 — 저장 시에는
-        // unwrapImagePromptSection으로 다시 풀어서 저장 콘텐츠 구조에 영향 없게 한다).
-        setRawContent(wrapImagePromptSection(original))
-        // 코드 모드: 저장되는 실제 형태 그대로 보여준다(박스 래핑 없이) — Base64 이미지는
-        // [첨부이미지 N] 으로 치환.
+        // rawContent는 항상 "본문 + AI 프롬프트 섹션"을 합친 실제 저장 형태 그대로 유지한다
+        // (코드 모드·저장 모두 이 값을 그대로 쓴다). 화면에 박스로 분리해서 보여주는 건
+        // 렌더링 시점에 splitImagePromptSection으로 나눠서 처리한다(아래 JSX 참고).
+        setRawContent(original)
+        // 코드 모드: Base64 이미지를 [첨부이미지 N] 으로 치환.
         setCodeContent(replaceBase64WithImageTags(original))
 
         setSelectedCategoryIds(postData.category_ids || [])
@@ -202,9 +201,7 @@ export default function PostEditPage() {
   }
 
   const switchToCode = () => {
-    // 코드 모드는 실제 저장 형태를 그대로 보여줘야 하므로, 화면 표시용으로 씌운
-    // AI 프롬프트 박스 래핑을 먼저 풀고 나서 이미지를 [첨부이미지 N]으로 치환한다.
-    setCodeContent(replaceBase64WithImageTags(unwrapImagePromptSection(rawContent)))
+    setCodeContent(replaceBase64WithImageTags(rawContent))
     setEditorMode('code')
   }
 
@@ -219,11 +216,8 @@ export default function PostEditPage() {
     try {
       setSaving(true)
 
-      // 어떤 모드든 이미지를 [첨부이미지 N] 태그로 치환하여 경량 전송. 비주얼 모드는 화면
-      // 표시용으로 씌운 AI 프롬프트 박스 래핑을 저장 전에 반드시 풀어서, 실제 저장되는
-      // 콘텐츠 구조가 이 화면 표시 방식과 무관하게 그대로 유지되게 한다.
-      const finalContent =
-        editorMode === 'visual' ? replaceBase64WithImageTags(unwrapImagePromptSection(rawContent)) : codeContent
+      // 어떤 모드든 이미지를 [첨부이미지 N] 태그로 치환하여 경량 전송
+      const finalContent = editorMode === 'visual' ? replaceBase64WithImageTags(rawContent) : codeContent
 
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
@@ -256,6 +250,14 @@ export default function PostEditPage() {
       setSaving(false)
     }
   }
+
+  // 비주얼 모드 렌더링용 — "생성 이미지 AI 프롬프트" 섹션을 본문에서 분리해, 본문만
+  // RichTextEditor(Tiptap)에 넘기고 그 섹션은 별도의 정적 박스로 아래에 보여준다. rawContent
+  // 자체(저장·코드 모드용)는 항상 둘을 합친 온전한 형태를 유지한다.
+  const { main: visualMainContent, promptSection: visualPromptSection } = useMemo(
+    () => splitImagePromptSection(rawContent),
+    [rawContent],
+  )
 
   if (loading) {
     return (
@@ -407,9 +409,25 @@ export default function PostEditPage() {
           </div>
 
           {/* Visual Mode: kakao_auto_poster의 RichTextEditor(Tiptap) — 서식/색상/정렬/
-              이미지 첨부/AI 이미지 생성/YouTube/표/실행취소까지 자체 툴바로 제공한다. */}
+              이미지 첨부/AI 이미지 생성/YouTube/표/실행취소까지 자체 툴바로 제공한다.
+              "생성 이미지 AI 프롬프트" 섹션은 본문에 넘기지 않고 아래에 별도 박스로
+              분리해서 보여준다(사용자 지시, 2026-09-16). */}
           {editorMode === 'visual' && (
-            <RichTextEditor value={rawContent} onChange={setRawContent} className="rounded-none border-0" />
+            <>
+              <RichTextEditor
+                value={visualMainContent}
+                onChange={(html) => setRawContent(html + visualPromptSection)}
+                className="rounded-none border-0"
+              />
+              {visualPromptSection && (
+                <div className="border-t border-neutral-200 bg-neutral-50 p-6">
+                  <div
+                    className="prose max-w-none rounded-xl border border-neutral-200 bg-white p-5 text-sm"
+                    dangerouslySetInnerHTML={{ __html: visualPromptSection }}
+                  />
+                </div>
+              )}
+            </>
           )}
 
           {/* Code Mode: [첨부이미지 N] 태그로 경량화된 소스코드 에디터 — 마크다운 서식

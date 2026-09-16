@@ -21,34 +21,20 @@ export function stripImageGenerationSchema(html: string): string {
 
 // "🎨 생성 이미지 AI 프롬프트"(utils/news/generator.ts가 "### 🎨 생성 이미지 AI 프롬프트..."로
 // 만드는 마크다운 → mdLiteToHtml이 <h3>로 변환)로 시작해서 콘텐츠 맨 끝까지 이어지는 섹션을
-// 에디터 화면에서만 실제 본문과 구분되는 박스로 감싼다(사용자 지시, 2026-09-16 — "생성 이미지
-// AI 프롬프트 위에 콘텐츠 내용과 분리되도록 박스쳐서 분리"). 저장되는 실제 콘텐츠 구조는
-// 건드리지 않도록, posts/[id]/edit/page.tsx가 화면에 보여줄 때만 감싸고 저장 직전에는
-// unwrapImagePromptSection()으로 다시 풀어서 보낸다.
+// 실제 본문과 분리해서 보여주기 위한 분할 유틸(사용자 지시, 2026-09-16 — "생성 이미지 AI
+// 프롬프트가 콘텐츠 내용과 분리되도록 박스쳐서 분리"). 처음엔 이 섹션을 <div>로 감싸서
+// Tiptap에 그대로 넘겼는데, Tiptap(ProseMirror)의 스키마에는 일반 <div> 노드가 없어서
+// HTML을 파싱하는 순간 그 감싸는 div가 통째로 사라지는 것을 실제 배포 화면에서 확인했다
+// (자식 콘텐츠만 살아남고 래퍼는 버려짐) — 그래서 이 섹션은 Tiptap 안에 넣지 않고,
+// posts/[id]/edit/page.tsx가 본문과 이 섹션을 분리해서 본문만 RichTextEditor에 넘기고
+// 이 섹션은 별도의 정적 박스(다이얼로그 바깥의 일반 div)로 렌더링한다.
 const PROMPT_SECTION_HEADING_MARKER = '🎨 생성 이미지 AI 프롬프트'
-export const AI_IMAGE_PROMPT_BOX_CLASS = 'ai-image-prompt-box'
-const AI_IMAGE_PROMPT_BOX_STYLE =
-  'margin-top:2rem;padding:1.25rem 1.5rem;border:1px solid #e2e8f0;border-radius:0.75rem;background:#f8fafc;'
 
-export function wrapImagePromptSection(html: string): string {
-  if (!html || html.includes(AI_IMAGE_PROMPT_BOX_CLASS)) return html
+export function splitImagePromptSection(html: string): { main: string; promptSection: string } {
+  if (!html) return { main: html, promptSection: '' }
   const markerIdx = html.indexOf(PROMPT_SECTION_HEADING_MARKER)
-  if (markerIdx === -1) return html
+  if (markerIdx === -1) return { main: html, promptSection: '' }
   const h3Idx = html.lastIndexOf('<h3', markerIdx)
-  if (h3Idx === -1) return html
-  const before = html.slice(0, h3Idx)
-  const section = html.slice(h3Idx)
-  return `${before}<div class="${AI_IMAGE_PROMPT_BOX_CLASS}" style="${AI_IMAGE_PROMPT_BOX_STYLE}">${section}</div>`
-}
-
-const WRAP_OPEN_PATTERN = new RegExp(`<div class="${AI_IMAGE_PROMPT_BOX_CLASS}"[^>]*>`)
-
-export function unwrapImagePromptSection(html: string): string {
-  if (!html || !html.includes(AI_IMAGE_PROMPT_BOX_CLASS)) return html
-  let result = html.replace(WRAP_OPEN_PATTERN, '')
-  const lastDivIdx = result.lastIndexOf('</div>')
-  if (lastDivIdx !== -1) {
-    result = result.slice(0, lastDivIdx) + result.slice(lastDivIdx + '</div>'.length)
-  }
-  return result
+  if (h3Idx === -1) return { main: html, promptSection: '' }
+  return { main: html.slice(0, h3Idx), promptSection: html.slice(h3Idx) }
 }
