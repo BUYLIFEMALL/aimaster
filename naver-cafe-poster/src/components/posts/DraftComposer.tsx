@@ -12,7 +12,7 @@ import {
   generateCafeImagePromptAction,
 } from "@/lib/actions/ai";
 import { CAFE_TONE_OPTIONS, type CafeTone } from "@/lib/ai/tone";
-import type { CafeTarget } from "@/types/post";
+import type { CafeCandidate, CafeCategory, CafeTarget } from "@/types/post";
 
 const initialState: PostActionState = {};
 
@@ -34,12 +34,16 @@ const IMAGE_MODEL_OPTIONS = [
  */
 export function DraftComposer({
   targets,
+  candidates,
+  categories,
   initialTitle = "",
   initialContent = "",
   initialImageUrl = "",
   initialTargetId = "",
 }: {
   targets: CafeTarget[];
+  candidates: CafeCandidate[];
+  categories: CafeCategory[];
   initialTitle?: string;
   initialContent?: string;
   initialImageUrl?: string;
@@ -75,6 +79,24 @@ export function DraftComposer({
 
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [isGeneratingDraft, startGeneratingDraft] = useTransition();
+
+  const [pickCategoryId, setPickCategoryId] = useState("");
+  const [pickCandidateId, setPickCandidateId] = useState("");
+  const filteredCandidates =
+    pickCategoryId === ""
+      ? candidates
+      : pickCategoryId === "__none__"
+        ? candidates.filter((c) => !c.category_id)
+        : candidates.filter((c) => c.category_id === pickCategoryId);
+
+  const handlePickCandidate = (candidateId: string) => {
+    setPickCandidateId(candidateId);
+    const picked = candidates.find((c) => c.id === candidateId);
+    if (picked) {
+      setTitle(picked.title);
+      setContent(picked.content);
+    }
+  };
 
   // 후보(candidates)나 "AI 글쓰기"(/write)에서 결과를 들고 넘어오면 값이 바뀐다 — 그때마다 반영.
   useEffect(() => {
@@ -263,6 +285,55 @@ export function DraftComposer({
           아래 세부 옵션을 반영해 "AI 초안생성"을 누르면 AI가 완성도 있는 본문과 대표 이미지를
           새로 만들어 바로 초안으로 저장합니다.
         </p>
+      </div>
+
+      {/* 카테고리로 "수집된 게시글 후보"를 걸러서 골라 제목/본문을 바로 채워 넣는 블록 —
+          글감 수집을 거치지 않고 이 화면에서 곧바로 후보를 재료로 삼을 수 있게 한다
+          (2026-09-16 사용자 요청). */}
+      <div className="space-y-2 rounded-xl border border-neutral-200 bg-white p-4">
+        <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-700">
+          🗂 게시글 후보에서 가져오기
+        </label>
+        <p className="text-[11px] text-neutral-500">
+          카테고리를 고르면 그 카테고리로 분류된 "수집된 게시글 후보" 중에서 선택해 아래 제목·
+          본문(참고 자료)로 바로 가져올 수 있습니다.
+        </p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <select
+            value={pickCategoryId}
+            onChange={(e) => {
+              setPickCategoryId(e.target.value);
+              setPickCandidateId("");
+            }}
+            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+          >
+            <option value="">전체 카테고리</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+            <option value="__none__">카테고리 없음</option>
+          </select>
+          <select
+            value={pickCandidateId}
+            onChange={(e) => handlePickCandidate(e.target.value)}
+            disabled={filteredCandidates.length === 0}
+            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-400"
+          >
+            <option value="">
+              {filteredCandidates.length === 0 ? "해당 카테고리에 후보 없음" : "게시글 후보 선택..."}
+            </option>
+            {filteredCandidates.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.title}
+              </option>
+            ))}
+          </select>
+        </div>
+        {pickCandidateId && (
+          <p className="text-[11px] text-emerald-600">선택한 후보의 제목·본문을 아래로 가져왔습니다.</p>
+        )}
       </div>
 
       {/* 제목/본문(참고 자료) — 이 화면에 들어와서 가장 먼저 눈에 띄고 손대야 하는 내용이라

@@ -12,21 +12,27 @@ export default async function DraftsPage({
   const supabase = await createClient();
   const { title, content, imageUrl, targetId, edit } = await searchParams;
 
-  const [{ data: account }, { data: targets }, { data: drafts }, { data: categories }] = await Promise.all([
-    supabase.from("ncafe_accounts").select("id").eq("user_id", user.id).maybeSingle(),
-    supabase
-      .from("ncafe_targets")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("ncafe_posts")
-      .select("*")
-      .eq("user_id", user.id)
-      .in("status", ["draft", "failed"])
-      .order("created_at", { ascending: false }),
-    supabase.from("ncafe_categories").select("*").eq("user_id", user.id).order("name", { ascending: true }),
-  ]);
+  const [{ data: account }, { data: targets }, { data: drafts }, { data: categories }, { data: candidates }] =
+    await Promise.all([
+      supabase.from("ncafe_accounts").select("id").eq("user_id", user.id).maybeSingle(),
+      supabase
+        .from("ncafe_targets")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("ncafe_posts")
+        .select("*")
+        .eq("user_id", user.id)
+        .in("status", ["draft", "failed"])
+        .order("created_at", { ascending: false }),
+      supabase.from("ncafe_categories").select("*").eq("user_id", user.id).order("name", { ascending: true }),
+      supabase
+        .from("ncafe_candidates")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+    ]);
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -44,6 +50,8 @@ export default async function DraftsPage({
           넘어온 경우는 그 자체가 "이 내용으로 새 글을 만드는" 흐름이라 접지 않는다. */}
       <DraftComposerSection
         targets={targets ?? []}
+        candidates={candidates ?? []}
+        categories={categories ?? []}
         initialTitle={title ?? ""}
         initialContent={content ?? ""}
         initialImageUrl={imageUrl ?? ""}

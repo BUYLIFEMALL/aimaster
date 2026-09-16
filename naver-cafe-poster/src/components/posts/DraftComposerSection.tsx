@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { DraftComposer } from "./DraftComposer";
-import type { CafeTarget } from "@/types/post";
+import type { CafeCandidate, CafeCategory, CafeTarget } from "@/types/post";
 
 /**
  * /drafts?edit=<id>로 "기존 초안 하나만 고치러" 들어온 경우, 위쪽의 "AI 맞춤 자동 글쓰기"(새
@@ -13,6 +13,8 @@ import type { CafeTarget } from "@/types/post";
  */
 export function DraftComposerSection({
   targets,
+  candidates,
+  categories,
   initialTitle,
   initialContent,
   initialImageUrl,
@@ -20,6 +22,8 @@ export function DraftComposerSection({
   defaultCollapsed,
 }: {
   targets: CafeTarget[];
+  candidates: CafeCandidate[];
+  categories: CafeCategory[];
   initialTitle: string;
   initialContent: string;
   initialImageUrl?: string;
@@ -44,6 +48,8 @@ export function DraftComposerSection({
     <div className="space-y-2">
       <DraftComposer
         targets={targets}
+        candidates={candidates}
+        categories={categories}
         initialTitle={initialTitle}
         initialContent={initialContent}
         initialImageUrl={initialImageUrl}
