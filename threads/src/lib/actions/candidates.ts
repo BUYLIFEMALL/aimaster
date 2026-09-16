@@ -37,16 +37,30 @@ export async function moveCandidatesToCategoryAction(formData: FormData): Promis
   if (ids.length === 0) return { error: "이동할 글감 후보를 선택해주세요." };
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("threads_candidates")
-    .update({ category_id: categoryId })
-    .in("id", ids)
-    .eq("user_id", user.id);
 
-  if (error) return { error: error.message };
+  try {
+    const { error } = await supabase
+      .from("threads_candidates")
+      .update({ category_id: categoryId })
+      .in("id", ids)
+      .eq("user_id", user.id);
 
-  revalidatePath("/candidates");
-  return { count: ids.length };
+    if (error) {
+      console.error("Failed to move candidates to category:", error);
+      if (error.code === "42703" || error.message?.includes("category_id")) {
+        return {
+          error: "Supabase 데이터베이스에 'category_id' 컬럼이 아직 생성되지 않았습니다. Supabase SQL Editor에서 마이그레이션을 실행해 주세요.",
+        };
+      }
+      return { error: error.message };
+    }
+
+    revalidatePath("/candidates");
+    return { count: ids.length };
+  } catch (err) {
+    console.error("Error moving candidates:", err);
+    return { error: err instanceof Error ? err.message : "카테고리 이동 중 오류가 발생했습니다." };
+  }
 }
 
 async function insertCandidates(
