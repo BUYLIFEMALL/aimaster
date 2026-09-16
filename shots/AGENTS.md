@@ -44,7 +44,7 @@ AI로 유튜브 쇼츠(세로형 숏폼)를 처음부터 끝까지 자동 생성
 | **4** | **음악 생성** (`/music`) | Suno로 배경음악 생성 (Style Description/Exclude Styles는 영어로 작성해야 함), 생성 이력 중 선택 |
 | **5** | **영상 포스팅** (`/videos`) | JSON2Video로 이미지+내레이션(ElevenLabs)+BGM+자막을 합쳐 최종 영상 렌더링 → 유튜브 쇼츠/인스타그램 릴스에 업로드 |
 
-인스타그램은 buylife 소유의 Meta 앱 하나로 모든 사용자를 받고(threads와 동일 방식), 유튜브는 Google이 민감 스코프에 앱별 등록을 요구하므로 사용자가 본인 Google OAuth Client ID/Secret을 설정 페이지에 직접 등록하는 방식이다 (두 플랫폼이 서로 다른 이유는 실제 플랫폼 정책 차이).
+인스타그램과 유튜브 모두 회원마다 본인 OAuth 앱(Meta App ID/Secret, Google OAuth Client ID/Secret)을 설정 페이지에 직접 등록하는 BYOK 방식이다. 예전엔 인스타그램만 buylife 소유의 Meta 앱 하나로 모든 사용자를 받았으나(2026-09-16 이전), 그 앱이 Meta Development 모드라 앱의 Tester로 등록된 계정(운영자 본인)만 OAuth를 완료할 수 있어 다른 회원은 연결이 불가능한 문제가 있었다. 같은 날 threads/threads-affiliate-poster에서 먼저 고친 것과 동일하게, 회원마다 본인 Meta 앱의 App ID/Secret을 설정 페이지에서 등록(`user_api_keys`의 `meta_app_id`/`meta_app_secret`)하고 `resolveApiKey()`로 조회해서 쓰도록 전환했다(`src/lib/instagram/client.ts`가 `appId`/`appSecret`을 파라미터로 받음). 기존 `META_APP_ID`/`META_APP_SECRET` env var는 Vercel에 남아있지만 코드에서는 더 이상 읽지 않는다.
 
 ---
 

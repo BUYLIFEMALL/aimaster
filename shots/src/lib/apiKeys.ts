@@ -11,6 +11,8 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   json2video: "JSON2VIDEO 연동(최종 영상렌더링)",
   google_client_id: "Google OAuth Client ID (유튜브 채널 연동)",
   google_client_secret: "Google OAuth Client Secret (유튜브 채널 연동)",
+  meta_app_id: "Meta App ID (인스타그램 계정 연동)",
+  meta_app_secret: "Meta App Secret (인스타그램 계정 연동)",
 };
 
 // 등록 폼(설정 페이지)에 노출할 프로바이더 목록. PROVIDER_LABELS에서 그대로 뽑아 쓰기 때문에
@@ -21,6 +23,11 @@ export const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as ApiKeyProvider[];
 export const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity", "suno", "json2video"];
 
 // 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
+// 주의: meta_app_id/meta_app_secret은 절대 폴백을 두지 않는다 — 이 값이 바로 "회원마다 본인
+// Meta 앱을 등록해야 한다"는 이번 수정의 핵심이라, 폴백을 두면 buylife 공용 Meta 앱(Development
+// 모드라 등록된 Tester만 OAuth 가능) 문제가 그대로 되살아난다. google_client_id/secret도 같은
+// 이유로 YouTube 쪽에서 이미 폴백 없이 동작 중이며(해당 env var는 Vercel에 등록되지 않음),
+// 여기 남은 값은 사용하지 않는 것이 원칙이다(루트 CLAUDE.md 멀티테넌시 원칙 3번).
 const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
   openai: process.env.OPENAI_API_KEY,
   anthropic: process.env.ANTHROPIC_API_KEY,
@@ -30,6 +37,8 @@ const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
   json2video: process.env.JSON2VIDEO_API_KEY,
   google_client_id: process.env.GOOGLE_CLIENT_ID,
   google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  meta_app_id: undefined,
+  meta_app_secret: undefined,
 };
 
 export async function getUserApiKey(

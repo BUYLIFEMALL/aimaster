@@ -9,14 +9,31 @@ import { buildOAuthState } from "@/lib/oauthState";
 import { generateInstagramCaption } from "@/lib/ai/posting";
 import { getInstagramAuthorizeUrl, publishInstagramReel } from "@/lib/instagram/client";
 
-export async function connectInstagramAction(formData: FormData) {
+export interface ConnectInstagramState {
+  error?: string;
+}
+
+/**
+ * 인스타그램도 유튜브와 마찬가지로 회원별 BYOK 방식이다 — Meta 앱이 Development 모드라
+ * 그 앱의 Tester로 등록된 계정(운영자 본인)만 OAuth를 완료할 수 있어서, buylife 공용
+ * Meta 앱으로는 다른 회원이 연결할 수 없었다. 2026-09-16 threads/threads-affiliate-poster와
+ * 동일하게, 회원마다 본인 Meta 앱의 App ID를 설정 페이지에서 등록(user_api_keys의
+ * meta_app_id/meta_app_secret)하고 resolveApiKey()로 조회해서 쓰도록 전환했다.
+ */
+export async function connectInstagramAction(
+  _prevState: ConnectInstagramState,
+  formData: FormData,
+): Promise<ConnectInstagramState> {
   const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
+  if (!appId) {
+    return { error: "설정 페이지에서 본인의 Meta App ID를 먼저 등록해주세요." };
+  }
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값. 인증 후 원래 있던 페이지로
   // 돌아갈 수 있도록 returnTo 경로도 함께 실어 보낸다.
-  // 인스타그램은 유튜브와 달리 buylife 소유의 Meta 앱 하나로 모든 사용자를 받는다
-  // (threads와 동일한 방식 — Meta는 유튜브와 달리 앱 하나로 여러 사용자를 받는 게 정상 허용됨).
   const returnTo = String(formData.get("returnTo") ?? "");
-  redirect(getInstagramAuthorizeUrl(buildOAuthState(user.id, returnTo)));
+  redirect(getInstagramAuthorizeUrl(buildOAuthState(user.id, returnTo), appId));
 }
 
 export async function disconnectInstagramAction() {

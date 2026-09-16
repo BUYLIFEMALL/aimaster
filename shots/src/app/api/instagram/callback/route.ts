@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
+import { resolveApiKey } from "@/lib/apiKeys";
 import { parseOAuthState } from "@/lib/oauthState";
 import {
   exchangeInstagramCode,
@@ -42,8 +43,14 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const shortLivedToken = await exchangeInstagramCode(code);
-    const longLived = await exchangeForLongLivedInstagramToken(shortLivedToken);
+    const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
+    const appSecret = await resolveApiKey(supabase, user.id, "meta_app_secret");
+    if (!appId || !appSecret) {
+      throw new Error("Meta App ID/Secret이 등록되어 있지 않습니다.");
+    }
+
+    const shortLivedToken = await exchangeInstagramCode(code, appId, appSecret);
+    const longLived = await exchangeForLongLivedInstagramToken(shortLivedToken, appId, appSecret);
     const account = await findInstagramBusinessAccount(longLived.accessToken);
 
     const tokenExpiresAt = new Date(Date.now() + longLived.expiresInSeconds * 1000).toISOString();

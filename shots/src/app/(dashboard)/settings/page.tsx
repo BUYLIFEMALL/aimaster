@@ -19,6 +19,7 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "b632a359-d9fd-4e0c-8920-3283094a4892", label: "JSON2Video API 연동하기" },
   { guideId: "9457687a-75ed-40d8-bc4a-9415173eba70", label: "ElevenLabs API 연동하기" },
   { guideId: "523e7401-7393-44f5-ba45-dd437e10fa2d", label: "Google OAuth 클라이언트 만들기 (YouTube 연동)" },
+  { guideId: "c3ed7fe3-00d8-466b-b4ce-9c115accb273", label: "Meta 앱 만들기 (Instagram 릴스 연동)" },
 ];
 
 // 파이프라인 단계(1~5) + 나레이션/플랫폼 연동 순서로 API 키를 그룹핑해서 보여준다.
@@ -52,6 +53,7 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
 ];
 
 const GOOGLE_PROVIDERS: ApiKeyProvider[] = ["google_client_id", "google_client_secret"];
+const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
 
 export default async function SettingsPage() {
   const user = await requireUser();
@@ -124,6 +126,33 @@ export default async function SettingsPage() {
         </p>
         <div className="space-y-3">
           {GOOGLE_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border-2 border-neutral-200 bg-white p-4 shadow-sm">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-neutral-900">📸 Instagram 연동(Meta)</h2>
+          <p className="text-xs text-neutral-500">완성 영상을 인스타그램 릴스로 업로드하기 위한 OAuth 연동</p>
+        </div>
+        <p className="mb-3 space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+          Meta 앱이 아직 개발(Development) 모드이기 때문에, 그 앱의 &quot;역할&quot; 메뉴에서
+          테스터(tester)로 등록된 계정만 연결이 됩니다. 본인 명의로 Meta 앱을 직접 만들고
+          아래 두 값(Meta App ID/Secret)을 등록한 뒤, 그 앱의 유효한 OAuth 리디렉션 URI에
+          아래 콜백 주소를 추가하고, &quot;역할&quot; 메뉴에서 본인 계정을 테스터로 추가해주셔야
+          연결할 수 있습니다.
+        </p>
+        <p className="mb-4 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-600">
+          <code className="font-mono">{SITE_URL}/api/instagram/callback</code>
+        </p>
+        <div className="space-y-3">
+          {META_PROVIDERS.map((provider) => (
             <ApiKeyRow
               key={provider}
               provider={provider}

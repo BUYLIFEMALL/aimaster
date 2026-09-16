@@ -35,9 +35,9 @@ async function parseGraphResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
-export function getInstagramAuthorizeUrl(state: string): string {
+export function getInstagramAuthorizeUrl(state: string, appId: string): string {
   const params = new URLSearchParams({
-    client_id: getEnv("META_APP_ID"),
+    client_id: appId,
     redirect_uri: getEnv("META_INSTAGRAM_REDIRECT_URI"),
     scope: INSTAGRAM_SCOPES,
     response_type: "code",
@@ -46,10 +46,10 @@ export function getInstagramAuthorizeUrl(state: string): string {
   return `${AUTHORIZE_BASE}?${params.toString()}`;
 }
 
-export async function exchangeInstagramCode(code: string): Promise<string> {
+export async function exchangeInstagramCode(code: string, appId: string, appSecret: string): Promise<string> {
   const params = new URLSearchParams({
-    client_id: getEnv("META_APP_ID"),
-    client_secret: getEnv("META_APP_SECRET"),
+    client_id: appId,
+    client_secret: appSecret,
     redirect_uri: getEnv("META_INSTAGRAM_REDIRECT_URI"),
     code,
   });
@@ -59,14 +59,18 @@ export async function exchangeInstagramCode(code: string): Promise<string> {
 }
 
 /** 60일짜리 장기 토큰으로 교환한다. */
-export async function exchangeForLongLivedInstagramToken(shortLivedToken: string): Promise<{
+export async function exchangeForLongLivedInstagramToken(
+  shortLivedToken: string,
+  appId: string,
+  appSecret: string,
+): Promise<{
   accessToken: string;
   expiresInSeconds: number;
 }> {
   const params = new URLSearchParams({
     grant_type: "fb_exchange_token",
-    client_id: getEnv("META_APP_ID"),
-    client_secret: getEnv("META_APP_SECRET"),
+    client_id: appId,
+    client_secret: appSecret,
     fb_exchange_token: shortLivedToken,
   });
   const response = await fetch(`${GRAPH_BASE}/oauth/access_token?${params.toString()}`);
