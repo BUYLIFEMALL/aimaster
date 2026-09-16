@@ -11,6 +11,8 @@ export interface CafeCandidateDraft {
   title: string;
   content: string;
   keywords: string[];
+  /** categoryOptions를 넘겼을 때만 채워진다 — AI가 고른, 목록 중 가장 알맞은 카테고리 이름. */
+  categoryName?: string;
 }
 
 export function stripHtml(html: string): string {
@@ -332,11 +334,19 @@ export async function structureCafeCandidates(params: {
   rawText: string;
   maxItems: number;
   apiKey: string;
+  /** 2개 이상 넘기면, AI가 생성한 글마다 이 중 가장 알맞은 카테고리 이름 하나를 골라
+   * candidate.categoryName에 채워 넣는다(예약 자동화 소스에 카테고리가 여러 개 등록된 경우). */
+  categoryOptions?: string[];
 }): Promise<CafeCandidateDraft[]> {
-  const { rawText, maxItems, apiKey } = params;
+  const { rawText, maxItems, apiKey, categoryOptions } = params;
   if (!apiKey) {
     throw new Error("OpenAI API 키가 없습니다. 설정 페이지에서 본인의 OpenAI API 키를 등록해주세요.");
   }
+
+  const categoryInstruction =
+    categoryOptions && categoryOptions.length > 0
+      ? `\n\n그리고 각 candidate 객체에 "categoryName" 필드를 추가해서, 다음 카테고리 중 그 글의 주제에 가장 알맞은 것 하나를 정확히 그 이름 그대로 넣어주세요(목록에 없는 이름은 절대 쓰지 마세요): ${categoryOptions.join(", ")}`
+      : "";
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -350,7 +360,7 @@ export async function structureCafeCandidates(params: {
         { role: "system", content: STRUCTURE_SYSTEM_PROMPT },
         {
           role: "user",
-          content: `아래 원본 자료로 카페 게시글 후보를 최대 ${maxItems}개 만들어주세요.\n\n${rawText}`,
+          content: `아래 원본 자료로 카페 게시글 후보를 최대 ${maxItems}개 만들어주세요.${categoryInstruction}\n\n${rawText}`,
         },
       ],
       response_format: { type: "json_object" },

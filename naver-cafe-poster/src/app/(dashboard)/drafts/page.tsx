@@ -12,7 +12,7 @@ export default async function DraftsPage({
   const supabase = await createClient();
   const { title, content, imageUrl, targetId, edit } = await searchParams;
 
-  const [{ data: account }, { data: targets }, { data: drafts }] = await Promise.all([
+  const [{ data: account }, { data: targets }, { data: drafts }, { data: categories }] = await Promise.all([
     supabase.from("ncafe_accounts").select("id").eq("user_id", user.id).maybeSingle(),
     supabase
       .from("ncafe_targets")
@@ -25,6 +25,7 @@ export default async function DraftsPage({
       .eq("user_id", user.id)
       .in("status", ["draft", "failed"])
       .order("created_at", { ascending: false }),
+    supabase.from("ncafe_categories").select("*").eq("user_id", user.id).order("name", { ascending: true }),
   ]);
 
   return (
@@ -57,6 +58,7 @@ export default async function DraftsPage({
         <DraftList
           drafts={drafts ?? []}
           targets={targets ?? []}
+          categories={categories ?? []}
           hasNaverAccount={Boolean(account)}
           editId={edit}
         />

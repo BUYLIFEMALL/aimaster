@@ -1,14 +1,16 @@
 import { DraftItem } from "./DraftItem";
-import type { CafePost, CafeTarget } from "@/types/post";
+import type { CafeCategory, CafePost, CafeTarget } from "@/types/post";
 
 export function DraftList({
   drafts,
   targets,
+  categories,
   hasNaverAccount,
   editId,
 }: {
   drafts: CafePost[];
   targets: CafeTarget[];
+  categories: CafeCategory[];
   hasNaverAccount: boolean;
   editId?: string;
 }) {
@@ -27,6 +29,7 @@ export function DraftList({
           key={post.id}
           post={post}
           targets={targets}
+          categories={categories}
           hasNaverAccount={hasNaverAccount}
           startInEdit={post.id === editId}
         />

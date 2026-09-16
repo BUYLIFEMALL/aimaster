@@ -32,7 +32,7 @@ export default async function PostsPage({
 
   let query = supabase
     .from("ncafe_posts")
-    .select("*, target:ncafe_targets(label)")
+    .select("*, target:ncafe_targets(label), category:ncafe_categories(name)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -84,6 +84,9 @@ export default async function PostsPage({
                     <p className="mt-1 text-xs text-neutral-500">
                       {(post.target as { label: string } | null)?.label ?? "카페 미지정"} ·{" "}
                       {new Date(post.created_at).toLocaleString("ko-KR")}
+                      {(post.category as { name: string } | null)?.name && (
+                        <> · {(post.category as { name: string } | null)?.name}</>
+                      )}
                     </p>
                   </div>
                   <StatusBadge status={post.status as PostStatus} />

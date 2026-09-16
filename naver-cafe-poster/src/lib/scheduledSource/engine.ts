@@ -84,15 +84,41 @@ export async function runScheduledSource(
       resolveApiKey(typedSupabase, userId, "openai"),
       resolveApiKey(typedSupabase, userId, "perplexity"),
     ]);
+
+    // 소스에 등록된 카테고리(category_ids)로 생성 글을 실제 분류한다 — 1개면 그대로 쓰고,
+    // 2개 이상이면 AI에게 후보 이름 목록을 주고 방금 생성한 글에 가장 알맞은 것 하나를
+    // 고르게 한다(등록된 카테고리 목록 화면 배지 표시용이던 것을 실제 분류로 확장, 2026-09-16).
+    const registeredCategoryIds = source.category_ids ?? [];
+    let categoryRows: { id: string; name: string }[] = [];
+    if (registeredCategoryIds.length > 1) {
+      const { data } = await supabase
+        .from("ncafe_categories")
+        .select("id, name")
+        .in("id", registeredCategoryIds);
+      categoryRows = data ?? [];
+    }
+
     const rawText = await collectRawText(supabase, userId, source, perplexityKey ?? "");
-    const [draft] = await structureCafeCandidates({ rawText, maxItems: 1, apiKey: openaiKey ?? "" });
+    const [draft] = await structureCafeCandidates({
+      rawText,
+      maxItems: 1,
+      apiKey: openaiKey ?? "",
+      categoryOptions: categoryRows.map((c) => c.name),
+    });
     if (!draft) throw new Error("콘텐츠 생성 결과가 비어있습니다.");
     const title = draft.title;
     const content = draft.content;
 
+    let categoryId: string | null = null;
+    if (registeredCategoryIds.length === 1) {
+      categoryId = registeredCategoryIds[0];
+    } else if (categoryRows.length > 0) {
+      categoryId = categoryRows.find((c) => c.name === draft.categoryName)?.id ?? null;
+    }
+
     const { data: inserted, error: insertError } = await supabase
       .from("ncafe_posts")
-      .insert({ user_id: userId, target_id: source.target_id, title, content, status: "draft" })
+      .insert({ user_id: userId, target_id: source.target_id, title, content, status: "draft", category_id: categoryId })
       .select("id")
       .single();
     if (insertError || !inserted) throw new Error(insertError?.message ?? "글 저장에 실패했습니다.");

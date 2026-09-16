@@ -2742,6 +2742,7 @@ export type Database = {
       ncafe_posts: {
         Row: {
           cafe_article_url: string | null
+          category_id: string | null
           content: string
           created_at: string
           error_message: string | null
@@ -2757,6 +2758,7 @@ export type Database = {
         }
         Insert: {
           cafe_article_url?: string | null
+          category_id?: string | null
           content: string
           created_at?: string
           error_message?: string | null
@@ -2772,6 +2774,7 @@ export type Database = {
         }
         Update: {
           cafe_article_url?: string | null
+          category_id?: string | null
           content?: string
           created_at?: string
           error_message?: string | null
@@ -2786,6 +2789,13 @@ export type Database = {
           video_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ncafe_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "ncafe_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ncafe_posts_target_id_fkey"
             columns: ["target_id"]

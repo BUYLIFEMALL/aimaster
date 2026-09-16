@@ -11,7 +11,7 @@ import { DeleteButton } from "@/components/posts/DeleteButton";
 import { DeployButton } from "@/components/posts/DeployButton";
 import { updateDraftAction, deployDraftAction, deletePostAction, type PostActionState } from "@/lib/actions/posts";
 import { reviseCafePostAction, generateCafeImageAction, generateCafeImagePromptAction } from "@/lib/actions/ai";
-import type { CafePost, CafeTarget, PostStatus } from "@/types/post";
+import type { CafeCategory, CafePost, CafeTarget, PostStatus } from "@/types/post";
 
 const initialState: PostActionState = {};
 
@@ -29,11 +29,13 @@ const IMAGE_MODEL_OPTIONS = [
 export function DraftItem({
   post,
   targets,
+  categories,
   hasNaverAccount,
   startInEdit = false,
 }: {
   post: CafePost;
   targets: CafeTarget[];
+  categories: CafeCategory[];
   hasNaverAccount: boolean;
   startInEdit?: boolean;
 }) {
@@ -60,6 +62,7 @@ export function DraftItem({
 
   const status = post.status as PostStatus;
   const targetLabel = targets.find((t) => t.id === post.target_id)?.label ?? null;
+  const categoryName = categories.find((c) => c.id === post.category_id)?.name ?? null;
   const editRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
@@ -385,6 +388,11 @@ export function DraftItem({
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-neutral-900">{post.title}</p>
           <p className="mt-1 text-xs text-neutral-500">{targetLabel ?? "카페 미지정"}</p>
+          {categoryName && (
+            <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+              {categoryName}
+            </span>
+          )}
         </div>
         <StatusBadge status={status} />
       </div>
