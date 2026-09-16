@@ -5,7 +5,7 @@ export type ApiKeyProvider = 'openai' | 'anthropic' | 'gemini' | 'perplexity'
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   openai: 'OpenAI (GPT — 콘텐츠 생성/수집)',
-  anthropic: 'Anthropic (Claude)',
+  anthropic: 'Anthropic (Claude — 콘텐츠 생성)',
   gemini: 'Google (Gemini — 이미지 자동생성)',
   perplexity: 'Perplexity (실시간 주제 수집)',
 }
