@@ -92,6 +92,50 @@ export async function updateScheduledSourceAction(
   return {};
 }
 
+/**
+ * 예약 자동화 등록 후 내용을 통째로 수정한다(게시할 카페·카테고리·수집 대상) — 예약 ON/OFF·
+ * 주기·자동 포스팅처럼 값이 바뀌는 즉시 저장되는 항목과 달리, "수정" 버튼을 눌러 펼친 뒤
+ * "저장"을 눌러야 반영된다. candidate_pool 타입은 수집 대상이 없으므로 sourceInput을
+ * 무시하고 source_label도 고정값을 유지한다.
+ */
+export async function updateScheduledSourceContentAction(
+  _prevState: UpdateScheduledSourceState,
+  formData: FormData,
+): Promise<UpdateScheduledSourceState> {
+  const user = await requireProgramAccess();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "소스를 찾을 수 없습니다." };
+
+  const sourceType = String(formData.get("sourceType") ?? "");
+  const isPool = sourceType === "candidate_pool";
+  const targetId = String(formData.get("targetId") ?? "");
+  const categoryIds = formData.getAll("categoryIds").map(String).filter(Boolean);
+  const sourceInput = isPool ? "" : String(formData.get("sourceInput") ?? "").trim();
+  const sourceLabel = isPool
+    ? "🗂️ 게시글 후보에서 예약발행"
+    : String(formData.get("sourceLabel") ?? sourceInput).trim() || sourceInput;
+
+  if (!targetId) return { error: "게시할 카페를 선택해주세요." };
+  if (!isPool && !sourceInput) return { error: "수집 대상을 입력해주세요." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("ncafe_scheduled_sources")
+    .update({
+      target_id: targetId,
+      category_ids: categoryIds,
+      source_input: sourceInput,
+      source_label: sourceLabel,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/candidates");
+  return {};
+}
+
 export async function deleteScheduledSourceAction(formData: FormData) {
   const user = await requireProgramAccess();
   const id = String(formData.get("id") ?? "");
