@@ -15,7 +15,7 @@ import { GuideLinkButton } from '@/blog/components/settings/GuideLinkButton'
 // user_api_keys는 AIMaster 전체가 공유하는 테이블이라 openai/anthropic 키도 여기서 함께
 // 등록해두면 threads 등 다른 프로그램에서 바로 쓸 수 있다 — "미사용" 취급이 아니라 다른
 // 프로그램에서는 정상적으로 쓰이는 키라서 하나의 섹션으로 합쳤다(2026-09-16 사용자 피드백).
-const ALL_PROVIDERS: ApiKeyProvider[] = ['gemini', 'perplexity', 'openai', 'anthropic']
+const ALL_PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'gemini', 'perplexity']
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼(Gemini·
 // Perplexity·Cloudinary)에 해당하는 매뉴얼만 골랐다(2026-09-13 naver-cafe-poster 패턴 확대
