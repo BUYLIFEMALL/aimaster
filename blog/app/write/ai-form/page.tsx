@@ -8,8 +8,6 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
-
 interface CategoryOption {
   id: number
   name: string
@@ -235,12 +233,6 @@ function AiFormPageInner() {
             BLOG(원문)생성 자동화
           </Link>
           <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
-            <a
-              href={`${MAIN_SITE_URL}/programs`}
-              className="text-slate-500 hover:text-slate-900"
-            >
-              ← 다른 프로그램 보기
-            </a>
             {userEmail ? <span>{userEmail}</span> : <Link href={getBlogAuthPath()}>로그인</Link>}
           </div>
         </div>
