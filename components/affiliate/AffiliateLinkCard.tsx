@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Copy, Check, ExternalLink } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
+import KakaoShareButton from "@/components/affiliate/KakaoShareButton";
 
 interface AffiliateLinkCardProps {
   affiliateCode: string;
@@ -52,6 +53,9 @@ export default function AffiliateLinkCard({ affiliateCode }: AffiliateLinkCardPr
           <ExternalLink size={14} />
         </a>
       </div>
+
+      <KakaoShareButton affiliateUrl={affiliateUrl} affiliateCode={affiliateCode} />
+
       <p className="text-subtext text-xs mt-3">
         이 링크를 통해 가입한 사용자가 결제하면 자동으로 수수료가 적립됩니다 (30일 쿠키)
       </p>
