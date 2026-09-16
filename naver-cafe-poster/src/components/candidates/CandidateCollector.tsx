@@ -578,9 +578,11 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
 }
 
 /**
- * 새로 수집하는 대신, 아래 "수집된 게시글 후보" 목록에서 "예약포스팅 ON"으로 켜둔 후보를
- * 켠 순서대로(FIFO) 하나씩 골라 카페 게시글을 만드는 예약 전용 소스. 1회성 "글감 수집"
- * 개념이 없으므로(이미 있는 후보를 재활용하는 것뿐) 다른 방식과 달리 예약 등록만 지원한다.
+ * 새로 수집하는 대신, 이미 모여 있는(기존 수집분 + 앞으로 새로 수집되는 것 포함) "수집된
+ * 게시글 후보" 중 선택한 카테고리에 속한 것을 먼저 모인 순서대로(FIFO) 하나씩 골라 카페
+ * 게시글을 만드는 예약 전용 소스. 후보는 수집 시 기본적으로 대상에 포함되며, 특정 글만
+ * 빼고 싶으면 후보 목록에서 "예약포스팅"을 OFF로 끄면 된다. 1회성 "글감 수집" 개념이
+ * 없으므로 다른 방식과 달리 예약 등록만 지원한다.
  */
 function CandidatePoolForm({ targets, categories }: { targets: { id: string; label: string }[]; categories: CafeCategory[] }) {
   const [scheduleState, setScheduleState] = useState<ScheduledSourceState | null>(null);
@@ -608,10 +610,11 @@ function CandidatePoolForm({ targets, categories }: { targets: { id: string; lab
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <p className="text-sm text-neutral-600">
-        아래 "수집된 게시글 후보" 목록에서 "예약포스팅 ON"으로 켜둔 후보를 정해둔 주기마다
-        켠 순서대로 하나씩 골라 카페 게시글로 만듭니다. 한 번 쓰인 후보는 자동으로 OFF로
-        바뀌어 중복 게시되지 않습니다. 카테고리를 선택하면 그 카테고리 후보 중에서만 고릅니다
-        (선택 안 하면 전체 대상).
+        아래 "수집된 게시글 후보"는 기존에 모아둔 것과 앞으로 새로 수집되는 것 모두 기본적으로
+        예약포스팅 대상에 포함됩니다. 정해둔 주기마다 그중 가장 먼저 모인 것부터 하나씩 골라
+        카페 게시글로 만들고, 한 번 쓰인 후보는 자동으로 제외되어 중복 게시되지 않습니다.
+        카테고리를 선택하면 그 카테고리 후보 중에서만 고릅니다(선택 안 하면 전체 대상). 특정
+        글만 자동 발행에서 빼고 싶으면 후보 목록에서 "예약포스팅"을 OFF로 꺼주세요.
       </p>
 
       <CategoryCheckboxGroup categories={categories} selectedIds={categoryIds} onChange={setCategoryIds} />

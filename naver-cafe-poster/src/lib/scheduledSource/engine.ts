@@ -67,12 +67,15 @@ async function collectRawText(
 }
 
 /**
- * candidate_pool 소스 전용 — 새로 AI를 호출해 콘텐츠를 만드는 대신, 회원이 후보함에서
- * "예약포스팅 ON"으로 켜둔 게시글 후보(ncafe_candidates) 중 가장 먼저 켜진 것 하나를 그대로
- * 재료로 쓴다(무작위가 아니라 FIFO — 회원이 채워둔 큐를 순서대로 소비하는 편이 예측 가능하다).
- * 한 번 쓰인 후보는 다시 뽑히지 않도록 use_for_schedule을 꺼서 "소모"시킨다. categoryIds가
- * 있으면(소스에 등록해둔 카테고리들) 그 카테고리로 분류된 후보 중에서만 고른다 — 비어있으면
- * 전체 대상. 후보가 이미 갖고 있던 category_id를 그대로 생성되는 글의 분류로 이어받는다.
+ * candidate_pool 소스 전용 — 새로 AI를 호출해 콘텐츠를 만드는 대신, 후보함(ncafe_candidates)에
+ * 이미 모여 있는(기존 수집분 + 앞으로 새로 수집되는 것 포함) 게시글 후보 중 가장 오래 대기한
+ * 것 하나를 그대로 재료로 쓴다(무작위가 아니라 FIFO — 큐를 순서대로 소비하는 편이 예측
+ * 가능하다). 후보는 수집 시 기본적으로 예약포스팅 대상에 포함되고(use_for_schedule 기본값
+ * true, 2026-09-16 opt-out 방식으로 전환), 특정 글만 자동 발행에서 빼고 싶을 때만 후보함
+ * 목록에서 OFF로 끈다. 한 번 쓰인 후보는 다시 뽑히지 않도록 use_for_schedule을 꺼서
+ * "소모"시킨다. categoryIds가 있으면(소스에 등록해둔 카테고리들) 그 카테고리로 분류된 후보
+ * 중에서만 고른다 — 비어있으면 전체 대상. 후보가 이미 갖고 있던 category_id를 그대로
+ * 생성되는 글의 분류로 이어받는다.
  */
 async function pickFromCandidatePool(
   supabase: SupabaseLike,
@@ -96,8 +99,8 @@ async function pickFromCandidatePool(
   if (!picked) {
     throw new Error(
       categoryIds.length > 0
-        ? "지정한 카테고리에 예약포스팅으로 켜둔(ON) 게시글 후보가 없습니다."
-        : "예약포스팅으로 켜둔(ON) 게시글 후보가 없습니다. 후보 목록에서 사용할 글감을 켜주세요.",
+        ? "지정한 카테고리에 예약포스팅 대상 게시글 후보가 없습니다. 먼저 그 카테고리로 글감을 수집해주세요."
+        : "예약포스팅 대상 게시글 후보가 없습니다. 먼저 글감을 수집해주세요.",
     );
   }
   await supabase.from("ncafe_candidates").update({ use_for_schedule: false }).eq("id", picked.id);

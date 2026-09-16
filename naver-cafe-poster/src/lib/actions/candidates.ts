@@ -170,8 +170,9 @@ export async function collectFromPerplexityAction(
   }
 }
 
-/** 게시글 후보 하나를 "예약포스팅"용으로 켜고 끈다 — ON으로 켜둔 후보만 candidate_pool
- * 예약 소스가 골라서 자동 발행/초안화한다(engine.ts의 pickFromCandidatePool). */
+/** 게시글 후보 하나를 예약포스팅 대상에서 포함/제외한다 — 새로 수집된 후보는 기본이
+ * 포함(ON)이고, 특정 글만 candidate_pool 예약 소스의 자동 발행 대상에서 빼고 싶을 때
+ * OFF로 끈다(engine.ts의 pickFromCandidatePool 참고). */
 export async function setCandidateUseForScheduleAction(formData: FormData) {
   const user = await requireProgramAccess();
   const id = String(formData.get("id") ?? "");
