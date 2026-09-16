@@ -40,9 +40,12 @@ export interface PublishThreadsPostParams {
   threadsUserId: string;
   text: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
+  imageUrls?: string[];
+  mediaItems?: Array<{ url: string; type?: "IMAGE" | "VIDEO" }>;
 }
 
 export interface PublishThreadsPostResult {
   threadsPostId: string;
-  permalink: string;
+  permalink?: string;
 }

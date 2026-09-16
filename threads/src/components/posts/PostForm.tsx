@@ -79,54 +79,74 @@ export function PostForm({
   const [scheduledAtLocal, setScheduledAtLocal] = useState(initialScheduledAtLocal);
   const [content, setContent] = useState(initialContent);
 
-  const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const parseInitialImages = (raw: string): string[] => {
+    if (!raw) return [];
+    return raw.split(",").map((u) => u.trim()).filter(Boolean);
+  };
+
+  const [imageUrls, setImageUrls] = useState<string[]>(parseInitialImages(initialImageUrl));
   const [videoFileName, setVideoFileName] = useState(initialVideoFileName);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files ?? []);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (!file) return;
+    if (files.length === 0) return;
 
-    // 동영상은 저장/업로드하지 않고, 게시글에 첨부됐다는 표시(파일명)만 남긴다.
-    if (file.type.startsWith("video/")) {
-      setUploadError(null);
-      setVideoFileName(file.name);
-      return;
-    }
-
-    if (!file.type.startsWith("image/")) {
-      setUploadError("이미지 또는 동영상 파일만 업로드할 수 있습니다.");
-      return;
-    }
-    if (file.size > MAX_IMAGE_BYTES) {
-      setUploadError("이미지 크기는 5MB를 넘을 수 없습니다.");
+    if (imageUrls.length + files.length > 20) {
+      setUploadError("Threads에는 캐러셀 이미지를 최대 20장까지 등록할 수 있습니다.");
       return;
     }
 
     setUploadError(null);
-    setVideoFileName("");
     setIsUploading(true);
+
     try {
       const supabase = createClient();
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+      const uploadedUrls: string[] = [];
 
-      const { error } = await supabase.storage.from("post-images").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-      if (error) throw error;
+      for (const file of files) {
+        if (file.type.startsWith("video/")) {
+          setVideoFileName(file.name);
+          continue;
+        }
 
-      const { data } = supabase.storage.from("post-images").getPublicUrl(path);
-      setImageUrl(data.publicUrl);
+        if (!file.type.startsWith("image/")) {
+          setUploadError("이미지 또는 동영상 파일만 업로드할 수 있습니다.");
+          continue;
+        }
+        if (file.size > MAX_IMAGE_BYTES) {
+          setUploadError("각 이미지 크기는 5MB를 넘을 수 없습니다.");
+          continue;
+        }
+
+        const ext = file.name.split(".").pop() ?? "jpg";
+        const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+
+        const { error } = await supabase.storage.from("post-images").upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        if (error) throw error;
+
+        const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+        uploadedUrls.push(data.publicUrl);
+      }
+
+      if (uploadedUrls.length > 0) {
+        setImageUrls((prev) => [...prev, ...uploadedUrls]);
+      }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleDeleteImage = (indexToDelete: number) => {
+    setImageUrls((prev) => prev.filter((_, idx) => idx !== indexToDelete));
   };
 
   const [topic, setTopic] = useState(initialTopic);
@@ -170,6 +190,8 @@ export function PostForm({
   const [imageModel, setImageModel] = useState<(typeof IMAGE_MODEL_OPTIONS)[number]["value"]>(
     "nanobanana-2-2k",
   );
+  const [aiMultiCut, setAiMultiCut] = useState(false);
+  const [aiCutCount, setAiCutCount] = useState(3);
   const [geminiApiKey, setGeminiApiKey] = useState("");
   const [isGeneratingImage, startGeneratingImage] = useTransition();
   const [imageGenError, setImageGenError] = useState<string | null>(null);
@@ -180,34 +202,44 @@ export function PostForm({
 
     setImageGenError(null);
     startGeneratingImage(async () => {
-      const result = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
-      if (result.error) {
-        setImageGenError(result.error);
-        return;
-      }
-      if (result.imageUrl) {
-        setImageUrl(result.imageUrl);
+      if (aiMultiCut && aiCutCount > 1) {
+        const count = Math.min(Math.max(aiCutCount, 2), 10);
+        const generatedList: string[] = [];
+        for (let i = 1; i <= count; i++) {
+          const cutPrompt = `${prompt} (컷 ${i}/${count}: Threads 카드뉴스 스타일 visual angle ${i})`;
+          const result = await generateImageAction({ prompt: cutPrompt, apiKey: geminiApiKey, model: imageModel });
+          if (result.imageUrl) {
+            generatedList.push(result.imageUrl);
+          }
+        }
+        if (generatedList.length > 0) {
+          setImageUrls((prev) => [...prev, ...generatedList]);
+        } else {
+          setImageGenError("이미지 멀티컷 생성에 실패했습니다.");
+        }
+      } else {
+        const result = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+        if (result.error) {
+          setImageGenError(result.error);
+          return;
+        }
+        if (result.imageUrl) {
+          setImageUrls((prev) => [...prev, result.imageUrl!]);
+        }
       }
     });
   };
 
-  // blog(AutoBlog)의 "AI 글 생성 시작" 방식처럼, 주제만 주면 게시글 본문과
-  // 이미지를 한 번에 자동 생성한다 (텍스트 생성 후 이어서 이미지 생성).
-  // useTransition이 아닌 일반 state로 관리한다: formAction(서버 액션 dispatch)을
-  // 별도 startTransition 콜백 안에 중첩 호출하면 redirect()가 정상 처리되지
-  // 않는 문제가 있어(저장은 되지만 화면 전환이 안 됨), handleSubmit 자체의
-  // async 흐름에서 곧바로 호출해야 한다.
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
-  const runGenerateAll = async (): Promise<{ content: string; imageUrl: string } | null> => {
+  const runGenerateAll = async (): Promise<{ content: string; imageUrls: string[] } | null> => {
     setAiError(null);
     setImageGenError(null);
     const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
 
     let finalContent = content.trim();
 
-    // 만약 이미 불러와진/입력된 콘텐츠 내용이 없으면 AI로 텍스트 생성
     if (!finalContent) {
       setStatusMsg("AI가 Threads 트렌드를 분석해서 게시글을 작성하고 있습니다...");
       const textResult = await generateContentAction({
@@ -229,36 +261,49 @@ export function PostForm({
       setStatusMsg("불러온 콘텐츠 내용을 채워 저장하고 있습니다...");
     }
 
-    let finalImageUrl = imageUrl;
+    const currentUrls = [...imageUrls];
     const prompt = imagePrompt.trim() || topic.trim();
-    if (prompt && !finalImageUrl) {
-      // 나노바나나가 프롬프트에 따라(안전 필터/모델 판단 등) 이미지를 못
-      // 돌려주는 경우가 종종 있어, 완전히 포기하기 전에 한 번 더 시도한다.
-      const MAX_IMAGE_ATTEMPTS = 2;
+    if (prompt && currentUrls.length === 0) {
       let lastError: string | undefined;
-      for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
-        setStatusMsg(
-          attempt === 1
-            ? "게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다..."
-            : `이미지 생성에 실패해서 다시 시도하고 있습니다... (${attempt}/${MAX_IMAGE_ATTEMPTS})`,
-        );
-        const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
-        if (imageResult.imageUrl) {
-          finalImageUrl = imageResult.imageUrl;
-          setImageUrl(imageResult.imageUrl);
-          lastError = undefined;
-          break;
+      if (aiMultiCut && aiCutCount > 1) {
+        const count = Math.min(Math.max(aiCutCount, 2), 10);
+        setStatusMsg(`AI가 Threads 카드뉴스용 멀티컷 이미지 ${count}장을 연속 생성 중입니다...`);
+        for (let i = 1; i <= count; i++) {
+          const cutPrompt = `${prompt} (컷 ${i}/${count}: Threads 카드뉴스 visual angle ${i})`;
+          const imageResult = await generateImageAction({ prompt: cutPrompt, apiKey: geminiApiKey, model: imageModel });
+          if (imageResult.imageUrl) {
+            currentUrls.push(imageResult.imageUrl);
+          } else if (imageResult.error) {
+            lastError = imageResult.error;
+          }
         }
-        lastError = imageResult.error;
+        if (currentUrls.length > 0) {
+          setImageUrls(currentUrls);
+        }
+      } else {
+        const MAX_IMAGE_ATTEMPTS = 2;
+        for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
+          setStatusMsg(
+            attempt === 1
+              ? "게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다..."
+              : `이미지 생성 재시도 중... (${attempt}/${MAX_IMAGE_ATTEMPTS})`,
+          );
+          const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+          if (imageResult.imageUrl) {
+            currentUrls.push(imageResult.imageUrl);
+            setImageUrls(currentUrls);
+            break;
+          }
+          lastError = imageResult.error;
+        }
       }
-      if (lastError) {
-        // 재시도까지 실패해도 텍스트는 이미 성공했으므로 전체를 막지 않는다
+      if (lastError && currentUrls.length === 0) {
         setImageGenError(lastError);
       }
     }
 
     setStatusMsg(null);
-    return { content: finalContent, imageUrl: finalImageUrl };
+    return { content: finalContent, imageUrls: currentUrls };
   };
 
   // handleGenerateAll: 수정 화면에서만 노출되는 수동 "함께 생성" 버튼용
@@ -274,10 +319,10 @@ export function PostForm({
       ? new Date(scheduledAtLocal).toISOString()
       : "";
 
-  const buildFormData = (finalContent: string, finalImageUrl: string) => {
+  const buildFormData = (finalContent: string, finalImageUrls: string[]) => {
     const fd = new FormData();
     fd.set("content", finalContent);
-    fd.set("imageUrl", finalImageUrl);
+    fd.set("imageUrl", finalImageUrls.join(","));
     fd.set("videoFileName", videoFileName);
     fd.set("publishMode", publishMode);
     fd.set("scheduledAt", scheduledAtIso);
@@ -288,11 +333,8 @@ export function PostForm({
     e.preventDefault();
 
     if (!aiGenerateOnSubmit) {
-      // formAction(useActionState의 dispatch)은 반드시 startTransition 안에서
-      // 호출해야 한다 (React 19 요구사항 — 그렇지 않으면 redirect()가 정상
-      // 처리되지 않고 저장만 되고 화면 전환이 안 되는 문제가 있었다).
       startTransition(() => {
-        formAction(buildFormData(content, imageUrl));
+        formAction(buildFormData(content, imageUrls));
       });
       return;
     }
@@ -307,7 +349,7 @@ export function PostForm({
     setIsGeneratingAll(false);
     if (!result) return;
     startTransition(() => {
-      formAction(buildFormData(result.content, result.imageUrl));
+      formAction(buildFormData(result.content, result.imageUrls));
     });
   };
 
@@ -488,7 +530,7 @@ export function PostForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">이미지 (선택)</label>
+        <label className="mb-1 block text-sm font-medium text-neutral-700">이미지 & 캐러셀 (최대 20장)</label>
 
         <div className="mb-2 space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
           <label className="block text-sm font-medium text-neutral-700">
@@ -523,6 +565,33 @@ export function PostForm({
               {isGeneratingImage ? "생성 중..." : "이미지만 다시 생성"}
             </Button>
           </div>
+          <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium text-neutral-700">
+            <label className="inline-flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiMultiCut}
+                onChange={(e) => setAiMultiCut(e.target.checked)}
+                className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
+              />
+              <span>🎨 AI 멀티컷 카드뉴스 연속 생성</span>
+            </label>
+            {aiMultiCut && (
+              <div className="inline-flex items-center gap-1">
+                <span>생성할 컷 수:</span>
+                <select
+                  value={aiCutCount}
+                  onChange={(e) => setAiCutCount(Number(e.target.value))}
+                  className="rounded border border-neutral-300 px-2 py-0.5 text-xs text-neutral-700"
+                >
+                  {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                    <option key={num} value={num}>
+                      {num}장
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
           <Input
             type="text"
             name="gemini_key_field"
@@ -540,6 +609,7 @@ export function PostForm({
           <input
             ref={fileInputRef}
             type="file"
+            multiple
             accept="image/*,video/*"
             onChange={handleFileChange}
             disabled={isUploading}
@@ -551,7 +621,7 @@ export function PostForm({
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
           >
-            {isUploading ? "업로드 중..." : "파일 직접 등록하기"}
+            {isUploading ? "업로드 중..." : "파일 직접 등록하기 (다중 선택 가능)"}
           </Button>
           {videoFileName && (
             <span className="inline-flex items-center gap-1.5 rounded-md bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-700">
@@ -566,23 +636,46 @@ export function PostForm({
             </span>
           )}
         </div>
+        <input type="hidden" name="imageUrl" value={imageUrls.join(",")} />
         <input type="hidden" name="videoFileName" value={videoFileName} />
         {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
-        <Input
-          name="imageUrl"
-          type="url"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://example.com/image.jpg (또는 위에서 직접 업로드)"
-          className="mt-2"
-        />
-        {imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt="첨부 이미지 미리보기"
-            className="mt-2 max-h-40 rounded-lg border border-neutral-200 object-contain"
-          />
+
+        {imageUrls.length > 0 && (
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center justify-between text-xs font-medium text-neutral-600">
+              <span>📷 등록된 미디어 캐러셀 ({imageUrls.length}/20)</span>
+              {imageUrls.length > 1 && (
+                <span className="text-[11px] font-semibold text-blue-600">
+                  * 게시 시 Threads 캐러셀(슬라이드)로 등록됩니다.
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {imageUrls.map((url, idx) => (
+                <div key={idx} className="group relative rounded-lg border border-neutral-200 bg-neutral-100 p-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt={`미디어 ${idx + 1}`}
+                    className="h-24 w-full rounded object-cover"
+                  />
+                  <span className="absolute top-2 left-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    {idx + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteImage(idx)}
+                    className="absolute top-2 right-2 rounded-full bg-red-600 p-1 text-white opacity-90 transition-opacity hover:opacity-100"
+                    title="삭제"
+                  >
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

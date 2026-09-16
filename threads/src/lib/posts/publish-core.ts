@@ -29,12 +29,15 @@ export async function publishPost(params: PublishPostParams): Promise<PublishPos
     .eq("id", postId)
     .eq("user_id", userId);
 
+  const imageUrls = imageUrl ? imageUrl.split(",").map((u) => u.trim()).filter(Boolean) : [];
+
   try {
     const { threadsPostId, permalink } = await publishThreadsPost({
       accessToken,
       threadsUserId,
       text: content,
-      imageUrl,
+      imageUrl: imageUrls.length === 1 ? imageUrls[0] : null,
+      imageUrls: imageUrls.length > 1 ? imageUrls : undefined,
     });
 
     await supabase
