@@ -166,6 +166,13 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
                   </form>
                 </div>
               </div>
+              {categoryName(c.category_id) && (
+                <div className="mb-2 ml-6">
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-700">
+                    📁 {categoryName(c.category_id)}
+                  </span>
+                </div>
+              )}
               <p className="whitespace-pre-wrap text-sm text-neutral-700">{c.content}</p>
               {c.keywords && c.keywords.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
@@ -177,11 +184,6 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
                 </div>
               )}
               <p className="mt-2 text-xs text-neutral-400">
-                {categoryName(c.category_id) && (
-                  <span className="mr-1 rounded-full bg-blue-50 px-2 py-0.5 font-medium text-blue-600">
-                    {categoryName(c.category_id)}
-                  </span>
-                )}
                 {CANDIDATE_SOURCE_LABELS[c.source_type as CandidateSourceType]} · {c.source_input} ·{" "}
                 {new Date(c.created_at).toLocaleString("ko-KR")}
               </p>
