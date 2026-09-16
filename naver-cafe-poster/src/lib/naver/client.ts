@@ -3,10 +3,16 @@ import "server-only";
 // 네이버 로그인 오픈 API 클라이언트. "server-only" 가드로 Client Secret/Access Token이
 // 클라이언트 번들에 절대 포함되지 않도록 한다.
 //
-// 이 프로젝트(naver-cafe-poster)가 공용으로 등록한 단일 네이버 개발자센터 앱(NAVER_CLIENT_ID/
-// NAVER_CLIENT_SECRET)을 모든 회원이 함께 쓴다 — threads-affiliate-poster가 Threads 앱을
-// 재사용하는 것과 같은 구조다. 회원마다 각자 네이버 로그인으로 본인 계정을 연동해 access
-// token을 받고, 그 토큰으로 "본인 명의"로만 카페 글쓰기가 된다.
+// 2026-09-16부터 앱(운영자) 공용 네이버 개발자센터 앱 대신, 회원 각자 본인이 만든 네이버 앱의
+// Client ID/Secret을 쓰는 BYOK 방식으로 전환했다 — 네이버 로그인도 앱이 "네이버 검수"를 통과
+// 하지 않은 동안은 그 앱에 테스터로 등록된 계정만 로그인을 완료할 수 있어(Meta 앱 Development
+// 모드와 동일한 제약), 운영자 공용 앱 하나로는 운영자 본인 외 다른 회원이 연결할 수 없는 문제가
+// 있었다(threads/threads-affiliate-poster의 meta_app_id/meta_app_secret 전환,
+// kakao_auto_poster의 kakao_rest_api_key 전환과 동일한 원인·조치, 같은 날 적용). 이 파일의
+// 함수들은 더 이상 NAVER_CLIENT_ID/NAVER_CLIENT_SECRET 환경변수를 읽지 않고, 호출부(Server
+// Action/콜백 라우트)가 lib/naver/account.ts의 resolveNaverAppCredentials()로 조회한 "본인
+// 계정의" 값을 파라미터로 받는다. NAVER_REDIRECT_URI는 이 앱의 고정 배포 도메인 기준이라
+// 그대로 환경변수로 남긴다.
 //
 // 참고: 네이버 로그인 authorize 엔드포인트는 OAuth2 표준과 달리 scope 파라미터가 없다 —
 // 어떤 정보(카페 가입/글쓰기 등)에 접근 가능한지는 개발자센터 앱 등록 화면에서 미리
@@ -32,10 +38,10 @@ function getEnv(name: string): string {
   return value;
 }
 
-export function getNaverAuthorizeUrl(state: string): string {
+export function getNaverAuthorizeUrl(state: string, clientId: string): string {
   const params = new URLSearchParams({
     response_type: "code",
-    client_id: getEnv("NAVER_CLIENT_ID"),
+    client_id: clientId,
     redirect_uri: getEnv("NAVER_REDIRECT_URI"),
     state,
   });
@@ -49,11 +55,16 @@ export interface NaverTokenResponse {
   expires_in: string;
 }
 
-export async function exchangeNaverCode(code: string, state: string): Promise<NaverTokenResponse> {
+export async function exchangeNaverCode(
+  code: string,
+  state: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<NaverTokenResponse> {
   const params = new URLSearchParams({
     grant_type: "authorization_code",
-    client_id: getEnv("NAVER_CLIENT_ID"),
-    client_secret: getEnv("NAVER_CLIENT_SECRET"),
+    client_id: clientId,
+    client_secret: clientSecret,
     code,
     state,
   });
@@ -78,11 +89,15 @@ export async function exchangeNaverCode(code: string, state: string): Promise<Na
  * 갱신한다(2026-09-12, 실계정 게시 시도에서 만료 토큰으로 인한 401 "Authentication failed"
  * 재현·확인).
  */
-export async function refreshNaverToken(refreshToken: string): Promise<NaverTokenResponse> {
+export async function refreshNaverToken(
+  refreshToken: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<NaverTokenResponse> {
   const params = new URLSearchParams({
     grant_type: "refresh_token",
-    client_id: getEnv("NAVER_CLIENT_ID"),
-    client_secret: getEnv("NAVER_CLIENT_SECRET"),
+    client_id: clientId,
+    client_secret: clientSecret,
     refresh_token: refreshToken,
   });
 

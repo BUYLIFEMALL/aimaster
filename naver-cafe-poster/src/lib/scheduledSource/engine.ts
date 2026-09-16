@@ -13,7 +13,7 @@ import {
 import { resolveApiKey } from "@/lib/apiKeys";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
-import { getNaverAccountOrError, getTargetOrError } from "@/lib/naver/account";
+import { getNaverAccountOrError, getTargetOrError, resolveNaverAppCredentials } from "@/lib/naver/account";
 import { publishCafePost } from "@/lib/posts/publish-core";
 import type { ScheduledSource } from "@/types/post";
 
@@ -175,7 +175,8 @@ export async function runScheduledSource(
     if (insertError || !inserted) throw new Error(insertError?.message ?? "글 저장에 실패했습니다.");
 
     if (source.auto_post) {
-      const account = await getNaverAccountOrError(supabase, userId);
+      const credentials = await resolveNaverAppCredentials(typedSupabase, userId);
+      const account = await getNaverAccountOrError(supabase, userId, credentials);
       const target = await getTargetOrError(supabase, userId, source.target_id);
       const outcome = await publishCafePost({
         supabase: typedSupabase,

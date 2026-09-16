@@ -11,10 +11,21 @@ Next.js 16 App Router, Supabase 인증/RLS, `requireProgramAccess()`/`checkProgr
 가져왔다. Threads/쿠팡/알리익스프레스/토스 관련 코드는 전부 제거하고 네이버 카페 전용
 코드로 교체했다.
 
-### 2. 공유 앱 + 회원별 OAuth 연동
-네이버 로그인은 이 프로젝트가 등록한 단일 개발자센터 앱을 모든 회원이 공유하고, 각자
-본인 계정으로 로그인해 access token을 받는다(Threads 공용 Meta 앱 패턴과 동일). 앱 등록
-시 "카페" API를 사용 API로 추가해야 카페 가입/글쓰기 권한이 부여된다.
+### 2. 회원별 BYOK 앱 등록 + OAuth 연동 (2026-09-16 전환)
+처음엔 이 프로젝트가 등록한 단일 개발자센터 앱을 모든 회원이 공유했는데(Threads 공용 Meta 앱
+패턴과 동일했음), 네이버 로그인도 앱이 검수를 통과하지 않은 동안은 그 앱에 테스터로 등록된
+계정(운영자 본인)만 로그인을 완료할 수 있어, 다른 회원은 연동이 불가능한 문제가 있었다
+(kakao_auto_poster의 KAKAO_REST_API_KEY 전환과 동일한 원인·조치). `user_api_keys`에
+`naver_client_id`/`naver_client_secret` provider를 추가해(공유 CHECK 제약에 이미 존재해
+마이그레이션 불필요) 회원마다 본인이 만든 네이버 앱의 Client ID/Secret을 설정 페이지에
+등록하고 `resolveNaverAppCredentials()`(`lib/naver/account.ts`)로 조회해서 쓰도록 바꿨다.
+앱 등록 시 "네이버 로그인"과 "카페" API를 함께 사용 API로 추가해야 카페 가입/글쓰기 권한이
+부여된다. `NAVER_REDIRECT_URI`(콜백 주소, 회원과 무관하게 고정)만 env var로 남고
+`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`은 더 이상 코드에서 읽지 않는다. 전환 전 이미
+연동된 기존 `ncafe_accounts` 토큰(buylifemall@naver.com)은 삭제하지 않아 access_token이
+유효한 동안은 계속 동작하지만, refresh가 필요해지는 시점부터는 본인 앱 등록이 있어야
+갱신된다(카카오와 달리 이 프로젝트는 대체 발송 경로가 없어, 갱신 실패 시 게시 자체가
+명확한 안내 메시지와 함께 실패한다).
 
 ### 3. 카페 club_id/menu_id는 수동 입력
 네이버 카페 오픈API는 "내 카페 목록 조회"/"게시판 목록 조회" API를 제공하지 않는다(가입/
@@ -33,8 +44,6 @@ SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_SITE_URL=https://naver-cafe-poster.vercel.app
 NEXT_PUBLIC_MAIN_SITE_URL=https://buylife.xyz
 
-NAVER_CLIENT_ID=
-NAVER_CLIENT_SECRET=
 NAVER_REDIRECT_URI=https://naver-cafe-poster.vercel.app/api/naver/callback
 
 # 예약(정기 자동 생성+포스팅) 크론 보호용 — 아무 임의 문자열이나 발급해 등록

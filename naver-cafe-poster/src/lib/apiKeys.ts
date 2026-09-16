@@ -6,6 +6,8 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   openai: "OpenAI (GPT — 카페 게시글 생성)",
   gemini: "Google (Gemini — 나노바나나 대표 이미지 생성)",
   perplexity: "Perplexity (트렌드 검색 기반 글감 수집)",
+  naver_client_id: "네이버 Client ID (네이버 로그인 연동)",
+  naver_client_secret: "네이버 Client Secret (네이버 로그인 연동)",
 };
 
 export async function getUserApiKey(

@@ -10,7 +10,13 @@ export interface SaveApiKeyState {
   success?: boolean;
 }
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "perplexity"];
+const VALID_PROVIDERS: ApiKeyProvider[] = [
+  "openai",
+  "gemini",
+  "perplexity",
+  "naver_client_id",
+  "naver_client_secret",
+];
 
 export async function saveApiKeyAction(
   _prevState: SaveApiKeyState,

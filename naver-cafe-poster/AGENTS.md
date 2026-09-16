@@ -70,19 +70,44 @@ naver-cafe-poster는 AIMaster 저장소 안의 서브프로젝트다. 루트 `..
 `ncafe_posts`**(naver-cafe-poster 접두어)로 분리했다(2026-09-11, `information_schema.tables`
 전체 대조 후 결정). 새 테이블을 추가할 때도 이름이 겹치지 않는지 먼저 확인할 것.
 
-### 네이버 로그인 OAuth — 공유 앱 + 회원별 연동 구조
-- Threads/Instagram(threads-affiliate-poster, threads/, instagram-comment-reply 등)이 공용
-  Meta 앱을 재사용하는 것과 같은 구조다: 이 프로젝트가 네이버 개발자센터에 앱을 **하나만**
-  등록(`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`)하고, 모든 회원이 그 앱을 통해 각자 본인
-  네이버 계정으로 로그인해 access token을 받는다. 그 토큰으로는 **연동한 본인 명의로만**
-  카페 가입/글쓰기가 된다.
+### 네이버 로그인 OAuth — 회원별 BYOK 앱 등록 구조 (2026-09-16부터, 최초엔 공유 앱이었음)
+- **최초 설계(2026-09-11)는 Threads/Instagram(threads-affiliate-poster, threads/,
+  instagram-comment-reply 등)이 공용 Meta 앱을 재사용하는 것과 같은 구조였다**: 이 프로젝트가
+  네이버 개발자센터에 앱을 하나만 등록(`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`)하고, 모든
+  회원이 그 앱을 통해 각자 본인 네이버 계정으로 로그인해 access token을 받는 방식이었다.
+  **하지만 2026-09-16, kakao_auto_poster의 카카오 로그인에서 "앱이 심사(검수)를 통과하지
+  않은 동안은 그 앱에 테스터로 등록된 계정만 로그인을 완료할 수 있다"는 제약이 Meta 앱
+  Development 모드와 동일한 구조로 실제 발견됐고, 네이버 로그인도 앱이 "네이버 검수"를
+  통과하지 않은 동안 동일한 제약(등록된 테스트 계정만 로그인 가능)이 있는 것으로 웹 리서치로
+  확인돼, 이 프로젝트도 그날 회원별 BYOK 방식으로 전환했다** — 운영자 본인 계정 외 다른
+  회원은 애초에 공용 앱으로 로그인을 완료할 수 없었던 잠재적 버그를, 실제로 걸리기 전에
+  같은 원인 클래스로 먼저 수정한 사례다.
+- **현재 구조**: 회원마다 본인이 만든 네이버 앱의 Client ID/Secret을 설정 페이지에서
+  `user_api_keys`(`naver_client_id`/`naver_client_secret` — 공유 CHECK 제약에 이미 존재해
+  별도 마이그레이션 없이 바로 사용)에 등록하고, `resolveNaverAppCredentials()`
+  (`src/lib/naver/account.ts`)로 조회해서 `src/lib/naver/client.ts`의 함수들(`getNaverAuthorizeUrl`/
+  `exchangeNaverCode`/`refreshNaverToken`)에 파라미터로 넘긴다. `NAVER_REDIRECT_URI`(콜백
+  주소, 이 앱의 고정 배포 도메인 기준이라 회원과 무관)만 환경변수로 남고, `NAVER_CLIENT_ID`/
+  `NAVER_CLIENT_SECRET` 환경변수는 더 이상 코드에서 읽지 않는다. 연동한 본인 명의로만
+  카페 가입/글쓰기가 되는 점은 그대로다.
 - 네이버 로그인 authorize 엔드포인트(`https://nid.naver.com/oauth2.0/authorize`)는 OAuth2
   표준과 달리 `scope` 파라미터가 없다 — 카페 가입/글쓰기 같은 "제공 정보" 접근 권한은
   개발자센터 앱 등록 화면에서 미리 체크해둔 설정으로 결정된다(2026-09-11 확인,
   blog.itcode.dev의 OAuth 가이드 근거).
-- **앱 등록 시 필요한 것**: 개발자센터에서 애플리케이션 등록 → "로그인 오픈 API" 체크 →
-  사용 API에 "카페" 추가 → Callback URL에 `https://naver-cafe-poster.vercel.app/api/naver/callback`
-  등록 → 발급받은 Client ID/Secret을 Vercel 환경변수에 설정.
+- **회원이 본인 앱을 등록할 때 필요한 것**: 개발자센터에서 애플리케이션 등록 → "네이버
+  로그인" 사용 API 체크 → 사용 API에 "카페" 추가 → Callback URL에
+  `https://naver-cafe-poster.vercel.app/api/naver/callback` 등록 → 앱이 아직 검수 전이면
+  "개발 상태" 화면에서 본인 네이버 계정을 테스트 계정으로 추가 → 발급받은 Client ID/Secret을
+  이 프로젝트의 설정 페이지("🔑 네이버 앱 등록" 섹션)에 입력. `platform_guides`의 기존
+  가이드(id `ec45e4bd-fccc-4f14-92e8-3e2df3ced50b`, category="네이버")를 이 새 절차에 맞게
+  갱신했다(새 가이드를 만들지 않고 기존 것을 확장).
+- **하위호환**: 전환 전 이미 연동됐던 기존 `ncafe_accounts` 토큰(예: buylifemall@naver.com,
+  user_id `4a82ff77-97f7-474d-866e-8e9431858ed3`)은 삭제하지 않아 access_token이 유효한
+  동안은 그대로 게시가 되지만, 만료돼 refresh_token으로 갱신해야 하는 시점부터는 본인 네이버
+  앱 등록이 있어야 갱신된다 — 카카오(SOLAPI 폴백 존재)와 달리 이 프로젝트는 대체 발송 경로가
+  없어, 갱신 실패 시 "본인의 네이버 앱 Client ID/Secret이 필요합니다" 안내 메시지와 함께
+  게시 자체가 실패한다(`getNaverAccountOrError()`). 재연결(연동 해제 후 재로그인)도 본인 앱
+  등록이 선행돼야 시작할 수 있다.
 
 ### 네이버 카페 오픈API의 구조적 한계 (설계에 반영됨)
 2026-09-11 확인: 네이버 카페 오픈API는 **가입(`POST /v1/cafe/{clubid}/members`)과 글쓰기

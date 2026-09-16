@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { draftFormSchema } from "@/lib/validation";
 import { publishCafePost } from "@/lib/posts/publish-core";
-import { getNaverAccountOrError, getTargetOrError } from "@/lib/naver/account";
+import { getNaverAccountOrError, getTargetOrError, resolveNaverAppCredentials } from "@/lib/naver/account";
 
 export interface PostActionState {
   error?: string;
@@ -152,7 +152,8 @@ export async function saveAndDeployDraftAction(
   }
 
   try {
-    const account = await getNaverAccountOrError(supabase, user.id);
+    const credentials = await resolveNaverAppCredentials(supabase, user.id);
+    const account = await getNaverAccountOrError(supabase, user.id, credentials);
     const target = await getTargetOrError(supabase, user.id, targetId);
     await publishCafePost({
       supabase,
@@ -198,7 +199,8 @@ export async function deployDraftAction(formData: FormData) {
   }
 
   try {
-    const account = await getNaverAccountOrError(supabase, user.id);
+    const credentials = await resolveNaverAppCredentials(supabase, user.id);
+    const account = await getNaverAccountOrError(supabase, user.id, credentials);
     const target = await getTargetOrError(supabase, user.id, post.target_id);
     await publishCafePost({
       supabase,
@@ -287,7 +289,8 @@ export async function updateAndRepublishPostAction(
   }
 
   try {
-    const account = await getNaverAccountOrError(supabase, user.id);
+    const credentials = await resolveNaverAppCredentials(supabase, user.id);
+    const account = await getNaverAccountOrError(supabase, user.id, credentials);
     const target = await getTargetOrError(supabase, user.id, targetId);
     await publishCafePost({
       supabase,

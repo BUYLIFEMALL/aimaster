@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { exchangeNaverCode, getNaverProfile } from "@/lib/naver/client";
+import { resolveNaverAppCredentials } from "@/lib/naver/account";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -33,8 +34,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${siteUrl}/settings?error=no_access`);
   }
 
+  // 본인 네이버 앱의 Client ID/Secret이 등록돼 있어야 토큰 교환이 가능하다 — 연결 시작 시점
+  // (connectNaverAccountAction)에서 이미 확인했지만, 콜백에 직접 요청이 오는 경로(재시도 등)
+  // 대비로 여기서도 한 번 더 확인한다.
+  const credentials = await resolveNaverAppCredentials(supabase, user.id);
+  if (!credentials) {
+    return NextResponse.redirect(`${siteUrl}/settings?error=naver_app_missing`);
+  }
+
   try {
-    const token = await exchangeNaverCode(code, state);
+    const token = await exchangeNaverCode(code, state, credentials.clientId, credentials.clientSecret);
     const profile = await getNaverProfile(token.access_token);
 
     const expiresInSeconds = Number(token.expires_in);

@@ -1,7 +1,7 @@
 // user_api_keys.provider 컬럼은 DB에서 plain text라 Supabase 코드생성기가 string으로만
 // 잡아준다 — 이 프로젝트에서 실제로 쓰는 provider 값만 수동으로 좁혀서 타입 안정성을 준다
 // (threads-affiliate-poster/src/types/database.types.ts의 ApiKeyProvider와 같은 패턴).
-export type ApiKeyProvider = "openai" | "gemini" | "perplexity";
+export type ApiKeyProvider = "openai" | "gemini" | "perplexity" | "naver_client_id" | "naver_client_secret";
 export type Json =
   | string
   | number

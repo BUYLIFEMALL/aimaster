@@ -5,11 +5,23 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { getNaverAuthorizeUrl } from "@/lib/naver/client";
+import { resolveNaverAppCredentials } from "@/lib/naver/account";
 
 export async function connectNaverAccountAction() {
   const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  // 네이버 로그인도 앱이 네이버 검수를 통과하지 않은 동안은 그 앱에 테스터로 등록된 계정만
+  // OAuth를 완료할 수 있어, 앱(운영자) 공용 네이버 앱 하나로는 운영자 본인 외 다른 회원이
+  // 연결할 수 없다. 회원 각자 본인이 만든 네이버 앱의 Client ID/Secret을 등록해야 연결을
+  // 시작할 수 있다(kakao_auto_poster의 kakao_rest_api_key 전환과 동일한 BYOK 패턴, 2026-09-16).
+  const credentials = await resolveNaverAppCredentials(supabase, user.id);
+  if (!credentials) {
+    redirect("/settings?error=naver_app_missing");
+  }
+
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
-  const authorizeUrl = getNaverAuthorizeUrl(user.id);
+  const authorizeUrl = getNaverAuthorizeUrl(user.id, credentials.clientId);
   redirect(authorizeUrl);
 }
 
