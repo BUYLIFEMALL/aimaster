@@ -630,7 +630,7 @@ export default function CandidatesPage() {
                     <div className="flex shrink-0 items-center gap-2">
                       <Link
                         href={`${basePath}/write/ai-form?${writeParams.toString()}`}
-                        className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-600 hover:bg-blue-100"
+                        className="rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-blue-700"
                       >
                         이 주제로 글쓰기
                       </Link>
@@ -638,12 +638,19 @@ export default function CandidatesPage() {
                         type="button"
                         onClick={() => handleDelete(c.id)}
                         disabled={deletingId === c.id}
-                        className="rounded-lg bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-100 disabled:opacity-50"
+                        className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50"
                       >
                         {deletingId === c.id ? '삭제 중...' : '삭제'}
                       </button>
                     </div>
                   </div>
+                  {c.category_id !== null && (
+                    <div className="mb-2 ml-6">
+                      <span className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-700">
+                        📁 {categoryNameById.get(c.category_id) ?? '카테고리 없음'}
+                      </span>
+                    </div>
+                  )}
                   {c.summary && <p className="whitespace-pre-wrap text-sm text-slate-600">{c.summary}</p>}
                   {c.keywords && c.keywords.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
@@ -655,11 +662,6 @@ export default function CandidatesPage() {
                     </div>
                   )}
                   <p className="mt-2 text-xs text-slate-400">
-                    {c.category_id !== null && (
-                      <span className="mr-1 rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-600">
-                        {categoryNameById.get(c.category_id) ?? '카테고리 없음'}
-                      </span>
-                    )}
                     {SOURCE_LABELS[c.source_type]} · {c.source_input} · {new Date(c.created_at).toLocaleString('ko-KR')}
                   </p>
                 </li>
