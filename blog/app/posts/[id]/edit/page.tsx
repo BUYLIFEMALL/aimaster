@@ -3,6 +3,21 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import {
+  ArrowLeft,
+  Bold,
+  Italic,
+  Heading2,
+  Heading3,
+  Quote,
+  List,
+  Link as LinkIcon,
+  Eye,
+  Code,
+  Folder,
+  Check,
+  SquarePen,
+} from 'lucide-react'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
 
@@ -71,6 +86,13 @@ export default function PostEditPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // 카카오톡 자동화(kakao_auto_poster) 편집기를 검토한 뒤, 네이버 카페 자동화에 이어 이
+  // 에디터에도 이식한 "링크 삽입" 기능 — 블로그는 실제 HTML을 그대로 저장/렌더링하므로
+  // (네이버 카페와 달리 <a href> 태그가 escape되지 않는다) 실제 하이퍼링크로 삽입한다
+  // (사용자 요청, 2026-09-16).
+  const [showLinkPopover, setShowLinkPopover] = useState(false)
+  const [linkUrlInput, setLinkUrlInput] = useState('')
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const visualContentRef = useRef<HTMLDivElement>(null)
@@ -149,6 +171,35 @@ export default function PostEditPage() {
     }
   }
 
+  // 링크 삽입 — 코드 모드는 기존 서식 버튼들(## , > , - 등)과 동일하게 마크다운 문법
+  // ([텍스트](URL))으로 넣고, 비주얼 모드는 다른 서식 버튼들과 동일하게 execCommand로
+  // 실제 <a href> 태그를 만든다.
+  const insertLink = () => {
+    const raw = linkUrlInput.trim()
+    if (!raw) return
+    const href = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+
+    if (editorMode === 'code' && textareaRef.current) {
+      const textarea = textareaRef.current
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const selectedText = codeContent.substring(start, end) || '링크'
+      const replacement = `[${selectedText}](${href})`
+      const newContent = codeContent.substring(0, start) + replacement + codeContent.substring(end)
+      setCodeContent(newContent)
+      setTimeout(() => {
+        textarea.focus()
+        textarea.setSelectionRange(start + replacement.length, start + replacement.length)
+      }, 0)
+    } else {
+      document.execCommand('styleWithCSS', false, 'true')
+      document.execCommand('createLink', false, href)
+    }
+
+    setLinkUrlInput('')
+    setShowLinkPopover(false)
+  }
+
   // 모드 전환 핸들러
   const switchToVisual = () => {
     // 코드 모드에서 비주얼로 전환 시: codeContent는 그대로 유지 (rawContent는 원본 DB 이미지를 보존하고 있음)
@@ -218,10 +269,10 @@ export default function PostEditPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-8 text-white">
+      <div className="min-h-screen bg-white flex items-center justify-center p-8 text-neutral-900">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-slate-400">듀얼 에디터 환경을 로딩하는 중입니다...</p>
+          <p className="text-sm font-semibold text-neutral-500">듀얼 에디터 환경을 로딩하는 중입니다...</p>
         </div>
       </div>
     )
@@ -229,12 +280,12 @@ export default function PostEditPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8 text-white">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl">
-          <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto text-xl font-bold">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 text-neutral-900">
+        <div className="bg-white border border-neutral-200 rounded-2xl p-8 max-w-md w-full text-center space-y-4 shadow-lg">
+          <div className="w-12 h-12 rounded-full bg-red-50 border border-red-200 text-red-600 flex items-center justify-center mx-auto text-xl font-bold">
             ⚠️
           </div>
-          <h2 className="text-lg font-bold text-white">{error}</h2>
+          <h2 className="text-lg font-bold text-neutral-900">{error}</h2>
           <Link
             href={`${getBlogBasePath()}/posts/${postId}`}
             className="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition-all cursor-pointer no-underline shadow-md"
@@ -247,24 +298,24 @@ export default function PostEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-neutral-50 text-neutral-900 flex flex-col">
       {/* Header Bar */}
-      <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-30 px-6 py-4">
+      <header className="border-b border-neutral-200 bg-white/95 backdrop-blur sticky top-0 z-30 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               href={`${getBlogBasePath()}/posts/${postId}`}
-              className="text-slate-400 hover:text-white text-sm font-semibold transition-colors no-underline flex items-center gap-1"
+              className="text-neutral-500 hover:text-neutral-900 text-sm font-semibold transition-colors no-underline flex items-center gap-1"
             >
-              ← 취소
+              <ArrowLeft size={15} /> 취소
             </Link>
             <div className="flex items-center gap-2">
-              <span className="text-xl">✏️</span>
-              <h1 className="text-lg font-bold text-white">스마트 에디터 (수정 페이지)</h1>
+              <SquarePen size={18} className="text-neutral-700" />
+              <h1 className="text-lg font-bold text-neutral-900">스마트 에디터 (수정 페이지)</h1>
             </div>
             <a
               href={`${MAIN_SITE_URL}/programs`}
-              className="text-slate-400 hover:text-white text-xs font-medium transition-colors no-underline hidden sm:inline"
+              className="text-neutral-500 hover:text-neutral-900 text-xs font-medium transition-colors no-underline hidden sm:inline"
             >
               ← 다른 프로그램 보기
             </a>
@@ -272,10 +323,9 @@ export default function PostEditPage() {
           <button
             onClick={handleSubmit}
             disabled={saving}
-            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none' }}
-            className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-extrabold rounded-xl shadow-lg shadow-red-600/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+            className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-extrabold rounded-xl shadow-lg shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
           >
-            {saving ? '수정 중...' : '✓ 수정 완료'}
+            {saving ? '수정 중...' : <><Check size={15} /> 수정 완료</>}
           </button>
         </div>
       </header>
@@ -283,12 +333,12 @@ export default function PostEditPage() {
       {/* Main Single Column Editor */}
       <main className="max-w-5xl mx-auto w-full px-6 py-8 flex-1 flex flex-col space-y-6">
         {/* 1. 카테고리 선택 탭 */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-lg">
+        <div className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-3 shadow-sm">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span>📂</span> 카테고리 설정 (다중 선택 가능)
+            <label className="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+              <Folder size={14} /> 카테고리 설정 (다중 선택 가능)
             </label>
-            <span className="text-xs text-slate-400 font-medium">
+            <span className="text-xs text-neutral-500 font-medium">
               {selectedCategoryIds.length}개 선택됨
             </span>
           </div>
@@ -300,23 +350,13 @@ export default function PostEditPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => toggleCategory(cat.id)}
-                  style={{
-                    backgroundColor: isSelected ? '#2563eb' : '#1e293b',
-                    color: isSelected ? '#ffffff' : '#94a3b8',
-                    fontWeight: isSelected ? '800' : '600',
-                    border: isSelected ? '1px solid #3b82f6' : '1px solid #334155',
-                    boxShadow: isSelected ? '0 4px 10px rgba(37, 99, 235, 0.3)' : 'none',
-                    padding: '7px 16px',
-                    borderRadius: '9999px',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease-in-out',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px'
-                  }}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs transition-colors ${
+                    isSelected
+                      ? 'border-blue-600 bg-blue-600 text-white font-extrabold shadow-sm shadow-blue-600/20'
+                      : 'border-neutral-300 bg-white text-neutral-600 font-semibold hover:bg-neutral-50'
+                  }`}
                 >
-                  {isSelected && <span style={{ fontSize: '12px' }}>✓</span>}
+                  {isSelected && <Check size={12} />}
                   {cat.name}
                 </button>
               )
@@ -326,80 +366,104 @@ export default function PostEditPage() {
 
         {/* 2. 제목 */}
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">제목</label>
+          <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider">제목</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="게시글 제목을 입력하세요..."
-            style={{ backgroundColor: '#0f172a', color: '#ffffff', borderColor: '#1e293b' }}
-            className="w-full rounded-2xl px-5 py-4 text-white text-lg font-extrabold placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors shadow-inner border"
+            className="w-full rounded-2xl border border-neutral-300 bg-white px-5 py-4 text-neutral-900 text-lg font-extrabold placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors shadow-sm"
           />
         </div>
 
         {/* 3. 요약 설명 */}
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">요약 설명 (Excerpt)</label>
+          <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider">요약 설명 (Excerpt)</label>
           <textarea
             rows={2}
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value)}
             placeholder="게시글 요약 문구를 입력하세요..."
-            style={{ backgroundColor: '#0f172a', color: '#f1f5f9', borderColor: '#1e293b' }}
-            className="w-full rounded-2xl p-4 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none shadow-inner border"
+            className="w-full rounded-2xl border border-neutral-300 bg-white p-4 text-neutral-900 text-sm placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors resize-none shadow-sm"
           />
         </div>
 
         {/* 4. 듀얼 에디터 (비주얼 / 코드 탭 전환) */}
-        <div
-          style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}
-          className="flex-1 flex flex-col border rounded-2xl overflow-hidden shadow-2xl"
-        >
+        <div className="flex-1 flex flex-col border border-neutral-200 rounded-2xl overflow-hidden shadow-sm bg-white">
           {/* Editor Top Bar: Toolbar + Mode Switcher */}
-          <div
-            style={{ backgroundColor: '#020617', borderColor: '#1e293b' }}
-            className="border-b p-3 flex items-center justify-between gap-3 flex-wrap"
-          >
+          <div className="border-b border-neutral-200 bg-neutral-50 p-3 flex items-center justify-between gap-3 flex-wrap">
             {/* Left: Formatting Buttons */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-slate-400 mr-2 flex items-center gap-1">
-                <span>🛠️</span> 서식:
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className="text-xs font-bold text-neutral-500 mr-1 flex items-center gap-1">
+                🛠️ 서식:
               </span>
-              <button type="button" onClick={() => insertFormatting('**', '**')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="굵게">B 굵게</button>
-              <button type="button" onClick={() => insertFormatting('*', '*')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold italic rounded-lg transition-colors cursor-pointer border border-slate-700" title="기울임">I 기울임</button>
-              <div className="w-[1px] h-4 bg-slate-700 mx-1" />
-              <button type="button" onClick={() => insertFormatting('## ')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="H2">H2</button>
-              <button type="button" onClick={() => insertFormatting('### ')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="H3">H3</button>
-              <div className="w-[1px] h-4 bg-slate-700 mx-1" />
-              <button type="button" onClick={() => insertFormatting('> ')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="인용구">💬 인용</button>
-              <button type="button" onClick={() => insertFormatting('- ')} className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-slate-700" title="목록">• 목록</button>
+              <button type="button" onClick={() => insertFormatting('**', '**')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="굵게"><Bold size={14} /> 굵게</button>
+              <button type="button" onClick={() => insertFormatting('*', '*')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="기울임"><Italic size={14} /> 기울임</button>
+              <span className="mx-1 h-4 w-px bg-neutral-300" />
+              <button type="button" onClick={() => insertFormatting('## ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="H2"><Heading2 size={14} /> H2</button>
+              <button type="button" onClick={() => insertFormatting('### ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="H3"><Heading3 size={14} /> H3</button>
+              <span className="mx-1 h-4 w-px bg-neutral-300" />
+              <button type="button" onClick={() => insertFormatting('> ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="인용구"><Quote size={14} /> 인용</button>
+              <button type="button" onClick={() => insertFormatting('- ')} className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-neutral-600 text-xs font-bold hover:bg-neutral-200 hover:text-neutral-900 transition-colors" title="목록"><List size={14} /> 목록</button>
+
+              {/* 링크 삽입 — 카카오/네이버 카페 편집기와 동일한 팝오버 UX. 블로그는 실제
+                  HTML을 저장하므로 진짜 <a href>(비주얼)/마크다운 링크(코드)를 만든다. */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowLinkPopover((prev) => !prev)}
+                  className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-bold transition-colors ${
+                    showLinkPopover ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900'
+                  }`}
+                  title="링크 삽입"
+                >
+                  <LinkIcon size={14} /> 링크
+                </button>
+                {showLinkPopover && (
+                  <div className="absolute top-full left-0 z-20 mt-1 min-w-[280px] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl">
+                    <p className="mb-2 text-xs text-neutral-500">링크 URL</p>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={linkUrlInput}
+                        onChange={(e) => setLinkUrlInput(e.target.value)}
+                        placeholder="https://..."
+                        className="flex-1 rounded-lg border border-neutral-300 px-2 py-1.5 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+                        onKeyDown={(e) => e.key === 'Enter' && insertLink()}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={insertLink}
+                        className="rounded bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200"
+                      >
+                        삽입
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Right: Mode Switcher */}
-            <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
+            <div className="flex items-center bg-neutral-100 rounded-xl p-1 gap-1">
               <button
                 type="button"
                 onClick={switchToVisual}
-                style={{
-                  backgroundColor: editorMode === 'visual' ? '#2563eb' : 'transparent',
-                  color: editorMode === 'visual' ? '#ffffff' : '#94a3b8',
-                  fontWeight: editorMode === 'visual' ? '800' : '600'
-                }}
-                className="px-4 py-1.5 text-xs rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                className={`px-4 py-1.5 text-xs rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                  editorMode === 'visual' ? 'bg-blue-600 text-white font-extrabold' : 'text-neutral-500 font-semibold hover:text-neutral-900'
+                }`}
               >
-                <span>👁️</span> 비주얼
+                <Eye size={14} /> 비주얼
               </button>
               <button
                 type="button"
                 onClick={switchToCode}
-                style={{
-                  backgroundColor: editorMode === 'code' ? '#2563eb' : 'transparent',
-                  color: editorMode === 'code' ? '#ffffff' : '#94a3b8',
-                  fontWeight: editorMode === 'code' ? '800' : '600'
-                }}
-                className="px-4 py-1.5 text-xs rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                className={`px-4 py-1.5 text-xs rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                  editorMode === 'code' ? 'bg-blue-600 text-white font-extrabold' : 'text-neutral-500 font-semibold hover:text-neutral-900'
+                }`}
               >
-                <span>&lt;/&gt;</span> 코드 (HTML)
+                <Code size={14} /> 코드 (HTML)
               </button>
             </div>
           </div>
@@ -410,8 +474,7 @@ export default function PostEditPage() {
               ref={visualContentRef}
               contentEditable
               suppressContentEditableWarning
-              style={{ backgroundColor: '#0f172a', color: '#f8fafc', outline: 'none' }}
-              className="w-full p-8 font-sans text-base leading-relaxed focus:outline-none min-h-[500px] prose prose-invert max-w-none"
+              className="w-full p-8 bg-white text-neutral-900 font-sans text-base leading-relaxed outline-none focus:outline-none min-h-[500px] prose max-w-none"
               dangerouslySetInnerHTML={{ __html: rawContent }}
             />
           )}
@@ -419,8 +482,8 @@ export default function PostEditPage() {
           {/* Code Mode: [첨부 이미지 N] 태그로 경량화된 소스코드 에디터 */}
           {editorMode === 'code' && (
             <div className="relative">
-              <div className="absolute top-3 right-4 text-xs text-blue-400 font-bold flex items-center gap-1 bg-blue-950/60 px-3 py-1 rounded-full border border-blue-800/50 z-10">
-                <span>🖼️</span> [첨부 이미지 N] = 원본 이미지 보존 위치
+              <div className="absolute top-3 right-4 text-xs text-blue-600 font-bold flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 z-10">
+                🖼️ [첨부 이미지 N] = 원본 이미지 보존 위치
               </div>
               <textarea
                 ref={textareaRef}
@@ -428,8 +491,7 @@ export default function PostEditPage() {
                 value={codeContent}
                 onChange={(e) => setCodeContent(e.target.value)}
                 placeholder="HTML 또는 마크다운 코드를 입력하세요..."
-                style={{ backgroundColor: '#0f172a', color: '#38bdf8' }}
-                className="w-full p-6 pt-12 text-sky-400 font-mono text-sm leading-relaxed focus:outline-none resize-y min-h-[500px]"
+                className="w-full p-6 pt-12 bg-white text-neutral-800 font-mono text-sm leading-relaxed outline-none focus:outline-none resize-y min-h-[500px]"
               />
             </div>
           )}
