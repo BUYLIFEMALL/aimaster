@@ -215,6 +215,8 @@ export function ProductPostForm({
   const [imageModel, setImageModel] = useState<(typeof IMAGE_MODEL_OPTIONS)[number]["value"]>(
     "nanobanana-2-2k",
   );
+  const [aiMultiCut, setAiMultiCut] = useState(false);
+  const [aiCutCount, setAiCutCount] = useState(3);
   const [geminiApiKey, setGeminiApiKey] = useState("");
   const [isGeneratingImage, startGeneratingImage] = useTransition();
   const [imageGenError, setImageGenError] = useState<string | null>(null);
@@ -230,14 +232,32 @@ export function ProductPostForm({
 
     setImageGenError(null);
     startGeneratingImage(async () => {
-      const result = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
-      if (result.error) {
-        setImageGenError(result.error);
-        return;
-      }
-      if (result.imageUrl) {
-        setImageUrls((prev) => [...prev, result.imageUrl!].slice(0, 20));
-        setVideoUrl("");
+      if (aiMultiCut && aiCutCount > 1) {
+        const count = Math.min(Math.max(aiCutCount, 2), 10);
+        const generatedList: string[] = [];
+        for (let i = 1; i <= count; i++) {
+          const cutPrompt = `${prompt} (컷 ${i}/${count}: Threads 카드뉴스 visual angle ${i})`;
+          const result = await generateImageAction({ prompt: cutPrompt, apiKey: geminiApiKey, model: imageModel });
+          if (result.imageUrl) {
+            generatedList.push(result.imageUrl);
+          }
+        }
+        if (generatedList.length > 0) {
+          setImageUrls((prev) => [...prev, ...generatedList].slice(0, 20));
+          setVideoUrl("");
+        } else {
+          setImageGenError("이미지 멀티컷 생성에 실패했습니다.");
+        }
+      } else {
+        const result = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+        if (result.error) {
+          setImageGenError(result.error);
+          return;
+        }
+        if (result.imageUrl) {
+          setImageUrls((prev) => [...prev, result.imageUrl!].slice(0, 20));
+          setVideoUrl("");
+        }
       }
     });
   };
@@ -275,33 +295,50 @@ export function ProductPostForm({
       setStatusMsg("입력된 내용을 저장하고 있습니다...");
     }
 
-    let finalImageUrl = imageUrls.join(",");
+    const currentUrls = [...imageUrls];
     const prompt = imagePrompt.trim() || selectedProduct?.product_name.trim() || "";
-    if (prompt && imageUrls.length === 0) {
-      const MAX_IMAGE_ATTEMPTS = 2;
+    if (prompt && currentUrls.length === 0) {
       let lastError: string | undefined;
-      for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
-        setStatusMsg(
-          attempt === 1
-            ? "게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다..."
-            : `이미지 생성에 실패해서 다시 시도하고 있습니다... (${attempt}/${MAX_IMAGE_ATTEMPTS})`,
-        );
-        const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
-        if (imageResult.imageUrl) {
-          finalImageUrl = imageResult.imageUrl;
-          setImageUrls([imageResult.imageUrl]);
-          lastError = undefined;
-          break;
+      if (aiMultiCut && aiCutCount > 1) {
+        const count = Math.min(Math.max(aiCutCount, 2), 10);
+        setStatusMsg(`AI가 Threads 카드뉴스용 멀티컷 이미지 ${count}장을 연속 생성 중입니다...`);
+        for (let i = 1; i <= count; i++) {
+          const cutPrompt = `${prompt} (컷 ${i}/${count}: Threads 카드뉴스 visual angle ${i})`;
+          const imageResult = await generateImageAction({ prompt: cutPrompt, apiKey: geminiApiKey, model: imageModel });
+          if (imageResult.imageUrl) {
+            currentUrls.push(imageResult.imageUrl);
+          } else if (imageResult.error) {
+            lastError = imageResult.error;
+          }
         }
-        lastError = imageResult.error;
+        if (currentUrls.length > 0) {
+          setImageUrls(currentUrls);
+        }
+      } else {
+        const MAX_IMAGE_ATTEMPTS = 2;
+        for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
+          setStatusMsg(
+            attempt === 1
+              ? "게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다..."
+              : `이미지 생성에 실패해서 다시 시도하고 있습니다... (${attempt}/${MAX_IMAGE_ATTEMPTS})`,
+          );
+          const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+          if (imageResult.imageUrl) {
+            currentUrls.push(imageResult.imageUrl);
+            setImageUrls(currentUrls);
+            lastError = undefined;
+            break;
+          }
+          lastError = imageResult.error;
+        }
       }
-      if (lastError) {
+      if (lastError && currentUrls.length === 0) {
         setImageGenError(lastError);
       }
     }
 
     setStatusMsg(null);
-    return { content: finalContent, imageUrl: finalImageUrl };
+    return { content: finalContent, imageUrl: currentUrls.join(",") };
   };
 
   const handleGenerateAll = async () => {
@@ -573,6 +610,33 @@ export function ProductPostForm({
               {isGeneratingImage ? "생성 중..." : "✨ AI 이미지 생성/추가"}
             </Button>
           </div>
+          <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium text-neutral-700">
+            <label className="inline-flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiMultiCut}
+                onChange={(e) => setAiMultiCut(e.target.checked)}
+                className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
+              />
+              <span>🎨 AI 멀티컷 카드뉴스 연속 생성</span>
+            </label>
+            {aiMultiCut && (
+              <div className="inline-flex items-center gap-1">
+                <span>생성할 컷 수:</span>
+                <select
+                  value={aiCutCount}
+                  onChange={(e) => setAiCutCount(Number(e.target.value))}
+                  className="rounded border border-neutral-300 px-2 py-0.5 text-xs text-neutral-700"
+                >
+                  {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                    <option key={num} value={num}>
+                      {num}장
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
           <Input
             type="text"
             name="gemini_key_field"
@@ -602,9 +666,12 @@ export function ProductPostForm({
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading || imageUrls.length >= 20}
           >
-            {isUploading ? "업로드 중..." : "+ 이미지 다중 업로드 (최대 20장)"}
+            {isUploading ? "업로드 중..." : "+ 직접 이미지 다중 업로드 (선택 사용)"}
           </Button>
         </div>
+        <p className="mt-1 text-[11px] text-neutral-500">
+          💡 AI 기본 이미지를 생성하거나 대표 이미지를 추가한 뒤, 직접 만든 캐러셀 이미지나 사진을 추가로 선택 업로드하여 하나의 슬라이드 게시글로 조합할 수 있습니다.
+        </p>
         {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
 
         {imageUrls.length > 0 && (
