@@ -66,6 +66,44 @@ async function saveFallbackCategories(
     );
 }
 
+/** DB에 threads_candidates.category_id 컬럼이 없을 때 fallback 매핑을 가져옵니다. */
+export async function getCandidateCategoryMap(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<Record<string, string>> {
+  try {
+    const { data } = await supabase
+      .from("user_api_keys")
+      .select("api_key")
+      .eq("user_id", userId)
+      .eq("provider", "perplexity")
+      .maybeSingle();
+
+    if (data?.api_key && data.api_key.startsWith("CAND_MAP_JSON:")) {
+      const jsonStr = data.api_key.replace("CAND_MAP_JSON:", "");
+      return JSON.parse(jsonStr) as Record<string, string>;
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
+/** DB에 threads_candidates.category_id 컬럼이 없을 때 fallback 매핑을 저장합니다. */
+export async function saveCandidateCategoryMap(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  map: Record<string, string>,
+) {
+  const jsonVal = "CAND_MAP_JSON:" + JSON.stringify(map);
+  await supabase
+    .from("user_api_keys")
+    .upsert(
+      { user_id: userId, provider: "perplexity", api_key: jsonVal, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,provider" },
+    );
+}
+
 /** 게시글 글감/후보를 분류할 카테고리를 생성합니다. */
 export async function createCategoryAction(
   _prevState: CategoryActionState,

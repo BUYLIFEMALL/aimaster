@@ -10,7 +10,7 @@ import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
 import type { ApiKeyProvider, ThreadsSourceType } from "@/types/database.types";
 import type { ThreadsCategory } from "@/types/post";
 
-import { getThreadsCategories } from "@/lib/actions/categories";
+import { getThreadsCategories, getCandidateCategoryMap } from "@/lib/actions/categories";
 
 const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
 
@@ -27,7 +27,7 @@ export default async function CandidatesPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: candidates }, { data: newsblurAccount }, registeredProviders, categories] = await Promise.all([
+  const [{ data: rawCandidates }, { data: newsblurAccount }, registeredProviders, categories, candCategoryMap] = await Promise.all([
     supabase
       .from("threads_candidates")
       .select("*")
@@ -36,7 +36,13 @@ export default async function CandidatesPage() {
     supabase.from("newsblur_accounts").select("username").eq("user_id", user.id).maybeSingle(),
     getRegisteredProviders(supabase, user.id),
     getThreadsCategories(supabase, user.id),
+    getCandidateCategoryMap(supabase, user.id),
   ]);
+
+  const candidates = (rawCandidates ?? []).map((c) => ({
+    ...c,
+    category_id: c.category_id || candCategoryMap[c.id] || null,
+  }));
 
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 

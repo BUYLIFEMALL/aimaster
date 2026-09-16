@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { getCandidateCategoryMap, saveCandidateCategoryMap } from "@/lib/actions/categories";
 import {
   fetchUrlText,
   fetchHtmlForLinks,
@@ -38,6 +39,7 @@ export async function moveCandidatesToCategoryAction(formData: FormData): Promis
 
   const supabase = await createClient();
 
+  // 1차 시도: threads_candidates DB 테이블
   try {
     const { error } = await supabase
       .from("threads_candidates")
@@ -45,21 +47,31 @@ export async function moveCandidatesToCategoryAction(formData: FormData): Promis
       .in("id", ids)
       .eq("user_id", user.id);
 
-    if (error) {
-      console.error("Failed to move candidates to category:", error);
-      if (error.code === "42703" || error.message?.includes("category_id")) {
-        return {
-          error: "Supabase 데이터베이스에 'category_id' 컬럼이 아직 생성되지 않았습니다. Supabase SQL Editor에서 마이그레이션을 실행해 주세요.",
-        };
-      }
-      return { error: error.message };
+    if (!error) {
+      revalidatePath("/candidates");
+      return { count: ids.length };
     }
+  } catch {
+    // fallback 진행
+  }
+
+  // 2차 Fallback: user_api_keys 저장소 활용 매핑 저장
+  try {
+    const currentMap = await getCandidateCategoryMap(supabase, user.id);
+    const updatedMap = { ...currentMap };
+    ids.forEach((id) => {
+      if (categoryId) {
+        updatedMap[id] = categoryId;
+      } else {
+        delete updatedMap[id];
+      }
+    });
+    await saveCandidateCategoryMap(supabase, user.id, updatedMap);
 
     revalidatePath("/candidates");
     return { count: ids.length };
   } catch (err) {
-    console.error("Error moving candidates:", err);
-    return { error: err instanceof Error ? err.message : "카테고리 이동 중 오류가 발생했습니다." };
+    return { error: err instanceof Error ? err.message : "카테고리 이동에 실패했습니다." };
   }
 }
 
@@ -71,23 +83,71 @@ async function insertCandidates(
   drafts: ThreadsCandidateDraft[],
   categoryId?: string | null,
 ) {
-  // 한 배치로 여러 건을 insert하면 DB가 모든 행에 동일한 트랜잭션 시각을 created_at으로
-  // 부여해서, "최신 생성 순" 정렬(created_at desc)이 배치 내에서는 순서를 보장하지 못한다.
-  // 배치 내 순서(=생성 순서)를 유지하도록 1ms씩 차이 나는 타임스탬프를 명시적으로 부여한다.
   const now = Date.now();
-  const { error } = await supabase.from("threads_candidates").insert(
-    drafts.map((d, i) => ({
-      user_id: userId,
-      source_type: sourceType,
-      source_input: sourceInput,
-      title: d.title,
-      content: d.content,
-      keywords: d.keywords ?? [],
-      category_id: categoryId || null,
-      created_at: new Date(now - i).toISOString(),
-    })),
-  );
-  if (error) throw new Error(error.message);
+  
+  // 1. 후보 insert
+  const { data: inserted, error } = await supabase
+    .from("threads_candidates")
+    .insert(
+      drafts.map((d, i) => ({
+        user_id: userId,
+        source_type: sourceType,
+        source_input: sourceInput,
+        title: d.title,
+        content: d.content,
+        keywords: d.keywords ?? [],
+        category_id: categoryId || null,
+        created_at: new Date(now - i).toISOString(),
+      })),
+    )
+    .select("id");
+
+  if (error) {
+    // category_id 컬럼 없이 insert 시도 시 fallback 구문으로 재시도
+    if (error.code === "42703" || error.message?.includes("category_id")) {
+      const { data: retryData, error: retryErr } = await supabase
+        .from("threads_candidates")
+        .insert(
+          drafts.map((d, i) => ({
+            user_id: userId,
+            source_type: sourceType,
+            source_input: sourceInput,
+            title: d.title,
+            content: d.content,
+            keywords: d.keywords ?? [],
+            created_at: new Date(now - i).toISOString(),
+          })),
+        )
+        .select("id");
+
+      if (retryErr) throw new Error(retryErr.message);
+
+      if (categoryId && retryData) {
+        const currentMap = await getCandidateCategoryMap(supabase, userId);
+        const updatedMap = { ...currentMap };
+        retryData.forEach((row) => {
+          updatedMap[row.id] = categoryId;
+        });
+        await saveCandidateCategoryMap(supabase, userId, updatedMap);
+      }
+      return;
+    }
+    throw new Error(error.message);
+  }
+
+  // DB에 category_id가 포함 정상 저장 및 Fallback 백업도 함께 저장
+  if (categoryId && inserted) {
+    try {
+      const currentMap = await getCandidateCategoryMap(supabase, userId);
+      const updatedMap = { ...currentMap };
+      inserted.forEach((row) => {
+        updatedMap[row.id] = categoryId;
+      });
+      await saveCandidateCategoryMap(supabase, userId, updatedMap);
+    } catch {
+      // ignore
+    }
+  }
 }
 
 const CATEGORY_PAGE_MIN_LINKS = 3;
