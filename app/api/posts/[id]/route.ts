@@ -139,7 +139,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { title, excerpt, content, category_ids: categoryIds } = body
+    const { title, excerpt, content, contentFormat, category_ids: categoryIds } = body
 
     if (!title || !title.trim()) {
       return NextResponse.json({ error: '제목을 입력해 주세요.' }, { status: 400 })
@@ -173,8 +173,13 @@ export async function PUT(
       finalMarkdown = finalMarkdown.split(key).join(imgSrc)
     })
 
-    // 4. 최종 마크다운 ➔ HTML 변환
-    const finalHtml = mdLiteToHtml(finalMarkdown)
+    // 4. 최종 마크다운 ➔ HTML 변환 — 단, RichTextEditor(Tiptap) 비주얼 모드는 이미 완성된
+    // 진짜 HTML을 보내므로 여기서 또 mdLiteToHtml(마크다운 전용 변환기)에 통과시키면 안 된다.
+    // 그렇게 하면 <, > 문자가 전부 escape되어 태그가 그대로 화면에 텍스트로 노출되는 버그가
+    // 있었다(2026-09-16, 사용자가 저장 후 화면 스크린샷으로 발견). 클라이언트가
+    // contentFormat: 'html'을 명시적으로 보낼 때만 변환 없이 그대로 저장한다 — 이 필드를
+    // 안 보내는 기존 호출부(과거 코드 모드 저장 등)는 기존과 동일하게 마크다운으로 취급한다.
+    const finalHtml = contentFormat === 'html' ? finalMarkdown : mdLiteToHtml(finalMarkdown)
 
     // 5. DB 업데이트
     const { data: updatedPost, error: updateErr } = await supabase

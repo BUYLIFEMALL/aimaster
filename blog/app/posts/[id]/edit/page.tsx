@@ -219,6 +219,11 @@ export default function PostEditPage() {
       // 어떤 모드든 이미지를 [첨부이미지 N] 태그로 치환하여 경량 전송
       const finalContent = editorMode === 'visual' ? replaceBase64WithImageTags(rawContent) : codeContent
 
+      // 비주얼 모드(RichTextEditor/Tiptap)는 이미 완성된 진짜 HTML을 만들어내므로 서버가
+      // mdLiteToHtml(마크다운→HTML 변환기)에 다시 통과시키면 안 된다 — 통과시키면 <, > 문자가
+      // 전부 escape되어 태그가 그대로 화면에 텍스트로 보이는 버그가 있었다(2026-09-16, 사용자
+      // 스크린샷으로 발견). 코드 모드는 기존처럼 마크다운 라이트 문법을 입력하므로 그대로
+      // 변환이 필요하다.
       const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -226,6 +231,7 @@ export default function PostEditPage() {
           title,
           excerpt,
           content: finalContent,
+          contentFormat: editorMode === 'visual' ? 'html' : 'markdown',
           category_ids: selectedCategoryIds
         })
       })

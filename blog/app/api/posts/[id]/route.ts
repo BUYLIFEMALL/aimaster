@@ -106,7 +106,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { title, excerpt, content, categoryId } = body
+    const { title, excerpt, content, contentFormat, categoryId } = body
 
     if (!title || !title.trim()) {
       return NextResponse.json({ error: '제목을 입력해 주세요.' }, { status: 400 })
@@ -141,7 +141,11 @@ export async function PUT(
     })
 
     // 4. 최종 마크다운 ➔ HTML 변환
-    const finalHtml = mdLiteToHtml(finalMarkdown)
+    // RichTextEditor(Tiptap) 비주얼 모드는 이미 완성된 진짜 HTML을 보내므로, 여기서 또
+    // mdLiteToHtml(마크다운 전용 변환기)에 통과시키면 <, > 문자가 escape되어 태그가 그대로
+    // 화면에 텍스트로 노출된다(2026-09-16 발견). 클라이언트가 contentFormat: 'html'을 명시할
+    // 때만 변환 없이 그대로 저장한다.
+    const finalHtml = contentFormat === 'html' ? finalMarkdown : mdLiteToHtml(finalMarkdown)
 
     // 5. DB 업데이트
     const { data: updatedPost, error: updateErr } = await supabase
