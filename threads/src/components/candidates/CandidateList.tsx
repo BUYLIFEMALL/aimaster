@@ -160,14 +160,7 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
                     className="mt-1 h-4 w-4"
                     aria-label="이동할 주제 선택"
                   />
-                  <div>
-                    <h3 className="text-sm font-semibold text-neutral-900">{c.title}</h3>
-                    {catName && (
-                      <span className="mt-1 inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
-                        📁 {catName}
-                      </span>
-                    )}
-                  </div>
+                  <h3 className="text-sm font-semibold text-neutral-900">{c.title}</h3>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <Link
@@ -182,7 +175,14 @@ export function CandidateList({ candidates, categories }: CandidateListProps) {
                   </form>
                 </div>
               </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-700">{c.content}</p>
+              {catName && (
+                <div className="mb-2 ml-6">
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-700">
+                    📁 {catName}
+                  </span>
+                </div>
+              )}
+              <p className="whitespace-pre-wrap text-sm text-neutral-700">{c.content}</p>
               {c.keywords && c.keywords.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {c.keywords.map((k) => (
