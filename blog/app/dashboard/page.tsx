@@ -176,6 +176,12 @@ export default function DashboardPage() {
           </ol>
         </div>
 
+        <div className="my-8 flex items-center gap-3">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-xs font-bold tracking-wide text-slate-400">최근 활동</span>
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
         <div className="bg-white border border-slate-200 rounded-2xl mb-6">
           <div className="border-b border-slate-100 p-4 flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-900">최근 게시글</h2>
