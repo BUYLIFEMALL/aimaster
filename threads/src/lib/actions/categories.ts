@@ -12,6 +12,14 @@ function friendlyError(message: string): string {
   if (message.includes("duplicate key") || message.includes("unique constraint")) {
     return "이미 있는 카테고리 이름입니다.";
   }
+  if (
+    message.includes("Could not find the table") ||
+    message.includes("schema cache") ||
+    message.includes("does not exist") ||
+    message.includes("PGRST202")
+  ) {
+    return "데이터베이스에 카테고리 테이블(threads_categories)이 생성되지 않았습니다. Supabase 마이그레이션(0004_threads_categories.sql) 실행이 필요합니다.";
+  }
   return message;
 }
 
@@ -24,24 +32,31 @@ export async function createCategoryAction(
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "카테고리 이름을 입력해주세요." };
 
-  const supabase = await createClient();
-  const { data: last } = await supabase
-    .from("threads_categories")
-    .select("sort_order")
-    .eq("user_id", user.id)
-    .order("sort_order", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const nextSortOrder = (last?.sort_order ?? 0) + 1;
+  try {
+    const supabase = await createClient();
+    const { data: last, error: selectErr } = await supabase
+      .from("threads_categories")
+      .select("sort_order")
+      .eq("user_id", user.id)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-  const { error } = await supabase
-    .from("threads_categories")
-    .insert({ user_id: user.id, name, sort_order: nextSortOrder });
+    if (selectErr) return { error: friendlyError(selectErr.message) };
 
-  if (error) return { error: friendlyError(error.message) };
+    const nextSortOrder = (last?.sort_order ?? 0) + 1;
 
-  revalidatePath("/candidates");
-  return {};
+    const { error } = await supabase
+      .from("threads_categories")
+      .insert({ user_id: user.id, name, sort_order: nextSortOrder });
+
+    if (error) return { error: friendlyError(error.message) };
+
+    revalidatePath("/candidates");
+    return {};
+  } catch (err) {
+    return { error: err instanceof Error ? friendlyError(err.message) : "오류가 발생했습니다." };
+  }
 }
 
 /** 카테고리 이름을 수정합니다. */
