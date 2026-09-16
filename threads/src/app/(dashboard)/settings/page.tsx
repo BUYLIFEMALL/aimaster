@@ -8,6 +8,7 @@ import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "perplexity"];
+const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
 // 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster에서 시작된 플랫폼 표준을 그대로 적용).
@@ -52,7 +53,12 @@ export default async function SettingsPage({
           Threads 계정이 성공적으로 연결되었습니다.
         </div>
       )}
-      {error && (
+      {error === "meta_app_missing" && (
+        <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          설정 페이지에서 본인의 Meta App ID/Secret을 먼저 등록해주세요.
+        </div>
+      )}
+      {error && error !== "meta_app_missing" && (
         <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
           Threads 계정 연결에 실패했습니다. 다시 시도해주세요.
         </div>
@@ -80,6 +86,31 @@ export default async function SettingsPage({
           <h2 className="text-sm font-bold text-neutral-900">🧵 Threads 계정 연결</h2>
           <p className="text-xs text-neutral-500">게시글을 자동으로 게시할 Threads 계정을 연결합니다(OAuth).</p>
         </div>
+
+        <div className="mb-4 space-y-2 text-xs text-neutral-500">
+          <p>
+            Meta 앱이 아직 개발(Development) 모드이기 때문에, 그 앱의 &quot;역할&quot; 메뉴에서
+            테스터(tester)로 등록된 계정만 연결이 됩니다. 본인 명의로 Meta 앱을 직접 만들고
+            아래 두 값(Meta App ID/Secret)을 등록한 뒤, 그 앱의 유효한 OAuth 리디렉션 URI에
+            아래 콜백 주소를 추가하고, &quot;역할&quot; 메뉴에서 본인 쓰레드 계정을 테스터로
+            추가해주셔야 연결할 수 있습니다.
+          </p>
+          <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">
+            {process.env.NEXT_PUBLIC_SITE_URL ?? "https://threads.vercel.app"}/api/threads/callback
+          </code>
+        </div>
+
+        <div className="mb-4 space-y-3">
+          {META_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+
         <div className="rounded-lg border border-neutral-200 bg-white p-4">
           {account ? (
             <div>

@@ -13,6 +13,12 @@ import type {
 
 // 이 모듈은 서버 코드(Server Action / Route Handler)에서만 import 해야 합니다.
 // Access Token이 브라우저로 절대 전달되지 않도록 여기서만 Threads API를 호출합니다.
+//
+// Meta App ID/Secret은 더 이상 앱(관리자) 공용 환경변수(THREADS_APP_ID/THREADS_APP_SECRET)를
+// 읽지 않고, 호출부(Server Action/콜백 라우트)가 resolveApiKey()로 조회한 "본인 계정의"
+// meta_app_id/meta_app_secret을 파라미터로 받는다 — Meta 앱이 Development 모드인 동안은
+// 그 앱의 Tester로 등록된 계정만 OAuth를 완료할 수 있어, 공용 앱 하나로는 운영자 본인 외
+// 다른 회원이 연결할 수 없었기 때문이다(threads-comment-reply와 동일한 BYOK 패턴).
 
 const GRAPH_BASE = "https://graph.threads.net";
 const AUTHORIZE_BASE = "https://threads.net/oauth/authorize";
@@ -36,9 +42,9 @@ async function parseThreadsResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
-export function getThreadsAuthorizeUrl(state: string): string {
+export function getThreadsAuthorizeUrl(state: string, appId: string): string {
   const params = new URLSearchParams({
-    client_id: getEnv("THREADS_APP_ID"),
+    client_id: appId,
     redirect_uri: getEnv("THREADS_REDIRECT_URI"),
     scope: THREADS_SCOPES,
     response_type: "code",
@@ -49,10 +55,12 @@ export function getThreadsAuthorizeUrl(state: string): string {
 
 export async function exchangeCodeForToken(
   code: string,
+  appId: string,
+  appSecret: string,
 ): Promise<ThreadsTokenExchangeResponse> {
   const form = new URLSearchParams({
-    client_id: getEnv("THREADS_APP_ID"),
-    client_secret: getEnv("THREADS_APP_SECRET"),
+    client_id: appId,
+    client_secret: appSecret,
     grant_type: "authorization_code",
     redirect_uri: getEnv("THREADS_REDIRECT_URI"),
     code,
@@ -69,10 +77,11 @@ export async function exchangeCodeForToken(
 
 export async function exchangeForLongLivedToken(
   shortLivedToken: string,
+  appSecret: string,
 ): Promise<ThreadsLongLivedTokenResponse> {
   const params = new URLSearchParams({
     grant_type: "th_exchange_token",
-    client_secret: getEnv("THREADS_APP_SECRET"),
+    client_secret: appSecret,
     access_token: shortLivedToken,
   });
 
