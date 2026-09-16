@@ -121,7 +121,7 @@ function HttpForm({ categoryId }: { categoryId: string }) {
         </p>
       </div>
       <Button type="submit" disabled={isPending}>
-        {isPending ? "수집 중..." : "이 페이지로 게시글 주제 생성"}
+        {isPending ? "수집 중..." : "글감 수집"}
       </Button>
       <ResultMessage state={state} />
     </form>
@@ -206,7 +206,7 @@ function NewsblurForm({
           <input type="hidden" name="feedId" value={selectedFeed?.id ?? ""} />
           <input type="hidden" name="feedTitle" value={selectedFeed?.title ?? ""} />
           <Button type="submit" disabled={isPending || !selectedFeed}>
-            {isPending ? "수집 중..." : "이 피드로 게시글 주제 생성"}
+            {isPending ? "수집 중..." : "글감 수집"}
           </Button>
           <ResultMessage state={state} />
         </form>
