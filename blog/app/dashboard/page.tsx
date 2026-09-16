@@ -112,7 +112,7 @@ export default function DashboardPage() {
           <div className="flex gap-2">
             <Link
               href={`${basePath}/candidates`}
-              className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-sm font-bold rounded-xl border border-slate-200 transition-all"
+              className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl shadow-md shadow-green-500/20 transition-all"
             >
               🔍 게시글 주제 수집
             </Link>
@@ -148,6 +148,38 @@ export default function DashboardPage() {
             <div className="text-2xl font-extrabold text-slate-900">{categoryCount}</div>
             <div className="mt-1 text-xs font-semibold text-slate-500">전체 카테고리</div>
           </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-8">
+          <h2 className="mb-3 text-sm font-bold text-slate-900">사용방법</h2>
+          <ol className="list-inside list-decimal space-y-3 text-sm text-slate-600">
+            <li>
+              <Link href={`${basePath}/settings`} className="font-medium text-blue-600 hover:underline">
+                API키등록·플랫폼연동
+              </Link>
+              에서 본인 Gemini(필수, 글/이미지 생성)·Perplexity(글감 수집) 키를 등록합니다.
+            </li>
+            <li>
+              <Link href={`${basePath}/candidates`} className="font-medium text-blue-600 hover:underline">
+                게시글 주제 수집
+              </Link>
+              에서 최신 트렌드·키워드로 글감 후보를 모으거나, 바로 AI 글쓰기로 넘어가 주제를 직접
+              입력해도 됩니다.
+            </li>
+            <li>
+              <Link href={`${basePath}/write/ai-form`} className="font-medium text-blue-600 hover:underline">
+                AI 글쓰기
+              </Link>
+              에서 분위기·대상 독자·목표 분량·키워드·참고 링크 등을 지정하면 AI가 제목·본문과
+              대표 이미지를 만들어줍니다.
+            </li>
+            <li>
+              <Link href={basePath || '/'} className="font-medium text-blue-600 hover:underline">
+                게시글 관리
+              </Link>
+              에서 만들어진 글을 확인·수정하고 카테고리를 지정해 게시합니다.
+            </li>
+          </ol>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl mb-6">
