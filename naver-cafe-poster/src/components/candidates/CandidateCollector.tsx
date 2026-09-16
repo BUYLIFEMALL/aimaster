@@ -94,7 +94,7 @@ function CategorySelect({
   value,
   onChange,
   categories,
-  label = "카테고리",
+  label = "저장할 카테고리",
   noneLabel = "카테고리 없음",
 }: {
   id: string;
@@ -291,7 +291,7 @@ function HttpForm({ targets, categories }: { targets: { id: string; label: strin
       </div>
 
       {!scheduleMode && (
-        <CategorySelect id="cat-http" value={categoryId} onChange={setCategoryId} categories={categories} />
+        <CategorySelect id="cat-http" value={categoryId} onChange={setCategoryId} categories={categories} label="저장할 카테고리" />
       )}
 
       <ScheduleToggle
@@ -432,7 +432,7 @@ function NewsblurForm({
           </div>
 
           {!scheduleMode && (
-            <CategorySelect id="cat-rss" value={categoryId} onChange={setCategoryId} categories={categories} />
+            <CategorySelect id="cat-rss" value={categoryId} onChange={setCategoryId} categories={categories} label="저장할 카테고리" />
           )}
 
           <ScheduleToggle
@@ -508,7 +508,7 @@ function PerplexityForm({ targets, categories }: { targets: { id: string; label:
       </div>
 
       {!scheduleMode && (
-        <CategorySelect id="cat-perplexity" value={categoryId} onChange={setCategoryId} categories={categories} />
+        <CategorySelect id="cat-perplexity" value={categoryId} onChange={setCategoryId} categories={categories} label="저장할 카테고리" />
       )}
 
       <ScheduleToggle
