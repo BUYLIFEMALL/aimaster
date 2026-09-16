@@ -67,21 +67,31 @@ function TrendCard({ group }: { group: TrendResultGroup }) {
   const last = group.data[group.data.length - 1];
   const first = group.data[0];
   const diff = last && first ? last.ratio - first.ratio : 0;
-  const trend = diff > 3 ? "▲ 상승" : diff < -3 ? "▼ 하락" : "─ 보합";
-  const trendColor = diff > 3 ? "text-red-600" : diff < -3 ? "text-blue-600" : "text-neutral-500";
+  const isRising = diff > 3;
+  const trend = isRising ? "▲ 급상승" : diff < -3 ? "▼ 하락" : "─ 보합";
+  const trendColor = isRising ? "text-red-600 font-bold" : diff < -3 ? "text-blue-600" : "text-neutral-500";
+
+  const primaryKeyword = group.keywords[0] || group.title;
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
-      <div className="mb-2 flex items-start justify-between gap-3">
+    <div className={`rounded-xl border p-4 transition-all ${isRising ? "border-red-200 bg-red-50/20 shadow-sm" : "border-neutral-200 bg-white"}`}>
+      <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-neutral-900">{group.title}</p>
-          <div className="mt-1 flex flex-wrap gap-1">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-neutral-900">{group.title}</p>
+            {isRising && (
+              <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700">
+                🔥 인기도 상승
+              </span>
+            )}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
             {group.keywords.map((kw) => (
               <Link
                 key={kw}
-                href={`/products?keyword=${encodeURIComponent(kw)}`}
-                className="rounded-full border border-neutral-200 px-2 py-0.5 text-[11px] text-neutral-600 hover:border-neutral-900 hover:text-neutral-900"
-                title={`"${kw}" 키워드로 쿠팡 소싱하기`}
+                href={`/products?keyword=${encodeURIComponent(kw)}&platform=coupang`}
+                className="rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-800 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white transition-all shadow-xs"
+                title={`"${kw}" 키워드로 쿠팡 상품 소싱하기`}
               >
                 {kw} →
               </Link>
@@ -89,16 +99,24 @@ function TrendCard({ group }: { group: TrendResultGroup }) {
           </div>
         </div>
         <div className="text-right">
-          <p className="text-lg font-semibold text-neutral-900">{last?.ratio.toFixed(1) ?? "-"}</p>
-          <p className={`text-xs font-medium ${trendColor}`}>{trend}</p>
+          <p className="text-lg font-bold text-neutral-900">{last?.ratio.toFixed(1) ?? "-"}</p>
+          <p className={`text-xs ${trendColor}`}>{trend}</p>
         </div>
       </div>
-      <div className="text-neutral-900">
+      <div className="my-2 text-neutral-900">
         <Sparkline data={group.data} />
       </div>
-      <p className="mt-1 text-[11px] text-neutral-400">
-        {first?.period} ~ {last?.period} · 선택 기간 내 최고값을 100으로 놓은 상대 관심도
-      </p>
+      <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3">
+        <p className="text-[11px] text-neutral-400">
+          상대 관심도 지표 ({last?.period})
+        </p>
+        <Link
+          href={`/products?keyword=${encodeURIComponent(primaryKeyword)}&platform=coupang`}
+          className="inline-flex items-center gap-1 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-800 transition-colors shadow-xs"
+        >
+          🔥 쿠팡 상품 자동 매칭
+        </Link>
+      </div>
     </div>
   );
 }

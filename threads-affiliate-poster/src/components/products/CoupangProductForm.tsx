@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useState, useTransition, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
@@ -34,6 +34,21 @@ export function CoupangProductForm({
   const [manualUrl, setManualUrl] = useState("");
   const [manualError, setManualError] = useState<string | null>(null);
   const [state, formAction, isPending] = useActionState(registerCoupangProductAction, initialState);
+
+  useEffect(() => {
+    if (initialKeyword && initialKeyword.trim()) {
+      setSearchError(null);
+      startSearching(async () => {
+        const result = await searchCoupangProductsAction(initialKeyword.trim());
+        if (result.error) {
+          setSearchError(result.error);
+          setResults([]);
+          return;
+        }
+        setResults(result.results ?? []);
+      });
+    }
+  }, [initialKeyword]);
 
   const handleSelect = (product: CoupangProduct) => {
     setSelected(product);
