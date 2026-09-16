@@ -30,17 +30,6 @@ export default function InfoPage({ title, children }: InfoPageProps) {
         <h1 className="text-2xl font-extrabold text-zinc-900 mb-6">{title}</h1>
         <div className="text-sm text-zinc-600 leading-relaxed space-y-4">{children}</div>
       </main>
-
-      <footer className="border-t border-[var(--border)] bg-zinc-50">
-        <div className="max-w-[1200px] mx-auto px-6 py-8 flex items-center justify-between">
-          <span className="text-lg font-extrabold text-zinc-900 tracking-tight">BLOG(원문)생성 자동화</span>
-          <nav className="flex items-center gap-6">
-            <Link href="/docs" className="text-sm text-zinc-500 hover:text-zinc-900 no-underline transition-colors">문서</Link>
-            <Link href="/changelog" className="text-sm text-zinc-500 hover:text-zinc-900 no-underline transition-colors">변경 내역</Link>
-            <Link href="/privacy" className="text-sm text-zinc-500 hover:text-zinc-900 no-underline transition-colors">개인정보 처리방침</Link>
-          </nav>
-        </div>
-      </footer>
     </div>
   )
 }
