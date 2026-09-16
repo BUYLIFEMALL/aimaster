@@ -7,6 +7,7 @@ interface Category {
   id: number
   name: string
   slug: string
+  sort_order: number
 }
 
 interface Props {
@@ -39,6 +40,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingName, setEditingName] = useState('')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [movingId, setMovingId] = useState<number | null>(null)
 
   const fetchCategories = async () => {
     if (!supabase) return
@@ -47,6 +49,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
     const { data, error } = await supabase
       .from('blog_categories')
       .select('*')
+      .order('sort_order', { ascending: true })
       .order('id', { ascending: true })
 
     if (error) {
@@ -76,9 +79,11 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
     setErrorMsg(null)
     setLoading(true)
 
+    const nextSortOrder = categories.length > 0 ? Math.max(...categories.map((c) => c.sort_order)) + 1 : 1
+
     const { error } = await supabase
       .from('blog_categories')
-      .insert([{ name: newCatName.trim(), slug }])
+      .insert([{ name: newCatName.trim(), slug, sort_order: nextSortOrder }])
 
     if (error) {
       setErrorMsg('카테고리 추가 실패: ' + error.message)
@@ -130,6 +135,33 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
       onCategoriesUpdated()
     }
     setLoading(false)
+  }
+
+  // 4. 카테고리 순서 변경 — 바로 위/아래 카테고리와 sort_order를 맞바꾼다
+  // (naver-cafe-poster의 moveCategoryAction과 동일한 방식, 2026-09-16 요청).
+  const handleMoveCategory = async (index: number, direction: 'up' | 'down') => {
+    if (!supabase) return
+    const swapIndex = direction === 'up' ? index - 1 : index + 1
+    if (swapIndex < 0 || swapIndex >= categories.length) return
+
+    const current = categories[index]
+    const swapWith = categories[swapIndex]
+
+    setMovingId(current.id)
+    setErrorMsg(null)
+
+    const [{ error: err1 }, { error: err2 }] = await Promise.all([
+      supabase.from('blog_categories').update({ sort_order: swapWith.sort_order }).eq('id', current.id),
+      supabase.from('blog_categories').update({ sort_order: current.sort_order }).eq('id', swapWith.id),
+    ])
+
+    if (err1 || err2) {
+      setErrorMsg('순서 변경 실패: ' + (err1?.message || err2?.message))
+    } else {
+      await fetchCategories()
+      onCategoriesUpdated()
+    }
+    setMovingId(null)
   }
 
   return (
@@ -194,7 +226,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
               </div>
             ) : (
               <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/30">
-                {categories.map((cat) => (
+                {categories.map((cat, index) => (
                   <div key={cat.id} className="p-3 flex items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
                     {editingId === cat.id ? (
                       <div className="flex-1 flex items-center gap-2">
@@ -222,6 +254,26 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
                     ) : (
                       <>
                         <div className="flex items-center gap-2 min-w-0">
+                          <div className="flex flex-col flex-shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleMoveCategory(index, 'up')}
+                              disabled={index === 0 || movingId !== null}
+                              className="text-slate-400 hover:text-indigo-600 disabled:opacity-30 disabled:hover:text-slate-400 leading-none text-[10px]"
+                              aria-label="위로 이동"
+                            >
+                              ▲
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMoveCategory(index, 'down')}
+                              disabled={index === categories.length - 1 || movingId !== null}
+                              className="text-slate-400 hover:text-indigo-600 disabled:opacity-30 disabled:hover:text-slate-400 leading-none text-[10px]"
+                              aria-label="아래로 이동"
+                            >
+                              ▼
+                            </button>
+                          </div>
                           <span className="text-xs font-bold text-slate-800 truncate">{cat.name}</span>
                           <span className="text-[10px] text-slate-400 font-mono">({cat.slug})</span>
                         </div>
