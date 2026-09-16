@@ -65,12 +65,19 @@ export default function CandidatesPage() {
   const [categories, setCategories] = useState<CategoryOption[]>([])
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [showCategoryModal, setShowCategoryModal] = useState(false)
-  const [updatingCategoryId, setUpdatingCategoryId] = useState<string | null>(null)
+  // 체크박스로 선택한 후보를 한꺼번에(또는 1건만 골라 개별로) 다른 카테고리로 옮기는 상태
+  // (naver-cafe-poster/candidates와 동일한 방식, 2026-09-16 요청: "개별 셀렉트 방식보단
+  // 좌측 체크박스 형태로 일괄 및 개별로 카테고리 분류할수 있도록").
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [moveCategoryId, setMoveCategoryId] = useState('')
+  const [isMoving, setIsMoving] = useState(false)
+  const [moveMsg, setMoveMsg] = useState<string | null>(null)
 
   const [method, setMethod] = useState<Method>('http')
   const [collecting, setCollecting] = useState(false)
   const [resultMsg, setResultMsg] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [collectCategoryId, setCollectCategoryId] = useState('')
 
   const [httpUrl, setHttpUrl] = useState('')
   const [perplexityTopic, setPerplexityTopic] = useState('')
@@ -126,17 +133,30 @@ export default function CandidatesPage() {
     })
   }, [supabase, router])
 
-  const handleCategoryChange = async (candidateId: string, newCategoryId: string) => {
-    setUpdatingCategoryId(candidateId)
-    const categoryId = newCategoryId === '' ? null : Number(newCategoryId)
-    const { error } = await supabase
-      .from('blog_candidates')
-      .update({ category_id: categoryId })
-      .eq('id', candidateId)
-    if (!error) {
-      setCandidates((prev) => prev.map((c) => (c.id === candidateId ? { ...c, category_id: categoryId } : c)))
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const handleMoveSelected = async () => {
+    if (selectedIds.size === 0 || !supabase) return
+    setIsMoving(true)
+    setMoveMsg(null)
+    const categoryId = moveCategoryId === '' ? null : Number(moveCategoryId)
+    const ids = Array.from(selectedIds)
+    const { error } = await supabase.from('blog_candidates').update({ category_id: categoryId }).in('id', ids)
+    if (error) {
+      setMoveMsg('이동 실패: ' + error.message)
+    } else {
+      setCandidates((prev) => prev.map((c) => (ids.includes(c.id) ? { ...c, category_id: categoryId } : c)))
+      setSelectedIds(new Set())
+      setMoveMsg(`${ids.length}건을 이동했습니다.`)
     }
-    setUpdatingCategoryId(null)
+    setIsMoving(false)
   }
 
   const handleCollect = async (endpoint: string, body: Record<string, unknown>) => {
@@ -168,20 +188,27 @@ export default function CandidatesPage() {
   const handleHttpSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!httpUrl.trim()) return
-    handleCollect('/api/candidates/http', { url: httpUrl.trim() })
+    handleCollect('/api/candidates/http', { url: httpUrl.trim(), categoryId: collectCategoryId || undefined })
   }
 
   const handleRssSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFeedId) return
     const feed = newsblurFeeds.find((f) => f.id === selectedFeedId)
-    handleCollect('/api/candidates/rss', { feedId: selectedFeedId, feedTitle: feed?.title ?? '' })
+    handleCollect('/api/candidates/rss', {
+      feedId: selectedFeedId,
+      feedTitle: feed?.title ?? '',
+      categoryId: collectCategoryId || undefined,
+    })
   }
 
   const handlePerplexitySubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!perplexityTopic.trim()) return
-    handleCollect('/api/candidates/perplexity', { topic: perplexityTopic.trim() })
+    handleCollect('/api/candidates/perplexity', {
+      topic: perplexityTopic.trim(),
+      categoryId: collectCategoryId || undefined,
+    })
   }
 
   const handleNewsblurConnect = async (e: React.FormEvent) => {
@@ -279,17 +306,18 @@ export default function CandidatesPage() {
           <h2 className="mb-3 text-sm font-bold text-slate-900">📋 글감 수집 · 카테고리 사용법</h2>
           <ol className="list-inside list-decimal space-y-2 text-sm text-slate-600">
             <li>
-              아래에서 <strong>HTTP/RSS/Perplexity</strong> 중 하나를 골라 블로그 주제 후보를
+              <strong>카테고리 관리</strong>에서 후보를 분류할 카테고리를 미리 만들어두면(블로그
+              게시글 카테고리와 동일한 목록을 공유합니다), 아래에서 <strong>HTTP/RSS/Perplexity</strong>
+              중 하나를 고르고 <strong>수집할 카테고리</strong>를 지정해 블로그 주제 후보를
               수집합니다.
             </li>
             <li>
-              <strong>카테고리 관리</strong>에서 후보를 분류할 카테고리를 미리 만들어두면(블로그
-              게시글 카테고리와 동일한 목록을 공유합니다), 아래 후보 카드마다 원하는 카테고리를
-              바로 지정할 수 있습니다.
+              <strong>카테고리 필터</strong>로 원하는 카테고리의 후보만 모아볼 수 있습니다.
             </li>
             <li>
-              <strong>카테고리 필터</strong>로 원하는 카테고리의 후보만 모아보고, 각 카드의
-              드롭다운으로 언제든 카테고리를 다시 바꿀 수 있습니다.
+              이미 수집된 후보는 카드 왼쪽 체크박스로 1건만 선택하거나 여러 건을 한꺼번에 선택한
+              뒤, <strong>카테고리 이동</strong> 드롭다운에서 옮길 카테고리를 고르고
+              <strong>&quot;선택한 후보 이동&quot;</strong>을 누르면 개별/일괄 재분류됩니다.
             </li>
             <li>
               마음에 드는 후보를 찾으면 <strong>&quot;이 주제로 글쓰기&quot;</strong>를 눌러 AI
@@ -342,6 +370,23 @@ export default function CandidatesPage() {
                 {METHOD_LABELS[m]}
               </button>
             ))}
+          </div>
+
+          <div className="mb-4">
+            <label className="mb-1 block text-xs font-bold text-slate-700">수집할 카테고리</label>
+            <select
+              value={collectCategoryId}
+              onChange={(e) => setCollectCategoryId(e.target.value)}
+              style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
+              className="w-full p-2.5 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black shadow-sm"
+            >
+              <option value="">카테고리 없음</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {method === 'http' && (
@@ -485,8 +530,9 @@ export default function CandidatesPage() {
           {errorMsg && <p className="mt-3 text-sm font-semibold text-red-600">{errorMsg}</p>}
         </div>
 
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-slate-900">수집된 블로그 주제</h2>
+        <h2 className="mb-3 text-lg font-bold text-slate-900">수집된 블로그 주제</h2>
+
+        <div className="mb-3 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3">
           <div className="flex items-center gap-2">
             <label className="text-xs font-bold text-slate-500">카테고리 필터</label>
             <select
@@ -504,6 +550,56 @@ export default function CandidatesPage() {
               ))}
             </select>
           </div>
+
+          <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+            <input
+              type="checkbox"
+              checked={filteredCandidates.length > 0 && filteredCandidates.every((c) => selectedIds.has(c.id))}
+              onChange={() => {
+                setSelectedIds((prev) => {
+                  const allSelected = filteredCandidates.length > 0 && filteredCandidates.every((c) => prev.has(c.id))
+                  const next = new Set(prev)
+                  if (allSelected) {
+                    filteredCandidates.forEach((c) => next.delete(c.id))
+                  } else {
+                    filteredCandidates.forEach((c) => next.add(c.id))
+                  }
+                  return next
+                })
+              }}
+              className="h-4 w-4"
+            />
+            전체 선택
+          </label>
+          <span className="text-xs text-slate-500">{selectedIds.size}건 선택됨</span>
+
+          <select
+            value={moveCategoryId}
+            onChange={(e) => setMoveCategoryId(e.target.value)}
+            style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
+            className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-black"
+          >
+            <option value="">카테고리 없음</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={handleMoveSelected}
+            disabled={selectedIds.size === 0 || isMoving}
+            className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-bold text-white hover:bg-slate-900 disabled:opacity-50"
+          >
+            {isMoving ? '이동 중...' : '선택한 후보 이동'}
+          </button>
+
+          {moveMsg && (
+            <span className={`text-xs font-semibold ${moveMsg.startsWith('이동 실패') ? 'text-red-600' : 'text-emerald-600'}`}>
+              {moveMsg}
+            </span>
+          )}
         </div>
         {loading ? (
           <div className="py-20 text-center text-sm text-slate-400">불러오는 중...</div>
@@ -521,7 +617,16 @@ export default function CandidatesPage() {
               return (
                 <li key={c.id} className="bg-white border border-slate-200 rounded-2xl p-5">
                   <div className="mb-1 flex items-start justify-between gap-3">
-                    <h3 className="text-sm font-bold text-slate-900">{c.title}</h3>
+                    <div className="flex items-start gap-2 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(c.id)}
+                        onChange={() => toggleSelect(c.id)}
+                        className="mt-1 h-4 w-4 shrink-0"
+                        aria-label="이동할 후보 선택"
+                      />
+                      <h3 className="text-sm font-bold text-slate-900">{c.title}</h3>
+                    </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <Link
                         href={`${basePath}/write/ai-form?${writeParams.toString()}`}
@@ -539,25 +644,6 @@ export default function CandidatesPage() {
                       </button>
                     </div>
                   </div>
-                  <div className="mb-2 flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-slate-400">
-                      {c.category_id !== null ? categoryNameById.get(c.category_id) ?? '카테고리 없음' : '카테고리 없음'}
-                    </span>
-                    <select
-                      value={c.category_id ?? ''}
-                      onChange={(e) => handleCategoryChange(c.id, e.target.value)}
-                      disabled={updatingCategoryId === c.id}
-                      style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #e2e8f0' }}
-                      className="rounded-lg px-2 py-1 text-[11px] font-semibold text-black disabled:opacity-50"
-                    >
-                      <option value="">카테고리 없음</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                   {c.summary && <p className="whitespace-pre-wrap text-sm text-slate-600">{c.summary}</p>}
                   {c.keywords && c.keywords.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
@@ -569,6 +655,11 @@ export default function CandidatesPage() {
                     </div>
                   )}
                   <p className="mt-2 text-xs text-slate-400">
+                    {c.category_id !== null && (
+                      <span className="mr-1 rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-600">
+                        {categoryNameById.get(c.category_id) ?? '카테고리 없음'}
+                      </span>
+                    )}
                     {SOURCE_LABELS[c.source_type]} · {c.source_input} · {new Date(c.created_at).toLocaleString('ko-KR')}
                   </p>
                 </li>

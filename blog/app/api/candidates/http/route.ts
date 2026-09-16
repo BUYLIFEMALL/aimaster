@@ -25,6 +25,7 @@ async function insertCandidates(
   sourceType: 'http' | 'rss' | 'perplexity',
   sourceInput: string,
   drafts: BlogCandidateDraft[],
+  categoryId: number | null,
 ) {
   // 한 배치로 여러 건을 insert하면 DB가 모든 행에 동일한 트랜잭션 시각을 created_at으로
   // 부여해서, "최신 생성 순" 정렬(created_at desc)이 배치 내에서는 순서를 보장하지 못한다.
@@ -38,6 +39,7 @@ async function insertCandidates(
       title: d.title,
       summary: d.summary ?? '',
       keywords: d.keywords ?? [],
+      category_id: categoryId,
       created_at: new Date(now - i).toISOString(),
     })),
   )
@@ -58,6 +60,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json()
   const url = String(body.url ?? '').trim()
+  const categoryId = body.categoryId ? Number(body.categoryId) : null
   if (!url) {
     return NextResponse.json({ error: 'URL을 입력해주세요.' }, { status: 400 })
   }
@@ -89,14 +92,14 @@ export async function POST(request: NextRequest) {
 
       const rawText = valid.map((a, i) => `[${i + 1}] ${a.title}\n${a.text}\n출처: ${a.url}`).join('\n\n')
       const drafts = await structureBlogCandidates({ rawText, maxItems: valid.length, apiKey })
-      await insertCandidates(supabase, user.id, 'http', url, drafts)
+      await insertCandidates(supabase, user.id, 'http', url, drafts, categoryId)
       return NextResponse.json({ success: true, count: drafts.length })
     }
 
     // 개별 게시글 페이지
     const text = await fetchUrlText(url)
     const drafts = await structureBlogCandidates({ rawText: text, maxItems: 1, apiKey })
-    await insertCandidates(supabase, user.id, 'http', url, drafts)
+    await insertCandidates(supabase, user.id, 'http', url, drafts, categoryId)
     return NextResponse.json({ success: true, count: drafts.length })
   } catch (err) {
     return NextResponse.json(

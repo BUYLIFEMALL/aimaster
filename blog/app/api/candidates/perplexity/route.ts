@@ -12,6 +12,7 @@ async function insertCandidates(
   userId: string,
   sourceInput: string,
   drafts: BlogCandidateDraft[],
+  categoryId: number | null,
 ) {
   const now = Date.now()
   const { error } = await supabase.from('blog_candidates').insert(
@@ -22,6 +23,7 @@ async function insertCandidates(
       title: d.title,
       summary: d.summary ?? '',
       keywords: d.keywords ?? [],
+      category_id: categoryId,
       created_at: new Date(now - i).toISOString(),
     })),
   )
@@ -38,6 +40,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json()
   const topic = String(body.topic ?? '').trim()
+  const categoryId = body.categoryId ? Number(body.categoryId) : null
   if (!topic) {
     return NextResponse.json({ error: '주제를 입력해주세요.' }, { status: 400 })
   }
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
     const openaiKey = (await resolveApiKey(supabase, user.id, 'openai')) ?? ''
     const trendText = await searchPerplexityTrending(topic, perplexityKey)
     const drafts = await structureBlogCandidates({ rawText: trendText, maxItems: 5, apiKey: openaiKey })
-    await insertCandidates(supabase, user.id, topic, drafts)
+    await insertCandidates(supabase, user.id, topic, drafts, categoryId)
     return NextResponse.json({ success: true, count: drafts.length })
   } catch (err) {
     return NextResponse.json(

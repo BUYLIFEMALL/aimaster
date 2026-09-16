@@ -18,6 +18,7 @@ async function insertCandidates(
   userId: string,
   sourceInput: string,
   drafts: BlogCandidateDraft[],
+  categoryId: number | null,
 ) {
   const now = Date.now()
   const { error } = await supabase.from('blog_candidates').insert(
@@ -28,6 +29,7 @@ async function insertCandidates(
       title: d.title,
       summary: d.summary ?? '',
       keywords: d.keywords ?? [],
+      category_id: categoryId,
       created_at: new Date(now - i).toISOString(),
     })),
   )
@@ -45,6 +47,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const feedId = String(body.feedId ?? '').trim()
   const feedTitle = String(body.feedTitle ?? '').trim()
+  const categoryId = body.categoryId ? Number(body.categoryId) : null
   if (!feedId) {
     return NextResponse.json({ error: '구독 피드를 선택해주세요.' }, { status: 400 })
   }
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     const rawText = items.map((item, i) => `[${i + 1}] ${item.title}\n${item.text}\n출처: ${item.link}`).join('\n\n')
     const drafts = await structureBlogCandidates({ rawText, maxItems: items.length, apiKey })
-    await insertCandidates(supabase, user.id, feedTitle || feedId, drafts)
+    await insertCandidates(supabase, user.id, feedTitle || feedId, drafts, categoryId)
     return NextResponse.json({ success: true, count: drafts.length })
   } catch (err) {
     return NextResponse.json(
