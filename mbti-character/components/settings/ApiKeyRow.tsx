@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { saveApiKeyAction, deleteApiKeyAction, type SaveApiKeyState } from "@/lib/actions/settings";
 import type { ApiKeyProvider } from "@/lib/apiKeys";
@@ -27,34 +28,59 @@ function SaveButton() {
 
 export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
   const [state, formAction] = useFormState(saveApiKeyAction, initialState);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (state.success) setIsEditing(false);
+  }, [state.success]);
+
+  const showForm = !maskedValue || isEditing;
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-sm font-medium text-neutral-900">{label}</p>
-        {maskedValue && (
-          <form action={deleteApiKeyAction}>
-            <input type="hidden" name="provider" value={provider} />
-            <button type="submit" className="text-xs text-red-500 hover:underline">
-              삭제
+        {maskedValue && !isEditing && (
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="text-xs text-emerald-600 hover:underline"
+            >
+              수정
             </button>
-          </form>
+            <form action={deleteApiKeyAction}>
+              <input type="hidden" name="provider" value={provider} />
+              <button type="submit" className="text-xs text-red-500 hover:underline">
+                삭제
+              </button>
+            </form>
+          </div>
         )}
       </div>
 
-      {maskedValue ? (
-        <p className="font-mono text-sm text-neutral-500">{maskedValue} · 등록됨</p>
-      ) : (
+      {showForm ? (
         <form action={formAction} className="flex flex-wrap gap-2">
           <input type="hidden" name="provider" value={provider} />
           <input
             name="apiKey"
             type="password"
-            placeholder="API 키 입력"
+            placeholder={maskedValue ? `새 키 입력 (현재: ${maskedValue})` : "API 키 입력"}
             className="min-w-[220px] flex-1 px-3 py-2 rounded-xl border border-neutral-200 text-sm"
           />
           <SaveButton />
+          {maskedValue && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="px-4 py-2 rounded-xl border border-neutral-200 text-neutral-600 text-sm font-semibold hover:bg-neutral-50 transition-colors"
+            >
+              취소
+            </button>
+          )}
         </form>
+      ) : (
+        <p className="font-mono text-sm text-neutral-500">{maskedValue} · 등록됨</p>
       )}
       {state.error && <p className="mt-1 text-xs text-red-500">{state.error}</p>}
       {state.success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
