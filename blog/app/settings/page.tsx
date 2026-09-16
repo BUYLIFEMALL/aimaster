@@ -17,10 +17,12 @@ import { GuideLinkButton } from '@/blog/components/settings/GuideLinkButton'
 // 프로그램에서는 정상적으로 쓰이는 키라서 하나의 섹션으로 합쳤다(2026-09-16 사용자 피드백).
 const ALL_PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'gemini', 'perplexity']
 
-// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼(Gemini·
-// Perplexity·Cloudinary)에 해당하는 매뉴얼만 골랐다(2026-09-13 naver-cafe-poster 패턴 확대
-// 적용, 2026-09-16 Perplexity·Cloudinary 추가).
+// app/(main)/guides의 platform_guides.id — "AI 모델 API 키" 섹션의 등록 순서(OpenAI·
+// Anthropic·Google·Perplexity)와 동일하게 맞추고, 그 아래 Cloudinary를 덧붙였다(2026-09-13
+// naver-cafe-poster 패턴 확대 적용, 2026-09-16 Anthropic·Perplexity·Cloudinary 추가 + 순서 정렬).
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: '1c5c24e2-15d4-49b8-b907-0ac6843dee3a', label: 'OpenAI API 키 발급받기' },
+  { guideId: 'd03f65c2-efbb-421f-a041-a075562e3b7a', label: 'Anthropic Claude API 키 발급받기' },
   { guideId: 'f442cd37-f1e0-42a7-a3de-f9a9acf47cc4', label: 'Google Gemini API 키 발급받기' },
   { guideId: '1df95d8b-6a27-4de0-b1d9-8bbc218534ad', label: 'Perplexity API 키 발급받기' },
   { guideId: 'e2004c0f-160d-4360-bcbf-98f4409edde2', label: 'Cloudinary API 연동하기' },
