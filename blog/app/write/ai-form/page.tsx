@@ -93,7 +93,7 @@ function AiFormPageInner() {
   const [nanoBananaEndpoint, setNanoBananaEndpoint] = useState('')
 
   // 추천 링크 (CTA) 및 추가 지시사항
-  const [ctaText, setCtaText] = useState('')
+  const [ctaText, setCtaText] = useState('추천링크')
   const [ctaUrl, setCtaUrl] = useState('')
   const [customPrompt, setCustomPrompt] = useState('')
 
