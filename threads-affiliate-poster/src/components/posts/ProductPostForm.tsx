@@ -483,6 +483,39 @@ export function ProductPostForm({
           )}
         </div>
 
+        <div className="rounded-lg border border-neutral-200 bg-white p-2.5">
+          <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-neutral-700">
+            <label className="inline-flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={aiMultiCut}
+                onChange={(e) => setAiMultiCut(e.target.checked)}
+                className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
+              />
+              <span>🎨 AI 멀티컷 카드뉴스 연속 생성</span>
+            </label>
+            {aiMultiCut && (
+              <div className="inline-flex items-center gap-1">
+                <span>생성할 컷 수:</span>
+                <select
+                  value={aiCutCount}
+                  onChange={(e) => setAiCutCount(Number(e.target.value))}
+                  className="rounded border border-neutral-300 px-2 py-0.5 text-xs text-neutral-700"
+                >
+                  {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                    <option key={num} value={num}>
+                      {num}장
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+          <p className="mt-1 text-[11px] text-neutral-500">
+            체크 시 AI가 무드/앵글이 다른 카드뉴스 이미지를 설정한 컷 수만큼 연속 생성하여 슬라이드(캐러셀)로 자동 구성합니다.
+          </p>
+        </div>
+
         {!aiGenerateOnSubmit && (
           <Button
             type="button"
