@@ -483,39 +483,6 @@ export function ProductPostForm({
           )}
         </div>
 
-        <div className="rounded-lg border border-neutral-200 bg-white p-2.5">
-          <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-neutral-700">
-            <label className="inline-flex items-center gap-1.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={aiMultiCut}
-                onChange={(e) => setAiMultiCut(e.target.checked)}
-                className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
-              />
-              <span>🎨 AI 멀티컷 카드뉴스 연속 생성</span>
-            </label>
-            {aiMultiCut && (
-              <div className="inline-flex items-center gap-1">
-                <span>생성할 컷 수:</span>
-                <select
-                  value={aiCutCount}
-                  onChange={(e) => setAiCutCount(Number(e.target.value))}
-                  className="rounded border border-neutral-300 px-2 py-0.5 text-xs text-neutral-700"
-                >
-                  {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                    <option key={num} value={num}>
-                      {num}장
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-          <p className="mt-1 text-[11px] text-neutral-500">
-            체크 시 AI가 무드/앵글이 다른 카드뉴스 이미지를 설정한 컷 수만큼 연속 생성하여 슬라이드(캐러셀)로 자동 구성합니다.
-          </p>
-        </div>
-
         {!aiGenerateOnSubmit && (
           <Button
             type="button"
@@ -564,20 +531,7 @@ export function ProductPostForm({
       </div>
 
       <div>
-        <div className="flex items-center justify-between">
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
-            이미지 (선택, 최대 20장 - 캐러셀 포스팅 지원 🎠)
-          </label>
-          <span className="text-xs font-semibold text-neutral-500">
-            {imageUrls.length} / 20장
-          </span>
-        </div>
-
-        {imageUrls.length >= 2 && (
-          <div className="mb-2 rounded-lg border border-purple-200 bg-purple-50 p-2.5 text-xs text-purple-800">
-            🎠 <strong>캐러셀 모드 적용됨</strong>: 2장 이상의 이미지가 등록되어 Threads API <strong>CAROUSEL</strong> 규격으로 한 포스트에 슬라이드로 포스팅됩니다. (최대 20장 지원)
-          </div>
-        )}
+        <label className="mb-1 block text-sm font-medium text-neutral-700">이미지 & 캐러셀 (최대 20장)</label>
 
         {selectedProduct?.image_url && (
           <div className="mb-2 flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
@@ -608,7 +562,7 @@ export function ProductPostForm({
 
         <div className="mb-2 space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
           <label className="block text-sm font-medium text-neutral-700">
-            AI로 이미지 생성 (나노바나나, 연속 생성하여 슬라이드 구성 가능)
+            AI로 이미지 생성 (나노바나나, 선택)
           </label>
           <div className="flex flex-wrap gap-2">
             <select
@@ -640,7 +594,7 @@ export function ProductPostForm({
               onClick={handleGenerateImage}
               disabled={isGeneratingImage || isGeneratingAll || imageUrls.length >= 20 || (!imagePrompt.trim() && !selectedProduct)}
             >
-              {isGeneratingImage ? "생성 중..." : "✨ AI 이미지 생성/추가"}
+              {isGeneratingImage ? "생성 중..." : "이미지만 다시 생성"}
             </Button>
           </div>
           <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium text-neutral-700">
@@ -687,7 +641,7 @@ export function ProductPostForm({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             multiple
             onChange={handleFileChange}
             disabled={isUploading || imageUrls.length >= 20}
@@ -699,40 +653,48 @@ export function ProductPostForm({
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading || imageUrls.length >= 20}
           >
-            {isUploading ? "업로드 중..." : "+ 직접 이미지 다중 업로드 (선택 사용)"}
+            {isUploading ? "업로드 중..." : "파일 직접 등록하기 (다중 선택 가능)"}
           </Button>
         </div>
-        <p className="mt-1 text-[11px] text-neutral-500">
-          💡 AI 기본 이미지를 생성하거나 대표 이미지를 추가한 뒤, 직접 만든 캐러셀 이미지나 사진을 추가로 선택 업로드하여 하나의 슬라이드 게시글로 조합할 수 있습니다.
-        </p>
         {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
 
         {imageUrls.length > 0 && (
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-5">
-            {imageUrls.map((url, idx) => (
-              <div key={idx} className="group relative rounded-lg border border-neutral-200 bg-neutral-100 p-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={url}
-                  alt={`첨부 이미지 ${idx + 1}`}
-                  className="h-24 w-full rounded object-cover"
-                />
-                <span className="absolute bottom-1.5 left-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  {idx + 1} / {imageUrls.length}
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center justify-between text-xs font-medium text-neutral-600">
+              <span>📷 등록된 미디어 캐러셀 ({imageUrls.length}/20)</span>
+              {imageUrls.length > 1 && (
+                <span className="text-[11px] font-semibold text-blue-600">
+                  * 게시 시 Threads 캐러셀(슬라이드)로 등록됩니다.
                 </span>
-                <button
-                  type="button"
-                  onClick={() => removeImage(idx)}
-                  className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700 text-xs font-bold"
-                  title="삭제"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {imageUrls.map((url, idx) => (
+                <div key={idx} className="group relative rounded-lg border border-neutral-200 bg-neutral-100 p-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt={`미디어 ${idx + 1}`}
+                    className="h-24 w-full rounded object-cover"
+                  />
+                  <span className="absolute top-2 left-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    {idx + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(idx)}
+                    className="absolute top-2 right-2 rounded-full bg-red-600 p-1 text-white opacity-90 transition-opacity hover:opacity-100"
+                    title="삭제"
+                  >
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-
         <input type="hidden" name="imageUrl" value={imageUrls.join(",")} />
       </div>
 
