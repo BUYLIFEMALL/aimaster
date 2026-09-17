@@ -189,8 +189,17 @@ export function ProductPostForm({
   const [tone, setTone] = useState<Tone>("친근함");
   const [keywordInput, setKeywordInput] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
   const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
+
+  const handleReferenceUrlChange = (index: number, value: string) => {
+    setReferenceUrls((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
 
   const handleAddKeyword = (kw: string) => {
     const trimmed = kw.trim();
@@ -277,11 +286,13 @@ export function ProductPostForm({
     let finalContent = content.trim();
 
     if (!finalContent) {
+      const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
       setStatusMsg("AI가 상품 정보를 바탕으로 홍보 게시글을 작성하고 있습니다...");
       const textResult = await generateAffiliateContentAction({
         productId,
         tone,
         keywords,
+        referenceUrls: validReferenceUrls,
         apiKey: openaiApiKey,
       });
       if (textResult.error) {
@@ -481,6 +492,27 @@ export function ProductPostForm({
               ))}
             </div>
           )}
+        </div>
+
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-medium text-neutral-500">참고 웹페이지 링크 (선택)</label>
+            <span className="text-[11px] text-neutral-400">최대 3개</span>
+          </div>
+          <div className="space-y-1.5">
+            {referenceUrls.map((url, idx) => (
+              <Input
+                key={idx}
+                type="text"
+                name={`ai_reference_url_field_${idx + 1}`}
+                autoComplete="off"
+                value={url}
+                onChange={(e) => handleReferenceUrlChange(idx, e.target.value)}
+                placeholder={`https://example.com/reference-${idx + 1}`}
+                className="text-sm"
+              />
+            ))}
+          </div>
         </div>
 
         {!aiGenerateOnSubmit && (

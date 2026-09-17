@@ -27,6 +27,7 @@ export async function generateAffiliateContentAction(input: {
   productId: string;
   tone?: ThreadsTone;
   keywords?: string[];
+  referenceUrls?: string[];
   apiKey?: string;
 }): Promise<GenerateContentState> {
   const user = await requireProgramAccess();
@@ -69,7 +70,7 @@ export async function generateAffiliateContentAction(input: {
         keySellingPoints: product.key_selling_points,
         detailPageExcerpt,
       },
-      { tone: input.tone, keywords: input.keywords },
+      { tone: input.tone, keywords: input.keywords, referenceUrls: input.referenceUrls },
       apiKey,
     );
 

@@ -85,7 +85,7 @@ const TARGET_TOTAL_LENGTH = 490;
 
 export async function generateAffiliatePostContent(
   product: AffiliateProductContext,
-  options: { tone?: ThreadsTone; keywords?: string[] },
+  options: { tone?: ThreadsTone; keywords?: string[]; referenceUrls?: string[] },
   apiKey: string,
 ): Promise<{ content: string }> {
   const ctaText = PLATFORM_DEFAULT_CTA_TEXT[product.platform];
@@ -118,6 +118,7 @@ export async function generateAffiliatePostContent(
     topic: buildTopic(product),
     tone: options.tone,
     keywords: options.keywords,
+    referenceUrls: options.referenceUrls,
     maxLength: maxContentLength,
   };
 
