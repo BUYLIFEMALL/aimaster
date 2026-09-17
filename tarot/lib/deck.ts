@@ -7,7 +7,8 @@ export type CardStyle =
   | "korean_traditional"
   | "stained_glass"
   | "dark_art_nouveau"
-  | "cyberpunk";
+  | "cyberpunk"
+  | "cute_character";
 
 export interface CardStyleOption {
   id: CardStyle;
@@ -24,6 +25,13 @@ export const CARD_STYLES: Record<CardStyle, CardStyleOption> = {
     badge: "🎨 판타지",
     description: "부드럽고 신비로운 수채화 파스텔 분위기",
     promptModifier: "Mystical watercolor illustration style, soft pastel palette with glowing magical aura, dreamy atmospheric lighting",
+  },
+  cute_character: {
+    id: "cute_character",
+    name: "귀여운 캐릭터",
+    badge: "🧸 아기자기 큐트",
+    description: "귀엽고 사랑스러운 동화 캐릭터 스타일",
+    promptModifier: "Cute anime chibi character illustration style, adorable whimsical fairytale aesthetic, soft warm pastels, round expressive eyes, charming pastel background",
   },
   korean_traditional: {
     id: "korean_traditional",

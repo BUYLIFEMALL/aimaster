@@ -10,13 +10,34 @@ import {
   drawCards,
   serializeDraw,
 } from "@/lib/deck";
+import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 
-export function DrawFlow() {
+const PROVIDER_LABELS = {
+  gemini: "Google Gemini (AI 카드 일러스트 생성)",
+  openai: "OpenAI GPT (AI 타로 종합 심층 해석 생성)",
+};
+
+const GUIDE_LINKS = [
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+];
+
+export function DrawFlow({
+  initialGeminiKey,
+  initialOpenaiKey,
+}: {
+  initialGeminiKey?: string | null;
+  initialOpenaiKey?: string | null;
+}) {
   const router = useRouter();
   const [spreadType, setSpreadType] = useState<SpreadType>("three_cards");
   const [cardStyle, setCardStyle] = useState<CardStyle>("watercolor");
   const [question, setQuestion] = useState("");
   const [isShuffling, setIsShuffling] = useState(false);
+  const [showApiKeySection, setShowApiKeySection] = useState(
+    !initialGeminiKey || !initialOpenaiKey,
+  );
 
   const selectedSpread = SPREAD_CONFIGS[spreadType];
 
@@ -145,7 +166,7 @@ export function DrawFlow() {
       </div>
 
       {/* 카드 뽑기 연출 및 버튼 */}
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4 mb-12">
         <div
           className={`flex gap-[-8px] ${isShuffling ? "card-shuffle-anim" : ""}`}
           aria-hidden="true"
@@ -154,7 +175,7 @@ export function DrawFlow() {
             <div
               key={i}
               style={{ marginLeft: i === 0 ? 0 : -20 }}
-              className="w-14 h-22 rounded-lg bg-gradient-to-br from-indigo-900 via-purple-900 to-black border-2 border-amber-400/40 shadow-md flex items-center justify-center text-lg"
+              className="w-14 h-22 rounded-lg bg-gradient-to-br from-indigo-950 via-purple-900 to-black border-2 border-amber-400/40 shadow-md flex items-center justify-center text-lg"
             >
               🌙
             </div>
@@ -171,6 +192,81 @@ export function DrawFlow() {
             ? "카드를 신비롭게 섞는 중..."
             : `🔮 ${selectedSpread.title} (${selectedSpread.cardCount}장) 카드 뽑기`}
         </button>
+      </div>
+
+      {/* 🔑 맨 하단: API 키 등록 및 안내 섹션 */}
+      <div className="rounded-2xl border border-purple-200 bg-purple-50/50 p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🔑</span>
+            <h2 className="text-sm font-bold text-neutral-900">
+              AI 타로 카드 생성 & 심층 해석용 API 키 설정
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowApiKeySection(!showApiKeySection)}
+            className="text-xs font-semibold text-purple-700 hover:underline"
+          >
+            {showApiKeySection ? "접기 ▲" : "등록/수정 열기 ▼"}
+          </button>
+        </div>
+
+        <p className="text-xs text-neutral-600 leading-relaxed mb-4">
+          세상에 단 하나뿐인 <strong>AI 타로 카드 일러스트 생성(Google Gemini)</strong>과{" "}
+          <strong>AI 종합 심층 해석(OpenAI)</strong>을 받기 위해선 회원 본인의 API 키 등록이 필요합니다.
+          <br />
+          등록한 키는 본인 계정에 안전하게 저장되며, 키가 등록되어 있어야 결과 페이지에서 고유한 타로 이미지와 종합 해석이 완성됩니다.
+        </p>
+
+        {/* 상태 요약 배지 */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span
+            className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+              initialGeminiKey
+                ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                : "bg-amber-100 text-amber-800 border border-amber-200"
+            }`}
+          >
+            🎨 Gemini (그림): {initialGeminiKey ? "등록됨 ✅" : "미등록 ⚠️"}
+          </span>
+          <span
+            className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+              initialOpenaiKey
+                ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                : "bg-amber-100 text-amber-800 border border-amber-200"
+            }`}
+          >
+            ✍️ OpenAI (해석): {initialOpenaiKey ? "등록됨 ✅" : "미등록 ⚠️"}
+          </span>
+        </div>
+
+        {/* API 키 인라인 등록 폼 및 발급 매뉴얼 (토글) */}
+        {showApiKeySection && (
+          <div className="space-y-4 pt-3 border-t border-purple-100">
+            <div className="space-y-3">
+              <ApiKeyRow
+                provider="gemini"
+                label={PROVIDER_LABELS.gemini}
+                maskedValue={initialGeminiKey ?? null}
+              />
+              <ApiKeyRow
+                provider="openai"
+                label={PROVIDER_LABELS.openai}
+                maskedValue={initialOpenaiKey ?? null}
+              />
+            </div>
+
+            <div className="rounded-xl bg-white p-4 border border-purple-100">
+              <p className="text-xs font-bold text-neutral-900 mb-2">📖 키 발급 방법 (팝업 매뉴얼 열기)</p>
+              <div className="flex flex-wrap gap-2">
+                {GUIDE_LINKS.map((guide) => (
+                  <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
