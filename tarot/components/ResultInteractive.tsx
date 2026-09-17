@@ -490,7 +490,7 @@ export function ResultInteractive({
           <h2 className="text-sm font-bold text-neutral-900">✍️ AI 종합 심층 해석</h2>
           {hasGeminiKey && !allCardsRevealed && (
             <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200 animate-pulse">
-              남은 카드 {remainingCardCount}장 뽑을 시 대기 중
+              남은 카드 {remainingCardCount}장 대기중
             </span>
           )}
         </div>
