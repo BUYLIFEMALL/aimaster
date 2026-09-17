@@ -131,7 +131,7 @@ export function ResultInteractive({
 
 
 
-  // 모든 카드가 연성/오픈 완료되었을 때만 AI 종합 심층 해석 자동 시작
+  // 모든 카드가 뽑기 완료되었을 때만 AI 종합 심층 해석 자동 시작
   useEffect(() => {
     if (hasOpenaiKey && allCardsRevealed && !reading && !readingLoading && !hasStartedReading.current) {
       hasStartedReading.current = true;
@@ -296,7 +296,7 @@ export function ResultInteractive({
             }}
             className="text-xs font-bold px-3.5 py-1.5 rounded-xl bg-amber-400 text-neutral-950 hover:bg-amber-300 shadow-sm transition-transform active:scale-95 flex items-center gap-1.5"
           >
-            <span>🪄</span> 전체 카드 한 번에 연성하기
+            <span>🪄</span> 전체 카드 한 번에 뽑기
           </button>
         </div>
       )}
@@ -370,13 +370,13 @@ export function ResultInteractive({
                   </span>
                 ) : (
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200 animate-pulse">
-                    ❓ 미연성
+                    ⏳ 대기중
                   </span>
                 )}
               </div>
 
               <div className="px-4 py-3 flex flex-col items-center">
-                {/* 카드 프레임 (마법 연출 & 1개씩 클릭 연성 / 생성된 카드는 클릭 시 확대) */}
+                {/* 카드 프레임 (마법 연출 & 1개씩 클릭 뽑기 / 생성된 카드는 클릭 시 확대) */}
                 <div
                   onClick={handleCardClick}
                   className={`w-full aspect-[2/3] rounded-xl overflow-hidden relative mb-3 flex flex-col items-center justify-center transition-all duration-500 ${
@@ -408,7 +408,7 @@ export function ResultInteractive({
                     <div className="flex flex-col items-center justify-center p-4 text-center gap-2">
                       <span className="text-3xl animate-spin inline-block mb-1">🔮</span>
                       <p className="text-[11px] font-bold text-amber-300 animate-pulse">
-                        ✨ {styleConfig.name} 일러스트 연성 중...
+                        ✨ {styleConfig.name} 카드 뽑는 중...
                       </p>
                       <div className="w-16 h-1 bg-purple-900/60 rounded-full overflow-hidden mt-1">
                         <div className="w-full h-full bg-gradient-to-r from-amber-400 via-pink-400 to-purple-400 animate-pulse" />
@@ -418,13 +418,13 @@ export function ResultInteractive({
                     <div className="flex flex-col items-center justify-center p-4 text-center gap-2">
                       <span className="text-4xl group-hover:scale-125 transition-transform duration-300">🃏</span>
                       <span className="text-[11px] font-bold text-amber-300 bg-black/60 px-3 py-1.5 rounded-full border border-amber-400/40 group-hover:bg-amber-400 group-hover:text-neutral-950 transition-colors shadow-sm flex items-center gap-1">
-                        <span>✨</span> 카드 연성하기
+                        <span>✨</span> 카드 뽑기
                       </span>
                     </div>
                   )}
                 </div>
 
-                {/* 카드 하단 데이터 (카드가 연성 완료되면 전개되는 세부 해설) */}
+                {/* 카드 하단 데이터 (카드를 뽑으면 전개되는 세부 해설) */}
                 {imageUrl ? (
                   <div className="w-full text-center animate-in fade-in zoom-in-95 duration-500">
                     <p className="text-sm font-black text-neutral-900 flex items-center justify-center gap-1">
@@ -446,7 +446,7 @@ export function ResultInteractive({
                       운명의 메시지를 읽어오는 중...
                     </p>
                     <p className="text-[10px] text-purple-500">
-                      연성이 완료되면 카드 명칭과 상세 해설이 드러납니다.
+                      카드를 뽑으면 카드 명칭과 상세 해설이 드러납니다.
                     </p>
                   </div>
                 ) : (
@@ -490,7 +490,7 @@ export function ResultInteractive({
           <h2 className="text-sm font-bold text-neutral-900">✍️ AI 종합 심층 해석</h2>
           {hasGeminiKey && !allCardsRevealed && (
             <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200 animate-pulse">
-              남은 카드 {remainingCardCount}장 연성 시 대기 중
+              남은 카드 {remainingCardCount}장 뽑을 시 대기 중
             </span>
           )}
         </div>
@@ -500,17 +500,17 @@ export function ResultInteractive({
             <div className="rounded-xl bg-gradient-to-r from-purple-50/80 to-indigo-50/80 border border-purple-100 p-4 text-center">
               <p className="text-xs font-bold text-purple-900 mb-1 flex items-center justify-center gap-1.5">
                 <span className="text-base animate-bounce">🔮</span>
-                모든 카드의 연성이 완료되면 AI 심층 종합 해석이 시작됩니다!
+                모든 카드를 뽑으면 AI 심층 종합 해석이 시작됩니다!
               </p>
               <p className="text-[11px] text-purple-600">
-                위 카드를 클릭하여 남은 {remainingCardCount}장의 AI 일러스트를 오픈해보세요.
+                위 카드를 클릭하여 남은 {remainingCardCount}장의 카드를 뽑아보세요.
               </p>
             </div>
           ) : readingLoading ? (
             <div className="flex flex-col items-center justify-center py-6 text-center gap-2">
               <span className="text-3xl animate-spin inline-block mb-1">🔮</span>
               <p className="text-xs font-bold text-neutral-800 animate-pulse">
-                모든 카드가 연성되었습니다! AI가 카드의 기운을 종합하여 심층 해석을 작성하고 있습니다... (최대 45초)
+                모든 카드를 뽑았습니다! AI가 카드의 기운을 종합하여 심층 해석을 작성하고 있습니다... (최대 45초)
               </p>
             </div>
           ) : readingError ? (
