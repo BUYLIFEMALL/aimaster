@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCard } from "@/lib/cards";
 import { deserializeDraw, SPREAD_CONFIGS, SPREAD_POSITION_LABELS } from "@/lib/deck";
-import { requireProgramAccess } from "@/lib/access";
+import { getSessionUser } from "@/lib/auth";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { ResultInteractive } from "@/components/ResultInteractive";
 
@@ -55,7 +55,7 @@ export default async function ResultPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const user = await requireProgramAccess();
+  const user = await getSessionUser();
 
   const { cards: cardsParam, q, img, gm, om } = await searchParams;
   const parsed = deserializeDraw(cardsParam);
@@ -64,10 +64,12 @@ export default async function ResultPage({
   const { spreadType, cardStyle, cards } = parsed;
   const config = SPREAD_CONFIGS[spreadType] ?? SPREAD_CONFIGS.three_cards;
 
-  const [geminiKey, openaiKey] = await Promise.all([
-    getUserApiKey(user.id, "gemini"),
-    getUserApiKey(user.id, "openai"),
-  ]);
+  const [geminiKey, openaiKey] = user
+    ? await Promise.all([
+        getUserApiKey(user.id, "gemini"),
+        getUserApiKey(user.id, "openai"),
+      ])
+    : [null, null];
 
   const params = new URLSearchParams();
   params.set("cards", cardsParam!);

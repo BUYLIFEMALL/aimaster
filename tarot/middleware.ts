@@ -1,10 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// mbti-character와 동일한 결정: 랜딩 페이지(/)는 비로그인 방문자도 볼 수 있는 마케팅
-// 화면으로 남겨두고, 실제 카드 뽑기(/draw)와 결과(/result) 이용에는 로그인을 요구한다 —
-// AIMaster 회원가입 유도 채널 역할도 겸한다.
-const AUTH_REQUIRED_PATHS = ["/draw", "/result", "/settings"];
+// 랜딩 페이지(/)와 공유된 타로 결과 페이지(/result)는 비로그인 방문자도 볼 수 있도록 하고,
+// 실제 새로운 카드 뽑기(/draw)와 설정(/settings) 이용에만 로그인을 요구한다.
+const AUTH_REQUIRED_PATHS = ["/draw", "/settings"];
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
