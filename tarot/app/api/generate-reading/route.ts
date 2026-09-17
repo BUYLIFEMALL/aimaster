@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCard } from "@/lib/cards";
-import { SPREAD_POSITIONS, SPREAD_POSITION_LABELS, type SpreadPosition } from "@/lib/deck";
+import { SPREAD_CONFIGS, type SpreadType, type SpreadPosition } from "@/lib/deck";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 
@@ -8,33 +8,67 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 /**
- * 뽑힌 카드 3장(과거-현재-미래) + 사용자가 입력한 질문을 바탕으로 OpenAI가 하나로 엮인
+ * 뽑힌 타로 카드들 + 사용자가 입력한 질문을 바탕으로 OpenAI가 하나로 엮인
  * 한국어 타로 해석을 써준다. checkProgramAccessApi() + resolveApiKey("openai")로 로그인한
- * 회원 본인의 API 키만 쓰는 표준 패턴을 따른다(앱 공용 키 폴백 없음).
- *
- * 클라이언트가 자유 텍스트로 "이렇게 해석해줘"를 보낼 수 없게, cardId/position/orientation
- * 조합만 받고 실제 카드 의미(정/역방향 문구)는 이 서버가 lib/cards.ts에서 직접 가져와
- * 시스템 프롬프트에 근거로 넣는다 — 모델이 카드 상징을 지어내지 않고 우리 데이터에 기반해
- * 해석하도록 그라운딩하기 위함이다. 질문 텍스트만 사용자가 직접 입력한 자유 텍스트이며,
- * 300자로 제한해 과도한 프롬프트 인젝션/남용 여지를 줄인다.
+ * 회원 본인의 API 키만 쓰는 표준 패턴을 따른다.
  */
 const MODEL_ID = "gpt-4o-mini";
 
-const SYSTEM_PROMPT = `당신은 따뜻하고 통찰력 있는 한국어 타로 리더입니다. 과거-현재-미래 3카드 스프레드를 해석합니다.
+function getSystemPrompt(spreadType: SpreadType): string {
+  const config = SPREAD_CONFIGS[spreadType] ?? SPREAD_CONFIGS.three_cards;
+
+  if (spreadType === "one_card") {
+    return `당신은 따뜻하고 통찰력 있는 한국어 전문 타로 리더입니다. 오늘의 원카드(One Card) 타로를 해석합니다.
 
 스프레드 규칙:
-- "과거" 자리 카드는 지금 상황의 배경이나 원인, 이미 지나온 흐름을 보여줍니다.
-- "현재" 자리 카드는 지금 이 순간의 심리 상태, 처한 상황, 마주한 핵심 과제를 보여줍니다.
-- "미래" 자리 카드는 지금의 흐름이 이어질 경우 다가올 방향이나 결과의 가능성을 보여줍니다. 정해진 운명이 아니라 "지금처럼 가면 이런 흐름"이라는 참고로 다뤄주세요.
-- 정방향 카드는 그 카드의 에너지가 비교적 건강하고 순조롭게 발현되고 있다는 뜻이고, 역방향 카드는 그 에너지가 막혀있거나, 내면화되어 있거나, 과하게 또는 왜곡되게 나타나고 있다는 뜻입니다. 정방향/역방향의 차이를 반드시 해석에 반영하세요.
-- 세 장을 각각 따로 설명하고 끝내지 말고, 과거→현재→미래로 이어지는 하나의 이야기로 자연스럽게 엮어주세요.
+- 단 한 장의 카드로 오늘 하루 직면할 핵심 에너지와 귀중한 조언을 도출합니다.
+- 정방향 카드는 그 에너지가 순조롭게 발현됨을, 역방향 카드는 내면화되거나 주의가 필요한 영역임을 의미합니다.
 
 작성 규칙:
-- 반드시 한국어로, 존댓말로 따뜻하게 작성하세요.
-- 사용자가 질문을 남겼다면 그 질문과 직접 연결해서 해석하세요. 질문이 없다면 전반적인 삶의 흐름으로 해석하세요.
-- 확정적인 예언("반드시 ~된다")이나 의학적·법률적·재정적 조언은 피하고, 통찰과 조언 중심으로 풀어주세요.
-- 3~5개 문단으로 구성하세요: (1) 과거 카드 해석, (2) 현재 카드 해석, (3) 미래 카드 해석, (4) 세 카드를 관통하는 조언으로 마무리. 각 문단은 2~4문장 정도로 간결하게 쓰세요.
-- 마크다운 제목이나 별표 같은 서식 없이, 자연스러운 줄글 문단으로만 작성하세요.`;
+- 반드시 한국어로, 정중하고 따뜻한 존댓말로 작성하세요.
+- 질문이 있다면 질문에 명확히 대답하고, 없면 오늘 하루 전체의 가이드로 풀어주세요.
+- 2~3개 문단으로 작성하되, 마크다운 서식 없이 자연스러운 줄글 문단으로만 작성하세요.`;
+  }
+
+  if (spreadType === "love_three_cards") {
+    return `당신은 관계와 공감 능력이 뛰어난 타로 리더입니다. 연인/친구 간의 궁합 3카드 스프레드를 해석합니다.
+
+스프레드 규칙:
+- "나의 마음": 내가 이 관계에서 느끼는 속마음과 태도
+- "상대방의 마음": 나를 바라보는 상대방의 속마음과 상태
+- "우리의 미래": 두 사람이 함께 만들어갈 진전과 관계의 흐름
+- 정방향/역방향의 기운 차이를 관계의 역학 구도에 섬세하게 반영하세요.
+
+작성 규칙:
+- 따뜻하고 깊은 공감의 언어로 존댓말 작성을 유지하세요.
+- 3~4개 문단으로 구성하되 서식 없이 자연스러운 줄글 문단으로 작성하세요.`;
+  }
+
+  if (spreadType === "five_cards") {
+    return `당신은 심층적인 문제 해결 능력을 갖춘 마스터 타로 리더입니다. 5카드 심층 스프레드를 해석합니다.
+
+스프레드 규칙:
+- "현재 상황": 현재 고민의 전체적인 상태
+- "원인·배경": 이 문제가 생겨난 근본적인 원인
+- "해법·조언": 현실적으로 취해야 할 지혜로운 행동
+- "장애물·주의": 주의해야 할 경계나 방해 요소
+- "최종 결과": 조언을 따랐을 때 도달할 흐름과 결과
+
+작성 규칙:
+- 5개 지점을 논리적이면서도 가슴 따뜻하게 엮어주세요.
+- 4~5개 문단으로 구성하고 서식 없이 줄글 문단으로 작성하세요.`;
+  }
+
+  // 기본 three_cards
+  return `당신은 따뜻하고 통찰력 있는 한국어 타로 리더입니다. 과거-현재-미래 3카드 스프레드를 해석합니다.
+
+스프레드 규칙:
+- "과거" 자리 카드는 지나온 흐름과 원인, "현재"는 지금 이 순간의 심리 상태와 과제, "미래"는 다가올 방향과 가능성을 보여줍니다.
+- 정방향/역방향 차이를 반드시 반영하고, 3장의 흐름을 하나의 이야기로 자연스럽게 엮어주세요.
+
+작성 규칙:
+- 반드시 한국어 존댓말로 따뜻하게 작성하고 3~4개 문단 줄글 서식으로 작성하세요.`;
+}
 
 interface CardInput {
   cardId: string;
@@ -42,12 +76,15 @@ interface CardInput {
   orientation: "upright" | "reversed";
 }
 
-function buildUserPrompt(cards: CardInput[], question: string | undefined): string {
+function buildUserPrompt(cards: CardInput[], question: string | undefined, spreadType: SpreadType): string {
+  const config = SPREAD_CONFIGS[spreadType] ?? SPREAD_CONFIGS.three_cards;
+
   const cardLines = cards
     .map((c) => {
       const card = getCard(c.cardId)!;
       const meaning = c.orientation === "upright" ? card.upright : card.reversed;
-      return `- [${SPREAD_POSITION_LABELS[c.position]}] ${card.nameKo}(${card.nameEn}) · ${
+      const posLabel = config.positionLabels[c.position] || c.position;
+      return `- [${posLabel}] ${card.nameKo}(${card.nameEn}) · ${
         c.orientation === "upright" ? "정방향" : "역방향"
       }\n  카드 의미 참고: ${meaning}`;
     })
@@ -55,9 +92,9 @@ function buildUserPrompt(cards: CardInput[], question: string | undefined): stri
 
   const questionLine = question?.trim()
     ? `사용자가 남긴 질문/고민: "${question.trim()}"`
-    : "사용자가 특별한 질문을 남기지 않았습니다. 전반적인 삶의 흐름으로 해석해주세요.";
+    : "사용자가 특별한 질문을 남기지 않았습니다. 전반적인 흐름과 조언으로 해석해주세요.";
 
-  return `${questionLine}\n\n뽑힌 카드 3장:\n${cardLines}\n\n위 내용을 바탕으로 하나로 이어지는 타로 해석을 작성해주세요.`;
+  return `${questionLine}\n\n[스프레드: ${config.title}]\n뽑힌 카드 ${cards.length}장:\n${cardLines}\n\n위 내용을 바탕으로 종합 타로 해석을 작성해주세요.`;
 }
 
 export async function POST(request: NextRequest) {
@@ -74,34 +111,32 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: { cards?: CardInput[]; question?: string };
+  let body: { cards?: CardInput[]; question?: string; spreadType?: SpreadType };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
   }
 
-  const { cards, question } = body;
+  const { cards, question, spreadType = "three_cards" } = body;
+  const config = SPREAD_CONFIGS[spreadType] ?? SPREAD_CONFIGS.three_cards;
 
-  if (!Array.isArray(cards) || cards.length !== 3) {
-    return NextResponse.json({ error: "카드 3장 정보가 필요합니다." }, { status: 400 });
+  if (!Array.isArray(cards) || cards.length !== config.cardCount) {
+    return NextResponse.json(
+      { error: `스프레드에 맞는 카드 ${config.cardCount}장 정보가 필요합니다.` },
+      { status: 400 },
+    );
   }
-  const usedPositions = new Set<string>();
+
   for (const c of cards) {
     if (!c || !getCard(c.cardId)) {
       return NextResponse.json({ error: "알 수 없는 카드가 포함되어 있습니다." }, { status: 400 });
     }
-    if (!SPREAD_POSITIONS.includes(c.position)) {
-      return NextResponse.json({ error: "알 수 없는 카드 위치입니다." }, { status: 400 });
-    }
     if (c.orientation !== "upright" && c.orientation !== "reversed") {
       return NextResponse.json({ error: "알 수 없는 카드 방향입니다." }, { status: 400 });
     }
-    usedPositions.add(c.position);
   }
-  if (usedPositions.size !== 3) {
-    return NextResponse.json({ error: "과거·현재·미래 카드가 각각 하나씩 필요합니다." }, { status: 400 });
-  }
+
   if (question && question.length > 300) {
     return NextResponse.json({ error: "질문은 300자 이내로 입력해주세요." }, { status: 400 });
   }
@@ -114,10 +149,10 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         model: MODEL_ID,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: buildUserPrompt(cards, question) },
+          { role: "system", content: getSystemPrompt(spreadType) },
+          { role: "user", content: buildUserPrompt(cards, question, spreadType) },
         ],
-        max_tokens: 1200,
+        max_tokens: 1400,
         temperature: 0.85,
       }),
       signal: AbortSignal.timeout(45000),
