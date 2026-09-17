@@ -39,13 +39,37 @@ async function dispatchDuePosts(
       .eq("user_id", post.user_id)
       .maybeSingle();
 
-    if (!account) {
+    if (!account || !account.access_token) {
       await supabase
         .from("tap_posts")
-        .update({ status: "failed", error_message: "연결된 Threads 계정이 없습니다." })
+        .update({ status: "failed", error_message: "연결된 Threads 계정이 없거나 토큰이 올바르지 않습니다." })
         .eq("id", post.id);
-      results.push({ postId: post.id, success: false, errorMessage: "연결된 Threads 계정이 없습니다." });
+      results.push({ postId: post.id, success: false, errorMessage: "연결된 Threads 계정이 없거나 토큰이 올바르지 않습니다." });
       continue;
+    }
+
+    let activeToken = account.access_token;
+
+    // 토큰 갱신 시도 (최근 갱신일이 30일 이상 지난 경우 자동 토큰 연장)
+    try {
+      const updatedAtTime = account.updated_at ? new Date(account.updated_at).getTime() : 0;
+      const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+      if (Date.now() - updatedAtTime > thirtyDaysMs) {
+        const { refreshLongLivedToken } = await import("@/lib/threads/client");
+        const refreshed = await refreshLongLivedToken(account.access_token);
+        if (refreshed.access_token) {
+          activeToken = refreshed.access_token;
+          await supabase
+            .from("tap_accounts")
+            .update({
+              access_token: refreshed.access_token,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", account.id);
+        }
+      }
+    } catch {
+      // 갱신 실패 시 기존 토큰으로 게시 시도
     }
 
     const outcome = await publishPost({
@@ -56,7 +80,7 @@ async function dispatchDuePosts(
       imageUrl: post.image_url,
       videoUrl: post.video_url,
       threadsUserId: account.threads_user_id,
-      accessToken: account.access_token,
+      accessToken: activeToken,
     });
 
     results.push({ postId: post.id, success: outcome.success, errorMessage: outcome.errorMessage });

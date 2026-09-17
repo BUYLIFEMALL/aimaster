@@ -91,6 +91,18 @@ export async function exchangeForLongLivedToken(
   return parseThreadsResponse<ThreadsLongLivedTokenResponse>(response);
 }
 
+export async function refreshLongLivedToken(
+  accessToken: string,
+): Promise<ThreadsLongLivedTokenResponse> {
+  const params = new URLSearchParams({
+    grant_type: "th_refresh_token",
+    access_token: accessToken,
+  });
+
+  const response = await fetch(`${GRAPH_BASE}/refresh_access_token?${params.toString()}`);
+  return parseThreadsResponse<ThreadsLongLivedTokenResponse>(response);
+}
+
 export async function getThreadsUserProfile(
   accessToken: string,
 ): Promise<ThreadsUserProfile> {

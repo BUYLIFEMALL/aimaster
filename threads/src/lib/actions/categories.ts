@@ -277,3 +277,44 @@ export async function moveCategoryAction(formData: FormData) {
 
   revalidatePath("/candidates");
 }
+
+/** 특정 수집 후보 게시글의 카테고리를 지정/변경합니다. */
+export async function updateCandidateCategoryAction(formData: FormData) {
+  const user = await requireProgramAccess();
+  const candidateId = String(formData.get("candidateId") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "");
+  if (!candidateId) return;
+
+  const supabase = await createClient();
+
+  // 1차 시도: threads_candidates.category_id 컬럼 업데이트
+  try {
+    const { error } = await supabase
+      .from("threads_candidates")
+      .update({ category_id: categoryId || null })
+      .eq("id", candidateId)
+      .eq("user_id", user.id);
+
+    if (!error) {
+      revalidatePath("/candidates");
+      return;
+    }
+  } catch {
+    // ignore
+  }
+
+  // 2차 Fallback: candidate-category 매핑 저장
+  try {
+    const currentMap = await getCandidateCategoryMap(supabase, user.id);
+    if (categoryId) {
+      currentMap[candidateId] = categoryId;
+    } else {
+      delete currentMap[candidateId];
+    }
+    await saveCandidateCategoryMap(supabase, user.id, currentMap);
+    revalidatePath("/candidates");
+  } catch {
+    // ignore
+  }
+}
+
