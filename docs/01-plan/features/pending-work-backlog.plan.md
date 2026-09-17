@@ -59,6 +59,12 @@ variables:
 
 ## ✅ 이번 세션에서 완료된 것 (참고용, 재작업 불필요)
 
+- **2026-09-17 세션 완료 내역**:
+  - `threads-affiliate-poster`: `ProductPostForm.tsx` AI 멀티컷 카드뉴스 연속 생성(NanoBanana 2K/4K/Pro/Standard), 미디어 다중 업로드(최대 20장) 및 캐러셀 폼 UI 완결
+  - `threads-affiliate-poster`: 스케줄러 예약 게시(`dispatchAllScheduledPosts`) 시 30일 경과 계정 토큰 자동 갱신(`refreshLongLivedToken`) 및 예외 처리 연동
+  - `threads`: `categories.ts` 후보 카테고리 연동 액션(`updateCandidateCategoryAction`) 및 DB/Fallback 카테고리 분류 연동 완결
+  - `trending-product-finder`: Phase 8 11번가 경쟁도 지표(`getCompetition`), Phase 10 다채널 알림(텔레그램/SMTP이메일/SOLAPI친구톡), Phase 19/20 마진율 필터 및 키워드 워치리스트 검증 완료
+  - 프로젝트 메인지침(`AGENTS.md`): 작업 완료 후 자율적인 `Commit -> Push -> Vercel 배포 -> 검수 보고` 프로세스 정립
 - 상품소싱 자동화 Phase 19(프로모션+마진율 필터), 20(키워드 개별수정), 21(카카오 알림톡)
 - 루트 접근권한 로직 중앙화(`lib/access/checkProgramAccess.ts`) — blog "일반 등급인데 접근 안 됨" 버그 근본 수정
 - `grade_program_access` RLS 정책 누락 수정
@@ -77,4 +83,6 @@ variables:
 
 | 버전 | 날짜 | 변경 내용 |
 |---|---|---|
+| 1.1 | 2026-09-17 | Threads AI 멀티컷 폼, 스케줄러 토큰 연장, 카테고리 연동 및 trending-product-finder 실사용 검증 완료 반영 |
 | 1.0 | 2026-09-04 | 최초 작성 — 결제연동/카카오알림톡/threads-affiliate-poster 등 전체 남은 작업 취합 |
+
