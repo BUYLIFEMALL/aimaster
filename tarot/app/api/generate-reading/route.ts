@@ -15,8 +15,6 @@ export const fetchCache = "force-no-store";
 const MODEL_ID = "gpt-4o-mini";
 
 function getSystemPrompt(spreadType: SpreadType): string {
-  const config = SPREAD_CONFIGS[spreadType] ?? SPREAD_CONFIGS.three_cards;
-
   if (spreadType === "one_card") {
     return `당신은 따뜻하고 통찰력 있는 한국어 전문 타로 리더입니다. 오늘의 원카드(One Card) 타로를 해석합니다.
 
