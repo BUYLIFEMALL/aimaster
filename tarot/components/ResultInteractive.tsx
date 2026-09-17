@@ -31,6 +31,7 @@ export function ResultInteractive({
   hasOpenaiKey,
   initialImageUrl,
   initialImages,
+  initialReading,
   shareUrlBase,
   fallbackOgImageUrl,
 }: {
@@ -44,6 +45,7 @@ export function ResultInteractive({
   hasOpenaiKey: boolean;
   initialImageUrl: string | null;
   initialImages?: Record<string, string>;
+  initialReading?: string | null;
   shareUrlBase: string;
   fallbackOgImageUrl: string;
 }) {
@@ -61,7 +63,7 @@ export function ResultInteractive({
   });
   const [loadingCardIds, setLoadingCardIds] = useState<Set<string>>(new Set());
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
-  const [reading, setReading] = useState<string | null>(null);
+  const [reading, setReading] = useState<string | null>(initialReading || null);
   const [readingLoading, setReadingLoading] = useState(false);
   const [readingError, setReadingError] = useState<string | null>(null);
   const [modalProvider, setModalProvider] = useState<string | null>(null);

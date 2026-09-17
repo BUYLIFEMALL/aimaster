@@ -5,6 +5,7 @@ import { deserializeDraw, SPREAD_CONFIGS, SPREAD_POSITION_LABELS } from "@/lib/d
 import { getSessionUser } from "@/lib/auth";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { ResultInteractive } from "@/components/ResultInteractive";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -97,6 +98,38 @@ export default async function ResultPage({
     } catch {}
   }
 
+  // DB(tarot_readings)에서 이 카드 구성으로 이미 생성되었던 카드 이미지들 및 AI 해석 내용 복원
+  let initialReading: string | null = null;
+  try {
+    const supabase = await createClient();
+    const { data: readings } = await supabase
+      .from("tarot_readings")
+      .select("card_images, ai_reading")
+      .eq("spread_type", spreadType)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (readings && readings.length > 0) {
+      for (const r of readings) {
+        if (r.card_images && typeof r.card_images === "object") {
+          const imgsMap = r.card_images as Record<string, string>;
+          if (imgsMap[mainCard.cardId]) {
+            for (const [k, v] of Object.entries(imgsMap)) {
+              if (typeof v === "string" && !initialImages[k]) {
+                const trusted = getTrustedImageUrl(v);
+                if (trusted) initialImages[k] = trusted;
+              }
+            }
+            if (r.ai_reading && typeof r.ai_reading === "string") {
+              initialReading = r.ai_reading;
+            }
+            break;
+          }
+        }
+      }
+    }
+  } catch {}
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="text-center mb-6">
@@ -114,6 +147,7 @@ export default async function ResultPage({
         hasOpenaiKey={!!openaiKey}
         initialImageUrl={initialImageUrl}
         initialImages={initialImages}
+        initialReading={initialReading}
         shareUrlBase={shareUrlBase}
         fallbackOgImageUrl={fallbackOgImageUrl}
       />
