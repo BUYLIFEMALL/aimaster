@@ -53,6 +53,38 @@ function buildThreadsSystemPrompt(targetLength: number): string {
 게시글을 만든 후에는 추가 해설이나 설명 없이 바로 출력하면 됩니다.`;
 }
 
+async function fetchUrlExcerpt(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : "";
+
+    const cleanText = html
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const excerpt = cleanText.slice(0, 400);
+    return title ? `[${title}] ${excerpt}` : excerpt;
+  } catch {
+    return null;
+  }
+}
+
 export async function generatePostContent(
   input: GeneratePostInput,
   apiKey: string,
@@ -65,8 +97,18 @@ export async function generatePostContent(
   const toneInstruction = TONE_INSTRUCTIONS[input.tone ?? "친근함"];
   const keywords = (input.keywords ?? []).filter((k) => k.trim().length > 0);
   const keywordLine = keywords.length > 0 ? `\n포함할 키워드: ${keywords.join(", ")}` : "";
+
   const referenceUrls = (input.referenceUrls ?? []).filter((u) => u.trim().length > 0);
-  const referenceLine = referenceUrls.length > 0 ? `\n참고 웹페이지: ${referenceUrls.join(", ")}` : "";
+  let referenceLine = "";
+  if (referenceUrls.length > 0) {
+    const fetchedExcerpts = await Promise.all(
+      referenceUrls.map(async (url) => {
+        const text = await fetchUrlExcerpt(url);
+        return text ? `- ${url} (페이지 본문 요약: ${text})` : `- ${url}`;
+      }),
+    );
+    referenceLine = `\n참고 웹페이지 내용 및 링크:\n${fetchedExcerpts.join("\n")}`;
+  }
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
