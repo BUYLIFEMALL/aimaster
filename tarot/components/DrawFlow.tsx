@@ -36,7 +36,7 @@ export function DrawFlow({
   const [spreadType, setSpreadType] = useState<SpreadType>("three_cards");
   const [cardStyle, setCardStyle] = useState<CardStyle>("watercolor");
   const [geminiModel, setGeminiModel] = useState<string>("nanobanana-2-2k");
-  const [openaiModel, setOpenaiModel] = useState<string>("gpt-4o");
+  const [openaiModel, setOpenaiModel] = useState<string>("gpt-5.6-sol");
   const [question, setQuestion] = useState("");
   const [isShuffling, setIsShuffling] = useState(false);
   const [showApiKeySection, setShowApiKeySection] = useState(
