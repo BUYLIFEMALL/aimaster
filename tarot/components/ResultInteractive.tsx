@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { getCard, type Orientation } from "@/lib/cards";
 import {
@@ -30,6 +30,7 @@ export function ResultInteractive({
   hasGeminiKey,
   hasOpenaiKey,
   initialImageUrl,
+  initialImages,
   shareUrlBase,
   fallbackOgImageUrl,
 }: {
@@ -42,6 +43,7 @@ export function ResultInteractive({
   hasGeminiKey: boolean;
   hasOpenaiKey: boolean;
   initialImageUrl: string | null;
+  initialImages?: Record<string, string>;
   shareUrlBase: string;
   fallbackOgImageUrl: string;
 }) {
@@ -50,9 +52,13 @@ export function ResultInteractive({
 
   const mainCard = cards[0] || { cardId: "major-00", position: "present", orientation: "upright" };
 
-  const [images, setImages] = useState<Record<string, string>>(
-    initialImageUrl ? { [mainCard.cardId]: initialImageUrl } : {},
-  );
+  const [images, setImages] = useState<Record<string, string>>(() => {
+    const initObj: Record<string, string> = { ...(initialImages || {}) };
+    if (initialImageUrl && !initObj[mainCard.cardId]) {
+      initObj[mainCard.cardId] = initialImageUrl;
+    }
+    return initObj;
+  });
   const [loadingCardIds, setLoadingCardIds] = useState<Set<string>>(new Set());
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
   const [reading, setReading] = useState<string | null>(null);
@@ -190,9 +196,23 @@ export function ResultInteractive({
 
   const mainImageUrl = images[mainCard.cardId] ?? null;
   const shareImageUrl = mainImageUrl ?? fallbackOgImageUrl;
-  const shareUrl = mainImageUrl
-    ? `${shareUrlBase}&img=${encodeURIComponent(mainImageUrl)}`
-    : shareUrlBase;
+
+  const shareUrl = useMemo(() => {
+    try {
+      const url = new URL(shareUrlBase);
+      if (mainImageUrl) {
+        url.searchParams.set("img", mainImageUrl);
+      }
+      if (Object.keys(images).length > 0) {
+        url.searchParams.set("imgs", JSON.stringify(images));
+      }
+      return url.toString();
+    } catch {
+      return mainImageUrl
+        ? `${shareUrlBase}&img=${encodeURIComponent(mainImageUrl)}`
+        : shareUrlBase;
+    }
+  }, [shareUrlBase, mainImageUrl, images]);
 
   // 카드 수에 따른 Responsive Grid 스타일
   const gridColsClass =

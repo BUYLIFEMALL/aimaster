@@ -18,7 +18,7 @@ function getTrustedImageUrl(img: string | undefined): string | null {
   return img.startsWith(TRUSTED_IMAGE_PREFIX) ? img : null;
 }
 
-type SearchParams = { cards?: string; q?: string; img?: string; gm?: string; om?: string };
+type SearchParams = { cards?: string; q?: string; img?: string; imgs?: string; gm?: string; om?: string };
 
 export async function generateMetadata({
   searchParams,
@@ -57,7 +57,7 @@ export default async function ResultPage({
 }) {
   const user = await getSessionUser();
 
-  const { cards: cardsParam, q, img, gm, om } = await searchParams;
+  const { cards: cardsParam, q, img, imgs, gm, om } = await searchParams;
   const parsed = deserializeDraw(cardsParam);
   if (!parsed) redirect("/draw");
 
@@ -82,6 +82,21 @@ export default async function ResultPage({
   const fallbackOgImageUrl = `${SITE_URL}/api/og?present=${mainCard.cardId}`;
   const initialImageUrl = getTrustedImageUrl(img);
 
+  const initialImages: Record<string, string> = {};
+  if (imgs) {
+    try {
+      const parsedImgs = JSON.parse(imgs);
+      if (typeof parsedImgs === "object" && parsedImgs !== null) {
+        for (const [k, v] of Object.entries(parsedImgs)) {
+          if (typeof v === "string") {
+            const trusted = getTrustedImageUrl(v);
+            if (trusted) initialImages[k] = trusted;
+          }
+        }
+      }
+    } catch {}
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="text-center mb-6">
@@ -98,6 +113,7 @@ export default async function ResultPage({
         hasGeminiKey={!!geminiKey}
         hasOpenaiKey={!!openaiKey}
         initialImageUrl={initialImageUrl}
+        initialImages={initialImages}
         shareUrlBase={shareUrlBase}
         fallbackOgImageUrl={fallbackOgImageUrl}
       />
