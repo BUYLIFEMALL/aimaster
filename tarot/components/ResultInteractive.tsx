@@ -386,7 +386,6 @@ export function ResultInteractive({
                       ? "bg-gradient-to-br from-purple-950 via-indigo-900 to-black magic-glow-anim border-2 border-purple-400"
                       : "bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 border-2 border-dashed border-amber-400/50 hover:border-amber-400 cursor-pointer group hover:scale-[1.02] shadow-sm hover:shadow-amber-500/20"
                   }`}
-                  style={imageUrl && drawn.orientation === "reversed" ? { transform: "rotate(180deg)" } : undefined}
                 >
                   {imageUrl ? (
                     <div className="relative w-full h-full group/img">
@@ -397,13 +396,15 @@ export function ResultInteractive({
                         src={imageUrl}
                         alt={card.nameKo}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105"
+                        style={drawn.orientation === "reversed" ? { transform: "rotate(180deg)" } : undefined}
                       />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2 text-center">
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2 text-center pointer-events-none">
                         <span className="text-[11px] font-bold text-white bg-black/75 px-3 py-1.5 rounded-full border border-white/30 backdrop-blur-sm flex items-center gap-1 shadow-lg">
                           🔍 클릭하여 확대 보기
                         </span>
                       </div>
                     </div>
+
                   ) : isLoading ? (
                     <div className="flex flex-col items-center justify-center p-4 text-center gap-2">
                       <span className="text-3xl animate-spin inline-block mb-1">🔮</span>
