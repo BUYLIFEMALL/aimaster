@@ -55,3 +55,44 @@ body {
 .card-shuffle-anim {
   animation: card-shuffle-pulse 0.9s ease-in-out infinite;
 }
+
+@keyframes magic-sparkle-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 30px rgba(236, 72, 153, 0.3);
+    border-color: rgba(236, 72, 153, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.9), 0 0 50px rgba(245, 158, 11, 0.6);
+    border-color: rgba(245, 158, 11, 0.9);
+  }
+}
+
+.magic-glow-anim {
+  animation: magic-sparkle-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes card-shine-pass {
+  0% {
+    transform: translateX(-120%) rotate(25deg);
+  }
+  100% {
+    transform: translateX(250%) rotate(25deg);
+  }
+}
+
+.card-shine-effect {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 60%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: card-shine-pass 1.2s ease-out forwards;
+  pointer-events: none;
+}
+

@@ -64,9 +64,10 @@ export const CARD_STYLES: Record<CardStyle, CardStyleOption> = {
 };
 
 export const GEMINI_MODEL_OPTIONS = [
-  { value: "gemini-2.5-flash-image", label: "Gemini 2.5 Flash Image (기본 - 추천)" },
-  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
-  { value: "imagen-3.0-generate-002", label: "Google Imagen 3 (화풍 생성 모델)" },
+  { value: "nanobanana-2-2k", label: "NanoBanana 2-2K (2K 고화질 비주얼 - 추천)" },
+  { value: "nanobanana-2-4k", label: "NanoBanana 2-4K (4K 울트라 HD)" },
+  { value: "nanobanana-pro", label: "NanoBanana Pro (프로페셔널 타로 아트)" },
+  { value: "nanobanana", label: "NanoBanana Standard (기본 모델)" },
 ] as const;
 
 export const OPENAI_MODEL_OPTIONS = [

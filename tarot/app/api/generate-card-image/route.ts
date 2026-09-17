@@ -12,9 +12,36 @@ export const fetchCache = "force-no-store";
 
 /**
  * "나노바나나"로 불리는 Gemini 이미지 생성 모델을 호출해 뽑힌 카드 1장의 일러스트를 만든다.
- * mbti-character/app/api/generate-character-image/route.ts와 완전히 동일한 표준 패턴이다.
+ * naver-cafe-poster/src/lib/ai/imageGenerator.ts 와 동일한 모델 매핑 표준 패턴을 적용한다.
  */
-const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image";
+interface NanoBananaModelConfig {
+  modelName: string;
+  imageSize: "1K" | "2K" | "4K";
+  temperature: number;
+}
+
+const NANO_BANANA_MODEL_CONFIGS: Record<string, NanoBananaModelConfig> = {
+  nanobanana: {
+    modelName: "gemini-2.5-flash-image",
+    imageSize: "1K",
+    temperature: 0.7,
+  },
+  "nanobanana-2-2k": {
+    modelName: "gemini-3.1-flash-image",
+    imageSize: "2K",
+    temperature: 0.7,
+  },
+  "nanobanana-2-4k": {
+    modelName: "gemini-3.1-flash-image",
+    imageSize: "4K",
+    temperature: 0.7,
+  },
+  "nanobanana-pro": {
+    modelName: "gemini-3.1-flash-image",
+    imageSize: "4K",
+    temperature: 0.4,
+  },
+};
 
 const KOREAN_PERSON_RULE =
   "If the illustration depicts any human figure, portray them with Korean (East Asian) " +
@@ -74,7 +101,9 @@ export async function POST(request: NextRequest) {
   }
 
   const { cardId, orientation, style = "watercolor", model } = body;
-  const targetModel = model && model.trim() ? model.trim() : MODEL_ID;
+  const modelKey = model && model.trim() ? model.trim() : "nanobanana-2-2k";
+  const config = NANO_BANANA_MODEL_CONFIGS[modelKey] ?? NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"];
+  const targetModelName = config.modelName;
 
   if (!cardId || !getCard(cardId)) {
     return NextResponse.json({ error: "알 수 없는 카드입니다." }, { status: 400 });
@@ -91,15 +120,22 @@ export async function POST(request: NextRequest) {
   let googleRes: Response;
   try {
     googleRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1/models/${targetModelName}:generateContent`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ["IMAGE"] },
+          generationConfig: {
+            responseModalities: ["IMAGE"],
+            imageConfig: {
+              aspectRatio: "2:3",
+              imageSize: config.imageSize,
+            },
+            temperature: config.temperature,
+          },
         }),
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(60000),
       },
     );
   } catch {
