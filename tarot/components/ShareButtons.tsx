@@ -21,6 +21,23 @@ export function ShareButtons({
 }) {
   const [copied, setCopied] = useState(false);
   const [kakaoReady, setKakaoReady] = useState(false);
+  const [currentShareUrl, setCurrentShareUrl] = useState(shareUrl);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && shareUrl) {
+      try {
+        const urlObj = new URL(shareUrl, window.location.origin);
+        if (urlObj.origin !== window.location.origin) {
+          const updated = `${window.location.origin}${urlObj.pathname}${urlObj.search}${urlObj.hash}`;
+          setCurrentShareUrl(updated);
+        } else {
+          setCurrentShareUrl(shareUrl);
+        }
+      } catch {
+        setCurrentShareUrl(shareUrl);
+      }
+    }
+  }, [shareUrl]);
 
   useEffect(() => {
     if (window.Kakao?.isInitialized()) {
@@ -59,13 +76,13 @@ export function ShareButtons({
     let done = false;
     try {
       await Promise.race([
-        navigator.clipboard.writeText(shareUrl).then(() => {
+        navigator.clipboard.writeText(currentShareUrl).then(() => {
           done = true;
         }),
         new Promise((resolve) => setTimeout(resolve, 800)),
       ]);
     } catch {}
-    if (!done) legacyCopy(shareUrl);
+    if (!done) legacyCopy(currentShareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -78,9 +95,9 @@ export function ShareButtons({
         title: shareText,
         description: shareDescription,
         imageUrl,
-        link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+        link: { mobileWebUrl: currentShareUrl, webUrl: currentShareUrl },
       },
-      buttons: [{ title: "결과 보러가기", link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }],
+      buttons: [{ title: "결과 보러가기", link: { mobileWebUrl: currentShareUrl, webUrl: currentShareUrl } }],
     });
   }
 
