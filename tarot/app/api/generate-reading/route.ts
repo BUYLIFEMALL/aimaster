@@ -147,12 +147,10 @@ export async function POST(request: NextRequest) {
       { role: isReasoningModel ? "user" : "system", content: getSystemPrompt(spreadType) },
       { role: "user", content: buildUserPrompt(cards, question, spreadType) },
     ],
+    max_completion_tokens: 2000,
   };
 
-  if (isReasoningModel) {
-    requestBody.max_completion_tokens = 2000;
-  } else {
-    requestBody.max_tokens = 1400;
+  if (!isReasoningModel) {
     requestBody.temperature = 0.85;
   }
 

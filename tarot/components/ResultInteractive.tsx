@@ -350,21 +350,37 @@ export function ResultInteractive({
           return (
             <div
               key={`${drawn.cardId}-${drawn.position}`}
-              className="rounded-2xl overflow-hidden border border-neutral-200 bg-white flex flex-col shadow-sm transition-all duration-300 hover:shadow-md"
+              className={`rounded-2xl overflow-hidden flex flex-col shadow-sm transition-all duration-700 ${
+                imageUrl
+                  ? "bg-gradient-to-b from-purple-50/90 via-white to-amber-50/40 border-2 border-amber-400/70 shadow-lg shadow-purple-500/10 scale-[1.01]"
+                  : isLoading
+                  ? "bg-white border-2 border-purple-300 shadow-md"
+                  : "bg-white border border-neutral-200 hover:border-purple-300 hover:shadow-md"
+              }`}
             >
               <div className="px-3 pt-3 text-center flex items-center justify-between">
-                <span className="inline-block px-2.5 py-1 rounded-full bg-neutral-900 text-white text-[11px] font-bold">
-                  {posLabel}
-                </span>
                 <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                    drawn.orientation === "upright"
-                      ? "bg-amber-50 text-amber-700 border border-amber-200"
-                      : "bg-slate-100 text-slate-600 border border-slate-200"
+                  className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                    imageUrl ? "bg-amber-400 text-neutral-950 shadow-sm" : "bg-neutral-900 text-white"
                   }`}
                 >
-                  {drawn.orientation === "upright" ? "정방향" : "역방향"}
+                  {posLabel}
                 </span>
+                {imageUrl ? (
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      drawn.orientation === "upright"
+                        ? "bg-amber-100 text-amber-800 border border-amber-300"
+                        : "bg-slate-100 text-slate-700 border border-slate-300"
+                    }`}
+                  >
+                    {drawn.orientation === "upright" ? "정방향" : "역방향"}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200 animate-pulse">
+                    ❓ 미연성
+                  </span>
+                )}
               </div>
 
               <div className="px-4 py-3 flex flex-col items-center">
@@ -416,11 +432,47 @@ export function ResultInteractive({
                   )}
                 </div>
 
-                <p className="text-sm font-bold text-neutral-900">{card.nameKo}</p>
-                <p className="text-[11px] text-neutral-400 mb-2">{card.nameEn}</p>
+                {/* 카드 하단 데이터 (카드가 연성 완료되면 전개되는 세부 해설) */}
+                {imageUrl ? (
+                  <div className="w-full text-center animate-in fade-in zoom-in-95 duration-500">
+                    <p className="text-sm font-black text-neutral-900 flex items-center justify-center gap-1">
+                      <span>✨</span> {card.nameKo}
+                    </p>
+                    <p className="text-[11px] font-medium text-purple-700/80 mb-2">{card.nameEn}</p>
+                    <p className="text-xs text-neutral-700 leading-relaxed text-center bg-white/80 p-3 rounded-xl border border-amber-300/60 shadow-inner">
+                      {meaning}
+                    </p>
+                  </div>
+                ) : isLoading ? (
+                  <div className="w-full text-center py-3 px-2 bg-purple-50/60 rounded-xl border border-purple-100 flex flex-col items-center gap-1.5">
+                    <div className="flex items-center gap-1 text-sm text-purple-600 animate-pulse">
+                      <span>🔮</span>
+                      <span>✨</span>
+                      <span>🌙</span>
+                    </div>
+                    <p className="text-[11px] font-bold text-purple-900 animate-pulse">
+                      운명의 메시지를 읽어오는 중...
+                    </p>
+                    <p className="text-[10px] text-purple-500">
+                      연성이 완료되면 카드 명칭과 상세 해설이 드러납니다.
+                    </p>
+                  </div>
+                ) : (
+                  <div
+                    onClick={handleCardClick}
+                    className="w-full text-center py-3 px-2 bg-neutral-50 rounded-xl border border-neutral-200/80 flex flex-col items-center gap-1.5 group cursor-pointer hover:bg-purple-50/50 hover:border-purple-200 transition-colors"
+                  >
+                    <div className="flex items-center gap-1.5 text-xs text-amber-500 group-hover:scale-110 transition-transform duration-300">
+                      <span className="animate-bounce">🔮</span>
+                      <span className="font-bold text-[11px] text-neutral-700">무엇이 숨겨져 있을까요?</span>
+                    </div>
+                    <p className="text-[10px] text-neutral-400 leading-snug">
+                      상단 카드를 클릭하면 일러스트와 함께 카드 해설이 완성됩니다.
+                    </p>
+                  </div>
+                )}
 
-                {error && <p className="text-[11px] text-red-500 mb-1">{error}</p>}
-                <p className="text-xs text-neutral-600 leading-relaxed text-center">{meaning}</p>
+                {error && <p className="text-[11px] text-red-500 mt-2">{error}</p>}
               </div>
             </div>
           );
