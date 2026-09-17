@@ -65,7 +65,7 @@ export function DrawFlow({
       {/* 타이틀 및 헤더 */}
       <div className="text-center mb-8">
         <div className="text-5xl mb-3">🔮</div>
-        <h1 className="text-2xl font-black text-neutral-900 mb-2">AI 타로 리딩</h1>
+        <h1 className="text-2xl font-black text-neutral-900 mb-2">AIMaster 타로점 리딩</h1>
         <p className="text-sm text-neutral-500 leading-relaxed">
           고민의 깊이와 목적에 맞는 스프레드와 마음이 끌리는 아트 스타일을 선택해보세요.
         </p>

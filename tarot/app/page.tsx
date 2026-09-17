@@ -15,7 +15,7 @@ export default async function LandingPage() {
   return (
     <div className="max-w-xl mx-auto px-4 py-16 text-center">
       <div className="text-6xl mb-6">🔮</div>
-      <h1 className="text-3xl font-black text-neutral-900 mb-3">AI 타로</h1>
+      <h1 className="text-3xl font-black text-neutral-900 mb-3">AIMaster 타로점</h1>
       <p className="text-neutral-500 mb-10 leading-relaxed">
         마음에 품은 질문 하나를 떠올리고 카드 3장을 뽑아보세요.
         <br />

@@ -12,10 +12,10 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "AI 타로 - 1카드/3카드/5카드 심층 타로 리딩",
+  title: "AIMaster 타로점 - 1카드/3카드/5카드 심층 타로 리딩",
   description: "질문 하나를 떠올리고 원하는 스프레드와 화풍을 선택해 카드를 뽑아보세요. AI가 그린 카드 일러스트와 AI 심층 타로 해석을 보관할 수 있어요.",
   openGraph: {
-    title: "AI 타로",
+    title: "AIMaster 타로점",
     description: "스프레드와 화풍 선택으로 알아보는 나만의 맞춤 AI 타로 리딩",
     images: ["/api/og"],
   },
@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <header className="px-4 py-3 flex items-center justify-between max-w-2xl mx-auto w-full border-b border-neutral-100">
             <div className="flex items-center gap-3">
               <a href="/" className="font-black text-lg text-neutral-900 flex items-center gap-1.5">
-                🔮 AI 타로
+                🔮 AIMaster 타로점
               </a>
               {user && (
                 <a

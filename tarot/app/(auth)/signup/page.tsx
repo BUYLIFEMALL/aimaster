@@ -11,7 +11,7 @@ export default function SignupPage() {
       <div className="text-4xl mb-3">🔮</div>
       <h2 className="mb-2 text-lg font-bold text-neutral-900">회원가입은 AIMaster에서 진행됩니다</h2>
       <p className="mb-6 text-sm text-neutral-500 leading-relaxed">
-        한 번 가입하면 AI 타로는 물론, AIMaster의 다른 모든 프로그램도
+        한 번 가입하면 AIMaster 타로점은 물론, AIMaster의 다른 모든 프로그램도
         <br />
         같은 계정으로 바로 이용할 수 있어요.
       </p>

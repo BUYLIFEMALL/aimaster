@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         }}
       >
         <div style={{ fontSize: 140, marginBottom: 10 }}>🔮</div>
-        <div style={{ fontSize: 64, fontWeight: 900 }}>AI 타로</div>
+        <div style={{ fontSize: 64, fontWeight: 900 }}>AIMaster 타로점</div>
         <div style={{ fontSize: 28, opacity: 0.85, marginTop: 14 }}>
           과거 · 현재 · 미래 3카드 리딩
         </div>

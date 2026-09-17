@@ -31,7 +31,7 @@ function LoginForm() {
     <div className="max-w-sm mx-auto px-4 py-16">
       <div className="text-center mb-8">
         <div className="text-4xl mb-3">🔮</div>
-        <h1 className="text-xl font-black text-neutral-900">AI 타로</h1>
+        <h1 className="text-xl font-black text-neutral-900">AIMaster 타로점</h1>
         <p className="text-sm text-neutral-400 mt-2">AIMaster 계정으로 로그인하면 이용할 수 있어요.</p>
       </div>
 

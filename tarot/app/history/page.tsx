@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export const metadata: Metadata = {
-  title: "내 타로 보관함 | AI 타로",
+  title: "내 타로 보관함 | AIMaster 타로점",
   description: "내가 뽑았던 타로 카드와 AI 종합 해석 히스토리를 확인해보세요.",
 };
 
