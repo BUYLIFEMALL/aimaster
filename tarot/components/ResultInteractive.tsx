@@ -77,8 +77,6 @@ export function ResultInteractive({
     meaning: string;
   } | null>(null);
 
-  const hasAttemptedSave = useRef(false);
-
   async function generateImage(card: DrawnCardInput) {
     setLoadingCardIds((prev) => new Set(prev).add(card.cardId));
     try {
@@ -149,12 +147,11 @@ export function ResultInteractive({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allCardsRevealed, hasOpenaiKey, reading, readingLoading]);
 
-  // 리딩 결과 및 카드 이미지가 일부 준비되었을 때 Supabase 내 보관함 DB에 자동 저장
+  const savedReadingId = useRef<string | null>(null);
+
+  // 리딩 결과 및 카드 이미지가 일부 준비되었을 때 Supabase 내 보관함 DB에 자동 저장 및 업데이트
   useEffect(() => {
     async function saveReadingHistory() {
-      if (hasAttemptedSave.current) return;
-      hasAttemptedSave.current = true;
-
       try {
         const supabase = createClient();
         const {
@@ -174,17 +171,34 @@ export function ResultInteractive({
           };
         });
 
-        const { error } = await supabase.from("tarot_readings").insert({
-          user_id: user.id,
-          spread_type: spreadType,
-          question: question || null,
-          cards: cardsPayload,
-          ai_reading: reading || null,
-          card_images: images,
-        });
+        if (savedReadingId.current) {
+          // 이미 저장된 레코드가 있으면 ai_reading 및 card_images 업데이트
+          await supabase
+            .from("tarot_readings")
+            .update({
+              ai_reading: reading || null,
+              card_images: images,
+            })
+            .eq("id", savedReadingId.current);
+        } else {
+          // 신규 레코드 생성
+          const { data, error } = await supabase
+            .from("tarot_readings")
+            .insert({
+              user_id: user.id,
+              spread_type: spreadType,
+              question: question || null,
+              cards: cardsPayload,
+              ai_reading: reading || null,
+              card_images: images,
+            })
+            .select("id")
+            .single();
 
-        if (!error) {
-          setSavedToDb(true);
+          if (!error && data) {
+            savedReadingId.current = data.id;
+            setSavedToDb(true);
+          }
         }
       } catch (err) {
         console.error("Tarot reading DB save error:", err);
@@ -208,13 +222,16 @@ export function ResultInteractive({
       if (Object.keys(images).length > 0) {
         url.searchParams.set("imgs", JSON.stringify(images));
       }
+      if (reading) {
+        url.searchParams.set("rd", reading);
+      }
       return url.toString();
     } catch {
       return mainImageUrl
         ? `${shareUrlBase}&img=${encodeURIComponent(mainImageUrl)}`
         : shareUrlBase;
     }
-  }, [shareUrlBase, mainImageUrl, images]);
+  }, [shareUrlBase, mainImageUrl, images, reading]);
 
   // 카드 수에 따른 Responsive Grid 스타일
   const gridColsClass =

@@ -19,7 +19,7 @@ function getTrustedImageUrl(img: string | undefined): string | null {
   return img.startsWith(TRUSTED_IMAGE_PREFIX) ? img : null;
 }
 
-type SearchParams = { cards?: string; q?: string; img?: string; imgs?: string; gm?: string; om?: string };
+type SearchParams = { cards?: string; q?: string; img?: string; imgs?: string; rd?: string; gm?: string; om?: string };
 
 export async function generateMetadata({
   searchParams,
@@ -58,7 +58,7 @@ export default async function ResultPage({
 }) {
   const user = await getSessionUser();
 
-  const { cards: cardsParam, q, img, imgs, gm, om } = await searchParams;
+  const { cards: cardsParam, q, img, imgs, rd, gm, om } = await searchParams;
   const parsed = deserializeDraw(cardsParam);
   if (!parsed) redirect("/draw");
 
@@ -99,7 +99,7 @@ export default async function ResultPage({
   }
 
   // DB(tarot_readings)에서 이 카드 구성(3장 전체)으로 이미 생성되었던 카드 이미지들 및 AI 해석 내용 복원
-  let initialReading: string | null = null;
+  let initialReading: string | null = rd || null;
   try {
     const supabase = createAdminClient();
     const { data: readings } = await supabase
