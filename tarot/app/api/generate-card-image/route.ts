@@ -66,14 +66,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: { cardId?: string; orientation?: string; style?: CardStyle };
+  let body: { cardId?: string; orientation?: string; style?: CardStyle; model?: string };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
   }
 
-  const { cardId, orientation, style = "watercolor" } = body;
+  const { cardId, orientation, style = "watercolor", model } = body;
+  const targetModel = model && model.trim() ? model.trim() : MODEL_ID;
+
   if (!cardId || !getCard(cardId)) {
     return NextResponse.json({ error: "알 수 없는 카드입니다." }, { status: 400 });
   }
@@ -89,7 +91,7 @@ export async function POST(request: NextRequest) {
   let googleRes: Response;
   try {
     googleRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import {
   SPREAD_CONFIGS,
   CARD_STYLES,
+  GEMINI_MODEL_OPTIONS,
+  OPENAI_MODEL_OPTIONS,
   type SpreadType,
   type CardStyle,
   drawCards,
@@ -33,6 +35,8 @@ export function DrawFlow({
   const router = useRouter();
   const [spreadType, setSpreadType] = useState<SpreadType>("three_cards");
   const [cardStyle, setCardStyle] = useState<CardStyle>("watercolor");
+  const [geminiModel, setGeminiModel] = useState<string>("gemini-2.5-flash-image");
+  const [openaiModel, setOpenaiModel] = useState<string>("gpt-4o-mini");
   const [question, setQuestion] = useState("");
   const [isShuffling, setIsShuffling] = useState(false);
   const [showApiKeySection, setShowApiKeySection] = useState(
@@ -50,6 +54,8 @@ export function DrawFlow({
       const params = new URLSearchParams();
       params.set("cards", serializeDraw(drawn, spreadType, cardStyle));
       if (question.trim()) params.set("q", question.trim().slice(0, 300));
+      params.set("gm", geminiModel);
+      params.set("om", openaiModel);
       router.push(`/result?${params.toString()}`);
     }, 900);
   }
@@ -145,6 +151,48 @@ export function DrawFlow({
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* 🤖 AI 모델 선택 드롭다운 UI */}
+      <div className="mb-8 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+        <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
+          ⚙️ AI 모델 선택 (옵션)
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700 mb-1">
+              🎨 Gemini 카드 그림 모델
+            </label>
+            <select
+              value={geminiModel}
+              onChange={(e) => setGeminiModel(e.target.value)}
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-medium text-neutral-800"
+            >
+              {GEMINI_MODEL_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700 mb-1">
+              ✍️ OpenAI 심층 해석 모델
+            </label>
+            <select
+              value={openaiModel}
+              onChange={(e) => setOpenaiModel(e.target.value)}
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-medium text-neutral-800"
+            >
+              {OPENAI_MODEL_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

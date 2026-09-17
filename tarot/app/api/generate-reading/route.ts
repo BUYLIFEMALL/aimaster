@@ -109,14 +109,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: { cards?: CardInput[]; question?: string; spreadType?: SpreadType };
+  let body: { cards?: CardInput[]; question?: string; spreadType?: SpreadType; model?: string };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
   }
 
-  const { cards, question, spreadType = "three_cards" } = body;
+  const { cards, question, spreadType = "three_cards", model } = body;
+  const targetModel = model && model.trim() ? model.trim() : MODEL_ID;
   const config = SPREAD_CONFIGS[spreadType] ?? SPREAD_CONFIGS.three_cards;
 
   if (!Array.isArray(cards) || cards.length !== config.cardCount) {
@@ -145,7 +146,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: MODEL_ID,
+        model: targetModel,
         messages: [
           { role: "system", content: getSystemPrompt(spreadType) },
           { role: "user", content: buildUserPrompt(cards, question, spreadType) },

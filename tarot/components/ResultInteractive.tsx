@@ -24,6 +24,8 @@ export function ResultInteractive({
   cards,
   spreadType = "three_cards",
   cardStyle = "watercolor",
+  geminiModel,
+  openaiModel,
   question,
   hasGeminiKey,
   hasOpenaiKey,
@@ -34,6 +36,8 @@ export function ResultInteractive({
   cards: DrawnCardInput[];
   spreadType?: SpreadType;
   cardStyle?: CardStyle;
+  geminiModel?: string;
+  openaiModel?: string;
   question?: string;
   hasGeminiKey: boolean;
   hasOpenaiKey: boolean;
@@ -65,7 +69,12 @@ export function ResultInteractive({
       const res = await fetch("/api/generate-card-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId: card.cardId, orientation: card.orientation, style: cardStyle }),
+        body: JSON.stringify({
+          cardId: card.cardId,
+          orientation: card.orientation,
+          style: cardStyle,
+          model: geminiModel,
+        }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -93,7 +102,7 @@ export function ResultInteractive({
       const res = await fetch("/api/generate-reading", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cards, question, spreadType }),
+        body: JSON.stringify({ cards, question, spreadType, model: openaiModel }),
       });
       const json = await res.json();
       if (!res.ok) {

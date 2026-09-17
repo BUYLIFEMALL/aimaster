@@ -63,6 +63,19 @@ export const CARD_STYLES: Record<CardStyle, CardStyleOption> = {
   },
 };
 
+export const GEMINI_MODEL_OPTIONS = [
+  { value: "gemini-2.5-flash-image", label: "Gemini 2.5 Flash Image (기본 - 추천)" },
+  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+  { value: "imagen-3.0-generate-002", label: "Google Imagen 3 (화풍 생성 모델)" },
+] as const;
+
+export const OPENAI_MODEL_OPTIONS = [
+  { value: "gpt-4o-mini", label: "GPT-4o Mini (기본 - 빠르고 자연스러운 해석)" },
+  { value: "gpt-4o", label: "GPT-4o (플래그십 - 깊이 있는 심층 해석)" },
+  { value: "gpt-4-turbo", label: "GPT-4 Turbo" },
+  { value: "o3-mini", label: "OpenAI o3-Mini (추론 특화 AI)" },
+] as const;
+
 export type SpreadPosition =
   | "advice"
   | "past"

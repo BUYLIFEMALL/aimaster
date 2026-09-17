@@ -18,7 +18,7 @@ function getTrustedImageUrl(img: string | undefined): string | null {
   return img.startsWith(TRUSTED_IMAGE_PREFIX) ? img : null;
 }
 
-type SearchParams = { cards?: string; q?: string; img?: string };
+type SearchParams = { cards?: string; q?: string; img?: string; gm?: string; om?: string };
 
 export async function generateMetadata({
   searchParams,
@@ -57,7 +57,7 @@ export default async function ResultPage({
 }) {
   const user = await requireProgramAccess();
 
-  const { cards: cardsParam, q, img } = await searchParams;
+  const { cards: cardsParam, q, img, gm, om } = await searchParams;
   const parsed = deserializeDraw(cardsParam);
   if (!parsed) redirect("/draw");
 
@@ -72,6 +72,9 @@ export default async function ResultPage({
   const params = new URLSearchParams();
   params.set("cards", cardsParam!);
   if (q) params.set("q", q);
+  if (gm) params.set("gm", gm);
+  if (om) params.set("om", om);
+
   const shareUrlBase = `${SITE_URL}/result?${params.toString()}`;
   const mainCard = cards[0] || { cardId: "major-00" };
   const fallbackOgImageUrl = `${SITE_URL}/api/og?present=${mainCard.cardId}`;
@@ -87,6 +90,8 @@ export default async function ResultPage({
         cards={cards}
         spreadType={spreadType}
         cardStyle={cardStyle}
+        geminiModel={gm}
+        openaiModel={om}
         question={q}
         hasGeminiKey={!!geminiKey}
         hasOpenaiKey={!!openaiKey}
