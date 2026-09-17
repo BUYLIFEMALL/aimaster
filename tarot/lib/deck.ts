@@ -71,10 +71,12 @@ export const GEMINI_MODEL_OPTIONS = [
 ] as const;
 
 export const OPENAI_MODEL_OPTIONS = [
-  { value: "gpt-4o-mini", label: "GPT-4o Mini (기본 - 빠르고 자연스러운 해석)" },
-  { value: "gpt-4o", label: "GPT-4o (플래그십 - 깊이 있는 심층 해석)" },
-  { value: "gpt-4-turbo", label: "GPT-4 Turbo" },
-  { value: "o3-mini", label: "OpenAI o3-Mini (추론 특화 AI)" },
+  { value: "gpt-4o", label: "GPT-4o (플래그십 - 깊이 있는 심층 해석 - 추천)" },
+  { value: "o3-mini", label: "OpenAI o3-Mini (추론 특화 AI - 명쾌한 논리 리딩)" },
+  { value: "o1", label: "OpenAI o1 (최고 수준 심층 추론 AI)" },
+  { value: "o1-mini", label: "OpenAI o1-Mini (경량 추론 AI)" },
+  { value: "gpt-4-turbo", label: "GPT-4 Turbo (고성능 전통 지식 모델)" },
+  { value: "gpt-4o-mini", label: "GPT-4o Mini (가성비 기본 모델)" },
 ] as const;
 
 export type SpreadPosition =
