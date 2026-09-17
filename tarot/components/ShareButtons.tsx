@@ -89,7 +89,11 @@ export function ShareButtons({
 
   function handleKakaoShare() {
     if (!window.Kakao) return;
-    const targetUrl = typeof window !== "undefined" && window.location.href ? window.location.href : currentShareUrl;
+    let targetUrl = typeof window !== "undefined" && window.location.href ? window.location.href : currentShareUrl;
+    try {
+      targetUrl = encodeURI(decodeURI(targetUrl));
+    } catch {}
+
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
