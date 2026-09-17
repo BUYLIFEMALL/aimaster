@@ -370,7 +370,7 @@ export function ResultInteractive({
                   </span>
                 ) : (
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200 animate-pulse">
-                    ⏳ 대기중
+                    ❓ 대기중
                   </span>
                 )}
               </div>
@@ -484,7 +484,7 @@ export function ResultInteractive({
         </p>
       )}
 
-      {/* AI 종합 해석 박스 (모든 카드 연성 완료 후 표시) */}
+      {/* AI 종합 해석 박스 (모든 카드 뽑기 완료 후 표시) */}
       <div className="rounded-2xl border border-neutral-200 bg-white p-5 mb-8 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-bold text-neutral-900">✍️ AI 종합 심층 해석</h2>
