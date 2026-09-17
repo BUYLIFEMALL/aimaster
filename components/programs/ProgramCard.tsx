@@ -28,37 +28,48 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
   return (
     <GlassCard hover className="flex flex-col h-full p-0 overflow-hidden">
       {/* Thumbnail */}
-      <div className="relative aspect-video bg-white/5 overflow-hidden">
-        {program.thumbnail_url ? (
-          <Image
-            src={program.thumbnail_url}
-            alt={program.name}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center">
-              <Play size={28} className="text-gold ml-1" />
-            </div>
+      {(() => {
+        const thumbnailUrl =
+          program.thumbnail_url ||
+          (program.slug.includes("tarot") || program.name.includes("타로")
+            ? "/images/tarot-thumbnail.png"
+            : null);
+
+        return (
+          <div className="relative aspect-video bg-white/5 overflow-hidden">
+            {thumbnailUrl ? (
+              <Image
+                src={thumbnailUrl}
+                alt={program.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center">
+                  <Play size={28} className="text-gold ml-1" />
+                </div>
+              </div>
+            )}
+            {resolvedBadges.length > 0 && (
+              <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                {resolvedBadges.map((b) => (
+                  <Badge key={b} variant={b} />
+                ))}
+              </div>
+            )}
+            {program.video_url && (
+              <div className="absolute bottom-3 right-3">
+                <span className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
+                  <Play size={10} />
+                  미리보기
+                </span>
+              </div>
+            )}
           </div>
-        )}
-        {resolvedBadges.length > 0 && (
-          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-            {resolvedBadges.map((b) => (
-              <Badge key={b} variant={b} />
-            ))}
-          </div>
-        )}
-        {program.video_url && (
-          <div className="absolute bottom-3 right-3">
-            <span className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
-              <Play size={10} />
-              미리보기
-            </span>
-          </div>
-        )}
-      </div>
+        );
+      })()}
+
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
