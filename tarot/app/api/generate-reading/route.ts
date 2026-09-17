@@ -12,7 +12,7 @@ export const fetchCache = "force-no-store";
  * 한국어 타로 해석을 써준다. checkProgramAccessApi() + resolveApiKey("openai")로 로그인한
  * 회원 본인의 API 키만 쓰는 표준 패턴을 따른다.
  */
-const MODEL_ID = "gpt-4o-mini";
+const MODEL_ID = "gpt-4o";
 
 function getSystemPrompt(spreadType: SpreadType): string {
   if (spreadType === "one_card") {
