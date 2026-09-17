@@ -60,6 +60,14 @@ export function ResultInteractive({
   const [readingError, setReadingError] = useState<string | null>(null);
   const [modalProvider, setModalProvider] = useState<string | null>(null);
   const [savedToDb, setSavedToDb] = useState(false);
+  const [zoomedCard, setZoomedCard] = useState<{
+    imageUrl: string;
+    cardNameKo: string;
+    cardNameEn: string;
+    orientation: Orientation;
+    positionLabel: string;
+    meaning: string;
+  } | null>(null);
 
   const hasAttemptedSave = useRef(false);
 
@@ -117,6 +125,10 @@ export function ResultInteractive({
     }
   }
 
+  const hasStartedReading = useRef(false);
+  const remainingCardCount = cards.length - Object.keys(images).length;
+  const allCardsRevealed = !hasGeminiKey || (cards.length > 0 && cards.every((c) => Boolean(images[c.cardId])));
+
   useEffect(() => {
     if (hasGeminiKey && cards.length > 0) {
       const firstCard = cards[0];
@@ -124,11 +136,18 @@ export function ResultInteractive({
         generateImage(firstCard);
       }
     }
-    if (hasOpenaiKey) {
-      generateReading();
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 모든 카드가 연성/오픈 완료되었을 때만 AI 종합 심층 해석 자동 시작
+  useEffect(() => {
+    if (hasOpenaiKey && allCardsRevealed && !reading && !readingLoading && !hasStartedReading.current) {
+      hasStartedReading.current = true;
+      generateReading();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allCardsRevealed, hasOpenaiKey, reading, readingLoading]);
 
   // 리딩 결과 및 카드 이미지가 일부 준비되었을 때 Supabase 내 보관함 DB에 자동 저장
   useEffect(() => {
@@ -197,6 +216,54 @@ export function ResultInteractive({
         <ApiKeyRequiredModal providerLabel={modalProvider} onClose={() => setModalProvider(null)} />
       )}
 
+      {/* 카드 고화질 이미지 확대 모달 (Lightbox Modal) */}
+      {zoomedCard && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setZoomedCard(null)}
+        >
+          <div
+            className="relative max-w-sm w-full bg-neutral-900 border border-amber-400/40 rounded-3xl p-5 shadow-2xl flex flex-col items-center gap-4 text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setZoomedCard(null)}
+              className="absolute top-4 right-4 text-neutral-400 hover:text-white text-sm bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-amber-400/20 text-amber-300 font-bold px-3 py-1 rounded-full border border-amber-400/30">
+                {zoomedCard.positionLabel}
+              </span>
+              <span className="text-xs bg-white/10 text-neutral-300 font-semibold px-2.5 py-1 rounded-full">
+                {zoomedCard.orientation === "upright" ? "정방향" : "역방향"}
+              </span>
+            </div>
+
+            <div
+              className="w-full aspect-[2/3] rounded-2xl overflow-hidden border border-amber-400/50 shadow-2xl relative"
+              style={zoomedCard.orientation === "reversed" ? { transform: "rotate(180deg)" } : undefined}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={zoomedCard.imageUrl}
+                alt={zoomedCard.cardNameKo}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="text-center">
+              <h3 className="text-lg font-black text-amber-300">{zoomedCard.cardNameKo}</h3>
+              <p className="text-xs text-neutral-400 mb-2">{zoomedCard.cardNameEn}</p>
+              <p className="text-xs text-neutral-300 leading-relaxed max-w-xs">{zoomedCard.meaning}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 스프레드 & 화풍 정보 배지 및 인터랙티브 안내 */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4 bg-neutral-900 text-white rounded-2xl px-5 py-3 shadow-md">
         <div className="flex items-center gap-2">
@@ -261,7 +328,18 @@ export function ResultInteractive({
           const posLabel = spreadConfig.positionLabels[drawn.position] || drawn.position;
 
           const handleCardClick = () => {
-            if (imageUrl || isLoading) return;
+            if (imageUrl) {
+              setZoomedCard({
+                imageUrl,
+                cardNameKo: card.nameKo,
+                cardNameEn: card.nameEn,
+                orientation: drawn.orientation,
+                positionLabel: posLabel,
+                meaning,
+              });
+              return;
+            }
+            if (isLoading) return;
             if (!hasGeminiKey) {
               setModalProvider("Google Gemini");
               return;
@@ -290,12 +368,12 @@ export function ResultInteractive({
               </div>
 
               <div className="px-4 py-3 flex flex-col items-center">
-                {/* 카드 프레임 (마법 연출 & 1개씩 클릭 연성) */}
+                {/* 카드 프레임 (마법 연출 & 1개씩 클릭 연성 / 생성된 카드는 클릭 시 확대) */}
                 <div
                   onClick={handleCardClick}
                   className={`w-full aspect-[2/3] rounded-xl overflow-hidden relative mb-3 flex flex-col items-center justify-center transition-all duration-500 ${
                     imageUrl
-                      ? "bg-gradient-to-br from-indigo-950 via-purple-900 to-black border border-amber-400/40 shadow-inner group"
+                      ? "bg-gradient-to-br from-indigo-950 via-purple-900 to-black border border-amber-400/40 shadow-inner group cursor-pointer"
                       : isLoading
                       ? "bg-gradient-to-br from-purple-950 via-indigo-900 to-black magic-glow-anim border-2 border-purple-400"
                       : "bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 border-2 border-dashed border-amber-400/50 hover:border-amber-400 cursor-pointer group hover:scale-[1.02] shadow-sm hover:shadow-amber-500/20"
@@ -303,16 +381,21 @@ export function ResultInteractive({
                   style={imageUrl && drawn.orientation === "reversed" ? { transform: "rotate(180deg)" } : undefined}
                 >
                   {imageUrl ? (
-                    <>
+                    <div className="relative w-full h-full group/img">
                       {/* 카드 빛 한 바퀴 쓱 지나가는 액센트 효과 */}
                       <div className="card-shine-effect" />
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageUrl}
                         alt={card.nameKo}
-                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105"
                       />
-                    </>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2 text-center">
+                        <span className="text-[11px] font-bold text-white bg-black/75 px-3 py-1.5 rounded-full border border-white/30 backdrop-blur-sm flex items-center gap-1 shadow-lg">
+                          🔍 클릭하여 확대 보기
+                        </span>
+                      </div>
+                    </div>
                   ) : isLoading ? (
                     <div className="flex flex-col items-center justify-center p-4 text-center gap-2">
                       <span className="text-3xl animate-spin inline-block mb-1">🔮</span>
@@ -357,16 +440,49 @@ export function ResultInteractive({
         </p>
       )}
 
-      {/* AI 종합 해석 박스 */}
+      {/* AI 종합 해석 박스 (모든 카드 연성 완료 후 표시) */}
       <div className="rounded-2xl border border-neutral-200 bg-white p-5 mb-8 shadow-sm">
-        <h2 className="text-sm font-bold text-neutral-900 mb-3">✍️ AI 종합 심층 해석</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-bold text-neutral-900">✍️ AI 종합 심층 해석</h2>
+          {hasGeminiKey && !allCardsRevealed && (
+            <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200 animate-pulse">
+              남은 카드 {remainingCardCount}장 연성 시 대기 중
+            </span>
+          )}
+        </div>
+
         {hasOpenaiKey ? (
-          readingLoading ? (
-            <p className="text-xs text-neutral-400 animate-pulse">
-              뽑힌 카드들을 종합해 깊이 있는 타로 해석을 작성하는 중입니다... (최대 45초)
-            </p>
+          !allCardsRevealed ? (
+            <div className="rounded-xl bg-gradient-to-r from-purple-50/80 to-indigo-50/80 border border-purple-100 p-4 text-center">
+              <p className="text-xs font-bold text-purple-900 mb-1 flex items-center justify-center gap-1.5">
+                <span className="text-base animate-bounce">🔮</span>
+                모든 카드의 연성이 완료되면 AI 심층 종합 해석이 시작됩니다!
+              </p>
+              <p className="text-[11px] text-purple-600">
+                위 카드를 클릭하여 남은 {remainingCardCount}장의 AI 일러스트를 오픈해보세요.
+              </p>
+            </div>
+          ) : readingLoading ? (
+            <div className="flex flex-col items-center justify-center py-6 text-center gap-2">
+              <span className="text-3xl animate-spin inline-block mb-1">🔮</span>
+              <p className="text-xs font-bold text-neutral-800 animate-pulse">
+                모든 카드가 연성되었습니다! AI가 카드의 기운을 종합하여 심층 해석을 작성하고 있습니다... (최대 45초)
+              </p>
+            </div>
           ) : readingError ? (
-            <p className="text-xs text-red-500">{readingError}</p>
+            <div className="text-center py-2">
+              <p className="text-xs text-red-500 mb-2">{readingError}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  hasStartedReading.current = false;
+                  generateReading();
+                }}
+                className="text-xs font-bold px-3 py-1.5 bg-purple-100 text-purple-800 rounded-xl hover:bg-purple-200 transition-colors shadow-sm"
+              >
+                🔄 AI 심층 해석 다시 시도하기
+              </button>
+            </div>
           ) : reading ? (
             <div className="space-y-3">
               {reading.split(/\n{2,}/).map((para, i) => (
