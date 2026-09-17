@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 // 로그인한 사용자의 세션 쿠키를 사용하는 서버 전용 클라이언트.
@@ -27,4 +28,11 @@ export async function createClient() {
       },
     },
   );
+}
+
+// Service Role Key를 사용해 RLS를 우회하는 어드민/공개 복원용 서버 클라이언트
+export function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createSupabaseClient(supabaseUrl, serviceRoleKey);
 }

@@ -5,7 +5,7 @@ import { deserializeDraw, SPREAD_CONFIGS, SPREAD_POSITION_LABELS } from "@/lib/d
 import { getSessionUser } from "@/lib/auth";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { ResultInteractive } from "@/components/ResultInteractive";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -101,7 +101,7 @@ export default async function ResultPage({
   // DB(tarot_readings)에서 이 카드 구성(3장 전체)으로 이미 생성되었던 카드 이미지들 및 AI 해석 내용 복원
   let initialReading: string | null = null;
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data: readings } = await supabase
       .from("tarot_readings")
       .select("cards, card_images, ai_reading")
