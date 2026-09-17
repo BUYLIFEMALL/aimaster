@@ -89,15 +89,16 @@ export function ShareButtons({
 
   function handleKakaoShare() {
     if (!window.Kakao) return;
+    const targetUrl = typeof window !== "undefined" && window.location.href ? window.location.href : currentShareUrl;
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
         title: shareText,
         description: shareDescription,
         imageUrl,
-        link: { mobileWebUrl: currentShareUrl, webUrl: currentShareUrl },
+        link: { mobileWebUrl: targetUrl, webUrl: targetUrl },
       },
-      buttons: [{ title: "결과 보러가기", link: { mobileWebUrl: currentShareUrl, webUrl: currentShareUrl } }],
+      buttons: [{ title: "결과 보러가기", link: { mobileWebUrl: targetUrl, webUrl: targetUrl } }],
     });
   }
 
