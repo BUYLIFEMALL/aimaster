@@ -129,15 +129,7 @@ export function ResultInteractive({
   const remainingCardCount = cards.length - Object.keys(images).length;
   const allCardsRevealed = !hasGeminiKey || (cards.length > 0 && cards.every((c) => Boolean(images[c.cardId])));
 
-  useEffect(() => {
-    if (hasGeminiKey && cards.length > 0) {
-      const firstCard = cards[0];
-      if (!images[firstCard.cardId]) {
-        generateImage(firstCard);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   // 모든 카드가 연성/오픈 완료되었을 때만 AI 종합 심층 해석 자동 시작
   useEffect(() => {
