@@ -71,6 +71,9 @@ export const GEMINI_MODEL_OPTIONS = [
 ] as const;
 
 export const OPENAI_MODEL_OPTIONS = [
+  { value: "gpt-5.6-sol", label: "GPT-5.6 Sol (최고 품질 · 가장 똑똑한 타로 리딩)" },
+  { value: "gpt-5.6-terra", label: "GPT-5.6 Terra (균형형 · 자연스러운 심층 해석)" },
+  { value: "gpt-5.6-luna", label: "GPT-5.6 Luna (가성비 · 신속한 타로 해석)" },
   { value: "gpt-4o", label: "GPT-4o (플래그십 - 깊이 있는 심층 해석 - 추천)" },
   { value: "o3-mini", label: "OpenAI o3-Mini (추론 특화 AI - 명쾌한 논리 리딩)" },
   { value: "o1", label: "OpenAI o1 (최고 수준 심층 추론 AI)" },

@@ -140,20 +140,28 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "질문은 300자 이내로 입력해주세요." }, { status: 400 });
   }
 
+  const isReasoningModel = targetModel.startsWith("o1") || targetModel.startsWith("o3");
+  const requestBody: Record<string, unknown> = {
+    model: targetModel,
+    messages: [
+      { role: isReasoningModel ? "user" : "system", content: getSystemPrompt(spreadType) },
+      { role: "user", content: buildUserPrompt(cards, question, spreadType) },
+    ],
+  };
+
+  if (isReasoningModel) {
+    requestBody.max_completion_tokens = 2000;
+  } else {
+    requestBody.max_tokens = 1400;
+    requestBody.temperature = 0.85;
+  }
+
   let openaiRes: Response;
   try {
     openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: targetModel,
-        messages: [
-          { role: "system", content: getSystemPrompt(spreadType) },
-          { role: "user", content: buildUserPrompt(cards, question, spreadType) },
-        ],
-        max_tokens: 1400,
-        temperature: 0.85,
-      }),
+      body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(45000),
     });
   } catch {
