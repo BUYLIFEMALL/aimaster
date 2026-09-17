@@ -133,7 +133,7 @@ export function ResultInteractive({
     }
   }
 
-  const hasStartedReading = useRef(false);
+  const hasStartedReading = useRef(!!initialReading);
   const remainingCardCount = cards.length - Object.keys(images).length;
   const allCardsRevealed = !hasGeminiKey || (cards.length > 0 && cards.every((c) => Boolean(images[c.cardId])));
 

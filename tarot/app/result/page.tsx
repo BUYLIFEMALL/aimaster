@@ -98,33 +98,46 @@ export default async function ResultPage({
     } catch {}
   }
 
-  // DB(tarot_readings)에서 이 카드 구성으로 이미 생성되었던 카드 이미지들 및 AI 해석 내용 복원
+  // DB(tarot_readings)에서 이 카드 구성(3장 전체)으로 이미 생성되었던 카드 이미지들 및 AI 해석 내용 복원
   let initialReading: string | null = null;
   try {
     const supabase = await createClient();
     const { data: readings } = await supabase
       .from("tarot_readings")
-      .select("card_images, ai_reading")
+      .select("cards, card_images, ai_reading")
       .eq("spread_type", spreadType)
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(30);
 
     if (readings && readings.length > 0) {
+      const targetCardIds = cards.map((c) => c.cardId);
+
       for (const r of readings) {
-        if (r.card_images && typeof r.card_images === "object") {
-          const imgsMap = r.card_images as Record<string, string>;
-          if (imgsMap[mainCard.cardId]) {
-            for (const [k, v] of Object.entries(imgsMap)) {
-              if (typeof v === "string" && !initialImages[k]) {
-                const trusted = getTrustedImageUrl(v);
-                if (trusted) initialImages[k] = trusted;
-              }
-            }
-            if (r.ai_reading && typeof r.ai_reading === "string") {
-              initialReading = r.ai_reading;
-            }
-            break;
+        let isMatch = false;
+        if (Array.isArray(r.cards)) {
+          const dbCardIds = r.cards.map((c: { cardId?: string }) => c.cardId);
+          if (targetCardIds.length === dbCardIds.length && targetCardIds.every((id) => dbCardIds.includes(id))) {
+            isMatch = true;
           }
+        } else if (r.card_images && typeof r.card_images === "object") {
+          const imgsMap = r.card_images as Record<string, string>;
+          if (targetCardIds.every((id) => Boolean(imgsMap[id]))) {
+            isMatch = true;
+          }
+        }
+
+        if (isMatch && r.card_images && typeof r.card_images === "object") {
+          const imgsMap = r.card_images as Record<string, string>;
+          for (const [k, v] of Object.entries(imgsMap)) {
+            if (typeof v === "string" && !initialImages[k]) {
+              const trusted = getTrustedImageUrl(v);
+              if (trusted) initialImages[k] = trusted;
+            }
+          }
+          if (r.ai_reading && typeof r.ai_reading === "string") {
+            initialReading = r.ai_reading;
+          }
+          break;
         }
       }
     }
