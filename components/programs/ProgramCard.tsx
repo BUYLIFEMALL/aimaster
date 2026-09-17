@@ -79,13 +79,16 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
           </span>
         )}
         <h3 className="text-white font-semibold text-base mb-2 line-clamp-2 leading-snug">
-          {program.name}
+          {program.slug.includes("tarot") || program.name.includes("타로")
+            ? "AIMaster 타로점"
+            : program.name}
         </h3>
         {program.short_desc && (
           <p className="text-subtext text-sm line-clamp-2 mb-4 flex-1">
             {program.short_desc}
           </p>
         )}
+
 
         {/* Price + CTA */}
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
