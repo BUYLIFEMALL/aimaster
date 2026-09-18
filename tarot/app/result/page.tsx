@@ -19,14 +19,42 @@ function getTrustedImageUrl(img: string | undefined): string | null {
   return img.startsWith(TRUSTED_IMAGE_PREFIX) ? img : null;
 }
 
+// 카드가 이 개수 이하인 스프레드만 OG 이미지에 카드 전체를 합성한다. 이보다 많으면
+// (켈틱 크로스 10장 등) 대표 카드 1장짜리 이미지로 대체한다 — app/api/og/route.tsx의
+// MAX_COMPOSITE_CARDS와 동일한 기준.
+const MAX_OG_COMPOSITE_CARDS = 5;
+
 type SearchParams = { cards?: string; q?: string; img?: string; imgs?: string; rd?: string; gm?: string; om?: string };
+
+function buildOgImageUrl(params: {
+  spreadType: string;
+  cardsParam: string;
+  cardCount: number;
+  img: string | undefined;
+  imgs: string | undefined;
+  mainCardId: string;
+}): string {
+  const { spreadType, cardsParam, cardCount, img, imgs, mainCardId } = params;
+
+  // 카드별 이미지가 여러 장 있고(imgs) 합성 가능한 카드 수라면, /api/og가 실제 검증을
+  // 다시 수행하니 여기서는 그대로 넘긴다(각 URL이 진짜 신뢰 가능한지는 /api/og가 재검증).
+  if (imgs && cardCount <= MAX_OG_COMPOSITE_CARDS) {
+    const composite = new URL(`${SITE_URL}/api/og`);
+    composite.searchParams.set("spread", spreadType);
+    composite.searchParams.set("cards", cardsParam);
+    composite.searchParams.set("imgs", imgs);
+    return composite.toString();
+  }
+
+  return getTrustedImageUrl(img) ?? `${SITE_URL}/api/og?present=${mainCardId}`;
+}
 
 export async function generateMetadata({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
-  const { cards: cardsParam, img } = await searchParams;
+  const { cards: cardsParam, img, imgs } = await searchParams;
   const parsed = deserializeDraw(cardsParam);
   if (!parsed) return {};
 
@@ -41,7 +69,14 @@ export async function generateMetadata({
   const title = `나의 ${config.title} 리딩 결과`;
   const description = cardNames.join(" · ");
   const mainCard = cards[0] || { cardId: "major-00" };
-  const ogImageUrl = getTrustedImageUrl(img) ?? `${SITE_URL}/api/og?present=${mainCard.cardId}`;
+  const ogImageUrl = buildOgImageUrl({
+    spreadType,
+    cardsParam: cardsParam!,
+    cardCount: config.cardCount,
+    img,
+    imgs,
+    mainCardId: mainCard.cardId,
+  });
 
   return {
     title,
