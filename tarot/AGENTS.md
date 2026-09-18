@@ -30,10 +30,13 @@ AIMaster 계정으로 **로그인해야 이용할 수 있는 AI 타로 리딩 �
 비로그인 방문자도 볼 수 있는 마케팅 화면이고, 카드 뽑기(`/draw`)와 결과(`/result`)는
 로그인이 필요하다 — mbti-character와 동일하게 "AIMaster 회원가입 유도 채널" 역할도 겸한다.
 
-핵심 흐름: 로그인 → 질문 입력(선택) → 78장 중 3장 뽑기(과거-현재-미래) → 결과 화면에서
-등록된 API 키에 따라 AI 카드 일러스트(Gemini)와 AI 종합 해석(OpenAI)을 자동 생성 →
-카카오톡/링크 공유. 설계 배경(왜 AI 생성 카드 이미지인지, 왜 3카드 스프레드만 만들었는지,
-왜 해석 생성에 OpenAI를 썼는지)은 README.md 참고.
+핵심 흐름: 로그인 → 스프레드 선택(원카드/3카드 과거현재미래/3카드 궁합/5카드 심층분석) +
+화풍/AI모델 선택 → 질문 입력(선택) → 78장 중 스프레드에 맞는 카드 뽑기 → 결과 화면에서
+카드를 하나씩 클릭하면 등록된 Gemini 키로 카드 일러스트 생성, 전체 카드가 공개되면
+등록된 OpenAI 키로 AI 종합 해석 자동 생성 → 결과는 `tarot_readings`에 자동 저장되어
+`/history`(내 타로 보관함)에서 다시 볼 수 있음 → 카카오톡/링크 공유. 설계 배경(왜 AI 생성
+카드 이미지인지, 스프레드 종류가 왜 이렇게 구성됐는지, 왜 해석 생성에 OpenAI를 썼는지)은
+README.md 참고.
 
 ---
 
@@ -69,11 +72,15 @@ tarot은 AIMaster 저장소 안의 서브프로젝트이므로 "Platform-hub 구
 - 로그인 확인이 들어가는 파일에는 `dynamic = "force-dynamic"` + `fetchCache =
   "force-no-store"`를 반드시 같이 선언한다 — `middleware.ts`, `app/layout.tsx`,
   `app/page.tsx`, `app/draw/page.tsx`, `app/result/page.tsx`, `app/settings/page.tsx`,
-  `app/api/generate-card-image/route.ts`, `app/api/generate-reading/route.ts`에 이미
-  적용돼 있다.
-- 공용 Supabase 프로젝트(esgxyikcnnvmlhygjkth)를 그대로 쓰되, 리딩 이력을 서버에 저장하는
-  테이블은 아직 없다(의도적으로 MVP 범위에서 제외 — README.md "남은 작업" 참고). 뽑힌
-  카드/질문은 URL 쿼리스트링(`/result?cards=...&q=...`)으로만 오간다.
+  `app/history/page.tsx`, `app/api/generate-card-image/route.ts`,
+  `app/api/generate-reading/route.ts`에 이미 적용돼 있다.
+- 공용 Supabase 프로젝트(esgxyikcnnvmlhygjkth)를 그대로 쓴다. 뽑힌 카드/질문은 URL
+  쿼리스트링(`/result?cards=...&q=...`)으로 결과 화면까지 전달되고, 카드 이미지·AI 해석이
+  생기는 대로 `tarot_readings` 테이블(`user_id` + RLS owner-only)에 자동 저장되어
+  `/history`(내 타로 보관함)에서 다시 조회할 수 있다. `/result`가 파라미터 없는 레거시
+  링크를 이 테이블에서 카드 조합만으로 복원해주는 로직에는 `user_id` 미필터링으로 인한
+  크로스 유저 데이터 노출 위험이 있다 — README.md "남은 작업" 참고, 수정 전까지는 이
+  매칭 로직을 건드릴 때 특히 주의할 것.
 - **`user_api_keys` 표준 패턴을 그대로 쓴다.** `lib/apiKeys.ts`의 `resolveApiKey()`가
   공용 `user_api_keys`에서 회원 본인 키만 조회한다(provider: `gemini`, `openai`).
   `/settings`(헤더 라벨 "API키등록·플랫폼연동")에서 등록/수정/삭제한다. **새로운 유료
