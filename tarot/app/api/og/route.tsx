@@ -52,7 +52,9 @@ function brandFallback(fonts: { name: string; data: Buffer; style: "normal"; wei
         <div style={{ fontSize: 64, fontWeight: 900 }}>AIMaster 타로점</div>
         <div style={{ fontSize: 28, opacity: 0.85, marginTop: 14 }}>과거 · 현재 · 미래 3카드 리딩</div>
         {card && (
-          <div style={{ fontSize: 26, opacity: 0.7, marginTop: 24 }}>오늘의 현재 카드: {card.nameKo}</div>
+          <div style={{ display: "flex", fontSize: 26, opacity: 0.7, marginTop: 24 }}>
+            오늘의 현재 카드: {card.nameKo}
+          </div>
         )}
       </div>
     ),
