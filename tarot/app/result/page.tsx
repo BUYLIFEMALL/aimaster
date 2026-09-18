@@ -98,50 +98,57 @@ export default async function ResultPage({
     } catch {}
   }
 
-  // DB(tarot_readings)에서 이 카드 구성(3장 전체)으로 이미 생성되었던 카드 이미지들 및 AI 해석 내용 복원
+  // 레거시 공유 링크(imgs/rd 없이 img 하나만 있던 옛 형식) 복원: 새로 카드를 뽑은 경우
+  // (initialImageUrl이 없음)에는 절대 이 블록을 타지 않는다 — user_id 필터 없이 전체
+  // tarot_readings를 뒤지는 아래 로직이 "새로 뽑은 카드가 우연히 다른 회원과 같아서 그
+  // 회원의 질문/AI 해석이 내 화면에 뜨는" 크로스 유저 노출 사고로 이어졌던 부분이다.
+  // initialImageUrl이 있을 때만, 그 정확한(고유한 user_id+timestamp가 박힌) 이미지 URL을
+  // 실제로 갖고 있는 리딩 한 건만 매칭해서 나머지 카드 이미지/해석을 보충한다.
   let initialReading: string | null = rd || null;
-  try {
-    const supabase = createAdminClient();
-    const { data: readings } = await supabase
-      .from("tarot_readings")
-      .select("cards, card_images, ai_reading")
-      .eq("spread_type", spreadType)
-      .order("created_at", { ascending: false })
-      .limit(30);
+  if (initialImageUrl) {
+    try {
+      const supabase = createAdminClient();
+      const { data: readings } = await supabase
+        .from("tarot_readings")
+        .select("cards, card_images, ai_reading")
+        .eq("spread_type", spreadType)
+        .order("created_at", { ascending: false })
+        .limit(100);
 
-    if (readings && readings.length > 0) {
-      const targetCardIds = cards.map((c) => c.cardId);
+      if (readings && readings.length > 0) {
+        const targetCardIds = cards.map((c) => c.cardId);
 
-      for (const r of readings) {
-        let isMatch = false;
-        if (Array.isArray(r.cards)) {
-          const dbCardIds = r.cards.map((c: { cardId?: string }) => c.cardId);
-          if (targetCardIds.length === dbCardIds.length && targetCardIds.every((id) => dbCardIds.includes(id))) {
-            isMatch = true;
-          }
-        } else if (r.card_images && typeof r.card_images === "object") {
+        for (const r of readings) {
+          if (!r.card_images || typeof r.card_images !== "object") continue;
           const imgsMap = r.card_images as Record<string, string>;
-          if (targetCardIds.every((id) => Boolean(imgsMap[id]))) {
-            isMatch = true;
-          }
-        }
 
-        if (isMatch && r.card_images && typeof r.card_images === "object") {
-          const imgsMap = r.card_images as Record<string, string>;
+          // 공유받은 이미지 URL을 실제로 갖고 있는 리딩인지 먼저 확인한다 — 이 URL엔
+          // 원 작성자의 user_id와 생성 시각이 포함되어 있어 사실상 유일하다.
+          const containsSharedImage = Object.values(imgsMap).some((v) => v === initialImageUrl);
+          if (!containsSharedImage) continue;
+
+          // 카드 구성도 함께 검증(추가 안전장치)
+          if (Array.isArray(r.cards)) {
+            const dbCardIds = r.cards.map((c: { cardId?: string }) => c.cardId);
+            if (targetCardIds.length !== dbCardIds.length || !targetCardIds.every((id) => dbCardIds.includes(id))) {
+              continue;
+            }
+          }
+
           for (const [k, v] of Object.entries(imgsMap)) {
             if (typeof v === "string" && !initialImages[k]) {
               const trusted = getTrustedImageUrl(v);
               if (trusted) initialImages[k] = trusted;
             }
           }
-          if (r.ai_reading && typeof r.ai_reading === "string") {
+          if (!initialReading && r.ai_reading && typeof r.ai_reading === "string") {
             initialReading = r.ai_reading;
           }
           break;
         }
       }
-    }
-  } catch {}
+    } catch {}
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">

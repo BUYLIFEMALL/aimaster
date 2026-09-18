@@ -77,10 +77,13 @@ tarot은 AIMaster 저장소 안의 서브프로젝트이므로 "Platform-hub 구
 - 공용 Supabase 프로젝트(esgxyikcnnvmlhygjkth)를 그대로 쓴다. 뽑힌 카드/질문은 URL
   쿼리스트링(`/result?cards=...&q=...`)으로 결과 화면까지 전달되고, 카드 이미지·AI 해석이
   생기는 대로 `tarot_readings` 테이블(`user_id` + RLS owner-only)에 자동 저장되어
-  `/history`(내 타로 보관함)에서 다시 조회할 수 있다. `/result`가 파라미터 없는 레거시
-  링크를 이 테이블에서 카드 조합만으로 복원해주는 로직에는 `user_id` 미필터링으로 인한
-  크로스 유저 데이터 노출 위험이 있다 — README.md "남은 작업" 참고, 수정 전까지는 이
-  매칭 로직을 건드릴 때 특히 주의할 것.
+  `/history`(내 타로 보관함)에서 다시 조회할 수 있다. `/result`의 레거시 공유 링크 복원
+  로직(`createAdminClient()`로 RLS 우회)은 **`img` 파라미터(공유받은 정확한 이미지 URL)가
+  있을 때만** 동작하고, 그 정확한 URL을 실제로 갖고 있는 리딩 한 건만 매칭한다 — 새로
+  카드를 뽑을 때(파라미터 없음)는 절대 이 DB 조회를 타지 않는다(2026-09-18에 카드 조합만
+  으로 매칭하던 옛 로직이 다른 회원의 질문/해석을 잘못 복원하던 크로스 유저 노출 버그를
+  고치며 이렇게 바뀌었다). 이 로직을 다시 "카드 구성만으로" 매칭하는 방식으로 되돌리지
+  말 것.
 - **`user_api_keys` 표준 패턴을 그대로 쓴다.** `lib/apiKeys.ts`의 `resolveApiKey()`가
   공용 `user_api_keys`에서 회원 본인 키만 조회한다(provider: `gemini`, `openai`).
   `/settings`(헤더 라벨 "API키등록·플랫폼연동")에서 등록/수정/삭제한다. **새로운 유료
