@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SPREAD_CONFIGS, type SpreadType } from "@/lib/deck";
+import { deleteReadingAction } from "@/lib/actions/history";
+import { DeleteReadingButton } from "@/components/history/DeleteReadingButton";
 
 interface TarotReadingItem {
   id: string;
@@ -61,26 +63,36 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
             className="rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm transition-all"
           >
             {/* 상단 카드 헤더 */}
-            <button
-              type="button"
-              onClick={() => setExpandedId(isExpanded ? null : item.id)}
-              className="w-full text-left p-5 flex flex-wrap items-center justify-between gap-3 hover:bg-neutral-50 transition-colors"
-            >
-              <div>
+            <div className="w-full flex flex-wrap items-center justify-between gap-3 hover:bg-neutral-50 transition-colors">
+              <button
+                type="button"
+                onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                className="flex-1 min-w-0 text-left p-5"
+              >
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-xs font-bold bg-neutral-900 text-white px-2.5 py-0.5 rounded-full">
                     {config.badge}
                   </span>
                   <span className="text-xs text-neutral-400">{dateStr}</span>
                 </div>
-                <h3 className="font-bold text-sm text-neutral-900">
+                <h3 className="font-bold text-sm text-neutral-900 truncate">
                   {item.question ? `"${item.question}"` : config.title}
                 </h3>
+              </button>
+              <div className="flex items-center gap-2 pr-5">
+                <form action={deleteReadingAction}>
+                  <input type="hidden" name="id" value={item.id} />
+                  <DeleteReadingButton />
+                </form>
+                <button
+                  type="button"
+                  onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                  className="text-xs font-bold text-neutral-500"
+                >
+                  {isExpanded ? "접기 ▲" : "상세보기 ▼"}
+                </button>
               </div>
-              <span className="text-xs font-bold text-neutral-500">
-                {isExpanded ? "접기 ▲" : "상세보기 ▼"}
-              </span>
-            </button>
+            </div>
 
             {/* 카드 확장 영역 */}
             {isExpanded && (

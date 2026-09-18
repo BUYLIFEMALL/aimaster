@@ -237,7 +237,7 @@ export function ResultInteractive({
   const gridColsClass =
     cards.length === 1
       ? "max-w-xs mx-auto"
-      : cards.length === 5
+      : cards.length >= 5
       ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
       : "grid-cols-1 sm:grid-cols-3";
 

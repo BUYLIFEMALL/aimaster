@@ -1,6 +1,6 @@
 import { TAROT_DECK, type Orientation } from "./cards";
 
-export type SpreadType = "one_card" | "three_cards" | "love_three_cards" | "five_cards";
+export type SpreadType = "one_card" | "three_cards" | "love_three_cards" | "five_cards" | "celtic_cross";
 
 export type CardStyle =
   | "watercolor"
@@ -94,7 +94,16 @@ export type SpreadPosition =
   | "situation"
   | "cause"
   | "obstacle"
-  | "result";
+  | "result"
+  | "challenge"
+  | "distant_past"
+  | "recent_past"
+  | "possible_outcome"
+  | "near_future"
+  | "self_attitude"
+  | "external_influences"
+  | "hopes_fears"
+  | "final_outcome";
 
 export const SPREAD_POSITION_LABELS: Record<string, string> = {
   advice: "오늘의 조언",
@@ -107,6 +116,15 @@ export const SPREAD_POSITION_LABELS: Record<string, string> = {
   cause: "원인 · 배경",
   obstacle: "장애물 · 주의",
   result: "최종 결과",
+  challenge: "도전 · 장애물",
+  distant_past: "먼 과거 · 근본 원인",
+  recent_past: "최근 과거",
+  possible_outcome: "가능한 미래",
+  near_future: "가까운 미래",
+  self_attitude: "나 자신의 태도",
+  external_influences: "주변 환경 · 외부 영향",
+  hopes_fears: "희망과 두려움",
+  final_outcome: "최종 결과",
 };
 
 export interface SpreadInfo {
@@ -191,6 +209,49 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
       advice: "문제를 슬기롭게 해결하기 위해 취해야 할 액션",
       obstacle: "진행 과정에서 주의해야 할 경계나 방해 요소",
       result: "조언을 따랐을 때 다가올 최종적인 흐름과 결과",
+    },
+  },
+  celtic_cross: {
+    type: "celtic_cross",
+    title: "켈틱 크로스 (정통 10카드 심층)",
+    subtitle: "가장 정통적이고 입체적인 타로 스프레드로 고민의 모든 면을 살펴봅니다",
+    badge: "🔟 켈틱크로스",
+    cardCount: 10,
+    positions: [
+      "present",
+      "challenge",
+      "distant_past",
+      "recent_past",
+      "possible_outcome",
+      "near_future",
+      "self_attitude",
+      "external_influences",
+      "hopes_fears",
+      "final_outcome",
+    ],
+    positionLabels: {
+      present: "현재 상황",
+      challenge: "도전 · 장애물",
+      distant_past: "먼 과거 · 근본 원인",
+      recent_past: "최근 과거",
+      possible_outcome: "가능한 미래",
+      near_future: "가까운 미래",
+      self_attitude: "나 자신의 태도",
+      external_influences: "주변 환경 · 외부 영향",
+      hopes_fears: "희망과 두려움",
+      final_outcome: "최종 결과",
+    },
+    positionDescriptions: {
+      present: "지금 당신이 처해 있는 핵심적인 상황과 에너지",
+      challenge: "지금 상황을 가로막거나 직접 마주해야 할 도전 과제",
+      distant_past: "이 상황의 뿌리가 된 먼 과거의 사건이나 근본 원인",
+      recent_past: "최근에 지나온, 지금 상황에 영향을 준 흐름",
+      possible_outcome: "지금 흐름대로라면 도달할 수 있는 가능성 있는 미래",
+      near_future: "가까운 시일 안에 다가올 사건이나 변화",
+      self_attitude: "이 상황을 대하는 당신 자신의 마음가짐과 태도",
+      external_influences: "주변 사람이나 환경이 이 상황에 미치는 영향",
+      hopes_fears: "이 상황에 대해 마음 깊이 품고 있는 희망과 두려움",
+      final_outcome: "모든 요소가 종합됐을 때 다다르게 될 최종적인 결과",
     },
   },
 };
