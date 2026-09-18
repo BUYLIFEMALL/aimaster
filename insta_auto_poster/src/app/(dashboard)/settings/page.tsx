@@ -20,6 +20,7 @@ export const fetchCache = "force-no-store";
 // App(Instagram) 연동은 아직 "피드 포스팅" 전용 가이드가 없어(기존 SNS 카테고리 가이드는
 // "댓글·DM 자동화" 대상이라 딱 맞지 않음) 대상에서 뺐다 — 필요 시 별도로 추가할 것.
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "6cdae259-b9d2-45ae-9c21-e5f498f78956", label: "인스타그램 계정 연동하기 (자동포스팅)" },
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
   { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
   { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
