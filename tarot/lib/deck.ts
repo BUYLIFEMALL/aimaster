@@ -6,7 +6,8 @@ export type SpreadType =
   | "love_three_cards"
   | "five_cards"
   | "celtic_cross"
-  | "horseshoe";
+  | "horseshoe"
+  | "relationship";
 
 export type CardStyle =
   | "watercolor"
@@ -110,7 +111,9 @@ export type SpreadPosition =
   | "external_influences"
   | "hopes_fears"
   | "final_outcome"
-  | "hidden_influences";
+  | "hidden_influences"
+  | "connection"
+  | "strength";
 
 export const SPREAD_POSITION_LABELS: Record<string, string> = {
   advice: "오늘의 조언",
@@ -133,6 +136,8 @@ export const SPREAD_POSITION_LABELS: Record<string, string> = {
   hopes_fears: "희망과 두려움",
   final_outcome: "최종 결과",
   hidden_influences: "숨겨진 영향",
+  connection: "두 사람의 연결고리",
+  strength: "관계의 강점",
 };
 
 export interface SpreadInfo {
@@ -294,6 +299,30 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
       external_influences: "주변 사람이나 환경이 이 상황에 미치는 영향",
       advice: "지금 취하면 좋을 현실적인 조언과 행동 방향",
       result: "이 흐름대로라면 다다르게 될 예상 결과",
+    },
+  },
+  relationship: {
+    type: "relationship",
+    title: "관계 심층 분석 (6카드)",
+    subtitle: "나와 상대방, 관계의 연결고리부터 강점·과제·방향까지 깊이 있게 살펴봅니다",
+    badge: "💞 관계 6카드",
+    cardCount: 6,
+    positions: ["me", "other", "connection", "strength", "challenge", "possible_outcome"],
+    positionLabels: {
+      me: "나의 마음과 역할",
+      other: "상대방의 마음과 역할",
+      connection: "두 사람의 연결고리",
+      strength: "관계의 강점",
+      challenge: "관계의 과제",
+      possible_outcome: "관계가 나아갈 방향",
+    },
+    positionDescriptions: {
+      me: "이 관계 안에서 내가 느끼는 감정과 내가 맡고 있는 역할",
+      other: "상대방이 이 관계에서 느끼는 감정과 맡고 있는 역할",
+      connection: "두 사람을 이어주는 근본적인 연결고리와 관계의 바탕",
+      strength: "이 관계가 가진 강점, 잘 맞는 부분",
+      challenge: "관계를 더 깊게 만들기 위해 함께 풀어야 할 과제나 장애물",
+      possible_outcome: "지금의 흐름대로라면 이 관계가 나아갈 방향",
     },
   },
 };

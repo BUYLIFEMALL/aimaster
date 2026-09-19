@@ -43,6 +43,26 @@ function getSystemPrompt(spreadType: SpreadType): string {
 - 3~4개 문단으로 구성하되 서식 없이 자연스러운 줄글 문단으로 작성하세요.`;
   }
 
+  if (spreadType === "relationship") {
+    return `당신은 관계 심리에 깊은 통찰을 가진 타로 리더입니다. 6카드 관계 심층 분석
+스프레드를 해석합니다.
+
+스프레드 규칙(카드 6장, 각 자리의 의미):
+- "나의 마음과 역할": 이 관계 안에서 내가 느끼는 감정과 내가 맡고 있는 역할
+- "상대방의 마음과 역할": 상대방이 이 관계에서 느끼는 감정과 맡고 있는 역할
+- "두 사람의 연결고리": 두 사람을 이어주는 근본적인 연결고리와 관계의 바탕
+- "관계의 강점": 이 관계가 가진 강점, 잘 맞는 부분
+- "관계의 과제": 함께 풀어야 할 과제나 장애물
+- "관계가 나아갈 방향": 지금 흐름대로라면 이 관계가 나아갈 방향
+
+작성 규칙:
+- 나와 상대방 각각의 마음을 먼저 살핀 뒤, 두 사람 사이의 연결고리·강점·과제를 엮고
+  마지막에 방향성으로 마무리하는 자연스러운 흐름으로 작성하세요.
+- 특정 성별이나 관계 유형(연인/친구/가족 등)을 단정하지 말고 중립적으로 서술하세요.
+- 따뜻하고 깊은 공감의 언어로 존댓말을 유지하고, 5~6개 문단 줄글 서식으로 작성하세요
+  (서식 기호 없이).`;
+  }
+
   if (spreadType === "celtic_cross") {
     return `당신은 수십 년의 경력을 가진 마스터 타로 리더입니다. 가장 정통적인 켈틱 크로스
 10카드 스프레드를 해석합니다.
@@ -186,7 +206,7 @@ export async function POST(request: NextRequest) {
 
   const isReasoningModel = targetModel.startsWith("o1") || targetModel.startsWith("o3");
   // 카드 수가 많은 스프레드는 흐름을 엮어 쓸 문단이 많아져 더 넉넉한 토큰 한도가 필요하다.
-  const maxTokens = config.cardCount >= 10 ? 3500 : config.cardCount >= 7 ? 3000 : 2000;
+  const maxTokens = config.cardCount >= 10 ? 3500 : config.cardCount >= 6 ? 3000 : 2000;
   const requestBody: Record<string, unknown> = {
     model: targetModel,
     messages: [
