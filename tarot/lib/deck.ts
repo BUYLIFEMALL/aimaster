@@ -36,28 +36,10 @@ export interface CardStyleOption {
   promptModifier: string;
 }
 
+// 화면에 보이는 순서는 이 객체의 선언 순서를 그대로 따른다(DrawFlow.tsx가
+// Object.keys(CARD_STYLES)로 순회) — 4개씩 3묶음으로, 사용자가 지정한 순서
+// 그대로 배치했다(2026-09-19).
 export const CARD_STYLES: Record<CardStyle, CardStyleOption> = {
-  watercolor: {
-    id: "watercolor",
-    name: "몽환 수채화",
-    badge: "🎨 판타지",
-    description: "부드럽고 신비로운 수채화 파스텔 분위기",
-    promptModifier: "Mystical watercolor illustration style, soft pastel palette with glowing magical aura, dreamy atmospheric lighting",
-  },
-  cute_character: {
-    id: "cute_character",
-    name: "귀여운 캐릭터",
-    badge: "🧸 아기자기 큐트",
-    description: "귀엽고 사랑스러운 동화 캐릭터 스타일",
-    promptModifier: "Cute anime chibi character illustration style, adorable whimsical fairytale aesthetic, soft warm pastels, round expressive eyes, charming pastel background",
-  },
-  korean_traditional: {
-    id: "korean_traditional",
-    name: "한국 전통 동양화",
-    badge: "🏮 단청 & 산수화",
-    description: "단청과 한지 고풍스러운 동양미 감성",
-    promptModifier: "Korean traditional Dancheong and Minhwa art style, elegant ink wash painting on Hanji paper, oriental gold and cyan accents",
-  },
   stained_glass: {
     id: "stained_glass",
     name: "네온 스테인드글라스",
@@ -72,19 +54,19 @@ export const CARD_STYLES: Record<CardStyle, CardStyleOption> = {
     description: "딥 블랙 배경에 화려한 찬란한 금빛 라인 아르누보",
     promptModifier: "Dark luxury Art Nouveau tarot card style, ornate golden linework on deep obsidian velvet background, Alphonse Mucha inspired elegant frame",
   },
-  cyberpunk: {
-    id: "cyberpunk",
-    name: "사이버펑크 네온",
-    badge: "⚡ 미래 지향",
-    description: "네온 홀로그램과 미래적 사이버 감성",
-    promptModifier: "Futuristic Cyberpunk neon tarot style, glowing magenta and cyan holographic lineart, sci-fi synthwave aesthetic",
-  },
   cosmic_galaxy: {
     id: "cosmic_galaxy",
     name: "코스믹 갤럭시",
     badge: "🌌 우주 성운",
     description: "은하수와 성운이 펼쳐지는 신비로운 우주적 스케일",
     promptModifier: "Cosmic galaxy tarot illustration style, deep indigo and violet nebula clouds, sparkling stardust and constellations, ethereal celestial atmosphere, otherworldly glowing light",
+  },
+  korean_traditional: {
+    id: "korean_traditional",
+    name: "한국 전통 동양화",
+    badge: "🏮 단청 & 산수화",
+    description: "단청과 한지 고풍스러운 동양미 감성",
+    promptModifier: "Korean traditional Dancheong and Minhwa art style, elegant ink wash painting on Hanji paper, oriental gold and cyan accents",
   },
   classic_oil: {
     id: "classic_oil",
@@ -93,12 +75,33 @@ export const CARD_STYLES: Record<CardStyle, CardStyleOption> = {
     description: "르네상스·바로크풍 명암 대비가 살아있는 사실적인 유화 회화",
     promptModifier: "Classical Renaissance and Baroque oil painting style, rich chiaroscuro lighting with dramatic shadows, realistic textured brushstrokes, museum masterpiece portrait aesthetic, warm aged canvas tones",
   },
+  watercolor: {
+    id: "watercolor",
+    name: "몽환 수채화",
+    badge: "🎨 판타지",
+    description: "부드럽고 신비로운 수채화 파스텔 분위기",
+    promptModifier: "Mystical watercolor illustration style, soft pastel palette with glowing magical aura, dreamy atmospheric lighting",
+  },
+  cute_character: {
+    id: "cute_character",
+    name: "귀여운 캐릭터",
+    badge: "🧸 아기자기 큐트",
+    description: "귀엽고 사랑스러운 동화 캐릭터 스타일",
+    promptModifier: "Cute anime chibi character illustration style, adorable whimsical fairytale aesthetic, soft warm pastels, round expressive eyes, charming pastel background",
+  },
   retro_pixel: {
     id: "retro_pixel",
     name: "레트로 픽셀아트",
     badge: "🎮 8비트 게임",
     description: "각진 도트로 표현한 향수를 자극하는 레트로 게임 그래픽",
     promptModifier: "Retro 16-bit pixel art tarot card style, blocky pixelated illustration, vibrant limited color palette, nostalgic classic video game aesthetic, crisp pixel grid",
+  },
+  cyberpunk: {
+    id: "cyberpunk",
+    name: "사이버펑크 네온",
+    badge: "⚡ 미래 지향",
+    description: "네온 홀로그램과 미래적 사이버 감성",
+    promptModifier: "Futuristic Cyberpunk neon tarot style, glowing magenta and cyan holographic lineart, sci-fi synthwave aesthetic",
   },
   pop_art: {
     id: "pop_art",
