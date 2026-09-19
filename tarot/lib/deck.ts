@@ -272,8 +272,8 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
   },
   three_cards: {
     type: "three_cards",
-    title: "기본 3카드",
-    subtitle: "흐름을 한눈에 파악하는 대표적인 타로 리딩",
+    title: "3카드(기본)",
+    subtitle: "과거 · 현재 · 미래를 점쳐 봅니다",
     badge: "🔮 3카드",
     cardCount: 3,
     positions: ["past", "present", "future"],
