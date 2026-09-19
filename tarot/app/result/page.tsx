@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { getCard } from "@/lib/cards";
 import {
   deserializeDraw,
-  serializeDraw,
   SPREAD_CONFIGS,
   SPREAD_POSITION_LABELS,
   type DrawnCard,
@@ -25,11 +24,6 @@ function getTrustedImageUrl(img: string | undefined): string | null {
   if (!img) return null;
   return img.startsWith(TRUSTED_IMAGE_PREFIX) ? img : null;
 }
-
-// 카드가 이 개수 이하인 스프레드만 OG 이미지에 카드 전체를 합성한다. 이보다 많으면
-// (켈틱 크로스 10장 등) 대표 카드 1장짜리 이미지로 대체한다 — app/api/og/route.tsx의
-// MAX_COMPOSITE_CARDS와 동일한 기준.
-const MAX_OG_COMPOSITE_CARDS = 5;
 
 type SearchParams = {
   rid?: string;
@@ -100,26 +94,18 @@ async function loadReadingById(rid: string): Promise<StoredReading | null> {
   return (data as StoredReading | null) ?? null;
 }
 
-function buildOgImageUrl(params: {
-  spreadType: string;
-  cardsParam: string;
-  cardCount: number;
-  img: string | undefined;
-  imgs: string | undefined;
-  mainCardId: string;
-}): string {
-  const { spreadType, cardsParam, cardCount, img, imgs, mainCardId } = params;
+function buildOgImageUrl(params: { img: string | undefined; mainCardId: string }): string {
+  const { img, mainCardId } = params;
 
-  // 카드별 이미지가 여러 장 있고(imgs) 합성 가능한 카드 수라면, /api/og가 실제 검증을
-  // 다시 수행하니 여기서는 그대로 넘긴다(각 URL이 진짜 신뢰 가능한지는 /api/og가 재검증).
-  if (imgs && cardCount <= MAX_OG_COMPOSITE_CARDS) {
-    const composite = new URL(`${SITE_URL}/api/og`);
-    composite.searchParams.set("spread", spreadType);
-    composite.searchParams.set("cards", cardsParam);
-    composite.searchParams.set("imgs", imgs);
-    return composite.toString();
-  }
-
+  // 대표 카드의 실제 생성 이미지(Supabase Storage, Content-Length 정상 제공)가 있으면
+  // 그 URL을 그대로 쓴다. 카드 여러 장을 합성한 /api/og?spread=...&imgs=...(next/og의
+  // ImageResponse, Content-Length 없이 Transfer-Encoding: chunked로만 응답)는 curl로는
+  // 200이 정상 오지만, 카카오톡 "링크 복사 → 붙여넣기" 미리보기 크롤러가 이 이미지를
+  // 받아오지 못해 썸네일이 빈 채로 뜨는 문제가 있었다(2026-09-19 발견, 실제 로그로 요청
+  // 자체는 200 성공한 것까지 확인했지만 카카오 쪽에서 렌더링이 안 됨). 카드 여러 장을
+  // 합성해서 보여주는 기능 자체는 되돌리되, 안정성이 검증된 방식(대표 카드 1장의 직접
+  // 이미지 URL)으로 og:image를 통일한다 — /api/og의 합성 렌더링 코드 자체는 남겨뒀다
+  // (추후 Storage에 미리 렌더링해두는 방식으로 다시 시도할 수 있음).
   return getTrustedImageUrl(img) ?? `${SITE_URL}/api/og?present=${mainCardId}`;
 }
 
@@ -128,7 +114,7 @@ export async function generateMetadata({
 }: {
   searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
-  const { rid, cards: cardsParam, img, imgs } = await searchParams;
+  const { rid, cards: cardsParam, img } = await searchParams;
 
   if (rid) {
     const row = await loadReadingById(rid);
@@ -146,16 +132,10 @@ export async function generateMetadata({
 
     const title = `나의 ${config.title} 리딩 결과`;
     const description = cardNames.join(" · ");
-    const cardsSerialized = serializeDraw(cards, spreadType, "watercolor");
     const imagesMap = normalizeDbImages(row.card_images);
-    const imgsJson = Object.keys(imagesMap).length > 0 ? JSON.stringify(imagesMap) : undefined;
     const mainCard = cards[0];
     const ogImageUrl = buildOgImageUrl({
-      spreadType,
-      cardsParam: cardsSerialized,
-      cardCount: config.cardCount,
       img: imagesMap[mainCard.cardId],
-      imgs: imgsJson,
       mainCardId: mainCard.cardId,
     });
 
@@ -181,14 +161,7 @@ export async function generateMetadata({
   const title = `나의 ${config.title} 리딩 결과`;
   const description = cardNames.join(" · ");
   const mainCard = cards[0] || { cardId: "major-00" };
-  const ogImageUrl = buildOgImageUrl({
-    spreadType,
-    cardsParam: cardsParam!,
-    cardCount: config.cardCount,
-    img,
-    imgs,
-    mainCardId: mainCard.cardId,
-  });
+  const ogImageUrl = buildOgImageUrl({ img, mainCardId: mainCard.cardId });
 
   return {
     title,

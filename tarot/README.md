@@ -243,19 +243,29 @@ mbti-character의 `components/ShareButtons.tsx`를 그대로 재사용했다(실
 `user_id`와 생성 시각이 포함돼 있어(`app/api/generate-card-image/route.ts`의
 `objectPath`) 사실상 유일한 식별자로 쓸 수 있다.
 
-**`/api/og` — 카드 전체를 합성한 OG 이미지(2026-09-19)**: 카드 수(`config.cardCount`)가
-5장 이하인 스프레드는 `generateMetadata()`가 `/api/og?spread=...&cards=...&imgs=...`
-형태로 넘겨, `/api/og`가 Satori(`next/og`의 `ImageResponse`)로 카드 이미지들을 실제로
-나란히 배치한 합성 카드를 그려서 og:image로 쓴다. `imgs`는 클라이언트가 조작해서 보낼 수
-있는 값이므로, `/api/og`는 `generateMetadata()`가 이미 검증했다고 믿지 않고 **자체적으로
-다시** `TRUSTED_IMAGE_PREFIX`(우리 Storage 버킷 URL) 검증을 거친 이미지만 그린다 — 그렇지
-않으면 이 라우트가 임의 외부 URL을 대신 가져와주는 오픈 이미지 프록시(SSRF)로 악용될 수
-있다. 켈틱 크로스(10장)처럼 `MAX_COMPOSITE_CARDS`(5)를 넘는 스프레드나, 이미지가 하나도
-없는 경우(카드를 아직 하나도 안 뽑았거나 Gemini 키가 없는 경우)에는 여전히 기존 브랜드
-카드(🔮 AI 타로 + 대표 카드 이름)로 대체한다 — 너무 많은 카드를 작은 미리보기 썸네일에
-욱여넣으면 오히려 알아보기 힘들어진다고 판단한 의도적 범위 제한이다. mbti-character와
-동일하게 `middleware.ts`의 matcher에서 `api/og` 경로를 로그인 체크 대상에서 제외했다
-(카카오톡/페이스북 크롤러가 로그인 없이 긁어가야 하므로).
+**`/api/og` — 카드 전체를 합성한 OG 이미지(2026-09-19 도입 → 같은 날 되돌림)**: 처음엔
+카드 수 5장 이하인 스프레드에서 `generateMetadata()`가 `/api/og?spread=...&cards=...
+&imgs=...` 형태로 넘겨, `/api/og`가 Satori(`next/og`의 `ImageResponse`)로 카드 이미지들을
+실제로 나란히 배치한 합성 카드를 그려서 og:image로 썼다. `imgs`는 클라이언트가 조작해서
+보낼 수 있는 값이라 `/api/og`가 `TRUSTED_IMAGE_PREFIX`(우리 Storage 버킷 URL)로 자체
+재검증하도록 만들어(오픈 이미지 프록시/SSRF 방지) curl로는 200에 정상적인 PNG가 왔지만,
+**실제 카카오톡 "링크 복사 → 채팅창에 붙여넣기" 미리보기에서는 썸네일이 계속 빈 채로
+떴다.** Vercel 런타임 로그로 확인해보니 카카오 크롤러의 요청 자체는 매번 200으로 성공하고
+있었는데, 응답 헤더를 비교해보니 원인이 드러났다 — `next/og`의 `ImageResponse`는
+`Content-Length` 없이 `Transfer-Encoding: chunked`로만 응답하는 반면, 실제 카드 이미지
+(Supabase Storage)는 `Content-Length`를 정상 제공한다. 카카오톡의 링크 미리보기 크롤러가
+`Content-Length` 없는 동적 이미지 응답을 신뢰하지 못해 렌더링을 포기하는 것으로 보인다.
+**그래서 카드 여러 장을 합성해서 보여주는 기능은 되돌렸고**, 대신 이미 안정적으로 동작이
+검증된 방식 — **대표 카드 1장의 실제 생성 이미지(Supabase Storage) URL을 그대로 og:image로
+쓰는 방식**(`app/api/generate-card-image/route.ts`가 만드는 그 이미지, `Content-Length`
+정상 제공)으로 통일했다. 이미지가 하나도 없는 경우(카드를 아직 하나도 안 뽑았거나 Gemini
+키가 없는 경우)에는 여전히 `/api/og`의 브랜드 카드(🔮 AI 타로 + 대표 카드 이름)로
+대체한다 — 이 폴백도 같은 `Content-Length` 문제를 안고 있을 가능성이 있지만, "이미지가
+아예 없을 때"의 대체 카드라 우선순위를 낮췄다. `/api/og`의 합성 렌더링 코드 자체는
+삭제하지 않고 남겨뒀다(추후 이 이미지를 요청 시점에 스트리밍하는 대신 Supabase
+Storage에 미리 렌더링해서 올려두는 방식으로 바꾸면 `Content-Length` 문제 없이 다시 쓸 수
+있다). mbti-character와 동일하게 `middleware.ts`의 matcher에서 `api/og` 경로를 로그인
+체크 대상에서 제외했다(카카오톡/페이스북 크롤러가 로그인 없이 긁어가야 하므로).
 
 **🐛 [발견 및 수정] `present` 파라미터가 있을 때 브랜드 카드가 500 에러를 내던 잠재
 버그(2026-09-19)**: 합성 이미지 기능을 배포 후 직접 검증하다가, `/api/og?present=<cardId>`
@@ -291,4 +301,4 @@ production에서 500을 내는 것을 발견했다. 원인은 Satori(`next/og`)�
 | 11 | 켈틱 크로스(10카드) 스프레드 추가 | ✅ |
 | 12 | `/history` 삭제 UI + 페이지네이션 | ✅ |
 | 13 | 레거시 공유 링크 크로스 유저 노출 버그 수정 | ✅ |
-| 14 | 공유 카드(OG 이미지)에 카드 전체 합성 반영 | ✅ |
+| 14 | 공유 카드(OG 이미지)에 카드 전체 합성 반영 | ↩️ 시도 후 되돌림(카카오 크롤러가 `Content-Length` 없는 동적 이미지를 렌더링 못함 — 위 "카드 전체를 합성한 OG 이미지" 참고) |
