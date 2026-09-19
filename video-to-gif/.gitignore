@@ -1,0 +1,7 @@
+node_modules/
+.next/
+worker/node_modules/
+worker/dist/
+.env
+.env.local
+worker/.env
