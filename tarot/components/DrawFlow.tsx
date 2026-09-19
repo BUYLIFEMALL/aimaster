@@ -238,7 +238,7 @@ export function DrawFlow({
         >
           {isShuffling
             ? "카드를 신비롭게 섞는 중..."
-            : `🔮 ${selectedSpread.title}\n(${selectedSpread.cardCount}장) 카드 뽑기`}
+            : `🔮 ${selectedSpread.title}\n카드 ${selectedSpread.cardCount}장 뽑기`}
         </button>
       </div>
 
