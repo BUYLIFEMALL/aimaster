@@ -89,10 +89,14 @@ export function ShareButtons({
 
   function handleKakaoShare() {
     if (!window.Kakao) return;
-    let targetUrl = typeof window !== "undefined" && window.location.href ? window.location.href : currentShareUrl;
-    try {
-      targetUrl = encodeURI(decodeURI(targetUrl));
-    } catch {}
+    // window.location.href는 브라우저가 이미 올바르게 퍼센트 인코딩한 값이라 그대로 쓴다.
+    // 과거에 여기서 encodeURI(decodeURI(targetUrl))로 한 번 더 "정규화"를 시도한 적이
+    // 있었는데(fe66123), decodeURI는 예약 문자(:, , 등)의 %XX는 그대로 남겨두고 나머지만
+    // 디코딩하기 때문에, cards 파라미터의 구분자로 쓰는 ":"/","의 %3A/%2C 앞에 남은 "%"까지
+    // encodeURI가 다시 %25로 이중 인코딩해버렸다. 그 결과 카카오톡으로 공유된 링크를 열면
+    // 서버가 cards 값에서 %3A/%2C를 실제 문자로 되돌리지 못해 deserializeDraw()가 null을
+    // 반환하고 /draw로 튕겨나가는 버그가 있었다(2026-09-19 발견) — 다시 추가하지 말 것.
+    const targetUrl = typeof window !== "undefined" && window.location.href ? window.location.href : currentShareUrl;
 
     window.Kakao.Share.sendDefault({
       objectType: "feed",

@@ -138,6 +138,27 @@ mbti-character의 `components/ShareButtons.tsx`를 그대로 재사용했다(실
 접두사인지 검증한 뒤에만 신뢰한다(조작된 값으로 임의 이미지를 공유 미리보기에 끼워넣는
 것을 방지).
 
+**🐛 [발견 및 수정] 카카오톡 공유 후 "결과 보러가기" 클릭 시 엉뚱한 페이지로 이동하던
+버그, 두 가지 원인(2026-09-19)**:
+1. **카카오 개발자 콘솔 도메인 미등록**: tarot은 mbti-character가 쓰던 카카오 앱(JS 키)을
+   그대로 재사용하는데, 그 앱의 "플랫폼 키 > JavaScript SDK 도메인"과 "제품 링크 관리 >
+   웹 도메인" 두 곳 모두에 `tarot-eight-jet.vercel.app`가 등록돼 있지 않았다. 같은 앱을
+   쓰는 `kakao_auto_poster`만 등록이 돼 있어서, 공유 버튼을 누르면 카카오 서버가 그 앱에
+   등록된 다른 서비스(`kakaoautoposter.vercel.app/dashboard`)로 대신 연결해줬다 — 사용자가
+   직접 두 화면 모두에 도메인을 등록해 해결(코드 변경 아님, 외부 콘솔 설정).
+2. **`encodeURI(decodeURI(targetUrl))` 이중 인코딩 버그**: 1번을 고친 뒤에도 "결과
+   보러가기"가 `/draw`로 떨어지는 문제가 남아있었다. `handleKakaoShare()`가
+   `window.location.href`를 그대로 쓰지 않고 `encodeURI(decodeURI(targetUrl))`로 한 번 더
+   "정규화"하고 있었는데(2026-09-17 커밋 `fe66123`에서 다른 목적으로 추가됨),
+   `decodeURI()`는 예약 문자(`:`, `,` 등)의 `%XX`는 그대로 남겨두고 나머지만 디코딩하기
+   때문에, `cards` 파라미터의 구분자로 쓰는 `:`/`,`의 `%3A`/`%2C` 앞에 남아있는 `%` 문자까지
+   `encodeURI()`가 다시 `%25`로 이중 인코딩해버렸다(`%3A` → `%253A`). 그 결과 공유 링크를
+   열면 서버가 받는 `cards` 값 안에 실제 `:`/`,`가 아니라 문자 그대로의 `%3A`/`%2C`가
+   남아있어 `deserializeDraw()`가 파싱에 실패해 `null`을 반환하고, `app/result/page.tsx`의
+   `if (!parsed) redirect("/draw")`가 그대로 실행됐다. **고침**: 이 불필요한 재인코딩 단계를
+   제거하고 브라우저가 이미 올바르게 인코딩해주는 `window.location.href`를 그대로 쓰도록
+   되돌렸다 — 이 정규화를 다시 추가하지 말 것.
+
 **레거시 공유 링크 복원(2026-09-18 크로스 유저 노출 수정 완료)**: `imgs`/`rd`가 없던 옛
 형식의 공유 링크(카드+대표 이미지 1장만 있던 시절 링크)를 위해, `app/result/page.tsx`는
 `createAdminClient()`(RLS 우회)로 `tarot_readings`에서 부족한 이미지/해석을 보충해준다.
