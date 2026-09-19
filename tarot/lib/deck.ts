@@ -258,7 +258,7 @@ const YEAR_AHEAD_MONTH_NAMES = [
 export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
   one_card: {
     type: "one_card",
-    title: "오늘의 운세 (원카드 조언)",
+    title: "오늘의 운세 (1카드)",
     subtitle: "부담 없이 매일 아침 체크하는 오늘의 타로 한 장",
     badge: "🎴 1카드",
     cardCount: 1,
@@ -272,7 +272,7 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
   },
   three_cards: {
     type: "three_cards",
-    title: "과거 · 현재 · 미래 (기본 3카드)",
+    title: "기본 3카드",
     subtitle: "흐름을 한눈에 파악하는 대표적인 타로 리딩",
     badge: "🔮 3카드",
     cardCount: 3,
@@ -330,7 +330,7 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
   },
   celtic_cross: {
     type: "celtic_cross",
-    title: "켈틱 크로스 (정통 10카드 심층)",
+    title: "켈틱크로스 (심층 10카드)",
     subtitle: "가장 정통적이고 입체적인 타로 스프레드로 고민의 모든 면을 살펴봅니다",
     badge: "🔟 켈틱크로스",
     cardCount: 10,
