@@ -24,7 +24,9 @@ export type CardStyle =
   | "cosmic_galaxy"
   | "classic_oil"
   | "retro_pixel"
-  | "pop_art";
+  | "pop_art"
+  | "studio_anime"
+  | "pixar_3d";
 
 export interface CardStyleOption {
   id: CardStyle;
@@ -104,6 +106,25 @@ export const CARD_STYLES: Record<CardStyle, CardStyleOption> = {
     badge: "💥 만화 팝아트",
     description: "굵은 외곽선과 망점, 원색 대비의 강렬한 팝아트 만화 스타일",
     promptModifier: "Bold pop art comic tarot illustration style, thick black outlines, Ben-Day halftone dots, vivid primary color blocks, retro comic book aesthetic inspired by Roy Lichtenstein",
+  },
+  studio_anime: {
+    id: "studio_anime",
+    name: "지브리풍 애니메이션",
+    badge: "🌿 일본 감성 애니",
+    description: "따뜻하고 서정적인 일본 극장판 애니메이션 감성",
+    // 실제 스튜디오명(지브리) 대신, 그 느낌을 만드는 시각적 특징만 묘사한다 —
+    // 일부 이미지 생성 API가 특정 스튜디오명이 들어간 프롬프트를 필터링/거부할 수 있고,
+    // 상표 문제도 피하기 위함(README.md 참고 — 실제 상업 자료를 모사하지 않는다는
+    // 이 프로젝트의 기존 원칙과 동일한 방식).
+    promptModifier: "Japanese hand-drawn 2D animation illustration style, soft painterly watercolor backgrounds, whimsical pastoral fantasy atmosphere, warm nostalgic color palette, lush detailed nature scenery, gentle expressive character linework",
+  },
+  pixar_3d: {
+    id: "pixar_3d",
+    name: "픽사풍 3D 애니메이션",
+    badge: "🎬 미국 극장판 3D",
+    description: "부드러운 조명과 생생한 표정이 살아있는 미국 극장판 3D 애니메이션 감성",
+    // studio_anime와 동일한 이유로 실제 스튜디오명(픽사) 대신 시각적 특징만 묘사한다.
+    promptModifier: "3D computer-animated feature film illustration style, expressive rounded character design with large emotive eyes, vibrant polished rendering with soft global illumination, heartwarming family movie aesthetic, smooth glossy textures",
   },
 };
 
