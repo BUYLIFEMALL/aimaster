@@ -7,7 +7,8 @@ export type SpreadType =
   | "five_cards"
   | "celtic_cross"
   | "horseshoe"
-  | "relationship";
+  | "relationship"
+  | "career";
 
 export type CardStyle =
   | "watercolor"
@@ -113,7 +114,8 @@ export type SpreadPosition =
   | "final_outcome"
   | "hidden_influences"
   | "connection"
-  | "strength";
+  | "strength"
+  | "opportunity";
 
 export const SPREAD_POSITION_LABELS: Record<string, string> = {
   advice: "오늘의 조언",
@@ -138,6 +140,7 @@ export const SPREAD_POSITION_LABELS: Record<string, string> = {
   hidden_influences: "숨겨진 영향",
   connection: "두 사람의 연결고리",
   strength: "관계의 강점",
+  opportunity: "다가오는 기회",
 };
 
 export interface SpreadInfo {
@@ -323,6 +326,30 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
       strength: "이 관계가 가진 강점, 잘 맞는 부분",
       challenge: "관계를 더 깊게 만들기 위해 함께 풀어야 할 과제나 장애물",
       possible_outcome: "지금의 흐름대로라면 이 관계가 나아갈 방향",
+    },
+  },
+  career: {
+    type: "career",
+    title: "커리어 · 진로 스프레드 (6카드)",
+    subtitle: "현재 상황부터 강점, 걸림돌, 기회, 조언, 결과까지 진로 고민을 입체적으로 살펴봅니다",
+    badge: "💼 커리어 6카드",
+    cardCount: 6,
+    positions: ["situation", "strength", "obstacle", "opportunity", "advice", "result"],
+    positionLabels: {
+      situation: "현재 커리어 상황",
+      strength: "나의 강점 · 역량",
+      obstacle: "걸림돌 · 극복할 점",
+      opportunity: "다가오는 기회",
+      advice: "다음 행동 · 조언",
+      result: "예상되는 결과",
+    },
+    positionDescriptions: {
+      situation: "지금 일이나 진로에서 놓여 있는 현재 상황",
+      strength: "이 상황에서 내가 가진 강점과 활용할 수 있는 역량",
+      obstacle: "앞으로 나아가기 위해 넘어서야 할 걸림돌이나 주의할 점",
+      opportunity: "지금 또는 가까운 시일 안에 다가올 수 있는 기회",
+      advice: "지금 취하면 좋을 현실적인 다음 행동",
+      result: "이 흐름대로라면 다다르게 될 예상 결과",
     },
   },
 };
