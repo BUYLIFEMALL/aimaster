@@ -43,7 +43,7 @@ export default async function LandingPage() {
         <p className="text-neutral-600 text-sm sm:text-base leading-relaxed max-w-md mx-auto">
           고민을 떠올리며 타로 스프레드를 선택 후 카드를 골라보세요.
           <br />
-          AI가 새로 생성되는 카드로 당신의 고민과 궁금증을 함께 풀어드립니다.
+          AI가 생성되는 카드로 당신의 고민과 궁금증을 함께 풀어드립니다.
         </p>
       </div>
 
