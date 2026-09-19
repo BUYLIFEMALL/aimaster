@@ -123,7 +123,12 @@ export default async function HistoryPage({
         })}
       </div>
 
-      <HistoryList readings={readings || []} />
+      {/* key로 카테고리/페이지가 바뀔 때마다 컴포넌트를 새로 마운트시킨다 — 그래야
+          HistoryList 내부의 "펼침 상태" 초기값(가장 최근 항목)이 매번 새로
+          계산된다. key 없이 props만 바뀌면 리액트가 기존 인스턴스를 재사용해서
+          이전 카테고리에서 펼쳐뒀던 id가 새 목록에 없어 전부 접힌 채로 보이는
+          문제가 있었다(2026-09-19). */}
+      <HistoryList key={`${activeSpread ?? "all"}-${page}`} readings={readings || []} />
 
       {totalCount > 0 && totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 mt-8">

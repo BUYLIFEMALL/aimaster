@@ -94,22 +94,33 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
               </div>
             </div>
 
-            {/* 카드 확장 영역 */}
+            {/* 카드 확장 영역 — /result(최초 생성 화면)와 동일한 크기 체계를 쓴다.
+                카드 수가 적을수록(1~3장) 이미지가 더 크게 보이도록 그리드 열 수를
+                ResultInteractive의 gridColsClass 로직 그대로 맞췄다(2026-09-19,
+                사용자 지적: "최초 생성시 보여지는 크기로 보여지게 해줘"). */}
             {isExpanded && (
               <div className="p-5 pt-0 border-t border-neutral-100 bg-neutral-50/50">
                 {/* 뽑힌 카드 썸네일 리스트 */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 my-4">
+                <div
+                  className={`grid gap-4 my-4 ${
+                    item.cards.length === 1
+                      ? "max-w-xs mx-auto"
+                      : item.cards.length >= 5
+                      ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
+                      : "grid-cols-1 sm:grid-cols-3"
+                  }`}
+                >
                   {item.cards.map((c, idx) => {
                     const imgUrl = item.card_images?.[c.cardId];
                     return (
                       <div
                         key={idx}
-                        className="rounded-xl border border-neutral-200 bg-white p-2 text-center shadow-2xs"
+                        className="rounded-xl border border-neutral-200 bg-white p-3 text-center shadow-sm"
                       >
-                        <span className="inline-block text-[10px] font-bold bg-neutral-100 text-neutral-700 px-2 py-0.5 rounded-full mb-1.5">
+                        <span className="inline-block text-[11px] font-bold bg-neutral-100 text-neutral-700 px-2.5 py-1 rounded-full mb-2">
                           {c.positionLabel || c.position}
                         </span>
-                        <div className="w-full aspect-[2/3] rounded-lg bg-gradient-to-br from-indigo-950 to-purple-900 overflow-hidden mb-2 flex items-center justify-center">
+                        <div className="w-full aspect-[2/3] rounded-xl bg-gradient-to-br from-indigo-950 to-purple-900 overflow-hidden mb-3 flex items-center justify-center">
                           {imgUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -118,13 +129,13 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className="text-xl">🔮</span>
+                            <span className="text-3xl">🔮</span>
                           )}
                         </div>
-                        <p className="text-xs font-bold text-neutral-900 line-clamp-1">
+                        <p className="text-sm font-black text-neutral-900 line-clamp-1">
                           {c.nameKo || c.cardId}
                         </p>
-                        <span className="text-[10px] text-neutral-500 font-medium">
+                        <span className="text-xs text-neutral-500 font-medium">
                           {c.orientation === "upright" ? "정방향" : "역방향"}
                         </span>
                       </div>
@@ -134,9 +145,9 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
 
                 {/* AI 종합 해석 영역 */}
                 {item.ai_reading && (
-                  <div className="mt-4 rounded-xl bg-white border border-neutral-200 p-4">
-                    <h4 className="text-xs font-bold text-neutral-900 mb-2">✍️ AI 종합 해석</h4>
-                    <div className="space-y-2 text-xs text-neutral-700 leading-relaxed">
+                  <div className="mt-4 rounded-xl bg-white border border-neutral-200 p-5">
+                    <h4 className="text-sm font-bold text-neutral-900 mb-3">✍️ AI 종합 해석</h4>
+                    <div className="space-y-3 text-sm text-neutral-700 leading-relaxed">
                       {item.ai_reading.split(/\n{2,}/).map((para, i) => (
                         <p key={i}>{para}</p>
                       ))}
