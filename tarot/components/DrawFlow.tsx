@@ -234,11 +234,11 @@ export function DrawFlow({
           type="button"
           onClick={handleDraw}
           disabled={isShuffling}
-          className="w-full max-w-sm px-8 py-4 rounded-2xl bg-neutral-900 text-white font-bold text-lg hover:bg-neutral-800 transition-all shadow-xl disabled:opacity-60"
+          className="w-full max-w-sm px-8 py-4 rounded-2xl bg-neutral-900 text-white font-bold text-lg hover:bg-neutral-800 transition-all shadow-xl disabled:opacity-60 whitespace-pre-line leading-snug text-center"
         >
           {isShuffling
             ? "카드를 신비롭게 섞는 중..."
-            : `🔮 ${selectedSpread.cardCount}장 카드 뽑기`}
+            : `🔮 ${selectedSpread.title}\n(${selectedSpread.cardCount}장) 카드 뽑기`}
         </button>
       </div>
 
