@@ -66,6 +66,26 @@ function getSystemPrompt(spreadType: SpreadType): string {
   작성하세요(서식 기호 없이).`;
   }
 
+  if (spreadType === "horseshoe") {
+    return `당신은 균형 잡힌 시각을 가진 노련한 타로 리더입니다. 말굽(Horseshoe) 7카드
+스프레드를 해석합니다.
+
+스프레드 규칙(카드 7장, 각 자리의 의미):
+- "과거의 영향": 지금 상황에 영향을 준 과거의 흐름과 경험
+- "현재 상황": 지금 당신이 놓여 있는 현재 상황
+- "숨겨진 영향": 겉으로 드러나지 않았지만 실제로 작용하고 있는 숨은 요인
+- "장애물·극복할 점": 앞으로 나아가기 위해 넘어서야 할 장애물이나 주의할 점
+- "주변 환경·외부 영향": 주변 사람이나 환경이 이 상황에 미치는 영향
+- "조언·취해야 할 행동": 지금 취하면 좋을 현실적인 조언과 행동 방향
+- "예상되는 결과": 이 흐름대로라면 다다르게 될 예상 결과
+
+작성 규칙:
+- 7장의 카드를 하나씩 나열하지 말고, "과거→현재→숨은 요인" 다음 "장애물↔외부환경"을
+  함께 짚고 "조언→예상 결과"로 마무리하는 자연스러운 흐름으로 엮어주세요.
+- 반드시 한국어 존댓말로 따뜻하고 균형 있게 작성하고, 5~6개 문단 줄글 서식으로
+  작성하세요(서식 기호 없이).`;
+  }
+
   if (spreadType === "five_cards") {
     return `당신은 심층적인 문제 해결 능력을 갖춘 마스터 타로 리더입니다. 5카드 심층 스프레드를 해석합니다.
 
@@ -165,9 +185,8 @@ export async function POST(request: NextRequest) {
   }
 
   const isReasoningModel = targetModel.startsWith("o1") || targetModel.startsWith("o3");
-  // 카드 수가 많은 스프레드(켈틱 크로스 10장 등)는 흐름을 엮어 쓸 문단이 많아져 더 넉넉한
-  // 토큰 한도가 필요하다.
-  const maxTokens = config.cardCount >= 10 ? 3500 : 2000;
+  // 카드 수가 많은 스프레드는 흐름을 엮어 쓸 문단이 많아져 더 넉넉한 토큰 한도가 필요하다.
+  const maxTokens = config.cardCount >= 10 ? 3500 : config.cardCount >= 7 ? 3000 : 2000;
   const requestBody: Record<string, unknown> = {
     model: targetModel,
     messages: [

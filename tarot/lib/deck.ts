@@ -1,6 +1,12 @@
 import { TAROT_DECK, type Orientation } from "./cards";
 
-export type SpreadType = "one_card" | "three_cards" | "love_three_cards" | "five_cards" | "celtic_cross";
+export type SpreadType =
+  | "one_card"
+  | "three_cards"
+  | "love_three_cards"
+  | "five_cards"
+  | "celtic_cross"
+  | "horseshoe";
 
 export type CardStyle =
   | "watercolor"
@@ -103,7 +109,8 @@ export type SpreadPosition =
   | "self_attitude"
   | "external_influences"
   | "hopes_fears"
-  | "final_outcome";
+  | "final_outcome"
+  | "hidden_influences";
 
 export const SPREAD_POSITION_LABELS: Record<string, string> = {
   advice: "오늘의 조언",
@@ -125,6 +132,7 @@ export const SPREAD_POSITION_LABELS: Record<string, string> = {
   external_influences: "주변 환경 · 외부 영향",
   hopes_fears: "희망과 두려움",
   final_outcome: "최종 결과",
+  hidden_influences: "숨겨진 영향",
 };
 
 export interface SpreadInfo {
@@ -252,6 +260,40 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
       external_influences: "주변 사람이나 환경이 이 상황에 미치는 영향",
       hopes_fears: "이 상황에 대해 마음 깊이 품고 있는 희망과 두려움",
       final_outcome: "모든 요소가 종합됐을 때 다다르게 될 최종적인 결과",
+    },
+  },
+  horseshoe: {
+    type: "horseshoe",
+    title: "말굽 스프레드 (심층 7카드)",
+    subtitle: "과거부터 예상 결과까지, 조언을 중심에 두고 살펴보는 균형 잡힌 7카드 리딩",
+    badge: "🐴 말굽 7카드",
+    cardCount: 7,
+    positions: [
+      "past",
+      "present",
+      "hidden_influences",
+      "obstacle",
+      "external_influences",
+      "advice",
+      "result",
+    ],
+    positionLabels: {
+      past: "과거의 영향",
+      present: "현재 상황",
+      hidden_influences: "숨겨진 영향",
+      obstacle: "장애물 · 극복할 점",
+      external_influences: "주변 환경 · 외부 영향",
+      advice: "조언 · 취해야 할 행동",
+      result: "예상되는 결과",
+    },
+    positionDescriptions: {
+      past: "지금 상황에 영향을 준 과거의 흐름과 경험",
+      present: "지금 당신이 놓여 있는 현재 상황",
+      hidden_influences: "겉으로 드러나지 않았지만 실제로 작용하고 있는 숨은 요인",
+      obstacle: "앞으로 나아가기 위해 넘어서야 할 장애물이나 주의할 점",
+      external_influences: "주변 사람이나 환경이 이 상황에 미치는 영향",
+      advice: "지금 취하면 좋을 현실적인 조언과 행동 방향",
+      result: "이 흐름대로라면 다다르게 될 예상 결과",
     },
   },
 };
