@@ -41,9 +41,9 @@ export default async function LandingPage() {
         <div className="text-5xl mb-2 animate-bounce">🔮</div>
         <h1 className="text-3xl font-black text-neutral-900 tracking-tight">AIMaster 타로점</h1>
         <p className="text-neutral-600 text-sm sm:text-base leading-relaxed max-w-md mx-auto">
-          마음에 품은 고민을 떠올리고 카드 3장을 선택해보세요.
+          마음에 품은 고민을 떠올리고 나에게 맞는 스프레드를 선택해보세요.
           <br />
-          과거·현재·미래의 비밀을 AI가 매번 새로 그리는 카드와 함께 풀어드립니다.
+          AI가 매번 새로 그리는 카드와 함께 답을 찾아드립니다.
         </p>
       </div>
 
@@ -71,9 +71,6 @@ export default async function LandingPage() {
             </p>
           </>
         )}
-        <span className="text-xs font-medium text-neutral-400">
-          3장 스프레드(과거·현재·미래) · 약 1분 소요
-        </span>
       </div>
 
       {user && (
@@ -104,7 +101,7 @@ export default async function LandingPage() {
           <div className="text-2xl mb-2">🃏</div>
           <h3 className="text-sm font-bold text-neutral-900 mb-1">78장 정통 타로 덱</h3>
           <p className="text-xs text-neutral-500 leading-relaxed">
-            메이저 22장 + 마이너 56장 정/역방향 반영 3카드 스프레드
+            메이저 22장 + 마이너 56장 정/역방향 반영, 원카드부터 켈틱크로스까지 7종 스프레드
           </p>
         </div>
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-all hover:shadow-md hover:border-purple-300">
@@ -118,7 +115,7 @@ export default async function LandingPage() {
           <div className="text-2xl mb-2">✍️</div>
           <h3 className="text-sm font-bold text-neutral-900 mb-1">맞춤형 AI 종합 해석</h3>
           <p className="text-xs text-neutral-500 leading-relaxed">
-            떠올린 고민과 세 장의 카드를 연결한 유기적인 맞춤 리딩 제공
+            떠올린 고민과 뽑힌 카드들을 연결한 유기적인 맞춤 리딩 제공
           </p>
         </div>
       </div>
