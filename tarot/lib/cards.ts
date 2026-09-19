@@ -108,7 +108,7 @@ const MAJOR_ARCANA: TarotCard[] = [
     number: 5,
     nameKo: "교황",
     nameEn: "The Hierophant",
-    keywords: ["전통", "가르침", "신念", "제도"],
+    keywords: ["전통", "가르침", "신념", "제도"],
     upright:
       "검증된 방식과 조언이 힘을 발휘하는 시기예요. 스승이나 선배, 오래된 관습에서 배울 점이 있으니, 혼자 판단하기보다 믿을 만한 틀 안에서 답을 찾아보세요.",
     reversed:
