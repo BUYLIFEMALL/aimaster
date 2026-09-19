@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square, ArrowUp, ArrowDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Badge from "@/components/ui/Badge";
+import CategoryManagerButton from "@/components/admin/CategoryManagerButton";
 import { getContrastTextColor } from "@/lib/utils/color";
 import type { Category, MemberGrade, Program } from "@/types/database.types";
 
@@ -314,9 +315,12 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
             </option>
           ))}
         </select>
-        <p className="text-xs text-subtext sm:ml-auto">
-          {filteredPrograms.length}개 표시 중 (전체 {programs.length}개)
-        </p>
+        <div className="flex items-center gap-3 sm:ml-auto">
+          <p className="text-xs text-subtext whitespace-nowrap">
+            {filteredPrograms.length}개 표시 중 (전체 {programs.length}개)
+          </p>
+          <CategoryManagerButton categories={categories} />
+        </div>
       </div>
 
       {/* 상단 고정 일괄 처리 툴바 — 항상 노출, 선택 없으면 컨트롤만 비활성화 */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Settings, Check, X, Trash2, Plus, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -22,6 +22,12 @@ export default function CategoryManagerButton({ categories: initialCategories }:
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editCategoryName, setEditCategoryName] = useState("");
   const [editCategorySlug, setEditCategorySlug] = useState("");
+
+  // 부모(ProgramsAdminBoard)가 categories prop을 갱신하면(예: 다른 경로로 리프레시된 경우)
+  // 이 컴포넌트의 로컬 상태도 함께 최신화한다.
+  useEffect(() => {
+    setCategories(initialCategories);
+  }, [initialCategories]);
 
   const slugify = (val: string) =>
     val.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
@@ -82,9 +88,9 @@ export default function CategoryManagerButton({ categories: initialCategories }:
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="shrink-0 flex items-center gap-1.5 rounded-lg border border-white/10 px-4 py-2.5 text-sm text-subtext hover:text-white hover:bg-white/5 transition-colors"
+        className="shrink-0 flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-subtext hover:text-white hover:bg-white/5 transition-colors"
       >
-        <Settings size={16} /> 카테고리 관리
+        <Settings size={13} /> 카테고리 관리
       </button>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="카테고리 관리" size="lg">

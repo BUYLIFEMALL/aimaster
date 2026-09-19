@@ -5,7 +5,6 @@ import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import ProgramsAdminBoard from "@/components/admin/ProgramsAdminBoard";
-import CategoryManagerButton from "@/components/admin/CategoryManagerButton";
 
 export const metadata = { title: "프로그램 관리" };
 
@@ -29,15 +28,12 @@ export default async function AdminProgramsPage() {
           </h1>
           <p className="text-subtext mt-1">등록된 프로그램을 관리하세요</p>
         </div>
-        <div className="flex items-center gap-2">
-          <CategoryManagerButton categories={categories ?? []} />
-          <Link href="/admin/programs/new">
-            <GoldButton>
-              <Plus size={16} />
-              새 프로그램
-            </GoldButton>
-          </Link>
-        </div>
+        <Link href="/admin/programs/new">
+          <GoldButton>
+            <Plus size={16} />
+            새 프로그램
+          </GoldButton>
+        </Link>
       </div>
 
       {!programs || programs.length === 0 ? (
