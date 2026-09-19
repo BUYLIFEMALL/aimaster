@@ -239,13 +239,11 @@ export function ResultInteractive({
     }
   }, [readingId, shareUrlBase]);
 
-  // 카드 수에 따른 Responsive Grid 스타일
-  const gridColsClass =
-    cards.length === 1
-      ? "max-w-xs mx-auto"
-      : cards.length >= 5
-      ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
-      : "grid-cols-1 sm:grid-cols-3";
+  // 카드 수에 따른 Responsive Grid 스타일 — 카드가 몇 장이든 한 줄에 최대 3장까지만
+  // 보여주고 그 이상은 다음 줄로 넘긴다(5장이면 3+2, 7장이면 3+3+1, 10장이면 3+3+3+1).
+  // 예전엔 5장 이상일 때 한 줄에 5열까지 욱여넣어서 카드 폭이 좁아지고 해설 글자가
+  // 세로로 잘려 보이는 문제가 있었다(2026-09-19, 사용자 지적: "한 줄에 3장씩이 적당").
+  const gridColsClass = cards.length === 1 ? "max-w-xs mx-auto" : "grid-cols-1 sm:grid-cols-3";
 
   return (
     <>

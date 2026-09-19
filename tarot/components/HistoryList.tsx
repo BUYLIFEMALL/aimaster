@@ -164,11 +164,7 @@ export function HistoryList({ readings }: { readings: TarotReadingItem[] }) {
                 {/* 뽑힌 카드 썸네일 리스트 */}
                 <div
                   className={`grid gap-4 my-4 ${
-                    item.cards.length === 1
-                      ? "max-w-xs mx-auto"
-                      : item.cards.length >= 5
-                      ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
-                      : "grid-cols-1 sm:grid-cols-3"
+                    item.cards.length === 1 ? "max-w-xs mx-auto" : "grid-cols-1 sm:grid-cols-3"
                   }`}
                 >
                   {item.cards.map((c, idx) => {
