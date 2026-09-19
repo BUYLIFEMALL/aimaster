@@ -22,6 +22,18 @@
 4. **환경변수와 API 키 변경**(카카오 공유 SDK 앱키 등)
 5. **데이터베이스 실제 데이터 삭제**
 
+### 3. 새 테이블에 의존하는 기능을 "완료"로 표시하기 전에 반드시 확인할 것
+`supabase/migrations/`에 SQL 파일이 있고 로컬 빌드가 통과한다고 해서 그 테이블이 실제
+운영 DB에 존재한다는 보장이 없다. 2026-09-19에 `tarot_readings` 테이블이 `0004_create_
+tarot_readings.sql` 파일로는 저장소에 있었고 README/AGENTS.md Phase 표에도 "✅ 완료"로
+적혀 있었지만, 실제 Supabase(`esgxyikcnnvmlhygjkth`)에는 **한 번도 적용된 적이 없어서**
+카드 이미지/AI 해석 저장이 매번 조용히 실패하고 있었다(자세한 경위는 README.md "리딩 이력
+저장" 참고). 새 테이블에 읽거나 쓰는 기능을 구현했다면, 완료 처리하기 전에 Supabase MCP의
+`list_migrations`(그 마이그레이션 이름이 실제로 적용 이력에 있는지) 또는
+`execute_sql`로 `select table_name from information_schema.tables where table_name =
+'...'`를 직접 실행해 실제 존재 여부를 확인할 것 — 파일이 있다는 것과 적용됐다는 것은
+별개다.
+
 ---
 
 ## 🎯 프로젝트 목적

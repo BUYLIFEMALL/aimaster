@@ -74,8 +74,33 @@ AIMaster는 하나의 계정으로 모든 서브프로그램을 쓸 수 있으�
 (`user_id` + RLS owner-only, `supabase/migrations/0004_create_tarot_readings.sql`). 질문·
 뽑힌 카드 구성·카드별 이미지 URL·AI 종합 해석이 한 행에 함께 저장되며, `/history`
 페이지(`app/history/page.tsx` + `components/HistoryList.tsx`)에서 본인이 뽑았던 리딩을
-날짜순으로 펼쳐볼 수 있다. 현재는 조회만 가능하고 개별 삭제 UI는 아직 없다(DB에는 delete
-RLS 정책이 이미 있음 — 아래 "남은 작업" 참고).
+날짜순으로 펼쳐보고(페이지네이션 10건씩), 개별 삭제도 할 수 있다(`lib/actions/history.ts`
+서버 액션).
+
+**🐛 [심각, 발견 및 수정] `tarot_readings` 테이블이 실제 운영 DB에 한 번도 적용된 적이
+없었다(2026-09-19)**: 마이그레이션 파일(`0004_create_tarot_readings.sql`)은 저장소에 있고
+이 코드도, README/AGENTS.md의 Phase 표도 전부 "완료"라고 기록돼 있었지만, 실제
+Supabase(`esgxyikcnnvmlhygjkth`) 운영 DB에는 이 테이블 자체가 생성된 적이 없었다(`select
+table_name from information_schema.tables where table_name ilike '%tarot%'`가 빈 결과를
+반환 — `tarot_register_program`/`tarot_pricing_plans`/`tarot_card_images_storage` 마이그레이션은
+2026-09-16에 정상 적용됐지만 `tarot_readings` 생성 마이그레이션만 빠져 있었다). 그 결과:
+- 카드 이미지/AI 해석 저장(`.insert()`)이 **매번 조용히 실패**하고 있었다(호출부가
+  `catch (err) { console.error(...) }`로만 처리해 사용자에게는 아무 에러도 보이지 않았다).
+- `/history`(내 타로 보관함)는 항상 빈 상태였을 것이다.
+- "이 타로 리딩은 회원님의 개인 보관함에 자동 저장되었습니다" 배지도 실제로는 뜬 적이 없다.
+- 2026-09-19에 도입한 "완성된 리딩을 id로 공유"(`/result?rid=...`) 기능도 저장이 항상
+  실패하니 `readingId`가 절대 채워지지 않아 매번 예전 방식(카드 구성만 담긴 짧은 링크)으로
+  폴백했다 — 사용자가 "카카오톡 공유 후 카드 만들기 전 페이지로 넘어간다"고 재현한 증상의
+  진짜 원인이 바로 이것이었다.
+
+Supabase MCP로 `apply_migration`을 실행해 테이블을 실제로 생성했다. 이 과정에서 원본
+0004 파일에 **UPDATE RLS 정책이 아예 빠져 있던 것**도 함께 발견했다(이미 저장된 리딩에
+`.update()`로 이미지/해석을 추가할 때도 이 정책이 없으면 실패한다) —
+`0005_add_readings_update_policy.sql`로 추가했다. **교훈**: 마이그레이션 SQL 파일을
+저장소에 커밋해두는 것과 그것을 실제 운영 DB에 적용하는 것은 별개다. 이 프로젝트처럼
+"코드는 있는데 실제로 동작 안 하는" 상태가 오래 방치될 수 있으니, 새 테이블에 의존하는
+기능을 완료 처리하기 전에 `list_migrations`/`information_schema.tables`로 실제 적용
+여부를 반드시 확인할 것.
 
 ### AI 카드 일러스트 생성 — 본인 Gemini 키만 사용
 초기 버전은 결과 화면 진입 시 자동으로 카드 이미지를 생성했으나, 현재는
