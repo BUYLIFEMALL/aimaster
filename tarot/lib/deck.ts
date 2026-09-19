@@ -10,7 +10,8 @@ export type SpreadType =
   | "relationship"
   | "career"
   | "year_ahead"
-  | "tree_of_life";
+  | "tree_of_life"
+  | "mandala";
 
 export type CardStyle =
   | "watercolor"
@@ -139,7 +140,16 @@ export type SpreadPosition =
   | "netzach"
   | "hod"
   | "yesod"
-  | "malkuth";
+  | "malkuth"
+  | "core"
+  | "love"
+  | "work"
+  | "finance"
+  | "health"
+  | "family"
+  | "growth"
+  | "spirit"
+  | "joy";
 
 export const SPREAD_POSITION_LABELS: Record<string, string> = {
   advice: "오늘의 조언",
@@ -175,6 +185,15 @@ export const SPREAD_POSITION_LABELS: Record<string, string> = {
   hod: "지성 · 소통과 표현",
   yesod: "잠재의식 · 무의식의 기반",
   malkuth: "현실 · 최종 결과",
+  core: "지금 나의 핵심 테마",
+  love: "사랑 · 관계",
+  work: "일 · 커리어",
+  finance: "재정 · 물질",
+  health: "건강 · 활력",
+  family: "가족",
+  growth: "자기계발 · 성장",
+  spirit: "영성 · 내면",
+  joy: "여가 · 즐거움",
 };
 
 export interface SpreadInfo {
@@ -450,6 +469,36 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
       hod: "생각을 정리하고 표현하는 지성의 힘",
       yesod: "겉으로 드러나지 않은 무의식의 기반",
       malkuth: "모든 것이 종합되어 나타나는 현실의 결과",
+    },
+  },
+  mandala: {
+    type: "mandala",
+    title: "만다라 라이프 밸런스 (9카드)",
+    subtitle: "핵심 테마를 중심으로 사랑·일·재정·건강 등 삶의 여러 영역을 한 번에 점검합니다",
+    badge: "🌸 만다라 9카드",
+    cardCount: 9,
+    positions: ["core", "love", "work", "finance", "health", "family", "growth", "spirit", "joy"],
+    positionLabels: {
+      core: "지금 나의 핵심 테마",
+      love: "사랑 · 관계",
+      work: "일 · 커리어",
+      finance: "재정 · 물질",
+      health: "건강 · 활력",
+      family: "가족",
+      growth: "자기계발 · 성장",
+      spirit: "영성 · 내면",
+      joy: "여가 · 즐거움",
+    },
+    positionDescriptions: {
+      core: "지금 이 순간 내 삶 전체를 관통하는 핵심 테마",
+      love: "사랑과 인간관계 영역의 현재 흐름",
+      work: "일과 커리어 영역의 현재 흐름",
+      finance: "재정과 물질적 영역의 현재 흐름",
+      health: "몸과 마음의 건강, 활력 상태",
+      family: "가족과의 관계 흐름",
+      growth: "자기계발과 성장의 흐름",
+      spirit: "영성과 내면의 상태",
+      joy: "여가와 즐거움, 삶의 활력소",
     },
   },
 };
