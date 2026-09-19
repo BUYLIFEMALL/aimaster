@@ -20,7 +20,11 @@ export type CardStyle =
   | "stained_glass"
   | "dark_art_nouveau"
   | "cyberpunk"
-  | "cute_character";
+  | "cute_character"
+  | "cosmic_galaxy"
+  | "classic_oil"
+  | "retro_pixel"
+  | "pop_art";
 
 export interface CardStyleOption {
   id: CardStyle;
@@ -72,6 +76,34 @@ export const CARD_STYLES: Record<CardStyle, CardStyleOption> = {
     badge: "⚡ 미래 지향",
     description: "네온 홀로그램과 미래적 사이버 감성",
     promptModifier: "Futuristic Cyberpunk neon tarot style, glowing magenta and cyan holographic lineart, sci-fi synthwave aesthetic",
+  },
+  cosmic_galaxy: {
+    id: "cosmic_galaxy",
+    name: "코스믹 갤럭시",
+    badge: "🌌 우주 성운",
+    description: "은하수와 성운이 펼쳐지는 신비로운 우주적 스케일",
+    promptModifier: "Cosmic galaxy tarot illustration style, deep indigo and violet nebula clouds, sparkling stardust and constellations, ethereal celestial atmosphere, otherworldly glowing light",
+  },
+  classic_oil: {
+    id: "classic_oil",
+    name: "클래식 유화 초상화",
+    badge: "🖼️ 르네상스 명화",
+    description: "르네상스·바로크풍 명암 대비가 살아있는 사실적인 유화 회화",
+    promptModifier: "Classical Renaissance and Baroque oil painting style, rich chiaroscuro lighting with dramatic shadows, realistic textured brushstrokes, museum masterpiece portrait aesthetic, warm aged canvas tones",
+  },
+  retro_pixel: {
+    id: "retro_pixel",
+    name: "레트로 픽셀아트",
+    badge: "🎮 8비트 게임",
+    description: "각진 도트로 표현한 향수를 자극하는 레트로 게임 그래픽",
+    promptModifier: "Retro 16-bit pixel art tarot card style, blocky pixelated illustration, vibrant limited color palette, nostalgic classic video game aesthetic, crisp pixel grid",
+  },
+  pop_art: {
+    id: "pop_art",
+    name: "팝아트 코믹",
+    badge: "💥 만화 팝아트",
+    description: "굵은 외곽선과 망점, 원색 대비의 강렬한 팝아트 만화 스타일",
+    promptModifier: "Bold pop art comic tarot illustration style, thick black outlines, Ben-Day halftone dots, vivid primary color blocks, retro comic book aesthetic inspired by Roy Lichtenstein",
   },
 };
 
