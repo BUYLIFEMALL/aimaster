@@ -41,9 +41,9 @@ export default async function LandingPage() {
         <div className="text-5xl mb-2 animate-bounce">🔮</div>
         <h1 className="text-3xl font-black text-neutral-900 tracking-tight">AIMaster 타로점</h1>
         <p className="text-neutral-600 text-sm sm:text-base leading-relaxed max-w-md mx-auto">
-          마음에 품은 고민을 떠올리고 나에게 맞는 스프레드를 선택해보세요.
+          마음에 품은 고민을 떠올리고 원하시는 타로 스프레드를 선택 후 카드를 골라보세요.
           <br />
-          AI가 매번 새로 그리는 카드와 함께 답을 찾아드립니다.
+          AI가 매번 새로 생성되는 카드로 당신의 고민과 궁금증을 함께 풀어드립니다.
         </p>
       </div>
 
