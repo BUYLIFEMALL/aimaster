@@ -294,7 +294,7 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
   three_cards: {
     type: "three_cards",
     title: "3카드 기본",
-    subtitle: "기본 타로 시스템\n과거-현재-미래를 점쳐 봅니다",
+    subtitle: "과거-현재-미래를 점쳐 봅니다",
     badge: "🔮 3카드",
     cardCount: 3,
     positions: ["past", "present", "future"],
