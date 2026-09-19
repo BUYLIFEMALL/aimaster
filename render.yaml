@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: videotogif-worker
+    runtime: docker
+    plan: free
+    dockerfilePath: ./video-to-gif/worker/Dockerfile
+    dockerContext: ./video-to-gif/worker
+    healthCheckPath: /healthz
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: VIDEOTOGIF_WORKER_SECRET
+        sync: false
