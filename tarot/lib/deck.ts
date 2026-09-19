@@ -11,7 +11,8 @@ export type SpreadType =
   | "career"
   | "year_ahead"
   | "tree_of_life"
-  | "mandala";
+  | "mandala"
+  | "yes_no";
 
 export type CardStyle =
   | "watercolor"
@@ -149,7 +150,10 @@ export type SpreadPosition =
   | "family"
   | "growth"
   | "spirit"
-  | "joy";
+  | "joy"
+  | "sign_one"
+  | "sign_two"
+  | "sign_three";
 
 export const SPREAD_POSITION_LABELS: Record<string, string> = {
   advice: "오늘의 조언",
@@ -194,6 +198,9 @@ export const SPREAD_POSITION_LABELS: Record<string, string> = {
   growth: "자기계발 · 성장",
   spirit: "영성 · 내면",
   joy: "여가 · 즐거움",
+  sign_one: "첫 번째 신호",
+  sign_two: "두 번째 신호",
+  sign_three: "세 번째 신호",
 };
 
 export interface SpreadInfo {
@@ -499,6 +506,24 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
       growth: "자기계발과 성장의 흐름",
       spirit: "영성과 내면의 상태",
       joy: "여가와 즐거움, 삶의 활력소",
+    },
+  },
+  yes_no: {
+    type: "yes_no",
+    title: "예 / 아니오 타로 (3카드 판정)",
+    subtitle: "예/아니오로 답할 수 있는 질문에 세 장의 카드로 명쾌한 답을 구합니다",
+    badge: "🎯 예·아니오 3카드",
+    cardCount: 3,
+    positions: ["sign_one", "sign_two", "sign_three"],
+    positionLabels: {
+      sign_one: "첫 번째 신호",
+      sign_two: "두 번째 신호",
+      sign_three: "세 번째 신호",
+    },
+    positionDescriptions: {
+      sign_one: "질문에 대한 첫 번째 신호",
+      sign_two: "질문에 대한 두 번째 신호",
+      sign_three: "질문에 대한 세 번째 신호",
     },
   },
 };
