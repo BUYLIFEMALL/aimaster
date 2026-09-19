@@ -102,6 +102,26 @@ Supabase MCP로 `apply_migration`을 실행해 테이블을 실제로 생성했�
 기능을 완료 처리하기 전에 `list_migrations`/`information_schema.tables`로 실제 적용
 여부를 반드시 확인할 것.
 
+**🐛 [연쇄 원인, 발견 및 수정] `SUPABASE_SERVICE_ROLE_KEY` 환경변수 자체가 아예 등록되어
+있지 않았다(2026-09-19)**: 테이블을 생성한 뒤에도 `/result?rid=<실제로 존재하는 id>`가
+여전히 `/draw`로 튕겨나가는 문제가 남아있었다. `lib/supabase/server.ts`의
+`createAdminClient()`를 보면:
+```ts
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+```
+`SUPABASE_SERVICE_ROLE_KEY`가 Vercel 프로덕션 환경변수에 **아예 등록돼 있지 않아서**(직접
+`vercel env ls production`으로 확인), 이 "RLS를 우회해야 할 관리자 클라이언트"가 조용히
+익명 공개키(anon key)로 대체되고 있었다. `/result?rid=...` 접근은 로그인 세션이 없는
+방식이라 `auth.uid()`가 항상 비어있고, `tarot_readings`의 SELECT RLS 정책
+(`auth.uid() = user_id`)이 항상 막아서 **실제로 존재하는 리딩도 항상 "없음"으로 조회**되고
+있었다 — `rid` 기반 공유뿐 아니라 위 "레거시 공유 링크 복원" 로직도 처음부터 이 문제를
+안고 있었을 가능성이 높다(둘 다 같은 `createAdminClient()`를 쓴다). AIMaster 전체가
+공유하는 Supabase 프로젝트(`esgxyikcnnvmlhygjkth`)의 관리자 키라 새로 발급받지 않고
+다른 서브프로젝트(threads 등)에 이미 등록된 값을 그대로 Vercel에 추가하고(`vercel env add
+SUPABASE_SERVICE_ROLE_KEY production`) 재배포해서 해결했다. **교훈**: `createAdminClient()`
+류의 "관리자 클라이언트"를 쓰는 기능은, env var가 없을 때 다른 키로 조용히 대체(fallback)
+하는 코드가 있으면 에러 없이 실패하니 배포 시 실제 env var 등록 여부까지 확인할 것.
+
 ### AI 카드 일러스트 생성 — 본인 Gemini 키만 사용
 초기 버전은 결과 화면 진입 시 자동으로 카드 이미지를 생성했으나, 현재는
 `components/ResultInteractive.tsx`에서 **카드를 하나씩 직접 클릭해야** 그 카드의 일러스트

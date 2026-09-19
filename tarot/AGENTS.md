@@ -34,6 +34,13 @@ tarot_readings.sql` 파일로는 저장소에 있었고 README/AGENTS.md Phase �
 '...'`를 직접 실행해 실제 존재 여부를 확인할 것 — 파일이 있다는 것과 적용됐다는 것은
 별개다.
 
+같은 날 이어서 발견한 연쇄 원인: `lib/supabase/server.ts`의 `createAdminClient()`는
+`SUPABASE_SERVICE_ROLE_KEY`가 없으면 조용히 `NEXT_PUBLIC_SUPABASE_ANON_KEY`로
+대체(fallback)한다 — 이 env var가 Vercel에 등록되지 않았어도 에러 없이 그냥 RLS를
+우회하지 못하는 클라이언트가 된다. `createAdminClient()`를 쓰는 기능(레거시 공유 링크
+복원, `/result?rid=...` 조회 등)을 새로 만들거나 디버깅할 때는 `vercel env ls
+production`으로 이 env var가 실제로 등록돼 있는지도 함께 확인할 것.
+
 ---
 
 ## 🎯 프로젝트 목적
