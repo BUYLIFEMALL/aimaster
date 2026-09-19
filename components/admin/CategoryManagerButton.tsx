@@ -88,7 +88,8 @@ export default function CategoryManagerButton({ categories: initialCategories }:
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="shrink-0 flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-subtext hover:text-white hover:bg-white/5 transition-colors"
+        className="shrink-0 flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-black transition-all duration-200 hover:opacity-90 hover:scale-[1.02]"
+        style={{ background: "linear-gradient(135deg, #d4af37, #f5c842)" }}
       >
         <Settings size={13} /> 카테고리 관리
       </button>
