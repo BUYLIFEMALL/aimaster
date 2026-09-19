@@ -9,7 +9,8 @@ export type SpreadType =
   | "horseshoe"
   | "relationship"
   | "career"
-  | "year_ahead";
+  | "year_ahead"
+  | "tree_of_life";
 
 export type CardStyle =
   | "watercolor"
@@ -128,7 +129,17 @@ export type SpreadPosition =
   | "sep"
   | "oct"
   | "nov"
-  | "dec";
+  | "dec"
+  | "keter"
+  | "chokmah"
+  | "binah"
+  | "chesed"
+  | "gevurah"
+  | "tiferet"
+  | "netzach"
+  | "hod"
+  | "yesod"
+  | "malkuth";
 
 export const SPREAD_POSITION_LABELS: Record<string, string> = {
   advice: "오늘의 조언",
@@ -154,6 +165,16 @@ export const SPREAD_POSITION_LABELS: Record<string, string> = {
   connection: "두 사람의 연결고리",
   strength: "관계의 강점",
   opportunity: "다가오는 기회",
+  keter: "영적 목표 · 근본 동기",
+  chokmah: "영감 · 창조적 시작",
+  binah: "이해 · 내면의 통찰",
+  chesed: "자비 · 확장과 성장",
+  gevurah: "절제 · 한계와 규율",
+  tiferet: "균형 · 나의 중심",
+  netzach: "감정 · 열정과 욕망",
+  hod: "지성 · 소통과 표현",
+  yesod: "잠재의식 · 무의식의 기반",
+  malkuth: "현실 · 최종 결과",
 };
 
 export interface SpreadInfo {
@@ -387,6 +408,49 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
     positionDescriptions: Object.fromEntries(
       YEAR_AHEAD_MONTH_KEYS.map((key, i) => [key, `${YEAR_AHEAD_MONTH_NAMES[i]}에 다가올 전반적인 흐름과 기운`]),
     ),
+  },
+  tree_of_life: {
+    type: "tree_of_life",
+    title: "생명의 나무 (카발라 10카드)",
+    subtitle: "카발라 세피로트에 기반한 정통 신비주의 스프레드로 영적 목표부터 현실까지 살펴봅니다",
+    badge: "🌳 생명의 나무 10카드",
+    cardCount: 10,
+    positions: [
+      "keter",
+      "chokmah",
+      "binah",
+      "chesed",
+      "gevurah",
+      "tiferet",
+      "netzach",
+      "hod",
+      "yesod",
+      "malkuth",
+    ],
+    positionLabels: {
+      keter: "영적 목표 · 근본 동기 (Keter)",
+      chokmah: "영감 · 창조적 시작 (Chokmah)",
+      binah: "이해 · 내면의 통찰 (Binah)",
+      chesed: "자비 · 확장과 성장 (Chesed)",
+      gevurah: "절제 · 한계와 규율 (Gevurah)",
+      tiferet: "균형 · 나의 중심 (Tiferet)",
+      netzach: "감정 · 열정과 욕망 (Netzach)",
+      hod: "지성 · 소통과 표현 (Hod)",
+      yesod: "잠재의식 · 무의식의 기반 (Yesod)",
+      malkuth: "현실 · 최종 결과 (Malkuth)",
+    },
+    positionDescriptions: {
+      keter: "이 상황의 가장 근본적인 동기와 영적인 목표",
+      chokmah: "새로운 영감과 창조적 시작의 씨앗",
+      binah: "직관을 통해 얻는 깊은 이해와 통찰",
+      chesed: "자비롭게 확장되고 성장하는 흐름",
+      gevurah: "스스로에게 필요한 절제와 한계, 규율",
+      tiferet: "모든 것이 조화를 이루는 나의 중심",
+      netzach: "마음속에 흐르는 감정과 열정, 욕망",
+      hod: "생각을 정리하고 표현하는 지성의 힘",
+      yesod: "겉으로 드러나지 않은 무의식의 기반",
+      malkuth: "모든 것이 종합되어 나타나는 현실의 결과",
+    },
   },
 };
 
