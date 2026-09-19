@@ -8,7 +8,8 @@ export type SpreadType =
   | "celtic_cross"
   | "horseshoe"
   | "relationship"
-  | "career";
+  | "career"
+  | "year_ahead";
 
 export type CardStyle =
   | "watercolor"
@@ -115,7 +116,19 @@ export type SpreadPosition =
   | "hidden_influences"
   | "connection"
   | "strength"
-  | "opportunity";
+  | "opportunity"
+  | "jan"
+  | "feb"
+  | "mar"
+  | "apr"
+  | "may"
+  | "jun"
+  | "jul"
+  | "aug"
+  | "sep"
+  | "oct"
+  | "nov"
+  | "dec";
 
 export const SPREAD_POSITION_LABELS: Record<string, string> = {
   advice: "오늘의 조언",
@@ -153,6 +166,15 @@ export interface SpreadInfo {
   positionLabels: Record<string, string>;
   positionDescriptions: Record<string, string>;
 }
+
+// 한 해 운세(12개월) 스프레드의 자리 구성 — 1~12월 각각 하나의 카드 자리다. 매달
+// 반복되는 라벨/설명이라 손으로 12줄씩 나열하는 대신 여기서 한 번에 만들어 쓴다.
+const YEAR_AHEAD_MONTH_KEYS: SpreadPosition[] = [
+  "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec",
+];
+const YEAR_AHEAD_MONTH_NAMES = [
+  "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월",
+];
 
 export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
   one_card: {
@@ -351,6 +373,20 @@ export const SPREAD_CONFIGS: Record<SpreadType, SpreadInfo> = {
       advice: "지금 취하면 좋을 현실적인 다음 행동",
       result: "이 흐름대로라면 다다르게 될 예상 결과",
     },
+  },
+  year_ahead: {
+    type: "year_ahead",
+    title: "한 해 운세 (12개월 리딩)",
+    subtitle: "1월부터 12월까지, 한 달에 카드 한 장씩 올해 전체의 흐름을 짚어봅니다",
+    badge: "🗓️ 한 해 운세 12카드",
+    cardCount: 12,
+    positions: YEAR_AHEAD_MONTH_KEYS,
+    positionLabels: Object.fromEntries(
+      YEAR_AHEAD_MONTH_KEYS.map((key, i) => [key, YEAR_AHEAD_MONTH_NAMES[i]]),
+    ),
+    positionDescriptions: Object.fromEntries(
+      YEAR_AHEAD_MONTH_KEYS.map((key, i) => [key, `${YEAR_AHEAD_MONTH_NAMES[i]}에 다가올 전반적인 흐름과 기운`]),
+    ),
   },
 };
 
