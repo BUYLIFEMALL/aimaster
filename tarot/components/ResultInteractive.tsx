@@ -221,35 +221,23 @@ export function ResultInteractive({
 
   // 공유 링크: tarot_readings에 저장된 리딩 id가 있으면 그 id 하나만 담은 짧은 링크
   // (/result?rid=...)를 쓴다 — 카카오톡으로 공유했을 때 받는 사람이 완성된 이미지/AI
-  // 해석을 바로 보게 하려면 이 방법이 필수다. 예전처럼 cards/img/imgs/rd를 전부
-  // 쿼리스트링에 욱여넣는 방식은 (1) 아직 저장 전이라 rid가 없을 때만 대비용으로 남겨둔다.
+  // 해석을 바로 보게 하려면 이 방법이 필수다.
+  //
+  // 저장이 아직 끝나지 않아 readingId가 없을 때는 img/imgs/rd(AI 해석 전체 텍스트 +
+  // 모든 카드 이미지 URL의 JSON)를 쿼리스트링에 통째로 욱여넣는 예전 방식으로 폴백하지
+  // 않는다 — 그 방식으로 만들어진 URL을 카카오 공유 버튼이 그대로 전송했더니 URL이 너무
+  // 길어져 카카오 쪽에서 에러가 났다(2026-09-19 발견). 이 경우엔 그냥 짧은 shareUrlBase
+  // (카드 구성만 담긴 기본 링크)로 대체한다 — 받는 사람이 빈 카드부터 보게 되는 대신
+  // 최소한 공유 자체는 실패하지 않는다.
   const shareUrl = useMemo(() => {
-    if (readingId) {
-      try {
-        const origin = new URL(shareUrlBase).origin;
-        return `${origin}/result?rid=${readingId}`;
-      } catch {
-        // shareUrlBase가 이미 rid 기반(?rid=...)으로 넘어온 경우 등 — 그대로 사용
-      }
-    }
+    if (!readingId) return shareUrlBase;
     try {
-      const url = new URL(shareUrlBase);
-      if (mainImageUrl) {
-        url.searchParams.set("img", mainImageUrl);
-      }
-      if (Object.keys(images).length > 0) {
-        url.searchParams.set("imgs", JSON.stringify(images));
-      }
-      if (reading) {
-        url.searchParams.set("rd", reading);
-      }
-      return url.toString();
+      const origin = new URL(shareUrlBase).origin;
+      return `${origin}/result?rid=${readingId}`;
     } catch {
-      return mainImageUrl
-        ? `${shareUrlBase}&img=${encodeURIComponent(mainImageUrl)}`
-        : shareUrlBase;
+      return shareUrlBase;
     }
-  }, [readingId, shareUrlBase, mainImageUrl, images, reading]);
+  }, [readingId, shareUrlBase]);
 
   // 카드 수에 따른 Responsive Grid 스타일
   const gridColsClass =
