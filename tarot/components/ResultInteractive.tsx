@@ -32,6 +32,7 @@ export function ResultInteractive({
   initialImageUrl,
   initialImages,
   initialReading,
+  initialReadingId,
   shareUrlBase,
   fallbackOgImageUrl,
 }: {
@@ -46,6 +47,8 @@ export function ResultInteractive({
   initialImageUrl: string | null;
   initialImages?: Record<string, string>;
   initialReading?: string | null;
+  /** 이미 tarot_readings에 저장된 리딩을 /result?rid=...로 불러온 경우의 그 행 id. */
+  initialReadingId?: string | null;
   shareUrlBase: string;
   fallbackOgImageUrl: string;
 }) {
@@ -147,7 +150,10 @@ export function ResultInteractive({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allCardsRevealed, hasOpenaiKey, reading, readingLoading]);
 
-  const savedReadingId = useRef<string | null>(null);
+  // "use state"(ref 아님)인 이유: 값이 바뀌면 아래 shareUrl이 즉시 rid 기반 짧은 링크로
+  // 다시 계산돼야 하기 때문 — ref였다면 리렌더를 못 일으켜 공유 URL이 계속 예전 카드
+  // 파라미터 형태로 남아 있었을 것이다(2026-09-19 발견).
+  const [readingId, setReadingId] = useState<string | null>(initialReadingId ?? null);
 
   // 리딩 결과 및 카드 이미지가 일부 준비되었을 때 Supabase 내 보관함 DB에 자동 저장 및 업데이트
   useEffect(() => {
@@ -171,7 +177,7 @@ export function ResultInteractive({
           };
         });
 
-        if (savedReadingId.current) {
+        if (readingId) {
           // 이미 저장된 레코드가 있으면 ai_reading 및 card_images 업데이트
           await supabase
             .from("tarot_readings")
@@ -179,7 +185,7 @@ export function ResultInteractive({
               ai_reading: reading || null,
               card_images: images,
             })
-            .eq("id", savedReadingId.current);
+            .eq("id", readingId);
         } else {
           // 신규 레코드 생성
           const { data, error } = await supabase
@@ -196,7 +202,7 @@ export function ResultInteractive({
             .single();
 
           if (!error && data) {
-            savedReadingId.current = data.id;
+            setReadingId(data.id);
             setSavedToDb(true);
           }
         }
@@ -208,12 +214,24 @@ export function ResultInteractive({
     if (reading || Object.keys(images).length > 0) {
       saveReadingHistory();
     }
-  }, [reading, images, cards, spreadType, question, spreadConfig]);
+  }, [reading, images, cards, spreadType, question, spreadConfig, readingId]);
 
   const mainImageUrl = images[mainCard.cardId] ?? null;
   const shareImageUrl = mainImageUrl ?? fallbackOgImageUrl;
 
+  // 공유 링크: tarot_readings에 저장된 리딩 id가 있으면 그 id 하나만 담은 짧은 링크
+  // (/result?rid=...)를 쓴다 — 카카오톡으로 공유했을 때 받는 사람이 완성된 이미지/AI
+  // 해석을 바로 보게 하려면 이 방법이 필수다. 예전처럼 cards/img/imgs/rd를 전부
+  // 쿼리스트링에 욱여넣는 방식은 (1) 아직 저장 전이라 rid가 없을 때만 대비용으로 남겨둔다.
   const shareUrl = useMemo(() => {
+    if (readingId) {
+      try {
+        const origin = new URL(shareUrlBase).origin;
+        return `${origin}/result?rid=${readingId}`;
+      } catch {
+        // shareUrlBase가 이미 rid 기반(?rid=...)으로 넘어온 경우 등 — 그대로 사용
+      }
+    }
     try {
       const url = new URL(shareUrlBase);
       if (mainImageUrl) {
@@ -231,7 +249,7 @@ export function ResultInteractive({
         ? `${shareUrlBase}&img=${encodeURIComponent(mainImageUrl)}`
         : shareUrlBase;
     }
-  }, [shareUrlBase, mainImageUrl, images, reading]);
+  }, [readingId, shareUrlBase, mainImageUrl, images, reading]);
 
   // 카드 수에 따른 Responsive Grid 스타일
   const gridColsClass =

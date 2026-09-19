@@ -159,6 +159,30 @@ mbti-character의 `components/ShareButtons.tsx`를 그대로 재사용했다(실
    제거하고 브라우저가 이미 올바르게 인코딩해주는 `window.location.href`를 그대로 쓰도록
    되돌렸다 — 이 정규화를 다시 추가하지 말 것.
 
+**완성된 리딩을 id로 직접 공유(`/result?rid=<uuid>`, 2026-09-19 도입)**: 위 두 버그를 고친
+뒤에도 근본적인 설계 문제가 남아있었다 — `window.location.href`는 `/draw`에서 처음 이동해온
+`cards=...` 쿼리스트링 그대로이고, 카드 이미지·AI 해석을 생성해도 브라우저 주소창은 바뀌지
+않는다. 그래서 카카오톡으로 공유해도 받는 사람은 완성된 결과가 아니라 **빈 카드부터 다시
+시작**해야 했다(사용자 지적, 2026-09-19: "타로카드 완성되면 이미지와 내용을 저장해두고
+결과물 페이지를 가져와서 뿌려지는 형태로 해야 하지 않나"). 이미 `tarot_readings`에 카드
+이미지·AI 해석이 생기는 대로 자동 저장되고 있었으므로(위 "리딩 이력 저장" 참고), 그 저장된
+행의 `id`(`gen_random_uuid()`라 추측 불가능 — kakao_auto_poster의 `/share/[token]`과 동일한
+설계 원리) 하나만 담은 짧은 링크를 공유하도록 바꿨다:
+- `ResultInteractive`가 리딩을 처음 저장하는 순간 `readingId` state를 채우고(예전엔 `useRef`
+  였는데, ref는 값이 바뀌어도 리렌더를 안 일으켜 `shareUrl`이 갱신되지 않는 문제가 있어
+  `useState`로 바꿨다), `shareUrl`(카카오 공유·링크 복사가 공통으로 쓰는 값)이 이 시점부터
+  `${origin}/result?rid=<id>`로 바뀐다. 저장 전(아직 이미지/해석이 하나도 없을 때)에는 기존
+  `cards`/`img`/`imgs`/`rd` 쿼리스트링 방식으로 폴백한다.
+- `ShareButtons.tsx`의 `handleKakaoShare()`도 더 이상 `window.location.href`를 쓰지 않고
+  이 `shareUrl`(정확히는 origin이 보정된 `currentShareUrl`)을 그대로 쓴다.
+- `app/result/page.tsx`가 `rid` 파라미터를 받으면 `createAdminClient()`로 그 리딩 한 건만
+  정확히 조회해서(카드 구성 매칭 같은 추측이 필요 없다) 카드·이미지·AI 해석·질문을 그대로
+  복원한다 — 아래 "레거시 공유 링크 복원" 로직과 달리 애초에 모호한 매칭이 없어 크로스 유저
+  노출 위험 자체가 구조적으로 없다. `generateMetadata()`도 동일하게 `rid`로 조회해 카카오
+  미리보기(og:image 카드 합성 포함)를 만든다.
+- **기존에 이미 공유된(`cards`/`img`/`imgs`/`rd` 방식) 링크는 계속 그대로 동작한다** — 이
+  경로를 없애지 않고 `rid`가 없을 때의 대체 경로로 남겨뒀다.
+
 **레거시 공유 링크 복원(2026-09-18 크로스 유저 노출 수정 완료)**: `imgs`/`rd`가 없던 옛
 형식의 공유 링크(카드+대표 이미지 1장만 있던 시절 링크)를 위해, `app/result/page.tsx`는
 `createAdminClient()`(RLS 우회)로 `tarot_readings`에서 부족한 이미지/해석을 보충해준다.
