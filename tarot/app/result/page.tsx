@@ -206,7 +206,7 @@ export default async function ResultPage({
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-black text-neutral-900 mb-1">{config.title}</h1>
-          <p className="text-xs text-neutral-400">{config.subtitle}</p>
+          <p className="text-xs text-neutral-400 whitespace-pre-line">{config.subtitle}</p>
         </div>
         <ResultInteractive
           cards={cards}
@@ -323,7 +323,7 @@ export default async function ResultPage({
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="text-center mb-6">
         <h1 className="text-2xl font-black text-neutral-900 mb-1">{config.title}</h1>
-        <p className="text-xs text-neutral-400">{config.subtitle}</p>
+        <p className="text-xs text-neutral-400 whitespace-pre-line">{config.subtitle}</p>
       </div>
       <ResultInteractive
         cards={cards}

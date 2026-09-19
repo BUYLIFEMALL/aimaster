@@ -105,7 +105,7 @@ export function DrawFlow({
                 </div>
                 <h3 className="font-bold text-sm mb-1">{config.title}</h3>
                 <p
-                  className={`text-xs leading-relaxed ${
+                  className={`text-xs leading-relaxed whitespace-pre-line ${
                     isSelected ? "text-neutral-300" : "text-neutral-500"
                   }`}
                 >
