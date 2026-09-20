@@ -163,6 +163,14 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
   이렇게 확인해서 실제로는 다 있는데도 사용자가 "없다"고 계속 보고한다면, 사용자가 보고 있는
   화면(GitHub 웹의 정확한 경로, 다른 로컬 클론, Vercel 대시보드 등)이 이 저장소·이 로컬 작업
   폴더와 다른 곳일 가능성이 높다 — 그 지점을 콕 집어 물어봐서 좁혀나간다.
+- **Electron 등 독립 실행형 데스크톱 앱 서브프로젝트를 추가하면 루트 `.vercelignore`에도
+  등록할 것.** 루트 AIMaster 앱을 `vercel deploy`할 때 Vercel CLI가 `.gitignore`를
+  존중하지 않고 로컬 작업 폴더 전체를 스캔한다 — 데스크톱 앱의 `runtime/`처럼 실행 중인
+  프로세스가 파일을 잠그고 있으면(예: 열려 있는 Playwright 브라우저 프로필) `EBUSY`로
+  루트 앱 배포 자체가 실패한다(2026-09-20, `naver-blog-auto-poster/runtime/browser-profiles`
+  에서 실제 발견). 그 서브프로젝트가 루트 앱에서 import되지 않는 게 확실하면(`grep`으로
+  `app/` 안에서 그 폴더명을 참조하는 곳이 없는지 확인) 폴더 전체를, 최소한 `runtime/`·
+  `node_modules/`는 반드시 `.vercelignore`에 추가한다.
 
 ### 멀티테넌시 원칙 (필독 — 모든 서브 자동화 프로그램에 적용)
 **모든 서브 자동화 프로그램(threads, blog, 및 앞으로 추가되는 모든 프로그램)은 개발자 전용 도구가 아니라, AIMaster에 가입하고 해당 프로그램의 이용 권한(구독/개별부여/등급)을 가진 모든 회원이 각자 자신의 계정으로 동일하게 사용할 수 있는 멀티테넌트 서비스여야 한다.** 새 프로그램을 추가하거나 기존 프로그램을 수정할 때는 아래 5가지를 항상 지킬 것.
