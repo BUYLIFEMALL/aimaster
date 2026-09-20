@@ -114,7 +114,7 @@ export default async function SettingsPage({
             <h2 className="text-sm font-bold text-neutral-900">🔑 API 키 등록 및 연동</h2>
             <p className="text-xs text-neutral-500">
               아래 &quot;연동 계정&quot;의 기본(Facebook) 방식으로 연결이 안 될 때 쓰는 대체 연결
-              방법입니다. 본인 소유의 Meta 앱 App ID/Secret을 등록한 뒤, 아래 &quot;API 키 방식으로
+              방법입니다. 본인 소유의 Meta 개발자 센터 "Instagram API 맞춤 설정" 화면에 있는 "Instagram 앱 ID" 및 "Instagram 앱 시크릿 코드"를 등록한 뒤, 아래 &quot;API 키 방식으로
               연결하기&quot;를 눌러주세요.
             </p>
           </div>

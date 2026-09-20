@@ -1,8 +1,8 @@
 import type { ApiKeyProvider } from "@/types/database.types";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
-  meta_app_id: "앱 ID (상단 메인 위치 — 인스타그램 계정 연결)",
-  meta_app_secret: "앱 시크릿 코드 (상단 메인 위치 — 인스타그램 계정 연결 + 웹훅 서명 검증)",
+  meta_app_id: "Instagram 앱 ID",
+  meta_app_secret: "Instagram 앱 시크릿 코드",
   openai: "OpenAI (DM 답장 초안 생성 — GPT 계열 모델 선택 시)",
   anthropic: "Anthropic Claude (DM 답장 초안 생성 — Claude 모델 선택 시)",
   gemini: "Google Gemini (DM 답장 초안 생성 — Gemini 모델 선택 시)",
