@@ -17,19 +17,29 @@ async function fillTitleAndBody(page, { title, body }) {
 
   await sleep(randomDelay(500, 1000));
 
-  // 주의: 제목 모듈도 내부적으로 ".se-text-paragraph" 클래스를 재사용한다(2026-09-20 실사용
-  // 테스트에서 발견 — 범위를 좁히지 않으면 본문 클릭이 실제로는 제목을 다시 클릭하게 되어
-  // 본문 첫 줄이 제목 뒤에 그대로 붙어버림). 반드시 ".se-body" 컨테이너 안으로 범위를 좁힌다.
-  const bodyLocator = editorFrame.locator(".se-body .se-text-paragraph").first();
-  await bodyLocator.waitFor({ state: "visible", timeout: 15000 });
+  // 주의: 제목 모듈도 내부적으로 ".se-text-paragraph" 클래스를 재사용하고, ".se-body"는
+  // 본문 전용이 아니라 제목까지 포함한 문서 전체 컨테이너다(2026-09-20 실사용 테스트에서
+  // 두 차례 확인됨 — 처음엔 셀렉터를 안 좁혀서, 그다음엔 ".se-body"로 좁혔는데도 여전히
+  // 제목이 걸렸음). 그래서 컨테이너로 범위를 좁히는 대신, 후보 문단들을 순서대로 확인하며
+  // "제목(.se-documentTitle) 안에 있지 않은 첫 번째 문단"을 직접 찾는다.
+  const paragraphCandidates = editorFrame.locator(".se-text-paragraph");
+  const candidateCount = await paragraphCandidates.count();
 
-  const isInsideTitle = await bodyLocator.evaluate((el) => Boolean(el.closest(".se-documentTitle")));
-  if (isInsideTitle) {
-    throw new Error(
-      "본문 영역을 찾았는데 실제로는 제목 영역 안이었습니다 — 네이버 화면 구조가 바뀐 것 같습니다. 자동 입력을 중단합니다."
-    );
+  let bodyLocator = null;
+  for (let i = 0; i < candidateCount; i += 1) {
+    const candidate = paragraphCandidates.nth(i);
+    const insideTitle = await candidate.evaluate((el) => Boolean(el.closest(".se-documentTitle")));
+    if (!insideTitle) {
+      bodyLocator = candidate;
+      break;
+    }
   }
 
+  if (!bodyLocator) {
+    throw new Error("본문 영역을 찾지 못했습니다 — 네이버 화면 구조가 바뀐 것 같습니다. 자동 입력을 중단합니다.");
+  }
+
+  await bodyLocator.waitFor({ state: "visible", timeout: 15000 });
   await clickAndType(bodyLocator, body);
 }
 
