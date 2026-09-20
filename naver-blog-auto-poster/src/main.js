@@ -100,6 +100,33 @@ ipcMain.handle("aimaster:clearToken", async () => {
   return { linked: false };
 });
 
+// AI 초안 생성 — 서버가 사용자 본인의 OpenAI 키로 대신 호출하고 결과(제목/본문)만
+// 돌려준다. 이 앱은 API 키를 절대 직접 보관/사용하지 않는다.
+ipcMain.handle("aimaster:generateDraft", async (_event, topic) => {
+  const token = getAimasterToken(getRuntimeRoot());
+  if (!token) {
+    return { ok: false, error: "먼저 위에서 AIMaster 계정 연동을 완료해주세요." };
+  }
+  if (!topic || !topic.trim()) {
+    return { ok: false, error: "주제를 입력해주세요." };
+  }
+
+  try {
+    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ topic: topic.trim() })
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return { ok: false, error: body.error || `생성 실패 (${response.status})` };
+    }
+    return { ok: true, title: body.title, body: body.body };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+});
+
 // 렌더러(UI)의 "네이버 세션 확인" 버튼 → 프로토타입 1 핵심 동작.
 ipcMain.handle("naver:checkSession", async () => {
   const sendStatus = (status) => mainWindow?.webContents.send("naver:sessionStatus", status);

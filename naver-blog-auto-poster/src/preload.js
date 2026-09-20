@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("blogAuto", {
   getAimasterStatus: () => ipcRenderer.invoke("aimaster:getStatus"),
   setAimasterToken: (token) => ipcRenderer.invoke("aimaster:setToken", token),
   clearAimasterToken: () => ipcRenderer.invoke("aimaster:clearToken"),
+  generateDraft: (topic) => ipcRenderer.invoke("aimaster:generateDraft", topic),
   checkNaverSession: () => ipcRenderer.invoke("naver:checkSession"),
   inspectEditor: () => ipcRenderer.invoke("naver:inspectEditor"),
   runDraftStep: (payload) => ipcRenderer.invoke("naver:runDraftStep", payload),

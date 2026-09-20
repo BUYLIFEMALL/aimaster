@@ -31,6 +31,25 @@ aimasterLinkButton.addEventListener("click", async () => {
   if (result.linked) aimasterTokenInput.value = "";
 });
 
+const topicInput = document.getElementById("topic-input");
+const generateButton = document.getElementById("generate-btn");
+const generateStatusBox = document.getElementById("generate-status");
+
+generateButton.addEventListener("click", async () => {
+  generateButton.disabled = true;
+  generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (몇 초 걸릴 수 있습니다)";
+  const result = await window.blogAuto.generateDraft(topicInput.value);
+  generateButton.disabled = false;
+
+  if (result.ok) {
+    document.getElementById("draft-title").value = result.title;
+    document.getElementById("draft-body").value = result.body;
+    generateStatusBox.textContent = "생성 완료. 아래 '1단계: 초안 작성' 입력창에 채워졌습니다.";
+  } else {
+    generateStatusBox.textContent = `오류: ${result.error}`;
+  }
+});
+
 const button = document.getElementById("check-btn");
 const statusBox = document.getElementById("status");
 

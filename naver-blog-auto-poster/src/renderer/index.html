@@ -17,6 +17,16 @@
     <button id="aimaster-link-btn">연동하기</button>
     <div id="aimaster-status" class="status">확인 중...</div>
 
+    <h1 class="section-title">AI로 초안 생성</h1>
+    <p class="desc">
+      주제만 입력하면 본인 OpenAI 키(buylife.xyz에 등록한 키)로 서버가 대신 제목/본문을
+      생성해서 아래 "1단계: 초안 작성" 입력창에 채워줍니다. 생성된 내용은 자유롭게
+      수정한 뒤 1단계를 실행하세요.
+    </p>
+    <input id="topic-input" type="text" placeholder="주제 (예: 가을철 캠핑 준비물 추천)" />
+    <button id="generate-btn">AI로 초안 생성</button>
+    <div id="generate-status" class="status">대기 중</div>
+
     <h1 class="section-title">네이버 로그인 세션 확인</h1>
     <p class="desc">
       아이디/비밀번호는 자동으로 입력되지 않습니다. 버튼을 누르면 브라우저 창이 열리고,
