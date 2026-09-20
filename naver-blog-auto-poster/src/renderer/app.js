@@ -99,3 +99,20 @@ tagsButton.addEventListener("click", async () => {
     tagsStatusBox.textContent = `오류: ${result.error}`;
   }
 });
+
+const categoryButton = document.getElementById("category-btn");
+const categoryStatusBox = document.getElementById("category-status");
+const categoryInput = document.getElementById("category-input");
+
+categoryButton.addEventListener("click", async () => {
+  categoryButton.disabled = true;
+  categoryStatusBox.textContent = "카테고리를 선택하는 중입니다...";
+  const result = await window.blogAuto.selectCategory({ categoryName: categoryInput.value.trim() });
+  categoryButton.disabled = false;
+
+  if (result.ok) {
+    categoryStatusBox.textContent = "카테고리 선택 완료. 브라우저 창에서 결과를 확인해주세요.";
+  } else {
+    categoryStatusBox.textContent = `오류: ${result.error}`;
+  }
+});

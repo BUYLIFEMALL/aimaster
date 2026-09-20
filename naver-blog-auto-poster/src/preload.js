@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld("blogAuto", {
   autoFillPost: (payload) => ipcRenderer.invoke("naver:autoFillPost", payload),
   insertImage: () => ipcRenderer.invoke("naver:insertImage"),
   fillTags: (payload) => ipcRenderer.invoke("naver:fillTags", payload),
+  selectCategory: (payload) => ipcRenderer.invoke("naver:selectCategory", payload),
   onNaverSessionStatus: (callback) => {
     const listener = (_event, status) => callback(status);
     ipcRenderer.on("naver:sessionStatus", listener);

@@ -4,7 +4,7 @@ const path = require("node:path");
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const { ensureNaverSession } = require("./lib/naverSession");
 const { inspectEditorStructure } = require("./lib/blogEditorInspector");
-const { fillTitleAndBody, insertImage, fillTags } = require("./lib/naverBlogAutomation");
+const { fillTitleAndBody, insertImage, fillTags, selectCategory } = require("./lib/naverBlogAutomation");
 
 let mainWindow = null;
 let naverContext = null; // 프로토타입 1: 세션 확인 중 열어둔 Playwright context (재사용).
@@ -160,6 +160,29 @@ ipcMain.handle("naver:fillTags", async (_event, { tags } = {}) => {
     const pages = naverContext.pages();
     const page = pages[pages.length - 1];
     await fillTags(page, tags);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+});
+
+// 프로토타입 3 확장 — 카테고리 선택. "발행" 버튼은 사람이 직접 눌러서 발행 설정창을
+// 열어야 한다 — 이 앱은 그 버튼을 절대 대신 누르지 않는다.
+ipcMain.handle("naver:selectCategory", async (_event, { categoryName } = {}) => {
+  if (!naverContext) {
+    return {
+      ok: false,
+      error: "먼저 '네이버 세션 확인' 버튼으로 브라우저를 연 뒤, 그 창에서 블로그 글쓰기 화면으로 이동해주세요."
+    };
+  }
+  if (!categoryName) {
+    return { ok: false, error: "카테고리 이름을 입력해주세요." };
+  }
+
+  try {
+    const pages = naverContext.pages();
+    const page = pages[pages.length - 1];
+    await selectCategory(page, categoryName);
     return { ok: true };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };

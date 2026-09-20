@@ -94,4 +94,52 @@ async function fillTags(page, tags) {
   }
 }
 
-module.exports = { fillTitleAndBody, insertImage, fillTags };
+/**
+ * 카테고리 선택. 태그와 마찬가지로 발행 설정 레이어 안의 기능이다(사람이 직접 '발행'
+ * 버튼을 눌러 이미 열려 있다고 가정). 드롭다운이 아직 닫혀 있으면 먼저 열고, 목록에서
+ * 이름이 일치하는 항목을 찾아 클릭한다. 항목 텍스트 앞에 카테고리 색상을 나타내는
+ * 기호(●◆★▶ 등)가 붙어 있으므로 완전히 일치하는 대신 부분 포함으로 찾는다.
+ */
+async function selectCategory(page, categoryName) {
+  const editorFrame = page.frameLocator('iframe[src*="PostWriteForm.naver"]');
+
+  const trigger = editorFrame.locator(".selectbox_button__IxraO").first();
+  await trigger.waitFor({ state: "visible", timeout: 15000 }).catch(() => {
+    throw new Error(
+      "카테고리 선택 버튼을 찾지 못했습니다 — 먼저 브라우저 창에서 '발행' 버튼을 눌러 발행 설정창을 열어주세요."
+    );
+  });
+
+  const listLayer = editorFrame.locator(".option_list_layer__o54Wx");
+  const isOpen = await listLayer.isVisible().catch(() => false);
+  if (!isOpen) {
+    await trigger.hover();
+    await sleep(randomDelay(300, 600));
+    await trigger.click();
+    await sleep(randomDelay(400, 800));
+    await listLayer.waitFor({ state: "visible", timeout: 5000 });
+  }
+
+  const items = editorFrame.locator(".item__dTdzo");
+  const count = await items.count();
+
+  let target = null;
+  for (let i = 0; i < count; i += 1) {
+    const text = (await items.nth(i).innerText()).trim();
+    if (text.includes(categoryName)) {
+      target = items.nth(i);
+      break;
+    }
+  }
+
+  if (!target) {
+    throw new Error(`"${categoryName}" 카테고리를 목록에서 찾지 못했습니다 — 이름이 정확한지 확인해주세요.`);
+  }
+
+  await target.hover();
+  await sleep(randomDelay(300, 600));
+  await target.click();
+  await sleep(randomDelay(300, 600));
+}
+
+module.exports = { fillTitleAndBody, insertImage, fillTags, selectCategory };
