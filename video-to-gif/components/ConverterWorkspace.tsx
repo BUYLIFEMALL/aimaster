@@ -83,7 +83,11 @@ export default function ConverterWorkspace() {
         // EventSource는 커스텀 헤더를 못 붙이므로 토큰을 쿼리스트링으로 넘긴다.
         const events = new EventSource(`/api/convert/${serverJob.jobId}/progress?token=${encodeURIComponent(accessToken)}`);
         events.onmessage = async (event) => { const update = JSON.parse(event.data) as { status: Job["status"]; progress_percent: number; progress_message?: string; file_size_bytes?: number; error_message?: string }; setJobs((current) => current.map((job) => job.id === serverJob.jobId ? { ...job, status: update.status, progress: update.progress_percent, outputSize: update.file_size_bytes, error: update.error_message } : job)); if (update.status === "done" || update.status === "error") { events.close(); if (update.status === "done") { const detail = await fetch(`/api/convert/${serverJob.jobId}`, { headers: { Authorization: `Bearer ${accessToken}` } }).then((res) => res.json()); setJobs((current) => current.map((job) => job.id === serverJob.jobId ? { ...job, downloadUrl: detail.downloadUrl } : job)); } } };
-        events.onerror = () => events.close();
+        // 서버가 4분마다 스트림을 스스로 끊는데(Vercel 함수 실행시간 한도 대비), 여기서
+        // 무조건 close()를 부르면 브라우저의 기본 자동 재연결이 막혀서 그 이후 진행률을
+        // 영영 못 받는 버그가 있었다. done/error는 이미 onmessage에서 close() 처리하니,
+        // 여기서는 아무것도 안 해서 브라우저가 알아서 재연결하게 둔다.
+        events.onerror = () => {};
       }
     } catch (error) {
       setJobs((current) => current.map((job) => uploaded.some((u) => u.localId === job.id) ? { ...job, status: "error", error: error instanceof Error ? error.message : "변환 요청 실패" } : job));
