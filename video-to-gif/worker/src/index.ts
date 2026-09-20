@@ -82,7 +82,11 @@ async function convert(job: { jobId: string; file: QueuedFile; userId: string; f
   } finally {
     await fs.rm(workDir, { recursive: true, force: true });
     // 변환 성공/실패와 무관하게 원본은 더 이상 필요 없으니 Storage에서 지워 용량을 아낀다.
+    // input_key도 함께 null 처리해서, "이 작업엔 더 이상 지울 원본이 없다"는 걸 DB만 보고
+    // 정확히 알 수 있게 한다(정리 크론이 워커 재시작 등으로 이 정리가 안 된 고아 파일만
+    // 골라내는 기준이 된다).
     await supabase!.storage.from("videotogif-uploads").remove([job.file.storagePath]).catch(() => {});
+    await updateJob(job.jobId, { input_key: null });
   }
 }
 
