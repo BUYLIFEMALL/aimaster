@@ -4,6 +4,7 @@ const path = require("node:path");
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { ensureNaverSession } = require("./lib/naverSession");
 const { inspectEditorStructure } = require("./lib/blogEditorInspector");
+const { fillTitleAndBody } = require("./lib/naverBlogAutomation");
 
 let mainWindow = null;
 let naverContext = null; // 프로토타입 1: 세션 확인 중 열어둔 Playwright context (재사용).
@@ -18,7 +19,7 @@ function getRuntimeRoot() {
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 480,
-    height: 620,
+    height: 760,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -85,6 +86,29 @@ ipcMain.handle("naver:inspectEditor", async () => {
     const page = pages[pages.length - 1];
     const outPath = await inspectEditorStructure(page, getRuntimeRoot());
     return { ok: true, outPath };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+});
+
+// 프로토타입 3 — 제목/본문 자동 입력 테스트. 발행/저장은 절대 대신 누르지 않는다 —
+// 사람이 결과를 직접 확인하고 최종 발행하는 구조를 유지한다.
+ipcMain.handle("naver:autoFillPost", async (_event, { title, body } = {}) => {
+  if (!naverContext) {
+    return {
+      ok: false,
+      error: "먼저 '네이버 세션 확인' 버튼으로 브라우저를 연 뒤, 그 창에서 블로그 글쓰기 화면으로 이동해주세요."
+    };
+  }
+  if (!title || !body) {
+    return { ok: false, error: "제목과 본문을 모두 입력해주세요." };
+  }
+
+  try {
+    const pages = naverContext.pages();
+    const page = pages[pages.length - 1];
+    await fillTitleAndBody(page, { title, body });
+    return { ok: true };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }

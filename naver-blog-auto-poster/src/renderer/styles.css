@@ -1,9 +1,13 @@
 * { box-sizing: border-box; }
+html, body {
+  height: 100%;
+}
 body {
   margin: 0;
   font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
   background: #0f172a;
   color: #e2e8f0;
+  overflow-y: auto;
 }
 main {
   padding: 28px;
@@ -32,6 +36,19 @@ button {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
 }
 .status {
   margin-top: 16px;

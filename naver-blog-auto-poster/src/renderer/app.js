@@ -40,3 +40,24 @@ inspectButton.addEventListener("click", async () => {
     inspectStatusBox.textContent = `오류: ${result.error}`;
   }
 });
+
+const fillButton = document.getElementById("fill-btn");
+const fillStatusBox = document.getElementById("fill-status");
+const fillTitleInput = document.getElementById("fill-title");
+const fillBodyInput = document.getElementById("fill-body");
+
+fillButton.addEventListener("click", async () => {
+  fillButton.disabled = true;
+  fillStatusBox.textContent = "사람처럼 천천히 입력 중입니다... (시간이 좀 걸립니다)";
+  const result = await window.blogAuto.autoFillPost({
+    title: fillTitleInput.value,
+    body: fillBodyInput.value
+  });
+  fillButton.disabled = false;
+
+  if (result.ok) {
+    fillStatusBox.textContent = "입력 완료. 브라우저 창에서 결과를 확인해주세요.";
+  } else {
+    fillStatusBox.textContent = `오류: ${result.error}`;
+  }
+});
