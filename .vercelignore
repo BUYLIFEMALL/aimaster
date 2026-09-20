@@ -1,0 +1,6 @@
+# naver-blog-auto-poster는 별도 Electron 데스크톱 앱이라 이 Next.js 배포와 무관하다.
+# runtime/에는 실행 중인 Playwright 브라우저 프로필(잠긴 파일 포함)이 들어있어서,
+# Vercel CLI가 로컬 파일을 스캔하다 EBUSY로 배포 자체가 실패하는 문제가 있었다
+# (2026-09-20 발견).
+naver-blog-auto-poster/runtime
+naver-blog-auto-poster/node_modules
