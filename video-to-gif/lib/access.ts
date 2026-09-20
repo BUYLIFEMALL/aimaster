@@ -29,7 +29,7 @@ async function evaluateAccess(supabase: QueryClient, userId: string): Promise<Ac
 export async function requireProgramAccess() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`${MAIN_SITE_URL}/login?redirect=/dashboard`);
+  if (!user) redirect(`/login?redirect=/dashboard`);
   const result = await evaluateAccess(supabase, user.id);
   if (!result.allowed) redirect(`${MAIN_SITE_URL}/programs/${PROGRAM_SLUG}?error=${result.reason}`);
   return user;
