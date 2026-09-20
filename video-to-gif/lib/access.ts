@@ -34,29 +34,3 @@ export async function requireProgramAccess() {
   if (!result.allowed) redirect(`${MAIN_SITE_URL}/programs/${PROGRAM_SLUG}?error=${result.reason}`);
   return user;
 }
-
-export async function checkProgramAccessApi(request?: Request) {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return { allowed: false as const, error: "Supabase 환경변수가 설정되지 않았습니다.", status: 503 };
-  }
-  try {
-    const supabase = await createClient();
-    let user = (await supabase.auth.getUser()).data.user;
-    // 쿠키 기반 세션 판정이 실패할 경우를 대비해, 브라우저가 직접 보낸 액세스 토큰도
-    // 함께 시도한다. 일반 fetch는 Authorization 헤더로, EventSource는 헤더를 못
-    // 붙이니 ?token= 쿼리스트링으로 보낸다.
-    if (!user && request) {
-      const authHeader = request.headers.get("authorization");
-      const bearer = authHeader?.startsWith("Bearer ")
-        ? authHeader.slice(7)
-        : new URL(request.url).searchParams.get("token");
-      if (bearer) {
-        user = (await supabase.auth.getUser(bearer)).data.user;
-      }
-    }
-    if (!user) return { allowed: false as const, error: "로그인이 필요합니다.", status: 401 };
-    const result = await evaluateAccess(supabase, user.id);
-    if (!result.allowed) return { allowed: false as const, error: result.reason === "suspended" ? "정지된 계정입니다." : "프로그램 이용 권한이 없습니다.", status: result.reason === "not_configured" ? 503 : 403 };
-    return { allowed: true as const, user, programSlug: PROGRAM_SLUG };
-  } catch { return { allowed: false as const, error: "인증 서버에 연결할 수 없습니다.", status: 503 }; }
-}
