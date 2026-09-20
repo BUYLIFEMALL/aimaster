@@ -52,8 +52,12 @@ export async function checkProgramAccessApi(request?: Request) {
         ? authHeader.slice(7)
         : new URL(request.url).searchParams.get("token");
       if (bearer) {
-        const { data } = await supabase.auth.getUser(bearer);
+        const { data, error } = await supabase.auth.getUser(bearer);
         user = data.user;
+        // TEMP DIAGNOSTIC (2026-09-20) — 401 원인 추적용, 확인되면 제거할 것.
+        console.error("[access-debug] bearer fallback", { hasBearer: true, bearerLen: bearer.length, gotUser: !!user, authError: error?.message });
+      } else {
+        console.error("[access-debug] no bearer found", { hasAuthHeader: !!authHeader, url: request.url });
       }
     }
     if (!user) return { allowed: false as const, error: "로그인이 필요합니다.", status: 401 };
