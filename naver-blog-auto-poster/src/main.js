@@ -9,7 +9,11 @@ const { getAimasterToken, setAimasterToken } = require("./lib/appConfig");
 
 // AIMaster 본체 웹사이트 주소. "웹 로그인 -> 토큰 발급 -> 여기 붙여넣기"로 계정을
 // 연동한다 — 아이디/비밀번호를 이 앱에 직접 입력하지 않는다.
-const AIMASTER_BASE_URL = "https://buylife.xyz";
+// 주의: 반드시 www까지 정확히 써야 한다 — buylife.xyz(www 없음)는 www.buylife.xyz로
+// 307 리다이렉트되는데, 이때 fetch가 리다이렉트를 자동으로 따라가면서 서로 다른
+// 하위 도메인으로 이동하는 것으로 간주해 Authorization 헤더를 떼어내 버린다
+// (2026-09-20 실사용 테스트에서 "Authorization 헤더가 없습니다" 오류로 발견).
+const AIMASTER_BASE_URL = "https://www.buylife.xyz";
 
 let mainWindow = null;
 let naverContext = null; // 프로토타입 1: 세션 확인 중 열어둔 Playwright context (재사용).

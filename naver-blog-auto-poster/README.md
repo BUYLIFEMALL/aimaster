@@ -168,9 +168,14 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
 - [x] 프로토타입 2 — 네이버 블로그 글쓰기 에디터 셀렉터 조사: `src/lib/blogEditorInspector.js`로
       실제 화면 구조를 로컬 JSON으로 캡처해서 조사 완료(2026-09-20). 아래 "프로토타입 2 조사
       결과" 참고.
-- [ ] AI 생성 파이프라인 설계: 주제 입력 → 초안 생성 → (선택) 셀프 리뷰 → 이미지 생성.
-      본인 OpenAI/Gemini API 키 등록(기존 `user_api_keys` 공용 테이블 재사용) — 이 단계에서
-      "웹 로그인 → 토큰 붙여넣기" AIMaster 연동도 같이 구현
+- [x] AIMaster 계정 연동("웹 로그인 → 토큰 붙여넣기") — 2026-09-20 구현·검증 완료.
+      아래 "AIMaster 계정 연동 아키텍처" 참고.
+- [ ] AI 생성 파이프라인: 주제 입력 → 초안 생성 → (선택) 셀프 리뷰 → 이미지 생성.
+      본인 OpenAI/Gemini API 키 등록(기존 `user_api_keys` 공용 테이블 재사용, 새로 만들지
+      않음) — 위 계정 연동 토큰으로 인증된 루트 앱 API 라우트가 서버에서
+      `resolveApiKey()`로 키를 조회해 AI를 호출하고, 데스크톱 앱에는 생성 결과만
+      돌려준다(원문 API 키는 데스크톱 앱에 절대 내려주지 않는다 — 다른 서브프로젝트와
+      동일한 "본인 키는 서버에서만 사용" 원칙, CLAUDE.md 멀티테넌시 3번 참고).
 - [x] 프로토타입 3 — 제목/본문 자동 입력: `src/lib/humanInput.js`(사람처럼 한 글자씩 타이핑)
       + `src/lib/naverBlogAutomation.js`(`fillTitleAndBody`)로 구현. 앱 UI에 제목/본문
       입력창과 "네이버에 자동 입력" 버튼을 추가함. 발행/저장 버튼은 절대 대신 누르지 않음 —
@@ -202,6 +207,39 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
 - [ ] 실제 계정으로 end-to-end 테스트 (로그인 → 생성 → 수정 → 삽입 → 수동 발행)
 - [ ] 배포 준비: 실행 파일 패키징(electron-builder) + GitHub Releases 업로드 +
       AIMaster 사이트에서 구독 회원 전용 다운로드 링크 노출(`requireProgramAccess()` 재사용)
+
+## AIMaster 계정 연동 아키텍처 (2026-09-20)
+
+데스크톱 앱에 이메일/비밀번호 로그인 폼을 만들지 않고, "루트 AIMaster 웹사이트에서
+로그인 → 토큰 발급 → 앱에 붙여넣기" 방식으로 연동한다. 구현은 전부 **루트 AIMaster
+저장소**(이 폴더 밖, `D:\Antigravity\AIMaster` 최상위) 쪽에 있다 — 이 앱만 봐서는 안
+보이니 다른 세션에서 이어받을 때 주의할 것.
+
+- **DB**: `personal_access_tokens` 테이블(루트 `supabase/migrations/0008_...`) — 범용
+  설계라 향후 다른 데스크톱 앱도 `program_slug`만 다르게 해서 재사용한다. 토큰은
+  발급 시 평문을 한 번만 보여주고 해시(sha256)만 저장한다.
+- **프로그램 등록**: `programs` 테이블에 `naver-blog-auto-poster` slug로 등록됨(루트
+  `supabase/migrations/0007_...`). 아직 개발/테스트 중이라 `is_active=false`(카탈로그
+  비공개) 상태고, 요금제(1/2/3개월)는 미리 만들어둠 — 공개 판매를 시작하려면
+  `is_active`를 `true`로 바꾸기만 하면 된다.
+- **토큰 발급 UI**: 루트 앱의 `app/(dashboard)/naver-blog-auto-poster/page.tsx` +
+  `TokenManager.tsx`. 지금은 프로그램이 비공개라 `requireProgramAccess()`가 아니라
+  로그인 여부만 확인한다 — **공개 판매를 시작하면 이 페이지도 반드시
+  `requireProgramAccess("naver-blog-auto-poster")`로 교체할 것** (CLAUDE.md 멀티테넌시
+  원칙 1번, "로그인 ≠ 이용 권한").
+- **토큰 검증 API**: 루트 앱의 `app/api/naver-blog-auto-poster/whoami/route.ts`.
+  `Authorization: Bearer <토큰>` 헤더를 받아 해시로 조회하고, 유효하면 계정 이메일/이름을
+  반환한다(`checkProgramAccessApi` 스타일 — redirect 없이 JSON으로만 응답).
+- **데스크톱 앱 쪽**: `src/lib/appConfig.js`가 토큰을 `runtime/config.json`(gitignore됨)에
+  로컬 저장하고, `src/main.js`의 `aimaster:getStatus`/`aimaster:setToken`이 저장 전에
+  바로 `/whoami`를 호출해 유효성을 확인한다.
+- **주의(2026-09-20 실사용 테스트에서 발견한 버그)**: 루트 사이트 주소를 `https://buylife.xyz`
+  (www 없음)로 쓰면 서버가 `https://www.buylife.xyz`로 307 리다이렉트하는데, Node의 fetch가
+  이 리다이렉트를 따라가면서 "다른 하위 도메인으로 이동"으로 판단해 `Authorization` 헤더를
+  자동으로 떼어내 버린다 — 그 결과 서버는 헤더가 아예 없는 것으로 보고 401을 반환했다.
+  **반드시 `www.buylife.xyz`까지 정확히 써서 리다이렉트 자체가 발생하지 않게 할 것**
+  (`src/main.js`의 `AIMASTER_BASE_URL` 참고). 앞으로 이 플랫폼의 다른 곳에서 서버 간
+  API를 호출하는 코드를 짤 때도 이 리다이렉트 함정을 기억할 것.
 
 ## 2단계 (나중, 별도 진행): 크롬 확장 버전
 1단계 완료 후 별도로 계획한다 — Easy-peasy SNS의 사이드패널 구조를 참고하되, AI 생성은
