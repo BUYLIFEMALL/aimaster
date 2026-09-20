@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyPersonalAccessToken } from "@/lib/personalAccessTokenAuth";
+import { verifyPersonalAccessTokenWithProgramAccess } from "@/lib/personalAccessTokenAuth";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateReviewedBlogDraft } from "@/lib/naverBlogAutoPoster/generate";
 import { generateBlogImage } from "@/lib/naverBlogAutoPoster/generateImage";
@@ -15,10 +15,14 @@ export const fetchCache = "force-no-store";
 const PROGRAM_SLUG = "naver-blog-auto-poster";
 
 export async function POST(request: NextRequest) {
-  const auth = await verifyPersonalAccessToken(request, PROGRAM_SLUG);
-  if (!auth) {
-    return NextResponse.json({ error: "유효하지 않거나 폐기된 토큰입니다." }, { status: 401 });
+  const result = await verifyPersonalAccessTokenWithProgramAccess(request, PROGRAM_SLUG);
+  if (!result) {
+    return NextResponse.json(
+      { error: "유효하지 않은 토큰이거나 이 프로그램 이용 권한이 없습니다." },
+      { status: 401 }
+    );
   }
+  const auth = result.token;
 
   const body = await request.json().catch(() => ({}));
   const topic = typeof body.topic === "string" ? body.topic.trim() : "";

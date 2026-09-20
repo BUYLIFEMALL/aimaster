@@ -1,20 +1,23 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { KeyRound } from "lucide-react";
+import { KeyRound, Download } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
+import GoldButton from "@/components/ui/GoldButton";
 import TokenManager from "./TokenManager";
 
-// 아직 개발/테스트 중인 프로그램이라 requireProgramAccess()가 아니라 로그인 여부만
-// 확인한다 — programs.is_active가 true(공개 판매 시작)로 바뀌면 이 페이지도
-// requireProgramAccess("naver-blog-auto-poster")로 교체할 것 (README/CLAUDE.md 참고).
+// 공개 판매 시작(programs.is_active=true)에 맞춰 로그인-only 체크를
+// checkProgramAccess()로 교체함(CLAUDE.md 멀티테넌시 원칙 1번, "로그인 ≠ 이용 권한").
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export const metadata = { title: "네이버 블로그 자동화 - 기기 연동" };
 
 const PROGRAM_SLUG = "naver-blog-auto-poster";
+const DOWNLOAD_URL =
+  "https://github.com/BUYLIFEMALL/aimaster/releases/download/naver-blog-auto-poster-v0.1.0/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe";
 
 export default async function NaverBlogAutoPosterPage() {
   const supabase = await createClient();
@@ -24,6 +27,11 @@ export default async function NaverBlogAutoPosterPage() {
   if (!user) {
     const currentPath = (await headers()).get("x-pathname") ?? "/naver-blog-auto-poster";
     redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
+  }
+
+  const access = await checkProgramAccess(supabase, user.id, PROGRAM_SLUG);
+  if (!access.allowed) {
+    redirect(`/programs/${PROGRAM_SLUG}`);
   }
 
   const { data: tokens } = await supabase
@@ -47,6 +55,22 @@ export default async function NaverBlogAutoPosterPage() {
       </div>
 
       <div className="max-w-2xl space-y-6">
+        <GlassCard>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+              <Download size={18} className="text-blue-400" />
+            </div>
+            <h2 className="text-lg font-bold text-white">데스크톱 앱 다운로드</h2>
+          </div>
+          <p className="text-xs text-subtext mb-4">
+            Windows용 실행 파일입니다. 설치 없이 바로 실행되는 포터블 프로그램이니, 다운로드
+            폴더에서 그대로 더블클릭해서 실행하세요.
+          </p>
+          <a href={DOWNLOAD_URL}>
+            <GoldButton type="button">실행 파일 다운로드 (.exe)</GoldButton>
+          </a>
+        </GlassCard>
+
         <GlassCard>
           <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
