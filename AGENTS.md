@@ -2,7 +2,7 @@
 
 이 문서는 **Claude Code뿐 아니라 Codex, Gemini(구글) 등 어떤 AI 코딩 에이전트가 이 저장소에
 새로 투입되더라도**, 지금까지 쌓인 작업 방식·규칙·주의사항·완성된 프로그램 현황을 바로 파악하고
-이어서 작업할 수 있도록 정리한 인수인계 문서다. 2026-09-19 기준 최신 상태를 반영했다.
+이어서 작업할 수 있도록 정리한 인수인계 문서다. 2026-09-20 기준 최신 상태를 반영했다.
 
 - 루트에는 이 문서와 별도로 `CLAUDE.md`(Claude Code 전용, 이 문서와 상당 부분 겹침)가 있다.
   Claude Code는 `CLAUDE.md`를 자동으로 읽으므로 그쪽이 1차 소스지만, **다른 도구는 CLAUDE.md를
@@ -194,7 +194,7 @@ vercel deploy --prod --yes --scope buylife
 
 ---
 
-## 7. 등록·운영 중인 프로그램 (`programs` 테이블, 2026-09-19 기준 25개 전부 `is_active: true`)
+## 7. 등록·운영 중인 프로그램 (`programs` 테이블, 2026-09-20 기준 26개 전부 `is_active: true`)
 
 | 카테고리 | 프로그램명 | slug | 라이브 URL |
 |---|---|---|---|
@@ -214,6 +214,7 @@ vercel deploy --prod --yes --scope buylife
 | 이커머스 | 상품소싱 자동화 | trending-product-finder | https://trending-product-finder.vercel.app |
 | 이커머스 | 상세페이지 자동화(15p) | shop-detail-page | https://shop-detail-page.vercel.app |
 | 이커머스 | 상세페이지 자동생성기 v1 | auto-detail-page | https://shop-page-seven.vercel.app |
+| 이커머스 | 상세페이지 GIF 자동화 | video-to-gif | https://video-to-gif-buylife.vercel.app/dashboard (카탈로그 app_url이 랜딩이 아니라 대시보드로 직결) |
 | 마케팅(홍보) | 웹 크롤링 자동화 | web-crawler-saas | https://web-crawler-saas.vercel.app |
 | 마케팅(홍보) | 대량 메일발송 자동화(Step Mail) | stepmail | https://stepmail-kappa.vercel.app |
 | 마케팅(홍보) | 경쟁사 키워드분석 자동화 | competitor-analysis | https://competitor-analysis-flax.vercel.app |
@@ -229,8 +230,15 @@ vercel deploy --prod --yes --scope buylife
 
 카테고리 자체(추가/수정/삭제)는 `/admin/programs` 페이지 필터 바 우측의 **"카테고리 관리"**
 버튼(골드색, `components/admin/CategoryManagerButton.tsx`) 팝업 모달에서 관리한다
-(2026-09-19에 이 위치로 확정 — 처음엔 프로그램 등록 폼 안에만 있었고, 그다음 필터 바 인라인
+(2026-09-19~20에 이 위치로 확정 — 처음엔 프로그램 등록 폼 안에만 있었고, 그다음 필터 바 인라인
 패널이었다가, 최종적으로 필터 바 우측 끝 팝업 버튼으로 자리 잡음).
+
+**`video-to-gif`는 이 표의 다른 프로그램들과 아키텍처가 다르다** — 서버(백엔드 워커)가
+아예 없고, 영상→GIF 변환을 **브라우저 안에서 `@ffmpeg/ffmpeg`(ffmpeg.wasm)로 직접** 처리한다.
+처음엔 다른 프로그램들처럼 "Vercel API → Render Docker 워커" 구조로 만들었다가, 운영 중
+반복적으로 문제가 생겨(§10 참고) 2026-09-20에 서버를 통째로 없애고 브라우저 처리로
+재구현했다. 이 프로그램을 만질 때는 반드시 `video-to-gif/README.md`/`AGENTS.md`부터 읽을 것
+— 다른 프로그램의 "서버에서 무거운 작업 처리" 패턴을 그대로 베끼면 안 된다.
 
 ---
 
@@ -272,6 +280,10 @@ vercel deploy --prod --yes --scope buylife
 16. 비슷한 기능은 다른 서브프로젝트의 레이아웃까지 재사용(백엔드 로직만 베끼지 말 것)
 17. 카카오톡 "공유하기"(`Kakao.Share.sendDefault`) — 실전에서 겪은 5가지 함정
 18. "마이그레이션 파일이 저장소에 있다" ≠ "실제 운영 DB에 적용됐다" — 배포 후 반드시 검증
+19. CPU 무거운 처리(영상/이미지/오디오 변환 등)는 전용 백엔드 워커 대신 브라우저에서
+    `ffmpeg.wasm` 같은 WASM으로 직접 처리하는 것도 고려할 것 — 서버 인프라(배포·비밀값 동기화·
+    CPU/타임아웃 제한) 문제가 통째로 사라진다. 단, 처리 속도가 사용자 기기 성능에 좌우되고
+    결과물을 서버에 남기려면 별도 업로드 스텝이 필요하다. 참고 구현: `video-to-gif/components/ConverterWorkspace.tsx`.
 
 ---
 
@@ -307,6 +319,63 @@ vercel deploy --prod --yes --scope buylife
 - **버튼 텍스트를 줄바꿈시켜 달라는 요청은 "완전히 제거"와 "강제 줄바꿈으로 2줄 고정"을
   헷갈리기 쉽다** — 사용자가 예시 문구를 줄 단위로 직접 보여줄 때까지는 최종 포맷을 단정하지
   말고, 예시가 오면 괄호/순서/공백까지 글자 그대로 맞춘다.
+
+### video-to-gif 개발/디버깅 과정에서 나온 교훈 (2026-09-20, 분량이 많아 따로 묶음)
+
+- **Vercel Authentication(Deployment Protection)이 새 프로젝트에서 기본으로 켜져 있을 수
+  있다.** `ssoProtection.deploymentType: "all_except_custom_domains"`가 기본값이면, 커스텀
+  도메인이 아닌 `*.vercel.app` 주소로 들어오는 모든 일반 사용자가 Vercel 팀 로그인 화면으로
+  튕긴다. **새 서브프로젝트를 처음 배포한 뒤 로그인 없이 curl로 200이 나오는지 반드시 확인할
+  것** — Vercel API로 이 설정을 끄는 것 자체가 "보안 약화"로 분류돼 에이전트가 직접 못 끄니
+  (아래 항목 참고), 사용자에게 Project Settings → Deployment Protection → Vercel
+  Authentication을 Off로 바꿔달라고 안내해야 한다.
+- **서로 다른 Vercel 도메인을 쓰는 서브프로젝트는 반드시 자기 자신의 `/login` 페이지가
+  있어야 한다.** Supabase 세션 쿠키는 도메인별로 완전히 분리되어 있어서, "로그인 안 됐으면
+  메인 사이트(`buylife.xyz`)의 `/login`으로 보낸다"는 방식은 로그인에 성공해도 그 세션이
+  원래 서브프로젝트 도메인으로 절대 돌아오지 않는다(로그인 루프처럼 보이거나 엉뚱한 곳에
+  남게 됨). tarot/threads는 처음부터 자체 `(auth)/login`이 있어서 문제가 없었는데,
+  video-to-gif는 이 패턴을 빼먹었다가 발견돼 뒤늦게 추가했다 — **새 서브프로젝트 스캐폴딩
+  체크리스트에 "자체 로그인 페이지 존재 여부"를 반드시 넣을 것.**
+- **Supabase Storage의 객체 경로(key)에 파일명을 그대로 쓰면 안 된다.** 대괄호 `[ ]`, 쉼표
+  `,` 같은 문자가 든 원본 파일명을 저장 경로에 그대로 붙이면 `"Invalid key"` 오류로 업로드
+  자체가 거부된다(실계정 파일명 `[Shots]지쳐도, 우리는 다시 걷는다.mp4`로 재현). **저장
+  경로는 항상 UUID + 확장자만 쓰고, 사람이 읽는 원래 파일명은 DB 컬럼 등 별도 필드로
+  전달·보관할 것.**
+- **Render Blueprint는 연결된 저장소 전체의 git push를 감지해서 자동 재배포한다** — 그
+  서브프로젝트와 무관한 다른 파일을 고쳐서 커밋해도 워커가 재시작된다. 디버깅하며 짧은
+  시간에 여러 번 커밋하면 그때마다 워커가 재시작되어, 하필 그 순간 처리 중이던 작업이
+  전부 유실될 수 있다(실제로 반복 발생). **이 저장소처럼 하나의 repo에 여러 서브프로젝트가
+  같이 있고 커밋이 잦은 구조에서는, Render Blueprint 기반 워커보다 위 19번 패턴(브라우저
+  WASM 처리)이나 최소한 "특정 경로 변경 시에만 배포"가 되는 다른 방식을 먼저 고려할 것.**
+- **Render 무료 플랜은 0.1 vCPU로 매우 느리다** — 45MB 영상 하나의 풀해상도 FFmpeg 1차
+  패스만으로도 수십 분이 걸릴 수 있다. 가벼운 테스트조차 무료 플랜에서는 신뢰하기 어렵다.
+- **Vercel Functions 기본 실행시간 한도는 300초다.** SSE처럼 오래 열어두는 스트리밍
+  라우트가 이보다 긴 루프(예: 10분)를 돌면 "Runtime Timeout Error"로 강제 종료된다. `export
+  const maxDuration`을 명시하고 내부 루프도 그보다 짧게 잡을 것. **또한 클라이언트의
+  `EventSource.onerror`에서 무조건 `close()`를 부르면 안 된다** — 브라우저의 기본 자동
+  재연결을 막아버려서, 스트림이 한 번이라도 끊기면 그 이후 진행 상황을 영영 못 받는다(정상
+  종료는 `onmessage`에서 done/error 볼 때만 `close()`).
+- **Claude in Chrome 브라우저 자동화가 항상 사용자 화면에 보이는 건 아니다.** 이 세션에서
+  Render 대시보드 값을 브라우저로 대신 입력해주려다, 그 브라우저가 사용자에게는 전혀 안
+  보이는 별도 원격 환경이라는 게 뒤늦게 드러났다(사용자: "너만 보는 페이지 인가봐"). **비밀값
+  입력처럼 사용자 확인이 필요한 대시보드 작업은, 브라우저 자동화로 대신 하겠다고 나서기 전에
+  그 브라우저가 실제로 사용자와 공유되는 세션인지 먼저 확인하거나, 처음부터 "정확한 위치 +
+  붙여넣을 값"을 안내하는 방식을 기본으로 쓸 것.**
+- **에이전트 자체의 안전장치가 일부 작업을 자동으로 막는다** — (1) Render/Vercel처럼 "비밀값
+  입력창"으로 인식되는 필드에 브라우저 자동화로 타이핑하는 것("Secret-Store Writes"),
+  (2) Vercel Authentication을 끄는 것처럼 보안을 약화시키는 API 호출("Security Weaken")은
+  차단된다. 이런 경우 우회를 시도하지 말고, 정확한 값과 화면 위치를 안내해서 **사용자가 직접
+  누르게** 할 것.
+- **Supabase 조직(BUYLIFE)이 2026-09-20 기준 Free 플랜이다** — Storage 1GB/Egress 5GB 한도인데
+  전체 버킷 합계가 이미 약 1.6GB로 한도를 넘어선 상태였다(음악·타로 카드이미지·상세페이지
+  이미지 등 여러 프로그램이 이 하나의 공유 프로젝트를 같이 씀). **저장공간을 많이 쓰는 기능을
+  새로 추가하기 전에는 Supabase 대시보드 Settings → Usage로 현재 사용량을 먼저 확인할 것** —
+  이미 한도 근처/초과 상태일 수 있다. Pro 플랜은 $25/월에 100GB/250GB로 크게 늘어난다.
+- **Vercel MCP 커넥터(`mcp__claude_ai_Vercel__*`)는 이 팀의 프로젝트를 전부 못 본다** —
+  `list_projects`가 26개 넘는 프로젝트 중 3개만 반환했다. 특정 프로젝트의 런타임 로그/에러를
+  볼 때 이 MCP가 "project not found"를 반환하면, MCP 자체의 접근 범위 문제일 수 있으니 바로
+  포기하지 말고 `vercel logs <domain> --scope buylife --json` (CLI)로 전환해서 확인할 것 —
+  이번에 실제로 이 방법으로 근본 원인(Vercel 300초 타임아웃, Render 401)을 찾아냈다.
 
 ---
 
