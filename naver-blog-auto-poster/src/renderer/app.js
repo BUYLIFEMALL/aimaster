@@ -77,3 +77,25 @@ imageButton.addEventListener("click", async () => {
     imageStatusBox.textContent = `오류: ${result.error}`;
   }
 });
+
+const tagsButton = document.getElementById("tags-btn");
+const tagsStatusBox = document.getElementById("tags-status");
+const tagsInput = document.getElementById("tags-input");
+
+tagsButton.addEventListener("click", async () => {
+  const tags = tagsInput.value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+  tagsButton.disabled = true;
+  tagsStatusBox.textContent = "태그를 입력하는 중입니다...";
+  const result = await window.blogAuto.fillTags({ tags });
+  tagsButton.disabled = false;
+
+  if (result.ok) {
+    tagsStatusBox.textContent = "태그 입력 완료. 브라우저 창에서 결과를 확인해주세요.";
+  } else {
+    tagsStatusBox.textContent = `오류: ${result.error}`;
+  }
+});

@@ -1,6 +1,6 @@
 "use strict";
 
-const { sleep, randomDelay, clickAndType } = require("./humanInput");
+const { sleep, randomDelay, humanType, clickAndType } = require("./humanInput");
 
 // 프로토타입 3 — 제목/본문 자동 입력.
 //
@@ -67,4 +67,31 @@ async function insertImage(page, filePath) {
   await sleep(randomDelay(3000, 5000));
 }
 
-module.exports = { fillTitleAndBody, insertImage };
+/**
+ * 태그 입력. "발행" 버튼을 눌러서 뜨는 발행 설정 레이어 안에 있는 기능이라, 그 레이어를
+ * 여는 것은 사람이 직접 한다(잘못해서 진짜 발행 버튼까지 누르는 사고를 막기 위함) —
+ * 이 함수는 그 레이어가 이미 열려 있다고 가정하고 태그만 채운다.
+ */
+async function fillTags(page, tags) {
+  const editorFrame = page.frameLocator('iframe[src*="PostWriteForm.naver"]');
+  const tagInput = editorFrame.locator("#tag-input");
+  await tagInput.waitFor({ state: "visible", timeout: 15000 }).catch(() => {
+    throw new Error(
+      "태그 입력창을 찾지 못했습니다 — 먼저 브라우저 창에서 '발행' 버튼을 눌러 발행 설정창을 열어주세요."
+    );
+  });
+
+  for (const tag of tags) {
+    const trimmed = tag.trim();
+    if (!trimmed) continue;
+
+    await tagInput.click();
+    await sleep(randomDelay(200, 500));
+    await humanType(page, trimmed);
+    await sleep(randomDelay(200, 450));
+    await page.keyboard.press("Enter");
+    await sleep(randomDelay(400, 800));
+  }
+}
+
+module.exports = { fillTitleAndBody, insertImage, fillTags };
