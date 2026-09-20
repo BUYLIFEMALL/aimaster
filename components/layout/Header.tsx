@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, ChevronDown, User, LogOut, LayoutDashboard, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import type { Profile } from "@/types/database.types";
 
@@ -79,13 +78,10 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
-              <span className="text-black font-bold text-sm">AI</span>
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <div className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-gold to-gold-light">
+              <span className="text-black font-bold text-xl">AI Master</span>
             </div>
-            <GoldGradientText className="text-xl font-bold">
-              AI Master
-            </GoldGradientText>
           </Link>
 
           {/* Desktop Nav */}
