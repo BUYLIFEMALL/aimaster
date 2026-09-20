@@ -245,10 +245,17 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
       해야 하는 게 정상 동작임(다른 사용자 컴퓨터에 배포됐을 때와 동일한 상황). 실제로
       계정 연동 → 네이버 로그인 → AI 초안 생성(이미지 포함)까지 패키지된 exe에서 전부
       정상 동작하는 것을 확인함.
-- [ ] 배포 준비 (2/2, 배포) — GitHub Releases 업로드 + AIMaster 사이트에서 구독 회원
-      전용 다운로드 링크 노출(`requireProgramAccess()` 재사용, 프로그램 `is_active`를
-      `true`로 전환하면서 지금의 로그인-only 체크(`app/(dashboard)/naver-blog-auto-poster/
-      page.tsx`)도 `requireProgramAccess()`로 교체할 것)
+- [x] 배포 준비 (2/2, GitHub Releases 업로드) — 2026-09-21 완료. GitHub CLI(`gh`)를
+      설치·인증(계정: BUYLIFEMALL)한 뒤 `naver-blog-auto-poster-v0.1.0` 태그로 릴리스
+      생성, `AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`(70MB) 첨부.
+      https://github.com/BUYLIFEMALL/aimaster/releases/tag/naver-blog-auto-poster-v0.1.0
+- [ ] 공개 판매 전환 (아직 미착수, 별도 결정 필요) — AIMaster 사이트에서 구독 회원 전용
+      다운로드 링크 노출 화면 만들기 + 프로그램 `programs.is_active`를 `true`로 전환하면서
+      지금의 로그인-only 체크(`app/(dashboard)/naver-blog-auto-poster/page.tsx`,
+      `/api/naver-blog-auto-poster/{whoami,generate}`)를 `requireProgramAccess()`/
+      `checkProgramAccessApi()`로 교체할 것(CLAUDE.md 멀티테넌시 원칙 1번, 위 "AIMaster
+      계정 연동 아키텍처" 섹션에 이미 메모해둠). 이건 "언제 이 프로그램을 실제로 팔지"에
+      달린 사업적 결정이라 사용자와 먼저 상의할 것.
 
 ## AIMaster 계정 연동 아키텍처 (2026-09-20)
 
