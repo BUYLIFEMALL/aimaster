@@ -4,7 +4,7 @@ const path = require("node:path");
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const { ensureNaverSession } = require("./lib/naverSession");
 const { inspectEditorStructure } = require("./lib/blogEditorInspector");
-const { fillTitleAndBody, insertImage, fillTags, selectCategory } = require("./lib/naverBlogAutomation");
+const { runDraftStep, runPublishSettingsStep } = require("./lib/naverBlogAutomation");
 
 let mainWindow = null;
 let naverContext = null; // 프로토타입 1: 세션 확인 중 열어둔 Playwright context (재사용).
@@ -91,9 +91,10 @@ ipcMain.handle("naver:inspectEditor", async () => {
   }
 });
 
-// 프로토타입 3 — 제목/본문 자동 입력 테스트. 발행/저장은 절대 대신 누르지 않는다 —
-// 사람이 결과를 직접 확인하고 최종 발행하는 구조를 유지한다.
-ipcMain.handle("naver:autoFillPost", async (_event, { title, body } = {}) => {
+// 1단계 — 초안 작성(제목+본문+선택적 이미지). "발행" 버튼을 열기 전에 하는 작업이라
+// 사람의 발행 버튼 클릭이 필요 없다. 이미지를 포함하면 Playwright가 OS 파일창을
+// 가로채기 때문에, 앱이 먼저 사용자에게 직접 파일을 물어본다.
+ipcMain.handle("naver:runDraftStep", async (_event, { title, body, includeImage } = {}) => {
   if (!naverContext) {
     return {
       ok: false,
@@ -104,85 +105,46 @@ ipcMain.handle("naver:autoFillPost", async (_event, { title, body } = {}) => {
     return { ok: false, error: "제목과 본문을 모두 입력해주세요." };
   }
 
+  let imagePath = null;
+  if (includeImage) {
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      title: "블로그에 넣을 이미지 선택",
+      properties: ["openFile"],
+      filters: [{ name: "이미지", extensions: ["jpg", "jpeg", "png", "gif", "webp"] }]
+    });
+    if (canceled || filePaths.length === 0) {
+      return { ok: false, error: "이미지 선택이 취소되었습니다." };
+    }
+    imagePath = filePaths[0];
+  }
+
   try {
     const pages = naverContext.pages();
     const page = pages[pages.length - 1];
-    await fillTitleAndBody(page, { title, body });
+    await runDraftStep(page, { title, body, imagePath });
     return { ok: true };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
 });
 
-// 프로토타입 3 확장 — 이미지 업로드. Playwright가 OS 파일창을 가로채기 때문에, 어떤
-// 파일을 넣을지는 우리 앱이 먼저 사용자에게 직접 물어봐야 한다.
-ipcMain.handle("naver:insertImage", async () => {
+// 2단계 — 발행 정보 입력(태그+카테고리). 반드시 사람이 먼저 브라우저 창에서 "발행" 버튼을
+// 직접 눌러 발행 설정창을 연 뒤에 써야 한다 — 이 앱은 그 버튼을 절대 대신 누르지 않는다.
+ipcMain.handle("naver:runPublishSettingsStep", async (_event, { tags, categoryName } = {}) => {
   if (!naverContext) {
     return {
       ok: false,
       error: "먼저 '네이버 세션 확인' 버튼으로 브라우저를 연 뒤, 그 창에서 블로그 글쓰기 화면으로 이동해주세요."
     };
   }
-
-  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-    title: "블로그에 넣을 이미지 선택",
-    properties: ["openFile"],
-    filters: [{ name: "이미지", extensions: ["jpg", "jpeg", "png", "gif", "webp"] }]
-  });
-  if (canceled || filePaths.length === 0) {
-    return { ok: false, error: "이미지 선택이 취소되었습니다." };
+  if ((!Array.isArray(tags) || tags.length === 0) && !categoryName) {
+    return { ok: false, error: "태그 또는 카테고리 중 하나는 입력해주세요." };
   }
 
   try {
     const pages = naverContext.pages();
     const page = pages[pages.length - 1];
-    await insertImage(page, filePaths[0]);
-    return { ok: true, filePath: filePaths[0] };
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) };
-  }
-});
-
-// 프로토타입 3 확장 — 태그 입력. "발행" 버튼은 사람이 직접 눌러서 발행 설정창을 열어야
-// 한다 — 이 앱은 그 버튼을 절대 대신 누르지 않는다.
-ipcMain.handle("naver:fillTags", async (_event, { tags } = {}) => {
-  if (!naverContext) {
-    return {
-      ok: false,
-      error: "먼저 '네이버 세션 확인' 버튼으로 브라우저를 연 뒤, 그 창에서 블로그 글쓰기 화면으로 이동해주세요."
-    };
-  }
-  if (!Array.isArray(tags) || tags.length === 0) {
-    return { ok: false, error: "태그를 하나 이상 입력해주세요." };
-  }
-
-  try {
-    const pages = naverContext.pages();
-    const page = pages[pages.length - 1];
-    await fillTags(page, tags);
-    return { ok: true };
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) };
-  }
-});
-
-// 프로토타입 3 확장 — 카테고리 선택. "발행" 버튼은 사람이 직접 눌러서 발행 설정창을
-// 열어야 한다 — 이 앱은 그 버튼을 절대 대신 누르지 않는다.
-ipcMain.handle("naver:selectCategory", async (_event, { categoryName } = {}) => {
-  if (!naverContext) {
-    return {
-      ok: false,
-      error: "먼저 '네이버 세션 확인' 버튼으로 브라우저를 연 뒤, 그 창에서 블로그 글쓰기 화면으로 이동해주세요."
-    };
-  }
-  if (!categoryName) {
-    return { ok: false, error: "카테고리 이름을 입력해주세요." };
-  }
-
-  try {
-    const pages = naverContext.pages();
-    const page = pages[pages.length - 1];
-    await selectCategory(page, categoryName);
+    await runPublishSettingsStep(page, { tags, categoryName });
     return { ok: true };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };

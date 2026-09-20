@@ -41,78 +41,51 @@ inspectButton.addEventListener("click", async () => {
   }
 });
 
-const fillButton = document.getElementById("fill-btn");
-const fillStatusBox = document.getElementById("fill-status");
-const fillTitleInput = document.getElementById("fill-title");
-const fillBodyInput = document.getElementById("fill-body");
+const draftButton = document.getElementById("draft-btn");
+const draftStatusBox = document.getElementById("draft-status");
+const draftTitleInput = document.getElementById("draft-title");
+const draftBodyInput = document.getElementById("draft-body");
+const draftIncludeImageCheckbox = document.getElementById("draft-include-image");
 
-fillButton.addEventListener("click", async () => {
-  fillButton.disabled = true;
-  fillStatusBox.textContent = "사람처럼 천천히 입력 중입니다... (시간이 좀 걸립니다)";
-  const result = await window.blogAuto.autoFillPost({
-    title: fillTitleInput.value,
-    body: fillBodyInput.value
+draftButton.addEventListener("click", async () => {
+  draftButton.disabled = true;
+  draftStatusBox.textContent = "사람처럼 천천히 입력 중입니다... (시간이 좀 걸립니다)";
+  const result = await window.blogAuto.runDraftStep({
+    title: draftTitleInput.value,
+    body: draftBodyInput.value,
+    includeImage: draftIncludeImageCheckbox.checked
   });
-  fillButton.disabled = false;
+  draftButton.disabled = false;
 
   if (result.ok) {
-    fillStatusBox.textContent = "입력 완료. 브라우저 창에서 결과를 확인해주세요.";
+    draftStatusBox.textContent = "1단계 완료. 브라우저 창에서 결과를 확인해주세요.";
   } else {
-    fillStatusBox.textContent = `오류: ${result.error}`;
+    draftStatusBox.textContent = `오류: ${result.error}`;
   }
 });
 
-const imageButton = document.getElementById("image-btn");
-const imageStatusBox = document.getElementById("image-status");
+const publishButton = document.getElementById("publish-btn");
+const publishStatusBox = document.getElementById("publish-status");
+const publishTagsInput = document.getElementById("publish-tags");
+const publishCategoryInput = document.getElementById("publish-category");
 
-imageButton.addEventListener("click", async () => {
-  imageButton.disabled = true;
-  imageStatusBox.textContent = "이미지 선택 창을 여는 중입니다...";
-  const result = await window.blogAuto.insertImage();
-  imageButton.disabled = false;
-
-  if (result.ok) {
-    imageStatusBox.textContent = `삽입 요청 완료(${result.filePath}). 브라우저 창에서 결과를 확인해주세요.`;
-  } else {
-    imageStatusBox.textContent = `오류: ${result.error}`;
-  }
-});
-
-const tagsButton = document.getElementById("tags-btn");
-const tagsStatusBox = document.getElementById("tags-status");
-const tagsInput = document.getElementById("tags-input");
-
-tagsButton.addEventListener("click", async () => {
-  const tags = tagsInput.value
+publishButton.addEventListener("click", async () => {
+  const tags = publishTagsInput.value
     .split(",")
     .map((tag) => tag.trim())
     .filter(Boolean);
 
-  tagsButton.disabled = true;
-  tagsStatusBox.textContent = "태그를 입력하는 중입니다...";
-  const result = await window.blogAuto.fillTags({ tags });
-  tagsButton.disabled = false;
+  publishButton.disabled = true;
+  publishStatusBox.textContent = "태그/카테고리를 입력하는 중입니다...";
+  const result = await window.blogAuto.runPublishSettingsStep({
+    tags,
+    categoryName: publishCategoryInput.value.trim()
+  });
+  publishButton.disabled = false;
 
   if (result.ok) {
-    tagsStatusBox.textContent = "태그 입력 완료. 브라우저 창에서 결과를 확인해주세요.";
+    publishStatusBox.textContent = "2단계 완료. 브라우저 창에서 결과를 확인해주세요.";
   } else {
-    tagsStatusBox.textContent = `오류: ${result.error}`;
-  }
-});
-
-const categoryButton = document.getElementById("category-btn");
-const categoryStatusBox = document.getElementById("category-status");
-const categoryInput = document.getElementById("category-input");
-
-categoryButton.addEventListener("click", async () => {
-  categoryButton.disabled = true;
-  categoryStatusBox.textContent = "카테고리를 선택하는 중입니다...";
-  const result = await window.blogAuto.selectCategory({ categoryName: categoryInput.value.trim() });
-  categoryButton.disabled = false;
-
-  if (result.ok) {
-    categoryStatusBox.textContent = "카테고리 선택 완료. 브라우저 창에서 결과를 확인해주세요.";
-  } else {
-    categoryStatusBox.textContent = `오류: ${result.error}`;
+    publishStatusBox.textContent = `오류: ${result.error}`;
   }
 });

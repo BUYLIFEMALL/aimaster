@@ -142,4 +142,38 @@ async function selectCategory(page, categoryName) {
   await sleep(randomDelay(300, 600));
 }
 
-module.exports = { fillTitleAndBody, insertImage, fillTags, selectCategory };
+/**
+ * 1단계 — 초안 작성: 제목 + 본문 + (선택) 이미지. "발행" 버튼을 열기 전에 하는 작업이라
+ * 사람의 발행 버튼 클릭 없이도 전부 가능하다.
+ */
+async function runDraftStep(page, { title, body, imagePath }) {
+  await fillTitleAndBody(page, { title, body });
+  if (imagePath) {
+    await sleep(randomDelay(500, 1000));
+    await insertImage(page, imagePath);
+  }
+}
+
+/**
+ * 2단계 — 발행 정보 입력: 태그 + (선택) 카테고리. 반드시 사람이 먼저 "발행" 버튼을 직접
+ * 눌러 발행 설정창을 연 뒤에 호출해야 한다(이 함수도, 호출하는 쪽도 그 버튼을 대신
+ * 누르지 않는다).
+ */
+async function runPublishSettingsStep(page, { tags, categoryName }) {
+  if (Array.isArray(tags) && tags.length > 0) {
+    await fillTags(page, tags);
+  }
+  if (categoryName) {
+    await sleep(randomDelay(400, 800));
+    await selectCategory(page, categoryName);
+  }
+}
+
+module.exports = {
+  fillTitleAndBody,
+  insertImage,
+  fillTags,
+  selectCategory,
+  runDraftStep,
+  runPublishSettingsStep
+};
