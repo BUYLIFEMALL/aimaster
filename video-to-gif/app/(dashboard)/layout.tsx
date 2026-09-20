@@ -1,8 +1,10 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-import Link from "next/link";
+import { requireProgramAccess } from "@/lib/access";
+import { Sidebar } from "@/components/layout/Sidebar";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-canvas"><header className="border-b border-slate-200 bg-white"><div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4"><Link href="/dashboard" className="font-black">Video<span className="text-amber-500">ToGIF</span></Link><span className="text-xs text-slate-500">상세페이지 GIF 자동화</span></div></header>{children}</div>;
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const user = await requireProgramAccess();
+  return <div className="flex min-h-screen flex-col bg-canvas md:flex-row"><Sidebar userEmail={user.email ?? ""} /><main className="min-w-0 flex-1">{children}</main></div>;
 }
