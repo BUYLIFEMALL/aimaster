@@ -7,6 +7,8 @@ import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
 import GlassCard from "@/components/ui/GlassCard";
 
 export const metadata = { title: "내 구독" };
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import Badge from "@/components/ui/Badge";

@@ -1,6 +1,9 @@
 import Sidebar from "@/components/layout/Sidebar";
 import SessionProvider from "@/components/providers/SessionProvider";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default function DashboardLayout({
   children,
 }: {
