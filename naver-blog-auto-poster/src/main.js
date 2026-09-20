@@ -1,10 +1,10 @@
 "use strict";
 
 const path = require("node:path");
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const { ensureNaverSession } = require("./lib/naverSession");
 const { inspectEditorStructure } = require("./lib/blogEditorInspector");
-const { fillTitleAndBody } = require("./lib/naverBlogAutomation");
+const { fillTitleAndBody, insertImage } = require("./lib/naverBlogAutomation");
 
 let mainWindow = null;
 let naverContext = null; // 프로토타입 1: 세션 확인 중 열어둔 Playwright context (재사용).
@@ -19,7 +19,7 @@ function getRuntimeRoot() {
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 480,
-    height: 760,
+    height: 860,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -109,6 +109,35 @@ ipcMain.handle("naver:autoFillPost", async (_event, { title, body } = {}) => {
     const page = pages[pages.length - 1];
     await fillTitleAndBody(page, { title, body });
     return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+});
+
+// 프로토타입 3 확장 — 이미지 업로드. Playwright가 OS 파일창을 가로채기 때문에, 어떤
+// 파일을 넣을지는 우리 앱이 먼저 사용자에게 직접 물어봐야 한다.
+ipcMain.handle("naver:insertImage", async () => {
+  if (!naverContext) {
+    return {
+      ok: false,
+      error: "먼저 '네이버 세션 확인' 버튼으로 브라우저를 연 뒤, 그 창에서 블로그 글쓰기 화면으로 이동해주세요."
+    };
+  }
+
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    title: "블로그에 넣을 이미지 선택",
+    properties: ["openFile"],
+    filters: [{ name: "이미지", extensions: ["jpg", "jpeg", "png", "gif", "webp"] }]
+  });
+  if (canceled || filePaths.length === 0) {
+    return { ok: false, error: "이미지 선택이 취소되었습니다." };
+  }
+
+  try {
+    const pages = naverContext.pages();
+    const page = pages[pages.length - 1];
+    await insertImage(page, filePaths[0]);
+    return { ok: true, filePath: filePaths[0] };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }

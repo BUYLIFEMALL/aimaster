@@ -61,3 +61,19 @@ fillButton.addEventListener("click", async () => {
     fillStatusBox.textContent = `오류: ${result.error}`;
   }
 });
+
+const imageButton = document.getElementById("image-btn");
+const imageStatusBox = document.getElementById("image-status");
+
+imageButton.addEventListener("click", async () => {
+  imageButton.disabled = true;
+  imageStatusBox.textContent = "이미지 선택 창을 여는 중입니다...";
+  const result = await window.blogAuto.insertImage();
+  imageButton.disabled = false;
+
+  if (result.ok) {
+    imageStatusBox.textContent = `삽입 요청 완료(${result.filePath}). 브라우저 창에서 결과를 확인해주세요.`;
+  } else {
+    imageStatusBox.textContent = `오류: ${result.error}`;
+  }
+});

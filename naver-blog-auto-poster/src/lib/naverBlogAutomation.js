@@ -43,4 +43,28 @@ async function fillTitleAndBody(page, { title, body }) {
   await clickAndType(bodyLocator, body);
 }
 
-module.exports = { fillTitleAndBody };
+/**
+ * 이미지 삽입. Playwright가 OS 파일 선택창을 가로채므로(사용자에게 실제 다이얼로그가
+ * 뜨지 않음), 어떤 파일을 넣을지는 호출하는 쪽(Electron 메인 프로세스)이 먼저
+ * `dialog.showOpenDialog`로 사용자에게 직접 물어봐서 filePath로 넘겨준다.
+ */
+async function insertImage(page, filePath) {
+  const editorFrame = page.frameLocator('iframe[src*="PostWriteForm.naver"]');
+  const imageButton = editorFrame.locator(".se-image-toolbar-button").first();
+  await imageButton.waitFor({ state: "visible", timeout: 15000 });
+
+  await imageButton.hover();
+  await sleep(randomDelay(300, 700));
+
+  const [chooser] = await Promise.all([
+    page.waitForEvent("filechooser", { timeout: 15000 }),
+    imageButton.click()
+  ]);
+  await chooser.setFiles(filePath);
+
+  // 업로드/처리 시간을 기다린다. 정확한 "삽입 완료" 셀렉터는 아직 조사되지 않아서,
+  // 넉넉히 기다린 뒤 사람이 화면에서 직접 확인하는 방식으로 우선 검증한다.
+  await sleep(randomDelay(3000, 5000));
+}
+
+module.exports = { fillTitleAndBody, insertImage };
