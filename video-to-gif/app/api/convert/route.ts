@@ -16,7 +16,7 @@ interface UploadedFile {
 // 라우트는 그 저장 경로만 전달받는다 — Vercel Functions의 요청 본문 100MB 제한을
 // 우회하기 위한 구조(결과물을 워커가 Storage에 직접 업로드하는 것과 대칭).
 export async function POST(request: Request) {
-  const access = await checkProgramAccessApi();
+  const access = await checkProgramAccessApi(request);
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
   const body = await request.json().catch(() => null);

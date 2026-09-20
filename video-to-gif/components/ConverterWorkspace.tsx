@@ -38,11 +38,15 @@ export default function ConverterWorkspace() {
     setJobs((current) => current.map((job) => job.status === "ready" ? { ...job, status: "uploading" } : job));
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) {
       setJobs((current) => current.map((job) => ready.some((item) => item.id === job.id) ? { ...job, status: "error", error: "로그인이 필요합니다." } : job));
       return;
     }
+    // 쿠키 기반 로그인 판정이 갱신 타이밍 때문에 실패할 수 있어서(§lib/access.ts 참고),
+    // API 호출에는 이 액세스 토큰을 직접 실어 보낸다.
+    const accessToken = session.access_token;
 
     const uploaded: Array<{ localId: string; storagePath: string; name: string; size: number }> = [];
     for (const job of ready) {
@@ -67,7 +71,7 @@ export default function ConverterWorkspace() {
     try {
       const response = await fetch("/api/convert", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({ fps, width, files: uploaded.map(({ storagePath, name, size }) => ({ storagePath, name, size })) }),
       });
       const payload = await response.json();
@@ -76,8 +80,9 @@ export default function ConverterWorkspace() {
         const local = uploaded.find((u) => u.name === serverJob.name);
         if (!local) continue;
         setJobs((current) => current.map((job) => job.id === local.localId ? { ...job, id: serverJob.jobId, status: "processing", progress: 1 } : job));
-        const events = new EventSource(`/api/convert/${serverJob.jobId}/progress`);
-        events.onmessage = async (event) => { const update = JSON.parse(event.data) as { status: Job["status"]; progress_percent: number; progress_message?: string; file_size_bytes?: number; error_message?: string }; setJobs((current) => current.map((job) => job.id === serverJob.jobId ? { ...job, status: update.status, progress: update.progress_percent, outputSize: update.file_size_bytes, error: update.error_message } : job)); if (update.status === "done" || update.status === "error") { events.close(); if (update.status === "done") { const detail = await fetch(`/api/convert/${serverJob.jobId}`).then((res) => res.json()); setJobs((current) => current.map((job) => job.id === serverJob.jobId ? { ...job, downloadUrl: detail.downloadUrl } : job)); } } };
+        // EventSource는 커스텀 헤더를 못 붙이므로 토큰을 쿼리스트링으로 넘긴다.
+        const events = new EventSource(`/api/convert/${serverJob.jobId}/progress?token=${encodeURIComponent(accessToken)}`);
+        events.onmessage = async (event) => { const update = JSON.parse(event.data) as { status: Job["status"]; progress_percent: number; progress_message?: string; file_size_bytes?: number; error_message?: string }; setJobs((current) => current.map((job) => job.id === serverJob.jobId ? { ...job, status: update.status, progress: update.progress_percent, outputSize: update.file_size_bytes, error: update.error_message } : job)); if (update.status === "done" || update.status === "error") { events.close(); if (update.status === "done") { const detail = await fetch(`/api/convert/${serverJob.jobId}`, { headers: { Authorization: `Bearer ${accessToken}` } }).then((res) => res.json()); setJobs((current) => current.map((job) => job.id === serverJob.jobId ? { ...job, downloadUrl: detail.downloadUrl } : job)); } } };
         events.onerror = () => events.close();
       }
     } catch (error) {

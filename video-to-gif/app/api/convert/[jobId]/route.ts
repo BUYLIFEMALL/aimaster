@@ -5,8 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export async function GET(_request: Request, { params }: { params: { jobId: string } }) {
-  const access = await checkProgramAccessApi();
+export async function GET(request: Request, { params }: { params: { jobId: string } }) {
+  const access = await checkProgramAccessApi(request);
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const supabase = await createClient();
   const { data: job, error } = await supabase.from("videotogif_conversions").select("*").eq("job_id", params.jobId).eq("user_id", access.user.id).maybeSingle();
@@ -20,8 +20,8 @@ export async function GET(_request: Request, { params }: { params: { jobId: stri
   return NextResponse.json({ job, downloadUrl });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { jobId: string } }) {
-  const access = await checkProgramAccessApi();
+export async function DELETE(request: Request, { params }: { params: { jobId: string } }) {
+  const access = await checkProgramAccessApi(request);
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const supabase = await createClient();
   const { data: job } = await supabase.from("videotogif_conversions").select("output_key").eq("job_id", params.jobId).eq("user_id", access.user.id).maybeSingle();

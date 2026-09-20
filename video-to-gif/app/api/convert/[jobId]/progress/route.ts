@@ -4,8 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export async function GET(_request: Request, { params }: { params: { jobId: string } }) {
-  const access = await checkProgramAccessApi();
+// EventSource는 커스텀 헤더를 못 붙이므로, 쿠키가 아직 최신이 아닐 때를 대비한 fallback
+// 토큰은 쿼리스트링(?token=...)으로 받는다 — checkProgramAccessApi가 Authorization
+// 헤더가 없으면 이 쿼리스트링도 확인한다.
+export async function GET(request: Request, { params }: { params: { jobId: string } }) {
+  const access = await checkProgramAccessApi(request);
   if (!access.allowed) return new Response(JSON.stringify({ error: access.error }), { status: access.status, headers: { "content-type": "application/json" } });
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

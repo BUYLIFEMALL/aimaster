@@ -35,11 +35,27 @@ export async function requireProgramAccess() {
   return user;
 }
 
-export async function checkProgramAccessApi() {
+export async function checkProgramAccessApi(request?: Request) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return { allowed: false as const, error: "Supabase 환경변수가 설정되지 않았습니다.", status: 503 };
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    let user = (await supabase.auth.getUser()).data.user;
+    // 쿠키 기반 세션 동기화가 늦어서(토큰 갱신 직후 등) 쿠키만으로는 로그인 상태를 못
+    // 읽는 경우를 대비해, 브라우저가 직접 보낸 액세스 토큰도 함께 시도한다(2026-09-20
+    // 실계정 테스트에서 업로드는 성공했는데 바로 이어지는 /api/convert 호출만 401이
+    // 나는 걸 재현 — 쿠키 대신 명시적으로 넘긴 토큰은 항상 최신이라 이 문제를 우회할
+    // 수 있다). 일반 fetch는 Authorization 헤더로, EventSource는 헤더를 못 붙이니
+    // ?token= 쿼리스트링으로 보낸다.
+    if (!user && request) {
+      const authHeader = request.headers.get("authorization");
+      const bearer = authHeader?.startsWith("Bearer ")
+        ? authHeader.slice(7)
+        : new URL(request.url).searchParams.get("token");
+      if (bearer) {
+        const { data } = await supabase.auth.getUser(bearer);
+        user = data.user;
+      }
+    }
     if (!user) return { allowed: false as const, error: "로그인이 필요합니다.", status: 401 };
     const result = await evaluateAccess(supabase, user.id);
     if (!result.allowed) return { allowed: false as const, error: result.reason === "suspended" ? "정지된 계정입니다." : "프로그램 이용 권한이 없습니다.", status: result.reason === "not_configured" ? 503 : 403 };
