@@ -46,7 +46,13 @@ export default function ConverterWorkspace() {
 
     const uploaded: Array<{ localId: string; storagePath: string; name: string; size: number }> = [];
     for (const job of ready) {
-      const storagePath = `${user.id}/${crypto.randomUUID()}-${job.file!.name}`;
+      // 원본 파일명을 저장 경로에 그대로 쓰면 대괄호·쉼표 등 Supabase Storage가 거부하는
+      // 문자가 섞여 있을 때 "Invalid key" 오류가 난다. 경로는 UUID + 확장자만 쓰고,
+      // 사람이 읽는 원래 파일명은 name 필드로 별도 전달한다(DB의 original_name, 다운로드
+      // 파일명은 이미 그쪽을 쓰고 있어서 영향 없음).
+      const dotIndex = job.file!.name.lastIndexOf(".");
+      const ext = dotIndex > -1 ? job.file!.name.slice(dotIndex) : "";
+      const storagePath = `${user.id}/${crypto.randomUUID()}${ext}`;
       const { error } = await supabase.storage.from("videotogif-uploads").upload(storagePath, job.file!, { contentType: job.file!.type || undefined });
       if (error) {
         setJobs((current) => current.map((j) => j.id === job.id ? { ...j, status: "error", error: `업로드 실패: ${error.message}` } : j));
