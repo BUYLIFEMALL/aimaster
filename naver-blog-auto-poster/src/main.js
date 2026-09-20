@@ -1,6 +1,7 @@
 "use strict";
 
 const path = require("node:path");
+const fs = require("node:fs");
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const { ensureNaverSession } = require("./lib/naverSession");
 const { inspectEditorStructure } = require("./lib/blogEditorInspector");
@@ -100,9 +101,12 @@ ipcMain.handle("aimaster:clearToken", async () => {
   return { linked: false };
 });
 
-// AI 초안 생성 — 서버가 사용자 본인의 OpenAI 키로 대신 호출하고 결과(제목/본문)만
-// 돌려준다. 이 앱은 API 키를 절대 직접 보관/사용하지 않는다.
-ipcMain.handle("aimaster:generateDraft", async (_event, topic) => {
+// AI 초안 생성 — 서버가 사용자 본인의 OpenAI/Gemini 키로 대신 호출하고 결과(1차 초안 ->
+// 2차 셀프 리뷰를 거친 최종 제목/본문, 선택적으로 이미지)만 돌려준다. 이 앱은 API 키를
+// 절대 직접 보관/사용하지 않는다. 이미지는 base64로 받아서 이 컴퓨터의 runtime 폴더에
+// 파일로 저장해둔다 — Playwright의 이미지 삽입(insertImage)이 실제 파일 경로를 필요로
+// 하기 때문(브라우저의 filechooser 이벤트에 경로를 넘기는 방식이라 base64를 직접 못 씀).
+ipcMain.handle("aimaster:generateDraft", async (_event, { topic, includeImage } = {}) => {
   const token = getAimasterToken(getRuntimeRoot());
   if (!token) {
     return { ok: false, error: "먼저 위에서 AIMaster 계정 연동을 완료해주세요." };
@@ -115,13 +119,23 @@ ipcMain.handle("aimaster:generateDraft", async (_event, topic) => {
     const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ topic: topic.trim() })
+      body: JSON.stringify({ topic: topic.trim(), includeImage: Boolean(includeImage) })
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
       return { ok: false, error: body.error || `생성 실패 (${response.status})` };
     }
-    return { ok: true, title: body.title, body: body.body };
+
+    let imagePath = null;
+    if (body.image?.base64) {
+      const imagesDir = path.join(getRuntimeRoot(), "generated-images");
+      fs.mkdirSync(imagesDir, { recursive: true });
+      const ext = body.image.mimeType?.includes("png") ? "png" : "jpg";
+      imagePath = path.join(imagesDir, `ai-image-${Date.now()}.${ext}`);
+      fs.writeFileSync(imagePath, Buffer.from(body.image.base64, "base64"));
+    }
+
+    return { ok: true, title: body.title, body: body.body, imagePath, imageError: body.imageError || null };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
@@ -172,9 +186,10 @@ ipcMain.handle("naver:inspectEditor", async () => {
 });
 
 // 1단계 — 초안 작성(제목+본문+선택적 이미지). "발행" 버튼을 열기 전에 하는 작업이라
-// 사람의 발행 버튼 클릭이 필요 없다. 이미지를 포함하면 Playwright가 OS 파일창을
-// 가로채기 때문에, 앱이 먼저 사용자에게 직접 파일을 물어본다.
-ipcMain.handle("naver:runDraftStep", async (_event, { title, body, includeImage } = {}) => {
+// 사람의 발행 버튼 클릭이 필요 없다. 이미지를 포함하면서 AI가 이미 생성해둔 파일 경로
+// (aiImagePath)가 있으면 그걸 그대로 쓰고, 없을 때만 Playwright가 가로채는 OS 파일창을
+// 앱이 먼저 띄워 사용자에게 직접 물어본다.
+ipcMain.handle("naver:runDraftStep", async (_event, { title, body, includeImage, aiImagePath } = {}) => {
   if (!naverContext) {
     return {
       ok: false,
@@ -185,8 +200,8 @@ ipcMain.handle("naver:runDraftStep", async (_event, { title, body, includeImage 
     return { ok: false, error: "제목과 본문을 모두 입력해주세요." };
   }
 
-  let imagePath = null;
-  if (includeImage) {
+  let imagePath = includeImage ? aiImagePath || null : null;
+  if (includeImage && !imagePath) {
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
       title: "블로그에 넣을 이미지 선택",
       properties: ["openFile"],

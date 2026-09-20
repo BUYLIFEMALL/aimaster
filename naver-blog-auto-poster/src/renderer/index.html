@@ -19,11 +19,16 @@
 
     <h1 class="section-title">AI로 초안 생성</h1>
     <p class="desc">
-      주제만 입력하면 본인 OpenAI 키(buylife.xyz에 등록한 키)로 서버가 대신 제목/본문을
-      생성해서 아래 "1단계: 초안 작성" 입력창에 채워줍니다. 생성된 내용은 자유롭게
+      주제만 입력하면 본인 OpenAI 키(buylife.xyz에 등록한 키)로 서버가 초안을 작성하고
+      한 번 더 스스로 검토(셀프 리뷰)해서 "1단계: 초안 작성" 입력창에 채워줍니다. 이미지도
+      함께 생성하려면 체크박스를 켜세요(본인 Gemini 키 필요). 생성된 내용은 자유롭게
       수정한 뒤 1단계를 실행하세요.
     </p>
     <input id="topic-input" type="text" placeholder="주제 (예: 가을철 캠핑 준비물 추천)" />
+    <label class="checkbox-label">
+      <input id="generate-include-image" type="checkbox" />
+      이미지도 함께 생성 (본인 Gemini 키 등록 필요)
+    </label>
     <button id="generate-btn">AI로 초안 생성</button>
     <div id="generate-status" class="status">대기 중</div>
 

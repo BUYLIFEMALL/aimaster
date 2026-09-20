@@ -32,19 +32,31 @@ aimasterLinkButton.addEventListener("click", async () => {
 });
 
 const topicInput = document.getElementById("topic-input");
+const generateIncludeImageCheckbox = document.getElementById("generate-include-image");
 const generateButton = document.getElementById("generate-btn");
 const generateStatusBox = document.getElementById("generate-status");
 
+let aiGeneratedImagePath = null;
+
 generateButton.addEventListener("click", async () => {
   generateButton.disabled = true;
-  generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (몇 초 걸릴 수 있습니다)";
-  const result = await window.blogAuto.generateDraft(topicInput.value);
+  generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (셀프 리뷰까지 포함되어 몇 초~수십 초 걸릴 수 있습니다)";
+  const result = await window.blogAuto.generateDraft({
+    topic: topicInput.value,
+    includeImage: generateIncludeImageCheckbox.checked
+  });
   generateButton.disabled = false;
 
   if (result.ok) {
     document.getElementById("draft-title").value = result.title;
     document.getElementById("draft-body").value = result.body;
-    generateStatusBox.textContent = "생성 완료. 아래 '1단계: 초안 작성' 입력창에 채워졌습니다.";
+    aiGeneratedImagePath = result.imagePath || null;
+    if (aiGeneratedImagePath) {
+      document.getElementById("draft-include-image").checked = true;
+    }
+    generateStatusBox.textContent = result.imageError
+      ? `생성 완료(이미지 제외: ${result.imageError})`
+      : "생성 완료. 아래 '1단계: 초안 작성' 입력창에 채워졌습니다.";
   } else {
     generateStatusBox.textContent = `오류: ${result.error}`;
   }
@@ -98,7 +110,8 @@ draftButton.addEventListener("click", async () => {
   const result = await window.blogAuto.runDraftStep({
     title: draftTitleInput.value,
     body: draftBodyInput.value,
-    includeImage: draftIncludeImageCheckbox.checked
+    includeImage: draftIncludeImageCheckbox.checked,
+    aiImagePath: aiGeneratedImagePath
   });
   draftButton.disabled = false;
 
