@@ -17,8 +17,19 @@ async function fillTitleAndBody(page, { title, body }) {
 
   await sleep(randomDelay(500, 1000));
 
-  const bodyLocator = editorFrame.locator(".se-text-paragraph").first();
+  // 주의: 제목 모듈도 내부적으로 ".se-text-paragraph" 클래스를 재사용한다(2026-09-20 실사용
+  // 테스트에서 발견 — 범위를 좁히지 않으면 본문 클릭이 실제로는 제목을 다시 클릭하게 되어
+  // 본문 첫 줄이 제목 뒤에 그대로 붙어버림). 반드시 ".se-body" 컨테이너 안으로 범위를 좁힌다.
+  const bodyLocator = editorFrame.locator(".se-body .se-text-paragraph").first();
   await bodyLocator.waitFor({ state: "visible", timeout: 15000 });
+
+  const isInsideTitle = await bodyLocator.evaluate((el) => Boolean(el.closest(".se-documentTitle")));
+  if (isInsideTitle) {
+    throw new Error(
+      "본문 영역을 찾았는데 실제로는 제목 영역 안이었습니다 — 네이버 화면 구조가 바뀐 것 같습니다. 자동 입력을 중단합니다."
+    );
+  }
+
   await clickAndType(bodyLocator, body);
 }
 
