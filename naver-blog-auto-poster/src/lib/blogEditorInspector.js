@@ -60,6 +60,13 @@ async function inspectFrame(frame) {
       const categoryCandidates = Array.from(document.querySelectorAll('[class*="category"]'))
         .slice(0, 30)
         .map(shorten);
+      // 카테고리 드롭다운을 열어도 개별 항목의 클래스명에 "category"가 없을 수 있어서,
+      // 컨테이너(.option_category__mNwDi 등 [class*="category"] 요소)의 하위 요소를
+      // 클래스명과 무관하게 전부 덤프한다.
+      const categoryDropdownChildren = Array.from(document.querySelectorAll('[class*="category"] *'))
+        .slice(0, 150)
+        .map(shorten);
+      const nativeSelectOptions = Array.from(document.querySelectorAll("select, option")).slice(0, 60).map(shorten);
       const seClassEls = Array.from(document.querySelectorAll('[class*="se-"]')).slice(0, 400).map(shorten);
       const contentEditableEls = Array.from(document.querySelectorAll('[contenteditable="true"]'))
         .slice(0, 50)
@@ -77,6 +84,8 @@ async function inspectFrame(frame) {
         paragraphCandidates,
         tagCandidates,
         categoryCandidates,
+        categoryDropdownChildren,
+        nativeSelectOptions,
         seClassEls,
         contentEditableEls,
         fileInputs,
