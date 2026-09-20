@@ -52,12 +52,14 @@ export default function ConverterWorkspace() {
   // 코어 파일(약 25~30MB)은 첫 변환 시 한 번만 CDN에서 받아오고, 이후로는 브라우저 캐시를
   // 재사용한다. Vercel/Render를 아예 거치지 않으므로 업로드 용량 제한이나 서버 비용 문제가
   // 없다.
-  async function getFFmpeg(onLog?: (msg: string) => void) {
+  async function getFFmpeg() {
     if (ffmpegRef.current) return ffmpegRef.current;
     if (!loadingRef.current) {
       loadingRef.current = (async () => {
         const ffmpeg = new FFmpeg();
-        if (onLog) ffmpeg.on("log", ({ message }) => onLog(message));
+        // 브라우저 개발자도구 콘솔에서 실제로 살아있는지(멈춘 게 아닌지) 확인할 수 있도록
+        // FFmpeg의 내부 로그를 그대로 흘려보낸다.
+        ffmpeg.on("log", ({ message }) => console.log("[ffmpeg]", message));
         await ffmpeg.load({
           coreURL: await toBlobURL(`${CORE_BASE_URL}/ffmpeg-core.js`, "text/javascript"),
           wasmURL: await toBlobURL(`${CORE_BASE_URL}/ffmpeg-core.wasm`, "application/wasm"),
@@ -80,13 +82,31 @@ export default function ConverterWorkspace() {
       const inputName = `input${ext}`;
       await ffmpeg.writeFile(inputName, await fetchFile(job.file!));
 
+      // 각 화질 단계는 전체 진행률의 10%씩을 차지한다. 그 안에서도 FFmpeg가 실제 처리
+      // 비율(0~1)을 실시간으로 알려주는 걸 받아서 막대가 계속 움직이게 한다 — 예전엔 한
+      // 단계 안에서 progress를 전혀 안 올려서, 큰 파일은 화면이 멈춘 것처럼 보였다.
+      const onProgress = ({ progress: ratio }: { progress: number }, base: number) => {
+        const clamped = Math.min(1, Math.max(0, ratio));
+        setJobs((current) => current.map((j) => j.id === job.id ? { ...j, progress: Math.min(99, base + clamped * 5) } : j));
+      };
+
       let outputBytes: Uint8Array | null = null;
       for (let index = 0; index < CANDIDATES.length; index++) {
         const candidate = CANDIDATES[index];
-        setJobs((current) => current.map((j) => j.id === job.id ? { ...j, progress: 10 + index * 10 } : j));
+        const base = 10 + index * 10;
+        setJobs((current) => current.map((j) => j.id === job.id ? { ...j, progress: base } : j));
         const scaledWidth = Math.max(1, Math.floor(width * candidate.scale));
+
+        const paletteHandler = (e: { progress: number }) => onProgress(e, base);
+        ffmpeg.on("progress", paletteHandler);
         await ffmpeg.exec(["-i", inputName, "-vf", `fps=${fps},scale=${scaledWidth}:-1:flags=lanczos,palettegen=max_colors=${candidate.colors}:stats_mode=diff`, "palette.png"]);
+        ffmpeg.off("progress", paletteHandler);
+
+        const useHandler = (e: { progress: number }) => onProgress(e, base + 5);
+        ffmpeg.on("progress", useHandler);
         await ffmpeg.exec(["-i", inputName, "-i", "palette.png", "-lavfi", `fps=${fps},scale=${scaledWidth}:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=sierra2_4a:diff_mode=rectangle`, "output.gif"]);
+        ffmpeg.off("progress", useHandler);
+
         const data = await ffmpeg.readFile("output.gif");
         const bytes = data as Uint8Array;
         if (bytes.byteLength <= MAX_OUTPUT_BYTES) { outputBytes = bytes; break; }
