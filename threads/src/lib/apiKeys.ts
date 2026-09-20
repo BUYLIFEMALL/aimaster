@@ -6,8 +6,8 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   openai: "OpenAI (GPT — 게시글 생성)",
   gemini: "Google (Gemini — 카드뉴스 이미지 생성)",
   perplexity: "Perplexity (실시간 주제 수집)",
-  meta_app_id: "Meta App ID (쓰레드 계정 연결)",
-  meta_app_secret: "Meta App Secret (쓰레드 계정 연결)",
+  meta_app_id: "Threads 앱 ID (쓰레드 계정 연결)",
+  meta_app_secret: "Threads 앱 시크릿 코드 (쓰레드 계정 연결)",
 };
 
 export async function getUserApiKey(

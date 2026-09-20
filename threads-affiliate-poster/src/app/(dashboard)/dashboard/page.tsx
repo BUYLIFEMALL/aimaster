@@ -81,7 +81,7 @@ export default async function DashboardPage() {
             <Link href="/settings" className="font-semibold text-neutral-900 underline hover:text-black">
               API키등록·플랫폼연동
             </Link>
-            에서 본인 Meta App ID/Secret 및 AI 키(OpenAI/Gemini), 제휴 플랫폼 키(쿠팡/알리익스프레스/토스 등)를 등록하고 Threads 계정을 연결합니다. (안 쓰는 플랫폼은 등록 생략 가능)
+            에서 본인 Threads 앱 ID / Threads 앱 시크릿 코드 및 AI 키(OpenAI/Gemini), 제휴 플랫폼 키(쿠팡/알리익스프레스/토스 등)를 등록하고 Threads 계정을 연결합니다. (안 쓰는 플랫폼은 등록 생략 가능)
           </li>
           <li>
             <Link href="/trends" className="font-semibold text-neutral-900 underline hover:text-black">

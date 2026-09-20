@@ -80,7 +80,7 @@ export default async function DashboardPage() {
             <Link href="/settings" className="font-semibold text-neutral-900 underline hover:text-black">
               API 키 및 계정 설정
             </Link>
-            에서 본인의 Meta App ID / App Secret 및 OpenAI API 키를 입력하고, <strong>[Threads 계정 연결]</strong> 버튼을 눌러 쓰레드 계정을 연동합니다.
+            에서 본인의 Threads 앱 ID / Threads 앱 시크릿 코드 및 OpenAI API 키를 입력하고, <strong>[Threads 계정 연결]</strong> 버튼을 눌러 쓰레드 계정을 연동합니다.
           </li>
           <li>
             <Link href="/candidates" className="font-semibold text-neutral-900 underline hover:text-black">

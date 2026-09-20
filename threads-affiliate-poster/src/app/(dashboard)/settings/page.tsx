@@ -67,7 +67,7 @@ export default async function SettingsPage({
       )}
       {error === "meta_app_missing" && (
         <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
-          설정 페이지에서 본인의 Meta App ID/Secret을 먼저 등록해주세요.
+          설정 페이지에서 본인의 Threads 앱 ID / Threads 앱 시크릿 코드를 먼저 등록해주세요.
         </div>
       )}
       {error && error !== "meta_app_missing" && (
@@ -99,7 +99,7 @@ export default async function SettingsPage({
           <p>
             Meta 앱이 아직 개발(Development) 모드이기 때문에, 그 앱의 &quot;역할&quot; 메뉴에서
             테스터(tester)로 등록된 계정만 연결이 됩니다. 본인 명의로 Meta 앱을 직접 만들고
-            아래 두 값(Meta App ID/Secret)을 등록한 뒤, 그 앱의 유효한 OAuth 리디렉션 URI에
+            아래 두 값(Threads 앱 ID / Threads 앱 시크릿 코드)을 등록한 뒤, 그 앱의 유효한 OAuth 리디렉션 URI에
             아래 콜백 주소를 추가하고, &quot;역할&quot; 메뉴에서 본인 쓰레드 계정을 테스터로
             추가해주셔야 연결할 수 있습니다.
           </p>
@@ -141,7 +141,7 @@ export default async function SettingsPage({
           ) : (
             <div>
               <p className="mb-4 text-sm text-neutral-600">
-                게시글을 자동으로 게시하려면 먼저 위의 Meta App ID/Secret을 등록한 뒤 Threads
+                게시글을 자동으로 게시하려면 먼저 위의 Threads 앱 ID / Threads 앱 시크릿 코드를 등록한 뒤 Threads
                 계정을 연결해야 합니다.
               </p>
               <form action={connectThreadsAccountAction}>

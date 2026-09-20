@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-09-20T03:10:17.761Z",
+  "lastUpdated": "2026-09-20T12:15:35.631Z",
   "activeFeatures": [
     "platform-hub",
     "programs",
@@ -177,7 +177,14 @@
     "draw",
     "generate-card-image",
     "generate-reading",
-    "result"
+    "result",
+    "video-to-gif",
+    "convert",
+    "worker",
+    "cleanup",
+    "progress",
+    "naver-blog-auto-poster",
+    "renderer"
   ],
   "primaryFeature": "platform-hub",
   "features": {
@@ -270,9 +277,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T09:15:15.802Z",
-        "lastUpdated": "2026-09-16T06:02:01.460Z"
+        "lastUpdated": "2026-09-20T04:10:53.333Z"
       },
-      "lastFile": "D:\\Antigravity\\AIMaster\\components\\layout\\BlogSidebar.tsx"
+      "lastFile": "D:\\Antigravity\\AIMaster\\components\\layout\\Header.tsx"
     },
     "user-access": {
       "phase": "do",
@@ -413,9 +420,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T09:18:36.653Z",
-        "lastUpdated": "2026-09-16T08:54:05.783Z"
+        "lastUpdated": "2026-09-20T04:03:09.643Z"
       },
-      "lastFile": "D:\\Antigravity\\AIMaster\\tarot\\app\\(auth)\\login\\page.tsx"
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\app\\login\\page.tsx"
     },
     "grades": {
       "phase": "do",
@@ -569,9 +576,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-07-22T01:44:46.824Z",
-        "lastUpdated": "2026-09-18T14:49:42.123Z"
+        "lastUpdated": "2026-09-20T04:02:33.643Z"
       },
-      "lastFile": "D:\\Antigravity\\AIMaster\\tarot\\lib\\actions\\history.ts"
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\lib\\actions\\auth.ts"
     },
     "signup": {
       "phase": "do",
@@ -582,9 +589,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-07-22T01:45:24.921Z",
-        "lastUpdated": "2026-09-16T08:54:08.510Z"
+        "lastUpdated": "2026-09-20T04:03:18.503Z"
       },
-      "lastFile": "D:\\Antigravity\\AIMaster\\tarot\\app\\(auth)\\signup\\page.tsx"
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\app\\signup\\page.tsx"
     },
     "ai": {
       "phase": "do",
@@ -790,9 +797,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-08-06T03:50:40.628Z",
-        "lastUpdated": "2026-09-14T07:57:26.801Z"
+        "lastUpdated": "2026-09-20T06:19:52.495Z"
       },
-      "lastFile": "D:\\Antigravity\\AIMaster\\mbti-character\\lib\\supabase\\server.ts"
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\lib\\supabase\\admin.ts"
     },
     "ui": {
       "phase": "do",
@@ -1674,9 +1681,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-08-22T07:57:24.127Z",
-        "lastUpdated": "2026-08-22T08:56:19.214Z"
+        "lastUpdated": "2026-09-20T06:43:18.215Z"
       },
-      "lastFile": "D:\\Claude Code\\AIMaster\\competitor-analysis\\app\\(dashboard)\\keywords\\[id]\\jobs\\[jobId]\\page.tsx"
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\app\\api\\convert\\[jobId]\\route.ts"
     },
     "competitors": {
       "phase": "do",
@@ -2470,6 +2477,97 @@
         "lastUpdated": "2026-09-19T07:26:06.586Z"
       },
       "lastFile": "D:\\Antigravity\\AIMaster\\tarot\\app\\result\\page.tsx"
+    },
+    "video-to-gif": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-20T04:02:47.669Z",
+        "lastUpdated": "2026-09-20T09:18:00.544Z"
+      },
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\components\\ConverterWorkspace.tsx"
+    },
+    "convert": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-20T06:01:06.021Z",
+        "lastUpdated": "2026-09-20T06:43:02.199Z"
+      },
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\app\\api\\convert\\route.ts"
+    },
+    "worker": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-20T06:01:42.452Z",
+        "lastUpdated": "2026-09-20T06:18:59.802Z"
+      },
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\worker\\src\\index.ts"
+    },
+    "cleanup": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-20T06:20:06.544Z",
+        "lastUpdated": "2026-09-20T06:20:06.544Z"
+      },
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\app\\api\\cron\\cleanup\\route.ts"
+    },
+    "progress": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-20T06:43:35.300Z",
+        "lastUpdated": "2026-09-20T08:23:05.327Z"
+      },
+      "lastFile": "D:\\Antigravity\\AIMaster\\video-to-gif\\app\\api\\convert\\[jobId]\\progress\\route.ts"
+    },
+    "naver-blog-auto-poster": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-20T09:39:20.472Z",
+        "lastUpdated": "2026-09-20T12:15:22.446Z"
+      },
+      "lastFile": "D:\\Antigravity\\AIMaster\\naver-blog-auto-poster\\src\\preload.js"
+    },
+    "renderer": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-09-20T09:40:06.417Z",
+        "lastUpdated": "2026-09-20T12:15:35.631Z"
+      },
+      "lastFile": "D:\\Antigravity\\AIMaster\\naver-blog-auto-poster\\src\\renderer\\app.js"
     }
   },
   "pipeline": {
@@ -2480,7 +2578,7 @@
   "session": {
     "startedAt": "2026-02-13T23:47:40.727Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-09-20T03:10:17.761Z"
+    "lastActivity": "2026-09-20T12:15:35.631Z"
   },
   "history": [
     {
@@ -32504,6 +32602,474 @@
     {
       "timestamp": "2026-09-20T03:10:17.761Z",
       "feature": "(dashboard)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T04:02:33.643Z",
+      "feature": "actions",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T04:02:47.669Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T04:03:09.643Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T04:03:18.503Z",
+      "feature": "signup",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T04:08:38.279Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T04:10:38.791Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T04:10:53.333Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T05:59:50.642Z",
+      "feature": "supabase",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:01:06.021Z",
+      "feature": "convert",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:01:42.452Z",
+      "feature": "worker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:03:15.167Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:18:59.802Z",
+      "feature": "worker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:19:52.495Z",
+      "feature": "supabase",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:20:06.544Z",
+      "feature": "cleanup",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:32:30.373Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:42:44.434Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:43:02.199Z",
+      "feature": "convert",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:43:13.130Z",
+      "feature": "[jobId]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:43:18.215Z",
+      "feature": "[jobId]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:43:35.300Z",
+      "feature": "progress",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:43:55.058Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:44:03.717Z",
+      "feature": "progress",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:44:23.513Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:44:36.790Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T06:55:49.446Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T07:15:24.847Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T07:39:22.606Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T08:22:59.850Z",
+      "feature": "progress",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T08:23:05.327Z",
+      "feature": "progress",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T08:23:38.482Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T08:30:05.256Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T08:30:39.874Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T08:32:04.857Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T08:51:30.112Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T09:17:10.161Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T09:17:33.267Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T09:18:00.544Z",
+      "feature": "video-to-gif",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T09:39:20.472Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T09:39:32.993Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T09:39:39.928Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T09:40:06.417Z",
+      "feature": "renderer",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:15:45.110Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:15:49.231Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:15:56.120Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:15:59.662Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:16:11.314Z",
+      "feature": "renderer",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:16:20.875Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:22:33.954Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:37:21.906Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:37:30.049Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:37:35.786Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:37:42.903Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:37:46.817Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:37:59.879Z",
+      "feature": "renderer",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:38:13.223Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:44:01.853Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:44:10.417Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:47:42.262Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:51:27.433Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:51:36.577Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:51:44.025Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:51:48.314Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:52:00.565Z",
+      "feature": "renderer",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T11:52:04.669Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:02:26.663Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:02:34.393Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:02:39.932Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:02:47.891Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:02:52.046Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:03:05.988Z",
+      "feature": "renderer",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:03:13.558Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:08:30.102Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:08:34.336Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:15:05.267Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:15:10.268Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:15:17.848Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:15:22.446Z",
+      "feature": "naver-blog-auto-poster",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-09-20T12:15:35.631Z",
+      "feature": "renderer",
       "phase": "do",
       "action": "updated"
     }

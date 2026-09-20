@@ -74,7 +74,7 @@ export default async function SettingsPage() {
       <section>
         <h1 className="mb-2 text-2xl font-black text-gray-900">채널 연결 / 설정</h1>
         <p className="mb-6 text-sm text-gray-500">
-          Threads 댓글자동화에는 본인의 Meta App ID/Secret과, 답글 초안을 만드는 AI 키(아래
+          Threads 댓글자동화에는 본인의 Threads 앱 ID / Threads 앱 시크릿 코드와, 답글 초안을 만드는 AI 키(아래
           "답글 생성 AI 모델"에서 고른 모델에 해당하는 provider 하나)가 필요합니다.{" "}
           <span className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</span>
         </p>
@@ -85,7 +85,7 @@ export default async function SettingsPage() {
             <div>
               <h2 className="text-sm font-bold text-gray-900">🧵 Threads 계정 연결</h2>
               <p className="text-xs text-gray-500">
-                쓰레드 게시물·댓글을 읽고 답글을 게시하기 위한 Meta App ID/Secret 등록과 OAuth
+                쓰레드 게시물·댓글을 읽고 답글을 게시하기 위한 Threads 앱 ID / Threads 앱 시크릿 코드 등록과 OAuth
                 계정 연결입니다.
               </p>
             </div>

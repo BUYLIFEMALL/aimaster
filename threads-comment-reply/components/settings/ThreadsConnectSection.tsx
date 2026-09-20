@@ -54,7 +54,7 @@ export function ThreadsConnectSection({
         <form onSubmit={handleConnect} className="space-y-3">
           <input type="hidden" name="returnTo" value={pathname} />
           <p className="text-sm text-gray-500">
-            위 Meta App ID/Secret을 먼저 등록한 뒤 연결해주세요. 연결 시 동의 화면에서 댓글 읽기/답글
+            위 Threads 앱 ID / Threads 앱 시크릿 코드를 먼저 등록한 뒤 연결해주세요. 연결 시 동의 화면에서 댓글 읽기/답글
             권한(<code className="text-xs">threads_read_replies</code>,{" "}
             <code className="text-xs">threads_manage_replies</code>)에 동의하셔야 합니다.
           </p>
