@@ -249,13 +249,16 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
       설치·인증(계정: BUYLIFEMALL)한 뒤 `naver-blog-auto-poster-v0.1.0` 태그로 릴리스
       생성, `AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`(70MB) 첨부.
       https://github.com/BUYLIFEMALL/aimaster/releases/tag/naver-blog-auto-poster-v0.1.0
-- [ ] 공개 판매 전환 (아직 미착수, 별도 결정 필요) — AIMaster 사이트에서 구독 회원 전용
-      다운로드 링크 노출 화면 만들기 + 프로그램 `programs.is_active`를 `true`로 전환하면서
-      지금의 로그인-only 체크(`app/(dashboard)/naver-blog-auto-poster/page.tsx`,
-      `/api/naver-blog-auto-poster/{whoami,generate}`)를 `requireProgramAccess()`/
-      `checkProgramAccessApi()`로 교체할 것(CLAUDE.md 멀티테넌시 원칙 1번, 위 "AIMaster
-      계정 연동 아키텍처" 섹션에 이미 메모해둠). 이건 "언제 이 프로그램을 실제로 팔지"에
-      달린 사업적 결정이라 사용자와 먼저 상의할 것.
+- [x] 공개 판매 전환 — 2026-09-21 완료. `programs.is_active=true`로 전환
+      (`supabase/migrations/0009_...`), 카탈로그 노출용 문구/썸네일 갱신
+      (`scripts/generate-program-thumbnail.mjs` 재사용, docs/PLATFORM_PATTERNS.md
+      §12/13). 로그인-only였던 체크를 실제 이용 권한 확인으로 교체함:
+      - `app/(dashboard)/naver-blog-auto-poster/page.tsx` — `checkProgramAccess()`로
+        교체, GitHub Release exe 다운로드 버튼 추가.
+      - `/api/naver-blog-auto-poster/{whoami,generate}` — 새로 만든
+        `lib/personalAccessTokenAuth.ts`의 `verifyPersonalAccessTokenWithProgramAccess()`
+        (토큰 검증 + `checkProgramAccess()`를 합친 함수)로 교체.
+      https://www.buylife.xyz/programs/naver-blog-auto-poster 에서 정상 노출 확인함.
 
 ## AIMaster 계정 연동 아키텍처 (2026-09-20)
 
@@ -268,17 +271,18 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
   설계라 향후 다른 데스크톱 앱도 `program_slug`만 다르게 해서 재사용한다. 토큰은
   발급 시 평문을 한 번만 보여주고 해시(sha256)만 저장한다.
 - **프로그램 등록**: `programs` 테이블에 `naver-blog-auto-poster` slug로 등록됨(루트
-  `supabase/migrations/0007_...`). 아직 개발/테스트 중이라 `is_active=false`(카탈로그
-  비공개) 상태고, 요금제(1/2/3개월)는 미리 만들어둠 — 공개 판매를 시작하려면
-  `is_active`를 `true`로 바꾸기만 하면 된다.
+  `supabase/migrations/0007_...`). **2026-09-21 공개 판매 전환 완료** —
+  `is_active=true`(루트 `supabase/migrations/0009_...`), 요금제(1/2/3개월)도 이미
+  등록돼 있어 카탈로그에서 바로 구독 가능.
 - **토큰 발급 UI**: 루트 앱의 `app/(dashboard)/naver-blog-auto-poster/page.tsx` +
-  `TokenManager.tsx`. 지금은 프로그램이 비공개라 `requireProgramAccess()`가 아니라
-  로그인 여부만 확인한다 — **공개 판매를 시작하면 이 페이지도 반드시
-  `requireProgramAccess("naver-blog-auto-poster")`로 교체할 것** (CLAUDE.md 멀티테넌시
-  원칙 1번, "로그인 ≠ 이용 권한").
-- **토큰 검증 API**: 루트 앱의 `app/api/naver-blog-auto-poster/whoami/route.ts`.
-  `Authorization: Bearer <토큰>` 헤더를 받아 해시로 조회하고, 유효하면 계정 이메일/이름을
-  반환한다(`checkProgramAccessApi` 스타일 — redirect 없이 JSON으로만 응답).
+  `TokenManager.tsx`. `checkProgramAccess()`로 실제 이용 권한(구독/개별부여/등급)을
+  확인하고, 미보유 시 `/programs/naver-blog-auto-poster`(구매 페이지)로 돌려보낸다.
+  GitHub Release exe로 바로 가는 다운로드 버튼도 이 페이지에 있음.
+- **토큰 검증 API**: 루트 앱의 `app/api/naver-blog-auto-poster/whoami/route.ts` +
+  `generate/route.ts`. 둘 다 `lib/personalAccessTokenAuth.ts`의
+  `verifyPersonalAccessTokenWithProgramAccess()`(토큰 해시 조회 + `checkProgramAccess()`
+  를 합친 함수)로 "토큰 유효성"과 "실제 이용 권한"을 함께 확인한다 — redirect 없이
+  JSON으로만 응답(`checkProgramAccessApi` 스타일).
 - **데스크톱 앱 쪽**: `src/lib/appConfig.js`가 토큰을 `runtime/config.json`(gitignore됨)에
   로컬 저장하고, `src/main.js`의 `aimaster:getStatus`/`aimaster:setToken`이 저장 전에
   바로 `/whoami`를 호출해 유효성을 확인한다.
