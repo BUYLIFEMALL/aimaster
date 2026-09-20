@@ -6,13 +6,13 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8">
-        <header className="flex items-center justify-between">
-          <Link href="/" className="text-lg font-black tracking-tight">Video<span className="text-amber-400">ToGIF</span></Link>
-          <nav className="flex items-center gap-3 text-sm">
+        <header className="grid grid-cols-3 items-center">
+          <nav className="flex items-center gap-3 text-sm justify-self-start">
             <a href={MAIN_SITE_URL} className="text-slate-300 hover:text-white">AIMaster 메인</a>
             <a href={`${MAIN_SITE_URL}/programs`} className="text-slate-300 hover:text-white">다른 프로그램</a>
-            <Link href="/dashboard" className="rounded-full border border-white/20 px-4 py-2 text-slate-200 hover:bg-white/10">변환 시작</Link>
           </nav>
+          <Link href="/" className="justify-self-center text-lg font-black tracking-tight">Video<span className="text-amber-400">ToGIF</span></Link>
+          <Link href="/dashboard" className="justify-self-end rounded-full border border-white/20 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">변환 시작</Link>
         </header>
         <section className="grid flex-1 items-center gap-12 py-20 lg:grid-cols-[1.1fr_.9fr]">
           <div>
