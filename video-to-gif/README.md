@@ -43,10 +43,11 @@ npm run dev
 
 별도 워커 프로세스가 필요 없습니다 — 변환은 브라우저에서 처리됩니다.
 
-## 남아있는 미사용 리소스 (정리 대상, 급하지 않음)
+## 레거시 정리 이력
 
-레거시 서버 아키텍처의 흔적으로 아래가 공유 Supabase DB에 남아있는데, 새 코드는
-전혀 참조하지 않습니다. 실제로 지울지는 별도로 확인 후 진행할 것(데이터 삭제는
-사용자 확인 필요 원칙):
-- `videotogif_conversions` 테이블
-- `videotogif-uploads`, `videotogif-results` Storage 버킷
+Render 워커 아키텍처를 걷어내면서(2026-09-20) 아래도 함께 정리했습니다:
+- `videotogif_conversions` 테이블 삭제 (`supabase/migrations/0005_drop_legacy_render_architecture.sql`)
+- `videotogif-uploads`, `videotogif-results` Storage 버킷 삭제
+- `video-to-gif/worker/`, 루트 `render.yaml`, `RENDER_DEPLOYMENT_MANUAL.md`, `vercel.json`(cron) 삭제
+- Vercel 프로덕션 환경변수 `VIDEOTOGIF_WORKER_URL`/`VIDEOTOGIF_WORKER_SECRET`/`SUPABASE_SERVICE_ROLE_KEY`/`CRON_SECRET` 삭제
+- Render의 `videotogif-worker` 서비스 자체는 사용자가 Render 대시보드에서 직접 삭제 필요(외부 서비스라 대신 삭제하지 않음)
