@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
   const topic = typeof body.topic === "string" ? body.topic.trim() : "";
   const includeImage = Boolean(body.includeImage);
+  const imageModel = typeof body.imageModel === "string" ? body.imageModel : "nanobanana-2-2k";
   if (!topic) {
     return NextResponse.json({ error: "주제를 입력해주세요." }, { status: 400 });
   }
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const image = await generateBlogImage({ apiKey: geminiKey, topic });
+    const image = await generateBlogImage({ apiKey: geminiKey, topic, model: imageModel });
     return NextResponse.json({ ...draft, image });
   } catch (error) {
     return NextResponse.json({
