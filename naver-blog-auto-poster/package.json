@@ -1,0 +1,33 @@
+{
+  "name": "naver-blog-auto-poster",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AIMaster 네이버 블로그 자동화 데스크톱 앱 (1단계 프로토타입: 네이버 로그인 세션 유지 검증)",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "xyz.buylife.naver-blog-auto-poster",
+    "productName": "AIMaster 네이버 블로그 자동화",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": ["portable"],
+      "artifactName": "AIMaster-Naver-Blog-Auto-Poster-${version}.${ext}"
+    }
+  },
+  "dependencies": {
+    "playwright-core": "^1.47.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

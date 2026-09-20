@@ -74,21 +74,52 @@ naver-cafe-poster 등)처럼 OAuth+공식 API로 구현할 수 없고, 실제 �
    감지, 사람과 유사한 입력 속도)을 참고해서 처음부터 견고하게 설계한다** — 사후에 땜질하지
    않는다.
 
+## 참고 저장소 분석 (2026-09-20)
+
+`boksajang/blogauto-naver`를 클론해서 실제 소스(`main.js`/`naverPublisher.js`/`codexRunner.js`
+등)를 전부 읽고 분석했다 — **이 저장소는 LICENSE 파일이 없어 코드를 그대로 복사하지 않고,
+검증된 기법(다중 후보 셀렉터, iframe 순회, 로그인 3단계 판별, 사람 같은 타이핑 속도, 세션
+복구)만 참고해서 우리 코드로 새로 작성한다.** 분석 후 클론은 삭제했다.
+
+**우리가 그대로 안 가져가는 부분(AIMaster 원칙과 충돌)**: 이 참고 저장소는 AI 생성을
+API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 처리한다 — 이건 "본인 API
+키로 공식 API만 쓴다"는 이 플랫폼의 원칙(위 "설계 원칙" 2번)과 정면으로 어긋난다. 멀티에이전트
+파이프라인 구조(Research/Title → Writer → Review → Image)라는 **아이디어**는 유지하되,
+실행은 OpenAI/Gemini 공식 API + `user_api_keys`로 바꾼다.
+
+**배포 방식 결정**: 완성된 실행파일(.exe)은 Supabase Storage가 아니라 **GitHub Releases**에
+올린다 — `BUYLIFEMALL/aimaster` 저장소가 Public이라 인증 없이 바로 다운로드되고, Supabase는
+이미 Free 플랜 저장공간이 빠듯해서(§ 다른 서브프로젝트 작업 중 확인) 70~100MB급 실행파일을
+감당하기 부담스럽다.
+
+**AIMaster 계정 연동 방식 결정**: 데스크톱 앱 안에 이메일/비밀번호 로그인 폼을 새로 만들지
+않고, **"웹(buylife.xyz)에서 로그인 → 발급된 토큰을 데스크톱 앱에 붙여넣기"** 방식으로 간다.
+아직 토큰 발급 화면은 안 만들었음 — AI 생성 단계(본인 API 키 조회가 필요해지는 시점)에서
+같이 설계할 것.
+
 ## 작업 리스트 (1단계: 데스크톱 앱)
 
-- [ ] 기술 스택 확정: Electron + Playwright(core) 구조로 blogauto-naver와 동일 계열 채택
-- [ ] 프로토타입 1 — 네이버 로그인 세션 유지 검증: `launchPersistentContext`로 로컬 프로필
-      저장 → 브라우저 재시작 후에도 로그인 상태 유지되는지 확인
+- [x] 기술 스택 확정: Electron + `playwright-core`(`channel: "chrome"`로 시스템 크롬 재사용)
+- [x] 프로토타입 1 — 네이버 로그인 세션 유지 검증: `src/lib/naverSession.js` +
+      `src/main.js`/`src/renderer/`에 최소 UI로 구현. `launchPersistentContext`로
+      계정별 프로필(`runtime/browser-profiles/<accountKey>`)에 세션 저장, 아이디/비밀번호는
+      절대 자동 입력하지 않고 로그인/보안확인은 사람이 직접 완료하도록 대기만 한다(3단계
+      판별: `login_required`/`security_check`/`logged_in`). **2026-09-20 실제 데스크톱에서
+      검증 완료**: `npm start` → 로그인(단, 네이버 로그인 화면의 "로그인 상태 유지" 체크박스를
+      반드시 체크해야 함 — 안 하면 세션 쿠키가 브라우저 종료 시 같이 삭제되어 재로그인 없이
+      유지되지 않는 걸 실제로 재현·확인함) → 앱 완전 종료 후 재시작 → 재로그인 없이 바로
+      로그인 상태로 확인됨.
 - [ ] 프로토타입 2 — 네이버 블로그 글쓰기 에디터 셀렉터 조사: 제목/본문/이미지 업로드/태그
       입력/카테고리 선택/발행 버튼 각각의 실제 셀렉터를 직접 조사해서 정리
 - [ ] AI 생성 파이프라인 설계: 주제 입력 → 초안 생성 → (선택) 셀프 리뷰 → 이미지 생성.
-      본인 OpenAI/Gemini API 키 등록(기존 `user_api_keys` 공용 테이블 재사용)
+      본인 OpenAI/Gemini API 키 등록(기존 `user_api_keys` 공용 테이블 재사용) — 이 단계에서
+      "웹 로그인 → 토큰 붙여넣기" AIMaster 연동도 같이 구현
 - [ ] 사용자 편집 UI: 생성된 제목/본문/이미지를 자유롭게 수정할 수 있는 화면
 - [ ] 네이버 자동 삽입 기능: 편집 완료된 데이터를 실제 네이버 글쓰기 창에 채워 넣기
       (발행 버튼은 우선 사람이 직접 클릭하는 구조로 시작)
 - [ ] 실제 계정으로 end-to-end 테스트 (로그인 → 생성 → 수정 → 삽입 → 수동 발행)
-- [ ] 배포 준비: 실행 파일 패키징(electron-builder) + AIMaster 사이트에서 다운로드 제공
-      방식 설계 (구독 회원 전용 다운로드 링크 등 접근 제어 방법 포함)
+- [ ] 배포 준비: 실행 파일 패키징(electron-builder) + GitHub Releases 업로드 +
+      AIMaster 사이트에서 구독 회원 전용 다운로드 링크 노출(`requireProgramAccess()` 재사용)
 
 ## 2단계 (나중, 별도 진행): 크롬 확장 버전
 1단계 완료 후 별도로 계획한다 — Easy-peasy SNS의 사이드패널 구조를 참고하되, AI 생성은
