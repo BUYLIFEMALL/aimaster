@@ -62,10 +62,14 @@
       채워 넣습니다.
     </p>
     <input id="draft-title" type="text" placeholder="테스트 제목" />
-    <textarea id="draft-body" rows="4" placeholder="테스트 본문 (여러 줄 가능)"></textarea>
+    <textarea id="draft-body" rows="8" placeholder="테스트 본문 (여러 줄 가능)"></textarea>
+    <div id="draft-image-preview-wrap" class="image-preview-wrap" style="display: none">
+      <img id="draft-image-preview" alt="생성된 이미지 미리보기" />
+      <button id="draft-image-clear-btn" type="button">이미지 지우기</button>
+    </div>
     <label class="checkbox-label">
       <input id="draft-include-image" type="checkbox" />
-      이미지도 함께 추가 (버튼을 누르면 파일 선택 창이 뜹니다)
+      이미지도 함께 추가 (AI가 생성한 이미지가 없으면 버튼을 누를 때 파일 선택 창이 뜹니다)
     </label>
     <button id="draft-btn">1단계 시작</button>
     <div id="draft-status" class="status">대기 중</div>

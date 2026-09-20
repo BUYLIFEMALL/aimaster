@@ -39,6 +39,25 @@ const generateStatusBox = document.getElementById("generate-status");
 
 let aiGeneratedImagePath = null;
 
+const draftImagePreviewWrap = document.getElementById("draft-image-preview-wrap");
+const draftImagePreview = document.getElementById("draft-image-preview");
+const draftIncludeImageCheckbox = document.getElementById("draft-include-image");
+const draftImageClearButton = document.getElementById("draft-image-clear-btn");
+
+function showImagePreview(dataUrl) {
+  draftImagePreview.src = dataUrl;
+  draftImagePreviewWrap.style.display = "block";
+}
+
+function clearImagePreview() {
+  aiGeneratedImagePath = null;
+  draftImagePreview.src = "";
+  draftImagePreviewWrap.style.display = "none";
+  draftIncludeImageCheckbox.checked = false;
+}
+
+draftImageClearButton.addEventListener("click", clearImagePreview);
+
 generateButton.addEventListener("click", async () => {
   generateButton.disabled = true;
   generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (셀프 리뷰까지 포함되어 몇 초~수십 초 걸릴 수 있습니다)";
@@ -53,8 +72,11 @@ generateButton.addEventListener("click", async () => {
     document.getElementById("draft-title").value = result.title;
     document.getElementById("draft-body").value = result.body;
     aiGeneratedImagePath = result.imagePath || null;
-    if (aiGeneratedImagePath) {
-      document.getElementById("draft-include-image").checked = true;
+    if (aiGeneratedImagePath && result.imageDataUrl) {
+      draftIncludeImageCheckbox.checked = true;
+      showImagePreview(result.imageDataUrl);
+    } else {
+      clearImagePreview();
     }
     generateStatusBox.textContent = result.imageError
       ? `생성 완료(이미지 제외: ${result.imageError})`
@@ -104,7 +126,6 @@ const draftButton = document.getElementById("draft-btn");
 const draftStatusBox = document.getElementById("draft-status");
 const draftTitleInput = document.getElementById("draft-title");
 const draftBodyInput = document.getElementById("draft-body");
-const draftIncludeImageCheckbox = document.getElementById("draft-include-image");
 
 draftButton.addEventListener("click", async () => {
   draftButton.disabled = true;

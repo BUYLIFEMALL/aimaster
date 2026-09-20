@@ -127,15 +127,26 @@ ipcMain.handle("aimaster:generateDraft", async (_event, { topic, includeImage, i
     }
 
     let imagePath = null;
+    let imageDataUrl = null;
     if (body.image?.base64) {
       const imagesDir = path.join(getRuntimeRoot(), "generated-images");
       fs.mkdirSync(imagesDir, { recursive: true });
       const ext = body.image.mimeType?.includes("png") ? "png" : "jpg";
       imagePath = path.join(imagesDir, `ai-image-${Date.now()}.${ext}`);
       fs.writeFileSync(imagePath, Buffer.from(body.image.base64, "base64"));
+      // 렌더러가 미리보기로 바로 쓸 수 있도록 data URL도 같이 내려준다(파일 경로는
+      // Playwright 삽입 전용 — contextIsolation 렌더러에서 로컬 파일을 직접 못 읽음).
+      imageDataUrl = `data:${body.image.mimeType || "image/png"};base64,${body.image.base64}`;
     }
 
-    return { ok: true, title: body.title, body: body.body, imagePath, imageError: body.imageError || null };
+    return {
+      ok: true,
+      title: body.title,
+      body: body.body,
+      imagePath,
+      imageDataUrl,
+      imageError: body.imageError || null
+    };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
