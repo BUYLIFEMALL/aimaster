@@ -5,6 +5,32 @@ const STATUS_LABEL = {
   logged_in: "로그인 상태 확인됨."
 };
 
+const aimasterTokenInput = document.getElementById("aimaster-token");
+const aimasterLinkButton = document.getElementById("aimaster-link-btn");
+const aimasterStatusBox = document.getElementById("aimaster-status");
+
+function renderAimasterStatus(result) {
+  if (result.linked) {
+    aimasterStatusBox.textContent = `연동됨: ${result.name ? `${result.name} · ` : ""}${result.email}`;
+  } else {
+    aimasterStatusBox.textContent = result.error ? `오류: ${result.error}` : "연동되지 않음";
+  }
+}
+
+(async () => {
+  const status = await window.blogAuto.getAimasterStatus();
+  renderAimasterStatus(status);
+})();
+
+aimasterLinkButton.addEventListener("click", async () => {
+  aimasterLinkButton.disabled = true;
+  aimasterStatusBox.textContent = "확인 중...";
+  const result = await window.blogAuto.setAimasterToken(aimasterTokenInput.value);
+  aimasterLinkButton.disabled = false;
+  renderAimasterStatus(result);
+  if (result.linked) aimasterTokenInput.value = "";
+});
+
 const button = document.getElementById("check-btn");
 const statusBox = document.getElementById("status");
 

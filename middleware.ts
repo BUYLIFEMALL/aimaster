@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 인증 필요 라우트 보호
-  const authRequiredPaths = ["/dashboard", "/affiliate", "/settings"];
+  const authRequiredPaths = ["/dashboard", "/affiliate", "/settings", "/naver-blog-auto-poster"];
   const isAuthRequired = authRequiredPaths.some((p) => pathname.startsWith(p));
 
   if (isAuthRequired && !user) {

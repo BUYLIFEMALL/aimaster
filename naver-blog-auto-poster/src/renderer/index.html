@@ -7,7 +7,17 @@
 </head>
 <body>
   <main>
-    <h1>네이버 로그인 세션 확인</h1>
+    <h1>AIMaster 계정 연동</h1>
+    <p class="desc">
+      <a href="https://buylife.xyz/naver-blog-auto-poster" target="_blank" rel="noopener">buylife.xyz</a>에
+      로그인한 뒤 그 화면에서 발급한 토큰을 아래에 붙여넣으세요. 이 앱에는 아이디/비밀번호를
+      직접 입력하지 않습니다.
+    </p>
+    <input id="aimaster-token" type="password" placeholder="발급받은 토큰 붙여넣기 (pat_...)" />
+    <button id="aimaster-link-btn">연동하기</button>
+    <div id="aimaster-status" class="status">확인 중...</div>
+
+    <h1 class="section-title">네이버 로그인 세션 확인</h1>
     <p class="desc">
       아이디/비밀번호는 자동으로 입력되지 않습니다. 버튼을 누르면 브라우저 창이 열리고,
       로그인되어 있지 않으면 그 창에서 직접 로그인/보안확인을 완료해주세요.

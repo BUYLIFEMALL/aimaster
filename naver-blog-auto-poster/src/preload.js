@@ -3,6 +3,9 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("blogAuto", {
+  getAimasterStatus: () => ipcRenderer.invoke("aimaster:getStatus"),
+  setAimasterToken: (token) => ipcRenderer.invoke("aimaster:setToken", token),
+  clearAimasterToken: () => ipcRenderer.invoke("aimaster:clearToken"),
   checkNaverSession: () => ipcRenderer.invoke("naver:checkSession"),
   inspectEditor: () => ipcRenderer.invoke("naver:inspectEditor"),
   runDraftStep: (payload) => ipcRenderer.invoke("naver:runDraftStep", payload),

@@ -1,10 +1,15 @@
 "use strict";
 
 const path = require("node:path");
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const { ensureNaverSession } = require("./lib/naverSession");
 const { inspectEditorStructure } = require("./lib/blogEditorInspector");
 const { runDraftStep, runPublishSettingsStep } = require("./lib/naverBlogAutomation");
+const { getAimasterToken, setAimasterToken } = require("./lib/appConfig");
+
+// AIMaster 본체 웹사이트 주소. "웹 로그인 -> 토큰 발급 -> 여기 붙여넣기"로 계정을
+// 연동한다 — 아이디/비밀번호를 이 앱에 직접 입력하지 않는다.
+const AIMASTER_BASE_URL = "https://buylife.xyz";
 
 let mainWindow = null;
 let naverContext = null; // 프로토타입 1: 세션 확인 중 열어둔 Playwright context (재사용).
@@ -28,6 +33,10 @@ function createMainWindow() {
     }
   });
   mainWindow.setMenuBarVisibility(false);
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" };
+  });
   mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
 }
 
@@ -45,6 +54,46 @@ app.on("window-all-closed", () => {
 
 app.on("before-quit", () => {
   naverContext?.close().catch(() => {});
+});
+
+async function checkAimasterToken(token) {
+  if (!token) return { linked: false };
+  try {
+    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster/whoami`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      return { linked: false, error: body.error || `연동 확인 실패 (${response.status})` };
+    }
+    const body = await response.json();
+    return { linked: true, email: body.email, name: body.name };
+  } catch (error) {
+    return { linked: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+// AIMaster 계정 연동 상태 조회 — 앱 시작 시 저장된 토큰이 아직 유효한지 확인한다.
+ipcMain.handle("aimaster:getStatus", async () => {
+  const token = getAimasterToken(getRuntimeRoot());
+  return checkAimasterToken(token);
+});
+
+// 토큰 붙여넣기 — 저장 전에 바로 유효성을 확인해서 결과를 알려준다.
+ipcMain.handle("aimaster:setToken", async (_event, token) => {
+  const trimmed = (token || "").trim();
+  if (!trimmed) return { linked: false, error: "토큰을 입력해주세요." };
+
+  const result = await checkAimasterToken(trimmed);
+  if (result.linked) {
+    setAimasterToken(getRuntimeRoot(), trimmed);
+  }
+  return result;
+});
+
+ipcMain.handle("aimaster:clearToken", async () => {
+  setAimasterToken(getRuntimeRoot(), null);
+  return { linked: false };
 });
 
 // 렌더러(UI)의 "네이버 세션 확인" 버튼 → 프로토타입 1 핵심 동작.
