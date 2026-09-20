@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>AIMaster 네이버 블로그 자동화</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <h1>AIMaster 계정 연동</h1>
+    <p class="desc">
+      <a href="https://www.buylife.xyz/naver-blog-auto-poster" target="_blank" rel="noopener">buylife.xyz</a>에
+      로그인한 뒤 그 화면에서 발급한 토큰을 아래에 붙여넣으세요. 데스크톱 앱과 같은
+      토큰을 그대로 써도 됩니다.
+    </p>
+    <input id="aimaster-token" type="password" placeholder="발급받은 토큰 붙여넣기 (pat_...)" />
+    <button id="aimaster-link-btn">연동하기</button>
+    <div id="aimaster-status" class="status">확인 중...</div>
+
+    <h1 class="section-title">프로토타입 1 — 사이드패널 동작 확인</h1>
+    <p class="desc">
+      이 화면이 네이버 블로그 글쓰기 탭 옆에 정상적으로 떠 있으면 사이드패널 자체는
+      정상 동작하는 것입니다. 다음 단계(제목/본문 자동 삽입)는 여기에 이어서 추가됩니다.
+    </p>
+  </main>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
