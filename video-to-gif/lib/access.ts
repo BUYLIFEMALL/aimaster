@@ -36,10 +36,17 @@ export async function requireProgramAccess() {
 }
 
 export async function checkProgramAccessApi(request?: Request) {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return { allowed: false as const, error: "Supabase 환경변수가 설정되지 않았습니다.", status: 503 };
+  // TEMP DIAGNOSTIC (2026-09-20) — 401 원인 추적용, 확인되면 전체 블록 제거할 것.
+  console.error("[access-debug] ENTER", { hasRequest: !!request, url: request?.url });
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.error("[access-debug] missing env vars");
+    return { allowed: false as const, error: "Supabase 환경변수가 설정되지 않았습니다.", status: 503 };
+  }
   try {
     const supabase = await createClient();
-    let user = (await supabase.auth.getUser()).data.user;
+    const cookieResult = await supabase.auth.getUser();
+    let user = cookieResult.data.user;
+    console.error("[access-debug] cookie check", { gotUser: !!user, cookieError: cookieResult.error?.message });
     // 쿠키 기반 세션 동기화가 늦어서(토큰 갱신 직후 등) 쿠키만으로는 로그인 상태를 못
     // 읽는 경우를 대비해, 브라우저가 직접 보낸 액세스 토큰도 함께 시도한다(2026-09-20
     // 실계정 테스트에서 업로드는 성공했는데 바로 이어지는 /api/convert 호출만 401이
@@ -54,15 +61,23 @@ export async function checkProgramAccessApi(request?: Request) {
       if (bearer) {
         const { data, error } = await supabase.auth.getUser(bearer);
         user = data.user;
-        // TEMP DIAGNOSTIC (2026-09-20) — 401 원인 추적용, 확인되면 제거할 것.
         console.error("[access-debug] bearer fallback", { hasBearer: true, bearerLen: bearer.length, gotUser: !!user, authError: error?.message });
       } else {
         console.error("[access-debug] no bearer found", { hasAuthHeader: !!authHeader, url: request.url });
       }
+    } else {
+      console.error("[access-debug] skipped bearer branch", { userTruthy: !!user, requestTruthy: !!request });
     }
-    if (!user) return { allowed: false as const, error: "로그인이 필요합니다.", status: 401 };
+    if (!user) {
+      console.error("[access-debug] returning 401");
+      return { allowed: false as const, error: "로그인이 필요합니다.", status: 401 };
+    }
     const result = await evaluateAccess(supabase, user.id);
+    console.error("[access-debug] evaluateAccess result", result);
     if (!result.allowed) return { allowed: false as const, error: result.reason === "suspended" ? "정지된 계정입니다." : "프로그램 이용 권한이 없습니다.", status: result.reason === "not_configured" ? 503 : 403 };
     return { allowed: true as const, user, programSlug: PROGRAM_SLUG };
-  } catch { return { allowed: false as const, error: "인증 서버에 연결할 수 없습니다.", status: 503 }; }
+  } catch (err) {
+    console.error("[access-debug] CAUGHT EXCEPTION", err instanceof Error ? err.message : err);
+    return { allowed: false as const, error: "인증 서버에 연결할 수 없습니다.", status: 503 };
+  }
 }
