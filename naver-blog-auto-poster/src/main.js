@@ -106,7 +106,7 @@ ipcMain.handle("aimaster:clearToken", async () => {
 // 절대 직접 보관/사용하지 않는다. 이미지는 base64로 받아서 이 컴퓨터의 runtime 폴더에
 // 파일로 저장해둔다 — Playwright의 이미지 삽입(insertImage)이 실제 파일 경로를 필요로
 // 하기 때문(브라우저의 filechooser 이벤트에 경로를 넘기는 방식이라 base64를 직접 못 씀).
-ipcMain.handle("aimaster:generateDraft", async (_event, { topic, includeImage } = {}) => {
+ipcMain.handle("aimaster:generateDraft", async (_event, { topic, includeImage, imageModel } = {}) => {
   const token = getAimasterToken(getRuntimeRoot());
   if (!token) {
     return { ok: false, error: "먼저 위에서 AIMaster 계정 연동을 완료해주세요." };
@@ -119,7 +119,7 @@ ipcMain.handle("aimaster:generateDraft", async (_event, { topic, includeImage } 
     const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ topic: topic.trim(), includeImage: Boolean(includeImage) })
+      body: JSON.stringify({ topic: topic.trim(), includeImage: Boolean(includeImage), imageModel })
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {

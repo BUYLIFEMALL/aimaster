@@ -189,8 +189,12 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
       앱이 이를 `runtime/generated-images/`에 파일로 저장해서 기존 `insertImage()`가
       바로 쓸 수 있게 한다(Playwright의 이미지 삽입은 실제 파일 경로가 필요해서 base64를
       직접 못 씀). Gemini 키 미등록/생성 실패는 텍스트 생성 자체를 막지 않고
-      `imageError`로만 알려준다. **다음 확인 필요**: 실제 데스크톱에서 이미지 포함 생성이
-      정상 동작하는지, 셀프 리뷰로 글이 실제로 개선되는지 사람이 직접 확인.
+      `imageError`로만 알려준다. 이미지 모델은 blog 서브프로젝트의 나노바나나 모델별
+      선택 방식(`utils/news/nanoBananaConfig.ts`/`imageGenerator.ts`)을 그대로 재사용해
+      4가지 옵션(NanoBanana 2-2K 추천/2-4K/Pro/Standard)을 드롭다운으로 고를 수 있게
+      함(`lib/naverBlogAutoPoster/nanoBananaConfig.ts`). **다음 확인 필요**: 실제
+      데스크톱에서 이미지 포함 생성이 정상 동작하는지, 셀프 리뷰로 글이 실제로
+      개선되는지 사람이 직접 확인.
 - [x] 프로토타입 3 — 제목/본문 자동 입력: `src/lib/humanInput.js`(사람처럼 한 글자씩 타이핑)
       + `src/lib/naverBlogAutomation.js`(`fillTitleAndBody`)로 구현. 앱 UI에 제목/본문
       입력창과 "네이버에 자동 입력" 버튼을 추가함. 발행/저장 버튼은 절대 대신 누르지 않음 —

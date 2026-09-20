@@ -29,6 +29,12 @@
       <input id="generate-include-image" type="checkbox" />
       이미지도 함께 생성 (본인 Gemini 키 등록 필요)
     </label>
+    <select id="generate-image-model">
+      <option value="nanobanana-2-2k">NanoBanana 2-2K (2K 고화질 비주얼 - 추천)</option>
+      <option value="nanobanana-2-4k">NanoBanana 2-4K (4K 울트라 HD)</option>
+      <option value="nanobanana-pro">NanoBanana Pro (프로페셔널 인포그래픽)</option>
+      <option value="nanobanana">NanoBanana Standard (기본 모델)</option>
+    </select>
     <button id="generate-btn">AI로 초안 생성</button>
     <div id="generate-status" class="status">대기 중</div>
 

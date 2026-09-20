@@ -33,6 +33,7 @@ aimasterLinkButton.addEventListener("click", async () => {
 
 const topicInput = document.getElementById("topic-input");
 const generateIncludeImageCheckbox = document.getElementById("generate-include-image");
+const generateImageModelSelect = document.getElementById("generate-image-model");
 const generateButton = document.getElementById("generate-btn");
 const generateStatusBox = document.getElementById("generate-status");
 
@@ -43,7 +44,8 @@ generateButton.addEventListener("click", async () => {
   generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (셀프 리뷰까지 포함되어 몇 초~수십 초 걸릴 수 있습니다)";
   const result = await window.blogAuto.generateDraft({
     topic: topicInput.value,
-    includeImage: generateIncludeImageCheckbox.checked
+    includeImage: generateIncludeImageCheckbox.checked,
+    imageModel: generateImageModelSelect.value
   });
   generateButton.disabled = false;
 

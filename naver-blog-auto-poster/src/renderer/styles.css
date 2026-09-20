@@ -38,7 +38,8 @@ button:disabled {
   cursor: not-allowed;
 }
 input[type="text"],
-textarea {
+textarea,
+select {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
