@@ -24,3 +24,19 @@ button.addEventListener("click", async () => {
     statusBox.textContent = `오류: ${result.error}`;
   }
 });
+
+const inspectButton = document.getElementById("inspect-btn");
+const inspectStatusBox = document.getElementById("inspect-status");
+
+inspectButton.addEventListener("click", async () => {
+  inspectButton.disabled = true;
+  inspectStatusBox.textContent = "현재 화면 구조를 분석하는 중입니다...";
+  const result = await window.blogAuto.inspectEditor();
+  inspectButton.disabled = false;
+
+  if (result.ok) {
+    inspectStatusBox.textContent = `분석 완료. 저장 위치:\n${result.outPath}`;
+  } else {
+    inspectStatusBox.textContent = `오류: ${result.error}`;
+  }
+});

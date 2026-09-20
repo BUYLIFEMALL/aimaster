@@ -42,3 +42,8 @@ button:disabled {
   min-height: 20px;
   white-space: pre-line;
 }
+.section-title {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #1e293b;
+}
