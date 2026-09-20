@@ -22,6 +22,7 @@ const KAKAO_PROVIDERS: ApiKeyProvider[] = ["kakao_rest_api_key", "kakao_client_s
 // 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
 // 2026-09-13). 카카오 로그인("나에게 보내기")은 아직 매뉴얼이 없어 대상에서 뺐다.
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "4042a4b3-e573-4baa-8f70-103f52b1cbbd", label: "카카오 플랫폼 계정 연동하기 (로그인·나에게 보내기)" },
   { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
   { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },

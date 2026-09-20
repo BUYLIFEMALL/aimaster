@@ -1,25 +1,14 @@
 {
   "version": "1.0",
-  "enabled": true,
+  "enabled": false,
   "teamName": "",
   "feature": "platform-hub",
   "pdcaPhase": "plan",
   "orchestrationPattern": "leader",
   "ctoAgent": "opus",
   "startedAt": "2026-09-16T12:03:24.342Z",
-  "lastUpdated": "2026-09-16T12:03:24.343Z",
-  "teammates": [
-    {
-      "name": "aa1db472f998a5431",
-      "role": "general-purpose",
-      "model": "sonnet",
-      "status": "spawning",
-      "currentTask": null,
-      "taskId": null,
-      "startedAt": "2026-09-16T12:03:24.343Z",
-      "lastActivityAt": "2026-09-16T12:03:24.343Z"
-    }
-  ],
+  "lastUpdated": "2026-09-20T03:58:30.102Z",
+  "teammates": [],
   "progress": {
     "totalTasks": 0,
     "completedTasks": 0,
