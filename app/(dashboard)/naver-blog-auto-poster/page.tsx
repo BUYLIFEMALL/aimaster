@@ -61,8 +61,9 @@ export default async function NaverBlogAutoPosterPage() {
         </h1>
         <p className="text-subtext mt-1">
           데스크톱 앱에서 이 계정으로 로그인된 것처럼 동작하게 하려면, 여기서 토큰을
-          발급받아 앱의 &quot;AIMaster 계정 연동&quot; 화면에 붙여넣으세요. 별도 설치 없이
-          브라우저에서 바로 쓰는 버전은{" "}
+          발급받아 앱의 &quot;AIMaster 계정 연동&quot; 화면에 붙여넣으세요.
+          <br />
+          별도 설치 없이 브라우저에서 바로 쓰는 버전은{" "}
           <a href="/naver-blog-auto-poster-web" className="text-gold underline">
             네이버 블로그 자동화(Web)
           </a>{" "}
@@ -159,8 +160,7 @@ export default async function NaverBlogAutoPosterPage() {
           </div>
           <p className="text-xs text-subtext mb-4">
             토큰은 발급 시 딱 한 번만 화면에 표시됩니다 — 다시 볼 수 없으니 그 자리에서
-            바로 복사해서 앱에 붙여넣으세요. 더 이상 쓰지 않는 토큰은 목록에서 폐기할 수
-            있습니다.
+            바로 복사해서 앱에 붙여넣으세요.
           </p>
           <TokenManager programSlug={PROGRAM_SLUG} initialTokens={tokens ?? []} />
         </GlassCard>
