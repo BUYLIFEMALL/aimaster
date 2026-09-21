@@ -110,10 +110,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Reusable Patterns
 
-- 카테고리 블록 노출, AI 3종 콘텐츠 수집(HTTP/RSS/Perplexity), SNS 게시글 AI 생성 프롬프트 규격, 이메일(SMTP) 발송, 삭제 버튼 처리중 표시, **AI 이미지 생성(마케팅/썸네일)**, **공식 API 없는 서비스의 브라우저 자동화(봇 탐지 회피 원칙, §19)** 등 여러 서브프로젝트에서 재사용 가능한 패턴과 트러블슈팅은 [`docs/PLATFORM_PATTERNS.md`](docs/PLATFORM_PATTERNS.md)에 정리되어 있다. 새 프로그램을 만들거나 비슷한 기능이 필요하면 먼저 이 문서를 확인할 것.
+- 카테고리 블록 노출, AI 3종 콘텐츠 수집(HTTP/RSS/Perplexity), SNS 게시글 AI 생성 프롬프트 규격, 이메일(SMTP) 발송, 삭제 버튼 처리중 표시, **AI 이미지 생성(마케팅/썸네일)**, **공식 API 없는 서비스의 브라우저 자동화(봇 탐지 회피 원칙, §20)** 등 여러 서브프로젝트에서 재사용 가능한 패턴과 트러블슈팅은 [`docs/PLATFORM_PATTERNS.md`](docs/PLATFORM_PATTERNS.md)에 정리되어 있다. 새 프로그램을 만들거나 비슷한 기능이 필요하면 먼저 이 문서를 확인할 것.
 - **네이버 블로그처럼 공식 포스팅/액션 API가 없어서 Playwright 등으로 실제 화면을 사람 대신
   조작해야 하는 서브프로젝트를 만들거나 이어받을 때는, 다른 어떤 작업보다 먼저
-  `docs/PLATFORM_PATTERNS.md` §19("공식 API 없는 서비스를 브라우저 자동화로 만들 때 —
+  `docs/PLATFORM_PATTERNS.md` §20("공식 API 없는 서비스를 브라우저 자동화로 만들 때 —
   봇 탐지 회피는 최우선 원칙")를 읽고 그 규칙을 처음부터 적용할 것 — 사후에 추가하지
   않는다.** 참고 구현은 `naver-blog-auto-poster/src/lib/humanInput.js`(사람처럼 클릭+
   타이핑)와 `naver-blog-auto-poster/AGENTS.md`(개발 방법론 전체) — 새로 설계하지 말고
