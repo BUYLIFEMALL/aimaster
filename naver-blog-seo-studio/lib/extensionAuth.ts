@@ -14,7 +14,8 @@ export async function verifyExtensionToken(request: Request) {
     .from("personal_access_tokens")
     .select("id, user_id")
     .eq("token_hash", tokenHash)
-    .eq("program_slug", "naver-blog-seo-studio")
+    // 기존 Web 확장 토큰도 새 SEO Studio API에서 계속 사용할 수 있도록 하위 호환한다.
+    .in("program_slug", ["naver-blog-seo-studio", "naver-blog-auto-poster-web"])
     .is("revoked_at", null)
     .maybeSingle();
   if (!tokenRow) return null;
