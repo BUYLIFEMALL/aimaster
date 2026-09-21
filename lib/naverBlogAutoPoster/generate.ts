@@ -39,6 +39,16 @@ async function callChatCompletion(params: {
 }): Promise<BlogDraft> {
   const { apiKey, systemPrompt, userContent } = params;
 
+  // 등록된 값이 실제 OpenAI 키 형식이 아니면(예: 잘못 붙여넣은 다른 텍스트) fetch가
+  // Authorization 헤더 생성 시점에 "Cannot convert argument to a ByteString..."라는
+  // 원인을 알기 어려운 에러를 던진다 — 2026-09-22 실사용 검증 중 실제로 발견됨. 헤더에
+  // 넣기 전에 먼저 검증해서 원인을 바로 알 수 있는 메시지로 대체한다.
+  if (!/^[\x00-\xFF]*$/.test(apiKey)) {
+    throw new Error(
+      "등록된 OpenAI API 키 형식이 올바르지 않습니다. www.buylife.xyz의 'API 설정' 페이지에서 키를 다시 확인해주세요."
+    );
+  }
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
