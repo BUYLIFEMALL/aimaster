@@ -390,6 +390,25 @@ export default async function HomePage() {
             </GlassCard>
           </div>
 
+          <div className={`grid gap-4 ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
+            <GlassCard className="p-4 text-center">
+              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
+              <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
+            </GlassCard>
+            {userAccess && (
+              <>
+                <GlassCard className="p-4 text-center">
+                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.accessibleCount}</div>
+                  <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
+                </GlassCard>
+                <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
+                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.expiryLabel}</div>
+                  <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
+                </GlassCard>
+              </>
+            )}
+          </div>
+
         </div>
       </section>
 
@@ -397,31 +416,11 @@ export default async function HomePage() {
       {categoryBlocks.length > 0 && (
         <section className="py-20 px-4 bg-surface/30">
           <div className="max-w-6xl mx-auto">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-14">
-              <div className="text-center lg:text-left">
+            <div className="text-center mb-14">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
                   카테고리별 <GoldGradientText>프로그램</GoldGradientText>
                 </h2>
                 <p className="text-subtext">필요한 플랫폼에 맞는 자동화 도구를 찾아보세요</p>
-              </div>
-              <div className={`grid gap-3 w-full lg:w-auto ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
-                <GlassCard className="p-3 text-center min-w-[130px]">
-                  <div className="text-xl md:text-2xl font-black gold-text mb-1">{programs.length}</div>
-                  <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
-                </GlassCard>
-                {userAccess && (
-                  <>
-                    <GlassCard className="p-3 text-center min-w-[130px]">
-                      <div className="text-xl md:text-2xl font-black gold-text mb-1">{userAccess.accessibleCount}</div>
-                      <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
-                    </GlassCard>
-                    <GlassCard className="p-3 text-center min-w-[130px] col-span-2 md:col-span-1">
-                      <div className="text-xl md:text-2xl font-black gold-text mb-1">{userAccess.expiryLabel}</div>
-                      <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
-                    </GlassCard>
-                  </>
-                )}
-              </div>
             </div>
 
             <div className="space-y-16">
