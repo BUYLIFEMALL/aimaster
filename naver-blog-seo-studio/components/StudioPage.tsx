@@ -10,7 +10,7 @@ const strategies = [
   ["인사이트 엣지", "좁고 깊은 관점"],
 ];
 
-export default function StudioPage() {
+export default function StudioPage({ email }: { email: string }) {
   const [strategy, setStrategy] = useState(strategies[0][0]);
   const [topic, setTopic] = useState("");
   const [keywords, setKeywords] = useState("");
@@ -50,6 +50,10 @@ export default function StudioPage() {
           <button className="nav-link">생성 기록</button>
           <button className="nav-link">API키등록·플랫폼연동</button>
         </nav>
+        <div className="sidebar-account" title={email}>
+          <span className="sidebar-account-label">로그인 계정</span>
+          <strong>{email}</strong>
+        </div>
         <div className="side-note">AI는 초안을 돕고, 사실 확인과 최종 발행은 주인님의 판단으로 완성합니다.</div>
       </aside>
 
