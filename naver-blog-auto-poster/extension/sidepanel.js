@@ -84,12 +84,12 @@ async function injectedFillTitleAndBody({ title, body }) {
   // 브라우저가 실제 텍스트 삽입으로 처리해주지 않으므로, 실제 편집 명령 파이프라인을
   // 타는 execCommand("insertText")를 쓴다 — 이 방식이 실제로 SmartEditor ONE에서
   // 동작하는지는 아직 실사용 검증 전이다.
-  async function humanType(text) {
+  async function humanType(text, doc) {
     for (const char of text) {
       if (char === "\n") {
-        document.execCommand("insertParagraph");
+        doc.execCommand("insertParagraph");
       } else {
-        document.execCommand("insertText", false, char);
+        doc.execCommand("insertText", false, char);
       }
       await sleep(randomDelay(70, 170));
       if (Math.random() < 0.05) await sleep(randomDelay(250, 700));
@@ -119,14 +119,47 @@ async function injectedFillTitleAndBody({ title, body }) {
     el.dispatchEvent(new MouseEvent("mouseup", opts));
     el.dispatchEvent(new MouseEvent("click", opts));
   }
+  // 클릭한 순간 SmartEditor ONE이 그 자리에 새 내부 iframe을 동적으로 만들어서 진짜
+  // 편집 영역을 그 안에 넣는 것을 실사용 테스트로 확인했다(클릭 전엔 존재하지 않던
+  // iframe이라 처음 스크립트 주입 시점엔 못 찾았음). 클릭 후 activeElement가
+  // iframe이면 그 안으로 따라 들어간다(같은 출처라 contentDocument 접근 가능).
+  function resolveActiveEditable() {
+    let active = document.activeElement;
+    let depth = 0;
+    while (active && active.tagName === "IFRAME" && depth < 5) {
+      let innerDoc;
+      try {
+        innerDoc = active.contentDocument;
+      } catch {
+        break;
+      }
+      if (!innerDoc) break;
+      const innerActive =
+        innerDoc.activeElement && innerDoc.activeElement !== innerDoc.body
+          ? innerDoc.activeElement
+          : innerDoc.body;
+      active = innerActive;
+      depth += 1;
+    }
+    return active;
+  }
   function placeCursorAtEnd(container) {
-    const el = findEditableTarget(container);
+    let el = findEditableTarget(container);
     simulateClick(el);
     el.focus();
-    const range = document.createRange();
+
+    // 클릭 직후 진짜 활성 요소를 다시 확인 — iframe 안으로 포커스가 넘어갔으면 그
+    // 문서 기준으로 캐럿을 다시 잡는다.
+    const resolved = resolveActiveEditable();
+    if (resolved && resolved !== document.body) {
+      el = resolved;
+    }
+
+    const ownerDoc = el.ownerDocument;
+    const range = ownerDoc.createRange();
     range.selectNodeContents(el);
     range.collapse(false);
-    const selection = window.getSelection();
+    const selection = (el.ownerDocument.defaultView || window).getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
     return el;
@@ -148,27 +181,30 @@ async function injectedFillTitleAndBody({ title, body }) {
   const titleEditable = placeCursorAtEnd(titleEl);
   const titleDiag = {
     isContentEditable: titleEditable.isContentEditable,
-    activeElementTag: document.activeElement?.tagName,
-    activeElementIsSame: document.activeElement === titleEditable
+    ownerDocIsTop: titleEditable.ownerDocument === document,
+    activeElementTag: document.activeElement?.tagName
   };
-  await humanType(title);
+  await humanType(title, titleEditable.ownerDocument);
   await sleep(randomDelay(400, 800));
 
   const bodyEl = findBodyParagraph();
-  if (!bodyEl) return { ok: false, error: "본문 요소를 찾지 못했습니다." };
+  if (!bodyEl) return { ok: false, error: "본문 요소를 찾지 못했습니다.", diag: titleDiag };
 
-  placeCursorAtEnd(bodyEl);
-  await humanType(body);
+  const bodyEditable = placeCursorAtEnd(bodyEl);
+  await humanType(body, bodyEditable.ownerDocument);
   await sleep(200);
 
   // 실제로 들어갔는지 검증한다 — execCommand는 에러 없이 조용히 아무것도 안 넣을 수
   // 있어서(2026-09-21 실사용 테스트에서 "입력 완료"가 떴는데 실제로는 비어있던 버그),
-  // 결과에 실제 textContent를 같이 담아 확인한다.
+  // 결과에 실제 textContent를 같이 담아 확인한다. 검증은 원래 컨테이너(titleEl/bodyEl)
+  // 가 아니라 실제로 캐럿을 둔 요소(titleEditable/bodyEditable) 기준으로 한다 —
+  // 텍스트가 중첩 iframe 안에 들어갔다면 바깥 문서 기준 textContent는 그 내용을
+  // 반영하지 못하기 때문이다.
   return {
     ok: true,
-    verified: titleEl.textContent.includes(title) && bodyEl.textContent.includes(body),
-    actualTitleText: titleEl.textContent,
-    actualBodyText: bodyEl.textContent,
+    verified: titleEditable.textContent.includes(title) && bodyEditable.textContent.includes(body),
+    actualTitleText: titleEditable.textContent,
+    actualBodyText: bodyEditable.textContent,
     diag: titleDiag
   };
 }

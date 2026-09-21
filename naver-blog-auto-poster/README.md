@@ -353,8 +353,17 @@ Chrome 웹스토어 비공개(Unlisted) 등록 방식을 검토한다.
       편집 가능한 노드를 찾고, `focus()`만이 아니라 실제 클릭처럼 마우스 이벤트
       (mousedown/mouseup/click)를 좌표 기반으로 발생시킨 뒤 캐럿을 두도록 수정.
       `isContentEditable`/`activeElement` 진단 정보도 결과에 포함시켜서, 이번에도
-      안 되면 정확히 어느 지점이 문제인지 바로 알 수 있게 함. **아직 실사용 재검증
-      전** — 다음 테스트 결과에 따라 계속 반복 조사할 것.
+      안 되면 정확히 어느 지점이 문제인지 바로 알 수 있게 함.
+      **주의 4 — 클릭하는 순간 새 내부 iframe이 동적으로 생성됨(2026-09-21 진단으로
+      확정)**: 클릭 후 진단 정보(`activeElementTag: "IFRAME"`, `isContentEditable:
+      false`)로 확인함 — 네이버 에디터가 제목/본문을 클릭하는 그 순간 진짜 편집
+      영역을 담은 iframe을 새로 만든다(클릭 전엔 DOM에 없어서 최초 스크립트 주입
+      시점엔 못 찾았던 것). `resolveActiveEditable()`을 추가해서 클릭 직후
+      `document.activeElement`가 iframe이면 그 `contentDocument`까지 따라 들어가
+      실제 편집 노드를 다시 찾도록 수정. `execCommand`도 그 노드의 `ownerDocument`
+      기준으로 호출하고, 검증도 원래 컨테이너가 아니라 실제 캐럿을 둔 노드의
+      `textContent`로 하도록 같이 고침(중첩 iframe 안의 텍스트는 바깥 문서 기준
+      `textContent`에 안 잡히기 때문). **아직 실사용 재검증 전.**
 - [ ] 이미지/태그/카테고리 자동 삽입 (1단계 로직 참고, 확장 환경에 맞게 재구현)
 - [ ] AI 생성 UI (1단계와 동일한 `/api/naver-blog-auto-poster/generate` 재사용)
 - [ ] Chrome 웹스토어 등록(비공개 Unlisted) 검토 및 배포
