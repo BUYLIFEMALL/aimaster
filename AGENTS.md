@@ -224,8 +224,8 @@ vercel deploy --prod --yes --scope buylife
 | 유틸리티 | 성격코드(MBTI) 측정기 | personality-code | https://mbti-rho-two.vercel.app |
 | 유틸리티 | 캐릭코드(MBTI) 측정기 | mbti-character | https://mbti-character.vercel.app |
 | 유틸리티 | AI 타로 | tarot-reading | https://tarot-eight-jet.vercel.app |
-| 네이버 | 네이버 블로그 자동화 - PC 앱 | naver-blog-auto-poster | https://www.buylife.xyz/naver-blog-auto-poster (데스크톱 앱 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 PC에서 실행됨) |
-| 네이버 | 네이버 블로그 자동화 - 크롬 확장 | naver-blog-auto-poster-web | https://www.buylife.xyz/naver-blog-auto-poster-web (크롬 확장 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 브라우저에서 실행됨) |
+| 네이버 | 네이버 블로그 자동화(App) | naver-blog-auto-poster | https://www.buylife.xyz/naver-blog-auto-poster (데스크톱 앱 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 PC에서 실행됨) |
+| 네이버 | 네이버 블로그 자동화(Web) | naver-blog-auto-poster-web | https://www.buylife.xyz/naver-blog-auto-poster-web (크롬 확장 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 브라우저에서 실행됨) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).

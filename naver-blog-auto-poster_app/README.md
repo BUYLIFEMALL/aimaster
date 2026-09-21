@@ -1,4 +1,4 @@
-# 네이버 블로그 자동화 - PC 앱(naver-blog-auto-poster_app)
+# 네이버 블로그 자동화(App) — naver-blog-auto-poster_app
 
 네이버는 블로그 포스팅 공식 API를 제공하지 않는다. 그래서 다른 서브프로젝트들(threads,
 naver-cafe-poster 등)처럼 OAuth+공식 API로 구현할 수 없고, 실제 네이버 블로그 글쓰기 화면을
@@ -7,8 +7,8 @@ naver-cafe-poster 등)처럼 OAuth+공식 API로 구현할 수 없고, 실제 �
 **2026-09-21부터 이 폴더는 데스크톱 앱(Electron+Playwright) 전용이다.** 크롬 확장(웹버전)은
 `../naver-blog-auto-poster_web/`로 코드/문서를 완전히 분리했고, **같은 날 바로 이어서
 `programs` 등록·요금제·기기 연동 토큰까지 전부 분리했다** — 이 프로그램은
-`programs.slug = naver-blog-auto-poster`("네이버 블로그 자동화 - PC 앱"), 크롬 확장은
-`naver-blog-auto-poster-web`("네이버 블로그 자동화 - 크롬 확장")이라는 완전히 별도의 유료
+`programs.slug = naver-blog-auto-poster`("네이버 블로그 자동화(App)"), 크롬 확장은
+`naver-blog-auto-poster-web`("네이버 블로그 자동화(Web)")이라는 완전히 별도의 유료
 프로그램이다(자동화 로직 자체가 다르고 유지보수 속도도 다를 것이라는 이유). 이 README는
 분리 이전 작업 이력을 포함해 데스크톱 앱 개발 과정 전체를 시간순으로 기록한다 — 크롬 확장
 개발 이력은 `../naver-blog-auto-poster_web/README.md`를 볼 것.
@@ -341,4 +341,4 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
   위해 계속 공유. `middleware.ts`의 `authRequiredPaths`에도 새 경로 추가.
 - 크롬 확장 코드(`../naver-blog-auto-poster_web/sidepanel.js`)의 API 호출 경로를
   `/api/naver-blog-auto-poster-web/*`로 갱신, `manifest.json`/`sidepanel.html`의 표시
-  이름도 "AIMaster 네이버 블로그 자동화 - 크롬 확장"으로 갱신.
+  이름도 "AIMaster 네이버 블로그 자동화(Web)"으로 갱신.

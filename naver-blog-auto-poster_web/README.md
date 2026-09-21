@@ -1,11 +1,11 @@
-# 네이버 블로그 자동화 - 크롬 확장(naver-blog-auto-poster_web)
+# 네이버 블로그 자동화(Web) — naver-blog-auto-poster_web
 
 네이버 블로그 자동화의 **크롬 확장** 개발 이력이다. 원래
 `naver-blog-auto-poster/extension/` 하위 폴더로 개발됐다가, 2026-09-21에 유지보수 편의를
 위해 이 폴더로 완전히 분리됐다. **처음엔 이용권한·요금제를 데스크톱 앱과 공유하기로
 했었지만, 곧이어 "자동화 로직 자체가 서로 다르고 앞으로도 각자 다른 속도로
 유지보수한다"는 이유로 사용자가 결정을 뒤집어, 지금은 `programs.slug =
-naver-blog-auto-poster-web`("네이버 블로그 자동화 - 크롬 확장")이라는 완전히 별도의
+naver-blog-auto-poster-web`("네이버 블로그 자동화(Web)")이라는 완전히 별도의
 유료 프로그램**이다(요금제도 별도 등록, 데스크톱 앱을 구매해도 이 확장은 자동으로
 이용할 수 없음). 데스크톱 앱 쪽 개발 이력은
 [`../naver-blog-auto-poster_app/README.md`](../naver-blog-auto-poster_app/README.md)를
@@ -150,7 +150,7 @@ program_slug는 별도). 코드는 이 폴더(`naver-blog-auto-poster_web/`, Man
       뒤집음. 실제로 진행한 작업:
       - `programs` 테이블에 새 slug `naver-blog-auto-poster-web`("네이버 블로그
         자동화 - 크롬 확장")으로 신규 등록, 표준 3단계 요금제(1/2/3개월) 별도 생성,
-        기존 데스크톱 앱 프로그램은 이름을 "네이버 블로그 자동화 - PC 앱"으로
+        기존 데스크톱 앱 프로그램은 이름을 "네이버 블로그 자동화(App)"으로
         재명명(분리 시점 활성 구독/토큰 0건이라 이관 이슈 없음,
         `supabase/migrations/0010_split_naver_blog_auto_poster_into_separate_programs.sql`).
       - 실사 스타일 전용 썸네일 새로 생성(§13 "텍스트 없이" 규칙 위반으로 1차 생성본

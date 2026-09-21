@@ -16,7 +16,7 @@ import { GuideLinkButton } from "./GuideLinkButton";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export const metadata = { title: "네이버 블로그 자동화 - 크롬 확장 - 기기 연동" };
+export const metadata = { title: "네이버 블로그 자동화(Web) - 기기 연동" };
 
 const PROGRAM_SLUG = "naver-blog-auto-poster-web";
 const EXTENSION_DOWNLOAD_URL =
@@ -54,14 +54,14 @@ export default async function NaverBlogAutoPosterWebPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">
-          <GoldGradientText>네이버 블로그 자동화 - 크롬 확장 - 기기 연동</GoldGradientText>
+          <GoldGradientText>네이버 블로그 자동화(Web) - 기기 연동</GoldGradientText>
         </h1>
         <p className="text-subtext mt-1">
           크롬 브라우저 사이드패널에서 이 계정으로 로그인된 것처럼 동작하게 하려면, 여기서
           토큰을 발급받아 확장의 &quot;AIMaster 계정 연동&quot; 화면에 붙여넣으세요. 별도
           설치 없이 브라우저에서 바로 쓰는 버전이 아니라 PC에 설치하는 프로그램을 원하시면{" "}
           <a href="/naver-blog-auto-poster" className="text-gold underline">
-            네이버 블로그 자동화 - PC 앱
+            네이버 블로그 자동화(App)
           </a>{" "}
           페이지에서 별도로 이용하실 수 있습니다.
         </p>

@@ -22,8 +22,8 @@ README를, "어떻게 작업해야 하는지"는 이 문서를 먼저 읽을 것
   (자세한 내용은 `../naver-blog-auto-poster_web/AGENTS.md` §7 참고).
 - **같은 날 바로 이어서, `programs` 테이블 등록·요금제·기기 연동 토큰
   (`personal_access_tokens.program_slug`)까지 완전히 분리했다.** 이 폴더(데스크톱 앱)는
-  `programs.slug = naver-blog-auto-poster`("네이버 블로그 자동화 - PC 앱")이고, 크롬
-  확장은 `naver-blog-auto-poster-web`("네이버 블로그 자동화 - 크롬 확장")이라는 완전히
+  `programs.slug = naver-blog-auto-poster`("네이버 블로그 자동화(App)")이고, 크롬
+  확장은 `naver-blog-auto-poster-web`("네이버 블로그 자동화(Web)")이라는 완전히
   별도의 유료 프로그램이다 — 요금제도 각자 따로 등록돼 있고, 한쪽을 구매해도 다른 쪽은
   자동으로 이용할 수 없다. 처음엔 "코드만 분리하고 이용권한은 공유"하는 방향이었으나,
   자동화 로직 자체가 서로 다르고(Playwright vs `chrome.scripting`) 앞으로 각자 다른
@@ -161,10 +161,15 @@ lib/naverBlogAutoPoster/
   generateImage.ts    Gemini(나노바나나) 이미지 생성
   nanoBananaConfig.ts blog 서브프로젝트와 동일한 모델별(해상도/버전) 설정
 supabase/migrations/0007~0009_*.sql   프로그램 등록/토큰 테이블/공개 판매 전환
+supabase/migrations/0010_*.sql         PC 앱/크롬 확장 완전 별도 유료 프로그램으로 분리
 ```
 
-이 루트 쪽 코드와 API는 **크롬 확장(`../naver-blog-auto-poster_web/`)과 공유**한다 — 둘 다
-같은 `whoami`/`generate` 엔드포인트를 호출하므로, 여기를 고치면 양쪽 모두에 영향이 있다.
+**2026-09-22부터 크롬 확장은 이 API를 호출하지 않는다** — 완전 별도 프로그램으로
+분리되면서 `app/api/naver-blog-auto-poster-web/{whoami,generate}/route.ts`라는 자기
+전용 라우트가 새로 생겼다(`PROGRAM_SLUG`만 다르고 `lib/naverBlogAutoPoster/*` AI 생성
+로직만 계속 공유). 이 페이지/API 자체를 고쳐도 크롬 확장에는 영향이 없다 — 반대로
+`lib/naverBlogAutoPoster/*`를 고치면 양쪽 모두에 영향이 있으니 그 파일들만 공용
+자산으로 취급할 것.
 
 ### 6.3 데스크톱 앱 ↔ 루트 서버 통신
 
