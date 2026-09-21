@@ -54,6 +54,15 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .primary { border: 0; width: 100%; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; padding: 14px; margin-top: 22px; }
 .primary:disabled { opacity: .6; cursor: wait; }
 .primary:hover { filter: brightness(.96); }
+.title-recommendation { margin-top: 24px; }
+.secondary { border: 1px solid var(--accent); border-radius: 10px; background: var(--accent-soft); color: var(--accent); padding: 10px 14px; font-size: 13px; font-weight: 700; }
+.secondary:disabled { opacity: .55; cursor: wait; }
+.title-list { display: grid; gap: 8px; margin-top: 14px; }
+.title-option { border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: 10px 12px; text-align: left; }
+.title-option:hover { border-color: var(--accent); background: var(--accent-soft); }
+.title-option strong, .title-option small { display: block; }
+.title-option strong { color: var(--ink); font-size: 13px; }
+.title-option small { color: var(--muted); margin-top: 3px; font-size: 11px; }
 .checklist { display: grid; gap: 11px; }
 .check { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 11px; border-bottom: 1px solid #f0ede8; }
 .check:last-child { border-bottom: 0; padding-bottom: 0; }

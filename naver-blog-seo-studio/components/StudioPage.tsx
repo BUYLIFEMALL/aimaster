@@ -16,6 +16,21 @@ export default function StudioPage({ email }: { email: string }) {
   const [keywords, setKeywords] = useState("");
   const [message, setMessage] = useState("아직 생성된 초안이 없습니다.");
   const [pending, setPending] = useState(false);
+  const [titlePending, setTitlePending] = useState(false);
+  const [recommendedTitles, setRecommendedTitles] = useState<{ title: string; intent?: string }[]>([]);
+
+  async function recommendTitles() {
+    if (!topic.trim()) return setMessage("주제를 먼저 입력해주세요.");
+    setTitlePending(true);
+    try {
+      const response = await fetch("/api/titles/recommend", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords }) });
+      const result = await response.json() as { titles?: { title: string; intent?: string }[]; error?: string };
+      if (!response.ok) throw new Error(result.error || "제목 추천에 실패했습니다.");
+      setRecommendedTitles(result.titles ?? []);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "제목 추천에 실패했습니다.");
+    } finally { setTitlePending(false); }
+  }
 
   async function prepareDraft() {
     if (!topic.trim()) {
@@ -65,6 +80,12 @@ export default function StudioPage({ email }: { email: string }) {
             <p className="lede">주제 선정부터 SEO 검수까지 한 화면에서 준비합니다.</p>
           </div>
           <div className="account">AIMaster 계정 연동 전</div>
+        </div>
+
+        <div className="title-recommendation card">
+          <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">검색 의도 기반 5개</span></div>
+          <button className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천"}</button>
+          {recommendedTitles.length > 0 && <div className="title-list">{recommendedTitles.map((item, index) => <button key={`${item.title}-${index}`} className="title-option" onClick={() => setTopic(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button>)}</div>}
         </div>
 
         <div className="workspace">
