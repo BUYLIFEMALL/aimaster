@@ -508,3 +508,83 @@ publishButton.addEventListener("click", async () => {
     publishButton.disabled = false;
   }
 });
+
+// 구조 분석(유지보수용) — 데스크톱 앱의 blogEditorInspector.js와 동일한 목적. 네이버가
+// 화면을 바꿔서 자동 입력이 안 될 때, 추측 대신 실제 구조를 캡처해서 확인하기 위함
+// (AGENTS.md "추측하지 말고 실측한다" 원칙). 확장은 파일 시스템이 없어서 데스크톱처럼
+// 로컬 JSON으로 저장하는 대신, 결과를 화면의 textarea에 표시해서 복사하게 한다.
+async function injectedInspectStructure() {
+  function shorten(el) {
+    const classes =
+      el.className && typeof el.className === "string" ? el.className.trim().split(/\s+/).slice(0, 6) : null;
+    return {
+      tag: el.tagName,
+      id: el.id || null,
+      classes,
+      placeholder: el.getAttribute("placeholder") || null,
+      contentEditable: el.isContentEditable || null,
+      inputType: el.getAttribute("type") || null,
+      text: (el.textContent || "").trim().slice(0, 40)
+    };
+  }
+
+  const titleCandidates = Array.from(
+    document.querySelectorAll('[class*="se-title"], [placeholder*="제목"], .se-documentTitle')
+  )
+    .slice(0, 20)
+    .map(shorten);
+  const paragraphCandidates = Array.from(
+    document.querySelectorAll('.se-text-paragraph, .se-component-content, [class*="text-paragraph"]')
+  )
+    .slice(0, 20)
+    .map(shorten);
+  const tagCandidates = Array.from(document.querySelectorAll('[class*="tag"], [placeholder*="태그"]'))
+    .slice(0, 30)
+    .map(shorten);
+  const categoryCandidates = Array.from(document.querySelectorAll('[class*="category"] *'))
+    .slice(0, 150)
+    .map(shorten);
+  const contentEditableEls = Array.from(document.querySelectorAll('[contenteditable="true"]'))
+    .slice(0, 20)
+    .map(shorten);
+  const keywordButtons = Array.from(document.querySelectorAll("button, a, [role='button']"))
+    .filter((el) => /발행|저장|임시저장|카테고리|태그|등록|완료/.test(el.textContent || ""))
+    .slice(0, 60)
+    .map(shorten);
+
+  return {
+    url: location.href,
+    title: document.title,
+    titleCandidates,
+    paragraphCandidates,
+    tagCandidates,
+    categoryCandidates,
+    contentEditableEls,
+    keywordButtons
+  };
+}
+
+const inspectButton = document.getElementById("inspect-btn");
+const inspectStatusBox = document.getElementById("inspect-status");
+const inspectResultBox = document.getElementById("inspect-result");
+
+inspectButton.addEventListener("click", async () => {
+  inspectButton.disabled = true;
+  inspectStatusBox.textContent = "분석 중...";
+
+  try {
+    const tab = await findAndFocusNaverTab();
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: tab.id, allFrames: true },
+      func: injectedInspectStructure
+    });
+
+    const combined = results.map((r) => ({ frameId: r.frameId, result: r.result }));
+    inspectResultBox.value = JSON.stringify(combined, null, 2);
+    inspectStatusBox.textContent = `분석 완료(${combined.length}개 프레임). 아래 결과를 복사해서 전달해주세요.`;
+  } catch (error) {
+    inspectStatusBox.textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    inspectButton.disabled = false;
+  }
+});

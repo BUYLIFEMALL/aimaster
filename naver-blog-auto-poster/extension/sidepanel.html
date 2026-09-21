@@ -64,6 +64,17 @@
     <input id="publish-category" type="text" placeholder="카테고리 (일부만 입력해도 됨, 예: 여행)" />
     <button id="publish-btn">2단계 시작</button>
     <div id="publish-status" class="status">대기 중</div>
+
+    <h1 class="section-title">에디터 구조 분석 (유지보수용)</h1>
+    <p class="desc">
+      네이버가 화면 구조를 바꿔서 자동 입력이 갑자기 안 될 때 쓰는 진단 도구입니다.
+      확인하려는 화면(제목/본문, 또는 발행 설정창)을 먼저 클릭해서 연 상태에서
+      눌러주세요 — 결과를 아래 박스에 표시하니 전체 선택(Ctrl+A)해서 복사한 뒤
+      개발자에게 전달하면 됩니다.
+    </p>
+    <button id="inspect-btn">구조 분석</button>
+    <div id="inspect-status" class="status">대기 중</div>
+    <textarea id="inspect-result" rows="8" readonly placeholder="분석 결과가 여기 표시됩니다"></textarea>
   </main>
   <script src="sidepanel.js"></script>
 </body>
