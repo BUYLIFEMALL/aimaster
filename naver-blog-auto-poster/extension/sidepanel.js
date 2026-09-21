@@ -342,9 +342,23 @@ async function injectedRunPublishSettings({ tags, categoryName }) {
       if (!target) {
         errors.push(`"${categoryName}" 카테고리를 목록에서 찾지 못했습니다.`);
       } else {
-        simulateClick(target);
+        // <li> 자체가 아니라 그 안의 실제 클릭 대상(라벨 또는 라디오)을 클릭한다 —
+        // 구조 조사에서 선택 로직이 <li>가 아니라 라벨/라디오에 걸려있는 것으로
+        // 확인됐다(<li> 클릭만으로는 선택이 반영되지 않던 실사용 테스트 결과).
+        const clickable =
+          target.querySelector(".radio_label__zTXH0") ||
+          target.querySelector('input[type="radio"]') ||
+          target.querySelector(".option__y4XPa") ||
+          target;
+        simulateClick(clickable);
         await sleep(randomDelay(300, 600));
-        categorySelected = true;
+        // 실제로 반영됐는지 트리거 버튼 텍스트로 검증한다(태그/본문 입력 때와 같은
+        // 이유 — 클릭이 에러 없이 끝났다고 실제 선택까지 보장하지 않는다).
+        const afterText = document.querySelector(".selectbox_button__IxraO")?.textContent || "";
+        categorySelected = afterText.includes(categoryName);
+        if (!categorySelected) {
+          errors.push(`카테고리 선택이 반영되지 않은 것 같습니다(트리거 버튼 텍스트: "${afterText}").`);
+        }
       }
     }
   }
@@ -380,7 +394,11 @@ publishButton.addEventListener("click", async () => {
 
     const success = results.find((r) => r.result?.ok);
     if (success) {
-      publishStatusBox.textContent = "입력 완료. 탭에서 결과를 확인해주세요.";
+      const { errors: warnings } = success.result;
+      publishStatusBox.textContent =
+        warnings && warnings.length > 0
+          ? `일부만 완료됨. 탭에서 결과를 확인해주세요.\n${warnings.join("\n")}`
+          : "입력 완료(실제 선택 확인됨). 탭에서 결과를 확인해주세요.";
     } else {
       const failure = results.find((r) => r.result && !r.result.ok);
       publishStatusBox.textContent = `오류: ${failure?.result?.error || "발행 설정 요소를 찾지 못했습니다 (먼저 브라우저에서 '발행' 버튼을 눌러 설정창을 열어주세요)."}`;
