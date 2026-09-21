@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "AI Master — AI 마케팅 자동화 프로그램",
-  description: "AI 마케팅 자동화 프로그램으로 시간을 절약하고 매출을 극대화하세요. SNS 자동화, 키워드 분석 등 검증된 도구를 제공합니다.",
+  description: "AI 기반 마케팅 자동화 프로그램으로 시간을 절약하고 매출을 극대화하세요. SNS 자동화, 키워드 분석 등 검증된 도구를 제공합니다.",
   openGraph: {
     title: "AI Master — AI 마케팅 자동화 프로그램",
-    description: "AI 마케팅 자동화 프로그램으로 시간을 절약하고 매출을 극대화하세요.",
+    description: "AI 기반 마케팅 자동화 프로그램으로 시간을 절약하고 매출을 극대화하세요.",
   },
 };
 
@@ -216,7 +216,6 @@ export default async function HomePage() {
   const stats = [
     { value: activeUserCount.toLocaleString("ko-KR"), label: "활성 사용자" },
     { value: "98%", label: "고객 만족도" },
-    { value: "24/7", label: "상시 운영" },
   ];
 
   const categoryBlocks = categories
@@ -249,7 +248,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-subtext text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed">
-            AI 마케팅 자동화 프로그램으로 시간을 절약하고
+            AI 기반 마케팅 프로그램으로 시간을 절약하고
             <br className="hidden md:block" />
             매출을 극대화하세요.
           </p>
@@ -281,36 +280,6 @@ export default async function HomePage() {
         <div className="max-w-4xl mx-auto">
           {/* 로그아웃 상태: 등록된 프로그램 수만. 로그인 상태: 회원 개인의 이용 가능
               프로그램 수 + 가장 빠른 만료일까지 함께 보여준다 */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <GlassCard className="p-4 text-center">
-              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{freeProgramCount}</div>
-              <div className="text-subtext text-xs">무료 프로그램</div>
-            </GlassCard>
-            <GlassCard className="p-4 text-center">
-              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{paidProgramCount}</div>
-              <div className="text-subtext text-xs">유료 프로그램</div>
-            </GlassCard>
-          </div>
-
-          <div className={`grid gap-4 mb-4 ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
-            <GlassCard className="p-4 text-center">
-              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
-              <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
-            </GlassCard>
-            {userAccess && (
-              <>
-                <GlassCard className="p-4 text-center">
-                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.accessibleCount}</div>
-                  <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
-                </GlassCard>
-                <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
-                  <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess.expiryLabel}</div>
-                  <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
-                </GlassCard>
-              </>
-            )}
-          </div>
-
           <div className="glass-card rounded-2xl border border-gold/30 bg-gold/[0.04] p-6 md:p-8">
             <div className="flex items-center gap-2 mb-5">
               <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center shrink-0">
@@ -372,7 +341,7 @@ export default async function HomePage() {
 
       {/* Stats */}
       <section className="py-16 px-4 border-y border-white/10">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 gap-6">
           {stats.map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-4xl font-black gold-text mb-1">{stat.value}</div>
@@ -407,15 +376,52 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* 프로그램 수 요약 — 카테고리별 프로그램 바로 위에 배치 */}
+      <section className="px-4 pb-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <GlassCard className="p-4 text-center">
+              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{freeProgramCount}</div>
+              <div className="text-subtext text-xs">무료 프로그램</div>
+            </GlassCard>
+            <GlassCard className="p-4 text-center">
+              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{paidProgramCount}</div>
+              <div className="text-subtext text-xs">유료 프로그램</div>
+            </GlassCard>
+          </div>
+
+        </div>
+      </section>
+
       {/* Programs Showcase — 카테고리별 블록 */}
       {categoryBlocks.length > 0 && (
         <section className="py-20 px-4 bg-surface/30">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                카테고리별 <GoldGradientText>프로그램</GoldGradientText>
-              </h2>
-              <p className="text-subtext">필요한 플랫폼에 맞는 자동화 도구를 찾아보세요</p>
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-14">
+              <div className="text-center lg:text-left">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                  카테고리별 <GoldGradientText>프로그램</GoldGradientText>
+                </h2>
+                <p className="text-subtext">필요한 플랫폼에 맞는 자동화 도구를 찾아보세요</p>
+              </div>
+              <div className={`grid gap-3 w-full lg:w-auto ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
+                <GlassCard className="p-3 text-center min-w-[130px]">
+                  <div className="text-xl md:text-2xl font-black gold-text mb-1">{programs.length}</div>
+                  <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
+                </GlassCard>
+                {userAccess && (
+                  <>
+                    <GlassCard className="p-3 text-center min-w-[130px]">
+                      <div className="text-xl md:text-2xl font-black gold-text mb-1">{userAccess.accessibleCount}</div>
+                      <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
+                    </GlassCard>
+                    <GlassCard className="p-3 text-center min-w-[130px] col-span-2 md:col-span-1">
+                      <div className="text-xl md:text-2xl font-black gold-text mb-1">{userAccess.expiryLabel}</div>
+                      <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
+                    </GlassCard>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="space-y-16">
