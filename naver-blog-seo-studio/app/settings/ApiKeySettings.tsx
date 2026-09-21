@@ -4,7 +4,7 @@ import { useState } from "react";
 
 type Provider = "openai" | "gemini";
 
-export default function ApiKeySettings({ initialProviders }: { initialProviders: Provider[] }) {
+export default function ApiKeySettings({ initialProviders, maskedKeys = {} }: { initialProviders: Provider[]; maskedKeys?: Partial<Record<Provider, string>> }) {
   const [values, setValues] = useState<Record<Provider, string>>({ openai: "", gemini: "" });
   const [providers, setProviders] = useState(initialProviders);
   const [message, setMessage] = useState("");
@@ -43,6 +43,7 @@ export default function ApiKeySettings({ initialProviders }: { initialProviders:
 
   return (
     <div className="settings-stack">
+      {Object.entries(maskedKeys).filter(([, value]) => value).map(([provider, value]) => <div key={provider} className="saved-key-notice"><strong>{provider === "openai" ? "OpenAI" : "Gemini"} 계정 키 연결됨</strong><code>{value}</code></div>)}
       <div className="key-row">
         <div><strong>OpenAI</strong><p>제목·본문·SEO 검수 리포트 생성에 사용합니다.</p></div>
         <div className="key-actions"><input type="password" placeholder={providers.includes("openai") ? "등록된 키가 있습니다" : "sk-..."} value={values.openai} onChange={(event) => setValues((current) => ({ ...current, openai: event.target.value }))} autoComplete="off" /><button className="small-button" onClick={() => save("openai")} disabled={pending !== null}>{pending === "openai" ? "저장 중" : "저장"}</button>{providers.includes("openai") && <button className="text-button" onClick={() => remove("openai")} disabled={pending !== null}>해제</button>}</div>
