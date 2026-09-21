@@ -19,8 +19,11 @@ button { cursor: pointer; }
 .brand em { color: var(--accent); font-style: normal; }
 .brand-sub { color: var(--muted); font-size: 12px; margin-top: 8px; }
 .nav { display: grid; gap: 8px; margin-top: 42px; counter-reset: studio-menu; }
-.nav-link { border: 0; background: transparent; text-align: left; border-radius: 12px; color: #5f5b56; padding: 12px 14px; font-size: 14px; }
-.nav-link::before { counter-increment: studio-menu; content: counter(studio-menu, decimal-leading-zero); display: inline-block; width: 28px; margin-right: 8px; color: #b8aea3; font-size: 11px; font-weight: 800; letter-spacing: .04em; }
+.nav-link { border: 0; background: transparent; text-align: left; border-radius: 12px; color: #5f5b56; padding: 8px 10px; font-size: 14px; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-link::before { counter-increment: studio-menu; content: counter(studio-menu); display: grid; place-items: center; flex: 0 0 32px; height: 32px; border-radius: 50%; background: #f2eee9; color: #8b8177; font-size: 13px; font-weight: 800; }
+.nav-link > span:last-child { display: grid; gap: 3px; }
+.nav-link strong { font-size: 13px; }
+.nav-link small { color: #9a9086; font-size: 11px; }
 .nav-link:last-child { margin-top: 12px; padding-top: 20px; border-top: 1px solid var(--line); border-radius: 0 0 12px 12px; }
 .nav-link.active { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 .side-note { margin-top: auto; background: #faf6f0; border-radius: 16px; padding: 15px; color: #6b6258; font-size: 12px; line-height: 1.6; }
@@ -74,7 +77,12 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .settings-brand { color: #171717; font-size: 20px; font-weight: 800; letter-spacing: -.05em; text-decoration: none; }
 .settings-brand em { color: var(--accent); font-style: normal; }
 .settings-nav { display: grid; gap: 8px; margin-top: 42px; }
-.settings-nav a { border-radius: 12px; color: #5f5b56; padding: 12px 14px; font-size: 14px; text-decoration: none; }
+.settings-nav a { border-radius: 12px; color: #5f5b56; padding: 8px 10px; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.settings-nav a > span:last-child { display: grid; gap: 3px; }
+.settings-nav strong { font-size: 13px; }
+.settings-nav small { color: #9a9086; font-size: 11px; }
+.settings-step { display: grid; place-items: center; flex: 0 0 32px; height: 32px; border-radius: 50%; background: #f2eee9; color: #8b8177; font-size: 13px; font-weight: 800; }
+.settings-nav a.active .settings-step { background: var(--accent); color: #fff; }
 .settings-nav a:hover, .settings-nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 .settings-sidebar-note { margin-top: auto; background: #faf6f0; border-radius: 16px; padding: 15px; color: #6b6258; font-size: 12px; line-height: 1.6; }
 .settings-layout > .settings-card { width: min(100% - 40px, 780px); margin: 48px auto; }

@@ -18,9 +18,9 @@ export default async function SettingsPage() {
       <aside className="settings-sidebar">
         <a className="settings-brand" href="/dashboard"><em>SEO</em> 스튜디오</a>
         <nav className="settings-nav" aria-label="주 메뉴">
-          <a href="/dashboard">01&nbsp; 새 글 만들기</a>
-          <a className="active" href="/settings">02&nbsp; API·확장 연동</a>
-          <a href="https://www.buylife.xyz/">03&nbsp; AIMaster 메인</a>
+          <a href="/dashboard"><span className="settings-step">1</span><span><strong>새 글 만들기</strong><small>AI 초안 작성</small></span></a>
+          <a className="active" href="/settings"><span className="settings-step">2</span><span><strong>API·확장 연동</strong><small>키와 토큰 설정</small></span></a>
+          <a href="https://www.buylife.xyz/"><span className="settings-step">3</span><span><strong>AIMaster 메인</strong><small>다른 프로그램 보기</small></span></a>
         </nav>
         <p className="settings-sidebar-note">AI 초안은 직접 확인한 뒤 네이버에서 최종 발행하세요.</p>
       </aside>
