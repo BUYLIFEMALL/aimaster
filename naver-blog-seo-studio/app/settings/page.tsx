@@ -21,7 +21,17 @@ export default async function SettingsPage() {
           <a href="/dashboard"><span className="settings-step">1</span><span><strong>새 글 만들기</strong><small>AI 초안 작성</small></span></a>
           <a className="active" href="/settings"><span className="settings-step">2</span><span><strong>API·확장 연동</strong><small>키와 토큰 설정</small></span></a>
           <a href="https://www.buylife.xyz/"><span className="settings-step">3</span><span><strong>AIMaster 메인</strong><small>다른 프로그램 보기</small></span></a>
+          <div className="settings-nav-divider" />
+          <a href="/dashboard#title"><span className="settings-step">2</span><span><strong>제목 추천</strong><small>검색 의도 분석</small></span></a>
+          <a href="/dashboard#draft"><span className="settings-step">3</span><span><strong>기존 글 최적화</strong><small>콘텐츠 개선</small></span></a>
+          <a href="/dashboard#history"><span className="settings-step">4</span><span><strong>생성 기록</strong><small>작성한 초안 확인</small></span></a>
+          <a className="active" href="/settings#api-key"><span className="settings-step">5</span><span><strong>API 키 등록</strong><small>OpenAI·Gemini 키</small></span></a>
+          <a href="/settings#platform"><span className="settings-step">6</span><span><strong>플랫폼 연동</strong><small>Chrome 확장 토큰</small></span></a>
         </nav>
+        <div className="settings-sidebar-account" title={user.email ?? ""}>
+          <span>로그인 계정</span>
+          <strong>{user.email ?? "이메일 없음"}</strong>
+        </div>
         <p className="settings-sidebar-note">AI 초안은 직접 확인한 뒤 네이버에서 최종 발행하세요.</p>
       </aside>
       <section className="settings-card">

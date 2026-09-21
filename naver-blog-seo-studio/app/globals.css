@@ -81,10 +81,14 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .settings-nav a > span:last-child { display: grid; gap: 3px; }
 .settings-nav strong { font-size: 13px; }
 .settings-nav small { color: #9a9086; font-size: 11px; }
+.settings-nav-divider { height: 1px; background: var(--line); margin: 10px 0 4px; }
 .settings-step { display: grid; place-items: center; flex: 0 0 32px; height: 32px; border-radius: 50%; background: #f2eee9; color: #8b8177; font-size: 13px; font-weight: 800; }
 .settings-nav a.active .settings-step { background: var(--accent); color: #fff; }
 .settings-nav a:hover, .settings-nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 .settings-sidebar-note { margin-top: auto; background: #faf6f0; border-radius: 16px; padding: 15px; color: #6b6258; font-size: 12px; line-height: 1.6; }
+.settings-sidebar-account { margin-top: 18px; padding: 12px 13px; border: 1px solid var(--line); border-radius: 14px; background: #fff; overflow: hidden; }
+.settings-sidebar-account span { display: block; margin-bottom: 4px; color: #9a8f84; font-size: 11px; }
+.settings-sidebar-account strong { display: block; overflow: hidden; color: #3f3933; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .settings-layout > .settings-card { width: min(100% - 40px, 780px); margin: 48px auto; }
 .settings-card { max-width: 780px; margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 34px; }
 .settings-card h1 { font-size: 32px; }
