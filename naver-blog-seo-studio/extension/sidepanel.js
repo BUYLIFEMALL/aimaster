@@ -51,7 +51,7 @@ $("fill").addEventListener("click", async () => {
   if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 여세요.");
-  const results = await chrome.scripting.executeScript({ target: { tabId: tab.id }, args: [title, body], func: async (titleText, bodyText) => {
+  const results = await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: true }, args: [title, body], func: async (titleText, bodyText) => {
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const documents = [document];
     for (const frame of [...document.querySelectorAll("iframe")]) {
@@ -71,7 +71,7 @@ $("fill").addEventListener("click", async () => {
     const put = (target, text) => { if (!target || !text) return; target.focus(); if (target.matches("input, textarea")) { const setter = Object.getOwnPropertyDescriptor(target.constructor.prototype, "value")?.set; setter?.call(target, text); target.dispatchEvent(new Event("input", { bubbles: true })); return; } const selection = target.ownerDocument.getSelection(), range = target.ownerDocument.createRange(); range.selectNodeContents(target); selection.removeAllRanges(); selection.addRange(range); target.ownerDocument.execCommand("insertText", false, text); target.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text })); };
     put(titleTarget, titleText); put(bodyTarget, bodyText); return { ok: true, title: Boolean(titleTarget), body: Boolean(bodyTarget) };
   } });
-  const result = results?.[0]?.result;
+  const result = results?.find((entry) => entry.result?.ok)?.result || results?.find((entry) => entry.result)?.result;
   $("generateStatus").textContent = result?.ok ? "네이버 편집기에 입력했습니다. 내용을 검토한 뒤 발행하세요." : `입력 실패: ${result?.error || "페이지에 접근하지 못했습니다."}`;
 });
 
