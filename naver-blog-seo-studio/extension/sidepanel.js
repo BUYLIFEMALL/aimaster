@@ -51,13 +51,18 @@ $("fill").addEventListener("click", async () => {
   if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 여세요.");
-  const results = await chrome.scripting.executeScript({ target: { tabId: tab.id }, args: [title, body], func: (titleText, bodyText) => {
+  const results = await chrome.scripting.executeScript({ target: { tabId: tab.id }, args: [title, body], func: async (titleText, bodyText) => {
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    let titleContainer, bodyContainer;
+    for (let attempt = 0; attempt < 8 && (!titleContainer || !bodyContainer); attempt += 1) {
+      titleContainer = document.querySelector(".se-title-text, .se-documentTitle, [class*='se-title']");
+      bodyContainer = [...document.querySelectorAll('.se-text-paragraph, .se-section-text, .se-module-text, [contenteditable="true"]')].find((element) => !element.closest(".se-documentTitle") && !element.closest(".se-title-text") && !element.closest("[class*='se-title']"));
+      if (!titleContainer || !bodyContainer) await wait(400);
+    }
     const editable = (container) => container?.isContentEditable ? container : container?.querySelector('[contenteditable="true"]');
-    const titleContainer = document.querySelector(".se-title-text, .se-documentTitle");
-    const bodyContainer = [...document.querySelectorAll('.se-text-paragraph, [contenteditable="true"]')].find((element) => !element.closest(".se-documentTitle") && !element.closest(".se-title-text"));
     const titleTarget = editable(titleContainer) || titleContainer, bodyTarget = editable(bodyContainer) || bodyContainer;
-    if (!titleTarget && !bodyTarget) return { ok: false, error: "네이버 글쓰기 입력 요소를 찾지 못했습니다. 글쓰기 화면을 새로 연 뒤 다시 시도하세요." };
-    const put = (target, text) => { if (!target || !text) return; target.focus(); const selection = target.ownerDocument.getSelection(), range = target.ownerDocument.createRange(); range.selectNodeContents(target); selection.removeAllRanges(); selection.addRange(range); target.ownerDocument.execCommand("insertText", false, text); target.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text })); };
+    if (!titleTarget && !bodyTarget) return { ok: false, error: `입력 요소를 찾지 못했습니다 (제목 후보 ${document.querySelectorAll('[class*="title"], [contenteditable="true"]').length}개). 네이버 글쓰기 화면을 연 뒤 본문을 한 번 클릭하고 다시 시도하세요.` };
+    const put = (target, text) => { if (!target || !text) return; target.focus(); if (target.matches("input, textarea")) { const setter = Object.getOwnPropertyDescriptor(target.constructor.prototype, "value")?.set; setter?.call(target, text); target.dispatchEvent(new Event("input", { bubbles: true })); return; } const selection = target.ownerDocument.getSelection(), range = target.ownerDocument.createRange(); range.selectNodeContents(target); selection.removeAllRanges(); selection.addRange(range); target.ownerDocument.execCommand("insertText", false, text); target.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text })); };
     put(titleTarget, titleText); put(bodyTarget, bodyText); return { ok: true, title: Boolean(titleTarget), body: Boolean(bodyTarget) };
   } });
   const result = results?.[0]?.result;
