@@ -14,7 +14,16 @@ export default async function SettingsPage() {
   const { data: tokens } = await supabase.from("personal_access_tokens").select("id, label, created_at, last_used_at").eq("user_id", user.id).eq("program_slug", "naver-blog-seo-studio").is("revoked_at", null).order("created_at", { ascending: false });
 
   return (
-    <main className="settings-shell">
+    <main className="settings-layout">
+      <aside className="settings-sidebar">
+        <a className="settings-brand" href="/dashboard"><em>SEO</em> 스튜디오</a>
+        <nav className="settings-nav" aria-label="주 메뉴">
+          <a href="/dashboard">01&nbsp; 새 글 만들기</a>
+          <a className="active" href="/settings">02&nbsp; API·확장 연동</a>
+          <a href="https://www.buylife.xyz/">03&nbsp; AIMaster 메인</a>
+        </nav>
+        <p className="settings-sidebar-note">AI 초안은 직접 확인한 뒤 네이버에서 최종 발행하세요.</p>
+      </aside>
       <section className="settings-card">
         <div className="eyebrow">Settings</div>
         <h1>API키등록·플랫폼연동</h1>
