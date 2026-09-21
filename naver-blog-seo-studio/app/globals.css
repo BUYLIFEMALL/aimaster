@@ -117,6 +117,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .settings-card h1 { font-size: 32px; }
 .settings-stack { display: grid; gap: 14px; margin-top: 28px; }
 .key-row { border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 14px; }
+.saved-key-inline { color: #4f8065; font-size: 11px; }
 .saved-key-notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #cde8d8; border-radius: 12px; background: #f2fbf5; padding: 11px 13px; color: #27724a; font-size: 12px; }
 .saved-key-notice code { color: #4f8065; font-size: 11px; }
 .key-row strong { font-size: 15px; }

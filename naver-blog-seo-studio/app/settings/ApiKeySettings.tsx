@@ -43,12 +43,13 @@ export default function ApiKeySettings({ initialProviders, maskedKeys = {} }: { 
 
   return (
     <div className="settings-stack">
-      {Object.entries(maskedKeys).filter(([, value]) => value).map(([provider, value]) => <div key={provider} className="saved-key-notice"><strong>{provider === "openai" ? "OpenAI" : "Gemini"} 계정 키 연결됨</strong><code>{value}</code></div>)}
       <div className="key-row">
+        {maskedKeys.openai && <code className="saved-key-inline">계정 등록 키: {maskedKeys.openai}</code>}
         <div><strong>OpenAI</strong><p>제목·본문·SEO 검수 리포트 생성에 사용합니다.</p></div>
         <div className="key-actions"><input type="password" placeholder={providers.includes("openai") ? "등록된 키가 있습니다" : "sk-..."} value={values.openai} onChange={(event) => setValues((current) => ({ ...current, openai: event.target.value }))} autoComplete="off" /><button className="small-button" onClick={() => save("openai")} disabled={pending !== null}>{pending === "openai" ? "저장 중" : "저장"}</button>{providers.includes("openai") && <button className="text-button" onClick={() => remove("openai")} disabled={pending !== null}>해제</button>}</div>
       </div>
       <div className="key-row">
+        {maskedKeys.gemini && <code className="saved-key-inline">계정 등록 키: {maskedKeys.gemini}</code>}
         <div><strong>Gemini</strong><p>향후 글 속 이미지와 썸네일 생성에 사용합니다.</p></div>
         <div className="key-actions"><input type="password" placeholder={providers.includes("gemini") ? "등록된 키가 있습니다" : "AIza..."} value={values.gemini} onChange={(event) => setValues((current) => ({ ...current, gemini: event.target.value }))} autoComplete="off" /><button className="small-button" onClick={() => save("gemini")} disabled={pending !== null}>{pending === "gemini" ? "저장 중" : "저장"}</button>{providers.includes("gemini") && <button className="text-button" onClick={() => remove("gemini")} disabled={pending !== null}>해제</button>}</div>
       </div>

@@ -12,7 +12,7 @@ export default async function SettingsPage() {
   const supabase = await createClient();
   const { data } = await supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id).in("provider", ["openai", "gemini"]);
   const initialProviders = (data ?? []).map((item) => item.provider).filter((provider): provider is "openai" | "gemini" => provider === "openai" || provider === "gemini");
-  const maskedKeys = Object.fromEntries((data ?? []).map((item) => [item.provider, item.api_key.length > 10 ? `${item.api_key.slice(0, 6)}••••••••${item.api_key.slice(-4)}` : "••••••••"])) as Partial<Record<"openai" | "gemini", string>>;
+  const maskedKeys = Object.fromEntries((data ?? []).map((item) => [item.provider, item.api_key.length > 10 ? `${item.api_key.slice(0, 6)}********${item.api_key.slice(-4)}` : "********"])) as Partial<Record<"openai" | "gemini", string>>;
   const { data: tokens } = await supabase.from("personal_access_tokens").select("id, label, created_at, last_used_at").eq("user_id", user.id).eq("program_slug", "naver-blog-seo-studio").is("revoked_at", null).order("created_at", { ascending: false });
 
   return (
