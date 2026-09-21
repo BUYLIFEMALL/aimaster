@@ -20,8 +20,7 @@ export default function SettingsSidebar({ email }: { email: string | null }) {
         <Link className="reference-overview" href="/dashboard">▣ 대시보드</Link>
         <div className="reference-flow">{flow.map(([href, step, label, description]) => <Link key={step} href={href} className={`reference-flow-item ${pathname === href ? "active" : ""}`}><span className="reference-number">{step}</span><span><strong>{label}</strong><small>{description}</small></span></Link>)}</div>
         <div className="reference-utility">
-          <Link className="active" href="/settings#api-key">⚙ API 키 등록</Link>
-          <Link href="/settings#platform">↗ 플랫폼 연동</Link>
+          <Link className="active" href="/settings">⚙ API 키 등록 · 플랫폼 연동</Link>
         </div>
       </nav>
     </div>
