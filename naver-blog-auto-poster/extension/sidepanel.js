@@ -209,6 +209,20 @@ async function injectedFillTitleAndBody({ title, body }) {
   };
 }
 
+// 네이버 블로그 탭을 창과 무관하게 찾고, execCommand가 실제로 먹히도록 그 탭/창을
+// 화면 앞으로 가져온다(§ "1단계와 2단계의 함정" 참고 — 두 기능이 동일하게 필요).
+async function findAndFocusNaverTab() {
+  const tabs = await chrome.tabs.query({ url: "https://blog.naver.com/*" });
+  if (tabs.length === 0) {
+    throw new Error("네이버 블로그 탭을 찾지 못했습니다 — blog.naver.com 탭이 열려있는지 확인해주세요.");
+  }
+  const tab = tabs.find((t) => t.active) || tabs[0];
+  await chrome.windows.update(tab.windowId, { focused: true });
+  await chrome.tabs.update(tab.id, { active: true });
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  return tab;
+}
+
 const draftTitleInput = document.getElementById("draft-title");
 const draftBodyInput = document.getElementById("draft-body");
 const draftButton = document.getElementById("draft-btn");
@@ -219,23 +233,7 @@ draftButton.addEventListener("click", async () => {
   draftStatusBox.textContent = "사람처럼 천천히 입력 중입니다... (시간이 좀 걸립니다)";
 
   try {
-    // 사이드패널이 붙어있는 창과 네이버 블로그 탭이 열려있는 창이 서로 다를 수 있다
-    // (실사용 테스트에서 실제로 확인됨 — "activeTab in currentWindow"로 찾으면 사이드
-    // 패널이 있는 창에서 활성화된 엉뚱한 탭을 잡게 됨). 창과 무관하게 blog.naver.com
-    // 탭을 직접 찾는다.
-    const tabs = await chrome.tabs.query({ url: "https://blog.naver.com/*" });
-    if (tabs.length === 0) {
-      throw new Error("네이버 블로그 탭을 찾지 못했습니다 — blog.naver.com 탭이 열려있는지 확인해주세요.");
-    }
-    const tab = tabs.find((t) => t.active) || tabs[0];
-
-    // execCommand("insertText")는 실제 키보드 입력을 흉내내는 명령이라, 그 탭/창이
-    // 실제로 화면에서 포커스된 상태여야 동작하는 것으로 보인다(백그라운드 창에서는
-    // "입력 완료"로 응답이 와도 실제로는 아무것도 안 들어가는 문제를 실사용 테스트에서
-    // 확인함). 스크립트 실행 전에 그 탭/창을 먼저 활성화한다.
-    await chrome.windows.update(tab.windowId, { focused: true });
-    await chrome.tabs.update(tab.id, { active: true });
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    const tab = await findAndFocusNaverTab();
 
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id, allFrames: true },
@@ -258,5 +256,138 @@ draftButton.addEventListener("click", async () => {
     draftStatusBox.textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
   } finally {
     draftButton.disabled = false;
+  }
+});
+
+// 2단계 — 태그/카테고리 자동 입력. 사람이 먼저 브라우저에서 "발행" 버튼을 직접 눌러
+// 발행 설정창을 연 뒤에 써야 한다(이 확장도 그 버튼을 대신 누르지 않는다 — 1단계와
+// 동일한 원칙). 태그 입력창(#tag-input)과 카테고리 목록(.item__dTdzo)은 제목/본문과
+// 달리 클릭해도 새 iframe이 생기지 않는 일반 DOM 요소였다(실사용 테스트로 확인) —
+// 그래도 같은 자기완결 함수 패턴을 그대로 따른다.
+async function injectedRunPublishSettings({ tags, categoryName }) {
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  function randomDelay(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  function simulateClick(el) {
+    const rect = el.getBoundingClientRect();
+    const opts = {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height / 2
+    };
+    el.dispatchEvent(new MouseEvent("mousedown", opts));
+    el.dispatchEvent(new MouseEvent("mouseup", opts));
+    el.dispatchEvent(new MouseEvent("click", opts));
+  }
+  function dispatchEnterKey(el) {
+    const opts = { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true, cancelable: true };
+    el.dispatchEvent(new KeyboardEvent("keydown", opts));
+    el.dispatchEvent(new KeyboardEvent("keyup", opts));
+  }
+  async function humanType(text) {
+    for (const char of text) {
+      document.execCommand("insertText", false, char);
+      await sleep(randomDelay(70, 170));
+      if (Math.random() < 0.05) await sleep(randomDelay(250, 700));
+    }
+  }
+
+  const errors = [];
+  let tagsFilled = false;
+  let categorySelected = false;
+
+  if (Array.isArray(tags) && tags.length > 0) {
+    const tagInput = document.querySelector("#tag-input");
+    if (!tagInput) {
+      errors.push("이 프레임에는 태그 입력창이 없습니다.");
+    } else {
+      for (const rawTag of tags) {
+        const tag = rawTag.trim();
+        if (!tag) continue;
+        simulateClick(tagInput);
+        tagInput.focus();
+        await humanType(tag);
+        await sleep(randomDelay(200, 450));
+        dispatchEnterKey(tagInput);
+        await sleep(randomDelay(400, 800));
+      }
+      tagsFilled = true;
+    }
+  }
+
+  if (categoryName) {
+    const trigger = document.querySelector(".selectbox_button__IxraO");
+    if (!trigger) {
+      errors.push("이 프레임에는 카테고리 선택 버튼이 없습니다.");
+    } else {
+      const listLayer = document.querySelector(".option_list_layer__o54Wx");
+      const isOpen = listLayer && listLayer.offsetParent !== null;
+      if (!isOpen) {
+        simulateClick(trigger);
+        await sleep(randomDelay(400, 800));
+      }
+      const items = document.querySelectorAll(".item__dTdzo");
+      let target = null;
+      for (const el of items) {
+        if (el.textContent.includes(categoryName)) {
+          target = el;
+          break;
+        }
+      }
+      if (!target) {
+        errors.push(`"${categoryName}" 카테고리를 목록에서 찾지 못했습니다.`);
+      } else {
+        simulateClick(target);
+        await sleep(randomDelay(300, 600));
+        categorySelected = true;
+      }
+    }
+  }
+
+  if (!tagsFilled && !categorySelected) {
+    return { ok: false, error: errors.join(" / ") || "이 프레임에는 발행 설정 요소가 없습니다." };
+  }
+  return { ok: true, tagsFilled, categorySelected, errors };
+}
+
+const publishTagsInput = document.getElementById("publish-tags");
+const publishCategoryInput = document.getElementById("publish-category");
+const publishButton = document.getElementById("publish-btn");
+const publishStatusBox = document.getElementById("publish-status");
+
+publishButton.addEventListener("click", async () => {
+  publishButton.disabled = true;
+  publishStatusBox.textContent = "태그/카테고리를 입력하는 중입니다...";
+
+  const tags = publishTagsInput.value
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const categoryName = publishCategoryInput.value.trim();
+
+  try {
+    const tab = await findAndFocusNaverTab();
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: tab.id, allFrames: true },
+      func: injectedRunPublishSettings,
+      args: [{ tags, categoryName }]
+    });
+
+    const success = results.find((r) => r.result?.ok);
+    if (success) {
+      publishStatusBox.textContent = "입력 완료. 탭에서 결과를 확인해주세요.";
+    } else {
+      const failure = results.find((r) => r.result && !r.result.ok);
+      publishStatusBox.textContent = `오류: ${failure?.result?.error || "발행 설정 요소를 찾지 못했습니다 (먼저 브라우저에서 '발행' 버튼을 눌러 설정창을 열어주세요)."}`;
+    }
+  } catch (error) {
+    publishStatusBox.textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    publishButton.disabled = false;
   }
 });
