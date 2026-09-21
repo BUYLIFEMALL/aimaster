@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square, ArrowUp, ArrowDown } from "lucide-react";
+import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square, ArrowUp, ArrowDown, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Badge from "@/components/ui/Badge";
 import CategoryManagerButton from "@/components/admin/CategoryManagerButton";
@@ -192,6 +192,13 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
       next.delete(p.id);
       return next;
     });
+  };
+
+  const handleToggleLatest = async (p: ProgramRow) => {
+    const nextBadges = p.badges.includes("new")
+      ? p.badges.filter((badge) => badge !== "new")
+      : [...p.badges, "new"];
+    await applyUpdate([p.id], { badges: nextBadges });
   };
 
   // 카테고리 블록 자체의 위/아래 순서(메인 /programs 페이지 노출 순서)를 바꾼다.
@@ -578,12 +585,27 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                             </button>
                           </td>
                           <td className="p-4 text-right">
-                            <Link href={`/admin/programs/${p.id}/edit`}>
-                              <button className="inline-flex items-center gap-1.5 text-sm text-subtext hover:text-gold hover:bg-gold/10 px-3 py-1.5 rounded-lg transition-colors">
-                                <Pencil size={13} />
-                                편집
+                            <div className="inline-flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLatest(p)}
+                                className={`inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg transition-colors ${
+                                  p.badges.includes("new")
+                                    ? "text-green-300 bg-green-500/10 hover:bg-green-500/20"
+                                    : "text-subtext hover:text-gold hover:bg-gold/10"
+                                }`}
+                                title={p.badges.includes("new") ? "최신 프로그램에서 해제" : "최신 프로그램으로 등록"}
+                              >
+                                <Sparkles size={12} />
+                                {p.badges.includes("new") ? "최신 해제" : "최신 등록"}
                               </button>
-                            </Link>
+                              <Link href={`/admin/programs/${p.id}/edit`}>
+                                <button className="inline-flex items-center gap-1.5 text-sm text-subtext hover:text-gold hover:bg-gold/10 px-3 py-1.5 rounded-lg transition-colors">
+                                  <Pencil size={13} />
+                                  편집
+                                </button>
+                              </Link>
+                            </div>
                           </td>
                         </tr>
                       ))}

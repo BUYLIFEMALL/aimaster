@@ -18,6 +18,7 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import GlassCard from "@/components/ui/GlassCard";
 import ProgramCard from "@/components/programs/ProgramCard";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
 import { daysRemaining } from "@/lib/utils/format";
 
@@ -29,7 +30,8 @@ interface UserAccessSummary {
 async function getHomeData() {
   try {
     const supabase = await createClient();
-    const [{ data: { user } }, { data: programs }, { data: categories }] = await Promise.all([
+    const service = createServiceClient();
+    const [{ data: { user } }, { data: programs }, { data: categories }, { count: activeUserCount }] = await Promise.all([
       supabase.auth.getUser(),
       supabase
         .from("programs")
@@ -37,6 +39,9 @@ async function getHomeData() {
         .eq("is_active", true)
         .order("sort_order"),
       supabase.from("categories").select("*").is("parent_id", null).order("sort_order"),
+      // 홈페이지의 활성 사용자 수는 홍보용 고정 숫자가 아니라 실제 회원 데이터로
+      // 계산한다. 정지 회원은 제외하고, 관리자 포함 전체 활성 계정을 집계한다.
+      service.from("profiles").select("id", { count: "exact", head: true }).eq("is_suspended", false),
     ]);
 
     // 로그인한 회원에게만 "내가 이용 가능한 프로그램 수 / 가장 빠른 만료일"을 보여준다.
@@ -102,9 +107,9 @@ async function getHomeData() {
       };
     }
 
-    return { programs: programs ?? [], categories: categories ?? [], userAccess };
+    return { programs: programs ?? [], categories: categories ?? [], userAccess, activeUserCount: activeUserCount ?? 0 };
   } catch {
-    return { programs: [], categories: [], userAccess: null as UserAccessSummary | null };
+    return { programs: [], categories: [], userAccess: null as UserAccessSummary | null, activeUserCount: 0 };
   }
 }
 
@@ -190,15 +195,29 @@ function renderNoticeText(item: NoticeItem) {
     );
 }
 
-const STATS = [
-  { value: "1,200+", label: "활성 사용자" },
-  { value: "15+", label: "마케팅 프로그램" },
-  { value: "98%", label: "고객 만족도" },
-  { value: "24/7", label: "상시 운영" },
-];
-
 export default async function HomePage() {
-  const { programs, categories, userAccess } = await getHomeData();
+  const { programs, categories, userAccess, activeUserCount } = await getHomeData();
+  const pricedPrograms = programs.map((program) => {
+    const activePrices = (program.pricing_plans ?? [])
+      .filter((plan: { is_active?: boolean }) => plan.is_active !== false)
+      .map((plan: { price?: number | null }) => plan.price ?? 0);
+    return activePrices.length > 0 ? Math.min(...activePrices) : null;
+  });
+  const freeProgramCount = pricedPrograms.filter((price) => price === 0).length;
+  const paidProgramCount = pricedPrograms.filter((price) => price !== null && price > 0).length;
+  const latestPrograms = [...programs]
+    .sort((a, b) => {
+      const aPinned = (a.badges ?? []).includes("new") ? 1 : 0;
+      const bPinned = (b.badges ?? []).includes("new") ? 1 : 0;
+      if (aPinned !== bPinned) return bPinned - aPinned;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    })
+    .slice(0, 3);
+  const stats = [
+    { value: activeUserCount.toLocaleString("ko-KR"), label: "활성 사용자" },
+    { value: "98%", label: "고객 만족도" },
+    { value: "24/7", label: "상시 운영" },
+  ];
 
   const categoryBlocks = categories
     .map((category) => ({
@@ -262,6 +281,17 @@ export default async function HomePage() {
         <div className="max-w-4xl mx-auto">
           {/* 로그아웃 상태: 등록된 프로그램 수만. 로그인 상태: 회원 개인의 이용 가능
               프로그램 수 + 가장 빠른 만료일까지 함께 보여준다 */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <GlassCard className="p-4 text-center">
+              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{freeProgramCount}</div>
+              <div className="text-subtext text-xs">무료 프로그램</div>
+            </GlassCard>
+            <GlassCard className="p-4 text-center">
+              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{paidProgramCount}</div>
+              <div className="text-subtext text-xs">유료 프로그램</div>
+            </GlassCard>
+          </div>
+
           <div className={`grid gap-4 mb-4 ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
             <GlassCard className="p-4 text-center">
               <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
@@ -316,10 +346,34 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* 최신 등록 프로그램 — NEW로 지정한 프로그램을 우선하고, 나머지는 등록일 최신순 */}
+      {latestPrograms.length > 0 && (
+        <section className="py-16 px-4 bg-surface/20">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-white">
+                  최신 등록 <GoldGradientText>프로그램</GoldGradientText>
+                </h2>
+                <p className="text-subtext mt-2">새로 추가된 프로그램을 먼저 확인해보세요.</p>
+              </div>
+              <Link href="/programs" className="hidden md:block">
+                <GoldButton variant="outline" size="sm">전체 프로그램 보기 <ArrowRight size={14} /></GoldButton>
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {latestPrograms.map((program) => (
+                <ProgramCard key={program.id} program={program} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Stats */}
       <section className="py-16 px-4 border-y border-white/10">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-          {STATS.map((stat) => (
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6">
+          {stats.map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-4xl font-black gold-text mb-1">{stat.value}</div>
               <div className="text-subtext text-sm">{stat.label}</div>

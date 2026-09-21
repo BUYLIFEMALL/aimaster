@@ -532,6 +532,18 @@ export default function ProgramForm({ program }: ProgramFormProps) {
               <p className="text-xs text-subtext mt-2">
                 카드 썸네일 왼쪽 위에 표시됩니다. 여러 개를 동시에 체크하면(예: FREE + NEW) 모두 함께 표시됩니다. 전부 해제하면 뱃지가 표시되지 않습니다.
               </p>
+              <label className="mt-3 inline-flex items-center gap-2 text-sm text-gold-light cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={badges.has("new")}
+                  onChange={() => toggleBadge("new")}
+                  className="rounded border-white/20 accent-gold"
+                />
+                최신 프로그램으로 표시
+              </label>
+              <p className="text-xs text-subtext mt-1">
+                새 프로그램은 등록일 기준으로 자동 최신 노출되며, 이 옵션을 켜면 기존 프로그램도 최신 목록 3개에 우선 노출됩니다.
+              </p>
             </FieldRow>
             <FieldRow label="영상 URL">
               <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)}
