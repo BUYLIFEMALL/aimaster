@@ -196,7 +196,7 @@ function renderNoticeText(item: NoticeItem) {
 }
 
 export default async function HomePage() {
-  const { programs, categories, userAccess, activeUserCount } = await getHomeData();
+  const { programs, categories, userAccess } = await getHomeData();
   const pricedPrograms = programs.map((program) => {
     const activePrices = (program.pricing_plans ?? [])
       .filter((plan: { is_active?: boolean }) => plan.is_active !== false)
@@ -213,11 +213,6 @@ export default async function HomePage() {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     })
     .slice(0, 3);
-  const stats = [
-    { value: activeUserCount.toLocaleString("ko-KR"), label: "활성 사용자" },
-    { value: "98%", label: "고객 만족도" },
-  ];
-
   const categoryBlocks = categories
     .map((category) => ({
       category,
@@ -270,6 +265,24 @@ export default async function HomePage() {
               </GoldButton>
             </Link>
           </div>
+
+        </div>
+      </section>
+
+      <section className="px-4 pb-8">
+        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
+          <GlassCard className="p-4 text-center">
+            <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
+            <div className="text-subtext text-xs">현재 등록된 자동화 프로그램</div>
+          </GlassCard>
+          <GlassCard className="p-4 text-center">
+            <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess?.accessibleCount ?? programs.length}</div>
+            <div className="text-subtext text-xs">내가 이용 가능한 프로그램</div>
+          </GlassCard>
+          <GlassCard className="p-4 text-center col-span-2 md:col-span-1">
+            <div className="text-2xl md:text-3xl font-black gold-text mb-1">{userAccess?.expiryLabel ?? "평생"}</div>
+            <div className="text-subtext text-xs">가장 빠른 이용 만료</div>
+          </GlassCard>
         </div>
       </section>
 
@@ -338,18 +351,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Stats */}
-      <section className="py-16 px-4 border-y border-white/10">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 gap-6">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-4xl font-black gold-text mb-1">{stat.value}</div>
-              <div className="text-subtext text-sm">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Features */}
       <section className="py-20 px-4">
