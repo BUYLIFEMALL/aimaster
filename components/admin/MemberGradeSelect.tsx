@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface MemberGradeSelectProps {
@@ -17,6 +17,13 @@ export default function MemberGradeSelect({
   const [gradeId, setGradeId] = useState(currentGradeId ?? "");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // router.refresh()로 서버가 최신 profiles.grade_id를 내려주면 select의
+  // 로컬 상태도 함께 동기화한다. 그렇지 않으면 컴포넌트가 유지된 상태에서
+  // 다른 화면/목록의 등급 표시가 이전 값으로 남을 수 있다.
+  useEffect(() => {
+    setGradeId(currentGradeId ?? "");
+  }, [currentGradeId]);
 
   async function handleChange(newGradeId: string) {
     setGradeId(newGradeId);

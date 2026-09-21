@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 /** POST — 회원 등급 일괄 변경 */
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -41,6 +44,16 @@ export async function POST(req: NextRequest) {
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Supabase UPDATE는 RLS나 잘못된 ID로 대상 행이 0건이어도 에러가 없을 수
+  // 있으므로, 실제 변경된 행 수를 확인하지 않으면 관리자 화면만 바뀌는
+  // 조용한 실패가 발생한다.
+  if ((data?.length ?? 0) !== user_ids.length) {
+    return NextResponse.json(
+      { error: `회원 등급이 ${data?.length ?? 0}명만 변경되었습니다. 대상 회원을 다시 확인해주세요.` },
+      { status: 409 },
+    );
+  }
 
   return NextResponse.json({ success: true, updated: data?.length ?? 0 });
 }
