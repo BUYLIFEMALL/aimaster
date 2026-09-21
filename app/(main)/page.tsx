@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "AI Master — AI 마케팅 자동화 프로그램",
-  description: "AI 기반 마케팅 자동화 프로그램으로 시간을 절약하고 매출을 극대화하세요. SNS 자동화, 키워드 분석 등 검증된 도구를 제공합니다.",
+  description: "AI 마케팅 자동화 프로그램으로 시간을 절약하고 매출을 극대화하세요. SNS 자동화, 키워드 분석 등 검증된 도구를 제공합니다.",
   openGraph: {
     title: "AI Master — AI 마케팅 자동화 프로그램",
-    description: "AI 기반 마케팅 자동화 프로그램으로 시간을 절약하고 매출을 극대화하세요.",
+    description: "AI 마케팅 자동화 프로그램으로 시간을 절약하고 매출을 극대화하세요.",
   },
 };
 
@@ -249,7 +249,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-subtext text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed">
-            AI 기반 마케팅 프로그램으로 시간을 절약하고
+            AI 마케팅 자동화 프로그램으로 시간을 절약하고
             <br className="hidden md:block" />
             매출을 극대화하세요.
           </p>
