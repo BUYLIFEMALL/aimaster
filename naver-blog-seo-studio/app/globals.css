@@ -71,6 +71,15 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .optimize-result h3 { margin: 0 0 10px; font-size: 16px; }
 .optimize-result pre { margin: 0; white-space: pre-wrap; color: #4f4a45; font: inherit; font-size: 13px; line-height: 1.7; }
 .optimize-result ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.history-card { margin-top: 20px; }
+.history-empty { margin: 0; color: var(--muted); font-size: 13px; }
+.history-list { display: grid; gap: 8px; }
+.history-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px solid var(--line); border-radius: 11px; background: #fff; padding: 11px 12px; text-align: left; }
+.history-item:hover { border-color: var(--accent); background: var(--accent-soft); }
+.history-item strong, .history-item small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-item strong { color: var(--ink); font-size: 13px; }
+.history-item small { max-width: 520px; margin-top: 3px; color: var(--muted); font-size: 11px; }
+.history-item time { flex: 0 0 auto; color: #9a9086; font-size: 11px; }
 .checklist { display: grid; gap: 11px; }
 .check { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 11px; border-bottom: 1px solid #f0ede8; }
 .check:last-child { border-bottom: 0; padding-bottom: 0; }

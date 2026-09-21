@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const strategies = [
   ["C-Rank 기본", "전문성과 경험 중심"],
@@ -22,6 +22,19 @@ export default function StudioPage({ email }: { email: string }) {
   const [existingBody, setExistingBody] = useState("");
   const [optimizePending, setOptimizePending] = useState(false);
   const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
+  const [history, setHistory] = useState<{ id: string; topic: string; keywords: string[]; title: string; body: string; created_at: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/drafts/history").then((response) => response.ok ? response.json() : { drafts: [] }).then((result: { drafts?: typeof history }) => setHistory(result.drafts ?? [])).catch(() => setHistory([]));
+  }, []);
+
+  function reuseDraft(draft: (typeof history)[number]) {
+    setTopic(draft.topic);
+    setKeywords(Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "");
+    setSelectedTitle(draft.title);
+    setExistingBody(draft.body);
+    setMessage("기존 생성 기록을 작업 화면에 불러왔습니다.");
+  }
 
   async function recommendTitles() {
     if (!topic.trim()) return setMessage("주제를 먼저 입력해주세요.");
@@ -110,6 +123,11 @@ export default function StudioPage({ email }: { email: string }) {
           <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="기존 네이버 블로그 글을 붙여넣으세요 (50자 이상)" />
           <button className="secondary" onClick={optimizeExisting} disabled={optimizePending}>{optimizePending ? "최적화 중..." : "기존 글 최적화"}</button>
           {optimized && <div className="optimize-result"><h3>{optimized.title}</h3><pre>{optimized.body}</pre><ul>{optimized.improvements.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul></div>}
+        </section>
+
+        <section className="history-card card" id="history">
+          <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span></div>
+          {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{new Date(draft.created_at).toLocaleDateString("ko-KR")}</time></button>)}</div>}
         </section>
 
         <div className="workspace">
