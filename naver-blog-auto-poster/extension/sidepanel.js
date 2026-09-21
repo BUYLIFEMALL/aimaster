@@ -95,7 +95,33 @@ async function injectedFillTitleAndBody({ title, body }) {
       if (Math.random() < 0.05) await sleep(randomDelay(250, 700));
     }
   }
-  function placeCursorAtEnd(el) {
+  // 실제 편집 가능한 노드를 찾는다 — SmartEditor ONE 조사에서 클래스 없는 순수
+  // contenteditable div가 따로 있던 것이 확인됐다(naver-blog-auto-poster 초기
+  // 구조 조사 결과 참고). ".se-title-text" 자체가 아니라 그 안의(또는 그 자신의)
+  // 진짜 contenteditable 노드에 커서를 둬야 execCommand가 실제로 먹힌다.
+  function findEditableTarget(container) {
+    if (container.isContentEditable) return container;
+    return container.querySelector('[contenteditable="true"]') || container;
+  }
+  // 실제 사람이 클릭한 것과 최대한 비슷하게 마우스 이벤트를 순서대로 발생시킨다 —
+  // focus()만으로는 브라우저가 캐럿을 어디에 둘지 판단하지 못할 수 있어서, 클릭
+  // 좌표 기반으로 캐럿 위치를 잡게 유도한다.
+  function simulateClick(el) {
+    const rect = el.getBoundingClientRect();
+    const opts = {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height / 2
+    };
+    el.dispatchEvent(new MouseEvent("mousedown", opts));
+    el.dispatchEvent(new MouseEvent("mouseup", opts));
+    el.dispatchEvent(new MouseEvent("click", opts));
+  }
+  function placeCursorAtEnd(container) {
+    const el = findEditableTarget(container);
+    simulateClick(el);
     el.focus();
     const range = document.createRange();
     range.selectNodeContents(el);
@@ -103,6 +129,7 @@ async function injectedFillTitleAndBody({ title, body }) {
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
+    return el;
   }
   // 제목 모듈도 ".se-text-paragraph"를 재사용하고 ".se-body"는 제목까지 포함하는
   // 컨테이너라서(데스크톱 앱에서 실사용 테스트로 확인된 함정), 컨테이너로 범위를
@@ -118,7 +145,12 @@ async function injectedFillTitleAndBody({ title, body }) {
   const titleEl = document.querySelector(".se-title-text");
   if (!titleEl) return { ok: false, error: "이 프레임에는 제목 요소가 없습니다." };
 
-  placeCursorAtEnd(titleEl);
+  const titleEditable = placeCursorAtEnd(titleEl);
+  const titleDiag = {
+    isContentEditable: titleEditable.isContentEditable,
+    activeElementTag: document.activeElement?.tagName,
+    activeElementIsSame: document.activeElement === titleEditable
+  };
   await humanType(title);
   await sleep(randomDelay(400, 800));
 
@@ -136,7 +168,8 @@ async function injectedFillTitleAndBody({ title, body }) {
     ok: true,
     verified: titleEl.textContent.includes(title) && bodyEl.textContent.includes(body),
     actualTitleText: titleEl.textContent,
-    actualBodyText: bodyEl.textContent
+    actualBodyText: bodyEl.textContent,
+    diag: titleDiag
   };
 }
 
@@ -179,7 +212,7 @@ draftButton.addEventListener("click", async () => {
       if (success.result.verified) {
         draftStatusBox.textContent = "입력 완료(실제 입력 확인됨). 탭에서 결과를 확인해주세요.";
       } else {
-        draftStatusBox.textContent = `경고: execCommand는 실행됐지만 실제로 텍스트가 안 들어간 것 같습니다.\n실제 제목: "${success.result.actualTitleText}"\n실제 본문: "${success.result.actualBodyText}"`;
+        draftStatusBox.textContent = `경고: execCommand는 실행됐지만 실제로 텍스트가 안 들어간 것 같습니다.\n실제 제목: "${success.result.actualTitleText}"\n실제 본문: "${success.result.actualBodyText}"\n진단: ${JSON.stringify(success.result.diag)}`;
       }
     } else {
       const failure = results.find((r) => r.result && !r.result.ok);
