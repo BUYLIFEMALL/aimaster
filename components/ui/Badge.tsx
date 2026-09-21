@@ -16,7 +16,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   best: "badge-best",
   sale: "bg-orange-500 text-black",
   coming: "bg-neutral-500 text-white",
-  free: "bg-red-500 text-white",
+  free: "bg-green-500 text-black",
   custom: "",
 };
 

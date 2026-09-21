@@ -33,14 +33,14 @@ const BADGE_OPTIONS: {
   {
     value: "free",
     label: "FREE",
-    selectedClassName: "bg-red-500 text-black border-red-500",
-    idleClassName: "bg-white/5 text-red-400 border-red-500/40 hover:bg-white/10",
+    selectedClassName: "bg-green-500 text-black border-green-500",
+    idleClassName: "bg-white/5 text-green-400 border-green-500/40 hover:bg-white/10",
   },
   {
     value: "new",
     label: "NEW",
-    selectedClassName: "bg-green-500 text-black border-green-500",
-    idleClassName: "bg-white/5 text-green-400 border-green-500/40 hover:bg-white/10",
+    selectedClassName: "bg-red-500 text-black border-red-500",
+    idleClassName: "bg-white/5 text-red-400 border-red-500/40 hover:bg-white/10",
   },
   {
     value: "best",
