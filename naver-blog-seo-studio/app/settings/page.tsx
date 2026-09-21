@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import ApiKeySettings from "./ApiKeySettings";
 import ExtensionTokenManager from "./ExtensionTokenManager";
+import SettingsSidebar from "./SettingsSidebar";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -15,7 +16,8 @@ export default async function SettingsPage() {
 
   return (
     <main className="settings-layout">
-      <aside className="settings-sidebar">
+      <SettingsSidebar email={user.email ?? null} />
+      <aside className="settings-sidebar legacy-settings-sidebar">
         <a className="settings-brand" href="/dashboard"><em>SEO</em> 스튜디오</a>
         <nav className="settings-nav" aria-label="주 메뉴">
           <a href="/dashboard"><span className="settings-step">1</span><span><strong>새 글 만들기</strong><small>AI 초안 작성</small></span></a>
