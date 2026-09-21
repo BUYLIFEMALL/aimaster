@@ -31,7 +31,7 @@ async function checkAimasterToken(token) {
       return { linked: false, error: body.error || `연동 확인 실패 (${response.status})` };
     }
     const body = await response.json();
-    return { linked: true, email: body.email, name: body.name };
+    return { linked: true, email: body.email, name: body.name, isAdmin: Boolean(body.isAdmin) };
   } catch (error) {
     return { linked: false, error: error instanceof Error ? error.message : String(error) };
   }
@@ -40,6 +40,7 @@ async function checkAimasterToken(token) {
 const tokenInput = document.getElementById("aimaster-token");
 const linkButton = document.getElementById("aimaster-link-btn");
 const statusBox = document.getElementById("aimaster-status");
+const adminOnlySection = document.getElementById("admin-only-section");
 
 function renderStatus(result) {
   if (result.linked) {
@@ -47,6 +48,9 @@ function renderStatus(result) {
   } else {
     statusBox.textContent = result.error ? `오류: ${result.error}` : "연동되지 않음";
   }
+  // 에디터 구조 분석 도구는 일반 사용자에게 노출할 필요가 없는 유지보수용 진단
+  // 도구라, 연동된 계정이 관리자(is_admin)일 때만 보여준다.
+  adminOnlySection.style.display = result.linked && result.isAdmin ? "block" : "none";
 }
 
 (async () => {
