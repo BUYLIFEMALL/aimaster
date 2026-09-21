@@ -69,12 +69,51 @@ linkButton.addEventListener("click", async () => {
 });
 
 // AI 초안 생성 — 데스크톱 앱과 동일한 루트 서버 API(/api/naver-blog-auto-poster/generate)를
-// 재사용한다. 서버가 사용자 본인의 OpenAI 키로 대신 호출하고 결과(1차 초안 + 2차 셀프
-// 리뷰를 거친 제목/본문)만 돌려준다 — 이 확장은 API 키를 절대 직접 보관/사용하지 않는다.
-// 이미지 생성은 아직 요청하지 않는다(자동 삽입 경로가 없어서 — README 참고).
+// 재사용한다. 서버가 사용자 본인의 OpenAI/Gemini 키로 대신 호출하고 결과(1차 초안 + 2차
+// 셀프 리뷰를 거친 제목/본문, 선택적으로 이미지)만 돌려준다 — 이 확장은 API 키를 절대
+// 직접 보관/사용하지 않는다.
+//
+// 이미지는 데스크톱 앱처럼 파일로 저장해서 자동 삽입할 방법이 없다(File Input에
+// 스크립트로 파일을 못 넣는 브라우저 보안 제약, README 참고) — 대신 클립보드에 복사해서
+// 사용자가 본문에 Ctrl+V로 직접 붙여넣게 한다.
 const topicInput = document.getElementById("topic-input");
+const generateIncludeImageCheckbox = document.getElementById("generate-include-image");
+const generateImageModelSelect = document.getElementById("generate-image-model");
 const generateButton = document.getElementById("generate-btn");
 const generateStatusBox = document.getElementById("generate-status");
+const generateImagePreviewWrap = document.getElementById("generate-image-preview-wrap");
+const generateImagePreview = document.getElementById("generate-image-preview");
+const generateImageCopyButton = document.getElementById("generate-image-copy-btn");
+
+let lastGeneratedImage = null; // { base64, mimeType }
+
+// Clipboard API의 ClipboardItem은 PNG를 가장 안정적으로 지원한다 — Gemini가 다른
+// mimeType을 반환하는 경우까지 대비해 canvas로 항상 PNG로 정규화한 뒤 복사한다.
+async function copyImageToClipboard(base64, mimeType) {
+  const dataUrl = `data:${mimeType};base64,${base64}`;
+  const img = await new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("이미지를 불러오지 못했습니다."));
+    image.src = dataUrl;
+  });
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  canvas.getContext("2d").drawImage(img, 0, 0);
+  const pngBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  await navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]);
+}
+
+generateImageCopyButton.addEventListener("click", async () => {
+  if (!lastGeneratedImage) return;
+  try {
+    await copyImageToClipboard(lastGeneratedImage.base64, lastGeneratedImage.mimeType);
+    generateStatusBox.textContent = "이미지를 클립보드에 다시 복사했습니다. 본문을 클릭한 뒤 Ctrl+V로 붙여넣어주세요.";
+  } catch (error) {
+    generateStatusBox.textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
+  }
+});
 
 generateButton.addEventListener("click", async () => {
   const topic = topicInput.value.trim();
@@ -89,6 +128,8 @@ generateButton.addEventListener("click", async () => {
     return;
   }
 
+  const includeImage = generateIncludeImageCheckbox.checked;
+
   generateButton.disabled = true;
   generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (셀프 리뷰까지 포함되어 몇 초~수십 초 걸릴 수 있습니다)";
 
@@ -96,7 +137,7 @@ generateButton.addEventListener("click", async () => {
     const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ topic, includeImage: false })
+      body: JSON.stringify({ topic, includeImage, imageModel: generateImageModelSelect.value })
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
@@ -105,7 +146,20 @@ generateButton.addEventListener("click", async () => {
 
     document.getElementById("draft-title").value = body.title;
     document.getElementById("draft-body").value = body.body;
-    generateStatusBox.textContent = "생성 완료. 아래 '제목/본문 자동 입력' 입력창에 채워졌습니다.";
+
+    let statusText = "생성 완료. 아래 '제목/본문 자동 입력' 입력창에 채워졌습니다.";
+    if (body.image?.base64) {
+      lastGeneratedImage = { base64: body.image.base64, mimeType: body.image.mimeType || "image/png" };
+      generateImagePreview.src = `data:${lastGeneratedImage.mimeType};base64,${lastGeneratedImage.base64}`;
+      generateImagePreviewWrap.style.display = "block";
+      await copyImageToClipboard(lastGeneratedImage.base64, lastGeneratedImage.mimeType);
+      statusText += "\n이미지를 클립보드에 복사했습니다 — 본문을 클릭한 뒤 Ctrl+V로 붙여넣어주세요.";
+    } else {
+      lastGeneratedImage = null;
+      generateImagePreviewWrap.style.display = "none";
+      if (body.imageError) statusText += `\n(이미지 제외: ${body.imageError})`;
+    }
+    generateStatusBox.textContent = statusText;
   } catch (error) {
     generateStatusBox.textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
   } finally {
