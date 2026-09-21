@@ -1,13 +1,16 @@
-# 네이버 블로그 자동화 — 크롬 확장/웹버전(naver-blog-auto-poster_web)
+# 네이버 블로그 자동화 - 크롬 확장(naver-blog-auto-poster_web)
 
-네이버 블로그 자동화의 **크롬 확장(웹버전)** 개발 이력이다. 원래
+네이버 블로그 자동화의 **크롬 확장** 개발 이력이다. 원래
 `naver-blog-auto-poster/extension/` 하위 폴더로 개발됐다가, 2026-09-21에 유지보수 편의를
-위해 이 폴더로 완전히 분리됐다 — 코드는 서로 독립이지만, **이용권한·요금제는 데스크톱
-앱과 `programs.slug = naver-blog-auto-poster` 하나를 그대로 공유**한다(새 유료
-프로그램으로 등록하지 않음). 데스크톱 앱 쪽 개발 이력은
-[`../naver-blog-auto-poster_app/README.md`](../naver-blog-auto-poster_app/README.md)를,
-AIMaster 계정 연동 아키텍처(토큰 발급/검증 등 공용 백엔드)의 전체 설명은 그 README의
-"AIMaster 계정 연동 아키텍처" 절을 참고할 것.
+위해 이 폴더로 완전히 분리됐다. **처음엔 이용권한·요금제를 데스크톱 앱과 공유하기로
+했었지만, 곧이어 "자동화 로직 자체가 서로 다르고 앞으로도 각자 다른 속도로
+유지보수한다"는 이유로 사용자가 결정을 뒤집어, 지금은 `programs.slug =
+naver-blog-auto-poster-web`("네이버 블로그 자동화 - 크롬 확장")이라는 완전히 별도의
+유료 프로그램**이다(요금제도 별도 등록, 데스크톱 앱을 구매해도 이 확장은 자동으로
+이용할 수 없음). 데스크톱 앱 쪽 개발 이력은
+[`../naver-blog-auto-poster_app/README.md`](../naver-blog-auto-poster_app/README.md)를
+참고할 것 — 그 README의 "완전 별도 유료 프로그램으로 재분리" 절에 이 결정의 전체 배경과
+실제로 변경한 코드 목록이 정리돼 있다.
 
 개발 방법론(추측하지 말고 실측한다, 봇 탐지 회피 원칙 등)은
 [`AGENTS.md`](./AGENTS.md)에 정리돼 있다.
@@ -15,10 +18,12 @@ AIMaster 계정 연동 아키텍처(토큰 발급/검증 등 공용 백엔드)�
 ## 2단계: 크롬 확장 버전
 
 1단계(데스크톱 앱) 완료 후 착수(2026-09-21). Easy-peasy SNS의 사이드패널 구조를
-참고하되, AI 생성·계정 연동은 1단계와 **동일한 백엔드를 그대로 재사용**한다 — 새 프로그램
-등록 없이 같은 `naver-blog-auto-poster` 카탈로그 항목의 또 다른 배포 형태로 취급한다.
-코드는 이 폴더(`naver-blog-auto-poster_web/`, Manifest V3, 사이드패널)에 둔다. 배포는
-Chrome 웹스토어 비공개(Unlisted) 등록 방식을 검토한다.
+참고하되, AI 생성·계정 연동은 1단계와 **동일한 백엔드 구조를 재사용**한다(코드는 공유,
+program_slug는 별도). 코드는 이 폴더(`naver-blog-auto-poster_web/`, Manifest V3,
+사이드패널)에 둔다. 배포는 Chrome 웹스토어 비공개(Unlisted) 등록 방식을 검토한다.
+**2026-09-22에 `programs` 카탈로그 등록도 데스크톱 앱과 완전히 분리해서, 지금은 이
+확장 자체가 독립된 유료 프로그램(`naver-blog-auto-poster-web`)이다** — 아래 작업
+리스트 마지막 항목 참고.
 
 **1단계와 구조적으로 다른 점**: 데스크톱 앱은 Playwright가 별도 브라우저를 "바깥에서
 원격 조종"하지만(CDP 기반, 실제 키보드 입력과 거의 동일하게 전달됨), 크롬 확장은 사용자의
@@ -130,16 +135,35 @@ Chrome 웹스토어 비공개(Unlisted) 등록 방식을 검토한다.
       로드" 방식으로 계속 기능을 추가/개선한 뒤, 버전이 안정화되면 그때 정식 제출해서
       심사를 받는다(업데이트마다 재심사, 비공개 Unlisted라 비교적 빠르지만 즉시는 아님).
 - [x] zip 패키징 + GitHub Releases 배포 + 루트 앱 다운로드 페이지 연동 — 2026-09-21
-      완료. `Compress-Archive`(PowerShell)로 이 폴더 전체를 압축해 동봉한
+      완료(2026-09-22에 전용 다운로드 페이지로 재배치, 아래 항목 참고).
+      `Compress-Archive`(PowerShell)로 이 폴더 전체를 압축해 동봉한
       `설치방법.txt`와 함께 `gh release upload`로 데스크톱 앱과 같은 GitHub Release에
-      자산으로 추가. 루트 앱의 `app/(dashboard)/naver-blog-auto-poster/page.tsx`에
-      데스크톱 앱 다운로드 버튼 바로 아래 "웹버전(크롬 확장) 다운로드" 섹션 + 단계별
-      사용법 + 하단 "📖 연동 매뉴얼"(OpenAI/Gemini API 키 발급 안내)까지 추가.
+      자산으로 추가.
 - [x] 폴더 완전 분리 — 2026-09-21. 원래 `naver-blog-auto-poster/extension/` 하위
       폴더였던 것을 `naver-blog-auto-poster_web/`(이 폴더)로 독립시키고, 데스크톱 앱은
       `naver-blog-auto-poster_app/`으로 옮김. 사용자가 유지보수 편의를 위해 명시적으로
-      요청함 — 코드/문서는 완전히 분리하되, `programs` 테이블의 이용권한·요금제는 계속
-      공유한다(§0, `../naver-blog-auto-poster_app/README.md`의 "AIMaster 계정 연동
-      아키텍처" 절 참고).
+      요청함 — 처음엔 코드/문서만 분리하고 `programs` 테이블의 이용권한·요금제는 계속
+      공유하기로 했었다.
+- [x] **완전 별도 유료 프로그램으로 재분리 — 2026-09-22.** 폴더 분리 직후, 사용자가
+      "항상 동시에 업데이트할 수는 없으니 완전 별도 프로그램으로 유지보수 확장시켜
+      나갈 것" + "프로그램 로직이나 내용도 거의 다르다"는 이유로 이용권한 공유 결정을
+      뒤집음. 실제로 진행한 작업:
+      - `programs` 테이블에 새 slug `naver-blog-auto-poster-web`("네이버 블로그
+        자동화 - 크롬 확장")으로 신규 등록, 표준 3단계 요금제(1/2/3개월) 별도 생성,
+        기존 데스크톱 앱 프로그램은 이름을 "네이버 블로그 자동화 - PC 앱"으로
+        재명명(분리 시점 활성 구독/토큰 0건이라 이관 이슈 없음,
+        `supabase/migrations/0010_split_naver_blog_auto_poster_into_separate_programs.sql`).
+      - 실사 스타일 전용 썸네일 새로 생성(§13 "텍스트 없이" 규칙 위반으로 1차 생성본
+        재생성 — "Blog Editor"/"Chrome" 같은 글자가 화면에 그대로 렌더링됐었음).
+      - 이 프로그램 전용 다운로드/토큰 발급 페이지
+        `app/(dashboard)/naver-blog-auto-poster-web/page.tsx`(+ 전용
+        `TokenManager.tsx`/`GuideLinkButton.tsx`)를 신설하고, 데스크톱 앱 페이지에서는
+        크롬 확장 다운로드 섹션을 제거.
+      - 전용 API `app/api/naver-blog-auto-poster-web/{whoami,generate}/route.ts` 신설
+        (`PROGRAM_SLUG`만 다르고 AI 생성 로직은 계속 공유), `middleware.ts`의
+        `authRequiredPaths`에 새 경로 추가.
+      - 이 폴더의 `sidepanel.js` API 호출 경로를 `/api/naver-blog-auto-poster-web/*`로
+        갱신, `manifest.json`/`sidepanel.html` 표시 이름도 "…- 크롬 확장"으로 갱신,
+        `설치방법.txt`의 안내 URL도 `www.buylife.xyz/naver-blog-auto-poster-web`로 갱신.
 - [ ] Chrome 웹스토어 정식 제출 — 아이콘, 스토어 설명 문구, 개인정보처리방침 등 준비
       필요. 버전 안정화 후 진행(위 항목 참고).

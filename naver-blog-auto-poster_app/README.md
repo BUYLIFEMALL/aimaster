@@ -1,14 +1,17 @@
-# 네이버 블로그 자동화 — 데스크톱 앱(naver-blog-auto-poster_app)
+# 네이버 블로그 자동화 - PC 앱(naver-blog-auto-poster_app)
 
 네이버는 블로그 포스팅 공식 API를 제공하지 않는다. 그래서 다른 서브프로젝트들(threads,
 naver-cafe-poster 등)처럼 OAuth+공식 API로 구현할 수 없고, 실제 네이버 블로그 글쓰기 화면을
 "자동화 도구가 대신 조작"하는 방식으로 가야 한다.
 
 **2026-09-21부터 이 폴더는 데스크톱 앱(Electron+Playwright) 전용이다.** 크롬 확장(웹버전)은
-`../naver-blog-auto-poster_web/`로 코드/문서를 완전히 분리했다(이용권한·요금제는
-`programs.slug = naver-blog-auto-poster` 하나를 그대로 공유). 이 README는 분리 이전
-작업 이력을 포함해 데스크톱 앱 개발 과정 전체를 시간순으로 기록한다 — 크롬 확장 개발
-이력은 `../naver-blog-auto-poster_web/README.md`를 볼 것.
+`../naver-blog-auto-poster_web/`로 코드/문서를 완전히 분리했고, **같은 날 바로 이어서
+`programs` 등록·요금제·기기 연동 토큰까지 전부 분리했다** — 이 프로그램은
+`programs.slug = naver-blog-auto-poster`("네이버 블로그 자동화 - PC 앱"), 크롬 확장은
+`naver-blog-auto-poster-web`("네이버 블로그 자동화 - 크롬 확장")이라는 완전히 별도의 유료
+프로그램이다(자동화 로직 자체가 다르고 유지보수 속도도 다를 것이라는 이유). 이 README는
+분리 이전 작업 이력을 포함해 데스크톱 앱 개발 과정 전체를 시간순으로 기록한다 — 크롬 확장
+개발 이력은 `../naver-blog-auto-poster_web/README.md`를 볼 것.
 
 ## 진행 순서 (사용자 결정, 2026-09-12)
 
@@ -305,9 +308,37 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
   (`src/main.js`의 `AIMASTER_BASE_URL` 참고). 앞으로 이 플랫폼의 다른 곳에서 서버 간
   API를 호출하는 코드를 짤 때도 이 리다이렉트 함정을 기억할 것.
 
-## 2단계: 크롬 확장 버전은 별도 폴더로 분리됨
+## 2단계: 크롬 확장 버전은 완전히 별도 프로그램으로 분리됨
 
 2026-09-21에 크롬 확장(웹버전) 개발이 완료되면서, 그 코드와 개발 이력을
 `../naver-blog-auto-poster_web/`(코드) + `../naver-blog-auto-poster_web/README.md`(개발
 이력)로 완전히 분리했다. 이 README는 그 이전까지의 기획 메모를 그대로 남겨두되, 실제
 작업 리스트·트러블슈팅은 위 링크에서 확인할 것.
+
+## 완전 별도 유료 프로그램으로 재분리 (2026-09-22)
+
+처음엔 "코드/문서만 분리, `programs` 등록·요금제·이용권한은 공유"하는 방향으로
+결정했었으나, 곧이어 사용자가 **"항상 동시에 업데이트할 수는 없으니 완전 별도
+프로그램으로 유지보수 확장시켜나갈 것" + "프로그램 로직이나 내용도 거의 다르다"**는
+이유로 결정을 뒤집었다. 실제로 진행한 작업:
+
+- 기존 `programs` 행(slug=`naver-blog-auto-poster`)을 이름 "네이버 블로그 자동화 - PC
+  앱"으로 재명명하고 short_desc/description을 PC 앱 전용으로 수정.
+- 크롬 확장용 새 `programs` 행을 `naver-blog-auto-poster-web`(이름 "네이버 블로그
+  자동화 - 크롬 확장") slug로 신규 등록, 표준 3단계 요금제(1/2/3개월, 1만/2만/3만원)도
+  별도로 생성. 분리 시점에 두 프로그램 모두 활성 구독/발급된 토큰이 0건이라 기존 회원
+  이관 이슈는 없었음(`supabase/migrations/0010_split_naver_blog_auto_poster_into_separate_programs.sql`).
+- 두 프로그램 각각 실사 스타일 썸네일을 새로 생성(§13 규칙 — 처음 생성한 버전은 화면에
+  "Blog Editor"/"Chrome" 같은 글자가 그대로 렌더링돼 §13 "텍스트 없이" 규칙 위반이라
+  재생성함. "illegible placeholder lines/blocks"처럼 추상적으로 화면을 묘사해야 확실히
+  텍스트 없이 나온다는 게 다시 확인됨).
+- 루트 앱: `app/(dashboard)/naver-blog-auto-poster/page.tsx`에서 크롬 확장 다운로드
+  섹션/안내를 제거하고 PC 앱 전용으로 트리밍, 새 페이지
+  `app/(dashboard)/naver-blog-auto-poster-web/page.tsx`(+ 그 폴더 전용
+  `TokenManager.tsx`/`GuideLinkButton.tsx`)를 신설. API도
+  `app/api/naver-blog-auto-poster-web/{whoami,generate}/route.ts`를 새로 만들어
+  `PROGRAM_SLUG`만 다르게 하고, AI 생성 로직(`lib/naverBlogAutoPoster/*`)은 콘텐츠 품질을
+  위해 계속 공유. `middleware.ts`의 `authRequiredPaths`에도 새 경로 추가.
+- 크롬 확장 코드(`../naver-blog-auto-poster_web/sidepanel.js`)의 API 호출 경로를
+  `/api/naver-blog-auto-poster-web/*`로 갱신, `manifest.json`/`sidepanel.html`의 표시
+  이름도 "AIMaster 네이버 블로그 자동화 - 크롬 확장"으로 갱신.

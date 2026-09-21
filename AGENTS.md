@@ -224,7 +224,8 @@ vercel deploy --prod --yes --scope buylife
 | 유틸리티 | 성격코드(MBTI) 측정기 | personality-code | https://mbti-rho-two.vercel.app |
 | 유틸리티 | 캐릭코드(MBTI) 측정기 | mbti-character | https://mbti-character.vercel.app |
 | 유틸리티 | AI 타로 | tarot-reading | https://tarot-eight-jet.vercel.app |
-| 네이버 | 네이버 블로그 자동화 | naver-blog-auto-poster | https://www.buylife.xyz/naver-blog-auto-poster (데스크톱 앱/크롬 확장 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 PC/브라우저에서 실행됨) |
+| 네이버 | 네이버 블로그 자동화 - PC 앱 | naver-blog-auto-poster | https://www.buylife.xyz/naver-blog-auto-poster (데스크톱 앱 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 PC에서 실행됨) |
+| 네이버 | 네이버 블로그 자동화 - 크롬 확장 | naver-blog-auto-poster-web | https://www.buylife.xyz/naver-blog-auto-poster-web (크롬 확장 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 브라우저에서 실행됨) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).
@@ -241,21 +242,24 @@ vercel deploy --prod --yes --scope buylife
 재구현했다. 이 프로그램을 만질 때는 반드시 `video-to-gif/README.md`/`AGENTS.md`부터 읽을 것
 — 다른 프로그램의 "서버에서 무거운 작업 처리" 패턴을 그대로 베끼면 안 된다.
 
-**`naver-blog-auto-poster`도 이 표의 다른 프로그램들과 아키텍처가 근본적으로 다르다** —
-네이버가 블로그 포스팅 공식 API를 제공하지 않아서, 이 프로그램의 "본체"는 서버가 아니라
-**사용자 PC(데스크톱 앱, Electron+Playwright)나 사용자 브라우저(크롬 확장)에서 실행되는
-자동화 도구**다. 루트 앱(`app/(dashboard)/naver-blog-auto-poster/`)은 그 도구의 다운로드
-페이지 + AI 생성 API(`/api/naver-blog-auto-poster/generate`) + 계정 연동 토큰 발급/검증
-역할만 한다. 2026-09-20~21에 데스크톱 앱(1단계)과 크롬 확장(2단계) 둘 다 완성·검증되고
-공개 판매까지 전환됐다. **2026-09-21에 유지보수 편의를 위해 코드/문서를
-`naver-blog-auto-poster_app/`(데스크톱 앱)과 `naver-blog-auto-poster_web/`(크롬 확장) 두
-폴더로 완전히 분리했다** — 단, `programs.slug = naver-blog-auto-poster` 하나로 이용권한·
-요금제는 계속 공유한다(별도 유료 프로그램 아님). **이 프로그램을 만질 때는 반드시
-`naver-blog-auto-poster_app/AGENTS.md`(데스크톱 앱 개발 방법론 — 특히 "추측하지 말고
-실측한다" 원칙과 봇 탐지 회피 원칙)와 `naver-blog-auto-poster_web/AGENTS.md`(크롬 확장
-개발 방법론, 특히 `chrome.scripting.executeScript`의 자기완결형 함수 제약)부터 읽을 것**
-— 다른 프로그램들의 OAuth+공식 API 패턴이 전혀 적용되지 않는 프로젝트다. 봇 탐지 회피
-원칙 자체는 이 프로그램에만 국한되지 않고 "공식 API 없는 서비스를 브라우저로 자동화하는"
+**`naver-blog-auto-poster`/`naver-blog-auto-poster-web`도 이 표의 다른 프로그램들과
+아키텍처가 근본적으로 다르다** — 네이버가 블로그 포스팅 공식 API를 제공하지 않아서, 이
+프로그램들의 "본체"는 서버가 아니라 **사용자 PC(데스크톱 앱, Electron+Playwright)나
+사용자 브라우저(크롬 확장)에서 실행되는 자동화 도구**다. 루트 앱의 각 다운로드 페이지는
+그 도구의 다운로드 + AI 생성 API + 계정 연동 토큰 발급/검증 역할만 한다.
+2026-09-20~21에 데스크톱 앱과 크롬 확장 둘 다 완성·검증되고 공개 판매까지 전환됐다.
+**원래 하나의 프로그램(`naver-blog-auto-poster`)에서 데스크톱 앱/크롬 확장 두 다운로드를
+같이 제공했었지만, 2026-09-21에 사용자 명시적 결정으로 코드·문서뿐 아니라 `programs`
+테이블 등록·요금제·이용권한까지 완전히 분리해서 지금은 서로 독립적으로 결제해야 하는
+**별도의 두 유료 프로그램**이다** — 자동화 로직 자체가 서로 다르고(Playwright vs
+`chrome.scripting`), 앞으로도 각자 다른 속도로 유지보수될 것이라는 이유였다. 분리 시점에
+활성 구독/토큰이 0건이라 기존 회원 이관 이슈는 없었다(`supabase/migrations/0010_*.sql`).
+**이 프로그램들을 만질 때는 반드시 `naver-blog-auto-poster_app/AGENTS.md`(데스크톱 앱
+개발 방법론 — 특히 "추측하지 말고 실측한다" 원칙과 봇 탐지 회피 원칙)와
+`naver-blog-auto-poster_web/AGENTS.md`(크롬 확장 개발 방법론, 특히
+`chrome.scripting.executeScript`의 자기완결형 함수 제약)부터 읽을 것** — 다른
+프로그램들의 OAuth+공식 API 패턴이 전혀 적용되지 않는 프로젝트다. 봇 탐지 회피 원칙
+자체는 이 프로그램에만 국한되지 않고 "공식 API 없는 서비스를 브라우저로 자동화하는"
 모든 서브프로젝트에 적용되는 플랫폼 전역
 원칙으로 격상되어 있다(`docs/PLATFORM_PATTERNS.md` §20 참고).
 

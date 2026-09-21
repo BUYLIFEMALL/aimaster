@@ -16,18 +16,24 @@
 
 ## 0. 이 프로그램과 데스크톱 앱의 관계 (가장 먼저 이해할 것)
 
-**폴더와 코드는 완전히 분리돼 있지만, 판매·이용권한은 하나를 공유한다.**
+**코드·문서뿐 아니라 판매(programs 등록)까지 완전히 분리된, 서로 다른 유료 프로그램이다.**
 
 - 2026-09-21에 유지보수 편의를 위해 `naver-blog-auto-poster/` 폴더를 `naver-blog-auto-poster_app`
   (데스크톱 앱)과 `naver-blog-auto-poster_web`(이 폴더, 크롬 확장)로 완전히 분리했다. 이후
   두 폴더의 코드는 서로 import하지 않고 각자 독립적으로 유지보수한다.
-- 그러나 **`programs` 테이블의 slug는 여전히 `naver-blog-auto-poster` 하나**이고, 요금제·
-  구독·기기 연동 토큰(`personal_access_tokens.program_slug`)도 공유한다. 즉 회원 입장에서는
-  "네이버 블로그 자동화"라는 상품 하나를 구매하면 데스크톱 앱과 이 크롬 확장 둘 다 쓸 수
-  있다 — **이 프로그램에 새 유료 플랜/별도 카탈로그를 만들지 말 것** (2026-09-21 사용자가
-  "코드/문서만 분리하고 이용권한·요금제는 공유"하는 쪽으로 명시적으로 결정함).
-- 따라서 이 폴더에서 계정 연동/이용권한 관련 코드를 고칠 때는 항상 `naver-blog-auto-poster_app`
-  쪽과 루트 앱(`app/api/naver-blog-auto-poster/*`)에 동일한 영향이 있다는 것을 염두에 둘 것.
+- **같은 날 바로 이어서, `programs` 테이블 등록·요금제·기기 연동 토큰도 완전히
+  분리했다.** 이 폴더(크롬 확장)는 `programs.slug = naver-blog-auto-poster-web`("네이버
+  블로그 자동화 - 크롬 확장")이라는 독립된 유료 프로그램이고, 데스크톱 앱은
+  `naver-blog-auto-poster`("네이버 블로그 자동화 - PC 앱")다 — 요금제도 각자 따로 등록돼
+  있고, 한쪽을 구매해도 다른 쪽은 자동으로 이용할 수 없다. 처음엔 "코드만 분리하고
+  이용권한은 공유"하는 방향이었으나, 자동화 로직 자체가 서로 다르고 앞으로 각자 다른
+  속도로 유지보수될 것이라는 이유로 사용자가 완전 별도 프로그램으로 재결정했다(분리
+  시점에 활성 구독/토큰이 0건이라 기존 회원 이관 이슈는 없었음,
+  `supabase/migrations/0010_split_naver_blog_auto_poster_into_separate_programs.sql`).
+- 이 폴더가 호출하는 루트 API는 `app/api/naver-blog-auto-poster-web/*`(데스크톱 앱의
+  `app/api/naver-blog-auto-poster/*`와는 별도 라우트)다. AI 생성 로직 자체
+  (`lib/naverBlogAutoPoster/*`)는 콘텐츠 품질을 위해 계속 공유하지만, 이용권한 검증에
+  쓰이는 `PROGRAM_SLUG`는 절대 데스크톱 앱과 같은 값으로 고치지 말 것.
 
 ---
 
@@ -119,10 +125,12 @@ styles.css       흰색 배경 테마.
 
 **루트 서버 통신**: 이 확장은 자체 백엔드가 없다. `AIMASTER_BASE_URL`(반드시
 `https://www.buylife.xyz` — www 없이 호출하면 307 리다이렉트로 `Authorization` 헤더가
-사라진다)로 루트 앱의 `/api/naver-blog-auto-poster/whoami`(토큰 검증)와
-`/api/naver-blog-auto-poster/generate`(AI 초안+이미지 생성) API를 `Authorization: Bearer
-<personal access token>` 헤더로 호출한다. 토큰은 `chrome.storage.local`에 저장한다
-(데스크톱 앱은 로컬 파일에 저장 — 저장 위치만 다르고 같은 `personal_access_tokens` 백엔드).
+사라진다)로 루트 앱의 `/api/naver-blog-auto-poster-web/whoami`(토큰 검증)와
+`/api/naver-blog-auto-poster-web/generate`(AI 초안+이미지 생성) API를 `Authorization:
+Bearer <personal access token>` 헤더로 호출한다 — 데스크톱 앱의 `/api/naver-blog-auto-poster/*`
+와는 별도 라우트다(2026-09-21 완전 별도 프로그램으로 분리되면서 나뉨). 토큰은
+`chrome.storage.local`에 저장한다(데스크톱 앱은 로컬 파일에 저장 — 저장 위치뿐 아니라
+`program_slug`도 다른 완전히 별도의 토큰 발급 체계다).
 
 ---
 
@@ -220,19 +228,26 @@ Chrome 웹스토어 개발자 계정은 만들어뒀지만(§3 참고) 아직 �
 ## 11. 이 폴더 작업 중 같이 고친 루트 앱 버그/기능 (참고용 — 코드는 루트에 있음)
 
 - **토큰 "폐기" 버튼 무반응** — `createPersonalAccessToken()`이 DB `id`를 반환하지 않아서
-  발생한 버그. `lib/actions/personalAccessTokens.ts`에서 수정 완료. 데스크톱 앱/이 확장
-  둘 다 같은 토큰 관리 화면(`app/(dashboard)/naver-blog-auto-poster/TokenManager.tsx`)을
-  쓰므로 양쪽 모두에 영향이 있었다.
+  발생한 버그. `lib/actions/personalAccessTokens.ts`에서 수정 완료. **당시(2026-09-21
+  프로그램 분리 이전)에는 데스크톱 앱/이 확장이 같은 토큰 관리 화면
+  (`app/(dashboard)/naver-blog-auto-poster/TokenManager.tsx`)을 썼기 때문에 양쪽 모두에
+  영향이 있었다** — 지금은 각 프로그램이 자기 `TokenManager.tsx`를 따로 갖고 있지만
+  (`app/(dashboard)/naver-blog-auto-poster/TokenManager.tsx`와
+  `app/(dashboard)/naver-blog-auto-poster-web/TokenManager.tsx`), 둘 다 같은
+  `lib/actions/personalAccessTokens.ts` 서버 액션을 호출하므로 이 파일을 고치면 여전히
+  두 프로그램 모두에 영향이 있다.
 - **사이드바 좌하단 로그인 계정 표시** — 모든 대시보드 페이지가 공유하는
   `components/layout/Sidebar.tsx`에 추가된 기능. 이 폴더와는 직접 관련 없지만 같은 작업
   흐름에서 발견/요청됐다.
 
 ---
 
-## 12. 공개 판매 전환 절차 (전체 절차는 `_app/AGENTS.md` §8)
+## 12. 공개 판매 전환 절차 (전체 절차는 `_app/AGENTS.md` §9)
 
-이 확장 자체는 `programs.is_active` 전환이나 요금제 등록 대상이 아니다(§0 참고 — 데스크톱
-앱과 카탈로그를 공유). 이 폴더가 관여하는 부분은 딱 하나: **로그인만 확인하던 지점을 실제
+**2026-09-21부터 이 확장도 데스크톱 앱과 별개로 독립된 `programs` 행
+(`naver-blog-auto-poster-web`)과 요금제를 갖는다** — §0 참고. 새 기능을 추가했을 때 카탈로그
+문구/썸네일을 갱신해야 한다면 이 프로그램 자체의 row를 직접 수정할 것(데스크톱 앱 row에
+영향 없음). 이 폴더가 관여하는 이용권한 관련 부분은: **로그인만 확인하던 지점을 실제
 이용 권한 확인으로 교체**하는 것 — `whoami` API가 `checkProgramAccessApi()` 결과를 그대로
 반환하는지 확인한다(이 부분은 루트 앱 코드라 이 폴더에는 없다). 확장 자체 배포는 §10의
 GitHub Releases + zip 방식을 따른다.

@@ -1,8 +1,9 @@
 "use strict";
 
-// 데스크톱 앱(naver-blog-auto-poster_app/src/main.js)의 AIMaster 계정 연동 로직과
-// 동일한 방식 — 같은 personal_access_tokens 백엔드를 그대로 재사용한다(이용권한·
-// 요금제는 두 폴더가 공유하는 programs.slug="naver-blog-auto-poster" 하나임).
+// 데스크톱 앱(naver-blog-auto-poster_app/src/main.js)과 같은 personal_access_tokens
+// 테이블 구조를 재사용하지만, 2026-09-21부터 완전히 별도 유료 프로그램
+// (programs.slug="naver-blog-auto-poster-web")으로 등록돼 이용권한·요금제·API 엔드포인트가
+// 전부 분리됐다 — 데스크톱 앱 토큰으로는 이 API를 통과할 수 없다.
 // 주의: 반드시 www까지 정확히 써야 한다 — buylife.xyz(www 없음)는 307 리다이렉트되면서
 // Authorization 헤더가 사라진다(naver-blog-auto-poster_app/README.md "AIMaster 계정
 // 연동 아키텍처" 참고).
@@ -25,7 +26,7 @@ async function setStoredToken(token) {
 async function checkAimasterToken(token) {
   if (!token) return { linked: false };
   try {
-    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster/whoami`, {
+    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster-web/whoami`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!response.ok) {
@@ -74,8 +75,10 @@ linkButton.addEventListener("click", async () => {
   renderStatus(result);
 });
 
-// AI 초안 생성 — 데스크톱 앱과 동일한 루트 서버 API(/api/naver-blog-auto-poster/generate)를
-// 재사용한다. 서버가 사용자 본인의 OpenAI/Gemini 키로 대신 호출하고 결과(1차 초안 + 2차
+// AI 초안 생성 — 이 프로그램 전용 루트 서버 API(/api/naver-blog-auto-poster-web/generate)를
+// 호출한다(2026-09-21 데스크톱 앱과 완전히 별도 프로그램으로 분리되면서 엔드포인트도
+// 분리됨 — 다만 AI 생성 로직 자체는 콘텐츠 품질을 위해 데스크톱 앱과 같은 서버 코드를
+// 공유한다). 서버가 사용자 본인의 OpenAI/Gemini 키로 대신 호출하고 결과(1차 초안 + 2차
 // 셀프 리뷰를 거친 제목/본문, 선택적으로 이미지)만 돌려준다 — 이 확장은 API 키를 절대
 // 직접 보관/사용하지 않는다.
 //
@@ -140,7 +143,7 @@ generateButton.addEventListener("click", async () => {
   generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (셀프 리뷰까지 포함되어 몇 초~수십 초 걸릴 수 있습니다)";
 
   try {
-    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster/generate`, {
+    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster-web/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ topic, includeImage, imageModel: generateImageModelSelect.value })

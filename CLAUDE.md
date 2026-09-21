@@ -119,9 +119,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   타이핑, 데스크톱 앱)와 `naver-blog-auto-poster_app/AGENTS.md`/
   `naver-blog-auto-poster_web/AGENTS.md`(개발 방법론 전체, 데스크톱/크롬 확장 각각) — 새로
   설계하지 말고 그대로 재사용한다(2026-09-21 사용자가 "항상 이 룰을 지킬 수 있도록 메인
-  지침으로 저장해두라"고 명시적으로 지시함). 이 두 폴더는 2026-09-21에 유지보수 편의를
-  위해 완전히 분리됐지만, `programs.slug`는 여전히 `naver-blog-auto-poster` 하나를
-  공유한다(별도 유료 프로그램 아님).
+  지침으로 저장해두라"고 명시적으로 지시함). 이 두 폴더는 2026-09-21에 코드/문서뿐
+  아니라 `programs` 등록·요금제·이용권한까지 전부 분리돼, 지금은 서로 독립적으로
+  결제해야 하는 별도의 두 유료 프로그램(`naver-blog-auto-poster`,
+  `naver-blog-auto-poster-web`)이다 — 자동화 로직 자체가 서로 다르고 유지보수 속도도
+  다르다는 게 이유였다.
 - **AI 이미지 생성은 Cloudinary의 `generate-image`(대행 생성) API를 거치지 않는다.** Gemini(나노바나나)를 직접 호출해서 생성하고, 결과는 Cloudinary가 아닌 Supabase Storage의 public 버킷에 업로드한 뒤 그 공개 URL을 DB에 저장한다 — 이유와 구체적 방법은 `docs/PLATFORM_PATTERNS.md` §12 참고. Cloudinary의 대행 생성 기능은 월 50회라는 별도 한도가 있어(저장공간·업로드 개수와 무관) 쉽게 소진되고, 그 경우 새 이미지 생성이 막힌다.
 
 ## Commands
