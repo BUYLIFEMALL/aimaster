@@ -6,7 +6,8 @@
   "permissions": ["sidePanel", "storage", "scripting", "clipboardWrite"],
   "host_permissions": [
     "https://*.naver.com/*",
-    "https://www.buylife.xyz/*"
+    "https://www.buylife.xyz/*",
+    "https://naver-blog-seo-studio.vercel.app/*"
   ],
   "background": {
     "service_worker": "background.js"
