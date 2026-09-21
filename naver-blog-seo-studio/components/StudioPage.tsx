@@ -93,7 +93,7 @@ export default function StudioPage({ email }: { email: string }) {
           <button className="nav-link">제목 추천</button>
           <button className="nav-link">기존 글 최적화</button>
           <button className="nav-link">생성 기록</button>
-          <button className="nav-link">API키등록·플랫폼연동</button>
+          <a className="nav-link utility" href="/settings">API키등록·플랫폼연동</a>
         </nav>
         <div className="sidebar-account" title={email}>
           <span className="sidebar-account-label">로그인 계정</span>
