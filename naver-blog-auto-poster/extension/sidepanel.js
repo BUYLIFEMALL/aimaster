@@ -127,8 +127,17 @@ async function injectedFillTitleAndBody({ title, body }) {
 
   placeCursorAtEnd(bodyEl);
   await humanType(body);
+  await sleep(200);
 
-  return { ok: true };
+  // 실제로 들어갔는지 검증한다 — execCommand는 에러 없이 조용히 아무것도 안 넣을 수
+  // 있어서(2026-09-21 실사용 테스트에서 "입력 완료"가 떴는데 실제로는 비어있던 버그),
+  // 결과에 실제 textContent를 같이 담아 확인한다.
+  return {
+    ok: true,
+    verified: titleEl.textContent.includes(title) && bodyEl.textContent.includes(body),
+    actualTitleText: titleEl.textContent,
+    actualBodyText: bodyEl.textContent
+  };
 }
 
 const draftTitleInput = document.getElementById("draft-title");
@@ -151,6 +160,14 @@ draftButton.addEventListener("click", async () => {
     }
     const tab = tabs.find((t) => t.active) || tabs[0];
 
+    // execCommand("insertText")는 실제 키보드 입력을 흉내내는 명령이라, 그 탭/창이
+    // 실제로 화면에서 포커스된 상태여야 동작하는 것으로 보인다(백그라운드 창에서는
+    // "입력 완료"로 응답이 와도 실제로는 아무것도 안 들어가는 문제를 실사용 테스트에서
+    // 확인함). 스크립트 실행 전에 그 탭/창을 먼저 활성화한다.
+    await chrome.windows.update(tab.windowId, { focused: true });
+    await chrome.tabs.update(tab.id, { active: true });
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id, allFrames: true },
       func: injectedFillTitleAndBody,
@@ -159,7 +176,11 @@ draftButton.addEventListener("click", async () => {
 
     const success = results.find((r) => r.result?.ok);
     if (success) {
-      draftStatusBox.textContent = "입력 완료. 탭에서 결과를 확인해주세요.";
+      if (success.result.verified) {
+        draftStatusBox.textContent = "입력 완료(실제 입력 확인됨). 탭에서 결과를 확인해주세요.";
+      } else {
+        draftStatusBox.textContent = `경고: execCommand는 실행됐지만 실제로 텍스트가 안 들어간 것 같습니다.\n실제 제목: "${success.result.actualTitleText}"\n실제 본문: "${success.result.actualBodyText}"`;
+      }
     } else {
       const failure = results.find((r) => r.result && !r.result.ok);
       draftStatusBox.textContent = `오류: ${failure?.result?.error || "제목/본문 요소를 찾지 못했습니다 (네이버 블로그 글쓰기 화면이 맞는지 확인해주세요)."}`;

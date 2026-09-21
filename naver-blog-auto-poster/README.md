@@ -333,6 +333,17 @@ Chrome 웹스토어 비공개(Unlisted) 등록 방식을 검토한다.
       `Cannot access a chrome:// URL` 오류가 났다. 창과 무관하게
       `chrome.tabs.query({url: "https://blog.naver.com/*"})`로 직접 찾도록 수정함 —
       크롬 확장은 사이드패널의 창과 대상 탭의 창이 다를 수 있다는 걸 항상 감안할 것.
+      **주의 2 — 탭을 찾아도 "입력 완료"가 실제 입력을 보장하지 않는다**: 탭을 정확히
+      찾은 뒤에도, 그 탭의 창이 화면에서 실제로 포커스(활성 상태)되어 있지 않으면
+      `execCommand("insertText")`가 에러 없이 조용히 아무것도 넣지 않는 문제를 실사용
+      테스트에서 확인함(사이드패널 쪽에는 "입력 완료"로 응답이 왔지만 실제 화면은
+      비어있었음). `chrome.scripting.executeScript`로 스크립트를 실행하기 전에
+      `chrome.windows.update(tab.windowId, {focused:true})` +
+      `chrome.tabs.update(tab.id, {active:true})`로 그 탭/창을 먼저 활성화하도록
+      수정함. 또한 이 문제가 재발해도 바로 알아챌 수 있도록, 주입한 함수가 실제
+      `textContent`를 확인해서 `verified` 값과 함께 반환하도록 검증 로직도 추가함 —
+      앞으로 유사 기능을 만들 때도 "명령이 에러 없이 끝났다"와 "실제로 반영됐다"를
+      구분해서 검증할 것.
 - [ ] 이미지/태그/카테고리 자동 삽입 (1단계 로직 참고, 확장 환경에 맞게 재구현)
 - [ ] AI 생성 UI (1단계와 동일한 `/api/naver-blog-auto-poster/generate` 재사용)
 - [ ] Chrome 웹스토어 등록(비공개 Unlisted) 검토 및 배포
