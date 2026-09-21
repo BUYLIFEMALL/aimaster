@@ -19,6 +19,9 @@ export default function StudioPage({ email }: { email: string }) {
   const [titlePending, setTitlePending] = useState(false);
   const [recommendedTitles, setRecommendedTitles] = useState<{ title: string; intent?: string }[]>([]);
   const [selectedTitle, setSelectedTitle] = useState("");
+  const [existingBody, setExistingBody] = useState("");
+  const [optimizePending, setOptimizePending] = useState(false);
+  const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
 
   async function recommendTitles() {
     if (!topic.trim()) return setMessage("주제를 먼저 입력해주세요.");
@@ -31,6 +34,19 @@ export default function StudioPage({ email }: { email: string }) {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "제목 추천에 실패했습니다.");
     } finally { setTitlePending(false); }
+  }
+
+  async function optimizeExisting() {
+    if (!existingBody.trim()) return setMessage("기존 글을 먼저 붙여넣어주세요.");
+    setOptimizePending(true);
+    try {
+      const response = await fetch("/api/drafts/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: existingBody, keywords }) });
+      const result = await response.json() as { result?: { title: string; body: string; improvements: string[] }; error?: string };
+      if (!response.ok) throw new Error(result.error || "기존 글 최적화에 실패했습니다.");
+      setOptimized(result.result ?? null);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "기존 글 최적화에 실패했습니다.");
+    } finally { setOptimizePending(false); }
   }
 
   async function prepareDraft() {
@@ -88,6 +104,13 @@ export default function StudioPage({ email }: { email: string }) {
           <button className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천"}</button>
           {recommendedTitles.length > 0 && <div className="title-list">{recommendedTitles.map((item, index) => <button key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`} onClick={() => setSelectedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button>)}</div>}
         </div>
+
+        <section className="optimize-card card">
+          <div className="card-head"><h2 className="card-title">기존 글 최적화</h2><span className="card-caption">의미는 유지하고 SEO 개선</span></div>
+          <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="기존 네이버 블로그 글을 붙여넣으세요 (50자 이상)" />
+          <button className="secondary" onClick={optimizeExisting} disabled={optimizePending}>{optimizePending ? "최적화 중..." : "기존 글 최적화"}</button>
+          {optimized && <div className="optimize-result"><h3>{optimized.title}</h3><pre>{optimized.body}</pre><ul>{optimized.improvements.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul></div>}
+        </section>
 
         <div className="workspace">
           <section className="card">

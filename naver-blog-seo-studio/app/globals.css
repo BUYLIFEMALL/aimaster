@@ -64,6 +64,13 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .title-option strong, .title-option small { display: block; }
 .title-option strong { color: var(--ink); font-size: 13px; }
 .title-option small { color: var(--muted); margin-top: 3px; font-size: 11px; }
+.optimize-card { margin-top: 20px; }
+.optimize-input { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; color: var(--ink); line-height: 1.6; outline: none; }
+.optimize-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.optimize-result { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 16px; }
+.optimize-result h3 { margin: 0 0 10px; font-size: 16px; }
+.optimize-result pre { margin: 0; white-space: pre-wrap; color: #4f4a45; font: inherit; font-size: 13px; line-height: 1.7; }
+.optimize-result ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .checklist { display: grid; gap: 11px; }
 .check { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 11px; border-bottom: 1px solid #f0ede8; }
 .check:last-child { border-bottom: 0; padding-bottom: 0; }
