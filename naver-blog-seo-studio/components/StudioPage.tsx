@@ -61,7 +61,7 @@ export default function StudioPage({ email }: { email: string }) {
         <div className="topline">
           <div>
             <div className="eyebrow">Naver blog content studio</div>
-            <h1>검색 의도를 읽고,<br />내 이야기로 쓰세요.</h1>
+            <h1>검색 의도를 읽고,<br />내 이야기로 작성해보세요.</h1>
             <p className="lede">주제 선정부터 SEO 검수까지 한 화면에서 준비합니다.</p>
           </div>
           <div className="account">AIMaster 계정 연동 전</div>
