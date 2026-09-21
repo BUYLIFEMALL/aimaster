@@ -52,8 +52,7 @@ export default function ApiKeySettings({ initialProviders }: { initialProviders:
         <div className="key-actions"><input type="password" placeholder={providers.includes("gemini") ? "등록된 키가 있습니다" : "AIza..."} value={values.gemini} onChange={(event) => setValues((current) => ({ ...current, gemini: event.target.value }))} autoComplete="off" /><button className="small-button" onClick={() => save("gemini")} disabled={pending !== null}>{pending === "gemini" ? "저장 중" : "저장"}</button>{providers.includes("gemini") && <button className="text-button" onClick={() => remove("gemini")} disabled={pending !== null}>해제</button>}</div>
       </div>
       {message && <p className="settings-message" role="status">{message}</p>}
-      <div className="notice">API 키는 주인님의 AIMaster 계정에만 연결됩니다. 운영자 키로 자동 대체하지 않으며, 키가 없으면 AI 생성 기능을 실행하지 않습니다.</div>
-      <div className="guide-box"><strong>📖 연동 매뉴얼</strong><p>키 발급 방법은 AIMaster의 플랫폼 매뉴얼에서 확인할 수 있습니다.</p><div className="guide-links"><a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">OpenAI 키 발급</a><a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">Gemini 키 발급</a></div></div>
+      <div className="notice">API 키는 사용자 계정별로 관리됩니다. API 키가 없으면 AI 생성 기능을 실행하지 않습니다.</div>
     </div>
   );
 }

@@ -45,6 +45,7 @@ export default async function SettingsPage() {
         <h2>Chrome 확장 연동 토큰</h2>
         <p className="lede">이 프로그램 전용 토큰을 발급한 뒤 Chrome 확장에 입력하세요. 다른 자동화 프로그램의 토큰과 별도로 관리됩니다.</p>
         <ExtensionTokenManager initialTokens={tokens ?? []} />
+        <div className="guide-box"><strong>📖 연동 매뉴얼</strong><p>키 발급 방법은 AIMaster의 플랫폼 매뉴얼에서 확인할 수 있습니다.</p><div className="guide-links"><a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">OpenAI 키 발급</a><a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">Gemini 키 발급</a></div></div>
       </section>
     </main>
   );
