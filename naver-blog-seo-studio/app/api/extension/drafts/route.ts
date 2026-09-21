@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       user_id: user.userId, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: draft.seoReport, status: "ready",
     }).select("id, title, body, seo_report, created_at").single();
     if (error) return NextResponse.json({ error: "초안 저장에 실패했습니다." }, { status: 500 });
-    return NextResponse.json({ draft: saved, user: { email: user.email, name: user.name } });
+    return NextResponse.json({ ...saved, draft: saved, user: { email: user.email, name: user.name } });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "AI 초안 생성에 실패했습니다." }, { status: 502 });
   }

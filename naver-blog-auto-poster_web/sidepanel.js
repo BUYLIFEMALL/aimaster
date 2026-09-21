@@ -7,7 +7,7 @@
 // 주의: 반드시 www까지 정확히 써야 한다 — buylife.xyz(www 없음)는 307 리다이렉트되면서
 // Authorization 헤더가 사라진다(naver-blog-auto-poster_app/README.md "AIMaster 계정
 // 연동 아키텍처" 참고).
-const AIMASTER_BASE_URL = "https://www.buylife.xyz";
+const AIMASTER_BASE_URL = "https://naver-blog-seo-studio.vercel.app";
 const STORAGE_KEY = "aimasterToken";
 
 async function getStoredToken() {
@@ -26,7 +26,7 @@ async function setStoredToken(token) {
 async function checkAimasterToken(token) {
   if (!token) return { linked: false };
   try {
-    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster-web/whoami`, {
+    const response = await fetch(`${AIMASTER_BASE_URL}/api/extension/whoami`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!response.ok) {
@@ -143,10 +143,10 @@ generateButton.addEventListener("click", async () => {
   generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (셀프 리뷰까지 포함되어 몇 초~수십 초 걸릴 수 있습니다)";
 
   try {
-    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster-web/generate`, {
+    const response = await fetch(`${AIMASTER_BASE_URL}/api/extension/drafts`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ topic, includeImage, imageModel: generateImageModelSelect.value })
+      body: JSON.stringify({ topic, keywords: "", strategy: "C-Rank 기본" })
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
