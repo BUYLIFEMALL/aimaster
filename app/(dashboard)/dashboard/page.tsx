@@ -49,7 +49,7 @@ export default async function DashboardPage() {
       .eq("user_id", user.id),
     supabase
       .from("programs")
-      .select("id, name, slug, thumbnail_url, app_url, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
+      .select("id, name, slug, thumbnail_url, app_url, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
       .eq("is_active", true)
       .order("sort_order", { ascending: true }),
   ]);
@@ -90,6 +90,7 @@ export default async function DashboardPage() {
     return evaluateProgramAccess({
       isAdmin: !!profile?.is_admin,
       isSuspended: !!profile?.is_suspended,
+      isFree: (p.badges ?? []).includes("free"),
       requiredGradeId: p.required_grade_id,
       hasActiveSubscription: subscribedProgramIds.has(p.id),
       hasIndividualGrant: grantedProgramIds.has(p.id),

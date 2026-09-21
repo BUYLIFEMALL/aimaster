@@ -46,6 +46,7 @@ export function isNotExpired(expiresAt: string | null): boolean {
 export function evaluateProgramAccess(input: {
   isAdmin: boolean;
   isSuspended: boolean;
+  isFree: boolean;
   requiredGradeId: string | null;
   hasActiveSubscription: boolean;
   individualGrantExpiresAt?: string | null;
@@ -55,6 +56,7 @@ export function evaluateProgramAccess(input: {
 }): { allowed: boolean; reason: ProgramAccessReason } {
   if (input.isSuspended) return { allowed: false, reason: "suspended" };
   if (input.isAdmin) return { allowed: true, reason: "admin" };
+  if (input.isFree) return { allowed: true, reason: "no_restriction" };
   if (input.hasActiveSubscription) return { allowed: true, reason: "active_subscription" };
   if (input.hasIndividualGrant && isNotExpired(input.individualGrantExpiresAt ?? null)) {
     return { allowed: true, reason: "individual_grant" };
@@ -83,7 +85,7 @@ export async function checkProgramAccess(
 
   const { data: program } = await supabase
     .from("programs")
-    .select("id, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
+    .select("id, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
     .eq("slug", programSlug)
     .eq("is_active", true)
     .single();
@@ -115,6 +117,7 @@ export async function checkProgramAccess(
   const result = evaluateProgramAccess({
     isAdmin: !!profile?.is_admin,
     isSuspended: !!profile?.is_suspended,
+    isFree: (program.badges ?? []).includes("free"),
     requiredGradeId: program.required_grade_id,
     hasActiveSubscription,
     hasIndividualGrant: !!grant,

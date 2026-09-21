@@ -78,6 +78,7 @@ async function getHomeData() {
         evaluateProgramAccess({
           isAdmin: !!profile?.is_admin,
           isSuspended: !!profile?.is_suspended,
+          isFree: (p.badges ?? []).includes("free"),
           requiredGradeId: p.required_grade_id,
           hasActiveSubscription: subExpiryMap.has(p.id),
           hasIndividualGrant: grantMap.has(p.id),
