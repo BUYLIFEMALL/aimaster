@@ -2,6 +2,17 @@ import "server-only";
 
 export interface SeoDraft { title: string; body: string; seoReport: Record<string, string>; }
 
+function normalizeBlogText(value: string) {
+  return value
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "• ")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
+}
+
 const STRATEGY_GUIDE: Record<string, string> = {
   "C-Rank 기본": "특정 주제에 대한 실제 경험과 전문성을 중심으로 구성합니다.",
   ALCON: "서로 다른 검색 의도를 소제목별로 나누어 폭넓게 답합니다.",
@@ -31,5 +42,5 @@ export async function generateSeoDraft(params: { apiKey: string; topic: string; 
   if (!raw) throw new Error("AI가 빈 응답을 반환했습니다.");
   const parsed = JSON.parse(raw) as Partial<SeoDraft>;
   if (!parsed.title || !parsed.body) throw new Error("AI가 제목과 본문을 모두 반환하지 않았습니다.");
-  return { title: parsed.title, body: parsed.body, seoReport: parsed.seoReport ?? {} };
+  return { title: normalizeBlogText(parsed.title), body: normalizeBlogText(parsed.body), seoReport: parsed.seoReport ?? {} };
 }

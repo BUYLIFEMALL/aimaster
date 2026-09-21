@@ -60,16 +60,39 @@ $("fill").addEventListener("click", async () => {
     let titleContainer, bodyContainer;
     for (let attempt = 0; attempt < 8 && (!titleContainer || !bodyContainer); attempt += 1) {
       for (const doc of documents) {
-        titleContainer ||= doc.querySelector(".se-title-text, .se-documentTitle, [class*='se-title'], textarea[placeholder*='제목'], input[placeholder*='제목']");
-        bodyContainer ||= [...doc.querySelectorAll('.se-text-paragraph, .se-section-text, .se-module-text, [contenteditable="true"], textarea')].find((element) => !element.closest(".se-documentTitle") && !element.closest(".se-title-text") && !element.closest("[class*='se-title']") && !element.matches("textarea[placeholder*='제목'], input[placeholder*='제목']"));
+        titleContainer ||= [...doc.querySelectorAll(".se-title-text, .se-documentTitle, [class*='se-title'], textarea[placeholder*='제목'], input[placeholder*='제목']")].find((element) => element.getClientRects().length > 0);
+        bodyContainer ||= [...doc.querySelectorAll('.se-text-paragraph, .se-section-text, .se-module-text, [contenteditable="true"], textarea')].find((element) => element.getClientRects().length > 0 && !element.closest(".se-documentTitle") && !element.closest(".se-title-text") && !element.closest("[class*='se-title']") && !element.matches("textarea[placeholder*='제목'], input[placeholder*='제목']"));
       }
       if (!titleContainer || !bodyContainer) await wait(400);
     }
+    const visible = (element) => element && element.getClientRects().length > 0;
     const editable = (container) => container?.isContentEditable ? container : container?.querySelector('[contenteditable="true"]');
     const titleTarget = editable(titleContainer) || titleContainer, bodyTarget = editable(bodyContainer) || bodyContainer;
     if (!titleTarget && !bodyTarget) return { ok: false, error: `입력 요소를 찾지 못했습니다 (iframe ${documents.length - 1}개 탐색). 네이버 글쓰기 화면을 연 뒤 본문을 한 번 클릭하고 다시 시도하세요.` };
-    const put = (target, text) => { if (!target || !text) return; target.focus(); if (target.matches("input, textarea")) { const setter = Object.getOwnPropertyDescriptor(target.constructor.prototype, "value")?.set; setter?.call(target, text); target.dispatchEvent(new Event("input", { bubbles: true })); return; } const selection = target.ownerDocument.getSelection(), range = target.ownerDocument.createRange(); range.selectNodeContents(target); selection.removeAllRanges(); selection.addRange(range); target.ownerDocument.execCommand("insertText", false, text); target.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text })); };
-    put(titleTarget, titleText); put(bodyTarget, bodyText); return { ok: true, title: Boolean(titleTarget), body: Boolean(bodyTarget) };
+    const markdownToPlainText = (text) => text.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1").replace(/^#{1,6}\s+/gm, "").replace(/^\s*[-*]\s+/gm, "• ");
+    const put = async (target, text) => {
+      if (!target || !text || !visible(target)) return false;
+      target.focus();
+      if (target.matches("input, textarea")) {
+        const setter = Object.getOwnPropertyDescriptor(target.constructor.prototype, "value")?.set;
+        setter?.call(target, text);
+        target.dispatchEvent(new Event("input", { bubbles: true }));
+        return true;
+      }
+      const selection = target.ownerDocument.getSelection(), range = target.ownerDocument.createRange();
+      range.selectNodeContents(target); selection.removeAllRanges(); selection.addRange(range);
+      target.ownerDocument.execCommand("delete");
+      for (const character of markdownToPlainText(text)) {
+        if (character === "\n") target.ownerDocument.execCommand("insertParagraph");
+        else target.ownerDocument.execCommand("insertText", false, character);
+        await new Promise((resolve) => setTimeout(resolve, 8));
+      }
+      target.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text }));
+      return true;
+    };
+    const titleInserted = await put(titleTarget, titleText);
+    const bodyInserted = await put(bodyTarget, bodyText);
+    return titleInserted && bodyInserted ? { ok: true, title: true, body: true } : { ok: false, error: `실제 입력 대상 확인 실패 (제목: ${titleInserted ? "성공" : "실패"}, 본문: ${bodyInserted ? "성공" : "실패"})` };
   } });
   const result = results?.find((entry) => entry.result?.ok)?.result || results?.find((entry) => entry.result)?.result;
   $("generateStatus").textContent = result?.ok ? "네이버 편집기에 입력했습니다. 내용을 검토한 뒤 발행하세요." : `입력 실패: ${result?.error || "페이지에 접근하지 못했습니다."}`;
