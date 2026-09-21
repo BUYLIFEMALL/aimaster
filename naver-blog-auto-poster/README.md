@@ -317,8 +317,15 @@ Chrome 웹스토어 비공개(Unlisted) 등록 방식을 검토한다.
       재사용, 토큰은 `chrome.storage.local`에 저장). **2026-09-21 실제 크롬에서 검증
       완료**: 압축해제된 확장 로드 → 사이드패널 정상 표시 → 데스크톱 앱과 같은 토큰으로
       계정 연동까지 정상 동작하는 것을 확인함.
-- [ ] 프로토타입 2 — 네이버 블로그 글쓰기 화면에서 제목/본문 자동 입력: 확장 환경에
-      맞는 "사람처럼 보이는 입력" 방식부터 새로 조사·검증 필요(위 구조적 차이 참고).
+- [ ] 프로토타입 2 — 네이버 블로그 글쓰기 화면에서 제목/본문 자동 입력: 구현 완료,
+      **실사용 검증 대기 중**. `chrome.scripting.executeScript`로 활성 탭의 모든
+      프레임에 자기완결적 함수(`sidepanel.js`의 `injectedFillTitleAndBody`)를 주입해서
+      `document.execCommand("insertText")`로 한 글자씩 입력한다 — dispatchEvent로 만든
+      키 이벤트는 `isTrusted:false`라 브라우저가 실제 삽입으로 처리해주지 않기 때문에,
+      실제 편집 명령 파이프라인을 타는 `execCommand`를 대신 썼다. **이 방식이 실제로
+      SmartEditor ONE에서 동작하는지는 검증 전** — 셀렉터 자체는 1단계에서 실측 확인된
+      것(`.se-title-text`, `.se-documentTitle` 조상 없는 첫 `.se-text-paragraph`)을
+      그대로 재사용. 사람이 직접 테스트해서 실제로 텍스트가 들어가는지 확인 필요.
 - [ ] 이미지/태그/카테고리 자동 삽입 (1단계 로직 참고, 확장 환경에 맞게 재구현)
 - [ ] AI 생성 UI (1단계와 동일한 `/api/naver-blog-auto-poster/generate` 재사용)
 - [ ] Chrome 웹스토어 등록(비공개 Unlisted) 검토 및 배포

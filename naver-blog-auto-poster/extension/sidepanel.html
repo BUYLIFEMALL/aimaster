@@ -17,11 +17,15 @@
     <button id="aimaster-link-btn">연동하기</button>
     <div id="aimaster-status" class="status">확인 중...</div>
 
-    <h1 class="section-title">프로토타입 1 — 사이드패널 동작 확인</h1>
+    <h1 class="section-title">1단계: 제목/본문 자동 입력 (프로토타입 2)</h1>
     <p class="desc">
-      이 화면이 네이버 블로그 글쓰기 탭 옆에 정상적으로 떠 있으면 사이드패널 자체는
-      정상 동작하는 것입니다. 다음 단계(제목/본문 자동 삽입)는 여기에 이어서 추가됩니다.
+      다른 탭에서 네이버 블로그 글쓰기 화면을 열어둔 상태에서 눌러주세요. 이 화면이
+      보고 있는 탭(가장 최근에 활성화한 탭)에 자동으로 채워 넣습니다.
     </p>
+    <input id="draft-title" type="text" placeholder="테스트 제목" />
+    <textarea id="draft-body" rows="6" placeholder="테스트 본문 (여러 줄 가능)"></textarea>
+    <button id="draft-btn">1단계 시작</button>
+    <div id="draft-status" class="status">대기 중</div>
   </main>
   <script src="sidepanel.js"></script>
 </body>
