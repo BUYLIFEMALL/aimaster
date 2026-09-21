@@ -326,6 +326,13 @@ Chrome 웹스토어 비공개(Unlisted) 등록 방식을 검토한다.
       SmartEditor ONE에서 동작하는지는 검증 전** — 셀렉터 자체는 1단계에서 실측 확인된
       것(`.se-title-text`, `.se-documentTitle` 조상 없는 첫 `.se-text-paragraph`)을
       그대로 재사용. 사람이 직접 테스트해서 실제로 텍스트가 들어가는지 확인 필요.
+      **주의(2026-09-21 실사용 테스트에서 발견한 버그)**: 대상 탭을
+      `chrome.tabs.query({active:true, currentWindow:true})`로 찾으면, 사이드패널이
+      붙어있는 창과 네이버 블로그 탭이 열려있는 창이 서로 다른 별도 크롬 창일 때 엉뚱한
+      탭(사이드패널이 있는 창에서 활성화된 탭, 실제로는 `chrome://extensions`)을 잡아서
+      `Cannot access a chrome:// URL` 오류가 났다. 창과 무관하게
+      `chrome.tabs.query({url: "https://blog.naver.com/*"})`로 직접 찾도록 수정함 —
+      크롬 확장은 사이드패널의 창과 대상 탭의 창이 다를 수 있다는 걸 항상 감안할 것.
 - [ ] 이미지/태그/카테고리 자동 삽입 (1단계 로직 참고, 확장 환경에 맞게 재구현)
 - [ ] AI 생성 UI (1단계와 동일한 `/api/naver-blog-auto-poster/generate` 재사용)
 - [ ] Chrome 웹스토어 등록(비공개 Unlisted) 검토 및 배포

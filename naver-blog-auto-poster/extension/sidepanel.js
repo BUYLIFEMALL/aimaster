@@ -141,8 +141,15 @@ draftButton.addEventListener("click", async () => {
   draftStatusBox.textContent = "사람처럼 천천히 입력 중입니다... (시간이 좀 걸립니다)";
 
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab) throw new Error("활성 탭을 찾지 못했습니다.");
+    // 사이드패널이 붙어있는 창과 네이버 블로그 탭이 열려있는 창이 서로 다를 수 있다
+    // (실사용 테스트에서 실제로 확인됨 — "activeTab in currentWindow"로 찾으면 사이드
+    // 패널이 있는 창에서 활성화된 엉뚱한 탭을 잡게 됨). 창과 무관하게 blog.naver.com
+    // 탭을 직접 찾는다.
+    const tabs = await chrome.tabs.query({ url: "https://blog.naver.com/*" });
+    if (tabs.length === 0) {
+      throw new Error("네이버 블로그 탭을 찾지 못했습니다 — blog.naver.com 탭이 열려있는지 확인해주세요.");
+    }
+    const tab = tabs.find((t) => t.active) || tabs[0];
 
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id, allFrames: true },
