@@ -68,6 +68,51 @@ linkButton.addEventListener("click", async () => {
   renderStatus(result);
 });
 
+// AI 초안 생성 — 데스크톱 앱과 동일한 루트 서버 API(/api/naver-blog-auto-poster/generate)를
+// 재사용한다. 서버가 사용자 본인의 OpenAI 키로 대신 호출하고 결과(1차 초안 + 2차 셀프
+// 리뷰를 거친 제목/본문)만 돌려준다 — 이 확장은 API 키를 절대 직접 보관/사용하지 않는다.
+// 이미지 생성은 아직 요청하지 않는다(자동 삽입 경로가 없어서 — README 참고).
+const topicInput = document.getElementById("topic-input");
+const generateButton = document.getElementById("generate-btn");
+const generateStatusBox = document.getElementById("generate-status");
+
+generateButton.addEventListener("click", async () => {
+  const topic = topicInput.value.trim();
+  if (!topic) {
+    generateStatusBox.textContent = "오류: 주제를 입력해주세요.";
+    return;
+  }
+
+  const token = await getStoredToken();
+  if (!token) {
+    generateStatusBox.textContent = "오류: 먼저 위에서 AIMaster 계정 연동을 완료해주세요.";
+    return;
+  }
+
+  generateButton.disabled = true;
+  generateStatusBox.textContent = "AI가 초안을 작성하는 중입니다... (셀프 리뷰까지 포함되어 몇 초~수십 초 걸릴 수 있습니다)";
+
+  try {
+    const response = await fetch(`${AIMASTER_BASE_URL}/api/naver-blog-auto-poster/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ topic, includeImage: false })
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(body.error || `생성 실패 (${response.status})`);
+    }
+
+    document.getElementById("draft-title").value = body.title;
+    document.getElementById("draft-body").value = body.body;
+    generateStatusBox.textContent = "생성 완료. 아래 '제목/본문 자동 입력' 입력창에 채워졌습니다.";
+  } catch (error) {
+    generateStatusBox.textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    generateButton.disabled = false;
+  }
+});
+
 // 프로토타입 2 — 제목/본문 자동 입력. 데스크톱 앱과 달리 크롬 확장은 그 페이지
 // "안에서" 자바스크립트로 직접 DOM을 조작해야 한다(Playwright의 CDP 원격 조종이
 // 아님) — README "2단계와 1단계의 구조적 차이" 참고. 이 함수 전체가
