@@ -379,17 +379,6 @@ export default async function HomePage() {
       {/* 프로그램 수 요약 — 카테고리별 프로그램 바로 위에 배치 */}
       <section className="px-4 pb-16">
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <GlassCard className="p-4 text-center">
-              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{freeProgramCount}</div>
-              <div className="text-subtext text-xs">무료 프로그램</div>
-            </GlassCard>
-            <GlassCard className="p-4 text-center">
-              <div className="text-2xl md:text-3xl font-black gold-text mb-1">{paidProgramCount}</div>
-              <div className="text-subtext text-xs">유료 프로그램</div>
-            </GlassCard>
-          </div>
-
           <div className={`grid gap-4 ${userAccess ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"}`}>
             <GlassCard className="p-4 text-center">
               <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
@@ -416,11 +405,23 @@ export default async function HomePage() {
       {categoryBlocks.length > 0 && (
         <section className="py-20 px-4 bg-surface/30">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-14">
+              <div className="text-center lg:text-left">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
                   카테고리별 <GoldGradientText>프로그램</GoldGradientText>
                 </h2>
                 <p className="text-subtext">필요한 플랫폼에 맞는 자동화 도구를 찾아보세요</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 w-full lg:w-auto lg:min-w-[220px]">
+                <GlassCard className="p-2.5 text-center">
+                  <div className="text-xl font-black gold-text leading-none mb-1">{freeProgramCount}</div>
+                  <div className="text-subtext text-[11px]">무료 프로그램</div>
+                </GlassCard>
+                <GlassCard className="p-2.5 text-center">
+                  <div className="text-xl font-black gold-text leading-none mb-1">{paidProgramCount}</div>
+                  <div className="text-subtext text-[11px]">유료 프로그램</div>
+                </GlassCard>
+              </div>
             </div>
 
             <div className="space-y-16">
