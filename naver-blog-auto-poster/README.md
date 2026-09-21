@@ -277,7 +277,13 @@ API 키가 아니라 **Codex CLI를 ChatGPT 계정 세션으로 실행**해서 �
 - **토큰 발급 UI**: 루트 앱의 `app/(dashboard)/naver-blog-auto-poster/page.tsx` +
   `TokenManager.tsx`. `checkProgramAccess()`로 실제 이용 권한(구독/개별부여/등급)을
   확인하고, 미보유 시 `/programs/naver-blog-auto-poster`(구매 페이지)로 돌려보낸다.
-  GitHub Release exe로 바로 가는 다운로드 버튼도 이 페이지에 있음.
+  GitHub Release exe로 바로 가는 다운로드 버튼도 이 페이지에 있음. isAdmin 여부를
+  `whoami`가 같이 반환해서, 확장의 관리자 전용 진단 도구 노출 여부에도 재사용됨.
+  **주의(2026-09-21 실사용에서 발견한 버그)**: 방금 발급한 토큰은 새로고침 전까지
+  임시 id(`pending-...`)로 화면에 표시됐는데, "폐기" 버튼이 그 임시 id일 때는 아무
+  동작도 안 하게 막아둔 방어 코드 때문에 눌러도 반응이 없었다. `createPersonalAccessToken`
+  서버 액션이 실제 DB id/생성시각을 반환하도록 고쳐서, 새로고침 없이도 바로 폐기까지
+  되도록 수정함.
 - **토큰 검증 API**: 루트 앱의 `app/api/naver-blog-auto-poster/whoami/route.ts` +
   `generate/route.ts`. 둘 다 `lib/personalAccessTokenAuth.ts`의
   `verifyPersonalAccessTokenWithProgramAccess()`(토큰 해시 조회 + `checkProgramAccess()`
