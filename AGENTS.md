@@ -2,7 +2,7 @@
 
 이 문서는 **Claude Code뿐 아니라 Codex, Gemini(구글) 등 어떤 AI 코딩 에이전트가 이 저장소에
 새로 투입되더라도**, 지금까지 쌓인 작업 방식·규칙·주의사항·완성된 프로그램 현황을 바로 파악하고
-이어서 작업할 수 있도록 정리한 인수인계 문서다. 2026-09-20 기준 최신 상태를 반영했다.
+이어서 작업할 수 있도록 정리한 인수인계 문서다. 2026-09-21 기준 최신 상태를 반영했다.
 
 - 루트에는 이 문서와 별도로 `CLAUDE.md`(Claude Code 전용, 이 문서와 상당 부분 겹침)가 있다.
   Claude Code는 `CLAUDE.md`를 자동으로 읽으므로 그쪽이 1차 소스지만, **다른 도구는 CLAUDE.md를
@@ -224,6 +224,7 @@ vercel deploy --prod --yes --scope buylife
 | 유틸리티 | 성격코드(MBTI) 측정기 | personality-code | https://mbti-rho-two.vercel.app |
 | 유틸리티 | 캐릭코드(MBTI) 측정기 | mbti-character | https://mbti-character.vercel.app |
 | 유틸리티 | AI 타로 | tarot-reading | https://tarot-eight-jet.vercel.app |
+| 네이버 | 네이버 블로그 자동화 | naver-blog-auto-poster | https://www.buylife.xyz/naver-blog-auto-poster (데스크톱 앱/크롬 확장 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 PC/브라우저에서 실행됨) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).
@@ -240,6 +241,19 @@ vercel deploy --prod --yes --scope buylife
 재구현했다. 이 프로그램을 만질 때는 반드시 `video-to-gif/README.md`/`AGENTS.md`부터 읽을 것
 — 다른 프로그램의 "서버에서 무거운 작업 처리" 패턴을 그대로 베끼면 안 된다.
 
+**`naver-blog-auto-poster`도 이 표의 다른 프로그램들과 아키텍처가 근본적으로 다르다** —
+네이버가 블로그 포스팅 공식 API를 제공하지 않아서, 이 프로그램의 "본체"는 서버가 아니라
+**사용자 PC(데스크톱 앱, Electron+Playwright)나 사용자 브라우저(크롬 확장)에서 실행되는
+자동화 도구**다. 루트 앱(`app/(dashboard)/naver-blog-auto-poster/`)은 그 도구의 다운로드
+페이지 + AI 생성 API(`/api/naver-blog-auto-poster/generate`) + 계정 연동 토큰 발급/검증
+역할만 한다. 2026-09-20~21에 데스크톱 앱(1단계)과 크롬 확장(2단계) 둘 다 완성·검증되고
+공개 판매까지 전환됐다. **이 프로그램을 만질 때는 반드시 `naver-blog-auto-poster/README.md`
+(상세 변경 이력)와 `naver-blog-auto-poster/AGENTS.md`(개발 방법론 — 특히 "추측하지 말고
+실측한다" 원칙과 봇 탐지 회피 원칙)부터 읽을 것** — 다른 프로그램들의 OAuth+공식 API 패턴이
+전혀 적용되지 않는 프로젝트다. 봇 탐지 회피 원칙 자체는 이 프로그램에만 국한되지 않고
+"공식 API 없는 서비스를 브라우저로 자동화하는" 모든 서브프로젝트에 적용되는 플랫폼 전역
+원칙으로 격상되어 있다(`docs/PLATFORM_PATTERNS.md` §20 참고).
+
 ---
 
 ## 8. 아직 미등록/기획 단계인 서브프로젝트
@@ -248,9 +262,6 @@ vercel deploy --prod --yes --scope buylife
   실제 앱 코드는 없음(설계 단계).
 - **`sourcing/`** — 제조 공장/소싱 데이터 AI 분석 코파일럿(견적서·스펙시트·위챗 대화 분석).
   마찬가지로 `docs/`만 있고 앱 코드는 아직 없음.
-- **`naver-blog-auto-poster/`** — 네이버 블로그 자동화. 네이버가 블로그 포스팅 공식 API를
-  제공하지 않아서, OAuth+API 방식이 아니라 "실제 블로그 글쓰기 화면을 자동화 도구가 대신
-  조작"하는 방식으로 가야 함 — 아직 기획/조사 단계, 코드 없음.
 - **`blog_auto_poster/`** — "24h News SEO AI Auto Poster". 실제 TypeScript 코드(`src/`)는
   있지만 Next.js 웹앱이 아니라 독립 실행형 스크립트/배치 형태이고, `programs` 카탈로그에는
   등록돼 있지 않다. 회원용 SaaS로 전환할지, 내부 도구로 남길지는 미정 — 손대기 전에 사용자에게
@@ -261,7 +272,7 @@ vercel deploy --prod --yes --scope buylife
 ## 9. 재사용 가능한 패턴 색인 — `docs/PLATFORM_PATTERNS.md`
 
 새 프로그램을 만들거나 비슷한 기능이 필요하면 코드를 새로 짜기 전에 먼저 이 문서를 확인한다.
-현재 18개 섹션(번호가 일부 비어 있는 건 과거 재구성 흔적이니 무시할 것):
+현재 20개 섹션(번호가 일부 비어 있는 건 과거 재구성 흔적이니 무시할 것):
 
 1. 카테고리 블록 노출 패턴 (메인/목록 페이지)
 2. AI 콘텐츠 3종 수집 패턴 (HTTP/RSS/Perplexity)
@@ -284,6 +295,13 @@ vercel deploy --prod --yes --scope buylife
     `ffmpeg.wasm` 같은 WASM으로 직접 처리하는 것도 고려할 것 — 서버 인프라(배포·비밀값 동기화·
     CPU/타임아웃 제한) 문제가 통째로 사라진다. 단, 처리 속도가 사용자 기기 성능에 좌우되고
     결과물을 서버에 남기려면 별도 업로드 스텝이 필요하다. 참고 구현: `video-to-gif/components/ConverterWorkspace.tsx`.
+20. **공식 API 없는 서비스를 브라우저 자동화(Playwright/크롬 확장 등)로 만들 때는 봇 탐지
+    회피가 최우선 원칙이다** — 값을 `fill()`/`evaluate()`로 즉시 대입하지 않고 실제 클릭+
+    사람처럼 한 글자씩 타이핑, 화면 구조는 추측 대신 실측(전용 구조 조사 도구), 발행처럼
+    되돌릴 수 없는 액션은 항상 사람이 직접, 좋아요/이웃추가 같은 대량 액션 기능은 구현 전
+    사용자와 리스크 상의. 새 자동화 서브프로젝트를 시작하기 전 반드시 이 섹션부터 확인할 것
+    (2026-09-21 사용자 명시적 지시로 격상됨). 참고 구현: `naver-blog-auto-poster/src/lib/humanInput.js`,
+    `naver-blog-auto-poster/AGENTS.md`.
 
 ---
 
@@ -376,6 +394,29 @@ vercel deploy --prod --yes --scope buylife
   볼 때 이 MCP가 "project not found"를 반환하면, MCP 자체의 접근 범위 문제일 수 있으니 바로
   포기하지 말고 `vercel logs <domain> --scope buylife --json` (CLI)로 전환해서 확인할 것 —
   이번에 실제로 이 방법으로 근본 원인(Vercel 300초 타임아웃, Render 401)을 찾아냈다.
+
+### 2026-09-21 추가 (naver-blog-auto-poster 개발 중 발견, 플랫폼 전체에 해당)
+
+- **서버 간 API를 호출할 때 도메인에 `www`가 빠지면 인증 헤더가 사라질 수 있다.** `buylife.xyz`
+  (www 없음)로 요청하면 서버가 `https://www.buylife.xyz`로 307 리다이렉트하는데, Node의
+  `fetch`가 그 리다이렉트를 따라가면서 "다른 하위 도메인으로 이동"으로 판단해
+  `Authorization` 헤더를 자동으로 제거해버린다 — 그 결과 서버는 헤더가 아예 없는 것으로 보고
+  401을 반환한다. **이 플랫폼 어디서든 서버 간 API를 호출하는 코드를 짤 때는 항상
+  `www.buylife.xyz`처럼 최종 도메인을 정확히 쓸 것** (리다이렉트 자체가 안 나면 이 문제도
+  생기지 않는다).
+- **Electron 등 독립 실행형 데스크톱 앱 서브프로젝트를 추가하면 루트 `.vercelignore`에도
+  등록할 것.** 루트 AIMaster 앱을 `vercel deploy`할 때 Vercel CLI가 `.gitignore`를 존중하지
+  않고 로컬 작업 폴더 전체를 스캔한다 — 데스크톱 앱의 `runtime/`처럼 실행 중인 프로세스가
+  파일을 잠그고 있으면(예: 열려 있는 Playwright 브라우저 프로필) `EBUSY`로 루트 앱 배포
+  자체가 실패한다. 그 서브프로젝트가 루트 앱에서 import되지 않는 게 확실하면, 최소한
+  `runtime/`·`node_modules/`는 `.vercelignore`에 추가한다.
+- **GitHub CLI(`gh`)가 이 환경에 새로 설치됐다** — `winget install --id GitHub.cli`로 설치,
+  PowerShell에서 공백 있는 경로는 `& "C:\Program Files\GitHub CLI\gh.exe" ...`처럼 호출
+  연산자(`&`)가 필요하다. 최초 인증(`gh auth login`)은 브라우저 로그인이 필요해 사용자가
+  직접 해야 한다. GitHub Releases에 실행 파일/zip을 배포할 때 `gh release create`/
+  `gh release upload --clobber`로 이 저장소(`BUYLIFEMALL/aimaster`, public)에 에셋을 올릴
+  수 있다 — Supabase Storage 대신 이 방법을 쓴 이유는 무료·용량 걱정 없음(private 저장소가
+  아니라 그냥 public repo의 릴리스 기능).
 
 ---
 
