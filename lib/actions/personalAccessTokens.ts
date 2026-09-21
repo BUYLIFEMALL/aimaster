@@ -16,7 +16,7 @@ function hashToken(token: string): string {
 export async function createPersonalAccessToken(
   programSlug: string,
   label: string
-): Promise<{ token: string } | { error: string }> {
+): Promise<{ token: string; id: string; createdAt: string } | { error: string }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,15 +25,19 @@ export async function createPersonalAccessToken(
 
   const rawToken = `pat_${crypto.randomBytes(32).toString("hex")}`;
   const serviceClient = createServiceClient();
-  const { error } = await serviceClient.from("personal_access_tokens").insert({
-    user_id: user.id,
-    program_slug: programSlug,
-    label: label || null,
-    token_hash: hashToken(rawToken),
-  });
+  const { data, error } = await serviceClient
+    .from("personal_access_tokens")
+    .insert({
+      user_id: user.id,
+      program_slug: programSlug,
+      label: label || null,
+      token_hash: hashToken(rawToken),
+    })
+    .select("id, created_at")
+    .single();
 
   if (error) return { error: error.message };
-  return { token: rawToken };
+  return { token: rawToken, id: data.id, createdAt: data.created_at };
 }
 
 export async function revokePersonalAccessToken(id: string): Promise<{ ok: true } | { error: string }> {

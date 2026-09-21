@@ -45,9 +45,11 @@ export default function TokenManager({
     setIssuedToken(result.token);
     setLabel("");
     setCopied(false);
-    // 목록은 다음 새로고침 때 반영되지만, 방금 발급한 것도 바로 보이도록 임시로 추가.
+    // 실제 DB id를 그대로 써서, 새로고침 없이 바로 폐기까지 가능하게 한다
+    // (예전엔 임시 id("pending-...")를 썼는데, 그 상태에서 폐기 버튼을 누르면
+    // handleRevoke의 방어 코드에 걸려 조용히 아무 반응이 없던 버그가 있었음).
     setTokens((prev) => [
-      { id: `pending-${Date.now()}`, label: label.trim() || null, created_at: new Date().toISOString(), last_used_at: null, revoked_at: null },
+      { id: result.id, label: label.trim() || null, created_at: result.createdAt, last_used_at: null, revoked_at: null },
       ...prev,
     ]);
   }
@@ -59,8 +61,11 @@ export default function TokenManager({
   }
 
   async function handleRevoke(id: string) {
-    if (id.startsWith("pending-")) return;
-    await revokePersonalAccessToken(id);
+    const result = await revokePersonalAccessToken(id);
+    if ("error" in result) {
+      setError(result.error);
+      return;
+    }
     setTokens((prev) => prev.filter((t) => t.id !== id));
   }
 
