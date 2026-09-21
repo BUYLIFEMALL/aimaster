@@ -317,8 +317,9 @@ Chrome 웹스토어 비공개(Unlisted) 등록 방식을 검토한다.
       재사용, 토큰은 `chrome.storage.local`에 저장). **2026-09-21 실제 크롬에서 검증
       완료**: 압축해제된 확장 로드 → 사이드패널 정상 표시 → 데스크톱 앱과 같은 토큰으로
       계정 연동까지 정상 동작하는 것을 확인함.
-- [ ] 프로토타입 2 — 네이버 블로그 글쓰기 화면에서 제목/본문 자동 입력: 구현 완료,
-      **실사용 검증 대기 중**. `chrome.scripting.executeScript`로 활성 탭의 모든
+- [x] 프로토타입 2 — 네이버 블로그 글쓰기 화면에서 제목/본문 자동 입력: 2026-09-21
+      실사용 검증 완료(아래 함정 4가지를 전부 겪고 고친 뒤 정상 동작 확인).
+      `chrome.scripting.executeScript`로 활성 탭의 모든
       프레임에 자기완결적 함수(`sidepanel.js`의 `injectedFillTitleAndBody`)를 주입해서
       `document.execCommand("insertText")`로 한 글자씩 입력한다 — dispatchEvent로 만든
       키 이벤트는 `isTrusted:false`라 브라우저가 실제 삽입으로 처리해주지 않기 때문에,
