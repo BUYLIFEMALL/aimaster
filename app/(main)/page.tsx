@@ -269,7 +269,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="px-4 pb-8">
+      <section className="px-4 pb-2">
         <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
           <GlassCard className="p-4 text-center">
             <div className="text-2xl md:text-3xl font-black gold-text mb-1">{programs.length}</div>
