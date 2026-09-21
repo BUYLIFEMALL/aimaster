@@ -18,6 +18,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [pending, setPending] = useState(false);
   const [titlePending, setTitlePending] = useState(false);
   const [recommendedTitles, setRecommendedTitles] = useState<{ title: string; intent?: string }[]>([]);
+  const [selectedTitle, setSelectedTitle] = useState("");
 
   async function recommendTitles() {
     if (!topic.trim()) return setMessage("주제를 먼저 입력해주세요.");
@@ -40,7 +41,7 @@ export default function StudioPage({ email }: { email: string }) {
     setPending(true);
     setMessage("AI가 초안을 준비하고 있습니다. 잠시만 기다려주세요.");
     try {
-      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords, strategy }) });
+      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords, strategy, selectedTitle }) });
       const result = await response.json() as { draft?: { title: string; body: string }; error?: string };
       if (!response.ok) throw new Error(result.error || "초안 생성에 실패했습니다.");
       setMessage(`초안이 준비되었습니다: ${result.draft?.title ?? "제목 없음"}`);
@@ -85,7 +86,7 @@ export default function StudioPage({ email }: { email: string }) {
         <div className="title-recommendation card">
           <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">검색 의도 기반 5개</span></div>
           <button className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천"}</button>
-          {recommendedTitles.length > 0 && <div className="title-list">{recommendedTitles.map((item, index) => <button key={`${item.title}-${index}`} className="title-option" onClick={() => setTopic(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button>)}</div>}
+          {recommendedTitles.length > 0 && <div className="title-list">{recommendedTitles.map((item, index) => <button key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`} onClick={() => setSelectedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button>)}</div>}
         </div>
 
         <div className="workspace">

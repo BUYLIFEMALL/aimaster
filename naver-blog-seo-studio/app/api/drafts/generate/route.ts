@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string } | null;
   const topic = input?.topic?.trim() ?? "";
   const strategy = input?.strategy?.trim() ?? "";
   const keywords = (input?.keywords ?? "").split(",").map((keyword) => keyword.trim()).filter(Boolean).slice(0, 10);
@@ -26,6 +26,7 @@ export async function POST(request: Request) {
 
   try {
     const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy });
+    if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
     const { data: saved, error } = await supabase
       .from("naver_blog_seo_drafts")
       .insert({ user_id: access.user.id, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: draft.seoReport, status: "ready" })
