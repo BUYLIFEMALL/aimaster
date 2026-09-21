@@ -247,11 +247,16 @@ vercel deploy --prod --yes --scope buylife
 자동화 도구**다. 루트 앱(`app/(dashboard)/naver-blog-auto-poster/`)은 그 도구의 다운로드
 페이지 + AI 생성 API(`/api/naver-blog-auto-poster/generate`) + 계정 연동 토큰 발급/검증
 역할만 한다. 2026-09-20~21에 데스크톱 앱(1단계)과 크롬 확장(2단계) 둘 다 완성·검증되고
-공개 판매까지 전환됐다. **이 프로그램을 만질 때는 반드시 `naver-blog-auto-poster/README.md`
-(상세 변경 이력)와 `naver-blog-auto-poster/AGENTS.md`(개발 방법론 — 특히 "추측하지 말고
-실측한다" 원칙과 봇 탐지 회피 원칙)부터 읽을 것** — 다른 프로그램들의 OAuth+공식 API 패턴이
-전혀 적용되지 않는 프로젝트다. 봇 탐지 회피 원칙 자체는 이 프로그램에만 국한되지 않고
-"공식 API 없는 서비스를 브라우저로 자동화하는" 모든 서브프로젝트에 적용되는 플랫폼 전역
+공개 판매까지 전환됐다. **2026-09-21에 유지보수 편의를 위해 코드/문서를
+`naver-blog-auto-poster_app/`(데스크톱 앱)과 `naver-blog-auto-poster_web/`(크롬 확장) 두
+폴더로 완전히 분리했다** — 단, `programs.slug = naver-blog-auto-poster` 하나로 이용권한·
+요금제는 계속 공유한다(별도 유료 프로그램 아님). **이 프로그램을 만질 때는 반드시
+`naver-blog-auto-poster_app/AGENTS.md`(데스크톱 앱 개발 방법론 — 특히 "추측하지 말고
+실측한다" 원칙과 봇 탐지 회피 원칙)와 `naver-blog-auto-poster_web/AGENTS.md`(크롬 확장
+개발 방법론, 특히 `chrome.scripting.executeScript`의 자기완결형 함수 제약)부터 읽을 것**
+— 다른 프로그램들의 OAuth+공식 API 패턴이 전혀 적용되지 않는 프로젝트다. 봇 탐지 회피
+원칙 자체는 이 프로그램에만 국한되지 않고 "공식 API 없는 서비스를 브라우저로 자동화하는"
+모든 서브프로젝트에 적용되는 플랫폼 전역
 원칙으로 격상되어 있다(`docs/PLATFORM_PATTERNS.md` §20 참고).
 
 ---
@@ -300,8 +305,9 @@ vercel deploy --prod --yes --scope buylife
     사람처럼 한 글자씩 타이핑, 화면 구조는 추측 대신 실측(전용 구조 조사 도구), 발행처럼
     되돌릴 수 없는 액션은 항상 사람이 직접, 좋아요/이웃추가 같은 대량 액션 기능은 구현 전
     사용자와 리스크 상의. 새 자동화 서브프로젝트를 시작하기 전 반드시 이 섹션부터 확인할 것
-    (2026-09-21 사용자 명시적 지시로 격상됨). 참고 구현: `naver-blog-auto-poster/src/lib/humanInput.js`,
-    `naver-blog-auto-poster/AGENTS.md`.
+    (2026-09-21 사용자 명시적 지시로 격상됨). 참고 구현:
+    `naver-blog-auto-poster_app/src/lib/humanInput.js`,
+    `naver-blog-auto-poster_app/AGENTS.md`, `naver-blog-auto-poster_web/AGENTS.md`.
 
 ---
 

@@ -381,8 +381,10 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 봇으로 탐지되면 회원 개인 계정이 정지당하는 실질적 피해로 이어진다. AI 생성 파이프라인
 버그는 재시도하면 되지만, 계정 정지는 되돌릴 수 없다.
 
-**지켜야 할 구체 규칙** (`naver-blog-auto-poster/src/lib/humanInput.js`가 참고 구현 —
-새로 만들지 말고 그대로 복사해서 서비스명만 바꿔 재사용할 것):
+**지켜야 할 구체 규칙** (`naver-blog-auto-poster_app/src/lib/humanInput.js`가 참고 구현
+— 새로 만들지 말고 그대로 복사해서 서비스명만 바꿔 재사용할 것. 크롬 확장처럼
+`chrome.scripting.executeScript`로 주입하는 환경이면 이 헬퍼를 import할 수 없으니
+`naver-blog-auto-poster_web/AGENTS.md` §7의 자기완결형 함수 제약을 먼저 읽을 것):
 1. 텍스트 입력은 `fill()`/`evaluate()`로 값을 한 번에 넣지 않는다. 반드시 실제 클릭으로
    포커스를 옮긴 뒤, 한 글자씩 무작위 간격(70~170ms, 가끔 250~700ms의 "생각하는 시간")으로
    타이핑한다(`humanType`/`clickAndType` 패턴).

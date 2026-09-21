@@ -1,9 +1,11 @@
 "use strict";
 
-// 데스크톱 앱(src/main.js)의 AIMaster 계정 연동 로직과 동일한 방식 — 같은
-// personal_access_tokens 백엔드를 그대로 재사용한다. 주의: 반드시 www까지 정확히
-// 써야 한다 — buylife.xyz(www 없음)는 307 리다이렉트되면서 Authorization 헤더가
-// 사라진다(naver-blog-auto-poster/README.md "AIMaster 계정 연동 아키텍처" 참고).
+// 데스크톱 앱(naver-blog-auto-poster_app/src/main.js)의 AIMaster 계정 연동 로직과
+// 동일한 방식 — 같은 personal_access_tokens 백엔드를 그대로 재사용한다(이용권한·
+// 요금제는 두 폴더가 공유하는 programs.slug="naver-blog-auto-poster" 하나임).
+// 주의: 반드시 www까지 정확히 써야 한다 — buylife.xyz(www 없음)는 307 리다이렉트되면서
+// Authorization 헤더가 사라진다(naver-blog-auto-poster_app/README.md "AIMaster 계정
+// 연동 아키텍처" 참고).
 const AIMASTER_BASE_URL = "https://www.buylife.xyz";
 const STORAGE_KEY = "aimasterToken";
 

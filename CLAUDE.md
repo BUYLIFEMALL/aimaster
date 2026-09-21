@@ -115,10 +115,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   조작해야 하는 서브프로젝트를 만들거나 이어받을 때는, 다른 어떤 작업보다 먼저
   `docs/PLATFORM_PATTERNS.md` §20("공식 API 없는 서비스를 브라우저 자동화로 만들 때 —
   봇 탐지 회피는 최우선 원칙")를 읽고 그 규칙을 처음부터 적용할 것 — 사후에 추가하지
-  않는다.** 참고 구현은 `naver-blog-auto-poster/src/lib/humanInput.js`(사람처럼 클릭+
-  타이핑)와 `naver-blog-auto-poster/AGENTS.md`(개발 방법론 전체) — 새로 설계하지 말고
-  그대로 재사용한다(2026-09-21 사용자가 "항상 이 룰을 지킬 수 있도록 메인 지침으로
-  저장해두라"고 명시적으로 지시함).
+  않는다.** 참고 구현은 `naver-blog-auto-poster_app/src/lib/humanInput.js`(사람처럼 클릭+
+  타이핑, 데스크톱 앱)와 `naver-blog-auto-poster_app/AGENTS.md`/
+  `naver-blog-auto-poster_web/AGENTS.md`(개발 방법론 전체, 데스크톱/크롬 확장 각각) — 새로
+  설계하지 말고 그대로 재사용한다(2026-09-21 사용자가 "항상 이 룰을 지킬 수 있도록 메인
+  지침으로 저장해두라"고 명시적으로 지시함). 이 두 폴더는 2026-09-21에 유지보수 편의를
+  위해 완전히 분리됐지만, `programs.slug`는 여전히 `naver-blog-auto-poster` 하나를
+  공유한다(별도 유료 프로그램 아님).
 - **AI 이미지 생성은 Cloudinary의 `generate-image`(대행 생성) API를 거치지 않는다.** Gemini(나노바나나)를 직접 호출해서 생성하고, 결과는 Cloudinary가 아닌 Supabase Storage의 public 버킷에 업로드한 뒤 그 공개 URL을 DB에 저장한다 — 이유와 구체적 방법은 `docs/PLATFORM_PATTERNS.md` §12 참고. Cloudinary의 대행 생성 기능은 월 50회라는 별도 한도가 있어(저장공간·업로드 개수와 무관) 쉽게 소진되고, 그 경우 새 이미지 생성이 막힌다.
 
 ## Commands
@@ -176,7 +179,8 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
   존중하지 않고 로컬 작업 폴더 전체를 스캔한다 — 데스크톱 앱의 `runtime/`처럼 실행 중인
   프로세스가 파일을 잠그고 있으면(예: 열려 있는 Playwright 브라우저 프로필) `EBUSY`로
   루트 앱 배포 자체가 실패한다(2026-09-20, `naver-blog-auto-poster/runtime/browser-profiles`
-  에서 실제 발견). 그 서브프로젝트가 루트 앱에서 import되지 않는 게 확실하면(`grep`으로
+  에서 실제 발견 — 2026-09-21 폴더 분리 후 경로는 `naver-blog-auto-poster_app/runtime`).
+  그 서브프로젝트가 루트 앱에서 import되지 않는 게 확실하면(`grep`으로
   `app/` 안에서 그 폴더명을 참조하는 곳이 없는지 확인) 폴더 전체를, 최소한 `runtime/`·
   `node_modules/`는 반드시 `.vercelignore`에 추가한다.
 
