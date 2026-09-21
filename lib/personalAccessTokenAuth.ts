@@ -17,6 +17,7 @@ export interface VerifiedToken {
   tokenId: string;
   email: string;
   name: string | null;
+  isAdmin: boolean;
 }
 
 /** Authorization: Bearer <토큰> 헤더를 검증하고, 유효하면 계정 정보를 반환한다. */
@@ -43,7 +44,7 @@ export async function verifyPersonalAccessToken(
 
   const { data: profile } = await serviceClient
     .from("profiles")
-    .select("email, name, is_suspended")
+    .select("email, name, is_suspended, is_admin")
     .eq("id", tokenRow.user_id)
     .maybeSingle();
 
@@ -54,7 +55,13 @@ export async function verifyPersonalAccessToken(
     .update({ last_used_at: new Date().toISOString() })
     .eq("id", tokenRow.id);
 
-  return { userId: tokenRow.user_id, tokenId: tokenRow.id, email: profile.email, name: profile.name ?? null };
+  return {
+    userId: tokenRow.user_id,
+    tokenId: tokenRow.id,
+    email: profile.email,
+    name: profile.name ?? null,
+    isAdmin: Boolean(profile.is_admin)
+  };
 }
 
 /**

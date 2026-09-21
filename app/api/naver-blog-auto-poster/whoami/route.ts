@@ -18,5 +18,9 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ email: result.token.email, name: result.token.name });
+  return NextResponse.json({
+    email: result.token.email,
+    name: result.token.name,
+    isAdmin: result.token.isAdmin
+  });
 }
