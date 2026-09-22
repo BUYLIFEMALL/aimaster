@@ -57,13 +57,15 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
   const buttonResults = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
     func: () => {
-      const candidates = [...document.querySelectorAll("button, [role='button'], a, [class*='image'], [class*='photo']")];
+      const candidates = [...document.querySelectorAll(".se-image-toolbar-button, button, [role='button'], a, [class*='image'], [class*='photo']")];
       const imageButton = candidates.find((element) => {
         if (element.matches("img, input, [aria-hidden='true']")) return false;
         const label = `${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.className || ""} ${element.textContent || ""}`;
         return /사진|이미지|image|photo/i.test(label);
       });
       if (!imageButton) return { clicked: false };
+      imageButton.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, view: window }));
+      imageButton.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true, view: window }));
       imageButton.click();
       return { clicked: true, label: `${imageButton.getAttribute("aria-label") || imageButton.getAttribute("title") || imageButton.textContent || "image button"}`.trim().slice(0, 80) };
     },
@@ -86,10 +88,12 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
       try {
         const transfer = new DataTransfer();
         transfer.items.add(file);
-        inputs[inputs.length - 1].files = transfer.files;
-        inputs[inputs.length - 1].dispatchEvent(new Event("change", { bubbles: true }));
-        inputs[inputs.length - 1].dispatchEvent(new Event("input", { bubbles: true }));
-        return { ok: true, inputCount: inputs.length };
+        const input = inputs[inputs.length - 1];
+        input.files = transfer.files;
+        if (input.files.length !== 1) return { ok: false, reason: "file input assignment produced no file" };
+        input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+        return { ok: true, inputCount: inputs.length, fileName: input.files[0].name };
       } catch (error) {
         return { ok: false, reason: error instanceof Error ? error.message : "file input assignment failed" };
       }
@@ -97,7 +101,20 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
   });
   const result = results.find((entry) => entry.result)?.result;
   if (!result?.ok) throw new Error(`네이버 이미지 업로드 input 처리 실패: ${result?.reason || "input not found"}`);
-  return result;
+  // 파일 input에 들어간 뒤 네이버가 업로드/미리보기를 반영할 시간을 주고 실제 이미지 DOM을 확인한다.
+  const deadline = Date.now() + 12000;
+  while (Date.now() < deadline) {
+    const imageState = await chrome.scripting.executeScript({
+      target: { tabId, allFrames: true },
+      func: () => {
+        const editorImages = [...document.querySelectorAll(".se-component-image img, .se-image-resource, img[src^='blob:']")];
+        return { count: editorImages.length };
+      },
+    });
+    if (imageState.some((entry) => (entry.result?.count ?? 0) > 0)) return { ...result, inserted: true };
+    await sleep(500);
+  }
+  throw new Error("이미지 파일은 선택됐지만 네이버 편집기 반영을 확인하지 못했습니다. 이미지 도구를 다시 연 뒤 재시도하세요.");
 }
 
 async function typeWithDebugger(tabId, value) {
