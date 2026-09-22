@@ -54,14 +54,18 @@ async function debuggerCommand(tabId, method, params = {}) {
 async function insertImageIntoNaverEditor(tabId, dataUrl) {
   const [header, encoded] = String(dataUrl || "").split(",", 2);
   if (!encoded || !header.startsWith("data:image/")) throw new Error("유효한 이미지 데이터가 없습니다.");
-  await chrome.scripting.executeScript({
+  const buttonResults = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
     func: () => {
       const candidates = [...document.querySelectorAll("button, [role='button'], a")];
       const imageButton = candidates.find((element) => /사진|이미지|image|photo/i.test(`${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.textContent || ""}`));
-      imageButton?.click();
+      if (!imageButton) return { clicked: false };
+      imageButton.click();
+      return { clicked: true, label: `${imageButton.getAttribute("aria-label") || imageButton.getAttribute("title") || imageButton.textContent || "image button"}`.trim().slice(0, 80) };
     },
   });
+  const clickedButton = buttonResults.find((entry) => entry.result?.clicked)?.result;
+  if (!clickedButton) throw new Error("네이버 이미지 버튼을 찾지 못했습니다. 글쓰기 화면의 이미지 도구를 먼저 열어주세요.");
   // 네이버는 이미지 도구를 누른 뒤 파일 input을 동적으로 생성하므로 충분히 기다린다.
   await sleep(2500);
   const results = await chrome.scripting.executeScript({
@@ -89,6 +93,7 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
   });
   const result = results.find((entry) => entry.result)?.result;
   if (!result?.ok) throw new Error("네이버 이미지 업로드 input을 찾지 못했습니다. 이미지 삽입 버튼을 직접 연 뒤 다시 시도하세요.");
+  if (!result?.ok) throw new Error(`네이버 이미지 업로드 input 처리 실패: ${result?.reason || "input not found"}`);
   return result;
 }
 
