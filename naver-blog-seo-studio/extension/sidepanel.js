@@ -200,10 +200,16 @@ async function closeNaverImagePopup(tabId) {
         const rect = element.getBoundingClientRect();
         return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
       };
+      const explicit = [...document.querySelectorAll(
+        ".se-sidebar-close-button, .se-panel-close-button, [aria-label='닫기'], [title='닫기'], " +
+        "button[class*='close'], [role='button'][class*='close']"
+      )].filter(visible);
       const dialogs = [...document.querySelectorAll("[role='dialog'], [class*='popup'], [class*='layer']")].filter(visible);
-      const candidates = dialogs.flatMap((dialog) => [...dialog.querySelectorAll("button, [role='button'], a")]);
+      const candidates = [...explicit, ...dialogs.flatMap((dialog) => [...dialog.querySelectorAll("button, [role='button'], a")])];
       const closeButton = candidates.find((element) => /닫기|close|cancel/i.test(`${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.className || ""} ${element.textContent || ""}`));
       if (!closeButton) return { closed: false };
+      closeButton.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, view: window }));
+      closeButton.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true, view: window }));
       closeButton.click();
       return { closed: true };
     },
@@ -250,9 +256,19 @@ async function focusNaverEditor(tabId, kind) {
     target: { tabId, allFrames: true },
     args: [kind],
     func: (editorKind) => {
-      const container = editorKind === "title"
-        ? document.querySelector(".se-title-text")
-        : [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle, .se-image, .se-component-image, .se-section-image, .se-module-image"));
+      const isImageOwned = (element) => Boolean(element.closest(
+        ".se-documentTitle, .se-image, .se-component-image, .se-section-image, .se-module-image, .se-component-content-fit"
+      ));
+      const bodyCandidates = [...document.querySelectorAll(".se-text-paragraph")].filter((element) => !isImageOwned(element));
+      // Naver creates an empty paragraph after an image. Prefer that paragraph so
+      // typing resumes after the image instead of entering the image caption.
+      const lastImage = [...document.querySelectorAll(".se-component.se-image, .se-section-image")].at(-1);
+      const afterImage = lastImage
+        ? bodyCandidates.filter((element) => Boolean(lastImage.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING))
+        : bodyCandidates;
+      const bodyPool = afterImage.length ? afterImage : bodyCandidates;
+      const emptyBody = bodyPool.find((element) => !(element.innerText || element.textContent || "").trim());
+      const container = editorKind === "title" ? document.querySelector(".se-title-text") : (emptyBody || bodyPool.at(-1));
       if (!container) return { ok: false };
       const findEditable = (element) => element?.isContentEditable
         ? element
@@ -277,6 +293,7 @@ async function focusNaverEditor(tabId, kind) {
         }
         return active?.isContentEditable ? active : null;
       };
+      container.scrollIntoView({ block: "center", inline: "nearest" });
       simulateClick(container);
       container.focus();
       const editable = findEditable(container) || resolveActiveEditable();
@@ -430,7 +447,11 @@ async function fillDraftIntoNaver() {
       if (!bodyAnchor.ok) throw new Error("이미지 삽입 위치를 찾지 못했습니다.");
       $("generateStatus").textContent = "제목 입력 완료 · 이미지 삽입 중...";
       await insertImageIntoNaverEditor(tab.id, imageDataUrl);
-      await sleep(randomDelay(500, 900));
+      // Naver rebuilds the paragraph tree and closes the image panel
+      // asynchronously after upload. Let that transition settle before
+      // selecting the empty paragraph created below the image.
+      $("generateStatus").textContent = "이미지 삽입 완료 · 본문 입력 준비 중...";
+      await sleep(900);
     }
     const bodyFocus = await focusNaverEditor(tab.id, "body");
     if (!bodyFocus.ok) return ($("generateStatus").textContent = "본문 문단 입력 요소를 찾지 못했습니다. 네이버 글쓰기 본문을 클릭한 뒤 다시 시도하세요.");
