@@ -93,6 +93,40 @@ async function focusNaverEditor(tabId, kind) {
   return results.find((entry) => entry.result?.ok)?.result || { ok: false };
 }
 
+async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    args: [{ expectedTitle, expectedBody }],
+    func: ({ expectedTitle: titleValue, expectedBody: bodyValue }) => {
+      const normalize = (value) => String(value || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+      const titleElement = document.querySelector(".se-title-text");
+      const bodyParagraphs = [...document.querySelectorAll(".se-text-paragraph")].filter((element) => !element.closest(".se-documentTitle"));
+      if (!titleElement && bodyParagraphs.length === 0) return { ok: false };
+      const actualTitle = titleElement?.innerText || titleElement?.textContent || "";
+      const bodyRoot = bodyParagraphs[0]?.closest('[contenteditable="true"]') || bodyParagraphs[0];
+      const actualBody = bodyRoot?.innerText || bodyRoot?.textContent || "";
+      const expectedTitleText = normalize(titleValue);
+      const expectedBodyText = normalize(bodyValue);
+      const actualTitleText = normalize(actualTitle);
+      const actualBodyText = normalize(actualBody);
+      const expectedParagraphs = String(bodyValue || "").replace(/\\n/g, "\n").split(/\n+/).map(normalize).filter(Boolean);
+      const titleMatched = !expectedTitleText || actualTitleText.includes(expectedTitleText);
+      const bodyMatched = !expectedBodyText || expectedParagraphs.every((paragraph) => actualBodyText.includes(paragraph));
+      return {
+        ok: titleMatched && bodyMatched,
+        titleMatched,
+        bodyMatched,
+        actualTitle: actualTitleText.slice(0, 120),
+        actualBody: actualBodyText.slice(0, 240),
+        actualParagraphCount: bodyParagraphs.length,
+        expectedParagraphCount: expectedParagraphs.length,
+        frame: location.href,
+      };
+    },
+  });
+  return results.find((entry) => entry.result?.titleMatched || entry.result?.bodyMatched || entry.result?.ok)?.result || { ok: false };
+}
+
 async function renderStatus() {
   const token = await getToken();
   const result = await verify(token);
@@ -149,7 +183,16 @@ $("fill").addEventListener("click", async () => {
     const bodyFocus = await focusNaverEditor(tab.id, "body");
     if (!bodyFocus.ok) return ($("generateStatus").textContent = "본문 문단 입력 요소를 찾지 못했습니다. 네이버 글쓰기 본문을 클릭한 뒤 다시 시도하세요.");
     await typeWithDebugger(tab.id, body);
-    $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력이 완료되었습니다. 내용을 검토한 뒤 발행하세요.";
+    const verification = await verifyNaverEditorContent(tab.id, title, body);
+    if (!verification.ok) {
+      const details = [
+        verification.titleMatched === false ? "제목 확인 실패" : null,
+        verification.bodyMatched === false ? `본문 확인 실패 (${verification.actualParagraphCount || 0}/${verification.expectedParagraphCount || 0}문단)` : null,
+      ].filter(Boolean).join(", ");
+      $("generateStatus").textContent = `입력 결과 확인 실패: ${details || "실제 편집기 내용을 읽지 못했습니다."} 구조 분석을 실행해 주세요.`;
+      return;
+    }
+    $("generateStatus").textContent = `네이버 편집기 입력 및 결과 확인 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
   } catch (error) {
     $("generateStatus").textContent = `입력 실패: ${error instanceof Error ? error.message : String(error)}`;
   } finally {
