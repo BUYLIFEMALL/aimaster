@@ -14,9 +14,11 @@
       <h2>AI 초안 작성</h2>
       <input id="topic" placeholder="작성할 주제">
       <input id="keywords" placeholder="핵심 키워드 (쉼표로 구분)">
+      <label class="checkbox-row"><input id="includeImage" type="checkbox"> 나노바나나 대표 이미지도 생성</label>
       <button id="generate">초안 생성</button><div id="generateStatus" class="status"></div>
       <input id="title" placeholder="생성된 제목">
       <textarea id="body" rows="12" placeholder="생성된 본문"></textarea>
+      <div id="imagePreview" class="image-preview" hidden><img id="generatedImage" alt="생성된 대표 이미지"><a id="downloadImage" download="naver-blog-seo-studio-image.png">이미지 저장</a></div>
       <button id="fill" class="secondary">네이버 편집기에 입력</button>
     </section>
     <section class="card">

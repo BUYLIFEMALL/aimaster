@@ -170,12 +170,24 @@ $("generate").addEventListener("click", async () => {
   $("generate").disabled = true;
   $("generateStatus").textContent = "초안을 생성하는 중입니다...";
   try {
-    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본" }) });
+    const includeImage = $("includeImage").checked;
+    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage, imageModel: "nanobanana-2-2k" }) });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || `생성 실패 (${response.status})`);
     $("title").value = body.title || "";
     $("body").value = body.body || "";
-    $("generateStatus").textContent = "초안 생성 완료";
+    if (body.image?.dataUrl) {
+      $("generatedImage").src = body.image.dataUrl;
+      $("downloadImage").href = body.image.dataUrl;
+      $("imagePreview").hidden = false;
+      $("generateStatus").textContent = "초안과 대표 이미지 생성 완료";
+    } else if (includeImage && body.imageError) {
+      $("imagePreview").hidden = true;
+      $("generateStatus").textContent = `초안 생성 완료 · 이미지: ${body.imageError}`;
+    } else {
+      $("imagePreview").hidden = true;
+      $("generateStatus").textContent = "초안 생성 완료";
+    }
   } catch (error) { $("generateStatus").textContent = `오류: ${error instanceof Error ? error.message : String(error)}`; }
   finally { $("generate").disabled = false; }
 });
