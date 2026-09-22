@@ -4,6 +4,8 @@ export interface SeoDraft { title: string; body: string; seoReport: Record<strin
 
 function normalizeBlogText(value: string) {
   return value
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
     .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
     .replace(/`([^`]+)`/g, "$1")
