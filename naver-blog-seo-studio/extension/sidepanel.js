@@ -252,7 +252,7 @@ async function focusNaverEditor(tabId, kind) {
     func: (editorKind) => {
       const container = editorKind === "title"
         ? document.querySelector(".se-title-text")
-        : [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle"));
+        : [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle, .se-image, .se-component-image, .se-section-image, .se-module-image"));
       if (!container) return { ok: false };
       const findEditable = (element) => element?.isContentEditable
         ? element
@@ -301,7 +301,7 @@ async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
     func: ({ expectedTitle: titleValue, expectedBody: bodyValue }) => {
       const normalize = (value) => String(value || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
       const titleElement = document.querySelector(".se-title-text");
-      const bodyParagraphs = [...document.querySelectorAll(".se-text-paragraph")].filter((element) => !element.closest(".se-documentTitle"));
+      const bodyParagraphs = [...document.querySelectorAll(".se-text-paragraph")].filter((element) => !element.closest(".se-documentTitle, .se-image, .se-component-image, .se-section-image, .se-module-image"));
       if (!titleElement && bodyParagraphs.length === 0) return { ok: false };
       const actualTitle = titleElement?.innerText || titleElement?.textContent || "";
       const actualBody = bodyParagraphs.map((paragraph) => paragraph.innerText || paragraph.textContent || "").join("\n");
