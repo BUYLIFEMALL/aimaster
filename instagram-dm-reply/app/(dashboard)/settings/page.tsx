@@ -89,7 +89,7 @@ export default async function SettingsPage() {
           <p className="text-xs text-gray-500">Meta App 키 등록과 OAuth 연결까지 — 인스타그램 비즈니스 계정을 이 프로그램에 붙이는 단계입니다.</p>
         </div>
         <div className="space-y-2 text-sm text-gray-500">
-          <p>INSTA DM답변 자동화에는 본인의 Meta App ID/Secret이 필요합니다.</p>
+          <p>INSTA DM답변 자동화에는 본인의 Instagram 앱 ID / Instagram 앱 시크릿 코드가 필요합니다.</p>
           <p className="font-semibold text-gray-900">앱(관리자) 공용 키로 대신 동작하지 않습니다.</p>
           <p>
             Meta App Dashboard에서 만든 앱의 유효한 OAuth 리디렉션 URI에 아래 주소를 추가로

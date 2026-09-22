@@ -200,14 +200,8 @@ function renderNoticeText(item: NoticeItem) {
 
 export default async function HomePage() {
   const { programs, categories, userAccess } = await getHomeData();
-  const pricedPrograms = programs.map((program) => {
-    const activePrices = (program.pricing_plans ?? [])
-      .filter((plan: { is_active?: boolean }) => plan.is_active !== false)
-      .map((plan: { price?: number | null }) => plan.price ?? 0);
-    return activePrices.length > 0 ? Math.min(...activePrices) : null;
-  });
-  const freeProgramCount = pricedPrograms.filter((price) => price === 0).length;
-  const paidProgramCount = pricedPrograms.filter((price) => price !== null && price > 0).length;
+  const freeProgramCount = programs.filter((p) => (p.badges ?? []).includes("free")).length;
+  const paidProgramCount = programs.length - freeProgramCount;
   const latestPrograms = [...programs]
     .sort((a, b) => {
       const aPinned = (a.badges ?? []).includes("new") ? 1 : 0;

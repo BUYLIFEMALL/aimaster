@@ -306,6 +306,26 @@ $("insertImage").addEventListener("click", async () => {
   } finally { $("insertImage").disabled = false; }
 });
 
+$("regenerateImage").addEventListener("click", async () => {
+  const token = await getToken();
+  const topic = $("topic").value.trim();
+  if (!token) return ($("generateStatus").textContent = "먼저 SEO Studio를 연결하세요.");
+  if (!topic) return ($("generateStatus").textContent = "주제를 입력하세요.");
+  $("regenerateImage").disabled = true;
+  $("generateStatus").textContent = "나노바나나가 새 이미지를 생성하는 중...";
+  try {
+    const response = await fetch(`${BASE}/api/extension/images/generate`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, title: $("title").value, keywords: $("keywords").value, model: "nanobanana-2-2k" }) });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body.image?.dataUrl) throw new Error(body.error || `이미지 생성 실패 (${response.status})`);
+    $("generatedImage").src = body.image.dataUrl;
+    $("downloadImage").href = body.image.dataUrl;
+    $("imagePreview").hidden = false;
+    $("generateStatus").textContent = "새 이미지가 준비되었습니다. 네이버 삽입 버튼으로 교체할 수 있습니다.";
+  } catch (error) {
+    $("generateStatus").textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
+  } finally { $("regenerateImage").disabled = false; }
+});
+
 $("inspect").addEventListener("click", async () => {
   $("inspect").disabled = true;
   $("inspectStatus").textContent = "분석 중...";

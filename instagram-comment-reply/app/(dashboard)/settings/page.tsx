@@ -84,7 +84,7 @@ export default async function SettingsPage() {
             <div>
               <h2 className="text-sm font-bold text-gray-900">📸 Instagram 계정 연결</h2>
               <p className="text-xs text-gray-500">
-                인스타그램 게시물·댓글을 읽고 답글을 게시하기 위한 Meta App ID/Secret 등록과
+                인스타그램 게시물·댓글을 읽고 답글을 게시하기 위한 Instagram 앱 ID / Instagram 앱 시크릿 코드 등록과
                 OAuth 계정 연결입니다.
               </p>
             </div>

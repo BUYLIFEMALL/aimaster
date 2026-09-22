@@ -55,7 +55,7 @@ export function InstagramConnectSection({
         <form onSubmit={handleConnect} className="space-y-3">
           <input type="hidden" name="returnTo" value={pathname} />
           <p className="text-sm text-gray-500">
-            위 Meta App ID/Secret을 먼저 등록한 뒤 연결해주세요. 연결하려면 인스타그램
+            위 Instagram 앱 ID / Instagram 앱 시크릿 코드를 먼저 등록한 뒤 연결해주세요. 연결하려면 인스타그램
             <strong className="text-gray-700"> 비즈니스 또는 크리에이터(전문) 계정</strong>이어야
             합니다(개인 계정은 지원되지 않아요). 연결 시 동의 화면에서 DM 읽기/발송 권한
             (instagram_business_manage_messages)에 동의하셔야 합니다.

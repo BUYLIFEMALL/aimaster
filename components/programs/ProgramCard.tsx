@@ -93,7 +93,9 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
         {/* Price + CTA */}
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
           <div>
-            {minPrice ? (
+            {resolvedBadges.includes("free") ? (
+              <span className="text-emerald-400 font-bold text-base">무료 (회원 전용)</span>
+            ) : minPrice ? (
               <>
                 <span className="text-xs text-subtext">월 </span>
                 <span className="text-gold font-bold text-lg">
