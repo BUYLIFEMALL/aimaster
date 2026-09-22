@@ -211,17 +211,37 @@ AGENTS.md §4)을 다시 확인한 사례이고, 그래서 매번 실제 결과�
 
 Chrome 웹스토어 개발자 계정은 만들어뒀지만(§3 참고) 아직 정식 심사를 제출하지 않기로 했다.
 대신:
-1. `Compress-Archive`(PowerShell)로 이 폴더 전체를 zip으로 압축, 동봉한 `설치방법.txt`에
-   "개발자 모드 → 압축해제된 확장 프로그램 로드" 절차를 안내.
-2. 데스크톱 앱 exe와 마찬가지로 `gh release upload`로 같은 GitHub Release
-   (`naver-blog-auto-poster-v0.1.0`)에 자산으로 추가.
-3. 루트 앱 다운로드 페이지(`app/(dashboard)/naver-blog-auto-poster/page.tsx`)에서 데스크톱 앱
-   다운로드 버튼 바로 아래에 "웹버전(크롬 확장) 다운로드" 섹션을 두고, 그 아래에 단계별
-   사용법과 맨 하단에 "📖 연동 매뉴얼"(OpenAI/Gemini API 키 발급 안내, `platform_guides`
-   재사용 + 팝업창 오픈 — CLAUDE.md의 "API키등록·플랫폼연동 페이지 표준" 그대로 따름)을
-   함께 두었다. 이 페이지는 `naver-blog-auto-poster_app`과 이 폴더가 공유하는 화면이다.
-   - 업데이트가 나오면 사용자가 새 zip을 다시 풀어서 폴더 전체를 교체하고
-     `chrome://extensions`에서 새로고침해야 한다는 안내도 `설치방법.txt`에 명시.
+1. 실제 로드/배포되는 확장 소스는 **`naver-blog-auto-poster_web/extension/`(이 폴더 바로
+   아래 `extension/` 서브폴더)** 다 — 2026-09-22에 다른 세션이 이 폴더 루트의
+   `manifest.json`/`sidepanel.js`/`sidepanel.html`을 실수로 별도 프로젝트
+   (`naver-blog-seo-studio`) API 주소로 덮어써서 공유 커밋 이력에 남은 사고가 있었고, 그
+   이후로 실제 작동하는 확장은 이 서브폴더로 격리했다(루트의 파일들은 오염된 채로 남아있을
+   수 있으니 절대 참고하지 말 것). `Load unpacked`로 크롬에 로드할 때도 이 `extension/`
+   서브폴더를 선택한다.
+2. 루트 앱 다운로드 페이지는 `app/(dashboard)/naver-blog-auto-poster-web/page.tsx`다(데스크톱
+   앱과 완전히 분리된 전용 페이지, §0/§12 참고) — 여기서 크롬 확장 다운로드 버튼, 단계별
+   사용법, 맨 하단 "📖 연동 매뉴얼"(OpenAI/Gemini API 키 발급 안내)을 전부 제공한다.
+3. **새 버전을 배포할 때마다 반드시 지킬 순서 (2026-09-22 사용자 명시적 지시 — 표준 절차로
+   고정)**:
+   1. `naver-blog-auto-poster_web/extension/` 안의 실제 파일들을 최신 내용으로 수정한다
+      (이 서브폴더 자체가 "최신 소스"이자 배포 대상이므로, 로컬에서 실행 확인이 끝나면
+      바로 이 폴더를 갱신해둔다).
+   2. `Compress-Archive`(PowerShell)로 그 `extension/` 폴더 **내용물**을 zip으로 압축한다
+      (예: `Compress-Archive -Path "naver-blog-auto-poster_web\extension\*" -DestinationPath
+      "naver-blog-auto-poster_web\AIMaster-Naver-Blog-Auto-Poster-Extension-0.1.0.zip"`,
+      기존 zip이 있으면 먼저 `Remove-Item`으로 지우고 다시 압축).
+   3. `gh release upload naver-blog-auto-poster-v0.1.0 <새 zip 경로> --repo
+      BUYLIFEMALL/aimaster --clobber`로 **기존과 같은 파일명·같은 GitHub Release**에
+      덮어쓴다 — 새 릴리스/새 URL을 만들지 않는다. 루트 앱 다운로드 페이지의
+      `EXTENSION_DOWNLOAD_URL`은 이 고정된 파일명을 가리키고 있으므로, 파일명을 그대로
+      유지하면 다운로드 링크(`www.buylife.xyz/naver-blog-auto-poster-web`)는 코드 수정 없이
+      자동으로 최신 버전을 제공한다.
+   4. 배포 후 `curl -sL <다운로드 URL> -o tmp.zip`으로 실제로 받아서 압축을 풀어보고
+      `manifest.json`/`sidepanel.js` 내용이 로컬 `extension/` 폴더와 동일한지(핵심 파일
+      sha256 비교) 반드시 재확인한다 — "폴더만 바꿨으니 됐겠지"라고 넘기지 말고 실측할 것
+      (이 프로젝트 전체의 "추측하지 말고 실측한다" 원칙, §4).
+   5. 사용자에게는 새 zip을 다시 받아서 압축을 풀고 `chrome://extensions`에서 새로고침(순환
+      화살표)해야 한다고 안내한다(`설치방법.txt`에 이미 명시돼 있음).
 
 ---
 
