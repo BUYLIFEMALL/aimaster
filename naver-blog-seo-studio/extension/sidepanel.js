@@ -251,6 +251,20 @@ async function typeWithDebugger(tabId, value) {
   }
 }
 
+async function clickNaverEditorPoint(tabId, focusResult) {
+  if (!focusResult?.ok || !Number.isFinite(focusResult.x) || !Number.isFinite(focusResult.y)) return;
+  await debuggerCommand(tabId, "Input.dispatchMouseEvent", {
+    type: "mouseMoved", x: focusResult.x, y: focusResult.y,
+  });
+  await debuggerCommand(tabId, "Input.dispatchMouseEvent", {
+    type: "mousePressed", x: focusResult.x, y: focusResult.y, button: "left", clickCount: 1,
+  });
+  await debuggerCommand(tabId, "Input.dispatchMouseEvent", {
+    type: "mouseReleased", x: focusResult.x, y: focusResult.y, button: "left", clickCount: 1,
+  });
+  await sleep(120);
+}
+
 async function focusNaverEditor(tabId, kind) {
   const results = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
@@ -305,7 +319,16 @@ async function focusNaverEditor(tabId, kind) {
       const selection = editable.ownerDocument.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-      return { ok: true, kind: editorKind, frame: location.href, editableTag: editable.tagName, editableClass: editable.className || null };
+      const rect = (editable || container).getBoundingClientRect();
+      return {
+        ok: true,
+        kind: editorKind,
+        frame: location.href,
+        editableTag: editable.tagName,
+        editableClass: editable.className || null,
+        x: rect.left + Math.max(8, Math.min(rect.width / 2, 24)),
+        y: rect.top + Math.max(8, Math.min(rect.height / 2, 24)),
+      };
     },
   });
   return results.find((entry) => entry.result?.ok)?.result || { ok: false };
@@ -438,6 +461,7 @@ async function fillDraftIntoNaver() {
       attachedTabId = tab.id;
       await debuggerCommand(tab.id, "Input.setIgnoreInputEvents", { ignore: false });
     }
+    await clickNaverEditorPoint(tab.id, titleFocus);
     await typeWithDebugger(tab.id, title);
     await sleep(randomDelay(600, 1000));
     if (imageDataUrl) {
@@ -461,6 +485,7 @@ async function fillDraftIntoNaver() {
       await debuggerCommand(tab.id, "Input.setIgnoreInputEvents", { ignore: false });
     }
     $("generateStatus").textContent = imageDataUrl ? "이미지 삽입 완료 · 본문 입력 중..." : "본문 입력 중...";
+    await clickNaverEditorPoint(tab.id, bodyFocus);
     await typeWithDebugger(tab.id, body);
     const verification = await verifyNaverEditorContent(tab.id, title, body);
     if (!verification.ok) {
