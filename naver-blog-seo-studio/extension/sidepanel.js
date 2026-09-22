@@ -238,15 +238,14 @@ $("generateAndFill").addEventListener("click", async () => {
     $("generateAndFill").disabled = false;
     return;
   }
-  $("fill").click();
-  await sleep(2500);
-  if ($("includeImage").checked && !$("imagePreview").hidden) {
+  const filled = await fillDraftIntoNaver();
+  if (filled && $("includeImage").checked && !$("imagePreview").hidden) {
     $("insertImage").click();
   }
   $("generateAndFill").disabled = false;
 });
 
-$("fill").addEventListener("click", async () => {
+async function fillDraftIntoNaver() {
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
   let attachedTabId = null;
   try {
@@ -279,6 +278,7 @@ $("fill").addEventListener("click", async () => {
       return;
     }
     $("generateStatus").textContent = `네이버 편집기 입력 및 결과 확인 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
+    return true;
   } catch (error) {
     $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
   } finally {
@@ -286,7 +286,9 @@ $("fill").addEventListener("click", async () => {
       try { await chrome.debugger.detach({ tabId: attachedTabId }); } catch { /* tab may have navigated */ }
     }
   }
-});
+}
+
+$("fill").addEventListener("click", fillDraftIntoNaver);
 
 $("insertImage").addEventListener("click", async () => {
   const dataUrl = $("generatedImage").src;
