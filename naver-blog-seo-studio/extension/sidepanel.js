@@ -251,11 +251,11 @@ async function typeWithDebugger(tabId, value) {
   }
 }
 
-async function focusNaverEditor(tabId, kind) {
+async function focusNaverEditor(tabId, kind, placement = "end") {
   const results = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
-    args: [kind],
-    func: (editorKind) => {
+    args: [{ kind, placement }],
+    func: ({ kind: editorKind, placement: cursorPlacement }) => {
       const isImageOwned = (element) => Boolean(element.closest(
         ".se-documentTitle, .se-image, .se-component-image, .se-section-image, .se-module-image, .se-component-content-fit"
       ));
@@ -268,7 +268,9 @@ async function focusNaverEditor(tabId, kind) {
         : bodyCandidates;
       const bodyPool = afterImage.length ? afterImage : bodyCandidates;
       const emptyBody = bodyPool.find((element) => !(element.innerText || element.textContent || "").trim());
-      const container = editorKind === "title" ? document.querySelector(".se-title-text") : (emptyBody || bodyPool.at(-1));
+      const container = editorKind === "title"
+        ? document.querySelector(".se-title-text")
+        : (cursorPlacement === "start" ? bodyPool[0] : (emptyBody || bodyPool.at(-1)));
       if (!container) return { ok: false };
       const findEditable = (element) => element?.isContentEditable
         ? element
@@ -301,7 +303,7 @@ async function focusNaverEditor(tabId, kind) {
       editable.focus();
       const range = editable.ownerDocument.createRange();
       range.selectNodeContents(container.isContentEditable ? editable : container);
-      range.collapse(false);
+      range.collapse(cursorPlacement !== "start");
       const selection = editable.ownerDocument.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
@@ -447,9 +449,23 @@ async function fillDraftIntoNaver() {
     await typeWithDebugger(tab.id, title);
     await sleep(randomDelay(600, 1000));
     if (imageDataUrl) {
+      // Enter the body while the normal editor caret is reliable. The image
+      // is inserted at the beginning of this paragraph in the next step.
       await chrome.debugger.detach({ tabId: tab.id });
       attachedTabId = null;
-      const bodyAnchor = await focusNaverEditor(tab.id, "body");
+      const preImageBody = await focusNaverEditor(tab.id, "body");
+      if (!preImageBody.ok) throw new Error("蹂몃Ц ?낅젰 ?꾩튂瑜?李얠? 紐삵뻽?듬땲??");
+      await chrome.debugger.attach({ tabId: tab.id }, "1.3");
+      attachedTabId = tab.id;
+      await debuggerCommand(tab.id, "Input.setIgnoreInputEvents", { ignore: false });
+      await typeWithDebugger(tab.id, body);
+      await chrome.debugger.detach({ tabId: tab.id });
+      attachedTabId = null;
+    }
+    if (imageDataUrl) {
+      if (attachedTabId !== null) await chrome.debugger.detach({ tabId: tab.id });
+      attachedTabId = null;
+      const bodyAnchor = await focusNaverEditor(tab.id, "body", "start");
       if (!bodyAnchor.ok) throw new Error("이미지 삽입 위치를 찾지 못했습니다.");
       $("generateStatus").textContent = "제목 입력 완료 · 이미지 삽입 중...";
       await insertImageIntoNaverEditor(tab.id, imageDataUrl);
@@ -463,13 +479,13 @@ async function fillDraftIntoNaver() {
     // coordinates are unsafe for iframe-local editor coordinates.
     const bodyFocus = imageDataUrl ? { ok: true } : await focusNaverEditor(tab.id, "body");
     if (!bodyFocus.ok) return ($("generateStatus").textContent = "본문 문단 입력 요소를 찾지 못했습니다. 네이버 글쓰기 본문을 클릭한 뒤 다시 시도하세요.");
-    if (attachedTabId === null) {
+    if (!imageDataUrl && attachedTabId === null) {
       await chrome.debugger.attach({ tabId: tab.id }, "1.3");
       attachedTabId = tab.id;
       await debuggerCommand(tab.id, "Input.setIgnoreInputEvents", { ignore: false });
     }
     $("generateStatus").textContent = imageDataUrl ? "이미지 삽입 완료 · 본문 입력 중..." : "본문 입력 중...";
-    await typeWithDebugger(tab.id, body);
+    if (!imageDataUrl) await typeWithDebugger(tab.id, body);
     const verification = await verifyNaverEditorContent(tab.id, title, body);
     if (!verification.ok) {
       const details = [
