@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:browser": "node --test tests/browser/extension-regression.test.mjs"
+    "test:browser": "node --test tests/browser/extension-regression.test.mjs",
+    "extension:archive": "node scripts/build-extension-archive.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -21,6 +22,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "archiver": "^7.0.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "playwright-core": "^1.47.0",

@@ -1,10 +1,13 @@
-const EXTENSION_ARCHIVE = "/downloads/naver-blog-seo-studio-extension-v1.0.2.zip";
+import extensionManifest from "../../extension/manifest.json";
+
+const EXTENSION_VERSION = extensionManifest.version;
+const EXTENSION_ARCHIVE = `/downloads/naver-blog-seo-studio-extension-v${EXTENSION_VERSION}.zip`;
 
 export default function ExtensionDownloadCard() {
   return (
     <section className="extension-download-card" aria-labelledby="extension-download-title">
       <div className="extension-download-copy">
-        <div className="extension-download-kicker">Chrome Extension · v1.0.2</div>
+        <div className="extension-download-kicker">Chrome Extension · v{EXTENSION_VERSION}</div>
         <h3 id="extension-download-title">SEO Studio 확장 프로그램</h3>
         <p>네이버 블로그 편집기에 제목과 본문을 실제 키보드 방식으로 입력합니다.</p>
       </div>
