@@ -47,6 +47,8 @@ $("generate").addEventListener("click", async () => {
 });
 
 $("fill").addEventListener("click", async () => {
+  $("generateStatus").textContent = "네이버 편집기에 입력 중...";
+  try {
   const title = $("title").value, body = $("body").value;
   if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
   const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
@@ -76,6 +78,9 @@ $("fill").addEventListener("click", async () => {
   } });
   const result = results?.find((entry) => entry.result?.ok)?.result || results?.find((entry) => entry.result)?.result;
   $("generateStatus").textContent = result?.ok ? "네이버 편집기에 입력했습니다. 내용을 검토한 뒤 발행하세요." : `입력 실패: ${result?.error || "페이지에 접근하지 못했습니다."}`;
+  } catch (error) {
+    $("generateStatus").textContent = `입력 실행 오류: ${error instanceof Error ? error.message : String(error)}`;
+  }
 });
 
 renderStatus();
