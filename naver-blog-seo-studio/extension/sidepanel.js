@@ -2,11 +2,81 @@
 
 const BASE = "https://naver-blog-seo-studio.vercel.app";
 const KEY = "seoStudioToken";
+const PUBLISH_SETTINGS_KEY = "seoStudioPublishSettings";
 const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 async function getToken() { return (await chrome.storage.local.get(KEY))[KEY] || ""; }
+
+async function getNaverBlogTab() {
+  const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
+  return tabs.find((candidate) => candidate.active) || tabs[0] || null;
+}
+
+async function fillPublishInfoIntoNaver() {
+  const category = $("publishCategory").value.trim();
+  const tags = $("publishTags").value.split(",").map((tag) => tag.trim()).filter(Boolean).slice(0, 30);
+  if (!category && tags.length === 0) throw new Error("태그 또는 카테고리를 입력해주세요.");
+  const tab = await getNaverBlogTab();
+  if (!tab?.id) throw new Error("네이버 블로그 글쓰기 탭을 찾지 못했습니다.");
+
+  const prepared = await chrome.scripting.executeScript({
+    target: { tabId: tab.id, allFrames: true },
+    func: ({ hasCategory }) => {
+      const visible = (element) => {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+      };
+      const tagInput = document.querySelector("#tag-input, input[placeholder*='태그']");
+      if (tagInput && visible(tagInput)) tagInput.focus();
+      let categoryOpened = false;
+      if (hasCategory) {
+        const trigger = [...document.querySelectorAll(".selectbox_button__IxraO, button, [role='button']")].find((element) => visible(element) && /카테고리|전체 글감/.test(element.textContent || ""));
+        if (trigger) { trigger.click(); categoryOpened = true; }
+      }
+      return { tagFound: Boolean(tagInput && visible(tagInput)), categoryOpened };
+    },
+    args: [{ hasCategory: Boolean(category) }],
+  });
+  const preparedResult = prepared.find((entry) => entry.result?.tagFound || entry.result?.categoryOpened)?.result;
+  if (tags.length > 0 && !preparedResult?.tagFound) throw new Error("발행 설정창의 태그 입력란(#tag-input)을 찾지 못했습니다. 네이버에서 발행 버튼을 먼저 눌러주세요.");
+
+  if (tags.length > 0) {
+    await chrome.debugger.attach({ tabId: tab.id }, "1.3");
+    try {
+      for (const tag of tags) {
+        await debuggerCommand(tab.id, "Input.insertText", { text: tag });
+        await debuggerCommand(tab.id, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+        await debuggerCommand(tab.id, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+        await sleep(randomDelay(220, 450));
+      }
+    } finally {
+      try { await chrome.debugger.detach({ tabId: tab.id }); } catch { /* tab may have navigated */ }
+    }
+  }
+
+  if (category) {
+    await sleep(500);
+    const categoryResults = await chrome.scripting.executeScript({
+      target: { tabId: tab.id, allFrames: true },
+      args: [category],
+      func: (categoryName) => {
+        const visible = (element) => {
+          const style = getComputedStyle(element);
+          const rect = element.getBoundingClientRect();
+          return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+        };
+        const items = [...document.querySelectorAll(".item__dTdzo, [role='option'], li")].filter((element) => visible(element) && (element.textContent || "").includes(categoryName));
+        if (!items[0]) return { selected: false };
+        items[0].click();
+        return { selected: true, text: (items[0].textContent || "").trim().slice(0, 80) };
+      },
+    });
+    if (!categoryResults.some((entry) => entry.result?.selected)) throw new Error(`카테고리 '${category}'를 찾지 못했습니다.`);
+  }
+}
 
 async function verify(token) {
   if (!token) return { ok: false, error: "토큰을 입력하세요." };
@@ -477,5 +547,31 @@ $("inspect").addEventListener("click", async () => {
     $("inspect").disabled = false;
   }
 });
+
+$("savePublishSettings").addEventListener("click", async () => {
+  const settings = { category: $("publishCategory").value.trim(), tags: $("publishTags").value.trim() };
+  await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: settings });
+  $("publishStatus").textContent = "발행 카테고리·태그를 저장했습니다.";
+});
+
+$("fillPublishInfo").addEventListener("click", async () => {
+  $("fillPublishInfo").disabled = true;
+  $("publishStatus").textContent = "네이버 발행 설정창에 입력하는 중...";
+  try {
+    await fillPublishInfoIntoNaver();
+    await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: { category: $("publishCategory").value.trim(), tags: $("publishTags").value.trim() } });
+    $("publishStatus").textContent = "카테고리·태그 입력 완료. 내용을 확인한 뒤 네이버 발행 버튼을 직접 누르세요.";
+  } catch (error) {
+    $("publishStatus").textContent = formatBrowserError(error, "발행 정보 입력");
+  } finally {
+    $("fillPublishInfo").disabled = false;
+  }
+});
+
+chrome.storage.local.get(PUBLISH_SETTINGS_KEY).then((stored) => {
+  const settings = stored[PUBLISH_SETTINGS_KEY] || {};
+  $("publishCategory").value = settings.category || "";
+  $("publishTags").value = settings.tags || "";
+}).catch(() => {});
 
 renderStatus();
