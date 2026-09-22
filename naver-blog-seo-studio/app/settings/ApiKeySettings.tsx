@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { OPENAI_CONTENT_MODELS, type OpenAIContentModel } from "@/lib/ai/openaiModels";
 
 type Provider = "openai" | "gemini";
 
-export default function ApiKeySettings({ initialProviders, maskedKeys = {} }: { initialProviders: Provider[]; maskedKeys?: Partial<Record<Provider, string>> }) {
+export default function ApiKeySettings({ initialProviders, maskedKeys = {}, initialModel }: { initialProviders: Provider[]; maskedKeys?: Partial<Record<Provider, string>>; initialModel: OpenAIContentModel }) {
   const [values, setValues] = useState<Record<Provider, string>>({ openai: "", gemini: "" });
   const [providers, setProviders] = useState(initialProviders);
   const [message, setMessage] = useState("");
@@ -45,7 +46,7 @@ export default function ApiKeySettings({ initialProviders, maskedKeys = {} }: { 
     <div className="settings-stack">
       <div className="key-row">
         {maskedKeys.openai && <code className="saved-key-inline">계정 등록 키: {maskedKeys.openai}</code>}
-        <div><strong>OpenAI</strong><p>제목·본문·SEO 검수 리포트 생성에 사용합니다.</p></div>
+        <div><strong>OpenAI</strong><p>제목·본문·SEO 검수 리포트 생성에 사용합니다.</p><span className="selected-model-badge">현재 생성 모델: {OPENAI_CONTENT_MODELS.find((option) => option.value === initialModel)?.label ?? initialModel}</span></div>
         <div className="key-actions"><input type="password" placeholder={providers.includes("openai") ? "등록된 키가 있습니다" : "sk-..."} value={values.openai} onChange={(event) => setValues((current) => ({ ...current, openai: event.target.value }))} autoComplete="off" /><button className="small-button" onClick={() => save("openai")} disabled={pending !== null}>{pending === "openai" ? "저장 중" : "저장"}</button>{providers.includes("openai") && <button className="text-button" onClick={() => remove("openai")} disabled={pending !== null}>해제</button>}</div>
       </div>
       <div className="key-row">

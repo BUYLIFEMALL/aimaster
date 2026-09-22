@@ -45,7 +45,7 @@ export default async function SettingsPage() {
         <div className="eyebrow">Settings</div>
         <h1>API키등록·플랫폼연동</h1>
         <p className="lede">기존 AIMaster 공용 API 키를 이 프로그램에서도 그대로 사용합니다.</p>
-        <ApiKeySettings initialProviders={initialProviders} maskedKeys={maskedKeys} />
+        <ApiKeySettings initialProviders={initialProviders} maskedKeys={maskedKeys} initialModel={initialModel} />
         <div className="settings-divider" />
         <h2>콘텐츠 생성모델</h2>
         <p className="lede">사용자 계정에 선택값을 저장하며 웹 대시보드와 Chrome 확장에서 함께 사용합니다.</p>
