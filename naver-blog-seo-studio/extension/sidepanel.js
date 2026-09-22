@@ -231,18 +231,26 @@ $("generate").addEventListener("click", async () => {
 $("generateAndFill").addEventListener("click", async () => {
   if (!$("topic").value.trim()) return ($("generateStatus").textContent = "주제를 입력하세요.");
   $("generateAndFill").disabled = true;
-  $("generate").click();
+  try {
+    $("generateStatus").textContent = "초안 생성 완료를 기다리는 중...";
+    $("generate").click();
   const deadline = Date.now() + 120000;
   while ($("generate").disabled && Date.now() < deadline) await sleep(250);
   if (!$("title").value.trim() && !$("body").value.trim()) {
     $("generateAndFill").disabled = false;
     return;
   }
+  if (!$("title").value.trim() && !$("body").value.trim()) throw new Error("초안 생성 결과가 비어 있습니다.");
+  $("generateStatus").textContent = "초안 생성 완료 · 네이버 글쓰기 탭을 찾는 중...";
   const filled = await fillDraftIntoNaver();
   if (filled && $("includeImage").checked && !$("imagePreview").hidden) {
     $("insertImage").click();
   }
-  $("generateAndFill").disabled = false;
+  } catch (error) {
+    $("generateStatus").textContent = `원클릭 입력 실패: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    $("generateAndFill").disabled = false;
+  }
 });
 
 async function fillDraftIntoNaver() {
