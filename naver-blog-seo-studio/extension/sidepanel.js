@@ -57,7 +57,8 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
   const buttonResults = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
     func: () => {
-      const candidates = [...document.querySelectorAll(".se-image-toolbar-button, button, [role='button'], a, [class*='image'], [class*='photo']")];
+      const exactButtons = [...document.querySelectorAll("button.se-image-toolbar-button, button.se-insert-menu-button-image")];
+      const candidates = [...exactButtons, ...[...document.querySelectorAll("button, [role='button'], a, [class*='image'], [class*='photo']")].filter((element) => !exactButtons.includes(element))];
       const imageButton = candidates.find((element) => {
         if (element.matches("img, input, [aria-hidden='true']")) return false;
         const label = `${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.className || ""} ${element.textContent || ""}`;
@@ -197,8 +198,7 @@ async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
       const bodyParagraphs = [...document.querySelectorAll(".se-text-paragraph")].filter((element) => !element.closest(".se-documentTitle"));
       if (!titleElement && bodyParagraphs.length === 0) return { ok: false };
       const actualTitle = titleElement?.innerText || titleElement?.textContent || "";
-      const bodyRoot = bodyParagraphs[0]?.closest('[contenteditable="true"]') || bodyParagraphs[0];
-      const actualBody = bodyRoot?.innerText || bodyRoot?.textContent || "";
+      const actualBody = bodyParagraphs.map((paragraph) => paragraph.innerText || paragraph.textContent || "").join("\n");
       const expectedTitleText = normalize(titleValue);
       const expectedBodyText = normalize(bodyValue);
       const actualTitleText = normalize(actualTitle);
@@ -212,7 +212,7 @@ async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
         bodyMatched,
         actualTitle: actualTitleText.slice(0, 120),
         actualBody: actualBodyText.slice(0, 240),
-        actualParagraphCount: bodyParagraphs.length,
+        actualParagraphCount: bodyParagraphs.map((paragraph) => normalize(paragraph.innerText || paragraph.textContent || "")).filter(Boolean).length,
         expectedParagraphCount: expectedParagraphs.length,
         frame: location.href,
       };
