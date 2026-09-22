@@ -26,7 +26,7 @@
 - 웹 배포 URL: <https://naver-blog-seo-studio.vercel.app>
 - Vercel 프로젝트: `buylife/naver-blog-seo-studio`
 - 마지막 웹 배포: `dpl_4BXJcGA8MdfenBDdqfp8MbAz8WHt`
-- 마지막 Git 커밋: `4604219`
+- 마지막 Git 커밋: `c025bb1`
 
 확장 프로그램은 정적 Chrome 파일이므로 Vercel 배포 대상이 아니다. 코드 변경 후 Chrome에서 `chrome://extensions`의 확장을 제거하고 `extension` 폴더를 다시 로드해야 한다.
 
@@ -79,7 +79,7 @@
 
 현재 가장 중요한 미해결 문제는 **제목·본문 입력은 시도되지만 네이버 편집기의 띄어쓰기·줄바꿈·문단 구조가 기대한 대로 보존되지 않는 것**이다. 일부 테스트에서는 입력 완료 메시지가 표시됐지만 실제 편집기 내용이 한 문단처럼 붙거나 제목이 비어 있었다.
 
-현재 마지막 수정 `4604219`에서는 다음을 시도했다.
+이전 수정 `4604219`에서는 다음을 시도했다.
 
 - 기존 확장의 `.se-title-text`, `.se-text-paragraph` 선택자 사용
 - `chrome.tabs.query({url: ...})`로 네이버 탭 직접 탐색
@@ -91,6 +91,8 @@
 - Markdown 문법 제거 및 `\\n` 문자열을 실제 줄바꿈으로 복원
 
 이 버전은 아직 사용자의 최종 검증에서 “완전히 해결”되었다고 확정하지 않았다. 다음 작업자는 성공 여부를 먼저 재현하고, 실패 시 추정 선택자를 더 추가하지 말고 실제 DOM 진단부터 수행해야 한다.
+
+`c025bb1`에서 기존 Web 확장의 입력 순서를 다시 연결했다. 제목을 먼저 입력한 뒤 본문 `.se-text-paragraph`를 다시 찾는 순서와 `resolveActiveEditable`/`humanType` 흐름을 유지한다. HTML 문단 삽입 실험은 제거했으며, 먼저 이 버전을 기준으로 실제 네이버 화면에서 검증한다.
 
 ## 6. Claude/Gemini 기존 네이버 자동화 방식에서 확인된 사실
 
