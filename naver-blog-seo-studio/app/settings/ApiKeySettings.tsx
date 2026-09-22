@@ -11,6 +11,7 @@ export default function ApiKeySettings({ initialProviders, maskedKeys = {}, init
   const [providers, setProviders] = useState(initialProviders);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState<Provider | null>(null);
+  const [openaiModel, setOpenaiModel] = useState<OpenAIContentModel>(initialModel);
   const [geminiModel, setGeminiModel] = useState<GeminiImageModel>(initialGeminiModel);
 
   async function save(provider: Provider) {
@@ -57,12 +58,26 @@ export default function ApiKeySettings({ initialProviders, maskedKeys = {}, init
     setPending(null);
   }
 
+  async function saveOpenAIModel() {
+    setPending("openai");
+    setMessage("");
+    const response = await fetch("/api/settings/ai-model", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: openaiModel }),
+    });
+    const result = await response.json().catch(() => ({})) as { error?: string };
+    setMessage(response.ok ? "OpenAI 콘텐츠 생성모델을 저장했습니다." : (result.error || "OpenAI 생성모델 저장에 실패했습니다."));
+    setPending(null);
+  }
+
   return (
     <div className="settings-stack">
       <div className="key-row">
         {maskedKeys.openai && <code className="saved-key-inline">계정 등록 키: {maskedKeys.openai}</code>}
-        <div><strong>OpenAI</strong><p>제목·본문·SEO 검수 리포트 생성에 사용합니다.</p><span className="selected-model-badge">현재 생성 모델: {OPENAI_CONTENT_MODELS.find((option) => option.value === initialModel)?.label ?? initialModel}</span></div>
+        <div><strong>OpenAI</strong><p>제목·본문·SEO 검수 리포트 생성에 사용합니다.</p><span className="selected-model-badge">현재 생성 모델: {OPENAI_CONTENT_MODELS.find((option) => option.value === openaiModel)?.label ?? openaiModel}</span></div>
         <div className="key-actions"><input type="password" placeholder={providers.includes("openai") ? "등록된 키가 있습니다" : "sk-..."} value={values.openai} onChange={(event) => setValues((current) => ({ ...current, openai: event.target.value }))} autoComplete="off" /><button className="small-button" onClick={() => save("openai")} disabled={pending !== null}>{pending === "openai" ? "저장 중" : "저장"}</button>{providers.includes("openai") && <button className="text-button" onClick={() => remove("openai")} disabled={pending !== null}>해제</button>}</div>
+        <div className="model-choice-row"><label htmlFor="openai-content-model">콘텐츠 생성모델</label><select id="openai-content-model" value={openaiModel} onChange={(event) => setOpenaiModel(event.target.value as OpenAIContentModel)} disabled={pending !== null}>{OPENAI_CONTENT_MODELS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select><button className="small-button" onClick={saveOpenAIModel} disabled={pending !== null}>모델 저장</button></div>
       </div>
       <div className="key-row">
         {maskedKeys.gemini && <code className="saved-key-inline">계정 등록 키: {maskedKeys.gemini}</code>}
