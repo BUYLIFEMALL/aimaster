@@ -98,12 +98,20 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
 }
 
 async function typeWithDebugger(tabId, value) {
-  for (const character of plainText(value)) {
+  const text = plainText(value);
+  let typed = 0;
+  const startedAt = Date.now();
+  for (const character of text) {
     if (character === "\n") {
       await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
       await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
     } else {
       await debuggerCommand(tabId, "Input.insertText", { text: character });
+    }
+    typed += 1;
+    if (typed === 1 || typed % 25 === 0 || typed === text.length) {
+      const elapsed = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+      $("generateStatus").textContent = `네이버 편집기 입력 중... ${typed}/${text.length}자 · ${elapsed}초`;
     }
     await sleep(randomDelay(45, 95));
     if (Math.random() < 0.05) await sleep(randomDelay(220, 450));
