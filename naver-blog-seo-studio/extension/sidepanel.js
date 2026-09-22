@@ -81,8 +81,6 @@ async function focusNaverEditor(tabId, kind) {
       const editable = findEditable(container) || resolveActiveEditable();
       if (!editable) return { ok: false, reason: "contenteditable target not found", container: container.className || container.tagName };
       editable.focus();
-      const rect = editable.getBoundingClientRect();
-      const mouse = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
       const range = editable.ownerDocument.createRange();
       range.selectNodeContents(container.isContentEditable ? editable : container);
       range.collapse(false);

@@ -123,6 +123,7 @@ Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 버�
 - 사용자별 인증·API 키를 공유하거나 운영자 키로 대체하지 않는다.
 - 네이버 최종 발행은 사용자의 검토 후 수동으로 한다.
 - 변경 후 `npm.cmd run build`, JavaScript 문법검사, 실제 브라우저 검증을 수행한다.
+- 브라우저 회귀 테스트는 `npm.cmd run test:browser`로 실행한다. 테스트는 로컬 SmartEditor 모형에서 iframe·CDP 입력·공백·문단·Markdown 정규화를 검증한다.
 - 사용자가 작업 완료를 요청하면 관련 파일만 커밋하고 원격 저장소에 푸시한다.
 
 ## 9. 다음 작업자 체크리스트
