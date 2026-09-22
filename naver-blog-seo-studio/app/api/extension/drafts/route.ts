@@ -5,6 +5,7 @@ import { generateSeoDraft } from "@/lib/ai/generator";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
+import { getUserGeminiImageModel } from "@/lib/ai/geminiModels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
     const geminiKey = await resolveApiKey(supabase, user.userId, "gemini");
     if (!geminiKey) return NextResponse.json({ ...saved, draft: saved, image: null, imageError: "Gemini API 키가 없어 이미지를 생성하지 못했습니다." });
     try {
-      const image = await generateNanoBananaImage({ apiKey: geminiKey, topic, title: draft.title, keywords: keywords.join(", "), model: input.imageModel });
+      const image = await generateNanoBananaImage({ apiKey: geminiKey, topic, title: draft.title, keywords: keywords.join(", "), model: input.imageModel ?? getUserGeminiImageModel(authUser.user?.user_metadata) });
       return NextResponse.json({ ...saved, draft: saved, image: { dataUrl: `data:${image.mimeType};base64,${image.base64}`, mimeType: image.mimeType, model: image.model }, user: { email: user.email, name: user.name } });
     } catch (imageError) {
       return NextResponse.json({ ...saved, draft: saved, image: null, imageError: imageError instanceof Error ? imageError.message : "이미지 생성에 실패했습니다." });

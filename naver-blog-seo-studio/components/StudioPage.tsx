@@ -89,7 +89,7 @@ export default function StudioPage({ email }: { email: string }) {
     setImagePending(true);
     setMessage("나노바나나가 블로그 대표 이미지를 생성하고 있습니다.");
     try {
-      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, title: selectedTitle, keywords, model: "nanobanana-2-2k" }) });
+      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, title: selectedTitle, keywords }) });
       const result = await response.json() as { image?: { dataUrl: string; model: string }; error?: string };
       if (!response.ok || !result.image) throw new Error(result.error || "이미지 생성에 실패했습니다.");
       setGeneratedImage(result.image);

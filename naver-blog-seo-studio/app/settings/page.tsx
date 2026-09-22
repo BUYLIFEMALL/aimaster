@@ -6,6 +6,7 @@ import ExtensionDownloadCard from "./ExtensionDownloadCard";
 import SettingsSidebar from "./SettingsSidebar";
 import AiModelSettings from "./AiModelSettings";
 import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
+import { getUserGeminiImageModel } from "@/lib/ai/geminiModels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -13,6 +14,7 @@ export const fetchCache = "force-no-store";
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const initialModel = getUserOpenAIContentModel(user.user_metadata);
+  const initialGeminiModel = getUserGeminiImageModel(user.user_metadata);
   const supabase = await createClient();
   const { data } = await supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id).in("provider", ["openai", "gemini"]);
   const initialProviders = (data ?? []).map((item) => item.provider).filter((provider): provider is "openai" | "gemini" => provider === "openai" || provider === "gemini");
@@ -45,7 +47,7 @@ export default async function SettingsPage() {
         <div className="eyebrow">Settings</div>
         <h1>API키등록·플랫폼연동</h1>
         <p className="lede">기존 AIMaster 공용 API 키를 이 프로그램에서도 그대로 사용합니다.</p>
-        <ApiKeySettings initialProviders={initialProviders} maskedKeys={maskedKeys} initialModel={initialModel} />
+        <ApiKeySettings initialProviders={initialProviders} maskedKeys={maskedKeys} initialModel={initialModel} initialGeminiModel={initialGeminiModel} />
         <div className="settings-divider" />
         <h2>콘텐츠 생성모델</h2>
         <p className="lede">사용자 계정에 선택값을 저장하며 웹 대시보드와 Chrome 확장에서 함께 사용합니다.</p>

@@ -151,6 +151,9 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .key-row p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
 .key-actions { display: flex; gap: 8px; align-items: center; }
 .key-actions input { min-width: 0; flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.model-choice-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding-top: 2px; }
+.model-choice-row label { color: var(--muted); font-size: 12px; font-weight: 700; }
+.model-choice-row select, .key-actions select { min-width: 220px; flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fff; }
 .small-button { border: 0; border-radius: 10px; background: var(--accent); color: #fff; padding: 10px 14px; font-size: 12px; font-weight: 700; }
 .text-button { border: 0; background: transparent; color: #a33d2b; font-size: 12px; }
 .settings-message { color: #4d765b; font-size: 13px; margin: 0; }

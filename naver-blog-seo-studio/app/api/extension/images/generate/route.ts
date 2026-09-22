@@ -3,6 +3,7 @@ import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createServiceClient } from "@/lib/supabase/service";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
+import { getUserGeminiImageModel } from "@/lib/ai/geminiModels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,7 +18,8 @@ export async function POST(request: Request) {
   const apiKey = await resolveApiKey(supabase, user.userId, "gemini");
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "나노바나나 이미지 생성을 위해 Gemini API 키를 먼저 등록해주세요." }, { status: 400 });
   try {
-    const image = await generateNanoBananaImage({ apiKey, topic, title: input?.title, keywords: input?.keywords, model: input?.model });
+    const { data: authUser } = await supabase.auth.admin.getUserById(user.userId);
+    const image = await generateNanoBananaImage({ apiKey, topic, title: input?.title, keywords: input?.keywords, model: input?.model ?? getUserGeminiImageModel(authUser.user?.user_metadata) });
     return NextResponse.json({ image: { dataUrl: `data:${image.mimeType};base64,${image.base64}`, mimeType: image.mimeType, model: image.model } });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "이미지 생성에 실패했습니다." }, { status: 502 });

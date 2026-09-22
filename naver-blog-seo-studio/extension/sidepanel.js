@@ -228,7 +228,7 @@ $("generate").addEventListener("click", async () => {
   $("generateStatus").textContent = "초안을 생성하는 중입니다...";
   try {
     const includeImage = $("includeImage").checked;
-    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage, imageModel: "nanobanana-2-2k" }) });
+    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage }) });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || `생성 실패 (${response.status})`);
     $("title").value = body.title || "";
@@ -256,7 +256,7 @@ $("generateAndFill").addEventListener("click", async () => {
     $("generateStatus").textContent = "초안을 생성하는 중입니다...";
     const token = await getToken();
     const topic = $("topic").value.trim();
-    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage: $("includeImage").checked, imageModel: "nanobanana-2-2k" }) });
+    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage: $("includeImage").checked }) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || `생성 실패 (${response.status})`);
     $("title").value = result.title || "";
@@ -351,7 +351,7 @@ $("regenerateImage").addEventListener("click", async () => {
   $("regenerateImage").disabled = true;
   $("generateStatus").textContent = "나노바나나가 새 이미지를 생성하는 중...";
   try {
-    const response = await fetch(`${BASE}/api/extension/images/generate`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, title: $("title").value, keywords: $("keywords").value, model: "nanobanana-2-2k" }) });
+    const response = await fetch(`${BASE}/api/extension/images/generate`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, title: $("title").value, keywords: $("keywords").value }) });
     const body = await response.json().catch(() => ({}));
     if (!response.ok || !body.image?.dataUrl) throw new Error(body.error || `이미지 생성 실패 (${response.status})`);
     $("generatedImage").src = body.image.dataUrl;
