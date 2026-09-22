@@ -51,6 +51,42 @@ async function debuggerCommand(tabId, method, params = {}) {
   return chrome.debugger.sendCommand({ tabId }, method, params);
 }
 
+async function insertImageIntoNaverEditor(tabId, dataUrl) {
+  const [header, encoded] = String(dataUrl || "").split(",", 2);
+  if (!encoded || !header.startsWith("data:image/")) throw new Error("유효한 이미지 데이터가 없습니다.");
+  await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    func: () => {
+      const candidates = [...document.querySelectorAll("button, [role='button'], a")];
+      const imageButton = candidates.find((element) => /사진|이미지|image|photo/i.test(`${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.textContent || ""}`));
+      imageButton?.click();
+    },
+  });
+  await sleep(800);
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    args: [{ header, encoded }],
+    func: ({ header: dataHeader, encoded: data }) => {
+      const mimeType = dataHeader.slice(5, dataHeader.indexOf(";")) || "image/png";
+      const binary = atob(data);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      const file = new File([bytes], "naver-blog-seo-studio-image.png", { type: mimeType });
+      const inputs = [...document.querySelectorAll('input[type="file"]')];
+      if (inputs.length === 0) return { ok: false, reason: "file input not found" };
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      inputs[inputs.length - 1].files = transfer.files;
+      inputs[inputs.length - 1].dispatchEvent(new Event("change", { bubbles: true }));
+      inputs[inputs.length - 1].dispatchEvent(new Event("input", { bubbles: true }));
+      return { ok: true, inputCount: inputs.length };
+    },
+  });
+  const result = results.find((entry) => entry.result)?.result;
+  if (!result?.ok) throw new Error("네이버 이미지 업로드 input을 찾지 못했습니다. 이미지 삽입 버튼을 직접 연 뒤 다시 시도하세요.");
+  return result;
+}
+
 async function typeWithDebugger(tabId, value) {
   for (const character of plainText(value)) {
     if (character === "\n") {
@@ -232,6 +268,24 @@ $("fill").addEventListener("click", async () => {
       try { await chrome.debugger.detach({ tabId: attachedTabId }); } catch { /* tab may have navigated */ }
     }
   }
+});
+
+$("insertImage").addEventListener("click", async () => {
+  const dataUrl = $("generatedImage").src;
+  if (!dataUrl || dataUrl === location.href) return ($("generateStatus").textContent = "먼저 나노바나나 이미지를 생성하세요.");
+  $("insertImage").disabled = true;
+  $("generateStatus").textContent = "네이버 편집기에 이미지를 삽입하는 중...";
+  try {
+    const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
+    const tab = tabs.find((candidate) => candidate.active) || tabs[0];
+    if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) throw new Error("네이버 블로그 글쓰기 화면을 먼저 열어주세요.");
+    await chrome.windows.update(tab.windowId, { focused: true });
+    await chrome.tabs.update(tab.id, { active: true });
+    await insertImageIntoNaverEditor(tab.id, dataUrl);
+    $("generateStatus").textContent = "이미지 업로드를 요청했습니다. 네이버 편집기에서 삽입 결과를 확인하세요.";
+  } catch (error) {
+    $("generateStatus").textContent = formatBrowserError(error, "네이버 이미지 삽입");
+  } finally { $("insertImage").disabled = false; }
 });
 
 $("inspect").addEventListener("click", async () => {
