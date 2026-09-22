@@ -161,4 +161,46 @@ $("fill").addEventListener("click", async () => {
   }
 });
 
+$("inspect").addEventListener("click", async () => {
+  $("inspect").disabled = true;
+  $("inspectStatus").textContent = "분석 중...";
+  try {
+    const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
+    const tab = tabs.find((candidate) => candidate.active) || tabs[0];
+    if (!tab?.id) throw new Error("네이버 블로그 탭을 찾지 못했습니다.");
+    await chrome.windows.update(tab.windowId, { focused: true });
+    await chrome.tabs.update(tab.id, { active: true });
+    await sleep(250);
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: tab.id, allFrames: true },
+      func: () => {
+        const describe = (element) => ({
+          tag: element.tagName,
+          id: element.id || null,
+          classes: typeof element.className === "string" ? element.className.trim().split(/\s+/).slice(0, 8) : null,
+          contentEditable: element.isContentEditable || null,
+          inputType: element.getAttribute("type") || null,
+          placeholder: element.getAttribute("placeholder") || null,
+          text: (element.textContent || "").trim().slice(0, 80),
+        });
+        return {
+          url: location.href,
+          title: document.title,
+          titleCandidates: [...document.querySelectorAll('[class*="se-title"], .se-documentTitle')].slice(0, 20).map(describe),
+          paragraphCandidates: [...document.querySelectorAll('.se-text-paragraph, .se-component-content, [class*="text-paragraph"]')].slice(0, 30).map(describe),
+          contentEditableEls: [...document.querySelectorAll('[contenteditable="true"]')].slice(0, 20).map(describe),
+          keywordButtons: [...document.querySelectorAll("button, a, [role='button']")].filter((element) => /발행|저장|카테고리|태그|확인/.test(element.textContent || "")).slice(0, 40).map(describe),
+        };
+      },
+    });
+    const combined = results.map((entry) => ({ frameId: entry.frameId, result: entry.result }));
+    $("inspectResult").value = JSON.stringify(combined, null, 2);
+    $("inspectStatus").textContent = `분석 완료 (${combined.length}개 프레임). 결과를 복사해 전달해주세요.`;
+  } catch (error) {
+    $("inspectStatus").textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    $("inspect").disabled = false;
+  }
+});
+
 renderStatus();
