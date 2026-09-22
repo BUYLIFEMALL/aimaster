@@ -228,6 +228,24 @@ $("generate").addEventListener("click", async () => {
   finally { $("generate").disabled = false; }
 });
 
+$("generateAndFill").addEventListener("click", async () => {
+  if (!$("topic").value.trim()) return ($("generateStatus").textContent = "주제를 입력하세요.");
+  $("generateAndFill").disabled = true;
+  $("generate").click();
+  const deadline = Date.now() + 120000;
+  while ($("generate").disabled && Date.now() < deadline) await sleep(250);
+  if (!$("title").value.trim() && !$("body").value.trim()) {
+    $("generateAndFill").disabled = false;
+    return;
+  }
+  $("fill").click();
+  await sleep(2500);
+  if ($("includeImage").checked && !$("imagePreview").hidden) {
+    $("insertImage").click();
+  }
+  $("generateAndFill").disabled = false;
+});
+
 $("fill").addEventListener("click", async () => {
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
   let attachedTabId = null;
