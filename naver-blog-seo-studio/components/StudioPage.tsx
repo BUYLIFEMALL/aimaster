@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const strategies = [
   ["C-Rank 기본", "전문성과 경험 중심"],
@@ -23,6 +24,8 @@ export default function StudioPage({ email }: { email: string }) {
   const [optimizePending, setOptimizePending] = useState(false);
   const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
   const [history, setHistory] = useState<{ id: string; topic: string; keywords: string[]; title: string; body: string; created_at: string }[]>([]);
+  const [imagePending, setImagePending] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/drafts/history").then((response) => response.ok ? response.json() : { drafts: [] }).then((result: { drafts?: typeof history }) => setHistory(result.drafts ?? [])).catch(() => setHistory([]));
@@ -81,6 +84,21 @@ export default function StudioPage({ email }: { email: string }) {
     }
   }
 
+  async function generateImage() {
+    if (!topic.trim()) return setMessage("이미지 생성 전에 주제를 입력해주세요.");
+    setImagePending(true);
+    setMessage("나노바나나가 블로그 대표 이미지를 생성하고 있습니다.");
+    try {
+      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, title: selectedTitle, keywords, model: "nanobanana-2-2k" }) });
+      const result = await response.json() as { image?: { dataUrl: string; model: string }; error?: string };
+      if (!response.ok || !result.image) throw new Error(result.error || "이미지 생성에 실패했습니다.");
+      setGeneratedImage(result.image);
+      setMessage("대표 이미지가 생성되었습니다. 다음 단계에서 네이버 편집기에 삽입할 수 있습니다.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "이미지 생성에 실패했습니다.");
+    } finally { setImagePending(false); }
+  }
+
   return (
     <div className="studio-shell">
       <aside className="sidebar">
@@ -128,6 +146,13 @@ export default function StudioPage({ email }: { email: string }) {
         <section className="history-card card" id="history">
           <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span></div>
           {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{new Date(draft.created_at).toLocaleDateString("ko-KR")}</time></button>)}</div>}
+        </section>
+
+        <section className="image-generation-card card" id="image">
+          <div className="card-head"><h2 className="card-title">AI 대표 이미지</h2><span className="card-caption">나노바나나 2K</span></div>
+          <p className="image-generation-description">주제와 제목을 바탕으로 네이버 블로그용 16:9 이미지를 생성합니다. Gemini API 키가 필요합니다.</p>
+          <button className="secondary" onClick={generateImage} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : "나노바나나 이미지 생성"}</button>
+          {generatedImage && <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성된 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div>}
         </section>
 
         <div className="workspace">
