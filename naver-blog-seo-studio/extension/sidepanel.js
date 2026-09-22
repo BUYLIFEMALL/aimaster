@@ -57,8 +57,12 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
   const buttonResults = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
     func: () => {
-      const candidates = [...document.querySelectorAll("button, [role='button'], a")];
-      const imageButton = candidates.find((element) => /사진|이미지|image|photo/i.test(`${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.textContent || ""}`));
+      const candidates = [...document.querySelectorAll("button, [role='button'], a, [class*='image'], [class*='photo']")];
+      const imageButton = candidates.find((element) => {
+        if (element.matches("img, input, [aria-hidden='true']")) return false;
+        const label = `${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.className || ""} ${element.textContent || ""}`;
+        return /사진|이미지|image|photo/i.test(label);
+      });
       if (!imageButton) return { clicked: false };
       imageButton.click();
       return { clicked: true, label: `${imageButton.getAttribute("aria-label") || imageButton.getAttribute("title") || imageButton.textContent || "image button"}`.trim().slice(0, 80) };
@@ -92,7 +96,6 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
     },
   });
   const result = results.find((entry) => entry.result)?.result;
-  if (!result?.ok) throw new Error("네이버 이미지 업로드 input을 찾지 못했습니다. 이미지 삽입 버튼을 직접 연 뒤 다시 시도하세요.");
   if (!result?.ok) throw new Error(`네이버 이미지 업로드 input 처리 실패: ${result?.reason || "input not found"}`);
   return result;
 }
@@ -389,6 +392,11 @@ $("inspect").addEventListener("click", async () => {
           paragraphCandidates: [...document.querySelectorAll('.se-text-paragraph, .se-component-content, [class*="text-paragraph"]')].slice(0, 30).map(describe),
           contentEditableEls: [...document.querySelectorAll('[contenteditable="true"]')].slice(0, 20).map(describe),
           keywordButtons: [...document.querySelectorAll("button, a, [role='button']")].filter((element) => /발행|저장|카테고리|태그|확인/.test(element.textContent || "")).slice(0, 40).map(describe),
+          imageButtons: [...document.querySelectorAll("button, a, [role='button'], [class*='image'], [class*='photo']")].filter((element) => {
+            if (element.matches("img, input, [aria-hidden='true']")) return false;
+            return /사진|이미지|image|photo/i.test(`${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.className || ""} ${element.textContent || ""}`);
+          }).slice(0, 40).map(describe),
+          fileInputs: [...document.querySelectorAll('input[type="file"]')].slice(0, 20).map(describe),
         };
       },
     });
