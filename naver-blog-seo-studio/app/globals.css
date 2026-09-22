@@ -162,6 +162,11 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .extension-download-card h3 { margin: 6px 0 5px; font-size: 18px; }
 .extension-download-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
 .extension-download-button { display: inline-flex; margin-top: 14px; border-radius: 10px; background: #2f67a7; color: #fff; padding: 11px 15px; font-size: 12px; font-weight: 800; text-decoration: none; }
+.extension-status { display: flex; align-items: center; gap: 7px; margin-top: 12px; color: #50657d; font-size: 12px; font-weight: 700; }
+.extension-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f0a33a; box-shadow: 0 0 0 3px #fff0d8; }
+.extension-status-dot.ready { background: #2c9a68; box-shadow: 0 0 0 3px #dcf5e9; }
+.extension-update-note { margin-top: 10px !important; color: #a05a1c !important; }
+.extension-installed-button { display: inline-flex; margin: 14px 0 0 7px; border: 1px solid #c8d8e8; border-radius: 10px; background: #fff; color: #315b84; padding: 10px 13px; font-size: 12px; font-weight: 800; cursor: pointer; }
 .extension-download-steps { margin: 16px 0 0; padding-left: 20px; color: #40556d; font-size: 12px; line-height: 1.8; }
 .extension-download-steps code { border-radius: 5px; background: #eaf1f9; padding: 2px 5px; font-size: 11px; }
 .extension-download-note { margin-top: 12px !important; color: #6c7d90 !important; }
