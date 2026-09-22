@@ -14,9 +14,9 @@
 - 기본 브랜치: `master`
 - Vercel 프로젝트: `buylife/naver-blog-seo-studio`
 - 프로덕션 URL: `https://naver-blog-seo-studio.vercel.app`
-- 최신 배포 ID: `dpl_DnXLwn5vLgCBkkS95X3AfbC9bLGi`
+- 최신 배포 ID: `dpl_6dRynjWfDBv2Dc2KbVSvM7cvnHLo`
 
-Chrome 확장은 Vercel 배포 대상이 아니다. 확장 코드를 변경하면 `chrome://extensions`에서 기존 확장을 새로고침하거나 다음 폴더를 다시 로드한다.
+Chrome 확장은 Vercel 배포 대상이 아니다. 확장 코드를 변경하면 `chrome://extensions`에서 다음 폴더를 새로고침한다.
 
 ```text
 D:\Antigravity\AIMaster\naver-blog-seo-studio\extension
@@ -52,12 +52,13 @@ API:
 - `/api/titles/recommend`: 제목 추천
 - `/api/extension/whoami`: 확장 토큰 검증
 - `/api/extension/drafts`: 확장 전용 초안 생성
+- `/api/images/generate`: 로그인 사용자의 Gemini(나노바나나) 대표 이미지 생성
 
 공용 Supabase 테이블과 사용자별 RLS를 사용한다. 운영자 API 키로 사용자를 대신하지 않으며, 사용자의 API 키가 없으면 AI 기능을 실행하지 않는다.
 
 ## 4. Chrome 확장 상태
 
-Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 버전은 `1.0.2`다.
+Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 버전은 `1.0.3`다.
 
 권한:
 
@@ -75,6 +76,7 @@ Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 버�
 4. 제목·본문 확인 및 수정
 5. 네이버 편집기에 실제 키보드 방식으로 입력
 6. 네이버 편집기 구조 분석 결과 JSON 출력
+7. 나노바나나 대표 이미지 생성·미리보기·네이버 편집기 이미지 input 삽입
 
 ## 5. 네이버 입력 구현의 최종 기준
 
@@ -113,6 +115,9 @@ Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 버�
 - `5971314`: 실제 contenteditable 및 activeElement 해석 보정
 - `b57fb36`: SEO Studio 확장에 구조분석 섹션 추가
 - `834a71e`: 공통 네이버 편집기 자동화 매뉴얼 추가
+- `5494bd4`: SEO Studio 나노바나나 이미지 생성 API와 미리보기 추가
+- `785df04`: 확장 초안 생성에 나노바나나 이미지 옵션 추가
+- `0440160`: 확장 v1.0.3 이미지 삽입과 배포 ZIP 갱신
 
 ## 8. 작업 규칙
 
@@ -125,6 +130,7 @@ Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 버�
 - 변경 후 `npm.cmd run build`, JavaScript 문법검사, 실제 브라우저 검증을 수행한다.
 - 브라우저 회귀 테스트는 `npm.cmd run test:browser`로 실행한다. 테스트는 로컬 SmartEditor 모형에서 iframe·CDP 입력·공백·문단·Markdown 정규화를 검증한다.
 - 사용자가 작업 완료를 요청하면 관련 파일만 커밋하고 원격 저장소에 푸시한다.
+- **확장 프로그램을 변경할 때마다 반드시 원본 설치 폴더 `D:\Antigravity\AIMaster\naver-blog-seo-studio\extension`의 파일을 먼저 최신 상태로 갱신한다.** 그 다음 `npm.cmd run extension:archive`로 같은 파일의 최신 ZIP을 만들고, `/settings` 페이지가 manifest 버전과 해당 ZIP을 가리키는지 확인한 뒤 웹을 함께 Vercel 프로덕션에 배포한다. 원본 폴더를 개발자 모드로 로드한 사용자에게는 해당 폴더 새로고침도 안내한다.
 
 ## 9. 다음 작업자 체크리스트
 
@@ -134,5 +140,8 @@ Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 버�
 - [ ] 네이버 DOM 변경 여부를 구조 분석으로 확인
 - [ ] 제목·본문·띄어쓰기·복수 문단을 실제 화면에서 검증
 - [ ] 웹 코드 변경 시 Vercel 프로덕션 배포
+- [ ] 확장 코드 변경 시 `npm.cmd run extension:archive`로 최신 ZIP 생성
+- [ ] 원본 설치 폴더와 배포 ZIP의 manifest·코드 버전 일치 확인
+- [ ] `/settings`에서 최신 manifest 버전·ZIP 다운로드 링크 확인 및 웹 재배포
 - [ ] 확장 코드 변경 시 Chrome 확장 새로고침 안내
 - [ ] 결과와 커밋·배포 정보를 사용자에게 보고
