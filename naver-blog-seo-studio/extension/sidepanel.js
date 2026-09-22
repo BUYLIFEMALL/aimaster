@@ -53,20 +53,43 @@ async function focusNaverEditor(tabId, kind) {
         ? document.querySelector(".se-title-text")
         : [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle"));
       if (!container) return { ok: false };
-      const editable = container.isContentEditable ? container : container.querySelector('[contenteditable="true"]') || container;
+      const findEditable = (element) => element?.isContentEditable
+        ? element
+        : element?.querySelector('[contenteditable="true"]')
+          || element?.closest('[contenteditable="true"]');
+      const simulateClick = (element) => {
+        const rect = element.getBoundingClientRect();
+        const mouse = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
+        element.dispatchEvent(new MouseEvent("mousedown", mouse));
+        element.dispatchEvent(new MouseEvent("mouseup", mouse));
+        element.dispatchEvent(new MouseEvent("click", mouse));
+      };
+      const resolveActiveEditable = () => {
+        let active = document.activeElement;
+        let depth = 0;
+        while (active && active.tagName === "IFRAME" && depth < 5) {
+          let innerDocument;
+          try { innerDocument = active.contentDocument; } catch { break; }
+          if (!innerDocument) break;
+          active = innerDocument.activeElement || innerDocument.body;
+          depth += 1;
+        }
+        return active?.isContentEditable ? active : null;
+      };
+      simulateClick(container);
+      container.focus();
+      const editable = findEditable(container) || resolveActiveEditable();
+      if (!editable) return { ok: false, reason: "contenteditable target not found", container: container.className || container.tagName };
+      editable.focus();
       const rect = editable.getBoundingClientRect();
       const mouse = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
-      editable.dispatchEvent(new MouseEvent("mousedown", mouse));
-      editable.dispatchEvent(new MouseEvent("mouseup", mouse));
-      editable.dispatchEvent(new MouseEvent("click", mouse));
-      editable.focus();
       const range = editable.ownerDocument.createRange();
-      range.selectNodeContents(editable);
+      range.selectNodeContents(container.isContentEditable ? editable : container);
       range.collapse(false);
       const selection = editable.ownerDocument.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-      return { ok: true, kind: editorKind, frame: location.href };
+      return { ok: true, kind: editorKind, frame: location.href, editableTag: editable.tagName, editableClass: editable.className || null };
     },
   });
   return results.find((entry) => entry.result?.ok)?.result || { ok: false };
