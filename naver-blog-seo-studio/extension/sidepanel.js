@@ -49,8 +49,12 @@ $("generate").addEventListener("click", async () => {
 $("fill").addEventListener("click", async () => {
   const title = $("title").value, body = $("body").value;
   if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
+  const tab = tabs.find((candidate) => candidate.active) || tabs[0];
   if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 여세요.");
+  await chrome.windows.update(tab.windowId, { focused: true });
+  await chrome.tabs.update(tab.id, { active: true });
+  await new Promise((resolve) => setTimeout(resolve, 250));
   const results = await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: true }, args: [{ title, body }], func: async ({ title: titleText, body: bodyText }) => {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -62,7 +66,7 @@ $("fill").addEventListener("click", async () => {
     const typeNaturally = async (text, doc) => { for (const character of plain(text)) { if (character === "\n") doc.execCommand("insertParagraph"); else doc.execCommand("insertText", false, character); await sleep(randomDelay(45, 95)); if (Math.random() < 0.05) await sleep(randomDelay(220, 450)); } };
     const titleContainer = document.querySelector(".se-title-text");
     const bodyContainer = findBodyParagraph();
-    if (!titleContainer || !bodyContainer) return { ok: false, error: `기존 에디터 요소를 찾지 못했습니다 (제목 ${Boolean(titleContainer)}, 본문 ${Boolean(bodyContainer)}).` };
+    if (!titleContainer || !bodyContainer) return { ok: false, error: `기존 에디터 요소를 찾지 못했습니다 (제목 ${Boolean(titleContainer)}, 본문 ${Boolean(bodyContainer)}, iframe ${document.querySelectorAll("iframe").length}, editable ${document.querySelectorAll('[contenteditable="true"]').length}, url ${location.pathname}).` };
     const titleTarget = placeCursorAtEnd(titleContainer);
     await typeNaturally(titleText, titleTarget.ownerDocument);
     await sleep(randomDelay(600, 1000));
