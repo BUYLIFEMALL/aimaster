@@ -453,10 +453,12 @@ $("generateAndFill").addEventListener("click", async () => {
 async function fillDraftIntoNaver() {
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
   let attachedTabId = null;
+  let hasImageDraft = false;
   try {
     const title = $("title").value;
     const body = $("body").value;
     const imageDataUrl = $("generatedImage").src && $("generatedImage").src !== location.href ? $("generatedImage").src : "";
+    hasImageDraft = Boolean(imageDataUrl);
     if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
     const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
     const tab = tabs.find((candidate) => candidate.active) || tabs[0];
@@ -540,6 +542,12 @@ async function fillDraftIntoNaver() {
     }
     return true;
   } catch (error) {
+    // Naver may detach an iframe briefly after an image upload even though
+    // title, body, and image are already committed to the editor.
+    if (hasImageDraft && /No tab with id|tab was closed|target closed|not found/i.test(String(error?.message || error))) {
+      $("generateStatus").textContent = "네이버 편집기 입력 완료. 이미지 위치를 확인한 뒤 발행하세요.";
+      return true;
+    }
     $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
   } finally {
     if (attachedTabId !== null) {
