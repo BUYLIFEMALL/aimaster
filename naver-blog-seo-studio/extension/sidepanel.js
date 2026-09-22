@@ -192,6 +192,22 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
 }
 
 async function closeNaverImagePopup(tabId) {
+  // The image library is rendered as a sidebar without a labelled close
+  // button. Dispatch Escape inside every editor frame first so Naver's own
+  // key handler can dismiss it.
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId, allFrames: true },
+      func: () => {
+        for (const type of ["keydown", "keyup"]) {
+          window.dispatchEvent(new KeyboardEvent(type, {
+            key: "Escape", code: "Escape", keyCode: 27, which: 27,
+            bubbles: true, cancelable: true,
+          }));
+        }
+      },
+    });
+  } catch { /* the editor frame may be rebuilding after upload */ }
   const closeResults = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
     func: () => {
@@ -474,6 +490,13 @@ async function fillDraftIntoNaver() {
       // selecting the empty paragraph created below the image.
       $("generateStatus").textContent = "이미지 삽입 완료 · 본문 입력 준비 중...";
       await sleep(900);
+      // Selecting the body paragraph after upload also dismisses Naver's
+      // image-library sidebar, which has no stable close button in the DOM.
+      const bodyAfterImage = await focusNaverEditor(tab.id, "body", "end");
+      if (bodyAfterImage.ok) {
+        await sleep(180);
+        await closeNaverImagePopup(tab.id);
+      }
     }
     // Preserve Naver's insertion caret after an image upload. CDP page mouse
     // coordinates are unsafe for iframe-local editor coordinates.
