@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 
   try {
-    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy });
+    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, model: access.user.user_metadata?.naver_blog_seo_openai_model as string | undefined });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
     const { data: saved, error } = await supabase
       .from("naver_blog_seo_drafts")

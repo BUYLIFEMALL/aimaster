@@ -1,4 +1,5 @@
 import "server-only";
+import { resolveOpenAIContentModel } from "./openaiModels";
 
 export interface SeoDraft { title: string; body: string; seoReport: Record<string, string>; }
 
@@ -35,13 +36,13 @@ function normalizeSeoReport(report: Partial<Record<string, unknown>> | undefined
   return result;
 }
 
-export async function generateSeoDraft(params: { apiKey: string; topic: string; keywords: string[]; strategy: string }): Promise<SeoDraft> {
+export async function generateSeoDraft(params: { apiKey: string; topic: string; keywords: string[]; strategy: string; model?: string }): Promise<SeoDraft> {
   if (!/^[\x00-\xFF]*$/.test(params.apiKey)) throw new Error("등록된 OpenAI API 키 형식이 올바르지 않습니다.");
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${params.apiKey}` },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: resolveOpenAIContentModel(params.model),
       messages: [
         { role: "system", content: `당신은 한국어 네이버 블로그 콘텐츠 편집자입니다. ${STRATEGY_GUIDE[params.strategy] ?? STRATEGY_GUIDE["C-Rank 기본"]}
 

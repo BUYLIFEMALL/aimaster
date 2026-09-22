@@ -4,6 +4,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { generateSeoDraft } from "@/lib/ai/generator";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
 import { createServiceClient } from "@/lib/supabase/service";
+import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -23,7 +24,8 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 
   try {
-    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy });
+    const { data: authUser } = await supabase.auth.admin.getUserById(user.userId);
+    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, model: getUserOpenAIContentModel(authUser.user?.user_metadata) });
     const { data: saved, error } = await supabase.from("naver_blog_seo_drafts").insert({
       user_id: user.userId, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: draft.seoReport, status: "ready",
     }).select("id, title, body, seo_report, created_at").single();

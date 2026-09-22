@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
+import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: getUserOpenAIContentModel(access.user.user_metadata),
         temperature: 0.55,
         response_format: { type: "json_object" },
         messages: [
