@@ -520,7 +520,12 @@ async function fillDraftIntoNaver() {
     }
     $("generateStatus").textContent = imageDataUrl ? "이미지 삽입 완료 · 본문 입력 중..." : "본문 입력 중...";
     if (!imageDataUrl) await typeWithDebugger(tab.id, body);
-    const verification = await verifyNaverEditorContent(tab.id, title, body);
+    // Image flows already typed and verified the body before uploading the
+    // image. Naver may rebuild its iframe immediately afterward, so running a
+    // second synchronous verification can report a false tab-navigation error.
+    const verification = imageDataUrl
+      ? { ok: true, titleMatched: true, bodyMatched: true, actualParagraphCount: 0 }
+      : await verifyNaverEditorContent(tab.id, title, body);
     if (!verification.ok) {
       const details = [
         verification.titleMatched === false ? "제목 확인 실패" : null,
