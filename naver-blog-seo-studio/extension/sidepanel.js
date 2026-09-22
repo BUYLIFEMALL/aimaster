@@ -67,26 +67,15 @@ $("fill").addEventListener("click", async () => {
     const placeCursorAtEnd = (container) => { if (!container) return null; let element = findEditableTarget(container); simulateClick(element); element.focus(); const resolved = resolveActiveEditable(); if (resolved && resolved !== document.body && resolved.isContentEditable) element = resolved; const range = element.ownerDocument.createRange(); range.selectNodeContents(element); range.collapse(false); const selection = element.ownerDocument.getSelection(); selection.removeAllRanges(); selection.addRange(range); return element; };
     const findBodyParagraph = () => [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle"));
     const typeNaturally = async (text, doc) => { for (const character of plain(text)) { if (character === "\n") doc.execCommand("insertParagraph"); else doc.execCommand("insertText", false, character); await sleep(randomDelay(45, 95)); if (Math.random() < 0.05) await sleep(randomDelay(220, 450)); } };
-    const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\u00a0/g, " ");
-    const insertFormattedBody = async (text, doc) => {
-      const normalized = plain(text).replace(/\n{3,}/g, "\n\n");
-      const paragraphs = normalized.split(/\n\s*\n/).filter(Boolean);
-      for (const paragraph of paragraphs) {
-        const html = `<p>${escapeHtml(paragraph).replace(/\n/g, "<br>").replace(/  /g, "&nbsp; ")}</p>`;
-        doc.execCommand("insertHTML", false, html);
-        doc.execCommand("insertParagraph");
-        await sleep(randomDelay(280, 520));
-      }
-      doc.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: normalized }));
-    };
     const titleContainer = document.querySelector(".se-title-text");
-    const bodyContainer = findBodyParagraph();
-    if (!titleContainer || !bodyContainer) return { ok: false, error: `기존 에디터 요소를 찾지 못했습니다 (제목 ${Boolean(titleContainer)}, 본문 ${Boolean(bodyContainer)}, iframe ${document.querySelectorAll("iframe").length}, editable ${document.querySelectorAll('[contenteditable="true"]').length}, url ${location.pathname}).` };
+    if (!titleContainer) return { ok: false, error: `제목 요소를 찾지 못했습니다 (iframe ${document.querySelectorAll("iframe").length}, editable ${document.querySelectorAll('[contenteditable="true"]').length}, url ${location.pathname}).` };
     const titleTarget = placeCursorAtEnd(titleContainer);
     await typeNaturally(titleText, titleTarget.ownerDocument);
     await sleep(randomDelay(600, 1000));
+    const bodyContainer = findBodyParagraph();
+    if (!bodyContainer) return { ok: false, error: "제목 입력 후 본문 문단을 찾지 못했습니다. 네이버 편집기 구조가 변경되었을 수 있습니다." };
     const bodyTarget = placeCursorAtEnd(bodyContainer);
-    await insertFormattedBody(bodyText, bodyTarget.ownerDocument);
+    await typeNaturally(bodyText, bodyTarget.ownerDocument);
     return { ok: true, title: titleTarget.textContent, body: bodyTarget.textContent };
   } });
   const result = results?.find((entry) => entry.result?.ok)?.result || results?.find((entry) => entry.result)?.result;
