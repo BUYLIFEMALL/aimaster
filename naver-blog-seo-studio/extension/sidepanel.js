@@ -3,6 +3,8 @@
 const BASE = "https://naver-blog-seo-studio.vercel.app";
 const KEY = "seoStudioToken";
 const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 async function getToken() { return (await chrome.storage.local.get(KEY))[KEY] || ""; }
 
@@ -13,6 +15,61 @@ async function verify(token) {
     const body = await response.json().catch(() => ({}));
     return response.ok ? { ok: true, email: body.email } : { ok: false, error: body.error || `연결 실패 (${response.status})` };
   } catch (error) { return { ok: false, error: error instanceof Error ? error.message : String(error) }; }
+}
+
+const plainText = (value) => String(value || "")
+  .replace(/\\n/g, "\n")
+  .replace(/\r\n/g, "\n")
+  .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+  .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
+  .replace(/`([^`]+)`/g, "$1")
+  .replace(/^#{1,6}\s+/gm, "")
+  .replace(/^\s*[-*]\s+/gm, "")
+  .trim();
+
+async function debuggerCommand(tabId, method, params = {}) {
+  return chrome.debugger.sendCommand({ tabId }, method, params);
+}
+
+async function typeWithDebugger(tabId, value) {
+  for (const character of plainText(value)) {
+    if (character === "\n") {
+      await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+      await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+    } else {
+      await debuggerCommand(tabId, "Input.insertText", { text: character });
+    }
+    await sleep(randomDelay(45, 95));
+    if (Math.random() < 0.05) await sleep(randomDelay(220, 450));
+  }
+}
+
+async function focusNaverEditor(tabId, kind) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    args: [kind],
+    func: (editorKind) => {
+      const container = editorKind === "title"
+        ? document.querySelector(".se-title-text")
+        : [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle"));
+      if (!container) return { ok: false };
+      const editable = container.isContentEditable ? container : container.querySelector('[contenteditable="true"]') || container;
+      const rect = editable.getBoundingClientRect();
+      const mouse = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
+      editable.dispatchEvent(new MouseEvent("mousedown", mouse));
+      editable.dispatchEvent(new MouseEvent("mouseup", mouse));
+      editable.dispatchEvent(new MouseEvent("click", mouse));
+      editable.focus();
+      const range = editable.ownerDocument.createRange();
+      range.selectNodeContents(editable);
+      range.collapse(false);
+      const selection = editable.ownerDocument.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      return { ok: true, kind: editorKind, frame: location.href };
+    },
+  });
+  return results.find((entry) => entry.result?.ok)?.result || { ok: false };
 }
 
 async function renderStatus() {
@@ -41,47 +98,43 @@ $("generate").addEventListener("click", async () => {
     const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본" }) });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || `생성 실패 (${response.status})`);
-    $("title").value = body.title || ""; $("body").value = body.body || ""; $("generateStatus").textContent = "초안 생성 완료";
+    $("title").value = body.title || "";
+    $("body").value = body.body || "";
+    $("generateStatus").textContent = "초안 생성 완료";
   } catch (error) { $("generateStatus").textContent = `오류: ${error instanceof Error ? error.message : String(error)}`; }
   finally { $("generate").disabled = false; }
 });
 
 $("fill").addEventListener("click", async () => {
-  $("generateStatus").textContent = "네이버 편집기에 입력 중...";
+  $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
+  let attachedTabId = null;
   try {
-  const title = $("title").value, body = $("body").value;
-  if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
-  const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
-  const tab = tabs.find((candidate) => candidate.active) || tabs[0];
-  if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 여세요.");
-  await chrome.windows.update(tab.windowId, { focused: true });
-  await chrome.tabs.update(tab.id, { active: true });
-  await new Promise((resolve) => setTimeout(resolve, 250));
-  const results = await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: true }, args: [{ title, body }], func: async ({ title: titleText, body: bodyText }) => {
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    const plain = (text) => text.replace(/\\n/g, "\n").replace(/\r\n/g, "\n").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1").replace(/`([^`]+)`/g, "$1").replace(/^#{1,6}\s+/gm, "").replace(/^\s*[-*]\s+/gm, "• ").trim();
-    const findEditableTarget = (container) => container?.isContentEditable ? container : container?.querySelector('[contenteditable="true"]') || container;
-    const simulateClick = (element) => { const rect = element.getBoundingClientRect(); const options = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 }; element.dispatchEvent(new MouseEvent("mousedown", options)); element.dispatchEvent(new MouseEvent("mouseup", options)); element.dispatchEvent(new MouseEvent("click", options)); };
-    const resolveActiveEditable = () => { let active = document.activeElement; let depth = 0; while (active && active.tagName === "IFRAME" && depth < 5) { let innerDocument; try { innerDocument = active.contentDocument; } catch { break; } if (!innerDocument) break; active = innerDocument.activeElement && innerDocument.activeElement !== innerDocument.body ? innerDocument.activeElement : innerDocument.body; depth += 1; } return active; };
-    const placeCursorAtEnd = (container) => { if (!container) return null; let element = findEditableTarget(container); simulateClick(element); element.focus(); const resolved = resolveActiveEditable(); if (resolved && resolved !== document.body && resolved.isContentEditable) element = resolved; const range = element.ownerDocument.createRange(); range.selectNodeContents(element); range.collapse(false); const selection = element.ownerDocument.getSelection(); selection.removeAllRanges(); selection.addRange(range); return element; };
-    const findBodyParagraph = () => [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle"));
-    const typeNaturally = async (text, doc) => { for (const character of plain(text)) { if (character === "\n") doc.execCommand("insertParagraph"); else doc.execCommand("insertText", false, character); await sleep(randomDelay(45, 95)); if (Math.random() < 0.05) await sleep(randomDelay(220, 450)); } };
-    const titleContainer = document.querySelector(".se-title-text");
-    if (!titleContainer) return { ok: false, error: `제목 요소를 찾지 못했습니다 (iframe ${document.querySelectorAll("iframe").length}, editable ${document.querySelectorAll('[contenteditable="true"]').length}, url ${location.pathname}).` };
-    const titleTarget = placeCursorAtEnd(titleContainer);
-    await typeNaturally(titleText, titleTarget.ownerDocument);
+    const title = $("title").value;
+    const body = $("body").value;
+    if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
+    const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
+    const tab = tabs.find((candidate) => candidate.active) || tabs[0];
+    if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 열어주세요.");
+    await chrome.windows.update(tab.windowId, { focused: true });
+    await chrome.tabs.update(tab.id, { active: true });
+    await sleep(350);
+    const titleFocus = await focusNaverEditor(tab.id, "title");
+    if (!titleFocus.ok) return ($("generateStatus").textContent = "제목 입력 요소를 찾지 못했습니다. 네이버 글쓰기 화면을 새로 연 뒤 다시 시도하세요.");
+    await chrome.debugger.attach({ tabId: tab.id }, "1.3");
+    attachedTabId = tab.id;
+    await debuggerCommand(tab.id, "Input.setIgnoreInputEvents", { ignore: false });
+    await typeWithDebugger(tab.id, title);
     await sleep(randomDelay(600, 1000));
-    const bodyContainer = findBodyParagraph();
-    if (!bodyContainer) return { ok: false, error: "제목 입력 후 본문 문단을 찾지 못했습니다. 네이버 편집기 구조가 변경되었을 수 있습니다." };
-    const bodyTarget = placeCursorAtEnd(bodyContainer);
-    await typeNaturally(bodyText, bodyTarget.ownerDocument);
-    return { ok: true, title: titleTarget.textContent, body: bodyTarget.textContent };
-  } });
-  const result = results?.find((entry) => entry.result?.ok)?.result || results?.find((entry) => entry.result)?.result;
-  $("generateStatus").textContent = result?.ok ? "네이버 편집기에 입력했습니다. 내용을 검토한 뒤 발행하세요." : `입력 실패: ${result?.error || "페이지에 접근하지 못했습니다."}`;
+    const bodyFocus = await focusNaverEditor(tab.id, "body");
+    if (!bodyFocus.ok) return ($("generateStatus").textContent = "본문 문단 입력 요소를 찾지 못했습니다. 네이버 글쓰기 본문을 클릭한 뒤 다시 시도하세요.");
+    await typeWithDebugger(tab.id, body);
+    $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력이 완료되었습니다. 내용을 검토한 뒤 발행하세요.";
   } catch (error) {
-    $("generateStatus").textContent = `입력 실행 오류: ${error instanceof Error ? error.message : String(error)}`;
+    $("generateStatus").textContent = `입력 실패: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    if (attachedTabId !== null) {
+      try { await chrome.debugger.detach({ tabId: attachedTabId }); } catch { /* tab may have navigated */ }
+    }
   }
 });
 
