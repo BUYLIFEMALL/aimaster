@@ -183,7 +183,7 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
       },
     });
     if (imageState.some((entry) => (entry.result?.count ?? 0) > 0)) {
-      await closeNaverImagePopup(tabId);
+      try { await closeNaverImagePopup(tabId); } catch { /* panel cleanup is best effort */ }
       return { ...result, inserted: true };
     }
     await sleep(500);
@@ -492,11 +492,13 @@ async function fillDraftIntoNaver() {
       await sleep(900);
       // Selecting the body paragraph after upload also dismisses Naver's
       // image-library sidebar, which has no stable close button in the DOM.
-      const bodyAfterImage = await focusNaverEditor(tab.id, "body", "end");
-      if (bodyAfterImage.ok) {
-        await sleep(180);
-        await closeNaverImagePopup(tab.id);
-      }
+      try {
+        const bodyAfterImage = await focusNaverEditor(tab.id, "body", "end");
+        if (bodyAfterImage.ok) {
+          await sleep(180);
+          try { await closeNaverImagePopup(tab.id); } catch { /* panel cleanup is best effort */ }
+        }
+      } catch { /* the editor may still be rebuilding; input result remains valid */ }
     }
     // Preserve Naver's insertion caret after an image upload. CDP page mouse
     // coordinates are unsafe for iframe-local editor coordinates.
