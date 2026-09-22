@@ -62,7 +62,8 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
       imageButton?.click();
     },
   });
-  await sleep(800);
+  // 네이버는 이미지 도구를 누른 뒤 파일 input을 동적으로 생성하므로 충분히 기다린다.
+  await sleep(2500);
   const results = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
     args: [{ header, encoded }],
@@ -74,12 +75,16 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
       const file = new File([bytes], "naver-blog-seo-studio-image.png", { type: mimeType });
       const inputs = [...document.querySelectorAll('input[type="file"]')];
       if (inputs.length === 0) return { ok: false, reason: "file input not found" };
-      const transfer = new DataTransfer();
-      transfer.items.add(file);
-      inputs[inputs.length - 1].files = transfer.files;
-      inputs[inputs.length - 1].dispatchEvent(new Event("change", { bubbles: true }));
-      inputs[inputs.length - 1].dispatchEvent(new Event("input", { bubbles: true }));
-      return { ok: true, inputCount: inputs.length };
+      try {
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        inputs[inputs.length - 1].files = transfer.files;
+        inputs[inputs.length - 1].dispatchEvent(new Event("change", { bubbles: true }));
+        inputs[inputs.length - 1].dispatchEvent(new Event("input", { bubbles: true }));
+        return { ok: true, inputCount: inputs.length };
+      } catch (error) {
+        return { ok: false, reason: error instanceof Error ? error.message : "file input assignment failed" };
+      }
     },
   });
   const result = results.find((entry) => entry.result)?.result;
