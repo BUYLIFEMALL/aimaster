@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "AIMaster 네이버 블로그 자동화(Web)",
+  "version": "0.1.0",
+  "description": "AI가 쓴 블로그 글을 네이버 블로그 글쓰기 화면에 자동으로 채워 넣는 사이드패널 도구. 발행은 항상 사람이 직접 확인 후 누릅니다.",
+  "permissions": ["sidePanel", "storage", "scripting", "clipboardWrite"],
+  "host_permissions": [
+    "https://*.naver.com/*",
+    "https://www.buylife.xyz/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "AIMaster 네이버 블로그 자동화 열기"
+  }
+}
