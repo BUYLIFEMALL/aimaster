@@ -27,6 +27,26 @@ const plainText = (value) => String(value || "")
   .replace(/^\s*[-*]\s+/gm, "")
   .trim();
 
+function formatBrowserError(error, context = "작업") {
+  const message = error instanceof Error ? error.message : String(error || "");
+  if (/already attached|another debugger|Another debugger/i.test(message)) {
+    return `${context} 실패: 다른 디버거가 네이버 탭에 연결되어 있습니다. DevTools와 다른 자동화 확장을 닫고 다시 시도하세요.`;
+  }
+  if (/Cannot access contents of url|Receiving end does not exist|host permission/i.test(message)) {
+    return `${context} 실패: 네이버 페이지 접근 권한이 없습니다. 확장을 새로고침한 뒤 네이버 글쓰기 탭에서 다시 시도하세요.`;
+  }
+  if (/No tab with id|tab was closed|target closed|not found/i.test(message)) {
+    return `${context} 실패: 네이버 글쓰기 탭이 닫혔거나 이동했습니다. 글쓰기 화면을 다시 연 뒤 시도하세요.`;
+  }
+  if (/debugger.*attach|debugger.*permission|permission denied/i.test(message)) {
+    return `${context} 실패: Chrome 디버거 권한이 거부되었습니다. 확장을 다시 로드하고 권한을 허용하세요.`;
+  }
+  if (/Extension context invalidated|context invalidated/i.test(message)) {
+    return `${context} 실패: 확장이 업데이트되어 연결이 끊겼습니다. Chrome 확장 관리 화면에서 확장을 새로고침하세요.`;
+  }
+  return `${context} 실패: ${message || "알 수 없는 오류"}`;
+}
+
 async function debuggerCommand(tabId, method, params = {}) {
   return chrome.debugger.sendCommand({ tabId }, method, params);
 }
@@ -194,7 +214,7 @@ $("fill").addEventListener("click", async () => {
     }
     $("generateStatus").textContent = `네이버 편집기 입력 및 결과 확인 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
   } catch (error) {
-    $("generateStatus").textContent = `입력 실패: ${error instanceof Error ? error.message : String(error)}`;
+    $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
   } finally {
     if (attachedTabId !== null) {
       try { await chrome.debugger.detach({ tabId: attachedTabId }); } catch { /* tab may have navigated */ }
@@ -238,7 +258,7 @@ $("inspect").addEventListener("click", async () => {
     $("inspectResult").value = JSON.stringify(combined, null, 2);
     $("inspectStatus").textContent = `분석 완료 (${combined.length}개 프레임). 결과를 복사해 전달해주세요.`;
   } catch (error) {
-    $("inspectStatus").textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
+    $("inspectStatus").textContent = formatBrowserError(error, "구조 분석");
   } finally {
     $("inspect").disabled = false;
   }
