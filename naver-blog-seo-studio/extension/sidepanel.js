@@ -336,7 +336,10 @@ async function focusNaverEditor(tabId, kind, placement = "end") {
 }
 
 async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
-  const results = await chrome.scripting.executeScript({
+  let lastError;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      const results = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
     args: [{ expectedTitle, expectedBody }],
     func: ({ expectedTitle: titleValue, expectedBody: bodyValue }) => {
@@ -364,8 +367,14 @@ async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
         frame: location.href,
       };
     },
-  });
-  return results.find((entry) => entry.result?.titleMatched || entry.result?.bodyMatched || entry.result?.ok)?.result || { ok: false };
+      });
+      return results.find((entry) => entry.result?.titleMatched || entry.result?.bodyMatched || entry.result?.ok)?.result || { ok: false };
+    } catch (error) {
+      lastError = error;
+      if (attempt < 4) await sleep(350 + attempt * 250);
+    }
+  }
+  throw lastError || new Error("editor verification unavailable");
 }
 
 async function renderStatus() {
@@ -521,6 +530,9 @@ async function fillDraftIntoNaver() {
       return;
     }
     $("generateStatus").textContent = `네이버 편집기 입력 및 결과 확인 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
+    if (imageDataUrl) {
+      try { await closeNaverImagePopup(tab.id); } catch { /* cleanup only */ }
+    }
     return true;
   } catch (error) {
     $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
