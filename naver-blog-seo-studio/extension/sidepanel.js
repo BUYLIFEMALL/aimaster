@@ -51,22 +51,23 @@ $("fill").addEventListener("click", async () => {
   if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 여세요.");
-  const results = await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: true }, args: [title, body], func: async (titleText, bodyText) => {
+  const results = await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: true }, args: [{ title, body }], func: async ({ title: titleText, body: bodyText }) => {
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    const findEditable = (container) => container?.isContentEditable ? container : container?.querySelector('[contenteditable="true"]');
-    const simulateClick = (element) => { const rect = element.getBoundingClientRect(); element.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 })); element.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 })); element.click(); };
-    const placeCursorAtEnd = (container) => { const element = findEditable(container) || container; if (!element || !element.getClientRects().length) return null; simulateClick(element); element.focus(); const range = element.ownerDocument.createRange(); range.selectNodeContents(element); range.collapse(false); const selection = element.ownerDocument.getSelection(); selection.removeAllRanges(); selection.addRange(range); return element; };
     const plain = (text) => text.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1").replace(/`([^`]+)`/g, "$1").replace(/^#{1,6}\s+/gm, "").replace(/^\s*[-*]\s+/gm, "• ").trim();
-    const typeNaturally = async (text, doc) => { for (const character of plain(text)) { if (character === "\n") doc.execCommand("insertParagraph"); else doc.execCommand("insertText", false, character); await sleep(randomDelay(35, 75)); if (Math.random() < 0.04) await sleep(randomDelay(180, 350)); } };
-    const visible = (element) => element && element.getClientRects().length > 0;
-    const titleContainer = [...document.querySelectorAll(".se-title-text, .se-documentTitle, [class*='se-title'], textarea[placeholder*='제목'], input[placeholder*='제목'], textarea, input")].find(visible);
-    const bodyContainer = [...document.querySelectorAll(".se-text-paragraph, .se-section-text, .se-module-text, [contenteditable='true'], textarea")].find((element) => visible(element) && !element.closest(".se-documentTitle") && !element.closest(".se-title-text") && !element.closest("[class*='se-title']") && !element.matches("textarea, input"));
-    const titleTarget = placeCursorAtEnd(titleContainer), bodyTarget = placeCursorAtEnd(bodyContainer);
-    if (!titleTarget || !bodyTarget) return { ok: false, error: "제목 또는 본문 편집 영역을 찾지 못했습니다." };
-    titleTarget.ownerDocument.execCommand("selectAll"); titleTarget.ownerDocument.execCommand("delete"); await typeNaturally(titleText, titleTarget.ownerDocument);
-    await sleep(randomDelay(500, 900));
-    bodyTarget.ownerDocument.execCommand("selectAll"); bodyTarget.ownerDocument.execCommand("delete"); await typeNaturally(bodyText, bodyTarget.ownerDocument);
+    const findEditableTarget = (container) => container?.isContentEditable ? container : container?.querySelector('[contenteditable="true"]') || container;
+    const simulateClick = (element) => { const rect = element.getBoundingClientRect(); const options = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 }; element.dispatchEvent(new MouseEvent("mousedown", options)); element.dispatchEvent(new MouseEvent("mouseup", options)); element.dispatchEvent(new MouseEvent("click", options)); };
+    const placeCursorAtEnd = (container) => { if (!container) return null; let element = findEditableTarget(container); simulateClick(element); element.focus(); const range = element.ownerDocument.createRange(); range.selectNodeContents(element); range.collapse(false); const selection = element.ownerDocument.getSelection(); selection.removeAllRanges(); selection.addRange(range); return element; };
+    const findBodyParagraph = () => [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle"));
+    const typeNaturally = async (text, doc) => { for (const character of plain(text)) { if (character === "\n") doc.execCommand("insertParagraph"); else doc.execCommand("insertText", false, character); await sleep(randomDelay(45, 95)); if (Math.random() < 0.05) await sleep(randomDelay(220, 450)); } };
+    const titleContainer = document.querySelector(".se-title-text");
+    const bodyContainer = findBodyParagraph();
+    if (!titleContainer || !bodyContainer) return { ok: false, error: `기존 에디터 요소를 찾지 못했습니다 (제목 ${Boolean(titleContainer)}, 본문 ${Boolean(bodyContainer)}).` };
+    const titleTarget = placeCursorAtEnd(titleContainer);
+    await typeNaturally(titleText, titleTarget.ownerDocument);
+    await sleep(randomDelay(600, 1000));
+    const bodyTarget = placeCursorAtEnd(bodyContainer);
+    await typeNaturally(bodyText, bodyTarget.ownerDocument);
     return { ok: true, title: titleTarget.textContent, body: bodyTarget.textContent };
   } });
   const result = results?.find((entry) => entry.result?.ok)?.result || results?.find((entry) => entry.result)?.result;
