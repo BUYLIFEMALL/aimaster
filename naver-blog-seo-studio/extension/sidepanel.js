@@ -59,8 +59,9 @@ $("fill").addEventListener("click", async () => {
     const placeCursorAtEnd = (container) => { const element = findEditable(container) || container; if (!element || !element.getClientRects().length) return null; simulateClick(element); element.focus(); const range = element.ownerDocument.createRange(); range.selectNodeContents(element); range.collapse(false); const selection = element.ownerDocument.getSelection(); selection.removeAllRanges(); selection.addRange(range); return element; };
     const plain = (text) => text.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1").replace(/`([^`]+)`/g, "$1").replace(/^#{1,6}\s+/gm, "").replace(/^\s*[-*]\s+/gm, "• ").trim();
     const typeNaturally = async (text, doc) => { for (const character of plain(text)) { if (character === "\n") doc.execCommand("insertParagraph"); else doc.execCommand("insertText", false, character); await sleep(randomDelay(35, 75)); if (Math.random() < 0.04) await sleep(randomDelay(180, 350)); } };
-    const titleContainer = document.querySelector(".se-title-text, .se-documentTitle, textarea[placeholder*='제목'], input[placeholder*='제목']");
-    const bodyContainer = [...document.querySelectorAll(".se-text-paragraph")].find((element) => !element.closest(".se-documentTitle")) || document.querySelector("[contenteditable='true']");
+    const visible = (element) => element && element.getClientRects().length > 0;
+    const titleContainer = [...document.querySelectorAll(".se-title-text, .se-documentTitle, [class*='se-title'], textarea[placeholder*='제목'], input[placeholder*='제목'], textarea, input")].find(visible);
+    const bodyContainer = [...document.querySelectorAll(".se-text-paragraph, .se-section-text, .se-module-text, [contenteditable='true'], textarea")].find((element) => visible(element) && !element.closest(".se-documentTitle") && !element.closest(".se-title-text") && !element.closest("[class*='se-title']") && !element.matches("textarea, input"));
     const titleTarget = placeCursorAtEnd(titleContainer), bodyTarget = placeCursorAtEnd(bodyContainer);
     if (!titleTarget || !bodyTarget) return { ok: false, error: "제목 또는 본문 편집 영역을 찾지 못했습니다." };
     titleTarget.ownerDocument.execCommand("selectAll"); titleTarget.ownerDocument.execCommand("delete"); await typeNaturally(titleText, titleTarget.ownerDocument);
