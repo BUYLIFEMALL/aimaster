@@ -4,7 +4,7 @@ import { checkProgramAccess } from "./access/checkProgramAccess";
 export const PROGRAM_SLUG = "ai-image-studio";
 
 const GUEST_USER = {
-  id: "00000000-0000-0000-0000-000000000000",
+  id: "cca491c9-4e63-4dce-ba44-f591e889e0e3",
   email: "buylifemall@naver.com",
   app_metadata: {},
   user_metadata: {},

@@ -1,5 +1,5 @@
 import { checkProgramAccessApi } from "@/lib/access";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "유효하지 않은 파라미터입니다." }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // Upsert into user_api_keys (user_id, provider unique)
     const { error } = await supabase
