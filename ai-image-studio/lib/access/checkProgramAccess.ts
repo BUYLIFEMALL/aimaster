@@ -67,7 +67,7 @@ export async function checkProgramAccess(
     .select("id, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
     .eq("slug", programSlug)
     .eq("is_active", true)
-    .single();
+    .maybeSingle();
 
   if (!program) {
     return { allowed: false, reason: "not_found", programId: null };
