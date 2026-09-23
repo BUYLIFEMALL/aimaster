@@ -36,6 +36,8 @@ npm run dev
 
 ### 2026-09-23 파일 선택 창 잔류 수정 (확장 v1.0.29)
 
+v1.0.30 추가: 사용자가 v1.0.29에서도 네이티브 창 잔류를 확인했다. 탭 CDP 가로채기만으로 충분하다고 가정하지 않는다. 각 프레임 MAIN world에 업로드 동안만 파일 input click의 기본 동작 및 showPicker를 차단하고 finally에서 원복한다(중단 시 20초 후 자동 원복). 네이버 버튼 처리와 change 이벤트는 유지한다. 재현 테스트에서 native chooser 호출 0건, 이미지 등록, 종료 후 수동 파일 선택 복구를 검증했다. 실제 로그인 네이버에서의 검수는 아직 필요하다.
+
 - D:\PDS\에러3.png 확인 결과 남아 있던 창은 네이버 라이브러리가 아니라 Windows 파일 열기 창이었다.
 - 사진 버튼 클릭 전에 Chrome Debugger의 Page.setInterceptFileChooserDialog를 활성화한다. 파일은 기존 File/DataTransfer 경로로 전달하고 완료/실패 시 가로채기 해제 및 debugger 연결 해제를 수행한다.
 - 모든 프레임의 업로드 결과 중 첫 결과(최상위 프레임의 file input not found)가 아닌 ok=true인 결과를 선택한다. 이 버그가 업로드 성공 후에도 실패를 발생시켰다.

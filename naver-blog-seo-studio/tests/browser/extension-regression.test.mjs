@@ -176,10 +176,15 @@ test("production image upload intercepts native chooser and selects successful i
     const result = await sandbox.insertImageIntoNaverEditor(1,
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j6lQAAAAASUVORK5CYII=");
     assert.equal(result.inserted, true);
-    assert.equal(intercepted, 1);
+    assert.equal(intercepted, 0, "file click is canceled before reaching the native chooser");
     assert.equal(enabled, false);
     assert.equal(detached, true);
     assert.equal(await frame.locator(".se-image-resource").count(), 1);
+    assert.equal(await frame.evaluate(() => Boolean(window[Symbol.for("aimaster.seo.fileChooserGuard")])), false);
+    // Cleanup must restore normal user file selection after automation.
+    const manualChooser = page.waitForEvent("filechooser");
+    await frame.locator("button").click();
+    assert.ok(await manualChooser);
     assert.match(sandbox.formatBrowserError(new Error("file input not found")), /file input not found/);
   } finally { await context.close(); }
 });
@@ -188,7 +193,7 @@ test("failed image upload releases interception and reports failure", async () =
   const calls = [];
   const sandbox = vm.createContext({
     setTimeout,
-    chrome: { debugger: {
+    chrome: { scripting: { executeScript: async () => [] }, debugger: {
       attach: async () => calls.push("attach"),
       sendCommand: async (_, method, params) => calls.push([method, params.enabled]),
       detach: async () => calls.push("detach"),

@@ -127,11 +127,51 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
   await chrome.debugger.attach({ tabId }, "1.3");
   try {
     await debuggerCommand(tabId, "Page.setInterceptFileChooserDialog", { enabled: true });
+    await guardNaverFileChooser(tabId, true);
     return await uploadNaverImage(tabId, dataUrl);
   } finally {
-    try { await debuggerCommand(tabId, "Page.setInterceptFileChooserDialog", { enabled: false }); }
+    try {
+      try { await guardNaverFileChooser(tabId, false); }
+      finally { await debuggerCommand(tabId, "Page.setInterceptFileChooserDialog", { enabled: false }); }
+    }
     finally { await chrome.debugger.detach({ tabId }); }
   }
+}
+
+async function guardNaverFileChooser(tabId, enabled) {
+  return chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    world: "MAIN",
+    args: [enabled],
+    func: (install) => {
+      const key = Symbol.for("aimaster.seo.fileChooserGuard");
+      window[key]?.();
+      if (!install) return;
+      // Cancel only the native file-picker default action, not Naver's
+      // photo-button handler, input creation, or subsequent change event.
+      const onClick = (event) => {
+        if (event.composedPath().some((node) => node instanceof HTMLInputElement && node.type === "file")) {
+          event.preventDefault();
+        }
+      };
+      window.addEventListener("click", onClick, true);
+      const original = HTMLInputElement.prototype.showPicker;
+      const guarded = function (...args) {
+        if (this.type !== "file") return original.apply(this, args);
+      };
+      if (original) HTMLInputElement.prototype.showPicker = guarded;
+      const cleanup = () => {
+        window.removeEventListener("click", onClick, true);
+        if (original && HTMLInputElement.prototype.showPicker === guarded) {
+          HTMLInputElement.prototype.showPicker = original;
+        }
+        clearTimeout(timer);
+        delete window[key];
+      };
+      const timer = setTimeout(cleanup, 20000);
+      window[key] = cleanup;
+    },
+  });
 }
 
 async function uploadNaverImage(tabId, dataUrl) {
