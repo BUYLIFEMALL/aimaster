@@ -9,12 +9,11 @@ export async function POST(req: Request) {
   if (errorResponse || !user) return errorResponse;
 
   try {
-    const { idea } = await req.json();
+    const { idea, presetStyle = "photorealistic" } = await req.json();
     if (!idea || typeof idea !== "string") {
       return Response.json({ error: "아이디어 텍스트를 입력해주세요." }, { status: 400 });
     }
 
-    // Try fetching user's OpenAI API key first, then Gemini if available
     let openAiKey = await getUserApiKey(user.id, "openai");
 
     if (!openAiKey) {
@@ -25,25 +24,40 @@ export async function POST(req: Request) {
 
     const openai = new OpenAI({ apiKey: openAiKey });
 
-    const systemPrompt = `You are a world-class AI Image Prompt Engineer.
-Your task is to take a simple Korean concept/idea from the user and expand it into a highly detailed, professional, high-resolution image prompt in ENGLISH suitable for Midjourney, DALL-E 3, FLUX, and Imagen 3.
+    const systemPrompt = `You are an Expert Visual Director and Master Image Prompt Engineer (trained on AIMaster's photorealistic and creative image generation standards).
+Your job is to convert a user's Korean idea into a world-class English image generation prompt tailored for DALL-E 3, Midjourney v6, FLUX.1, and Imagen 3.
 
-RULES:
-1. Main Prompt: Translate and elaborate on the scene with vivid sensory details, subject description, lighting (e.g., volumetric lighting, golden hour, soft studio light), camera setup (e.g., 85mm lens, f/1.8 aperture, photorealistic, 8k resolution, shot on Hasselblad), shot angle, composition, and artistic style.
-2. If the user's prompt involves a person (unless specified otherwise as a famous non-Asian figure), explicitly describe them as an EAST ASIAN / KOREAN person with natural, attractive features.
-3. Negative Prompt: Provide standard negative terms (e.g., "blurry, low quality, distorted hands, extra limbs, watermark, bad anatomy").
-4. Output format MUST be a valid JSON object matching this schema:
+MASTER PROMPT RULES TO APPLY:
+
+1. ETHNICITY & HUMAN SUBJECT RULE (MANDATORY):
+   - Unless the user explicitly names a foreign celebrity/politician or specifies a historical non-Asian setting, whenever human figures appear, depict realistic KOREAN / EAST ASIAN individuals by default with natural skin texture, anatomically correct hands, and physically believable facial proportions.
+
+2. SINGLE UNIFIED FRAME RULE:
+   - Always create one unified photographic or artistic scene in a single frame. Do NOT create collages, split screens, storyboards, or multiple panels.
+
+3. VISUAL TONE PRESET RULES based on presetStyle = "${presetStyle}":
+   - "photorealistic": Real-world documentary/editorial photography. Specify camera gear (Canon EOS R5, Sony A7R IV, or Nikon Z8), prime lens (35mm prime, 50mm prime, or 85mm portrait prime), aperture (f/1.8 to f/2.8), shutter speed (1/250s), ISO (100-400), lighting (soft daylight, golden hour, or volumetric studio light), 8K resolution, 16-bit RAW photographic look.
+   - "3d_digital": High-end 3D digital artwork (Octane render, Cinema 4D look, smooth textures, vibrant volumetric lighting, Pixar/Disney inspired character aesthetic, 3D icon microtexture).
+   - "artistic_editorial": High-fashion editorial lookbook style (Vogue fashion magazine shot, dramatic shadow interplay, elegant color palette, high contrast).
+   - "vector_illustration": Modern clean vector illustration & flat pop art (Recraft V3 style, bold outlines, harmonious color palette, SVG vector graphics).
+   - "cyberpunk_neon": Cyberpunk futuristic aesthetic (glowing neon signs, wet reflection on asphalt, atmospheric haze, blue and magenta lighting, retro-futurism).
+
+4. NEGATIVE PROMPT STANDARD BLOCK:
+   - Provide a comprehensive English negative prompt (e.g. "blurry, low quality, distorted hands, extra limbs, malformed fingers, watermark, logo, text overlay, bad anatomy, over-smoothed skin, collage, split screen").
+
+OUTPUT FORMAT:
+Return strictly a JSON object:
 {
-  "enhancedPrompt": "The full detailed English image prompt",
-  "styleNotes": "Brief Korean summary of what style, lighting, and composition were added",
-  "negativePrompt": "Comma-separated English negative prompt terms"
+  "enhancedPrompt": "The complete, detailed English prompt string",
+  "styleNotes": "Brief Korean summary explaining the chosen visual direction, camera/lens setup, lighting, and composition notes",
+  "negativePrompt": "Full English negative prompt string"
 }`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: `사용자 아이디어: ${idea}` }
+        { role: "user", content: `사용자 아이디어: "${idea}", 선호 화풍 프리셋: "${presetStyle}"` }
       ],
       response_format: { type: "json_object" }
     });
@@ -56,8 +70,8 @@ RULES:
     const parsed = JSON.parse(content);
     return Response.json({
       enhancedPrompt: parsed.enhancedPrompt || idea,
-      styleNotes: parsed.styleNotes || "상세 묘사 및 인물/조명 옵션 추가됨",
-      negativePrompt: parsed.negativePrompt || "blurry, low quality, distorted, extra limbs, watermark"
+      styleNotes: parsed.styleNotes || "마스터 비주얼 룰 및 연출 노하우 적용됨",
+      negativePrompt: parsed.negativePrompt || "blurry, low quality, distorted hands, extra limbs, watermark, logo, bad anatomy"
     });
   } catch (err: any) {
     console.error("Enhance prompt error:", err);

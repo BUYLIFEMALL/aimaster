@@ -1,14 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check } from "lucide-react";
+import { Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, Camera, Box, Palette, Layers, Zap } from "lucide-react";
 
 interface Step1PromptEnhancerProps {
   onApplyPrompt: (prompt: string, negativePrompt?: string) => void;
 }
 
+const PRESET_STYLES = [
+  { id: "photorealistic", name: "실사 포토리얼리즘", icon: Camera, desc: "8K 카메라인 렌즈 & 조명 디테일 극대화" },
+  { id: "3d_digital", name: "3D 디지털 아트", icon: Box, desc: "Cinema 4D / Octane 렌더 픽사 3D 스타일" },
+  { id: "artistic_editorial", name: "감성 패션 화보", icon: Palette, desc: "Vogue 룩북 스타일 패션/인물 화보" },
+  { id: "vector_illustration", name: "벡터 일러스트", icon: Layers, desc: "SVG 그래픽 & 깔끔한 그래픽 디자인" },
+  { id: "cyberpunk_neon", name: "사이버펑크 네온", icon: Zap, desc: "네온 라이팅 & 미래도시 신비로운 야경" },
+];
+
 export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps) {
   const [idea, setIdea] = useState("");
+  const [selectedPreset, setSelectedPreset] = useState("photorealistic");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{
@@ -28,7 +37,7 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
       const res = await fetch("/api/enhance-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea })
+        body: JSON.stringify({ idea, presetStyle: selectedPreset })
       });
 
       const data = await res.json();
@@ -61,12 +70,41 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Wand2 className="h-5 w-5 text-amber-400" />
-              AI 프롬프트 최적화 생성기
+              AI 프롬프트 최적화 생성기 (Master Visual Rules)
             </h2>
             <p className="text-sm text-zinc-300 mt-0.5">
-              만들고 싶은 이미지의 아이디어를 한국어로 자유롭게 입력해보세요. AI가 최상급 조명·구도·카메라 연출이 포함된 고품질 프롬프트로 변환합니다.
+              기존 자동화 프로그램의 화풍 지침이 이식되었습니다. 한글 아이디어를 입력하고 화풍 프리셋을 선택해보세요.
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Preset Style Selector */}
+      <div className="space-y-2">
+        <label className="text-sm font-bold text-zinc-200">화풍 / 화법 프리셋 선택</label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+          {PRESET_STYLES.map((st) => {
+            const IconComponent = st.icon;
+            const isSelected = selectedPreset === st.id;
+            return (
+              <button
+                key={st.id}
+                type="button"
+                onClick={() => setSelectedPreset(st.id)}
+                className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
+                  isSelected
+                    ? "border-amber-500 bg-amber-500/10 shadow-md shadow-amber-500/10"
+                    : "border-zinc-800 bg-zinc-950/60 hover:border-zinc-700 hover:bg-zinc-900"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <IconComponent className={`h-4 w-4 ${isSelected ? "text-amber-400" : "text-zinc-400"}`} />
+                  <span className="text-sm font-bold text-white">{st.name}</span>
+                </div>
+                <span className="text-xs text-zinc-400 line-clamp-1">{st.desc}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -81,7 +119,7 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm text-zinc-300">
-            <span className="font-semibold text-zinc-400">추천 키워드:</span>
+            <span className="font-semibold text-zinc-400">추천 예시:</span>
             <button
               type="button"
               onClick={() => setIdea("사이버펑크 네온 야경 속 20대 한국 여성의 감성 포토리얼 샷")}
@@ -106,12 +144,12 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
             {loading ? (
               <>
                 <RefreshCw className="h-5 w-5 animate-spin" />
-                <span>AI 최적화 분석 중...</span>
+                <span>AI 마스터 분석 중...</span>
               </>
             ) : (
               <>
                 <Sparkles className="h-5 w-5 fill-zinc-950" />
-                <span>프롬프트 최적화 생성</span>
+                <span>마스터 프롬프트 생성</span>
               </>
             )}
           </button>
