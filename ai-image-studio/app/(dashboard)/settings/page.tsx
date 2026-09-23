@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GuideModal } from "@/components/GuideModal";
+import { PageHeaderLogo } from "@/components/PageHeaderLogo";
 import { Key, Check, AlertCircle, RefreshCw, Lock, Sparkles, ExternalLink } from "lucide-react";
 
 interface KeyItem {
@@ -96,14 +97,20 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8 pb-12">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-          <Key className="h-6 w-6 text-amber-400" />
-          API키등록·플랫폼연동
-        </h1>
-        <p className="text-xs text-zinc-400">
-          이미지 자동화에 필요한 각 플랫폼의 API 키를 등록합니다. 등록하신 키는 암호화 보관되며 본인 계정 생성 시에만 안전하게 사용됩니다.
-        </p>
+      {/* Title Hero with Top-Right Logo */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+            <Key className="h-6 w-6 text-amber-400" />
+            API키등록·플랫폼연동
+          </h1>
+          <p className="text-sm text-zinc-300">
+            이미지 자동화에 필요한 각 플랫폼의 API 키를 등록합니다. 등록하신 키는 암호화 보관되며 본인 계정 생성 시에만 안전하게 사용됩니다.
+          </p>
+        </div>
+
+        {/* Top-Right Logo Component */}
+        <PageHeaderLogo />
       </div>
 
       {message && (

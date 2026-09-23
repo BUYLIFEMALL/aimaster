@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Step1PromptEnhancer } from "@/components/Step1PromptEnhancer";
 import { Step2PlatformGenerator } from "@/components/Step2PlatformGenerator";
 import { GuideModal } from "@/components/GuideModal";
+import { PageHeaderLogo } from "@/components/PageHeaderLogo";
 
 function DashboardContent() {
   const searchParams = useSearchParams();
@@ -34,14 +35,19 @@ function DashboardContent() {
 
   return (
     <div className="space-y-8 pb-12">
-      {/* Title Hero */}
-      <div className="space-y-1">
-        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-          🎨 AI 이미지 스튜디오 (Image Studio)
-        </h1>
-        <p className="text-sm text-zinc-300">
-          OpenAI, FLUX, Google Imagen 3, Stability AI 등 다양한 생성 플랫폼을 하나의 올인원 작업실에서 사용해보세요.
-        </p>
+      {/* Title Hero with Top-Right Logo */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+            🎨 이미지 생성 작업실
+          </h1>
+          <p className="text-sm text-zinc-300">
+            OpenAI, FLUX, Google Imagen 3, Stability AI 등 다양한 생성 플랫폼을 하나의 올인원 작업실에서 사용해보세요.
+          </p>
+        </div>
+
+        {/* Top-Right Logo Component */}
+        <PageHeaderLogo />
       </div>
 
       {/* Step 1: AI Prompt Enhancer */}

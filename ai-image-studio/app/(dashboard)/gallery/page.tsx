@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess } from "@/lib/access";
 import { GuideModal } from "@/components/GuideModal";
 import { GalleryClient } from "@/components/GalleryClient";
+import { PageHeaderLogo } from "@/components/PageHeaderLogo";
 import { History } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -21,14 +22,20 @@ export default async function GalleryPage() {
 
   return (
     <div className="space-y-8 pb-12">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-          <History className="h-6 w-6 text-amber-400" />
-          작업 결과 갤러리 (Image Gallery)
-        </h1>
-        <p className="text-xs text-zinc-400">
-          AI로 생성한 모든 이미지 작업 결과를 한 곳에서 확인하고 고화질 다운로드 및 프롬프트 재활용이 가능합니다.
-        </p>
+      {/* Title Hero with Top-Right Logo */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+            <History className="h-6 w-6 text-amber-400" />
+            작업 결과 갤러리 (Image Gallery)
+          </h1>
+          <p className="text-sm text-zinc-300">
+            AI로 생성한 모든 이미지 작업 결과를 한 곳에서 확인하고 고화질 다운로드 및 프롬프트 재활용이 가능합니다.
+          </p>
+        </div>
+
+        {/* Top-Right Logo Component */}
+        <PageHeaderLogo />
       </div>
 
       {/* Interactive Gallery Component */}

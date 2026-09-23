@@ -2,175 +2,111 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, Image as ImageIcon, History, Key, ExternalLink, ArrowLeft } from "lucide-react";
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL || "https://www.buylife.xyz";
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
 const FLOW_STEPS = [
   {
     step: 1,
     href: "/dashboard",
-    icon: ImageIcon,
+    icon: "🎨",
     label: "이미지 생성 작업실",
     description: "AI 프롬프트 최적화 & 이미지 생성",
   },
-];
-
-const SECONDARY_ITEMS = [
   {
+    step: 2,
     href: "/gallery",
-    icon: History,
+    icon: "🖼️",
     label: "작업 결과 갤러리",
-    description: "생성 결과 보관함 & 고화질 다운로드",
+    description: "생성 이력 확인 및 고화질 다운로드",
   },
 ];
 
 const UTILITY_ITEMS = [
-  {
-    href: "/settings",
-    icon: Key,
-    label: "API키등록·플랫폼연동",
-    description: "OpenAI / Fal / Gemini / Stability",
-  },
+  { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
 ];
 
 export function Sidebar({ userEmail = "guest@buylife.xyz" }: { userEmail?: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-col border-b border-zinc-800 bg-zinc-950 p-5 md:min-h-screen md:w-64 md:justify-between md:border-b-0 md:border-r shrink-0">
-      <div className="space-y-6">
-        {/* Brand Header */}
-        <div className="space-y-2 border-b border-zinc-800/80 pb-4">
-          <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 text-zinc-950 shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              <Sparkles className="h-5 w-5 stroke-[2.5]" />
-            </div>
-            <div>
-              <span className="text-base font-bold text-white tracking-tight block">
-                AI 이미지 스튜디오
-              </span>
-              <span className="text-[10px] font-semibold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
-                AIMaster 서브프로그램
-              </span>
-            </div>
-          </Link>
+    <aside className="flex w-full flex-col border-b border-zinc-800 bg-zinc-950 p-4 md:min-h-screen md:w-64 md:justify-between md:border-b-0 md:border-r shrink-0">
+      <div>
+        <div className="mb-4 md:mb-6 px-2">
+          <div className="text-lg font-bold text-white tracking-tight">AI 이미지 스튜디오</div>
           <a
             href={`${MAIN_SITE_URL}/programs`}
-            className="flex items-center gap-1 px-1 text-xs text-zinc-400 hover:text-amber-400 transition-colors pt-1"
+            className="block text-xs text-zinc-400 hover:text-amber-400 transition-colors mt-0.5"
           >
-            <ArrowLeft className="h-3 w-3" />
-            <span>다른 프로그램 보기</span>
+            ← 다른 프로그램 보기
           </a>
         </div>
 
-        {/* Workflow Navigation */}
-        <div className="space-y-4">
-          <div className="px-1 text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
-            작업 단계 (Workflow)
-          </div>
-          <nav className="space-y-1.5">
-            {FLOW_STEPS.map((item) => {
-              const isActive = pathname?.startsWith(item.href);
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`group flex items-start gap-3 p-3 rounded-xl border transition-all ${
-                    isActive
-                      ? "border-amber-500/40 bg-amber-500/10 text-white shadow-md shadow-amber-500/5"
-                      : "border-transparent bg-zinc-900/40 text-zinc-300 hover:border-zinc-800 hover:bg-zinc-900 hover:text-white"
+        <nav className="relative flex flex-col">
+          {FLOW_STEPS.map((item, idx) => {
+            const isActive = pathname?.startsWith(item.href);
+            const isLast = idx === FLOW_STEPS.length - 1;
+            return (
+              <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-2">
+                {/* 스텝 번호 + 연결선 */}
+                <div className="flex flex-col items-center">
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-all ${
+                      isActive
+                        ? "bg-amber-500 text-zinc-950 font-black shadow-md shadow-amber-500/20"
+                        : "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700 group-hover:text-zinc-200"
+                    }`}
+                  >
+                    {item.step}
+                  </span>
+                  {!isLast && <span className="mt-1 w-px flex-1 bg-zinc-800" />}
+                </div>
+
+                {/* 라벨 + 설명 */}
+                <div
+                  className={`min-w-0 flex-1 rounded-xl px-2.5 py-1.5 transition-all ${
+                    isActive ? "bg-amber-500/10 border border-amber-500/30" : "group-hover:bg-zinc-900"
                   }`}
                 >
-                  <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
-                    isActive ? "bg-amber-400 text-zinc-950 font-black" : "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700"
-                  }`}>
-                    {item.step}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 font-bold text-xs">
-                      <Icon className={`h-3.5 w-3.5 ${isActive ? "text-amber-400" : "text-zinc-400"}`} />
-                      <span className={isActive ? "text-amber-400" : "text-zinc-200"}>{item.label}</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1">{item.description}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </nav>
+                  <p className={`text-sm font-bold ${isActive ? "text-amber-400" : "text-zinc-200"}`}>
+                    {item.icon} {item.label}
+                  </p>
+                  <p className="text-xs text-zinc-400 mt-0.5">{item.description}</p>
+                </div>
+              </Link>
+            );
+          })}
+        </nav>
 
-          {/* Secondary Items */}
-          <div className="pt-2">
-            <div className="px-1 mb-2 text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
-              결과 관리 (Gallery)
-            </div>
-            <div className="space-y-1">
-              {SECONDARY_ITEMS.map((item) => {
-                const isActive = pathname?.startsWith(item.href);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                      isActive
-                        ? "bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold"
-                        : "text-zinc-300 hover:bg-zinc-900 hover:text-white border border-transparent"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4 shrink-0 text-amber-400" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Utility Items */}
-          <div className="pt-2 border-t border-zinc-800/80">
-            <div className="px-1 mb-2 text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
-              설정 및 연동 (Settings)
-            </div>
-            <div className="space-y-1">
-              {UTILITY_ITEMS.map((item) => {
-                const isActive = pathname?.startsWith(item.href);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                      isActive
-                        ? "bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold"
-                        : "text-zinc-300 hover:bg-zinc-900 hover:text-white border border-transparent"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4 shrink-0 text-amber-400" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+        <div className="mt-6 border-t border-zinc-800/80 pt-3">
+          {UTILITY_ITEMS.map((item) => {
+            const isActive = pathname?.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-amber-500/10 text-amber-400 font-bold border border-amber-500/30"
+                    : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
+                }`}
+              >
+                {item.icon} {item.label}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
-      {/* Sidebar Footer */}
-      <div className="mt-8 border-t border-zinc-800/80 pt-4 space-y-3">
-        <div className="px-2">
-          <span className="text-[10px] text-zinc-400 block font-mono">접속 계정:</span>
-          <p className="text-xs text-zinc-300 truncate font-semibold">{userEmail}</p>
-        </div>
-
+      <div className="mt-6 border-t border-zinc-800/80 pt-4 md:mt-0 px-2">
+        <p className="mb-2 truncate text-xs text-zinc-400">{userEmail}</p>
         <a
           href={MAIN_SITE_URL}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs font-bold text-zinc-200 border border-zinc-800 transition-colors"
+          className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"
         >
-          <span>AIMaster 메인 사이트</span>
-          <ExternalLink className="h-3.5 w-3.5 text-amber-400" />
+          AIMaster 메인으로 &rarr;
         </a>
       </div>
     </aside>
