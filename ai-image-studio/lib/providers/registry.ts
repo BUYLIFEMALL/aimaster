@@ -3,10 +3,11 @@ import { ProviderConfig } from "./types";
 const OPENAI_STANDARD_OPTIONS = [
   {
     id: "size",
-    name: "이미지 비율/크기 (Aspect Ratio / Size)",
+    name: "비율 및 크기 (Size & orientation)",
     type: "select" as const,
-    default: "1024x1024",
+    default: "auto",
     options: [
+      { label: "자동 (Auto)", value: "auto" },
       { label: "1:1 정사각형 (1024x1024)", value: "1024x1024" },
       { label: "16:9 와이드 (1792x1024)", value: "1792x1024" },
       { label: "9:16 세로형 (1024x1792)", value: "1024x1792" }
@@ -16,55 +17,69 @@ const OPENAI_STANDARD_OPTIONS = [
     id: "quality",
     name: "화질 (Quality)",
     type: "select" as const,
-    default: "standard",
+    default: "auto",
     options: [
+      { label: "자동 (Auto)", value: "auto" },
       { label: "표준 (Standard)", value: "standard" },
       { label: "고화질 (HD)", value: "hd" }
     ]
   },
   {
-    id: "style",
-    name: "스타일 (Style)",
+    id: "n",
+    name: "생성 수량 (Number of images)",
     type: "select" as const,
-    default: "vivid",
+    default: "1",
     options: [
-      { label: "선명함 (Vivid - 화려함)", value: "vivid" },
-      { label: "자연스러움 (Natural - 사실적)", value: "natural" }
+      { label: "1장", value: "1" },
+      { label: "2장", value: "2" },
+      { label: "4장", value: "4" },
+      { label: "8장", value: "8" },
+      { label: "10장", value: "10" }
+    ]
+  },
+  {
+    id: "output_format",
+    name: "출력 포맷 (Output format)",
+    type: "select" as const,
+    default: "png",
+    options: [
+      { label: "PNG", value: "png" },
+      { label: "JPEG", value: "jpeg" },
+      { label: "WebP", value: "webp" }
     ]
   },
   {
     id: "background",
-    name: "배경 스타일 (Background)",
+    name: "배경 (Background)",
     type: "select" as const,
-    default: "opaque",
+    default: "auto",
     options: [
-      { label: "일반 불투명 배경 (Opaque)", value: "opaque" },
-      { label: "투명 배경 (Transparent Cutout)", value: "transparent" }
-    ]
-  },
-  {
-    id: "n",
-    name: "생성 수량 (Count)",
-    type: "select" as const,
-    default: "1",
-    options: [
-      { label: "1장 (Single)", value: "1" },
-      { label: "2장 (Batch 2)", value: "2" },
-      { label: "4장 (Batch 4)", value: "4" }
+      { label: "자동 (Auto)", value: "auto" },
+      { label: "투명 배경 (Transparent)", value: "transparent" },
+      { label: "불투명 배경 (Opaque)", value: "opaque" }
     ]
   },
   {
     id: "moderation",
-    name: "콘텐츠 검열/보안 (Moderation Filter)",
+    name: "콘텐츠 검열 (Moderation)",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동 (Auto - 기본 정책)", value: "auto" },
-      { label: "낮음 (Low - 표현 최우선)", value: "low" },
-      { label: "중간 (Medium - 표준 검열)", value: "medium" },
-      { label: "높음 (High - 엄격한 안전검열)", value: "high" }
-    ],
-    description: "이미지 생성을 위한 안전검열 수준을 조절합니다."
+      { label: "자동 (Auto)", value: "auto" },
+      { label: "낮음 (Low)", value: "low" }
+    ]
+  },
+  {
+    id: "partial_images",
+    name: "부분 생성 단계 (Partial images)",
+    type: "select" as const,
+    default: "none",
+    options: [
+      { label: "없음 (None)", value: "none" },
+      { label: "1단계", value: "1" },
+      { label: "2단계", value: "2" },
+      { label: "3단계", value: "3" }
+    ]
   }
 ];
 
@@ -73,9 +88,27 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "openai",
     name: "OpenAI (GPT Image)",
     apiKeyProvider: "openai",
-    description: "OpenAI 최신 GPT Image (2.5 Sunburst, 2.5 Flare, 2, 1.5, 1, 1-mini) 고품질 모델 라인업",
+    description: "OpenAI 최신 GPT Image (1-mini, 1, 1.5, 2, 2.5-flare, 2.5-sunburst) 라인업",
     iconName: "Sparkles",
     models: [
+      {
+        id: "gpt-image-1-mini",
+        name: "gpt-image-1-mini (system)",
+        description: "경량화 및 비용 효율성이 뛰어난 미니 모델 (Cost-Efficient Version)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "chatgpt-image-latest",
+        name: "chatgpt-image-latest (system)",
+        description: "ChatGPT 최신 통합 이미지 생성 모델 (ChatGPT Latest)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2.5-sunburst-2026-09-08",
+        name: "gpt-image-2.5-sunburst-2026-09-08 (system)",
+        description: "OpenAI 최상위 플래그십 지정 버전 (2026-09-08 Release)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
       {
         id: "gpt-image-2.5-sunburst",
         name: "gpt-image-2.5-sunburst (system)",
@@ -83,9 +116,21 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: OPENAI_STANDARD_OPTIONS
       },
       {
+        id: "gpt-image-2.5-flare-2026-09-08",
+        name: "gpt-image-2.5-flare-2026-09-08 (system)",
+        description: "빠르고 완성도 높은 고품질 이미지 생성 지정 버전 (2026-09-08 Release)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
         id: "gpt-image-2.5-flare",
         name: "gpt-image-2.5-flare (system)",
         description: "빠르고 완성도 높은 일상 고품질 이미지 생성 (Fast High-Quality Everyday)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2-2026-04-21",
+        name: "gpt-image-2-2026-04-21 (system)",
+        description: "gpt-image-2 지정 안정화 버전 (2026-04-21 Release)",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
@@ -105,34 +150,6 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         name: "gpt-image-1 (system)",
         description: "표준 GPT 이미지 생성 모델 (Our Previous Image Generation Model)",
         options: OPENAI_STANDARD_OPTIONS
-      },
-      {
-        id: "gpt-image-1-mini",
-        name: "gpt-image-1-mini (system)",
-        description: "경량화 및 비용 효율성이 뛰어난 미니 모델 (Cost-Efficient Version)",
-        options: [
-          {
-            id: "size",
-            name: "이미지 크기",
-            type: "select",
-            default: "1024x1024",
-            options: [
-              { label: "1024x1024", value: "1024x1024" },
-              { label: "512x512", value: "512x512" }
-            ]
-          },
-          {
-            id: "n",
-            name: "생성 수량",
-            type: "select",
-            default: "1",
-            options: [
-              { label: "1장", value: "1" },
-              { label: "2장", value: "2" },
-              { label: "4장", value: "4" }
-            ]
-          }
-        ]
       }
     ]
   },

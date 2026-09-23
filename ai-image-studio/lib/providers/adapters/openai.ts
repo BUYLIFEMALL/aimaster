@@ -7,11 +7,11 @@ export class OpenAIAdapter implements ImageProviderAdapter {
   async generateImage(params: ImageGenerateParams): Promise<ImageGenerateResult> {
     const openai = new OpenAI({ apiKey: params.apiKey });
 
-    const model = params.model || "dall-e-3";
-    const size = params.options.size || "1024x1024";
-    const quality = params.options.quality || "standard";
-    const style = params.options.style || "vivid";
-    const background = params.options.background || "opaque";
+    const model = params.model || "gpt-image-1-mini";
+    const size = params.options.size;
+    const quality = params.options.quality;
+    const background = params.options.background;
+    const moderation = params.options.moderation;
     const n = parseInt(params.options.n || "1", 10);
 
     let promptText = params.prompt;
@@ -23,16 +23,18 @@ export class OpenAIAdapter implements ImageProviderAdapter {
       const payload: any = {
         model: model,
         prompt: promptText,
-        n: Math.min(Math.max(n, 1), 4),
-        size: size as any,
+        n: Math.min(Math.max(n, 1), 10),
         response_format: "url"
       };
 
-      if (model === "dall-e-3" || model.startsWith("gpt-image")) {
+      if (size && size !== "auto") {
+        payload.size = size;
+      }
+      if (quality && quality !== "auto") {
         payload.quality = quality;
-        if (style && model === "dall-e-3") {
-          payload.style = style;
-        }
+      }
+      if (moderation && moderation !== "auto") {
+        payload.moderation = moderation;
       }
 
       const response = await openai.images.generate(payload);
@@ -47,10 +49,9 @@ export class OpenAIAdapter implements ImageProviderAdapter {
         revisedPrompt: img.revised_prompt || promptText,
         metadata: {
           model,
-          size,
-          quality,
-          style,
-          background,
+          size: size || "auto",
+          quality: quality || "auto",
+          background: background || "auto",
           count: response.data?.length || 1
         }
       };
