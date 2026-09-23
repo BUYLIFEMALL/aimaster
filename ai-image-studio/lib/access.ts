@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { checkProgramAccess } from "../../lib/access/checkProgramAccess";
+import { checkProgramAccess } from "./access/checkProgramAccess";
 
 export const PROGRAM_SLUG = "ai-image-studio";
 
