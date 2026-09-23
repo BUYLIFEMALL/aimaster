@@ -93,62 +93,62 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     models: [
       {
         id: "gpt-image-1-mini",
-        name: "gpt-image-1-mini (system)",
-        description: "경량화 및 비용 효율성이 뛰어난 미니 모델 (Cost-Efficient Version)",
+        name: "gpt-image-1-mini",
+        description: "경량 미니",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "chatgpt-image-latest",
-        name: "chatgpt-image-latest (system)",
-        description: "ChatGPT 최신 통합 이미지 생성 모델 (ChatGPT Latest)",
+        name: "chatgpt-image-latest",
+        description: "최신 통합",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "gpt-image-2.5-sunburst-2026-09-08",
-        name: "gpt-image-2.5-sunburst-2026-09-08 (system)",
-        description: "OpenAI 최상위 플래그십 지정 버전 (2026-09-08 Release)",
+        name: "gpt-image-2.5-sunburst-2026-09-08",
+        description: "플래그십 (26.09.08)",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "gpt-image-2.5-sunburst",
-        name: "gpt-image-2.5-sunburst (system)",
-        description: "OpenAI 최상위 플래그십. 최고의 표현력과 정교한 편집/생성 지원 (Most Capable)",
+        name: "gpt-image-2.5-sunburst",
+        description: "최상위 플래그십",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "gpt-image-2.5-flare-2026-09-08",
-        name: "gpt-image-2.5-flare-2026-09-08 (system)",
-        description: "빠르고 완성도 높은 고품질 이미지 생성 지정 버전 (2026-09-08 Release)",
+        name: "gpt-image-2.5-flare-2026-09-08",
+        description: "고품질 (26.09.08)",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "gpt-image-2.5-flare",
-        name: "gpt-image-2.5-flare (system)",
-        description: "빠르고 완성도 높은 일상 고품질 이미지 생성 (Fast High-Quality Everyday)",
+        name: "gpt-image-2.5-flare",
+        description: "고품질 일상",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "gpt-image-2-2026-04-21",
-        name: "gpt-image-2-2026-04-21 (system)",
-        description: "gpt-image-2 지정 안정화 버전 (2026-04-21 Release)",
+        name: "gpt-image-2-2026-04-21",
+        description: "표준 편집 (26.04.21)",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "gpt-image-2",
-        name: "gpt-image-2 (system)",
-        description: "최첨단 이미지 생성 및 편집 표준 모델 (State-of-the-Art Generation & Editing)",
+        name: "gpt-image-2",
+        description: "표준 편집",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "gpt-image-1.5",
-        name: "gpt-image-1.5 (system)",
-        description: "고성능 차세대 GPT 이미지 생성 모델 (State-of-the-Art)",
+        name: "gpt-image-1.5",
+        description: "차세대 고성능",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
         id: "gpt-image-1",
-        name: "gpt-image-1 (system)",
-        description: "표준 GPT 이미지 생성 모델 (Our Previous Image Generation Model)",
+        name: "gpt-image-1",
+        description: "표준 모델",
         options: OPENAI_STANDARD_OPTIONS
       }
     ]
