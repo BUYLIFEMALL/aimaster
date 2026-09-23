@@ -11,29 +11,29 @@ interface NanoBananaConfig {
 }
 
 const NANO_BANANA_CONFIGS: Record<string, NanoBananaConfig> = {
-  "nanobanana": {
-    modelName: "gemini-2.5-flash-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-image:generateContent",
-    defaultSize: "1K",
+  "nanobanana-pro": {
+    modelName: "gemini-3-pro-image-preview",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent",
+    defaultSize: "4K",
+    temperature: 0.4,
+  },
+  "nanobanana-2-4k": {
+    modelName: "gemini-3-pro-image-preview",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent",
+    defaultSize: "4K",
     temperature: 0.7,
   },
   "nanobanana-2-2k": {
-    modelName: "gemini-3.1-flash-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
+    modelName: "gemini-2.5-flash-image",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
     defaultSize: "2K",
     temperature: 0.7,
   },
-  "nanobanana-2-4k": {
-    modelName: "gemini-3.1-flash-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
-    defaultSize: "4K",
+  "nanobanana": {
+    modelName: "gemini-2.5-flash-image",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+    defaultSize: "1K",
     temperature: 0.7,
-  },
-  "nanobanana-pro": {
-    modelName: "gemini-3.1-flash-image",
-    endpoint: "https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent",
-    defaultSize: "4K",
-    temperature: 0.4,
   }
 };
 
@@ -51,12 +51,7 @@ export class GeminiAdapter implements ImageProviderAdapter {
   async generateImage(params: ImageGenerateParams): Promise<ImageGenerateResult> {
     const rawModel = params.model || "nanobanana-2-2k";
 
-    // Fallback or explicit Imagen 3 predict API
-    if (rawModel === "imagen-3.0-generate-002") {
-      return this.generateImagen3(params);
-    }
-
-    // NanoBanana / Gemini generateContent API
+    // Lookup NanoBanana / Gemini verified model config
     const config = NANO_BANANA_CONFIGS[rawModel] || NANO_BANANA_CONFIGS["nanobanana-2-2k"];
     const url = `${config.endpoint}?key=${params.apiKey}`;
 
@@ -71,7 +66,7 @@ export class GeminiAdapter implements ImageProviderAdapter {
     const requestBody = {
       contents: [{ parts: [{ text: composedPrompt }] }],
       generationConfig: {
-        responseModalities: ["Image"],
+        responseModalities: ["IMAGE"],
         imageConfig: {
           aspectRatio,
           imageSize: finalImageSize,
@@ -112,46 +107,6 @@ export class GeminiAdapter implements ImageProviderAdapter {
         aspectRatio,
         imageSize: finalImageSize
       }
-    };
-  }
-
-  private async generateImagen3(params: ImageGenerateParams): Promise<ImageGenerateResult> {
-    const model = "imagen-3.0-generate-002";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:predict?key=${params.apiKey}`;
-    const aspectRatio = params.options.aspectRatio || "1:1";
-
-    const payload = {
-      instances: [{ prompt: params.prompt }],
-      parameters: {
-        sampleCount: 1,
-        aspectRatio: aspectRatio,
-        outputMimeType: "image/jpeg"
-      }
-    };
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Google Imagen API error (${res.status}): ${errText}`);
-    }
-
-    const json = await res.json();
-    const predictions = json.predictions;
-    if (!predictions || predictions.length === 0 || !predictions[0].bytesBase64Encoded) {
-      throw new Error("Google Imagen API did not return encoded image data.");
-    }
-
-    const base64Data = predictions[0].bytesBase64Encoded;
-    const dataUrl = `data:image/jpeg;base64,${base64Data}`;
-
-    return {
-      imageUrl: dataUrl,
-      metadata: { model, aspectRatio }
     };
   }
 }

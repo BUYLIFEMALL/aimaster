@@ -503,31 +503,25 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "nanobanana-2-2k",
         name: "NanoBanana 2-2K",
-        description: "2K 고화질 비주얼 이미지 생성 (추천)",
-        options: GEMINI_NANOBANANA_OPTIONS
-      },
-      {
-        id: "nanobanana-2-4k",
-        name: "NanoBanana 2-4K",
-        description: "4K 울트라 HD 초고화질 상세 렌더링",
+        description: "2K 고화질 비주얼 이미지 생성 (추천 / gemini-2.5-flash-image)",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-pro",
         name: "NanoBanana Pro",
-        description: "프로페셔널 정밀 그래픽 & 인포그래픽",
+        description: "프로페셔널 정밀 그래픽 & 인포그래픽 (gemini-3-pro-image-preview)",
+        options: GEMINI_NANOBANANA_OPTIONS
+      },
+      {
+        id: "nanobanana-2-4k",
+        name: "NanoBanana 2-4K",
+        description: "4K 울트라 HD 초고화질 상세 렌더링 (gemini-3-pro-image-preview)",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana",
         name: "NanoBanana Standard",
         description: "Gemini 2.5 Flash 기반 빠르고 경량화된 생성",
-        options: GEMINI_NANOBANANA_OPTIONS
-      },
-      {
-        id: "imagen-3.0-generate-002",
-        name: "Imagen 3.0 Standard",
-        description: "포토리얼리즘 및 타이포그래피 표준 구글 모델",
         options: GEMINI_NANOBANANA_OPTIONS
       }
     ]
