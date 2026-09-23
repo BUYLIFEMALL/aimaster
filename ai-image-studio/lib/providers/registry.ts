@@ -3,7 +3,7 @@ import { ProviderConfig } from "./types";
 export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   {
     id: "openai",
-    name: "OpenAI",
+    name: "OpenAI (GPT Image)",
     apiKeyProvider: "openai",
     description: "DALL-E 3 및 DALL-E 2 고품질 이미지 생성",
     iconName: "Sparkles",
