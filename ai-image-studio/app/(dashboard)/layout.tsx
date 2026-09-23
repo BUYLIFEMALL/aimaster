@@ -1,5 +1,5 @@
 import { requireProgramAccess } from "@/lib/access";
-import { Header } from "@/components/Header";
+import { Sidebar } from "@/components/layout/Sidebar";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -9,12 +9,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireProgramAccess();
+  const { user } = await requireProgramAccess();
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col">
-      <Header />
-      <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div className="flex min-h-screen flex-col md:flex-row bg-zinc-950">
+      <Sidebar userEmail={user.email ?? "guest@buylife.xyz"} />
+      <main className="flex-1 p-4 md:p-8 min-w-0 max-w-7xl">
         {children}
       </main>
     </div>
