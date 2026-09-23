@@ -1,19 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Step1PromptEnhancer } from "@/components/Step1PromptEnhancer";
 import { Step2PlatformGenerator } from "@/components/Step2PlatformGenerator";
 import { GuideModal } from "@/components/GuideModal";
 
-export default function DashboardPage() {
+function DashboardContent() {
+  const searchParams = useSearchParams();
   const [step2Prompt, setStep2Prompt] = useState("");
   const [step2NegativePrompt, setStep2NegativePrompt] = useState("");
+
+  useEffect(() => {
+    const initialPromptParam = searchParams.get("prompt");
+    if (initialPromptParam) {
+      setStep2Prompt(initialPromptParam);
+      const step2Element = document.getElementById("step2-container");
+      if (step2Element) {
+        step2Element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [searchParams]);
 
   const handleApplyPrompt = (prompt: string, negativePrompt?: string) => {
     setStep2Prompt(prompt);
     if (negativePrompt) setStep2NegativePrompt(negativePrompt);
 
-    // Smooth scroll to Step 2 section
     const step2Element = document.getElementById("step2-container");
     if (step2Element) {
       step2Element.scrollIntoView({ behavior: "smooth" });
@@ -44,5 +56,13 @@ export default function DashboardPage() {
       {/* Manual & Guide Modal Box at Bottom */}
       <GuideModal />
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="text-zinc-400 p-8">로딩 중...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
