@@ -14,7 +14,7 @@ interface Step2PlatformGeneratorProps {
 
 export function Step2PlatformGenerator({ initialPrompt = "", initialNegativePrompt = "" }: Step2PlatformGeneratorProps) {
   const [selectedProviderId, setSelectedProviderId] = useState<string>("openai");
-  const [selectedModelId, setSelectedModelId] = useState<string>("dall-e-3");
+  const [selectedModelId, setSelectedModelId] = useState<string>("gpt-image-2");
   const [prompt, setPrompt] = useState<string>(initialPrompt);
   const [negativePrompt, setNegativePrompt] = useState<string>(initialNegativePrompt);
 
