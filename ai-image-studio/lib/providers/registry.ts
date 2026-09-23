@@ -3,11 +3,11 @@ import { ProviderConfig } from "./types";
 const OPENAI_STANDARD_OPTIONS = [
   {
     id: "size",
-    name: "비율 및 크기 (Size & orientation)",
+    name: "비율 및 크기",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동 (Auto)", value: "auto" },
+      { label: "자동", value: "auto" },
       { label: "1:1 정사각형 (1024x1024)", value: "1024x1024" },
       { label: "16:9 와이드 (1792x1024)", value: "1792x1024" },
       { label: "9:16 세로형 (1024x1792)", value: "1024x1792" }
@@ -15,18 +15,18 @@ const OPENAI_STANDARD_OPTIONS = [
   },
   {
     id: "quality",
-    name: "화질 (Quality)",
+    name: "화질",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동 (Auto)", value: "auto" },
-      { label: "표준 (Standard)", value: "standard" },
-      { label: "고화질 (HD)", value: "hd" }
+      { label: "자동", value: "auto" },
+      { label: "표준", value: "standard" },
+      { label: "고화질", value: "hd" }
     ]
   },
   {
     id: "n",
-    name: "생성 수량 (Number of images)",
+    name: "생성 수량",
     type: "select" as const,
     default: "1",
     options: [
@@ -39,7 +39,7 @@ const OPENAI_STANDARD_OPTIONS = [
   },
   {
     id: "output_format",
-    name: "출력 포맷 (Output format)",
+    name: "출력 포맷",
     type: "select" as const,
     default: "png",
     options: [
@@ -50,32 +50,32 @@ const OPENAI_STANDARD_OPTIONS = [
   },
   {
     id: "background",
-    name: "배경 (Background)",
+    name: "배경",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동 (Auto)", value: "auto" },
-      { label: "투명 배경 (Transparent)", value: "transparent" },
-      { label: "불투명 배경 (Opaque)", value: "opaque" }
+      { label: "자동", value: "auto" },
+      { label: "투명 배경", value: "transparent" },
+      { label: "불투명 배경", value: "opaque" }
     ]
   },
   {
     id: "moderation",
-    name: "콘텐츠 검열 (Moderation)",
+    name: "콘텐츠 검열",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동 (Auto)", value: "auto" },
-      { label: "낮음 (Low)", value: "low" }
+      { label: "자동", value: "auto" },
+      { label: "낮음", value: "low" }
     ]
   },
   {
     id: "partial_images",
-    name: "부분 생성 단계 (Partial images)",
+    name: "부분 생성 단계",
     type: "select" as const,
     default: "none",
     options: [
-      { label: "없음 (None)", value: "none" },
+      { label: "없음", value: "none" },
       { label: "1단계", value: "1" },
       { label: "2단계", value: "2" },
       { label: "3단계", value: "3" }
@@ -167,19 +167,19 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: [
           {
             id: "image_size",
-            name: "화면 비율 (Aspect Ratio)",
+            name: "화면 비율",
             type: "select",
             default: "square_hd",
             options: [
-              { label: "1:1 정사각형 (Square HD)", value: "square_hd" },
-              { label: "16:9 가로형 (Landscape 16:9)", value: "landscape_16_9" },
-              { label: "9:16 세로형 (Portrait 16:9)", value: "portrait_16_9" },
-              { label: "4:3 가로형 (Landscape 4:3)", value: "landscape_4_3" }
+              { label: "1:1 정사각형", value: "square_hd" },
+              { label: "16:9 가로형", value: "landscape_16_9" },
+              { label: "9:16 세로형", value: "portrait_16_9" },
+              { label: "4:3 가로형", value: "landscape_4_3" }
             ]
           },
           {
             id: "num_inference_steps",
-            name: "추론 스텝 (Steps)",
+            name: "추론 스텝",
             type: "slider",
             default: 28,
             min: 10,
@@ -189,7 +189,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "guidance_scale",
-            name: "프롬프트 반영도 (Guidance)",
+            name: "프롬프트 반영도",
             type: "slider",
             default: 3.5,
             min: 1.0,
@@ -237,9 +237,9 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             type: "select",
             default: "realistic_image",
             options: [
-              { label: "사실적 사진 (Realistic Image)", value: "realistic_image" },
-              { label: "벡터 일러스트 (Vector Illustration)", value: "vector_illustration" },
-              { label: "3D 아이콘 (3D Icon)", value: "digital_illustration" }
+              { label: "사실적 사진", value: "realistic_image" },
+              { label: "벡터 일러스트", value: "vector_illustration" },
+              { label: "3D 아이콘", value: "digital_illustration" }
             ]
           },
           {
@@ -271,7 +271,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: [
           {
             id: "aspectRatio",
-            name: "종횡비 (Aspect Ratio)",
+            name: "종횡비",
             type: "select",
             default: "1:1",
             options: [
@@ -312,7 +312,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "negative_prompt",
-            name: "부정 프롬프트 (Negative Prompt)",
+            name: "부정 프롬프트",
             type: "text",
             default: "blurry, low quality, distorted, bad hands, watermark",
             description: "제외하고 싶은 요소를 적어주세요"
