@@ -126,7 +126,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
         highlightFlash ? "border-amber-400 ring-4 ring-amber-400/20" : "border-zinc-800"
       }`}>
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
+          <div className="flex h-10 px-3.5 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 shrink-0 whitespace-nowrap">
             <span className="text-sm font-bold">Step 2</span>
           </div>
           <div>

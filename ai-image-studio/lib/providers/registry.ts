@@ -52,6 +52,19 @@ const OPENAI_STANDARD_OPTIONS = [
       { label: "2장 (Batch 2)", value: "2" },
       { label: "4장 (Batch 4)", value: "4" }
     ]
+  },
+  {
+    id: "moderation",
+    name: "콘텐츠 검열/보안 (Moderation Filter)",
+    type: "select" as const,
+    default: "auto",
+    options: [
+      { label: "자동 (Auto - 기본 정책)", value: "auto" },
+      { label: "낮음 (Low - 표현 최우선)", value: "low" },
+      { label: "중간 (Medium - 표준 검열)", value: "medium" },
+      { label: "높음 (High - 엄격한 안전검열)", value: "high" }
+    ],
+    description: "이미지 생성을 위한 안전검열 수준을 조절합니다."
   }
 ];
 
@@ -60,7 +73,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "openai",
     name: "OpenAI (GPT Image)",
     apiKeyProvider: "openai",
-    description: "OpenAI Playground 규격 GPT Image (2.5 Sunburst, 2.5 Flare, 2, 1.5, 1, 1-mini) 및 DALL-E 3/2",
+    description: "OpenAI 최신 GPT Image (2.5 Sunburst, 2.5 Flare, 2, 1.5, 1, 1-mini) 고품질 모델 라인업",
     iconName: "Sparkles",
     models: [
       {
@@ -106,41 +119,6 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             options: [
               { label: "1024x1024", value: "1024x1024" },
               { label: "512x512", value: "512x512" }
-            ]
-          },
-          {
-            id: "n",
-            name: "생성 수량",
-            type: "select",
-            default: "1",
-            options: [
-              { label: "1장", value: "1" },
-              { label: "2장", value: "2" },
-              { label: "4장", value: "4" }
-            ]
-          }
-        ]
-      },
-      {
-        id: "dall-e-3",
-        name: "dall-e-3 (Flagship DALL-E)",
-        description: "DALL-E 3 최신 플래그십. 뛰어난 자연어 이해력과 묘사력",
-        options: OPENAI_STANDARD_OPTIONS
-      },
-      {
-        id: "dall-e-2",
-        name: "dall-e-2 (Standard DALL-E)",
-        description: "빠르고 가벼운 표준 이미지 모델",
-        options: [
-          {
-            id: "size",
-            name: "이미지 크기",
-            type: "select",
-            default: "1024x1024",
-            options: [
-              { label: "1024x1024", value: "1024x1024" },
-              { label: "512x512", value: "512x512" },
-              { label: "256x256", value: "256x256" }
             ]
           },
           {

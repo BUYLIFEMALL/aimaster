@@ -16,8 +16,8 @@ interface KeyItem {
 
 const PROVIDER_INFO: Record<string, { name: string; desc: string; placeholder: string; link: string }> = {
   openai: {
-    name: "OpenAI (GPT Image) API Key (DALL-E 3 / DALL-E 2)",
-    desc: "OpenAI DALL-E 이미지 생성 및 AI 한글 프롬프트 최적화에 사용됩니다.",
+    name: "OpenAI (GPT Image) API Key",
+    desc: "GPT Image (2.5 Sunburst, 2.5 Flare, 2, 1.5 등) 고품질 이미지 생성 및 AI 프롬프트 최적화에 사용됩니다.",
     placeholder: "sk-...",
     link: "https://platform.openai.com/api-keys",
   },
