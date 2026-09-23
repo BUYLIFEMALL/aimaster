@@ -31,6 +31,9 @@ export async function createClient() {
 }
 
 export function createAdminClient() {
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
-  return createSupabaseClient(SUPABASE_URL, serviceRoleKey);
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey) {
+    console.warn("SUPABASE_SERVICE_ROLE_KEY is missing, falling back to anon key");
+  }
+  return createSupabaseClient(SUPABASE_URL, serviceRoleKey || SUPABASE_ANON_KEY);
 }
