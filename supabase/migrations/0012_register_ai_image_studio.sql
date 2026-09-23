@@ -18,7 +18,7 @@ new_program as (
     ARRAY['new'],
     (select coalesce(max(sort_order), 0) + 1 from programs),
     'https://ai-image-studio.vercel.app',
-    'https://www.buylife.xyz/thumbnails/ai-image-studio.png'
+    'https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/ai-image-studio-thumbnail.jpg'
   from new_category c
   on conflict (slug) do update set
     name = excluded.name,
