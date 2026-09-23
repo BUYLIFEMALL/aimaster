@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PROVIDERS_REGISTRY } from "@/lib/providers/registry";
 import { OptionFormRenderer } from "./OptionFormRenderer";
 import { ImageResultViewer } from "./ImageResultViewer";
-import { Sparkles, Layers, Sliders, Image as ImageIcon, AlertCircle, RefreshCw, Key } from "lucide-react";
+import { Layers, Sliders, Image as ImageIcon, AlertCircle, RefreshCw, Key } from "lucide-react";
 
 interface Step2PlatformGeneratorProps {
   initialPrompt?: string;
@@ -31,13 +31,11 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
     metadata?: Record<string, any>;
   } | null>(null);
 
-  // Sync initialPrompt
   useEffect(() => {
     if (initialPrompt) setPrompt(initialPrompt);
     if (initialNegativePrompt) setNegativePrompt(initialNegativePrompt);
   }, [initialPrompt, initialNegativePrompt]);
 
-  // Fetch registered user API keys
   useEffect(() => {
     fetch("/api/user-keys")
       .then((res) => res.json())
@@ -55,7 +53,6 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
 
   const hasKey = registeredKeys.includes(currentProvider.apiKeyProvider);
 
-  // When model changes, set default option values
   useEffect(() => {
     if (currentModel) {
       const defaults: Record<string, any> = {};
@@ -119,26 +116,26 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 backdrop-blur-xl space-y-6">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            <span className="text-xs font-bold">Step 2</span>
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-7 backdrop-blur-xl space-y-6 shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
+            <span className="text-sm font-bold">Step 2</span>
           </div>
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Layers className="h-4 w-4 text-amber-400" />
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <Layers className="h-5 w-5 text-amber-400" />
               플랫폼 & 모델 & 세부 옵션 선택 생성
             </h2>
-            <p className="text-xs text-zinc-400">
+            <p className="text-sm text-zinc-300 mt-0.5">
               원하는 이미지 생성 플랫폼과 모델을 선택하고 비율, 화질 등 세부 옵션을 맞춤 설정하여 이미지를 생성합니다.
             </p>
           </div>
         </div>
 
-        {/* Platform Selection Cards */}
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-zinc-300">이미지 생성 플랫폼 선택</label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Platform Cards */}
+        <div className="space-y-3">
+          <label className="text-sm font-bold text-zinc-200">이미지 생성 플랫폼 선택</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
             {PROVIDERS_REGISTRY.map((prov) => {
               const isSelected = prov.id === selectedProviderId;
               const isKeyRegistered = registeredKeys.includes(prov.apiKeyProvider);
@@ -148,27 +145,27 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
                   key={prov.id}
                   type="button"
                   onClick={() => handleProviderChange(prov.id)}
-                  className={`relative flex flex-col items-start p-3.5 rounded-xl border text-left transition-all ${
+                  className={`relative flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
                     isSelected
                       ? "border-amber-500 bg-amber-500/10 shadow-lg shadow-amber-500/10"
                       : "border-zinc-800 bg-zinc-950/60 hover:border-zinc-700 hover:bg-zinc-900"
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full mb-1">
-                    <span className="text-xs font-bold text-white">{prov.name}</span>
+                  <div className="flex items-center justify-between w-full mb-1.5">
+                    <span className="text-sm font-bold text-white">{prov.name}</span>
                     {loadingKeys ? (
-                      <span className="h-2 w-2 rounded-full bg-zinc-700 animate-pulse" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-zinc-700 animate-pulse" />
                     ) : isKeyRegistered ? (
-                      <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded border border-emerald-400/20">
+                      <span className="text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/30">
                         연동됨
                       </span>
                     ) : (
-                      <span className="text-[10px] font-semibold text-zinc-500 bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+                      <span className="text-xs font-medium text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
                         키 미등록
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-zinc-400 line-clamp-2">{prov.description}</p>
+                  <p className="text-xs text-zinc-300 line-clamp-2 leading-normal">{prov.description}</p>
                 </button>
               );
             })}
@@ -176,31 +173,31 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
         </div>
 
         {!loadingKeys && !hasKey && (
-          <div className="flex items-center justify-between rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 text-xs text-amber-300">
-            <div className="flex items-center gap-2">
-              <Key className="h-4 w-4 shrink-0" />
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-amber-500/10 border border-amber-500/30 p-4 text-sm text-amber-300">
+            <div className="flex items-center gap-2.5">
+              <Key className="h-5 w-5 shrink-0 text-amber-400" />
               <span>
                 <strong>[{currentProvider.name}]</strong> API 키가 아직 등록되지 않았습니다. API 키를 등록하셔야 생성이 가능합니다.
               </span>
             </div>
             <Link
               href="/settings"
-              className="flex items-center gap-1 font-bold text-amber-400 hover:underline shrink-0 bg-amber-500/20 px-3 py-1 rounded-lg border border-amber-500/30"
+              className="flex items-center gap-1.5 font-bold text-amber-400 hover:underline shrink-0 bg-amber-500/20 px-4 py-2 rounded-lg border border-amber-500/30 text-sm"
             >
               API 키 등록하러 가기 &rarr;
             </Link>
           </div>
         )}
 
-        {/* Model Selector & Option Form */}
+        {/* Model Selector & Form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-300">생성 모델 선택</label>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-zinc-200">생성 모델 선택</label>
               <select
                 value={selectedModelId}
                 onChange={(e) => setSelectedModelId(e.target.value)}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-100 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm font-medium text-zinc-100 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
               >
                 {currentProvider.models.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -210,33 +207,33 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
               </select>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-300">최종 프롬프트 (Prompt)</label>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-zinc-200">최종 프롬프트 (Prompt)</label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Step 1에서 최적화된 영문 프롬프트가 이 곳에 자동으로 입력되거나, 직접 입력할 수 있습니다."
                 rows={4}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 resize-none font-mono"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 resize-none font-mono leading-relaxed"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-300">부정 프롬프트 (Negative Prompt - 선택사항)</label>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-zinc-200">부정 프롬프트 (Negative Prompt - 선택사항)</label>
               <input
                 type="text"
                 value={negativePrompt}
                 onChange={(e) => setNegativePrompt(e.target.value)}
                 placeholder="blurry, low quality, distorted, extra limbs, watermark"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-mono"
               />
             </div>
           </div>
 
-          {/* Dynamic Option Schema Form */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 space-y-3">
-            <div className="flex items-center gap-1.5 border-b border-zinc-800 pb-2 text-xs font-bold text-zinc-200">
-              <Sliders className="h-4 w-4 text-amber-400" />
+          {/* Dynamic Options */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-5 space-y-4">
+            <div className="flex items-center gap-2 border-b border-zinc-800 pb-3 text-sm font-bold text-white">
+              <Sliders className="h-5 w-5 text-amber-400" />
               <span>{currentModel.name} 모델 세부 옵션</span>
             </div>
             <OptionFormRenderer
@@ -248,8 +245,8 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-xs text-red-400">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+          <div className="flex items-center gap-2.5 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3.5 text-sm text-red-400">
+            <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -258,24 +255,23 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
           <button
             onClick={handleGenerate}
             disabled={generating || !prompt.trim() || !hasKey}
-            className="flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-7 py-3 text-xs font-bold text-zinc-950 hover:from-amber-400 hover:to-yellow-300 disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20"
+            className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-8 py-3.5 text-sm font-bold text-zinc-950 hover:from-amber-400 hover:to-yellow-300 disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20"
           >
             {generating ? (
               <>
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                AI 이미지 생성 중... (10~20초 소요)
+                <RefreshCw className="h-5 w-5 animate-spin" />
+                <span>AI 이미지 생성 중... (10~20초 소요)</span>
               </>
             ) : (
               <>
-                <ImageIcon className="h-4 w-4 stroke-[2.5]" />
-                이미지 생성 시작하기
+                <ImageIcon className="h-5 w-5 stroke-[2.5]" />
+                <span>이미지 생성 시작하기</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Generated Result Viewer */}
       {generatedResult && (
         <ImageResultViewer
           imageUrl={generatedResult.imageUrl}
