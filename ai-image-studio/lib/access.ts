@@ -5,7 +5,7 @@ export const PROGRAM_SLUG = "ai-image-studio";
 
 const GUEST_USER = {
   id: "00000000-0000-0000-0000-000000000000",
-  email: "guest@buylife.xyz",
+  email: "buylifemall@naver.com",
   app_metadata: {},
   user_metadata: {},
   aud: "authenticated",

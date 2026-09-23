@@ -13,7 +13,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row bg-zinc-950">
-      <Sidebar userEmail={user.email ?? "guest@buylife.xyz"} />
+      <Sidebar userEmail={user.email ?? "buylifemall@naver.com"} />
       <main className="flex-1 p-4 md:p-8 min-w-0 max-w-7xl">
         {children}
       </main>

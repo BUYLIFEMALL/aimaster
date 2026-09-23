@@ -26,7 +26,7 @@ const UTILITY_ITEMS = [
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
 ];
 
-export function Sidebar({ userEmail = "guest@buylife.xyz" }: { userEmail?: string }) {
+export function Sidebar({ userEmail = "buylifemall@naver.com" }: { userEmail?: string }) {
   const pathname = usePathname();
 
   return (
@@ -98,15 +98,13 @@ export function Sidebar({ userEmail = "guest@buylife.xyz" }: { userEmail?: strin
         </div>
       </div>
 
-      <div className="mt-6 border-t border-zinc-800/80 pt-4 md:mt-0 px-2">
-        <p className="mb-2 truncate text-xs text-zinc-400">{userEmail}</p>
+      <div className="mt-4 border-t border-zinc-800/80 pt-4 md:mt-0">
+        <p className="mb-2 truncate px-2 text-xs font-medium text-zinc-400">{userEmail}</p>
         <a
-          href={MAIN_SITE_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"
+          href={`${MAIN_SITE_URL}/logout`}
+          className="block w-full rounded-lg px-2 py-1 text-left text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
         >
-          AIMaster 메인으로 &rarr;
+          로그아웃
         </a>
       </div>
     </aside>
