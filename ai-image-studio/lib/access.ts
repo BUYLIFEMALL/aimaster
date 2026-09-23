@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { checkProgramAccess } from "./access/checkProgramAccess";
 
 export const PROGRAM_SLUG = "ai-image-studio";
@@ -47,7 +47,7 @@ export async function checkProgramAccessApi() {
 }
 
 export async function getUserApiKey(userId: string, provider: string): Promise<string | null> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   
   // Try user's own key first
   const { data } = await supabase
