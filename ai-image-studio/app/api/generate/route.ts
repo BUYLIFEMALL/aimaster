@@ -7,7 +7,8 @@ export const fetchCache = "force-no-store";
 
 export async function POST(req: Request) {
   const { user, errorResponse } = await checkProgramAccessApi();
-  if (errorResponse || !user) return errorResponse;
+  if (errorResponse) return errorResponse;
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const { provider, model, prompt, negativePrompt, options } = await req.json();

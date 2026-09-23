@@ -6,7 +6,8 @@ export const fetchCache = "force-no-store";
 
 export async function GET() {
   const { user, errorResponse } = await checkProgramAccessApi();
-  if (errorResponse || !user) return errorResponse;
+  if (errorResponse) return errorResponse;
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const supabase = await createClient();
   const { data } = await supabase
