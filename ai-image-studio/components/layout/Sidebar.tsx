@@ -30,7 +30,7 @@ export function Sidebar({ userEmail = "buylifemall@naver.com" }: { userEmail?: s
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-col border-b border-zinc-800 bg-zinc-950 p-4 md:min-h-screen md:w-64 md:justify-between md:border-b-0 md:border-r shrink-0">
+    <aside className="flex w-full flex-col border-b border-zinc-800 bg-zinc-950 p-4 md:min-h-screen md:w-64 border-r shrink-0">
       <div>
         <div className="mb-4 md:mb-6 px-2">
           <div className="text-lg font-bold text-white tracking-tight">AI 이미지 스튜디오</div>
@@ -78,6 +78,7 @@ export function Sidebar({ userEmail = "buylifemall@naver.com" }: { userEmail?: s
           })}
         </nav>
 
+        {/* API키등록·플랫폼연동 Block */}
         <div className="mt-6 border-t border-zinc-800/80 pt-3">
           {UTILITY_ITEMS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
@@ -96,16 +97,17 @@ export function Sidebar({ userEmail = "buylifemall@naver.com" }: { userEmail?: s
             );
           })}
         </div>
-      </div>
 
-      <div className="mt-4 border-t border-zinc-800/80 pt-4 md:mt-0">
-        <p className="mb-2 truncate px-2 text-xs font-medium text-zinc-400">{userEmail}</p>
-        <a
-          href={`${MAIN_SITE_URL}/logout`}
-          className="block w-full rounded-lg px-2 py-1 text-left text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
-        >
-          로그아웃
-        </a>
+        {/* Logged in Email & Logout Block immediately attached below */}
+        <div className="mt-4 border-t border-zinc-800/80 pt-4">
+          <p className="mb-2 truncate px-2 text-xs font-medium text-zinc-400">{userEmail}</p>
+          <a
+            href={`${MAIN_SITE_URL}/logout`}
+            className="block w-full rounded-lg px-2 py-1 text-left text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+          >
+            로그아웃
+          </a>
+        </div>
       </div>
     </aside>
   );
