@@ -21,17 +21,17 @@ const PROVIDER_INFO: Record<string, { name: string; desc: string; placeholder: s
     placeholder: "sk-...",
     link: "https://platform.openai.com/api-keys",
   },
+  gemini: {
+    name: "Google Gemini (Nanobanana) API Key",
+    desc: "Google Gemini 기반 구글 최신 AI 이미지 생성 엔진입니다.",
+    placeholder: "AIzaSy...",
+    link: "https://aistudio.google.com/app/apikey",
+  },
   fal: {
     name: "Fal.ai API Key (FLUX.1 / Recraft V3)",
     desc: "FLUX.1 dev/schnell 및 Recraft V3 초고화질 일러스트 생성에 사용됩니다.",
     placeholder: "fal_...",
     link: "https://fal.ai/dashboard/keys",
-  },
-  gemini: {
-    name: "Google Gemini API Key (Imagen 3)",
-    desc: "Google Imagen 3.0 포토리얼 및 타이포그래피 생성에 사용됩니다.",
-    placeholder: "AIzaSy...",
-    link: "https://aistudio.google.com/app/apikey",
   },
   stability: {
     name: "Stability AI Key (SD3.5 / Ultra)",

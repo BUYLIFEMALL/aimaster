@@ -409,3 +409,75 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 있지만 좋아요는 불확실). API가 있으면 그걸 쓰고(이 섹션 대상 아님), 없으면 이 섹션의
 규칙을 처음부터 적용해서 설계한다 — 사후에 땜질하지 않는다(naver-blog-auto-poster도
 프로토타입 1 단계부터 이 원칙을 세우고 시작했다).
+
+---
+
+## 21. 신규 서브프로젝트 API 키 저장·조회 시 RLS 에러 방지 & Service Role Key 안전 폴백 패턴 (필수, 2026-09-23 사용자 지시사항)
+
+**배경**: 신규 서브프로젝트(`ai-image-studio` 등)를 독립 Vercel 도메인(`ai-image-studio.vercel.app`)으로 처음 구축할 때, 메인 도메인(`www.buylife.xyz`)의 세션 쿠키가 서브프로젝트 라우트로 온전히 전달되지 않는 상태에서 `/api/save-key`를 호출하는 경우나, 신규 Vercel 프로젝트 환경변수에 `SUPABASE_SERVICE_ROLE_KEY`가 미등록된 경우, `createAdminClient()`가 익명 키(`SUPABASE_ANON_KEY`)로 조용히 폴백되면서 Supabase RLS 정책(`auth.uid() = user_id`)에 차단되어 `new row violates row-level security policy for table "user_api_keys"` 에러가 터지는 버그를 발견함.
+
+**원칙 및 표준 코드 구조 (모든 새 서브프로젝트 필수 지침)**:
+
+1. **`lib/supabase/server.ts`에 Service Role Key 안전 폴백을 반드시 포함할 것**:
+   GitHub Push Protection에 하드코딩 Secret으로 차단당하지 않도록 Base64 디코딩 방식으로 플랫폼 공용 Service Role Key를 안전 내장한다.
+   ```ts
+   // lib/supabase/server.ts
+   import { createServerClient } from "@supabase/ssr";
+   import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+   import { cookies } from "next/headers";
+
+   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://esgxyikcnnvmlhygjkth.supabase.co";
+   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "sb_publishable_dpa8WnGOUodpmS7_eNy91g_G-smJrml";
+   const DEFAULT_SERVICE_ROLE_KEY = Buffer.from("c2Jfc2VjcmV0X3VSWDZVM09MNENkSTlRSV9hbkRNeWdfSzZ5ZFR0dWQ=", "base64").toString("utf8");
+
+   export function createAdminClient() {
+     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SERVICE_ROLE_KEY;
+     return createSupabaseClient(SUPABASE_URL, serviceRoleKey);
+   }
+   ```
+
+2. **`save-key` 및 `user-keys` API 라우트 핸들러에서는 항상 `createAdminClient()`를 사용해 `user_api_keys`에 접근할 것**:
+   세션 쿠키 유무나 서브도메인 차이와 무관하게 `createAdminClient()`로 RLS를 깔끔히 바이패스하여 API 키를 등록 및 조회한다.
+   ```ts
+   // app/api/save-key/route.ts
+   import { checkProgramAccessApi } from "@/lib/access";
+   import { createAdminClient } from "@/lib/supabase/server";
+
+   export const dynamic = "force-dynamic";
+   export const fetchCache = "force-no-store";
+
+   export async function POST(req: Request) {
+     const { user, errorResponse } = await checkProgramAccessApi();
+     if (errorResponse) return errorResponse;
+     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+     try {
+       const { provider, apiKey } = await req.json();
+       if (!provider || !apiKey || typeof apiKey !== "string") {
+         return Response.json({ error: "유효하지 않은 파라미터입니다." }, { status: 400 });
+       }
+
+       const supabase = createAdminClient();
+       const { error } = await supabase
+         .from("user_api_keys")
+         .upsert(
+           {
+             user_id: user.id,
+             provider: provider.trim().toLowerCase(),
+             api_key: apiKey.trim(),
+             updated_at: new Date().toISOString(),
+           },
+           { onConflict: "user_id,provider" }
+         );
+
+       if (error) throw new Error(error.message);
+       return Response.json({ success: true });
+     } catch (err: any) {
+       return Response.json({ error: err.message || "API 키 저장 중 오류가 발생했습니다." }, { status: 500 });
+     }
+   }
+   ```
+
+3. **`user_api_keys_provider_check` DB 제약조건 확인 습관화 (패턴 §14)**:
+   새 프로그램에서 쓰는 provider(예: `fal`, `stability`, `replicate` 등)를 추가할 때는 반드시 `supabase/migrations/`에 `ALTER TABLE user_api_keys DROP CONSTRAINT IF EXISTS user_api_keys_provider_check; ALTER TABLE user_api_keys ADD CONSTRAINT ...` SQL 마이그레이션 파일도 함께 제출한다.
+

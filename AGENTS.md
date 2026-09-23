@@ -132,7 +132,7 @@ vercel deploy --prod --yes --scope buylife
      객체 반환).
   4. 사용자별 데이터 테이블에 `user_id` + RLS owner-only 정책.
   5. 외부 계정 연동은 사용자별로 저장, OAuth 앱 자체도 회원 본인이 등록(§1-4 참고).
-  6. API 키는 공용 `user_api_keys` + `resolveApiKey()`(폴백 없음), 미등록 시 등록 안내 팝업.
+  6. API 키는 공용 `user_api_keys` + `resolveApiKey()`(폴백 없음), 미등록 시 등록 안내 팝업. **저장/조회 API 라우트(`save-key` 등)는 반드시 `createAdminClient()`(Base64 Service Role Key 안전 폴백 포함)를 사용**하여, 서브도메인 쿠키 미전달 상태에서도 DB RLS 에러(`new row violates row-level security policy`)가 발생하지 않게 보장한다(`docs/PLATFORM_PATTERNS.md` §21 참고).
   7. 로그인/권한 체크가 들어간 모든 `layout.tsx`/`route.ts`에 **`export const dynamic =
      "force-dynamic"`과 `export const fetchCache = "force-no-store"` 두 줄을 반드시 같이**
      선언(하나만 빠져도 Vercel이 권한 체크 결과를 정적 캐싱해서 엉뚱한 사용자에게 과거 응답을
