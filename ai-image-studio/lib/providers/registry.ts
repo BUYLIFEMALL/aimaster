@@ -392,6 +392,55 @@ const GPT_IMAGE_1_MINI_OPTIONS = [
   }
 ];
 
+const GEMINI_NANOBANANA_OPTIONS = [
+  {
+    id: "aspectRatio",
+    name: "Aspect ratio (화면 비율)",
+    type: "select" as const,
+    default: "1:1",
+    options: [
+      { label: "1:1 Square (정사각형)", value: "1:1" },
+      { label: "16:9 Wide (와이드 가로형)", value: "16:9" },
+      { label: "9:16 Portrait (모바일 세로형)", value: "9:16" },
+      { label: "4:3 Standard (표준 가로형)", value: "4:3" },
+      { label: "3:4 Vertical (표준 세로형)", value: "3:4" }
+    ]
+  },
+  {
+    id: "imageSize",
+    name: "Image quality & size (화질 및 해상도)",
+    type: "select" as const,
+    default: "auto",
+    options: [
+      { label: "Auto (권장 기본값)", value: "auto" },
+      { label: "1K (표준 HD)", value: "1K" },
+      { label: "2K (고화질 2K)", value: "2K" },
+      { label: "4K (초고화질 4K)", value: "4K" }
+    ]
+  },
+  {
+    id: "n",
+    name: "Number of images (생성 수량)",
+    type: "select" as const,
+    default: "1",
+    options: NUMBER_OF_IMAGES_OPTIONS_1_TO_10
+  },
+  {
+    id: "style_preset",
+    name: "Style preset (화풍 스타일)",
+    type: "select" as const,
+    default: "none",
+    options: [
+      { label: "None (기본 프롬프트 충실)", value: "none" },
+      { label: "Photorealistic (실사 인물 사진)", value: "photorealistic" },
+      { label: "Digital Art (디지털 일러스트)", value: "digital_art" },
+      { label: "Cinematic (시네마틱 영화 구도)", value: "cinematic" },
+      { label: "Anime / Webtoon (만화/애니메이션)", value: "anime" },
+      { label: "3D Render (3D 입체 렌더링)", value: "3d_render" }
+    ]
+  }
+];
+
 export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   {
     id: "openai",
@@ -448,28 +497,38 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "gemini",
     name: "Google Gemini (Nanobanana)",
     apiKeyProvider: "gemini",
-    description: "Imagen 3 기반 구글 최신 이미지 생성 엔진",
+    description: "Gemini 3.1 Flash / NanoBanana 엔진 기반 고품질 이미지 스튜디오",
     iconName: "Image",
     models: [
       {
+        id: "nanobanana-2-2k",
+        name: "NanoBanana 2-2K",
+        description: "2K 고화질 비주얼 이미지 생성 (추천)",
+        options: GEMINI_NANOBANANA_OPTIONS
+      },
+      {
+        id: "nanobanana-2-4k",
+        name: "NanoBanana 2-4K",
+        description: "4K 울트라 HD 초고화질 상세 렌더링",
+        options: GEMINI_NANOBANANA_OPTIONS
+      },
+      {
+        id: "nanobanana-pro",
+        name: "NanoBanana Pro",
+        description: "프로페셔널 정밀 그래픽 & 인포그래픽",
+        options: GEMINI_NANOBANANA_OPTIONS
+      },
+      {
+        id: "nanobanana",
+        name: "NanoBanana Standard",
+        description: "Gemini 2.5 Flash 기반 빠르고 경량화된 생성",
+        options: GEMINI_NANOBANANA_OPTIONS
+      },
+      {
         id: "imagen-3.0-generate-002",
-        name: "Imagen 3.0",
-        description: "포토리얼리즘 및 타이포그래피 표현력이 뛰어난 구글 최신 모델",
-        options: [
-          {
-            id: "aspectRatio",
-            name: "종횡비",
-            type: "select",
-            default: "1:1",
-            options: [
-              { label: "1:1 정사각형", value: "1:1" },
-              { label: "16:9 와이드", value: "16:9" },
-              { label: "9:16 모바일 세로형", value: "9:16" },
-              { label: "4:3 일반", value: "4:3" },
-              { label: "3:4 세로형", value: "3:4" }
-            ]
-          }
-        ]
+        name: "Imagen 3.0 Standard",
+        description: "포토리얼리즘 및 타이포그래피 표준 구글 모델",
+        options: GEMINI_NANOBANANA_OPTIONS
       }
     ]
   },

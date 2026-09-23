@@ -30,33 +30,42 @@ export async function POST(req: Request) {
       }, { status: 400 });
     }
 
-    // Get adapter and generate image
+    const count = Math.min(Math.max(parseInt(options?.n || "1", 10), 1), 10);
     const adapter = getProviderAdapter(provider);
-    const result = await adapter.generateImage({
-      prompt,
-      negativePrompt,
-      model,
-      options: options || {},
-      apiKey
-    });
-
-    // Save to user_image_generations table
     const supabase = await createClient();
-    await supabase.from("user_image_generations").insert({
-      user_id: user.id,
-      provider,
-      model,
-      prompt,
-      enhanced_prompt: result.revisedPrompt || prompt,
-      options: options || {},
-      image_url: result.imageUrl
-    });
+
+    const results = [];
+    for (let i = 0; i < count; i++) {
+      const result = await adapter.generateImage({
+        prompt,
+        negativePrompt,
+        model,
+        options: options || {},
+        apiKey
+      });
+
+      results.push(result);
+
+      // Save to user_image_generations table
+      await supabase.from("user_image_generations").insert({
+        user_id: user.id,
+        provider,
+        model,
+        prompt,
+        enhanced_prompt: result.revisedPrompt || prompt,
+        options: options || {},
+        image_url: result.imageUrl
+      });
+    }
+
+    const primaryResult = results[0];
 
     return Response.json({
       success: true,
-      imageUrl: result.imageUrl,
-      revisedPrompt: result.revisedPrompt,
-      metadata: result.metadata
+      imageUrl: primaryResult.imageUrl,
+      images: results.map(r => ({ imageUrl: r.imageUrl, revisedPrompt: r.revisedPrompt, metadata: r.metadata })),
+      revisedPrompt: primaryResult.revisedPrompt,
+      metadata: primaryResult.metadata
     });
   } catch (err: any) {
     console.error("Image generation API error:", err);
