@@ -18,6 +18,20 @@ const STANDARD_QUALITY_OPTIONS = [
   { label: "Low (낮음)", value: "low" }
 ];
 
+// 생성 수량 1장 ~ 10장 전체 세트
+const NUMBER_OF_IMAGES_OPTIONS_1_TO_10 = [
+  { label: "1장", value: "1" },
+  { label: "2장", value: "2" },
+  { label: "3장", value: "3" },
+  { label: "4장", value: "4" },
+  { label: "5장", value: "5" },
+  { label: "6장", value: "6" },
+  { label: "7장", value: "7" },
+  { label: "8장", value: "8" },
+  { label: "9장", value: "9" },
+  { label: "10장", value: "10" }
+];
+
 const CHATGPT_IMAGE_LATEST_OPTIONS = [
   {
     id: "size",
@@ -43,13 +57,7 @@ const CHATGPT_IMAGE_LATEST_OPTIONS = [
     name: "Number of images (생성 수량)",
     type: "select" as const,
     default: "1",
-    options: [
-      { label: "1장", value: "1" },
-      { label: "2장", value: "2" },
-      { label: "4장", value: "4" },
-      { label: "8장", value: "8" },
-      { label: "10장", value: "10" }
-    ]
+    options: NUMBER_OF_IMAGES_OPTIONS_1_TO_10
   },
   {
     id: "output_format",
@@ -135,13 +143,7 @@ const GPT_IMAGE_2_OPTIONS = [
     name: "Number of images (생성 수량)",
     type: "select" as const,
     default: "1",
-    options: [
-      { label: "1장", value: "1" },
-      { label: "2장", value: "2" },
-      { label: "4장", value: "4" },
-      { label: "8장", value: "8" },
-      { label: "10장", value: "10" }
-    ]
+    options: NUMBER_OF_IMAGES_OPTIONS_1_TO_10
   },
   {
     id: "output_format",
@@ -214,13 +216,7 @@ const GPT_IMAGE_1_5_OPTIONS = [
     name: "Number of images (생성 수량)",
     type: "select" as const,
     default: "1",
-    options: [
-      { label: "1장", value: "1" },
-      { label: "2장", value: "2" },
-      { label: "4장", value: "4" },
-      { label: "8장", value: "8" },
-      { label: "10장", value: "10" }
-    ]
+    options: NUMBER_OF_IMAGES_OPTIONS_1_TO_10
   },
   {
     id: "output_format",
@@ -304,13 +300,7 @@ const GPT_IMAGE_1_OPTIONS = [
     name: "Number of images (생성 수량)",
     type: "select" as const,
     default: "1",
-    options: [
-      { label: "1장", value: "1" },
-      { label: "2장", value: "2" },
-      { label: "4장", value: "4" },
-      { label: "8장", value: "8" },
-      { label: "10장", value: "10" }
-    ]
+    options: NUMBER_OF_IMAGES_OPTIONS_1_TO_10
   },
   {
     id: "output_format",
