@@ -3,11 +3,11 @@ import { ProviderConfig } from "./types";
 const OPENAI_STANDARD_OPTIONS = [
   {
     id: "size",
-    name: "비율 및 크기",
+    name: "Size & orientation (비율 및 크기)",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동", value: "auto" },
+      { label: "Auto (자동)", value: "auto" },
       { label: "1:1 정사각형 (1024x1024)", value: "1024x1024" },
       { label: "16:9 와이드 (1792x1024)", value: "1792x1024" },
       { label: "9:16 세로형 (1024x1792)", value: "1024x1792" }
@@ -15,18 +15,18 @@ const OPENAI_STANDARD_OPTIONS = [
   },
   {
     id: "quality",
-    name: "화질",
+    name: "Quality (화질)",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동", value: "auto" },
-      { label: "표준", value: "standard" },
-      { label: "고화질", value: "hd" }
+      { label: "Auto (자동)", value: "auto" },
+      { label: "Standard (표준)", value: "standard" },
+      { label: "HD (고화질)", value: "hd" }
     ]
   },
   {
     id: "n",
-    name: "생성 수량",
+    name: "Number of images (생성 수량)",
     type: "select" as const,
     default: "1",
     options: [
@@ -39,7 +39,7 @@ const OPENAI_STANDARD_OPTIONS = [
   },
   {
     id: "output_format",
-    name: "출력 포맷",
+    name: "Output format (출력 포맷)",
     type: "select" as const,
     default: "png",
     options: [
@@ -50,32 +50,32 @@ const OPENAI_STANDARD_OPTIONS = [
   },
   {
     id: "background",
-    name: "배경",
+    name: "Background (배경)",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동", value: "auto" },
-      { label: "투명 배경", value: "transparent" },
-      { label: "불투명 배경", value: "opaque" }
+      { label: "Auto (자동)", value: "auto" },
+      { label: "Transparent (투명 배경)", value: "transparent" },
+      { label: "Opaque (불투명 배경)", value: "opaque" }
     ]
   },
   {
     id: "moderation",
-    name: "콘텐츠 검열",
+    name: "Moderation (콘텐츠 검열)",
     type: "select" as const,
     default: "auto",
     options: [
-      { label: "자동", value: "auto" },
-      { label: "낮음", value: "low" }
+      { label: "Auto (자동)", value: "auto" },
+      { label: "Low (낮음)", value: "low" }
     ]
   },
   {
     id: "partial_images",
-    name: "부분 생성 단계",
+    name: "Partial images (부분 생성 단계)",
     type: "select" as const,
     default: "none",
     options: [
-      { label: "없음", value: "none" },
+      { label: "None (없음)", value: "none" },
       { label: "1단계", value: "1" },
       { label: "2단계", value: "2" },
       { label: "3단계", value: "3" }
@@ -92,51 +92,21 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     iconName: "Sparkles",
     models: [
       {
-        id: "gpt-image-1-mini",
-        name: "gpt-image-1-mini",
-        description: "경량 미니",
-        options: OPENAI_STANDARD_OPTIONS
-      },
-      {
         id: "chatgpt-image-latest",
         name: "chatgpt-image-latest",
         description: "최신 통합",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
-        id: "gpt-image-2.5-sunburst-2026-09-08",
-        name: "gpt-image-2.5-sunburst-2026-09-08",
-        description: "플래그십 (26.09.08)",
+        id: "gpt-image-1",
+        name: "gpt-image-1",
+        description: "표준 모델",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
-        id: "gpt-image-2.5-sunburst",
-        name: "gpt-image-2.5-sunburst",
-        description: "최상위 플래그십",
-        options: OPENAI_STANDARD_OPTIONS
-      },
-      {
-        id: "gpt-image-2.5-flare-2026-09-08",
-        name: "gpt-image-2.5-flare-2026-09-08",
-        description: "고품질 (26.09.08)",
-        options: OPENAI_STANDARD_OPTIONS
-      },
-      {
-        id: "gpt-image-2.5-flare",
-        name: "gpt-image-2.5-flare",
-        description: "고품질 일상",
-        options: OPENAI_STANDARD_OPTIONS
-      },
-      {
-        id: "gpt-image-2-2026-04-21",
-        name: "gpt-image-2-2026-04-21",
-        description: "표준 편집 (26.04.21)",
-        options: OPENAI_STANDARD_OPTIONS
-      },
-      {
-        id: "gpt-image-2",
-        name: "gpt-image-2",
-        description: "표준 편집",
+        id: "gpt-image-1-mini",
+        name: "gpt-image-1-mini",
+        description: "경량 미니",
         options: OPENAI_STANDARD_OPTIONS
       },
       {
@@ -146,9 +116,39 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: OPENAI_STANDARD_OPTIONS
       },
       {
-        id: "gpt-image-1",
-        name: "gpt-image-1",
-        description: "표준 모델",
+        id: "gpt-image-2",
+        name: "gpt-image-2",
+        description: "표준 편집",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2-2026-04-21",
+        name: "gpt-image-2-2026-04-21",
+        description: "표준 편집 (26.04.21)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2.5-flare",
+        name: "gpt-image-2.5-flare",
+        description: "고품질 일상",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2.5-flare-2026-09-08",
+        name: "gpt-image-2.5-flare-2026-09-08",
+        description: "고품질 (26.09.08)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2.5-sunburst",
+        name: "gpt-image-2.5-sunburst",
+        description: "최상위 플래그십",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2.5-sunburst-2026-09-08",
+        name: "gpt-image-2.5-sunburst-2026-09-08",
+        description: "플래그십 (26.09.08)",
         options: OPENAI_STANDARD_OPTIONS
       }
     ]
