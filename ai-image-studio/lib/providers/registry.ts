@@ -1,6 +1,6 @@
 import { ProviderConfig } from "./types";
 
-// gpt-image-2.5 및 최신 플래그십 품질 6종 세트 (chatgpt-image-latest, gpt-image-1.5, gpt-image-2.5-flare, gpt-image-2.5-sunburst)
+// gpt-image-2.5 및 최신 플래그십 품질 6종 세트 (chatgpt-image-latest, gpt-image-2.5-flare, gpt-image-2.5-sunburst)
 const FLAGSHIP_QUALITY_OPTIONS = [
   { label: "Auto (자동)", value: "auto" },
   { label: "High (높음)", value: "high" },
@@ -10,19 +10,12 @@ const FLAGSHIP_QUALITY_OPTIONS = [
   { label: "Extra high (최고화질)", value: "extra_high" }
 ];
 
-// gpt-image-2 전용 품질 4종 세트 (Auto, High, Medium, Low)
-const GPT2_QUALITY_OPTIONS = [
+// gpt-image-1.5 이하 모델 품질 4종 세트 (Auto, High, Medium, Low)
+const STANDARD_QUALITY_OPTIONS = [
   { label: "Auto (자동)", value: "auto" },
   { label: "High (높음)", value: "high" },
   { label: "Medium (중간)", value: "medium" },
   { label: "Low (낮음)", value: "low" }
-];
-
-// 품질 3종 세트 (gpt-image-1, gpt-image-1-mini 계열)
-const LEGACY_QUALITY_OPTIONS = [
-  { label: "Auto (자동)", value: "auto" },
-  { label: "Standard (표준)", value: "standard" },
-  { label: "HD (고화질)", value: "hd" }
 ];
 
 const CHATGPT_IMAGE_LATEST_OPTIONS = [
@@ -135,7 +128,7 @@ const GPT_IMAGE_2_OPTIONS = [
     name: "Quality (화질)",
     type: "select" as const,
     default: "auto",
-    options: GPT2_QUALITY_OPTIONS
+    options: STANDARD_QUALITY_OPTIONS
   },
   {
     id: "n",
@@ -196,6 +189,96 @@ const GPT_IMAGE_2_OPTIONS = [
   }
 ];
 
+const GPT_IMAGE_1_5_OPTIONS = [
+  {
+    id: "size",
+    name: "Size & orientation (비율 및 크기)",
+    type: "select" as const,
+    default: "auto",
+    options: [
+      { label: "Auto (자동)", value: "auto" },
+      { label: "Square (1024x1024)", value: "1024x1024" },
+      { label: "Portrait (1024x1536)", value: "1024x1536" },
+      { label: "Landscape (1536x1024)", value: "1536x1024" }
+    ]
+  },
+  {
+    id: "quality",
+    name: "Quality (화질)",
+    type: "select" as const,
+    default: "auto",
+    options: STANDARD_QUALITY_OPTIONS
+  },
+  {
+    id: "n",
+    name: "Number of images (생성 수량)",
+    type: "select" as const,
+    default: "1",
+    options: [
+      { label: "1장", value: "1" },
+      { label: "2장", value: "2" },
+      { label: "4장", value: "4" },
+      { label: "8장", value: "8" },
+      { label: "10장", value: "10" }
+    ]
+  },
+  {
+    id: "output_format",
+    name: "Output format (출력 포맷)",
+    type: "select" as const,
+    default: "png",
+    options: [
+      { label: "PNG", value: "png" },
+      { label: "JPEG", value: "jpeg" },
+      { label: "WebP", value: "webp" }
+    ]
+  },
+  {
+    id: "background",
+    name: "Background (배경)",
+    type: "select" as const,
+    default: "auto",
+    options: [
+      { label: "Auto (자동)", value: "auto" },
+      { label: "Transparent (투명 배경)", value: "transparent" },
+      { label: "Opaque (불투명 배경)", value: "opaque" }
+    ]
+  },
+  {
+    id: "moderation",
+    name: "Moderation (콘텐츠 검열)",
+    type: "select" as const,
+    default: "auto",
+    options: [
+      { label: "Auto (자동)", value: "auto" },
+      { label: "Low (낮음)", value: "low" }
+    ]
+  },
+  {
+    id: "partial_images",
+    name: "Partial images (부분 생성 단계)",
+    type: "select" as const,
+    default: "none",
+    options: [
+      { label: "None (없음)", value: "none" },
+      { label: "1단계", value: "1" },
+      { label: "2단계", value: "2" },
+      { label: "3단계", value: "3" }
+    ]
+  },
+  {
+    id: "input_fidelity",
+    name: "Input fidelity (입력충실도)",
+    type: "select" as const,
+    default: "high",
+    options: [
+      { label: "High (높음)", value: "high" },
+      { label: "Auto (자동)", value: "auto" },
+      { label: "Low (낮음)", value: "low" }
+    ]
+  }
+];
+
 const GPT_IMAGE_1_OPTIONS = [
   {
     id: "size",
@@ -214,7 +297,7 @@ const GPT_IMAGE_1_OPTIONS = [
     name: "Quality (화질)",
     type: "select" as const,
     default: "auto",
-    options: LEGACY_QUALITY_OPTIONS
+    options: STANDARD_QUALITY_OPTIONS
   },
   {
     id: "n",
@@ -304,7 +387,7 @@ const GPT_IMAGE_1_MINI_OPTIONS = [
     name: "Quality (화질)",
     type: "select" as const,
     default: "auto",
-    options: LEGACY_QUALITY_OPTIONS
+    options: STANDARD_QUALITY_OPTIONS
   },
   {
     id: "n",
@@ -355,7 +438,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         id: "gpt-image-1.5",
         name: "gpt-image-1.5",
         description: "차세대 고성능",
-        options: CHATGPT_IMAGE_LATEST_OPTIONS
+        options: GPT_IMAGE_1_5_OPTIONS
       },
       {
         id: "gpt-image-2.5-flare",
