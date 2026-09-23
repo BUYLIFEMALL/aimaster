@@ -34,6 +34,16 @@ npm run dev
 
 ## 운영 원칙
 
+### 2026-09-23 파일 선택 창 잔류 수정 (확장 v1.0.29)
+
+- D:\PDS\에러3.png 확인 결과 남아 있던 창은 네이버 라이브러리가 아니라 Windows 파일 열기 창이었다.
+- 사진 버튼 클릭 전에 Chrome Debugger의 Page.setInterceptFileChooserDialog를 활성화한다. 파일은 기존 File/DataTransfer 경로로 전달하고 완료/실패 시 가로채기 해제 및 debugger 연결 해제를 수행한다.
+- 모든 프레임의 업로드 결과 중 첫 결과(최상위 프레임의 file input not found)가 아닌 ok=true인 결과를 선택한다. 이 버그가 업로드 성공 후에도 실패를 발생시켰다.
+- 일반적인 not found를 탭 종료로 오역하던 오류 분류와 이미지가 있다는 이유만으로 성공 처리하던 코드를 제거했다. 제목·본문 검증을 복구했다.
+- DOM의 Escape/일반 닫기 버튼 탐색으로 운영체제 파일 선택 창을 닫으려는 처리를 제거했다.
+- 실제 Chrome의 iframe 재현 테스트에서 운영 upload 함수를 실행하여 파일 선택 가로채기 이벤트, 이미지 등록, 프레임 결과 선택, 연결 해제를 확인했다. 로그인된 네이버 편집기에서의 최종 검수는 별도 필요하다.
+- extension 폴더와 settings에서 제공하는 public/downloads ZIP은 항상 함께 갱신한다.
+
 - AIMaster 공용 Supabase와 프로그램 권한 체계를 사용합니다.
 - 사용자 본인의 API 키만 사용하고 운영자 키로 대체하지 않습니다.
 - 새 DB 테이블이나 프로그램 등록이 필요할 때 SQL 마이그레이션을 이 폴더의 `supabase/migrations/`에 남기고 실제 DB 적용 여부를 검증합니다.

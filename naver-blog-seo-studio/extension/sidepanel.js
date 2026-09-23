@@ -105,7 +105,7 @@ function formatBrowserError(error, context = "작업") {
   if (/Cannot access contents of url|Receiving end does not exist|host permission/i.test(message)) {
     return `${context} 실패: 네이버 페이지 접근 권한이 없습니다. 확장을 새로고침한 뒤 네이버 글쓰기 탭에서 다시 시도하세요.`;
   }
-  if (/No tab with id|tab was closed|target closed|not found/i.test(message)) {
+  if (/No tab with id|tab was closed|target closed/i.test(message)) {
     return `${context} 실패: 네이버 글쓰기 탭이 닫혔거나 이동했습니다. 글쓰기 화면을 다시 연 뒤 시도하세요.`;
   }
   if (/debugger.*attach|debugger.*permission|permission denied/i.test(message)) {
@@ -122,6 +122,19 @@ async function debuggerCommand(tabId, method, params = {}) {
 }
 
 async function insertImageIntoNaverEditor(tabId, dataUrl) {
+  // Suppress the native Windows file chooser BEFORE clicking the photo button.
+  // Assigning input.files alone does not close an already-open native dialog.
+  await chrome.debugger.attach({ tabId }, "1.3");
+  try {
+    await debuggerCommand(tabId, "Page.setInterceptFileChooserDialog", { enabled: true });
+    return await uploadNaverImage(tabId, dataUrl);
+  } finally {
+    try { await debuggerCommand(tabId, "Page.setInterceptFileChooserDialog", { enabled: false }); }
+    finally { await chrome.debugger.detach({ tabId }); }
+  }
+}
+
+async function uploadNaverImage(tabId, dataUrl) {
   const [header, encoded] = String(dataUrl || "").split(",", 2);
   if (!encoded || !header.startsWith("data:image/")) throw new Error("유효한 이미지 데이터가 없습니다.");
   const buttonResults = await chrome.scripting.executeScript({
@@ -170,7 +183,7 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
       }
     },
   });
-  const result = results.find((entry) => entry.result)?.result;
+  const result = results.find((entry) => entry.result?.ok)?.result;
   if (!result?.ok) throw new Error(`네이버 이미지 업로드 input 처리 실패: ${result?.reason || "input not found"}`);
   // 파일 input에 들어간 뒤 네이버가 업로드/미리보기를 반영할 시간을 주고 실제 이미지 DOM을 확인한다.
   const deadline = Date.now() + 12000;
@@ -183,67 +196,11 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
       },
     });
     if (imageState.some((entry) => (entry.result?.count ?? 0) > 0)) {
-      try { await closeNaverImagePopup(tabId); } catch { /* panel cleanup is best effort */ }
       return { ...result, inserted: true };
     }
     await sleep(500);
   }
   throw new Error("이미지 파일은 선택됐지만 네이버 편집기 반영을 확인하지 못했습니다. 이미지 도구를 다시 연 뒤 재시도하세요.");
-}
-
-async function closeNaverImagePopup(tabId) {
-  // The image library is rendered as a sidebar without a labelled close
-  // button. Dispatch Escape inside every editor frame first so Naver's own
-  // key handler can dismiss it.
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId, allFrames: true },
-      func: () => {
-        for (const type of ["keydown", "keyup"]) {
-          window.dispatchEvent(new KeyboardEvent(type, {
-            key: "Escape", code: "Escape", keyCode: 27, which: 27,
-            bubbles: true, cancelable: true,
-          }));
-        }
-      },
-    });
-  } catch { /* the editor frame may be rebuilding after upload */ }
-  const closeResults = await chrome.scripting.executeScript({
-    target: { tabId, allFrames: true },
-    func: () => {
-      const visible = (element) => {
-        const style = getComputedStyle(element);
-        const rect = element.getBoundingClientRect();
-        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-      };
-      const explicit = [...document.querySelectorAll(
-        ".se-sidebar-close-button, .se-panel-close-button, [aria-label='닫기'], [title='닫기'], " +
-        "button[class*='close'], [role='button'][class*='close']"
-      )].filter(visible);
-      const dialogs = [...document.querySelectorAll("[role='dialog'], [class*='popup'], [class*='layer']")].filter(visible);
-      const candidates = [...explicit, ...dialogs.flatMap((dialog) => [...dialog.querySelectorAll("button, [role='button'], a")])];
-      const closeButton = candidates.find((element) => /닫기|close|cancel/i.test(`${element.getAttribute("aria-label") || ""} ${element.getAttribute("title") || ""} ${element.className || ""} ${element.textContent || ""}`));
-      if (!closeButton) return { closed: false };
-      closeButton.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, view: window }));
-      closeButton.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true, view: window }));
-      closeButton.click();
-      return { closed: true };
-    },
-  });
-  if (closeResults.some((entry) => entry.result?.closed)) return true;
-  // 일부 네이버 레이어는 닫기 버튼을 노출하지 않고 Escape로만 닫힌다.
-  let attached = false;
-  try {
-    await chrome.debugger.attach({ tabId }, "1.3");
-    attached = true;
-    await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27 });
-    await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27 });
-  } catch {
-    return false;
-  } finally {
-    if (attached) { try { await chrome.debugger.detach({ tabId }); } catch { /* tab may have navigated */ } }
-  }
-  return true;
 }
 
 async function typeWithDebugger(tabId, value) {
@@ -319,7 +276,7 @@ async function focusNaverEditor(tabId, kind, placement = "end") {
       editable.focus();
       const range = editable.ownerDocument.createRange();
       range.selectNodeContents(container.isContentEditable ? editable : container);
-      range.collapse(cursorPlacement !== "start");
+      range.collapse(cursorPlacement === "start");
       const selection = editable.ownerDocument.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
@@ -453,12 +410,10 @@ $("generateAndFill").addEventListener("click", async () => {
 async function fillDraftIntoNaver() {
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
   let attachedTabId = null;
-  let hasImageDraft = false;
   try {
     const title = $("title").value;
     const body = $("body").value;
     const imageDataUrl = $("generatedImage").src && $("generatedImage").src !== location.href ? $("generatedImage").src : "";
-    hasImageDraft = Boolean(imageDataUrl);
     if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
     const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
     const tab = tabs.find((candidate) => candidate.active) || tabs[0];
@@ -481,7 +436,7 @@ async function fillDraftIntoNaver() {
       await chrome.debugger.detach({ tabId: tab.id });
       attachedTabId = null;
       const preImageBody = await focusNaverEditor(tab.id, "body");
-      if (!preImageBody.ok) throw new Error("蹂몃Ц ?낅젰 ?꾩튂瑜?李얠? 紐삵뻽?듬땲??");
+      if (!preImageBody.ok) throw new Error("본문 입력 위치를 찾지 못했습니다.");
       await chrome.debugger.attach({ tabId: tab.id }, "1.3");
       attachedTabId = tab.id;
       await debuggerCommand(tab.id, "Input.setIgnoreInputEvents", { ignore: false });
@@ -496,23 +451,7 @@ async function fillDraftIntoNaver() {
       if (!bodyAnchor.ok) throw new Error("이미지 삽입 위치를 찾지 못했습니다.");
       $("generateStatus").textContent = "제목 입력 완료 · 이미지 삽입 중...";
       await insertImageIntoNaverEditor(tab.id, imageDataUrl);
-      // Naver rebuilds the paragraph tree and closes the image panel
-      // asynchronously after upload. Let that transition settle before
-      // selecting the empty paragraph created below the image.
-      $("generateStatus").textContent = "이미지 삽입 완료 · 본문 입력 준비 중...";
-      await sleep(900);
-      // Selecting the body paragraph after upload also dismisses Naver's
-      // image-library sidebar, which has no stable close button in the DOM.
-      try {
-        const bodyAfterImage = await focusNaverEditor(tab.id, "body", "end");
-        if (bodyAfterImage.ok) {
-          await sleep(180);
-          try { await closeNaverImagePopup(tab.id); } catch { /* panel cleanup is best effort */ }
-        }
-      } catch { /* the editor may still be rebuilding; input result remains valid */ }
     }
-    // Preserve Naver's insertion caret after an image upload. CDP page mouse
-    // coordinates are unsafe for iframe-local editor coordinates.
     const bodyFocus = imageDataUrl ? { ok: true } : await focusNaverEditor(tab.id, "body");
     if (!bodyFocus.ok) return ($("generateStatus").textContent = "본문 문단 입력 요소를 찾지 못했습니다. 네이버 글쓰기 본문을 클릭한 뒤 다시 시도하세요.");
     if (!imageDataUrl && attachedTabId === null) {
@@ -522,12 +461,7 @@ async function fillDraftIntoNaver() {
     }
     $("generateStatus").textContent = imageDataUrl ? "이미지 삽입 완료 · 본문 입력 중..." : "본문 입력 중...";
     if (!imageDataUrl) await typeWithDebugger(tab.id, body);
-    // Image flows already typed and verified the body before uploading the
-    // image. Naver may rebuild its iframe immediately afterward, so running a
-    // second synchronous verification can report a false tab-navigation error.
-    const verification = imageDataUrl
-      ? { ok: true, titleMatched: true, bodyMatched: true, actualParagraphCount: 0 }
-      : await verifyNaverEditorContent(tab.id, title, body);
+    const verification = await verifyNaverEditorContent(tab.id, title, body);
     if (!verification.ok) {
       const details = [
         verification.titleMatched === false ? "제목 확인 실패" : null,
@@ -537,17 +471,8 @@ async function fillDraftIntoNaver() {
       return;
     }
     $("generateStatus").textContent = `네이버 편집기 입력 및 결과 확인 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
-    if (imageDataUrl) {
-      try { await closeNaverImagePopup(tab.id); } catch { /* cleanup only */ }
-    }
     return true;
   } catch (error) {
-    // Naver may detach an iframe briefly after an image upload even though
-    // title, body, and image are already committed to the editor.
-    if (hasImageDraft && /No tab with id|tab was closed|target closed|not found/i.test(String(error?.message || error))) {
-      $("generateStatus").textContent = "네이버 편집기 입력 완료. 이미지 위치를 확인한 뒤 발행하세요.";
-      return true;
-    }
     $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
   } finally {
     if (attachedTabId !== null) {

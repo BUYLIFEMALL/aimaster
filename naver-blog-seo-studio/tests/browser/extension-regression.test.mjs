@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import { chromium } from "playwright-core";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
 
 const chromePath = process.env.CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 let browser;
@@ -116,4 +118,86 @@ test("creates separate paragraphs for single and multiple newlines", async () =>
 test("normalizes markdown without removing internal paragraph breaks", () => {
   assert.equal(normalizeDraftText("# 제목\\n첫 문단\\n\\n**둘째 문단**"), "제목\n첫 문단\n\n둘째 문단");
   assert.equal(normalizeDraftText("링크 [AIMaster](https://www.buylife.xyz)"), "링크 AIMaster");
+});
+
+test("production image upload intercepts native chooser and selects successful iframe result", async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  let client;
+  let intercepted = 0;
+  let enabled = false;
+  let detached = false;
+  try {
+    await page.setContent('<iframe></iframe>');
+    const frame = page.frames()[1];
+    await frame.setContent(`
+      <button class="se-image-toolbar-button">사진</button>
+      <input type="file" accept="image/*">
+      <script>
+        const input = document.querySelector("input");
+        document.querySelector("button").onclick = () => input.click();
+        input.onchange = () => {
+          const image = document.createElement("img");
+          image.className = "se-image-resource";
+          image.src = URL.createObjectURL(input.files[0]);
+          document.body.append(image);
+        };
+      </script>
+    `);
+    const chrome = {
+      debugger: {
+        attach: async () => {
+          client = await context.newCDPSession(page);
+          await client.send("Page.enable");
+          client.on("Page.fileChooserOpened", () => { intercepted++; });
+        },
+        sendCommand: async (_, method, params) => {
+          if (method === "Page.setInterceptFileChooserDialog") enabled = params.enabled;
+          return client.send(method, params);
+        },
+        detach: async () => { detached = true; await client.detach(); },
+      },
+      scripting: {
+        executeScript: async ({ func, args = [] }) => {
+          assert.equal(enabled, true, "native chooser must be intercepted before page interaction");
+          return Promise.all(page.frames().map(async (target, frameId) => ({
+            frameId,
+            result: await target.evaluate(
+              ({ source, args }) => (0, eval)("(" + source + ")")(...args),
+              { source: func.toString(), args },
+            ),
+          })));
+        },
+      },
+    };
+    const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+    const sandbox = vm.createContext({ chrome, setTimeout });
+    vm.runInContext(source.slice(0, source.indexOf("async function renderStatus")), sandbox);
+    const result = await sandbox.insertImageIntoNaverEditor(1,
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j6lQAAAAASUVORK5CYII=");
+    assert.equal(result.inserted, true);
+    assert.equal(intercepted, 1);
+    assert.equal(enabled, false);
+    assert.equal(detached, true);
+    assert.equal(await frame.locator(".se-image-resource").count(), 1);
+    assert.match(sandbox.formatBrowserError(new Error("file input not found")), /file input not found/);
+  } finally { await context.close(); }
+});
+
+test("failed image upload releases interception and reports failure", async () => {
+  const calls = [];
+  const sandbox = vm.createContext({
+    setTimeout,
+    chrome: { debugger: {
+      attach: async () => calls.push("attach"),
+      sendCommand: async (_, method, params) => calls.push([method, params.enabled]),
+      detach: async () => calls.push("detach"),
+    } },
+  });
+  const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+  vm.runInContext(source.slice(0, source.indexOf("async function renderStatus")), sandbox);
+  await assert.rejects(sandbox.insertImageIntoNaverEditor(1, ""), /유효한 이미지/);
+  assert.deepEqual(calls, ["attach",
+    ["Page.setInterceptFileChooserDialog", true],
+    ["Page.setInterceptFileChooserDialog", false], "detach"]);
 });

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AIMaster Naver Blog SEO Studio",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "description": "SEO Studio 전용 네이버 블로그 초안 작성 및 입력 확장 프로그램",
   "permissions": ["sidePanel", "storage", "scripting", "tabs", "debugger"],
   "host_permissions": [
