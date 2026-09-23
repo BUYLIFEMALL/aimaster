@@ -206,3 +206,59 @@ test("failed image upload releases interception and reports failure", async () =
     ["Page.setInterceptFileChooserDialog", true],
     ["Page.setInterceptFileChooserDialog", false], "detach"]);
 });
+
+test("publish settings keep tag focus and select exact category without publishing", async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  let client;
+  try {
+    await page.setContent('<iframe></iframe>');
+    const frame = page.frames()[1];
+    await frame.setContent(`
+      <input id="tag-input"><div id="tags"></div>
+      <button class="selectbox_button__IxraO">기본</button>
+      <div class="option_list_layer__o54Wx" style="display:none">
+        <button class="item__dTdzo">여행기</button><button class="item__dTdzo">여행</button>
+      </div>
+      <button id="publish">발행</button>
+      <script>
+        const input = document.querySelector("input");
+        input.onkeydown = event => { if(event.key === "Enter") {
+          document.querySelector("#tags").append(input.value + "|"); input.value = "";
+        }};
+        const trigger = document.querySelector(".selectbox_button__IxraO");
+        const list = document.querySelector(".option_list_layer__o54Wx");
+        trigger.onclick = () => { list.style.display = "block"; trigger.focus(); };
+        list.onclick = event => { trigger.textContent = event.target.textContent; list.style.display = "none"; };
+        document.querySelector("#publish").onclick = () => document.body.dataset.published = "yes";
+      </script>
+    `);
+    const sandbox = vm.createContext({
+      setTimeout,
+      document: { getElementById: id => ({ value: id === "publishCategory" ? "여행" : "#자동화, AI, 자동화" }) },
+      chrome: {
+        tabs: { query: async () => [{ id: 1, windowId: 1, active: true }], update: async () => {} },
+        windows: { update: async () => {} },
+        debugger: {
+          attach: async () => { client = await context.newCDPSession(page); },
+          sendCommand: async (_, method, params) => client.send(method, params),
+          detach: async () => client.detach(),
+        },
+        scripting: { executeScript: async ({ target, func, args = [] }) => Promise.all(
+          page.frames().map((frame, frameId) => ({ frame, frameId }))
+            .filter(({ frameId }) => !target.frameIds || target.frameIds.includes(frameId))
+            .map(async ({ frame, frameId }) => ({ frameId, result: await frame.evaluate(
+              ({ source, args }) => (0, eval)("(" + source + ")")(...args),
+              { source: func.toString(), args },
+            ) }))
+        ) },
+      },
+    });
+    const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+    vm.runInContext(source.slice(0, source.indexOf("async function renderStatus")), sandbox);
+    await sandbox.fillPublishInfoIntoNaver();
+    assert.equal(await frame.locator("#tags").textContent(), "자동화|AI|");
+    assert.equal(await frame.locator(".selectbox_button__IxraO").textContent(), "여행");
+    assert.equal(await frame.locator("body").getAttribute("data-published"), null);
+  } finally { await context.close(); }
+});

@@ -16,65 +16,85 @@ async function getNaverBlogTab() {
 
 async function fillPublishInfoIntoNaver() {
   const category = $("publishCategory").value.trim();
-  const tags = $("publishTags").value.split(",").map((tag) => tag.trim()).filter(Boolean).slice(0, 30);
-  if (!category && tags.length === 0) throw new Error("태그 또는 카테고리를 입력해주세요.");
+  const tags = [...new Set($("publishTags").value.split(",").map((tag) => tag.trim().replace(/^#+/, "")).filter(Boolean))];
+  if (!category && !tags.length) throw new Error("태그 또는 카테고리를 입력해주세요.");
+  if (tags.length > 30) throw new Error("태그는 최대 30개까지 입력해주세요.");
   const tab = await getNaverBlogTab();
   if (!tab?.id) throw new Error("네이버 블로그 글쓰기 탭을 찾지 못했습니다.");
-
+  await chrome.windows.update(tab.windowId, { focused: true });
+  await chrome.tabs.update(tab.id, { active: true });
   const prepared = await chrome.scripting.executeScript({
     target: { tabId: tab.id, allFrames: true },
-    func: ({ hasCategory }) => {
-      const visible = (element) => {
-        const style = getComputedStyle(element);
-        const rect = element.getBoundingClientRect();
-        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-      };
-      const tagInput = document.querySelector("#tag-input, input[placeholder*='태그']");
-      if (tagInput && visible(tagInput)) tagInput.focus();
-      let categoryOpened = false;
-      if (hasCategory) {
-        const trigger = [...document.querySelectorAll(".selectbox_button__IxraO, button, [role='button']")].find((element) => visible(element) && /카테고리|전체 글감/.test(element.textContent || ""));
-        if (trigger) { trigger.click(); categoryOpened = true; }
-      }
-      return { tagFound: Boolean(tagInput && visible(tagInput)), categoryOpened };
+    func: () => {
+      const input = document.querySelector("#tag-input");
+      return { ready: Boolean(input && input.getClientRects().length && getComputedStyle(input).visibility !== "hidden") };
     },
-    args: [{ hasCategory: Boolean(category) }],
   });
-  const preparedResult = prepared.find((entry) => entry.result?.tagFound || entry.result?.categoryOpened)?.result;
-  if (tags.length > 0 && !preparedResult?.tagFound) throw new Error("발행 설정창의 태그 입력란(#tag-input)을 찾지 못했습니다. 네이버에서 발행 버튼을 먼저 눌러주세요.");
-
-  if (tags.length > 0) {
+  const frame = prepared.find((entry) => entry.result?.ready);
+  if (!frame) throw new Error("네이버에서 발행 버튼을 눌러 발행 설정창을 먼저 열어주세요.");
+  const target = { tabId: tab.id, frameIds: [frame.frameId] };
+  if (tags.length) {
     await chrome.debugger.attach({ tabId: tab.id }, "1.3");
     try {
       for (const tag of tags) {
+        const focused = await chrome.scripting.executeScript({
+          target,
+          func: () => {
+            const input = document.querySelector("#tag-input");
+            if (!input || !input.getClientRects().length) return false;
+            if (input.value.trim()) throw new Error("태그 입력란에 미완성 값이 있습니다. 확인 후 다시 실행해주세요.");
+            input.focus();
+            return document.activeElement === input;
+          },
+        });
+        if (!focused.some((entry) => entry.result === true)) throw new Error("태그 입력란의 포커스를 확인하지 못했습니다.");
         await debuggerCommand(tab.id, "Input.insertText", { text: tag });
         await debuggerCommand(tab.id, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
         await debuggerCommand(tab.id, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
-        await sleep(randomDelay(220, 450));
+        await sleep(300);
+        const accepted = await chrome.scripting.executeScript({
+          target,
+          func: () => document.querySelector("#tag-input")?.value === "",
+        });
+        if (!accepted.some((entry) => entry.result === true)) throw new Error("태그가 처리되지 않았습니다. 네이버 설정창의 안내를 확인해주세요.");
       }
     } finally {
-      try { await chrome.debugger.detach({ tabId: tab.id }); } catch { /* tab may have navigated */ }
+      await chrome.debugger.detach({ tabId: tab.id });
     }
   }
-
   if (category) {
-    await sleep(500);
-    const categoryResults = await chrome.scripting.executeScript({
-      target: { tabId: tab.id, allFrames: true },
-      args: [category],
-      func: (categoryName) => {
-        const visible = (element) => {
-          const style = getComputedStyle(element);
-          const rect = element.getBoundingClientRect();
-          return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-        };
-        const items = [...document.querySelectorAll(".item__dTdzo, [role='option'], li")].filter((element) => visible(element) && (element.textContent || "").includes(categoryName));
-        if (!items[0]) return { selected: false };
-        items[0].click();
-        return { selected: true, text: (items[0].textContent || "").trim().slice(0, 80) };
+    const opened = await chrome.scripting.executeScript({
+      target,
+      func: () => {
+        const trigger = document.querySelector(".selectbox_button__IxraO");
+        if (!trigger || !trigger.getClientRects().length) return false;
+        const layer = document.querySelector(".option_list_layer__o54Wx");
+        if (!layer?.getClientRects().length) trigger.click();
+        return true;
       },
     });
-    if (!categoryResults.some((entry) => entry.result?.selected)) throw new Error(`카테고리 '${category}'를 찾지 못했습니다.`);
+    if (!opened.some((entry) => entry.result === true)) throw new Error("발행 카테고리 선택 버튼을 찾지 못했습니다.");
+    await sleep(400);
+    const selection = await chrome.scripting.executeScript({
+      target, args: [category],
+      func: (name) => {
+        const items = [...document.querySelectorAll(".option_list_layer__o54Wx .item__dTdzo")].filter((el) => el.getClientRects().length);
+        const normalize = (text) => text.trim().replace(/^[●◆★▶\\s]+/, "");
+        const exact = items.filter((el) => normalize(el.textContent || "") === name);
+        const candidates = exact.length ? exact : items.filter((el) => (el.textContent || "").includes(name));
+        if (candidates.length !== 1) return { ok: false, count: candidates.length };
+        candidates[0].click();
+        return { ok: true, text: normalize(candidates[0].textContent || "") };
+      },
+    });
+    const selected = selection[0]?.result;
+    if (!selected?.ok) throw new Error(selected?.count > 1 ? "카테고리 이름이 여러 항목과 일치합니다. 전체 이름을 입력해주세요." : "요청한 카테고리를 찾지 못했습니다.");
+    await sleep(300);
+    const checked = await chrome.scripting.executeScript({
+      target, args: [selected.text],
+      func: (name) => (document.querySelector(".selectbox_button__IxraO")?.textContent || "").includes(name),
+    });
+    if (!checked.some((entry) => entry.result === true)) throw new Error("카테고리 선택 결과를 확인하지 못했습니다.");
   }
 }
 
