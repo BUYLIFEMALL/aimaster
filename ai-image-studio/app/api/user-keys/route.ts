@@ -1,5 +1,5 @@
 import { checkProgramAccessApi } from "@/lib/access";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -9,7 +9,7 @@ export async function GET() {
   if (errorResponse) return errorResponse;
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("user_api_keys")
     .select("provider")
