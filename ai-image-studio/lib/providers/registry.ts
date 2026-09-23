@@ -1,13 +1,21 @@
 import { ProviderConfig } from "./types";
 
-// 품질 6종 세트 (gpt-image-2, chatgpt-image-latest, gpt-image-1.5, gpt-image-2.5-flare, gpt-image-2.5-sunburst)
-const MODERN_QUALITY_OPTIONS = [
+// gpt-image-2.5 및 최신 플래그십 품질 6종 세트 (chatgpt-image-latest, gpt-image-1.5, gpt-image-2.5-flare, gpt-image-2.5-sunburst)
+const FLAGSHIP_QUALITY_OPTIONS = [
   { label: "Auto (자동)", value: "auto" },
   { label: "High (높음)", value: "high" },
   { label: "Medium (중간)", value: "medium" },
   { label: "Low (낮음)", value: "low" },
   { label: "Max (최대)", value: "max" },
   { label: "Extra high (최고화질)", value: "extra_high" }
+];
+
+// gpt-image-2 전용 품질 4종 세트 (Auto, High, Medium, Low)
+const GPT2_QUALITY_OPTIONS = [
+  { label: "Auto (자동)", value: "auto" },
+  { label: "High (높음)", value: "high" },
+  { label: "Medium (중간)", value: "medium" },
+  { label: "Low (낮음)", value: "low" }
 ];
 
 // 품질 3종 세트 (gpt-image-1, gpt-image-1-mini 계열)
@@ -35,7 +43,7 @@ const CHATGPT_IMAGE_LATEST_OPTIONS = [
     name: "Quality (화질)",
     type: "select" as const,
     default: "auto",
-    options: MODERN_QUALITY_OPTIONS
+    options: FLAGSHIP_QUALITY_OPTIONS
   },
   {
     id: "n",
@@ -127,7 +135,7 @@ const GPT_IMAGE_2_OPTIONS = [
     name: "Quality (화질)",
     type: "select" as const,
     default: "auto",
-    options: MODERN_QUALITY_OPTIONS
+    options: GPT2_QUALITY_OPTIONS
   },
   {
     id: "n",
