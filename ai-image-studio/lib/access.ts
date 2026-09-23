@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccess } from "../../lib/access/checkProgramAccess";
 
-export const PROGRAM_SLUG = "image-automation";
+export const PROGRAM_SLUG = "ai-image-studio";
 
 export async function requireUser() {
   const supabase = await createClient();
@@ -10,7 +10,7 @@ export async function requireUser() {
 
   if (!user) {
     const mainAppUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.buylife.xyz";
-    redirect(`${mainAppUrl}/login?next=${encodeURIComponent("https://image-automation.vercel.app/dashboard")}`);
+    redirect(`${mainAppUrl}/login?next=${encodeURIComponent("https://ai-image-studio.vercel.app/dashboard")}`);
   }
 
   return user;

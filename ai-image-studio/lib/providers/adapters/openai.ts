@@ -23,8 +23,8 @@ export class OpenAIAdapter implements ImageProviderAdapter {
         response_format: "url"
       });
 
-      const img = response.data[0];
-      if (!img.url) {
+      const img = response.data?.[0];
+      if (!img || !img.url) {
         throw new Error("OpenAI API did not return an image URL.");
       }
 
@@ -43,8 +43,8 @@ export class OpenAIAdapter implements ImageProviderAdapter {
         response_format: "url"
       });
 
-      const img = response.data[0];
-      if (!img.url) {
+      const img = response.data?.[0];
+      if (!img || !img.url) {
         throw new Error("OpenAI DALL-E 2 did not return an image URL.");
       }
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "이미지 자동화 (AI Image Studio) — AIMaster",
+  title: "AI 이미지 스튜디오 (Image Studio) — AIMaster",
   description: "OpenAI DALL-E 3, FLUX, Google Imagen 3 등 다양한 AI 이미지 생성 플랫폼을 단일 인터페이스에서 맞춤 자동 생성합니다.",
 };
 
