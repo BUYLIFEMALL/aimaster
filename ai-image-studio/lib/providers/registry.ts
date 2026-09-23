@@ -1,54 +1,135 @@
 import { ProviderConfig } from "./types";
 
+const OPENAI_STANDARD_OPTIONS = [
+  {
+    id: "size",
+    name: "이미지 비율/크기 (Aspect Ratio / Size)",
+    type: "select" as const,
+    default: "1024x1024",
+    options: [
+      { label: "1:1 정사각형 (1024x1024)", value: "1024x1024" },
+      { label: "16:9 와이드 (1792x1024)", value: "1792x1024" },
+      { label: "9:16 세로형 (1024x1792)", value: "1024x1792" }
+    ]
+  },
+  {
+    id: "quality",
+    name: "화질 (Quality)",
+    type: "select" as const,
+    default: "standard",
+    options: [
+      { label: "표준 (Standard)", value: "standard" },
+      { label: "고화질 (HD)", value: "hd" }
+    ]
+  },
+  {
+    id: "style",
+    name: "스타일 (Style)",
+    type: "select" as const,
+    default: "vivid",
+    options: [
+      { label: "선명함 (Vivid - 화려함)", value: "vivid" },
+      { label: "자연스러움 (Natural - 사실적)", value: "natural" }
+    ]
+  },
+  {
+    id: "background",
+    name: "배경 스타일 (Background)",
+    type: "select" as const,
+    default: "opaque",
+    options: [
+      { label: "일반 불투명 배경 (Opaque)", value: "opaque" },
+      { label: "투명 배경 (Transparent Cutout)", value: "transparent" }
+    ]
+  },
+  {
+    id: "n",
+    name: "생성 수량 (Count)",
+    type: "select" as const,
+    default: "1",
+    options: [
+      { label: "1장 (Single)", value: "1" },
+      { label: "2장 (Batch 2)", value: "2" },
+      { label: "4장 (Batch 4)", value: "4" }
+    ]
+  }
+];
+
 export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   {
     id: "openai",
     name: "OpenAI (GPT Image)",
     apiKeyProvider: "openai",
-    description: "DALL-E 3 및 DALL-E 2 고품질 이미지 생성",
+    description: "OpenAI Playground 규격 GPT Image (2.5 Sunburst, 2.5 Flare, 2, 1.5, 1, 1-mini) 및 DALL-E 3/2",
     iconName: "Sparkles",
     models: [
       {
-        id: "dall-e-3",
-        name: "DALL-E 3",
-        description: "최신 플래그십 모델. 뛰어난 자연어 이해력과 묘사력",
+        id: "gpt-image-2.5-sunburst",
+        name: "gpt-image-2.5-sunburst (system)",
+        description: "OpenAI 최상위 플래그십. 최고의 표현력과 정교한 편집/생성 지원 (Most Capable)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2.5-flare",
+        name: "gpt-image-2.5-flare (system)",
+        description: "빠르고 완성도 높은 일상 고품질 이미지 생성 (Fast High-Quality Everyday)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-2",
+        name: "gpt-image-2 (system)",
+        description: "최첨단 이미지 생성 및 편집 표준 모델 (State-of-the-Art Generation & Editing)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-1.5",
+        name: "gpt-image-1.5 (system)",
+        description: "고성능 차세대 GPT 이미지 생성 모델 (State-of-the-Art)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-1",
+        name: "gpt-image-1 (system)",
+        description: "표준 GPT 이미지 생성 모델 (Our Previous Image Generation Model)",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
+        id: "gpt-image-1-mini",
+        name: "gpt-image-1-mini (system)",
+        description: "경량화 및 비용 효율성이 뛰어난 미니 모델 (Cost-Efficient Version)",
         options: [
           {
             id: "size",
-            name: "이미지 비율/크기",
+            name: "이미지 크기",
             type: "select",
             default: "1024x1024",
             options: [
-              { label: "1:1 정사각형 (1024x1024)", value: "1024x1024" },
-              { label: "16:9 와이드 (1792x1024)", value: "1792x1024" },
-              { label: "9:16 세로형 (1024x1792)", value: "1024x1792" }
+              { label: "1024x1024", value: "1024x1024" },
+              { label: "512x512", value: "512x512" }
             ]
           },
           {
-            id: "quality",
-            name: "화질 (Quality)",
+            id: "n",
+            name: "생성 수량",
             type: "select",
-            default: "standard",
+            default: "1",
             options: [
-              { label: "표준 (Standard)", value: "standard" },
-              { label: "고화질 (HD)", value: "hd" }
-            ]
-          },
-          {
-            id: "style",
-            name: "스타일 (Style)",
-            type: "select",
-            default: "vivid",
-            options: [
-              { label: "선명함 (Vivid - 화려함)", value: "vivid" },
-              { label: "자연스러움 (Natural - 사실적)", value: "natural" }
+              { label: "1장", value: "1" },
+              { label: "2장", value: "2" },
+              { label: "4장", value: "4" }
             ]
           }
         ]
       },
       {
+        id: "dall-e-3",
+        name: "dall-e-3 (Flagship DALL-E)",
+        description: "DALL-E 3 최신 플래그십. 뛰어난 자연어 이해력과 묘사력",
+        options: OPENAI_STANDARD_OPTIONS
+      },
+      {
         id: "dall-e-2",
-        name: "DALL-E 2",
+        name: "dall-e-2 (Standard DALL-E)",
         description: "빠르고 가벼운 표준 이미지 모델",
         options: [
           {
@@ -60,6 +141,17 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
               { label: "1024x1024", value: "1024x1024" },
               { label: "512x512", value: "512x512" },
               { label: "256x256", value: "256x256" }
+            ]
+          },
+          {
+            id: "n",
+            name: "생성 수량",
+            type: "select",
+            default: "1",
+            options: [
+              { label: "1장", value: "1" },
+              { label: "2장", value: "2" },
+              { label: "4장", value: "4" }
             ]
           }
         ]
