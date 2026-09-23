@@ -12,6 +12,12 @@ export default function DashboardPage() {
   const handleApplyPrompt = (prompt: string, negativePrompt?: string) => {
     setStep2Prompt(prompt);
     if (negativePrompt) setStep2NegativePrompt(negativePrompt);
+
+    // Smooth scroll to Step 2 section
+    const step2Element = document.getElementById("step2-container");
+    if (step2Element) {
+      step2Element.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
@@ -19,10 +25,10 @@ export default function DashboardPage() {
       {/* Title Hero */}
       <div className="space-y-1">
         <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-          🎨 AI Image Studio (이미지 자동화)
+          🎨 AI 이미지 스튜디오 (Image Studio)
         </h1>
-        <p className="text-xs text-zinc-400">
-          OpenAI, FLUX, Google Imagen 3, Stability AI 등 다양한 생성 플랫폼을 하나의 통합 작업실에서 사용해보세요.
+        <p className="text-sm text-zinc-300">
+          OpenAI, FLUX, Google Imagen 3, Stability AI 등 다양한 생성 플랫폼을 하나의 올인원 작업실에서 사용해보세요.
         </p>
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, Camera, Box, Palette, Layers, Zap } from "lucide-react";
+import { Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, Camera, Box, Palette, Layers, Zap, Tag } from "lucide-react";
 
 interface Step1PromptEnhancerProps {
   onApplyPrompt: (prompt: string, negativePrompt?: string) => void;
@@ -13,6 +13,15 @@ const PRESET_STYLES = [
   { id: "artistic_editorial", name: "감성 패션 화보", icon: Palette, desc: "Vogue 룩북 스타일 패션/인물 화보" },
   { id: "vector_illustration", name: "벡터 일러스트", icon: Layers, desc: "SVG 그래픽 & 깔끔한 그래픽 디자인" },
   { id: "cyberpunk_neon", name: "사이버펑크 네온", icon: Zap, desc: "네온 라이팅 & 미래도시 신비로운 야경" },
+];
+
+const QUICK_IDEA_TAGS = [
+  { label: "#한옥카페 인물", prompt: "서울 경복궁 한옥 카페에서 노트북으로 작업 중인 한복을 입은 20대 한국 여성, 따뜻한 오후 햇살", style: "photorealistic" },
+  { label: "#사이버펑크 야경", prompt: "네온사인 가득한 비 내리는 사이버펑크 서울 야경 속 트렌디한 한국 여성의 몽환적인 포트레이트", style: "cyberpunk_neon" },
+  { label: "#3D 마케팅 아이콘", prompt: "혁신적인 스마트폰과 신용카드가 떠있는 3D 미니멀 클레이 아트 마케팅 아이콘 세트", style: "3d_digital" },
+  { label: "#패션 룩북 화보", prompt: "모던한 미니멀 백그라운드 스튜디오에서 봄 신상 트렌치코트를 입은 모델의 패션 잡지 화보", style: "artistic_editorial" },
+  { label: "#벡터 제품 일러스트", prompt: "친환경 오가닉 코스메틱 화장품 병과 나뭇잎 요소가 조화로운 벡터 평면 일러스트레이션", style: "vector_illustration" },
+  { label: "#제주 감성 풍경", prompt: "제주도 해변 언덕 위 해질녘 노을빛 오션뷰 한옥 숙소와 감성적인 풍경", style: "photorealistic" },
 ];
 
 export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps) {
@@ -60,8 +69,13 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSelectQuickTag = (tagPrompt: string, tagStyle: string) => {
+    setIdea(tagPrompt);
+    setSelectedPreset(tagStyle);
+  };
+
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-7 backdrop-blur-xl space-y-6 shadow-xl">
+    <div id="step1-container" className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-7 backdrop-blur-xl space-y-6 shadow-xl">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
@@ -70,10 +84,10 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Wand2 className="h-5 w-5 text-amber-400" />
-              AI 프롬프트 최적화 생성기 (Master Visual Rules)
+              AI 프롬프트 최적화 생성기 (UI/UX 고도화)
             </h2>
             <p className="text-sm text-zinc-300 mt-0.5">
-              기존 자동화 프로그램의 화풍 지침이 이식되었습니다. 한글 아이디어를 입력하고 화풍 프리셋을 선택해보세요.
+              원하는 아이디어를 자유롭게 입력하거나 추천 태그를 클릭해보세요. AI가 최적의 영문 프롬프트를 만듭니다.
             </p>
           </div>
         </div>
@@ -108,6 +122,26 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
         </div>
       </div>
 
+      {/* Quick Idea Recommendation Tags */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-400">
+          <Tag className="h-3.5 w-3.5 text-amber-400" />
+          <span>추천 아이디어 태그 (클릭 시 자동 입력):</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {QUICK_IDEA_TAGS.map((tag, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSelectQuickTag(tag.prompt, tag.style)}
+              className="rounded-lg bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/50 px-3 py-1.5 text-xs font-semibold text-amber-300 hover:text-amber-200 transition-colors"
+            >
+              {tag.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <textarea
           value={idea}
@@ -118,28 +152,18 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
         />
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm text-zinc-300">
-            <span className="font-semibold text-zinc-400">추천 예시:</span>
-            <button
-              type="button"
-              onClick={() => setIdea("사이버펑크 네온 야경 속 20대 한국 여성의 감성 포토리얼 샷")}
-              className="text-amber-400 hover:underline font-medium"
-            >
-              #사이버펑크
-            </button>
-            <button
-              type="button"
-              onClick={() => setIdea("제주도 언덕 위 해질녘 노을 오션뷰 한옥 분위기")}
-              className="text-amber-400 hover:underline font-medium"
-            >
-              #감성풍경
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIdea("")}
+            className="text-xs font-medium text-zinc-400 hover:text-zinc-200 underline"
+          >
+            입력창 초기화
+          </button>
 
           <button
             onClick={handleEnhance}
             disabled={loading || !idea.trim()}
-            className="flex items-center gap-2.5 rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-zinc-950 hover:bg-amber-400 disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20"
+            className="flex items-center gap-2.5 rounded-xl bg-amber-500 px-7 py-3.5 text-sm font-bold text-zinc-950 hover:bg-amber-400 disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20"
           >
             {loading ? (
               <>
@@ -164,7 +188,7 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
       )}
 
       {result && (
-        <div className="space-y-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-5 text-sm">
+        <div className="space-y-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-5 text-sm shadow-inner">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
             <span className="font-bold text-amber-300 text-base flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
@@ -180,9 +204,9 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
               </button>
               <button
                 onClick={() => onApplyPrompt(result.enhancedPrompt, result.negativePrompt)}
-                className="flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-zinc-950 hover:bg-amber-400 transition-colors shadow-md"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-5 py-2.5 text-sm font-extrabold text-zinc-950 hover:from-amber-400 hover:to-yellow-300 transition-all shadow-md shadow-amber-500/20"
               >
-                <span>Step 2에 적용하기</span>
+                <span>Step 2에 적용하기 (1-Click)</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -193,11 +217,11 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-zinc-300 pt-1">
-            <div className="bg-zinc-950/60 p-3 rounded-lg border border-zinc-800">
+            <div className="bg-zinc-950/60 p-3.5 rounded-xl border border-zinc-800">
               <span className="font-bold text-amber-400">💡 적용된 연출 노하우:</span> {result.styleNotes}
             </div>
             {result.negativePrompt && (
-              <div className="bg-zinc-950/60 p-3 rounded-lg border border-zinc-800">
+              <div className="bg-zinc-950/60 p-3.5 rounded-xl border border-zinc-800">
                 <span className="font-bold text-red-400">🚫 부정 프롬프트:</span> {result.negativePrompt}
               </div>
             )}

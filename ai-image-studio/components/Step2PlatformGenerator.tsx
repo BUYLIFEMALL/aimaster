@@ -31,8 +31,14 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
     metadata?: Record<string, any>;
   } | null>(null);
 
+  const [highlightFlash, setHighlightFlash] = useState(false);
+
   useEffect(() => {
-    if (initialPrompt) setPrompt(initialPrompt);
+    if (initialPrompt) {
+      setPrompt(initialPrompt);
+      setHighlightFlash(true);
+      setTimeout(() => setHighlightFlash(false), 2000);
+    }
     if (initialNegativePrompt) setNegativePrompt(initialNegativePrompt);
   }, [initialPrompt, initialNegativePrompt]);
 
@@ -115,8 +121,10 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
   };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-7 backdrop-blur-xl space-y-6 shadow-xl">
+    <div id="step2-container" className="space-y-6 scroll-mt-20">
+      <div className={`rounded-2xl border bg-zinc-900/80 p-6 sm:p-7 backdrop-blur-xl space-y-6 shadow-xl transition-all duration-500 ${
+        highlightFlash ? "border-amber-400 ring-4 ring-amber-400/20" : "border-zinc-800"
+      }`}>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
             <span className="text-sm font-bold">Step 2</span>
