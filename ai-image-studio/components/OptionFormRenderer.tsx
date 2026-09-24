@@ -76,9 +76,26 @@ export function OptionFormRenderer({ options, values, onChange }: OptionFormRend
                   </span>
                 )}
                 {opt.type === "slider" && (
-                  <span className="text-xs font-mono font-bold text-amber-400 bg-zinc-950 px-2.5 py-0.5 rounded border border-zinc-700">
-                    {val}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min={opt.min ?? 0}
+                      max={opt.max ?? 10000}
+                      step={opt.step ?? 1}
+                      value={val}
+                      disabled={isDisabledDimension}
+                      onChange={(e) => {
+                        const parsed = parseFloat(e.target.value);
+                        if (!isNaN(parsed)) {
+                          onChange(opt.id, parsed);
+                        } else {
+                          onChange(opt.id, e.target.value);
+                        }
+                      }}
+                      className="w-20 font-mono text-xs font-bold text-amber-400 bg-zinc-950 px-2 py-1 rounded border border-amber-500/40 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:outline-none text-right disabled:opacity-40 disabled:cursor-not-allowed"
+                      title="원하는 숫자를 직접 키보드로 입력할 수 있습니다"
+                    />
+                  </div>
                 )}
               </div>
             </div>
