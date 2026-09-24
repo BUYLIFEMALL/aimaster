@@ -275,7 +275,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
           <button
             type="button"
             onClick={handleResetInputs}
-            className="flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 text-white px-8 py-3.5 text-sm font-bold border border-red-500/50 shadow-lg shadow-red-950/40 transition-all cursor-pointer active:scale-95 min-w-[180px]"
+            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 px-8 py-3.5 text-sm font-bold border border-amber-400/50 shadow-lg shadow-amber-500/20 transition-all cursor-pointer active:scale-95 min-w-[180px]"
             title="입력된 프롬프트와 모든 모델 옵션을 기본값으로 초기화합니다"
           >
             <RotateCcw className="h-4 w-4" />
