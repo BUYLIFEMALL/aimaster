@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Users, Package, CreditCard, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { formatKRW } from "@/lib/utils/format";
@@ -27,6 +28,8 @@ export default async function AdminDashboard() {
     .single();
   if (!profile?.is_admin) redirect("/dashboard");
 
+  const serviceClient = createServiceClient();
+
   const [
     { count: memberCount },
     { count: programCount },
@@ -34,16 +37,16 @@ export default async function AdminDashboard() {
     { data: recentPayments },
     { count: pendingSettlements },
   ] = await Promise.all([
-    supabase.from("profiles").select("*", { count: "exact", head: true }),
-    supabase.from("programs").select("*", { count: "exact", head: true }).eq("is_active", true),
-    supabase.from("subscriptions").select("*", { count: "exact", head: true }).eq("status", "active"),
-    supabase
+    serviceClient.from("profiles").select("*", { count: "exact", head: true }),
+    serviceClient.from("programs").select("*", { count: "exact", head: true }).eq("is_active", true),
+    serviceClient.from("subscriptions").select("*", { count: "exact", head: true }).eq("status", "active"),
+    serviceClient
       .from("payment_records")
       .select("amount, paid_at, user:profiles(name, email)")
       .eq("status", "completed")
       .order("paid_at", { ascending: false })
       .limit(5),
-    supabase.from("settlement_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
+    serviceClient.from("settlement_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
   ]);
 
   const totalRevenue = recentPayments?.reduce((s, p) => s + p.amount, 0) ?? 0;
