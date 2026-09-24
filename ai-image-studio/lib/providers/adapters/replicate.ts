@@ -18,9 +18,29 @@ export class ReplicateAdapter implements ImageProviderAdapter {
       prompt: params.prompt,
     };
 
-    // 1. aspect_ratio
+    // 1. aspect_ratio & width/height calculation
     if (params.options.aspect_ratio) {
       input.aspect_ratio = params.options.aspect_ratio;
+
+      // Z-Image Turbo 등 aspect_ratio 대신 width/height를 직접 요구하는 모델을 위해 비율별 해상도 자동 산출
+      if (params.options.aspect_ratio !== "custom") {
+        const ratioMap: Record<string, { width: number; height: number }> = {
+          "1:1": { width: 1024, height: 1024 },
+          "16:9": { width: 1280, height: 720 },
+          "9:16": { width: 720, height: 1280 },
+          "4:3": { width: 1152, height: 864 },
+          "3:4": { width: 864, height: 1152 },
+          "3:2": { width: 1216, height: 808 },
+          "2:3": { width: 808, height: 1216 },
+          "4:5": { width: 896, height: 1120 },
+          "5:4": { width: 1120, height: 896 },
+        };
+        const dim = ratioMap[params.options.aspect_ratio];
+        if (dim) {
+          if (!input.width) input.width = dim.width;
+          if (!input.height) input.height = dim.height;
+        }
+      }
     }
 
     // 2. resolution
@@ -28,11 +48,9 @@ export class ReplicateAdapter implements ImageProviderAdapter {
       input.resolution = params.options.resolution;
     }
 
-    // 3. width & height (custom aspect_ratio)
-    if (params.options.aspect_ratio === "custom") {
-      if (params.options.width) input.width = Number(params.options.width);
-      if (params.options.height) input.height = Number(params.options.height);
-    }
+    // 3. width & height (custom aspect_ratio or explicit slider)
+    if (params.options.width) input.width = Number(params.options.width);
+    if (params.options.height) input.height = Number(params.options.height);
 
     // 4. safety_tolerance (1 ~ 5)
     if (params.options.safety_tolerance !== undefined) {
