@@ -1,6 +1,6 @@
 import { checkProgramAccessApi, getUserApiKey } from "@/lib/access";
 import { getProviderAdapter, PROVIDERS_REGISTRY } from "@/lib/providers";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     const count = Math.min(Math.max(parseInt(options?.n || "1", 10), 1), 10);
     const adapter = getProviderAdapter(provider);
-    const supabase = await createClient();
+    const supabaseAdmin = createAdminClient();
 
     const results = [];
     for (let i = 0; i < count; i++) {
@@ -46,8 +46,8 @@ export async function POST(req: Request) {
 
       results.push(result);
 
-      // Save to user_image_generations table
-      await supabase.from("user_image_generations").insert({
+      // Save to user_image_generations table via Admin Client (bypasses cookie/RLS edge cases)
+      const { error: insertErr } = await supabaseAdmin.from("user_image_generations").insert({
         user_id: user.id,
         provider,
         model,
@@ -56,6 +56,10 @@ export async function POST(req: Request) {
         options: options || {},
         image_url: result.imageUrl
       });
+
+      if (insertErr) {
+        console.error("Failed to save image generation to DB:", insertErr);
+      }
     }
 
     const primaryResult = results[0];

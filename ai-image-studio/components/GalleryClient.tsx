@@ -33,6 +33,34 @@ interface GalleryClientProps {
   initialItems: GalleryItem[];
 }
 
+const PROVIDER_NAMES: Record<string, string> = {
+  openai: "OpenAI (GPT Image)",
+  gemini: "Google Gemini",
+  replicate: "Replicate (FLUX / Recraft)",
+  stability: "Stability AI",
+};
+
+const MODEL_NAMES: Record<string, string> = {
+  "gpt-image-2": "GPT Image 2 (표준)",
+  "gpt-image-2-large": "GPT Image 2 Large (고화질)",
+  "gpt-image-1.5": "GPT Image 1.5",
+  "gemini-3.1-flash": "Gemini 3.1 Flash",
+  "gemini-3.1-pro": "Gemini 3.1 Pro",
+  "flux-2-dev": "FLUX.2 dev",
+  "flux-2-pro": "FLUX.2 pro",
+  "flux-2-flex": "FLUX.2 flex",
+  "flux-2-max": "FLUX.2 max",
+  "sd3.5-large": "Stable Diffusion 3.5 Large",
+};
+
+function getProviderLabel(providerId: string): string {
+  return PROVIDER_NAMES[providerId.toLowerCase()] || providerId.toUpperCase();
+}
+
+function getModelLabel(modelId: string): string {
+  return MODEL_NAMES[modelId] || modelId;
+}
+
 export function GalleryClient({ initialItems }: GalleryClientProps) {
   const router = useRouter();
   const [items, setItems] = useState<GalleryItem[]>(initialItems);
@@ -102,9 +130,9 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
 
   const providersList = [
     { id: "all", label: "전체 플랫폼" },
-    { id: "openai", label: "OpenAI DALL-E" },
-    { id: "fal", label: "Fal.ai FLUX" },
-    { id: "gemini", label: "Google Gemini" },
+    { id: "openai", label: "OpenAI (GPT Image)" },
+    { id: "gemini", label: "Google Gemini (Nanobanana)" },
+    { id: "replicate", label: "Replicate (FLUX / Recraft / SDXL)" },
     { id: "stability", label: "Stability AI" },
   ];
 
@@ -177,12 +205,12 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                 />
 
                 {/* Top Badges */}
-                <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap max-w-[90%]">
                   <span className="rounded-lg bg-zinc-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-amber-400 border border-zinc-800">
-                    {item.provider.toUpperCase()}
+                    {getProviderLabel(item.provider)}
                   </span>
                   <span className="rounded-lg bg-zinc-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-medium text-zinc-300 border border-zinc-800">
-                    {item.model}
+                    {getModelLabel(item.model)}
                   </span>
                 </div>
 
@@ -261,7 +289,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-amber-400" />
                 <h3 className="text-base font-bold text-white">
-                  작업 결과 상세 상세보기 [{activeModalItem.provider.toUpperCase()} — {activeModalItem.model}]
+                  작업 결과 상세보기 [{getProviderLabel(activeModalItem.provider)} — {getModelLabel(activeModalItem.model)}]
                 </h3>
               </div>
               <button
@@ -305,7 +333,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     {new Date(activeModalItem.created_at).toLocaleString("ko-KR")}
                   </div>
                   <div>
-                    <strong className="text-zinc-200">플랫폼 / 모델:</strong> {activeModalItem.provider} / {activeModalItem.model}
+                    <strong className="text-zinc-200">플랫폼 / 모델:</strong> {getProviderLabel(activeModalItem.provider)} / {getModelLabel(activeModalItem.model)}
                   </div>
                 </div>
 
