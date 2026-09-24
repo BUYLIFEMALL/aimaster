@@ -17,7 +17,7 @@ export function GuideModal() {
             <div>
               <h3 className="text-sm font-bold text-white">📖 연동 매뉴얼 및 이용 안내</h3>
               <p className="text-xs text-zinc-400">
-                OpenAI, Replicate (FLUX/Recraft/SDXL), Google Gemini, Stability AI 등 플랫폼별 API 키 발급 방법 및 옵션 가이드를 확인해보세요.
+                OpenAI, Replicate (FLUX 2.0), Google Gemini, Stability AI 등 플랫폼별 API 키 발급 방법 및 옵션 가이드를 확인해보세요.
               </p>
             </div>
           </div>
@@ -59,7 +59,7 @@ export function GuideModal() {
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-1">
-                  <h4 className="font-bold text-amber-400">2. Replicate (FLUX.1 dev/schnell / Recraft V3 / SDXL)</h4>
+                  <h4 className="font-bold text-amber-400">2. Replicate (FLUX 2.0 Max / Flex / Dev / Pro)</h4>
                   <p>· replicate.com ➔ Account ➔ API tokens 메뉴에서 `r8_...` 형태의 API Token을 발급받아 `replicate` 항목에 등록합니다.</p>
                 </div>
 

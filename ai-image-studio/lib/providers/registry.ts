@@ -528,9 +528,9 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   },
   {
     id: "replicate",
-    name: "Replicate (FLUX Official / Recraft / SDXL)",
+    name: "Replicate (FLUX 2.0 Official)",
     apiKeyProvider: "replicate",
-    description: "Black Forest Labs 공식 FLUX 2.0 (Max / Flex / Dev / Pro) 및 Recraft V3, SDXL 1.0 라인업",
+    description: "Black Forest Labs 공식 FLUX 2.0 (Max / Flex / Dev / Pro) 플래그십 라인업",
     iconName: "Zap",
     models: [
       {
@@ -946,121 +946,6 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             max: 100,
             step: 5,
             description: "저장 시 이미지 화질 (100: 최상, png 출력 시 미적용)"
-          }
-        ]
-      },
-      {
-        id: "recraft-ai/recraft-v3",
-        name: "Recraft V3",
-        description: "아트 일러스트 & 3D 벡터 디자인",
-        options: [
-          {
-            id: "style",
-            name: "아트 스타일 (style)",
-            type: "select",
-            default: "any",
-            options: [
-              { label: "Any (자유 스타일)", value: "any" },
-              { label: "Realistic Image (사실적 인물 사진)", value: "realistic_image" },
-              { label: "Digital Illustration (디지털 일러스트)", value: "digital_illustration" },
-              { label: "Vector Illustration (벡터 일러스트)", value: "vector_illustration" },
-              { label: "Icon (아이콘)", value: "icon" },
-              { label: "Pixel Art (픽셀 아트)", value: "digital_illustration/pixel_art" },
-              { label: "Hand Drawn (손그림 드로잉)", value: "digital_illustration/hand_drawn" },
-              { label: "2D Poster (2D 포스터 아트)", value: "digital_illustration/2d_art_poster" },
-              { label: "Handmade 3D (핸드메이드 3D)", value: "digital_illustration/handmade_3d" },
-              { label: "Studio Portrait (인물 스튜디오 사진)", value: "realistic_image/studio_portrait" }
-            ]
-          },
-          {
-            id: "aspect_ratio",
-            name: "화면 비율 (aspect_ratio)",
-            type: "select",
-            default: "Not set",
-            options: [
-              { label: "Not set (기본 해상도 지정)", value: "Not set" },
-              { label: "1:1 정사각형", value: "1:1" },
-              { label: "16:9 와이드 가로형", value: "16:9" },
-              { label: "9:16 모바일 세로형", value: "9:16" },
-              { label: "4:3 표준 가로형", value: "4:3" },
-              { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "3:2 사진형 가로", value: "3:2" },
-              { label: "2:3 사진형 세로", value: "2:3" }
-            ]
-          },
-          {
-            id: "size",
-            name: "이미지 크기 (size)",
-            type: "select",
-            default: "1024x1024",
-            options: [
-              { label: "1024x1024 (정사각형 1K)", value: "1024x1024" },
-              { label: "1536x1024 (와이드 1.5K)", value: "1536x1024" },
-              { label: "1024x1536 (세로 1.5K)", value: "1024x1536" },
-              { label: "2048x1024 (파노라마 2K)", value: "2048x1024" },
-              { label: "1024x2048 (세로 긴형 2K)", value: "1024x2048" }
-            ]
-          }
-        ]
-      },
-      {
-        id: "stability-ai/sdxl",
-        name: "SDXL 1.0",
-        description: "표준 SDXL 모델",
-        options: [
-          {
-            id: "num_inference_steps",
-            name: "추론 스텝 (num_inference_steps: 1 ~ 500)",
-            type: "slider",
-            default: 50,
-            min: 1,
-            max: 500,
-            step: 5
-          },
-          {
-            id: "guidance_scale",
-            name: "프롬프트 반영도 (guidance_scale: 1.0 ~ 50.0)",
-            type: "slider",
-            default: 7.5,
-            min: 1.0,
-            max: 50.0,
-            step: 0.5
-          },
-          {
-            id: "scheduler",
-            name: "디노이징 스케줄러 (scheduler)",
-            type: "select",
-            default: "K_EULER",
-            options: [
-              { label: "K_EULER (기본 추천)", value: "K_EULER" },
-              { label: "K_EULER_ANCESTRAL", value: "K_EULER_ANCESTRAL" },
-              { label: "DDIM", value: "DDIM" },
-              { label: "DPMSolverMultistep", value: "DPMSolverMultistep" },
-              { label: "HeunDiscrete", value: "HeunDiscrete" },
-              { label: "KarrasDPM", value: "KarrasDPM" },
-              { label: "PNDM", value: "PNDM" }
-            ]
-          },
-          {
-            id: "refine",
-            name: "리파이너 스타일 (refine)",
-            type: "select",
-            default: "no_refiner",
-            options: [
-              { label: "No Refiner (기본 생성)", value: "no_refiner" },
-              { label: "Expert Ensemble Refiner (앙상블 세부정밀)", value: "expert_ensemble_refiner" },
-              { label: "Base Image Refiner (베이스 연계)", value: "base_image_refiner" }
-            ]
-          },
-          {
-            id: "disable_safety_checker",
-            name: "안전 검사기 비활성화 (disable_safety_checker)",
-            type: "select",
-            default: "false",
-            options: [
-              { label: "Off (안전 필터 켜기)", value: "false" },
-              { label: "On (안전 필터 비활성화)", value: "true" }
-            ]
           }
         ]
       }

@@ -20,7 +20,7 @@ const PROVIDER_INFO: Record<string, { name: string; desc: string; placeholder: s
   },
   replicate: {
     name: "Replicate API Token",
-    desc: "Replicate 기반 FLUX 2.0 (Max / Flex / Dev / Pro), Recraft V3 및 SDXL 1.0 이미지 스튜디오 생성에 사용됩니다.",
+    desc: "Replicate 기반 Black Forest Labs 공식 FLUX 2.0 (Max / Flex / Dev / Pro) 이미지 스튜디오 생성에 사용됩니다.",
     placeholder: "r8_...",
     link: "https://replicate.com/account/api-tokens",
   },
