@@ -534,6 +534,98 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     iconName: "Zap",
     models: [
       {
+        id: "black-forest-labs/flux-2-dev",
+        name: "FLUX 2 [dev]",
+        description: "BFL 차세대 FLUX 2.0 디벨로퍼 엔진 - 현존 최고의 정밀화질 및 고속 렌더링",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "21:9 시네마틱 파노라마", value: "21:9" }
+            ]
+          },
+          {
+            id: "go_fast",
+            name: "고속 모드 (Fast Mode)",
+            type: "select",
+            default: "true",
+            options: [
+              { label: "On (초고속 생성 추천)", value: "true" },
+              { label: "Off (정밀 생성)", value: "false" }
+            ]
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (Format)",
+            type: "select",
+            default: "jpg",
+            options: [
+              { label: "JPG (고품질 표준)", value: "jpg" },
+              { label: "PNG (무손실)", value: "png" },
+              { label: "WebP (고효율)", value: "webp" }
+            ]
+          },
+          {
+            id: "output_quality",
+            name: "출력 화질 (Quality)",
+            type: "slider",
+            default: 80,
+            min: 1,
+            max: 100,
+            step: 5
+          }
+        ]
+      },
+      {
+        id: "black-forest-labs/flux-2-pro",
+        name: "FLUX 2 [pro]",
+        description: "BFL 차세대 FLUX 2.0 프로페셔널 엔진 - 기업급 품질과 완벽한 상업용 비주얼",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "21:9 시네마틱 파노라마", value: "21:9" }
+            ]
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (Format)",
+            type: "select",
+            default: "jpg",
+            options: [
+              { label: "JPG (고품질 표준)", value: "jpg" },
+              { label: "PNG (무손실)", value: "png" },
+              { label: "WebP (고효율)", value: "webp" }
+            ]
+          },
+          {
+            id: "output_quality",
+            name: "출력 화질 (Quality)",
+            type: "slider",
+            default: 85,
+            min: 1,
+            max: 100,
+            step: 5
+          }
+        ]
+      },
+      {
         id: "black-forest-labs/flux-1.1-pro",
         name: "FLUX 1.1 [pro]",
         description: "BFL 차세대 플래그십 - 압도적인 속도와 극상 품질의 차세대 프로페셔널 모델",

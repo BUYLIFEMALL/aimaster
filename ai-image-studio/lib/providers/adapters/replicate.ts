@@ -41,6 +41,10 @@ export class ReplicateAdapter implements ImageProviderAdapter {
       input.safety_tolerance = Number(params.options.safety_tolerance);
     }
 
+    if (params.options.go_fast !== undefined) {
+      input.go_fast = params.options.go_fast === "true" || params.options.go_fast === true;
+    }
+
     if (params.negativePrompt || params.options.negative_prompt) {
       input.negative_prompt = params.negativePrompt || params.options.negative_prompt;
     }
