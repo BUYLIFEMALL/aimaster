@@ -26,15 +26,12 @@ interface SetExpiryModalProps {
   members: MemberSummary[];
   programs: Pick<Program, "id" | "name">[];
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (updatedInfo: { user_id: string; expires_at: string | null }[]) => void;
 }
 
 /**
  * 회원 목록에서 상세 페이지로 들어가지 않고 바로 회원(복수)×프로그램(복수)의
- * 사용만료기간을 정확한 날짜로 설정하는 모달. 기존 "수동 프로그램 접근 부여"
- * 메커니즘(/api/admin/user-access POST, program_ids 배열 지원)을 그대로 재사용한다 —
- * 이미 결제한 구독이 있어도 없어도 똑같이 동작해서, 상세 페이지에 안 들어가고도
- * 여러 회원의 여러 프로그램 이용 권한/만료일을 한 번에 지정할 수 있다.
+ * 사용만료기간을 정확한 날짜로 설정하는 모달.
  */
 export default function SetExpiryModal({ members, programs, onClose, onSaved }: SetExpiryModalProps) {
   const [programIds, setProgramIds] = useState<Set<string>>(new Set());
@@ -91,11 +88,6 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
     try {
       const expiresAtValue = unlimited ? null : new Date(expiresAt).toISOString();
 
-      // 회원×프로그램 조합 전체를 한 번의 API 호출(=한 번의 DB upsert)로 처리한다.
-      // 예전엔 회원마다 fetch를 따로 보내 Promise.all로 병렬 실행했는데, 회원 수가 많으면
-      // (예: 전체 선택 79명) 동시 요청이 몰려 일부가 조용히 실패하는 문제가 있었다
-      // (2026-09-08 발견 — "일부 회원만 사용만료기간이 반영됨"). 단일 호출로 바꿔서
-      // 이 경합 문제 자체를 없앴다.
       const res = await fetch("/api/admin/user-access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,7 +104,7 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
         return;
       }
 
-      onSaved();
+      onSaved(members.map((m) => ({ user_id: m.id, expires_at: expiresAtValue })));
       onClose();
     } finally {
       setSaving(false);

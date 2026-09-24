@@ -41,6 +41,15 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
   const [suspendOverrides, setSuspendOverrides] = useState<Map<string, boolean>>(new Map());
   const [gradeOverrides, setGradeOverrides] = useState<Map<string, string | null>>(new Map());
+  const [expiryOverrides, setExpiryOverrides] = useState<Map<string, MemberExpiryInfo>>(new Map());
+
+  const mergedExpiryByUserId = useMemo(() => {
+    const map = { ...expiryByUserId };
+    expiryOverrides.forEach((val, userId) => {
+      map[userId] = val;
+    });
+    return map;
+  }, [expiryByUserId, expiryOverrides]);
 
   const visibleMembers = useMemo(
     () =>
@@ -368,6 +377,9 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                       userId={m.id}
                       currentGradeId={m.grade_id}
                       grades={grades.map((g) => ({ id: g.id, name: g.name, color: g.color }))}
+                      onGradeChange={(newGradeId) => {
+                        setGradeOverrides((prev) => new Map(prev).set(m.id, newGradeId));
+                      }}
                     />
                   </td>
                   <td className="p-4 text-center">
@@ -389,7 +401,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                   </td>
                   <td className="p-4 text-right hidden lg:table-cell">
                     {(() => {
-                      const info = expiryByUserId[m.id];
+                      const info = mergedExpiryByUserId[m.id];
                       if (!info) return <span className="text-subtext text-xs">-</span>;
                       const label = info.soonest ? formatDate(info.soonest) : info.hasLifetime ? "평생" : "-";
                       return (
@@ -458,7 +470,24 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
           members={expirySettingMembers}
           programs={programs}
           onClose={() => setExpirySettingMembers(null)}
-          onSaved={() => router.refresh()}
+          onSaved={(updatedList) => {
+            setExpiryOverrides((prev) => {
+              const next = new Map(prev);
+              for (const item of updatedList) {
+                const current =
+                  next.get(item.user_id) ??
+                  expiryByUserId[item.user_id] ?? { soonest: null, hasLifetime: false, count: 1 };
+                const newInfo: MemberExpiryInfo = {
+                  soonest: item.expires_at,
+                  hasLifetime: item.expires_at === null,
+                  count: current.count > 0 ? current.count : 1,
+                };
+                next.set(item.user_id, newInfo);
+              }
+              return next;
+            });
+            router.refresh();
+          }}
         />
       )}
     </div>
