@@ -11,38 +11,54 @@ export class ReplicateAdapter implements ImageProviderAdapter {
       prompt: params.prompt,
     };
 
-    // 공통 및 특수 옵션 매핑
-    if (params.options.aspect_ratio) input.aspect_ratio = params.options.aspect_ratio;
-    if (params.options.resolution) input.resolution = params.options.resolution;
-    
-    // steps / num_inference_steps
-    if (params.options.steps !== undefined) {
-      input.steps = Number(params.options.steps);
-    }
-    if (params.options.num_inference_steps !== undefined) {
-      input.num_inference_steps = Number(params.options.num_inference_steps);
-      if (input.steps === undefined) input.steps = Number(params.options.num_inference_steps);
-    }
-    
-    // guidance / guidance_scale
-    if (params.options.guidance !== undefined) {
-      input.guidance = Number(params.options.guidance);
-    }
-    if (params.options.guidance_scale !== undefined) {
-      input.guidance_scale = Number(params.options.guidance_scale);
-      if (input.guidance === undefined) input.guidance = Number(params.options.guidance_scale);
+    // 1. aspect_ratio
+    if (params.options.aspect_ratio) {
+      input.aspect_ratio = params.options.aspect_ratio;
     }
 
-    if (params.options.output_format) input.output_format = params.options.output_format;
-    if (params.options.output_quality !== undefined) input.output_quality = Number(params.options.output_quality);
-    if (params.options.style) input.style = params.options.style;
-    if (params.options.size) input.size = params.options.size;
+    // 2. resolution
+    if (params.options.resolution) {
+      input.resolution = params.options.resolution;
+    }
+
+    // 3. width & height (custom aspect_ratio)
+    if (params.options.aspect_ratio === "custom") {
+      if (params.options.width) input.width = Number(params.options.width);
+      if (params.options.height) input.height = Number(params.options.height);
+    }
+
+    // 4. safety_tolerance (1 ~ 5)
+    if (params.options.safety_tolerance !== undefined) {
+      input.safety_tolerance = Number(params.options.safety_tolerance);
+    }
+
+    // 5. seed
+    if (params.options.seed !== undefined && params.options.seed !== null && params.options.seed !== "") {
+      const seedNum = Number(params.options.seed);
+      if (!isNaN(seedNum) && seedNum > 0) {
+        input.seed = seedNum;
+      }
+    }
+
+    // 6. output_format
+    if (params.options.output_format) {
+      input.output_format = params.options.output_format;
+    }
+
+    // 7. output_quality
+    if (params.options.output_quality !== undefined) {
+      input.output_quality = Number(params.options.output_quality);
+    }
+
+    // 모델별 추가 옵션 (flux-2-flex, flux-2-dev, recraft-v3, sdxl 등)
+    if (params.options.steps !== undefined) input.steps = Number(params.options.steps);
+    if (params.options.num_inference_steps !== undefined) input.num_inference_steps = Number(params.options.num_inference_steps);
+    
+    if (params.options.guidance !== undefined) input.guidance = Number(params.options.guidance);
+    if (params.options.guidance_scale !== undefined) input.guidance_scale = Number(params.options.guidance_scale);
 
     if (params.options.prompt_upsampling !== undefined) {
       input.prompt_upsampling = params.options.prompt_upsampling === "true" || params.options.prompt_upsampling === true;
-    }
-    if (params.options.safety_tolerance !== undefined) {
-      input.safety_tolerance = Number(params.options.safety_tolerance);
     }
     if (params.options.disable_safety_checker !== undefined) {
       input.disable_safety_checker = params.options.disable_safety_checker === "true" || params.options.disable_safety_checker === true;
@@ -52,6 +68,8 @@ export class ReplicateAdapter implements ImageProviderAdapter {
       input.go_fast = params.options.go_fast === "true" || params.options.go_fast === true;
     }
 
+    if (params.options.style) input.style = params.options.style;
+    if (params.options.size) input.size = params.options.size;
     if (params.options.scheduler) input.scheduler = params.options.scheduler;
     if (params.options.refine) input.refine = params.options.refine;
 
