@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PROVIDERS_REGISTRY } from "@/lib/providers/registry";
 import { OptionFormRenderer } from "./OptionFormRenderer";
 import { ImageResultViewer } from "./ImageResultViewer";
-import { Layers, Sliders, Image as ImageIcon, AlertCircle, RefreshCw, Key } from "lucide-react";
+import { Layers, Sliders, Image as ImageIcon, AlertCircle, RefreshCw, Key, RotateCcw } from "lucide-react";
 
 interface Step2PlatformGeneratorProps {
   initialPrompt?: string;
@@ -79,6 +79,18 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
 
   const handleOptionChange = (key: string, value: any) => {
     setOptionValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleResetInputs = () => {
+    setPrompt("");
+    setNegativePrompt("");
+    if (currentModel) {
+      const defaults: Record<string, any> = {};
+      currentModel.options.forEach((opt) => {
+        defaults[opt.id] = opt.default;
+      });
+      setOptionValues(defaults);
+    }
   };
 
   const handleGenerate = async () => {
@@ -259,11 +271,21 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
           </div>
         )}
 
-        <div className="flex items-center justify-end pt-2">
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-zinc-800">
+          <button
+            type="button"
+            onClick={handleResetInputs}
+            className="flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 text-white px-5 py-3.5 text-sm font-bold border border-red-500/50 shadow-lg shadow-red-950/40 transition-all cursor-pointer active:scale-95"
+            title="입력된 프롬프트와 모든 모델 옵션을 기본값으로 초기화합니다"
+          >
+            <RotateCcw className="h-4 w-4" />
+            <span>입력창 초기화 (Reset)</span>
+          </button>
+
           <button
             onClick={handleGenerate}
             disabled={generating || !prompt.trim() || !hasKey}
-            className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-8 py-3.5 text-sm font-bold text-zinc-950 hover:from-amber-400 hover:to-yellow-300 disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20"
+            className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-8 py-3.5 text-sm font-bold text-zinc-950 hover:from-amber-400 hover:to-yellow-300 disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
           >
             {generating ? (
               <>
