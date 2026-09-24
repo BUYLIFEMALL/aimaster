@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -27,39 +28,44 @@ export async function GET() {
 
     const serviceClient = createServiceClient();
 
-    // 1. Fetch all programs
+    // 1. Fetch all programs with category name
     const { data: programs, error: progErr } = await serviceClient
       .from("programs")
-      .select("id, title, slug, category, app_url, is_active, required_grade_id, created_at")
-      .order("title");
+      .select("id, name, slug, app_url, is_active, created_at, categories(name)")
+      .order("name");
 
     if (progErr) {
+      console.error("Programs fetch error:", progErr);
       return NextResponse.json({ error: progErr.message }, { status: 500 });
     }
 
-    // 2. Fetch usage logs aggregated metrics
-    const { data: logs, error: logsErr } = await serviceClient
-      .from("usage_logs")
-      .select("program_id, user_id, created_at");
-
-    if (logsErr) {
-      console.error("Error fetching usage_logs:", logsErr);
+    // 2. Fetch usage logs safely
+    let logs: { program_id: string | null; user_id: string | null; created_at: string }[] = [];
+    try {
+      const { data: logData } = await serviceClient
+        .from("usage_logs")
+        .select("program_id, user_id, created_at");
+      if (logData) logs = logData;
+    } catch (e) {
+      console.error("usage_logs query error:", e);
     }
 
-    // 3. Fetch user API keys aggregated metrics
-    const { data: apiKeys, error: keysErr } = await serviceClient
-      .from("user_api_keys")
-      .select("program_id, user_id");
-
-    if (keysErr) {
-      console.error("Error fetching user_api_keys:", keysErr);
+    // 3. Fetch user API keys safely
+    let apiKeys: { user_id: string | null; provider: string | null }[] = [];
+    try {
+      const { data: keyData } = await serviceClient
+        .from("user_api_keys")
+        .select("user_id, provider");
+      if (keyData) apiKeys = keyData;
+    } catch (e) {
+      console.error("user_api_keys query error:", e);
     }
 
     const nowMs = Date.now();
     const ms24h = 24 * 60 * 60 * 1000;
     const ms7d = 7 * 24 * 60 * 60 * 1000;
 
-    // Map metrics per program
+    // Aggregate usage logs per program_id
     const logMap: Record<
       string,
       {
@@ -71,48 +77,32 @@ export async function GET() {
       }
     > = {};
 
-    if (logs) {
-      for (const log of logs) {
-        const pId = log.program_id;
-        if (!pId) continue;
-        if (!logMap[pId]) {
-          logMap[pId] = {
-            total: 0,
-            last24h: 0,
-            last7d: 0,
-            uniqueUsers: new Set(),
-            lastActiveAt: null,
-          };
-        }
-        const item = logMap[pId];
-        item.total += 1;
-        if (log.user_id) item.uniqueUsers.add(log.user_id);
+    for (const log of logs) {
+      const pId = log.program_id;
+      if (!pId) continue;
+      if (!logMap[pId]) {
+        logMap[pId] = {
+          total: 0,
+          last24h: 0,
+          last7d: 0,
+          uniqueUsers: new Set(),
+          lastActiveAt: null,
+        };
+      }
+      const item = logMap[pId];
+      item.total += 1;
+      if (log.user_id) item.uniqueUsers.add(log.user_id);
 
-        const createdMs = new Date(log.created_at).getTime();
-        if (nowMs - createdMs <= ms24h) item.last24h += 1;
-        if (nowMs - createdMs <= ms7d) item.last7d += 1;
+      const createdMs = new Date(log.created_at).getTime();
+      if (nowMs - createdMs <= ms24h) item.last24h += 1;
+      if (nowMs - createdMs <= ms7d) item.last7d += 1;
 
-        if (!item.lastActiveAt || createdMs > new Date(item.lastActiveAt).getTime()) {
-          item.lastActiveAt = log.created_at;
-        }
+      if (!item.lastActiveAt || createdMs > new Date(item.lastActiveAt).getTime()) {
+        item.lastActiveAt = log.created_at;
       }
     }
 
-    // Map API keys per program
-    const apiKeyMap: Record<string, { totalKeys: number; uniqueKeyUsers: Set<string> }> = {};
-    if (apiKeys) {
-      for (const k of apiKeys) {
-        const pId = k.program_id;
-        if (!pId) continue;
-        if (!apiKeyMap[pId]) {
-          apiKeyMap[pId] = { totalKeys: 0, uniqueKeyUsers: new Set() };
-        }
-        apiKeyMap[pId].totalKeys += 1;
-        if (k.user_id) apiKeyMap[pId].uniqueKeyUsers.add(k.user_id);
-      }
-    }
-
-    // 4. Test Vercel Live Endpoints Ping & Status
+    // Test Vercel Live Endpoints Ping & Status
     const programMetrics = await Promise.all(
       (programs || []).map(async (prog) => {
         const pLogs = logMap[prog.id] || {
@@ -122,18 +112,21 @@ export async function GET() {
           uniqueUsers: new Set(),
           lastActiveAt: null,
         };
-        const pKeys = apiKeyMap[prog.id] || { totalKeys: 0, uniqueKeyUsers: new Set() };
+
+        const categoryName =
+          (prog.categories as unknown as { name?: string })?.name || "기타";
 
         let pingStatus: "online" | "redirect" | "offline" = "offline";
         let statusCode = 0;
         let latencyMs = 0;
 
-        if (prog.app_url) {
+        const url = prog.app_url;
+        if (url && (url.startsWith("http://") || url.startsWith("https://"))) {
           const startMs = Date.now();
           try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4000);
-            const res = await fetch(prog.app_url, {
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const res = await fetch(url, {
               method: "GET",
               signal: controller.signal,
               cache: "no-store",
@@ -148,7 +141,7 @@ export async function GET() {
             } else {
               pingStatus = "offline";
             }
-          } catch (e) {
+          } catch {
             latencyMs = Date.now() - startMs;
             pingStatus = "offline";
           }
@@ -156,9 +149,9 @@ export async function GET() {
 
         return {
           id: prog.id,
-          title: prog.title,
+          name: prog.name,
           slug: prog.slug,
-          category: prog.category || "기타",
+          category: categoryName,
           app_url: prog.app_url,
           is_active: prog.is_active,
           metrics: {
@@ -166,7 +159,6 @@ export async function GET() {
             last24hLogs: pLogs.last24h,
             last7dLogs: pLogs.last7d,
             uniqueUsersCount: pLogs.uniqueUsers.size,
-            registeredApiKeys: pKeys.totalKeys,
             lastActiveAt: pLogs.lastActiveAt,
           },
           health: {
@@ -182,7 +174,7 @@ export async function GET() {
     const totalLogs = Object.values(logMap).reduce((sum, item) => sum + item.total, 0);
     const total24hLogs = Object.values(logMap).reduce((sum, item) => sum + item.last24h, 0);
     const total7dLogs = Object.values(logMap).reduce((sum, item) => sum + item.last7d, 0);
-    const totalApiKeys = Object.values(apiKeyMap).reduce((sum, item) => sum + item.totalKeys, 0);
+    const totalApiKeys = apiKeys.length;
     const totalPrograms = programMetrics.length;
     const onlinePrograms = programMetrics.filter(
       (p) => p.health.status === "online" || p.health.status === "redirect"
@@ -202,6 +194,9 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error("System Usage Monitor API Error:", error);
-    return NextResponse.json({ error: error?.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

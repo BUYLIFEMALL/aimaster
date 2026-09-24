@@ -5,18 +5,13 @@ import {
   Activity,
   Database,
   Server,
-  Globe,
   RefreshCw,
   Zap,
   CheckCircle2,
   XCircle,
-  Clock,
   Key,
-  Users,
   Search,
   ExternalLink,
-  Layers,
-  ShieldAlert,
   BarChart3,
   AlertCircle
 } from "lucide-react";
@@ -25,7 +20,7 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 
 interface ProgramMetric {
   id: string;
-  title: string;
+  name: string;
   slug: string;
   category: string;
   app_url: string;
@@ -35,7 +30,6 @@ interface ProgramMetric {
     last24hLogs: number;
     last7dLogs: number;
     uniqueUsersCount: number;
-    registeredApiKeys: number;
     lastActiveAt: string | null;
   };
   health: {
@@ -85,7 +79,8 @@ export default function SystemUsageMonitor() {
     try {
       const res = await fetch("/api/admin/system-usage", { cache: "no-store" });
       if (!res.ok) {
-        throw new Error(`API Error: ${res.status}`);
+        const errorJson = await res.json().catch(() => ({}));
+        throw new Error(errorJson.error || `서버 에러 (${res.status})`);
       }
       const json = await res.json();
       setData(json);
@@ -120,7 +115,7 @@ export default function SystemUsageMonitor() {
           selectedCategory === "all" || p.category === selectedCategory;
         const matchesSearch =
           !searchQuery.trim() ||
-          p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.slug.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
       })
@@ -331,14 +326,13 @@ export default function SystemUsageMonitor() {
                     <th className="p-3.5 text-right">총 실행/로그</th>
                     <th className="p-3.5 text-right">24시간 트래픽</th>
                     <th className="p-3.5 text-right">이용 회원</th>
-                    <th className="p-3.5 text-right">등록 API키</th>
                     <th className="p-3.5 pr-5 text-right">최근 트래픽</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 text-xs">
                   {filteredPrograms.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="p-8 text-center text-subtext">
+                      <td colSpan={6} className="p-8 text-center text-subtext">
                         조건에 일치하는 프로그램 데이터가 없습니다.
                       </td>
                     </tr>
@@ -348,7 +342,7 @@ export default function SystemUsageMonitor() {
                         {/* Title & Slug */}
                         <td className="p-3.5 pl-5">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white">{prog.title}</span>
+                            <span className="text-xs font-bold text-white">{prog.name}</span>
                             <span className="text-[10px] bg-white/10 text-subtext px-2 py-0.5 rounded border border-white/10">
                               {prog.category}
                             </span>
@@ -410,17 +404,6 @@ export default function SystemUsageMonitor() {
                         {/* Unique Users */}
                         <td className="p-3.5 text-right font-mono text-subtext">
                           {prog.metrics.uniqueUsersCount}명
-                        </td>
-
-                        {/* Registered API Keys */}
-                        <td className="p-3.5 text-right font-mono">
-                          {prog.metrics.registeredApiKeys > 0 ? (
-                            <span className="text-emerald-400 font-bold">
-                              {prog.metrics.registeredApiKeys}개
-                            </span>
-                          ) : (
-                            <span className="text-subtext">0개</span>
-                          )}
                         </td>
 
                         {/* Last Active At */}
