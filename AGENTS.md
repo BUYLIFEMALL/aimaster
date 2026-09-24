@@ -204,7 +204,7 @@ vercel deploy --prod --yes --scope buylife
 | 인스타 | INSTA 댓글자동화 | instagram-comment-reply | https://instagram-comment-reply.vercel.app |
 | 인스타 | INSTA DM답변 자동화 | instagram-dm-reply | https://instagram-dm-reply.vercel.app |
 | 블로그 | BLOG(원문)생성 자동화 | ai-auto-blog | https://www.buylife.xyz/blog (루트 앱에 직접 임베드) |
-| 음악 | 음악 자동화 | music-automation | https://music-rho-virid-22.vercel.app |
+| 음악 | 음악(SUNO)자동화 | music-automation | https://music-rho-virid-22.vercel.app |
 | 쇼츠 | YOUTUBE Shots(이미지 스토리) 자동화 | auto-shorts-posting | https://shots-inky.vercel.app |
 | 유튜브 | 유튜브 댓글자동화 | youtube-auto-reply | https://youtube-auto-reply.vercel.app |
 | CRM | 구글폼 CRM 자동화 | crm-google-form | https://crm-google-form.vercel.app |

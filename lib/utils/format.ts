@@ -37,3 +37,22 @@ export function daysRemaining(expiresAt: string | Date | null): string {
   if (diff === 0) return "오늘 만료";
   return `D-${diff}`;
 }
+
+/** 한국 전화번호 자동 포맷 (예: 010-9926-3686, 02-1234-5678) */
+export function formatPhoneNumber(value: string | null | undefined): string {
+  if (!value) return "";
+  const raw = value.replace(/[^0-9]/g, "");
+
+  if (raw.startsWith("02")) {
+    if (raw.length <= 2) return raw;
+    if (raw.length <= 5) return `${raw.slice(0, 2)}-${raw.slice(2)}`;
+    if (raw.length <= 9) return `${raw.slice(0, 2)}-${raw.slice(2, 5)}-${raw.slice(5)}`;
+    return `${raw.slice(0, 2)}-${raw.slice(2, 6)}-${raw.slice(6, 10)}`;
+  }
+
+  if (raw.length <= 3) return raw;
+  if (raw.length <= 7) return `${raw.slice(0, 3)}-${raw.slice(3)}`;
+  if (raw.length <= 11) return `${raw.slice(0, 3)}-${raw.slice(3, 7)}-${raw.slice(7)}`;
+  return `${raw.slice(0, 3)}-${raw.slice(3, 7)}-${raw.slice(7, 11)}`;
+}
+

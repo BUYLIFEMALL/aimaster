@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
+import { formatPhoneNumber } from "@/lib/utils/format";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function SettingsPage() {
 
       if (profile) {
         setName(profile.name ?? "");
-        setPhone(profile.phone ?? "");
+        setPhone(formatPhoneNumber(profile.phone ?? ""));
       }
     })();
   }, [supabase, router]);
@@ -55,13 +56,15 @@ export default function SettingsPage() {
     setProfileMsg("");
 
     try {
+      const formattedPhone = formatPhoneNumber(phone);
       const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone }),
+        body: JSON.stringify({ name, phone: formattedPhone }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      setPhone(formattedPhone);
       setProfileMsg("프로필이 저장되었습니다");
       setTimeout(() => setProfileMsg(""), 3000);
     } catch (err) {
@@ -160,7 +163,7 @@ export default function SettingsPage() {
               <input
                 type="tel"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
                 className="input-dark w-full"
                 placeholder="010-0000-0000"
               />

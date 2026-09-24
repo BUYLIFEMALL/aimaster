@@ -1054,6 +1054,182 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         ]
       }
     ]
+  },
+  {
+    id: "seedream",
+    name: "Seedream (ByteDance Official)",
+    apiKeyProvider: "replicate",
+    description: "ByteDance 공식 Seedream 플래그십 비주얼 & 시퀀스 이미지 생성 라인업 (2K/3K/4K 고해상도 지원)",
+    iconName: "Sparkles",
+    models: [
+      {
+        id: "bytedance/seedream-5-lite",
+        name: "Seedream 5.0 Lite",
+        description: "ByteDance 최신 플래그십 (2K~3K 고화질, 추론 엔진 & 연작 시퀀스 생성 지원)",
+        options: [
+          {
+            id: "size",
+            name: "해상도 (size: 2K / 3K)",
+            type: "select",
+            default: "2K",
+            description: "Image resolution: 2K (2048px) or 3K (3072px).",
+            options: [
+              { label: "2K 고화질 (2048px)", value: "2K" },
+              { label: "3K 울트라 (3072px)", value: "3K" }
+            ]
+          },
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "match_input_image",
+            description: "Image aspect ratio. Use 'match_input_image' to match input image's aspect ratio.",
+            options: [
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "21:9 시네마틱 파노라마", value: "21:9" }
+            ]
+          },
+          {
+            id: "sequential_image_generation",
+            name: "연작 그룹 생성 모드 (sequential_image_generation)",
+            type: "select",
+            default: "disabled",
+            description: "Group image generation mode. 'disabled' generates a single image. 'auto' lets the model decide whether to generate multiple related images.",
+            options: [
+              { label: "단일 이미지 생성 (disabled)", value: "disabled" },
+              { label: "자동 스토리 연작 시퀀스 (auto)", value: "auto" }
+            ]
+          },
+          {
+            id: "max_images",
+            name: "최대 생성 수량 (max_images: 1 ~ 15장)",
+            type: "slider",
+            default: 1,
+            min: 1,
+            max: 15,
+            step: 1,
+            description: "Maximum number of images to generate when sequential_image_generation='auto'."
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "png",
+            description: "Output image format.",
+            options: [
+              { label: "png (무손실 기본)", value: "png" },
+              { label: "jpeg (고효율)", value: "jpeg" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "bytedance/seedream-4.5",
+        name: "Seedream 4.5",
+        description: "공간 이해도 & 세계지식 강화 버전 (2K~4K 해상도 & 커스텀 크기 지원)",
+        options: [
+          {
+            id: "size",
+            name: "해상도 (size: 2K / 4K / custom)",
+            type: "select",
+            default: "2K",
+            description: "Image resolution: 2K (2048px), 4K (4096px), or 'custom' for specific dimensions.",
+            options: [
+              { label: "2K 고화질 (2048px)", value: "2K" },
+              { label: "4K 울트라 HD (4096px)", value: "4K" },
+              { label: "사용자 지정 해상도 (custom)", value: "custom" }
+            ]
+          },
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "match_input_image",
+            description: "Image aspect ratio. Only used when size is not 'custom'.",
+            options: [
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "21:9 시네마틱 파노라마", value: "21:9" },
+              { label: "9:21 울트라 세로", value: "9:21" }
+            ]
+          },
+          {
+            id: "width",
+            name: "가로 크기 (width: 1024 ~ 4096)",
+            type: "slider",
+            default: 2048,
+            min: 1024,
+            max: 4096,
+            step: 32,
+            description: "Custom image width (only used when size='custom'). Range: 1024-4096 pixels."
+          },
+          {
+            id: "height",
+            name: "세로 크기 (height: 1024 ~ 4096)",
+            type: "slider",
+            default: 2048,
+            min: 1024,
+            max: 4096,
+            step: 32,
+            description: "Custom image height (only used when size='custom'). Range: 1024-4096 pixels."
+          },
+          {
+            id: "sequential_image_generation",
+            name: "연작 그룹 생성 모드 (sequential_image_generation)",
+            type: "select",
+            default: "disabled",
+            description: "Group image generation mode.",
+            options: [
+              { label: "단일 이미지 생성 (disabled)", value: "disabled" },
+              { label: "자동 스토리 연작 시퀀스 (auto)", value: "auto" }
+            ]
+          },
+          {
+            id: "max_images",
+            name: "최대 생성 수량 (max_images: 1 ~ 15장)",
+            type: "slider",
+            default: 1,
+            min: 1,
+            max: 15,
+            step: 1,
+            description: "Maximum number of images to generate when sequential_image_generation='auto'."
+          },
+          {
+            id: "disable_safety_checker",
+            name: "안전 검열 완화 (disable_safety_checker)",
+            type: "boolean",
+            default: false,
+            description: "Disable safety checker for generated images (moderation relaxed)."
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "png",
+            description: "Output image format.",
+            options: [
+              { label: "png (무손실 기본)", value: "png" },
+              { label: "jpeg (고효율)", value: "jpeg" }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 

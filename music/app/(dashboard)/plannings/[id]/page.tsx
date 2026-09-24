@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { GenerateTracksPanel } from "@/components/plannings/GenerateTracksPanel";
 import { TrackCard, type TrackCardData } from "@/components/plannings/TrackCard";
 import { AutoRefresh } from "@/components/plannings/AutoRefresh";
-import { PlanningHeaderCard } from "@/components/plannings/PlanningHeaderCard";
+import { PlanningHeaderCard, type PlanningHeaderData } from "@/components/plannings/PlanningHeaderCard";
 
 export const dynamic = "force-dynamic";
 // 최대 10곡 대량생성 시 GPT 스타일/가사 호출이 순차로 여러 번 도는 generateTracksAction이
@@ -23,6 +23,9 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
     .eq("user_id", user.id)
     .single();
   if (!planning) notFound();
+  // Supabase 생성 타입이 이 테이블의 컬럼을 아직 반영하지 않아 `{}`로 추론된다.
+  // 화면에서 실제로 사용하는 기획 헤더 타입으로 명시해 빌드 시 타입 안전성을 유지한다.
+  const planningData = planning as PlanningHeaderData;
 
   // music_tracks.extended_from_variant_id(연장 원본 variant)가 music_track_variants를 가리키는
   // FK가 하나 더 생겨서, music_tracks -> music_track_variants 사이에 관계가 2개(변형 목록 FK인
@@ -52,18 +55,18 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
         ← 기획 목록으로 돌아가기
       </Link>
 
-      <PlanningHeaderCard planning={planning} />
+      <PlanningHeaderCard planning={planningData} />
 
       <GenerateTracksPanel
-        planningId={planning.id}
-        planningVocalGender={planning.vocal_gender}
-        planningLang={planning.lang}
+        planningId={planningData.id}
+        planningVocalGender={planningData.vocal_gender}
+        planningLang={planningData.lang}
       />
 
       {trackList.length > 0 && (
         <div className="space-y-4">
           {trackList.map((track) => (
-            <TrackCard key={track.id} track={track} planningLang={planning.lang} />
+            <TrackCard key={track.id} track={track} planningLang={planningData.lang} />
           ))}
         </div>
       )}

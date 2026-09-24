@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { formatPhoneNumber } from "@/lib/utils/format";
 
 /** PUT — 프로필 수정 (이름, 전화번호) */
 export async function PUT(req: NextRequest) {
@@ -13,11 +14,13 @@ export async function PUT(req: NextRequest) {
 
   const { name, phone } = await req.json();
 
+  const formattedPhone = phone ? formatPhoneNumber(phone) : null;
+
   const { data, error } = await supabase
     .from("profiles")
     .update({
       name: name?.trim() || null,
-      phone: phone?.trim() || null,
+      phone: formattedPhone || null,
     })
     .eq("id", user.id)
     .select()
@@ -28,3 +31,4 @@ export async function PUT(req: NextRequest) {
 
   return NextResponse.json(data);
 }
+

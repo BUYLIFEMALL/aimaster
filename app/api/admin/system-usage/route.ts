@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 const BUCKET_PROGRAM_MAP: Record<string, { programSlug: string; programName: string }> = {
-  "music-audio": { programSlug: "music-automation", programName: "음악 자동화" },
+  "music-audio": { programSlug: "music-automation", programName: "음악(SUNO)자동화" },
   "ai-image-generations": { programSlug: "ai-image-studio", programName: "AI 이미지 스튜디오" },
   "shorts-images": { programSlug: "auto-shorts-posting", programName: "YOUTUBE Shorts 자동화" },
   "shots-bgm": { programSlug: "auto-shorts-posting", programName: "YOUTUBE Shorts BGM" },

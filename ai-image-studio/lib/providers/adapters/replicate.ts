@@ -98,6 +98,13 @@ export class ReplicateAdapter implements ImageProviderAdapter {
     if (params.options.scheduler) input.scheduler = params.options.scheduler;
     if (params.options.refine) input.refine = params.options.refine;
 
+    if (params.options.max_images !== undefined) {
+      input.max_images = Number(params.options.max_images);
+    }
+    if (params.options.sequential_image_generation) {
+      input.sequential_image_generation = params.options.sequential_image_generation;
+    }
+
     if (params.negativePrompt || params.options.negative_prompt) {
       input.negative_prompt = params.negativePrompt || params.options.negative_prompt;
     }

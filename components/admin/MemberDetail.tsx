@@ -7,7 +7,7 @@ import { Plus, Trash2, Monitor, LogOut, Ban, RotateCcw, CalendarPlus } from "luc
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import GoldGradientText from "@/components/ui/GoldGradientText";
-import { formatDate } from "@/lib/utils/format";
+import { formatDate, formatPhoneNumber } from "@/lib/utils/format";
 import type { Profile, Program, Subscription, UserProgramAccess, UserSession } from "@/types/database.types";
 
 // 만료일 연장 시 선택할 기간 — 버튼을 여러 개 늘어놓으면 칸이 부족해서 select 하나로
@@ -323,6 +323,10 @@ export default function MemberDetail({
           <div>
             <span className="text-subtext">이메일</span>
             <p className="text-white font-medium">{member.email}</p>
+          </div>
+          <div>
+            <span className="text-subtext">전화번호</span>
+            <p className="text-white font-medium">{member.phone ? formatPhoneNumber(member.phone) : "-"}</p>
           </div>
           <div>
             <span className="text-subtext">등급</span>

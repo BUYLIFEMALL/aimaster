@@ -8,6 +8,7 @@ const adapters: Record<string, ImageProviderAdapter> = {
   openai: new OpenAIAdapter(),
   replicate: new ReplicateAdapter(),
   zimage: new ReplicateAdapter(),
+  seedream: new ReplicateAdapter(),
   gemini: new GeminiAdapter(),
 };
 

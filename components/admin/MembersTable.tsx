@@ -534,7 +534,6 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                 <th className="text-left text-xs text-subtext font-medium p-4">회원</th>
                 <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">등급</th>
                 <th className="text-center text-xs text-subtext font-medium p-4">상태</th>
-                <th className="text-center text-xs text-subtext font-medium p-4 hidden lg:table-cell">관리자</th>
                 <th className="text-right text-xs text-subtext font-medium p-4 hidden lg:table-cell">사용만료기간</th>
                 <th className="text-right text-xs text-subtext font-medium p-4 hidden md:table-cell">가입일</th>
                 <th className="text-center text-xs text-subtext font-medium p-4 w-32">관리</th>
@@ -543,7 +542,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
             <tbody>
               {paginatedMembers.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-subtext text-sm">
+                  <td colSpan={7} className="p-8 text-center text-subtext text-sm">
                     {selectedGradeId !== "all"
                       ? `[${activeTargetGrade?.name ?? (selectedGradeId === "unassigned" ? "미배정" : "")}] 카테고리에 해당하는 회원이 없습니다.`
                       : "검색 결과가 없습니다."}
@@ -589,11 +588,6 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                     >
                       {m.is_suspended ? "정지" : "활성"}
                     </span>
-                  </td>
-                  <td className="p-4 text-center hidden lg:table-cell">
-                    {m.is_admin && (
-                      <span className="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full">관리자</span>
-                    )}
                   </td>
                   <td className="p-4 text-right hidden lg:table-cell">
                     {(() => {
