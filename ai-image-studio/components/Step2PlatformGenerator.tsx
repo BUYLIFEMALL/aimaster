@@ -156,7 +156,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
         {/* Platform Cards */}
         <div className="space-y-3">
           <label className="text-sm font-bold text-zinc-200">이미지 생성 플랫폼 선택</label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {PROVIDERS_REGISTRY.map((prov) => {
               const isSelected = prov.id === selectedProviderId;
               const isKeyRegistered = registeredKeys.includes(prov.apiKeyProvider);
