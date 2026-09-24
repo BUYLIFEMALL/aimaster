@@ -633,6 +633,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "1:1",
+            description: "Aspect ratio for the generated image. Use 'match_input_image' to match the first input image's aspect ratio.",
             options: [
               { label: "1:1 정사각형", value: "1:1" },
               { label: "16:9 와이드 가로형", value: "16:9" },
@@ -652,6 +653,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             name: "해상도 (resolution)",
             type: "select",
             default: "1 MP",
+            description: "Resolution in megapixels. Up to 4 MP is possible, but 2 MP or below is recommended.",
             options: [
               { label: "1 MP (기본 추천)", value: "1 MP" },
               { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
@@ -667,7 +669,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 1024,
             min: 256,
             max: 2048,
-            step: 16
+            step: 16,
+            description: "Width of the generated image. Only used when aspect_ratio=custom. Must be a multiple of 16."
           },
           {
             id: "height",
@@ -676,7 +679,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 1024,
             min: 256,
             max: 2048,
-            step: 16
+            step: 16,
+            description: "Height of the generated image. Only used when aspect_ratio=custom. Must be a multiple of 16."
           },
           {
             id: "safety_tolerance",
@@ -685,19 +689,22 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 2,
             min: 1,
             max: 5,
-            step: 1
+            step: 1,
+            description: "Safety tolerance, 1 is most strict and 5 is most permissive"
           },
           {
             id: "seed",
             name: "랜덤 시드 번호 (seed)",
             type: "text",
-            default: ""
+            default: "",
+            description: "Random seed. Set for reproducible generation"
           },
           {
             id: "output_format",
             name: "출력 포맷 (output_format)",
             type: "select",
             default: "webp",
+            description: "Format of the output images.",
             options: [
               { label: "webp (고효율 기본)", value: "webp" },
               { label: "jpg (표준 고품질)", value: "jpg" },
@@ -711,7 +718,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 80,
             min: 0,
             max: 100,
-            step: 5
+            step: 5,
+            description: "Quality when saving the output images, from 0 to 100. 100 is best quality. Not relevant for .png outputs"
           }
         ]
       },
