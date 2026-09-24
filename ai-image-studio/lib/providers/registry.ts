@@ -549,36 +549,53 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
               { label: "9:16 모바일 세로형", value: "9:16" },
               { label: "4:3 표준 가로형", value: "4:3" },
               { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "21:9 시네마틱 파노라마", value: "21:9" }
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "사용자 지정 해상도 (custom)", value: "custom" }
             ]
           },
           {
-            id: "go_fast",
-            name: "고속 모드 (Fast Mode)",
+            id: "resolution",
+            name: "해상도 (Resolution)",
             type: "select",
-            default: "true",
+            default: "1 MP",
             options: [
-              { label: "On (초고속 생성 추천)", value: "true" },
-              { label: "Off (정밀 생성)", value: "false" }
+              { label: "1 MP (기본 추천)", value: "1 MP" },
+              { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
+              { label: "2 MP (고화질)", value: "2 MP" },
+              { label: "4 MP (초고화질 렌더링)", value: "4 MP" },
+              { label: "입력 이미지 해상도 맞춤 (match_input_image)", value: "match_input_image" }
             ]
+          },
+          {
+            id: "safety_tolerance",
+            name: "안전 필터 (Safety Tolerance: 1 엄격 ~ 5 완화)",
+            type: "slider",
+            default: 2,
+            min: 1,
+            max: 5,
+            step: 1
           },
           {
             id: "output_format",
             name: "출력 포맷 (Format)",
             type: "select",
-            default: "jpg",
+            default: "webp",
             options: [
-              { label: "JPG (고품질 표준)", value: "jpg" },
-              { label: "PNG (무손실)", value: "png" },
-              { label: "WebP (고효율)", value: "webp" }
+              { label: "WebP (고효율 기본)", value: "webp" },
+              { label: "JPG (표준 고품질)", value: "jpg" },
+              { label: "PNG (무손실)", value: "png" }
             ]
           },
           {
             id: "output_quality",
             name: "출력 화질 (Quality)",
             type: "slider",
-            default: 90,
-            min: 1,
+            default: 80,
+            min: 0,
             max: 100,
             step: 5
           }
@@ -587,7 +604,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "black-forest-labs/flux-2-flex",
         name: "FLUX 2 [flex]",
-        description: "BFL 차세대 FLUX 2.0 Flex 엔진 - 고유연성 극상 화풍 및 차세대 고속 렌더링",
+        description: "BFL 차세대 FLUX 2.0 Flex 엔진 - 유연한 추론 스텝 & 프롬프트 업샘플링 세부제어",
         options: [
           {
             id: "aspect_ratio",
@@ -600,28 +617,73 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
               { label: "9:16 모바일 세로형", value: "9:16" },
               { label: "4:3 표준 가로형", value: "4:3" },
               { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "21:9 시네마틱 파노라마", value: "21:9" }
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "사용자 지정 해상도 (custom)", value: "custom" }
             ]
           },
           {
-            id: "go_fast",
-            name: "고속 모드 (Fast Mode)",
+            id: "resolution",
+            name: "해상도 (Resolution)",
+            type: "select",
+            default: "1 MP",
+            options: [
+              { label: "1 MP (기본 추천)", value: "1 MP" },
+              { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
+              { label: "2 MP (고화질)", value: "2 MP" },
+              { label: "4 MP (초고화질 렌더링)", value: "4 MP" },
+              { label: "입력 이미지 해상도 맞춤 (match_input_image)", value: "match_input_image" }
+            ]
+          },
+          {
+            id: "steps",
+            name: "생성 단계 수 (Inference Steps)",
+            type: "slider",
+            default: 30,
+            min: 1,
+            max: 50,
+            step: 1
+          },
+          {
+            id: "guidance",
+            name: "가이던스 강도 (Guidance Scale)",
+            type: "slider",
+            default: 4.5,
+            min: 1.5,
+            max: 10.0,
+            step: 0.1
+          },
+          {
+            id: "prompt_upsampling",
+            name: "프롬프트 자동 보강 (Prompt Upsampling)",
             type: "select",
             default: "true",
             options: [
-              { label: "On (초고속 생성 추천)", value: "true" },
-              { label: "Off (정밀 생성)", value: "false" }
+              { label: "On (AI 디테일 자동 확장)", value: "true" },
+              { label: "Off (원문 충실)", value: "false" }
             ]
+          },
+          {
+            id: "safety_tolerance",
+            name: "안전 필터 (Safety Tolerance: 1 엄격 ~ 5 완화)",
+            type: "slider",
+            default: 2,
+            min: 1,
+            max: 5,
+            step: 1
           },
           {
             id: "output_format",
             name: "출력 포맷 (Format)",
             type: "select",
-            default: "jpg",
+            default: "webp",
             options: [
-              { label: "JPG (고품질 표준)", value: "jpg" },
-              { label: "PNG (무손실)", value: "png" },
-              { label: "WebP (고효율)", value: "webp" }
+              { label: "WebP (고효율 기본)", value: "webp" },
+              { label: "JPG (표준 고품질)", value: "jpg" },
+              { label: "PNG (무손실)", value: "png" }
             ]
           },
           {
@@ -629,7 +691,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             name: "출력 화질 (Quality)",
             type: "slider",
             default: 80,
-            min: 1,
+            min: 0,
             max: 100,
             step: 5
           }
@@ -638,7 +700,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "black-forest-labs/flux-2-dev",
         name: "FLUX 2 [dev]",
-        description: "BFL 차세대 FLUX 2.0 디벨로퍼 엔진 - 현존 최고의 정밀화질 및 고속 렌더링",
+        description: "BFL 차세대 FLUX 2.0 디벨로퍼 엔진 - 현존 최고의 정밀화질 및 Go Fast 고속 최적화",
         options: [
           {
             id: "aspect_ratio",
@@ -651,28 +713,43 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
               { label: "9:16 모바일 세로형", value: "9:16" },
               { label: "4:3 표준 가로형", value: "4:3" },
               { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "21:9 시네마틱 파노라마", value: "21:9" }
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "사용자 지정 해상도 (custom)", value: "custom" }
             ]
           },
           {
             id: "go_fast",
-            name: "고속 모드 (Fast Mode)",
+            name: "초고속 최적화 모드 (Go Fast)",
             type: "select",
             default: "true",
             options: [
-              { label: "On (초고속 생성 추천)", value: "true" },
-              { label: "Off (정밀 생성)", value: "false" }
+              { label: "On (초고속 렌더링 추천)", value: "true" },
+              { label: "Off (정밀 풀 렌더링)", value: "false" }
+            ]
+          },
+          {
+            id: "disable_safety_checker",
+            name: "안전 검사기 비활성화 (Disable Safety Checker)",
+            type: "select",
+            default: "false",
+            options: [
+              { label: "Off (안전 검사 켜기)", value: "false" },
+              { label: "On (안전 검사 비활성화)", value: "true" }
             ]
           },
           {
             id: "output_format",
             name: "출력 포맷 (Format)",
             type: "select",
-            default: "jpg",
+            default: "webp",
             options: [
-              { label: "JPG (고품질 표준)", value: "jpg" },
-              { label: "PNG (무손실)", value: "png" },
-              { label: "WebP (고효율)", value: "webp" }
+              { label: "WebP (고효율 기본)", value: "webp" },
+              { label: "JPG (표준 고품질)", value: "jpg" },
+              { label: "PNG (무손실)", value: "png" }
             ]
           },
           {
@@ -680,7 +757,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             name: "출력 화질 (Quality)",
             type: "slider",
             default: 80,
-            min: 1,
+            min: 0,
             max: 100,
             step: 5
           }
@@ -702,26 +779,53 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
               { label: "9:16 모바일 세로형", value: "9:16" },
               { label: "4:3 표준 가로형", value: "4:3" },
               { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "21:9 시네마틱 파노라마", value: "21:9" }
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "사용자 지정 해상도 (custom)", value: "custom" }
             ]
+          },
+          {
+            id: "resolution",
+            name: "해상도 (Resolution)",
+            type: "select",
+            default: "1 MP",
+            options: [
+              { label: "1 MP (기본 추천)", value: "1 MP" },
+              { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
+              { label: "2 MP (고화질)", value: "2 MP" },
+              { label: "4 MP (초고화질 렌더링)", value: "4 MP" },
+              { label: "입력 이미지 해상도 맞춤 (match_input_image)", value: "match_input_image" }
+            ]
+          },
+          {
+            id: "safety_tolerance",
+            name: "안전 필터 (Safety Tolerance: 1 엄격 ~ 5 완화)",
+            type: "slider",
+            default: 2,
+            min: 1,
+            max: 5,
+            step: 1
           },
           {
             id: "output_format",
             name: "출력 포맷 (Format)",
             type: "select",
-            default: "jpg",
+            default: "webp",
             options: [
-              { label: "JPG (고품질 표준)", value: "jpg" },
-              { label: "PNG (무손실)", value: "png" },
-              { label: "WebP (고효율)", value: "webp" }
+              { label: "WebP (고효율 기본)", value: "webp" },
+              { label: "JPG (표준 고품질)", value: "jpg" },
+              { label: "PNG (무손실)", value: "png" }
             ]
           },
           {
             id: "output_quality",
             name: "출력 화질 (Quality)",
             type: "slider",
-            default: 85,
-            min: 1,
+            default: 80,
+            min: 0,
             max: 100,
             step: 5
           }
@@ -730,7 +834,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "recraft-ai/recraft-v3",
         name: "Recraft V3",
-        description: "전문 일러스트, 3D 아이콘, 벡터 그래픽 디자인 전문 생성",
+        description: "SOTA 아트 일러스트, 3D 아이콘, 벡터 그래픽 디자인 전문 생성 (red_panda)",
         options: [
           {
             id: "style",
@@ -738,24 +842,45 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             type: "select",
             default: "any",
             options: [
-              { label: "Any (자유)", value: "any" },
-              { label: "Realistic Image (사실적 사진)", value: "realistic_image" },
+              { label: "Any (자유 스타일)", value: "any" },
+              { label: "Realistic Image (사실적 인물 사진)", value: "realistic_image" },
               { label: "Digital Illustration (디지털 일러스트)", value: "digital_illustration" },
               { label: "Vector Illustration (벡터 일러스트)", value: "vector_illustration" },
-              { label: "Icon (아이콘)", value: "icon" }
+              { label: "Icon (아이콘)", value: "icon" },
+              { label: "Pixel Art (픽셀 아트)", value: "digital_illustration/pixel_art" },
+              { label: "Hand Drawn (손그림 드로잉)", value: "digital_illustration/hand_drawn" },
+              { label: "2D Poster (2D 포스터 아트)", value: "digital_illustration/2d_art_poster" },
+              { label: "Handmade 3D (핸드메이드 3D)", value: "digital_illustration/handmade_3d" },
+              { label: "Studio Portrait (인물 스튜디오 사진)", value: "realistic_image/studio_portrait" }
             ]
           },
           {
             id: "aspect_ratio",
             name: "화면 비율 (Aspect Ratio)",
             type: "select",
-            default: "1:1",
+            default: "Not set",
             options: [
+              { label: "Not set (기본 해상도 지정)", value: "Not set" },
               { label: "1:1 정사각형", value: "1:1" },
               { label: "16:9 와이드 가로형", value: "16:9" },
               { label: "9:16 모바일 세로형", value: "9:16" },
               { label: "4:3 표준 가로형", value: "4:3" },
-              { label: "3:4 표준 세로형", value: "3:4" }
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" }
+            ]
+          },
+          {
+            id: "size",
+            name: "이미지 크기 (Size - aspect_ratio 미지정 시 사용)",
+            type: "select",
+            default: "1024x1024",
+            options: [
+              { label: "1024x1024 (정사각형 1K)", value: "1024x1024" },
+              { label: "1536x1024 (와이드 1.5K)", value: "1536x1024" },
+              { label: "1024x1536 (세로 1.5K)", value: "1024x1536" },
+              { label: "2048x1024 (파노라마 2K)", value: "2048x1024" },
+              { label: "1024x2048 (세로 긴형 2K)", value: "1024x2048" }
             ]
           }
         ]
@@ -766,24 +891,12 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         description: "Stability AI 대표 SDXL 이미지 생성 모델",
         options: [
           {
-            id: "aspect_ratio",
-            name: "화면 비율 (Aspect Ratio)",
-            type: "select",
-            default: "1:1",
-            options: [
-              { label: "1:1 정사각형", value: "1:1" },
-              { label: "16:9 와이드 가로형", value: "16:9" },
-              { label: "9:16 모바일 세로형", value: "9:16" },
-              { label: "4:3 표준 가로형", value: "4:3" }
-            ]
-          },
-          {
             id: "num_inference_steps",
-            name: "추론 스텝 (Inference Steps)",
+            name: "추론 스텝 (Num Inference Steps)",
             type: "slider",
             default: 50,
-            min: 10,
-            max: 100,
+            min: 1,
+            max: 500,
             step: 5
           },
           {
@@ -792,8 +905,44 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             type: "slider",
             default: 7.5,
             min: 1.0,
-            max: 20.0,
+            max: 50.0,
             step: 0.5
+          },
+          {
+            id: "scheduler",
+            name: "디노이징 스케줄러 (Scheduler)",
+            type: "select",
+            default: "K_EULER",
+            options: [
+              { label: "K_EULER (기본 추천)", value: "K_EULER" },
+              { label: "K_EULER_ANCESTRAL", value: "K_EULER_ANCESTRAL" },
+              { label: "DDIM", value: "DDIM" },
+              { label: "DPMSolverMultistep", value: "DPMSolverMultistep" },
+              { label: "HeunDiscrete", value: "HeunDiscrete" },
+              { label: "KarrasDPM", value: "KarrasDPM" },
+              { label: "PNDM", value: "PNDM" }
+            ]
+          },
+          {
+            id: "refine",
+            name: "리파이너 스타일 (Refine)",
+            type: "select",
+            default: "no_refiner",
+            options: [
+              { label: "No Refiner (기본 생성)", value: "no_refiner" },
+              { label: "Expert Ensemble Refiner (앙상블 세부정밀)", value: "expert_ensemble_refiner" },
+              { label: "Base Image Refiner (베이스 연계)", value: "base_image_refiner" }
+            ]
+          },
+          {
+            id: "disable_safety_checker",
+            name: "안전 검사기 비활성화 (Disable Safety Checker)",
+            type: "select",
+            default: "false",
+            options: [
+              { label: "Off (안전 필터 켜기)", value: "false" },
+              { label: "On (안전 필터 비활성화)", value: "true" }
+            ]
           }
         ]
       }

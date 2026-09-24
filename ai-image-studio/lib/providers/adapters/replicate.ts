@@ -13,37 +13,47 @@ export class ReplicateAdapter implements ImageProviderAdapter {
 
     // 공통 및 특수 옵션 매핑
     if (params.options.aspect_ratio) input.aspect_ratio = params.options.aspect_ratio;
+    if (params.options.resolution) input.resolution = params.options.resolution;
     
-    // inference steps / steps 호환
+    // steps / num_inference_steps
+    if (params.options.steps !== undefined) {
+      input.steps = Number(params.options.steps);
+    }
     if (params.options.num_inference_steps !== undefined) {
       input.num_inference_steps = Number(params.options.num_inference_steps);
-      input.steps = Number(params.options.num_inference_steps);
+      if (input.steps === undefined) input.steps = Number(params.options.num_inference_steps);
     }
     
-    // guidance scale / guidance 호환
+    // guidance / guidance_scale
+    if (params.options.guidance !== undefined) {
+      input.guidance = Number(params.options.guidance);
+    }
     if (params.options.guidance_scale !== undefined) {
       input.guidance_scale = Number(params.options.guidance_scale);
-      input.guidance = Number(params.options.guidance_scale);
+      if (input.guidance === undefined) input.guidance = Number(params.options.guidance_scale);
     }
 
     if (params.options.output_format) input.output_format = params.options.output_format;
     if (params.options.output_quality !== undefined) input.output_quality = Number(params.options.output_quality);
     if (params.options.style) input.style = params.options.style;
+    if (params.options.size) input.size = params.options.size;
 
-    // FLUX 1.1 pro / ultra 전용 옵션
     if (params.options.prompt_upsampling !== undefined) {
       input.prompt_upsampling = params.options.prompt_upsampling === "true" || params.options.prompt_upsampling === true;
     }
-    if (params.options.raw !== undefined) {
-      input.raw = params.options.raw === "true" || params.options.raw === true;
-    }
     if (params.options.safety_tolerance !== undefined) {
       input.safety_tolerance = Number(params.options.safety_tolerance);
+    }
+    if (params.options.disable_safety_checker !== undefined) {
+      input.disable_safety_checker = params.options.disable_safety_checker === "true" || params.options.disable_safety_checker === true;
     }
 
     if (params.options.go_fast !== undefined) {
       input.go_fast = params.options.go_fast === "true" || params.options.go_fast === true;
     }
+
+    if (params.options.scheduler) input.scheduler = params.options.scheduler;
+    if (params.options.refine) input.refine = params.options.refine;
 
     if (params.negativePrompt || params.options.negative_prompt) {
       input.negative_prompt = params.negativePrompt || params.options.negative_prompt;
