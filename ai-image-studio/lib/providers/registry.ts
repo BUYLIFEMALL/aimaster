@@ -534,232 +534,6 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     iconName: "Zap",
     models: [
       {
-        id: "black-forest-labs/flux-2-max",
-        name: "FLUX 2 [max]",
-        description: "BFL 최상위 FLUX 2.0 Max 엔진 - 최상위 표현력과 극상의 해상도를 자랑하는 최고 사양 모델",
-        options: [
-          {
-            id: "aspect_ratio",
-            name: "화면 비율 (aspect_ratio)",
-            type: "select",
-            default: "1:1",
-            description: "생성 이미지의 비율을 설정합니다. (custom 선택 시 가로/세로 직접 지정)",
-            options: [
-              { label: "1:1 정사각형", value: "1:1" },
-              { label: "16:9 와이드 가로형", value: "16:9" },
-              { label: "9:16 모바일 세로형", value: "9:16" },
-              { label: "4:3 표준 가로형", value: "4:3" },
-              { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "3:2 사진형 가로", value: "3:2" },
-              { label: "2:3 사진형 세로", value: "2:3" },
-              { label: "4:5 인스타그램 포스트", value: "4:5" },
-              { label: "5:4 디스플레이", value: "5:4" },
-              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
-              { label: "사용자 지정 해상도 (custom)", value: "custom" }
-            ]
-          },
-          {
-            id: "resolution",
-            name: "해상도 (resolution)",
-            type: "select",
-            default: "1 MP",
-            description: "메가픽셀 단위 해상도를 지정합니다. (custom 비율 시 적용 제외)",
-            options: [
-              { label: "1 MP (기본 추천)", value: "1 MP" },
-              { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
-              { label: "2 MP (고화질)", value: "2 MP" },
-              { label: "4 MP (초고화질 렌더링)", value: "4 MP" },
-              { label: "입력 이미지 해상도 맞춤 (match_input_image)", value: "match_input_image" }
-            ]
-          },
-          {
-            id: "width",
-            name: "가로 크기 (width: 256 ~ 2048)",
-            type: "slider",
-            default: 1024,
-            min: 256,
-            max: 2048,
-            step: 16,
-            description: "aspect_ratio가 custom일 때 사용되는 가로 픽셀 크기 (16의 배수)"
-          },
-          {
-            id: "height",
-            name: "세로 크기 (height: 256 ~ 2048)",
-            type: "slider",
-            default: 1024,
-            min: 256,
-            max: 2048,
-            step: 16,
-            description: "aspect_ratio가 custom일 때 사용되는 세로 픽셀 크기 (16의 배수)"
-          },
-          {
-            id: "safety_tolerance",
-            name: "안전 필터 (safety_tolerance: 1 엄격 ~ 5 완화)",
-            type: "slider",
-            default: 2,
-            min: 1,
-            max: 5,
-            step: 1,
-            description: "안전성 수준 제어 (1: 가장 엄격, 5: 가장 허용적)"
-          },
-          {
-            id: "seed",
-            name: "랜덤 시드 번호 (seed)",
-            type: "text",
-            default: "",
-            description: "결과 재현용 시드 번호 (비워둘 경우 무작위 생성을 위한 랜덤 난수 사용)"
-          },
-          {
-            id: "output_format",
-            name: "출력 포맷 (output_format)",
-            type: "select",
-            default: "webp",
-            options: [
-              { label: "webp (고효율 기본)", value: "webp" },
-              { label: "jpg (표준 고품질)", value: "jpg" },
-              { label: "png (무손실)", value: "png" }
-            ]
-          },
-          {
-            id: "output_quality",
-            name: "출력 화질 (output_quality: 0 ~ 100)",
-            type: "slider",
-            default: 80,
-            min: 0,
-            max: 100,
-            step: 5,
-            description: "저장 시 이미지 화질 (100: 최상, png 출력 시 미적용)"
-          }
-        ]
-      },
-      {
-        id: "black-forest-labs/flux-2-flex",
-        name: "FLUX 2 [flex]",
-        description: "BFL 차세대 FLUX 2.0 Flex 엔진 - 유연한 추론 스텝(steps) & 가이던스(guidance) & 프롬프트 자동 보강(prompt_upsampling) 제어",
-        options: [
-          {
-            id: "aspect_ratio",
-            name: "화면 비율 (aspect_ratio)",
-            type: "select",
-            default: "1:1",
-            description: "Aspect ratio for the generated image. Use 'match_input_image' to match the first input image's aspect ratio.",
-            options: [
-              { label: "1:1 정사각형", value: "1:1" },
-              { label: "16:9 와이드 가로형", value: "16:9" },
-              { label: "9:16 모바일 세로형", value: "9:16" },
-              { label: "4:3 표준 가로형", value: "4:3" },
-              { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "3:2 사진형 가로", value: "3:2" },
-              { label: "2:3 사진형 세로", value: "2:3" },
-              { label: "4:5 인스타그램 포스트", value: "4:5" },
-              { label: "5:4 디스플레이", value: "5:4" },
-              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
-              { label: "사용자 지정 해상도 (custom)", value: "custom" }
-            ]
-          },
-          {
-            id: "resolution",
-            name: "해상도 (resolution)",
-            type: "select",
-            default: "1 MP",
-            description: "Resolution in megapixels. Up to 4 MP is possible, but 2 MP or below is recommended.",
-            options: [
-              { label: "1 MP (기본 추천)", value: "1 MP" },
-              { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
-              { label: "2 MP (고화질)", value: "2 MP" },
-              { label: "4 MP (초고화질 렌더링)", value: "4 MP" },
-              { label: "입력 이미지 해상도 맞춤 (match_input_image)", value: "match_input_image" }
-            ]
-          },
-          {
-            id: "width",
-            name: "가로 크기 (width: 256 ~ 2048)",
-            type: "slider",
-            default: 1024,
-            min: 256,
-            max: 2048,
-            step: 16,
-            description: "Width of the generated image. Only used when aspect_ratio=custom. Must be a multiple of 16."
-          },
-          {
-            id: "height",
-            name: "세로 크기 (height: 256 ~ 2048)",
-            type: "slider",
-            default: 1024,
-            min: 256,
-            max: 2048,
-            step: 16,
-            description: "Height of the generated image. Only used when aspect_ratio=custom. Must be a multiple of 16."
-          },
-          {
-            id: "safety_tolerance",
-            name: "안전 필터 (safety_tolerance: 1 ~ 5)",
-            type: "slider",
-            default: 2,
-            min: 1,
-            max: 5,
-            step: 1,
-            description: "Safety tolerance, 1 is most strict and 5 is most permissive"
-          },
-          {
-            id: "seed",
-            name: "랜덤 시드 번호 (seed)",
-            type: "text",
-            default: "",
-            description: "Random seed. Set for reproducible generation"
-          },
-          {
-            id: "prompt_upsampling",
-            name: "프롬프트 자동 보강 (prompt_upsampling)",
-            type: "boolean",
-            default: true,
-            description: "Automatically modify the prompt for more creative generation"
-          },
-          {
-            id: "steps",
-            name: "생성 단계 수 (steps: 1 ~ 50)",
-            type: "slider",
-            default: 30,
-            min: 1,
-            max: 50,
-            step: 1,
-            description: "Number of inference steps (minimum: 1, maximum: 50)"
-          },
-          {
-            id: "guidance",
-            name: "가이던스 강도 (guidance: 1.5 ~ 10.0)",
-            type: "slider",
-            default: 4.5,
-            min: 1.5,
-            max: 10.0,
-            step: 0.1,
-            description: "Guidance scale for generation. Controls how closely the output follows the prompt (minimum: 1.5, maximum: 10)"
-          },
-          {
-            id: "output_format",
-            name: "출력 포맷 (output_format)",
-            type: "select",
-            default: "webp",
-            description: "Format of the output images.",
-            options: [
-              { label: "webp (고효율 기본)", value: "webp" },
-              { label: "jpg (표준 고품질)", value: "jpg" },
-              { label: "png (무손실)", value: "png" }
-            ]
-          },
-          {
-            id: "output_quality",
-            name: "출력 화질 (output_quality: 0 ~ 100)",
-            type: "slider",
-            default: 80,
-            min: 0,
-            max: 100,
-            step: 5,
-            description: "Quality when saving the output images, from 0 to 100. 100 is best quality. Not relevant for .png outputs"
-          }
-        ]
-      },
-      {
         id: "black-forest-labs/flux-2-dev",
         name: "FLUX 2 [dev]",
         description: "BFL 차세대 FLUX 2.0 디벨로퍼 엔진 - 현존 최고의 정밀화질 및 Go Fast 고속 최적화",
@@ -938,6 +712,232 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             min: 0,
             max: 100,
             step: 5
+          }
+        ]
+      },
+      {
+        id: "black-forest-labs/flux-2-flex",
+        name: "FLUX 2 [flex]",
+        description: "BFL 차세대 FLUX 2.0 Flex 엔진 - 유연한 추론 스텝(steps) & 가이던스(guidance) & 프롬프트 자동 보강(prompt_upsampling) 제어",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            description: "Aspect ratio for the generated image. Use 'match_input_image' to match the first input image's aspect ratio.",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "사용자 지정 해상도 (custom)", value: "custom" }
+            ]
+          },
+          {
+            id: "resolution",
+            name: "해상도 (resolution)",
+            type: "select",
+            default: "1 MP",
+            description: "Resolution in megapixels. Up to 4 MP is possible, but 2 MP or below is recommended.",
+            options: [
+              { label: "1 MP (기본 추천)", value: "1 MP" },
+              { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
+              { label: "2 MP (고화질)", value: "2 MP" },
+              { label: "4 MP (초고화질 렌더링)", value: "4 MP" },
+              { label: "입력 이미지 해상도 맞춤 (match_input_image)", value: "match_input_image" }
+            ]
+          },
+          {
+            id: "width",
+            name: "가로 크기 (width: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16,
+            description: "Width of the generated image. Only used when aspect_ratio=custom. Must be a multiple of 16."
+          },
+          {
+            id: "height",
+            name: "세로 크기 (height: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16,
+            description: "Height of the generated image. Only used when aspect_ratio=custom. Must be a multiple of 16."
+          },
+          {
+            id: "safety_tolerance",
+            name: "안전 필터 (safety_tolerance: 1 ~ 5)",
+            type: "slider",
+            default: 2,
+            min: 1,
+            max: 5,
+            step: 1,
+            description: "Safety tolerance, 1 is most strict and 5 is most permissive"
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "Random seed. Set for reproducible generation"
+          },
+          {
+            id: "prompt_upsampling",
+            name: "프롬프트 자동 보강 (prompt_upsampling)",
+            type: "boolean",
+            default: true,
+            description: "Automatically modify the prompt for more creative generation"
+          },
+          {
+            id: "steps",
+            name: "생성 단계 수 (steps: 1 ~ 50)",
+            type: "slider",
+            default: 30,
+            min: 1,
+            max: 50,
+            step: 1,
+            description: "Number of inference steps (minimum: 1, maximum: 50)"
+          },
+          {
+            id: "guidance",
+            name: "가이던스 강도 (guidance: 1.5 ~ 10.0)",
+            type: "slider",
+            default: 4.5,
+            min: 1.5,
+            max: 10.0,
+            step: 0.1,
+            description: "Guidance scale for generation. Controls how closely the output follows the prompt (minimum: 1.5, maximum: 10)"
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "webp",
+            description: "Format of the output images.",
+            options: [
+              { label: "webp (고효율 기본)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
+            ]
+          },
+          {
+            id: "output_quality",
+            name: "출력 화질 (output_quality: 0 ~ 100)",
+            type: "slider",
+            default: 80,
+            min: 0,
+            max: 100,
+            step: 5,
+            description: "Quality when saving the output images, from 0 to 100. 100 is best quality. Not relevant for .png outputs"
+          }
+        ]
+      },
+      {
+        id: "black-forest-labs/flux-2-max",
+        name: "FLUX 2 [max]",
+        description: "BFL 최상위 FLUX 2.0 Max 엔진 - 최상위 표현력과 극상의 해상도를 자랑하는 최고 사양 모델",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            description: "생성 이미지의 비율을 설정합니다. (custom 선택 시 가로/세로 직접 지정)",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "사용자 지정 해상도 (custom)", value: "custom" }
+            ]
+          },
+          {
+            id: "resolution",
+            name: "해상도 (resolution)",
+            type: "select",
+            default: "1 MP",
+            description: "메가픽셀 단위 해상도를 지정합니다. (custom 비율 시 적용 제외)",
+            options: [
+              { label: "1 MP (기본 추천)", value: "1 MP" },
+              { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
+              { label: "2 MP (고화질)", value: "2 MP" },
+              { label: "4 MP (초고화질 렌더링)", value: "4 MP" },
+              { label: "입력 이미지 해상도 맞춤 (match_input_image)", value: "match_input_image" }
+            ]
+          },
+          {
+            id: "width",
+            name: "가로 크기 (width: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16,
+            description: "aspect_ratio가 custom일 때 사용되는 가로 픽셀 크기 (16의 배수)"
+          },
+          {
+            id: "height",
+            name: "세로 크기 (height: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16,
+            description: "aspect_ratio가 custom일 때 사용되는 세로 픽셀 크기 (16의 배수)"
+          },
+          {
+            id: "safety_tolerance",
+            name: "안전 필터 (safety_tolerance: 1 엄격 ~ 5 완화)",
+            type: "slider",
+            default: 2,
+            min: 1,
+            max: 5,
+            step: 1,
+            description: "안전성 수준 제어 (1: 가장 엄격, 5: 가장 허용적)"
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "결과 재현용 시드 번호 (비워둘 경우 무작위 생성을 위한 랜덤 난수 사용)"
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "webp (고효율 기본)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
+            ]
+          },
+          {
+            id: "output_quality",
+            name: "출력 화질 (output_quality: 0 ~ 100)",
+            type: "slider",
+            default: 80,
+            min: 0,
+            max: 100,
+            step: 5,
+            description: "저장 시 이미지 화질 (100: 최상, png 출력 시 미적용)"
           }
         ]
       },
