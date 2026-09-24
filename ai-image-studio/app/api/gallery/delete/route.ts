@@ -17,6 +17,27 @@ export async function DELETE(req: Request) {
   }
 
   const supabaseAdmin = createAdminClient();
+
+  // 1. Fetch log record to check storage file URL
+  const { data: targetLog } = await supabaseAdmin
+    .from("usage_logs")
+    .select("metadata")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (targetLog?.metadata?.image_url) {
+    const imageUrl: string = targetLog.metadata.image_url;
+    // If image is stored in Supabase Storage bucket 'ai-image-generations'
+    if (imageUrl.includes("/ai-image-generations/")) {
+      const fileName = imageUrl.split("/ai-image-generations/").pop();
+      if (fileName) {
+        await supabaseAdmin.storage.from("ai-image-generations").remove([fileName]);
+      }
+    }
+  }
+
+  // 2. Delete DB record
   const { error } = await supabaseAdmin
     .from("usage_logs")
     .delete()

@@ -14,8 +14,27 @@ export default async function GalleryPage() {
   const { user } = await requireProgramAccess();
   const supabaseAdmin = createAdminClient();
 
-  // Auto cleanup image generations older than 30 days
+  // Auto cleanup image generations older than 30 days (DB + Storage)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  
+  const { data: oldLogs } = await supabaseAdmin
+    .from("usage_logs")
+    .select("metadata")
+    .eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID)
+    .lt("created_at", thirtyDaysAgo);
+
+  if (oldLogs && oldLogs.length > 0) {
+    const filesToDelete = oldLogs
+      .map((l) => l.metadata?.image_url)
+      .filter((url): url is string => Boolean(url && url.includes("/ai-image-generations/")))
+      .map((url) => url.split("/ai-image-generations/").pop())
+      .filter((fn): fn is string => Boolean(fn));
+
+    if (filesToDelete.length > 0) {
+      await supabaseAdmin.storage.from("ai-image-generations").remove(filesToDelete);
+    }
+  }
+
   await supabaseAdmin
     .from("usage_logs")
     .delete()
