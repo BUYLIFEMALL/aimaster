@@ -121,6 +121,15 @@ export class ReplicateAdapter implements ImageProviderAdapter {
     if (params.options.style_preset && params.options.style_preset !== "None") {
       input.style_preset = params.options.style_preset;
     }
+    if (params.options.enable_copyright_detection !== undefined) {
+      input.enable_copyright_detection = params.options.enable_copyright_detection === "true" || params.options.enable_copyright_detection === true;
+    }
+    if (params.options.rendering_speed) {
+      input.rendering_speed = params.options.rendering_speed;
+    }
+    if (params.options.character_reference_image) {
+      input.character_reference_image = params.options.character_reference_image;
+    }
 
     if (params.negativePrompt || params.options.negative_prompt) {
       input.negative_prompt = params.negativePrompt || params.options.negative_prompt;

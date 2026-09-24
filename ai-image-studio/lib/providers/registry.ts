@@ -1295,6 +1295,181 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     iconName: "Type",
     models: [
       {
+        id: "ideogram-ai/ideogram-v4-quality",
+        name: "Ideogram v4 Quality",
+        description: "Ideogram 최신 v4 플래그십 품질 모델 (압도적 사실감 & 정밀 타이포그래피)",
+        options: [
+          {
+            id: "resolution",
+            name: "해상도 (resolution)",
+            type: "select",
+            default: "None",
+            description: "Output resolution. Omit ('None') to let Ideogram 4.0 choose the aspect ratio.",
+            options: [
+              { label: "None (자동 비율 최적화)", value: "None" },
+              { label: "2048x2048 (1:1 정사각형)", value: "2048x2048" },
+              { label: "2560x1440 (16:9 와이드 가로)", value: "2560x1440" },
+              { label: "1440x2560 (9:16 모바일 세로)", value: "1440x2560" },
+              { label: "2496x1664 (3:2 사진형 가로)", value: "2496x1664" },
+              { label: "1664x2496 (2:3 사진형 세로)", value: "1664x2496" },
+              { label: "2304x1728 (4:3 표준 가로)", value: "2304x1728" },
+              { label: "1728x2304 (3:4 표준 세로)", value: "1728x2304" },
+              { label: "2560x1600 (16:10 디스플레이)", value: "2560x1600" },
+              { label: "1600x2560 (10:16 세로 모니터)", value: "1600x2560" },
+              { label: "2880x1440 (2:1 파노라마)", value: "2880x1440" },
+              { label: "1440x2880 (1:2 롱 세로)", value: "1440x2880" }
+            ]
+          },
+          {
+            id: "enable_copyright_detection",
+            name: "저작권 감지 활성화 (enable_copyright_detection)",
+            type: "boolean",
+            default: false,
+            description: "Opt into Ideogram 4.0 post-generation copyright detection."
+          }
+        ]
+      },
+      {
+        id: "ideogram-ai/ideogram-v4-balanced",
+        name: "Ideogram v4 Balanced",
+        description: "v4 밸런스드 모델 (속도, 화질, 가성비의 완벽한 조화)",
+        options: [
+          {
+            id: "resolution",
+            name: "해상도 (resolution)",
+            type: "select",
+            default: "None",
+            description: "Output resolution. Omit ('None') to let Ideogram 4.0 choose the aspect ratio.",
+            options: [
+              { label: "None (자동 비율 최적화)", value: "None" },
+              { label: "2048x2048 (1:1 정사각형)", value: "2048x2048" },
+              { label: "2560x1440 (16:9 와이드 가로)", value: "2560x1440" },
+              { label: "1440x2560 (9:16 모바일 세로)", value: "1440x2560" },
+              { label: "2496x1664 (3:2 사진형 가로)", value: "2496x1664" },
+              { label: "1664x2496 (2:3 사진형 세로)", value: "1664x2496" },
+              { label: "2304x1728 (4:3 표준 가로)", value: "2304x1728" },
+              { label: "1728x2304 (3:4 표준 세로)", value: "1728x2304" },
+              { label: "2560x1600 (16:10 디스플레이)", value: "2560x1600" },
+              { label: "1600x2560 (10:16 세로 모니터)", value: "1600x2560" }
+            ]
+          },
+          {
+            id: "enable_copyright_detection",
+            name: "저작권 감지 활성화 (enable_copyright_detection)",
+            type: "boolean",
+            default: false,
+            description: "Opt into Ideogram 4.0 post-generation copyright detection."
+          }
+        ]
+      },
+      {
+        id: "ideogram-ai/ideogram-v4-turbo",
+        name: "Ideogram v4 Turbo",
+        description: "v4 초고속 터보 모델 (최고 가성비 $0.03/장 초고속 렌더링)",
+        options: [
+          {
+            id: "resolution",
+            name: "해상도 (resolution)",
+            type: "select",
+            default: "None",
+            description: "Output resolution. Omit ('None') to let Ideogram 4.0 choose the aspect ratio.",
+            options: [
+              { label: "None (자동 비율 최적화)", value: "None" },
+              { label: "2048x2048 (1:1 정사각형)", value: "2048x2048" },
+              { label: "2560x1440 (16:9 와이드 가로)", value: "2560x1440" },
+              { label: "1440x2560 (9:16 모바일 세로)", value: "1440x2560" },
+              { label: "2496x1664 (3:2 사진형 가로)", value: "2496x1664" },
+              { label: "1664x2496 (2:3 사진형 세로)", value: "1664x2496" },
+              { label: "2304x1728 (4:3 표준 가로)", value: "2304x1728" },
+              { label: "1728x2304 (3:4 표준 세로)", value: "1728x2304" }
+            ]
+          },
+          {
+            id: "enable_copyright_detection",
+            name: "저작권 감지 활성화 (enable_copyright_detection)",
+            type: "boolean",
+            default: false,
+            description: "Opt into Ideogram 4.0 post-generation copyright detection."
+          }
+        ]
+      },
+      {
+        id: "ideogram-ai/ideogram-character",
+        name: "Ideogram Character",
+        description: "단일 참조 이미지 기반 일관된 인물/캐릭터 비주얼 자동 유지 모델",
+        options: [
+          {
+            id: "character_reference_image",
+            name: "캐릭터 참조 이미지 URL (character_reference_image)",
+            type: "text",
+            default: "",
+            description: "Image URL to use as character reference for consistency (필수)."
+          },
+          {
+            id: "rendering_speed",
+            name: "렌더링 속도 & 품질 (rendering_speed)",
+            type: "select",
+            default: "Default",
+            description: "Rendering speed: Default (balanced), Turbo (fast & cheap), Quality (high quality).",
+            options: [
+              { label: "Default (밸런스 기본)", value: "Default" },
+              { label: "Turbo (고속 가성비)", value: "Turbo" },
+              { label: "Quality (고화질 정밀)", value: "Quality" }
+            ]
+          },
+          {
+            id: "style_type",
+            name: "캐릭터 스타일 (style_type)",
+            type: "select",
+            default: "Auto",
+            description: "Character style type.",
+            options: [
+              { label: "Auto (자동 선택)", value: "Auto" },
+              { label: "Realistic (실사 인물)", value: "Realistic" },
+              { label: "Fiction (픽션/일러스트)", value: "Fiction" }
+            ]
+          },
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            description: "Aspect ratio for generated image.",
+            options: [
+              { label: "1:1 정사각형 기본", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "16:10 디스플레이", value: "16:10" },
+              { label: "10:16 세로 모니터", value: "10:16" }
+            ]
+          },
+          {
+            id: "magic_prompt_option",
+            name: "매직 프롬프트 (magic_prompt_option)",
+            type: "select",
+            default: "Auto",
+            options: [
+              { label: "Auto (자동 최적화)", value: "Auto" },
+              { label: "On (항상 활성화)", value: "On" },
+              { label: "Off (원본 프롬프트 보존)", value: "Off" }
+            ]
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "Random seed."
+          }
+        ]
+      },
+      {
         id: "ideogram-ai/ideogram-v3-turbo",
         name: "Ideogram v3 Turbo",
         description: "최신 V3 터보 엔진 (영문 텍스트 오타 없는 타이포그래피 & 시각 디자인 특화)",

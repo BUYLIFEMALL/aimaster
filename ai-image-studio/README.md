@@ -11,9 +11,13 @@ AIMaster 플랫폼의 서브프로젝트인 **이미지 자동화(AI Image Studi
      - `Seedream 5.0 Lite` (`bytedance/seedream-5-lite`): 2K/3K 해상도, 연작 시퀀스 자동 생성(`sequential_image_generation: auto`), 최대 15장 연속 이미지 제어.
      - `Seedream 4.5` (`bytedance/seedream-4.5`): 2K/4K/custom 해상도, 가로/세로 1024~4096px 조절, 안전 검열 완화(`disable_safety_checker`).
    - **Ideogram (Typo & Text Special)**:
-     - `Ideogram v3 Turbo` (`ideogram-ai/ideogram-v3-turbo`): 텍스트 표기 오류(Typo) 극복 타이포그래피 특화, Magic Prompt & Style Type 제어.
-     - `Ideogram v2 Turbo` (`ideogram-ai/ideogram-v2-turbo`): 카드뉴스 & 광고 포스터용 고속 텍스트 렌더링.
-     - `Ideogram v2 Standard` (`ideogram-ai/ideogram-v2`): 고품질 정밀 디자인 렌더링.
+     - `Ideogram v4 Quality` (`ideogram-ai/ideogram-v4-quality`): 최신 v4 플래그십 품질 ($0.10/장, 초고화질 사실감 & 정밀 타이포그래피).
+     - `Ideogram v4 Balanced` (`ideogram-ai/ideogram-v4-balanced`): v4 밸런스드 ($0.06/장, 화질 & 속도 & 가성비 조화).
+     - `Ideogram v4 Turbo` (`ideogram-ai/ideogram-v4-turbo`): v4 터보 ($0.03/장, 초고속 렌더링).
+     - `Ideogram Character` (`ideogram-ai/ideogram-character`): 단일 참조 이미지 기반 일관된 인물/캐릭터 비주얼 유지.
+     - `Ideogram v3 Turbo` (`ideogram-ai/ideogram-v3-turbo`): V3 터보 엔진 (타이포그래피 & 시각 디자인).
+     - `Ideogram v2 Turbo` (`ideogram-ai/ideogram-v2-turbo`): v2 터보 스피드 카드뉴스 & 포스터.
+     - `Ideogram v2 Standard` (`ideogram-ai/ideogram-v2`): v2 표준 정밀 디자인 렌더링.
    - **Black Forest Labs FLUX 2.0**:
      - FLUX 2.0 Max / Flex / Dev / Pro (Replicate 공식 연동).
    - **Alibaba Z-Image**:
