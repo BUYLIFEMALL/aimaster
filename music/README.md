@@ -78,6 +78,14 @@ GPT/Suno API 키는 관리자 환경변수로 등록하지 않는다 — 각 사
 `user_api_keys`의 `openai`/`suno` provider는 `auto-detail-page/supabase/migrations/
 0001_multitenancy.sql`에서 이미 전체 제약에 등록해뒀으므로 이 프로젝트에서 다시 추가하지 않았다.
 
+### 타입 오류 점검 기록 (2026-09-24)
+
+`music_plannings`/`music_tracks`의 조회 결과가 `{}`로 추론돼 컬럼 타입 오류가 발생한 적이 있다.
+원인은 DB 구조가 아니라 `music/`의 전용 의존성이 설치되지 않아 상위 AIMaster의 구버전
+Supabase 패키지를 참조한 것이었다. `music/`에서 `npm install` 후 `npm run build`로 확인하면
+된다. 원격 DB 타입을 CLI로 다시 생성하려면 별도 Supabase CLI 로그인 토큰이 필요하며, 토큰이
+없을 때는 서비스 키를 서버 환경에서만 사용해 실제 테이블 컬럼 조회로 호환성을 검증한다.
+
 ## 배포 정보
 
 - Vercel 프로젝트: `buylife/music` — 프로덕션 URL `https://music-rho-virid-22.vercel.app`

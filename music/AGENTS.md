@@ -23,6 +23,29 @@
 5. **환경변수와 API 키 변경**
 6. **유료 API 호출** (GPT 곡 기획/가사 생성, Suno 곡 생성 등)
 
+### 3. Supabase 타입·의존성 동기화 (2026-09-24 확인)
+
+음악 프로젝트에서 `music_plannings` 또는 `music_tracks` 조회 결과가 TypeScript상 `{}`로
+추론되어 `title`, `status`, `planning_id` 등의 컬럼 오류가 연쇄 발생하면 **DB 컬럼이 즉시
+사라졌다고 판단하지 말 것**. 먼저 아래 순서로 점검한다.
+
+1. 반드시 `music/` 폴더에서 `npm install`을 실행한다. 이 프로젝트 전용 의존성이 설치되지
+   않으면 상위 AIMaster 폴더의 오래된 `@supabase/supabase-js`/`@supabase/ssr`을 잘못 참조할 수
+   있다. 실제로 `supabase-js 2.95.3`, `ssr 0.8.0`이 참조되어 타입 추론이 깨진 사례가 있었다.
+2. 설치 후 `node -e "console.log(require('@supabase/supabase-js/package.json').version)"`으로
+   음악 폴더의 버전이 `music/package-lock.json` 기준인지 확인한다. 2026-09-24 정상 기준은
+   `supabase-js 2.112.3`, `@supabase/ssr 0.12.4`이다.
+3. `npm run build`를 실행한다. 2026-09-24에는 위 의존성 동기화만으로 전체 타입 오류가
+   해결됐다.
+4. 실제 원격 DB 스키마 확인이 필요하면 서비스 키를 브라우저에 노출하지 않는 서버 환경에서
+   `music_plannings`와 `music_tracks`의 사용 컬럼을 `select(...).limit(1)`로 조회한다.
+5. `supabase gen types`로 원격 타입 파일을 완전 재생성하려면 Supabase CLI 로그인 토큰이
+   필요하다. 토큰이 없는 상태에서는 임의의 타입 파일을 만들거나 DB 스키마를 변경하지 말고,
+   위 의존성·빌드·실제 컬럼 조회 결과를 먼저 확인한다.
+
+`music/.env.local`은 로컬에서 값이 비어 있을 수 있다. 이 경우 DB 확인에는 루트 AIMaster의
+서버 전용 환경변수를 사용하되, 키 값을 출력하거나 클라이언트 코드에 넣지 않는다.
+
 ---
 
 ## 🎯 프로젝트 목적
