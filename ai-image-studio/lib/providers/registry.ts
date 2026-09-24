@@ -1286,6 +1286,189 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         ]
       }
     ]
+  },
+  {
+    id: "ideogram",
+    name: "Ideogram (Typo & Text Special)",
+    apiKeyProvider: "replicate",
+    description: "영문 텍스트 표기 오류(Typo)를 극복한 타이포그래피 & 카드뉴스·포스터 전용 AI 엔진",
+    iconName: "Type",
+    models: [
+      {
+        id: "ideogram-ai/ideogram-v3-turbo",
+        name: "Ideogram v3 Turbo",
+        description: "최신 V3 터보 엔진 (영문 텍스트 오타 없는 타이포그래피 & 시각 디자인 특화)",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            description: "Aspect ratio for generated image.",
+            options: [
+              { label: "1:1 정사각형 기본", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "16:10 디스플레이", value: "16:10" },
+              { label: "10:16 세로 모니터", value: "10:16" },
+              { label: "3:1 파노라마 가로", value: "3:1" },
+              { label: "1:3 롱 세로 배너", value: "1:3" }
+            ]
+          },
+          {
+            id: "style_type",
+            name: "스타일 유형 (style_type)",
+            type: "select",
+            default: "Auto",
+            description: "The style to define specific aesthetic of the generated image.",
+            options: [
+              { label: "Auto (자동 제어)", value: "Auto" },
+              { label: "General (일반 그래픽)", value: "General" },
+              { label: "Realistic (실사 파트)", value: "Realistic" },
+              { label: "Design (디자인 & 타이포그래피)", value: "Design" },
+              { label: "Render 3D (3D 입체 렌더링)", value: "Render 3D" },
+              { label: "Anime (애니메이션)", value: "Anime" },
+              { label: "None (스타일 미적용)", value: "None" }
+            ]
+          },
+          {
+            id: "magic_prompt_option",
+            name: "매직 프롬프트 자동 보강 (magic_prompt_option)",
+            type: "select",
+            default: "Auto",
+            description: "Optimizes prompt to maximize variety and visual quality.",
+            options: [
+              { label: "Auto (자동 최적화)", value: "Auto" },
+              { label: "On (항상 활성화)", value: "On" },
+              { label: "Off (원본 프롬프트 보존)", value: "Off" }
+            ]
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "Random seed. Set for reproducible generation."
+          }
+        ]
+      },
+      {
+        id: "ideogram-ai/ideogram-v2-turbo",
+        name: "Ideogram v2 Turbo",
+        description: "v2 터보 스피드 엔진 (고속 텍스트 & 카드뉴스 디자인 생성)",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            description: "Aspect ratio for generated image.",
+            options: [
+              { label: "1:1 정사각형 기본", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "16:10 디스플레이", value: "16:10" },
+              { label: "10:16 세로 모니터", value: "10:16" }
+            ]
+          },
+          {
+            id: "style_type",
+            name: "스타일 유형 (style_type)",
+            type: "select",
+            default: "Auto",
+            description: "Style preset.",
+            options: [
+              { label: "Auto (자동 제어)", value: "Auto" },
+              { label: "General (일반 그래픽)", value: "General" },
+              { label: "Realistic (실사 파트)", value: "Realistic" },
+              { label: "Design (디자인 & 타이포그래피)", value: "Design" },
+              { label: "Render 3D (3D 입체 렌더링)", value: "Render 3D" },
+              { label: "Anime (애니메이션)", value: "Anime" }
+            ]
+          },
+          {
+            id: "magic_prompt_option",
+            name: "매직 프롬프트 (magic_prompt_option)",
+            type: "select",
+            default: "Auto",
+            options: [
+              { label: "Auto (자동 최적화)", value: "Auto" },
+              { label: "On (항상 활성화)", value: "On" },
+              { label: "Off (원본 프롬프트 보존)", value: "Off" }
+            ]
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "Random seed."
+          }
+        ]
+      },
+      {
+        id: "ideogram-ai/ideogram-v2",
+        name: "Ideogram v2 Standard",
+        description: "v2 표준 고품질 정밀 텍스트 렌더링 엔진",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형 기본", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" }
+            ]
+          },
+          {
+            id: "style_type",
+            name: "스타일 유형 (style_type)",
+            type: "select",
+            default: "Auto",
+            options: [
+              { label: "Auto (자동 제어)", value: "Auto" },
+              { label: "General (일반 그래픽)", value: "General" },
+              { label: "Realistic (실사 파트)", value: "Realistic" },
+              { label: "Design (디자인 & 타이포그래피)", value: "Design" },
+              { label: "Render 3D (3D 입체 렌더링)", value: "Render 3D" },
+              { label: "Anime (애니메이션)", value: "Anime" }
+            ]
+          },
+          {
+            id: "magic_prompt_option",
+            name: "매직 프롬프트 (magic_prompt_option)",
+            type: "select",
+            default: "Auto",
+            options: [
+              { label: "Auto (자동 최적화)", value: "Auto" },
+              { label: "On (항상 활성화)", value: "On" },
+              { label: "Off (원본 프롬프트 보존)", value: "Off" }
+            ]
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "Random seed."
+          }
+        ]
+      }
+    ]
   }
 ];
 

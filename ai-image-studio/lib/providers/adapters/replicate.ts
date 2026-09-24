@@ -112,6 +112,16 @@ export class ReplicateAdapter implements ImageProviderAdapter {
       input.image_input = params.options.image_input;
     }
 
+    if (params.options.style_type && params.options.style_type !== "None") {
+      input.style_type = params.options.style_type;
+    }
+    if (params.options.magic_prompt_option) {
+      input.magic_prompt_option = params.options.magic_prompt_option;
+    }
+    if (params.options.style_preset && params.options.style_preset !== "None") {
+      input.style_preset = params.options.style_preset;
+    }
+
     if (params.negativePrompt || params.options.negative_prompt) {
       input.negative_prompt = params.negativePrompt || params.options.negative_prompt;
     }

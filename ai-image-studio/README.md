@@ -10,6 +10,10 @@ AIMaster 플랫폼의 서브프로젝트인 **이미지 자동화(AI Image Studi
      - `Seedream 5 Pro` (`bytedance/seedream-5-pro`): 1K/1.5K/2K/auto 해상도, 레이어 분해 모드(`layer_decomposition: true`) 지원.
      - `Seedream 5.0 Lite` (`bytedance/seedream-5-lite`): 2K/3K 해상도, 연작 시퀀스 자동 생성(`sequential_image_generation: auto`), 최대 15장 연속 이미지 제어.
      - `Seedream 4.5` (`bytedance/seedream-4.5`): 2K/4K/custom 해상도, 가로/세로 1024~4096px 조절, 안전 검열 완화(`disable_safety_checker`).
+   - **Ideogram (Typo & Text Special)**:
+     - `Ideogram v3 Turbo` (`ideogram-ai/ideogram-v3-turbo`): 텍스트 표기 오류(Typo) 극복 타이포그래피 특화, Magic Prompt & Style Type 제어.
+     - `Ideogram v2 Turbo` (`ideogram-ai/ideogram-v2-turbo`): 카드뉴스 & 광고 포스터용 고속 텍스트 렌더링.
+     - `Ideogram v2 Standard` (`ideogram-ai/ideogram-v2`): 고품질 정밀 디자인 렌더링.
    - **Black Forest Labs FLUX 2.0**:
      - FLUX 2.0 Max / Flex / Dev / Pro (Replicate 공식 연동).
    - **Alibaba Z-Image**:
