@@ -284,7 +284,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
                 title={hasResetContent ? "입력된 프롬프트와 옵션을 초기화합니다" : "초기화할 내용이 없습니다"}
               >
                 <RotateCcw className="h-4 w-4" />
-                <span>입력창 초기화 (Reset)</span>
+                <span>프롬프트 초기화 (Reset)</span>
               </button>
             );
           })()}
@@ -297,9 +297,9 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
                 disabled={!isReadyToGenerate}
                 className={`flex items-center gap-3 rounded-xl px-9 py-4 text-base font-black transition-all transform duration-300 cursor-pointer ${
                   isReadyToGenerate
-                    ? "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-zinc-950 hover:from-amber-300 hover:to-yellow-300 shadow-xl shadow-amber-500/40 ring-4 ring-amber-400/50 hover:ring-amber-300 active:scale-95 hover:scale-[1.02]"
+                    ? "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-zinc-950 hover:from-amber-300 hover:to-yellow-300 shadow-xl shadow-amber-500/40 ring-4 ring-amber-400/50 hover:ring-amber-300 active:scale-95 hover:scale-[1.03] animate-pulse"
                     : "bg-zinc-800 text-zinc-500 border border-zinc-700 opacity-50 cursor-not-allowed shadow-none"
-                } ${highlightFlash ? "ring-8 ring-yellow-300 shadow-2xl shadow-amber-400 animate-pulse scale-[1.03]" : ""}`}
+                } ${highlightFlash ? "ring-8 ring-yellow-300 shadow-2xl shadow-amber-400 scale-[1.05]" : ""}`}
               >
                 {generating ? (
                   <>

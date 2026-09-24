@@ -61,10 +61,48 @@ function getModelLabel(modelId: string): string {
   return MODEL_NAMES[modelId] || modelId;
 }
 
+const MODEL_FILTER_MAP: Record<string, { id: string; label: string }[]> = {
+  all: [
+    { id: "all", label: "전체 모델" },
+    { id: "flux-2-dev", label: "FLUX.2 dev" },
+    { id: "flux-2-pro", label: "FLUX.2 pro" },
+    { id: "flux-2-flex", label: "FLUX.2 flex" },
+    { id: "flux-2-max", label: "FLUX.2 max" },
+    { id: "gpt-image-2", label: "GPT Image 2" },
+    { id: "gpt-image-2-large", label: "GPT Image 2 Large" },
+    { id: "gemini-3.1-flash", label: "Gemini 3.1 Flash" },
+    { id: "gemini-3.1-pro", label: "Gemini 3.1 Pro" },
+    { id: "sd3.5-large", label: "SD 3.5 Large" },
+  ],
+  replicate: [
+    { id: "all", label: "전체 Replicate 모델" },
+    { id: "flux-2-dev", label: "FLUX.2 dev" },
+    { id: "flux-2-pro", label: "FLUX.2 pro" },
+    { id: "flux-2-flex", label: "FLUX.2 flex" },
+    { id: "flux-2-max", label: "FLUX.2 max" },
+  ],
+  openai: [
+    { id: "all", label: "전체 OpenAI 모델" },
+    { id: "gpt-image-2", label: "GPT Image 2 (표준)" },
+    { id: "gpt-image-2-large", label: "GPT Image 2 Large (고화질)" },
+    { id: "gpt-image-1.5", label: "GPT Image 1.5" },
+  ],
+  gemini: [
+    { id: "all", label: "전체 Gemini 모델" },
+    { id: "gemini-3.1-flash", label: "Gemini 3.1 Flash" },
+    { id: "gemini-3.1-pro", label: "Gemini 3.1 Pro" },
+  ],
+  stability: [
+    { id: "all", label: "전체 Stability 모델" },
+    { id: "sd3.5-large", label: "Stable Diffusion 3.5 Large" },
+  ],
+};
+
 export function GalleryClient({ initialItems }: GalleryClientProps) {
   const router = useRouter();
   const [items, setItems] = useState<GalleryItem[]>(initialItems);
   const [selectedProvider, setSelectedProvider] = useState<string>("all");
+  const [selectedModel, setSelectedModel] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeModalItem, setActiveModalItem] = useState<GalleryItem | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -73,12 +111,20 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
   const filteredItems = items.filter((item) => {
     const matchesProvider =
       selectedProvider === "all" || item.provider.toLowerCase() === selectedProvider.toLowerCase();
+    const matchesModel =
+      selectedModel === "all" || item.model.toLowerCase() === selectedModel.toLowerCase();
     const matchesSearch =
       !searchQuery.trim() ||
       item.prompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.model.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesProvider && matchesSearch;
+      item.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.provider.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesProvider && matchesModel && matchesSearch;
   });
+
+  const handleProviderSelect = (providerId: string) => {
+    setSelectedProvider(providerId);
+    setSelectedModel("all");
+  };
 
   const handleCopyPrompt = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
@@ -136,41 +182,67 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
     { id: "stability", label: "Stability AI" },
   ];
 
+  const currentModelList = MODEL_FILTER_MAP[selectedProvider] || MODEL_FILTER_MAP.all;
+
   return (
     <div className="space-y-6">
-      {/* Search & Provider Filters */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 backdrop-blur-md">
-        {/* Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-          <Filter className="h-4 w-4 text-zinc-400 shrink-0 ml-1 mr-1" />
-          {providersList.map((p) => {
-            const isSelected = selectedProvider === p.id;
+      {/* Search, Provider & Model Filters */}
+      <div className="bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 backdrop-blur-md space-y-3">
+        {/* Row 1: Provider Filter Chips & Search Box */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+          {/* Provider Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            <span className="text-xs font-bold text-zinc-400 shrink-0 ml-1 mr-1">플랫폼:</span>
+            {providersList.map((p) => {
+              const isSelected = selectedProvider === p.id;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => handleProviderSelect(p.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+                    isSelected
+                      ? "bg-amber-400 text-zinc-950 font-bold shadow-md shadow-amber-400/10"
+                      : "bg-zinc-950/80 text-zinc-300 hover:bg-zinc-800 hover:text-white border border-zinc-800"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search Box */}
+          <div className="relative min-w-[240px]">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="프롬프트 또는 모델 검색..."
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-950 pl-10 pr-4 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/20"
+            />
+          </div>
+        </div>
+
+        {/* Row 2: Model Filter Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pt-2 border-t border-zinc-800/60 scrollbar-none">
+          <span className="text-xs font-bold text-amber-400 shrink-0 ml-1 mr-1">세부 모델:</span>
+          {currentModelList.map((m) => {
+            const isSelected = selectedModel === m.id;
             return (
               <button
-                key={p.id}
-                onClick={() => setSelectedProvider(p.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+                key={m.id}
+                onClick={() => setSelectedModel(m.id)}
+                className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                   isSelected
-                    ? "bg-amber-400 text-zinc-950 font-bold shadow-md shadow-amber-400/10"
-                    : "bg-zinc-950/80 text-zinc-300 hover:bg-zinc-800 hover:text-white border border-zinc-800"
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 font-bold"
+                    : "bg-zinc-950/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-zinc-800/80"
                 }`}
               >
-                {p.label}
+                {m.label}
               </button>
             );
           })}
-        </div>
-
-        {/* Search Box */}
-        <div className="relative min-w-[240px]">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="프롬프트 또는 모델 검색..."
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 pl-10 pr-4 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/20"
-          />
         </div>
       </div>
 

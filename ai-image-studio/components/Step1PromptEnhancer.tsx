@@ -166,7 +166,7 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
                 title={hasContent ? "입력된 아이디어를 초기화합니다" : "초기화할 내용이 없습니다"}
               >
                 <RotateCcw className="h-4 w-4" />
-                <span>입력창 초기화</span>
+                <span>프롬프트 초기화 (Reset)</span>
               </button>
             );
           })()}
