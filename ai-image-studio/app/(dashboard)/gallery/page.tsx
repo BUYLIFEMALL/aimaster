@@ -60,10 +60,16 @@ export default async function GalleryPage() {
       </div>
 
       {/* 30-Day Retention & Download Notice Banner */}
-      <div className="flex items-center gap-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4.5 text-sm text-amber-200 shadow-md backdrop-blur-sm">
-        <Clock className="h-5 w-5 shrink-0 text-amber-400" />
-        <div className="flex-1 text-xs sm:text-sm leading-relaxed">
-          <strong className="text-amber-300 font-bold">[이미지 자동 보관 및 다운로드 안내]</strong> 생성된 이미지는 갤러리에 <span className="text-white font-bold underline decoration-amber-400">최장 30일간 보관</span>되며, 30일이 지난 이미지는 DB와 서버에서 자동으로 정리됩니다. 소장하고 싶은 이미지 결과물은 각 카드의 <span className="text-emerald-400 font-bold">📥 [다운로드]</span> 버튼을 클릭하여 본인의 PC나 모바일에 미리 다운로드해 두시기 바랍니다.
+      <div className="flex items-start gap-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4.5 text-amber-200 shadow-md backdrop-blur-sm">
+        <Clock className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
+        <div className="flex-1 text-xs sm:text-sm leading-relaxed space-y-1">
+          <h2 className="text-amber-300 font-bold text-sm sm:text-base">[이미지 자동 보관 및 다운로드 안내]</h2>
+          <p className="text-zinc-200">
+            생성된 이미지는 갤러리에 <span className="text-white font-bold underline decoration-amber-400">최장 30일간 보관</span>되며, 30일이 지난 이미지는 DB와 서버에서 자동으로 정리됩니다.
+          </p>
+          <p className="text-amber-200 font-medium">
+            소장하고 싶은 이미지 결과물은 각 카드의 <span className="text-emerald-400 font-bold">📥 [다운로드]</span> 버튼을 클릭하여 다운로드 하시기 바랍니다.
+          </p>
         </div>
       </div>
 
