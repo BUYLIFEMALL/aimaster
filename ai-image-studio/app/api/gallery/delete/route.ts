@@ -4,49 +4,114 @@ import { createAdminClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export async function DELETE(req: Request) {
+const AI_IMAGE_STUDIO_PROGRAM_ID = "26b9f0b2-b48b-4f9d-b751-ecb88e98e95e";
+
+async function processDelete(req: Request) {
   const { user, errorResponse } = await checkProgramAccessApi();
   if (errorResponse) return errorResponse;
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const url = new URL(req.url);
-  const id = url.searchParams.get("id");
+  const singleId = url.searchParams.get("id");
 
-  if (!id) {
-    return Response.json({ error: "id가 필요합니다." }, { status: 400 });
+  let idsToDelete: string[] = [];
+  let deleteAll = false;
+  let providerFilter: string | null = null;
+  let modelFilter: string | null = null;
+
+  if (singleId) {
+    idsToDelete = [singleId];
+  } else {
+    try {
+      const body = await req.json();
+      if (Array.isArray(body.ids)) {
+        idsToDelete = body.ids;
+      }
+      if (body.deleteAll) {
+        deleteAll = true;
+      }
+      if (body.provider && body.provider !== "all") {
+        providerFilter = body.provider;
+      }
+      if (body.model && body.model !== "all") {
+        modelFilter = body.model;
+      }
+    } catch {
+      // Empty or non-JSON body
+    }
   }
 
   const supabaseAdmin = createAdminClient();
 
-  // 1. Fetch log record to check storage file URL
-  const { data: targetLog } = await supabaseAdmin
+  let query = supabaseAdmin
     .from("usage_logs")
-    .select("metadata")
-    .eq("id", id)
+    .select("id, metadata")
     .eq("user_id", user.id)
-    .single();
+    .eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID);
 
-  if (targetLog?.metadata?.image_url) {
-    const imageUrl: string = targetLog.metadata.image_url;
-    // If image is stored in Supabase Storage bucket 'ai-image-generations'
-    if (imageUrl.includes("/ai-image-generations/")) {
-      const fileName = imageUrl.split("/ai-image-generations/").pop();
-      if (fileName) {
-        await supabaseAdmin.storage.from("ai-image-generations").remove([fileName]);
-      }
+  if (idsToDelete.length > 0) {
+    query = query.in("id", idsToDelete);
+  } else if (!deleteAll && !providerFilter && !modelFilter) {
+    return Response.json({ error: "삭제할 대상이 지정되지 않았증니다." }, { status: 400 });
+  }
+
+  const { data: targets, error: fetchErr } = await query;
+  if (fetchErr) {
+    return Response.json({ error: fetchErr.message }, { status: 500 });
+  }
+
+  if (!targets || targets.length === 0) {
+    return Response.json({ success: true, count: 0 });
+  }
+
+  let matchedTargets = targets;
+  if (idsToDelete.length === 0) {
+    if (providerFilter) {
+      matchedTargets = matchedTargets.filter(
+        (t) => (t.metadata?.provider || "").toLowerCase() === providerFilter!.toLowerCase()
+      );
+    }
+    if (modelFilter) {
+      matchedTargets = matchedTargets.filter(
+        (t) => (t.metadata?.model || "").toLowerCase() === modelFilter!.toLowerCase()
+      );
     }
   }
 
-  // 2. Delete DB record
-  const { error } = await supabaseAdmin
-    .from("usage_logs")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  if (matchedTargets.length === 0) {
+    return Response.json({ success: true, count: 0 });
   }
 
-  return Response.json({ success: true });
+  const matchedIds = matchedTargets.map((t) => t.id);
+
+  // Remove storage files in batch
+  const filesToDelete = matchedTargets
+    .map((t) => t.metadata?.image_url)
+    .filter((url): url is string => Boolean(url && url.includes("/ai-image-generations/")))
+    .map((url) => url.split("/ai-image-generations/").pop())
+    .filter((fn): fn is string => Boolean(fn));
+
+  if (filesToDelete.length > 0) {
+    await supabaseAdmin.storage.from("ai-image-generations").remove(filesToDelete);
+  }
+
+  // Remove DB records
+  const { error: deleteErr } = await supabaseAdmin
+    .from("usage_logs")
+    .delete()
+    .in("id", matchedIds);
+
+  if (deleteErr) {
+    return Response.json({ error: deleteErr.message }, { status: 500 });
+  }
+
+  return Response.json({ success: true, count: matchedIds.length });
+}
+
+export async function DELETE(req: Request) {
+  return processDelete(req);
+}
+
+export async function POST(req: Request) {
+  return processDelete(req);
 }
