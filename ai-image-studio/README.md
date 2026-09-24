@@ -18,6 +18,11 @@ AIMaster 플랫폼의 서브프로젝트인 **이미지 자동화(AI Image Studi
      - `Ideogram v3 Turbo` (`ideogram-ai/ideogram-v3-turbo`): V3 터보 엔진 (타이포그래피 & 시각 디자인).
      - `Ideogram v2 Turbo` (`ideogram-ai/ideogram-v2-turbo`): v2 터보 스피드 카드뉴스 & 포스터.
      - `Ideogram v2 Standard` (`ideogram-ai/ideogram-v2`): v2 표준 정밀 디자인 렌더링.
+   - **Recraft (Vector SVG & Design Graphic)**:
+     - `Recraft v4.1` (`recraft-ai/recraft-v4.1`): Recraft 최신 v4.1 그래픽 비트맵 모델 (디자인 감각 & 텍스트 렌더링 & 아트 디렉팅).
+     - `Recraft v4.1 SVG` (`recraft-ai/recraft-v4.1-svg`): Recraft 최신 v4.1 순수 SVG 벡터 모델 (Figma/Illustrator 레이어 편집 가능, 로고·아이콘 특화).
+     - `Recraft v3` (`recraft-ai/recraft-v3`): Recraft v3 (red_panda) 이미지 생성 모델 (다양한 미술/디자인 화풍 지원).
+     - `Recraft v3 SVG` (`recraft-ai/recraft-v3-svg`): Recraft v3 로고·아이콘·라인아트 pure SVG 벡터 생성 모델.
    - **Black Forest Labs FLUX 2.0**:
      - FLUX 2.0 Max / Flex / Dev / Pro (Replicate 공식 연동).
    - **Alibaba Z-Image**:

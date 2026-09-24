@@ -1644,6 +1644,200 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         ]
       }
     ]
+  },
+  {
+    id: "recraft",
+    name: "Recraft (Vector SVG & Design Graphic)",
+    apiKeyProvider: "replicate",
+    description: "Recraft V4.1 / V3 순수 SVG 벡터(Layered SVG) 및 디자인 그래픽 특화 AI 모델",
+    iconName: "Palette",
+    models: [
+      {
+        id: "recraft-ai/recraft-v4.1",
+        name: "Recraft v4.1",
+        description: "Recraft 최신 v4.1 그래픽 비트맵 모델 (디자인 감각 & 텍스트 렌더링 & 아트 디렉팅 구도)",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            description: "Aspect ratio of the generated image (Size is ignored if set).",
+            options: [
+              { label: "Not set (미지정 - Size 우선)", value: "Not set" },
+              { label: "1:1 (정사각형 기본)", value: "1:1" },
+              { label: "4:3 (표준 가로형)", value: "4:3" },
+              { label: "3:4 (표준 세로형)", value: "3:4" },
+              { label: "3:2 (사진형 가로)", value: "3:2" },
+              { label: "2:3 (사진형 세로)", value: "2:3" },
+              { label: "16:9 (와이드 가로형)", value: "16:9" },
+              { label: "9:16 (모바일 세로형)", value: "9:16" },
+              { label: "1:2 (슬림 세로)", value: "1:2" },
+              { label: "2:1 (파노라마 가로)", value: "2:1" },
+              { label: "14:10 (포스터 가로)", value: "14:10" },
+              { label: "10:14 (포스터 세로)", value: "10:14" },
+              { label: "4:5 (인스타그램 포스트)", value: "4:5" },
+              { label: "5:4 (디스플레이)", value: "5:4" },
+              { label: "6:10 (디스플레이)", value: "6:10" }
+            ]
+          },
+          {
+            id: "size",
+            name: "해상도 규격 (size)",
+            type: "select",
+            default: "1024x1024",
+            description: "Width and height of the generated image. Ignored if aspect_ratio is set.",
+            options: [
+              { label: "1024x1024 (1:1 기본)", value: "1024x1024" },
+              { label: "1536x768 (2:1 가로)", value: "1536x768" },
+              { label: "768x1536 (1:2 세로)", value: "768x1536" },
+              { label: "1280x832 (16:10 가로)", value: "1280x832" },
+              { label: "832x1280 (10:16 세로)", value: "832x1280" },
+              { label: "1216x896 (4:3 가로)", value: "1216x896" },
+              { label: "896x1216 (3:4 세로)", value: "896x1216" },
+              { label: "1152x896 (5:4 가로)", value: "1152x896" },
+              { label: "896x1152 (4:5 세로)", value: "896x1152" },
+              { label: "1344x768 (16:9 와이드)", value: "1344x768" },
+              { label: "768x1344 (9:16 모바일)", value: "768x1344" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "recraft-ai/recraft-v4.1-svg",
+        name: "Recraft v4.1 SVG (Pure Vector)",
+        description: "Recraft 최신 v4.1 순수 SVG 벡터 생성 모델 (Figma/Illustrator 직접 수정 가능한 레이어 벡터)",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            description: "Aspect ratio of the generated SVG vector image.",
+            options: [
+              { label: "Not set (미지정 - Size 우선)", value: "Not set" },
+              { label: "1:1 (정사각형 기본)", value: "1:1" },
+              { label: "4:3 (표준 가로형)", value: "4:3" },
+              { label: "3:4 (표준 세로형)", value: "3:4" },
+              { label: "3:2 (사진형 가로)", value: "3:2" },
+              { label: "2:3 (사진형 세로)", value: "2:3" },
+              { label: "16:9 (와이드 가로형)", value: "16:9" },
+              { label: "9:16 (모바일 세로형)", value: "9:16" },
+              { label: "1:2 (슬림 세로)", value: "1:2" },
+              { label: "2:1 (파노라마 가로)", value: "2:1" },
+              { label: "14:10 (포스터 가로)", value: "14:10" },
+              { label: "10:14 (포스터 세로)", value: "10:14" },
+              { label: "4:5 (인스타그램 포스트)", value: "4:5" },
+              { label: "5:4 (디스플레이)", value: "5:4" },
+              { label: "6:10 (디스플레이)", value: "6:10" }
+            ]
+          },
+          {
+            id: "size",
+            name: "해상도 규격 (size)",
+            type: "select",
+            default: "1024x1024",
+            description: "Width and height of the generated SVG image.",
+            options: [
+              { label: "1024x1024 (1:1 기본)", value: "1024x1024" },
+              { label: "1536x768 (2:1 가로)", value: "1536x768" },
+              { label: "768x1536 (1:2 세로)", value: "768x1536" },
+              { label: "1280x832 (16:10 가로)", value: "1280x832" },
+              { label: "832x1280 (10:16 세로)", value: "832x1280" },
+              { label: "1216x896 (4:3 가로)", value: "1216x896" },
+              { label: "896x1216 (3:4 세로)", value: "896x1216" },
+              { label: "1152x896 (5:4 가로)", value: "1152x896" },
+              { label: "896x1152 (4:5 세로)", value: "896x1152" },
+              { label: "1344x768 (16:9 와이드)", value: "1344x768" },
+              { label: "768x1344 (9:16 모바일)", value: "768x1344" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "recraft-ai/recraft-v3",
+        name: "Recraft v3",
+        description: "Recraft v3 (red_panda) 텍스트/아트 스타일 이미지 생성 모델 (다양한 화풍 지정 가능)",
+        options: [
+          {
+            id: "style",
+            name: "화풍 스타일 (style)",
+            type: "select",
+            default: "any",
+            description: "Style of the generated image.",
+            options: [
+              { label: "any (자유 스타일)", value: "any" },
+              { label: "realistic_image (사실적 사진)", value: "realistic_image" },
+              { label: "digital_illustration (디지털 일러스트)", value: "digital_illustration" },
+              { label: "digital_illustration/pixel_art (픽셀 아트)", value: "digital_illustration/pixel_art" },
+              { label: "digital_illustration/hand_drawn (손그림 일러스트)", value: "digital_illustration/hand_drawn" },
+              { label: "digital_illustration/grain (그레인 질감 일러스트)", value: "digital_illustration/grain" },
+              { label: "digital_illustration/infantile_sketch (동심 스케치)", value: "digital_illustration/infantile_sketch" },
+              { label: "digital_illustration/2d_art_poster (2D 아트 포스터)", value: "digital_illustration/2d_art_poster" },
+              { label: "digital_illustration/handmade_3d (핸드메이드 3D)", value: "digital_illustration/handmade_3d" },
+              { label: "digital_illustration/hand_drawn_outline (손그림 아웃라인)", value: "digital_illustration/hand_drawn_outline" },
+              { label: "digital_illustration/engraving_color (판화 컬러)", value: "digital_illustration/engraving_color" },
+              { label: "realistic_image/b_and_w (흑백 흑백사진)", value: "realistic_image/b_and_w" },
+              { label: "realistic_image/studio_portrait (스튜디오 포트레이트)", value: "realistic_image/studio_portrait" },
+              { label: "realistic_image/natural_light (자연광 사진)", value: "realistic_image/natural_light" }
+            ]
+          },
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "Not set (미지정)", value: "Not set" },
+              { label: "1:1 (정사각형)", value: "1:1" },
+              { label: "4:3 (표준 가로형)", value: "4:3" },
+              { label: "3:4 (표준 세로형)", value: "3:4" },
+              { label: "3:2 (사진형 가로)", value: "3:2" },
+              { label: "2:3 (사진형 세로)", value: "2:3" },
+              { label: "16:9 (와이드 가로형)", value: "16:9" },
+              { label: "9:16 (모바일 세로형)", value: "9:16" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "recraft-ai/recraft-v3-svg",
+        name: "Recraft v3 SVG (Pure Vector)",
+        description: "Recraft v3 로고·아이콘·라인아트 pure SVG 벡터 생성 모델",
+        options: [
+          {
+            id: "style",
+            name: "벡터 스타일 (style)",
+            type: "select",
+            default: "any",
+            description: "Style of the generated vector image.",
+            options: [
+              { label: "any (자유 벡터)", value: "any" },
+              { label: "line_art (라인 아트 아이콘)", value: "line_art" },
+              { label: "engraving (판화 드로잉)", value: "engraving" },
+              { label: "line_circuit (회로 아웃라인)", value: "line_circuit" },
+              { label: "linocut (리노컷 블록 판화)", value: "linocut" }
+            ]
+          },
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "Not set (미지정)", value: "Not set" },
+              { label: "1:1 (정사각형)", value: "1:1" },
+              { label: "4:3 (표준 가로형)", value: "4:3" },
+              { label: "3:4 (표준 세로형)", value: "3:4" },
+              { label: "3:2 (사진형 가로)", value: "3:2" },
+              { label: "2:3 (사진형 세로)", value: "2:3" },
+              { label: "16:9 (와이드 가로형)", value: "16:9" },
+              { label: "9:16 (모바일 세로형)", value: "9:16" }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 

@@ -13,8 +13,10 @@
 4. **유저 API 키**: `user_api_keys` 공용 테이블에서 `resolveApiKey(user_id, provider)`를 호출하여 유저 키를 조회한다. Replicate 기반 모델(FLUX 2.0, Z-Image, Seedream, Ideogram)은 provider `replicate` API 키(`r8_...`)를 원천으로 공유하여 호출한다.
 
 ## 지원 모델 및 레퍼런스 (2026-09-24 최신화)
+- **Recraft (Vector SVG & Design Graphic)**: `recraft-ai/recraft-v4.1`, `recraft-ai/recraft-v4.1-svg`, `recraft-ai/recraft-v3`, `recraft-ai/recraft-v3-svg` (Replicate OpenAPI 스키마 직대조 완료, pure SVG 벡터 생성으로 Figma/Illustrator 레이어 편집 지원, 실측 HTTP 201 Created & succeeded 검수 완료).
 - **Ideogram (Typo & Text Special)**: `ideogram-ai/ideogram-v4-quality`, `ideogram-ai/ideogram-v4-balanced`, `ideogram-ai/ideogram-v4-turbo`, `ideogram-ai/ideogram-character`, `ideogram-ai/ideogram-v3-turbo`, `ideogram-ai/ideogram-v2-turbo`, `ideogram-ai/ideogram-v2` (Replicate OpenAPI 스키마 직대조 완료, 오타 극복 타이포그래피 특화, 캐릭터 일관성 `character_reference_image`, `enable_copyright_detection` 제어, 실측 HTTP 201 Created 검수 완료).
 - **ByteDance Official Seedream**: `bytedance/seedream-5-pro`, `bytedance/seedream-5-lite`, `bytedance/seedream-4.5` (Replicate OpenAPI 스키마 직대조 완료, 1K/1.5K/2K/3K/4K, 레이어 분해 `layer_decomposition`, 연작 생성 `sequential_image_generation`, `max_images` 1~15 지원, 실측 엔드포인트 검수 통과).
 - **Black Forest Labs FLUX 2.0**: `black-forest-labs/flux-2-dev`, `flux-2-max`, `flux-2-pro`, `flux-2-flex`.
 - **Alibaba Z-Image**: `prunaai/z-image-turbo`.
 - **OpenAI / Gemini / Stability AI**: DALL-E 3, Nanobanana 등.
+
