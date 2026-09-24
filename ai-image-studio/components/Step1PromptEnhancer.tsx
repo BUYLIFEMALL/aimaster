@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, Camera, Box, Palette, Layers, Zap, Tag } from "lucide-react";
+import { Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, Camera, Box, Palette, Layers, Zap, Tag, RotateCcw } from "lucide-react";
 
 interface Step1PromptEnhancerProps {
   onApplyPrompt: (prompt: string, negativePrompt?: string) => void;
@@ -154,10 +154,15 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
         <div className="flex flex-wrap items-center justify-between gap-3">
           <button
             type="button"
-            onClick={() => setIdea("")}
-            className="text-xs font-medium text-zinc-400 hover:text-zinc-200 underline"
+            onClick={() => {
+              setIdea("");
+              setResult(null);
+            }}
+            className="flex items-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white px-4.5 py-2.5 text-xs font-bold border border-red-500/50 shadow-md shadow-red-950/40 transition-all cursor-pointer active:scale-95"
+            title="입력된 아이디어를 초기화합니다"
           >
-            입력창 초기화
+            <RotateCcw className="h-3.5 w-3.5" />
+            <span>입력창 초기화</span>
           </button>
 
           <button
