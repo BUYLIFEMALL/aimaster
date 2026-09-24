@@ -13,7 +13,7 @@
 4. **유저 API 키**: `user_api_keys` 공용 테이블에서 `resolveApiKey(user_id, provider)`를 호출하여 유저 키를 조회한다. Replicate 기반 모델(FLUX 2.0, Z-Image, Seedream)은 provider `replicate` API 키(`r8_...`)를 원천으로 공유하여 호출한다.
 
 ## 지원 모델 및 레퍼런스 (2026-09-24 최신화)
-- **ByteDance Official Seedream**: `bytedance/seedream-5-lite`, `bytedance/seedream-4.5` (Replicate OpenAPI 스키마 직대조 완료, 2K/3K/4K, 연작 생성 `sequential_image_generation`, `max_images` 1~15 지원, 실측 엔드포인트 검수 통과).
+- **ByteDance Official Seedream**: `bytedance/seedream-5-pro`, `bytedance/seedream-5-lite`, `bytedance/seedream-4.5` (Replicate OpenAPI 스키마 직대조 완료, 1K/1.5K/2K/3K/4K, 레이어 분해 `layer_decomposition`, 연작 생성 `sequential_image_generation`, `max_images` 1~15 지원, 실측 엔드포인트 검수 통과).
 - **Black Forest Labs FLUX 2.0**: `black-forest-labs/flux-2-dev`, `flux-2-max`, `flux-2-pro`, `flux-2-flex`.
 - **Alibaba Z-Image**: `prunaai/z-image-turbo`.
 - **OpenAI / Gemini / Stability AI**: DALL-E 3, Nanobanana 등.

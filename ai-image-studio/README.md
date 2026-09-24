@@ -7,6 +7,7 @@ AIMaster 플랫폼의 서브프로젝트인 **이미지 자동화(AI Image Studi
 1. **AI 프롬프트 최적화 (Step 1)**: 한국어 단문 아이디어를 구도, 조명, 스타일, 렌즈 및 부정 프롬프트가 포함된 영문 고품질 프롬프트로 전환.
 2. **다중 이미지 생성 플랫폼 & 플래그십 모델 지원 (Step 2)**:
    - **ByteDance Official Seedream**:
+     - `Seedream 5 Pro` (`bytedance/seedream-5-pro`): 1K/1.5K/2K/auto 해상도, 레이어 분해 모드(`layer_decomposition: true`) 지원.
      - `Seedream 5.0 Lite` (`bytedance/seedream-5-lite`): 2K/3K 해상도, 연작 시퀀스 자동 생성(`sequential_image_generation: auto`), 최대 15장 연속 이미지 제어.
      - `Seedream 4.5` (`bytedance/seedream-4.5`): 2K/4K/custom 해상도, 가로/세로 1024~4096px 조절, 안전 검열 완화(`disable_safety_checker`).
    - **Black Forest Labs FLUX 2.0**:

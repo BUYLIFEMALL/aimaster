@@ -1063,6 +1063,62 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     iconName: "Sparkles",
     models: [
       {
+        id: "bytedance/seedream-5-pro",
+        name: "Seedream 5 Pro",
+        description: "ByteDance 플래그십 텍스트-투-이미지 & 레이어 분해 정밀 조절 1K/2K 모델",
+        options: [
+          {
+            id: "size",
+            name: "해상도 (size: 2K / 1.5K / 1K / auto)",
+            type: "select",
+            default: "2K",
+            description: "Image resolution: 2K, 1.5K, 1K, or auto.",
+            options: [
+              { label: "2K 고화질 (2048px)", value: "2K" },
+              { label: "1.5K 표준 (1536px)", value: "1.5K" },
+              { label: "1K 경량 (1024px)", value: "1K" },
+              { label: "자동 해상도 (auto)", value: "auto" }
+            ]
+          },
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "match_input_image",
+            description: "Image aspect ratio. Use 'match_input_image' to match input image's aspect ratio.",
+            options: [
+              { label: "입력 이미지 비율 맞춤 (match_input_image)", value: "match_input_image" },
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "21:9 시네마틱 파노라마", value: "21:9" }
+            ]
+          },
+          {
+            id: "layer_decomposition",
+            name: "레이어 분해 모드 (layer_decomposition)",
+            type: "boolean",
+            default: false,
+            description: "Split input image into base image plus separate element layers (up to 16)."
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "png",
+            description: "Output image format.",
+            options: [
+              { label: "png (무손실 기본)", value: "png" },
+              { label: "jpeg (고효율)", value: "jpeg" }
+            ]
+          }
+        ]
+      },
+      {
         id: "bytedance/seedream-5-lite",
         name: "Seedream 5.0 Lite",
         description: "ByteDance 최신 플래그십 (2K~3K 고화질, 추론 엔진 & 연작 시퀀스 생성 지원)",

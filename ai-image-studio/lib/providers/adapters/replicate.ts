@@ -105,6 +105,13 @@ export class ReplicateAdapter implements ImageProviderAdapter {
       input.sequential_image_generation = params.options.sequential_image_generation;
     }
 
+    if (params.options.layer_decomposition !== undefined) {
+      input.layer_decomposition = params.options.layer_decomposition === "true" || params.options.layer_decomposition === true;
+    }
+    if (params.options.image_input) {
+      input.image_input = params.options.image_input;
+    }
+
     if (params.negativePrompt || params.options.negative_prompt) {
       input.negative_prompt = params.negativePrompt || params.options.negative_prompt;
     }
