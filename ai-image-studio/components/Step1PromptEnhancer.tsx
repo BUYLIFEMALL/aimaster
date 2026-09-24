@@ -152,18 +152,24 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
         />
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setIdea("");
-              setResult(null);
-            }}
-            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 px-8 py-3.5 text-sm font-bold border border-amber-400/50 shadow-lg shadow-amber-500/20 transition-all cursor-pointer active:scale-95 min-w-[180px]"
-            title="입력된 아이디어를 초기화합니다"
-          >
-            <RotateCcw className="h-4 w-4" />
-            <span>입력창 초기화</span>
-          </button>
+          {(() => {
+            const hasContent = Boolean(idea.trim() || result);
+            return (
+              <button
+                type="button"
+                disabled={!hasContent}
+                onClick={() => {
+                  setIdea("");
+                  setResult(null);
+                }}
+                className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 px-8 py-3.5 text-sm font-bold border border-amber-400/50 shadow-lg shadow-amber-500/20 transition-all active:scale-95 min-w-[180px] disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:border-zinc-700 disabled:shadow-none disabled:active:scale-100"
+                title={hasContent ? "입력된 아이디어를 초기화합니다" : "초기화할 내용이 없습니다"}
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span>입력창 초기화</span>
+              </button>
+            );
+          })()}
 
           <button
             onClick={handleEnhance}

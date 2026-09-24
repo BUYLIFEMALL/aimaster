@@ -272,15 +272,21 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-zinc-800">
-          <button
-            type="button"
-            onClick={handleResetInputs}
-            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 px-8 py-3.5 text-sm font-bold border border-amber-400/50 shadow-lg shadow-amber-500/20 transition-all cursor-pointer active:scale-95 min-w-[180px]"
-            title="입력된 프롬프트와 모든 모델 옵션을 기본값으로 초기화합니다"
-          >
-            <RotateCcw className="h-4 w-4" />
-            <span>입력창 초기화 (Reset)</span>
-          </button>
+          {(() => {
+            const hasResetContent = Boolean(prompt.trim() || negativePrompt.trim() || generatedResult);
+            return (
+              <button
+                type="button"
+                disabled={!hasResetContent}
+                onClick={handleResetInputs}
+                className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 px-8 py-3.5 text-sm font-bold border border-amber-400/50 shadow-lg shadow-amber-500/20 transition-all active:scale-95 min-w-[180px] disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:border-zinc-700 disabled:shadow-none disabled:active:scale-100"
+                title={hasResetContent ? "입력된 프롬프트와 옵션을 초기화합니다" : "초기화할 내용이 없습니다"}
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span>입력창 초기화 (Reset)</span>
+              </button>
+            );
+          })()}
 
           <button
             onClick={handleGenerate}
