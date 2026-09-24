@@ -7,8 +7,8 @@ import { StabilityAdapter } from "./adapters/stability";
 const adapters: Record<string, ImageProviderAdapter> = {
   openai: new OpenAIAdapter(),
   replicate: new ReplicateAdapter(),
+  zimage: new ReplicateAdapter(),
   gemini: new GeminiAdapter(),
-  stability: new StabilityAdapter(),
 };
 
 export function getProviderAdapter(providerId: string): ImageProviderAdapter {

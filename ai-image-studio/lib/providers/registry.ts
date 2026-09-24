@@ -528,9 +528,9 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   },
   {
     id: "replicate",
-    name: "Replicate (FLUX 2.0 / Z-Image)",
+    name: "Replicate (FLUX 2.0 Official)",
     apiKeyProvider: "replicate",
-    description: "Black Forest Labs 공식 FLUX 2.0 (Max / Flex / Dev / Pro) 및 Tongyi-MAI Z-Image Turbo 라인업",
+    description: "Black Forest Labs 공식 FLUX 2.0 (Max / Flex / Dev / Pro) 플래그십 라인업",
     iconName: "Zap",
     models: [
       {
@@ -948,7 +948,16 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             description: "저장 시 이미지 화질 (100: 최상, png 출력 시 미적용)"
           }
         ]
-      },
+      }
+    ]
+  },
+  {
+    id: "zimage",
+    name: "Z-Image (Tongyi-MAI)",
+    apiKeyProvider: "replicate",
+    description: "Alibaba 6B 초고속 극실사 & 텍스트 렌더링 스튜디오 (0.5초 생성)",
+    iconName: "Zap",
+    models: [
       {
         id: "prunaai/z-image-turbo",
         name: "Z-Image Turbo",
