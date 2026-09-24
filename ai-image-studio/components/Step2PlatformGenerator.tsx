@@ -37,7 +37,8 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
     if (initialPrompt) {
       setPrompt(initialPrompt);
       setHighlightFlash(true);
-      setTimeout(() => setHighlightFlash(false), 2000);
+      const timer = setTimeout(() => setHighlightFlash(false), 3500);
+      return () => clearTimeout(timer);
     }
     if (initialNegativePrompt) setNegativePrompt(initialNegativePrompt);
   }, [initialPrompt, initialNegativePrompt]);
@@ -288,23 +289,32 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
             );
           })()}
 
-          <button
-            onClick={handleGenerate}
-            disabled={generating || !prompt.trim() || !hasKey}
-            className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-8 py-3.5 text-sm font-bold text-zinc-950 hover:from-amber-400 hover:to-yellow-300 disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
-          >
-            {generating ? (
-              <>
-                <RefreshCw className="h-5 w-5 animate-spin" />
-                <span>AI 이미지 생성 중... (10~20초 소요)</span>
-              </>
-            ) : (
-              <>
-                <ImageIcon className="h-5 w-5 stroke-[2.5]" />
-                <span>이미지 생성 시작하기</span>
-              </>
-            )}
-          </button>
+          {(() => {
+            const isReadyToGenerate = Boolean(prompt.trim() && hasKey && !generating);
+            return (
+              <button
+                onClick={handleGenerate}
+                disabled={!isReadyToGenerate}
+                className={`flex items-center gap-3 rounded-xl px-9 py-4 text-base font-black transition-all transform duration-300 cursor-pointer ${
+                  isReadyToGenerate
+                    ? "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-zinc-950 hover:from-amber-300 hover:to-yellow-300 shadow-xl shadow-amber-500/40 ring-4 ring-amber-400/50 hover:ring-amber-300 active:scale-95 hover:scale-[1.02]"
+                    : "bg-zinc-800 text-zinc-500 border border-zinc-700 opacity-50 cursor-not-allowed shadow-none"
+                } ${highlightFlash ? "ring-8 ring-yellow-300 shadow-2xl shadow-amber-400 animate-pulse scale-[1.03]" : ""}`}
+              >
+                {generating ? (
+                  <>
+                    <RefreshCw className="h-5 w-5 animate-spin" />
+                    <span>AI 이미지 생성 중... (10~20초 소요)</span>
+                  </>
+                ) : (
+                  <>
+                    <ImageIcon className="h-6 w-6 stroke-[2.5]" />
+                    <span>✨ 이미지 생성 시작하기</span>
+                  </>
+                )}
+              </button>
+            );
+          })()}
         </div>
       </div>
 
