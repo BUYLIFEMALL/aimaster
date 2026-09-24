@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+const AI_IMAGE_STUDIO_PROGRAM_ID = "26b9f0b2-b48b-4f9d-b751-ecb88e98e95e";
+
 async function uploadToStorage(supabaseAdmin: any, userId: string, originalUrl: string): Promise<string> {
   try {
     let buffer: Buffer;
@@ -94,19 +96,23 @@ export async function POST(req: Request) {
 
       results.push(result);
 
-      // Save permanent URL to user_image_generations table
-      const { error: insertErr } = await supabaseAdmin.from("user_image_generations").insert({
+      // Save permanent record to usage_logs DB table
+      const { error: insertErr } = await supabaseAdmin.from("usage_logs").insert({
         user_id: user.id,
-        provider,
-        model,
-        prompt,
-        enhanced_prompt: result.revisedPrompt || prompt,
-        options: options || {},
-        image_url: permanentUrl
+        program_id: AI_IMAGE_STUDIO_PROGRAM_ID,
+        action: "image_generation",
+        metadata: {
+          provider,
+          model,
+          prompt,
+          enhanced_prompt: result.revisedPrompt || prompt,
+          options: options || {},
+          image_url: permanentUrl
+        }
       });
 
       if (insertErr) {
-        console.error("Failed to save image generation to DB:", insertErr);
+        console.error("Failed to save image generation to DB usage_logs:", insertErr);
       }
     }
 

@@ -8,6 +8,8 @@ import { History, Clock } from "lucide-react";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+const AI_IMAGE_STUDIO_PROGRAM_ID = "26b9f0b2-b48b-4f9d-b751-ecb88e98e95e";
+
 export default async function GalleryPage() {
   const { user } = await requireProgramAccess();
   const supabaseAdmin = createAdminClient();
@@ -15,17 +17,29 @@ export default async function GalleryPage() {
   // Auto cleanup image generations older than 30 days
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   await supabaseAdmin
-    .from("user_image_generations")
+    .from("usage_logs")
     .delete()
+    .eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID)
     .lt("created_at", thirtyDaysAgo);
 
-  const { data: generations } = await supabaseAdmin
-    .from("user_image_generations")
+  const { data: logs } = await supabaseAdmin
+    .from("usage_logs")
     .select("*")
     .eq("user_id", user.id)
+    .eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID)
     .order("created_at", { ascending: false });
 
-  const items = generations || [];
+  const items = (logs || [])
+    .map((log) => ({
+      id: log.id,
+      provider: log.metadata?.provider || "replicate",
+      model: log.metadata?.model || "flux-2-dev",
+      prompt: log.metadata?.prompt || "",
+      enhanced_prompt: log.metadata?.enhanced_prompt || "",
+      image_url: log.metadata?.image_url || "",
+      created_at: log.created_at
+    }))
+    .filter((item) => Boolean(item.image_url));
 
   return (
     <div className="space-y-8 pb-12">
