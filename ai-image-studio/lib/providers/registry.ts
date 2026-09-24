@@ -635,13 +635,14 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "black-forest-labs/flux-2-flex",
         name: "FLUX 2 [flex]",
-        description: "BFL 차세대 FLUX 2.0 Flex 엔진 - 유연한 추론 스텝 & 프롬프트 업샘플링 세부제어",
+        description: "BFL 차세대 FLUX 2.0 Flex 엔진 - 유연한 추론 스텝(steps) & 가이던스(guidance) & 프롬프트 자동 보강(prompt_upsampling) 제어",
         options: [
           {
             id: "aspect_ratio",
             name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "1:1",
+            description: "Aspect ratio for the generated image. Use 'match_input_image' to match the first input image's aspect ratio.",
             options: [
               { label: "1:1 정사각형", value: "1:1" },
               { label: "16:9 와이드 가로형", value: "16:9" },
@@ -661,6 +662,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             name: "해상도 (resolution)",
             type: "select",
             default: "1 MP",
+            description: "Resolution in megapixels. Up to 4 MP is possible, but 2 MP or below is recommended.",
             options: [
               { label: "1 MP (기본 추천)", value: "1 MP" },
               { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
@@ -676,7 +678,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 1024,
             min: 256,
             max: 2048,
-            step: 16
+            step: 16,
+            description: "Width of the generated image. Only used when aspect_ratio=custom. Must be a multiple of 16."
           },
           {
             id: "height",
@@ -685,35 +688,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 1024,
             min: 256,
             max: 2048,
-            step: 16
-          },
-          {
-            id: "steps",
-            name: "생성 단계 수 (steps: 1 ~ 50)",
-            type: "slider",
-            default: 30,
-            min: 1,
-            max: 50,
-            step: 1
-          },
-          {
-            id: "guidance",
-            name: "가이던스 강도 (guidance: 1.5 ~ 10.0)",
-            type: "slider",
-            default: 4.5,
-            min: 1.5,
-            max: 10.0,
-            step: 0.1
-          },
-          {
-            id: "prompt_upsampling",
-            name: "프롬프트 자동 보강 (prompt_upsampling)",
-            type: "select",
-            default: "true",
-            options: [
-              { label: "On (AI 디테일 자동 확장)", value: "true" },
-              { label: "Off (원문 충실)", value: "false" }
-            ]
+            step: 16,
+            description: "Height of the generated image. Only used when aspect_ratio=custom. Must be a multiple of 16."
           },
           {
             id: "safety_tolerance",
@@ -722,19 +698,49 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 2,
             min: 1,
             max: 5,
-            step: 1
+            step: 1,
+            description: "Safety tolerance, 1 is most strict and 5 is most permissive"
           },
           {
             id: "seed",
             name: "랜덤 시드 번호 (seed)",
             type: "text",
-            default: ""
+            default: "",
+            description: "Random seed. Set for reproducible generation"
+          },
+          {
+            id: "prompt_upsampling",
+            name: "프롬프트 자동 보강 (prompt_upsampling)",
+            type: "boolean",
+            default: true,
+            description: "Automatically modify the prompt for more creative generation"
+          },
+          {
+            id: "steps",
+            name: "생성 단계 수 (steps: 1 ~ 50)",
+            type: "slider",
+            default: 30,
+            min: 1,
+            max: 50,
+            step: 1,
+            description: "Number of inference steps (minimum: 1, maximum: 50)"
+          },
+          {
+            id: "guidance",
+            name: "가이던스 강도 (guidance: 1.5 ~ 10.0)",
+            type: "slider",
+            default: 4.5,
+            min: 1.5,
+            max: 10.0,
+            step: 0.1,
+            description: "Guidance scale for generation. Controls how closely the output follows the prompt (minimum: 1.5, maximum: 10)"
           },
           {
             id: "output_format",
             name: "출력 포맷 (output_format)",
             type: "select",
             default: "webp",
+            description: "Format of the output images.",
             options: [
               { label: "webp (고효율 기본)", value: "webp" },
               { label: "jpg (표준 고품질)", value: "jpg" },
@@ -748,7 +754,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 80,
             min: 0,
             max: 100,
-            step: 5
+            step: 5,
+            description: "Quality when saving the output images, from 0 to 100. 100 is best quality. Not relevant for .png outputs"
           }
         ]
       },
