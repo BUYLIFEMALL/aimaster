@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { formatKRW } from "@/lib/utils/format";
+import SystemUsageMonitor from "@/components/admin/SystemUsageMonitor";
 
 export const metadata = { title: "관리자 대시보드" };
 
@@ -136,6 +137,9 @@ export default async function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* 실시간 Supabase 트래픽 & Vercel 헬스 모니터링 */}
+      <SystemUsageMonitor />
     </div>
   );
 }
