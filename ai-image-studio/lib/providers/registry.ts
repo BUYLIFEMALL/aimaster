@@ -528,9 +528,9 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   },
   {
     id: "replicate",
-    name: "Replicate (FLUX 2.0 Official)",
+    name: "Replicate (FLUX 2.0 / Z-Image)",
     apiKeyProvider: "replicate",
-    description: "Black Forest Labs 공식 FLUX 2.0 (Max / Flex / Dev / Pro) 플래그십 라인업",
+    description: "Black Forest Labs 공식 FLUX 2.0 (Max / Flex / Dev / Pro) 및 Tongyi-MAI Z-Image Turbo 라인업",
     iconName: "Zap",
     models: [
       {
@@ -948,39 +948,99 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             description: "저장 시 이미지 화질 (100: 최상, png 출력 시 미적용)"
           }
         ]
-      }
-    ]
-  },
-  {
-    id: "stability",
-    name: "Stability AI",
-    apiKeyProvider: "stability",
-    description: "SD3.5 및 Stable Image Ultra 라인업",
-    iconName: "Wand2",
-    models: [
+      },
       {
-        id: "sd3.5-large",
-        name: "Stable Diffusion 3.5 Large",
-        description: "안정적인 해상도와 풍부한 그래픽 스타일 조율",
+        id: "prunaai/z-image-turbo",
+        name: "Z-Image Turbo",
+        description: "Alibaba 6B 초고속 극실사 & 텍스트 렌더링 (0.5초 생성)",
         options: [
           {
             id: "aspect_ratio",
-            name: "종횡비",
+            name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "1:1",
+            description: "Aspect ratio for the generated image.",
             options: [
-              { label: "1:1", value: "1:1" },
-              { label: "16:9", value: "16:9" },
-              { label: "9:16", value: "9:16" },
-              { label: "4:3", value: "4:3" }
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" },
+              { label: "4:5 인스타그램 포스트", value: "4:5" },
+              { label: "5:4 디스플레이", value: "5:4" },
+              { label: "사용자 지정 해상도 (custom)", value: "custom" }
             ]
           },
           {
-            id: "negative_prompt",
-            name: "부정 프롬프트",
+            id: "width",
+            name: "가로 크기 (width: 64 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 64,
+            max: 2048,
+            step: 32,
+            description: "Width of the generated image. Only used when aspect_ratio=custom."
+          },
+          {
+            id: "height",
+            name: "세로 크기 (height: 64 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 64,
+            max: 2048,
+            step: 32,
+            description: "Height of the generated image. Only used when aspect_ratio=custom."
+          },
+          {
+            id: "num_inference_steps",
+            name: "추론 스텝 (num_inference_steps: 1 ~ 50)",
+            type: "slider",
+            default: 8,
+            min: 1,
+            max: 50,
+            step: 1,
+            description: "Number of inference steps (8 is optimal for Turbo)."
+          },
+          {
+            id: "guidance_scale",
+            name: "가이던스 스케일 (guidance_scale: 0 ~ 20)",
+            type: "slider",
+            default: 0,
+            min: 0,
+            max: 20,
+            step: 0.5,
+            description: "Guidance scale (should be 0 for Turbo models)."
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "jpg",
+            description: "Format of the output images",
+            options: [
+              { label: "jpg (표준 고품질 기본)", value: "jpg" },
+              { label: "webp (고효율)", value: "webp" },
+              { label: "png (무손실)", value: "png" }
+            ]
+          },
+          {
+            id: "output_quality",
+            name: "출력 화질 (output_quality: 0 ~ 100)",
+            type: "slider",
+            default: 80,
+            min: 0,
+            max: 100,
+            step: 5,
+            description: "Quality when saving output images (0 ~ 100)."
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
             type: "text",
-            default: "blurry, low quality, distorted, bad hands, watermark",
-            description: "제외하고 싶은 요소를 적어주세요"
+            default: "",
+            description: "Random seed. Set for reproducible generation"
           }
         ]
       }
