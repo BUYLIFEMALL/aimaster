@@ -539,10 +539,18 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         description: "정밀화질 & 고속 최적화",
         options: [
           {
+            id: "go_fast",
+            name: "초고속 최적화 모드 (go_fast)",
+            type: "boolean",
+            default: true,
+            description: "Run faster predictions with additional optimizations."
+          },
+          {
             id: "aspect_ratio",
             name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "1:1",
+            description: "Aspect ratio for the generated image. Use 'match_input_image' to match the first input image's aspect ratio.",
             options: [
               { label: "1:1 정사각형", value: "1:1" },
               { label: "16:9 와이드 가로형", value: "16:9" },
@@ -564,7 +572,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 1024,
             min: 256,
             max: 1440,
-            step: 32
+            step: 32,
+            description: "Width of the generated image in text-to-image mode. Only used when aspect_ratio=custom. Must be a multiple of 32."
           },
           {
             id: "height",
@@ -573,39 +582,22 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 1024,
             min: 256,
             max: 1440,
-            step: 32
-          },
-          {
-            id: "go_fast",
-            name: "초고속 최적화 모드 (go_fast)",
-            type: "select",
-            default: "true",
-            options: [
-              { label: "On (초고속 렌더링 추천)", value: "true" },
-              { label: "Off (정밀 풀 렌더링)", value: "false" }
-            ]
-          },
-          {
-            id: "disable_safety_checker",
-            name: "안전 검사기 비활성화 (disable_safety_checker)",
-            type: "select",
-            default: "false",
-            options: [
-              { label: "Off (안전 검사 켜기)", value: "false" },
-              { label: "On (안전 검사 비활성화)", value: "true" }
-            ]
+            step: 32,
+            description: "Height of the generated image in text-to-image mode. Only used when aspect_ratio=custom. Must be a multiple of 32."
           },
           {
             id: "seed",
             name: "랜덤 시드 번호 (seed)",
             type: "text",
-            default: ""
+            default: "",
+            description: "Random seed. Set for reproducible generation"
           },
           {
             id: "output_format",
             name: "출력 포맷 (output_format)",
             type: "select",
             default: "webp",
+            description: "Format of the output images.",
             options: [
               { label: "webp (고효율 기본)", value: "webp" },
               { label: "jpg (표준 고품질)", value: "jpg" },
@@ -619,7 +611,15 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             default: 80,
             min: 0,
             max: 100,
-            step: 5
+            step: 5,
+            description: "Quality when saving the output images, from 0 to 100. 100 is best quality, 0 is lowest quality. Not relevant for .png outputs."
+          },
+          {
+            id: "disable_safety_checker",
+            name: "안전 검사기 비활성화 (disable_safety_checker)",
+            type: "boolean",
+            default: false,
+            description: "Disable safety checker for generated images."
           }
         ]
       },
