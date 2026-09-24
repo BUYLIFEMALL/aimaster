@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, Search, Ban, RotateCcw, Trash2, CalendarClock } from "lucide-react";
+import { Eye, Search, Ban, RotateCcw, Trash2, CalendarClock, UserPlus, Layers } from "lucide-react";
 import MemberGradeSelect from "@/components/admin/MemberGradeSelect";
 import SetExpiryModal from "@/components/admin/SetExpiryModal";
+import AddMembersToGradeModal from "@/components/admin/AddMembersToGradeModal";
 import { formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import type { Profile, MemberGrade, Program } from "@/types/database.types";
@@ -28,16 +29,13 @@ interface MembersTableProps {
 export default function MembersTable({ members, grades, expiryByUserId = {}, programs = [] }: MembersTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [selectedGradeId, setSelectedGradeId] = useState<string>("all");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [bulkPending, setBulkPending] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  // 단일 회원(행의 CalendarClock 버튼) 또는 다중 회원(체크박스 선택 + 일괄 버튼) 모두
-  // 이 배열 하나로 다룬다 — SetExpiryModal이 회원 배열을 받아 인원수에 따라 자동으로
-  // 단건/일괄 문구와 처리 방식을 맞춘다.
   const [expirySettingMembers, setExpirySettingMembers] = useState<Profile[] | null>(null);
   const [bulkGradeId, setBulkGradeId] = useState("");
-  // 서버 refresh를 기다리지 않고 삭제 즉시 목록에서 사라지도록 로컬 상태로도 관리한다
-  // (router.refresh()만으로는 반영이 늦어 보이는 경우가 있어 낙관적 업데이트를 병행).
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
   const [suspendOverrides, setSuspendOverrides] = useState<Map<string, boolean>>(new Map());
   const [gradeOverrides, setGradeOverrides] = useState<Map<string, string | null>>(new Map());
@@ -68,17 +66,57 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
     [members, removedIds, suspendOverrides, gradeOverrides],
   );
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return visibleMembers;
-    return visibleMembers.filter(
-      (m) =>
-        (m.name ?? "").toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q),
-    );
-  }, [visibleMembers, search]);
+  // 등급 카테고리별 실시간 인원수 집계
+  const gradeCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: visibleMembers.length,
+      unassigned: 0,
+    };
+    for (const g of grades) {
+      counts[g.id] = 0;
+    }
+    for (const m of visibleMembers) {
+      if (!m.grade_id) {
+        counts.unassigned = (counts.unassigned || 0) + 1;
+      } else if (counts[m.grade_id] !== undefined) {
+        counts[m.grade_id] += 1;
+      }
+    }
+    return counts;
+  }, [visibleMembers, grades]);
 
-  // 관리자 계정은 선택/삭제 대상에서 제외한다 (실수로 관리자를 지우는 것 방지).
+  // 선택 탭 + 검색어에 기반한 최종 필터링된 회원 목록
+  const filtered = useMemo(() => {
+    let result = visibleMembers;
+
+    if (selectedGradeId === "unassigned") {
+      result = result.filter((m) => !m.grade_id);
+    } else if (selectedGradeId !== "all") {
+      result = result.filter((m) => m.grade_id === selectedGradeId);
+    }
+
+    const q = search.trim().toLowerCase();
+    if (q) {
+      result = result.filter(
+        (m) =>
+          (m.name ?? "").toLowerCase().includes(q) ||
+          m.email.toLowerCase().includes(q),
+      );
+    }
+
+    return result;
+  }, [visibleMembers, selectedGradeId, search]);
+
+  const activeTargetGrade = useMemo(
+    () => grades.find((g) => g.id === selectedGradeId),
+    [grades, selectedGradeId],
+  );
+
+  const availableForAdd = useMemo(
+    () => visibleMembers.filter((m) => m.grade_id !== selectedGradeId),
+    [visibleMembers, selectedGradeId],
+  );
+
   const selectableFiltered = useMemo(() => filtered.filter((m) => !m.is_admin), [filtered]);
   const allSelectableChecked =
     selectableFiltered.length > 0 && selectableFiltered.every((m) => selectedIds.has(m.id));
@@ -103,6 +141,27 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
       else next.add(id);
       return next;
     });
+  }
+
+  async function assignGradeToUsers(userIds: string[], targetGradeId: string | null) {
+    setGradeOverrides((prev) => {
+      const next = new Map(prev);
+      userIds.forEach((id) => next.set(id, targetGradeId));
+      return next;
+    });
+    try {
+      const res = await fetch("/api/admin/grades/assign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_ids: userIds, grade_id: targetGradeId }),
+      });
+      if (!res.ok) {
+        alert("등급 이동 처리 실패");
+      }
+      router.refresh();
+    } catch {
+      alert("등급 이동 중 오류가 발생했습니다.");
+    }
   }
 
   async function bulkDeleteSelected() {
@@ -164,29 +223,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
     }
     setBulkPending(true);
     try {
-      const res = await fetch("/api/admin/grades/assign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_ids: ids, grade_id: bulkGradeId || null }),
-      });
-      if (!res.ok) {
-        let message = "일괄 등급 변경 실패";
-        try {
-          message = (await res.json()).error || message;
-        } catch {
-          message = `일괄 등급 변경 실패 (서버 오류 ${res.status})`;
-        }
-        alert(message);
-        return;
-      }
-      setGradeOverrides((prev) => {
-        const next = new Map(prev);
-        ids.forEach((id) => next.set(id, bulkGradeId || null));
-        return next;
-      });
-      router.refresh();
-    } catch {
-      alert("일괄 등급 변경 중 오류가 발생했습니다.");
+      await assignGradeToUsers(ids, bulkGradeId || null);
     } finally {
       setBulkPending(false);
     }
@@ -255,6 +292,99 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
 
   return (
     <div>
+      {/* 1. 상단 등급별 카테고리 탭 바 (Grade Category Tabs) */}
+      <div className="glass-card p-3 mb-6 flex flex-wrap items-center justify-between gap-3 border border-white/10">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 text-gold text-xs font-semibold px-2.5 py-1 bg-gold/10 rounded-lg border border-gold/20 mr-1">
+            <Layers size={14} />
+            등급 카테고리
+          </div>
+
+          <button
+            onClick={() => setSelectedGradeId("all")}
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer",
+              selectedGradeId === "all"
+                ? "bg-gold text-black font-bold shadow-md shadow-gold/20"
+                : "bg-white/5 text-subtext hover:text-white hover:bg-white/10 border border-white/10",
+            )}
+          >
+            전체
+            <span
+              className={cn(
+                "px-1.5 py-0.2 rounded-full text-[10px]",
+                selectedGradeId === "all" ? "bg-black/20 text-black font-bold" : "bg-white/10 text-white/70",
+              )}
+            >
+              {gradeCounts.all ?? 0}
+            </span>
+          </button>
+
+          {grades.map((g) => {
+            const isSelected = selectedGradeId === g.id;
+            const count = gradeCounts[g.id] ?? 0;
+            return (
+              <button
+                key={g.id}
+                onClick={() => setSelectedGradeId(g.id)}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer",
+                  isSelected
+                    ? "bg-gold text-black font-bold shadow-md shadow-gold/20"
+                    : "bg-white/5 text-subtext hover:text-white hover:bg-white/10 border border-white/10",
+                )}
+              >
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: g.color ?? "#d4af37" }}
+                />
+                {g.name}
+                <span
+                  className={cn(
+                    "px-1.5 py-0.2 rounded-full text-[10px]",
+                    isSelected ? "bg-black/20 text-black font-bold" : "bg-white/10 text-white/70",
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+
+          <button
+            onClick={() => setSelectedGradeId("unassigned")}
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer",
+              selectedGradeId === "unassigned"
+                ? "bg-gold text-black font-bold shadow-md shadow-gold/20"
+                : "bg-white/5 text-subtext hover:text-white hover:bg-white/10 border border-white/10",
+            )}
+          >
+            미배정
+            <span
+              className={cn(
+                "px-1.5 py-0.2 rounded-full text-[10px]",
+                selectedGradeId === "unassigned" ? "bg-black/20 text-black font-bold" : "bg-white/10 text-white/70",
+              )}
+            >
+              {gradeCounts.unassigned ?? 0}
+            </span>
+          </button>
+        </div>
+
+        {/* 특정 등급 탭 선택 시 "해당 등급으로 회원 추가/이동" 핫버튼 */}
+        {activeTargetGrade && (
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/20 hover:bg-gold/30 text-gold-light border border-gold/40 rounded-lg text-xs font-medium transition-all cursor-pointer shadow-sm hover:border-gold"
+          >
+            <UserPlus size={14} />
+            + [{activeTargetGrade.name}] 카테고리에 회원 추가/이동
+          </button>
+        )}
+      </div>
+
+      {/* 2. 검색 및 일괄 처리 툴바 */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="relative max-w-sm flex-1 min-w-[200px]">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-subtext" />
@@ -288,9 +418,9 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
               <button
                 onClick={bulkChangeGrade}
                 disabled={bulkPending}
-                className="flex items-center gap-1 text-xs text-gold-light hover:text-gold disabled:opacity-40 transition-colors"
+                className="flex items-center gap-1 text-xs text-gold-light hover:text-gold disabled:opacity-40 transition-colors font-medium"
               >
-                {bulkPending ? "적용 중..." : "등급 일괄 적용"}
+                {bulkPending ? "이동 중..." : "선택 회원 등급 이동"}
               </button>
             </div>
 
@@ -324,6 +454,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
         )}
       </div>
 
+      {/* 3. 회원 목록 테이블 */}
       <div className="glass-card p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[680px]">
@@ -350,7 +481,9 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={8} className="p-8 text-center text-subtext text-sm">
-                    검색 결과가 없습니다.
+                    {selectedGradeId !== "all"
+                      ? `[${activeTargetGrade?.name ?? (selectedGradeId === "unassigned" ? "미배정" : "")}] 카테고리에 해당하는 회원이 없습니다.`
+                      : "검색 결과가 없습니다."}
                   </td>
                 </tr>
               )}
@@ -465,6 +598,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
         </div>
       </div>
 
+      {/* 만료기간 설정 모달 */}
       {expirySettingMembers && expirySettingMembers.length > 0 && (
         <SetExpiryModal
           members={expirySettingMembers}
@@ -490,6 +624,18 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
           }}
         />
       )}
+
+      {/* 등급 카테고리로 회원 일괄 추가/이동 모달 */}
+      {isAddModalOpen && activeTargetGrade && (
+        <AddMembersToGradeModal
+          targetGrade={activeTargetGrade}
+          availableMembers={availableForAdd}
+          grades={grades}
+          onClose={() => setIsAddModalOpen(false)}
+          onAssign={assignGradeToUsers}
+        />
+      )}
     </div>
   );
 }
+
