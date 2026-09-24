@@ -7,6 +7,13 @@ export class ReplicateAdapter implements ImageProviderAdapter {
     const fullModel = params.model || "black-forest-labs/flux-dev";
     const endpoint = `https://api.replicate.com/v1/models/${fullModel}/predictions`;
 
+    // Replicate API Key 정제 (r8_... 형식 보장 및 Bearer/Token 중복 접두사 제거)
+    const cleanKey = (params.apiKey || "").trim().replace(/^(Bearer|Token)\s+/i, "");
+    if (!cleanKey) {
+      throw new Error("유효한 Replicate API 키가 존재하지 않습니다. 설정 메뉴에서 API 키를 다시 등록해주세요.");
+    }
+    const authHeader = `Bearer ${cleanKey}`;
+
     const input: Record<string, any> = {
       prompt: params.prompt,
     };
@@ -81,7 +88,7 @@ export class ReplicateAdapter implements ImageProviderAdapter {
     const res = await fetch(endpoint, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${params.apiKey}`,
+        "Authorization": authHeader,
         "Content-Type": "application/json",
         "Prefer": "wait=55"
       },
@@ -90,6 +97,9 @@ export class ReplicateAdapter implements ImageProviderAdapter {
 
     if (!res.ok) {
       const errText = await res.text();
+      if (res.status === 401) {
+        throw new Error(`Replicate 인증 실패 (401): 등록된 API 키(r8_...)가 유효하지 않거나 만료되었습니다. 'API키등록·플랫폼연동' 메뉴에서 Replicate API 키를 다시 확인 후 등록해주세요.`);
+      }
       throw new Error(`Replicate API 오류 (${res.status}): ${errText}`);
     }
 
@@ -122,7 +132,7 @@ export class ReplicateAdapter implements ImageProviderAdapter {
 
       const pollRes = await fetch(pollUrl, {
         headers: {
-          "Authorization": `Bearer ${params.apiKey}`
+          "Authorization": authHeader
         }
       });
 
