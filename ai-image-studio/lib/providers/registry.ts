@@ -540,9 +540,10 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: [
           {
             id: "aspect_ratio",
-            name: "화면 비율 (Aspect Ratio)",
+            name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "1:1",
+            description: "생성 이미지의 비율을 설정합니다. (custom 선택 시 가로/세로 직접 지정)",
             options: [
               { label: "1:1 정사각형", value: "1:1" },
               { label: "16:9 와이드 가로형", value: "16:9" },
@@ -559,9 +560,10 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "resolution",
-            name: "해상도 (Resolution)",
+            name: "해상도 (resolution)",
             type: "select",
             default: "1 MP",
+            description: "메가픽셀 단위 해상도를 지정합니다. (custom 비율 시 적용 제외)",
             options: [
               { label: "1 MP (기본 추천)", value: "1 MP" },
               { label: "0.5 MP (경량 고속)", value: "0.5 MP" },
@@ -571,33 +573,62 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             ]
           },
           {
+            id: "width",
+            name: "가로 크기 (width: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16,
+            description: "aspect_ratio가 custom일 때 사용되는 가로 픽셀 크기 (16의 배수)"
+          },
+          {
+            id: "height",
+            name: "세로 크기 (height: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16,
+            description: "aspect_ratio가 custom일 때 사용되는 세로 픽셀 크기 (16의 배수)"
+          },
+          {
             id: "safety_tolerance",
-            name: "안전 필터 (Safety Tolerance: 1 엄격 ~ 5 완화)",
+            name: "안전 필터 (safety_tolerance: 1 엄격 ~ 5 완화)",
             type: "slider",
             default: 2,
             min: 1,
             max: 5,
-            step: 1
+            step: 1,
+            description: "안전성 수준 제어 (1: 가장 엄격, 5: 가장 허용적)"
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "결과 재현용 시드 번호 (비워둘 경우 무작위 생성을 위한 랜덤 난수 사용)"
           },
           {
             id: "output_format",
-            name: "출력 포맷 (Format)",
+            name: "출력 포맷 (output_format)",
             type: "select",
             default: "webp",
             options: [
-              { label: "WebP (고효율 기본)", value: "webp" },
-              { label: "JPG (표준 고품질)", value: "jpg" },
-              { label: "PNG (무손실)", value: "png" }
+              { label: "webp (고효율 기본)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
             ]
           },
           {
             id: "output_quality",
-            name: "출력 화질 (Quality)",
+            name: "출력 화질 (output_quality: 0 ~ 100)",
             type: "slider",
             default: 80,
             min: 0,
             max: 100,
-            step: 5
+            step: 5,
+            description: "저장 시 이미지 화질 (100: 최상, png 출력 시 미적용)"
           }
         ]
       },
@@ -608,7 +639,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: [
           {
             id: "aspect_ratio",
-            name: "화면 비율 (Aspect Ratio)",
+            name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "1:1",
             options: [
@@ -627,7 +658,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "resolution",
-            name: "해상도 (Resolution)",
+            name: "해상도 (resolution)",
             type: "select",
             default: "1 MP",
             options: [
@@ -639,8 +670,26 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             ]
           },
           {
+            id: "width",
+            name: "가로 크기 (width: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16
+          },
+          {
+            id: "height",
+            name: "세로 크기 (height: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16
+          },
+          {
             id: "steps",
-            name: "생성 단계 수 (Inference Steps)",
+            name: "생성 단계 수 (steps: 1 ~ 50)",
             type: "slider",
             default: 30,
             min: 1,
@@ -649,7 +698,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "guidance",
-            name: "가이던스 강도 (Guidance Scale)",
+            name: "가이던스 강도 (guidance: 1.5 ~ 10.0)",
             type: "slider",
             default: 4.5,
             min: 1.5,
@@ -658,7 +707,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "prompt_upsampling",
-            name: "프롬프트 자동 보강 (Prompt Upsampling)",
+            name: "프롬프트 자동 보강 (prompt_upsampling)",
             type: "select",
             default: "true",
             options: [
@@ -668,7 +717,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "safety_tolerance",
-            name: "안전 필터 (Safety Tolerance: 1 엄격 ~ 5 완화)",
+            name: "안전 필터 (safety_tolerance: 1 ~ 5)",
             type: "slider",
             default: 2,
             min: 1,
@@ -676,19 +725,25 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             step: 1
           },
           {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: ""
+          },
+          {
             id: "output_format",
-            name: "출력 포맷 (Format)",
+            name: "출력 포맷 (output_format)",
             type: "select",
             default: "webp",
             options: [
-              { label: "WebP (고효율 기본)", value: "webp" },
-              { label: "JPG (표준 고품질)", value: "jpg" },
-              { label: "PNG (무손실)", value: "png" }
+              { label: "webp (고효율 기본)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
             ]
           },
           {
             id: "output_quality",
-            name: "출력 화질 (Quality)",
+            name: "출력 화질 (output_quality: 0 ~ 100)",
             type: "slider",
             default: 80,
             min: 0,
@@ -704,7 +759,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: [
           {
             id: "aspect_ratio",
-            name: "화면 비율 (Aspect Ratio)",
+            name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "1:1",
             options: [
@@ -722,8 +777,26 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             ]
           },
           {
+            id: "width",
+            name: "가로 크기 (width: 256 ~ 1440)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 1440,
+            step: 32
+          },
+          {
+            id: "height",
+            name: "세로 크기 (height: 256 ~ 1440)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 1440,
+            step: 32
+          },
+          {
             id: "go_fast",
-            name: "초고속 최적화 모드 (Go Fast)",
+            name: "초고속 최적화 모드 (go_fast)",
             type: "select",
             default: "true",
             options: [
@@ -733,7 +806,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "disable_safety_checker",
-            name: "안전 검사기 비활성화 (Disable Safety Checker)",
+            name: "안전 검사기 비활성화 (disable_safety_checker)",
             type: "select",
             default: "false",
             options: [
@@ -742,19 +815,25 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             ]
           },
           {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: ""
+          },
+          {
             id: "output_format",
-            name: "출력 포맷 (Format)",
+            name: "출력 포맷 (output_format)",
             type: "select",
             default: "webp",
             options: [
-              { label: "WebP (고효율 기본)", value: "webp" },
-              { label: "JPG (표준 고품질)", value: "jpg" },
-              { label: "PNG (무손실)", value: "png" }
+              { label: "webp (고효율 기본)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
             ]
           },
           {
             id: "output_quality",
-            name: "출력 화질 (Quality)",
+            name: "출력 화질 (output_quality: 0 ~ 100)",
             type: "slider",
             default: 80,
             min: 0,
@@ -770,7 +849,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: [
           {
             id: "aspect_ratio",
-            name: "화면 비율 (Aspect Ratio)",
+            name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "1:1",
             options: [
@@ -789,7 +868,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "resolution",
-            name: "해상도 (Resolution)",
+            name: "해상도 (resolution)",
             type: "select",
             default: "1 MP",
             options: [
@@ -801,8 +880,26 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             ]
           },
           {
+            id: "width",
+            name: "가로 크기 (width: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16
+          },
+          {
+            id: "height",
+            name: "세로 크기 (height: 256 ~ 2048)",
+            type: "slider",
+            default: 1024,
+            min: 256,
+            max: 2048,
+            step: 16
+          },
+          {
             id: "safety_tolerance",
-            name: "안전 필터 (Safety Tolerance: 1 엄격 ~ 5 완화)",
+            name: "안전 필터 (safety_tolerance: 1 ~ 5)",
             type: "slider",
             default: 2,
             min: 1,
@@ -810,19 +907,25 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
             step: 1
           },
           {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: ""
+          },
+          {
             id: "output_format",
-            name: "출력 포맷 (Format)",
+            name: "출력 포맷 (output_format)",
             type: "select",
             default: "webp",
             options: [
-              { label: "WebP (고효율 기본)", value: "webp" },
-              { label: "JPG (표준 고품질)", value: "jpg" },
-              { label: "PNG (무손실)", value: "png" }
+              { label: "webp (고효율 기본)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
             ]
           },
           {
             id: "output_quality",
-            name: "출력 화질 (Quality)",
+            name: "출력 화질 (output_quality: 0 ~ 100)",
             type: "slider",
             default: 80,
             min: 0,
@@ -838,7 +941,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: [
           {
             id: "style",
-            name: "아트 스타일 (Style)",
+            name: "아트 스타일 (style)",
             type: "select",
             default: "any",
             options: [
@@ -856,7 +959,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "aspect_ratio",
-            name: "화면 비율 (Aspect Ratio)",
+            name: "화면 비율 (aspect_ratio)",
             type: "select",
             default: "Not set",
             options: [
@@ -872,7 +975,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "size",
-            name: "이미지 크기 (Size - aspect_ratio 미지정 시 사용)",
+            name: "이미지 크기 (size)",
             type: "select",
             default: "1024x1024",
             options: [
@@ -892,7 +995,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         options: [
           {
             id: "num_inference_steps",
-            name: "추론 스텝 (Num Inference Steps)",
+            name: "추론 스텝 (num_inference_steps: 1 ~ 500)",
             type: "slider",
             default: 50,
             min: 1,
@@ -901,7 +1004,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "guidance_scale",
-            name: "프롬프트 반영도 (Guidance Scale)",
+            name: "프롬프트 반영도 (guidance_scale: 1.0 ~ 50.0)",
             type: "slider",
             default: 7.5,
             min: 1.0,
@@ -910,7 +1013,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "scheduler",
-            name: "디노이징 스케줄러 (Scheduler)",
+            name: "디노이징 스케줄러 (scheduler)",
             type: "select",
             default: "K_EULER",
             options: [
@@ -925,7 +1028,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "refine",
-            name: "리파이너 스타일 (Refine)",
+            name: "리파이너 스타일 (refine)",
             type: "select",
             default: "no_refiner",
             options: [
@@ -936,7 +1039,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "disable_safety_checker",
-            name: "안전 검사기 비활성화 (Disable Safety Checker)",
+            name: "안전 검사기 비활성화 (disable_safety_checker)",
             type: "select",
             default: "false",
             options: [
