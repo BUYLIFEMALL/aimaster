@@ -61,6 +61,86 @@ export async function GET() {
       console.error("user_api_keys query error:", e);
     }
 
+    // 4. Fetch DB Tables Row Counts
+    const dbTableList = [
+      { table: "usage_logs", label: "프로그램 사용 로그 (usage_logs)" },
+      { table: "profiles", label: "회원 프로필 (profiles)" },
+      { table: "user_api_keys", label: "회원 연동 API키 (user_api_keys)" },
+      { table: "programs", label: "등록 프로그램 (programs)" },
+      { table: "platform_guides", label: "연동 매뉴얼 가이드 (platform_guides)" },
+      { table: "categories", label: "프로그램 카테고리 (categories)" },
+      { table: "faq_items", label: "자주 묻는 질문 (faq_items)" },
+      { table: "payment_records", label: "결제 내역 (payment_records)" },
+      { table: "legal_documents", label: "약관/정책 문서 (legal_documents)" },
+      { table: "notices", label: "공지사항 (notices)" },
+      { table: "coupons", label: "쿠폰 (coupons)" },
+      { table: "site_settings", label: "사이트 설정 (site_settings)" },
+    ];
+
+    const dbTableStats = await Promise.all(
+      dbTableList.map(async (t) => {
+        try {
+          const { count } = await serviceClient
+            .from(t.table)
+            .select("*", { count: "exact", head: true });
+          return { table: t.table, label: t.label, count: count ?? 0 };
+        } catch {
+          return { table: t.table, label: t.label, count: 0 };
+        }
+      })
+    );
+
+    // 5. Fetch Storage Buckets File Stats
+    let storageStats: {
+      bucket: string;
+      isPublic: boolean;
+      fileCount: number;
+      totalBytes: number;
+      sizeFormatted: string;
+    }[] = [];
+
+    try {
+      const { data: buckets } = await serviceClient.storage.listBuckets();
+      if (buckets) {
+        storageStats = await Promise.all(
+          buckets.map(async (b) => {
+            try {
+              const { data: files } = await serviceClient.storage
+                .from(b.name)
+                .list("", { limit: 200 });
+              let totalBytes = 0;
+              if (files) {
+                for (const f of files) {
+                  totalBytes += f.metadata?.size || f.size || 0;
+                }
+              }
+              const count = files ? files.length : 0;
+              return {
+                bucket: b.name,
+                isPublic: b.public,
+                fileCount: count,
+                totalBytes,
+                sizeFormatted:
+                  totalBytes > 1024 * 1024
+                    ? (totalBytes / (1024 * 1024)).toFixed(2) + " MB"
+                    : (totalBytes / 1024).toFixed(1) + " KB",
+              };
+            } catch {
+              return {
+                bucket: b.name,
+                isPublic: b.public,
+                fileCount: 0,
+                totalBytes: 0,
+                sizeFormatted: "0 KB",
+              };
+            }
+          })
+        );
+      }
+    } catch (e) {
+      console.error("Storage listBuckets error:", e);
+    }
+
     const nowMs = Date.now();
     const ms24h = 24 * 60 * 60 * 1000;
     const ms7d = 7 * 24 * 60 * 60 * 1000;
@@ -179,6 +259,7 @@ export async function GET() {
     const onlinePrograms = programMetrics.filter(
       (p) => p.health.status === "online" || p.health.status === "redirect"
     ).length;
+    const totalStorageFiles = storageStats.reduce((sum, b) => sum + b.fileCount, 0);
 
     return NextResponse.json({
       timestamp: new Date().toISOString(),
@@ -189,8 +270,12 @@ export async function GET() {
         total24hLogs,
         total7dLogs,
         totalApiKeys,
+        totalStorageFiles,
+        totalStorageBuckets: storageStats.length,
       },
       programs: programMetrics,
+      dbTableStats,
+      storageStats,
     });
   } catch (error: any) {
     console.error("System Usage Monitor API Error:", error);
