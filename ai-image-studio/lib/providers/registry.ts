@@ -536,7 +536,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "black-forest-labs/flux-2-dev",
         name: "FLUX 2 [dev]",
-        description: "차세대 FLUX 2.0 디벨로퍼 엔진 - 현존 최고의 정밀화질 및 Go Fast 고속 최적화",
+        description: "정밀화질 & 고속 최적화",
         options: [
           {
             id: "aspect_ratio",
@@ -626,7 +626,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "black-forest-labs/flux-2-pro",
         name: "FLUX 2 [pro]",
-        description: "차세대 FLUX 2.0 프로페셔널 엔진 - 기업급 품질과 완벽한 상업용 비주얼",
+        description: "기업급 상업용 비주얼",
         options: [
           {
             id: "aspect_ratio",
@@ -718,7 +718,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "black-forest-labs/flux-2-flex",
         name: "FLUX 2 [flex]",
-        description: "차세대 FLUX 2.0 Flex 엔진 - 유연한 추론 스텝(steps) & 가이던스(guidance) & 프롬프트 자동 보강 제어",
+        description: "유연한 스텝 & 가이던스 제어",
         options: [
           {
             id: "aspect_ratio",
@@ -845,7 +845,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "black-forest-labs/flux-2-max",
         name: "FLUX 2 [max]",
-        description: "최상위 FLUX 2.0 Max 엔진 - 최상위 표현력과 극상의 해상도를 자랑하는 최고 사양 모델",
+        description: "최상위 표현력 & 초고해상도",
         options: [
           {
             id: "aspect_ratio",
@@ -944,7 +944,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "recraft-ai/recraft-v3",
         name: "Recraft V3",
-        description: "SOTA 아트 일러스트, 3D 아이콘, 벡터 그래픽 디자인 전문 생성 (red_panda)",
+        description: "아트 일러스트 & 3D 벡터 디자인",
         options: [
           {
             id: "style",
@@ -998,7 +998,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "stability-ai/sdxl",
         name: "SDXL 1.0",
-        description: "Stability AI 대표 SDXL 이미지 생성 모델",
+        description: "표준 SDXL 모델",
         options: [
           {
             id: "num_inference_steps",
