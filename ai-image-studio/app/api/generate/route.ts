@@ -5,6 +5,50 @@ import { createAdminClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+async function uploadToStorage(supabaseAdmin: any, userId: string, originalUrl: string): Promise<string> {
+  try {
+    let buffer: Buffer;
+    let contentType = "image/png";
+
+    if (originalUrl.startsWith("data:")) {
+      const matches = originalUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (matches) {
+        contentType = matches[1];
+        buffer = Buffer.from(matches[2], "base64");
+      } else {
+        return originalUrl;
+      }
+    } else {
+      const res = await fetch(originalUrl, { signal: AbortSignal.timeout(20000) });
+      if (!res.ok) return originalUrl;
+      const arrayBuffer = await res.arrayBuffer();
+      buffer = Buffer.from(arrayBuffer);
+      const headersContentType = res.headers.get("content-type");
+      if (headersContentType) {
+        contentType = headersContentType;
+      }
+    }
+
+    const ext = contentType.includes("jpeg") || contentType.includes("jpg") ? "jpg" : contentType.includes("webp") ? "webp" : "png";
+    const fileName = `${userId}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
+
+    const { error: uploadErr } = await supabaseAdmin.storage
+      .from("ai-image-generations")
+      .upload(fileName, buffer, { contentType, upsert: true });
+
+    if (uploadErr) {
+      console.warn("Storage upload failed, fallback to original URL:", uploadErr);
+      return originalUrl;
+    }
+
+    const { data } = supabaseAdmin.storage.from("ai-image-generations").getPublicUrl(fileName);
+    return data.publicUrl || originalUrl;
+  } catch (err) {
+    console.warn("Failed to upload generated image to Supabase storage:", err);
+    return originalUrl;
+  }
+}
+
 export async function POST(req: Request) {
   const { user, errorResponse } = await checkProgramAccessApi();
   if (errorResponse) return errorResponse;
@@ -36,7 +80,7 @@ export async function POST(req: Request) {
 
     const results = [];
     for (let i = 0; i < count; i++) {
-      const result = await adapter.generateImage({
+      const rawResult = await adapter.generateImage({
         prompt,
         negativePrompt,
         model,
@@ -44,9 +88,13 @@ export async function POST(req: Request) {
         apiKey
       });
 
+      // Upload image to permanent Supabase Storage bucket so URLs never expire
+      const permanentUrl = await uploadToStorage(supabaseAdmin, user.id, rawResult.imageUrl);
+      const result = { ...rawResult, imageUrl: permanentUrl };
+
       results.push(result);
 
-      // Save to user_image_generations table via Admin Client (bypasses cookie/RLS edge cases)
+      // Save permanent URL to user_image_generations table
       const { error: insertErr } = await supabaseAdmin.from("user_image_generations").insert({
         user_id: user.id,
         provider,
@@ -54,7 +102,7 @@ export async function POST(req: Request) {
         prompt,
         enhanced_prompt: result.revisedPrompt || prompt,
         options: options || {},
-        image_url: result.imageUrl
+        image_url: permanentUrl
       });
 
       if (insertErr) {
