@@ -215,10 +215,10 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
               </button>
               <button
                 onClick={() => onApplyPrompt(result.enhancedPrompt, result.negativePrompt)}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 px-5 py-2.5 text-sm font-extrabold text-zinc-950 hover:from-amber-400 hover:to-yellow-300 transition-all shadow-md shadow-amber-500/20"
+                className="flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 px-6 py-3 text-sm font-black text-zinc-950 hover:from-amber-300 hover:to-yellow-300 transition-all shadow-xl shadow-amber-500/40 ring-4 ring-amber-400/50 hover:ring-amber-300 transform hover:scale-[1.03] active:scale-95 animate-pulse cursor-pointer"
               >
                 <span>Step 2에 적용하기 (1-Click)</span>
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 stroke-[3]" />
               </button>
             </div>
           </div>

@@ -309,7 +309,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
                 ) : (
                   <>
                     <ImageIcon className="h-6 w-6 stroke-[2.5]" />
-                    <span>✨ 이미지 생성 시작하기</span>
+                    <span>✨ 이미지 생성 시작</span>
                   </>
                 )}
               </button>
