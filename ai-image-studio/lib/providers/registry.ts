@@ -528,15 +528,185 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   },
   {
     id: "replicate",
-    name: "Replicate (FLUX / Recraft / SDXL)",
+    name: "Replicate (FLUX Official / Recraft / SDXL)",
     apiKeyProvider: "replicate",
-    description: "Replicate 기반 FLUX.1 [dev], [schnell], Recraft V3 및 SDXL 1.0 이미지 스튜디오",
+    description: "Black Forest Labs 공식 FLUX 1.1 Pro / Ultra / Dev / Schnell 및 Recraft V3, SDXL 라인업",
     iconName: "Zap",
     models: [
       {
+        id: "black-forest-labs/flux-1.1-pro",
+        name: "FLUX 1.1 [pro]",
+        description: "BFL 차세대 플래그십 - 압도적인 속도와 극상 품질의 차세대 프로페셔널 모델",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "21:9 시네마틱", value: "21:9" },
+              { label: "9:21 울트라 세로", value: "9:21" }
+            ]
+          },
+          {
+            id: "prompt_upsampling",
+            name: "프롬프트 업샘플링 (자동 상세 확장)",
+            type: "select",
+            default: "true",
+            options: [
+              { label: "사용함 (자동 디테일 향상)", value: "true" },
+              { label: "사용 안 함 (입력 프롬프트에 충실)", value: "false" }
+            ]
+          },
+          {
+            id: "safety_tolerance",
+            name: "안전 검열 허용도 (Safety Tolerance)",
+            type: "select",
+            default: "2",
+            options: [
+              { label: "Level 1 (엄격 검열)", value: "1" },
+              { label: "Level 2 (기본 표준)", value: "2" },
+              { label: "Level 3 (보통)", value: "3" },
+              { label: "Level 4 (유연함)", value: "4" },
+              { label: "Level 5 (최소 검열)", value: "5" },
+              { label: "Level 6 (무제한)", value: "6" }
+            ]
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (Format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "WebP (고효율)", value: "webp" },
+              { label: "PNG (무손실)", value: "png" },
+              { label: "JPG (표준)", value: "jpg" }
+            ]
+          },
+          {
+            id: "output_quality",
+            name: "출력 화질 (Quality)",
+            type: "slider",
+            default: 80,
+            min: 1,
+            max: 100,
+            step: 5
+          }
+        ]
+      },
+      {
+        id: "black-forest-labs/flux-1.1-pro-ultra",
+        name: "FLUX 1.1 [pro] Ultra",
+        description: "BFL 울트라 - 4K급 극상 디테일 및 시네마틱 화질 전용 하이엔드 모델",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "21:9 울트라 파노라마", value: "21:9" }
+            ]
+          },
+          {
+            id: "raw",
+            name: "RAW 화풍 모드 (자연스러운 미세 질감)",
+            type: "select",
+            default: "false",
+            options: [
+              { label: "일반 모드 (기본)", value: "false" },
+              { label: "RAW 모드 (실사 자연 텍스처)", value: "true" }
+            ]
+          },
+          {
+            id: "safety_tolerance",
+            name: "안전 검열 허용도 (Safety Tolerance)",
+            type: "select",
+            default: "2",
+            options: [
+              { label: "Level 1 (엄격)", value: "1" },
+              { label: "Level 2 (표준)", value: "2" },
+              { label: "Level 3 (유연)", value: "3" },
+              { label: "Level 4 (자유)", value: "4" },
+              { label: "Level 5 (최고)", value: "5" }
+            ]
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (Format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "WebP (고효율)", value: "webp" },
+              { label: "PNG (무손실)", value: "png" },
+              { label: "JPG (표준)", value: "jpg" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "black-forest-labs/flux-pro",
+        name: "FLUX.1 [pro]",
+        description: "BFL 프로페셔널 - 일관성과 안정된 표현력을 보장하는 원조 프로 모델",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" }
+            ]
+          },
+          {
+            id: "num_inference_steps",
+            name: "추론 스텝 (Inference Steps)",
+            type: "slider",
+            default: 25,
+            min: 15,
+            max: 50,
+            step: 1
+          },
+          {
+            id: "guidance_scale",
+            name: "프롬프트 반영도 (Guidance Scale)",
+            type: "slider",
+            default: 3.0,
+            min: 1.0,
+            max: 10.0,
+            step: 0.5
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (Format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "WebP", value: "webp" },
+              { label: "PNG", value: "png" },
+              { label: "JPG", value: "jpg" }
+            ]
+          }
+        ]
+      },
+      {
         id: "black-forest-labs/flux-dev",
         name: "FLUX.1 [dev]",
-        description: "Replicate 플래그십 - 현존 최고 디테일 및 텍스트 표현력을 자랑하는 오픈 모델",
+        description: "BFL 개발자 오픈 모델 - 정밀한 세부 디테일 조율 지원",
         options: [
           {
             id: "aspect_ratio",
@@ -597,7 +767,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "black-forest-labs/flux-schnell",
         name: "FLUX.1 [schnell]",
-        description: "Replicate 초고속 이미지 생성 모델 (4스텝 초고속)",
+        description: "BFL 초고속 모델 - 4스텝으로 빛의 속도 생성",
         options: [
           {
             id: "aspect_ratio",

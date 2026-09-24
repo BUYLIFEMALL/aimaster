@@ -11,13 +11,35 @@ export class ReplicateAdapter implements ImageProviderAdapter {
       prompt: params.prompt,
     };
 
-    // 옵션 매핑
+    // 공통 및 특수 옵션 매핑
     if (params.options.aspect_ratio) input.aspect_ratio = params.options.aspect_ratio;
-    if (params.options.num_inference_steps) input.num_inference_steps = Number(params.options.num_inference_steps);
-    if (params.options.guidance_scale) input.guidance_scale = Number(params.options.guidance_scale);
+    
+    // inference steps / steps 호환
+    if (params.options.num_inference_steps !== undefined) {
+      input.num_inference_steps = Number(params.options.num_inference_steps);
+      input.steps = Number(params.options.num_inference_steps);
+    }
+    
+    // guidance scale / guidance 호환
+    if (params.options.guidance_scale !== undefined) {
+      input.guidance_scale = Number(params.options.guidance_scale);
+      input.guidance = Number(params.options.guidance_scale);
+    }
+
     if (params.options.output_format) input.output_format = params.options.output_format;
-    if (params.options.output_quality) input.output_quality = Number(params.options.output_quality);
+    if (params.options.output_quality !== undefined) input.output_quality = Number(params.options.output_quality);
     if (params.options.style) input.style = params.options.style;
+
+    // FLUX 1.1 pro / ultra 전용 옵션
+    if (params.options.prompt_upsampling !== undefined) {
+      input.prompt_upsampling = params.options.prompt_upsampling === "true" || params.options.prompt_upsampling === true;
+    }
+    if (params.options.raw !== undefined) {
+      input.raw = params.options.raw === "true" || params.options.raw === true;
+    }
+    if (params.options.safety_tolerance !== undefined) {
+      input.safety_tolerance = Number(params.options.safety_tolerance);
+    }
 
     if (params.negativePrompt || params.options.negative_prompt) {
       input.negative_prompt = params.negativePrompt || params.options.negative_prompt;
