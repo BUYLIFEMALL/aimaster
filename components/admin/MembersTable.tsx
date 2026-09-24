@@ -422,17 +422,42 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
         )}
       </div>
 
-      {/* 2. 검색 및 일괄 처리 툴바 */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="relative max-w-sm flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-subtext" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="이름 또는 이메일로 검색"
-            className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder:text-subtext focus:outline-none focus:border-gold/40 transition-colors"
-          />
+      {/* 2. 검색, 표시 단위 및 일괄 처리 툴바 */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
+          <div className="relative max-w-xs flex-1 min-w-[200px]">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-subtext" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="이름 또는 이메일로 검색"
+              className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder:text-subtext focus:outline-none focus:border-gold/40 transition-colors"
+            />
+          </div>
+
+          {/* 주인님 지시: 검색창 우측으로 [총 N명 중 A~B명 표시 중 | 보기 단위] 이동 */}
+          <div className="flex flex-wrap items-center gap-2.5 px-3 py-1.5 glass-card border border-white/10 rounded-lg text-xs">
+            <span className="text-subtext">
+              총 <strong className="text-gold-light">{totalFilteredCount}</strong>명 중{" "}
+              <span className="text-white font-medium">{startMemberNum} ~ {endMemberNum}</span>명 표시 중
+            </span>
+            <span className="text-white/10">|</span>
+            <div className="flex items-center gap-1.5 text-subtext">
+              <span>보기 단위:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => setPageSize(e.target.value === "all" ? "all" : Number(e.target.value))}
+                className="bg-white/5 border border-white/10 text-white rounded-md px-2 py-0.5 text-xs cursor-pointer hover:border-gold/40 transition-colors outline-none font-medium"
+              >
+                <option value={50} className="bg-neutral-900 text-white">50명씩 보기</option>
+                <option value={100} className="bg-neutral-900 text-white">100명씩 보기</option>
+                <option value={500} className="bg-neutral-900 text-white">500명씩 보기</option>
+                <option value={1000} className="bg-neutral-900 text-white">1000명씩 보기</option>
+                <option value="all" className="bg-neutral-900 text-white">전체 보기</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {selectedIds.size > 0 && (
@@ -636,84 +661,59 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
         </div>
       </div>
 
-      {/* 4. 하단 페이지 넘버링 및 표시 단위 조절 바 */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mt-4 px-3 py-3 glass-card border border-white/10 rounded-xl">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-xs text-subtext">
-            총 <strong className="text-gold-light">{totalFilteredCount}</strong>명 중{" "}
-            <span className="text-white font-medium">{startMemberNum} ~ {endMemberNum}</span>명 표시 중
-          </span>
-          <span className="text-white/10 hidden sm:inline">|</span>
-          <div className="flex items-center gap-1.5 text-xs text-subtext">
-            <span>보기 단위:</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(e.target.value === "all" ? "all" : Number(e.target.value))}
-              className="bg-white/5 border border-white/10 text-white rounded-lg px-2.5 py-1 text-xs cursor-pointer hover:border-gold/40 transition-colors outline-none font-medium"
+      {/* 4. 하단 페이지 넘버링 컨트롤 바 */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-1.5 mt-4 px-3 py-3 glass-card border border-white/10 rounded-xl">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={safeCurrentPage === 1}
+            className="px-2.5 py-1 text-xs rounded-lg bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+            title="첫 페이지로"
+          >
+            «
+          </button>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={safeCurrentPage === 1}
+            className="px-3 py-1 text-xs rounded-lg bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer font-medium"
+            title="이전 페이지"
+          >
+            이전
+          </button>
+
+          {pageNumbers.map((num) => (
+            <button
+              key={num}
+              onClick={() => setCurrentPage(num)}
+              className={cn(
+                "px-3.5 py-1 text-xs rounded-lg font-medium transition-all cursor-pointer",
+                safeCurrentPage === num
+                  ? "bg-gold text-black font-bold shadow-md shadow-gold/20"
+                  : "bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10",
+              )}
             >
-              <option value={50} className="bg-neutral-900 text-white">50명씩 보기</option>
-              <option value={100} className="bg-neutral-900 text-white">100명씩 보기</option>
-              <option value={500} className="bg-neutral-900 text-white">500명씩 보기</option>
-              <option value={1000} className="bg-neutral-900 text-white">1000명씩 보기</option>
-              <option value="all" className="bg-neutral-900 text-white">전체 보기</option>
-            </select>
-          </div>
+              {num}
+            </button>
+          ))}
+
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={safeCurrentPage === totalPages}
+            className="px-3 py-1 text-xs rounded-lg bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer font-medium"
+            title="다음 페이지"
+          >
+            다음
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={safeCurrentPage === totalPages}
+            className="px-2.5 py-1 text-xs rounded-lg bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+            title="마지막 페이지로"
+          >
+            »
+          </button>
         </div>
-
-        {/* 페이지 넘버링 컨트롤 */}
-        {totalPages > 1 && (
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setCurrentPage(1)}
-              disabled={safeCurrentPage === 1}
-              className="px-2 py-1 text-xs rounded-lg bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
-              title="첫 페이지로"
-            >
-              «
-            </button>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={safeCurrentPage === 1}
-              className="px-2.5 py-1 text-xs rounded-lg bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
-              title="이전 페이지"
-            >
-              이전
-            </button>
-
-            {pageNumbers.map((num) => (
-              <button
-                key={num}
-                onClick={() => setCurrentPage(num)}
-                className={cn(
-                  "px-3 py-1 text-xs rounded-lg font-medium transition-all cursor-pointer",
-                  safeCurrentPage === num
-                    ? "bg-gold text-black font-bold shadow-md shadow-gold/20"
-                    : "bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10",
-                )}
-              >
-                {num}
-              </button>
-            ))}
-
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-              disabled={safeCurrentPage === totalPages}
-              className="px-2.5 py-1 text-xs rounded-lg bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
-              title="다음 페이지"
-            >
-              다음
-            </button>
-            <button
-              onClick={() => setCurrentPage(totalPages)}
-              disabled={safeCurrentPage === totalPages}
-              className="px-2 py-1 text-xs rounded-lg bg-white/5 border border-white/10 text-subtext hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
-              title="마지막 페이지로"
-            >
-              »
-            </button>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* 만료기간 설정 모달 */}
       {expirySettingMembers && expirySettingMembers.length > 0 && (
