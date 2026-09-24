@@ -107,6 +107,36 @@ export async function GET() {
       })
     );
 
+async function getAllBucketFiles(
+  serviceClient: any,
+  bucketName: string,
+  pathStr = "",
+  depth = 0
+): Promise<any[]> {
+  if (depth > 4) return [];
+  let files: any[] = [];
+  try {
+    const { data: items, error } = await serviceClient.storage
+      .from(bucketName)
+      .list(pathStr, { limit: 1000 });
+    if (error || !items) return files;
+
+    for (const item of items) {
+      const fullPath = pathStr ? `${pathStr}/${item.name}` : item.name;
+      // Items without id and metadata are subdirectories in Supabase storage
+      if (!item.id && !item.metadata) {
+        const subFiles = await getAllBucketFiles(serviceClient, bucketName, fullPath, depth + 1);
+        files.push(...subFiles);
+      } else {
+        files.push({ ...item, fullPath });
+      }
+    }
+  } catch (e) {
+    console.error(`Error listing storage ${bucketName}/${pathStr}:`, e);
+  }
+  return files;
+}
+
     // 5. Fetch Storage Buckets File & Media Type Breakdown Stats
     let storageStats: {
       bucket: string;
@@ -130,15 +160,13 @@ export async function GET() {
       const { data: buckets } = await serviceClient.storage.listBuckets();
       if (buckets) {
         storageStats = await Promise.all(
-          buckets.map(async (b) => {
+          buckets.map(async (b: any) => {
             const progInfo = BUCKET_PROGRAM_MAP[b.name] || {
               programSlug: "common",
               programName: "기타/공통",
             };
             try {
-              const { data: files } = await serviceClient.storage
-                .from(b.name)
-                .list("", { limit: 500 });
+              const files = await getAllBucketFiles(serviceClient, b.name);
 
               let totalBytes = 0;
               let audioCount = 0, audioBytes = 0;
@@ -146,49 +174,47 @@ export async function GET() {
               let videoCount = 0, videoBytes = 0;
               let otherCount = 0, otherBytes = 0;
 
-              if (files) {
-                for (const f of files) {
-                  const size = f.metadata?.size || f.size || 0;
-                  const mime = (f.metadata?.mimetype || f.mimetype || "").toLowerCase();
-                  const name = f.name.toLowerCase();
+              for (const f of files) {
+                const size = f.metadata?.size || f.size || 0;
+                const mime = (f.metadata?.mimetype || f.mimetype || "").toLowerCase();
+                const name = f.name.toLowerCase();
 
-                  totalBytes += size;
+                totalBytes += size;
 
-                  if (
-                    mime.startsWith("audio/") ||
-                    name.endsWith(".mp3") ||
-                    name.endsWith(".wav") ||
-                    name.endsWith(".m4a") ||
-                    name.endsWith(".ogg")
-                  ) {
-                    audioCount += 1;
-                    audioBytes += size;
-                  } else if (
-                    mime.startsWith("image/") ||
-                    name.endsWith(".png") ||
-                    name.endsWith(".jpg") ||
-                    name.endsWith(".jpeg") ||
-                    name.endsWith(".webp") ||
-                    name.endsWith(".gif")
-                  ) {
-                    imageCount += 1;
-                    imageBytes += size;
-                  } else if (
-                    mime.startsWith("video/") ||
-                    name.endsWith(".mp4") ||
-                    name.endsWith(".webm") ||
-                    name.endsWith(".mov")
-                  ) {
-                    videoCount += 1;
-                    videoBytes += size;
-                  } else {
-                    otherCount += 1;
-                    otherBytes += size;
-                  }
+                if (
+                  mime.startsWith("audio/") ||
+                  name.endsWith(".mp3") ||
+                  name.endsWith(".wav") ||
+                  name.endsWith(".m4a") ||
+                  name.endsWith(".ogg")
+                ) {
+                  audioCount += 1;
+                  audioBytes += size;
+                } else if (
+                  mime.startsWith("image/") ||
+                  name.endsWith(".png") ||
+                  name.endsWith(".jpg") ||
+                  name.endsWith(".jpeg") ||
+                  name.endsWith(".webp") ||
+                  name.endsWith(".gif")
+                ) {
+                  imageCount += 1;
+                  imageBytes += size;
+                } else if (
+                  mime.startsWith("video/") ||
+                  name.endsWith(".mp4") ||
+                  name.endsWith(".webm") ||
+                  name.endsWith(".mov")
+                ) {
+                  videoCount += 1;
+                  videoBytes += size;
+                } else {
+                  otherCount += 1;
+                  otherBytes += size;
                 }
               }
 
-              const fileCount = files ? files.length : 0;
+              const fileCount = files.length;
               return {
                 bucket: b.name,
                 programSlug: progInfo.programSlug,
