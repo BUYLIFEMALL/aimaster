@@ -323,16 +323,17 @@ export default function SystemUsageMonitor() {
             <div className="space-y-4">
               {/* Filter Bar & Search */}
               <div className="glass-card rounded-2xl p-4 space-y-3">
-                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-                    <span className="text-xs font-bold text-subtext shrink-0 mr-1">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                  {/* Category Chips Wrapped in Clean Rows */}
+                  <div className="flex flex-wrap items-center gap-1.5 flex-1">
+                    <span className="text-xs font-bold text-subtext shrink-0 mr-1 py-1">
                       카테고리:
                     </span>
                     <button
                       onClick={() => setSelectedCategory("all")}
-                      className={`px-3 py-1 rounded-xl text-xs font-medium transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                         selectedCategory === "all"
-                          ? "bg-gold text-black font-bold"
+                          ? "bg-gold text-black font-bold shadow-md shadow-gold/20"
                           : "bg-white/5 text-subtext hover:bg-white/10 border border-white/10"
                       }`}
                     >
@@ -344,9 +345,9 @@ export default function SystemUsageMonitor() {
                         <button
                           key={cat}
                           onClick={() => setSelectedCategory(cat)}
-                          className={`px-3 py-1 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
                             selectedCategory === cat
-                              ? "bg-gold text-black font-bold"
+                              ? "bg-gold text-black font-bold shadow-md shadow-gold/20"
                               : "bg-white/5 text-subtext hover:bg-white/10 border border-white/10"
                           }`}
                         >
@@ -356,14 +357,15 @@ export default function SystemUsageMonitor() {
                     })}
                   </div>
 
-                  <div className="relative min-w-[220px]">
+                  {/* Search Box */}
+                  <div className="relative min-w-[220px] w-full lg:w-auto shrink-0">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-subtext" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="프로그램명 또는 slug 검색..."
-                      className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-subtext focus:border-gold focus:outline-none"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-subtext focus:border-gold focus:outline-none"
                     />
                   </div>
                 </div>
