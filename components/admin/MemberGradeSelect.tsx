@@ -2,12 +2,57 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils/cn";
 
 interface MemberGradeSelectProps {
   userId: string;
   currentGradeId: string | null;
   grades: { id: string; name: string; color: string | null }[];
   onGradeChange?: (newGradeId: string | null) => void;
+}
+
+function getGradeStyle(gradeName?: string, hexColor?: string | null) {
+  if (hexColor && hexColor !== "") {
+    return {
+      style: {
+        color: hexColor,
+        borderColor: `${hexColor}60`,
+        backgroundColor: `${hexColor}1a`,
+      },
+      dotColor: hexColor,
+    };
+  }
+
+  const name = (gradeName ?? "").toLowerCase();
+  if (name.includes("vip") || name.includes("드림ai")) {
+    return {
+      className: "text-purple-300 bg-purple-500/20 border-purple-400/40 hover:border-purple-400/70 shadow-purple-900/10",
+      dotColor: "#c084fc",
+    };
+  }
+  if (name.includes("골드") || name.includes("gold") || name.includes("드림팀")) {
+    return {
+      className: "text-amber-300 bg-amber-500/20 border-amber-400/40 hover:border-amber-400/70 shadow-amber-900/10",
+      dotColor: "#f59e0b",
+    };
+  }
+  if (name.includes("실버") || name.includes("silver")) {
+    return {
+      className: "text-cyan-300 bg-cyan-500/20 border-cyan-400/40 hover:border-cyan-400/70 shadow-cyan-900/10",
+      dotColor: "#38bdf8",
+    };
+  }
+  if (name.includes("일반") || name.includes("basic")) {
+    return {
+      className: "text-slate-300 bg-slate-500/15 border-slate-400/30 hover:border-slate-400/60",
+      dotColor: "#94a3b8",
+    };
+  }
+
+  return {
+    className: "text-subtext bg-white/5 border-white/10 hover:border-white/20",
+    dotColor: "#6b7280",
+  };
 }
 
 export default function MemberGradeSelect({
@@ -20,18 +65,18 @@ export default function MemberGradeSelect({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // router.refresh()로 서버가 최신 profiles.grade_id를 내려주면 select의
-  // 로컬 상태도 함께 동기화한다.
   useEffect(() => {
     setGradeId(currentGradeId ?? "");
   }, [currentGradeId]);
+
+  const currentGrade = grades.find((g) => g.id === gradeId);
+  const gradeTheme = getGradeStyle(currentGrade?.name, currentGrade?.color);
 
   async function handleChange(newGradeId: string) {
     const nextValue = newGradeId || null;
     setGradeId(newGradeId);
     setLoading(true);
 
-    // 부모 테이블의 로컬 override 즉시 갱신 (0.001초 즉시 반응)
     onGradeChange?.(nextValue);
 
     try {
@@ -62,18 +107,30 @@ export default function MemberGradeSelect({
   }
 
   return (
-    <select
-      value={gradeId}
-      onChange={(e) => handleChange(e.target.value)}
-      disabled={loading}
-      className="text-xs bg-white/5 border border-white/10 text-white rounded-lg px-2 py-1 cursor-pointer hover:border-gold/40 transition-colors disabled:opacity-50"
-    >
-      <option value="">미배정</option>
-      {grades.map((g) => (
-        <option key={g.id} value={g.id}>
-          {g.name}
+    <div className="relative inline-flex items-center">
+      <select
+        value={gradeId}
+        onChange={(e) => handleChange(e.target.value)}
+        disabled={loading}
+        style={gradeTheme.style}
+        className={cn(
+          "text-xs font-semibold rounded-lg px-2.5 py-1 cursor-pointer transition-all border outline-none disabled:opacity-50 appearance-none pr-6",
+          gradeTheme.className,
+        )}
+      >
+        <option value="" className="bg-neutral-900 text-gray-300 font-normal py-1">
+          미배정
         </option>
-      ))}
-    </select>
+        {grades.map((g) => (
+          <option key={g.id} value={g.id} className="bg-neutral-900 text-white font-normal py-1">
+            {g.name}
+          </option>
+        ))}
+      </select>
+      {/* 셀렉트박스 화살표 표시 */}
+      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[9px] opacity-70">
+        ▼
+      </span>
+    </div>
   );
 }
