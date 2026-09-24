@@ -5,6 +5,23 @@ import { createServiceClient } from "@/lib/supabase/service";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+const BUCKET_PROGRAM_MAP: Record<string, { programSlug: string; programName: string }> = {
+  "music-audio": { programSlug: "music-automation", programName: "음악 자동화" },
+  "ai-image-generations": { programSlug: "ai-image-studio", programName: "AI 이미지 스튜디오" },
+  "shorts-images": { programSlug: "auto-shorts-posting", programName: "YOUTUBE Shorts 자동화" },
+  "shots-bgm": { programSlug: "auto-shorts-posting", programName: "YOUTUBE Shorts BGM" },
+  "insta-post-images": { programSlug: "auto-instagram-posting", programName: "INSTA 포스팅 자동화" },
+  "ig-media-thumbnails": { programSlug: "auto-instagram-posting", programName: "INSTA 썸네일" },
+  "shop-detail-images": { programSlug: "shop-detail-page", programName: "상세페이지 자동화" },
+  "post-images": { programSlug: "ai-auto-blog", programName: "BLOG 원문생성 자동화" },
+  "stepmail-images": { programSlug: "stepmail", programName: "Step Mail 대량 메일" },
+  "tarot-card-images": { programSlug: "tarot-reading", programName: "AI 타로" },
+  "mbti-character-images": { programSlug: "mbti-character", programName: "MBTI 캐릭코드" },
+  "program-images": { programSlug: "aimaster-catalog", programName: "AIMaster 플랫폼 공통" },
+  "web-crawler-results": { programSlug: "web-crawler-saas", programName: "웹 크롤링 SaaS" },
+  "kakao-report-images": { programSlug: "kakao-auto-posting", programName: "카카오톡 뉴스레터" },
+};
+
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -90,11 +107,21 @@ export async function GET() {
       })
     );
 
-    // 5. Fetch Storage Buckets File Stats
+    // 5. Fetch Storage Buckets File & Media Type Breakdown Stats
     let storageStats: {
       bucket: string;
+      programSlug: string;
+      programName: string;
       isPublic: boolean;
       fileCount: number;
+      audioCount: number;
+      audioBytes: number;
+      imageCount: number;
+      imageBytes: number;
+      videoCount: number;
+      videoBytes: number;
+      otherCount: number;
+      otherBytes: number;
       totalBytes: number;
       sizeFormatted: string;
     }[] = [];
@@ -104,21 +131,78 @@ export async function GET() {
       if (buckets) {
         storageStats = await Promise.all(
           buckets.map(async (b) => {
+            const progInfo = BUCKET_PROGRAM_MAP[b.name] || {
+              programSlug: "common",
+              programName: "기타/공통",
+            };
             try {
               const { data: files } = await serviceClient.storage
                 .from(b.name)
-                .list("", { limit: 200 });
+                .list("", { limit: 500 });
+
               let totalBytes = 0;
+              let audioCount = 0, audioBytes = 0;
+              let imageCount = 0, imageBytes = 0;
+              let videoCount = 0, videoBytes = 0;
+              let otherCount = 0, otherBytes = 0;
+
               if (files) {
                 for (const f of files) {
-                  totalBytes += f.metadata?.size || f.size || 0;
+                  const size = f.metadata?.size || f.size || 0;
+                  const mime = (f.metadata?.mimetype || f.mimetype || "").toLowerCase();
+                  const name = f.name.toLowerCase();
+
+                  totalBytes += size;
+
+                  if (
+                    mime.startsWith("audio/") ||
+                    name.endsWith(".mp3") ||
+                    name.endsWith(".wav") ||
+                    name.endsWith(".m4a") ||
+                    name.endsWith(".ogg")
+                  ) {
+                    audioCount += 1;
+                    audioBytes += size;
+                  } else if (
+                    mime.startsWith("image/") ||
+                    name.endsWith(".png") ||
+                    name.endsWith(".jpg") ||
+                    name.endsWith(".jpeg") ||
+                    name.endsWith(".webp") ||
+                    name.endsWith(".gif")
+                  ) {
+                    imageCount += 1;
+                    imageBytes += size;
+                  } else if (
+                    mime.startsWith("video/") ||
+                    name.endsWith(".mp4") ||
+                    name.endsWith(".webm") ||
+                    name.endsWith(".mov")
+                  ) {
+                    videoCount += 1;
+                    videoBytes += size;
+                  } else {
+                    otherCount += 1;
+                    otherBytes += size;
+                  }
                 }
               }
-              const count = files ? files.length : 0;
+
+              const fileCount = files ? files.length : 0;
               return {
                 bucket: b.name,
+                programSlug: progInfo.programSlug,
+                programName: progInfo.programName,
                 isPublic: b.public,
-                fileCount: count,
+                fileCount,
+                audioCount,
+                audioBytes,
+                imageCount,
+                imageBytes,
+                videoCount,
+                videoBytes,
+                otherCount,
+                otherBytes,
                 totalBytes,
                 sizeFormatted:
                   totalBytes > 1024 * 1024
@@ -128,8 +212,18 @@ export async function GET() {
             } catch {
               return {
                 bucket: b.name,
+                programSlug: progInfo.programSlug,
+                programName: progInfo.programName,
                 isPublic: b.public,
                 fileCount: 0,
+                audioCount: 0,
+                audioBytes: 0,
+                imageCount: 0,
+                imageBytes: 0,
+                videoCount: 0,
+                videoBytes: 0,
+                otherCount: 0,
+                otherBytes: 0,
                 totalBytes: 0,
                 sizeFormatted: "0 KB",
               };
@@ -259,7 +353,12 @@ export async function GET() {
     const onlinePrograms = programMetrics.filter(
       (p) => p.health.status === "online" || p.health.status === "redirect"
     ).length;
+
     const totalStorageFiles = storageStats.reduce((sum, b) => sum + b.fileCount, 0);
+    const totalAudioFiles = storageStats.reduce((sum, b) => sum + b.audioCount, 0);
+    const totalImageFiles = storageStats.reduce((sum, b) => sum + b.imageCount, 0);
+    const totalVideoFiles = storageStats.reduce((sum, b) => sum + b.videoCount, 0);
+    const totalStorageBytes = storageStats.reduce((sum, b) => sum + b.totalBytes, 0);
 
     return NextResponse.json({
       timestamp: new Date().toISOString(),
@@ -271,6 +370,10 @@ export async function GET() {
         total7dLogs,
         totalApiKeys,
         totalStorageFiles,
+        totalAudioFiles,
+        totalImageFiles,
+        totalVideoFiles,
+        totalStorageBytes,
         totalStorageBuckets: storageStats.length,
       },
       programs: programMetrics,

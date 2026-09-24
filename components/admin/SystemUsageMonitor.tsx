@@ -16,7 +16,11 @@ import {
   AlertCircle,
   HardDrive,
   FolderArchive,
-  Table as TableIcon
+  Table as TableIcon,
+  Music,
+  Image as ImageIcon,
+  Video,
+  FileText
 } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
@@ -50,8 +54,18 @@ interface DbTableStat {
 
 interface StorageStat {
   bucket: string;
+  programSlug: string;
+  programName: string;
   isPublic: boolean;
   fileCount: number;
+  audioCount: number;
+  audioBytes: number;
+  imageCount: number;
+  imageBytes: number;
+  videoCount: number;
+  videoBytes: number;
+  otherCount: number;
+  otherBytes: number;
   totalBytes: number;
   sizeFormatted: string;
 }
@@ -64,6 +78,10 @@ interface UsageSummary {
   total7dLogs: number;
   totalApiKeys: number;
   totalStorageFiles: number;
+  totalAudioFiles: number;
+  totalImageFiles: number;
+  totalVideoFiles: number;
+  totalStorageBytes: number;
   totalStorageBuckets: number;
 }
 
@@ -78,6 +96,13 @@ function formatRelativeTime(dateString: string | null): string {
   if (diffMin < 60) return `${diffMin}분 전`;
   if (diffHour < 24) return `${diffHour}시간 전`;
   return `${diffDay}일 전`;
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return "0 KB";
+  if (bytes > 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+  if (bytes > 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  return (bytes / 1024).toFixed(1) + " KB";
 }
 
 export default function SystemUsageMonitor() {
@@ -155,7 +180,7 @@ export default function SystemUsageMonitor() {
             </span>
           </h2>
           <p className="text-subtext text-xs mt-1">
-            Supabase DB 테이블 레코드, 스토리지 용량, 프로그램별 트래픽 및 Vercel 서버 헬스
+            Supabase DB 테이블 레코드, 음악/이미지/영상 파일 용량, 프로그램별 트래픽 및 Vercel 서버 헬스
           </p>
         </div>
 
@@ -183,7 +208,7 @@ export default function SystemUsageMonitor() {
       </div>
 
       {/* Main Mode Tabs */}
-      <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-3">
         <button
           onClick={() => setActiveTab("traffic")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -205,7 +230,7 @@ export default function SystemUsageMonitor() {
           }`}
         >
           <HardDrive className="h-4 w-4" />
-          <span>Supabase DB & 스토리지 용량</span>
+          <span>Supabase DB & 미디어 파일 용량</span>
         </button>
 
         <button
@@ -277,22 +302,24 @@ export default function SystemUsageMonitor() {
               </div>
             </GlassCard>
 
-            {/* Metric 3: Supabase Storage Buckets */}
+            {/* Metric 3: Supabase Storage Buckets & Media Breakdown */}
             <GlassCard className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
                   <FolderArchive className="h-4 w-4 text-emerald-400" />
                 </div>
                 <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                  Storage 파일
+                  첨부 미디어 파일
                 </span>
               </div>
               <div className="text-xl font-black text-emerald-400">
                 {data.summary.totalStorageFiles.toLocaleString()}
-                <span className="text-xs text-subtext font-normal ml-1">개 파일</span>
+                <span className="text-xs text-subtext font-normal ml-1">개</span>
               </div>
-              <div className="text-subtext text-xs mt-1">
-                {data.summary.totalStorageBuckets}개 버킷 저장소
+              <div className="text-subtext text-xs mt-1 flex items-center gap-2">
+                <span>🎵 {data.summary.totalAudioFiles}</span>
+                <span>🖼️ {data.summary.totalImageFiles}</span>
+                <span>🎥 {data.summary.totalVideoFiles}</span>
               </div>
             </GlassCard>
 
@@ -324,7 +351,6 @@ export default function SystemUsageMonitor() {
               {/* Filter Bar & Search */}
               <div className="glass-card rounded-2xl p-4 space-y-3">
                 <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
-                  {/* Category Chips Wrapped in Clean Rows */}
                   <div className="flex flex-wrap items-center gap-1.5 flex-1">
                     <span className="text-xs font-bold text-subtext shrink-0 mr-1 py-1">
                       카테고리:
@@ -357,7 +383,6 @@ export default function SystemUsageMonitor() {
                     })}
                   </div>
 
-                  {/* Search Box */}
                   <div className="relative min-w-[220px] w-full lg:w-auto shrink-0">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-subtext" />
                     <input
@@ -475,26 +500,112 @@ export default function SystemUsageMonitor() {
             </div>
           )}
 
-          {/* TAB 2: DB Tables & Storage Capacity */}
+          {/* TAB 2: DB Tables & Storage Capacity (Enhanced Media Classification) */}
           {activeTab === "db_storage" && (
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              {/* Program Media Attachment Storage Table */}
+              <GlassCard className="p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <FolderArchive className="h-4 w-4 text-emerald-400" />
+                    <span>프로그램별 첨부 미디어(음악·이미지·영상) 파일 사용량</span>
+                  </h3>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                      총 {data.summary.totalStorageFiles}개 파일 / {formatBytes(data.summary.totalStorageBytes)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 bg-white/5 text-[11px] text-subtext">
+                        <th className="p-3.5 pl-4">프로그램 & 저장소 버킷</th>
+                        <th className="p-3.5 text-center">🎵 음악/오디오</th>
+                        <th className="p-3.5 text-center">🖼️ 이미지</th>
+                        <th className="p-3.5 text-center">🎥 영상</th>
+                        <th className="p-3.5 text-right pr-4">총 파일 / 용량</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 text-xs">
+                      {data.storageStats.map((b) => (
+                        <tr key={b.bucket} className="hover:bg-white/[0.02] transition-colors">
+                          {/* Program & Bucket */}
+                          <td className="p-3.5 pl-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-white">{b.programName}</span>
+                              <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 font-mono">
+                                {b.isPublic ? "PUBLIC" : "PRIVATE"}
+                              </span>
+                            </div>
+                            <div className="text-[10px] text-subtext font-mono mt-0.5">
+                              버킷 ID: {b.bucket}
+                            </div>
+                          </td>
+
+                          {/* Audio Count & Bytes */}
+                          <td className="p-3.5 text-center font-mono">
+                            {b.audioCount > 0 ? (
+                              <span className="text-purple-300 font-bold bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/30">
+                                🎵 {b.audioCount}개 ({formatBytes(b.audioBytes)})
+                              </span>
+                            ) : (
+                              <span className="text-subtext/50">-</span>
+                            )}
+                          </td>
+
+                          {/* Image Count & Bytes */}
+                          <td className="p-3.5 text-center font-mono">
+                            {b.imageCount > 0 ? (
+                              <span className="text-emerald-300 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+                                🖼️ {b.imageCount}개 ({formatBytes(b.imageBytes)})
+                              </span>
+                            ) : (
+                              <span className="text-subtext/50">-</span>
+                            )}
+                          </td>
+
+                          {/* Video Count & Bytes */}
+                          <td className="p-3.5 text-center font-mono">
+                            {b.videoCount > 0 ? (
+                              <span className="text-blue-300 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/30">
+                                🎥 {b.videoCount}개 ({formatBytes(b.videoBytes)})
+                              </span>
+                            ) : (
+                              <span className="text-subtext/50">-</span>
+                            )}
+                          </td>
+
+                          {/* Total File Count & Capacity */}
+                          <td className="p-3.5 text-right pr-4 font-mono">
+                            <div className="text-white font-bold">{b.fileCount}개 파일</div>
+                            <div className="text-[10px] text-emerald-400 font-medium">{b.sizeFormatted}</div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </GlassCard>
+
               {/* DB Tables Row Counts */}
               <GlassCard className="p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
                     <TableIcon className="h-4 w-4 text-gold" />
-                    <span>Supabase DB 테이블별 사용량 (레코드 수)</span>
+                    <span>Supabase DB 주요 테이블별 레코드 수 (데이터 건수)</span>
                   </h3>
                   <span className="text-xs text-gold font-bold bg-gold/10 px-2.5 py-0.5 rounded-full border border-gold/20">
                     총 {data.dbTableStats.reduce((sum, t) => sum + t.count, 0).toLocaleString()}행
                   </span>
                 </div>
 
-                <div className="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {data.dbTableStats.map((t) => (
                     <div
                       key={t.table}
-                      className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-all"
+                      className="p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-all flex items-center justify-between"
                     >
                       <div className="space-y-0.5">
                         <p className="text-xs font-bold text-white">{t.label}</p>
@@ -506,47 +617,6 @@ export default function SystemUsageMonitor() {
                           {t.count.toLocaleString()}
                         </span>
                         <span className="text-xs text-subtext ml-1">행</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
-
-              {/* Supabase Storage Buckets */}
-              <GlassCard className="p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <FolderArchive className="h-4 w-4 text-emerald-400" />
-                    <span>Supabase Storage 버킷별 용량 및 파일 수</span>
-                  </h3>
-                  <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                    {data.summary.totalStorageFiles}개 파일 저장됨
-                  </span>
-                </div>
-
-                <div className="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
-                  {data.storageStats.map((b) => (
-                    <div
-                      key={b.bucket}
-                      className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-all"
-                    >
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-bold text-white">{b.bucket}</p>
-                          <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 font-mono">
-                            {b.isPublic ? "PUBLIC" : "PRIVATE"}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-subtext">저장 위치: /storage/v1/object/public/{b.bucket}</p>
-                      </div>
-
-                      <div className="text-right space-y-0.5">
-                        <div className="text-xs font-mono font-bold text-emerald-400">
-                          {b.fileCount}개 파일
-                        </div>
-                        <div className="text-[10px] text-subtext font-mono">
-                          {b.sizeFormatted}
-                        </div>
                       </div>
                     </div>
                   ))}
