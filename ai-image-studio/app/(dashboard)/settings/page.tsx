@@ -27,11 +27,11 @@ const PROVIDER_INFO: Record<string, { name: string; desc: string; placeholder: s
     placeholder: "AIzaSy...",
     link: "https://aistudio.google.com/app/apikey",
   },
-  fal: {
-    name: "Fal.ai API Key (FLUX.1 / Recraft V3)",
-    desc: "FLUX.1 dev/schnell 및 Recraft V3 초고화질 일러스트 생성에 사용됩니다.",
-    placeholder: "fal_...",
-    link: "https://fal.ai/dashboard/keys",
+  replicate: {
+    name: "Replicate API Token",
+    desc: "Replicate 기반 FLUX.1 dev/schnell, Recraft V3 및 SDXL 1.0 이미지 스튜디오 생성에 사용됩니다.",
+    placeholder: "r8_...",
+    link: "https://replicate.com/account/api-tokens",
   },
   stability: {
     name: "Stability AI Key (SD3.5 / Ultra)",

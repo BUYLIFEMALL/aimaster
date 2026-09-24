@@ -527,32 +527,34 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     ]
   },
   {
-    id: "fal",
-    name: "FLUX / Fal.ai",
-    apiKeyProvider: "fal",
-    description: "FLUX.1 [dev], [schnell] 및 Recraft V3 지원",
+    id: "replicate",
+    name: "Replicate (FLUX / Recraft / SDXL)",
+    apiKeyProvider: "replicate",
+    description: "Replicate 기반 FLUX.1 [dev], [schnell], Recraft V3 및 SDXL 1.0 이미지 스튜디오",
     iconName: "Zap",
     models: [
       {
-        id: "fal-ai/flux/dev",
+        id: "black-forest-labs/flux-dev",
         name: "FLUX.1 [dev]",
-        description: "현존 최고 디테일 및 텍스트 표현력을 자랑하는 오픈 모델",
+        description: "Replicate 플래그십 - 현존 최고 디테일 및 텍스트 표현력을 자랑하는 오픈 모델",
         options: [
           {
-            id: "image_size",
-            name: "화면 비율",
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
             type: "select",
-            default: "square_hd",
+            default: "1:1",
             options: [
-              { label: "1:1 정사각형", value: "square_hd" },
-              { label: "16:9 가로형", value: "landscape_16_9" },
-              { label: "9:16 세로형", value: "portrait_16_9" },
-              { label: "4:3 가로형", value: "landscape_4_3" }
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "21:9 시네마틱", value: "21:9" }
             ]
           },
           {
             id: "num_inference_steps",
-            name: "추론 스텝",
+            name: "추론 스텝 (Inference Steps)",
             type: "slider",
             default: 28,
             min: 10,
@@ -562,69 +564,143 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
           },
           {
             id: "guidance_scale",
-            name: "프롬프트 반영도",
+            name: "프롬프트 반영도 (Guidance Scale)",
             type: "slider",
             default: 3.5,
             min: 1.0,
             max: 10.0,
             step: 0.5,
             description: "프롬프트 지시사항 준수 강도"
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (Format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "WebP (고효율)", value: "webp" },
+              { label: "PNG (무손실)", value: "png" },
+              { label: "JPG (표준)", value: "jpg" }
+            ]
+          },
+          {
+            id: "output_quality",
+            name: "출력 화질 (Quality)",
+            type: "slider",
+            default: 80,
+            min: 1,
+            max: 100,
+            step: 5
           }
         ]
       },
       {
-        id: "fal-ai/flux/schnell",
+        id: "black-forest-labs/flux-schnell",
         name: "FLUX.1 [schnell]",
-        description: "초고속 이미지 생성 모델 (4스텝 생성)",
+        description: "Replicate 초고속 이미지 생성 모델 (4스텝 초고속)",
         options: [
           {
-            id: "image_size",
-            name: "화면 비율",
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
             type: "select",
-            default: "square_hd",
+            default: "1:1",
             options: [
-              { label: "1:1 정사각형", value: "square_hd" },
-              { label: "16:9 가로형", value: "landscape_16_9" },
-              { label: "9:16 세로형", value: "portrait_16_9" }
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" }
             ]
           },
           {
             id: "num_inference_steps",
-            name: "추론 스텝",
+            name: "추론 스텝 (Inference Steps)",
             type: "slider",
             default: 4,
             min: 1,
             max: 12,
             step: 1
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (Format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "WebP", value: "webp" },
+              { label: "PNG", value: "png" },
+              { label: "JPG", value: "jpg" }
+            ]
           }
         ]
       },
       {
-        id: "fal-ai/recraft-v3",
+        id: "recraft-ai/recraft-v3",
         name: "Recraft V3",
-        description: "전문 일러스트, 3D 아이콘, 벡터 이미지 전문 생성",
+        description: "전문 일러스트, 3D 아이콘, 벡터 그래픽 디자인 전문 생성",
         options: [
           {
             id: "style",
-            name: "아트 스타일",
+            name: "아트 스타일 (Style)",
             type: "select",
-            default: "realistic_image",
+            default: "any",
             options: [
-              { label: "사실적 사진", value: "realistic_image" },
-              { label: "벡터 일러스트", value: "vector_illustration" },
-              { label: "3D 아이콘", value: "digital_illustration" }
+              { label: "Any (자유)", value: "any" },
+              { label: "Realistic Image (사실적 사진)", value: "realistic_image" },
+              { label: "Digital Illustration (디지털 일러스트)", value: "digital_illustration" },
+              { label: "Vector Illustration (벡터 일러스트)", value: "vector_illustration" },
+              { label: "Icon (아이콘)", value: "icon" }
             ]
           },
           {
-            id: "image_size",
-            name: "비율",
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
             type: "select",
-            default: "square_hd",
+            default: "1:1",
             options: [
-              { label: "1:1 정사각형", value: "square_hd" },
-              { label: "16:9 가로형", value: "landscape_16_9" },
-              { label: "9:16 세로형", value: "portrait_16_9" }
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" }
             ]
+          }
+        ]
+      },
+      {
+        id: "stability-ai/sdxl",
+        name: "SDXL 1.0",
+        description: "Stability AI 대표 SDXL 이미지 생성 모델",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (Aspect Ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" }
+            ]
+          },
+          {
+            id: "num_inference_steps",
+            name: "추론 스텝 (Inference Steps)",
+            type: "slider",
+            default: 50,
+            min: 10,
+            max: 100,
+            step: 5
+          },
+          {
+            id: "guidance_scale",
+            name: "프롬프트 반영도 (Guidance Scale)",
+            type: "slider",
+            default: 7.5,
+            min: 1.0,
+            max: 20.0,
+            step: 0.5
           }
         ]
       }

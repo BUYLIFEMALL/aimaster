@@ -1,12 +1,12 @@
 import { ImageProviderAdapter } from "./types";
 import { OpenAIAdapter } from "./adapters/openai";
-import { FalAdapter } from "./adapters/fal";
+import { ReplicateAdapter } from "./adapters/replicate";
 import { GeminiAdapter } from "./adapters/gemini";
 import { StabilityAdapter } from "./adapters/stability";
 
 const adapters: Record<string, ImageProviderAdapter> = {
   openai: new OpenAIAdapter(),
-  fal: new FalAdapter(),
+  replicate: new ReplicateAdapter(),
   gemini: new GeminiAdapter(),
   stability: new StabilityAdapter(),
 };
