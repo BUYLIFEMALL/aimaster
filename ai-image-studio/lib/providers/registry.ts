@@ -443,135 +443,6 @@ const GEMINI_NANOBANANA_OPTIONS = [
 
 export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   {
-    id: "xai",
-    name: "xAI (Grok Imagine)",
-    apiKeyProvider: "replicate",
-    description: "일론 머스크 xAI의 캐릭터 일관성 & 독특한 시네마틱 화풍",
-    iconName: "Sparkles",
-    models: [
-      {
-        id: "xai/grok-imagine-image-2",
-        name: "Grok Imagine Image 2",
-        description: "xAI 차세대 2K 고해상도 & 포토디테일",
-        options: [
-          {
-            id: "aspect_ratio",
-            name: "화면 비율 (aspect_ratio)",
-            type: "select",
-            default: "1:1",
-            options: [
-              { label: "1:1 정사각형", value: "1:1" },
-              { label: "16:9 와이드 가로형", value: "16:9" },
-              { label: "9:16 모바일 세로형", value: "9:16" },
-              { label: "4:3 표준 가로형", value: "4:3" },
-              { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "3:2 사진형 가로", value: "3:2" },
-              { label: "2:3 사진형 세로", value: "2:3" }
-            ]
-          },
-          {
-            id: "output_format",
-            name: "출력 포맷 (output_format)",
-            type: "select",
-            default: "webp",
-            options: [
-              { label: "webp (고효율)", value: "webp" },
-              { label: "jpg (표준 고품질)", value: "jpg" },
-              { label: "png (무손실)", value: "png" }
-            ]
-          },
-          {
-            id: "seed",
-            name: "랜덤 시드 번호 (seed)",
-            type: "text",
-            default: "",
-            description: "Random seed for reproducible generation"
-          }
-        ]
-      },
-      {
-        id: "xai/grok-imagine-image",
-        name: "Grok Imagine Image",
-        description: "xAI 초고속 생동감 시네마틱",
-        options: [
-          {
-            id: "aspect_ratio",
-            name: "화면 비율 (aspect_ratio)",
-            type: "select",
-            default: "1:1",
-            options: [
-              { label: "1:1 정사각형", value: "1:1" },
-              { label: "16:9 와이드 가로형", value: "16:9" },
-              { label: "9:16 모바일 세로형", value: "9:16" },
-              { label: "4:3 표준 가로형", value: "4:3" },
-              { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "3:2 사진형 가로", value: "3:2" },
-              { label: "2:3 사진형 세로", value: "2:3" }
-            ]
-          },
-          {
-            id: "output_format",
-            name: "출력 포맷 (output_format)",
-            type: "select",
-            default: "webp",
-            options: [
-              { label: "webp (고효율)", value: "webp" },
-              { label: "jpg (표준 고품질)", value: "jpg" },
-              { label: "png (무손실)", value: "png" }
-            ]
-          },
-          {
-            id: "seed",
-            name: "랜덤 시드 번호 (seed)",
-            type: "text",
-            default: "",
-            description: "Random seed for reproducible generation"
-          }
-        ]
-      },
-      {
-        id: "xai/grok-imagine-image-quality",
-        name: "Grok Imagine Image Quality",
-        description: "xAI 극상의 피사체 질감 & 시네마틱 퀄리티",
-        options: [
-          {
-            id: "aspect_ratio",
-            name: "화면 비율 (aspect_ratio)",
-            type: "select",
-            default: "1:1",
-            options: [
-              { label: "1:1 정사각형", value: "1:1" },
-              { label: "16:9 와이드 가로형", value: "16:9" },
-              { label: "9:16 모바일 세로형", value: "9:16" },
-              { label: "4:3 표준 가로형", value: "4:3" },
-              { label: "3:4 표준 세로형", value: "3:4" },
-              { label: "3:2 사진형 가로", value: "3:2" },
-              { label: "2:3 사진형 세로", value: "2:3" }
-            ]
-          },
-          {
-            id: "output_format",
-            name: "출력 포맷 (output_format)",
-            type: "select",
-            default: "webp",
-            options: [
-              { label: "webp (고효율)", value: "webp" },
-              { label: "jpg (표준 고품질)", value: "jpg" },
-              { label: "png (무손실)", value: "png" }
-            ]
-          },
-          {
-            id: "seed",
-            name: "랜덤 시드 번호 (seed)",
-            type: "text",
-            default: "",
-            description: "Random seed for reproducible generation"
-          }
-        ]
-      }
-    ]
-  },
-  {
     id: "openai",
     name: "OpenAI (GPT Image)",
     apiKeyProvider: "openai",
@@ -1963,6 +1834,135 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
               { label: "16:9 (와이드 가로형)", value: "16:9" },
               { label: "9:16 (모바일 세로형)", value: "9:16" }
             ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "xai",
+    name: "xAI (Grok Imagine)",
+    apiKeyProvider: "replicate",
+    description: "일론 머스크 xAI의 캐릭터 일관성 & 독특한 시네마틱 화풍",
+    iconName: "Sparkles",
+    models: [
+      {
+        id: "xai/grok-imagine-image-2",
+        name: "Grok Imagine Image 2",
+        description: "xAI 차세대 2K 고해상도 & 포토디테일",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" }
+            ]
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "webp (고효율)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
+            ]
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "Random seed for reproducible generation"
+          }
+        ]
+      },
+      {
+        id: "xai/grok-imagine-image",
+        name: "Grok Imagine Image",
+        description: "xAI 초고속 생동감 시네마틱",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" }
+            ]
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "webp (고효율)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
+            ]
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "Random seed for reproducible generation"
+          }
+        ]
+      },
+      {
+        id: "xai/grok-imagine-image-quality",
+        name: "Grok Imagine Image Quality",
+        description: "xAI 극상의 피사체 질감 & 시네마틱 퀄리티",
+        options: [
+          {
+            id: "aspect_ratio",
+            name: "화면 비율 (aspect_ratio)",
+            type: "select",
+            default: "1:1",
+            options: [
+              { label: "1:1 정사각형", value: "1:1" },
+              { label: "16:9 와이드 가로형", value: "16:9" },
+              { label: "9:16 모바일 세로형", value: "9:16" },
+              { label: "4:3 표준 가로형", value: "4:3" },
+              { label: "3:4 표준 세로형", value: "3:4" },
+              { label: "3:2 사진형 가로", value: "3:2" },
+              { label: "2:3 사진형 세로", value: "2:3" }
+            ]
+          },
+          {
+            id: "output_format",
+            name: "출력 포맷 (output_format)",
+            type: "select",
+            default: "webp",
+            options: [
+              { label: "webp (고효율)", value: "webp" },
+              { label: "jpg (표준 고품질)", value: "jpg" },
+              { label: "png (무손실)", value: "png" }
+            ]
+          },
+          {
+            id: "seed",
+            name: "랜덤 시드 번호 (seed)",
+            type: "text",
+            default: "",
+            description: "Random seed for reproducible generation"
           }
         ]
       }
