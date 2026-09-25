@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, Camera, Box, Palette, Layers, Zap, Tag, RotateCcw } from "lucide-react";
+import { 
+  Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, 
+  Camera, Box, Palette, Layers, Zap, Tag, RotateCcw,
+  Feather, Brush, Film, Smile, PenTool, Building2, Flame, LayoutGrid
+} from "lucide-react";
 
 interface Step1PromptEnhancerProps {
   onApplyPrompt: (prompt: string, negativePrompt?: string) => void;
@@ -13,15 +17,25 @@ const PRESET_STYLES = [
   { id: "artistic_editorial", name: "감성 패션 화보", icon: Palette, desc: "Vogue 룩북 스타일 패션/인물 화보" },
   { id: "vector_illustration", name: "벡터 일러스트", icon: Layers, desc: "SVG 그래픽 & 깔끔한 그래픽 디자인" },
   { id: "cyberpunk_neon", name: "사이버펑크 네온", icon: Zap, desc: "네온 라이팅 & 미래도시 신비로운 야경" },
+  { id: "oriental_ink", name: "동양 수묵화", icon: Feather, desc: "한지 질감 & 먹선 수묵 채색 미학" },
+  { id: "watercolor_pastel", name: "수채화 파스텔", icon: Brush, desc: "투명한 파스텔 톤 동화 감성 수채화" },
+  { id: "cinematic_film", name: "35mm 필름", icon: Film, desc: "Kodak Portra 아날로그 필름 빈티지 감성" },
+  { id: "claymation", name: "클레이 스톱모션", icon: Smile, desc: "지점토 핸드메이드 스톱모션 미니어처" },
+  { id: "webtoon_lineart", name: "웹툰 라인아트", icon: PenTool, desc: "명확한 먹선 아웃라인 & 웹툰 스타일" },
+  { id: "architectural", name: "건축 & 인테리어", icon: Building2, desc: "ArchDaily 스타일 공간 렌더링 & 빛 조화" },
+  { id: "dark_fantasy", name: "다크 판타지", icon: Flame, desc: "웅장한 마법 광원 & 고딕 콘셉트 아트" },
+  { id: "minimal_flat", name: "미니멀 플랫 아트", icon: LayoutGrid, desc: "세련된 칼라 블록 & 모던 포스터 디자인" },
 ];
 
 const QUICK_IDEA_TAGS = [
   { label: "#한옥카페 인물", prompt: "서울 경복궁 한옥 카페에서 노트북으로 작업 중인 한복을 입은 20대 한국 여성, 따뜻한 오후 햇살", style: "photorealistic" },
-  { label: "#사이버펑크 야경", prompt: "네온사인 가득한 비 내리는 사이버펑크 서울 야경 속 트렌디한 한국 여성의 몽환적인 포트레이트", style: "cyberpunk_neon" },
+  { label: "#동양 수묵화 인물", prompt: "은은한 수묵 먹선과 한지 질감 속 아련한 분위기의 한복 입은 선비와 매화 가지", style: "oriental_ink" },
+  { label: "#35mm 빈티지 필름", prompt: "80년대 골목길 카페 야외 테라스에서 커피를 마시는 감성적인 빈티지 인물 컷", style: "cinematic_film" },
   { label: "#3D 마케팅 아이콘", prompt: "혁신적인 스마트폰과 신용카드가 떠있는 3D 미니멀 클레이 아트 마케팅 아이콘 세트", style: "3d_digital" },
+  { label: "#건축 인테리어", prompt: "통창 너머로 숲이 펼쳐지는 미니멀 우드 앤 콘크리트 고급 거실 인테리어 디자인", style: "architectural" },
+  { label: "#다크판타지 웅장함", prompt: "어둡고 신비로운 고성 타워 위에서 붉은 마법 룬을 시전하는 검은 로브의 마법사", style: "dark_fantasy" },
   { label: "#패션 룩북 화보", prompt: "모던한 미니멀 백그라운드 스튜디오에서 봄 신상 트렌치코트를 입은 모델의 패션 잡지 화보", style: "artistic_editorial" },
-  { label: "#벡터 제품 일러스트", prompt: "친환경 오가닉 코스메틱 화장품 병과 나뭇잎 요소가 조화로운 벡터 평면 일러스트레이션", style: "vector_illustration" },
-  { label: "#제주 감성 풍경", prompt: "제주도 해변 언덕 위 해질녘 노을빛 오션뷰 한옥 숙소와 감성적인 풍경", style: "photorealistic" },
+  { label: "#수채화 파스텔 동화", prompt: "해질녘 분홍빛 노울 하늘 아래 동화 속 작은 목조 오두막과 꽃밭 풍경", style: "watercolor_pastel" },
 ];
 
 export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps) {
@@ -96,7 +110,7 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
       {/* Preset Style Selector */}
       <div className="space-y-2">
         <label className="text-sm font-bold text-zinc-200">화풍 / 화법 프리셋 선택</label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {PRESET_STYLES.map((st) => {
             const IconComponent = st.icon;
             const isSelected = selectedPreset === st.id;

@@ -42,6 +42,14 @@ MASTER PROMPT RULES TO APPLY:
    - "artistic_editorial": High-fashion editorial lookbook style (Vogue fashion magazine shot, dramatic shadow interplay, elegant color palette, high contrast).
    - "vector_illustration": Modern clean vector illustration & flat pop art (Recraft V3 style, bold outlines, harmonious color palette, SVG vector graphics).
    - "cyberpunk_neon": Cyberpunk futuristic aesthetic (glowing neon signs, wet reflection on asphalt, atmospheric haze, blue and magenta lighting, retro-futurism).
+   - "oriental_ink": Traditional Oriental Ink wash painting (Sumi-e aesthetic, Xuan rice paper grain, elegant black ink brush strokes, delicate watercolor touches, oriental artistic heritage).
+   - "watercolor_pastel": Soft watercolor fairytale illustration (Pastel color palette, paper texture grain, gentle watercolor brush strokes, dreamlike storytelling aesthetic).
+   - "cinematic_film": 35mm retro film photography (Kodak Portra 400 film grain, nostalgic warm color grading, vintage lens flare, 90s cinematic storytelling frame).
+   - "claymation": Handcrafted claymation 3D stop-motion (Plasticine clay texture, cute miniature lighting, tactile craft stop-motion look, Aardman inspired character design).
+   - "webtoon_lineart": Korean Webtoon & manga illustration (Sharp ink line art, clean cel-shaded coloring, vibrant comic book aesthetic, dynamic cell line outline).
+   - "architectural": Architectural Digest interior & space design (Minimalist luxury architecture, realistic ambient occlusion, clean geometric lines, ArchDaily lighting harmony).
+   - "dark_fantasy": Epic dark fantasy concept art (Elden Ring visual tone, dramatic volumetric fog, gothic architecture, glowing magical runes, dark majestic atmosphere).
+   - "minimal_flat": Modern minimal flat vector graphic (Mid-century poster art, bold color blocks, clean graphic design layout, vector geometry).
 
 4. NEGATIVE PROMPT STANDARD BLOCK:
    - Provide a comprehensive English negative prompt (e.g. "blurry, low quality, distorted hands, extra limbs, malformed fingers, watermark, logo, text overlay, bad anatomy, over-smoothed skin, collage, split screen").
