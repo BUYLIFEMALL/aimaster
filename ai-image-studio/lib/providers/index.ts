@@ -9,6 +9,7 @@ const adapters: Record<string, ImageProviderAdapter> = {
   replicate: new ReplicateAdapter(),
   zimage: new ReplicateAdapter(),
   seedream: new ReplicateAdapter(),
+  xai: new ReplicateAdapter(),
   gemini: new GeminiAdapter(),
 };
 
