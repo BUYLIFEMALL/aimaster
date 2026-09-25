@@ -1,5 +1,9 @@
 # 네이버 블로그 SEO Studio 인수인계
 
+> 최신 인수인계 기준은 [CLI_HANDOFF_2026-09-25.md](./CLI_HANDOFF_2026-09-25.md)입니다.
+> 이 문서는 2026-09-22 시점의 구현 이력을 보존하는 용도이며, 확장 버전·완료 기능·검증 절차는
+> 최신 문서를 우선합니다.
+
 최종 갱신: 2026-09-22
 
 이 문서는 Claude, Gemini, Codex 및 다른 CLI가 SEO Studio 작업을 이어받을 때 사용하는 최신 기준 문서다. 네이버 편집기 자동 입력의 상세 원칙은 루트 `docs/NAVER_BLOG_EDITOR_AUTOMATION_GUIDE.md`를 함께 읽는다.
