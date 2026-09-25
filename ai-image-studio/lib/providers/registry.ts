@@ -444,93 +444,93 @@ const GEMINI_NANOBANANA_OPTIONS = [
 export const PROVIDERS_REGISTRY: ProviderConfig[] = [
   {
     id: "openai",
-    name: "GPT Image",
+    name: "OpenAI (GPT Image)",
     apiKeyProvider: "openai",
-    description: "다채로운 화풍 & 정밀 프롬프트 렌더링",
+    description: "OpenAI 최신 GPT Image & DALL-E 3 고품질 라인업",
     iconName: "Sparkles",
     models: [
       {
         id: "gpt-image-2",
         name: "gpt-image-2",
-        description: "표준 비주얼 편집",
+        description: "OpenAI 표준 비주얼 편집",
         options: GPT_IMAGE_2_OPTIONS
       },
       {
         id: "chatgpt-image-latest",
         name: "chatgpt-image-latest",
-        description: "ChatGPT 최신 통합",
+        description: "OpenAI ChatGPT 최신 통합",
         options: CHATGPT_IMAGE_LATEST_OPTIONS
       },
       {
         id: "gpt-image-1",
         name: "gpt-image-1",
-        description: "표준 모델 1세대",
+        description: "OpenAI 표준 1세대",
         options: GPT_IMAGE_1_OPTIONS
       },
       {
         id: "gpt-image-1-mini",
         name: "gpt-image-1-mini",
-        description: "초고속 경량 미니",
+        description: "OpenAI 초고속 경량 미니",
         options: GPT_IMAGE_1_MINI_OPTIONS
       },
       {
         id: "gpt-image-1.5",
         name: "gpt-image-1.5",
-        description: "차세대 고성능 비주얼",
+        description: "OpenAI 차세대 고성능",
         options: GPT_IMAGE_1_5_OPTIONS
       },
       {
         id: "gpt-image-2.5-flare",
         name: "gpt-image-2.5-flare",
-        description: "고품질 데일리 렌더링",
+        description: "OpenAI 고품질 데일리",
         options: CHATGPT_IMAGE_LATEST_OPTIONS
       },
       {
         id: "gpt-image-2.5-sunburst",
         name: "gpt-image-2.5-sunburst",
-        description: "최상위 플래그십 비주얼",
+        description: "OpenAI 최상위 플래그십",
         options: CHATGPT_IMAGE_LATEST_OPTIONS
       }
     ]
   },
   {
     id: "gemini",
-    name: "Gemini (Nanobanana)",
+    name: "Google Gemini (Nanobanana)",
     apiKeyProvider: "gemini",
-    description: "2K/4K 시네마틱 & 고화질 비주얼 스튜디오",
+    description: "Google Gemini 3.1 Flash 기반 2K/4K 고화질 스튜디오",
     iconName: "Image",
     models: [
       {
         id: "nanobanana-2-2k",
         name: "NanoBanana 2-2K",
-        description: "2K 고화질 시네마틱 비주얼 (추천)",
+        description: "Gemini 2K 시네마틱 (추천)",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-pro",
         name: "NanoBanana Pro",
-        description: "정밀 비주얼 & 인포그래픽",
+        description: "Gemini 정밀 비주얼 & 인포",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-2-4k",
         name: "NanoBanana 2-4K",
-        description: "4K 초고해상도 프레임 렌더링",
+        description: "Gemini 4K 초고해상도",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana",
         name: "NanoBanana Standard",
-        description: "표준 경량 고속 렌더링",
+        description: "Gemini 표준 경량 고속",
         options: GEMINI_NANOBANANA_OPTIONS
       }
     ]
   },
   {
     id: "replicate",
-    name: "FLUX 2.0 (Official)",
+    name: "Replicate (FLUX 2.0 Official)",
     apiKeyProvider: "replicate",
-    description: "FLUX 2.0 (Max/Pro/Dev/Flex) 극실사 스튜디오",
+    description: "Black Forest Labs 공식 FLUX 2.0 극실사 플래그십",
     iconName: "Zap",
     models: [
       {
@@ -961,7 +961,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "prunaai/z-image-turbo",
         name: "Z-Image Turbo",
-        description: "0.5초 초고속 극실사 & 영문 텍스트",
+        description: "Alibaba 6B 0.5초 초고속 극실사",
         options: [
           {
             id: "aspect_ratio",
@@ -1065,7 +1065,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "bytedance/seedream-5-pro",
         name: "Seedream 5 Pro",
-        description: "플래그십 (레이어 분해)",
+        description: "ByteDance 플래그십 (레이어 분해)",
         options: [
           {
             id: "size",
@@ -1121,7 +1121,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "bytedance/seedream-5-lite",
         name: "Seedream 5.0 Lite",
-        description: "2K~3K (1~15장 연작)",
+        description: "ByteDance 2K~3K (1~15장 연작)",
         options: [
           {
             id: "size",
@@ -1189,7 +1189,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "bytedance/seedream-4.5",
         name: "Seedream 4.5",
-        description: "2K~4K (공간 구도 강화)",
+        description: "ByteDance 2K~4K (공간 구도 강화)",
         options: [
           {
             id: "size",
