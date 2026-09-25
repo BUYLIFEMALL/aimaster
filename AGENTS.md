@@ -179,7 +179,7 @@ vercel deploy --prod --yes --scope buylife
 - 2026-09-16: threads/threads-affiliate-poster가 공용 Meta 앱 하나를 환경변수로 공유하다가,
   다른 회원 계정으로는 "앱 ID를 인식할 수 없다" 에러로 연동 자체가 실패 → 회원별 앱 등록
   방식(threads-comment-reply 패턴)으로 전환.
-- 2026-09-25: 관리자 프롬프트 추천 게시판(`admin/prompts`)의 프로그램 전환 시 카테고리 연동 & 자동 리셋 필터 적용. `ai-image-studio`에 make.com Nanobanana 극사실적 포토리얼리즘 프롬프트 엔진 및 10종 화풍 샘플 데이터 적용 (`docs/PLATFORM_PATTERNS.md` §22 참고).
+- 2026-09-25: 관리자 프롬프트 추천 게시판(`admin/prompts`)의 프로그램 전환 시 카테고리 연동 & 자동 리셋 필터 적용. `ai-image-studio`에 make.com Nanobanana 극사실적 포토리얼리즘 프롬프트 엔진 적용 및 픽사 3D, 지브리 애니, 일본 2D 극장판 애니 스타일 신규 추가 및 화풍별 10종 샘플 데이터 완벽 반영 (`docs/PLATFORM_PATTERNS.md` §22, §23 참고).
 
 ---
 

@@ -80,6 +80,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .history-item strong { color: var(--ink); font-size: 13px; }
 .history-item small { max-width: 520px; margin-top: 3px; color: var(--muted); font-size: 11px; }
 .history-item time { flex: 0 0 auto; color: #9a9086; font-size: 11px; }
+.history-refresh { width: auto; margin: 0 0 0 auto; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: #5f5b56; padding: 6px 8px; font-size: 11px; font-weight: 700; }
+.history-detail { margin: 10px 0 0; border-radius: 10px; padding: 10px 12px; font-size: 12px; line-height: 1.55; }.history-detail.success { background: #eff9f2; color: #287045; }.history-detail.error { background: #fff2ef; color: #a8422d; }
 .checklist { display: grid; gap: 11px; }
 .check { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 11px; border-bottom: 1px solid #f0ede8; }
 .check:last-child { border-bottom: 0; padding-bottom: 0; }

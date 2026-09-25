@@ -21,6 +21,9 @@ interface PromptItem {
 const PRESET_STYLES = [
   { id: "all", name: "전체 화풍 보기" },
   { id: "photorealistic", name: "실사 포토리얼리즘" },
+  { id: "pixar_3d", name: "픽사 3D 애니메이션" },
+  { id: "ghibli_anime", name: "지브리 감성 애니" },
+  { id: "japanese_anime", name: "일본 2D 극장판 애니" },
   { id: "3d_digital", name: "3D 디지털 아트" },
   { id: "artistic_editorial", name: "감성 패션 화보" },
   { id: "vector_illustration", name: "벡터 일러스트" },

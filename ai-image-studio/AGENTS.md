@@ -28,8 +28,12 @@
    - 카메라 메타데이터 (`Sony A7R IV`, `50mm/35mm/85mm prime`, `f/1.8~f/2.8`, `ISO 100-400`, `WB 5200-5600K`, `shallow depth of field`).
    - 3종 조명 프리셋 (Outdoor Daylight, Indoor/Lab, Night/Neon).
    - 필수 포토리얼리즘 보강키 블록 (`photorealistic, real-world photography, physically plausible lighting and materials...`) 및 네거티브 차단 블록 (`no illustration, no painting, no vector...`) 100% 자동 결합.
-2. **관리자 프롬프트 추천 연동 (admin/prompts)**:
+2. **애니메이션 & 화풍 프리셋 연동 (Pixar 3D, Studio Ghibli, 일본 2D 극장판)**:
+   - `pixar_3d` (픽사 3D 애니메이션): Disney/Pixar 3D 캐릭터, 입체 볼류메트릭 조명, Cinema 4D Octane 렌더 감성.
+   - `ghibli_anime` (지브리 감성 애니): 미야자키 하야오풍 수채화 배경, 뭉게구름, 따뜻하고 몽환적인 감성.
+   - `japanese_anime` (일본 2D 극장판 애니): 신카이 마코토 / 교토 애니메이션풍 극장판 2D 애니 screencap, 화려한 광원과 렌즈 플레어.
+3. **관리자 프롬프트 추천 연동 (admin/prompts)**:
    - 프로그램 선택 변경 시 드롭다운 카테고리가 해당 프로그램의 카테고리 목록으로 연동되며, 카테고리가 `all`(전체 카테고리)로 자동 리셋되어 빈 결과 화면 출력을 방지함.
-   - `lib/constants/defaultPrompts.ts` 및 `app/api/prompts/seed/route.ts`에 실사 포토리얼리즘 10종, 바이럴 숏폼 10종 등 각 화풍별 10개 완벽 데이터 동기화.
+   - `app/api/prompts/seed/route.ts` 및 UI 태그 맵에 픽사 3D 10종, 지브리 애니 10종, 일본 2D 애니 10종 등 각 화풍별 10개 완벽 데이터 동기화.
 
 

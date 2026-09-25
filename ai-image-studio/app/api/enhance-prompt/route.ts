@@ -57,6 +57,9 @@ You MUST follow these strict Photorealism Rules:
    "no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors"
 
 OTHER VISUAL TONE PRESETS (if presetStyle != "photorealistic"):
+   - "pixar_3d": Disney/Pixar 3D animation style (adorable character design, soft volumetric lighting, smooth plastic/fabric textures, expressive big eyes, Cinema 4D Octane render).
+   - "ghibli_anime": Studio Ghibli anime aesthetic (Miyazaki Hayao style, hand-drawn watercolor scenery background, fluffy cumulus clouds, nostalgic warm lighting, gentle anime cel shading, peaceful atmosphere).
+   - "japanese_anime": High-detail 2D Japanese anime screencap (Makoto Shinkai / Kyoto Animation style, dramatic volumetric lens flare, vibrant saturated colors, crisp line art, beautiful sky and cloud reflection).
    - "3d_digital": High-end 3D digital artwork (Octane render, Cinema 4D look, smooth textures, vibrant volumetric lighting, Pixar/Disney inspired character aesthetic).
    - "artistic_editorial": High-fashion editorial lookbook style (Vogue fashion magazine shot, dramatic shadow interplay, elegant color palette).
    - "vector_illustration": Modern clean vector illustration & flat pop art (bold outlines, SVG vector graphics).

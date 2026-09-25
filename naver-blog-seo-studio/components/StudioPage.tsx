@@ -23,12 +23,18 @@ export default function StudioPage({ email }: { email: string }) {
   const [existingBody, setExistingBody] = useState("");
   const [optimizePending, setOptimizePending] = useState(false);
   const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
-  const [history, setHistory] = useState<{ id: string; topic: string; keywords: string[]; title: string; body: string; created_at: string; naver_input_status?: "not_started" | "in_progress" | "completed" | "failed"; naver_input_error?: string | null }[]>([]);
+  const [history, setHistory] = useState<{ id: string; topic: string; keywords: string[]; title: string; body: string; created_at: string; naver_input_status?: "not_started" | "in_progress" | "completed" | "failed"; naver_input_completed_at?: string | null; naver_input_error?: string | null }[]>([]);
   const [imagePending, setImagePending] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
   const [handoffPending, setHandoffPending] = useState(false);
   const [handoffMessage, setHandoffMessage] = useState("");
+
+  async function refreshHistory() {
+    const response = await fetch("/api/drafts/history");
+    const result = response.ok ? await response.json() as { drafts?: typeof history } : { drafts: [] };
+    setHistory(result.drafts ?? []);
+  }
 
   useEffect(() => {
     fetch("/api/drafts/history").then((response) => response.ok ? response.json() : { drafts: [] }).then((result: { drafts?: typeof history }) => setHistory(result.drafts ?? [])).catch(() => setHistory([]));
@@ -85,7 +91,7 @@ export default function StudioPage({ email }: { email: string }) {
       setSelectedTitle(result.draft?.title ?? selectedTitle);
       setExistingBody(result.draft?.body ?? "");
       setHandoffMessage("");
-      fetch("/api/drafts/history").then((historyResponse) => historyResponse.ok ? historyResponse.json() : { drafts: [] }).then((historyResult: { drafts?: typeof history }) => setHistory(historyResult.drafts ?? [])).catch(() => {});
+      refreshHistory().catch(() => {});
       setMessage(`초안이 준비되었습니다: ${result.draft?.title ?? "제목 없음"}`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "초안 생성에 실패했습니다.");
@@ -124,6 +130,8 @@ export default function StudioPage({ email }: { email: string }) {
       setMessage(error instanceof Error ? error.message : "이미지 생성에 실패했습니다.");
     } finally { setImagePending(false); }
   }
+
+  const activeHistoryDraft = history.find((draft) => draft.id === extensionDraftId);
 
   return (
     <div className="studio-shell">
@@ -170,8 +178,10 @@ export default function StudioPage({ email }: { email: string }) {
         </section>
 
         <section className="history-card card" id="history">
-          <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span></div>
+          <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span><button className="history-refresh" onClick={() => refreshHistory().catch(() => {})}>상태 새로고침</button></div>
           {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}</span><time>{new Date(draft.created_at).toLocaleDateString("ko-KR")}</time></button>)}</div>}
+          {activeHistoryDraft?.naver_input_status === "completed" && <p className="history-detail success">확장 입력 검증 완료{activeHistoryDraft.naver_input_completed_at ? ` · ${new Date(activeHistoryDraft.naver_input_completed_at).toLocaleString("ko-KR")}` : ""}. 네이버 최종 발행은 내용을 검토한 뒤 직접 진행하세요.</p>}
+          {activeHistoryDraft?.naver_input_status === "failed" && <p className="history-detail error">확장 입력 재확인 필요: {activeHistoryDraft.naver_input_error || "입력 또는 검증 과정에서 오류가 발생했습니다."} 초안을 다시 확장으로 보낸 뒤 재시도할 수 있습니다.</p>}
         </section>
 
         <section className="extension-handoff-card card" aria-labelledby="extension-handoff-title">

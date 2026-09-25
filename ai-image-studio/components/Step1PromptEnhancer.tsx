@@ -5,7 +5,8 @@ import Link from "next/link";
 import { 
   Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, 
   Camera, Box, Palette, Layers, Zap, Tag, RotateCcw,
-  Feather, Brush, Film, Smile, PenTool, Building2, Flame, LayoutGrid, FileText
+  Feather, Brush, Film, Smile, PenTool, Building2, Flame, LayoutGrid, FileText,
+  Cloud, Tv
 } from "lucide-react";
 
 interface Step1PromptEnhancerProps {
@@ -14,7 +15,10 @@ interface Step1PromptEnhancerProps {
 
 const PRESET_STYLES = [
   { id: "photorealistic", name: "실사 포토리얼리즘", icon: Camera, desc: "8K 카메라인 렌즈 & 조명 디테일 극대화" },
-  { id: "3d_digital", name: "3D 디지털 아트", icon: Box, desc: "Cinema 4D / Octane 렌더 픽사 3D 스타일" },
+  { id: "pixar_3d", name: "픽사 3D 애니메이션", icon: Sparkles, desc: "Disney/Pixar 3D 캐릭터 & 입체적 라이팅" },
+  { id: "ghibli_anime", name: "지브리 감성 애니", icon: Cloud, desc: "Studio Ghibli풍 수채화 배경 & 몽환적 감성" },
+  { id: "japanese_anime", name: "일본 2D 극장판 애니", icon: Tv, desc: "신카이 마코토/KyoAni풍 극장판 2D 애니" },
+  { id: "3d_digital", name: "3D 디지털 아트", icon: Box, desc: "Cinema 4D / Octane 렌더 3D 미니어처" },
   { id: "artistic_editorial", name: "감성 패션 화보", icon: Palette, desc: "Vogue 룩북 스타일 패션/인물 화보" },
   { id: "vector_illustration", name: "벡터 일러스트", icon: Layers, desc: "SVG 그래픽 & 깔끔한 그래픽 디자인" },
   { id: "cyberpunk_neon", name: "사이버펑크 네온", icon: Zap, desc: "네온 라이팅 & 미래도시 신비로운 야경" },
@@ -40,6 +44,42 @@ const STYLE_QUICK_TAGS_MAP: Record<string, Array<{ label: string; prompt: string
     { label: "#가을 산책길 인물", prompt: "Create a sense of adventure, courage, and realism with - the portrait of a realistic Korean woman in a stylish brown trench coat walking through a golden autumn forest path, fallen maple leaves on ground, golden hour sunlight, soft directional key at 45 degrees, realistic penumbra shadows, gentle aerial haze, shot on Sony A7R IV with a 50mm prime lens, f/1.8, 1/400s, ISO 100, white balance 5400K, shallow depth of field, focus plane on woman, subtle optical vignetting, tripod-level horizon, cinematic framing, rule of thirds, layered depth, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness, physically correct shadows, contact shadows, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors" },
     { label: "#럭셔리 워치 화보", prompt: "Create a sense of adventure, courage, and realism with - the studio macro product shot of a silver mechanical luxury watch resting on a matte black acrylic surface, intricate gear mechanism detail, diffused daylight and controlled fluorescent fill light color-balanced to 5600K, shot on Sony A7R IV with a 90mm macro lens, f/4.0, 1/250s, ISO 100, white balance 5600K, focus plane on watch dial, subtle optical vignetting, tripod-level horizon, cinematic framing, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness and microtexture, physically correct shadows, contact shadows, plausible reflections, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors" },
     { label: "#해질녘 파도 서핑", prompt: "Create a sense of adventure, courage, and realism with - the action photographic shot of a athletic realistic Korean surfer carving through a cresting ocean wave during a pink dusk sunset, golden hour sunlight, soft directional key at 45 degrees, realistic penumbra shadows, gentle aerial haze, water spray droplets, shot on Sony A7R IV with a 85mm telephoto prime lens, f/2.8, 1/1000s, ISO 200, white balance 6000K, focus plane on surfer, subtle optical vignetting, tripod-level horizon, cinematic framing, rule of thirds, layered depth, photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness, physically correct shadows, plausible reflections and refractions, realistic motion blur, no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors" },
+  ],
+  pixar_3d: [
+    { label: "#픽사 아기 용 탐험가", prompt: "Adorable 3D Pixar animation style baby dragon holding a glowing magical lantern exploring a whimsical crystal cave, expressive big eyes, soft volumetric studio lighting, smooth 3D render, Pixar character design, Octane Render, 8k" },
+    { label: "#픽사 요리사 햄스터", prompt: "Cute 3D Pixar style hamster chef wearing a white toque hat decorating a chocolate cake, fluffy fur microtexture, warm kitchen lighting, Disney Pixar aesthetic, highly detailed" },
+    { label: "#픽사 안경 낀 토끼 학자", prompt: "Charming 3D Pixar animation character of a fluffy rabbit scholar wearing oversized round glasses studying an antique spellbook, soft vibrant lighting, Cinema 4D 3D render" },
+    { label: "#픽사 장난감 우주 비행사", prompt: "Playful 3D Pixar toy astronaut robot riding a colorful toy rocket ship through a galaxy of floating stars, vibrant pastel colors, Pixar 3D digital art" },
+    { label: "#픽사 꼬마 마법사", prompt: "Adorable 3D Pixar little wizard kid casting a rainbow sparkle spell from a magical star wand, big cute eyes, smooth plastic and fabric textures, 3D animated film screenshot" },
+    { label: "#픽사 고양이 디저트 카페", prompt: "Charming 3D Pixar style cat running a pastel dessert bakery shop filled with floating colorful macarons, cozy volumetric lighting, Pixar aesthetic" },
+    { label: "#픽사 수중 스쿠버 아기 곰", prompt: "Cute 3D Pixar baby bear wearing a glass underwater scuba helmet waving to vibrant cartoon fish underwater, bright ocean volumetric light, 3D render" },
+    { label: "#픽사 로봇 가드너", prompt: "Warmhearted 3D Pixar style little gardener robot watering a small glowing plant sprout, soft metallic microtexture, whimsical Pixar storybook render" },
+    { label: "#픽사 드림 오두막집", prompt: "Whimsical 3D Pixar style toy wooden cottage floating on soft puffy clouds, pastel rainbow background, magical Pixar environment design, 8k 3D digital art" },
+    { label: "#픽사 펭귄 바이올리니스트", prompt: "Cute 3D Pixar penguin wearing a tiny black tuxedo playing a wooden violin passionately, theatrical spotlight, Pixar 3D animation masterpiece" },
+  ],
+  ghibli_anime: [
+    { label: "#지브리 숲속 신비로운 정령", prompt: "Studio Ghibli anime style, Miyazaki Hayao aesthetic, a young Korean girl meeting small glowing forest spirits under a massive ancient mossy tree, hand-drawn watercolor background, lush green hills, fluffy summer cumulus clouds, nostalgic warm sunlight, gentle anime cel shading, peaceful atmosphere, masterpiece" },
+    { label: "#지브리 구름 언덕 자전거", prompt: "Studio Ghibli style anime screenshot, a young Korean boy riding a bicycle down a grassy coastal hill under a bright blue sky filled with giant fluffy white clouds, hand-drawn watercolor scenery, nostalgic summer breeze" },
+    { label: "#지브리 기차 창가 노을", prompt: "Studio Ghibli aesthetic, a young girl sitting by the window of an analog countryside train bathed in warm golden sunset light, waving curtains, painterly Ghibli watercolor background, peaceful anime moment" },
+    { label: "#지브리 비 오는 날 찻집", prompt: "Studio Ghibli anime style, a cozy wooden teahouse on a rainy afternoon, a cat resting on the porch next to steaming tea, soft rain haze, lush green garden background, Miyazaki Hayao atmosphere" },
+    { label: "#지브리 바닷가 전철역", prompt: "Studio Ghibli style, an oceanfront train platform with railway tracks submerging into crystal clear blue water, fluffy summer clouds, nostalgic painterly anime watercolor scenery" },
+    { label: "#지브리 하늘을 나는 여객선", prompt: "Studio Ghibli animation aesthetic, a majestic vintage steampunk airship floating smoothly above a sea of white cumulus clouds, warm sunset light, hand-drawn Ghibli painterly background" },
+    { label: "#지브리 비밀의 들꽃 정원", prompt: "Studio Ghibli style, a secret wildflower garden drenched in soft morning sunlight, an antique music box on a wooden bench, nostalgic watercolor anime atmosphere" },
+    { label: "#지브리 숲속 작은 베이커리", prompt: "Studio Ghibli aesthetic, a cozy bakery hidden inside a forest tree trunk, freshly baked bread on display, warm lantern glow, Ghibli painterly watercolor art" },
+    { label: "#지브리 은하수 밤하늘 캠핑", prompt: "Studio Ghibli style, a small glowing tent beside a crackling campfire under a vast starry night sky with a milky way galaxy, Ghibli painterly anime background" },
+    { label: "#지브리 바람 불어오는 언덕", prompt: "Studio Ghibli anime style, a Korean boy and girl holding their hats on a breezy grassy hill overlooking a quiet ocean town, fluffy white clouds, Miyazaki Hayao masterpiece" },
+  ],
+  japanese_anime: [
+    { label: "#극장판 애니 도심 혜성 야경", prompt: "Makoto Shinkai aesthetic, Kyoto Animation style, highly detailed 2D Japanese anime, a young Korean couple on a skyscraper rooftop watching a brilliant dual comet splitting across a deep twilight night sky, dramatic lens flare, vibrant saturated colors, crisp line art, beautiful volumetric sky, cinematic framing, anime screencap, masterpiece" },
+    { label: "#극장판 애니 비 내리는 신호등", prompt: "Makoto Shinkai style, a young Korean girl holding a transparent umbrella at a rain-soaked crosswalk at dusk, wet street reflecting orange traffic lights, dramatic rim light, crisp 2D anime line art, cinematic anime screenshot" },
+    { label: "#극장판 애니 여름 바닷가 둑길", prompt: "Kyoto Animation style, a high school student riding a scooter along a sea wall road under a brilliant blue sky with towering cumulus clouds, glistening ocean water, vibrant 2D Japanese anime aesthetic" },
+    { label: "#극장판 애니 밤하늘 축제 등불", prompt: "Makoto Shinkai style, a festival street lined with glowing paper lanterns, a realistic 2D anime girl smiling shyly under glowing warm light, crisp line art, dramatic anime lighting" },
+    { label: "#극장판 애니 벚꽃 날리는 학교", prompt: "Kyoto Animation aesthetic, cherry blossom petals blowing through the air outside a high school gate, two students looking at each other, soft pastel light, pristine 2D Japanese anime screencap" },
+    { label: "#극장판 애니 심야 카페 창가", prompt: "Makoto Shinkai style, a young person listening to music with headphones by a rain-streaked glass window of a late-night cafe, city lights bokeh background, crisp anime line art" },
+    { label: "#극장판 애니 사이버 SF 닌자", prompt: "High dynamic Japanese 2D action anime, a futuristic cyberpunk ninja leaping between neon-lit skyscrapers at night, glowing blue blade energy, dynamic action perspective, anime movie screencap" },
+    { label: "#극장판 애니 해질녘 옥상 노을", prompt: "Makoto Shinkai aesthetic, a student leaning on a school rooftop fence facing a fiery orange and purple sunset sky, wind blowing hair, dramatic volumetric lens flare, 2D anime masterpiece" },
+    { label: "#극장판 애니 별빛 가득한 산 정상", prompt: "Kyoto Animation style, a breathtaking starry night sky filled with milky way stars above a quiet mountain peak, two silhouette figures stargazing, vivid anime color grading" },
+    { label: "#극장판 애니 미스터리 환상 도서관", prompt: "Makoto Shinkai style, a grand mystical library with towering wooden bookshelves and geometric light beams piercing through dust motes, 2D Japanese anime movie atmosphere" },
   ],
   "3d_digital": [
     { label: "#3D 마케팅 아이콘", prompt: "혁신적인 스마트폰과 신용카드가 떠있는 3D 미니멀 클레이 아트 마케팅 아이콘 세트" },
