@@ -10,6 +10,22 @@ let webDrafts = [];
 let activeWebDraftId = "";
 let activeWebDraftTags = [];
 
+function getSelectedStrategy() {
+  if (typeof document.querySelector !== "function") return "C-Rank 기본";
+  return document.querySelector(".strategy-option.selected")?.dataset.strategy || "C-Rank 기본";
+}
+
+function setSelectedStrategy(strategy) {
+  if (typeof document.querySelectorAll !== "function") return;
+  const target = [...document.querySelectorAll(".strategy-option")].find((option) => option.dataset.strategy === strategy)
+    || document.querySelector('.strategy-option[data-strategy="C-Rank 기본"]');
+  for (const option of document.querySelectorAll(".strategy-option")) {
+    const selected = option === target;
+    option.classList.toggle("selected", selected);
+    option.setAttribute("aria-checked", String(selected));
+  }
+}
+
 function getWebDraftTags(draft) {
   const rawKeywords = Array.isArray(draft.keywords) ? draft.keywords : String(draft.keywords || "").split(",");
   return [...new Set(rawKeywords.map((tag) => String(tag).trim().replace(/^#+/, "")).filter((tag) => tag.length >= 2))].slice(0, 10);
@@ -49,6 +65,7 @@ async function loadSelectedWebDraft() {
   if (!draft) throw new Error("불러올 웹 초안을 먼저 선택해주세요.");
   $("topic").value = draft.topic || "";
   $("keywords").value = Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "";
+  setSelectedStrategy(draft.strategy || "C-Rank 기본");
   $("title").value = draft.title || "";
   $("body").value = draft.body || "";
   clearGeneratedImage();
@@ -555,6 +572,11 @@ $("link").addEventListener("click", async () => {
   $("status").textContent = result.ok ? `연결됨: ${result.email}` : `오류: ${result.error}`;
 });
 
+$("strategyOptions")?.addEventListener("click", (event) => {
+  const option = event.target.closest(".strategy-option");
+  if (option) setSelectedStrategy(option.dataset.strategy || "C-Rank 기본");
+});
+
 $("generate").addEventListener("click", async () => {
   const token = await getToken();
   const topic = $("topic").value.trim();
@@ -565,7 +587,7 @@ $("generate").addEventListener("click", async () => {
   try {
     const includeImage = $("includeImage").checked;
     clearGeneratedImage();
-    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage }) });
+    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: getSelectedStrategy(), includeImage }) });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || `생성 실패 (${response.status})`);
     $("title").value = body.title || "";
@@ -595,7 +617,7 @@ $("generateAndFill").addEventListener("click", async () => {
     const topic = $("topic").value.trim();
     const includeImage = $("includeImage").checked;
     clearGeneratedImage();
-    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage }) });
+    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: getSelectedStrategy(), includeImage }) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || `생성 실패 (${response.status})`);
     $("title").value = result.title || "";

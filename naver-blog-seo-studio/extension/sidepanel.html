@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>Naver Blog SEO Studio</title><link rel="stylesheet" href="styles.css"></head>
 <body>
   <main>
-    <header><span class="eyebrow">AIMaster · v1.0.36</span><h1>Naver Blog<br>SEO Studio</h1><p>검색 의도를 읽고, 내 이야기로 작성해보세요.</p></header>
+    <header><span class="eyebrow">AIMaster · v1.0.37</span><h1>Naver Blog<br>SEO Studio</h1><p>검색 의도를 읽고, 내 이야기로 작성해보세요.</p></header>
     <section class="card">
       <h2>계정 연결</h2>
       <p class="hint"><a href="https://naver-blog-seo-studio.vercel.app/settings" target="_blank">SEO Studio 설정</a>에서 발급한 토큰을 입력하세요.</p>
@@ -11,9 +11,19 @@
       <button id="link">SEO Studio 연결</button><div id="status" class="status">연결되지 않음</div>
     </section>
     <section class="card">
-      <h2>AI 초안 작성</h2>
+      <div class="section-title-row"><h2>새 글 기획</h2><span class="review-badge">1 / 3 단계</span></div>
       <input id="topic" placeholder="작성할 주제">
       <input id="keywords" placeholder="핵심 키워드 (쉼표로 구분)">
+      <fieldset class="strategy-fieldset">
+        <legend>글쓰기 전략</legend>
+        <div id="strategyOptions" class="strategy-options" role="radiogroup" aria-label="글쓰기 전략">
+          <button type="button" class="strategy-option selected" data-strategy="C-Rank 기본" role="radio" aria-checked="true"><strong>C-Rank 기본</strong><span>전문성과 실제 경험 중심의 일반 SEO 초안</span></button>
+          <button type="button" class="strategy-option" data-strategy="ALCON" role="radio" aria-checked="false"><strong>ALCON</strong><span>여러 검색 의도를 소제목별로 넓게 답하는 구성</span></button>
+          <button type="button" class="strategy-option" data-strategy="AEO" role="radio" aria-checked="false"><strong>AEO</strong><span>첫 요약, 비교, FAQ 중심의 답변형 구조</span></button>
+          <button type="button" class="strategy-option" data-strategy="홈판 스토리" role="radio" aria-checked="false"><strong>홈판 스토리</strong><span>공감되는 이야기 흐름과 읽기 체류를 고려한 구성</span></button>
+          <button type="button" class="strategy-option" data-strategy="인사이트 엣지" role="radio" aria-checked="false"><strong>좁은 주제를 깊게 다루고 실용적 판단 기준을 제시</span></button>
+        </div>
+      </fieldset>
       <label class="checkbox-row"><input id="includeImage" type="checkbox"> 나노바나나 대표 이미지도 생성</label>
       <button id="generate">초안 생성</button><div id="generateStatus" class="status"></div>
       <input id="title" placeholder="생성된 제목">
