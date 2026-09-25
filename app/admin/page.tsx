@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { Users, Package, CreditCard, TrendingUp } from "lucide-react";
+import { Users, Package, CreditCard, TrendingUp, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import GlassCard from "@/components/ui/GlassCard";
@@ -123,9 +123,9 @@ export default async function AdminDashboard() {
           <h2 className="text-lg font-bold text-white mb-4">빠른 메뉴</h2>
           <div className="grid grid-cols-2 gap-3">
             {[
+              { href: "/admin/prompts", label: "프로그램별 프롬프트 관리", icon: Sparkles },
               { href: "/admin/programs/new", label: "새 프로그램 등록", icon: Package },
               { href: "/admin/members", label: "회원 관리", icon: Users },
-              { href: "/admin/grades", label: "등급 관리", icon: TrendingUp },
               { href: "/admin/settlements", label: "정산 승인", icon: CreditCard },
             ].map(({ href, label, icon: Icon }) => (
               <a

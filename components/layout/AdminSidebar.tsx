@@ -22,6 +22,7 @@ import {
   FileText,
   KeyRound,
   UserCheck,
+  Sparkles,
 } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { cn } from "@/lib/utils/cn";
@@ -29,6 +30,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "대시보드" },
+  { href: "/admin/prompts", icon: Sparkles, label: "프로그램별 프롬프트 관리" },
   { href: "/admin/programs", icon: Package, label: "프로그램 관리" },
   { href: "/admin/programs/new", icon: PackagePlus, label: "프로그램 추가" },
   { href: "/admin/members", icon: Users, label: "회원 관리 (사용권한/기간)" },
