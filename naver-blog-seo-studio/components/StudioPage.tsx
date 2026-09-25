@@ -164,6 +164,14 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="account">AIMaster 계정 연동 전</div>
         </div>
 
+        <section className="card new-draft-card">
+          <div className="card-head"><h2 className="card-title">새 글 기획</h2><span className="card-caption">1 / 3 단계</span></div>
+          <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
+          <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="쉼표로 구분해 입력하세요" /></div>
+          <div className="field"><label>글쓰기 전략</label><div className="strategy-grid">{strategies.map(([name, desc]) => <button key={name} className={`strategy ${strategy === name ? "selected" : ""}`} onClick={() => setStrategy(name)}><strong>{name}</strong><span>{desc}</span></button>)}</div></div>
+          <button className="primary" onClick={prepareDraft} disabled={pending}>{pending ? "초안 생성 중..." : "AI 초안 생성하기"}</button>
+        </section>
+
         <div className="title-recommendation card">
           <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">검색 의도 기반 5개</span></div>
           <button className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천"}</button>
@@ -199,14 +207,6 @@ export default function StudioPage({ email }: { email: string }) {
         </section>
 
         <div className="workspace">
-          <section className="card">
-            <div className="card-head"><h2 className="card-title">새 글 기획</h2><span className="card-caption">1 / 3 단계</span></div>
-            <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
-            <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="쉼표로 구분해 입력하세요" /></div>
-            <div className="field"><label>글쓰기 전략</label><div className="strategy-grid">{strategies.map(([name, desc]) => <button key={name} className={`strategy ${strategy === name ? "selected" : ""}`} onClick={() => setStrategy(name)}><strong>{name}</strong><span>{desc}</span></button>)}</div></div>
-            <button className="primary" onClick={prepareDraft} disabled={pending}>{pending ? "초안 생성 중..." : "AI 초안 생성하기"}</button>
-          </section>
-
           <section className="card">
             <div className="card-head"><h2 className="card-title">품질 준비 체크</h2><span className="card-caption">초안 전 점검</span></div>
             <div className="checklist">
