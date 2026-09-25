@@ -446,7 +446,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "openai",
     name: "OpenAI (GPT Image)",
     apiKeyProvider: "openai",
-    description: "DALL-E 3 & GPT-Image 기반 다채로운 화풍 & 정밀 프롬프트 렌더링",
+    description: "다채로운 화풍 & 정밀 프롬프트 렌더링",
     iconName: "Sparkles",
     models: [
       {
@@ -497,7 +497,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "gemini",
     name: "Google Gemini (Nanobanana)",
     apiKeyProvider: "gemini",
-    description: "Gemini 3.1 Flash 기반 2K/4K 시네마틱 & 고화질 비주얼 스튜디오",
+    description: "2K/4K 시네마틱 & 고화질 비주얼 스튜디오",
     iconName: "Image",
     models: [
       {
@@ -530,7 +530,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "replicate",
     name: "Replicate (FLUX 2.0 Official)",
     apiKeyProvider: "replicate",
-    description: "Black Forest Labs 공식 FLUX 2.0 (Max/Pro/Dev/Flex) 극실사 스튜디오",
+    description: "FLUX 2.0 (Max/Pro/Dev/Flex) 극실사 스튜디오",
     iconName: "Zap",
     models: [
       {
@@ -955,7 +955,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "zimage",
     name: "Z-Image (Tongyi-MAI)",
     apiKeyProvider: "replicate",
-    description: "Alibaba 6B 초고속 극실사 & 타이포그래피 (0.5초 초스피드 렌더링)",
+    description: "6B 초고속 극실사 & 타이포그래피 (0.5초 초스피드 렌더링)",
     iconName: "Zap",
     models: [
       {
@@ -1059,7 +1059,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "seedream",
     name: "Seedream (ByteDance Official)",
     apiKeyProvider: "replicate",
-    description: "ByteDance 공식 Seedream 플래그십 비주얼 & 스토리 연작 시퀀스 (2K/3K/4K)",
+    description: "Seedream 플래그십 비주얼 & 스토리 연작 시퀀스 (2K/3K/4K)",
     iconName: "Sparkles",
     models: [
       {
