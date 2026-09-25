@@ -1,12 +1,12 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import ProgramPromptsManager from "@/components/admin/ProgramPromptsManager";
+import { INITIAL_IMAGE_STUDIO_PROMPTS } from "@/lib/constants/defaultPrompts";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const metadata = { title: "프로그램별 프롬프트 관리 | AI Master Admin" };
 
-// 기본 프로그램 폴백 목록
 const DEFAULT_PROGRAMS = [
   { slug: "ai-image-studio", name: "AI 이미지 스튜디오" },
   { slug: "ai-auto-blog", name: "BLOG(원문)생성 자동화" },
@@ -28,21 +28,18 @@ const DEFAULT_PROGRAMS = [
 export default async function AdminPromptsPage() {
   const supabase = createServiceClient();
 
-  // 1. 프롬프트 데이터 조회
   const { data: prompts } = await supabase
     .from("program_prompts")
     .select("*")
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
-  // 2. 등록된 프로그램 목록 조회
   const { data: programsData } = await supabase
     .from("programs")
     .select("slug, name")
     .eq("is_active", true)
     .order("name", { ascending: true });
 
-  // DB에 프로그램 목록이 있으면 그것과 기본 폴백 병합
   const programsListMap = new Map<string, string>();
   DEFAULT_PROGRAMS.forEach((p) => programsListMap.set(p.slug, p.name));
   if (programsData) {
@@ -53,6 +50,9 @@ export default async function AdminPromptsPage() {
     slug,
     name,
   }));
+
+  // DB 데이터가 비어있으면 초기 예시 프롬프트 세트(INITIAL_IMAGE_STUDIO_PROMPTS)로 자동 매칭
+  const initialData = (prompts && prompts.length > 0) ? prompts : INITIAL_IMAGE_STUDIO_PROMPTS;
 
   return (
     <div className="space-y-6">
@@ -66,7 +66,7 @@ export default async function AdminPromptsPage() {
         </p>
       </div>
 
-      <ProgramPromptsManager initialPrompts={prompts ?? []} programsList={mergedPrograms} />
+      <ProgramPromptsManager initialPrompts={initialData} programsList={mergedPrograms} />
     </div>
   );
 }
