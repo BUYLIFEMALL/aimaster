@@ -7,6 +7,7 @@ const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 let webDrafts = [];
+let activeWebDraftId = "";
 
 function formatWebDraftLabel(draft) {
   const date = draft.extension_handoff_at ? new Date(draft.extension_handoff_at).toLocaleDateString("ko-KR") : "";
@@ -45,11 +46,27 @@ async function loadSelectedWebDraft() {
   $("title").value = draft.title || "";
   $("body").value = draft.body || "";
   clearGeneratedImage();
+  activeWebDraftId = draft.id;
   const token = await getToken();
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
   $("webDraftStatus").textContent = "웹 초안을 불러왔습니다. 필요하면 대표 이미지를 생성한 뒤 네이버 편집기에 입력하세요.";
+}
+
+async function reportWebDraftInputResult(status, details = {}) {
+  if (!activeWebDraftId) return;
+  const token = await getToken();
+  if (!token) return;
+  const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(activeWebDraftId)}/input-result`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ status, error: details.error || "", paragraphCount: details.paragraphCount || 0 }),
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result.error || `입력 결과 기록 실패 (${response.status})`);
+  }
 }
 
 function clearGeneratedImage() {
@@ -611,6 +628,7 @@ async function fillDraftIntoNaver() {
     await sleep(350);
     const titleFocus = await focusNaverEditor(tab.id, "title");
     if (!titleFocus.ok) return ($("generateStatus").textContent = "제목 입력 요소를 찾지 못했습니다. 네이버 글쓰기 화면을 새로 연 뒤 다시 시도하세요.");
+    await reportWebDraftInputResult("in_progress").catch(() => {});
     if (attachedTabId === null) {
       await chrome.debugger.attach({ tabId: tab.id }, "1.3");
       attachedTabId = tab.id;
@@ -656,12 +674,15 @@ async function fillDraftIntoNaver() {
         verification.bodyMatched === false ? `본문 확인 실패 (${verification.actualParagraphCount || 0}/${verification.expectedParagraphCount || 0}문단)` : null,
       ].filter(Boolean).join(", ");
       $("generateStatus").textContent = `입력 결과 확인 실패: ${details || "실제 편집기 내용을 읽지 못했습니다."} 구조 분석을 실행해 주세요.`;
+      await reportWebDraftInputResult("failed", { error: details || "입력 결과 확인에 실패했습니다." }).catch(() => {});
       return;
     }
     $("generateStatus").textContent = `네이버 편집기 입력 및 결과 확인 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
+    await reportWebDraftInputResult("completed", { paragraphCount: verification.actualParagraphCount || 0 }).catch(() => {});
     return true;
   } catch (error) {
     $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
+    await reportWebDraftInputResult("failed", { error: error instanceof Error ? error.message : String(error) }).catch(() => {});
   } finally {
     if (attachedTabId !== null) {
       try { await chrome.debugger.detach({ tabId: attachedTabId }); } catch { /* tab may have navigated */ }

@@ -23,7 +23,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [existingBody, setExistingBody] = useState("");
   const [optimizePending, setOptimizePending] = useState(false);
   const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
-  const [history, setHistory] = useState<{ id: string; topic: string; keywords: string[]; title: string; body: string; created_at: string }[]>([]);
+  const [history, setHistory] = useState<{ id: string; topic: string; keywords: string[]; title: string; body: string; created_at: string; naver_input_status?: "not_started" | "in_progress" | "completed" | "failed"; naver_input_error?: string | null }[]>([]);
   const [imagePending, setImagePending] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
@@ -171,7 +171,7 @@ export default function StudioPage({ email }: { email: string }) {
 
         <section className="history-card card" id="history">
           <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span></div>
-          {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{new Date(draft.created_at).toLocaleDateString("ko-KR")}</time></button>)}</div>}
+          {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}</span><time>{new Date(draft.created_at).toLocaleDateString("ko-KR")}</time></button>)}</div>}
         </section>
 
         <section className="extension-handoff-card card" aria-labelledby="extension-handoff-title">

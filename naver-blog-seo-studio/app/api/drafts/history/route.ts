@@ -11,7 +11,7 @@ export async function GET() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("naver_blog_seo_drafts")
-    .select("id, topic, keywords, strategy, title, body, seo_report, status, created_at")
+    .select("id, topic, keywords, strategy, title, body, seo_report, status, created_at, naver_input_status, naver_input_completed_at, naver_input_error")
     .eq("user_id", access.user.id)
     .order("created_at", { ascending: false })
     .limit(30);

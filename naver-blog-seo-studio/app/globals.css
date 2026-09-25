@@ -175,6 +175,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .extension-handoff-card { margin-top: 18px; border-color: #d7e5f3; }
 .handoff-description, .handoff-status { margin: -4px 0 13px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .handoff-status { margin: 10px 0 0; color: #315b84; font-weight: 700; }
+.input-state { display: inline-flex; width: fit-content; margin-top: 5px; border-radius: 999px; padding: 3px 7px; font-size: 10px; font-style: normal; font-weight: 800; }
+.input-state.done { background: #e4f5e9; color: #18753a; }.input-state.pending { background: #fff0d9; color: #a65a08; }.input-state.failed { background: #fff0ed; color: #b43d27; }
 .image-generation-description { margin: -4px 0 13px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .generated-image-preview { margin-top: 16px; overflow: hidden; border: 1px solid #d8e4f2; border-radius: 12px; background: #f8fbff; }
 .generated-image-preview img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
