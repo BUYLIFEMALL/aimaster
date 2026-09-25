@@ -221,6 +221,10 @@ test("one-click input stops and shows the Gemini image failure instead of fillin
     generateStatus: { textContent: "", addEventListener: (name, handler) => listeners.set("generateStatus:" + name, handler) },
     generateAndFill: { disabled: false, addEventListener: (name, handler) => listeners.set("generateAndFill:" + name, handler) },
     generate: { disabled: false, addEventListener: (name, handler) => listeners.set("generate:" + name, handler) },
+    runSeoCheck: { disabled: false, addEventListener: (name, handler) => listeners.set("runSeoCheck:" + name, handler) },
+    factsConfirmed: { checked: false, addEventListener: (name, handler) => listeners.set("factsConfirmed:" + name, handler) },
+    seoReviewSummary: { textContent: "", addEventListener: (name, handler) => listeners.set("seoReviewSummary:" + name, handler) },
+    seoChecklist: { textContent: "", addEventListener: (name, handler) => listeners.set("seoChecklist:" + name, handler) },
     fill: { disabled: false, addEventListener: (name, handler) => listeners.set("fill:" + name, handler) },
     insertImage: { disabled: false, addEventListener: (name, handler) => listeners.set("insertImage:" + name, handler) },
     regenerateImage: { disabled: false, addEventListener: (name, handler) => listeners.set("regenerateImage:" + name, handler) },
@@ -252,6 +256,39 @@ test("one-click input stops and shows the Gemini image failure instead of fillin
   assert.equal(elements.get("title").value, "제목");
   assert.equal(elements.get("body").value, "본문");
   assert.equal(elements.get("imagePreview").hidden, true);
+});
+
+test("pre-publish SEO checklist separates required failures from optional recommendations", () => {
+  const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+  const start = source.indexOf("function normalizeSeoText");
+  const end = source.indexOf("async function fillPublishInfoIntoNaver");
+  const sandbox = vm.createContext({
+    plainText: (value) => String(value || "")
+      .replace(/\\n/g, "\n")
+      .replace(/\r\n/g, "\n")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/^#{1,6}\s+/gm, "")
+      .replace(/^\s*[-*]\s+/gm, "")
+      .trim(),
+  });
+  vm.runInContext(source.slice(start, end), sandbox);
+  const checks = sandbox.buildSeoChecklist({
+    title: "AI 자동화로 업무 시간을 줄이는 실전 방법",
+    body: "AI 자동화는 반복 업무와 업무 시간을 줄이는 데 도움이 됩니다.\n\n첫째, 반복 업무를 정리하고 자동화할 범위를 작게 정합니다.\n\n둘째, 작은 업무부터 적용하며 담당자와 검토 기준을 명확히 공유합니다.\n\n셋째, 결과를 매주 확인하고 오류가 난 작업은 원인을 기록해 다음 실행 전에 보완합니다.\n\n넷째, 사실과 설정을 직접 검토하고 사람이 최종 결과를 확인합니다. 이 과정을 반복하면 AI 자동화가 실제 업무 시간 절약으로 이어지는지 안정적으로 판단할 수 있습니다.\n\n다섯째, 도입 전후의 시간을 비교하면서 불필요한 작업을 줄이고 중요한 고객 업무에 집중합니다.".repeat(2),
+    keywords: "AI 자동화, 업무 시간",
+    hasImage: true,
+    category: "AI 활용",
+    tags: "AI 자동화, 업무 효율, 생산성",
+    factsConfirmed: true,
+  });
+  assert.equal(checks.length, 7);
+  assert.equal(checks.filter((check) => check.required && !check.ok).length, 0);
+  assert.equal(checks.filter((check) => !check.required && !check.ok).length, 0);
+  const missingKeyword = sandbox.buildSeoChecklist({ title: "짧은 제목", body: "한 문단", keywords: "없는키워드", hasImage: false, category: "", tags: "", factsConfirmed: false });
+  assert.equal(missingKeyword.find((check) => check.title === "핵심 키워드 반영")?.ok, false);
+  assert.equal(missingKeyword.find((check) => check.title === "사실·최신 정보 확인")?.ok, false);
 });
 
 test("publish settings keep tag focus and select exact category without publishing", async () => {

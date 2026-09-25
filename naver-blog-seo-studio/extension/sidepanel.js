@@ -13,6 +13,75 @@ function clearGeneratedImage() {
   $("imagePreview").hidden = true;
 }
 
+function normalizeSeoText(value) {
+  return plainText(value).replace(/\s+/g, " ").trim();
+}
+
+function getSeoKeywords(value) {
+  return [...new Set(String(value || "").split(",").map((keyword) => keyword.trim()).filter(Boolean))].slice(0, 10);
+}
+
+function buildSeoChecklist({ title, body, keywords, hasImage, category, tags, factsConfirmed }) {
+  const titleText = normalizeSeoText(title);
+  const bodyText = normalizeSeoText(body);
+  const paragraphs = plainText(body).split(/\n+/).map((paragraph) => paragraph.trim()).filter(Boolean);
+  const keywordList = getSeoKeywords(keywords);
+  const corpus = `${titleText} ${bodyText}`.toLowerCase();
+  const missingKeywords = keywordList.filter((keyword) => !corpus.includes(keyword.toLowerCase()));
+  const tagList = getSeoKeywords(tags);
+  return [
+    { required: true, ok: titleText.length >= 15 && titleText.length <= 60, title: "제목 길이", detail: titleText ? `${titleText.length}자 · 권장 15~60자` : "제목을 입력해주세요." },
+    { required: true, ok: keywordList.length > 0 && missingKeywords.length === 0, title: "핵심 키워드 반영", detail: !keywordList.length ? "핵심 키워드를 1개 이상 입력해주세요." : missingKeywords.length ? `본문 또는 제목에 없는 키워드: ${missingKeywords.join(", ")}` : `${keywordList.length}개 키워드가 제목 또는 본문에 반영됐습니다.` },
+    { required: true, ok: paragraphs.length >= 4 && bodyText.length >= 500, title: "본문 구성", detail: `${paragraphs.length}문단 · ${bodyText.length}자${paragraphs.length < 4 || bodyText.length < 500 ? " · 4문단·500자 이상을 권장합니다." : ""}` },
+    { required: false, ok: hasImage, title: "대표 이미지", detail: hasImage ? "대표 이미지가 준비됐습니다." : "권장 항목입니다. 나노바나나 이미지 생성을 이용할 수 있습니다." },
+    { required: false, ok: Boolean(category.trim()), title: "카테고리", detail: category.trim() ? `선택 예정: ${category.trim()}` : "권장 항목입니다. 발행 정보에 카테고리를 입력하세요." },
+    { required: false, ok: tagList.length >= 3 && tagList.length <= 10, title: "태그", detail: tagList.length ? `${tagList.length}개 입력됨 · 권장 3~10개` : "권장 항목입니다. 관련 태그를 입력하세요." },
+    { required: true, ok: Boolean(factsConfirmed), title: "사실·최신 정보 확인", detail: factsConfirmed ? "직접 확인 완료로 표시했습니다." : "발행 전 정책·가격·연도·통계 등은 직접 확인해주세요." },
+  ];
+}
+
+function renderSeoChecklist(checks) {
+  const list = $("seoChecklist");
+  list.textContent = "";
+  for (const check of checks) {
+    const item = document.createElement("li");
+    item.className = check.ok ? "pass" : "warn";
+    const icon = document.createElement("span");
+    icon.className = "check-icon";
+    icon.textContent = check.ok ? "✓" : "!";
+    const copy = document.createElement("span");
+    const heading = document.createElement("strong");
+    heading.textContent = `${check.required ? "필수" : "권장"} · ${check.title}`;
+    const detail = document.createElement("small");
+    detail.textContent = check.detail;
+    copy.append(heading, detail);
+    item.append(icon, copy);
+    list.append(item);
+  }
+}
+
+async function runSeoReview() {
+  const saved = (await chrome.storage.local.get(PUBLISH_SETTINGS_KEY))[PUBLISH_SETTINGS_KEY] || {};
+  const checks = buildSeoChecklist({
+    title: $("title").value,
+    body: $("body").value,
+    keywords: $("keywords").value,
+    hasImage: Boolean($("generatedImage").src && $("generatedImage").src !== location.href),
+    category: $("publishCategory").value.trim() || saved.category || "",
+    tags: $("publishTags").value.trim() || saved.tags || "",
+    factsConfirmed: $("factsConfirmed").checked,
+  });
+  renderSeoChecklist(checks);
+  const required = checks.filter((check) => check.required);
+  const recommended = checks.filter((check) => !check.required);
+  const requiredPassed = required.filter((check) => check.ok).length;
+  const recommendedPassed = recommended.filter((check) => check.ok).length;
+  $("seoReviewSummary").textContent = requiredPassed === required.length
+    ? `필수 ${requiredPassed}/${required.length} 통과 · 권장 ${recommendedPassed}/${recommended.length} 준비. 내용을 검토한 뒤 네이버 발행 버튼을 직접 누르세요.`
+    : `필수 ${requiredPassed}/${required.length} 통과 · 미완료 항목을 확인한 뒤 다시 검토하세요.`;
+  return checks;
+}
+
 async function getToken() { return (await chrome.storage.local.get(KEY))[KEY] || ""; }
 
 async function getNaverBlogTab() {
@@ -556,6 +625,12 @@ async function fillDraftIntoNaver() {
 }
 
 $("fill").addEventListener("click", fillDraftIntoNaver);
+
+$("runSeoCheck").addEventListener("click", () => {
+  runSeoReview().catch((error) => {
+    $("seoReviewSummary").textContent = `SEO 검토 실패: ${error instanceof Error ? error.message : String(error)}`;
+  });
+});
 
 $("insertImage").addEventListener("click", async () => {
   const dataUrl = $("generatedImage").src;
