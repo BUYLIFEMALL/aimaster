@@ -20,3 +20,16 @@
 - **Alibaba Z-Image**: `prunaai/z-image-turbo`.
 - **OpenAI / Gemini / Stability AI**: DALL-E 3, Nanobanana 등.
 
+## 프롬프트 생성 엔진 및 관리자 카테고리 연동 (2026-09-25 업데이트)
+1. **make.com Nanobanana Photorealism 규격**:
+   - `app/api/enhance-prompt/route.ts`에 make.com Nanobanana 전용 포토리얼리즘 프롬프트 엔진 적용.
+   - 단일 영문 문장 규격 (`Create a sense of adventure, courage, and realism with - the landscape of...`).
+   - 모든 인물은 `realistic Korean / East Asian` 기본 지정.
+   - 카메라 메타데이터 (`Sony A7R IV`, `50mm/35mm/85mm prime`, `f/1.8~f/2.8`, `ISO 100-400`, `WB 5200-5600K`, `shallow depth of field`).
+   - 3종 조명 프리셋 (Outdoor Daylight, Indoor/Lab, Night/Neon).
+   - 필수 포토리얼리즘 보강키 블록 (`photorealistic, real-world photography, physically plausible lighting and materials...`) 및 네거티브 차단 블록 (`no illustration, no painting, no vector...`) 100% 자동 결합.
+2. **관리자 프롬프트 추천 연동 (admin/prompts)**:
+   - 프로그램 선택 변경 시 드롭다운 카테고리가 해당 프로그램의 카테고리 목록으로 연동되며, 카테고리가 `all`(전체 카테고리)로 자동 리셋되어 빈 결과 화면 출력을 방지함.
+   - `lib/constants/defaultPrompts.ts` 및 `app/api/prompts/seed/route.ts`에 실사 포토리얼리즘 10종, 바이럴 숏폼 10종 등 각 화풍별 10개 완벽 데이터 동기화.
+
+

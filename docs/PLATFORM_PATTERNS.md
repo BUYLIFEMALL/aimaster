@@ -481,3 +481,26 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 3. **`user_api_keys_provider_check` DB 제약조건 확인 습관화 (패턴 §14)**:
    새 프로그램에서 쓰는 provider(예: `fal`, `stability`, `replicate` 등)를 추가할 때는 반드시 `supabase/migrations/`에 `ALTER TABLE user_api_keys DROP CONSTRAINT IF EXISTS user_api_keys_provider_check; ALTER TABLE user_api_keys ADD CONSTRAINT ...` SQL 마이그레이션 파일도 함께 제출한다.
 
+---
+
+## 22. AI 이미지 스튜디오 make.com Nanobanana 극사실적(Photorealistic) 프롬프트 생성 규격 (2026-09-25)
+
+**개요**: AI 이미지 생성 시 real-world 포토리얼리즘 품질을 극대화하기 위해 make.com Nanobanana 생성 가이드라인을 백엔드 프롬프트 엔진 및 관리자 추천 템플릿에 표준화함.
+
+**핵심 가이드라인 구조**:
+1. **문장 구조**: 단일 영문 문장 형태 (`Create a sense of adventure, courage, and realism with - the landscape of...`)로 작성.
+2. **동아시아인/한국인 대상**: 인물이 포함된 장면은 기본적으로 `realistic Korean / East Asian`으로 묘사.
+3. **카메라 메타데이터 콤팩트 주입**: `shot on Sony A7R IV (or Canon EOS R5 / Nikon Z8) with a 50mm (or 35mm/85mm) prime lens, f/1.8~f/2.8, 1/250s, ISO 100-400, white balance 5200K-5600K, shallow depth of field, focus plane on main subject, subtle optical vignetting, tripod-level horizon`.
+4. **광원 3종 프리셋**:
+   - Outdoor Daylight: `golden hour sunlight, soft directional key at 45 degrees, realistic penumbra shadows, gentle aerial haze`
+   - Indoor / Lab: `diffused daylight through windows, controlled fluorescent fill light, color-balanced to 5600K`
+   - Night / Neon: `visible practical lights and signs, mixed color temperatures from 3200K to 5600K, controlled specular highlights, realistic low-light exposure`
+5. **극사실성 보강 키워드 블록**: `photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness and microtexture`.
+6. **네거티브 스타일 완전 차단 블록**: `no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors`.
+
+**참고 파일**:
+- `ai-image-studio/app/api/enhance-prompt/route.ts` (백엔드 AI 프롬프트 생성기 시스템 프롬프트)
+- `lib/constants/defaultPrompts.ts` (관리자 게시판 및 초기 상수의 photorealistic 10종 샘플)
+- `components/admin/ProgramPromptsManager.tsx` (프로그램-카테고리 연동 및 리셋 필터)
+
+

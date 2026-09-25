@@ -177,6 +177,9 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
   이렇게 확인해서 실제로는 다 있는데도 사용자가 "없다"고 계속 보고한다면, 사용자가 보고 있는
   화면(GitHub 웹의 정확한 경로, 다른 로컬 클론, Vercel 대시보드 등)이 이 저장소·이 로컬 작업
   폴더와 다른 곳일 가능성이 높다 — 그 지점을 콕 집어 물어봐서 좁혀나간다.
+- **2026-09-25 최근 작업 업데이트**:
+  - 관리자 프롬프트 추천 페이지(`admin/prompts`)의 프로그램 선택 변경 시 카테고리 연동 및 `all` 자동 리셋 필터 반영.
+  - `ai-image-studio` 서브프로젝트에 make.com Nanobanana 극사실적(photorealistic) 프롬프트 마스터 생성 엔진 적용 및 포토리얼리즘/바이럴 숏폼 등 카테고리별 10개 프롬프트 데이터셋 갱신 (`docs/PLATFORM_PATTERNS.md` §22).
 - **Electron 등 독립 실행형 데스크톱 앱 서브프로젝트를 추가하면 루트 `.vercelignore`에도
   등록할 것.** 루트 AIMaster 앱을 `vercel deploy`할 때 Vercel CLI가 `.gitignore`를
   존중하지 않고 로컬 작업 폴더 전체를 스캔한다 — 데스크톱 앱의 `runtime/`처럼 실행 중인
