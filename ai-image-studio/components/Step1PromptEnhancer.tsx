@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, 
   Camera, Box, Palette, Layers, Zap, Tag, RotateCcw,
@@ -107,9 +107,30 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
   } | null>(null);
 
   const [copied, setCopied] = useState(false);
+  const [dbPrompts, setDbPrompts] = useState<Array<{ label: string; prompt: string }>>([]);
+
+  useEffect(() => {
+    async function loadDbPrompts() {
+      try {
+        const res = await fetch(`/api/prompts?style_id=${selectedPreset}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.prompts && data.prompts.length > 0) {
+            setDbPrompts(data.prompts.map((p: any) => ({ label: p.label, prompt: p.prompt })));
+            return;
+          }
+        }
+      } catch (err) {
+        // Fallback to static map
+      }
+      setDbPrompts([]);
+    }
+    loadDbPrompts();
+  }, [selectedPreset]);
 
   const activeStyleInfo = PRESET_STYLES.find((s) => s.id === selectedPreset) || PRESET_STYLES[0];
-  const activeTags = STYLE_QUICK_TAGS_MAP[selectedPreset] || STYLE_QUICK_TAGS_MAP.photorealistic;
+  const fallbackTags = STYLE_QUICK_TAGS_MAP[selectedPreset] || STYLE_QUICK_TAGS_MAP.photorealistic;
+  const activeTags = dbPrompts.length > 0 ? dbPrompts : fallbackTags;
 
   const handleEnhance = async () => {
     if (!idea.trim()) return;

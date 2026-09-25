@@ -23,6 +23,7 @@ const FLOW_STEPS = [
 ];
 
 const UTILITY_ITEMS = [
+  { href: "/prompts", icon: "📝", label: "화풍 프롬프트 관리" },
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
 ];
 
