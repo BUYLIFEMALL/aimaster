@@ -30,9 +30,9 @@ import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "대시보드" },
-  { href: "/admin/prompts", icon: Sparkles, label: "프로그램별 프롬프트 관리" },
   { href: "/admin/programs", icon: Package, label: "프로그램 관리" },
   { href: "/admin/programs/new", icon: PackagePlus, label: "프로그램 추가" },
+  { href: "/admin/prompts", icon: Sparkles, label: "프로그램별 프롬프트 관리" },
   { href: "/admin/members", icon: Users, label: "회원 관리 (사용권한/기간)" },
   { href: "/admin/grades", icon: Award, label: "등급 관리" },
   { href: "/admin/access-matrix", icon: Shield, label: "접근 권한 관리" },
