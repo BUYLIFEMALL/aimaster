@@ -27,16 +27,73 @@ const PRESET_STYLES = [
   { id: "minimal_flat", name: "미니멀 플랫 아트", icon: LayoutGrid, desc: "세련된 칼라 블록 & 모던 포스터 디자인" },
 ];
 
-const QUICK_IDEA_TAGS = [
-  { label: "#한옥카페 인물", prompt: "서울 경복궁 한옥 카페에서 노트북으로 작업 중인 한복을 입은 20대 한국 여성, 따뜻한 오후 햇살", style: "photorealistic" },
-  { label: "#동양 수묵화 인물", prompt: "은은한 수묵 먹선과 한지 질감 속 아련한 분위기의 한복 입은 선비와 매화 가지", style: "oriental_ink" },
-  { label: "#35mm 빈티지 필름", prompt: "80년대 골목길 카페 야외 테라스에서 커피를 마시는 감성적인 빈티지 인물 컷", style: "cinematic_film" },
-  { label: "#3D 마케팅 아이콘", prompt: "혁신적인 스마트폰과 신용카드가 떠있는 3D 미니멀 클레이 아트 마케팅 아이콘 세트", style: "3d_digital" },
-  { label: "#건축 인테리어", prompt: "통창 너머로 숲이 펼쳐지는 미니멀 우드 앤 콘크리트 고급 거실 인테리어 디자인", style: "architectural" },
-  { label: "#다크판타지 웅장함", prompt: "어둡고 신비로운 고성 타워 위에서 붉은 마법 룬을 시전하는 검은 로브의 마법사", style: "dark_fantasy" },
-  { label: "#패션 룩북 화보", prompt: "모던한 미니멀 백그라운드 스튜디오에서 봄 신상 트렌치코트를 입은 모델의 패션 잡지 화보", style: "artistic_editorial" },
-  { label: "#수채화 파스텔 동화", prompt: "해질녘 분홍빛 노울 하늘 아래 동화 속 작은 목조 오두막과 꽃밭 풍경", style: "watercolor_pastel" },
-];
+const STYLE_QUICK_TAGS_MAP: Record<string, Array<{ label: string; prompt: string }>> = {
+  photorealistic: [
+    { label: "#한옥카페 인물", prompt: "서울 경복궁 한옥 카페에서 노트북으로 작업 중인 한복을 입은 20대 한국 여성, 따뜻한 오후 햇살" },
+    { label: "#제주 감성 풍경", prompt: "제주도 해변 언덕 위 해질녘 노을빛 오션뷰 한옥 숙소와 감성적인 풍경" },
+    { label: "#스튜디오 인물 컷", prompt: "도도한 시선의 20대 한국 남성 모델, 은은한 스튜디오 링 라이트 조명과 85mm 인물 포트레이트" },
+  ],
+  "3d_digital": [
+    { label: "#3D 마케팅 아이콘", prompt: "혁신적인 스마트폰과 신용카드가 떠있는 3D 미니멀 클레이 아트 마케팅 아이콘 세트" },
+    { label: "#픽사풍 귀여운 캐릭터", prompt: "동글동글한 안경을 쓴 귀여운 3D 토끼 탐정 캐릭터, Pixar 애니메이션 렌더링" },
+    { label: "#미래지향 3D 오브젝트", prompt: "투명한 글래스모피즘 큐브와 입체 가상화폐 3D 디스플레이 렌더" },
+  ],
+  artistic_editorial: [
+    { label: "#패션 룩북 화보", prompt: "모던한 미니멀 백그라운드 스튜디오에서 봄 신상 트렌치코트를 입은 모델의 패션 잡지 화보" },
+    { label: "#보그 흑백 세련미", prompt: "Vogue 룩북 스타일, 드라마틱한 음영 대비가 돋보이는 모던 하이패션 포즈의 여성 모델" },
+    { label: "#하이엔드 주얼리 컷", prompt: "고급스러운 아크릴 무대 위 다이아몬드 목걸이와 패션 잡지 커버컷 조명 연출" },
+  ],
+  vector_illustration: [
+    { label: "#벡터 제품 일러스트", prompt: "친환경 오가닉 코스메틱 화장품 병과 나뭇잎 요소가 조화로운 벡터 평면 일러스트레이션" },
+    { label: "#IT 스타트업 캐릭터", prompt: "노트북으로 코딩 중인 젊은 개발자 팀, 선명한 아웃라인과 모던 벡터 스타일" },
+    { label: "#도시 생활 플랫 카드", prompt: "커피를 들고 도심 공원을 산책하는 사람들의 세련된 flat vector 그래픽" },
+  ],
+  cyberpunk_neon: [
+    { label: "#사이버펑크 서울야경", prompt: "네온사인 가득한 비 내리는 사이버펑크 서울 야경 속 트렌디한 한국 여성의 몽환적인 포트레이트" },
+    { label: "#네온 라이더 스피드", prompt: "미래도시 네온 고속도로를 질주하는 사이버펑크 오토바이 라이더와 청색/자홍색 이펙트" },
+    { label: "#미래형 해커 로봇", prompt: "신비로운 홀로그램 인터페이스를 조작하는 미래형 안드로이드 해커" },
+  ],
+  oriental_ink: [
+    { label: "#수묵 한복 포트레이트", prompt: "은은한 수묵 먹선과 한지 질감 속 아련한 분위기의 한복 입은 선비와 매화 가지" },
+    { label: "#경복궁 수묵 산수화", prompt: "안개 낀 아침 삼각산과 경복궁 대웅전이 먹선의 짙고 옅음으로 그려진 동양 수묵화" },
+    { label: "#달빛 매화 대나무", prompt: "둥근 은달빛 아래 대나무 잎과 흰 매화가 번진 조선 전통 수묵 채색화" },
+  ],
+  watercolor_pastel: [
+    { label: "#수채화 파스텔 동화", prompt: "해질녘 분홍빛 노을 하늘 아래 동화 속 작은 목조 오두막과 꽃밭 풍경" },
+    { label: "#수채화 고양이 감성", prompt: "창가 햇살 아래 졸고 있는 몽환적인 털 질감의 수채화 고양이 일러스트" },
+    { label: "#파스텔 봄날 꽃길", prompt: "벚꽃잎이 날리는 시골 오솔길을 자전거로 달리는 아이의 맑은 수채화" },
+  ],
+  cinematic_film: [
+    { label: "#35mm 빈티지 카페", prompt: "80년대 골목길 카페 야외 테라스에서 커피를 마시는 감성적인 빈티지 인물 컷" },
+    { label: "#레트로 야간 스냅", prompt: "Kodak Portra 400 필름 특유의 따뜻한 입자와 비 오는 밤 도쿄 골목 네온 스냅" },
+    { label: "#여름 바다 필름 감성", prompt: "햇빛이 수면에 반사되는 청량한 여름 바닷가와 90년대 필름 카메라 질감" },
+  ],
+  claymation: [
+    { label: "#지점토 귀여운 공룡", prompt: "손맛 느껴지는 울퉁불퉁 지점토 질감의 알록달록 아기 공룡 스톱모션 인형" },
+    { label: "#클레이 베이커리 빵", prompt: "따뜻한 오븐 속 귀여운 표정이 그려진 클레이 빵과 미니어처 주방" },
+    { label: "#클레이 아기자기 마을", prompt: "아기자기한 클레이 스톱모션 미니어처 마을과 알록달록 자동차" },
+  ],
+  webtoon_lineart: [
+    { label: "#웹툰 주인공 액션", prompt: "강렬한 먹선 아웃라인과 셀 셰이딩이 돋보이는 한국 판타지 웹툰 주인공 소환 씬" },
+    { label: "#학원물 웹툰 로맨스", prompt: "학교 복도 창가 햇살 아래 서로 바라보는 고등학생 남녀 웹툰 명장면" },
+    { label: "#도시 몬스터 웹툰", prompt: "서울 강남역 한복판에 나타난 거대 몬스터와 이에 맞서는 웹툰 히어로" },
+  ],
+  architectural: [
+    { label: "#건축 인테리어", prompt: "통창 너머로 숲이 펼쳐지는 미니멀 우드 앤 콘크리트 고급 거실 인테리어 디자인" },
+    { label: "#모던 단독주택 외관", prompt: "ArchDaily 잡지 커버 스타일, 자연광과 노출 콘크리트 조화의 미니멀 모던 주택" },
+    { label: "#호텔 리조트 수영장", prompt: "발리 리조트풍 인피니티 풀과 해질녘 오렌지빛 라이팅 디자인 공간" },
+  ],
+  dark_fantasy: [
+    { label: "#다크판타지 웅장함", prompt: "어둡고 신비로운 고성 타워 위에서 붉은 마법 룬을 시전하는 검은 로브의 마법사" },
+    { label: "#심연의 고딕 기사", prompt: "자색 안개 가득한 폐허 성당 앞 거대한 대검을 든 고딕 다크 판타지 기사" },
+    { label: "#용의 둥지 수호자", prompt: "용암이 흐르는 어두운 동굴 속 붉은 눈의 용과 고대 성물" },
+  ],
+  minimal_flat: [
+    { label: "#미니멀 여행 포스터", prompt: "제주 돌하르방과 조용한 해변을 감각적인 컬러 블록으로 표현한 모던 아트 포스터" },
+    { label: "#플랫 팝아트 인물", prompt: "강렬한 비비드 컬러와 단순한 기하학 도형으로 디자인된 인물 포스터" },
+    { label: "#모던 미드센추리 가구", prompt: "60년대 미드센추리 모던 가구와 플랫 그래픽 일러스트" },
+  ],
+};
 
 export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps) {
   const [idea, setIdea] = useState("");
@@ -50,6 +107,9 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
   } | null>(null);
 
   const [copied, setCopied] = useState(false);
+
+  const activeStyleInfo = PRESET_STYLES.find((s) => s.id === selectedPreset) || PRESET_STYLES[0];
+  const activeTags = STYLE_QUICK_TAGS_MAP[selectedPreset] || STYLE_QUICK_TAGS_MAP.photorealistic;
 
   const handleEnhance = async () => {
     if (!idea.trim()) return;
@@ -83,9 +143,8 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSelectQuickTag = (tagPrompt: string, tagStyle: string) => {
+  const handleSelectQuickTag = (tagPrompt: string) => {
     setIdea(tagPrompt);
-    setSelectedPreset(tagStyle);
   };
 
   return (
@@ -136,18 +195,18 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
         </div>
       </div>
 
-      {/* Quick Idea Recommendation Tags */}
+      {/* Dynamic Quick Idea Recommendation Tags based on selected style */}
       <div className="space-y-2">
         <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-400">
           <Tag className="h-3.5 w-3.5 text-amber-400" />
-          <span>추천 아이디어 태그 (클릭 시 자동 입력):</span>
+          <span><strong className="text-amber-400 font-extrabold">[{activeStyleInfo.name}]</strong> 전용 추천 아이디어 (클릭 시 자동 입력):</span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {QUICK_IDEA_TAGS.map((tag, idx) => (
+          {activeTags.map((tag, idx) => (
             <button
               key={idx}
               type="button"
-              onClick={() => handleSelectQuickTag(tag.prompt, tag.style)}
+              onClick={() => handleSelectQuickTag(tag.prompt)}
               className="rounded-lg bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/50 px-3 py-1.5 text-xs font-semibold text-amber-300 hover:text-amber-200 transition-colors"
             >
               {tag.label}
