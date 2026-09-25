@@ -1649,13 +1649,13 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "recraft",
     name: "Recraft (Vector SVG & Design Graphic)",
     apiKeyProvider: "replicate",
-    description: "Recraft V4.1 / V3 순수 SVG 벡터(Layered SVG) 및 디자인 그래픽 특화 AI 모델",
+    description: "순수 SVG 벡터(Pure Vector) 및 디자인 그래픽 특화 AI 모델",
     iconName: "Palette",
     models: [
       {
         id: "recraft-ai/recraft-v4.1",
         name: "Recraft v4.1",
-        description: "Recraft 최신 v4.1 그래픽 비트맵 모델 (디자인 감각 & 텍스트 렌더링 & 아트 디렉팅 구도)",
+        description: "비트맵 그래픽 (디자인·텍스트 특화)",
         options: [
           {
             id: "aspect_ratio",
@@ -1705,8 +1705,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       },
       {
         id: "recraft-ai/recraft-v4.1-svg",
-        name: "Recraft v4.1 SVG (Pure Vector)",
-        description: "Recraft 최신 v4.1 순수 SVG 벡터 생성 모델 (Figma/Illustrator 직접 수정 가능한 레이어 벡터)",
+        name: "Recraft v4.1 SVG",
+        description: "순수 SVG 벡터 (Figma/AI 레이어 편집)",
         options: [
           {
             id: "aspect_ratio",
@@ -1757,7 +1757,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "recraft-ai/recraft-v3",
         name: "Recraft v3",
-        description: "Recraft v3 (red_panda) 텍스트/아트 스타일 이미지 생성 모델 (다양한 화풍 지정 가능)",
+        description: "다양한 화풍 비트맵 (red_panda)",
         options: [
           {
             id: "style",
@@ -1802,8 +1802,8 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       },
       {
         id: "recraft-ai/recraft-v3-svg",
-        name: "Recraft v3 SVG (Pure Vector)",
-        description: "Recraft v3 로고·아이콘·라인아트 pure SVG 벡터 생성 모델",
+        name: "Recraft v3 SVG",
+        description: "SVG 로고·아이콘·라인아트",
         options: [
           {
             id: "style",
