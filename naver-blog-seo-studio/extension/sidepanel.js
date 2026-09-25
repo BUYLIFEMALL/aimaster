@@ -8,6 +8,12 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 let webDrafts = [];
 let activeWebDraftId = "";
+let activeWebDraftTags = [];
+
+function getWebDraftTags(draft) {
+  const rawKeywords = Array.isArray(draft.keywords) ? draft.keywords : String(draft.keywords || "").split(",");
+  return [...new Set(rawKeywords.map((tag) => String(tag).trim().replace(/^#+/, "")).filter((tag) => tag.length >= 2))].slice(0, 10);
+}
 
 function formatWebDraftLabel(draft) {
   const date = draft.extension_handoff_at ? new Date(draft.extension_handoff_at).toLocaleDateString("ko-KR") : "";
@@ -47,6 +53,9 @@ async function loadSelectedWebDraft() {
   $("body").value = draft.body || "";
   clearGeneratedImage();
   activeWebDraftId = draft.id;
+  activeWebDraftTags = getWebDraftTags(draft);
+  $("webDraftTagSuggestion").hidden = activeWebDraftTags.length === 0;
+  $("webDraftTagList").textContent = activeWebDraftTags.length ? activeWebDraftTags.map((tag) => `#${tag}`).join(" ") : "";
   const token = await getToken();
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
@@ -702,6 +711,12 @@ $("loadWebDraft").addEventListener("click", () => {
   loadSelectedWebDraft().catch((error) => {
     $("webDraftStatus").textContent = `웹 초안 불러오기 실패: ${error instanceof Error ? error.message : String(error)}`;
   });
+});
+
+$("applyWebDraftTags").addEventListener("click", () => {
+  if (!activeWebDraftTags.length) return ($("webDraftStatus").textContent = "먼저 웹 초안을 불러오세요.");
+  $("publishTags").value = activeWebDraftTags.join(", ");
+  $("webDraftStatus").textContent = "추천 태그를 발행 정보에 넣었습니다. 필요하면 수정한 뒤 카테고리·태그 입력을 실행하세요.";
 });
 
 $("runSeoCheck").addEventListener("click", () => {
