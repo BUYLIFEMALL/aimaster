@@ -446,49 +446,49 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "openai",
     name: "OpenAI (GPT Image)",
     apiKeyProvider: "openai",
-    description: "OpenAI 최신 GPT Image 라인업",
+    description: "DALL-E 3 & GPT-Image 기반 다채로운 화풍 & 정밀 프롬프트 렌더링",
     iconName: "Sparkles",
     models: [
       {
         id: "gpt-image-2",
         name: "gpt-image-2",
-        description: "표준 편집",
+        description: "표준 비주얼 편집",
         options: GPT_IMAGE_2_OPTIONS
       },
       {
         id: "chatgpt-image-latest",
         name: "chatgpt-image-latest",
-        description: "최신 통합",
+        description: "ChatGPT 최신 통합",
         options: CHATGPT_IMAGE_LATEST_OPTIONS
       },
       {
         id: "gpt-image-1",
         name: "gpt-image-1",
-        description: "표준 모델",
+        description: "표준 모델 1세대",
         options: GPT_IMAGE_1_OPTIONS
       },
       {
         id: "gpt-image-1-mini",
         name: "gpt-image-1-mini",
-        description: "경량 미니",
+        description: "초고속 경량 미니",
         options: GPT_IMAGE_1_MINI_OPTIONS
       },
       {
         id: "gpt-image-1.5",
         name: "gpt-image-1.5",
-        description: "차세대 고성능",
+        description: "차세대 고성능 비주얼",
         options: GPT_IMAGE_1_5_OPTIONS
       },
       {
         id: "gpt-image-2.5-flare",
         name: "gpt-image-2.5-flare",
-        description: "고품질 일상",
+        description: "고품질 데일리 렌더링",
         options: CHATGPT_IMAGE_LATEST_OPTIONS
       },
       {
         id: "gpt-image-2.5-sunburst",
         name: "gpt-image-2.5-sunburst",
-        description: "최상위 플래그십",
+        description: "최상위 플래그십 비주얼",
         options: CHATGPT_IMAGE_LATEST_OPTIONS
       }
     ]
@@ -497,31 +497,31 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "gemini",
     name: "Google Gemini (Nanobanana)",
     apiKeyProvider: "gemini",
-    description: "Gemini 3.1 Flash / NanoBanana 고품질 엔진",
+    description: "Gemini 3.1 Flash 기반 2K/4K 시네마틱 & 고화질 비주얼 스튜디오",
     iconName: "Image",
     models: [
       {
         id: "nanobanana-2-2k",
         name: "NanoBanana 2-2K",
-        description: "2K 고화질 비주얼 (추천)",
+        description: "2K 고화질 시네마틱 비주얼 (추천)",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-pro",
         name: "NanoBanana Pro",
-        description: "정밀 그래픽 & 인포그래픽",
+        description: "정밀 비주얼 & 인포그래픽",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-2-4k",
         name: "NanoBanana 2-4K",
-        description: "4K 초고화질 렌더링",
+        description: "4K 초고해상도 프레임 렌더링",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana",
         name: "NanoBanana Standard",
-        description: "경량 고속 생성",
+        description: "표준 경량 고속 렌더링",
         options: GEMINI_NANOBANANA_OPTIONS
       }
     ]
@@ -530,13 +530,13 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "replicate",
     name: "Replicate (FLUX 2.0 Official)",
     apiKeyProvider: "replicate",
-    description: "Black Forest Labs 공식 FLUX 2.0 (Max / Flex / Dev / Pro) 플래그십 라인업",
+    description: "Black Forest Labs 공식 FLUX 2.0 (Max/Pro/Dev/Flex) 극실사 스튜디오",
     iconName: "Zap",
     models: [
       {
         id: "black-forest-labs/flux-2-dev",
         name: "FLUX 2 [dev]",
-        description: "정밀화질 & 고속 최적화",
+        description: "정밀 디테일 & 초고속 최적화",
         options: [
           {
             id: "go_fast",
@@ -955,13 +955,13 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "zimage",
     name: "Z-Image (Tongyi-MAI)",
     apiKeyProvider: "replicate",
-    description: "Alibaba 6B 초고속 극실사 & 텍스트 (0.5초 생성)",
+    description: "Alibaba 6B 초고속 극실사 & 타이포그래피 (0.5초 초스피드 렌더링)",
     iconName: "Zap",
     models: [
       {
         id: "prunaai/z-image-turbo",
         name: "Z-Image Turbo",
-        description: "초고속 극실사 & 텍스트 (0.5초 생성)",
+        description: "0.5초 초고속 극실사 & 영문 텍스트",
         options: [
           {
             id: "aspect_ratio",
@@ -1059,13 +1059,13 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "seedream",
     name: "Seedream (ByteDance Official)",
     apiKeyProvider: "replicate",
-    description: "ByteDance 플래그십 비주얼 & 시퀀스 (2K/3K/4K)",
+    description: "ByteDance 공식 Seedream 플래그십 비주얼 & 스토리 연작 시퀀스 (2K/3K/4K)",
     iconName: "Sparkles",
     models: [
       {
         id: "bytedance/seedream-5-pro",
         name: "Seedream 5 Pro",
-        description: "플래그십 1K/2K (레이어 분해 지원)",
+        description: "플래그십 1K~2K (레이어 분해 지원)",
         options: [
           {
             id: "size",
@@ -1291,7 +1291,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "ideogram",
     name: "Ideogram (Typo & Text Special)",
     apiKeyProvider: "replicate",
-    description: "영문 텍스트 오타 극복 타이포그래피 & 포스터 특화",
+    description: "영문 텍스트 오타 없는 타이포그래피 & 카드뉴스·포스터 전용 AI 엔진",
     iconName: "Type",
     models: [
       {
@@ -1649,7 +1649,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "recraft",
     name: "Recraft (Vector SVG & Design Graphic)",
     apiKeyProvider: "replicate",
-    description: "순수 SVG 벡터(Pure Vector) 및 디자인 그래픽 특화 AI 모델",
+    description: "순수 SVG 벡터(Pure Vector) & 브랜드 레이어 디자인 그래픽 특화 AI",
     iconName: "Palette",
     models: [
       {
