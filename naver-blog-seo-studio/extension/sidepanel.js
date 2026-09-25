@@ -6,6 +6,51 @@ const PUBLISH_SETTINGS_KEY = "seoStudioPublishSettings";
 const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+let webDrafts = [];
+
+function formatWebDraftLabel(draft) {
+  const date = draft.extension_handoff_at ? new Date(draft.extension_handoff_at).toLocaleDateString("ko-KR") : "";
+  return `${draft.title || "제목 없는 초안"}${date ? ` · ${date}` : ""}`;
+}
+
+async function refreshWebDrafts() {
+  const token = await getToken();
+  if (!token) throw new Error("먼저 SEO Studio 연결 토큰을 입력해주세요.");
+  const status = $("webDraftStatus");
+  status.textContent = "웹 초안을 불러오는 중...";
+  const response = await fetch(`${BASE}/api/extension/drafts/library`, { headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || `웹 초안 조회 실패 (${response.status})`);
+  webDrafts = Array.isArray(result.drafts) ? result.drafts : [];
+  const select = $("webDraftList");
+  select.textContent = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = webDrafts.length ? "불러올 초안을 선택하세요." : "전송된 웹 초안이 없습니다.";
+  select.append(placeholder);
+  for (const draft of webDrafts) {
+    const option = document.createElement("option");
+    option.value = draft.id;
+    option.textContent = formatWebDraftLabel(draft);
+    select.append(option);
+  }
+  status.textContent = webDrafts.length ? `${webDrafts.length}개의 웹 초안을 불러왔습니다.` : "전송된 웹 초안이 없습니다. 대시보드에서 초안을 보내주세요.";
+}
+
+async function loadSelectedWebDraft() {
+  const draft = webDrafts.find((item) => item.id === $("webDraftList").value);
+  if (!draft) throw new Error("불러올 웹 초안을 먼저 선택해주세요.");
+  $("topic").value = draft.topic || "";
+  $("keywords").value = Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "";
+  $("title").value = draft.title || "";
+  $("body").value = draft.body || "";
+  clearGeneratedImage();
+  const token = await getToken();
+  const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
+  $("webDraftStatus").textContent = "웹 초안을 불러왔습니다. 필요하면 대표 이미지를 생성한 뒤 네이버 편집기에 입력하세요.";
+}
 
 function clearGeneratedImage() {
   $("generatedImage").removeAttribute("src");
@@ -625,6 +670,18 @@ async function fillDraftIntoNaver() {
 }
 
 $("fill").addEventListener("click", fillDraftIntoNaver);
+
+$("refreshWebDrafts").addEventListener("click", () => {
+  refreshWebDrafts().catch((error) => {
+    $("webDraftStatus").textContent = `웹 초안 조회 실패: ${error instanceof Error ? error.message : String(error)}`;
+  });
+});
+
+$("loadWebDraft").addEventListener("click", () => {
+  loadSelectedWebDraft().catch((error) => {
+    $("webDraftStatus").textContent = `웹 초안 불러오기 실패: ${error instanceof Error ? error.message : String(error)}`;
+  });
+});
 
 $("runSeoCheck").addEventListener("click", () => {
   runSeoReview().catch((error) => {

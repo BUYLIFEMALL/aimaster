@@ -26,6 +26,9 @@ export default function StudioPage({ email }: { email: string }) {
   const [history, setHistory] = useState<{ id: string; topic: string; keywords: string[]; title: string; body: string; created_at: string }[]>([]);
   const [imagePending, setImagePending] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
+  const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
+  const [handoffPending, setHandoffPending] = useState(false);
+  const [handoffMessage, setHandoffMessage] = useState("");
 
   useEffect(() => {
     fetch("/api/drafts/history").then((response) => response.ok ? response.json() : { drafts: [] }).then((result: { drafts?: typeof history }) => setHistory(result.drafts ?? [])).catch(() => setHistory([]));
@@ -36,6 +39,8 @@ export default function StudioPage({ email }: { email: string }) {
     setKeywords(Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "");
     setSelectedTitle(draft.title);
     setExistingBody(draft.body);
+    setExtensionDraftId(draft.id);
+    setHandoffMessage("");
     setMessage("기존 생성 기록을 작업 화면에 불러왔습니다.");
   }
 
@@ -74,13 +79,34 @@ export default function StudioPage({ email }: { email: string }) {
     setMessage("AI가 초안을 준비하고 있습니다. 잠시만 기다려주세요.");
     try {
       const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords, strategy, selectedTitle }) });
-      const result = await response.json() as { draft?: { title: string; body: string }; error?: string };
+      const result = await response.json() as { draft?: { id?: string; title: string; body: string }; error?: string };
       if (!response.ok) throw new Error(result.error || "초안 생성에 실패했습니다.");
+      setExtensionDraftId(result.draft?.id ?? null);
+      setSelectedTitle(result.draft?.title ?? selectedTitle);
+      setExistingBody(result.draft?.body ?? "");
+      setHandoffMessage("");
+      fetch("/api/drafts/history").then((historyResponse) => historyResponse.ok ? historyResponse.json() : { drafts: [] }).then((historyResult: { drafts?: typeof history }) => setHistory(historyResult.drafts ?? [])).catch(() => {});
       setMessage(`초안이 준비되었습니다: ${result.draft?.title ?? "제목 없음"}`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "초안 생성에 실패했습니다.");
     } finally {
       setPending(false);
+    }
+  }
+
+  async function sendDraftToExtension() {
+    if (!extensionDraftId) return setHandoffMessage("생성 기록에서 초안을 먼저 선택해주세요.");
+    setHandoffPending(true);
+    setHandoffMessage("확장 프로그램 전송함에 초안을 준비하는 중...");
+    try {
+      const response = await fetch("/api/drafts/handoff", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: extensionDraftId }) });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || "초안 전송 준비에 실패했습니다.");
+      setHandoffMessage("확장 프로그램 전송함에 준비했습니다. Chrome 확장에서 ‘웹 초안 새로고침’ 후 불러오세요.");
+    } catch (error) {
+      setHandoffMessage(error instanceof Error ? error.message : "초안 전송 준비에 실패했습니다.");
+    } finally {
+      setHandoffPending(false);
     }
   }
 
@@ -146,6 +172,13 @@ export default function StudioPage({ email }: { email: string }) {
         <section className="history-card card" id="history">
           <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span></div>
           {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{new Date(draft.created_at).toLocaleDateString("ko-KR")}</time></button>)}</div>}
+        </section>
+
+        <section className="extension-handoff-card card" aria-labelledby="extension-handoff-title">
+          <div className="card-head"><h2 id="extension-handoff-title" className="card-title">Chrome 확장으로 보내기</h2><span className="card-caption">내 계정 전용</span></div>
+          <p className="handoff-description">선택한 웹 초안을 본인 Chrome 확장 프로그램 전송함에 준비합니다. 대표 이미지는 저장소에 복제하지 않으며, 확장에서 다시 생성할 수 있습니다.</p>
+          <button className="secondary" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "선택한 초안 확장으로 보내기"}</button>
+          {handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}
         </section>
 
         <section className="image-generation-card card" id="image">

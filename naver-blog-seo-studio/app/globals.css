@@ -172,6 +172,9 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .extension-update-note { margin-top: 10px !important; color: #a05a1c !important; }
 .extension-installed-button { display: inline-flex; margin: 14px 0 0 7px; border: 1px solid #c8d8e8; border-radius: 10px; background: #fff; color: #315b84; padding: 10px 13px; font-size: 12px; font-weight: 800; cursor: pointer; }
 .image-generation-card { margin-top: 18px; }
+.extension-handoff-card { margin-top: 18px; border-color: #d7e5f3; }
+.handoff-description, .handoff-status { margin: -4px 0 13px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.handoff-status { margin: 10px 0 0; color: #315b84; font-weight: 700; }
 .image-generation-description { margin: -4px 0 13px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .generated-image-preview { margin-top: 16px; overflow: hidden; border: 1px solid #d8e4f2; border-radius: 12px; background: #f8fbff; }
 .generated-image-preview img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
