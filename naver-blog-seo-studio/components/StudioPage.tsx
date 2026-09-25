@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 const strategies = [
-  ["C-Rank 기본", "전문성과 경험 중심"],
-  ["ALCON", "검색 의도 확장"],
-  ["AEO", "AI 브리핑 구조"],
-  ["홈판 스토리", "공감과 체류시간"],
-  ["인사이트 엣지", "좁고 깊은 관점"],
+  ["C-Rank 기본", "전문성과 실제 경험 중심의 일반 SEO 초안"],
+  ["ALCON", "여러 검색 의도를 소제목별로 넓게 답하는 구성"],
+  ["AEO", "첫 요약, 비교, FAQ 중심의 답변형 구조"],
+  ["홈판 스토리", "공감되는 이야기 흐름과 읽기 체류를 고려한 구성"],
+  ["인사이트 엣지", "좁은 주제를 깊게 다루고 실용적 판단 기준을 제시"],
 ];
 
 export default function StudioPage({ email }: { email: string }) {
