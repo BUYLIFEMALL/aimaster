@@ -1065,7 +1065,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "bytedance/seedream-5-pro",
         name: "Seedream 5 Pro",
-        description: "플래그십 1K~2K (레이어 분해 지원)",
+        description: "플래그십 (레이어 분해)",
         options: [
           {
             id: "size",
@@ -1121,7 +1121,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "bytedance/seedream-5-lite",
         name: "Seedream 5.0 Lite",
-        description: "2K~3K 고화질 (연작 시퀀스 1~15장)",
+        description: "2K~3K (1~15장 연작)",
         options: [
           {
             id: "size",
@@ -1189,7 +1189,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "bytedance/seedream-4.5",
         name: "Seedream 4.5",
-        description: "2K~4K 해상도 (공간 이해 강화)",
+        description: "2K~4K (공간 구도 강화)",
         options: [
           {
             id: "size",
@@ -1365,7 +1365,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "ideogram-ai/ideogram-v4-turbo",
         name: "Ideogram v4 Turbo",
-        description: "v4 초고속 터보 ($0.03/장)",
+        description: "v4 초고속 가성비 터보",
         options: [
           {
             id: "resolution",
