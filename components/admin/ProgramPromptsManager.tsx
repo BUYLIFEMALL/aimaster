@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Sparkles,
   Plus,
@@ -89,14 +89,29 @@ export default function ProgramPromptsManager({ initialPrompts, programsList }: 
     }
   };
 
-  // 카테고리 목록 추출
+  // 프로그램 선택 변경 시 카테고리 초기화
+  const handleProgramChange = (progSlug: string) => {
+    setSelectedProgram(progSlug);
+    setSelectedCategory("all");
+  };
+
+  // 선택된 프로그램에 대응하는 카테고리 목록만 연동 추출
   const availableCategories = useMemo(() => {
     const categories = new Set<string>();
     prompts.forEach((p) => {
-      if (p.category) categories.add(p.category);
+      if (selectedProgram === "all" || p.program_slug === selectedProgram || p.program_slug === "all") {
+        if (p.category) categories.add(p.category);
+      }
     });
     return Array.from(categories);
-  }, [prompts]);
+  }, [prompts, selectedProgram]);
+
+  // 카테고리 선택 안전 자동 조정
+  useEffect(() => {
+    if (selectedCategory !== "all" && !availableCategories.includes(selectedCategory)) {
+      setSelectedCategory("all");
+    }
+  }, [selectedProgram, availableCategories, selectedCategory]);
 
   // 필터링된 프롬프트 목록
   const filteredPrompts = useMemo(() => {
@@ -327,7 +342,7 @@ export default function ProgramPromptsManager({ initialPrompts, programsList }: 
             <Filter size={14} className="text-gold" />
             <select
               value={selectedProgram}
-              onChange={(e) => setSelectedProgram(e.target.value)}
+              onChange={(e) => handleProgramChange(e.target.value)}
               className="bg-transparent text-white focus:outline-none cursor-pointer font-medium"
             >
               <option value="all" className="bg-zinc-900 text-white">

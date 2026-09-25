@@ -13,7 +13,11 @@ export interface ProgramPromptItem {
 }
 
 export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
-  // 1. 실사 포토리얼리즘 (10개)
+  // =================================================================
+  // 1. AI 이미지 스튜디오 (ai-image-studio) - 13개 화풍 x 10개 = 130개
+  // =================================================================
+
+  // 1-1. 실사 포토리얼리즘 (10개)
   {
     id: "photo-1",
     program_slug: "ai-image-studio",
@@ -125,7 +129,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 2. 3D 디지털 아트 (10개)
+  // 1-2. 3D 디지털 아트 (10개)
   {
     id: "3d-1",
     program_slug: "ai-image-studio",
@@ -237,7 +241,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 3. 감성 패션 화보 (10개)
+  // 1-3. 감성 패션 화보 (10개)
   {
     id: "fashion-1",
     program_slug: "ai-image-studio",
@@ -349,7 +353,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 4. 벡터 일러스트 (10개)
+  // 1-4. 벡터 일러스트 (10개)
   {
     id: "vec-1",
     program_slug: "ai-image-studio",
@@ -461,7 +465,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 5. 사이버펑크 네온 (10개)
+  // 1-5. 사이버펑크 네온 (10개)
   {
     id: "cyber-1",
     program_slug: "ai-image-studio",
@@ -573,7 +577,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 6. 동양 수묵화 (10개)
+  // 1-6. 동양 수묵화 (10개)
   {
     id: "ink-1",
     program_slug: "ai-image-studio",
@@ -685,7 +689,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 7. 수채화 파스텔 (10개)
+  // 1-7. 수채화 파스텔 (10개)
   {
     id: "water-1",
     program_slug: "ai-image-studio",
@@ -797,7 +801,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 8. 35mm 필름 (10개)
+  // 1-8. 35mm 필름 (10개)
   {
     id: "film-1",
     program_slug: "ai-image-studio",
@@ -909,7 +913,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 9. 클레이 스톱모션 (10개)
+  // 1-9. 클레이 스톱모션 (10개)
   {
     id: "clay-1",
     program_slug: "ai-image-studio",
@@ -1021,7 +1025,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 10. 웹툰 라인아트 (10개)
+  // 1-10. 웹툰 라인아트 (10개)
   {
     id: "toon-1",
     program_slug: "ai-image-studio",
@@ -1133,7 +1137,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 11. 건축 & 인테리어 (10개)
+  // 1-11. 건축 & 인테리어 (10개)
   {
     id: "arch-1",
     program_slug: "ai-image-studio",
@@ -1245,7 +1249,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 12. 다크 판타지 (10개)
+  // 1-12. 다크 판타지 (10개)
   {
     id: "dark-1",
     program_slug: "ai-image-studio",
@@ -1357,7 +1361,7 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 13. 미니멀 플랫 아트 (10개)
+  // 1-13. 미니멀 플랫 아트 (10개)
   {
     id: "flat-1",
     program_slug: "ai-image-studio",
@@ -1469,38 +1473,518 @@ export const INITIAL_IMAGE_STUDIO_PROMPTS: ProgramPromptItem[] = [
     sort_order: 10,
   },
 
-  // 기타 프로그램 샘플
-  {
-    id: "blog-1",
-    program_slug: "ai-auto-blog",
-    category: "SEO 가이드",
-    title: "초보자 가이드 작성",
-    prompt_text: "당신은 전문 IT 기술 블로거입니다. '{keyword}'에 대해 SEO 구조로 제목과 서론, 본문 3가지 팁, 결론을 작성하세요.",
-    description: "SEO 블로그 원문 작성 템플릿",
-    tags: ["SEO", "블로그", "가이드"],
-    is_active: true,
-    sort_order: 1,
-  },
-  {
-    id: "threads-1",
-    program_slug: "auto-threads-posting",
-    category: "바이럴 숏폼",
-    title: "직장인 공감 텍스트",
-    prompt_text: "Threads 바이럴 문구를 만듭니다. 가독성을 높인 숏폼 한글 텍스트와 명언 1줄로 마무리하세요.",
-    description: "Threads 알고리즘 맞춤 숏폼",
-    tags: ["Threads", "바이럴", "공감"],
-    is_active: true,
-    sort_order: 1,
-  },
+  // =================================================================
+  // 2. 음악(SUNO)자동화 (music-automation) - 10개
+  // =================================================================
   {
     id: "music-1",
     program_slug: "music-automation",
     category: "K-POP 신스팝",
     title: "청량한 여름 밤 신스팝",
-    prompt_text: "Upbeat Korean Synthpop, bright synthesizer melody, punchy bassline, catchy chorus, energetic vocal, 128 bpm",
-    description: "Suno AI 프롬프트 예시",
-    tags: ["Suno", "신스팝", "K-POP"],
+    prompt_text: "Upbeat Korean Synthpop, bright synthesizer melody, punchy bassline, catchy chorus, energetic vocal, 128 bpm, summer night vibe",
+    description: "Suno AI 청량한 여름 밤 K-POP 신스팝",
+    tags: ["Suno", "K-POP", "신스팝", "여름"],
     is_active: true,
     sort_order: 1,
+  },
+  {
+    id: "music-2",
+    program_slug: "music-automation",
+    category: "K-POP 신스팝",
+    title: "감성 몽환적 드림팝",
+    prompt_text: "Dreamy K-POP Synthpop, ethereal female vocal, lush reverb pads, gentle synth lead, 110 bpm, starry night atmosphere",
+    description: "Suno AI 감성 몽환적 K-POP 드림팝",
+    tags: ["Suno", "K-POP", "신스팝", "드림팝"],
+    is_active: true,
+    sort_order: 2,
+  },
+  {
+    id: "music-3",
+    program_slug: "music-automation",
+    category: "K-POP 발라드",
+    title: "비 오르는 거리 감성 발라드",
+    prompt_text: "Emotional Korean Ballad, grand piano prelude, rich string quartet, expressive acoustic guitar, passionate male vocal",
+    description: "Suno AI 애절한 피아노 스트링 K-POP 발라드",
+    tags: ["Suno", "K-POP", "발라드", "피아노"],
+    is_active: true,
+    sort_order: 3,
+  },
+  {
+    id: "music-4",
+    program_slug: "music-automation",
+    category: "힙합 / R&B",
+    title: "트렌디 트랩 R&B 비트",
+    prompt_text: "Trendy Korean R&B Hip Hop, smooth Electric Piano chords, 808 bass, crisp snare, romantic vocal hook, 95 bpm",
+    description: "Suno AI 808 베이스 트렌디 R&B 트랙",
+    tags: ["Suno", "R&B", "힙합", "808"],
+    is_active: true,
+    sort_order: 4,
+  },
+  {
+    id: "music-5",
+    program_slug: "music-automation",
+    category: "Lofi 힐링",
+    title: "새벽 비 내리는 카페 Lofi Beats",
+    prompt_text: "Relaxing Lofi Hip Hop beats, dusty vinyl crackle, warm rhodes keys, mellow bass, rain sound ambiance, 80 bpm",
+    description: "Suno AI 잔잔한 공부용 Lofi 비트",
+    tags: ["Suno", "Lofi", "힐링", "공부음악"],
+    is_active: true,
+    sort_order: 5,
+  },
+  {
+    id: "music-6",
+    program_slug: "music-automation",
+    category: "EDM 페스티벌",
+    title: "파워풀 하우스 EDM 드롭",
+    prompt_text: "High Energy Festival EDM, progressive house, synth lead drop, heavy bassline, 128 bpm, euphoric climax",
+    description: "Suno AI 페스티벌 하우스 EDM 드롭",
+    tags: ["Suno", "EDM", "하우스", "페스티벌"],
+    is_active: true,
+    sort_order: 6,
+  },
+  {
+    id: "music-7",
+    program_slug: "music-automation",
+    category: "레트로 시티팝",
+    title: "도쿄 야경 80s 레트로 시티팝",
+    prompt_text: "Groovy 80s Retro Japanese City Pop, funk bassline, brass brass brass section, vintage electric guitar, nostalgic chorus",
+    description: "Suno AI 80년대 레트로 시티팝",
+    tags: ["Suno", "시티팝", "레트로", "80s"],
+    is_active: true,
+    sort_order: 7,
+  },
+  {
+    id: "music-8",
+    program_slug: "music-automation",
+    category: "어쿠스틱 포크",
+    title: "따스한 햇살 어쿠스틱 듀엣",
+    prompt_text: "Warm Acoustic Folk, fingerstyle acoustic guitar, gentle cello, harmonious male-female duet vocals, campfire vibe",
+    description: "Suno AI 따스한 핑거스타일 어쿠스틱 포크",
+    tags: ["Suno", "어쿠스틱", "포크", "기타"],
+    is_active: true,
+    sort_order: 8,
+  },
+  {
+    id: "music-9",
+    program_slug: "music-automation",
+    category: "시네마틱 오케스트라",
+    title: "웅장한 판타지 아픽 오케스트라",
+    prompt_text: "Epic Cinematic Orchestra, powerful taiko drums, brass fanfare, choir vocals, dramatic climax, film soundtrack",
+    description: "Suno AI 영화 음악 판타지 오케스트라",
+    tags: ["Suno", "시네마틱", "오케스트라", "영화음악"],
+    is_active: true,
+    sort_order: 9,
+  },
+  {
+    id: "music-10",
+    program_slug: "music-automation",
+    category: "재즈 피아노",
+    title: "심야 재즈 바 피아노 솔로",
+    prompt_text: "Smooth Midnight Jazz Piano, walking acoustic bass, subtle brush drums, romantic bar atmosphere, swing rhythm",
+    description: "Suno AI 심야 분위기 재즈 피아노",
+    tags: ["Suno", "재즈", "피아노", "스윙"],
+    is_active: true,
+    sort_order: 10,
+  },
+
+  // =================================================================
+  // 3. BLOG(원문)생성 자동화 (ai-auto-blog) - 10개
+  // =================================================================
+  {
+    id: "blog-1",
+    program_slug: "ai-auto-blog",
+    category: "SEO 가이드",
+    title: "#초보자 완벽 입문 가이드",
+    prompt_text: "당신은 전문 IT/테크 블로거입니다. '{keyword}'에 대해 SEO 구조로 제목과 서론(독자 동기부여), 본문 3가지 핵심 팁(H2/H3 소제목 및 체크리스트), 결론 요약을 작성하세요.",
+    description: "네이버 & 구글 SEO 최적화 정보성 가이드",
+    tags: ["SEO", "블로그", "가이드", "IT테크"],
+    is_active: true,
+    sort_order: 1,
+  },
+  {
+    id: "blog-2",
+    program_slug: "ai-auto-blog",
+    category: "SEO 가이드",
+    title: "#사용 후기 및 솔직 장단점 리뷰",
+    prompt_text: "실제 구매자의 솔직한 내돈내산 후기 스타일로 '{keyword}'의 사용 경험, 장점 3가지, 단점 1가지, 최종 별점과 추천 대상을 체계적으로 작성해주세요.",
+    description: "내돈내산 솔직 리뷰 포스팅",
+    tags: ["리뷰", "후기", "내돈내산", "장단점"],
+    is_active: true,
+    sort_order: 2,
+  },
+  {
+    id: "blog-3",
+    program_slug: "ai-auto-blog",
+    category: "SEO 가이드",
+    title: "#맛집 / 핫플레이스 탐방 일기",
+    prompt_text: "감성적인 대화체로 '{keyword}' 맛집의 위치, 내부 분위기, 대표 메뉴 시식평, 주차 팁과 꿀팁 정보를 네이버 블로그 생생한 말투로 작성해 주세요.",
+    description: "네이버 블로그 맞춤 맛집/핫플 후기",
+    tags: ["맛집", "핫플", "탐방", "대화체"],
+    is_active: true,
+    sort_order: 3,
+  },
+  {
+    id: "blog-4",
+    program_slug: "ai-auto-blog",
+    category: "SEO 가이드",
+    title: "#여행 코스 추천 & 일정 가이드",
+    prompt_text: "'{keyword}' 여행을 계획하는 여행객을 위해 1박 2일 추천 코스, 시간대별 이동 동선, 필수 방문지 및 사진 스팟을 친절히 정리해주세요.",
+    description: "여행 1박 2일 코스 가이드 작성",
+    tags: ["여행", "코스", "1박2일", "사진스팟"],
+    is_active: true,
+    sort_order: 4,
+  },
+  {
+    id: "blog-5",
+    program_slug: "ai-auto-blog",
+    category: "SEO 가이드",
+    title: "#재테크 및 금융 상식 정리",
+    prompt_text: "'{keyword}'에 관한 복잡한 금융/재테크 개념을 사회초년생도 쉽게 이해할 수 있도록 예시와 함께 3단계 핵심 포인트로 깔끔하게 설명해주세요.",
+    description: "쉬운 재테크 및 금융 정보 정리",
+    tags: ["재테크", "금융", "사회초년생", "정보성"],
+    is_active: true,
+    sort_order: 5,
+  },
+
+  // =================================================================
+  // 1-14. AI 이미지 스튜디오 - 바이럴 숏폼 (10개)
+  // =================================================================
+  {
+    id: "viral-img-1",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - 충격적인 표정 인물 컷",
+    prompt_text: "Super dramatic close-up reaction shot of a 20s East Asian model with mouth wide open in utter shock, high contrast studio lighting, viral thumbnail style, 8k resolution",
+    description: "유튜브 쇼츠 & 릴스 조회수 폭발하는 충격 표정 썸네일",
+    tags: ["바이럴", "숏폼", "인물", "썸네일"],
+    is_active: true,
+    sort_order: 131,
+  },
+  {
+    id: "viral-img-2",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - 억만장자 루틴 3D 아이콘",
+    prompt_text: "3D isometric miniature house with floating gold coins, glowing credit cards, luxury car, Pixar style 3D render, vibrant pastel background, viral YouTube shorts thumbnail",
+    description: "재테크/부자 숏폼에 최적화된 화려한 3D 입체 그래픽",
+    tags: ["바이럴", "3D", "재테크", "입체아트"],
+    is_active: true,
+    sort_order: 132,
+  },
+  {
+    id: "viral-img-3",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - 네온 미래도시 사이버 히어로",
+    prompt_text: "Cinematic full body shot of a Korean cyberpunk warrior standing on a neon rooftop overlooking rainy futuristic Seoul at night, high action posture, 8k",
+    description: "SF/테크 숏폼에 적합한 몰입감 높은 네온 사이버 히어로",
+    tags: ["바이럴", "사이버펑크", "SF", "시네마틱"],
+    is_active: true,
+    sort_order: 133,
+  },
+  {
+    id: "viral-img-4",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - 비밀 미스터리 고대 신전",
+    prompt_text: "Mysterious glowing ancient Korean temple hidden inside a dark cavern with golden light beams, mysterious atmosphere, octane render 8k",
+    description: "미스터리/상식 숏폼용 몽환적 고대 신전 시네마틱 컷",
+    tags: ["바이럴", "미스터리", "신전", "시네마틱"],
+    is_active: true,
+    sort_order: 134,
+  },
+  {
+    id: "viral-img-5",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - AI 상상 동물 크리처",
+    prompt_text: "Ultra adorable glowing baby dragon resting inside a teacup with magical sparkles, watercolor pastel digital art, cute viral visual",
+    description: "귀엽고 환상적인 분위기의 힐링/동물 숏폼 컷",
+    tags: ["바이럴", "귀여움", "드래곤", "파스텔"],
+    is_active: true,
+    sort_order: 135,
+  },
+  {
+    id: "viral-img-6",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - 직장인 퇴사 성공 드라마",
+    prompt_text: "A happy 20s East Asian man throwing paperwork in the air with a huge smile in front of a modern skyscraper, dynamic motion blur, high energy photo",
+    description: "직장인 공감/자기계발 숏폼용 에너지 넘치는 인물 컷",
+    tags: ["바이럴", "직장인", "성공", "동기부여"],
+    is_active: true,
+    sort_order: 136,
+  },
+  {
+    id: "viral-img-7",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - 비포&애프터 드라마틱 조명",
+    prompt_text: "Split lighting portrait of a East Asian model, left side dark monochrome, right side glowing golden hour light, high contrast dramatic thumbnail",
+    description: "비포&애프터 및 라이프 변화 숏폼용 시네마틱 포트레이트",
+    tags: ["바이럴", "비포애프터", "포트레이트", "시네마틱"],
+    is_active: true,
+    sort_order: 137,
+  },
+  {
+    id: "viral-img-8",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - 우주 공간 지구 뷰",
+    prompt_text: "Breathtaking view of planet Earth from a spaceship window, cinematic volumetric light, astronaut silhouette, 8k sci-fi masterpiece",
+    description: "우주/과학/지식 숏폼용 웅장한 아쿠아 시네마 비주얼",
+    tags: ["바이럴", "우주", "지구", "시네마틱"],
+    is_active: true,
+    sort_order: 138,
+  },
+  {
+    id: "viral-img-9",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - 맛집 시그니처 음식 폭발",
+    prompt_text: "Extreme close-up shot of juicy Korean fried chicken with melting cheese pull, steam rising, macro photography, mouth-watering viral food photo",
+    description: "먹방/맛집/음식 숏폼용 시각적 자극 최고조 극사실 사진",
+    tags: ["바이럴", "음식", "치킨", "먹방"],
+    is_active: true,
+    sort_order: 139,
+  },
+  {
+    id: "viral-img-10",
+    program_slug: "ai-image-studio",
+    category: "바이럴 숏폼",
+    title: "#바이럴 숏폼 - K-POP 아이돌 콘서트 조명",
+    prompt_text: "Dynamic stage lighting photography of a East Asian K-POP idol performing in front of a stadium crowd of 50,000 people with purple light sticks, 8k photo",
+    description: "음악/K-POP 숏폼용 웅장한 콘서트 무대 사진",
+    tags: ["바이럴", "K-POP", "콘서트", "아이돌"],
+    is_active: true,
+    sort_order: 140,
+  },
+
+  // =================================================================
+  // 4. Threads 포스팅 자동화 (auto-threads-posting) - 10개
+  // =================================================================
+  {
+    id: "threads-1",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#직장인 폭풍 공감 숏폼",
+    prompt_text: "Threads에서 조회수가 폭발하는 공감형 글입니다. 150자 이내로 가독성 높게 한 줄씩 띄어쓰기를 적용하고, 직장인들의 일상 한탄과 강렬한 동기부여 명언 1줄로 마무리하세요.",
+    description: "Threads 알고리즘 맞춤 숏폼 문구",
+    tags: ["Threads", "바이럴", "공감", "직장인"],
+    is_active: true,
+    sort_order: 1,
+  },
+  {
+    id: "threads-2",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#자기계발 습관 루틴 한 줄",
+    prompt_text: "매일 1% 성장하는 사람들의 3가지 비밀에 대한 단문 스레드입니다. 호기심을 유발하는 질문으로 시작해 댓글 참여를 자연스럽게 유도해 주세요.",
+    description: "댓글 유도형 자기계발 스레드",
+    tags: ["Threads", "자기계발", "습관", "댓글유도"],
+    is_active: true,
+    sort_order: 2,
+  },
+  {
+    id: "threads-3",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#트렌딩 이슈 한마디 큐레이션",
+    prompt_text: "최근 이슈가 되는 테크/라이프 트렌드 한 가지를 쉽게 요약하고 독자의 의견을 묻는 매력적인 질문 텍스트를 작성해주세요.",
+    description: "트렌드 요약 질문 스레드",
+    tags: ["Threads", "트렌드", "큐레이션", "질문"],
+    is_active: true,
+    sort_order: 3,
+  },
+  {
+    id: "threads-4",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#돈 버는 사람들의 3가지 공통점",
+    prompt_text: "월 1천만 원 이상 버는 1인 사업가들의 공통된 사고방식 3가지를 임팩트 있게 정리한 스레드입니다.",
+    description: "사업가/부자 인사이트 스레드",
+    tags: ["Threads", "1인사업", "부자", "인사이트"],
+    is_active: true,
+    sort_order: 4,
+  },
+  {
+    id: "threads-5",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#퇴근 후 1시간 사이드 프로젝트",
+    prompt_text: "퇴근 후 무자본으로 시작할 수 있는 AI 부업 아이디어 3가지를 정리하고 후킹 문구로 끌어당기는 텍스트입니다.",
+    description: "부업/사이드 프로젝트 스레드",
+    tags: ["Threads", "부업", "퇴근후", "무자본"],
+    is_active: true,
+    sort_order: 5,
+  },
+  {
+    id: "threads-6",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#멘탈 흔들릴 때 읽는 3문장",
+    prompt_text: "번아웃이 찾아온 사람들에게 건네는 따뜻하면서도 명확한 해결책 3문장의 감성 힐링 텍스트입니다.",
+    description: "번아웃 힐링 문장 스레드",
+    tags: ["Threads", "번아웃", "힐링", "멘탈관리"],
+    is_active: true,
+    sort_order: 6,
+  },
+  {
+    id: "threads-7",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#인간관계 스트레스 제로 법칙",
+    prompt_text: "손절해야 할 사람의 특징 2가지와 나만의 선을 지키는 매너에 대한 거침없는 사이다 라이프 팁.",
+    description: "인간관계 사이다 조언 스레드",
+    tags: ["Threads", "인간관계", "사이다", "조언"],
+    is_active: true,
+    sort_order: 7,
+  },
+  {
+    id: "threads-8",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#생산성 10배 올리는 AI 툴 3선",
+    prompt_text: "실무에서 매일 쓰는 업무 효율 최강 AI 도구 3가지와 각각의 1초 활용 꿀팁 단문 스레드.",
+    description: "생산성 AI 툴 추천 스레드",
+    tags: ["Threads", "AI툴", "생산성", "업무효율"],
+    is_active: true,
+    sort_order: 8,
+  },
+  {
+    id: "threads-9",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#실패 없는 주말 힐링 루틴",
+    prompt_text: "월요병을 완벽하게 예방하는 일요일 저녁 30분 마인드셋 정리법 스레드.",
+    description: "월요병 예방 주말 루틴",
+    tags: ["Threads", "주말루틴", "월요병", "마인드셋"],
+    is_active: true,
+    sort_order: 9,
+  },
+  {
+    id: "threads-10",
+    program_slug: "auto-threads-posting",
+    category: "바이럴 숏폼",
+    title: "#20대에 알았으면 좋았을 5가지",
+    prompt_text: "시간과 돈을 절약해 준 인생의 5가지 교훈을 숫자로 명확히 나열한 스레드.",
+    description: "인생 교훈 수치화 스레드",
+    tags: ["Threads", "인생교훈", "20대", "꿀팁"],
+    is_active: true,
+    sort_order: 10,
+  },
+
+  // =================================================================
+  // 5. YOUTUBE Shots 자동화 (auto-shorts-posting) - 10개
+  // =================================================================
+  {
+    id: "shorts-1",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#상위 1% 성공 습관 3가지 쇼츠",
+    prompt_text: "유튜브 쇼츠 조회수 100만 회 이상 폭발하는 50초 대본. [후킹]: '아직도 아침 7시에 일어난다고요?' [본문]: 1. 수면 주기 활용 2. 5분 햇빛 3. 미지근한 물. [행동유도]: '저장해 두세요!'",
+    description: "유튜브 쇼츠 알고리즘 맞춤 100만 조회수 대본",
+    tags: ["유튜브쇼츠", "바이럴", "성공습관", "동기부여"],
+    is_active: true,
+    sort_order: 1,
+  },
+  {
+    id: "shorts-2",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#반전 결말 미스터리 퀴즈",
+    prompt_text: "시청 지속시간 90% 달성 30초 반전 퀴즈 쇼츠 대본. 카운트다운 후 모두가 틀리기 쉬운 질문 제시, 마지막 5초 예상치 못한 반전 공개로 댓글 논쟁 유도.",
+    description: "댓글 논쟁 반응 유도 반전 퀴즈",
+    tags: ["유튜브쇼츠", "퀴즈", "반전", "댓글유도"],
+    is_active: true,
+    sort_order: 2,
+  },
+  {
+    id: "shorts-3",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#퇴사 후 월 500만 원 번 스토리",
+    prompt_text: "몰입감 높은 스토리텔링 쇼츠 대본. 실패 경험 5초 → 발견한 꿀팁 15초 → 현실 수익 증거 10초 → 무료 가이드 신청 방법.",
+    description: "수익 인증 스토리텔링 숏폼",
+    tags: ["유튜브쇼츠", "스토리텔링", "부업", "수익인증"],
+    is_active: true,
+    sort_order: 3,
+  },
+  {
+    id: "shorts-4",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#아이폰 유저 99% 모르는 꿀기능",
+    prompt_text: "유용한 IT/테크 쇼츠 프롬프트. 화면 조작 스텝 바이 스텝 설명, '자세한 설정 방법은 고정 댓글 참고' 후킹 문구.",
+    description: "아이폰 숨겨진 꿀팁 숏폼 대본",
+    tags: ["유튜브쇼츠", "아이폰", "테크", "꿀팁"],
+    is_active: true,
+    sort_order: 4,
+  },
+  {
+    id: "shorts-5",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#5분 홈트레이닝 뱃살 파괴 챌린지",
+    prompt_text: "다이어트/건강 쇼츠 대본. 신나는 비트 음악에 맞춰 따라하기 쉬운 3가지 운동 동작 (자막 크고 직관적으로 표시).",
+    description: "따라하기 쉬운 홈트 챌린지 숏폼",
+    tags: ["유튜브쇼츠", "다이어트", "홈트", "운동"],
+    is_active: true,
+    sort_order: 5,
+  },
+  {
+    id: "shorts-6",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#100년 후 한국의 미래 모습 시네마틱",
+    prompt_text: "AI 쇼츠 갤러리 영상 프롬프트. 100년 후 서울, 부산, 한옥의 변화 모습을 시네마틱 비주얼과 함께 설명하는 서스펜스 숏폼.",
+    description: "AI 시네마틱 미래 한국 비주얼 숏폼",
+    tags: ["유튜브쇼츠", "AI시네마틱", "미래한국", "비주얼"],
+    is_active: true,
+    sort_order: 6,
+  },
+  {
+    id: "shorts-7",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#절대 사면 안 되는 전자제품 낭비템",
+    prompt_text: "쇼핑/상품 추천 쇼츠 프롬프트. 낭비템 2개와 대체 필수템 1개를 대비하여 빠르게 전달하는 비교 분석 대본.",
+    description: "전자제품 구매 비교 분석 숏폼",
+    tags: ["유튜브쇼츠", "쇼핑", "비교분석", "전자제품"],
+    is_active: true,
+    sort_order: 7,
+  },
+  {
+    id: "shorts-8",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#연봉 2배 올린 1분 면접 대답법",
+    prompt_text: "취업/커리어 숏폼 대본. 면접관의 곤란한 질문에 대한 나쁜 대답(X)과 완벽한 대답(O) 비포&애프터 템플릿.",
+    description: "면접 대답 비포&애프터 숏폼",
+    tags: ["유튜브쇼츠", "면접", "커리어", "이직"],
+    is_active: true,
+    sort_order: 8,
+  },
+  {
+    id: "shorts-9",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#1,000원으로 만드는 편의점 고급 요리",
+    prompt_text: "요리/자취 꿀팁 쇼츠 대본. 편의점 재료로 만드는 초간단 고퀄리티 레시피, 15초 컷 빠른 편집 가이드.",
+    description: "초간단 자취 레시피 숏폼",
+    tags: ["유튜브쇼츠", "요리", "자취", "레시피"],
+    is_active: true,
+    sort_order: 9,
+  },
+  {
+    id: "shorts-10",
+    program_slug: "auto-shorts-posting",
+    category: "바이럴 숏폼",
+    title: "#주식 초보자가 피해야 할 실수 3가지",
+    prompt_text: "재테크/금융 쇼츠 프롬프트. 초보 개미들의 뇌동매매 방지 팁과 계좌 관리법 3가지 핵심 요약.",
+    description: "주식 초보 뇌동매매 방지 숏폼",
+    tags: ["유튜브쇼츠", "주식", "재테크", "초보투자"],
+    is_active: true,
+    sort_order: 10,
   }
 ];
