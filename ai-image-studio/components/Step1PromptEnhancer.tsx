@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { 
   Wand2, Sparkles, ArrowRight, RefreshCw, AlertCircle, Copy, Check, 
   Camera, Box, Palette, Layers, Zap, Tag, RotateCcw,
-  Feather, Brush, Film, Smile, PenTool, Building2, Flame, LayoutGrid
+  Feather, Brush, Film, Smile, PenTool, Building2, Flame, LayoutGrid, FileText
 } from "lucide-react";
 
 interface Step1PromptEnhancerProps {
@@ -261,7 +262,7 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
 
   return (
     <div id="step1-container" className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-7 backdrop-blur-xl space-y-6 shadow-xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 px-3.5 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 shrink-0 whitespace-nowrap">
             <span className="text-sm font-bold">Step 1</span>
@@ -276,6 +277,14 @@ export function Step1PromptEnhancer({ onApplyPrompt }: Step1PromptEnhancerProps)
             </p>
           </div>
         </div>
+
+        <Link
+          href="/prompts"
+          className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 transition-colors shrink-0 shadow-sm shadow-amber-500/10"
+        >
+          <FileText className="h-4 w-4 text-amber-400" />
+          <span>📝 프롬프트 게시판 관리 (추가·수정·삭제)</span>
+        </Link>
       </div>
 
       {/* Preset Style Selector */}

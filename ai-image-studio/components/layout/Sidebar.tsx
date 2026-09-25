@@ -79,15 +79,45 @@ export function Sidebar({ userEmail = "buylifemall@naver.com" }: { userEmail?: s
           })}
         </nav>
 
+        {/* 프롬프트 게시판 관리 Section (Prominent Highlight) */}
+        <div className="mt-4 border-t border-zinc-800/80 pt-4 space-y-1">
+          <p className="px-2 text-[11px] font-bold text-amber-500/80 uppercase tracking-wider mb-1">
+            프롬프트 데이터 관리
+          </p>
+          <Link
+            href="/prompts"
+            className={`group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
+              pathname?.startsWith("/prompts")
+                ? "bg-amber-500/10 border border-amber-500/40 text-amber-300 shadow-md shadow-amber-500/10"
+                : "bg-zinc-900/60 border border-zinc-800 text-zinc-200 hover:border-amber-500/30 hover:bg-zinc-900 hover:text-amber-300"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-base">📝</span>
+              <div>
+                <p className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors">
+                  화풍 프롬프트 게시판
+                </p>
+                <p className="text-[10px] text-zinc-400 font-normal">
+                  예시 프롬프트 추가·수정·삭제
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full bg-amber-500/20 text-amber-300 px-2 py-0.5 text-[10px] font-extrabold border border-amber-500/30">
+              관리
+            </span>
+          </Link>
+        </div>
+
         {/* API키등록·플랫폼연동 Block */}
-        <div className="mt-6 border-t border-zinc-800/80 pt-3">
-          {UTILITY_ITEMS.map((item) => {
+        <div className="mt-4 border-t border-zinc-800/80 pt-3">
+          {UTILITY_ITEMS.filter((item) => item.href !== "/prompts").map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+                className={`block rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
                   isActive
                     ? "bg-amber-500/10 text-amber-400 font-bold border border-amber-500/30"
                     : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
