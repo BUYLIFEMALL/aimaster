@@ -497,31 +497,31 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "gemini",
     name: "Google Gemini (Nanobanana)",
     apiKeyProvider: "gemini",
-    description: "Gemini 3.1 Flash / NanoBanana 엔진 기반 고품질 이미지 스튜디오",
+    description: "Gemini 3.1 Flash / NanoBanana 고품질 엔진",
     iconName: "Image",
     models: [
       {
         id: "nanobanana-2-2k",
         name: "NanoBanana 2-2K",
-        description: "2K 고화질 비주얼 이미지 생성 (추천 / gemini-2.5-flash-image)",
+        description: "2K 고화질 비주얼 (추천)",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-pro",
         name: "NanoBanana Pro",
-        description: "프로페셔널 정밀 그래픽 & 인포그래픽 (gemini-3-pro-image-preview)",
+        description: "정밀 그래픽 & 인포그래픽",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana-2-4k",
         name: "NanoBanana 2-4K",
-        description: "4K 울트라 HD 초고화질 상세 렌더링 (gemini-3-pro-image-preview)",
+        description: "4K 초고화질 렌더링",
         options: GEMINI_NANOBANANA_OPTIONS
       },
       {
         id: "nanobanana",
         name: "NanoBanana Standard",
-        description: "Gemini 2.5 Flash 기반 빠르고 경량화된 생성",
+        description: "경량 고속 생성",
         options: GEMINI_NANOBANANA_OPTIONS
       }
     ]
@@ -955,13 +955,13 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "zimage",
     name: "Z-Image (Tongyi-MAI)",
     apiKeyProvider: "replicate",
-    description: "Alibaba 6B 초고속 극실사 & 텍스트 렌더링 스튜디오 (0.5초 생성)",
+    description: "Alibaba 6B 초고속 극실사 & 텍스트 (0.5초 생성)",
     iconName: "Zap",
     models: [
       {
         id: "prunaai/z-image-turbo",
         name: "Z-Image Turbo",
-        description: "Alibaba 6B 초고속 극실사 & 텍스트 렌더링 (0.5초 생성)",
+        description: "초고속 극실사 & 텍스트 (0.5초 생성)",
         options: [
           {
             id: "aspect_ratio",
@@ -1059,13 +1059,13 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "seedream",
     name: "Seedream (ByteDance Official)",
     apiKeyProvider: "replicate",
-    description: "ByteDance 공식 Seedream 플래그십 비주얼 & 시퀀스 이미지 생성 라인업 (2K/3K/4K 고해상도 지원)",
+    description: "ByteDance 플래그십 비주얼 & 시퀀스 (2K/3K/4K)",
     iconName: "Sparkles",
     models: [
       {
         id: "bytedance/seedream-5-pro",
         name: "Seedream 5 Pro",
-        description: "ByteDance 플래그십 텍스트-투-이미지 & 레이어 분해 정밀 조절 1K/2K 모델",
+        description: "플래그십 1K/2K (레이어 분해 지원)",
         options: [
           {
             id: "size",
@@ -1121,7 +1121,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "bytedance/seedream-5-lite",
         name: "Seedream 5.0 Lite",
-        description: "ByteDance 최신 플래그십 (2K~3K 고화질, 추론 엔진 & 연작 시퀀스 생성 지원)",
+        description: "2K~3K 고화질 (연작 시퀀스 1~15장)",
         options: [
           {
             id: "size",
@@ -1189,7 +1189,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "bytedance/seedream-4.5",
         name: "Seedream 4.5",
-        description: "공간 이해도 & 세계지식 강화 버전 (2K~4K 해상도 & 커스텀 크기 지원)",
+        description: "2K~4K 해상도 (공간 이해 강화)",
         options: [
           {
             id: "size",
@@ -1291,13 +1291,13 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
     id: "ideogram",
     name: "Ideogram (Typo & Text Special)",
     apiKeyProvider: "replicate",
-    description: "영문 텍스트 표기 오류(Typo)를 극복한 타이포그래피 & 카드뉴스·포스터 전용 AI 엔진",
+    description: "영문 텍스트 오타 극복 타이포그래피 & 포스터 특화",
     iconName: "Type",
     models: [
       {
         id: "ideogram-ai/ideogram-v4-quality",
         name: "Ideogram v4 Quality",
-        description: "Ideogram 최신 v4 플래그십 품질 모델 (압도적 사실감 & 정밀 타이포그래피)",
+        description: "v4 최고화질 & 정밀 타이포",
         options: [
           {
             id: "resolution",
@@ -1332,7 +1332,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "ideogram-ai/ideogram-v4-balanced",
         name: "Ideogram v4 Balanced",
-        description: "v4 밸런스드 모델 (속도, 화질, 가성비의 완벽한 조화)",
+        description: "v4 밸런스 (화질·속도 균형)",
         options: [
           {
             id: "resolution",
@@ -1365,7 +1365,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "ideogram-ai/ideogram-v4-turbo",
         name: "Ideogram v4 Turbo",
-        description: "v4 초고속 터보 모델 (최고 가성비 $0.03/장 초고속 렌더링)",
+        description: "v4 초고속 터보 ($0.03/장)",
         options: [
           {
             id: "resolution",
@@ -1396,7 +1396,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "ideogram-ai/ideogram-character",
         name: "Ideogram Character",
-        description: "단일 참조 이미지 기반 일관된 인물/캐릭터 비주얼 자동 유지 모델",
+        description: "참조 이미지 캐릭터 일관성 유지",
         options: [
           {
             id: "character_reference_image",
@@ -1472,7 +1472,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "ideogram-ai/ideogram-v3-turbo",
         name: "Ideogram v3 Turbo",
-        description: "최신 V3 터보 엔진 (영문 텍스트 오타 없는 타이포그래피 & 시각 디자인 특화)",
+        description: "v3 타이포그래피 & 시각 디자인",
         options: [
           {
             id: "aspect_ratio",
@@ -1534,7 +1534,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "ideogram-ai/ideogram-v2-turbo",
         name: "Ideogram v2 Turbo",
-        description: "v2 터보 스피드 엔진 (고속 텍스트 & 카드뉴스 디자인 생성)",
+        description: "v2 고속 텍스트 & 카드뉴스",
         options: [
           {
             id: "aspect_ratio",
@@ -1592,7 +1592,7 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
       {
         id: "ideogram-ai/ideogram-v2",
         name: "Ideogram v2 Standard",
-        description: "v2 표준 고품질 정밀 텍스트 렌더링 엔진",
+        description: "v2 표준 정밀 텍스트",
         options: [
           {
             id: "aspect_ratio",
