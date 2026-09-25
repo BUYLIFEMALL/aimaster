@@ -13,6 +13,7 @@ const strategies = [
 
 export default function StudioPage({ email }: { email: string }) {
   const [strategy, setStrategy] = useState(strategies[0][0]);
+  const [activeMenu, setActiveMenu] = useState("new-draft");
   const [topic, setTopic] = useState("");
   const [keywords, setKeywords] = useState("");
   const [message, setMessage] = useState("아직 생성된 초안이 없습니다.");
@@ -39,6 +40,21 @@ export default function StudioPage({ email }: { email: string }) {
   useEffect(() => {
     fetch("/api/drafts/history").then((response) => response.ok ? response.json() : { drafts: [] }).then((result: { drafts?: typeof history }) => setHistory(result.drafts ?? [])).catch(() => setHistory([]));
   }, []);
+
+  useEffect(() => {
+    const sections = ["new-draft", "title", "draft", "history"].map((id) => document.getElementById(id)).filter((section): section is HTMLElement => Boolean(section));
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target.id) setActiveMenu(visible.target.id);
+    }, { rootMargin: "-18% 0px -62% 0px", threshold: [0.05, 0.2] });
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  function moveToSection(id: string) {
+    setActiveMenu(id);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function reuseDraft(draft: (typeof history)[number]) {
     setTopic(draft.topic);
@@ -141,10 +157,10 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="brand-sub">네이버 블로그 콘텐츠 제작 도우미</div>
         </div>
         <nav className="nav" aria-label="주 메뉴">
-          <button className="nav-link active">새 글 만들기</button>
-          <button className="nav-link">제목 추천</button>
-          <button className="nav-link">기존 글 최적화</button>
-          <button className="nav-link">생성 기록</button>
+          <button type="button" className={`nav-link ${activeMenu === "new-draft" ? "active" : ""}`} aria-current={activeMenu === "new-draft" ? "page" : undefined} onClick={() => moveToSection("new-draft")}>새 글 만들기</button>
+          <button type="button" className={`nav-link ${activeMenu === "title" ? "active" : ""}`} aria-current={activeMenu === "title" ? "page" : undefined} onClick={() => moveToSection("title")}>제목 추천</button>
+          <button type="button" className={`nav-link ${activeMenu === "draft" ? "active" : ""}`} aria-current={activeMenu === "draft" ? "page" : undefined} onClick={() => moveToSection("draft")}>기존 글 최적화</button>
+          <button type="button" className={`nav-link ${activeMenu === "history" ? "active" : ""}`} aria-current={activeMenu === "history" ? "page" : undefined} onClick={() => moveToSection("history")}>생성 기록</button>
           <a className="nav-link utility" href="/settings">API키등록·플랫폼연동</a>
         </nav>
         <div className="sidebar-account" title={email}>
@@ -164,7 +180,7 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="account">AIMaster 계정 연동 전</div>
         </div>
 
-        <section className="card new-draft-card">
+        <section className="card new-draft-card" id="new-draft">
           <div className="card-head"><h2 className="card-title">새 글 기획</h2><span className="card-caption">1 / 3 단계</span></div>
           <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
           <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="쉼표로 구분해 입력하세요" /></div>
@@ -172,13 +188,13 @@ export default function StudioPage({ email }: { email: string }) {
           <button className="primary" onClick={prepareDraft} disabled={pending}>{pending ? "초안 생성 중..." : "AI 초안 생성하기"}</button>
         </section>
 
-        <div className="title-recommendation card">
+        <div className="title-recommendation card" id="title">
           <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">검색 의도 기반 5개</span></div>
           <button className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천"}</button>
           {recommendedTitles.length > 0 && <div className="title-list">{recommendedTitles.map((item, index) => <button key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`} onClick={() => setSelectedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button>)}</div>}
         </div>
 
-        <section className="optimize-card card">
+        <section className="optimize-card card" id="draft">
           <div className="card-head"><h2 className="card-title">기존 글 최적화</h2><span className="card-caption">의미는 유지하고 SEO 개선</span></div>
           <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="기존 네이버 블로그 글을 붙여넣으세요 (50자 이상)" />
           <button className="secondary" onClick={optimizeExisting} disabled={optimizePending}>{optimizePending ? "최적화 중..." : "기존 글 최적화"}</button>
