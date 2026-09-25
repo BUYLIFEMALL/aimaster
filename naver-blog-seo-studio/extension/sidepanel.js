@@ -7,6 +7,12 @@ const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+function clearGeneratedImage() {
+  $("generatedImage").removeAttribute("src");
+  $("downloadImage").removeAttribute("href");
+  $("imagePreview").hidden = true;
+}
+
 async function getToken() { return (await chrome.storage.local.get(KEY))[KEY] || ""; }
 
 async function getNaverBlogTab() {
@@ -418,6 +424,7 @@ $("generate").addEventListener("click", async () => {
   $("generateStatus").textContent = "초안을 생성하는 중입니다...";
   try {
     const includeImage = $("includeImage").checked;
+    clearGeneratedImage();
     const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage }) });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || `생성 실패 (${response.status})`);
@@ -446,7 +453,9 @@ $("generateAndFill").addEventListener("click", async () => {
     $("generateStatus").textContent = "초안을 생성하는 중입니다...";
     const token = await getToken();
     const topic = $("topic").value.trim();
-    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage: $("includeImage").checked }) });
+    const includeImage = $("includeImage").checked;
+    clearGeneratedImage();
+    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: "C-Rank 기본", includeImage }) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || `생성 실패 (${response.status})`);
     $("title").value = result.title || "";
@@ -456,6 +465,11 @@ $("generateAndFill").addEventListener("click", async () => {
       $("generatedImage").src = result.image.dataUrl;
       $("downloadImage").href = result.image.dataUrl;
       $("imagePreview").hidden = false;
+    }
+    if (includeImage && !result.image?.dataUrl) {
+      const reason = result.imageError || "이미지 데이터를 받지 못했습니다.";
+      $("generateStatus").textContent = `대표 이미지 생성 실패: ${reason} 네이버 입력은 실행하지 않았습니다. Gemini API 키·선택 모델·할당량을 확인한 뒤 다시 시도하세요.`;
+      return;
     }
     $("generateStatus").textContent = "초안 생성 완료 · 네이버 글쓰기 탭을 찾는 중...";
     const filled = await fillDraftIntoNaver();
