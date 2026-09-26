@@ -65,6 +65,11 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .title-management-head h3 { margin: 0; font-size: 14px; }
 .title-management-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 .title-management-head > span { flex: 0 0 auto; border-radius: 999px; background: #f6efe9; color: #8b5540; padding: 6px 9px; font-size: 11px; font-weight: 800; }
+.image-with-draft-option { display: flex; align-items: flex-start; gap: 9px; margin-top: 13px; border: 1px solid #eadfd4; border-radius: 10px; background: #fffcf9; padding: 11px 12px; cursor: pointer; }
+.image-with-draft-option input { width: 16px; height: 16px; margin: 1px 0 0; accent-color: var(--accent); }
+.image-with-draft-option strong, .image-with-draft-option small { display: block; }
+.image-with-draft-option strong { color: var(--ink); font-size: 13px; }
+.image-with-draft-option small { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .title-list { display: grid; gap: 8px; margin-top: 14px; }
 .title-option { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; border: 1px solid var(--line); border-radius: 10px; background: #fff; overflow: hidden; }
 .title-option:hover { border-color: var(--accent); background: var(--accent-soft); }
