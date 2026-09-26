@@ -6,18 +6,15 @@ import { signOutAction } from "@/lib/actions/auth";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
-// 대시보드는 순서 개념 없는 개요라 번호 없이 최상단에 두고, "트렌드 키워드 찾기 → 상품 관리 →
-// 게시글 관리"는 순차 흐름(상품검색→게시글작성→게시)이라 스텝퍼로 보여준다. API키등록과
-// Threads 계정 연결(OAuth)이 /settings 한 페이지에 같이 있어 유틸리티 항목은 하나로 합쳤다.
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
 const FLOW_STEPS = [
   {
     step: 1,
     href: "/trends",
-    icon: "🔍",
-    label: "트렌드 키워드 찾기",
-    description: "요즘 뜨는 상품 키워드 먼저 확인",
+    icon: "🔥",
+    label: "트렌드 & 떡상 탐지기",
+    description: "바이럴 떡상글 탐지 & AI 벤치마킹",
   },
   {
     step: 2,
@@ -44,7 +41,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:h-full md:w-64 md:justify-between md:border-b-0 md:border-r">
+    <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:min-h-screen md:w-64 md:shrink-0 md:justify-between md:border-b-0 md:border-r">
       <div>
         <div className="mb-4 md:mb-6">
           <div className="px-2 text-lg font-semibold text-neutral-900">
@@ -63,7 +60,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             href={OVERVIEW_ITEM.href}
             className={`mb-2 block rounded-lg px-3 py-2 text-sm font-medium ${
               pathname?.startsWith(OVERVIEW_ITEM.href)
-                ? "bg-sky-50 text-sky-700"
+                ? "bg-sky-50 text-sky-700 font-bold"
                 : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
             }`}
           >
@@ -75,13 +72,12 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               const isActive = pathname?.startsWith(item.href);
               const isLast = idx === FLOW_STEPS.length - 1;
               return (
-                <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-1">
-                  {/* 스텝 번호 + 연결선 */}
+                <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-2">
                   <div className="flex flex-col items-center">
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                         isActive
-                          ? "bg-sky-600 text-white"
+                          ? "bg-amber-500 text-white"
                           : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
                       }`}
                     >
@@ -90,13 +86,12 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     {!isLast && <span className="mt-1 w-px flex-1 bg-neutral-200" />}
                   </div>
 
-                  {/* 라벨 + 설명 */}
                   <div
-                    className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 ${
-                      isActive ? "bg-sky-50" : "group-hover:bg-neutral-50"
+                    className={`min-w-0 flex-1 rounded-lg px-2.5 py-1.5 transition-colors ${
+                      isActive ? "bg-amber-50" : "group-hover:bg-neutral-50"
                     }`}
                   >
-                    <p className={`text-sm font-bold ${isActive ? "text-sky-700" : "text-neutral-800"}`}>
+                    <p className={`text-sm font-bold ${isActive ? "text-amber-900" : "text-neutral-800"}`}>
                       {item.icon} {item.label}
                     </p>
                     <p className="text-xs text-neutral-500">{item.description}</p>
@@ -125,7 +120,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </div>
       </div>
 
-      <div className="mt-4 border-t border-neutral-200 pt-4 md:mt-0">
+      <div className="mt-6 border-t border-neutral-200 pt-4">
         <p className="mb-2 truncate px-2 text-xs text-neutral-500">{userEmail}</p>
         <form action={signOutAction}>
           <button
