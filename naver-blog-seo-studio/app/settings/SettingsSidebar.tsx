@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const flow = [
-  ["/dashboard", "1", "새 글 만들기", "AI 초안 작성"],
-  ["/dashboard#title", "2", "제목 추천", "검색 의도 분석"],
+  ["/dashboard#title", "1", "제목 추천", "검색 의도 분석"],
+  ["/dashboard#new-draft", "2", "새 글 만들기", "AI 초안 작성"],
   ["/dashboard#draft", "3", "기존 글 최적화", "콘텐츠 개선"],
   ["/dashboard#history", "4", "생성 기록", "작성한 초안 확인"],
 ];

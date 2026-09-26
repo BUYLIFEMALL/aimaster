@@ -54,7 +54,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .primary { border: 0; width: 100%; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; padding: 14px; margin-top: 22px; }
 .primary:disabled { opacity: .6; cursor: wait; }
 .primary:hover { filter: brightness(.96); }
-.title-recommendation { margin-top: 24px; }
+.title-recommendation { margin-top: 20px; }
 .secondary { border: 1px solid var(--accent); border-radius: 10px; background: var(--accent-soft); color: var(--accent); padding: 10px 14px; font-size: 13px; font-weight: 700; }
 .secondary:disabled { opacity: .55; cursor: wait; }
 .title-list { display: grid; gap: 8px; margin-top: 14px; }
