@@ -11,6 +11,27 @@ const strategies = [
   ["인사이트 엣지", "좁은 주제를 깊게 다루고 실용적 판단 기준을 제시"],
 ];
 
+type DraftRecord = {
+  id: string;
+  topic: string;
+  keywords: string[];
+  title: string;
+  body: string;
+  seo_report?: Record<string, string> | null;
+  created_at?: string;
+  naver_input_status?: "not_started" | "in_progress" | "completed" | "failed";
+  naver_input_completed_at?: string | null;
+  naver_input_error?: string | null;
+};
+
+const reportLabels: Record<string, string> = {
+  searchIntent: "검색 의도",
+  strength: "초안 강점",
+  factCheck: "사실 확인",
+  readability: "가독성",
+  paragraphCount: "문단 수",
+};
+
 export default function StudioPage({ email }: { email: string }) {
   const [strategy, setStrategy] = useState(strategies[0][0]);
   const [activeMenu, setActiveMenu] = useState("title");
@@ -24,7 +45,8 @@ export default function StudioPage({ email }: { email: string }) {
   const [existingBody, setExistingBody] = useState("");
   const [optimizePending, setOptimizePending] = useState(false);
   const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
-  const [history, setHistory] = useState<{ id: string; topic: string; keywords: string[]; title: string; body: string; created_at: string; naver_input_status?: "not_started" | "in_progress" | "completed" | "failed"; naver_input_completed_at?: string | null; naver_input_error?: string | null }[]>([]);
+  const [history, setHistory] = useState<DraftRecord[]>([]);
+  const [currentDraft, setCurrentDraft] = useState<DraftRecord | null>(null);
   const [imagePending, setImagePending] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
@@ -60,7 +82,8 @@ export default function StudioPage({ email }: { email: string }) {
     setTopic(draft.topic);
     setKeywords(Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "");
     setSelectedTitle(draft.title);
-    setExistingBody(draft.body);
+    setCurrentDraft(draft);
+    setGeneratedImage(null);
     setExtensionDraftId(draft.id);
     setHandoffMessage("");
     setMessage("기존 생성 기록을 작업 화면에 불러왔습니다.");
@@ -101,14 +124,18 @@ export default function StudioPage({ email }: { email: string }) {
     setMessage("AI가 초안을 준비하고 있습니다. 잠시만 기다려주세요.");
     try {
       const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords, strategy, selectedTitle }) });
-      const result = await response.json() as { draft?: { id?: string; title: string; body: string }; error?: string };
+      const result = await response.json() as { draft?: { id: string; title: string; body: string; seo_report?: Record<string, string> | null; created_at?: string }; error?: string };
       if (!response.ok) throw new Error(result.error || "초안 생성에 실패했습니다.");
-      setExtensionDraftId(result.draft?.id ?? null);
-      setSelectedTitle(result.draft?.title ?? selectedTitle);
-      setExistingBody(result.draft?.body ?? "");
+      const draft = result.draft;
+      if (!draft) throw new Error("생성된 초안 결과를 받지 못했습니다.");
+      setExtensionDraftId(draft.id);
+      setSelectedTitle(draft.title);
+      setCurrentDraft({ ...draft, topic, keywords: keywords.split(",").map((keyword) => keyword.trim()).filter(Boolean) });
+      setGeneratedImage(null);
       setHandoffMessage("");
       refreshHistory().catch(() => {});
-      setMessage(`초안이 준비되었습니다: ${result.draft?.title ?? "제목 없음"}`);
+      setMessage(`초안이 준비되었습니다: ${draft.title}`);
+      requestAnimationFrame(() => document.getElementById("draft-result")?.scrollIntoView({ behavior: "smooth", block: "start" }));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "초안 생성에 실패했습니다.");
     } finally {
@@ -133,11 +160,11 @@ export default function StudioPage({ email }: { email: string }) {
   }
 
   async function generateImage() {
-    if (!topic.trim()) return setMessage("이미지 생성 전에 주제를 입력해주세요.");
+    if (!topic.trim() || !currentDraft) return setMessage("먼저 AI 초안을 생성하거나 생성 기록에서 초안을 선택해주세요.");
     setImagePending(true);
     setMessage("나노바나나가 블로그 대표 이미지를 생성하고 있습니다.");
     try {
-      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, title: selectedTitle, keywords }) });
+      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, title: currentDraft.title, keywords }) });
       const result = await response.json() as { image?: { dataUrl: string; model: string }; error?: string };
       if (!response.ok || !result.image) throw new Error(result.error || "이미지 생성에 실패했습니다.");
       setGeneratedImage(result.image);
@@ -148,6 +175,16 @@ export default function StudioPage({ email }: { email: string }) {
   }
 
   const activeHistoryDraft = history.find((draft) => draft.id === extensionDraftId);
+
+  async function copyDraftText() {
+    if (!currentDraft) return;
+    try {
+      await navigator.clipboard.writeText(`${currentDraft.title}\n\n${currentDraft.body}`);
+      setMessage("제목과 본문을 클립보드에 복사했습니다.");
+    } catch {
+      setMessage("복사에 실패했습니다. 브라우저의 클립보드 권한을 확인해주세요.");
+    }
+  }
 
   return (
     <div className="studio-shell">
@@ -195,6 +232,19 @@ export default function StudioPage({ email }: { email: string }) {
           <button className="primary" onClick={prepareDraft} disabled={pending}>{pending ? "초안 생성 중..." : "AI 초안 생성하기"}</button>
         </section>
 
+        {currentDraft && <section className="draft-result-card card" id="draft-result" aria-labelledby="draft-result-title">
+          <div className="card-head"><div><h2 id="draft-result-title" className="card-title">생성된 초안</h2><p className="draft-result-subtitle">검토 후 대표 이미지와 Chrome 확장 전송까지 이어서 진행하세요.</p></div><span className="draft-ready-badge">3 / 3 단계 · 준비 완료</span></div>
+          <div className="draft-result-meta"><span>주제: {currentDraft.topic}</span><span>전략: {strategy}</span><span>키워드: {currentDraft.keywords.join(", ") || "없음"}</span></div>
+          <div className="draft-result-grid">
+            <article className="draft-content-preview"><div className="preview-label">제목</div><h3>{currentDraft.title}</h3><div className="preview-label">본문 미리보기</div><pre>{currentDraft.body}</pre><button type="button" className="secondary" onClick={copyDraftText}>제목·본문 복사</button></article>
+            <aside className="draft-actions-panel">
+              <div className="seo-report"><h3>SEO·사실 확인</h3>{Object.entries(currentDraft.seo_report ?? {}).length ? <dl>{Object.entries(currentDraft.seo_report ?? {}).map(([key, value]) => <div key={key}><dt>{reportLabels[key] ?? key}</dt><dd>{value}</dd></div>)}</dl> : <p>초안의 검색 의도와 사실 확인 항목을 직접 검토해주세요.</p>}</div>
+              <div className="result-action"><strong>대표 이미지</strong><p>선택한 제목을 바탕으로 나노바나나 이미지를 생성합니다.</p><button className="secondary" onClick={generateImage} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : generatedImage ? "대표 이미지 다시 생성" : "나노바나나 이미지 생성"}</button>{generatedImage && <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성된 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div>}</div>
+              <div className="result-action"><strong>Chrome 확장 전송</strong><p>확장에서 제목·이미지·본문을 네이버 편집기로 입력합니다. 최종 발행은 직접 진행합니다.</p><button className="primary compact" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "이 초안을 Chrome 확장으로 보내기"}</button>{handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}</div>
+            </aside>
+          </div>
+        </section>}
+
         <section className="optimize-card card" id="draft">
           <div className="card-head"><h2 className="card-title">기존 글 최적화</h2><span className="card-caption">의미는 유지하고 SEO 개선</span></div>
           <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="기존 네이버 블로그 글을 붙여넣으세요 (50자 이상)" />
@@ -204,23 +254,9 @@ export default function StudioPage({ email }: { email: string }) {
 
         <section className="history-card card" id="history">
           <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span><button className="history-refresh" onClick={() => refreshHistory().catch(() => {})}>상태 새로고침</button></div>
-          {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}</span><time>{new Date(draft.created_at).toLocaleDateString("ko-KR")}</time></button>)}</div>}
+          {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}</span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}
           {activeHistoryDraft?.naver_input_status === "completed" && <p className="history-detail success">확장 입력 검증 완료{activeHistoryDraft.naver_input_completed_at ? ` · ${new Date(activeHistoryDraft.naver_input_completed_at).toLocaleString("ko-KR")}` : ""}. 네이버 최종 발행은 내용을 검토한 뒤 직접 진행하세요.</p>}
           {activeHistoryDraft?.naver_input_status === "failed" && <p className="history-detail error">확장 입력 재확인 필요: {activeHistoryDraft.naver_input_error || "입력 또는 검증 과정에서 오류가 발생했습니다."} 초안을 다시 확장으로 보낸 뒤 재시도할 수 있습니다.</p>}
-        </section>
-
-        <section className="extension-handoff-card card" aria-labelledby="extension-handoff-title">
-          <div className="card-head"><h2 id="extension-handoff-title" className="card-title">Chrome 확장으로 보내기</h2><span className="card-caption">내 계정 전용</span></div>
-          <p className="handoff-description">선택한 웹 초안을 본인 Chrome 확장 프로그램 전송함에 준비합니다. 대표 이미지는 저장소에 복제하지 않으며, 확장에서 다시 생성할 수 있습니다.</p>
-          <button className="secondary" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "선택한 초안 확장으로 보내기"}</button>
-          {handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}
-        </section>
-
-        <section className="image-generation-card card" id="image">
-          <div className="card-head"><h2 className="card-title">AI 대표 이미지</h2><span className="card-caption">나노바나나 2K</span></div>
-          <p className="image-generation-description">주제와 제목을 바탕으로 네이버 블로그용 16:9 이미지를 생성합니다. Gemini API 키가 필요합니다.</p>
-          <button className="secondary" onClick={generateImage} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : "나노바나나 이미지 생성"}</button>
-          {generatedImage && <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성된 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div>}
         </section>
 
         <div className="workspace">
