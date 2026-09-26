@@ -374,11 +374,12 @@ export interface GenerateBenchmarkInput {
   personaDescription?: string;
   aiProvider?: "openai" | "gemini" | "anthropic";
   aiModel?: string;
+  imageModel?: string;
 }
 
 export async function generateBenchmarkCaptionAction(
   input: GenerateBenchmarkInput
-): Promise<{ caption?: string; error?: string }> {
+): Promise<{ caption?: string; imageUrl?: string; error?: string }> {
   const user = await requireProgramAccess();
 
   if (!input.viralContent || !input.productName || !input.affiliateUrl) {
@@ -410,6 +411,7 @@ RULES:
 
   try {
     const supabase = await createClient();
+    let bodyText = "";
 
     if (provider === "anthropic") {
       let claudeKey = await resolveApiKey(supabase, user.id, "anthropic" as any);
@@ -450,19 +452,14 @@ RULES:
         throw new Error(data.error?.message || "Claude API 호출 실패");
       }
 
-      const bodyText = data.content?.[0]?.text?.trim() || "";
+      bodyText = data.content?.[0]?.text?.trim() || "";
       if (!bodyText) throw new Error("Claude가 캡션을 생성하지 못했습니다.");
-
-      const ctaText = input.platform === "coupang" ? "지금 쿠팡에서 확인" : "지금 바로 확인하기";
-      const finalCaption = `${disclosureText}\n\n${bodyText}\n\n${ctaText} ${input.affiliateUrl}`;
 
       await logProgramUsage({
         userId: user.id,
         action: "ai_generate_viral_benchmark_anthropic",
         metadata: { productName: input.productName, platform: input.platform, model: input.aiModel },
       });
-
-      return { caption: finalCaption };
     } else if (provider === "gemini") {
       const geminiKey = await resolveApiKey(supabase, user.id, "gemini");
       if (!geminiKey) {
@@ -478,18 +475,13 @@ RULES:
       const model = genAI.getGenerativeModel({ model: actualModel });
 
       const result = await model.generateContent(prompt);
-      const bodyText = result.response.text().trim();
-
-      const ctaText = input.platform === "coupang" ? "지금 쿠팡에서 확인" : "지금 바로 확인하기";
-      const finalCaption = `${disclosureText}\n\n${bodyText}\n\n${ctaText} ${input.affiliateUrl}`;
+      bodyText = result.response.text().trim();
 
       await logProgramUsage({
         userId: user.id,
         action: "ai_generate_viral_benchmark_gemini",
         metadata: { productName: input.productName, platform: input.platform, model: input.aiModel },
       });
-
-      return { caption: finalCaption };
     } else {
       const openAiKey = await resolveApiKey(supabase, user.id, "openai");
       if (!openAiKey) {
@@ -497,7 +489,7 @@ RULES:
       }
 
       const openai = new OpenAI({ apiKey: openAiKey });
-      let actualModel = input.aiModel || "gpt-5.6-luna";
+      let actualModel = input.aiModel || "gpt-4.1";
       if (actualModel === "gpt-5.6-luna" || actualModel === "gpt-5.6-terra" || actualModel === "gpt-4.1") actualModel = "gpt-4o";
       if (actualModel === "gpt-5.6-sol") actualModel = "gpt-4o";
       if (actualModel === "o3") actualModel = "o3-mini";
@@ -508,22 +500,49 @@ RULES:
         temperature: 0.8,
       });
 
-      const bodyText = completion.choices[0]?.message?.content?.trim() || "";
+      bodyText = completion.choices[0]?.message?.content?.trim() || "";
       if (!bodyText) {
         throw new Error("AI가 캡션을 생성하지 못했습니다.");
       }
-
-      const ctaText = input.platform === "coupang" ? "지금 쿠팡에서 확인" : "지금 바로 확인하기";
-      const finalCaption = `${disclosureText}\n\n${bodyText}\n\n${ctaText} ${input.affiliateUrl}`;
 
       await logProgramUsage({
         userId: user.id,
         action: "ai_generate_viral_benchmark_openai",
         metadata: { productName: input.productName, platform: input.platform, model: input.aiModel },
       });
-
-      return { caption: finalCaption };
     }
+
+    const ctaText = input.platform === "coupang" ? "지금 쿠팡에서 확인" : "지금 바로 확인하기";
+    const finalCaption = `${disclosureText}\n\n${bodyText}\n\n${ctaText} ${input.affiliateUrl}`;
+
+    let generatedImageUrl: string | undefined = undefined;
+    if (input.imageModel && input.imageModel !== "none") {
+      try {
+        const geminiKey = await resolveApiKey(supabase, user.id, "gemini");
+        if (geminiKey) {
+          const imagePrompt = `${input.productName} realistic aesthetic product photo, high resolution, clean background, modern photography`;
+          const imgRes = await generatePostImage({ prompt: imagePrompt, model: input.imageModel as any }, geminiKey);
+          const ext = imgRes.mimeType.split("/")[1] ?? "png";
+          const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+
+          const { error: uploadErr } = await supabase.storage
+            .from("post-images")
+            .upload(path, Buffer.from(imgRes.base64, "base64"), {
+              contentType: imgRes.mimeType,
+              upsert: false,
+            });
+
+          if (!uploadErr) {
+            const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+            generatedImageUrl = data.publicUrl;
+          }
+        }
+      } catch {
+        // ignore image gen failure and return caption
+      }
+    }
+
+    return { caption: finalCaption, imageUrl: generatedImageUrl };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "AI 캡션 생성 실패";
     return { error: msg };
@@ -536,14 +555,15 @@ export async function createDirectBenchmarkPostAction(input: {
   productId?: string;
   platform: AffiliatePlatform;
   affiliateUrl: string;
+  imageUrl?: string;
 }): Promise<{ postId?: string; error?: string }> {
   try {
     const user = await requireProgramAccess();
     const supabase = await createClient();
 
-    let imageUrl: string | null = null;
+    let imageUrl: string | null = input.imageUrl || null;
 
-    if (input.productId) {
+    if (!imageUrl && input.productId) {
       const { data: prod } = await supabase
         .from("affiliate_products")
         .select("image_url")

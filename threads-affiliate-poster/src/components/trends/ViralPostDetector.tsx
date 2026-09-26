@@ -75,7 +75,9 @@ export function ViralPostDetector() {
 
   const [generating, setGenerating] = useState(false);
   const [creatingDirectPost, setCreatingDirectPost] = useState(false);
+  const [imageModel, setImageModel] = useState<string>("nanobanana-2-2k");
   const [generatedCaption, setGeneratedCaption] = useState<string | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -128,7 +130,9 @@ export function ViralPostDetector() {
     if (personaId) setSelectedPersonaId(personaId);
     setAiProvider("openai");
     setAiModel(DEFAULT_AI_MODELS["openai"]);
+    setImageModel("nanobanana-2-2k");
     setGeneratedCaption(null);
+    setGeneratedImageUrl(null);
     setGenError(null);
 
     setLoadingSavedProducts(true);
@@ -157,6 +161,8 @@ export function ViralPostDetector() {
 
     setGenerating(true);
     setGenError(null);
+    setGeneratedCaption(null);
+    setGeneratedImageUrl(null);
 
     let personaDescription = "";
     if (selectedPersonaId === "custom") {
@@ -175,6 +181,7 @@ export function ViralPostDetector() {
       personaDescription,
       aiProvider,
       aiModel,
+      imageModel,
     });
 
     setGenerating(false);
@@ -183,6 +190,7 @@ export function ViralPostDetector() {
       setGenError(res.error);
     } else if (res.caption) {
       setGeneratedCaption(res.caption);
+      setGeneratedImageUrl(res.imageUrl || null);
     }
   };
 
@@ -206,6 +214,7 @@ export function ViralPostDetector() {
       productId: selectedSavedProductId || undefined,
       platform,
       affiliateUrl: affiliateUrl.trim(),
+      imageUrl: generatedImageUrl || undefined,
     });
     setCreatingDirectPost(false);
     if (res.postId) {
@@ -778,17 +787,38 @@ export function ViralPostDetector() {
                 </p>
               )}
 
+              {/* AI 이미지 생성 옵션 셀렉트 (나노바나나) */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-neutral-800 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4 text-amber-500 fill-amber-400" /> AI 이미지 생성 모델 선택 (NanoBanana)
+                  </span>
+                  <span className="text-[10px] text-neutral-400 font-normal">선택 시 캡션과 이미지 동시 생성</span>
+                </label>
+                <select
+                  value={imageModel}
+                  onChange={(e) => setImageModel(e.target.value)}
+                  className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
+                >
+                  <option value="nanobanana-2-2k">🍌 NanoBanana 2-2K (2K 고화질 비주얼 · 기본 추천)</option>
+                  <option value="nanobanana-2-4k">🍌 NanoBanana 2-4K (4K 울트라 HD)</option>
+                  <option value="nanobanana-pro">🍌 NanoBanana Pro (프로페셔널 인포그래픽)</option>
+                  <option value="nanobanana">🍌 NanoBanana Standard (기본 모델)</option>
+                  <option value="none">🚫 이미지 생성 안 함 (텍스트 캡션만 생성)</option>
+                </select>
+              </div>
+
               <button
                 onClick={handleGenerateCaption}
                 disabled={generating}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-400 p-2.5 text-xs font-bold text-white transition-colors"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-400 p-3 text-xs font-bold text-white transition-colors cursor-pointer shadow-xs"
               >
                 {generating ? (
-                  <span>선택된 페르소나 및 {aiProvider === "gemini" ? "Gemini" : "GPT"}로 생성 중...</span>
+                  <span>선택된 페르소나, {aiProvider === "gemini" ? "Gemini" : "GPT"} 및 나노바나나 이미지 생성 중...</span>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4 text-amber-400 fill-amber-300" />
-                    <span>AI 페르소나 바이럴 캡션 1초 만에 생성</span>
+                    <span>✨ AI 쓰레드 캡션 생성하기</span>
                   </>
                 )}
               </button>
@@ -814,6 +844,12 @@ export function ViralPostDetector() {
                   </button>
                 </div>
 
+                {generatedImageUrl && (
+                  <div className="rounded-xl border border-neutral-200 overflow-hidden bg-neutral-900">
+                    <img src={generatedImageUrl} alt="AI 나노바나나 생성 이미지" className="w-full h-48 object-cover" />
+                  </div>
+                )}
+
                 <div className="rounded-xl bg-neutral-900 p-4 text-xs font-mono text-neutral-100 whitespace-pre-line leading-relaxed">
                   {generatedCaption}
                 </div>
@@ -826,7 +862,7 @@ export function ViralPostDetector() {
                     className="flex items-center justify-center gap-2 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 p-3 text-xs font-bold text-white transition-all shadow-xs cursor-pointer"
                   >
                     {creatingDirectPost ? (
-                      <span>AI 이미지 생성 및 완성 게시글 저장 중...</span>
+                      <span>AI 완성 게시글 저장 중...</span>
                     ) : (
                       <>
                         <Sparkles className="h-4 w-4 text-amber-300 fill-amber-300" />
@@ -837,7 +873,7 @@ export function ViralPostDetector() {
                   </button>
 
                   <Link
-                    href={`/posts/new?initialContent=${encodeURIComponent(generatedCaption)}&productId=${selectedSavedProductId}`}
+                    href={`/posts/new?initialContent=${encodeURIComponent(generatedCaption)}&productId=${selectedSavedProductId}&initialImageUrl=${encodeURIComponent(generatedImageUrl || "")}`}
                     className="flex items-center justify-center gap-1.5 w-full rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 p-2.5 text-xs font-bold text-neutral-700 transition-colors"
                   >
                     <span>📝 작성 화면에서 수동 편집하기</span>
