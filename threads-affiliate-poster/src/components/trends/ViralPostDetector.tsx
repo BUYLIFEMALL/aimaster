@@ -40,7 +40,7 @@ const BRAND_TAGS = [
 ];
 
 export function ViralPostDetector() {
-  const [activeSubTab, setActiveSubTab] = useState<"detector" | "saved">("detector");
+  const [activeSubTab, setActiveSubTab] = useState<"detector" | "saved" | "personas">("detector");
 
   const [selectedTag, setSelectedTag] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,6 +68,7 @@ export function ViralPostDetector() {
   const [copied, setCopied] = useState(false);
 
   const fetchPosts = () => {
+    if (activeSubTab === "personas") return;
     setLoading(true);
     startTransition(async () => {
       if (activeSubTab === "saved") {
@@ -104,14 +105,13 @@ export function ViralPostDetector() {
     }
   };
 
-  const openBenchmarkModal = (post: ViralPostItem) => {
+  const openBenchmarkModal = (post: ViralPostItem, personaId?: string) => {
     setActiveModalPost(post);
     setProductName("");
     setAffiliateUrl("");
     setPlatform("coupang");
     setPrice("");
-    setSelectedPersonaId("p-01");
-    setCustomPersonaText("");
+    if (personaId) setSelectedPersonaId(personaId);
     setGeneratedCaption(null);
     setGenError(null);
   };
@@ -165,7 +165,7 @@ export function ViralPostDetector() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between border-b pb-3">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setActiveSubTab("detector")}
             className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
@@ -187,8 +187,99 @@ export function ViralPostDetector() {
             <Bookmark className="h-3.5 w-3.5 fill-current" />
             <span>📁 내 찜 보관함</span>
           </button>
+          <button
+            onClick={() => setActiveSubTab("personas")}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+              activeSubTab === "personas"
+                ? "bg-purple-600 text-white shadow-xs"
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+            }`}
+          >
+            <Bot className="h-3.5 w-3.5" />
+            <span>🎭 AI 페르소나 보관함</span>
+          </button>
         </div>
       </div>
+
+      {activeSubTab === "personas" && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Bot className="h-5 w-5 text-purple-600" />
+              <h3 className="font-bold text-base text-neutral-900">학습된 AI 페르소나 스타일 모음</h3>
+            </div>
+            <p className="text-xs text-neutral-600 leading-relaxed">
+              Threads 포스팅 생성 시 적용할 페르소나(글쓰기 어조 및 인격)를 미리 확인하고 선택해보세요. OpenAI GPT-4o-mini 및 Google Gemini 1.5 엔진이 선택된 페르소나에 맞춰 떡상 바이럴 캡션을 자동 생성합니다.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {PRESET_PERSONAS.map((persona) => (
+              <div
+                key={persona.id}
+                className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-4 shadow-xs transition-all hover:border-purple-300 hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-[10px] font-bold text-purple-700">
+                      ID: {persona.id}
+                    </span>
+                    <span className="text-[10px] text-neutral-400 font-mono">기본 프리셋</span>
+                  </div>
+                  <h4 className="font-bold text-sm text-neutral-900 mb-2">{persona.name}</h4>
+                  <p className="text-xs text-neutral-600 bg-neutral-50 p-3 rounded-lg border border-neutral-100 whitespace-pre-line leading-relaxed mb-4">
+                    {persona.toneDescription}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedPersonaId(persona.id);
+                    setActiveSubTab("detector");
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 px-3 py-2 text-xs font-bold text-white transition-colors"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400 fill-amber-300" />
+                  <span>이 페르소나로 글쓰기 탐지기 이동</span>
+                </button>
+              </div>
+            ))}
+
+            <div className="flex flex-col justify-between rounded-xl border border-dashed border-purple-300 bg-purple-50/40 p-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-800">
+                    커스텀
+                  </span>
+                  <span className="text-[10px] text-purple-600 font-bold">✍️ 직접 작성</span>
+                </div>
+                <h4 className="font-bold text-sm text-neutral-900 mb-2">나만의 커스텀 페르소나</h4>
+                <p className="text-xs text-neutral-600 mb-3">
+                  내가 원하는 개성 있는 말투나 어조(예: 30대 자취생 말투, 감성 인스타 톤 등)를 자유롭게 입력하여 AI에 학습시킬 수 있습니다.
+                </p>
+                <input
+                  type="text"
+                  placeholder="예: 30대 자취생 말투, 감성적인 어조, 이모지 많이 사용"
+                  value={customPersonaText}
+                  onChange={(e) => setCustomPersonaText(e.target.value)}
+                  className="w-full rounded-lg border border-neutral-300 bg-white p-2 text-xs focus:border-purple-600 focus:outline-none mb-4"
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  setSelectedPersonaId("custom");
+                  setActiveSubTab("detector");
+                }}
+                className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 px-3 py-2 text-xs font-bold text-white transition-colors"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-amber-300 fill-amber-200" />
+                <span>커스텀 페르소나 적용 후 탐지기 이동</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {activeSubTab === "detector" && (
         <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4">
