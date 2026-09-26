@@ -612,7 +612,7 @@ export function ViralPostDetector() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-neutral-700">나만의 글쓰기 페르소나 선택 *</label>
+              <label className="block text-xs font-bold text-neutral-700">글쓰기 페르소나 선택 *</label>
               <select
                 value={selectedPersonaId}
                 onChange={(e) => setSelectedPersonaId(e.target.value)}
