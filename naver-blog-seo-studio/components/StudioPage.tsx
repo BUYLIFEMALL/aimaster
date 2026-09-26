@@ -233,7 +233,7 @@ export default function StudioPage({ email }: { email: string }) {
     <div className="studio-shell">
       <aside className="sidebar">
         <div>
-          <div className="brand"><em>SEO</em> 스튜디오</div>
+          <div className="brand"><em>SEO블로그</em> 스튜디오</div>
           <div className="brand-sub">네이버 블로그 콘텐츠 제작 도우미</div>
         </div>
         <nav className="nav" aria-label="주 메뉴">

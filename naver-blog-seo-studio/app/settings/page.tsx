@@ -24,7 +24,7 @@ export default async function SettingsPage() {
     <main className="settings-layout">
       <SettingsSidebar email={user.email ?? null} />
       <aside className="settings-sidebar legacy-settings-sidebar">
-        <a className="settings-brand" href="/dashboard"><em>SEO</em> 스튜디오</a>
+        <a className="settings-brand" href="/dashboard"><em>SEO블로그</em> 스튜디오</a>
         <nav className="settings-nav" aria-label="주 메뉴">
           <a href="/dashboard"><span className="settings-step">1</span><span><strong>새 글 만들기</strong><small>AI 초안 작성</small></span></a>
           <a className="active" href="/settings"><span className="settings-step">2</span><span><strong>API·확장 연동</strong><small>키와 토큰 설정</small></span></a>

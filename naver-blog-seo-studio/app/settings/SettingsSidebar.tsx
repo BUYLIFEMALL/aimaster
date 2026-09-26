@@ -14,7 +14,7 @@ export default function SettingsSidebar({ email }: { email: string | null }) {
   const pathname = usePathname();
   return <aside className="reference-sidebar">
     <div>
-      <div className="reference-brand"><strong>SEO</strong> 스튜디오</div>
+      <div className="reference-brand"><strong>SEO블로그</strong> 스튜디오</div>
       <Link className="reference-back" href="https://www.buylife.xyz/programs">← 다른 프로그램 보기</Link>
       <nav className="reference-nav" aria-label="프로그램 메뉴">
         <Link className="reference-overview" href="/dashboard">▣ 대시보드</Link>
