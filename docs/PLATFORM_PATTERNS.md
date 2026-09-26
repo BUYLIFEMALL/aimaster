@@ -517,6 +517,10 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 3. **일본 2D 극장판 애니 (`japanese_anime`)**:
    - 신카이 마코토 및 교토 애니메이션(KyoAni) 스타일의 2D 극장판 screencap, 화려한 광원 렌즈 플레어 및 디테일한 야경/하늘 표현.
 
+**관련 파일**:
+- `ai-image-studio/components/Step1PromptEnhancer.tsx`
+- `ai-image-studio/app/api/enhance-prompt/route.ts`
+- `ai-image-studio/app/(dashboard)/prompts/page.tsx`
 - `ai-image-studio/app/api/prompts/seed/route.ts`
 
 ---
