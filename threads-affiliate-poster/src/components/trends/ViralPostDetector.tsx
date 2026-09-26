@@ -6,11 +6,12 @@ import {
   getSavedBookmarksAction,
   toggleBookmarkAction,
   generateBenchmarkCaptionAction,
+  getUserProductsAction,
   type ViralPostItem,
 } from "@/lib/actions/viral";
 import { PRESET_PERSONAS } from "@/lib/constants/personas";
 import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS, PROVIDER_SHORT_LABELS } from "@/lib/ai/models";
-import type { AffiliatePlatform } from "@/types/product";
+import { PLATFORM_LABELS, type AffiliatePlatform, type AffiliateProduct } from "@/types/product";
 import {
   Sparkles,
   Flame,
@@ -54,6 +55,11 @@ export function ViralPostDetector() {
   const [isPending, startTransition] = useTransition();
 
   const [activeModalPost, setActiveModalPost] = useState<ViralPostItem | null>(null);
+  const [productInputMode, setProductInputMode] = useState<"saved" | "manual">("saved");
+  const [savedProducts, setSavedProducts] = useState<AffiliateProduct[]>([]);
+  const [selectedSavedProductId, setSelectedSavedProductId] = useState<string>("");
+  const [loadingSavedProducts, setLoadingSavedProducts] = useState<boolean>(false);
+
   const [productName, setProductName] = useState("");
   const [affiliateUrl, setAffiliateUrl] = useState("");
   const [platform, setPlatform] = useState<AffiliatePlatform>("coupang");
@@ -107,17 +113,35 @@ export function ViralPostDetector() {
     }
   };
 
-  const openBenchmarkModal = (post: ViralPostItem, personaId?: string) => {
+  const openBenchmarkModal = async (post: ViralPostItem, personaId?: string) => {
     setActiveModalPost(post);
     setProductName("");
     setAffiliateUrl("");
     setPlatform("coupang");
     setPrice("");
+    setSelectedSavedProductId("");
+    setProductInputMode("saved");
     if (personaId) setSelectedPersonaId(personaId);
     setAiProvider("openai");
     setAiModel("gpt-5.6-luna");
     setGeneratedCaption(null);
     setGenError(null);
+
+    setLoadingSavedProducts(true);
+    const res = await getUserProductsAction();
+    if (res.products && res.products.length > 0) {
+      setSavedProducts(res.products as AffiliateProduct[]);
+      const first = res.products[0];
+      setSelectedSavedProductId(first.id);
+      setProductName(first.product_name);
+      setPlatform(first.platform);
+      setPrice(first.price ? String(first.price) : "");
+      setAffiliateUrl(first.affiliate_url);
+    } else {
+      setSavedProducts([]);
+      setProductInputMode("manual");
+    }
+    setLoadingSavedProducts(false);
   };
 
   const handleGenerateCaption = async () => {
@@ -569,53 +593,158 @@ export function ViralPostDetector() {
             </div>
 
             <div className="space-y-3 pt-2 border-t">
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-1">내 상품명 *</label>
-                <input
-                  type="text"
-                  placeholder="예: 실리콘 이중 밀폐용기 4호 세트"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-bold text-neutral-700 mb-1">제휴 플랫폼 *</label>
-                  <select
-                    value={platform}
-                    onChange={(e) => setPlatform(e.target.value as AffiliatePlatform)}
-                    className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none bg-white"
+              {/* 상품 정보 입력 방식 선택 탭 (등록된 상품 선택 / 직접 입력) */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-neutral-800">상품 정보입력 방식 선택 *</label>
+                <div className="flex items-center gap-1 rounded-xl bg-neutral-100 p-1 border border-neutral-200 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProductInputMode("saved");
+                      if (savedProducts.length > 0 && !selectedSavedProductId) {
+                        const first = savedProducts[0];
+                        setSelectedSavedProductId(first.id);
+                        setProductName(first.product_name);
+                        setPlatform(first.platform);
+                        setPrice(first.price ? String(first.price) : "");
+                        setAffiliateUrl(first.affiliate_url);
+                      }
+                    }}
+                    className={`flex-1 rounded-lg py-1.5 font-bold transition-all flex items-center justify-center gap-1 ${
+                      productInputMode === "saved"
+                        ? "bg-white text-neutral-900 shadow-xs border border-neutral-200"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    }`}
                   >
-                    <option value="coupang">쿠팡파트너스</option>
-                    <option value="aliexpress">알리익스프레스</option>
-                    <option value="naver">네이버 브랜드커넥트</option>
-                    <option value="toss">토스쇼핑 쉐어링크</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-neutral-700 mb-1">판매가 (선택)</label>
-                  <input
-                    type="text"
-                    placeholder="예: 15,900"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none"
-                  />
+                    <span>📦 등록된 상품에서 선택</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setProductInputMode("manual")}
+                    className={`flex-1 rounded-lg py-1.5 font-bold transition-all flex items-center justify-center gap-1 ${
+                      productInputMode === "manual"
+                        ? "bg-white text-neutral-900 shadow-xs border border-neutral-200"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    }`}
+                  >
+                    <span>✏️ 직접 입력</span>
+                  </button>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-1">내 제휴 링크 (URL) *</label>
-                <input
-                  type="text"
-                  placeholder="https://link.coupang.com/a/..."
-                  value={affiliateUrl}
-                  onChange={(e) => setAffiliateUrl(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none"
-                />
-              </div>
+              {productInputMode === "saved" ? (
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-neutral-700">등록된 제휴 상품 선택 *</label>
+                  {loadingSavedProducts ? (
+                    <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-center text-xs text-neutral-500">
+                      내 등록 상품 목록을 불러오는 중...
+                    </div>
+                  ) : savedProducts.length === 0 ? (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 flex items-center justify-between gap-2">
+                      <span>등록된 상품이 없습니다. 상단 '상품 관리' 메뉴에서 등록하시거나 직접 입력해 주세요.</span>
+                      <button
+                        type="button"
+                        onClick={() => setProductInputMode("manual")}
+                        className="text-[11px] font-bold text-amber-900 underline whitespace-nowrap"
+                      >
+                        직접 입력으로 변경
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      value={selectedSavedProductId}
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        setSelectedSavedProductId(id);
+                        const p = savedProducts.find((item) => item.id === id);
+                        if (p) {
+                          setProductName(p.product_name);
+                          setPlatform(p.platform);
+                          setPrice(p.price ? String(p.price) : "");
+                          setAffiliateUrl(p.affiliate_url);
+                        } else {
+                          setProductName("");
+                          setAffiliateUrl("");
+                          setPrice("");
+                        }
+                      }}
+                      className="w-full rounded-lg border border-neutral-300 p-2 text-xs font-semibold focus:border-neutral-900 focus:outline-none bg-white cursor-pointer shadow-xs"
+                    >
+                      <option value="">-- 내 등록 상품을 선택해주세요 --</option>
+                      {savedProducts.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          [{PLATFORM_LABELS[p.platform] || p.platform}] {p.product_name} {p.price ? `(${Number(p.price).toLocaleString()}원)` : ""}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {selectedSavedProductId && (
+                    <div className="rounded-xl bg-emerald-50/80 border border-emerald-200 p-3 text-xs space-y-1">
+                      <p className="font-bold text-emerald-950 flex items-center justify-between">
+                        <span>✅ 자동 입력 완료된 상품 정보</span>
+                        <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">연동됨</span>
+                      </p>
+                      <p className="text-emerald-900 truncate font-semibold"><span className="text-emerald-700 font-normal">상품명:</span> {productName}</p>
+                      <div className="flex items-center gap-4 text-emerald-900">
+                        <span><span className="text-emerald-700 font-normal">플랫폼:</span> {PLATFORM_LABELS[platform] || platform}</span>
+                        {price && <span><span className="text-emerald-700 font-normal">판매가:</span> {Number(price).toLocaleString()}원</span>}
+                      </div>
+                      <p className="text-emerald-900 truncate font-mono text-[11px]"><span className="text-emerald-700 font-normal font-sans">제휴 URL:</span> {affiliateUrl}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-700 mb-1">내 상품명 *</label>
+                    <input
+                      type="text"
+                      placeholder="예: 실리콘 이중 밀폐용기 4호 세트"
+                      value={productName}
+                      onChange={(e) => setProductName(e.target.value)}
+                      className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-700 mb-1">제휴 플랫폼 *</label>
+                      <select
+                        value={platform}
+                        onChange={(e) => setPlatform(e.target.value as AffiliatePlatform)}
+                        className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none bg-white"
+                      >
+                        <option value="coupang">쿠팡파트너스</option>
+                        <option value="aliexpress">알리익스프레스</option>
+                        <option value="naver">네이버 브랜드커넥트</option>
+                        <option value="toss">토스쇼핑 쉐어링크</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-700 mb-1">판매가 (선택)</label>
+                      <input
+                        type="text"
+                        placeholder="예: 15,900"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-700 mb-1">내 제휴 링크 (URL) *</label>
+                    <input
+                      type="text"
+                      placeholder="https://link.coupang.com/a/..."
+                      value={affiliateUrl}
+                      onChange={(e) => setAffiliateUrl(e.target.value)}
+                      className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none"
+                    />
+                  </div>
+                </>
+              )}
 
               {genError && (
                 <p className="text-xs text-red-600 font-semibold bg-red-50 p-2 rounded-lg border border-red-200">

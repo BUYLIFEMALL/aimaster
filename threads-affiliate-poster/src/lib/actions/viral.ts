@@ -347,6 +347,23 @@ export async function getSavedBookmarksAction(): Promise<{ posts: ViralPostItem[
   return { posts };
 }
 
+export async function getUserProductsAction(): Promise<{ products: any[]; error?: string }> {
+  try {
+    const user = await requireProgramAccess();
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("affiliate_products")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) return { products: [], error: error.message };
+    return { products: data || [] };
+  } catch (err) {
+    return { products: [], error: err instanceof Error ? err.message : "상품 목록 조회 실패" };
+  }
+}
+
 export interface GenerateBenchmarkInput {
   viralContent: string;
   productName: string;
