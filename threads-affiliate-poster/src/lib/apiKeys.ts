@@ -4,7 +4,8 @@ import type { ApiKeyProvider, Database } from "@/types/database.types";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   openai: "OpenAI (GPT — 게시글 캡션 생성)",
-  gemini: "Google (Gemini — 나노바나나 이미지 생성)",
+  gemini: "Google (Gemini — 캡션 생성)",
+  anthropic: "Anthropic (Claude — 웰메이드 캡션 생성)",
   meta_app_id: "Threads 앱 ID (쓰레드 계정 연결)",
   meta_app_secret: "Threads 앱 시크릿 코드 (쓰레드 계정 연결)",
   coupang_access_key: "쿠팡파트너스 Access Key (상품검색/딥링크 생성)",

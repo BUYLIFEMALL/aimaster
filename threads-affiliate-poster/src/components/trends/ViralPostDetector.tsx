@@ -58,7 +58,8 @@ export function ViralPostDetector() {
   const [platform, setPlatform] = useState<AffiliatePlatform>("coupang");
   const [price, setPrice] = useState<string>("");
 
-  const [aiProvider, setAiProvider] = useState<"openai" | "gemini">("openai");
+  const [aiProvider, setAiProvider] = useState<"openai" | "gemini" | "anthropic">("openai");
+  const [aiModel, setAiModel] = useState<string>("gpt-4o-mini");
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("p-01");
   const [customPersonaText, setCustomPersonaText] = useState("");
 
@@ -112,6 +113,8 @@ export function ViralPostDetector() {
     setPlatform("coupang");
     setPrice("");
     if (personaId) setSelectedPersonaId(personaId);
+    setAiProvider("openai");
+    setAiModel("gpt-4o-mini");
     setGeneratedCaption(null);
     setGenError(null);
   };
@@ -142,6 +145,7 @@ export function ViralPostDetector() {
       price: price ? parseInt(price.replace(/,/g, ""), 10) : undefined,
       personaDescription,
       aiProvider,
+      aiModel,
     });
 
     setGenerating(false);
@@ -462,31 +466,135 @@ export function ViralPostDetector() {
               <p className="text-amber-800 whitespace-pre-line line-clamp-3">{activeModalPost.content}</p>
             </div>
 
-            <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 space-y-2">
-              <label className="block text-xs font-bold text-neutral-800 flex items-center gap-1">
-                <Bot className="h-4 w-4 text-neutral-600" /> AI 엔진 선택 (OpenAI / Gemini)
+            <div className="rounded-xl bg-neutral-50 p-3.5 border border-neutral-200 space-y-3">
+              <label className="block text-xs font-bold text-neutral-800 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Bot className="h-4 w-4 text-purple-600" /> AI 엔진 선택 (OpenAI / Gemini / Claude) *
+                </span>
+                <span className="text-[10px] text-neutral-400 font-normal">선택한 카드 하단 세부 모델 변경</span>
               </label>
-              <div className="grid grid-cols-2 gap-2 text-xs">
+
+              {/* 3대 Provider 선택 카드 (OpenAI / Gemini / Claude) */}
+              <div className="grid grid-cols-3 gap-2 text-xs">
                 <button
-                  onClick={() => setAiProvider("openai")}
-                  className={`rounded-lg p-2 border font-bold text-center transition-all ${
+                  type="button"
+                  onClick={() => {
+                    setAiProvider("openai");
+                    setAiModel("gpt-4o-mini");
+                  }}
+                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
                     aiProvider === "openai"
-                      ? "border-neutral-900 bg-neutral-900 text-white"
+                      ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
                       : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
                   }`}
                 >
-                  🤖 OpenAI GPT-4o-mini
+                  <span className="text-sm">🤖</span>
+                  <span>OpenAI (GPT)</span>
                 </button>
                 <button
-                  onClick={() => setAiProvider("gemini")}
-                  className={`rounded-lg p-2 border font-bold text-center transition-all ${
+                  type="button"
+                  onClick={() => {
+                    setAiProvider("gemini");
+                    setAiModel("gemini-1.5-flash");
+                  }}
+                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
                     aiProvider === "gemini"
-                      ? "border-amber-600 bg-amber-500 text-white"
+                      ? "border-amber-500 bg-amber-500 text-white shadow-xs"
                       : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
                   }`}
                 >
-                  ✨ Google Gemini 1.5
+                  <span className="text-sm">✨</span>
+                  <span>Google Gemini</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAiProvider("anthropic");
+                    setAiModel("claude-3-5-sonnet-20241022");
+                  }}
+                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
+                    aiProvider === "anthropic"
+                      ? "border-purple-600 bg-purple-600 text-white shadow-xs"
+                      : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+                  }`}
+                >
+                  <span className="text-sm">🧠</span>
+                  <span>Claude</span>
+                </button>
+              </div>
+
+              {/* 선택된 Provider 하단 세부 모델 선택 */}
+              <div className="pt-2.5 border-t border-neutral-200/80 space-y-1.5">
+                <label className="block text-[11px] font-bold text-neutral-600 flex items-center gap-1">
+                  🎯 {aiProvider === "openai" ? "OpenAI" : aiProvider === "gemini" ? "Google Gemini" : "Anthropic Claude"} 세부 실행 모델 선택:
+                </label>
+
+                {aiProvider === "openai" && (
+                  <div className="grid grid-cols-3 gap-1.5 text-[11px]">
+                    {[
+                      { id: "gpt-4o-mini", label: "GPT-4o-mini (가성비)" },
+                      { id: "gpt-4o", label: "GPT-4o (고품질)" },
+                      { id: "o3-mini", label: "o3-mini (추론형)" },
+                    ].map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setAiModel(m.id)}
+                        className={`rounded-lg px-2 py-1.5 border text-center transition-all ${
+                          aiModel === m.id
+                            ? "border-neutral-900 bg-neutral-900 text-white font-bold shadow-xs"
+                            : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {aiProvider === "gemini" && (
+                  <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                    {[
+                      { id: "gemini-1.5-flash", label: "Gemini 1.5 Flash (초고속)" },
+                      { id: "gemini-1.5-pro", label: "Gemini 1.5 Pro (고성능)" },
+                    ].map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setAiModel(m.id)}
+                        className={`rounded-lg px-2 py-1.5 border text-center transition-all ${
+                          aiModel === m.id
+                            ? "border-amber-600 bg-amber-500 text-white font-bold shadow-xs"
+                            : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {aiProvider === "anthropic" && (
+                  <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                    {[
+                      { id: "claude-3-5-haiku-20241022", label: "Claude 3.5 Haiku (가성비)" },
+                      { id: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet (최고품질)" },
+                    ].map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setAiModel(m.id)}
+                        className={`rounded-lg px-2 py-1.5 border text-center transition-all ${
+                          aiModel === m.id
+                            ? "border-purple-600 bg-purple-600 text-white font-bold shadow-xs"
+                            : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

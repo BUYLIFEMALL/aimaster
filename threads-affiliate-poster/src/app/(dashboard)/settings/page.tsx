@@ -20,7 +20,7 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "e39a02e3-2b00-45a1-92ed-2e33d0d331d2", label: "네이버 브랜드커넥트 링크 등록하기" },
 ];
 
-const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini"];
+const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "anthropic"];
 const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
 const COUPANG_PROVIDERS: ApiKeyProvider[] = ["coupang_access_key", "coupang_secret_key"];
 const ALIEXPRESS_PROVIDERS: ApiKeyProvider[] = [

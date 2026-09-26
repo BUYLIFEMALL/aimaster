@@ -354,7 +354,8 @@ export interface GenerateBenchmarkInput {
   platform: AffiliatePlatform;
   price?: number;
   personaDescription?: string;
-  aiProvider?: "openai" | "gemini";
+  aiProvider?: "openai" | "gemini" | "anthropic";
+  aiModel?: string;
 }
 
 export async function generateBenchmarkCaptionAction(
@@ -370,19 +371,7 @@ export async function generateBenchmarkCaptionAction(
   const personaDesc = input.personaDescription || "친근하고 현실적인 쇼핑 추천 톤";
   const disclosureText = getDisclosureText(input.platform) || "(광고) 제휴 활동으로 수수료를 받을 수 있습니다.";
 
-  try {
-    const supabase = await createClient();
-
-    if (provider === "gemini") {
-      const geminiKey = await resolveApiKey(supabase, user.id, "gemini");
-      if (!geminiKey) {
-        return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
-      }
-
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-      const prompt = `You are a Master Viral Threads Marketer.
+  const prompt = `You are a Master Viral Threads Marketer.
 [PERSONA TONE & STYLE]: ${personaDesc}
 
 Analyze the following VIRAL Threads post:
@@ -400,6 +389,67 @@ RULES:
 2. Keep body content length under 380 characters.
 3. Language: Natural Korean.
 4. Output ONLY the post body text without legal disclosures or URL links.`;
+
+  try {
+    const supabase = await createClient();
+
+    if (provider === "anthropic") {
+      let claudeKey = await resolveApiKey(supabase, user.id, "anthropic" as any);
+      if (!claudeKey) {
+        const { data: keyRow } = await (supabase as any)
+          .from("user_api_keys")
+          .select("api_key")
+          .eq("user_id", user.id)
+          .in("provider", ["anthropic", "claude"])
+          .maybeSingle();
+        claudeKey = keyRow?.api_key || null;
+      }
+      if (!claudeKey) {
+        return { error: "Anthropic (Claude) API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+      }
+
+      const selectedModel = input.aiModel || "claude-3-5-sonnet-20241022";
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": claudeKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          max_tokens: 1024,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error?.message || "Claude API 호출 실패");
+      }
+
+      const bodyText = data.content?.[0]?.text?.trim() || "";
+      if (!bodyText) throw new Error("Claude가 캡션을 생성하지 못했습니다.");
+
+      const ctaText = input.platform === "coupang" ? "지금 쿠팡에서 확인" : "지금 바로 확인하기";
+      const finalCaption = `${disclosureText}\n\n${bodyText}\n\n${ctaText} ${input.affiliateUrl}`;
+
+      await logProgramUsage({
+        userId: user.id,
+        action: "ai_generate_viral_benchmark_anthropic",
+        metadata: { productName: input.productName, platform: input.platform, model: selectedModel },
+      });
+
+      return { caption: finalCaption };
+    } else if (provider === "gemini") {
+      const geminiKey = await resolveApiKey(supabase, user.id, "gemini");
+      if (!geminiKey) {
+        return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+      }
+
+      const selectedModel = input.aiModel || "gemini-1.5-flash";
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      const model = genAI.getGenerativeModel({ model: selectedModel });
 
       const result = await model.generateContent(prompt);
       const bodyText = result.response.text().trim();
@@ -410,7 +460,7 @@ RULES:
       await logProgramUsage({
         userId: user.id,
         action: "ai_generate_viral_benchmark_gemini",
-        metadata: { productName: input.productName, platform: input.platform },
+        metadata: { productName: input.productName, platform: input.platform, model: selectedModel },
       });
 
       return { caption: finalCaption };
@@ -421,28 +471,10 @@ RULES:
       }
 
       const openai = new OpenAI({ apiKey: openAiKey });
-
-      const prompt = `You are a Master Viral Threads Marketer.
-[PERSONA TONE & STYLE]: ${personaDesc}
-
-Analyze the following VIRAL Threads post:
-"""
-${input.viralContent}
-"""
-
-Now, rewrite a BRAND NEW viral Threads affiliate post for this product:
-- Product Name: ${input.productName}
-- Platform: ${input.platform}
-${input.price ? `- Price: ${input.price.toLocaleString()}원` : ""}
-
-RULES:
-1. Replicate the viral hook style and sentence rhythm of the reference viral post, while strictly adopting the assigned PERSONA TONE & STYLE.
-2. Keep body content length under 380 characters.
-3. Language: Natural Korean.
-4. Output ONLY the post body text without legal disclosures or URL links.`;
+      const selectedModel = input.aiModel || "gpt-4o-mini";
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: selectedModel,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.8,
       });
@@ -458,7 +490,7 @@ RULES:
       await logProgramUsage({
         userId: user.id,
         action: "ai_generate_viral_benchmark_openai",
-        metadata: { productName: input.productName, platform: input.platform },
+        metadata: { productName: input.productName, platform: input.platform, model: selectedModel },
       });
 
       return { caption: finalCaption };

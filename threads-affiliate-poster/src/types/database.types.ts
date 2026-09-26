@@ -2,6 +2,7 @@ export type PostStatus = "draft" | "scheduled" | "publishing" | "published" | "f
 export type ApiKeyProvider =
   | "openai"
   | "gemini"
+  | "anthropic"
   | "coupang_access_key"
   | "coupang_secret_key"
   | "aliexpress_app_key"
