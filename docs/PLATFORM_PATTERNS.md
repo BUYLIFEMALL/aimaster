@@ -498,30 +498,30 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 5. **극사실성 보강 키워드 블록**: `photorealistic, real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, accurate scale and perspective, high micro-contrast, optical bokeh, slight sensor noise, subtle chromatic aberration, natural atmospheric depth, realistic material roughness and microtexture`.
 6. **네거티브 스타일 완전 차단 블록**: `no illustration, no painting, no vector, no cartoon, no anime, no 3D render, no CGI, no flat shading, no cell shading, no plastic skin, no watermark, no logo artifacts, no posterization, no excessive HDR, no unreal colors`.
 
-501: **참고 파일**:
-502: - `ai-image-studio/app/api/enhance-prompt/route.ts` (백엔드 AI 프롬프트 생성기 시스템 프롬프트)
-503: - `lib/constants/defaultPrompts.ts` (관리자 게시판 및 초기 상수의 photorealistic 10종 샘플)
-504: - `components/admin/ProgramPromptsManager.tsx` (프로그램-카테고리 연동 및 리셋 필터)
-505: 
-506: ---
-507: 
-508: ## 23. AI 이미지 스튜디오 주요 애니메이션 화풍 프리셋 및 태그 가이드 (2026-09-25)
-509: 
-510: **개요**: 사용자 요구에 따라 `ai-image-studio`에 Pixar 3D 애니메이션, Studio Ghibli 수채화 애니, 일본 2D 극장판 애니 화풍을 신규 추가하고, 프롬프트 생성 엔진과 UI 태그 추천, 시드 DB에 각 10종 샘플을 확충함.
-511: 
-512: **추가된 3대 애니메이션 화풍**:
-513: 1. **픽사 3D 애니메이션 (`pixar_3d`)**:
-514:    - Disney / Pixar 특유의 생동감 넘치는 캐릭터 디자인, 입체적인 볼류메트릭 조명, 질감 표현(Cinema 4D / Octane Render).
-515: 2. **지브리 감성 애니 (`ghibli_anime`)**:
-516:    - 미야자키 하야오 및 Studio Ghibli 감성의 수채화 배경, 웅장한 뭉게구름, 따스한 회상/자연 조명.
-517: 3. **일본 2D 극장판 애니 (`japanese_anime`)**:
-518:    - 신카이 마코토 및 교토 애니메이션(KyoAni) 스타일의 2D 극장판 screencap, 화려한 광원 렌즈 플레어 및 디테일한 야경/하늘 표현.
-519: 
-520: **관련 파일**:
-521: - `ai-image-studio/components/Step1PromptEnhancer.tsx`
-522: - `ai-image-studio/app/api/enhance-prompt/route.ts`
-523: - `ai-image-studio/app/(dashboard)/prompts/page.tsx`
-524: - `ai-image-studio/app/api/prompts/seed/route.ts`
+**참고 파일**:
+- `ai-image-studio/app/api/enhance-prompt/route.ts` (백엔드 AI 프롬프트 생성기 시스템 프롬프트)
+- `lib/constants/defaultPrompts.ts` (관리자 게시판 및 초기 상수의 photorealistic 10종 샘플)
+- `components/admin/ProgramPromptsManager.tsx` (프로그램-카테고리 연동 및 리셋 필터)
+
+---
+
+## 23. AI 이미지 스튜디오 주요 애니메이션 화풍 프리셋 및 태그 가이드 (2026-09-25)
+
+**개요**: 사용자 요구에 따라 `ai-image-studio`에 Pixar 3D 애니메이션, Studio Ghibli 수채화 애니, 일본 2D 극장판 애니 화풍을 신규 추가하고, 프롬프트 생성 엔진과 UI 태그 추천, 시드 DB에 각 10종 샘플을 확충함.
+
+**추가된 3대 애니메이션 화풍**:
+1. **픽사 3D 애니메이션 (`pixar_3d`)**:
+   - Disney / Pixar 특유의 생동감 넘치는 캐릭터 디자인, 입체적인 볼류메트릭 조명, 질감 표현(Cinema 4D / Octane Render).
+2. **지브리 감성 애니 (`ghibli_anime`)**:
+   - 미야자키 하야오 및 Studio Ghibli 감성의 수채화 배경, 웅장한 뭉게구름, 따스한 회상/자연 조명.
+3. **일본 2D 극장판 애니 (`japanese_anime`)**:
+   - 신카이 마코토 및 교토 애니메이션(KyoAni) 스타일의 2D 극장판 screencap, 화려한 광원 렌즈 플레어 및 디테일한 야경/하늘 표현.
+
+**관련 파일**:
+- `ai-image-studio/components/Step1PromptEnhancer.tsx`
+- `ai-image-studio/app/api/enhance-prompt/route.ts`
+- `ai-image-studio/app/(dashboard)/prompts/page.tsx`
+- `ai-image-studio/app/api/prompts/seed/route.ts`
 
 
 
