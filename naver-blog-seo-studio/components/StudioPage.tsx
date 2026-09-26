@@ -212,6 +212,15 @@ export default function StudioPage({ email }: { email: string }) {
     }
   }
 
+  async function createDraftFromSelectedTitle() {
+    if (!selectedTitle) {
+      setMessage("새 글로 만들 제목을 먼저 선택해주세요.");
+      return;
+    }
+    openMenu("new-draft");
+    await prepareDraft();
+  }
+
   async function sendDraftToExtension() {
     if (!extensionDraftId) return setHandoffMessage("생성 기록에서 초안을 먼저 선택해주세요.");
     if (currentDraft && !(await saveCurrentDraft(true))) return;
@@ -316,7 +325,7 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => { setKeywords(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); setTitleRecommendationId(null); }} placeholder="쉼표로 구분해 입력하세요" /></div>
           <p className="freshness-note">연도·통계·정책처럼 최신성 확인이 필요한 정보는 근거 없이 넣지 않습니다. 연도가 꼭 필요하면 주제 또는 키워드에 직접 입력하세요.</p>
           <button type="button" className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천 생성"}</button>
-          {recommendedTitles.length > 0 && <div className="title-management"><div className="title-management-head"><div><h3>생성된 제목</h3><p>{recommendedTitles.length}개 중 새 글에 사용할 제목을 하나 선택하세요.</p></div><span>{selectedTitle ? "제목 선택됨" : "제목을 선택해주세요"}</span></div><div className="title-list">{recommendedTitles.map((item, index) => <div key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`}>{editingTitleIndex === index ? <div className="title-edit-row"><input value={titleEditValue} onChange={(event) => setTitleEditValue(event.target.value)} aria-label="제목 수정" autoFocus /><button type="button" className="secondary compact" onClick={() => saveTitleEdit(index)}>저장</button><button type="button" className="text-button" onClick={() => setEditingTitleIndex(null)}>취소</button></div> : <><button type="button" className="title-select" onClick={() => selectRecommendedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button><div className="title-option-actions"><button type="button" className="text-button" onClick={() => startTitleEdit(index)}>수정</button><button type="button" className="text-button danger" onClick={() => deleteRecommendedTitle(index)}>삭제</button></div></>}</div>)}</div><button type="button" className="primary" onClick={() => openMenu("new-draft")} disabled={!selectedTitle}>선택한 제목으로 2번 단계로 이동</button></div>}
+          {recommendedTitles.length > 0 && <div className="title-management"><div className="title-management-head"><div><h3>생성된 제목</h3><p>{recommendedTitles.length}개 중 새 글에 사용할 제목을 하나 선택하세요.</p></div><span>{selectedTitle ? "제목 선택됨" : "제목을 선택해주세요"}</span></div><div className="title-list">{recommendedTitles.map((item, index) => <div key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`}>{editingTitleIndex === index ? <div className="title-edit-row"><input value={titleEditValue} onChange={(event) => setTitleEditValue(event.target.value)} aria-label="제목 수정" autoFocus /><button type="button" className="secondary compact" onClick={() => saveTitleEdit(index)}>저장</button><button type="button" className="text-button" onClick={() => setEditingTitleIndex(null)}>취소</button></div> : <><button type="button" className="title-select" onClick={() => selectRecommendedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button><div className="title-option-actions"><button type="button" className="text-button" onClick={() => startTitleEdit(index)}>수정</button><button type="button" className="text-button danger" onClick={() => deleteRecommendedTitle(index)}>삭제</button></div></>}</div>)}</div><button type="button" className="primary" onClick={() => void createDraftFromSelectedTitle()} disabled={!selectedTitle || pending}>선택한 제목으로 새글 만들기</button></div>}
         </section>}
 
         {activeMenu === "new-draft" && <><section className="card new-draft-card" id="new-draft">
