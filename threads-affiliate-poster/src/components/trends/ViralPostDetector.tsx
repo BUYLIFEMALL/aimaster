@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   getViralPostsAction,
   getSavedBookmarksAction,
   toggleBookmarkAction,
   generateBenchmarkCaptionAction,
   getUserProductsAction,
+  createDirectBenchmarkPostAction,
   type ViralPostItem,
 } from "@/lib/actions/viral";
 import { PRESET_PERSONAS } from "@/lib/constants/personas";
@@ -42,6 +44,7 @@ const BRAND_TAGS = [
 ];
 
 export function ViralPostDetector() {
+  const router = useRouter();
   const [activeSubTab, setActiveSubTab] = useState<"detector" | "saved" | "personas">("detector");
 
   const [selectedTag, setSelectedTag] = useState("전체");
@@ -71,6 +74,7 @@ export function ViralPostDetector() {
   const [customPersonaText, setCustomPersonaText] = useState("");
 
   const [generating, setGenerating] = useState(false);
+  const [creatingDirectPost, setCreatingDirectPost] = useState(false);
   const [generatedCaption, setGeneratedCaption] = useState<string | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -187,6 +191,28 @@ export function ViralPostDetector() {
     navigator.clipboard.writeText(generatedCaption);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCreateDirectPost = async () => {
+    if (!generatedCaption || !productName.trim()) {
+      setGenError("상품 정보를 먼저 선택하거나 입력해주세요.");
+      return;
+    }
+    setCreatingDirectPost(true);
+    setGenError(null);
+    const res = await createDirectBenchmarkPostAction({
+      content: generatedCaption,
+      productName: productName.trim(),
+      productId: selectedSavedProductId || undefined,
+      platform,
+      affiliateUrl: affiliateUrl.trim(),
+    });
+    setCreatingDirectPost(false);
+    if (res.postId) {
+      router.push(`/posts/${res.postId}`);
+    } else if (res.error) {
+      setGenError(res.error);
+    }
   };
 
   const displayList = activeSubTab === "saved" ? savedPosts : posts;
@@ -792,13 +818,31 @@ export function ViralPostDetector() {
                   {generatedCaption}
                 </div>
 
-                <Link
-                  href={`/posts/new?initialContent=${encodeURIComponent(generatedCaption)}`}
-                  className="flex items-center justify-center gap-1.5 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 p-2.5 text-xs font-bold text-white transition-colors shadow-xs"
-                >
-                  <span>이 캡션으로 포스팅 작성 화면 가기</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                <div className="space-y-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleCreateDirectPost}
+                    disabled={creatingDirectPost}
+                    className="flex items-center justify-center gap-2 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 p-3 text-xs font-bold text-white transition-all shadow-xs cursor-pointer"
+                  >
+                    {creatingDirectPost ? (
+                      <span>AI 이미지 생성 및 완성 게시글 저장 중...</span>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 text-amber-300 fill-amber-300" />
+                        <span>🚀 완성된 게시글 바로 생성 (결과 페이지로 이동)</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <Link
+                    href={`/posts/new?initialContent=${encodeURIComponent(generatedCaption)}&productId=${selectedSavedProductId}`}
+                    className="flex items-center justify-center gap-1.5 w-full rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 p-2.5 text-xs font-bold text-neutral-700 transition-colors"
+                  >
+                    <span>📝 작성 화면에서 수동 편집하기</span>
+                  </Link>
+                </div>
               </div>
             )}
           </div>

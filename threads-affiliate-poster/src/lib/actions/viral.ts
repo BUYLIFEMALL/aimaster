@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getDisclosureText } from "@/lib/ai/affiliateGenerator";
+import { generatePostImage } from "@/lib/ai/generator";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
@@ -526,5 +527,84 @@ RULES:
   } catch (err) {
     const msg = err instanceof Error ? err.message : "AI 캡션 생성 실패";
     return { error: msg };
+  }
+}
+
+export async function createDirectBenchmarkPostAction(input: {
+  content: string;
+  productName: string;
+  productId?: string;
+  platform: AffiliatePlatform;
+  affiliateUrl: string;
+}): Promise<{ postId?: string; error?: string }> {
+  try {
+    const user = await requireProgramAccess();
+    const supabase = await createClient();
+
+    let imageUrl: string | null = null;
+
+    if (input.productId) {
+      const { data: prod } = await supabase
+        .from("affiliate_products")
+        .select("image_url")
+        .eq("id", input.productId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (prod?.image_url) {
+        imageUrl = prod.image_url;
+      }
+    }
+
+    if (!imageUrl) {
+      try {
+        const geminiKey = await resolveApiKey(supabase, user.id, "gemini");
+        if (geminiKey) {
+          const prompt = `${input.productName} high quality realistic product showcase photo, modern style, clean lighting`;
+          const imgResult = await generatePostImage({ prompt }, geminiKey);
+          const ext = imgResult.mimeType.split("/")[1] ?? "png";
+          const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+
+          const { error: uploadErr } = await supabase.storage
+            .from("post-images")
+            .upload(path, Buffer.from(imgResult.base64, "base64"), {
+              contentType: imgResult.mimeType,
+              upsert: false,
+            });
+
+          if (!uploadErr) {
+            const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+            imageUrl = data.publicUrl;
+          }
+        }
+      } catch {
+        // ignore image gen failure and save post text
+      }
+    }
+
+    const { data: inserted, error } = await supabase
+      .from("tap_posts")
+      .insert({
+        user_id: user.id,
+        product_id: input.productId || null,
+        content: input.content,
+        image_url: imageUrl,
+        status: "draft",
+      })
+      .select("id")
+      .single();
+
+    if (error || !inserted) {
+      return { error: error?.message || "게시글 저장에 실패했습니다." };
+    }
+
+    await logProgramUsage({
+      userId: user.id,
+      action: "create_benchmark_post_direct",
+      metadata: { postId: inserted.id, productName: input.productName },
+    });
+
+    return { postId: inserted.id };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "게시글 저장 실패" };
   }
 }

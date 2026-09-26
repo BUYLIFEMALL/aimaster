@@ -3,7 +3,16 @@ import { createClient } from "@/lib/supabase/server";
 import { ProductPostForm } from "@/components/posts/ProductPostForm";
 import { createPostAction } from "@/lib/actions/posts";
 
-export default async function NewPostPage() {
+interface NewPostPageProps {
+  searchParams: Promise<{
+    initialContent?: string;
+    productId?: string;
+    initialImageUrl?: string;
+  }>;
+}
+
+export default async function NewPostPage({ searchParams }: NewPostPageProps) {
+  const params = await searchParams;
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -24,6 +33,9 @@ export default async function NewPostPage() {
         submitLabel="게시물 생성하기"
         userId={user.id}
         products={products ?? []}
+        initialContent={params?.initialContent ?? ""}
+        initialProductId={params?.productId ?? ""}
+        initialImageUrl={params?.initialImageUrl ?? ""}
         hasThreadsAccount={Boolean(account)}
         aiGenerateOnSubmit
       />
