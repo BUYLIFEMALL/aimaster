@@ -1,23 +1,22 @@
-import { requireUser } from "@/lib/auth";
-import { TrendExplorer } from "@/components/trends/TrendExplorer";
-import { MarketResearch } from "@/components/trends/MarketResearch";
+import { requireProgramAccess } from "@/lib/access";
+import { TrendsContainer } from "@/components/trends/TrendsContainer";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export default async function TrendsPage() {
-  await requireUser();
+  await requireProgramAccess();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10">
+    <div className="mx-auto max-w-4xl space-y-8">
       <div>
-        <h1 className="mb-2 text-2xl font-semibold text-neutral-900">트렌드 키워드 찾기</h1>
+        <h1 className="mb-2 text-2xl font-semibold text-neutral-900">트렌드 & 바이럴 떡상 탐지기</h1>
         <p className="text-sm text-neutral-600">
-          네이버 검색어트렌드로 카테고리별 관심도 변화를 확인하고, 요즘 뜨는 상품 키워드를
-          먼저 찾아본 뒤 쿠팡·알리익스프레스에서 소싱해보세요. 숫자는 실제 검색량이 아니라
-          선택한 기간 내 최고값을 100으로 놓은 상대 지표입니다.
+          Threads SNS에서 반응(좋아요·댓글·공유)이 폭발 중인 타인의 떡상 포스팅을 실시간 분석하고, AI 벤치마킹으로 내 상품 제휴 포스팅을 1초 만에 생성해보세요.
         </p>
       </div>
-      <TrendExplorer />
-      <hr className="border-neutral-200" />
-      <MarketResearch />
+
+      <TrendsContainer />
     </div>
   );
 }

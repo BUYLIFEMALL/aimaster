@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateSeoDraft } from "@/lib/ai/generator";
+import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
   if (!strategies.has(strategy)) return NextResponse.json({ error: "지원하지 않는 글쓰기 전략입니다." }, { status: 400 });
 
   const supabase = await createClient();
+  await purgeExpiredDrafts(supabase, access.user.id);
   const apiKey = await resolveApiKey(supabase, access.user.id, "openai");
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 

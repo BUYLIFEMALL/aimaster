@@ -20,6 +20,9 @@ type DraftRecord = {
   body: string;
   seo_report?: Record<string, string> | null;
   created_at?: string;
+  image_path?: string | null;
+  image_model?: string | null;
+  image_mime_type?: string | null;
   naver_input_status?: "not_started" | "in_progress" | "completed" | "failed";
   naver_input_completed_at?: string | null;
   naver_input_error?: string | null;
@@ -145,12 +148,25 @@ export default function StudioPage({ email }: { email: string }) {
     setStrategy(draft.strategy || strategies[0][0]);
     setSelectedTitle(draft.title);
     setCurrentDraft(draft);
-    setGeneratedImage(null);
+    setGeneratedImage(draft.image_path ? { dataUrl: `/api/drafts/${encodeURIComponent(draft.id)}/image`, model: draft.image_model || "나노바나나" } : null);
     setExtensionDraftId(draft.id);
     setHandoffMessage("");
     setDraftSaveMessage("");
     setMessage("기존 생성 기록을 작업 화면에 불러왔습니다.");
     openMenu("new-draft");
+  }
+
+  async function deleteDraft(draft: DraftRecord) {
+    const response = await fetch(`/api/drafts/${encodeURIComponent(draft.id)}`, { method: "DELETE" });
+    const result = await response.json() as { error?: string };
+    if (!response.ok) return setMessage(result.error || "초안을 삭제하지 못했습니다.");
+    setHistory((items) => items.filter((item) => item.id !== draft.id));
+    if (extensionDraftId === draft.id) {
+      setCurrentDraft(null);
+      setGeneratedImage(null);
+      setExtensionDraftId(null);
+    }
+    setMessage("생성한 초안과 대표 이미지를 삭제했습니다.");
   }
 
   function startTitleEdit(index: number) {
@@ -296,10 +312,11 @@ export default function StudioPage({ email }: { email: string }) {
     setImagePending(true);
     setMessage("나노바나나가 블로그 대표 이미지를 생성하고 있습니다.");
     try {
-      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draft.topic || topic, title: draft.title, keywords: draft.keywords.join(", ") || keywords }) });
-      const result = await response.json() as { image?: { dataUrl: string; model: string }; error?: string };
+      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, topic: draft.topic || topic, title: draft.title, keywords: draft.keywords.join(", ") || keywords }) });
+      const result = await response.json() as { image?: { dataUrl: string; model: string; path?: string; mimeType?: string }; error?: string };
       if (!response.ok || !result.image) throw new Error(result.error || "이미지 생성에 실패했습니다.");
       setGeneratedImage(result.image);
+      setCurrentDraft({ ...draft, image_path: result.image.path ?? null, image_model: result.image.model, image_mime_type: result.image.mimeType ?? null });
       setMessage("대표 이미지가 생성되었습니다. 다음 단계에서 네이버 편집기에 삽입할 수 있습니다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "이미지 생성에 실패했습니다.");
@@ -401,8 +418,8 @@ export default function StudioPage({ email }: { email: string }) {
         </section>}
 
         {activeMenu === "history" && <section className="history-card card" id="history">
-          <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span><button className="history-refresh" onClick={() => refreshHistory().catch(() => {})}>상태 새로고침</button></div>
-          {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}</span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}
+          <div className="card-head"><div><h2 className="card-title">생성 기록</h2><p className="card-caption">최근 {history.length}건 · 생성일 기준 30일간 보관됩니다. 항목을 누르면 새 글 만들기에서 수정할 수 있습니다.</p></div><button className="history-refresh" onClick={() => refreshHistory().catch(() => {})}>상태 새로고침</button></div>
+          {history.length === 0 ? <p className="history-empty">최근 30일 안에 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <div className="history-row" key={draft.id}><button type="button" className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}</span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button><button type="button" className="text-button danger history-delete" onClick={() => void deleteDraft(draft)} aria-label={`${draft.title} 삭제`}>삭제</button></div>)}</div>}
           {activeHistoryDraft?.naver_input_status === "completed" && <p className="history-detail success">확장 입력 검증 완료{activeHistoryDraft.naver_input_completed_at ? ` · ${new Date(activeHistoryDraft.naver_input_completed_at).toLocaleString("ko-KR")}` : ""}. 네이버 최종 발행은 내용을 검토한 뒤 직접 진행하세요.</p>}
           {activeHistoryDraft?.naver_input_status === "failed" && <p className="history-detail error">확장 입력 재확인 필요: {activeHistoryDraft.naver_input_error || "입력 또는 검증 과정에서 오류가 발생했습니다."} 초안을 다시 확장으로 보낸 뒤 재시도할 수 있습니다.</p>}
         </section>}

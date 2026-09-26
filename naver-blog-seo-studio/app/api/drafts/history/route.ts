@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
+import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -9,9 +10,10 @@ export async function GET() {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const supabase = await createClient();
+  await purgeExpiredDrafts(supabase, access.user.id);
   const { data, error } = await supabase
     .from("naver_blog_seo_drafts")
-    .select("id, topic, keywords, strategy, title, body, seo_report, status, created_at, naver_input_status, naver_input_completed_at, naver_input_error")
+    .select("id, topic, keywords, strategy, title, body, seo_report, status, created_at, image_path, image_model, image_mime_type, naver_input_status, naver_input_completed_at, naver_input_error")
     .eq("user_id", access.user.id)
     .order("created_at", { ascending: false })
     .limit(30);

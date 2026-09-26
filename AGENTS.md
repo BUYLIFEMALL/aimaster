@@ -180,6 +180,7 @@ vercel deploy --prod --yes --scope buylife
   다른 회원 계정으로는 "앱 ID를 인식할 수 없다" 에러로 연동 자체가 실패 → 회원별 앱 등록
   방식(threads-comment-reply 패턴)으로 전환.
 - 2026-09-25: 관리자 프롬프트 추천 게시판(`admin/prompts`)의 프로그램 전환 시 카테고리 연동 & 자동 리셋 필터 적용. `ai-image-studio`에 make.com Nanobanana 극사실적 포토리얼리즘 프롬프트 엔진 적용 및 픽사 3D, 지브리 애니, 일본 2D 극장판 애니 스타일 신규 추가 및 화풍별 10종 샘플 데이터 반영. Vercel 커스텀 도메인 Alias 포인팅 연동 최신화 완료 (`docs/PLATFORM_PATTERNS.md` §22, §23 참고). `naver-blog-seo-studio` 크롬 확장 v1.0.36 태그 추출 고도화 반영.
+- 2026-09-26: `threads-affiliate-poster` 트렌드 페이지(/trends) 개편 완료. 5대 핵심 바이럴 탐지 기능(인기 컨텐츠 조회수 배지, 브랜드 칩 검색, 반응도 정렬, 찜 보관함 `tap_saved_posts`, GPT-4o-mini & Gemini 1.5 Flash 멀티 AI + 페르소나 `tap_personas` 벤치마킹 캡션 생성) 탑재 (`docs/PLATFORM_PATTERNS.md` §24 참고).
 
 ---
 
