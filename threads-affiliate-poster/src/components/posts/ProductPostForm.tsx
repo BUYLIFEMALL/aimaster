@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { ThreadsTone } from "@/lib/ai/generator";
 import type { AffiliateProduct } from "@/types/product";
 import { PLATFORM_LABELS } from "@/types/product";
+import { PRESET_PERSONAS } from "@/lib/constants/personas";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 1024 * 1024 * 1024; // Threads 공식 제한(1GB, 최대 5분, MP4/MOV)
@@ -187,6 +188,8 @@ export function ProductPostForm({
   const [productId, setProductId] = useState(initialProductId);
   const selectedProduct = products.find((p) => p.id === productId) ?? null;
   const [tone, setTone] = useState<Tone>("친근함");
+  const [selectedPersonaId, setSelectedPersonaId] = useState<string>("p-01");
+  const [customPersonaText, setCustomPersonaText] = useState("");
   const [keywordInput, setKeywordInput] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
@@ -287,10 +290,19 @@ export function ProductPostForm({
 
     if (!finalContent) {
       const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
-      setStatusMsg("AI가 상품 정보를 바탕으로 홍보 게시글을 작성하고 있습니다...");
+      setStatusMsg("AI가 선택한 페르소나 및 상품 정보를 바탕으로 홍보 게시글을 작성하고 있습니다...");
+
+      let personaTone: string = tone;
+      if (selectedPersonaId === "custom") {
+        personaTone = customPersonaText.trim() || "친근하고 자연스러운 어조";
+      } else {
+        const found = PRESET_PERSONAS.find((p) => p.id === selectedPersonaId);
+        if (found) personaTone = found.toneDescription;
+      }
+
       const textResult = await generateAffiliateContentAction({
         productId,
-        tone,
+        tone: personaTone,
         keywords,
         referenceUrls: validReferenceUrls,
         apiKey: openaiApiKey,
@@ -448,18 +460,37 @@ export function ProductPostForm({
         )}
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-neutral-500">답장 톤</label>
+          <label className="mb-1 block text-xs font-bold text-neutral-800 flex items-center justify-between">
+            <span>🎭 AI 페르소나 스타일 선택 (트렌드 떡상 탐지기 연동)</span>
+            <span className="text-[10px] text-purple-600 font-normal">선택 시 해당 인격 어조로 캡션 생성</span>
+          </label>
           <select
-            value={tone}
-            onChange={(e) => setTone(e.target.value as Tone)}
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700"
+            value={selectedPersonaId}
+            onChange={(e) => setSelectedPersonaId(e.target.value)}
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-800 bg-white focus:border-purple-600 focus:outline-none cursor-pointer shadow-2xs"
           >
-            {TONE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+            {PRESET_PERSONAS.map((p) => (
+              <option key={p.id} value={p.id}>
+                [{p.id}] {p.name}
               </option>
             ))}
+            <option value="custom">✍️ 커스텀 페르소나 직접 입력</option>
           </select>
+
+          {selectedPersonaId === "custom" ? (
+            <Input
+              type="text"
+              placeholder="예: 30대 자취생 말투, 감성적인 어조, 이모지 많이 사용"
+              value={customPersonaText}
+              onChange={(e) => setCustomPersonaText(e.target.value)}
+              className="mt-2 text-xs"
+            />
+          ) : (
+            <p className="mt-1.5 text-xs text-neutral-600 bg-white p-2.5 rounded-md border border-neutral-200 leading-relaxed">
+              💡 <span className="font-semibold text-purple-700">적용될 어조:</span>{" "}
+              {PRESET_PERSONAS.find((p) => p.id === selectedPersonaId)?.toneDescription}
+            </p>
+          )}
         </div>
 
         <div className="space-y-1.5">

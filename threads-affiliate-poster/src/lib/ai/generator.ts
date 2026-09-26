@@ -1,11 +1,11 @@
 import "server-only";
 import { ensureParagraphBreaks } from "./formatContent";
 
-export type ThreadsTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는";
+export type ThreadsTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는" | string;
 
 export interface GeneratePostInput {
   topic: string;
-  tone?: ThreadsTone;
+  tone?: string;
   keywords?: string[];
   referenceUrls?: string[];
   /** 본문(제목 제외) 최대 글자 수. 생략 시 450(일반 게시글 기본값). 제휴 게시글은
@@ -18,7 +18,7 @@ export interface GeneratePostResult {
   content: string;
 }
 
-const TONE_INSTRUCTIONS: Record<ThreadsTone, string> = {
+const TONE_INSTRUCTIONS: Record<string, string> = {
   전문적: "신뢰감 있고 정보 전달에 집중하되, 딱딱해지지 않게 반말 유지.",
   친근함: "친근하고 편안한 에너지로, 반말 유지.",
   설득력있는: "구매 욕구를 자극하는 설득력 있는 어조로, 반말 유지.",
@@ -94,7 +94,9 @@ export async function generatePostContent(
   }
 
   const targetLength = input.maxLength ?? 450;
-  const toneInstruction = TONE_INSTRUCTIONS[input.tone ?? "친근함"];
+  const toneInstruction =
+    TONE_INSTRUCTIONS[input.tone ?? "친근함"] ||
+    (input.tone ? `지정된 페르소나/어조: ${input.tone}` : TONE_INSTRUCTIONS["친근함"]);
   const keywords = (input.keywords ?? []).filter((k) => k.trim().length > 0);
   const keywordLine = keywords.length > 0 ? `\n포함할 키워드: ${keywords.join(", ")}` : "";
 

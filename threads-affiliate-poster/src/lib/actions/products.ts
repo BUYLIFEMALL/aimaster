@@ -115,6 +115,32 @@ export async function registerCoupangProductAction(
   return { success: true };
 }
 
+async function tryFetchOgImage(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return null;
+    const html = await res.text();
+    const match =
+      html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
+      html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i) ||
+      html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i);
+    let img = match ? match[1] : null;
+    if (img && img.startsWith("//")) img = `https:${img}`;
+    return img;
+  } catch {
+    return null;
+  }
+}
+
 /** 알리익스프레스 상품 URL을 제휴 링크로 변환해 등록한다. */
 export async function registerAliexpressProductAction(
   _prevState: RegisterProductState,
@@ -152,6 +178,10 @@ export async function registerAliexpressProductAction(
     }
 
     const enrichment = parseEnrichmentFields(formData);
+    let extractedImage = enrichment.image_url;
+    if (!extractedImage) {
+      extractedImage = await tryFetchOgImage(productUrl);
+    }
 
     const { error } = await supabase.from("affiliate_products").insert({
       user_id: user.id,
@@ -160,6 +190,7 @@ export async function registerAliexpressProductAction(
       product_url: productUrl,
       affiliate_url: link.promotionLink,
       ...enrichment,
+      image_url: extractedImage || enrichment.image_url || null,
     });
     if (error) return { error: error.message };
 
