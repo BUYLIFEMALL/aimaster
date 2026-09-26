@@ -827,7 +827,7 @@ export function ViralPostDetector() {
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4 text-amber-400 fill-amber-300" />
-                    <span>✨ AI 쓰레드 캡션 생성하기</span>
+                    <span>AI 쓰레드 캡션 생성하기</span>
                   </>
                 )}
               </button>
