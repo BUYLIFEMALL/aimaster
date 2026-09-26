@@ -21,7 +21,7 @@ const FLOW_STEPS = [
     href: "/products",
     icon: "🛒",
     label: "상품 관리",
-    description: "쿠팡·알리·네이버 상품 등록",
+    description: "쿠팡·알리·네이버·토스 상품 등록",
   },
   {
     step: 3,
