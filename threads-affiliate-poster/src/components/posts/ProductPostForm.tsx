@@ -461,7 +461,7 @@ export function ProductPostForm({
 
         <div>
           <label className="mb-1 block text-xs font-bold text-neutral-800 flex items-center justify-between">
-            <span>🎭 AI 페르소나 스타일 선택 (트렌드 떡상 탐지기 연동)</span>
+            <span>🎭 AI 페르소나 스타일 선택</span>
             <span className="text-[10px] text-purple-600 font-normal">선택 시 해당 인격 어조로 캡션 생성</span>
           </label>
           <select
