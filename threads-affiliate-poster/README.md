@@ -56,8 +56,19 @@
   `detail_pages.id`를 느슨하게 참조, FK 없음)
 - `tap_posts` — 게시글(`threads/`의 `posts`와 거의 동일한 상태머신: draft→scheduled→
   publishing→published/failed) + `product_id`로 `affiliate_products`와 연결
+- `tap_saved_posts` — 찜한 레퍼런스 떡상 포스팅 보관함 (user_id, post_id, author_handle, content, likes, replies, reposts, category)
+- `tap_personas` — 나만의 AI 글쓰기 페르소나 설정 (user_id, name, tone_description, sample_writing)
 - `user_api_keys` — 공용 테이블, provider 4종 추가(`coupang_access_key`/`coupang_secret_key`/
   `aliexpress_app_key`/`aliexpress_app_secret`)
+
+## 5대 바이럴 떡상 탐지기 (/trends)
+
+1. **Threads 인기 컨텐츠 실시간 조회**: 추정 조회수 배지 및 1일/1주일/1달/전체 기간 필터링.
+2. **브랜드 핫 키워드 검색**: 다이소, 코스트코, 무인양품, 돈키호테, 올리브영, 쿠팡, 알리 등 퀵 브랜드 칩 및 검색.
+3. **반응도별 정렬**: 🔥 종합 반응도, ❤️ 좋아요순, 💬 댓글순, 🔄 리포스트순 필터.
+4. **찜 보관함 (`tap_saved_posts`)**: 관심 떡상 글 찜하기 및 `📁 내 찜 보관함` 서브 탭 관리.
+5. **학습된 페르소나 멀티 AI 캡션 생성**: OpenAI(GPT-4o-mini) / Google Gemini(Gemini 1.5 Flash) + 자취러/에디터/주부/테크리뷰어 페르소나 어댑터 캡션 생성.
+
 
 ## 핵심 흐름
 

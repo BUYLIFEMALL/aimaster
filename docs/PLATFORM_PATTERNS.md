@@ -517,27 +517,27 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 3. **일본 2D 극장판 애니 (`japanese_anime`)**:
    - 신카이 마코토 및 교토 애니메이션(KyoAni) 스타일의 2D 극장판 screencap, 화려한 광원 렌즈 플레어 및 디테일한 야경/하늘 표현.
 
-524: - `ai-image-studio/app/api/prompts/seed/route.ts`
-525: 
-526: ---
-527: 
-528: ## 24. Threads 바이럴 떡상 탐지기 및 페르소나 멀티 AI 벤치마킹 연동 규격 (2026-09-26)
-529: 
-530: **개요**: `threads-affiliate-poster` 트렌드 페이지(/trends)에 5대 핵심 바이럴 탐지 & 페르소나 AI 생성 기능을 고도화 적용함.
-531: 
-532: **5대 구현 기능**:
-533: 1. **인기 컨텐츠 조회**: 추정 조회수 배지 및 1일/1주일/1달/전체 기간 필터.
-534: 2. **브랜드 핫 키워드 검색**: 다이소, 코스트코, 무인양품, 돈키호테, 올리브영, 쿠팡, 알리 등 퀵 브랜드 칩 및 커스텀 키워드 검색.
-535: 3. **반응도 정렬**: 종합 반응도, ❤️ 좋아요순, 💬 댓글순, 🔄 리포스트순 필터.
-536: 4. **찜 보관함 (`tap_saved_posts`)**: 관심 떡상 레퍼런스 포스팅 찜하기 및 `📁 내 찜 보관함` 서브 탭 관리.
-537: 5. **학습된 페르소나 멀티 AI 캡션 생성**: OpenAI(GPT-4o-mini) 및 Google Gemini(Gemini 1.5 Flash) 멀티 AI 엔진 어댑터와 자취러/에디터/주부/테크리뷰어 페르소나 어댑터 결합 + 법적 필수 제휴 고지 문구 자동 연동.
-538: 
-539: **관련 파일**:
-540: - `threads-affiliate-poster/src/app/(dashboard)/trends/page.tsx`
-541: - `threads-affiliate-poster/src/components/trends/TrendsContainer.tsx`
-542: - `threads-affiliate-poster/src/components/trends/ViralPostDetector.tsx`
-543: - `threads-affiliate-poster/src/lib/actions/viral.ts`
-544: - `threads-affiliate-poster/supabase/migrations/0002_tap_trends_bookmarks_personas.sql`
+- `ai-image-studio/app/api/prompts/seed/route.ts`
+
+---
+
+## 24. Threads 바이럴 떡상 탐지기 및 페르소나 멀티 AI 벤치마킹 연동 규격 (2026-09-26)
+
+**개요**: `threads-affiliate-poster` 트렌드 페이지(/trends)에 5대 핵심 바이럴 탐지 & 페르소나 AI 생성 기능을 고도화 적용함.
+
+**5대 구현 기능**:
+1. **인기 컨텐츠 조회**: 추정 조회수 배지 및 1일/1주일/1달/전체 기간 필터.
+2. **브랜드 핫 키워드 검색**: 다이소, 코스트코, 무인양품, 돈키호테, 올리브영, 쿠팡, 알리 등 퀵 브랜드 칩 및 커스텀 키워드 검색.
+3. **반응도 정렬**: 종합 반응도, ❤️ 좋아요순, 💬 댓글순, 🔄 리포스트순 필터.
+4. **찜 보관함 (`tap_saved_posts`)**: 관심 떡상 레퍼런스 포스팅 찜하기 및 `📁 내 찜 보관함` 서브 탭 관리.
+5. **학습된 페르소나 멀티 AI 캡션 생성**: OpenAI(GPT-4o-mini) 및 Google Gemini(Gemini 1.5 Flash) 멀티 AI 엔진 어댑터와 자취러/에디터/주부/테크리뷰어 페르소나 어댑터 결합 + 법적 필수 제휴 고지 문구 자동 연동.
+
+**관련 파일**:
+- `threads-affiliate-poster/src/app/(dashboard)/trends/page.tsx`
+- `threads-affiliate-poster/src/components/trends/TrendsContainer.tsx`
+- `threads-affiliate-poster/src/components/trends/ViralPostDetector.tsx`
+- `threads-affiliate-poster/src/lib/actions/viral.ts`
+- `threads-affiliate-poster/supabase/migrations/0002_tap_trends_bookmarks_personas.sql`
 
 
 
