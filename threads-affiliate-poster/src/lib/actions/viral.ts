@@ -480,7 +480,7 @@ RULES:
 
       const openai = new OpenAI({ apiKey: openAiKey });
       let actualModel = input.aiModel || "gpt-5.6-luna";
-      if (actualModel === "gpt-5.6-luna" || actualModel === "gpt-5.6-terra") actualModel = "gpt-4o-mini";
+      if (actualModel === "gpt-5.6-luna" || actualModel === "gpt-5.6-terra" || actualModel === "gpt-4.1") actualModel = "gpt-4o";
       if (actualModel === "gpt-5.6-sol") actualModel = "gpt-4o";
 
       const completion = await openai.chat.completions.create({
