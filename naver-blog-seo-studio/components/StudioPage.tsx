@@ -235,14 +235,18 @@ export default function StudioPage({ email }: { email: string }) {
         {currentDraft && <section className="draft-result-card card" id="draft-result" aria-labelledby="draft-result-title">
           <div className="card-head"><div><h2 id="draft-result-title" className="card-title">생성된 초안</h2><p className="draft-result-subtitle">검토 후 대표 이미지와 Chrome 확장 전송까지 이어서 진행하세요.</p></div><span className="draft-ready-badge">3 / 3 단계 · 준비 완료</span></div>
           <div className="draft-result-meta"><span>주제: {currentDraft.topic}</span><span>전략: {strategy}</span><span>키워드: {currentDraft.keywords.join(", ") || "없음"}</span></div>
+          <div className="draft-image-stage">
+            <div><strong>대표 이미지</strong><p>선택한 제목을 바탕으로 나노바나나 이미지를 생성합니다.</p></div>
+            <button className="secondary" onClick={generateImage} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : generatedImage ? "대표 이미지 다시 생성" : "나노바나나 이미지 생성"}</button>
+            {generatedImage ? <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성된 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div> : <p className="draft-image-empty">아직 대표 이미지가 없습니다. 필요한 경우 생성한 뒤 Chrome 확장에서 본문과 함께 삽입할 수 있습니다.</p>}
+          </div>
           <div className="draft-result-grid">
             <article className="draft-content-preview"><div className="preview-label">제목</div><h3>{currentDraft.title}</h3><div className="preview-label">본문 미리보기</div><pre>{currentDraft.body}</pre><button type="button" className="secondary" onClick={copyDraftText}>제목·본문 복사</button></article>
             <aside className="draft-actions-panel">
-              <div className="seo-report"><h3>SEO·사실 확인</h3>{Object.entries(currentDraft.seo_report ?? {}).length ? <dl>{Object.entries(currentDraft.seo_report ?? {}).map(([key, value]) => <div key={key}><dt>{reportLabels[key] ?? key}</dt><dd>{value}</dd></div>)}</dl> : <p>초안의 검색 의도와 사실 확인 항목을 직접 검토해주세요.</p>}</div>
-              <div className="result-action"><strong>대표 이미지</strong><p>선택한 제목을 바탕으로 나노바나나 이미지를 생성합니다.</p><button className="secondary" onClick={generateImage} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : generatedImage ? "대표 이미지 다시 생성" : "나노바나나 이미지 생성"}</button>{generatedImage && <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성된 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div>}</div>
               <div className="result-action"><strong>Chrome 확장 전송</strong><p>확장에서 제목·이미지·본문을 네이버 편집기로 입력합니다. 최종 발행은 직접 진행합니다.</p><button className="primary compact" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "이 초안을 Chrome 확장으로 보내기"}</button>{handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}</div>
             </aside>
           </div>
+          <div className="seo-report seo-report-bottom"><h3>SEO·사실 확인</h3>{Object.entries(currentDraft.seo_report ?? {}).length ? <dl>{Object.entries(currentDraft.seo_report ?? {}).map(([key, value]) => <div key={key}><dt>{reportLabels[key] ?? key}</dt><dd>{value}</dd></div>)}</dl> : <p>초안의 검색 의도와 사실 확인 항목을 직접 검토해주세요.</p>}</div>
         </section>}
 
         <section className="optimize-card card" id="draft">
