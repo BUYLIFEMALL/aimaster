@@ -5,6 +5,7 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getDisclosureText } from "@/lib/ai/affiliateGenerator";
 import { generatePostImage } from "@/lib/ai/generator";
+import { publishPost } from "@/lib/posts/publish-core";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
@@ -556,6 +557,7 @@ export async function createDirectBenchmarkPostAction(input: {
   platform: AffiliatePlatform;
   affiliateUrl: string;
   imageUrl?: string;
+  publishNow?: boolean;
 }): Promise<{ postId?: string; error?: string }> {
   try {
     const user = await requireProgramAccess();
@@ -617,9 +619,41 @@ export async function createDirectBenchmarkPostAction(input: {
       return { error: error?.message || "게시글 저장에 실패했습니다." };
     }
 
+    if (input.publishNow) {
+      const { data: account, error: accErr } = await supabase
+        .from("tap_accounts")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (accErr || !account) {
+        return {
+          postId: inserted.id,
+          error: "게시글은 임시 저장되었으나, Threads 계정이 연결되지 않았습니다. [설정] 메뉴에서 계정을 연결해 주세요.",
+        };
+      }
+
+      try {
+        await publishPost({
+          supabase,
+          postId: inserted.id,
+          userId: user.id,
+          content: input.content,
+          imageUrl: imageUrl,
+          videoUrl: null,
+          threadsUserId: account.threads_user_id,
+          accessToken: account.access_token,
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Threads 즉시 포스팅에 실패했습니다.";
+        await supabase.from("tap_posts").update({ status: "failed", error_message: message }).eq("id", inserted.id);
+        return { postId: inserted.id, error: `포스팅 실패: ${message}` };
+      }
+    }
+
     await logProgramUsage({
       userId: user.id,
-      action: "create_benchmark_post_direct",
+      action: input.publishNow ? "publish_benchmark_post_direct" : "create_benchmark_post_direct",
       metadata: { postId: inserted.id, productName: input.productName },
     });
 

@@ -75,6 +75,7 @@ export function ViralPostDetector() {
 
   const [generating, setGenerating] = useState(false);
   const [creatingDirectPost, setCreatingDirectPost] = useState(false);
+  const [publishingNow, setPublishingNow] = useState(false);
   const [imageModel, setImageModel] = useState<string>("nanobanana-2-2k");
   const [generatedCaption, setGeneratedCaption] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
@@ -201,12 +202,16 @@ export function ViralPostDetector() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleCreateDirectPost = async () => {
+  const handleCreateDirectPost = async (publishNow: boolean = false) => {
     if (!generatedCaption || !productName.trim()) {
       setGenError("상품 정보를 먼저 선택하거나 입력해주세요.");
       return;
     }
-    setCreatingDirectPost(true);
+    if (publishNow) {
+      setPublishingNow(true);
+    } else {
+      setCreatingDirectPost(true);
+    }
     setGenError(null);
     const res = await createDirectBenchmarkPostAction({
       content: generatedCaption,
@@ -215,8 +220,10 @@ export function ViralPostDetector() {
       platform,
       affiliateUrl: affiliateUrl.trim(),
       imageUrl: generatedImageUrl || undefined,
+      publishNow,
     });
     setCreatingDirectPost(false);
+    setPublishingNow(false);
     if (res.postId) {
       router.push(`/posts/${res.postId}`);
     } else if (res.error) {
@@ -857,22 +864,39 @@ export function ViralPostDetector() {
                 </div>
 
                 <div className="space-y-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleCreateDirectPost}
-                    disabled={creatingDirectPost}
-                    className="flex items-center justify-center gap-2 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 p-3 text-xs font-bold text-white transition-all shadow-xs cursor-pointer"
-                  >
-                    {creatingDirectPost ? (
-                      <span>AI 완성 게시글 저장 중...</span>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4 text-amber-300 fill-amber-300" />
-                        <span>🚀 완성된 게시글 바로 생성 (결과 페이지로 이동)</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
-                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleCreateDirectPost(false)}
+                      disabled={creatingDirectPost || publishingNow}
+                      className="flex items-center justify-center gap-1.5 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 p-3 text-xs font-bold text-white transition-all shadow-xs cursor-pointer"
+                    >
+                      {creatingDirectPost ? (
+                        <span>저장 중...</span>
+                      ) : (
+                        <>
+                          <ArrowRight className="h-4 w-4" />
+                          <span>게시글 보러가기</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCreateDirectPost(true)}
+                      disabled={creatingDirectPost || publishingNow}
+                      className="flex items-center justify-center gap-1.5 w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 p-3 text-xs font-bold text-white transition-all shadow-xs cursor-pointer"
+                    >
+                      {publishingNow ? (
+                        <span>Threads 포스팅 중...</span>
+                      ) : (
+                        <>
+                          <Zap className="h-4 w-4 text-amber-300 fill-amber-300" />
+                          <span>게시물 포스팅하기</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
 
                   <Link
                     href={`/posts/new?initialContent=${encodeURIComponent(generatedCaption)}&productId=${selectedSavedProductId}&initialImageUrl=${encodeURIComponent(generatedImageUrl || "")}`}
