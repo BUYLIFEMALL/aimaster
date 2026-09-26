@@ -89,6 +89,9 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .optimize-result pre { margin: 0; white-space: pre-wrap; color: #4f4a45; font: inherit; font-size: 13px; line-height: 1.7; }
 .optimize-result ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .history-card { margin-top: 20px; }
+.recent-drafts-card { margin-top: 20px; }
+.recent-drafts-card .card-head { align-items: flex-start; }
+.recent-drafts-card .card-caption { margin: 5px 0 0; line-height: 1.5; }
 .new-draft-card { margin-top: 20px; }
 .selected-title-summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid #eadfd4; border-radius: 13px; background: #fffcf9; padding: 13px 14px; margin-bottom: 20px; }
 .selected-title-summary span { display: block; color: #8a7d72; font-size: 11px; font-weight: 800; }
