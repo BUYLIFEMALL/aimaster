@@ -8,6 +8,31 @@ import { getExplicitYears, getKoreaToday, hasUnrequestedYear } from "@/lib/ai/fr
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+type RecommendedTitle = { title: string; intent?: string };
+
+function normalizeTitles(value: unknown): RecommendedTitle[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is RecommendedTitle => Boolean(item) && typeof item === "object" && "title" in item && typeof item.title === "string" && Boolean(item.title.trim()))
+    .map((item) => ({ title: item.title.trim(), ...(typeof item.intent === "string" && item.intent.trim() ? { intent: item.intent.trim() } : {}) }));
+}
+
+export async function GET() {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("naver_blog_seo_title_recommendations")
+    .select("id, topic, keywords, titles, selected_title, created_at, updated_at")
+    .eq("user_id", access.user.id)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) return NextResponse.json({ error: "저장된 제목 추천을 불러오지 못했습니다." }, { status: 500 });
+  if (!data) return NextResponse.json({ recommendation: null });
+  return NextResponse.json({ recommendation: { ...data, titles: normalizeTitles(data.titles) } });
+}
+
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
@@ -43,12 +68,17 @@ export async function POST(request: Request) {
     if (!response.ok) return NextResponse.json({ error: `제목 추천 요청에 실패했습니다. (${response.status})` }, { status: 502 });
     const data = await response.json() as { choices?: { message?: { content?: string } }[] };
     const parsed = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as { titles?: unknown };
-    const candidates = Array.isArray(parsed.titles) ? parsed.titles : [];
-    const titles = candidates
-      .filter((item): item is { title: string; intent?: string } => Boolean(item) && typeof item === "object" && "title" in item && typeof item.title === "string" && Boolean(item.title.trim()) && !hasUnrequestedYear(item.title, explicitYears))
+    const titles = normalizeTitles(parsed.titles)
+      .filter((item) => !hasUnrequestedYear(item.title, explicitYears))
       .slice(0, 5);
     if (titles.length < 5) return NextResponse.json({ error: "최신성 규칙을 만족하는 제목 5개를 받지 못했습니다. 다시 시도해주세요." }, { status: 502 });
-    return NextResponse.json({ titles });
+    const { data: recommendation, error: saveError } = await supabase
+      .from("naver_blog_seo_title_recommendations")
+      .insert({ user_id: access.user.id, topic, keywords, titles, selected_title: null })
+      .select("id, topic, keywords, titles, selected_title, created_at, updated_at")
+      .single();
+    if (saveError || !recommendation) return NextResponse.json({ error: "생성한 제목 추천을 저장하지 못했습니다." }, { status: 500 });
+    return NextResponse.json({ recommendation: { ...recommendation, titles: normalizeTitles(recommendation.titles) } });
   } catch {
     return NextResponse.json({ error: "제목 추천 중 오류가 발생했습니다." }, { status: 502 });
   }

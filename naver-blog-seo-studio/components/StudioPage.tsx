@@ -27,6 +27,14 @@ type DraftRecord = {
 
 type RecommendedTitle = { title: string; intent?: string };
 
+type TitleRecommendationRecord = {
+  id: string;
+  topic: string;
+  keywords: string;
+  titles: RecommendedTitle[];
+  selected_title?: string | null;
+};
+
 const reportLabels: Record<string, string> = {
   searchIntent: "검색 의도",
   strength: "초안 강점",
@@ -44,6 +52,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [pending, setPending] = useState(false);
   const [titlePending, setTitlePending] = useState(false);
   const [recommendedTitles, setRecommendedTitles] = useState<RecommendedTitle[]>([]);
+  const [titleRecommendationId, setTitleRecommendationId] = useState<string | null>(null);
   const [selectedTitle, setSelectedTitle] = useState("");
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
   const [titleEditValue, setTitleEditValue] = useState("");
@@ -68,6 +77,15 @@ export default function StudioPage({ email }: { email: string }) {
 
   useEffect(() => {
     fetch("/api/drafts/history").then((response) => response.ok ? response.json() : { drafts: [] }).then((result: { drafts?: typeof history }) => setHistory(result.drafts ?? [])).catch(() => setHistory([]));
+    fetch("/api/titles/recommend").then((response) => response.ok ? response.json() : { recommendation: null }).then((result: { recommendation?: TitleRecommendationRecord | null }) => {
+      const recommendation = result.recommendation;
+      if (!recommendation) return;
+      setTitleRecommendationId(recommendation.id);
+      setTopic(recommendation.topic);
+      setKeywords(recommendation.keywords);
+      setRecommendedTitles(recommendation.titles);
+      setSelectedTitle(recommendation.selected_title ?? "");
+    }).catch(() => {});
   }, []);
 
   function openMenu(id: string) {
@@ -94,18 +112,46 @@ export default function StudioPage({ email }: { email: string }) {
     setTitleEditValue(recommendedTitles[index]?.title ?? "");
   }
 
+  async function persistRecommendedTitles(titles: RecommendedTitle[], nextSelectedTitle: string) {
+    if (!titleRecommendationId) return;
+    try {
+      const response = await fetch(`/api/titles/recommend/${encodeURIComponent(titleRecommendationId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titles, selectedTitle: nextSelectedTitle || null }),
+      });
+      const result = await response.json() as { recommendation?: TitleRecommendationRecord; error?: string };
+      if (!response.ok || !result.recommendation) throw new Error(result.error || "제목 추천 저장에 실패했습니다.");
+      setRecommendedTitles(result.recommendation.titles);
+      setSelectedTitle(result.recommendation.selected_title ?? "");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "제목 추천 저장에 실패했습니다.");
+    }
+  }
+
+  function selectRecommendedTitle(title: string) {
+    setSelectedTitle(title);
+    void persistRecommendedTitles(recommendedTitles, title);
+  }
+
   function saveTitleEdit(index: number) {
     const title = titleEditValue.trim();
     if (!title) return setMessage("제목을 비워둘 수 없습니다.");
-    setRecommendedTitles((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item));
-    if (selectedTitle === recommendedTitles[index]?.title) setSelectedTitle(title);
+    const nextTitles = recommendedTitles.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item);
+    const nextSelectedTitle = selectedTitle === recommendedTitles[index]?.title ? title : selectedTitle;
+    setRecommendedTitles(nextTitles);
+    setSelectedTitle(nextSelectedTitle);
+    void persistRecommendedTitles(nextTitles, nextSelectedTitle);
     setEditingTitleIndex(null);
   }
 
   function deleteRecommendedTitle(index: number) {
     const removed = recommendedTitles[index];
-    setRecommendedTitles((current) => current.filter((_, itemIndex) => itemIndex !== index));
-    if (removed?.title === selectedTitle) setSelectedTitle("");
+    const nextTitles = recommendedTitles.filter((_, itemIndex) => itemIndex !== index);
+    const nextSelectedTitle = removed?.title === selectedTitle ? "" : selectedTitle;
+    setRecommendedTitles(nextTitles);
+    setSelectedTitle(nextSelectedTitle);
+    void persistRecommendedTitles(nextTitles, nextSelectedTitle);
     if (editingTitleIndex === index) setEditingTitleIndex(null);
   }
 
@@ -114,9 +160,12 @@ export default function StudioPage({ email }: { email: string }) {
     setTitlePending(true);
     try {
       const response = await fetch("/api/titles/recommend", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords }) });
-      const result = await response.json() as { titles?: { title: string; intent?: string }[]; error?: string };
+      const result = await response.json() as { recommendation?: TitleRecommendationRecord; error?: string };
       if (!response.ok) throw new Error(result.error || "제목 추천에 실패했습니다.");
-      setRecommendedTitles(result.titles ?? []);
+      if (!result.recommendation) throw new Error("저장된 제목 추천 결과를 받지 못했습니다.");
+      setTitleRecommendationId(result.recommendation.id);
+      setRecommendedTitles(result.recommendation.titles);
+      setSelectedTitle("");
       setEditingTitleIndex(null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "제목 추천에 실패했습니다.");
@@ -263,11 +312,11 @@ export default function StudioPage({ email }: { email: string }) {
         {activeMenu === "title" && <section className="title-recommendation card" id="title">
           <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">1 / 2 단계 · 검색 의도 기반</span></div>
           <p className="section-description">글의 주제와 핵심 키워드를 입력하면 AI가 제목을 제안합니다. 제목은 수정하거나 삭제할 수 있고, 하나를 선택해야 다음 단계로 이동할 수 있습니다.</p>
-          <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => { setTopic(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); }} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
-          <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => { setKeywords(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); }} placeholder="쉼표로 구분해 입력하세요" /></div>
+          <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => { setTopic(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); setTitleRecommendationId(null); }} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
+          <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => { setKeywords(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); setTitleRecommendationId(null); }} placeholder="쉼표로 구분해 입력하세요" /></div>
           <p className="freshness-note">연도·통계·정책처럼 최신성 확인이 필요한 정보는 근거 없이 넣지 않습니다. 연도가 꼭 필요하면 주제 또는 키워드에 직접 입력하세요.</p>
           <button type="button" className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천 생성"}</button>
-          {recommendedTitles.length > 0 && <div className="title-management"><div className="title-management-head"><div><h3>생성된 제목</h3><p>{recommendedTitles.length}개 중 새 글에 사용할 제목을 하나 선택하세요.</p></div><span>{selectedTitle ? "제목 선택됨" : "제목을 선택해주세요"}</span></div><div className="title-list">{recommendedTitles.map((item, index) => <div key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`}>{editingTitleIndex === index ? <div className="title-edit-row"><input value={titleEditValue} onChange={(event) => setTitleEditValue(event.target.value)} aria-label="제목 수정" autoFocus /><button type="button" className="secondary compact" onClick={() => saveTitleEdit(index)}>저장</button><button type="button" className="text-button" onClick={() => setEditingTitleIndex(null)}>취소</button></div> : <><button type="button" className="title-select" onClick={() => setSelectedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button><div className="title-option-actions"><button type="button" className="text-button" onClick={() => startTitleEdit(index)}>수정</button><button type="button" className="text-button danger" onClick={() => deleteRecommendedTitle(index)}>삭제</button></div></>}</div>)}</div><button type="button" className="primary" onClick={() => openMenu("new-draft")} disabled={!selectedTitle}>선택한 제목으로 2번 단계로 이동</button></div>}
+          {recommendedTitles.length > 0 && <div className="title-management"><div className="title-management-head"><div><h3>생성된 제목</h3><p>{recommendedTitles.length}개 중 새 글에 사용할 제목을 하나 선택하세요.</p></div><span>{selectedTitle ? "제목 선택됨" : "제목을 선택해주세요"}</span></div><div className="title-list">{recommendedTitles.map((item, index) => <div key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`}>{editingTitleIndex === index ? <div className="title-edit-row"><input value={titleEditValue} onChange={(event) => setTitleEditValue(event.target.value)} aria-label="제목 수정" autoFocus /><button type="button" className="secondary compact" onClick={() => saveTitleEdit(index)}>저장</button><button type="button" className="text-button" onClick={() => setEditingTitleIndex(null)}>취소</button></div> : <><button type="button" className="title-select" onClick={() => selectRecommendedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button><div className="title-option-actions"><button type="button" className="text-button" onClick={() => startTitleEdit(index)}>수정</button><button type="button" className="text-button danger" onClick={() => deleteRecommendedTitle(index)}>삭제</button></div></>}</div>)}</div><button type="button" className="primary" onClick={() => openMenu("new-draft")} disabled={!selectedTitle}>선택한 제목으로 2번 단계로 이동</button></div>}
         </section>}
 
         {activeMenu === "new-draft" && <><section className="card new-draft-card" id="new-draft">
