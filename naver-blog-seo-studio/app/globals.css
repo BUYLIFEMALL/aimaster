@@ -60,7 +60,10 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .secondary { border: 1px solid var(--accent); border-radius: 10px; background: var(--accent-soft); color: var(--accent); padding: 10px 14px; font-size: 13px; font-weight: 700; }
 .secondary:disabled { opacity: .55; cursor: wait; }
 .compact { padding: 8px 11px; font-size: 12px; }
-.title-management { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+.title-input-section, .title-management, .title-strategy-section { margin-top: 16px; }
+.title-input-section { margin-top: 0; }
+.title-management { border-color: #e3d8cf; }
+.title-strategy-section { border-color: #e3d8cf; }
 .title-management-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .title-management-head h3 { margin: 0; font-size: 14px; }
 .title-management-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
