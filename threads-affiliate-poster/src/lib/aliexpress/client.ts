@@ -111,3 +111,63 @@ export async function getPromotionLinks(
       promotionLink: l.promotion_link as string,
     }));
 }
+
+export function extractAliexpressProductId(url: string): string | null {
+  const match =
+    url.match(/item\/(\d+)\.html/i) ||
+    url.match(/\/(\d+)\.html/i) ||
+    url.match(/productId=(\d+)/i) ||
+    url.match(/\/(\d+)\?/);
+  return match ? match[1] : null;
+}
+
+export interface AliexpressProductDetail {
+  productId: string;
+  title?: string;
+  imageUrl?: string;
+}
+
+export async function getProductDetails(
+  productIds: string[],
+  auth: AliexpressAuthParams & { trackingId: string },
+): Promise<AliexpressProductDetail[]> {
+  try {
+    const data = await callTopApi(
+      "aliexpress.affiliate.productdetail.get",
+      {
+        product_ids: productIds.join(","),
+        tracking_id: auth.trackingId,
+        target_currency: "KRW",
+        target_language: "KO",
+      },
+      auth,
+    );
+
+    const result = data["aliexpress_affiliate_productdetail_get_response"] as
+      | {
+          resp_result?: {
+            result?: {
+              products?: {
+                product?: Array<{
+                  product_id?: number | string;
+                  product_title?: string;
+                  product_main_image_url?: string;
+                }>;
+              };
+            };
+          };
+        }
+      | undefined;
+
+    const list = result?.resp_result?.result?.products?.product ?? [];
+    return list.map((p) => ({
+      productId: String(p.product_id ?? ""),
+      title: p.product_title,
+      imageUrl: p.product_main_image_url,
+    }));
+  } catch (err) {
+    console.error("getProductDetails error:", err);
+    return [];
+  }
+}
+

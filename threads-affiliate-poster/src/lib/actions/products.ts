@@ -5,7 +5,7 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
-import { getPromotionLinks } from "@/lib/aliexpress/client";
+import { getPromotionLinks, getProductDetails, extractAliexpressProductId } from "@/lib/aliexpress/client";
 import {
   getBestSelling,
   getCategories,
@@ -179,6 +179,17 @@ export async function registerAliexpressProductAction(
 
     const enrichment = parseEnrichmentFields(formData);
     let extractedImage = enrichment.image_url;
+
+    if (!extractedImage) {
+      const aliexpressId = extractAliexpressProductId(productUrl);
+      if (aliexpressId) {
+        const details = await getProductDetails([aliexpressId], { appKey, appSecret, trackingId });
+        if (details.length > 0 && details[0].imageUrl) {
+          extractedImage = details[0].imageUrl;
+        }
+      }
+    }
+
     if (!extractedImage) {
       extractedImage = await tryFetchOgImage(productUrl);
     }

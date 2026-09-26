@@ -11,6 +11,8 @@ function formatImageUrl(url: string | null | undefined): string | null {
   let formatted = url.trim();
   if (formatted.startsWith("//")) {
     formatted = `https:${formatted}`;
+  } else if (formatted.startsWith("http://")) {
+    formatted = formatted.replace("http://", "https://");
   }
   return formatted;
 }
