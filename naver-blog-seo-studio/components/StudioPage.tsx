@@ -89,8 +89,22 @@ export default function StudioPage({ email }: { email: string }) {
     }).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    const syncMenuFromHash = () => {
+      // 이전에 공유된 #new-draft#new-draft 같은 중복 해시도 지원한다.
+      const hashParts = window.location.hash.slice(1).split("#");
+      const menu = hashParts.find((part) => ["title", "new-draft", "draft", "history"].includes(part));
+      setActiveMenu(menu ?? "title");
+    };
+
+    syncMenuFromHash();
+    window.addEventListener("hashchange", syncMenuFromHash);
+    return () => window.removeEventListener("hashchange", syncMenuFromHash);
+  }, []);
+
   function openMenu(id: string) {
     setActiveMenu(id);
+    window.history.replaceState(null, "", `#${id}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
