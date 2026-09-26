@@ -26,11 +26,10 @@ export async function GET() {
     .select("id, topic, keywords, titles, selected_title, created_at, updated_at")
     .eq("user_id", access.user.id)
     .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(20);
   if (error) return NextResponse.json({ error: "저장된 제목 추천을 불러오지 못했습니다." }, { status: 500 });
-  if (!data) return NextResponse.json({ recommendation: null });
-  return NextResponse.json({ recommendation: { ...data, titles: normalizeTitles(data.titles) } });
+  const recommendations = (data ?? []).map((recommendation) => ({ ...recommendation, titles: normalizeTitles(recommendation.titles) }));
+  return NextResponse.json({ recommendation: recommendations[0] ?? null, recommendations });
 }
 
 export async function POST(request: Request) {

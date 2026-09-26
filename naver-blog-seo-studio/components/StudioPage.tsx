@@ -33,6 +33,8 @@ type TitleRecommendationRecord = {
   keywords: string;
   titles: RecommendedTitle[];
   selected_title?: string | null;
+  created_at?: string;
+  updated_at?: string;
 };
 
 const reportLabels: Record<string, string> = {
@@ -53,6 +55,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [titlePending, setTitlePending] = useState(false);
   const [recommendedTitles, setRecommendedTitles] = useState<RecommendedTitle[]>([]);
   const [titleRecommendationId, setTitleRecommendationId] = useState<string | null>(null);
+  const [titleRecommendations, setTitleRecommendations] = useState<TitleRecommendationRecord[]>([]);
   const [selectedTitle, setSelectedTitle] = useState("");
   const [generateImageWithDraft, setGenerateImageWithDraft] = useState(true);
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
@@ -78,7 +81,8 @@ export default function StudioPage({ email }: { email: string }) {
 
   useEffect(() => {
     fetch("/api/drafts/history").then((response) => response.ok ? response.json() : { drafts: [] }).then((result: { drafts?: typeof history }) => setHistory(result.drafts ?? [])).catch(() => setHistory([]));
-    fetch("/api/titles/recommend").then((response) => response.ok ? response.json() : { recommendation: null }).then((result: { recommendation?: TitleRecommendationRecord | null }) => {
+    fetch("/api/titles/recommend").then((response) => response.ok ? response.json() : { recommendation: null, recommendations: [] }).then((result: { recommendation?: TitleRecommendationRecord | null; recommendations?: TitleRecommendationRecord[] }) => {
+      setTitleRecommendations(result.recommendations ?? []);
       const recommendation = result.recommendation;
       if (!recommendation) return;
       setTitleRecommendationId(recommendation.id);
@@ -106,6 +110,16 @@ export default function StudioPage({ email }: { email: string }) {
     setActiveMenu(id);
     window.history.replaceState(null, "", `#${id}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function loadTitleRecommendation(recommendation: TitleRecommendationRecord) {
+    setTitleRecommendationId(recommendation.id);
+    setTopic(recommendation.topic);
+    setKeywords(recommendation.keywords);
+    setRecommendedTitles(recommendation.titles);
+    setSelectedTitle(recommendation.selected_title ?? "");
+    setEditingTitleIndex(null);
+    setMessage(`저장된 제목 추천을 불러왔습니다: ${recommendation.topic}`);
   }
 
   function reuseDraft(draft: (typeof history)[number]) {
@@ -139,6 +153,7 @@ export default function StudioPage({ email }: { email: string }) {
       if (!response.ok || !result.recommendation) throw new Error(result.error || "제목 추천 저장에 실패했습니다.");
       setRecommendedTitles(result.recommendation.titles);
       setSelectedTitle(result.recommendation.selected_title ?? "");
+      setTitleRecommendations((items) => items.map((item) => item.id === result.recommendation?.id ? { ...item, ...result.recommendation } : item));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "제목 추천 저장에 실패했습니다.");
     }
@@ -181,6 +196,7 @@ export default function StudioPage({ email }: { email: string }) {
       setTitleRecommendationId(result.recommendation.id);
       setRecommendedTitles(result.recommendation.titles);
       setSelectedTitle("");
+      setTitleRecommendations((items) => [result.recommendation!, ...items.filter((item) => item.id !== result.recommendation?.id)]);
       setEditingTitleIndex(null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "제목 추천에 실패했습니다.");
@@ -342,6 +358,7 @@ export default function StudioPage({ email }: { email: string }) {
           <section className="card title-input-section">
           <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">1 / 2 단계 · 검색 의도 기반</span></div>
           <p className="section-description">글의 주제와 핵심 키워드를 입력하면 AI가 제목을 제안합니다. 제목은 수정하거나 삭제할 수 있고, 하나를 선택해야 다음 단계로 이동할 수 있습니다.</p>
+          {titleRecommendations.length > 0 && <div className="saved-title-recommendations"><div><strong>저장된 제목 추천 기록</strong><span>{titleRecommendations.length}건</span></div><div className="saved-title-recommendation-list">{titleRecommendations.map((recommendation) => <button type="button" key={recommendation.id} className={recommendation.id === titleRecommendationId ? "selected" : ""} onClick={() => loadTitleRecommendation(recommendation)}><strong>{recommendation.topic}</strong><small>{recommendation.selected_title || `${recommendation.titles.length}개 제목 저장됨`}</small></button>)}</div></div>}
           <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => { setTopic(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); setTitleRecommendationId(null); }} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
           <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => { setKeywords(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); setTitleRecommendationId(null); }} placeholder="쉼표로 구분해 입력하세요" /></div>
           <p className="freshness-note">연도·통계·정책처럼 최신성 확인이 필요한 정보는 근거 없이 넣지 않습니다. 연도가 꼭 필요하면 주제 또는 키워드에 직접 입력하세요.</p>
