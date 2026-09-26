@@ -434,75 +434,77 @@ export function ViralPostDetector() {
         </div>
       )}
 
-      {loading || isPending ? (
-        <div className="py-12 text-center text-sm text-neutral-500">
-          🔥 바이럴 떡상 지표를 수집 및 분석 중입니다...
-        </div>
-      ) : displayList.length === 0 ? (
-        <div className="py-12 text-center text-sm text-neutral-500 rounded-xl border border-dashed border-neutral-200">
-          {activeSubTab === "saved"
-            ? "보관함에 찜한 포스팅이 없습니다. 탐지기에서 찜하기를 눌러보세요!"
-            : "검색 조건에 해당 포스팅이 없습니다. 다른 키워드나 기간으로 검색해보세요."}
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {displayList.map((post) => (
-            <div
-              key={post.id}
-              className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:border-neutral-400 hover:shadow-md"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xs font-bold">
-                      {post.authorName[0]}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-neutral-900">{post.authorName}</p>
-                      <p className="text-[10px] text-neutral-400">@{post.authorHandle} • {post.postedAtAgo}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200">
-                      <Eye className="h-3 w-3" /> {post.estimatedViews.toLocaleString()}+회
-                    </span>
-
-                    <button
-                      onClick={() => handleToggleBookmark(post)}
-                      title={post.isSaved ? "보관함에서 제거" : "보관함에 찜하기"}
-                      className={`rounded-lg p-1.5 transition-colors ${
-                        post.isSaved
-                          ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
-                          : "bg-neutral-100 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700"
-                      }`}
-                    >
-                      <Bookmark className={`h-4 w-4 ${post.isSaved ? "fill-amber-600 text-amber-600" : ""}`} />
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-xs leading-relaxed text-neutral-800 bg-neutral-50 p-3 rounded-lg border border-neutral-100 mb-3 whitespace-pre-line">
-                  {post.content}
-                </p>
-
-                <div className="flex items-center gap-4 text-[11px] text-neutral-500 mb-4">
-                  <span className="font-semibold text-red-600">❤️ {post.likes.toLocaleString()}</span>
-                  <span className="font-semibold text-amber-700">💬 {post.replies.toLocaleString()}</span>
-                  <span className="font-semibold text-blue-600">🔄 {post.reposts.toLocaleString()}</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => openBenchmarkModal(post)}
-                className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 px-3 py-2 text-xs font-bold text-white transition-colors"
+      {activeSubTab !== "personas" && (
+        loading || isPending ? (
+          <div className="py-12 text-center text-sm text-neutral-500">
+            🔥 바이럴 떡상 지표를 수집 및 분석 중입니다...
+          </div>
+        ) : displayList.length === 0 ? (
+          <div className="py-12 text-center text-sm text-neutral-500 rounded-xl border border-dashed border-neutral-200">
+            {activeSubTab === "saved"
+              ? "보관함에 찜한 포스팅이 없습니다. 탐지기에서 찜하기를 눌러보세요!"
+              : "검색 조건에 해당 포스팅이 없습니다. 다른 키워드나 기간으로 검색해보세요."}
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {displayList.map((post) => (
+              <div
+                key={post.id}
+                className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:border-neutral-400 hover:shadow-md"
               >
-                <Sparkles className="h-3.5 w-3.5 text-amber-400 fill-amber-300" />
-                <span>⚡ 이 떡상글 벤치마킹 AI 캡션 생성</span>
-              </button>
-            </div>
-          ))}
-        </div>
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xs font-bold">
+                        {post.authorName[0]}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-neutral-900">{post.authorName}</p>
+                        <p className="text-[10px] text-neutral-400">@{post.authorHandle} • {post.postedAtAgo}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200">
+                        <Eye className="h-3 w-3" /> {post.estimatedViews.toLocaleString()}+회
+                      </span>
+
+                      <button
+                        onClick={() => handleToggleBookmark(post)}
+                        title={post.isSaved ? "보관함에서 제거" : "보관함에 찜하기"}
+                        className={`rounded-lg p-1.5 transition-colors ${
+                          post.isSaved
+                            ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                            : "bg-neutral-100 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700"
+                        }`}
+                      >
+                        <Bookmark className={`h-4 w-4 ${post.isSaved ? "fill-amber-600 text-amber-600" : ""}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs leading-relaxed text-neutral-800 bg-neutral-50 p-3 rounded-lg border border-neutral-100 mb-3 whitespace-pre-line">
+                    {post.content}
+                  </p>
+
+                  <div className="flex items-center gap-4 text-[11px] text-neutral-500 mb-4">
+                    <span className="font-semibold text-red-600">❤️ {post.likes.toLocaleString()}</span>
+                    <span className="font-semibold text-amber-700">💬 {post.replies.toLocaleString()}</span>
+                    <span className="font-semibold text-blue-600">🔄 {post.reposts.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => openBenchmarkModal(post)}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 px-3 py-2 text-xs font-bold text-white transition-colors"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400 fill-amber-300" />
+                  <span>⚡ 이 떡상글 벤치마킹 AI 캡션 생성</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        )
       )}
 
       {activeModalPost && (
