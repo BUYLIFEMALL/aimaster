@@ -210,7 +210,11 @@ export async function toggleBookmarkAction(post: ViralPostItem): Promise<{ isSav
 
   if (!checkErr) {
     if (existing) {
-      const { error: delErr } = await (supabase as any).from("tap_saved_posts").delete().eq("id", (existing as any).id);
+      const { error: delErr } = await (supabase as any)
+        .from("tap_saved_posts")
+        .delete()
+        .eq("id", (existing as any).id)
+        .eq("user_id", user.id);
       if (!delErr) return { isSaved: false };
     } else {
       const { error: insErr } = await (supabase as any).from("tap_saved_posts").insert({
@@ -247,7 +251,7 @@ export async function toggleBookmarkAction(post: ViralPostItem): Promise<{ isSav
   });
 
   if (match) {
-    await (supabase as any).from("tap_posts").delete().eq("id", match.id);
+    await (supabase as any).from("tap_posts").delete().eq("id", match.id).eq("user_id", user.id);
     return { isSaved: false };
   } else {
     const payload = {
