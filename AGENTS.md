@@ -2,7 +2,7 @@
 
 이 문서는 **Claude Code뿐 아니라 Codex, Gemini(구글) 등 어떤 AI 코딩 에이전트가 이 저장소에
 새로 투입되더라도**, 지금까지 쌓인 작업 방식·규칙·주의사항·완성된 프로그램 현황을 바로 파악하고
-이어서 작업할 수 있도록 정리한 인수인계 문서다. 2026-09-24 기준 최신 상태를 반영했다.
+이어서 작업할 수 있도록 정리한 인수인계 문서다. 2026-09-26 기준 최신 상태를 반영했다.
 
 - 루트에는 이 문서와 별도로 `CLAUDE.md`(Claude Code 전용, 이 문서와 상당 부분 겹침)가 있다.
   Claude Code는 `CLAUDE.md`를 자동으로 읽으므로 그쪽이 1차 소스지만, **다른 도구는 CLAUDE.md를
@@ -194,7 +194,7 @@ vercel deploy --prod --yes --scope buylife
 
 ---
 
-## 7. 등록·운영 중인 프로그램 (`programs` 테이블, 2026-09-20 기준 26개 전부 `is_active: true`)
+## 7. 등록·운영 중인 프로그램 (`programs` 테이블, 2026-09-26 기준 30개 전부 `is_active: true`)
 
 | 카테고리 | 프로그램명 | slug | 라이브 URL |
 |---|---|---|---|
@@ -224,9 +224,10 @@ vercel deploy --prod --yes --scope buylife
 | 유틸리티 | 성격코드(MBTI) 측정기 | personality-code | https://mbti-rho-two.vercel.app |
 | 유틸리티 | 캐릭코드(MBTI) 측정기 | mbti-character | https://mbti-character.vercel.app |
 | 유틸리티 | AI 타로 | tarot-reading | https://tarot-eight-jet.vercel.app |
-| 이미지 | AI 이미지 스튜디오 | image-automation | https://ai-image-studio.vercel.app |
+| 이미지 | AI 이미지 스튜디오 | ai-image-studio | https://ai-image-studio.vercel.app |
 | 네이버 | 네이버 블로그 자동화(App) | naver-blog-auto-poster | https://www.buylife.xyz/naver-blog-auto-poster (데스크톱 앱 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 PC에서 실행됨) |
 | 네이버 | 네이버 블로그 자동화(Web) | naver-blog-auto-poster-web | https://www.buylife.xyz/naver-blog-auto-poster-web (크롬 확장 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 브라우저에서 실행됨) |
+| 네이버 | 네이버 블로그 SEO 스튜디오 | naver-blog-seo-studio | https://www.buylife.xyz/naver-blog-seo-studio (+ 크롬 확장, `naver-blog-seo-studio/extension/`) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).
