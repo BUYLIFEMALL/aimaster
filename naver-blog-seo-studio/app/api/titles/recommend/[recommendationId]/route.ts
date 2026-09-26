@@ -38,3 +38,19 @@ export async function PATCH(request: Request, context: { params: Promise<{ recom
   if (!data) return NextResponse.json({ error: "수정할 제목 추천을 찾지 못했습니다." }, { status: 404 });
   return NextResponse.json({ recommendation: { ...data, titles: normalizeTitles(data.titles) } });
 }
+
+export async function DELETE(_request: Request, context: { params: Promise<{ recommendationId: string }> }) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+
+  const { recommendationId } = await context.params;
+  const supabase = await createClient();
+  const { error, count } = await supabase
+    .from("naver_blog_seo_title_recommendations")
+    .delete({ count: "exact" })
+    .eq("id", recommendationId)
+    .eq("user_id", access.user.id);
+  if (error) return NextResponse.json({ error: "저장된 제목 추천을 삭제하지 못했습니다." }, { status: 500 });
+  if (!count) return NextResponse.json({ error: "삭제할 제목 추천을 찾지 못했습니다." }, { status: 404 });
+  return NextResponse.json({ deletedId: recommendationId });
+}

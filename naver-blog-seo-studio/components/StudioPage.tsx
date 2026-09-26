@@ -122,6 +122,23 @@ export default function StudioPage({ email }: { email: string }) {
     setMessage(`저장된 제목 추천을 불러왔습니다: ${recommendation.topic}`);
   }
 
+  async function deleteTitleRecommendation(recommendation: TitleRecommendationRecord) {
+    const response = await fetch(`/api/titles/recommend/${encodeURIComponent(recommendation.id)}`, { method: "DELETE" });
+    const result = await response.json() as { error?: string };
+    if (!response.ok) return setMessage(result.error || "저장된 제목 추천을 삭제하지 못했습니다.");
+
+    const remaining = titleRecommendations.filter((item) => item.id !== recommendation.id);
+    setTitleRecommendations(remaining);
+    if (titleRecommendationId !== recommendation.id) return;
+    if (remaining[0]) return loadTitleRecommendation(remaining[0]);
+    setTitleRecommendationId(null);
+    setTopic("");
+    setKeywords("");
+    setRecommendedTitles([]);
+    setSelectedTitle("");
+    setMessage("저장된 제목 추천을 삭제했습니다.");
+  }
+
   function reuseDraft(draft: (typeof history)[number]) {
     setTopic(draft.topic);
     setKeywords(Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "");
@@ -358,12 +375,12 @@ export default function StudioPage({ email }: { email: string }) {
           <section className="card title-input-section">
           <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">1 / 2 단계 · 검색 의도 기반</span></div>
           <p className="section-description">글의 주제와 핵심 키워드를 입력하면 AI가 제목을 제안합니다. 제목은 수정하거나 삭제할 수 있고, 하나를 선택해야 다음 단계로 이동할 수 있습니다.</p>
-          {titleRecommendations.length > 0 && <div className="saved-title-recommendations"><div><strong>저장된 제목 추천 기록</strong><span>{titleRecommendations.length}건</span></div><div className="saved-title-recommendation-list">{titleRecommendations.map((recommendation) => <button type="button" key={recommendation.id} className={recommendation.id === titleRecommendationId ? "selected" : ""} onClick={() => loadTitleRecommendation(recommendation)}><strong>{recommendation.topic}</strong><small>{recommendation.selected_title || `${recommendation.titles.length}개 제목 저장됨`}</small></button>)}</div></div>}
           <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => { setTopic(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); setTitleRecommendationId(null); }} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
           <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => { setKeywords(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); setTitleRecommendationId(null); }} placeholder="쉼표로 구분해 입력하세요" /></div>
           <p className="freshness-note">연도·통계·정책처럼 최신성 확인이 필요한 정보는 근거 없이 넣지 않습니다. 연도가 꼭 필요하면 주제 또는 키워드에 직접 입력하세요.</p>
           <button type="button" className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천 생성"}</button>
           </section>
+          {titleRecommendations.length > 0 && <section className="saved-title-recommendations card"><div><strong>저장된 제목 추천 기록</strong><span>{titleRecommendations.length}건</span></div><div className="saved-title-recommendation-list">{titleRecommendations.map((recommendation) => <div key={recommendation.id} className={recommendation.id === titleRecommendationId ? "saved-title-recommendation selected" : "saved-title-recommendation"}><button type="button" onClick={() => loadTitleRecommendation(recommendation)}><strong>{recommendation.topic}</strong><small>{recommendation.selected_title || `${recommendation.titles.length}개 제목 저장됨`}</small></button><button type="button" className="text-button danger saved-title-delete" onClick={() => void deleteTitleRecommendation(recommendation)}>삭제</button></div>)}</div></section>}
           {recommendedTitles.length > 0 && <><section className="title-management card"><div className="title-management-head"><div><h3>생성된 제목 리스트</h3><p>{recommendedTitles.length}개 중 새 글에 사용할 제목을 하나 선택하세요.</p></div><span>{selectedTitle ? "제목 선택됨" : "제목을 선택해주세요"}</span></div><div className="title-list">{recommendedTitles.map((item, index) => <div key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`}>{editingTitleIndex === index ? <div className="title-edit-row"><input value={titleEditValue} onChange={(event) => setTitleEditValue(event.target.value)} aria-label="제목 수정" autoFocus /><button type="button" className="secondary compact" onClick={() => saveTitleEdit(index)}>저장</button><button type="button" className="text-button" onClick={() => setEditingTitleIndex(null)}>취소</button></div> : <><button type="button" className="title-select" onClick={() => selectRecommendedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button><div className="title-option-actions"><button type="button" className="text-button" onClick={() => startTitleEdit(index)}>수정</button><button type="button" className="text-button danger" onClick={() => deleteRecommendedTitle(index)}>삭제</button></div></>}</div>)}</div><label className="image-with-draft-option"><input type="checkbox" checked={generateImageWithDraft} onChange={(event) => setGenerateImageWithDraft(event.target.checked)} /> <span><strong>대표 이미지 생성 (나노바나나)</strong><small>선택한 제목을 바탕으로 초안과 대표 이미지를 함께 생성합니다.</small></span></label></section><section className="title-strategy-section card"><div className="field"><label>글쓰기 전략</label><div className="strategy-grid">{strategies.map(([name, desc]) => <button type="button" key={name} className={`strategy ${strategy === name ? "selected" : ""}`} onClick={() => setStrategy(name)}><strong>{name}</strong><span>{desc}</span></button>)}</div></div><button type="button" className="primary" onClick={() => void createDraftFromSelectedTitle()} disabled={!selectedTitle || pending || imagePending}>{pending ? "AI 초안 생성 중..." : imagePending ? "대표 이미지 생성 중..." : "선택한 제목과 전략으로 AI 초안 생성하기"}</button></section></>}
         </section>}
 

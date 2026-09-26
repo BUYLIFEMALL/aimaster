@@ -61,8 +61,10 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .saved-title-recommendations > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--ink); font-size: 13px; }
 .saved-title-recommendations > div:first-child span { border-radius: 999px; background: #f6efe9; color: #8b5540; padding: 4px 8px; font-size: 11px; font-weight: 800; }
 .saved-title-recommendation-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.saved-title-recommendation-list button { max-width: 100%; border: 1px solid var(--line); border-radius: 9px; background: #fff; padding: 8px 10px; text-align: left; }
-.saved-title-recommendation-list button.selected { border-color: var(--accent); background: var(--accent-soft); }
+.saved-title-recommendation { display: flex; align-items: stretch; max-width: 100%; border: 1px solid var(--line); border-radius: 9px; background: #fff; overflow: hidden; }
+.saved-title-recommendation.selected { border-color: var(--accent); background: var(--accent-soft); }
+.saved-title-recommendation > button:first-child { max-width: 100%; border: 0; background: transparent; padding: 8px 10px; text-align: left; }
+.saved-title-delete { align-self: center; margin-right: 5px; }
 .saved-title-recommendation-list strong, .saved-title-recommendation-list small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .saved-title-recommendation-list strong { max-width: 270px; font-size: 12px; }
 .saved-title-recommendation-list small { max-width: 270px; margin-top: 3px; color: var(--muted); font-size: 11px; }
