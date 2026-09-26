@@ -482,6 +482,7 @@ RULES:
       let actualModel = input.aiModel || "gpt-5.6-luna";
       if (actualModel === "gpt-5.6-luna" || actualModel === "gpt-5.6-terra" || actualModel === "gpt-4.1") actualModel = "gpt-4o";
       if (actualModel === "gpt-5.6-sol") actualModel = "gpt-4o";
+      if (actualModel === "o3") actualModel = "o3-mini";
 
       const completion = await openai.chat.completions.create({
         model: actualModel,
