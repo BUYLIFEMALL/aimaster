@@ -15,6 +15,7 @@ type DraftRecord = {
   id: string;
   topic: string;
   keywords: string[];
+  strategy?: string;
   title: string;
   body: string;
   seo_report?: Record<string, string> | null;
@@ -23,6 +24,8 @@ type DraftRecord = {
   naver_input_completed_at?: string | null;
   naver_input_error?: string | null;
 };
+
+type RecommendedTitle = { title: string; intent?: string };
 
 const reportLabels: Record<string, string> = {
   searchIntent: "검색 의도",
@@ -40,13 +43,17 @@ export default function StudioPage({ email }: { email: string }) {
   const [message, setMessage] = useState("아직 생성된 초안이 없습니다.");
   const [pending, setPending] = useState(false);
   const [titlePending, setTitlePending] = useState(false);
-  const [recommendedTitles, setRecommendedTitles] = useState<{ title: string; intent?: string }[]>([]);
+  const [recommendedTitles, setRecommendedTitles] = useState<RecommendedTitle[]>([]);
   const [selectedTitle, setSelectedTitle] = useState("");
+  const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
+  const [titleEditValue, setTitleEditValue] = useState("");
   const [existingBody, setExistingBody] = useState("");
   const [optimizePending, setOptimizePending] = useState(false);
   const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
   const [history, setHistory] = useState<DraftRecord[]>([]);
   const [currentDraft, setCurrentDraft] = useState<DraftRecord | null>(null);
+  const [draftSaving, setDraftSaving] = useState(false);
+  const [draftSaveMessage, setDraftSaveMessage] = useState("");
   const [imagePending, setImagePending] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
@@ -63,30 +70,43 @@ export default function StudioPage({ email }: { email: string }) {
     fetch("/api/drafts/history").then((response) => response.ok ? response.json() : { drafts: [] }).then((result: { drafts?: typeof history }) => setHistory(result.drafts ?? [])).catch(() => setHistory([]));
   }, []);
 
-  useEffect(() => {
-    const sections = ["new-draft", "title", "draft", "history"].map((id) => document.getElementById(id)).filter((section): section is HTMLElement => Boolean(section));
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible?.target.id) setActiveMenu(visible.target.id);
-    }, { rootMargin: "-18% 0px -62% 0px", threshold: [0.05, 0.2] });
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, []);
-
-  function moveToSection(id: string) {
+  function openMenu(id: string) {
     setActiveMenu(id);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function reuseDraft(draft: (typeof history)[number]) {
     setTopic(draft.topic);
     setKeywords(Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "");
+    setStrategy(draft.strategy || strategies[0][0]);
     setSelectedTitle(draft.title);
     setCurrentDraft(draft);
     setGeneratedImage(null);
     setExtensionDraftId(draft.id);
     setHandoffMessage("");
+    setDraftSaveMessage("");
     setMessage("기존 생성 기록을 작업 화면에 불러왔습니다.");
+    openMenu("new-draft");
+  }
+
+  function startTitleEdit(index: number) {
+    setEditingTitleIndex(index);
+    setTitleEditValue(recommendedTitles[index]?.title ?? "");
+  }
+
+  function saveTitleEdit(index: number) {
+    const title = titleEditValue.trim();
+    if (!title) return setMessage("제목을 비워둘 수 없습니다.");
+    setRecommendedTitles((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item));
+    if (selectedTitle === recommendedTitles[index]?.title) setSelectedTitle(title);
+    setEditingTitleIndex(null);
+  }
+
+  function deleteRecommendedTitle(index: number) {
+    const removed = recommendedTitles[index];
+    setRecommendedTitles((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    if (removed?.title === selectedTitle) setSelectedTitle("");
+    if (editingTitleIndex === index) setEditingTitleIndex(null);
   }
 
   async function recommendTitles() {
@@ -97,6 +117,7 @@ export default function StudioPage({ email }: { email: string }) {
       const result = await response.json() as { titles?: { title: string; intent?: string }[]; error?: string };
       if (!response.ok) throw new Error(result.error || "제목 추천에 실패했습니다.");
       setRecommendedTitles(result.titles ?? []);
+      setEditingTitleIndex(null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "제목 추천에 실패했습니다.");
     } finally { setTitlePending(false); }
@@ -130,12 +151,11 @@ export default function StudioPage({ email }: { email: string }) {
       if (!draft) throw new Error("생성된 초안 결과를 받지 못했습니다.");
       setExtensionDraftId(draft.id);
       setSelectedTitle(draft.title);
-      setCurrentDraft({ ...draft, topic, keywords: keywords.split(",").map((keyword) => keyword.trim()).filter(Boolean) });
+      setCurrentDraft({ ...draft, topic, keywords: keywords.split(",").map((keyword) => keyword.trim()).filter(Boolean), strategy });
       setGeneratedImage(null);
       setHandoffMessage("");
       refreshHistory().catch(() => {});
       setMessage(`초안이 준비되었습니다: ${draft.title}`);
-      requestAnimationFrame(() => document.getElementById("draft-result")?.scrollIntoView({ behavior: "smooth", block: "start" }));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "초안 생성에 실패했습니다.");
     } finally {
@@ -145,6 +165,7 @@ export default function StudioPage({ email }: { email: string }) {
 
   async function sendDraftToExtension() {
     if (!extensionDraftId) return setHandoffMessage("생성 기록에서 초안을 먼저 선택해주세요.");
+    if (currentDraft && !(await saveCurrentDraft(true))) return;
     setHandoffPending(true);
     setHandoffMessage("확장 프로그램 전송함에 초안을 준비하는 중...");
     try {
@@ -176,6 +197,28 @@ export default function StudioPage({ email }: { email: string }) {
 
   const activeHistoryDraft = history.find((draft) => draft.id === extensionDraftId);
 
+  async function saveCurrentDraft(silent = false) {
+    if (!currentDraft) return false;
+    setDraftSaving(true);
+    if (!silent) setDraftSaveMessage("수정한 초안을 저장하는 중...");
+    try {
+      const response = await fetch(`/api/drafts/${encodeURIComponent(currentDraft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: currentDraft.title, body: currentDraft.body }) });
+      const result = await response.json() as { draft?: DraftRecord; error?: string };
+      if (!response.ok || !result.draft) throw new Error(result.error || "초안 저장에 실패했습니다.");
+      setCurrentDraft(result.draft);
+      setSelectedTitle(result.draft.title);
+      refreshHistory().catch(() => {});
+      if (!silent) setDraftSaveMessage("수정한 초안을 저장했습니다.");
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "초안 저장에 실패했습니다.";
+      setDraftSaveMessage(message);
+      return false;
+    } finally {
+      setDraftSaving(false);
+    }
+  }
+
   async function copyDraftText() {
     if (!currentDraft) return;
     try {
@@ -194,10 +237,10 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="brand-sub">네이버 블로그 콘텐츠 제작 도우미</div>
         </div>
         <nav className="nav" aria-label="주 메뉴">
-          <button type="button" className={`nav-link ${activeMenu === "title" ? "active" : ""}`} aria-current={activeMenu === "title" ? "page" : undefined} onClick={() => moveToSection("title")}>제목 추천</button>
-          <button type="button" className={`nav-link ${activeMenu === "new-draft" ? "active" : ""}`} aria-current={activeMenu === "new-draft" ? "page" : undefined} onClick={() => moveToSection("new-draft")}>새 글 만들기</button>
-          <button type="button" className={`nav-link ${activeMenu === "draft" ? "active" : ""}`} aria-current={activeMenu === "draft" ? "page" : undefined} onClick={() => moveToSection("draft")}>기존 글 최적화</button>
-          <button type="button" className={`nav-link ${activeMenu === "history" ? "active" : ""}`} aria-current={activeMenu === "history" ? "page" : undefined} onClick={() => moveToSection("history")}>생성 기록</button>
+          <button type="button" className={`nav-link ${activeMenu === "title" ? "active" : ""}`} aria-current={activeMenu === "title" ? "page" : undefined} onClick={() => openMenu("title")}>제목 추천</button>
+          <button type="button" className={`nav-link ${activeMenu === "new-draft" ? "active" : ""}`} aria-current={activeMenu === "new-draft" ? "page" : undefined} onClick={() => openMenu("new-draft")}>새 글 만들기</button>
+          <button type="button" className={`nav-link ${activeMenu === "draft" ? "active" : ""}`} aria-current={activeMenu === "draft" ? "page" : undefined} onClick={() => openMenu("draft")}>기존 글 최적화</button>
+          <button type="button" className={`nav-link ${activeMenu === "history" ? "active" : ""}`} aria-current={activeMenu === "history" ? "page" : undefined} onClick={() => openMenu("history")}>생성 기록</button>
           <a className="nav-link utility" href="/settings">API키등록·플랫폼연동</a>
         </nav>
         <div className="sidebar-account" title={email}>
@@ -217,64 +260,40 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="account">AIMaster 계정 연동 전</div>
         </div>
 
-        <section className="title-recommendation card" id="title">
-          <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">1 / 3 단계 · 검색 의도 기반 5개</span></div>
-          <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
-          <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="쉼표로 구분해 입력하세요" /></div>
+        {activeMenu === "title" && <section className="title-recommendation card" id="title">
+          <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">1 / 2 단계 · 검색 의도 기반</span></div>
+          <p className="section-description">글의 주제와 핵심 키워드를 입력하면 AI가 제목을 제안합니다. 제목은 수정하거나 삭제할 수 있고, 하나를 선택해야 다음 단계로 이동할 수 있습니다.</p>
+          <div className="field"><label htmlFor="topic">무슨 글을 쓰고 싶으신가요?</label><textarea id="topic" value={topic} onChange={(e) => { setTopic(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); }} placeholder="예: 서울 근교 당일치기 여행 코스 추천" /></div>
+          <div className="field"><label htmlFor="keywords">핵심 키워드</label><input id="keywords" value={keywords} onChange={(e) => { setKeywords(e.target.value); setSelectedTitle(""); setRecommendedTitles([]); }} placeholder="쉼표로 구분해 입력하세요" /></div>
           <p className="freshness-note">연도·통계·정책처럼 최신성 확인이 필요한 정보는 근거 없이 넣지 않습니다. 연도가 꼭 필요하면 주제 또는 키워드에 직접 입력하세요.</p>
-          <button className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천"}</button>
-          {recommendedTitles.length > 0 && <div className="title-list">{recommendedTitles.map((item, index) => <button key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`} onClick={() => setSelectedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button>)}</div>}
-        </section>
-
-        <section className="card new-draft-card" id="new-draft">
-          <div className="card-head"><h2 className="card-title">새 글 기획</h2><span className="card-caption">2 / 3 단계</span></div>
-          <div className="field"><label>글쓰기 전략</label><div className="strategy-grid">{strategies.map(([name, desc]) => <button key={name} className={`strategy ${strategy === name ? "selected" : ""}`} onClick={() => setStrategy(name)}><strong>{name}</strong><span>{desc}</span></button>)}</div></div>
-          <button className="primary" onClick={prepareDraft} disabled={pending}>{pending ? "초안 생성 중..." : "AI 초안 생성하기"}</button>
-        </section>
-
-        {currentDraft && <section className="draft-result-card card" id="draft-result" aria-labelledby="draft-result-title">
-          <div className="card-head"><div><h2 id="draft-result-title" className="card-title">생성된 초안</h2><p className="draft-result-subtitle">검토 후 대표 이미지와 Chrome 확장 전송까지 이어서 진행하세요.</p></div><span className="draft-ready-badge">3 / 3 단계 · 준비 완료</span></div>
-          <div className="draft-result-meta"><span>주제: {currentDraft.topic}</span><span>전략: {strategy}</span><span>키워드: {currentDraft.keywords.join(", ") || "없음"}</span></div>
-          <div className="draft-image-stage">
-            <div><strong>대표 이미지</strong><p>선택한 제목을 바탕으로 나노바나나 이미지를 생성합니다.</p></div>
-            <button className="secondary" onClick={generateImage} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : generatedImage ? "대표 이미지 다시 생성" : "나노바나나 이미지 생성"}</button>
-            {generatedImage ? <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성된 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div> : <p className="draft-image-empty">아직 대표 이미지가 없습니다. 필요한 경우 생성한 뒤 Chrome 확장에서 본문과 함께 삽입할 수 있습니다.</p>}
-          </div>
-          <div className="draft-result-grid">
-            <article className="draft-content-preview"><div className="preview-label">제목</div><h3>{currentDraft.title}</h3><div className="preview-label">본문 미리보기</div><pre>{currentDraft.body}</pre><button type="button" className="secondary" onClick={copyDraftText}>제목·본문 복사</button></article>
-            <aside className="draft-actions-panel">
-              <div className="result-action"><strong>Chrome 확장 전송</strong><p>확장에서 제목·이미지·본문을 네이버 편집기로 입력합니다. 최종 발행은 직접 진행합니다.</p><button className="primary compact" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "이 초안을 Chrome 확장으로 보내기"}</button>{handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}</div>
-            </aside>
-          </div>
-          <div className="seo-report seo-report-bottom"><h3>SEO·사실 확인</h3>{Object.entries(currentDraft.seo_report ?? {}).length ? <dl>{Object.entries(currentDraft.seo_report ?? {}).map(([key, value]) => <div key={key}><dt>{reportLabels[key] ?? key}</dt><dd>{value}</dd></div>)}</dl> : <p>초안의 검색 의도와 사실 확인 항목을 직접 검토해주세요.</p>}</div>
+          <button type="button" className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천 생성"}</button>
+          {recommendedTitles.length > 0 && <div className="title-management"><div className="title-management-head"><div><h3>생성된 제목</h3><p>{recommendedTitles.length}개 중 새 글에 사용할 제목을 하나 선택하세요.</p></div><span>{selectedTitle ? "제목 선택됨" : "제목을 선택해주세요"}</span></div><div className="title-list">{recommendedTitles.map((item, index) => <div key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`}>{editingTitleIndex === index ? <div className="title-edit-row"><input value={titleEditValue} onChange={(event) => setTitleEditValue(event.target.value)} aria-label="제목 수정" autoFocus /><button type="button" className="secondary compact" onClick={() => saveTitleEdit(index)}>저장</button><button type="button" className="text-button" onClick={() => setEditingTitleIndex(null)}>취소</button></div> : <><button type="button" className="title-select" onClick={() => setSelectedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button><div className="title-option-actions"><button type="button" className="text-button" onClick={() => startTitleEdit(index)}>수정</button><button type="button" className="text-button danger" onClick={() => deleteRecommendedTitle(index)}>삭제</button></div></>}</div>)}</div><button type="button" className="primary" onClick={() => openMenu("new-draft")} disabled={!selectedTitle}>선택한 제목으로 새 글 만들기</button></div>}
         </section>}
 
-        <section className="optimize-card card" id="draft">
+        {activeMenu === "new-draft" && <><section className="card new-draft-card" id="new-draft">
+          <div className="card-head"><h2 className="card-title">새 글 만들기</h2><span className="card-caption">2 / 2 단계 · 생성 및 수정</span></div>
+          <p className="section-description">선택한 제목을 기준으로 전략을 고르고 AI 초안을 만듭니다. 생성된 제목과 본문은 아래에서 직접 고친 뒤 저장할 수 있습니다.</p>
+          <div className="selected-title-summary"><div><span>선택한 제목</span><strong>{selectedTitle || "제목을 먼저 선택해주세요."}</strong></div><button type="button" className="secondary compact" onClick={() => openMenu("title")}>제목 다시 선택</button></div>
+          <div className="field"><label>글쓰기 전략</label><div className="strategy-grid">{strategies.map(([name, desc]) => <button type="button" key={name} className={`strategy ${strategy === name ? "selected" : ""}`} onClick={() => setStrategy(name)}><strong>{name}</strong><span>{desc}</span></button>)}</div></div>
+          <button type="button" className="primary" onClick={prepareDraft} disabled={pending || !selectedTitle}>{pending ? "초안 생성 중..." : "선택한 제목으로 AI 초안 생성하기"}</button>
+        </section>
+        {currentDraft ? <section className="draft-result-card card" id="draft-result" aria-labelledby="draft-result-title"><div className="card-head"><div><h2 id="draft-result-title" className="card-title">생성된 초안</h2><p className="draft-result-subtitle">제목·이미지·본문을 검토하고 수정한 뒤 Chrome 확장 프로그램으로 보낼 수 있습니다.</p></div><span className="draft-ready-badge">초안 준비 완료</span></div><div className="draft-result-meta"><span>주제: {currentDraft.topic}</span><span>전략: {currentDraft.strategy || strategy}</span><span>키워드: {currentDraft.keywords.join(", ") || "없음"}</span></div><div className="draft-image-stage"><div><strong>대표 이미지</strong><p>선택한 제목을 바탕으로 나노바나나 AI 이미지를 생성합니다.</p></div><button type="button" className="secondary" onClick={generateImage} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : generatedImage ? "대표 이미지 다시 생성" : "나노바나나 대표 이미지 생성"}</button>{generatedImage ? <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성한 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div> : <p className="draft-image-empty">아직 대표 이미지가 없습니다. 필요할 경우 생성하면 Chrome 확장에서 본문과 함께 삽입할 수 있습니다.</p>}</div><div className="draft-result-grid"><article className="draft-content-preview"><div className="preview-label">제목</div><input className="draft-title-editor" value={currentDraft.title} onChange={(event) => setCurrentDraft({ ...currentDraft, title: event.target.value })} aria-label="초안 제목 수정" /><div className="preview-label">본문</div><textarea className="draft-body-editor" value={currentDraft.body} onChange={(event) => setCurrentDraft({ ...currentDraft, body: event.target.value })} aria-label="초안 본문 수정" /><div className="draft-content-actions"><button type="button" className="secondary" onClick={() => saveCurrentDraft()} disabled={draftSaving}>{draftSaving ? "저장 중..." : "수정한 초안 저장"}</button><button type="button" className="text-button" onClick={copyDraftText}>제목·본문 복사</button></div>{draftSaveMessage && <p className="draft-save-status" role="status">{draftSaveMessage}</p>}</article><aside className="draft-actions-panel"><div className="result-action"><strong>Chrome 확장 전송</strong><p>확장 프로그램에서 제목·이미지·본문을 네이버 편집기로 입력합니다. 최종 발행은 직접 진행합니다.</p><button type="button" className="primary compact" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "이 초안을 Chrome 확장으로 보내기"}</button>{handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}</div></aside></div><div className="seo-report seo-report-bottom"><h3>SEO·사실 확인</h3>{Object.entries(currentDraft.seo_report ?? {}).length ? <dl>{Object.entries(currentDraft.seo_report ?? {}).map(([key, value]) => <div key={key}><dt>{reportLabels[key] ?? key}</dt><dd>{value}</dd></div>)}</dl> : <p>초안의 검색 의도와 사실 확인 항목을 직접 검토해주세요.</p>}</div></section> : <section className="draft-empty card"><h2 className="card-title">초안을 만들 준비가 되었습니다</h2><p>제목을 선택하고 글쓰기 전략을 고른 뒤 AI 초안을 생성해주세요.</p></section>}</>}
+
+        {activeMenu === "draft" && <section className="optimize-card card" id="draft">
           <div className="card-head"><h2 className="card-title">기존 글 최적화</h2><span className="card-caption">의미는 유지하고 SEO 개선</span></div>
           <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="기존 네이버 블로그 글을 붙여넣으세요 (50자 이상)" />
           <button className="secondary" onClick={optimizeExisting} disabled={optimizePending}>{optimizePending ? "최적화 중..." : "기존 글 최적화"}</button>
           {optimized && <div className="optimize-result"><h3>{optimized.title}</h3><pre>{optimized.body}</pre><ul>{optimized.improvements.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul></div>}
-        </section>
+        </section>}
 
-        <section className="history-card card" id="history">
+        {activeMenu === "history" && <section className="history-card card" id="history">
           <div className="card-head"><h2 className="card-title">생성 기록</h2><span className="card-caption">최근 {history.length}건</span><button className="history-refresh" onClick={() => refreshHistory().catch(() => {})}>상태 새로고침</button></div>
           {history.length === 0 ? <p className="history-empty">아직 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <button key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}</span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}
           {activeHistoryDraft?.naver_input_status === "completed" && <p className="history-detail success">확장 입력 검증 완료{activeHistoryDraft.naver_input_completed_at ? ` · ${new Date(activeHistoryDraft.naver_input_completed_at).toLocaleString("ko-KR")}` : ""}. 네이버 최종 발행은 내용을 검토한 뒤 직접 진행하세요.</p>}
           {activeHistoryDraft?.naver_input_status === "failed" && <p className="history-detail error">확장 입력 재확인 필요: {activeHistoryDraft.naver_input_error || "입력 또는 검증 과정에서 오류가 발생했습니다."} 초안을 다시 확장으로 보낸 뒤 재시도할 수 있습니다.</p>}
-        </section>
+        </section>}
 
-        <div className="workspace">
-          <section className="card">
-            <div className="card-head"><h2 className="card-title">품질 준비 체크</h2><span className="card-caption">초안 전 점검</span></div>
-            <div className="checklist">
-              <div className="check"><span className={`dot ${topic.trim() ? "done" : ""}`}>{topic.trim() ? "✓" : "1"}</span><div><strong>주제 입력</strong><p>독자가 얻어갈 한 가지를 먼저 정합니다.</p></div></div>
-              <div className="check"><span className={`dot ${keywords.trim() ? "done" : ""}`}>{keywords.trim() ? "✓" : "2"}</span><div><strong>핵심 키워드</strong><p>억지 반복 없이 글의 방향을 잡습니다.</p></div></div>
-              <div className="check"><span className="dot">3</span><div><strong>사실 확인</strong><p>AI 생성 후 직접 확인할 항목을 리포트로 제공합니다.</p></div></div>
-              <div className="check"><span className="dot">4</span><div><strong>사람의 최종 발행</strong><p>네이버 발행 버튼은 자동으로 누르지 않습니다.</p></div></div>
-            </div>
-            <div className="notice" role="status">{message}</div>
-          </section>
-        </div>
+        <div className="notice workspace-notice" role="status">{message}</div>
       </main>
     </div>
   );
