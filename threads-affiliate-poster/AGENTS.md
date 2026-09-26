@@ -1,124 +1,96 @@
-# 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
+# 🤖 AI Agent 협업 가이드라인 및 인수인계 문서 (AGENTS.md)
 
-이 문서는 **Threads 쇼핑제휴 자동화(threads-affiliate-poster)** 프로젝트에서 AI Agent(Claude
-Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
+이 문서는 **Threads 쇼핑제휴 자동화(threads-affiliate-poster)** 프로젝트에서 AI Agent(Claude Code, Codex, Gemini 등)가 협업하거나 다음 작업을 이어서 수행할 때 준수해야 할 필수 가이드라인 및 완성된 시스템 아키텍처 현황입니다. (2026-09-27 기준 최신 상태 반영)
 
 ---
 
 ## 🛡️ 에이전트 실행 및 안전 수칙 (Mandatory Rules)
 
 ### 1. 자율 진행 허용 작업
-파일 생성/코드 수정, 패키지 설치, 로컬 테스트/빌드, 스키마 추가/마이그레이션.
+파일 생성/코드 수정, 패키지 설치, 로컬 테스트/빌드(`npm run build`), 스키마 추가/마이그레이션, **단일 작업 완료 후 4단계 자동 작업 세트 (빌드 검수 → Git Commit → Git Push `origin/master` → Vercel 배포 `vercel deploy --prod --yes`) 연속 수행**.
 
 ### 2. 사전 승인 필수 작업 (🚨 승인 없이 금지)
 1. 파일이나 폴더 삭제
-2. Git push
-3. 실제 서비스 배포(Vercel 프로덕션)
-4. 데이터베이스 데이터 삭제
-5. 환경변수와 API 키 변경
-6. 유료 API 호출(AI 캡션/이미지 생성, 쿠팡/알리익스프레스 API 호출 등)
-7. **제휴 고지 문구(`src/lib/ai/affiliateGenerator.ts`의 `DISCLOSURE_TEXT`) 삭제/우회** —
-   쿠팡파트너스/알리익스프레스는 표시광고법 + 자체 운영정책상 "이 포스팅은 제휴 활동의 일환으로
-   수수료를 제공받을 수 있다"는 고지가 법적으로 필수다. 어떤 경로(즉시 게시/예약 게시)로 가든
-   `generateAffiliatePostContent()`를 거쳐 이 문구가 항상 포함되도록 되어 있으니, 이 로직을
-   지우거나 조건부로 만들지 말 것.
-8. **실제 게시(`publishPost`)** — 사람이 대시보드에서 캡션을 직접 확인·수정한 뒤 "게시" 버튼을
-   눌러야만 실행된다(DM/댓글 자동응답류와 달리 이 프로젝트는 외부 이벤트에 반응하는 게 아니라
-   사람이 대시보드에서 상품을 고르고 캡션을 만들어 직접 게시하는 흐름이라, 애초에 "자동 승인"
-   개념 자체가 없다 — 게시는 언제나 사람의 명시적 클릭이 트리거다).
-9. Vercel Cron(`vercel.json`) 활성화/배포 — 예약 게시 dispatch가 매 순간 자동 실행되므로 배포
-   전 확인한다.
+2. 데이터베이스 데이터 삭제 또는 파괴적 마이그레이션
+3. 환경변수와 API 키 변경
+4. 유료 API 대량 호출
+5. **제휴 고지 문구(`src/lib/ai/affiliateGenerator.ts`의 `DISCLOSURE_TEXT`) 삭제/우회** —
+   쿠팡파트너스/알리익스프레스/네이버/토스는 표시광고법 + 자체 운영정책상 "이 포스팅은 제휴 활동의 일환으로 수수료를 제공받을 수 있다"는 고지가 법적으로 필수다. 어떤 경로로 가든 `generateAffiliatePostContent()`를 거쳐 이 문구가 항상 포함되도록 되어 있으니 지우거나 조건부로 만들지 말 것.
 
 ---
 
-## 🎯 프로젝트 목적
+## 🎯 프로젝트 목적 및 핵심 기능 현황 (2026-09-27 완료)
 
-상품(쿠팡파트너스/알리익스프레스/네이버 브랜드커넥트) 정보를 등록하면, 제휴 링크를 자동으로
-붙인 쓰레드 홍보 게시글을 AI가 만들어주고, 사람이 확인 후 즉시/예약 게시하는 프로그램.
+상품(쿠팡파트너스/알리익스프레스/네이버 브랜드커넥트/토스쇼핑 쉐어링크) 정보를 등록하면, 제휴 링크를 자동으로 붙인 쓰레드 홍보 게시글을 10종 AI 페르소나에 맞추어 생성하고 즉시/예약 게시하는 최첨단 바이럴 SaaS 프로그램.
 
-**핵심 설계**: 새로 만들지 않고 기존 두 서브프로젝트를 최대한 재사용했다.
-- Threads 연동(OAuth/게시/예약 발행/AI 캡션 생성 뼈대)은 `threads/`(쓰레드 자동 포스팅,
-  `programs.slug = "auto-threads-posting"`)의 코드를 그대로 복제·이식했다.
-- 상품 정보를 "URL만 넣기(간단)" 대신 "직접 입력하기(풍부)"로 등록할 때는, 이미 존재하는
-  `auto-detail-page`(상세페이지 자동화, "15P")의 `detail_pages` 테이블을 같은 공용 Supabase
-  프로젝트 안에서 읽기 전용으로 참고할 수 있다(그 프로젝트를 수정하지 않음).
-- **트렌드 & 바이럴 떡상 탐지기 (/trends)** (2026-09-26 추가):
-  - Threads 바이럴 떡상 포스팅 랭킹 (브랜드 칩: 다이소, 코스트코, 무인양품, 돈키호테, 올리브영, 쿠팡 등).
-  - 기간 필터 (1일, 1주일, 1달, 전체) 및 반응도 정렬 (종합, 좋아요, 댓글, 리포스트).
-  - 찜 보관함 (`tap_saved_posts`) 및 AI 벤치마킹 캡션 생성 (OpenAI GPT-4o-mini / Google Gemini 1.5 Dual AI + 페르소나 어댑터 `tap_personas`).
+### 1. 🎭 10종 AI 페르소나 보이스 시스템 (`PRESET_PERSONAS`)
+`src/lib/constants/personas.ts`에 서로 겹치지 않는 10가지 독창적 어조와 인격이 정의되어 있으며, `/trends` (떡상 탐지기) 및 `/posts/new` (새 게시글 작성 화면) 전체에 완벽 연동되어 있습니다.
+- `p-01`: **솔직담백 자취러 (자연스러운 꿀팁톤)** - 20대 자취생 말투, 솔직하고 친근한 꿀팁 어조
+- `p-02`: **트렌디 20대 쇼핑에디터 (감성 추천톤)** - 세련된 뷰티/패션 에디터 말투, 비주얼 묘사 어조
+- `p-03`: **가성비 꼼꼼 주부 (실속 비교톤)** - 살림 9단 시점, 실용성 및 엄마/아내 생활 활용도 강조 어조
+- `p-04`: **IT/테크 전문 리뷰어 (논리적 분석톤)** - 테크 덕후 시점, 스펙·성능·장단점 논리 분석 어조
+- `p-05`: **위트만발 유머 짤방꾼 (B급 감성 유머톤)** - 재치 있는 B급 드립, 반전 유머와 호기심 유발 어조
+- `p-06`: **트래블/오프라인 탐방가 (현장감 탐방톤)** - 핫플/신상 발품 탐방가 시점, 생생한 현장 후기 어조
+- `p-07`: **감성 브이로그 자취 일기 (포근한 힐링톤)** - 차분한 브이로그 캡션 어조, 힐링과 일상 여운 어조
+- `p-08`: **직설적 팩트폭격 리뷰어 (NO협찬 솔직 후기톤)** - 광고 느낌 0%의 단점 명시 및 팩트 위주 평가 어조
+- `p-09`: **직장인 퇴근길 힐링 쇼퍼 (공감대 직장인톤)** - 2030 직장인 깊은 공감, 월요병/퇴근길 사치 꿀템 어조
+- `p-10`: **취향집중 매니아 큐레이터 (디테일 큐레이팅톤)** - 소재/성분/인테리어 디테일 큐레이팅 어조
+- **커스텀 페르소나**: 나만의 어조(예: 30대 자취생 말투 등)를 자유롭게 입력하여 적용 가능.
 
+### 2. 🛍️ 알리익스프레스 공식 썸네일 수집 & 백필 시스템
+- **공식 TOP API 연동 (`getProductDetails`)**: `src/lib/aliexpress/client.ts`에 `extractAliexpressProductId` 및 `getProductDetails` (`aliexpress.affiliate.productdetail.get`) API를 연동하여 상품 ID 추출 시 고화질 원본 `product_main_image_url`을 100% 수집.
+- **OG 메타 파서**: 2차 안전망으로 `og:image`, `twitter:image` 파서 적용.
+- **403 핫링크 차단 방지**: `ProductList`에 `referrerPolicy="no-referrer"` + `formatImageUrl`(http→https 및 // 자동 전환) + `onError` 팩트 플레이스홀더 적용.
+- **DB 백필**: `scripts/backfill-aliexpress-images.mjs`를 통해 기존 DB 내 알리익스프레스 상품 `image_url` 백필 완료.
 
-설계 배경 상세는 [README.md](README.md) 참고.
+### 3. 🔥 바이럴 떡상 탐지기 (/trends) 및 직포스팅 벤치마킹 모달
+- **탐지기/찜보관함/페르소나 3개 서브탭**: 페르소나 보관함 탭 시 하단 수집글이 감춰지고 10종 카드만 깔끔 노출.
+- **3대 AI 엔진 선택**: OpenAI (GPT-4.1 최신 모델 기본), Google Gemini (Gemini 3.7), Claude.
+- **나노바나나 AI 이미지 선택**: NanoBanana 2-2K, 2-4K, Pro, Standard, 이미지 없음.
+- **2분할 스마트 액션 버튼**:
+  - `🚀 게시글 보러가기`: 글/이미지 생성 및 DB 저장(draft) 후 상세 페이지(`/posts/[id]`) 이동.
+  - `⚡ 게시물 포스팅하기`: 글/이미지 생성 후 연동된 계정으로 즉시 Threads 포스팅(Publish) 및 결과 이동.
 
 ---
 
 ## 📂 프로젝트 작업 디렉토리
 * **메인 모듈 경로**: `threads-affiliate-poster/`
-* Next.js 16(App Router, `src/` 디렉토리 구조 — `threads/`와 동일).
+* Next.js 16 (App Router, `src/` 디렉토리 구조)
 
 ---
 
-## 🔗 AIMaster 플랫폼 공통 원칙
+## 📦 Phase 진행 상태
 
-threads-affiliate-poster는 AIMaster 저장소 안의 서브프로젝트다. 루트 `../CLAUDE.md`를 메인
-지침으로 함께 따른다. 핵심 요약:
+| Phase | 내용 | 상태 |
+|-------|------|------|
+| 1 | Threads OAuth 연결(BYOK 회원별 앱 등록 방식), AI 캡션 생성(`generateAffiliatePostContent`), 이미지 생성(NanoBanana 2K/4K/Pro), 즉시/예약 게시 | ✅ 구현 완료 |
+| 1 | 쿠팡파트너스 클라이언트(키워드 검색 + 제휴 링크) | ✅ 구현 완료 + 실계정 실호출 검증 완료 |
+| 1 | 알리익스프레스 클라이언트(URL → 제휴 링크 변환 `getPromotionLinks` + 공식 썸네일 수집 `getProductDetails`) | ✅ 구현 완료 + 실계정 실호출 및 DB 백필 검증 완료 (2026-09-27) |
+| 1 | 네이버 브랜드커넥트 & 토스쇼핑 쉐어링크(Fixie 프록시 고정 IP 연동) | ✅ 구현 완료 + 실계정 전체 검증 완료 |
+| 1 | 🎭 10종 AI 페르소나 멀티 보이스 시스템 (`PRESET_PERSONAS`) 및 커스텀 어조 연동 | ✅ 구현 완료 (2026-09-27) |
+| 1 | 🔥 바이럴 떡상 탐지기 (/trends) & 3대 AI 엔진(OpenAI 4.1 / Gemini 3.7 / Claude) 선택 & 즉시 포스팅 | ✅ 구현 완료 (2026-09-27) |
+| 1 | 게시글 작성(`/posts/new`) 페르소나 선택 연동 및 알리익스프레스 썸네일 403 해제 | ✅ 구현 완료 (2026-09-27) |
 
-- `programs.slug = "threads-affiliate-poster"` 이용 권한(구독/개별부여/등급)이 있는 모든
-  AIMaster 회원이 각자 계정으로 쓸 수 있는 멀티테넌시 SaaS다.
-- 페이지는 `requireProgramAccess()`, API route는 `checkProgramAccessApi()`로 권한을 확인한다
-  (`src/lib/access.ts`).
-- 사용자 소유 데이터(`tap_accounts`, `tap_posts`, `affiliate_products`)는 `user_id` + RLS
-  owner-only로 격리한다.
-- **API 키는 본인 키만 사용, 관리자 키 폴백 없음** — `threads/`의 `apiKeys.ts`는 이 정책이
-  생기기 전(2026-08-12 이전)에 만들어져 앱 공용 키 폴백이 남아있지만, 이 프로젝트는 처음부터
-  최신 정책대로 폴백 없이 구현했다(`src/lib/apiKeys.ts`). `threads/`의 apiKeys.ts를 참고
-  코드로 삼지 말 것.
+---
 
-### 테이블명이 `threads/`와 겹치지 않도록 접두어를 붙였다
-같은 공용 Supabase 프로젝트를 쓰다 보니 `threads/`가 이미 `threads_accounts`/`posts`라는
-테이블명을 쓰고 있어서, 이 프로젝트는 **`tap_accounts`/`tap_posts`**(threads-affiliate-poster
-접두어)로 분리했다. 새 테이블을 추가할 때도 이름이 겹치지 않는지 먼저 확인할 것 — 이 저장소는
-여러 서브프로젝트가 하나의 Supabase 프로젝트를 공유하므로, 프로젝트 로컬 마이그레이션 파일만
-보고 테이블명이 안 겹칠 거라고 가정하면 안 된다. `information_schema.tables`로 실제 라이브
-스키마와 대조하고 결정할 것.
+## 🛠️ 개발 및 배포 표준 워크플로우
 
-### Threads OAuth — 회원 각자 본인 Meta 앱을 등록하는 BYOK 방식 (2026-09-16 변경)
-예전엔 `THREADS_APP_ID`/`THREADS_APP_SECRET` 환경변수로 `threads/`와 같은 공용 Meta 앱을
-재사용했으나, 그 앱이 Meta의 Development 모드라 앱의 "역할" 메뉴에 Tester로 등록된 계정
-(운영자 본인)만 OAuth를 완료할 수 있어 다른 회원은 이 프로그램에서 Threads 계정을 연결할 수
-없는 문제가 있었다. `threads-comment-reply`가 쓰는 BYOK 패턴으로 전환해서, 회원마다 본인이
-만든 Meta 앱의 App ID/Secret을 설정 페이지에서 공용 `user_api_keys`(`meta_app_id`/
-`meta_app_secret`, `resolveApiKey()`)에 등록하고 그 값으로 OAuth를 수행한다
-(`src/lib/threads/client.ts`가 `appId`/`appSecret`을 파라미터로 받도록 변경, `src/lib/
-actions/accounts.ts`와 `src/app/api/threads/callback/route.ts`가 `resolveApiKey()`로 조회).
-운영자 본인(buylifemall@gmail.com)은 기존에 등록해둔 Meta App ID `2111332943153443`가
-`meta_app_id`/`meta_app_secret`로 이미 등록되어 있어 별도 재등록 없이 그대로 동작한다.
-각 회원은 본인 Meta 앱의 "유효한 리디렉션 URI" 목록에
-`https://threads-affiliate-poster.vercel.app/api/threads/callback`을 등록하고, "역할" 메뉴에서
-본인 쓰레드 계정을 테스터로 추가해야 한다(설정 페이지에 안내 문구 포함).
+```bash
+# 서브프로젝트 폴더 안에서:
+npm run dev       # 로컬 개발 서버
+npm run build     # 프로덕션 빌드 (배포 전 필수)
+```
 
-### 제휴 API 클라이언트(쿠팡/알리익스프레스)
-- `src/lib/coupang/client.ts`, `src/lib/aliexpress/client.ts`는 커뮤니티 SDK/공식 문서를
-  근거로 구현했고, 엔드포인트/서명 방식(쿠팡: CEA HmacSHA256, 알리익스프레스: TOP API MD5)을
-  1차 소스로 재확인까지 마쳤다(2026-08-27).
-- **알리익스프레스는 2026-08-28에 실제 발급받은 App Key/Secret + Tracking ID(`buylife`)로
-  `aliexpress.affiliate.link.generate` 실호출까지 검증 완료**했다(HTTP 200, `resp_code: 200`,
-  "Call succeeds" — 테스트에 쓴 상품 하나가 판매 불가 지역이라는 데이터성 메시지만 있었고
-  서명/엔드포인트/파라미터는 전부 정상). Tracking ID는 `aliexpress_tracking_id`라는 이름으로
-  공용 `user_api_keys`에 provider를 추가해서(0002 마이그레이션) 본인 값만 쓰도록 고쳤다 —
-  예전엔 `"threads_affiliate_poster"`라는 값이 코드에 하드코딩되어 있었다.
-- **쿠팡은 2026-09-11 실계정 실호출로 검증 완료했다.** 매출 요건을 채워 키가 활성화된 뒤
-  실제로 검색(GET)/딥링크(POST) 흐름을 테스트하다 두 가지를 발견했다.
-  1. **서명 버그**: `buildAuthorizationHeader`가 서명 대상 문자열에 path와 query 사이 "?"를
-     포함시키고 있었다("Invalid signature" 401). 공식 문서(PHP/Python 예제)대로 `datetime+
-     method+path+query`를 "?" 없이 이어붙이도록 수정(실제 요청 URL에는 "?"가 그대로 필요).
-  2. **"url convert failed"(400) 딥링크 오류**: 검색 API가 돌려주는 `productUrl`은 이미 본인
-     파트너스 키로 추적되는 제휴 링크(`link.coupang.com/re/AFFSDP?...`)였다 — 여기에 딥링크
-     변환을 다시 걸면 쿠팡이 거부한다.
-  → 이 두 번째 발견을 계기로 **딥링크 변환 API(`createDeeplink`) 자체를 제거**했다. 검색
-  결과로 고른 상품은 `productUrl`이 이미 추적 링크라 그대로 `affiliate_url`로 저장하고,
-  "URL 직접 입력"도 네이버 브랜드커넥트(`registerNaverProductAction`)와 동일하게 사용자가
-  쿠팡파트너스 사이트에서 직접 발급받은 본인 제휴 링크를 그대로 붙여넣는다는 전제로 바꿨다
+**단일 연계 작업 배포 절차**:
+```bash
+npm run build
+git add threads-affiliate-poster/
+git commit -m "feat(threads-affiliate-poster): <작업내용>"
+git push origin master
+cd threads-affiliate-poster
+vercel deploy --prod --yes
+```
+직접 발급받은 본인 제휴 링크를 그대로 붙여넣는다는 전제로 바꿨다
   (2026-09-11). 그래서 `registerCoupangProductAction`은 이제 Access/Secret Key를 전혀
   요구하지 않는다 — 그 키는 상품 검색(`searchCoupangProductsAction`)에만 필요하다. 매출
   15만원 미달로 검색 API 키가 아직 활성화되지 않은 회원도 "URL 직접 입력"으로는 등록할 수

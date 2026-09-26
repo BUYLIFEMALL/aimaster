@@ -74,34 +74,98 @@ export default async function DashboardPage() {
       )}
 
       {/* 프로세스 분석 기반 사용방법 가이드 */}
-      <div className="mb-6 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-bold text-neutral-900">사용방법</h2>
-        <ol className="list-inside list-decimal space-y-3 text-sm text-neutral-700">
-          <li>
-            <Link href="/settings" className="font-semibold text-neutral-900 underline hover:text-black">
-              API키등록·플랫폼연동
-            </Link>
-            에서 본인 Threads 앱 ID / Threads 앱 시크릿 코드 및 AI 키(OpenAI/Gemini), 제휴 플랫폼 키(쿠팡/알리익스프레스/토스 등)를 등록하고 Threads 계정을 연결합니다. (안 쓰는 플랫폼은 등록 생략 가능)
-          </li>
-          <li>
-            <Link href="/trends" className="font-semibold text-neutral-900 underline hover:text-black">
-              트렌드 키워드 찾기
-            </Link>
-            에서 네이버 검색어트렌드로 요즘 뜨는 급상승 키워드를 확인하고, &quot;🔥 쿠팡 상품 자동 매칭&quot; 버튼을 눌러 소싱할 인기가 높은 상품을 빠르게 찾아봅니다.
-          </li>
-          <li>
-            <Link href="/products" className="font-semibold text-neutral-900 underline hover:text-black">
-              제휴 상품 관리
-            </Link>
-            에서 쿠팡 키워드 검색, 알리익스프레스 제휴 URL 자동 변환, 네이버 브랜드커넥트 및 토스 쉐어링크 상품을 등록하고 필요 시 AI 소구점 분석을 실행합니다.
-          </li>
-          <li>
-            <Link href="/posts/new" className="font-semibold text-neutral-900 underline hover:text-black">
-              게시글 작성
-            </Link>
-            에서 등록한 상품을 고르고 톤을 지정하면, 표시광고법 고지 문구와 제휴 링크가 자동 포함된 쓰레드 캡션을 AI가 생성합니다. 확인 후 즉시 게시하거나 예약 발행합니다.
-          </li>
-        </ol>
+      <div className="mb-6 space-y-4 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
+          <h2 className="text-base font-bold text-neutral-900 flex items-center gap-2">
+            <span>🚀 Threads 쇼핑제휴 자동화 5단계 사용 가이드</span>
+          </h2>
+          <span className="text-xs text-neutral-500 font-medium">쉽고 빠른 바이럴 수익화 프로세스</span>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="rounded-xl border border-neutral-200 bg-white p-3.5 space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-purple-100 text-purple-700 font-bold px-2 py-0.5 text-[10px]">
+                1단계
+              </span>
+              <span className="text-base">⚙️</span>
+            </div>
+            <h3 className="font-bold text-xs text-neutral-900">
+              <Link href="/settings" className="hover:underline text-purple-700">
+                API키 &amp; 계정 연동
+              </Link>
+            </h3>
+            <p className="text-[11px] text-neutral-600 leading-relaxed">
+              OpenAI/Gemini/Claude AI 키 및 쿠팡, 알리, 토스 키 등록 후 Threads 계정을 연결합니다.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-3.5 space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-blue-100 text-blue-700 font-bold px-2 py-0.5 text-[10px]">
+                2단계
+              </span>
+              <span className="text-base">📦</span>
+            </div>
+            <h3 className="font-bold text-xs text-neutral-900">
+              <Link href="/products" className="hover:underline text-blue-700">
+                제휴 상품 등록
+              </Link>
+            </h3>
+            <p className="text-[11px] text-neutral-600 leading-relaxed">
+              쿠팡/알리/네이버/토스 제휴 상품을 등록하면 고화질 썸네일과 제휴 URL이 자동 저장됩니다.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-3.5 space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-amber-100 text-amber-800 font-bold px-2 py-0.5 text-[10px]">
+                3단계
+              </span>
+              <span className="text-base">🔥</span>
+            </div>
+            <h3 className="font-bold text-xs text-neutral-900">
+              <Link href="/trends" className="hover:underline text-amber-800">
+                떡상 탐지 &amp; 페르소나
+              </Link>
+            </h3>
+            <p className="text-[11px] text-neutral-600 leading-relaxed">
+              실시간 바이럴 떡상글 탐지 &amp; 10종 AI 페르소나(자취러, 쇼핑에디터 등)를 선택해 캡션을 생성합니다.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-3.5 space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 text-[10px]">
+                4단계
+              </span>
+              <span className="text-base">🎨</span>
+            </div>
+            <h3 className="font-bold text-xs text-neutral-900">
+              <Link href="/posts/new" className="hover:underline text-emerald-800">
+                AI 글+카드뉴스 생성
+              </Link>
+            </h3>
+            <p className="text-[11px] text-neutral-600 leading-relaxed">
+              나노바나나 AI 이미지 및 멀티컷 카드뉴스를 자동 조립하고 수동 편집하거나 즉시 생성합니다.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-3.5 space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-neutral-200 text-neutral-800 font-bold px-2 py-0.5 text-[10px]">
+                5단계
+              </span>
+              <span className="text-base">⚡</span>
+            </div>
+            <h3 className="font-bold text-xs text-neutral-900">
+              <span>즉시 / 예약 게시</span>
+            </h3>
+            <p className="text-[11px] text-neutral-600 leading-relaxed">
+              `⚡ 게시물 포스팅하기`로 즉시 게시하거나 원하는 시간에 맞춰 예약 발행을 자동화합니다.
+            </p>
+          </div>
+        </div>
       </div>
 
       {!account && (
