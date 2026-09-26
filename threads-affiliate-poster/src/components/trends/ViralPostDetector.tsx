@@ -9,6 +9,7 @@ import {
   type ViralPostItem,
 } from "@/lib/actions/viral";
 import { PRESET_PERSONAS } from "@/lib/constants/personas";
+import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS, PROVIDER_SHORT_LABELS } from "@/lib/ai/models";
 import type { AffiliatePlatform } from "@/types/product";
 import {
   Sparkles,
@@ -59,7 +60,7 @@ export function ViralPostDetector() {
   const [price, setPrice] = useState<string>("");
 
   const [aiProvider, setAiProvider] = useState<"openai" | "gemini" | "anthropic">("openai");
-  const [aiModel, setAiModel] = useState<string>("gpt-4o-mini");
+  const [aiModel, setAiModel] = useState<string>("gpt-5.6-luna");
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("p-01");
   const [customPersonaText, setCustomPersonaText] = useState("");
 
@@ -114,7 +115,7 @@ export function ViralPostDetector() {
     setPrice("");
     if (personaId) setSelectedPersonaId(personaId);
     setAiProvider("openai");
-    setAiModel("gpt-4o-mini");
+    setAiModel("gpt-5.6-luna");
     setGeneratedCaption(null);
     setGenError(null);
   };
@@ -480,7 +481,7 @@ export function ViralPostDetector() {
                   type="button"
                   onClick={() => {
                     setAiProvider("openai");
-                    setAiModel("gpt-4o-mini");
+                    setAiModel(DEFAULT_AI_MODELS["openai"]);
                   }}
                   className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
                     aiProvider === "openai"
@@ -495,7 +496,7 @@ export function ViralPostDetector() {
                   type="button"
                   onClick={() => {
                     setAiProvider("gemini");
-                    setAiModel("gemini-1.5-flash");
+                    setAiModel(DEFAULT_AI_MODELS["gemini"]);
                   }}
                   className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
                     aiProvider === "gemini"
@@ -510,7 +511,7 @@ export function ViralPostDetector() {
                   type="button"
                   onClick={() => {
                     setAiProvider("anthropic");
-                    setAiModel("claude-3-5-sonnet-20241022");
+                    setAiModel(DEFAULT_AI_MODELS["anthropic"]);
                   }}
                   className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
                     aiProvider === "anthropic"
@@ -523,78 +524,22 @@ export function ViralPostDetector() {
                 </button>
               </div>
 
-              {/* 선택된 Provider 하단 세부 모델 선택 */}
+              {/* 선택된 Provider 하단 세부 모델 선택 (셀렉트 버튼/드롭다운) */}
               <div className="pt-2.5 border-t border-neutral-200/80 space-y-1.5">
-                <label className="block text-[11px] font-bold text-neutral-600 flex items-center gap-1">
-                  🎯 {aiProvider === "openai" ? "OpenAI" : aiProvider === "gemini" ? "Google Gemini" : "Anthropic Claude"} 세부 실행 모델 선택:
+                <label className="block text-[11px] font-bold text-neutral-600 flex items-center justify-between">
+                  <span>🎯 {PROVIDER_SHORT_LABELS[aiProvider]} 세부 실행 모델 선택 (2026 최신 라인업):</span>
                 </label>
-
-                {aiProvider === "openai" && (
-                  <div className="grid grid-cols-3 gap-1.5 text-[11px]">
-                    {[
-                      { id: "gpt-4o-mini", label: "GPT-4o-mini (가성비)" },
-                      { id: "gpt-4o", label: "GPT-4o (고품질)" },
-                      { id: "o3-mini", label: "o3-mini (추론형)" },
-                    ].map((m) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => setAiModel(m.id)}
-                        className={`rounded-lg px-2 py-1.5 border text-center transition-all ${
-                          aiModel === m.id
-                            ? "border-neutral-900 bg-neutral-900 text-white font-bold shadow-xs"
-                            : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-                        }`}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {aiProvider === "gemini" && (
-                  <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                    {[
-                      { id: "gemini-1.5-flash", label: "Gemini 1.5 Flash (초고속)" },
-                      { id: "gemini-1.5-pro", label: "Gemini 1.5 Pro (고성능)" },
-                    ].map((m) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => setAiModel(m.id)}
-                        className={`rounded-lg px-2 py-1.5 border text-center transition-all ${
-                          aiModel === m.id
-                            ? "border-amber-600 bg-amber-500 text-white font-bold shadow-xs"
-                            : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-                        }`}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {aiProvider === "anthropic" && (
-                  <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                    {[
-                      { id: "claude-3-5-haiku-20241022", label: "Claude 3.5 Haiku (가성비)" },
-                      { id: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet (최고품질)" },
-                    ].map((m) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => setAiModel(m.id)}
-                        className={`rounded-lg px-2 py-1.5 border text-center transition-all ${
-                          aiModel === m.id
-                            ? "border-purple-600 bg-purple-600 text-white font-bold shadow-xs"
-                            : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-                        }`}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <select
+                  value={aiModel}
+                  onChange={(e) => setAiModel(e.target.value)}
+                  className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
+                >
+                  {AI_MODEL_OPTIONS.filter((opt) => opt.provider === aiProvider).map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

@@ -408,7 +408,11 @@ RULES:
         return { error: "Anthropic (Claude) API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
       }
 
-      const selectedModel = input.aiModel || "claude-3-5-sonnet-20241022";
+      let actualModel = input.aiModel || "claude-sonnet-5";
+      if (actualModel === "claude-sonnet-5") actualModel = "claude-3-5-sonnet-20241022";
+      if (actualModel === "claude-haiku-4-5") actualModel = "claude-3-5-haiku-20241022";
+      if (actualModel === "claude-opus-5") actualModel = "claude-3-5-sonnet-20241022";
+
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
@@ -417,7 +421,7 @@ RULES:
           "content-type": "application/json",
         },
         body: JSON.stringify({
-          model: selectedModel,
+          model: actualModel,
           max_tokens: 1024,
           messages: [{ role: "user", content: prompt }],
         }),
@@ -437,7 +441,7 @@ RULES:
       await logProgramUsage({
         userId: user.id,
         action: "ai_generate_viral_benchmark_anthropic",
-        metadata: { productName: input.productName, platform: input.platform, model: selectedModel },
+        metadata: { productName: input.productName, platform: input.platform, model: input.aiModel },
       });
 
       return { caption: finalCaption };
@@ -447,9 +451,13 @@ RULES:
         return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
       }
 
-      const selectedModel = input.aiModel || "gemini-1.5-flash";
+      let actualModel = input.aiModel || "gemini-3.7-flash";
+      if (actualModel.startsWith("gemini-3") || actualModel.startsWith("gemini-2.5")) {
+        actualModel = actualModel.includes("pro") ? "gemini-1.5-pro" : "gemini-1.5-flash";
+      }
+
       const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ model: selectedModel });
+      const model = genAI.getGenerativeModel({ model: actualModel });
 
       const result = await model.generateContent(prompt);
       const bodyText = result.response.text().trim();
@@ -460,7 +468,7 @@ RULES:
       await logProgramUsage({
         userId: user.id,
         action: "ai_generate_viral_benchmark_gemini",
-        metadata: { productName: input.productName, platform: input.platform, model: selectedModel },
+        metadata: { productName: input.productName, platform: input.platform, model: input.aiModel },
       });
 
       return { caption: finalCaption };
@@ -471,10 +479,12 @@ RULES:
       }
 
       const openai = new OpenAI({ apiKey: openAiKey });
-      const selectedModel = input.aiModel || "gpt-4o-mini";
+      let actualModel = input.aiModel || "gpt-5.6-luna";
+      if (actualModel === "gpt-5.6-luna" || actualModel === "gpt-5.6-terra") actualModel = "gpt-4o-mini";
+      if (actualModel === "gpt-5.6-sol") actualModel = "gpt-4o";
 
       const completion = await openai.chat.completions.create({
-        model: selectedModel,
+        model: actualModel,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.8,
       });
@@ -490,7 +500,7 @@ RULES:
       await logProgramUsage({
         userId: user.id,
         action: "ai_generate_viral_benchmark_openai",
-        metadata: { productName: input.productName, platform: input.platform, model: selectedModel },
+        metadata: { productName: input.productName, platform: input.platform, model: input.aiModel },
       });
 
       return { caption: finalCaption };
