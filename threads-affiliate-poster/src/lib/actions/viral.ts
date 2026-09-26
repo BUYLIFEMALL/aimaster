@@ -128,12 +128,35 @@ export async function getViralPostsAction(options?: {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: savedData } = await (supabase as any)
+  const savedIds = new Set<string>();
+
+  // 1. Try tap_saved_posts first
+  const { data: savedData, error: savedErr } = await (supabase as any)
     .from("tap_saved_posts")
     .select("post_id")
     .eq("user_id", user.id);
 
-  const savedIds = new Set(((savedData as Array<{ post_id: string }>) || []).map((s) => s.post_id));
+  if (!savedErr && savedData && savedData.length > 0) {
+    (savedData as Array<{ post_id: string }>).forEach((s) => savedIds.add(s.post_id));
+  } else {
+    // Fallback: tap_posts table (status: 'draft', content prefix '[TAP_TREND_SAVED]')
+    const { data: fallbackData } = await (supabase as any)
+      .from("tap_posts")
+      .select("content")
+      .eq("user_id", user.id)
+      .eq("status", "draft")
+      .like("content", "[TAP_TREND_SAVED]%");
+
+    (fallbackData || []).forEach((row: { content: string }) => {
+      try {
+        const jsonStr = row.content.replace("[TAP_TREND_SAVED]\n", "").trim();
+        const parsed = JSON.parse(jsonStr);
+        if (parsed.postId) savedIds.add(parsed.postId);
+      } catch {
+        // ignore JSON parse error
+      }
+    });
+  }
 
   let filtered = [...CURATED_VIRAL_POSTS];
 
@@ -177,28 +200,76 @@ export async function toggleBookmarkAction(post: ViralPostItem): Promise<{ isSav
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data: existing } = await (supabase as any)
+  // 1. Try tap_saved_posts first
+  const { data: existing, error: checkErr } = await (supabase as any)
     .from("tap_saved_posts")
     .select("id")
     .eq("user_id", user.id)
     .eq("post_id", post.id)
     .maybeSingle();
 
-  if (existing) {
-    await (supabase as any).from("tap_saved_posts").delete().eq("id", (existing as any).id);
+  if (!checkErr) {
+    if (existing) {
+      const { error: delErr } = await (supabase as any).from("tap_saved_posts").delete().eq("id", (existing as any).id);
+      if (!delErr) return { isSaved: false };
+    } else {
+      const { error: insErr } = await (supabase as any).from("tap_saved_posts").insert({
+        user_id: user.id,
+        post_id: post.id,
+        author_handle: post.authorHandle,
+        author_name: post.authorName,
+        content: post.content,
+        likes: post.likes,
+        replies: post.replies,
+        reposts: post.reposts,
+        category: post.category,
+      });
+      if (!insErr) return { isSaved: true };
+    }
+  }
+
+  // Fallback: tap_posts table (guaranteed to exist!)
+  const { data: fallbackExisting } = await (supabase as any)
+    .from("tap_posts")
+    .select("id, content")
+    .eq("user_id", user.id)
+    .eq("status", "draft")
+    .like("content", `[TAP_TREND_SAVED]%${post.id}%`);
+
+  const match = (fallbackExisting || []).find((row: { id: string; content: string }) => {
+    try {
+      const jsonStr = row.content.replace("[TAP_TREND_SAVED]\n", "").trim();
+      const parsed = JSON.parse(jsonStr);
+      return parsed.postId === post.id;
+    } catch {
+      return false;
+    }
+  });
+
+  if (match) {
+    await (supabase as any).from("tap_posts").delete().eq("id", match.id);
     return { isSaved: false };
   } else {
-    await (supabase as any).from("tap_saved_posts").insert({
-      user_id: user.id,
-      post_id: post.id,
-      author_handle: post.authorHandle,
-      author_name: post.authorName,
+    const payload = {
+      postId: post.id,
+      authorHandle: post.authorHandle,
+      authorName: post.authorName,
       content: post.content,
       likes: post.likes,
       replies: post.replies,
       reposts: post.reposts,
       category: post.category,
+    };
+    const { error: insErr } = await (supabase as any).from("tap_posts").insert({
+      user_id: user.id,
+      status: "draft",
+      content: `[TAP_TREND_SAVED]\n${JSON.stringify(payload)}`,
     });
+
+    if (insErr) {
+      console.error("Bookmark toggle error:", insErr);
+      return { isSaved: false, error: insErr.message };
+    }
     return { isSaved: true };
   }
 }
@@ -207,28 +278,67 @@ export async function getSavedBookmarksAction(): Promise<{ posts: ViralPostItem[
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const { data } = await (supabase as any)
+  // 1. Try tap_saved_posts first
+  const { data, error } = await (supabase as any)
     .from("tap_saved_posts")
     .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  const posts: ViralPostItem[] = ((data as any[]) || []).map((row) => ({
-    id: row.post_id,
-    authorHandle: row.author_handle,
-    authorName: row.author_name,
-    content: row.content,
-    likes: row.likes,
-    replies: row.replies,
-    reposts: row.reposts,
-    postedAtAgo: "보관함",
-    postedDaysAgo: 1,
-    viralBadge: "viral",
-    viralScore: 95,
-    estimatedViews: 25000,
-    category: row.category || "일반",
-    isSaved: true,
-  }));
+  if (!error && data && data.length > 0) {
+    const posts: ViralPostItem[] = (data as any[]).map((row) => ({
+      id: row.post_id,
+      authorHandle: row.author_handle,
+      authorName: row.author_name,
+      content: row.content,
+      likes: row.likes,
+      replies: row.replies,
+      reposts: row.reposts,
+      postedAtAgo: "보관함",
+      postedDaysAgo: 1,
+      viralBadge: "viral",
+      viralScore: 95,
+      estimatedViews: 25000,
+      category: row.category || "일반",
+      isSaved: true,
+    }));
+    return { posts };
+  }
+
+  // Fallback: tap_posts table
+  const { data: fallbackData } = await (supabase as any)
+    .from("tap_posts")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("status", "draft")
+    .like("content", "[TAP_TREND_SAVED]%")
+    .order("created_at", { ascending: false });
+
+  const posts: ViralPostItem[] = [];
+  (fallbackData || []).forEach((row: { content: string }) => {
+    try {
+      const jsonStr = row.content.replace("[TAP_TREND_SAVED]\n", "").trim();
+      const item = JSON.parse(jsonStr);
+      posts.push({
+        id: item.postId,
+        authorHandle: item.authorHandle,
+        authorName: item.authorName,
+        content: item.content,
+        likes: item.likes,
+        replies: item.replies,
+        reposts: item.reposts,
+        postedAtAgo: "보관함",
+        postedDaysAgo: 1,
+        viralBadge: "viral",
+        viralScore: 95,
+        estimatedViews: 25000,
+        category: item.category || "일반",
+        isSaved: true,
+      });
+    } catch {
+      // ignore
+    }
+  });
 
   return { posts };
 }
