@@ -6,9 +6,9 @@ import {
   getSavedBookmarksAction,
   toggleBookmarkAction,
   generateBenchmarkCaptionAction,
-  PRESET_PERSONAS,
   type ViralPostItem,
 } from "@/lib/actions/viral";
+import { PRESET_PERSONAS } from "@/lib/constants/personas";
 import type { AffiliatePlatform } from "@/types/product";
 import {
   Sparkles,
@@ -42,7 +42,6 @@ const BRAND_TAGS = [
 export function ViralPostDetector() {
   const [activeSubTab, setActiveSubTab] = useState<"detector" | "saved">("detector");
 
-  // Filter states
   const [selectedTag, setSelectedTag] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<"1d" | "1w" | "1m" | "all">("all");
@@ -53,14 +52,12 @@ export function ViralPostDetector() {
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
-  // Modal / Benchmark states
   const [activeModalPost, setActiveModalPost] = useState<ViralPostItem | null>(null);
   const [productName, setProductName] = useState("");
   const [affiliateUrl, setAffiliateUrl] = useState("");
   const [platform, setPlatform] = useState<AffiliatePlatform>("coupang");
   const [price, setPrice] = useState<string>("");
 
-  // Item 5: Persona & AI Provider states
   const [aiProvider, setAiProvider] = useState<"openai" | "gemini">("openai");
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("p-01");
   const [customPersonaText, setCustomPersonaText] = useState("");
@@ -167,7 +164,6 @@ export function ViralPostDetector() {
 
   return (
     <div className="space-y-6">
-      {/* 서브 탭: [🔥 바이럴 떡상 탐지기] vs [📁 내 찜 보관함] */}
       <div className="flex items-center justify-between border-b pb-3">
         <div className="flex gap-2">
           <button
@@ -194,10 +190,8 @@ export function ViralPostDetector() {
         </div>
       </div>
 
-      {/* 필터 제어 영역 (바이럴 탐지기 전용) */}
       {activeSubTab === "detector" && (
         <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4">
-          {/* 검색어 입력 바 */}
           <form onSubmit={handleSearchSubmit} className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
@@ -217,7 +211,6 @@ export function ViralPostDetector() {
             </button>
           </form>
 
-          {/* 1. 인기 키워드 브랜드 칩 (Item 2) */}
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
             <span className="font-bold text-neutral-500 mr-1">인기 브랜딩:</span>
             {BRAND_TAGS.map((tag) => (
@@ -238,9 +231,7 @@ export function ViralPostDetector() {
             ))}
           </div>
 
-          {/* 2. 날짜 기간 필터 (Item 1) & 3. 지표 정렬 필터 (Item 3) */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t text-xs">
-            {/* 날짜 기간 필터 */}
             <div className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-neutral-500" />
               <span className="font-bold text-neutral-600">기간:</span>
@@ -270,7 +261,6 @@ export function ViralPostDetector() {
               </button>
             </div>
 
-            {/* 지표 정렬 필터 */}
             <div className="flex items-center gap-1.5">
               <Filter className="h-3.5 w-3.5 text-neutral-500" />
               <span className="font-bold text-neutral-600">정렬:</span>
@@ -289,7 +279,6 @@ export function ViralPostDetector() {
         </div>
       )}
 
-      {/* 떡상 포스팅 카드 목록 */}
       {loading || isPending ? (
         <div className="py-12 text-center text-sm text-neutral-500">
           🔥 바이럴 떡상 지표를 수집 및 분석 중입니다...
@@ -308,7 +297,6 @@ export function ViralPostDetector() {
               className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:border-neutral-400 hover:shadow-md"
             >
               <div>
-                {/* 작성자 헤더 + 찜하기(Item 4) */}
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xs font-bold">
@@ -321,12 +309,10 @@ export function ViralPostDetector() {
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    {/* Item 1: 추정 조회수 배지 */}
                     <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200">
                       <Eye className="h-3 w-3" /> {post.estimatedViews.toLocaleString()}+회
                     </span>
 
-                    {/* Item 4: 찜하기 버튼 */}
                     <button
                       onClick={() => handleToggleBookmark(post)}
                       title={post.isSaved ? "보관함에서 제거" : "보관함에 찜하기"}
@@ -341,12 +327,10 @@ export function ViralPostDetector() {
                   </div>
                 </div>
 
-                {/* 포스팅 본문 */}
                 <p className="text-xs leading-relaxed text-neutral-800 bg-neutral-50 p-3 rounded-lg border border-neutral-100 mb-3 whitespace-pre-line">
                   {post.content}
                 </p>
 
-                {/* Item 3: 댓글 / 좋아요 / 리포스트 반응도 */}
                 <div className="flex items-center gap-4 text-[11px] text-neutral-500 mb-4">
                   <span className="font-semibold text-red-600">❤️ {post.likes.toLocaleString()}</span>
                   <span className="font-semibold text-amber-700">💬 {post.replies.toLocaleString()}</span>
@@ -354,7 +338,6 @@ export function ViralPostDetector() {
                 </div>
               </div>
 
-              {/* Item 5: 벤치마킹 AI 캡션 생성 버튼 */}
               <button
                 onClick={() => openBenchmarkModal(post)}
                 className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 px-3 py-2 text-xs font-bold text-white transition-colors"
@@ -367,7 +350,6 @@ export function ViralPostDetector() {
         </div>
       )}
 
-      {/* Item 5: AI 벤치마킹 생성 & 학습된 페르소나 모달 */}
       {activeModalPost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
@@ -384,13 +366,11 @@ export function ViralPostDetector() {
               </button>
             </div>
 
-            {/* 참고 떡상 포스팅 */}
             <div className="rounded-xl bg-amber-50/70 border border-amber-200/80 p-3 text-xs">
               <p className="font-bold text-amber-900 mb-1">📌 참고할 떡상 포스팅 (@{activeModalPost.authorHandle})</p>
               <p className="text-amber-800 whitespace-pre-line line-clamp-3">{activeModalPost.content}</p>
             </div>
 
-            {/* Item 5: 멀티 AI 엔진 선택 (GPT vs Gemini) */}
             <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 space-y-2">
               <label className="block text-xs font-bold text-neutral-800 flex items-center gap-1">
                 <Bot className="h-4 w-4 text-neutral-600" /> AI 엔진 선택 (OpenAI / Gemini)
@@ -419,7 +399,6 @@ export function ViralPostDetector() {
               </div>
             </div>
 
-            {/* Item 5: 학습된 페르소나 선택 */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-neutral-700">나만의 글쓰기 페르소나 선택 *</label>
               <select
@@ -445,7 +424,6 @@ export function ViralPostDetector() {
               )}
             </div>
 
-            {/* 상품 정보 입력 */}
             <div className="space-y-3 pt-2 border-t">
               <div>
                 <label className="block text-xs font-bold text-neutral-700 mb-1">내 상품명 *</label>
@@ -517,7 +495,6 @@ export function ViralPostDetector() {
               </button>
             </div>
 
-            {/* 결과 창 */}
             {generatedCaption && (
               <div className="space-y-3 pt-3 border-t">
                 <div className="flex items-center justify-between">
