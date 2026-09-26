@@ -69,7 +69,7 @@ export function ViralPostDetector() {
   const [price, setPrice] = useState<string>("");
 
   const [aiProvider, setAiProvider] = useState<"openai" | "gemini" | "anthropic">("openai");
-  const [aiModel, setAiModel] = useState<string>("gpt-5.6-luna");
+  const [aiModel, setAiModel] = useState<string>("gpt-4.1");
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("p-01");
   const [customPersonaText, setCustomPersonaText] = useState("");
 
@@ -127,7 +127,7 @@ export function ViralPostDetector() {
     setProductInputMode("saved");
     if (personaId) setSelectedPersonaId(personaId);
     setAiProvider("openai");
-    setAiModel("gpt-5.6-luna");
+    setAiModel(DEFAULT_AI_MODELS["openai"]);
     setGeneratedCaption(null);
     setGenError(null);
 
