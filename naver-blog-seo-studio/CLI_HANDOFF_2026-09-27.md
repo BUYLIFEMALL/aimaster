@@ -20,7 +20,7 @@
 - 확장 원본: `extension/`
 - 확장 버전: **1.0.38**
 - 최신 ZIP: `/downloads/naver-blog-seo-studio-extension-v1.0.38.zip`
-- 기준 커밋: `3c03fd8 feat(seo-studio): reuse saved images in extension`
+- 기준 커밋: `b39a636 fix(seo-studio): show personas in draft workspace`
 
 Chrome 확장은 웹 배포로 사용자 PC에 자동 갱신되지 않는다. 확장 변경 시 `extension/` 원본, 최신 ZIP, `/settings` 다운로드 표기를 같은 버전으로 갱신하고 사용자는 `chrome://extensions`에서 새로고침한다.
 
@@ -39,6 +39,7 @@ SEO블로그 스튜디오는 개인 API 키를 이용해 네이버 콘텐츠를 
 - AIMaster 로그인·이용권한 게이트
 - 주제·키워드 → 제목 5개 추천, 사용자별 기록 저장·삭제
 - 선택 제목과 글쓰기 전략(C-Rank·ALCON·AEO·홈판 스토리·인사이트 엣지)으로 초안 생성
+- `새 글 만들기` 화면에서 글쓰기 페르소나 선택 및 커스텀 페르소나 직접 입력
 - 나노바나나/Gemini 대표 이미지 생성
 - 초안 편집·저장·삭제·이력, 기존 글 최적화, SEO 사실 확인, 확장 전송
 - 사용자별 OpenAI/Gemini API 키와 생성 모델 선택
@@ -69,6 +70,8 @@ SEO블로그 스튜디오는 개인 API 키를 이용해 네이버 콘텐츠를 
 - 이미지 조회 실패는 초안 로드 자체를 막지 않는다. 저장 이미지가 없거나 읽기에 실패한 경우에만 기존 Gemini 이미지 생성 흐름을 사용할 수 있다.
 - 확장 원본과 배포 ZIP은 v1.0.38로 일치한다. ZIP HTTP 200, 린트, 확장 회귀 8건, Next.js 프로덕션 빌드를 확인했다.
 - 제목 추천 기록·초안·대표 이미지의 30일 보관/정리 정책과 private Storage RLS는 이미 반영·검증됐다.
+- 확장 사이드패널 버전은 `manifest.json`을 런타임에 읽어 표시하므로 manifest 버전과 UI 표기가 자동으로 일치한다.
+- 웹 초안 생성은 페르소나를 서버에서 검증해 프롬프트에 반영한다. 기본 6종과 커스텀 입력(500자 이하)을 지원하며, 사실이 아닌 체험담을 생성하지 않는다. Chrome 확장 직접 생성은 기존 동작 호환성을 위해 기본 전문 에디터 페르소나를 사용한다.
 
 ## 미작업 및 다음 CLI의 시작점
 
