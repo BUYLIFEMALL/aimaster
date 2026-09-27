@@ -163,14 +163,14 @@ export async function getViralPostsAction(options?: {
   let filtered = [...CURATED_VIRAL_POSTS];
 
   if (options?.keyword && options.keyword.trim() !== "" && options.keyword !== "전체") {
-    const kw = options.keyword.replace("#", "").trim();
-    const result = filtered.filter(
+    const kwLower = options.keyword.replace("#", "").trim().toLowerCase();
+    filtered = filtered.filter(
       (p) =>
-        p.category.includes(kw) ||
-        p.content.includes(kw) ||
-        p.authorName.includes(kw)
+        p.category.toLowerCase().includes(kwLower) ||
+        p.content.toLowerCase().includes(kwLower) ||
+        p.authorName.toLowerCase().includes(kwLower) ||
+        p.authorHandle.toLowerCase().includes(kwLower)
     );
-    if (result.length > 0) filtered = result;
   }
 
   if (options?.dateRange && options.dateRange !== "all") {

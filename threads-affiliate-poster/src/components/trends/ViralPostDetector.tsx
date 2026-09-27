@@ -362,12 +362,24 @@ export function ViralPostDetector() {
                 placeholder="검색어 입력 (예: 다이소, 코스트코, 무인양품, 돈키호테, 꿀템)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-white pl-9 pr-4 py-2 text-xs focus:border-neutral-900 focus:outline-none"
+                className="w-full rounded-xl border border-neutral-300 bg-white pl-9 pr-8 py-2 text-xs focus:border-neutral-900 focus:outline-none"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedTag("전체");
+                  }}
+                  className="absolute right-2.5 top-2.5 text-neutral-400 hover:text-neutral-700"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
             <button
               type="submit"
-              className="rounded-xl bg-neutral-900 px-5 py-2 text-xs font-bold text-white hover:bg-neutral-800"
+              className="rounded-xl bg-neutral-900 px-5 py-2 text-xs font-bold text-white hover:bg-neutral-800 transition-colors"
             >
               검색
             </button>
@@ -447,10 +459,24 @@ export function ViralPostDetector() {
             🔥 바이럴 떡상 지표를 수집 및 분석 중입니다...
           </div>
         ) : displayList.length === 0 ? (
-          <div className="py-12 text-center text-sm text-neutral-500 rounded-xl border border-dashed border-neutral-200">
-            {activeSubTab === "saved"
-              ? "보관함에 찜한 포스팅이 없습니다. 탐지기에서 찜하기를 눌러보세요!"
-              : "검색 조건에 해당 포스팅이 없습니다. 다른 키워드나 기간으로 검색해보세요."}
+          <div className="py-12 flex flex-col items-center justify-center space-y-3 text-center text-sm text-neutral-500 rounded-xl border border-dashed border-neutral-200 bg-white">
+            <p>
+              {activeSubTab === "saved"
+                ? "보관함에 찜한 포스팅이 없습니다. 탐지기에서 찜하기를 눌러보세요!"
+                : `검색어 "${searchQuery || selectedTag}"에 해당하는 떡상 포스팅이 없습니다.`}
+            </p>
+            {activeSubTab !== "saved" && (
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedTag("전체");
+                  setDateRange("all");
+                }}
+                className="inline-flex items-center gap-1 rounded-lg bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 text-xs font-bold text-neutral-700 transition-colors"
+              >
+                🔄 검색 필터 초기화 (전체 보기)
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
