@@ -10,6 +10,12 @@ let webDrafts = [];
 let activeWebDraftId = "";
 let activeWebDraftTags = [];
 
+function renderExtensionVersion() {
+  const target = $("extensionVersion");
+  const version = typeof chrome !== "undefined" ? chrome.runtime?.getManifest?.().version : "";
+  if (target && version) target.textContent = version;
+}
+
 function getSelectedStrategy() {
   if (typeof document.querySelector !== "function") return "C-Rank 기본";
   return document.querySelector(".strategy-option.selected")?.dataset.strategy || "C-Rank 기본";
@@ -889,4 +895,5 @@ chrome.storage.local.get(PUBLISH_SETTINGS_KEY).then((stored) => {
   $("publishTags").value = settings.tags || "";
 }).catch(() => {});
 
+renderExtensionVersion();
 renderStatus();
