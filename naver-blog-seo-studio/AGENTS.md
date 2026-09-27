@@ -23,5 +23,5 @@
 
 초기 골격 단계는 종료됐습니다. AI 초안 생성, 사용자별 API 키·모델 선택, 확장 토큰, Chrome 확장
 실제 입력, 나노바나나 이미지 삽입, 발행 설정 카테고리·태그 입력까지 구현·검증됐습니다. 다음
-작업자는 반드시 [CLI_HANDOFF_2026-09-25.md](./CLI_HANDOFF_2026-09-25.md)와 루트
+작업자는 반드시 [CLI_HANDOFF_2026-09-27.md](./CLI_HANDOFF_2026-09-27.md)와 루트
 `docs/NAVER_BLOG_EDITOR_AUTOMATION_GUIDE.md`를 함께 읽고 이어서 작업합니다.
