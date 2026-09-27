@@ -1,5 +1,12 @@
 # AIMaster AI 자동화 프로그램 개발 ➔ 이전 ➔ 정식서비스 표준 워크플로우 지침
 
+> ⚠️ **폐기된 문서 (2026-09-27 사용자 확인)** — 아래 `AIMaster_dev` 로컬 폴더·`AIMaster_dev` Supabase
+> 프로젝트(`rjjtjakljjxsgjelqgek`, 현재 일시정지 상태)를 거치는 3단계 절차는 더 이상 쓰지 않는다.
+> 지금은 **모든 프로그램을 `D:\Antigravity\AIMaster` 저장소와 운영 Supabase `AIMaster`
+> (`esgxyikcnnvmlhygjkth`) 하나에서 직접 개발·유지보수**하고, 각 서브프로젝트는
+> `vercel deploy --prod --yes`(CLI 업로드)로 배포한다(GitHub push 자동 배포 아님).
+> 현행 절차는 루트 `CLAUDE.md`·`AGENTS.md` §2~§4를 따를 것. 이 문서는 과거 이력 참고용으로만 남겨둔다.
+
 > **문서 버전**: v1.0.0  
 > **적용 범위**: `AIMaster_dev` 환경에서 개발되는 모든 신규 AI 자동화 프로그램 및 기존 서비스  
 > **핵심 타깃 서비스**: `https://www.buylife.xyz/` (GitHub: `BUYLISEMALL/aimaster`, Vercel 자동 배포)

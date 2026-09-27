@@ -435,7 +435,9 @@ vercel deploy --prod --yes --scope buylife
 
 ## 11. 참고 인프라 정보
 
-- **Supabase 프로젝트 ID**: `esgxyikcnnvmlhygjkth` (모든 서브프로젝트가 공유).
+- **Supabase 프로젝트 ID**: `esgxyikcnnvmlhygjkth` (모든 서브프로젝트가 공유). 예전 개발 전용
+  프로젝트 `AIMaster_dev`(`rjjtjakljjxsgjelqgek`)는 더 이상 쓰지 않는다(일시정지 상태) — 모든
+  개발·유지보수는 이 운영 DB에서 직접 한다(`docs/DEV_TO_PROD_WORKFLOW.md`는 폐기 문서).
 - **Vercel 팀/스코프**: `buylife` (팀 id `team_orq6xPe9P3c1uMQdKlJsQ6k9`). 루트 앱 배포 시
   `--scope buylife` 필수(§3).
 - **참고 자료 기본 폴더**: `D:\PDS` — 사용자가 스크린샷/블루프린트/템플릿을 모아두는 곳. 파일명만
