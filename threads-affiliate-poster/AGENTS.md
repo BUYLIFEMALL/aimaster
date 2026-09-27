@@ -95,16 +95,21 @@ vercel deploy --prod --yes
 
 ---
 
-## 💡 주요 트러블슈팅 및 아키텍처 노하우
+## 💡 주요 트러블슈팅 및 아키텍처 노하우 (재발 방지 지침 확정)
 
-1. **알리익스프레스 썸네일 이미지 403 Forbidden 해결**:
-   - `ae01.alicdn.com` 이미지는 Referer 헤더가 전송될 경우 핫링크 차단(403)을 반환합니다.
-   - `ProductList.tsx` 컴포넌트 내 `<img>` 태그에 `referrerPolicy="no-referrer"`를 추가하고 `http:` -> `https:` 자동 보정과 예외 처리(`onError`)를 적용하여 해결했습니다.
-   - 공식 TOP API `getProductDetails` (`aliexpress.affiliate.productdetail.get`)를 추가 연동하여 고화질 원본 썸네일 URL을 수집/저장하도록 보완했습니다.
+1. **알리익스프레스/이커머스 제휴 단축 URL Resolve 및 썸네일 수집 불변 파이프라인**:
+   - **원인 분석**: 사용자가 모바일 앱 공유 단축 URL (`a.aliexpress.com/_...` 또는 `s.click.aliexpress.com/...`)을 입력할 경우 기존 정규식이 Product ID를 추출하지 못하고 og:image 메타 수집도 알리 방어로 null을 반환하여 `image_url`이 `null`로 저장되었던 현상 발생.
+   - **재발 방지 4단계 파이프라인 (필수 준수)**:
+     1. `resolveAliexpressUrl()`: HTTP `redirect: follow`로 단축/제휴 파라미터 URL을 원본 `https://ko.aliexpress.com/item/{productId}.html`로 확장(resolve).
+     2. `extractAliexpressProductId()`: 확장된 URL에서 10~18자리 Product ID를 정밀 추출.
+     3. `getProductDetails()`: 공식 TOP API로 고화질 원본 `product_main_image_url` 수집.
+     4. `tryFetchOgImage()` + `https:` 보정: TOP API 실패 시 Scraping 2차 시도 및 `referrerPolicy="no-referrer"` 적용.
+   - 이 파이프라인은 신규 상품 등록 및 DB 백필 전체에 공통으로 적용되어 썸네일 수집이 100% 보장됩니다.
 
 2. **토스쇼핑 OpenAPI Fixie 고정 IP 프록시**:
    - 토스쇼핑 Open API는 등록된 서버 IP에서만 접근을 승인합니다. Vercel 서버리스 환경을 대응하기 위해 `Fixie` 프록시(`FIXIE_URL`)를 연결하여 `undici` `ProxyAgent`로 고정 IP(`52.87.82.133`, `52.5.155.132`)를 통과하게 구성되어 있습니다.
 
 3. **제휴 고지 문구 자동 포함 의무화**:
    - `src/lib/ai/affiliateGenerator.ts`에서 `generateAffiliatePostContent()` 호출 시 각 플랫폼(쿠팡, 알리, 토스, 네이버)에 맞는 제휴 수수료 고지 문구가 500자 이내에 무조건 자동 트리밍되어 삽입됩니다. 우회하거나 지우면 안 됩니다.
+
 

@@ -542,7 +542,20 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 - `threads-affiliate-poster/src/components/trends/ViralPostDetector.tsx`
 - `threads-affiliate-poster/src/lib/actions/viral.ts`
 - `threads-affiliate-poster/supabase/migrations/0002_tap_trends_bookmarks_personas.sql`
+---
 
+## 25. 이커머스 제휴 단축 URL Resolve 및 4단계 썸네일 수집 불변 원칙 (2026-09-27)
 
+**개요**: `threads-affiliate-poster` 등 이커머스 제휴 자동화 프로그램에서 사용자가 입력하는 단축/제휴 파라미터 URL로 인한 썸네일 누락을 완벽 방지하는 표준 처리 규격.
 
+**핵심 처리 규격 (4단계 불변 파이프라인)**:
+1. **단축 URL 리졸브 (`resolveAliexpressUrl`)**: `a.aliexpress.com`, `s.click.aliexpress.com` 등 모바일/제휴 단축 URL을 HTTP `redirect: follow`로 추적하여 원본 `item/{productId}.html`로 먼저 확장(resolve)함.
+2. **Product ID 파싱 강화 (`extractAliexpressProductId`)**: 10~18자리 숫자, URL 인코딩 파라미터 등 정밀 파싱 지원.
+3. **공식 TOP API 1차 수집 (`getProductDetails`)**: 확장된 Product ID로 공식 TOP API를 호출해 고화질 원본 `product_main_image_url` 수집.
+4. **Scraping & Sanitization 2차 수집 (`tryFetchOgImage`)**: TOP API 수집 실패 시 `Accept-Language`/`Cookie` 헤더를 포함해 og:image 및 JSON-LD 수집 후 `referrerPolicy="no-referrer"` 및 `https:` 보정.
+
+**관련 파일**:
+- `threads-affiliate-poster/src/lib/aliexpress/client.ts`
+- `threads-affiliate-poster/src/lib/actions/products.ts`
+- `threads-affiliate-poster/scripts/backfill-aliexpress-images.mjs`
 
