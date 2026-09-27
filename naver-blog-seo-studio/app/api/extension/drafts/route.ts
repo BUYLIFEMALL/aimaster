@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateSeoDraft } from "@/lib/ai/generator";
+import { resolveSeoPersona } from "@/lib/ai/personas";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
 
   try {
     const { data: authUser } = await supabase.auth.admin.getUserById(user.userId);
-    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, model: getUserOpenAIContentModel(authUser.user?.user_metadata) });
+    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, persona: resolveSeoPersona(), model: getUserOpenAIContentModel(authUser.user?.user_metadata) });
     const { data: saved, error } = await supabase.from("naver_blog_seo_drafts").insert({
       user_id: user.userId, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: draft.seoReport, status: "ready",
     }).select("id, title, body, seo_report, created_at").single();

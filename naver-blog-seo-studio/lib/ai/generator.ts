@@ -1,6 +1,7 @@
 import "server-only";
 import { resolveOpenAIContentModel } from "./openaiModels";
 import { getExplicitYears, getKoreaToday } from "./freshness";
+import type { SeoPersona } from "./personas";
 
 export interface SeoDraft { title: string; body: string; seoReport: Record<string, string>; }
 
@@ -37,7 +38,7 @@ function normalizeSeoReport(report: Partial<Record<string, unknown>> | undefined
   return result;
 }
 
-export async function generateSeoDraft(params: { apiKey: string; topic: string; keywords: string[]; strategy: string; model?: string }): Promise<SeoDraft> {
+export async function generateSeoDraft(params: { apiKey: string; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string }): Promise<SeoDraft> {
   if (!/^[\x00-\xFF]*$/.test(params.apiKey)) throw new Error("등록된 OpenAI API 키 형식이 올바르지 않습니다.");
   const today = getKoreaToday();
   const explicitYears = [...getExplicitYears(params.topic, ...params.keywords)];
@@ -49,6 +50,8 @@ export async function generateSeoDraft(params: { apiKey: string; topic: string; 
       messages: [
         { role: "system", content: `당신은 한국어 네이버 블로그 콘텐츠 편집자입니다. 오늘은 한국 기준 ${today}입니다. ${STRATEGY_GUIDE[params.strategy] ?? STRATEGY_GUIDE["C-Rank 기본"]}
 
+선택한 글쓰기 페르소나는 '${params.persona.name}'입니다. 다음 톤과 관점을 일관되게 반영하세요: ${params.persona.toneDescription}
+
 검색 의도를 먼저 추론하고, 독자가 실제로 도움을 얻는 자연스러운 초안을 작성하세요. 제목은 25~40자 안팎으로 핵심 키워드를 한 번만 넣습니다. 본문은 다음 규칙을 반드시 지킵니다.
 1. 첫 문단은 검색 의도에 바로 답하는 2~3문장 요약입니다.
 2. 3~5개의 소제목을 일반 문장으로 작성하고, 소제목 앞뒤에는 빈 줄을 둡니다. 마크다운 기호(#, *, -, ##)와 HTML은 사용하지 않습니다.
@@ -58,7 +61,7 @@ export async function generateSeoDraft(params: { apiKey: string; topic: string; 
 6. 실시간 검색·뉴스·공식 자료가 제공되지 않았으므로 최신 수치, 정책, 순위, 연도별 사실을 지어내지 마세요. 사용자가 직접 제시한 연도(${explicitYears.join(", ") || "없음"}) 외의 연도는 제목과 본문에 쓰지 마세요. 최신성 검증이 필요한 내용은 [확인 필요]로 표시합니다.
 
 제목과 본문은 JSON으로만 응답하세요. 형식: {"title":"...","body":"...","seoReport":{"searchIntent":"...","strength":"...","factCheck":"..."}}` },
-        { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n전략: ${params.strategy}\n\n독자가 이 주제를 검색하는 구체적인 질문에 답하고, 실제 사용자가 자신의 경험과 사실을 덧붙일 수 있는 초안으로 작성하세요.` },
+        { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n전략: ${params.strategy}\n페르소나: ${params.persona.name}\n\n독자가 이 주제를 검색하는 구체적인 질문에 답하고, 실제 사용자가 자신의 경험과 사실을 덧붙일 수 있는 초안으로 작성하세요.` },
       ],
       response_format: { type: "json_object" },
       temperature: 0.65,
