@@ -87,17 +87,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href={basePath || '/'} className="text-xl font-black text-indigo-600 no-underline">
-            BLOG(원문)생성 자동화
-          </Link>
-          <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
-            {userEmail ? <span>{userEmail}</span> : <Link href={getBlogAuthPath()}>로그인</Link>}
-          </div>
-        </div>
-      </header>
-
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">대시보드</h1>

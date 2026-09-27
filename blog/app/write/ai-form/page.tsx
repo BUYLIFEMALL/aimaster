@@ -226,18 +226,6 @@ function AiFormPageInner() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans ai-form-container">
-      {/* 헤더 */}
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href={basePath || '/'} className="text-xl font-black text-indigo-600 no-underline">
-            BLOG(원문)생성 자동화
-          </Link>
-          <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
-            {userEmail ? <span>{userEmail}</span> : <Link href={getBlogAuthPath()}>로그인</Link>}
-          </div>
-        </div>
-      </header>
-
       {/* 메인 폼 */}
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10">
         <form onSubmit={handleSubmit} autoComplete="off" className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl space-y-8">
