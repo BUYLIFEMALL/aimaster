@@ -74,10 +74,18 @@ async function loadSelectedWebDraft() {
   $("webDraftTagSuggestion").hidden = activeWebDraftTags.length === 0;
   $("webDraftTagList").textContent = activeWebDraftTags.length ? activeWebDraftTags.map((tag) => `#${tag}`).join(" ") : "";
   const token = await getToken();
+  let storedImageLoaded = false;
+  try {
+    storedImageLoaded = await loadStoredWebDraftImage(draft, token);
+  } catch (error) {
+    console.warn("저장된 대표 이미지 불러오기 실패", error);
+  }
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
-  $("webDraftStatus").textContent = "웹 초안을 불러왔습니다. 필요하면 대표 이미지를 생성한 뒤 네이버 편집기에 입력하세요.";
+  $("webDraftStatus").textContent = storedImageLoaded
+    ? "웹 초안과 저장된 대표 이미지를 불러왔습니다. 바로 네이버 편집기에 입력할 수 있습니다."
+    : "웹 초안을 불러왔습니다. 필요하면 대표 이미지를 생성한 뒤 네이버 편집기에 입력하세요.";
 }
 
 async function reportWebDraftInputResult(status, details = {}) {
@@ -99,6 +107,29 @@ function clearGeneratedImage() {
   $("generatedImage").removeAttribute("src");
   $("downloadImage").removeAttribute("href");
   $("imagePreview").hidden = true;
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("저장된 대표 이미지 데이터를 읽지 못했습니다."));
+    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("저장된 대표 이미지 형식이 올바르지 않습니다."));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function loadStoredWebDraftImage(draft, token) {
+  if (!draft.image_path) return false;
+  const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/image`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result.error || `저장된 대표 이미지 조회 실패 (${response.status})`);
+  }
+  const dataUrl = await blobToDataUrl(await response.blob());
+  $("generatedImage").src = dataUrl;
+  $("downloadImage").href = dataUrl;
+  $("imagePreview").hidden = false;
+  return true;
 }
 
 function normalizeSeoText(value) {
