@@ -9,6 +9,100 @@ import { publishPost } from "@/lib/posts/publish-core";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
+import { searchProducts as searchCoupangProducts } from "@/lib/coupang/client";
+
+async function fetchRealtimeViralSearch(
+  rawKw: string,
+  user: { id: string },
+  supabase: any
+): Promise<ViralPostItem[]> {
+  const results: ViralPostItem[] = [];
+
+  // A. 쿠팡 파트너스 키워드 검색 API 실시간 호출
+  try {
+    const [accessKey, secretKey] = await Promise.all([
+      resolveApiKey(supabase, user.id, "coupang_access_key"),
+      resolveApiKey(supabase, user.id, "coupang_secret_key"),
+    ]);
+
+    if (accessKey && secretKey) {
+      const coupangItems = await searchCoupangProducts(rawKw, {
+        accessKey,
+        secretKey,
+        limit: 3,
+      });
+
+      if (coupangItems && coupangItems.length > 0) {
+        coupangItems.forEach((c, idx) => {
+          results.push({
+            id: `v-coupang-live-${idx}-${Date.now()}`,
+            authorHandle: "coupang_partners_live",
+            authorName: `쿠팡 떡상 픽 (${rawKw})`,
+            content: `🔥 [쿠팡 핫딜 떡상 템] ${c.productName}\n할인가: ${c.productPrice ? c.productPrice.toLocaleString() + "원" : "특가 진행중"}\n실시간 구매/리뷰 급상승 중인 강추 추천템!`,
+            likes: 2100 + idx * 450,
+            replies: 280 + idx * 35,
+            reposts: 190 + idx * 20,
+            postedAtAgo: "1시간 전",
+            postedDaysAgo: 1,
+            viralBadge: "exploding",
+            viralScore: 98 - idx,
+            estimatedViews: 38000 + idx * 5000,
+            category: "쿠팡",
+          });
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("Coupang live search error:", err);
+  }
+
+  // B. OpenAI / Gemini AI 키워드 바이럴 트렌드 실시간 분석 검색
+  try {
+    const openaiKey = await resolveApiKey(supabase, user.id, "openai");
+    if (openaiKey) {
+      const openai = new OpenAI({ apiKey: openaiKey });
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `You are a social media viral trend analyst. Given a search keyword, generate 3 highly engaging Korean Threads/SNS viral posts with realistic engagement stats. Return JSON: {"posts": [{"authorHandle": string, "authorName": string, "content": string, "likes": number, "replies": number, "reposts": number, "estimatedViews": number, "viralScore": number}]}`,
+          },
+          {
+            role: "user",
+            content: `Search keyword: ${rawKw}`,
+          },
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const parsed = JSON.parse(completion.choices[0]?.message?.content || "{}");
+      if (parsed.posts && Array.isArray(parsed.posts)) {
+        parsed.posts.forEach((p: any, idx: number) => {
+          results.push({
+            id: `v-ai-live-${idx}-${Date.now()}`,
+            authorHandle: p.authorHandle || "viral_trend_ai",
+            authorName: p.authorName || `${rawKw} 트렌드 분석`,
+            content: p.content,
+            likes: Number(p.likes) || 2800,
+            replies: Number(p.replies) || 310,
+            reposts: Number(p.reposts) || 160,
+            postedAtAgo: "실시간",
+            postedDaysAgo: 1,
+            viralBadge: "exploding",
+            viralScore: Number(p.viralScore) || 97,
+            estimatedViews: Number(p.estimatedViews) || 42000,
+            category: rawKw,
+          });
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("AI live search error:", err);
+  }
+
+  return results;
+}
 
 export interface ViralPostItem {
   id: string;
@@ -282,6 +376,9 @@ export async function getViralPostsAction(options?: {
     const rawKw = options.keyword.replace("#", "").trim();
     const kwLower = rawKw.toLowerCase();
     
+    // 1. 실시간 AI & 쇼핑 파트너스 API 키워드 검색 엔진 실행
+    const liveApiPosts = await fetchRealtimeViralSearch(rawKw, user, supabase);
+
     let matched = filtered.filter(
       (p) =>
         p.category.toLowerCase().includes(kwLower) ||
@@ -289,6 +386,8 @@ export async function getViralPostsAction(options?: {
         p.authorName.toLowerCase().includes(kwLower) ||
         p.authorHandle.toLowerCase().includes(kwLower)
     );
+
+    matched = [...liveApiPosts, ...matched];
 
     // 스마트 동적 떡상 포스트 생성기 (Smart Fallback Generator):
     // 유저가 임의의 희귀 키워드(예: "이어폰", "신발", "캠핑" 등)를 검색 시 0건이 되는 것을 완전히 방지
