@@ -59,17 +59,19 @@
 
 ---
 
-## 📦 Phase 진행 상태
+## 📦 Phase 진행 상태 (2026-09-27 기준)
 
 | Phase | 내용 | 상태 |
 |-------|------|------|
 | 1 | Threads OAuth 연결(BYOK 회원별 앱 등록 방식), AI 캡션 생성(`generateAffiliatePostContent`), 이미지 생성(NanoBanana 2K/4K/Pro), 즉시/예약 게시 | ✅ 구현 완료 |
 | 1 | 쿠팡파트너스 클라이언트(키워드 검색 + 제휴 링크) | ✅ 구현 완료 + 실계정 실호출 검증 완료 |
 | 1 | 알리익스프레스 클라이언트(URL → 제휴 링크 변환 `getPromotionLinks` + 공식 썸네일 수집 `getProductDetails`) | ✅ 구현 완료 + 실계정 실호출 및 DB 백필 검증 완료 (2026-09-27) |
-| 1 | 네이버 브랜드커넥트 & 토스쇼핑 쉐어링크(Fixie 프록시 고정 IP 연동) | ✅ 구현 완료 + 실계정 전체 검증 완료 |
+| 1 | 토스쇼핑 쉐어링크 연동 (Fixie 프록시 고정 IP 연동, 베스트/카테고리/오늘의특가 브라우징 + 쉐어링크 발급) | ✅ 구현 완료 + 실계정 전체 검증 완료 |
+| 1 | 네이버 브랜드커넥트 (수동 제휴 쉐어링크 수집 등록 연동) | ✅ 구현 완료 |
 | 1 | 🎭 10종 AI 페르소나 멀티 보이스 시스템 (`PRESET_PERSONAS`) 및 커스텀 어조 연동 | ✅ 구현 완료 (2026-09-27) |
 | 1 | 🔥 바이럴 떡상 탐지기 (/trends) & 3대 AI 엔진(OpenAI 4.1 / Gemini 3.7 / Claude) 선택 & 즉시 포스팅 | ✅ 구현 완료 (2026-09-27) |
-| 1 | 게시글 작성(`/posts/new`) 페르소나 선택 연동 및 알리익스프레스 썸네일 403 해제 | ✅ 구현 완료 (2026-09-27) |
+| 1 | 게시글 작성(`/posts/new`) 10종 페르소나 선택 연동 & 알리 썸네일 403 블로킹 해제 | ✅ 구현 완료 (2026-09-27) |
+| 1 | 🚀 대시보드 5단계 프로세스 비주얼 사용 가이드 카드 적용 및 사이드바 메뉴명 업데이트 | ✅ 구현 완료 (2026-09-27) |
 
 ---
 
@@ -90,35 +92,19 @@ git push origin master
 cd threads-affiliate-poster
 vercel deploy --prod --yes
 ```
-직접 발급받은 본인 제휴 링크를 그대로 붙여넣는다는 전제로 바꿨다
-  (2026-09-11). 그래서 `registerCoupangProductAction`은 이제 Access/Secret Key를 전혀
-  요구하지 않는다 — 그 키는 상품 검색(`searchCoupangProductsAction`)에만 필요하다. 매출
-  15만원 미달로 검색 API 키가 아직 활성화되지 않은 회원도 "URL 직접 입력"으로는 등록할 수
-  있다. 실제 상품(무선 이어폰 검색 → 선택 → 등록)으로 end-to-end 성공 확인.
-- 쿠팡 상품검색 API는 시간당 호출 제한(약 10회, 커뮤니티 정보 — 쿠팡이 발급 시 제공하는
-  가이드 PDF에만 적혀 있고 공개 문서 포털에는 없음)이 있다고 알려져 있어, 화면에도 안내
-  문구를 노출하고 검색 결과를 `affiliate_products`에 저장해 재검색을 줄이는 방향으로
-  설계했다.
 
-## 📦 Phase 진행 상태
+---
 
-| Phase | 내용 | 상태 |
-|-------|------|------|
-| 1 | Threads OAuth 연결(공용 앱 재사용), AI 캡션 생성(`generatePostContent`/`generateAffiliatePostContent`), 이미지 생성(NanoBanana), 즉시/예약 게시, 예약 발행 dispatch(admin/user 이중화 + CRON_SECRET 보호 라우트) | ✅ 구현 완료 |
-| 1 | 쿠팡파트너스 클라이언트(키워드 검색 + 딥링크 생성) | ✅ 구현 완료 + 실계정 실호출 검증 완료(2026-09-11) |
-| 1 | 알리익스프레스 클라이언트(URL → 제휴 링크 변환) | ✅ 구현 완료 + 실계정 실호출 검증 완료(2026-08-28) |
-| 1 | 네이버 브랜드커넥트 — 공식 API 없음, 직접 발급받은 링크를 수동으로 등록하는 방식으로 구현 | ✅ 구현 완료(구조적으로 계속 수동) |
-| 1 | 상품 등록 2가지 입력 방식(URL 간단 입력 / 상품정보+상세페이지 직접 입력) — `affiliate_products.input_mode`, `auto-detail-page`의 `detail_pages` 읽기 전용 참조 | ✅ 구현 완료 |
-| 1 | "분석으로 등록" 6단계 흐름(`EnrichmentFields`) — 1.대표이미지 2.상세페이지 이미지(선택,최대10) 3.상품 원본 정보 4.분석 결과 확인/수정 5.게시글용 대표 이미지(업로드 선택 또는 NanoBanana AI 생성) 6.최종 확인. `shop-detail-page`(별도 서브프로젝트, `/products/new`)의 AI 분석 UX를 참고해서 설계했다 — `auto-detail-page`와는 다른 프로젝트이니 혼동 주의. | ✅ 구현 완료(2026-08-28) |
-| 1 | 제휴 고지 문구 자동 삽입(쿠팡/알리익스프레스/네이버 전부), 500자 제한 안에 고지 문구가 항상 포함되도록 본문 자동 트리밍 | ✅ 구현 완료 |
-| 1 | 게시글 영상 첨부 — Threads API `media_type=VIDEO`+`video_url`(공식 스펙: MP4/MOV, 최대 1GB, 최대 5분). 이미지와 동시 첨부는 불가해 UI/서버 양쪽에서 배타적으로 처리. `tap_posts.video_filename`(미사용 스텁)을 `video_url`로 교체(0003 마이그레이션) | ✅ 구현 완료(2026-08-28, 공식 문서 기준 구현 — 실제 영상 게시 테스트는 아직 안 함) |
-| 1 | `programs` 카탈로그 등록 + 썸네일(Gemini 생성) | ✅ 구현 완료(2026-08-27) |
-| 1 | Vercel 배포(`buylife` 팀, 공용 Threads 앱 env 재사용) | ✅ 구현 완료(2026-08-27) |
-| 1 | 토스쇼핑 쉐어링크 연동 — `src/lib/toss/client.ts`(OAuth2 client_credentials 토큰 발급, 베스트/카테고리/오늘의특가 상품 조회, 쉐어링크 발급). Toss Open API는 사전 등록된 고정 IP에서만 호출을 허용하는데 Vercel 서버리스는 고정 IP가 없어, **Fixie(usefixie.com) 프록시**를 붙여 해결했다 — 모든 요청이 `undici`의 `ProxyAgent`(`dispatcher` 옵션, `FIXIE_URL` env)를 거쳐 고정 IP 2개(`52.87.82.133`, `52.5.155.132`)로 나간다. `user_api_keys`에 `toss_access_key`/`toss_secret_key`/`toss_publisher_id` 3종 추가(0006 마이그레이션), `affiliate_products.platform`에 `'toss'` 추가, 설정 페이지에 고정 IP를 본인 토스 어드민 "허용 IP"에 등록하라는 안내 포함, 제휴 고지 문구도 토스용으로 추가. 키워드 검색 API가 없어 UI는 베스트/카테고리별/오늘의 특가 브라우징 방식으로 구현. **실계정 실호출로 응답 필드명 확인 완료(2026-09-10)**: 문서 예시 부족으로 처음엔 `productName`/`imageUrl`/`price`로 추정 구현했으나, 실제 응답은 `displayName`/`thumbnailUrl`/`displayPrice`였다(그래서 상품 목록은 뜨는데 이름/이미지/가격이 전부 비어 보이는 버그가 있었음) — `normalizeTossProduct()`를 실제 필드명 기준으로 수정. 또한 목록 응답에는 `tacaId` 필드 자체가 없고 `tacaItemId`만 내려온다(쉐어링크 발급은 `tacaItemId` 기준이라 문제 없음). 카테고리 목록(`/categories`)도 같은 이유로 `name`이 아니라 `displayName`이 실제 필드명이라 드롭다운이 빈 값으로 보이던 버그가 있었음 — 수정 완료. 베스트/카테고리별/오늘의특가 3개 탭 전부 실계정으로 상품명·가격·이미지 정상 노출 확인. 쉐어링크 발급(`POST /links`)도 `subTagId`에 회원 user_id를 임의로 채워 보내던 게 원인으로 `SHARELINK_OPENAPI_ACCESS_DENIED`("접근 권한이 없습니다") 오류가 났었다 — subTagId는 `POST /openapi/sub-tags/create`로 사전 등록한 값만 허용되므로 자동 전송 로직을 제거(선택 필드라 생략 가능). 실제 상품으로 쉐어링크 발급까지 end-to-end 성공 확인(2026-09-10). | ✅ 구현 완료 + 실계정 전체 플로우(브라우징 3종+쉐어링크 발급) 검증 완료(2026-09-10) |
-| 2 | 실사용자 쿠팡 API 키 실연동 검증 | ✅ 완료(2026-09-11, 위 참고) |
-| 2 | 실사용자 알리익스프레스 API 키 실연동 검증, Meta 앱에 새 리디렉션 URI 등록, Vercel Cron 활성화 | ⏳ 예정(의도적으로 미착수) |
-| 2 | 토스쇼핑 쉐어링크 실계정 검증 — Access/Secret Key·Publisher ID 발급, Fixie 고정 IP 2개를 토스 어드민 허용 IP에 등록, 베스트/카테고리/오늘의특가 실호출로 응답 필드명 확인·필요시 클라이언트 파싱 로직 수정 | ⏳ 예정(의도적으로 미착수) |
-| 2+ | 알리익스프레스 키워드 검색(`listPromotionProduct`), 상품 가격/재고 변동 알림, 다른 채널 동시 배포 | ⏳ 예정 |
+## 💡 주요 트러블슈팅 및 아키텍처 노하우
 
-한 번에 다 만들지 않고 Phase별로 하나씩 붙여나가기로 했다. 새 Phase를 시작할 때는 이 표를
-갱신할 것.
+1. **알리익스프레스 썸네일 이미지 403 Forbidden 해결**:
+   - `ae01.alicdn.com` 이미지는 Referer 헤더가 전송될 경우 핫링크 차단(403)을 반환합니다.
+   - `ProductList.tsx` 컴포넌트 내 `<img>` 태그에 `referrerPolicy="no-referrer"`를 추가하고 `http:` -> `https:` 자동 보정과 예외 처리(`onError`)를 적용하여 해결했습니다.
+   - 공식 TOP API `getProductDetails` (`aliexpress.affiliate.productdetail.get`)를 추가 연동하여 고화질 원본 썸네일 URL을 수집/저장하도록 보완했습니다.
+
+2. **토스쇼핑 OpenAPI Fixie 고정 IP 프록시**:
+   - 토스쇼핑 Open API는 등록된 서버 IP에서만 접근을 승인합니다. Vercel 서버리스 환경을 대응하기 위해 `Fixie` 프록시(`FIXIE_URL`)를 연결하여 `undici` `ProxyAgent`로 고정 IP(`52.87.82.133`, `52.5.155.132`)를 통과하게 구성되어 있습니다.
+
+3. **제휴 고지 문구 자동 포함 의무화**:
+   - `src/lib/ai/affiliateGenerator.ts`에서 `generateAffiliatePostContent()` 호출 시 각 플랫폼(쿠팡, 알리, 토스, 네이버)에 맞는 제휴 수수료 고지 문구가 500자 이내에 무조건 자동 트리밍되어 삽입됩니다. 우회하거나 지우면 안 됩니다.
+

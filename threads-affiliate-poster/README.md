@@ -43,41 +43,34 @@
 | 플랫폼 | 자동화 | 방식 |
 |---|---|---|
 | 쿠팡파트너스 | ✅ 완전 자동 | 공식 Open API — 키워드 상품검색(`searchProducts`) + URL→딥링크 변환(`createDeeplink`). HMAC-SHA256(CEA) 인증. |
-| 알리익스프레스 | ✅ 완전 자동 | 공식 Affiliate API(TOP 프로토콜) — 상품 URL → 제휴 링크 변환(`getPromotionLinks`, method: `aliexpress.affiliate.link.generate`). MD5 서명. |
-| 네이버 브랜드커넥트 | ⚠️ 반자동 | 공식 API를 찾지 못했다(링크 발급이 네이버 웹사이트 수동 조작으로만 가능 — 이 저장소는 비공식 스크래핑을 만들지 않는다는 원칙이 있어 자동화하지 않았다). 사용자가 직접 발급받은 링크를 붙여넣는 방식만 지원한다. |
+| 알리익스프레스 | ✅ 완전 자동 | 공식 Affiliate API(TOP 프로토콜) — 상품 URL → 제휴 링크 변환(`getPromotionLinks`, method: `aliexpress.affiliate.link.generate`) + 공식 고화질 썸네일 수집(`getProductDetails`). MD5 서명. |
+| 토스쇼핑 쉐어링크 | ✅ 완전 자동 | 공식 OAuth2 API — Fixie 고정 IP 프록시 연동. 상품 브라우징(베스트/카테고리/특가) + 쉐어링크 발급. |
+| 네이버 브랜드커넥트 | ⚠️ 반자동 | 공식 API 미제공. 사용자가 직접 발급받은 쉐어링크 수동 등록 방식 지원. |
 
 ## 데이터 모델
 
-- `tap_accounts` — Threads OAuth 연결(user_id unique, threads_user_id, username, access_token,
-  token_expires_at)
-- `affiliate_products` — 등록된 제휴 상품. `platform`(coupang/aliexpress/naver),
-  `input_mode`(url/manual), `product_url`/`affiliate_url`/`price`/`image_url`,
-  manual 모드용 `description`/`key_selling_points`/`detail_page_id`(다른 서브프로젝트
-  `detail_pages.id`를 느슨하게 참조, FK 없음)
-- `tap_posts` — 게시글(`threads/`의 `posts`와 거의 동일한 상태머신: draft→scheduled→
-  publishing→published/failed) + `product_id`로 `affiliate_products`와 연결
+- `tap_accounts` — Threads OAuth 연결(user_id unique, threads_user_id, username, access_token, token_expires_at)
+- `affiliate_products` — 등록된 제휴 상품. `platform`(coupang/aliexpress/naver/toss), `input_mode`(url/manual), `product_url`/`affiliate_url`/`price`/`image_url`, manual 모드용 `description`/`key_selling_points`/`detail_page_id`
+- `tap_posts` — 게시글(`threads/`의 `posts`와 동일한 상태머신: draft→scheduled→publishing→published/failed) + `product_id`로 `affiliate_products`와 연결
 - `tap_saved_posts` — 찜한 레퍼런스 떡상 포스팅 보관함 (user_id, post_id, author_handle, content, likes, replies, reposts, category)
 - `tap_personas` — 나만의 AI 글쓰기 페르소나 설정 (user_id, name, tone_description, sample_writing)
-- `user_api_keys` — 공용 테이블, provider 4종 추가(`coupang_access_key`/`coupang_secret_key`/
-  `aliexpress_app_key`/`aliexpress_app_secret`)
+- `user_api_keys` — 공용 테이블, provider 추가(`coupang_access_key`/`coupang_secret_key`/`aliexpress_app_key`/`aliexpress_app_secret`/`toss_access_key`/`toss_secret_key`/`toss_publisher_id`)
 
 ## 5대 바이럴 떡상 탐지기 (/trends)
 
 1. **Threads 인기 컨텐츠 실시간 조회**: 추정 조회수 배지 및 1일/1주일/1달/전체 기간 필터링.
-2. **브랜드 핫 키워드 검색**: 다이소, 코스트코, 무인양품, 돈키호테, 올리브영, 쿠팡, 알리 등 퀵 브랜드 칩 및 검색.
+2. **브랜드 핫 키워드 검색**: 다이소, 코스트코, 무인양품, 돈키호테, 올리브영, 쿠팡, 알리, 토스 등 퀵 브랜드 칩 및 검색.
 3. **반응도별 정렬**: 🔥 종합 반응도, ❤️ 좋아요순, 💬 댓글순, 🔄 리포스트순 필터.
 4. **찜 보관함 (`tap_saved_posts`)**: 관심 떡상 글 찜하기 및 `📁 내 찜 보관함` 서브 탭 관리.
-5. **학습된 페르소나 멀티 AI 캡션 생성**: OpenAI(GPT-4o-mini) / Google Gemini(Gemini 1.5 Flash) + 자취러/에디터/주부/테크리뷰어 페르소나 어댑터 캡션 생성.
+5. **10종 AI 페르소나 멀티 AI 캡션 생성**: OpenAI(GPT-4.1) / Google Gemini(Gemini 3.7) / Claude + 10가지 독창적 AI 페르소나(자취러, 쇼핑에디터, 주부, 테크리뷰어, 유머짤방꾼, 오프라인탐방가, 브이로그, 팩트폭격, 직장인, 디테일큐레이터) 벤치마킹 캡션 생성.
 
+## 5단계 추천 이용 프로세스 (대시보드)
 
-## 핵심 흐름
-
-1. `/settings` — Threads 계정 연결 + AI 키(OpenAI/Gemini) + 쿠팡/알리익스프레스 키 등록(전부
-   선택 등록)
-2. `/products` — 플랫폼 탭 3개(쿠팡 검색/알리익스프레스 URL/네이버 수동 링크) + 입력 방식
-   2가지(URL 간단 / 상품정보+상세페이지 직접 입력)
-3. `/posts/new` — 상품 선택 → 톤 선택 → AI 캡션 생성(제휴 고지 문구 자동 포함) → 미리보기/수정
-   → 즉시 게시 또는 예약
+1. `🔑 API키등록·플랫폼연동 (/settings)` — Threads 계정 연결 + AI 키(OpenAI/Gemini/Claude) + 제휴 키(쿠팡/알리/토스) 등록
+2. `🛒 상품 관리 (/products)` — 쿠팡·알리·네이버·토스 제휴 상품 등록 및 고화질 썸네일/제휴 링크 자동 추출
+3. `🔥 트렌드 & 떡상 탐지기 (/trends)` — 실시간 바이럴 떡상글 탐지 & 10종 AI 페르소나 벤치마킹 캡션 생성
+4. `📝 새 게시글 작성 (/posts/new)` — 10종 AI 페르소나 선택 → 멀티 AI 엔진 캡션 및 NanoBanana AI 이미지 생성
+5. `🚀 퍼블리싱 & 예약 관리 (/posts)` — Threads 즉시 게시 또는 스케줄링 예약 자동 포스팅 진행
 4. 예약 게시는 `threads/`와 동일한 크론 이중화(cron-job.org 메인 + Vercel Cron 백업)로 처리
 
 ## Phase 진행 상태
