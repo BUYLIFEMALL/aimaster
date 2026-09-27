@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
+import { purgeExpiredTitleRecommendations } from "@/lib/draftRetention";
 import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
 import { getExplicitYears, getKoreaToday, hasUnrequestedYear } from "@/lib/ai/freshness";
 
@@ -21,6 +22,7 @@ export async function GET() {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const supabase = await createClient();
+  await purgeExpiredTitleRecommendations(supabase, access.user.id);
   const { data, error } = await supabase
     .from("naver_blog_seo_title_recommendations")
     .select("id, topic, keywords, titles, selected_title, created_at, updated_at")
@@ -42,6 +44,7 @@ export async function POST(request: Request) {
   const explicitYears = getExplicitYears(topic, keywords);
   if (!topic || topic.length > 300) return NextResponse.json({ error: "주제를 1~300자로 입력해주세요." }, { status: 400 });
   const supabase = await createClient();
+  await purgeExpiredTitleRecommendations(supabase, access.user.id);
   const apiKey = await resolveApiKey(supabase, access.user.id, "openai");
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 
