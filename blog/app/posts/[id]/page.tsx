@@ -138,9 +138,96 @@ export default function PostDetailPage() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // 본문 내 이미지 클릭 감지 핸들러
+  // 본문 내 이미지 클릭 (라이트박스) 및 프롬프트 복사 버튼 이벤트 위임 핸들러
   const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement
+
+    // 1. 프롬프트 복사 버튼 클릭 감지 (이벤트 위임)
+    const copyBtn = (target.tagName === 'BUTTON' ? target : target.closest('button')) as HTMLButtonElement | null
+    if (
+      copyBtn &&
+      (copyBtn.innerText.includes('프롬프트 복사') ||
+        copyBtn.innerText.includes('복사완료') ||
+        copyBtn.getAttribute('data-copy-btn') === 'true')
+    ) {
+      e.stopPropagation()
+      e.preventDefault()
+
+      let codeText = ''
+
+      // 탐색 A: 버튼의 부모 flex나 wrapper 구조에서 다음 sibling 의 code 태그 탐색
+      const flexDiv = copyBtn.closest('.flex') || copyBtn.parentElement
+      if (flexDiv) {
+        let sib: Element | null = flexDiv.nextElementSibling
+        while (sib && !codeText) {
+          const codeEl = sib.querySelector('code') || (sib.tagName === 'CODE' ? sib : null)
+          if (codeEl) {
+            codeText = codeEl.innerText || codeEl.textContent || ''
+            break
+          }
+          sib = sib.nextElementSibling
+        }
+      }
+
+      // 탐색 B: 부모 컨테이너 안의 code 태그
+      if (!codeText) {
+        const container = copyBtn.closest('div') || copyBtn.parentElement
+        if (container) {
+          const codeEl = container.querySelector('code')
+          if (codeEl) {
+            codeText = codeEl.innerText || codeEl.textContent || ''
+          }
+        }
+      }
+
+      // 탐색 C: 전체 post-content 내에서 버튼 직후에 나오는 code
+      if (!codeText && e.currentTarget) {
+        const allCodes = Array.from((e.currentTarget as HTMLElement).querySelectorAll('code'))
+        for (const code of allCodes) {
+          if (copyBtn.compareDocumentPosition(code) & Node.DOCUMENT_POSITION_FOLLOWING) {
+            codeText = code.innerText || code.textContent || ''
+            break
+          }
+        }
+      }
+
+      if (codeText) {
+        const textToCopy = codeText.trim()
+        const doCopy = async () => {
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(textToCopy)
+            } else {
+              const textArea = document.createElement('textarea')
+              textArea.value = textToCopy
+              textArea.style.position = 'fixed'
+              textArea.style.left = '-999999px'
+              document.body.appendChild(textArea)
+              textArea.focus()
+              textArea.select()
+              document.execCommand('copy')
+              textArea.remove()
+            }
+            const origText = copyBtn.innerText
+            copyBtn.innerText = '✓ 복사완료!'
+            copyBtn.classList.add('bg-emerald-600', 'text-white')
+            setTimeout(() => {
+              copyBtn.innerText = '📋 프롬프트 복사'
+              copyBtn.classList.remove('bg-emerald-600', 'text-white')
+            }, 2000)
+          } catch (err) {
+            console.error('Clipboard copy failed:', err)
+            alert('복사 중 오류가 발생했습니다.')
+          }
+        }
+        doCopy()
+      } else {
+        alert('복사할 프롬프트를 찾을 수 없습니다.')
+      }
+      return
+    }
+
+    // 2. 이미지 클릭 감지 (라이트박스)
     if (target.tagName === 'IMG') {
       const src = target.getAttribute('src')
       const alt = target.getAttribute('alt') || ''
