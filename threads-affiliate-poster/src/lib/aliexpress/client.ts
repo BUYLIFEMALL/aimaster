@@ -112,12 +112,51 @@ export async function getPromotionLinks(
     }));
 }
 
+export async function resolveAliexpressUrl(url: string): Promise<string> {
+  const trimmed = url.trim();
+  if (!trimmed) return url;
+  
+  // 이미 item/{digits}.html 형태면 리졸브 불필요
+  if (/item\/\d+\.html/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(trimmed, {
+      method: "GET",
+      redirect: "follow",
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+      },
+    });
+    clearTimeout(timeoutId);
+    if (res.url && res.url !== trimmed) {
+      return res.url;
+    }
+  } catch (e) {
+    console.warn("Failed to resolve shortened Aliexpress URL:", e);
+  }
+
+  return trimmed;
+}
+
 export function extractAliexpressProductId(url: string): string | null {
+  if (!url) return null;
+  const decoded = decodeURIComponent(url);
+
   const match =
-    url.match(/item\/(\d+)\.html/i) ||
-    url.match(/\/(\d+)\.html/i) ||
-    url.match(/productId=(\d+)/i) ||
-    url.match(/\/(\d+)\?/);
+    decoded.match(/item\/(\d+)\.html/i) ||
+    decoded.match(/\/(\d+)\.html/i) ||
+    decoded.match(/productId=(\d+)/i) ||
+    decoded.match(/product\/(\d+)/i) ||
+    decoded.match(/\/(\d{10,18})\.html/i) ||
+    decoded.match(/(\d{10,18})/); // 10~18자리 알리 상품 ID 숫자 패턴
+
   return match ? match[1] : null;
 }
 
@@ -132,10 +171,13 @@ export async function getProductDetails(
   auth: AliexpressAuthParams & { trackingId: string },
 ): Promise<AliexpressProductDetail[]> {
   try {
+    const validIds = productIds.filter(Boolean);
+    if (validIds.length === 0) return [];
+
     const data = await callTopApi(
       "aliexpress.affiliate.productdetail.get",
       {
-        product_ids: productIds.join(","),
+        product_ids: validIds.join(","),
         tracking_id: auth.trackingId,
         target_currency: "KRW",
         target_language: "KO",
@@ -152,6 +194,7 @@ export async function getProductDetails(
                   product_id?: number | string;
                   product_title?: string;
                   product_main_image_url?: string;
+                  product_small_image_urls?: { string?: string[] };
                 }>;
               };
             };
@@ -160,14 +203,23 @@ export async function getProductDetails(
       | undefined;
 
     const list = result?.resp_result?.result?.products?.product ?? [];
-    return list.map((p) => ({
-      productId: String(p.product_id ?? ""),
-      title: p.product_title,
-      imageUrl: p.product_main_image_url,
-    }));
+    return list.map((p) => {
+      let rawImg = p.product_main_image_url || p.product_small_image_urls?.string?.[0];
+      if (rawImg) {
+        rawImg = rawImg.trim();
+        if (rawImg.startsWith("//")) rawImg = `https:${rawImg}`;
+        else if (rawImg.startsWith("http://")) rawImg = rawImg.replace("http://", "https://");
+      }
+      return {
+        productId: String(p.product_id ?? ""),
+        title: p.product_title,
+        imageUrl: rawImg || undefined,
+      };
+    });
   } catch (err) {
     console.error("getProductDetails error:", err);
     return [];
   }
 }
+
 

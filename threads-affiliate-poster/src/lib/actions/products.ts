@@ -5,7 +5,7 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
-import { getPromotionLinks, getProductDetails, extractAliexpressProductId } from "@/lib/aliexpress/client";
+import { getPromotionLinks, getProductDetails, extractAliexpressProductId, resolveAliexpressUrl } from "@/lib/aliexpress/client";
 import {
   getBestSelling,
   getCategories,
@@ -118,12 +118,14 @@ export async function registerCoupangProductAction(
 async function tryFetchOgImage(url: string): Promise<string | null> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const timeoutId = setTimeout(() => controller.abort(), 4500);
     const res = await fetch(url, {
       signal: controller.signal,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+        Cookie: "aep_usuc_f=site=kor&c_tp=KRW&region=KR; intl_locale=ko_KR;",
       },
     });
     clearTimeout(timeoutId);
@@ -132,9 +134,16 @@ async function tryFetchOgImage(url: string): Promise<string | null> {
     const match =
       html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
       html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i) ||
-      html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i);
+      html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i) ||
+      html.match(/<link[^>]*rel=["']image_src["'][^>]*href=["']([^"']+)["']/i) ||
+      html.match(/"product_main_image_url"\s*:\s*"([^"]+)"/i) ||
+      html.match(/"image"\s*:\s*\[?\s*"([^"]+)"/i);
     let img = match ? match[1] : null;
-    if (img && img.startsWith("//")) img = `https:${img}`;
+    if (img) {
+      img = img.trim().replace(/\\/g, "");
+      if (img.startsWith("//")) img = `https:${img}`;
+      else if (img.startsWith("http://")) img = img.replace("http://", "https://");
+    }
     return img;
   } catch {
     return null;
@@ -168,7 +177,11 @@ export async function registerAliexpressProductAction(
   }
 
   try {
-    const [link] = await getPromotionLinks([productUrl], {
+    // 1. 단축 URL 및 제휴 딥링크 입력 시 원본 item URL로 확정(resolve)
+    const resolvedUrl = await resolveAliexpressUrl(productUrl);
+
+    // 2. 제휴 링크 생성
+    const [link] = await getPromotionLinks([resolvedUrl], {
       appKey,
       appSecret,
       trackingId,
@@ -180,8 +193,9 @@ export async function registerAliexpressProductAction(
     const enrichment = parseEnrichmentFields(formData);
     let extractedImage = enrichment.image_url;
 
+    // 3. 알리익스프레스 공식 TOP API (getProductDetails)로 썸네일 수집
     if (!extractedImage) {
-      const aliexpressId = extractAliexpressProductId(productUrl);
+      const aliexpressId = extractAliexpressProductId(resolvedUrl) || extractAliexpressProductId(productUrl);
       if (aliexpressId) {
         const details = await getProductDetails([aliexpressId], { appKey, appSecret, trackingId });
         if (details.length > 0 && details[0].imageUrl) {
@@ -190,8 +204,15 @@ export async function registerAliexpressProductAction(
       }
     }
 
+    // 4. TOP API 수집 실패 시 웹 Scraping 2차 시도 (resolvedUrl 우선, fallback productUrl)
     if (!extractedImage) {
-      extractedImage = await tryFetchOgImage(productUrl);
+      extractedImage = (await tryFetchOgImage(resolvedUrl)) || (await tryFetchOgImage(productUrl));
+    }
+
+    if (extractedImage) {
+      extractedImage = extractedImage.trim();
+      if (extractedImage.startsWith("//")) extractedImage = `https:${extractedImage}`;
+      else if (extractedImage.startsWith("http://")) extractedImage = extractedImage.replace("http://", "https://");
     }
 
     const { error } = await supabase.from("affiliate_products").insert({
