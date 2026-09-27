@@ -10,6 +10,7 @@ import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
 import { searchProducts as searchCoupangProducts } from "@/lib/coupang/client";
+import { searchRealThreadsPosts } from "@/lib/threads/scraper";
 
 async function fetchRealtimeViralSearch(
   rawKw: string,
@@ -18,7 +19,17 @@ async function fetchRealtimeViralSearch(
 ): Promise<ViralPostItem[]> {
   const results: ViralPostItem[] = [];
 
-  // A. 쿠팡 파트너스 키워드 검색 API 실시간 호출
+  // 1. 진짜 쓰레드(threads.net) 포스팅 라이브 웹 스크래핑 실시간 검색
+  try {
+    const realThreadsPosts = await searchRealThreadsPosts(rawKw);
+    if (realThreadsPosts && realThreadsPosts.length > 0) {
+      results.push(...realThreadsPosts);
+    }
+  } catch (err) {
+    console.warn("Real threads scraping error:", err);
+  }
+
+  // 2. 쿠팡 파트너스 키워드 검색 API 실시간 호출
   try {
     const [accessKey, secretKey] = await Promise.all([
       resolveApiKey(supabase, user.id, "coupang_access_key"),
