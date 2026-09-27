@@ -559,3 +559,28 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 - `threads-affiliate-poster/src/lib/actions/products.ts`
 - `threads-affiliate-poster/scripts/backfill-aliexpress-images.mjs`
 
+---
+
+## 26. 블로그/게시판 프롬프트 복사(Copy Prompt) 이벤트 위임(Event Delegation) 패턴 (2026-09-28)
+
+**개요**: AI 자동 생성 블로그글/게시판 본문에 포함된 "📋 프롬프트 복사" 버튼 클릭 시 클립보드 복사가 동작하지 않거나 과거 DB에 이미 저장된 HTML 게시글에서 복사가 안 되는 문제를 근본적으로 해결하는 처리 규격.
+
+**문제 원인 및 한계**:
+1. 마크다운 변환기(`mdLiteToHtml`)에서 HTML 생성 시 붙이는 인라인 `onclick` 스크립트는, `stripImageGenerationSchema`나 RichTextEditor 변환 과정에서 DOM 계층 구조가 바뀌면 `nextElementSibling` 또는 `querySelector('code')` 탐색에 실패할 수 있음.
+2. DB(`blog_posts` 테이블 등)에 이미 저장된 과거 블로그 글(예: 107번 포스트)의 HTML 데이터에는 이전 인라인 `onclick` 코드가 그대로 남아있으므로, 변환기 함수 수정만으로는 과거 글의 복사 기능을 소급 적용할 수 없음.
+
+**해결 방안 및 표준 구현 패턴**:
+1. **Client-side Event Delegation (이벤트 위임)**: 상세 페이지 뷰어 컴포넌트(`blog/app/posts/[id]/page.tsx` 등)의 본문 래퍼 `onClick` 핸들러에서 클릭된 이벤트를 캡처함.
+2. **다중 트래버스 탐색 (Multiple DOM Traversal)**:
+   - 클릭 타겟이 복사 버튼인지 확인 (`copyBtn.innerText`에 '프롬프트 복사' 또는 '복사완료' 포함, 혹은 `data-copy-btn="true"`).
+   - **탐색 A**: 부모 flex/wrapper의 다음 형제 요소(sibling)들을 순회하며 `code` 태그 탐색.
+   - **탐색 B**: 부모 컨테이너 내의 `code` 태그 탐색.
+   - **탐색 C**: 본문 래퍼 DOM 내에서 클릭된 버튼 직후(`DOCUMENT_POSITION_FOLLOWING`)에 위치한 `code` 태그 탐색.
+3. **안전한 클립보드 복사 & UI 피드백**: `navigator.clipboard.writeText(text)` 호출 및 비보안 환경/Safari용 `textarea` execCommand fallback 적용 후, 2초간 `✓ 복사완료!` 피드백을 노출하고 원복.
+
+**관련 파일**:
+- `blog/app/posts/[id]/page.tsx`
+- `blog/utils/markdown.ts`
+- `utils/markdown.ts`
+
+
