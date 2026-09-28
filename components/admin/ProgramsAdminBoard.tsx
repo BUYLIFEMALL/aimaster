@@ -40,7 +40,7 @@ const BADGE_OPTIONS: { value: BadgeValue; label: string }[] = [
   { value: "new", label: "NEW" },
   { value: "best", label: "BEST" },
   { value: "sale", label: "SALE" },
-  { value: "coming", label: "COMING SOON" },
+  { value: "coming", label: "작업중" },
 ];
 
 const NONE_VALUE = "__none__";

@@ -24,7 +24,7 @@ const defaultLabels: Record<BadgeVariant, string> = {
   new: "NEW",
   best: "BEST",
   sale: "SALE",
-  coming: "COMING SOON",
+  coming: "작업중",
   free: "FREE",
   custom: "",
 };

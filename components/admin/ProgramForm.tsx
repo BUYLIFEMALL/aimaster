@@ -56,7 +56,7 @@ const BADGE_OPTIONS: {
   },
   {
     value: "coming",
-    label: "COMING SOON",
+    label: "작업중",
     selectedClassName: "bg-neutral-500 text-black border-neutral-500",
     idleClassName: "bg-white/5 text-neutral-400 border-neutral-500/40 hover:bg-white/10",
   },
