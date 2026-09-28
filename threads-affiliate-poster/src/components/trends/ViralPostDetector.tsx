@@ -9,8 +9,13 @@ import {
   generateBenchmarkCaptionAction,
   getUserProductsAction,
   createDirectBenchmarkPostAction,
+  searchRelatedCoupangProductsAction,
+  generateAiExamplePostsAction,
   type ViralPostItem,
+  type ThreadsSearchStatus,
 } from "@/lib/actions/viral";
+import { connectThreadsAccountWithKeywordSearchAction } from "@/lib/actions/accounts";
+import type { CoupangProduct } from "@/lib/coupang/client";
 import { PRESET_PERSONAS } from "@/lib/constants/personas";
 import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS, PROVIDER_SHORT_LABELS } from "@/lib/ai/models";
 import { PLATFORM_LABELS, type AffiliatePlatform, type AffiliateProduct } from "@/types/product";
@@ -28,7 +33,7 @@ import {
   Bot,
   ArrowRight,
   X,
-  Eye,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -50,9 +55,18 @@ export function ViralPostDetector() {
   const [selectedTag, setSelectedTag] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<"1d" | "1w" | "1m" | "all">("all");
-  const [sortBy, setSortBy] = useState<"viralScore" | "likes" | "replies" | "reposts">("viralScore");
+  const [searchType, setSearchType] = useState<"TOP" | "RECENT">("TOP");
 
   const [posts, setPosts] = useState<ViralPostItem[]>([]);
+  const [threadsStatus, setThreadsStatus] = useState<ThreadsSearchStatus>("no_keyword");
+  const [threadsMessage, setThreadsMessage] = useState<string | undefined>();
+  const [searchedKeyword, setSearchedKeyword] = useState("");
+  const [aiPosts, setAiPosts] = useState<ViralPostItem[]>([]);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [coupangProducts, setCoupangProducts] = useState<CoupangProduct[] | null>(null);
+  const [coupangError, setCoupangError] = useState<string | null>(null);
+  const [loadingCoupang, setLoadingCoupang] = useState(false);
   const [savedPosts, setSavedPosts] = useState<ViralPostItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
@@ -90,12 +104,18 @@ export function ViralPostDetector() {
         const res = await getSavedBookmarksAction();
         setSavedPosts(res.posts);
       } else {
-        const res = await getViralPostsAction({
-          keyword: searchQuery.trim() || selectedTag,
-          dateRange,
-          sortBy,
-        });
+        const keyword = searchQuery.trim() || selectedTag;
+        const res = await getViralPostsAction({ keyword, dateRange, searchType });
         setPosts(res.posts);
+        setThreadsStatus(res.threadsStatus);
+        setThreadsMessage(res.threadsMessage);
+        if (keyword !== searchedKeyword) {
+          setAiPosts([]);
+          setAiError(null);
+          setCoupangProducts(null);
+          setCoupangError(null);
+        }
+        setSearchedKeyword(keyword === "전체" ? "" : keyword.replace(/^#/, ""));
       }
       setLoading(false);
     });
@@ -103,7 +123,27 @@ export function ViralPostDetector() {
 
   useEffect(() => {
     fetchPosts();
-  }, [selectedTag, dateRange, sortBy, activeSubTab]);
+  }, [selectedTag, dateRange, searchType, activeSubTab]);
+
+  const handleGenerateAiExamples = async () => {
+    if (!searchedKeyword) return;
+    setLoadingAi(true);
+    setAiError(null);
+    const res = await generateAiExamplePostsAction(searchedKeyword);
+    setLoadingAi(false);
+    if (res.error) setAiError(res.error);
+    setAiPosts(res.posts);
+  };
+
+  const handleSearchCoupang = async () => {
+    if (!searchedKeyword) return;
+    setLoadingCoupang(true);
+    setCoupangError(null);
+    const res = await searchRelatedCoupangProductsAction(searchedKeyword);
+    setLoadingCoupang(false);
+    if (res.error) setCoupangError(res.error);
+    setCoupangProducts(res.products);
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,7 +271,20 @@ export function ViralPostDetector() {
     }
   };
 
-  const displayList = activeSubTab === "saved" ? savedPosts : posts;
+  const displayList =
+    activeSubTab === "saved"
+      ? savedPosts
+      : [
+          ...posts.filter((p) => p.source === "threads"),
+          ...aiPosts,
+          ...posts.filter((p) => p.source !== "threads"),
+        ];
+
+  const SOURCE_BADGE: Record<ViralPostItem["source"], { label: string; className: string }> = {
+    threads: { label: "실제 Threads 글", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+    ai: { label: "AI 작성 예시", className: "bg-purple-50 text-purple-700 border-purple-200" },
+    example: { label: "작성 예시", className: "bg-neutral-100 text-neutral-600 border-neutral-200" },
+  };
 
   return (
     <div className="space-y-6">
@@ -439,31 +492,94 @@ export function ViralPostDetector() {
               <Filter className="h-3.5 w-3.5 text-neutral-500" />
               <span className="font-bold text-neutral-600">정렬:</span>
               <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                value={searchType}
+                onChange={(e) => setSearchType(e.target.value as "TOP" | "RECENT")}
                 className="rounded-lg border border-neutral-300 bg-white p-1 text-xs focus:outline-none"
               >
-                <option value="viralScore">🔥 종합 반응도 순</option>
-                <option value="likes">❤️ 좋아요 많은 순</option>
-                <option value="replies">💬 댓글 많은 순</option>
-                <option value="reposts">🔄 리포스트 많은 순</option>
+                <option value="TOP">🔥 인기 글 (Threads 인기순)</option>
+                <option value="RECENT">🕒 최신 글</option>
               </select>
             </div>
           </div>
         </div>
       )}
 
+      {activeSubTab === "detector" && !(loading || isPending) && (
+        <ThreadsStatusNotice status={threadsStatus} message={threadsMessage} keyword={searchedKeyword} />
+      )}
+
+      {activeSubTab === "detector" && searchedKeyword && !(loading || isPending) && (
+        <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-neutral-700">&ldquo;{searchedKeyword}&rdquo; 추가 자료:</span>
+            <button
+              type="button"
+              onClick={handleGenerateAiExamples}
+              disabled={loadingAi}
+              className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-purple-700 disabled:opacity-50"
+            >
+              {loadingAi ? "AI 예시 작성 중..." : "🤖 AI 예시 글 3개 만들기"}
+            </button>
+            <button
+              type="button"
+              onClick={handleSearchCoupang}
+              disabled={loadingCoupang}
+              className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-neutral-800 disabled:opacity-50"
+            >
+              {loadingCoupang ? "쿠팡 검색 중..." : "🛒 관련 쿠팡 상품 보기"}
+            </button>
+          </div>
+          <p className="text-[11px] text-neutral-500">
+            AI 예시는 본인 OpenAI 키로 1회 호출되며 비용이 발생합니다. 쿠팡 상품 검색은 쿠팡파트너스 정책상 시간당 호출 횟수가 제한됩니다.
+          </p>
+          {aiError && <p className="text-xs font-semibold text-red-600">{aiError}</p>}
+          {coupangError && <p className="text-xs font-semibold text-red-600">{coupangError}</p>}
+          {coupangProducts && coupangProducts.length === 0 && !coupangError && (
+            <p className="text-xs text-neutral-500">쿠팡에서 &ldquo;{searchedKeyword}&rdquo; 관련 상품을 찾지 못했습니다.</p>
+          )}
+          {coupangProducts && coupangProducts.length > 0 && (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {coupangProducts.map((p) => (
+                <a
+                  key={p.productId}
+                  href={p.productUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-xl border border-neutral-200 p-2 hover:border-neutral-400"
+                >
+                  {p.productImage && (
+                    <img
+                      src={p.productImage}
+                      alt=""
+                      referrerPolicy="no-referrer"
+                      className="h-12 w-12 flex-shrink-0 rounded-lg object-cover"
+                    />
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-semibold text-neutral-900">{p.productName}</p>
+                    <p className="text-[11px] text-neutral-500">
+                      {p.productPrice ? `${p.productPrice.toLocaleString()}원` : "가격 정보 없음"}
+                      {p.isRocket ? " · 로켓배송" : ""}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {activeSubTab !== "personas" && (
         loading || isPending ? (
           <div className="py-12 text-center text-sm text-neutral-500">
-            🔥 바이럴 떡상 지표를 수집 및 분석 중입니다...
+            🔥 Threads에서 관련 글을 검색하는 중입니다...
           </div>
         ) : displayList.length === 0 ? (
           <div className="py-12 flex flex-col items-center justify-center space-y-3 text-center text-sm text-neutral-500 rounded-xl border border-dashed border-neutral-200 bg-white">
             <p>
               {activeSubTab === "saved"
                 ? "보관함에 찜한 포스팅이 없습니다. 탐지기에서 찜하기를 눌러보세요!"
-                : `검색어 "${searchQuery || selectedTag}"에 해당하는 떡상 포스팅이 없습니다.`}
+                : `검색어 "${searchQuery || selectedTag}"에 해당하는 글이 없습니다.`}
             </p>
             {activeSubTab !== "saved" && (
               <button
@@ -493,13 +609,15 @@ export function ViralPostDetector() {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-neutral-900">{post.authorName}</p>
-                        <p className="text-[10px] text-neutral-400">@{post.authorHandle} • {post.postedAtAgo}</p>
+                        <p className="text-[10px] text-neutral-400">{post.postedAtLabel}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200">
-                        <Eye className="h-3 w-3" /> {post.estimatedViews.toLocaleString()}+회
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold ${SOURCE_BADGE[post.source].className}`}
+                      >
+                        {SOURCE_BADGE[post.source].label}
                       </span>
 
                       <button
@@ -520,11 +638,16 @@ export function ViralPostDetector() {
                     {post.content}
                   </p>
 
-                  <div className="flex items-center gap-4 text-[11px] text-neutral-500 mb-4">
-                    <span className="font-semibold text-red-600">❤️ {post.likes.toLocaleString()}</span>
-                    <span className="font-semibold text-amber-700">💬 {post.replies.toLocaleString()}</span>
-                    <span className="font-semibold text-blue-600">🔄 {post.reposts.toLocaleString()}</span>
-                  </div>
+                  {post.permalink && (
+                    <a
+                      href={post.permalink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mb-4 inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 hover:underline"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Threads에서 원문·반응 보기
+                    </a>
+                  )}
                 </div>
 
                 <button
@@ -936,6 +1059,86 @@ export function ViralPostDetector() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+const APPROVAL_NOTE =
+  "Meta 정책상 본인 Meta 앱의 threads_keyword_search 권한이 앱 심사로 승인되기 전에는 본인 계정 글만 검색됩니다.";
+
+function ThreadsStatusNotice({
+  status,
+  message,
+  keyword,
+}: {
+  status: ThreadsSearchStatus;
+  message?: string;
+  keyword: string;
+}) {
+  if (status === "ok") return null;
+
+  const box = "rounded-xl border p-3 text-xs leading-relaxed";
+
+  if (status === "no_keyword") {
+    return (
+      <div className={`${box} border-neutral-200 bg-neutral-50 text-neutral-600`}>
+        검색어를 입력하거나 브랜드를 선택하면 Threads 공식 검색으로 실제 글을 찾아옵니다. 지금 보이는 글은 작성 예시입니다.
+      </div>
+    );
+  }
+
+  if (status === "not_connected") {
+    return (
+      <div className={`${box} border-amber-200 bg-amber-50 text-amber-900`}>
+        Threads 계정이 연결되지 않아 실제 글을 검색할 수 없습니다.{" "}
+        <Link href="/settings" className="font-bold underline">
+          API키등록·플랫폼연동
+        </Link>
+        에서 계정을 먼저 연결해주세요.
+      </div>
+    );
+  }
+
+  if (status === "permission_missing") {
+    return (
+      <div className={`${box} border-amber-200 bg-amber-50 text-amber-900 space-y-2`}>
+        <p className="font-bold">Threads 키워드 검색 권한이 없어 실제 글을 가져오지 못했습니다.</p>
+        <p>
+          1) Meta 개발자 센터의 내 앱 → Threads API 사용 사례에서 <b>threads_keyword_search</b> 권한을 추가하고,
+          2) 아래 버튼으로 검색 권한을 포함해 계정을 다시 연결해주세요. {APPROVAL_NOTE}
+        </p>
+        {message && <p className="text-[11px] text-amber-700">Meta 응답: {message}</p>}
+        <form action={connectThreadsAccountWithKeywordSearchAction}>
+          <button
+            type="submit"
+            className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
+          >
+            🔑 검색 권한 포함해서 Threads 다시 연결
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  if (status === "own_posts_only") {
+    return (
+      <div className={`${box} border-blue-200 bg-blue-50 text-blue-900`}>
+        현재 &ldquo;{keyword}&rdquo; 검색 결과가 본인 계정 글로만 나오고 있습니다. {APPROVAL_NOTE} 승인 후에는 다른 사용자의 공개 글도 검색됩니다.
+      </div>
+    );
+  }
+
+  if (status === "empty") {
+    return (
+      <div className={`${box} border-neutral-200 bg-neutral-50 text-neutral-700`}>
+        Threads에서 &ldquo;{keyword}&rdquo; 관련 글을 찾지 못했습니다. 다른 검색어나 기간을 바꿔보세요. {APPROVAL_NOTE}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${box} border-red-200 bg-red-50 text-red-800`}>
+      Threads 검색 중 오류가 발생했습니다{message ? `: ${message}` : "."}
     </div>
   );
 }

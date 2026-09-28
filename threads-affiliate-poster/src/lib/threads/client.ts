@@ -25,7 +25,9 @@ import type {
 const GRAPH_BASE = "https://graph.threads.net";
 const AUTHORIZE_BASE = "https://threads.net/oauth/authorize";
 
-const THREADS_SCOPES = ["threads_basic", "threads_content_publish"].join(",");
+const THREADS_SCOPES = ["threads_basic", "threads_content_publish"];
+// Opt-in only: requesting a scope the member's Meta app has not added fails the whole OAuth flow.
+const KEYWORD_SEARCH_SCOPE = "threads_keyword_search";
 
 function getEnv(name: string): string {
   const value = process.env[name];
@@ -44,11 +46,18 @@ async function parseThreadsResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
-export function getThreadsAuthorizeUrl(state: string, appId: string): string {
+export function getThreadsAuthorizeUrl(
+  state: string,
+  appId: string,
+  options?: { includeKeywordSearch?: boolean },
+): string {
+  const scopes = options?.includeKeywordSearch
+    ? [...THREADS_SCOPES, KEYWORD_SEARCH_SCOPE]
+    : THREADS_SCOPES;
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: getEnv("THREADS_REDIRECT_URI"),
-    scope: THREADS_SCOPES,
+    scope: scopes.join(","),
     response_type: "code",
     state,
   });
@@ -113,6 +122,52 @@ export async function getThreadsUserProfile(
 
   const response = await fetch(`${GRAPH_BASE}/v1.0/me?${params.toString()}`);
   return parseThreadsResponse<ThreadsUserProfile>(response);
+}
+
+export interface ThreadsKeywordSearchPost {
+  id: string;
+  text?: string;
+  media_type?: string;
+  permalink?: string;
+  timestamp?: string;
+  username?: string;
+  has_replies?: boolean;
+  is_quote_post?: boolean;
+  is_reply?: boolean;
+}
+
+export class ThreadsKeywordSearchError extends Error {
+  constructor(message: string, readonly code?: number) {
+    super(message);
+  }
+}
+
+// Without Meta approval of threads_keyword_search, results only cover the member's own posts.
+export async function searchThreadsByKeyword(
+  accessToken: string,
+  options: { q: string; searchType?: "TOP" | "RECENT"; since?: number; limit?: number },
+): Promise<ThreadsKeywordSearchPost[]> {
+  const params = new URLSearchParams({
+    q: options.q,
+    search_type: options.searchType ?? "TOP",
+    fields: "id,text,media_type,permalink,timestamp,username,has_replies,is_quote_post,is_reply",
+    limit: String(options.limit ?? 25),
+    access_token: accessToken,
+  });
+  if (options.since) params.set("since", String(options.since));
+
+  const response = await fetch(`${GRAPH_BASE}/v1.0/keyword_search?${params.toString()}`, {
+    cache: "no-store",
+  });
+  const body = await response.json();
+  if (!response.ok) {
+    const err = body as Partial<ThreadsApiError>;
+    throw new ThreadsKeywordSearchError(
+      err?.error?.message ?? `Threads 키워드 검색 요청이 실패했습니다. (${response.status})`,
+      err?.error?.code,
+    );
+  }
+  return (body as { data?: ThreadsKeywordSearchPost[] }).data ?? [];
 }
 
 async function createThreadsContainer(params: {

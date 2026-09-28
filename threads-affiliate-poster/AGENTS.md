@@ -109,7 +109,13 @@ vercel deploy --prod --yes
 2. **토스쇼핑 OpenAPI Fixie 고정 IP 프록시**:
    - 토스쇼핑 Open API는 등록된 서버 IP에서만 접근을 승인합니다. Vercel 서버리스 환경을 대응하기 위해 `Fixie` 프록시(`FIXIE_URL`)를 연결하여 `undici` `ProxyAgent`로 고정 IP(`52.87.82.133`, `52.5.155.132`)를 통과하게 구성되어 있습니다.
 
-3. **제휴 고지 문구 자동 포함 의무화**:
+3. **/trends 키워드 검색은 Meta 공식 `keyword_search` API만 실제 데이터로 쓴다 (2026-09-28)**:
+   - 예전 구현은 검색 결과를 가짜로 채웠다(하드코딩 예시 글, 쿠팡 상품을 "떡상 포스팅"처럼 포장, OpenAI가 지어낸 글·반응 수치, 결과 0건 시 가짜 글 생성, DuckDuckGo/threads.net 스크래핑은 실제로 거의 0건). 좋아요·조회수 숫자도 전부 계산식으로 지어낸 값이었다.
+   - 지금은 `src/lib/threads/client.ts`의 `searchThreadsByKeyword()`(`/v1.0/keyword_search`)로 회원 본인 연결 계정 토큰을 써서 실제 글을 가져오고, 카드마다 출처 배지(실제 Threads 글 / AI 작성 예시 / 작성 예시)를 붙인다. Threads API는 타인 글의 좋아요·조회수를 주지 않으므로 반응 수치는 표시하지 않고 원문 링크(permalink)로 안내한다. 정렬은 TOP/RECENT, 기간 필터는 `since`로 전달.
+   - `threads_keyword_search` 권한은 연결 기본 스코프에 넣지 않는다 — 회원 Meta 앱에 그 권한이 추가돼 있지 않으면 OAuth 자체가 실패하기 때문. 권한 부족 시 화면 안내 + `connectThreadsAccountWithKeywordSearchAction`(검색 권한 포함 재연결)으로 opt-in. 앱 심사 승인 전에는 본인 글만 검색된다(Meta 정책).
+   - 쿠팡 관련 상품(시간당 호출 제한)과 AI 예시 글(회원 OpenAI 비용)은 검색 시 자동 호출하지 않고 버튼을 눌렀을 때만 호출한다. 가짜 반응 수치를 다시 만들어 넣지 말 것.
+
+4. **제휴 고지 문구 자동 포함 의무화**:
    - `src/lib/ai/affiliateGenerator.ts`에서 `generateAffiliatePostContent()` 호출 시 각 플랫폼(쿠팡, 알리, 토스, 네이버)에 맞는 제휴 수수료 고지 문구가 500자 이내에 무조건 자동 트리밍되어 삽입됩니다. 우회하거나 지우면 안 됩니다.
 
 

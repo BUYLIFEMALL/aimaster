@@ -8,6 +8,14 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { getThreadsAuthorizeUrl } from "@/lib/threads/client";
 
 export async function connectThreadsAccountAction() {
+  await startThreadsOAuth({ includeKeywordSearch: false });
+}
+
+export async function connectThreadsAccountWithKeywordSearchAction() {
+  await startThreadsOAuth({ includeKeywordSearch: true });
+}
+
+async function startThreadsOAuth(options: { includeKeywordSearch: boolean }) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
@@ -20,7 +28,7 @@ export async function connectThreadsAccountAction() {
   }
 
   // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
-  const authorizeUrl = getThreadsAuthorizeUrl(user.id, appId);
+  const authorizeUrl = getThreadsAuthorizeUrl(user.id, appId, options);
   redirect(authorizeUrl);
 }
 
