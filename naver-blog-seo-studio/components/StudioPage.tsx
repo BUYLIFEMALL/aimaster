@@ -29,6 +29,13 @@ type DraftRecord = {
   naver_input_error?: string | null;
 };
 
+type ContentImage = { slot: "content-1" | "content-2"; sentence: string; prompt?: string; path?: string; mimeType?: string; model?: string };
+
+function getContentImages(draft: DraftRecord | null): ContentImage[] {
+  const images = (draft?.seo_report as unknown as { contentImages?: unknown } | null)?.contentImages;
+  return Array.isArray(images) ? images.filter((item): item is ContentImage => typeof item === "object" && item !== null && "slot" in item && "sentence" in item) : [];
+}
+
 type RecommendedTitle = { title: string; intent?: string };
 
 type ContentAnalysis = {
@@ -76,6 +83,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [personaId, setPersonaId] = useState(DEFAULT_SEO_PERSONA_ID);
   const [customPersona, setCustomPersona] = useState("");
   const [generateImageWithDraft, setGenerateImageWithDraft] = useState(true);
+  const [generateContentImagesWithDraft, setGenerateContentImagesWithDraft] = useState(true);
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
   const [titleEditValue, setTitleEditValue] = useState("");
   const [existingBody, setExistingBody] = useState("");
@@ -101,6 +109,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [draftSaveMessage, setDraftSaveMessage] = useState("");
   const [imagePending, setImagePending] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
+  const [contentImagePending, setContentImagePending] = useState(false);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
   const [handoffPending, setHandoffPending] = useState(false);
   const [handoffMessage, setHandoffMessage] = useState("");
@@ -357,6 +366,7 @@ export default function StudioPage({ email }: { email: string }) {
       setGeneratedImage(null);
       refreshHistory().catch(() => {});
       if (generateImageWithDraft) await generateImage(result.draft);
+      if (generateContentImagesWithDraft) await generateContentImages(result.draft);
       setMessage("최적화한 글을 새 초안으로 저장했습니다.");
       openMenu("new-draft");
     } catch (error) {
@@ -405,6 +415,7 @@ export default function StudioPage({ email }: { email: string }) {
     const draft = await prepareDraft();
     if (!draft) return;
     if (generateImageWithDraft) await generateImage(draft);
+    if (generateContentImagesWithDraft) await generateContentImages(draft);
     openMenu("new-draft");
   }
 
@@ -421,6 +432,7 @@ export default function StudioPage({ email }: { email: string }) {
     if (!draft) return;
     setGeneratedImage(null);
     if (generateImageWithDraft) await generateImage(draft);
+    if (generateContentImagesWithDraft) await generateContentImages(draft);
     setTopic(analysisTopic);
     setKeywords(analysisKeywords);
     setSelectedTitle(draft.title);
@@ -458,6 +470,23 @@ export default function StudioPage({ email }: { email: string }) {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "이미지 생성에 실패했습니다.");
     } finally { setImagePending(false); }
+  }
+
+  async function generateContentImages(draft: DraftRecord | null = currentDraft) {
+    if (!draft) return setMessage("먼저 AI 초안을 생성하거나 생성 기록에서 초안을 선택해주세요.");
+    setContentImagePending(true);
+    setMessage("AI가 본문 핵심 문장 2개를 고르고, 각 문장에 맞는 이미지를 생성하고 있습니다.");
+    try {
+      const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id }) });
+      const result = await response.json() as { images?: ContentImage[]; error?: string };
+      if (!response.ok || !result.images?.length) throw new Error(result.error || "본문 매칭 이미지를 생성하지 못했습니다.");
+      const report = { ...(draft.seo_report ?? {}), contentImages: result.images };
+      setCurrentDraft({ ...draft, seo_report: report as unknown as DraftRecord["seo_report"] });
+      setMessage("본문 핵심 문장 2개와 매칭된 이미지가 생성되었습니다. 각 문장 바로 위에 전송됩니다.");
+      refreshHistory().catch(() => {});
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "본문 매칭 이미지 생성에 실패했습니다.");
+    } finally { setContentImagePending(false); }
   }
 
   const activeHistoryDraft = history.find((draft) => draft.id === extensionDraftId);
@@ -559,6 +588,12 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="selected-title-summary"><div><span>선택한 글쓰기 페르소나</span><strong>{selectedPersonaName}</strong></div></div>
         </section>
         {currentDraft ? <section className="draft-result-card card" id="draft-result" aria-labelledby="draft-result-title"><div className="card-head"><div><h2 id="draft-result-title" className="card-title">생성된 초안</h2><p className="draft-result-subtitle">제목·이미지·본문을 검토하고 수정한 뒤 Chrome 확장 프로그램으로 보낼 수 있습니다.</p></div><span className="draft-ready-badge">초안 준비 완료</span></div><div className="draft-result-meta"><span>주제: {currentDraft.topic}</span><span>전략: {currentDraft.strategy || strategy}</span><span>키워드: {currentDraft.keywords.join(", ") || "없음"}</span></div><div className="draft-image-stage"><div><strong>대표 이미지</strong><p>선택한 제목을 바탕으로 나노바나나 AI 이미지를 생성합니다.</p></div><button type="button" className="secondary" onClick={() => void generateImage()} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : generatedImage ? "대표 이미지 다시 생성" : "대표 이미지 생성 (나노바나나)"}</button>{generatedImage ? <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성한 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div> : <p className="draft-image-empty">아직 대표 이미지가 없습니다. 필요할 경우 생성하면 Chrome 확장에서 본문과 함께 삽입할 수 있습니다.</p>}</div><div className="draft-result-grid"><article className="draft-content-preview"><div className="preview-label">제목</div><input className="draft-title-editor" value={currentDraft.title} onChange={(event) => setCurrentDraft({ ...currentDraft, title: event.target.value })} aria-label="초안 제목 수정" /><div className="preview-label">본문</div><textarea className="draft-body-editor" value={currentDraft.body} onChange={(event) => setCurrentDraft({ ...currentDraft, body: event.target.value })} aria-label="초안 본문 수정" /><div className="draft-content-actions"><button type="button" className="secondary" onClick={() => saveCurrentDraft()} disabled={draftSaving}>{draftSaving ? "저장 중..." : "수정한 초안 저장"}</button><button type="button" className="text-button" onClick={copyDraftText}>제목·본문 복사</button></div>{draftSaveMessage && <p className="draft-save-status" role="status">{draftSaveMessage}</p>}</article></div><div className="seo-report seo-report-bottom"><h3>SEO·사실 확인</h3>{Object.entries(currentDraft.seo_report ?? {}).length ? <dl>{Object.entries(currentDraft.seo_report ?? {}).map(([key, value]) => <div key={key}><dt>{reportLabels[key] ?? key}</dt><dd>{value}</dd></div>)}</dl> : <p>초안의 검색 의도와 사실 확인 항목을 직접 검토해주세요.</p>}</div><aside className="draft-actions-panel"><div className="result-action"><strong>Chrome 확장 전송</strong><p>확장 프로그램에서 제목·이미지·본문을 네이버 편집기로 입력합니다. 최종 발행은 직접 진행합니다.</p><button type="button" className="primary compact" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "이 초안을 Chrome 확장으로 보내기"}</button>{handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}</div></aside></section> : <section className="draft-empty card"><h2 className="card-title">초안을 만들 준비가 되었습니다</h2><p>제목을 선택하고 글쓰기 전략을 고른 뒤 AI 초안을 생성해주세요.</p></section>}
+        {currentDraft && <section className="draft-image-stage card" aria-labelledby="content-images-title">
+          <div><strong id="content-images-title">본문 문장 매칭 이미지 2장</strong><p>AI가 본문에서 핵심 문장 2개를 고르고, 각 문장 바로 위에 이미지가 삽입되도록 준비합니다.</p></div>
+          <label className="image-with-draft-option"><input type="checkbox" checked={generateContentImagesWithDraft} onChange={(event) => setGenerateContentImagesWithDraft(event.target.checked)} /> <span><strong>초안 생성 시 본문 이미지도 함께 생성</strong><small>활성화하면 대표 이미지와 별도로 핵심 문장 이미지 2장을 생성합니다.</small></span></label>
+          <button type="button" className="secondary" onClick={() => void generateContentImages()} disabled={contentImagePending}>{contentImagePending ? "본문 이미지 생성 중..." : getContentImages(currentDraft).length === 2 ? "본문 이미지 2장 다시 생성" : "본문 이미지 2장 생성"}</button>
+          {getContentImages(currentDraft).length === 2 && <div className="content-image-list">{getContentImages(currentDraft).map((item, index) => <div className="generated-image-preview" key={item.slot}><strong>{index + 1}번 이미지가 들어갈 문장</strong><p>{item.sentence}</p><Image src={`/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${item.slot}`} alt={`${index + 1}번 본문 문장 매칭 이미지`} width={1280} height={720} unoptimized /></div>)}</div>}
+        </section>}
         <section className="recent-drafts-card card" aria-labelledby="recent-drafts-title"><div className="card-head"><div><h2 id="recent-drafts-title" className="card-title">최근 생성한 초안</h2><p className="card-caption">새 글 만들기 화면에서 바로 다시 불러와 수정할 수 있습니다.</p></div><button type="button" className="history-refresh" onClick={() => openMenu("history")}>전체 생성 기록</button></div>{history.length === 0 ? <p className="history-empty">아직 생성한 초안이 없습니다.</p> : <div className="history-list">{history.slice(0, 5).map((draft) => <button type="button" key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}</section></>}
 
         {activeMenu === "draft" && <section className="optimize-card card" id="draft">

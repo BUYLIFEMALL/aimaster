@@ -17,13 +17,22 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
   if (body.length < 120 || body.length > 30000) return NextResponse.json({ error: "본문을 120~30,000자로 입력해주세요." }, { status: 400 });
 
   const supabase = await createClient();
+  const { data: original } = await supabase.from("naver_blog_seo_drafts")
+    .select("body, seo_report").eq("id", draftId).eq("user_id", access.user.id).maybeSingle();
+  if (!original) return NextResponse.json({ error: "수정할 내 초안을 찾지 못했습니다." }, { status: 404 });
+  const bodyChanged = original.body !== body;
+  const report = typeof original.seo_report === "object" && original.seo_report !== null ? original.seo_report as Record<string, unknown> : {};
+  const staleImages = bodyChanged && Array.isArray(report.contentImages) ? report.contentImages as Array<{ path?: string }> : [];
+  const nextReport = bodyChanged ? Object.fromEntries(Object.entries(report).filter(([key]) => key !== "contentImages")) : report;
   const { data, error } = await supabase.from("naver_blog_seo_drafts")
-    .update({ title, body })
+    .update({ title, body, seo_report: nextReport })
     .eq("id", draftId).eq("user_id", access.user.id)
     .select("id, topic, keywords, strategy, title, body, seo_report, created_at, image_path, image_model, image_mime_type, naver_input_status, naver_input_completed_at, naver_input_error")
     .maybeSingle();
   if (error) return NextResponse.json({ error: "초안 저장에 실패했습니다." }, { status: 500 });
   if (!data) return NextResponse.json({ error: "수정할 내 초안을 찾지 못했습니다." }, { status: 404 });
+  const stalePaths = staleImages.map((image) => image.path).filter((path): path is string => Boolean(path));
+  if (stalePaths.length) await supabase.storage.from("naver-blog-seo-images").remove(stalePaths);
   return NextResponse.json({ draft: data });
 }
 
@@ -33,11 +42,14 @@ export async function DELETE(_request: Request, context: { params: Promise<{ dra
   const { draftId } = await context.params;
   const supabase = await createClient();
   const { data: draft, error: findError } = await supabase.from("naver_blog_seo_drafts")
-    .select("image_path")
+    .select("image_path, seo_report")
     .eq("id", draftId).eq("user_id", access.user.id)
     .maybeSingle();
   if (findError || !draft) return NextResponse.json({ error: "삭제할 내 초안을 찾지 못했습니다." }, { status: 404 });
-  if (draft.image_path) await supabase.storage.from("naver-blog-seo-images").remove([draft.image_path]);
+  const contentImages = typeof draft.seo_report === "object" && draft.seo_report !== null && Array.isArray((draft.seo_report as { contentImages?: unknown }).contentImages)
+    ? (draft.seo_report as { contentImages: Array<{ path?: string }> }).contentImages : [];
+  const imagePaths = [draft.image_path, ...contentImages.map((item) => item.path)].filter((path): path is string => Boolean(path));
+  if (imagePaths.length) await supabase.storage.from("naver-blog-seo-images").remove(imagePaths);
   const { error } = await supabase.from("naver_blog_seo_drafts").delete().eq("id", draftId).eq("user_id", access.user.id);
   if (error) return NextResponse.json({ error: "초안을 삭제하지 못했습니다." }, { status: 500 });
   return NextResponse.json({ deletedId: draftId });

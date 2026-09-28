@@ -9,6 +9,7 @@ const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + 
 let webDrafts = [];
 let activeWebDraftId = "";
 let activeWebDraftTags = [];
+let activeWebDraftContentImages = [];
 
 function renderExtensionVersion() {
   const target = $("extensionVersion");
@@ -75,6 +76,7 @@ async function loadSelectedWebDraft() {
   $("title").value = draft.title || "";
   $("body").value = draft.body || "";
   clearGeneratedImage();
+  activeWebDraftContentImages = [];
   activeWebDraftId = draft.id;
   activeWebDraftTags = getWebDraftTags(draft);
   $("webDraftTagSuggestion").hidden = activeWebDraftTags.length === 0;
@@ -86,11 +88,17 @@ async function loadSelectedWebDraft() {
   } catch (error) {
     console.warn("저장된 대표 이미지 불러오기 실패", error);
   }
+  try {
+    activeWebDraftContentImages = await loadStoredWebDraftContentImages(draft, token);
+  } catch (error) {
+    console.warn("저장된 본문 이미지 불러오기 실패", error);
+    activeWebDraftContentImages = [];
+  }
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
   $("webDraftStatus").textContent = storedImageLoaded
-    ? "웹 초안과 저장된 대표 이미지를 불러왔습니다. 바로 네이버 편집기에 입력할 수 있습니다."
+    ? `웹 초안과 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}을 불러왔습니다. 바로 네이버 편집기에 입력할 수 있습니다.`
     : "웹 초안을 불러왔습니다. 필요하면 대표 이미지를 생성한 뒤 네이버 편집기에 입력하세요.";
 }
 
@@ -136,6 +144,45 @@ async function loadStoredWebDraftImage(draft, token) {
   $("downloadImage").href = dataUrl;
   $("imagePreview").hidden = false;
   return true;
+}
+
+async function loadStoredWebDraftContentImages(draft, token) {
+  const items = Array.isArray(draft.content_images) ? draft.content_images : [];
+  const loaded = [];
+  for (const item of items) {
+    if (!item?.slot || !item?.sentence) continue;
+    const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/image?slot=${encodeURIComponent(item.slot)}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!response.ok) throw new Error(`${item.slot} 본문 이미지 조회에 실패했습니다.`);
+    loaded.push({ sentence: item.sentence, dataUrl: await blobToDataUrl(await response.blob()) });
+  }
+  return loaded;
+}
+
+async function typeBodyWithMatchedImages(tabId, body, images) {
+  let cursor = 0;
+  for (const image of images) {
+    const position = body.indexOf(image.sentence, cursor);
+    if (position < 0) continue;
+    const before = body.slice(cursor, position);
+    if (before) {
+      await chrome.debugger.attach({ tabId }, "1.3");
+      try { await debuggerCommand(tabId, "Input.setIgnoreInputEvents", { ignore: false }); await typeWithDebugger(tabId, before); }
+      finally { await chrome.debugger.detach({ tabId }); }
+    }
+    await insertImageIntoNaverEditor(tabId, image.dataUrl);
+    const bodyFocus = await focusNaverEditor(tabId, "body");
+    if (!bodyFocus.ok) throw new Error("본문 이미지 뒤 입력 위치를 찾지 못했습니다.");
+    await chrome.debugger.attach({ tabId }, "1.3");
+    try { await debuggerCommand(tabId, "Input.setIgnoreInputEvents", { ignore: false }); await typeWithDebugger(tabId, image.sentence); }
+    finally { await chrome.debugger.detach({ tabId }); }
+    cursor = position + image.sentence.length;
+  }
+  const rest = body.slice(cursor);
+  if (rest) {
+    await chrome.debugger.attach({ tabId }, "1.3");
+    try { await debuggerCommand(tabId, "Input.setIgnoreInputEvents", { ignore: false }); await typeWithDebugger(tabId, rest); }
+    finally { await chrome.debugger.detach({ tabId }); }
+  }
 }
 
 function normalizeSeoText(value) {
@@ -704,6 +751,31 @@ async function fillDraftIntoNaver() {
     }
     await typeWithDebugger(tab.id, title);
     await sleep(randomDelay(600, 1000));
+    if (activeWebDraftContentImages.length) {
+      // 본문 전체를 먼저 넣은 뒤 이미지를 끼워 넣지 않습니다. 핵심 문장 직전에
+      // 실제 이미지 업로드를 완료해 문장-이미지 매핑 순서를 보존합니다.
+      await chrome.debugger.detach({ tabId: tab.id });
+      attachedTabId = null;
+      const initialBodyFocus = await focusNaverEditor(tab.id, "body");
+      if (!initialBodyFocus.ok) throw new Error("본문 입력 위치를 찾지 못했습니다.");
+      if (imageDataUrl) {
+        $("generateStatus").textContent = "제목 입력 완료 · 대표 이미지 삽입 중...";
+        await insertImageIntoNaverEditor(tab.id, imageDataUrl);
+        const afterCoverFocus = await focusNaverEditor(tab.id, "body");
+        if (!afterCoverFocus.ok) throw new Error("대표 이미지 뒤 본문 입력 위치를 찾지 못했습니다.");
+      }
+      $("generateStatus").textContent = "본문 핵심 문장 위치에 이미지 2장을 삽입하며 입력 중...";
+      await typeBodyWithMatchedImages(tab.id, body, activeWebDraftContentImages);
+      const verification = await verifyNaverEditorContent(tab.id, title, body);
+      if (!verification.ok) {
+        const details = verification.titleMatched === false ? "제목 확인 실패" : "본문 확인 실패";
+        await reportWebDraftInputResult("failed", { error: details }).catch(() => {});
+        throw new Error(`${details}. 구조 분석을 실행해 주세요.`);
+      }
+      $("generateStatus").textContent = `제목·대표 이미지·본문 문장 매칭 이미지 ${activeWebDraftContentImages.length}장·본문 입력 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
+      await reportWebDraftInputResult("completed", { paragraphCount: verification.actualParagraphCount || 0 }).catch(() => {});
+      return true;
+    }
     if (imageDataUrl) {
       // Enter the body while the normal editor caret is reliable. The image
       // is inserted at the beginning of this paragraph in the next step.
