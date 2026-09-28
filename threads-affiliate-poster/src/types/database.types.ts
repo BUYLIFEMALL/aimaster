@@ -11,8 +11,8 @@ export type ApiKeyProvider =
   | "toss_access_key"
   | "toss_secret_key"
   | "toss_publisher_id"
-  | "meta_app_id"
-  | "meta_app_secret";
+  | "threads_app_id"
+  | "threads_app_secret";
 export type AffiliatePlatform = "coupang" | "aliexpress" | "naver" | "toss";
 export type AffiliateInputMode = "url" | "manual";
 

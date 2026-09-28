@@ -8,7 +8,7 @@ import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 const PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "perplexity"];
-const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
+const META_PROVIDERS: ApiKeyProvider[] = ["threads_app_id", "threads_app_secret"];
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
 // 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster에서 시작된 플랫폼 표준을 그대로 적용).

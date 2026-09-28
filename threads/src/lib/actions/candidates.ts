@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { getCandidateCategoryMap, saveCandidateCategoryMap } from "@/lib/actions/categories";
 import {
   fetchUrlText,
   fetchHtmlForLinks,
@@ -39,40 +38,15 @@ export async function moveCandidatesToCategoryAction(formData: FormData): Promis
 
   const supabase = await createClient();
 
-  // 1차 시도: threads_candidates DB 테이블
-  try {
-    const { error } = await supabase
-      .from("threads_candidates")
-      .update({ category_id: categoryId })
-      .in("id", ids)
-      .eq("user_id", user.id);
+  const { error } = await supabase
+    .from("threads_candidates")
+    .update({ category_id: categoryId })
+    .in("id", ids)
+    .eq("user_id", user.id);
+  if (error) return { error: `카테고리 이동에 실패했습니다: ${error.message}` };
 
-    if (!error) {
-      revalidatePath("/candidates");
-      return { count: ids.length };
-    }
-  } catch {
-    // fallback 진행
-  }
-
-  // 2차 Fallback: user_api_keys 저장소 활용 매핑 저장
-  try {
-    const currentMap = await getCandidateCategoryMap(supabase, user.id);
-    const updatedMap = { ...currentMap };
-    ids.forEach((id) => {
-      if (categoryId) {
-        updatedMap[id] = categoryId;
-      } else {
-        delete updatedMap[id];
-      }
-    });
-    await saveCandidateCategoryMap(supabase, user.id, updatedMap);
-
-    revalidatePath("/candidates");
-    return { count: ids.length };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : "카테고리 이동에 실패했습니다." };
-  }
+  revalidatePath("/candidates");
+  return { count: ids.length };
 }
 
 async function insertCandidates(
@@ -86,7 +60,7 @@ async function insertCandidates(
   const now = Date.now();
   
   // 1. 후보 insert
-  const { data: inserted, error } = await supabase
+  const { error } = await supabase
     .from("threads_candidates")
     .insert(
       drafts.map((d, i) => ({
@@ -102,52 +76,7 @@ async function insertCandidates(
     )
     .select("id");
 
-  if (error) {
-    // category_id 컬럼 없이 insert 시도 시 fallback 구문으로 재시도
-    if (error.code === "42703" || error.message?.includes("category_id")) {
-      const { data: retryData, error: retryErr } = await supabase
-        .from("threads_candidates")
-        .insert(
-          drafts.map((d, i) => ({
-            user_id: userId,
-            source_type: sourceType,
-            source_input: sourceInput,
-            title: d.title,
-            content: d.content,
-            keywords: d.keywords ?? [],
-            created_at: new Date(now - i).toISOString(),
-          })),
-        )
-        .select("id");
-
-      if (retryErr) throw new Error(retryErr.message);
-
-      if (categoryId && retryData) {
-        const currentMap = await getCandidateCategoryMap(supabase, userId);
-        const updatedMap = { ...currentMap };
-        retryData.forEach((row) => {
-          updatedMap[row.id] = categoryId;
-        });
-        await saveCandidateCategoryMap(supabase, userId, updatedMap);
-      }
-      return;
-    }
-    throw new Error(error.message);
-  }
-
-  // DB에 category_id가 포함 정상 저장 및 Fallback 백업도 함께 저장
-  if (categoryId && inserted) {
-    try {
-      const currentMap = await getCandidateCategoryMap(supabase, userId);
-      const updatedMap = { ...currentMap };
-      inserted.forEach((row) => {
-        updatedMap[row.id] = categoryId;
-      });
-      await saveCandidateCategoryMap(supabase, userId, updatedMap);
-    } catch {
-      // ignore
-    }
-  }
+  if (error) throw new Error(error.message);
 }
 
 const CATEGORY_PAGE_MIN_LINKS = 3;

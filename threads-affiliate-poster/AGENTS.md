@@ -120,7 +120,7 @@ vercel deploy --prod --yes
    - `threads_keyword_search` 권한은 연결 기본 스코프에 넣지 않는다 — 회원 Meta 앱에 그 권한이 추가돼 있지 않으면 OAuth 자체가 실패하기 때문. 권한 부족 시 화면 안내 + `connectThreadsAccountWithKeywordSearchAction`(검색 권한 포함 재연결)으로 opt-in. 앱 심사 승인 전에는 본인 글만 검색된다(Meta 정책).
    - 쿠팡 관련 상품(시간당 호출 제한)과 AI 예시 글(회원 OpenAI 비용)은 검색 시 자동 호출하지 않고 버튼을 눌렀을 때만 호출한다. 가짜 반응 수치를 다시 만들어 넣지 말 것.
    - **"떡상글 직접 가져오기"**(`importViralPostAction`): 앱 심사 전에도 타인 글로 벤치마킹할 수 있게, 회원이 링크(선택)+본문(필수)을 붙여넣으면 `tap_saved_posts`에 저장한다. 링크는 토큰 없이 호출되는 공개 oEmbed(`graph.threads.net/v1.0/oembed`)로 공개 게시글 여부만 확인한다 — oEmbed는 본문 텍스트를 주지 않으므로 본문은 회원이 붙여넣는다. `post_id`가 `mn-<shortcode>`면 `https://www.threads.com/t/<shortcode>`로 원문 링크를 복원하고, 링크 없이 가져온 글은 `mn-x-<uuid>`.
-   - 회원별 Threads 앱 ID는 인스타 프로그램 3개와 같은 `meta_app_id` 칸을 공유한다. 인스타 앱 ID나 Meta 상단 앱 ID가 들어가 있으면 OAuth가 `error_code=4476002`("앱 ID가 전송되지 않았습니다")로 실패한다 — 반드시 앱 설정 > 기본 설정 하단의 **Threads 앱 ID**여야 한다(2026-09-28 실제 발생).
+   - 회원별 Threads 앱 ID/시크릿은 **`threads_app_id`/`threads_app_secret`**에 저장한다(2026-09-28 분리, 쓰레드 3개 프로그램 공통). 그전에는 인스타 프로그램들과 같은 `meta_app_id` 칸을 공유해서, 인스타 앱 ID나 Meta 상단 앱 ID가 덮어쓰면 OAuth가 `error_code=4476002`("앱 ID가 전송되지 않았습니다")로 실패했다. 값은 반드시 앱 설정 > 기본 설정 **하단의 Threads 앱 ID**여야 한다. 인스타 프로그램은 계속 `meta_app_id`를 쓴다. 마이그레이션: 루트 `supabase/migrations/0017_split_threads_app_credentials.sql`.
 
 4. **제휴 고지 문구 자동 포함 의무화**:
    - `src/lib/ai/affiliateGenerator.ts`에서 `generateAffiliatePostContent()` 호출 시 각 플랫폼(쿠팡, 알리, 토스, 네이버)에 맞는 제휴 수수료 고지 문구가 500자 이내에 무조건 자동 트리밍되어 삽입됩니다. 우회하거나 지우면 안 됩니다.

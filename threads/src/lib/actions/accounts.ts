@@ -14,7 +14,7 @@ export async function connectThreadsAccountAction() {
   // Meta 앱이 Development 모드인 동안은 그 앱의 Tester로 등록된 계정만 OAuth를 완료할 수
   // 있어, 앱(관리자) 공용 Meta 앱 하나로는 운영자 본인 외 다른 회원이 연결할 수 없다.
   // 이제 회원 각자 본인이 만든 Meta App ID를 등록해야 연결을 시작할 수 있다.
-  const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
+  const appId = await resolveApiKey(supabase, user.id, "threads_app_id");
   if (!appId) {
     redirect("/settings?error=meta_app_missing");
   }

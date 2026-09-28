@@ -21,7 +21,7 @@ import type { ApiKeyProvider } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
-const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
+const META_PROVIDERS: ApiKeyProvider[] = ["threads_app_id", "threads_app_secret"];
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini"];
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼(자체 Meta
@@ -35,8 +35,8 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
 ];
 
 const HELP_LINKS: Partial<Record<ApiKeyProvider, { url: string; label: string }>> = {
-  meta_app_id: { url: "https://developers.facebook.com/apps", label: "Meta App Dashboard에서 발급받기" },
-  meta_app_secret: { url: "https://developers.facebook.com/apps", label: "Meta App Dashboard에서 발급받기" },
+  threads_app_id: { url: "https://developers.facebook.com/apps", label: "Meta App Dashboard에서 발급받기" },
+  threads_app_secret: { url: "https://developers.facebook.com/apps", label: "Meta App Dashboard에서 발급받기" },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
   anthropic: { url: "https://console.anthropic.com/settings/keys", label: "Anthropic Claude 키 발급받기" },
   gemini: { url: "https://aistudio.google.com/apikey", label: "Google Gemini 키 발급받기" },

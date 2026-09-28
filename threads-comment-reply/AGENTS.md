@@ -70,9 +70,10 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
   (`app/api/threads/callback/route.ts`)는 redirect 대신 결과 객체를 반환하는
   `checkProgramAccessApi()`로 로그인 여부뿐 아니라 프로그램 이용 권한까지 확인한다.
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
-  그대로 쓴다. 이 프로그램은 `meta_app_id`/`meta_app_secret`(쓰레드 OAuth, instagram-comment-reply
-  때 이미 추가된 provider를 그대로 재사용) + `openai`/`anthropic`/`gemini`(답글 생성 AI, 고른
-  모델의 provider 키 하나만 있으면 됨) 총 5개 provider를 쓴다.
+  그대로 쓴다. 이 프로그램은 `threads_app_id`/`threads_app_secret`(쓰레드 OAuth) + `openai`/
+  `anthropic`/`gemini`(답글 생성 AI, 고른 모델의 provider 키 하나만 있으면 됨) 총 5개 provider를 쓴다.
+  (2026-09-28까지는 인스타 프로그램과 `meta_app_id`/`meta_app_secret` 칸을 공유했는데, Meta의 Instagram 앱 ID와
+  Threads 앱 ID는 서로 다른 값이라 한쪽 저장이 다른 쪽을 덮어써서 OAuth가 깨졌다 — 쓰레드 3개 프로그램을 전용 칸으로 분리함.)
 - 사용자 소유 데이터 테이블(`th_accounts`, `th_posts`, `th_settings`, `th_comments`)은
   `user_id` + RLS owner-only 정책으로 격리한다. 전역 공유 캐시는 없다.
 - 텔레그램 알림은 프로그램 접두어 없는 공용 `user_telegram_links`를

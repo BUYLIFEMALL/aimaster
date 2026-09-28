@@ -280,6 +280,14 @@ warm bokeh lights]. 16:9 aspect ratio. No visible text, logos, or watermarks in 
 에러만 나고 원인을 알기 어렵다(2026-08-22, competitor-analysis의 `serpapi` 추가 때 실제로 겪음 —
 auto-detail-page가 `replicate` 추가할 때도 동일 패턴 이미 있었음).
 
+**2026-09-28 추가 규칙 (실제 사고)**:
+- `user_api_keys`에는 **API 키만** 저장한다. `threads/`가 테이블이 운영 DB에 없을 때의 "임시 저장소"로 카테고리 JSON을
+  `openai`/`perplexity`/`meta_app_*` 행에 덮어써서 운영자 계정의 OpenAI·Perplexity 키가 JSON으로 바뀐 사고가 있었다.
+  테이블이 없으면 마이그레이션을 적용할 것 — 다른 테이블을 "대체 저장소"로 쓰는 우회를 만들지 않는다.
+- 서로 다른 외부 앱의 자격증명은 provider를 분리한다. Meta는 Instagram 앱 ID와 Threads 앱 ID를 다른 값으로 발급하는데
+  인스타·쓰레드 프로그램이 `meta_app_id` 하나를 공유해 서로 덮어썼다 → 쓰레드 프로그램은 `threads_app_id`/`threads_app_secret`,
+  인스타 프로그램은 `meta_app_id`/`meta_app_secret` (`supabase/migrations/0017_split_threads_app_credentials.sql`).
+
 새 provider를 쓰는 서브프로젝트를 만들 때 체크리스트:
 1. 서브프로젝트의 `types/database.types.ts`에 `ApiKeyProvider` 타입/`PROVIDER_LABELS` 추가
 2. **`user_api_keys_provider_check` 제약도 같이 ALTER로 넓히기** (아래 SQL, `supabase/add-*.sql`로도 남길 것)

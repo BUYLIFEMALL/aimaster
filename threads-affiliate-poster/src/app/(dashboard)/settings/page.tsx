@@ -21,7 +21,7 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
 ];
 
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "anthropic"];
-const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
+const META_PROVIDERS: ApiKeyProvider[] = ["threads_app_id", "threads_app_secret"];
 const COUPANG_PROVIDERS: ApiKeyProvider[] = ["coupang_access_key", "coupang_secret_key"];
 const ALIEXPRESS_PROVIDERS: ApiKeyProvider[] = [
   "aliexpress_app_key",

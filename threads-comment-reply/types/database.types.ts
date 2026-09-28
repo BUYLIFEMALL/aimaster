@@ -1,4 +1,4 @@
-export type ApiKeyProvider = "meta_app_id" | "meta_app_secret" | "openai" | "anthropic" | "gemini";
+export type ApiKeyProvider = "threads_app_id" | "threads_app_secret" | "openai" | "anthropic" | "gemini";
 export type CommentStatus = "pending_review" | "posted" | "skipped" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];

@@ -56,7 +56,7 @@ export async function resolveSignedRequestAccounts(signedRequest: string | null)
 
   const userIds: string[] = [];
   for (const userId of candidateIds) {
-    const appSecret = await getUserApiKey(admin, userId, "meta_app_secret");
+    const appSecret = await getUserApiKey(admin, userId, "threads_app_secret");
     if (appSecret && isValidSignature(parsed.signature, parsed.encodedPayload, appSecret)) {
       userIds.push(userId);
     }

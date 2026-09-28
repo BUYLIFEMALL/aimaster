@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
 
   try {
     // 본인 계정의 Meta App ID/Secret으로만 토큰을 교환한다 (앱 공용 키 폴백 없음).
-    const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
-    const appSecret = await resolveApiKey(supabase, user.id, "meta_app_secret");
+    const appId = await resolveApiKey(supabase, user.id, "threads_app_id");
+    const appSecret = await resolveApiKey(supabase, user.id, "threads_app_secret");
     if (!appId || !appSecret) {
       return NextResponse.redirect(`${siteUrl}/settings?error=meta_app_missing`);
     }

@@ -39,8 +39,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
-    const appSecret = await resolveApiKey(supabase, user.id, "meta_app_secret");
+    const appId = await resolveApiKey(supabase, user.id, "threads_app_id");
+    const appSecret = await resolveApiKey(supabase, user.id, "threads_app_secret");
     if (!appId || !appSecret) {
       throw new Error("Meta App ID/Secret이 등록되어 있지 않습니다.");
     }

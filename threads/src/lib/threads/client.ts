@@ -16,7 +16,7 @@ import type {
 //
 // Meta App ID/Secret은 더 이상 앱(관리자) 공용 환경변수(THREADS_APP_ID/THREADS_APP_SECRET)를
 // 읽지 않고, 호출부(Server Action/콜백 라우트)가 resolveApiKey()로 조회한 "본인 계정의"
-// meta_app_id/meta_app_secret을 파라미터로 받는다 — Meta 앱이 Development 모드인 동안은
+// threads_app_id/threads_app_secret을 파라미터로 받는다 — Meta 앱이 Development 모드인 동안은
 // 그 앱의 Tester로 등록된 계정만 OAuth를 완료할 수 있어, 공용 앱 하나로는 운영자 본인 외
 // 다른 회원이 연결할 수 없었기 때문이다(threads-comment-reply와 동일한 BYOK 패턴).
 

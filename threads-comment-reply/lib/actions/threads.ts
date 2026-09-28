@@ -20,7 +20,7 @@ export async function connectThreadsAction(
 ): Promise<ConnectThreadsState> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
+  const appId = await resolveApiKey(supabase, user.id, "threads_app_id");
   if (!appId) {
     return { error: "설정 페이지에서 Meta App ID를 먼저 등록해주세요." };
   }

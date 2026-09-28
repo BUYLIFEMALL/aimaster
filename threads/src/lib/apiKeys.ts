@@ -6,8 +6,8 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   openai: "OpenAI (GPT — 게시글 생성)",
   gemini: "Google (Gemini — 카드뉴스 이미지 생성)",
   perplexity: "Perplexity (실시간 주제 수집)",
-  meta_app_id: "Threads 앱 ID (쓰레드 계정 연결)",
-  meta_app_secret: "Threads 앱 시크릿 코드 (쓰레드 계정 연결)",
+  threads_app_id: "Threads 앱 ID (Meta 앱 설정 > 기본 설정 하단의 Threads 앱 ID — 맨 위 '앱 ID' 아님)",
+  threads_app_secret: "Threads 앱 시크릿 코드 (기본 설정 하단의 Threads 앱 시크릿 코드)",
 };
 
 export async function getUserApiKey(
@@ -22,13 +22,7 @@ export async function getUserApiKey(
     .eq("provider", provider)
     .maybeSingle();
 
-  if (!data?.api_key) return null;
-  // Fallback JSON 데이터로 오염된 값은 실제 API key로 취급하지 않는다.
-  if (data.api_key.startsWith("CAT_JSON:") || data.api_key.startsWith("CAND_MAP_JSON:")) {
-    return null;
-  }
-
-  return data.api_key;
+  return data?.api_key ?? null;
 }
 
 /** 본인 키만 사용한다 — 앱/운영자 공용 키로 폴백하지 않는다(2026-08-12 정책, 루트 CLAUDE.md

@@ -7,7 +7,7 @@ import { normalizeUrl } from "@/lib/normalizeUrl";
 import { DEFAULT_REPLY_MODEL, REPLY_MODEL_OPTIONS } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret", "openai", "anthropic", "gemini"];
+const VALID_PROVIDERS: ApiKeyProvider[] = ["threads_app_id", "threads_app_secret", "openai", "anthropic", "gemini"];
 
 export interface SaveApiKeyState {
   error?: string;
