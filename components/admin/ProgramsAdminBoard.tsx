@@ -36,11 +36,11 @@ const STATUS_OPTIONS = [
 ] as const;
 
 const BADGE_OPTIONS: { value: BadgeValue; label: string }[] = [
-  { value: "free", label: "FREE" },
-  { value: "new", label: "NEW" },
-  { value: "best", label: "BEST" },
-  { value: "sale", label: "SALE" },
-  { value: "coming", label: "작업중" },
+  { value: "free", label: "✨ FREE" },
+  { value: "new", label: "🔥 NEW" },
+  { value: "best", label: "👑 BEST" },
+  { value: "sale", label: "🏷️ SALE" },
+  { value: "coming", label: "🛠️ 작업중" },
 ];
 
 const NONE_VALUE = "__none__";
@@ -548,14 +548,44 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
                               <p className="text-subtext text-xs">/programs/{p.slug}</p>
                               {(() => {
-                                const gradeColor = p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.color ?? "#666666") : "#ffffff";
+                                const gradeObj = p.required_grade_id ? gradeMeta.get(p.required_grade_id) : null;
+                                const gradeName = gradeObj?.name ?? (p.required_grade_id ? "알 수 없음" : "전체 공개");
+                                const gradeSlug = gradeObj?.slug || "";
+                                
+                                let badgeClass = "bg-slate-800 text-slate-200 border-slate-600/80";
+                                let icon = "🌐";
+
+                                if (p.required_grade_id) {
+                                  if (gradeSlug === 'basic' || gradeName.includes('일반')) {
+                                    badgeClass = "bg-indigo-950 text-indigo-300 border-indigo-500/60 font-bold";
+                                    icon = "🔒";
+                                  } else if (gradeSlug === 'silver' || gradeName.includes('실버')) {
+                                    badgeClass = "bg-slate-300 text-slate-950 border-slate-100 font-extrabold shadow-sm shadow-slate-300/20";
+                                    icon = "🥈";
+                                  } else if (gradeSlug === 'gold' || gradeName.includes('골드') || gradeName.includes('드림팀')) {
+                                    badgeClass = "bg-amber-400 text-amber-950 border-amber-300 font-extrabold shadow-sm shadow-amber-400/30";
+                                    icon = "🥇";
+                                  } else if (gradeSlug === 'vip' || gradeName.includes('VIP') || gradeName.includes('드림AI팀')) {
+                                    badgeClass = "bg-purple-600 text-white border-purple-400 font-extrabold shadow-sm shadow-purple-500/40";
+                                    icon = "👑";
+                                  } else {
+                                    badgeClass = "bg-blue-900/80 text-blue-200 border-blue-500/50 font-bold";
+                                    icon = "🔒";
+                                  }
+                                }
                                 return (
                                   <span
-                                    className="inline-flex items-center text-[11px] font-semibold px-1.5 py-0.5 rounded-full"
-                                    style={{ backgroundColor: gradeColor, color: getContrastTextColor(gradeColor) }}
+                                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md border select-none ${badgeClass}`}
+                                    title="필수 이용 접근등급"
                                   >
-                                    {p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.name ?? "알 수 없음") : "전체 공개"}
+                                    <span className="text-[10px]">{icon}</span>
+                                    <span>{gradeName}</span>
                                   </span>
+
+                                    /* style={{ backgroundColor: gradeColor, color: getContrastTextColor(gradeColor) }}
+                                  >
+                                    {p.required_grade_id ? (gradeMeta.get(p.required_grade_id)?.name ?? "알 수 없음" //) : "전체 공개"}
+                                  </span> */
                                 );
                               })()}
                               {p.badges.map((b) => (

@@ -32,31 +32,31 @@ const BADGE_OPTIONS: {
 }[] = [
   {
     value: "free",
-    label: "FREE",
+    label: "✨ FREE",
     selectedClassName: "bg-green-500 text-black border-green-500",
     idleClassName: "bg-white/5 text-green-400 border-green-500/40 hover:bg-white/10",
   },
   {
     value: "new",
-    label: "NEW",
+    label: "🔥 NEW",
     selectedClassName: "bg-red-500 text-black border-red-500",
     idleClassName: "bg-white/5 text-red-400 border-red-500/40 hover:bg-white/10",
   },
   {
     value: "best",
-    label: "BEST",
+    label: "👑 BEST",
     selectedClassName: "bg-gold text-black border-gold",
     idleClassName: "bg-white/5 text-[#f5c842] border-[#f5c842]/40 hover:bg-white/10",
   },
   {
     value: "sale",
-    label: "SALE",
+    label: "🏷️ SALE",
     selectedClassName: "bg-orange-500 text-black border-orange-500",
     idleClassName: "bg-white/5 text-orange-400 border-orange-500/40 hover:bg-white/10",
   },
   {
     value: "coming",
-    label: "작업중",
+    label: "🛠️ 작업중",
     selectedClassName: "bg-neutral-500 text-black border-neutral-500",
     idleClassName: "bg-white/5 text-neutral-400 border-neutral-500/40 hover:bg-white/10",
   },
