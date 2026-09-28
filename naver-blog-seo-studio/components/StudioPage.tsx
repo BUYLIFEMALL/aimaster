@@ -92,6 +92,10 @@ export default function StudioPage({ email }: { email: string }) {
   const [optimizePending, setOptimizePending] = useState(false);
   const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
   const [history, setHistory] = useState<DraftRecord[]>([]);
+  const [historyQuery, setHistoryQuery] = useState("");
+  const [historyPeriod, setHistoryPeriod] = useState<"all" | "today" | "week" | "month">("all");
+  const [historyInputStatus, setHistoryInputStatus] = useState<"all" | "not_started" | "in_progress" | "completed" | "failed">("all");
+  const [duplicatingDraftId, setDuplicatingDraftId] = useState<string | null>(null);
   const [currentDraft, setCurrentDraft] = useState<DraftRecord | null>(null);
   const [draftSaving, setDraftSaving] = useState(false);
   const [draftSaveMessage, setDraftSaveMessage] = useState("");
@@ -195,6 +199,22 @@ export default function StudioPage({ email }: { email: string }) {
       setExtensionDraftId(null);
     }
     setMessage("생성한 초안과 대표 이미지를 삭제했습니다.");
+  }
+
+  async function duplicateDraft(draft: DraftRecord) {
+    setDuplicatingDraftId(draft.id);
+    try {
+      const response = await fetch(`/api/drafts/${encodeURIComponent(draft.id)}/duplicate`, { method: "POST" });
+      const result = await response.json() as { draft?: DraftRecord; error?: string };
+      if (!response.ok || !result.draft) throw new Error(result.error || "초안을 복제하지 못했습니다.");
+      setHistory((items) => [result.draft!, ...items]);
+      reuseDraft(result.draft);
+      setMessage(`초안을 복제해 편집 화면에 열었습니다: ${result.draft.title}`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "초안을 복제하지 못했습니다.");
+    } finally {
+      setDuplicatingDraftId(null);
+    }
   }
 
   function startTitleEdit(index: number) {
@@ -441,6 +461,17 @@ export default function StudioPage({ email }: { email: string }) {
   }
 
   const activeHistoryDraft = history.find((draft) => draft.id === extensionDraftId);
+  const filteredHistory = history.filter((draft) => {
+    const query = historyQuery.trim().toLocaleLowerCase("ko-KR");
+    const searchable = `${draft.title} ${draft.topic} ${draft.keywords.join(" ")}`.toLocaleLowerCase("ko-KR");
+    if (query && !searchable.includes(query)) return false;
+    const createdAt = draft.created_at ? new Date(draft.created_at) : new Date();
+    const now = new Date();
+    if (historyPeriod === "today" && createdAt.toDateString() !== now.toDateString()) return false;
+    if (historyPeriod === "week" && createdAt.getTime() < now.getTime() - 7 * 24 * 60 * 60 * 1000) return false;
+    if (historyPeriod === "month" && createdAt.getTime() < now.getTime() - 30 * 24 * 60 * 60 * 1000) return false;
+    return historyInputStatus === "all" || (draft.naver_input_status ?? "not_started") === historyInputStatus;
+  });
 
   async function saveCurrentDraft(silent = false) {
     if (!currentDraft) return false;
@@ -575,8 +606,9 @@ export default function StudioPage({ email }: { email: string }) {
         </section>}
 
         {activeMenu === "history" && <section className="history-card card" id="history">
-          <div className="card-head"><div><h2 className="card-title">생성 기록</h2><p className="card-caption">최근 {history.length}건 · 생성일 기준 30일간 보관됩니다. 항목을 누르면 새 글 만들기에서 수정할 수 있습니다.</p></div><button className="history-refresh" onClick={() => refreshHistory().catch(() => {})}>상태 새로고침</button></div>
-          {history.length === 0 ? <p className="history-empty">최근 30일 안에 저장된 초안이 없습니다.</p> : <div className="history-list">{history.map((draft) => <div className="history-row" key={draft.id}><button type="button" className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}</span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button><button type="button" className="text-button danger history-delete" onClick={() => void deleteDraft(draft)} aria-label={`${draft.title} 삭제`}>삭제</button></div>)}</div>}
+          <div className="card-head"><div><h2 className="card-title">생성 기록</h2><p className="card-caption">최근 {history.length}건 · 생성일 기준 30일간 보관됩니다. 항목을 열어 수정하거나 복제할 수 있습니다.</p></div><button className="history-refresh" onClick={() => refreshHistory().catch(() => {})}>상태 새로고침</button></div>
+          {history.length > 0 && <div className="history-controls"><input value={historyQuery} onChange={(event) => setHistoryQuery(event.target.value)} placeholder="제목·주제·키워드 검색" aria-label="생성 기록 검색" /><select value={historyPeriod} onChange={(event) => setHistoryPeriod(event.target.value as typeof historyPeriod)} aria-label="생성 기간 필터"><option value="all">전체 기간</option><option value="today">오늘</option><option value="week">최근 7일</option><option value="month">최근 30일</option></select><select value={historyInputStatus} onChange={(event) => setHistoryInputStatus(event.target.value as typeof historyInputStatus)} aria-label="확장 입력 상태 필터"><option value="all">전체 상태</option><option value="not_started">미전송</option><option value="in_progress">입력 진행 중</option><option value="completed">입력 완료</option><option value="failed">재확인 필요</option></select></div>}
+          {history.length === 0 ? <p className="history-empty">최근 30일 안에 저장된 초안이 없습니다.</p> : filteredHistory.length === 0 ? <p className="history-empty">조건에 맞는 생성 기록이 없습니다.</p> : <div className="history-list">{filteredHistory.map((draft) => <div className="history-row" key={draft.id}><button type="button" className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic} · {draft.keywords.join(", ") || "키워드 없음"}</small>{draft.naver_input_status === "completed" && <em className="input-state done">확장 입력 완료</em>}{draft.naver_input_status === "in_progress" && <em className="input-state pending">확장 입력 진행 중</em>}{draft.naver_input_status === "failed" && <em className="input-state failed">확장 입력 재확인 필요</em>}{(!draft.naver_input_status || draft.naver_input_status === "not_started") && <em className="input-state">미전송</em>}</span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button><div className="history-actions"><button type="button" className="text-button" onClick={() => void duplicateDraft(draft)} disabled={duplicatingDraftId === draft.id}>{duplicatingDraftId === draft.id ? "복제 중..." : "복제"}</button><button type="button" className="text-button danger history-delete" onClick={() => void deleteDraft(draft)} aria-label={`${draft.title} 삭제`}>삭제</button></div></div>)}</div>}
           {activeHistoryDraft?.naver_input_status === "completed" && <p className="history-detail success">확장 입력 검증 완료{activeHistoryDraft.naver_input_completed_at ? ` · ${new Date(activeHistoryDraft.naver_input_completed_at).toLocaleString("ko-KR")}` : ""}. 네이버 최종 발행은 내용을 검토한 뒤 직접 진행하세요.</p>}
           {activeHistoryDraft?.naver_input_status === "failed" && <p className="history-detail error">확장 입력 재확인 필요: {activeHistoryDraft.naver_input_error || "입력 또는 검증 과정에서 오류가 발생했습니다."} 초안을 다시 확장으로 보낸 뒤 재시도할 수 있습니다.</p>}
         </section>}
