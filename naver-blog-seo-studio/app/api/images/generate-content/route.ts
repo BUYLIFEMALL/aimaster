@@ -19,6 +19,7 @@ export async function POST(request: Request) {
   const draftId = input?.draftId?.trim();
   if (!draftId) return NextResponse.json({ error: "본문 이미지를 저장할 초안을 먼저 선택해주세요." }, { status: 400 });
   const supabase = await createClient();
+  console.info("[generate-content-images] request received", { draftId, userId: access.user.id });
   const [openaiKey, geminiKey] = await Promise.all([
     resolveApiKey(supabase, access.user.id, "openai"),
     resolveApiKey(supabase, access.user.id, "gemini"),
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     const imageModel = getUserGeminiImageModel(access.user.user_metadata);
     const generated: ContentVisual[] = [];
     for (const visual of visuals) {
+      console.info("[generate-content-images] generating image", { draftId, slot: visual.slot });
       const image = await generateNanoBananaImage({ apiKey: geminiKey, topic: draft.topic, title: draft.title, keywords: Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "", model: imageModel, sceneDescription: visual.prompt });
       const extension = image.mimeType === "image/jpeg" ? "jpg" : "png";
       const path = `${access.user.id}/${draftId}/${visual.slot}-${Date.now()}.${extension}`;
@@ -48,8 +50,11 @@ export async function POST(request: Request) {
     if (updateError) throw new Error("본문 이미지 정보를 초안에 저장하지 못했습니다.");
     const stalePaths = previous.map((item) => item.path).filter((path): path is string => Boolean(path));
     if (stalePaths.length) await supabase.storage.from("naver-blog-seo-images").remove(stalePaths);
+    console.info("[generate-content-images] completed", { draftId, count: generated.length });
     return NextResponse.json({ images: generated.map((item) => ({ ...item, dataUrl: undefined })) });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "본문 매칭 이미지 생성에 실패했습니다." }, { status: 502 });
+    const message = error instanceof Error ? error.message : "본문 매칭 이미지 생성에 실패했습니다.";
+    console.error("[generate-content-images] failed", { draftId, message, stack: error instanceof Error ? error.stack : undefined });
+    return NextResponse.json({ error: message }, { status: 502 });
   }
 }
