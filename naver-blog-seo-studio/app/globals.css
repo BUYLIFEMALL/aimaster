@@ -114,8 +114,6 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .optimize-tabs button:hover, .optimize-tabs button.selected { border-color: var(--accent); background: var(--accent-soft); color: #8c442d; }
 .optimize-mode-panel { display: grid; gap: 14px; }
 .optimize-mode-panel .field { margin: 0; }
-.source-rights { display: flex; align-items: flex-start; gap: 8px; color: #5f564e; font-size: 12px; line-height: 1.55; cursor: pointer; }
-.source-rights input { margin-top: 3px; }
 .source-result { margin: 0; border-radius: 10px; background: #fff8f4; color: #785345; padding: 10px 12px; font-size: 12px; }
 .analysis-result { display: grid; gap: 14px; margin-top: 20px; border: 1px solid #ecd9cf; border-radius: 14px; background: #fffcf9; padding: 18px; }
 .analysis-result > div:first-child { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }

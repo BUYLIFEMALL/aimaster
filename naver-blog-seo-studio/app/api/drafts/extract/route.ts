@@ -109,11 +109,11 @@ function findNaverMainFrame(html: string) {
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { url?: string; confirmedRights?: boolean } | null;
-  if (!input?.confirmedRights) return NextResponse.json({ error: "재가공 권한이 있는 글인지 확인해주세요." }, { status: 400 });
-  if (!input.url?.trim() || input.url.trim().length > 2_000) return NextResponse.json({ error: "가져올 블로그 주소를 입력해주세요." }, { status: 400 });
+  const input = await request.json().catch(() => null) as { url?: string } | null;
+  const rawUrl = input?.url?.trim() ?? "";
+  if (!rawUrl || rawUrl.length > 2_000) return NextResponse.json({ error: "가져올 블로그 주소를 입력해주세요." }, { status: 400 });
 
-  const requestedUrl = /^https?:\/\//i.test(input.url.trim()) ? input.url.trim() : `https://${input.url.trim()}`;
+  const requestedUrl = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
   let host = "unknown";
   let stage = "validate-url";
   try {

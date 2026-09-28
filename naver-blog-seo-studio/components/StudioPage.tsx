@@ -84,7 +84,6 @@ export default function StudioPage({ email }: { email: string }) {
   const [optimizationDraftId, setOptimizationDraftId] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [sourceTitle, setSourceTitle] = useState("");
-  const [sourceRightsConfirmed, setSourceRightsConfirmed] = useState(false);
   const [sourcePending, setSourcePending] = useState(false);
   const [analysisPending, setAnalysisPending] = useState(false);
   const [contentAnalysis, setContentAnalysis] = useState<ContentAnalysis | null>(null);
@@ -291,10 +290,9 @@ export default function StudioPage({ email }: { email: string }) {
 
   async function extractFromUrl() {
     if (!sourceUrl.trim()) return setMessage("가져올 블로그 주소를 입력해주세요.");
-    if (!sourceRightsConfirmed) return setMessage("재가공 권한이 있는 글인지 먼저 확인해주세요.");
     setSourcePending(true);
     try {
-      const response = await fetch("/api/drafts/extract", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: sourceUrl, confirmedRights: sourceRightsConfirmed }) });
+      const response = await fetch("/api/drafts/extract", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: sourceUrl }) });
       const result = await response.json() as { article?: { title: string; body: string; url: string }; error?: string };
       if (!response.ok || !result.article) throw new Error(result.error || "글을 가져오지 못했습니다.");
       setExistingBody(result.article.body);
@@ -541,9 +539,8 @@ export default function StudioPage({ email }: { email: string }) {
 
           {optimizeMode === "url" && <div className="optimize-mode-panel">
             <div className="field"><label htmlFor="source-url">블로그 글 주소</label><input id="source-url" type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://blog.naver.com/..." /></div>
-            <label className="source-rights"><input type="checkbox" checked={sourceRightsConfirmed} onChange={(event) => setSourceRightsConfirmed(event.target.checked)} /><span>이 글은 제가 작성했거나 재가공·활용 권한을 확인했습니다.</span></label>
-            <p className="freshness-note">본문만 임시로 분석하며 서버에 원문을 보관하지 않습니다. 로그인·유료벽·접근 제한 글은 직접 붙여넣어주세요.</p>
-            <button type="button" className="secondary" onClick={() => void extractFromUrl()} disabled={sourcePending || !sourceRightsConfirmed}>{sourcePending ? "글 가져오는 중..." : "글 가져오기"}</button>
+            <p className="freshness-note">본문은 주제·키워드·구조 분석에만 임시 사용하며 서버에 원문을 보관하거나 문장을 그대로 복제하지 않습니다. 로그인·유료벽·접근 제한 글은 직접 붙여넣어주세요.</p>
+            <button type="button" className="secondary" onClick={() => void extractFromUrl()} disabled={sourcePending}>{sourcePending ? "글 가져오는 중..." : "글 가져오기"}</button>
             {sourceTitle && <p className="source-result">가져온 글: <strong>{sourceTitle}</strong></p>}
             {existingBody && <><textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} aria-label="가져온 글 본문" /><button type="button" className="primary" onClick={() => void analyzeExisting()} disabled={analysisPending}>{analysisPending ? "핵심 분석 중..." : "핵심 분석 후 새 글 만들기"}</button></>}
           </div>}
