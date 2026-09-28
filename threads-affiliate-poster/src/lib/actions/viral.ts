@@ -7,6 +7,8 @@ import { getDisclosureText } from "@/lib/ai/affiliateGenerator";
 import { generatePostImage } from "@/lib/ai/generator";
 import { publishPost } from "@/lib/posts/publish-core";
 import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
+import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS } from "@/lib/ai/models";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
 import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
@@ -511,46 +513,39 @@ RULES:
     const supabase = await createClient();
     let bodyText = "";
 
+    const model = input.aiModel || DEFAULT_AI_MODELS[provider];
+    if (!AI_MODEL_OPTIONS.some((opt) => opt.provider === provider && opt.value === model)) {
+      return { error: `지원하지 않는 AI 모델입니다: ${model}` };
+    }
+
     if (provider === "anthropic") {
-      let claudeKey = await resolveApiKey(supabase, user.id, "anthropic" as any);
-      if (!claudeKey) {
-        const { data: keyRow } = await (supabase as any)
-          .from("user_api_keys")
-          .select("api_key")
-          .eq("user_id", user.id)
-          .in("provider", ["anthropic", "claude"])
-          .maybeSingle();
-        claudeKey = keyRow?.api_key || null;
-      }
+      const claudeKey = await resolveApiKey(supabase, user.id, "anthropic");
       if (!claudeKey) {
         return { error: "Anthropic (Claude) API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
       }
 
-      let actualModel = input.aiModel || "claude-sonnet-5";
-      if (actualModel === "claude-sonnet-5") actualModel = "claude-3-5-sonnet-20241022";
-      if (actualModel === "claude-haiku-4-5") actualModel = "claude-3-5-haiku-20241022";
-      if (actualModel === "claude-opus-5") actualModel = "claude-3-5-sonnet-20241022";
-
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": claudeKey,
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          model: actualModel,
-          max_tokens: 1024,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error?.message || "Claude API 호출 실패");
+      const anthropic = new Anthropic({ apiKey: claudeKey });
+      const params: Anthropic.Beta.MessageCreateParamsNonStreaming = {
+        model,
+        max_tokens: 16000,
+        messages: [{ role: "user", content: prompt }],
+      };
+      // Opus 5 may decline via safety classifiers; server-side fallback reruns on a suitable model.
+      if (model === "claude-opus-5") {
+        params.betas = ["server-side-fallback-2026-07-01"];
+        params.fallbacks = "default";
       }
+      const response = await anthropic.beta.messages.create(params);
 
-      bodyText = data.content?.[0]?.text?.trim() || "";
+      if (response.stop_reason === "refusal") {
+        throw new Error("Claude가 이 요청을 처리하지 않았습니다. 다른 AI 엔진이나 모델로 다시 시도해주세요.");
+      }
+      // Sonnet 5 / Opus 5 think by default, so the first block can be a thinking block.
+      bodyText = response.content
+        .filter((block): block is Anthropic.Beta.BetaTextBlock => block.type === "text")
+        .map((block) => block.text)
+        .join("")
+        .trim();
       if (!bodyText) throw new Error("Claude가 캡션을 생성하지 못했습니다.");
 
       await logProgramUsage({
@@ -564,16 +559,10 @@ RULES:
         return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
       }
 
-      let actualModel = input.aiModel || "gemini-3.7-flash";
-      if (actualModel.startsWith("gemini-3") || actualModel.startsWith("gemini-2.5")) {
-        actualModel = actualModel.includes("pro") ? "gemini-1.5-pro" : "gemini-1.5-flash";
-      }
-
       const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ model: actualModel });
-
-      const result = await model.generateContent(prompt);
+      const result = await genAI.getGenerativeModel({ model }).generateContent(prompt);
       bodyText = result.response.text().trim();
+      if (!bodyText) throw new Error("Gemini가 캡션을 생성하지 못했습니다.");
 
       await logProgramUsage({
         userId: user.id,
@@ -587,15 +576,11 @@ RULES:
       }
 
       const openai = new OpenAI({ apiKey: openAiKey });
-      let actualModel = input.aiModel || "gpt-4.1";
-      if (actualModel === "gpt-5.6-luna" || actualModel === "gpt-5.6-terra" || actualModel === "gpt-4.1") actualModel = "gpt-4o";
-      if (actualModel === "gpt-5.6-sol") actualModel = "gpt-4o";
-      if (actualModel === "o3") actualModel = "o3-mini";
-
+      // Reasoning models (o-series, GPT-5.x, GPT-6) only accept the default temperature.
       const completion = await openai.chat.completions.create({
-        model: actualModel,
+        model,
         messages: [{ role: "user", content: prompt }],
-        temperature: 0.8,
+        ...(model.startsWith("gpt-4") ? { temperature: 0.8 } : {}),
       });
 
       bodyText = completion.choices[0]?.message?.content?.trim() || "";

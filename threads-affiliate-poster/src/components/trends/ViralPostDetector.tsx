@@ -1034,7 +1034,7 @@ export function ViralPostDetector() {
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-400 p-3 text-xs font-bold text-white transition-colors cursor-pointer shadow-xs"
               >
                 {generating ? (
-                  <span>선택된 페르소나, {aiProvider === "gemini" ? "Gemini" : "GPT"} 및 나노바나나 이미지 생성 중...</span>
+                  <span>선택된 페르소나로 {PROVIDER_SHORT_LABELS[aiProvider]} 캡션{imageModel !== "none" ? " 및 나노바나나 이미지" : ""} 생성 중...</span>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4 text-amber-400 fill-amber-300" />

@@ -8,7 +8,10 @@ export interface AIModelOption {
 }
 
 export const AI_MODEL_OPTIONS: AIModelOption[] = [
-  // OpenAI 최신 모델순
+  // OpenAI 최신 모델순 (2026-09-28 OpenAI 공식 모델 목록 대조)
+  { value: "gpt-6-luna", label: "⚡ GPT-6 Luna (최신 세대 · 가성비 초고속)", shortLabel: "GPT-6 Luna", provider: "openai" },
+  { value: "gpt-6-sol", label: "🎯 GPT-6 Sol (최신 세대 · 균형형)", shortLabel: "GPT-6 Sol", provider: "openai" },
+  { value: "gpt-6-astra", label: "💎 GPT-6 Astra (최신 세대 · 최고 품질 플래그십)", shortLabel: "GPT-6 Astra", provider: "openai" },
   { value: "gpt-5.6-luna", label: "⚡ GPT-5.6 Luna (가성비 초고속)", shortLabel: "GPT-5.6 Luna", provider: "openai" },
   { value: "gpt-5.6-terra", label: "🎯 GPT-5.6 Terra (균형형 자연스러운 어조)", shortLabel: "GPT-5.6 Terra", provider: "openai" },
   { value: "gpt-5.6-sol", label: "💎 GPT-5.6 Sol (최고 품질 플래그십)", shortLabel: "GPT-5.6 Sol", provider: "openai" },
@@ -16,9 +19,9 @@ export const AI_MODEL_OPTIONS: AIModelOption[] = [
   { value: "o3", label: "🧩 o3 (고성능 논리 추론 모델)", shortLabel: "o3", provider: "openai" },
   { value: "gpt-4o", label: "⚙️ GPT-4o (범용 표준 모델)", shortLabel: "GPT-4o", provider: "openai" },
 
-  // Google Gemini 최신 모델순
-  { value: "gemini-3.7-flash", label: "⚡ Gemini 3.7 Flash (최신 세대 · 속도와 품질 균형 · 기본 추천)", shortLabel: "Gemini 3.7 Flash", provider: "gemini" },
-  { value: "gemini-3.6-pro", label: "🎯 Gemini 3.6 Pro (고성능 차세대 추론)", shortLabel: "Gemini 3.6 Pro", provider: "gemini" },
+  // Google Gemini 최신 모델순 (2026-09-28 Gemini API 공식 모델 목록 대조 — gemini-3.6-pro는 존재하지 않아 제거)
+  { value: "gemini-3.8-flash", label: "🚀 Gemini 3.8 Flash (최신 세대 · 최고 성능 Flash)", shortLabel: "Gemini 3.8 Flash", provider: "gemini" },
+  { value: "gemini-3.7-flash", label: "⚡ Gemini 3.7 Flash (속도와 품질 균형 · 기본 추천)", shortLabel: "Gemini 3.7 Flash", provider: "gemini" },
   { value: "gemini-3.5-flash-lite", label: "⚡ Gemini 3.5 Flash Lite (가장 빠르고 저렴)", shortLabel: "Gemini 3.5 Flash Lite", provider: "gemini" },
   { value: "gemini-3.1-pro-preview", label: "💎 Gemini 3.1 Pro Preview (Google 최상위 플래그십)", shortLabel: "Gemini 3.1 Pro Preview", provider: "gemini" },
 

@@ -555,9 +555,10 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 3. **떡상글 직접 가져오기**: 회원이 링크(선택)+본문(필수)을 붙여넣으면 토큰 없는 공개 oEmbed로 공개 게시글
    여부만 확인하고 `tap_saved_posts`에 저장한다(oEmbed는 본문 텍스트를 주지 않는다).
 4. **부가 자료는 버튼으로만**: 관련 쿠팡 상품(시간당 호출 제한)과 AI 작성 예시(회원 OpenAI 비용)는 자동 호출하지 않는다.
-5. **페르소나 AI 벤치마킹 캡션 생성**은 원래부터 실제로 동작하던 기능이다. 단, 화면의 모델 선택(GPT-4.1/Gemini 3.x/
-   Claude Sonnet 5 등)과 실제 호출 모델이 다르게 매핑돼 있어(`generateBenchmarkCaptionAction`: gpt-4o, gemini-1.5-*,
-   claude-3-5-sonnet-20241022로 치환) 종료된 모델로 호출돼 실패할 수 있다 — 미해결 과제.
+5. **페르소나 AI 벤치마킹 캡션 생성**은 원래부터 실제로 동작하던 기능이다. 화면의 모델 선택과 달리 종료된 모델
+   (gemini-1.5-*, claude-3-5-*)로 몰래 치환해 호출하던 코드는 2026-09-28에 제거했다 — **화면에서 고른 모델을 그대로
+   호출하고, 모델 목록(`src/lib/ai/models.ts`)은 각 사 공식 모델 목록과 대조해서만 추가한다**(존재하지 않는 모델명을
+   넣고 서버에서 다른 모델로 바꿔치기하지 말 것). OpenAI 추론 모델(o-series, GPT-5.x/6)은 temperature를 보내지 않는다.
 
 **관련 파일**:
 - `threads-affiliate-poster/src/app/(dashboard)/trends/page.tsx`
