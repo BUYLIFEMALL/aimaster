@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//c/Users/Administrator/.claude/**)",
-      "Bash(timeout 120 npm run build)"
-    ]
-  }
-}
