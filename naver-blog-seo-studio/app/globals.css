@@ -101,7 +101,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .title-option strong { color: var(--ink); font-size: 13px; }
 .title-option small { color: var(--muted); margin-top: 3px; font-size: 11px; }
 .optimize-card { margin-top: 20px; }
-.optimize-input { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; color: var(--ink); line-height: 1.6; outline: none; }
+.optimize-input { width: 100%; min-height: 480px; resize: vertical; border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; color: var(--ink); line-height: 1.6; outline: none; }
 .optimize-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .optimize-result { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 16px; }
 .optimize-result h3 { margin: 0 0 10px; font-size: 16px; }
