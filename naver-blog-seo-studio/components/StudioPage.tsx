@@ -338,6 +338,7 @@ export default function StudioPage({ email }: { email: string }) {
       setKeywords(result.draft.keywords.join(", "));
       setGeneratedImage(null);
       refreshHistory().catch(() => {});
+      if (generateImageWithDraft) await generateImage(result.draft);
       setMessage("최적화한 글을 새 초안으로 저장했습니다.");
       openMenu("new-draft");
     } catch (error) {
@@ -554,7 +555,7 @@ export default function StudioPage({ email }: { email: string }) {
             {personaId === "custom" && <div className="field"><label htmlFor="optimize-custom-persona">커스텀 페르소나</label><input id="optimize-custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} placeholder="예: 초보자에게 차분하게 설명하는 실무 멘토" /></div>}
             <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="내가 작성한 기존 네이버 블로그 글을 붙여넣으세요 (50자 이상)" />
             <button type="button" className="secondary" onClick={() => void optimizeExisting()} disabled={optimizePending || (personaId === "custom" && !customPersona.trim())}>{optimizePending ? "최적화 중..." : "내 글 SEO 최적화"}</button>
-            {optimized && <div className="optimize-result"><h3>{optimized.title}</h3><pre>{optimized.body}</pre><h4>개선한 점</h4><ul>{optimized.improvements.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul><button type="button" className="primary" onClick={() => void saveOptimizationAsDraft()} disabled={draftSaving}>{draftSaving ? "초안 저장 중..." : "이 결과를 초안으로 저장하고 편집하기"}</button></div>}
+            {optimized && <div className="optimize-result"><h3>{optimized.title}</h3><pre>{optimized.body}</pre><h4>개선한 점</h4><ul>{optimized.improvements.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul><label className="image-with-draft-option"><input type="checkbox" checked={generateImageWithDraft} onChange={(event) => setGenerateImageWithDraft(event.target.checked)} /> <span><strong>대표 이미지 생성 (나노바나나)</strong><small>선택한 제목을 바탕으로 초안과 대표 이미지를 함께 생성합니다.</small></span></label><button type="button" className="primary" onClick={() => void saveOptimizationAsDraft()} disabled={draftSaving || imagePending}>{draftSaving ? "초안 저장 중..." : imagePending ? "대표 이미지 생성 중..." : "이 결과를 초안으로 저장하고 편집하기"}</button></div>}
           </div>}
 
           {optimizeMode === "analyze" && <div className="optimize-mode-panel">
