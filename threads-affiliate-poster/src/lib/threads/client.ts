@@ -137,7 +137,11 @@ export interface ThreadsKeywordSearchPost {
 }
 
 export class ThreadsKeywordSearchError extends Error {
-  constructor(message: string, readonly code?: number) {
+  constructor(
+    message: string,
+    readonly code?: number,
+    readonly type?: string,
+  ) {
     super(message);
   }
 }
@@ -162,9 +166,11 @@ export async function searchThreadsByKeyword(
   const body = await response.json();
   if (!response.ok) {
     const err = body as Partial<ThreadsApiError>;
+    console.error("[threads keyword_search] failed", response.status, JSON.stringify(body));
     throw new ThreadsKeywordSearchError(
       err?.error?.message ?? `Threads 키워드 검색 요청이 실패했습니다. (${response.status})`,
       err?.error?.code,
+      err?.error?.type,
     );
   }
   return (body as { data?: ThreadsKeywordSearchPost[] }).data ?? [];

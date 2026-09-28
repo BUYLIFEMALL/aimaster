@@ -174,8 +174,12 @@ async function searchRealThreads(
   } catch (err) {
     const message = err instanceof Error ? err.message : "Threads 키워드 검색 실패";
     const code = err instanceof ThreadsKeywordSearchError ? err.code : undefined;
-    const isPermission = code === 10 || code === 200 || /permission|scope|권한/i.test(message);
-    return { posts: [], status: isPermission ? "permission_missing" : "error", message };
+    // Meta answers a token without threads_keyword_search with a generic code 1 "unknown error",
+    // not only the documented permission codes, so treat both as a missing grant.
+    const isPermission =
+      code === 1 || code === 10 || code === 200 || /permission|scope|권한/i.test(message);
+    const detail = code !== undefined ? `${message} (code ${code})` : message;
+    return { posts: [], status: isPermission ? "permission_missing" : "error", message: detail };
   }
 }
 
