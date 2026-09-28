@@ -15,10 +15,11 @@ export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string } | null;
   const topic = input?.topic?.trim() ?? "";
   const strategy = input?.strategy?.trim() ?? "";
   const keywords = (input?.keywords ?? "").split(",").map((keyword) => keyword.trim()).filter(Boolean).slice(0, 10);
+  const sourceContext = input?.sourceContext?.trim().slice(0, 2_000) || undefined;
   if (!topic || topic.length > 300) return NextResponse.json({ error: "주제를 1~300자로 입력해주세요." }, { status: 400 });
   if (!strategies.has(strategy)) return NextResponse.json({ error: "지원하지 않는 글쓰기 전략입니다." }, { status: 400 });
   let persona;
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 
   try {
-    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, persona, model: access.user.user_metadata?.naver_blog_seo_openai_model as string | undefined });
+    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, persona, sourceContext, model: access.user.user_metadata?.naver_blog_seo_openai_model as string | undefined });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
     const { data: saved, error } = await supabase
       .from("naver_blog_seo_drafts")

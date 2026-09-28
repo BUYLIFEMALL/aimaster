@@ -31,6 +31,18 @@ type DraftRecord = {
 
 type RecommendedTitle = { title: string; intent?: string };
 
+type ContentAnalysis = {
+  topic: string;
+  coreKeywords: string[];
+  relatedKeywords: string[];
+  searchIntent: string;
+  targetReader: string;
+  strengths: string[];
+  improvements: string[];
+  suggestedTitle: string;
+  outline: string[];
+};
+
 type TitleRecommendationRecord = {
   id: string;
   topic: string;
@@ -67,6 +79,16 @@ export default function StudioPage({ email }: { email: string }) {
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
   const [titleEditValue, setTitleEditValue] = useState("");
   const [existingBody, setExistingBody] = useState("");
+  const [optimizeMode, setOptimizeMode] = useState<"direct" | "analyze" | "url">("direct");
+  const [optimizationKeywords, setOptimizationKeywords] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [sourceTitle, setSourceTitle] = useState("");
+  const [sourceRightsConfirmed, setSourceRightsConfirmed] = useState(false);
+  const [sourcePending, setSourcePending] = useState(false);
+  const [analysisPending, setAnalysisPending] = useState(false);
+  const [contentAnalysis, setContentAnalysis] = useState<ContentAnalysis | null>(null);
+  const [analysisTopic, setAnalysisTopic] = useState("");
+  const [analysisKeywords, setAnalysisKeywords] = useState("");
   const [optimizePending, setOptimizePending] = useState(false);
   const [optimized, setOptimized] = useState<{ title: string; body: string; improvements: string[] } | null>(null);
   const [history, setHistory] = useState<DraftRecord[]>([]);
@@ -246,7 +268,7 @@ export default function StudioPage({ email }: { email: string }) {
     if (!existingBody.trim()) return setMessage("기존 글을 먼저 붙여넣어주세요.");
     setOptimizePending(true);
     try {
-      const response = await fetch("/api/drafts/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: existingBody, keywords }) });
+      const response = await fetch("/api/drafts/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: existingBody, keywords: optimizationKeywords, personaId, customPersona }) });
       const result = await response.json() as { result?: { title: string; body: string; improvements: string[] }; error?: string };
       if (!response.ok) throw new Error(result.error || "기존 글 최적화에 실패했습니다.");
       setOptimized(result.result ?? null);
@@ -255,22 +277,81 @@ export default function StudioPage({ email }: { email: string }) {
     } finally { setOptimizePending(false); }
   }
 
-  async function prepareDraft() {
-    if (!topic.trim()) {
+  async function extractFromUrl() {
+    if (!sourceUrl.trim()) return setMessage("가져올 블로그 주소를 입력해주세요.");
+    if (!sourceRightsConfirmed) return setMessage("재가공 권한이 있는 글인지 먼저 확인해주세요.");
+    setSourcePending(true);
+    try {
+      const response = await fetch("/api/drafts/extract", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: sourceUrl, confirmedRights: sourceRightsConfirmed }) });
+      const result = await response.json() as { article?: { title: string; body: string; url: string }; error?: string };
+      if (!response.ok || !result.article) throw new Error(result.error || "글을 가져오지 못했습니다.");
+      setExistingBody(result.article.body);
+      setSourceUrl(result.article.url);
+      setSourceTitle(result.article.title);
+      setContentAnalysis(null);
+      setMessage("글을 가져왔습니다. 핵심 분석 후 새 글 만들기를 진행하세요.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "글을 가져오는 중 오류가 발생했습니다.");
+    } finally { setSourcePending(false); }
+  }
+
+  async function analyzeExisting() {
+    if (!existingBody.trim()) return setMessage("분석할 기존 글을 먼저 붙여넣거나 가져와주세요.");
+    setAnalysisPending(true);
+    try {
+      const response = await fetch("/api/drafts/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: existingBody }) });
+      const result = await response.json() as { analysis?: ContentAnalysis; error?: string };
+      if (!response.ok || !result.analysis) throw new Error(result.error || "글 분석에 실패했습니다.");
+      setContentAnalysis(result.analysis);
+      setAnalysisTopic(result.analysis.topic);
+      setAnalysisKeywords([...result.analysis.coreKeywords, ...result.analysis.relatedKeywords].join(", "));
+      setSelectedTitle(result.analysis.suggestedTitle);
+      setMessage("핵심 주제와 키워드를 추출했습니다. 내용을 확인한 뒤 새 글을 생성하세요.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "글 분석에 실패했습니다.");
+    } finally { setAnalysisPending(false); }
+  }
+
+  async function saveOptimizationAsDraft() {
+    if (!optimized) return;
+    setDraftSaving(true);
+    try {
+      const response = await fetch("/api/drafts/save-optimized", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: optimized.title, body: optimized.body, topic: sourceTitle || optimized.title, keywords: optimizationKeywords, strategy }) });
+      const result = await response.json() as { draft?: DraftRecord; error?: string };
+      if (!response.ok || !result.draft) throw new Error(result.error || "최적화한 초안을 저장하지 못했습니다.");
+      setCurrentDraft(result.draft);
+      setExtensionDraftId(result.draft.id);
+      setSelectedTitle(result.draft.title);
+      setTopic(result.draft.topic);
+      setKeywords(result.draft.keywords.join(", "));
+      setGeneratedImage(null);
+      refreshHistory().catch(() => {});
+      setMessage("최적화한 글을 새 초안으로 저장했습니다.");
+      openMenu("new-draft");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "최적화한 초안을 저장하지 못했습니다.");
+    } finally { setDraftSaving(false); }
+  }
+
+  async function prepareDraft(overrides?: { topic: string; keywords: string; selectedTitle: string; sourceContext?: string }) {
+    const draftTopic = overrides?.topic ?? topic;
+    const draftKeywords = overrides?.keywords ?? keywords;
+    const draftTitle = overrides?.selectedTitle ?? selectedTitle;
+    if (!draftTopic.trim()) {
       setMessage("먼저 글 주제를 입력해주세요.");
       return;
     }
     setPending(true);
     setMessage("AI가 초안을 준비하고 있습니다. 잠시만 기다려주세요.");
     try {
-      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords, strategy, selectedTitle, personaId, customPersona }) });
+      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext }) });
       const result = await response.json() as { draft?: { id: string; title: string; body: string; seo_report?: Record<string, string> | null; created_at?: string }; error?: string };
       if (!response.ok) throw new Error(result.error || "초안 생성에 실패했습니다.");
       const draft = result.draft;
       if (!draft) throw new Error("생성된 초안 결과를 받지 못했습니다.");
       setExtensionDraftId(draft.id);
       setSelectedTitle(draft.title);
-      const preparedDraft: DraftRecord = { ...draft, topic, keywords: keywords.split(",").map((keyword) => keyword.trim()).filter(Boolean), strategy };
+      const preparedDraft: DraftRecord = { ...draft, topic: draftTopic, keywords: draftKeywords.split(",").map((keyword) => keyword.trim()).filter(Boolean), strategy };
       setCurrentDraft(preparedDraft);
       setGeneratedImage(null);
       setHandoffMessage("");
@@ -293,6 +374,24 @@ export default function StudioPage({ email }: { email: string }) {
     const draft = await prepareDraft();
     if (!draft) return;
     if (generateImageWithDraft) await generateImage(draft);
+    openMenu("new-draft");
+  }
+
+  async function createDraftFromAnalysis() {
+    if (!contentAnalysis || !analysisTopic.trim()) return setMessage("먼저 기존 글의 핵심 분석을 완료해주세요.");
+    const sourceContext = [
+      `검색 의도: ${contentAnalysis.searchIntent}`,
+      `독자 대상: ${contentAnalysis.targetReader}`,
+      `핵심 구조: ${contentAnalysis.outline.join(" / ")}`,
+      `원문 강점: ${contentAnalysis.strengths.join(" / ")}`,
+      `보완점: ${contentAnalysis.improvements.join(" / ")}`,
+    ].filter((item) => !item.endsWith(": ")).join("\n");
+    const draft = await prepareDraft({ topic: analysisTopic, keywords: analysisKeywords, selectedTitle: contentAnalysis.suggestedTitle, sourceContext });
+    if (!draft) return;
+    setTopic(analysisTopic);
+    setKeywords(analysisKeywords);
+    setSelectedTitle(draft.title);
+    setGeneratedImage(null);
     openMenu("new-draft");
   }
 
@@ -420,10 +519,46 @@ export default function StudioPage({ email }: { email: string }) {
         <section className="recent-drafts-card card" aria-labelledby="recent-drafts-title"><div className="card-head"><div><h2 id="recent-drafts-title" className="card-title">최근 생성한 초안</h2><p className="card-caption">새 글 만들기 화면에서 바로 다시 불러와 수정할 수 있습니다.</p></div><button type="button" className="history-refresh" onClick={() => openMenu("history")}>전체 생성 기록</button></div>{history.length === 0 ? <p className="history-empty">아직 생성한 초안이 없습니다.</p> : <div className="history-list">{history.slice(0, 5).map((draft) => <button type="button" key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}</section></>}
 
         {activeMenu === "draft" && <section className="optimize-card card" id="draft">
-          <div className="card-head"><h2 className="card-title">기존 글 최적화</h2><span className="card-caption">의미는 유지하고 SEO 개선</span></div>
-          <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="기존 네이버 블로그 글을 붙여넣으세요 (50자 이상)" />
-          <button className="secondary" onClick={optimizeExisting} disabled={optimizePending}>{optimizePending ? "최적화 중..." : "기존 글 최적화"}</button>
-          {optimized && <div className="optimize-result"><h3>{optimized.title}</h3><pre>{optimized.body}</pre><ul>{optimized.improvements.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul></div>}
+          <div className="card-head"><div><h2 className="card-title">기존 글 최적화</h2><p className="section-description">내 글을 다듬거나, 권한 있는 외부 글을 분석해 새로운 SEO 초안을 만듭니다.</p></div><span className="card-caption">3가지 작업 방식</span></div>
+          <div className="optimize-tabs" role="tablist" aria-label="기존 글 작업 방식">
+            <button type="button" role="tab" aria-selected={optimizeMode === "direct"} className={optimizeMode === "direct" ? "selected" : ""} onClick={() => setOptimizeMode("direct")}>내 글 바로 최적화</button>
+            <button type="button" role="tab" aria-selected={optimizeMode === "analyze"} className={optimizeMode === "analyze" ? "selected" : ""} onClick={() => setOptimizeMode("analyze")}>붙여넣기 분석 후 재작성</button>
+            <button type="button" role="tab" aria-selected={optimizeMode === "url"} className={optimizeMode === "url" ? "selected" : ""} onClick={() => setOptimizeMode("url")}>URL에서 가져와 재작성</button>
+          </div>
+
+          {optimizeMode === "url" && <div className="optimize-mode-panel">
+            <div className="field"><label htmlFor="source-url">블로그 글 주소</label><input id="source-url" type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://blog.naver.com/..." /></div>
+            <label className="source-rights"><input type="checkbox" checked={sourceRightsConfirmed} onChange={(event) => setSourceRightsConfirmed(event.target.checked)} /><span>이 글은 제가 작성했거나 재가공·활용 권한을 확인했습니다.</span></label>
+            <p className="freshness-note">본문만 임시로 분석하며 서버에 원문을 보관하지 않습니다. 로그인·유료벽·접근 제한 글은 직접 붙여넣어주세요.</p>
+            <button type="button" className="secondary" onClick={() => void extractFromUrl()} disabled={sourcePending || !sourceRightsConfirmed}>{sourcePending ? "글 가져오는 중..." : "글 가져오기"}</button>
+            {sourceTitle && <p className="source-result">가져온 글: <strong>{sourceTitle}</strong></p>}
+            {existingBody && <><textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} aria-label="가져온 글 본문" /><button type="button" className="primary" onClick={() => void analyzeExisting()} disabled={analysisPending}>{analysisPending ? "핵심 분석 중..." : "핵심 분석 후 새 글 만들기"}</button></>}
+          </div>}
+
+          {optimizeMode === "direct" && <div className="optimize-mode-panel">
+            <div className="field"><label htmlFor="optimize-keywords">보강할 핵심 키워드 (선택)</label><input id="optimize-keywords" value={optimizationKeywords} onChange={(event) => setOptimizationKeywords(event.target.value)} placeholder="쉼표로 구분해 입력하세요" /></div>
+            <div className="field"><label htmlFor="optimize-persona">글쓰기 페르소나</label><select id="optimize-persona" value={personaId} onChange={(event) => setPersonaId(event.target.value)}>{SEO_PERSONAS.map((persona) => <option key={persona.id} value={persona.id}>{persona.name}</option>)}<option value="custom">✍️ 커스텀 페르소나 직접 입력</option></select></div>
+            {personaId === "custom" && <div className="field"><label htmlFor="optimize-custom-persona">커스텀 페르소나</label><input id="optimize-custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} placeholder="예: 초보자에게 차분하게 설명하는 실무 멘토" /></div>}
+            <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="내가 작성한 기존 네이버 블로그 글을 붙여넣으세요 (50자 이상)" />
+            <button type="button" className="secondary" onClick={() => void optimizeExisting()} disabled={optimizePending || (personaId === "custom" && !customPersona.trim())}>{optimizePending ? "최적화 중..." : "내 글 SEO 최적화"}</button>
+            {optimized && <div className="optimize-result"><h3>{optimized.title}</h3><pre>{optimized.body}</pre><h4>개선한 점</h4><ul>{optimized.improvements.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul><button type="button" className="primary" onClick={() => void saveOptimizationAsDraft()} disabled={draftSaving}>{draftSaving ? "초안 저장 중..." : "이 결과를 초안으로 저장하고 편집하기"}</button></div>}
+          </div>}
+
+          {optimizeMode === "analyze" && <div className="optimize-mode-panel">
+            <p className="freshness-note">원문에서 핵심 주제·핵심/연관 키워드·검색 의도·보완점을 먼저 추출합니다. 분석 결과는 수정할 수 있고, 원문을 그대로 복제하지 않는 새 초안을 생성합니다.</p>
+            <textarea className="optimize-input" value={existingBody} onChange={(event) => setExistingBody(event.target.value)} placeholder="분석할 기존 글을 붙여넣으세요 (50자 이상)" />
+            <button type="button" className="secondary" onClick={() => void analyzeExisting()} disabled={analysisPending}>{analysisPending ? "핵심 분석 중..." : "핵심 주제·키워드 분석하기"}</button>
+          </div>}
+
+          {contentAnalysis && (optimizeMode === "analyze" || optimizeMode === "url") && <section className="analysis-result" aria-labelledby="analysis-result-title">
+            <div><h3 id="analysis-result-title">원문 핵심 분석</h3><span>확인·수정 후 새 글을 생성하세요.</span></div>
+            <div className="analysis-edit-grid"><div className="field"><label htmlFor="analysis-topic">핵심 주제</label><input id="analysis-topic" value={analysisTopic} onChange={(event) => setAnalysisTopic(event.target.value)} /></div><div className="field"><label htmlFor="analysis-keywords">핵심·연관 키워드</label><input id="analysis-keywords" value={analysisKeywords} onChange={(event) => setAnalysisKeywords(event.target.value)} /></div></div>
+            <dl className="analysis-list"><div><dt>검색 의도</dt><dd>{contentAnalysis.searchIntent || "확인이 필요합니다."}</dd></div><div><dt>독자 대상</dt><dd>{contentAnalysis.targetReader || "확인이 필요합니다."}</dd></div><div><dt>추천 구조</dt><dd>{contentAnalysis.outline.join(" · ") || "글 구조를 직접 구성해주세요."}</dd></div><div><dt>기존 글 강점</dt><dd>{contentAnalysis.strengths.join(" · ") || "확인이 필요합니다."}</dd></div><div><dt>보완점</dt><dd>{contentAnalysis.improvements.join(" · ") || "확인이 필요합니다."}</dd></div></dl>
+            <div className="field"><label htmlFor="analysis-persona">새 글 페르소나</label><select id="analysis-persona" value={personaId} onChange={(event) => setPersonaId(event.target.value)}>{SEO_PERSONAS.map((persona) => <option key={persona.id} value={persona.id}>{persona.name}</option>)}<option value="custom">✍️ 커스텀 페르소나 직접 입력</option></select></div>
+            {personaId === "custom" && <div className="field"><label htmlFor="analysis-custom-persona">커스텀 페르소나</label><input id="analysis-custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} /></div>}
+            <button type="button" className="primary" onClick={() => void createDraftFromAnalysis()} disabled={pending || (personaId === "custom" && !customPersona.trim())}>{pending ? "새 글 생성 중..." : "이 분석으로 새로운 SEO 초안 만들기"}</button>
+          </section>}
+          <p className="optimization-safety">AI 결과는 초안입니다. 가격·날짜·정책·의학·법률 등 사실은 직접 확인하고, 네이버 최종 발행은 내용을 검토한 뒤 직접 진행하세요.</p>
         </section>}
 
         {activeMenu === "history" && <section className="history-card card" id="history">
