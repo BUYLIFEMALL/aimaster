@@ -11,6 +11,7 @@ import {
   createDirectBenchmarkPostAction,
   searchRelatedCoupangProductsAction,
   generateAiExamplePostsAction,
+  importViralPostAction,
   type ViralPostItem,
   type ThreadsSearchStatus,
 } from "@/lib/actions/viral";
@@ -64,6 +65,11 @@ export function ViralPostDetector() {
   const [aiPosts, setAiPosts] = useState<ViralPostItem[]>([]);
   const [aiError, setAiError] = useState<string | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);
+  const [importedPosts, setImportedPosts] = useState<ViralPostItem[]>([]);
+  const [importUrl, setImportUrl] = useState("");
+  const [importContent, setImportContent] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
   const [coupangProducts, setCoupangProducts] = useState<CoupangProduct[] | null>(null);
   const [coupangError, setCoupangError] = useState<string | null>(null);
   const [loadingCoupang, setLoadingCoupang] = useState(false);
@@ -135,6 +141,22 @@ export function ViralPostDetector() {
     setAiPosts(res.posts);
   };
 
+  const handleImportPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setImporting(true);
+    setImportError(null);
+    const res = await importViralPostAction({ url: importUrl, content: importContent });
+    setImporting(false);
+    if (res.error || !res.post) {
+      setImportError(res.error ?? "가져오기에 실패했습니다.");
+      return;
+    }
+    const imported = res.post;
+    setImportedPosts((prev) => [imported, ...prev.filter((p) => p.id !== imported.id)]);
+    setImportUrl("");
+    setImportContent("");
+  };
+
   const handleSearchCoupang = async () => {
     if (!searchedKeyword) return;
     setLoadingCoupang(true);
@@ -152,9 +174,10 @@ export function ViralPostDetector() {
 
   const handleToggleBookmark = async (post: ViralPostItem) => {
     const res = await toggleBookmarkAction(post);
-    setPosts((prev) =>
-      prev.map((p) => (p.id === post.id ? { ...p, isSaved: res.isSaved } : p))
-    );
+    const applySaved = (list: ViralPostItem[]) =>
+      list.map((p) => (p.id === post.id ? { ...p, isSaved: res.isSaved } : p));
+    setPosts(applySaved);
+    setImportedPosts(applySaved);
     if (activeSubTab === "saved") {
       fetchPosts();
     }
@@ -275,6 +298,7 @@ export function ViralPostDetector() {
     activeSubTab === "saved"
       ? savedPosts
       : [
+          ...importedPosts,
           ...posts.filter((p) => p.source === "threads"),
           ...aiPosts,
           ...posts.filter((p) => p.source !== "threads"),
@@ -282,6 +306,7 @@ export function ViralPostDetector() {
 
   const SOURCE_BADGE: Record<ViralPostItem["source"], { label: string; className: string }> = {
     threads: { label: "실제 Threads 글", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+    manual: { label: "직접 가져온 글", className: "bg-blue-50 text-blue-700 border-blue-200" },
     ai: { label: "AI 작성 예시", className: "bg-purple-50 text-purple-700 border-purple-200" },
     example: { label: "작성 예시", className: "bg-neutral-100 text-neutral-600 border-neutral-200" },
   };
@@ -502,6 +527,43 @@ export function ViralPostDetector() {
             </div>
           </div>
         </div>
+      )}
+
+      {activeSubTab === "detector" && (
+        <form
+          onSubmit={handleImportPost}
+          className="space-y-2 rounded-2xl border border-blue-200 bg-blue-50/40 p-4"
+        >
+          <div>
+            <h3 className="text-sm font-bold text-neutral-900">🔗 떡상글 직접 가져오기</h3>
+            <p className="text-[11px] text-neutral-600">
+              Threads에서 발견한 인기 글의 링크와 본문을 붙여넣으면 내 보관함에 저장되고, 바로 벤치마킹 캡션을 만들 수 있습니다.
+              링크는 Meta 공식 방식으로 공개 게시글인지 확인합니다.
+            </p>
+          </div>
+          <input
+            type="url"
+            placeholder="게시글 링크 (선택) 예: https://www.threads.com/@아이디/post/코드"
+            value={importUrl}
+            onChange={(e) => setImportUrl(e.target.value)}
+            className="w-full rounded-lg border border-neutral-300 bg-white p-2 text-xs focus:border-neutral-900 focus:outline-none"
+          />
+          <textarea
+            placeholder="떡상글 본문을 그대로 붙여넣어 주세요 (필수, 10~2,000자)"
+            value={importContent}
+            onChange={(e) => setImportContent(e.target.value)}
+            rows={4}
+            className="w-full rounded-lg border border-neutral-300 bg-white p-2 text-xs focus:border-neutral-900 focus:outline-none"
+          />
+          {importError && <p className="text-xs font-semibold text-red-600">{importError}</p>}
+          <button
+            type="submit"
+            disabled={importing || importContent.trim().length < 10}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {importing ? "확인 및 저장 중..." : "가져와서 보관함에 저장"}
+          </button>
+        </form>
       )}
 
       {activeSubTab === "detector" && !(loading || isPending) && (

@@ -13,7 +13,7 @@ import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/
 import { searchThreadsByKeyword, ThreadsKeywordSearchError } from "@/lib/threads/client";
 
 // Only "threads" items are real posts; examples and AI drafts are labelled as such in the UI.
-export type ViralPostSource = "threads" | "example" | "ai";
+export type ViralPostSource = "threads" | "manual" | "example" | "ai";
 
 export interface ViralPostItem {
   id: string;
@@ -308,8 +308,84 @@ export async function generateAiExamplePostsAction(
 
 function sourceFromSavedId(postId: string): ViralPostSource {
   if (postId.startsWith("th-")) return "threads";
+  if (postId.startsWith("mn-")) return "manual";
   if (postId.startsWith("ai-")) return "ai";
   return "example";
+}
+
+// "mn-<shortcode>" ids (imported with a link) can rebuild the public post URL; "mn-x-<uuid>" cannot.
+function permalinkFromSavedId(postId: string): string | undefined {
+  if (!postId.startsWith("mn-") || postId.startsWith("mn-x-")) return undefined;
+  return `https://www.threads.com/t/${postId.slice(3)}`;
+}
+
+const THREADS_POST_URL =
+  /^https?:\/\/(?:www\.)?threads\.(?:net|com)\/(?:@([\w.]+)\/post\/|t\/)([\w-]+)/i;
+
+export async function importViralPostAction(input: {
+  url?: string;
+  content: string;
+}): Promise<{ post?: ViralPostItem; error?: string }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const content = input.content.trim();
+  if (content.length < 10) return { error: "떡상글 본문을 10자 이상 붙여넣어 주세요." };
+  if (content.length > 2000) return { error: "본문은 2,000자 이하로 붙여넣어 주세요." };
+
+  const url = input.url?.trim() ?? "";
+  let postId = `mn-x-${crypto.randomUUID()}`;
+  let username = "";
+  let permalink: string | undefined;
+
+  if (url) {
+    const match = url.match(THREADS_POST_URL);
+    if (!match) {
+      return { error: "Threads 게시글 링크 형식이 아닙니다. (예: https://www.threads.com/@아이디/post/코드)" };
+    }
+    username = match[1] ?? "";
+    const shortcode = match[2];
+
+    // Public oEmbed needs no token; a failure means the post is private, deleted or geo-gated.
+    const oembed = await fetch(
+      `https://graph.threads.net/v1.0/oembed?url=${encodeURIComponent(`https://www.threads.com/t/${shortcode}`)}`,
+      { cache: "no-store" },
+    );
+    if (!oembed.ok) {
+      return { error: "공개 게시글을 찾을 수 없습니다. 링크가 맞는지, 비공개·삭제된 글이 아닌지 확인해주세요." };
+    }
+
+    postId = `mn-${shortcode}`;
+    permalink = `https://www.threads.com/t/${shortcode}`;
+  }
+
+  const authorName = username ? `@${username}` : "직접 가져온 떡상글";
+  const { error } = await (supabase as any).from("tap_saved_posts").upsert(
+    {
+      user_id: user.id,
+      post_id: postId,
+      author_handle: username,
+      author_name: authorName,
+      content,
+      category: "직접 가져오기",
+    },
+    { onConflict: "user_id,post_id" },
+  );
+  if (error) return { error: `보관함 저장 실패: ${error.message}` };
+
+  return {
+    post: {
+      id: postId,
+      source: "manual",
+      authorHandle: username,
+      authorName,
+      content,
+      permalink,
+      postedAtLabel: "방금 가져옴",
+      category: "직접 가져오기",
+      isSaved: true,
+    },
+  };
 }
 
 export async function toggleBookmarkAction(post: ViralPostItem): Promise<{ isSaved: boolean; error?: string }> {
@@ -362,6 +438,7 @@ export async function getSavedBookmarksAction(): Promise<{ posts: ViralPostItem[
     authorHandle: row.author_handle,
     authorName: row.author_name,
     content: row.content,
+    permalink: permalinkFromSavedId(row.post_id),
     postedAtLabel: `찜 ${formatRelativeTime(row.created_at)}`,
     category: row.category || "일반",
     isSaved: true,
