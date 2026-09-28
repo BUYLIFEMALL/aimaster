@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { resolveSignedRequestAccounts } from "@/lib/threads/signedRequest";
+import { resolveSignedRequestAccounts, THREADS_ACCOUNT_TABLES } from "@/lib/threads/signedRequest";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -15,11 +15,10 @@ export async function POST(request: NextRequest) {
   if (malformed) return NextResponse.json({ error: "invalid signed_request" }, { status: 400 });
 
   if (userIds.length > 0) {
-    await createAdminClient()
-      .from("tap_accounts")
-      .delete()
-      .eq("threads_user_id", threadsUserId!)
-      .in("user_id", userIds);
+    const admin = createAdminClient();
+    for (const table of THREADS_ACCOUNT_TABLES) {
+      await (admin as any).from(table).delete().eq("threads_user_id", threadsUserId!).in("user_id", userIds);
+    }
   }
 
   console.info("[threads uninstall]", { threadsUserId, disconnected: userIds.length });

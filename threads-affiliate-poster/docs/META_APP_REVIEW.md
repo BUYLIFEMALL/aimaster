@@ -24,8 +24,15 @@
 | 시연 녹화 영상 | 운영자 | ☐ | 아래 4번 대본대로 녹화 |
 
 콜백 두 개는 Meta가 보내는 `signed_request`를 **그 회원이 등록한 Threads 앱 시크릿**으로 HMAC-SHA256 검증한 뒤에만
-처리한다(`src/lib/threads/signedRequest.ts`). Uninstall은 연결(토큰) 삭제, Delete는 연결 + Threads 검색으로 저장한
-보관함 글(`post_id` `th-%`) 삭제 후 `{url, confirmation_code}`를 반환한다.
+처리한다(`src/lib/threads/signedRequest.ts`).
+
+**한 Meta 앱을 쓰레드 프로그램 3개(`threads` 자동포스팅, `threads-comment-reply`, `threads-affiliate-poster`)가 공유**하고,
+Meta는 제거/삭제 콜백 URL을 앱당 1개만 받는다. 그래서 이 프로그램의 콜백이 세 프로그램을 함께 처리한다
+(2026-09-28 — 그전에는 세 프로그램 모두 콜백 라우트가 없었다).
+- Uninstall: `tap_accounts`, `threads_accounts`, `th_accounts`에서 그 회원·그 Threads 계정의 연결(토큰) 삭제
+- Delete: 위 연결 삭제 + 댓글자동화가 Threads에서 가져온 `th_posts`(→ `th_comments` cascade) + 쇼핑제휴 검색 보관함
+  (`tap_saved_posts`의 `th-%`) 삭제 후 `{url, confirmation_code}` 반환. 회원이 프로그램으로 직접 작성한 게시글은 회원 소유 콘텐츠라 유지.
+- 새 쓰레드 프로그램을 추가하면 `THREADS_ACCOUNT_TABLES`와 Delete 라우트에 그 프로그램의 연결/수집 테이블을 반드시 추가할 것.
 
 ## 2. 권한 사용 설명 (App Review 제출 칸에 그대로 붙여넣기)
 
