@@ -399,10 +399,11 @@ export default function StudioPage({ email }: { email: string }) {
     ].filter((item) => !item.endsWith(": ")).join("\n");
     const draft = await prepareDraft({ topic: analysisTopic, keywords: analysisKeywords, selectedTitle: contentAnalysis.suggestedTitle, sourceContext });
     if (!draft) return;
+    setGeneratedImage(null);
+    if (generateImageWithDraft) await generateImage(draft);
     setTopic(analysisTopic);
     setKeywords(analysisKeywords);
     setSelectedTitle(draft.title);
-    setGeneratedImage(null);
     openMenu("new-draft");
   }
 
@@ -567,6 +568,7 @@ export default function StudioPage({ email }: { email: string }) {
             <dl className="analysis-list"><div><dt>검색 의도</dt><dd>{contentAnalysis.searchIntent || "확인이 필요합니다."}</dd></div><div><dt>독자 대상</dt><dd>{contentAnalysis.targetReader || "확인이 필요합니다."}</dd></div><div><dt>추천 구조</dt><dd>{contentAnalysis.outline.join(" · ") || "글 구조를 직접 구성해주세요."}</dd></div><div><dt>기존 글 강점</dt><dd>{contentAnalysis.strengths.join(" · ") || "확인이 필요합니다."}</dd></div><div><dt>보완점</dt><dd>{contentAnalysis.improvements.join(" · ") || "확인이 필요합니다."}</dd></div></dl>
             <div className="field"><label htmlFor="analysis-persona">새 글 페르소나</label><select id="analysis-persona" value={personaId} onChange={(event) => setPersonaId(event.target.value)}>{SEO_PERSONAS.map((persona) => <option key={persona.id} value={persona.id}>{persona.name}</option>)}<option value="custom">✍️ 커스텀 페르소나 직접 입력</option></select></div>
             {personaId === "custom" && <div className="field"><label htmlFor="analysis-custom-persona">커스텀 페르소나</label><input id="analysis-custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} /></div>}
+            <label className="image-with-draft-option"><input type="checkbox" checked={generateImageWithDraft} onChange={(event) => setGenerateImageWithDraft(event.target.checked)} /> <span><strong>대표 이미지 생성 (나노바나나)</strong><small>선택한 제목을 바탕으로 초안과 대표 이미지를 함께 생성합니다.</small></span></label>
             <button type="button" className="primary" onClick={() => void createDraftFromAnalysis()} disabled={pending || (personaId === "custom" && !customPersona.trim())}>{pending ? "새 글 생성 중..." : "이 분석으로 새로운 SEO 초안 만들기"}</button>
           </section>}
           <p className="optimization-safety">AI 결과는 초안입니다. 가격·날짜·정책·의학·법률 등 사실은 직접 확인하고, 네이버 최종 발행은 내용을 검토한 뒤 직접 진행하세요.</p>
