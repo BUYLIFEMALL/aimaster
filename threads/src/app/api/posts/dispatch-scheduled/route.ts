@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dispatchAllScheduledPosts } from "@/lib/posts/dispatch";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 // 예약 게시 실행 엔드포인트.
 // vercel.json의 Cron Job이 GET으로 호출하고, cron-job.org / QStash 같은 외부
 // 스케줄러는 보통 POST를 사용하므로 두 메서드 모두 동일 로직을 지원합니다.

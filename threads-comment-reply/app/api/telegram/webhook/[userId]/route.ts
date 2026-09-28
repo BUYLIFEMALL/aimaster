@@ -5,6 +5,7 @@ import { answerTelegramCallbackQuery, editTelegramMessageStatus } from "@/lib/te
 import { postCommentReplyForUser } from "@/lib/comments/post";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 const THIS_PROGRAM_SLUG = "threads-comment-reply";
 
