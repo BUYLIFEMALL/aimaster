@@ -17,6 +17,8 @@ export async function POST(_request: Request, context: { params: Promise<{ draft
   if (findError || !original) return NextResponse.json({ error: "복제할 내 초안을 찾지 못했습니다." }, { status: 404 });
 
   const copiedTitle = `${original.title} (복사본)`.slice(0, 150);
+  const copiedReport = typeof original.seo_report === "object" && original.seo_report !== null
+    ? Object.fromEntries(Object.entries(original.seo_report as Record<string, unknown>).filter(([key]) => key !== "contentImages")) : {};
   const { data, error } = await supabase.from("naver_blog_seo_drafts")
     .insert({
       user_id: access.user.id,
@@ -25,7 +27,7 @@ export async function POST(_request: Request, context: { params: Promise<{ draft
       strategy: original.strategy,
       title: copiedTitle,
       body: original.body,
-      seo_report: original.seo_report ?? {},
+      seo_report: copiedReport,
       status: "ready",
       naver_input_status: "not_started",
     })

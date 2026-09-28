@@ -36,6 +36,12 @@ function getContentImages(draft: DraftRecord | null): ContentImage[] {
   return Array.isArray(images) ? images.filter((item): item is ContentImage => typeof item === "object" && item !== null && "slot" in item && "sentence" in item) : [];
 }
 
+function withoutContentImages(draft: DraftRecord): DraftRecord {
+  const report = { ...(draft.seo_report ?? {}) } as Record<string, unknown>;
+  delete report.contentImages;
+  return { ...draft, seo_report: report as Record<string, string> };
+}
+
 type RecommendedTitle = { title: string; intent?: string };
 
 type ContentAnalysis = {
@@ -109,6 +115,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [draftSaveMessage, setDraftSaveMessage] = useState("");
   const [imagePending, setImagePending] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
+  const [contentImages, setContentImages] = useState<ContentImage[]>([]);
   const [contentImagePending, setContentImagePending] = useState(false);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
   const [handoffPending, setHandoffPending] = useState(false);
@@ -188,7 +195,8 @@ export default function StudioPage({ email }: { email: string }) {
     setKeywords(Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "");
     setStrategy(draft.strategy || strategies[0][0]);
     setSelectedTitle(draft.title);
-    setCurrentDraft(draft);
+    setContentImages(getContentImages(draft));
+    setCurrentDraft(withoutContentImages(draft));
     setGeneratedImage(draft.image_path ? { dataUrl: `/api/drafts/${encodeURIComponent(draft.id)}/image`, model: draft.image_model || "나노바나나" } : null);
     setExtensionDraftId(draft.id);
     setHandoffMessage("");
@@ -204,6 +212,7 @@ export default function StudioPage({ email }: { email: string }) {
     setHistory((items) => items.filter((item) => item.id !== draft.id));
     if (extensionDraftId === draft.id) {
       setCurrentDraft(null);
+      setContentImages([]);
       setGeneratedImage(null);
       setExtensionDraftId(null);
     }
@@ -480,8 +489,8 @@ export default function StudioPage({ email }: { email: string }) {
       const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id }) });
       const result = await response.json() as { images?: ContentImage[]; error?: string };
       if (!response.ok || !result.images?.length) throw new Error(result.error || "본문 매칭 이미지를 생성하지 못했습니다.");
-      const report = { ...(draft.seo_report ?? {}), contentImages: result.images };
-      setCurrentDraft({ ...draft, seo_report: report as unknown as DraftRecord["seo_report"] });
+      setContentImages(result.images);
+      setCurrentDraft(withoutContentImages(draft));
       setMessage("본문 핵심 문장 2개와 매칭된 이미지가 생성되었습니다. 각 문장 바로 위에 전송됩니다.");
       refreshHistory().catch(() => {});
     } catch (error) {
@@ -510,7 +519,8 @@ export default function StudioPage({ email }: { email: string }) {
       const response = await fetch(`/api/drafts/${encodeURIComponent(currentDraft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: currentDraft.title, body: currentDraft.body }) });
       const result = await response.json() as { draft?: DraftRecord; error?: string };
       if (!response.ok || !result.draft) throw new Error(result.error || "초안 저장에 실패했습니다.");
-      setCurrentDraft(result.draft);
+      setContentImages(getContentImages(result.draft));
+      setCurrentDraft(withoutContentImages(result.draft));
       setSelectedTitle(result.draft.title);
       refreshHistory().catch(() => {});
       if (!silent) setDraftSaveMessage("수정한 초안을 저장했습니다.");
@@ -591,8 +601,8 @@ export default function StudioPage({ email }: { email: string }) {
         {currentDraft && <section className="draft-image-stage card" aria-labelledby="content-images-title">
           <div><strong id="content-images-title">본문 문장 매칭 이미지 2장</strong><p>AI가 본문에서 핵심 문장 2개를 고르고, 각 문장 바로 위에 이미지가 삽입되도록 준비합니다.</p></div>
           <label className="image-with-draft-option"><input type="checkbox" checked={generateContentImagesWithDraft} onChange={(event) => setGenerateContentImagesWithDraft(event.target.checked)} /> <span><strong>초안 생성 시 본문 이미지도 함께 생성</strong><small>활성화하면 대표 이미지와 별도로 핵심 문장 이미지 2장을 생성합니다.</small></span></label>
-          <button type="button" className="secondary" onClick={() => void generateContentImages()} disabled={contentImagePending}>{contentImagePending ? "본문 이미지 생성 중..." : getContentImages(currentDraft).length === 2 ? "본문 이미지 2장 다시 생성" : "본문 이미지 2장 생성"}</button>
-          {getContentImages(currentDraft).length === 2 && <div className="content-image-list">{getContentImages(currentDraft).map((item, index) => <div className="generated-image-preview" key={item.slot}><strong>{index + 1}번 이미지가 들어갈 문장</strong><p>{item.sentence}</p><Image src={`/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${item.slot}`} alt={`${index + 1}번 본문 문장 매칭 이미지`} width={1280} height={720} unoptimized /></div>)}</div>}
+          <button type="button" className="secondary" onClick={() => void generateContentImages()} disabled={contentImagePending}>{contentImagePending ? "본문 이미지 생성 중..." : contentImages.length === 2 ? "본문 이미지 2장 다시 생성" : "본문 이미지 2장 생성"}</button>
+          {contentImages.length === 2 && <div className="content-image-list">{contentImages.map((item, index) => <div className="generated-image-preview" key={item.slot}><strong>{index + 1}번 이미지가 들어갈 문장</strong><p>{item.sentence}</p><Image src={`/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${item.slot}`} alt={`${index + 1}번 본문 문장 매칭 이미지`} width={1280} height={720} unoptimized /></div>)}</div>}
         </section>}
         <section className="recent-drafts-card card" aria-labelledby="recent-drafts-title"><div className="card-head"><div><h2 id="recent-drafts-title" className="card-title">최근 생성한 초안</h2><p className="card-caption">새 글 만들기 화면에서 바로 다시 불러와 수정할 수 있습니다.</p></div><button type="button" className="history-refresh" onClick={() => openMenu("history")}>전체 생성 기록</button></div>{history.length === 0 ? <p className="history-empty">아직 생성한 초안이 없습니다.</p> : <div className="history-list">{history.slice(0, 5).map((draft) => <button type="button" key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}</section></>}
 
