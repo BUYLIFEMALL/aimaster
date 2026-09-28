@@ -52,23 +52,26 @@
 - `tap_accounts` — Threads OAuth 연결(user_id unique, threads_user_id, username, access_token, token_expires_at)
 - `affiliate_products` — 등록된 제휴 상품. `platform`(coupang/aliexpress/naver/toss), `input_mode`(url/manual), `product_url`/`affiliate_url`/`price`/`image_url`, manual 모드용 `description`/`key_selling_points`/`detail_page_id`
 - `tap_posts` — 게시글(`threads/`의 `posts`와 동일한 상태머신: draft→scheduled→publishing→published/failed) + `product_id`로 `affiliate_products`와 연결
-- `tap_saved_posts` — 찜한 레퍼런스 떡상 포스팅 보관함 (user_id, post_id, author_handle, content, likes, replies, reposts, category)
-- `tap_personas` — 나만의 AI 글쓰기 페르소나 설정 (user_id, name, tone_description, sample_writing)
+- `tap_saved_posts` — 찜/직접 가져온 레퍼런스 글 보관함 (user_id, post_id, author_handle, author_name, content, category). `post_id` 접두사로 출처 구분: `th-`(Threads 검색), `mn-`(직접 가져옴, `mn-<shortcode>`면 원문 링크 복원), `ai-`(AI 예시), 그 외(작성 예시). likes/replies/reposts 컬럼은 남아 있지만 실제 수치가 없어 쓰지 않는다. (운영 DB 적용: 2026-09-28)
+- `tap_personas` — 나만의 AI 글쓰기 페르소나 설정 (user_id, name, tone_description, sample_writing). 테이블만 있고 현재 코드에서는 쓰지 않는다(페르소나는 `src/lib/constants/personas.ts` 프리셋 + 커스텀 입력).
 - `user_api_keys` — 공용 테이블, provider 추가(`coupang_access_key`/`coupang_secret_key`/`aliexpress_app_key`/`aliexpress_app_secret`/`toss_access_key`/`toss_secret_key`/`toss_publisher_id`)
 
-## 5대 바이럴 떡상 탐지기 (/trends)
+## 떡상글 탐지기 (/trends)
 
-1. **Threads 인기 컨텐츠 실시간 조회**: 추정 조회수 배지 및 1일/1주일/1달/전체 기간 필터링.
-2. **브랜드 핫 키워드 검색**: 다이소, 코스트코, 무인양품, 돈키호테, 올리브영, 쿠팡, 알리, 토스 등 퀵 브랜드 칩 및 검색.
-3. **반응도별 정렬**: 🔥 종합 반응도, ❤️ 좋아요순, 💬 댓글순, 🔄 리포스트순 필터.
-4. **찜 보관함 (`tap_saved_posts`)**: 관심 떡상 글 찜하기 및 `📁 내 찜 보관함` 서브 탭 관리.
-5. **10종 AI 페르소나 멀티 AI 캡션 생성**: OpenAI(GPT-4.1) / Google Gemini(Gemini 3.7) / Claude + 10가지 독창적 AI 페르소나(자취러, 쇼핑에디터, 주부, 테크리뷰어, 유머짤방꾼, 오프라인탐방가, 브이로그, 팩트폭격, 직장인, 디테일큐레이터) 벤치마킹 캡션 생성.
+> ⚠️ 2026-09-28 정정: 이전에 "5대 바이럴 떡상 탐지기"로 소개된 조회수 배지·반응도 정렬·실시간 검색은 하드코딩
+> 샘플과 지어낸 수치였고 실제로 동작하지 않았다. 아래가 실제 동작하는 기능이다.
+
+1. **Threads 키워드 검색 (Meta 공식 `keyword_search`)**: 검색어/브랜드 칩으로 실제 Threads 글 검색, 인기순(TOP)/최신순(RECENT), 1일/1주/1달 기간 필터. 앱 심사로 `threads_keyword_search`가 승인되기 전에는 **본인 계정 글만** 검색된다. 타인 글의 좋아요·조회수는 API가 주지 않아 표시하지 않고 원문 링크를 제공한다.
+2. **떡상글 직접 가져오기**: Threads 게시글 링크(선택)+본문(필수)을 붙여넣으면 공개 게시글 여부를 확인하고 보관함에 저장.
+3. **찜 보관함 (`tap_saved_posts`)**: 검색 결과·가져온 글·예시 찜하기 및 `📁 내 찜 보관함` 탭.
+4. **부가 자료 (버튼 클릭 시에만)**: 관련 쿠팡 상품 보기(시간당 호출 제한), AI 작성 예시 3개(본인 OpenAI 비용).
+5. **10종 AI 페르소나 벤치마킹 캡션 생성**: 선택한 레퍼런스 글의 문체를 참고해 내 상품 제휴 캡션 + NanoBanana 이미지 생성. (AI 모델 선택과 실제 호출 모델 불일치는 미해결 — AGENTS.md Phase 표 참고)
 
 ## 5단계 추천 이용 프로세스 (대시보드)
 
 1. `🔑 API키등록·플랫폼연동 (/settings)` — Threads 계정 연결 + AI 키(OpenAI/Gemini/Claude) + 제휴 키(쿠팡/알리/토스) 등록
 2. `🛒 상품 관리 (/products)` — 쿠팡·알리·네이버·토스 제휴 상품 등록 및 고화질 썸네일/제휴 링크 자동 추출
-3. `🔥 트렌드 & 떡상 탐지기 (/trends)` — 실시간 바이럴 떡상글 탐지 & 10종 AI 페르소나 벤치마킹 캡션 생성
+3. `🔥 트렌드 & 떡상 탐지기 (/trends)` — Threads 키워드 검색·떡상글 직접 가져오기 & 10종 AI 페르소나 벤치마킹 캡션 생성
 4. `📝 새 게시글 작성 (/posts/new)` — 10종 AI 페르소나 선택 → 멀티 AI 엔진 캡션 및 NanoBanana AI 이미지 생성
 5. `🚀 퍼블리싱 & 예약 관리 (/posts)` — Threads 즉시 게시 또는 스케줄링 예약 자동 포스팅 진행
 4. 예약 게시는 `threads/`와 동일한 크론 이중화(cron-job.org 메인 + Vercel Cron 백업)로 처리

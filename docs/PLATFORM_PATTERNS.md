@@ -525,22 +525,38 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 
 ---
 
-## 24. Threads 바이럴 떡상 탐지기 및 페르소나 멀티 AI 벤치마킹 연동 규격 (2026-09-26)
+## 24. Threads 떡상글 탐지·벤치마킹 — "실제 데이터만 보여준다" (2026-09-26 도입, 2026-09-28 정정)
 
-**개요**: `threads-affiliate-poster` 트렌드 페이지(/trends)에 5대 핵심 바이럴 탐지 & 페르소나 AI 생성 기능을 고도화 적용함.
+> ⚠️ **2026-09-28 정정**: 2026-09-26~27에 "5대 바이럴 탐지 기능(조회수 배지·반응도 정렬·실시간 검색)"으로
+> 기록됐던 내용은 **실제로 동작하지 않았다.** 목록은 코드에 하드코딩한 예시 글이었고, 조회수·좋아요·댓글
+> 숫자는 전부 고정값이나 계산식으로 지어낸 값이었다. 키워드 검색은 쿠팡 상품을 "떡상 포스팅"으로 포장하거나
+> OpenAI가 지어낸 글·반응 수치로 채웠고, 결과가 0건이면 가짜 글을 자동 생성했다. DuckDuckGo/threads.net
+> 스크래핑은 로그인 벽 때문에 실제로 거의 0건이었다. `tap_saved_posts`/`tap_personas` 테이블도 운영 DB에
+> 적용되지 않은 상태였다(2026-09-28 적용).
 
-**5대 구현 기능**:
-1. **인기 컨텐츠 조회**: 추정 조회수 배지 및 1일/1주일/1달/전체 기간 필터.
-2. **브랜드 핫 키워드 검색**: 다이소, 코스트코, 무인양품, 돈키호테, 올리브영, 쿠팡, 알리 등 퀵 브랜드 칩 및 커스텀 키워드 검색.
-3. **반응도 정렬**: 종합 반응도, ❤️ 좋아요순, 💬 댓글순, 🔄 리포스트순 필터.
-4. **찜 보관함 (`tap_saved_posts`)**: 관심 떡상 레퍼런스 포스팅 찜하기 및 `📁 내 찜 보관함` 서브 탭 관리.
-5. **학습된 페르소나 멀티 AI 캡션 생성**: OpenAI(GPT-4o-mini) 및 Google Gemini(Gemini 1.5 Flash) 멀티 AI 엔진 어댑터와 자취러/에디터/주부/테크리뷰어 페르소나 어댑터 결합 + 법적 필수 제휴 고지 문구 자동 연동.
+**원칙 (다른 서브프로젝트에도 적용)**: 회원에게 "실시간 분석/탐지"로 보여주는 데이터는 반드시 실제 출처에서
+온 값이어야 한다. 예시·AI 생성물은 출처 배지로 명확히 구분하고, 반응 수치를 지어내서 채우지 않는다.
+
+**현재 구현 (2026-09-28)**:
+1. **실제 검색**: Meta 공식 `GET /v1.0/keyword_search`를 회원 본인 연결 토큰으로 호출(TOP/RECENT 정렬, `since` 기간 필터).
+   `threads_keyword_search` 권한이 **앱 심사로 승인되기 전에는 본인 계정 글만** 검색된다(Meta 정책). 권한은 기본
+   연결 스코프에 넣지 않고 opt-in 재연결로 받는다(회원 앱에 권한이 없으면 OAuth 자체가 실패하므로).
+   권한 없는 토큰에 Meta는 코드 1 "An unknown error occurred"를 돌려준다.
+2. **반응 수치 없음**: Threads API는 타인 글의 좋아요·조회수를 주지 않는다. 그래서 반응도 정렬·조회수 배지는
+   제거했고, 원문 permalink로 안내한다. "반응이 폭발 중인 글을 자동으로 골라주는" 탐지는 공식 API로는 불가능하다.
+3. **떡상글 직접 가져오기**: 회원이 링크(선택)+본문(필수)을 붙여넣으면 토큰 없는 공개 oEmbed로 공개 게시글
+   여부만 확인하고 `tap_saved_posts`에 저장한다(oEmbed는 본문 텍스트를 주지 않는다).
+4. **부가 자료는 버튼으로만**: 관련 쿠팡 상품(시간당 호출 제한)과 AI 작성 예시(회원 OpenAI 비용)는 자동 호출하지 않는다.
+5. **페르소나 AI 벤치마킹 캡션 생성**은 원래부터 실제로 동작하던 기능이다. 단, 화면의 모델 선택(GPT-4.1/Gemini 3.x/
+   Claude Sonnet 5 등)과 실제 호출 모델이 다르게 매핑돼 있어(`generateBenchmarkCaptionAction`: gpt-4o, gemini-1.5-*,
+   claude-3-5-sonnet-20241022로 치환) 종료된 모델로 호출돼 실패할 수 있다 — 미해결 과제.
 
 **관련 파일**:
 - `threads-affiliate-poster/src/app/(dashboard)/trends/page.tsx`
 - `threads-affiliate-poster/src/components/trends/TrendsContainer.tsx`
 - `threads-affiliate-poster/src/components/trends/ViralPostDetector.tsx`
 - `threads-affiliate-poster/src/lib/actions/viral.ts`
+- `threads-affiliate-poster/src/lib/threads/client.ts` (`searchThreadsByKeyword`, opt-in 스코프)
 - `threads-affiliate-poster/supabase/migrations/0002_tap_trends_bookmarks_personas.sql`
 ---
 

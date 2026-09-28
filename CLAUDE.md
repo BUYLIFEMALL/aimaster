@@ -178,7 +178,7 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
   화면(GitHub 웹의 정확한 경로, 다른 로컬 클론, Vercel 대시보드 등)이 이 저장소·이 로컬 작업
   폴더와 다른 곳일 가능성이 높다 — 그 지점을 콕 집어 물어봐서 좁혀나간다.
 - **2026-09-26 최근 작업 업데이트**:
-  - `threads-affiliate-poster` 서브프로젝트 트렌드 페이지(/trends) 5대 바이럴 떡상 탐지기 개편 완료 (조회수/기간 필터, 다이소/코스트코/돈키호테 핫 브랜딩 칩, 반응도 정렬, 찜 보관함 `tap_saved_posts`, GPT-4o-mini & Gemini 1.5 Flash + 페르소나 `tap_personas` 벤치마킹 캡션 생성 엔진).
+  - `threads-affiliate-poster` 트렌드 페이지(/trends) 개편 — **2026-09-28 정정: 조회수·반응도 정렬·실시간 탐지는 지어낸 샘플 데이터였고 실제로 동작하지 않았다.** 지금은 Meta 공식 `keyword_search` API(앱 심사 전에는 본인 글만) + "떡상글 직접 가져오기" + 출처 배지로 재구현됨. 상세: `docs/PLATFORM_PATTERNS.md` §24.
   - 관리자 프롬프트 추천 페이지(`admin/prompts`) 카테고리 연동 및 `ai-image-studio` 3D/애니메이션 화풍 추가.
 - **Electron 등 독립 실행형 데스크톱 앱 서브프로젝트를 추가하면 루트 `.vercelignore`에도
   등록할 것.** 루트 AIMaster 앱을 `vercel deploy`할 때 Vercel CLI가 `.gitignore`를
