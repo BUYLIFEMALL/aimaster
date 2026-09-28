@@ -130,7 +130,7 @@ export default async function DashboardPage() {
               </Link>
             </h3>
             <p className="text-[11px] text-neutral-600 leading-relaxed">
-              실시간 바이럴 떡상글 탐지 &amp; 10종 AI 페르소나(자취러, 쇼핑에디터 등)를 선택해 캡션을 생성합니다.
+              Threads 키워드 검색·떡상글 직접 가져오기로 참고 글을 모으고, 10종 AI 페르소나(자취러, 쇼핑에디터 등)를 선택해 캡션을 생성합니다.
             </p>
           </div>
 

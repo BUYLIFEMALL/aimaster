@@ -14,7 +14,7 @@ const FLOW_STEPS = [
     href: "/trends",
     icon: "🔥",
     label: "트렌드 & 떡상 탐지기",
-    description: "바이럴 떡상글 탐지 & AI 벤치마킹",
+    description: "떡상글 검색·수집 & AI 벤치마킹",
   },
   {
     step: 2,

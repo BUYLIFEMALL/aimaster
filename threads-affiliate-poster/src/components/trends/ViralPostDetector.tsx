@@ -358,7 +358,7 @@ export function ViralPostDetector() {
               <h3 className="font-bold text-base text-neutral-900">학습된 AI 페르소나 스타일 모음</h3>
             </div>
             <p className="text-xs text-neutral-600 leading-relaxed">
-              Threads 포스팅 생성 시 적용할 페르소나(글쓰기 어조 및 인격)를 미리 확인하고 선택해보세요. OpenAI GPT-4o-mini 및 Google Gemini 1.5 엔진이 선택된 페르소나에 맞춰 떡상 바이럴 캡션을 자동 생성합니다.
+              Threads 포스팅 생성 시 적용할 페르소나(글쓰기 어조 및 인격)를 미리 확인하고 선택해보세요. 벤치마킹 캡션 생성 시 선택한 AI 엔진(OpenAI / Gemini / Claude)이 이 페르소나의 어조에 맞춰 캡션을 작성합니다.
             </p>
           </div>
 
