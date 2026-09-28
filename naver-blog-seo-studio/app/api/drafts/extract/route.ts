@@ -107,14 +107,21 @@ export async function POST(request: Request) {
   if (!input?.confirmedRights) return NextResponse.json({ error: "재가공 권한이 있는 글인지 확인해주세요." }, { status: 400 });
   if (!input.url?.trim() || input.url.trim().length > 2_000) return NextResponse.json({ error: "가져올 블로그 주소를 입력해주세요." }, { status: 400 });
 
+  const requestedUrl = /^https?:\/\//i.test(input.url.trim()) ? input.url.trim() : `https://${input.url.trim()}`;
+  let host = "unknown";
+  let stage = "validate-url";
   try {
-    let url = await assertPublicUrl(input.url.trim());
+    let url = await assertPublicUrl(requestedUrl);
+    host = url.hostname;
+    console.info("[drafts/extract] request accepted", { host });
     for (let redirects = 0; redirects < 4; redirects += 1) {
+      stage = "fetch-page";
       const response = await fetch(url, {
         redirect: "manual",
         headers: { "User-Agent": "AIMaster-SEO-Studio/1.0 (+https://www.buylife.xyz)" },
         signal: AbortSignal.timeout(12_000),
       });
+      console.info("[drafts/extract] response received", { host: url.hostname, status: response.status, contentType: response.headers.get("content-type") ?? "" });
       if (response.status >= 300 && response.status < 400) {
         const location = response.headers.get("location");
         if (!location) throw new Error("리디렉션 주소를 확인할 수 없습니다.");
@@ -123,12 +130,16 @@ export async function POST(request: Request) {
       }
       if (!response.ok) throw new Error(`글을 가져오지 못했습니다. (${response.status})`);
       if (!response.headers.get("content-type")?.includes("text/html")) throw new Error("HTML 블로그 글 주소만 가져올 수 있습니다.");
+      stage = "extract-body";
       const article = extractArticle(await readLimited(response));
       if (article.body.length < 50) throw new Error("본문을 충분히 찾지 못했습니다. 글을 직접 붙여넣어주세요.");
+      console.info("[drafts/extract] article extracted", { host: url.hostname, characters: article.body.length });
       return NextResponse.json({ article: { ...article, url: url.toString() } });
     }
     throw new Error("리디렉션이 너무 많습니다.");
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "글을 가져오는 중 오류가 발생했습니다." }, { status: 400 });
+    const message = error instanceof Error ? error.message : "글을 가져오는 중 오류가 발생했습니다.";
+    console.error("[drafts/extract] failed", { host, stage, message });
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
