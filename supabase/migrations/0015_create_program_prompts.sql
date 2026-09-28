@@ -27,9 +27,9 @@ CREATE POLICY "Allow public read access for active prompts"
     FOR SELECT
     USING (true);
 
--- Allow authenticated users to insert/update/delete (Admin managed)
-CREATE POLICY "Allow authenticated full access to program_prompts"
+-- Writes are admin-only; the admin API routes use the service role key (bypasses RLS).
+CREATE POLICY "Admins manage program_prompts"
     ON public.program_prompts
     FOR ALL
-    USING (auth.role() = 'authenticated')
-    WITH CHECK (auth.role() = 'authenticated');
+    USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.is_admin))
+    WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.is_admin));

@@ -19,15 +19,8 @@ CREATE POLICY "Allow public read style_preset_prompts"
   ON public.style_preset_prompts FOR SELECT
   USING (true);
 
--- Allow authenticated users to insert/update/delete (or admin service role)
-CREATE POLICY "Allow authenticated insert style_preset_prompts"
-  ON public.style_preset_prompts FOR INSERT
-  WITH CHECK (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated update style_preset_prompts"
-  ON public.style_preset_prompts FOR UPDATE
-  USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated delete style_preset_prompts"
-  ON public.style_preset_prompts FOR DELETE
-  USING (auth.role() = 'authenticated');
+-- Writes are admin-only at the DB level; the app's API routes use the service role key.
+CREATE POLICY "Admins manage style_preset_prompts"
+  ON public.style_preset_prompts FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.is_admin))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.is_admin));

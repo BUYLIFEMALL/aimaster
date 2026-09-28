@@ -5,4 +5,7 @@ BEGIN
     DELETE FROM public.user_image_generations
     WHERE created_at < (NOW() - (days_old || ' days')::INTERVAL);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Deletes every user's rows, so it must not be callable through the public RPC API.
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_user_image_generations(INT) FROM PUBLIC, anon, authenticated;
