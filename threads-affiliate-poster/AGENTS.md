@@ -124,6 +124,9 @@ vercel deploy --prod --yes
      기준 권한 상태(공개 글 가능/본인 글만/미확인)를 칩으로 표시(DB에 저장하지 않고 검색 결과로 판정 — 작성자 필터가 본인 아이디면 판정 제외).
      승인 회원용 검색 옵션: `search_mode`(KEYWORD/TAG), `media_type`(TEXT/IMAGE/VIDEO), `author_username`(영문·숫자·_·. 1~30자 검증), limit 50.
      코드 변경 없이 회원 앱이 승인되면 바로 타인 글이 나오는 구조다.
+     B 칸에는 회원용 **"비즈니스 앱 승인 절차 매뉴얼"**(`platform_guides` id `ae85d991-d907-4349-809e-818a6b3a2f54`,
+     https://www.buylife.xyz/guides/ae85d991-d907-4349-809e-818a6b3a2f54) 팝업 버튼이 있다 — 준비물·기본 설정·콜백 3개·권한 추가·테크 제공업체·
+     비즈니스/액세스 인증·데이터 처리 질문·영문 제출 문구·승인 후 순서. 절차가 바뀌면 이 매뉴얼(DB)과 `docs/META_APP_REVIEW.md`를 함께 고칠 것.
    - **"떡상글 직접 가져오기"**(`importViralPostAction`): 앱 심사 전에도 타인 글로 벤치마킹할 수 있게, 회원이 링크(선택)+본문(필수)을 붙여넣으면 `tap_saved_posts`에 저장한다. 링크는 토큰 없이 호출되는 공개 oEmbed(`graph.threads.net/v1.0/oembed`)로 공개 게시글 여부만 확인한다 — oEmbed는 본문 텍스트를 주지 않으므로 본문은 회원이 붙여넣는다. `post_id`가 `mn-<shortcode>`면 `https://www.threads.com/t/<shortcode>`로 원문 링크를 복원하고, 링크 없이 가져온 글은 `mn-x-<uuid>`.
    - 회원별 Threads 앱 ID/시크릿은 **`threads_app_id`/`threads_app_secret`**에 저장한다(2026-09-28 분리, 쓰레드 3개 프로그램 공통). 그전에는 인스타 프로그램들과 같은 `meta_app_id` 칸을 공유해서, 인스타 앱 ID나 Meta 상단 앱 ID가 덮어쓰면 OAuth가 `error_code=4476002`("앱 ID가 전송되지 않았습니다")로 실패했다. 값은 반드시 앱 설정 > 기본 설정 **하단의 Threads 앱 ID**여야 한다. 인스타 프로그램은 계속 `meta_app_id`를 쓴다. 마이그레이션: 루트 `supabase/migrations/0017_split_threads_app_credentials.sql`.
 
