@@ -153,9 +153,9 @@ export function CoupangProductForm({
       {searchError && <p className="text-xs text-red-600">{searchError}</p>}
 
       <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
-        <p className="text-sm font-bold text-neutral-900">🛒 쿠팡 API키 발급을 못받은 경우 직접 등록방법</p>
+        <p className="text-sm font-bold text-neutral-900">🛒 쿠팡 API키가 없는 경우 직접 등록방법</p>
         <p className="text-xs text-neutral-500">
-          API 키 없이도 쿠팡파트너스 사이트에서 만든 본인 제휴 링크로 상품을 등록할 수 있어요. 사진·상품명까지 자동으로 채워집니다.
+          쿠팡파트너스의 제휴링크로 상품을 등록할 수 있습니다. 사진·상품명까지 자동으로 채워집니다.
         </p>
         <ol className="space-y-1.5 rounded-md bg-amber-50 p-3 text-xs leading-relaxed text-neutral-800">
           <li>
@@ -171,20 +171,19 @@ export function CoupangProductForm({
             에서 등록할 상품을 찾아 <b>[링크 생성]</b>을 누릅니다.
           </li>
           <li>
-            <b>2단계.</b> 화면 아래 <b>[이미지 + 텍스트]</b> 영역의 HTML에서 <b>&quot;블로그용 태그&quot;</b>를 선택합니다. (&quot;일반태그&quot;는 쿠팡이 막아서 읽을 수 없어요)
+            <b>2단계.</b> 화면 아래 <b>[이미지 + 텍스트]</b> 영역의 HTML에서 <b>&quot;블로그용 태그&quot;</b>를 선택합니다.
           </li>
           <li>
             <b>3단계.</b> <b>[HTML 복사]</b> 버튼을 누릅니다.
           </li>
           <li>
-            <b>4단계.</b> 복사한 코드를 아래 <b>링크 입력칸</b>에 붙여넣습니다 → 상품명·사진이 자동으로 채워져요.
+            <b>4단계.</b> 복사한 코드를 아래 <b>링크 입력칸</b>에 붙여넣으면 상품명·사진은 자동 채워집니다.
           </li>
           <li>
             <b>5단계.</b> <b>[이 링크로 등록]</b>을 누르면 끝!
           </li>
           <li className="pt-1 text-[11px] text-neutral-500">
-            ※ 단축 URL(link.coupang.com/a/…)만 붙여넣어도 등록은 되지만, 이 경우 사진은 직접 올려야 합니다.
-            <br />※ 일반 쿠팡 쇼핑 주소(coupang.com/vp/products/…)는 수수료가 잡히지 않아 등록되지 않습니다.
+            ※ 일반 쿠팡 쇼핑 주소(coupang.com/vp/products/…)는 등록되지 않습니다.
           </li>
         </ol>
         <Input
