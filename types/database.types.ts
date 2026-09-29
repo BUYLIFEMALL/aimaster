@@ -52,6 +52,7 @@ export interface Program {
   thumbnail_url: string | null;
   video_url: string | null;
   images: string[];
+  version: string;
   is_active: boolean;
   sort_order: number;
   created_at: string;

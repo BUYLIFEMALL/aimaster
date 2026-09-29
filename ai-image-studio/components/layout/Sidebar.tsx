@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { APP_VERSION } from "@/lib/version";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
@@ -36,6 +37,7 @@ export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
       <div className="md:min-h-0 md:overflow-y-auto">
         <div className="mb-4 md:mb-6 px-2">
           <div className="text-lg font-bold text-white tracking-tight">AI 이미지 스튜디오</div>
+          <p className="text-xs text-zinc-500">{APP_VERSION}</p>
           <a
             href={`${MAIN_SITE_URL}/programs`}
             className="block text-xs text-zinc-400 hover:text-amber-400 transition-colors mt-0.5"

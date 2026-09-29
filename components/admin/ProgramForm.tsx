@@ -132,6 +132,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
   const [appUrl, setAppUrl] = useState(program?.app_url ?? "");
   const [isActive, setIsActive] = useState(program?.is_active ?? true);
   const [sortOrder, setSortOrder] = useState(String(program?.sort_order ?? 0));
+  const [version, setVersion] = useState(program?.version ?? "v1.01");
   const [affiliateRate, setAffiliateRate] = useState("10");
 
   const [plans, setPlans] = useState<PricingPlanInput[]>(
@@ -249,6 +250,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
     setError("");
     setLoading(true);
     if (!name || !slug) { setError("프로그램명과 슬러그는 필수입니다."); setLoading(false); return; }
+    if (!/^v\d+\.\d{2}$/.test(version)) { setError("버전은 v1.01처럼 'v숫자.두자리숫자' 형식으로 입력해주세요."); setLoading(false); return; }
 
     try {
       const programData = {
@@ -263,6 +265,7 @@ export default function ProgramForm({ program }: ProgramFormProps) {
         app_url: appUrl || null,
         is_active: isActive,
         sort_order: parseInt(sortOrder) || 0,
+        version,
       };
 
       let programId = program?.id;
@@ -482,6 +485,11 @@ export default function ProgramForm({ program }: ProgramFormProps) {
             <FieldRow label="정렬 순서">
               <input type="number" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}
                 className="input-dark w-32" placeholder="0" />
+            </FieldRow>
+            <FieldRow label="버전">
+              <input value={version} onChange={(e) => setVersion(e.target.value.trim())}
+                className="input-dark w-32" placeholder="v1.01" />
+              <p className="text-xs text-subtext mt-1">수정할 때마다 v1.01 → v1.02, 큰 변경은 v2.01 (프로그램 코드의 lib/version.ts와 같은 값)</p>
             </FieldRow>
           </div>
         </div>

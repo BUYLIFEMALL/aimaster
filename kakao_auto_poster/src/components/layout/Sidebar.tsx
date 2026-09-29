@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
+import { APP_VERSION } from "@/lib/version";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
@@ -57,6 +58,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <div className="px-2 text-lg font-semibold text-neutral-900">
             카카오톡 뉴스레터 자동화
           </div>
+          <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
           <a
             href={`${MAIN_SITE_URL}/programs`}
             className="block px-2 text-xs text-neutral-500 hover:text-neutral-900"

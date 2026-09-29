@@ -161,6 +161,11 @@ export default async function ProgramDetailPage({ params }: PageProps) {
                 {requiredGrade.name} 이상
               </span>
             )}
+            {program.version && (
+              <span className="text-xs px-2 py-0.5 rounded-full border border-white/15 text-subtext">
+                {program.version}
+              </span>
+            )}
           </div>
           <h1 className="text-3xl md:text-4xl font-black text-white mt-2 mb-4">
             {program.name}

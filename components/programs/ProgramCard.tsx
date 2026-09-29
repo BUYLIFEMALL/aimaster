@@ -69,10 +69,13 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
-        {program.category && (
-          <span className="text-xs text-gold/70 font-medium mb-1">
-            {program.category.name}
-          </span>
+        {(program.category || program.version) && (
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="text-xs text-gold/70 font-medium">{program.category?.name}</span>
+            {program.version && (
+              <span className="text-[11px] text-subtext">{program.version}</span>
+            )}
+          </div>
         )}
         <h3 className="text-white font-semibold text-base mb-2 line-clamp-2 leading-snug">
           {program.slug.includes("tarot") || program.name.includes("타로")
