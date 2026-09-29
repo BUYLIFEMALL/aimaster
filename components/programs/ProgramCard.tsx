@@ -29,11 +29,7 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
     <GlassCard hover className="flex flex-col h-full p-0 overflow-hidden">
       {/* Thumbnail */}
       {(() => {
-        const thumbnailUrl =
-          program.thumbnail_url ||
-          (program.slug.includes("tarot") || program.name.includes("타로")
-            ? "/images/tarot-thumbnail.png"
-            : null);
+        const thumbnailUrl = program.thumbnail_url;
 
         return (
           <div className="relative aspect-video bg-white/5 overflow-hidden">

@@ -19,7 +19,7 @@ export default async function LandingPage() {
       <div className="relative group overflow-hidden rounded-3xl border border-purple-500/20 bg-gradient-to-b from-indigo-950/80 to-neutral-900 shadow-2xl p-2 transition-all duration-300 hover:border-purple-500/40">
         <div className="relative w-full aspect-[16/9] overflow-hidden rounded-2xl">
           <Image
-            src="/tarot-main-thumbnail.png"
+            src="/tarot-main-thumbnail.jpg"
             alt="AIMaster AI 타로점 대표 비주얼 썸네일"
             fill
             priority
