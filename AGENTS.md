@@ -451,6 +451,23 @@ vercel deploy --prod --yes --scope buylife
   수 있다 — Supabase Storage 대신 이 방법을 쓴 이유는 무료·용량 걱정 없음(private 저장소가
   아니라 그냥 public repo의 릴리스 기능).
 
+### 2026-09-29 추가 (좌측 사이드바 계정 표시 통일)
+
+- **모든 서브프로젝트의 `Sidebar.tsx`는 "로그인 계정 + 로그아웃"이 항상 좌측 하단에 보이는
+  고정형 구조를 쓴다.** 예전엔 사이드바가 `md:h-full`/`md:min-h-screen`이라 긴 페이지(예: TAP
+  `/trends`)에서 사이드바가 본문 길이만큼 늘어나 계정 영역이 화면 맨 아래로 밀려 안 보였다.
+  기준 구현은 `threads-affiliate-poster/src/components/layout/Sidebar.tsx`:
+  `<aside>`에 `md:sticky md:top-0 md:h-screen md:shrink-0 md:justify-between`, 메뉴 영역
+  `<div className="md:min-h-0 md:flex-1 md:overflow-y-auto">`(메뉴만 스크롤), 계정 영역
+  `<div className="mt-4 shrink-0 border-t ... pt-4">`. 2026-09-29 이 구조를 20개 서브프로젝트
+  (naver-blog-seo-studio 제외 — Codex 작업 중)에 일괄 적용했다. **새 서브프로젝트의 사이드바도
+  이 구조를 그대로 복사할 것.**
+- `ai-image-studio`는 계정 블록이 메뉴 영역 안에 붙어 있었고, 이메일이 없으면
+  `buylifemall@naver.com`이 대신 표시되는 하드코딩 기본값이 있어 함께 제거했다.
+- `longtail-keyword-expander`는 로컬 `node_modules`의 `@supabase/supabase-js`가 2.95.3으로
+  `package.json`(^2.110.8)보다 오래돼 `seed.engine` 타입 에러로 로컬 빌드가 실패했었다 —
+  `npm install`로 해결(코드 문제 아님). 로컬 빌드만 타입 에러가 나면 먼저 설치 버전부터 확인할 것.
+
 ---
 
 ## 11. 참고 인프라 정보

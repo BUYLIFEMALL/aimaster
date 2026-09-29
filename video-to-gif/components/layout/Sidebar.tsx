@@ -11,8 +11,9 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const dashboardActive = pathname === "/dashboard" || pathname?.startsWith("/dashboard/");
 
   return (
-    <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:min-h-screen md:w-64 md:justify-between md:border-b-0 md:border-r">
-      <div>
+    <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:w-64 md:justify-between md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:shrink-0">
+      {/* On long pages the account footer must stay in view, so only the menu area scrolls. */}
+      <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
         <div className="mb-4 md:mb-6">
           <Link href="/dashboard" className="block px-2 text-lg font-semibold text-neutral-900">
             상세페이지 GIF 자동화
@@ -46,7 +47,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </div>
       </div>
 
-      <div className="mt-4 border-t border-neutral-200 pt-4 md:mt-0">
+      <div className="mt-4 shrink-0 border-t border-neutral-200 pt-4">
         <p className="mb-2 truncate px-2 text-xs text-neutral-500">{userEmail}</p>
         <form action={signOutAction}>
           <button type="submit" className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-100">

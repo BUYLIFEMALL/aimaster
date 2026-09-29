@@ -27,12 +27,13 @@ const UTILITY_ITEMS = [
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
 ];
 
-export function Sidebar({ userEmail = "buylifemall@naver.com" }: { userEmail?: string }) {
+export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-col border-b border-zinc-800 bg-zinc-950 p-4 md:min-h-screen md:w-64 border-r shrink-0">
-      <div>
+    <aside className="flex w-full flex-col border-b border-zinc-800 bg-zinc-950 p-4 md:w-64 border-r shrink-0 md:sticky md:top-0 md:h-screen md:justify-between">
+      {/* On long pages the account footer must stay in view, so only the menu area scrolls. */}
+      <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
         <div className="mb-4 md:mb-6 px-2">
           <div className="text-lg font-bold text-white tracking-tight">AI 이미지 스튜디오</div>
           <a
@@ -128,17 +129,16 @@ export function Sidebar({ userEmail = "buylifemall@naver.com" }: { userEmail?: s
             );
           })}
         </div>
+      </div>
 
-        {/* Logged in Email & Logout Block immediately attached below */}
-        <div className="mt-4 border-t border-zinc-800/80 pt-4">
-          <p className="mb-2 truncate px-2 text-xs font-medium text-zinc-400">{userEmail}</p>
-          <a
-            href={`${MAIN_SITE_URL}/logout`}
-            className="block w-full rounded-lg px-2 py-1 text-left text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
-          >
-            로그아웃
-          </a>
-        </div>
+      <div className="mt-4 shrink-0 border-t border-zinc-800/80 pt-4">
+        <p className="mb-2 truncate px-2 text-xs font-medium text-zinc-400">{userEmail}</p>
+        <a
+          href={`${MAIN_SITE_URL}/logout`}
+          className="block w-full rounded-lg px-2 py-1 text-left text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+        >
+          로그아웃
+        </a>
       </div>
     </aside>
   );
