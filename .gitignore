@@ -7,3 +7,9 @@ node_modules
 #.threads ignored removed
 
 .vercel
+
+# bkit plugin auto-generated session state (local only)
+.bkit/
+**/.bkit-memory.json
+**/.pdca-status.json
+**/.pdca-snapshots/
