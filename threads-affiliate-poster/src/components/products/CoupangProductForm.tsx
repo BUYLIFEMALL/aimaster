@@ -197,7 +197,7 @@ export function CoupangProductForm({
             setManualUrl(e.target.value);
             applyPastedCode(e.target.value);
           }}
-          placeholder='https://link.coupang.com/a/...  또는  <a href="https://link.coupang.com/a/..."><img ...></a>'
+          placeholder='<a href="https://link.coupang.com/a/..."><img ...></a>'
         />
         {isLookingUp && <p className="text-xs text-neutral-500">코드에서 상품 사진을 만드는 중...</p>}
         {manualInfo && (
