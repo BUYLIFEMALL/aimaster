@@ -5,6 +5,7 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
+import { checkCoupangAffiliateLink, COUPANG_LINK_MESSAGES } from "@/lib/coupang/links";
 import { getPromotionLinks, getProductDetails, extractAliexpressProductId, resolveAliexpressUrl } from "@/lib/aliexpress/client";
 import {
   getBestSelling,
@@ -97,6 +98,9 @@ export async function registerCoupangProductAction(
   if (!productName || !productUrl) {
     return { error: "상품 정보가 올바르지 않습니다. 다시 검색해서 선택하거나 URL을 입력해주세요." };
   }
+  // Same check as the form: a plain store URL would be saved as the "affiliate" link and earn nothing.
+  const linkCheck = checkCoupangAffiliateLink(productUrl);
+  if (!linkCheck.ok) return { error: COUPANG_LINK_MESSAGES[linkCheck.reason] };
 
   const supabase = await createClient();
   const enrichment = parseEnrichmentFields(formData);

@@ -62,6 +62,11 @@
 - 쿠팡은 API의 `productUrl`이 **회원 본인 제휴 추적 링크**라 미리보기로 열면 제휴 클릭으로 잡힐 수 있으므로, 일반 상품 페이지 `https://www.coupang.com/vp/products/{productId}`를 연다. 미리보기에 제휴 링크를 쓰지 말 것.
 - 토스는 목록에 `productUrl`이 없으면 `https://toss.shopping/t/{tacaItemId}`를 연다(등록된 토스 상품의 원본 주소가 이 형태이고 공유 키 없이 열림 확인). 목록 번호와 페이지 번호가 같은지는 실제 목록에서 한 번 더 확인 필요.
 
+## 쿠팡 링크 직접 등록 검사 (2026-09-30, v1.07)
+
+- 파트너스 사이트(partners.coupang.com [링크 생성])에서 만든 링크는 "쿠팡 상품 URL 직접 입력 → 이 링크로 등록"으로 등록한다. 검색 API는 키워드당 10개·시간당 10회라 사이트보다 상품이 적다.
+- `src/lib/coupang/links.ts`의 `checkCoupangAffiliateLink()`가 화면과 서버(`registerCoupangProductAction`) 양쪽에서 링크를 검사한다: `link.coupang.com/...` 또는 `lptag=AF...`가 붙은 주소만 허용, 일반 쇼핑 주소(`www/m.coupang.com/...`)는 수수료가 안 잡히므로 경고하고 등록을 막는다.
+
 ## 떡상글 탐지기 (/trends)
 
 > ⚠️ 2026-09-28 정정: 이전에 "5대 바이럴 떡상 탐지기"로 소개된 조회수 배지·반응도 정렬·실시간 검색은 하드코딩

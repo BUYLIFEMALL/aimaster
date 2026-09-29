@@ -2,6 +2,7 @@
 
 import { useActionState, useState, useTransition, useEffect } from "react";
 import { ProductPreviewButton } from "@/components/products/ProductPreviewButton";
+import { checkCoupangAffiliateLink, COUPANG_LINK_MESSAGES } from "@/lib/coupang/links";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
@@ -74,6 +75,11 @@ export function CoupangProductForm({
     setManualError(null);
     if (!manualUrl.trim()) {
       setManualError("쿠팡 상품 URL을 입력해주세요.");
+      return;
+    }
+    const linkCheck = checkCoupangAffiliateLink(manualUrl);
+    if (!linkCheck.ok) {
+      setManualError(COUPANG_LINK_MESSAGES[linkCheck.reason]);
       return;
     }
     handleSelect({
