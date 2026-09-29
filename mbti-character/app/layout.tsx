@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { KakaoScript } from "@/components/KakaoScript";
 import { getSessionUser } from "@/lib/auth";
 import { signOutAction } from "@/lib/actions/auth";
+import { APP_VERSION } from "@/lib/version";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -30,9 +31,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <KakaoScript />
         <div className="min-h-screen flex flex-col">
           <header className="px-4 py-3 flex items-center justify-between max-w-xl mx-auto w-full">
-            <a href="/" className="font-black text-lg text-neutral-900">
-              🎭 캐릭코드
-            </a>
+            <div className="flex items-center gap-2">
+              <a href="/" className="font-black text-lg text-neutral-900">
+                🎭 캐릭코드
+              </a>
+              <span className="text-xs text-neutral-400">{APP_VERSION}</span>
+            </div>
             <div className="flex flex-col items-end gap-0.5">
               <a
                 href={`${MAIN_SITE_URL}/programs`}

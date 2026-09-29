@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { KakaoScript } from "@/components/KakaoScript";
+import { APP_VERSION } from "@/lib/version";
 import "./globals.css";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mbti-rho-two.vercel.app";
@@ -23,9 +24,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <KakaoScript />
         <div className="min-h-screen flex flex-col">
           <header className="px-4 py-3 flex items-center justify-between max-w-xl mx-auto w-full">
-            <a href="/" className="font-black text-lg text-neutral-900">
-              🔑 성격코드
-            </a>
+            <div className="flex items-center gap-2">
+              <a href="/" className="font-black text-lg text-neutral-900">
+                🔑 성격코드
+              </a>
+              <span className="text-xs text-neutral-400">{APP_VERSION}</span>
+            </div>
             <a
               href={`${MAIN_SITE_URL}/programs`}
               className="text-xs text-neutral-400 hover:text-neutral-700"

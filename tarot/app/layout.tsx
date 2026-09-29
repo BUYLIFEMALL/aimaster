@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { KakaoScript } from "@/components/KakaoScript";
 import { getSessionUser } from "@/lib/auth";
 import { signOutAction } from "@/lib/actions/auth";
+import { APP_VERSION } from "@/lib/version";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <a href="/" className="font-black text-lg text-neutral-900 flex items-center gap-1.5">
                 🔮 AIMaster 타로점
               </a>
+              <span className="text-xs text-neutral-400">{APP_VERSION}</span>
               {user && (
                 <a
                   href="/history"

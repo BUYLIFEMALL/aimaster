@@ -3,6 +3,7 @@ import { AccountBar } from "@/components/AccountBar";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getRegisteredProviders } from "@/lib/apiKeys";
+import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function Home() {
           <h1 className="text-3xl font-black text-gray-900 mb-2">
             AI 상세페이지 자동생성기
           </h1>
+          <p className="text-xs text-gray-400 mb-2">{APP_VERSION}</p>
           <p className="text-gray-500 text-base">
             제품 이미지와 정보를 입력하면<br />
             AI가 고객의 마음을 사로잡는 상세페이지를 만들어 드려요
