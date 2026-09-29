@@ -39,6 +39,13 @@
       <button id="refreshWebDrafts" class="secondary">웹 초안 새로고침</button>
       <button id="loadWebDraft" class="secondary">선택한 웹 초안 불러오기</button>
       <div id="webDraftStatus" class="status">대기 중</div>
+      <div id="webDraftPreview" class="web-draft-preview" hidden>
+        <strong>선택한 웹 초안 미리보기</strong>
+        <p id="webDraftPreviewTitle" class="web-draft-preview-title"></p>
+        <textarea id="webDraftPreviewBody" rows="10" readonly aria-label="불러온 웹 초안 본문"></textarea>
+        <div id="webDraftImagePreview" class="web-draft-image-preview" hidden><strong>대표 이미지</strong><img id="webDraftCoverImage" alt="불러온 대표 이미지"></div>
+        <div id="webDraftContentImagePreview" class="web-draft-content-image-preview" hidden><strong>본문 이미지</strong><div id="webDraftContentImageList"></div></div>
+      </div>
       <div id="webDraftTagSuggestion" class="draft-tag-suggestion" hidden>
         <strong>초안 추천 태그</strong><span id="webDraftTagList"></span>
         <button id="applyWebDraftTags" class="secondary">추천 태그를 발행 정보에 넣기</button>

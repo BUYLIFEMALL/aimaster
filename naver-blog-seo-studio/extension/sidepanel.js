@@ -45,6 +45,7 @@ function formatWebDraftLabel(draft) {
 }
 
 async function refreshWebDrafts() {
+  clearWebDraftPreview();
   const token = await getToken();
   if (!token) throw new Error("먼저 SEO Studio 연결 토큰을 입력해주세요.");
   const status = $("webDraftStatus");
@@ -68,6 +69,38 @@ async function refreshWebDrafts() {
   status.textContent = webDrafts.length ? `${webDrafts.length}개의 웹 초안을 불러왔습니다.` : "전송된 웹 초안이 없습니다. 대시보드에서 초안을 보내주세요.";
 }
 
+function clearWebDraftPreview() {
+  $("webDraftPreview").hidden = true;
+  $("webDraftPreviewTitle").textContent = "";
+  $("webDraftPreviewBody").value = "";
+  $("webDraftImagePreview").hidden = true;
+  $("webDraftCoverImage").removeAttribute("src");
+  $("webDraftContentImagePreview").hidden = true;
+  $("webDraftContentImageList").textContent = "";
+}
+
+function renderWebDraftPreview(draft, storedImageLoaded) {
+  $("webDraftPreview").hidden = false;
+  $("webDraftPreviewTitle").textContent = draft.title || "제목 없는 초안";
+  $("webDraftPreviewBody").value = draft.body || "본문이 없습니다.";
+  const coverDataUrl = $("generatedImage").src;
+  $("webDraftImagePreview").hidden = !storedImageLoaded || !coverDataUrl || coverDataUrl === location.href;
+  if (storedImageLoaded && coverDataUrl && coverDataUrl !== location.href) $("webDraftCoverImage").src = coverDataUrl;
+  const imageList = $("webDraftContentImageList");
+  imageList.textContent = "";
+  for (const image of activeWebDraftContentImages) {
+    const item = document.createElement("figure");
+    const imageElement = document.createElement("img");
+    const caption = document.createElement("figcaption");
+    imageElement.src = image.dataUrl;
+    imageElement.alt = image.sentence || "불러온 본문 이미지";
+    caption.textContent = image.sentence || "본문 이미지";
+    item.append(imageElement, caption);
+    imageList.append(item);
+  }
+  $("webDraftContentImagePreview").hidden = activeWebDraftContentImages.length === 0;
+}
+
 async function loadSelectedWebDraft() {
   const draft = webDrafts.find((item) => item.id === $("webDraftList").value);
   if (!draft) throw new Error("불러올 웹 초안을 먼저 선택해주세요.");
@@ -77,6 +110,7 @@ async function loadSelectedWebDraft() {
   $("title").value = draft.title || "";
   $("body").value = draft.body || "";
   clearGeneratedImage();
+  clearWebDraftPreview();
   activeWebDraftContentImages = [];
   activeWebDraftBlocks = [];
   activeWebDraftId = draft.id;
@@ -101,12 +135,13 @@ async function loadSelectedWebDraft() {
     return (block.type === "text" && typeof block.text === "string")
       || (block.type === "image" && ["cover", "content-1", "content-2"].includes(block.slot));
   }) : [];
+  renderWebDraftPreview(draft, storedImageLoaded);
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
   $("webDraftStatus").textContent = storedImageLoaded
-    ? `웹 초안과 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}을 불러왔습니다. 바로 네이버 편집기에 입력할 수 있습니다.`
-    : "웹 초안을 불러왔습니다. 필요하면 대표 이미지를 생성한 뒤 네이버 편집기에 입력하세요.";
+    ? `웹 초안과 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}을 불러왔습니다. 아래 미리보기에서 확인한 뒤 네이버 편집기에 입력하세요.`
+    : "웹 초안을 불러왔습니다. 아래 본문 미리보기를 확인하고, 필요하면 대표 이미지를 생성한 뒤 네이버 편집기에 입력하세요.";
 }
 
 async function reportWebDraftInputResult(status, details = {}) {
