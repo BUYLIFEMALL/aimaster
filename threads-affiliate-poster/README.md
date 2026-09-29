@@ -56,6 +56,12 @@
 - `tap_personas` — 회원이 저장한 "내 페르소나" (user_id, name ≤40자, tone_description ≤500자, sample_writing ≤1,000자 선택, 회원당 최대 20개; `emoji_style`/`is_default` 컬럼은 미사용). 2026-09-29 연결: 커스텀 페르소나 입력 후 "💾 내 페르소나로 저장" → 트렌드 벤치마킹 모달·새 게시글 작성 화면의 공용 `PersonaPicker`(`src/components/personas/`)에서 "내 저장 페르소나" 그룹으로 선택, 트렌드 "AI 페르소나 보관함" 탭에서 삭제. 서버 액션 `src/lib/actions/personas.ts`, 프롬프트 변환 `src/lib/personaTone.ts`(예시 문장은 "말투만 참고"로 전달). 선택 id는 `my-<uuid>`로 프리셋(`p-01`)과 구분.
 - `user_api_keys` — 공용 테이블, provider 추가(`coupang_access_key`/`coupang_secret_key`/`aliexpress_app_key`/`aliexpress_app_secret`/`toss_access_key`/`toss_secret_key`/`toss_publisher_id`)
 
+## 상품 등록 미리보기 (2026-09-30, v1.06)
+
+- 쿠팡 검색 결과·토스 상품 목록의 "선택" 버튼 왼쪽에 **🔍 상세보기** 버튼(`src/components/products/ProductPreviewButton.tsx`)이 있어, 실제 상세페이지를 팝업으로 열어 보고 고를 수 있다.
+- 쿠팡은 API의 `productUrl`이 **회원 본인 제휴 추적 링크**라 미리보기로 열면 제휴 클릭으로 잡힐 수 있으므로, 일반 상품 페이지 `https://www.coupang.com/vp/products/{productId}`를 연다. 미리보기에 제휴 링크를 쓰지 말 것.
+- 토스는 목록에 `productUrl`이 없으면 `https://toss.shopping/t/{tacaItemId}`를 연다(등록된 토스 상품의 원본 주소가 이 형태이고 공유 키 없이 열림 확인). 목록 번호와 페이지 번호가 같은지는 실제 목록에서 한 번 더 확인 필요.
+
 ## 떡상글 탐지기 (/trends)
 
 > ⚠️ 2026-09-28 정정: 이전에 "5대 바이럴 떡상 탐지기"로 소개된 조회수 배지·반응도 정렬·실시간 검색은 하드코딩

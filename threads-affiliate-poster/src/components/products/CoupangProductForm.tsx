@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition, useEffect } from "react";
+import { ProductPreviewButton } from "@/components/products/ProductPreviewButton";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
@@ -145,6 +146,8 @@ export function CoupangProductForm({
                 <p className="truncate text-sm text-neutral-900">{product.productName}</p>
                 <p className="text-xs text-neutral-500">{product.productPrice.toLocaleString()}원</p>
               </div>
+              {/* Plain product page, not productUrl (the member's affiliate link), so previews aren't counted as clicks. */}
+              <ProductPreviewButton url={`https://www.coupang.com/vp/products/${product.productId}`} />
               <Button type="button" variant="secondary" onClick={() => handleSelect(product)}>
                 {selected?.productId === product.productId ? "선택됨" : "선택"}
               </Button>

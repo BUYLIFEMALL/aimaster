@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition } from "react";
+import { ProductPreviewButton } from "@/components/products/ProductPreviewButton";
 import { Button } from "@/components/ui/Button";
 import { EnrichmentFields } from "./EnrichmentFields";
 import {
@@ -152,6 +153,10 @@ export function TossProductForm({
                     {product.price != null ? `${product.price.toLocaleString()}원` : "가격 정보 없음"}
                   </p>
                 </div>
+                {/* List items often lack productUrl; the plain page toss.shopping/t/{tacaItemId} opens without the share key. */}
+                <ProductPreviewButton
+                  url={product.productUrl ?? (product.tacaItemId ? `https://toss.shopping/t/${product.tacaItemId}` : null)}
+                />
                 <Button type="button" variant="secondary" onClick={() => handleSelect(product)}>
                   {isSelected ? "선택됨" : "선택"}
                 </Button>
