@@ -99,6 +99,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   커밋한다. 스테이징 영역(index)도 공유되므로 `git add`/`git rm`으로 올려둔 변경이 다른 도구의 커밋에 섞여 들어갈 수 있다
   (실제로 타로 이미지 삭제가 Codex의 seo-studio 커밋에 포함됨). 스테이징은 커밋 직전에 하고 바로 커밋하며, 주인님이 "다른
   CLI가 작업 중"이라고 한 서브프로젝트는 건드리지 않는다.
+- **작업을 시작할 때 `docs/HANDOFF.md`(지금 멈춰 있는 일·남은 일·다른 CLI가 작업 중인 폴더)를 먼저 확인하고,
+  작업을 끝내면 그 문서의 표를 같은 커밋으로 갱신한다.**
 - **새 서브프로젝트를 시작하거나 기존 서브프로젝트를 이어서 작업할 때는, 코드를 만들기 전에
   반드시 이 루트 `CLAUDE.md`와 해당 서브프로젝트의 `AGENTS.md`/`README.md`를 먼저 확인하고
   그 지침을 그대로 따른다.**
