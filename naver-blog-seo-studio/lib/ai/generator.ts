@@ -53,12 +53,13 @@ export async function generateSeoDraft(params: { apiKey: string; topic: string; 
 선택한 글쓰기 페르소나는 '${params.persona.name}'입니다. 다음 톤과 관점을 일관되게 반영하세요: ${params.persona.toneDescription}
 
 검색 의도를 먼저 추론하고, 독자가 실제로 도움을 얻는 자연스러운 초안을 작성하세요. 제목은 25~40자 안팎으로 핵심 키워드를 한 번만 넣습니다. 본문은 다음 규칙을 반드시 지킵니다.
-1. 첫 문단은 검색 의도에 바로 답하는 2~3문장 요약입니다.
-2. 3~5개의 소제목을 일반 문장으로 작성하고, 소제목 앞뒤에는 빈 줄을 둡니다. 마크다운 기호(#, *, -, ##)와 HTML은 사용하지 않습니다.
-3. 각 문단은 2~4문장, 80~220자 정도로 나누고 문단 사이에는 빈 줄을 하나만 둡니다. 모바일에서 읽기 좋은 호흡을 유지합니다.
-4. 핵심 키워드는 문맥에 맞게 자연스럽게 사용하며 억지 반복·키워드 나열·해시태그는 금지합니다.
-5. 확인되지 않은 수치, 출처, 체험담을 만들지 말고 필요한 곳은 [확인 필요]라고 표시합니다. AI 탐지 회피를 약속하거나 자동 발행을 유도하지 않습니다.
-6. 실시간 검색·뉴스·공식 자료가 제공되지 않았으므로 최신 수치, 정책, 순위, 연도별 사실을 지어내지 마세요. 사용자가 직접 제시한 연도(${explicitYears.join(", ") || "없음"}) 외의 연도는 제목과 본문에 쓰지 마세요. 최신성 검증이 필요한 내용은 [확인 필요]로 표시합니다.
+1. 첫 문단은 검색 의도에 바로 답하는 3~4문장 요약입니다.
+2. 소제목은 4개를 일반 문장으로 작성하고, 소제목 앞뒤에는 빈 줄을 둡니다. 마크다운 기호(#, *, -, ##)와 HTML은 사용하지 않습니다. 소제목은 자연스러운 질문형 또는 판단 기준형 문장으로 씁니다.
+3. 전체 본문은 공백·줄바꿈을 제외하고 반드시 2,000~3,500자입니다. 각 소제목 아래에는 2개 이상의 문단을 두고, 각 문단은 3~5문장으로 충분히 구체적으로 설명합니다. 짧은 요약문으로 끝내지 마세요.
+4. 독자가 실제로 실행할 수 있도록 업무 흐름, 선택 기준, 흔한 실수, 점검 방법을 포함합니다. 주제에 맞는 경우에만 최소 2개의 목록형 문단(• 기호)을 사용합니다. 확인되지 않은 실제 기업명·수치·경험담은 만들지 않습니다.
+5. 핵심 키워드는 제목과 도입부, 관련 소제목에 자연스럽게 반영하며 억지 반복·키워드 나열·해시태그는 금지합니다.
+6. 확인되지 않은 수치, 출처, 체험담을 만들지 말고 필요한 곳은 [확인 필요]라고 표시합니다. AI 탐지 회피를 약속하거나 자동 발행을 유도하지 않습니다.
+7. 실시간 검색·뉴스·공식 자료가 제공되지 않았으므로 최신 수치, 정책, 순위, 연도별 사실을 지어내지 마세요. 사용자가 직접 제시한 연도(${explicitYears.join(", ") || "없음"}) 외의 연도는 제목과 본문에 쓰지 마세요. 최신성 검증이 필요한 내용은 [확인 필요]로 표시합니다.
 
 제목과 본문은 JSON으로만 응답하세요. 형식: {"title":"...","body":"...","seoReport":{"searchIntent":"...","strength":"...","factCheck":"..."}}` },
         { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n전략: ${params.strategy}\n페르소나: ${params.persona.name}${params.sourceContext ? `\n\n기존 글에서 확인한 핵심 내용(새 글의 관점과 구조를 잡는 참고 자료이며 문장을 복제하지 마세요):\n${params.sourceContext}` : ""}\n\n독자가 이 주제를 검색하는 구체적인 질문에 답하고, 실제 사용자가 자신의 경험과 사실을 덧붙일 수 있는 초안으로 작성하세요.` },
@@ -75,6 +76,7 @@ export async function generateSeoDraft(params: { apiKey: string; topic: string; 
   if (!parsed.title || !parsed.body) throw new Error("AI가 제목과 본문을 모두 반환하지 않았습니다.");
   const title = normalizeBlogText(parsed.title).replace(/\n+/g, " ").slice(0, 150);
   const body = normalizeBlogText(parsed.body);
-  if (body.length < 120) throw new Error("AI가 충분한 길이의 본문을 반환하지 않았습니다. 다시 시도해 주세요.");
+  const compactLength = body.replace(/\s/g, "").length;
+  if (compactLength < 2_000) throw new Error(`AI가 완성형 본문 분량을 충족하지 못했습니다. (공백 제외 ${compactLength}자 / 최소 2,000자) 다시 생성해주세요.`);
   return { title, body, seoReport: normalizeSeoReport(parsed.seoReport, body) };
 }

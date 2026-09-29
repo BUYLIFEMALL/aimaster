@@ -473,8 +473,11 @@ export default function StudioPage({ email }: { email: string }) {
       const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, topic: draft.topic || topic, title: draft.title, keywords: draft.keywords.join(", ") || keywords }) });
       const result = await response.json() as { image?: { dataUrl: string; model: string; path?: string; mimeType?: string }; error?: string };
       if (!response.ok || !result.image) throw new Error(result.error || "이미지 생성에 실패했습니다.");
-      setGeneratedImage(result.image);
-      setCurrentDraft({ ...draft, image_path: result.image.path ?? null, image_model: result.image.model, image_mime_type: result.image.mimeType ?? null });
+      const image = result.image;
+      setGeneratedImage(image);
+      setCurrentDraft((current) => current?.id === draft.id
+        ? { ...current, image_path: image.path ?? null, image_model: image.model, image_mime_type: image.mimeType ?? null }
+        : { ...draft, image_path: image.path ?? null, image_model: image.model, image_mime_type: image.mimeType ?? null });
       setMessage("대표 이미지가 생성되었습니다. 다음 단계에서 네이버 편집기에 삽입할 수 있습니다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "이미지 생성에 실패했습니다.");
@@ -490,7 +493,7 @@ export default function StudioPage({ email }: { email: string }) {
       const result = await response.json() as { images?: ContentImage[]; error?: string };
       if (!response.ok || !result.images?.length) throw new Error(result.error || "본문 매칭 이미지를 생성하지 못했습니다.");
       setContentImages(result.images);
-      setCurrentDraft(withoutContentImages(draft));
+      setCurrentDraft((current) => current?.id === draft.id ? withoutContentImages(current) : withoutContentImages(draft));
       setMessage("본문 핵심 문장 2개와 매칭된 이미지가 생성되었습니다. 각 문장 바로 위에 전송됩니다.");
       refreshHistory().catch(() => {});
     } catch (error) {
