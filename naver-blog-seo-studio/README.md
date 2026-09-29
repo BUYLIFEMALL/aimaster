@@ -1,5 +1,11 @@
 # 네이버 블로그 SEO 스튜디오
 
+## 프로그램 버전
+
+- 회원용 앱 버전: `v1.02` (`lib/version.ts`의 `APP_VERSION`과 공용 `programs.version`을 같은 값으로 유지)
+- 작은 기능·화면·버그 수정 배포마다 `0.01` 올립니다. 메이저 버전은 주인님 지시가 있을 때만 올립니다.
+- Chrome 확장 `manifest.json` 버전은 배포 도구용 기술 버전으로 별도 관리합니다.
+
 `naver-blog-auto-poster_app`과 `naver-blog-auto-poster_web`을 수정하지 않고 새로 시작하는 독립 서브프로젝트입니다.
 
 ## 제품 방향

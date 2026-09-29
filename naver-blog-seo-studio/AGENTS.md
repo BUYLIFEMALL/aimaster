@@ -1,5 +1,11 @@
 # 네이버 블로그 SEO 스튜디오 개발 지침
 
+## 프로그램 버전 관리
+
+- 현재 회원용 앱 버전은 `v1.02`이며 `lib/version.ts`의 `APP_VERSION`과 공용 DB `programs.version`을 항상 함께 변경한다.
+- 이 프로젝트를 수정해 배포할 때마다 마이너를 `0.01` 올린다. 메이저 증가는 주인님 지시가 있을 때만 가능하다.
+- Chrome 확장 `manifest.json` 버전은 Chrome 형식 제약에 맞춰 별도로 올리고, 확장 ZIP도 같은 작업에서 다시 생성한다.
+
 이 문서는 루트 `../CLAUDE.md`, `../AGENTS.md`, `../docs/PLATFORM_PATTERNS.md`를 전제로 하는 신규 프로그램 전용 지침입니다.
 
 ## 제품 경계

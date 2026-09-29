@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { DEFAULT_SEO_PERSONA_ID, SEO_PERSONAS } from "@/lib/ai/personas";
+import { APP_VERSION } from "@/lib/version";
 
 const strategies = [
   ["C-Rank 기본", "전문성과 실제 경험 중심의 일반 SEO 초안"],
@@ -636,6 +637,7 @@ export default function StudioPage({ email }: { email: string }) {
         <div>
           <div className="brand"><em>SEO블로그</em> 스튜디오</div>
           <div className="brand-sub">네이버 블로그 콘텐츠 제작 도우미</div>
+          <div className="app-version">{APP_VERSION}</div>
         </div>
         <nav className="nav" aria-label="주 메뉴">
           <button type="button" className={`nav-link ${activeMenu === "title" ? "active" : ""}`} aria-current={activeMenu === "title" ? "page" : undefined} onClick={() => openMenu("title")}>제목 추천</button>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { APP_VERSION } from "@/lib/version";
 
 const flow = [
   ["/dashboard#title", "1", "제목 추천", "검색 의도 분석"],
@@ -15,6 +16,7 @@ export default function SettingsSidebar({ email }: { email: string | null }) {
   return <aside className="reference-sidebar">
     <div>
       <div className="reference-brand"><strong>SEO블로그</strong> 스튜디오</div>
+      <div className="app-version">{APP_VERSION}</div>
       <Link className="reference-back" href="https://www.buylife.xyz/programs">← 다른 프로그램 보기</Link>
       <nav className="reference-nav" aria-label="프로그램 메뉴">
         <Link className="reference-overview" href="/dashboard">▣ 대시보드</Link>
