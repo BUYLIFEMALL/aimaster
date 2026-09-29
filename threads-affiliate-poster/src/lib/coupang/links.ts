@@ -16,12 +16,56 @@ export function checkCoupangAffiliateLink(raw: string): CoupangLinkCheck {
     return { ok: false, reason: "invalid" };
   }
   const host = url.hostname.toLowerCase();
-  if (host === "link.coupang.com") return { ok: true };
+  if (host === "link.coupang.com" || host === "coupa.ng") return { ok: true };
   if (host === "coupang.com" || host.endsWith(".coupang.com")) {
     const lptag = url.searchParams.get("lptag") ?? "";
     return /^AF/i.test(lptag) ? { ok: true } : { ok: false, reason: "plain_store_url" };
   }
   return { ok: false, reason: "not_coupang" };
+}
+
+export interface ParsedCoupangShare {
+  url: string;
+  imageUrl?: string;
+  name?: string;
+}
+
+function decodeEntities(value: string): string {
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .trim();
+}
+
+/**
+ * The Partners link generator can copy a link as a plain URL or as an HTML snippet
+ * (<a href="https://link.coupang.com/a/..."><img src="..." alt="상품명"></a>). Coupang blocks
+ * server-side page fetches (403), so the snippet is the only way to get the photo/name
+ * without scraping. Returns null when the text holds no link.
+ */
+export function parseCoupangShareCode(text: string): ParsedCoupangShare | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  if (!trimmed.includes("<")) return { url: trimmed };
+
+  const hrefs = [...trimmed.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)].map((m) => decodeEntities(m[1]));
+  const url = hrefs.find((h) => checkCoupangAffiliateLink(h).ok) ?? hrefs.find((h) => /^https?:\/\//i.test(h));
+  if (!url) return null;
+
+  const img = trimmed.match(/<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/i)?.[1];
+  const alt = trimmed.match(/<img\b[^>]*\balt\s*=\s*["']([^"']*)["']/i)?.[1];
+  const title = trimmed.match(/<a\b[^>]*\btitle\s*=\s*["']([^"']*)["']/i)?.[1];
+  const anchorText = trimmed.match(/<a\b[^>]*>([^<]+)<\/a>/i)?.[1];
+  const name = [alt, title, anchorText].map((v) => (v ? decodeEntities(v) : "")).find((v) => v.length > 1);
+
+  return {
+    url,
+    imageUrl: img ? decodeEntities(img).replace(/^\/\//, "https://") : undefined,
+    name: name || undefined,
+  };
 }
 
 export const COUPANG_LINK_MESSAGES: Record<Exclude<CoupangLinkCheck, { ok: true }>["reason"], string> = {

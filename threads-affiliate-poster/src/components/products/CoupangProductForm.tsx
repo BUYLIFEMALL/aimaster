@@ -2,7 +2,7 @@
 
 import { useActionState, useState, useTransition, useEffect } from "react";
 import { ProductPreviewButton } from "@/components/products/ProductPreviewButton";
-import { checkCoupangAffiliateLink, COUPANG_LINK_MESSAGES } from "@/lib/coupang/links";
+import { checkCoupangAffiliateLink, COUPANG_LINK_MESSAGES, parseCoupangShareCode } from "@/lib/coupang/links";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
@@ -77,17 +77,23 @@ export function CoupangProductForm({
       setManualError("쿠팡 상품 URL을 입력해주세요.");
       return;
     }
-    const linkCheck = checkCoupangAffiliateLink(manualUrl);
+    // The field also accepts the HTML code from the Partners link generator; pull link/photo/name out of it.
+    const parsed = parseCoupangShareCode(manualUrl);
+    if (!parsed) {
+      setManualError("붙여넣은 내용에서 링크를 찾지 못했습니다.");
+      return;
+    }
+    const linkCheck = checkCoupangAffiliateLink(parsed.url);
     if (!linkCheck.ok) {
       setManualError(COUPANG_LINK_MESSAGES[linkCheck.reason]);
       return;
     }
     handleSelect({
       productId: -Date.now(),
-      productName: manualName.trim() || "상품명 미입력",
-      productImage: "",
+      productName: manualName.trim() || parsed.name || "상품명 미입력",
+      productImage: parsed.imageUrl ?? "",
       productPrice: 0,
-      productUrl: manualUrl.trim(),
+      productUrl: parsed.url,
       isRocket: false,
       isFreeShipping: false,
     });
@@ -118,17 +124,35 @@ export function CoupangProductForm({
         <p className="text-xs font-medium text-neutral-700">쿠팡 상품URL 직접 입력(API키 등록X)</p>
         <p className="text-xs text-neutral-500">
           쿠팡파트너스 사이트에서 직접 발급받은 본인 제휴 링크를 붙여넣어주세요.
+          <br />
+          💡 링크 생성 화면에서 <b>HTML(이미지형) 코드</b>를 복사해 붙여넣으면 상품 사진·이름까지 자동으로 채워집니다.
+          (쿠팡이 외부 서버의 상품 페이지 접속을 막아서, 링크 주소만으로는 사진을 가져올 수 없습니다)
         </p>
         <Input
           value={manualName}
           onChange={(e) => setManualName(e.target.value)}
-          placeholder="상품명 (선택)"
+          placeholder="상품명 (선택 — HTML 코드를 넣으면 자동 입력)"
         />
         <Input
           value={manualUrl}
-          onChange={(e) => setManualUrl(e.target.value)}
-          placeholder="https://link.coupang.com/a/..."
+          onChange={(e) => {
+            const value = e.target.value;
+            setManualUrl(value);
+            const parsed = value.includes("<") ? parseCoupangShareCode(value) : null;
+            if (parsed?.name && !manualName.trim()) setManualName(parsed.name);
+          }}
+          placeholder="https://link.coupang.com/a/...  또는  <a href=...><img ...></a>"
         />
+        {(() => {
+          const parsed = manualUrl.includes("<") ? parseCoupangShareCode(manualUrl) : null;
+          return parsed?.imageUrl ? (
+            <div className="flex items-center gap-2 text-xs text-neutral-600">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={parsed.imageUrl} alt="" referrerPolicy="no-referrer" className="h-12 w-12 rounded border object-cover" />
+              코드에서 상품 사진을 찾았습니다.
+            </div>
+          ) : null;
+        })()}
         <Button type="button" variant="muted" onClick={handleUseManualUrl}>
           이 링크로 등록
         </Button>
