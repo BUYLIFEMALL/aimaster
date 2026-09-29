@@ -19,7 +19,6 @@
 | 3 | 회원 계정으로 실제 동작 확인 | 쇼핑제휴 `/trends`(직접 가져오기·검색 필터·AI 모델별 캡션·내 페르소나), 댓글자동화 `threads_read_replies` 재연동 후 댓글 테스트, 20개 프로그램 사이드바 하단 계정 표시 | 주인님(테스트) | 각 서브프로젝트 `AGENTS.md` |
 | 4 | 티스토리 블로그 자동화 | 기획만 됨. 네이버 블로그 자동화가 완전히 끝난 뒤 시작, `naver-blog-auto-poster_*`의 AGENTS.md 방법론 재사용 | 미정 | `docs/PLATFORM_PATTERNS.md` §20 |
 
-| 6 | ⚠️ **공용 DB `user_program_access` 보안 구멍** | RLS 정책 "Service role full access"가 모든 역할(`public`)에 `using (true) with check (true)`로 열려 있어, 로그인만 하면(또는 anon 키로도) 누구나 자기에게 아무 프로그램 이용 권한을 넣거나 남의 부여 내역을 보고 지울 수 있다. 2026-09-29 발견, **주인님 승인 대기**(정책 변경 = DB 변경). 수정안: 이 정책 삭제 → 본인 행 조회만 허용(쓰기는 service role·관리자 화면만). 확인 결과 관리자 부여(`app/api/admin/user-access/route.ts`)와 관리자 회원 화면은 service role로 쓰고, 루트·서브프로젝트의 권한 확인은 본인 행만 읽으므로 이 수정으로 깨지는 곳은 없다 | 주인님 승인 후 개발 | 이 문서 |
 | 5 | `naver-blog-seo-studio`에 버전 표시 적용 | Codex 작업 중이라 코드는 건드리지 않음. DB `programs.version`은 이미 `v1.01`. 폴더가 풀리면 `lib/version.ts`(`APP_VERSION = "v1.01"`)를 만들고 화면 제목 옆에 표시 | Codex 또는 다음 작업자 | 루트 `CLAUDE.md` 핵심 원칙 5번 |
 
 **손대지 말 것**: `naver-blog-seo-studio/` — Codex가 작업 중(작업 폴더에 Codex의 커밋 안 된 변경이 있을 수 있음). 주인님이 풀어줄 때까지 이 폴더는 스테이징·수정·배포하지 않는다.
@@ -40,6 +39,7 @@
 | 법적 페이지 | 개인정보처리방침 제12조(Meta 연동 정보, 10/5 시행 공지), `https://www.buylife.xyz/data-deletion` 신설 | Meta 앱 심사 필수 항목 | `META_APP_REVIEW.md` §1 |
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
+| 🔒 `user_program_access` 보안 구멍 수정 | 모든 역할에 `using (true)`로 열려 있던 RLS 정책 "Service role full access" 삭제 → 회원은 본인 행 조회만, 쓰기는 service role(관리자 API)만. 적용 전 기존 4,702건 전부 관리자가 부여한 것 확인(악용 흔적 없음). 적용 후 회원 권한으로 검증: 본인 29건만 조회, 추가 시도 거부 | 주인님 승인 | 루트 마이그레이션 `0019` |
 | 쇼핑제휴 복제 키트 (v1.02) | 다른 GitHub·Vercel·Supabase 계정으로 통째 복제하는 키트 `threads-affiliate-poster/clone-kit/`(설치 매뉴얼·기본지침·DB 설계·전체 스키마 SQL·환경변수·연동 매뉴얼 8종·복제 스크립트). 코드에 독립 운영 모드(`NEXT_PUBLIC_STANDALONE_MODE`, `src/lib/deployment.ts`) 추가 — 값이 없으면 기존과 동일. 스키마는 빈 PostgreSQL에서 실행 검증, 실제 새 계정 설치는 아직 | 주인님 요청 | TAP `README.md` "별도 서버로 통째 복제하기" |
 | 프로그램 버전 관리 시작 | 30개 프로그램 전부 `v1.01`. DB `programs.version` 칸 추가(루트 마이그레이션 `0018`) → 메인 사이트 목록·상세·관리자 편집 화면에 표시. 21개 프로그램은 `lib/version.ts`의 `APP_VERSION`을 좌측 메뉴 제목 밑에 표시, auto-detail-page·mbti·mbti-character·tarot은 파일만 추가(화면 표시는 아직). **이후 수정할 때마다 +0.01, 큰 변경은 주인님 지시 시 v2.01** | 주인님 지시 | 루트 `CLAUDE.md` 핵심 원칙 5번 |
 | 작업 규칙 | 매 작업 5단계(빌드→커밋→푸시→배포→**인수인계 문서 반영**), 여러 CLI가 같은 폴더·스테이징을 공유한다는 주의 추가 | 다른 CLI가 이어받을 수 있게 | `79cc7e5` |

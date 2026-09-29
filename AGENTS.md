@@ -212,6 +212,11 @@ vercel deploy --prod --yes --scope buylife
   - **(09-29 후반) 쇼핑제휴 `/trends` 검색 확장**: 앱 검수 승인 회원은 키워드/해시태그·미디어·작성자 필터로 타인 공개 글 검색,
     미승인 회원은 직접 가져오기 — 화면 맨 위 A/B 안내 박스 + 회원용 "비즈니스 앱 승인 절차" 매뉴얼(`platform_guides` `ae85d991-...`).
   - **(09-29 후반) 좌측 사이드바 통일**: 21개 프로그램 메뉴 바로 밑에 로그인 계정·로그아웃을 붙여 항상 표시(§10 참고).
+  - **(09-29) 공용 DB 보안 구멍 수정**: `user_program_access`의 RLS 정책 "Service role full access"가 역할 제한 없이
+    `using (true) with check (true)`라 로그인만 하면(anon 키로도) 누구나 스스로 모든 프로그램 이용 권한을 넣을 수 있었다.
+    정책 삭제 → 본인 행 조회만 허용, 쓰기는 service role만(마이그레이션 `0019`). 악용 흔적 없음(4,702건 전부 관리자 부여).
+    **교훈: "service role용"이라는 이름의 정책을 만들지 말 것 — service role은 RLS를 원래 우회하므로 그런 정책은 필요 없고,
+    `to` 역할을 빼면 모든 사용자에게 열린다.** 새 테이블 정책은 `to authenticated` + `auth.uid() = user_id`로 쓴다.
   - 남은 일·대기 중인 일은 `docs/HANDOFF.md` §1에서 관리한다.
 
 ---
