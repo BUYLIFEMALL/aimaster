@@ -5,7 +5,12 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
-import { checkCoupangAffiliateLink, COUPANG_LINK_MESSAGES } from "@/lib/coupang/links";
+import {
+  checkCoupangAffiliateLink,
+  COUPANG_LINK_MESSAGES,
+  extractCoupaNgUrl,
+  parseCoupangWidgetRedirect,
+} from "@/lib/coupang/links";
 import { getPromotionLinks, getProductDetails, extractAliexpressProductId, resolveAliexpressUrl } from "@/lib/aliexpress/client";
 import {
   getBestSelling,
@@ -375,6 +380,42 @@ export async function deleteProductAction(formData: FormData) {
   await supabase.from("affiliate_products").delete().eq("id", productId).eq("user_id", user.id);
 
   revalidatePath("/products");
+}
+
+/**
+ * Reads the Coupang Partners "이미지 + 텍스트 → 일반태그" code (<iframe src="https://coupa.ng/...">):
+ * coupa.ng redirects to the widget page with the tracking link, product name and photo path in its
+ * query string. This is the widget view shown on blogs, not the "쇼핑하기" click, so it does not count
+ * as an affiliate click. Only coupa.ng is ever requested (no arbitrary URLs from the member).
+ */
+export async function lookupCoupangWidgetAction(
+  text: string,
+): Promise<{ url?: string; name?: string; imageUrl?: string; error?: string }> {
+  await requireProgramAccess();
+  const widgetUrl = extractCoupaNgUrl(text);
+  if (!widgetUrl) return { error: "HTML 코드에서 쿠팡 위젯 주소(coupa.ng)를 찾지 못했습니다." };
+
+  try {
+    const res = await fetch(widgetUrl, {
+      redirect: "manual",
+      cache: "no-store",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+      },
+      signal: AbortSignal.timeout(5000),
+    });
+    const location = res.headers.get("location");
+    const parsed = location ? parseCoupangWidgetRedirect(location) : null;
+    if (!parsed) {
+      console.warn("[coupang widget] unexpected response", res.status, location?.slice(0, 120));
+      return { error: COUPANG_LINK_MESSAGES.widget_url };
+    }
+    return parsed;
+  } catch (err) {
+    console.warn("[coupang widget] lookup failed", err);
+    return { error: COUPANG_LINK_MESSAGES.widget_url };
+  }
 }
 
 /** Fetch the image again for an AliExpress product saved without one (or with a broken one). */

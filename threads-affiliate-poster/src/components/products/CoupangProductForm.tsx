@@ -2,13 +2,20 @@
 
 import { useActionState, useState, useTransition, useEffect } from "react";
 import { ProductPreviewButton } from "@/components/products/ProductPreviewButton";
-import { checkCoupangAffiliateLink, COUPANG_LINK_MESSAGES, parseCoupangShareCode } from "@/lib/coupang/links";
+import {
+  checkCoupangAffiliateLink,
+  COUPANG_LINK_MESSAGES,
+  extractCoupaNgUrl,
+  parseCoupangShareCode,
+  type ParsedCoupangShare,
+} from "@/lib/coupang/links";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EnrichmentFields } from "./EnrichmentFields";
 import {
   searchCoupangProductsAction,
   registerCoupangProductAction,
+  lookupCoupangWidgetAction,
   type RegisterProductState,
 } from "@/lib/actions/products";
 import type { CoupangProduct } from "@/lib/coupang/client";
@@ -35,6 +42,8 @@ export function CoupangProductForm({
   const [manualName, setManualName] = useState("");
   const [manualUrl, setManualUrl] = useState("");
   const [manualError, setManualError] = useState<string | null>(null);
+  const [manualInfo, setManualInfo] = useState<ParsedCoupangShare | null>(null);
+  const [isLookingUp, startLookup] = useTransition();
   const [state, formAction, isPending] = useActionState(registerCoupangProductAction, initialState);
 
   useEffect(() => {
@@ -71,14 +80,38 @@ export function CoupangProductForm({
     });
   };
 
+  // The manual field takes a short URL, the "일반태그" iframe code (coupa.ng widget → link/name/clean photo
+  // looked up on the server) or the "블로그용 태그" <a><img> code (link/name; its image is a banner).
+  const applyPastedCode = (value: string) => {
+    setManualInfo(null);
+    const widgetUrl = extractCoupaNgUrl(value);
+    if (widgetUrl) {
+      startLookup(async () => {
+        const info = await lookupCoupangWidgetAction(value);
+        if (info.error || !info.url) {
+          setManualError(info.error ?? COUPANG_LINK_MESSAGES.widget_url);
+          return;
+        }
+        setManualError(null);
+        setManualInfo({ url: info.url, name: info.name, imageUrl: info.imageUrl });
+        if (info.name) setManualName((prev) => prev.trim() || info.name!);
+      });
+      return;
+    }
+    const parsed = value.includes("<") ? parseCoupangShareCode(value) : null;
+    if (parsed) {
+      setManualInfo(parsed);
+      if (parsed.name) setManualName((prev) => prev.trim() || parsed.name!);
+    }
+  };
+
   const handleUseManualUrl = () => {
     setManualError(null);
     if (!manualUrl.trim()) {
       setManualError("쿠팡 상품 URL을 입력해주세요.");
       return;
     }
-    // The field also accepts the HTML code from the Partners link generator; pull link/photo/name out of it.
-    const parsed = parseCoupangShareCode(manualUrl);
+    const parsed = manualInfo ?? parseCoupangShareCode(manualUrl);
     if (!parsed) {
       setManualError("붙여넣은 내용에서 링크를 찾지 못했습니다.");
       return;
@@ -125,8 +158,9 @@ export function CoupangProductForm({
         <p className="text-xs text-neutral-500">
           쿠팡파트너스 사이트에서 직접 발급받은 본인 제휴 링크를 붙여넣어주세요.
           <br />
-          💡 링크 생성 화면에서 <b>HTML(이미지형) 코드</b>를 복사해 붙여넣으면 상품 사진·이름까지 자동으로 채워집니다.
-          (쿠팡이 외부 서버의 상품 페이지 접속을 막아서, 링크 주소만으로는 사진을 가져올 수 없습니다)
+          💡 링크 생성 화면 아래 <b>[이미지 + 텍스트] → HTML → &quot;일반태그&quot;</b>를 선택하고 [HTML 복사]한 코드를 붙여넣으면
+          제휴 링크·상품명·상품 사진이 자동으로 채워집니다. (단축 URL만 넣으면 사진은 직접 올려야 합니다 — 쿠팡이 외부 서버의
+          상품 페이지 접속을 막기 때문)
         </p>
         <Input
           value={manualName}
@@ -136,23 +170,24 @@ export function CoupangProductForm({
         <Input
           value={manualUrl}
           onChange={(e) => {
-            const value = e.target.value;
-            setManualUrl(value);
-            const parsed = value.includes("<") ? parseCoupangShareCode(value) : null;
-            if (parsed?.name && !manualName.trim()) setManualName(parsed.name);
+            setManualUrl(e.target.value);
+            applyPastedCode(e.target.value);
           }}
-          placeholder="https://link.coupang.com/a/...  또는  <a href=...><img ...></a>"
+          placeholder='https://link.coupang.com/a/...  또는  <iframe src="https://coupa.ng/..."></iframe>'
         />
-        {(() => {
-          const parsed = manualUrl.includes("<") ? parseCoupangShareCode(manualUrl) : null;
-          return parsed?.imageUrl ? (
-            <div className="flex items-center gap-2 text-xs text-neutral-600">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={parsed.imageUrl} alt="" referrerPolicy="no-referrer" className="h-12 w-12 rounded border object-cover" />
-              코드에서 상품 사진을 찾았습니다.
-            </div>
-          ) : null;
-        })()}
+        {isLookingUp && <p className="text-xs text-neutral-500">쿠팡에서 상품 정보를 확인하는 중...</p>}
+        {manualInfo && (
+          <div className="flex items-center gap-2 text-xs text-neutral-600">
+            {manualInfo.imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={manualInfo.imageUrl} alt="" referrerPolicy="no-referrer" className="h-12 w-12 rounded border object-cover" />
+            )}
+            <span>
+              ✅ 확인됨: {manualInfo.name ?? "상품명 없음"}
+              {!manualInfo.imageUrl && " (사진은 없음 — 일반태그 코드를 넣으면 사진도 가져옵니다)"}
+            </span>
+          </div>
+        )}
         <Button type="button" variant="muted" onClick={handleUseManualUrl}>
           이 링크로 등록
         </Button>
