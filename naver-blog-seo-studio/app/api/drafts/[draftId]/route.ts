@@ -10,11 +10,20 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
   const { draftId } = await context.params;
-  const input = await request.json().catch(() => null) as { title?: string; body?: string } | null;
+  const input = await request.json().catch(() => null) as { title?: string; body?: string; contentBlocks?: unknown } | null;
   const title = input?.title?.trim() ?? "";
   const body = input?.body?.trim() ?? "";
   if (!title || title.length > 150) return NextResponse.json({ error: "제목을 1~150자로 입력해주세요." }, { status: 400 });
   if (body.length < 120 || body.length > 30000) return NextResponse.json({ error: "본문을 120~30,000자로 입력해주세요." }, { status: 400 });
+
+  const contentBlocks = Array.isArray(input?.contentBlocks) ? input.contentBlocks : null;
+  if (contentBlocks && (contentBlocks.length === 0 || contentBlocks.length > 40 || contentBlocks.some((block) => {
+    if (typeof block !== "object" || block === null) return true;
+    const item = block as { id?: unknown; type?: unknown; text?: unknown; slot?: unknown; alt?: unknown };
+    if (typeof item.id !== "string" || item.id.length > 80) return true;
+    if (item.type === "text") return typeof item.text !== "string" || item.text.length > 30000;
+    return item.type !== "image" || !["cover", "content-1", "content-2"].includes(String(item.slot)) || (item.alt !== undefined && typeof item.alt !== "string");
+  }))) return NextResponse.json({ error: "Invalid content editor blocks." }, { status: 400 });
 
   const supabase = await createClient();
   const { data: original } = await supabase.from("naver_blog_seo_drafts")
@@ -22,8 +31,12 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
   if (!original) return NextResponse.json({ error: "수정할 내 초안을 찾지 못했습니다." }, { status: 404 });
   const bodyChanged = original.body !== body;
   const report = typeof original.seo_report === "object" && original.seo_report !== null ? original.seo_report as Record<string, unknown> : {};
-  const staleImages = bodyChanged && Array.isArray(report.contentImages) ? report.contentImages as Array<{ path?: string }> : [];
-  const nextReport = bodyChanged ? Object.fromEntries(Object.entries(report).filter(([key]) => key !== "contentImages")) : report;
+  // Block-aware edits preserve the user's explicit image placement. Legacy textarea
+  // edits retain the established behavior of clearing sentence-matched images.
+  const staleImages = bodyChanged && !contentBlocks && Array.isArray(report.contentImages) ? report.contentImages as Array<{ path?: string }> : [];
+  const nextReport = contentBlocks
+    ? { ...report, contentBlocks }
+    : bodyChanged ? Object.fromEntries(Object.entries(report).filter(([key]) => key !== "contentImages" && key !== "contentBlocks")) : report;
   const { data, error } = await supabase.from("naver_blog_seo_drafts")
     .update({ title, body, seo_report: nextReport })
     .eq("id", draftId).eq("user_id", access.user.id)

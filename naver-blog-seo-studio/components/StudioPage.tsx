@@ -30,15 +30,47 @@ type DraftRecord = {
 };
 
 type ContentImage = { slot: "content-1" | "content-2"; sentence: string; prompt?: string; path?: string; mimeType?: string; model?: string };
+type ContentBlock =
+  | { id: string; type: "text"; text: string }
+  | { id: string; type: "image"; slot: "cover" | "content-1" | "content-2"; alt: string };
 
 function getContentImages(draft: DraftRecord | null): ContentImage[] {
   const images = (draft?.seo_report as unknown as { contentImages?: unknown } | null)?.contentImages;
   return Array.isArray(images) ? images.filter((item): item is ContentImage => typeof item === "object" && item !== null && "slot" in item && "sentence" in item) : [];
 }
 
+function getContentBlocks(draft: DraftRecord | null): ContentBlock[] {
+  const blocks = (draft?.seo_report as unknown as { contentBlocks?: unknown } | null)?.contentBlocks;
+  if (!Array.isArray(blocks)) return [];
+  return blocks.filter((item): item is ContentBlock => {
+    if (typeof item !== "object" || item === null || !("id" in item) || !("type" in item)) return false;
+    if (item.type === "text") return "text" in item && typeof item.text === "string";
+    return item.type === "image" && "slot" in item && (item.slot === "cover" || item.slot === "content-1" || item.slot === "content-2");
+  });
+}
+
+function createContentBlocks(draft: DraftRecord, images: ContentImage[] = getContentImages(draft)): ContentBlock[] {
+  const blocks: ContentBlock[] = draft.image_path ? [{ id: "cover", type: "image", slot: "cover", alt: "대표 이미지" }] : [];
+  const sortedImages = images
+    .map((image) => ({ ...image, position: draft.body.indexOf(image.sentence) }))
+    .filter((image) => image.position >= 0)
+    .sort((a, b) => a.position - b.position);
+  let cursor = 0;
+  for (const image of sortedImages) {
+    const before = draft.body.slice(cursor, image.position).trim();
+    if (before) blocks.push({ id: `text-${blocks.length + 1}`, type: "text", text: before });
+    blocks.push({ id: image.slot, type: "image", slot: image.slot, alt: image.sentence });
+    cursor = image.position;
+  }
+  const rest = draft.body.slice(cursor).trim();
+  if (rest) blocks.push({ id: `text-${blocks.length + 1}`, type: "text", text: rest });
+  return blocks.length ? blocks : [{ id: "text-1", type: "text", text: draft.body }];
+}
+
 function withoutContentImages(draft: DraftRecord): DraftRecord {
   const report = { ...(draft.seo_report ?? {}) } as Record<string, unknown>;
   delete report.contentImages;
+  delete report.contentBlocks;
   return { ...draft, seo_report: report as Record<string, string> };
 }
 
@@ -116,6 +148,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [imagePending, setImagePending] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<{ dataUrl: string; model: string } | null>(null);
   const [contentImages, setContentImages] = useState<ContentImage[]>([]);
+  const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([]);
   const [contentImagePending, setContentImagePending] = useState(false);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
   const [handoffPending, setHandoffPending] = useState(false);
@@ -196,6 +229,7 @@ export default function StudioPage({ email }: { email: string }) {
     setStrategy(draft.strategy || strategies[0][0]);
     setSelectedTitle(draft.title);
     setContentImages(getContentImages(draft));
+    setContentBlocks(getContentBlocks(draft).length ? getContentBlocks(draft) : createContentBlocks(draft));
     setCurrentDraft(withoutContentImages(draft));
     setGeneratedImage(draft.image_path ? { dataUrl: `/api/drafts/${encodeURIComponent(draft.id)}/image`, model: draft.image_model || "나노바나나" } : null);
     setExtensionDraftId(draft.id);
@@ -213,6 +247,7 @@ export default function StudioPage({ email }: { email: string }) {
     if (extensionDraftId === draft.id) {
       setCurrentDraft(null);
       setContentImages([]);
+      setContentBlocks([]);
       setGeneratedImage(null);
       setExtensionDraftId(null);
     }
@@ -367,7 +402,9 @@ export default function StudioPage({ email }: { email: string }) {
       const response = await fetch("/api/drafts/save-optimized", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: optimized.title, body: optimized.body, topic: sourceTitle || optimized.title, keywords: optimizationKeywords, strategy }) });
       const result = await response.json() as { draft?: DraftRecord; error?: string };
       if (!response.ok || !result.draft) throw new Error(result.error || "최적화한 초안을 저장하지 못했습니다.");
-      setCurrentDraft(result.draft);
+      setContentImages(getContentImages(result.draft));
+      setContentBlocks(getContentBlocks(result.draft).length ? getContentBlocks(result.draft) : createContentBlocks(result.draft));
+      setCurrentDraft(withoutContentImages(result.draft));
       setExtensionDraftId(result.draft.id);
       setSelectedTitle(result.draft.title);
       setTopic(result.draft.topic);
@@ -402,7 +439,9 @@ export default function StudioPage({ email }: { email: string }) {
       setExtensionDraftId(draft.id);
       setSelectedTitle(draft.title);
       const preparedDraft: DraftRecord = { ...draft, topic: draftTopic, keywords: draftKeywords.split(",").map((keyword) => keyword.trim()).filter(Boolean), strategy };
-      setCurrentDraft(preparedDraft);
+      setContentImages(getContentImages(preparedDraft));
+      setContentBlocks(createContentBlocks(preparedDraft));
+      setCurrentDraft(withoutContentImages(preparedDraft));
       setGeneratedImage(null);
       setHandoffMessage("");
       refreshHistory().catch(() => {});
@@ -478,6 +517,10 @@ export default function StudioPage({ email }: { email: string }) {
       setCurrentDraft((current) => current?.id === draft.id
         ? { ...current, image_path: image.path ?? null, image_model: image.model, image_mime_type: image.mimeType ?? null }
         : { ...draft, image_path: image.path ?? null, image_model: image.model, image_mime_type: image.mimeType ?? null });
+      setContentBlocks((blocks) => {
+        if (blocks.some((block) => block.type === "image" && block.slot === "cover")) return blocks;
+        return [{ id: "cover", type: "image", slot: "cover", alt: "대표 이미지" }, ...blocks];
+      });
       setMessage("대표 이미지가 생성되었습니다. 다음 단계에서 네이버 편집기에 삽입할 수 있습니다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "이미지 생성에 실패했습니다.");
@@ -493,6 +536,7 @@ export default function StudioPage({ email }: { email: string }) {
       const result = await response.json() as { images?: ContentImage[]; error?: string };
       if (!response.ok || !result.images?.length) throw new Error(result.error || "본문 매칭 이미지를 생성하지 못했습니다.");
       setContentImages(result.images);
+      setContentBlocks(createContentBlocks({ ...draft, seo_report: { ...(draft.seo_report ?? {}), contentImages: result.images } as unknown as Record<string, string> }, result.images));
       setCurrentDraft((current) => current?.id === draft.id ? withoutContentImages(current) : withoutContentImages(draft));
       setMessage("본문 핵심 문장 2개와 매칭된 이미지가 생성되었습니다. 각 문장 바로 위에 전송됩니다.");
       refreshHistory().catch(() => {});
@@ -514,15 +558,49 @@ export default function StudioPage({ email }: { email: string }) {
     return historyInputStatus === "all" || (draft.naver_input_status ?? "not_started") === historyInputStatus;
   });
 
+  function syncBodyFromBlocks(blocks: ContentBlock[]) {
+    return blocks.filter((block): block is Extract<ContentBlock, { type: "text" }> => block.type === "text")
+      .map((block) => block.text.trim()).filter(Boolean).join("\n\n");
+  }
+
+  function updateContentBlocks(nextBlocks: ContentBlock[]) {
+    setContentBlocks(nextBlocks);
+    setCurrentDraft((draft) => draft ? { ...draft, body: syncBodyFromBlocks(nextBlocks) } : draft);
+  }
+
+  function updateTextBlock(id: string, text: string) {
+    updateContentBlocks(contentBlocks.map((block) => block.type === "text" && block.id === id ? { ...block, text } : block));
+  }
+
+  function moveContentBlock(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= contentBlocks.length) return;
+    const next = [...contentBlocks];
+    [next[index], next[target]] = [next[target], next[index]];
+    updateContentBlocks(next);
+  }
+
+  function removeContentBlock(id: string) {
+    updateContentBlocks(contentBlocks.filter((block) => block.id !== id));
+  }
+
+  function addTextBlock() {
+    updateContentBlocks([...contentBlocks, { id: `text-${Date.now()}`, type: "text", text: "새 문단을 입력하세요." }]);
+  }
+
   async function saveCurrentDraft(silent = false) {
     if (!currentDraft) return false;
+    const blocksForSave = syncBodyFromBlocks(contentBlocks) === currentDraft.body
+      ? contentBlocks
+      : createContentBlocks(currentDraft, contentImages);
     setDraftSaving(true);
     if (!silent) setDraftSaveMessage("수정한 초안을 저장하는 중...");
     try {
-      const response = await fetch(`/api/drafts/${encodeURIComponent(currentDraft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: currentDraft.title, body: currentDraft.body }) });
+      const response = await fetch(`/api/drafts/${encodeURIComponent(currentDraft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: currentDraft.title, body: currentDraft.body, contentBlocks: blocksForSave }) });
       const result = await response.json() as { draft?: DraftRecord; error?: string };
       if (!response.ok || !result.draft) throw new Error(result.error || "초안 저장에 실패했습니다.");
       setContentImages(getContentImages(result.draft));
+      setContentBlocks(getContentBlocks(result.draft).length ? getContentBlocks(result.draft) : createContentBlocks(result.draft));
       setCurrentDraft(withoutContentImages(result.draft));
       setSelectedTitle(result.draft.title);
       refreshHistory().catch(() => {});
@@ -601,6 +679,16 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="selected-title-summary"><div><span>선택한 글쓰기 페르소나</span><strong>{selectedPersonaName}</strong></div></div>
         </section>
         {currentDraft ? <section className="draft-result-card card" id="draft-result" aria-labelledby="draft-result-title"><div className="card-head"><div><h2 id="draft-result-title" className="card-title">생성된 초안</h2><p className="draft-result-subtitle">제목·이미지·본문을 검토하고 수정한 뒤 Chrome 확장 프로그램으로 보낼 수 있습니다.</p></div><span className="draft-ready-badge">초안 준비 완료</span></div><div className="draft-result-meta"><span>주제: {currentDraft.topic}</span><span>전략: {currentDraft.strategy || strategy}</span><span>키워드: {currentDraft.keywords.join(", ") || "없음"}</span></div><div className="draft-image-stage"><div><strong>대표 이미지</strong><p>선택한 제목을 바탕으로 나노바나나 AI 이미지를 생성합니다.</p></div><button type="button" className="secondary" onClick={() => void generateImage()} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : generatedImage ? "대표 이미지 다시 생성" : "대표 이미지 생성 (나노바나나)"}</button>{generatedImage ? <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성한 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div> : <p className="draft-image-empty">아직 대표 이미지가 없습니다. 필요할 경우 생성하면 Chrome 확장에서 본문과 함께 삽입할 수 있습니다.</p>}</div><div className="draft-result-grid"><article className="draft-content-preview"><div className="preview-label">제목</div><input className="draft-title-editor" value={currentDraft.title} onChange={(event) => setCurrentDraft({ ...currentDraft, title: event.target.value })} aria-label="초안 제목 수정" /><div className="preview-label">본문</div><textarea className="draft-body-editor" value={currentDraft.body} onChange={(event) => setCurrentDraft({ ...currentDraft, body: event.target.value })} aria-label="초안 본문 수정" /><div className="draft-content-actions"><button type="button" className="secondary" onClick={() => saveCurrentDraft()} disabled={draftSaving}>{draftSaving ? "저장 중..." : "수정한 초안 저장"}</button><button type="button" className="text-button" onClick={copyDraftText}>제목·본문 복사</button></div>{draftSaveMessage && <p className="draft-save-status" role="status">{draftSaveMessage}</p>}</article></div><div className="seo-report seo-report-bottom"><h3>SEO·사실 확인</h3>{Object.entries(currentDraft.seo_report ?? {}).length ? <dl>{Object.entries(currentDraft.seo_report ?? {}).map(([key, value]) => <div key={key}><dt>{reportLabels[key] ?? key}</dt><dd>{value}</dd></div>)}</dl> : <p>초안의 검색 의도와 사실 확인 항목을 직접 검토해주세요.</p>}</div><aside className="draft-actions-panel"><div className="result-action"><strong>Chrome 확장 전송</strong><p>확장 프로그램에서 제목·이미지·본문을 네이버 편집기로 입력합니다. 최종 발행은 직접 진행합니다.</p><button type="button" className="primary compact" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "이 초안을 Chrome 확장으로 보내기"}</button>{handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}</div></aside></section> : <section className="draft-empty card"><h2 className="card-title">초안을 만들 준비가 되었습니다</h2><p>제목을 선택하고 글쓰기 전략을 고른 뒤 AI 초안을 생성해주세요.</p></section>}
+        {currentDraft && <section className="content-block-editor card" aria-labelledby="content-block-editor-title">
+          <div className="content-block-editor-head"><div><h2 id="content-block-editor-title" className="card-title">완성 콘텐츠 편집기</h2><p>문단은 직접 수정하고 이미지는 위·아래 버튼으로 위치를 바꿀 수 있습니다. 저장 후 확장 프로그램은 이 순서 그대로 네이버 편집기에 입력합니다.</p></div><button type="button" className="secondary compact" onClick={addTextBlock}>문단 추가</button></div>
+          <div className="content-block-list">
+            {contentBlocks.map((block, index) => <article className={`content-block ${block.type}`} key={block.id}>
+              <div className="content-block-toolbar"><span>{block.type === "text" ? `본문 문단 ${contentBlocks.filter((item, itemIndex) => itemIndex <= index && item.type === "text").length}` : block.slot === "cover" ? "대표 이미지" : "본문 이미지"}</span><div><button type="button" className="text-button" onClick={() => moveContentBlock(index, -1)} disabled={index === 0}>위로</button><button type="button" className="text-button" onClick={() => moveContentBlock(index, 1)} disabled={index === contentBlocks.length - 1}>아래로</button><button type="button" className="text-button danger" onClick={() => removeContentBlock(block.id)}>전송 제외</button></div></div>
+              {block.type === "text" ? <textarea value={block.text} onChange={(event) => updateTextBlock(block.id, event.target.value)} aria-label="본문 문단 수정" /> : <div className="content-block-image"><Image src={block.slot === "cover" ? `/api/drafts/${encodeURIComponent(currentDraft.id)}/image` : `/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${block.slot}`} alt={block.alt} width={1280} height={720} unoptimized /><p>{block.slot === "cover" ? "제목 다음에 삽입되는 대표 이미지" : block.alt}</p></div>}
+            </article>)}
+          </div>
+          <p className="content-block-editor-note">이미지를 전송에서 제외해도 원본 파일은 초안에 보관됩니다. 다시 생성하거나 불러온 뒤 위치를 조정할 수 있습니다.</p>
+        </section>}
         {currentDraft && <section className="draft-image-stage card" aria-labelledby="content-images-title">
           <div><strong id="content-images-title">본문 문장 매칭 이미지 2장</strong><p>AI가 본문에서 핵심 문장 2개를 고르고, 각 문장 바로 위에 이미지가 삽입되도록 준비합니다.</p></div>
           <label className="image-with-draft-option"><input type="checkbox" checked={generateContentImagesWithDraft} onChange={(event) => setGenerateContentImagesWithDraft(event.target.checked)} /> <span><strong>초안 생성 시 본문 이미지도 함께 생성</strong><small>활성화하면 대표 이미지와 별도로 핵심 문장 이미지 2장을 생성합니다.</small></span></label>

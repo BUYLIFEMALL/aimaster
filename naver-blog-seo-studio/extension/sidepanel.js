@@ -10,6 +10,7 @@ let webDrafts = [];
 let activeWebDraftId = "";
 let activeWebDraftTags = [];
 let activeWebDraftContentImages = [];
+let activeWebDraftBlocks = [];
 
 function renderExtensionVersion() {
   const target = $("extensionVersion");
@@ -77,6 +78,7 @@ async function loadSelectedWebDraft() {
   $("body").value = draft.body || "";
   clearGeneratedImage();
   activeWebDraftContentImages = [];
+  activeWebDraftBlocks = [];
   activeWebDraftId = draft.id;
   activeWebDraftTags = getWebDraftTags(draft);
   $("webDraftTagSuggestion").hidden = activeWebDraftTags.length === 0;
@@ -94,6 +96,11 @@ async function loadSelectedWebDraft() {
     console.warn("저장된 본문 이미지 불러오기 실패", error);
     activeWebDraftContentImages = [];
   }
+  activeWebDraftBlocks = Array.isArray(draft.content_blocks) ? draft.content_blocks.filter((block) => {
+    if (!block || typeof block !== "object") return false;
+    return (block.type === "text" && typeof block.text === "string")
+      || (block.type === "image" && ["cover", "content-1", "content-2"].includes(block.slot));
+  }) : [];
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
@@ -153,7 +160,7 @@ async function loadStoredWebDraftContentImages(draft, token) {
     if (!item?.slot || !item?.sentence) continue;
     const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/image?slot=${encodeURIComponent(item.slot)}`, { headers: { Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error(`${item.slot} 본문 이미지 조회에 실패했습니다.`);
-    loaded.push({ sentence: item.sentence, dataUrl: await blobToDataUrl(await response.blob()) });
+    loaded.push({ slot: item.slot, sentence: item.sentence, dataUrl: await blobToDataUrl(await response.blob()) });
   }
   return loaded;
 }
@@ -182,6 +189,26 @@ async function typeBodyWithMatchedImages(tabId, body, images) {
     await chrome.debugger.attach({ tabId }, "1.3");
     try { await debuggerCommand(tabId, "Input.setIgnoreInputEvents", { ignore: false }); await typeWithDebugger(tabId, rest); }
     finally { await chrome.debugger.detach({ tabId }); }
+  }
+}
+
+async function typeContentBlocks(tabId, blocks, coverDataUrl, contentImages) {
+  const contentImageBySlot = new Map(contentImages.map((image) => [image.slot, image.dataUrl]));
+  for (const block of blocks) {
+    if (block.type === "image") {
+      const dataUrl = block.slot === "cover" ? coverDataUrl : contentImageBySlot.get(block.slot);
+      if (!dataUrl) continue;
+      await insertImageIntoNaverEditor(tabId, dataUrl);
+      const focus = await focusNaverEditor(tabId, "body");
+      if (!focus.ok) throw new Error("이미지 다음 본문 입력 위치를 찾지 못했습니다.");
+      continue;
+    }
+    if (!block.text) continue;
+    await chrome.debugger.attach({ tabId }, "1.3");
+    try {
+      await debuggerCommand(tabId, "Input.setIgnoreInputEvents", { ignore: false });
+      await typeWithDebugger(tabId, block.text);
+    } finally { await chrome.debugger.detach({ tabId }); }
   }
 }
 
@@ -751,6 +778,24 @@ async function fillDraftIntoNaver() {
     }
     await typeWithDebugger(tab.id, title);
     await sleep(randomDelay(600, 1000));
+    if (activeWebDraftBlocks.length) {
+      await chrome.debugger.detach({ tabId: tab.id });
+      attachedTabId = null;
+      const initialBodyFocus = await focusNaverEditor(tab.id, "body");
+      if (!initialBodyFocus.ok) throw new Error("본문 입력 위치를 찾지 못했습니다.");
+      $("generateStatus").textContent = "편집한 텍스트·이미지 블록 순서대로 입력 중...";
+      await typeContentBlocks(tab.id, activeWebDraftBlocks, imageDataUrl, activeWebDraftContentImages);
+      const expectedBody = activeWebDraftBlocks.filter((block) => block.type === "text").map((block) => block.text.trim()).filter(Boolean).join("\n\n") || body;
+      const verification = await verifyNaverEditorContent(tab.id, title, expectedBody);
+      if (!verification.ok) {
+        const details = verification.titleMatched === false ? "제목 확인 실패" : "본문 확인 실패";
+        await reportWebDraftInputResult("failed", { error: details }).catch(() => {});
+        throw new Error(`${details}. 구조 분석을 실행한 뒤 다시 시도해주세요.`);
+      }
+      $("generateStatus").textContent = `제목·편집한 콘텐츠 블록 ${activeWebDraftBlocks.length}개 입력 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
+      await reportWebDraftInputResult("completed", { paragraphCount: verification.actualParagraphCount || 0 }).catch(() => {});
+      return true;
+    }
     if (activeWebDraftContentImages.length) {
       // 본문 전체를 먼저 넣은 뒤 이미지를 끼워 넣지 않습니다. 핵심 문장 직전에
       // 실제 이미지 업로드를 완료해 문장-이미지 매핑 순서를 보존합니다.
