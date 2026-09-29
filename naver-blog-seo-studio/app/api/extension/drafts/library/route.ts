@@ -30,6 +30,7 @@ export async function GET(request: Request) {
       id: draft.id, topic: draft.topic, keywords: draft.keywords, strategy: draft.strategy, title: draft.title, body: draft.body,
       image_path: draft.image_path, image_model: draft.image_model, image_mime_type: draft.image_mime_type,
       extension_handoff_at: draft.extension_handoff_at, naver_input_status: draft.naver_input_status, content_images: contentImages, content_blocks: contentBlocks,
+      image_summary: { cover: Boolean(draft.image_path), contentCount: contentImages.length },
     };
   });
   return NextResponse.json({ drafts });

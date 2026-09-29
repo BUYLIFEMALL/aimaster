@@ -411,8 +411,8 @@ export default function StudioPage({ email }: { email: string }) {
       setKeywords(result.draft.keywords.join(", "));
       setGeneratedImage(null);
       refreshHistory().catch(() => {});
-      if (generateImageWithDraft) await generateImage(result.draft);
-      if (generateContentImagesWithDraft) await generateContentImages(result.draft);
+      const generatedCover = generateImageWithDraft ? await generateImage(result.draft) : null;
+      if (generateContentImagesWithDraft) await generateContentImages(generatedCover?.path ? { ...result.draft, image_path: generatedCover.path } : result.draft);
       setMessage("최적화한 글을 새 초안으로 저장했습니다.");
       openMenu("new-draft");
     } catch (error) {
@@ -462,8 +462,8 @@ export default function StudioPage({ email }: { email: string }) {
     }
     const draft = await prepareDraft();
     if (!draft) return;
-    if (generateImageWithDraft) await generateImage(draft);
-    if (generateContentImagesWithDraft) await generateContentImages(draft);
+    const generatedCover = generateImageWithDraft ? await generateImage(draft) : null;
+    if (generateContentImagesWithDraft) await generateContentImages(generatedCover?.path ? { ...draft, image_path: generatedCover.path } : draft);
     openMenu("new-draft");
   }
 
@@ -479,8 +479,8 @@ export default function StudioPage({ email }: { email: string }) {
     const draft = await prepareDraft({ topic: analysisTopic, keywords: analysisKeywords, selectedTitle: contentAnalysis.suggestedTitle, sourceContext });
     if (!draft) return;
     setGeneratedImage(null);
-    if (generateImageWithDraft) await generateImage(draft);
-    if (generateContentImagesWithDraft) await generateContentImages(draft);
+    const generatedCover = generateImageWithDraft ? await generateImage(draft) : null;
+    if (generateContentImagesWithDraft) await generateContentImages(generatedCover?.path ? { ...draft, image_path: generatedCover.path } : draft);
     setTopic(analysisTopic);
     setKeywords(analysisKeywords);
     setSelectedTitle(draft.title);
@@ -489,6 +489,10 @@ export default function StudioPage({ email }: { email: string }) {
 
   async function sendDraftToExtension() {
     if (!extensionDraftId) return setHandoffMessage("생성 기록에서 초안을 먼저 선택해주세요.");
+    if (currentDraft && (!currentDraft.image_path || contentImages.length < 2)) {
+      const missing = [!currentDraft.image_path ? "대표 이미지" : null, contentImages.length < 2 ? "본문 이미지 2장" : null].filter(Boolean).join(" · ");
+      return setHandoffMessage(`${missing}이 준비되지 않아 전송하지 않았습니다. 새 글 만들기에서 이미지를 생성한 뒤 다시 전송해주세요.`);
+    }
     if (currentDraft && !(await saveCurrentDraft(true))) return;
     setHandoffPending(true);
     setHandoffMessage("확장 프로그램 전송함에 초안을 준비하는 중...");
@@ -522,6 +526,7 @@ export default function StudioPage({ email }: { email: string }) {
         return [{ id: "cover", type: "image", slot: "cover", alt: "대표 이미지" }, ...blocks];
       });
       setMessage("대표 이미지가 생성되었습니다. 다음 단계에서 네이버 편집기에 삽입할 수 있습니다.");
+      return image;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "이미지 생성에 실패했습니다.");
     } finally { setImagePending(false); }

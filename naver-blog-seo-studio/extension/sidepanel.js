@@ -41,7 +41,9 @@ function getWebDraftTags(draft) {
 
 function formatWebDraftLabel(draft) {
   const date = draft.extension_handoff_at ? new Date(draft.extension_handoff_at).toLocaleDateString("ko-KR") : "";
-  return `${draft.title || "제목 없는 초안"}${date ? ` · ${date}` : ""}`;
+  const imageSummary = draft.image_summary || {};
+  const imageCount = (imageSummary.cover ? 1 : 0) + Number(imageSummary.contentCount || 0);
+  return `${draft.title || "제목 없는 초안"}${date ? ` · ${date}` : ""} · 이미지 ${imageCount}/3`;
 }
 
 async function refreshWebDrafts() {
@@ -139,9 +141,13 @@ async function loadSelectedWebDraft() {
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
+  const imageSummary = draft.image_summary || {};
+  const imageCount = (imageSummary.cover ? 1 : 0) + Number(imageSummary.contentCount || 0);
   $("webDraftStatus").textContent = storedImageLoaded
     ? `웹 초안과 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}을 불러왔습니다. 아래 미리보기에서 확인한 뒤 네이버 편집기에 입력하세요.`
-    : "웹 초안을 불러왔습니다. 아래 본문 미리보기를 확인하고, 필요하면 대표 이미지를 생성한 뒤 네이버 편집기에 입력하세요.";
+    : imageCount === 0
+      ? "이 초안에는 저장된 이미지가 없습니다. 대시보드에서 대표 이미지와 본문 이미지 2장을 생성한 뒤 다시 전송해주세요."
+      : `이미지 ${imageCount}/3을 불러오지 못했습니다. 확장 프로그램을 v1.0.42로 업데이트한 뒤 다시 시도해주세요.`;
 }
 
 async function reportWebDraftInputResult(status, details = {}) {
