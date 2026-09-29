@@ -4,8 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
-
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
+import { IS_STANDALONE, MAIN_SITE_URL } from "@/lib/deployment";
 
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
@@ -50,12 +49,14 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             Threads 쇼핑제휴 자동화
           </div>
           <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
-          <a
-            href={`${MAIN_SITE_URL}/programs`}
-            className="block px-2 text-xs text-neutral-500 hover:text-neutral-900"
-          >
-            ← 다른 프로그램 보기
-          </a>
+          {!IS_STANDALONE && (
+            <a
+              href={`${MAIN_SITE_URL}/programs`}
+              className="block px-2 text-xs text-neutral-500 hover:text-neutral-900"
+            >
+              ← 다른 프로그램 보기
+            </a>
+          )}
         </div>
 
         <nav className="flex flex-col">

@@ -79,9 +79,26 @@
 
 ## 별도 서버로 통째 복제하기
 
-다른 GitHub·Vercel·Supabase 계정으로 옮겨 독립 운영하는 절차는 [`docs/STANDALONE_CLONE_GUIDE.md`](docs/STANDALONE_CLONE_GUIDE.md)
-참고. 새 DB에는 `docs/standalone-clone/00_core_tables.sql` → `supabase/migrations/0001~0007` → `docs/standalone-clone/99_finalize.sql`
-순서로 실행한다. 원본에 새 마이그레이션이나 AIMaster 의존(공용 테이블·`buylife.xyz` 링크)을 추가하면 이 가이드 §3·§4도 같이 고칠 것.
+다른 GitHub·Vercel·Supabase 계정으로 옮겨 독립 운영하는 **복제 키트**가 [`clone-kit/`](clone-kit/)에 있다 (v1.02, 2026-09-29).
+
+| 파일 | 내용 |
+|---|---|
+| `clone-kit/README.md` | 설치 매뉴얼 (Supabase → Vercel → 환경변수 → 첫 계정 → Threads 연동 → 크론 → 문제 해결) |
+| `clone-kit/GUIDELINES.md` | 복제본의 기본지침 (복제본에서는 `AGENTS.md`가 됨) |
+| `clone-kit/DB_DESIGN.md` | DB 설계 (테이블·관계·RLS·이용 권한 판정) |
+| `clone-kit/database/schema.sql` | 새 DB에 한 번에 붙여넣는 전체 스키마 (= `00_core_tables.sql` + `supabase/migrations/*` + `99_finalize.sql`) |
+| `clone-kit/env.example` | 환경변수 목록 |
+| `clone-kit/manuals/*.html` | 회원용 연동 매뉴얼 8종 (`platform_guides`에서 내보냄) |
+| `clone-kit/scripts/make-clone.mjs` | `node clone-kit/scripts/make-clone.mjs <대상폴더>` — 비밀값을 뺀 복제본 폴더를 만들고 위 파일들을 배치 |
+
+- **독립 운영 모드**: 같은 코드가 `NEXT_PUBLIC_STANDALONE_MODE=true`일 때 자체 회원가입(`/signup`, `/auth/callback`), 권한 없음 안내(`/no-access`),
+  법적 고지(`/legal/privacy|terms|data-deletion`, 운영자 정보는 `NEXT_PUBLIC_OPERATOR_*`)를 쓰고, AIMaster 링크·매뉴얼 버튼·다른 쓰레드 프로그램
+  테이블(`threads_accounts`, `th_accounts`, `th_posts`) 접근을 끈다. 스위치와 주소는 `src/lib/deployment.ts` 한 곳에 모여 있다. 값이 없으면(AIMaster 운영)
+  기존 동작과 같다.
+- 2026-09-29 검증: 두 모드 모두 `npm run build` 통과, `make-clone.mjs`로 만든 복제본 빌드 통과, `schema.sql`을 빈 PostgreSQL 17(Supabase auth/storage 최소 모사)에
+  실행해 오류 없이 테이블 15개·`post-images` 버킷·가입 트리거·키 종류 제한 동작 확인. 실제 새 Supabase/Vercel 계정에서의 전체 설치는 아직 안 해 봄.
+- **유지 규칙**: 새 마이그레이션을 추가하면 `make-clone.mjs`로 복제본을 한 번 만들어 `clone-kit/database/schema.sql`을 갱신하고, 새 AIMaster 의존
+  (공용 테이블·`buylife.xyz` 링크·다른 프로그램 테이블)을 추가하면 `deployment.ts` 분기와 `clone-kit/` 문서를 같이 고칠 것.
 
 ## Phase 진행 상태
 

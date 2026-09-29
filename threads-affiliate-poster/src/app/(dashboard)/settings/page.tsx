@@ -5,6 +5,7 @@ import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { Button } from "@/components/ui/Button";
 import { connectThreadsAccountAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { GUIDE_BASE_URL } from "@/lib/deployment";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
@@ -258,6 +259,7 @@ export default async function SettingsPage({
         </p>
       </section>
 
+      {GUIDE_BASE_URL && (
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <div className="mb-4">
           <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
@@ -272,6 +274,7 @@ export default async function SettingsPage({
           ))}
         </div>
       </section>
+      )}
     </div>
   );
 }

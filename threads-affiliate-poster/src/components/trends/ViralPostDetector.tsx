@@ -20,6 +20,7 @@ import type { CoupangProduct } from "@/lib/coupang/client";
 import { PRESET_PERSONAS } from "@/lib/constants/personas";
 import { PersonaPicker } from "@/components/personas/PersonaPicker";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { GUIDE_BASE_URL } from "@/lib/deployment";
 import { deleteMyPersonaAction, listMyPersonasAction } from "@/lib/actions/personas";
 import { resolvePersonaTone, type SavedPersona } from "@/lib/personaTone";
 import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS, PROVIDER_SHORT_LABELS } from "@/lib/ai/models";
@@ -1229,7 +1230,7 @@ export function ViralPostDetector() {
   );
 }
 
-const THREADS_GUIDE_URL = "https://www.buylife.xyz/guides/343996d3-8c77-455d-9bd4-54bcd47a34cd";
+const THREADS_GUIDE_ID = "343996d3-8c77-455d-9bd4-54bcd47a34cd";
 const APP_REVIEW_GUIDE_ID = "ae85d991-d907-4349-809e-818a6b3a2f54";
 
 function SearchModeGuide({
@@ -1281,14 +1282,16 @@ function SearchModeGuide({
                 🔑 검색 권한 포함해서 Threads 연결
               </button>
             </form>
-            <a
-              href={THREADS_GUIDE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg border border-emerald-400 bg-white px-3 py-1.5 text-[11px] font-bold text-emerald-800 hover:bg-emerald-50"
-            >
-              📖 연동 매뉴얼 보기
-            </a>
+            {GUIDE_BASE_URL && (
+              <a
+                href={`${GUIDE_BASE_URL}/guides/${THREADS_GUIDE_ID}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg border border-emerald-400 bg-white px-3 py-1.5 text-[11px] font-bold text-emerald-800 hover:bg-emerald-50"
+              >
+                📖 연동 매뉴얼 보기
+              </a>
+            )}
           </div>
         </div>
 
@@ -1313,13 +1316,15 @@ function SearchModeGuide({
               🔗 떡상글 직접 가져오기로 이동
             </button>
           </div>
-          <div className="rounded-lg border border-blue-200 bg-white p-2.5 space-y-1.5">
-            <p className="text-[11px] leading-relaxed text-blue-900">
-              💼 사업자가 있다면 <b>Meta 비즈니스 앱 승인</b>을 받아 A 방식(다른 사람의 공개 글 검색)으로 바꿀 수 있습니다.
-              준비물부터 제출·승인 후까지 단계별로 정리한 매뉴얼을 확인하세요.
-            </p>
-            <GuideLinkButton guideId={APP_REVIEW_GUIDE_ID} label="비즈니스 앱 승인 절차 매뉴얼 (공개 글 검색 권한 받기)" />
-          </div>
+          {GUIDE_BASE_URL && (
+            <div className="rounded-lg border border-blue-200 bg-white p-2.5 space-y-1.5">
+              <p className="text-[11px] leading-relaxed text-blue-900">
+                💼 사업자가 있다면 <b>Meta 비즈니스 앱 승인</b>을 받아 A 방식(다른 사람의 공개 글 검색)으로 바꿀 수 있습니다.
+                준비물부터 제출·승인 후까지 단계별로 정리한 매뉴얼을 확인하세요.
+              </p>
+              <GuideLinkButton guideId={APP_REVIEW_GUIDE_ID} label="비즈니스 앱 승인 절차 매뉴얼 (공개 글 검색 권한 받기)" />
+            </div>
+          )}
         </div>
       </div>
     </div>

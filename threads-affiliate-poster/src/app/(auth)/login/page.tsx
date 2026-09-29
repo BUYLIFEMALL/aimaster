@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { signInAction, type AuthActionState } from "@/lib/actions/auth";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 const initialState: AuthActionState = {};
 
@@ -35,7 +36,7 @@ function LoginForm() {
       <p className="mt-4 text-center text-sm text-neutral-500">
         계정이 없으신가요?{" "}
         <Link href="/signup" className="font-medium text-neutral-900 underline">
-          AIMaster에서 회원가입
+          {IS_STANDALONE ? "회원가입" : "AIMaster에서 회원가입"}
         </Link>
       </p>
     </div>

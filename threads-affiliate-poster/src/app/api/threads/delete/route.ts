@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveSignedRequestAccounts, THREADS_ACCOUNT_TABLES } from "@/lib/threads/signedRequest";
+import { DATA_DELETION_URL, IS_STANDALONE } from "@/lib/deployment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-
-const DELETION_STATUS_URL = "https://www.buylife.xyz/data-deletion";
 
 // Meta "Delete Callback URL": deletes data obtained from Threads for all three Threads programs
 // (connections/tokens, comment-reply's fetched posts and comments, affiliate's keyword-search
@@ -24,8 +23,8 @@ export async function POST(request: NextRequest) {
     for (const table of THREADS_ACCOUNT_TABLES) {
       await admin.from(table).delete().eq("threads_user_id", threadsUserId!).in("user_id", userIds);
     }
-    // th_comments rows cascade from th_posts.
-    await admin.from("th_posts").delete().in("user_id", userIds);
+    // th_comments rows cascade from th_posts (comment-reply program; absent in a standalone copy).
+    if (!IS_STANDALONE) await admin.from("th_posts").delete().in("user_id", userIds);
     await admin.from("tap_saved_posts").delete().in("user_id", userIds).like("post_id", "th-%");
   }
 
@@ -33,7 +32,7 @@ export async function POST(request: NextRequest) {
   console.info("[threads data deletion]", { threadsUserId, deletedFor: userIds.length, confirmationCode });
 
   return NextResponse.json({
-    url: `${DELETION_STATUS_URL}?code=${confirmationCode}`,
+    url: `${DATA_DELETION_URL}?code=${confirmationCode}`,
     confirmation_code: confirmationCode,
   });
 }

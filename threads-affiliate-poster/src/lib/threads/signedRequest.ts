@@ -2,6 +2,7 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserApiKey } from "@/lib/apiKeys";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 interface SignedRequestPayload {
   algorithm?: string;
@@ -31,8 +32,10 @@ function isValidSignature(signature: Buffer, encodedPayload: string, appSecret: 
 
 // One member Meta app is shared by all three Threads programs (auto-posting, comment-reply,
 // affiliate), but Meta allows a single uninstall/delete callback URL, so this endpoint covers the
-// connection tables of all three.
-export const THREADS_ACCOUNT_TABLES = ["tap_accounts", "threads_accounts", "th_accounts"] as const;
+// connection tables of all three. A standalone copy only has its own table.
+export const THREADS_ACCOUNT_TABLES: readonly string[] = IS_STANDALONE
+  ? ["tap_accounts"]
+  : ["tap_accounts", "threads_accounts", "th_accounts"];
 
 // Members connect through their own Meta apps, so the signature must be checked against the app
 // secret of each member linked to this Threads user; only those that verify are returned.

@@ -1,6 +1,6 @@
 "use client";
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
+import { GUIDE_BASE_URL } from "@/lib/deployment";
 
 /**
  * 루트 AIMaster의 공개 매뉴얼 게시판(app/(main)/guides/[id])을 팝업창으로 띄운다
@@ -9,9 +9,12 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
  * 따라 할 수 있게 한다.
  */
 export function GuideLinkButton({ guideId, label }: { guideId: string; label: string }) {
+  // A standalone copy without its own manual site shows no manual buttons.
+  if (!GUIDE_BASE_URL) return null;
+
   const openGuide = () => {
     window.open(
-      `${MAIN_SITE_URL}/guides/${guideId}`,
+      `${GUIDE_BASE_URL}/guides/${guideId}`,
       "platform-guide-popup",
       "width=720,height=860,scrollbars=yes,resizable=yes",
     );

@@ -1,5 +1,5 @@
--- Standalone clone of Threads Affiliate Poster — step 1 of 3.
--- Run this in the NEW Supabase project's SQL Editor BEFORE supabase/migrations/0001~0007.
+-- Standalone clone of Threads Affiliate Poster — part 1 of 3 (clone-kit/scripts/make-clone.mjs joins all parts into supabase/schema.sql).
+-- Runs before supabase/migrations/0001~0007 in the NEW Supabase project.
 --
 -- In AIMaster these tables are shared by every program and are created by the root app.
 -- A standalone copy has no AIMaster, so this file creates the minimum the program reads:

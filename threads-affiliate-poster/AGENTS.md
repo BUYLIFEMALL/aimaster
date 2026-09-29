@@ -80,6 +80,14 @@
 
 ---
 
+## 📦 복제 키트 · 독립 운영 모드 (2026-09-29, v1.02)
+
+- 다른 계정으로 통째 복제하는 키트는 `clone-kit/`(설치 매뉴얼·기본지침·DB 설계·`database/schema.sql`·`env.example`·연동 매뉴얼 8종·`scripts/make-clone.mjs`). 상세는 `README.md` "별도 서버로 통째 복제하기".
+- 코드는 하나로 유지한다: `NEXT_PUBLIC_STANDALONE_MODE=true`일 때만 자체 가입(`/signup`, `/auth/callback`), `/no-access`, `/legal/*`를 쓰고
+  AIMaster 링크·매뉴얼 버튼·다른 쓰레드 프로그램 테이블 접근을 끈다(`src/lib/deployment.ts`). AIMaster 운영에서는 이 값을 넣지 않는다.
+- **새 기능이 AIMaster에 기대면**(공용 테이블, `buylife.xyz` 링크, `threads_accounts` 같은 다른 프로그램 테이블) `deployment.ts` 분기와 `clone-kit/` 문서를 같이 고치고,
+  새 마이그레이션을 추가하면 `make-clone.mjs`로 `clone-kit/database/schema.sql`을 다시 만든다.
+
 ## 🧭 사이드바 (2026-09-29)
 
 - 좌측 메뉴 하단의 로그인 계정(이메일) + 로그아웃은 다른 프로그램과 같은 형식이다. `/trends`처럼 긴 페이지에서 계정 영역이

@@ -1,4 +1,4 @@
--- Standalone clone of Threads Affiliate Poster — step 3 of 3.
+-- Standalone clone of Threads Affiliate Poster — part 3 of 3 (joined into supabase/schema.sql by make-clone.mjs).
 -- Run AFTER 00_core_tables.sql and supabase/migrations/0001~0007.
 -- 0001 rewrites the provider check with AIMaster's list of the time; replace it with exactly
 -- the providers this program saves (see ApiKeyProvider in src/types/database.types.ts).

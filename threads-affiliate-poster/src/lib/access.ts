@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { IS_STANDALONE, MAIN_SITE_URL } from "@/lib/deployment";
 
 // 이 앱(threads-affiliate-poster)은 AIMaster와 같은 Supabase 프로젝트를 공유한다.
 // 로그인 여부만으로는 부족하고, AIMaster의 programs/subscriptions/user_program_access
@@ -12,7 +13,12 @@ type SupabaseLike = {
 };
 
 const THIS_PROGRAM_SLUG = "threads-affiliate-poster";
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
+// Where to send members without access: the AIMaster product page, or this app's own notice when standalone.
+function noAccessUrl(reason?: "suspended") {
+  if (IS_STANDALONE) return reason ? `/no-access?reason=${reason}` : "/no-access";
+  const productPage = `${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}`;
+  return reason ? `${productPage}?error=${reason}` : productPage;
+}
 
 function isNotExpired(expiresAt: string | null): boolean {
   return !expiresAt || new Date(expiresAt) > new Date();
@@ -28,7 +34,7 @@ export async function requireProgramAccess() {
     .eq("id", user.id)
     .maybeSingle();
   if (suspendCheck?.is_suspended) {
-    redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?error=suspended`);
+    redirect(noAccessUrl("suspended"));
   }
 
   const { data: program } = await supabase
@@ -39,7 +45,7 @@ export async function requireProgramAccess() {
     .single();
 
   if (!program) {
-    redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}`);
+    redirect(noAccessUrl());
   }
 
   const { data: subs } = await supabase
@@ -85,7 +91,7 @@ export async function requireProgramAccess() {
     return user;
   }
 
-  redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}`);
+  redirect(noAccessUrl());
 }
 
 /**
