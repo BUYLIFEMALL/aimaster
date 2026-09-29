@@ -77,6 +77,12 @@
 5. `🚀 퍼블리싱 & 예약 관리 (/posts)` — Threads 즉시 게시 또는 스케줄링 예약 자동 포스팅 진행
 4. 예약 게시는 `threads/`와 동일한 크론 이중화(cron-job.org 메인 + Vercel Cron 백업)로 처리
 
+## 별도 서버로 통째 복제하기
+
+다른 GitHub·Vercel·Supabase 계정으로 옮겨 독립 운영하는 절차는 [`docs/STANDALONE_CLONE_GUIDE.md`](docs/STANDALONE_CLONE_GUIDE.md)
+참고. 새 DB에는 `docs/standalone-clone/00_core_tables.sql` → `supabase/migrations/0001~0007` → `docs/standalone-clone/99_finalize.sql`
+순서로 실행한다. 원본에 새 마이그레이션이나 AIMaster 의존(공용 테이블·`buylife.xyz` 링크)을 추가하면 이 가이드 §3·§4도 같이 고칠 것.
+
 ## Phase 진행 상태
 
 [AGENTS.md](AGENTS.md)의 Phase 표 참고.
