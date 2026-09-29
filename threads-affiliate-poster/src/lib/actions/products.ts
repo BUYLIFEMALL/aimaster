@@ -9,8 +9,9 @@ import {
   checkCoupangAffiliateLink,
   COUPANG_LINK_MESSAGES,
   extractCoupaNgUrl,
-  parseCoupangWidgetRedirect,
+  parseCoupangShareCode,
 } from "@/lib/coupang/links";
+import { cropPhotoFromCoupangBanner } from "@/lib/coupang/widget";
 import { getPromotionLinks, getProductDetails, extractAliexpressProductId, resolveAliexpressUrl } from "@/lib/aliexpress/client";
 import {
   getBestSelling,
@@ -383,39 +384,41 @@ export async function deleteProductAction(formData: FormData) {
 }
 
 /**
- * Reads the Coupang Partners "이미지 + 텍스트 → 일반태그" code (<iframe src="https://coupa.ng/...">):
- * coupa.ng redirects to the widget page with the tracking link, product name and photo path in its
- * query string. This is the widget view shown on blogs, not the "쇼핑하기" click, so it does not count
- * as an affiliate click. Only coupa.ng is ever requested (no arbitrary URLs from the member).
+ * Reads the Coupang Partners "이미지 + 텍스트 → 블로그용 태그" code
+ * (<a href="https://link.coupang.com/a/..."><img src=".../affiliate/banner/..." alt="상품명"></a>):
+ * link and name come from the code, and the product photo is cut out of the banner and stored in
+ * post-images. Only coupangcdn.com banner URLs are fetched. The "일반태그" (coupa.ng) is refused because
+ * coupa.ng blocks every cloud server (see src/lib/coupang/widget.ts).
  */
-export async function lookupCoupangWidgetAction(
+export async function importCoupangBlogTagAction(
   text: string,
 ): Promise<{ url?: string; name?: string; imageUrl?: string; error?: string }> {
-  await requireProgramAccess();
-  const widgetUrl = extractCoupaNgUrl(text);
-  if (!widgetUrl) return { error: "HTML 코드에서 쿠팡 위젯 주소(coupa.ng)를 찾지 못했습니다." };
+  const user = await requireProgramAccess();
+  if (extractCoupaNgUrl(text) && !/<a\b/i.test(text)) return { error: COUPANG_LINK_MESSAGES.widget_url };
 
-  try {
-    const res = await fetch(widgetUrl, {
-      redirect: "manual",
-      cache: "no-store",
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-      },
-      signal: AbortSignal.timeout(5000),
-    });
-    const location = res.headers.get("location");
-    const parsed = location ? parseCoupangWidgetRedirect(location) : null;
-    if (!parsed) {
-      console.warn("[coupang widget] unexpected response", res.status, location?.slice(0, 120));
-      return { error: COUPANG_LINK_MESSAGES.widget_url };
+  const parsed = parseCoupangShareCode(text);
+  if (!parsed) return { error: "붙여넣은 내용에서 링크를 찾지 못했습니다." };
+  const linkCheck = checkCoupangAffiliateLink(parsed.url);
+  if (!linkCheck.ok) return { error: COUPANG_LINK_MESSAGES[linkCheck.reason] };
+
+  let imageUrl = parsed.imageUrl;
+  if (!imageUrl && parsed.bannerUrl) {
+    try {
+      const photo = await cropPhotoFromCoupangBanner(parsed.bannerUrl);
+      if (photo) {
+        const supabase = await createClient();
+        const path = `${user.id}/products/coupang-${crypto.randomUUID()}.jpg`;
+        const { error } = await supabase.storage
+          .from("post-images")
+          .upload(path, photo, { contentType: "image/jpeg", upsert: false });
+        if (error) throw new Error(error.message);
+        imageUrl = supabase.storage.from("post-images").getPublicUrl(path).data.publicUrl;
+      }
+    } catch (err) {
+      console.warn("[coupang banner] photo import failed", err);
     }
-    return parsed;
-  } catch (err) {
-    console.warn("[coupang widget] lookup failed", err);
-    return { error: COUPANG_LINK_MESSAGES.widget_url };
   }
+  return { url: parsed.url, name: parsed.name, imageUrl };
 }
 
 /** Fetch the image again for an AliExpress product saved without one (or with a broken one). */

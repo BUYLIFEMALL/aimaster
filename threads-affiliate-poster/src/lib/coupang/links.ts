@@ -32,7 +32,19 @@ export function checkCoupangAffiliateLink(raw: string): CoupangLinkCheck {
 export interface ParsedCoupangShare {
   url: string;
   imageUrl?: string;
+  /** Blog-tag banner (logo + photo + button) the product photo is cropped from. */
+  bannerUrl?: string;
   name?: string;
+}
+
+/** Banner images of the Partners "블로그용 태그", e.g. https://img3a.coupangcdn.com/image/affiliate/banner/<hash>@2x.jpg */
+export function isCoupangBannerUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && /(^|\.)coupangcdn\.com$/i.test(url.hostname) && url.pathname.includes("/affiliate/banner/");
+  } catch {
+    return false;
+  }
 }
 
 function decodeEntities(value: string): string {
@@ -66,12 +78,14 @@ export function parseCoupangShareCode(text: string): ParsedCoupangShare | null {
   const anchorText = trimmed.match(/<a\b[^>]*>([^<]+)<\/a>/i)?.[1];
   const name = [alt, title, anchorText].map((v) => (v ? decodeEntities(v) : "")).find((v) => v.length > 1);
 
-  // The blog tag's <img> is a 120x240 banner (Coupang logo + photo + "쇼핑하기" button), not a product
-  // photo, so it is not used; the general tag (iframe) gives the clean photo via lookupCoupangWidgetAction.
+  // The blog tag's <img> is a 240x480 banner (Coupang logo + photo + "쇼핑하기" button), not a product
+  // photo: it is returned as bannerUrl and the photo is cut out of it on the server (importCoupangBlogTagAction).
   const imageUrl = img ? decodeEntities(img).replace(/^\/\//, "https://") : undefined;
+  const isBanner = !!imageUrl && isCoupangBannerUrl(imageUrl);
   return {
     url,
-    imageUrl: imageUrl && !/\/affiliate\/banner\//i.test(imageUrl) ? imageUrl : undefined,
+    imageUrl: imageUrl && !isBanner ? imageUrl : undefined,
+    bannerUrl: isBanner ? imageUrl : undefined,
     name: name || undefined,
   };
 }
@@ -82,7 +96,7 @@ export const COUPANG_LINK_MESSAGES: Record<Exclude<CoupangLinkCheck, { ok: true 
   plain_store_url:
     "⚠️ 일반 쿠팡 쇼핑 주소라서 수수료가 잡히지 않습니다. 쿠팡파트너스 사이트(partners.coupang.com)의 [링크 생성]에서 만든 링크(link.coupang.com/a/...)를 넣어주세요.",
   widget_url:
-    "HTML 코드의 상품 정보를 읽지 못했습니다. 잠시 후 다시 시도하거나, 같은 화면의 [단축 URL](link.coupang.com/a/...)을 복사해 넣어주세요.",
+    "\"일반태그\"(iframe) 코드는 쿠팡이 서버 접속을 막아 읽을 수 없습니다. 같은 화면에서 \"블로그용 태그\"를 선택해 [HTML 복사]한 코드를 넣어주세요.",
 };
 
 /** The widget address (https://coupa.ng/xxxx) inside the "이미지 + 텍스트" HTML code, or a pasted bare one. */

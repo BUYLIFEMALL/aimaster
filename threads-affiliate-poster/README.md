@@ -66,12 +66,14 @@
 
 - 파트너스 사이트(partners.coupang.com [링크 생성])에서 만든 링크는 "쿠팡 상품 URL 직접 입력 → 이 링크로 등록"으로 등록한다. 검색 API는 키워드당 10개·시간당 10회라 사이트보다 상품이 적다.
 - `src/lib/coupang/links.ts`의 `checkCoupangAffiliateLink()`가 화면과 서버(`registerCoupangProductAction`) 양쪽에서 링크를 검사한다: `link.coupang.com/...` 또는 `lptag=AF...`가 붙은 주소만 허용, 일반 쇼핑 주소(`www/m.coupang.com/...`)는 수수료가 안 잡히므로 경고하고 등록을 막는다. `coupa.ng` 단축 링크도 허용.
-- 등록 화면의 직접 입력 칸 제목은 "🛒 쿠팡 API키 발급을 못받은 경우 직접 등록방법"(굵게)이고, 아래에 5단계 등록 방법(파트너스 링크 생성 화면 바로가기 포함)을 안내한다(v1.10).
-- **사진·이름 자동 입력 (v1.09, 2026-09-30 실측으로 확정)**: 쿠팡은 서버에서 상품 페이지를 열면 403으로 막고, 검색 API에 상품번호를 넣어도 그 상품이 나오지 않아 링크 주소만으로는 사진을 못 가져온다. 대신 파트너스 링크 생성 화면 아래 **[이미지 + 텍스트] → HTML** 코드를 쓴다.
-  - **일반태그** `<iframe src="https://coupa.ng/xxxx">`: `coupa.ng`가 `ads-partners.coupang.com/iframe/product?link=…&linkUrl=…&title=…&image=…`로 301 → `lookupCoupangWidgetAction`(서버, coupa.ng만 요청)이 제휴 링크(`link`)·상품명(`title`)·사진(`https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/{image}`)을 채운다. 블로그에 위젯이 보이는 것과 같은 요청이라 "쇼핑하기" 클릭으로 잡히지 않는다.
-  - **블로그용 태그** `<a href="https://link.coupang.com/a/…"><img src="…/affiliate/banner/…" alt="상품명">`: 링크·상품명만 쓴다. 이 이미지는 쿠팡 로고+버튼이 합쳐진 120x240 배너라 사진으로 쓰지 않는다.
+- 등록 화면의 직접 입력 칸 제목은 "🛒 쿠팡 API키 발급을 못받은 경우 직접 등록방법"(굵게)이고, 아래에 5단계 등록 방법(파트너스 링크 생성 화면 바로가기 포함)을 안내한다(v1.10, v1.11부터 2단계는 "블로그용 태그").
+- **사진·이름 자동 입력 (v1.11, 2026-09-30 서버 실측으로 확정)**: 쿠팡은 서버에서 상품 페이지를 열면 403으로 막고, 검색 API에 상품번호를 넣어도 그 상품이 나오지 않아 링크 주소만으로는 사진을 못 가져온다. 대신 파트너스 링크 생성 화면 아래 **[이미지 + 텍스트] → HTML → "블로그용 태그"** 코드를 쓴다.
+  - **블로그용 태그** `<a href="https://link.coupang.com/a/…"><img src="https://img3a.coupangcdn.com/image/affiliate/banner/…@2x.jpg" alt="상품명">`: `importCoupangBlogTagAction`이 링크·상품명을 코드에서 읽고, 배너(240x480, 로고+사진+버튼)의 사진 칸(0,60,240,240)을 잘라(`src/lib/coupang/widget.ts`, jpeg-js) `post-images`에 저장한다. coupangcdn.com 배너 주소만 요청한다.
+  - **일반태그** `<iframe src="https://coupa.ng/xxxx">`는 **쓰지 않는다**: 이 컴퓨터(한국 가정/사무실 회선)에서는 coupa.ng가 링크·이름·사진 경로를 담은 주소로 넘겨주지만, **Vercel 서버에서는 미국·서울 지역 모두 403**(클라우드 IP 차단). v1.09에서 로컬 테스트만 보고 이 방식으로 배포했다가 회원 화면에서 실패했다. 일반태그를 넣으면 "블로그용 태그를 넣어달라"는 안내가 뜬다.
   - `coupa.ng` 주소 자체는 위젯 페이지라 게시글 링크로 저장하지 않는다(`checkCoupangAffiliateLink`가 `widget_url`로 거부).
   - 제휴 링크(`link.coupang.com/a/`)를 서버가 직접 여는 방식은 회원의 제휴 클릭으로 잡힐 수 있어 쓰지 않는다.
+  - `sharp`는 쓰지 않는다: Vercel 함수에 네이티브 라이브러리(libvips)가 포함되지 않아 `ERR_DLOPEN_FAILED`로 실패했다(시험 배포에서 확인). 순수 JS인 `jpeg-js`로 자른다.
+  - `vercel.json`에 `"regions": ["icn1"]`(서울) 지정 — 쿠팡 차단은 풀리지 않았지만 공용 DB(Supabase ap-northeast-2)와 가까워 유지.
 
 ## 떡상글 탐지기 (/trends)
 

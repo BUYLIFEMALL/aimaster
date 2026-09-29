@@ -15,7 +15,7 @@ import { EnrichmentFields } from "./EnrichmentFields";
 import {
   searchCoupangProductsAction,
   registerCoupangProductAction,
-  lookupCoupangWidgetAction,
+  importCoupangBlogTagAction,
   type RegisterProductState,
 } from "@/lib/actions/products";
 import type { CoupangProduct } from "@/lib/coupang/client";
@@ -80,29 +80,28 @@ export function CoupangProductForm({
     });
   };
 
-  // The manual field takes a short URL, the "일반태그" iframe code (coupa.ng widget → link/name/clean photo
-  // looked up on the server) or the "블로그용 태그" <a><img> code (link/name; its image is a banner).
+  // The manual field takes a short URL or the "블로그용 태그" <a><img> code: the server takes link/name
+  // from it and cuts the product photo out of the banner. The "일반태그" iframe (coupa.ng) can't be read
+  // from servers, so it gets a message asking for the blog tag instead.
   const applyPastedCode = (value: string) => {
     setManualInfo(null);
-    const widgetUrl = extractCoupaNgUrl(value);
-    if (widgetUrl) {
-      startLookup(async () => {
-        const info = await lookupCoupangWidgetAction(value);
-        if (info.error || !info.url) {
-          setManualError(info.error ?? COUPANG_LINK_MESSAGES.widget_url);
-          return;
-        }
-        setManualError(null);
-        setManualInfo({ url: info.url, name: info.name, imageUrl: info.imageUrl });
-        if (info.name) setManualName((prev) => prev.trim() || info.name!);
-      });
+    setManualError(null);
+    if (!value.includes("<")) return;
+    if (extractCoupaNgUrl(value) && !/<a\b/i.test(value)) {
+      setManualError(COUPANG_LINK_MESSAGES.widget_url);
       return;
     }
-    const parsed = value.includes("<") ? parseCoupangShareCode(value) : null;
-    if (parsed) {
-      setManualInfo(parsed);
-      if (parsed.name) setManualName((prev) => prev.trim() || parsed.name!);
-    }
+    const parsed = parseCoupangShareCode(value);
+    if (!parsed) return;
+    if (parsed.name) setManualName((prev) => prev.trim() || parsed.name!);
+    startLookup(async () => {
+      const info = await importCoupangBlogTagAction(value);
+      if (info.error || !info.url) {
+        setManualError(info.error ?? "붙여넣은 코드를 읽지 못했습니다.");
+        return;
+      }
+      setManualInfo({ url: info.url, name: info.name, imageUrl: info.imageUrl });
+    });
   };
 
   const handleUseManualUrl = () => {
@@ -172,7 +171,7 @@ export function CoupangProductForm({
             에서 등록할 상품을 찾아 <b>[링크 생성]</b>을 누릅니다.
           </li>
           <li>
-            <b>2단계.</b> 화면 아래 <b>[이미지 + 텍스트]</b> 영역의 HTML에서 <b>&quot;일반태그&quot;</b>를 선택합니다.
+            <b>2단계.</b> 화면 아래 <b>[이미지 + 텍스트]</b> 영역의 HTML에서 <b>&quot;블로그용 태그&quot;</b>를 선택합니다. (&quot;일반태그&quot;는 쿠팡이 막아서 읽을 수 없어요)
           </li>
           <li>
             <b>3단계.</b> <b>[HTML 복사]</b> 버튼을 누릅니다.
@@ -199,9 +198,9 @@ export function CoupangProductForm({
             setManualUrl(e.target.value);
             applyPastedCode(e.target.value);
           }}
-          placeholder='https://link.coupang.com/a/...  또는  <iframe src="https://coupa.ng/..."></iframe>'
+          placeholder='https://link.coupang.com/a/...  또는  <a href="https://link.coupang.com/a/..."><img ...></a>'
         />
-        {isLookingUp && <p className="text-xs text-neutral-500">쿠팡에서 상품 정보를 확인하는 중...</p>}
+        {isLookingUp && <p className="text-xs text-neutral-500">코드에서 상품 사진을 만드는 중...</p>}
         {manualInfo && (
           <div className="flex items-center gap-2 text-xs text-neutral-600">
             {manualInfo.imageUrl && (
@@ -210,7 +209,7 @@ export function CoupangProductForm({
             )}
             <span>
               ✅ 확인됨: {manualInfo.name ?? "상품명 없음"}
-              {!manualInfo.imageUrl && " (사진은 없음 — 일반태그 코드를 넣으면 사진도 가져옵니다)"}
+              {!manualInfo.imageUrl && " (사진은 없음 — 블로그용 태그 코드를 넣으면 사진도 가져옵니다)"}
             </span>
           </div>
         )}

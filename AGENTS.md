@@ -473,6 +473,17 @@ vercel deploy --prod --yes --scope buylife
   수 있다 — Supabase Storage 대신 이 방법을 쓴 이유는 무료·용량 걱정 없음(private 저장소가
   아니라 그냥 public repo의 릴리스 기능).
 
+### 2026-09-30 추가 (외부 사이트 연동은 로컬 테스트만 믿지 말 것)
+
+- **이 컴퓨터(한국 가정/사무실 회선)에서 되는 외부 사이트 요청이 Vercel 서버에서는 막힐 수 있다.** 쿠팡 위젯 주소(`coupa.ng`)가
+  로컬에서는 정상인데 Vercel(미국·서울 지역 모두)에서는 403이었다 — 클라우드 IP를 막는 사이트가 있다. 쇼핑제휴 v1.09를 로컬 테스트만 보고
+  배포했다가 회원 화면에서 실패했다. **외부 사이트를 서버에서 불러오는 기능은 운영 배포 전에 `vercel deploy`(미리보기)에 임시 진단 경로를
+  올려 `vercel curl "/경로?x=1" --deployment "https://<미리보기 주소>"`로 실제 서버에서 확인하고, 진단 경로는 지운 뒤 운영 배포한다.**
+  (`vercel curl`은 경로에 `?`가 없으면 "Malformed input" 오류가 나서 쿼리를 하나 붙였다.)
+- **`sharp`는 Vercel 함수에서 실패할 수 있다**(Next 16 + turbopack 빌드에서 libvips 누락, `ERR_DLOPEN_FAILED`). 작은 이미지 자르기 정도는
+  순수 JS(`jpeg-js`)로 처리한다. 네이티브 모듈을 새로 넣으면 역시 미리보기 배포에서 먼저 확인할 것.
+- 상세: `threads-affiliate-poster/README.md` "쿠팡 링크 직접 등록 검사".
+
 ### 2026-09-29 추가 (좌측 사이드바 계정 표시 통일)
 
 - **모든 서브프로젝트의 `Sidebar.tsx`는 "로그인 계정 + 로그아웃"을 메뉴 바로 밑에 붙여서,
