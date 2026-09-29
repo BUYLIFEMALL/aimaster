@@ -33,7 +33,7 @@ export async function requireProgramAccess() {
   // 정지된 계정은 구독/개별부여/등급과 무관하게 모든 프로그램 접근을 막는다.
   const { data: suspendCheck } = await supabase
     .from("profiles")
-    .select("is_suspended")
+    .select("is_suspended, is_admin")
     .eq("id", user.id)
     .maybeSingle();
   if (suspendCheck?.is_suspended) {
@@ -42,7 +42,7 @@ export async function requireProgramAccess() {
 
   const { data: program } = await supabase
     .from("programs")
-    .select("id, required_grade_id")
+    .select("id, required_grade_id, badges")
     .eq("slug", THIS_PROGRAM_SLUG)
     .eq("is_active", true)
     .single();
@@ -50,6 +50,9 @@ export async function requireProgramAccess() {
   if (!program) {
     redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}`);
   }
+
+  // 베타테스트 정책(2026-09-29): 관리자와 무료 배지 프로그램은 가입한 회원이면 사용 가능.
+  if (suspendCheck?.is_admin || (program.badges ?? []).includes("free")) return user;
 
   // 1. 활성 구독
   const { data: subs } = await supabase
@@ -70,8 +73,7 @@ export async function requireProgramAccess() {
     .select("expires_at")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
-    .maybeSingle();
-  if (grant && isNotExpired(grant.expires_at)) return user;
+    .maybeSingle();
 
   // 3. 등급 제한이 없는 프로그램이면 로그인 사용자 전체 허용
   if (!program.required_grade_id) return user;
@@ -90,12 +92,7 @@ export async function requireProgramAccess() {
     .single();
 
   const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade;
-  if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order) {
-    return user;
-  }
-
-  // 일반 회원 (sort_order >= 1 또는 로그인 유저) 기본 접근 허용
-  if (!userGrade || userGrade.sort_order >= 1) {
+  if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order && grant && isNotExpired(grant.expires_at)) {
     return user;
   }
 

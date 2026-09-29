@@ -30,7 +30,7 @@ export async function requireProgramAccess() {
 
   const { data: suspendCheck } = await supabase
     .from("profiles")
-    .select("is_suspended")
+    .select("is_suspended, is_admin")
     .eq("id", user.id)
     .maybeSingle();
   if (suspendCheck?.is_suspended) {
@@ -39,7 +39,7 @@ export async function requireProgramAccess() {
 
   const { data: program } = await supabase
     .from("programs")
-    .select("id, required_grade_id")
+    .select("id, required_grade_id, badges")
     .eq("slug", THIS_PROGRAM_SLUG)
     .eq("is_active", true)
     .single();
@@ -47,6 +47,9 @@ export async function requireProgramAccess() {
   if (!program) {
     redirect(noAccessUrl());
   }
+
+  // 베타테스트 정책(2026-09-29): 관리자와 무료 배지 프로그램은 가입한 회원이면 사용 가능.
+  if (suspendCheck?.is_admin || (program.badges ?? []).includes("free")) return user;
 
   const { data: subs } = await supabase
     .from("subscriptions")
@@ -65,8 +68,7 @@ export async function requireProgramAccess() {
     .select("expires_at")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
-    .maybeSingle();
-  if (grant && isNotExpired(grant.expires_at)) return user;
+    .maybeSingle();
 
   if (!program.required_grade_id) return user;
 
@@ -83,11 +85,7 @@ export async function requireProgramAccess() {
     .single();
 
   const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade;
-  if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order) {
-    return user;
-  }
-
-  if (!userGrade || userGrade.sort_order >= 1) {
+  if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order && grant && isNotExpired(grant.expires_at)) {
     return user;
   }
 
@@ -153,7 +151,7 @@ export async function checkProgramAccessApi(): Promise<
 
   const { data: suspendCheck } = await sb
     .from("profiles")
-    .select("is_suspended")
+    .select("is_suspended, is_admin")
     .eq("id", user.id)
     .maybeSingle();
   if (suspendCheck?.is_suspended) {
@@ -162,7 +160,7 @@ export async function checkProgramAccessApi(): Promise<
 
   const { data: program } = await sb
     .from("programs")
-    .select("id, required_grade_id")
+    .select("id, required_grade_id, badges")
     .eq("slug", THIS_PROGRAM_SLUG)
     .eq("is_active", true)
     .single();
@@ -170,6 +168,9 @@ export async function checkProgramAccessApi(): Promise<
   if (!program) {
     return { allowed: false, error: "이용 중인 프로그램을 찾을 수 없습니다.", status: 403 };
   }
+
+  // 베타테스트 정책(2026-09-29): 관리자와 무료 배지 프로그램은 가입한 회원이면 사용 가능.
+  if (suspendCheck?.is_admin || (program.badges ?? []).includes("free")) return { allowed: true, user };
 
   const { data: subs } = await sb
     .from("subscriptions")
@@ -188,8 +189,7 @@ export async function checkProgramAccessApi(): Promise<
     .select("expires_at")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
-    .maybeSingle();
-  if (grant && isNotExpired(grant.expires_at)) return { allowed: true, user };
+    .maybeSingle();
 
   if (!program.required_grade_id) return { allowed: true, user };
 
@@ -206,11 +206,7 @@ export async function checkProgramAccessApi(): Promise<
     .single();
 
   const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade;
-  if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order) {
-    return { allowed: true, user };
-  }
-
-  if (!userGrade || userGrade.sort_order >= 1) {
+  if (userGrade && requiredGrade && userGrade.sort_order >= requiredGrade.sort_order && grant && isNotExpired(grant.expires_at)) {
     return { allowed: true, user };
   }
 

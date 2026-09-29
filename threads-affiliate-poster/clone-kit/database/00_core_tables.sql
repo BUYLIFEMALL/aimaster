@@ -70,6 +70,7 @@ create table if not exists public.programs (
   slug text not null unique,
   is_active boolean default true,
   required_grade_id uuid references public.member_grades(id),
+  badges text[] not null default '{}',  -- 'free' = every signed-in member may use it
   version text not null default 'v1.01',
   created_at timestamptz default now()
 );

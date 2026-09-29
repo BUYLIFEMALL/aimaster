@@ -33,20 +33,19 @@ export function evaluateProgramAccess(input: {
   userGradeSortOrder: number | null;
   requiredGradeSortOrder: number | null;
 }): { allowed: boolean; reason: ProgramAccessReason } {
+  // Beta-test policy (2026-09-29), same as the root lib/access/checkProgramAccess.ts:
+  // "free" badge -> any member; otherwise subscription, or minimum grade + unexpired granted period.
   if (input.isSuspended) return { allowed: false, reason: "suspended" };
   if (input.isAdmin) return { allowed: true, reason: "admin" };
   if (input.isFree) return { allowed: true, reason: "no_restriction" };
   if (input.hasActiveSubscription) return { allowed: true, reason: "active_subscription" };
-  if (input.hasIndividualGrant && isNotExpired(input.individualGrantExpiresAt ?? null)) {
-    return { allowed: true, reason: "individual_grant" };
-  }
   if (!input.requiredGradeId) return { allowed: true, reason: "no_restriction" };
-  if (
+  const meetsGrade =
     input.userGradeSortOrder != null &&
     input.requiredGradeSortOrder != null &&
-    input.userGradeSortOrder >= input.requiredGradeSortOrder
-  ) {
-    return { allowed: true, reason: "grade_access" };
+    input.userGradeSortOrder >= input.requiredGradeSortOrder;
+  if (meetsGrade && input.hasIndividualGrant && isNotExpired(input.individualGrantExpiresAt ?? null)) {
+    return { allowed: true, reason: "individual_grant" };
   }
   return { allowed: false, reason: "none" };
 }

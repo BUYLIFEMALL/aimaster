@@ -283,6 +283,20 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
      함수로 교체해 재발을 막음 — **새 프로그램/새 화면을 만들 때 이 판정이 필요하면 반드시
      이 공용 함수부터 확인할 것, 절대 직접 새로 짜지 않는다.**
 
+### 이용 권한 판정 정책 (2026-09-29 베타테스트 기간, 주인님 지시)
+모든 판정 코드(루트 `lib/access/checkProgramAccess.ts`의 `evaluateProgramAccess()`, 각 서브프로젝트 `lib/access.ts`의
+`requireProgramAccess()`/`checkProgramAccessApi()`)는 아래 순서를 똑같이 따른다.
+1. 정지된 계정(`profiles.is_suspended`) → 차단
+2. 관리자(`profiles.is_admin`) → 허용
+3. **무료 배지(`programs.badges`에 `free`) → 가입한 회원이면 누구나 허용**
+4. 결제한 구독(`subscriptions` status=active, 만료 전) → 허용
+5. `programs.required_grade_id`가 비어 있으면 → 허용 (현재 운영 중인 프로그램은 전부 "일반"으로 지정돼 있어 해당 없음)
+6. **회원 등급 ≥ 프로그램 최소 등급(일반 이상) 이면서, 관리자가 넣어준 사용기간(`user_program_access.expires_at`, 비우면 무기한)이 남아 있으면 → 허용**
+7. 그 외 → 차단. **등급만으로는 열리지 않는다**(예전엔 "일반 이상이면 전부 허용" 예외가 있어 사용기간이 의미가 없었다).
+- 사용기간은 관리자 회원 관리 화면의 "만료기간 설정"으로 넣는다(`app/api/admin/user-access`, service role로 기록).
+- 새 서브프로젝트의 `lib/access.ts`도 이 순서로 만든다. 예외: `tarot`(타로)·`mbti-character`는 "로그인만 하면 무료" 가입 유도용으로
+  설계돼 있어 아직 옛 방식(등급만 확인)을 유지한다 — 주인님 결정 대기(무료 배지를 붙일지).
+
 ### Route Groups
 - `app/(main)/` — Public pages (Header + Footer layout), `dynamic = "force-dynamic"` required for Supabase calls
 - `app/(dashboard)/` — Authenticated user pages (Sidebar layout)

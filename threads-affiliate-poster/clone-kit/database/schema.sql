@@ -1,6 +1,6 @@
 -- Threads 쇼핑제휴 자동화 — 새 Supabase 프로젝트용 전체 스키마 (make-clone.mjs가 생성)
 -- Supabase 대시보드 → SQL Editor → New query에 이 파일 전체를 붙여넣고 Run 한 번이면 된다.
--- 생성 시각: 2026-09-29T05:25:04.952Z
+-- 생성 시각: 2026-09-29T09:47:22.804Z
 
 -- ===== clone-kit/database/00_core_tables.sql =====
 -- Standalone clone of Threads Affiliate Poster — part 1 of 3 (clone-kit/scripts/make-clone.mjs joins all parts into supabase/schema.sql).
@@ -75,6 +75,7 @@ create table if not exists public.programs (
   slug text not null unique,
   is_active boolean default true,
   required_grade_id uuid references public.member_grades(id),
+  badges text[] not null default '{}',  -- 'free' = every signed-in member may use it
   version text not null default 'v1.01',
   created_at timestamptz default now()
 );

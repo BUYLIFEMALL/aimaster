@@ -217,6 +217,11 @@ vercel deploy --prod --yes --scope buylife
     정책 삭제 → 본인 행 조회만 허용, 쓰기는 service role만(마이그레이션 `0019`). 악용 흔적 없음(4,702건 전부 관리자 부여).
     **교훈: "service role용"이라는 이름의 정책을 만들지 말 것 — service role은 RLS를 원래 우회하므로 그런 정책은 필요 없고,
     `to` 역할을 빼면 모든 사용자에게 열린다.** 새 테이블 정책은 `to authenticated` + `auth.uid() = user_id`로 쓴다.
+  - **(09-29) 이용 권한 베타테스트 정책 적용**: 무료 배지 프로그램은 가입만 하면 사용, 나머지는 결제 구독 또는
+    "일반 이상 등급 + 관리자가 넣어준 사용기간"이 있어야 사용(등급만으로 열리던 예외 삭제). 루트 판정 함수 + 서브프로젝트 22곳
+    `lib/access.ts` + `ai-image-studio` + `blog`(루트 공용 함수 호출로 교체)에 적용. 적용 전 계산: 유료 24개×회원 167명 중 열려 있던
+    3,864개 조합 → 3,734개 유지, 사용기간 없는 130개만 닫힘. 규칙 전문은 루트 `CLAUDE.md` "이용 권한 판정 정책".
+    `naver-blog-seo-studio`(Codex 작업 중)·`tarot`·`mbti-character`는 미적용.
   - 남은 일·대기 중인 일은 `docs/HANDOFF.md` §1에서 관리한다.
 
 ---

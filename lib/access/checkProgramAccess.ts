@@ -2,7 +2,8 @@
 // app/(dashboard)/apps/[slug]/ 하위에 새 AI 프로그램을 추가할 때마다
 // 각자 권한 로직을 다시 구현하지 않도록 이 함수 하나로 통일한다.
 //
-// 판정 순서: 정지 여부 -> 관리자 -> 활성 구독 -> 개별 부여 권한(만료일 포함) -> 등급 기반 접근(계층적)
+// 판정 순서(2026-09-29 베타테스트 정책): 정지 여부 -> 관리자 -> 무료 배지(가입만 하면 사용) -> 활성 구독
+//   -> 최소 등급 이상 + 관리자가 넣어준 사용기간(user_program_access, 만료 전). 등급만으로는 열리지 않는다.
 //
 // 2026-09-03: 이 함수가 있었는데도 app/(main)/programs/[slug]/page.tsx,
 // app/(dashboard)/dashboard/page.tsx, app/(main)/blog/page.tsx가 각자 판정 로직을
@@ -54,20 +55,22 @@ export function evaluateProgramAccess(input: {
   userGradeSortOrder: number | null;
   requiredGradeSortOrder: number | null;
 }): { allowed: boolean; reason: ProgramAccessReason } {
+  // Beta-test policy (2026-09-29, owner's decision):
+  // - "free" badge programs: any signed-in member.
+  // - other programs: a paid subscription, or a usage period granted by an admin
+  //   (user_program_access) to a member whose grade meets the program's minimum grade.
+  //   Grade alone no longer opens a program.
   if (input.isSuspended) return { allowed: false, reason: "suspended" };
   if (input.isAdmin) return { allowed: true, reason: "admin" };
   if (input.isFree) return { allowed: true, reason: "no_restriction" };
   if (input.hasActiveSubscription) return { allowed: true, reason: "active_subscription" };
-  if (input.hasIndividualGrant && isNotExpired(input.individualGrantExpiresAt ?? null)) {
-    return { allowed: true, reason: "individual_grant" };
-  }
   if (!input.requiredGradeId) return { allowed: true, reason: "no_restriction" };
-  if (
+  const meetsGrade =
     input.userGradeSortOrder != null &&
     input.requiredGradeSortOrder != null &&
-    input.userGradeSortOrder >= input.requiredGradeSortOrder
-  ) {
-    return { allowed: true, reason: "grade_access" };
+    input.userGradeSortOrder >= input.requiredGradeSortOrder;
+  if (meetsGrade && input.hasIndividualGrant && isNotExpired(input.individualGrantExpiresAt ?? null)) {
+    return { allowed: true, reason: "individual_grant" };
   }
   return { allowed: false, reason: "none" };
 }

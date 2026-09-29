@@ -42,18 +42,20 @@ storage.buckets 'post-images' — 게시글 이미지·영상 공개 저장소
 
 1. `profiles.is_suspended = true` → **차단** (`/no-access?reason=suspended`)
 2. `programs`에 `slug = 'threads-affiliate-poster'`, `is_active = true` 행이 없으면 → 차단
-3. `subscriptions`에 `status = 'active'`이고 만료 전인 행 → 허용
-4. `user_program_access`에 만료 전인 행 → 허용
+3. `profiles.is_admin = true` 또는 `programs.badges`에 `'free'` 포함 → 허용
+4. `subscriptions`에 `status = 'active'`이고 만료 전인 행 → 허용
 5. `programs.required_grade_id`가 비어 있음 → **허용 (기본값: 가입한 모든 회원 사용 가능)**
-6. 회원 등급 `sort_order` ≥ 요구 등급 `sort_order` → 허용
+6. 회원 등급 `sort_order` ≥ 요구 등급 `sort_order` **이면서** `user_program_access`에 만료 전 사용기간이 있음 → 허용
+   (등급만으로는 열리지 않는다 — 원본 AIMaster의 2026-09-29 베타테스트 정책과 같은 규칙)
 
 운영 방식별 설정:
 
 | 원하는 운영 | 설정 |
 |---|---|
 | 가입하면 누구나 사용 | 기본값 그대로 (`required_grade_id = null`) |
-| 운영자가 승인한 사람만 | `member_grades`에 `('승인회원','approved', 2)` 추가 → `programs.required_grade_id`를 그 id로 → 승인할 회원의 `profiles.grade_id`를 그 id로 변경 |
-| 기간제(구독) | `required_grade_id`를 가장 높은 등급으로 두고, 이용자마다 `subscriptions`(status='active', expires_at) 또는 `user_program_access`(expires_at) 행 추가 |
+| 가입만 하면 누구나 (배지로) | `programs.badges`를 `'{free}'`로 |
+| 사용기간을 준 사람만 | `programs.required_grade_id`를 `basic` 등급 id로 → 이용자마다 `user_program_access`(expires_at = 만료일, 비우면 무기한) 행 추가 |
+| 결제(구독)한 사람만 | 위와 같이 등급을 지정하고, 결제 시 `subscriptions`(status='active', expires_at) 행 추가 |
 
 ## 3. 테이블 상세
 
@@ -63,7 +65,7 @@ storage.buckets 'post-images' — 게시글 이미지·영상 공개 저장소
 |---|---|---|
 | `member_grades` | name, slug(유일), sort_order | 누구나 조회 |
 | `profiles` | id(=auth.users.id), email, name, grade_id, is_admin, is_suspended | 본인 조회·수정 |
-| `programs` | name, slug(유일), is_active, required_grade_id, version | 활성 행 조회 |
+| `programs` | name, slug(유일), is_active, required_grade_id, badges(`free`면 전원 사용), version | 활성 행 조회 |
 | `subscriptions` | user_id, program_id, status, started_at, expires_at | 본인 조회 (쓰기는 service role) |
 | `user_program_access` | user_id, program_id, granted_at, expires_at | 본인 조회 (쓰기는 service role) ※ "모두 허용" 정책 금지 |
 | `user_api_keys` | user_id, provider, api_key / 유일(user_id, provider) | 본인 조회·추가·수정·삭제 |
