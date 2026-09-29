@@ -266,6 +266,10 @@ warm bokeh lights]. 16:9 aspect ratio. No visible text, logos, or watermarks in 
    ```
    node scripts/generate-program-thumbnail.mjs <program-slug> <geminiUserId> "<위 템플릿을 채운 프롬프트>"
    ```
+   이미 만들어 둔 이미지 파일을 올릴 때는 `node scripts/upload-program-thumbnail.mjs <program-slug> <image-path>`
+   (Storage `program-images/catalog/<slug>-thumbnail.<ext>` 업로드 + `?v=` 버전 붙여 `programs.thumbnail_url` 갱신).
+   2026-09-29 `naver-blog-seo-studio`의 3D 일러스트(로봇) 썸네일을 이 도구로 실사 이미지로 교체함 — **실사가 아닌 썸네일은
+   규칙 위반이니 발견 즉시 교체할 것.**
 6. 결과물을 **반드시 육안으로 다른 프로그램 썸네일과 나란히 비교**해서 실사 톤이 맞는지 확인한
    뒤 커밋한다 — 스타일이 튀면 바로 재생성.
 
