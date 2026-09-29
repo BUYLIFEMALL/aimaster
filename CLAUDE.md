@@ -90,6 +90,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   2. **Git Commit**: 변경 내용을 명확한 커밋 메시지로 로컬 커밋
   3. **Git Push**: `git push origin master`로 원격 저장소 상시 동기화
   4. **Vercel 프로덕션 배포 & 라이브 보고**: `vercel deploy --prod --yes`로 실제 서버 반영 후 라이브 URL과 함께 보고
+  5. **인수인계 문서 반영 (2026-09-29 주인님 지시 — 매 작업 필수)**: 다른 CLI(Codex, Gemini, 다른 Claude 세션)가
+     이 대화를 보지 못해도 바로 이어서 작업할 수 있도록, 작업이 끝날 때마다 해당 서브프로젝트의 `AGENTS.md`/`README.md`
+     (진행 상태 표·트러블슈팅·남은 일)와, 플랫폼 전체에 영향이 있으면 루트 `AGENTS.md` §5 감사 이력/§10 교훈,
+     재사용 규칙이면 `docs/PLATFORM_PATTERNS.md`에 "무엇을·왜 바꿨고·무엇이 남았는지"를 기록하고 같은 커밋에 포함한다.
+     저장소 밖(Claude 메모리, plan 파일)에만 남기는 것은 인수인계로 인정하지 않는다.
+- **여러 CLI가 같은 작업 폴더를 동시에 쓴다(2026-09-29 확인)**: 같은 로컬 저장소에서 Codex 등 다른 도구가 동시에 작업하고
+  커밋한다. 스테이징 영역(index)도 공유되므로 `git add`/`git rm`으로 올려둔 변경이 다른 도구의 커밋에 섞여 들어갈 수 있다
+  (실제로 타로 이미지 삭제가 Codex의 seo-studio 커밋에 포함됨). 스테이징은 커밋 직전에 하고 바로 커밋하며, 주인님이 "다른
+  CLI가 작업 중"이라고 한 서브프로젝트는 건드리지 않는다.
 - **새 서브프로젝트를 시작하거나 기존 서브프로젝트를 이어서 작업할 때는, 코드를 만들기 전에
   반드시 이 루트 `CLAUDE.md`와 해당 서브프로젝트의 `AGENTS.md`/`README.md`를 먼저 확인하고
   그 지침을 그대로 따른다.**

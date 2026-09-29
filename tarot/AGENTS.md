@@ -116,6 +116,14 @@ tarot은 AIMaster 저장소 안의 서브프로젝트이므로 "Platform-hub 구
 AIMaster 플랫폼과의 연결은 헤더의 "다른 프로그램 보기" 링크(`buylife.xyz/programs`)와,
 `programs`/`pricing_plans` 카탈로그 등록으로 유지한다.
 
+## 🖼 대표 이미지 (2026-09-29)
+
+- 카탈로그 썸네일(`programs.thumbnail_url`)과 랜딩 상단 배너(`public/tarot-main-thumbnail.jpg`)는 같은 **실사 이미지**다
+  (관리자 Gemini 키로 `scripts/generate-program-thumbnail.mjs` 생성, Storage `program-images/catalog/tarot-reading-thumbnail.jpg`).
+- 예전 이미지(`/images/tarot-thumbnail.png`, `tarot-main-thumbnail.png`)는 일러스트 + 영문 문구 + 정사각형이라 루트
+  `docs/PLATFORM_PATTERNS.md` §13(실사·문구 없음·16:9) 위반이어서 삭제했다. 대표 이미지를 바꿀 때 일러스트나 글자 박힌
+  이미지를 다시 쓰지 말 것. (카드 이미지 자체는 AI 일러스트가 맞다 — 이 규칙은 프로그램 대표 이미지에만 해당.)
+
 ## 📦 Phase 진행 상태
 
 상세 내용은 README.md의 "Phase 진행 상태" 표 참고.

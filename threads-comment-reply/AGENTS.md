@@ -95,6 +95,16 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 공용 Meta 앱을 확장하지 말 것** — 그 앱은 이미 `threads_content_publish`로 다수 사용자를 받는
 라이브 상태라, `threads_manage_replies` 권한을 추가하면 새 App Review가 필요해진다.
 
+## 🔑 Meta 앱 권한 점검 (2026-09-29)
+
+- 이 프로그램은 OAuth에서 `threads_basic`, `threads_content_publish`, `threads_read_replies`, `threads_manage_replies`를 요청한다.
+  운영자 Meta 앱(www.buylife.xyz)에 `threads_manage_replies`가 빠져 있어 2026-09-29 추가함(API 호출 0회 = 이 앱으로 답글 게시 이력 없음).
+  **남은 일**: `threads_read_replies` 추가 여부 확인, naver(일반 회원) 계정 재연결 후 댓글 수집→답글 게시 실사용 검증.
+  이 두 권한은 앱 검수에 올리지 않는다(본인 테스터 계정은 심사 없이 사용 가능).
+- Threads 앱 자격증명 provider는 `threads_app_id`/`threads_app_secret`(인스타 `meta_app_*`와 분리). Meta 제거·삭제 콜백은
+  threads-affiliate-poster의 `/api/threads/uninstall`·`/api/threads/delete`가 이 프로그램의 `th_accounts`/`th_posts`까지 처리한다.
+- `/api/telegram/webhook/[userId]`에 `fetchCache = "force-no-store"` 추가.
+
 ## 📦 Phase 진행 상태
 
 | Phase | 내용 | 상태 |

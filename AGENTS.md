@@ -56,6 +56,11 @@
   2. **Git Commit**: 변경 내용을 명확한 커밋 메시지로 로컬 커밋
   3. **Git Push**: `git push origin master`로 원격 저장소 상시 동기화
   4. **Vercel 프로덕션 배포 & 결과 보고**: `vercel deploy --prod --yes`로 실제 서버에 즉시 반영 후 라이브 URL과 함께 결과 보고
+  5. **인수인계 문서 반영 (2026-09-29 주인님 지시, 매 작업 필수)**: 다른 CLI가 이어서 작업할 수 있게 서브프로젝트
+     `AGENTS.md`/`README.md`(진행 상태·남은 일)와 필요 시 이 문서 §5/§10, `docs/PLATFORM_PATTERNS.md`를 같은 커밋으로 갱신한다.
+- **여러 CLI(Claude Code, Codex 등)가 같은 로컬 저장소를 동시에 쓴다** — 스테이징 영역도 공유되므로 `git add`는 커밋 직전에만
+  하고 바로 커밋한다. 주인님이 "다른 CLI가 작업 중"이라고 지정한 서브프로젝트는 건드리지 않는다(2026-09-29 타로 파일 삭제가
+  Codex의 seo-studio 커밋에 섞여 들어간 사례).
 - 사소한 구현 방식 선택은 재질문하지 않고 합리적으로 판단해 진행한다. 기존 코드 구조/디자인/
   명명 규칙을 우선 따른다.
 - 파일 생성, 코드 수정, 패키지 설치, 빌드/테스트/오류 수정까지 중간 확인 없이 연속 수행한다.
@@ -181,6 +186,21 @@ vercel deploy --prod --yes --scope buylife
   방식(threads-comment-reply 패턴)으로 전환.
 - 2026-09-25: 관리자 프롬프트 추천 게시판(`admin/prompts`)의 프로그램 전환 시 카테고리 연동 & 자동 리셋 필터 적용. `ai-image-studio`에 make.com Nanobanana 극사실적 포토리얼리즘 프롬프트 엔진 적용 및 픽사 3D, 지브리 애니, 일본 2D 극장판 애니 스타일 신규 추가 및 화풍별 10종 샘플 데이터 반영. Vercel 커스텀 도메인 Alias 포인팅 연동 최신화 완료 (`docs/PLATFORM_PATTERNS.md` §22, §23 참고). `naver-blog-seo-studio` 크롬 확장 v1.0.36 태그 추출 고도화 반영.
 - 2026-09-26: `threads-affiliate-poster` 트렌드 페이지(/trends) 개편 — **2026-09-28 정정: 당시 "5대 바이럴 탐지 기능"으로 기록된 조회수 배지·반응도 정렬·실시간 검색은 실제로 동작하지 않았다**(하드코딩 예시 글 + 지어낸 반응 수치 + AI가 만든 가짜 글, 관련 테이블도 운영 DB 미적용). 2026-09-28에 Meta 공식 `keyword_search` API 연동(앱 심사 전에는 본인 글만), "떡상글 직접 가져오기", 출처 배지로 재구현. 교훈: 회원에게 "실시간 분석"으로 보여주는 데이터를 지어내서 채우지 말 것 (`docs/PLATFORM_PATTERNS.md` §24 참고).
+
+- 2026-09-28~29 (Claude Code 세션 종합 — 상세는 각 서브프로젝트 AGENTS.md):
+  - **운영 DB에 미적용이던 마이그레이션 일괄 적용**: `tap_saved_posts`/`tap_personas`/`program_prompts`/`style_preset_prompts`/
+    `user_image_generations`/`affiliate_clicks`/`threads_categories`. 프롬프트 테이블은 관리자만 쓰기, 이미지 이력 정리 함수는 외부 호출 차단.
+  - **threads-affiliate-poster `/trends`**: 떡상 탐지기는 원래 가짜 데이터였음 → Meta 공식 `keyword_search`(앱 심사 전 본인 글만) +
+    "떡상글 직접 가져오기" + 출처 배지로 재구현. AI 캡션 모델 몰래 치환 제거(종료 모델 호출 실패 수정). "내 페르소나 저장" 연결.
+    Meta 앱 심사(`threads_keyword_search`)는 **비즈니스 인증 결과 대기로 중단** — 재개 순서는 `threads-affiliate-poster/docs/META_APP_REVIEW.md` §0.
+  - **쓰레드 3개 프로그램 앱 자격증명 분리**: `meta_app_id`(인스타 전용 유지) ↔ `threads_app_id`/`threads_app_secret`(신설).
+    Meta 제거·삭제 콜백은 쇼핑제휴 1곳에서 쓰레드 3개 프로그램을 함께 처리(`/api/threads/uninstall`, `/api/threads/delete`).
+  - **threads(자동포스팅) 카테고리 버그**: 카테고리 JSON을 `user_api_keys`(openai/perplexity/meta_app_*) 칸에 덮어쓰던 코드 제거,
+    데이터 복원. 관리자(gmail) 계정 OpenAI·Perplexity 키는 재등록 필요(주인님이 나중에 하기로 함).
+  - **개인정보처리방침 제12조**(Meta 연동 정보) 추가 + 10/5 시행 공지, `https://www.buylife.xyz/data-deletion` 신설.
+  - **카탈로그 썸네일 실사 원칙 전수 정리**: 30개 모두 실사. seo-studio(3D→실사), tarot(없음→관리자 Gemini로 생성) 교체,
+    옛 타로 일러스트 삭제. 업로드 도구 `scripts/upload-program-thumbnail.mjs` 추가.
+  - bkit 플러그인 자동 기록 파일 Git 추적 해제(.gitignore). 연동 매뉴얼(platform_guides) 쓰레드 2건 갱신.
 
 ---
 
