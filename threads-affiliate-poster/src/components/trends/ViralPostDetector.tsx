@@ -117,6 +117,12 @@ export function ViralPostDetector() {
   const [genError, setGenError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const [searchMode, setSearchMode] = useState<"KEYWORD" | "TAG">("KEYWORD");
+  const [mediaType, setMediaType] = useState<"" | "TEXT" | "IMAGE" | "VIDEO">("");
+  const [authorFilter, setAuthorFilter] = useState("");
+  const [threadsUsername, setThreadsUsername] = useState<string | null>(null);
+  const [searchAccess, setSearchAccess] = useState<"unknown" | "public" | "own">("unknown");
+
   const fetchPosts = () => {
     if (activeSubTab === "personas") return;
     setLoading(true);
@@ -126,10 +132,20 @@ export function ViralPostDetector() {
         setSavedPosts(res.posts);
       } else {
         const keyword = searchQuery.trim() || selectedTag;
-        const res = await getViralPostsAction({ keyword, dateRange, searchType });
+        const res = await getViralPostsAction({
+          keyword,
+          dateRange,
+          searchType,
+          searchMode,
+          mediaType: mediaType || undefined,
+          authorUsername: authorFilter.trim() || undefined,
+        });
         setPosts(res.posts);
         setThreadsStatus(res.threadsStatus);
         setThreadsMessage(res.threadsMessage);
+        setThreadsUsername(res.threadsUsername);
+        if (res.threadsStatus === "ok") setSearchAccess("public");
+        if (res.threadsStatus === "own_posts_only") setSearchAccess("own");
         if (keyword !== searchedKeyword) {
           setAiPosts([]);
           setAiError(null);
@@ -144,7 +160,7 @@ export function ViralPostDetector() {
 
   useEffect(() => {
     fetchPosts();
-  }, [selectedTag, dateRange, searchType, activeSubTab]);
+  }, [selectedTag, dateRange, searchType, searchMode, mediaType, activeSubTab]);
 
   const handleGenerateAiExamples = async () => {
     if (!searchedKeyword) return;
@@ -485,6 +501,10 @@ export function ViralPostDetector() {
       )}
 
       {activeSubTab === "detector" && (
+        <SearchModeGuide threadsUsername={threadsUsername} searchAccess={searchAccess} />
+      )}
+
+      {activeSubTab === "detector" && (
         <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4">
           <form onSubmit={handleSearchSubmit} className="flex gap-2">
             <div className="relative flex-1">
@@ -580,13 +600,55 @@ export function ViralPostDetector() {
               </select>
             </div>
           </div>
+
+          <div className="flex flex-wrap items-center gap-3 pt-2 border-t text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-neutral-600">검색 방식:</span>
+              <select
+                value={searchMode}
+                onChange={(e) => setSearchMode(e.target.value as "KEYWORD" | "TAG")}
+                className="rounded-lg border border-neutral-300 bg-white p-1 text-xs focus:outline-none"
+              >
+                <option value="KEYWORD">🔤 키워드</option>
+                <option value="TAG">#️⃣ 해시태그(주제 태그)</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-neutral-600">미디어:</span>
+              <select
+                value={mediaType}
+                onChange={(e) => setMediaType(e.target.value as "" | "TEXT" | "IMAGE" | "VIDEO")}
+                className="rounded-lg border border-neutral-300 bg-white p-1 text-xs focus:outline-none"
+              >
+                <option value="">전체</option>
+                <option value="TEXT">글만</option>
+                <option value="IMAGE">이미지</option>
+                <option value="VIDEO">동영상</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-neutral-600">작성자:</span>
+              <input
+                type="text"
+                placeholder="@아이디 (선택, 검색 버튼으로 적용)"
+                value={authorFilter}
+                onChange={(e) => setAuthorFilter(e.target.value)}
+                maxLength={31}
+                className="w-44 rounded-lg border border-neutral-300 bg-white p-1 text-xs focus:outline-none"
+              />
+            </div>
+            <span className="text-[10px] text-neutral-400">
+              다른 사람의 글·작성자 필터는 Meta 앱 검수 승인 회원만 결과가 나옵니다.
+            </span>
+          </div>
         </div>
       )}
 
       {activeSubTab === "detector" && (
         <form
+          id="import-panel"
           onSubmit={handleImportPost}
-          className="space-y-2 rounded-2xl border border-blue-200 bg-blue-50/40 p-4"
+          className="scroll-mt-4 space-y-2 rounded-2xl border border-blue-200 bg-blue-50/40 p-4"
         >
           <div>
             <h3 className="text-sm font-bold text-neutral-900">🔗 떡상글 직접 가져오기</h3>
@@ -1162,6 +1224,95 @@ export function ViralPostDetector() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+const THREADS_GUIDE_URL = "https://www.buylife.xyz/guides/343996d3-8c77-455d-9bd4-54bcd47a34cd";
+
+function SearchModeGuide({
+  threadsUsername,
+  searchAccess,
+}: {
+  threadsUsername: string | null;
+  searchAccess: "unknown" | "public" | "own";
+}) {
+  const accessLabel =
+    searchAccess === "public"
+      ? { text: "✅ 다른 사람의 공개 글 검색 가능", className: "bg-emerald-100 text-emerald-800" }
+      : searchAccess === "own"
+        ? { text: "⏳ 본인 글만 검색됨 (앱 검수 승인 전)", className: "bg-amber-100 text-amber-800" }
+        : { text: "검색어로 한 번 검색하면 확인됩니다", className: "bg-neutral-100 text-neutral-600" };
+
+  return (
+    <div className="rounded-2xl border-2 border-neutral-900 bg-white p-4 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-black text-neutral-900">📌 떡상글 찾는 방법 — 내 상황에 맞는 방식을 쓰세요</h3>
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
+          <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-700">
+            Threads 연결: {threadsUsername ? `@${threadsUsername}` : "연결 안 됨"}
+          </span>
+          <span className={`rounded-full px-2.5 py-1 ${accessLabel.className}`}>{accessLabel.text}</span>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="rounded-xl border border-emerald-300 bg-emerald-50/70 p-3.5 space-y-2">
+          <p className="text-xs font-black text-emerald-900">A. Meta 앱 검수 승인 회원 — 다른 사람의 공개 글 검색</p>
+          <ol className="list-decimal list-inside space-y-1 text-[11px] leading-relaxed text-emerald-900">
+            <li>
+              본인 Meta 앱에서 <b>threads_keyword_search</b> 권한의 <b>고급 액세스</b>를 승인받습니다
+              (비즈니스 인증 · 테크 제공업체 등록 · 앱 검수 필요).
+            </li>
+            <li>아래 버튼으로 <b>검색 권한을 포함해서</b> Threads 계정을 연결합니다.</li>
+            <li>
+              키워드·해시태그로 검색하면 다른 사용자의 공개 글이 <b>&ldquo;실제 Threads 글&rdquo;</b> 카드로 나옵니다.
+              작성자·미디어 필터도 쓸 수 있습니다.
+            </li>
+          </ol>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <form action={connectThreadsAccountWithKeywordSearchAction}>
+              <button
+                type="submit"
+                className="rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700"
+              >
+                🔑 검색 권한 포함해서 Threads 연결
+              </button>
+            </form>
+            <a
+              href={THREADS_GUIDE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-emerald-400 bg-white px-3 py-1.5 text-[11px] font-bold text-emerald-800 hover:bg-emerald-50"
+            >
+              📖 연동 매뉴얼 보기
+            </a>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-blue-300 bg-blue-50/70 p-3.5 space-y-2">
+          <p className="text-xs font-black text-blue-900">B. 앱 검수 승인 전 회원 — 떡상글 직접 가져오기</p>
+          <p className="text-[11px] leading-relaxed text-blue-900">
+            승인 전에는 Meta 정책상 검색 결과가 <b>본인 계정 글만</b> 나옵니다. 대신 이렇게 쓰세요.
+          </p>
+          <ol className="list-decimal list-inside space-y-1 text-[11px] leading-relaxed text-blue-900">
+            <li>Threads 앱에서 반응 좋은 인기 글을 찾습니다.</li>
+            <li>그 글의 <b>링크</b>와 <b>본문</b>을 복사합니다.</li>
+            <li>
+              아래 <b>&ldquo;🔗 떡상글 직접 가져오기&rdquo;</b>에 붙여넣으면 보관함에 저장되고, 바로 AI 벤치마킹 캡션을 만들 수 있습니다.
+            </li>
+          </ol>
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => document.getElementById("import-panel")?.scrollIntoView({ behavior: "smooth" })}
+              className="rounded-lg bg-blue-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-blue-700"
+            >
+              🔗 떡상글 직접 가져오기로 이동
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

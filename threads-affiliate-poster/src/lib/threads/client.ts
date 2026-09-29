@@ -149,15 +149,26 @@ export class ThreadsKeywordSearchError extends Error {
 // Without Meta approval of threads_keyword_search, results only cover the member's own posts.
 export async function searchThreadsByKeyword(
   accessToken: string,
-  options: { q: string; searchType?: "TOP" | "RECENT"; since?: number; limit?: number },
+  options: {
+    q: string;
+    searchType?: "TOP" | "RECENT";
+    searchMode?: "KEYWORD" | "TAG";
+    mediaType?: "TEXT" | "IMAGE" | "VIDEO";
+    authorUsername?: string;
+    since?: number;
+    limit?: number;
+  },
 ): Promise<ThreadsKeywordSearchPost[]> {
   const params = new URLSearchParams({
     q: options.q,
     search_type: options.searchType ?? "TOP",
+    search_mode: options.searchMode ?? "KEYWORD",
     fields: "id,text,media_type,permalink,timestamp,username,has_replies,is_quote_post,is_reply",
     limit: String(options.limit ?? 25),
     access_token: accessToken,
   });
+  if (options.mediaType) params.set("media_type", options.mediaType);
+  if (options.authorUsername) params.set("author_username", options.authorUsername);
   if (options.since) params.set("since", String(options.since));
 
   const response = await fetch(`${GRAPH_BASE}/v1.0/keyword_search?${params.toString()}`, {

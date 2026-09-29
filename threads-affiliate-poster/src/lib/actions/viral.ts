@@ -38,9 +38,16 @@ export type ThreadsSearchStatus =
   | "permission_missing"
   | "error";
 
+export interface ThreadsSearchFilters {
+  searchMode?: "KEYWORD" | "TAG";
+  mediaType?: "TEXT" | "IMAGE" | "VIDEO";
+  authorUsername?: string;
+}
+
 export interface ViralSearchResult {
   posts: ViralPostItem[];
   threadsStatus: ThreadsSearchStatus;
+  threadsUsername: string | null;
   threadsMessage?: string;
 }
 
@@ -127,20 +134,10 @@ const DATE_RANGE_SECONDS: Record<"1d" | "1w" | "1m", number> = {
 };
 
 async function searchRealThreads(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
+  account: { access_token: string; username: string | null },
   keyword: string,
-  options: { searchType: "TOP" | "RECENT"; dateRange: "1d" | "1w" | "1m" | "all" },
+  options: { searchType: "TOP" | "RECENT"; dateRange: "1d" | "1w" | "1m" | "all" } & ThreadsSearchFilters,
 ): Promise<{ posts: ViralPostItem[]; status: ThreadsSearchStatus; message?: string }> {
-  const { data: account } = await supabase
-    .from("tap_accounts")
-    .select("access_token, username")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (!account?.access_token) {
-    return { posts: [], status: "not_connected" };
-  }
 
   const since =
     options.dateRange === "all"
@@ -151,8 +148,11 @@ async function searchRealThreads(
     const results = await searchThreadsByKeyword(account.access_token, {
       q: keyword,
       searchType: options.searchType,
+      searchMode: options.searchMode,
+      mediaType: options.mediaType,
+      authorUsername: options.authorUsername,
       since,
-      limit: 25,
+      limit: 50,
     });
 
     const posts: ViralPostItem[] = results
@@ -170,8 +170,11 @@ async function searchRealThreads(
 
     if (posts.length === 0) return { posts, status: "empty" };
 
+    // Filtering by one's own username naturally returns only own posts, so it says nothing about approval.
     const ownUsername = account.username?.replace(/^@+/, "").toLowerCase();
-    const onlyOwn = !!ownUsername && posts.every((p) => p.authorHandle.toLowerCase() === ownUsername);
+    const filteringOwn = !!ownUsername && options.authorUsername?.toLowerCase() === ownUsername;
+    const onlyOwn =
+      !filteringOwn && !!ownUsername && posts.every((p) => p.authorHandle.toLowerCase() === ownUsername);
     return { posts, status: onlyOwn ? "own_posts_only" : "ok" };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Threads 키워드 검색 실패";
@@ -185,13 +188,32 @@ async function searchRealThreads(
   }
 }
 
-export async function getViralPostsAction(options?: {
-  keyword?: string;
-  dateRange?: "1d" | "1w" | "1m" | "all";
-  searchType?: "TOP" | "RECENT";
-}): Promise<ViralSearchResult> {
+export async function getViralPostsAction(
+  options?: {
+    keyword?: string;
+    dateRange?: "1d" | "1w" | "1m" | "all";
+    searchType?: "TOP" | "RECENT";
+  } & ThreadsSearchFilters,
+): Promise<ViralSearchResult> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
+
+  const { data: account } = await supabase
+    .from("tap_accounts")
+    .select("access_token, username")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const threadsUsername = account?.username?.replace(/^@+/, "") ?? null;
+
+  const authorUsername = options?.authorUsername?.replace(/^@+/, "").trim() || undefined;
+  if (authorUsername && !/^[\w.]{1,30}$/.test(authorUsername)) {
+    return {
+      posts: [],
+      threadsStatus: "error",
+      threadsUsername,
+      threadsMessage: "작성자 아이디는 영문·숫자·밑줄(_)·마침표(.)만 입력할 수 있습니다.",
+    };
+  }
 
   const savedIds = new Set<string>();
   const { data: savedData } = await (supabase as any)
@@ -207,11 +229,20 @@ export async function getViralPostsAction(options?: {
   let threadsStatus: ThreadsSearchStatus = "no_keyword";
   let threadsMessage: string | undefined;
 
-  if (hasKeyword) {
-    const res = await searchRealThreads(supabase, user.id, rawKw, {
-      searchType: options?.searchType ?? "TOP",
-      dateRange: options?.dateRange ?? "all",
-    });
+  if (hasKeyword && !account?.access_token) {
+    threadsStatus = "not_connected";
+  } else if (hasKeyword && account?.access_token) {
+    const res = await searchRealThreads(
+      { access_token: account.access_token, username: account.username },
+      rawKw,
+      {
+        searchType: options?.searchType ?? "TOP",
+        dateRange: options?.dateRange ?? "all",
+        searchMode: options?.searchMode === "TAG" ? "TAG" : "KEYWORD",
+        mediaType: options?.mediaType,
+        authorUsername,
+      },
+    );
     threadsPosts = res.posts;
     threadsStatus = res.status;
     threadsMessage = res.message;
@@ -226,7 +257,7 @@ export async function getViralPostsAction(options?: {
   ).map(toExamplePost);
 
   const posts = [...threadsPosts, ...examples].map((p) => ({ ...p, isSaved: savedIds.has(p.id) }));
-  return { posts, threadsStatus, threadsMessage };
+  return { posts, threadsStatus, threadsUsername, threadsMessage };
 }
 
 export async function searchRelatedCoupangProductsAction(
