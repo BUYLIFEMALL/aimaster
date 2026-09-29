@@ -41,9 +41,9 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:justify-between md:border-b-0 md:border-r">
-      {/* On long pages the account footer must stay in view, so only the menu area scrolls. */}
-      <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
+    <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:border-b-0 md:border-r">
+      {/* The account block sits right under the menu; on long menus only the menu scrolls so it stays in view. */}
+      <div className="md:min-h-0 md:overflow-y-auto">
         <div className="mb-4 md:mb-6">
           <div className="px-2 text-lg font-semibold text-neutral-900">
             Threads 쇼핑제휴 자동화

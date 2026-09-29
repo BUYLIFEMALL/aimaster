@@ -36,9 +36,9 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const isOverviewActive = pathname?.startsWith(OVERVIEW_ITEM.href);
 
   return (
-    <aside className="flex w-full flex-col border-b border-white/10 bg-dark-50 p-4 md:w-64 md:justify-between md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:shrink-0">
-      {/* On long pages the account footer must stay in view, so only the menu area scrolls. */}
-      <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
+    <aside className="flex w-full flex-col border-b border-white/10 bg-dark-50 p-4 md:w-64 md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:shrink-0">
+      {/* The account block sits right under the menu; on long menus only the menu scrolls so it stays in view. */}
+      <div className="md:min-h-0 md:overflow-y-auto">
         <div className="mb-4 md:mb-6">
           <a
             href={`${MAIN_SITE_URL}/programs`}

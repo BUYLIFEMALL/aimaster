@@ -31,9 +31,9 @@ export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-col border-b border-zinc-800 bg-zinc-950 p-4 md:w-64 border-r shrink-0 md:sticky md:top-0 md:h-screen md:justify-between">
-      {/* On long pages the account footer must stay in view, so only the menu area scrolls. */}
-      <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
+    <aside className="flex w-full flex-col border-b border-zinc-800 bg-zinc-950 p-4 md:w-64 border-r shrink-0 md:sticky md:top-0 md:h-screen">
+      {/* The account block sits right under the menu; on long menus only the menu scrolls so it stays in view. */}
+      <div className="md:min-h-0 md:overflow-y-auto">
         <div className="mb-4 md:mb-6 px-2">
           <div className="text-lg font-bold text-white tracking-tight">AI 이미지 스튜디오</div>
           <a

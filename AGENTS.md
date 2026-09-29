@@ -206,7 +206,7 @@ vercel deploy --prod --yes --scope buylife
   - bkit 플러그인 자동 기록 파일 Git 추적 해제(.gitignore). 연동 매뉴얼(platform_guides) 쓰레드 2건 갱신.
   - **(09-29 후반) 쇼핑제휴 `/trends` 검색 확장**: 앱 검수 승인 회원은 키워드/해시태그·미디어·작성자 필터로 타인 공개 글 검색,
     미승인 회원은 직접 가져오기 — 화면 맨 위 A/B 안내 박스 + 회원용 "비즈니스 앱 승인 절차" 매뉴얼(`platform_guides` `ae85d991-...`).
-  - **(09-29 후반) 좌측 사이드바 통일**: 20개 프로그램 메뉴 하단에 로그인 계정·로그아웃 고정 표시(§10 참고).
+  - **(09-29 후반) 좌측 사이드바 통일**: 21개 프로그램 메뉴 바로 밑에 로그인 계정·로그아웃을 붙여 항상 표시(§10 참고).
   - 남은 일·대기 중인 일은 `docs/HANDOFF.md` §1에서 관리한다.
 
 ---
@@ -460,15 +460,18 @@ vercel deploy --prod --yes --scope buylife
 
 ### 2026-09-29 추가 (좌측 사이드바 계정 표시 통일)
 
-- **모든 서브프로젝트의 `Sidebar.tsx`는 "로그인 계정 + 로그아웃"이 항상 좌측 하단에 보이는
-  고정형 구조를 쓴다.** 예전엔 사이드바가 `md:h-full`/`md:min-h-screen`이라 긴 페이지(예: TAP
-  `/trends`)에서 사이드바가 본문 길이만큼 늘어나 계정 영역이 화면 맨 아래로 밀려 안 보였다.
+- **모든 서브프로젝트의 `Sidebar.tsx`는 "로그인 계정 + 로그아웃"을 메뉴 바로 밑에 붙여서,
+  긴 페이지에서도 항상 보이게 하는 구조를 쓴다.** 예전엔 사이드바가 `md:h-full`/`md:min-h-screen`이라
+  긴 페이지(예: TAP `/trends`)에서 사이드바가 본문 길이만큼 늘어나 계정 영역이 화면 밖으로 밀려 안 보였다.
   기준 구현은 `threads-affiliate-poster/src/components/layout/Sidebar.tsx`:
-  `<aside>`에 `md:sticky md:top-0 md:h-screen md:shrink-0 md:justify-between`, 메뉴 영역
-  `<div className="md:min-h-0 md:flex-1 md:overflow-y-auto">`(메뉴만 스크롤), 계정 영역
-  `<div className="mt-4 shrink-0 border-t ... pt-4">`. 2026-09-29 이 구조를 20개 서브프로젝트
+  `<aside>`에 `md:sticky md:top-0 md:h-screen md:shrink-0`(화면에 고정), 메뉴 영역
+  `<div className="md:min-h-0 md:overflow-y-auto">`(메뉴가 길 때만 메뉴 안에서 스크롤), 계정 영역
+  `<div className="mt-4 shrink-0 border-t ... pt-4">`. 2026-09-29 이 구조를 21개 서브프로젝트
   (naver-blog-seo-studio 제외 — Codex 작업 중)에 일괄 적용했다. **새 서브프로젝트의 사이드바도
   이 구조를 그대로 복사할 것.**
+  - ⚠️ 처음엔 `md:justify-between` + 메뉴 `md:flex-1`로 계정을 화면 맨 아래에 붙였는데, 주인님이
+    "메뉴와 거리가 너무 멀다"며 **메뉴 바로 밑에 붙이라고 지시**해 같은 날 바꿨다. 계정 영역을
+    화면 맨 아래로 다시 내리지 말 것.
 - `ai-image-studio`는 계정 블록이 메뉴 영역 안에 붙어 있었고, 이메일이 없으면
   `buylifemall@naver.com`이 대신 표시되는 하드코딩 기본값이 있어 함께 제거했다.
 - `longtail-keyword-expander`는 로컬 `node_modules`의 `@supabase/supabase-js`가 2.95.3으로
