@@ -53,7 +53,7 @@
 - `affiliate_products` — 등록된 제휴 상품. `platform`(coupang/aliexpress/naver/toss), `input_mode`(url/manual), `product_url`/`affiliate_url`/`price`/`image_url`, manual 모드용 `description`/`key_selling_points`/`detail_page_id`
 - `tap_posts` — 게시글(`threads/`의 `posts`와 동일한 상태머신: draft→scheduled→publishing→published/failed) + `product_id`로 `affiliate_products`와 연결
 - `tap_saved_posts` — 찜/직접 가져온 레퍼런스 글 보관함 (user_id, post_id, author_handle, author_name, content, category). `post_id` 접두사로 출처 구분: `th-`(Threads 검색), `mn-`(직접 가져옴, `mn-<shortcode>`면 원문 링크 복원), `ai-`(AI 예시), 그 외(작성 예시). likes/replies/reposts 컬럼은 남아 있지만 실제 수치가 없어 쓰지 않는다. (운영 DB 적용: 2026-09-28)
-- `tap_personas` — 나만의 AI 글쓰기 페르소나 설정 (user_id, name, tone_description, sample_writing). 테이블만 있고 현재 코드에서는 쓰지 않는다(페르소나는 `src/lib/constants/personas.ts` 프리셋 + 커스텀 입력).
+- `tap_personas` — 회원이 저장한 "내 페르소나" (user_id, name ≤40자, tone_description ≤500자, sample_writing ≤1,000자 선택, 회원당 최대 20개; `emoji_style`/`is_default` 컬럼은 미사용). 2026-09-29 연결: 커스텀 페르소나 입력 후 "💾 내 페르소나로 저장" → 트렌드 벤치마킹 모달·새 게시글 작성 화면의 공용 `PersonaPicker`(`src/components/personas/`)에서 "내 저장 페르소나" 그룹으로 선택, 트렌드 "AI 페르소나 보관함" 탭에서 삭제. 서버 액션 `src/lib/actions/personas.ts`, 프롬프트 변환 `src/lib/personaTone.ts`(예시 문장은 "말투만 참고"로 전달). 선택 id는 `my-<uuid>`로 프리셋(`p-01`)과 구분.
 - `user_api_keys` — 공용 테이블, provider 추가(`coupang_access_key`/`coupang_secret_key`/`aliexpress_app_key`/`aliexpress_app_secret`/`toss_access_key`/`toss_secret_key`/`toss_publisher_id`)
 
 ## 떡상글 탐지기 (/trends)

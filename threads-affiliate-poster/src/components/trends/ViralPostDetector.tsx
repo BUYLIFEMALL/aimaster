@@ -18,6 +18,9 @@ import {
 import { connectThreadsAccountWithKeywordSearchAction } from "@/lib/actions/accounts";
 import type { CoupangProduct } from "@/lib/coupang/client";
 import { PRESET_PERSONAS } from "@/lib/constants/personas";
+import { PersonaPicker } from "@/components/personas/PersonaPicker";
+import { deleteMyPersonaAction, listMyPersonasAction } from "@/lib/actions/personas";
+import { resolvePersonaTone, type SavedPersona } from "@/lib/personaTone";
 import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS, PROVIDER_SHORT_LABELS } from "@/lib/ai/models";
 import { PLATFORM_LABELS, type AffiliatePlatform, type AffiliateProduct } from "@/types/product";
 import {
@@ -92,6 +95,18 @@ export function ViralPostDetector() {
   const [aiModel, setAiModel] = useState<string>("gpt-4.1");
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("p-01");
   const [customPersonaText, setCustomPersonaText] = useState("");
+  const [savedPersonas, setSavedPersonas] = useState<SavedPersona[]>([]);
+
+  useEffect(() => {
+    listMyPersonasAction().then((res) => setSavedPersonas(res.personas));
+  }, []);
+
+  const handleDeletePersona = async (personaId: string) => {
+    const res = await deleteMyPersonaAction(personaId);
+    if (res.error) return;
+    setSavedPersonas((prev) => prev.filter((p) => p.id !== personaId));
+    if (selectedPersonaId === personaId) setSelectedPersonaId("p-01");
+  };
 
   const [generating, setGenerating] = useState(false);
   const [creatingDirectPost, setCreatingDirectPost] = useState(false);
@@ -228,13 +243,12 @@ export function ViralPostDetector() {
     setGeneratedCaption(null);
     setGeneratedImageUrl(null);
 
-    let personaDescription = "";
-    if (selectedPersonaId === "custom") {
-      personaDescription = customPersonaText.trim() || "솔직하고 친근한 쇼핑 팁 톤";
-    } else {
-      const found = PRESET_PERSONAS.find((p) => p.id === selectedPersonaId);
-      personaDescription = found ? found.toneDescription : "솔직하고 친근한 톤";
-    }
+    const personaDescription = resolvePersonaTone(
+      selectedPersonaId,
+      customPersonaText,
+      savedPersonas,
+      "솔직하고 친근한 쇼핑 팁 톤",
+    );
 
     const res = await generateBenchmarkCaptionAction({
       viralContent: activeModalPost.content,
@@ -389,6 +403,46 @@ export function ViralPostDetector() {
                   className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 px-3 py-2 text-xs font-bold text-white transition-colors"
                 >
                   <Sparkles className="h-3.5 w-3.5 text-amber-400 fill-amber-300" />
+                  <span>이 페르소나로 글쓰기 탐지기 이동</span>
+                </button>
+              </div>
+            ))}
+
+            {savedPersonas.map((persona) => (
+              <div
+                key={persona.id}
+                className="flex flex-col justify-between rounded-xl border border-purple-200 bg-white p-4 shadow-xs transition-all hover:border-purple-400 hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="rounded-full bg-purple-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
+                      💾 내 저장 페르소나
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePersona(persona.id)}
+                      className="rounded-md px-2 py-0.5 text-[10px] font-bold text-red-600 hover:bg-red-50"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                  <h4 className="font-bold text-sm text-neutral-900 mb-2">{persona.name}</h4>
+                  <p className="text-xs text-neutral-600 bg-neutral-50 p-3 rounded-lg border border-neutral-100 whitespace-pre-line leading-relaxed mb-4">
+                    {persona.toneDescription}
+                    {persona.sampleWriting && (
+                      <span className="mt-1 block text-[11px] text-neutral-500">📝 예시 문장: {persona.sampleWriting}</span>
+                    )}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedPersonaId(persona.id);
+                    setActiveSubTab("detector");
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 px-3 py-2 text-xs font-bold text-white transition-colors"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-amber-300 fill-amber-200" />
                   <span>이 페르소나로 글쓰기 탐지기 이동</span>
                 </button>
               </div>
@@ -824,27 +878,14 @@ export function ViralPostDetector() {
 
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-neutral-700">글쓰기 페르소나 선택 *</label>
-              <select
+              <PersonaPicker
                 value={selectedPersonaId}
-                onChange={(e) => setSelectedPersonaId(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none bg-white"
-              >
-                {PRESET_PERSONAS.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-                <option value="custom">✍️ 커스텀 페르소나 직접 입력</option>
-              </select>
-              {selectedPersonaId === "custom" && (
-                <input
-                  type="text"
-                  placeholder="예: 30대 자취생 말투, 감성적인 어조, 이모지 많이 사용"
-                  value={customPersonaText}
-                  onChange={(e) => setCustomPersonaText(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-300 p-2 text-xs focus:border-neutral-900 focus:outline-none"
-                />
-              )}
+                onChange={setSelectedPersonaId}
+                customText={customPersonaText}
+                onCustomTextChange={setCustomPersonaText}
+                savedPersonas={savedPersonas}
+                onPersonaSaved={(p) => setSavedPersonas((prev) => [...prev, p])}
+              />
             </div>
 
             <div className="space-y-3 pt-2 border-t">
