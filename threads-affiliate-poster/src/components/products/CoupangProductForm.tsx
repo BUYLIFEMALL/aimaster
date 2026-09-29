@@ -154,14 +154,40 @@ export function CoupangProductForm({
       {searchError && <p className="text-xs text-red-600">{searchError}</p>}
 
       <div className="space-y-2 rounded-lg border border-dashed border-neutral-300 p-3">
-        <p className="text-xs font-medium text-neutral-700">쿠팡 상품URL 직접 입력(API키 등록X)</p>
+        <p className="text-sm font-bold text-neutral-900">🛒 쿠팡 API키 발급을 못받은 경우 직접 등록방법</p>
         <p className="text-xs text-neutral-500">
-          쿠팡파트너스 사이트에서 직접 발급받은 본인 제휴 링크를 붙여넣어주세요.
-          <br />
-          💡 링크 생성 화면 아래 <b>[이미지 + 텍스트] → HTML → &quot;일반태그&quot;</b>를 선택하고 [HTML 복사]한 코드를 붙여넣으면
-          제휴 링크·상품명·상품 사진이 자동으로 채워집니다. (단축 URL만 넣으면 사진은 직접 올려야 합니다 — 쿠팡이 외부 서버의
-          상품 페이지 접속을 막기 때문)
+          API 키 없이도 쿠팡파트너스 사이트에서 만든 본인 제휴 링크로 상품을 등록할 수 있어요. 사진·상품명까지 자동으로 채워집니다.
         </p>
+        <ol className="space-y-1.5 rounded-md bg-amber-50 p-3 text-xs leading-relaxed text-neutral-800">
+          <li>
+            <b>1단계.</b>{" "}
+            <a
+              href="https://partners.coupang.com/#affiliate/ws/link"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-blue-700 underline"
+            >
+              쿠팡파트너스 링크 생성 화면
+            </a>
+            에서 등록할 상품을 찾아 <b>[링크 생성]</b>을 누릅니다.
+          </li>
+          <li>
+            <b>2단계.</b> 화면 아래 <b>[이미지 + 텍스트]</b> 영역의 HTML에서 <b>&quot;일반태그&quot;</b>를 선택합니다.
+          </li>
+          <li>
+            <b>3단계.</b> <b>[HTML 복사]</b> 버튼을 누릅니다.
+          </li>
+          <li>
+            <b>4단계.</b> 복사한 코드를 아래 <b>링크 입력칸</b>에 붙여넣습니다 → 상품명·사진이 자동으로 채워져요.
+          </li>
+          <li>
+            <b>5단계.</b> <b>[이 링크로 등록]</b>을 누르면 끝!
+          </li>
+          <li className="pt-1 text-[11px] text-neutral-500">
+            ※ 단축 URL(link.coupang.com/a/…)만 붙여넣어도 등록은 되지만, 이 경우 사진은 직접 올려야 합니다.
+            <br />※ 일반 쿠팡 쇼핑 주소(coupang.com/vp/products/…)는 수수료가 잡히지 않아 등록되지 않습니다.
+          </li>
+        </ol>
         <Input
           value={manualName}
           onChange={(e) => setManualName(e.target.value)}

@@ -66,6 +66,7 @@
 
 - 파트너스 사이트(partners.coupang.com [링크 생성])에서 만든 링크는 "쿠팡 상품 URL 직접 입력 → 이 링크로 등록"으로 등록한다. 검색 API는 키워드당 10개·시간당 10회라 사이트보다 상품이 적다.
 - `src/lib/coupang/links.ts`의 `checkCoupangAffiliateLink()`가 화면과 서버(`registerCoupangProductAction`) 양쪽에서 링크를 검사한다: `link.coupang.com/...` 또는 `lptag=AF...`가 붙은 주소만 허용, 일반 쇼핑 주소(`www/m.coupang.com/...`)는 수수료가 안 잡히므로 경고하고 등록을 막는다. `coupa.ng` 단축 링크도 허용.
+- 등록 화면의 직접 입력 칸 제목은 "🛒 쿠팡 API키 발급을 못받은 경우 직접 등록방법"(굵게)이고, 아래에 5단계 등록 방법(파트너스 링크 생성 화면 바로가기 포함)을 안내한다(v1.10).
 - **사진·이름 자동 입력 (v1.09, 2026-09-30 실측으로 확정)**: 쿠팡은 서버에서 상품 페이지를 열면 403으로 막고, 검색 API에 상품번호를 넣어도 그 상품이 나오지 않아 링크 주소만으로는 사진을 못 가져온다. 대신 파트너스 링크 생성 화면 아래 **[이미지 + 텍스트] → HTML** 코드를 쓴다.
   - **일반태그** `<iframe src="https://coupa.ng/xxxx">`: `coupa.ng`가 `ads-partners.coupang.com/iframe/product?link=…&linkUrl=…&title=…&image=…`로 301 → `lookupCoupangWidgetAction`(서버, coupa.ng만 요청)이 제휴 링크(`link`)·상품명(`title`)·사진(`https://thumbnail7.coupangcdn.com/thumbnails/remote/492x492ex/image/{image}`)을 채운다. 블로그에 위젯이 보이는 것과 같은 요청이라 "쇼핑하기" 클릭으로 잡히지 않는다.
   - **블로그용 태그** `<a href="https://link.coupang.com/a/…"><img src="…/affiliate/banner/…" alt="상품명">`: 링크·상품명만 쓴다. 이 이미지는 쿠팡 로고+버튼이 합쳐진 120x240 배너라 사진으로 쓰지 않는다.
