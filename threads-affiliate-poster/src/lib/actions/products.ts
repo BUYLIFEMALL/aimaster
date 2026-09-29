@@ -72,6 +72,8 @@ export async function searchCoupangProductsAction(keyword: string): Promise<Sear
 export interface RegisterProductState {
   error?: string;
   success?: boolean;
+  /** Registered, but something optional (e.g. the product image) could not be fetched. */
+  warning?: string;
 }
 
 /**
@@ -115,7 +117,38 @@ export async function registerCoupangProductAction(
   return { success: true };
 }
 
-async function tryFetchOgImage(url: string): Promise<string | null> {
+/**
+ * Product image for an AliExpress item: official productdetail API first (retried on the API's
+ * rate limit inside the client), then the product page's meta image. The page is only trusted when
+ * it is the page of this very product, so a generic/landing image is never saved as the product photo.
+ */
+async function findAliexpressImage(
+  urls: string[],
+  auth: { appKey: string; appSecret: string; trackingId: string },
+): Promise<string | null> {
+  const productId = urls.map((u) => extractAliexpressProductId(u)).find(Boolean) ?? null;
+  if (productId) {
+    const details = await getProductDetails([productId], auth);
+    if (details[0]?.imageUrl) return normalizeImageUrl(details[0].imageUrl);
+  }
+  for (const url of urls) {
+    const img = await tryFetchOgImage(url, productId);
+    if (img) return normalizeImageUrl(img);
+  }
+  return null;
+}
+
+function normalizeImageUrl(url: string): string {
+  const trimmed = url.trim();
+  if (trimmed.startsWith("//")) return `https:${trimmed}`;
+  if (trimmed.startsWith("http://")) return trimmed.replace("http://", "https://");
+  return trimmed;
+}
+
+const ALIEXPRESS_IMAGE_WARNING =
+  "상품은 등록됐지만 알리익스프레스에서 상품 이미지를 가져오지 못했습니다. 잠시 후 상품 목록의 \"이미지 다시 가져오기\"를 눌러주세요.";
+
+async function tryFetchOgImage(url: string, productId?: string | null): Promise<string | null> {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4500);
@@ -131,6 +164,8 @@ async function tryFetchOgImage(url: string): Promise<string | null> {
     clearTimeout(timeoutId);
     if (!res.ok) return null;
     const html = await res.text();
+    // A block/landing page carries a site-wide image; only accept the meta image of this product's page.
+    if (productId && !html.includes(productId)) return null;
     const match =
       html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
       html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i) ||
@@ -191,29 +226,11 @@ export async function registerAliexpressProductAction(
     }
 
     const enrichment = parseEnrichmentFields(formData);
-    let extractedImage = enrichment.image_url;
 
-    // 3. 알리익스프레스 공식 TOP API (getProductDetails)로 썸네일 수집
-    if (!extractedImage) {
-      const aliexpressId = extractAliexpressProductId(resolvedUrl) || extractAliexpressProductId(productUrl);
-      if (aliexpressId) {
-        const details = await getProductDetails([aliexpressId], { appKey, appSecret, trackingId });
-        if (details.length > 0 && details[0].imageUrl) {
-          extractedImage = details[0].imageUrl;
-        }
-      }
-    }
-
-    // 4. TOP API 수집 실패 시 웹 Scraping 2차 시도 (resolvedUrl 우선, fallback productUrl)
-    if (!extractedImage) {
-      extractedImage = (await tryFetchOgImage(resolvedUrl)) || (await tryFetchOgImage(productUrl));
-    }
-
-    if (extractedImage) {
-      extractedImage = extractedImage.trim();
-      if (extractedImage.startsWith("//")) extractedImage = `https:${extractedImage}`;
-      else if (extractedImage.startsWith("http://")) extractedImage = extractedImage.replace("http://", "https://");
-    }
+    // 3~4. 공식 API(빈도 제한 시 재시도) → 이 상품 페이지의 메타 이미지 순으로 썸네일 수집
+    const extractedImage = enrichment.image_url
+      ? normalizeImageUrl(enrichment.image_url)
+      : await findAliexpressImage([resolvedUrl, productUrl], { appKey, appSecret, trackingId });
 
     const { error } = await supabase.from("affiliate_products").insert({
       user_id: user.id,
@@ -228,7 +245,7 @@ export async function registerAliexpressProductAction(
 
     await logProgramUsage({ userId: user.id, action: "register_aliexpress_product" });
     revalidatePath("/products");
-    return { success: true };
+    return extractedImage ? { success: true } : { success: true, warning: ALIEXPRESS_IMAGE_WARNING };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "알리익스프레스 링크 변환에 실패했습니다." };
   }
@@ -354,6 +371,47 @@ export async function deleteProductAction(formData: FormData) {
   await supabase.from("affiliate_products").delete().eq("id", productId).eq("user_id", user.id);
 
   revalidatePath("/products");
+}
+
+/** Fetch the image again for an AliExpress product saved without one (or with a broken one). */
+export async function refreshAliexpressImageAction(productId: string): Promise<{ imageUrl?: string; error?: string }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data: product } = await supabase
+    .from("affiliate_products")
+    .select("id, product_url, affiliate_url")
+    .eq("id", productId)
+    .eq("user_id", user.id)
+    .eq("platform", "aliexpress")
+    .maybeSingle();
+  if (!product) return { error: "상품을 찾을 수 없습니다." };
+
+  const [appKey, appSecret, trackingId] = await Promise.all([
+    resolveApiKey(supabase, user.id, "aliexpress_app_key"),
+    resolveApiKey(supabase, user.id, "aliexpress_app_secret"),
+    resolveApiKey(supabase, user.id, "aliexpress_tracking_id"),
+  ]);
+  if (!appKey || !appSecret || !trackingId) {
+    return { error: "알리익스프레스 App Key/Secret/Tracking ID가 없습니다. 설정 페이지에서 먼저 등록해주세요." };
+  }
+
+  const resolvedUrl = await resolveAliexpressUrl(product.product_url ?? product.affiliate_url);
+  const imageUrl = await findAliexpressImage(
+    [resolvedUrl, product.product_url ?? "", product.affiliate_url].filter(Boolean),
+    { appKey, appSecret, trackingId },
+  );
+  if (!imageUrl) return { error: "이번에도 이미지를 가져오지 못했습니다. 잠시 후 다시 시도해주세요." };
+
+  const { error } = await supabase
+    .from("affiliate_products")
+    .update({ image_url: imageUrl })
+    .eq("id", product.id)
+    .eq("user_id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/products");
+  return { imageUrl };
 }
 
 // ─────────────────────────────────────────────────────────────────────────

@@ -38,7 +38,7 @@
 - **커스텀 페르소나**: 나만의 어조(예: 30대 자취생 말투 등)를 자유롭게 입력하여 적용 가능.
 
 ### 2. 🛍️ 알리익스프레스 공식 썸네일 수집 & 백필 시스템
-- **공식 TOP API 연동 (`getProductDetails`)**: `src/lib/aliexpress/client.ts`에 `extractAliexpressProductId` 및 `getProductDetails` (`aliexpress.affiliate.productdetail.get`) API를 연동하여 상품 ID 추출 시 고화질 원본 `product_main_image_url`을 100% 수집.
+- **공식 TOP API 연동 (`getProductDetails`)**: `src/lib/aliexpress/client.ts`에 `extractAliexpressProductId` 및 `getProductDetails` (`aliexpress.affiliate.productdetail.get`) API를 연동하여 상품 ID 추출 시 고화질 원본 `product_main_image_url`을 수집(빈도 제한 시 자동 재시도 — 2026-09-29, 아래 트러블슈팅 1번).
 - **OG 메타 파서**: 2차 안전망으로 `og:image`, `twitter:image` 파서 적용.
 - **403 핫링크 차단 방지**: `ProductList`에 `referrerPolicy="no-referrer"` + `formatImageUrl`(http→https 및 // 자동 전환) + `onError` 팩트 플레이스홀더 적용.
 - **DB 백필**: `scripts/backfill-aliexpress-images.mjs`를 통해 기존 DB 내 알리익스프레스 상품 `image_url` 백필 완료.
@@ -125,7 +125,11 @@ vercel deploy --prod --yes
      2. `extractAliexpressProductId()`: 확장된 URL에서 10~18자리 Product ID를 정밀 추출.
      3. `getProductDetails()`: 공식 TOP API로 고화질 원본 `product_main_image_url` 수집.
      4. `tryFetchOgImage()` + `https:` 보정: TOP API 실패 시 Scraping 2차 시도 및 `referrerPolicy="no-referrer"` 적용.
-   - 이 파이프라인은 신규 상품 등록 및 DB 백필 전체에 공통으로 적용되어 썸네일 수집이 100% 보장됩니다.
+   - ~~이 파이프라인은 … 썸네일 수집이 100% 보장됩니다.~~ **(2026-09-29 정정)** 보장되지 않았다. 같은 증상이 재발했고
+     진짜 원인은 **알리 API 호출 빈도 제한(`ApiCallLimit`)** 이었다 — 링크 생성 직후 이미지 조회가 거의 매번 제한에 걸리는데
+     `getProductDetails()`가 오류를 삼켜 `image_url = null`로 조용히 저장됐다. v1.05에서 `callTopApi()` 재시도(1.2/2.5/4초),
+     이미지 못 찾으면 경고 표시, 상품 목록 "이미지 다시 가져오기" 버튼을 추가했다.
+     **원인·조치·점검 순서 전문: [`docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md`](docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md) — 알리 이미지 문제는 이 문서부터 볼 것.**
 
 2. **토스쇼핑 OpenAPI Fixie 고정 IP 프록시**:
    - 토스쇼핑 Open API는 등록된 서버 IP에서만 접근을 승인합니다. Vercel 서버리스 환경을 대응하기 위해 `Fixie` 프록시(`FIXIE_URL`)를 연결하여 `undici` `ProxyAgent`로 고정 IP(`52.87.82.133`, `52.5.155.132`)를 통과하게 구성되어 있습니다.

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { DeleteButton } from "@/components/posts/DeleteButton";
-import { deleteProductAction } from "@/lib/actions/products";
+import { deleteProductAction, refreshAliexpressImageAction } from "@/lib/actions/products";
 import { PLATFORM_LABELS, type AffiliateProduct } from "@/types/product";
 import { ShoppingBag } from "lucide-react";
 
@@ -19,7 +19,24 @@ function formatImageUrl(url: string | null | undefined): string | null {
 
 function ProductItem({ product }: { product: AffiliateProduct }) {
   const [imgError, setImgError] = useState(false);
-  const formattedUrl = formatImageUrl(product.image_url);
+  const [refreshedUrl, setRefreshedUrl] = useState<string | null>(null);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [isRefreshing, startRefresh] = useTransition();
+  const formattedUrl = formatImageUrl(refreshedUrl ?? product.image_url);
+  const canRefreshImage = product.platform === "aliexpress" && (!formattedUrl || imgError);
+
+  const handleRefreshImage = () => {
+    setRefreshError(null);
+    startRefresh(async () => {
+      const result = await refreshAliexpressImageAction(product.id);
+      if (result.imageUrl) {
+        setRefreshedUrl(result.imageUrl);
+        setImgError(false);
+      } else {
+        setRefreshError(result.error ?? "이미지를 가져오지 못했습니다.");
+      }
+    });
+  };
 
   return (
     <li className="flex items-center gap-3 p-4 hover:bg-neutral-50/80 transition-colors">
@@ -48,6 +65,19 @@ function ProductItem({ product }: { product: AffiliateProduct }) {
             </span>
           )}
         </p>
+        {canRefreshImage && (
+          <div className="mt-1 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleRefreshImage}
+              disabled={isRefreshing}
+              className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+            >
+              {isRefreshing ? "이미지 가져오는 중..." : "🖼 이미지 다시 가져오기"}
+            </button>
+            {refreshError && <span className="text-[11px] text-red-600">{refreshError}</span>}
+          </div>
+        )}
       </div>
       <form action={deleteProductAction}>
         <input type="hidden" name="productId" value={product.id} />

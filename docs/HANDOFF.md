@@ -39,6 +39,7 @@
 | 법적 페이지 | 개인정보처리방침 제12조(Meta 연동 정보, 10/5 시행 공지), `https://www.buylife.xyz/data-deletion` 신설 | Meta 앱 심사 필수 항목 | `META_APP_REVIEW.md` §1 |
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
+| 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
 | 이용 권한 베타테스트 정책 | 무료 배지 → 가입만 하면 사용 / 그 외 → 결제 구독 또는 일반 이상 + 사용기간. 등급만으로 열리던 예외 삭제. 루트 + 서브프로젝트 24곳 적용, 해당 프로그램 버전 +0.01 | 주인님 지시 | 루트 `CLAUDE.md` "이용 권한 판정 정책" |
 | 🔒 `user_program_access` 보안 구멍 수정 | 모든 역할에 `using (true)`로 열려 있던 RLS 정책 "Service role full access" 삭제 → 회원은 본인 행 조회만, 쓰기는 service role(관리자 API)만. 적용 전 기존 4,702건 전부 관리자가 부여한 것 확인(악용 흔적 없음). 적용 후 회원 권한으로 검증: 본인 29건만 조회, 추가 시도 거부 | 주인님 승인 | 루트 마이그레이션 `0019` |
 | 쇼핑제휴 복제 키트 (v1.02) | 다른 GitHub·Vercel·Supabase 계정으로 통째 복제하는 키트 `threads-affiliate-poster/clone-kit/`(설치 매뉴얼·기본지침·DB 설계·전체 스키마 SQL·환경변수·연동 매뉴얼 8종·복제 스크립트). 코드에 독립 운영 모드(`NEXT_PUBLIC_STANDALONE_MODE`, `src/lib/deployment.ts`) 추가 — 값이 없으면 기존과 동일. 스키마는 빈 PostgreSQL에서 실행 검증, 실제 새 계정 설치는 아직 | 주인님 요청 | TAP `README.md` "별도 서버로 통째 복제하기" |

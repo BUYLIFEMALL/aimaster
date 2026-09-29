@@ -581,7 +581,13 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 1. **단축 URL 리졸브 (`resolveAliexpressUrl`)**: `a.aliexpress.com`, `s.click.aliexpress.com` 등 모바일/제휴 단축 URL을 HTTP `redirect: follow`로 추적하여 원본 `item/{productId}.html`로 먼저 확장(resolve)함.
 2. **Product ID 파싱 강화 (`extractAliexpressProductId`)**: 10~18자리 숫자, URL 인코딩 파라미터 등 정밀 파싱 지원.
 3. **공식 TOP API 1차 수집 (`getProductDetails`)**: 확장된 Product ID로 공식 TOP API를 호출해 고화질 원본 `product_main_image_url` 수집.
-4. **Scraping & Sanitization 2차 수집 (`tryFetchOgImage`)**: TOP API 수집 실패 시 `Accept-Language`/`Cookie` 헤더를 포함해 og:image 및 JSON-LD 수집 후 `referrerPolicy="no-referrer"` 및 `https:` 보정.
+4. **Scraping & Sanitization 2차 수집 (`tryFetchOgImage`)**: TOP API 수집 실패 시 `Accept-Language`/`Cookie` 헤더를 포함해 og:image 및 JSON-LD 수집 후 `referrerPolicy="no-referrer"` 및 `https:` 보정. 그 페이지에 상품 번호가 있을 때만 이미지를 인정한다.
+
+**⚠️ 2026-09-29 정정 — 위 4단계만으로는 부족했다**: 알리 제휴 API는 앱 키 단위 호출 빈도 제한이 있어, 링크 생성(`link.generate`) 직후 이미지 조회(`productdetail.get`)가 거의 매번 `ApiCallLimit`("ban will last 1 seconds")을 받는다. 이 오류가 `catch`로 삼켜져 이미지 없이 조용히 저장되던 것이 재발 원인이었다. 추가 규칙:
+- 알리 TOP API는 반드시 재시도가 들어간 `callTopApi()`로 호출(`ApiCallLimit` 시 1.2/2.5/4초 대기 후 재시도).
+- 외부 API 실패를 빈 값으로 삼키지 말고, 저장은 하되 화면에 경고 + "다시 가져오기" 버튼을 둔다.
+- 다른 이커머스 API도 한 동작에서 여러 번 호출하면 빈도 제한을 전제로 설계한다.
+- 상세: `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md`
 
 **관련 파일**:
 - `threads-affiliate-poster/src/lib/aliexpress/client.ts`

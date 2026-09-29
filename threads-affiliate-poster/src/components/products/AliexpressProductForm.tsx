@@ -58,7 +58,8 @@ export function AliexpressProductForm({
         {isPending ? "등록 중..." : "제휴 링크 자동 생성 후 등록"}
       </Button>
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
-      {state.success && <p className="text-xs text-green-600">등록되었습니다.</p>}
+      {state.success && !state.warning && <p className="text-xs text-green-600">등록되었습니다.</p>}
+      {state.warning && <p className="text-xs text-amber-700">{state.warning}</p>}
     </form>
   );
 }

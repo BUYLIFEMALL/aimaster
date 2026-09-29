@@ -25,7 +25,38 @@ function signParams(params: Record<string, string>, appSecret: string): string {
   return crypto.createHash("md5").update(raw, "utf8").digest("hex").toUpperCase();
 }
 
+export class AliexpressApiError extends Error {
+  constructor(
+    message: string,
+    readonly code?: string,
+  ) {
+    super(message);
+  }
+}
+
+// The affiliate API throttles per app key and answers `ApiCallLimit` ("this ban will last 1 seconds")
+// even for a single call, e.g. right after the link.generate call of the same registration. It is
+// temporary, so wait and try again instead of giving up (2026-09-29: this silently left image_url empty).
+const RATE_LIMIT_RETRY_DELAYS_MS = [1200, 2500, 4000];
+
 async function callTopApi(
+  method: string,
+  bizParams: Record<string, string>,
+  auth: AliexpressAuthParams,
+): Promise<Record<string, unknown>> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await callTopApiOnce(method, bizParams, auth);
+    } catch (err) {
+      const delay = RATE_LIMIT_RETRY_DELAYS_MS[attempt];
+      if (!(err instanceof AliexpressApiError) || err.code !== "ApiCallLimit" || delay === undefined) throw err;
+      console.warn(`[aliexpress] ${method} rate-limited, retrying in ${delay}ms (attempt ${attempt + 1})`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
+async function callTopApiOnce(
   method: string,
   bizParams: Record<string, string>,
   auth: AliexpressAuthParams,
@@ -56,12 +87,13 @@ async function callTopApi(
   }
 
   const data = (await response.json()) as Record<string, unknown> & {
-    error_response?: { msg?: string; sub_msg?: string };
+    error_response?: { code?: string; msg?: string; sub_msg?: string };
   };
 
   if (data.error_response) {
-    throw new Error(
+    throw new AliexpressApiError(
       `알리익스프레스 API 오류: ${data.error_response.sub_msg ?? data.error_response.msg ?? "알 수 없는 오류"}`,
+      data.error_response.code,
     );
   }
 
