@@ -124,6 +124,13 @@ export async function getThreadsUserProfile(
   return parseThreadsResponse<ThreadsUserProfile>(response);
 }
 
+export interface ThreadsSearchMediaChild {
+  id: string;
+  media_type?: string;
+  media_url?: string;
+  thumbnail_url?: string;
+}
+
 export interface ThreadsKeywordSearchPost {
   id: string;
   text?: string;
@@ -134,7 +141,20 @@ export interface ThreadsKeywordSearchPost {
   has_replies?: boolean;
   is_quote_post?: boolean;
   is_reply?: boolean;
+  // Image/video file URLs (Meta CDN, short-lived). thumbnail_url only exists for videos,
+  // children only for carousel posts.
+  media_url?: string;
+  thumbnail_url?: string;
+  children?: { data?: ThreadsSearchMediaChild[] };
 }
+
+// Keyword search returns Media objects (all fields except `owner`), so the post's own
+// image/video URLs and carousel children can be requested alongside the text.
+const KEYWORD_SEARCH_FIELDS = [
+  "id,text,media_type,permalink,timestamp,username,has_replies,is_quote_post,is_reply",
+  "media_url,thumbnail_url",
+  "children{id,media_type,media_url,thumbnail_url}",
+].join(",");
 
 export class ThreadsKeywordSearchError extends Error {
   constructor(
@@ -163,7 +183,7 @@ export async function searchThreadsByKeyword(
     q: options.q,
     search_type: options.searchType ?? "TOP",
     search_mode: options.searchMode ?? "KEYWORD",
-    fields: "id,text,media_type,permalink,timestamp,username,has_replies,is_quote_post,is_reply",
+    fields: KEYWORD_SEARCH_FIELDS,
     limit: String(options.limit ?? 25),
     access_token: accessToken,
   });

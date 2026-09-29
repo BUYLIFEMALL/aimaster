@@ -12,10 +12,19 @@ import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS } from "@/lib/ai/models";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
 import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
-import { searchThreadsByKeyword, ThreadsKeywordSearchError } from "@/lib/threads/client";
+import { searchThreadsByKeyword, ThreadsKeywordSearchError, type ThreadsKeywordSearchPost, type ThreadsSearchMediaChild } from "@/lib/threads/client";
 
 // Only "threads" items are real posts; examples and AI drafts are labelled as such in the UI.
 export type ViralPostSource = "threads" | "manual" | "example" | "ai";
+
+/** Image/video attached to a Threads search result — shown as a reference preview only, never reposted. */
+export interface ViralPostMedia {
+  type: "IMAGE" | "VIDEO";
+  /** Image to show: the image itself, or the video's thumbnail. */
+  previewUrl: string;
+  /** Original file (image or video). Meta CDN URL, expires after a while. */
+  fileUrl: string;
+}
 
 export interface ViralPostItem {
   id: string;
@@ -27,6 +36,7 @@ export interface ViralPostItem {
   postedAtLabel: string;
   category: string;
   isSaved?: boolean;
+  media?: ViralPostMedia[];
 }
 
 export type ThreadsSearchStatus =
@@ -114,6 +124,22 @@ function toExamplePost(p: (typeof EXAMPLE_POSTS)[number]): ViralPostItem {
   return { ...p, source: "example", postedAtLabel: "작성 예시" };
 }
 
+// A carousel's images live in `children`; a single image/video post carries its own URLs.
+function toViralMedia(post: ThreadsKeywordSearchPost): ViralPostMedia[] | undefined {
+  const items: ThreadsSearchMediaChild[] = post.children?.data?.length ? post.children.data : [post];
+  const media = items.flatMap((item): ViralPostMedia[] => {
+    if (item.media_type === "VIDEO") {
+      const preview = item.thumbnail_url ?? "";
+      return item.media_url && preview ? [{ type: "VIDEO", previewUrl: preview, fileUrl: item.media_url }] : [];
+    }
+    if (item.media_type === "IMAGE" && item.media_url) {
+      return [{ type: "IMAGE", previewUrl: item.media_url, fileUrl: item.media_url }];
+    }
+    return [];
+  });
+  return media.length ? media.slice(0, 10) : undefined;
+}
+
 function formatRelativeTime(iso?: string): string {
   if (!iso) return "";
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -166,6 +192,7 @@ async function searchRealThreads(
         permalink: r.permalink,
         postedAtLabel: formatRelativeTime(r.timestamp),
         category: keyword,
+        media: toViralMedia(r),
       }));
 
     if (posts.length === 0) return { posts, status: "empty" };

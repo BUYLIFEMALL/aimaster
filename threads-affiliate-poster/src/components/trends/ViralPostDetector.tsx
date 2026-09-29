@@ -13,6 +13,7 @@ import {
   generateAiExamplePostsAction,
   importViralPostAction,
   type ViralPostItem,
+  type ViralPostMedia,
   type ThreadsSearchStatus,
 } from "@/lib/actions/viral";
 import { connectThreadsAccountWithKeywordSearchAction } from "@/lib/actions/accounts";
@@ -818,6 +819,8 @@ export function ViralPostDetector() {
                     {post.content}
                   </p>
 
+                  {post.media && <MediaPreviewStrip media={post.media} />}
+
                   {post.permalink && (
                     <a
                       href={post.permalink}
@@ -1226,6 +1229,55 @@ export function ViralPostDetector() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Images/videos of a searched Threads post, for reference only. The URLs are Meta CDN links that
+// expire, so broken ones are hidden and nothing here is stored or reposted.
+function MediaPreviewStrip({ media }: { media: ViralPostMedia[] }) {
+  const [broken, setBroken] = useState<Set<number>>(new Set());
+  const visible = media.map((m, i) => ({ m, i })).filter(({ i }) => !broken.has(i));
+  if (visible.length === 0) return null;
+
+  const shown = visible.slice(0, 4);
+  const hiddenCount = visible.length - shown.length;
+
+  return (
+    <div className="mb-3 space-y-1">
+      <div className="flex gap-1.5">
+        {shown.map(({ m, i }, idx) => (
+          <a
+            key={i}
+            href={m.fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={m.type === "VIDEO" ? "영상 원본 열기" : "이미지 원본 열기"}
+            className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={m.previewUrl}
+              alt=""
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              onError={() => setBroken((prev) => new Set(prev).add(i))}
+              className="h-full w-full object-cover"
+            />
+            {m.type === "VIDEO" && (
+              <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-lg text-white">▶</span>
+            )}
+            {idx === shown.length - 1 && hiddenCount > 0 && (
+              <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xs font-bold text-white">
+                +{hiddenCount}
+              </span>
+            )}
+          </a>
+        ))}
+      </div>
+      <p className="text-[10px] text-neutral-400">
+        참고용 미리보기입니다. 다른 사람의 사진·영상은 저작권이 있어 내 게시글에 그대로 쓰면 안 됩니다. (링크는 일정 시간이 지나면 열리지 않을 수 있어요)
+      </p>
     </div>
   );
 }

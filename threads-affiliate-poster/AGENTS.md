@@ -139,6 +139,10 @@ vercel deploy --prod --yes
      고급 액세스를 받은 회원: 검색 권한 포함 연결 → 타인 공개 글 검색), B(승인 전 회원: 떡상글 직접 가져오기). 연결 계정과 마지막 검색 결과
      기준 권한 상태(공개 글 가능/본인 글만/미확인)를 칩으로 표시(DB에 저장하지 않고 검색 결과로 판정 — 작성자 필터가 본인 아이디면 판정 제외).
      승인 회원용 검색 옵션: `search_mode`(KEYWORD/TAG), `media_type`(TEXT/IMAGE/VIDEO), `author_username`(영문·숫자·_·. 1~30자 검증), limit 50.
+     **이미지·영상 미리보기 (2026-09-29, v1.04)**: 검색 요청에 `media_url,thumbnail_url,children{id,media_type,media_url,thumbnail_url}`를 함께 요청해
+     결과 카드에 최대 4장 미리보기(영상은 썸네일+▶, 클릭 시 원본)를 보여준다(`toViralMedia` → `ViralPostItem.media` → `MediaPreviewStrip`).
+     주소는 Meta CDN이라 약 4일 뒤 만료(`oe` 파라미터) → **DB에 저장하지 않고**, 깨진 이미지는 숨긴다. 저작권 때문에 게시글에 재사용하지 않도록 안내 문구 표시.
+     좋아요·조회수는 여전히 API가 주지 않는다. 테스트 회원 토큰으로 본인 글 검색 시 필드 요청이 정상 동작함을 확인(타인 글은 승인 후 확인 필요).
      코드 변경 없이 회원 앱이 승인되면 바로 타인 글이 나오는 구조다.
      B 칸에는 회원용 **"비즈니스 앱 승인 절차 매뉴얼"**(`platform_guides` id `ae85d991-d907-4349-809e-818a6b3a2f54`,
      https://www.buylife.xyz/guides/ae85d991-d907-4349-809e-818a6b3a2f54) 팝업 버튼이 있다 — 준비물·기본 설정·콜백 3개·권한 추가·테크 제공업체·
