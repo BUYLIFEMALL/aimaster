@@ -266,6 +266,14 @@ test("selects the image model beside representative image creation and sends it 
   assert.doesNotMatch(settings, /openai-content-model/);
 });
 
+test("uses the same left-aligned image platform and model layout in new draft", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  assert.match(studio, /id="new-draft-image-provider"/);
+  assert.match(studio, /id="new-draft-image-model"/);
+  assert.match(studio, /className="content-generation-models image-generation-models"/);
+  assert.match(studio, /대표·본문 이미지와 개별 재생성에 적용됩니다/);
+});
+
 test("selects the OpenAI content model above representative image generation", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");
