@@ -308,11 +308,13 @@ test("keeps content-block position controls on a single toolbar line", () => {
 
 test("saves edits directly from the complete content editor", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
   assert.match(studio, /content-block-editor-footer/);
   assert.match(studio, /수정 내용 저장/);
   assert.match(studio, /onClick=\{\(\) => void saveCurrentDraft\(\)\}/);
   assert.match(studio, /Chrome 확장으로 전송/);
   assert.match(studio, /onClick=\{sendDraftToExtension\}/);
+  assert.match(styles, /\.content-block-editor-actions > button \{[^}]*height: 42px;[^}]*margin: 0 !important/);
 });
 
 test("expands each content paragraph editor to avoid an inner scrollbar", () => {
