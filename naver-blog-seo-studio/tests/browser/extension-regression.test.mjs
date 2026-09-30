@@ -291,6 +291,12 @@ test("lays out content-image auto generation with its model and keeps the image 
   assert.match(styles, /\.content-image-stage \{ grid-template-columns: minmax\(0, 1fr\) minmax\(280px, \.9fr\); \}/);
 });
 
+test("keeps content-block position controls on a single toolbar line", () => {
+  const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.content-block-toolbar \{[^}]*flex-wrap: nowrap/);
+  assert.match(styles, /\.content-block-toolbar div \{[^}]*flex: 0 0 auto; flex-wrap: nowrap/);
+});
+
 test("selects the OpenAI content model above representative image generation", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");
