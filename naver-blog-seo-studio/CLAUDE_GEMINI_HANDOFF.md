@@ -1,6 +1,6 @@
 # 네이버 블로그 SEO Studio 인수인계
 
-> 최신 인수인계 기준은 [CLI_HANDOFF_2026-09-25.md](./CLI_HANDOFF_2026-09-25.md)입니다.
+> 최신 인수인계 기준은 [CLI_HANDOFF_2026-09-27.md](./CLI_HANDOFF_2026-09-27.md)입니다.
 > 이 문서는 2026-09-22 시점의 구현 이력을 보존하는 용도이며, 확장 버전·완료 기능·검증 절차는
 > 최신 문서를 우선합니다.
 
@@ -62,7 +62,7 @@ API:
 
 ## 4. Chrome 확장 상태
 
-Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 버전은 `1.0.3`다.
+Manifest V3 확장 이름은 `AIMaster Naver Blog SEO Studio`이며 현재 공개 버전은 `v1.03`다. Chrome 내부 업데이트 버전은 `1.3.0`이며, 최신 ZIP은 `naver-blog-seo-studio-extension-v1.03.zip`이다.
 
 권한:
 
