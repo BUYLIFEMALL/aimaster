@@ -295,7 +295,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .content-block-toolbar div { display: flex; grid-column: 2; justify-self: end; flex-wrap: nowrap; gap: 2px; white-space: nowrap; }
 .content-block-toolbar .text-button { padding: 4px 5px; font-size: 11px; }
 .content-block-toolbar .text-button:disabled { opacity: .35; cursor: not-allowed; }
-.content-block textarea { display: block; width: 100%; min-height: 190px; resize: vertical; border: 0; padding: 13px; color: #48413b; font: inherit; font-size: 13px; line-height: 1.8; outline: none; }
+.content-block textarea { display: block; width: 100%; min-height: 340px; overflow-y: hidden; resize: vertical; border: 0; padding: 13px; color: #48413b; font: inherit; font-size: 13px; line-height: 1.8; outline: none; }
 .content-block textarea:focus { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 .content-block-image img { display: block; width: min(100%, 720px); margin: 14px auto 0; aspect-ratio: 16 / 9; object-fit: cover; }
 .content-block-image p { margin: 0; padding: 10px 13px; color: #657b92; font-size: 12px; line-height: 1.55; }

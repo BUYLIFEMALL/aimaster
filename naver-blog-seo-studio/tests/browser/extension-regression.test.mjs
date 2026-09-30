@@ -313,6 +313,15 @@ test("saves edits directly from the complete content editor", () => {
   assert.match(studio, /onClick=\{\(\) => void saveCurrentDraft\(\)\}/);
 });
 
+test("expands each content paragraph editor to avoid an inner scrollbar", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+  assert.match(studio, /function fitContentBlockTextarea/);
+  assert.match(studio, /querySelectorAll<HTMLTextAreaElement>\("\.content-block textarea"\)/);
+  assert.match(studio, /onInput=\{\(event\) => fitContentBlockTextarea\(event\.currentTarget\)\}/);
+  assert.match(styles, /\.content-block textarea \{[^}]*min-height: 340px; overflow-y: hidden/);
+});
+
 test("selects the OpenAI content model above representative image generation", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");

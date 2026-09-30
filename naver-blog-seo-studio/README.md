@@ -2,7 +2,7 @@
 
 ## 프로그램 버전
 
-- 회원용 앱·확장 프로그램 공개 버전: `v1.34` (`lib/version.ts`의 `APP_VERSION`, 공용 `programs.version`, 확장 `manifest.json`의 `version_name`, 다운로드 ZIP을 같은 값으로 유지)
+- 회원용 앱·확장 프로그램 공개 버전: `v1.35` (`lib/version.ts`의 `APP_VERSION`, 공용 `programs.version`, 확장 `manifest.json`의 `version_name`, 다운로드 ZIP을 같은 값으로 유지)
 - 작은 기능·화면·버그 수정 배포마다 두 공개 버전을 함께 `0.01` 올립니다. 메이저 버전은 주인님 지시가 있을 때만 올립니다.
 - Chrome 확장의 `manifest.json.version`은 기존 설치본보다 높은 숫자가 필요한 내부 업데이트용 값이며, 공개 버전은 `version_name`을 기준으로 표시합니다.
 

@@ -60,6 +60,11 @@ function getParagraphStart(body: string, sentencePosition: number) {
   return lastSeparator?.index === undefined ? 0 : lastSeparator.index + lastSeparator[0].length;
 }
 
+function fitContentBlockTextarea(element: HTMLTextAreaElement) {
+  element.style.height = "auto";
+  element.style.height = `${element.scrollHeight}px`;
+}
+
 function createContentBlocks(draft: DraftRecord, images: ContentImage[] = getContentImages(draft)): ContentBlock[] {
   const blocks: ContentBlock[] = draft.image_path ? [{ id: "cover", type: "image", slot: "cover", alt: "대표 이미지" }] : [];
   const sortedImages = images
@@ -175,6 +180,10 @@ export default function StudioPage({ email }: { email: string }) {
   const selectedPersonaName = personaId === "custom"
     ? "커스텀 페르소나"
     : SEO_PERSONAS.find((persona) => persona.id === personaId)?.name ?? "정보 전달형 전문 에디터";
+
+  useEffect(() => {
+    document.querySelectorAll<HTMLTextAreaElement>(".content-block textarea").forEach(fitContentBlockTextarea);
+  }, [contentBlocks]);
 
   async function refreshHistory() {
     const response = await fetch("/api/drafts/history");
@@ -731,7 +740,7 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="content-block-list">
             {contentBlocks.map((block, index) => <article className={`content-block ${block.type}`} key={block.id}>
               <div className="content-block-toolbar"><span>{block.type === "text" ? `본문 문단 ${contentBlocks.filter((item, itemIndex) => itemIndex <= index && item.type === "text").length}` : block.slot === "cover" ? "대표 이미지" : "본문 이미지"}</span><div><button type="button" className="text-button" onClick={() => moveContentBlock(index, -1)} disabled={index === 0}>위로</button><button type="button" className="text-button" onClick={() => moveContentBlock(index, 1)} disabled={index === contentBlocks.length - 1}>아래로</button><button type="button" className="text-button danger" onClick={() => removeContentBlock(block.id)}>전송 제외</button></div></div>
-              {block.type === "text" ? <textarea value={block.text} onChange={(event) => updateTextBlock(block.id, event.target.value)} aria-label="본문 문단 수정" /> : <div className="content-block-image"><Image src={block.slot === "cover" ? `/api/drafts/${encodeURIComponent(currentDraft.id)}/image` : `/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${block.slot}`} alt={block.alt} width={1280} height={720} unoptimized /><p>{block.slot === "cover" ? "제목 다음에 삽입되는 대표 이미지" : block.alt}</p></div>}
+              {block.type === "text" ? <textarea value={block.text} onChange={(event) => updateTextBlock(block.id, event.target.value)} onInput={(event) => fitContentBlockTextarea(event.currentTarget)} aria-label="본문 문단 수정" /> : <div className="content-block-image"><Image src={block.slot === "cover" ? `/api/drafts/${encodeURIComponent(currentDraft.id)}/image` : `/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${block.slot}`} alt={block.alt} width={1280} height={720} unoptimized /><p>{block.slot === "cover" ? "제목 다음에 삽입되는 대표 이미지" : block.alt}</p></div>}
             </article>)}
           </div>
           <div className="content-block-editor-footer"><p className="content-block-editor-note">이미지를 전송에서 제외해도 원본 파일은 블로그(원문)에 보관됩니다. 수정한 문단·이미지 순서·전송 제외 상태는 저장 후 Chrome 확장에 그대로 전달됩니다.</p><div><button type="button" className="primary compact content-block-save" onClick={() => void saveCurrentDraft()} disabled={draftSaving}>{draftSaving ? "수정 내용 저장 중..." : "수정 내용 저장"}</button>{draftSaveMessage && <p className="content-block-save-status" role="status">{draftSaveMessage}</p>}</div></div>
