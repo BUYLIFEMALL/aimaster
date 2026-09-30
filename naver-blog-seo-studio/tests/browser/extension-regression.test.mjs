@@ -287,9 +287,10 @@ test("lays out content-image auto generation with its model and keeps the image 
   assert.match(studio, /id="content-image-model"/);
   assert.match(studio, /content-image-heading-description/);
   assert.match(studio, /content-image-count-field/);
+  assert.match(studio, /content-image-control-row/);
   assert.match(styles, /\.content-image-auto-option \{ grid-column: 1 \/ -1; \}/);
-  assert.match(styles, /\.content-image-count-field \{ grid-column: 1; grid-row: 3; max-width: 360px; \}/);
-  assert.match(styles, /\.content-image-generate-button \{ grid-column: 2; grid-row: 3; justify-self: start; align-self: end; \}/);
+  assert.match(styles, /\.content-image-control-row \{ display: grid; grid-column: 1 \/ -1; grid-template-columns: minmax\(0, 1fr\) minmax\(280px, \.9fr\); column-gap: 16px; align-items: end; \}/);
+  assert.match(styles, /\.content-image-generate-button \{ justify-self: start; align-self: end; \}/);
   assert.match(styles, /\.content-image-stage \{ grid-template-columns: minmax\(0, 1fr\) minmax\(280px, \.9fr\); \}/);
 });
 
