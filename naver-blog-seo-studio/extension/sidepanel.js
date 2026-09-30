@@ -48,7 +48,7 @@ async function refreshWebDrafts() {
   select.textContent = "";
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = webDrafts.length ? "불러올 초안을 선택하세요." : "전송된 웹 초안이 없습니다.";
+  placeholder.textContent = webDrafts.length ? "미리볼 콘텐츠를 선택하세요." : "전송된 콘텐츠가 없습니다.";
   select.append(placeholder);
   for (const draft of webDrafts) {
     const option = document.createElement("option");
@@ -56,7 +56,7 @@ async function refreshWebDrafts() {
     option.textContent = formatWebDraftLabel(draft);
     select.append(option);
   }
-  status.textContent = webDrafts.length ? `${webDrafts.length}개의 웹 초안을 불러왔습니다.` : "전송된 웹 초안이 없습니다. 대시보드에서 초안을 보내주세요.";
+  status.textContent = webDrafts.length ? `전송된 콘텐츠 ${webDrafts.length}개를 불러왔습니다.` : "전송된 콘텐츠가 없습니다. 웹에서 콘텐츠를 만든 뒤 확장으로 전송하세요.";
 }
 
 function clearWebDraftPreview() {
@@ -92,7 +92,7 @@ function renderWebDraftPreview(draft, storedImageLoaded) {
 
 async function loadSelectedWebDraft() {
   const draft = webDrafts.find((item) => item.id === $("webDraftList").value);
-  if (!draft) throw new Error("불러올 웹 초안을 먼저 선택해주세요.");
+  if (!draft) throw new Error("미리볼 콘텐츠를 먼저 선택해주세요.");
   clearWebDraftPreview();
   activeWebDraftContentImages = [];
   activeWebDraftBlocks = [];
@@ -128,9 +128,9 @@ async function loadSelectedWebDraft() {
   const imageSummary = draft.image_summary || {};
   const imageCount = (imageSummary.cover ? 1 : 0) + Number(imageSummary.contentCount || 0);
   $("webDraftStatus").textContent = storedImageLoaded
-    ? `웹 초안과 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}을 불러왔습니다. 아래 미리보기에서 확인한 뒤 네이버 편집기에 입력하세요.`
+    ? `콘텐츠와 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}를 불러왔습니다. 미리보기에서 확인한 뒤 네이버 글쓰기 화면에 입력하세요.`
     : imageCount === 0
-      ? "이 초안에는 저장된 이미지가 없습니다. 대시보드에서 대표 이미지와 본문 이미지 2장을 생성한 뒤 다시 전송해주세요."
+      ? "이 콘텐츠에는 저장된 이미지가 없습니다. 웹에서 대표 이미지와 본문 이미지 2장을 생성한 뒤 다시 전송해주세요."
       : `이미지 ${imageCount}/3을 불러오지 못했습니다. 확장 프로그램을 v1.03으로 업데이트한 뒤 다시 시도해주세요.`;
 }
 
@@ -689,7 +689,7 @@ async function fillDraftIntoNaver() {
     const title = activeWebDraftTitle;
     const body = activeWebDraftBody;
     const imageDataUrl = activeWebDraftCoverDataUrl;
-    if (!activeWebDraftId || !title || !body) return ($("generateStatus").textContent = "웹에서 전송한 초안을 먼저 불러오세요.");
+    if (!activeWebDraftId || !title || !body) return ($("generateStatus").textContent = "웹에서 전송한 콘텐츠를 먼저 불러오세요.");
     const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
     const tab = tabs.find((candidate) => candidate.active) || tabs[0];
     if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 열어주세요.");
@@ -807,20 +807,20 @@ $("fill").addEventListener("click", fillDraftIntoNaver);
 
 $("refreshWebDrafts").addEventListener("click", () => {
   refreshWebDrafts().catch((error) => {
-    $("webDraftStatus").textContent = `웹 초안 조회 실패: ${error instanceof Error ? error.message : String(error)}`;
+    $("webDraftStatus").textContent = `전송된 콘텐츠 조회 실패: ${error instanceof Error ? error.message : String(error)}`;
   });
 });
 
 $("loadWebDraft").addEventListener("click", () => {
   loadSelectedWebDraft().catch((error) => {
-    $("webDraftStatus").textContent = `웹 초안 불러오기 실패: ${error instanceof Error ? error.message : String(error)}`;
+    $("webDraftStatus").textContent = `콘텐츠 미리보기 실패: ${error instanceof Error ? error.message : String(error)}`;
   });
 });
 
 $("applyWebDraftTags").addEventListener("click", () => {
-  if (!activeWebDraftTags.length) return ($("webDraftStatus").textContent = "먼저 웹 초안을 불러오세요.");
+  if (!activeWebDraftTags.length) return ($("webDraftStatus").textContent = "먼저 콘텐츠를 불러오세요.");
   $("publishTags").value = activeWebDraftTags.join(", ");
-  $("webDraftStatus").textContent = "추천 태그를 발행 정보에 넣었습니다. 필요하면 수정한 뒤 카테고리·태그 입력을 실행하세요.";
+  $("webDraftStatus").textContent = "추천 태그를 적용했습니다. 필요하면 수정한 뒤 카테고리·태그 입력을 실행하세요.";
 });
 
 $("inspect").addEventListener("click", async () => {
@@ -873,19 +873,19 @@ $("inspect").addEventListener("click", async () => {
 $("savePublishSettings").addEventListener("click", async () => {
   const settings = { category: $("publishCategory").value.trim(), tags: $("publishTags").value.trim() };
   await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: settings });
-  $("publishStatus").textContent = "발행 카테고리·태그를 저장했습니다.";
+  $("publishStatus").textContent = "카테고리·태그를 저장했습니다.";
 });
 
 $("fillPublishInfo").addEventListener("click", async () => {
   $("fillPublishInfo").disabled = true;
-  $("publishStatus").textContent = "네이버 발행 설정창에 입력하는 중...";
+  $("publishStatus").textContent = "네이버 설정창에 카테고리·태그를 입력하는 중...";
   try {
     await fillPublishInfoIntoNaver();
     await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: { category: $("publishCategory").value.trim(), tags: $("publishTags").value.trim() } });
     await reportWebDraftInputResult("publish_ready").catch(() => {});
-    $("publishStatus").textContent = "발행 설정 준비 완료. 카테고리·태그를 확인한 뒤 네이버 마지막 발행 버튼을 직접 누르세요.";
+    $("publishStatus").textContent = "카테고리·태그 입력 완료. 내용을 확인한 뒤 네이버 마지막 발행 버튼을 직접 누르세요.";
   } catch (error) {
-    $("publishStatus").textContent = formatBrowserError(error, "발행 정보 입력");
+    $("publishStatus").textContent = formatBrowserError(error, "카테고리·태그 입력");
   } finally {
     $("fillPublishInfo").disabled = false;
   }

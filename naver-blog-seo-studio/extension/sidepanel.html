@@ -11,26 +11,26 @@
       <button id="link">SEO Studio 연결</button><div id="status" class="status">연결되지 않음</div>
     </section>
     <section class="card" aria-labelledby="web-draft-title">
-      <h2 id="web-draft-title">발행 대기 초안</h2>
-      <p class="hint">콘텐츠 생성·이미지·편집·SEO 검토는 웹에서 완료하세요. 이곳에서는 전송된 완성 초안을 네이버에 입력합니다.</p>
+      <h2 id="web-draft-title">전송된 콘텐츠</h2>
+      <p class="hint">콘텐츠 생성·이미지·편집·SEO 검토는 웹에서 완료하세요. 여기서는 전송된 완성 콘텐츠를 확인하고 네이버 글쓰기 화면에 입력합니다.</p>
       <a class="web-create-link" href="https://naver-blog-seo-studio.vercel.app/dashboard#new-draft" target="_blank" rel="noreferrer">웹에서 새 콘텐츠 만들기</a>
-      <select id="webDraftList" aria-label="웹 초안 선택"><option value="">전송된 웹 초안이 없습니다.</option></select>
-      <button id="refreshWebDrafts" class="secondary">웹 초안 새로고침</button>
-      <button id="loadWebDraft" class="secondary">선택한 웹 초안 불러오기</button>
+      <select id="webDraftList" aria-label="전송된 콘텐츠 선택"><option value="">전송된 콘텐츠가 없습니다.</option></select>
+      <button id="refreshWebDrafts" class="secondary">전송된 콘텐츠 목록 새로고침</button>
+      <button id="loadWebDraft" class="secondary">선택한 콘텐츠 미리보기</button>
       <div id="webDraftStatus" class="status">대기 중</div>
       <div id="webDraftPreview" class="web-draft-preview" hidden>
-        <strong>선택한 웹 초안 미리보기</strong>
+        <strong>선택한 콘텐츠 미리보기</strong>
         <p id="webDraftPreviewTitle" class="web-draft-preview-title"></p>
-        <textarea id="webDraftPreviewBody" rows="10" readonly aria-label="불러온 웹 초안 본문"></textarea>
+        <textarea id="webDraftPreviewBody" rows="10" readonly aria-label="불러온 콘텐츠 본문"></textarea>
         <div id="webDraftImagePreview" class="web-draft-image-preview" hidden><strong>대표 이미지</strong><img id="webDraftCoverImage" alt="불러온 대표 이미지"></div>
         <div id="webDraftContentImagePreview" class="web-draft-content-image-preview" hidden><strong>본문 이미지</strong><div id="webDraftContentImageList"></div></div>
       </div>
       <div id="webDraftTagSuggestion" class="draft-tag-suggestion" hidden>
-        <strong>초안 추천 태그</strong><span id="webDraftTagList"></span>
-        <button id="applyWebDraftTags" class="secondary">추천 태그를 발행 정보에 넣기</button>
+        <strong>콘텐츠 추천 태그</strong><span id="webDraftTagList"></span>
+        <button id="applyWebDraftTags" class="secondary">추천 태그 적용</button>
       </div>
-      <button id="fill" class="primary">네이버 편집기에 콘텐츠 입력</button>
-      <div id="generateStatus" class="status">초안을 불러온 뒤 네이버 입력을 실행하세요.</div>
+      <button id="fill" class="primary">네이버 글쓰기 화면에 입력</button>
+      <div id="generateStatus" class="status">콘텐츠를 미리본 뒤 네이버 입력을 실행하세요.</div>
     </section>
     <section class="card">
       <h2>에디터 구조 분석</h2>
@@ -40,13 +40,13 @@
       <textarea id="inspectResult" rows="10" readonly placeholder="분석 결과가 여기에 표시됩니다"></textarea>
     </section>
     <section class="card">
-      <h2>발행 정보 입력</h2>
-      <p class="hint">확장이 발행 설정창을 열고 카테고리·태그까지 입력합니다. 마지막 발행 버튼은 직접 누릅니다.</p>
+      <h2>카테고리·태그 설정</h2>
+      <p class="hint">확장이 발행 설정창을 열고 카테고리·태그까지 입력합니다. 네이버의 마지막 발행 버튼은 직접 누릅니다.</p>
       <input id="publishCategory" placeholder="카테고리 전체 이름 (예: 국내 여행)">
       <input id="publishTags" placeholder="태그 (쉼표로 구분, 예: 여행, 단풍, 가을)">
-      <button id="savePublishSettings" class="secondary">발행 정보 저장</button>
-      <button id="fillPublishInfo" class="primary">발행 설정 열기·카테고리·태그 입력</button>
-      <div id="publishStatus" class="status">발행 정보 대기 중</div>
+      <button id="savePublishSettings" class="secondary">카테고리·태그 저장</button>
+      <button id="fillPublishInfo" class="primary">설정 열고 카테고리·태그 입력</button>
+      <div id="publishStatus" class="status">카테고리·태그 설정 대기 중</div>
     </section>
   </main>
   <script src="sidepanel.js"></script>
