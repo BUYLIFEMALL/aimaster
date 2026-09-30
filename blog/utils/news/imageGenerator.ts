@@ -51,6 +51,22 @@ function cleanSentence(value: unknown): string {
   return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim().slice(0, 360) : ''
 }
 
+// 장면 설명은 길게 허용한다 — SEO 스튜디오처럼 360자에서 자르면 "Place: A futuris…"처럼 장소·조명 정보가 잘려
+// 이미지 생성기에 전달되지 않았다(2026-09-30 실측).
+function cleanPrompt(value: unknown): string {
+  return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim().slice(0, 1500) : ''
+}
+
+// 원문 대조용: 글자·숫자만 남긴다. AI가 목록 기호("- ")를 빼거나 따옴표 모양(‘ ’ vs ', &#39;)·띄어쓰기를 바꿔 돌려주면
+// 예전엔 원문에 없다고 탈락해 예비 문장으로 넘어갔다(2026-09-30 실측).
+function normalizeForMatch(value: string): string {
+  return value.replace(/&#?\w+;/g, '').replace(/[^\p{L}\p{N}]/gu, '')
+}
+
+// 화면·서류·간판에 글자를 그리면 알아볼 수 없는 가짜 한글이 잔뜩 들어간다(2026-09-30 실측) → 글자 없이 흐리게 표현하도록 지시.
+const NO_LEGIBLE_TEXT_RULE =
+  'Any screens, documents, signs or labels must show only blurred, abstract or out-of-focus content with no legible words, letters, numbers or UI text.'
+
 function splitSentences(text: string): string[] {
   const sentences = text.replace(/\s+/g, ' ').match(/[^.!?。！？\n]+[.!?。！？]?/g) ?? []
   return sentences.map(cleanSentence).filter((sentence) => sentence.length >= 20 && sentence.length <= 360)
@@ -88,6 +104,7 @@ For EACH of the 3 sections below, choose exactly one complete sentence from THAT
 For each chosen sentence, write one detailed English prompt for a single photorealistic 16:9 editorial scene that expresses only that sentence: concrete subject, action, place, time of day, lighting and camera framing.
 Depict realistic Korean/East Asian people by default where people are appropriate; only depict another ethnicity when the sentence names a foreign celebrity, politician, entertainer or athlete, or a foreign country/setting central to it.
 No text, logo, watermark, collage, split screen, infographic, illustration, or made-up facts.
+Do not ask for readable text in the scene (no "Korean text", form fields, chart labels, names or numbers); describe screens and documents as blurred or abstract. ${NO_LEGIBLE_TEXT_RULE}
 Format: {"visuals":[{"sentence":"...","prompt":"..."},{"sentence":"...","prompt":"..."},{"sentence":"...","prompt":"..."}]}
 
 Topic: ${topic}
@@ -126,8 +143,8 @@ ${sections[2].slice(0, 4000)}`
     const items = (parsed.visuals ?? []).slice(0, 3)
     const visuals = items.map((item, index) => {
       const sentence = cleanSentence(item.sentence)
-      const prompt = cleanSentence(item.prompt)
-      const inSection = sentence && sections[index].replace(/\s+/g, ' ').includes(sentence)
+      const prompt = cleanPrompt(item.prompt)
+      const inSection = sentence && normalizeForMatch(sections[index]).includes(normalizeForMatch(sentence))
       return inSection && prompt ? { sentence, prompt } : fallbackVisual(sections[index], topic)
     })
     while (visuals.length < 3) visuals.push(fallbackVisual(sections[visuals.length], topic))
@@ -149,7 +166,7 @@ async function generateSceneImage(
 ): Promise<string> {
   const config = getNanoBananaConfig(model)
   // SEO 스튜디오 generateNanoBananaImage()와 같은 감싸는 문장.
-  const prompt = `Create this exact editorial scene: ${sceneDescription} Depict realistic Korean/East Asian people by default unless the topic explicitly requires another setting. Use one unified scene, not a collage or split screen. Natural lighting, documentary-quality composition, 16:9 landscape, no visible text, no logo, no watermark.`
+  const prompt = `Create this exact editorial scene: ${sceneDescription} Depict realistic Korean/East Asian people by default unless the topic explicitly requires another setting. Use one unified scene, not a collage or split screen. Natural lighting, documentary-quality composition, 16:9 landscape, no visible text, no logo, no watermark. ${NO_LEGIBLE_TEXT_RULE}`
 
   try {
     const response = await fetch(`${customEndpoint || config.endpoint}?key=${apiKey}`, {
