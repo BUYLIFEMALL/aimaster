@@ -293,8 +293,8 @@ test("lays out content-image auto generation with its model and keeps the image 
 
 test("keeps content-block position controls on a single toolbar line", () => {
   const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
-  assert.match(styles, /\.content-block-toolbar \{[^}]*flex-wrap: nowrap/);
-  assert.match(styles, /\.content-block-toolbar div \{[^}]*flex: 0 0 auto; flex-wrap: nowrap/);
+  assert.match(styles, /\.content-block-toolbar \{[^}]*grid-template-columns: minmax\(0, 1fr\) max-content/);
+  assert.match(styles, /\.content-block-toolbar div \{[^}]*grid-column: 2; justify-self: end; flex-wrap: nowrap/);
 });
 
 test("selects the OpenAI content model above representative image generation", () => {
