@@ -5,6 +5,7 @@ import { generateSeoDraft } from "@/lib/ai/generator";
 import { resolveSeoPersona } from "@/lib/ai/personas";
 import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { createClient } from "@/lib/supabase/server";
+import { resolveOpenAIContentModel } from "@/lib/ai/openaiModels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; model?: unknown } | null;
   const topic = input?.topic?.trim() ?? "";
   const strategy = input?.strategy?.trim() ?? "";
   const keywords = (input?.keywords ?? "").split(",").map((keyword) => keyword.trim()).filter(Boolean).slice(0, 10);
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 
   try {
-    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, persona, sourceContext, model: access.user.user_metadata?.naver_blog_seo_openai_model as string | undefined });
+    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, persona, sourceContext, model: resolveOpenAIContentModel(input?.model) });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
     const { data: saved, error } = await supabase
       .from("naver_blog_seo_drafts")

@@ -266,6 +266,18 @@ test("selects the image model beside representative image creation and sends it 
   assert.doesNotMatch(settings, /openai-content-model/);
 });
 
+test("selects the OpenAI content model above representative image generation", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");
+  const models = readFileSync(new URL("../../lib/ai/openaiModels.ts", import.meta.url), "utf8");
+  assert.match(studio, /id="content-provider"/);
+  assert.match(studio, /id="content-model"/);
+  assert.match(studio, /대표 이미지 생성 \(나노바나나\)/);
+  assert.match(studio, /model: contentModel/);
+  assert.match(draftRoute, /resolveOpenAIContentModel\(input\?\.model\)/);
+  assert.match(models, /DEFAULT_OPENAI_CONTENT_MODEL: OpenAIContentModel = "gpt-4\.1"/);
+});
+
 test.skip("legacy extension SEO checklist was removed in favor of web-studio review", () => {
   const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
   const start = source.indexOf("function normalizeSeoText");

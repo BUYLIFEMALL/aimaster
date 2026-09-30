@@ -10,7 +10,7 @@ export const OPENAI_CONTENT_MODELS = [
 ] as const;
 
 export type OpenAIContentModel = (typeof OPENAI_CONTENT_MODELS)[number]["value"];
-export const DEFAULT_OPENAI_CONTENT_MODEL: OpenAIContentModel = "gpt-4o-mini";
+export const DEFAULT_OPENAI_CONTENT_MODEL: OpenAIContentModel = "gpt-4.1";
 
 export function isOpenAIContentModel(value: unknown): value is OpenAIContentModel {
   return OPENAI_CONTENT_MODELS.some((model) => model.value === value);
