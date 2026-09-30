@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { DEFAULT_SEO_PERSONA_ID, SEO_PERSONAS } from "@/lib/ai/personas";
+import { DEFAULT_GEMINI_IMAGE_MODEL, GEMINI_IMAGE_MODELS, type GeminiImageModel } from "@/lib/ai/geminiModels";
 import { APP_VERSION } from "@/lib/version";
 
 const strategies = [
@@ -124,6 +125,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [customPersona, setCustomPersona] = useState("");
   const [generateImageWithDraft, setGenerateImageWithDraft] = useState(true);
   const [generateContentImagesWithDraft, setGenerateContentImagesWithDraft] = useState(true);
+  const [imageModel, setImageModel] = useState<GeminiImageModel>(DEFAULT_GEMINI_IMAGE_MODEL);
   const [contentImageCount, setContentImageCount] = useState<2 | 3>(2);
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
   const [titleEditValue, setTitleEditValue] = useState("");
@@ -519,7 +521,7 @@ export default function StudioPage({ email }: { email: string }) {
     setImagePending(true);
     setMessage("나노바나나가 블로그 대표 이미지를 생성하고 있습니다.");
     try {
-      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, topic: draft.topic || topic, title: draft.title, keywords: draft.keywords.join(", ") || keywords }) });
+      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, topic: draft.topic || topic, title: draft.title, keywords: draft.keywords.join(", ") || keywords, model: imageModel }) });
       const result = await response.json() as { image?: { dataUrl: string; model: string; path?: string; mimeType?: string }; error?: string };
       if (!response.ok || !result.image) throw new Error(result.error || "이미지 생성에 실패했습니다.");
       const image = result.image;
@@ -543,7 +545,7 @@ export default function StudioPage({ email }: { email: string }) {
     setContentImagePending(true);
     setMessage(`AI가 본문 핵심 문장 ${contentImageCount}개를 고르고, 각 문장에 맞는 이미지를 생성하고 있습니다.`);
     try {
-      const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, count: contentImageCount }) });
+      const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, count: contentImageCount, model: imageModel }) });
       const result = await response.json() as { images?: ContentImage[]; error?: string };
       if (!response.ok || !result.images?.length) throw new Error(result.error || "본문 매칭 이미지를 생성하지 못했습니다.");
       setContentImages(result.images);
@@ -561,7 +563,7 @@ export default function StudioPage({ email }: { email: string }) {
     setRegeneratingContentImageSlot(image.slot);
     setMessage(`${image.slot.replace("content-", "")}번 본문 이미지만 다시 생성하고 있습니다.`);
     try {
-      const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: currentDraft.id, slot: image.slot }) });
+      const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: currentDraft.id, slot: image.slot, model: imageModel }) });
       const result = await response.json() as { image?: ContentImage; error?: string };
       if (!response.ok || !result.image) throw new Error(result.error || "본문 이미지를 다시 생성하지 못했습니다.");
       const nextImages = contentImages.map((item) => item.slot === image.slot ? result.image! : item);
@@ -709,6 +711,7 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="field"><label htmlFor="draft-persona">글쓰기 페르소나 선택</label><select id="draft-persona" value={personaId} onChange={(event) => setPersonaId(event.target.value)}>{SEO_PERSONAS.map((persona) => <option key={persona.id} value={persona.id}>{persona.name}</option>)}<option value="custom">✍️ 커스텀 페르소나 직접 입력</option></select><small>선택한 말투와 관점을 본문 블로그(원문)에 반영합니다. 사실이 아닌 체험담은 만들지 않습니다.</small></div>
           {personaId === "custom" && <div className="field"><label htmlFor="draft-custom-persona">커스텀 페르소나</label><input id="draft-custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} placeholder="예: 30대 초보 창업자에게 차분하게 설명하는 실무 멘토" /><small>말투, 독자 대상, 설명 방식을 500자 이내로 입력하세요.</small></div>}
           <div className="selected-title-summary"><div><span>선택한 글쓰기 페르소나</span><strong>{selectedPersonaName}</strong></div></div>
+          <div className="selected-title-summary image-model-summary"><div><span>이미지 생성 모델</span><strong>대표·본문 이미지에 함께 적용됩니다.</strong></div><select id="image-model" value={imageModel} onChange={(event) => setImageModel(event.target.value as GeminiImageModel)} disabled={imagePending || contentImagePending || regeneratingContentImageSlot !== null} aria-label="이미지 생성 모델">{GEMINI_IMAGE_MODELS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
         </section>
         {currentDraft ? <section className="draft-result-card card" id="draft-result" aria-labelledby="draft-result-title"><div className="card-head"><div><h2 id="draft-result-title" className="card-title">생성된 블로그(원문)</h2><p className="draft-result-subtitle">제목·이미지·본문을 검토하고 수정한 뒤 Chrome 확장 프로그램으로 보낼 수 있습니다.</p></div><span className="draft-ready-badge">블로그(원문) 준비 완료</span></div><div className="draft-result-meta"><span>주제: {currentDraft.topic}</span><span>전략: {currentDraft.strategy || strategy}</span><span>키워드: {currentDraft.keywords.join(", ") || "없음"}</span></div><div className="draft-image-stage"><div><strong>대표 이미지</strong><p>선택한 제목을 바탕으로 나노바나나 AI 이미지를 생성합니다.</p></div><button type="button" className="secondary" onClick={() => void generateImage()} disabled={imagePending}>{imagePending ? "이미지 생성 중..." : generatedImage ? "대표 이미지 다시 생성" : "대표 이미지 생성 (나노바나나)"}</button>{generatedImage ? <div className="generated-image-preview"><Image src={generatedImage.dataUrl} alt="AI로 생성한 블로그 대표 이미지" width={1280} height={720} unoptimized /><div><span>생성 모델: {generatedImage.model}</span><a href={generatedImage.dataUrl} download="naver-blog-seo-studio-image.png">이미지 저장</a></div></div> : <p className="draft-image-empty">아직 대표 이미지가 없습니다. 필요할 경우 생성하면 Chrome 확장에서 본문과 함께 삽입할 수 있습니다.</p>}</div><div className="draft-result-grid"><article className="draft-content-preview"><div className="preview-label">제목</div><input className="draft-title-editor" value={currentDraft.title} onChange={(event) => setCurrentDraft({ ...currentDraft, title: event.target.value })} aria-label="블로그(원문) 제목 수정" /><div className="preview-label">본문</div><textarea className="draft-body-editor" value={currentDraft.body} onChange={(event) => setCurrentDraft({ ...currentDraft, body: event.target.value })} aria-label="블로그(원문) 본문 수정" /><div className="draft-content-actions"><button type="button" className="secondary" onClick={() => saveCurrentDraft()} disabled={draftSaving}>{draftSaving ? "저장 중..." : "수정한 블로그(원문) 저장"}</button><button type="button" className="text-button" onClick={copyDraftText}>제목·본문 복사</button></div>{draftSaveMessage && <p className="draft-save-status" role="status">{draftSaveMessage}</p>}</article></div><div className="seo-report seo-report-bottom"><h3>SEO·사실 확인</h3>{Object.entries(currentDraft.seo_report ?? {}).length ? <dl>{Object.entries(currentDraft.seo_report ?? {}).map(([key, value]) => <div key={key}><dt>{reportLabels[key] ?? key}</dt><dd>{value}</dd></div>)}</dl> : <p>블로그(원문)의 검색 의도와 사실 확인 항목을 직접 검토해주세요.</p>}</div><aside className="draft-actions-panel"><div className="result-action"><strong>Chrome 확장 전송</strong><p>확장 프로그램에서 제목·이미지·본문을 네이버 편집기로 입력합니다. 최종 발행은 직접 진행합니다.</p><button type="button" className="primary compact" onClick={sendDraftToExtension} disabled={handoffPending}>{handoffPending ? "전송 준비 중..." : "이 블로그(원문)을 Chrome 확장으로 보내기"}</button>{handoffMessage && <p className="handoff-status" role="status">{handoffMessage}</p>}</div></aside></section> : <section className="draft-empty card"><h2 className="card-title">블로그(원문)을 만들 준비가 되었습니다</h2><p>제목을 선택하고 글쓰기 전략을 고른 뒤 AI 블로그(원문)을 생성해주세요.</p></section>}
         {currentDraft && <section className="content-block-editor card" aria-labelledby="content-block-editor-title">

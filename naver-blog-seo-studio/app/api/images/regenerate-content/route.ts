@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
-import { getUserGeminiImageModel } from "@/lib/ai/geminiModels";
+import { resolveGeminiImageModel } from "@/lib/ai/geminiModels";
 import { CONTENT_IMAGE_SLOTS, type ContentVisual } from "@/lib/ai/contentVisuals";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
-  const input = await request.json().catch(() => null) as { draftId?: string; slot?: string } | null;
+  const input = await request.json().catch(() => null) as { draftId?: string; slot?: string; model?: unknown } | null;
   const draftId = input?.draftId?.trim() ?? "";
   const slot = input?.slot ?? "";
   if (!draftId || !CONTENT_IMAGE_SLOTS.includes(slot as typeof CONTENT_IMAGE_SLOTS[number])) {
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       topic: draft.topic,
       title: draft.title,
       keywords: Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "",
-      model: getUserGeminiImageModel(access.user.user_metadata),
+      model: resolveGeminiImageModel(input?.model),
       sceneDescription: current.prompt,
     });
     const extension = image.mimeType === "image/jpeg" ? "jpg" : "png";

@@ -3,7 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
-import { getUserGeminiImageModel } from "@/lib/ai/geminiModels";
+import { resolveGeminiImageModel } from "@/lib/ai/geminiModels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       .eq("id", draftId).eq("user_id", access.user.id)
       .maybeSingle();
     if (draftError || !draft) return NextResponse.json({ error: "이미지를 저장할 내 초안을 찾지 못했습니다." }, { status: 404 });
-    const image = await generateNanoBananaImage({ apiKey, topic, title: input?.title, keywords: input?.keywords, model: input?.model ?? getUserGeminiImageModel(access.user.user_metadata) });
+    const image = await generateNanoBananaImage({ apiKey, topic, title: input?.title, keywords: input?.keywords, model: resolveGeminiImageModel(input?.model) });
     const extension = image.mimeType === "image/jpeg" ? "jpg" : "png";
     const imagePath = `${access.user.id}/${draftId}/${Date.now()}.${extension}`;
     const bytes = Uint8Array.from(Buffer.from(image.base64, "base64"));

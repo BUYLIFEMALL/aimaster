@@ -250,6 +250,21 @@ test("supports a fourth image with a third sentence-matched content slot", () =>
   assert.match(extension, /"content-3"/);
 });
 
+test("selects the image model in new draft and sends it to every image action", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const representativeRoute = readFileSync(new URL("../../app/api/images/generate/route.ts", import.meta.url), "utf8");
+  const contentRoute = readFileSync(new URL("../../app/api/images/generate-content/route.ts", import.meta.url), "utf8");
+  const regenerateRoute = readFileSync(new URL("../../app/api/images/regenerate-content/route.ts", import.meta.url), "utf8");
+  const settings = readFileSync(new URL("../../app/settings/ApiKeySettings.tsx", import.meta.url), "utf8");
+  assert.match(studio, /id="image-model"/);
+  assert.match(studio, /model: imageModel/);
+  assert.match(representativeRoute, /resolveGeminiImageModel\(input\?\.model\)/);
+  assert.match(contentRoute, /resolveGeminiImageModel\(input\?\.model\)/);
+  assert.match(regenerateRoute, /resolveGeminiImageModel\(input\?\.model\)/);
+  assert.doesNotMatch(settings, /gemini-image-model/);
+  assert.doesNotMatch(settings, /openai-content-model/);
+});
+
 test.skip("legacy extension SEO checklist was removed in favor of web-studio review", () => {
   const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
   const start = source.indexOf("function normalizeSeoText");
