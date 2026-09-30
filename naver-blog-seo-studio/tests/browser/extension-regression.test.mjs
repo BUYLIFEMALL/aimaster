@@ -133,8 +133,9 @@ test("shows the manifest version in the extension panel instead of a hard-coded 
 test("automates only the publish-settings opening step and leaves final publishing to the user", () => {
   const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
   const script = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
-  assert.match(panel, /설정 열고 카테고리·태그 입력/);
+  assert.match(panel, /카테고리·태그 다시 입력/);
   assert.match(script, /async function openNaverPublishSettings/);
+  assert.match(script, /async function preparePublishSettingsAfterContentInput/);
   assert.match(script, /document\.querySelector\("#tag-input"\)/);
   assert.match(script, /normalizedText\(element\) === "발행"/);
   assert.match(script, /마지막 발행 버튼은 자동으로 누르지 않았습니다/);

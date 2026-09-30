@@ -371,6 +371,32 @@ async function fillPublishInfoIntoNaver() {
   }
 }
 
+async function preparePublishSettingsAfterContentInput(paragraphCount, inputSummary) {
+  await reportWebDraftInputResult("completed", { paragraphCount }).catch(() => {});
+  const category = $("publishCategory").value.trim();
+  const tags = $("publishTags").value.trim();
+  if (!category && !tags) {
+    $("generateStatus").textContent = `${inputSummary} 카테고리·태그가 저장되지 않아 발행 설정은 자동으로 열지 않았습니다.`;
+    $("publishStatus").textContent = "카테고리·태그를 저장하면 다음 콘텐츠 입력부터 자동으로 설정합니다.";
+    return true;
+  }
+
+  $("generateStatus").textContent = `${inputSummary} 발행 설정을 열고 카테고리·태그를 자동 입력하는 중...`;
+  $("publishStatus").textContent = "콘텐츠 입력 완료 · 카테고리·태그 자동 입력 중...";
+  try {
+    await fillPublishInfoIntoNaver();
+    await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: { category, tags } });
+    await reportWebDraftInputResult("publish_ready", { paragraphCount }).catch(() => {});
+    $("generateStatus").textContent = "콘텐츠·이미지·카테고리·태그 입력 완료. 네이버 마지막 발행 버튼만 직접 누르세요.";
+    $("publishStatus").textContent = "카테고리·태그 자동 입력 완료. 마지막 발행 버튼은 직접 누르세요.";
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    $("generateStatus").textContent = `${inputSummary} 카테고리·태그 자동 입력에 실패했습니다. 아래 설정 버튼으로 다시 시도하세요.`;
+    $("publishStatus").textContent = `자동 입력 실패: ${reason}`;
+  }
+  return true;
+}
+
 async function verify(token) {
   if (!token) return { ok: false, error: "토큰을 입력하세요." };
   try {
@@ -720,9 +746,10 @@ async function fillDraftIntoNaver() {
         await reportWebDraftInputResult("failed", { error: details }).catch(() => {});
         throw new Error(`${details}. 구조 분석을 실행한 뒤 다시 시도해주세요.`);
       }
-      $("generateStatus").textContent = `제목·편집한 콘텐츠 블록 ${activeWebDraftBlocks.length}개 입력 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
-      await reportWebDraftInputResult("completed", { paragraphCount: verification.actualParagraphCount || 0 }).catch(() => {});
-      return true;
+      return preparePublishSettingsAfterContentInput(
+        verification.actualParagraphCount || 0,
+        `제목·편집한 콘텐츠 블록 ${activeWebDraftBlocks.length}개 입력 완료.`,
+      );
     }
     if (activeWebDraftContentImages.length) {
       // 본문 전체를 먼저 넣은 뒤 이미지를 끼워 넣지 않습니다. 핵심 문장 직전에
@@ -745,9 +772,10 @@ async function fillDraftIntoNaver() {
         await reportWebDraftInputResult("failed", { error: details }).catch(() => {});
         throw new Error(`${details}. 구조 분석을 실행해 주세요.`);
       }
-      $("generateStatus").textContent = `제목·대표 이미지·본문 문장 매칭 이미지 ${activeWebDraftContentImages.length}장·본문 입력 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
-      await reportWebDraftInputResult("completed", { paragraphCount: verification.actualParagraphCount || 0 }).catch(() => {});
-      return true;
+      return preparePublishSettingsAfterContentInput(
+        verification.actualParagraphCount || 0,
+        `제목·대표 이미지·본문 문장 매칭 이미지 ${activeWebDraftContentImages.length}장·본문 입력 완료.`,
+      );
     }
     if (imageDataUrl) {
       // Enter the body while the normal editor caret is reliable. The image
@@ -790,9 +818,14 @@ async function fillDraftIntoNaver() {
       await reportWebDraftInputResult("failed", { error: details || "입력 결과 확인에 실패했습니다." }).catch(() => {});
       return;
     }
-    $("generateStatus").textContent = `네이버 편집기 입력 및 결과 확인 완료 (${verification.actualParagraphCount || 0}문단). 내용을 검토한 뒤 발행하세요.`;
-    await reportWebDraftInputResult("completed", { paragraphCount: verification.actualParagraphCount || 0 }).catch(() => {});
-    return true;
+    if (attachedTabId !== null) {
+      await chrome.debugger.detach({ tabId: attachedTabId });
+      attachedTabId = null;
+    }
+    return preparePublishSettingsAfterContentInput(
+      verification.actualParagraphCount || 0,
+      "네이버 편집기 입력 및 결과 확인 완료.",
+    );
   } catch (error) {
     $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
     await reportWebDraftInputResult("failed", { error: error instanceof Error ? error.message : String(error) }).catch(() => {});
