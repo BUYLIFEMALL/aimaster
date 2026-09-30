@@ -250,12 +250,13 @@ test("supports a fourth image with a third sentence-matched content slot", () =>
   assert.match(extension, /"content-3"/);
 });
 
-test("selects the image model in new draft and sends it to every image action", () => {
+test("selects the image model beside representative image creation and sends it to every image action", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const representativeRoute = readFileSync(new URL("../../app/api/images/generate/route.ts", import.meta.url), "utf8");
   const contentRoute = readFileSync(new URL("../../app/api/images/generate-content/route.ts", import.meta.url), "utf8");
   const regenerateRoute = readFileSync(new URL("../../app/api/images/regenerate-content/route.ts", import.meta.url), "utf8");
   const settings = readFileSync(new URL("../../app/settings/ApiKeySettings.tsx", import.meta.url), "utf8");
+  assert.match(studio, /대표 이미지 생성 \(나노바나나\).*image-model/);
   assert.match(studio, /id="image-model"/);
   assert.match(studio, /model: imageModel/);
   assert.match(representativeRoute, /resolveGeminiImageModel\(input\?\.model\)/);
