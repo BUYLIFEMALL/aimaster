@@ -2,51 +2,48 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateSeoDraft } from "@/lib/ai/generator";
+import { isContentProvider, resolveContentModel } from "@/lib/ai/contentModels";
 import { resolveSeoPersona } from "@/lib/ai/personas";
 import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { createClient } from "@/lib/supabase/server";
-import { resolveOpenAIContentModel } from "@/lib/ai/openaiModels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const strategies = new Set(["C-Rank 기본", "ALCON", "AEO", "홈판 스토리", "인사이트 엣지"]);
+const strategies = new Set(["C-Rank 기본", "ALCON", "AEO", "전환 스토리", "인사이트 가이드"]);
 
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; model?: unknown } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown } | null;
   const topic = input?.topic?.trim() ?? "";
   const strategy = input?.strategy?.trim() ?? "";
+  const provider = isContentProvider(input?.provider) ? input.provider : "openai";
   const keywords = (input?.keywords ?? "").split(",").map((keyword) => keyword.trim()).filter(Boolean).slice(0, 10);
   const sourceContext = input?.sourceContext?.trim().slice(0, 2_000) || undefined;
   if (!topic || topic.length > 300) return NextResponse.json({ error: "주제를 1~300자로 입력해주세요." }, { status: 400 });
   if (!strategies.has(strategy)) return NextResponse.json({ error: "지원하지 않는 글쓰기 전략입니다." }, { status: 400 });
   let persona;
-  try {
-    persona = resolveSeoPersona(input?.personaId, input?.customPersona);
-  } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "페르소나 설정이 올바르지 않습니다." }, { status: 400 });
-  }
+  try { persona = resolveSeoPersona(input?.personaId, input?.customPersona); }
+  catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "페르소나 설정이 올바르지 않습니다." }, { status: 400 }); }
 
   const supabase = await createClient();
   await purgeExpiredDrafts(supabase, access.user.id);
-  const apiKey = await resolveApiKey(supabase, access.user.id, "openai");
-  if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
+  const apiKey = await resolveApiKey(supabase, access.user.id, provider);
+  if (!apiKey) {
+    const label = provider === "anthropic" ? "Claude" : provider === "gemini" ? "Gemini" : "OpenAI";
+    return NextResponse.json({ code: "API_KEY_REQUIRED", error: `${label} API 키를 먼저 등록해주세요.` }, { status: 400 });
+  }
 
   try {
-    const draft = await generateSeoDraft({ apiKey, topic, keywords, strategy, persona, sourceContext, model: resolveOpenAIContentModel(input?.model) });
+    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, model: resolveContentModel(provider, input?.model) });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
-    const { data: saved, error } = await supabase
-      .from("naver_blog_seo_drafts")
+    const { data: saved, error } = await supabase.from("naver_blog_seo_drafts")
       .insert({ user_id: access.user.id, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: draft.seoReport, status: "ready" })
-      .select("id, title, body, seo_report, created_at")
-      .single();
-    if (error) return NextResponse.json({ error: "초안 저장에 실패했습니다." }, { status: 500 });
+      .select("id, title, body, seo_report, created_at").single();
+    if (error) return NextResponse.json({ error: "블로그(원문) 저장에 실패했습니다." }, { status: 500 });
     return NextResponse.json({ draft: saved });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "AI 글 생성에 실패했습니다.";
-    return NextResponse.json({ error: message }, { status: 502 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "AI 글 생성에 실패했습니다." }, { status: 502 });
   }
 }

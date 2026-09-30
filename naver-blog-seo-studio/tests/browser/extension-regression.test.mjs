@@ -332,16 +332,20 @@ test("preserves each generated image's original aspect ratio in previews", () =>
   assert.match(styles, /\.content-block-image img \{[^}]*height: auto !important;[^}]*aspect-ratio: auto; object-fit: contain/);
 });
 
-test("selects the OpenAI content model above representative image generation", () => {
+test("selects an OpenAI, Claude, or Gemini content model above representative image generation", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");
-  const models = readFileSync(new URL("../../lib/ai/openaiModels.ts", import.meta.url), "utf8");
-  assert.match(studio, /id="content-provider"/);
-  assert.match(studio, /id="content-model"/);
+  const models = readFileSync(new URL("../../lib/ai/contentModels.ts", import.meta.url), "utf8");
+  assert.match(studio, /id="content-provider-selector"/);
+  assert.match(studio, /id="content-model-selector"/);
   assert.match(studio, /대표 이미지 생성 \(나노바나나\)/);
   assert.match(studio, /model: contentModel/);
-  assert.match(draftRoute, /resolveOpenAIContentModel\(input\?\.model\)/);
-  assert.match(models, /DEFAULT_OPENAI_CONTENT_MODEL: OpenAIContentModel = "gpt-4\.1"/);
+  assert.match(studio, /option value="anthropic">Anthropic Claude/);
+  assert.match(studio, /option value="gemini">Google Gemini/);
+  assert.match(draftRoute, /resolveContentModel\(provider, input\?\.model\)/);
+  assert.match(draftRoute, /resolveApiKey\(supabase, access\.user\.id, provider\)/);
+  assert.match(models, /claude-sonnet-5/);
+  assert.match(models, /gemini-2\.5-pro/);
 });
 
 test.skip("legacy extension SEO checklist was removed in favor of web-studio review", () => {

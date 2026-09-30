@@ -2,7 +2,7 @@ import "server-only";
 
 type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export async function resolveApiKey(supabase: SupabaseLike, userId: string, provider: "openai" | "gemini") {
+export async function resolveApiKey(supabase: SupabaseLike, userId: string, provider: "openai" | "anthropic" | "gemini") {
   const { data } = await supabase
     .from("user_api_keys")
     .select("api_key")

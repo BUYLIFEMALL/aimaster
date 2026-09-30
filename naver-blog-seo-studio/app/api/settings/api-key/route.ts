@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const allowedProviders = new Set(["openai", "gemini"]);
+const allowedProviders = new Set(["openai", "anthropic", "gemini"]);
 
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
