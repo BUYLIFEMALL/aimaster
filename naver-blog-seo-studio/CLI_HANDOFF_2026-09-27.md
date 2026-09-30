@@ -18,9 +18,9 @@
 - Supabase: `esgxyikcnnvmlhygjkth`
 - 브랜치: `master`
 - 확장 원본: `extension/`
-- 앱·확장 공개 버전: **v1.11**
-- Chrome 내부 업데이트 버전: `1.11.0` (`manifest.json.version`)
-- 최신 ZIP: `/downloads/naver-blog-seo-studio-extension-v1.11.zip`
+- 앱·확장 공개 버전: **v1.12**
+- Chrome 내부 업데이트 버전: `1.12.0` (`manifest.json.version`)
+- 최신 ZIP: `/downloads/naver-blog-seo-studio-extension-v1.12.zip`
 - 기준 커밋: 최신 `master` 릴리스
 
 Chrome 확장은 웹 배포로 사용자 PC에 자동 갱신되지 않는다. 확장 변경 시 `extension/` 원본, 최신 ZIP, `/settings` 다운로드 표기를 같은 버전으로 갱신하고 사용자는 `chrome://extensions`에서 새로고침한다.
@@ -72,7 +72,7 @@ SEO블로그 스튜디오는 개인 API 키를 이용해 네이버 콘텐츠를 
 - 대표 이미지가 포함된 웹 초안을 확장 라이브러리에서 선택하면, 확장이 Gemini 이미지 생성을 다시 호출하지 않고 저장된 원본 이미지를 토큰 인증 API로 불러오도록 연결했다.
 - 전용 이미지 API는 확장 토큰, 초안 소유자, 확장 전송 완료 여부를 모두 확인한 뒤 private Storage 파일만 반환한다. 이미지 경로나 공개 URL은 초안 목록 응답에 노출하지 않는다.
 - 이미지 조회 실패는 초안 로드 자체를 막지 않지만, 이미지가 필요한 콘텐츠는 웹에서 이미지를 다시 생성·전송한 뒤 입력한다.
-- 앱·확장 공개 버전, 설정 화면, 다운로드 ZIP을 모두 `v1.11`으로 통일했다. Chrome 내부 업데이트 번호는 기존 설치본의 업데이트를 보장하기 위해 `1.11.0`으로 관리한다.
+- 앱·확장 공개 버전, 설정 화면, 다운로드 ZIP을 모두 `v1.12`으로 통일했다. Chrome 내부 업데이트 번호는 기존 설치본의 업데이트를 보장하기 위해 `1.12.0`으로 관리한다.
 - ZIP HTTP 200, 린트, 확장 회귀 9건, Next.js 프로덕션 빌드를 확인했다.
 - 제목 추천 기록·초안·대표 이미지의 30일 보관/정리 정책과 private Storage RLS는 이미 반영·검증됐다.
 - 확장 사이드패널 버전은 `manifest.json`을 런타임에 읽어 표시하므로 manifest 버전과 UI 표기가 자동으로 일치한다.
