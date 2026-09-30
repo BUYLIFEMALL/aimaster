@@ -18,9 +18,9 @@
 - Supabase: `esgxyikcnnvmlhygjkth`
 - 브랜치: `master`
 - 확장 원본: `extension/`
-- 앱·확장 공개 버전: **v1.21**
-- Chrome 내부 업데이트 버전: `1.21.0` (`manifest.json.version`)
-- 최신 ZIP: `/downloads/naver-blog-seo-studio-extension-v1.21.zip`
+- 앱·확장 공개 버전: **v1.22**
+- Chrome 내부 업데이트 버전: `1.22.0` (`manifest.json.version`)
+- 최신 ZIP: `/downloads/naver-blog-seo-studio-extension-v1.22.zip`
 - 기준 커밋: 최신 `master` 릴리스
 
 Chrome 확장은 웹 배포로 사용자 PC에 자동 갱신되지 않는다. 확장 변경 시 `extension/` 원본, 최신 ZIP, `/settings` 다운로드 표기를 같은 버전으로 갱신하고 사용자는 `chrome://extensions`에서 새로고침한다.
@@ -50,7 +50,7 @@ SEO블로그 스튜디오는 개인 API 키를 이용해 네이버 콘텐츠를 
 - 사용자별 OpenAI/Gemini API 키 등록
 - 새 글 만들기별 대표·본문 이미지 생성 모델 선택(대표 이미지·본문 이미지·개별 재생성에 함께 적용)
 - 대표 이미지 생성 박스 위 콘텐츠 생성 플랫폼(OpenAI)·모델 선택(GPT-4.1 기본, 선택값은 블로그(원문) 생성 API에 전달)
-- 새 글 만들기 화면의 이미지 생성 플랫폼(Gemini NanoBanana)·모델 선택을 콘텐츠 모델 박스와 같은 왼쪽 정렬 레이아웃으로 표시
+- 최초 생성/생성 후 이미지 보완 설정의 용도를 제목·설명으로 분리하고, 생성 후 설정은 좌측 플랫폼 안내·우측 모델 선택으로 표시
 - 확장 연동 토큰 발급·재설정
 
 ### 저장·보안
