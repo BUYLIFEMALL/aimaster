@@ -13,10 +13,12 @@
     <section class="card" aria-labelledby="web-draft-title">
       <h2 id="web-draft-title">전송된 콘텐츠</h2>
       <p class="hint">콘텐츠 생성·이미지·편집·SEO 검토는 웹에서 완료하세요. 여기서는 전송된 완성 콘텐츠를 확인하고 네이버 글쓰기 화면에 입력합니다.</p>
-      <a class="web-create-link" href="https://naver-blog-seo-studio.vercel.app/dashboard#new-draft" target="_blank" rel="noreferrer">웹에서 새 콘텐츠 만들기</a>
       <select id="webDraftList" aria-label="전송된 콘텐츠 선택"><option value="">전송된 콘텐츠가 없습니다.</option></select>
-      <button id="refreshWebDrafts" class="secondary">전송된 콘텐츠 목록 새로고침</button>
-      <button id="loadWebDraft" class="secondary">선택한 콘텐츠 미리보기</button>
+      <div class="draft-actions">
+        <a class="web-create-link" href="https://naver-blog-seo-studio.vercel.app/dashboard#new-draft" target="_blank" rel="noreferrer">웹에서 새 콘텐츠 만들기</a>
+        <button id="refreshWebDrafts" class="secondary">전송된 콘텐츠 목록 새로고침</button>
+        <button id="loadWebDraft" class="secondary">선택한 콘텐츠 미리보기</button>
+      </div>
       <div id="webDraftStatus" class="status">대기 중</div>
       <div id="webDraftPreview" class="web-draft-preview" hidden>
         <strong>선택한 콘텐츠 미리보기</strong>
