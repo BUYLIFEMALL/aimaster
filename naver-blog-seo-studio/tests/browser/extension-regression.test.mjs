@@ -280,6 +280,17 @@ test("keeps one image model selector for initial creation and later regeneration
   assert.match(studio, /model: imageModel/);
 });
 
+test("lays out content-image auto generation with its model and keeps the image description on the right", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+  assert.match(studio, /content-image-auto-option/);
+  assert.match(studio, /id="content-image-model"/);
+  assert.match(studio, /content-image-heading-description/);
+  assert.match(studio, /content-image-count-field/);
+  assert.match(styles, /\.content-image-auto-option, \.content-image-count-field \{ grid-column: 1 \/ -1; \}/);
+  assert.match(styles, /\.content-image-stage \{ grid-template-columns: minmax\(0, 1fr\) minmax\(280px, \.9fr\); \}/);
+});
+
 test("selects the OpenAI content model above representative image generation", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");
