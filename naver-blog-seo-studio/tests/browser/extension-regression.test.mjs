@@ -266,11 +266,11 @@ test("selects the image model beside representative image creation and sends it 
   assert.doesNotMatch(settings, /openai-content-model/);
 });
 
-test("uses the same left-aligned image platform and model layout in new draft", () => {
+test("keeps one image model selector for initial creation and later regeneration", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
-  assert.match(studio, /id="new-draft-image-model"/);
-  assert.match(studio, /className="image-with-draft-option image-generation-option"/);
-  assert.match(studio, /생성된 블로그\(원문\)의 대표·본문 이미지를 새로 만들거나/);
+  assert.match(studio, /id="image-model"/);
+  assert.doesNotMatch(studio, /id="new-draft-image-model"/);
+  assert.match(studio, /model: imageModel/);
 });
 
 test("selects the OpenAI content model above representative image generation", () => {
