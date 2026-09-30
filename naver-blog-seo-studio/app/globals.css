@@ -156,7 +156,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .content-image-auto-option { margin-top: 2px; }
 .content-image-control-row { display: grid; grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) minmax(280px, .9fr); column-gap: 16px; align-items: end; }
 .content-image-count-field { max-width: 360px; }
-.content-image-generate-button { justify-self: start; align-self: end; }
+.draft-image-stage .content-image-generate-button { justify-self: start; align-self: end; }
 .draft-result-grid { grid-template-columns: minmax(0, 1fr); }
 .draft-result-card > .draft-actions-panel { margin-top: 18px; }
 .history-empty { margin: 0; color: var(--muted); font-size: 13px; }
