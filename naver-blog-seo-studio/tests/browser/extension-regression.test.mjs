@@ -291,7 +291,13 @@ test("lays out content-image auto generation with its model and keeps the image 
   assert.match(styles, /\.content-image-auto-option \{ grid-column: 1 \/ -1; \}/);
   assert.match(styles, /\.content-image-control-row \{ display: grid; grid-column: 1 \/ -1; grid-template-columns: minmax\(0, 1fr\) minmax\(280px, \.9fr\); column-gap: 16px; align-items: end; \}/);
   assert.match(styles, /\.draft-image-stage \.content-image-generate-button \{ justify-self: start; align-self: end; \}/);
-  assert.match(styles, /\.content-image-stage \{ grid-template-columns: minmax\(0, 1fr\) minmax\(280px, \.9fr\); \}/);
+  assert.match(styles, /\.content-image-stage \{[^}]*grid-template-columns: minmax\(0, 1fr\) minmax\(280px, \.9fr\)/);
+});
+
+test("visually separates image preparation from the complete content editor", () => {
+  const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.content-image-stage \{[^}]*border-color: #efcfa6; background: #fff8f0/);
+  assert.match(styles, /\.content-block-editor \{[^}]*border-color: #a9cceb; background: #f2f8ff/);
 });
 
 test("keeps content-block position controls on a single toolbar line", () => {
