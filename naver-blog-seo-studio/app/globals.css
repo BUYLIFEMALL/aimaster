@@ -85,12 +85,14 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .image-with-draft-option strong, .image-with-draft-option small { display: block; }
 .image-with-draft-option strong { color: var(--ink); font-size: 13px; }
 .image-with-draft-option small { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.45; }
-.content-generation-models { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; padding: 14px; border: 1px solid #eadfd4; border-radius: 10px; background: #fffcf9; }
-.content-generation-models::before { content: "처음 블로그(원문)를 만들 때의 콘텐츠 생성 설정\A아래 생성 버튼을 누를 때 적용됩니다."; grid-column: 1 / -1; white-space: pre-line; color: var(--ink); font-size: 12px; font-weight: 800; line-height: 1.55; }
+.content-generation-models { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 58px; padding: 14px; border: 1px solid #eadfd4; border-radius: 10px; background: #fffcf9; }
+.content-generation-models::before { position: absolute; left: 0; top: -42px; content: "처음 블로그(원문)를 만들 때의 콘텐츠 생성 설정\A아래 생성 버튼을 누를 때 적용됩니다."; white-space: pre-line; color: var(--ink); font-size: 12px; font-weight: 800; line-height: 1.55; }
 .content-generation-models .field { margin: 0; }
 .content-generation-models select:disabled { cursor: default; opacity: 1; color: var(--ink); background: #f7f2ed; }
-.image-generation-option { margin-bottom: 4px; cursor: default; }
-.image-generation-option::before { content: "생성 후 이미지 보완 설정"; flex: 0 0 100%; color: var(--ink); font-size: 12px; font-weight: 800; }
+.image-generation-option { position: relative; margin-top: 43px; margin-bottom: 4px; cursor: default; }
+.image-generation-option::before { position: absolute; left: 0; top: -27px; content: "생성 후 이미지 보완 설정"; color: var(--ink); font-size: 12px; font-weight: 800; }
+.image-generation-option > span:not(.image-model-control) { flex: 1 1 0; min-width: 0; }
+.image-generation-option .image-model-control { flex: 0 1 230px; }
 .image-model-control { display: grid; gap: 4px; min-width: 230px; margin-left: auto; }
 .image-model-control b { color: var(--ink); font-size: 13px; font-weight: 800; }
 .image-model-control select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff; color: var(--ink); font: inherit; font-size: 13px; }

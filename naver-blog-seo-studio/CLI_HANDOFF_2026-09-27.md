@@ -18,9 +18,9 @@
 - Supabase: `esgxyikcnnvmlhygjkth`
 - 브랜치: `master`
 - 확장 원본: `extension/`
-- 앱·확장 공개 버전: **v1.22**
-- Chrome 내부 업데이트 버전: `1.22.0` (`manifest.json.version`)
-- 최신 ZIP: `/downloads/naver-blog-seo-studio-extension-v1.22.zip`
+- 앱·확장 공개 버전: **v1.23**
+- Chrome 내부 업데이트 버전: `1.23.0` (`manifest.json.version`)
+- 최신 ZIP: `/downloads/naver-blog-seo-studio-extension-v1.23.zip`
 - 기준 커밋: 최신 `master` 릴리스
 
 Chrome 확장은 웹 배포로 사용자 PC에 자동 갱신되지 않는다. 확장 변경 시 `extension/` 원본, 최신 ZIP, `/settings` 다운로드 표기를 같은 버전으로 갱신하고 사용자는 `chrome://extensions`에서 새로고침한다.
