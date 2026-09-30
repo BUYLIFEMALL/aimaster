@@ -125,8 +125,9 @@ test("shows the manifest version in the extension panel instead of a hard-coded 
   const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
   const script = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
   assert.match(panel, /id="extensionVersion"/);
-  assert.match(script, /chrome\.runtime\?\.getManifest\?\.\(\)\.version/);
-  assert.doesNotMatch(panel, new RegExp(`v${manifest.version}`));
+  assert.match(script, /chrome\.runtime\?\.getManifest\?\.\(\)/);
+  assert.match(script, /manifest\?\.version_name/);
+  assert.doesNotMatch(panel, new RegExp(manifest.version_name));
 });
 
 test("production image upload intercepts native chooser and selects successful iframe result", async () => {

@@ -8,13 +8,13 @@ const extensionRoot = path.join(projectRoot, "extension");
 const manifestPath = path.join(extensionRoot, "manifest.json");
 const downloadsRoot = path.join(projectRoot, "public", "downloads");
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-const version = String(manifest.version);
-const archiveName = `naver-blog-seo-studio-extension-v${version}.zip`;
+const version = String(manifest.version_name ?? `v${manifest.version}`);
+const archiveName = `naver-blog-seo-studio-extension-${version}.zip`;
 const archivePath = path.join(downloadsRoot, archiveName);
 
 fs.mkdirSync(downloadsRoot, { recursive: true });
 for (const fileName of fs.readdirSync(downloadsRoot)) {
-  if (/^naver-blog-seo-studio-extension-v\d+\.\d+\.\d+\.zip$/.test(fileName)) {
+  if (/^naver-blog-seo-studio-extension-v\d+\.\d+(?:\.\d+)?\.zip$/.test(fileName)) {
     fs.rmSync(path.join(downloadsRoot, fileName), { force: true });
   }
 }

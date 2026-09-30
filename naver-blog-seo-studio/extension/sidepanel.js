@@ -14,7 +14,8 @@ let activeWebDraftBlocks = [];
 
 function renderExtensionVersion() {
   const target = $("extensionVersion");
-  const version = typeof chrome !== "undefined" ? chrome.runtime?.getManifest?.().version : "";
+  const manifest = typeof chrome !== "undefined" ? chrome.runtime?.getManifest?.() : null;
+  const version = manifest?.version_name || (manifest?.version ? `v${manifest.version}` : "");
   if (target && version) target.textContent = version;
 }
 
@@ -147,7 +148,7 @@ async function loadSelectedWebDraft() {
     ? `웹 초안과 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}을 불러왔습니다. 아래 미리보기에서 확인한 뒤 네이버 편집기에 입력하세요.`
     : imageCount === 0
       ? "이 초안에는 저장된 이미지가 없습니다. 대시보드에서 대표 이미지와 본문 이미지 2장을 생성한 뒤 다시 전송해주세요."
-      : `이미지 ${imageCount}/3을 불러오지 못했습니다. 확장 프로그램을 v1.0.42로 업데이트한 뒤 다시 시도해주세요.`;
+      : `이미지 ${imageCount}/3을 불러오지 못했습니다. 확장 프로그램을 v1.03으로 업데이트한 뒤 다시 시도해주세요.`;
 }
 
 async function reportWebDraftInputResult(status, details = {}) {

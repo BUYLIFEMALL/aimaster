@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import extensionManifest from "../../extension/manifest.json";
 
-const EXTENSION_VERSION = extensionManifest.version;
-const EXTENSION_ARCHIVE = `/downloads/naver-blog-seo-studio-extension-v${EXTENSION_VERSION}.zip`;
+const EXTENSION_VERSION = extensionManifest.version_name ?? `v${extensionManifest.version}`;
+const EXTENSION_ARCHIVE = `/downloads/naver-blog-seo-studio-extension-${EXTENSION_VERSION}.zip`;
 const INSTALLED_VERSION_KEY = "naver-blog-seo-studio-extension-version";
 const DOWNLOAD_MARKER_KEY = "naver-blog-seo-studio-extension-downloaded";
 
@@ -35,13 +35,13 @@ export default function ExtensionDownloadCard() {
   return (
     <section className="extension-download-card" aria-labelledby="extension-download-title">
       <div className="extension-download-copy">
-        <div className="extension-download-kicker">Chrome Extension · v{EXTENSION_VERSION}</div>
+        <div className="extension-download-kicker">Chrome Extension · {EXTENSION_VERSION}</div>
         <h3 id="extension-download-title">SEO Studio 확장 프로그램</h3>
         <p>네이버 블로그 편집기에 제목과 본문을 실제 입력 방식으로 전송합니다.</p>
       </div>
       <div className="extension-status" role="status" aria-live="polite">
         <span className={`extension-status-dot ${installedVersion === EXTENSION_VERSION ? "ready" : ""}`} />
-        {installedVersion === EXTENSION_VERSION ? `설치 완료 · v${EXTENSION_VERSION}` : isUpdate ? `업데이트 필요 · 현재 v${installedVersion}` : "아직 설치되지 않음"}
+        {installedVersion === EXTENSION_VERSION ? `설치 완료 · ${EXTENSION_VERSION}` : isUpdate ? `업데이트 필요 · 현재 ${installedVersion}` : "아직 설치되지 않음"}
       </div>
       {isUpdate && <p className="extension-update-note">새 버전이 준비되었습니다. 아래 ZIP을 다시 내려받아 확장 프로그램 관리 화면에서 새로고침하세요.</p>}
       <a className="extension-download-button" href={EXTENSION_ARCHIVE} download onClick={markDownloadStarted}>
