@@ -86,8 +86,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .image-with-draft-option strong { color: var(--ink); font-size: 13px; }
 .image-with-draft-option small { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .image-model-control { display: grid; gap: 4px; min-width: 230px; margin-left: auto; }
-.image-model-control b { color: #8a7d72; font-size: 10px; font-weight: 800; }
-.image-model-control select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff; color: var(--ink); font: inherit; font-size: 11px; }
+.image-model-control b { color: var(--ink); font-size: 13px; font-weight: 800; }
+.image-model-control select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff; color: var(--ink); font: inherit; font-size: 13px; }
 .title-list { display: grid; gap: 8px; margin-top: 14px; }
 .title-option { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; border: 1px solid var(--line); border-radius: 10px; background: #fff; overflow: hidden; }
 .title-option:hover { border-color: var(--accent); background: var(--accent-soft); }
