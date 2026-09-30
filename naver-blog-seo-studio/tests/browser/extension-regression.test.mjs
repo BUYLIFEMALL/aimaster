@@ -311,6 +311,8 @@ test("saves edits directly from the complete content editor", () => {
   assert.match(studio, /content-block-editor-footer/);
   assert.match(studio, /수정 내용 저장/);
   assert.match(studio, /onClick=\{\(\) => void saveCurrentDraft\(\)\}/);
+  assert.match(studio, /Chrome 확장으로 전송/);
+  assert.match(studio, /onClick=\{sendDraftToExtension\}/);
 });
 
 test("expands each content paragraph editor to avoid an inner scrollbar", () => {
