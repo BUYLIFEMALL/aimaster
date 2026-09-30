@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 🔒 불변의 핵심 원칙 (모든 에이전트가 예외 없이 따라야 함)
 
-이 저장소에서 일하는 모든 에이전트(Claude Code 등)는 아래 다섯 가지를 프로젝트 구조가 아무리
+이 저장소에서 일하는 모든 에이전트(Claude Code 등)는 아래 여섯 가지를 프로젝트 구조가 아무리
 커지고 새 서브프로젝트가 계속 늘어나도 절대 바뀌지 않는 대전제로 삼는다. 새 서브프로젝트를
 계획하거나, 기존 걸 고치거나, 구조적으로 애매한 판단을 내려야 할 때는 항상 이 원칙을 기준으로
 삼는다.
@@ -88,6 +88,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      `programs` 등록 시 `version = 'v1.01'`.
    - 크롬 확장 `manifest.json`의 `version`, Electron `package.json`의 `version`처럼 배포 도구가 형식을 강제하는 기술 버전은
      그대로 두고(숫자 앞자리 0 불가 등), 회원에게 보이는 버전만 이 규칙을 따른다.
+
+6. **사이트·프로그램 이용 권한 기본규칙 (2026-09-30 주인님 확정 — 베타테스트 기간 기준)**
+   - **FREE 배지(`programs.badges`에 `free`)가 달린 프로그램은 AIMaster에 가입만 하면 누구나 사용할 수 있다 — 등급과 무관하다.**
+     주인님이 등급을 바꿔주거나 사용기간을 넣어주지 않아도 가입 즉시 쓸 수 있어야 한다(등급이 비어 있는 신규 가입자 포함).
+     회원가입 유도용 무료 프로그램(예: 타로 `tarot-reading`, 캐릭코드 `mbti-character`, 성격코드 `personality-code`)은 이 배지로 운영한다.
+   - **FREE 배지가 없는 프로그램은 ① 결제한 구독이 있거나, ② "일반" 등급 이상이면서 주인님이 넣어준 사용기간
+     (`user_program_access.expires_at`, 비우면 무기한)이 남아 있어야 사용할 수 있다. 등급만으로는 열리지 않는다.**
+     베타테스트 기간에는 주인님이 관리자 회원 관리 화면에서 일반 이상 회원에게 사용기간과 사용 가능 프로그램(전체)을 직접 넣어준다.
+   - 관리자(`profiles.is_admin`)는 항상 사용 가능, 정지 계정(`profiles.is_suspended`)은 항상 차단.
+   - 판정 순서(모든 판정 코드 공통): 정지 → 관리자 → **FREE 배지** → 결제 구독 → (최소 등급 미지정 시 허용) → 등급 ≥ 최소 등급 **그리고** 사용기간 → 그 외 차단.
+     **FREE 배지 확인은 반드시 등급·사용기간 확인보다 먼저** 둔다(그래야 등급 없는 가입자도 열린다).
+   - 적용 위치: 루트 `lib/access/checkProgramAccess.ts`(`evaluateProgramAccess`), 각 서브프로젝트 `lib/access.ts`
+     (`requireProgramAccess`/`checkProgramAccessApi`). **새 프로그램도 이 순서 그대로 만든다.** 상세는 아래 "이용 권한 판정 정책".
+   - 프로그램을 무료로 풀거나 다시 유료로 바꿀 때는 코드를 고치지 말고 **관리자 프로그램 편집 화면에서 FREE 배지를 켜고 끄면 된다.**
 
 ## Communication
 
@@ -288,14 +302,14 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
 `requireProgramAccess()`/`checkProgramAccessApi()`)는 아래 순서를 똑같이 따른다.
 1. 정지된 계정(`profiles.is_suspended`) → 차단
 2. 관리자(`profiles.is_admin`) → 허용
-3. **무료 배지(`programs.badges`에 `free`) → 가입한 회원이면 누구나 허용**
+3. **FREE 배지(`programs.badges`에 `free`) → 가입한 회원이면 등급과 무관하게 누구나 허용** (핵심 원칙 6번)
 4. 결제한 구독(`subscriptions` status=active, 만료 전) → 허용
 5. `programs.required_grade_id`가 비어 있으면 → 허용 (현재 운영 중인 프로그램은 전부 "일반"으로 지정돼 있어 해당 없음)
 6. **회원 등급 ≥ 프로그램 최소 등급(일반 이상) 이면서, 관리자가 넣어준 사용기간(`user_program_access.expires_at`, 비우면 무기한)이 남아 있으면 → 허용**
 7. 그 외 → 차단. **등급만으로는 열리지 않는다**(예전엔 "일반 이상이면 전부 허용" 예외가 있어 사용기간이 의미가 없었다).
 - 사용기간은 관리자 회원 관리 화면의 "만료기간 설정"으로 넣는다(`app/api/admin/user-access`, service role로 기록).
-- 새 서브프로젝트의 `lib/access.ts`도 이 순서로 만든다. 예외: `tarot`(타로)·`mbti-character`는 "로그인만 하면 무료" 가입 유도용으로
-  설계돼 있어 아직 옛 방식(등급만 확인)을 유지한다 — 주인님 결정 대기(무료 배지를 붙일지).
+- 새 서브프로젝트의 `lib/access.ts`도 이 순서로 만든다. `tarot`(타로)·`mbti-character`(캐릭코드)는 2026-09-30 주인님 결정으로
+  FREE 배지를 달고 같은 규칙의 판정 코드로 바꿨다(가입만 하면 사용 — 동작은 예전과 같음). 미적용: `naver-blog-seo-studio`(Codex 작업 중).
 
 ### Route Groups
 - `app/(main)/` — Public pages (Header + Footer layout), `dynamic = "force-dynamic"` required for Supabase calls
