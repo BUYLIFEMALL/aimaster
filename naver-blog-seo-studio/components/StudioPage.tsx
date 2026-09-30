@@ -53,12 +53,23 @@ function getContentBlocks(draft: DraftRecord | null): ContentBlock[] {
   });
 }
 
+function getParagraphStart(body: string, sentencePosition: number) {
+  const precedingText = body.slice(0, sentencePosition);
+  const separators = [...precedingText.matchAll(/\n\s*\n/g)];
+  const lastSeparator = separators.at(-1);
+  return lastSeparator?.index === undefined ? 0 : lastSeparator.index + lastSeparator[0].length;
+}
+
 function createContentBlocks(draft: DraftRecord, images: ContentImage[] = getContentImages(draft)): ContentBlock[] {
   const blocks: ContentBlock[] = draft.image_path ? [{ id: "cover", type: "image", slot: "cover", alt: "대표 이미지" }] : [];
   const sortedImages = images
-    .map((image) => ({ ...image, position: draft.body.indexOf(image.sentence) }))
+    .map((image) => {
+      const sentencePosition = draft.body.indexOf(image.sentence);
+      return { ...image, position: sentencePosition < 0 ? -1 : getParagraphStart(draft.body, sentencePosition) };
+    })
     .filter((image) => image.position >= 0)
-    .sort((a, b) => a.position - b.position);
+    .sort((a, b) => a.position - b.position)
+    .filter((image, index, list) => index === 0 || image.position !== list[index - 1].position);
   let cursor = 0;
   for (const image of sortedImages) {
     const before = draft.body.slice(cursor, image.position).trim();

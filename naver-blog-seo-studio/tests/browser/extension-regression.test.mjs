@@ -250,6 +250,13 @@ test("supports a fourth image with a third sentence-matched content slot", () =>
   assert.match(extension, /"content-3"/);
 });
 
+test("places sentence-matched images before the containing paragraph without splitting it", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  assert.match(studio, /function getParagraphStart\(body: string, sentencePosition: number\)/);
+  assert.match(studio, /getParagraphStart\(draft\.body, sentencePosition\)/);
+  assert.match(studio, /\.filter\(\(image, index, list\) => index === 0 \|\| image\.position !== list\[index - 1\]\.position\)/);
+});
+
 test("selects the image model beside representative image creation and sends it to every image action", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const representativeRoute = readFileSync(new URL("../../app/api/images/generate/route.ts", import.meta.url), "utf8");
