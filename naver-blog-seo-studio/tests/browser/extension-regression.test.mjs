@@ -322,6 +322,12 @@ test("expands each content paragraph editor to avoid an inner scrollbar", () => 
   assert.match(styles, /\.content-block textarea \{[^}]*min-height: 340px; overflow-y: hidden/);
 });
 
+test("preserves each generated image's original aspect ratio in previews", () => {
+  const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.generated-image-preview img \{[^}]*height: auto !important; aspect-ratio: auto; object-fit: contain/);
+  assert.match(styles, /\.content-block-image img \{[^}]*height: auto !important;[^}]*aspect-ratio: auto; object-fit: contain/);
+});
+
 test("selects the OpenAI content model above representative image generation", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");
