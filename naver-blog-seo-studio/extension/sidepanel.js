@@ -330,6 +330,65 @@ async function getNaverBlogTab() {
   return tabs.find((candidate) => candidate.active) || tabs[0] || null;
 }
 
+async function findPublishSettingsFrame(tabId) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    func: () => {
+      const input = document.querySelector("#tag-input");
+      const visible = Boolean(input && input.getClientRects().length && getComputedStyle(input).visibility !== "hidden");
+      return { ready: visible };
+    },
+  });
+  return results.find((entry) => entry.result?.ready)?.frameId ?? null;
+}
+
+async function openNaverPublishSettings(tabId) {
+  const alreadyOpen = await findPublishSettingsFrame(tabId);
+  if (alreadyOpen !== null) return alreadyOpen;
+
+  const candidates = await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    func: () => {
+      const isVisible = (element) => Boolean(element.getClientRects().length && getComputedStyle(element).visibility !== "hidden");
+      const normalizedText = (element) => (element.textContent || "").replace(/\s+/g, " ").trim();
+      return [...document.querySelectorAll("button, [role='button']")]
+        .filter((element) => isVisible(element))
+        .filter((element) => normalizedText(element) === "발행")
+        .filter((element) => !element.closest("[role='dialog'], [aria-modal='true']"))
+        .map((element) => ({ tag: element.tagName, classes: typeof element.className === "string" ? element.className : "", text: normalizedText(element) }));
+    },
+  });
+  const matchingFrames = candidates.filter((entry) => Array.isArray(entry.result) && entry.result.length > 0);
+  const candidateCount = matchingFrames.reduce((count, entry) => count + entry.result.length, 0);
+  if (candidateCount !== 1 || matchingFrames.length !== 1) {
+    throw new Error("발행 설정을 여는 첫 발행 버튼을 하나로 확인하지 못했습니다. 구조 분석을 실행한 뒤 결과를 확인해주세요.");
+  }
+
+  const frameId = matchingFrames[0].frameId;
+  const clicked = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [frameId] },
+    func: () => {
+      const isVisible = (element) => Boolean(element.getClientRects().length && getComputedStyle(element).visibility !== "hidden");
+      const normalizedText = (element) => (element.textContent || "").replace(/\s+/g, " ").trim();
+      const buttons = [...document.querySelectorAll("button, [role='button']")]
+        .filter((element) => isVisible(element))
+        .filter((element) => normalizedText(element) === "발행")
+        .filter((element) => !element.closest("[role='dialog'], [aria-modal='true']"));
+      if (buttons.length !== 1) return false;
+      buttons[0].click();
+      return true;
+    },
+  });
+  if (!clicked.some((entry) => entry.result === true)) throw new Error("발행 설정 버튼을 누르지 못했습니다.");
+
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    await sleep(250);
+    const settingsFrame = await findPublishSettingsFrame(tabId);
+    if (settingsFrame !== null) return settingsFrame;
+  }
+  throw new Error("발행 설정창이 열렸는지 확인하지 못했습니다. 마지막 발행 버튼은 자동으로 누르지 않았습니다.");
+}
+
 async function fillPublishInfoIntoNaver() {
   const category = $("publishCategory").value.trim();
   const tags = [...new Set($("publishTags").value.split(",").map((tag) => tag.trim().replace(/^#+/, "")).filter(Boolean))];
@@ -339,16 +398,8 @@ async function fillPublishInfoIntoNaver() {
   if (!tab?.id) throw new Error("네이버 블로그 글쓰기 탭을 찾지 못했습니다.");
   await chrome.windows.update(tab.windowId, { focused: true });
   await chrome.tabs.update(tab.id, { active: true });
-  const prepared = await chrome.scripting.executeScript({
-    target: { tabId: tab.id, allFrames: true },
-    func: () => {
-      const input = document.querySelector("#tag-input");
-      return { ready: Boolean(input && input.getClientRects().length && getComputedStyle(input).visibility !== "hidden") };
-    },
-  });
-  const frame = prepared.find((entry) => entry.result?.ready);
-  if (!frame) throw new Error("네이버에서 발행 버튼을 눌러 발행 설정창을 먼저 열어주세요.");
-  const target = { tabId: tab.id, frameIds: [frame.frameId] };
+  const settingsFrameId = await openNaverPublishSettings(tab.id);
+  const target = { tabId: tab.id, frameIds: [settingsFrameId] };
   if (tags.length) {
     await chrome.debugger.attach({ tabId: tab.id }, "1.3");
     try {
@@ -1040,7 +1091,8 @@ $("fillPublishInfo").addEventListener("click", async () => {
   try {
     await fillPublishInfoIntoNaver();
     await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: { category: $("publishCategory").value.trim(), tags: $("publishTags").value.trim() } });
-    $("publishStatus").textContent = "카테고리·태그 입력 완료. 내용을 확인한 뒤 네이버 발행 버튼을 직접 누르세요.";
+    await reportWebDraftInputResult("publish_ready").catch(() => {});
+    $("publishStatus").textContent = "발행 설정 준비 완료. 카테고리·태그를 확인한 뒤 네이버 마지막 발행 버튼을 직접 누르세요.";
   } catch (error) {
     $("publishStatus").textContent = formatBrowserError(error, "발행 정보 입력");
   } finally {
