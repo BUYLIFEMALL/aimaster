@@ -18,10 +18,9 @@
 | 2 | 관리자(gmail) 계정 API 키 재등록 | threads 카테고리 버그로 덮어써졌던 OpenAI·Perplexity 키. 주인님이 나중에 직접 등록하기로 함 | 주인님 | 루트 `AGENTS.md` §5 (2026-09-28~29) |
 | 3 | 회원 계정으로 실제 동작 확인 | 쇼핑제휴 `/trends`(직접 가져오기·검색 필터·AI 모델별 캡션·내 페르소나), 댓글자동화 `threads_read_replies` 재연동 후 댓글 테스트, 20개 프로그램 사이드바 하단 계정 표시 | 주인님(테스트) | 각 서브프로젝트 `AGENTS.md` |
 | 4 | 티스토리 블로그 자동화 | 기획만 됨. 네이버 블로그 자동화가 완전히 끝난 뒤 시작, `naver-blog-auto-poster_*`의 AGENTS.md 방법론 재사용 | 미정 | `docs/PLATFORM_PATTERNS.md` §20 |
-| 5 | `naver-blog-seo-studio`에 버전 표시 적용 | Codex 작업 중이라 코드는 건드리지 않음. DB `programs.version`은 이미 `v1.01`. 폴더가 풀리면 `lib/version.ts`(`APP_VERSION = "v1.01"`)를 만들고 화면 제목 옆에 표시 | Codex 또는 다음 작업자 | 루트 `CLAUDE.md` 핵심 원칙 5번 |
-| 6 | 이용 권한 정책 미적용 1곳 | `naver-blog-seo-studio/lib/access.ts`·`lib/extensionAuth.ts`(Codex 작업 중) — 폴더가 풀리면 루트 `CLAUDE.md` 핵심 원칙 6번 순서(정지→관리자→FREE→구독→등급+사용기간)로 맞출 것 | Codex 또는 다음 작업자 | 루트 `CLAUDE.md` 핵심 원칙 6번 |
 
-**손대지 말 것**: `naver-blog-seo-studio/` — Codex가 작업 중(작업 폴더에 Codex의 커밋 안 된 변경이 있을 수 있음). 주인님이 풀어줄 때까지 이 폴더는 스테이징·수정·배포하지 않는다.
+**주의**: `naver-blog-seo-studio/`는 주로 Codex가 작업하는 폴더다. 2026-09-30 주인님 지시로 Claude가 권한 규칙만 적용했다(v1.03).
+손대기 전에 `git status --porcelain -- naver-blog-seo-studio`로 Codex의 커밋 안 된 변경이 없는지 먼저 확인하고, 있으면 건드리지 않는다.
 
 ---
 
@@ -40,6 +39,7 @@
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
 | 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
+| SEO 스튜디오 권한 규칙 적용 (v1.03) | Codex가 버전 표시(v1.02)는 이미 적용해 둠. 웹 `lib/access.ts`·확장 `lib/extensionAuth.ts`를 핵심 원칙 6번 순서로 정리(정지 차단·FREE 추가, 등급만/사용기간만 허용 제거). 막히는 회원 0명 | 주인님 지시 | `naver-blog-seo-studio/AGENTS.md` |
 | 이용 권한 기본규칙 확정 (09-30) | FREE 배지 = 가입만 하면 등급과 무관하게 사용 / 그 외 = 구독 또는 일반 이상 + 사용기간. 핵심 원칙 6번으로 등록. 타로·캐릭코드에 FREE 배지 + 같은 규칙 판정 코드 적용(v1.03) | 주인님 지시 | 루트 `CLAUDE.md` 핵심 원칙 6번 |
 | 이용 권한 베타테스트 정책 | 무료 배지 → 가입만 하면 사용 / 그 외 → 결제 구독 또는 일반 이상 + 사용기간. 등급만으로 열리던 예외 삭제. 루트 + 서브프로젝트 24곳 적용, 해당 프로그램 버전 +0.01 | 주인님 지시 | 루트 `CLAUDE.md` "이용 권한 판정 정책" |
 | 🔒 `user_program_access` 보안 구멍 수정 | 모든 역할에 `using (true)`로 열려 있던 RLS 정책 "Service role full access" 삭제 → 회원은 본인 행 조회만, 쓰기는 service role(관리자 API)만. 적용 전 기존 4,702건 전부 관리자가 부여한 것 확인(악용 흔적 없음). 적용 후 회원 권한으로 검증: 본인 29건만 조회, 추가 시도 거부 | 주인님 승인 | 루트 마이그레이션 `0019` |

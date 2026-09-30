@@ -54,7 +54,11 @@ export async function verifyExtensionToken(request: Request) {
     ? await supabase.from("member_grades").select("sort_order").eq("id", program.required_grade_id).maybeSingle()
     : { data: null };
   const hasGrade = userGrade?.sort_order != null && requiredGrade?.sort_order != null && userGrade.sort_order >= requiredGrade.sort_order;
-  if (!profile.is_admin && !isFree && !hasSubscription && !hasGrant && !hasGrade) return null;
+  // Same order as lib/access.ts (root CLAUDE.md core principle 6): a granted period only counts together
+  // with the minimum grade, and grade alone no longer opens the program.
+  const allowed =
+    profile.is_admin || isFree || hasSubscription || !program.required_grade_id || (hasGrade && hasGrant);
+  if (!allowed) return null;
 
   await supabase.from("personal_access_tokens").update({ last_used_at: new Date().toISOString() }).eq("id", tokenRow.id);
   return { userId: tokenRow.user_id, email: profile.email, name: profile.name };

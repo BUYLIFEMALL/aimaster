@@ -2,9 +2,17 @@
 
 ## 프로그램 버전 관리
 
-- 현재 회원용 앱 버전은 `v1.02`이며 `lib/version.ts`의 `APP_VERSION`과 공용 DB `programs.version`을 항상 함께 변경한다.
+- 현재 회원용 앱 버전은 `v1.03`이며 `lib/version.ts`의 `APP_VERSION`과 공용 DB `programs.version`을 항상 함께 변경한다.
 - 이 프로젝트를 수정해 배포할 때마다 마이너를 `0.01` 올린다. 메이저 증가는 주인님 지시가 있을 때만 가능하다.
 - Chrome 확장 `manifest.json` 버전은 Chrome 형식 제약에 맞춰 별도로 올리고, 확장 ZIP도 같은 작업에서 다시 생성한다.
+
+## 이용 권한 (2026-09-30, v1.03)
+
+- `lib/access.ts`(웹)와 `lib/extensionAuth.ts`(크롬 확장 토큰)는 루트 `CLAUDE.md` 핵심 원칙 6번 순서를 따른다:
+  정지 → 관리자 → **FREE 배지(가입만 하면 등급 무관 허용)** → 결제 구독 → 최소 등급 없음 → **등급 ≥ 최소 등급 그리고 관리자가 넣어준 사용기간** → 그 외 차단.
+- 예전에는 웹이 정지 계정 차단·FREE 배지 처리 없이 `grade_program_access`나 사용기간 하나만으로 허용했고, 확장은 등급만 있어도 허용했다(2026-09-30 정리).
+  적용 전 계산: 회원 170명 모두 사용기간+일반 이상이라 막히는 회원 없음.
+- 이 변경은 서버 판정만 바꾼 것이라 확장 ZIP·`manifest.json`은 다시 만들 필요가 없었다.
 
 이 문서는 루트 `../CLAUDE.md`, `../AGENTS.md`, `../docs/PLATFORM_PATTERNS.md`를 전제로 하는 신규 프로그램 전용 지침입니다.
 
