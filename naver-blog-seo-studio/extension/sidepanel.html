@@ -35,13 +35,6 @@
       <div id="generateStatus" class="status">콘텐츠를 미리본 뒤 네이버 입력을 실행하세요.</div>
     </section>
     <section class="card">
-      <h2>에디터 구조 분석</h2>
-      <p class="hint">네이버 편집기의 iframe, 제목·본문 후보, 실제 contenteditable 요소를 확인합니다. 입력 오류가 발생하면 결과를 복사해 전달해주세요.</p>
-      <button id="inspect">구조 분석</button>
-      <div id="inspectStatus" class="status">대기 중</div>
-      <textarea id="inspectResult" rows="10" readonly placeholder="분석 결과가 여기에 표시됩니다"></textarea>
-    </section>
-    <section class="card">
       <h2>카테고리·태그 설정</h2>
       <p class="hint">확장이 발행 설정창을 열고 카테고리·태그까지 입력합니다. 네이버의 마지막 발행 버튼은 직접 누릅니다.</p>
       <input id="publishCategory" placeholder="카테고리 전체 이름 (예: 국내 여행)">
@@ -49,6 +42,13 @@
       <button id="savePublishSettings" class="secondary">카테고리·태그 저장</button>
       <button id="fillPublishInfo" class="primary">설정 열고 카테고리·태그 입력</button>
       <div id="publishStatus" class="status">카테고리·태그 설정 대기 중</div>
+    </section>
+    <section class="card">
+      <h2>에디터 구조 분석</h2>
+      <p class="hint">네이버 편집기의 iframe, 제목·본문 후보, 실제 contenteditable 요소를 확인합니다. 입력 오류가 발생하면 결과를 복사해 전달해주세요.</p>
+      <button id="inspect">구조 분석</button>
+      <div id="inspectStatus" class="status">대기 중</div>
+      <textarea id="inspectResult" rows="10" readonly placeholder="분석 결과가 여기에 표시됩니다"></textarea>
     </section>
   </main>
   <script src="sidepanel.js"></script>
