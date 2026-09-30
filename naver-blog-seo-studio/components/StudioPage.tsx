@@ -734,7 +734,7 @@ export default function StudioPage({ email }: { email: string }) {
               {block.type === "text" ? <textarea value={block.text} onChange={(event) => updateTextBlock(block.id, event.target.value)} aria-label="본문 문단 수정" /> : <div className="content-block-image"><Image src={block.slot === "cover" ? `/api/drafts/${encodeURIComponent(currentDraft.id)}/image` : `/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${block.slot}`} alt={block.alt} width={1280} height={720} unoptimized /><p>{block.slot === "cover" ? "제목 다음에 삽입되는 대표 이미지" : block.alt}</p></div>}
             </article>)}
           </div>
-          <p className="content-block-editor-note">이미지를 전송에서 제외해도 원본 파일은 블로그(원문)에 보관됩니다. 다시 생성하거나 불러온 뒤 위치를 조정할 수 있습니다.</p>
+          <div className="content-block-editor-footer"><p className="content-block-editor-note">이미지를 전송에서 제외해도 원본 파일은 블로그(원문)에 보관됩니다. 수정한 문단·이미지 순서·전송 제외 상태는 저장 후 Chrome 확장에 그대로 전달됩니다.</p><div><button type="button" className="primary compact content-block-save" onClick={() => void saveCurrentDraft()} disabled={draftSaving}>{draftSaving ? "수정 내용 저장 중..." : "수정 내용 저장"}</button>{draftSaveMessage && <p className="content-block-save-status" role="status">{draftSaveMessage}</p>}</div></div>
         </section>}
         {currentDraft && <section className="draft-image-stage content-image-stage card" aria-labelledby="content-images-title">
           <div className="content-image-heading"><strong id="content-images-title">본문 문장 매칭 이미지 {contentImageCount}장</strong></div>

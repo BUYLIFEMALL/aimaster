@@ -306,6 +306,13 @@ test("keeps content-block position controls on a single toolbar line", () => {
   assert.match(styles, /\.content-block-toolbar div \{[^}]*grid-column: 2; justify-self: end; flex-wrap: nowrap/);
 });
 
+test("saves edits directly from the complete content editor", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  assert.match(studio, /content-block-editor-footer/);
+  assert.match(studio, /수정 내용 저장/);
+  assert.match(studio, /onClick=\{\(\) => void saveCurrentDraft\(\)\}/);
+});
+
 test("selects the OpenAI content model above representative image generation", () => {
   const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
   const draftRoute = readFileSync(new URL("../../app/api/drafts/generate/route.ts", import.meta.url), "utf8");
