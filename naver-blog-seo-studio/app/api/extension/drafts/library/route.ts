@@ -18,13 +18,13 @@ export async function GET(request: Request) {
     const contentImages = Array.isArray(report.contentImages) ? report.contentImages
       .filter((item): item is { slot?: string; sentence?: string } => typeof item === "object" && item !== null)
       .map((item) => ({ slot: item.slot, sentence: item.sentence })) : [];
-    const contentBlocks: Array<{ id: string; type: "text"; text: string } | { id: string; type: "image"; slot: "cover" | "content-1" | "content-2"; alt: string }> = [];
+    const contentBlocks: Array<{ id: string; type: "text"; text: string } | { id: string; type: "image"; slot: "cover" | "content-1" | "content-2" | "content-3"; alt: string }> = [];
     if (Array.isArray(report.contentBlocks)) for (const rawBlock of report.contentBlocks) {
       if (typeof rawBlock !== "object" || rawBlock === null) continue;
       const item = rawBlock as { id?: unknown; type?: unknown; text?: unknown; slot?: unknown; alt?: unknown };
       if (typeof item.id !== "string") continue;
       if (item.type === "text" && typeof item.text === "string") contentBlocks.push({ id: item.id, type: "text", text: item.text });
-      if (item.type === "image" && (item.slot === "cover" || item.slot === "content-1" || item.slot === "content-2")) contentBlocks.push({ id: item.id, type: "image", slot: item.slot, alt: typeof item.alt === "string" ? item.alt : "" });
+      if (item.type === "image" && (item.slot === "cover" || item.slot === "content-1" || item.slot === "content-2" || item.slot === "content-3")) contentBlocks.push({ id: item.id, type: "image", slot: item.slot, alt: typeof item.alt === "string" ? item.alt : "" });
     }
     return {
       id: draft.id, topic: draft.topic, keywords: draft.keywords, strategy: draft.strategy, title: draft.title, body: draft.body,

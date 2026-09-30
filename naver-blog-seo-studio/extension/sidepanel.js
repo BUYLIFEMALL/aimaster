@@ -31,7 +31,7 @@ function formatWebDraftLabel(draft) {
   const date = draft.extension_handoff_at ? new Date(draft.extension_handoff_at).toLocaleDateString("ko-KR") : "";
   const imageSummary = draft.image_summary || {};
   const imageCount = (imageSummary.cover ? 1 : 0) + Number(imageSummary.contentCount || 0);
-  return `${draft.title || "제목 없는 초안"}${date ? ` · ${date}` : ""} · 이미지 ${imageCount}/3`;
+  return `${draft.title || "제목 없는 초안"}${date ? ` · ${date}` : ""} · 이미지 ${imageCount}장`;
 }
 
 async function refreshWebDrafts() {
@@ -119,7 +119,7 @@ async function loadSelectedWebDraft() {
   activeWebDraftBlocks = Array.isArray(draft.content_blocks) ? draft.content_blocks.filter((block) => {
     if (!block || typeof block !== "object") return false;
     return (block.type === "text" && typeof block.text === "string")
-      || (block.type === "image" && ["cover", "content-1", "content-2"].includes(block.slot));
+      || (block.type === "image" && ["cover", "content-1", "content-2", "content-3"].includes(block.slot));
   }) : [];
   renderWebDraftPreview(draft, storedImageLoaded);
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
@@ -130,8 +130,8 @@ async function loadSelectedWebDraft() {
   $("webDraftStatus").textContent = storedImageLoaded
     ? `콘텐츠와 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}를 불러왔습니다. 미리보기에서 확인한 뒤 네이버 글쓰기 화면에 입력하세요.`
     : imageCount === 0
-      ? "이 콘텐츠에는 저장된 이미지가 없습니다. 웹에서 대표 이미지와 본문 이미지 2장을 생성한 뒤 다시 전송해주세요."
-      : `이미지 ${imageCount}/3을 불러오지 못했습니다. 확장 프로그램을 v1.03으로 업데이트한 뒤 다시 시도해주세요.`;
+      ? "이 콘텐츠에는 저장된 이미지가 없습니다. 웹에서 대표 이미지와 본문 이미지를 생성한 뒤 다시 전송해주세요."
+      : `이미지 ${imageCount}장을 불러오지 못했습니다. 확장 프로그램을 최신 버전으로 업데이트한 뒤 다시 시도해주세요.`;
 }
 
 async function reportWebDraftInputResult(status, details = {}) {

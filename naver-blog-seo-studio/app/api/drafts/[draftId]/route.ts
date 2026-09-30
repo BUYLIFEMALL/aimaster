@@ -22,7 +22,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
     const item = block as { id?: unknown; type?: unknown; text?: unknown; slot?: unknown; alt?: unknown };
     if (typeof item.id !== "string" || item.id.length > 80) return true;
     if (item.type === "text") return typeof item.text !== "string" || item.text.length > 30000;
-    return item.type !== "image" || !["cover", "content-1", "content-2"].includes(String(item.slot)) || (item.alt !== undefined && typeof item.alt !== "string");
+    return item.type !== "image" || !["cover", "content-1", "content-2", "content-3"].includes(String(item.slot)) || (item.alt !== undefined && typeof item.alt !== "string");
   }))) return NextResponse.json({ error: "Invalid content editor blocks." }, { status: 400 });
 
   const supabase = await createClient();

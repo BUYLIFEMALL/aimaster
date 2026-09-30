@@ -240,6 +240,16 @@ test("extension keeps content creation in the web studio and exposes only the ha
   assert.doesNotMatch(panel, /id="regenerateImage"/);
 });
 
+test("supports a fourth image with a third sentence-matched content slot", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const visuals = readFileSync(new URL("../../lib/ai/contentVisuals.ts", import.meta.url), "utf8");
+  const extension = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+  assert.match(studio, /4장 생성 · 대표 1장 \+ 본문 3장/);
+  assert.match(studio, /이 이미지만 다시 생성/);
+  assert.match(visuals, /"content-3"/);
+  assert.match(extension, /"content-3"/);
+});
+
 test.skip("legacy extension SEO checklist was removed in favor of web-studio review", () => {
   const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
   const start = source.indexOf("function normalizeSeoText");

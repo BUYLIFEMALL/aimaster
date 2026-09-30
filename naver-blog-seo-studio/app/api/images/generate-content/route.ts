@@ -15,8 +15,10 @@ type SeoReport = Record<string, unknown>;
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { draftId?: string } | null;
+  const input = await request.json().catch(() => null) as { draftId?: string; count?: number } | null;
   const draftId = input?.draftId?.trim();
+  const count = input?.count === 3 ? 3 : input?.count === 2 || input?.count === undefined ? 2 : null;
+  if (!count) return NextResponse.json({ error: "본문 이미지는 2장 또는 3장만 생성할 수 있습니다." }, { status: 400 });
   if (!draftId) return NextResponse.json({ error: "본문 이미지를 저장할 초안을 먼저 선택해주세요." }, { status: 400 });
   const supabase = await createClient();
   console.info("[generate-content-images] request received", { draftId, userId: access.user.id });
@@ -31,7 +33,7 @@ export async function POST(request: Request) {
     .eq("id", draftId).eq("user_id", access.user.id).maybeSingle();
   if (draftError || !draft) return NextResponse.json({ error: "본문 이미지를 저장할 내 초안을 찾지 못했습니다." }, { status: 404 });
   try {
-    const visuals = await selectContentVisuals({ apiKey: openaiKey, topic: draft.topic, title: draft.title, body: draft.body, model: resolveOpenAIContentModel(access.user.user_metadata?.naver_blog_seo_openai_model as string | undefined) });
+    const visuals = await selectContentVisuals({ apiKey: openaiKey, topic: draft.topic, title: draft.title, body: draft.body, count, model: resolveOpenAIContentModel(access.user.user_metadata?.naver_blog_seo_openai_model as string | undefined) });
     const imageModel = getUserGeminiImageModel(access.user.user_metadata);
     const generated: ContentVisual[] = [];
     for (const visual of visuals) {

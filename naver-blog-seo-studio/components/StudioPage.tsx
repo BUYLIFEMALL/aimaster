@@ -30,10 +30,11 @@ type DraftRecord = {
   naver_input_error?: string | null;
 };
 
-type ContentImage = { slot: "content-1" | "content-2"; sentence: string; prompt?: string; path?: string; mimeType?: string; model?: string };
+type ContentImageSlot = "content-1" | "content-2" | "content-3";
+type ContentImage = { slot: ContentImageSlot; sentence: string; prompt?: string; path?: string; mimeType?: string; model?: string };
 type ContentBlock =
   | { id: string; type: "text"; text: string }
-  | { id: string; type: "image"; slot: "cover" | "content-1" | "content-2"; alt: string };
+  | { id: string; type: "image"; slot: "cover" | ContentImageSlot; alt: string };
 
 function getContentImages(draft: DraftRecord | null): ContentImage[] {
   const images = (draft?.seo_report as unknown as { contentImages?: unknown } | null)?.contentImages;
@@ -46,7 +47,7 @@ function getContentBlocks(draft: DraftRecord | null): ContentBlock[] {
   return blocks.filter((item): item is ContentBlock => {
     if (typeof item !== "object" || item === null || !("id" in item) || !("type" in item)) return false;
     if (item.type === "text") return "text" in item && typeof item.text === "string";
-    return item.type === "image" && "slot" in item && (item.slot === "cover" || item.slot === "content-1" || item.slot === "content-2");
+    return item.type === "image" && "slot" in item && (item.slot === "cover" || item.slot === "content-1" || item.slot === "content-2" || item.slot === "content-3");
   });
 }
 
@@ -123,6 +124,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [customPersona, setCustomPersona] = useState("");
   const [generateImageWithDraft, setGenerateImageWithDraft] = useState(true);
   const [generateContentImagesWithDraft, setGenerateContentImagesWithDraft] = useState(true);
+  const [contentImageCount, setContentImageCount] = useState<2 | 3>(2);
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
   const [titleEditValue, setTitleEditValue] = useState("");
   const [existingBody, setExistingBody] = useState("");
@@ -151,6 +153,7 @@ export default function StudioPage({ email }: { email: string }) {
   const [contentImages, setContentImages] = useState<ContentImage[]>([]);
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([]);
   const [contentImagePending, setContentImagePending] = useState(false);
+  const [regeneratingContentImageSlot, setRegeneratingContentImageSlot] = useState<ContentImageSlot | null>(null);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
   const [handoffPending, setHandoffPending] = useState(false);
   const [handoffMessage, setHandoffMessage] = useState("");
@@ -229,7 +232,9 @@ export default function StudioPage({ email }: { email: string }) {
     setKeywords(Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "");
     setStrategy(draft.strategy || strategies[0][0]);
     setSelectedTitle(draft.title);
-    setContentImages(getContentImages(draft));
+    const restoredContentImages = getContentImages(draft);
+    setContentImages(restoredContentImages);
+    setContentImageCount(restoredContentImages.length === 3 ? 3 : 2);
     setContentBlocks(getContentBlocks(draft).length ? getContentBlocks(draft) : createContentBlocks(draft));
     setCurrentDraft(withoutContentImages(draft));
     setGeneratedImage(draft.image_path ? { dataUrl: `/api/drafts/${encodeURIComponent(draft.id)}/image`, model: draft.image_model || "나노바나나" } : null);
@@ -490,8 +495,8 @@ export default function StudioPage({ email }: { email: string }) {
 
   async function sendDraftToExtension() {
     if (!extensionDraftId) return setHandoffMessage("생성 기록에서 블로그(원문)을 먼저 선택해주세요.");
-    if (currentDraft && (!currentDraft.image_path || contentImages.length < 2)) {
-      const missing = [!currentDraft.image_path ? "대표 이미지" : null, contentImages.length < 2 ? "본문 이미지 2장" : null].filter(Boolean).join(" · ");
+    if (currentDraft && (!currentDraft.image_path || contentImages.length < contentImageCount)) {
+      const missing = [!currentDraft.image_path ? "대표 이미지" : null, contentImages.length < contentImageCount ? `본문 이미지 ${contentImageCount}장` : null].filter(Boolean).join(" · ");
       return setHandoffMessage(`${missing}이 준비되지 않아 전송하지 않았습니다. 새 글 만들기에서 이미지를 생성한 뒤 다시 전송해주세요.`);
     }
     if (currentDraft && !(await saveCurrentDraft(true))) return;
@@ -536,19 +541,39 @@ export default function StudioPage({ email }: { email: string }) {
   async function generateContentImages(draft: DraftRecord | null = currentDraft) {
     if (!draft) return setMessage("먼저 AI 블로그(원문)을 생성하거나 생성 기록에서 블로그(원문)을 선택해주세요.");
     setContentImagePending(true);
-    setMessage("AI가 본문 핵심 문장 2개를 고르고, 각 문장에 맞는 이미지를 생성하고 있습니다.");
+    setMessage(`AI가 본문 핵심 문장 ${contentImageCount}개를 고르고, 각 문장에 맞는 이미지를 생성하고 있습니다.`);
     try {
-      const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id }) });
+      const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, count: contentImageCount }) });
       const result = await response.json() as { images?: ContentImage[]; error?: string };
       if (!response.ok || !result.images?.length) throw new Error(result.error || "본문 매칭 이미지를 생성하지 못했습니다.");
       setContentImages(result.images);
       setContentBlocks(createContentBlocks({ ...draft, seo_report: { ...(draft.seo_report ?? {}), contentImages: result.images } as unknown as Record<string, string> }, result.images));
       setCurrentDraft((current) => current?.id === draft.id ? withoutContentImages(current) : withoutContentImages(draft));
-      setMessage("본문 핵심 문장 2개와 매칭된 이미지가 생성되었습니다. 각 문장 바로 위에 전송됩니다.");
+      setMessage(`본문 핵심 문장 ${contentImageCount}개와 매칭된 이미지가 생성되었습니다. 각 문장 바로 위에 전송됩니다.`);
       refreshHistory().catch(() => {});
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "본문 매칭 이미지 생성에 실패했습니다.");
     } finally { setContentImagePending(false); }
+  }
+
+  async function regenerateContentImage(image: ContentImage) {
+    if (!currentDraft) return;
+    setRegeneratingContentImageSlot(image.slot);
+    setMessage(`${image.slot.replace("content-", "")}번 본문 이미지만 다시 생성하고 있습니다.`);
+    try {
+      const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: currentDraft.id, slot: image.slot }) });
+      const result = await response.json() as { image?: ContentImage; error?: string };
+      if (!response.ok || !result.image) throw new Error(result.error || "본문 이미지를 다시 생성하지 못했습니다.");
+      const nextImages = contentImages.map((item) => item.slot === image.slot ? result.image! : item);
+      setContentImages(nextImages);
+      setCurrentDraft((current) => current ? { ...current, seo_report: { ...(current.seo_report ?? {}), contentImages: nextImages } as unknown as Record<string, string> } : current);
+      setMessage(`${image.slot.replace("content-", "")}번 본문 이미지를 새로 생성했습니다. 기준 문장과 위치는 유지됩니다.`);
+      refreshHistory().catch(() => {});
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "본문 이미지를 다시 생성하지 못했습니다.");
+    } finally {
+      setRegeneratingContentImageSlot(null);
+    }
   }
 
   const activeHistoryDraft = history.find((draft) => draft.id === extensionDraftId);
@@ -673,7 +698,7 @@ export default function StudioPage({ email }: { email: string }) {
           <button type="button" className="secondary" onClick={recommendTitles} disabled={titlePending}>{titlePending ? "추천 중..." : "AI 제목 추천 생성"}</button>
           </section>
           {titleRecommendations.length > 0 && <section className="saved-title-recommendations card"><div><strong>저장된 제목 추천 기록</strong><span>{titleRecommendations.length}건 · 30일 보관</span></div><div className="saved-title-recommendation-list">{titleRecommendations.map((recommendation) => <div key={recommendation.id} className={recommendation.id === titleRecommendationId ? "saved-title-recommendation selected" : "saved-title-recommendation"}><button type="button" onClick={() => loadTitleRecommendation(recommendation)}><strong>{recommendation.topic}</strong><small>{recommendation.selected_title || `${recommendation.titles.length}개 제목 저장됨`}</small></button><button type="button" className="text-button danger saved-title-delete" onClick={() => void deleteTitleRecommendation(recommendation)}>삭제</button></div>)}</div></section>}
-          {recommendedTitles.length > 0 && <><section className="title-management card"><div className="title-management-head"><div><h3>생성된 제목 리스트</h3><p>{recommendedTitles.length}개 중 새 글에 사용할 제목을 하나 선택하세요.</p></div><span>{selectedTitle ? "제목 선택됨" : "제목을 선택해주세요"}</span></div><div className="title-list">{recommendedTitles.map((item, index) => <div key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`}>{editingTitleIndex === index ? <div className="title-edit-row"><input value={titleEditValue} onChange={(event) => setTitleEditValue(event.target.value)} aria-label="제목 수정" autoFocus /><button type="button" className="secondary compact" onClick={() => saveTitleEdit(index)}>저장</button><button type="button" className="text-button" onClick={() => setEditingTitleIndex(null)}>취소</button></div> : <><button type="button" className="title-select" onClick={() => selectRecommendedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button><div className="title-option-actions"><button type="button" className="text-button" onClick={() => startTitleEdit(index)}>수정</button><button type="button" className="text-button danger" onClick={() => deleteRecommendedTitle(index)}>삭제</button></div></>}</div>)}</div></section><section className="title-strategy-section card"><div className="field"><label>글쓰기 전략</label><div className="strategy-grid">{strategies.map(([name, desc]) => <button type="button" key={name} className={`strategy ${strategy === name ? "selected" : ""}`} onClick={() => setStrategy(name)}><strong>{name}</strong><span>{desc}</span></button>)}</div></div><div className="field"><label htmlFor="persona">글쓰기 페르소나 선택</label><select id="persona" value={personaId} onChange={(event) => setPersonaId(event.target.value)}>{SEO_PERSONAS.map((persona) => <option key={persona.id} value={persona.id}>{persona.name}</option>)}<option value="custom">✍️ 커스텀 페르소나 직접 입력</option></select><small>선택한 말투와 관점을 블로그(원문)에 반영합니다. 사실이 아닌 체험담은 만들지 않습니다.</small></div>{personaId === "custom" && <div className="field"><label htmlFor="custom-persona">커스텀 페르소나</label><input id="custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} placeholder="예: 30대 초보 창업자에게 차분하게 설명하는 실무 멘토" /><small>말투, 독자 대상, 설명 방식 등을 500자 이내로 입력하세요.</small></div>}<label className="image-with-draft-option"><input type="checkbox" checked={generateImageWithDraft} onChange={(event) => setGenerateImageWithDraft(event.target.checked)} /> <span><strong>대표 이미지 생성 (나노바나나)</strong><small>선택한 제목을 바탕으로 블로그(원문)과 대표 이미지를 함께 생성합니다.</small></span></label><button type="button" className="primary" onClick={() => void createDraftFromSelectedTitle()} disabled={!selectedTitle || pending || imagePending || (personaId === "custom" && !customPersona.trim())}>{pending ? "AI 블로그(원문) 생성 중..." : imagePending ? "대표 이미지 생성 중..." : "선택한 제목과 전략으로 AI 블로그(원문) 생성하기"}</button></section></>}
+          {recommendedTitles.length > 0 && <><section className="title-management card"><div className="title-management-head"><div><h3>생성된 제목 리스트</h3><p>{recommendedTitles.length}개 중 새 글에 사용할 제목을 하나 선택하세요.</p></div><span>{selectedTitle ? "제목 선택됨" : "제목을 선택해주세요"}</span></div><div className="title-list">{recommendedTitles.map((item, index) => <div key={`${item.title}-${index}`} className={`title-option ${selectedTitle === item.title ? "selected" : ""}`}>{editingTitleIndex === index ? <div className="title-edit-row"><input value={titleEditValue} onChange={(event) => setTitleEditValue(event.target.value)} aria-label="제목 수정" autoFocus /><button type="button" className="secondary compact" onClick={() => saveTitleEdit(index)}>저장</button><button type="button" className="text-button" onClick={() => setEditingTitleIndex(null)}>취소</button></div> : <><button type="button" className="title-select" onClick={() => selectRecommendedTitle(item.title)}><strong>{item.title}</strong><small>{item.intent || "검색 의도에 맞춘 제목"}</small></button><div className="title-option-actions"><button type="button" className="text-button" onClick={() => startTitleEdit(index)}>수정</button><button type="button" className="text-button danger" onClick={() => deleteRecommendedTitle(index)}>삭제</button></div></>}</div>)}</div></section><section className="title-strategy-section card"><div className="field"><label>글쓰기 전략</label><div className="strategy-grid">{strategies.map(([name, desc]) => <button type="button" key={name} className={`strategy ${strategy === name ? "selected" : ""}`} onClick={() => setStrategy(name)}><strong>{name}</strong><span>{desc}</span></button>)}</div></div><div className="field"><label htmlFor="persona">글쓰기 페르소나 선택</label><select id="persona" value={personaId} onChange={(event) => setPersonaId(event.target.value)}>{SEO_PERSONAS.map((persona) => <option key={persona.id} value={persona.id}>{persona.name}</option>)}<option value="custom">✍️ 커스텀 페르소나 직접 입력</option></select><small>선택한 말투와 관점을 블로그(원문)에 반영합니다. 사실이 아닌 체험담은 만들지 않습니다.</small></div>{personaId === "custom" && <div className="field"><label htmlFor="custom-persona">커스텀 페르소나</label><input id="custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} placeholder="예: 30대 초보 창업자에게 차분하게 설명하는 실무 멘토" /><small>말투, 독자 대상, 설명 방식 등을 500자 이내로 입력하세요.</small></div>}<label className="image-with-draft-option"><input type="checkbox" checked={generateImageWithDraft} onChange={(event) => setGenerateImageWithDraft(event.target.checked)} /> <span><strong>대표 이미지 생성 (나노바나나)</strong><small>선택한 제목을 바탕으로 블로그(원문)과 대표 이미지를 함께 생성합니다.</small></span></label><div className="field"><label htmlFor="content-image-count">생성할 이미지 수</label><select id="content-image-count" value={contentImageCount} onChange={(event) => setContentImageCount(Number(event.target.value) as 2 | 3)}><option value={2}>기본 3장 · 대표 1장 + 본문 2장</option><option value={3}>4장 생성 · 대표 1장 + 본문 3장</option></select><small>본문의 서로 다른 핵심 문단에 맞춰 이미지를 생성합니다.</small></div><button type="button" className="primary" onClick={() => void createDraftFromSelectedTitle()} disabled={!selectedTitle || pending || imagePending || (personaId === "custom" && !customPersona.trim())}>{pending ? "AI 블로그(원문) 생성 중..." : imagePending ? "대표 이미지 생성 중..." : "선택한 제목과 전략으로 AI 블로그(원문) 생성하기"}</button></section></>}
         </section>}
 
         {activeMenu === "new-draft" && <><section className="card new-draft-card" id="new-draft">
@@ -697,10 +722,11 @@ export default function StudioPage({ email }: { email: string }) {
           <p className="content-block-editor-note">이미지를 전송에서 제외해도 원본 파일은 블로그(원문)에 보관됩니다. 다시 생성하거나 불러온 뒤 위치를 조정할 수 있습니다.</p>
         </section>}
         {currentDraft && <section className="draft-image-stage card" aria-labelledby="content-images-title">
-          <div><strong id="content-images-title">본문 문장 매칭 이미지 2장</strong><p>AI가 본문에서 핵심 문장 2개를 고르고, 각 문장 바로 위에 이미지가 삽입되도록 준비합니다.</p></div>
-          <label className="image-with-draft-option"><input type="checkbox" checked={generateContentImagesWithDraft} onChange={(event) => setGenerateContentImagesWithDraft(event.target.checked)} /> <span><strong>블로그(원문) 생성 시 본문 이미지도 함께 생성</strong><small>활성화하면 대표 이미지와 별도로 핵심 문장 이미지 2장을 생성합니다.</small></span></label>
-          <button type="button" className="secondary" onClick={() => void generateContentImages()} disabled={contentImagePending}>{contentImagePending ? "본문 이미지 생성 중..." : contentImages.length === 2 ? "본문 이미지 2장 다시 생성" : "본문 이미지 2장 생성"}</button>
-          {contentImages.length === 2 && <div className="content-image-list">{contentImages.map((item, index) => <div className="generated-image-preview" key={item.slot}><strong>{index + 1}번 이미지가 들어갈 문장</strong><p>{item.sentence}</p><Image src={`/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${item.slot}`} alt={`${index + 1}번 본문 문장 매칭 이미지`} width={1280} height={720} unoptimized /></div>)}</div>}
+          <div><strong id="content-images-title">본문 문장 매칭 이미지 {contentImageCount}장</strong><p>AI가 본문에서 서로 다른 핵심 문장 {contentImageCount}개를 고르고, 각 문장 바로 위에 이미지가 삽입되도록 준비합니다.</p></div>
+          <label className="image-with-draft-option"><input type="checkbox" checked={generateContentImagesWithDraft} onChange={(event) => setGenerateContentImagesWithDraft(event.target.checked)} /> <span><strong>블로그(원문) 생성 시 본문 이미지도 함께 생성</strong><small>활성화하면 대표 이미지와 별도로 핵심 문장 이미지 {contentImageCount}장을 생성합니다.</small></span></label>
+          <div className="field"><label htmlFor="draft-content-image-count">총 이미지 구성</label><select id="draft-content-image-count" value={contentImageCount} onChange={(event) => setContentImageCount(Number(event.target.value) as 2 | 3)}><option value={2}>기본 3장 · 대표 1장 + 본문 2장</option><option value={3}>4장 생성 · 대표 1장 + 본문 3장</option></select></div>
+          <button type="button" className="secondary" onClick={() => void generateContentImages()} disabled={contentImagePending}>{contentImagePending ? "본문 이미지 생성 중..." : contentImages.length === contentImageCount ? `본문 이미지 ${contentImageCount}장 다시 생성` : `본문 이미지 ${contentImageCount}장 생성`}</button>
+          {contentImages.length > 0 && <div className="content-image-list">{contentImages.map((item, index) => <div className="generated-image-preview" key={item.slot}><strong>{index + 1}번 이미지가 들어갈 문장</strong><p>{item.sentence}</p><Image src={`/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${item.slot}&v=${encodeURIComponent(item.path ?? "")}`} alt={`${index + 1}번 본문 문장 매칭 이미지`} width={1280} height={720} unoptimized /><button type="button" className="secondary compact" onClick={() => void regenerateContentImage(item)} disabled={regeneratingContentImageSlot !== null}>{regeneratingContentImageSlot === item.slot ? "이 이미지 다시 생성 중..." : "이 이미지만 다시 생성"}</button></div>)}</div>}
         </section>}
         <section className="recent-drafts-card card" aria-labelledby="recent-drafts-title"><div className="card-head"><div><h2 id="recent-drafts-title" className="card-title">최근 생성한 블로그(원문)</h2><p className="card-caption">새 글 만들기 화면에서 바로 다시 불러와 수정할 수 있습니다.</p></div><button type="button" className="history-refresh" onClick={() => openMenu("history")}>전체 생성 기록</button></div>{history.length === 0 ? <p className="history-empty">아직 생성한 블로그(원문)이 없습니다.</p> : <div className="history-list">{history.slice(0, 5).map((draft) => <button type="button" key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}</section></>}
 
