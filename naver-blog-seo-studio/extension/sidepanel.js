@@ -11,28 +11,15 @@ let activeWebDraftId = "";
 let activeWebDraftTags = [];
 let activeWebDraftContentImages = [];
 let activeWebDraftBlocks = [];
+let activeWebDraftTitle = "";
+let activeWebDraftBody = "";
+let activeWebDraftCoverDataUrl = "";
 
 function renderExtensionVersion() {
   const target = $("extensionVersion");
   const manifest = typeof chrome !== "undefined" ? chrome.runtime?.getManifest?.() : null;
   const version = manifest?.version_name || (manifest?.version ? `v${manifest.version}` : "");
   if (target && version) target.textContent = version;
-}
-
-function getSelectedStrategy() {
-  if (typeof document.querySelector !== "function") return "C-Rank 기본";
-  return document.querySelector(".strategy-option.selected")?.dataset.strategy || "C-Rank 기본";
-}
-
-function setSelectedStrategy(strategy) {
-  if (typeof document.querySelectorAll !== "function") return;
-  const target = [...document.querySelectorAll(".strategy-option")].find((option) => option.dataset.strategy === strategy)
-    || document.querySelector('.strategy-option[data-strategy="C-Rank 기본"]');
-  for (const option of document.querySelectorAll(".strategy-option")) {
-    const selected = option === target;
-    option.classList.toggle("selected", selected);
-    option.setAttribute("aria-checked", String(selected));
-  }
 }
 
 function getWebDraftTags(draft) {
@@ -86,9 +73,8 @@ function renderWebDraftPreview(draft, storedImageLoaded) {
   $("webDraftPreview").hidden = false;
   $("webDraftPreviewTitle").textContent = draft.title || "제목 없는 초안";
   $("webDraftPreviewBody").value = draft.body || "본문이 없습니다.";
-  const coverDataUrl = $("generatedImage").src;
-  $("webDraftImagePreview").hidden = !storedImageLoaded || !coverDataUrl || coverDataUrl === location.href;
-  if (storedImageLoaded && coverDataUrl && coverDataUrl !== location.href) $("webDraftCoverImage").src = coverDataUrl;
+  $("webDraftImagePreview").hidden = !storedImageLoaded || !activeWebDraftCoverDataUrl;
+  if (storedImageLoaded && activeWebDraftCoverDataUrl) $("webDraftCoverImage").src = activeWebDraftCoverDataUrl;
   const imageList = $("webDraftContentImageList");
   imageList.textContent = "";
   for (const image of activeWebDraftContentImages) {
@@ -107,16 +93,13 @@ function renderWebDraftPreview(draft, storedImageLoaded) {
 async function loadSelectedWebDraft() {
   const draft = webDrafts.find((item) => item.id === $("webDraftList").value);
   if (!draft) throw new Error("불러올 웹 초안을 먼저 선택해주세요.");
-  $("topic").value = draft.topic || "";
-  $("keywords").value = Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "";
-  setSelectedStrategy(draft.strategy || "C-Rank 기본");
-  $("title").value = draft.title || "";
-  $("body").value = draft.body || "";
-  clearGeneratedImage();
   clearWebDraftPreview();
   activeWebDraftContentImages = [];
   activeWebDraftBlocks = [];
   activeWebDraftId = draft.id;
+  activeWebDraftTitle = draft.title || "";
+  activeWebDraftBody = draft.body || "";
+  activeWebDraftCoverDataUrl = "";
   activeWebDraftTags = getWebDraftTags(draft);
   $("webDraftTagSuggestion").hidden = activeWebDraftTags.length === 0;
   $("webDraftTagList").textContent = activeWebDraftTags.length ? activeWebDraftTags.map((tag) => `#${tag}`).join(" ") : "";
@@ -166,12 +149,6 @@ async function reportWebDraftInputResult(status, details = {}) {
   }
 }
 
-function clearGeneratedImage() {
-  $("generatedImage").removeAttribute("src");
-  $("downloadImage").removeAttribute("href");
-  $("imagePreview").hidden = true;
-}
-
 function blobToDataUrl(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -189,9 +166,7 @@ async function loadStoredWebDraftImage(draft, token) {
     throw new Error(result.error || `저장된 대표 이미지 조회 실패 (${response.status})`);
   }
   const dataUrl = await blobToDataUrl(await response.blob());
-  $("generatedImage").src = dataUrl;
-  $("downloadImage").href = dataUrl;
-  $("imagePreview").hidden = false;
+  activeWebDraftCoverDataUrl = dataUrl;
   return true;
 }
 
@@ -252,75 +227,6 @@ async function typeContentBlocks(tabId, blocks, coverDataUrl, contentImages) {
       await typeWithDebugger(tabId, block.text);
     } finally { await chrome.debugger.detach({ tabId }); }
   }
-}
-
-function normalizeSeoText(value) {
-  return plainText(value).replace(/\s+/g, " ").trim();
-}
-
-function getSeoKeywords(value) {
-  return [...new Set(String(value || "").split(",").map((keyword) => keyword.trim()).filter(Boolean))].slice(0, 10);
-}
-
-function buildSeoChecklist({ title, body, keywords, hasImage, category, tags, factsConfirmed }) {
-  const titleText = normalizeSeoText(title);
-  const bodyText = normalizeSeoText(body);
-  const paragraphs = plainText(body).split(/\n+/).map((paragraph) => paragraph.trim()).filter(Boolean);
-  const keywordList = getSeoKeywords(keywords);
-  const corpus = `${titleText} ${bodyText}`.toLowerCase();
-  const missingKeywords = keywordList.filter((keyword) => !corpus.includes(keyword.toLowerCase()));
-  const tagList = getSeoKeywords(tags);
-  return [
-    { required: true, ok: titleText.length >= 15 && titleText.length <= 60, title: "제목 길이", detail: titleText ? `${titleText.length}자 · 권장 15~60자` : "제목을 입력해주세요." },
-    { required: true, ok: keywordList.length > 0 && missingKeywords.length === 0, title: "핵심 키워드 반영", detail: !keywordList.length ? "핵심 키워드를 1개 이상 입력해주세요." : missingKeywords.length ? `본문 또는 제목에 없는 키워드: ${missingKeywords.join(", ")}` : `${keywordList.length}개 키워드가 제목 또는 본문에 반영됐습니다.` },
-    { required: true, ok: paragraphs.length >= 4 && bodyText.length >= 500, title: "본문 구성", detail: `${paragraphs.length}문단 · ${bodyText.length}자${paragraphs.length < 4 || bodyText.length < 500 ? " · 4문단·500자 이상을 권장합니다." : ""}` },
-    { required: false, ok: hasImage, title: "대표 이미지", detail: hasImage ? "대표 이미지가 준비됐습니다." : "권장 항목입니다. 나노바나나 이미지 생성을 이용할 수 있습니다." },
-    { required: false, ok: Boolean(category.trim()), title: "카테고리", detail: category.trim() ? `선택 예정: ${category.trim()}` : "권장 항목입니다. 발행 정보에 카테고리를 입력하세요." },
-    { required: false, ok: tagList.length >= 3 && tagList.length <= 10, title: "태그", detail: tagList.length ? `${tagList.length}개 입력됨 · 권장 3~10개` : "권장 항목입니다. 관련 태그를 입력하세요." },
-    { required: true, ok: Boolean(factsConfirmed), title: "사실·최신 정보 확인", detail: factsConfirmed ? "직접 확인 완료로 표시했습니다." : "발행 전 정책·가격·연도·통계 등은 직접 확인해주세요." },
-  ];
-}
-
-function renderSeoChecklist(checks) {
-  const list = $("seoChecklist");
-  list.textContent = "";
-  for (const check of checks) {
-    const item = document.createElement("li");
-    item.className = check.ok ? "pass" : "warn";
-    const icon = document.createElement("span");
-    icon.className = "check-icon";
-    icon.textContent = check.ok ? "✓" : "!";
-    const copy = document.createElement("span");
-    const heading = document.createElement("strong");
-    heading.textContent = `${check.required ? "필수" : "권장"} · ${check.title}`;
-    const detail = document.createElement("small");
-    detail.textContent = check.detail;
-    copy.append(heading, detail);
-    item.append(icon, copy);
-    list.append(item);
-  }
-}
-
-async function runSeoReview() {
-  const saved = (await chrome.storage.local.get(PUBLISH_SETTINGS_KEY))[PUBLISH_SETTINGS_KEY] || {};
-  const checks = buildSeoChecklist({
-    title: $("title").value,
-    body: $("body").value,
-    keywords: $("keywords").value,
-    hasImage: Boolean($("generatedImage").src && $("generatedImage").src !== location.href),
-    category: $("publishCategory").value.trim() || saved.category || "",
-    tags: $("publishTags").value.trim() || saved.tags || "",
-    factsConfirmed: $("factsConfirmed").checked,
-  });
-  renderSeoChecklist(checks);
-  const required = checks.filter((check) => check.required);
-  const recommended = checks.filter((check) => !check.required);
-  const requiredPassed = required.filter((check) => check.ok).length;
-  const recommendedPassed = recommended.filter((check) => check.ok).length;
-  $("seoReviewSummary").textContent = requiredPassed === required.length
-    ? `필수 ${requiredPassed}/${required.length} 통과 · 권장 ${recommendedPassed}/${recommended.length} 준비. 내용을 검토한 뒤 네이버 발행 버튼을 직접 누르세요.`
-    : `필수 ${requiredPassed}/${required.length} 통과 · 미완료 항목을 확인한 뒤 다시 검토하세요.`;
-  return checks;
 }
 
 async function getToken() { return (await chrome.storage.local.get(KEY))[KEY] || ""; }
@@ -776,85 +682,14 @@ $("link").addEventListener("click", async () => {
   $("status").textContent = result.ok ? `연결됨: ${result.email}` : `오류: ${result.error}`;
 });
 
-$("strategyOptions")?.addEventListener("click", (event) => {
-  const option = event.target.closest(".strategy-option");
-  if (option) setSelectedStrategy(option.dataset.strategy || "C-Rank 기본");
-});
-
-$("generate").addEventListener("click", async () => {
-  const token = await getToken();
-  const topic = $("topic").value.trim();
-  if (!token) return ($("generateStatus").textContent = "먼저 SEO Studio를 연결하세요.");
-  if (!topic) return ($("generateStatus").textContent = "주제를 입력하세요.");
-  $("generate").disabled = true;
-  $("generateStatus").textContent = "초안을 생성하는 중입니다...";
-  try {
-    const includeImage = $("includeImage").checked;
-    clearGeneratedImage();
-    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: getSelectedStrategy(), includeImage }) });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(body.error || `생성 실패 (${response.status})`);
-    $("title").value = body.title || "";
-    $("body").value = body.body || "";
-    if (body.image?.dataUrl) {
-      $("generatedImage").src = body.image.dataUrl;
-      $("downloadImage").href = body.image.dataUrl;
-      $("imagePreview").hidden = false;
-      $("generateStatus").textContent = "초안과 대표 이미지 생성 완료";
-    } else if (includeImage && body.imageError) {
-      $("imagePreview").hidden = true;
-      $("generateStatus").textContent = `초안 생성 완료 · 이미지: ${body.imageError}`;
-    } else {
-      $("imagePreview").hidden = true;
-      $("generateStatus").textContent = "초안 생성 완료";
-    }
-  } catch (error) { $("generateStatus").textContent = `오류: ${error instanceof Error ? error.message : String(error)}`; }
-  finally { $("generate").disabled = false; }
-});
-
-$("generateAndFill").addEventListener("click", async () => {
-  if (!$("topic").value.trim()) return ($("generateStatus").textContent = "주제를 입력하세요.");
-  $("generateAndFill").disabled = true;
-  try {
-    $("generateStatus").textContent = "초안을 생성하는 중입니다...";
-    const token = await getToken();
-    const topic = $("topic").value.trim();
-    const includeImage = $("includeImage").checked;
-    clearGeneratedImage();
-    const response = await fetch(`${BASE}/api/extension/drafts`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, keywords: $("keywords").value, strategy: getSelectedStrategy(), includeImage }) });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.error || `생성 실패 (${response.status})`);
-    $("title").value = result.title || "";
-    $("body").value = result.body || "";
-    if (!$("title").value.trim() && !$("body").value.trim()) throw new Error("초안 생성 결과가 비어 있습니다.");
-    if (result.image?.dataUrl) {
-      $("generatedImage").src = result.image.dataUrl;
-      $("downloadImage").href = result.image.dataUrl;
-      $("imagePreview").hidden = false;
-    }
-    if (includeImage && !result.image?.dataUrl) {
-      const reason = result.imageError || "이미지 데이터를 받지 못했습니다.";
-      $("generateStatus").textContent = `대표 이미지 생성 실패: ${reason} 네이버 입력은 실행하지 않았습니다. Gemini API 키·선택 모델·할당량을 확인한 뒤 다시 시도하세요.`;
-      return;
-    }
-    $("generateStatus").textContent = "초안 생성 완료 · 네이버 글쓰기 탭을 찾는 중...";
-    const filled = await fillDraftIntoNaver();
-    if (filled) $("generateStatus").textContent = result.image?.dataUrl ? "제목·이미지·본문 입력 완료" : "제목·본문 입력 완료";
-  } catch (error) {
-    $("generateStatus").textContent = `원클릭 입력 실패: ${error instanceof Error ? error.message : String(error)}`;
-  } finally {
-    $("generateAndFill").disabled = false;
-  }
-});
-
 async function fillDraftIntoNaver() {
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
   let attachedTabId = null;
   try {
-    const title = $("title").value;
-    const body = $("body").value;
-    const imageDataUrl = $("generatedImage").src && $("generatedImage").src !== location.href ? $("generatedImage").src : "";
-    if (!title && !body) return ($("generateStatus").textContent = "먼저 초안을 생성하세요.");
+    const title = activeWebDraftTitle;
+    const body = activeWebDraftBody;
+    const imageDataUrl = activeWebDraftCoverDataUrl;
+    if (!activeWebDraftId || !title || !body) return ($("generateStatus").textContent = "웹에서 전송한 초안을 먼저 불러오세요.");
     const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
     const tab = tabs.find((candidate) => candidate.active) || tabs[0];
     if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) return ($("generateStatus").textContent = "네이버 블로그 글쓰기 화면을 먼저 열어주세요.");
@@ -986,50 +821,6 @@ $("applyWebDraftTags").addEventListener("click", () => {
   if (!activeWebDraftTags.length) return ($("webDraftStatus").textContent = "먼저 웹 초안을 불러오세요.");
   $("publishTags").value = activeWebDraftTags.join(", ");
   $("webDraftStatus").textContent = "추천 태그를 발행 정보에 넣었습니다. 필요하면 수정한 뒤 카테고리·태그 입력을 실행하세요.";
-});
-
-$("runSeoCheck").addEventListener("click", () => {
-  runSeoReview().catch((error) => {
-    $("seoReviewSummary").textContent = `SEO 검토 실패: ${error instanceof Error ? error.message : String(error)}`;
-  });
-});
-
-$("insertImage").addEventListener("click", async () => {
-  const dataUrl = $("generatedImage").src;
-  if (!dataUrl || dataUrl === location.href) return ($("generateStatus").textContent = "먼저 나노바나나 이미지를 생성하세요.");
-  $("insertImage").disabled = true;
-  $("generateStatus").textContent = "네이버 편집기에 이미지를 삽입하는 중...";
-  try {
-    const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
-    const tab = tabs.find((candidate) => candidate.active) || tabs[0];
-    if (!tab?.id || !/^https:\/\/(blog|m\.blog)\.naver\.com/.test(tab.url || "")) throw new Error("네이버 블로그 글쓰기 화면을 먼저 열어주세요.");
-    await chrome.windows.update(tab.windowId, { focused: true });
-    await chrome.tabs.update(tab.id, { active: true });
-    await insertImageIntoNaverEditor(tab.id, dataUrl);
-    $("generateStatus").textContent = "이미지 업로드를 요청했습니다. 네이버 편집기에서 삽입 결과를 확인하세요.";
-  } catch (error) {
-    $("generateStatus").textContent = formatBrowserError(error, "네이버 이미지 삽입");
-  } finally { $("insertImage").disabled = false; }
-});
-
-$("regenerateImage").addEventListener("click", async () => {
-  const token = await getToken();
-  const topic = $("topic").value.trim();
-  if (!token) return ($("generateStatus").textContent = "먼저 SEO Studio를 연결하세요.");
-  if (!topic) return ($("generateStatus").textContent = "주제를 입력하세요.");
-  $("regenerateImage").disabled = true;
-  $("generateStatus").textContent = "나노바나나가 새 이미지를 생성하는 중...";
-  try {
-    const response = await fetch(`${BASE}/api/extension/images/generate`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ topic, title: $("title").value, keywords: $("keywords").value }) });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok || !body.image?.dataUrl) throw new Error(body.error || `이미지 생성 실패 (${response.status})`);
-    $("generatedImage").src = body.image.dataUrl;
-    $("downloadImage").href = body.image.dataUrl;
-    $("imagePreview").hidden = false;
-    $("generateStatus").textContent = "새 이미지가 준비되었습니다. 네이버 삽입 버튼으로 교체할 수 있습니다.";
-  } catch (error) {
-    $("generateStatus").textContent = `오류: ${error instanceof Error ? error.message : String(error)}`;
-  } finally { $("regenerateImage").disabled = false; }
 });
 
 $("inspect").addEventListener("click", async () => {

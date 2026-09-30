@@ -227,65 +227,19 @@ test("failed image upload releases interception and reports failure", async () =
     ["Page.setInterceptFileChooserDialog", false], "detach"]);
 });
 
-test("one-click input stops and shows the Gemini image failure instead of filling text without an image", async () => {
-  const listeners = new Map();
-  const elements = new Map(Object.entries({
-    topic: { value: "AI 자동화", addEventListener: (name, handler) => listeners.set("topic:" + name, handler) },
-    keywords: { value: "AI, 자동화", addEventListener: (name, handler) => listeners.set("keywords:" + name, handler) },
-    includeImage: { checked: true, addEventListener: (name, handler) => listeners.set("includeImage:" + name, handler) },
-    title: { value: "", addEventListener: (name, handler) => listeners.set("title:" + name, handler) },
-    body: { value: "", addEventListener: (name, handler) => listeners.set("body:" + name, handler) },
-    generatedImage: { src: "", removeAttribute(name) { if (name === "src") this.src = ""; }, addEventListener: (name, handler) => listeners.set("generatedImage:" + name, handler) },
-    downloadImage: { removeAttribute() {}, addEventListener: (name, handler) => listeners.set("downloadImage:" + name, handler) },
-    imagePreview: { hidden: false, addEventListener: (name, handler) => listeners.set("imagePreview:" + name, handler) },
-    generateStatus: { textContent: "", addEventListener: (name, handler) => listeners.set("generateStatus:" + name, handler) },
-    generateAndFill: { disabled: false, addEventListener: (name, handler) => listeners.set("generateAndFill:" + name, handler) },
-    generate: { disabled: false, addEventListener: (name, handler) => listeners.set("generate:" + name, handler) },
-    runSeoCheck: { disabled: false, addEventListener: (name, handler) => listeners.set("runSeoCheck:" + name, handler) },
-    factsConfirmed: { checked: false, addEventListener: (name, handler) => listeners.set("factsConfirmed:" + name, handler) },
-    seoReviewSummary: { textContent: "", addEventListener: (name, handler) => listeners.set("seoReviewSummary:" + name, handler) },
-    seoChecklist: { textContent: "", addEventListener: (name, handler) => listeners.set("seoChecklist:" + name, handler) },
-    fill: { disabled: false, addEventListener: (name, handler) => listeners.set("fill:" + name, handler) },
-    webDraftList: { value: "", textContent: "", addEventListener: (name, handler) => listeners.set("webDraftList:" + name, handler) },
-    refreshWebDrafts: { disabled: false, addEventListener: (name, handler) => listeners.set("refreshWebDrafts:" + name, handler) },
-    loadWebDraft: { disabled: false, addEventListener: (name, handler) => listeners.set("loadWebDraft:" + name, handler) },
-    webDraftStatus: { textContent: "", addEventListener: (name, handler) => listeners.set("webDraftStatus:" + name, handler) },
-    webDraftTagSuggestion: { hidden: true, addEventListener: (name, handler) => listeners.set("webDraftTagSuggestion:" + name, handler) },
-    webDraftTagList: { textContent: "", addEventListener: (name, handler) => listeners.set("webDraftTagList:" + name, handler) },
-    applyWebDraftTags: { disabled: false, addEventListener: (name, handler) => listeners.set("applyWebDraftTags:" + name, handler) },
-    insertImage: { disabled: false, addEventListener: (name, handler) => listeners.set("insertImage:" + name, handler) },
-    regenerateImage: { disabled: false, addEventListener: (name, handler) => listeners.set("regenerateImage:" + name, handler) },
-    inspect: { disabled: false, addEventListener: (name, handler) => listeners.set("inspect:" + name, handler) },
-    inspectStatus: { textContent: "", addEventListener: (name, handler) => listeners.set("inspectStatus:" + name, handler) },
-    inspectResult: { value: "", addEventListener: (name, handler) => listeners.set("inspectResult:" + name, handler) },
-    publishCategory: { value: "", addEventListener: (name, handler) => listeners.set("publishCategory:" + name, handler) },
-    publishTags: { value: "", addEventListener: (name, handler) => listeners.set("publishTags:" + name, handler) },
-    savePublishSettings: { disabled: false, addEventListener: (name, handler) => listeners.set("savePublishSettings:" + name, handler) },
-    fillPublishInfo: { disabled: false, addEventListener: (name, handler) => listeners.set("fillPublishInfo:" + name, handler) },
-    publishStatus: { textContent: "", addEventListener: (name, handler) => listeners.set("publishStatus:" + name, handler) },
-    token: { value: "", addEventListener: (name, handler) => listeners.set("token:" + name, handler) },
-    link: { disabled: false, addEventListener: (name, handler) => listeners.set("link:" + name, handler) },
-    status: { textContent: "", addEventListener: (name, handler) => listeners.set("status:" + name, handler) },
-  }));
-  const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8").replace(/\nrenderStatus\(\);\s*$/, "\n");
-  const sandbox = vm.createContext({
-    setTimeout,
-    clearTimeout,
-    document: { getElementById: (id) => elements.get(id) },
-    fetch: async () => ({ ok: true, json: async () => ({ title: "제목", body: "본문", image: null, imageError: "나노바나나 이미지 생성에 실패했습니다. (429: quota exceeded)" }) }),
-    chrome: { storage: { local: { get: async () => ({ seoStudioToken: "pat_test" }), set: async () => ({}) } } },
-  });
-  vm.runInContext(source, sandbox);
-  await listeners.get("generateAndFill:click")();
-  assert.match(elements.get("generateStatus").textContent, /대표 이미지 생성 실패/);
-  assert.match(elements.get("generateStatus").textContent, /429: quota exceeded/);
-  assert.match(elements.get("generateStatus").textContent, /네이버 입력은 실행하지 않았습니다/);
-  assert.equal(elements.get("title").value, "제목");
-  assert.equal(elements.get("body").value, "본문");
-  assert.equal(elements.get("imagePreview").hidden, true);
+test("extension keeps content creation in the web studio and exposes only the handoff controls", () => {
+  const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
+  assert.match(panel, /웹에서 새 콘텐츠 만들기/);
+  assert.match(panel, /id="webDraftList"/);
+  assert.match(panel, /id="fill"/);
+  assert.doesNotMatch(panel, /id="topic"/);
+  assert.doesNotMatch(panel, /id="generate"/);
+  assert.doesNotMatch(panel, /id="generateAndFill"/);
+  assert.doesNotMatch(panel, /id="runSeoCheck"/);
+  assert.doesNotMatch(panel, /id="regenerateImage"/);
 });
 
-test("pre-publish SEO checklist separates required failures from optional recommendations", () => {
+test.skip("legacy extension SEO checklist was removed in favor of web-studio review", () => {
   const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
   const start = source.indexOf("function normalizeSeoText");
   const end = source.indexOf("async function fillPublishInfoIntoNaver");
