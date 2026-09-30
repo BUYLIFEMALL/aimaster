@@ -34,8 +34,18 @@
         <strong>콘텐츠 추천 태그</strong><span id="webDraftTagList"></span>
         <button id="applyWebDraftTags" class="secondary">추천 태그 적용</button>
       </div>
-      <button id="fill" class="primary">네이버 글쓰기 화면에 입력</button>
-      <div id="generateStatus" class="status">콘텐츠를 미리본 뒤 네이버 입력을 실행하세요.</div>
+      <div class="content-input-row">
+        <div class="content-progress" aria-live="polite">
+          <strong>네이버 입력 진행 상황</strong>
+          <ol class="content-progress-steps">
+            <li><span>1</span>콘텐츠 선택</li>
+            <li><span>2</span>미리보기 확인</li>
+            <li><span>3</span>네이버 입력</li>
+          </ol>
+          <div id="generateStatus" class="status">대기 중 · 콘텐츠를 미리본 뒤 네이버 입력을 실행하세요.</div>
+        </div>
+        <button id="fill" class="primary">네이버 글쓰기<br>화면에 입력</button>
+      </div>
     </section>
     <section class="card">
       <h2>카테고리·태그 설정</h2>
