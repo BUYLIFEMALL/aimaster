@@ -2,6 +2,41 @@ import { CollectedNewsResult } from './collector'
 import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadableParagraphs } from '@/blog/utils/markdown'
 import { generateNanoBananaImages } from './imageGenerator'
 import type { CloudinaryConfig } from '../cloudinary'
+import type { GeneratedImagesResult } from './imageGenerator'
+
+/** 이미지 생성에 실패한 칸은 빈 이미지 태그를 남기지 않는다. */
+function imageLine(alt: string, url: string): string {
+  return url ? `![${alt}](${url})` : ''
+}
+
+/**
+ * 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션(utils/stripImageSchema.ts의 splitImagePromptSection이 이 제목으로 본문과 분리).
+ * 2026-09-30부터 이미지마다 "그린 본문 문장 + 사용한 장면 설명"을 보여준다(SEO 스튜디오 방식).
+ */
+function buildImagePromptSection(images: GeneratedImagesResult): string {
+  const rows = [
+    { label: '1번 이미지', sentence: images.headerSentence, prompt: images.headerPrompt, ok: images.headerImage },
+    { label: '2번 이미지', sentence: images.body1Sentence, prompt: images.body1Prompt, ok: images.bodyImage1 },
+    { label: '3번 이미지', sentence: images.body2Sentence, prompt: images.body2Prompt, ok: images.bodyImage2 },
+  ].filter((row) => row.prompt)
+  if (rows.length === 0) return ''
+  return [
+    '### 🎨 생성 이미지 AI 프롬프트',
+    '',
+    '각 이미지는 본문에서 고른 핵심 문장 하나를 그대로 표현하도록 만들었습니다.',
+    '',
+    ...rows.flatMap((row, index) => [
+      `#### ${index + 1}. ${row.label}${row.ok ? '' : ' (생성 실패)'}`,
+      '',
+      `> 본문 문장: ${row.sentence}`,
+      '',
+      '\u0060\u0060\u0060text',
+      row.prompt,
+      '\u0060\u0060\u0060',
+      '',
+    ]),
+  ].join('\n')
+}
 
 export interface AutoPostOptions {
   topic: string
@@ -184,19 +219,19 @@ ${customRule}
 
 ## ${parsed['소제목 1'] || subKey1}
 
-![${parsed['소제목 1'] || subKey1} 비주얼](${images.headerImage})
+${imageLine(`${parsed['소제목 1'] || subKey1} 비주얼`, images.headerImage)}
 
 ${body1Text}
 
 ## ${parsed['소제목 2'] || subKey2}
 
-![${parsed['소제목 2'] || subKey2} 비주얼](${images.bodyImage1})
+${imageLine(`${parsed['소제목 2'] || subKey2} 비주얼`, images.bodyImage1)}
 
 ${body2Text}
 
 ## ${parsed['소제목 3'] || subKey3}
 
-![${parsed['소제목 3'] || subKey3} 비주얼](${images.bodyImage2})
+${imageLine(`${parsed['소제목 3'] || subKey3} 비주얼`, images.bodyImage2)}
 
 ${body3Text}
 
@@ -218,39 +253,7 @@ ${hashtags}
 
 ---
 
-### 🎨 생성 이미지 AI 프롬프트 및 API 요청 스키마 (Prompts & API Schemas)
-
-본 포스트의 3개 이미지 생성 시 나노바나나/제미나이 AI 엔진에 전달된 100% 문맥 일치 영문 실사 프롬프트 및 **실제 전송된 정식 API 요청 스키마 페이로드(Request Payload Schema)**입니다.
-
-#### 1. 1번 문단 이미지 프롬프트 (Paragraph 1 Visual)
-\`\`\`text
-${images.headerPrompt || ''}
-\`\`\`
-
-> **⚙️ 1번 이미지 생성 시 전송된 API 요청 스키마 (Paragraph 1 Payload)**
-\`\`\`json
-${images.headerSchema || ''}
-\`\`\`
-
-#### 2. 2번 문단 이미지 프롬프트 (Paragraph 2 Visual)
-\`\`\`text
-${images.body1Prompt || ''}
-\`\`\`
-
-> **⚙️ 2번 이미지 생성 시 전송된 API 요청 스키마 (Paragraph 2 Payload)**
-\`\`\`json
-${images.body1Schema || ''}
-\`\`\`
-
-#### 3. 3번 문단 이미지 프롬프트 (Paragraph 3 Visual)
-\`\`\`text
-${images.body2Prompt || ''}
-\`\`\`
-
-> **⚙️ 3번 이미지 생성 시 전송된 API 요청 스키마 (Paragraph 3 Payload)**
-\`\`\`json
-${images.body2Schema || ''}
-\`\`\`
+${buildImagePromptSection(images)}
 `.trim()
 
         return { title, excerpt, contentMarkdown }
@@ -269,12 +272,8 @@ export async function generateAutoPost(
 ): Promise<GeneratedPostResult> {
   let postData: { title: string; excerpt: string; contentMarkdown: string } | null = null
 
-  const activeApiKey =
-    options.nanoBananaApiKey ||
-    process.env.GEMINI_API_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-    process.env.NANOBANANA_API_KEY ||
-    ''
+  // 회원 본인 Gemini 키만 사용한다(운영자 환경변수 키 폴백 금지 — 루트 CLAUDE.md 핵심 원칙 4번, 2026-09-30).
+  const activeApiKey = options.nanoBananaApiKey || ''
 
   if (activeApiKey) {
     postData = await generateWithGemini(newsData, options, activeApiKey)
@@ -324,7 +323,7 @@ export async function generateAutoPost(
     const contentMarkdown = `
 > **요약**: ${excerpt}
 
-![${shortTopic} 대표 비주얼](${images.headerImage})
+${imageLine(`${shortTopic} 대표 비주얼`, images.headerImage)}
 
 ## 1. 24시간 실시간 뉴스 핵심 쟁점 및 ${subKey1}
 
@@ -334,7 +333,7 @@ ${options.customInstructions ? `\n> **추가 지시 반영**: ${options.customIn
 
 ## 2. ${subKey2} 및 기술적 차별성
 
-![${subKey2} 구조 인포그래픽](${images.bodyImage1})
+${imageLine(`${subKey2} 구조 인포그래픽`, images.bodyImage1)}
 
 ${sec2Text}
 
@@ -346,7 +345,7 @@ ${options.referenceUrls && options.referenceUrls.length > 0 ? `\n### 참고 자�
 
 ## 4. ${subKey4} 및 미래 전망
 
-![${subKey4} 미래 비주얼](${images.bodyImage2})
+${imageLine(`${subKey4} 미래 비주얼`, images.bodyImage2)}
 
 ${sec4Text}
 
@@ -372,39 +371,7 @@ ${hashtags}
 
 ---
 
-### 🎨 생성 이미지 AI 프롬프트 및 API 요청 스키마 (Prompts & API Schemas)
-
-본 포스트의 3개 이미지 생성 시 나노바나나/제미나이 AI 엔진에 전달된 100% 문맥 일치 영문 실사 프롬프트 및 **실제 전송된 정식 API 요청 스키마 페이로드(Request Payload Schema)**입니다.
-
-#### 1. 대표 썸네일 이미지 프롬프트 (Header Visual)
-\u0060\u0060\u0060text
-${images.headerPrompt || ''}
-\u0060\u0060\u0060
-
-> **⚙️ 1번 이미지 생성 시 전송된 API 요청 스키마 (Header Schema Payload)**
-\u0060\u0060\u0060json
-${images.headerSchema || ''}
-\u0060\u0060\u0060
-
-#### 2. 기술 메커니즘 이미지 프롬프트 (Section 2 Visual)
-\u0060\u0060\u0060text
-${images.body1Prompt || ''}
-\u0060\u0060\u0060
-
-> **⚙️ 2번 이미지 생성 시 전송된 API 요청 스키마 (Section 2 Schema Payload)**
-\u0060\u0060\u0060json
-${images.body1Schema || ''}
-\u0060\u0060\u0060
-
-#### 3. 미래 파급력 이미지 프롬프트 (Section 3 Visual)
-\u0060\u0060\u0060text
-${images.body2Prompt || ''}
-\u0060\u0060\u0060
-
-> **⚙️ 3번 이미지 생성 시 전송된 API 요청 스키마 (Section 3 Schema Payload)**
-\u0060\u0060\u0060json
-${images.body2Schema || ''}
-\u0060\u0060\u0060
+${buildImagePromptSection(images)}
 `.trim()
 
     postData = { title, excerpt, contentMarkdown }

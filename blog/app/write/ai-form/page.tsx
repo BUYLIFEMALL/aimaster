@@ -205,6 +205,12 @@ function AiFormPageInner() {
 
       const data = await res.json()
 
+      if (data.code === 'API_KEY_REQUIRED') {
+        if (window.confirm(`${data.error}\n\n지금 설정 페이지로 이동할까요?`)) {
+          router.push(`${getBlogBasePath()}/settings`)
+        }
+        return
+      }
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'AI 포스팅 생성에 실패했습니다.')
       }

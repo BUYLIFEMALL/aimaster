@@ -23,6 +23,17 @@ export async function POST(request: NextRequest) {
     const adminClient = createAdminClient()
     const inlineKey = (body.nanoBananaApiKey || body.apiKey || '').trim()
     const resolvedApiKey = inlineKey || (await resolveApiKey(adminClient, user.id, 'gemini')) || undefined
+    // 본인 키가 없으면 여기서 멈춘다. 예전엔 generator/imageGenerator가 운영자 환경변수 키(GEMINI_API_KEY)로
+    // 몰래 대신 호출해 운영자에게 비용이 청구됐다(2026-09-30 발견·수정 — 루트 CLAUDE.md 핵심 원칙 4번).
+    if (!resolvedApiKey) {
+      return NextResponse.json(
+        {
+          code: 'API_KEY_REQUIRED',
+          error: 'Gemini API 키가 없습니다. 설정 페이지(API키등록·플랫폼연동)에서 본인 키를 등록해주세요.',
+        },
+        { status: 400 },
+      )
+    }
     const cloudinaryConfig = (await getUserCloudinaryConfig(adminClient, user.id)) || undefined
 
     // 단일 topic 또는 세부 options 객체 수신 지원

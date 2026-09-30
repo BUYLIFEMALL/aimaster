@@ -31,7 +31,11 @@ export async function generateEditorImage(prompt: string, apiKey: string): Promi
   }
 
   const data = await response.json()
-  const part = data.candidates?.[0]?.content?.parts?.[0]
+  // 응답 parts 중 이미지가 첫 번째가 아닐 수 있어(설명 텍스트가 먼저 오는 경우) inlineData가 있는 part를 찾는다
+  // (SEO 스튜디오 lib/ai/nanoBanana.ts와 같은 방식, 2026-09-30).
+  const part = data.candidates?.[0]?.content?.parts?.find(
+    (candidate: { inlineData?: { data?: string } }) => candidate.inlineData?.data,
+  )
   const base64 = part?.inlineData?.data
   const mimeType = part?.inlineData?.mimeType || 'image/png'
 

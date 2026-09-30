@@ -1,5 +1,14 @@
 /**
  * 나노바나나(NanoBanana) / 제미나이(Gemini) 공식 REST API 직접 호출 파이프라인
+ *
+ * 2026-09-30 개편 — 네이버 블로그 SEO 스튜디오(naver-blog-seo-studio/lib/ai/contentVisuals.ts,
+ * lib/ai/nanoBanana.ts)의 방식을 가져왔다(주인님 지시: "BLOG 원문 자동화의 이미지 퀄리티가 떨어진다").
+ * - 예전: 문단 전체를 고정 시작 문구("adventure, courage…")·카메라 스펙·긴 부정어 블록을 붙인 초장문 프롬프트로
+ *   바꾸고 한글·기호를 지운 뒤 생성 → 글 내용과 관계없는 비슷한 장면(사무실 사람들 등)이 반복되기 쉬웠다.
+ * - 지금: 각 섹션에서 **그림으로 표현할 수 있는 핵심 문장 1개를 원문 그대로** 고르고, 그 문장만 담은 짧고 구체적인
+ *   영어 장면 설명을 만들어 생성한다. 이미지 응답은 parts 중 inlineData가 있는 것을 찾아 쓴다(예전엔 parts[0]만 봤다).
+ * - 운영자 환경변수 키 폴백·pollinations.ai 대체 이미지는 없앴다(루트 CLAUDE.md 핵심 원칙 4번 — 회원 본인 키만 사용,
+ *   지어낸 결과 금지). 이미지 1장이 실패하면 그 칸은 비워 두고 글 생성은 계속한다.
  */
 
 import { getNanoBananaConfig } from './nanoBananaConfig'
@@ -12,14 +21,10 @@ export interface GeneratedImagesResult {
   headerPrompt: string
   body1Prompt: string
   body2Prompt: string
-  headerSchema: string
-  body1Schema: string
-  body2Schema: string
-}
-
-export interface SingleImageFetchResult {
-  imageUrl: string
-  schemaText: string
+  /** 각 이미지가 표현한 본문 핵심 문장(원문 그대로) */
+  headerSentence: string
+  body1Sentence: string
+  body2Sentence: string
 }
 
 export interface ArticleContext {
@@ -32,350 +37,206 @@ export interface ArticleContext {
 
 export type NanoBananaModelType = 'nanobanana' | 'nanobanana-2-2k' | 'nanobanana-2-4k' | 'nanobanana-2' | 'nanobanana-pro' | string
 
+interface SectionVisual {
+  sentence: string
+  prompt: string
+}
+
+// 문장 선택·장면 설명용 텍스트 모델(회원 Gemini 키로 호출). 2026-09-30 모델 목록 조회로 제공 확인.
+const VISUAL_DIRECTOR_MODEL = 'gemini-2.5-flash'
+
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-function cleanAsciiPrompt(text: string): string {
-  return text
-    .replace(/[가-힣]/g, ' ')
-    .replace(/[^a-zA-Z0-9\s,.-]/g, ' ')
-    .replace(/\s*,\s*/g, ', ')
-    .replace(/(,\s*)+/g, ', ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/^,\s*/, '')
+function cleanSentence(value: unknown): string {
+  return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim().slice(0, 360) : ''
+}
+
+function splitSentences(text: string): string[] {
+  const sentences = text.replace(/\s+/g, ' ').match(/[^.!?。！？\n]+[.!?。！？]?/g) ?? []
+  return sentences.map(cleanSentence).filter((sentence) => sentence.length >= 20 && sentence.length <= 360)
+}
+
+function sentencePrompt(sentence: string): string {
+  return `One photorealistic Korean blog editorial scene illustrating this exact Korean key sentence: ${sentence}. One unified scene, documentary-quality real-world photography, 16:9 landscape, no text, logo, watermark, collage, split screen, infographic, or illustration.`
+}
+
+/** AI 호출이 실패했을 때: 각 섹션 가운데쯤의 문장을 골라 같은 형식의 장면 설명을 만든다(외부 이미지로 대체하지 않음). */
+function fallbackVisual(sectionText: string, topic: string): SectionVisual {
+  const candidates = splitSentences(sectionText)
+  const sentence = candidates[Math.floor(candidates.length / 2)] ?? cleanSentence(sectionText.slice(0, 240)) ?? topic
+  return { sentence: sentence || topic, prompt: sentencePrompt(sentence || topic) }
 }
 
 /**
- * 프롬프트 문맥 100% 반영 실시간 AI 백업 엔진 (무작위 CDN이 아닌 실제 영문 프롬프트를 100% 그려내는 AI 엔진)
+ * 섹션(문단) 3개에서 각각 그림으로 표현할 핵심 문장 1개를 원문 그대로 고르고, 그 문장만 담은 영어 장면 설명을 만든다.
+ * SEO 스튜디오 selectContentVisuals()와 같은 지시문을 쓰되, BLOG는 회원 Gemini 키 하나로 동작하도록 Gemini로 호출한다.
  */
-function getContextualAiImageUrl(promptText: string, width: number, height: number, seed: number): string {
-  const cleanPrompt = cleanAsciiPrompt(promptText)
-  const encodedPrompt = encodeURIComponent(cleanPrompt.slice(0, 200))
-  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`
-}
-
-async function verifyImageReady(
-  imageUrl: string,
-  promptText: string,
-  sceneType: 'header' | 'body1' | 'body2',
-  width: number,
-  height: number,
-  seed: number
-): Promise<string> {
-  if (imageUrl.startsWith('data:image')) {
-    console.log(`[Base64 Inline Image Generated (${sceneType})]: Size = ${imageUrl.length} bytes`)
-    return imageUrl
-  }
-
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 3500)
-
-  try {
-    const res = await fetch(imageUrl, {
-      method: 'GET',
-      headers: { Range: 'bytes=0-100' },
-      signal: controller.signal,
-    })
-    clearTimeout(timeoutId)
-
-    if (res.ok || res.status === 206) {
-      const contentType = res.headers.get('content-type') || ''
-      if (contentType.includes('image') || res.status === 200 || res.status === 206) {
-        console.log(`[Verified Image 200 OK (${sceneType})]: ${imageUrl.slice(0, 65)}...`)
-        return imageUrl
-      }
-    }
-  } catch {
-    clearTimeout(timeoutId)
-    console.log(`[Image Timeout/Fallback (${sceneType})]: Using contextual AI engine`)
-  }
-
-  return getContextualAiImageUrl(promptText, width, height, seed)
-}
-
-/**
- * ★ [핵심] 생성 완료된 본문 전체 텍스트를 정독 및 이해하여 100% 문맥 매칭 영문 프롬프트 3개를 생성하는 AI Visual Director
- */
-export async function generateArticleBasedImagePrompts(
+export async function selectSectionVisuals(
   topic: string,
   articleCtx: ArticleContext,
-  apiKey?: string
-): Promise<{ headerPrompt: string; body1Prompt: string; body2Prompt: string }> {
-  const activeKey = apiKey || process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.NANOBANANA_API_KEY || ''
+  apiKey: string,
+): Promise<{ headerVisual: SectionVisual; body1Visual: SectionVisual; body2Visual: SectionVisual }> {
+  const sections = [articleCtx.body1Text, articleCtx.body2Text, articleCtx.body4Text]
+  const fallback = () => ({
+    headerVisual: fallbackVisual(sections[0], topic),
+    body1Visual: fallbackVisual(sections[1], topic),
+    body2Visual: fallbackVisual(sections[2], topic),
+  })
 
-  if (activeKey) {
-    try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${activeKey}`
-      const promptInstruction = `You are an expert photorealistic image prompt engineer.
-Convert each of the 3 provided Korean paragraphs into exactly ONE high-quality English image-generation prompt for creating ONE image per paragraph.
+  const instruction = `You are a Korean blog visual editor. Return JSON only.
+For EACH of the 3 sections below, choose exactly one complete sentence from THAT section: a meaningful, visually depictable key sentence. Copy the sentence exactly as written (Korean). The 3 sentences must be different.
+For each chosen sentence, write one detailed English prompt for a single photorealistic 16:9 editorial scene that expresses only that sentence: concrete subject, action, place, time of day, lighting and camera framing.
+Depict realistic Korean/East Asian people by default where people are appropriate; only depict another ethnicity when the sentence names a foreign celebrity, politician, entertainer or athlete, or a foreign country/setting central to it.
+No text, logo, watermark, collage, split screen, infographic, illustration, or made-up facts.
+Format: {"visuals":[{"sentence":"...","prompt":"..."},{"sentence":"...","prompt":"..."},{"sentence":"...","prompt":"..."}]}
 
-Analyze the 3 paragraphs carefully:
-[Paragraph 1 - Header Visual]: ${articleCtx.body1Text.slice(0, 500)}
-[Paragraph 2 - Section 2 Visual]: ${articleCtx.body2Text.slice(0, 500)}
-[Paragraph 3 - Section 3 Visual]: ${articleCtx.body4Text.slice(0, 500)}
+Topic: ${topic}
+Title: ${articleCtx.title}
 
-For EACH paragraph (Paragraph 1, Paragraph 2, Paragraph 3), follow these STRICT MASTER RULES:
+[Section 1]
+${sections[0].slice(0, 4000)}
 
-1. PRIMARY TASK:
-   - Identify: main subject, central action/situation, real-world environment, emotional atmosphere, visual details.
-   - Create one coherent photographic scene communicating the central meaning of each paragraph.
-   - Do NOT create multiple prompts per paragraph or split screens/collages/storyboards/multi-panel images.
+[Section 2]
+${sections[1].slice(0, 4000)}
 
-2. IMAGE PROMPT OPENING:
-   - Every "ImagePrompt" value MUST be one continuous English paragraph beginning EXACTLY with:
-     "Create a sense of adventure, courage, and realism with a single photorealistic scene of"
-   - Do not use line breaks inside the prompt string.
+[Section 3]
+${sections[2].slice(0, 4000)}`
 
-3. SINGLE-IMAGE & UNIFIED SCENE REQUIREMENT:
-   - Always include the phrase naturally: "one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels".
-   - Describe one unified location, one main moment, one primary subject/connected group, consistent lighting, and one coherent viewpoint.
-
-4. REALISM & HUMAN SUBJECTS:
-   - Describe real-world photography (NO artwork, NO illustrations, NO infographics, NO 3D render, NO surreal metaphors).
-   - If human figures appear, depict realistic Korean/East Asian individuals by default. Only depict a different ethnicity/nationality when the paragraph specifically names a foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting central to the story. Natural skin texture, anatomically correct hands, believable proportions.
-   - Public figures: depict setting/audience without facial impersonation. Real locations: preserve recognizable environmental characteristics without logos.
-
-5. CAMERA & LIGHTING SELECTION:
-   - Include specific camera gear: Choose one camera (Sony A7R IV, Canon EOS R5, or Nikon Z8) and one prime lens (35mm prime for wide environmental, 50mm prime for documentary, or 85mm prime for portraits/focused human moments).
-   - Include settings: aperture (f/1.8 to f/4), shutter speed (1/160 to 1/1000s), ISO (100 to 800), white balance (5200K to 6500K).
-   - Include lighting preset: Outdoor Daylight, Indoor/Office/Lab daylight, or Night/Neon practical lights.
-   - Always include: "photorealistic, documentary-quality real-world photography, physically plausible lighting and materials, true-to-life colors, natural film grain, realistic skin texture, anatomically correct human features, accurate scale and perspective, realistic environmental details, no stylization, shot on a full-frame camera, 16-bit RAW photographic look, optical bokeh where appropriate, high micro-contrast, subtle chromatic aberration, slight natural sensor noise, subtle optical vignetting, focus plane precisely placed on the main subject, level and physically accurate horizon, realistic lens perspective".
-
-6. COMPOSITION & RESOLUTION:
-   - Cinematic photographic framing, rule-of-thirds, clear visual hierarchy, foreground-midground-background layering, native 16:9 aspect ratio, high-resolution 4K or higher. "no visible text" unless essential.
-
-7. MANDATORY NEGATIVE BLOCK AT THE VERY END:
-   - Append this exact negative block at the end of every prompt:
-     ", no illustration, no painting, no watercolor, no sketch, no vector art, no cartoon, no anime, no comic-book style, no 3D render, no CGI, no game-engine look, no flat shading, no cel shading, no toon style, no surreal montage, no collage, no split screen, no storyboard, no multiple panels, no duplicated subjects, no repeated faces, no extra limbs, no malformed hands, no distorted anatomy, no floating objects, no over-smoothed skin, no waxy skin, no plastic texture, no artificial facial features, no excessive HDR, no oversaturation, no unrealistic colors, no posterization, no watermark, no signature, no unwanted captions, no logo artifacts"
-
-8. Output Format:
-   Return ONLY a valid JSON object:
-   {
-     "headerPrompt": "Full English image prompt for Paragraph 1 following all rules...",
-     "body1Prompt": "Full English image prompt for Paragraph 2 following all rules...",
-     "body2Prompt": "Full English image prompt for Paragraph 3 following all rules..."
-   }`
-
-      const response = await fetch(endpoint, {
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${VISUAL_DIRECTOR_MODEL}:generateContent?key=${apiKey}`,
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: promptInstruction }] }],
-          generationConfig: { temperature: 0.3, responseMimeType: 'application/json' },
+          contents: [{ parts: [{ text: instruction }] }],
+          generationConfig: { temperature: 0.25, responseMimeType: 'application/json' },
         }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-        if (text) {
-          const parsed = JSON.parse(text)
-          if (parsed.headerPrompt && parsed.body1Prompt && parsed.body2Prompt) {
-            console.log('[Expert Photo Prompt Engine] 3 Master Prompts Successfully Created:')
-            console.log('- Paragraph 1 Master Prompt:', parsed.headerPrompt)
-            console.log('- Paragraph 2 Master Prompt:', parsed.body1Prompt)
-            console.log('- Paragraph 3 Master Prompt:', parsed.body2Prompt)
-            return {
-              headerPrompt: cleanAsciiPrompt(parsed.headerPrompt),
-              body1Prompt: cleanAsciiPrompt(parsed.body1Prompt),
-              body2Prompt: cleanAsciiPrompt(parsed.body2Prompt),
-            }
-          }
-        }
-      }
-    } catch (err) {
-      console.error('[Expert Photo Prompt Engine Error]:', err)
+      },
+    )
+    if (!response.ok) {
+      console.warn('[section-visuals] Gemini sentence analysis failed; using body fallback', { status: response.status })
+      return fallback()
     }
-  }
+    const data = await response.json()
+    const raw = data.candidates?.[0]?.content?.parts?.find((part: { text?: string }) => part.text)?.text
+    if (!raw) return fallback()
 
-  const negativeBlock = ', no illustration, no painting, no watercolor, no sketch, no vector art, no cartoon, no anime, no comic-book style, no 3D render, no CGI, no game-engine look, no flat shading, no cel shading, no toon style, no surreal montage, no collage, no split screen, no storyboard, no multiple panels, no duplicated subjects, no repeated faces, no extra limbs, no malformed hands, no distorted anatomy, no floating objects, no over-smoothed skin, no waxy skin, no plastic texture, no artificial facial features, no excessive HDR, no oversaturation, no unrealistic colors, no posterization, no watermark, no signature, no unwanted captions, no logo artifacts'
-  const mandatoryOpening = 'Create a sense of adventure, courage, and realism with a single photorealistic scene of'
-  // 이 함수의 1차 경로(위 Gemini 호출)가 실패했을 때만 여기로 온다. 1차 경로의 마스터 룰(4번 항목)에는
-  // "인물은 기본적으로 한국인/동아시아인으로 묘사, 해외 유명인·정치인·연예인·운동선수 등장이나 해외
-  // 배경이 명시된 경우에만 예외" 규칙이 있는데, 이 fallback 문구에는 그 규칙이 빠져 있어서 Gemini 호출이
-  // 실패할 때마다(네트워크 오류, JSON 파싱 실패 등, catch에서 콘솔 로그만 남기고 조용히 여기로 넘어옴)
-  // 이미지 생성 모델이 인물의 인종을 지정받지 못해 기본 편향대로 외국인을 그리는 문제가 있었다
-  // (2026-09-03, "등장인물이 전부 외국인" 신고로 발견 — 루트 CLAUDE.md 불변의 핵심 원칙 3번).
-  const ethnicityRule =
-    'If human figures appear, depict realistic Korean/East Asian individuals by default, natural skin texture, anatomically correct hands, believable proportions, '
-
-  // Fallback with Master Prompt Rules
-  return {
-    headerPrompt: cleanAsciiPrompt(`${mandatoryOpening} real-world ${topic} environment, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, ${ethnicityRule}shot on Canon EOS R5 with 35mm prime lens, f/2.8, 1/250s, ISO 200, 5600K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
-    body1Prompt: cleanAsciiPrompt(`${mandatoryOpening} detailed real-world ${topic} technology and practical workplace, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, ${ethnicityRule}shot on Sony A7R IV with 50mm prime lens, f/2.0, 1/320s, ISO 400, 5600K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
-    body2Prompt: cleanAsciiPrompt(`${mandatoryOpening} real-world ${topic} strategic vision scene with people, one unified scene in a single frame, not a collage, not a split screen, not a storyboard, not multiple panels, ${ethnicityRule}shot on Nikon Z8 with 85mm prime lens, f/1.8, 1/500s, ISO 100, 6000K, photorealistic, documentary-quality real-world photography, 16:9, no visible text${negativeBlock}`),
+    const parsed = JSON.parse(raw) as { visuals?: Array<{ sentence?: unknown; prompt?: unknown }> }
+    const items = (parsed.visuals ?? []).slice(0, 3)
+    const visuals = items.map((item, index) => {
+      const sentence = cleanSentence(item.sentence)
+      const prompt = cleanSentence(item.prompt)
+      const inSection = sentence && sections[index].replace(/\s+/g, ' ').includes(sentence)
+      return inSection && prompt ? { sentence, prompt } : fallbackVisual(sections[index], topic)
+    })
+    while (visuals.length < 3) visuals.push(fallbackVisual(sections[visuals.length], topic))
+    return { headerVisual: visuals[0], body1Visual: visuals[1], body2Visual: visuals[2] }
+  } catch (err) {
+    console.warn('[section-visuals] Gemini response parsing failed; using body fallback', err)
+    return fallback()
   }
 }
 
-async function fetchNanoBananaSingleImage(
-  promptText: string,
+/** 나노바나나 1장 생성 → data URI(또는 회원 Cloudinary 설정이 있으면 업로드 URL). 실패하면 빈 문자열. */
+async function generateSceneImage(
+  sceneDescription: string,
   model: string,
-  topic: string,
   sceneType: 'header' | 'body1' | 'body2',
-  seed: number,
-  apiKey?: string,
+  apiKey: string,
   customEndpoint?: string,
-  width = 1200,
-  height = 630,
   cloudinaryConfig?: CloudinaryConfig,
-): Promise<SingleImageFetchResult> {
-  const modelConfig = getNanoBananaConfig(model)
-  const activeKey = apiKey || process.env.NANOBANANA_API_KEY || process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || ''
-  const baseEndpoint = customEndpoint || modelConfig.endpoint
-  const targetUrl = activeKey ? `${baseEndpoint}?key=${activeKey}` : baseEndpoint
+): Promise<string> {
+  const config = getNanoBananaConfig(model)
+  // SEO 스튜디오 generateNanoBananaImage()와 같은 감싸는 문장.
+  const prompt = `Create this exact editorial scene: ${sceneDescription} Depict realistic Korean/East Asian people by default unless the topic explicitly requires another setting. Use one unified scene, not a collage or split screen. Natural lighting, documentary-quality composition, 16:9 landscape, no visible text, no logo, no watermark.`
 
-  const requestBody = {
-    contents: [
-      {
-        parts: [
-          { text: promptText }
-        ]
-      }
-    ],
-    generationConfig: {
-      responseModalities: ['Image'],
-      imageConfig: {
-        aspectRatio: '16:9',
-        imageSize: modelConfig.imageSize
-      },
-      temperature: modelConfig.temperature || 0.7
+  try {
+    const response = await fetch(`${customEndpoint || config.endpoint}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseModalities: ['Image'],
+          imageConfig: { aspectRatio: '16:9', imageSize: config.imageSize },
+          temperature: config.temperature,
+        },
+      }),
+    })
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '')
+      console.error(`[Gemini Image API ${response.status} (${sceneType})]:`, errText.replace(/AIza[\w-]{20,}/g, '[API 키 숨김]').slice(0, 300))
+      return ''
     }
-  }
-
-  const schemaText = JSON.stringify(
-    {
-      targetUrl: targetUrl.replace(activeKey, activeKey ? 'PRESENT_API_KEY' : 'NO_KEY_PROVIDED'),
-      httpMethod: 'POST',
-      selectedModelType: model,
-      officialModelName: modelConfig.modelName,
-      resolutionConfig: modelConfig.imageSize,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      requestPayload: requestBody,
-    },
-    null,
-    2
-  )
-
-  console.log(`\n=================== [Calling Official Gemini Image Endpoint (${sceneType}) - Model: ${modelConfig.modelName} (${modelConfig.imageSize})] ===================`)
-  console.log(schemaText)
-  console.log(`==================================================================================\n`)
-
-  if (activeKey) {
-    try {
-      const response = await fetch(targetUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const part = data.candidates?.[0]?.content?.parts?.[0]
-        const inlineBase64Raw = part?.inlineData?.data
-        const mimeType = part?.inlineData?.mimeType || 'image/png'
-        const imageUrl = part?.fileData?.fileUri || data.url || data.image_url
-
-        if (inlineBase64Raw) {
-          const cleanBase64 = inlineBase64Raw.replace(/\s+/g, '')
-          const finalUrl = `data:${mimeType};base64,${cleanBase64}`
-          console.log(`[Gemini Image Generated Successfully (${modelConfig.modelName} ${modelConfig.imageSize} / ${sceneType})]: Size = ${finalUrl.length} bytes`)
-
-          if (cloudinaryConfig) {
-            try {
-              const cloudinaryUrl = await uploadDataUriToCloudinary(finalUrl, cloudinaryConfig)
-              console.log(`[Cloudinary Upload OK (${sceneType})]: ${cloudinaryUrl}`)
-              return { imageUrl: cloudinaryUrl, schemaText }
-            } catch (uploadErr) {
-              console.error(`[Cloudinary Upload Failed (${sceneType})]:`, uploadErr)
-              // 업로드 실패 시 base64를 그대로 사용해 글 생성 자체는 막지 않음
-            }
-          }
-
-          return { imageUrl: finalUrl, schemaText }
-        }
-
-        if (imageUrl) {
-          const verifiedUrl = await verifyImageReady(imageUrl, promptText, sceneType, width, height, seed)
-          return { imageUrl: verifiedUrl, schemaText }
-        }
-      } else {
-        const errText = await response.text()
-        console.error(`[Gemini Image API Status ${response.status} (${sceneType})]:`, errText.slice(0, 300))
-      }
-    } catch (error) {
-      console.error(`[Gemini Image API Call Error (${sceneType})]:`, error)
+    const data = await response.json()
+    const imagePart = data.candidates?.[0]?.content?.parts?.find(
+      (part: { inlineData?: { data?: string } }) => part.inlineData?.data,
+    )?.inlineData
+    if (!imagePart?.data) {
+      console.error(`[Gemini Image (${sceneType})]: 이미지 결과 없음`)
+      return ''
     }
-  }
+    const dataUri = `data:${imagePart.mimeType || 'image/png'};base64,${imagePart.data.replace(/\s+/g, '')}`
+    console.log(`[Gemini Image OK (${config.modelName} ${config.imageSize} / ${sceneType})]: ${dataUri.length} bytes`)
 
-  const contextualAiUrl = getContextualAiImageUrl(promptText, width, height, seed)
-  const verifiedUrl = await verifyImageReady(contextualAiUrl, promptText, sceneType, width, height, seed)
-  return { imageUrl: verifiedUrl, schemaText }
+    if (cloudinaryConfig) {
+      try {
+        return await uploadDataUriToCloudinary(dataUri, cloudinaryConfig)
+      } catch (uploadErr) {
+        console.error(`[Cloudinary Upload Failed (${sceneType})]:`, uploadErr)
+        // 업로드 실패 시 base64를 그대로 사용해 글 생성 자체는 막지 않음
+      }
+    }
+    return dataUri
+  } catch (error) {
+    console.error(`[Gemini Image API Call Error (${sceneType})]:`, error)
+    return ''
+  }
 }
 
 export async function generateNanoBananaImages(
   topic: string,
-  keywords: string[] = [],
+  _keywords: string[] = [],
   apiKey?: string,
   model: NanoBananaModelType = 'nanobanana-2-2k',
   customEndpoint?: string,
   articleCtx?: ArticleContext,
   cloudinaryConfig?: CloudinaryConfig,
 ): Promise<GeneratedImagesResult> {
-  const modelConfig = getNanoBananaConfig(model)
-  const uniqueTimestamp = Date.now()
-  const baseSeed = uniqueTimestamp + Math.floor(Math.random() * 1000000)
-
-  // ★ 1. 생성 완료된 본문 전체 텍스트를 AI Visual Director가 정독 후 3개 맞춤 영문 프롬프트 추출
-  // articleCtx가 없을 때만 쓰이는 최후 보루 프롬프트라 인물 인종 규칙도 기본값으로 명시해둔다
-  // (루트 CLAUDE.md 불변의 핵심 원칙 3번 — 인물은 기본 한국인/동아시아인으로 묘사).
-  let prompts = {
-    headerPrompt: cleanAsciiPrompt(`Photorealistic dramatic wide shot of ${topic}, high tech business setting, cinematic lighting, if human figures appear depict realistic Korean/East Asian individuals by default, 4K, 16:9`),
-    body1Prompt: cleanAsciiPrompt(`Photorealistic macro close-up of ${topic} technical architecture, digital twin microtexture, if human figures appear depict realistic Korean/East Asian individuals by default, 4K, 16:9`),
-    body2Prompt: cleanAsciiPrompt(`Photorealistic cinematic scene of ${topic} global future vision, dynamic urban background, if human figures appear depict realistic Korean/East Asian individuals by default, 4K, 16:9`),
+  const empty: GeneratedImagesResult = {
+    headerImage: '',
+    bodyImage1: '',
+    bodyImage2: '',
+    headerPrompt: '',
+    body1Prompt: '',
+    body2Prompt: '',
+    headerSentence: '',
+    body1Sentence: '',
+    body2Sentence: '',
   }
+  // 회원 본인 키가 없으면 이미지를 만들지 않는다(운영자 키 폴백 금지). 호출부(auto-post)가 키를 먼저 확인한다.
+  if (!apiKey) return empty
 
-  if (articleCtx) {
-    prompts = await generateArticleBasedImagePrompts(topic, articleCtx, apiKey)
-  }
+  const ctx: ArticleContext = articleCtx ?? { title: topic, excerpt: '', body1Text: topic, body2Text: topic, body4Text: topic }
+  const { headerVisual, body1Visual, body2Visual } = await selectSectionVisuals(topic, ctx, apiKey)
+  console.log(`[NanoBanana Pipeline] model "${model}" → ${getNanoBananaConfig(model).modelName}`)
 
-  let headerWidth = 2048
-  let headerHeight = 1080
-  let bodyWidth = 1920
-  let bodyHeight = 1080
-
-  if (modelConfig.imageSize === '1K') {
-    headerWidth = 1280
-    headerHeight = 720
-    bodyWidth = 1280
-    bodyHeight = 720
-  } else if (modelConfig.imageSize === '4K') {
-    headerWidth = 3840
-    headerHeight = 2160
-    bodyWidth = 2560
-    bodyHeight = 1440
-  }
-
-  console.log(`[NanoBanana Pipeline] Selected Model Option: "${model}" -> Official Model Name: "${modelConfig.modelName}", Endpoint: "${modelConfig.endpoint}", Resolution: "${modelConfig.imageSize}"`)
-
-  const resHeader = await fetchNanoBananaSingleImage(prompts.headerPrompt, model, topic, 'header', baseSeed + 101, apiKey, customEndpoint, headerWidth, headerHeight, cloudinaryConfig)
+  const headerImage = await generateSceneImage(headerVisual.prompt, model, 'header', apiKey, customEndpoint, cloudinaryConfig)
   await delay(200)
-
-  const resBody1 = await fetchNanoBananaSingleImage(prompts.body1Prompt, model, topic, 'body1', baseSeed + 505, apiKey, customEndpoint, bodyWidth, bodyHeight, cloudinaryConfig)
+  const bodyImage1 = await generateSceneImage(body1Visual.prompt, model, 'body1', apiKey, customEndpoint, cloudinaryConfig)
   await delay(200)
-
-  const resBody2 = await fetchNanoBananaSingleImage(prompts.body2Prompt, model, topic, 'body2', baseSeed + 909, apiKey, customEndpoint, bodyWidth, bodyHeight, cloudinaryConfig)
+  const bodyImage2 = await generateSceneImage(body2Visual.prompt, model, 'body2', apiKey, customEndpoint, cloudinaryConfig)
 
   return {
-    headerImage: resHeader.imageUrl,
-    bodyImage1: resBody1.imageUrl,
-    bodyImage2: resBody2.imageUrl,
-    headerPrompt: prompts.headerPrompt,
-    body1Prompt: prompts.body1Prompt,
-    body2Prompt: prompts.body2Prompt,
-    headerSchema: resHeader.schemaText,
-    body1Schema: resBody1.schemaText,
-    body2Schema: resBody2.schemaText,
+    headerImage,
+    bodyImage1,
+    bodyImage2,
+    headerPrompt: headerVisual.prompt,
+    body1Prompt: body1Visual.prompt,
+    body2Prompt: body2Visual.prompt,
+    headerSentence: headerVisual.sentence,
+    body1Sentence: body1Visual.sentence,
+    body2Sentence: body2Visual.sentence,
   }
 }
