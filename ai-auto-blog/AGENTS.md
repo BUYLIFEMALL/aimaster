@@ -72,8 +72,8 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 
 - **주소**: https://ai-auto-blog-one.vercel.app (`ai-auto-blog.vercel.app`은 이미 다른 사람 것이라 `-one` 별칭이 붙음).
   `programs.app_url`도 이 주소로 바꿨다(메인 카탈로그 교체 등록). 루트 `next.config.mjs`가 예전 `/blog`, `/blog/:path*` 주소를 같은 경로의 새 주소로 넘긴다.
-- **배포**: `cd blog && npx vercel deploy --prod --yes --scope buylife` (`.vercel/project.json`이 `ai-auto-blog`에 연결됨).
-  `vercel.json`의 `framework: nextjs`는 지우지 말 것(없으면 전 페이지 404). 루트 앱 배포에서는 `.vercelignore`의 `/blog`로 이 폴더를 뺀다.
+- **배포**: `cd ai-auto-blog && npx vercel deploy --prod --yes --scope buylife`(2026-10-01 폴더 이름 변경 전에는 `cd blog`) (`.vercel/project.json`이 `ai-auto-blog`에 연결됨).
+  `vercel.json`의 `framework: nextjs`는 지우지 말 것(없으면 전 페이지 404). 루트 앱 배포에서는 `.vercelignore`의 `/ai-auto-blog`로 이 폴더를 뺀다.
 - **환경변수(Vercel ai-auto-blog, production/preview)**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
   `SUPABASE_SERVICE_ROLE_KEY`(공용 Supabase와 같은 값), `NEXT_PUBLIC_MAIN_SITE_URL=https://www.buylife.xyz`. AI 키는 넣지 않는다(회원 본인 키만).
 - **루트에서 지운 것**: `app/(embedded)/blog/*`, `app/api/{auto-post,candidates,newsblur-account,posts}`(blog 라우트 재수출·중복 구현),
