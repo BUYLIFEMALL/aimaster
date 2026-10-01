@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
   "name": "티스토리(원문) 입력기 · AIMaster",
-  "version": "1.5.0",
-  "version_name": "v1.05",
-  "description": "티스토리(원문)생성 자동화의 글을 티스토리 글쓰기 화면에 입력하기 위한 확장 프로그램입니다. 현재는 화면 구조 확인 단계이며 글을 입력하거나 발행하지 않습니다.",
+  "version": "1.6.0",
+  "version_name": "v1.06",
+  "description": "티스토리(원문)생성 자동화의 글을 티스토리 글쓰기 화면에 사람 속도로 입력하는 확장 프로그램입니다. 최종 저장 및 발행은 자동으로 하지 않습니다.",
   "permissions": [
+    "debugger",
     "sidePanel",
     "storage",
     "scripting",

@@ -153,3 +153,9 @@
   - 원인: 복제한 `app/layout.tsx`가 `next/font/google`의 Inter를 빌드 시 내려받아, 네트워크가 제한된 환경에서 컴파일이 실패했다.
   - 해결: 외부 폰트 import를 제거하고 CSS 시스템 글꼴 토큰으로 전환했다(`tistory-auto-blog/app/layout.tsx`, `app/globals.css`). `npm run build` 통과.
   - 다음부터 확인: 독립 배포 앱은 외부 빌드 시점 리소스에 의존하지 않도록 하고, 복제 직후 해당 폴더에서 단독 빌드를 실행한다.
+## 2026-10-01 — 티스토리 TinyMCE 입력은 최상위 문서와 본문 iframe을 분리한다
+
+- **증상:** 제목·태그·카테고리는 입력되는데 본문이 다른 문서에 입력되거나, 하나의 `allFrames` 호출에서 잘못된 프레임을 대상으로 변경할 위험이 있다.
+- **원인:** 티스토리 글쓰기 페이지는 제목·태그·카테고리·발행 설정을 최상위 프레임에 두고, 본문 `body#tinymce`만 TinyMCE iframe에 둔다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`는 `allFrames`를 본문 프레임 식별용 읽기 전용 검사로만 쓰고, 모든 변경은 확인된 단일 `frameId` 또는 최상위 `frameId: 0`에만 보낸다. 입력 전 빈 글 검증과 입력 후 제목·본문 재검증도 같은 경계를 따른다.
+- **다음부터 확인:** iframe 기반 편집기는 프레임별 selector를 스냅샷으로 확인하고, 변경 호출에 `allFrames: true`를 절대 사용하지 않는다.

@@ -9,9 +9,9 @@
 <body>
   <main>
     <header>
-      <span class="eyebrow">AIMaster · <span id="extensionVersion">-</span> · 개발 중</span>
+      <span class="eyebrow">AIMaster · <span id="extensionVersion">-</span> · 입력기</span>
       <h1>티스토리(원문) 입력기</h1>
-      <p>티스토리용 입력기를 만드는 중입니다. 현재는 실제 화면 구조를 읽기만 하며, 글 입력·수정·이미지 업로드·발행은 하지 않습니다.</p>
+      <p>선택한 보낸 글을 실제 티스토리 글쓰기 화면에 사람 속도로 입력합니다. 마지막 저장·발행은 직접 확인 후 눌러 주세요.</p>
     </header>
 
     <section class="card">
@@ -54,6 +54,22 @@
       </div>
       <textarea id="result" rows="14" readonly placeholder="분석 결과가 여기에 표시됩니다."></textarea>
       <p class="hint">저장한 JSON 파일을 이 대화에 첨부해 주세요. 이 결과를 근거로 실제 입력 기능을 구현합니다.</p>
+    </section>
+    <section class="card">
+      <h2>보낸 글 입력</h2>
+      <p class="hint">글 보기에서 보낸 글을 선택하면 제목·본문·카테고리·태그를 현재 티스토리 글쓰기 화면에 입력합니다. 마지막 비공개 저장/발행은 절대 자동으로 누르지 않습니다.</p>
+      <div class="draft-actions">
+        <button id="refreshPosts" type="button">보낸 글 새로고침</button>
+      </div>
+      <select id="postList" disabled><option value="">먼저 계정을 연결해 주세요.</option></select>
+      <input id="categoryName" autocomplete="off" placeholder="카테고리명(선택): 예) 경제" />
+      <div id="postStatus" class="status">보낸 글을 불러오지 않았습니다.</div>
+      <div class="draft-actions">
+        <button id="previewPost" class="secondary" type="button" disabled>내용 미리보기</button>
+        <button id="fillPost" type="button" disabled>티스토리에 입력</button>
+      </div>
+      <div id="inputStatus" class="status"></div>
+      <dialog id="postPreview"><article id="postPreviewContent"></article><form method="dialog"><button>닫기</button></form></dialog>
     </section>
   </main>
   <script src="sidepanel.js"></script>

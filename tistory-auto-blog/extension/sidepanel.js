@@ -183,3 +183,273 @@ $("link").addEventListener("click", async () => {
 
 chrome.storage.local.get(STORAGE_KEY).then((stored) => { snapshots = Array.isArray(stored[STORAGE_KEY]) ? stored[STORAGE_KEY] : []; render(); });
 restoreConnection();
+
+// Confirmed Tistory editor implementation. All state-changing calls target one
+// verified frame; allFrames is only used to discover the TinyMCE frame.
+const TYPE_MIN_MS = 70;
+const TYPE_MAX_MS = 170;
+const THINK_CHANCE = 0.04;
+let posts = [];
+let activePost = null;
+const inputSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const inputDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+async function extensionApi(path, options = {}) {
+  const token = await getToken();
+  if (!token) throw new Error("먼저 계정 연결 토큰을 입력해 주세요.");
+  const response = await fetch(`${BASE}${path}`, {
+    ...options,
+    headers: { ...(options.headers || {}), Authorization: `Bearer ${token}` },
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error || `요청 실패 (${response.status})`);
+  return body;
+}
+
+function postLabel(post) {
+  return `${post.title || "제목 없는 글"} · 이미지 ${post.image_count || 0}장`;
+}
+
+async function refreshPosts() {
+  $("refreshPosts").disabled = true;
+  $("postStatus").textContent = "보낸 글을 불러오는 중입니다…";
+  try {
+    const response = await extensionApi("/api/extension/posts");
+    posts = Array.isArray(response.posts) ? response.posts : [];
+    const select = $("postList");
+    select.textContent = "";
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = posts.length ? "입력할 글을 선택하세요." : "보낸 글이 없습니다.";
+    select.append(placeholder);
+    for (const post of posts) {
+      const option = document.createElement("option");
+      option.value = String(post.id);
+      option.textContent = postLabel(post);
+      select.append(option);
+    }
+    select.disabled = !posts.length;
+    $("postStatus").textContent = posts.length ? `${posts.length}개의 보낸 글을 찾았습니다.` : "글 보기에서 ‘확장 입력기로 보내기’를 먼저 눌러 주세요.";
+  } catch (error) {
+    $("postStatus").textContent = error instanceof Error ? error.message : String(error);
+  } finally { $("refreshPosts").disabled = false; }
+}
+
+function selectPost() {
+  activePost = posts.find((post) => String(post.id) === $("postList").value) || null;
+  $("previewPost").disabled = !activePost;
+  $("fillPost").disabled = !activePost;
+  $("inputStatus").textContent = activePost ? `${postLabel(activePost)} 선택됨` : "";
+}
+
+function previewPost() {
+  if (!activePost) return;
+  const container = $("postPreviewContent");
+  container.textContent = "";
+  const title = document.createElement("h3");
+  title.textContent = activePost.title || "제목 없는 글";
+  container.append(title);
+  for (const block of activePost.blocks || []) {
+    if (block.type === "image") {
+      const image = document.createElement("img"); image.src = block.url; image.alt = block.alt || "본문 이미지"; container.append(image);
+    } else {
+      const paragraph = document.createElement("p"); paragraph.textContent = block.type === "link" ? `${block.text} ${block.url}` : block.text; paragraph.style.whiteSpace = "pre-line"; container.append(paragraph);
+    }
+  }
+  $("postPreview").showModal();
+}
+
+async function getTistoryEditorTab() {
+  const tab = await findTistoryTab();
+  if (!tab?.id || !/\/manage\/(newpost|post)/.test(tab.url || "")) throw new Error("티스토리 글쓰기 화면을 먼저 열어 주세요.");
+  return tab;
+}
+
+async function editorFrameId(tabId) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    func: () => Boolean(document.querySelector("body#tinymce[contenteditable='true']")),
+  });
+  const matches = results.filter((entry) => entry.result === true);
+  if (matches.length !== 1) throw new Error("본문 TinyMCE 프레임을 하나로 확인하지 못했습니다. 구조 분석을 다시 실행해 주세요.");
+  return matches[0].frameId;
+}
+
+async function focusKnownTarget(tabId, frameId, selector) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [frameId] }, args: [selector],
+    func: async (targetSelector) => {
+      const target = document.querySelector(targetSelector);
+      if (!target || !target.getClientRects().length) return false;
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const delay = 80 + Math.floor(Math.random() * 341);
+      target.scrollIntoView({ block: "center", inline: "nearest" });
+      const rect = target.getBoundingClientRect();
+      const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + Math.min(18, Math.max(4, rect.width / 2)), clientY: rect.top + Math.max(4, rect.height / 2) };
+      target.dispatchEvent(new MouseEvent("mouseover", event));
+      target.dispatchEvent(new MouseEvent("mousemove", event));
+      await wait(delay);
+      target.dispatchEvent(new MouseEvent("mousedown", event));
+      target.dispatchEvent(new MouseEvent("mouseup", event));
+      target.dispatchEvent(new MouseEvent("click", event));
+      target.focus();
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+        target.setSelectionRange(target.value.length, target.value.length);
+      } else {
+        const range = document.createRange(); range.selectNodeContents(target); range.collapse(false);
+        const selection = document.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+      }
+      return document.activeElement === target || target.isContentEditable;
+    },
+  });
+  if (results[0]?.result !== true) throw new Error(`입력 위치(${selector})를 찾지 못했습니다.`);
+}
+
+async function withDebugger(tabId, task) {
+  await chrome.debugger.attach({ tabId }, "1.3");
+  try { return await task(); }
+  finally { try { await chrome.debugger.detach({ tabId }); } catch { /* page may navigate */ } }
+}
+
+async function humanType(tabId, text, statusPrefix) {
+  const value = String(text || "").replace(/\r\n/g, "\n");
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index];
+    if (character === "\n") {
+      await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
+      await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
+    } else await chrome.debugger.sendCommand({ tabId }, "Input.insertText", { text: character });
+    if (index === 0 || index % 25 === 0) $("inputStatus").textContent = `${statusPrefix} ${index + 1}/${value.length}`;
+    await inputSleep(inputDelay(TYPE_MIN_MS, TYPE_MAX_MS));
+    if (Math.random() < THINK_CHANCE) await inputSleep(inputDelay(250, 700));
+  }
+}
+
+async function addTistoryTags(tabId, tags) {
+  for (const tag of [...new Set(tags.map((value) => String(value).replace(/^#+/, "").trim()).filter(Boolean))].slice(0, 30)) {
+    const before = await chrome.scripting.executeScript({ target: { tabId, frameIds: [0] }, func: () => document.querySelectorAll(".editor_tag > .txt_tag").length });
+    await focusKnownTarget(tabId, 0, "#tagText");
+    await withDebugger(tabId, () => humanType(tabId, tag, `태그 입력 중…`));
+    await withDebugger(tabId, async () => {
+      await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
+      await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
+    });
+    await inputSleep(inputDelay(300, 600));
+    const after = await chrome.scripting.executeScript({ target: { tabId, frameIds: [0] }, func: () => document.querySelectorAll(".editor_tag > .txt_tag").length });
+    if ((after[0]?.result || 0) <= (before[0]?.result || 0)) throw new Error("태그 확정 결과를 확인하지 못했습니다.");
+  }
+}
+
+async function chooseTistoryCategory(tabId, category) {
+  if (!category) return;
+  await focusKnownTarget(tabId, 0, "#category-btn");
+  const picked = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] }, args: [category],
+    func: async (name) => {
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const option = [...document.querySelectorAll("#category-list [role='option']")].filter((item) => item.getAttribute("aria-label") === name);
+      if (option.length !== 1) return false;
+      const node = option[0]; const rect = node.getBoundingClientRect();
+      const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + 12, clientY: rect.top + Math.max(4, rect.height / 2) };
+      node.dispatchEvent(new MouseEvent("mouseover", event)); node.dispatchEvent(new MouseEvent("mousemove", event)); await wait(100 + Math.floor(Math.random() * 321));
+      node.dispatchEvent(new MouseEvent("mousedown", event)); node.dispatchEvent(new MouseEvent("mouseup", event)); node.dispatchEvent(new MouseEvent("click", event));
+      await wait(250);
+      return node.getAttribute("aria-selected") === "true";
+    },
+  });
+  if (picked[0]?.result !== true) throw new Error(`카테고리 ‘${category}’를 선택하지 못했습니다.`);
+}
+
+async function openPublishSettings(tabId) {
+  const opened = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] },
+    func: async () => {
+      const button = document.querySelector("#publish-layer-btn");
+      if (!button || !button.getClientRects().length) return false;
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const rect = button.getBoundingClientRect();
+      const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
+      button.dispatchEvent(new MouseEvent("mouseover", event)); button.dispatchEvent(new MouseEvent("mousemove", event)); await wait(100 + Math.floor(Math.random() * 321));
+      button.dispatchEvent(new MouseEvent("mousedown", event)); button.dispatchEvent(new MouseEvent("mouseup", event)); button.dispatchEvent(new MouseEvent("click", event));
+      await wait(300);
+      return Boolean(document.querySelector(".editor_layer[role='dialog']"));
+    },
+  });
+  if (opened[0]?.result !== true) throw new Error("발행 설정창을 열지 못했습니다.");
+}
+
+async function readTistoryDraftState(tabId, bodyFrame) {
+  const [top, body] = await Promise.all([
+    chrome.scripting.executeScript({
+      target: { tabId, frameIds: [0] },
+      func: () => ({
+        title: document.querySelector("#post-title-inp")?.value || "",
+        tagCount: document.querySelectorAll(".editor_tag > .txt_tag").length,
+      }),
+    }),
+    chrome.scripting.executeScript({
+      target: { tabId, frameIds: [bodyFrame] },
+      func: () => document.querySelector("body#tinymce[contenteditable='true']")?.innerText || "",
+    }),
+  ]);
+  return { title: top[0]?.result?.title || "", tagCount: top[0]?.result?.tagCount || 0, body: body[0]?.result || "" };
+}
+
+function normalized(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+async function verifyTistoryInput(tabId, bodyFrame) {
+  const state = await readTistoryDraftState(tabId, bodyFrame);
+  if (normalized(state.title) !== normalized(activePost?.title)) throw new Error("입력된 제목을 다시 확인하지 못했습니다.");
+  for (const block of activePost?.blocks || []) {
+    if (block.type !== "text" && block.type !== "link") continue;
+    const expected = block.type === "link" ? `${block.text} ${block.url}` : block.text;
+    if (normalized(expected) && !normalized(state.body).includes(normalized(expected))) {
+      throw new Error("입력된 본문을 다시 확인하지 못했습니다.");
+    }
+  }
+}
+
+async function reportInput(status, error = "") {
+  if (!activePost) return;
+  await extensionApi(`/api/extension/posts/${encodeURIComponent(activePost.id)}/input-result`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status, error }) }).catch(() => {});
+}
+
+async function fillTistoryPost() {
+  if (!activePost) return;
+  const images = (activePost.blocks || []).filter((block) => block.type === "image");
+  if (images.length) throw new Error("이미지 업로드는 다음 검증 단계에서 함께 활성화합니다. 현재 글은 이미지 없는 테스트 글로 먼저 확인해 주세요.");
+  const tab = await getTistoryEditorTab();
+  $("fillPost").disabled = true;
+  try {
+    await chrome.windows.update(tab.windowId, { focused: true }); await chrome.tabs.update(tab.id, { active: true });
+    const bodyFrame = await editorFrameId(tab.id);
+    const before = await readTistoryDraftState(tab.id, bodyFrame);
+    if (normalized(before.title) || normalized(before.body) || before.tagCount) {
+      throw new Error("기존 제목·본문·태그가 있는 글에는 덧쓰기하지 않습니다. 비어 있는 새 글에서 실행해 주세요.");
+    }
+    await focusKnownTarget(tab.id, 0, "#post-title-inp");
+    await reportInput("in_progress");
+    await withDebugger(tab.id, () => humanType(tab.id, activePost.title || "", "제목 입력 중…"));
+    await focusKnownTarget(tab.id, bodyFrame, "body#tinymce[contenteditable='true']");
+    for (const block of activePost.blocks || []) {
+      if (block.type === "text" || block.type === "link") await withDebugger(tab.id, () => humanType(tab.id, `${block.type === "link" ? `${block.text} ${block.url}` : block.text}\n\n`, "본문 입력 중…"));
+    }
+    const category = $("categoryName").value.trim();
+    if (category) await chooseTistoryCategory(tab.id, category);
+    await addTistoryTags(tab.id, activePost.tags || []);
+    await verifyTistoryInput(tab.id, bodyFrame);
+    await openPublishSettings(tab.id);
+    await reportInput("publish_ready");
+    $("inputStatus").textContent = "제목·본문·카테고리·태그 입력과 발행 설정창 열기까지 완료했습니다. 마지막 비공개 저장/발행은 티스토리에서 직접 눌러 주세요.";
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    $("inputStatus").textContent = `입력 중단: ${message}`;
+    await reportInput("failed", message);
+  } finally { $("fillPost").disabled = false; }
+}
+
+$("refreshPosts").addEventListener("click", refreshPosts);
+$("postList").addEventListener("change", selectPost);
+$("previewPost").addEventListener("click", previewPost);
+$("fillPost").addEventListener("click", fillTistoryPost);
