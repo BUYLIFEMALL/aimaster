@@ -5,3 +5,6 @@
 # 분리하면서 경로도 함께 갱신함 — 크롬 확장(_web)은 node_modules/runtime이 없어 대상 아님.
 naver-blog-auto-poster_app/runtime
 naver-blog-auto-poster_app/node_modules
+
+# blog/(BLOG 원문생성 자동화)는 2026-10-01부터 자체 Vercel 프로젝트(ai-auto-blog)로 따로 배포되고 루트 앱이 import하지 않는다.
+/blog

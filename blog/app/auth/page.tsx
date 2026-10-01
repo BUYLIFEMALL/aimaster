@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/server'
+import { Suspense } from 'react'
 import AuthForm from './auth-form'
 import { signout } from './actions'
 
@@ -63,7 +64,7 @@ export default async function AuthPage() {
           </div>
         </div>
       ) : (
-        <AuthForm />
+        <Suspense><AuthForm /></Suspense>
       )}
     </div>
   )

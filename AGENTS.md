@@ -251,7 +251,7 @@ vercel deploy --prod --yes --scope buylife
 | 인스타 | INSTA 포스팅 자동화 | auto-instagram-posting | https://insta-auto-poster-red.vercel.app |
 | 인스타 | INSTA 댓글자동화 | instagram-comment-reply | https://instagram-comment-reply.vercel.app |
 | 인스타 | INSTA DM답변 자동화 | instagram-dm-reply | https://instagram-dm-reply.vercel.app |
-| 블로그 | BLOG(원문)생성 자동화 | ai-auto-blog | https://www.buylife.xyz/blog (루트 앱에 직접 임베드) |
+| 블로그 | BLOG(원문)생성 자동화 | ai-auto-blog | https://ai-auto-blog-one.vercel.app (2026-10-01부터 자체 Vercel 프로젝트 `ai-auto-blog`, 예전 www.buylife.xyz/blog/* 주소는 새 주소로 넘겨짐) |
 | 음악 | 음악(SUNO)자동화 | music-automation | https://music-rho-virid-22.vercel.app |
 | 쇼츠 | YOUTUBE Shots(이미지 스토리) 자동화 | auto-shorts-posting | https://shots-inky.vercel.app |
 | 유튜브 | 유튜브 댓글자동화 | youtube-auto-reply | https://youtube-auto-reply.vercel.app |
@@ -487,6 +487,19 @@ vercel deploy --prod --yes --scope buylife
 - **`sharp`는 Vercel 함수에서 실패할 수 있다**(Next 16 + turbopack 빌드에서 libvips 누락, `ERR_DLOPEN_FAILED`). 작은 이미지 자르기 정도는
   순수 JS(`jpeg-js`)로 처리한다. 네이티브 모듈을 새로 넣으면 역시 미리보기 배포에서 먼저 확인할 것.
 - 상세: `threads-affiliate-poster/README.md` "쿠팡 링크 직접 등록 검사".
+
+### 2026-10-01 추가 (BLOG 독립 배포 분리 — 새 Vercel 프로젝트를 만들 때)
+
+- BLOG(`blog/`, ai-auto-blog)는 초창기에 루트 앱에 내장(`app/(embedded)/blog` + `app/api/*` 재수출)돼 www.buylife.xyz/blog로 서빙됐다.
+  주인님 지시로 다른 프로그램처럼 자체 Vercel 프로젝트로 분리했다. 루트에는 `next.config.mjs`의 `/blog/:path*` → 새 주소 넘김만 남겼다.
+- **루트에 내장돼 있던 서브프로젝트는 루트 빌드가 타입 오류를 무시(`ignoreBuildErrors`)해서 숨은 타입 오류가 있을 수 있다** — 단독 빌드 때 1건 발견·수정.
+  또 루트 화면이 대신 해주던 권한 확인이 빠질 수 있으니, 분리할 때 회원 전용 화면마다 서버 쪽 `requireProgramAccess()` 레이아웃을 넣어야 한다.
+- **`vercel project add`로 빈 프로젝트를 만든 뒤 배포하면 프레임워크가 비어 있어 모든 페이지가 404가 된다.** 서브프로젝트에
+  `vercel.json`(`{"framework": "nextjs"}`)을 두고 배포할 것. 새 프로젝트의 첫 배포는 바로 운영으로 올라간다.
+  `<이름>.vercel.app`이 이미 다른 사람 것이면 `<이름>-one.vercel.app`처럼 다른 별칭이 붙으니 배포 결과의 "Aliased" 주소를 확인할 것.
+- Git Bash에서 `curl "$B/경로"`처럼 `/`로 시작하는 인자는 Windows 경로로 바뀐다 — `MSYS_NO_PATHCONV=1`을 먼저 설정할 것.
+  또 문서에 넣을 긴 글을 `node -e "..."` 안에 백틱과 함께 넣으면 bash가 백틱을 명령으로 실행해 버린다 — 스크립트 파일로 따로 써서 실행할 것.
+- 상세: `blog/AGENTS.md` "독립 배포 분리".
 
 ### 2026-09-29 추가 (좌측 사이드바 계정 표시 통일)
 

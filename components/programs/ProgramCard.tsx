@@ -19,7 +19,7 @@ interface ProgramCardProps {
 
 export default function ProgramCard({ program, badge }: ProgramCardProps) {
   const resolvedBadges = badge ? [badge] : (program.badges ?? []);
-  const executeTarget = program.app_url || (program.slug.includes("blog") || program.name.includes("블로그") ? "/blog" : "/programs/" + program.slug);
+  const executeTarget = program.app_url || "/programs/" + program.slug;
 
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)

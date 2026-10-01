@@ -62,5 +62,33 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 - 핵심 원칙 5번(버전 관리)이 BLOG에는 DB(`programs.version`)에만 적용돼 있고 코드·화면에는 빠져 있었다
   (2026-09-29 사이드바 21개에 버전 표시를 일괄 추가할 때, BLOG는 루트 앱에 내장된 구조라 사이드바가
   `components/layout/BlogSidebar.tsx`(루트)에 있어서 누락됨).
-- `blog/utils/version.ts`의 `APP_VERSION`을 새로 만들고, 사이드바 제목 밑에 표시한다. **수정할 때마다 이 파일과
+- `blog/utils/version.ts`의 `APP_VERSION`을 새로 만들고, 사이드바(`app/_components/BlogSidebar.tsx`) 제목 밑에 표시한다. **수정할 때마다 이 파일과
   DB `programs.version`(slug `ai-auto-blog`)을 같이 올릴 것.**
+
+# 독립 배포 분리 (2026-10-01, 프로그램 버전 v1.06)
+
+주인님 지시("BLOG만 왜 www.buylife.xyz/blog 고유 주소를 쓰나 — 다른 프로그램처럼 분리하고, 메인 카탈로그에 교체 등록해 새 배포를 본 프로그램으로 쓰자")로
+루트 앱 내장을 없애고 **자체 Vercel 프로젝트 `ai-auto-blog`** 로 배포한다.
+
+- **주소**: https://ai-auto-blog-one.vercel.app (`ai-auto-blog.vercel.app`은 이미 다른 사람 것이라 `-one` 별칭이 붙음).
+  `programs.app_url`도 이 주소로 바꿨다(메인 카탈로그 교체 등록). 루트 `next.config.mjs`가 예전 `/blog`, `/blog/:path*` 주소를 같은 경로의 새 주소로 넘긴다.
+- **배포**: `cd blog && npx vercel deploy --prod --yes --scope buylife` (`.vercel/project.json`이 `ai-auto-blog`에 연결됨).
+  `vercel.json`의 `framework: nextjs`는 지우지 말 것(없으면 전 페이지 404). 루트 앱 배포에서는 `.vercelignore`의 `/blog`로 이 폴더를 뺀다.
+- **환경변수(Vercel ai-auto-blog, production/preview)**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY`(공용 Supabase와 같은 값), `NEXT_PUBLIC_MAIN_SITE_URL=https://www.buylife.xyz`. AI 키는 넣지 않는다(회원 본인 키만).
+- **루트에서 지운 것**: `app/(embedded)/blog/*`, `app/api/{auto-post,candidates,newsblur-account,posts}`(blog 라우트 재수출·중복 구현),
+  `components/layout/BlogSidebar.tsx`, `tailwind.config.ts`의 blog 경로, `components/programs/ProgramCard.tsx`의 "slug에 blog가 들어가면 /blog" 예외.
+- **BLOG 안에서 바꾼 것**:
+  - 사이드바와 사이드바 표시 규칙을 `app/_components/BlogSidebar.tsx`·`BlogShell.tsx`로 옮김(경로 앞 `/blog` 제거). `app/layout.tsx`가 감싼다.
+  - 권한 판정 코드를 `lib/access/checkProgramAccess.ts`(루트 같은 파일의 사본)로 복사 — **판정 규칙을 바꾸면 루트 파일과 함께 고칠 것.**
+  - 회원 전용 화면(게시글 관리 홈 `/`, `/candidates`, `/dashboard`, `/settings`, `/my-posts`, `/posts/[id]/edit`, `/write`)에 서버 쪽
+    `requireProgramAccess()` + `dynamic`/`fetchCache` 두 줄. 예전엔 루트의 /blog 진입 화면만 막고 있었다. 홈 화면 본체는 `app/_components/HomePage.tsx`.
+  - `app/settings/actions.ts`(API 키·Cloudinary 저장/삭제)가 로그인만 확인하던 것을 `checkProgramAccessApi()`로 바꿈(멀티테넌시 원칙 1번 위반이었음).
+  - 로그인은 이 앱의 `/auth`(AIMaster와 같은 계정, 회원가입은 AIMaster에서만). 비로그인 시 `/auth?redirect=<원래 경로>`로 보내고,
+    로그인 후 그 경로로 돌아온다(`utils/supabase/middleware.ts`가 `x-pathname` 헤더를 실어줌. 외부 주소로는 못 가게 `/`로 시작하는 경로만 허용).
+  - `utils/basePath.ts`는 이제 항상 접두사 없음과 `/auth`를 돌려준다(호출부가 많아 함수는 유지).
+  - 단독 빌드에서 처음 드러난 타입 오류 1건 수정(`app/posts/[id]/page.tsx` innerText). `next.config.ts`에 `turbopack.root` 고정.
+- **검증**: 단독 `npm run build` 통과. 운영 주소에서 비로그인 접근 시 회원 화면은 `/auth?redirect=...`로 이동, `/api/auto-post`는 401,
+  공개 글(`/posts/107`)·로그인 화면은 200, 캐시 MISS 확인.
+- **남은 일**: 회원 계정으로 로그인 → 글 생성까지 실사용 확인. 로그인 세션은 도메인이 달라 www.buylife.xyz와 공유되지 않아서
+  BLOG에서 한 번 더 로그인해야 한다(다른 단독 배포 프로그램과 같음).

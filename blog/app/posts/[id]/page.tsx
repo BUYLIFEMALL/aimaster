@@ -162,7 +162,7 @@ export default function PostDetailPage() {
         while (sib && !codeText) {
           const codeEl = sib.querySelector('code') || (sib.tagName === 'CODE' ? sib : null)
           if (codeEl) {
-            codeText = codeEl.innerText || codeEl.textContent || ''
+            codeText = (codeEl as HTMLElement).innerText || codeEl.textContent || ''
             break
           }
           sib = sib.nextElementSibling

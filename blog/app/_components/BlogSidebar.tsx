@@ -3,41 +3,45 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils/cn";
-import { createClient } from "@/lib/supabase/client";
-import { APP_VERSION } from "@/blog/utils/version";
+import { createClient } from "@/utils/supabase/client";
+import { APP_VERSION } from "@/utils/version";
 
-// threads-affiliate-poster/naver-cafe-poster 등 다른 자동화 프로그램 사이드바(메뉴 레이아웃.png
-// 참고)와 동일하게, 순서 개념 없는 대시보드는 번호 없이 최상단에, "글감 수집 → AI 글쓰기 →
-// 게시글 관리"는 실제 작업 순서를 따르는 흐름이라 번호+이모지 스텝퍼로 보여준다. API 키 설정은
-// 이 흐름과 무관한 유틸리티라 구분선 아래 별도 블록으로 분리한다(2026-09-11).
-const OVERVIEW_ITEM = { href: "/blog/dashboard", icon: "🏠", label: "대시보드" };
+// 2026-10-01 독립 배포 분리 때 루트 components/layout/BlogSidebar.tsx를 옮겨왔다(경로에서 "/blog" 접두사 제거).
+// 다른 자동화 프로그램 사이드바와 같이, 순서 개념 없는 대시보드는 번호 없이 최상단에, "글감 수집 → AI 글쓰기 →
+// 게시글 관리"는 실제 작업 순서라 번호 스텝퍼로, API 키 설정은 구분선 아래 별도 블록으로 둔다.
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
+
+const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
 const FLOW_STEPS = [
   {
     step: 1,
-    href: "/blog/candidates",
+    href: "/candidates",
     icon: "🔍",
     label: "게시글 주제 수집",
     description: "최신 트렌드·키워드로 글감 후보 수집",
   },
   {
     step: 2,
-    href: "/blog/write/ai-form",
+    href: "/write/ai-form",
     icon: "✏️",
     label: "AI 글쓰기",
     description: "주제를 입력하면 AI가 게시글 초안 생성",
   },
   {
     step: 3,
-    href: "/blog",
+    href: "/",
     icon: "📝",
     label: "게시글 관리",
     description: "작성된 게시글 확인 및 게시",
   },
 ];
 
-const UTILITY_ITEMS = [{ href: "/blog/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
+const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
+
+function cn(...classes: (string | false | null | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export default function BlogSidebar() {
   const pathname = usePathname();
@@ -50,9 +54,8 @@ export default function BlogSidebar() {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("/api/session/logout", { method: "POST" }).catch(() => {});
     await createClient().auth.signOut();
-    router.push("/");
+    router.push("/auth");
     router.refresh();
   };
 
@@ -62,9 +65,9 @@ export default function BlogSidebar() {
         <div className="mb-4 md:mb-6">
           <div className="px-2 text-lg font-semibold text-slate-900">BLOG(원문)생성 자동화</div>
           <p className="px-2 text-xs text-slate-400">{APP_VERSION}</p>
-          <Link href="/programs" className="block px-2 text-xs text-slate-400 hover:text-slate-700">
+          <a href={`${MAIN_SITE_URL}/programs`} className="block px-2 text-xs text-slate-400 hover:text-slate-700">
             ← 다른 프로그램 보기
-          </Link>
+          </a>
         </div>
 
         <nav className="flex flex-col">

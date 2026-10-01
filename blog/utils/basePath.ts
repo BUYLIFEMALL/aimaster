@@ -1,18 +1,12 @@
-// blog는 자체 배포(blog 프로젝트 루트가 "/")와 AIMaster 루트에 내장된 배포
-// (app/(main)/blog/*가 blog 컴포넌트를 직접 import, 실제 경로는 "/blog/*")
-// 두 가지 방식으로 서빙된다. 페이지 내부의 절대경로 링크("/posts/1" 등)는
-// 어느 쪽으로 서빙되는지에 따라 앞에 "/blog"를 붙여야 할 수도, 아닐 수도 있다.
-// 이 함수는 현재 실제로 로드된 URL을 보고 그 접두사를 런타임에 판별한다.
+// BLOG는 2026-10-01부터 자체 Vercel 프로젝트(ai-auto-blog.vercel.app)로 단독 배포된다.
+// 예전엔 www.buylife.xyz/blog 아래에 루트 앱에 내장돼 서빙돼서, 현재 주소가 "/blog"로
+// 시작하는지 보고 링크 앞에 "/blog"를 붙였다. 지금은 루트의 /blog/* 주소가 새 주소로
+// 넘겨지므로(루트 next.config.mjs redirects) 항상 접두사가 없다. 호출부가 많아 함수는 남겨둔다.
 export function getBlogBasePath(): string {
-  if (typeof window === "undefined") return "";
-  return window.location.pathname.startsWith("/blog") ? "/blog" : "";
+  return "";
 }
 
-// AIMaster 루트에 내장된 배포는 "/blog/auth"라는 경로가 존재하지 않는다
-// (blog 자체 배포에만 있는 app/auth 라우트라 루트 app/(main)/blog/*에는 옮겨오지
-// 않았음 — 2026-08-19, 로그인 세션이 잠깐이라도 비어 보이면 이 경로로 튕겨나가
-// 404가 뜨는 버그로 실사용자가 접근 불가를 겪은 것을 확인해 추가).
-// 루트 내장 배포에서는 AIMaster의 실제 로그인 페이지("/login")로 보낸다.
+// 로그인은 이 앱의 /auth 화면에서 한다(AIMaster와 같은 Supabase 계정, 회원가입은 AIMaster에서만).
 export function getBlogAuthPath(): string {
-  return getBlogBasePath() === "/blog" ? "/login" : "/auth";
+  return "/auth";
 }

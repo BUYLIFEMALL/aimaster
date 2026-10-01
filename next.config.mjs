@@ -60,6 +60,18 @@ const nextConfig = {
         destination: 'https://stepmail-kappa.vercel.app',
         permanent: false,
       },
+      // BLOG(원문)생성 자동화(ai-auto-blog)는 2026-10-01부터 자체 Vercel 프로젝트로 단독 배포된다.
+      // 예전 루트 내장 주소(/blog, /blog/posts/123 등)로 들어오는 링크·북마크를 같은 경로의 새 주소로 넘긴다.
+      {
+        source: '/blog',
+        destination: 'https://ai-auto-blog-one.vercel.app',
+        permanent: false,
+      },
+      {
+        source: '/blog/:path*',
+        destination: 'https://ai-auto-blog-one.vercel.app/:path*',
+        permanent: false,
+      },
     ];
   },
 };

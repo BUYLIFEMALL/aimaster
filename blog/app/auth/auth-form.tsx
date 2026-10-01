@@ -2,11 +2,14 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { login } from './actions'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
 export default function AuthForm() {
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') ?? ''
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -106,6 +109,7 @@ export default function AuthForm() {
           </div>
         ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
+          <input type="hidden" name="redirect" value={redirectTo} />
           {/* 이메일 주소 입력 */}
           <div>
             <div className="flex justify-between items-center mb-1.5">

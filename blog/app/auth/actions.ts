@@ -26,7 +26,13 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect(safeRedirectPath(formData.get('redirect')))
+}
+
+// 로그인 전에 보던 화면으로 돌려보낸다. 외부 주소로 튕겨나가지 않게 이 앱 안의 경로(/로 시작, //는 제외)만 허용한다.
+function safeRedirectPath(value: FormDataEntryValue | null): string {
+  const path = typeof value === 'string' ? value : ''
+  return path.startsWith('/') && !path.startsWith('//') ? path : '/'
 }
 
 // 회원가입은 AIMaster에서만 받는다 — 모든 AI 프로그램은 AIMaster 계정/구독 권한을 공유한다.

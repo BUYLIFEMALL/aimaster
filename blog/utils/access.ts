@@ -26,20 +26,13 @@ export async function requireProgramAccess() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    // blog는 자체 Vercel 배포 없이 www.buylife.xyz/blog로 루트 앱에 내장되는데,
-    // 루트에는 "/auth"가 없고 "/login"만 있다. "/auth"로 보내면 404가 떠서 실제로는
-    // 로그인만 다시 하면 되는 사용자가 "접근 안 됨"으로 오해하게 된다
-    // (2026-08-19에 dashboard/candidates/write-ai-form 등 다른 페이지에서 같은
-    // 버그를 이미 한 번 고쳤는데, 모든 페이지가 공통으로 거치는 이 access.ts
-    // 자체는 그때 빠뜨렸다 — judee1004 계정 "접근 안 됨" 신고로 재발견, 2026-08-29).
-    // 딥링크로 바로 들어왔다면 로그인 후 그 페이지로 바로 이어지도록, 루트
-    // middleware.ts가 실어준 현재 경로를 /login의 ?redirect=로 넘긴다 — 루트의
-    // LoginForm.tsx가 이미 이 파라미터를 읽어 로그인 후 그 경로로 이동시켜준다.
-    const currentPath = (await headers()).get('x-pathname') ?? '/blog'
-    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`)
+    // 2026-10-01 독립 배포(ai-auto-blog.vercel.app)부터 로그인은 이 앱의 /auth에서 한다.
+    // 딥링크로 들어왔다면 로그인 후 그 화면으로 돌아오도록 proxy.ts가 실어준 현재 경로를 넘긴다.
+    const currentPath = (await headers()).get('x-pathname') ?? '/'
+    redirect(`/auth?redirect=${encodeURIComponent(currentPath)}`)
   }
 
-  // 판정 규칙(2026-09-29 베타테스트 정책)은 루트 lib/access/checkProgramAccess.ts 한 곳에만 둔다.
+  // 판정 규칙(2026-09-29 베타테스트 정책)은 lib/access/checkProgramAccess.ts(루트 같은 파일의 사본 — 규칙이 바뀌면 둘 다 고칠 것)에 둔다.
   const access = await checkProgramAccess(supabase as unknown as SupabaseLike, user!.id, THIS_PROGRAM_SLUG)
   if (access.reason === 'suspended') {
     redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?error=suspended`)
