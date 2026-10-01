@@ -201,3 +201,27 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   (이번 글에만 쓸 Gemini API 키 입력, 커스텀 이미지 API 엔드포인트 입력)를 지웠다(`app/write/ai-form/page.tsx`).
 - 서버(`app/api/auto-post/route.ts`)도 요청에 실린 키(`nanoBananaApiKey`/`apiKey`)를 더 이상 받지 않고, 설정에 등록한 본인 Gemini 키만 쓴다.
   커스텀 엔드포인트 옵션도 없앴다(`utils/news/generator.ts` — 모델 설정 `nanoBananaConfig`의 공식 주소만 사용).
+
+# 네이버 블로그 입력 크롬 확장 (2026-10-01, v1.17)
+
+주인님 지시: "SEO 스튜디오 확장의 자동 포스팅 기능을 BLOG에도 — A안(BLOG 전용 확장), 한 글자씩 입력, 우선 네이버만".
+재사용 가능한 구조·주의사항 전체는 루트 `docs/PLATFORM_PATTERNS.md` §28에 정리했다(다른 프로그램은 거기부터 읽을 것).
+
+- **흐름**: 설정 화면에서 연동 토큰 발급 + ZIP 설치 → 글 보기 화면 "🧩 네이버로 보내기" → 확장 사이드패널에서 글 선택(이미지까지 미리 내려받음)
+  → 네이버 블로그 글쓰기 탭에서 "네이버 편집기로 입력" → 제목·본문·이미지 순서대로 입력 → 입력 확인 → 발행 설정창에 카테고리·태그 → **마지막 발행은 회원이 직접**.
+- **확장**: `extension/`(manifest v3, `sidepanel.js`). SEO 스튜디오 확장의 검증된 네이버 처리 + §20 반영(70~170ms 타이핑, 클릭 전 hover).
+  ZIP: `npm run build:extension` → `public/downloads/ai-auto-blog-extension-<version_name>.zip`. 확장을 고치면 manifest 버전 두 칸을 올리고 ZIP 재생성·커밋.
+  확장 공개 버전(`version_name`)은 프로그램 버전과 같은 값으로 맞춘다(지금 v1.17).
+- **서버**:
+  - 토큰: `utils/extensionAuth.ts`(`personal_access_tokens`, `program_slug='ai-auto-blog'`, sha256 해시, 공용 권한 판정 `checkProgramAccess`),
+    발급·조회·폐기 서버 함수 `app/settings/extensionTokenActions.ts`, 화면 `components/settings/ExtensionSettings.tsx`.
+  - 확장용 API: `GET /api/extension/whoami`, `GET /api/extension/posts`(본인·보낸 글 최근 20개, 입력 블록 포함), `POST /api/extension/posts/[id]/input-result`.
+  - 웹 보내기: `POST /api/posts/[id]/extension-handoff`(로그인 + 이용 권한 + 본인 글).
+  - 글 → 입력 블록: `utils/extensionContent.ts`(cheerio). 소제목 `##` 제거, 목록 `•`, 링크 `글자 (주소)`, 마지막 해시태그 줄 → 태그 추천, 이미지 블록.
+- **DB**: `blog_posts`에 `extension_handoff_at`, `naver_input_status`(in_progress/completed/publish_ready/failed), `naver_input_completed_at`,
+  `naver_input_error` + 인덱스 — `supabase/migrations/0004_blog_posts_extension_handoff.sql`(주인님 승인, MCP로 적용).
+- **검증(운영 주소)**: 임시 토큰으로 whoami 200, 보내기 전 목록 0 → 보낸 뒤 1(글 108: 이미지 3, 2,399자, 태그 자동 추출),
+  이미지 주소 직접 내려받기 200(CORS 허용), 입력 결과 기록 200, 남의 글 404, 잘못된 토큰 401, 비로그인 보내기 401. 임시 토큰·상태는 테스트 후 삭제.
+  회원 글 7개 변환 확인: 입력 글자 평균 약 4,000자(최대 약 9,000자) → 입력 시간 약 9분(긴 글 20분).
+- **남은 일**: 주인님 PC의 실제 네이버 글쓰기 화면에서 확장으로 끝까지 입력 확인(네이버 로그인은 사람이 직접). 셀렉터가 맞지 않으면 확장의 "구조 분석" 결과로 갱신.
+  서식(소제목 크기·굵게)은 입력되지 않는다 — 주인님 선택(①한 글자씩 입력)에 따른 한계.

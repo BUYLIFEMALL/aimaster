@@ -361,6 +361,8 @@ vercel deploy --prod --yes --scope buylife
     (2026-09-21 사용자 명시적 지시로 격상됨). 참고 구현:
     `naver-blog-auto-poster_app/src/lib/humanInput.js`,
     `naver-blog-auto-poster_app/AGENTS.md`, `naver-blog-auto-poster_web/AGENTS.md`.
+28. **웹에서 만든 글을 크롬 확장으로 네이버 블로그 글쓰기 화면에 입력하기** — 연동 토큰·보낸 글 목록 API·입력 블록 변환·
+    한 글자씩 입력(§20)·이미지 파일 업로드·발행 설정창까지(마지막 발행은 사람). 새 프로그램은 `blog/extension/` 구현을 복사해 이름만 바꾼다.
 
 ---
 
@@ -504,6 +506,8 @@ vercel deploy --prod --yes --scope buylife
   넣은 뒤에는 주소에 공용 프로젝트 ID(`esgxyikcnnvmlhygjkth`)가 들어 있는지 꼭 확인할 것.
 - **여러 프로그램이 함께 쓰는 Storage 버킷(`post-images` 등)에서 자동 삭제 작업을 만들 때는 반드시 그 프로그램 폴더만 지운다.**
   BLOG의 30일 정리 작업(`blog/app/api/cron/cleanup-images`)은 `<회원 id>/ai-auto-blog/` 안만 본다 — threads·insta·naver-cafe 파일이 같은 버킷에 있다.
+- **크롬 확장 입력 속도는 §20(70~170ms) 기준이다.** 2026-10-01 BLOG 확장을 만들며 SEO 스튜디오 확장(`naver-blog-seo-studio/extension/sidepanel.js`
+  `typeWithDebugger`)이 24~52ms로 기준보다 빠른 것을 발견했다(Codex 담당 폴더라 손대지 않음 — 담당 CLI가 맞출 것). 상세 패턴: `docs/PLATFORM_PATTERNS.md` §28.
 - 상세: `blog/AGENTS.md` "독립 배포 분리".
 
 ### 2026-09-29 추가 (좌측 사이드바 계정 표시 통일)

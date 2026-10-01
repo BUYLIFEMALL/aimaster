@@ -624,3 +624,53 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 
 모든 독립 서브프로그램은 프로그램명·버전, `← 다른 프로그램 보기`, 대시보드, 번호형 작업 흐름, `API키등록·플랫폼연동`, 하단 계정 영역의 순서를 공통으로 유지한다. 브랜드별 색상만 달리할 수 있으며, 새 프로그램과 기존 메뉴를 수정할 때는 [SIDEBAR_LAYOUT_STANDARD.md](./SIDEBAR_LAYOUT_STANDARD.md)를 반드시 따른다.
 
+---
+
+## 28. 웹에서 만든 글을 크롬 확장으로 네이버 블로그 글쓰기 화면에 입력하기 (웹 → 확장 → 네이버 편집기, 2026-10-01)
+
+네이버 블로그처럼 **공식 글쓰기 API가 없는 곳**에 회원이 만든 글을 옮겨 넣는 기능을 만들 때 쓰는 표준 구조다.
+참고 구현은 두 개다: `naver-blog-seo-studio/extension/`(최초 구현, Codex 담당)과 `blog/extension/`(BLOG 전용으로 옮긴 판, 2026-10-01).
+새 프로그램에 같은 기능이 필요하면 **`blog/` 구현을 복사해서 이름·주소·프로그램 slug만 바꾸는 것**을 기본으로 한다.
+반드시 §20(봇 탐지 회피 원칙)을 먼저 읽고 그대로 지킨다.
+
+### 왜 프로그램마다 확장을 따로 두나
+- 결제·이용 권한이 프로그램별이라, 확장 하나가 여러 프로그램 글을 받으면 권한 판정이 섞인다(네이버 블로그 자동화 App/Web 분리와 같은 원칙).
+- 다른 CLI가 맡은 프로그램(예: SEO 스튜디오=Codex)의 확장 코드를 건드리지 않아도 된다.
+
+### 전체 흐름
+1. **웹 설정 화면**: 연동 토큰 발급(원문은 한 번만 보여주고 `personal_access_tokens`에 sha256 해시 + `program_slug`만 저장) + 확장 ZIP 다운로드·설치 안내.
+2. **웹 글 화면**: "네이버로 보내기" → 글 테이블에 `extension_handoff_at` 기록(본인 글만, `checkProgramAccessApi()`).
+3. **확장(사이드패널)**: 토큰으로 `/api/extension/whoami` 확인 → `/api/extension/posts`로 보낸 글 목록(본인 것만, 최근 20개)을 받는다.
+   서버가 글을 **입력 블록**(`{type:'text', text}` / `{type:'image', url, alt}`)으로 바꿔서 준다 — 확장은 HTML을 해석하지 않는다.
+4. **확장 → 네이버 탭**: 제목 → 본문 블록 순서대로 입력. 이미지는 확장이 내려받아 네이버 편집기에 **파일로 업로드**한다
+   (네이버 서버에 올라가므로 우리 저장소 이미지가 보관 기간 후 지워져도 네이버 글은 깨지지 않는다 — "본문 복사"와의 큰 차이).
+5. 입력이 끝나면 내용을 다시 읽어 확인 → 발행 **설정창**을 열고 카테고리·태그 입력 → `/api/extension/posts/[id]/input-result`로 상태 기록
+   (`in_progress` / `completed` / `publish_ready` / `failed`). **설정창 안의 마지막 발행 버튼은 찾지도 누르지도 않는다.**
+
+### 꼭 지킬 것 (실제로 겪은 것 포함)
+- **입력 속도는 §20 그대로**: 한 글자씩 `Input.insertText`(chrome.debugger) + 70~170ms 간격 + 가끔 250~700ms 쉼. 줄바꿈은 Enter 키 이벤트.
+  4,000자 글이면 약 9분 걸린다 — 화면에 예상 시간·남은 시간을 보여준다. (SEO 스튜디오 확장은 24~52ms라 §20보다 빠르다 — 2026-10-01 발견, Codex에 전달 필요.)
+- **클릭 전 hover + 짧은 대기**: 주입 함수 안에서 `mouseover`/`mousemove` → 80~420ms 대기 → `mousedown`/`mouseup`/`click`.
+- **주입 함수는 자기완결형**: `chrome.scripting.executeScript`의 `func`는 페이지 안에서 따로 돌아서 바깥 함수·변수를 못 쓴다.
+  대기·hover 도우미를 함수마다 다시 정의한다(`naver-blog-auto-poster_web/AGENTS.md` §7). async 함수로 만들면 안에서 기다릴 수 있다.
+- **셀렉터는 실제 화면 조사로 확인한 것만**(§20 규칙 3): 제목 `.se-title-text`, 본문 `.se-text-paragraph`(이미지 소속 문단 제외),
+  이미지 버튼 `button.se-image-toolbar-button, button.se-insert-menu-button-image`, 태그 `#tag-input`,
+  카테고리 `.selectbox_button__IxraO` / `.option_list_layer__o54Wx .item__dTdzo`(네이버가 바꾸면 깨지는 해시 클래스 — 깨지면 "구조 분석" 결과로 갱신).
+  후보가 하나가 아니면 조용히 고르지 말고 오류로 멈춘다. 확장에 "구조 분석" 버튼을 꼭 둔다.
+- **이미지 업로드 시 윈도우 파일 선택 창 막기**: `Page.setInterceptFileChooserDialog` + 페이지에 클릭 가드를 설치한 뒤 사진 버튼을 누르고,
+  2.3~3초 기다렸다가 마지막 `input[type=file]`에 `DataTransfer`로 파일을 넣고 `change` 이벤트. 이미지 개수가 늘었는지 확인한다.
+- **이미지 다음 입력 위치**: 이미지 뒤에 네이버가 만드는 빈 문단을 골라야 이미지 설명칸에 글자가 들어가지 않는다.
+- **서식은 남지 않는다**: 한 글자씩 입력이라 소제목 크기·굵게·표 모양은 빠진다. 서버 변환에서 소제목 앞 `##` 제거, 목록은 `• 항목`,
+  링크는 `글자 (주소)`, 마지막 해시태그 줄은 본문에서 빼고 태그 추천값으로 돌려준다(`blog/utils/extensionContent.ts`).
+  `#{1,6}` 제거 정규식은 **뒤에 띄어쓰기가 있을 때만** 지울 것 — 안 그러면 첫 해시태그의 `#`까지 지워진다(실제로 겪음).
+- **확장 → 우리 API는 CORS 설정이 필요 없다**: `host_permissions`에 우리 배포 주소를 넣으면 사이드패널에서 바로 호출된다.
+  이미지 주소(Supabase Storage, Cloudinary)도 `host_permissions`에 넣는다.
+- **배포**: 크롬 웹스토어 대신 ZIP(`public/downloads/<이름>-<버전>.zip`)을 설정 화면에서 내려받아 "압축해제된 확장 프로그램 로드".
+  확장을 고치면 `manifest.json`의 `version`(숫자)·`version_name`(회원에게 보이는 vX.YY)을 올리고 `npm run build:extension`으로 ZIP을 다시 만들어 같이 커밋한다.
+
+### 새 프로그램에 붙일 때 체크리스트
+1. 글 테이블에 `extension_handoff_at`, `naver_input_status`(check 제약 4가지), `naver_input_completed_at`, `naver_input_error` 칸 + 인덱스 — 마이그레이션 파일을 서브프로젝트 `supabase/migrations/`에 남긴다.
+2. `utils/extensionAuth.ts`(토큰 해시 확인 + 공용 권한 판정), API 4개(whoami·목록·입력 결과 + 웹의 보내기), 설정 화면 토큰·다운로드 박스, 글 화면 "네이버로 보내기" 버튼.
+3. 글 HTML → 입력 블록 변환기(그 프로그램 글 형식에 맞게).
+4. `extension/`(manifest·background·sidepanel.html/js·styles) — `BASE` 주소, 저장 키 이름, `host_permissions`, 문구만 바꾼다.
+5. 실제 네이버 글쓰기 화면에서 회원 계정으로 끝까지 확인(로그인은 사람이 직접).

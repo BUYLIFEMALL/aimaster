@@ -10,6 +10,7 @@ import { PROVIDER_LABELS, maskApiKey, type ApiKeyProvider } from '@/blog/utils/a
 import { ApiKeyRow } from './ApiKeyRow'
 import { GuideLinkButton } from '@/blog/components/settings/GuideLinkButton'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
+import { ExtensionSettings } from '@/blog/components/settings/ExtensionSettings'
 
 // 본문 생성은 OpenAI·Claude·Gemini 중 고른 플랫폼의 키, 이미지 생성은 Gemini 키, 글감 수집은 Perplexity 키를 쓴다(2026-10-01).
 // user_api_keys는 AIMaster 전체가 공유하는 테이블이라 여기서 등록한 키는 다른 프로그램에서도 그대로 쓰인다.
@@ -95,6 +96,8 @@ export default function SettingsPage() {
             ))}
           </div>
         </section>
+
+        <ExtensionSettings />
 
         <ImageStorageNotice />
 
