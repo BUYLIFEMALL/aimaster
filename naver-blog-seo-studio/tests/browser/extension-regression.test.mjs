@@ -348,6 +348,18 @@ test("selects an OpenAI, Claude, or Gemini content model above representative im
   assert.match(models, /gemini-2\.5-pro/);
 });
 
+test("keeps the dashboard navigation aligned with the product workflow", () => {
+  const studio = readFileSync(new URL("../../components/StudioPage.tsx", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+  assert.match(studio, /https:\/\/www\.buylife\.xyz\/blog\/dashboard/);
+  assert.match(studio, /← 다른 프로그램 보기/);
+  assert.match(studio, /🏠 대시보드/);
+  assert.match(studio, /🔑 API키등록·플랫폼연동/);
+  assert.match(studio, /className="nav-number">1/);
+  assert.match(styles, /\.nav-number \{[^}]*border-radius: 50%/);
+  assert.match(styles, /\.nav-divider \{ height: 1px/);
+});
+
 test.skip("legacy extension SEO checklist was removed in favor of web-studio review", () => {
   const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
   const start = source.indexOf("function normalizeSeoText");

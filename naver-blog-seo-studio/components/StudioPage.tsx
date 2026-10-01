@@ -689,13 +689,18 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="brand"><em>SEO블로그</em> 스튜디오</div>
           <div className="brand-sub">네이버 블로그 콘텐츠 제작 도우미</div>
           <div className="app-version">{APP_VERSION}</div>
+          <a className="sidebar-back" href="https://www.buylife.xyz/blog/dashboard">← 다른 프로그램 보기</a>
         </div>
         <nav className="nav" aria-label="주 메뉴">
-          <button type="button" className={`nav-link ${activeMenu === "title" ? "active" : ""}`} aria-current={activeMenu === "title" ? "page" : undefined} onClick={() => openMenu("title")}>제목 추천</button>
-          <button type="button" className={`nav-link ${activeMenu === "new-draft" ? "active" : ""}`} aria-current={activeMenu === "new-draft" ? "page" : undefined} onClick={() => openMenu("new-draft")}>새 글 만들기</button>
-          <button type="button" className={`nav-link ${activeMenu === "draft" ? "active" : ""}`} aria-current={activeMenu === "draft" ? "page" : undefined} onClick={() => openMenu("draft")}>기존 글 최적화</button>
-          <button type="button" className={`nav-link ${activeMenu === "history" ? "active" : ""}`} aria-current={activeMenu === "history" ? "page" : undefined} onClick={() => openMenu("history")}>생성 기록</button>
-          <a className="nav-link utility" href="/settings">API키등록·플랫폼연동</a>
+          <a className="nav-overview" href="/dashboard">🏠 대시보드</a>
+          <div className="nav-flow">
+            <button type="button" className={`nav-link ${activeMenu === "title" ? "active" : ""}`} aria-current={activeMenu === "title" ? "page" : undefined} onClick={() => openMenu("title")}><span className="nav-number">1</span><span><strong>🔎 제목 추천</strong><small>검색 의도에 맞는 제목 생성</small></span></button>
+            <button type="button" className={`nav-link ${activeMenu === "new-draft" ? "active" : ""}`} aria-current={activeMenu === "new-draft" ? "page" : undefined} onClick={() => openMenu("new-draft")}><span className="nav-number">2</span><span><strong>📝 새 글 만들기</strong><small>AI 블로그(원문) 생성</small></span></button>
+            <button type="button" className={`nav-link ${activeMenu === "draft" ? "active" : ""}`} aria-current={activeMenu === "draft" ? "page" : undefined} onClick={() => openMenu("draft")}><span className="nav-number">3</span><span><strong>✨ 기존 글 최적화</strong><small>주제·키워드 분석 후 재작성</small></span></button>
+            <button type="button" className={`nav-link ${activeMenu === "history" ? "active" : ""}`} aria-current={activeMenu === "history" ? "page" : undefined} onClick={() => openMenu("history")}><span className="nav-number">4</span><span><strong>📚 생성 기록</strong><small>작성한 블로그(원문) 확인</small></span></button>
+          </div>
+          <div className="nav-divider" />
+          <a className="nav-utility" href="/settings#api-key">🔑 API키등록·플랫폼연동</a>
         </nav>
         <div className="sidebar-account" title={email}>
           <span className="sidebar-account-label">로그인 계정</span>
