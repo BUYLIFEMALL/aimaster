@@ -21,6 +21,16 @@ const TAG_STOP_WORDS = new Set([
   "그리고", "하지만", "또한", "따라서", "그래서", "이러한", "이것은", "그것은", "이번", "오늘", "최근", "경우", "부분", "관련", "통해", "대해", "위해", "대한", "중요", "필요", "가능", "사용", "적용", "도입", "방법", "내용", "정보", "결과", "기능", "과정", "분야", "상황", "하나", "여러", "모든", "각각", "실제", "더욱", "가장", "먼저", "다음", "이후", "이전", "현재", "때문", "때문에", "있습니다", "있으며", "있습니다", "합니다", "됩니다", "합니다", "한다", "되는", "있는", "없는", "같은", "것을", "것이", "에서", "으로", "에게",
 ]);
 
+// 주제/핵심 키워드는 사용자가 정한 값이라 보존하고, 본문에서 새로 뽑는
+// 반복 단어에만 적용한다. 그렇지 않으면 검색 의도와 무관한 일반 명사가 태그가 된다.
+const TAG_GENERIC_BODY_WORDS = new Set([
+  "콘텐츠", "고객", "브랜드", "메시지", "전략", "실무", "정리", "소개", "가이드", "초보자", "완벽", "핵심", "주요", "활용", "효율", "관리", "분석", "서비스", "제품", "시장", "업무",
+]);
+
+const KOREAN_TAG_PARTICLES = [
+  "으로부터", "에서부터", "에게서는", "에게서", "에서는", "으로는", "에게는", "이라도", "에게", "에서", "부터", "까지", "처럼", "마다", "보다", "으로", "라도", "이나", "이며", "하고", "은", "는", "이", "가", "을", "를", "의", "에", "도", "와", "과", "로", "만",
+];
+
 function resetActiveWebDraft() {
   activeWebDraftId = "";
   activeWebDraftTags = [];
@@ -47,22 +57,32 @@ function getWebDraftTags(draft) {
 }
 
 function normalizeTagCandidate(value) {
-  return String(value || "")
+  let tag = String(value || "")
     .replace(/^#+/, "")
     .replace(/["'“”‘’()[\]{}<>]/g, " ")
-    .replace(/[은는이가을를의에도와과로으로부터까지만보다처럼마다조차]$/u, "")
     .trim()
     .replace(/\s+/g, " ")
     .slice(0, 30);
+
+  // 문자 단위 제거는 '메시지'의 '지', '합니다'의 '다'까지 잘랐다.
+  // 실제 조사 단위를 긴 순서로 한 번만 제거해야 원형이 보존된다.
+  const particle = KOREAN_TAG_PARTICLES.find((suffix) => tag.endsWith(suffix));
+  if (particle && tag.length - particle.length >= 2) tag = tag.slice(0, -particle.length);
+  return tag;
 }
 
 function buildRecommendedTags({ topic, keywords, title, body }) {
   const tags = [];
   const seen = new Set();
-  const add = (value) => {
+  const add = (value, { fromBody = false } = {}) => {
     const tag = normalizeTagCandidate(value);
     const key = tag.toLocaleLowerCase("ko-KR");
-    if (tag.length < 2 || TAG_STOP_WORDS.has(key) || seen.has(key)) return;
+    if (
+      tag.length < 2
+      || TAG_STOP_WORDS.has(key)
+      || (fromBody && TAG_GENERIC_BODY_WORDS.has(key))
+      || seen.has(key)
+    ) return;
     seen.add(key);
     tags.push(tag);
   };
@@ -81,7 +101,7 @@ function buildRecommendedTags({ topic, keywords, title, body }) {
   [...frequency.values()]
     .filter((item) => item.count >= 2)
     .sort((a, b) => b.count - a.count || b.word.length - a.word.length || a.word.localeCompare(b.word, "ko-KR"))
-    .forEach((item) => add(item.word));
+    .forEach((item) => add(item.word, { fromBody: true }));
   return tags.slice(0, 10);
 }
 

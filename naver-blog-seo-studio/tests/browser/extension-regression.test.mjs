@@ -161,6 +161,24 @@ test("extracts publish tag recommendations from the selected content topic, keyw
   assert.ok(tags.includes("자동화"));
 });
 
+test("keeps meaningful Korean words intact and excludes generic or conjugated body words from tag recommendations", () => {
+  const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+  const start = source.indexOf("const TAG_STOP_WORDS");
+  const end = source.indexOf("function formatWebDraftLabel");
+  const sandbox = vm.createContext({});
+  vm.runInContext(source.slice(start, end), sandbox);
+  const tags = sandbox.buildRecommendedTags({
+    topic: "SNS마케팅 트렌드",
+    keywords: ["SNS마케팅"],
+    title: "SNS마케팅 트렌드 완벽 정리: 초보자도 쉽게 따라하기",
+    body: "SNS마케팅 콘텐츠는 고객과 브랜드에 메시지를 전합니다. SNS마케팅 전략은 실무에서 중요합니다. 콘텐츠와 고객, 브랜드 메시지를 활용하는 전략은 실무에서 필요합니다.",
+  });
+  assert.deepEqual([...tags], ["SNS마케팅 트렌드", "SNS마케팅"]);
+  for (const unwanted of ["콘텐츠", "고객", "브랜드", "메시", "메시지", "전략", "실무", "실무에서", "있습니다", "합니다"]) {
+    assert.ok(!tags.includes(unwanted), `${unwanted} should not be recommended`);
+  }
+});
+
 test("places category and recommendation labels beside their publish inputs", () => {
   const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
   const styles = readFileSync(new URL("../../extension/styles.css", import.meta.url), "utf8");
