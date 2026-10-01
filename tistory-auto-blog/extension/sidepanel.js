@@ -96,7 +96,6 @@ function collectStructure() {
   const categoryOptions = categoryList
     ? [...categoryList.querySelectorAll("[role='option'], button, a, li, label, div")]
       .filter((element) => visible(element) && tidy(element.textContent))
-      .filter((element) => ![...element.children].some((child) => visible(child) && tidy(child.textContent) === tidy(element.textContent)))
       .slice(0, 80)
       .map(describe)
     : [];
