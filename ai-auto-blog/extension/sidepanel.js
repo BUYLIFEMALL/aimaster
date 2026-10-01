@@ -174,7 +174,7 @@ function renderPreview() {
       anchor.target = "_blank";
       anchor.rel = "noreferrer";
       anchor.textContent = block.text;
-      paragraph.append(anchor, document.createTextNode(" (실제 링크로 입력)"));
+      paragraph.append(anchor);
       container.append(paragraph);
       continue;
     }
