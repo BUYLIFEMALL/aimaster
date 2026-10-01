@@ -50,7 +50,10 @@ export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags
   const blocks: InputBlock[] = []
   const tags: string[] = []
 
-  const pushText = (text: string) => {
+  const pushText = (rawText: string) => {
+    // 웹 화면용 이미지 설명("📷 … (클릭하여 고화질 확대)")은 네이버에 넣지 않는다 — 편집기(Tiptap)로 저장한 글은
+    // figure가 풀려 설명이 따로 문단으로 남아 있어서 본문 글자로 입력되던 문제(2026-10-01 주인님 화면에서 발견).
+    const text = rawText.split('\n').filter((line) => !/^📷.*고화질 확대\)?\s*$/.test(line.trim())).join('\n').replace(/\n{3,}/g, '\n\n').trim()
     if (!text) return
     const last = blocks[blocks.length - 1]
     if (last?.type === 'text') last.text += `\n\n${text}`

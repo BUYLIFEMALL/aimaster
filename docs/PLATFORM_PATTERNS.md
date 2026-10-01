@@ -651,6 +651,9 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 - **입력 속도는 §20 그대로**: 한 글자씩 `Input.insertText`(chrome.debugger) + 70~170ms 간격 + 가끔 250~700ms 쉼. 줄바꿈은 Enter 키 이벤트.
   4,000자 글이면 약 9분 걸린다 — 화면에 예상 시간·남은 시간을 보여준다. (SEO 스튜디오 확장은 24~52ms라 §20보다 빠르다 — 2026-10-01 발견, Codex에 전달 필요.)
 - **클릭 전 hover + 짧은 대기**: 주입 함수 안에서 `mouseover`/`mousemove` → 80~420ms 대기 → `mousedown`/`mouseup`/`click`.
+- **상태를 바꾸는 주입(붙여넣기·클릭·입력)은 `allFrames`로 돌리지 않는다.** 네이버 글쓰기 화면은 프레임 안에 프레임이 있어서, 모든 프레임에서 돌리면
+  바깥 프레임들이 포커스를 따라 같은 편집기에 여러 번 작업한다(실제로 추천 링크가 3번 붙여넣어짐, 2026-10-01). 먼저 대상 프레임 하나를 찾고
+  (`document.activeElement`가 그 문서 자신의 편집 영역 + `document.hasFocus()`) `frameIds: [id]`로 그 프레임에서만 실행한다. 조사·확인은 `allFrames` 가능.
 - **주입 함수는 자기완결형**: `chrome.scripting.executeScript`의 `func`는 페이지 안에서 따로 돌아서 바깥 함수·변수를 못 쓴다.
   대기·hover 도우미를 함수마다 다시 정의한다(`naver-blog-auto-poster_web/AGENTS.md` §7). async 함수로 만들면 안에서 기다릴 수 있다.
 - **셀렉터는 실제 화면 조사로 확인한 것만**(§20 규칙 3): 제목 `.se-title-text`, 본문 `.se-text-paragraph`(이미지 소속 문단 제외),

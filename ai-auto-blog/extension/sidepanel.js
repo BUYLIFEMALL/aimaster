@@ -424,34 +424,55 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
 
 // 링크만 있는 줄(추천 링크 등)은 한 글자씩 입력하면 링크가 걸리지 않는다(네이버 자동 링크도 안 걸림 — 2026-10-01 주인님 확인).
 // 그래서 사람이 웹 페이지의 링크를 복사해 Ctrl+V 하듯, 링크가 걸린 HTML을 "붙여넣기" 이벤트로 편집기에 넘긴다.
-// 붙여넣은 뒤 편집기 안에 그 주소의 실제 링크(a[href])가 생겼는지 확인하고, 안 생겼으면 호출부가 "글자: 주소"로 입력한다.
-async function pasteLinkIntoNaver(tabId, text, url) {
+//
+// [v1.27 수정] 처음 판(v1.22)은 executeScript를 모든 프레임(allFrames)에서 돌려서, 바깥 프레임들이 포커스를 따라
+// 안쪽 편집기 iframe까지 내려가 같은 편집기에 붙여넣기를 3번 했고, 동시에 돌아간 확인 로직이 "실패"로 잘못 판단해
+// 글자 입력까지 한 번 더 했다(주인님 화면: "👉 추천링크 바로가기"가 링크 3개 + 글자 1개). 이제는
+//  1) 커서가 실제로 깜빡이는 프레임(그 문서 자신의 activeElement가 편집 영역이고 포커스를 가진 프레임) 하나만 찾고,
+//  2) 그 프레임에서만 딱 한 번 붙여넣고, 같은 프레임 안에서 링크·글자 수를 붙여넣기 전후로 비교한다.
+//  3) 링크도 글자도 늘지 않았을 때만 호출부가 "글자: 주소"로 입력한다(중복 방지).
+async function findFocusedEditorFrame(tabId) {
   const results = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
+    func: () => {
+      const active = document.activeElement;
+      // 다른 iframe으로 내려가지 않는다 — 이 문서 자신에 커서가 있는 경우만
+      return { editable: Boolean(active && active.isContentEditable && active.tagName !== "IFRAME"), focused: document.hasFocus() };
+    },
+  });
+  const candidates = results.filter((entry) => entry.result?.editable);
+  const best = candidates.find((entry) => entry.result.focused) || (candidates.length === 1 ? candidates[0] : null);
+  return best ? best.frameId : null;
+}
+
+async function pasteLinkIntoNaver(tabId, text, url) {
+  const frameId = await findFocusedEditorFrame(tabId);
+  if (frameId === null) return { linked: false, inserted: false, reason: "focused editor frame not found" };
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [frameId] },
     args: [{ text, url }],
     func: async ({ text: label, url: href }) => {
       const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      let active = document.activeElement;
-      for (let depth = 0; active && active.tagName === "IFRAME" && depth < 5; depth += 1) {
-        try { active = active.contentDocument?.activeElement || active.contentDocument?.body; } catch { break; }
-      }
-      const editable = active?.isContentEditable ? active : null;
-      if (!editable) return { skipped: true };
-      const doc = editable.ownerDocument;
-      const before = doc.querySelectorAll(`a[href^="${href}"]`).length;
+      const editable = document.activeElement;
+      if (!editable || !editable.isContentEditable) return { linked: false, inserted: false, reason: "no active editable" };
+      const linkCount = () => [...document.querySelectorAll("a[href]")].filter((a) => (a.getAttribute("href") || "").startsWith(href)).length;
+      const normalized = (value) => String(value || "").replace(/\s+/g, " ");
+      const labelCount = () => normalized(document.body?.innerText).split(normalized(label)).length - 1;
+      const linksBefore = linkCount();
+      const labelsBefore = labelCount();
       const escape = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
       const transfer = new DataTransfer();
       transfer.setData("text/html", `<a href="${escape(href)}">${escape(label)}</a>`);
       transfer.setData("text/plain", `${label} ${href}`);
       editable.dispatchEvent(new ClipboardEvent("paste", { clipboardData: transfer, bubbles: true, cancelable: true }));
-      await wait(700);
-      const linked = doc.querySelectorAll(`a[href^="${href}"]`).length > before;
-      const bodyText = (doc.body?.innerText || "").replace(/\s+/g, " ");
-      return { skipped: false, linked, inserted: bodyText.includes(label.replace(/\s+/g, " ")) };
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        await wait(250);
+        if (linkCount() > linksBefore) break;
+      }
+      return { linked: linkCount() > linksBefore, inserted: labelCount() > labelsBefore };
     },
   });
-  const result = results.find((entry) => entry.result && !entry.result.skipped)?.result;
-  return result || { linked: false, inserted: false };
+  return results[0]?.result || { linked: false, inserted: false };
 }
 
 async function verifyNaverEditorContent(tabId, expectedTitle, expectedTexts) {
