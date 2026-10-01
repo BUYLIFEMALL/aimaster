@@ -76,7 +76,7 @@ function collectStructure() {
     return rect.width > 0 && rect.height > 0 && style.display !== "none" && style.visibility !== "hidden";
   };
   const attributes = (element) => Object.fromEntries([...element.attributes]
-    .filter((attribute) => /^(id|name|type|role|title|placeholder|for|contenteditable|tabindex)$/.test(attribute.name) || attribute.name.startsWith("aria-") || attribute.name.startsWith("data-"))
+    .filter((attribute) => /^(id|name|type|role|title|placeholder|for|contenteditable|tabindex|accept|multiple|capture)$/.test(attribute.name) || attribute.name.startsWith("aria-") || attribute.name.startsWith("data-"))
     .map((attribute) => [attribute.name, tidy(attribute.value)]));
   const holdsUserText = (element) => element.isContentEditable || /^(INPUT|TEXTAREA|BODY|HTML)$/.test(element.tagName)
     || Boolean(element.querySelector("[contenteditable], input, textarea, .CodeMirror, .cm-editor"));
@@ -109,6 +109,22 @@ function collectStructure() {
   for (let depth = 0; tagContainer && depth < 3; depth += 1, tagContainer = tagContainer.parentElement) {
     tagAncestors.push(describeWithoutText(tagContainer));
   }
+  const attachmentButtons = [...document.querySelectorAll("#mceu_0, #attach-layer-btn, [aria-label='첨부']")]
+    .filter((element) => visible(element))
+    .map(describeWithoutText);
+  const attachmentMenus = [...document.querySelectorAll("[role='menu']")]
+    .filter((menu) => visible(menu) && /사진|파일|슬라이드쇼/i.test(menu.textContent || ""))
+    .map((menu) => ({
+      menu: describeWithoutText(menu),
+      items: [...menu.querySelectorAll("[role='menuitem'], button, a, div")]
+        .filter((element) => visible(element) && tidy(element.textContent))
+        .slice(0, 40)
+        .map(describe),
+    }));
+  const mediaNodes = [...document.querySelectorAll("img, .mce-represent-image-btn, [data-mce-object], [data-mce-selected]")]
+    .filter((element) => visible(element))
+    .slice(0, 40)
+    .map((element) => ({ ...describeWithoutText(element), parent: describeWithoutText(element.parentElement || element) }));
   return {
     url: location.origin + location.pathname,
     isTopFrame: window === window.top,
@@ -118,6 +134,12 @@ function collectStructure() {
     modeCandidates: select("button, [role='button'], li, a, span").filter((item) => /기본|마크다운|HTML|모드/i.test(item.text)),
     visibleLayers: select("[role='dialog'], [role='menu'], [role='listbox'], [class*='modal'], [class*='popup'], [class*='layer'], [class*='dropdown']").filter((item) => item.visible),
     categoryOptions,
+    attachmentStructure: {
+      toolbarButtons: attachmentButtons,
+      menus: attachmentMenus,
+      fileInputs: select("input[type='file']"),
+      mediaNodes,
+    },
     tagStructure: tagInput ? {
       input: describeWithoutText(tagInput),
       ancestorChain: tagAncestors,
