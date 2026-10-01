@@ -533,4 +533,8 @@ async function fillTistoryPost() {
 $("refreshPosts").addEventListener("click", refreshPosts);
 $("postList").addEventListener("change", selectPost);
 $("previewPost").addEventListener("click", previewPost);
+$("previewFill").addEventListener("click", () => {
+  $("postPreview").close();
+  $("fillPost").click();
+});
 $("fillPost").addEventListener("click", fillTistoryPost);

@@ -9,42 +9,66 @@
 <body>
   <main>
     <header>
-      <span class="eyebrow">AIMaster · <span id="extensionVersion">-</span> · 입력기</span>
-      <h1>티스토리(원문) 입력기</h1>
-      <p>선택한 보낸 글을 실제 티스토리 글쓰기 화면에 사람 속도로 입력합니다. 마지막 저장·발행은 직접 확인 후 눌러 주세요.</p>
+      <span class="eyebrow">AIMaster · <span id="extensionVersion">-</span></span>
+      <h1 style="font-size:clamp(18px, 6vw, 24px);white-space:nowrap">티스토리(원문) 입력기</h1>
+      <p>티스토리(원문) 편집기에서 보낸 글을 티스토리 글쓰기 화면에 사람처럼 입력합니다. 마지막 저장·발행은 직접 누릅니다.</p>
     </header>
 
-    <section class="workflow-section account-section">
+    <section class="card">
       <h2>계정 연결</h2>
-      <p class="hint"><a href="https://tistory-auto-blog-pearl.vercel.app/settings" target="_blank" rel="noreferrer">티스토리 자동화 설정</a>에서 발급한 연동 토큰을 붙여넣으세요. 토큰은 이 브라우저의 확장 저장소에만 보관됩니다.</p>
-      <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="pat_... 연동 토큰 붙여넣기" />
+      <p class="hint"><a href="https://tistory-auto-blog-pearl.vercel.app/settings" target="_blank" rel="noreferrer">티스토리 자동화 설정</a>에서 발급한 연동 토큰을 붙여넣으세요.</p>
+      <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="pat_... 토큰 붙여넣기" />
       <div class="connection-actions">
-        <button id="link" type="button">계정 연결</button>
+        <button id="link" type="button">티스토리 연결</button>
         <div id="connectionStatus" class="status">연결되지 않음</div>
       </div>
-      <p class="hint">연결하면 이 토큰이 현재 AIMaster 계정과 티스토리 자동화 이용 권한을 모두 확인합니다. 토큰은 설정 화면에서 언제든 폐기할 수 있습니다.</p>
     </section>
 
-    <section class="workflow-section">
-      <h2>1단계: 보낸 글 선택·티스토리 입력</h2>
-      <p class="hint">글 보기에서 보낸 글을 선택하고 빈 티스토리 글쓰기 화면을 열어 주세요. 제목·본문·카테고리·태그·이미지까지 입력하지만 마지막 비공개 저장/발행은 절대 자동으로 누르지 않습니다.</p>
+    <section class="card" aria-labelledby="post-list-title">
+      <h2 id="post-list-title">보낸 글</h2>
+      <p class="hint">티스토리(원문) 글 보기에서 입력기로 보낸 글이 여기에 표시됩니다. 빈 티스토리 글쓰기 화면을 연 뒤 글을 선택하고 입력하세요.</p>
+      <select id="postList" aria-label="보낸 글 선택" disabled><option value="">먼저 계정을 연결해 주세요.</option></select>
       <div class="draft-actions">
-        <button id="refreshPosts" type="button">보낸 글 새로고침</button>
+        <a class="web-create-link" href="https://tistory-auto-blog-pearl.vercel.app/write/ai-form" target="_blank" rel="noreferrer">티스토리 원문 새로 만들기</a>
+        <button id="refreshPosts" class="secondary" type="button">보낸 글 목록 새로고침</button>
+        <button id="previewPost" class="secondary" type="button" disabled>전체 미리보기</button>
       </div>
-      <select id="postList" disabled><option value="">먼저 계정을 연결해 주세요.</option></select>
-      <input id="categoryName" autocomplete="off" placeholder="카테고리명(선택): 예) 경제" />
-      <div id="postStatus" class="status">보낸 글을 불러오지 않았습니다.</div>
-      <div class="draft-actions">
-        <button id="previewPost" class="secondary" type="button" disabled>내용 미리보기</button>
-        <button id="fillPost" type="button" disabled>티스토리에 입력</button>
+      <div id="postStatus" class="status">대기 중</div>
+      <dialog id="postPreview" class="web-draft-preview" aria-labelledby="postPreviewHeading">
+        <div class="web-draft-preview-header">
+          <div><span class="eyebrow">최종 확인</span><h3 id="postPreviewHeading">전체 미리보기</h3></div>
+        </div>
+        <p class="hint">티스토리에 입력될 제목·본문·이미지 순서를 그대로 확인하세요. 마지막 저장·발행은 직접 진행합니다.</p>
+        <article id="postPreviewContent" class="web-draft-preview-content" aria-label="입력할 전체 내용"></article>
+        <form method="dialog" class="web-draft-preview-actions"><button class="secondary" type="submit">닫기</button><button id="previewFill" class="primary" type="button">티스토리 편집기로 입력</button></form>
+      </dialog>
+      <div class="content-input-row">
+        <div class="content-progress" aria-live="polite">
+          <strong>티스토리 입력 진행 상황</strong>
+          <ol class="content-progress-steps">
+            <li><span>1</span>글 선택</li>
+            <li><span>2</span>미리보기 확인</li>
+            <li><span>3</span>티스토리 입력</li>
+          </ol>
+          <div id="inputStatus" class="status">대기 중 · 글을 선택한 뒤 티스토리 입력을 실행하세요.</div>
+        </div>
+        <button id="fillPost" class="primary" type="button" disabled>티스토리 편집기로 입력</button>
       </div>
-      <div id="inputStatus" class="status"></div>
-      <dialog id="postPreview"><article id="postPreviewContent"></article><form method="dialog"><button>닫기</button></form></dialog>
+      <p class="hint">사람처럼 한 글자씩 입력하기 때문에 글 길이에 따라 시간이 걸립니다. 입력 중에는 티스토리 탭을 닫거나 다른 곳을 클릭하지 마세요.</p>
     </section>
 
-    <section class="diagnostic-section">
-      <h2>화면 구조 분석 (진단용)</h2>
-      <p class="hint">입력 기능이 아닌 티스토리 화면 구조를 확인할 때만 사용하세요. 제목·본문의 실제 글자, 로그인 정보, 쿠키는 수집하지 않습니다.</p>
+    <section class="card">
+      <h2>카테고리 설정</h2>
+      <p class="hint">카테고리는 본문 입력이 끝난 뒤 발행 설정창에 자동으로 넣습니다. 보낸 글의 태그도 함께 입력하며, 티스토리의 마지막 저장·발행 버튼은 직접 누릅니다.</p>
+      <div class="publish-field">
+        <label for="categoryName">카테고리명</label>
+        <input id="categoryName" autocomplete="off" placeholder="카테고리 전체 이름 (예: 경제)" />
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>화면 구조 분석</h2>
+      <p class="hint">입력 오류가 나거나 티스토리 편집기가 바뀌었을 때만 실행하세요. 제목·본문의 실제 글자, 로그인 정보, 쿠키는 수집하지 않습니다.</p>
       <select id="step">
         <option value="01_기본화면">01 글쓰기 기본 화면</option>
         <option value="02_제목본문_입력">02 제목·본문을 직접 조금 입력한 화면</option>
@@ -59,15 +83,15 @@
         <option value="11_사진선택후">11 사진 선택 직후 편집기에 들어온 화면</option>
       </select>
       <input id="memo" placeholder="메모(선택): 새 에디터, 블로그 여러 개 계정 등" />
-      <button id="inspect" class="secondary">이 화면 분석하기</button>
+      <button id="inspect" class="secondary" type="button">구조 분석</button>
       <div id="status" class="status">대기 중 · 티스토리 글쓰기 탭을 연 뒤 실행하세요.</div>
       <div class="analysis-result">
         <h3>수집 결과</h3>
         <div id="snapshotList" class="hint">아직 분석한 화면이 없습니다.</div>
         <div class="draft-actions">
-          <button id="copy" class="secondary">전체 결과 복사</button>
-          <button id="download" class="secondary">JSON 파일로 저장</button>
-          <button id="clear" class="secondary">결과 지우기</button>
+          <button id="copy" class="secondary" type="button">전체 결과 복사</button>
+          <button id="download" class="secondary" type="button">JSON 파일로 저장</button>
+          <button id="clear" class="secondary" type="button">결과 지우기</button>
         </div>
         <textarea id="result" rows="14" readonly placeholder="분석 결과가 여기에 표시됩니다."></textarea>
         <p class="hint">저장한 JSON 파일을 이 대화에 첨부해 주세요. 이 결과를 근거로 입력 기능을 점검합니다.</p>
