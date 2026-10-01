@@ -122,7 +122,7 @@ export default function PostDetailPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [compressing, setCompressing] = useState(false)
-  // 네이버로 보내기(BLOG 크롬 확장 목록에 올리기, 2026-10-01)
+  // 네이버 입력기로 보내기(BLOG 크롬 확장 목록에 올리기, 2026-10-01)
   const [handoffState, setHandoffState] = useState<'idle' | 'sending' | 'sent'>('idle')
 
   // 고화질 이미지 라이트박스 팝업 상태
@@ -564,18 +564,18 @@ export default function PostDetailPage() {
                     try {
                       const res = await fetch(`/api/posts/${post.id}/extension-handoff`, { method: 'POST' })
                       const json = await res.json().catch(() => ({}))
-                      if (!res.ok) throw new Error(json.error || '네이버로 보내기에 실패했습니다.')
+                      if (!res.ok) throw new Error(json.error || '네이버 입력기로 보내기에 실패했습니다.')
                       setHandoffState('sent')
                       alert('BLOG 크롬 확장 목록에 올렸습니다.\n네이버 블로그 글쓰기 화면을 열고 확장 프로그램에서 이 글을 선택해 입력하세요.\n(확장 설치·연결은 설정 페이지에서 할 수 있습니다.)')
                     } catch (err: any) {
                       setHandoffState('idle')
-                      alert(err?.message || '네이버로 보내기에 실패했습니다.')
+                      alert(err?.message || '네이버 입력기로 보내기에 실패했습니다.')
                     }
                   }}
                   title="BLOG 크롬 확장으로 네이버 블로그 글쓰기 화면에 입력합니다(마지막 발행은 직접)"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-all cursor-pointer shadow-sm disabled:opacity-60"
                 >
-                  {handoffState === 'sending' ? '⏳ 보내는 중...' : handoffState === 'sent' ? '✓ 확장으로 보냄' : '🧩 네이버로 보내기'}
+                  {handoffState === 'sending' ? '⏳ 보내는 중...' : handoffState === 'sent' ? '✓ 네이버 입력기로 보냄' : '🧩 네이버 입력기로 보내기'}
                 </button>
                 <Link
                   href={`${getBlogBasePath()}/posts/${post.id}/edit`}

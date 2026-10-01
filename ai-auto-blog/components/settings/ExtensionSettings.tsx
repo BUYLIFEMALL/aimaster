@@ -87,7 +87,7 @@ export function ExtensionSettings() {
       <div>
         <h2 className="text-sm font-bold text-zinc-900">🧩 네이버 블로그 입력 확장 프로그램 · {EXTENSION_VERSION}</h2>
         <p className="mt-1 text-xs leading-5 text-zinc-500">
-          글 보기 화면에서 &quot;네이버로 보내기&quot;를 누른 글을, 네이버 블로그 글쓰기 화면에 제목·본문·이미지 순서대로 사람처럼 한 글자씩
+          글 보기 화면에서 &quot;네이버 입력기로 보내기&quot;를 누른 글을, 네이버 블로그 글쓰기 화면에 제목·본문·이미지 순서대로 사람처럼 한 글자씩
           입력합니다. 이미지는 네이버에 파일로 직접 올라가서 보관 기간이 지나도 네이버 글에서는 사라지지 않습니다.
           <strong className="text-zinc-700"> 마지막 &quot;발행&quot; 버튼은 내용을 확인한 뒤 직접 눌러 주세요.</strong>
         </p>

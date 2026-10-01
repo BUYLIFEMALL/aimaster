@@ -109,7 +109,7 @@ async function refreshPosts() {
   }
   $("postStatus").textContent = posts.length
     ? `보낸 글 ${posts.length}개를 불러왔습니다. 글을 선택하면 이미지까지 미리 불러옵니다.`
-    : "보낸 글이 없습니다. BLOG 글 보기 화면에서 \"네이버로 보내기\"를 눌러주세요.";
+    : "보낸 글이 없습니다. BLOG 글 보기 화면에서 \"네이버 입력기로 보내기\"를 눌러주세요.";
 }
 
 function blobToDataUrl(blob) {
