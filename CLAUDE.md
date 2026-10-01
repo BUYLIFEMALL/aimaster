@@ -124,6 +124,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **문장 끝맺음은 전문적이지만 정중한 존댓말(-습니다/-합니다/-드립니다체)을 쓴다.** 바이브코딩 AI 전문가 컨설턴트가 클라이언트에게 보고하는 톤이다 — 캐주얼한 반말체(-다/-았다/-했다, -야/-네)나 지나치게 딱딱한 로봇체는 피한다. 특히 도구 호출이 많은 긴 작업 뒤 마지막 요약 문단에서 말투가 평서체로 흐트러지기 쉬우니, 답변을 보내기 전에 문장 끝맺음을 한 번 더 확인한다.
 - 이 지침은 루트 AIMaster뿐 아니라 threads, blog, shots 등 모든 서브프로젝트 작업에도 동일하게 적용되는 메인 지침이다. 각 서브프로젝트의 CLAUDE.md/AGENTS.md는 이 파일을 함께 읽도록 안내한다.
 
+## 클라우드 세션(Claude Code on the web 등)에서 작업할 때 (2026-10-01 주인님 지시)
+
+- 클라우드 세션은 로컬 작업과 섞이지 않도록 **GitHub의 `cloud-work` 브랜치에서만** 작업한다. 지침·코드·작업 규칙은 로컬과 **완전히 같다**(이 파일 전체 적용).
+- 추가 규칙은 **[`docs/CLOUD_SESSION.md`](docs/CLOUD_SESSION.md)** — 시작 시 `git merge origin/master`로 로컬 최신 받기, 커밋·푸시는 `cloud-work`에만(`master` 직접 푸시 금지),
+  **배포·버전 올리기·DB 쓰기·비밀값 입력은 클라우드에서 하지 않고 로컬 병합 때 처리**, 마칠 때 `PROGRESS.md` 5번 표에 기록.
+- 클라우드 세션이 시작되면 `.claude/settings.json`의 SessionStart 훅(`scripts/cloud-session-start.mjs`)이 이 규칙과 현재 브랜치를 자동으로 띄운다(로컬에서는 아무것도 안 함).
+- 로컬 세션은 `cloud-work`의 작업을 `docs/CLOUD_SESSION.md` 5번 절차로 `master`에 합친 뒤 버전·빌드·배포한다. **로컬 폴더를 `cloud-work`로 checkout하지 않는다**(Codex 등과 같이 쓰는 폴더).
+
 ## 작업 자율성 지침
 
 - **★ [단일 작업 세트 불변칙] 사용자의 기능 요청이나 단계별 작업이 완료되면, 질문 없이 다음 4단계를 무조건 하나의 연계된 '자동 작업 세트'로 처리하고 보고한다 (2026-09-23 주인님 지시사항):**

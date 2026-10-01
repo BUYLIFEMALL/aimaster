@@ -16,5 +16,18 @@
       "mcp__claude_ai_Supabase__list_tables",
       "mcp__claude_ai_Supabase__get_advisors"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/cloud-session-start.mjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }

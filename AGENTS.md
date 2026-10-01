@@ -20,6 +20,7 @@
 ## 0. 가장 먼저 확인할 것
 
 0-1. 루트 [`PROGRESS.md`](PROGRESS.md)(최근 세션 요약 — 한 작업·남은 작업·클라우드 세션 주의점)를 먼저 훑는다.
+     **클라우드 세션이면 [`docs/CLOUD_SESSION.md`](docs/CLOUD_SESSION.md)를 따른다** — `cloud-work` 브랜치에서만 작업, 배포·버전·DB 쓰기는 로컬 병합 때.
 0. [`docs/HANDOFF.md`](docs/HANDOFF.md)로 현재 멈춰 있는 일, 남은 일, 손대지 말아야 할 폴더(다른 CLI 작업 중)를 확인한다.
    작업을 끝내면 그 문서의 표도 같은 커밋으로 갱신한다.
    **그리고 [`docs/ERROR_LESSONS.md`](docs/ERROR_LESSONS.md)(작업 중요 지침 — 에러 해결 기록·점검 체크리스트)를 읽는다.**

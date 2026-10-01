@@ -8,6 +8,8 @@
 
 ## 0. 이어받자마자 할 일 (순서대로)
 
+> **클라우드 세션이면 먼저 [`docs/CLOUD_SESSION.md`](docs/CLOUD_SESSION.md)** — `cloud-work` 브랜치 확인, `git merge origin/master`, 배포·버전·DB 쓰기는 하지 않음.
+
 1. 루트 `CLAUDE.md` → `docs/HANDOFF.md` → `docs/ERROR_LESSONS.md`를 읽는다(핵심 원칙 7번: 작업 전 필독, 에러 해결 시 같은 커밋에 기록).
 2. `git log --oneline -10`으로 최신 커밋이 이 파일 작성 시점(`9f93041`, BLOG v1.32) 이후인지 확인한다 — 다른 CLI(Codex 등)가 같은 저장소에서 동시에 작업한다.
 3. 고칠 서브프로젝트의 `AGENTS.md`/`README.md`를 먼저 읽는다.
@@ -80,3 +82,13 @@
 
 ### 3-3. 테스트 계정
 - `buylifemall@naver.com` = 일반 회원 테스트용(회원 기능은 이 계정부터), `buylifemall@gmail.com` = 관리자. 비밀번호 입력 로그인은 에이전트가 하지 않는다.
+
+---
+
+## 5. 클라우드 세션 작업 기록 (cloud-work 브랜치)
+
+클라우드 세션은 작업을 마칠 때 한 줄씩 추가하고, 로컬 세션은 병합·배포 후 마지막 칸을 채운다(`docs/CLOUD_SESSION.md` 4·5번).
+
+| 날짜 | 서브프로젝트 | 클라우드에서 한 일 | 로컬에서 할 일(버전·배포·DB) | 로컬 병합·배포 결과 |
+|---|---|---|---|---|
+| 2026-10-01 | (준비) | `cloud-work` 브랜치·클라우드 작업 규칙·시작 훅 구성(로컬에서 만듦) | 없음 | master `→` cloud-work 동기화 |
