@@ -91,8 +91,10 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .image-with-draft-option strong, .image-with-draft-option small { display: block; }
 .image-with-draft-option strong { color: var(--ink); font-size: 13px; }
 .image-with-draft-option small { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.45; }
-.content-generation-models { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 58px; padding: 14px; border: 1px solid #eadfd4; border-radius: 10px; background: #fffcf9; }
-.content-generation-models::before { position: absolute; left: 0; top: -42px; content: "본문 생성 설정 · OpenAI\A아래 생성 버튼을 누를 때 제목과 블로그(원문) 본문에 적용됩니다."; white-space: pre-line; color: var(--ink); font-size: 12px; font-weight: 800; line-height: 1.55; }
+.content-generation-models { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 0; padding: 14px; border: 1px solid #eadfd4; border-radius: 10px; background: #fffcf9; }
+.content-generation-models-heading { display: grid; gap: 3px; margin-bottom: 8px; color: var(--ink); }
+.content-generation-models-heading strong { font-size: 12px; font-weight: 800; line-height: 1.55; }
+.content-generation-models-heading small { color: var(--muted); font-size: 11px; font-weight: 500; line-height: 1.45; }
 .content-generation-models .field { margin: 0; }
 .content-generation-models select:disabled { cursor: default; opacity: 1; color: var(--ink); background: #f7f2ed; }
 .content-generation-models + .image-with-draft-option { position: relative; margin-top: 43px; }

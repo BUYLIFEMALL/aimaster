@@ -338,6 +338,8 @@ test("selects an OpenAI, Claude, or Gemini content model above representative im
   const models = readFileSync(new URL("../../lib/ai/contentModels.ts", import.meta.url), "utf8");
   assert.match(studio, /id="content-provider-selector"/);
   assert.match(studio, /id="content-model-selector"/);
+  assert.match(studio, /selectedContentModelLabel/);
+  assert.match(studio, /본문 생성모델 · \{selectedContentModelLabel\}/);
   assert.match(studio, /대표 이미지 생성 \(나노바나나\)/);
   assert.match(studio, /model: contentModel/);
   assert.match(studio, /option value="anthropic">Anthropic Claude/);
