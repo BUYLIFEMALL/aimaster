@@ -158,7 +158,7 @@ test("extracts publish tag recommendations from the selected content topic, keyw
   assert.ok(tags.includes("AI 자동화"));
   assert.ok(tags.includes("업무 자동화"));
   assert.ok(tags.includes("생성형 AI"));
-  assert.ok(tags.includes("자동화"));
+  assert.ok(!tags.includes("자동화")); // 이미 'AI 자동화'·'업무 자동화'에 포함된 중복 단어
 });
 
 test("keeps meaningful Korean words intact and excludes generic or conjugated body words from tag recommendations", () => {
@@ -175,6 +175,26 @@ test("keeps meaningful Korean words intact and excludes generic or conjugated bo
   });
   assert.deepEqual([...tags], ["SNS마케팅 트렌드", "SNS마케팅"]);
   for (const unwanted of ["콘텐츠", "고객", "브랜드", "메시", "메시지", "전략", "실무", "실무에서", "있습니다", "합니다"]) {
+    assert.ok(!tags.includes(unwanted), `${unwanted} should not be recommended`);
+  }
+});
+
+test("does not recommend punctuation-tailed predicates or component words already covered by a specific travel tag", () => {
+  const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+  const start = source.indexOf("const TAG_STOP_WORDS");
+  const end = source.indexOf("function formatWebDraftLabel");
+  const sandbox = vm.createContext({});
+  vm.runInContext(source.slice(start, end), sandbox);
+  const tags = sandbox.buildRecommendedTags({
+    topic: "서울 근교 당일치기 여행",
+    keywords: ["서울여행", "가을여행"],
+    title: "서울에서 가까운 가을여행 명소 7곳, 당일치기로 딱 좋아요",
+    body: "서울 근교 당일치기 여행은 서울여행과 가을여행에 좋습니다. 서울 여행지에서는 가을 시간에 여행 계획을 세웁니다. 서울 근교 명소는 여행지로 좋습니다.",
+  });
+  assert.ok(tags.includes("서울 근교 당일치기 여행"));
+  assert.ok(tags.includes("서울여행"));
+  assert.ok(tags.includes("가을여행"));
+  for (const unwanted of ["있습니다.", "있습니다", "좋습니다", "시간", "여행", "여행지", "가을", "서울", "근교"]) {
     assert.ok(!tags.includes(unwanted), `${unwanted} should not be recommended`);
   }
 });

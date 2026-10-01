@@ -2,16 +2,17 @@
 
 ## 프로그램 버전
 
-- 회원용 앱·확장 프로그램 공개 버전: `v1.58` (`lib/version.ts`의 `APP_VERSION`, 공용 `programs.version`, 확장 `manifest.json`의 `version_name`, 다운로드 ZIP을 같은 값으로 유지)
+- 회원용 앱·확장 프로그램 공개 버전: `v1.59` (`lib/version.ts`의 `APP_VERSION`, 공용 `programs.version`, 확장 `manifest.json`의 `version_name`, 다운로드 ZIP을 같은 값으로 유지)
 - 최신 CLI 인수인계: [`CLI_HANDOFF_2026-10-01.md`](./CLI_HANDOFF_2026-10-01.md)
 - 데이터 보관·삭제 정책: [`DATA_RETENTION.md`](./DATA_RETENTION.md)
 - 작은 기능·화면·버그 수정 배포마다 두 공개 버전을 함께 `0.01` 올립니다. 메이저 버전은 주인님 지시가 있을 때만 올립니다.
 - Chrome 확장의 `manifest.json.version`은 기존 설치본보다 높은 숫자가 필요한 내부 업데이트용 값이며, 공개 버전은 `version_name`을 기준으로 표시합니다.
 
-## 추천 태그 정제 (v1.58)
+## 추천 태그 정제 (v1.59)
 
 - 추천 태그는 저장된 주제·핵심 키워드를 우선 보존하고, 본문에서 새로 뽑는 반복 단어는 서술어·조사·일반 명사를 제외합니다.
 - `메시지`처럼 마지막 글자가 조사와 같은 단어는 원형을 보존합니다. `있습니다`·`합니다`, `콘텐츠`·`고객`·`브랜드`·`전략`처럼 검색 의도가 약한 본문 일반어는 자동 추천하지 않습니다.
+- 문장 끝 마침표를 제거한 뒤 금칙어를 판정하며, 이미 선택된 `서울 근교 당일치기 여행` 같은 구체 태그에 포함되는 `서울`·`근교`·`여행` 등의 단어는 중복 추천하지 않습니다.
 
 `naver-blog-auto-poster_app`과 `naver-blog-auto-poster_web`을 수정하지 않고 새로 시작하는 독립 서브프로젝트입니다.
 

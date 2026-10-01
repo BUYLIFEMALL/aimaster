@@ -18,13 +18,13 @@ let activeWebDraftTopic = "";
 let isAdmin = false;
 
 const TAG_STOP_WORDS = new Set([
-  "그리고", "하지만", "또한", "따라서", "그래서", "이러한", "이것은", "그것은", "이번", "오늘", "최근", "경우", "부분", "관련", "통해", "대해", "위해", "대한", "중요", "필요", "가능", "사용", "적용", "도입", "방법", "내용", "정보", "결과", "기능", "과정", "분야", "상황", "하나", "여러", "모든", "각각", "실제", "더욱", "가장", "먼저", "다음", "이후", "이전", "현재", "때문", "때문에", "있습니다", "있으며", "있습니다", "합니다", "됩니다", "합니다", "한다", "되는", "있는", "없는", "같은", "것을", "것이", "에서", "으로", "에게",
+  "그리고", "하지만", "또한", "따라서", "그래서", "이러한", "이것은", "그것은", "이번", "오늘", "최근", "경우", "부분", "관련", "통해", "대해", "위해", "대한", "중요", "필요", "가능", "사용", "적용", "도입", "방법", "내용", "정보", "결과", "기능", "과정", "분야", "상황", "하나", "여러", "모든", "각각", "실제", "더욱", "가장", "먼저", "다음", "이후", "이전", "현재", "때문", "때문에", "있습니다", "있으며", "합니다", "됩니다", "좋습니다", "한다", "되는", "있는", "없는", "같은", "것을", "것이", "에서", "으로", "에게",
 ]);
 
 // 주제/핵심 키워드는 사용자가 정한 값이라 보존하고, 본문에서 새로 뽑는
 // 반복 단어에만 적용한다. 그렇지 않으면 검색 의도와 무관한 일반 명사가 태그가 된다.
 const TAG_GENERIC_BODY_WORDS = new Set([
-  "콘텐츠", "고객", "브랜드", "메시지", "전략", "실무", "정리", "소개", "가이드", "초보자", "완벽", "핵심", "주요", "활용", "효율", "관리", "분석", "서비스", "제품", "시장", "업무",
+  "콘텐츠", "고객", "브랜드", "메시지", "전략", "실무", "정리", "소개", "가이드", "초보자", "완벽", "핵심", "주요", "활용", "효율", "관리", "분석", "서비스", "제품", "시장", "업무", "시간", "여행", "여행지", "가을", "서울", "근교",
 ]);
 
 const KOREAN_TAG_PARTICLES = [
@@ -60,6 +60,7 @@ function normalizeTagCandidate(value) {
   let tag = String(value || "")
     .replace(/^#+/, "")
     .replace(/["'“”‘’()[\]{}<>]/g, " ")
+    .replace(/^[,.:;!?]+|[,.:;!?]+$/g, "")
     .trim()
     .replace(/\s+/g, " ")
     .slice(0, 30);
@@ -69,6 +70,14 @@ function normalizeTagCandidate(value) {
   const particle = KOREAN_TAG_PARTICLES.find((suffix) => tag.endsWith(suffix));
   if (particle && tag.length - particle.length >= 2) tag = tag.slice(0, -particle.length);
   return tag;
+}
+
+function isCoveredBySpecificTag(tag, tags) {
+  const compactTag = tag.replace(/\s+/g, "");
+  return tags.some((existingTag) => {
+    const compactExistingTag = existingTag.replace(/\s+/g, "");
+    return compactExistingTag.length > compactTag.length && compactExistingTag.includes(compactTag);
+  });
 }
 
 function buildRecommendedTags({ topic, keywords, title, body }) {
@@ -81,6 +90,7 @@ function buildRecommendedTags({ topic, keywords, title, body }) {
       tag.length < 2
       || TAG_STOP_WORDS.has(key)
       || (fromBody && TAG_GENERIC_BODY_WORDS.has(key))
+      || (fromBody && isCoveredBySpecificTag(tag, tags))
       || seen.has(key)
     ) return;
     seen.add(key);
