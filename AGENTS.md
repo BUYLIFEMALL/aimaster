@@ -9,7 +9,7 @@
   Claude Code는 `CLAUDE.md`를 자동으로 읽으므로 그쪽이 1차 소스지만, **다른 도구는 CLAUDE.md를
   자동으로 읽지 않으므로 이 AGENTS.md가 사실상 유일한 진입점**이다. 두 문서 중 하나만 고쳐서
   내용이 어긋나면, 여기(AGENTS.md)와 루트 CLAUDE.md 양쪽을 함께 확인해서 최신 쪽을 신뢰할 것.
-- 각 서브프로젝트 폴더(`tarot/`, `threads/`, `blog/` 등) 안에도 그 프로젝트 전용 `README.md`/
+- 각 서브프로젝트 폴더(`tarot/`, `threads/`, `ai-auto-blog/` 등) 안에도 그 프로젝트 전용 `README.md`/
   `AGENTS.md`가 따로 있다. 이 루트 문서는 "플랫폼 전체 공통 규칙 + 프로그램 목록"이고, 특정
   프로그램을 실제로 고치기 전에는 반드시 그 서브프로젝트 폴더의 문서까지 읽을 것.
 - 사용자를 한국어로 부를 때는 **"주인님"**을 쓴다(사장님 등 다른 호칭 금지 — 사용자가 명시적으로
@@ -362,7 +362,7 @@ vercel deploy --prod --yes --scope buylife
     `naver-blog-auto-poster_app/src/lib/humanInput.js`,
     `naver-blog-auto-poster_app/AGENTS.md`, `naver-blog-auto-poster_web/AGENTS.md`.
 28. **웹에서 만든 글을 크롬 확장으로 네이버 블로그 글쓰기 화면에 입력하기** — 연동 토큰·보낸 글 목록 API·입력 블록 변환·
-    한 글자씩 입력(§20)·이미지 파일 업로드·발행 설정창까지(마지막 발행은 사람). 새 프로그램은 `blog/extension/` 구현을 복사해 이름만 바꾼다.
+    한 글자씩 입력(§20)·이미지 파일 업로드·발행 설정창까지(마지막 발행은 사람). 새 프로그램은 `ai-auto-blog/extension/` 구현을 복사해 이름만 바꾼다.
 
 ---
 
@@ -492,7 +492,7 @@ vercel deploy --prod --yes --scope buylife
 
 ### 2026-10-01 추가 (BLOG 독립 배포 분리 — 새 Vercel 프로젝트를 만들 때)
 
-- BLOG(`blog/`, ai-auto-blog)는 초창기에 루트 앱에 내장(`app/(embedded)/blog` + `app/api/*` 재수출)돼 www.buylife.xyz/blog로 서빙됐다.
+- BLOG(`ai-auto-blog/`, ai-auto-blog)는 초창기에 루트 앱에 내장(`app/(embedded)/blog` + `app/api/*` 재수출)돼 www.buylife.xyz/blog로 서빙됐다.
   주인님 지시로 다른 프로그램처럼 자체 Vercel 프로젝트로 분리했다. 루트에는 `next.config.mjs`의 `/blog/:path*` → 새 주소 넘김만 남겼다.
 - **루트에 내장돼 있던 서브프로젝트는 루트 빌드가 타입 오류를 무시(`ignoreBuildErrors`)해서 숨은 타입 오류가 있을 수 있다** — 단독 빌드 때 1건 발견·수정.
   또 루트 화면이 대신 해주던 권한 확인이 빠질 수 있으니, 분리할 때 회원 전용 화면마다 서버 쪽 `requireProgramAccess()` 레이아웃을 넣어야 한다.
@@ -505,10 +505,12 @@ vercel deploy --prod --yes --scope buylife
   BLOG의 `.env.local`에는 없어진 옛 Supabase 프로젝트 주소가 남아 있어서, 그대로 옮겼다가 로그인이 "fetch failed"로 전부 실패했다.
   넣은 뒤에는 주소에 공용 프로젝트 ID(`esgxyikcnnvmlhygjkth`)가 들어 있는지 꼭 확인할 것.
 - **여러 프로그램이 함께 쓰는 Storage 버킷(`post-images` 등)에서 자동 삭제 작업을 만들 때는 반드시 그 프로그램 폴더만 지운다.**
-  BLOG의 30일 정리 작업(`blog/app/api/cron/cleanup-images`)은 `<회원 id>/ai-auto-blog/` 안만 본다 — threads·insta·naver-cafe 파일이 같은 버킷에 있다.
+  BLOG의 30일 정리 작업(`ai-auto-blog/app/api/cron/cleanup-images`)은 `<회원 id>/ai-auto-blog/` 안만 본다 — threads·insta·naver-cafe 파일이 같은 버킷에 있다.
 - **크롬 확장 입력 속도는 §20(70~170ms) 기준이다.** 2026-10-01 BLOG 확장을 만들며 SEO 스튜디오 확장(`naver-blog-seo-studio/extension/sidepanel.js`
   `typeWithDebugger`)이 24~52ms로 기준보다 빠른 것을 발견했다(Codex 담당 폴더라 손대지 않음 — 담당 CLI가 맞출 것). 상세 패턴: `docs/PLATFORM_PATTERNS.md` §28.
-- 상세: `blog/AGENTS.md` "독립 배포 분리".
+- **서브폴더 이름은 프로그램 slug·Vercel 프로젝트 이름과 맞춘다.** BLOG는 2026-10-01에 `blog/` → `ai-auto-blog/`로 옮겼다(git mv).
+  폴더를 옮길 때는 `.vercel/`·`node_modules`·`.env.local`(git이 추적하지 않는 파일)도 같이 옮겨졌는지, 루트 `tsconfig.json` 제외 목록·`.vercelignore`를 바꿨는지 확인한다.
+- 상세: `ai-auto-blog/AGENTS.md` "독립 배포 분리".
 
 ### 2026-09-29 추가 (좌측 사이드바 계정 표시 통일)
 

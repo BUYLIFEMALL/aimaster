@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 삼는다.
 
 1. **루트 폴더는 AIMaster이고, 모든 서브프로젝트는 각자의 서브폴더 안에서만 개발·관리·운영된다.**
-   지금 있는 threads / blog / shots / insta_auto_poster / real_estate_sales / auto-detail-page
+   지금 있는 threads / ai-auto-blog / shots / insta_auto_poster / real_estate_sales / auto-detail-page
    뿐 아니라, **앞으로 새로 추가되는 모든 서브프로젝트도 예외 없이** `AIMaster/<프로그램명>/`
    서브폴더 하나 안에서 자기완결적으로 개발·배포된다. 별도 git 저장소를 새로 파거나, 이 저장소
    밖의 다른 위치(다른 로컬 클론 등)에서 독립적으로 개발하지 않는다 — 실제로 `auto-detail-page`가
@@ -241,7 +241,7 @@ Stack: Next.js 14 App Router + TypeScript + Tailwind CSS + Supabase + 페이앱(
    - 페이지/레이아웃(서버 컴포넌트) + Server Action에서는 `requireProgramAccess()` 스타일(권한 없으면 `redirect()`)을 쓴다.
    - API route handler(특히 OAuth 콜백처럼 GET이지만 DB에 쓰는 라우트 포함)에서는 절대 `redirect()`를 쓰지 말고, `{allowed, error, status}` 형태의 결과 객체를 반환하는 버전(`checkProgramAccess()` / `checkProgramAccessApi()`)을 써서 JSON 에러 응답을 내려준다 (redirect를 fetch로 받으면 클라이언트의 `res.json()` 파싱이 깨진다). CRON_SECRET으로 보호되는 시스템 간 라우트(예: `dispatch-scheduled`)는 예외.
    - 새 서브프로젝트를 만들 때 `src/lib/access.ts`에는 `requireProgramAccess()`와 **`checkProgramAccessApi()`를 처음부터 같이 만든다** (나중에 API route/OAuth 콜백을 추가할 때 빠뜨리기 쉽다).
-   - 참고 구현: `lib/access/checkProgramAccess.ts`(루트), `threads/src/lib/access.ts`, `shots/src/lib/access.ts`, `real_estate_sales/src/lib/access.ts`, `blog/utils/access.ts`(`requireProgramAccess` + `checkProgramAccessApi`).
+   - 참고 구현: `lib/access/checkProgramAccess.ts`(루트), `threads/src/lib/access.ts`, `shots/src/lib/access.ts`, `real_estate_sales/src/lib/access.ts`, `ai-auto-blog/utils/access.ts`(`requireProgramAccess` + `checkProgramAccessApi`).
    - **감사 이력**: 2026-08-06 blog의 `/api/auto-post`, `/api/posts/[id]` PUT/DELETE에서 발견·수정. 2026-08-10 전수 감사에서 threads(Server Action 17개 + Threads OAuth 콜백), shots(Server Action 30개 + Instagram/YouTube OAuth 콜백 2개), real_estate_sales(Server Action 6개)에서 전부 `requireUser()`만 쓰고 있던 것을 발견해 `requireProgramAccess()`/`checkProgramAccessApi()`로 일괄 수정함 — **거의 모든 신규 코드에서 반복되는 실수이니 새 Server Action/API route를 작성할 때마다 이 항목을 의식적으로 체크할 것.**
    - **`requireProgramAccess()`/`checkProgramAccessApi()`를 넣는 것만으로 끝이 아니다 — 그 파일에 `export const dynamic = "force-dynamic";`과 `export const fetchCache = "force-no-store";` 두 줄을 반드시 같이 선언할 것.** 이 둘 중 하나라도 빠지면 Vercel이 이 권한 체크 자체의 실행 결과를 정적으로 캐싱해서, 실제 로그인/권한 상태와 무관하게 과거 응답(다른 사람이 로그인했을 때, 혹은 빌드 시점)을 모든 사용자에게 그대로 서빙할 수 있다. 로컬 `npm run build`의 ○(Static)/ƒ(Dynamic) 표시는 이 버그를 잡아내지 못하니 신뢰하지 말 것 — 배포 후 `curl -s -D - -o /dev/null <live-url>`로 `X-Vercel-Cache` 헤더가 `MISS`인지 직접 확인해야 확실하다. 상세 배경과 재현 사례는 `docs/PLATFORM_PATTERNS.md` §10 참고.
      - **감사 이력**: 2026-08-30, bugang530@gmail.com의 blog 접근 권한 오류를 조사하다 blog의 write 레이아웃/API 라우트 9개에서 이 두 줄이 빠진 것을 발견. "모든 사용자·앞으로 가입할 사용자에게도 적용되도록" 나머지 17개 서브프로젝트 전체를 감사해 총 31개 파일(`(dashboard)/layout.tsx` 16개 + OAuth 콜백 등 `route.ts` 15개)에서 동일하게 발견해 일괄 수정함 — **새 서브프로젝트를 만들 때 `layout.tsx`/`route.ts`를 작성하는 즉시(나중이 아니라) 이 두 줄을 습관적으로 넣을 것.**

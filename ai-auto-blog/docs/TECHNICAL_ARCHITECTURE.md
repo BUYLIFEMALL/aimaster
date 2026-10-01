@@ -10,7 +10,7 @@
 
 본 프로젝트(`d:\Antigravity\AIMaster_dev`)는 단일 데이터베이스 통합 관리 규칙(Supabase DB `AIMaster_dev`)과 폴더 단위 독립 프로그램 관리 구조를 따릅니다.
 
-1. **`blog/`**: Next.js 16 (App Router) 기반 고성능 블로그 웹 플랫폼.
+1. **`ai-auto-blog/`**: Next.js 16 (App Router) 기반 고성능 블로그 웹 플랫폼.
 2. **`blog_auto_poster/`**: Node.js & TypeScript 기반 24시간 실시간 이슈 분석 및 AI 자동 포스팅 모듈.
 
 ---
@@ -102,14 +102,14 @@ flowchart TD
 
 ## 📁 7. 주요 파일 및 역할 정리
 
-- [blog/utils/news/nanoBananaConfig.ts](file:///d:/Antigravity/AIMaster_dev/blog/utils/news/nanoBananaConfig.ts): 제미나이 정식 모델 ID 및 엔드포인트 설정.
-- [blog/utils/news/imageGenerator.ts](file:///d:/Antigravity/AIMaster_dev/blog/utils/news/imageGenerator.ts): AI Visual Director 및 REST API 이미지 호출 모듈.
-- [blog/utils/news/generator.ts](file:///d:/Antigravity/AIMaster_dev/blog/utils/news/generator.ts): 본문 생성, 해시태그 조립 및 파이프라인 조율.
-- [blog/app/page.tsx](file:///d:/Antigravity/AIMaster_dev/blog/app/page.tsx): 메인 블로그 화면, 라이트급 쿼리, 카테고리 툴바 및 모달 연동.
-- [blog/app/_components/CategoryManagementModal.tsx](file:///d:/Antigravity/AIMaster_dev/blog/app/_components/CategoryManagementModal.tsx): 카테고리 CRUD 관리 모달.
-- [blog/app/posts/[id]/page.tsx](file:///d:/Antigravity/AIMaster_dev/blog/app/posts/[id]/page.tsx): 포스트 상세 페이지, "📋 본문 복사하기" 정제 필터.
-- [blog/app/posts/[id]/edit/page.tsx](file:///d:/Antigravity/AIMaster_dev/blog/app/posts/[id]/edit/page.tsx): 게시글 수정 에디터, 카테고리 선택 드롭다운.
-- [blog/app/api/posts/[id]/route.ts](file:///d:/Antigravity/AIMaster_dev/blog/app/api/posts/[id]/route.ts): 게시글 수정 PUT 및 삭제 DELETE REST API.
+- [ai-auto-blog/utils/news/nanoBananaConfig.ts](file:///d:/Antigravity/AIMaster_dev/blog/utils/news/nanoBananaConfig.ts): 제미나이 정식 모델 ID 및 엔드포인트 설정.
+- [ai-auto-blog/utils/news/imageGenerator.ts](file:///d:/Antigravity/AIMaster_dev/blog/utils/news/imageGenerator.ts): AI Visual Director 및 REST API 이미지 호출 모듈.
+- [ai-auto-blog/utils/news/generator.ts](file:///d:/Antigravity/AIMaster_dev/blog/utils/news/generator.ts): 본문 생성, 해시태그 조립 및 파이프라인 조율.
+- [ai-auto-blog/app/page.tsx](file:///d:/Antigravity/AIMaster_dev/blog/app/page.tsx): 메인 블로그 화면, 라이트급 쿼리, 카테고리 툴바 및 모달 연동.
+- [ai-auto-blog/app/_components/CategoryManagementModal.tsx](file:///d:/Antigravity/AIMaster_dev/blog/app/_components/CategoryManagementModal.tsx): 카테고리 CRUD 관리 모달.
+- [ai-auto-blog/app/posts/[id]/page.tsx](file:///d:/Antigravity/AIMaster_dev/blog/app/posts/[id]/page.tsx): 포스트 상세 페이지, "📋 본문 복사하기" 정제 필터.
+- [ai-auto-blog/app/posts/[id]/edit/page.tsx](file:///d:/Antigravity/AIMaster_dev/blog/app/posts/[id]/edit/page.tsx): 게시글 수정 에디터, 카테고리 선택 드롭다운.
+- [ai-auto-blog/app/api/posts/[id]/route.ts](file:///d:/Antigravity/AIMaster_dev/blog/app/api/posts/[id]/route.ts): 게시글 수정 PUT 및 삭제 DELETE REST API.
 
 ---
 *본 문서는 기술적 일관성을 유지하고 향후 추가 개발 시 참고 자료로 활용됩니다.*

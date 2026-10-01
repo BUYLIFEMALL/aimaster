@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // 이 라우트는 루트 AIMaster 앱(app/api/posts/generate-editor-image/route.ts)이
 // export {...} from '@/blog/...' 형태로 그대로 재노출한다 — 그 빌드 컨텍스트에서는
 // "@/*"가 루트 폴더를 가리키므로, 반드시 "@/blog/*"로만 내부 모듈을 참조해야 한다
-// (blog/app/api/auto-post/route.ts와 동일한 관례).
+// (ai-auto-blog/app/api/auto-post/route.ts와 동일한 관례).
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'

@@ -48,7 +48,7 @@
   "exclude": [
     "node_modules",
     "threads",
-    "blog",
+    "ai-auto-blog",
     "blog_auto_poster"
   ]
 }

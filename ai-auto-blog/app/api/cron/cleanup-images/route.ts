@@ -15,7 +15,7 @@ export const maxDuration = 300
 // 주인님 정의(2026-10-01): "30일 자동 삭제는 생성된 블로그 콘텐츠 일체를 건별로, 생성 날짜 기준으로 — DB 용량이 무제한으로 쌓이는 것 방지".
 // 카테고리·작성자·API 키·NewsBlur 계정 같은 설정 데이터는 콘텐츠가 아니라서 지우지 않는다.
 // 기존 글은 정책 시작일(2026-10-01)부터 30일 유예 — utils/imageRetention.ts의 retentionCutoff().
-// Vercel Cron(blog/vercel.json)이 매일 호출하며 CRON_SECRET이 맞을 때만 실행한다(회원 권한 확인 대상이 아닌 시스템 라우트).
+// Vercel Cron(ai-auto-blog/vercel.json)이 매일 호출하며 CRON_SECRET이 맞을 때만 실행한다(회원 권한 확인 대상이 아닌 시스템 라우트).
 // post-images 버킷은 threads·insta·naver-cafe와 함께 쓰므로 반드시 "<회원 id>/ai-auto-blog/" 안의 파일만 지운다.
 // 경로 이름(cleanup-images)은 Vercel Cron 등록과 맞추려고 그대로 둔다.
 const BLOG_IMAGE_PATH = /\/storage\/v1\/object\/public\/post-images\/([0-9a-z-]+\/ai-auto-blog\/[^"')\s?#]+)/gi

@@ -23,7 +23,7 @@ npm run dev
 ### 📌 AI 생성 프롬프트 복사(Copy Prompt) 이벤트 위임 패턴 (2026-09-28)
 - **문제**: 블로그 상세 보기에서 "📋 프롬프트 복사" 버튼 클릭 시 마크다운 변환 인라인 `onclick` 스크립트가 DOM 구조 변경이나 과거 DB 저장글(107번 포스트 등)에서 정상 작동하지 않던 현상.
 - **해결**:
-  - `blog/app/posts/[id]/page.tsx`에 **Client-side Event Delegation** 적용 (`handleContentClick`).
+  - `ai-auto-blog/app/posts/[id]/page.tsx`에 **Client-side Event Delegation** 적용 (`handleContentClick`).
   - 클릭된 요소가 복사 버튼인 경우 다중 DOM 트래버스(Sibling -> Parent -> Following DOM Node)로 프롬프트 구문(`code`)을 탐색하여 복사 후 `✓ 복사완료!` 피드백 노출.
   - 상세 내용은 루트 `docs/PLATFORM_PATTERNS.md` §26 참조.
 

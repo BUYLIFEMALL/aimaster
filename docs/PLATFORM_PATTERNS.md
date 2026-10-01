@@ -605,7 +605,7 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 2. DB(`blog_posts` 테이블 등)에 이미 저장된 과거 블로그 글(예: 107번 포스트)의 HTML 데이터에는 이전 인라인 `onclick` 코드가 그대로 남아있으므로, 변환기 함수 수정만으로는 과거 글의 복사 기능을 소급 적용할 수 없음.
 
 **해결 방안 및 표준 구현 패턴**:
-1. **Client-side Event Delegation (이벤트 위임)**: 상세 페이지 뷰어 컴포넌트(`blog/app/posts/[id]/page.tsx` 등)의 본문 래퍼 `onClick` 핸들러에서 클릭된 이벤트를 캡처함.
+1. **Client-side Event Delegation (이벤트 위임)**: 상세 페이지 뷰어 컴포넌트(`ai-auto-blog/app/posts/[id]/page.tsx` 등)의 본문 래퍼 `onClick` 핸들러에서 클릭된 이벤트를 캡처함.
 2. **다중 트래버스 탐색 (Multiple DOM Traversal)**:
    - 클릭 타겟이 복사 버튼인지 확인 (`copyBtn.innerText`에 '프롬프트 복사' 또는 '복사완료' 포함, 혹은 `data-copy-btn="true"`).
    - **탐색 A**: 부모 flex/wrapper의 다음 형제 요소(sibling)들을 순회하며 `code` 태그 탐색.
@@ -614,8 +614,8 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 3. **안전한 클립보드 복사 & UI 피드백**: `navigator.clipboard.writeText(text)` 호출 및 비보안 환경/Safari용 `textarea` execCommand fallback 적용 후, 2초간 `✓ 복사완료!` 피드백을 노출하고 원복.
 
 **관련 파일**:
-- `blog/app/posts/[id]/page.tsx`
-- `blog/utils/markdown.ts`
+- `ai-auto-blog/app/posts/[id]/page.tsx`
+- `ai-auto-blog/utils/markdown.ts`
 - `utils/markdown.ts`
 
 ---
@@ -629,8 +629,8 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 ## 28. 웹에서 만든 글을 크롬 확장으로 네이버 블로그 글쓰기 화면에 입력하기 (웹 → 확장 → 네이버 편집기, 2026-10-01)
 
 네이버 블로그처럼 **공식 글쓰기 API가 없는 곳**에 회원이 만든 글을 옮겨 넣는 기능을 만들 때 쓰는 표준 구조다.
-참고 구현은 두 개다: `naver-blog-seo-studio/extension/`(최초 구현, Codex 담당)과 `blog/extension/`(BLOG 전용으로 옮긴 판, 2026-10-01).
-새 프로그램에 같은 기능이 필요하면 **`blog/` 구현을 복사해서 이름·주소·프로그램 slug만 바꾸는 것**을 기본으로 한다.
+참고 구현은 두 개다: `naver-blog-seo-studio/extension/`(최초 구현, Codex 담당)과 `ai-auto-blog/extension/`(BLOG 전용으로 옮긴 판, 2026-10-01).
+새 프로그램에 같은 기능이 필요하면 **`ai-auto-blog/` 구현을 복사해서 이름·주소·프로그램 slug만 바꾸는 것**을 기본으로 한다.
 반드시 §20(봇 탐지 회피 원칙)을 먼저 읽고 그대로 지킨다.
 
 ### 왜 프로그램마다 확장을 따로 두나
@@ -661,7 +661,7 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
   2.3~3초 기다렸다가 마지막 `input[type=file]`에 `DataTransfer`로 파일을 넣고 `change` 이벤트. 이미지 개수가 늘었는지 확인한다.
 - **이미지 다음 입력 위치**: 이미지 뒤에 네이버가 만드는 빈 문단을 골라야 이미지 설명칸에 글자가 들어가지 않는다.
 - **서식은 남지 않는다**: 한 글자씩 입력이라 소제목 크기·굵게·표 모양은 빠진다. 서버 변환에서 소제목 앞 `##` 제거, 목록은 `• 항목`,
-  링크는 `글자 (주소)`, 마지막 해시태그 줄은 본문에서 빼고 태그 추천값으로 돌려준다(`blog/utils/extensionContent.ts`).
+  링크는 `글자 (주소)`, 마지막 해시태그 줄은 본문에서 빼고 태그 추천값으로 돌려준다(`ai-auto-blog/utils/extensionContent.ts`).
   `#{1,6}` 제거 정규식은 **뒤에 띄어쓰기가 있을 때만** 지울 것 — 안 그러면 첫 해시태그의 `#`까지 지워진다(실제로 겪음).
 - **확장 → 우리 API는 CORS 설정이 필요 없다**: `host_permissions`에 우리 배포 주소를 넣으면 사이드패널에서 바로 호출된다.
   이미지 주소(Supabase Storage, Cloudinary)도 `host_permissions`에 넣는다.

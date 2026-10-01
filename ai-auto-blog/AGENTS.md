@@ -62,7 +62,7 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 - 핵심 원칙 5번(버전 관리)이 BLOG에는 DB(`programs.version`)에만 적용돼 있고 코드·화면에는 빠져 있었다
   (2026-09-29 사이드바 21개에 버전 표시를 일괄 추가할 때, BLOG는 루트 앱에 내장된 구조라 사이드바가
   `components/layout/BlogSidebar.tsx`(루트)에 있어서 누락됨).
-- `blog/utils/version.ts`의 `APP_VERSION`을 새로 만들고, 사이드바(`app/_components/BlogSidebar.tsx`) 제목 밑에 표시한다. **수정할 때마다 이 파일과
+- `ai-auto-blog/utils/version.ts`의 `APP_VERSION`을 새로 만들고, 사이드바(`app/_components/BlogSidebar.tsx`) 제목 밑에 표시한다. **수정할 때마다 이 파일과
   DB `programs.version`(slug `ai-auto-blog`)을 같이 올릴 것.**
 
 # 독립 배포 분리 (2026-10-01, 프로그램 버전 v1.06)
@@ -96,11 +96,11 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 # 로그인 "fetch failed" 수정 (2026-10-01, 프로그램 버전 v1.07)
 
 - **증상**: 독립 배포 직후 로그인하면 빨간 "fetch failed"만 뜨고 로그인이 안 됐다(주인님 테스트 계정으로 발견).
-- **원인**: Vercel 환경변수를 `blog/.env.local`에서 옮겼는데, 그 파일에는 **BLOG를 처음 만들 때 쓰던, 지금은 없어진 Supabase 프로젝트 주소**
+- **원인**: Vercel 환경변수를 `ai-auto-blog/.env.local`에서 옮겼는데, 그 파일에는 **BLOG를 처음 만들 때 쓰던, 지금은 없어진 Supabase 프로젝트 주소**
   (`rjjtjakljjxsgjelqgek`)가 남아 있었다. 루트에 내장돼 있던 동안은 루트의 공용 DB 설정값을 써서 드러나지 않았다.
   서버 로그: `getaddrinfo ENOTFOUND rjjtjakljjxsgjelqgek.supabase.co`.
 - **수정**: Vercel(ai-auto-blog, production/preview)의 `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 루트 `.env.local`의
-  공용 DB(`esgxyikcnnvmlhygjkth`) 값(`NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_ANON_KEY`)으로 교체. 로컬 `blog/.env.local`도 같은 값으로 맞춤.
+  공용 DB(`esgxyikcnnvmlhygjkth`) 값(`NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_ANON_KEY`)으로 교체. 로컬 `ai-auto-blog/.env.local`도 같은 값으로 맞춤.
   배포된 화면 코드에 공용 DB 주소만 들어 있는 것 확인.
 - 로그인 화면 문구 정리: 버튼 "세션 인증" → "로그인", 부제 "모든 빌드를 위한 정밀한 환경." → "AIMaster 계정(이메일·비밀번호)으로 로그인하세요.",
   로그인 완료 문구 "세션이 정상적으로 인증되었습니다." → "로그인되었습니다.". DB 연결 실패 시 "fetch failed" 대신
@@ -162,7 +162,7 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 주인님 지시("데이터 누적을 막기 위해 보관 기간은 1달, 사용자들이 인지할 수 있도록 정리해서 보기 좋게 노출"):
 
 - **보관 기간 값**: `utils/imageRetention.ts`의 `IMAGE_RETENTION_DAYS = 30` — 정리 작업과 안내 문구가 이 값 하나를 쓴다.
-- **정리 작업**: `app/api/cron/cleanup-images/route.ts`. Vercel Cron(`blog/vercel.json`, `0 18 * * *` = 매일 한국 시간 03:00)이 호출한다.
+- **정리 작업**: `app/api/cron/cleanup-images/route.ts`. Vercel Cron(`ai-auto-blog/vercel.json`, `0 18 * * *` = 매일 한국 시간 03:00)이 호출한다.
   - `Authorization: Bearer <CRON_SECRET>`이 맞을 때만 실행(Vercel이 자동으로 붙임). `CRON_SECRET`은 Vercel ai-auto-blog production 환경변수(민감값)로 등록했다.
   - **`post-images` 버킷은 threads·insta·naver-cafe와 공용이라 `<회원 id>/ai-auto-blog/` 폴더 안의 파일만** 만든 지 30일이 지나면 지운다.
   - `?dry=1`을 붙이면 지우지 않고 대상 개수만 알려준다. 배포 직후 확인: 키 없이 401, 키+dry → `checked 9, expired 0`(이전한 9장, 아직 30일 안 됨).
@@ -211,7 +211,7 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   → 네이버 블로그 글쓰기 탭에서 "네이버 편집기로 입력" → 제목·본문·이미지 순서대로 입력 → 입력 확인 → 발행 설정창에 카테고리·태그 → **마지막 발행은 회원이 직접**.
 - **확장**: `extension/`(manifest v3, `sidepanel.js`). SEO 스튜디오 확장의 검증된 네이버 처리 + §20 반영(70~170ms 타이핑, 클릭 전 hover).
   ZIP: `npm run build:extension` → `public/downloads/ai-auto-blog-extension-<version_name>.zip`. 확장을 고치면 manifest 버전 두 칸을 올리고 ZIP 재생성·커밋.
-  확장 공개 버전(`version_name`)은 프로그램 버전과 같은 값으로 맞춘다(지금 v1.17).
+  확장 공개 버전(`version_name`)은 **확장 코드를 고칠 때만** 그 시점의 프로그램 버전으로 맞춘다(웹만 고친 배포에서는 확장을 다시 설치하게 하지 않도록 그대로 둔다 — 지금 확장 v1.17, 프로그램 v1.18).
 - **서버**:
   - 토큰: `utils/extensionAuth.ts`(`personal_access_tokens`, `program_slug='ai-auto-blog'`, sha256 해시, 공용 권한 판정 `checkProgramAccess`),
     발급·조회·폐기 서버 함수 `app/settings/extensionTokenActions.ts`, 화면 `components/settings/ExtensionSettings.tsx`.
@@ -225,3 +225,15 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   회원 글 7개 변환 확인: 입력 글자 평균 약 4,000자(최대 약 9,000자) → 입력 시간 약 9분(긴 글 20분).
 - **남은 일**: 주인님 PC의 실제 네이버 글쓰기 화면에서 확장으로 끝까지 입력 확인(네이버 로그인은 사람이 직접). 셀렉터가 맞지 않으면 확장의 "구조 분석" 결과로 갱신.
   서식(소제목 크기·굵게)은 입력되지 않는다 — 주인님 선택(①한 글자씩 입력)에 따른 한계.
+
+# 서브폴더 이름 변경: blog/ → ai-auto-blog/ (2026-10-01, v1.18)
+
+- 주인님 지시("기존 프로그램처럼 네이밍 규칙에 따른 서브폴더를 만들고 그쪽에서 다른 프로그램들처럼 관리"): 새 프로그램들은
+  **폴더 이름 = 프로그램 slug = Vercel 프로젝트 이름**(예: `naver-blog-seo-studio`, `threads-affiliate-poster`)이라 `blog/`를 `ai-auto-blog/`로 옮겼다(`git mv`, 이력 유지).
+- 이제 작업·빌드·배포는 모두 `AIMaster/ai-auto-blog/`에서 한다: `cd ai-auto-blog && npm run build && npx vercel deploy --prod --yes --scope buylife`
+  (`.vercel/project.json`이 그대로 따라와 같은 Vercel 프로젝트 `ai-auto-blog`, 같은 주소 https://ai-auto-blog-one.vercel.app 으로 배포됨을 확인).
+- 코드 안의 경로 별칭 `@/blog/*`는 tsconfig에서 이 폴더 자체를 가리키므로 그대로 둔다(폴더 이름과 무관).
+- 루트에서 바꾼 것: `tsconfig.json` 제외 목록, `.vercelignore`(`/ai-auto-blog`), `next.config.mjs` 주석, 루트 문서의 경로 표기.
+  다른 서브프로젝트(threads·shots·insta·naver-cafe 등) 코드 주석에 남은 `blog/...` 언급은 동작과 무관하고, 고치면 그 프로그램 버전까지 올려야 해서 그대로 두었다
+  — 읽을 때 `ai-auto-blog/...`로 바꿔 읽으면 된다. Codex 담당 `naver-blog-seo-studio/`도 건드리지 않았다.
+- 같은 저장소에 있는 `blog_auto_poster/`는 이름이 비슷하지만 다른(예전) 폴더다 — 혼동하지 말 것.
