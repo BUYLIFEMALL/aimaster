@@ -56,3 +56,11 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   Claude Messages·Gemini generateContent, JSON 응답)로 호출. GPT-5 이상은 temperature를 보내지 않는다(기본값만 허용).
   **고른 모델이 실패하면 예전처럼 AI 없이 틀로 만든 "24h 심층 분석" 기본 글을 대신 저장하지 않고 오류를 알린다**(그 대체 코드는 삭제).
 - 검증: 테스트 계정 키로 짧은 요청 — gpt-4o-mini, claude-haiku-4-5, gemini-2.5-flash, gpt-5.6-luna 모두 JSON 정상 응답. 전체 글 1편 생성은 미실시.
+
+# 버전 표시 (2026-10-01, 프로그램 버전 v1.05)
+
+- 핵심 원칙 5번(버전 관리)이 BLOG에는 DB(`programs.version`)에만 적용돼 있고 코드·화면에는 빠져 있었다
+  (2026-09-29 사이드바 21개에 버전 표시를 일괄 추가할 때, BLOG는 루트 앱에 내장된 구조라 사이드바가
+  `components/layout/BlogSidebar.tsx`(루트)에 있어서 누락됨).
+- `blog/utils/version.ts`의 `APP_VERSION`을 새로 만들고, 사이드바 제목 밑에 표시한다. **수정할 때마다 이 파일과
+  DB `programs.version`(slug `ai-auto-blog`)을 같이 올릴 것.**

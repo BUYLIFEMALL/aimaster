@@ -38,6 +38,7 @@
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
 | 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
+| BLOG 버전 표시 (ai-auto-blog v1.05) | 버전 규칙이 DB에만 있던 것을 `blog/utils/version.ts` + 사이드바 제목 밑 표시로 보완. 이어서 BLOG 독립 배포(고유 주소) 분리 진행 중 | 주인님 지시 | `blog/AGENTS.md` "버전 표시" |
 | BLOG 본문·이미지 모델 분리 선택 (ai-auto-blog v1.04) | 글 작성 화면에 SEO 스튜디오와 같은 "본문 생성 설정(OpenAI/Claude/Gemini+모델)"·"이미지 생성 설정(나노바나나 모델)" 카드. 키는 본문용/이미지용 각각 확인, 생성 실패 시 틀 글 대체 없이 오류 표시. 세 플랫폼 짧은 요청 검증 완료 | 주인님 지시 | `blog/AGENTS.md` "본문 생성 모델·이미지 생성 모델 분리 선택" |
 | BLOG(원문) 이미지 로직 개편 (ai-auto-blog v1.03) | SEO 스튜디오 방식 반영: 섹션마다 핵심 문장 1개를 원문 그대로 골라 그 문장만 그리는 짧은 장면 설명, 이미지 응답에서 inlineData part 탐색. **운영자 GEMINI_API_KEY 폴백으로 키 없는 회원 글이 운영자 비용으로 생성되던 문제 차단**(API_KEY_REQUIRED 안내), pollinations 대체 이미지 제거. 실측 검증 완료(내용 일치·가짜 글자 제거·설명 잘림 수정), 운영 GEMINI_API_KEY 삭제. 남은 일: 이미지 저장 Supabase 전환 | 주인님 지시 | `blog/AGENTS.md` "이미지 생성 로직" |
 | 관리자(gmail) API 키 재등록 확인 (09-30) | 쓰레드 자동포스팅용 OpenAI·Perplexity 키를 주인님이 재등록 → OpenAI 모델 목록 조회 200, Perplexity 무과금 검증(빈 요청 400 vs 가짜 키 401)으로 유효 확인 | 주인님 | — |

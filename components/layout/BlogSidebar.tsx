@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/supabase/client";
+import { APP_VERSION } from "@/blog/utils/version";
 
 // threads-affiliate-poster/naver-cafe-poster 등 다른 자동화 프로그램 사이드바(메뉴 레이아웃.png
 // 참고)와 동일하게, 순서 개념 없는 대시보드는 번호 없이 최상단에, "글감 수집 → AI 글쓰기 →
@@ -60,6 +61,7 @@ export default function BlogSidebar() {
       <div>
         <div className="mb-4 md:mb-6">
           <div className="px-2 text-lg font-semibold text-slate-900">BLOG(원문)생성 자동화</div>
+          <p className="px-2 text-xs text-slate-400">{APP_VERSION}</p>
           <Link href="/programs" className="block px-2 text-xs text-slate-400 hover:text-slate-700">
             ← 다른 프로그램 보기
           </Link>
