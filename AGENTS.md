@@ -499,6 +499,9 @@ vercel deploy --prod --yes --scope buylife
   `<이름>.vercel.app`이 이미 다른 사람 것이면 `<이름>-one.vercel.app`처럼 다른 별칭이 붙으니 배포 결과의 "Aliased" 주소를 확인할 것.
 - Git Bash에서 `curl "$B/경로"`처럼 `/`로 시작하는 인자는 Windows 경로로 바뀐다 — `MSYS_NO_PATHCONV=1`을 먼저 설정할 것.
   또 문서에 넣을 긴 글을 `node -e "..."` 안에 백틱과 함께 넣으면 bash가 백틱을 명령으로 실행해 버린다 — 스크립트 파일로 따로 써서 실행할 것.
+- **서브프로젝트를 단독 배포로 옮길 때 환경변수는 그 서브프로젝트의 `.env.local`이 아니라 루트 `.env.local`(공용 DB) 값을 기준으로 넣는다.**
+  BLOG의 `.env.local`에는 없어진 옛 Supabase 프로젝트 주소가 남아 있어서, 그대로 옮겼다가 로그인이 "fetch failed"로 전부 실패했다.
+  넣은 뒤에는 주소에 공용 프로젝트 ID(`esgxyikcnnvmlhygjkth`)가 들어 있는지 꼭 확인할 것.
 - 상세: `blog/AGENTS.md` "독립 배포 분리".
 
 ### 2026-09-29 추가 (좌측 사이드바 계정 표시 통일)

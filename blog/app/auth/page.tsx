@@ -21,7 +21,7 @@ export default async function AuthPage() {
               BLOG(원문)생성 자동화
             </Link>
             <p className="text-sm font-medium text-zinc-500">
-              세션이 정상적으로 인증되었습니다.
+              로그인되었습니다.
             </p>
           </div>
 

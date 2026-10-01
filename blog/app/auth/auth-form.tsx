@@ -38,7 +38,7 @@ export default function AuthForm() {
           BLOG(원문)생성 자동화
         </Link>
         <p className="text-sm font-medium text-zinc-500">
-          모든 빌드를 위한 정밀한 환경.
+          AIMaster 계정(이메일·비밀번호)으로 로그인하세요.
         </p>
       </div>
 
@@ -204,7 +204,7 @@ export default function AuthForm() {
               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : mode === 'login' ? (
               <>
-                세션 인증
+                로그인
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

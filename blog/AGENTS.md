@@ -92,3 +92,16 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   공개 글(`/posts/107`)·로그인 화면은 200, 캐시 MISS 확인.
 - **남은 일**: 회원 계정으로 로그인 → 글 생성까지 실사용 확인. 로그인 세션은 도메인이 달라 www.buylife.xyz와 공유되지 않아서
   BLOG에서 한 번 더 로그인해야 한다(다른 단독 배포 프로그램과 같음).
+
+# 로그인 "fetch failed" 수정 (2026-10-01, 프로그램 버전 v1.07)
+
+- **증상**: 독립 배포 직후 로그인하면 빨간 "fetch failed"만 뜨고 로그인이 안 됐다(주인님 테스트 계정으로 발견).
+- **원인**: Vercel 환경변수를 `blog/.env.local`에서 옮겼는데, 그 파일에는 **BLOG를 처음 만들 때 쓰던, 지금은 없어진 Supabase 프로젝트 주소**
+  (`rjjtjakljjxsgjelqgek`)가 남아 있었다. 루트에 내장돼 있던 동안은 루트의 공용 DB 설정값을 써서 드러나지 않았다.
+  서버 로그: `getaddrinfo ENOTFOUND rjjtjakljjxsgjelqgek.supabase.co`.
+- **수정**: Vercel(ai-auto-blog, production/preview)의 `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 루트 `.env.local`의
+  공용 DB(`esgxyikcnnvmlhygjkth`) 값(`NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_ANON_KEY`)으로 교체. 로컬 `blog/.env.local`도 같은 값으로 맞춤.
+  배포된 화면 코드에 공용 DB 주소만 들어 있는 것 확인.
+- 로그인 화면 문구 정리: 버튼 "세션 인증" → "로그인", 부제 "모든 빌드를 위한 정밀한 환경." → "AIMaster 계정(이메일·비밀번호)으로 로그인하세요.",
+  로그인 완료 문구 "세션이 정상적으로 인증되었습니다." → "로그인되었습니다.". DB 연결 실패 시 "fetch failed" 대신
+  "로그인 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."를 보여준다(`app/auth/actions.ts`).

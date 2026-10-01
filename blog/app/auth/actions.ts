@@ -14,7 +14,13 @@ export async function login(formData: FormData) {
     return { error: '이메일과 비밀번호를 입력해주세요.' }
   }
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  let error: { message: string } | null = null
+  try {
+    ;({ error } = await supabase.auth.signInWithPassword({ email, password }))
+  } catch {
+    // 회원 DB(Supabase)에 연결하지 못한 경우. 예전엔 "fetch failed"가 그대로 보였다(2026-10-01, 잘못된 접속 주소 설정으로 발생).
+    return { error: '로그인 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
+  }
 
   if (error) {
     // 6. 15+ 에러 메시지를 한국어로 전송
