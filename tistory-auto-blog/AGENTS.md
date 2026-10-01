@@ -23,3 +23,8 @@
 ## 주의
 - 셀렉터는 `inspector-extension` 결과로 **확인된 것만** 쓴다. 후보가 여러 개면 조용히 고르지 말고 오류로 멈춘다.
 - 클라우드에서는 DB 적용·버전 DB 갱신·`vercel deploy`·`programs` 등록을 하지 않는다(`../docs/CLOUD_SESSION.md`).
+
+## 로컬에서 이어서 작업할 때
+이어가기 절차(병합 → 조사 실행 → 단계별 진행)와 로컬에서만 할 수 있는 일(DB 적용·`programs` 등록·배포)은
+[`docs/TISTORY_PLAN.md`](docs/TISTORY_PLAN.md) **§6**에 정리돼 있다. 가장 먼저 할 일은 주인님 PC에서 `inspector-extension/` 실행 후 JSON 결과 확보.
+

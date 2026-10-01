@@ -16,7 +16,7 @@
 |---|---|---|---|---|
 | 1 | Meta 앱 심사 (`threads_keyword_search` 고급 액세스) | ⏸ **비즈니스 인증 재제출 후 결과 대기**. 결과가 나오면 → 액세스 인증 → 데이터 처리 질문 → 앱 검수 제출 순서로 재개. 제출에는 심사관 테스트 계정과 시연 영상이 필요 | 주인님(Meta 화면) + 개발 | `threads-affiliate-poster/docs/META_APP_REVIEW.md` §0 |
 | 3 | 회원 계정으로 실제 동작 확인 | 쇼핑제휴 `/trends`(직접 가져오기·검색 필터·AI 모델별 캡션·내 페르소나), 댓글자동화 `threads_read_replies` 재연동 후 댓글 테스트, 20개 프로그램 사이드바 하단 계정 표시 | 주인님(테스트) | 각 서브프로젝트 `AGENTS.md` |
-| 4 | 티스토리 블로그 자동화 | 기획만 됨. 네이버 블로그 자동화가 완전히 끝난 뒤 시작, `naver-blog-auto-poster_*`의 AGENTS.md 방법론 재사용 | 미정 | `docs/PLATFORM_PATTERNS.md` §20 |
+| 4 | 티스토리 블로그 자동화 (`tistory-auto-blog/`, BLOG 방식 = 웹 + 크롬 확장) | 🟡 **기획·0단계 완료**(2026-10-01 클라우드 `cloud-work`): 계획 문서와 읽기 전용 조사 확장 `inspector-extension/` 작성. **다음: 주인님 PC에서 조사 확장 실행 → JSON 전달 → 서버·확장 코드 작성.** 아직 `programs` 미등록·미배포·버전 없음(완성 시 v1.01). 로컬에서 `git merge origin/cloud-work` 후 이어감 | 주인님(조사 실행) + 개발 | `tistory-auto-blog/docs/TISTORY_PLAN.md` §6, `tistory-auto-blog/AGENTS.md` |
 
 **주의**: `naver-blog-seo-studio/`는 주로 Codex가 작업하는 폴더다. 2026-09-30 주인님 지시로 Claude가 권한 규칙만 적용했다(v1.03).
 손대기 전에 `git status --porcelain -- naver-blog-seo-studio`로 Codex의 커밋 안 된 변경이 없는지 먼저 확인하고, 있으면 건드리지 않는다.

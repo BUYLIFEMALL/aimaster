@@ -50,7 +50,7 @@
 | 3 | BLOG 30일 자동 삭제 첫 실행(2026-11-01 03:00 KST) 결과 확인 — 현재 글 14·글감 25개 삭제 예정 | 날짜 대기 | `ai-auto-blog/app/api/cron/cleanup-images` |
 | 4 | Meta 앱 심사(`threads_keyword_search`) | 비즈니스 인증 결과 대기 | `threads-affiliate-poster/docs/META_APP_REVIEW.md` |
 | 5 | 회원 계정 동작 확인(쇼핑제휴 /trends, 댓글자동화, 사이드바 계정 표시) | 주인님 테스트 | `docs/HANDOFF.md` §1 |
-| 6 | 티스토리 블로그 자동화 | 기획만 | `docs/PLATFORM_PATTERNS.md` §20·§28 |
+| 6 | 티스토리 블로그 자동화(BLOG 방식, 웹 + 크롬 확장) | 기획·0단계(조사 확장) 완료, **주인님 PC에서 조사 실행 → JSON 전달 대기**. 로컬에서 이어감 | `tistory-auto-blog/docs/TISTORY_PLAN.md` §6 |
 | 7 | (선택) BLOG 해시태그에도 본문 필터 적용 — SEO 규칙은 키워드를 그대로 살려 "위한·주목해야" 같은 말이 남음 | 주인님 결정 대기 | `ai-auto-blog/AGENTS.md` v1.29 |
 | 8 | (Codex 담당) SEO 스튜디오 확장 타이핑 속도 24~52ms → §20 기준 70~170ms, 태그 "투자협의→투자협" 잘림 | Codex에 전달 | `docs/ERROR_LESSONS.md` D |
 

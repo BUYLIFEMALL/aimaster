@@ -34,3 +34,29 @@
 ## 5. 위험
 - 편집기 구조 변경 → "구조 분석" 버튼 유지, 애매하면 오류로 중단.
 - 계정 안전: 티스토리의 자동 입력 판정 기준은 비공개 → §20 보수적 적용.
+
+## 6. 로컬에서 이어서 작업하기 (2026-10-01 주인님 지시: "관련 작업은 나중에 로컬에서 이어서")
+
+### 지금까지 끝난 것 (cloud-work 커밋 `0cf2fb1` 및 이 문서 커밋)
+- 0단계 완료: `inspector-extension/`(읽기 전용 조사 확장). 가짜 화면(headless Chromium)으로 수집 함수 동작·내용 미누출 확인. **실제 티스토리 화면에서는 아직 실행하지 않았다.**
+- 계획·결정 기본값(§1)·단계(§3)·미확인 사항(§4) 문서화.
+- 아직 안 한 것: 서브프로젝트 뼈대(1단계), DB 파일(2단계), 서버·확장 코드(3·4단계), `programs` 등록, 배포. **버전은 아직 없다**(완성해서 등록할 때 `v1.01`).
+
+### 로컬 시작 순서
+1. `git fetch origin && git merge --no-ff origin/cloud-work`(master에서, 다른 CLI의 미커밋 변경이 없는지 `git status`로 먼저 확인 — `docs/CLOUD_SESSION.md` 5번). 이번 변경은 `tistory-auto-blog/`(신규)와 `PROGRESS.md`·`docs/HANDOFF.md`뿐이라 충돌 가능성이 낮다.
+2. 작업 전 `CLAUDE.md` → `docs/HANDOFF.md` → `docs/ERROR_LESSONS.md` → `tistory-auto-blog/AGENTS.md` → 이 문서 순서로 읽는다.
+3. **조사 실행(주인님 PC)**: `inspector-extension/README.md` 순서대로 확장 로드 → 티스토리 직접 로그인 → 화면 상태별 분석 → "JSON 파일로 저장" → 결과를 대화에 첨부. 발행 버튼은 누르지 않는다.
+4. 결과 JSON을 읽고 §4 미확인 사항을 하나씩 확정해 이 문서에 기록한다(확정된 셀렉터는 `tistory-auto-blog/extension/`에 쓰기 전 이 문서나 `AGENTS.md`에 "조사로 확인함"이라고 근거를 남긴다).
+5. 이후 §3의 1 → 2 → 3 → 4 → 5 → 6 순서로 진행. 1단계는 조사 결과를 기다리지 않고 먼저 해도 된다.
+
+### 로컬에서 해야 하는 일 (클라우드가 못 하는 것)
+- DB 마이그레이션 적용(주인님 승인 후), `programs` 등록(slug `tistory-auto-blog`, `version = 'v1.01'`, 카테고리·요금제·이용 권한은 핵심 원칙 6번 기준), Vercel 프로젝트 생성·`vercel.json {"framework":"nextjs"}`·환경변수(루트 `.env.local`의 공용 DB 값, **AI 키는 넣지 않음**)·배포.
+- 새 프로그램 체크리스트(루트 `CLAUDE.md` "멀티테넌시 원칙" 5번)와 "API키등록·플랫폼연동" 표준 확인, 루트 `.vercelignore`에 `/tistory-auto-blog` 추가.
+- `platform_guides`에 티스토리 확장 설치·연동 매뉴얼 등록(`/admin/guides`).
+- 실제 티스토리 화면에서 확장 입력 테스트(주인님 PC), 일반 회원 흐름 확인(`buylifemall@naver.com`).
+
+### 잊지 말 것
+- 빌드가 `ai-auto-blog`처럼 `prebuild`로 확장 manifest·ZIP을 만드는 구조를 복사한다면 프로그램 버전 = 확장 버전 = ZIP 버전 규칙(`PLATFORM_PATTERNS` §28)을 지킨다.
+- 이 폴더의 작업이 끝날 때마다 `AGENTS.md` 진행 상태 표, `docs/HANDOFF.md`, 에러·점검 사항은 `docs/ERROR_LESSONS.md`에 같은 커밋으로 기록한다(핵심 원칙 7번).
+- 결정 ①(새 서브프로젝트) ②(A안: 기본모드 한 글자씩) ③(1차 범위)는 **추천안으로 정한 임시 기본값**이다. 주인님이 바꾸면 §1부터 고친다. B안(HTML 모드 붙여넣기)은 §20과 충돌 소지가 있어 1차 완성 뒤 별도 결정.
+
