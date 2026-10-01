@@ -383,7 +383,7 @@ export default function HomePage() {
                     const left = retentionDaysLeft(post.published_at)
                     return (
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${left <= 7 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-700'}`}>
-                        {left === 0 ? '오늘 삭제 예정' : `${left}일 후 삭제`}
+                        {left === 0 ? '오늘 자동삭제 예정' : `${left}일 후 자동삭제`}
                       </span>
                     )
                   })()}
