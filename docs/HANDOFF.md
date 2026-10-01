@@ -38,6 +38,7 @@
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
 | 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
+| BLOG 확장 부제 문구 (ai-auto-blog v1.26) | 확장 제목 밑 문구를 주인님 문안으로 교체 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "확장 부제 문구" |
 | BLOG 확장 제목 한 줄 (ai-auto-blog v1.25) | 확장 제목 "BLOG(원문) 네이버 입력기" 한 줄, 확장 이름·툴팁 통일 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "확장 제목" |
 | BLOG 버튼 이름 변경 (ai-auto-blog v1.24) | "네이버로 보내기" → "네이버 입력기로 보내기"(버튼·안내·오류 문구 전체) | 주인님 지시 | `ai-auto-blog/AGENTS.md` "버튼 이름" |
 | BLOG 확장 미리보기 문구 정리 (ai-auto-blog v1.23) | 미리보기 링크 뒤 "(실제 링크로 입력)" 문구 삭제 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "확장 미리보기 링크 문구 정리" |
