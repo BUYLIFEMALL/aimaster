@@ -211,7 +211,7 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   → 네이버 블로그 글쓰기 탭에서 "네이버 편집기로 입력" → 제목·본문·이미지 순서대로 입력 → 입력 확인 → 발행 설정창에 카테고리·태그 → **마지막 발행은 회원이 직접**.
 - **확장**: `extension/`(manifest v3, `sidepanel.js`). SEO 스튜디오 확장의 검증된 네이버 처리 + §20 반영(70~170ms 타이핑, 클릭 전 hover).
   ZIP: `npm run build:extension` → `public/downloads/ai-auto-blog-extension-<version_name>.zip`. 확장을 고치면 manifest 버전 두 칸을 올리고 ZIP 재생성·커밋.
-  확장 공개 버전(`version_name`)은 **확장 코드를 고칠 때만** 그 시점의 프로그램 버전으로 맞춘다(웹만 고친 배포에서는 확장을 다시 설치하게 하지 않도록 그대로 둔다 — 지금 확장 v1.17, 프로그램 v1.18).
+  (v1.19부터) 확장 버전은 프로그램 버전과 **항상 같다** — 아래 "확장 버전 자동 동기화" 참고.
 - **서버**:
   - 토큰: `utils/extensionAuth.ts`(`personal_access_tokens`, `program_slug='ai-auto-blog'`, sha256 해시, 공용 권한 판정 `checkProgramAccess`),
     발급·조회·폐기 서버 함수 `app/settings/extensionTokenActions.ts`, 화면 `components/settings/ExtensionSettings.tsx`.
@@ -237,3 +237,22 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   다른 서브프로젝트(threads·shots·insta·naver-cafe 등) 코드 주석에 남은 `blog/...` 언급은 동작과 무관하고, 고치면 그 프로그램 버전까지 올려야 해서 그대로 두었다
   — 읽을 때 `ai-auto-blog/...`로 바꿔 읽으면 된다. Codex 담당 `naver-blog-seo-studio/`도 건드리지 않았다.
 - 같은 저장소에 있는 `blog_auto_poster/`는 이름이 비슷하지만 다른(예전) 폴더다 — 혼동하지 말 것.
+
+# 확장 버전 자동 동기화 — 프로그램 업데이트 = 확장 업데이트 (2026-10-01, v1.19)
+
+주인님 지시("SEO 블로그 방식대로 — 프로그램 업데이트 때 확장도 동시에 업데이트하고, 압축해서 사용자들이 항상 최신 버전으로 받게"):
+
+- **규칙**: 프로그램 버전(`utils/version.ts` `APP_VERSION`) = 확장 공개 버전(`extension/manifest.json` `version_name`) = 다운로드 ZIP 버전 = DB `programs.version`.
+  SEO 스튜디오(`naver-blog-seo-studio`)와 같은 규칙인데, 거기는 사람이 매번 맞추고 여기는 **자동**이다.
+- **자동화**: `package.json`의 `"prebuild": "node scripts/build-extension-archive.mjs"` — `npm run build`를 할 때마다(로컬·Vercel 서버 모두)
+  `APP_VERSION`을 읽어 manifest의 `version`(크롬용 숫자, v1.19 → `1.19.0`)·`version_name`(v1.19)을 맞추고,
+  `public/downloads/ai-auto-blog-extension-<버전>.zip`을 새로 만들며 예전 버전 ZIP은 지운다. **그러니 버전만 올리고 빌드하면 확장·ZIP은 신경 쓸 필요 없다.**
+  로컬 빌드로 바뀐 `extension/manifest.json`과 새 ZIP(예전 ZIP 삭제 포함)을 같은 커밋에 넣는다.
+- **회원 안내**:
+  - 설정 화면(`components/settings/ExtensionSettings.tsx`): SEO 스튜디오처럼 "설치 전 → 설치 진행 중 → 설치 완료 표시 / 업데이트 필요" 상태 표시.
+    웹은 확장 설치 여부를 직접 알 수 없어서 이 브라우저 localStorage에 "내려받음·설치 완료 표시" 버전을 기록하고, 프로그램이 새 버전이 되면 "업데이트 필요 · 설치된 vA → 최신 vB"를 빨간 안내로 보여준다.
+  - 확장 프로그램 안: 연결 확인(`/api/extension/whoami`)이 `latestVersion`·`downloadUrl`을 돌려주고, 설치된 확장 버전과 다르면 사이드패널 맨 위에
+    "새 버전이 나왔습니다 — 최신 ZIP 바로 받기" 안내를 띄운다(`extension/sidepanel.js` `renderUpdateBanner`).
+- 크롬 정책상 "압축해제된 확장"은 스스로 업데이트되지 않는다 — 회원이 새 ZIP을 같은 폴더에 덮어쓰고 확장 관리 화면에서 새로고침해야 한다(안내 문구에 포함).
+- 검증: 빌드 시 manifest가 v1.19로 바뀌고 ZIP 안 manifest도 v1.19, 운영에서 v1.19 ZIP 200·예전 v1.17 ZIP 404, Vercel 서버 빌드에서도 ZIP 자동 생성 확인,
+  임시 토큰으로 whoami `latestVersion: v1.19` 확인(토큰 삭제).

@@ -13,6 +13,10 @@ import {
 // naver-blog-seo-studio의 ExtensionDownloadCard·ExtensionTokenManager를 BLOG 화면 스타일로 옮겼다.
 const EXTENSION_VERSION = extensionManifest.version_name ?? `v${extensionManifest.version}`
 const EXTENSION_ARCHIVE = `/downloads/ai-auto-blog-extension-${EXTENSION_VERSION}.zip`
+// 설치·업데이트 상태 안내(naver-blog-seo-studio ExtensionDownloadCard와 같은 방식). 웹은 확장 설치 여부를 직접 알 수 없어서
+// 이 브라우저에 "내려받음/설치 완료 표시"를 기록해 두고, 프로그램이 새 버전이 되면(=확장도 새 버전) 업데이트 필요로 안내한다.
+const INSTALLED_VERSION_KEY = 'ai-auto-blog-extension-version'
+const DOWNLOAD_MARKER_KEY = 'ai-auto-blog-extension-downloaded'
 
 export function ExtensionSettings() {
   const [tokens, setTokens] = useState<ExtensionToken[]>([])
@@ -21,6 +25,36 @@ export function ExtensionSettings() {
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [downloaded, setDownloaded] = useState(false)
+  const [installedVersion, setInstalledVersion] = useState<string | null>(null)
+
+  useEffect(() => {
+    try {
+      setDownloaded(window.localStorage.getItem(DOWNLOAD_MARKER_KEY) === EXTENSION_VERSION)
+      setInstalledVersion(window.localStorage.getItem(INSTALLED_VERSION_KEY))
+    } catch { /* 저장소를 못 쓰는 브라우저 */ }
+  }, [])
+
+  const isUpdate = installedVersion !== null && installedVersion !== EXTENSION_VERSION
+  const isInstalled = installedVersion === EXTENSION_VERSION
+  const statusText = isInstalled
+    ? `설치 완료 표시 · ${EXTENSION_VERSION}`
+    : isUpdate
+      ? `업데이트 필요 · 설치된 버전 ${installedVersion} → 최신 ${EXTENSION_VERSION}`
+      : downloaded
+        ? '설치 진행 중 · 크롬에 확장을 추가한 뒤 아래 완료 표시를 눌러 주세요'
+        : '설치 전 · ZIP 다운로드 필요'
+
+  function markDownloadStarted() {
+    try { window.localStorage.setItem(DOWNLOAD_MARKER_KEY, EXTENSION_VERSION) } catch { /* ignore */ }
+    setDownloaded(true)
+  }
+
+  function markInstalled() {
+    if (!confirm('chrome://extensions에서 압축해제된 확장 프로그램을 로드했거나, 기존 확장을 새로고침했나요?')) return
+    try { window.localStorage.setItem(INSTALLED_VERSION_KEY, EXTENSION_VERSION) } catch { /* ignore */ }
+    setInstalledVersion(EXTENSION_VERSION)
+  }
 
   useEffect(() => {
     listExtensionTokens().then((result) => {
@@ -60,20 +94,45 @@ export function ExtensionSettings() {
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-3">
-        <p className="text-xs font-bold text-zinc-800">1. 설치</p>
-        <a
-          href={EXTENSION_ARCHIVE}
-          download
-          className="inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white no-underline hover:bg-indigo-700"
-        >
-          확장 프로그램 다운로드 (ZIP)
-        </a>
+        <p className="text-xs font-bold text-zinc-800">1. 설치 · 업데이트</p>
+        <p className="flex items-center gap-2 text-xs font-semibold text-zinc-700" role="status" aria-live="polite">
+          <span className={`inline-block h-2 w-2 rounded-full ${isInstalled ? 'bg-emerald-500' : isUpdate ? 'bg-red-500' : downloaded ? 'bg-amber-400' : 'bg-zinc-300'}`} />
+          {statusText}
+        </p>
+        {isUpdate && (
+          <p className="rounded-lg border border-red-200 bg-red-50 p-2 text-xs leading-5 text-red-700">
+            새 버전이 나왔습니다. 아래에서 최신 ZIP을 다시 내려받아 같은 폴더에 덮어쓴 뒤, 확장 프로그램 관리 화면에서 새로고침 버튼을 눌러 주세요.
+          </p>
+        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href={EXTENSION_ARCHIVE}
+            download
+            onClick={markDownloadStarted}
+            className="inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white no-underline hover:bg-indigo-700"
+          >
+            {isUpdate ? `최신 버전(${EXTENSION_VERSION}) 다시 다운로드` : downloaded || isInstalled ? 'ZIP 다시 다운로드' : `확장 프로그램 다운로드 (${EXTENSION_VERSION})`}
+          </a>
+          {downloaded && !isInstalled && (
+            <button
+              type="button"
+              onClick={markInstalled}
+              className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-zinc-50"
+            >
+              크롬 설치 후 완료 표시
+            </button>
+          )}
+        </div>
         <ol className="list-decimal space-y-1 pl-5 text-xs leading-5 text-zinc-600">
           <li>ZIP 파일을 내려받아 원하는 폴더에 압축을 풉니다.</li>
           <li>크롬 주소창에 <code className="rounded bg-zinc-100 px-1">chrome://extensions</code>를 입력하고 오른쪽 위 &quot;개발자 모드&quot;를 켭니다.</li>
           <li>&quot;압축해제된 확장 프로그램을 로드&quot;를 눌러 압축을 푼 폴더를 선택합니다.</li>
           <li>새 버전을 받았다면 같은 폴더에 덮어쓴 뒤 확장 프로그램 카드의 새로고침 버튼을 누릅니다.</li>
         </ol>
+        <p className="text-[11px] leading-5 text-zinc-500">
+          확장 프로그램은 이 프로그램과 같은 버전으로 함께 업데이트됩니다. 크롬 보안 정책상 웹사이트가 확장을 자동 설치하거나 설치 여부를 직접 확인할 수는 없어서,
+          완료 표시는 이 브라우저에만 기록됩니다. 확장 프로그램 화면에도 새 버전 알림이 뜹니다.
+        </p>
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-3">

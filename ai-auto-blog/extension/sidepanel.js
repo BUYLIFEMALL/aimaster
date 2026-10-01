@@ -49,14 +49,26 @@ async function verify(token) {
   try {
     const response = await fetch(`${BASE}/api/extension/whoami`, { headers: { Authorization: `Bearer ${token}` } });
     const body = await response.json().catch(() => ({}));
-    return response.ok ? { ok: true, email: body.email } : { ok: false, error: body.error || `연결 실패 (${response.status})` };
+    return response.ok ? { ok: true, email: body.email, latestVersion: body.latestVersion, downloadUrl: body.downloadUrl } : { ok: false, error: body.error || `연결 실패 (${response.status})` };
   } catch (error) { return { ok: false, error: error instanceof Error ? error.message : String(error) }; }
+}
+
+// 프로그램을 업데이트할 때마다 확장도 같은 버전으로 올라간다(빌드 때 자동 동기화). 설치된 확장이 예전 버전이면 안내한다.
+function renderUpdateBanner(latestVersion, downloadUrl) {
+  const current = chrome.runtime?.getManifest?.()?.version_name || "";
+  const outdated = Boolean(latestVersion && current && latestVersion !== current);
+  $("updateBanner").hidden = !outdated;
+  if (!outdated) return;
+  $("updateBannerText").textContent = `설치된 확장 ${current} → 최신 ${latestVersion}. 최신 ZIP을 내려받아 같은 폴더에 덮어쓴 뒤 chrome://extensions에서 이 확장의 새로고침 버튼을 눌러 주세요.`;
+  if (downloadUrl) $("updateBannerLink").href = `${BASE}${downloadUrl}`;
+  $("updateBannerLink").textContent = `최신 버전(${latestVersion}) ZIP 바로 받기`;
 }
 
 async function renderStatus() {
   const token = await getToken();
   const result = await verify(token);
   $("status").textContent = result.ok ? `연결됨: ${result.email}` : token ? `오류: ${result.error}` : "연결되지 않음";
+  if (result.ok) renderUpdateBanner(result.latestVersion, result.downloadUrl);
 }
 
 function estimateMinutes(textLength) {
@@ -648,6 +660,7 @@ $("link").addEventListener("click", async () => {
   if (result.ok) { await chrome.storage.local.set({ [KEY]: token }); $("token").value = ""; }
   $("link").disabled = false;
   $("status").textContent = result.ok ? `연결됨: ${result.email}` : `오류: ${result.error}`;
+  if (result.ok) renderUpdateBanner(result.latestVersion, result.downloadUrl);
   if (result.ok) refreshPosts().catch((error) => ($("postStatus").textContent = `보낸 글 조회 실패: ${error.message}`));
 });
 

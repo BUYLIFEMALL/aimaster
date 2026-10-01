@@ -666,7 +666,10 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 - **확장 → 우리 API는 CORS 설정이 필요 없다**: `host_permissions`에 우리 배포 주소를 넣으면 사이드패널에서 바로 호출된다.
   이미지 주소(Supabase Storage, Cloudinary)도 `host_permissions`에 넣는다.
 - **배포**: 크롬 웹스토어 대신 ZIP(`public/downloads/<이름>-<버전>.zip`)을 설정 화면에서 내려받아 "압축해제된 확장 프로그램 로드".
-  확장을 고치면 `manifest.json`의 `version`(숫자)·`version_name`(회원에게 보이는 vX.YY)을 올리고 `npm run build:extension`으로 ZIP을 다시 만들어 같이 커밋한다.
+  **프로그램 버전 = 확장 `version_name` = ZIP 버전을 항상 같게** 유지한다(SEO 스튜디오 규칙). `ai-auto-blog`는 `package.json`의 `prebuild`로
+  `npm run build` 때마다 `APP_VERSION`을 manifest에 자동 반영하고 ZIP을 새로 만든다(`ai-auto-blog/scripts/build-extension-archive.mjs`) — 새 프로그램은 이 방식을 복사한다.
+  설정 화면에는 "설치 완료 / 업데이트 필요" 상태를, 확장 안에는 연결 확인 API가 돌려준 `latestVersion`과 비교한 "새 버전" 안내를 둔다
+  (압축해제 확장은 스스로 업데이트되지 않으므로 회원이 새 ZIP을 덮어쓰고 새로고침해야 한다).
 
 ### 새 프로그램에 붙일 때 체크리스트
 1. 글 테이블에 `extension_handoff_at`, `naver_input_status`(check 제약 4가지), `naver_input_completed_at`, `naver_input_error` 칸 + 인덱스 — 마이그레이션 파일을 서브프로젝트 `supabase/migrations/`에 남긴다.

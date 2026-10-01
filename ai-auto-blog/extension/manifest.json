@@ -1,17 +1,29 @@
 {
   "manifest_version": 3,
   "name": "AIMaster BLOG(원문) 네이버 입력",
-  "version": "1.17.0",
-  "version_name": "v1.17",
+  "version": "1.19.0",
+  "version_name": "v1.19",
   "description": "BLOG(원문)생성 자동화에서 보낸 글을 네이버 블로그 글쓰기 화면에 사람처럼 입력하는 확장 프로그램",
-  "permissions": ["sidePanel", "storage", "scripting", "tabs", "debugger"],
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "scripting",
+    "tabs",
+    "debugger"
+  ],
   "host_permissions": [
     "https://*.naver.com/*",
     "https://ai-auto-blog-one.vercel.app/*",
     "https://esgxyikcnnvmlhygjkth.supabase.co/*",
     "https://res.cloudinary.com/*"
   ],
-  "background": { "service_worker": "background.js" },
-  "side_panel": { "default_path": "sidepanel.html" },
-  "action": { "default_title": "BLOG(원문) 네이버 입력" }
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "BLOG(원문) 네이버 입력"
+  }
 }
