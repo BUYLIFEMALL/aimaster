@@ -38,6 +38,7 @@
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
 | 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
+| BLOG 네이버 입력 링크 (ai-auto-blog v1.21) | 확장 입력 시 추천 링크가 글자로만 들어가던 것 → 링크를 `글자: 주소 `(괄호 없음, 뒤에 띄어쓰기)로 바꿔 네이버 자동 링크 유도. **남은 일: 실제 포스팅으로 링크 확인, 안 되면 링크 도구 방식(구조 분석 필요)** | 주인님 요청(추천링크.png) | `ai-auto-blog/AGENTS.md` "네이버 입력 시 링크가 걸리게" |
 | BLOG 확장 아이콘·이름 구분 (ai-auto-blog v1.20) | SEO 확장과 똑같은 회색 "A" 아이콘이라 헷갈리던 것을 초록 "B" 아이콘·"BLOG(원문) 네이버 입력" 이름으로 구분 | 주인님 신고 | `ai-auto-blog/AGENTS.md` "확장 아이콘·이름 구분" |
 | BLOG 확장 버전 자동 동기화 (ai-auto-blog v1.19) | SEO 스튜디오 방식(프로그램 버전 = 확장 버전 = ZIP 버전)을 `prebuild`로 자동화 — 버전 올리고 빌드하면 manifest·ZIP 자동 갱신(예전 ZIP 삭제). 설정 화면 "업데이트 필요" 표시, 확장 안 "새 버전" 안내 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "확장 버전 자동 동기화" |
 | BLOG 서브폴더 이름 변경 (ai-auto-blog v1.18) | `blog/` → `ai-auto-blog/`(폴더=slug=Vercel 프로젝트 규칙). 작업·빌드·배포는 이제 `ai-auto-blog/`에서. 같은 Vercel 프로젝트·주소로 배포 확인 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "서브폴더 이름 변경" |

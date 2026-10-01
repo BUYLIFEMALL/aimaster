@@ -7,7 +7,7 @@ import { removeImagePromptSection, stripImageGenerationSchema } from '@/blog/uti
 // 네이버 편집기에는 한 글자씩 입력하므로 서식(굵게·소제목 크기·표 모양)은 남지 않는다 — 대신 읽기 좋은 일반 텍스트로 바꾼다.
 // - 소제목(h2/h3): 앞의 "##" 같은 마크다운 흔적을 지운 한 줄
 // - 목록: "• 항목" 줄
-// - 링크: "글자 (주소)" — 주소가 사라지지 않게
+// - 링크: "글자: 주소 " — 주소 뒤에 항상 띄어쓰기/줄바꿈을 둬서 네이버 자동 링크가 걸리게(블록 끝이 주소면 띄어쓰기를 붙임)
 // - 이미지(figure/img): 이미지 블록(확장이 내려받아 네이버에 파일로 올림)
 // - 마지막 해시태그 줄(#태그 #태그): 본문에서 빼고 네이버 태그 추천값으로 돌려줌
 // - 구분선(hr)·빈 문단은 건너뜀
@@ -29,7 +29,9 @@ function textWithLinks($: cheerio.CheerioAPI, node: AnyNode): string {
     const href = $(a).attr('href') || ''
     const label = $(a).text().trim()
     const url = /^https?:\/\//i.test(href) ? href : ''
-    $(a).replaceWith(url ? (label && label !== url ? `${label} (${url})` : url) : label)
+    // 주소는 괄호 없이 쓰고 바로 뒤에 띄어쓰기를 둔다 — 네이버 편집기는 주소 뒤에 띄어쓰기·줄바꿈이 올 때 자동으로 링크를 건다.
+    // 예전 "글자 (주소)"는 주소 바로 뒤가 ")"라서 링크가 걸리지 않았다(2026-10-01 주인님 확인, 추천링크.png).
+    $(a).replaceWith(url ? (label && label !== url ? `${label}: ${url} ` : `${url} `) : label)
   })
   copy.find('br').replaceWith('\n')
   copy.find('figure, img, figcaption').remove()
@@ -89,5 +91,9 @@ export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags
     pushText(text)
   })
 
+  // 블록이 주소로 끝나면(뒤에 바로 이미지가 오는 경우 등) 띄어쓰기를 붙여 네이버 자동 링크가 걸리게 한다.
+  for (const block of blocks) {
+    if (block.type === 'text' && /https?:\/\/\S+$/.test(block.text)) block.text += ' '
+  }
   return { blocks, tags: [...new Set(tags)].slice(0, 30) }
 }
