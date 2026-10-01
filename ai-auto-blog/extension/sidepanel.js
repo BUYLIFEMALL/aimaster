@@ -24,6 +24,63 @@ const THINK_CHANCE = 0.04;
 const THINK_MIN_MS = 250;
 const THINK_MAX_MS = 700;
 
+// 추천태그 추출(2026-10-01, naver-blog-seo-studio 확장 v1.57 "추천테그 추출"과 같은 방식 — 주인님 지시).
+// 회원이 버튼을 눌렀을 때만 태그 칸을 채운다(자동 적용 아님). 후보 순서: 글 끝 해시태그 → 글 제목 → 본문에서 2번 이상 나온 단어(많이 나온 순).
+// 뜻 없는 말(접속사·서술어 등)은 빼고, 단어 끝 조사 한 글자는 떼어낸다. 최대 10개.
+const TAG_STOP_WORDS = new Set([
+  "그리고", "하지만", "또한", "따라서", "그래서", "이러한", "이것은", "그것은", "이번", "오늘", "최근", "경우", "부분", "관련", "통해", "대해", "위해", "대한", "중요", "필요", "가능", "사용", "적용", "도입", "방법", "내용", "정보", "결과", "기능", "과정", "분야", "상황", "하나", "여러", "모든", "각각", "실제", "더욱", "가장", "먼저", "다음", "이후", "이전", "현재", "때문", "때문에", "있습니다", "있으며", "합니다", "됩니다", "한다", "되는", "있는", "없는", "같은", "것을", "것이", "에서", "으로", "에게",
+  "추천링크", "바로가기", "요약", "https", "http", "www", "우리", "여러분",
+]);
+
+// stripParticle: 본문 단어는 끝 조사 한 글자를 늘 떼고, 해시태그는 3글자 이하일 때만 뗀다
+// ("한국의"→"한국"은 떼고 "투자협의"는 그대로 — SEO 스튜디오 방식은 "투자협"이 되는 문제가 있었다).
+function normalizeTagCandidate(value, stripParticle = true) {
+  const base = String(value || "").replace(/^#+/, "").replace(/["'“”‘’()[\]{}<>:]/g, " ").trim();
+  return (stripParticle ? base.replace(/[은는이가을를의에도와과로]$/u, "") : base)
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 30);
+}
+
+// "위한·대응하·주목해야·가능한"처럼 꾸미는 말·서술어로 끝나는 짧은 말은 태그가 아니다
+const VERB_LIKE_ENDING = /(하|해야|해서|한|할|된|될|되는|하는|하며|하고|이란|이다)$/u;
+
+function buildRecommendedTags({ hashtags, title, body }) {
+  const tags = [];
+  const seen = new Set();
+  const add = (value, stripParticle = true) => {
+    const tag = normalizeTagCandidate(value, stripParticle);
+    const key = tag.toLocaleLowerCase("ko-KR");
+    if (tag.length < 2 || TAG_STOP_WORDS.has(key) || seen.has(key)) return;
+    if (tag.length <= 4 && VERB_LIKE_ENDING.test(tag)) return;
+    seen.add(key);
+    tags.push(tag);
+  };
+  const source = `${title || ""}\n${body || ""}`.replace(/https?:\/\/\S+/g, " ");
+  const frequency = new Map();
+  for (const rawWord of source.match(/[가-힣A-Za-z0-9][가-힣A-Za-z0-9+.-]{1,29}/g) || []) {
+    const word = normalizeTagCandidate(rawWord);
+    const key = word.toLocaleLowerCase("ko-KR");
+    if (word.length < 2 || TAG_STOP_WORDS.has(key) || /^\d+$/.test(word)) continue;
+    frequency.set(key, { word, count: (frequency.get(key)?.count || 0) + 1 });
+  }
+  // 해시태그 조사 처리: ① 본문에 그대로 있으면 유지 ② 조사를 뗀 말이 본문에 있으면 그 말 ③ 그 밖엔 확실한 조사만 뗌
+  // (예: "평가" 유지, "RPA의"→"RPA", "트렌드와"→"트렌드", "투자협의"는 "~의"가 애매해서 유지)
+  const resolveHashtag = (value) => {
+    const original = normalizeTagCandidate(value, false);
+    if (frequency.has(original.toLocaleLowerCase("ko-KR"))) return original;
+    const stripped = normalizeTagCandidate(value, true);
+    if (stripped !== original && frequency.has(stripped.toLocaleLowerCase("ko-KR"))) return stripped;
+    return original.replace(/(에서|으로|에게|까지|부터|처럼|이란|[을를은는와과에])$/u, "");
+  };
+  for (const hashtag of Array.isArray(hashtags) ? hashtags : []) add(resolveHashtag(hashtag), false);
+  [...frequency.values()]
+    .filter((item) => item.count >= 2)
+    .sort((a, b) => b.count - a.count || b.word.length - a.word.length || a.word.localeCompare(b.word, "ko-KR"))
+    .forEach((item) => add(item.word));
+  return tags.slice(0, 10);
+}
+
 let posts = [];
 let active = null; // { id, title, blocks: [{type:'text',text}|{type:'image',url,alt,dataUrl}], tags }
 
@@ -771,6 +828,24 @@ $("applyTags").addEventListener("click", () => {
   if (!active?.tags.length) return;
   $("publishTags").value = active.tags.join(", ");
   $("postStatus").textContent = "글의 해시태그를 태그 칸에 넣었습니다. 필요하면 고친 뒤 저장하세요.";
+});
+
+$("extractRecommendedTags").addEventListener("click", () => {
+  if (!active) {
+    $("publishStatus").textContent = "먼저 보낸 글을 선택해 본문을 불러오세요.";
+    return;
+  }
+  const tags = buildRecommendedTags({
+    hashtags: active.tags,
+    title: active.title,
+    body: active.blocks.filter((block) => block.type === "text").map((block) => block.text).join("\n"),
+  });
+  if (!tags.length) {
+    $("publishStatus").textContent = "본문에서 추천태그를 충분히 찾지 못했습니다. 직접 입력해주세요.";
+    return;
+  }
+  $("publishTags").value = tags.join(", ");
+  $("publishStatus").textContent = `글의 해시태그·제목·본문 핵심 단어로 추천태그 ${tags.length}개를 넣었습니다: ${tags.map((tag) => `#${tag}`).join(" ")} — 필요하면 고친 뒤 저장하세요.`;
 });
 
 $("savePublishSettings").addEventListener("click", async () => {
