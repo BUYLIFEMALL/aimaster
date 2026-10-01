@@ -618,4 +618,9 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 - `blog/utils/markdown.ts`
 - `utils/markdown.ts`
 
+---
+
+## 27. 서브프로그램 좌측 메뉴 공통 레이아웃
+
+모든 독립 서브프로그램은 프로그램명·버전, `← 다른 프로그램 보기`, 대시보드, 번호형 작업 흐름, `API키등록·플랫폼연동`, 하단 계정 영역의 순서를 공통으로 유지한다. 브랜드별 색상만 달리할 수 있으며, 새 프로그램과 기존 메뉴를 수정할 때는 [SIDEBAR_LAYOUT_STANDARD.md](./SIDEBAR_LAYOUT_STANDARD.md)를 반드시 따른다.
 
