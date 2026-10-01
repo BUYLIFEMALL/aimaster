@@ -1,12 +1,12 @@
 # tistory-auto-blog — 티스토리 자동화 (BLOG 원문생성 + 크롬 확장)
 
-## v1.07 (2026-10-01)
+## v1.08 (2026-10-01)
 
-- 검사 결과로 확인한 `#post-title-inp`, iframe `body#tinymce`, `#category-btn`, `#tagText`만 사용해 제목·본문·카테고리·태그를 사람 속도로 입력합니다.
-- 검사기는 첨부 메뉴 항목, 숨은 파일 입력의 `accept`/`multiple` 속성, 업로드 후 편집기 이미지 노드의 내용 비공개 구조를 추가 수집합니다. 이미지 업로드 구현은 그 결과 뒤에만 진행합니다.
+- 확인한 `#post-title-inp`, iframe `body#tinymce`, `#category-btn`, `#tagText`로 제목·본문·카테고리·태그를 사람 속도로 입력합니다.
+- 티스토리 사진 메뉴는 파일 입력을 DOM에 남기지 않는 운영체제 선택창 방식이므로, v1.08은 본인 Supabase Storage 이미지 URL을 확장 클립보드에 준비해 `Ctrl+V`로 붙여넣습니다. 각 이미지가 `body#tinymce > figure > img`가 됐는지 최대 20초 동안 확인합니다.
 - 최종 `#publish-btn`은 탐색하거나 누르지 않습니다. 입력기는 `#publish-layer-btn`으로 발행 설정창까지만 엽니다.
 
-> **상태: 확장 계정 연동 완료, 제목·본문·카테고리·태그 입력 구현 완료 (2026-10-01)** — 운영 주소는 `https://tistory-auto-blog-pearl.vercel.app`, 프로그램·DB·확장 ZIP 버전은 모두 `v1.07`다. 이미지 업로드는 실제 파일 선택 구조를 추가 조사한 뒤 진행한다.
+> **상태: 확장 계정 연동 완료, 제목·본문·카테고리·태그·이미지 입력 구현 완료 (2026-10-01)** — 운영 주소는 `https://tistory-auto-blog-pearl.vercel.app`, 프로그램·DB·확장 ZIP 버전은 모두 `v1.08`다. 최종 저장·발행은 자동화하지 않는다.
 > 반드시 루트 `../CLAUDE.md`(핵심 원칙 7가지)·`../docs/HANDOFF.md`·`../docs/ERROR_LESSONS.md`를 먼저 읽고, 브라우저 자동화이므로
 > `../docs/PLATFORM_PATTERNS.md` **§20(봇 탐지 회피)·§28(웹→확장→편집기)** 를 그대로 지킨다.
 

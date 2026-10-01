@@ -410,10 +410,13 @@ async function readTistoryDraftState(tabId, bodyFrame) {
     }),
     chrome.scripting.executeScript({
       target: { tabId, frameIds: [bodyFrame] },
-      func: () => document.querySelector("body#tinymce[contenteditable='true']")?.innerText || "",
+      func: () => {
+        const editor = document.querySelector("body#tinymce[contenteditable='true']");
+        return { body: editor?.innerText || "", imageCount: editor?.querySelectorAll(":scope > figure > img").length || 0 };
+      },
     }),
   ]);
-  return { title: top[0]?.result?.title || "", tagCount: top[0]?.result?.tagCount || 0, body: body[0]?.result || "" };
+  return { title: top[0]?.result?.title || "", tagCount: top[0]?.result?.tagCount || 0, body: body[0]?.result?.body || "", imageCount: body[0]?.result?.imageCount || 0 };
 }
 
 function normalized(value) {
@@ -430,6 +433,41 @@ async function verifyTistoryInput(tabId, bodyFrame) {
       throw new Error("입력된 본문을 다시 확인하지 못했습니다.");
     }
   }
+  const imageCount = (activePost?.blocks || []).filter((block) => block.type === "image").length;
+  if (state.imageCount !== imageCount) throw new Error("입력된 이미지 수를 다시 확인하지 못했습니다.");
+}
+
+async function pasteTistoryImage(tabId, bodyFrame, url, order, total) {
+  $("inputStatus").textContent = `이미지 ${order}/${total} 준비 중…`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`이미지 ${order}을(를) 불러오지 못했습니다.`);
+  const image = await response.blob();
+  if (!image.type.startsWith("image/")) throw new Error(`이미지 ${order}의 형식이 올바르지 않습니다.`);
+  if (!globalThis.ClipboardItem) throw new Error("현재 Chrome에서 이미지 클립보드를 지원하지 않습니다.");
+  await navigator.clipboard.write([new ClipboardItem({ [image.type]: image })]);
+
+  const before = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [bodyFrame] },
+    func: () => document.querySelectorAll("body#tinymce[contenteditable='true'] > figure > img").length,
+  });
+  await focusKnownTarget(tabId, bodyFrame, "body#tinymce[contenteditable='true']");
+  $("inputStatus").textContent = `이미지 ${order}/${total} 티스토리에 붙여넣는 중…`;
+  await withDebugger(tabId, async () => {
+    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyDown", key: "Control", code: "ControlLeft", windowsVirtualKeyCode: 17, modifiers: 2 });
+    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyDown", key: "v", code: "KeyV", windowsVirtualKeyCode: 86, modifiers: 2 });
+    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "v", code: "KeyV", windowsVirtualKeyCode: 86, modifiers: 2 });
+    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "Control", code: "ControlLeft", windowsVirtualKeyCode: 17 });
+  });
+  const expected = (before[0]?.result || 0) + 1;
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    await inputSleep(500);
+    const after = await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [bodyFrame] },
+      func: () => document.querySelectorAll("body#tinymce[contenteditable='true'] > figure > img").length,
+    });
+    if ((after[0]?.result || 0) >= expected) return;
+  }
+  throw new Error(`이미지 ${order}의 티스토리 업로드 완료를 확인하지 못했습니다.`);
 }
 
 async function reportInput(status, error = "") {
@@ -439,23 +477,27 @@ async function reportInput(status, error = "") {
 
 async function fillTistoryPost() {
   if (!activePost) return;
-  const images = (activePost.blocks || []).filter((block) => block.type === "image");
-  if (images.length) throw new Error("이미지 업로드는 다음 검증 단계에서 함께 활성화합니다. 현재 글은 이미지 없는 테스트 글로 먼저 확인해 주세요.");
   const tab = await getTistoryEditorTab();
   $("fillPost").disabled = true;
   try {
     await chrome.windows.update(tab.windowId, { focused: true }); await chrome.tabs.update(tab.id, { active: true });
     const bodyFrame = await editorFrameId(tab.id);
     const before = await readTistoryDraftState(tab.id, bodyFrame);
-    if (normalized(before.title) || normalized(before.body) || before.tagCount) {
+    if (normalized(before.title) || normalized(before.body) || before.tagCount || before.imageCount) {
       throw new Error("기존 제목·본문·태그가 있는 글에는 덧쓰기하지 않습니다. 비어 있는 새 글에서 실행해 주세요.");
     }
     await focusKnownTarget(tab.id, 0, "#post-title-inp");
     await reportInput("in_progress");
     await withDebugger(tab.id, () => humanType(tab.id, activePost.title || "", "제목 입력 중…"));
     await focusKnownTarget(tab.id, bodyFrame, "body#tinymce[contenteditable='true']");
+    const totalImages = (activePost.blocks || []).filter((block) => block.type === "image").length;
+    let pastedImages = 0;
     for (const block of activePost.blocks || []) {
       if (block.type === "text" || block.type === "link") await withDebugger(tab.id, () => humanType(tab.id, `${block.type === "link" ? `${block.text} ${block.url}` : block.text}\n\n`, "본문 입력 중…"));
+      if (block.type === "image") {
+        pastedImages += 1;
+        await pasteTistoryImage(tab.id, bodyFrame, block.url, pastedImages, totalImages);
+      }
     }
     const category = $("categoryName").value.trim();
     if (category) await chooseTistoryCategory(tab.id, category);

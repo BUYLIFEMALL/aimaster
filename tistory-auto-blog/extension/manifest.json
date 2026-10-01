@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "티스토리(원문) 입력기 · AIMaster",
-  "version": "1.7.0",
-  "version_name": "v1.07",
+  "version": "1.8.0",
+  "version_name": "v1.08",
   "description": "티스토리(원문)생성 자동화의 글을 티스토리 글쓰기 화면에 사람 속도로 입력하는 확장 프로그램입니다. 최종 저장 및 발행은 자동으로 하지 않습니다.",
   "permissions": [
     "debugger",
+    "clipboardWrite",
     "sidePanel",
     "storage",
     "scripting",
@@ -13,7 +14,8 @@
   ],
   "host_permissions": [
     "https://*.tistory.com/*",
-    "https://tistory-auto-blog-pearl.vercel.app/*"
+    "https://tistory-auto-blog-pearl.vercel.app/*",
+    "https://esgxyikcnnvmlhygjkth.supabase.co/*"
   ],
   "background": {
     "service_worker": "background.js"
