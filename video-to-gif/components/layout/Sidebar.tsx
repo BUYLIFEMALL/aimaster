@@ -20,7 +20,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             상세페이지 GIF 자동화
           </Link>
           <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
-          <a href="https://www.buylife.xyz/blog/dashboard" className="block px-2 text-xs text-neutral-500 hover:text-neutral-900">
+          <a href="https://www.buylife.xyz/dashboard" className="block px-2 text-xs text-neutral-500 hover:text-neutral-900">
             ← 다른 프로그램 보기
           </a>
         </div>
@@ -43,7 +43,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <a href={MAIN_SITE_URL} className="block rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900">
             🏠 AIMaster 메인으로
           </a>
-          <a href="https://www.buylife.xyz/blog/dashboard" className="block rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900">
+          <a href="https://www.buylife.xyz/dashboard" className="block rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900">
             🧩 전체 프로그램 보기
           </a>
         </div>

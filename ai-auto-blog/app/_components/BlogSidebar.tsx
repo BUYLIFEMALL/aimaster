@@ -65,7 +65,7 @@ export default function BlogSidebar() {
         <div className="mb-4 md:mb-6">
           <div className="px-2 text-lg font-semibold text-slate-900">BLOG(원문)생성 자동화</div>
           <p className="px-2 text-xs text-slate-400">{APP_VERSION}</p>
-          <a href={`${MAIN_SITE_URL}/programs`} className="block px-2 text-xs text-slate-400 hover:text-slate-700">
+          <a href={`${MAIN_SITE_URL}/dashboard`} className="block px-2 text-xs text-slate-400 hover:text-slate-700">
             ← 다른 프로그램 보기
           </a>
         </div>

@@ -42,14 +42,14 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       <div className="md:min-h-0 md:overflow-y-auto">
         <div className="mb-4 md:mb-6">
           <a
-            href="https://www.buylife.xyz/blog/dashboard"
+            href="https://www.buylife.xyz/dashboard"
             className="gold-text block px-2 text-lg font-semibold hover:opacity-80"
           >
             부동산 실거래 투자분석 자동화
           </a>
           <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
           <a
-            href="https://www.buylife.xyz/blog/dashboard"
+            href="https://www.buylife.xyz/dashboard"
             className="block px-2 text-xs text-neutral-500 hover:text-gold-light"
           >
             ← 다른 프로그램 보기

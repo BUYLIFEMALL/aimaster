@@ -684,3 +684,17 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 3. 글 HTML → 입력 블록 변환기(그 프로그램 글 형식에 맞게).
 4. `extension/`(manifest·background·sidepanel.html/js·styles) — `BASE` 주소, 저장 키 이름, `host_permissions`, 문구만 바꾼다.
 5. 실제 네이버 글쓰기 화면에서 회원 계정으로 끝까지 확인(로그인은 사람이 직접).
+
+---
+
+## 29. 로그인 화면 공통 레이아웃 (2026-10-01 주인님 지시)
+
+모든 서브프로그램의 로그인 화면은 **BLOG(원문) 로그인 폼**(`ai-auto-blog/app/auth/auth-form.tsx`) 모양으로 통일한다.
+- 격자 배경 + 파란 굵은 프로그램 이름(`programs.name`) + "AIMaster 계정(이메일·비밀번호)으로 로그인하세요."
+- 흰 카드: [로그인 | 회원가입] 탭 → 로그인은 아이콘이 있는 이메일·비밀번호 칸, "비밀번호 찾기?", 파란 "로그인 →" 버튼 / 회원가입 탭은 AIMaster 회원가입 안내 버튼(`https://www.buylife.xyz/register`)
+- 아래 이용약관·개인정보 처리방침(메인 사이트 `/terms`·`/privacy`) 안내.
+- 구현: `(auth)/layout.tsx` = 배경·제목·안내 문구, `(auth)/login/page.tsx` = 카드. `(auth)` 틀이 없는 프로그램은 로그인 페이지가 틀까지 그린다.
+  **로그인 처리는 각 프로그램의 `signInAction`(lib/actions/auth.ts)을 그대로** 쓴다 — 두 가지 모양(`(prevState, formData)` / `(formData)`) 모두
+  버튼 제출 시 직접 호출(`useActionState` 없이 `useState`)해서 React 18(Next 14)·19 양쪽에서 동작한다.
+- 새 프로그램은 이미 통일된 프로그램(예: `naver-cafe-poster/src/app/(auth)/`)의 두 파일을 복사해 제목만 바꾼다.
+- 일괄 적용 스크립트로 2026-10-01 24개 프로그램에 적용(아래 HANDOFF 기록). 예외: `naver-blog-seo-studio`(Codex 담당), 메인 사이트 `/login`(어두운 금색 디자인), `tistory-auto-blog`(BLOG 복사본이라 이미 같은 모양).

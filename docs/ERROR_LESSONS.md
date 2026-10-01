@@ -47,6 +47,17 @@
 - **[2026-09-20] 루트 앱 배포가 `EBUSY`로 실패** — 데스크톱 앱 `runtime/`·`node_modules`를 루트 `.vercelignore`에 넣는다(루트 `CLAUDE.md`).
 - **[2026-08-30] 권한 확인 결과가 캐시돼 다른 사람 화면이 보임** — 레이아웃·API에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"`, 배포 후 `X-Vercel-Cache: MISS` 확인(`PLATFORM_PATTERNS` §10).
 
+- **[2026-10-01 · 전 프로그램] 좌측 메뉴 "← 다른 프로그램 보기"가 BLOG 대시보드로 감**
+  - 원인: 사이드바 표준이 `https://www.buylife.xyz/blog/dashboard`로 정해져 있었는데, BLOG를 단독 배포로 분리(v1.06)하면서 `/blog/*`를
+    BLOG 새 주소로 넘기도록 해 모든 프로그램의 이 링크가 BLOG 대시보드로 가게 됐다. 분리할 때 다른 프로그램이 그 주소를 쓰는지 찾아보지 않았다.
+  - 해결: 24개 프로그램 + ai-image-studio + BLOG의 링크를 `https://www.buylife.xyz/dashboard`로 교체, `docs/SIDEBAR_LAYOUT_STANDARD.md` 수정.
+  - 다음부터 확인: **프로그램 주소를 옮기거나 넘김(redirect)을 걸 때는 저장소 전체에서 그 주소 문자열을 검색**해 다른 프로그램이 링크하고 있는지 확인한다.
+
+- **[2026-10-01 · music, shop-detail-page] 사용하지 않는 변수 하나로 빌드 실패**
+  - 원인: 사이드바 표준화 커밋(`69dc5de`)이 `components/layout/Sidebar.tsx`에 쓰지 않는 `MAIN_SITE_URL` 상수를 남김 → Next 빌드의 ESLint(no-unused-vars)가 오류로 막음. 그 뒤로 이 두 프로그램은 배포되지 않은 상태였다.
+  - 해결: 그 줄 삭제 후 빌드 통과.
+  - 다음부터 확인: 여러 프로그램을 한꺼번에 고친 커밋은 **고친 프로그램을 전부 빌드**해 보고 배포한다(일부만 확인하면 나머지가 조용히 깨진 채 남는다).
+
 ## C. 환경변수 · DB · 저장소
 
 - **[2026-10-01 · ai-auto-blog v1.07] 단독 배포 후 로그인이 "fetch failed"**

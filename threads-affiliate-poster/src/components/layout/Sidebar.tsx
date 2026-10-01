@@ -51,7 +51,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
           {!IS_STANDALONE && (
             <a
-              href="https://www.buylife.xyz/blog/dashboard"
+              href="https://www.buylife.xyz/dashboard"
               className="block px-2 text-xs text-neutral-500 hover:text-neutral-900"
             >
               ← 다른 프로그램 보기

@@ -379,3 +379,9 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - 이제 제목용 1장을 뺀 문단 이미지 k장이 **문단 4개를 연속 묶음으로 고르게 나눠 맡는다**(`utils/news/generator.ts` `groupParagraphs`):
   2장=[문단1~4] · 3장=[1~2][3~4] · 4장=[1~2][3][4] · 5장=[1][2][3][4]. 각 이미지는 **자기 묶음 안에서만** 핵심 문장을 골라(이미지끼리 내용 안 겹침)
   묶음 첫 문단의 소제목 바로 아래에 넣는다. 화면 선택지 문구도 이 배치로 바꿨다(`utils/ai/contentModels.ts` `IMAGE_COUNT_OPTIONS`).
+
+# "다른 프로그램 보기" → 메인 내 대시보드 (2026-10-01, v1.33)
+
+- 주인님 결정: 좌측 메뉴 "← 다른 프로그램 보기"를 모든 프로그램에서 `https://www.buylife.xyz/dashboard`(이용 가능한 프로그램 목록)로 통일.
+  BLOG는 `app/_components/BlogSidebar.tsx`에서 `/programs` → `/dashboard`. 다른 프로그램은 예전 값 `/blog/dashboard`가 BLOG 분리 후 BLOG 대시보드로
+  가버리던 문제를 같은 작업에서 고쳤다(루트 `docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`). BLOG 로그인 폼(`app/auth/auth-form.tsx`)은 모든 프로그램 로그인 화면의 기준이 됐다(`docs/PLATFORM_PATTERNS.md` §29).

@@ -42,7 +42,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <div className="px-2 text-lg font-semibold text-neutral-900">INSTA 댓글자동화</div>
           <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
           <a
-            href="https://www.buylife.xyz/blog/dashboard"
+            href="https://www.buylife.xyz/dashboard"
             className="block px-2 text-xs text-neutral-500 hover:text-neutral-900"
           >
             ← 다른 프로그램 보기
