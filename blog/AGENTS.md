@@ -105,3 +105,19 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 - 로그인 화면 문구 정리: 버튼 "세션 인증" → "로그인", 부제 "모든 빌드를 위한 정밀한 환경." → "AIMaster 계정(이메일·비밀번호)으로 로그인하세요.",
   로그인 완료 문구 "세션이 정상적으로 인증되었습니다." → "로그인되었습니다.". DB 연결 실패 시 "fetch failed" 대신
   "로그인 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."를 보여준다(`app/auth/actions.ts`).
+
+# 모델 기본값·목록 정리 (2026-10-01, v1.08 ~ v1.09)
+
+- **v1.08**: 본문 생성 기본값을 OpenAI GPT-4.1로 바꿨다(`DEFAULT_CONTENT_PROVIDER = 'openai'`). 회원이 고른 값은 브라우저(localStorage)에 기억된다.
+- **v1.09** (주인님 지시: "추론모델과 이미지 생성모델 지침을 보고 모델 값을 정리해서 추가", "나노바나나 2K 기본값, 1K를 2K 위로"):
+  - 기준 문서 `docs/AI_MODEL_INTEGRATION_STANDARD.md`에 맞춰 `utils/ai/contentModels.ts`를 레지스트리 구조
+    (`provider/value/name/purpose/category/lifecycle/endpoint`)로 바꿨다. 설명에는 용도만 적고 가격·속도 단정 문구는 뺐다.
+  - **모델 ID는 각 공급사 모델 목록 API로 실제 존재를 확인한 것만** 넣었다(테스트 회원 키, 생성 호출 없음 — 비용 없음).
+    - OpenAI: GPT-4.1(기본), 4o mini, 4o, GPT-5, 5.6 Luna/Terra/Sol, **GPT-6 Luna·GPT-6.1 Sol 추가**, GPT-6 Astra.
+    - Claude: **Haiku 4.5는 목록에 `claude-haiku-4-5-20251001`로만 나와 그 ID로 바꿈**(기본), Sonnet 5, Opus 5, **Fable 5 추가**.
+    - Gemini: **3.5 Flash(새 기본)**, 3.5 Flash-Lite, **3.6·3.8 Flash 추가**, 3.7 Flash, 2.5 Flash(예전 기본), 2.5 Pro, 3.1 Pro Preview(Preview 표시, 기본값 아님).
+    - 목록에는 더 새로운 `claude-sonnet-5-5`·`claude-opus-5-5`·`claude-fable-5-1`도 있었지만 기준 문서 표에 없어 넣지 않았다(필요하면 같은 방식으로 추가).
+  - 섹션 제목에 고른 모델 이름을 보여준다(예: "본문 생성 설정 · GPT-4.1", "이미지 생성 설정 · NanoBanana 2 · 2K").
+  - 이미지 모델 순서: 1K → 2K(기본·추천) → 4K → Pro 4K.
+  - OpenAI 어댑터(`utils/ai/contentJson.ts`): Chat Completions가 "지원하지 않음/Responses API" 류 400·404로 거절하면 Responses API로 한 번 더 보낸다.
+    **GPT-6 계열의 실제 글 생성은 아직 검증하지 않았다**(유료 호출이라 주인님 승인 후 짧은 요청 1회로 확인할 것).

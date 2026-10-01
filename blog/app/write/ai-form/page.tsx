@@ -14,7 +14,11 @@ import {
   DEFAULT_IMAGE_MODEL,
   IMAGE_MODEL_OPTIONS,
   IMAGE_PROVIDER_LABEL,
+  contentModelLabel,
+  findContentModel,
+  findImageModel,
   getContentModels,
+  imageModelLabel,
   getDefaultContentModel,
   isContentProvider,
   resolveContentModel,
@@ -463,7 +467,7 @@ function AiFormPageInner() {
           {/* 4. 본문 생성 설정 · 이미지 생성 설정 — 네이버 블로그 SEO 스튜디오의 "본문 생성 설정" 카드와 같은 레이아웃(2026-10-01) */}
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3" aria-label="본문 생성 모델 선택">
             <div>
-              <p className="text-sm font-extrabold text-slate-900">본문 생성 설정 · {CONTENT_PROVIDER_LABELS[contentProvider]}</p>
+              <p className="text-sm font-extrabold text-slate-900">본문 생성 설정 · {findContentModel(contentModel)?.name ?? CONTENT_PROVIDER_LABELS[contentProvider]}</p>
               <p className="text-xs font-bold text-slate-700 mt-0.5">아래 생성 버튼을 누를 때 제목과 블로그(원문) 본문에 적용됩니다.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-orange-100 bg-orange-50/40 p-4">
@@ -501,7 +505,7 @@ function AiFormPageInner() {
                 >
                   {getContentModels(contentProvider).map((m) => (
                     <option key={m.value} value={m.value} style={{ color: '#000000', backgroundColor: '#ffffff' }}>
-                      {m.label}
+                      {contentModelLabel(m)}
                     </option>
                   ))}
                 </select>
@@ -512,7 +516,7 @@ function AiFormPageInner() {
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3" aria-label="이미지 생성 모델 선택">
             <div>
-              <p className="text-sm font-extrabold text-slate-900">이미지 생성 설정 · {IMAGE_PROVIDER_LABEL}</p>
+              <p className="text-sm font-extrabold text-slate-900">이미지 생성 설정 · {findImageModel(imageModel)?.name ?? IMAGE_PROVIDER_LABEL}</p>
               <p className="text-xs font-bold text-slate-700 mt-0.5">본문 섹션마다 핵심 문장 하나를 골라 그 문장을 표현한 실사 이미지 3장을 생성합니다.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-orange-100 bg-orange-50/40 p-4">
@@ -541,7 +545,7 @@ function AiFormPageInner() {
                 >
                   {IMAGE_MODEL_OPTIONS.map((m) => (
                     <option key={m.value} value={m.value} style={{ color: '#000000', backgroundColor: '#ffffff' }}>
-                      {m.label}
+                      {imageModelLabel(m)}
                     </option>
                   ))}
                 </select>

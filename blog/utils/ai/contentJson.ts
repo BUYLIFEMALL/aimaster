@@ -71,9 +71,43 @@ export async function generateContentJson(params: {
       ...(model.startsWith('gpt-4') ? { temperature: 0.65 } : {}),
     }),
   })
-  if (!response.ok) throw safeError('OpenAI', response.status, await response.text().catch(() => ''))
+  if (!response.ok) {
+    const body = await response.text().catch(() => '')
+    // 최신 모델 중 Chat Completions를 지원하지 않는 모델은 Responses API로 한 번 더 보낸다
+    // (docs/AI_MODEL_INTEGRATION_STANDARD.md 3번 — 공식 지원 엔드포인트가 다를 수 있음).
+    if (response.status === 400 || response.status === 404) {
+      if (/v1\/responses|responses api|not supported|unsupported/i.test(body)) {
+        return generateOpenAIResponsesJson({ apiKey, model, system, user })
+      }
+    }
+    throw safeError('OpenAI', response.status, body)
+  }
   const data = (await response.json()) as { choices?: { message?: { content?: string } }[] }
   const text = data.choices?.[0]?.message?.content?.trim()
+  if (!text) throw new Error('OpenAI가 본문 결과를 반환하지 않았습니다.')
+  return extractJson(text)
+}
+
+async function generateOpenAIResponsesJson(params: { apiKey: string; model: string; system: string; user: string }) {
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${params.apiKey}` },
+    body: JSON.stringify({
+      model: params.model,
+      instructions: params.system,
+      input: params.user,
+      text: { format: { type: 'json_object' } },
+    }),
+  })
+  if (!response.ok) throw safeError('OpenAI', response.status, await response.text().catch(() => ''))
+  const data = (await response.json()) as {
+    output_text?: string
+    output?: { content?: { type?: string; text?: string }[] }[]
+  }
+  const text = (
+    data.output_text ??
+    data.output?.flatMap((item) => item.content ?? []).filter((part) => part.type === 'output_text').map((part) => part.text ?? '').join('')
+  )?.trim()
   if (!text) throw new Error('OpenAI가 본문 결과를 반환하지 않았습니다.')
   return extractJson(text)
 }
