@@ -130,6 +130,19 @@ test("shows the manifest version in the extension panel instead of a hard-coded 
   assert.doesNotMatch(panel, new RegExp(manifest.version_name));
 });
 
+test("limits editor structure inspection to a server-verified admin extension session", () => {
+  const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
+  const script = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+  const whoami = readFileSync(new URL("../../app/api/extension/whoami/route.ts", import.meta.url), "utf8");
+  const extensionAuth = readFileSync(new URL("../../lib/extensionAuth.ts", import.meta.url), "utf8");
+  assert.match(panel, /id="editorInspectionSection" class="card" hidden/);
+  assert.match(script, /isAdmin = Boolean\(result\.ok && result\.isAdmin\)/);
+  assert.match(script, /\$\("editorInspectionSection"\)\.hidden = !isAdmin/);
+  assert.match(script, /if \(!isAdmin\) \{[\s\S]*관리자 계정에서만 실행/);
+  assert.match(whoami, /isAdmin: user\.isAdmin/);
+  assert.match(extensionAuth, /isAdmin: Boolean\(profile\.is_admin\)/);
+});
+
 test("automates only the publish-settings opening step and leaves final publishing to the user", () => {
   const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
   const script = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");

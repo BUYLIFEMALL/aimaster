@@ -61,5 +61,12 @@ export async function verifyExtensionToken(request: Request) {
   if (!allowed) return null;
 
   await supabase.from("personal_access_tokens").update({ last_used_at: new Date().toISOString() }).eq("id", tokenRow.id);
-  return { userId: tokenRow.user_id, email: profile.email, name: profile.name };
+  return {
+    userId: tokenRow.user_id,
+    email: profile.email,
+    name: profile.name,
+    // Extension-only diagnostics must use the server-verified admin flag,
+    // never a client-side email or display-name comparison.
+    isAdmin: Boolean(profile.is_admin),
+  };
 }

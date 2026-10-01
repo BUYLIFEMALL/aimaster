@@ -14,6 +14,7 @@ let activeWebDraftBlocks = [];
 let activeWebDraftTitle = "";
 let activeWebDraftBody = "";
 let activeWebDraftCoverDataUrl = "";
+let isAdmin = false;
 
 function resetActiveWebDraft() {
   activeWebDraftId = "";
@@ -444,7 +445,7 @@ async function verify(token) {
   try {
     const response = await fetch(`${BASE}/api/extension/whoami`, { headers: { Authorization: `Bearer ${token}` } });
     const body = await response.json().catch(() => ({}));
-    return response.ok ? { ok: true, email: body.email } : { ok: false, error: body.error || `연결 실패 (${response.status})` };
+    return response.ok ? { ok: true, email: body.email, isAdmin: Boolean(body.isAdmin) } : { ok: false, error: body.error || `연결 실패 (${response.status})` };
   } catch (error) { return { ok: false, error: error instanceof Error ? error.message : String(error) }; }
 }
 
@@ -738,6 +739,8 @@ async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
 async function renderStatus() {
   const token = await getToken();
   const result = await verify(token);
+  isAdmin = Boolean(result.ok && result.isAdmin);
+  $("editorInspectionSection").hidden = !isAdmin;
   $("status").textContent = result.ok ? `연결됨: ${result.email}` : token ? `오류: ${result.error}` : "연결되지 않음";
 }
 
@@ -746,6 +749,8 @@ $("link").addEventListener("click", async () => {
   $("link").disabled = true;
   const result = await verify(token);
   if (result.ok) { await chrome.storage.local.set({ [KEY]: token }); $("token").value = ""; }
+  isAdmin = Boolean(result.ok && result.isAdmin);
+  $("editorInspectionSection").hidden = !isAdmin;
   $("link").disabled = false;
   $("status").textContent = result.ok ? `연결됨: ${result.email}` : `오류: ${result.error}`;
 });
@@ -919,6 +924,10 @@ $("applyWebDraftTags").addEventListener("click", () => {
 });
 
 $("inspect").addEventListener("click", async () => {
+  if (!isAdmin) {
+    $("inspectStatus").textContent = "에디터 구조 분석은 관리자 계정에서만 실행할 수 있습니다.";
+    return;
+  }
   $("inspect").disabled = true;
   $("inspectStatus").textContent = "분석 중...";
   try {
