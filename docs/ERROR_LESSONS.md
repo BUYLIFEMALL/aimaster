@@ -1,0 +1,96 @@
+# 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
+
+> **모든 CLI(Claude Code, Codex, Gemini 등)는 작업을 시작하기 전에 이 문서를 먼저 읽는다.**
+> 작업하다가 에러를 해결했거나, 꼭 확인해야 할 점검 사항을 발견하면 **그 작업의 커밋에 이 문서 기록을 함께 넣는다.**
+> 같은 실수를 다른 CLI가 반복하지 않게 하는 것이 목적이다(2026-10-01 주인님 지시 — 루트 `CLAUDE.md` 핵심 원칙 7번).
+>
+> - 더 긴 배경 설명이 필요한 재사용 패턴은 `docs/PLATFORM_PATTERNS.md`, 지난 시즌 교훈 원문은 루트 `AGENTS.md` §10에 있다.
+>   이 문서는 **"무엇이 터졌고 → 왜 → 어떻게 고쳤고 → 다음엔 무엇을 확인할지"를 짧게** 모은 곳이다.
+> - 서브프로젝트 하나에만 해당하는 자세한 내용은 그 폴더 `AGENTS.md`에 쓰고, 여기에는 한 줄 요약 + 위치만 남긴다.
+
+## 기록하는 방법 (형식)
+
+새 항목은 해당 분류 맨 아래에 이 형식으로 추가한다. 날짜·프로그램·버전을 꼭 적는다.
+
+```
+- **[YYYY-MM-DD · 프로그램 vX.YY] 증상 한 줄**
+  - 원인: …
+  - 해결: …(파일·함수 위치)
+  - 다음부터 확인: …
+```
+
+---
+
+## A. 작업 전 점검 체크리스트 (매번)
+
+1. `docs/HANDOFF.md`에서 **다른 CLI가 작업 중인 폴더**를 확인하고 건드리지 않는다(예: `naver-blog-seo-studio`는 Codex 담당). `git status`로 남의 미커밋 변경을 확인.
+2. 스테이징(index)은 다른 CLI와 공유된다 — **`git add`는 커밋 직전에, 내 파일만 경로를 지정해서** 하고 바로 커밋한다.
+3. 고칠 서브프로젝트의 `AGENTS.md`/`README.md`를 먼저 읽는다.
+4. 버전 규칙: 배포할 때마다 `lib/version.ts`(또는 `utils/version.ts`) `APP_VERSION` + DB `programs.version`을 같이 +0.01.
+5. 새/수정 API·Server Action은 **로그인 + 프로그램 이용 권한**(`checkProgramAccessApi`/`requireProgramAccess`) + `dynamic`/`fetchCache` 두 줄.
+6. API 키는 **회원 본인 키만**(운영자 키 폴백 금지). 외부 계정 OAuth 앱도 회원 본인 앱.
+7. 유료 API 호출·DB 구조 변경·환경변수 변경·실제 데이터 삭제는 먼저 주인님께 확인.
+8. 브라우저 자동화(네이버 등)는 `docs/PLATFORM_PATTERNS.md` §20(봇 탐지 회피)·§28(웹→확장→네이버 입력)을 먼저 읽는다.
+
+---
+
+## B. 배포 · Vercel
+
+- **[2026-10-01 · ai-auto-blog v1.06] 새 Vercel 프로젝트 첫 배포가 전 페이지 404**
+  - 원인: `vercel project add`로 만든 빈 프로젝트는 프레임워크 설정이 비어 있어 Next.js로 빌드되지 않음.
+  - 해결: 서브프로젝트에 `vercel.json` `{"framework": "nextjs"}`를 두고 재배포.
+  - 다음부터 확인: 새 프로젝트 첫 배포 직후 주요 경로를 `curl`로 200/307 확인. 별칭은 배포 결과의 "Aliased" 주소를 쓸 것(이름이 겹치면 `-one` 등이 붙음).
+- **[2026-10-01 · ai-auto-blog v1.06] 루트에 내장돼 있던 앱을 단독 빌드하자 숨은 타입 오류 발생**
+  - 원인: 루트 `next.config.mjs`가 `typescript.ignoreBuildErrors: true`라 내장 시절 오류가 가려져 있었음.
+  - 해결: 단독 `npm run build`로 드러난 오류 수정.
+  - 다음부터 확인: 서브프로젝트를 분리하거나 옮길 때는 반드시 그 폴더에서 단독 빌드.
+- **[2026-09-20] 루트 앱 배포가 `EBUSY`로 실패** — 데스크톱 앱 `runtime/`·`node_modules`를 루트 `.vercelignore`에 넣는다(루트 `CLAUDE.md`).
+- **[2026-08-30] 권한 확인 결과가 캐시돼 다른 사람 화면이 보임** — 레이아웃·API에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"`, 배포 후 `X-Vercel-Cache: MISS` 확인(`PLATFORM_PATTERNS` §10).
+
+## C. 환경변수 · DB · 저장소
+
+- **[2026-10-01 · ai-auto-blog v1.07] 단독 배포 후 로그인이 "fetch failed"**
+  - 원인: 서브프로젝트 `.env.local`에 **없어진 옛 Supabase 프로젝트 주소**가 남아 있었고, 그 값을 Vercel에 그대로 옮김(서버 로그 `ENOTFOUND`).
+  - 해결: 루트 `.env.local`의 공용 DB(`esgxyikcnnvmlhygjkth`) 값으로 교체.
+  - 다음부터 확인: 환경변수는 **루트 `.env.local` 기준**으로 넣고, 주소에 공용 프로젝트 ID가 있는지 확인. 로그인 실패는 `vercel logs`부터 본다.
+- **[2026-10-01 · ai-auto-blog v1.12] 글 1개가 12MB — 이미지가 base64로 본문에 통째로 저장됨**
+  - 해결: 모든 AI·첨부 이미지를 Supabase Storage public 버킷에 올리고 주소만 저장(`ai-auto-blog/utils/imageStorage.ts`), 기존 글은 스크립트로 이전(원본 백업 후).
+  - 다음부터 확인: 이미지·파일을 DB 칸에 base64로 넣지 않는다(`CLAUDE.md` Reusable Patterns, `PLATFORM_PATTERNS` §12).
+- **[2026-10-01 · ai-auto-blog v1.13] 여러 프로그램이 함께 쓰는 버킷의 자동 삭제**
+  - 확인: `post-images`는 threads·insta·naver-cafe·BLOG 공용 — 정리 작업은 **자기 프로그램 폴더(`<회원 id>/ai-auto-blog/`)만** 지운다.
+- **[2026-10-01 · ai-auto-blog v1.14] 이미 기준을 넘긴 기존 데이터를 자동 삭제 규칙이 한 번에 지울 뻔함**
+  - 해결: 실제 삭제 전 대상 개수를 SQL로 세어 주인님께 확인 → 정책 시작일부터 유예(`ai-auto-blog/utils/imageRetention.ts`).
+  - 다음부터 확인: 삭제 규칙을 새로 켤 때는 "지금 바로 지워질 개수"를 먼저 보고한다.
+- **[2026-09-30] 운영자 `GEMINI_API_KEY` 폴백으로 키 없는 회원의 생성 비용이 운영자에게 청구** — 폴백 코드·환경변수 삭제, 본인 키 없으면 `API_KEY_REQUIRED` 안내.
+
+## D. 크롬 확장 · 네이버 자동 입력
+
+- **[2026-10-01 · ai-auto-blog v1.27] 추천 링크가 실제 링크 3개 + 글자 1개로 중복 입력**
+  - 원인: 붙여넣기 주입을 `executeScript({allFrames: true})`로 돌려 **여러 겹의 프레임이 같은 편집기에 각각 붙여넣음**, 동시에 돈 확인 로직이 실패로 오판해 글자까지 입력.
+  - 해결: 커서가 있는 프레임 하나를 찾아(`document.activeElement`가 그 문서의 편집 영역 + `document.hasFocus()`) `frameIds`로 그 프레임에서만 1번 실행·확인(`ai-auto-blog/extension/sidepanel.js` `findFocusedEditorFrame`).
+  - 다음부터 확인: **상태를 바꾸는 주입(붙여넣기·클릭·입력)은 `allFrames` 금지**, 조사·확인만 `allFrames`.
+- **[2026-10-01 · ai-auto-blog v1.21~1.22] 한 글자씩 입력한 링크는 글자로만 들어가 링크가 안 걸림**
+  - 원인: 키 입력으로는 링크 서식을 못 만들고, "주소 뒤 띄어쓰기 → 네이버 자동 링크"도 걸리지 않았다.
+  - 해결: 링크만 있는 줄은 `<a href>` HTML을 `ClipboardEvent('paste')`로 붙여넣기 → 네이버가 실제 링크로 받아줌(주인님 화면 확인).
+- **[2026-10-01 · ai-auto-blog v1.20] 두 확장이 같은 자리에 들어간 것처럼 보임**
+  - 원인: 아이콘이 없어 둘 다 회색 "A" 아이콘, 같은 사이드패널 사용(크롬은 하나만 표시), 불러온 폴더 설정 실수.
+  - 해결: 전용 아이콘·이름. 확장은 **불러온 폴더 위치로 구분**되므로 확장마다 다른 폴더에서 불러온다.
+- **[2026-10-01 · ai-auto-blog v1.27] 웹용 이미지 설명("📷 … 고화질 확대")이 네이버 본문에 글자로 입력됨** — 편집기(Tiptap) 저장 글은 설명이 별도 문단으로 남는다. 변환기에서 제외.
+- **[2026-10-01] SEO 스튜디오 확장 타이핑 간격(24~52ms)이 §20 기준(70~170ms)보다 빠름** — Codex 담당 폴더라 미수정, 담당 CLI가 맞출 것.
+- **확장 배포 규칙**: 프로그램 버전 = 확장 `version_name` = ZIP 버전. `ai-auto-blog`는 `prebuild`로 자동 동기화(`PLATFORM_PATTERNS` §28). 압축해제 확장은 스스로 업데이트되지 않으니 회원 안내 필수.
+
+## E. 터미널 · 도구 (Windows + Git Bash)
+
+- **[2026-10-01] `curl "$B/경로"`가 엉뚱한 주소로 요청** — Git Bash가 `/`로 시작하는 인자를 Windows 경로로 바꾼다. `export MSYS_NO_PATHCONV=1`을 먼저.
+- **[2026-10-01] `node -e "…"` 안에 백틱(`)이 든 긴 글을 넣었더니 bash가 백틱 내용을 명령으로 실행**
+  - 해결: 실제 피해는 없었지만, 긴 글·문서 수정은 **스크립트 파일(.js)로 따로 써서 실행**하거나 Edit 도구를 쓴다.
+- **[2026-10-01] 문자열 치환이 "찾을 수 없음"으로 실패** — 파일이 CRLF 줄바꿈. 치환 스크립트는 `\r\n`→`\n`으로 바꿔 비교한 뒤 원래 줄바꿈으로 되돌려 저장한다.
+- **[2026-10-01] 경로 일괄 치환(`blog/`→`ai-auto-blog/`)이 옛 기록 속 다른 의미의 `blog/page.tsx`까지 바꿈** — 일괄 치환 후 반드시 바뀐 줄을 훑어보고 되돌릴 것은 되돌린다.
+- **[2026-10-01] 백그라운드로 넘어간 명령이 나중에 실행돼 파일을 다시 건드림** — 백그라운드 작업이 끝났다는 알림 후 `git status`로 의도치 않은 변경(줄바꿈만 바뀐 것 포함)을 확인하고 되돌린다.
+- **[2026-10-01] `server-only`를 import하는 파일은 `tsx`로 바로 실행하면 모듈 없음 오류** — 테스트할 때는 `NODE_PATH`에 빈 `server-only` 모듈을 둔 임시 폴더를 지정한다.
+
+## F. 외부 사이트 연동
+
+- **[2026-09-30] 로컬에서 되던 외부 요청이 Vercel에서 403**(쿠팡 `coupa.ng`) — 클라우드 IP 차단. 외부 사이트를 서버에서 부르는 기능은 미리보기 배포에서 `vercel curl`로 먼저 확인(루트 `AGENTS.md` §10).
+- **[2026-09-30] `sharp`가 Vercel 함수에서 실패**(libvips 누락) — 작은 이미지 처리는 순수 JS(`jpeg-js`).
+- **[2026-10-01] AI 모델 ID 추측 금지** — 각 공급사 모델 목록 API(무료)로 실제 ID를 확인한 뒤 등록(`docs/AI_MODEL_INTEGRATION_STANDARD.md`). 예: Claude Haiku 4.5는 `claude-haiku-4-5-20251001`.
