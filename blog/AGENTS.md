@@ -30,7 +30,7 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   이미지 1장이 실패하면 그 칸은 비우고(`imageLine()`) 글 생성은 계속한다.
 - 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션은 이미지마다 **그린 본문 문장 + 사용한 장면 설명**만 보여준다(`buildImagePromptSection()`).
   예전 "API 요청 스키마" 블록은 화면에서 이미 숨기던 것이라 만들지 않는다(과거 글의 스키마 블록은 `stripImageSchema.ts`가 계속 숨김).
-- 남은 과제: 이미지 저장이 아직 Cloudinary(회원 설정) 또는 본문 base64다. 루트 `CLAUDE.md`의 "AI 이미지는 Supabase Storage" 규칙에 맞추는
+- (2026-10-01 해결 — 아래 "이미지 저장소 전환" 참고) 당시 남은 과제: 이미지 저장이 아직 Cloudinary(회원 설정) 또는 본문 base64다. 루트 `CLAUDE.md`의 "AI 이미지는 Supabase Storage" 규칙에 맞추는
   전환은 편집 화면(`posts/[id]/edit`)의 base64 처리와 함께 바꿔야 해서 별도 작업으로 남겼다.
 - **실측 검증(2026-09-30, 주인님 승인, 테스트 계정 Gemini 키, 107번 글 본문)**: 예전 이미지는 내용과 무관한 "사무실 사람들"이었고,
   새 방식은 3장 모두 고른 문장 내용(신경망·금융·공장 분석, RPA+AI 로봇, 비정형 데이터 처리)을 표현했다. 테스트 중 3가지를 추가로 고쳤다.
@@ -137,3 +137,22 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   - 기존 글: `utils/stripImageSchema.ts`의 `removeImagePromptSection()`이 글 보기 화면(`app/posts/[id]/page.tsx`)과
     편집기(`app/posts/[id]/edit/page.tsx`, 불러올 때 제거 → 저장하면 DB에서도 빠짐)에서 섹션과 바로 앞 구분선을 걷어낸다.
   - 이미지 생성 자체(섹션마다 핵심 문장을 골라 그리는 방식, 한국인 기본 묘사)는 그대로다. 장면 설명은 화면에 안 보일 뿐 생성에는 계속 쓰인다.
+
+# 이미지 저장소 전환 — Supabase Storage (2026-10-01, v1.12)
+
+주인님 지시("새 글과 편집기 이미지 모두 Storage에", "기존 글 3개도 옮겨서 가볍게", "기존 사용자도 이 방식으로")로 저장 방식을 하나로 통일했다.
+
+- **예전**: 회원이 Cloudinary를 등록했으면 그 계정에 업로드, 아니면 이미지를 base64 문자열로 글 본문에 통째로 넣음(글 1개 12MB 이상).
+  편집기의 AI 이미지·첨부 이미지는 항상 base64.
+- **지금**: 모든 회원·모든 이미지(자동 생성 3장, 편집기 "AI 이미지 생성", 편집기 이미지 첨부)를 공용 Supabase Storage
+  `post-images`(public) 버킷의 `<회원 id>/ai-auto-blog/<uuid>.<확장자>`에 올리고, 글에는 공개 주소만 넣는다.
+  - 서버 업로드: `utils/imageStorage.ts`(`uploadBase64Image`/`uploadDataUriImage`, 서비스 키). 자동 생성(`utils/news/imageGenerator.ts`)과
+    편집기 AI 이미지(`app/api/posts/generate-editor-image/route.ts`)가 쓴다. 저장 실패 시 base64로 되돌리지 않고 그 칸을 비운다.
+  - 편집기 첨부: `components/RichTextEditor.tsx`가 브라우저에서 바로 올린다(Vercel 4.5MB 요청 한도 회피, 10MB 제한).
+    버킷 RLS(`post_images_insert_own`)가 본인 폴더에만 쓰기를 허용한다 — threads·insta·naver-cafe가 같은 버킷·같은 규칙을 쓴다.
+  - Cloudinary 연동 삭제: `utils/cloudinary.ts`, `app/settings/CloudinaryConfigRow.tsx`, 설정 저장 액션, 설정 화면 칸·매뉴얼 버튼.
+    DB `user_cloudinary_config` 테이블과 회원 6명의 등록값은 지우지 않고 그대로 두었다(다른 곳에서 안 씀). 이미 Cloudinary 주소가 든 예전 글 6개도 그대로 보인다.
+  - 설정 화면 Cloudinary 칸 자리에 "🖼️ 이미지 저장 안내"(`components/settings/ImageStorageNotice.tsx`)를 넣었다.
+- **기존 글 이전**: `scripts/migrate-base64-images.mjs`로 글 100·105·106번의 base64 이미지 9장을 Storage로 옮기고 본문을 주소로 바꿨다
+  (각 12.0~12.6MB → 20~25KB). 실행 전 원본 본문은 작업자 PC 임시 폴더에 백업했고, 운영 화면에서 세 글 모두 정상 표시를 확인했다.
+  다시 base64 글이 생기면 같은 스크립트를 `--dry-run`으로 먼저 확인한 뒤 실행한다.
