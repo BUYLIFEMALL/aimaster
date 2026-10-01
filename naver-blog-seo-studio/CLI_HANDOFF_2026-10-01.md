@@ -1,4 +1,4 @@
-# 네이버 블로그 SEO 스튜디오 — CLI 인수인계 (v1.53)
+# 네이버 블로그 SEO 스튜디오 — CLI 인수인계 (v1.54)
 
 최종 갱신: 2026-10-01
 
@@ -38,7 +38,7 @@
 1. 확장 상태 영역의 문구를 먼저 확인합니다. 이 UI는 토큰 부재, 콘텐츠 미선택, 네이버 편집기 탭 부재, 제목/본문 요소 탐지 실패, debugger 충돌을 구체적으로 표시합니다.
 2. Vercel 로그에서 `GET /api/extension/drafts/library`만 있고 `POST .../claim` 또는 `input-result`가 없다면, 목록만 새로고침했을 뿐 선택 콘텐츠가 로드되지 않은 것입니다. v1.51부터는 목록 선택 시 자동 로드됩니다.
 3. `claim`은 있으나 입력 기록이 없다면 네이버 글쓰기 탭/에디터 요소/debugger 권한을 확인합니다. DevTools 또는 다른 debugger 확장을 닫고 재시도합니다.
-4. 콘텐츠 또는 이미지가 바뀐 뒤에는 확장 ZIP을 다시 설치하거나 `chrome://extensions`에서 확장을 새로고침합니다. 현재 공개 확장은 **v1.53**입니다.
+4. 콘텐츠 또는 이미지가 바뀐 뒤에는 확장 ZIP을 다시 설치하거나 `chrome://extensions`에서 확장을 새로고침합니다. 현재 공개 확장은 **v1.54**입니다.
 5. 실제 네이버 DOM이 바뀌었다면 추측하지 말고 확장의 `에디터 구조 분석` 결과를 수집한 뒤 `focusNaverEditor`, 이미지 업로드, 발행 설정 로직을 최소 범위로 보완합니다.
 
 ## 이미지·블록 보존 규칙
@@ -69,6 +69,12 @@
 9. `curl.exe -I https://naver-blog-seo-studio.vercel.app/downloads/naver-blog-seo-studio-extension-vX.XX.zip`가 HTTP 200인지 확인
 
 Supabase project id는 `esgxyikcnnvmlhygjkth`, Vercel 프로젝트는 `buylife/naver-blog-seo-studio`입니다.
+
+## 확장 설치 상태 표시
+
+- 웹은 Chrome 보안 정책상 압축해제 확장의 실제 설치 여부를 자동으로 감지할 수 없습니다.
+- ZIP 다운로드 뒤에는 `설치 진행 중 · Chrome에 확장을 추가하세요`를 표시하고, 압축 해제·`chrome://extensions` 개발자 모드·압축해제된 확장 프로그램 로드까지의 남은 단계를 안내합니다.
+- 사용자가 실제 설치 또는 기존 확장 새로고침을 마친 뒤 `Chrome 설치 후 완료 표시`를 누르면, 확인창 뒤 현재 브라우저 localStorage에 해당 버전을 기록합니다. 이 표시는 안내용이므로 브라우저 저장공간 삭제·다른 PC에서는 초기화됩니다.
 
 ## 마지막 검증 상태
 

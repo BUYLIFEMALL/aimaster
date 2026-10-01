@@ -295,8 +295,10 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .extension-status { display: flex; align-items: center; gap: 7px; margin-top: 12px; color: #50657d; font-size: 12px; font-weight: 700; }
 .extension-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f0a33a; box-shadow: 0 0 0 3px #fff0d8; }
 .extension-status-dot.ready { background: #2c9a68; box-shadow: 0 0 0 3px #dcf5e9; }
+.extension-status-dot.progress { background: #2f67a7; box-shadow: 0 0 0 3px #dceafa; }
 .extension-update-note { margin-top: 10px !important; color: #a05a1c !important; }
 .extension-installed-button { display: inline-flex; margin: 14px 0 0 7px; border: 1px solid #c8d8e8; border-radius: 10px; background: #fff; color: #315b84; padding: 10px 13px; font-size: 12px; font-weight: 800; cursor: pointer; }
+.extension-install-progress { display: grid; gap: 5px; margin-top: 13px; border: 1px solid #cfe0f2; border-radius: 10px; background: #f5faff; padding: 11px 12px; color: #315b84; font-size: 12px; line-height: 1.55; }.extension-install-progress strong { font-size: 12px; }.extension-install-progress span { color: #637b94; }.extension-install-progress code { color: #315b84; font-size: 11px; }
 .image-generation-card { margin-top: 18px; }
 .extension-handoff-card { margin-top: 18px; border-color: #d7e5f3; }
 .handoff-description, .handoff-status { margin: -4px 0 13px; color: var(--muted); font-size: 12px; line-height: 1.6; }
