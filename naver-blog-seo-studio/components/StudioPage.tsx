@@ -758,7 +758,7 @@ export default function StudioPage({ email }: { email: string }) {
     </div>
     <div className="content-generation-models">
       <div className="field">
-        <label htmlFor="content-provider-selector">본문 생성 플랫폼</label>
+        <label htmlFor="content-provider-selector">본문 생성 AI 모델</label>
         <select id="content-provider-selector" value={contentProvider} onChange={(event) => { const provider = event.target.value as ContentProvider; setContentProvider(provider); setContentModel(getDefaultContentModel(provider)); }} disabled={pending || imagePending}>
           <option value="openai">OpenAI</option>
           <option value="anthropic">Anthropic Claude</option>
@@ -796,7 +796,7 @@ export default function StudioPage({ email }: { email: string }) {
             <small>아래 생성 버튼을 누를 때 제목과 블로그(원문) 본문에 적용됩니다.</small>
           </div>
           <div className="content-generation-models">
-            <div className="field"><label htmlFor="legacy-content-provider-selector">본문 생성 플랫폼</label><select id="legacy-content-provider-selector" value={contentProvider} onChange={(event) => { const provider = event.target.value as ContentProvider; setContentProvider(provider); setContentModel(getDefaultContentModel(provider)); }} disabled={pending || imagePending}><option value="openai">OpenAI</option><option value="anthropic">Anthropic Claude</option><option value="gemini">Google Gemini</option></select><small>선택한 플랫폼에 등록한 본인 API 키만 사용합니다.</small></div>
+            <div className="field"><label htmlFor="legacy-content-provider-selector">본문 생성 AI 모델</label><select id="legacy-content-provider-selector" value={contentProvider} onChange={(event) => { const provider = event.target.value as ContentProvider; setContentProvider(provider); setContentModel(getDefaultContentModel(provider)); }} disabled={pending || imagePending}><option value="openai">OpenAI</option><option value="anthropic">Anthropic Claude</option><option value="gemini">Google Gemini</option></select><small>선택한 플랫폼에 등록한 본인 API 키만 사용합니다.</small></div>
             <div className="field"><label htmlFor="legacy-content-model-selector">본문 생성 모델</label><select id="legacy-content-model-selector" value={contentModel} onChange={(event) => setContentModel(event.target.value)} disabled={pending || imagePending}>{getContentModels(contentProvider).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select><small>선택한 모델로 완성형 블로그(원문)을 생성합니다.</small></div>
           </div>
         </section>}</section>}
