@@ -66,8 +66,8 @@
 
 | 순서 | 할 일 | 비고 |
 |---|---|---|
-| 1 | `git fetch origin && git status` → master에서 `git merge --no-ff origin/cloud-work -m "merge: cloud-work (tistory-auto-blog)"` | 다른 CLI 미커밋 변경 확인 먼저. 병합 후 `git push origin master`, 이어서 `git push origin master:cloud-work`(클라우드 브랜치도 맞춤) |
-| 2 | `cd tistory-auto-blog && npm ci && npm run build` | 빌드 시 `public/downloads/tistory-auto-blog-extension-v1.01.zip`이 생긴다 — **확장 완성 전에는 커밋하지 말고 지운다**(지금 `extension/`은 네이버용 복사본) |
+| 1 | `git fetch origin && git status` → master에서 `git merge --no-ff origin/cloud-work -m "merge: cloud-work (tistory-auto-blog)"` | ✅ 완료: `df2f3cd`, `master`·`cloud-work` 원격 동기화 |
+| 2 | `cd tistory-auto-blog && npm ci && npm run build` | ✅ 빌드 통과. Google Fonts 외부 요청 실패를 막기 위해 시스템 글꼴로 전환. ZIP은 확장 완성 전까지 검증용이므로 삭제·미커밋. ⚠️ 복제 원본 ESLint 오류 53개는 별도 정리 필요 |
 | 3 | **조사 확장 실행(주인님 PC)**: `inspector-extension/README.md` → JSON을 Claude 대화에 첨부 | 3·4단계의 선행 조건 |
 | 4 | DB 마이그레이션 적용(주인님 승인): `supabase/migrations/0001_tistory_init.sql`을 MCP `apply_migration`(또는 SQL Editor)으로 | 운영 DB 이미 확인: PostgreSQL 17.6, `public.set_updated_at()` 있음, `tistory_*` 테이블 아직 없음. 적용 후 `pg_policies`로 `tistory_*` 정책이 전부 `auth.uid() = user_id`인지, `anon` 정책이 없는지 확인(`PLATFORM_PATTERNS` §18: 파일 ≠ 적용) |
 | 5 | `programs` 등록: slug `tistory-auto-blog`, 이름 "티스토리(원문)생성 자동화"(가칭), `version='v1.01'`, 카테고리·요금제·이용 권한(핵심 원칙 6번), 썸네일(§13 실사 원칙), `app_url`은 배포 주소 | 관리자 `/admin` 프로그램 등록 화면 또는 SQL |

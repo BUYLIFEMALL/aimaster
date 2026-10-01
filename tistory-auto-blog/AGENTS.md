@@ -20,6 +20,12 @@
 | 5 | 설정 화면 연동 매뉴얼 | ⏳ `platform_guides` 티스토리 매뉴얼 신규 등록 필요 |
 | 6 | 로컬: DB 적용·`programs` 등록(`v1.01`)·Vercel 프로젝트·배포 | ⏳ |
 
+### 로컬 병합 후 기반 검증 (2026-10-01)
+
+- `cloud-work`의 0~2단계 작업을 로컬 `master`에 병합했습니다(`df2f3cd`). 외부 Google Fonts 요청이 막힌 환경에서도 빌드되도록 `next/font/google` 의존을 제거하고 시스템 글꼴을 사용하게 했습니다.
+- `npm run build`는 통과했습니다. 다만 복제 원본에서 넘어온 ESLint 오류 53개(React effect의 동기 상태 변경·`any` 등)가 있어 `npm run lint`는 아직 통과하지 않습니다. 편집기 조사 JSON을 받은 뒤 티스토리 전용 구현과 함께 별도 정리합니다.
+- 확장 `extension/`은 여전히 네이버 복사본이므로 빌드가 만든 ZIP은 검증용 산출물이며 커밋·배포하지 않습니다.
+
 ## ai-auto-blog와 달라진 점 (보안·격리 — 복제하면서 고침)
 운영 DB의 `blog_*` 정책을 읽기 조회로 확인해 보니 BLOG는 "하나의 공유 블로그" 설계가 남아 있다(`docs/ERROR_LESSONS.md` 2026-10-01 항목 참고). 티스토리판은 처음부터 회원별 격리로 만들었다.
 - `tistory_categories`·`authors`·`posts`·`post_categories`·`candidates` **전부 `user_id NOT NULL` + RLS 본인만**(anon 접근 없음). 댓글·좋아요 테이블은 만들지 않았다.

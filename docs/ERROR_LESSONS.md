@@ -109,3 +109,10 @@
 - **[2026-09-30] 로컬에서 되던 외부 요청이 Vercel에서 403**(쿠팡 `coupa.ng`) — 클라우드 IP 차단. 외부 사이트를 서버에서 부르는 기능은 미리보기 배포에서 `vercel curl`로 먼저 확인(루트 `AGENTS.md` §10).
 - **[2026-09-30] `sharp`가 Vercel 함수에서 실패**(libvips 누락) — 작은 이미지 처리는 순수 JS(`jpeg-js`).
 - **[2026-10-01] AI 모델 ID 추측 금지** — 각 공급사 모델 목록 API(무료)로 실제 ID를 확인한 뒤 등록(`docs/AI_MODEL_INTEGRATION_STANDARD.md`). 예: Claude Haiku 4.5는 `claude-haiku-4-5-20251001`.
+
+## G. 독립 앱 빌드
+
+- **[2026-10-01 · tistory-auto-blog v1.01] 독립 빌드가 Google Fonts 요청 실패로 중단됨**
+  - 원인: 복제한 `app/layout.tsx`가 `next/font/google`의 Inter를 빌드 시 내려받아, 네트워크가 제한된 환경에서 컴파일이 실패했다.
+  - 해결: 외부 폰트 import를 제거하고 CSS 시스템 글꼴 토큰으로 전환했다(`tistory-auto-blog/app/layout.tsx`, `app/globals.css`). `npm run build` 통과.
+  - 다음부터 확인: 독립 배포 앱은 외부 빌드 시점 리소스에 의존하지 않도록 하고, 복제 직후 해당 폴더에서 단독 빌드를 실행한다.
