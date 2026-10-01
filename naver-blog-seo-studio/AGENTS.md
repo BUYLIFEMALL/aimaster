@@ -2,7 +2,7 @@
 
 ## 프로그램 버전 관리
 
-- 현재 회원용 앱·확장 공개 버전은 `v1.51`이며 `lib/version.ts`의 `APP_VERSION`, 공용 DB `programs.version`, 확장 `manifest.json`의 `version_name`, 다운로드 ZIP을 항상 같은 값으로 변경한다.
+- 현재 회원용 앱·확장 공개 버전은 `v1.52`이며 `lib/version.ts`의 `APP_VERSION`, 공용 DB `programs.version`, 확장 `manifest.json`의 `version_name`, 다운로드 ZIP을 항상 같은 값으로 변경한다.
 - 이 프로젝트를 수정해 배포할 때마다 앱과 확장 공개 버전을 함께 `0.01` 올린다. 메이저 증가는 주인님 지시가 있을 때만 가능하다.
 - Chrome 확장 `manifest.json.version`은 Chrome 업데이트 비교용 내부 번호다. 이미 배포된 번호보다 낮출 수 없으므로 항상 증가시키되, 사용자에게 보이는 번호는 반드시 `version_name`의 앱 버전과 일치시킨다. 확장 ZIP도 같은 작업에서 다시 생성한다.
 

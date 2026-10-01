@@ -76,34 +76,60 @@ async function refreshWebDrafts() {
 }
 
 function clearWebDraftPreview() {
-  $("webDraftPreview").hidden = true;
-  $("webDraftPreviewTitle").textContent = "";
-  $("webDraftPreviewBody").value = "";
-  $("webDraftImagePreview").hidden = true;
-  $("webDraftCoverImage").removeAttribute("src");
-  $("webDraftContentImagePreview").hidden = true;
-  $("webDraftContentImageList").textContent = "";
+  $("webDraftPreview").close();
+  $("webDraftPreviewContent").textContent = "";
 }
 
-function renderWebDraftPreview(draft, storedImageLoaded) {
-  $("webDraftPreview").hidden = false;
-  $("webDraftPreviewTitle").textContent = draft.title || "제목 없는 초안";
-  $("webDraftPreviewBody").value = draft.body || "본문이 없습니다.";
-  $("webDraftImagePreview").hidden = !storedImageLoaded || !activeWebDraftCoverDataUrl;
-  if (storedImageLoaded && activeWebDraftCoverDataUrl) $("webDraftCoverImage").src = activeWebDraftCoverDataUrl;
-  const imageList = $("webDraftContentImageList");
-  imageList.textContent = "";
-  for (const image of activeWebDraftContentImages) {
-    const item = document.createElement("figure");
-    const imageElement = document.createElement("img");
-    const caption = document.createElement("figcaption");
-    imageElement.src = image.dataUrl;
-    imageElement.alt = image.sentence || "불러온 본문 이미지";
-    caption.textContent = image.sentence || "본문 이미지";
-    item.append(imageElement, caption);
-    imageList.append(item);
+function appendWebDraftPreviewText(container, text) {
+  for (const paragraph of String(text || "").split(/\n{2,}/).map((value) => value.trim()).filter(Boolean)) {
+    const element = document.createElement("p");
+    element.textContent = paragraph;
+    container.append(element);
   }
-  $("webDraftContentImagePreview").hidden = activeWebDraftContentImages.length === 0;
+}
+
+function appendWebDraftPreviewImage(container, dataUrl, captionText, altText) {
+  if (!dataUrl) return;
+  const figure = document.createElement("figure");
+  const image = document.createElement("img");
+  const caption = document.createElement("figcaption");
+  image.src = dataUrl;
+  image.alt = altText;
+  caption.textContent = captionText;
+  figure.append(image, caption);
+  container.append(figure);
+}
+
+function renderWebDraftPreview(draft) {
+  const container = $("webDraftPreviewContent");
+  container.textContent = "";
+  const title = document.createElement("h4");
+  title.textContent = draft.title || "제목 없는 콘텐츠";
+  container.append(title);
+  const contentImageBySlot = new Map(activeWebDraftContentImages.map((image) => [image.slot, image]));
+  const blocks = activeWebDraftBlocks.length ? activeWebDraftBlocks : [{ type: "text", text: draft.body || "" }];
+  for (const block of blocks) {
+    if (block.type === "text") {
+      appendWebDraftPreviewText(container, block.text);
+      continue;
+    }
+    const image = block.slot === "cover" ? null : contentImageBySlot.get(block.slot);
+    appendWebDraftPreviewImage(
+      container,
+      block.slot === "cover" ? activeWebDraftCoverDataUrl : image?.dataUrl,
+      block.slot === "cover" ? "대표 이미지" : image?.sentence || "본문 문장 매칭 이미지",
+      block.slot === "cover" ? "대표 이미지" : image?.sentence || "본문 이미지",
+    );
+  }
+}
+
+function openWebDraftPreview() {
+  if (!activeWebDraftId || !activeWebDraftTitle || !activeWebDraftBody) {
+    $("webDraftStatus").textContent = "먼저 목록에서 콘텐츠를 선택해 불러오세요.";
+    return;
+  }
+  const preview = $("webDraftPreview");
+  if (!preview.open) preview.showModal();
 }
 
 async function loadSelectedWebDraft() {
@@ -137,7 +163,7 @@ async function loadSelectedWebDraft() {
     return (block.type === "text" && typeof block.text === "string")
       || (block.type === "image" && ["cover", "content-1", "content-2", "content-3"].includes(block.slot));
   }) : [];
-  renderWebDraftPreview(draft, storedImageLoaded);
+  renderWebDraftPreview(draft);
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
@@ -861,9 +887,14 @@ $("refreshWebDrafts").addEventListener("click", () => {
 });
 
 $("loadWebDraft").addEventListener("click", () => {
-  loadSelectedWebDraft().catch((error) => {
-    $("webDraftStatus").textContent = `콘텐츠 미리보기 실패: ${error instanceof Error ? error.message : String(error)}`;
-  });
+  openWebDraftPreview();
+});
+
+$("closeWebDraftPreview").addEventListener("click", () => $("webDraftPreview").close());
+$("closeWebDraftPreviewFooter").addEventListener("click", () => $("webDraftPreview").close());
+$("previewFill").addEventListener("click", () => {
+  $("webDraftPreview").close();
+  fillDraftIntoNaver();
 });
 
 $("webDraftList").addEventListener("change", () => {

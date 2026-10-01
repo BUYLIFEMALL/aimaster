@@ -20,16 +20,21 @@
       <div class="draft-actions">
         <a class="web-create-link" href="https://naver-blog-seo-studio.vercel.app/dashboard#new-draft" target="_blank" rel="noreferrer">웹에서 새 콘텐츠 만들기</a>
         <button id="refreshWebDrafts" class="secondary">전송된 콘텐츠 목록 새로고침</button>
-        <button id="loadWebDraft" class="secondary">선택 콘텐츠 다시 불러오기</button>
+        <button id="loadWebDraft" class="secondary">전체 포스팅 미리보기</button>
       </div>
       <div id="webDraftStatus" class="status">대기 중</div>
-      <div id="webDraftPreview" class="web-draft-preview" hidden>
-        <strong>선택한 콘텐츠 미리보기</strong>
-        <p id="webDraftPreviewTitle" class="web-draft-preview-title"></p>
-        <textarea id="webDraftPreviewBody" rows="10" readonly aria-label="불러온 콘텐츠 본문"></textarea>
-        <div id="webDraftImagePreview" class="web-draft-image-preview" hidden><strong>대표 이미지</strong><img id="webDraftCoverImage" alt="불러온 대표 이미지"></div>
-        <div id="webDraftContentImagePreview" class="web-draft-content-image-preview" hidden><strong>본문 이미지</strong><div id="webDraftContentImageList"></div></div>
-      </div>
+      <dialog id="webDraftPreview" class="web-draft-preview" aria-labelledby="webDraftPreviewHeading">
+        <div class="web-draft-preview-header">
+          <div><span class="eyebrow">최종 확인</span><h3 id="webDraftPreviewHeading">전체 포스팅 미리보기</h3></div>
+          <button id="closeWebDraftPreview" class="icon-button" type="button" aria-label="미리보기 닫기">×</button>
+        </div>
+        <p class="hint">네이버에 입력될 제목·본문·이미지 순서를 그대로 확인하세요.</p>
+        <article id="webDraftPreviewContent" class="web-draft-preview-content" aria-label="전송할 전체 포스팅 내용"></article>
+        <div class="web-draft-preview-actions">
+          <button id="closeWebDraftPreviewFooter" class="secondary" type="button">닫기</button>
+          <button id="previewFill" class="primary" type="button">네이버 편집기로 입력</button>
+        </div>
+      </dialog>
       <div id="webDraftTagSuggestion" class="draft-tag-suggestion" hidden>
         <strong>콘텐츠 추천 태그</strong><span id="webDraftTagList"></span>
         <button id="applyWebDraftTags" class="secondary">추천 태그 적용</button>

@@ -233,6 +233,8 @@ test("extension keeps content creation in the web studio and exposes only the ha
   assert.match(panel, /웹에서 새 콘텐츠 만들기/);
   assert.match(panel, /id="webDraftList"/);
   assert.match(panel, /id="fill"/);
+  assert.match(panel, /<dialog id="webDraftPreview"/);
+  assert.match(panel, /전체 포스팅 미리보기/);
   assert.doesNotMatch(panel, /id="topic"/);
   assert.doesNotMatch(panel, /id="generate"/);
   assert.doesNotMatch(panel, /id="generateAndFill"/);
