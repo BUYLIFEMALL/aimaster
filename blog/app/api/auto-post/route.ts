@@ -5,6 +5,14 @@ import { generateSeoPost, AutoPostOptions } from '@/blog/utils/news/generator'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
 import { getUserCloudinaryConfig } from '@/blog/utils/cloudinary'
+import {
+  CONTENT_PROVIDER_LABELS,
+  DEFAULT_CONTENT_PROVIDER,
+  isContentProvider,
+  resolveContentModel,
+  resolveImageModel,
+  type ContentProvider,
+} from '@/blog/utils/ai/contentModels'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -23,13 +31,29 @@ export async function POST(request: NextRequest) {
     const adminClient = createAdminClient()
     const inlineKey = (body.nanoBananaApiKey || body.apiKey || '').trim()
     const resolvedApiKey = inlineKey || (await resolveApiKey(adminClient, user.id, 'gemini')) || undefined
+
+    // 본문 생성 플랫폼·모델(OpenAI/Claude/Gemini 중 회원 선택, 2026-10-01 — SEO 스튜디오와 같은 선택지).
+    const contentProvider: ContentProvider = isContentProvider(body.contentProvider) ? body.contentProvider : DEFAULT_CONTENT_PROVIDER
+    const contentModel = resolveContentModel(contentProvider, body.contentModel)
+    const contentApiKey =
+      contentProvider === 'gemini' ? resolvedApiKey : (await resolveApiKey(adminClient, user.id, contentProvider)) || undefined
+
     // 본인 키가 없으면 여기서 멈춘다. 예전엔 generator/imageGenerator가 운영자 환경변수 키(GEMINI_API_KEY)로
     // 몰래 대신 호출해 운영자에게 비용이 청구됐다(2026-09-30 발견·수정 — 루트 CLAUDE.md 핵심 원칙 4번).
+    if (!contentApiKey) {
+      return NextResponse.json(
+        {
+          code: 'API_KEY_REQUIRED',
+          error: `본문 생성에 쓸 ${CONTENT_PROVIDER_LABELS[contentProvider]} API 키가 없습니다. 설정 페이지(API키등록·플랫폼연동)에서 본인 키를 등록해주세요.`,
+        },
+        { status: 400 },
+      )
+    }
     if (!resolvedApiKey) {
       return NextResponse.json(
         {
           code: 'API_KEY_REQUIRED',
-          error: 'Gemini API 키가 없습니다. 설정 페이지(API키등록·플랫폼연동)에서 본인 키를 등록해주세요.',
+          error: '이미지 생성(나노바나나)에 쓸 Google Gemini API 키가 없습니다. 설정 페이지(API키등록·플랫폼연동)에서 본인 키를 등록해주세요.',
         },
         { status: 400 },
       )
@@ -46,8 +70,11 @@ export async function POST(request: NextRequest) {
       keywords: Array.isArray(body.keywords) ? body.keywords : body.keywords ? [body.keywords] : undefined,
       referenceUrls: Array.isArray(body.referenceUrls) ? body.referenceUrls : Array.isArray(body.reference_urls) ? body.reference_urls : body.referenceUrl ? [body.referenceUrl] : undefined,
       customInstructions: body.customInstructions || body.custom_prompt,
+      contentProvider,
+      contentModel,
+      contentApiKey,
       nanoBananaApiKey: resolvedApiKey,
-      imageModel: body.imageModel || body.nanoBananaModel || 'nanobanana-2-2k',
+      imageModel: resolveImageModel(body.imageModel || body.nanoBananaModel),
       cloudinaryConfig,
       cta: body.cta && (body.cta.text || body.cta.url) ? { text: body.cta.text || '자세히 보기', url: body.cta.url || '#' } : undefined,
     }
@@ -197,7 +224,8 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('[AutoPost API] Internal Server Error:', error)
     return NextResponse.json(
-      { error: '서버 내부 오류가 발생했습니다.', message: error?.message },
+      // 고른 모델의 생성 실패 사유(키 한도 초과, 모델 미지원 등)를 화면에 그대로 보여준다.
+      { error: error?.message || '서버 내부 오류가 발생했습니다.', message: error?.message },
       { status: 500 }
     )
   }

@@ -3,6 +3,8 @@ import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadablePar
 import { generateNanoBananaImages } from './imageGenerator'
 import type { CloudinaryConfig } from '../cloudinary'
 import type { GeneratedImagesResult } from './imageGenerator'
+import { generateContentJson } from '@/blog/utils/ai/contentJson'
+import { DEFAULT_CONTENT_PROVIDER, resolveContentModel, type ContentProvider } from '@/blog/utils/ai/contentModels'
 
 /** 이미지 생성에 실패한 칸은 빈 이미지 태그를 남기지 않는다. */
 function imageLine(alt: string, url: string): string {
@@ -47,6 +49,11 @@ export interface AutoPostOptions {
   keywords?: string[]
   referenceUrls?: string[]
   customInstructions?: string
+  /** 본문 생성 플랫폼·모델·본인 키 (SEO 스튜디오와 같은 선택지, utils/ai/contentModels.ts) */
+  contentProvider?: ContentProvider
+  contentModel?: string
+  contentApiKey?: string
+  /** 이미지 생성용 본인 Gemini 키 */
   nanoBananaApiKey?: string
   nanoBananaEndpoint?: string
   imageModel?: string
@@ -101,11 +108,11 @@ function generateHashtags(topic: string, keywords: string[], parsedJson?: any): 
   return tags.join(' ')
 }
 
-async function generateWithGemini(
+async function generateWithContentModel(
   newsData: CollectedNewsResult,
   options: AutoPostOptions,
   apiKey: string
-): Promise<{ title: string; excerpt: string; contentMarkdown: string } | null> {
+): Promise<{ title: string; excerpt: string; contentMarkdown: string }> {
   const keywordsList = options.keywords && options.keywords.length > 0
     ? options.keywords.slice(0, 5)
     : newsData.topKeywords.slice(0, 5)
@@ -171,50 +178,47 @@ ${customRule}
 }
 `.trim()
 
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-      }),
-    })
+  // 회원이 고른 본문 생성 플랫폼·모델로 호출한다(SEO 스튜디오와 같은 어댑터). 실패하면 예전처럼 틀에 박힌 기본 글로
+  // 조용히 대체하지 않고 오류를 그대로 올려 화면에 알린다(2026-10-01).
+  const provider = options.contentProvider ?? DEFAULT_CONTENT_PROVIDER
+  const model = resolveContentModel(provider, options.contentModel)
+  console.log(`[AI Post Generator] content model: ${provider} / ${model}`)
+  const parsed = (await generateContentJson({
+    provider,
+    apiKey,
+    model,
+    system: '당신은 대한민국 최고의 SEO 블로그 전문 에디터입니다. 요청한 JSON 형식만 출력합니다.',
+    user: prompt,
+  })) as Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 
-    if (res.ok) {
-      const data = await res.json()
-      let text = data.candidates?.[0]?.content?.parts?.[0]?.text
-      if (text) {
-        text = text.replace(/\u0060\u0060\u0060json/gi, '').replace(/\u0060\u0060\u0060/g, '').trim()
-        const parsed = JSON.parse(text)
+  const title = parsed['제목'] || `[SEO] ${options.topic} 완벽 가이드`
+  const excerpt = parsed['요약글'] || `${options.topic}에 관한 심층 분석 리포트입니다.`
 
-        const title = parsed['제목'] || `[SEO] ${options.topic} 완벽 가이드`
-        const excerpt = parsed['요약글'] || `${options.topic}에 관한 심층 분석 리포트입니다.`
+  const body1Text = formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || '')
+  const body2Text = formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || '')
+  const body3Text = formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || '')
 
-        const body1Text = formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || '')
-        const body2Text = formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || '')
-        const body3Text = formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || '')
+  const hashtags = generateHashtags(options.topic, keywordsList, parsed)
 
-        const hashtags = generateHashtags(options.topic, keywordsList, parsed)
+  // ★ [핵심] 생성된 3개 문단의 본문 내용을 정독하여 각각 100% 매칭되는 독창적 3개 영문 프롬프트 생성 후 이미지 매핑
+  console.log('[AI Post Generator] Analyzing 3 paragraph contents to create 100% matching unique image prompts...')
+  const images = await generateNanoBananaImages(
+    options.topic,
+    keywordsList,
+    options.nanoBananaApiKey,
+    options.imageModel,
+    options.nanoBananaEndpoint,
+    {
+      title,
+      excerpt,
+      body1Text,
+      body2Text,
+      body4Text: body3Text,
+    },
+    options.cloudinaryConfig,
+  )
 
-        // ★ [핵심] 생성된 3개 문단의 본문 내용을 정독하여 각각 100% 매칭되는 독창적 3개 영문 프롬프트 생성 후 이미지 매핑
-        console.log('[AI Post Generator] Analyzing 3 paragraph contents to create 100% matching unique image prompts...')
-        const images = await generateNanoBananaImages(
-          options.topic,
-          keywordsList,
-          apiKey,
-          options.imageModel,
-          options.nanoBananaEndpoint,
-          {
-            title,
-            excerpt,
-            body1Text,
-            body2Text,
-            body4Text: body3Text,
-          },
-          options.cloudinaryConfig,
-        )
-
-        const contentMarkdown = `
+  const contentMarkdown = `
 > **요약**: ${excerpt}
 
 ## ${parsed['소제목 1'] || subKey1}
@@ -256,126 +260,18 @@ ${hashtags}
 ${buildImagePromptSection(images)}
 `.trim()
 
-        return { title, excerpt, contentMarkdown }
-      }
-    }
-  } catch (e) {
-    console.error('Failed to generate with Gemini:', e)
-  }
-
-  return null
+  return { title, excerpt, contentMarkdown }
 }
 
 export async function generateAutoPost(
   newsData: CollectedNewsResult,
   options: AutoPostOptions
 ): Promise<GeneratedPostResult> {
-  let postData: { title: string; excerpt: string; contentMarkdown: string } | null = null
-
-  // 회원 본인 Gemini 키만 사용한다(운영자 환경변수 키 폴백 금지 — 루트 CLAUDE.md 핵심 원칙 4번, 2026-09-30).
-  const activeApiKey = options.nanoBananaApiKey || ''
-
-  if (activeApiKey) {
-    postData = await generateWithGemini(newsData, options, activeApiKey)
-  }
-
-  if (!postData) {
-    const shortTopic = extractShortTopicName(options.topic)
-    const keywordsList = options.keywords && options.keywords.length > 0
-      ? options.keywords.slice(0, 5)
-      : newsData.topKeywords.slice(0, 5)
-
-    const mainKeyword = keywordsList[0] || shortTopic
-    const subKey1 = keywordsList[1] || `${shortTopic} 트렌드`
-    const subKey2 = keywordsList[2] || `${shortTopic} 핵심 장점`
-    const subKey3 = keywordsList[3] || `${shortTopic} 실전 활용`
-    const subKey4 = keywordsList[4] || `${shortTopic} 파급 효과`
-
-    const titlePrefix = options.tone ? `[${options.tone}] ` : ''
-    const title = `${titlePrefix}${options.topic}: ${mainKeyword} 완벽 가이드 및 24h 심층 분석`
-    const excerpt = options.targetAudience
-      ? `'${options.targetAudience}' 독자층을 위해 ${options.topic} 이슈를 24시간 분석한 맞춤 리포트입니다.`
-      : `${options.topic} 이슈의 최근 24시간 실시간 트렌드 분석과 깊이 있는 정보를 제공하는 전문 SEO 포스트입니다.`
-
-    const hashtags = generateHashtags(options.topic, keywordsList)
-
-    const newsSummaryText = newsData.articles.slice(0, 4).map((a) => `- ${a.title} (${a.source})`).join('\n')
-    const sec1Text = `최근 24시간 동안 ${options.topic} 분야는 뜨거운 관심을 받고 있습니다.\n\n주요 뉴스 요약:\n${newsSummaryText}`
-    const sec2Text = `${mainKeyword}의 핵심 우위는 탁월한 효율성과 혁신적인 스마트 기술 접근 방식에 있습니다. ${subKey2} 관련 기술적 차별성과 고성능 인프라가 적용됩니다.`
-    const sec4Text = `앞으로 ${options.topic} 관련 생태계 및 ${subKey4} 파급 효과는 글로벌 시장에서 더욱 급격하게 성장할 것으로 예상됩니다.`
-
-    const images = await generateNanoBananaImages(
-      options.topic,
-      keywordsList,
-      activeApiKey,
-      options.imageModel,
-      options.nanoBananaEndpoint,
-      {
-        title,
-        excerpt,
-        body1Text: sec1Text,
-        body2Text: sec2Text,
-        body4Text: sec4Text,
-      },
-      options.cloudinaryConfig,
-    )
-
-    const contentMarkdown = `
-> **요약**: ${excerpt}
-
-${imageLine(`${shortTopic} 대표 비주얼`, images.headerImage)}
-
-## 1. 24시간 실시간 뉴스 핵심 쟁점 및 ${subKey1}
-
-${sec1Text}
-
-${options.customInstructions ? `\n> **추가 지시 반영**: ${options.customInstructions}\n` : ''}
-
-## 2. ${subKey2} 및 기술적 차별성
-
-${imageLine(`${subKey2} 구조 인포그래픽`, images.bodyImage1)}
-
-${sec2Text}
-
-${options.referenceUrls && options.referenceUrls.length > 0 ? `\n### 참고 자료:\n${options.referenceUrls.map((url) => `- [참고 링크](${url})`).join('\n')}\n` : ''}
-
-## 3. ${subKey3} 및 실전 비즈니스 전략
-
-기술의 발전 속도에 맞춰 **${subKey3}**을 적시에 도입하는 것이 중요합니다.
-
-## 4. ${subKey4} 및 미래 전망
-
-${imageLine(`${subKey4} 미래 비주얼`, images.bodyImage2)}
-
-${sec4Text}
-
-## 5. 결론 및 전문가 제언
-
-종합적으로 볼 때 **${mainKeyword}** 이슈는 지속적으로 주목해야 할 핵심 과제입니다.
-
-${
-  options.cta?.text && options.cta?.url
-    ? `
----
-
-> ### 📢 ${options.cta.text}
-> 
-> 지금 바로 확인해 보세요: [👉 ${options.cta.text} 바로가기](${options.cta.url})
-`
-    : ''
-}
-
----
-
-${hashtags}
-
----
-
-${buildImagePromptSection(images)}
-`.trim()
-
-    postData = { title, excerpt, contentMarkdown }
-  }
+  // 본문은 회원이 고른 플랫폼의 본인 키(contentApiKey), 이미지는 본인 Gemini 키(nanoBananaApiKey)로만 만든다.
+  // 키 확인은 app/api/auto-post/route.ts가 먼저 한다. 예전엔 생성이 실패하면 AI 없이 틀에 박힌 "24h 심층 분석" 기본 글을
+  // 대신 저장했는데, 실제 생성 결과처럼 보여 오해를 낳아 없앴다 — 실패하면 오류를 화면에 알린다(2026-10-01).
+  if (!options.contentApiKey) throw new Error('본문 생성용 API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요.')
+  const postData = await generateWithContentModel(newsData, options, options.contentApiKey)
 
   const contentHtml = mdLiteToHtml(postData.contentMarkdown)
   const readingMinutes = estimateReadingMinutes(postData.contentMarkdown)
@@ -410,14 +306,4 @@ function inferCategorySlug(topic: string, keywords: string[]): string {
   if (/performance|성능|최적화/i.test(topicLower)) return 'performance'
 
   return 'architecture'
-}
-
-function extractShortTopicName(topic: string): string {
-  if (!topic) return 'IT 이슈'
-  const cleaned = topic.replace(/\([^)]*\)/g, '').trim()
-  const words = cleaned.split(/\s+/)
-  if (words.length > 0 && words[0].length >= 2) {
-    return words[0]
-  }
-  return cleaned || 'IT 이슈'
 }

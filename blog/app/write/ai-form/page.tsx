@@ -7,6 +7,20 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
+import {
+  CONTENT_PROVIDER_LABELS,
+  CONTENT_PROVIDERS,
+  DEFAULT_CONTENT_PROVIDER,
+  DEFAULT_IMAGE_MODEL,
+  IMAGE_MODEL_OPTIONS,
+  IMAGE_PROVIDER_LABEL,
+  getContentModels,
+  getDefaultContentModel,
+  isContentProvider,
+  resolveContentModel,
+  resolveImageModel,
+  type ContentProvider,
+} from '@/blog/utils/ai/contentModels'
 
 interface CategoryOption {
   id: number
@@ -40,12 +54,8 @@ const SUGGESTED_TOPICS = [
 
 const TONE_OPTIONS = ['전문적', '친근함', '설득력있는', '격식있는', '위트있는']
 
-const IMAGE_MODEL_OPTIONS = [
-  { label: 'NanoBanana 2-2K (2K 고화질 비주얼 - 추천)', value: 'nanobanana-2-2k' },
-  { label: 'NanoBanana 2-4K (4K 울트라 HD)', value: 'nanobanana-2-4k' },
-  { label: 'NanoBanana Pro (프로페셔널 인포그래픽)', value: 'nanobanana-pro' },
-  { label: 'NanoBanana Standard (기본 모델)', value: 'nanobanana' },
-]
+// 모델 선택지 — 사용 가능 목록·기본값은 utils/ai/contentModels.ts 한 곳에서 관리(SEO 스튜디오와 같은 목록).
+const MODEL_STORAGE_KEY = 'ai-auto-blog:model-selection'
 
 export default function AiFormPage() {
   return (
@@ -87,7 +97,27 @@ function AiFormPageInner() {
   
   // 나노바나나 AI 이미지 설정 상태
   const [nanoBananaApiKey, setNanoBananaApiKey] = useState('')
-  const [imageModel, setImageModel] = useState('nanobanana-2-2k')
+  const [imageModel, setImageModel] = useState<string>(DEFAULT_IMAGE_MODEL)
+  // 본문 생성 플랫폼·모델 (SEO 스튜디오와 같은 선택지)
+  const [contentProvider, setContentProvider] = useState<ContentProvider>(DEFAULT_CONTENT_PROVIDER)
+  const [contentModel, setContentModel] = useState<string>(getDefaultContentModel(DEFAULT_CONTENT_PROVIDER))
+
+  // 마지막으로 고른 모델을 이 브라우저에 기억한다(편의용, 실패해도 기본값으로 동작).
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(MODEL_STORAGE_KEY) ?? 'null') as { contentProvider?: unknown; contentModel?: unknown; imageModel?: unknown } | null
+      if (saved && isContentProvider(saved.contentProvider)) {
+        setContentProvider(saved.contentProvider)
+        setContentModel(resolveContentModel(saved.contentProvider, saved.contentModel))
+      }
+      if (saved?.imageModel) setImageModel(resolveImageModel(saved.imageModel))
+    } catch {}
+  }, [])
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(MODEL_STORAGE_KEY, JSON.stringify({ contentProvider, contentModel, imageModel }))
+    } catch {}
+  }, [contentProvider, contentModel, imageModel])
   const [nanoBananaEndpoint, setNanoBananaEndpoint] = useState('')
 
   // 추천 링크 (CTA) 및 추가 지시사항
@@ -188,6 +218,8 @@ function AiFormPageInner() {
         keywords,
         reference_urls: validUrls,
         nanoBananaApiKey: nanoBananaApiKey.trim() || undefined,
+        contentProvider,
+        contentModel,
         imageModel,
         nanoBananaEndpoint: nanoBananaEndpoint.trim() || undefined,
         cta: (ctaText.trim() || ctaUrl.trim()) ? {
@@ -428,23 +460,84 @@ function AiFormPageInner() {
             </div>
           </div>
 
-          {/* 4. 나노바나나 AI 이미지 생성 설정 섹션 */}
-          <div className="space-y-4 bg-amber-50/60 p-5 rounded-2xl border border-amber-200/80">
-            <label className="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-2">
-              <span className="text-base">🖼️</span>
-              <span>AI 이미지 생성 설정 (NanoBanana AI)</span>
-            </label>
-            <p className="text-xs text-amber-800 font-medium">포스트 상단 대표 비주얼, 기술 메커니즘 인포그래픽, 미래 파급력 3종 이미지를 생성하는 AI 연동 설정입니다.</p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-              {/* 이미지 생성 모델 선택 (좌측) */}
+          {/* 4. 본문 생성 설정 · 이미지 생성 설정 — 네이버 블로그 SEO 스튜디오의 "본문 생성 설정" 카드와 같은 레이아웃(2026-10-01) */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3" aria-label="본문 생성 모델 선택">
+            <div>
+              <p className="text-sm font-extrabold text-slate-900">본문 생성 설정 · {CONTENT_PROVIDER_LABELS[contentProvider]}</p>
+              <p className="text-xs font-bold text-slate-700 mt-0.5">아래 생성 버튼을 누를 때 제목과 블로그(원문) 본문에 적용됩니다.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-orange-100 bg-orange-50/40 p-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">이미지 모델 (Image Model)</label>
+                <label htmlFor="content-provider-selector" className="text-xs font-bold text-slate-700">본문 생성 플랫폼</label>
                 <select
+                  id="content-provider-selector"
+                  value={contentProvider}
+                  onChange={(e) => {
+                    const provider = e.target.value as ContentProvider
+                    setContentProvider(provider)
+                    setContentModel(getDefaultContentModel(provider))
+                  }}
+                  disabled={loading}
+                  style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
+                  className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black bg-white shadow-sm"
+                >
+                  {CONTENT_PROVIDERS.map((provider) => (
+                    <option key={provider} value={provider} style={{ color: '#000000', backgroundColor: '#ffffff' }}>
+                      {CONTENT_PROVIDER_LABELS[provider]}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-slate-500">선택한 플랫폼에 등록한 본인 API 키만 사용합니다.</p>
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="content-model-selector" className="text-xs font-bold text-slate-700">본문 생성 모델</label>
+                <select
+                  id="content-model-selector"
+                  value={contentModel}
+                  onChange={(e) => setContentModel(e.target.value)}
+                  disabled={loading}
+                  style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
+                  className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black bg-white shadow-sm"
+                >
+                  {getContentModels(contentProvider).map((m) => (
+                    <option key={m.value} value={m.value} style={{ color: '#000000', backgroundColor: '#ffffff' }}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-slate-500">선택한 모델로 완성형 블로그(원문)를 생성합니다.</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3" aria-label="이미지 생성 모델 선택">
+            <div>
+              <p className="text-sm font-extrabold text-slate-900">이미지 생성 설정 · {IMAGE_PROVIDER_LABEL}</p>
+              <p className="text-xs font-bold text-slate-700 mt-0.5">본문 섹션마다 핵심 문장 하나를 골라 그 문장을 표현한 실사 이미지 3장을 생성합니다.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-orange-100 bg-orange-50/40 p-4">
+              <div className="space-y-1.5">
+                <label htmlFor="image-provider-selector" className="text-xs font-bold text-slate-700">이미지 생성 플랫폼</label>
+                <select
+                  id="image-provider-selector"
+                  value="gemini"
+                  disabled
+                  style={{ color: '#000000', backgroundColor: '#f8fafc', border: '1.5px solid #cbd5e1' }}
+                  className="w-full p-3 rounded-xl text-sm font-semibold text-black shadow-sm"
+                >
+                  <option value="gemini">{IMAGE_PROVIDER_LABEL}</option>
+                </select>
+                <p className="text-[11px] text-slate-500">설정에 등록한 본인 Google Gemini API 키만 사용합니다.</p>
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="image-model-selector" className="text-xs font-bold text-slate-700">이미지 생성 모델</label>
+                <select
+                  id="image-model-selector"
                   value={imageModel}
                   onChange={(e) => setImageModel(e.target.value)}
+                  disabled={loading}
                   style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
-                  className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-extrabold text-black bg-white shadow-sm"
+                  className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black bg-white shadow-sm"
                 >
                   {IMAGE_MODEL_OPTIONS.map((m) => (
                     <option key={m.value} value={m.value} style={{ color: '#000000', backgroundColor: '#ffffff' }}>
@@ -452,40 +545,44 @@ function AiFormPageInner() {
                     </option>
                   ))}
                 </select>
-              </div>
-
-              {/* 나노바나나 API 키 (우측) - type="text" + WebkitTextSecurity 적용하여 브라우저의 패스워드 오인 및 상단 이메일 자동채움 원천 방지 */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">나노바나나 API 키 (API Key)</label>
-                <input
-                  type="text"
-                  name="nb_api_key_field"
-                  autoComplete="new-password"
-                  value={nanoBananaApiKey}
-                  onChange={(e) => setNanoBananaApiKey(e.target.value)}
-                  placeholder="비워두면 설정에 등록된 내 키 → 없으면 앱 기본 키 사용"
-                  style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1', WebkitTextSecurity: 'disc' } as any}
-                  className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-extrabold text-black placeholder-slate-400 shadow-sm"
-                />
-                <p className="text-[11px] text-slate-500">
-                  <Link href={`${basePath}/settings`} className="text-indigo-600 underline font-semibold">설정</Link>에서 API 키를 한 번 등록해두면 매번 입력하지 않아도 됩니다.
-                </p>
+                <p className="text-[11px] text-slate-500">해상도가 높을수록 생성 시간과 비용이 늘어납니다.</p>
               </div>
             </div>
 
-            {/* 커스텀 API 엔드포인트 */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">커스텀 API 엔드포인트 (선택)</label>
-              <input
-                type="url"
-                value={nanoBananaEndpoint}
-                onChange={(e) => setNanoBananaEndpoint(e.target.value)}
-                placeholder="https://generativelanguage.googleapis.com/v1beta/models/..."
-                style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
-                className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-extrabold text-black placeholder-slate-400 shadow-sm"
-              />
-            </div>
-          </div>
+            <details className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+              <summary className="cursor-pointer text-xs font-bold text-slate-600">고급 설정 (선택) — 이번 글에만 쓸 키·엔드포인트</summary>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3">
+                {/* type="text" + WebkitTextSecurity: 브라우저의 비밀번호 저장/이메일 자동채움 방지 */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Gemini API 키 (이번 글에만 사용)</label>
+                  <input
+                    type="text"
+                    name="nb_api_key_field"
+                    autoComplete="new-password"
+                    value={nanoBananaApiKey}
+                    onChange={(e) => setNanoBananaApiKey(e.target.value)}
+                    placeholder="비워두면 설정에 등록된 내 키 사용"
+                    style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1', WebkitTextSecurity: 'disc' } as any}
+                    className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black placeholder-slate-400 shadow-sm"
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    <Link href={`${basePath}/settings`} className="text-indigo-600 underline font-semibold">설정</Link>에서 키를 한 번 등록해두면 매번 입력하지 않아도 됩니다.
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">커스텀 이미지 API 엔드포인트</label>
+                  <input
+                    type="url"
+                    value={nanoBananaEndpoint}
+                    onChange={(e) => setNanoBananaEndpoint(e.target.value)}
+                    placeholder="https://generativelanguage.googleapis.com/v1beta/models/..."
+                    style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
+                    className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black placeholder-slate-400 shadow-sm"
+                  />
+                </div>
+              </div>
+            </details>
+          </section>
 
           {/* 5. 추천/홍보 링크 섹션 (CTA) */}
           <div className="space-y-3 bg-indigo-50/60 p-5 rounded-2xl border border-indigo-100">
