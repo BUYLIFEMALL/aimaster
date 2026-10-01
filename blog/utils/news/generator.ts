@@ -1,7 +1,6 @@
 import { CollectedNewsResult } from './collector'
 import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadableParagraphs } from '@/blog/utils/markdown'
 import { generateNanoBananaImages } from './imageGenerator'
-import type { CloudinaryConfig } from '../cloudinary'
 import type { GeneratedImagesResult } from './imageGenerator'
 import { generateContentJson } from '@/blog/utils/ai/contentJson'
 import { DEFAULT_CONTENT_PROVIDER, resolveContentModel, type ContentProvider } from '@/blog/utils/ai/contentModels'
@@ -31,7 +30,8 @@ export interface AutoPostOptions {
   nanoBananaApiKey?: string
   nanoBananaEndpoint?: string
   imageModel?: string
-  cloudinaryConfig?: CloudinaryConfig
+  /** 이미지를 저장할 회원 id(Supabase Storage post-images/<id>/ai-auto-blog/) */
+  storageUserId: string
   cta?: {
     text: string
     url: string
@@ -189,7 +189,7 @@ ${customRule}
       body2Text,
       body4Text: body3Text,
     },
-    options.cloudinaryConfig,
+    options.storageUserId,
   )
 
   const contentMarkdown = `

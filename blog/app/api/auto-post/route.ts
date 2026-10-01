@@ -4,7 +4,6 @@ import { collect24HourNews } from '@/blog/utils/news/collector'
 import { generateSeoPost, AutoPostOptions } from '@/blog/utils/news/generator'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
-import { getUserCloudinaryConfig } from '@/blog/utils/cloudinary'
 import {
   CONTENT_PROVIDER_LABELS,
   DEFAULT_CONTENT_PROVIDER,
@@ -66,7 +65,6 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       )
     }
-    const cloudinaryConfig = (await getUserCloudinaryConfig(adminClient, user.id)) || undefined
 
     // 단일 topic 또는 세부 options 객체 수신 지원
     const options: AutoPostOptions = {
@@ -83,7 +81,7 @@ export async function POST(request: NextRequest) {
       contentApiKey,
       nanoBananaApiKey: resolvedApiKey,
       imageModel: resolveImageModel(body.imageModel || body.nanoBananaModel),
-      cloudinaryConfig,
+      storageUserId: user.id,
       cta: body.cta && (body.cta.text || body.cta.url) ? { text: body.cta.text || '자세히 보기', url: normalizeCtaUrl(body.cta.url) } : undefined,
     }
 

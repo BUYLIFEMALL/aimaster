@@ -12,7 +12,7 @@
  */
 
 import { getNanoBananaConfig } from './nanoBananaConfig'
-import { uploadDataUriToCloudinary, type CloudinaryConfig } from '../cloudinary'
+import { uploadBase64Image } from '../imageStorage'
 
 export interface GeneratedImagesResult {
   headerImage: string
@@ -155,14 +155,14 @@ ${sections[2].slice(0, 4000)}`
   }
 }
 
-/** 나노바나나 1장 생성 → data URI(또는 회원 Cloudinary 설정이 있으면 업로드 URL). 실패하면 빈 문자열. */
+/** 나노바나나 1장 생성 → Supabase Storage(post-images)에 올린 공개 주소. 생성·저장에 실패하면 빈 문자열(그 칸은 비움). */
 async function generateSceneImage(
   sceneDescription: string,
   model: string,
   sceneType: 'header' | 'body1' | 'body2',
   apiKey: string,
-  customEndpoint?: string,
-  cloudinaryConfig?: CloudinaryConfig,
+  customEndpoint: string | undefined,
+  storageUserId: string,
 ): Promise<string> {
   const config = getNanoBananaConfig(model)
   // SEO 스튜디오 generateNanoBananaImage()와 같은 감싸는 문장.
@@ -194,18 +194,15 @@ async function generateSceneImage(
       console.error(`[Gemini Image (${sceneType})]: 이미지 결과 없음`)
       return ''
     }
-    const dataUri = `data:${imagePart.mimeType || 'image/png'};base64,${imagePart.data.replace(/\s+/g, '')}`
-    console.log(`[Gemini Image OK (${config.modelName} ${config.imageSize} / ${sceneType})]: ${dataUri.length} bytes`)
-
-    if (cloudinaryConfig) {
-      try {
-        return await uploadDataUriToCloudinary(dataUri, cloudinaryConfig)
-      } catch (uploadErr) {
-        console.error(`[Cloudinary Upload Failed (${sceneType})]:`, uploadErr)
-        // 업로드 실패 시 base64를 그대로 사용해 글 생성 자체는 막지 않음
-      }
+    console.log(`[Gemini Image OK (${config.modelName} ${config.imageSize} / ${sceneType})]: ${imagePart.data.length} chars`)
+    // 예전엔 Cloudinary가 없으면 base64를 글 본문에 그대로 넣었다(글 1개 12MB 이상). 이제 항상 Storage에 올리고 주소만 넣는다.
+    // 저장에 실패하면 무거운 base64로 되돌리지 않고 그 칸을 비운다.
+    try {
+      return await uploadBase64Image(storageUserId, imagePart.data, imagePart.mimeType || 'image/png')
+    } catch (uploadErr) {
+      console.error(`[Storage Upload Failed (${sceneType})]:`, uploadErr)
+      return ''
     }
-    return dataUri
   } catch (error) {
     console.error(`[Gemini Image API Call Error (${sceneType})]:`, error)
     return ''
@@ -215,11 +212,11 @@ async function generateSceneImage(
 export async function generateNanoBananaImages(
   topic: string,
   _keywords: string[] = [],
-  apiKey?: string,
+  apiKey: string | undefined,
   model: NanoBananaModelType = 'nanobanana-2-2k',
-  customEndpoint?: string,
-  articleCtx?: ArticleContext,
-  cloudinaryConfig?: CloudinaryConfig,
+  customEndpoint: string | undefined,
+  articleCtx: ArticleContext | undefined,
+  storageUserId: string,
 ): Promise<GeneratedImagesResult> {
   const empty: GeneratedImagesResult = {
     headerImage: '',
@@ -239,11 +236,11 @@ export async function generateNanoBananaImages(
   const { headerVisual, body1Visual, body2Visual } = await selectSectionVisuals(topic, ctx, apiKey)
   console.log(`[NanoBanana Pipeline] model "${model}" → ${getNanoBananaConfig(model).modelName}`)
 
-  const headerImage = await generateSceneImage(headerVisual.prompt, model, 'header', apiKey, customEndpoint, cloudinaryConfig)
+  const headerImage = await generateSceneImage(headerVisual.prompt, model, 'header', apiKey, customEndpoint, storageUserId)
   await delay(200)
-  const bodyImage1 = await generateSceneImage(body1Visual.prompt, model, 'body1', apiKey, customEndpoint, cloudinaryConfig)
+  const bodyImage1 = await generateSceneImage(body1Visual.prompt, model, 'body1', apiKey, customEndpoint, storageUserId)
   await delay(200)
-  const bodyImage2 = await generateSceneImage(body2Visual.prompt, model, 'body2', apiKey, customEndpoint, cloudinaryConfig)
+  const bodyImage2 = await generateSceneImage(body2Visual.prompt, model, 'body2', apiKey, customEndpoint, storageUserId)
 
   return {
     headerImage,

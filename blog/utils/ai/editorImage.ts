@@ -1,10 +1,8 @@
 import 'server-only'
 
 // kakao_auto_poster의 lib/ai/reportImage.ts(generateReportImage)와 동일한 패턴 —
-// 에디터 툴바에서 프롬프트 하나로 이미지 1장만 즉석 생성한다. blog는 이미지를 Supabase
-// Storage에 올려 URL로 쓰지 않고 base64 data URI로 콘텐츠에 그대로 심는 기존 관행을
-// 따른다(utils/news/imageGenerator.ts의 생성 파이프라인과 posts/[id]/edit/page.tsx의
-// replaceBase64WithImageTags가 이미 이 방식을 전제로 만들어져 있다).
+// 에디터 툴바에서 프롬프트 하나로 이미지 1장만 즉석 생성한다. 결과 data URI는 호출부
+// (app/api/posts/generate-editor-image/route.ts)가 Supabase Storage에 올려 주소로 바꾼다(2026-10-01).
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-image:generateContent'
 
 /**

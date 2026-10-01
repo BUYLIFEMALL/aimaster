@@ -12,6 +12,7 @@ import { Highlight } from '@tiptap/extension-highlight'
 import { Color } from '@tiptap/extension-color'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
 import {
   Bold,
   Italic,
@@ -85,13 +86,23 @@ function Divider() {
   return <div className="mx-1 h-5 w-px bg-neutral-200" />
 }
 
-function readFileAsDataUri(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
+// 첨부 이미지를 브라우저에서 Supabase Storage(post-images)로 바로 올리고 공개 주소를 돌려준다(2026-10-01).
+// 서버를 거치지 않아 Vercel 요청 크기 한도(4.5MB)에 걸리지 않는다. 버킷 RLS가 "<본인 id>/..." 경로에만 쓰기를 허용한다
+// (insta_auto_poster/src/lib/uploadImageClient.ts와 같은 방식). 예전엔 base64로 글 본문에 그대로 넣었다.
+const MAX_ATTACH_SIZE = 10 * 1024 * 1024
+async function uploadAttachedImage(file: File): Promise<string> {
+  if (!file.type.startsWith('image/')) throw new Error('이미지 파일만 첨부할 수 있습니다.')
+  if (file.size > MAX_ATTACH_SIZE) throw new Error('이미지는 10MB 이하만 첨부할 수 있습니다.')
+  const supabase = createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error('로그인이 필요합니다.')
+  const ext = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg')
+  const path = `${user.id}/ai-auto-blog/${crypto.randomUUID()}.${ext}`
+  const { error } = await supabase.storage.from('post-images').upload(path, file, { contentType: file.type, upsert: false })
+  if (error) throw new Error(error.message)
+  return supabase.storage.from('post-images').getPublicUrl(path).data.publicUrl
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
@@ -158,8 +169,6 @@ function Toolbar({ editor }: { editor: Editor }) {
     setShowLinkInput(false)
   }, [editor, linkUrl])
 
-  // Storage 업로드 없이 파일을 base64 data URI로 바로 읽어 삽입한다 — 이 프로젝트가
-  // AI 생성 이미지도 base64로 다루는 것과 동일한 방식(위 파일 상단 주석 참고).
   const handleImageFile = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0]
@@ -167,10 +176,10 @@ function Toolbar({ editor }: { editor: Editor }) {
       setUploading(true)
       setUploadError(null)
       try {
-        const dataUri = await readFileAsDataUri(file)
-        editor.chain().focus().setImage({ src: dataUri }).run()
+        const url = await uploadAttachedImage(file)
+        editor.chain().focus().setImage({ src: url }).run()
       } catch (err: any) {
-        setUploadError('이미지를 읽지 못했습니다: ' + (err?.message || '오류'))
+        setUploadError('이미지를 올리지 못했습니다: ' + (err?.message || '오류'))
       } finally {
         setUploading(false)
         if (fileInputRef.current) fileInputRef.current.value = ''
