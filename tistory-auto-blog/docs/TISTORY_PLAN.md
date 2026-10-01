@@ -40,7 +40,8 @@
 ### 지금까지 끝난 것 (cloud-work 커밋 `0cf2fb1` 및 이 문서 커밋)
 - 0단계 완료: `inspector-extension/`(읽기 전용 조사 확장). 가짜 화면(headless Chromium)으로 수집 함수 동작·내용 미누출 확인. **실제 티스토리 화면에서는 아직 실행하지 않았다.**
 - 계획·결정 기본값(§1)·단계(§3)·미확인 사항(§4) 문서화.
-- 아직 안 한 것: 서브프로젝트 뼈대(1단계), DB 파일(2단계), 서버·확장 코드(3·4단계), `programs` 등록, 배포. **버전은 아직 없다**(완성해서 등록할 때 `v1.01`).
+- **1단계 완료**(뼈대·복제·치환·단독 빌드 통과, `APP_VERSION v1.01`), **2단계 완료**(`0001_tistory_init.sql`: 로컬 PG16 적용·격리 테스트 통과, 운영 DB는 PG 17.6 확인). 보안·격리 차이는 `AGENTS.md`의 "ai-auto-blog와 달라진 점".
+- 아직 안 한 것: 서버 변환기(3단계)·확장 입력 코드(4단계, 지금 `extension/`은 네이버용 복사본이라 티스토리에서 동작 안 함), 매뉴얼, `programs` 등록, 배포.
 
 ### 로컬 시작 순서
 1. `git fetch origin && git merge --no-ff origin/cloud-work`(master에서, 다른 CLI의 미커밋 변경이 없는지 `git status`로 먼저 확인 — `docs/CLOUD_SESSION.md` 5번). 이번 변경은 `tistory-auto-blog/`(신규)와 `PROGRESS.md`·`docs/HANDOFF.md`뿐이라 충돌 가능성이 낮다.

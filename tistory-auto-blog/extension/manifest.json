@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "티스토리(원문) 입력기 · AIMaster [개발중]",
+  "version": "1.1.0",
+  "version_name": "v1.01",
+  "description": "[개발중 — 아직 티스토리에서 동작하지 않음] 티스토리(원문)생성 자동화에서 보낸 글을 티스토리 글쓰기 화면에 사람처럼 입력하는 확장 프로그램",
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "scripting",
+    "tabs",
+    "debugger"
+  ],
+  "host_permissions": [
+    "https://*.naver.com/*",
+    "https://tistory-auto-blog.vercel.app/*",
+    "https://esgxyikcnnvmlhygjkth.supabase.co/*",
+    "https://res.cloudinary.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "티스토리(원문) 입력기 [개발중]",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
