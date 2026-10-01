@@ -33,8 +33,8 @@ export const CONTENT_MODEL_OPTIONS: ContentModelOption[] = [
   { value: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro Preview · 고품질 콘텐츠', provider: 'gemini' },
 ]
 
-/** 처음 화면을 열면 Gemini가 선택된다 — 예전 BLOG는 Gemini로만 생성했고, 이미지에도 Gemini 키가 필요해 키 하나로 시작할 수 있다. */
-export const DEFAULT_CONTENT_PROVIDER: ContentProvider = 'gemini'
+/** 처음 화면을 열면 OpenAI GPT-4.1이 선택된다(2026-10-01 주인님 지시). 회원이 고른 값은 브라우저에 기억돼 다음에도 그대로 쓴다. */
+export const DEFAULT_CONTENT_PROVIDER: ContentProvider = 'openai'
 
 export function isContentProvider(value: unknown): value is ContentProvider {
   return CONTENT_PROVIDERS.some((provider) => provider === value)
