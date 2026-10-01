@@ -39,6 +39,7 @@
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
 | 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
+| BLOG 문단 이미지 고르게 배치 (ai-auto-blog v1.32) | 2~4장일 때 문단 이미지가 문단 4개를 묶음으로 나눠 맡음(3장=[1~2][3~4] 등), 앞쪽 쏠림 해소 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "2~4장일 때 문단 4개를 나눠 맡기" |
 | BLOG 이미지 장수 선택 (ai-auto-blog v1.31) | 이미지 1~5장 선택(1번 제목용=전체 대표, 2번부터 문단 1~4 순서), 본문 문단 3→4개. **남은 일: 실제 생성으로 배치 확인** | 주인님 지시 | `ai-auto-blog/AGENTS.md` "이미지 장수 선택" |
 | BLOG 삭제 예정 배지 문구 (ai-auto-blog v1.30) | "N일 후 삭제" → "N일 후 자동삭제" | 주인님 지시 | `ai-auto-blog/AGENTS.md` "삭제 예정 배지 문구" |
 | BLOG 추천테그 추출 SEO와 동일화 (ai-auto-blog v1.29) | SEO 스튜디오 v1.59 태그 추천 코드·스타일을 그대로 복사(함수 diff 동일). SEO 규칙이 바뀌면 같이 맞출 것 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "추천테그 추출을 SEO 스튜디오 v1.59와 똑같이" |

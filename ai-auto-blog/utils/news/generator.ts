@@ -177,18 +177,22 @@ ${customRule}
 
   const hashtags = generateHashtags(options.topic, keywordsList, parsed)
 
-  // 이미지 배치(2026-10-01 주인님 지시): 1번은 글 전체를 대표하는 "제목용" 이미지(요약 바로 아래),
-  // 2번부터는 문단 1·2·3·4 순서로 한 장씩(각 소제목 바로 아래) — 그 문단의 핵심 문장을 그린다.
-  // 1장=제목용만, 2장=제목용+문단1, … 5장=제목용+문단 4개 전부.
+  // 이미지 배치(2026-10-01 주인님 지시): 1번은 글 전체를 대표하는 "제목용" 이미지(요약 바로 아래).
+  // 나머지(문단 이미지 k장)는 문단 4개를 k개 묶음으로 나눠 **글 전체에 고르게** 맡긴다 — 앞 문단에만 몰리지 않게.
+  //   k=1 → [문단1~4]  k=2 → [1~2][3~4]  k=3 → [1~2][3][4]  k=4 → [1][2][3][4]
+  // 각 이미지는 자기 묶음 안에서만 핵심 문장을 골라 그리고(이미지끼리 내용이 겹치지 않음), 묶음 첫 문단의 소제목 바로 아래에 넣는다.
   const imageCount = resolveImageCount(options.imageCount ?? DEFAULT_IMAGE_COUNT)
   const sectionBodies = [body1Text, body2Text, body3Text, body4Text]
   const headings = [parsed['소제목 1'] || subKey1, parsed['소제목 2'] || subKey2, parsed['소제목 3'] || subKey3, parsed['소제목 4'] || subKey4]
-  const paragraphImageCount = imageCount - 1
+  const paragraphGroups = groupParagraphs(sectionBodies.length, imageCount - 1)
   // 제목용 구간: 요약 + 각 문단 앞부분(전체 내용을 대표하는 문장을 고르게)
   const overviewSegment = [excerpt, ...sectionBodies.map((text) => text.slice(0, 900))].filter(Boolean).join('\n\n')
-  const segments = [overviewSegment, ...sectionBodies.slice(0, paragraphImageCount)]
-  const segmentLabels = ['Whole article overview — choose the sentence that best represents the entire post', ...headings.slice(0, paragraphImageCount).map((heading, index) => `Paragraph ${index + 1}: ${heading}`)]
-  console.log(`[AI Post Generator] ${imageCount} images → title 1 + paragraphs ${paragraphImageCount}`)
+  const segments = [overviewSegment, ...paragraphGroups.map((group) => group.map((index) => sectionBodies[index]).join('\n\n'))]
+  const segmentLabels = [
+    'Whole article overview — choose the sentence that best represents the entire post',
+    ...paragraphGroups.map((group) => `Paragraph ${group.map((index) => index + 1).join('-')}: ${group.map((index) => headings[index]).join(' / ')}`),
+  ]
+  console.log(`[AI Post Generator] ${imageCount} images → title 1 + paragraph groups ${JSON.stringify(paragraphGroups.map((g) => g.map((i) => i + 1)))}`)
   const images = await generateSegmentImages({
     topic: options.topic,
     title,
@@ -199,8 +203,10 @@ ${customRule}
     storageUserId: options.storageUserId,
   })
   const titleImageLine = imageLine(`${title} 대표 비주얼`, images[0]?.url || '')
+  // 문단 번호 → 그 문단 소제목 아래에 넣을 이미지(묶음 첫 문단에만)
+  const imageBySection = new Map(paragraphGroups.map((group, groupIndex) => [group[0], images[groupIndex + 1]?.url || '']))
   const renderSection = (index: number) => {
-    const line = index < paragraphImageCount ? imageLine(`${headings[index]} 비주얼`, images[index + 1]?.url || '') : ''
+    const line = imageBySection.has(index) ? imageLine(`${headings[index]} 비주얼`, imageBySection.get(index) || '') : ''
     return [`## ${headings[index]}`, line, sectionBodies[index]].filter(Boolean).join('\n\n')
   }
 
@@ -278,4 +284,18 @@ function inferCategorySlug(topic: string, keywords: string[]): string {
   if (/performance|성능|최적화/i.test(topicLower)) return 'performance'
 
   return 'architecture'
+}
+
+/** 문단 n개를 k개의 연속된 묶음으로 고르게 나눈다(앞 묶음이 더 큼). 예: n=4 → k=1 [[0,1,2,3]], k=2 [[0,1],[2,3]], k=3 [[0,1],[2],[3]], k=4 [[0],[1],[2],[3]]. */
+function groupParagraphs(n: number, k: number): number[][] {
+  if (k <= 0) return []
+  const count = Math.min(k, n)
+  const groups: number[][] = []
+  let start = 0
+  for (let i = 0; i < count; i += 1) {
+    const size = Math.floor(n / count) + (i < n % count ? 1 : 0)
+    groups.push(Array.from({ length: size }, (_, j) => start + j))
+    start += size
+  }
+  return groups
 }

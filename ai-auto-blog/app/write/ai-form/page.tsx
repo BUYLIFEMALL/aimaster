@@ -530,7 +530,7 @@ function AiFormPageInner() {
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3" aria-label="이미지 생성 모델 선택">
             <div>
               <p className="text-sm font-extrabold text-slate-900">이미지 생성 설정 · {findImageModel(imageModel)?.name ?? IMAGE_PROVIDER_LABEL}</p>
-              <p className="text-xs font-bold text-slate-700 mt-0.5">고른 장수만큼 실사 이미지를 만듭니다 — 1번은 글 전체를 대표하는 제목용, 2번부터 문단마다 핵심 문장을 표현한 이미지입니다.</p>
+              <p className="text-xs font-bold text-slate-700 mt-0.5">고른 장수만큼 실사 이미지를 만듭니다 — 1번은 글 전체를 대표하는 제목용, 나머지는 문단을 나눠 맡아 그 문단의 핵심 문장을 표현합니다.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-orange-100 bg-orange-50/40 p-4">
               <div className="space-y-1.5">
@@ -581,7 +581,7 @@ function AiFormPageInner() {
                   ))}
                 </select>
                 <p className="text-[11px] text-slate-500">
-                  1번은 글 전체 내용을 대표하는 제목용 이미지(요약 아래), 2번부터 문단 1~4의 핵심 내용을 한 장씩 그립니다. 장수가 많을수록 생성 시간과 비용이 늘어납니다.
+                  1번은 글 전체 내용을 대표하는 제목용 이미지(요약 아래)이고, 나머지는 문단 4개를 나눠 맡아 각자 맡은 문단의 핵심 내용을 그립니다(각 묶음 첫 소제목 아래). 장수가 많을수록 생성 시간과 비용이 늘어납니다.
                 </p>
               </div>
             </div>
