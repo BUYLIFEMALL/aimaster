@@ -129,6 +129,7 @@ async function loadSelectedPost() {
   let failedImages = 0;
   for (const block of Array.isArray(post.blocks) ? post.blocks : []) {
     if (block.type === "text" && block.text) blocks.push({ type: "text", text: block.text });
+    if (block.type === "link" && block.text && /^https?:\/\//.test(block.url || "")) blocks.push({ type: "link", text: block.text, url: block.url });
     if (block.type === "image" && block.url) {
       try {
         const response = await fetch(block.url);
@@ -164,6 +165,17 @@ function renderPreview() {
         element.style.whiteSpace = "pre-line";
         container.append(element);
       }
+      continue;
+    }
+    if (block.type === "link") {
+      const paragraph = document.createElement("p");
+      const anchor = document.createElement("a");
+      anchor.href = block.url;
+      anchor.target = "_blank";
+      anchor.rel = "noreferrer";
+      anchor.textContent = block.text;
+      paragraph.append(anchor, document.createTextNode(" (실제 링크로 입력)"));
+      container.append(paragraph);
       continue;
     }
     const figure = document.createElement("figure");
@@ -410,6 +422,38 @@ async function insertImageIntoNaverEditor(tabId, dataUrl) {
   throw new Error("이미지 파일은 선택됐지만 네이버 편집기에 반영된 것을 확인하지 못했습니다. 네이버 화면을 확인한 뒤 다시 시도하세요.");
 }
 
+// 링크만 있는 줄(추천 링크 등)은 한 글자씩 입력하면 링크가 걸리지 않는다(네이버 자동 링크도 안 걸림 — 2026-10-01 주인님 확인).
+// 그래서 사람이 웹 페이지의 링크를 복사해 Ctrl+V 하듯, 링크가 걸린 HTML을 "붙여넣기" 이벤트로 편집기에 넘긴다.
+// 붙여넣은 뒤 편집기 안에 그 주소의 실제 링크(a[href])가 생겼는지 확인하고, 안 생겼으면 호출부가 "글자: 주소"로 입력한다.
+async function pasteLinkIntoNaver(tabId, text, url) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    args: [{ text, url }],
+    func: async ({ text: label, url: href }) => {
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      let active = document.activeElement;
+      for (let depth = 0; active && active.tagName === "IFRAME" && depth < 5; depth += 1) {
+        try { active = active.contentDocument?.activeElement || active.contentDocument?.body; } catch { break; }
+      }
+      const editable = active?.isContentEditable ? active : null;
+      if (!editable) return { skipped: true };
+      const doc = editable.ownerDocument;
+      const before = doc.querySelectorAll(`a[href^="${href}"]`).length;
+      const escape = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const transfer = new DataTransfer();
+      transfer.setData("text/html", `<a href="${escape(href)}">${escape(label)}</a>`);
+      transfer.setData("text/plain", `${label} ${href}`);
+      editable.dispatchEvent(new ClipboardEvent("paste", { clipboardData: transfer, bubbles: true, cancelable: true }));
+      await wait(700);
+      const linked = doc.querySelectorAll(`a[href^="${href}"]`).length > before;
+      const bodyText = (doc.body?.innerText || "").replace(/\s+/g, " ");
+      return { skipped: false, linked, inserted: bodyText.includes(label.replace(/\s+/g, " ")) };
+    },
+  });
+  const result = results.find((entry) => entry.result && !entry.result.skipped)?.result;
+  return result || { linked: false, inserted: false };
+}
+
 async function verifyNaverEditorContent(tabId, expectedTitle, expectedTexts) {
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
@@ -621,8 +665,23 @@ async function fillPostIntoNaver() {
     const bodyFocus = await focusNaverEditor(tab.id, "body");
     if (!bodyFocus.ok) throw new Error("본문 입력 위치를 찾지 못했습니다.");
     let imageIndex = 0;
+    let linkedCount = 0;
+    let previous = null;
     const imageTotal = active.blocks.filter((block) => block.type === "image").length;
+    const linkTotal = active.blocks.filter((block) => block.type === "link").length;
     for (const block of active.blocks) {
+      if (block.type === "link") {
+        // 앞이 글이면 새 문단에서 시작
+        if (previous === "text" || previous === "link") await withDebugger(tab.id, () => typeWithDebugger(tab.id, "\n\n"));
+        $("inputStatus").textContent = `링크를 실제 링크로 붙여넣는 중... (${block.text})`;
+        await sleep(randomDelay(300, 600));
+        const pasted = await pasteLinkIntoNaver(tab.id, block.text, block.url);
+        if (pasted.linked) linkedCount += 1;
+        else if (!pasted.inserted) await withDebugger(tab.id, () => typeWithDebugger(tab.id, `${block.text}: ${block.url} `)); // 붙여넣기가 무시되면 예전처럼 글자로
+        previous = "link";
+        await sleep(randomDelay(300, 600));
+        continue;
+      }
       if (block.type === "image") {
         imageIndex += 1;
         $("inputStatus").textContent = `이미지 ${imageIndex}/${imageTotal}장을 네이버에 올리는 중...`;
@@ -630,9 +689,12 @@ async function fillPostIntoNaver() {
         await sleep(randomDelay(500, 900));
         const focus = await focusNaverEditor(tab.id, "body");
         if (!focus.ok) throw new Error("이미지 다음 본문 입력 위치를 찾지 못했습니다.");
+        previous = "image";
         continue;
       }
-      await withDebugger(tab.id, () => typeWithDebugger(tab.id, block.text));
+      const prefix = previous === "link" ? "\n\n" : "";
+      await withDebugger(tab.id, () => typeWithDebugger(tab.id, prefix + block.text));
+      previous = "text";
       await sleep(randomDelay(300, 700));
     }
 
@@ -643,7 +705,8 @@ async function fillPostIntoNaver() {
       throw new Error(`${details}. 네이버 화면을 확인하고, 문제가 계속되면 구조 분석 결과를 전달해주세요.`);
     }
     const minutes = Math.max(1, Math.round((Date.now() - typingStartedAt) / 60000));
-    await preparePublishSettings(`제목·본문·이미지 ${imageTotal}장 입력 완료(약 ${minutes}분).`);
+    const linkSummary = linkTotal ? ` 링크 ${linkedCount}/${linkTotal}개 실제 링크로 입력${linkedCount < linkTotal ? '(나머지는 주소 글자로 입력)' : ''}.` : '';
+    await preparePublishSettings(`제목·본문·이미지 ${imageTotal}장 입력 완료(약 ${minutes}분).${linkSummary}`);
   } catch (error) {
     $("inputStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
     await reportInputResult("failed", error instanceof Error ? error.message : String(error));

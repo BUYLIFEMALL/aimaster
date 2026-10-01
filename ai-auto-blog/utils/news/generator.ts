@@ -217,9 +217,7 @@ ${
     ? `
 ---
 
-> ### 📢 ${options.cta.text}
-> 
-> 지금 바로 확인해 보세요: [👉 ${options.cta.text} 바로가기](${options.cta.url})
+> [👉 ${options.cta.text} 바로가기](${options.cta.url})
 `
     : ''
 }
