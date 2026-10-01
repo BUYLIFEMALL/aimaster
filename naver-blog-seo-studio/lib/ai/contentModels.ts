@@ -14,6 +14,10 @@ export const CONTENT_MODEL_OPTIONS: ContentModelOption[] = [
   { value: "gemini-3.7-flash", label: "Gemini 3.7 Flash · 속도와 품질의 균형", provider: "gemini" },
   { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro · 깊이 있는 분석과 장문", provider: "gemini" },
   { value: "gemini-3.1-pro-preview", label: "Gemini 3.1 Pro Preview · 고품질 콘텐츠", provider: "gemini" },
+  { value: "claude-fable-5", label: "Claude Fable 5 · 최신 고성능 장문 콘텐츠", provider: "anthropic" },
+  { value: "gemini-3.5-flash", label: "Gemini 3.5 Flash · 일상적인 본문 생성 균형형", provider: "gemini" },
+  { value: "gemini-3.6-flash", label: "Gemini 3.6 Flash · 속도와 품질을 강화한 본문 모델", provider: "gemini" },
+  { value: "gemini-3.8-flash", label: "Gemini 3.8 Flash · 최신 고성능 Flash 모델", provider: "gemini" },
 ];
 
 export const CONTENT_PROVIDER_LABELS: Record<ContentProvider, string> = {

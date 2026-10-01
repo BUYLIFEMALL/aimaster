@@ -347,6 +347,10 @@ test("selects an OpenAI, Claude, or Gemini content model above representative im
   assert.match(draftRoute, /resolveContentModel\(provider, input\?\.model\)/);
   assert.match(draftRoute, /resolveApiKey\(supabase, access\.user\.id, provider\)/);
   assert.match(models, /claude-sonnet-5/);
+  assert.match(models, /claude-fable-5/);
+  assert.match(models, /gemini-3\.8-flash/);
+  assert.match(models, /gemini-3\.6-flash/);
+  assert.match(models, /gemini-3\.5-flash/);
   assert.match(models, /gemini-2\.5-pro/);
 });
 
