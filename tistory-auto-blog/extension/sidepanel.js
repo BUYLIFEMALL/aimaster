@@ -47,7 +47,7 @@ async function restoreConnection() {
 function report() {
   return {
     tool: "tistory-auto-blog-extension",
-    version: "v1.01",
+    version: extensionVersion(),
     createdAt: new Date().toISOString(),
     notice: "읽기 전용 구조 조사 결과입니다. 제목·본문 실제 내용, 쿠키, 로그인 정보는 포함하지 않습니다.",
     snapshots,
@@ -87,6 +87,25 @@ function collectStructure() {
   });
   const select = (selector) => [...document.querySelectorAll(selector)]
     .sort((left, right) => Number(visible(right)) - Number(visible(left))).slice(0, 80).map(describe);
+  const describeWithoutText = (element) => ({
+    tag: element.tagName.toLowerCase(), attrs: attributes(element),
+    classes: typeof element.className === "string" ? element.className.trim().split(/\s+/).filter(Boolean).slice(0, 10) : [],
+    visible: visible(element), childCount: element.children.length,
+  });
+  const categoryList = document.querySelector("#category-list");
+  const categoryOptions = categoryList
+    ? [...categoryList.querySelectorAll("[role='option'], button, a, li, label, div")]
+      .filter((element) => visible(element) && tidy(element.textContent))
+      .filter((element) => ![...element.children].some((child) => visible(child) && tidy(child.textContent) === tidy(element.textContent)))
+      .slice(0, 80)
+      .map(describe)
+    : [];
+  const tagInput = document.querySelector("#tagText");
+  const tagAncestors = [];
+  let tagContainer = tagInput?.parentElement || null;
+  for (let depth = 0; tagContainer && depth < 3; depth += 1, tagContainer = tagContainer.parentElement) {
+    tagAncestors.push(describeWithoutText(tagContainer));
+  }
   return {
     url: location.origin + location.pathname,
     isTopFrame: window === window.top,
@@ -95,6 +114,12 @@ function collectStructure() {
     fileInputs: select("input[type='file']"),
     modeCandidates: select("button, [role='button'], li, a, span").filter((item) => /기본|마크다운|HTML|모드/i.test(item.text)),
     visibleLayers: select("[role='dialog'], [role='menu'], [role='listbox'], [class*='modal'], [class*='popup'], [class*='layer'], [class*='dropdown']").filter((item) => item.visible),
+    categoryOptions,
+    tagStructure: tagInput ? {
+      input: describeWithoutText(tagInput),
+      ancestorChain: tagAncestors,
+      confirmedTagLikeElementCount: tagAncestors.reduce((count, item) => count + (item.classes.some((className) => /tag/i.test(className)) ? 1 : 0), 0),
+    } : null,
   };
 }
 
