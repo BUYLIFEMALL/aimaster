@@ -10,7 +10,9 @@ import {
   CONTENT_PROVIDER_LABELS,
   CONTENT_PROVIDERS,
   DEFAULT_CONTENT_PROVIDER,
+  DEFAULT_IMAGE_COUNT,
   DEFAULT_IMAGE_MODEL,
+  IMAGE_COUNT_OPTIONS,
   IMAGE_MODEL_OPTIONS,
   IMAGE_PROVIDER_LABEL,
   contentModelLabel,
@@ -21,6 +23,7 @@ import {
   getDefaultContentModel,
   isContentProvider,
   resolveContentModel,
+  resolveImageCount,
   resolveImageModel,
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
@@ -109,6 +112,8 @@ function AiFormPageInner() {
   
   // 나노바나나 AI 이미지 설정 상태
   const [imageModel, setImageModel] = useState<string>(DEFAULT_IMAGE_MODEL)
+  // 이미지 장수(1~5): 1번 제목용 + 문단 1~4 순서(2026-10-01)
+  const [imageCount, setImageCount] = useState<number>(DEFAULT_IMAGE_COUNT)
   // 본문 생성 플랫폼·모델 (SEO 스튜디오와 같은 선택지)
   const [contentProvider, setContentProvider] = useState<ContentProvider>(DEFAULT_CONTENT_PROVIDER)
   const [contentModel, setContentModel] = useState<string>(getDefaultContentModel(DEFAULT_CONTENT_PROVIDER))
@@ -116,19 +121,20 @@ function AiFormPageInner() {
   // 마지막으로 고른 모델을 이 브라우저에 기억한다(편의용, 실패해도 기본값으로 동작).
   useEffect(() => {
     try {
-      const saved = JSON.parse(window.localStorage.getItem(MODEL_STORAGE_KEY) ?? 'null') as { contentProvider?: unknown; contentModel?: unknown; imageModel?: unknown } | null
+      const saved = JSON.parse(window.localStorage.getItem(MODEL_STORAGE_KEY) ?? 'null') as { contentProvider?: unknown; contentModel?: unknown; imageModel?: unknown; imageCount?: unknown } | null
       if (saved && isContentProvider(saved.contentProvider)) {
         setContentProvider(saved.contentProvider)
         setContentModel(resolveContentModel(saved.contentProvider, saved.contentModel))
       }
       if (saved?.imageModel) setImageModel(resolveImageModel(saved.imageModel))
+      if (saved?.imageCount) setImageCount(resolveImageCount(saved.imageCount))
     } catch {}
   }, [])
   useEffect(() => {
     try {
-      window.localStorage.setItem(MODEL_STORAGE_KEY, JSON.stringify({ contentProvider, contentModel, imageModel }))
+      window.localStorage.setItem(MODEL_STORAGE_KEY, JSON.stringify({ contentProvider, contentModel, imageModel, imageCount }))
     } catch {}
-  }, [contentProvider, contentModel, imageModel])
+  }, [contentProvider, contentModel, imageModel, imageCount])
 
   // 추천 링크 (CTA) 및 추가 지시사항
   const [ctaText, setCtaText] = useState('추천링크')
@@ -214,7 +220,7 @@ function AiFormPageInner() {
 
     try {
       setLoading(true)
-      setStatusMsg('AI 인공지능 모델이 트렌드를 분석하고 AI자동 블로그 및 본문 내용을 토대로 3개의 AI이미지를 생성 중입니다...')
+      setStatusMsg(`AI 인공지능 모델이 트렌드를 분석하고 AI자동 블로그 및 본문 내용을 토대로 ${imageCount}개의 AI이미지를 생성 중입니다...`)
 
       const validUrls = referenceUrls.map((u) => normalizeUrl(u)).filter((u) => u.length > 0)
 
@@ -230,6 +236,7 @@ function AiFormPageInner() {
         contentProvider,
         contentModel,
         imageModel,
+        imageCount,
         cta: (ctaText.trim() || ctaUrl.trim()) ? {
           text: ctaText.trim() || '자세히 보기',
           url: normalizeUrl(ctaUrl) || '#',
@@ -523,7 +530,7 @@ function AiFormPageInner() {
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3" aria-label="이미지 생성 모델 선택">
             <div>
               <p className="text-sm font-extrabold text-slate-900">이미지 생성 설정 · {findImageModel(imageModel)?.name ?? IMAGE_PROVIDER_LABEL}</p>
-              <p className="text-xs font-bold text-slate-700 mt-0.5">본문 섹션마다 핵심 문장 하나를 골라 그 문장을 표현한 실사 이미지 3장을 생성합니다.</p>
+              <p className="text-xs font-bold text-slate-700 mt-0.5">고른 장수만큼 실사 이미지를 만듭니다 — 1번은 글 전체를 대표하는 제목용, 2번부터 문단마다 핵심 문장을 표현한 이미지입니다.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-orange-100 bg-orange-50/40 p-4">
               <div className="space-y-1.5">
@@ -556,6 +563,26 @@ function AiFormPageInner() {
                   ))}
                 </select>
                 <p className="text-[11px] text-slate-500">해상도가 높을수록 생성 시간과 비용이 늘어납니다.</p>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label htmlFor="image-count-selector" className="text-xs font-bold text-slate-700">이미지 장수</label>
+                <select
+                  id="image-count-selector"
+                  value={imageCount}
+                  onChange={(e) => setImageCount(resolveImageCount(e.target.value))}
+                  disabled={loading}
+                  style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
+                  className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black bg-white shadow-sm"
+                >
+                  {IMAGE_COUNT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value} style={{ color: '#000000', backgroundColor: '#ffffff' }}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-slate-500">
+                  1번은 글 전체 내용을 대표하는 제목용 이미지(요약 아래), 2번부터 문단 1~4의 핵심 내용을 한 장씩 그립니다. 장수가 많을수록 생성 시간과 비용이 늘어납니다.
+                </p>
               </div>
             </div>
 

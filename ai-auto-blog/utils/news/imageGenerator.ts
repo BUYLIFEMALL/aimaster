@@ -14,25 +14,13 @@
 import { getNanoBananaConfig } from './nanoBananaConfig'
 import { uploadBase64Image } from '../imageStorage'
 
-export interface GeneratedImagesResult {
-  headerImage: string
-  bodyImage1: string
-  bodyImage2: string
-  headerPrompt: string
-  body1Prompt: string
-  body2Prompt: string
-  /** 각 이미지가 표현한 본문 핵심 문장(원문 그대로) */
-  headerSentence: string
-  body1Sentence: string
-  body2Sentence: string
-}
-
-export interface ArticleContext {
-  title: string
-  excerpt: string
-  body1Text: string
-  body2Text: string
-  body4Text: string
+/** 이미지 1장 결과 — 생성·저장에 실패하면 url은 빈 문자열(그 칸은 비움) */
+export interface SegmentImage {
+  url: string
+  /** 사용한 영어 장면 설명 */
+  prompt: string
+  /** 이미지가 표현한 본문 핵심 문장(원문 그대로) */
+  sentence: string
 }
 
 export type NanoBananaModelType = 'nanobanana' | 'nanobanana-2-2k' | 'nanobanana-2-4k' | 'nanobanana-2' | 'nanobanana-pro' | string
@@ -84,40 +72,36 @@ function fallbackVisual(sectionText: string, topic: string): SectionVisual {
 }
 
 /**
- * 섹션(문단) 3개에서 각각 그림으로 표현할 핵심 문장 1개를 원문 그대로 고르고, 그 문장만 담은 영어 장면 설명을 만든다.
+ * 구간(segment) N개에서 각각 그림으로 표현할 핵심 문장 1개를 원문 그대로 고르고, 그 문장만 담은 영어 장면 설명을 만든다.
+ * 구간 = 이미지 1장이 들어갈 자리 앞뒤의 본문 덩어리(generator.ts가 이미지 장수에 맞춰 나눈다).
  * SEO 스튜디오 selectContentVisuals()와 같은 지시문을 쓰되, BLOG는 회원 Gemini 키 하나로 동작하도록 Gemini로 호출한다.
  */
-export async function selectSectionVisuals(
+export async function selectSegmentVisuals(
   topic: string,
-  articleCtx: ArticleContext,
+  title: string,
+  segments: string[],
   apiKey: string,
-): Promise<{ headerVisual: SectionVisual; body1Visual: SectionVisual; body2Visual: SectionVisual }> {
-  const sections = [articleCtx.body1Text, articleCtx.body2Text, articleCtx.body4Text]
-  const fallback = () => ({
-    headerVisual: fallbackVisual(sections[0], topic),
-    body1Visual: fallbackVisual(sections[1], topic),
-    body2Visual: fallbackVisual(sections[2], topic),
-  })
+  labels: string[] = [],
+): Promise<SectionVisual[]> {
+  const fallback = () => segments.map((segment) => fallbackVisual(segment, topic))
+  const count = segments.length
+  const exampleItems = Array.from({ length: count }, () => '{"sentence":"...","prompt":"..."}').join(',')
+  const sectionBlocks = segments
+    .map((segment, index) => `[Section ${index + 1}${labels[index] ? ` — ${labels[index]}` : ''}]\n${segment.slice(0, 4000)}`)
+    .join('\n\n')
 
   const instruction = `You are a Korean blog visual editor. Return JSON only.
-For EACH of the 3 sections below, choose exactly one complete sentence from THAT section: a meaningful, visually depictable key sentence. Copy the sentence exactly as written (Korean). The 3 sentences must be different.
+For EACH of the ${count} sections below, choose exactly one complete sentence from THAT section: a meaningful, visually depictable key sentence. Copy the sentence exactly as written (Korean). The ${count} sentences must be different.
 For each chosen sentence, write one detailed English prompt for a single photorealistic 16:9 editorial scene that expresses only that sentence: concrete subject, action, place, time of day, lighting and camera framing.
 Depict realistic Korean/East Asian people by default where people are appropriate; only depict another ethnicity when the sentence names a foreign celebrity, politician, entertainer or athlete, or a foreign country/setting central to it.
 No text, logo, watermark, collage, split screen, infographic, illustration, or made-up facts.
 Do not ask for readable text in the scene (no "Korean text", form fields, chart labels, names or numbers); describe screens and documents as blurred or abstract. ${NO_LEGIBLE_TEXT_RULE}
-Format: {"visuals":[{"sentence":"...","prompt":"..."},{"sentence":"...","prompt":"..."},{"sentence":"...","prompt":"..."}]}
+Format: {"visuals":[${exampleItems}]}
 
 Topic: ${topic}
-Title: ${articleCtx.title}
+Title: ${title}
 
-[Section 1]
-${sections[0].slice(0, 4000)}
-
-[Section 2]
-${sections[1].slice(0, 4000)}
-
-[Section 3]
-${sections[2].slice(0, 4000)}`
+${sectionBlocks}`
 
   try {
     const response = await fetch(
@@ -140,15 +124,15 @@ ${sections[2].slice(0, 4000)}`
     if (!raw) return fallback()
 
     const parsed = JSON.parse(raw) as { visuals?: Array<{ sentence?: unknown; prompt?: unknown }> }
-    const items = (parsed.visuals ?? []).slice(0, 3)
+    const items = (parsed.visuals ?? []).slice(0, count)
     const visuals = items.map((item, index) => {
       const sentence = cleanSentence(item.sentence)
       const prompt = cleanPrompt(item.prompt)
-      const inSection = sentence && normalizeForMatch(sections[index]).includes(normalizeForMatch(sentence))
-      return inSection && prompt ? { sentence, prompt } : fallbackVisual(sections[index], topic)
+      const inSection = sentence && normalizeForMatch(segments[index]).includes(normalizeForMatch(sentence))
+      return inSection && prompt ? { sentence, prompt } : fallbackVisual(segments[index], topic)
     })
-    while (visuals.length < 3) visuals.push(fallbackVisual(sections[visuals.length], topic))
-    return { headerVisual: visuals[0], body1Visual: visuals[1], body2Visual: visuals[2] }
+    while (visuals.length < count) visuals.push(fallbackVisual(segments[visuals.length], topic))
+    return visuals
   } catch (err) {
     console.warn('[section-visuals] Gemini response parsing failed; using body fallback', err)
     return fallback()
@@ -159,7 +143,7 @@ ${sections[2].slice(0, 4000)}`
 async function generateSceneImage(
   sceneDescription: string,
   model: string,
-  sceneType: 'header' | 'body1' | 'body2',
+  sceneType: string,
   apiKey: string,
   customEndpoint: string | undefined,
   storageUserId: string,
@@ -209,48 +193,29 @@ async function generateSceneImage(
   }
 }
 
-export async function generateNanoBananaImages(
-  topic: string,
-  _keywords: string[] = [],
-  apiKey: string | undefined,
-  model: NanoBananaModelType = 'nanobanana-2-2k',
-  customEndpoint: string | undefined,
-  articleCtx: ArticleContext | undefined,
-  storageUserId: string,
-): Promise<GeneratedImagesResult> {
-  const empty: GeneratedImagesResult = {
-    headerImage: '',
-    bodyImage1: '',
-    bodyImage2: '',
-    headerPrompt: '',
-    body1Prompt: '',
-    body2Prompt: '',
-    headerSentence: '',
-    body1Sentence: '',
-    body2Sentence: '',
+/** 구간마다 이미지 1장씩(=구간 수만큼) 만든다. 회원 본인 Gemini 키가 없으면 만들지 않는다(운영자 키 폴백 금지 — 호출부가 키를 먼저 확인). */
+export async function generateSegmentImages(params: {
+  topic: string
+  title: string
+  segments: string[]
+  /** 구간 설명(예: "Whole article overview", "Paragraph 1: 소제목") — 문장 고르는 AI에 함께 전달 */
+  segmentLabels?: string[]
+  apiKey: string | undefined
+  model?: NanoBananaModelType
+  storageUserId: string
+}): Promise<SegmentImage[]> {
+  const { topic, title, segments, apiKey, storageUserId } = params
+  const model = params.model || 'nanobanana-2-2k'
+  if (!apiKey || segments.length === 0) return segments.map(() => ({ url: '', prompt: '', sentence: '' }))
+
+  const visuals = await selectSegmentVisuals(topic, title, segments, apiKey, params.segmentLabels)
+  console.log(`[NanoBanana Pipeline] ${segments.length} images, model "${model}" → ${getNanoBananaConfig(model).modelName}`)
+
+  const results: SegmentImage[] = []
+  for (const [index, visual] of visuals.entries()) {
+    if (index > 0) await delay(200)
+    const url = await generateSceneImage(visual.prompt, model, `image${index + 1}`, apiKey, undefined, storageUserId)
+    results.push({ url, prompt: visual.prompt, sentence: visual.sentence })
   }
-  // 회원 본인 키가 없으면 이미지를 만들지 않는다(운영자 키 폴백 금지). 호출부(auto-post)가 키를 먼저 확인한다.
-  if (!apiKey) return empty
-
-  const ctx: ArticleContext = articleCtx ?? { title: topic, excerpt: '', body1Text: topic, body2Text: topic, body4Text: topic }
-  const { headerVisual, body1Visual, body2Visual } = await selectSectionVisuals(topic, ctx, apiKey)
-  console.log(`[NanoBanana Pipeline] model "${model}" → ${getNanoBananaConfig(model).modelName}`)
-
-  const headerImage = await generateSceneImage(headerVisual.prompt, model, 'header', apiKey, customEndpoint, storageUserId)
-  await delay(200)
-  const bodyImage1 = await generateSceneImage(body1Visual.prompt, model, 'body1', apiKey, customEndpoint, storageUserId)
-  await delay(200)
-  const bodyImage2 = await generateSceneImage(body2Visual.prompt, model, 'body2', apiKey, customEndpoint, storageUserId)
-
-  return {
-    headerImage,
-    bodyImage1,
-    bodyImage2,
-    headerPrompt: headerVisual.prompt,
-    body1Prompt: body1Visual.prompt,
-    body2Prompt: body2Visual.prompt,
-    headerSentence: headerVisual.sentence,
-    body1Sentence: body1Visual.sentence,
-    body2Sentence: body2Visual.sentence,
-  }
+  return results
 }

@@ -9,12 +9,15 @@ import {
   DEFAULT_CONTENT_PROVIDER,
   isContentProvider,
   resolveContentModel,
+  resolveImageCount,
   resolveImageModel,
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
+// 글 + 이미지 최대 5장을 한 번에 만들어서 오래 걸릴 수 있다(2026-10-01) — Vercel 최대 시간
+export const maxDuration = 300
 
 // 'buylife.blog'처럼 https:// 없이 온 주소에 https://를 붙인다(작성 화면과 같은 규칙).
 function normalizeCtaUrl(value: unknown): string {
@@ -81,6 +84,7 @@ export async function POST(request: NextRequest) {
       contentApiKey,
       nanoBananaApiKey: resolvedApiKey,
       imageModel: resolveImageModel(body.imageModel || body.nanoBananaModel),
+      imageCount: resolveImageCount(body.imageCount),
       storageUserId: user.id,
       cta: body.cta && (body.cta.text || body.cta.url) ? { text: body.cta.text || '자세히 보기', url: normalizeCtaUrl(body.cta.url) } : undefined,
     }

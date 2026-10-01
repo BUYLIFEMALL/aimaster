@@ -1,9 +1,8 @@
 import { CollectedNewsResult } from './collector'
 import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadableParagraphs } from '@/blog/utils/markdown'
-import { generateNanoBananaImages } from './imageGenerator'
-import type { GeneratedImagesResult } from './imageGenerator'
+import { generateSegmentImages } from './imageGenerator'
 import { generateContentJson } from '@/blog/utils/ai/contentJson'
-import { DEFAULT_CONTENT_PROVIDER, resolveContentModel, type ContentProvider } from '@/blog/utils/ai/contentModels'
+import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, resolveImageCount, type ContentProvider } from '@/blog/utils/ai/contentModels'
 
 /** 이미지 생성에 실패한 칸은 빈 이미지 태그를 남기지 않는다. */
 function imageLine(alt: string, url: string): string {
@@ -29,6 +28,8 @@ export interface AutoPostOptions {
   /** 이미지 생성용 본인 Gemini 키 */
   nanoBananaApiKey?: string
   imageModel?: string
+  /** 글에 넣을 이미지 장수(1~5, 기본 3) */
+  imageCount?: number
   /** 이미지를 저장할 회원 id(Supabase Storage post-images/<id>/ai-auto-blog/) */
   storageUserId: string
   cta?: {
@@ -125,29 +126,31 @@ ${customRule}
 
 [★ 글쓰기 필수 요구 규칙]:
 1. 제목: 매력적이고 SEO에 적합하며 관련 키워드가 자연스럽게 조합된 제목으로 작성하세요.
-2. 소제목 및 문단 구성: { "제목", "요약글", "소제목 1", "소제목 2", "소제목 3", "문단 1", "문단 2", "문단 3" } 3개의 독립적인 소제목과 문단으로 구성하세요.
+2. 소제목 및 문단 구성: { "제목", "요약글", "소제목 1", "소제목 2", "소제목 3", "소제목 4", "문단 1", "문단 2", "문단 3", "문단 4" } 4개의 독립적인 소제목과 문단으로 구성하세요. 4개 문단은 서로 다른 핵심 내용을 다루세요.
 3. 태그 사용 필수 룰:
-   - 각 문단의 소제목("소제목 1", "소제목 2", "소제목 3")은 마크다운 ## (<h2>) 태그로 표현됩니다.
+   - 각 문단의 소제목("소제목 1", "소제목 2", "소제목 3", "소제목 4")은 마크다운 ## (<h2>) 태그로 표현됩니다.
    - 글 전체 내용 중 구체적 세부 설명 부분에 마크다운 ### (<h3>) 태그를 정확히 3번 사용하세요.
    - 글 전체 내용 중 리스트 또는 핵심 질문/답변 목록 부분에 마크다운 - (<li>) 태그를 2번 이상 사용하세요.
 4. 분량 및 딥다이브 설명:
-   - 각 문단("문단 1", "문단 2", "문단 3")은 구체적인 정보, 설명, 풍부한 예시를 포함하여 총 전체 글자 수가 공백 제외 2,000자 이상이 되도록 길고 풍부하게 작성하세요.
+   - 각 문단("문단 1", "문단 2", "문단 3", "문단 4")은 구체적인 정보, 설명, 풍부한 예시를 포함하여 총 전체 글자 수가 공백 제외 2,000자 이상이 되도록 길고 풍부하게 작성하세요.
 5. 가독성 및 톤앤매너:
    - 정보성 글을 작성하되, 사람들이 끝까지 읽기 편하도록 대학생 수준에서 편하게 읽을 수 있는 명확하고 친절한 어조로 작성하세요.
    - 구글 검색 사용자의 검색 의도를 고려하여 질의-답변(Q&A) 구조와 명쾌한 해결책을 제시하세요.
    - 2~3문장마다 줄바꿈(\n\n)을 넣어 가독성을 극대화하세요.
 
 [필수 지침 - JSON 출력 구조]:
-아래 8개 키를 포함하는 순수한 JSON 형식으로 출력하세요 (추가 설명/마크다운 백틱 없이 순수 JSON만 출력):
+아래 10개 키를 포함하는 순수한 JSON 형식으로 출력하세요 (추가 설명/마크다운 백틱 없이 순수 JSON만 출력):
 {
   "제목": "매력적이고 SEO에 최적화된 포스트 제목",
   "요약글": "핵심 내용을 요약한 2~3문장 서술",
   "소제목 1": "${subKey1} 관련 매력적인 1번 소제목",
   "소제목 2": "${subKey2} 관련 매력적인 2번 소제목",
   "소제목 3": "${subKey3} 관련 매력적인 3번 소제목",
+  "소제목 4": "${subKey4} 관련 매력적인 4번 소제목",
   "문단 1": "소제목 1에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)",
   "문단 2": "소제목 2에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)",
-  "문단 3": "소제목 3에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)"
+  "문단 3": "소제목 3에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)",
+  "문단 4": "소제목 4에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)"
 }
 `.trim()
 
@@ -170,47 +173,49 @@ ${customRule}
   const body1Text = formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || '')
   const body2Text = formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || '')
   const body3Text = formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || '')
+  const body4Text = formatReadableParagraphs(parsed['문단 4'] || parsed['4문단'] || '')
 
   const hashtags = generateHashtags(options.topic, keywordsList, parsed)
 
-  // ★ [핵심] 생성된 3개 문단의 본문 내용을 정독하여 각각 100% 매칭되는 독창적 3개 영문 프롬프트 생성 후 이미지 매핑
-  console.log('[AI Post Generator] Analyzing 3 paragraph contents to create 100% matching unique image prompts...')
-  const images = await generateNanoBananaImages(
-    options.topic,
-    keywordsList,
-    options.nanoBananaApiKey,
-    options.imageModel,
-    undefined, // 커스텀 엔드포인트 입력 기능은 2026-10-01 삭제 — 모델 설정(nanoBananaConfig)의 공식 주소만 쓴다
-    {
-      title,
-      excerpt,
-      body1Text,
-      body2Text,
-      body4Text: body3Text,
-    },
-    options.storageUserId,
-  )
+  // 이미지 배치(2026-10-01 주인님 지시): 1번은 글 전체를 대표하는 "제목용" 이미지(요약 바로 아래),
+  // 2번부터는 문단 1·2·3·4 순서로 한 장씩(각 소제목 바로 아래) — 그 문단의 핵심 문장을 그린다.
+  // 1장=제목용만, 2장=제목용+문단1, … 5장=제목용+문단 4개 전부.
+  const imageCount = resolveImageCount(options.imageCount ?? DEFAULT_IMAGE_COUNT)
+  const sectionBodies = [body1Text, body2Text, body3Text, body4Text]
+  const headings = [parsed['소제목 1'] || subKey1, parsed['소제목 2'] || subKey2, parsed['소제목 3'] || subKey3, parsed['소제목 4'] || subKey4]
+  const paragraphImageCount = imageCount - 1
+  // 제목용 구간: 요약 + 각 문단 앞부분(전체 내용을 대표하는 문장을 고르게)
+  const overviewSegment = [excerpt, ...sectionBodies.map((text) => text.slice(0, 900))].filter(Boolean).join('\n\n')
+  const segments = [overviewSegment, ...sectionBodies.slice(0, paragraphImageCount)]
+  const segmentLabels = ['Whole article overview — choose the sentence that best represents the entire post', ...headings.slice(0, paragraphImageCount).map((heading, index) => `Paragraph ${index + 1}: ${heading}`)]
+  console.log(`[AI Post Generator] ${imageCount} images → title 1 + paragraphs ${paragraphImageCount}`)
+  const images = await generateSegmentImages({
+    topic: options.topic,
+    title,
+    segments,
+    segmentLabels,
+    apiKey: options.nanoBananaApiKey,
+    model: options.imageModel,
+    storageUserId: options.storageUserId,
+  })
+  const titleImageLine = imageLine(`${title} 대표 비주얼`, images[0]?.url || '')
+  const renderSection = (index: number) => {
+    const line = index < paragraphImageCount ? imageLine(`${headings[index]} 비주얼`, images[index + 1]?.url || '') : ''
+    return [`## ${headings[index]}`, line, sectionBodies[index]].filter(Boolean).join('\n\n')
+  }
 
   const contentMarkdown = `
 > **요약**: ${excerpt}
 
-## ${parsed['소제목 1'] || subKey1}
+${titleImageLine}
 
-${imageLine(`${parsed['소제목 1'] || subKey1} 비주얼`, images.headerImage)}
+${renderSection(0)}
 
-${body1Text}
+${renderSection(1)}
 
-## ${parsed['소제목 2'] || subKey2}
+${renderSection(2)}
 
-${imageLine(`${parsed['소제목 2'] || subKey2} 비주얼`, images.bodyImage1)}
-
-${body2Text}
-
-## ${parsed['소제목 3'] || subKey3}
-
-${imageLine(`${parsed['소제목 3'] || subKey3} 비주얼`, images.bodyImage2)}
-
-${body3Text}
+${renderSection(3)}
 
 ${
   options.cta?.text && options.cta?.url
