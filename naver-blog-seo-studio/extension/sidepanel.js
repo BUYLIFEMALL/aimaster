@@ -15,6 +15,18 @@ let activeWebDraftTitle = "";
 let activeWebDraftBody = "";
 let activeWebDraftCoverDataUrl = "";
 
+function resetActiveWebDraft() {
+  activeWebDraftId = "";
+  activeWebDraftTags = [];
+  activeWebDraftContentImages = [];
+  activeWebDraftBlocks = [];
+  activeWebDraftTitle = "";
+  activeWebDraftBody = "";
+  activeWebDraftCoverDataUrl = "";
+  $("webDraftTagSuggestion").hidden = true;
+  $("webDraftTagList").textContent = "";
+}
+
 function renderExtensionVersion() {
   const target = $("extensionVersion");
   const manifest = typeof chrome !== "undefined" ? chrome.runtime?.getManifest?.() : null;
@@ -35,6 +47,9 @@ function formatWebDraftLabel(draft) {
 }
 
 async function refreshWebDrafts() {
+  // A refreshed list must never leave a previously previewed draft as the
+  // implicit input target. The user needs to select the current content.
+  resetActiveWebDraft();
   clearWebDraftPreview();
   const token = await getToken();
   if (!token) throw new Error("먼저 SEO Studio 연결 토큰을 입력해주세요.");
@@ -56,7 +71,8 @@ async function refreshWebDrafts() {
     option.textContent = formatWebDraftLabel(draft);
     select.append(option);
   }
-  status.textContent = webDrafts.length ? `전송된 콘텐츠 ${webDrafts.length}개를 불러왔습니다.` : "전송된 콘텐츠가 없습니다. 웹에서 콘텐츠를 만든 뒤 확장으로 전송하세요.";
+  status.textContent = webDrafts.length ? `전송된 콘텐츠 ${webDrafts.length}개를 불러왔습니다. 목록에서 콘텐츠를 선택하면 바로 불러옵니다.` : "전송된 콘텐츠가 없습니다. 웹에서 콘텐츠를 만든 뒤 확장으로 전송하세요.";
+  $("generateStatus").textContent = "대기 중 · 목록에서 콘텐츠를 선택하면 미리보기와 입력 준비가 자동으로 완료됩니다.";
 }
 
 function clearWebDraftPreview() {
@@ -847,6 +863,21 @@ $("refreshWebDrafts").addEventListener("click", () => {
 $("loadWebDraft").addEventListener("click", () => {
   loadSelectedWebDraft().catch((error) => {
     $("webDraftStatus").textContent = `콘텐츠 미리보기 실패: ${error instanceof Error ? error.message : String(error)}`;
+  });
+});
+
+$("webDraftList").addEventListener("change", () => {
+  if (!$("webDraftList").value) {
+    resetActiveWebDraft();
+    clearWebDraftPreview();
+    $("generateStatus").textContent = "대기 중 · 입력할 콘텐츠를 목록에서 선택하세요.";
+    return;
+  }
+  $("webDraftStatus").textContent = "선택한 콘텐츠와 이미지를 불러오는 중...";
+  loadSelectedWebDraft().catch((error) => {
+    resetActiveWebDraft();
+    clearWebDraftPreview();
+    $("webDraftStatus").textContent = `콘텐츠 자동 불러오기 실패: ${error instanceof Error ? error.message : String(error)}`;
   });
 });
 
