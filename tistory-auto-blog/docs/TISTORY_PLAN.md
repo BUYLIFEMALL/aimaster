@@ -41,7 +41,7 @@
 - 0단계 완료: `inspector-extension/`(읽기 전용 조사 확장). 가짜 화면(headless Chromium)으로 수집 함수 동작·내용 미누출 확인. **실제 티스토리 화면에서는 아직 실행하지 않았다.**
 - 계획·결정 기본값(§1)·단계(§3)·미확인 사항(§4) 문서화.
 - **1단계 완료**(뼈대·복제·치환·단독 빌드 통과, `APP_VERSION v1.01`), **2단계 완료**(`0001_tistory_init.sql`: 로컬 PG16 적용·격리 테스트 통과, 운영 DB는 PG 17.6 확인). 보안·격리 차이는 `AGENTS.md`의 "ai-auto-blog와 달라진 점".
-- 운영 최초 배포 완료: 공용 DB에 `0001_tistory_init.sql` 적용·owner-only RLS 검증, `programs`/기본 3단계 요금제 등록(`v1.01`), Vercel Production `https://tistory-auto-blog-pearl.vercel.app` 배포. `/preview`는 200, 회원용 `/`은 로그인 이동 307을 확인했다.
+- 운영 배포·확장 계정 연동 완료: 공용 DB에 `0001_tistory_init.sql` 적용·owner-only RLS 검증, `programs`/기본 3단계 요금제 등록(`v1.02`), Vercel Production `https://tistory-auto-blog-pearl.vercel.app` 배포. 확장은 설정에서 발급한 토큰을 `/api/extension/whoami`로 검증한 뒤에만 저장한다. `/preview`는 200, 회원용 `/`은 로그인 이동 307을 확인했다.
 - 아직 안 한 것: 서버 변환기(3단계)·확장 입력 코드(4단계, 현재 `extension/`은 티스토리 구조를 읽기만 하는 조사 모드), 회원용 연동 매뉴얼.
 - 로컬 시안 `/preview` 추가: 원문 생성·이미지 준비·티스토리 입력·직접 발행 확인이라는 전체 화면 흐름을 Supabase 없이 확인할 수 있다. 실제 회원 기능이나 확장 입력 기능은 아니며, 운영 배포 대상도 아니다.
 

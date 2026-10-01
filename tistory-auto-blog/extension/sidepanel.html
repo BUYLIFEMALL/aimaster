@@ -9,10 +9,21 @@
 <body>
   <main>
     <header>
-      <span class="eyebrow">AIMaster · v1.01 · 개발 중</span>
+      <span class="eyebrow">AIMaster · <span id="extensionVersion">-</span> · 개발 중</span>
       <h1>티스토리(원문) 입력기</h1>
       <p>티스토리용 입력기를 만드는 중입니다. 현재는 실제 화면 구조를 읽기만 하며, 글 입력·수정·이미지 업로드·발행은 하지 않습니다.</p>
     </header>
+
+    <section class="card">
+      <h2>계정 연결</h2>
+      <p class="hint"><a href="https://tistory-auto-blog-pearl.vercel.app/settings" target="_blank" rel="noreferrer">티스토리 자동화 설정</a>에서 발급한 연동 토큰을 붙여넣으세요. 토큰은 이 브라우저의 확장 저장소에만 보관됩니다.</p>
+      <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="pat_... 연동 토큰 붙여넣기" />
+      <div class="connection-actions">
+        <button id="link" type="button">계정 연결</button>
+        <div id="connectionStatus" class="status">연결되지 않음</div>
+      </div>
+      <p class="hint">연결하면 이 토큰이 현재 AIMaster 계정과 티스토리 자동화 이용 권한을 모두 확인합니다. 토큰은 설정 화면에서 언제든 폐기할 수 있습니다.</p>
+    </section>
 
     <section class="card">
       <h2>티스토리 글쓰기 화면 조사</h2>

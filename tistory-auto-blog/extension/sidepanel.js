@@ -2,8 +2,47 @@
 
 // 실제 티스토리 DOM을 조사하기 전 자동 입력을 금지한다. 이 코드는 읽기 전용이다.
 const STORAGE_KEY = "tistoryEditorInspectionSnapshots";
+const TOKEN_KEY = "tistoryAutoBlogToken";
+const BASE = "https://tistory-auto-blog-pearl.vercel.app";
 const $ = (id) => document.getElementById(id);
 let snapshots = [];
+
+function extensionVersion() {
+  const manifest = chrome.runtime?.getManifest?.();
+  return manifest?.version_name || (manifest?.version ? `v${manifest.version}` : "");
+}
+
+async function getToken() {
+  return (await chrome.storage.local.get(TOKEN_KEY))[TOKEN_KEY] || "";
+}
+
+async function verifyToken(token) {
+  if (!token) return { ok: false, error: "연동 토큰을 붙여넣어 주세요." };
+  try {
+    const response = await fetch(`${BASE}/api/extension/whoami`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await response.json().catch(() => ({}));
+    return response.ok
+      ? { ok: true, email: body.email || "이메일 없음", latestVersion: body.latestVersion }
+      : { ok: false, error: body.error || `연결 실패 (${response.status})` };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+function renderConnection(result) {
+  $("connectionStatus").textContent = result.ok
+    ? `연결됨: ${result.email}${result.latestVersion && result.latestVersion !== extensionVersion() ? ` · 최신 확장 ${result.latestVersion} 필요` : ""}`
+    : result.error || "연결되지 않음";
+}
+
+async function restoreConnection() {
+  $("extensionVersion").textContent = extensionVersion();
+  const token = await getToken();
+  if (token) $("token").value = token;
+  renderConnection(token ? await verifyToken(token) : { ok: false, error: "연결되지 않음" });
+}
 
 function report() {
   return {
@@ -92,4 +131,21 @@ $("clear").addEventListener("click", async () => {
   snapshots = []; await chrome.storage.local.remove(STORAGE_KEY); render();
   $("status").textContent = "수집 결과를 지웠습니다.";
 });
+
+$("link").addEventListener("click", async () => {
+  const button = $("link");
+  const token = $("token").value.trim();
+  button.disabled = true;
+  $("connectionStatus").textContent = "연결 정보를 확인하는 중...";
+  try {
+    const result = await verifyToken(token);
+    if (!result.ok) return renderConnection(result);
+    await chrome.storage.local.set({ [TOKEN_KEY]: token });
+    renderConnection(result);
+  } finally {
+    button.disabled = false;
+  }
+});
+
 chrome.storage.local.get(STORAGE_KEY).then((stored) => { snapshots = Array.isArray(stored[STORAGE_KEY]) ? stored[STORAGE_KEY] : []; render(); });
+restoreConnection();

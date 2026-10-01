@@ -1,6 +1,6 @@
 # tistory-auto-blog — 티스토리 자동화 (BLOG 원문생성 + 크롬 확장)
 
-> **상태: 운영 최초 배포 완료, 실제 티스토리 편집기 조사 결과 대기 (2026-10-01)** — 운영 주소는 `https://tistory-auto-blog-pearl.vercel.app`, 프로그램·DB 버전은 모두 `v1.01`이다. 실제 입력 자동화는 조사 JSON을 받은 뒤에만 진행한다.
+> **상태: 확장 계정 연동 완료, 실제 티스토리 편집기 조사 결과 대기 (2026-10-01)** — 운영 주소는 `https://tistory-auto-blog-pearl.vercel.app`, 프로그램·DB·확장 ZIP 버전은 모두 `v1.02`다. 실제 입력 자동화는 조사 JSON을 받은 뒤에만 진행한다.
 > 반드시 루트 `../CLAUDE.md`(핵심 원칙 7가지)·`../docs/HANDOFF.md`·`../docs/ERROR_LESSONS.md`를 먼저 읽고, 브라우저 자동화이므로
 > `../docs/PLATFORM_PATTERNS.md` **§20(봇 탐지 회피)·§28(웹→확장→편집기)** 를 그대로 지킨다.
 
@@ -16,9 +16,9 @@
 | 1 | `ai-auto-blog` 복제 → 서브프로젝트 뼈대 | ✅ 완료: 복제·이름/slug/표 이름 치환(`blog_*`→`tistory_*`, `naver_input_*`→`tistory_input_*`)·UI 문구 티스토리화·`APP_VERSION v1.01`·루트 `.vercelignore`/`tsconfig.json` 제외 등록. 로컬 UI 시안 `/preview`는 Supabase·로그인 없이도 원문 생성→티스토리 입력 흐름을 확인할 수 있다. |
 | 2 | DB 마이그레이션 파일 | ✅ `supabase/migrations/0001_tistory_init.sql` — 운영 공용 DB에 적용 완료. `tistory_*` 5개 테이블은 전부 `authenticated` + `auth.uid() = user_id` owner-only RLS 정책을 확인했다. |
 | 3 | 서버 변환기(티스토리용 입력 블록) | ⏳ `utils/extensionContent.ts`는 아직 네이버용 그대로(링크 `글자: 주소 `, 해시태그 분리 등). 조사 결과 후 수정 |
-| 4 | 확장 편집기 조작 코드 | ⏳ `extension/`은 **티스토리 도메인 전용 읽기·구조 조사 모드**다. 실제 글 입력·수정·이미지 업로드·발행 기능은 조사 JSON을 받은 뒤 작성한다. 그 전까지 ZIP 배포·회원 안내 금지. |
+| 4 | 확장 편집기 조작 코드 | 🟡 **계정 연동 완료(v1.02)**: 설정에서 발급한 토큰을 확장에 붙여넣으면 `/api/extension/whoami`가 토큰·이용 권한을 검증하고, 성공한 토큰만 확장 저장소에 보관한다. 편집기 조작은 여전히 읽기·구조 조사 모드이며, 실제 글 입력·수정·이미지 업로드·발행은 조사 JSON을 받은 뒤 작성한다. |
 | 5 | 설정 화면 연동 매뉴얼 | ⏳ `platform_guides` 티스토리 매뉴얼 신규 등록 필요 |
-| 6 | DB 적용·`programs` 등록(`v1.01`)·Vercel 프로젝트·배포 | ✅ 완료: `programs.version = v1.01`, 블로그 카테고리·기본 3단계 요금제 등록, Production `https://tistory-auto-blog-pearl.vercel.app` 배포 및 `/preview` 200·`/` 307 확인. |
+| 6 | DB 적용·`programs` 등록·Vercel 배포 | ✅ 완료: `programs.version = v1.02`, 블로그 카테고리·기본 3단계 요금제 등록, Production `https://tistory-auto-blog-pearl.vercel.app` 배포 및 `/preview` 200·`/` 307 확인. |
 
 ### 로컬 병합 후 기반 검증 (2026-10-01)
 
@@ -26,7 +26,7 @@
 - `extension/`은 이제 티스토리 도메인만 권한으로 요청하는 **티스토리(원문) 입력기 개발 조사 모드**입니다. 티스토리 글쓰기 화면의 구조를 JSON으로 읽기만 하며, 조사 결과를 받기 전까지는 글 입력·수정·업로드·발행을 하지 않습니다.
 - 로컬 화면 확인용 정적 시안은 `/preview`입니다. BLOG(원문)생성 자동화와 같은 사이드바·글쓰기·이미지 준비 흐름에 티스토리 입력 단계를 표시하며, DB·인증·AI 호출 없이 동작합니다. 운영 배포나 회원 기능이 아닙니다.
 - `npm run build`는 통과했습니다. 다만 복제 원본에서 넘어온 ESLint 오류 53개(React effect의 동기 상태 변경·`any` 등)가 있어 `npm run lint`는 아직 통과하지 않습니다. 편집기 조사 JSON을 받은 뒤 티스토리 전용 구현과 함께 별도 정리합니다.
-- 확장 `extension/`은 티스토리 도메인 전용 구조 조사 모드다. `version_name v1.01`과 ZIP 이름은 코드 버전과 자동 동기화되지만, 실제 입력 기능 완성 전에는 회원용 설치 안내를 하지 않는다.
+- 확장 `extension/`은 티스토리 도메인 전용 구조 조사 모드다. `version_name v1.02`과 ZIP 이름은 코드 버전과 자동 동기화된다. 계정 연결은 가능하지만 실제 입력 기능 완성 전에는 입력 자동화로 안내하지 않는다.
 
 ## ai-auto-blog와 달라진 점 (보안·격리 — 복제하면서 고침)
 운영 DB의 `blog_*` 정책을 읽기 조회로 확인해 보니 BLOG는 "하나의 공유 블로그" 설계가 남아 있다(`docs/ERROR_LESSONS.md` 2026-10-01 항목 참고). 티스토리판은 처음부터 회원별 격리로 만들었다.
