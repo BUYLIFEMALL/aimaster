@@ -87,8 +87,11 @@ function collectStructure() {
   });
   const select = (selector) => [...document.querySelectorAll(selector)]
     .sort((left, right) => Number(visible(right)) - Number(visible(left))).slice(0, 80).map(describe);
+  const structuralAttributes = (element) => Object.fromEntries([...element.attributes]
+    .filter((attribute) => /^(id|type|role|contenteditable|tabindex)$/.test(attribute.name))
+    .map((attribute) => [attribute.name, tidy(attribute.value)]));
   const describeWithoutText = (element) => ({
-    tag: element.tagName.toLowerCase(), attrs: attributes(element),
+    tag: element.tagName.toLowerCase(), attrs: structuralAttributes(element),
     classes: typeof element.className === "string" ? element.className.trim().split(/\s+/).filter(Boolean).slice(0, 10) : [],
     visible: visible(element), childCount: element.children.length,
   });
@@ -100,6 +103,7 @@ function collectStructure() {
       .map(describe)
     : [];
   const tagInput = document.querySelector("#tagText");
+  const tagRoot = tagInput?.closest(".editor_tag") || null;
   const tagAncestors = [];
   let tagContainer = tagInput?.parentElement || null;
   for (let depth = 0; tagContainer && depth < 3; depth += 1, tagContainer = tagContainer.parentElement) {
@@ -117,6 +121,12 @@ function collectStructure() {
     tagStructure: tagInput ? {
       input: describeWithoutText(tagInput),
       ancestorChain: tagAncestors,
+      directChildren: tagRoot ? [...tagRoot.children].map(describeWithoutText) : [],
+      redactedDescendants: tagRoot ? [...tagRoot.querySelectorAll("*")]
+        .filter((element) => element !== tagInput)
+        .filter((element) => /tag/i.test(typeof element.className === "string" ? element.className : ""))
+        .slice(0, 30)
+        .map(describeWithoutText) : [],
       confirmedTagLikeElementCount: tagAncestors.reduce((count, item) => count + (item.classes.some((className) => /tag/i.test(className)) ? 1 : 0), 0),
     } : null,
   };
