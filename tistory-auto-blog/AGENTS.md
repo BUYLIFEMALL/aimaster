@@ -13,10 +13,10 @@
 | 단계 | 내용 | 상태 |
 |---|---|---|
 | 0 | 티스토리 화면 조사 도구 `inspector-extension/` | ✅ 코드 완성. **주인님 PC에서 실행 → JSON 결과 전달 대기** |
-| 1 | `ai-auto-blog` 복제 → 서브프로젝트 뼈대 | ✅ 완료: 복제·이름/slug/표 이름 치환(`blog_*`→`tistory_*`, `naver_input_*`→`tistory_input_*`)·UI 문구 티스토리화·`APP_VERSION v1.01`·루트 `.vercelignore`/`tsconfig.json` 제외 등록. 단독 `npm run build` 통과 |
+| 1 | `ai-auto-blog` 복제 → 서브프로젝트 뼈대 | ✅ 완료: 복제·이름/slug/표 이름 치환(`blog_*`→`tistory_*`, `naver_input_*`→`tistory_input_*`)·UI 문구 티스토리화·`APP_VERSION v1.01`·루트 `.vercelignore`/`tsconfig.json` 제외 등록. 로컬 UI 시안 `/preview`는 Supabase·로그인 없이도 원문 생성→티스토리 입력 흐름을 확인할 수 있다. |
 | 2 | DB 마이그레이션 파일 | ✅ `supabase/migrations/0001_tistory_init.sql` — 로컬 PostgreSQL 16에서 적용·격리 테스트 통과(아래), 운영 DB는 PG 17.6·`set_updated_at()` 있음을 읽기 조회로 확인. **적용은 로컬에서 주인님 승인 후** |
 | 3 | 서버 변환기(티스토리용 입력 블록) | ⏳ `utils/extensionContent.ts`는 아직 네이버용 그대로(링크 `글자: 주소 `, 해시태그 분리 등). 조사 결과 후 수정 |
-| 4 | 확장 편집기 조작 코드 | ⏳ `extension/`은 **BLOG(네이버) 확장을 그대로 복사한 상태 — 티스토리에서 동작하지 않는다. 4단계 전까지 ZIP 커밋·배포·회원 안내 금지**(manifest 이름·아이콘·host_permissions·`BASE`도 아직 BLOG 것/임시) |
+| 4 | 확장 편집기 조작 코드 | ⏳ `extension/`은 **티스토리 도메인 전용 읽기·구조 조사 모드**다. 실제 글 입력·수정·이미지 업로드·발행 기능은 조사 JSON을 받은 뒤 작성한다. 그 전까지 ZIP 배포·회원 안내 금지. |
 | 5 | 설정 화면 연동 매뉴얼 | ⏳ `platform_guides` 티스토리 매뉴얼 신규 등록 필요 |
 | 6 | 로컬: DB 적용·`programs` 등록(`v1.01`)·Vercel 프로젝트·배포 | ⏳ |
 
@@ -24,6 +24,7 @@
 
 - `cloud-work`의 0~2단계 작업을 로컬 `master`에 병합했습니다(`df2f3cd`). 외부 Google Fonts 요청이 막힌 환경에서도 빌드되도록 `next/font/google` 의존을 제거하고 시스템 글꼴을 사용하게 했습니다.
 - `extension/`은 이제 티스토리 도메인만 권한으로 요청하는 **티스토리(원문) 입력기 개발 조사 모드**입니다. 티스토리 글쓰기 화면의 구조를 JSON으로 읽기만 하며, 조사 결과를 받기 전까지는 글 입력·수정·업로드·발행을 하지 않습니다.
+- 로컬 화면 확인용 정적 시안은 `/preview`입니다. BLOG(원문)생성 자동화와 같은 사이드바·글쓰기·이미지 준비 흐름에 티스토리 입력 단계를 표시하며, DB·인증·AI 호출 없이 동작합니다. 운영 배포나 회원 기능이 아닙니다.
 - `npm run build`는 통과했습니다. 다만 복제 원본에서 넘어온 ESLint 오류 53개(React effect의 동기 상태 변경·`any` 등)가 있어 `npm run lint`는 아직 통과하지 않습니다. 편집기 조사 JSON을 받은 뒤 티스토리 전용 구현과 함께 별도 정리합니다.
 - 확장 `extension/`은 여전히 네이버 복사본이므로 빌드가 만든 ZIP은 검증용 산출물이며 커밋·배포하지 않습니다.
 
