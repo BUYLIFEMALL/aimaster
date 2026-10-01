@@ -578,8 +578,8 @@ async function typeWithDebugger(tabId, value) {
       const elapsed = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
       $("generateStatus").textContent = `네이버 편집기 입력 중... ${typed}/${text.length}자 · ${elapsed}초`;
     }
-    await sleep(randomDelay(45, 95));
-    if (Math.random() < 0.05) await sleep(randomDelay(220, 450));
+    await sleep(randomDelay(24, 52));
+    if (Math.random() < 0.03) await sleep(randomDelay(110, 220));
   }
 }
 
@@ -731,7 +731,7 @@ async function fillDraftIntoNaver() {
       await debuggerCommand(tab.id, "Input.setIgnoreInputEvents", { ignore: false });
     }
     await typeWithDebugger(tab.id, title);
-    await sleep(randomDelay(600, 1000));
+    await sleep(randomDelay(350, 550));
     if (activeWebDraftBlocks.length) {
       await chrome.debugger.detach({ tabId: tab.id });
       attachedTabId = null;
