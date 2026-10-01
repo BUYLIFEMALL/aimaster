@@ -129,7 +129,7 @@ const reportLabels: Record<string, string> = {
 
 export default function StudioPage({ email }: { email: string }) {
   const [strategy, setStrategy] = useState(strategies[0][0]);
-  const [activeMenu, setActiveMenu] = useState("title");
+  const [activeMenu, setActiveMenu] = useState("dashboard");
   const [topic, setTopic] = useState("");
   const [keywords, setKeywords] = useState("");
   const [message, setMessage] = useState("아직 생성된 블로그(원문)이 없습니다.");
@@ -211,8 +211,8 @@ export default function StudioPage({ email }: { email: string }) {
     const syncMenuFromHash = () => {
       // 이전에 공유된 #new-draft#new-draft 같은 중복 해시도 지원한다.
       const hashParts = window.location.hash.slice(1).split("#");
-      const menu = hashParts.find((part) => ["title", "new-draft", "draft", "history"].includes(part));
-      setActiveMenu(menu ?? "title");
+      const menu = hashParts.find((part) => ["dashboard", "title", "new-draft", "draft", "history"].includes(part));
+      setActiveMenu(menu ?? "dashboard");
     };
 
     syncMenuFromHash();
@@ -683,6 +683,7 @@ export default function StudioPage({ email }: { email: string }) {
   }
 
   const selectedContentModelLabel = getContentModels(contentProvider).find((option) => option.value === contentModel)?.label.split(" · ")[0] ?? contentModel;
+  const completedInputCount = history.filter((draft) => draft.naver_input_status === "completed" || draft.naver_input_status === "publish_ready").length;
 
   return (
     <div className="studio-shell">
@@ -694,7 +695,7 @@ export default function StudioPage({ email }: { email: string }) {
           <a className="sidebar-back" href="https://www.buylife.xyz/blog/dashboard">← 다른 프로그램 보기</a>
         </div>
         <nav className="nav" aria-label="주 메뉴">
-          <a className="nav-overview" href="/dashboard">🏠 대시보드</a>
+          <button type="button" className={`nav-overview ${activeMenu === "dashboard" ? "active" : ""}`} onClick={() => openMenu("dashboard")}>🏠 대시보드</button>
           <div className="nav-flow">
             <button type="button" className={`nav-link ${activeMenu === "title" ? "active" : ""}`} aria-current={activeMenu === "title" ? "page" : undefined} onClick={() => openMenu("title")}><span className="nav-number">1</span><span><strong>🔎 제목 추천</strong><small>검색 의도에 맞는 제목 생성</small></span></button>
             <button type="button" className={`nav-link ${activeMenu === "new-draft" ? "active" : ""}`} aria-current={activeMenu === "new-draft" ? "page" : undefined} onClick={() => openMenu("new-draft")}><span className="nav-number">2</span><span><strong>📝 새 글 만들기</strong><small>AI 블로그(원문) 생성</small></span></button>
@@ -720,6 +721,25 @@ export default function StudioPage({ email }: { email: string }) {
           </div>
           <div className="account">AIMaster 계정 연동 전</div>
         </div>
+
+        {activeMenu === "dashboard" && <section className="dashboard-overview" id="dashboard">
+          <section className="dashboard-intro card">
+            <div><span className="eyebrow">SEO BLOG WORKSPACE</span><h2 className="card-title">콘텐츠 제작 현황</h2></div>
+            <p>제목 추천부터 블로그(원문) 생성, 편집, Chrome 확장 전송까지 한 곳에서 관리합니다.</p>
+            <div className="dashboard-actions"><button type="button" className="secondary" onClick={() => openMenu("title")}>🔎 제목 추천 시작</button><button type="button" className="primary compact" onClick={() => openMenu("new-draft")}>📝 새 글 만들기</button></div>
+          </section>
+          <div className="dashboard-stats" aria-label="콘텐츠 제작 통계">
+            <div><strong>{history.length}</strong><span>생성한 블로그(원문)</span></div>
+            <div><strong>{titleRecommendations.length}</strong><span>제목 추천 기록</span></div>
+            <div><strong>{completedInputCount}</strong><span>확장 입력 완료</span></div>
+          </div>
+          <section className="dashboard-guide card"><h2 className="card-title">사용방법</h2><ol><li><button type="button" onClick={() => window.location.href = "/settings#api-key"}>API키등록·플랫폼연동</button>에서 본인 OpenAI·Claude·Gemini API 키를 등록합니다.</li><li><button type="button" onClick={() => openMenu("title")}>제목 추천</button>에서 주제와 핵심 키워드를 바탕으로 제목을 고릅니다.</li><li><button type="button" onClick={() => openMenu("new-draft")}>새 글 만들기</button>에서 블로그(원문)·대표·본문 이미지를 검토하고 편집합니다.</li><li>수정 내용을 저장한 뒤 Chrome 확장으로 전송하고 네이버 최종 발행은 직접 확인합니다.</li></ol></section>
+          <div className="dashboard-recent-heading">최근 활동</div>
+          <div className="dashboard-activity-grid">
+            <section className="dashboard-activity card"><div className="card-head"><h2 className="card-title">최근 생성한 블로그(원문)</h2><button type="button" className="text-button" onClick={() => openMenu("history")}>전체 보기 →</button></div>{history.length === 0 ? <p className="history-empty">아직 생성한 블로그(원문)이 없습니다.</p> : <div className="history-list">{history.slice(0, 5).map((draft) => <button type="button" key={draft.id} className="history-item" onClick={() => reuseDraft(draft)}><span><strong>{draft.title}</strong><small>{draft.topic}</small></span><time>{draft.created_at ? new Date(draft.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}</section>
+            <section className="dashboard-activity card"><div className="card-head"><h2 className="card-title">최근 제목 추천</h2><button type="button" className="text-button" onClick={() => openMenu("title")}>전체 보기 →</button></div>{titleRecommendations.length === 0 ? <p className="history-empty">아직 저장된 제목 추천이 없습니다.</p> : <div className="history-list">{titleRecommendations.slice(0, 5).map((recommendation) => <button type="button" key={recommendation.id} className="history-item" onClick={() => { loadTitleRecommendation(recommendation); openMenu("title"); }}><span><strong>{recommendation.selected_title || recommendation.titles[0]?.title || "제목 추천"}</strong><small>{recommendation.topic}</small></span><time>{recommendation.created_at ? new Date(recommendation.created_at).toLocaleDateString("ko-KR") : "방금"}</time></button>)}</div>}</section>
+          </div>
+        </section>}
 
         {activeMenu === "title" && <section className="title-recommendation" id="title">
           <section className="card title-input-section">
