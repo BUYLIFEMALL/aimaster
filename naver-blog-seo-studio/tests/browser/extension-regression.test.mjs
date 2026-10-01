@@ -263,7 +263,7 @@ test("selects the image model beside representative image creation and sends it 
   const contentRoute = readFileSync(new URL("../../app/api/images/generate-content/route.ts", import.meta.url), "utf8");
   const regenerateRoute = readFileSync(new URL("../../app/api/images/regenerate-content/route.ts", import.meta.url), "utf8");
   const settings = readFileSync(new URL("../../app/settings/ApiKeySettings.tsx", import.meta.url), "utf8");
-  assert.match(studio, /대표 이미지 생성 \(나노바나나\).*image-model/);
+  assert.match(studio, /대표 이미지 생성 \(나노바나나\)[\s\S]*image-model/);
   assert.match(studio, /id="image-model"/);
   assert.match(studio, /model: imageModel/);
   assert.match(representativeRoute, /resolveGeminiImageModel\(input\?\.model\)/);
@@ -344,6 +344,10 @@ test("selects an OpenAI, Claude, or Gemini content model above representative im
   assert.match(studio, /model: contentModel/);
   assert.match(studio, /option value="anthropic">Anthropic Claude/);
   assert.match(studio, /option value="gemini">Google Gemini/);
+  const strategyPosition = studio.indexOf('title-strategy-section card');
+  const modelPosition = studio.indexOf('content-model-selection');
+  const imagePosition = studio.indexOf('image-with-draft-option');
+  assert.ok(strategyPosition < modelPosition && modelPosition < imagePosition);
   assert.match(draftRoute, /resolveContentModel\(provider, input\?\.model\)/);
   assert.match(draftRoute, /resolveApiKey\(supabase, access\.user\.id, provider\)/);
   assert.match(models, /claude-sonnet-5/);

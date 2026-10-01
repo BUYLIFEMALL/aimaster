@@ -97,8 +97,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .content-generation-models-heading small { color: var(--muted); font-size: 11px; font-weight: 500; line-height: 1.45; }
 .content-generation-models .field { margin: 0; }
 .content-generation-models select:disabled { cursor: default; opacity: 1; color: var(--ink); background: #f7f2ed; }
-.content-generation-models + .image-with-draft-option { position: relative; margin-top: 43px; }
-.content-generation-models + .image-with-draft-option::before { position: absolute; left: 0; top: -27px; content: "이미지 생성 설정 · Gemini NanoBanana"; color: var(--ink); font-size: 12px; font-weight: 800; }
+.content-model-selection + .image-with-draft-option { position: relative; margin-top: 43px; }
+.content-model-selection + .image-with-draft-option::before { position: absolute; left: 0; top: -27px; content: "이미지 생성 설정 · Gemini NanoBanana"; color: var(--ink); font-size: 12px; font-weight: 800; }
 .image-model-control { display: grid; gap: 4px; min-width: 230px; margin-left: auto; }
 .image-model-control b { color: var(--ink); font-size: 13px; font-weight: 800; }
 .image-model-control select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff; color: var(--ink); font: inherit; font-size: 13px; }
@@ -313,9 +313,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .content-block-editor-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
 .content-block-editor-actions > button { display: inline-flex; align-items: center; justify-content: center; height: 42px; width: auto; margin: 0 !important; padding: 0 13px; white-space: nowrap; }
 
-/* 기존 OpenAI 전용 선택기는 새 통합 본문 모델 선택기로 대체한다. */
-.title-strategy-section .content-generation-models { display: none; }
-.content-model-selection { margin-top: 16px; }
+.title-strategy-section .content-model-selection { margin-top: 16px; }
 .content-block-save-status { max-width: 280px; margin: 7px 0 0; color: #3f6d98; font-size: 11px; line-height: 1.45; text-align: right; }
 .content-block-handoff-status { max-width: 360px; margin: 7px 0 0; color: #9b4a20; font-size: 11px; line-height: 1.45; text-align: right; }
 .extension-download-steps { margin: 16px 0 0; padding-left: 20px; color: #40556d; font-size: 12px; line-height: 1.8; }
