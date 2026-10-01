@@ -24,60 +24,82 @@ const THINK_CHANCE = 0.04;
 const THINK_MIN_MS = 250;
 const THINK_MAX_MS = 700;
 
-// 추천태그 추출(2026-10-01, naver-blog-seo-studio 확장 v1.57 "추천테그 추출"과 같은 방식 — 주인님 지시).
-// 회원이 버튼을 눌렀을 때만 태그 칸을 채운다(자동 적용 아님). 후보 순서: 글 끝 해시태그 → 글 제목 → 본문에서 2번 이상 나온 단어(많이 나온 순).
-// 뜻 없는 말(접속사·서술어 등)은 빼고, 단어 끝 조사 한 글자는 떼어낸다. 최대 10개.
+// 추천테그 추출 — naver-blog-seo-studio 확장 v1.59(Codex)의 코드를 그대로 옮겼다(2026-10-01 주인님 지시: "SEO블로그에서 지금 구현한 방식대로
+// 버튼 위치·기능·필터를 읽어보고 적용"). 규칙을 바꿀 때는 SEO 스튜디오 쪽과 같이 맞출 것.
+// - 조사는 실제 조사 목록(KOREAN_TAG_PARTICLES)을 긴 것부터 한 번만 떼고, 남는 말이 2글자 이상일 때만 뗀다.
+// - 주제·키워드(BLOG에서는 글 끝 해시태그)는 그대로 살리고, 본문에서 뽑는 반복 단어에만 흔한 말(TAG_GENERIC_BODY_WORDS)·
+//   더 구체적인 태그에 포함되는 말(isCoveredBySpecificTag) 제외를 적용한다. 회원이 버튼을 눌렀을 때만 채운다. 최대 10개.
+// - BLOG 글에는 "주제" 칸이 없어서 topic은 비워 두고, 키워드 자리에 글 끝 해시태그를 넣는다.
 const TAG_STOP_WORDS = new Set([
-  "그리고", "하지만", "또한", "따라서", "그래서", "이러한", "이것은", "그것은", "이번", "오늘", "최근", "경우", "부분", "관련", "통해", "대해", "위해", "대한", "중요", "필요", "가능", "사용", "적용", "도입", "방법", "내용", "정보", "결과", "기능", "과정", "분야", "상황", "하나", "여러", "모든", "각각", "실제", "더욱", "가장", "먼저", "다음", "이후", "이전", "현재", "때문", "때문에", "있습니다", "있으며", "합니다", "됩니다", "한다", "되는", "있는", "없는", "같은", "것을", "것이", "에서", "으로", "에게",
-  "추천링크", "바로가기", "요약", "https", "http", "www", "우리", "여러분",
+  "그리고", "하지만", "또한", "따라서", "그래서", "이러한", "이것은", "그것은", "이번", "오늘", "최근", "경우", "부분", "관련", "통해", "대해", "위해", "대한", "중요", "필요", "가능", "사용", "적용", "도입", "방법", "내용", "정보", "결과", "기능", "과정", "분야", "상황", "하나", "여러", "모든", "각각", "실제", "더욱", "가장", "먼저", "다음", "이후", "이전", "현재", "때문", "때문에", "있습니다", "있으며", "합니다", "됩니다", "좋습니다", "한다", "되는", "있는", "없는", "같은", "것을", "것이", "에서", "으로", "에게",
 ]);
 
-// stripParticle: 본문 단어는 끝 조사 한 글자를 늘 떼고, 해시태그는 3글자 이하일 때만 뗀다
-// ("한국의"→"한국"은 떼고 "투자협의"는 그대로 — SEO 스튜디오 방식은 "투자협"이 되는 문제가 있었다).
-function normalizeTagCandidate(value, stripParticle = true) {
-  const base = String(value || "").replace(/^#+/, "").replace(/["'“”‘’()[\]{}<>:]/g, " ").trim();
-  return (stripParticle ? base.replace(/[은는이가을를의에도와과로]$/u, "") : base)
+// 주제/핵심 키워드는 사용자가 정한 값이라 보존하고, 본문에서 새로 뽑는
+// 반복 단어에만 적용한다. 그렇지 않으면 검색 의도와 무관한 일반 명사가 태그가 된다.
+const TAG_GENERIC_BODY_WORDS = new Set([
+  "콘텐츠", "고객", "브랜드", "메시지", "전략", "실무", "정리", "소개", "가이드", "초보자", "완벽", "핵심", "주요", "활용", "효율", "관리", "분석", "서비스", "제품", "시장", "업무", "시간", "여행", "여행지", "가을", "서울", "근교",
+]);
+
+const KOREAN_TAG_PARTICLES = [
+  "으로부터", "에서부터", "에게서는", "에게서", "에서는", "으로는", "에게는", "이라도", "에게", "에서", "부터", "까지", "처럼", "마다", "보다", "으로", "라도", "이나", "이며", "하고", "은", "는", "이", "가", "을", "를", "의", "에", "도", "와", "과", "로", "만",
+];
+
+function normalizeTagCandidate(value) {
+  let tag = String(value || "")
+    .replace(/^#+/, "")
+    .replace(/["'“”‘’()[\]{}<>]/g, " ")
+    .replace(/^[,.:;!?]+|[,.:;!?]+$/g, "")
     .trim()
     .replace(/\s+/g, " ")
     .slice(0, 30);
+
+  // 문자 단위 제거는 '메시지'의 '지', '합니다'의 '다'까지 잘랐다.
+  // 실제 조사 단위를 긴 순서로 한 번만 제거해야 원형이 보존된다.
+  const particle = KOREAN_TAG_PARTICLES.find((suffix) => tag.endsWith(suffix));
+  if (particle && tag.length - particle.length >= 2) tag = tag.slice(0, -particle.length);
+  return tag;
 }
 
-// "위한·대응하·주목해야·가능한"처럼 꾸미는 말·서술어로 끝나는 짧은 말은 태그가 아니다
-const VERB_LIKE_ENDING = /(하|해야|해서|한|할|된|될|되는|하는|하며|하고|이란|이다)$/u;
+function isCoveredBySpecificTag(tag, tags) {
+  const compactTag = tag.replace(/\s+/g, "");
+  return tags.some((existingTag) => {
+    const compactExistingTag = existingTag.replace(/\s+/g, "");
+    return compactExistingTag.length > compactTag.length && compactExistingTag.includes(compactTag);
+  });
+}
 
-function buildRecommendedTags({ hashtags, title, body }) {
+function buildRecommendedTags({ topic, keywords, title, body }) {
   const tags = [];
   const seen = new Set();
-  const add = (value, stripParticle = true) => {
-    const tag = normalizeTagCandidate(value, stripParticle);
+  const add = (value, { fromBody = false } = {}) => {
+    const tag = normalizeTagCandidate(value);
     const key = tag.toLocaleLowerCase("ko-KR");
-    if (tag.length < 2 || TAG_STOP_WORDS.has(key) || seen.has(key)) return;
-    if (tag.length <= 4 && VERB_LIKE_ENDING.test(tag)) return;
+    if (
+      tag.length < 2
+      || TAG_STOP_WORDS.has(key)
+      || (fromBody && TAG_GENERIC_BODY_WORDS.has(key))
+      || (fromBody && isCoveredBySpecificTag(tag, tags))
+      || seen.has(key)
+    ) return;
     seen.add(key);
     tags.push(tag);
   };
-  const source = `${title || ""}\n${body || ""}`.replace(/https?:\/\/\S+/g, " ");
+
+  add(topic);
+  for (const keyword of Array.isArray(keywords) ? keywords : []) add(keyword);
+
+  const source = `${title || ""}\n${body || ""}`;
   const frequency = new Map();
   for (const rawWord of source.match(/[가-힣A-Za-z0-9][가-힣A-Za-z0-9+.-]{1,29}/g) || []) {
     const word = normalizeTagCandidate(rawWord);
     const key = word.toLocaleLowerCase("ko-KR");
-    if (word.length < 2 || TAG_STOP_WORDS.has(key) || /^\d+$/.test(word)) continue;
+    if (word.length < 2 || TAG_STOP_WORDS.has(key)) continue;
     frequency.set(key, { word, count: (frequency.get(key)?.count || 0) + 1 });
   }
-  // 해시태그 조사 처리: ① 본문에 그대로 있으면 유지 ② 조사를 뗀 말이 본문에 있으면 그 말 ③ 그 밖엔 확실한 조사만 뗌
-  // (예: "평가" 유지, "RPA의"→"RPA", "트렌드와"→"트렌드", "투자협의"는 "~의"가 애매해서 유지)
-  const resolveHashtag = (value) => {
-    const original = normalizeTagCandidate(value, false);
-    if (frequency.has(original.toLocaleLowerCase("ko-KR"))) return original;
-    const stripped = normalizeTagCandidate(value, true);
-    if (stripped !== original && frequency.has(stripped.toLocaleLowerCase("ko-KR"))) return stripped;
-    return original.replace(/(에서|으로|에게|까지|부터|처럼|이란|[을를은는와과에])$/u, "");
-  };
-  for (const hashtag of Array.isArray(hashtags) ? hashtags : []) add(resolveHashtag(hashtag), false);
   [...frequency.values()]
     .filter((item) => item.count >= 2)
     .sort((a, b) => b.count - a.count || b.word.length - a.word.length || a.word.localeCompare(b.word, "ko-KR"))
-    .forEach((item) => add(item.word));
+    .forEach((item) => add(item.word, { fromBody: true }));
   return tags.slice(0, 10);
 }
 
@@ -836,16 +858,17 @@ $("extractRecommendedTags").addEventListener("click", () => {
     return;
   }
   const tags = buildRecommendedTags({
-    hashtags: active.tags,
+    topic: "",
+    keywords: active.tags,
     title: active.title,
     body: active.blocks.filter((block) => block.type === "text").map((block) => block.text).join("\n"),
   });
   if (!tags.length) {
-    $("publishStatus").textContent = "본문에서 추천태그를 충분히 찾지 못했습니다. 직접 입력해주세요.";
+    $("publishStatus").textContent = "본문에서 추천테그를 충분히 찾지 못했습니다. 직접 입력해주세요.";
     return;
   }
   $("publishTags").value = tags.join(", ");
-  $("publishStatus").textContent = `글의 해시태그·제목·본문 핵심 단어로 추천태그 ${tags.length}개를 넣었습니다: ${tags.map((tag) => `#${tag}`).join(" ")} — 필요하면 고친 뒤 저장하세요.`;
+  $("publishStatus").textContent = `본문의 핵심 주제·키워드로 추천테그 ${tags.length}개를 입력했습니다: ${tags.map((tag) => `#${tag}`).join(" ")}`;
 });
 
 $("savePublishSettings").addEventListener("click", async () => {

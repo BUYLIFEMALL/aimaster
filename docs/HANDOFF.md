@@ -39,6 +39,7 @@
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
 | 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
+| BLOG 추천테그 추출 SEO와 동일화 (ai-auto-blog v1.29) | SEO 스튜디오 v1.59 태그 추천 코드·스타일을 그대로 복사(함수 diff 동일). SEO 규칙이 바뀌면 같이 맞출 것 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "추천테그 추출을 SEO 스튜디오 v1.59와 똑같이" |
 | BLOG 확장 추천태그 추출 (ai-auto-blog v1.28) | SEO 스튜디오 v1.57 태그 추천을 BLOG 확장에 적용(버튼을 눌렀을 때만, 해시태그·제목·본문 빈도, 최대 10개) + 해시태그 조사 처리 보완 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "확장 추천태그 추출" |
 | BLOG 추천 링크 중복 입력 수정 (ai-auto-blog v1.27) | 링크 붙여넣기가 모든 프레임에서 돌아 3번 + 글자 1번 들어가던 것 → 커서가 있는 프레임 하나에서만 1번 붙여넣기, 실패 시에만 글자. 이미지 설명 줄 제거. 실제 링크가 걸리는 것은 주인님 화면으로 확인됨. **남은 일: 새 버전으로 1개만 들어가는지 재확인** | 주인님 신고(확장.png) | `ai-auto-blog/AGENTS.md` "추천 링크가 4번 들어가던 문제" |
 | BLOG 확장 부제 문구 (ai-auto-blog v1.26) | 확장 제목 밑 문구를 주인님 문안으로 교체 | 주인님 지시 | `ai-auto-blog/AGENTS.md` "확장 부제 문구" |
