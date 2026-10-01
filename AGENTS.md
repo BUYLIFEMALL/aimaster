@@ -502,6 +502,8 @@ vercel deploy --prod --yes --scope buylife
 - **서브프로젝트를 단독 배포로 옮길 때 환경변수는 그 서브프로젝트의 `.env.local`이 아니라 루트 `.env.local`(공용 DB) 값을 기준으로 넣는다.**
   BLOG의 `.env.local`에는 없어진 옛 Supabase 프로젝트 주소가 남아 있어서, 그대로 옮겼다가 로그인이 "fetch failed"로 전부 실패했다.
   넣은 뒤에는 주소에 공용 프로젝트 ID(`esgxyikcnnvmlhygjkth`)가 들어 있는지 꼭 확인할 것.
+- **여러 프로그램이 함께 쓰는 Storage 버킷(`post-images` 등)에서 자동 삭제 작업을 만들 때는 반드시 그 프로그램 폴더만 지운다.**
+  BLOG의 30일 정리 작업(`blog/app/api/cron/cleanup-images`)은 `<회원 id>/ai-auto-blog/` 안만 본다 — threads·insta·naver-cafe 파일이 같은 버킷에 있다.
 - 상세: `blog/AGENTS.md` "독립 배포 분리".
 
 ### 2026-09-29 추가 (좌측 사이드바 계정 표시 통일)

@@ -38,6 +38,7 @@
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
 | 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
+| BLOG 이미지 보관 기간 30일 (ai-auto-blog v1.13) | Storage의 BLOG 이미지(`<회원id>/ai-auto-blog/`만)를 만든 지 30일 지나면 매일 03시(KST) 자동 삭제(Vercel Cron + `CRON_SECRET`). 설정 화면·AI 글쓰기 화면에 보관 기간·다른 블로그로 옮길 때 주의사항 안내 | 주인님 지시 | `blog/AGENTS.md` "이미지 보관 기간 30일" |
 | BLOG 이미지 저장소 전환 (ai-auto-blog v1.12) | 모든 회원·모든 이미지(자동 생성·편집기 AI·첨부)를 Supabase Storage `post-images/<회원id>/ai-auto-blog/`에 저장, Cloudinary 연동 삭제. 기존 base64 글 3개(각 12MB) 이미지 9장 이전 → 20~25KB | 주인님 지시 | `blog/AGENTS.md` "이미지 저장소 전환" |
 | BLOG 이미지 프롬프트 섹션 숨김 (ai-auto-blog v1.11) | 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션을 새 글에서 만들지 않고, 기존 글은 보기·편집 화면에서 걷어냄 | 주인님 지시 | `blog/AGENTS.md` "이미지 프롬프트 섹션 숨김" |
 | BLOG 주소 입력 자동 보정 (ai-auto-blog v1.10) | 추천 링크·참고 링크에 `buylife.blog`처럼 넣어도 `https://`를 자동으로 붙임(브라우저 "URL을 입력하세요" 차단 해제) | 주인님 요청(ur.png) | `blog/AGENTS.md` "주소 입력 자동 보정" |

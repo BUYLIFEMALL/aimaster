@@ -25,6 +25,7 @@ import {
   resolveImageModel,
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
+import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 
 interface CategoryOption {
   id: number
@@ -562,6 +563,8 @@ function AiFormPageInner() {
                 <p className="text-[11px] text-slate-500">해상도가 높을수록 생성 시간과 비용이 늘어납니다.</p>
               </div>
             </div>
+
+            <ImageStorageNotice compact />
 
             <details className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
               <summary className="cursor-pointer text-xs font-bold text-slate-600">고급 설정 (선택) — 이번 글에만 쓸 키·엔드포인트</summary>

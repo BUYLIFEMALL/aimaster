@@ -156,3 +156,18 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 - **기존 글 이전**: `scripts/migrate-base64-images.mjs`로 글 100·105·106번의 base64 이미지 9장을 Storage로 옮기고 본문을 주소로 바꿨다
   (각 12.0~12.6MB → 20~25KB). 실행 전 원본 본문은 작업자 PC 임시 폴더에 백업했고, 운영 화면에서 세 글 모두 정상 표시를 확인했다.
   다시 base64 글이 생기면 같은 스크립트를 `--dry-run`으로 먼저 확인한 뒤 실행한다.
+
+# 이미지 보관 기간 30일 자동 삭제 + 회원 안내 (2026-10-01, v1.13)
+
+주인님 지시("데이터 누적을 막기 위해 보관 기간은 1달, 사용자들이 인지할 수 있도록 정리해서 보기 좋게 노출"):
+
+- **보관 기간 값**: `utils/imageRetention.ts`의 `IMAGE_RETENTION_DAYS = 30` — 정리 작업과 안내 문구가 이 값 하나를 쓴다.
+- **정리 작업**: `app/api/cron/cleanup-images/route.ts`. Vercel Cron(`blog/vercel.json`, `0 18 * * *` = 매일 한국 시간 03:00)이 호출한다.
+  - `Authorization: Bearer <CRON_SECRET>`이 맞을 때만 실행(Vercel이 자동으로 붙임). `CRON_SECRET`은 Vercel ai-auto-blog production 환경변수(민감값)로 등록했다.
+  - **`post-images` 버킷은 threads·insta·naver-cafe와 공용이라 `<회원 id>/ai-auto-blog/` 폴더 안의 파일만** 만든 지 30일이 지나면 지운다.
+  - `?dry=1`을 붙이면 지우지 않고 대상 개수만 알려준다. 배포 직후 확인: 키 없이 401, 키+dry → `checked 9, expired 0`(이전한 9장, 아직 30일 안 됨).
+  - 지워진 이미지는 글 안에서 깨진 이미지로 보인다. 글 제목·본문 글자는 지우지 않는다.
+- **회원 안내**: `components/settings/ImageStorageNotice.tsx` — 설정 화면에는 전체 안내(저장 방식·30일 자동 삭제·다른 블로그에 옮길 때
+  이미지를 내려받아 직접 올리기·"본문 복사"로 붙인 이미지도 같은 주소라 기간 후 안 보임·글자는 안 지워짐), AI 글쓰기 화면의
+  이미지 생성 설정 카드에는 짧은 안내(`compact`)를 노란 박스로 보여준다.
+- 참고: 기존 글 100·105·106번의 이전한 이미지도 이전한 날(2026-10-01)부터 30일 뒤 지워진다.
