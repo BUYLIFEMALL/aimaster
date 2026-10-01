@@ -41,7 +41,8 @@
 - 0단계 완료: `inspector-extension/`(읽기 전용 조사 확장). 가짜 화면(headless Chromium)으로 수집 함수 동작·내용 미누출 확인. **실제 티스토리 화면에서는 아직 실행하지 않았다.**
 - 계획·결정 기본값(§1)·단계(§3)·미확인 사항(§4) 문서화.
 - **1단계 완료**(뼈대·복제·치환·단독 빌드 통과, `APP_VERSION v1.01`), **2단계 완료**(`0001_tistory_init.sql`: 로컬 PG16 적용·격리 테스트 통과, 운영 DB는 PG 17.6 확인). 보안·격리 차이는 `AGENTS.md`의 "ai-auto-blog와 달라진 점".
-- 아직 안 한 것: 서버 변환기(3단계)·확장 입력 코드(4단계, 현재 `extension/`은 티스토리 구조를 읽기만 하는 조사 모드), 매뉴얼, `programs` 등록, 배포.
+- 운영 최초 배포 완료: 공용 DB에 `0001_tistory_init.sql` 적용·owner-only RLS 검증, `programs`/기본 3단계 요금제 등록(`v1.01`), Vercel Production `https://tistory-auto-blog-pearl.vercel.app` 배포. `/preview`는 200, 회원용 `/`은 로그인 이동 307을 확인했다.
+- 아직 안 한 것: 서버 변환기(3단계)·확장 입력 코드(4단계, 현재 `extension/`은 티스토리 구조를 읽기만 하는 조사 모드), 회원용 연동 매뉴얼.
 - 로컬 시안 `/preview` 추가: 원문 생성·이미지 준비·티스토리 입력·직접 발행 확인이라는 전체 화면 흐름을 Supabase 없이 확인할 수 있다. 실제 회원 기능이나 확장 입력 기능은 아니며, 운영 배포 대상도 아니다.
 
 ### 로컬 시작 순서
@@ -70,9 +71,9 @@
 | 1 | `git fetch origin && git status` → master에서 `git merge --no-ff origin/cloud-work -m "merge: cloud-work (tistory-auto-blog)"` | ✅ 완료: `df2f3cd`, `master`·`cloud-work` 원격 동기화 |
 | 2 | `cd tistory-auto-blog && npm ci && npm run build` | ✅ 빌드 통과. Google Fonts 외부 요청 실패를 막기 위해 시스템 글꼴로 전환. ZIP은 확장 완성 전까지 검증용이므로 삭제·미커밋. ⚠️ 복제 원본 ESLint 오류 53개는 별도 정리 필요 |
 | 3 | **조사 확장 실행(주인님 PC)**: `extension/` 폴더를 압축 해제 로드 → 티스토리 글쓰기 화면 상태별 분석 → JSON을 Claude 대화에 첨부 | 3·4단계의 선행 조건. 현재 `extension/`은 티스토리 구조를 읽기만 하며 글 입력·발행을 하지 않음 |
-| 4 | DB 마이그레이션 적용(주인님 승인): `supabase/migrations/0001_tistory_init.sql`을 MCP `apply_migration`(또는 SQL Editor)으로 | 운영 DB 이미 확인: PostgreSQL 17.6, `public.set_updated_at()` 있음, `tistory_*` 테이블 아직 없음. 적용 후 `pg_policies`로 `tistory_*` 정책이 전부 `auth.uid() = user_id`인지, `anon` 정책이 없는지 확인(`PLATFORM_PATTERNS` §18: 파일 ≠ 적용) |
-| 5 | `programs` 등록: slug `tistory-auto-blog`, 이름 "티스토리(원문)생성 자동화"(가칭), `version='v1.01'`, 카테고리·요금제·이용 권한(핵심 원칙 6번), 썸네일(§13 실사 원칙), `app_url`은 배포 주소 | 관리자 `/admin` 프로그램 등록 화면 또는 SQL |
-| 6 | Vercel 프로젝트 생성(`cd tistory-auto-blog && npx vercel link --scope buylife`), 환경변수 `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`·`SUPABASE_SERVICE_ROLE_KEY`(값은 루트 `.env.local` 기준 — `ERROR_LESSONS` C: 옛 Supabase 주소 주의)·`NEXT_PUBLIC_MAIN_SITE_URL`·`CRON_SECRET`, 배포 후 주요 경로 `curl`로 200/307 확인 | `vercel.json`의 `framework: nextjs`·크론(03시 KST) 유지. AI 키는 넣지 않음 |
+| 4 | DB 마이그레이션 적용 | ✅ `tistory_auto_blog_init` 적용 완료. `tistory_*` 5개 owner-only RLS 정책은 `authenticated` + `auth.uid() = user_id`로 검증. |
+| 5 | `programs` 등록 | ✅ 블로그 카테고리에 `tistory-auto-blog`, `version='v1.01'`, 기본 3단계 요금제·실사 썸네일·`coming` 배지로 등록. |
+| 6 | Vercel 프로젝트·환경변수·배포 | ✅ `buylife/tistory-auto-blog`, Production `https://tistory-auto-blog-pearl.vercel.app`. 공용 DB·서비스 롤·크론 환경값 등록, `/preview` 200·`/` 307 확인. |
 | 7 | 배포 주소가 정해지면 확장 `BASE`·`host_permissions`·`sidepanel.html` 링크의 임시 주소 `https://tistory-auto-blog.vercel.app` 교체 | 4단계 코드 작성 때 함께 |
 | 8 | 3단계(서버 변환기 `utils/extensionContent.ts` 티스토리용 수정) → 4단계(확장 `extension/` 티스토리 교체: 이름·아이콘·host_permissions·편집기 조작) → 5단계(`platform_guides` 매뉴얼, 설정 화면 박스) | 조사 JSON 근거 필수(§20 규칙 3) |
 | 9 | 루트 `app/api/admin/system-usage/route.ts`의 `post-images` 사용량 표에 티스토리 반영 확인 | 같은 버킷 `<회원id>/tistory-auto-blog/` 사용 |

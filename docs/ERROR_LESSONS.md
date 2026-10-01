@@ -123,6 +123,11 @@
 
 ## G. 독립 앱 빌드
 
+- **[2026-10-01 · tistory-auto-blog v1.01] `pricing_plans` 등록 전 조회가 `created_at` 없음으로 실패**
+  - 원인: 다른 테이블 관례를 적용해 `pricing_plans.created_at`으로 정렬을 가정했지만, 이 테이블에는 그 칼럼이 없다.
+  - 해결: `information_schema.columns`로 실제 스키마를 확인하고 `sort_order` 기준으로 기본 3단계 요금제를 등록했다.
+  - 다음부터 확인: 공용 테이블의 데이터 등록·검증 SQL은 칼럼을 추측하지 말고 먼저 스키마를 조회한다.
+
 - **[2026-10-01 · tistory-auto-blog v1.01] 독립 빌드가 Google Fonts 요청 실패로 중단됨**
   - 원인: 복제한 `app/layout.tsx`가 `next/font/google`의 Inter를 빌드 시 내려받아, 네트워크가 제한된 환경에서 컴파일이 실패했다.
   - 해결: 외부 폰트 import를 제거하고 CSS 시스템 글꼴 토큰으로 전환했다(`tistory-auto-blog/app/layout.tsx`, `app/globals.css`). `npm run build` 통과.
