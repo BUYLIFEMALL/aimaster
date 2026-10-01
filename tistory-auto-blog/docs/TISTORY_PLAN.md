@@ -61,3 +61,21 @@
 - 이 폴더의 작업이 끝날 때마다 `AGENTS.md` 진행 상태 표, `docs/HANDOFF.md`, 에러·점검 사항은 `docs/ERROR_LESSONS.md`에 같은 커밋으로 기록한다(핵심 원칙 7번).
 - 결정 ①(새 서브프로젝트) ②(A안: 기본모드 한 글자씩) ③(1차 범위)는 **추천안으로 정한 임시 기본값**이다. 주인님이 바꾸면 §1부터 고친다. B안(HTML 모드 붙여넣기)은 §20과 충돌 소지가 있어 1차 완성 뒤 별도 결정.
 
+### 로컬 작업 목록 (2026-10-01 최종 정리 — 이 순서대로)
+**상태 기준**: `cloud-work` 최신 커밋 `97b8295` 이후. 이 시점에 master(`02641f1`)와 병합 시 충돌 없음을 `git merge-tree`로 확인함(master가 그 사이 움직였다면 다시 확인).
+
+| 순서 | 할 일 | 비고 |
+|---|---|---|
+| 1 | `git fetch origin && git status` → master에서 `git merge --no-ff origin/cloud-work -m "merge: cloud-work (tistory-auto-blog)"` | 다른 CLI 미커밋 변경 확인 먼저. 병합 후 `git push origin master`, 이어서 `git push origin master:cloud-work`(클라우드 브랜치도 맞춤) |
+| 2 | `cd tistory-auto-blog && npm ci && npm run build` | 빌드 시 `public/downloads/tistory-auto-blog-extension-v1.01.zip`이 생긴다 — **확장 완성 전에는 커밋하지 말고 지운다**(지금 `extension/`은 네이버용 복사본) |
+| 3 | **조사 확장 실행(주인님 PC)**: `inspector-extension/README.md` → JSON을 Claude 대화에 첨부 | 3·4단계의 선행 조건 |
+| 4 | DB 마이그레이션 적용(주인님 승인): `supabase/migrations/0001_tistory_init.sql`을 MCP `apply_migration`(또는 SQL Editor)으로 | 운영 DB 이미 확인: PostgreSQL 17.6, `public.set_updated_at()` 있음, `tistory_*` 테이블 아직 없음. 적용 후 `pg_policies`로 `tistory_*` 정책이 전부 `auth.uid() = user_id`인지, `anon` 정책이 없는지 확인(`PLATFORM_PATTERNS` §18: 파일 ≠ 적용) |
+| 5 | `programs` 등록: slug `tistory-auto-blog`, 이름 "티스토리(원문)생성 자동화"(가칭), `version='v1.01'`, 카테고리·요금제·이용 권한(핵심 원칙 6번), 썸네일(§13 실사 원칙), `app_url`은 배포 주소 | 관리자 `/admin` 프로그램 등록 화면 또는 SQL |
+| 6 | Vercel 프로젝트 생성(`cd tistory-auto-blog && npx vercel link --scope buylife`), 환경변수 `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`·`SUPABASE_SERVICE_ROLE_KEY`(값은 루트 `.env.local` 기준 — `ERROR_LESSONS` C: 옛 Supabase 주소 주의)·`NEXT_PUBLIC_MAIN_SITE_URL`·`CRON_SECRET`, 배포 후 주요 경로 `curl`로 200/307 확인 | `vercel.json`의 `framework: nextjs`·크론(03시 KST) 유지. AI 키는 넣지 않음 |
+| 7 | 배포 주소가 정해지면 확장 `BASE`·`host_permissions`·`sidepanel.html` 링크의 임시 주소 `https://tistory-auto-blog.vercel.app` 교체 | 4단계 코드 작성 때 함께 |
+| 8 | 3단계(서버 변환기 `utils/extensionContent.ts` 티스토리용 수정) → 4단계(확장 `extension/` 티스토리 교체: 이름·아이콘·host_permissions·편집기 조작) → 5단계(`platform_guides` 매뉴얼, 설정 화면 박스) | 조사 JSON 근거 필수(§20 규칙 3) |
+| 9 | 루트 `app/api/admin/system-usage/route.ts`의 `post-images` 사용량 표에 티스토리 반영 확인 | 같은 버킷 `<회원id>/tistory-auto-blog/` 사용 |
+| 10 | **별도 작업**: ai-auto-blog 운영 DB 정책·`GET /api/posts/[id]` 점검(`docs/HANDOFF.md` #5, `docs/ERROR_LESSONS.md` C 2026-10-01 cloud 항목) | 티스토리와 무관하게 진행 가능. 영향 범위(공개 글 보기, 카탈로그) 확인 후 정책 교체, BLOG 버전 +0.01·DB `programs.version` 동기화, 주인님 승인 |
+
+작업이 끝날 때마다 `AGENTS.md` 진행 상태 표, `docs/HANDOFF.md`, `PROGRESS.md` 5번 표(로컬 병합·배포 결과 칸)를 같은 커밋으로 갱신한다.
+
