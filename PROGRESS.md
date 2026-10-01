@@ -11,7 +11,7 @@
 > **클라우드 세션이면 먼저 [`docs/CLOUD_SESSION.md`](docs/CLOUD_SESSION.md)** — `cloud-work` 브랜치 확인, `git merge origin/master`, 배포·버전·DB 쓰기는 하지 않음.
 
 1. 루트 `CLAUDE.md` → `docs/HANDOFF.md` → `docs/ERROR_LESSONS.md`를 읽는다(핵심 원칙 7번: 작업 전 필독, 에러 해결 시 같은 커밋에 기록).
-2. `git log --oneline -10`으로 최신 커밋이 이 파일 작성 시점(`9f93041`, BLOG v1.32) 이후인지 확인한다 — 다른 CLI(Codex 등)가 같은 저장소에서 동시에 작업한다.
+2. `git log --oneline -10`으로 최신 커밋이 이 파일 갱신 시점(`7b94cc5` 로그인 폼 통일 이후, BLOG v1.33) 이후인지 확인한다 — 다른 CLI(Codex 등)가 같은 저장소에서 동시에 작업한다.
 3. 고칠 서브프로젝트의 `AGENTS.md`/`README.md`를 먼저 읽는다.
 4. 답변은 **쉬운 한글 존댓말**(-습니다/-합니다), 사용자 호칭은 **"주인님"**.
 
@@ -19,7 +19,7 @@
 
 ## 1. 지금까지 한 작업 (이번 로컬 세션, 2026-09-29 ~ 10-01 중심)
 
-### 1-1. BLOG(원문)생성 자동화 — 서브폴더 `ai-auto-blog/`, slug `ai-auto-blog`, 현재 **v1.32**
+### 1-1. BLOG(원문)생성 자동화 — 서브폴더 `ai-auto-blog/`, slug `ai-auto-blog`, 현재 **v1.33**
 - 주소: https://ai-auto-blog-one.vercel.app (Vercel 프로젝트 `ai-auto-blog`). 예전 `www.buylife.xyz/blog/*`는 새 주소로 넘김.
 - 주요 변경 이력(자세한 내용은 `ai-auto-blog/AGENTS.md`):
 
@@ -33,8 +33,13 @@
 | v1.19 | **확장 버전 자동 동기화**: `npm run build`의 `prebuild`가 `utils/version.ts` 버전을 `extension/manifest.json`에 넣고 ZIP(`public/downloads/ai-auto-blog-extension-<버전>.zip`)을 새로 만든다 |
 | v1.28~1.29 | 확장 "추천테그 추출" — SEO 스튜디오 v1.59 코드를 그대로 복사(규칙 바뀌면 같이 맞출 것) |
 | v1.30~1.32 | 배지 "N일 후 자동삭제", **이미지 장수 1~5장 선택**(1번 = 글 전체 대표 제목용, 나머지는 문단 4개를 묶음으로 나눠 맡음: 3장=[1~2][3~4] 등), 본문 소제목·문단 3→4개 |
+| v1.33 | 좌측 "다른 프로그램 보기" → 메인 대시보드(아래 1-2 로그인 폼 통일 작업의 일부) |
 
 ### 1-2. 플랫폼 공통
+- **로그인 폼 통일(2026-10-01, 커밋 `7b94cc5`)**: 24개 프로그램 로그인 화면을 BLOG 로그인 폼 모양(격자 배경·파란 프로그램 이름·[로그인|회원가입] 탭)으로 통일,
+  26개 프로그램(+ai-image-studio, ai-auto-blog) 좌측 "← 다른 프로그램 보기"를 `/blog/dashboard` → `https://www.buylife.xyz/dashboard`로 교체.
+  각 프로그램 버전 +0.01(코드·DB), 26개 전부 프로덕션 배포·라이브 `/login` 200 확인. 기준 문서 `docs/PLATFORM_PATTERNS.md` §29.
+  예외: SEO 스튜디오(Codex — 남은 일 표 9번), 메인 사이트 `/login`(금색 디자인 유지), tistory-auto-blog(작업 중).
 - 핵심 원칙 **5번(버전 관리 vX.YY)**, **6번(이용 권한: FREE 배지 → 구독 → 등급+사용기간)**, **7번(에러 해결 기록 `docs/ERROR_LESSONS.md`)** 추가.
 - `GEMINI.md` 신설(Gemini CLI도 같은 규칙), `docs/PLATFORM_PATTERNS.md` §28(웹 → 크롬 확장 → 네이버 편집기 입력 패턴) 신설.
 - 그 전(9/29~9/30): 쇼핑제휴(`threads-affiliate-poster`) 쿠팡·알리 이미지/링크 수정, 사이드바 표준화, 클론 키트, 권한 정책 통일 등 — `docs/HANDOFF.md` §2 참고.
@@ -52,7 +57,8 @@
 | 5 | 회원 계정 동작 확인(쇼핑제휴 /trends, 댓글자동화, 사이드바 계정 표시) | 주인님 테스트 | `docs/HANDOFF.md` §1 |
 | 6 | 티스토리 블로그 자동화(BLOG 방식, 웹 + 크롬 확장) | 기획·0단계(조사 확장) 완료, **주인님 PC에서 조사 실행 → JSON 전달 대기**. 로컬에서 이어감 | `tistory-auto-blog/docs/TISTORY_PLAN.md` §6 |
 | 7 | (선택) BLOG 해시태그에도 본문 필터 적용 — SEO 규칙은 키워드를 그대로 살려 "위한·주목해야" 같은 말이 남음 | 주인님 결정 대기 | `ai-auto-blog/AGENTS.md` v1.29 |
-| 8 | (Codex 담당) SEO 스튜디오 확장 타이핑 속도 24~52ms → §20 기준 70~170ms, 태그 "투자협의→투자협" 잘림 | Codex에 전달 | `docs/ERROR_LESSONS.md` D |
+| 8 | (Codex 담당) SEO 스튜디오 확장 타이핑 속도 24~52ms → §20 기준 70~170ms, 태그 "투자협의→투자협" 잘림, **`components/StudioPage.tsx`의 "다른 프로그램 보기" 링크를 메인 대시보드로 + 로그인 화면 §29 레이아웃 적용** | Codex에 전달 | `docs/ERROR_LESSONS.md` D, `docs/HANDOFF.md` §1-9 |
+| 9 | 로그인 폼 통일 실사용 확인 — 회원 계정으로 1~2개 프로그램 로그인 후 원래 화면으로 돌아가는지, "다른 프로그램 보기"가 메인 대시보드로 가는지 | 주인님 테스트 | `docs/PLATFORM_PATTERNS.md` §29 |
 
 ---
 

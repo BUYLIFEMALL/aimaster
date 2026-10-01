@@ -5,8 +5,8 @@
 > 이 문서는 "최근에 무엇을 했고, 무엇이 멈춰 있고, 다음에 무엇을 하면 되는지"만 모은다.
 > 작업을 끝낼 때마다 아래 1·2·3번 표를 갱신하고 같은 커밋에 포함할 것.
 
-- 최종 갱신: 2026-10-01 (Codex 세션)
-- 기준 커밋: `eb0b072` (master, origin과 동기화됨)
+- 최종 갱신: 2026-10-01 (Claude 세션 — 로그인 폼 통일 배포 후 남은 일 정리)
+- 기준 커밋: `7179bab` 이후 (master, origin과 동기화됨)
 
 ---
 
@@ -17,6 +17,12 @@
 | 1 | Meta 앱 심사 (`threads_keyword_search` 고급 액세스) | ⏸ **비즈니스 인증 재제출 후 결과 대기**. 결과가 나오면 → 액세스 인증 → 데이터 처리 질문 → 앱 검수 제출 순서로 재개. 제출에는 심사관 테스트 계정과 시연 영상이 필요 | 주인님(Meta 화면) + 개발 | `threads-affiliate-poster/docs/META_APP_REVIEW.md` §0 |
 | 3 | 회원 계정으로 실제 동작 확인 | 쇼핑제휴 `/trends`(직접 가져오기·검색 필터·AI 모델별 캡션·내 페르소나), 댓글자동화 `threads_read_replies` 재연동 후 댓글 테스트, 20개 프로그램 사이드바 하단 계정 표시 | 주인님(테스트) | 각 서브프로젝트 `AGENTS.md` |
 | 4 | 티스토리 블로그 자동화 (`tistory-auto-blog/`, BLOG 방식 = 웹 + 크롬 확장) | 🟡 **0~2단계 완료**(2026-10-01 클라우드 `cloud-work` → 로컬 병합 `df2f3cd`): 계획·서브프로젝트 뼈대(v1.01)·DB 마이그레이션 파일(로컬 PG16 격리 테스트 통과, 운영 미적용). Google Fonts 의존 제거 뒤 독립 빌드 통과. BLOG 방식의 전체 화면 흐름은 로컬 정적 시안 `/preview`로 확인 가능. `extension/`을 티스토리 권한만 쓰는 읽기 전용 조사 모드로 전환했으므로 **다음: 주인님 PC에서 `extension/`을 압축 해제 로드 → JSON 전달 → 서버 변환기·실제 입력 코드(3·4단계).** 아직 `programs` 미등록·미배포·버전 없음(완성 시 v1.01). 복제 원본 ESLint 오류 53개는 별도 정리 필요 | 주인님(조사 실행) + 개발 | `tistory-auto-blog/docs/TISTORY_PLAN.md` §6, `tistory-auto-blog/AGENTS.md` |
+| 6 | BLOG(ai-auto-blog v1.33) 실제 사용 확인 | ① 이미지 1~5장 선택 시 제목용·문단 이미지 배치 ② 확장으로 네이버 입력 시 추천 링크가 **실제 링크 1개만** 들어가는지(v1.27 수정 후) ③ 추천테그 추출 결과 ④ 회원 계정으로 로그인→글 생성. 실제 생성은 회원 키 유료 호출이라 **에이전트가 임의 실행 금지** | 주인님(테스트) | `ai-auto-blog/AGENTS.md` |
+| 7 | GPT-6 계열 본문 생성 1회 검증 (BLOG) | 유료 — 주인님 승인 후 실행 | 개발 | `ai-auto-blog/AGENTS.md` v1.09 |
+| 8 | BLOG 30일 자동 삭제 첫 실행 결과 확인 | 📅 **2026-11-01 03:00 KST** 첫 실행(기존 데이터 10/1부터 유예). 다음 날 삭제 건수·Storage 정리 확인 | 개발 | `ai-auto-blog/app/api/cron/cleanup-images` |
+| 9 | (Codex 담당) SEO 스튜디오 남은 3가지 | ① `naver-blog-seo-studio/components/StudioPage.tsx`의 "다른 프로그램 보기" 링크 `/blog/dashboard` → `https://www.buylife.xyz/dashboard`(다른 프로그램은 2026-10-01 교체 완료) ② 로그인 화면을 `docs/PLATFORM_PATTERNS.md` §29 레이아웃으로 ③ 확장 타이핑 속도 24~52ms → §20 기준 70~170ms. 고친 뒤 버전 +0.01(코드·DB) | Codex | `docs/ERROR_LESSONS.md` D, §29 |
+| 10 | (선택) BLOG 해시태그에도 본문 필터 적용 | SEO 규칙을 그대로 복사해 "위한·주목해야" 같은 말이 남을 수 있음 | 주인님 결정 대기 | `ai-auto-blog/AGENTS.md` v1.29 |
+| 11 | 로그인 폼 통일 실사용 확인 (24개 프로그램) | 모든 라이브 `/login` 200·새 문구 확인 완료. 남은 것: 회원 계정으로 아무 프로그램 1~2개 로그인 → `?redirect` 경로로 돌아가는지, 좌측 "다른 프로그램 보기"가 메인 대시보드로 가는지 | 주인님(테스트) | `docs/PLATFORM_PATTERNS.md` §29 |
 | 5 | ⚠️ ai-auto-blog 운영 DB 정책·API 점검 | `blog_*` 테이블이 anon 읽기·모든 회원의 카테고리 변경 등으로 열려 있고 `GET /api/posts/[id]`가 인증 없음(읽기 조회로 확인, **미수정**). 영향 범위 확인 후 정책 교체·API 인증 추가(버전 +0.01, 주인님 승인) | 로컬 + 주인님 | `docs/ERROR_LESSONS.md` C 섹션 2026-10-01(cloud) 항목 |
 
 **주의**: `naver-blog-seo-studio/`는 주로 Codex가 작업하는 폴더다. 2026-09-30 주인님 지시로 Claude가 권한 규칙만 적용했다(v1.03).
