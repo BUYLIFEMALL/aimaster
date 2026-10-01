@@ -55,9 +55,16 @@
     <section class="card">
       <h2>카테고리·태그 설정</h2>
       <p class="hint">저장한 카테고리·태그는 콘텐츠 입력 완료 후 자동으로 설정합니다. 이 버튼은 자동 입력이 실패했을 때 다시 실행하는 용도이며, 네이버의 마지막 발행 버튼은 직접 누릅니다.</p>
-      <input id="publishCategory" placeholder="카테고리 전체 이름 (예: 국내 여행)">
-      <input id="publishTags" placeholder="태그 (쉼표로 구분, 예: 여행, 단풍, 가을)">
+      <div class="publish-field">
+        <label for="publishCategory">카테고리명</label>
+        <input id="publishCategory" placeholder="카테고리 전체 이름 (예: 국내 여행)">
+      </div>
+      <div class="publish-field">
+        <label for="publishTags">추천테그</label>
+        <input id="publishTags" placeholder="추천테그 추출 후 직접 수정할 수 있습니다">
+      </div>
       <div class="publish-actions">
+        <button id="extractRecommendedTags" class="secondary">추천테그 추출</button>
         <button id="savePublishSettings" class="secondary">카테고리·태그 저장</button>
         <button id="fillPublishInfo" class="primary">카테고리·태그 다시 입력</button>
       </div>

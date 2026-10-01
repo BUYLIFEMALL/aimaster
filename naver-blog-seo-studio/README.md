@@ -2,7 +2,7 @@
 
 ## 프로그램 버전
 
-- 회원용 앱·확장 프로그램 공개 버전: `v1.56` (`lib/version.ts`의 `APP_VERSION`, 공용 `programs.version`, 확장 `manifest.json`의 `version_name`, 다운로드 ZIP을 같은 값으로 유지)
+- 회원용 앱·확장 프로그램 공개 버전: `v1.57` (`lib/version.ts`의 `APP_VERSION`, 공용 `programs.version`, 확장 `manifest.json`의 `version_name`, 다운로드 ZIP을 같은 값으로 유지)
 - 최신 CLI 인수인계: [`CLI_HANDOFF_2026-10-01.md`](./CLI_HANDOFF_2026-10-01.md)
 - 데이터 보관·삭제 정책: [`DATA_RETENTION.md`](./DATA_RETENTION.md)
 - 작은 기능·화면·버그 수정 배포마다 두 공개 버전을 함께 `0.01` 올립니다. 메이저 버전은 주인님 지시가 있을 때만 올립니다.

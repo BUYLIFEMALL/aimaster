@@ -143,6 +143,34 @@ test("limits editor structure inspection to a server-verified admin extension se
   assert.match(extensionAuth, /isAdmin: Boolean\(profile\.is_admin\)/);
 });
 
+test("extracts publish tag recommendations from the selected content topic, keywords, and body", () => {
+  const source = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
+  const start = source.indexOf("const TAG_STOP_WORDS");
+  const end = source.indexOf("function formatWebDraftLabel");
+  const sandbox = vm.createContext({});
+  vm.runInContext(source.slice(start, end), sandbox);
+  const tags = sandbox.buildRecommendedTags({
+    topic: "AI 자동화",
+    keywords: ["업무 자동화", "생성형 AI"],
+    title: "AI 자동화로 업무 효율을 높이는 방법",
+    body: "AI 자동화는 반복 업무를 줄입니다. 업무 자동화는 데이터 분석과 고객 응대에 활용됩니다. AI 자동화 도입 전에는 업무 프로세스를 점검합니다.",
+  });
+  assert.ok(tags.includes("AI 자동화"));
+  assert.ok(tags.includes("업무 자동화"));
+  assert.ok(tags.includes("생성형 AI"));
+  assert.ok(tags.includes("자동화"));
+});
+
+test("places category and recommendation labels beside their publish inputs", () => {
+  const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../../extension/styles.css", import.meta.url), "utf8");
+  assert.match(panel, /<label for="publishCategory">카테고리명<\/label>/);
+  assert.match(panel, /<label for="publishTags">추천테그<\/label>/);
+  assert.match(panel, /id="extractRecommendedTags" class="secondary">추천테그 추출/);
+  assert.match(styles, /\.publish-field\{display:grid;grid-template-columns:76px minmax\(0,1fr\)/);
+  assert.match(styles, /\.publish-actions\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+});
+
 test("automates only the publish-settings opening step and leaves final publishing to the user", () => {
   const panel = readFileSync(new URL("../../extension/sidepanel.html", import.meta.url), "utf8");
   const script = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");

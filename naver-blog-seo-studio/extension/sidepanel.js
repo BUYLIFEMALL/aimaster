@@ -14,7 +14,12 @@ let activeWebDraftBlocks = [];
 let activeWebDraftTitle = "";
 let activeWebDraftBody = "";
 let activeWebDraftCoverDataUrl = "";
+let activeWebDraftTopic = "";
 let isAdmin = false;
+
+const TAG_STOP_WORDS = new Set([
+  "그리고", "하지만", "또한", "따라서", "그래서", "이러한", "이것은", "그것은", "이번", "오늘", "최근", "경우", "부분", "관련", "통해", "대해", "위해", "대한", "중요", "필요", "가능", "사용", "적용", "도입", "방법", "내용", "정보", "결과", "기능", "과정", "분야", "상황", "하나", "여러", "모든", "각각", "실제", "더욱", "가장", "먼저", "다음", "이후", "이전", "현재", "때문", "때문에", "있습니다", "있으며", "있습니다", "합니다", "됩니다", "합니다", "한다", "되는", "있는", "없는", "같은", "것을", "것이", "에서", "으로", "에게",
+]);
 
 function resetActiveWebDraft() {
   activeWebDraftId = "";
@@ -24,6 +29,7 @@ function resetActiveWebDraft() {
   activeWebDraftTitle = "";
   activeWebDraftBody = "";
   activeWebDraftCoverDataUrl = "";
+  activeWebDraftTopic = "";
   $("webDraftTagSuggestion").hidden = true;
   $("webDraftTagList").textContent = "";
 }
@@ -38,6 +44,45 @@ function renderExtensionVersion() {
 function getWebDraftTags(draft) {
   const rawKeywords = Array.isArray(draft.keywords) ? draft.keywords : String(draft.keywords || "").split(",");
   return [...new Set(rawKeywords.map((tag) => String(tag).trim().replace(/^#+/, "")).filter((tag) => tag.length >= 2))].slice(0, 10);
+}
+
+function normalizeTagCandidate(value) {
+  return String(value || "")
+    .replace(/^#+/, "")
+    .replace(/["'“”‘’()[\]{}<>]/g, " ")
+    .replace(/[은는이가을를의에도와과로으로부터까지만보다처럼마다조차]$/u, "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 30);
+}
+
+function buildRecommendedTags({ topic, keywords, title, body }) {
+  const tags = [];
+  const seen = new Set();
+  const add = (value) => {
+    const tag = normalizeTagCandidate(value);
+    const key = tag.toLocaleLowerCase("ko-KR");
+    if (tag.length < 2 || TAG_STOP_WORDS.has(key) || seen.has(key)) return;
+    seen.add(key);
+    tags.push(tag);
+  };
+
+  add(topic);
+  for (const keyword of Array.isArray(keywords) ? keywords : []) add(keyword);
+
+  const source = `${title || ""}\n${body || ""}`;
+  const frequency = new Map();
+  for (const rawWord of source.match(/[가-힣A-Za-z0-9][가-힣A-Za-z0-9+.-]{1,29}/g) || []) {
+    const word = normalizeTagCandidate(rawWord);
+    const key = word.toLocaleLowerCase("ko-KR");
+    if (word.length < 2 || TAG_STOP_WORDS.has(key)) continue;
+    frequency.set(key, { word, count: (frequency.get(key)?.count || 0) + 1 });
+  }
+  [...frequency.values()]
+    .filter((item) => item.count >= 2)
+    .sort((a, b) => b.count - a.count || b.word.length - a.word.length || a.word.localeCompare(b.word, "ko-KR"))
+    .forEach((item) => add(item.word));
+  return tags.slice(0, 10);
 }
 
 function formatWebDraftLabel(draft) {
@@ -140,6 +185,7 @@ async function loadSelectedWebDraft() {
   activeWebDraftContentImages = [];
   activeWebDraftBlocks = [];
   activeWebDraftId = draft.id;
+  activeWebDraftTopic = draft.topic || "";
   activeWebDraftTitle = draft.title || "";
   activeWebDraftBody = draft.body || "";
   activeWebDraftCoverDataUrl = "";
@@ -921,6 +967,25 @@ $("applyWebDraftTags").addEventListener("click", () => {
   if (!activeWebDraftTags.length) return ($("webDraftStatus").textContent = "먼저 콘텐츠를 불러오세요.");
   $("publishTags").value = activeWebDraftTags.join(", ");
   $("webDraftStatus").textContent = "추천 태그를 적용했습니다. 필요하면 수정한 뒤 카테고리·태그 입력을 실행하세요.";
+});
+
+$("extractRecommendedTags").addEventListener("click", () => {
+  if (!activeWebDraftId || !activeWebDraftBody) {
+    $("publishStatus").textContent = "먼저 전송된 콘텐츠를 선택해 본문을 불러오세요.";
+    return;
+  }
+  const tags = buildRecommendedTags({
+    topic: activeWebDraftTopic,
+    keywords: activeWebDraftTags,
+    title: activeWebDraftTitle,
+    body: activeWebDraftBody,
+  });
+  if (!tags.length) {
+    $("publishStatus").textContent = "본문에서 추천테그를 충분히 찾지 못했습니다. 직접 입력해주세요.";
+    return;
+  }
+  $("publishTags").value = tags.join(", ");
+  $("publishStatus").textContent = `본문의 핵심 주제·키워드로 추천테그 ${tags.length}개를 입력했습니다: ${tags.map((tag) => `#${tag}`).join(" ")}`;
 });
 
 $("inspect").addEventListener("click", async () => {
