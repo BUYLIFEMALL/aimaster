@@ -62,6 +62,12 @@
   - 해결: 실제 삭제 전 대상 개수를 SQL로 세어 주인님께 확인 → 정책 시작일부터 유예(`ai-auto-blog/utils/imageRetention.ts`).
   - 다음부터 확인: 삭제 규칙을 새로 켤 때는 "지금 바로 지워질 개수"를 먼저 보고한다.
 - **[2026-09-30] 운영자 `GEMINI_API_KEY` 폴백으로 키 없는 회원의 생성 비용이 운영자에게 청구** — 폴백 코드·환경변수 삭제, 본인 키 없으면 `API_KEY_REQUIRED` 안내.
+- **[2026-10-01 · ai-auto-blog v1.32, 티스토리 복제 중 발견(cloud)] BLOG의 `blog_*` 테이블이 "공유 블로그" 정책 그대로 열려 있음 (미수정 — 로컬 확인·승인 필요)**
+  - 운영 DB 정책을 읽기 조회(`pg_policies`)로 확인: `blog_posts` SELECT는 `anon` 포함 `using (true)`(공개 키만 있으면 로그인 없이도 모든 글 조회 가능), `blog_categories` insert/update/delete는 로그인한 **모든 회원**이 가능(남의 카테고리 삭제 가능), `blog_post_categories` insert는 `anon` 가능·delete는 모든 회원, `blog_comments`/`blog_likes` insert는 `anon` 가능. 또 `GET /api/posts/[id]`는 인증 없이 서비스 롤로 글을 돌려준다(`ai-auto-blog/app/api/posts/[id]/route.ts`).
+  - 원인: 예전 "누구나 읽는 공유 블로그" 설계가 멀티테넌시 원칙 2번(사용자별 격리)으로 바뀌었는데 DB 정책·GET API가 그대로 남음. BLOG 글은 회원 개인 콘텐츠(30일 보관)라 노출 대상이 아니다.
+  - 해결(티스토리판): `tistory_*`는 전부 본인만(RLS owner-only) + `(id, user_id)` 복합 외래키 + GET API에 로그인·권한·소유자 확인. 파일 `tistory-auto-blog/supabase/migrations/0001_tistory_init.sql`, `tistory-auto-blog/AGENTS.md`.
+  - **BLOG에는 아직 적용 안 함**: 공개 글 보기(`/posts/[id]`가 브라우저 anon 클라이언트로 읽음)·메인 카탈로그 연동 등 영향 범위를 로컬에서 확인한 뒤, 정책 교체 + GET API 인증 추가를 별도 작업(버전 +0.01, 주인님 승인)으로 진행할 것.
+  - 다음부터 확인: 새 프로그램 테이블은 만들 때 `pg_policies`로 `using (true)`/`anon`이 남아 있지 않은지 점검하고, 서비스 롤을 쓰는 GET API에도 로그인·소유자 확인이 있는지 본다.
 
 ## D. 크롬 확장 · 네이버 자동 입력
 

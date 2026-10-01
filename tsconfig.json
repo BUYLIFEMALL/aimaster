@@ -49,6 +49,7 @@
     "node_modules",
     "threads",
     "ai-auto-blog",
+    "tistory-auto-blog",
     "blog_auto_poster"
   ]
 }

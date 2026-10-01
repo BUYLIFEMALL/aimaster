@@ -8,3 +8,6 @@ naver-blog-auto-poster_app/node_modules
 
 # ai-auto-blog/(BLOG 원문생성 자동화, 2026-10-01 blog/에서 이름 변경)는 2026-10-01부터 자체 Vercel 프로젝트(ai-auto-blog)로 따로 배포되고 루트 앱이 import하지 않는다.
 /ai-auto-blog
+
+# tistory-auto-blog/(티스토리 원문생성 자동화, 2026-10-01 ai-auto-blog를 복제해 신설)도 자체 Vercel 프로젝트로 따로 배포되며 루트 앱이 import하지 않는다.
+/tistory-auto-blog

@@ -1,0 +1,35 @@
+import Link from 'next/link'
+
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+
+interface InfoPageProps {
+  title: string
+  children: React.ReactNode
+}
+
+export default function InfoPage({ title, children }: InfoPageProps) {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center justify-between gap-4">
+          <Link href="/" className="text-xl font-black text-indigo-600 tracking-tight flex-shrink-0 no-underline">
+            티스토리(원문)생성 자동화
+          </Link>
+          <div className="flex items-center gap-4">
+            <a href={`${MAIN_SITE_URL}/programs`} className="text-sm font-medium text-zinc-500 hover:text-zinc-900 no-underline transition-colors">
+              ← 다른 프로그램 보기
+            </a>
+            <Link href="/" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 no-underline transition-colors">
+              홈으로
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 max-w-[720px] w-full mx-auto px-6 py-16">
+        <h1 className="text-2xl font-extrabold text-zinc-900 mb-6">{title}</h1>
+        <div className="text-sm text-zinc-600 leading-relaxed space-y-4">{children}</div>
+      </main>
+    </div>
+  )
+}

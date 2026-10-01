@@ -50,7 +50,7 @@
 | 3 | BLOG 30일 자동 삭제 첫 실행(2026-11-01 03:00 KST) 결과 확인 — 현재 글 14·글감 25개 삭제 예정 | 날짜 대기 | `ai-auto-blog/app/api/cron/cleanup-images` |
 | 4 | Meta 앱 심사(`threads_keyword_search`) | 비즈니스 인증 결과 대기 | `threads-affiliate-poster/docs/META_APP_REVIEW.md` |
 | 5 | 회원 계정 동작 확인(쇼핑제휴 /trends, 댓글자동화, 사이드바 계정 표시) | 주인님 테스트 | `docs/HANDOFF.md` §1 |
-| 6 | 티스토리 블로그 자동화 | 기획만 | `docs/PLATFORM_PATTERNS.md` §20·§28 |
+| 6 | 티스토리 블로그 자동화(BLOG 방식, 웹 + 크롬 확장) | 기획·0단계(조사 확장) 완료, **주인님 PC에서 조사 실행 → JSON 전달 대기**. 로컬에서 이어감 | `tistory-auto-blog/docs/TISTORY_PLAN.md` §6 |
 | 7 | (선택) BLOG 해시태그에도 본문 필터 적용 — SEO 규칙은 키워드를 그대로 살려 "위한·주목해야" 같은 말이 남음 | 주인님 결정 대기 | `ai-auto-blog/AGENTS.md` v1.29 |
 | 8 | (Codex 담당) SEO 스튜디오 확장 타이핑 속도 24~52ms → §20 기준 70~170ms, 태그 "투자협의→투자협" 잘림 | Codex에 전달 | `docs/ERROR_LESSONS.md` D |
 
@@ -92,3 +92,5 @@
 | 날짜 | 서브프로젝트 | 클라우드에서 한 일 | 로컬에서 할 일(버전·배포·DB) | 로컬 병합·배포 결과 |
 |---|---|---|---|---|
 | 2026-10-01 | (준비) | `cloud-work` 브랜치·클라우드 작업 규칙·시작 훅 구성(로컬에서 만듦) | 없음 | master `→` cloud-work 동기화 |
+| 2026-10-01 | tistory-auto-blog (신규, 0~2단계 완료) | 티스토리 계획 문서 `tistory-auto-blog/docs/TISTORY_PLAN.md`, 서브프로젝트 `AGENTS.md`, **조사 전용 크롬 확장 `tistory-auto-blog/inspector-extension/`**(읽기 전용, 제목·본문 내용 미저장, 문법·누출 테스트 통과) 작성. 아직 `programs` 미등록·배포 없음 | 주인님 PC에서 조사 확장 실행 → JSON 결과를 클라우드 세션에 전달(그 후 3·4단계 진행). 병합 시 별도 버전/배포 작업 없음(신규 프로그램은 완성 시 v1.01로 등록) | 대기 |
+| 2026-10-01 | tistory-auto-blog 1~2단계 | ai-auto-blog 복제 뼈대(v1.01, 단독 빌드 통과), `supabase/migrations/0001_tistory_init.sql`(전부 회원별 + 복합 외래키, 로컬 PG16 격리 테스트 통과), 서버 API 보안 보완(GET 인증·소유자 확인), 루트 `.vercelignore`·`tsconfig.json` 제외 등록, 운영 DB 읽기 조회로 BLOG `blog_*` 정책 점검(**BLOG 공개 노출 문제 발견, 미수정**) | ① 마이그레이션 적용(주인님 승인) ② `programs` 등록(slug `tistory-auto-blog`, `version='v1.01'`) ③ Vercel 프로젝트·환경변수·배포 ④ **BLOG 정책·GET API 점검(HANDOFF #5)** ⑤ 확장 `BASE`·host_permissions 임시 주소 교체(배포 후). **순서별 상세: `tistory-auto-blog/docs/TISTORY_PLAN.md` §6 "로컬 작업 목록"**. 3·4단계(서버 변환기·확장)는 조사 JSON 대기 | 대기 |
