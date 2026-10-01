@@ -8,6 +8,7 @@
 - 최종 `#publish-btn`은 탐색하거나 누르지 않습니다. 입력기는 `#publish-layer-btn`으로 발행 설정창까지만 엽니다.
 
 > **상태: 확장 계정 연동 완료, 제목·본문·카테고리·태그·이미지 입력 구현 완료 (2026-10-01)** — 운영 주소는 `https://tistory-auto-blog-pearl.vercel.app`, 프로그램·DB·확장 ZIP 버전은 모두 `v1.09`다. 최종 저장·발행은 자동화하지 않는다.
+> **카탈로그:** 공용 `programs`의 블로그 카테고리에서 활성 상태이며 `COMING` 배지는 제거했습니다. 실사형 카탈로그 썸네일은 `program-images/catalog/tistory-auto-blog-thumbnail.png`에 저장돼 있습니다.
 > 반드시 루트 `../CLAUDE.md`(핵심 원칙 7가지)·`../docs/HANDOFF.md`·`../docs/ERROR_LESSONS.md`를 먼저 읽고, 브라우저 자동화이므로
 > `../docs/PLATFORM_PATTERNS.md` **§20(봇 탐지 회피)·§28(웹→확장→편집기)** 를 그대로 지킨다.
 
