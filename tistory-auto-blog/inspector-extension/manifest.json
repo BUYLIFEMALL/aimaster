@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "티스토리 화면 조사 도구 · AIMaster",
+  "version": "0.1.0",
+  "version_name": "조사용 v0.1",
+  "description": "티스토리 글쓰기 화면의 구조(제목·본문·모드 전환·사진 버튼·발행 설정창 등)를 읽기만 해서 JSON으로 보여주는 조사 전용 도구입니다. 화면을 조작하거나 글을 입력하지 않습니다.",
+  "permissions": ["sidePanel", "storage", "scripting", "tabs"],
+  "host_permissions": ["https://*.tistory.com/*"],
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "action": { "default_title": "티스토리 화면 조사 도구" }
+}

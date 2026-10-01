@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>티스토리 화면 조사 도구</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <p class="eyebrow">AIMASTER · 조사 전용</p>
+    <h1>티스토리 화면 조사 도구</h1>
+    <p class="lead">티스토리 글쓰기 화면의 구조를 <strong>읽기만</strong> 합니다. 클릭·입력·발행은 하지 않고, 글 제목·본문 내용도 저장하지 않습니다(글자 수만 기록).</p>
+
+    <section class="card">
+      <h2>1. 지금 어떤 화면인가요?</h2>
+      <select id="step">
+        <option value="01_글쓰기_기본화면">01 글쓰기 기본 화면(막 열었을 때)</option>
+        <option value="02_본문_입력된_상태">02 제목·본문에 글자를 직접 조금 쓴 상태</option>
+        <option value="03_모드_전환_메뉴_열림">03 기본모드/마크다운/HTML 모드 메뉴를 연 상태</option>
+        <option value="04_HTML모드_화면">04 HTML 모드로 바꾼 화면</option>
+        <option value="05_사진_버튼_누른_상태">05 사진(이미지) 버튼을 직접 누른 상태</option>
+        <option value="06_이미지_올라간_상태">06 이미지가 본문에 올라간 상태</option>
+        <option value="07_카테고리_목록_열림">07 카테고리 목록을 연 상태</option>
+        <option value="08_발행_설정창_열림">08 완료/발행 설정창을 연 상태</option>
+        <option value="09_태그_입력_상태">09 태그 입력칸에 직접 태그를 쓴 상태</option>
+        <option value="10_기타">10 기타(메모에 적어주세요)</option>
+      </select>
+      <input id="memo" placeholder="메모(선택) 예: 새 에디터 / 블로그 2개 계정" />
+      <button id="inspect">2. 이 화면 분석하기</button>
+      <div id="status" class="status">대기 중 — 티스토리 글쓰기 탭을 보이는 상태로 두고 눌러주세요.</div>
+    </section>
+
+    <section class="card">
+      <h2>3. 모은 분석 결과</h2>
+      <ul id="list" class="list"></ul>
+      <button id="copy" class="secondary">전체 결과 복사</button>
+      <button id="download" class="secondary">JSON 파일로 저장</button>
+      <button id="clear" class="ghost">결과 모두 지우기</button>
+      <textarea id="result" rows="8" readonly placeholder="분석 결과가 여기에 표시됩니다"></textarea>
+      <p class="hint">복사하거나 저장한 결과를 Claude 대화에 붙여넣거나 파일을 첨부해 주세요. 로그인 정보·쿠키·입력한 글 내용은 들어 있지 않습니다.</p>
+    </section>
+  </main>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
