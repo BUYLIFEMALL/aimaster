@@ -121,3 +121,10 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   - 이미지 모델 순서: 1K → 2K(기본·추천) → 4K → Pro 4K.
   - OpenAI 어댑터(`utils/ai/contentJson.ts`): Chat Completions가 "지원하지 않음/Responses API" 류 400·404로 거절하면 Responses API로 한 번 더 보낸다.
     **GPT-6 계열의 실제 글 생성은 아직 검증하지 않았다**(유료 호출이라 주인님 승인 후 짧은 요청 1회로 확인할 것).
+
+# 주소 입력 자동 보정 (2026-10-01, v1.10)
+
+- 주인님 요청("url만 넣어도 자동주소로 인식되게"): 하단 추천 링크(CTA) 칸이 `type="url"`이라 `buylife.blog`처럼 `https://` 없이 넣으면
+  브라우저가 "URL을 입력하세요"로 막았다. `type="text"` + `inputMode="url"`로 바꾸고, 칸을 벗어날 때와 생성 요청 때
+  앞에 `https://`를 자동으로 붙인다(`app/write/ai-form/page.tsx`의 `normalizeUrl`). 참고 링크 3칸도 같은 규칙.
+- 서버(`app/api/auto-post/route.ts`의 `normalizeCtaUrl`)도 같은 규칙으로 한 번 더 보정한다. 이미 `http://`·`https://`가 있으면 그대로 둔다.

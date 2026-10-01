@@ -61,6 +61,14 @@ const TONE_OPTIONS = ['전문적', '친근함', '설득력있는', '격식있는
 // 모델 선택지 — 사용 가능 목록·기본값은 utils/ai/contentModels.ts 한 곳에서 관리(SEO 스튜디오와 같은 목록).
 const MODEL_STORAGE_KEY = 'ai-auto-blog:model-selection'
 
+// 'buylife.blog'처럼 https:// 없이 넣은 주소도 링크로 쓰이게 앞에 https://를 붙인다(2026-10-01 주인님 요청).
+function normalizeUrl(value: string): string {
+  const v = value.trim()
+  if (!v || v === '#') return v
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(v)) return v
+  return 'https://' + v.replace(/^\/+/, '')
+}
+
 export default function AiFormPage() {
   return (
     <Suspense fallback={null}>
@@ -210,7 +218,7 @@ function AiFormPageInner() {
       setLoading(true)
       setStatusMsg('AI 인공지능 모델이 트렌드를 분석하고 AI자동 블로그 및 본문 내용을 토대로 3개의 AI이미지를 생성 중입니다...')
 
-      const validUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0)
+      const validUrls = referenceUrls.map((u) => normalizeUrl(u)).filter((u) => u.length > 0)
 
       const payload = {
         topic: topic.trim(),
@@ -228,7 +236,7 @@ function AiFormPageInner() {
         nanoBananaEndpoint: nanoBananaEndpoint.trim() || undefined,
         cta: (ctaText.trim() || ctaUrl.trim()) ? {
           text: ctaText.trim() || '자세히 보기',
-          url: ctaUrl.trim() || '#',
+          url: normalizeUrl(ctaUrl) || '#',
         } : undefined,
         custom_prompt: customPrompt.trim() || undefined,
       }
@@ -455,6 +463,8 @@ function AiFormPageInner() {
                     autoComplete="new-password"
                     value={url}
                     onChange={(e) => handleUrlChange(idx, e.target.value)}
+                    onBlur={(e) => handleUrlChange(idx, normalizeUrl(e.target.value))}
+                    inputMode="url"
                     placeholder={`https://example.com/reference-${idx + 1}`}
                     style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
                     className="w-full p-3.5 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-extrabold text-black placeholder-slate-400 shadow-sm"
@@ -611,9 +621,11 @@ function AiFormPageInner() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700">추천 대상 URL</label>
                 <input
-                  type="url"
+                  type="text"
+                  inputMode="url"
                   value={ctaUrl}
                   onChange={(e) => setCtaUrl(e.target.value)}
+                  onBlur={(e) => setCtaUrl(normalizeUrl(e.target.value))}
                   placeholder="https://example.com/offer"
                   style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
                   className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-extrabold text-black placeholder-slate-400 shadow-sm"

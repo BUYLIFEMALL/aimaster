@@ -17,6 +17,14 @@ import {
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
+// 'buylife.blog'처럼 https:// 없이 온 주소에 https://를 붙인다(작성 화면과 같은 규칙).
+function normalizeCtaUrl(value: unknown): string {
+  const v = typeof value === 'string' ? value.trim() : ''
+  if (!v || v === '#') return '#'
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(v)) return v
+  return 'https://' + v.replace(/^\/+/, '')
+}
+
 export async function POST(request: NextRequest) {
   try {
     const access = await checkProgramAccessApi()
@@ -76,7 +84,7 @@ export async function POST(request: NextRequest) {
       nanoBananaApiKey: resolvedApiKey,
       imageModel: resolveImageModel(body.imageModel || body.nanoBananaModel),
       cloudinaryConfig,
-      cta: body.cta && (body.cta.text || body.cta.url) ? { text: body.cta.text || '자세히 보기', url: body.cta.url || '#' } : undefined,
+      cta: body.cta && (body.cta.text || body.cta.url) ? { text: body.cta.text || '자세히 보기', url: normalizeCtaUrl(body.cta.url) } : undefined,
     }
 
     if (!options.topic || typeof options.topic !== 'string' || !options.topic.trim()) {

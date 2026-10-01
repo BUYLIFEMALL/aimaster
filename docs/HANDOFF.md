@@ -38,6 +38,7 @@
 | 카탈로그 썸네일 | 30개 전부 실사 원칙으로 정리(seo-studio·tarot 교체), 업로드 도구 `scripts/upload-program-thumbnail.mjs` | 썸네일은 실사가 원칙 | `docs/PLATFORM_PATTERNS.md` §13·§14 |
 | 사이드바 통일 | 21개 프로그램 좌측 메뉴 바로 밑에 로그인 계정·로그아웃을 붙이고, 사이드바를 화면에 고정해 항상 보이게 함(기준: TAP `Sidebar.tsx`). 처음엔 화면 맨 아래에 붙였다가 "메뉴와 너무 멀다"는 지시로 메뉴 밑으로 옮김 | 긴 페이지에서 계정 표시가 화면 밖으로 밀려남 | `7b09f63`, `eb0b072`, 이번 커밋 / 루트 `AGENTS.md` §10 |
 | 쇼핑제휴 알리 상품 이미지 누락 재발 수정 (v1.05) | 원인: 알리 API 호출 빈도 제한(`ApiCallLimit`)이 조용히 삼켜짐(09-27 지침은 단축 URL만 다뤘음). 재시도·경고·"이미지 다시 가져오기" 버튼 추가, 누락 1건 복구 | 주인님 신고 | `threads-affiliate-poster/docs/ALIEXPRESS_IMAGE_TROUBLESHOOTING.md` |
+| BLOG 주소 입력 자동 보정 (ai-auto-blog v1.10) | 추천 링크·참고 링크에 `buylife.blog`처럼 넣어도 `https://`를 자동으로 붙임(브라우저 "URL을 입력하세요" 차단 해제) | 주인님 요청(ur.png) | `blog/AGENTS.md` "주소 입력 자동 보정" |
 | BLOG 모델 목록 정리 (ai-auto-blog v1.08~v1.09) | 본문 기본 OpenAI GPT-4.1, 모델 표준 문서 기준 레지스트리로 정리(GPT-6 Luna·6.1 Sol, Claude Fable 5, Gemini 3.5/3.6/3.8 Flash 추가, Haiku 4.5 정확한 ID로 수정), 이미지 1K를 2K 위로·기본 2K, 제목에 선택 모델명 표시. 남은 일: GPT-6 계열 실제 생성 1회 검증(유료, 승인 필요) | 주인님 지시 | `blog/AGENTS.md` "모델 기본값·목록 정리" |
 | BLOG 로그인 "fetch failed" 수정 (ai-auto-blog v1.07) | 단독 배포 환경변수에 옛(없어진) Supabase 주소가 들어가 있던 것을 공용 DB 값으로 교체, 로그인 화면 문구("세션 인증"→"로그인") 정리 | 주인님 신고(에러.png) | `blog/AGENTS.md` "로그인 fetch failed 수정" |
 | BLOG 독립 배포 분리 (ai-auto-blog v1.06) | 루트 내장(www.buylife.xyz/blog)을 자체 Vercel 프로젝트 `ai-auto-blog`(https://ai-auto-blog-one.vercel.app)로 분리, 메인 카탈로그 `app_url` 교체, 예전 /blog/* 주소는 새 주소로 넘김. 회원 전용 화면 서버 권한 확인·설정 저장 권한 확인 추가. 남은 일: 회원 계정으로 로그인→글 생성 실사용 확인 | 주인님 지시 | `blog/AGENTS.md` "독립 배포 분리" |
