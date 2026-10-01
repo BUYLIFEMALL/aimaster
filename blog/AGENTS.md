@@ -171,3 +171,20 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   이미지를 내려받아 직접 올리기·"본문 복사"로 붙인 이미지도 같은 주소라 기간 후 안 보임·글자는 안 지워짐), AI 글쓰기 화면의
   이미지 생성 설정 카드에는 짧은 안내(`compact`)를 노란 박스로 보여준다.
 - 참고: 기존 글 100·105·106번의 이전한 이미지도 이전한 날(2026-10-01)부터 30일 뒤 지워진다.
+
+# 콘텐츠 일체 30일 보관 — 글·이미지·글감 수집 결과 (2026-10-01, v1.14)
+
+주인님 정의: **"30일 자동 삭제는 생성된 블로그 콘텐츠 일체를 건별로, 생성 날짜 기준 30일 뒤 삭제 — DB 용량이 무제한으로 쌓이는 것을 막기 위함."**
+(v1.13의 "이미지만 30일"을 확장했다.)
+
+- **삭제 대상(콘텐츠)**: `blog_posts`(글 제목·본문, 기준 `published_at`) — 댓글·좋아요·카테고리 연결은 DB CASCADE로 함께 삭제,
+  지우는 글 본문에 든 BLOG 이미지(Storage), `<회원 id>/ai-auto-blog/` 안의 30일 지난 이미지 파일, `blog_candidates`(글감 수집 결과, 기준 `created_at`).
+- **남기는 것(설정)**: `blog_categories`, `blog_authors`, `user_api_keys`, `newsblur_accounts`. 다른 프로그램 파일이 섞인 `post-images` 버킷의 다른 폴더.
+- **기존 데이터 유예(주인님 선택)**: 정책 시작일 2026-10-01(KST)부터 30일 — 실제 삭제 기준 = max(작성일, 2026-10-01) + 30일.
+  즉 기존 콘텐츠는 2026-10-31(KST)부터, 첫 정리 실행(11/01 03:00)에서 지금 있는 글 14개·글감 25개가 모두 지워진다(SQL로 미리 확인).
+  계산은 `utils/imageRetention.ts`(`RETENTION_DAYS`, `RETENTION_POLICY_START`, `retentionDeleteAt`/`retentionDaysLeft`/`retentionCutoff`).
+- **정리 작업**: `app/api/cron/cleanup-images/route.ts`(Vercel Cron 등록 경로라 이름은 그대로, 매일 03:00 KST). `?dry=1`이면 지우지 않고 개수만 응답.
+  유예 기간 중에는 아무것도 지우지 않고 안내 문구만 돌려준다.
+- **회원 안내**: `components/settings/ImageStorageNotice.tsx` — 설정 화면(전체 안내), AI 글쓰기·게시글 관리·글감 수집 화면(짧은 안내).
+  게시글 관리 목록(`app/_components/HomePage.tsx`)의 글마다 "N일 후 삭제" 배지(7일 이하 빨간색).
+- 참고: 이전 작업으로 base64를 걷어낸 `blog_posts` 테이블은 아직 38MB로 보이는데, 지운 데이터 공간은 DB 자동 정리(autovacuum)가 차차 회수한다.

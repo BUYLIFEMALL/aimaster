@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import CategoryManagementModal from './CategoryManagementModal'
+import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
+import { retentionDaysLeft } from '@/blog/utils/imageRetention'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -278,6 +280,9 @@ export default function HomePage() {
 
       {/* =================== MAIN CONTENT =================== */}
       <div className="space-y-8">
+        {/* 글·이미지 30일 보관 안내(2026-10-01) */}
+        <ImageStorageNotice compact />
+
         {/* Category Section Header & Management Button */}
         <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-200">
           <div className="flex items-center gap-2">
@@ -371,7 +376,18 @@ export default function HomePage() {
                   <p className="text-xs text-slate-500 truncate">{post.excerpt}</p>
                 </div>
 
-                <span className="shrink-0 text-xs text-slate-400">{formatDate(post.published_at)}</span>
+                <div className="shrink-0 flex flex-col items-end gap-1">
+                  <span className="text-xs text-slate-400">{formatDate(post.published_at)}</span>
+                  {/* 30일 보관 — 삭제까지 남은 날(utils/imageRetention.ts) */}
+                  {(() => {
+                    const left = retentionDaysLeft(post.published_at)
+                    return (
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${left <= 7 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-700'}`}>
+                        {left === 0 ? '오늘 삭제 예정' : `${left}일 후 삭제`}
+                      </span>
+                    )
+                  })()}
+                </div>
               </Link>
             ))}
           </div>

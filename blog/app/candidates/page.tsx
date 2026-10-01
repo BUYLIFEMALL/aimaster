@@ -2,6 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
+import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -281,6 +282,10 @@ export default function CandidatesPage() {
           HTTP(특정 URL), RSS(NewsBlur 구독 피드), Perplexity(트렌드 검색) 중 하나를 선택해서 블로그에 올릴
           주제와 SEO 키워드 후보를 수집합니다.
         </p>
+
+        <div className="mb-6">
+          <ImageStorageNotice compact />
+        </div>
 
         <div className="grid grid-cols-3 gap-3 mb-6">
           {(Object.keys(sourceCounts) as Method[]).map((type) => (
