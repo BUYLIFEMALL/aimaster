@@ -128,3 +128,12 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
   브라우저가 "URL을 입력하세요"로 막았다. `type="text"` + `inputMode="url"`로 바꾸고, 칸을 벗어날 때와 생성 요청 때
   앞에 `https://`를 자동으로 붙인다(`app/write/ai-form/page.tsx`의 `normalizeUrl`). 참고 링크 3칸도 같은 규칙.
 - 서버(`app/api/auto-post/route.ts`의 `normalizeCtaUrl`)도 같은 규칙으로 한 번 더 보정한다. 이미 `http://`·`https://`가 있으면 그대로 둔다.
+
+# 이미지 프롬프트 섹션 숨김 (2026-10-01, v1.11)
+
+- 주인님 지시("이미지 프롬프트 섹션은 이제 안 보여줘도 돼"): 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션(이미지마다 본문 문장 + 장면 설명)을 없앴다.
+  섹션 안 코드블록 언어 표시가 "text"라는 글자로 따로 찍혀 나오던 문제도 함께 사라졌다.
+  - 새 글: `utils/news/generator.ts`가 섹션(과 그 앞 구분선)을 더 이상 만들지 않는다(`buildImagePromptSection` 삭제).
+  - 기존 글: `utils/stripImageSchema.ts`의 `removeImagePromptSection()`이 글 보기 화면(`app/posts/[id]/page.tsx`)과
+    편집기(`app/posts/[id]/edit/page.tsx`, 불러올 때 제거 → 저장하면 DB에서도 빠짐)에서 섹션과 바로 앞 구분선을 걷어낸다.
+  - 이미지 생성 자체(섹션마다 핵심 문장을 골라 그리는 방식, 한국인 기본 묘사)는 그대로다. 장면 설명은 화면에 안 보일 뿐 생성에는 계속 쓰인다.

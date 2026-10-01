@@ -38,3 +38,13 @@ export function splitImagePromptSection(html: string): { main: string; promptSec
   if (h3Idx === -1) return { main: html, promptSection: '' }
   return { main: html.slice(0, h3Idx), promptSection: html.slice(h3Idx) }
 }
+
+// 2026-10-01 주인님 지시로 이 섹션을 더 이상 보여주지 않는다. 섹션 바로 앞의 구분선(<hr>)도 함께 걷어낸다
+// (generator가 섹션 앞에 "---"를 넣었기 때문 — 본문 복사 버튼의 정제 규칙과 같다).
+export function removeImagePromptSection(html: string): string {
+  const { main, promptSection } = splitImagePromptSection(html)
+  if (!promptSection) return html
+  const hrIdx = main.lastIndexOf('<hr')
+  const trimmed = hrIdx !== -1 && main.length - hrIdx < 100 ? main.slice(0, hrIdx) : main
+  return trimmed.trimEnd()
+}

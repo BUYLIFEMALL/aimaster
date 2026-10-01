@@ -11,34 +11,8 @@ function imageLine(alt: string, url: string): string {
   return url ? `![${alt}](${url})` : ''
 }
 
-/**
- * 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션(utils/stripImageSchema.ts의 splitImagePromptSection이 이 제목으로 본문과 분리).
- * 2026-09-30부터 이미지마다 "그린 본문 문장 + 사용한 장면 설명"을 보여준다(SEO 스튜디오 방식).
- */
-function buildImagePromptSection(images: GeneratedImagesResult): string {
-  const rows = [
-    { label: '1번 이미지', sentence: images.headerSentence, prompt: images.headerPrompt, ok: images.headerImage },
-    { label: '2번 이미지', sentence: images.body1Sentence, prompt: images.body1Prompt, ok: images.bodyImage1 },
-    { label: '3번 이미지', sentence: images.body2Sentence, prompt: images.body2Prompt, ok: images.bodyImage2 },
-  ].filter((row) => row.prompt)
-  if (rows.length === 0) return ''
-  return [
-    '### 🎨 생성 이미지 AI 프롬프트',
-    '',
-    '각 이미지는 본문에서 고른 핵심 문장 하나를 그대로 표현하도록 만들었습니다.',
-    '',
-    ...rows.flatMap((row, index) => [
-      `#### ${index + 1}. ${row.label}${row.ok ? '' : ' (생성 실패)'}`,
-      '',
-      `> 본문 문장: ${row.sentence}`,
-      '',
-      '\u0060\u0060\u0060text',
-      row.prompt,
-      '\u0060\u0060\u0060',
-      '',
-    ]),
-  ].join('\n')
-}
+// 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션은 2026-10-01 주인님 지시("이미지 프롬프트 섹션은 이제 안 보여줘도 돼")로 더 이상 만들지 않는다.
+// 이미 저장된 글의 섹션은 utils/stripImageSchema.ts의 removeImagePromptSection()이 화면·편집기에서 걷어낸다.
 
 export interface AutoPostOptions {
   topic: string
@@ -254,10 +228,6 @@ ${
 ---
 
 ${hashtags}
-
----
-
-${buildImagePromptSection(images)}
 `.trim()
 
   return { title, excerpt, contentMarkdown }

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
-import { stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
+import { stripImageGenerationSchema, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -602,7 +602,7 @@ export default function PostDetailPage() {
             <div
               className="post-content"
               onClick={handleContentClick}
-              dangerouslySetInnerHTML={{ __html: stripImageGenerationSchema(post.content) }}
+              dangerouslySetInnerHTML={{ __html: stripImageGenerationSchema(removeImagePromptSection(post.content)) }}
             />
 
           </>

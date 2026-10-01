@@ -19,7 +19,7 @@ import {
   SquarePen,
 } from 'lucide-react'
 import { getBlogBasePath } from '@/blog/utils/basePath'
-import { stripImageGenerationSchema, splitImagePromptSection } from '@/blog/utils/stripImageSchema'
+import { stripImageGenerationSchema, splitImagePromptSection, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 import RichTextEditor from '@/blog/components/RichTextEditor'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
@@ -122,7 +122,8 @@ export default function PostEditPage() {
         setExcerpt(postData.excerpt || '')
 
         // ⚙️ 이미지 생성 API 요청 스키마 디버그 블록은 편집 화면에 보일 필요가 없어 제거한다.
-        const original = stripImageGenerationSchema(postData.content || '')
+        // 이미지 프롬프트 섹션은 더 이상 보여주지 않는다(2026-10-01) — 불러올 때 걷어내서, 저장하면 그 글에서도 빠진다.
+        const original = removeImagePromptSection(stripImageGenerationSchema(postData.content || ''))
         // rawContent는 항상 "본문 + AI 프롬프트 섹션"을 합친 실제 저장 형태 그대로 유지한다
         // (코드 모드·저장 모두 이 값을 그대로 쓴다). 화면에 박스로 분리해서 보여주는 건
         // 렌더링 시점에 splitImagePromptSection으로 나눠서 처리한다(아래 JSX 참고).
