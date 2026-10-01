@@ -261,6 +261,7 @@ function selectPost() {
   activePost = posts.find((post) => String(post.id) === $("postList").value) || null;
   $("previewPost").disabled = !activePost;
   $("fillPost").disabled = !activePost;
+  $("tagNames").value = activePost ? normalizeTistoryTags(activePost.tags || []).join(", ") : "";
   $("inputStatus").textContent = activePost ? `${postLabel(activePost)} 선택됨` : "";
 }
 
@@ -347,8 +348,13 @@ async function humanType(tabId, text, statusPrefix) {
   }
 }
 
+function normalizeTistoryTags(values) {
+  const source = Array.isArray(values) ? values : String(values || "").split(/[\n,]/);
+  return [...new Set(source.map((value) => String(value).replace(/^#+/, "").trim()).filter(Boolean))].slice(0, 30);
+}
+
 async function addTistoryTags(tabId, tags) {
-  for (const tag of [...new Set(tags.map((value) => String(value).replace(/^#+/, "").trim()).filter(Boolean))].slice(0, 30)) {
+  for (const tag of normalizeTistoryTags(tags)) {
     const before = await chrome.scripting.executeScript({ target: { tabId, frameIds: [0] }, func: () => document.querySelectorAll(".editor_tag > .txt_tag").length });
     await focusKnownTarget(tabId, 0, "#tagText");
     await withDebugger(tabId, () => humanType(tabId, tag, `태그 입력 중…`));
@@ -518,7 +524,7 @@ async function fillTistoryPost() {
     }
     const category = $("categoryName").value.trim();
     if (category) await chooseTistoryCategory(tab.id, category);
-    await addTistoryTags(tab.id, activePost.tags || []);
+    await addTistoryTags(tab.id, $("tagNames").value);
     await verifyTistoryInput(tab.id, bodyFrame);
     await openPublishSettings(tab.id);
     await reportInput("publish_ready");

@@ -59,10 +59,14 @@
 
     <section class="card">
       <h2>카테고리 설정</h2>
-      <p class="hint">카테고리는 본문 입력이 끝난 뒤 발행 설정창에 자동으로 넣습니다. 보낸 글의 태그도 함께 입력하며, 티스토리의 마지막 저장·발행 버튼은 직접 누릅니다.</p>
+      <p class="hint">카테고리와 태그는 본문 입력이 끝난 뒤 티스토리 편집기에 넣습니다. 태그는 쉼표 또는 줄바꿈으로 구분해 직접 수정할 수 있으며, 마지막 저장·발행 버튼은 직접 누릅니다.</p>
       <div class="publish-field">
         <label for="categoryName">카테고리명</label>
         <input id="categoryName" autocomplete="off" placeholder="카테고리 전체 이름 (예: 경제)" />
+      </div>
+      <div class="publish-field">
+        <label for="tagNames">태그</label>
+        <input id="tagNames" autocomplete="off" placeholder="쉼표로 구분 (예: 경제, 투자, 재테크)" />
       </div>
     </section>
 
