@@ -159,3 +159,10 @@
 - **원인:** 티스토리 글쓰기 페이지는 제목·태그·카테고리·발행 설정을 최상위 프레임에 두고, 본문 `body#tinymce`만 TinyMCE iframe에 둔다.
 - **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`는 `allFrames`를 본문 프레임 식별용 읽기 전용 검사로만 쓰고, 모든 변경은 확인된 단일 `frameId` 또는 최상위 `frameId: 0`에만 보낸다. 입력 전 빈 글 검증과 입력 후 제목·본문 재검증도 같은 경계를 따른다.
 - **다음부터 확인:** iframe 기반 편집기는 프레임별 selector를 스냅샷으로 확인하고, 변경 호출에 `allFrames: true`를 절대 사용하지 않는다.
+
+## 2026-10-01 — 이미지 클립보드는 PNG로 정규화한 뒤 붙여넣는다
+
+- **증상:** 확장에 내려받은 JPEG·WebP 등 원본 이미지 Blob을 그대로 `ClipboardItem`에 넣으면 브라우저·편집기에 따라 붙여넣기를 거부하거나 삽입이 불안정할 수 있다.
+- **원인:** 티스토리 사진 메뉴는 DOM 파일 입력을 제공하지 않아 운영체제 파일 선택창을 우회할 수 없고, 클립보드 이미지 MIME 지원도 편집기마다 일정하지 않다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`는 이미지 Blob을 캔버스로 그린 뒤 `image/png` Blob으로 변환하여 클립보드에 쓰고 `Ctrl+V`를 보낸다. 이후 iframe의 `figure > img` 수를 확인한다.
+- **다음부터 확인:** 파일 입력이 없는 웹 편집기는 원본 MIME을 그대로 가정하지 말고 PNG 클립보드 변환과 실제 DOM 삽입 확인을 함께 둔다.
