@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // 인라인으로 키를 넣지 않았으면 본인 계정에 등록된 키를 사용(앱 공용 키 폴백 없음, 2026-08-12 정책)
+    // 설정(API키등록·플랫폼연동)에 등록한 본인 키만 사용한다(앱 공용 키 폴백 없음, 2026-08-12 정책).
+    // 2026-10-01 주인님 지시로 "이번 글에만 쓸 키·커스텀 엔드포인트" 입력 기능을 없앴다.
     const adminClient = createAdminClient()
-    const inlineKey = (body.nanoBananaApiKey || body.apiKey || '').trim()
-    const resolvedApiKey = inlineKey || (await resolveApiKey(adminClient, user.id, 'gemini')) || undefined
+    const resolvedApiKey = (await resolveApiKey(adminClient, user.id, 'gemini')) || undefined
 
     // 본문 생성 플랫폼·모델(OpenAI/Claude/Gemini 중 회원 선택, 2026-10-01 — SEO 스튜디오와 같은 선택지).
     const contentProvider: ContentProvider = isContentProvider(body.contentProvider) ? body.contentProvider : DEFAULT_CONTENT_PROVIDER

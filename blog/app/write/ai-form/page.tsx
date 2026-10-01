@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import {
@@ -109,7 +108,6 @@ function AiFormPageInner() {
   const [referenceUrls, setReferenceUrls] = useState<string[]>(['', '', ''])
   
   // 나노바나나 AI 이미지 설정 상태
-  const [nanoBananaApiKey, setNanoBananaApiKey] = useState('')
   const [imageModel, setImageModel] = useState<string>(DEFAULT_IMAGE_MODEL)
   // 본문 생성 플랫폼·모델 (SEO 스튜디오와 같은 선택지)
   const [contentProvider, setContentProvider] = useState<ContentProvider>(DEFAULT_CONTENT_PROVIDER)
@@ -131,7 +129,6 @@ function AiFormPageInner() {
       window.localStorage.setItem(MODEL_STORAGE_KEY, JSON.stringify({ contentProvider, contentModel, imageModel }))
     } catch {}
   }, [contentProvider, contentModel, imageModel])
-  const [nanoBananaEndpoint, setNanoBananaEndpoint] = useState('')
 
   // 추천 링크 (CTA) 및 추가 지시사항
   const [ctaText, setCtaText] = useState('추천링크')
@@ -230,11 +227,9 @@ function AiFormPageInner() {
         target_word_count: targetWordCount,
         keywords,
         reference_urls: validUrls,
-        nanoBananaApiKey: nanoBananaApiKey.trim() || undefined,
         contentProvider,
         contentModel,
         imageModel,
-        nanoBananaEndpoint: nanoBananaEndpoint.trim() || undefined,
         cta: (ctaText.trim() || ctaUrl.trim()) ? {
           text: ctaText.trim() || '자세히 보기',
           url: normalizeUrl(ctaUrl) || '#',
@@ -565,40 +560,6 @@ function AiFormPageInner() {
             </div>
 
             <ImageStorageNotice compact />
-
-            <details className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
-              <summary className="cursor-pointer text-xs font-bold text-slate-600">고급 설정 (선택) — 이번 글에만 쓸 키·엔드포인트</summary>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3">
-                {/* type="text" + WebkitTextSecurity: 브라우저의 비밀번호 저장/이메일 자동채움 방지 */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Gemini API 키 (이번 글에만 사용)</label>
-                  <input
-                    type="text"
-                    name="nb_api_key_field"
-                    autoComplete="new-password"
-                    value={nanoBananaApiKey}
-                    onChange={(e) => setNanoBananaApiKey(e.target.value)}
-                    placeholder="비워두면 설정에 등록된 내 키 사용"
-                    style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1', WebkitTextSecurity: 'disc' } as any}
-                    className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black placeholder-slate-400 shadow-sm"
-                  />
-                  <p className="text-[11px] text-slate-500">
-                    <Link href={`${basePath}/settings`} className="text-indigo-600 underline font-semibold">설정</Link>에서 키를 한 번 등록해두면 매번 입력하지 않아도 됩니다.
-                  </p>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">커스텀 이미지 API 엔드포인트</label>
-                  <input
-                    type="url"
-                    value={nanoBananaEndpoint}
-                    onChange={(e) => setNanoBananaEndpoint(e.target.value)}
-                    placeholder="https://generativelanguage.googleapis.com/v1beta/models/..."
-                    style={{ color: '#000000', backgroundColor: '#ffffff', border: '1.5px solid #cbd5e1' }}
-                    className="w-full p-3 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-black placeholder-slate-400 shadow-sm"
-                  />
-                </div>
-              </div>
-            </details>
           </section>
 
           {/* 5. 추천/홍보 링크 섹션 (CTA) */}

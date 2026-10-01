@@ -28,7 +28,6 @@ export interface AutoPostOptions {
   contentApiKey?: string
   /** 이미지 생성용 본인 Gemini 키 */
   nanoBananaApiKey?: string
-  nanoBananaEndpoint?: string
   imageModel?: string
   /** 이미지를 저장할 회원 id(Supabase Storage post-images/<id>/ai-auto-blog/) */
   storageUserId: string
@@ -181,7 +180,7 @@ ${customRule}
     keywordsList,
     options.nanoBananaApiKey,
     options.imageModel,
-    options.nanoBananaEndpoint,
+    undefined, // 커스텀 엔드포인트 입력 기능은 2026-10-01 삭제 — 모델 설정(nanoBananaConfig)의 공식 주소만 쓴다
     {
       title,
       excerpt,
