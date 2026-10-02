@@ -58,8 +58,8 @@
     </section>
 
     <section class="card">
-      <h2>카테고리 설정</h2>
-      <p class="hint">카테고리와 태그는 본문 입력이 끝난 뒤 티스토리 편집기에 넣습니다. 태그는 쉼표 또는 줄바꿈으로 구분해 직접 수정할 수 있으며, 마지막 저장·발행 버튼은 직접 누릅니다.</p>
+      <h2>티스토리 카테고리·태그</h2>
+      <p class="hint">카테고리는 내 블로그의 분류이며 홈주제와 다릅니다. 홈주제는 아래 발행 설정에서 고릅니다. 태그는 쉼표 또는 줄바꿈으로 직접 수정할 수 있습니다.</p>
       <div class="publish-field">
         <label for="categoryName">카테고리명</label>
         <input id="categoryName" autocomplete="off" placeholder="카테고리 전체 이름 (예: 경제)" />
@@ -68,6 +68,7 @@
         <label for="tagNames">태그</label>
         <input id="tagNames" autocomplete="off" placeholder="쉼표로 구분 (예: 경제, 투자, 재테크)" />
       </div>
+      <div class="settings-actions"><button id="extractTags" class="secondary" type="button">선택 글의 태그 추출</button></div>
     </section>
 
     <section class="card" aria-labelledby="publish-settings-title">
@@ -76,12 +77,13 @@
       <div class="publish-field"><label for="postVisibility">공개 범위</label><select id="postVisibility"><option value="public">공개</option><option value="protected">보호</option><option value="private">비공개</option></select></div>
       <div id="postPasswordField" class="publish-field" hidden><label for="postPassword">보호 비밀번호</label><input id="postPassword" type="password" autocomplete="new-password" placeholder="이번 입력에만 사용하며 저장하지 않음" /></div>
       <div class="publish-field"><label for="commentPolicy">댓글</label><select id="commentPolicy"><option value="allow">허용</option><option value="deny">비허용</option></select></div>
-      <div class="publish-field"><label for="topicName">주제</label><input id="topicName" autocomplete="off" placeholder="선택 안 함 또는 정확한 주제명" /></div>
+      <div class="publish-field"><label for="topicName">홈주제</label><input id="topicName" autocomplete="off" placeholder="선택 안 함 또는 정확한 홈주제명 (예: IT·인터넷)" /></div>
       <div class="publish-field"><label for="publishTiming">발행 시점</label><select id="publishTiming"><option value="now">현재</option><option value="reserve">예약</option></select></div>
       <div id="reserveFields" class="reserve-fields" hidden>
         <div class="publish-field"><label for="reserveDate">예약 날짜</label><input id="reserveDate" type="date" /></div>
         <div class="publish-field"><label for="reserveTime">예약 시간</label><input id="reserveTime" type="time" step="60" value="09:00" /></div>
       </div>
+      <div class="settings-actions"><button id="savePublishSettings" class="secondary" type="button">설정 저장</button><span id="publishSettingsStatus" class="status" aria-live="polite"></span></div>
     </section>
 
     <section class="card">

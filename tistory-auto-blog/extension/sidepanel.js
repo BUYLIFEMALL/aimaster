@@ -3,6 +3,7 @@
 // 실제 티스토리 DOM을 조사하기 전 자동 입력을 금지한다. 이 코드는 읽기 전용이다.
 const STORAGE_KEY = "tistoryEditorInspectionSnapshots";
 const TOKEN_KEY = "tistoryAutoBlogToken";
+const PUBLISH_SETTINGS_KEY = "tistoryPublishSettings";
 const BASE = "https://tistory-auto-blog-pearl.vercel.app";
 const $ = (id) => document.getElementById(id);
 let snapshots = [];
@@ -205,6 +206,7 @@ $("link").addEventListener("click", async () => {
 
 chrome.storage.local.get(STORAGE_KEY).then((stored) => { snapshots = Array.isArray(stored[STORAGE_KEY]) ? stored[STORAGE_KEY] : []; render(); });
 restoreConnection();
+restorePublishSettings();
 
 // Confirmed Tistory editor implementation. All state-changing calls target one
 // verified frame; allFrames is only used to discover the TinyMCE frame.
@@ -261,8 +263,44 @@ function selectPost() {
   activePost = posts.find((post) => String(post.id) === $("postList").value) || null;
   $("previewPost").disabled = !activePost;
   $("fillPost").disabled = !activePost;
-  $("tagNames").value = activePost ? normalizeTistoryTags(activePost.tags || []).join(", ") : "";
   $("inputStatus").textContent = activePost ? `${postLabel(activePost)} 선택됨` : "";
+}
+
+function syncPublishSettingsFields() {
+  $("postPasswordField").hidden = $("postVisibility").value !== "protected";
+  $("reserveFields").hidden = $("publishTiming").value !== "reserve";
+}
+
+function savedPublishSettings() {
+  return {
+    categoryName: $("categoryName").value.trim(), tagNames: $("tagNames").value.trim(), visibility: $("postVisibility").value,
+    comment: $("commentPolicy").value, topic: $("topicName").value.trim(), timing: $("publishTiming").value,
+    reserveDate: $("reserveDate").value, reserveTime: $("reserveTime").value,
+  };
+}
+
+async function savePublishSettings() {
+  await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: savedPublishSettings() });
+  $("publishSettingsStatus").textContent = "저장했습니다. 보호 비밀번호는 저장하지 않습니다.";
+}
+
+async function restorePublishSettings() {
+  const stored = await chrome.storage.local.get(PUBLISH_SETTINGS_KEY);
+  const settings = stored[PUBLISH_SETTINGS_KEY];
+  if (!settings || typeof settings !== "object") return;
+  for (const id of ["categoryName", "tagNames", "postVisibility", "commentPolicy", "topicName", "publishTiming", "reserveDate", "reserveTime"]) {
+    if (typeof settings[id] === "string" && $(id)) $(id).value = settings[id];
+  }
+  syncPublishSettingsFields();
+  $("publishSettingsStatus").textContent = "저장한 설정을 불러왔습니다. 보호 비밀번호는 다시 입력해 주세요.";
+}
+
+function extractTagsFromSelectedPost() {
+  if (!activePost) throw new Error("먼저 보낸 글을 선택해 주세요.");
+  const tags = normalizeTistoryTags(activePost.tags || []);
+  if (!tags.length) throw new Error("선택한 글에서 추출할 태그가 없습니다.");
+  $("tagNames").value = tags.join(", ");
+  $("publishSettingsStatus").textContent = `${tags.length}개 태그를 가져왔습니다. 필요하면 수정 후 설정 저장을 누르세요.`;
 }
 
 function previewPost() {
@@ -667,5 +705,9 @@ $("previewFill").addEventListener("click", () => {
   $("fillPost").click();
 });
 $("fillPost").addEventListener("click", fillTistoryPost);
-$("postVisibility").addEventListener("change", () => { $("postPasswordField").hidden = $("postVisibility").value !== "protected"; });
-$("publishTiming").addEventListener("change", () => { $("reserveFields").hidden = $("publishTiming").value !== "reserve"; });
+$("extractTags").addEventListener("click", () => {
+  try { extractTagsFromSelectedPost(); } catch (error) { $("publishSettingsStatus").textContent = error instanceof Error ? error.message : String(error); }
+});
+$("savePublishSettings").addEventListener("click", () => { savePublishSettings().catch((error) => { $("publishSettingsStatus").textContent = error instanceof Error ? error.message : String(error); }); });
+$("postVisibility").addEventListener("change", syncPublishSettingsFields);
+$("publishTiming").addEventListener("change", syncPublishSettingsFields);
