@@ -39,6 +39,21 @@ function textWithLinks($: cheerio.CheerioAPI, node: AnyNode): string {
 
 const imageAlt = (alt: string) => clean(alt).replace(/\s*비주얼$/, '')
 
+const alignedBlockTags = new Set(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'li', 'td', 'th'])
+
+// 웹 앱의 정렬 표현만 티스토리가 이해하는 안전한 inline style로 옮긴다.
+// 명시되지 않은 본문 블록은 이미지 뒤 커서의 가운데 정렬을 물려받지 않도록 왼쪽으로 고정한다.
+function safeTextAlign(className: string, style: string): 'left' | 'center' | 'right' | 'justify' | '' {
+  const inline = style.match(/(?:^|;)\s*text-align\s*:\s*(left|center|right|justify)\b/i)?.[1]?.toLowerCase()
+  if (inline === 'left' || inline === 'center' || inline === 'right' || inline === 'justify') return inline
+  const classes = className.split(/\s+/)
+  if (classes.includes('text-left')) return 'left'
+  if (classes.includes('text-center')) return 'center'
+  if (classes.includes('text-right')) return 'right'
+  if (classes.includes('text-justify')) return 'justify'
+  return ''
+}
+
 function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
   const copy = $(node).clone()
   // 웹 앱 전용 Tailwind class·복사 버튼·이벤트 속성은 티스토리에서 의미가 없거나 안전하지 않다.
@@ -46,6 +61,7 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
   copy.find('*').addBack().each((_, node) => {
     const element = node as Element
     const attrs = element.attribs || {}
+    const alignment = safeTextAlign(attrs.class || '', attrs.style || '')
     for (const name of Object.keys(attrs)) {
       if (name === 'class' || name === 'style' || name === 'id' || /^on/i.test(name) || /^data-/i.test(name)) {
         $(element).removeAttr(name)
@@ -56,6 +72,8 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
       if (!/^https?:\/\//i.test(href)) $(element).removeAttr('href')
       else $(element).attr({ target: '_blank', rel: 'noopener noreferrer' })
     }
+    if (alignment) $(element).attr('style', `text-align: ${alignment};`)
+    else if (element.tagName && alignedBlockTags.has(element.tagName.toLowerCase())) $(element).attr('style', 'text-align: left;')
   })
   copy.find('img, figure, figcaption').remove()
   return $.html(copy).trim()

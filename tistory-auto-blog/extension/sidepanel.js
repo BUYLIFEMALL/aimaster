@@ -633,6 +633,12 @@ function publishSettingsFromPanel() {
   return settings;
 }
 
+function needsPublishDialog(settings) {
+  // 티스토리 새 글의 기본값(공개·댓글 허용·현재 발행)은 이미 편집기에 적용돼 있다.
+  // 기본값인데도 모달을 열면 React 발행 모달 대기에서 입력 전체가 중단될 수 있다.
+  return settings.visibility !== "public" || settings.comment !== "allow" || Boolean(settings.topic) || settings.timing !== "now";
+}
+
 async function applyTistoryPublishSettings(tabId, settings) {
   const applied = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] }, args: [settings],
@@ -868,8 +874,10 @@ async function applyRemainingTistorySettings(tabId, bodyFrame, verificationOptio
   const category = $("categoryName").value.trim();
   if (category) await chooseTistoryCategory(tabId, category);
   await addTistoryTags(tabId, $("tagNames").value);
+  const settings = publishSettingsFromPanel();
+  if (!needsPublishDialog(settings)) return { visibility: "공개", timing: "현재", verification, skippedDefaultDialog: true };
   await openPublishSettings(tabId);
-  return { ...await applyTistoryPublishSettings(tabId, publishSettingsFromPanel()), verification };
+  return { ...await applyTistoryPublishSettings(tabId, settings), verification };
 }
 
 async function fillTistoryPost() {
