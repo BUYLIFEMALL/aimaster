@@ -325,6 +325,8 @@ function previewPost() {
   for (const block of activePost.blocks || []) {
     if (block.type === "image") {
       const image = document.createElement("img"); image.src = block.url; image.alt = block.alt || "본문 이미지"; container.append(image);
+    } else if (block.type === "html") {
+      const wrapper = document.createElement("div"); wrapper.innerHTML = block.html; container.append(wrapper);
     } else {
       const paragraph = document.createElement("p"); paragraph.textContent = block.type === "link" ? `${block.text} ${block.url}` : block.text; paragraph.style.whiteSpace = "pre-line"; container.append(paragraph);
     }
@@ -396,6 +398,28 @@ async function humanType(tabId, text, statusPrefix) {
     await inputSleep(inputDelay(TYPE_MIN_MS, TYPE_MAX_MS));
     if (Math.random() < THINK_CHANCE) await inputSleep(inputDelay(250, 700));
   }
+}
+
+async function insertTistoryHtml(tabId, bodyFrame, html, statusPrefix) {
+  $("inputStatus").textContent = statusPrefix;
+  const inserted = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [bodyFrame] },
+    args: [html],
+    func: (safeHtml) => {
+      const editor = document.querySelector("body#tinymce[contenteditable='true']");
+      if (!editor) return false;
+      editor.focus();
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || !editor.contains(selection.getRangeAt(0).commonAncestorContainer)) {
+        const range = document.createRange(); range.selectNodeContents(editor); range.collapse(false);
+        selection?.removeAllRanges(); selection?.addRange(range);
+      }
+      // TinyMCE가 감지하는 native editing 경로로 넣어 제목·목록·인용·표·링크의 의미 HTML을 보존한다.
+      return document.execCommand("insertHTML", false, safeHtml);
+    },
+  });
+  if (inserted[0]?.result !== true) throw new Error("본문 서식을 티스토리 편집기에 넣지 못했습니다.");
+  await inputSleep(inputDelay(180, 420));
 }
 
 function normalizeTistoryTags(values) {
@@ -655,7 +679,7 @@ async function verifyTistoryInput(tabId, bodyFrame, { allowPartialText = false }
   const state = await readTistoryDraftState(tabId, bodyFrame);
   if (normalized(state.title) !== normalized(activePost?.title)) throw new Error("입력된 제목을 다시 확인하지 못했습니다.");
 
-  const textBlocks = (activePost?.blocks || []).filter((block) => block.type === "text" || block.type === "link");
+  const textBlocks = (activePost?.blocks || []).filter((block) => block.type === "text" || block.type === "html" || block.type === "link");
   const actualBody = compactVerificationText(state.body);
   const matchedTextBlocks = textBlocks.filter((block) => {
     const samples = verificationSamples(expectedBlockText(block));
@@ -768,6 +792,7 @@ async function fillTistoryPost() {
     let pastedImages = 0;
     for (const block of activePost.blocks || []) {
       if (block.type === "text" || block.type === "link") await withDebugger(tab.id, () => humanType(tab.id, `${block.type === "link" ? `${block.text} ${block.url}` : block.text}\n\n`, "본문 입력 중…"));
+      if (block.type === "html") await insertTistoryHtml(tab.id, bodyFrame, `${block.html}<p><br></p>`, "본문 서식 입력 중…");
       if (block.type === "image") {
         pastedImages += 1;
         await pasteTistoryImage(tab.id, bodyFrame, block.url, pastedImages, totalImages);

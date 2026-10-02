@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 티스토리 본문 의미 서식 보존 입력 (2026-10-02, v1.25)
+
+- 실제 포스팅 화면에서 본문 서식이 평문처럼 사라진 원인은 `utils/extensionContent.ts`가 원문 HTML을 텍스트 블록으로 평탄화하고 `extension/sidepanel.js`가 이를 한 글자씩 입력한 구조였다. 이제 제목 단계·굵게·목록·인용·표·링크를 안전한 의미 HTML 블록으로 보존해 TinyMCE에 입력한다. 이미지 URL은 외부 이미지 태그로 넣지 않고 기존 PNG 붙여넣기 업로드 경로를 유지한다. Tailwind class·inline style·복사 버튼·이벤트 속성은 티스토리에 보내지 않는다.
+
 ## 티스토리 카테고리 목록 동적 생성 보완 (2026-10-02, v1.24)
 
 - `tistory-auto-blog/extension/sidepanel.js`의 카테고리 열기 코드가 클릭 전 `#category-list` 존재를 필수 조건으로 검사해, 티스토리가 버튼 클릭 뒤 목록을 React로 생성하는 화면에서 클릭조차 하지 않고 `카테고리 목록을 열지 못했습니다.`로 중단했다. 이제 `#category-btn`만 확인해 실제 클릭을 수행하고, `aria-expanded=true` 또는 목록 가시성으로 열림을 판정하며 최대 3회 재시도한다.

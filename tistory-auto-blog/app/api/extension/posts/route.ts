@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
 // 티스토리 크롬 확장이 불러갈 "티스토리로 보낸 글" 목록(본인 글만, 최근 20개).
-// 본문은 확장이 네이버 편집기에 순서대로 입력할 블록(텍스트·이미지)으로 바꿔서 준다(utils/extensionContent.ts).
+// 본문은 확장이 티스토리 편집기에 순서대로 입력할 블록(서식 HTML·텍스트·이미지)으로 바꿔서 준다(utils/extensionContent.ts).
 export async function GET(request: Request) {
   const user = await verifyExtensionToken(request)
   if (!user) return NextResponse.json({ error: '유효하지 않은 연동 토큰이거나 이용 권한이 없습니다.' }, { status: 401 })
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
       blocks,
       tags,
       image_count: blocks.filter((block) => block.type === 'image').length,
-      text_length: blocks.reduce((sum, block) => sum + (block.type === 'text' ? block.text.length : 0), 0),
+      text_length: blocks.reduce((sum, block) => sum + ((block.type === 'text' || block.type === 'html') ? block.text.length : 0), 0),
     }
   })
   return NextResponse.json({ posts })

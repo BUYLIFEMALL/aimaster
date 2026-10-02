@@ -3,17 +3,12 @@ import * as cheerio from 'cheerio'
 import type { AnyNode, Element } from 'domhandler'
 import { removeImagePromptSection, stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
 
-// BLOG 글(HTML)을 크롬 확장이 네이버 편집기에 순서대로 입력할 "블록"으로 바꾼다(2026-10-01).
-// 네이버 편집기에는 한 글자씩 입력하므로 서식(굵게·소제목 크기·표 모양)은 남지 않는다 — 대신 읽기 좋은 일반 텍스트로 바꾼다.
-// - 소제목(h2/h3): 앞의 "##" 같은 마크다운 흔적을 지운 한 줄
-// - 목록: "• 항목" 줄
-// - 링크만 있는 줄(추천 링크 등): 링크 블록 — 확장이 실제 링크로 붙여넣는다
-// - 문장 속 링크: "글자: 주소 " — 주소 뒤에 항상 띄어쓰기/줄바꿈(네이버 자동 링크용, 블록 끝이 주소면 띄어쓰기를 붙임)
-// - 이미지(figure/img): 이미지 블록(확장이 내려받아 네이버에 파일로 올림)
-// - 마지막 해시태그 줄(#태그 #태그): 본문에서 빼고 네이버 태그 추천값으로 돌려줌
-// - 구분선(hr)·빈 문단은 건너뜀
+// BLOG 글(HTML)을 티스토리 확장이 순서대로 입력할 "블록"으로 바꾼다.
+// 텍스트만 한 글자씩 입력하면 제목 단계·굵게·목록·인용·표·링크가 모두 평문이 된다.
+// 티스토리가 이해하는 안전한 의미 HTML은 보존하고, 이미지는 티스토리 서버에 실제 업로드되도록 별도 블록으로 보낸다.
 export type InputBlock =
   | { type: 'text'; text: string }
+  | { type: 'html'; html: string; text: string }
   | { type: 'image'; url: string; alt: string }
   | { type: 'link'; text: string; url: string } // 링크만 있는 줄 — 확장이 링크가 걸린 상태로 붙여넣음
 
@@ -44,6 +39,28 @@ function textWithLinks($: cheerio.CheerioAPI, node: AnyNode): string {
 
 const imageAlt = (alt: string) => clean(alt).replace(/\s*비주얼$/, '')
 
+function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
+  const copy = $(node).clone()
+  // 웹 앱 전용 Tailwind class·복사 버튼·이벤트 속성은 티스토리에서 의미가 없거나 안전하지 않다.
+  copy.find('script, style, button, svg, iframe, object, embed, form, input, textarea, select').remove()
+  copy.find('*').addBack().each((_, node) => {
+    const element = node as Element
+    const attrs = element.attribs || {}
+    for (const name of Object.keys(attrs)) {
+      if (name === 'class' || name === 'style' || name === 'id' || /^on/i.test(name) || /^data-/i.test(name)) {
+        $(element).removeAttr(name)
+      }
+    }
+    if (element.tagName === 'a') {
+      const href = $(element).attr('href') || ''
+      if (!/^https?:\/\//i.test(href)) $(element).removeAttr('href')
+      else $(element).attr({ target: '_blank', rel: 'noopener noreferrer' })
+    }
+  })
+  copy.find('img, figure, figcaption').remove()
+  return $.html(copy).trim()
+}
+
 export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags: string[] } {
   const html = stripImageGenerationSchema(removeImagePromptSection(rawHtml || ''))
   const $ = cheerio.load(`<div id="root">${html}</div>`)
@@ -71,44 +88,26 @@ export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags
     if (node.type !== 'tag') return
     const el = node as Element
     const tag = el.tagName.toLowerCase()
-    if (tag === 'hr' || tag === 'script' || tag === 'style') return
-    if (tag === 'ul' || tag === 'ol') {
-      const items = $(el).children('li').map((i, li) => {
-        const text = textWithLinks($, li)
-        return text ? `${tag === 'ol' ? `${i + 1}.` : '•'} ${text}` : ''
-      }).get().filter(Boolean)
-      return pushText(items.join('\n'))
+    if (tag === 'hr') {
+      blocks.push({ type: 'html', html: '<hr>', text: '' })
+      return
     }
-    if (tag === 'table') {
-      const rows = $(el).find('tr').map((_, tr) => $(tr).children('th, td').map((__, cell) => clean($(cell).text())).get().join(' | ')).get()
-      return pushText(rows.filter(Boolean).join('\n'))
-    }
-    // 추천 링크(CTA) 상자: 예전 글은 "📢 추천링크 지금 바로 확인해 보세요: 👉 추천링크 바로가기" 처럼 이름이 두 번 들어가 있었다.
-    // 링크 한 줄("👉 추천링크 바로가기: 주소")만 입력한다(2026-10-01 주인님 지시). 새 글은 generator가 처음부터 이 한 줄만 만든다.
-    // 링크만 있는 줄(추천 링크 상자, 링크 하나뿐인 문단)은 "링크 블록"으로 보낸다 — 확장이 링크가 걸린 채로 붙여넣는다(실제 링크).
-    const onlyLink = $(el).find('a').length === 1 && (/📢|👉/.test($(el).text()) || clean($(el).text()) === clean($(el).find('a').text()))
-    if ((tag === 'blockquote' || tag === 'p') && onlyLink) {
-      const link = $(el).find('a').first()
-      const url = link.attr('href') || ''
-      const text = clean(link.text())
-      if (/^https?:\/\//i.test(url) && text) {
-        blocks.push({ type: 'link', text, url })
-        return
-      }
-    }
+    if (tag === 'script' || tag === 'style') return
     const hasImage = $(el).is('img') || $(el).find('img').length > 0
     if (hasImage) {
       const before = textWithLinks($, el)
       pushImages(el)
       return pushText(before)
     }
-    const text = textWithLinks($, el)
+    const text = clean($(el).text())
     // 해시태그만 있는 줄 → 네이버 태그로
     if (text && /^(#[^\s#]+\s*)+$/.test(text)) {
       for (const t of text.match(/#[^\s#]+/g) ?? []) tags.push(t.slice(1))
       return
     }
-    pushText(text)
+    const html = tistorySafeHtml($, el)
+    if (html && text) blocks.push({ type: 'html', html, text })
+    else pushText(textWithLinks($, el))
   })
 
   // 블록이 주소로 끝나면(뒤에 바로 이미지가 오는 경우 등) 띄어쓰기를 붙여 네이버 자동 링크가 걸리게 한다.
