@@ -211,7 +211,7 @@ ${customRule}
   }
 
   const contentMarkdown = `
-> **요약**: ${excerpt}
+> ${excerpt}
 
 ${titleImageLine}
 
