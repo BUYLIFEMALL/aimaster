@@ -5,6 +5,16 @@ const STORAGE_KEY = "tistoryEditorInspectionSnapshots";
 const TOKEN_KEY = "tistoryAutoBlogToken";
 const PUBLISH_SETTINGS_KEY = "tistoryPublishSettings";
 const TOPIC_OPTIONS_KEY = "tistoryHomeTopicOptions";
+// 빈 새 글에서는 티스토리가 발행창을 열지 않으므로, 먼저 선택 가능한 공통 홈주제를 제공한다.
+// 실제 티스토리 메뉴는 글 입력 뒤 "목록 갱신"으로 읽어 와 이 목록을 대체한다.
+const DEFAULT_HOME_TOPICS = [
+  "일상", "육아", "건강", "요리", "패션·미용", "반려동물",
+  "여행", "맛집", "국내여행", "해외여행",
+  "TV", "스타", "영화", "음악", "책", "만화·애니", "공연·전시·축제", "창작",
+  "IT·인터넷", "모바일", "게임", "과학", "IT 제품리뷰",
+  "정치", "사회", "교육", "국제", "경제", "경영·직장",
+  "야구", "축구", "농구", "배구", "골프", "기타 스포츠",
+];
 const BASE = "https://tistory-auto-blog-pearl.vercel.app";
 const $ = (id) => document.getElementById(id);
 let snapshots = [];
@@ -293,7 +303,7 @@ function renderTopicOptions(values, selected = $("topicName").value) {
   if (selected && !names.includes(selected)) {
     const saved = document.createElement("option"); saved.value = selected; saved.textContent = `${selected} (저장됨)`; select.append(saved);
   }
-  select.disabled = names.length === 0;
+  select.disabled = false;
   select.value = selected || "";
 }
 
@@ -317,8 +327,8 @@ async function restorePublishSettings() {
   const stored = await chrome.storage.local.get([PUBLISH_SETTINGS_KEY, TOPIC_OPTIONS_KEY]);
   const settings = stored[PUBLISH_SETTINGS_KEY];
   const cachedTopics = stored[TOPIC_OPTIONS_KEY];
-  if (Array.isArray(cachedTopics)) renderTopicOptions(cachedTopics, settings?.topic || "");
-  else if (settings?.topic) renderTopicOptions([], settings.topic);
+  if (Array.isArray(cachedTopics) && cachedTopics.length) renderTopicOptions(cachedTopics, settings?.topic || "");
+  else renderTopicOptions(DEFAULT_HOME_TOPICS, settings?.topic || "");
   if (!settings || typeof settings !== "object") return;
   for (const id of ["categoryName", "tagNames", "postVisibility", "commentPolicy", "topicName", "publishTiming", "reserveDate", "reserveTime"]) {
     if (typeof settings[id] === "string" && $(id)) $(id).value = settings[id];
@@ -331,7 +341,7 @@ async function loadTistoryTopics() {
   const tab = await getTistoryEditorTab();
   const button = $("loadTopics");
   button.disabled = true;
-  $("publishSettingsStatus").textContent = "티스토리 발행 창에서 홈주제를 읽는 중…";
+  $("publishSettingsStatus").textContent = "티스토리 발행 창에서 실제 홈주제를 읽는 중…";
   try {
     await chrome.windows.update(tab.windowId, { focused: true }); await chrome.tabs.update(tab.id, { active: true });
     await openPublishSettings(tab.id);
@@ -369,7 +379,9 @@ async function loadTistoryTopics() {
     await chrome.storage.local.set({ [TOPIC_OPTIONS_KEY]: topics });
     $("publishSettingsStatus").textContent = `${topics.length}개 홈주제를 불러왔습니다. 목록에서 바로 선택하세요.`;
   } catch (error) {
-    $("publishSettingsStatus").textContent = error instanceof Error ? error.message : String(error);
+    // 빈 새 글에서는 티스토리가 발행 설정창을 열지 않는다. 기본 목록은 이미 선택 가능하므로 오류로 끝내지 않는다.
+    renderTopicOptions(DEFAULT_HOME_TOPICS, $("topicName").value);
+    $("publishSettingsStatus").textContent = "빈 새 글에서는 기본 홈주제 목록을 사용하세요. 제목·본문 입력 뒤 목록 갱신을 누르면 티스토리 실제 목록으로 바뀝니다.";
   } finally { button.disabled = false; }
 }
 
@@ -667,7 +679,7 @@ async function applyTistoryPublishSettings(tabId, settings) {
         const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
         const matches = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])]
           .filter((node) => visible(node) && nodeText(node) === label);
-        if (matches.length !== 1) throw new Error(`‘${label}’ 선택 항목을 정확히 찾지 못했습니다.`);
+        if (matches.length !== 1) throw new Error(`‘${label}’ 항목이 현재 티스토리 목록에 없습니다. 제목·본문 입력 뒤 홈주제 목록 갱신을 누르고 다시 선택해 주세요.`);
         await click(matches[0]);
         if (!nodeText(button).includes(label)) throw new Error(`‘${label}’ 선택 적용을 확인하지 못했습니다.`);
       };
