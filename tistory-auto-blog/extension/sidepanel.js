@@ -620,18 +620,48 @@ function normalized(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
 }
 
-async function verifyTistoryInput(tabId, bodyFrame) {
+// 티스토리는 URL을 자동 링크로 바꾸고, 줄바꿈을 p/figure로 다시 구성합니다.
+// 그래서 추출 단계의 원문 전체를 innerText와 그대로 비교하면 정상 입력도 실패로 판단할 수 있습니다.
+// 공백·문장부호 차이를 제외한 앞/뒤 문맥 조각으로 확인하되, 본문 원문 자체는 오류나 로그에 남기지 않습니다.
+function compactVerificationText(value) {
+  return String(value || "")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function verificationSamples(value) {
+  const compact = compactVerificationText(value);
+  if (!compact) return [];
+  if (compact.length <= 72) return [compact];
+  return [...new Set([compact.slice(0, 48), compact.slice(-48)])];
+}
+
+function expectedBlockText(block) {
+  return block.type === "link" ? `${block.text} ${block.url}` : block.text;
+}
+
+async function verifyTistoryInput(tabId, bodyFrame, { allowPartialText = false } = {}) {
   const state = await readTistoryDraftState(tabId, bodyFrame);
   if (normalized(state.title) !== normalized(activePost?.title)) throw new Error("입력된 제목을 다시 확인하지 못했습니다.");
-  for (const block of activePost?.blocks || []) {
-    if (block.type !== "text" && block.type !== "link") continue;
-    const expected = block.type === "link" ? `${block.text} ${block.url}` : block.text;
-    if (normalized(expected) && !normalized(state.body).includes(normalized(expected))) {
-      throw new Error("입력된 본문을 다시 확인하지 못했습니다.");
-    }
+
+  const textBlocks = (activePost?.blocks || []).filter((block) => block.type === "text" || block.type === "link");
+  const actualBody = compactVerificationText(state.body);
+  const matchedTextBlocks = textBlocks.filter((block) => {
+    const samples = verificationSamples(expectedBlockText(block));
+    return samples.length === 0 || samples.some((sample) => actualBody.includes(sample));
+  }).length;
+  const requiredTextBlocks = allowPartialText && textBlocks.length > 0
+    ? Math.max(1, Math.ceil(textBlocks.length * 0.6))
+    : textBlocks.length;
+
+  if (textBlocks.length > 0 && (!actualBody || matchedTextBlocks < requiredTextBlocks)) {
+    throw new Error(`입력된 본문을 다시 확인하지 못했습니다. (확인 ${matchedTextBlocks}/${textBlocks.length}개 문단)`);
   }
   const imageCount = (activePost?.blocks || []).filter((block) => block.type === "image").length;
   if (state.imageCount !== imageCount) throw new Error("입력된 이미지 수를 다시 확인하지 못했습니다.");
+  return { matchedTextBlocks, totalTextBlocks: textBlocks.length };
 }
 
 async function pasteTistoryImage(tabId, bodyFrame, url, order, total) {
@@ -701,13 +731,13 @@ async function reportInput(status, error = "") {
   await extensionApi(`/api/extension/posts/${encodeURIComponent(activePost.id)}/input-result`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status, error }) }).catch(() => {});
 }
 
-async function applyRemainingTistorySettings(tabId, bodyFrame) {
-  await verifyTistoryInput(tabId, bodyFrame);
+async function applyRemainingTistorySettings(tabId, bodyFrame, verificationOptions) {
+  const verification = await verifyTistoryInput(tabId, bodyFrame, verificationOptions);
   const category = $("categoryName").value.trim();
   if (category) await chooseTistoryCategory(tabId, category);
   await addTistoryTags(tabId, $("tagNames").value);
   await openPublishSettings(tabId);
-  return applyTistoryPublishSettings(tabId, publishSettingsFromPanel());
+  return { ...await applyTistoryPublishSettings(tabId, publishSettingsFromPanel()), verification };
 }
 
 async function fillTistoryPost() {
@@ -751,7 +781,9 @@ async function resumeTistoryPostSettings() {
   try {
     await chrome.windows.update(tab.windowId, { focused: true }); await chrome.tabs.update(tab.id, { active: true });
     const bodyFrame = await editorFrameId(tab.id);
-    const publishSettings = await applyRemainingTistorySettings(tab.id, bodyFrame);
+    // 중단 후 재개는 이미 화면에 있는 글을 절대 다시 쓰지 않습니다.
+    // 티스토리가 서식을 다시 만든 일부 문단은 허용하되 제목·본문 존재·이미지 수는 계속 검증합니다.
+    const publishSettings = await applyRemainingTistorySettings(tab.id, bodyFrame, { allowPartialText: true });
     await reportInput("publish_ready");
     $("inputStatus").textContent = `기존 제목·본문·이미지는 그대로 두고 카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다. 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
   } catch (error) {
