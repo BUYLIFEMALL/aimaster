@@ -234,33 +234,24 @@ export default async function ProgramDetailPage({ params }: PageProps) {
           </h2>
           <p className="text-subtext mb-8">필요에 맞는 플랜을 선택하세요</p>
 
-          {!isAccessAllowed ? (
+          {!user ? (
             <div className="glass-card rounded-2xl p-8 text-center">
               <Lock size={40} className="text-gold mx-auto mb-4" />
-              {reachedLimit ? (
-                <>
-                  <h3 className="text-xl font-bold text-white mb-2">이용 한도 초과</h3>
-                  <p className="text-subtext mb-4">
-                    현재 등급(<span className="text-gold font-semibold">{userGrade?.name}</span>)은
-                    최대 <span className="text-gold font-semibold">{maxPrograms}개</span> 프로그램까지 이용 가능합니다.
-                    더 많은 프로그램을 이용하려면 등급을 업그레이드하세요.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-xl font-bold text-white mb-2">등급 전용 프로그램</h3>
-                  <p className="text-subtext mb-4">
-                    이 프로그램은{" "}
-                    <span className="text-gold font-semibold">{requiredGrade?.name}</span>{" "}
-                    등급 이상 회원만 신청할 수 있습니다.
-                  </p>
-                </>
-              )}
-              {!user && (
-                <Link href="/login" className="text-gold hover:underline text-sm">
-                  로그인하여 확인하기
-                </Link>
-              )}
+              <h3 className="text-xl font-bold text-white mb-2">로그인 후 구독할 수 있습니다</h3>
+              <p className="text-subtext mb-4">로그인하면 원하는 요금제를 선택해 바로 구독할 수 있습니다.</p>
+              <Link href="/login" className="text-gold hover:underline text-sm">
+                로그인하기
+              </Link>
+            </div>
+          ) : reachedLimit ? (
+            <div className="glass-card rounded-2xl p-8 text-center">
+              <Lock size={40} className="text-gold mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">이용 한도 초과</h3>
+              <p className="text-subtext mb-4">
+                현재 등급(<span className="text-gold font-semibold">{userGrade?.name}</span>)은
+                최대 <span className="text-gold font-semibold">{maxPrograms}개</span> 프로그램까지 이용 가능합니다.
+                더 많은 프로그램을 이용하려면 등급을 업그레이드하세요.
+              </p>
             </div>
           ) : (
             <PaymentController plans={activePlans} programName={program.name} programId={program.id} />
