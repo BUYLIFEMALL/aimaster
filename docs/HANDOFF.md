@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 티스토리 원본 텍스트 서식 변환 보존 (2026-10-02, v1.44)
+
+- 증상: v1.43의 입력·저장 경로 보완 뒤에도 텍스트 서식이 원본과 다르게 깨져 보였다.
+- 원인/조치: `utils/extensionContent.ts`의 `tistorySafeHtml()`가 Tailwind class와 inline style을 삭제하고 정렬만 남겼다. v1.44는 레이아웃/이벤트 속성은 계속 제거하되, 생성기에서 사용하는 글자 크기·굵기·줄간격·색상·인용·목록·테두리 클래스를 안전한 인라인 CSS로 변환하고 안전한 기존 style 속성도 보존한다.
+
 ## 티스토리 원본 서식 보존 입력 경로 (2026-10-02, v1.43)
 
 - 증상: 본문 텍스트는 입력되었지만 원본의 제목·목록·인용·표 등 서식이 최종 입력 결과에서 깨졌다.
@@ -89,7 +94,7 @@
 | 1 | Meta 앱 심사 (`threads_keyword_search` 고급 액세스) | ⏸ **비즈니스 인증 재제출 후 결과 대기**. 결과가 나오면 → 액세스 인증 → 데이터 처리 질문 → 앱 검수 제출 순서로 재개. 제출에는 심사관 테스트 계정과 시연 영상이 필요 | 주인님(Meta 화면) + 개발 | `threads-affiliate-poster/docs/META_APP_REVIEW.md` §0 |
 | 3 | 회원 계정으로 실제 동작 확인 | 쇼핑제휴 `/trends`(직접 가져오기·검색 필터·AI 모델별 캡션·내 페르소나), 댓글자동화 `threads_read_replies` 재연동 후 댓글 테스트, 20개 프로그램 사이드바 하단 계정 표시 | 주인님(테스트) | 각 서브프로젝트 `AGENTS.md` |
 | 4 | 티스토리 블로그 자동화 (`tistory-auto-blog/`, BLOG 방식 = 웹 + 크롬 확장) | 🟡 **확장 계정 연동 배포 완료(v1.02)**: 전용 DB·owner-only RLS, 프로그램·기본 3단계 요금제, `https://tistory-auto-blog-pearl.vercel.app` 배포. 확장은 설정의 연동 토큰을 서버에서 검증한 뒤 저장한다. 편집기 조작은 티스토리 권한만 쓰는 읽기 전용 조사 모드다. **다음: 주인님 PC에서 `extension/`을 압축 해제 로드 → 설정에서 토큰 발급·연결 → JSON 전달 → 서버 변환기·실제 입력 코드.** 복제 원본 ESLint 오류 53개는 별도 정리 필요 | 주인님(조사 실행) + 개발 | `tistory-auto-blog/docs/TISTORY_PLAN.md` §6, `tistory-auto-blog/AGENTS.md` |
-| 6 | BLOG(ai-auto-blog v1.34) 실제 사용 확인 | ① 이미지 1~5장 선택 시 제목용·문단 이미지 배치 ② 확장으로 네이버 입력 시 추천 링크가 **실제 링크 1개만** 들어가는지(v1.27 수정 후) ③ 추천테그 추출 결과 ④ 회원 계정으로 로그인→글 생성. **v1.34에서 해결**: 소제목이 이미지 앞뒤로 두 번 보이던 것, 요약 인용문 "요약:" 라벨(기존 글 10개도 직접 수정). 실제 생성은 회원 키 유료 호출이라 **에이전트가 임의 실행 금지** | 주인님(테스트) | `ai-auto-blog/AGENTS.md`, `docs/ERROR_LESSONS.md` |
+| 6 | BLOG(ai-auto-blog v1.33) 실제 사용 확인 | ① 이미지 1~5장 선택 시 제목용·문단 이미지 배치 ② 확장으로 네이버 입력 시 추천 링크가 **실제 링크 1개만** 들어가는지(v1.27 수정 후) ③ 추천테그 추출 결과 ④ 회원 계정으로 로그인→글 생성. 실제 생성은 회원 키 유료 호출이라 **에이전트가 임의 실행 금지** | 주인님(테스트) | `ai-auto-blog/AGENTS.md` |
 | 7 | GPT-6 계열 본문 생성 1회 검증 (BLOG) | 유료 — 주인님 승인 후 실행 | 개발 | `ai-auto-blog/AGENTS.md` v1.09 |
 | 8 | BLOG 30일 자동 삭제 첫 실행 결과 확인 | 📅 **2026-11-01 03:00 KST** 첫 실행(기존 데이터 10/1부터 유예). 다음 날 삭제 건수·Storage 정리 확인 | 개발 | `ai-auto-blog/app/api/cron/cleanup-images` |
 | 9 | (Codex 담당) SEO 스튜디오 남은 3가지 | ① `naver-blog-seo-studio/components/StudioPage.tsx`의 "다른 프로그램 보기" 링크 `/blog/dashboard` → `https://www.buylife.xyz/dashboard`(다른 프로그램은 2026-10-01 교체 완료) ② 로그인 화면을 `docs/PLATFORM_PATTERNS.md` §29 레이아웃으로 ③ 확장 타이핑 속도 24~52ms → §20 기준 70~170ms. 고친 뒤 버전 +0.01(코드·DB) | Codex | `docs/ERROR_LESSONS.md` D, §29 |

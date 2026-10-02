@@ -122,6 +122,10 @@
 이어가기 절차(병합 → 조사 실행 → 단계별 진행)와 로컬에서만 할 수 있는 일(DB 적용·`programs` 등록·배포)은
 [`docs/TISTORY_PLAN.md`](docs/TISTORY_PLAN.md) **§6**에 정리돼 있다. 가장 먼저 할 일은 주인님 PC에서 `inspector-extension/` 실행 후 JSON 결과 확보.
 
+# v1.44 (2026-10-02)
+
+- 전송 HTML 정리기 `tistorySafeHtml()`가 원본의 Tailwind `class`와 거의 모든 inline `style`을 삭제해, 글자 크기·굵기·줄간격·인용·목록 서식이 티스토리 입력 전에 사라지는 근본 원인을 수정했다. Tailwind 레이아웃 전체를 보내지 않고 글 의미에 필요한 텍스트·색상·인용선·목록·테두리 스타일과 안전한 기존 inline CSS 속성만 인라인 CSS로 변환해 보존한다.
+
 # v1.43 (2026-10-02)
 
 - v1.41의 발행 직전 `setContent()` 전체 재입력이 티스토리 TinyMCE가 기존 서식 HTML을 재해석·정리해 원본 서식이 깨지는 문제를 만들었다. 서식 블록을 입력할 때부터 TinyMCE `insertContent()` 공식 경로로 모델에 기록하고, 발행 직전에는 `setContent()` 없이 `save()`만 실행하도록 변경했다. API가 없는 편집기 버전에서만 기존 native `execCommand`를 fallback으로 쓴다.

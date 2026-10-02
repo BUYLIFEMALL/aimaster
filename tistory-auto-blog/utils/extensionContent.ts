@@ -54,6 +54,67 @@ function safeTextAlign(className: string, style: string): 'left' | 'center' | 'r
   return ''
 }
 
+const TISTORY_SAFE_STYLE_PROPERTIES = new Set([
+  'text-align', 'color', 'background-color', 'font-weight', 'font-style', 'text-decoration',
+  'font-size', 'line-height', 'letter-spacing', 'margin', 'margin-top', 'margin-right',
+  'margin-bottom', 'margin-left', 'padding', 'padding-top', 'padding-right', 'padding-bottom',
+  'padding-left', 'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
+  'border-color', 'border-style', 'border-width', 'border-radius', 'list-style-type',
+])
+
+function safeInlineStyle(style: string): string[] {
+  return String(style || '').split(';').flatMap((declaration) => {
+    const separator = declaration.indexOf(':')
+    if (separator < 1) return []
+    const property = declaration.slice(0, separator).trim().toLowerCase()
+    const value = declaration.slice(separator + 1).trim()
+    if (!TISTORY_SAFE_STYLE_PROPERTIES.has(property) || !value || /url\s*\(|expression\s*\(|@import|javascript:/i.test(value)) return []
+    return [`${property}: ${value}`]
+  })
+}
+
+// BLOG 본문은 Tailwind 클래스로 시각 서식을 표현한다. 티스토리에는 Tailwind CSS가 없으므로
+// 레이아웃 클래스 전체를 옮기지 않고, 글의 의미를 보존하는 안전한 텍스트·인용·목록 스타일만
+// 인라인 CSS로 번역한다.
+function tailwindTextStyles(className: string): string[] {
+  const classes = new Set(String(className || '').split(/\s+/).filter(Boolean))
+  const styles: string[] = []
+  const add = (value: string) => styles.push(value)
+  const size = [
+    ['text-xs', 'font-size: 0.75rem'], ['text-sm', 'font-size: 0.875rem'],
+    ['text-base', 'font-size: 1rem'], ['text-lg', 'font-size: 1.125rem'],
+    ['text-xl', 'font-size: 1.25rem'], ['text-2xl', 'font-size: 1.5rem'],
+    ['text-3xl', 'font-size: 1.875rem'],
+  ] as const
+  size.forEach(([name, style]) => { if (classes.has(name)) add(style) })
+  const weight = [
+    ['font-medium', 'font-weight: 500'], ['font-semibold', 'font-weight: 600'],
+    ['font-bold', 'font-weight: 700'], ['font-extrabold', 'font-weight: 800'], ['font-black', 'font-weight: 900'],
+  ] as const
+  weight.forEach(([name, style]) => { if (classes.has(name)) add(style) })
+  if (classes.has('italic')) add('font-style: italic')
+  if (classes.has('underline')) add('text-decoration: underline')
+  if (classes.has('line-through')) add('text-decoration: line-through')
+  if (classes.has('leading-relaxed')) add('line-height: 1.625')
+  if (classes.has('leading-snug')) add('line-height: 1.375')
+  if (classes.has('leading-tight')) add('line-height: 1.25')
+  if (classes.has('list-disc')) add('list-style-type: disc')
+  if (classes.has('list-decimal')) add('list-style-type: decimal')
+  if (classes.has('border-l-4')) add('border-left-width: 4px')
+  if (classes.has('border-b')) add('border-bottom-width: 1px')
+  if (classes.has('border-solid')) add('border-style: solid')
+  if (classes.has('rounded-xl')) add('border-radius: 0.75rem')
+  if (classes.has('rounded-r-xl')) add('border-radius: 0 0.75rem 0.75rem 0')
+  const colors = [
+    ['text-slate-900', 'color: #0f172a'], ['text-slate-800', 'color: #1e293b'], ['text-slate-700', 'color: #334155'],
+    ['text-indigo-600', 'color: #4f46e5'], ['border-indigo-500', 'border-color: #6366f1'],
+    ['border-slate-100', 'border-color: #f1f5f9'], ['border-slate-200', 'border-color: #e2e8f0'],
+    ['bg-indigo-50/60', 'background-color: #eef2ff'], ['bg-indigo-50', 'background-color: #eef2ff'],
+  ] as const
+  colors.forEach(([name, style]) => { if (classes.has(name)) add(style) })
+  return styles
+}
+
 function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
   const copy = $(node).clone()
   // 웹 앱 전용 Tailwind class·복사 버튼·이벤트 속성은 티스토리에서 의미가 없거나 안전하지 않다.
@@ -62,6 +123,7 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
     const element = node as Element
     const attrs = element.attribs || {}
     const alignment = safeTextAlign(attrs.class || '', attrs.style || '')
+    const styles = [...tailwindTextStyles(attrs.class || ''), ...safeInlineStyle(attrs.style || '')]
     for (const name of Object.keys(attrs)) {
       if (name === 'class' || name === 'style' || name === 'id' || /^on/i.test(name) || /^data-/i.test(name)) {
         $(element).removeAttr(name)
@@ -72,8 +134,9 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
       if (!/^https?:\/\//i.test(href)) $(element).removeAttr('href')
       else $(element).attr({ target: '_blank', rel: 'noopener noreferrer' })
     }
-    if (alignment) $(element).attr('style', `text-align: ${alignment};`)
-    else if (element.tagName && alignedBlockTags.has(element.tagName.toLowerCase())) $(element).attr('style', 'text-align: left;')
+    if (alignment) styles.push(`text-align: ${alignment}`)
+    else if (element.tagName && alignedBlockTags.has(element.tagName.toLowerCase())) styles.push('text-align: left')
+    if (styles.length) $(element).attr('style', [...new Set(styles)].join('; ') + ';')
   })
   copy.find('img, figure, figcaption').remove()
   return $.html(copy).trim()
