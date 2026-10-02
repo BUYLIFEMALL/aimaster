@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   if (error) return NextResponse.json({ error: '보낸 글 목록을 불러오지 못했습니다.' }, { status: 500 })
 
   const posts = (data ?? []).map((post) => {
-    const { blocks, tags } = htmlToInputBlocks(post.content || '')
+    const { blocks, tags } = htmlToInputBlocks(post.content || '', post.title || '')
     return {
       id: post.id,
       title: post.title,

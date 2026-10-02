@@ -9,6 +9,27 @@ function imageLine(alt: string, url: string): string {
   return url ? `![${alt}](${url})` : ''
 }
 
+function titleFingerprint(value: string): string {
+  return String(value || '')
+    .normalize('NFKC')
+    .toLocaleLowerCase()
+    .replace(/^\s*(?:#{1,6}|>)\s*/, '')
+    .replace(/[^\p{L}\p{N}]+/gu, '')
+}
+
+// 제목은 티스토리의 별도 제목 입력칸으로 보낸다. AI가 본문 문단 또는 소제목으로 제목을
+// 그대로 한 번 더 반환한 경우만 제거해, 글 본문에 같은 제목이 중복되지 않게 한다.
+function removeDuplicateTitleLines(markdown: string, title: string): string {
+  const target = titleFingerprint(title)
+  if (!target) return markdown
+  return String(markdown || '')
+    .split(/\r?\n/)
+    .filter((line) => titleFingerprint(line) !== target)
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 // 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션은 2026-10-01 주인님 지시("이미지 프롬프트 섹션은 이제 안 보여줘도 돼")로 더 이상 만들지 않는다.
 // 이미 저장된 글의 섹션은 utils/stripImageSchema.ts의 removeImagePromptSection()이 화면·편집기에서 걷어낸다.
 
@@ -251,14 +272,15 @@ export async function generateAutoPost(
   if (!options.contentApiKey) throw new Error('본문 생성용 API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요.')
   const postData = await generateWithContentModel(newsData, options, options.contentApiKey)
 
-  const contentHtml = mdLiteToHtml(postData.contentMarkdown)
-  const readingMinutes = estimateReadingMinutes(postData.contentMarkdown)
+  const contentMarkdown = removeDuplicateTitleLines(postData.contentMarkdown, postData.title)
+  const contentHtml = mdLiteToHtml(contentMarkdown)
+  const readingMinutes = estimateReadingMinutes(contentMarkdown)
   const categorySlug = options.categorySlug || inferCategorySlug(options.topic, newsData.topKeywords)
 
   return {
     title: postData.title,
     excerpt: postData.excerpt,
-    contentMarkdown: postData.contentMarkdown,
+    contentMarkdown,
     contentHtml,
     readingMinutes,
     categorySlug,

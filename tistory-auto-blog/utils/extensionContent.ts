@@ -79,11 +79,16 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
   return $.html(copy).trim()
 }
 
-export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags: string[] } {
+export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: InputBlock[]; tags: string[] } {
   const html = stripImageGenerationSchema(removeImagePromptSection(rawHtml || ''))
   const $ = cheerio.load(`<div id="root">${html}</div>`)
   const blocks: InputBlock[] = []
   const tags: string[] = []
+  const titleFingerprint = clean(postTitle).normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')
+  const isDuplicateTitle = (value: string) => {
+    const fingerprint = clean(value).normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')
+    return Boolean(titleFingerprint) && fingerprint === titleFingerprint
+  }
 
   const pushText = (rawText: string) => {
     // 웹 화면용 이미지 설명("📷 … (클릭하여 고화질 확대)")은 네이버에 넣지 않는다 — 편집기(Tiptap)로 저장한 글은
@@ -102,7 +107,11 @@ export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags
   }
 
   $('#root').contents().each((_, node) => {
-    if (node.type === 'text') return pushText(clean($(node).text()))
+    if (node.type === 'text') {
+      const text = clean($(node).text())
+      if (!isDuplicateTitle(text)) pushText(text)
+      return
+    }
     if (node.type !== 'tag') return
     const el = node as Element
     const tag = el.tagName.toLowerCase()
@@ -118,6 +127,9 @@ export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags
       return pushText(before)
     }
     const text = clean($(el).text())
+    // 예전에 생성·저장한 글까지 포함해, 티스토리 제목과 정확히 같은 단독 본문 블록은
+    // 제목 칸에 이미 입력되므로 확장 전송에서는 한 번 더 넣지 않는다.
+    if (isDuplicateTitle(text)) return
     // 해시태그만 있는 줄 → 네이버 태그로
     if (text && /^(#[^\s#]+\s*)+$/.test(text)) {
       for (const t of text.match(/#[^\s#]+/g) ?? []) tags.push(t.slice(1))
