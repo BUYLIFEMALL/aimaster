@@ -19,7 +19,9 @@ interface ProgramCardProps {
 
 export default function ProgramCard({ program, badge }: ProgramCardProps) {
   const resolvedBadges = badge ? [badge] : (program.badges ?? []);
-  const executeTarget = program.app_url || "/programs/" + program.slug;
+  // 메인 카드에서는 먼저 AIMaster 프로그램 상세로 이동해 기능·권한·안내를 확인한다.
+  // 실제 외부 앱 주소는 상세 페이지의 실행 버튼에서만 연다.
+  const executeTarget = "/programs/" + program.slug;
 
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)
