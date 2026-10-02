@@ -712,6 +712,43 @@ async function clickTistoryPoint(tabId, point) {
   });
 }
 
+async function ensureTistoryPublicWithTrustedClick(tabId) {
+  const target = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] },
+    func: () => {
+      const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+      const text = (node) => String(node?.textContent || "").replace(/\s+/g, " ").trim();
+      const root = [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")].find(visible);
+      const radio = [...(root?.querySelectorAll("input[name='basicSet'][type='radio']") || [])].find((input) => {
+        const label = root.querySelector(`label[for='${input.id}']`) || input.closest("label");
+        return text(label || input.parentElement) === "공개";
+      });
+      if (!radio) return null;
+      if (radio.checked) return { selected: true };
+      const label = root.querySelector(`label[for='${radio.id}']`) || radio.closest("label") || radio.parentElement;
+      if (!visible(label)) return null;
+      label.scrollIntoView({ block: "center", inline: "nearest" });
+      const rect = label.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    },
+  });
+  if (target[0]?.result?.selected) return;
+  const point = target[0]?.result;
+  if (!point?.x) throw new Error("발행 설정창의 공개 선택 항목을 찾지 못했습니다.");
+  await clickTistoryPoint(tabId, point);
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await inputSleep(100);
+    const verified = await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [0] },
+      func: () => [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")]
+        .some((root) => root.getClientRects().length && [...root.querySelectorAll("input[name='basicSet'][type='radio']")]
+          .some((input) => input.checked && String((root.querySelector(`label[for='${input.id}']`) || input.closest("label") || input.parentElement)?.textContent || "").replace(/\s+/g, " ").trim() === "공개")),
+    });
+    if (verified[0]?.result === true) return;
+  }
+  throw new Error("공개 범위 적용을 화면에서 확인하지 못했습니다.");
+}
+
 // 홈주제는 티스토리 React가 관리하는 드롭다운이다. 발행창을 연 뒤 DOM 합성 click으로
 // 고르면 isTrusted=false를 무시할 수 있으므로, 두 번의 실제 포인터 클릭과 화면 문구 확인을 쓴다.
 async function applyTistoryTopicWithTrustedClicks(tabId, topic) {
@@ -1012,6 +1049,9 @@ async function applyRemainingTistorySettings(tabId, bodyFrame, verificationOptio
   if (!needsPublishDialog(settings)) return { visibility: "공개", timing: "현재", verification, skippedDefaultDialog: true, skippedTags: tagResult.skipped };
   await openPublishSettings(tabId);
   if (settings.topic && settings.visibility === "public" && settings.comment === "allow" && settings.timing === "now") {
+    // 티스토리는 직전 글의 비공개 선택을 발행창에 유지할 수 있으므로, 홈주제만 고르지 않고
+    // 사용자가 고른 공개 범위도 실제 포인터 클릭으로 확정한다.
+    await ensureTistoryPublicWithTrustedClick(tabId);
     await applyTistoryTopicWithTrustedClicks(tabId, settings.topic);
     return { visibility: "공개", timing: "현재", topic: settings.topic, verification, skippedTags: tagResult.skipped };
   }
