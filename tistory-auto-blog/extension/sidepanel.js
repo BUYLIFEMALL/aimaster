@@ -428,20 +428,29 @@ async function openTistoryCategory(tabId) {
     target: { tabId, frameIds: [0] },
     func: async () => {
       const button = document.querySelector("#category-btn");
-      const list = document.querySelector("#category-list");
-      if (!button || !list || !button.getClientRects().length) return false;
+      // 티스토리는 목록을 버튼 클릭 뒤에 React로 생성할 수 있습니다.
+      // 클릭 전 #category-list가 없다는 이유로 중단하면 버튼을 한 번도 누르지 못합니다.
+      if (!button || !button.getClientRects().length) return false;
       const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
-      if (button.getAttribute("aria-expanded") === "true" && visible(list)) return true;
+      const isOpen = () => {
+        const list = document.querySelector("#category-list");
+        return button.getAttribute("aria-expanded") === "true" || visible(list);
+      };
+      if (isOpen()) return true;
       const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       button.scrollIntoView({ block: "center", inline: "nearest" });
-      const rect = button.getBoundingClientRect();
-      const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
-      button.dispatchEvent(new MouseEvent("mouseover", event)); button.dispatchEvent(new MouseEvent("mousemove", event));
-      await wait(100 + Math.floor(Math.random() * 321));
-      button.dispatchEvent(new MouseEvent("mousedown", event)); button.dispatchEvent(new MouseEvent("mouseup", event)); button.dispatchEvent(new MouseEvent("click", event));
-      for (let attempt = 0; attempt < 10; attempt += 1) {
-        await wait(100);
-        if (button.getAttribute("aria-expanded") === "true" && visible(list)) return true;
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const rect = button.getBoundingClientRect();
+        const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
+        button.focus();
+        button.dispatchEvent(new MouseEvent("mouseover", event)); button.dispatchEvent(new MouseEvent("mousemove", event));
+        await wait(100 + Math.floor(Math.random() * 321));
+        // click()은 React의 일반 클릭 처리 경로를 타고, 합성 포인터 이벤트는 기존 티스토리 동작도 지원합니다.
+        button.click();
+        for (let waitAttempt = 0; waitAttempt < 10; waitAttempt += 1) {
+          await wait(100);
+          if (isOpen()) return true;
+        }
       }
       return false;
     },
