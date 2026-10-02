@@ -122,6 +122,10 @@
 이어가기 절차(병합 → 조사 실행 → 단계별 진행)와 로컬에서만 할 수 있는 일(DB 적용·`programs` 등록·배포)은
 [`docs/TISTORY_PLAN.md`](docs/TISTORY_PLAN.md) **§6**에 정리돼 있다. 가장 먼저 할 일은 주인님 PC에서 `inspector-extension/` 실행 후 JSON 결과 확보.
 
+# v1.43 (2026-10-02)
+
+- v1.41의 발행 직전 `setContent()` 전체 재입력이 티스토리 TinyMCE가 기존 서식 HTML을 재해석·정리해 원본 서식이 깨지는 문제를 만들었다. 서식 블록을 입력할 때부터 TinyMCE `insertContent()` 공식 경로로 모델에 기록하고, 발행 직전에는 `setContent()` 없이 `save()`만 실행하도록 변경했다. API가 없는 편집기 버전에서만 기존 native `execCommand`를 fallback으로 쓴다.
+
 # v1.42 (2026-10-02)
 
 - v1.41에서도 `37/45개 문단`이 반복된 원인을 저장 HTML 원문 비교의 오판으로 확인했다. `#editor-tistory`에는 `&nbsp;`·`&amp;` 등의 HTML 엔티티가 남는데, 기존 정규화는 이를 실제 문자와 다르게 처리했다. 이제 detached DOM으로 HTML을 해석한 실제 텍스트만 비교해, 화면에 정상 저장된 문단을 누락으로 오판하지 않는다. TinyMCE `setContent()`·save 동기화는 그대로 유지한다.

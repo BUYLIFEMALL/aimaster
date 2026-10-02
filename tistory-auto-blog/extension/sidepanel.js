@@ -487,6 +487,26 @@ async function insertTistoryHtml(tabId, bodyFrame, html, statusPrefix) {
       const editor = document.querySelector("body#tinymce[contenteditable='true']");
       if (!editor) return false;
       editor.focus();
+      // iframe DOM을 execCommand로만 바꾸면 화면에는 보여도 TinyMCE 모델에 기록되지 않는다.
+      // 같은 편집기를 소유한 TinyMCE API의 insertContent()를 우선 사용하면 제목/목록/인용/표의
+      // 의미 태그를 유지하면서 undo·발행 직렬화 경로에도 정상 등록된다.
+      try {
+        const api = window.parent?.tinymce;
+        const candidates = [api?.activeEditor, ...(Array.isArray(api?.editors) ? api.editors : [])]
+          .filter((candidate, index, all) => candidate && all.indexOf(candidate) === index);
+        const mce = candidates.find((candidate) => candidate?.getBody?.() === editor || candidate?.getBody?.()?.id === "tinymce");
+        if (mce?.insertContent) {
+          mce.focus?.();
+          mce.selection?.select?.(editor, true);
+          mce.selection?.collapse?.(false);
+          mce.insertContent(safeHtml, { format: "raw" });
+          mce.setDirty?.(true);
+          mce.fire?.("change");
+          return true;
+        }
+      } catch {
+        // TinyMCE API가 노출되지 않는 편집기 버전에서는 아래 native 입력 경로를 사용한다.
+      }
       const selection = window.getSelection();
       // TinyMCE가 직전 삽입 뒤 DOM을 비동기로 다시 구성하면 Selection 객체는 남아 있어도
       // 이전 위치를 가리킬 수 있다. 매 블록을 끝에 명시적으로 붙여야 다음 서식이 앞 문단을
@@ -1070,16 +1090,13 @@ async function synchronizeTistoryEditorForPublish(tabId, bodyFrame) {
       let mode = "textarea";
       try {
         if (editor) {
-          // execCommand는 iframe 화면만 바꾸고 TinyMCE의 undo/content 모델에는 반영되지 않을 수 있다.
-          // setContent()로 같은 HTML을 모델에 확정한 뒤 save()해야 발행 직렬화에도 모든 문단이 들어간다.
-          editor.setContent?.(html, { format: "raw" });
-          editor.undoManager?.add?.();
+          // 서식은 입력 시 insertContent()로 이미 모델에 기록한다. 여기서 setContent()로 전체
+          // 본문을 재해석하면 티스토리 고유 서식이 평문처럼 정리될 수 있어 저장만 수행한다.
           editor.setDirty?.(true);
           editor.fire?.("input");
           editor.fire?.("change");
-          editor.fire?.("SetContent");
           editor.save?.();
-          mode = "tinymce-set-content";
+          mode = "tinymce-save";
         }
       } catch {
         // textarea 동기화 경로로 계속 진행하고, 아래 실제 저장값 검증으로 실패 여부를 판단한다.
