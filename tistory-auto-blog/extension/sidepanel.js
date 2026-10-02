@@ -488,16 +488,60 @@ async function insertTistoryHtml(tabId, bodyFrame, html, statusPrefix) {
       if (!editor) return false;
       editor.focus();
       const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || !editor.contains(selection.getRangeAt(0).commonAncestorContainer)) {
-        const range = document.createRange(); range.selectNodeContents(editor); range.collapse(false);
-        selection?.removeAllRanges(); selection?.addRange(range);
-      }
+      // TinyMCE가 직전 삽입 뒤 DOM을 비동기로 다시 구성하면 Selection 객체는 남아 있어도
+      // 이전 위치를 가리킬 수 있다. 매 블록을 끝에 명시적으로 붙여야 다음 서식이 앞 문단을
+      // 덮어쓰지 않는다.
+      const range = document.createRange(); range.selectNodeContents(editor); range.collapse(false);
+      selection?.removeAllRanges(); selection?.addRange(range);
       // TinyMCE가 감지하는 native editing 경로로 넣어 제목·목록·인용·표·링크의 의미 HTML을 보존한다.
       return document.execCommand("insertHTML", false, safeHtml);
     },
   });
   if (inserted[0]?.result !== true) throw new Error("본문 서식을 티스토리 편집기에 넣지 못했습니다.");
   await inputSleep(inputDelay(180, 420));
+}
+
+// insertHTML()의 반환값은 TinyMCE가 삽입 명령을 받았다는 뜻일 뿐, 티스토리가 뒤이어
+// DOM을 정리한 뒤에도 문단이 남아 있다는 보장은 아니다. 특히 여러 서식 블록과 이미지가
+// 섞인 글에서는 다음 블록을 넣기 전에 실제 본문 잔존 여부를 확인해야 한다.
+async function tistoryEditorContainsText(tabId, bodyFrame, value, attempts = 12) {
+  const samples = verificationSamples(value);
+  if (!samples.length) return true;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const result = await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [bodyFrame] }, args: [samples],
+      func: (expectedSamples) => {
+        const editor = document.querySelector("body#tinymce[contenteditable='true']");
+        const body = String(editor?.innerText || "")
+          .normalize("NFKC").toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/[^\p{L}\p{N}]+/gu, "");
+        return expectedSamples.some((sample) => body.includes(sample));
+      },
+    });
+    if (result[0]?.result === true) return true;
+    await inputSleep(250);
+  }
+  return false;
+}
+
+async function insertVerifiedTistoryHtmlBlock(tabId, bodyFrame, block) {
+  await insertTistoryHtml(tabId, bodyFrame, `${block.html}<p><br></p>`, "본문 서식 입력 중…");
+  if (await tistoryEditorContainsText(tabId, bodyFrame, block.text)) return;
+
+  // 티스토리가 지원하지 않는 서식을 비동기로 비워 버린 경우에는 해당 블록의 글자라도
+  // 누락되지 않게 실제 키보드 입력으로 한 번만 복구한다. 정상 삽입된 블록의 서식은 건드리지 않는다.
+  $("inputStatus").textContent = "본문 서식이 남았는지 확인 중… 텍스트 복구 중…";
+  await focusKnownTarget(tabId, bodyFrame, "body#tinymce[contenteditable='true']");
+  await withDebugger(tabId, () => humanType(tabId, `${block.text}\n\n`, "본문 텍스트 복구 중…"));
+  if (!await tistoryEditorContainsText(tabId, bodyFrame, block.text, 16)) {
+    throw new Error("본문 서식 블록의 텍스트가 티스토리 편집기에 남지 않았습니다.");
+  }
+}
+
+async function typeVerifiedTistoryTextBlock(tabId, bodyFrame, value) {
+  await withDebugger(tabId, () => humanType(tabId, `${value}\n\n`, "본문 입력 중…"));
+  if (!await tistoryEditorContainsText(tabId, bodyFrame, value, 16)) {
+    throw new Error("입력한 본문 텍스트가 티스토리 편집기에 남지 않았습니다.");
+  }
 }
 
 function normalizeTistoryTags(values) {
@@ -1092,8 +1136,8 @@ async function fillTistoryPost() {
     const totalImages = (activePost.blocks || []).filter((block) => block.type === "image").length;
     let pastedImages = 0;
     for (const block of activePost.blocks || []) {
-      if (block.type === "text" || block.type === "link") await withDebugger(tab.id, () => humanType(tab.id, `${block.type === "link" ? `${block.text} ${block.url}` : block.text}\n\n`, "본문 입력 중…"));
-      if (block.type === "html") await insertTistoryHtml(tab.id, bodyFrame, `${block.html}<p><br></p>`, "본문 서식 입력 중…");
+      if (block.type === "text" || block.type === "link") await typeVerifiedTistoryTextBlock(tab.id, bodyFrame, block.type === "link" ? `${block.text} ${block.url}` : block.text);
+      if (block.type === "html") await insertVerifiedTistoryHtmlBlock(tab.id, bodyFrame, block);
       if (block.type === "image") {
         pastedImages += 1;
         await pasteTistoryImage(tab.id, bodyFrame, block.url, pastedImages, totalImages);
