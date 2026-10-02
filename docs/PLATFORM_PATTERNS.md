@@ -261,6 +261,7 @@ warm bokeh lights]. 16:9 aspect ratio. No visible text, logos, or watermarks in 
    그대로 렌더링되면 깨져 보이는 경우가 많으므로 **이미지 안에 문구/로고를 넣지 않는다**(마지막
    문장 "No visible text..."로 항상 명시).
 4. **비율은 16:9로 통일**한다(카탈로그 카드 썸네일 영역과 맞음).
+   - 인물이 필요할 때 특정 성별을 기본값으로 고정하지 않는다. 프롬프트가 성별을 명시적으로 요구하지 않으면 주제에 따라 여성·남성·혼성 그룹·무인물 중 자연스러운 구성을 선택하고, 성별 고정관념을 피한다. 이 규칙은 `scripts/generate-program-thumbnail.mjs`가 모든 생성 프롬프트에 자동 적용한다.
 5. 실행은 `scripts/generate-program-thumbnail.mjs`를 그대로 재사용한다(§12의 Gemini 직접 호출
    + Supabase Storage 업로드 + DB 반영 로직이 이미 들어있음):
    ```
