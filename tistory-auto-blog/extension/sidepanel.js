@@ -1062,11 +1062,16 @@ async function synchronizeTistoryEditorForPublish(tabId, bodyFrame) {
       let mode = "textarea";
       try {
         if (editor) {
+          // execCommand는 iframe 화면만 바꾸고 TinyMCE의 undo/content 모델에는 반영되지 않을 수 있다.
+          // setContent()로 같은 HTML을 모델에 확정한 뒤 save()해야 발행 직렬화에도 모든 문단이 들어간다.
+          editor.setContent?.(html, { format: "raw" });
+          editor.undoManager?.add?.();
           editor.setDirty?.(true);
           editor.fire?.("input");
           editor.fire?.("change");
+          editor.fire?.("SetContent");
           editor.save?.();
-          mode = "tinymce";
+          mode = "tinymce-set-content";
         }
       } catch {
         // textarea 동기화 경로로 계속 진행하고, 아래 실제 저장값 검증으로 실패 여부를 판단한다.

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-02 TinyMCE textarea 동기화만으로 내부 모델이 갱신되지 않음
+
+- **증상:** v1.40 발행 전 검증에서 iframe에는 본문이 보이지만 숨김 원본의 문단 확인이 `37/45`로 끝났다.
+- **원인:** iframe DOM과 `#editor-tistory` 값을 맞춰도 TinyMCE의 undo/content 모델은 여전히 `execCommand` 이전 일부 상태를 갖고 있어, `save()` 직렬화가 전체 문단을 보장하지 않았다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`의 `synchronizeTistoryEditorForPublish()`에서 iframe HTML을 TinyMCE `setContent()`로 모델에 넣고 undo 상태, input/change/SetContent 이벤트, `save()` 순서로 실행한다.
+- **다음부터 확인:** TinyMCE 자동화에서 DOM·textarea 동기화와 내부 모델 갱신은 별개다. 최종 제출 경로에는 `setContent()` 또는 모델이 인지하는 입력 경로를 사용한 뒤 직렬화 결과를 검증한다.
+
 ## 2026-10-02 티스토리 화면 본문과 발행용 원본 불일치
 
 - **증상:** iframe 편집기에는 텍스트·이미지가 모두 보였지만 티스토리 최종 발행본에는 이미지들만 남고 텍스트가 사라졌다.
