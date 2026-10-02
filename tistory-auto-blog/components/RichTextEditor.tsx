@@ -1,6 +1,7 @@
 'use client'
 
 import { useEditor, EditorContent, type Editor } from '@tiptap/react'
+import { Extension, Node, mergeAttributes } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { Underline } from '@tiptap/extension-underline'
 import { Link } from '@tiptap/extension-link'
@@ -53,6 +54,112 @@ interface RichTextEditorProps {
   placeholder?: string
   className?: string
 }
+
+// The generated article HTML deliberately carries layout classes on its blocks
+// (paragraphs, headings, figures, callouts, and code wrappers). Tiptap drops
+// unknown attributes and wrapper elements unless they are part of its schema,
+// which made an untouched post look unformatted as soon as the edit screen was
+// opened. Keep those presentation attributes in the document model instead of
+// treating the editor as a lossy HTML-to-text conversion step.
+const PRESERVED_HTML_ATTRIBUTES = {
+  class: {
+    default: null,
+    parseHTML: (element: HTMLElement) => element.getAttribute('class'),
+    renderHTML: (attributes: Record<string, string | null>) =>
+      attributes.class ? { class: attributes.class } : {},
+  },
+  style: {
+    default: null,
+    parseHTML: (element: HTMLElement) => element.getAttribute('style'),
+    renderHTML: (attributes: Record<string, string | null>) =>
+      attributes.style ? { style: attributes.style } : {},
+  },
+  id: {
+    default: null,
+    parseHTML: (element: HTMLElement) => element.getAttribute('id'),
+    renderHTML: (attributes: Record<string, string | null>) =>
+      attributes.id ? { id: attributes.id } : {},
+  },
+}
+
+const PreserveHtmlAttributes = Extension.create({
+  name: 'preserveHtmlAttributes',
+  addGlobalAttributes() {
+    return [
+      {
+        types: [
+          'paragraph',
+          'heading',
+          'blockquote',
+          'bulletList',
+          'orderedList',
+          'listItem',
+          'codeBlock',
+          'horizontalRule',
+          'image',
+          'table',
+          'tableRow',
+          'tableHeader',
+          'tableCell',
+          'link',
+          'textStyle',
+          'preservedContainer',
+          'figure',
+          'figcaption',
+        ],
+        attributes: PRESERVED_HTML_ATTRIBUTES,
+      },
+    ]
+  },
+})
+
+const PreservedContainer = Node.create({
+  name: 'preservedContainer',
+  group: 'block',
+  content: 'block*',
+  defining: true,
+  addAttributes() {
+    return PRESERVED_HTML_ATTRIBUTES
+  },
+  parseHTML() {
+    return [{ tag: 'div' }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes), 0]
+  },
+})
+
+const Figure = Node.create({
+  name: 'figure',
+  group: 'block',
+  content: 'block*',
+  defining: true,
+  addAttributes() {
+    return PRESERVED_HTML_ATTRIBUTES
+  },
+  parseHTML() {
+    return [{ tag: 'figure' }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['figure', mergeAttributes(HTMLAttributes), 0]
+  },
+})
+
+const Figcaption = Node.create({
+  name: 'figcaption',
+  group: 'block',
+  content: 'inline*',
+  defining: true,
+  addAttributes() {
+    return PRESERVED_HTML_ATTRIBUTES
+  },
+  parseHTML() {
+    return [{ tag: 'figcaption' }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['figcaption', mergeAttributes(HTMLAttributes), 0]
+  },
+})
 
 function ToolbarButton({
   onClick,
@@ -532,6 +639,13 @@ export default function RichTextEditor({
       TableRow,
       TableHeader,
       TableCell,
+      // Keep the generated HTML's own structure/classes intact when an
+      // existing article enters edit mode. These extensions are deliberately
+      // after the standard nodes so they only fill schema gaps.
+      PreserveHtmlAttributes,
+      PreservedContainer,
+      Figure,
+      Figcaption,
     ],
     content: value,
     onUpdate: ({ editor }) => {

@@ -1,5 +1,9 @@
 # tistory-auto-blog — 티스토리 자동화 (BLOG 원문생성 + 크롬 확장)
 
+## v1.19 (2026-10-02)
+
+- 게시글 수정 화면은 기존 본문 HTML을 Tiptap 스키마로 재해석하면서 지원하지 않는 `class`·`style` 속성과 `div`·`figure`·`figcaption` 래퍼를 삭제해, 작성한 글의 레이아웃과 서식이 평문처럼 보이는 문제가 있었다. `RichTextEditor`가 이 속성과 래퍼 노드를 보존하도록 확장했으므로, 수정 화면 진입과 저장 후에도 기존 본문 서식을 유지한다.
+
 ## v1.18 (2026-10-02)
 
 - 확인한 `#post-title-inp`, iframe `body#tinymce`, `#category-btn`, `#tagText`로 제목·본문·카테고리·태그를 사람 속도로 입력합니다.
@@ -11,7 +15,7 @@
 - 카테고리·태그 카드의 ‘카테고리·태그 저장’은 두 값만 저장해 발행 설정을 덮어쓰지 않습니다.
 - 최종 `#publish-btn`은 탐색하거나 누르지 않습니다. 입력기는 `#publish-layer-btn`으로 발행 설정창을 연 뒤 위 설정까지만 적용합니다.
 
-> **상태: 확장 계정 연동 완료, 제목·본문·카테고리·태그·이미지·발행 설정 입력 구현 완료 (2026-10-02)** — 운영 주소는 `https://tistory-auto-blog-pearl.vercel.app`, 프로그램·DB·확장 ZIP 버전은 모두 `v1.18`이다. 최종 저장·발행은 자동화하지 않는다.
+> **상태: 확장 계정 연동 완료, 제목·본문·카테고리·태그·이미지·발행 설정 입력 및 수정 화면 본문 서식 보존 구현 완료 (2026-10-02)** — 운영 주소는 `https://tistory-auto-blog-pearl.vercel.app`, 프로그램·DB·확장 ZIP 버전은 모두 `v1.19`이다. 최종 저장·발행은 자동화하지 않는다.
 > **카탈로그:** 공용 `programs`의 블로그 카테고리에서 활성 상태이며 `COMING` 배지는 제거했습니다. 실사형 카탈로그 썸네일은 `program-images/catalog/tistory-auto-blog-thumbnail.png`에 저장돼 있습니다.
 > 반드시 루트 `../CLAUDE.md`(핵심 원칙 7가지)·`../docs/HANDOFF.md`·`../docs/ERROR_LESSONS.md`를 먼저 읽고, 브라우저 자동화이므로
 > `../docs/PLATFORM_PATTERNS.md` **§20(봇 탐지 회피)·§28(웹→확장→편집기)** 를 그대로 지킨다.
