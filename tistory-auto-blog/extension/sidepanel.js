@@ -341,7 +341,8 @@ async function loadTistoryTopics() {
         const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
         const text = (node) => String(node?.textContent || "").replace(/\s+/g, " ").trim();
-        const root = document.querySelector(".editor_layer[role='dialog']");
+        const root = [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")]
+          .find(visible);
         const buttons = [...(root?.querySelectorAll("button.mce-btn-type1.select_btn") || [])].filter(visible);
         const topicButton = buttons[1];
         if (!topicButton) throw new Error("홈주제 선택 메뉴를 찾지 못했습니다.");
@@ -567,33 +568,42 @@ async function chooseTistoryCategory(tabId, category) {
   if (picked[0]?.result !== true) throw new Error(`카테고리 ‘${category}’를 선택하지 못했습니다.`);
 }
 
-async function openPublishSettings(tabId) {
-  const opened = await chrome.scripting.executeScript({
+async function isPublishSettingsOpen(tabId) {
+  const state = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] },
-    func: async () => {
-      const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
-      if (visible(document.querySelector(".editor_layer[role='dialog']"))) return true;
-      const button = document.querySelector("#publish-layer-btn");
-      if (!button || !button.getClientRects().length) return false;
-      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      button.scrollIntoView({ block: "center", inline: "nearest" });
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        const rect = button.getBoundingClientRect();
-        const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
-        button.focus();
-        button.dispatchEvent(new MouseEvent("mouseover", event)); button.dispatchEvent(new MouseEvent("mousemove", event));
-        await wait(100 + Math.floor(Math.random() * 321));
-        // React의 실제 클릭 처리 경로를 실행하고, 발행 레이어의 동적 렌더링을 기다린다.
-        button.click();
-        for (let waitAttempt = 0; waitAttempt < 15; waitAttempt += 1) {
-          await wait(100);
-          if (visible(document.querySelector(".editor_layer[role='dialog']"))) return true;
-        }
-      }
-      return false;
-    },
+    func: () => [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")]
+      .some((node) => Boolean(node.getClientRects().length) && getComputedStyle(node).visibility !== "hidden"),
   });
-  if (opened[0]?.result !== true) throw new Error("발행 설정창을 열지 못했습니다.");
+  return state[0]?.result === true;
+}
+
+async function openPublishSettings(tabId) {
+  if (await isPublishSettingsOpen(tabId)) return;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const target = await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [0] },
+      func: () => {
+        const button = document.querySelector("#publish-layer-btn");
+        if (!button || !button.getClientRects().length) return null;
+        button.scrollIntoView({ block: "center", inline: "nearest" }); button.focus();
+        const rect = button.getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      },
+    });
+    const point = target[0]?.result;
+    if (!point) throw new Error("발행 설정 버튼을 찾지 못했습니다.");
+    // DOM click은 isTrusted=false라 티스토리 React가 무시할 수 있다. CDP 포인터 입력으로 실제 클릭 경로를 사용한다.
+    await withDebugger(tabId, async () => {
+      await chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", { type: "mouseMoved", x: point.x, y: point.y });
+      await chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+      await chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+    });
+    for (let waitAttempt = 0; waitAttempt < 20; waitAttempt += 1) {
+      await inputSleep(100);
+      if (await isPublishSettingsOpen(tabId)) return;
+    }
+  }
+  throw new Error("발행 설정창을 열지 못했습니다.");
 }
 
 function publishSettingsFromPanel() {
@@ -616,7 +626,7 @@ async function applyTistoryPublishSettings(tabId, settings) {
     target: { tabId, frameIds: [0] }, args: [settings],
     func: async (requested) => {
       const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      const dialog = () => document.querySelector(".editor_layer[role='dialog']");
+      const dialog = () => [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")].find((node) => Boolean(node.getClientRects().length));
       const visible = (node) => Boolean(node?.getClientRects().length);
       const nodeText = (node) => String(node?.textContent || "").replace(/\s+/g, " ").trim();
       const click = async (node) => {

@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 티스토리 발행 버튼 신뢰된 포인터 클릭 (2026-10-02, v1.29)
+
+- v1.28은 실제 `button.click()`을 사용했지만 해당 이벤트의 `isTrusted`는 false라 티스토리 React가 무시할 수 있었다. `openPublishSettings()`를 Chrome Debugger `Input.dispatchMouseEvent`로 버튼 중앙 좌표에 실제 포인터 입력을 보내도록 교체했다. 열림 확인은 role 기반 dialog와 열린 ReactModal 클래스를 모두 가시성 검사한다.
+
 ## 티스토리 발행 설정창 열기 재시도 보완 (2026-10-02, v1.28)
 
 - `홈주제 불러오기`가 `openPublishSettings()`를 호출할 때 발행 버튼에 합성 이벤트만 한 번 보내고 300ms 뒤 레이어 존재를 확인했다. React 클릭 처리·동적 렌더링이 늦으면 `발행 설정창을 열지 못했습니다.`로 실패했다. 이제 가시성 있는 기존 창을 먼저 인식하고, 실제 `button.click()` 뒤 레이어를 최대 4.5초 폴링하며 최대 3회 재시도한다.

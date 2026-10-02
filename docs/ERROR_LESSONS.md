@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-02 — 외부 React UI가 DOM click을 거부하면 CDP 포인터 입력으로 전환
+
+- **증상:** v1.28에서 발행 설정 버튼의 `button.click()`과 재시도·폴링을 추가했는데도 티스토리 발행창이 열리지 않았다.
+- **원인:** DOM `click()` 이벤트는 `isTrusted=false`다. 외부 서비스의 React 핸들러가 신뢰되지 않은 이벤트를 무시하면 selector·대기 시간을 보완해도 클릭 효과가 없다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`의 `openPublishSettings()`가 버튼 중앙 좌표를 읽은 후 Chrome Debugger `Input.dispatchMouseEvent`의 moved/pressed/released 순서로 클릭한다. 모달은 role selector와 `ReactModal__Content--after-open` 모두 확인한다.
+- **다음부터 확인:** DOM 요소가 존재하고 `.click()`에도 상태가 안 바뀌면 단순 재시도 전에 `isTrusted` 제약을 의심한다. 이미 확장에 있는 debugger 입력 경로로 실제 포인터·키보드 이벤트를 보내고, 결과를 selector 가시성으로 확인한다.
+
 ## 2026-10-02 — React 모달 열림은 합성 클릭 한 번과 고정 짧은 대기로 판정하지 않음
 
 - **증상:** 홈주제 불러오기에서 `발행 설정창을 열지 못했습니다.`가 발생했다.
