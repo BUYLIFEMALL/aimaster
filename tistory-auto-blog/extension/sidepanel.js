@@ -461,15 +461,21 @@ async function pasteTistoryImage(tabId, bodyFrame, url, order, total) {
     await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "Control", code: "ControlLeft", windowsVirtualKeyCode: 17 });
   });
   const expected = (before[0]?.result || 0) + 1;
-  for (let attempt = 0; attempt < 40; attempt += 1) {
+  // 티스토리는 붙여넣은 이미지를 서버로 올린 뒤 figure > img를 추가합니다.
+  // 고해상도 PNG나 응답이 느린 경우 20초 안에 완료되지 않아 실제 업로드 중에도
+  // 실패로 처리됐으므로, 최대 90초 동안 DOM 완료 상태를 확인합니다.
+  for (let attempt = 0; attempt < 180; attempt += 1) {
     await inputSleep(500);
+    if (attempt > 0 && attempt % 10 === 0) {
+      $("inputStatus").textContent = `이미지 ${order}/${total} 업로드 확인 중… ${Math.floor(attempt / 2)}초`;
+    }
     const after = await chrome.scripting.executeScript({
       target: { tabId, frameIds: [bodyFrame] },
       func: () => document.querySelectorAll("body#tinymce[contenteditable='true'] > figure > img").length,
     });
     if ((after[0]?.result || 0) >= expected) return;
   }
-  throw new Error(`이미지 ${order}의 티스토리 업로드 완료를 확인하지 못했습니다.`);
+  throw new Error(`이미지 ${order}의 티스토리 업로드 완료를 90초 동안 확인하지 못했습니다.`);
 }
 
 async function reportInput(status, error = "") {

@@ -16,7 +16,10 @@ async function ensureClipboardDocument() {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type !== "copy-tistory-image") return;
   ensureClipboardDocument()
-    .then(() => chrome.runtime.sendMessage({ type: "offscreen-copy-tistory-image", url: message.url }))
+    .then(async () => {
+      const result = await chrome.runtime.sendMessage({ type: "offscreen-copy-tistory-image", url: message.url });
+      if (!result?.ok) throw new Error(result?.error || "이미지 클립보드 준비에 실패했습니다.");
+    })
     .then(() => sendResponse({ ok: true }))
     .catch((error) => sendResponse({ ok: false, error: error instanceof Error ? error.message : String(error) }));
   return true;
