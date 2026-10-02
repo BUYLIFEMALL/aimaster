@@ -284,6 +284,17 @@ async function savePublishSettings() {
   $("publishSettingsStatus").textContent = "저장했습니다. 보호 비밀번호는 저장하지 않습니다.";
 }
 
+async function saveCategoryTags() {
+  const stored = await chrome.storage.local.get(PUBLISH_SETTINGS_KEY);
+  const existing = stored[PUBLISH_SETTINGS_KEY] && typeof stored[PUBLISH_SETTINGS_KEY] === "object" ? stored[PUBLISH_SETTINGS_KEY] : {};
+  await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: {
+    ...existing,
+    categoryName: $("categoryName").value.trim(),
+    tagNames: $("tagNames").value.trim(),
+  } });
+  $("categorySettingsStatus").textContent = "카테고리와 태그를 저장했습니다.";
+}
+
 async function restorePublishSettings() {
   const stored = await chrome.storage.local.get(PUBLISH_SETTINGS_KEY);
   const settings = stored[PUBLISH_SETTINGS_KEY];
@@ -300,7 +311,7 @@ function extractTagsFromSelectedPost() {
   const tags = normalizeTistoryTags(activePost.tags || []);
   if (!tags.length) throw new Error("선택한 글에서 추출할 태그가 없습니다.");
   $("tagNames").value = tags.join(", ");
-  $("publishSettingsStatus").textContent = `${tags.length}개 태그를 가져왔습니다. 필요하면 수정 후 설정 저장을 누르세요.`;
+  $("categorySettingsStatus").textContent = `${tags.length}개 태그를 가져왔습니다. 필요하면 수정 후 카테고리·태그 저장을 누르세요.`;
 }
 
 function previewPost() {
@@ -706,8 +717,9 @@ $("previewFill").addEventListener("click", () => {
 });
 $("fillPost").addEventListener("click", fillTistoryPost);
 $("extractTags").addEventListener("click", () => {
-  try { extractTagsFromSelectedPost(); } catch (error) { $("publishSettingsStatus").textContent = error instanceof Error ? error.message : String(error); }
+  try { extractTagsFromSelectedPost(); } catch (error) { $("categorySettingsStatus").textContent = error instanceof Error ? error.message : String(error); }
 });
+$("saveCategoryTags").addEventListener("click", () => { saveCategoryTags().catch((error) => { $("categorySettingsStatus").textContent = error instanceof Error ? error.message : String(error); }); });
 $("savePublishSettings").addEventListener("click", () => { savePublishSettings().catch((error) => { $("publishSettingsStatus").textContent = error instanceof Error ? error.message : String(error); }); });
 $("postVisibility").addEventListener("change", syncPublishSettingsFields);
 $("publishTiming").addEventListener("change", syncPublishSettingsFields);
