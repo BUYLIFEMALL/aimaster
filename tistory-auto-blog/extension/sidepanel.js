@@ -734,14 +734,19 @@ async function ensureTistoryPublicWithTrustedClick(tabId) {
       if (!clickTarget) return null;
       clickTarget.scrollIntoView({ block: "center", inline: "nearest" });
       const rect = clickTarget.getBoundingClientRect();
-      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      // 공개 범위 라디오는 티스토리의 일반 클릭 경로가 반영되는지 먼저 확인한다.
+      // 반영되지 않는 React 상태에서만 아래의 실제 포인터 클릭으로 재시도한다.
+      clickTarget.click();
+      if (!radio.checked) radio.click();
+      return { selected: radio.checked, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     },
   });
-  if (target[0]?.result?.selected) return;
-  const point = target[0]?.result;
+  const selection = target[0]?.result;
+  if (selection?.selected) return;
+  const point = selection;
   if (!point?.x) throw new Error("발행 설정창의 공개 선택 항목을 찾지 못했습니다.");
-  await clickTistoryPoint(tabId, point);
-  for (let attempt = 0; attempt < 20; attempt += 1) {
+  if (!selection.selected) await clickTistoryPoint(tabId, point);
+  for (let attempt = 0; attempt < 45; attempt += 1) {
     await inputSleep(100);
     const verified = await chrome.scripting.executeScript({
       target: { tabId, frameIds: [0] },
