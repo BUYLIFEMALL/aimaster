@@ -180,3 +180,10 @@
 - **원인:** 티스토리가 고해상도 PNG를 서버에 올린 뒤 iframe에 `figure > img`를 만드는 데 걸릴 수 있는 시간을 20초로 고정했다. 또한 background가 오프스크린 문서의 클립보드 준비 실패 응답을 확인하지 않고 성공으로 바꾸고 있었다.
 - **해결(위치):** `tistory-auto-blog/extension/background.js`가 오프스크린 응답 실패를 그대로 반환하도록 수정하고, `extension/sidepanel.js`의 DOM 완료 확인을 최대 90초(진행 시간 표시 포함)로 늘렸다.
 - **다음부터 확인:** 외부 편집기의 비동기 미디어 업로드는 단순 붙여넣기 성공이 아니라 실제 DOM 완료를 충분한 제한 시간으로 폴링하고, 중계 메시지는 하위 작업의 실패 응답까지 전파한다.
+
+## 2026-10-02 — 오프스크린 문서는 클립보드 포커스 제약의 해결책이 아니다
+
+- **증상:** v1.13에서도 `Failed to execute 'write' on 'Clipboard': Document is not focused.`가 발생했다.
+- **원인:** Chrome 오프스크린 문서는 설계상 포커스를 받을 수 없다. 이미지형 `navigator.clipboard.write()`가 포커스를 요구하는 환경에서는 오프스크린 문서로 옮겨도 같은 제약이 반복된다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`에서 시스템 클립보드와 `Ctrl+V`를 제거했다. Storage 이미지를 PNG `File`로 만든 뒤 티스토리 본문 iframe의 `ClipboardEvent('paste')`에 담아 직접 전달한다.
+- **다음부터 확인:** `offscreen` API의 CLIPBOARD 사유만으로 포커스 요구 Clipboard API가 항상 동작한다고 가정하지 말고, 문서의 포커스 가능 여부와 실제 입력 환경을 함께 검증한다.

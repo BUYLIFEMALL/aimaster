@@ -444,22 +444,46 @@ async function verifyTistoryInput(tabId, bodyFrame) {
 }
 
 async function pasteTistoryImage(tabId, bodyFrame, url, order, total) {
-  $("inputStatus").textContent = `이미지 ${order}/${total} 준비 중…`;
-  const clipboard = await chrome.runtime.sendMessage({ type: "copy-tistory-image", url });
-  if (!clipboard?.ok) throw new Error(clipboard?.error || `이미지 ${order}을(를) 클립보드에 준비하지 못했습니다.`);
-
   const before = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [bodyFrame] },
     func: () => document.querySelectorAll("body#tinymce[contenteditable='true'] > figure > img").length,
   });
-  await focusKnownTarget(tabId, bodyFrame, "body#tinymce[contenteditable='true']");
-  $("inputStatus").textContent = `이미지 ${order}/${total} 티스토리에 붙여넣는 중…`;
-  await withDebugger(tabId, async () => {
-    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyDown", key: "Control", code: "ControlLeft", windowsVirtualKeyCode: 17, modifiers: 2 });
-    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyDown", key: "v", code: "KeyV", windowsVirtualKeyCode: 86, modifiers: 2 });
-    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "v", code: "KeyV", windowsVirtualKeyCode: 86, modifiers: 2 });
-    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "Control", code: "ControlLeft", windowsVirtualKeyCode: 17 });
+  $("inputStatus").textContent = `이미지 ${order}/${total} 티스토리에 전달 중…`;
+  const dispatched = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [bodyFrame] },
+    args: [url, `tistory-image-${order}.png`],
+    func: async (imageUrl, fileName) => {
+      const editor = document.querySelector("body#tinymce[contenteditable='true']");
+      if (!editor) throw new Error("티스토리 본문 입력 영역을 찾지 못했습니다.");
+      const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error(`이미지를 가져오지 못했습니다. (${response.status})`);
+      const source = await response.blob();
+      if (!source.type.startsWith("image/")) throw new Error("전달할 파일이 이미지 형식이 아닙니다.");
+      const sourceUrl = URL.createObjectURL(source);
+      try {
+        const image = await new Promise((resolve, reject) => {
+          const element = new Image();
+          element.onload = () => resolve(element);
+          element.onerror = () => reject(new Error("이미지를 PNG로 변환하지 못했습니다."));
+          element.src = sourceUrl;
+        });
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        canvas.getContext("2d")?.drawImage(image, 0, 0);
+        const png = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!png) throw new Error("이미지를 PNG로 변환하지 못했습니다.");
+        const transfer = new DataTransfer();
+        transfer.items.add(new File([png], fileName, { type: "image/png" }));
+        editor.focus();
+        const event = new ClipboardEvent("paste", { bubbles: true, cancelable: true, clipboardData: transfer });
+        return { dispatched: editor.dispatchEvent(event), defaultPrevented: event.defaultPrevented };
+      } finally {
+        URL.revokeObjectURL(sourceUrl);
+      }
+    },
   });
+  if (!dispatched[0]?.result?.dispatched) throw new Error(`이미지 ${order}을(를) 티스토리 본문에 전달하지 못했습니다.`);
   const expected = (before[0]?.result || 0) + 1;
   // 티스토리는 붙여넣은 이미지를 서버로 올린 뒤 figure > img를 추가합니다.
   // 고해상도 PNG나 응답이 느린 경우 20초 안에 완료되지 않아 실제 업로드 중에도
