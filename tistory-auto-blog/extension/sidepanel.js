@@ -571,15 +571,26 @@ async function openPublishSettings(tabId) {
   const opened = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] },
     func: async () => {
-      if (document.querySelector(".editor_layer[role='dialog']")) return true;
+      const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+      if (visible(document.querySelector(".editor_layer[role='dialog']"))) return true;
       const button = document.querySelector("#publish-layer-btn");
       if (!button || !button.getClientRects().length) return false;
-      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const rect = button.getBoundingClientRect();
-      const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
-      button.dispatchEvent(new MouseEvent("mouseover", event)); button.dispatchEvent(new MouseEvent("mousemove", event)); await wait(100 + Math.floor(Math.random() * 321));
-      button.dispatchEvent(new MouseEvent("mousedown", event)); button.dispatchEvent(new MouseEvent("mouseup", event)); button.dispatchEvent(new MouseEvent("click", event));
-      await wait(300);
-      return Boolean(document.querySelector(".editor_layer[role='dialog']"));
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      button.scrollIntoView({ block: "center", inline: "nearest" });
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const rect = button.getBoundingClientRect();
+        const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
+        button.focus();
+        button.dispatchEvent(new MouseEvent("mouseover", event)); button.dispatchEvent(new MouseEvent("mousemove", event));
+        await wait(100 + Math.floor(Math.random() * 321));
+        // React의 실제 클릭 처리 경로를 실행하고, 발행 레이어의 동적 렌더링을 기다린다.
+        button.click();
+        for (let waitAttempt = 0; waitAttempt < 15; waitAttempt += 1) {
+          await wait(100);
+          if (visible(document.querySelector(".editor_layer[role='dialog']"))) return true;
+        }
+      }
+      return false;
     },
   });
   if (opened[0]?.result !== true) throw new Error("발행 설정창을 열지 못했습니다.");
