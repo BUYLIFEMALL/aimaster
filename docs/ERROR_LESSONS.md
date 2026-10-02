@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-02 티스토리 화면 본문과 발행용 원본 불일치
+
+- **증상:** iframe 편집기에는 텍스트·이미지가 모두 보였지만 티스토리 최종 발행본에는 이미지들만 남고 텍스트가 사라졌다.
+- **원인:** `document.execCommand("insertHTML")`로 변경된 iframe DOM이 TinyMCE의 숨김 `#editor-tistory` 원본으로 저장되지 않아, 티스토리 발행이 오래된 원본을 사용했다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`의 `synchronizeTistoryEditorForPublish()`가 TinyMCE `save()`·이벤트·textarea 동기화를 수행하고, 발행 전 원본에서도 모든 본문 문단을 확인한다.
+- **다음부터 확인:** 리치 편집기 자동화는 화면 DOM 검증만으로 충분하지 않다. 실제 제출/발행에 쓰는 숨김 원본 또는 편집기 API `getContent()`까지 함께 검증한다.
+
 ## 2026-10-02 티스토리 제목이 본문에 중복 출력됨
 
 - **증상:** 티스토리 제목 입력칸에 들어간 제목과 동일한 텍스트가 본문의 독립 문단 또는 소제목으로 한 번 더 보였다.

@@ -1031,6 +1031,65 @@ async function verifyTistoryInput(tabId, bodyFrame, { allowPartialText = false }
   return { matchedTextBlocks, totalTextBlocks: textBlocks.length };
 }
 
+// iframe body에 보이는 내용과 TinyMCE가 발행 때 읽는 숨김 textarea는 별개다. execCommand로
+// 서식을 넣으면 화면에는 보이지만 TinyMCE의 save 단계가 실행되지 않아 발행본에서 텍스트가
+// 빠질 수 있다. 발행 설정 전 실제 TinyMCE 저장 경로를 강제로 실행하고 원본에도 내용이 남았는지 확인한다.
+async function synchronizeTistoryEditorForPublish(tabId, bodyFrame) {
+  $("inputStatus").textContent = "본문 저장 원본 동기화 중…";
+  const visible = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [bodyFrame] },
+    func: () => {
+      const editor = document.querySelector("body#tinymce[contenteditable='true']");
+      return { html: editor?.innerHTML || "", text: editor?.innerText || "" };
+    },
+  });
+  const source = visible[0]?.result;
+  if (!source?.html) throw new Error("발행 전 본문 저장 원본을 만들 내용을 찾지 못했습니다.");
+
+  const expectedGroups = (activePost?.blocks || [])
+    .filter((block) => block.type === "text" || block.type === "html" || block.type === "link")
+    .map((block) => verificationSamples(expectedBlockText(block)));
+  const saved = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] }, args: [source.html, expectedGroups],
+    func: (html, groups) => {
+      const compact = (value) => String(value || "").normalize("NFKC").toLowerCase()
+        .replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/[^\p{L}\p{N}]+/gu, "");
+      const textarea = document.querySelector("textarea#editor-tistory");
+      const api = window.tinymce;
+      const editors = [api?.activeEditor, ...(Array.isArray(api?.editors) ? api.editors : [])]
+        .filter((editor, index, all) => editor && all.indexOf(editor) === index);
+      const editor = editors.find((candidate) => candidate?.getBody?.()?.id === "tinymce" || candidate?.getElement?.()?.id === "editor-tistory");
+      let mode = "textarea";
+      try {
+        if (editor) {
+          editor.setDirty?.(true);
+          editor.fire?.("input");
+          editor.fire?.("change");
+          editor.save?.();
+          mode = "tinymce";
+        }
+      } catch {
+        // textarea 동기화 경로로 계속 진행하고, 아래 실제 저장값 검증으로 실패 여부를 판단한다.
+      }
+      if (textarea instanceof HTMLTextAreaElement) {
+        // TinyMCE API가 없거나 늦게 반영된 경우에도 발행 직전 원본에는 iframe HTML을 보존한다.
+        if (!textarea.value || compact(textarea.value) !== compact(html)) textarea.value = html;
+        textarea.dispatchEvent(new Event("input", { bubbles: true }));
+        textarea.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      const persisted = textarea instanceof HTMLTextAreaElement ? textarea.value : editor?.getContent?.({ format: "raw" }) || "";
+      const body = compact(persisted);
+      const matched = groups.filter((samples) => samples.length === 0 || samples.some((sample) => body.includes(sample))).length;
+      return { mode, matched, total: groups.length };
+    },
+  });
+  const result = saved[0]?.result;
+  if (!result || result.matched < result.total) {
+    throw new Error(`발행용 본문 저장 원본을 확인하지 못했습니다. (확인 ${result?.matched || 0}/${result?.total || expectedGroups.length}개 문단)`);
+  }
+  return result;
+}
+
 async function pasteTistoryImage(tabId, bodyFrame, url, order, total) {
   const before = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [bodyFrame] },
@@ -1099,12 +1158,15 @@ async function reportInput(status, error = "") {
 }
 
 async function applyRemainingTistorySettings(tabId, bodyFrame, verificationOptions) {
+  await synchronizeTistoryEditorForPublish(tabId, bodyFrame);
   const verification = await verifyTistoryInput(tabId, bodyFrame, verificationOptions);
   // 이전 실패가 남긴 모달은 카테고리·태그 입력을 가릴 수 있으므로 재개 전에 닫는다.
   await closePublishSettings(tabId);
   const category = $("categoryName").value.trim();
   if (category) await chooseTistoryCategory(tabId, category);
   const tagResult = await addTistoryTags(tabId, bodyFrame, $("tagNames").value);
+  // 본문 끝 태그 대체 경로도 execCommand를 사용하므로, 태그 반영 뒤 한 번 더 저장 원본을 맞춘다.
+  await synchronizeTistoryEditorForPublish(tabId, bodyFrame);
   const settings = publishSettingsFromPanel();
   if (!needsPublishDialog(settings)) return { visibility: "공개", timing: "현재", verification, skippedDefaultDialog: true, skippedTags: tagResult.skipped };
   await openPublishSettings(tabId);
