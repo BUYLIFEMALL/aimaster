@@ -44,11 +44,18 @@ function textWithLinks($: cheerio.CheerioAPI, node: AnyNode): string {
 
 const imageAlt = (alt: string) => clean(alt).replace(/\s*비주얼$/, '')
 
-export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags: string[] } {
+export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: InputBlock[]; tags: string[] } {
   const html = stripImageGenerationSchema(removeImagePromptSection(rawHtml || ''))
   const $ = cheerio.load(`<div id="root">${html}</div>`)
   const blocks: InputBlock[] = []
   const tags: string[] = []
+  // 예전에 생성·저장한 글까지 포함해, 네이버 제목 칸에 이미 들어가는 글 제목과 정확히 같은
+  // 단독 본문 블록(소제목·문단)은 확장 전송에서 한 번 더 넣지 않는다(제목 중복, tistory-auto-blog v1.39와 같은 방식, 2026-10-02).
+  const titleFingerprint = clean(postTitle).normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')
+  const isDuplicateTitle = (value: string) => {
+    const fingerprint = clean(value).normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')
+    return Boolean(titleFingerprint) && fingerprint === titleFingerprint
+  }
 
   const pushText = (rawText: string) => {
     // 웹 화면용 이미지 설명("📷 … (클릭하여 고화질 확대)")은 네이버에 넣지 않는다 — 편집기(Tiptap)로 저장한 글은
@@ -67,7 +74,11 @@ export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags
   }
 
   $('#root').contents().each((_, node) => {
-    if (node.type === 'text') return pushText(clean($(node).text()))
+    if (node.type === 'text') {
+      const text = clean($(node).text())
+      if (!isDuplicateTitle(text)) pushText(text)
+      return
+    }
     if (node.type !== 'tag') return
     const el = node as Element
     const tag = el.tagName.toLowerCase()
@@ -103,6 +114,7 @@ export function htmlToInputBlocks(rawHtml: string): { blocks: InputBlock[]; tags
       return pushText(before)
     }
     const text = textWithLinks($, el)
+    if (isDuplicateTitle(text)) return
     // 해시태그만 있는 줄 → 네이버 태그로
     if (text && /^(#[^\s#]+\s*)+$/.test(text)) {
       for (const t of text.match(/#[^\s#]+/g) ?? []) tags.push(t.slice(1))

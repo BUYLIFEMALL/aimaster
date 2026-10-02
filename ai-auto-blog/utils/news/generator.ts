@@ -9,6 +9,39 @@ function imageLine(alt: string, url: string): string {
   return url ? `![${alt}](${url})` : ''
 }
 
+function titleFingerprint(value: string): string {
+  return String(value || '')
+    .normalize('NFKC')
+    .toLocaleLowerCase()
+    .replace(/^\s*(?:#{1,6}|>)\s*/, '')
+    .replace(/[^\p{L}\p{N}]+/gu, '')
+}
+
+// AI가 "문단 N" 값 맨 앞줄에 그 구간의 소제목(또는 글 전체 제목)을 마크다운 "## 소제목"이나
+// 맨 문장으로 그대로 한 번 더 적어 돌려줄 때가 있다 — generator가 `## 소제목`을 이미 따로 넣으므로
+// 이 선두 줄을 지우지 않으면 화면에 같은 소제목(또는 제목)이 연속 두 번 보인다(2026-10-02, 110번 글에서 발견).
+function stripLeadingHeadingEcho(bodyText: string, ...headings: string[]): string {
+  const targets = headings.map(titleFingerprint).filter(Boolean)
+  if (!targets.length) return bodyText
+  const lines = String(bodyText || '').split(/\r?\n/)
+  while (lines.length && targets.includes(titleFingerprint(lines[0]))) lines.shift()
+  return lines.join('\n').replace(/^\n+/, '')
+}
+
+// 제목은 화면·확장 전송 시 별도 칸(제목)으로 들어간다. AI가 본문 문단 또는 소제목으로 제목을
+// 그대로 한 번 더 반환한 경우만 제거해, 글 본문에 같은 제목이 중복(제목이 두 번 보이는 문제)되지 않게 한다.
+// tistory-auto-blog v1.39와 같은 방식(2026-10-02).
+function removeDuplicateTitleLines(markdown: string, title: string): string {
+  const target = titleFingerprint(title)
+  if (!target) return markdown
+  return String(markdown || '')
+    .split(/\r?\n/)
+    .filter((line) => titleFingerprint(line) !== target)
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 // 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션은 2026-10-01 주인님 지시("이미지 프롬프트 섹션은 이제 안 보여줘도 돼")로 더 이상 만들지 않는다.
 // 이미 저장된 글의 섹션은 utils/stripImageSchema.ts의 removeImagePromptSection()이 화면·편집기에서 걷어낸다.
 
@@ -170,10 +203,15 @@ ${customRule}
   const title = parsed['제목'] || `[SEO] ${options.topic} 완벽 가이드`
   const excerpt = parsed['요약글'] || `${options.topic}에 관한 심층 분석 리포트입니다.`
 
-  const body1Text = formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || '')
-  const body2Text = formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || '')
-  const body3Text = formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || '')
-  const body4Text = formatReadableParagraphs(parsed['문단 4'] || parsed['4문단'] || '')
+  const heading1 = parsed['소제목 1'] || subKey1
+  const heading2 = parsed['소제목 2'] || subKey2
+  const heading3 = parsed['소제목 3'] || subKey3
+  const heading4 = parsed['소제목 4'] || subKey4
+
+  const body1Text = stripLeadingHeadingEcho(formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || ''), heading1, title)
+  const body2Text = stripLeadingHeadingEcho(formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || ''), heading2, title)
+  const body3Text = stripLeadingHeadingEcho(formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || ''), heading3, title)
+  const body4Text = stripLeadingHeadingEcho(formatReadableParagraphs(parsed['문단 4'] || parsed['4문단'] || ''), heading4, title)
 
   const hashtags = generateHashtags(options.topic, keywordsList, parsed)
 
@@ -183,7 +221,7 @@ ${customRule}
   // 각 이미지는 자기 묶음 안에서만 핵심 문장을 골라 그리고(이미지끼리 내용이 겹치지 않음), 묶음 첫 문단의 소제목 바로 아래에 넣는다.
   const imageCount = resolveImageCount(options.imageCount ?? DEFAULT_IMAGE_COUNT)
   const sectionBodies = [body1Text, body2Text, body3Text, body4Text]
-  const headings = [parsed['소제목 1'] || subKey1, parsed['소제목 2'] || subKey2, parsed['소제목 3'] || subKey3, parsed['소제목 4'] || subKey4]
+  const headings = [heading1, heading2, heading3, heading4]
   const paragraphGroups = groupParagraphs(sectionBodies.length, imageCount - 1)
   // 제목용 구간: 요약 + 각 문단 앞부분(전체 내용을 대표하는 문장을 고르게)
   const overviewSegment = [excerpt, ...sectionBodies.map((text) => text.slice(0, 900))].filter(Boolean).join('\n\n')
@@ -211,7 +249,7 @@ ${customRule}
   }
 
   const contentMarkdown = `
-> **요약**: ${excerpt}
+> ${excerpt}
 
 ${titleImageLine}
 
@@ -251,14 +289,15 @@ export async function generateAutoPost(
   if (!options.contentApiKey) throw new Error('본문 생성용 API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요.')
   const postData = await generateWithContentModel(newsData, options, options.contentApiKey)
 
-  const contentHtml = mdLiteToHtml(postData.contentMarkdown)
-  const readingMinutes = estimateReadingMinutes(postData.contentMarkdown)
+  const contentMarkdown = removeDuplicateTitleLines(postData.contentMarkdown, postData.title)
+  const contentHtml = mdLiteToHtml(contentMarkdown)
+  const readingMinutes = estimateReadingMinutes(contentMarkdown)
   const categorySlug = options.categorySlug || inferCategorySlug(options.topic, newsData.topKeywords)
 
   return {
     title: postData.title,
     excerpt: postData.excerpt,
-    contentMarkdown: postData.contentMarkdown,
+    contentMarkdown,
     contentHtml,
     readingMinutes,
     categorySlug,

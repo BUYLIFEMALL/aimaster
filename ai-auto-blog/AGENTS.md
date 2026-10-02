@@ -385,3 +385,18 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - 주인님 결정: 좌측 메뉴 "← 다른 프로그램 보기"를 모든 프로그램에서 `https://www.buylife.xyz/dashboard`(이용 가능한 프로그램 목록)로 통일.
   BLOG는 `app/_components/BlogSidebar.tsx`에서 `/programs` → `/dashboard`. 다른 프로그램은 예전 값 `/blog/dashboard`가 BLOG 분리 후 BLOG 대시보드로
   가버리던 문제를 같은 작업에서 고쳤다(루트 `docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`). BLOG 로그인 폼(`app/auth/auth-form.tsx`)은 모든 프로그램 로그인 화면의 기준이 됐다(`docs/PLATFORM_PATTERNS.md` §29).
+
+# 소제목 중복 표시·"요약:" 라벨 제거 (2026-10-02, v1.34)
+
+주인님이 110번 글("두바이 비행 실화…")에서 신고한 두 가지를 고쳤다. 자세한 원인·점검 사항은 루트 `docs/ERROR_LESSONS.md` 2026-10-02 BLOG 항목 참고.
+
+- **소제목 중복**: AI가 "문단 N" 값 첫 줄에 그 섹션 소제목(또는 글 전체 제목)을 마크다운으로 한 번 더 반환할 때가 있어, `generator.ts`가 따로 붙이는 `## 소제목`과 합쳐져
+  이미지가 있는 섹션은 이미지 앞/뒤로, 없는 섹션은 연달아 소제목이 두 번 보였다. `tistory-auto-blog` v1.39와 같은 원인(AI가 제목/소제목을 본문에 메아리로 반환)이다.
+  `utils/news/generator.ts`의 `stripLeadingHeadingEcho()`가 조립 전에 각 "문단 N" 값에서 해당 소제목·전체 제목과 글자 단위로 같은 선두 줄을 지운다.
+  `removeDuplicateTitleLines()`(tistory와 같은 방식)는 완성된 마크다운에서 전체 제목이 통째로 한 번 더 나온 줄도 한 번 더 걸러낸다.
+  확장 전송용 `utils/extensionContent.ts`의 `htmlToInputBlocks()`도 글 제목을 인자로 받아 같은 중복을 걸러내도록 바꿨다(호출부 `app/api/extension/posts/route.ts`가 제목을 넘김) —
+  예전에 저장된 글을 네이버로 보낼 때도 적용된다.
+- **"요약:" 라벨**: 요약 인용문이 `> **요약**: 내용`으로 라벨이 그대로 보여서 `> ${excerpt}`로 라벨을 뺐다(내용은 그대로).
+- **기존 글 직접 수정(코드가 아니라 데이터)**: 110번 글은 중복된 `<h2>` 블록을 SQL로 하나로 합치고 "요약:" 라벨도 지웠다. 같은 라벨이 남아 있던 다른 9개 글(id 100·101·103~109)도
+  라벨만 지웠다(소제목 중복은 없었음 — 110번만 해당). 두 수정 모두 글자·이미지는 건드리지 않았다.
+- **검증**: 빌드 통과. 실제로 고친 결과는 운영 주소 `/posts/110`에서 확인 가능. 새로 생성하는 글의 중복 재발 여부는 다음 실사용 생성에서 확인 필요(HANDOFF §1-6).
