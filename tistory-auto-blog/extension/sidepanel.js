@@ -263,6 +263,7 @@ function selectPost() {
   activePost = posts.find((post) => String(post.id) === $("postList").value) || null;
   $("previewPost").disabled = !activePost;
   $("fillPost").disabled = !activePost;
+  $("resumePostSettings").disabled = !activePost;
   $("inputStatus").textContent = activePost ? `${postLabel(activePost)} 선택됨` : "";
 }
 
@@ -403,7 +404,12 @@ function normalizeTistoryTags(values) {
 }
 
 async function addTistoryTags(tabId, tags) {
-  for (const tag of normalizeTistoryTags(tags)) {
+  const existing = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] },
+    func: () => [...document.querySelectorAll(".editor_tag > .txt_tag")].map((node) => (node.textContent || "").replace(/^#+/, "").trim()).filter(Boolean),
+  });
+  const existingTags = new Set((existing[0]?.result || []).map((tag) => tag.toLocaleLowerCase()));
+  for (const tag of normalizeTistoryTags(tags).filter((tag) => !existingTags.has(tag.toLocaleLowerCase()))) {
     const before = await chrome.scripting.executeScript({ target: { tabId, frameIds: [0] }, func: () => document.querySelectorAll(".editor_tag > .txt_tag").length });
     await focusKnownTarget(tabId, 0, "#tagText");
     await withDebugger(tabId, () => humanType(tabId, tag, `태그 입력 중…`));
@@ -417,9 +423,35 @@ async function addTistoryTags(tabId, tags) {
   }
 }
 
+async function openTistoryCategory(tabId) {
+  const opened = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] },
+    func: async () => {
+      const button = document.querySelector("#category-btn");
+      const list = document.querySelector("#category-list");
+      if (!button || !list || !button.getClientRects().length) return false;
+      const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+      if (button.getAttribute("aria-expanded") === "true" && visible(list)) return true;
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      button.scrollIntoView({ block: "center", inline: "nearest" });
+      const rect = button.getBoundingClientRect();
+      const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
+      button.dispatchEvent(new MouseEvent("mouseover", event)); button.dispatchEvent(new MouseEvent("mousemove", event));
+      await wait(100 + Math.floor(Math.random() * 321));
+      button.dispatchEvent(new MouseEvent("mousedown", event)); button.dispatchEvent(new MouseEvent("mouseup", event)); button.dispatchEvent(new MouseEvent("click", event));
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        await wait(100);
+        if (button.getAttribute("aria-expanded") === "true" && visible(list)) return true;
+      }
+      return false;
+    },
+  });
+  if (opened[0]?.result !== true) throw new Error("카테고리 목록을 열지 못했습니다.");
+}
+
 async function chooseTistoryCategory(tabId, category) {
   if (!category) return;
-  await focusKnownTarget(tabId, 0, "#category-btn");
+  await openTistoryCategory(tabId);
   const picked = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] }, args: [category],
     func: async (name) => {
@@ -669,6 +701,15 @@ async function reportInput(status, error = "") {
   await extensionApi(`/api/extension/posts/${encodeURIComponent(activePost.id)}/input-result`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status, error }) }).catch(() => {});
 }
 
+async function applyRemainingTistorySettings(tabId, bodyFrame) {
+  await verifyTistoryInput(tabId, bodyFrame);
+  const category = $("categoryName").value.trim();
+  if (category) await chooseTistoryCategory(tabId, category);
+  await addTistoryTags(tabId, $("tagNames").value);
+  await openPublishSettings(tabId);
+  return applyTistoryPublishSettings(tabId, publishSettingsFromPanel());
+}
+
 async function fillTistoryPost() {
   if (!activePost) return;
   const tab = await getTistoryEditorTab();
@@ -693,12 +734,7 @@ async function fillTistoryPost() {
         await pasteTistoryImage(tab.id, bodyFrame, block.url, pastedImages, totalImages);
       }
     }
-    const category = $("categoryName").value.trim();
-    if (category) await chooseTistoryCategory(tab.id, category);
-    await addTistoryTags(tab.id, $("tagNames").value);
-    await verifyTistoryInput(tab.id, bodyFrame);
-    await openPublishSettings(tab.id);
-    const publishSettings = await applyTistoryPublishSettings(tab.id, publishSettingsFromPanel());
+    const publishSettings = await applyRemainingTistorySettings(tab.id, bodyFrame);
     await reportInput("publish_ready");
     $("inputStatus").textContent = `제목·본문·카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다. 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
   } catch (error) {
@@ -706,6 +742,23 @@ async function fillTistoryPost() {
     $("inputStatus").textContent = `입력 중단: ${message}`;
     await reportInput("failed", message);
   } finally { $("fillPost").disabled = false; }
+}
+
+async function resumeTistoryPostSettings() {
+  if (!activePost) return;
+  const tab = await getTistoryEditorTab();
+  $("resumePostSettings").disabled = true;
+  try {
+    await chrome.windows.update(tab.windowId, { focused: true }); await chrome.tabs.update(tab.id, { active: true });
+    const bodyFrame = await editorFrameId(tab.id);
+    const publishSettings = await applyRemainingTistorySettings(tab.id, bodyFrame);
+    await reportInput("publish_ready");
+    $("inputStatus").textContent = `기존 제목·본문·이미지는 그대로 두고 카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다. 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    $("inputStatus").textContent = `설정 이어서 적용 중단: ${message}`;
+    await reportInput("failed", message);
+  } finally { $("resumePostSettings").disabled = false; }
 }
 
 $("refreshPosts").addEventListener("click", refreshPosts);
@@ -716,6 +769,7 @@ $("previewFill").addEventListener("click", () => {
   $("fillPost").click();
 });
 $("fillPost").addEventListener("click", fillTistoryPost);
+$("resumePostSettings").addEventListener("click", resumeTistoryPostSettings);
 $("extractTags").addEventListener("click", () => {
   try { extractTagsFromSelectedPost(); } catch (error) { $("categorySettingsStatus").textContent = error instanceof Error ? error.message : String(error); }
 });
