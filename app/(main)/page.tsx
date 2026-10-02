@@ -22,6 +22,7 @@ import ProgramCard from "@/components/programs/ProgramCard";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
+import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
 import { daysRemaining } from "@/lib/utils/format";
 
 interface UserAccessSummary {
@@ -50,6 +51,7 @@ async function getHomeData() {
     // 판정 규칙은 반드시 lib/access/checkProgramAccess.ts의 evaluateProgramAccess()를
     // 재사용한다 — /dashboard와 동일한 규칙(구독 -> 개별부여 -> 등급)이어야 두 화면의
     // 숫자가 서로 어긋나지 않는다.
+    const accessByProgramId = await getProgramAccessMap(supabase, programs ?? []);
     let userAccess: UserAccessSummary | null = null;
     if (user) {
       const [{ data: profile }, { data: subs }, { data: grants }, { data: grades }] = await Promise.all([
@@ -110,9 +112,9 @@ async function getHomeData() {
       };
     }
 
-    return { programs: programs ?? [], categories: categories ?? [], userAccess, activeUserCount: activeUserCount ?? 0 };
+    return { programs: programs ?? [], categories: categories ?? [], accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0 };
   } catch {
-    return { programs: [], categories: [], userAccess: null as UserAccessSummary | null, activeUserCount: 0 };
+    return { programs: [], categories: [], accessByProgramId: new Map<string, boolean>(), userAccess: null as UserAccessSummary | null, activeUserCount: 0 };
   }
 }
 
@@ -199,7 +201,7 @@ function renderNoticeText(item: NoticeItem) {
 }
 
 export default async function HomePage() {
-  const { programs, categories, userAccess } = await getHomeData();
+  const { programs, categories, accessByProgramId, userAccess } = await getHomeData();
   const freeProgramCount = programs.filter((p) => (p.badges ?? []).includes("free")).length;
   const paidProgramCount = programs.length - freeProgramCount;
   const latestPrograms = [...programs]
@@ -342,7 +344,7 @@ export default async function HomePage() {
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {latestPrograms.map((program) => (
-                <ProgramCard key={program.id} program={program} />
+                <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} />
               ))}
             </div>
           </div>
@@ -410,7 +412,7 @@ export default async function HomePage() {
                   </div>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {catPrograms.map((program) => (
-                      <ProgramCard key={program.id} program={program} />
+                      <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} />
                     ))}
                   </div>
                 </div>

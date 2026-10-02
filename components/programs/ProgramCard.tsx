@@ -12,16 +12,15 @@ import type { Program } from "@/types/database.types";
 
 interface ProgramCardProps {
   program: Program;
+  hasAccess?: boolean;
   // 명시적으로 넘기면 그것만 단독으로 쓰고, 안 넘기면 관리자가 프로그램 편집에서 지정한
   // program.badges(DB 값, 여러 개 가능)를 전부 보여준다.
   badge?: "new" | "best" | "sale" | "coming" | "free";
 }
 
-export default function ProgramCard({ program, badge }: ProgramCardProps) {
+export default function ProgramCard({ program, badge, hasAccess = false }: ProgramCardProps) {
   const resolvedBadges = badge ? [badge] : (program.badges ?? []);
-  // 메인 카드에서는 먼저 AIMaster 프로그램 상세로 이동해 기능·권한·안내를 확인한다.
-  // 실제 외부 앱 주소는 상세 페이지의 실행 버튼에서만 연다.
-  const executeTarget = "/programs/" + program.slug;
+  const subscriptionTarget = `/programs/${program.slug}#pricing`;
 
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)
@@ -109,15 +108,27 @@ export default function ProgramCard({ program, badge }: ProgramCardProps) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Link href={executeTarget}>
-              <button
-                type="button"
-                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
-              >
-                <Play size={12} className="fill-slate-950 text-slate-950" />
-                <span>실행하기</span>
-              </button>
-            </Link>
+            {hasAccess && program.app_url ? (
+              <a href={program.app_url} className="block">
+                <button
+                  type="button"
+                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
+                >
+                  <Play size={12} className="fill-slate-950 text-slate-950" />
+                  <span>실행하기</span>
+                </button>
+              </a>
+            ) : (
+              <Link href={subscriptionTarget}>
+                <button
+                  type="button"
+                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1 cursor-pointer border-none"
+                >
+                  <Play size={12} className="fill-slate-950 text-slate-950" />
+                  <span>구독하기</span>
+                </button>
+              </Link>
+            )}
             <Link href={"/programs/" + program.slug}>
               <GoldButton size="sm">자세히 보기</GoldButton>
             </Link>

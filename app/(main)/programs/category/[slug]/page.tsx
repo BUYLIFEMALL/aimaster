@@ -5,8 +5,10 @@ import ProgramCard from "@/components/programs/ProgramCard";
 import CategoryNav from "@/components/programs/CategoryNav";
 import ProgramSearch from "@/components/programs/ProgramSearch";
 import { createClient } from "@/lib/supabase/server";
+import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -98,6 +100,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     getPrograms(category.id, sp.q, sp.sort),
     getCategories(),
   ]);
+  const supabase = await createClient();
+  const accessByProgramId = await getProgramAccessMap(supabase, programs);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -149,7 +153,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {programs.map((program) => (
-            <ProgramCard key={program.id} program={program} />
+            <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} />
           ))}
         </div>
       )}
