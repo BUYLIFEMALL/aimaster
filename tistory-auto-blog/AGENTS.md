@@ -122,6 +122,10 @@
 이어가기 절차(병합 → 조사 실행 → 단계별 진행)와 로컬에서만 할 수 있는 일(DB 적용·`programs` 등록·배포)은
 [`docs/TISTORY_PLAN.md`](docs/TISTORY_PLAN.md) **§6**에 정리돼 있다. 가장 먼저 할 일은 주인님 PC에서 `inspector-extension/` 실행 후 JSON 결과 확보.
 
+# v1.42 (2026-10-02)
+
+- v1.41에서도 `37/45개 문단`이 반복된 원인을 저장 HTML 원문 비교의 오판으로 확인했다. `#editor-tistory`에는 `&nbsp;`·`&amp;` 등의 HTML 엔티티가 남는데, 기존 정규화는 이를 실제 문자와 다르게 처리했다. 이제 detached DOM으로 HTML을 해석한 실제 텍스트만 비교해, 화면에 정상 저장된 문단을 누락으로 오판하지 않는다. TinyMCE `setContent()`·save 동기화는 그대로 유지한다.
+
 # v1.41 (2026-10-02)
 
 - v1.40의 발행용 원본 검증에서 `37/45개 문단`처럼 일부가 빠지는 실제 사례를 확인했다. iframe DOM과 textarea 값만 맞추는 것으로 끝내지 않고, 발행 전 iframe HTML 전체를 TinyMCE `setContent()`로 내부 콘텐츠 모델에 확정한 뒤 undo 상태·change 이벤트·`save()`를 실행한다. 따라서 티스토리 최종 발행 직렬화도 같은 45개 문단을 사용한다.

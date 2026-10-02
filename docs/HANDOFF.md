@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 티스토리 발행 원본 HTML 엔티티 검증 오판 보완 (2026-10-02, v1.42)
+
+- v1.41에서도 발행 원본 검증이 `37/45개 문단`으로 중단됐다. `#editor-tistory`의 HTML 원문에 포함된 `&nbsp;`·`&amp;`를 정규화 문자열로 직접 비교해, 브라우저 화면의 실제 문자와 다르게 계산한 것이 원인이었다. v1.42는 저장 원본 HTML을 detached DOM으로 해석한 `textContent`로 비교한다. TinyMCE `setContent()`·save 동기화와 전체 문단 검증은 계속 적용한다.
+
 ## 티스토리 TinyMCE 내부 모델 동기화 (2026-10-02, v1.41)
 
 - v1.40의 발행 전 검증에서 `37/45개 문단`만 숨김 원본에 남는 실제 오류가 확인됐다. iframe 화면 DOM·textarea 동기화만으로는 TinyMCE 내부 모델이 갱신되지 않아 `save()`가 일부 문단을 직렬화하지 않을 수 있었다. v1.41은 iframe의 전체 HTML을 `setContent()`로 모델에 확정한 뒤 undo/change/save를 실행하고, 원본 검증을 계속 유지한다.

@@ -1054,6 +1054,14 @@ async function synchronizeTistoryEditorForPublish(tabId, bodyFrame) {
     func: (html, groups) => {
       const compact = (value) => String(value || "").normalize("NFKC").toLowerCase()
         .replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/[^\p{L}\p{N}]+/gu, "");
+      // textarea.value는 HTML 원문이라 &nbsp;·&amp; 같은 엔티티와 태그 이름까지 포함한다.
+      // 원문 문자열을 바로 비교하면 화면에 실제로 있는 문단도 누락으로 오판할 수 있으므로,
+      // 브라우저가 해석한 텍스트로 바꾼 뒤에만 본문 검증을 한다.
+      const renderedText = (value) => {
+        const container = document.createElement("div");
+        container.innerHTML = String(value || "");
+        return container.textContent || "";
+      };
       const textarea = document.querySelector("textarea#editor-tistory");
       const api = window.tinymce;
       const editors = [api?.activeEditor, ...(Array.isArray(api?.editors) ? api.editors : [])]
@@ -1078,12 +1086,12 @@ async function synchronizeTistoryEditorForPublish(tabId, bodyFrame) {
       }
       if (textarea instanceof HTMLTextAreaElement) {
         // TinyMCE API가 없거나 늦게 반영된 경우에도 발행 직전 원본에는 iframe HTML을 보존한다.
-        if (!textarea.value || compact(textarea.value) !== compact(html)) textarea.value = html;
+        if (!textarea.value || compact(renderedText(textarea.value)) !== compact(renderedText(html))) textarea.value = html;
         textarea.dispatchEvent(new Event("input", { bubbles: true }));
         textarea.dispatchEvent(new Event("change", { bubbles: true }));
       }
       const persisted = textarea instanceof HTMLTextAreaElement ? textarea.value : editor?.getContent?.({ format: "raw" }) || "";
-      const body = compact(persisted);
+      const body = compact(renderedText(persisted));
       const matched = groups.filter((samples) => samples.length === 0 || samples.some((sample) => body.includes(sample))).length;
       return { mode, matched, total: groups.length };
     },
