@@ -4,6 +4,7 @@
 const STORAGE_KEY = "tistoryEditorInspectionSnapshots";
 const TOKEN_KEY = "tistoryAutoBlogToken";
 const PUBLISH_SETTINGS_KEY = "tistoryPublishSettings";
+const TOPIC_OPTIONS_KEY = "tistoryHomeTopicOptions";
 const BASE = "https://tistory-auto-blog-pearl.vercel.app";
 const $ = (id) => document.getElementById(id);
 let snapshots = [];
@@ -280,6 +281,22 @@ function savedPublishSettings() {
   };
 }
 
+function renderTopicOptions(values, selected = $("topicName").value) {
+  const select = $("topicName");
+  const names = [...new Set((Array.isArray(values) ? values : []).map((value) => String(value || "").trim()).filter(Boolean))];
+  select.textContent = "";
+  const none = document.createElement("option"); none.value = ""; none.textContent = "선택 안 함"; select.append(none);
+  for (const name of names) {
+    const option = document.createElement("option"); option.value = name; option.textContent = name; select.append(option);
+  }
+  // 이전에 저장한 선택지가 티스토리 목록에서 사라진 경우도, 사용자 선택을 조용히 잃지 않게 표시한다.
+  if (selected && !names.includes(selected)) {
+    const saved = document.createElement("option"); saved.value = selected; saved.textContent = `${selected} (저장됨)`; select.append(saved);
+  }
+  select.disabled = names.length === 0;
+  select.value = selected || "";
+}
+
 async function savePublishSettings() {
   await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: savedPublishSettings() });
   $("publishSettingsStatus").textContent = "저장했습니다. 보호 비밀번호는 저장하지 않습니다.";
@@ -297,14 +314,62 @@ async function saveCategoryTags() {
 }
 
 async function restorePublishSettings() {
-  const stored = await chrome.storage.local.get(PUBLISH_SETTINGS_KEY);
+  const stored = await chrome.storage.local.get([PUBLISH_SETTINGS_KEY, TOPIC_OPTIONS_KEY]);
   const settings = stored[PUBLISH_SETTINGS_KEY];
+  const cachedTopics = stored[TOPIC_OPTIONS_KEY];
+  if (Array.isArray(cachedTopics)) renderTopicOptions(cachedTopics, settings?.topic || "");
+  else if (settings?.topic) renderTopicOptions([], settings.topic);
   if (!settings || typeof settings !== "object") return;
   for (const id of ["categoryName", "tagNames", "postVisibility", "commentPolicy", "topicName", "publishTiming", "reserveDate", "reserveTime"]) {
     if (typeof settings[id] === "string" && $(id)) $(id).value = settings[id];
   }
   syncPublishSettingsFields();
   $("publishSettingsStatus").textContent = "저장한 설정을 불러왔습니다. 보호 비밀번호는 다시 입력해 주세요.";
+}
+
+async function loadTistoryTopics() {
+  const tab = await getTistoryEditorTab();
+  const button = $("loadTopics");
+  button.disabled = true;
+  $("publishSettingsStatus").textContent = "티스토리 발행 창에서 홈주제를 읽는 중…";
+  try {
+    await chrome.windows.update(tab.windowId, { focused: true }); await chrome.tabs.update(tab.id, { active: true });
+    await openPublishSettings(tab.id);
+    const result = await chrome.scripting.executeScript({
+      target: { tabId: tab.id, frameIds: [0] },
+      func: async () => {
+        const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+        const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+        const text = (node) => String(node?.textContent || "").replace(/\s+/g, " ").trim();
+        const root = document.querySelector(".editor_layer[role='dialog']");
+        const buttons = [...(root?.querySelectorAll("button.mce-btn-type1.select_btn") || [])].filter(visible);
+        const topicButton = buttons[1];
+        if (!topicButton) throw new Error("홈주제 선택 메뉴를 찾지 못했습니다.");
+        const before = new Set([...document.querySelectorAll("[role='listbox']")].filter(visible));
+        topicButton.click();
+        for (let attempt = 0; attempt < 15; attempt += 1) {
+          await wait(100);
+          const lists = [...document.querySelectorAll("[role='listbox']")].filter(visible);
+          const list = lists.find((candidate) => !before.has(candidate)) || lists.find((candidate) => candidate.contains(topicButton) === false);
+          if (!list) continue;
+          const names = [...list.querySelectorAll("[role='option'], button, a, li, div")]
+            .filter((node) => visible(node) && node.children.length === 0)
+            .map(text)
+            .filter((value) => value && value !== "선택 안 함" && value !== "더보기");
+          const unique = [...new Set(names)];
+          if (unique.length) return unique;
+        }
+        throw new Error("홈주제 선택지를 읽지 못했습니다.");
+      },
+    });
+    const topics = result[0]?.result;
+    if (!Array.isArray(topics) || !topics.length) throw new Error("홈주제 선택지를 읽지 못했습니다.");
+    renderTopicOptions(topics);
+    await chrome.storage.local.set({ [TOPIC_OPTIONS_KEY]: topics });
+    $("publishSettingsStatus").textContent = `${topics.length}개 홈주제를 불러왔습니다. 목록에서 바로 선택하세요.`;
+  } catch (error) {
+    $("publishSettingsStatus").textContent = error instanceof Error ? error.message : String(error);
+  } finally { button.disabled = false; }
 }
 
 function extractTagsFromSelectedPost() {
@@ -506,6 +571,7 @@ async function openPublishSettings(tabId) {
   const opened = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] },
     func: async () => {
+      if (document.querySelector(".editor_layer[role='dialog']")) return true;
       const button = document.querySelector("#publish-layer-btn");
       if (!button || !button.getClientRects().length) return false;
       const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const rect = button.getBoundingClientRect();
@@ -841,5 +907,6 @@ $("extractTags").addEventListener("click", () => {
 });
 $("saveCategoryTags").addEventListener("click", () => { saveCategoryTags().catch((error) => { $("categorySettingsStatus").textContent = error instanceof Error ? error.message : String(error); }); });
 $("savePublishSettings").addEventListener("click", () => { savePublishSettings().catch((error) => { $("publishSettingsStatus").textContent = error instanceof Error ? error.message : String(error); }); });
+$("loadTopics").addEventListener("click", loadTistoryTopics);
 $("postVisibility").addEventListener("change", syncPublishSettingsFields);
 $("publishTiming").addEventListener("change", syncPublishSettingsFields);

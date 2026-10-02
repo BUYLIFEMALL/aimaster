@@ -78,7 +78,7 @@
       <div class="publish-field"><label for="postVisibility">공개 범위</label><select id="postVisibility"><option value="public">공개</option><option value="protected">보호</option><option value="private">비공개</option></select></div>
       <div id="postPasswordField" class="publish-field" hidden><label for="postPassword">보호 비밀번호</label><input id="postPassword" type="password" autocomplete="new-password" placeholder="이번 입력에만 사용하며 저장하지 않음" /></div>
       <div class="publish-field"><label for="commentPolicy">댓글</label><select id="commentPolicy"><option value="allow">허용</option><option value="deny">비허용</option></select></div>
-      <div class="publish-field"><label for="topicName">홈주제</label><input id="topicName" autocomplete="off" placeholder="선택 안 함 또는 정확한 홈주제명 (예: IT·인터넷)" /></div>
+      <div class="publish-field"><label for="topicName">홈주제</label><div class="topic-select-control"><select id="topicName" disabled><option value="">홈주제를 불러오세요</option></select><button id="loadTopics" class="secondary" type="button">불러오기</button></div></div>
       <div class="publish-field"><label for="publishTiming">발행 시점</label><select id="publishTiming"><option value="now">현재</option><option value="reserve">예약</option></select></div>
       <div id="reserveFields" class="reserve-fields" hidden>
         <div class="publish-field"><label for="reserveDate">예약 날짜</label><input id="reserveDate" type="date" /></div>
