@@ -483,7 +483,10 @@ async function pasteTistoryImage(tabId, bodyFrame, url, order, total) {
       }
     },
   });
-  if (!dispatched[0]?.result?.dispatched) throw new Error(`이미지 ${order}을(를) 티스토리 본문에 전달하지 못했습니다.`);
+  // cancelable 이벤트는 편집기가 정상 처리하면서 preventDefault()를 호출하면
+  // dispatchEvent()가 false를 반환합니다. 이는 전달 실패가 아니라 티스토리가
+  // 붙여넣기를 인계받았다는 뜻이므로, 실제 figure > img 생성 여부로 판정합니다.
+  if (!dispatched[0]?.result) throw new Error(`이미지 ${order}의 티스토리 전달 결과를 확인하지 못했습니다.`);
   const expected = (before[0]?.result || 0) + 1;
   // 티스토리는 붙여넣은 이미지를 서버로 올린 뒤 figure > img를 추가합니다.
   // 고해상도 PNG나 응답이 느린 경우 20초 안에 완료되지 않아 실제 업로드 중에도

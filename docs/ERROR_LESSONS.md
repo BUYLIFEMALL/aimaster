@@ -187,3 +187,10 @@
 - **원인:** Chrome 오프스크린 문서는 설계상 포커스를 받을 수 없다. 이미지형 `navigator.clipboard.write()`가 포커스를 요구하는 환경에서는 오프스크린 문서로 옮겨도 같은 제약이 반복된다.
 - **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`에서 시스템 클립보드와 `Ctrl+V`를 제거했다. Storage 이미지를 PNG `File`로 만든 뒤 티스토리 본문 iframe의 `ClipboardEvent('paste')`에 담아 직접 전달한다.
 - **다음부터 확인:** `offscreen` API의 CLIPBOARD 사유만으로 포커스 요구 Clipboard API가 항상 동작한다고 가정하지 말고, 문서의 포커스 가능 여부와 실제 입력 환경을 함께 검증한다.
+
+## 2026-10-02 — `dispatchEvent()`의 false는 cancelable 이벤트 전달 실패가 아닐 수 있다
+
+- **증상:** v1.14에서 `이미지 1을(를) 티스토리 본문에 전달하지 못했습니다.`로 즉시 중단됐다.
+- **원인:** cancelable `paste` 이벤트를 티스토리 편집기가 정상 처리하며 `preventDefault()`를 호출하면 `dispatchEvent()`는 false를 반환한다. 이를 전달 실패로 잘못 해석했다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`에서 반환값 기반 중단을 제거하고, 이후 실제 `figure > img` 생성 폴링으로만 이미지 입력 성공을 판정한다.
+- **다음부터 확인:** 합성 이벤트는 `dispatchEvent()` 반환값만으로 성공을 판정하지 말고, 취소 가능 여부·이벤트 핸들러의 기본 동작 차단 의미와 실제 후속 DOM 상태를 함께 확인한다.
