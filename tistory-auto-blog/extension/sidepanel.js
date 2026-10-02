@@ -719,16 +719,21 @@ async function ensureTistoryPublicWithTrustedClick(tabId) {
       const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
       const text = (node) => String(node?.textContent || "").replace(/\s+/g, " ").trim();
       const root = [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")].find(visible);
-      const radio = [...(root?.querySelectorAll("input[name='basicSet'][type='radio']") || [])].find((input) => {
-        const label = root.querySelector(`label[for='${input.id}']`) || input.closest("label");
-        return text(label || input.parentElement) === "공개";
-      });
+      const radio = root?.querySelector("#open20")
+        || [...(root?.querySelectorAll("input[name='basicSet'][type='radio']") || [])].find((input) => {
+          const label = root.querySelector(`label[for='${input.id}']`) || input.closest("label");
+          const labelText = text(label || input.parentElement);
+          return labelText.includes("공개") && !labelText.includes("비공개") && !labelText.includes("보호");
+        });
       if (!radio) return null;
       if (radio.checked) return { selected: true };
-      const label = root.querySelector(`label[for='${radio.id}']`) || radio.closest("label") || radio.parentElement;
-      if (!visible(label)) return null;
-      label.scrollIntoView({ block: "center", inline: "nearest" });
-      const rect = label.getBoundingClientRect();
+      const clickTarget = [
+        root.querySelector(`label[for='${radio.id}']`), radio.closest("label"), radio.nextElementSibling,
+        radio.previousElementSibling, radio.parentElement,
+      ].find(visible);
+      if (!clickTarget) return null;
+      clickTarget.scrollIntoView({ block: "center", inline: "nearest" });
+      const rect = clickTarget.getBoundingClientRect();
       return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     },
   });
@@ -741,8 +746,14 @@ async function ensureTistoryPublicWithTrustedClick(tabId) {
     const verified = await chrome.scripting.executeScript({
       target: { tabId, frameIds: [0] },
       func: () => [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")]
-        .some((root) => root.getClientRects().length && [...root.querySelectorAll("input[name='basicSet'][type='radio']")]
-          .some((input) => input.checked && String((root.querySelector(`label[for='${input.id}']`) || input.closest("label") || input.parentElement)?.textContent || "").replace(/\s+/g, " ").trim() === "공개")),
+        .some((root) => {
+          const publicRadio = root.querySelector("#open20");
+          if (publicRadio?.checked) return true;
+          return [...root.querySelectorAll("input[name='basicSet'][type='radio']")].some((input) => {
+            const labelText = String((root.querySelector(`label[for='${input.id}']`) || input.closest("label") || input.parentElement)?.textContent || "").replace(/\s+/g, " ").trim();
+            return input.checked && labelText.includes("공개") && !labelText.includes("비공개") && !labelText.includes("보호");
+          });
+        }),
     });
     if (verified[0]?.result === true) return;
   }
