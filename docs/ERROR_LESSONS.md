@@ -166,3 +166,10 @@
 - **원인:** 티스토리 사진 메뉴는 DOM 파일 입력을 제공하지 않아 운영체제 파일 선택창을 우회할 수 없고, 클립보드 이미지 MIME 지원도 편집기마다 일정하지 않다.
 - **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`는 이미지 Blob을 캔버스로 그린 뒤 `image/png` Blob으로 변환하여 클립보드에 쓰고 `Ctrl+V`를 보낸다. 이후 iframe의 `figure > img` 수를 확인한다.
 - **다음부터 확인:** 파일 입력이 없는 웹 편집기는 원본 MIME을 그대로 가정하지 말고 PNG 클립보드 변환과 실제 DOM 삽입 확인을 함께 둔다.
+
+## 2026-10-02 — 탭을 활성화한 뒤 사이드패널에서 이미지 클립보드를 쓰면 포커스 오류가 난다
+
+- **증상:** 티스토리 본문·첫 이미지 입력 후 다음 이미지 처리에서 `Failed to execute 'write' on 'Clipboard': Document is not focused.`로 중단됐다. 실패 상태는 `tistory_posts.tistory_input_error`에 실제로 기록됐다.
+- **원인:** 이미지 입력 전에 티스토리 탭을 활성화하면 사이드패널 문서는 더 이상 포커스를 갖지 않는다. 사이드패널의 `navigator.clipboard.write()`는 포커스가 필요해 다중 이미지 입력에서 실패했다.
+- **해결(위치):** `tistory-auto-blog/extension/offscreen.html`·`offscreen.js`와 `background.js`를 추가해 `offscreen` 문서가 이미지 URL을 PNG로 변환하고 클립보드에 쓴다. `sidepanel.js`는 메시지로 준비를 요청한 뒤 단일 본문 iframe에만 `Ctrl+V`를 보낸다.
+- **다음부터 확인:** 편집 대상 탭을 활성화한 상태에서 연속 이미지 클립보드 작업이 필요하면 사이드패널이 아니라 `offscreen` 문서로 옮기고, 실제 두 장 이상 입력으로 확인한다.
