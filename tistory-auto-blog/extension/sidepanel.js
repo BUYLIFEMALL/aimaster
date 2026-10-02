@@ -405,6 +405,116 @@ async function openPublishSettings(tabId) {
   if (opened[0]?.result !== true) throw new Error("발행 설정창을 열지 못했습니다.");
 }
 
+function publishSettingsFromPanel() {
+  const settings = {
+    visibility: $("postVisibility").value,
+    password: $("postPassword").value,
+    comment: $("commentPolicy").value,
+    topic: $("topicName").value.trim(),
+    timing: $("publishTiming").value,
+    reserveDate: $("reserveDate").value,
+    reserveTime: $("reserveTime").value,
+  };
+  if (settings.visibility === "protected" && !settings.password) throw new Error("보호글에는 비밀번호를 입력해 주세요.");
+  if (settings.timing === "reserve" && (!settings.reserveDate || !settings.reserveTime)) throw new Error("예약 발행에는 날짜와 시간을 모두 입력해 주세요.");
+  return settings;
+}
+
+async function applyTistoryPublishSettings(tabId, settings) {
+  const applied = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] }, args: [settings],
+    func: async (requested) => {
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const dialog = () => document.querySelector(".editor_layer[role='dialog']");
+      const visible = (node) => Boolean(node?.getClientRects().length);
+      const nodeText = (node) => String(node?.textContent || "").replace(/\s+/g, " ").trim();
+      const click = async (node) => {
+        if (!node || !visible(node)) return false;
+        const rect = node.getBoundingClientRect();
+        const event = { bubbles: true, cancelable: true, view: window, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
+        node.dispatchEvent(new MouseEvent("mouseover", event)); node.dispatchEvent(new MouseEvent("mousemove", event));
+        await wait(90 + Math.floor(Math.random() * 160));
+        node.dispatchEvent(new MouseEvent("mousedown", event)); node.dispatchEvent(new MouseEvent("mouseup", event)); node.dispatchEvent(new MouseEvent("click", event));
+        await wait(180);
+        return true;
+      };
+      const setValue = (input, value) => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(input, value);
+        input.dispatchEvent(new Event("input", { bubbles: true })); input.dispatchEvent(new Event("change", { bubbles: true }));
+      };
+      const root = dialog();
+      if (!root) throw new Error("발행 설정창을 확인하지 못했습니다.");
+      const visibilityLabel = { public: "공개", protected: "보호", private: "비공개" }[requested.visibility];
+      const radio = [...root.querySelectorAll("input[name='basicSet'][type='radio']")].find((input) => {
+        const label = root.querySelector(`label[for='${input.id}']`);
+        return nodeText(label || input.parentElement).includes(visibilityLabel);
+      });
+      if (!radio) throw new Error(`${visibilityLabel} 공개 범위 선택 항목을 찾지 못했습니다.`);
+      await click(radio);
+      if (!radio.checked) throw new Error(`${visibilityLabel} 공개 범위 적용을 확인하지 못했습니다.`);
+      if (requested.visibility === "protected") {
+        const password = root.querySelector("#postPassword");
+        if (!password) throw new Error("보호글 비밀번호 입력칸을 찾지 못했습니다.");
+        setValue(password, requested.password);
+        if (password.value !== requested.password) throw new Error("보호글 비밀번호 입력을 확인하지 못했습니다.");
+      }
+
+      const selectButtons = [...root.querySelectorAll("button.mce-btn-type1.select_btn")].filter(visible);
+      const chooseListOption = async (button, label, required = true) => {
+        if (!button) { if (!required) return; throw new Error("발행 설정 선택 메뉴를 찾지 못했습니다."); }
+        await click(button);
+        const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
+        const matches = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])]
+          .filter((node) => visible(node) && nodeText(node) === label);
+        if (matches.length !== 1) throw new Error(`‘${label}’ 선택 항목을 정확히 찾지 못했습니다.`);
+        await click(matches[0]);
+        if (!nodeText(button).includes(label)) throw new Error(`‘${label}’ 선택 적용을 확인하지 못했습니다.`);
+      };
+      await chooseListOption(selectButtons[0], requested.comment === "allow" ? "댓글 허용" : "댓글 비허용");
+      if (requested.topic) await chooseListOption(selectButtons[1], requested.topic);
+
+      const timingLabel = requested.timing === "now" ? "현재" : "예약";
+      const timingButton = [...root.querySelectorAll("button.btn_date")].find((button) => nodeText(button) === timingLabel);
+      if (!timingButton) throw new Error(`${timingLabel} 발행 선택 항목을 찾지 못했습니다.`);
+      await click(timingButton);
+      if (!timingButton.classList.contains("on")) throw new Error(`${timingLabel} 발행 적용을 확인하지 못했습니다.`);
+
+      if (requested.timing === "reserve") {
+        const targetDate = new Date(`${requested.reserveDate}T00:00:00`);
+        if (Number.isNaN(targetDate.getTime())) throw new Error("예약 날짜 형식이 올바르지 않습니다.");
+        const dateButton = root.querySelector("button.btn_reserve");
+        if (!dateButton) throw new Error("예약 날짜 선택 버튼을 찾지 못했습니다.");
+        await click(dateButton);
+        for (let step = 0; step < 37; step += 1) {
+          const calendar = [...document.querySelectorAll(".layer_info, .inner_layer")].find(visible);
+          const matched = nodeText(calendar).match(/(\d{4})년\s*(\d{1,2})월/);
+          if (!matched) throw new Error("예약 달력의 연월 정보를 읽지 못했습니다.");
+          const year = Number(matched[1]); const month = Number(matched[2]);
+          if (year === targetDate.getFullYear() && month === targetDate.getMonth() + 1) break;
+          const direction = year > targetDate.getFullYear() || (year === targetDate.getFullYear() && month > targetDate.getMonth() + 1) ? ".btn_prev" : ".btn_next";
+          const navigation = calendar.querySelector(direction);
+          if (!navigation) throw new Error("예약 달력 이동 버튼을 찾지 못했습니다.");
+          await click(navigation);
+          if (step === 36) throw new Error("예약 날짜가 달력 탐색 범위를 벗어났습니다.");
+        }
+        const calendar = [...document.querySelectorAll(".layer_info, .inner_layer")].find(visible);
+        const days = [...(calendar?.querySelectorAll("button.btn_day") || [])].filter((button) => nodeText(button) === String(targetDate.getDate()));
+        if (days.length !== 1) throw new Error("예약 날짜를 안전하게 하나로 식별하지 못했습니다.");
+        await click(days[0]);
+        if (!nodeText(dateButton).includes(requested.reserveDate)) throw new Error("예약 날짜 적용을 확인하지 못했습니다.");
+        const [hour, minute] = requested.reserveTime.split(":");
+        const hourInput = root.querySelector("#dateHour"); const minuteInput = root.querySelector("#dateMinute");
+        if (!hourInput || !minuteInput) throw new Error("예약 시간 입력칸을 찾지 못했습니다.");
+        setValue(hourInput, String(Number(hour))); setValue(minuteInput, String(Number(minute)));
+        if (Number(hourInput.value) !== Number(hour) || Number(minuteInput.value) !== Number(minute)) throw new Error("예약 시간 적용을 확인하지 못했습니다.");
+      }
+      return { visibility: visibilityLabel, timing: timingLabel };
+    },
+  });
+  if (!applied[0]?.result) throw new Error("발행 설정 적용 결과를 확인하지 못했습니다.");
+  return applied[0].result;
+}
+
 async function readTistoryDraftState(tabId, bodyFrame) {
   const [top, body] = await Promise.all([
     chrome.scripting.executeScript({
@@ -539,8 +649,9 @@ async function fillTistoryPost() {
     await addTistoryTags(tab.id, $("tagNames").value);
     await verifyTistoryInput(tab.id, bodyFrame);
     await openPublishSettings(tab.id);
+    const publishSettings = await applyTistoryPublishSettings(tab.id, publishSettingsFromPanel());
     await reportInput("publish_ready");
-    $("inputStatus").textContent = "제목·본문·카테고리·태그 입력과 발행 설정창 열기까지 완료했습니다. 마지막 비공개 저장/발행은 티스토리에서 직접 눌러 주세요.";
+    $("inputStatus").textContent = `제목·본문·카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다. 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     $("inputStatus").textContent = `입력 중단: ${message}`;
@@ -556,3 +667,5 @@ $("previewFill").addEventListener("click", () => {
   $("fillPost").click();
 });
 $("fillPost").addEventListener("click", fillTistoryPost);
+$("postVisibility").addEventListener("change", () => { $("postPasswordField").hidden = $("postVisibility").value !== "protected"; });
+$("publishTiming").addEventListener("change", () => { $("reserveFields").hidden = $("publishTiming").value !== "reserve"; });

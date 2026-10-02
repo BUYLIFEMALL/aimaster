@@ -70,6 +70,20 @@
       </div>
     </section>
 
+    <section class="card" aria-labelledby="publish-settings-title">
+      <h2 id="publish-settings-title">발행 설정 자동화</h2>
+      <p class="hint">본문 입력 후 발행 창을 열어 아래 설정만 적용합니다. <strong>최종 비공개 저장·발행 버튼은 자동으로 누르지 않습니다.</strong></p>
+      <div class="publish-field"><label for="postVisibility">공개 범위</label><select id="postVisibility"><option value="public">공개</option><option value="protected">보호</option><option value="private">비공개</option></select></div>
+      <div id="postPasswordField" class="publish-field" hidden><label for="postPassword">보호 비밀번호</label><input id="postPassword" type="password" autocomplete="new-password" placeholder="이번 입력에만 사용하며 저장하지 않음" /></div>
+      <div class="publish-field"><label for="commentPolicy">댓글</label><select id="commentPolicy"><option value="allow">허용</option><option value="deny">비허용</option></select></div>
+      <div class="publish-field"><label for="topicName">주제</label><input id="topicName" autocomplete="off" placeholder="선택 안 함 또는 정확한 주제명" /></div>
+      <div class="publish-field"><label for="publishTiming">발행 시점</label><select id="publishTiming"><option value="now">현재</option><option value="reserve">예약</option></select></div>
+      <div id="reserveFields" class="reserve-fields" hidden>
+        <div class="publish-field"><label for="reserveDate">예약 날짜</label><input id="reserveDate" type="date" /></div>
+        <div class="publish-field"><label for="reserveTime">예약 시간</label><input id="reserveTime" type="time" step="60" value="09:00" /></div>
+      </div>
+    </section>
+
     <section class="card">
       <h2>화면 구조 분석</h2>
       <p class="hint">입력 오류가 나거나 티스토리 편집기가 바뀌었을 때만 실행하세요. 제목·본문의 실제 글자, 로그인 정보, 쿠키는 수집하지 않습니다.</p>
