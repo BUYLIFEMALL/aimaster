@@ -511,9 +511,27 @@ async function addTistoryTags(tabId, tags) {
     func: () => [...document.querySelectorAll(".editor_tag > .txt_tag")].map((node) => (node.textContent || "").replace(/^#+/, "").trim()).filter(Boolean),
   });
   const existingTags = new Set((existing[0]?.result || []).map((tag) => tag.toLocaleLowerCase()));
-  for (const tag of normalizeTistoryTags(tags).filter((tag) => !existingTags.has(tag.toLocaleLowerCase()))) {
+  const missingTags = normalizeTistoryTags(tags).filter((tag) => !existingTags.has(tag.toLocaleLowerCase()));
+  if (!missingTags.length) return { skipped: [] };
+  // #tagText는 모든 티스토리 편집기 상태에 고정으로 존재하지 않는다. 현재 화면에서 실제로
+  // 보이는 태그 입력칸만 사용하며, 없는 상태가 제목·본문·발행 설정 재개를 막지는 않게 한다.
+  const target = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] },
+    func: () => {
+      const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+      const candidates = ["#tagText", "input[placeholder*='태그']", "input[aria-label*='태그']", "input[name*='tag' i]"];
+      for (const selector of candidates) {
+        const input = [...document.querySelectorAll(selector)].find((node) => visible(node) && !node.disabled && !node.readOnly);
+        if (input) return selector;
+      }
+      return "";
+    },
+  });
+  const selector = target[0]?.result;
+  if (!selector) return { skipped: missingTags };
+  for (const tag of missingTags) {
     const before = await chrome.scripting.executeScript({ target: { tabId, frameIds: [0] }, func: () => document.querySelectorAll(".editor_tag > .txt_tag").length });
-    await focusKnownTarget(tabId, 0, "#tagText");
+    await focusKnownTarget(tabId, 0, selector);
     await withDebugger(tabId, () => humanType(tabId, tag, `태그 입력 중…`));
     await withDebugger(tabId, async () => {
       await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
@@ -523,6 +541,7 @@ async function addTistoryTags(tabId, tags) {
     const after = await chrome.scripting.executeScript({ target: { tabId, frameIds: [0] }, func: () => document.querySelectorAll(".editor_tag > .txt_tag").length });
     if ((after[0]?.result || 0) <= (before[0]?.result || 0)) throw new Error("태그 확정 결과를 확인하지 못했습니다.");
   }
+  return { skipped: [] };
 }
 
 async function openTistoryCategory(tabId) {
@@ -616,6 +635,27 @@ async function openPublishSettings(tabId) {
     }
   }
   throw new Error("발행 설정창을 열지 못했습니다.");
+}
+
+async function closePublishSettings(tabId) {
+  if (!await isPublishSettingsOpen(tabId)) return;
+  const target = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] },
+    func: () => {
+      const button = document.querySelector("#unpublish-btn");
+      if (!button || !button.getClientRects().length) return null;
+      const rect = button.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    },
+  });
+  const point = target[0]?.result;
+  if (!point) throw new Error("열려 있는 발행 설정창의 취소 버튼을 찾지 못했습니다.");
+  await clickTistoryPoint(tabId, point);
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await inputSleep(100);
+    if (!await isPublishSettingsOpen(tabId)) return;
+  }
+  throw new Error("열려 있는 발행 설정창을 닫지 못했습니다.");
 }
 
 function publishSettingsFromPanel() {
@@ -938,17 +978,19 @@ async function reportInput(status, error = "") {
 
 async function applyRemainingTistorySettings(tabId, bodyFrame, verificationOptions) {
   const verification = await verifyTistoryInput(tabId, bodyFrame, verificationOptions);
+  // 이전 실패가 남긴 모달은 카테고리·태그 입력을 가릴 수 있으므로 재개 전에 닫는다.
+  await closePublishSettings(tabId);
   const category = $("categoryName").value.trim();
   if (category) await chooseTistoryCategory(tabId, category);
-  await addTistoryTags(tabId, $("tagNames").value);
+  const tagResult = await addTistoryTags(tabId, $("tagNames").value);
   const settings = publishSettingsFromPanel();
-  if (!needsPublishDialog(settings)) return { visibility: "공개", timing: "현재", verification, skippedDefaultDialog: true };
+  if (!needsPublishDialog(settings)) return { visibility: "공개", timing: "현재", verification, skippedDefaultDialog: true, skippedTags: tagResult.skipped };
   await openPublishSettings(tabId);
   if (settings.topic && settings.visibility === "public" && settings.comment === "allow" && settings.timing === "now") {
     await applyTistoryTopicWithTrustedClicks(tabId, settings.topic);
-    return { visibility: "공개", timing: "현재", topic: settings.topic, verification };
+    return { visibility: "공개", timing: "현재", topic: settings.topic, verification, skippedTags: tagResult.skipped };
   }
-  return { ...await applyTistoryPublishSettings(tabId, settings), verification };
+  return { ...await applyTistoryPublishSettings(tabId, settings), verification, skippedTags: tagResult.skipped };
 }
 
 async function fillTistoryPost() {
@@ -978,7 +1020,8 @@ async function fillTistoryPost() {
     }
     const publishSettings = await applyRemainingTistorySettings(tab.id, bodyFrame);
     await reportInput("publish_ready");
-    $("inputStatus").textContent = `제목·본문·카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다. 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
+    const tagNotice = publishSettings.skippedTags?.length ? ` 태그 입력칸을 찾지 못해 태그 ${publishSettings.skippedTags.length}개는 건너뛰었습니다.` : "";
+    $("inputStatus").textContent = `제목·본문·카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다.${tagNotice} 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     $("inputStatus").textContent = `입력 중단: ${message}`;
@@ -997,7 +1040,8 @@ async function resumeTistoryPostSettings() {
     // 티스토리가 서식을 다시 만든 일부 문단은 허용하되 제목·본문 존재·이미지 수는 계속 검증합니다.
     const publishSettings = await applyRemainingTistorySettings(tab.id, bodyFrame, { allowPartialText: true });
     await reportInput("publish_ready");
-    $("inputStatus").textContent = `기존 제목·본문·이미지는 그대로 두고 카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다. 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
+    const tagNotice = publishSettings.skippedTags?.length ? ` 태그 입력칸을 찾지 못해 태그 ${publishSettings.skippedTags.length}개는 건너뛰었습니다.` : "";
+    $("inputStatus").textContent = `기존 제목·본문·이미지는 그대로 두고 카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다.${tagNotice} 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     $("inputStatus").textContent = `설정 이어서 적용 중단: ${message}`;
