@@ -639,6 +639,73 @@ function needsPublishDialog(settings) {
   return settings.visibility !== "public" || settings.comment !== "allow" || Boolean(settings.topic) || settings.timing !== "now";
 }
 
+async function clickTistoryPoint(tabId, point) {
+  await withDebugger(tabId, async () => {
+    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", { type: "mouseMoved", x: point.x, y: point.y });
+    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+    await chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+  });
+}
+
+// 홈주제는 티스토리 React가 관리하는 드롭다운이다. 발행창을 연 뒤 DOM 합성 click으로
+// 고르면 isTrusted=false를 무시할 수 있으므로, 두 번의 실제 포인터 클릭과 화면 문구 확인을 쓴다.
+async function applyTistoryTopicWithTrustedClicks(tabId, topic) {
+  const button = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [0] }, args: [topic],
+    func: (name) => {
+      const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+      const root = [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")].find(visible);
+      const buttons = [...(root?.querySelectorAll("button.mce-btn-type1.select_btn") || [])].filter(visible);
+      const target = buttons[1];
+      if (!target) return null;
+      if (String(target.textContent || "").replace(/\s+/g, " ").includes(name)) return { selected: true };
+      target.scrollIntoView({ block: "center", inline: "nearest" });
+      const rect = target.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    },
+  });
+  if (button[0]?.result?.selected) return;
+  const buttonPoint = button[0]?.result;
+  if (!buttonPoint?.x) throw new Error("홈주제 선택 메뉴를 찾지 못했습니다.");
+  await clickTistoryPoint(tabId, buttonPoint);
+
+  let optionPoint = null;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await inputSleep(100);
+    const option = await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [0] }, args: [topic],
+      func: (name) => {
+        const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+        const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
+        const matches = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])]
+          .filter((node) => visible(node) && String(node.textContent || "").replace(/\s+/g, " ").trim() === name)
+          .filter((node) => ![...node.children].some((child) => String(child.textContent || "").replace(/\s+/g, " ").trim() === name));
+        if (matches.length !== 1) return null;
+        const rect = matches[0].getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      },
+    });
+    if (option[0]?.result?.x) { optionPoint = option[0].result; break; }
+  }
+  if (!optionPoint) throw new Error(`‘${topic}’ 홈주제 항목을 현재 티스토리 목록에서 찾지 못했습니다.`);
+  await clickTistoryPoint(tabId, optionPoint);
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await inputSleep(100);
+    const verified = await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [0] }, args: [topic],
+      func: (name) => {
+        const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+        const root = [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")].find(visible);
+        const buttons = [...(root?.querySelectorAll("button.mce-btn-type1.select_btn") || [])].filter(visible);
+        return Boolean(buttons[1] && String(buttons[1].textContent || "").replace(/\s+/g, " ").includes(name));
+      },
+    });
+    if (verified[0]?.result === true) return;
+  }
+  throw new Error(`‘${topic}’ 홈주제 적용을 화면에서 확인하지 못했습니다.`);
+}
+
 async function applyTistoryPublishSettings(tabId, settings) {
   const applied = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] }, args: [settings],
@@ -877,6 +944,10 @@ async function applyRemainingTistorySettings(tabId, bodyFrame, verificationOptio
   const settings = publishSettingsFromPanel();
   if (!needsPublishDialog(settings)) return { visibility: "공개", timing: "현재", verification, skippedDefaultDialog: true };
   await openPublishSettings(tabId);
+  if (settings.topic && settings.visibility === "public" && settings.comment === "allow" && settings.timing === "now") {
+    await applyTistoryTopicWithTrustedClicks(tabId, settings.topic);
+    return { visibility: "공개", timing: "현재", topic: settings.topic, verification };
+  }
   return { ...await applyTistoryPublishSettings(tabId, settings), verification };
 }
 
