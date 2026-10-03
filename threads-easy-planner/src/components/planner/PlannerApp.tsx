@@ -411,12 +411,17 @@ export function PlannerApp() {
 
         {/* 2. ★ 핵심 기능: 다양한 상황별 페르소나 원클릭 글 생성 버튼 그리드 (6대 페르소나) */}
         <div className="space-y-3 pt-1">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
-              <span>🎭</span>
-              <span>상황별 페르소나 원클릭 생성 (클릭 즉시 그 시점과 상황의 글이 완성됩니다)</span>
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
+            <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-2">
+              <span className="text-lg">🎭</span>
+              <span>상황별 페르소나 원클릭 생성</span>
+              <span className="text-xs md:text-sm font-semibold text-neutral-500 hidden sm:inline">
+                (클릭 즉시 그 시점과 상황의 글이 완성됩니다)
+              </span>
             </span>
-            <span className="text-[11px] text-neutral-400">버튼 클릭 즉시 글 완성</span>
+            <span className="text-[11px] md:text-xs font-bold text-neutral-600 bg-neutral-100 px-2.5 py-1 rounded-full">
+              ⚡ 버튼 클릭 즉시 글 완성
+            </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
@@ -476,13 +481,22 @@ export function PlannerApp() {
         </div>
 
         {/* 3. 🔥 상황별 페르소나 밑에 함께 위치하는: 실전 떡상 템플릿 프리셋 3선 */}
-        <div className="rounded-2xl bg-amber-50/60 border border-amber-200/80 p-3.5 md:p-4 space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-900 inline-flex items-center gap-1.5">
-              <span>🔥</span>
-              <span>실전 떡상 템플릿 프리셋 3선 (클릭 시 벤치마킹 구조로 즉시 생성)</span>
+        <div className="rounded-2xl bg-amber-50/70 border border-amber-200/90 p-4 md:p-5 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight animate-pulse">
+                🔥 아무런 아이디어가 없을 때!!!
+              </span>
+              <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-1.5">
+                <span>실전 떡상 템플릿 프리셋 3선</span>
+                <span className="text-xs md:text-sm font-semibold text-amber-900/80 hidden sm:inline">
+                  (클릭 시 벤치마킹 구조로 즉시 생성)
+                </span>
+              </span>
+            </div>
+            <span className="text-xs font-bold text-amber-800 bg-amber-100/90 px-2.5 py-1 rounded-lg">
+              실제 터진 사례 벤치마킹 ⚡
             </span>
-            <span className="text-[11px] text-amber-700/80">실제 터진 사례 벤치마킹</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -515,14 +529,29 @@ export function PlannerApp() {
         </div>
 
         {/* 4. 📝 내 실제 경험 · 상품 직접 지정하기 (접이식 상세 템플릿 폼) */}
-        <div className="pt-1 border-t border-neutral-100">
+        <div className="pt-2 border-t border-neutral-200/80">
           <button
             type="button"
             onClick={() => setShowTemplateForm(!showTemplateForm)}
-            className="text-xs font-bold text-neutral-600 hover:text-neutral-900 inline-flex items-center gap-1.5 cursor-pointer py-1"
+            className="w-full flex items-center justify-between p-3.5 md:p-4 rounded-2xl bg-neutral-50 hover:bg-neutral-100/90 border border-neutral-200/90 transition-all cursor-pointer group shadow-2xs"
           >
-            <span>{showTemplateForm ? "▲ 접기" : "▼"}</span>
-            <span>내 실제 경험담 · 상품명 · 타깃 직접 입력하기 (상세 템플릿 폼)</span>
+            <div className="flex items-center gap-2.5 md:gap-3 text-left">
+              <span className="text-lg md:text-xl">✍️</span>
+              <div>
+                <div className="text-sm md:text-base font-extrabold text-neutral-900 group-hover:text-black flex flex-wrap items-center gap-2">
+                  <span>내 실제 경험담 · 상품명 · 타깃 직접 입력하기 (상세 템플릿 폼)</span>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-700">
+                    나만의 맞춤 글
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                  내가 직접 겪은 썰이나 특정 상품명을 넣어 100% 리얼하고 자연스러운 글을 완성합니다.
+                </p>
+              </div>
+            </div>
+            <span className="text-xs md:text-sm font-bold text-neutral-700 bg-white px-3 py-1.5 rounded-xl border border-neutral-200 group-hover:border-neutral-400 group-hover:text-neutral-950 flex items-center gap-1 shrink-0 ml-2">
+              <span>{showTemplateForm ? "접기 ▲" : "펼치기 ▼"}</span>
+            </span>
           </button>
 
           {showTemplateForm && (
