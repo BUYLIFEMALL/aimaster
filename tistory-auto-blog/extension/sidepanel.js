@@ -558,26 +558,6 @@ async function tistoryEditorContainsText(tabId, bodyFrame, value, attempts = 12)
   return false;
 }
 
-// 글자·숫자만 비교하면 티스토리가 따옴표·괄호 같은 문장부호를 바꿔도 성공으로
-// 오인한다. 공백만 정리한 원문 문장이 편집기에 그대로 남았는지 따로 확인한다.
-async function tistoryEditorContainsExactText(tabId, bodyFrame, value, attempts = 12) {
-  const expected = String(value || "").replace(/\s+/g, " ").trim();
-  if (!expected) return true;
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const result = await chrome.scripting.executeScript({
-      target: { tabId, frameIds: [bodyFrame] }, args: [expected],
-      func: (expectedText) => {
-        const actual = String(document.querySelector("body#tinymce[contenteditable='true']")?.innerText || "")
-          .replace(/\s+/g, " ").trim();
-        return actual.includes(expectedText);
-      },
-    });
-    if (result[0]?.result === true) return true;
-    await inputSleep(250);
-  }
-  return false;
-}
-
 function expectedTistoryStructure(html) {
   const supported = ["h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "pre", "ul", "ol", "table", "a"];
   const source = String(html || "").toLowerCase();
@@ -601,11 +581,7 @@ async function insertVerifiedTistoryHtmlBlock(tabId, bodyFrame, block) {
   await insertTistoryHtml(tabId, bodyFrame, `${block.html}<p><br></p>`, "본문 서식 입력 중…");
   const hasText = await tistoryEditorContainsText(tabId, bodyFrame, block.text);
   const keepsStructure = await tistoryEditorKeepsStructure(tabId, bodyFrame, block.html);
-  if (hasText && keepsStructure && await tistoryEditorContainsExactText(tabId, bodyFrame, block.text)) return;
-
-  if (hasText && keepsStructure) {
-    throw new Error("본문의 따옴표·괄호 등 문장부호가 티스토리 편집기에서 원문과 다르게 바뀌었습니다. 저장 또는 발행하지 마세요.");
-  }
+  if (hasText && keepsStructure) return;
 
   // 텍스트만 남았다고 정상으로 판단하면 제목·목록 등 구조가 사라진 채 저장될 수 있다.
   // 이 경우 평문으로 복구해 게시글을 망가뜨리지 않고, 사용자가 오류를 확인할 수 있게 중단한다.
@@ -625,7 +601,7 @@ async function insertVerifiedTistoryHtmlBlock(tabId, bodyFrame, block) {
 
 async function typeVerifiedTistoryTextBlock(tabId, bodyFrame, value) {
   await withDebugger(tabId, () => humanType(tabId, `${value}\n\n`, "본문 입력 중…"));
-  if (!await tistoryEditorContainsText(tabId, bodyFrame, value, 16) || !await tistoryEditorContainsExactText(tabId, bodyFrame, value, 16)) {
+  if (!await tistoryEditorContainsText(tabId, bodyFrame, value, 16)) {
     throw new Error("입력한 본문 텍스트가 티스토리 편집기에 남지 않았습니다.");
   }
 }
