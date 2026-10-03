@@ -39,7 +39,10 @@ function textWithLinks($: cheerio.CheerioAPI, node: AnyNode): string {
 
 const imageAlt = (alt: string) => clean(alt).replace(/\s*비주얼$/, '')
 
-const alignedBlockTags = new Set(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'li', 'td', 'th'])
+// 원문 편집기는 레이아웃용 div/span에도 text-align을 붙일 수 있다. 이를 티스토리로
+// 넘기면 자식 문단 전체가 가운데/오른쪽 정렬로 상속돼 본문이 변형된다. 실제 글 블록에
+// 명시한 정렬만 보존하고, 레이아웃 컨테이너의 정렬은 전달하지 않는다.
+const alignedContentTags = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'li', 'td', 'th'])
 
 // 웹 앱의 정렬 표현만 티스토리가 이해하는 안전한 inline style로 옮긴다.
 // 명시되지 않은 본문 블록은 이미지 뒤 커서의 가운데 정렬을 물려받지 않도록 왼쪽으로 고정한다.
@@ -68,7 +71,9 @@ function safeInlineStyle(style: string): string[] {
     if (separator < 1) return []
     const property = declaration.slice(0, separator).trim().toLowerCase()
     const value = declaration.slice(separator + 1).trim()
-    if (!TISTORY_SAFE_STYLE_PROPERTIES.has(property) || !value || /url\s*\(|expression\s*\(|@import|javascript:/i.test(value)) return []
+    // 정렬은 아래에서 실제 콘텐츠 블록일 때만 별도로 처리한다. 컨테이너 정렬의
+    // 상속으로 본문 전체가 변형되는 것을 방지한다.
+    if (property === 'text-align' || !TISTORY_SAFE_STYLE_PROPERTIES.has(property) || !value || /url\s*\(|expression\s*\(|@import|javascript:/i.test(value)) return []
     return [`${property}: ${value}`]
   })
 }
@@ -122,7 +127,8 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
   copy.find('*').addBack().each((_, node) => {
     const element = node as Element
     const attrs = element.attribs || {}
-    const alignment = safeTextAlign(attrs.class || '', attrs.style || '')
+    const tagName = element.tagName?.toLowerCase() || ''
+    const alignment = alignedContentTags.has(tagName) ? safeTextAlign(attrs.class || '', attrs.style || '') : ''
     const styles = [...tailwindTextStyles(attrs.class || ''), ...safeInlineStyle(attrs.style || '')]
     for (const name of Object.keys(attrs)) {
       if (name === 'class' || name === 'style' || name === 'id' || /^on/i.test(name) || /^data-/i.test(name)) {
@@ -135,7 +141,7 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
       else $(element).attr({ target: '_blank', rel: 'noopener noreferrer' })
     }
     if (alignment) styles.push(`text-align: ${alignment}`)
-    else if (element.tagName && alignedBlockTags.has(element.tagName.toLowerCase())) styles.push('text-align: left')
+    else if (alignedContentTags.has(tagName)) styles.push('text-align: left')
     if (styles.length) $(element).attr('style', [...new Set(styles)].join('; ') + ';')
   })
   copy.find('img, figure, figcaption').remove()
