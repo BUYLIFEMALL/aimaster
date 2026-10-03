@@ -609,12 +609,48 @@ function normalizeTistoryTags(values) {
   return [...new Set(source.map((value) => String(value).replace(/^#+/, "").trim()).filter(Boolean))].slice(0, 30);
 }
 
-async function addTistoryTags(tabId, bodyFrame, tags) {
-  const existing = await chrome.scripting.executeScript({
+// 티스토리 편집기의 태그 칩 DOM은 버전에 따라 `.txt_tag` 직접 자식이거나,
+// "태그 수정"/"태그 삭제" 링크를 가진 `.tag_link` 구조로 바뀐다. 어느 구조든
+// 실제로 표시된 태그명만 모아야 첫 태그 입력 뒤 오탐으로 중단하지 않는다.
+async function readTistoryTagChips(tabId) {
+  const result = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] },
-    func: () => [...document.querySelectorAll(".editor_tag > .txt_tag")].map((node) => (node.textContent || "").replace(/^#+/, "").trim()).filter(Boolean),
+    func: () => {
+      const root = document.querySelector(".editor_tag");
+      if (!root) return [];
+      const clean = (value) => String(value || "")
+        .replace(/^#+/, "")
+        .replace(/\s*태그\s*(?:수정|삭제)\s*$/u, "")
+        .trim();
+      const values = new Set();
+      const selectors = [
+        ".txt_tag",
+        ".tag_link",
+        "a[title*='태그']",
+        "[class*='tag'] a",
+      ];
+      for (const node of root.querySelectorAll(selectors.join(","))) {
+        const value = clean(node.textContent || node.getAttribute("title") || node.getAttribute("aria-label"));
+        if (value) values.add(value);
+      }
+      return [...values];
+    },
   });
-  const existingTags = new Set((existing[0]?.result || []).map((tag) => tag.toLocaleLowerCase()));
+  return result[0]?.result || [];
+}
+
+async function waitForTistoryTagChip(tabId, tag) {
+  const expected = String(tag).toLocaleLowerCase();
+  for (let attempt = 0; attempt < 18; attempt += 1) {
+    const chips = await readTistoryTagChips(tabId);
+    if (chips.some((chip) => String(chip).toLocaleLowerCase() === expected)) return true;
+    await inputSleep(250);
+  }
+  return false;
+}
+
+async function addTistoryTags(tabId, bodyFrame, tags) {
+  const existingTags = new Set((await readTistoryTagChips(tabId)).map((tag) => tag.toLocaleLowerCase()));
   const requestedTags = normalizeTistoryTags(tags);
   // 본문에 #태그 문구가 있다는 것은 티스토리 태그 칩 등록이 아니다. 본문 해시태그를
   // 이미 등록된 태그처럼 취급하면 실제 태그가 한 건도 생성되지 않은 채 성공 처리된다.
@@ -645,13 +681,7 @@ async function addTistoryTags(tabId, bodyFrame, tags) {
       await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
       await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
     });
-    await inputSleep(inputDelay(300, 600));
-    const registered = await chrome.scripting.executeScript({
-      target: { tabId, frameIds: [0] }, args: [tag],
-      func: (expected) => [...document.querySelectorAll(".editor_tag > .txt_tag")]
-        .some((node) => (node.textContent || "").replace(/^#+/, "").trim().toLocaleLowerCase() === String(expected).toLocaleLowerCase()),
-    });
-    if (registered[0]?.result !== true) throw new Error(`티스토리 태그 ‘${tag}’ 등록 결과를 확인하지 못했습니다.`);
+    if (!await waitForTistoryTagChip(tabId, tag)) throw new Error(`티스토리 태그 ‘${tag}’ 등록 결과를 확인하지 못했습니다.`);
   }
   return { skipped: [], registered: requestedTags.length };
 }

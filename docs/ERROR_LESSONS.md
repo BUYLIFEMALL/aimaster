@@ -406,3 +406,9 @@
 - **원인:** 기존 필터는 Markdown의 완전 일치 한 줄만 제거했고, 생성 프롬프트·HTML 서식·수정 저장 경로는 같은 규칙을 공유하지 않았다.
 - **해결(위치):** `tistory-auto-blog/utils/duplicateTitle.ts`로 제목 정규화와 Markdown/HTML 제거를 공용화하고, `utils/news/generator.ts`, `app/api/posts/[id]/route.ts`, `utils/extensionContent.ts`에 적용했다.
 - **다음부터 확인:** 제목과 본문이 별도 입력되는 서비스는 생성 지시, 서버 저장, 최종 전송의 세 경로에서 서식 변형 제목까지 같은 방식으로 검증한다.
+## 2026-10-03 티스토리 태그 등록 성공을 이전 DOM selector로 오판함
+
+- **증상:** 첫 태그 칩이 실제로 생성됐는데도 “등록 결과를 확인하지 못했습니다”로 중단했다.
+- **원인:** `.editor_tag > .txt_tag` 직계 selector만 사용했다. 현재 티스토리는 태그명을 “태그 수정/삭제” 링크 형태로 렌더링한다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`의 `readTistoryTagChips()`가 구·신 구조를 함께 수집하고, `waitForTistoryTagChip()`이 최대 4.5초 폴링 검증한다.
+- **다음부터 확인:** 외부 서비스 UI의 성공 판정은 한 selector에 고정하지 말고, 실제 화면에서 생성된 접근성/DOM 구조를 먼저 대조하고 비동기 렌더링 시간을 포함한다.
