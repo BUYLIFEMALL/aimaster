@@ -85,9 +85,10 @@ export async function suggestTopicsAI(params: {
 export async function generateThreadPlanAI(params: {
   topic: string;
   additionalNote?: string;
+  templateInput?: import("@/types/planner").ThreadPlannerTemplateInput;
   aiConfig: { provider: AIProvider; apiKey: string; model?: string };
 }): Promise<ThreadPlanResult> {
-  const { topic, additionalNote, aiConfig } = params;
+  const { topic, additionalNote, templateInput, aiConfig } = params;
 
   const systemPrompt = `너는 Threads(스레드)에서 실제 50만 회 이상 폭발적 조회수와 댓글을 터뜨리는 실전 탑티어 인플루언서야.
 독자가 피드를 내리다 첫 문장에서 손가락을 멈추고, 끝까지 몰입해 읽은 뒤 무조건 댓글을 달거나 자댓글 링크를 클릭하게 만드는 스레드 포스팅 세트를 작성해줘.
@@ -190,7 +191,24 @@ export async function generateThreadPlanAI(params: {
   ]
 }`;
 
-  const userPrompt = `주제: ${topic}${additionalNote ? `\n추가 전달사항: ${additionalNote}` : ""}\n스레드 글 1세트와 5대 훅 유형별 글을 생성해줘.`;
+  let userPrompt = `주제: ${topic}`;
+  if (templateInput) {
+    const tParts: string[] = [];
+    if (templateInput.product) tParts.push(`- 연결할 상품/핵심 소재: ${templateInput.product}`);
+    if (templateInput.experience) tParts.push(`- 내 실제 경험/상황: ${templateInput.experience}`);
+    if (templateInput.targetAudience) tParts.push(`- 타깃 독자: ${templateInput.targetAudience}`);
+    if (templateInput.persona) tParts.push(`- 나의 역할/페르소나: ${templateInput.persona}`);
+    if (templateInput.benchmarkPost) {
+      tParts.push(`- 참고할 터진 글(벤치마킹 뼈대):\n${templateInput.benchmarkPost}\n(위 터진 글의 훅 방식, 심리 자극, 전개 순서 뼈대를 분석해 그 뼈대에 내 소재를 넣어 작성할 것)`);
+    }
+    if (tParts.length > 0) {
+      userPrompt += `\n\n[실전 기획 템플릿 입력 정보]\n${tParts.join("\n")}`;
+    }
+  }
+  if (additionalNote) {
+    userPrompt += `\n\n추가 요청사항: ${additionalNote}`;
+  }
+  userPrompt += `\n\n위 정보를 바탕으로 실전 떡상 스타일의 스레드 글 1세트와 5대 훅 유형별 글 5개를 생성해줘.`;
 
   const rawJson = await callLLM(aiConfig, systemPrompt, userPrompt);
   const parsed = parseJsonSafe<any>(rawJson, null);

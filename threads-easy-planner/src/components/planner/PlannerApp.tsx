@@ -6,8 +6,15 @@ import {
   generateThreadPlanAction,
   rewriteThreadPlanAction,
 } from "@/lib/actions/planner";
-import type { TopicSuggestion, ThreadPlanResult, HookVariant, RewriteMode } from "@/types/planner";
-import { REWRITE_MODES } from "@/types/planner";
+import type {
+  TopicSuggestion,
+  ThreadPlanResult,
+  HookVariant,
+  RewriteMode,
+  ThreadPlannerTemplateInput,
+  TemplatePreset,
+} from "@/types/planner";
+import { REWRITE_MODES, TEMPLATE_PRESETS } from "@/types/planner";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
 import {
   AI_MODEL_OPTIONS,
@@ -17,7 +24,18 @@ import {
 } from "@/lib/ai/models";
 
 export function PlannerApp() {
-  // 상태 관리
+  // 입력 모드: "template" (실전 템플릿 입력) | "simple" (간편 한 줄 입력)
+  const [inputMode, setInputMode] = useState<"template" | "simple">("template");
+
+  // 실전 템플릿 입력 필드들
+  const [templateProduct, setTemplateProduct] = useState("실리콘 전자레인지 찜기");
+  const [templateExperience, setTemplateExperience] = useState("퇴근 후 설거지가 싫어서 저녁을 자주 거름. 써 본 지 2주째");
+  const [templateTarget, setTemplateTarget] = useState("20대 후반 자취 직장인");
+  const [templatePersona, setTemplatePersona] = useState("퇴근길 지친 34세 직장인");
+  const [templateBenchmark, setTemplateBenchmark] = useState("");
+  const [showBenchmarkInput, setShowBenchmarkInput] = useState(false);
+
+  // 간편 한 줄 주제 입력
   const [topicInput, setTopicInput] = useState("");
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -115,6 +133,19 @@ export function PlannerApp() {
     }
   }
 
+  // 템플릿 프리셋 원클릭 적용
+  function handleApplyPreset(preset: TemplatePreset) {
+    setTemplateProduct(preset.data.product || "");
+    setTemplateExperience(preset.data.experience || "");
+    setTemplateTarget(preset.data.targetAudience || "");
+    setTemplatePersona(preset.data.persona || "");
+    setTemplateBenchmark(preset.data.benchmarkPost || "");
+    if (preset.data.benchmarkPost) {
+      setShowBenchmarkInput(true);
+    }
+    showCopyToast(`📋 [${preset.title}] 템플릿이 적용되었습니다!`);
+  }
+
   // 2. 추천 주제 선택 후 즉시 글 생성
   async function handleSelectTopicAndGenerate(selectedTopic: string) {
     setTopicInput(selectedTopic);
@@ -123,19 +154,49 @@ export function PlannerApp() {
 
   // 3. 글 생성 실행
   async function handleGenerate(targetTopic?: string) {
-    const topicToUse = targetTopic || topicInput;
+    let topicToUse = targetTopic || "";
+    let templateDataToSend: ThreadPlannerTemplateInput | undefined = undefined;
+
+    if (inputMode === "template") {
+      templateDataToSend = {
+        product: templateProduct.trim() || undefined,
+        experience: templateExperience.trim() || undefined,
+        targetAudience: templateTarget.trim() || undefined,
+        persona: templatePersona.trim() || undefined,
+        benchmarkPost: templateBenchmark.trim() || undefined,
+      };
+
+      // 템플릿 모드에서는 상품명이나 경험담 또는 사용자가 입력한 토픽을 메인 주제로 채택
+      topicToUse =
+        topicToUse.trim() ||
+        (templateProduct.trim() ? `${templateProduct.trim()} 관련 썰` : "") ||
+        templateExperience.trim() ||
+        "스레드 실전 떡상 글";
+    } else {
+      topicToUse = topicToUse.trim() || topicInput.trim();
+    }
+
     if (!topicToUse.trim()) {
-      setErrorMessage("주제를 입력하거나 아래 '오늘 뭐 쓰지?'에서 추천 주제를 골라주세요.");
+      setErrorMessage(
+        inputMode === "template"
+          ? "연결할 상품명 또는 내 실제 경험담을 입력해주세요."
+          : "주제를 입력하거나 아래 '오늘 뭐 쓰지?'에서 추천 주제를 골라주세요."
+      );
       return;
     }
 
     setIsGenerating(true);
     setErrorMessage(null);
     try {
-      const res = await generateThreadPlanAction(topicToUse, undefined, {
-        provider: selectedProvider,
-        model: selectedModel,
-      });
+      const res = await generateThreadPlanAction(
+        topicToUse,
+        undefined,
+        {
+          provider: selectedProvider,
+          model: selectedModel,
+        },
+        templateDataToSend
+      );
       if (res.needApiKey) {
         setMissingProviderName(res.missingProvider ? PROVIDER_SHORT_LABELS[res.missingProvider] : PROVIDER_SHORT_LABELS[selectedProvider]);
         setNeedApiKeyModal(true);
@@ -257,60 +318,225 @@ export function PlannerApp() {
         </p>
       </section>
 
-      {/* 핵심 인터랙션 바: 주제 입력 + 오늘 뭐 쓰지? 버튼 + 생성 버튼 + 하단 AI 모델 선택기 */}
-      <div className="rounded-3xl bg-white p-4 md:p-6 shadow-sm border border-neutral-200/80 space-y-4">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={topicInput}
-              onChange={(e) => setTopicInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-                  handleGenerate();
-                }
-              }}
-              placeholder="예: 자취 꿀템, 퇴근길 설거지 지옥, 챗GPT 업무 활용 (비워두고 버튼 클릭 가능)"
-              className="w-full rounded-2xl border border-neutral-200 bg-neutral-50/50 px-4 py-3.5 text-base text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-4 focus:ring-neutral-900/5 transition-all"
-            />
-            {topicInput && (
+      {/* 상단 입력 모드 탭 선택: 📋 실전 기획 템플릿 (추천) vs ⚡ 간편 한 줄 입력 */}
+      <div className="flex items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={() => setInputMode("template")}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-extrabold transition-all cursor-pointer shadow-xs ${
+            inputMode === "template"
+              ? "bg-neutral-900 text-white ring-2 ring-neutral-900/10"
+              : "bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200"
+          }`}
+        >
+          <span>📋</span>
+          <span>실전 기획 템플릿 입력</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-400 text-neutral-900 font-black">
+            추천
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setInputMode("simple")}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-extrabold transition-all cursor-pointer shadow-xs ${
+            inputMode === "simple"
+              ? "bg-neutral-900 text-white ring-2 ring-neutral-900/10"
+              : "bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200"
+          }`}
+        >
+          <span>⚡</span>
+          <span>간편 한 줄 입력</span>
+        </button>
+      </div>
+
+      {/* 핵심 인터랙션 바: 템플릿 모드 or 간편 모드 + 하단 AI 모델 선택기 */}
+      <div className="rounded-3xl bg-white p-5 md:p-7 shadow-sm border border-neutral-200/80 space-y-5">
+        {inputMode === "template" ? (
+          /* 📋 1. 실전 기획 템플릿 모드 (상품 · 경험 · 타깃 · 페르소나 · 터진글 벤치마킹) */
+          <div className="space-y-4">
+            {/* 상단: 원클릭 실전 템플릿 프리셋 3선 */}
+            <div className="rounded-2xl bg-amber-50/70 border border-amber-200/80 p-3.5 md:p-4 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-900 inline-flex items-center gap-1.5">
+                  <span>🔥 실전 떡상 템플릿 예시 불러오기:</span>
+                </span>
+                <span className="text-[11px] text-amber-700/80">클릭하면 아래 폼에 자동 입력됩니다</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {TEMPLATE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleApplyPreset(preset)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-amber-100/60 border border-amber-300 text-xs font-bold text-neutral-800 transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+                  >
+                    <span>{preset.emoji}</span>
+                    <span>{preset.title}</span>
+                    <span className="text-[10px] px-1 py-0.5 rounded bg-amber-200/60 text-amber-900 font-semibold">
+                      {preset.badge}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 템플릿 4대 입력 그리드 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {/* 1. 연결할 상품 / 핵심 소재 */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-neutral-800 flex items-center justify-between">
+                  <span>🏷️ 연결할 상품 / 소재</span>
+                  <span className="text-[11px] text-neutral-400 font-normal">본문엔 제품명 미노출 (호기심 극대화)</span>
+                </label>
+                <input
+                  type="text"
+                  value={templateProduct}
+                  onChange={(e) => setTemplateProduct(e.target.value)}
+                  placeholder="예: 실리콘 전자레인지 찜기, LG 세탁기 관리제, 4구 섀도"
+                  className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-3 focus:ring-neutral-900/5 transition-all"
+                />
+              </div>
+
+              {/* 2. 타깃 독자 */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-neutral-800 flex items-center justify-between">
+                  <span>🎯 타깃 독자</span>
+                  <span className="text-[11px] text-neutral-400 font-normal">공감할 대상</span>
+                </label>
+                <input
+                  type="text"
+                  value={templateTarget}
+                  onChange={(e) => setTemplateTarget(e.target.value)}
+                  placeholder="예: 20대 후반 자취 직장인, 살림 10년차 주부, 출근러"
+                  className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-3 focus:ring-neutral-900/5 transition-all"
+                />
+              </div>
+
+              {/* 3. 내 실제 경험 / 상황 (가장 핵심) */}
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-xs font-bold text-neutral-800 flex items-center justify-between">
+                  <span>✍️ 내 실제 경험 / 고민 상황 (핵심 썰)</span>
+                  <span className="text-[11px] text-amber-600 font-semibold">* 실패 경험이나 리얼한 감정이 들어갈수록 떡상</span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={templateExperience}
+                  onChange={(e) => setTemplateExperience(e.target.value)}
+                  placeholder="예: 퇴근 후 설거지가 너무 싫어서 저녁을 일주일에 4번 거름. 써 본 지 2주째인데 삶의 질 바뀜 / 워싱소다 백식초 다 써봐도 쉰내 안 없어지길래 마지막으로 샀는데 물색깔 보고 기절함..."
+                  className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-3 focus:ring-neutral-900/5 transition-all resize-none"
+                />
+              </div>
+
+              {/* 4. 나의 역할 / 페르소나 */}
+              <div className="space-y-1 md:col-span-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-neutral-800">
+                    🎭 나의 역할 / 글쓰기 페르소나
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowBenchmarkInput(!showBenchmarkInput)}
+                    className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 underline cursor-pointer"
+                  >
+                    {showBenchmarkInput ? "참고 터진 글 접기 ▲" : "+ 벤치마킹할 터진 글 원문 넣기 (선택) ▼"}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={templatePersona}
+                  onChange={(e) => setTemplatePersona(e.target.value)}
+                  placeholder="예: 퇴근길 녹초가 된 34세 직장인, 가성비 뷰티 언니, 30대 공감 워킹맘"
+                  className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-3 focus:ring-neutral-900/5 transition-all"
+                />
+              </div>
+
+              {/* 5. (선택) 참고할 터진 글 원문 붙여넣기 */}
+              {showBenchmarkInput && (
+                <div className="space-y-1 md:col-span-2 p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/80 animate-in fade-in duration-150">
+                  <label className="text-xs font-bold text-neutral-800 flex items-center justify-between">
+                    <span>🔗 벤치마킹할 스레드 터진 글 원문 (뼈대 추출용)</span>
+                    <span className="text-[11px] text-neutral-400">AI가 이 글의 훅 방식·전개 순서 뼈대를 본떠 내 소재로 재창조합니다</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={templateBenchmark}
+                    onChange={(e) => setTemplateBenchmark(e.target.value)}
+                    placeholder="Threads에서 실제로 반응이 터진 글 본문을 그대로 복사해서 붙여넣으세요."
+                    className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-800 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* 템플릿 모드 생성 버튼 */}
+            <div className="pt-2">
               <button
                 type="button"
-                onClick={() => setTopicInput("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 text-sm"
+                onClick={() => handleGenerate()}
+                disabled={isGenerating}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold py-3.5 text-sm md:text-base transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer"
               >
-                ✕
+                <span>{isGenerating ? "⏳" : "✨"}</span>
+                <span>{isGenerating ? "실전 템플릿 기반으로 작성 중..." : "실전 템플릿으로 스레드 5단 글 + 5대 훅 동시 생성"}</span>
               </button>
-            )}
+            </div>
           </div>
+        ) : (
+          /* ⚡ 2. 간편 한 줄 입력 모드 */
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={topicInput}
+                onChange={(e) => setTopicInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                    handleGenerate();
+                  }
+                }}
+                placeholder="예: 자취 꿀템, 퇴근길 설거지 지옥, 챗GPT 업무 활용 (비워두고 버튼 클릭 가능)"
+                className="w-full rounded-2xl border border-neutral-200 bg-neutral-50/50 px-4 py-3.5 text-base text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-4 focus:ring-neutral-900/5 transition-all"
+              />
+              {topicInput && (
+                <button
+                  type="button"
+                  onClick={() => setTopicInput("")}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 text-sm"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
 
-          <div className="flex items-center gap-2">
-            {/* 오늘 뭐 쓰지? 버튼 */}
-            <button
-              type="button"
-              onClick={() => {
-                const cat = selectedCategory || "tips";
-                handleSuggestTopics(cat);
-              }}
-              disabled={isSuggesting}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
-            >
-              <span>{isSuggesting ? "⏳" : "🎲"}</span>
-              <span>{isSuggesting ? "추천 중..." : "오늘 뭐 쓰지?"}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {/* 오늘 뭐 쓰지? 버튼 */}
+              <button
+                type="button"
+                onClick={() => {
+                  const cat = selectedCategory || "tips";
+                  handleSuggestTopics(cat);
+                }}
+                disabled={isSuggesting}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                <span>{isSuggesting ? "⏳" : "🎲"}</span>
+                <span>{isSuggesting ? "추천 중..." : "오늘 뭐 쓰지?"}</span>
+              </button>
 
-            {/* 글 생성 버튼 */}
-            <button
-              type="button"
-              onClick={() => handleGenerate()}
-              disabled={isGenerating || (!topicInput.trim() && suggestedTopics.length === 0)}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-6 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
-            >
-              <span>{isGenerating ? "✍️" : "✨"}</span>
-              <span>{isGenerating ? "작성 중..." : "글 생성하기"}</span>
-            </button>
+              {/* 글 생성 버튼 */}
+              <button
+                type="button"
+                onClick={() => handleGenerate()}
+                disabled={isGenerating || (!topicInput.trim() && suggestedTopics.length === 0)}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-6 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
+              >
+                <span>{isGenerating ? "✍️" : "✨"}</span>
+                <span>{isGenerating ? "작성 중..." : "글 생성하기"}</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* 🎲오늘 뭐 쓰지? ✨글 생성하기 하단 추론 모델 선택 패널 (OpenAI (GPT) / Claude / Gemini 3가지 선택) */}
         <div className="rounded-2xl bg-neutral-50/90 p-3.5 md:p-4 border border-neutral-200/90 space-y-3">

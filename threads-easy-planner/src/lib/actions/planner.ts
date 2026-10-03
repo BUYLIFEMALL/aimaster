@@ -103,7 +103,8 @@ export async function getSuggestedTopicsAction(
 export async function generateThreadPlanAction(
   topic: string,
   additionalNote?: string,
-  modelConfig?: ModelConfigParam
+  modelConfig?: ModelConfigParam,
+  templateInput?: import("@/types/planner").ThreadPlannerTemplateInput
 ): Promise<ActionResult<ThreadPlanResult>> {
   try {
     const user = await requireProgramAccess();
@@ -118,13 +119,12 @@ export async function generateThreadPlanAction(
       };
     }
 
-    if (!topic.trim()) {
-      return { success: false, error: "주제를 입력하거나 추천 목록에서 선택해주세요." };
-    }
+    const effectiveTopic = topic.trim() || templateInput?.product || templateInput?.experience || "스레드 바이럴 글";
 
     const plan = await generateThreadPlanAI({
-      topic: topic.trim(),
+      topic: effectiveTopic,
       additionalNote: additionalNote?.trim(),
+      templateInput,
       aiConfig: resolved.config,
     });
 
