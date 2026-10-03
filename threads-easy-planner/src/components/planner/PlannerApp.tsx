@@ -6,7 +6,7 @@ import {
   generateThreadPlanAction,
   rewriteThreadPlanAction,
 } from "@/lib/actions/planner";
-import type { TopicSuggestion, ThreadPlanResult, RewriteMode } from "@/types/planner";
+import type { TopicSuggestion, ThreadPlanResult, HookVariant, RewriteMode } from "@/types/planner";
 import { REWRITE_MODES } from "@/types/planner";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
 import {
@@ -37,6 +37,7 @@ export function PlannerApp() {
   const [suggestedTopics, setSuggestedTopics] = useState<TopicSuggestion[]>([]);
   const [currentPlan, setCurrentPlan] = useState<ThreadPlanResult | null>(null);
   const [usedModelLabel, setUsedModelLabel] = useState<string | null>(null);
+  const [expandedHookIdx, setExpandedHookIdx] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
   const [needApiKeyModal, setNeedApiKeyModal] = useState(false);
@@ -46,7 +47,7 @@ export function PlannerApp() {
     try {
       const savedProvider = localStorage.getItem("threads_planner_provider") as AIModelProvider | null;
       const savedModel = localStorage.getItem("threads_planner_model");
-      if (savedProvider && ["openai", "gemini", "anthropic"].includes(savedProvider)) {
+      if (savedProvider && ["openai", "anthropic", "gemini"].includes(savedProvider)) {
         setSelectedProvider(savedProvider);
         if (savedModel && AI_MODEL_OPTIONS.some((o) => o.value === savedModel && o.provider === savedProvider)) {
           setSelectedModel(savedModel);
@@ -147,6 +148,7 @@ export function PlannerApp() {
       setCurrentPlan(res.data);
       const activeModelObj = AI_MODEL_OPTIONS.find((o) => o.value === selectedModel);
       setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
+      setExpandedHookIdx(null);
       // 생성 후 추천 목록은 닫고 결과 화면에 집중
       setShowCategoryPicker(false);
     } catch {
@@ -187,6 +189,19 @@ export function PlannerApp() {
       setIsRewriting(false);
       setActiveRewriteMode(null);
     }
+  }
+
+  // 5. 5대 훅 유형 대안으로 메인 본문 즉시 전환
+  function handleApplyHookVariant(variant: HookVariant) {
+    if (!currentPlan) return;
+    setCurrentPlan({
+      ...currentPlan,
+      hook: variant.hook,
+      hookType: variant.type,
+      whyHookWorks: variant.whyItWorks,
+      content: variant.content || currentPlan.content,
+    });
+    showCopyToast(`🎯 [${variant.type}] 버전으로 본문이 적용되었습니다!`);
   }
 
   // 복사 헬퍼
@@ -230,7 +245,7 @@ export function PlannerApp() {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-semibold text-neutral-700">
           <span>⚡ 초보자 맞춤형</span>
           <span className="text-neutral-300">•</span>
-          <span>원클릭 스레드 기획</span>
+          <span>4단계 황금 구조 스레드 기획</span>
         </div>
         <h1 className="text-3xl md:text-5xl font-black text-neutral-900 tracking-tight">
           오늘 스레드 뭐 쓰지? 🤔
@@ -238,7 +253,7 @@ export function PlannerApp() {
         <p className="text-sm md:text-base text-neutral-500 max-w-xl mx-auto leading-relaxed">
           고민하지 마세요. 주제를 입력하거나 버튼 하나만 누르면,
           <br className="hidden sm:block" />
-          피드를 멈추는 <strong>첫 문장 후킹부터 본문, 댓글 CTA까지</strong> 3초 만에 완성됩니다.
+          피드를 멈추는 <strong>5대 훅(자책·부정명령·썰·논쟁·반전)부터 4단계 공감 본문</strong>까지 3초 만에 완성됩니다.
         </p>
       </section>
 
@@ -255,7 +270,7 @@ export function PlannerApp() {
                   handleGenerate();
                 }
               }}
-              placeholder="예: 자취 꿀템, 월요병 극복법, 챗GPT 업무 활용 (비워두고 버튼 클릭 가능)"
+              placeholder="예: 자취 꿀템, 퇴근길 설거지 지옥, 챗GPT 업무 활용 (비워두고 버튼 클릭 가능)"
               className="w-full rounded-2xl border border-neutral-200 bg-neutral-50/50 px-4 py-3.5 text-base text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-4 focus:ring-neutral-900/5 transition-all"
             />
             {topicInput && (
@@ -297,12 +312,12 @@ export function PlannerApp() {
           </div>
         </div>
 
-        {/* 🎲오늘 뭐 쓰지? ✨글 생성하기 하단 추론 모델 선택 패널 */}
+        {/* 🎲오늘 뭐 쓰지? ✨글 생성하기 하단 추론 모델 선택 패널 (OpenAI (GPT) / Claude / Gemini 3가지 선택) */}
         <div className="rounded-2xl bg-neutral-50/90 p-3.5 md:p-4 border border-neutral-200/90 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
               <span>🤖</span>
-              <span>사용할 AI 추론 엔진 및 세부 모델 선택</span>
+              <span>AI 추론 엔진 선택 (OpenAI / Claude / Gemini)</span>
             </span>
             <span className="text-[11px] text-neutral-500 font-medium">
               현재 설정: <strong className="text-neutral-900 font-bold">{AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel}</strong>
@@ -417,7 +432,7 @@ export function PlannerApp() {
               <div className="py-8 text-center space-y-2">
                 <div className="inline-block animate-spin text-2xl">🌀</div>
                 <div className="text-sm font-semibold text-neutral-600">
-                  스레드에서 지금 가장 핫한 주제 10개를 발굴하고 있어요...
+                  4대 심리(공감·손해회피·호기심·반전) 기반 스레드 주제 10개를 발굴하고 있어요...
                 </div>
               </div>
             ) : suggestedTopics.length > 0 ? (
@@ -425,7 +440,7 @@ export function PlannerApp() {
                 <div className="text-xs font-bold text-neutral-800 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <span className="text-amber-500">🔥</span>
-                    <span>추천 주제를 클릭하면 바로 글이 완성됩니다! (10선)</span>
+                    <span>추천 주제를 클릭하면 바로 5단 구성 글이 완성됩니다! (10선)</span>
                   </div>
                   <span className="text-[11px] text-neutral-400 font-normal">
                     원하는 주제를 클릭해보세요
@@ -444,7 +459,7 @@ export function PlannerApp() {
                           <span className="text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 group-hover:bg-neutral-800 group-hover:text-amber-300">
                             #{idx + 1}
                           </span>
-                          <span className="text-xs text-neutral-400 group-hover:text-neutral-300">
+                          <span className="text-xs text-neutral-400 group-hover:text-neutral-300 line-clamp-1">
                             {item.whyItWorks}
                           </span>
                         </div>
@@ -469,17 +484,17 @@ export function PlannerApp() {
         <div className="rounded-3xl bg-white border border-neutral-200 p-12 text-center space-y-4 shadow-sm animate-pulse">
           <div className="text-4xl">✍️</div>
           <div className="text-lg font-bold text-neutral-800">
-            {PROVIDER_SHORT_LABELS[selectedProvider]} ({AI_MODEL_OPTIONS.find(o => o.value === selectedModel)?.shortLabel || selectedModel}) 맞춤 글을 작성하고 있어요...
+            {PROVIDER_SHORT_LABELS[selectedProvider]} ({AI_MODEL_OPTIONS.find(o => o.value === selectedModel)?.shortLabel || selectedModel}) 기반으로 글을 기획하고 있어요...
           </div>
           <p className="text-xs text-neutral-400 max-w-sm mx-auto">
-            1초 만에 스크롤을 멈추는 첫 문장 후킹, 모바일 최적화 줄바꿈, 댓글 유도 질문까지 한번에 기획 중입니다.
+            1초 만에 멈추는 5대 훅(자책·부정명령·썰·논쟁·반전)과 4단계 공감 본문, 댓글 유도 질문까지 한번에 작성 중입니다.
           </p>
         </div>
       )}
 
-      {/* 글 생성 결과 카드 (5단 구성) */}
+      {/* 글 생성 결과 카드 */}
       {currentPlan && !isGenerating && (
-        <div className="rounded-3xl bg-white border border-neutral-200/90 shadow-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="rounded-3xl bg-white border border-neutral-200/90 shadow-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200 space-y-0">
           {/* 카드 헤더: 주제명 & 모델 배지 & 전체 복사 액션 */}
           <div className="bg-neutral-900 text-white p-5 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1.5">
@@ -492,6 +507,11 @@ export function PlannerApp() {
                     {usedModelLabel}
                   </span>
                 )}
+                {currentPlan.hookType && (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    {currentPlan.hookType}
+                  </span>
+                )}
               </div>
               <h2 className="text-lg md:text-xl font-bold tracking-tight">
                 {currentPlan.topic}
@@ -502,7 +522,7 @@ export function PlannerApp() {
                 type="button"
                 onClick={() =>
                   copyToClipboard(
-                    `${currentPlan.content}\n\n[첫 댓글/CTA]\n${currentPlan.cta}`,
+                    `${currentPlan.content}\n\n[첫 댓글/질문]\n${currentPlan.cta}`,
                     "전체 스레드 세트가"
                   )
                 }
@@ -515,11 +535,16 @@ export function PlannerApp() {
           </div>
 
           <div className="p-5 md:p-8 space-y-6">
-            {/* 1. 첫 문장 후킹 박스 */}
-            <div className="rounded-2xl bg-amber-50/80 border border-amber-200/80 p-4 md:p-5 relative">
-              <div className="flex items-center justify-between mb-2">
+            {/* 1. 첫 문장 후킹 박스 (자극한 심리 및 이유 포함) */}
+            <div className="rounded-2xl bg-amber-50/80 border border-amber-200/80 p-4 md:p-5 relative space-y-2">
+              <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-amber-800 inline-flex items-center gap-1.5">
                   <span>⚡ 1. 첫 문장 후킹 (1초 만에 피드 멈춤)</span>
+                  {currentPlan.hookType && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 font-semibold">
+                      {currentPlan.hookType}
+                    </span>
+                  )}
                 </span>
                 <button
                   type="button"
@@ -532,17 +557,25 @@ export function PlannerApp() {
               <p className="text-base md:text-lg font-black text-neutral-900 leading-snug">
                 &ldquo;{currentPlan.hook}&rdquo;
               </p>
+              {currentPlan.whyHookWorks && (
+                <div className="pt-1 flex items-start gap-1.5 text-xs text-amber-900/80 font-medium">
+                  <span className="flex-shrink-0">💡 <strong>멈추게 하는 원리:</strong></span>
+                  <span>{currentPlan.whyHookWorks}</span>
+                </div>
+              )}
             </div>
 
-            {/* 2. 전체 글 본문 박스 (모바일 스레드 스타일 미리보기) */}
+            {/* 2. 전체 글 본문 박스 (4단계 황금 구조: 멈추기 → 공감 → 반전 → 질문) */}
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50/40 p-4 md:p-6 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-neutral-200/60">
-                <span className="text-xs font-bold text-neutral-700 inline-flex items-center gap-1.5">
-                  <span>📝 2. 스레드 전체 본문</span>
-                  <span className="text-[11px] text-neutral-400 font-normal">
-                    (공백 포함 약 {currentPlan.content.length}자)
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-neutral-700 inline-flex items-center gap-1.5">
+                    <span>📝 2. 스레드 전체 본문 (4~6줄 친근한 반말)</span>
                   </span>
-                </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">
+                    광고 냄새 제거
+                  </span>
+                </div>
                 <button
                   type="button"
                   onClick={() => copyToClipboard(currentPlan.content, "본문이")}
@@ -558,11 +591,11 @@ export function PlannerApp() {
               </div>
             </div>
 
-            {/* 3. 마지막 댓글/CTA 박스 */}
+            {/* 3. 마지막 댓글/CTA 박스 (알고리즘 댓글 폭발 열린 질문) */}
             <div className="rounded-2xl bg-blue-50/70 border border-blue-200/70 p-4 md:p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-blue-900 inline-flex items-center gap-1.5">
-                  <span>💬 3. 마지막 댓글 / CTA (알고리즘 폭발 유도)</span>
+                  <span>💬 3. 마지막 댓글 유도 질문 (알고리즘 폭발용)</span>
                 </span>
                 <button
                   type="button"
@@ -576,9 +609,99 @@ export function PlannerApp() {
                 👉 {currentPlan.cta}
               </p>
               <p className="text-[11px] text-blue-600/80 mt-1">
-                * 본문 마지막 줄에 덧붙이거나, 첫 번째 댓글로 바로 남겨 독자 참여를 유도하세요.
+                * 본문 마지막 줄에 덧붙이거나, 첫 번째 댓글로 바로 남겨 독자들의 현실 답변을 이끌어내세요.
               </p>
             </div>
+
+            {/* 🎯 5대 바이럴 훅 유형별 5개 글 세트 (자책형 · 부정명령형 · 리얼썰형 · 논쟁형 · 반전형) */}
+            {currentPlan.hookVariants && currentPlan.hookVariants.length > 0 && (
+              <div className="rounded-2xl bg-amber-50/40 border border-amber-200/70 p-4 md:p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base">🎯</span>
+                    <span className="text-xs md:text-sm font-extrabold text-neutral-900">
+                      5대 바이럴 훅 유형별 5개 글 세트
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-neutral-500">
+                    원하는 훅 스타일을 클릭해 본문을 바로 교체할 수 있어요
+                  </span>
+                </div>
+
+                <div className="space-y-2.5 pt-1">
+                  {currentPlan.hookVariants.map((item, idx) => {
+                    const isExpanded = expandedHookIdx === idx;
+                    const isCurrentlyActive = currentPlan.hook === item.hook;
+                    return (
+                      <div
+                        key={idx}
+                        className={`rounded-xl border transition-all ${
+                          isCurrentlyActive
+                            ? "bg-white border-amber-500 shadow-xs ring-2 ring-amber-500/10"
+                            : "bg-white/80 border-neutral-200 hover:border-neutral-300"
+                        } p-3.5 space-y-2`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black px-2 py-0.5 rounded-md bg-neutral-900 text-white">
+                              {item.type}
+                            </span>
+                            <span className="text-xs text-neutral-500 font-medium">
+                              {item.whyItWorks}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            {item.content && (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedHookIdx(isExpanded ? null : idx)}
+                                className="text-[11px] px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold cursor-pointer"
+                              >
+                                {isExpanded ? "글 접기 ▲" : "전체 글 보기 ▼"}
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleApplyHookVariant(item)}
+                              disabled={isCurrentlyActive}
+                              className={`text-[11px] px-2.5 py-1 rounded font-bold transition-all cursor-pointer ${
+                                isCurrentlyActive
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-neutral-900 text-white hover:bg-black"
+                              }`}
+                            >
+                              {isCurrentlyActive ? "✓ 적용 중" : "이 버전 적용하기"}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="text-sm font-bold text-neutral-900 leading-snug">
+                          &ldquo;{item.hook}&rdquo;
+                        </div>
+
+                        {/* 펼쳤을 때 전체 본문 표시 */}
+                        {isExpanded && item.content && (
+                          <div className="pt-2 border-t border-neutral-100 space-y-2 animate-in fade-in duration-150">
+                            <div className="whitespace-pre-line text-xs md:text-sm text-neutral-800 leading-relaxed font-sans bg-neutral-50 p-3 rounded-lg border border-neutral-200/60">
+                              {item.content}
+                            </div>
+                            <div className="flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => copyToClipboard(item.content, `${item.type} 전체 글이`)}
+                                className="text-xs text-neutral-600 hover:text-neutral-900 font-bold underline cursor-pointer"
+                              >
+                                이 버전만 복사하기
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* 4. 이어질 후속 콘텐츠 5개 */}
             {currentPlan.followUpIdeas && currentPlan.followUpIdeas.length > 0 && (
