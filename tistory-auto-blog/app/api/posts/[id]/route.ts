@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { mdLiteToHtml } from '@/utils/markdown'
+import { removeDuplicateTitleHtml, removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -152,7 +153,9 @@ export async function PUT(
     // mdLiteToHtml(마크다운 전용 변환기)에 통과시키면 <, > 문자가 escape되어 태그가 그대로
     // 화면에 텍스트로 노출된다(2026-09-16 발견). 클라이언트가 contentFormat: 'html'을 명시할
     // 때만 변환 없이 그대로 저장한다.
-    const finalHtml = contentFormat === 'html' ? finalMarkdown : mdLiteToHtml(finalMarkdown)
+    const finalHtml = contentFormat === 'html'
+      ? removeDuplicateTitleHtml(finalMarkdown, title.trim())
+      : mdLiteToHtml(removeDuplicateTitleLines(finalMarkdown, title.trim()))
 
     // 5. DB 업데이트
     const { data: updatedPost, error: updateErr } = await supabase

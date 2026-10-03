@@ -2,6 +2,7 @@ import 'server-only'
 import * as cheerio from 'cheerio'
 import type { AnyNode, Element } from 'domhandler'
 import { removeImagePromptSection, stripImageGenerationSchema } from '@/blog/utils/stripImageSchema'
+import { isDuplicateTitle, removeDuplicateTitleHtml } from '@/blog/utils/duplicateTitle'
 
 // BLOG 글(HTML)을 티스토리 확장이 순서대로 입력할 "블록"으로 바꾼다.
 // 텍스트만 한 글자씩 입력하면 제목 단계·굵게·목록·인용·표·링크가 모두 평문이 된다.
@@ -149,15 +150,11 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
 }
 
 export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: InputBlock[]; tags: string[] } {
-  const html = stripImageGenerationSchema(removeImagePromptSection(rawHtml || ''))
+  const html = removeDuplicateTitleHtml(stripImageGenerationSchema(removeImagePromptSection(rawHtml || '')), postTitle)
   const $ = cheerio.load(`<div id="root">${html}</div>`)
   const blocks: InputBlock[] = []
   const tags: string[] = []
-  const titleFingerprint = clean(postTitle).normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')
-  const isDuplicateTitle = (value: string) => {
-    const fingerprint = clean(value).normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')
-    return Boolean(titleFingerprint) && fingerprint === titleFingerprint
-  }
+  const isDuplicatePostTitle = (value: string) => isDuplicateTitle(clean(value), postTitle)
 
   const pushText = (rawText: string) => {
     // 웹 화면용 이미지 설명("📷 … (클릭하여 고화질 확대)")은 네이버에 넣지 않는다 — 편집기(Tiptap)로 저장한 글은
@@ -185,7 +182,7 @@ export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: In
   const processNode = (node: AnyNode) => {
     if (node.type === 'text') {
       const text = clean($(node).text())
-      if (!isDuplicateTitle(text)) pushText(text)
+      if (!isDuplicatePostTitle(text)) pushText(text)
       return
     }
     if (node.type !== 'tag') return
@@ -221,7 +218,7 @@ export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: In
     const text = clean($(el).text())
     // 예전에 생성·저장한 글까지 포함해, 티스토리 제목과 정확히 같은 단독 본문 블록은
     // 제목 칸에 이미 입력되므로 확장 전송에서는 한 번 더 넣지 않는다.
-    if (isDuplicateTitle(text)) return
+    if (isDuplicatePostTitle(text)) return
     // 해시태그만 있는 줄 → 네이버 태그로
     if (text && /^(#[^\s#]+\s*)+$/.test(text)) {
       for (const t of text.match(/#[^\s#]+/g) ?? []) tags.push(t.slice(1))

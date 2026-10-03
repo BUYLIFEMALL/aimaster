@@ -3,31 +3,11 @@ import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadablePar
 import { generateSegmentImages } from './imageGenerator'
 import { generateContentJson } from '@/blog/utils/ai/contentJson'
 import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, resolveImageCount, type ContentProvider } from '@/blog/utils/ai/contentModels'
+import { removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
 
 /** 이미지 생성에 실패한 칸은 빈 이미지 태그를 남기지 않는다. */
 function imageLine(alt: string, url: string): string {
   return url ? `![${alt}](${url})` : ''
-}
-
-function titleFingerprint(value: string): string {
-  return String(value || '')
-    .normalize('NFKC')
-    .toLocaleLowerCase()
-    .replace(/^\s*(?:#{1,6}|>)\s*/, '')
-    .replace(/[^\p{L}\p{N}]+/gu, '')
-}
-
-// 제목은 티스토리의 별도 제목 입력칸으로 보낸다. AI가 본문 문단 또는 소제목으로 제목을
-// 그대로 한 번 더 반환한 경우만 제거해, 글 본문에 같은 제목이 중복되지 않게 한다.
-function removeDuplicateTitleLines(markdown: string, title: string): string {
-  const target = titleFingerprint(title)
-  if (!target) return markdown
-  return String(markdown || '')
-    .split(/\r?\n/)
-    .filter((line) => titleFingerprint(line) !== target)
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
 }
 
 // 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션은 2026-10-01 주인님 지시("이미지 프롬프트 섹션은 이제 안 보여줘도 돼")로 더 이상 만들지 않는다.
@@ -146,7 +126,7 @@ ${referenceRule}
 ${customRule}
 
 [★ 글쓰기 필수 요구 규칙]:
-1. 제목: 매력적이고 SEO에 적합하며 관련 키워드가 자연스럽게 조합된 제목으로 작성하세요.
+1. 제목: 매력적이고 SEO에 적합하며 관련 키워드가 자연스럽게 조합된 제목으로 작성하세요. 제목은 JSON의 "제목" 값에만 넣습니다. "요약글", 모든 "소제목", 모든 "문단"에 같은 제목을 #/##/HTML/일반 텍스트 어떤 형태로도 다시 쓰지 마세요. 본문은 요약 문장 또는 제목과 다른 소제목으로 시작하세요.
 2. 소제목 및 문단 구성: { "제목", "요약글", "소제목 1", "소제목 2", "소제목 3", "소제목 4", "문단 1", "문단 2", "문단 3", "문단 4" } 4개의 독립적인 소제목과 문단으로 구성하세요. 4개 문단은 서로 다른 핵심 내용을 다루세요.
 3. 태그 사용 필수 룰:
    - 각 문단의 소제목("소제목 1", "소제목 2", "소제목 3", "소제목 4")은 마크다운 ## (<h2>) 태그로 표현됩니다.
