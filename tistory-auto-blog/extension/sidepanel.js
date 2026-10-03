@@ -482,6 +482,12 @@ async function insertTistoryHtml(tabId, bodyFrame, html, statusPrefix) {
   $("inputStatus").textContent = statusPrefix;
   const inserted = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [bodyFrame] },
+    // 확장 기본 격리 세계에서는 window.parent.tinymce가 페이지의 TinyMCE 인스턴스와
+    // 다른 전역 객체라 API를 찾지 못한다. 그러면 아래 native insertHTML 대체 경로만
+    // 실행되고, 화면에는 보여도 티스토리 저장 모델에서 블록 구조가 평문화될 수 있다.
+    // 실제 편집기 세계에서 insertContent()를 실행해야 TinyMCE의 undo/저장 모델에도
+    // 제목·목록·인용·표 같은 의미 태그가 함께 기록된다.
+    world: "MAIN",
     args: [html],
     func: (safeHtml) => {
       const editor = document.querySelector("body#tinymce[contenteditable='true']");
@@ -543,9 +549,34 @@ async function tistoryEditorContainsText(tabId, bodyFrame, value, attempts = 12)
   return false;
 }
 
+function expectedTistoryStructure(html) {
+  const supported = ["h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "pre", "ul", "ol", "table", "a"];
+  const source = String(html || "").toLowerCase();
+  return supported.filter((tag) => new RegExp(`<${tag}(?:\\s|>)`).test(source));
+}
+
+async function tistoryEditorKeepsStructure(tabId, bodyFrame, html) {
+  const expected = expectedTistoryStructure(html);
+  if (!expected.length) return true;
+  const result = await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [bodyFrame] }, args: [expected],
+    func: (tags) => {
+      const markup = String(document.querySelector("body#tinymce[contenteditable='true']")?.innerHTML || "").toLowerCase();
+      return tags.every((tag) => new RegExp(`<${tag}(?:\\s|>)`).test(markup));
+    },
+  });
+  return result[0]?.result === true;
+}
+
 async function insertVerifiedTistoryHtmlBlock(tabId, bodyFrame, block) {
   await insertTistoryHtml(tabId, bodyFrame, `${block.html}<p><br></p>`, "본문 서식 입력 중…");
-  if (await tistoryEditorContainsText(tabId, bodyFrame, block.text)) return;
+  if (await tistoryEditorContainsText(tabId, bodyFrame, block.text) && await tistoryEditorKeepsStructure(tabId, bodyFrame, block.html)) return;
+
+  // 텍스트만 남았다고 정상으로 판단하면 제목·목록 등 구조가 사라진 채 저장될 수 있다.
+  // 이 경우 평문으로 복구해 게시글을 망가뜨리지 않고, 사용자가 오류를 확인할 수 있게 중단한다.
+  if (await tistoryEditorContainsText(tabId, bodyFrame, block.text)) {
+    throw new Error("본문 텍스트는 들어갔지만 제목·목록 등 서식 구조가 티스토리 편집기에 남지 않았습니다.");
+  }
 
   // 티스토리가 지원하지 않는 서식을 비동기로 비워 버린 경우에는 해당 블록의 글자라도
   // 누락되지 않게 실제 키보드 입력으로 한 번만 복구한다. 정상 삽입된 블록의 서식은 건드리지 않는다.
@@ -1071,6 +1102,9 @@ async function synchronizeTistoryEditorForPublish(tabId, bodyFrame) {
     .map((block) => verificationSamples(expectedBlockText(block)));
   const saved = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] }, args: [source.html, expectedGroups],
+    // TinyMCE 인스턴스는 페이지 메인 세계에만 존재한다. 격리 세계에서 save() 호출이
+    // 생략되는 경우를 막아, 발행용 textarea까지 같은 편집기 모델로 직렬화한다.
+    world: "MAIN",
     func: (html, groups) => {
       const compact = (value) => String(value || "").normalize("NFKC").toLowerCase()
         .replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/[^\p{L}\p{N}]+/gu, "");

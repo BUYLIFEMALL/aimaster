@@ -386,3 +386,10 @@
 - **원인:** `htmlToInputBlocks()`가 이미지가 하나라도 있는 부모를 `textWithLinks()`로 변환해, 모든 자식의 의미 HTML·문단 경계를 버렸다.
 - **해결(위치):** `tistory-auto-blog/utils/extensionContent.ts`가 레이아웃 컨테이너를 재귀 순회하고, `figure`/`img`와 문단·제목·목록을 원래 순서의 독립 입력 블록으로 만든다.
 - **다음부터 확인:** HTML 변환기는 이미지 포함 여부만으로 부모 전체를 특수 처리하지 말고, 혼합 콘텐츠(이미지+제목+목록+문단) 샘플의 출력 블록 순서와 태그를 검증한다.
+
+## 2026-10-03 — 확장 격리 세계에서는 페이지 JavaScript 편집기 인스턴스를 읽을 수 없다
+
+- **증상:** 확장 미리보기 원문에는 제목·목록·인용·링크 구조가 남아 있으나, 티스토리 입력 뒤 게시글만 평문화됐다.
+- **원인:** `chrome.scripting.executeScript()`는 기본적으로 격리 세계에서 실행된다. 따라서 그 코드의 `window.tinymce`/`window.parent.tinymce`는 페이지 메인 세계 TinyMCE와 달라 `insertContent()`·`save()`를 실행하지 못하고 native DOM 대체 경로로 내려갈 수 있다.
+- **해결(위치):** `tistory-auto-blog/extension/sidepanel.js`의 TinyMCE 삽입·저장 호출에 `world: "MAIN"`을 지정하고, 입력 후 제목·목록·인용·표·링크 태그 잔존 여부를 확인한다.
+- **다음부터 확인:** 페이지 전역 JavaScript API(React/Vue 편집기, TinyMCE 등)를 호출하는 확장 코드는 실행 세계를 먼저 확인한다. 텍스트 존재 여부만으로 성공 처리하지 말고 요구한 의미 구조도 검증한다.
