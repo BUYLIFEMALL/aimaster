@@ -10,6 +10,14 @@ function imageLine(alt: string, url: string): string {
   return url ? `![${alt}](${url})` : ''
 }
 
+// 모델이 강조 목적으로 문구 양끝을 따옴표로 감싸면 티스토리에도 그대로 보인다.
+// 문장부호로 둘러싸인 인라인 구절만 정리해 URL·Markdown 구조와 영어 축약형은 보존한다.
+function removeDecorativeQuotes(value: string): string {
+  return String(value || '')
+    .replace(/[“‘]([^“”‘’\n]{1,240})[”’]/g, '$1')
+    .replace(/(^|[\s([{])['"]([^'"\n]{1,240})['"](?=$|[\s)\]}.!,?])/gm, '$1$2')
+}
+
 // 글 아래 "🎨 생성 이미지 AI 프롬프트" 섹션은 2026-10-01 주인님 지시("이미지 프롬프트 섹션은 이제 안 보여줘도 돼")로 더 이상 만들지 않는다.
 // 이미 저장된 글의 섹션은 utils/stripImageSchema.ts의 removeImagePromptSection()이 화면·편집기에서 걷어낸다.
 
@@ -212,7 +220,7 @@ ${customRule}
     return [`## ${headings[index]}`, line, sectionBodies[index]].filter(Boolean).join('\n\n')
   }
 
-  const contentMarkdown = `
+  const contentMarkdown = removeDecorativeQuotes(`
 > ${excerpt}
 
 ${titleImageLine}
@@ -238,7 +246,7 @@ ${
 ---
 
 ${hashtags}
-`.trim()
+`.trim())
 
   return { title, excerpt, contentMarkdown }
 }
