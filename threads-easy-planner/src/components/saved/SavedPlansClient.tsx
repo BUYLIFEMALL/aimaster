@@ -16,7 +16,6 @@ export function SavedPlansClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [copyToast, setCopyToast] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -196,7 +195,6 @@ export function SavedPlansClient() {
         /* 저장된 글 목록 카드 그리드 */
         <div className="grid grid-cols-1 gap-4">
           {filteredPlans.map((plan) => {
-            const isExpanded = expandedId === plan.id;
             const formattedDate = new Date(plan.created_at).toLocaleString("ko-KR", {
               year: "numeric",
               month: "2-digit",
@@ -290,33 +288,23 @@ export function SavedPlansClient() {
                   </p>
                 </div>
 
-                {/* 2. 본문 박스 */}
+                {/* 2. 본문 박스 (항상 콘텐츠 전체 표시) */}
                 <div className="rounded-2xl bg-neutral-50/70 border border-neutral-200/80 p-4 space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-bold text-neutral-600 border-b border-neutral-200/50 pb-1.5">
+                  <div className="text-[11px] font-bold text-neutral-600 border-b border-neutral-200/50 pb-1.5 flex items-center justify-between">
                     <span>📝 스레드 본문 (공백 포함 약 {plan.body_text.length}자)</span>
-                    <button
-                      type="button"
-                      onClick={() => setExpandedId(isExpanded ? null : plan.id)}
-                      className="text-neutral-500 hover:text-neutral-900 font-semibold cursor-pointer"
-                    >
-                      {isExpanded ? "간략히 보기 ▲" : "전체 펼치기 ▼"}
-                    </button>
+                    <span className="text-[10px] text-neutral-400 font-normal">전체 내용 상시 표시</span>
                   </div>
 
-                  <div
-                    className={`whitespace-pre-line text-xs md:text-sm text-neutral-800 leading-relaxed font-sans ${
-                      isExpanded ? "" : "line-clamp-4"
-                    }`}
-                  >
+                  <div className="whitespace-pre-line text-xs md:text-sm text-neutral-800 leading-relaxed font-sans pt-1">
                     {plan.body_text}
                   </div>
                 </div>
 
                 {/* 3. 댓글 / CTA */}
                 {plan.reply_cta && (
-                  <div className="rounded-xl bg-blue-50/70 border border-blue-200/70 px-3.5 py-2.5 text-xs text-blue-950 font-semibold flex items-center gap-2">
+                  <div className="rounded-xl bg-blue-50/70 border border-blue-200/70 px-3.5 py-2.5 text-xs text-blue-950 font-semibold flex items-start gap-2">
                     <span className="text-blue-700 font-bold shrink-0">👉 첫 댓글 CTA:</span>
-                    <span className="truncate">{plan.reply_cta}</span>
+                    <span className="break-words leading-relaxed">{plan.reply_cta}</span>
                   </div>
                 )}
               </div>

@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.17` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.18` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -94,3 +94,7 @@
     1) DB 레벨: 보관함 목록 조회 시점 30일 경과 생성 데이터 자동 영구 삭제(TTL Sweep) 쿼리 적용.
     2) 클라이언트 레벨: 로컬 스토리지에 캐시된 항목도 30일 경과 시 자동 감지 및 정리(Prune) 로직 적용.
     3) UI 시각화: 보관함 각 카드에 `🕒 N일 후 자동삭제` 실시간 카운트다운 배지 및 상단 30일 보관 정책 안내 배너 전면 노출.
+- **v1.18 (2026-10-03)**:
+  - **보관함(/saved) 본문 간략히 보기 접힘 제거 및 항상 콘텐츠 전체 노출**:
+    1) '간략히 보기 / 전체 펼치기' 접힘 토글 기능 및 `line-clamp-4` 제거.
+    2) 보관함에 들어온 사용자가 별도의 클릭 없이 저장된 스레드 본문 및 첫 댓글 CTA 전문을 즉시 온전히 확인할 수 있도록 가시성 최적화.
