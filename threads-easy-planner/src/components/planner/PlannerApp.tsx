@@ -483,17 +483,13 @@ export function PlannerApp() {
         {/* 3. 🔥 상황별 페르소나 밑에 함께 위치하는: 실전 떡상 템플릿 프리셋 3선 */}
         <div className="rounded-2xl bg-amber-50/70 border border-amber-200/90 p-4 md:p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight animate-pulse">
-                🔥 아무런 아이디어가 없을 때!!!
+            <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-2">
+              <span className="text-lg">🔥</span>
+              <span>실전 떡상 템플릿 프리셋 3선</span>
+              <span className="text-xs md:text-sm font-semibold text-amber-900/80 hidden sm:inline">
+                (클릭 시 52만·1.6만 뷰 검증된 바이럴 구조로 즉시 생성)
               </span>
-              <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-1.5">
-                <span>실전 떡상 템플릿 프리셋 3선</span>
-                <span className="text-xs md:text-sm font-semibold text-amber-900/80 hidden sm:inline">
-                  (클릭 시 벤치마킹 구조로 즉시 생성)
-                </span>
-              </span>
-            </div>
+            </span>
             <span className="text-xs font-bold text-amber-800 bg-amber-100/90 px-2.5 py-1 rounded-lg">
               실제 터진 사례 벤치마킹 ⚡
             </span>
@@ -624,21 +620,29 @@ export function PlannerApp() {
           )}
         </div>
 
-        {/* 5. 💡 업종별 카테고리 칩 & 추천 주제 10선 영역 (상시 펼침으로 누구나 쉽게 선택) */}
+        {/* 5. 🔥 아무런 아이디어가 없을 때!!! (업종/타깃별 추천 주제 10선) */}
         {showCategoryPicker && (
-          <div className="pt-4 border-t border-neutral-100 space-y-3.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
-                <span>💡</span>
-                <span>업종/타깃별 추천 주제 10선 (원하는 업종을 누르거나 추천 카드를 클릭해보세요)</span>
-              </span>
+          <div className="pt-4 border-t border-neutral-200/80 space-y-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight animate-pulse">
+                  🔥 아무런 아이디어가 없을 때!!!
+                </span>
+                <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-1.5">
+                  <span>업종/타깃별 추천 주제 10선</span>
+                  <span className="text-xs md:text-sm font-semibold text-neutral-500 hidden sm:inline">
+                    (원하는 업종을 누르거나 추천 카드를 클릭해보세요)
+                  </span>
+                </span>
+              </div>
               <button
                 type="button"
                 onClick={() => handleSuggestTopics(selectedCategory)}
                 disabled={isSuggesting}
-                className="text-xs text-amber-600 hover:text-amber-800 font-semibold cursor-pointer"
+                className="text-xs md:text-sm text-amber-700 hover:text-amber-900 font-bold bg-amber-100/80 hover:bg-amber-100 px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1 shrink-0"
               >
-                🔄 새로 추천받기
+                <span>🔄</span>
+                <span>새로 추천받기</span>
               </button>
             </div>
 

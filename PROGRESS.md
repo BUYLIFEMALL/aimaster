@@ -35,7 +35,7 @@
 | v1.30~1.32 | 배지 "N일 후 자동삭제", **이미지 장수 1~5장 선택**(1번 = 글 전체 대표 제목용, 나머지는 문단 4개를 묶음으로 나눠 맡음: 3장=[1~2][3~4] 등), 본문 소제목·문단 3→4개 |
 | v1.33 | 좌측 "다른 프로그램 보기" → 메인 대시보드(아래 1-2 로그인 폼 통일 작업의 일부) |
 
-### 1-2. Threads AI 기획 자동화 (초간편판) — 서브폴더 `threads-easy-planner/`, slug `threads-easy-planner`, **v1.13**
+### 1-2. Threads AI 기획 자동화 (초간편판) — 서브폴더 `threads-easy-planner/`, slug `threads-easy-planner`, **v1.14**
 - 주소: https://threads-easy-planner.vercel.app (Vercel 프로젝트 `threads-easy-planner`)
 - 초보자 맞춤형 원클릭 스레드(Threads) 기획 및 글 생성 프로그램 신설 및 고도화 (2026-10-03).
 - 주요 기능:
