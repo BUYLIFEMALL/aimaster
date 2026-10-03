@@ -1,6 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 티스토리 장식용 따옴표 제거 (2026-10-03, v1.53)
+## Threads AI 기획 자동화 신설 (2026-10-03, threads-easy-planner v1.01)
+
+- 초보자 맞춤형 스레드(Threads) AI 기획기 서브프로젝트(`threads-easy-planner/`)를 신설했다.
+- 복잡한 쇼핑/제휴/링크 크롭/포스팅 설정 없이, 주제 입력 또는 "🎲 오늘 뭐 쓰지?" 10개 업종/타깃 추천 → 5단 구성(주제, 첫 문장 후킹, 전체 글, 댓글/CTA, 후속 아이디어 5선) 자동 생성 → 7종 원클릭 리라이팅(더 자극적으로, 더 자연스럽게 등) 기능을 원클릭 UI로 구현했다.
+- 공용 DB `programs`에 slug `threads-easy-planner` (Threads 카테고리, `v1.01`, FREE 배지) 및 기본 3단계 요금제(`pricing_plans`) 등록 완료.
+- `npm run build` 검증 완료 (TypeScript/컴파일 100% 정상).
+
 
 - 원인/조치: 실제 원문 미리보기와 게시 결과에 같은 따옴표가 있어 확장 입력 문제가 아니라 AI 생성 결과 문제로 확정했다. 프롬프트 지시만으로 재발해 `utils/news/generator.ts`에서 문장 양끝을 감싼 장식용 따옴표를 Markdown→HTML 변환 전에 제거한다.
 

@@ -11,3 +11,7 @@ naver-blog-auto-poster_app/node_modules
 
 # tistory-auto-blog/(티스토리 원문생성 자동화, 2026-10-01 ai-auto-blog를 복제해 신설)도 자체 Vercel 프로젝트로 따로 배포되며 루트 앱이 import하지 않는다.
 /tistory-auto-blog
+
+# threads-easy-planner/(Threads AI 기획기)도 자체 Vercel 프로젝트로 따로 배포되며 루트 앱이 import하지 않는다.
+/threads-easy-planner
+
