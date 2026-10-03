@@ -275,6 +275,15 @@ function selectPost() {
   $("previewPost").disabled = !activePost;
   $("fillPost").disabled = !activePost;
   $("resumePostSettings").disabled = !activePost;
+  // 태그 입력칸은 이전 글에서 저장한 값이 남아 있을 수 있다. 선택한 원문이 가진
+  // 태그를 즉시 반영해야 다른 글의 태그가 섞이거나 원문 태그가 누락되지 않는다.
+  const sourceTags = normalizeTistoryTags(activePost?.tags || []);
+  if (activePost) {
+    $("tagNames").value = sourceTags.join(", ");
+    $("categorySettingsStatus").textContent = sourceTags.length
+      ? `선택한 원문의 태그 ${sourceTags.length}개를 적용했습니다. 필요하면 수정하세요.`
+      : "선택한 원문에서 태그를 찾지 못했습니다. 필요한 태그를 직접 입력하세요.";
+  }
   $("inputStatus").textContent = activePost ? `${postLabel(activePost)} 선택됨` : "";
 }
 
@@ -600,10 +609,6 @@ function normalizeTistoryTags(values) {
   return [...new Set(source.map((value) => String(value).replace(/^#+/, "").trim()).filter(Boolean))].slice(0, 30);
 }
 
-function escapeTistoryHtml(value) {
-  return String(value || "").replace(/[&<>\"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[character]));
-}
-
 async function addTistoryTags(tabId, bodyFrame, tags) {
   const existing = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] },
@@ -611,23 +616,17 @@ async function addTistoryTags(tabId, bodyFrame, tags) {
   });
   const existingTags = new Set((existing[0]?.result || []).map((tag) => tag.toLocaleLowerCase()));
   const requestedTags = normalizeTistoryTags(tags);
-  const bodyTags = await chrome.scripting.executeScript({
-    target: { tabId, frameIds: [bodyFrame] }, args: [requestedTags],
-    func: (requested) => {
-      const text = (document.querySelector("body#tinymce[contenteditable='true']")?.innerText || "").toLocaleLowerCase();
-      return requested.filter((tag) => text.includes(`#${String(tag).toLocaleLowerCase()}`));
-    },
-  });
-  const alreadyInBody = new Set(bodyTags[0]?.result || []);
-  const missingTags = requestedTags.filter((tag) => !existingTags.has(tag.toLocaleLowerCase()) && !alreadyInBody.has(tag));
-  if (!missingTags.length) return { skipped: [] };
-  // #tagText는 모든 티스토리 편집기 상태에 고정으로 존재하지 않는다. 현재 화면에서 실제로
-  // 보이는 태그 입력칸만 사용하며, 없는 상태가 제목·본문·발행 설정 재개를 막지는 않게 한다.
+  // 본문에 #태그 문구가 있다는 것은 티스토리 태그 칩 등록이 아니다. 본문 해시태그를
+  // 이미 등록된 태그처럼 취급하면 실제 태그가 한 건도 생성되지 않은 채 성공 처리된다.
+  const missingTags = requestedTags.filter((tag) => !existingTags.has(tag.toLocaleLowerCase()));
+  if (!missingTags.length) return { skipped: [], registered: requestedTags.length };
+  // 실제 태그 입력 UI만 사용한다. 입력칸을 찾지 못한 경우 본문 끝 해시태그로 대체하면
+  // 게시글에는 보이지만 티스토리 태그로는 등록되지 않아 사용자를 오도한다.
   const target = await chrome.scripting.executeScript({
     target: { tabId, frameIds: [0] },
     func: () => {
       const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
-      const candidates = ["#tagText", "input[placeholder*='태그']", "input[aria-label*='태그']", "input[name*='tag' i]"];
+      const candidates = ["#tagText", ".editor_tag input", "input[placeholder*='태그']", "input[aria-label*='태그']", "input[name*='tag' i]"];
       for (const selector of candidates) {
         const input = [...document.querySelectorAll(selector)].find((node) => visible(node) && !node.disabled && !node.readOnly);
         if (input) return selector;
@@ -637,20 +636,9 @@ async function addTistoryTags(tabId, bodyFrame, tags) {
   });
   const selector = target[0]?.result;
   if (!selector) {
-    const hashtagLine = missingTags.map((tag) => `#${escapeTistoryHtml(tag)}`).join(" ");
-    await insertTistoryHtml(tabId, bodyFrame, `<p><br></p><p style="text-align: left;">${hashtagLine}</p>`, "본문 끝 태그 입력 중…");
-    const verified = await chrome.scripting.executeScript({
-      target: { tabId, frameIds: [bodyFrame] }, args: [missingTags],
-      func: (insertedTags) => {
-        const text = (document.querySelector("body#tinymce[contenteditable='true']")?.innerText || "").toLocaleLowerCase();
-        return insertedTags.every((tag) => text.includes(`#${String(tag).toLocaleLowerCase()}`));
-      },
-    });
-    if (verified[0]?.result !== true) throw new Error("본문 끝 해시태그 입력 결과를 확인하지 못했습니다.");
-    return { skipped: [], bodyTags: missingTags };
+    throw new Error("티스토리 태그 입력칸을 찾지 못했습니다. 본문 해시태그로 대체하지 않았으니 태그 UI를 연 뒤 다시 시도해 주세요.");
   }
   for (const tag of missingTags) {
-    const before = await chrome.scripting.executeScript({ target: { tabId, frameIds: [0] }, func: () => document.querySelectorAll(".editor_tag > .txt_tag").length });
     await focusKnownTarget(tabId, 0, selector);
     await withDebugger(tabId, () => humanType(tabId, tag, `태그 입력 중…`));
     await withDebugger(tabId, async () => {
@@ -658,10 +646,14 @@ async function addTistoryTags(tabId, bodyFrame, tags) {
       await chrome.debugger.sendCommand({ tabId }, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
     });
     await inputSleep(inputDelay(300, 600));
-    const after = await chrome.scripting.executeScript({ target: { tabId, frameIds: [0] }, func: () => document.querySelectorAll(".editor_tag > .txt_tag").length });
-    if ((after[0]?.result || 0) <= (before[0]?.result || 0)) throw new Error("태그 확정 결과를 확인하지 못했습니다.");
+    const registered = await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [0] }, args: [tag],
+      func: (expected) => [...document.querySelectorAll(".editor_tag > .txt_tag")]
+        .some((node) => (node.textContent || "").replace(/^#+/, "").trim().toLocaleLowerCase() === String(expected).toLocaleLowerCase()),
+    });
+    if (registered[0]?.result !== true) throw new Error(`티스토리 태그 ‘${tag}’ 등록 결과를 확인하지 못했습니다.`);
   }
-  return { skipped: [] };
+  return { skipped: [], registered: requestedTags.length };
 }
 
 async function openTistoryCategory(tabId) {
@@ -1271,7 +1263,7 @@ async function fillTistoryPost() {
     }
     const publishSettings = await applyRemainingTistorySettings(tab.id, bodyFrame);
     await reportInput("publish_ready");
-    const tagNotice = publishSettings.bodyTags?.length ? ` 본문 끝에 #태그 ${publishSettings.bodyTags.length}개를 입력했습니다.` : "";
+      const tagNotice = publishSettings.registered ? ` 티스토리 태그 ${publishSettings.registered}개 등록을 확인했습니다.` : "";
     $("inputStatus").textContent = `제목·본문·카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다.${tagNotice} 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -1291,7 +1283,7 @@ async function resumeTistoryPostSettings() {
     // 티스토리가 서식을 다시 만든 일부 문단은 허용하되 제목·본문 존재·이미지 수는 계속 검증합니다.
     const publishSettings = await applyRemainingTistorySettings(tab.id, bodyFrame, { allowPartialText: true });
     await reportInput("publish_ready");
-    const tagNotice = publishSettings.bodyTags?.length ? ` 본문 끝에 #태그 ${publishSettings.bodyTags.length}개를 입력했습니다.` : "";
+      const tagNotice = publishSettings.registered ? ` 티스토리 태그 ${publishSettings.registered}개 등록을 확인했습니다.` : "";
     $("inputStatus").textContent = `기존 제목·본문·이미지는 그대로 두고 카테고리·태그와 ${publishSettings.visibility}·${publishSettings.timing} 발행 설정을 적용했습니다.${tagNotice} 마지막 저장/발행은 티스토리에서 직접 눌러 주세요.`;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
