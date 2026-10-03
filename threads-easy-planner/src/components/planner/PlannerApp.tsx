@@ -309,7 +309,7 @@ export function PlannerApp() {
             </span>
           </div>
 
-          {/* 3대 Provider 선택 버튼 (OpenAI / Gemini / Claude) */}
+          {/* 3대 Provider 선택 버튼 (OpenAI (GPT) / Claude / Gemini) */}
           <div className="grid grid-cols-3 gap-2 text-xs">
             <button
               type="button"
@@ -326,19 +326,6 @@ export function PlannerApp() {
 
             <button
               type="button"
-              onClick={() => handleSelectProvider("gemini")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                selectedProvider === "gemini"
-                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
-                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">✨</span>
-              <span className="text-xs leading-none">Google Gemini</span>
-            </button>
-
-            <button
-              type="button"
               onClick={() => handleSelectProvider("anthropic")}
               className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 selectedProvider === "anthropic"
@@ -347,7 +334,20 @@ export function PlannerApp() {
               }`}
             >
               <span className="text-base">🧠</span>
-              <span className="text-xs leading-none">Anthropic Claude</span>
+              <span className="text-xs leading-none">Claude</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelectProvider("gemini")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                selectedProvider === "gemini"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">✨</span>
+              <span className="text-xs leading-none">Gemini</span>
             </button>
           </div>
 

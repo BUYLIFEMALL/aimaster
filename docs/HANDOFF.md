@@ -6,6 +6,13 @@
 - 실제 티스토리 장애 이력(서식 평문화, 이미지 컨테이너 평탄화, 제목 중복, 태그 칩 오탐, 부분 본문 중단, 장식 따옴표)을 증상·원인·조치·재검수 순서로 정리했다.
 - 빈 새 글만 입력하고, 부분 입력 초안은 발행하지 않으며, 최종 저장·발행은 회원이 직접 수행한다는 안전 기준을 명시했다.
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.04, 2026-10-03)
+
+- **AI 엔진 선택 통일화 (OpenAI (GPT) / Claude / Gemini 3가지 선택, v1.04)**:
+  - 타 서브프로그램(`threads-affiliate-poster`, `ai-auto-blog`, `naver-blog-seo-studio`)과 동일하게 AI 엔진 선택 라벨 및 순서를 **OpenAI (GPT) / Claude / Gemini 3가지**로 통일화했다.
+  - 선택 탭 버튼 및 세부 실행 모델 드롭다운의 반응형 정렬을 보강했다.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.04`로 갱신했다.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.03, 2026-10-03)
 
 - **AI 추론 엔진 및 세부 모델 선택 기능 추가 (v1.03)**:

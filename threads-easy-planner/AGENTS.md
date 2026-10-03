@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.03` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.04` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -34,7 +34,7 @@
   - Gemini 모델 식별자 정상화 (`gemini-2.0-flash`).
   - "오늘 뭐 쓰지?" 버튼 클릭 시 카테고리 피커 상시 토글 및 즉시 추천 트리거 동작 개선.
 - **v1.03 (2026-10-03)**:
-  - 🎲오늘 뭐 쓰지? / ✨글 생성하기 하단에 AI 추론 엔진(OpenAI / Gemini / Claude) 및 2026 세부 실행 모델 선택 패널 신설.
-  - 공급자별 대표 모델(GPT-4.1, GPT-6 Luna/Sol/Astra, Gemini 3.8/3.7 Flash, Claude Sonnet 5 등) 옵션 제공.
-  - `localStorage` 브라우저 캐싱으로 선택 모델 자동 기억.
-  - 공급자별 키 미등록 시 맞춤형 안내 모달 제공 및 결과 카드에 사용 모델 라벨 표시.
+  - 🎲오늘 뭐 쓰지? / ✨글 생성하기 하단에 AI 추론 엔진 및 2026 세부 실행 모델 선택 패널 신설.
+- **v1.04 (2026-10-03)**:
+  - AI 추론 엔진을 타 서브프로그램 표준과 동일하게 **OpenAI (GPT) / Claude / Gemini 3가지 선택** 구성으로 라벨 및 순서 정규화.
+  - 선택 탭(버튼) 및 드롭다운의 통일성 강화.
