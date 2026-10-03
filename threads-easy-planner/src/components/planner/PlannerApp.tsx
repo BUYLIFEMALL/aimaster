@@ -12,8 +12,14 @@ import type {
   HookVariant,
   RewriteMode,
   PlannerPersona,
+  ThreadPlannerTemplateInput,
+  TemplatePreset,
 } from "@/types/planner";
-import { REWRITE_MODES, PLANNER_PERSONAS } from "@/types/planner";
+import {
+  REWRITE_MODES,
+  PLANNER_PERSONAS,
+  TEMPLATE_PRESETS,
+} from "@/types/planner";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
 import {
   AI_MODEL_OPTIONS,
@@ -23,11 +29,20 @@ import {
 } from "@/lib/ai/models";
 
 export function PlannerApp() {
-  // 메인 입력 상태
+  // 메인 키워드 입력
   const [topicInput, setTopicInput] = useState("");
   const [activePersonaId, setActivePersonaId] = useState<string | null>(null);
-  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // 실전 템플릿 필드 (선택 입력)
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
+  const [templateProduct, setTemplateProduct] = useState("");
+  const [templateExperience, setTemplateExperience] = useState("");
+  const [templateTarget, setTemplateTarget] = useState("");
+  const [templateBenchmark, setTemplateBenchmark] = useState("");
+
+  // 오늘 뭐 쓰지? 카테고리 & 10선 주제 영역
+  const [showCategoryPicker, setShowCategoryPicker] = useState(true); // 기본 노출하여 바로 선택 가능!
+  const [selectedCategory, setSelectedCategory] = useState<string>("tips");
 
   // AI 추론 엔진 및 모델 선택 상태 (OpenAI / Claude / Gemini)
   const [selectedProvider, setSelectedProvider] = useState<AIModelProvider>("openai");
@@ -39,7 +54,7 @@ export function PlannerApp() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRewriting, setIsRewriting] = useState(false);
   const [activeRewriteMode, setActiveRewriteMode] = useState<RewriteMode | null>(null);
-  const [generatingPersonaLabel, setGeneratingPersonaLabel] = useState<string | null>(null);
+  const [generatingLabel, setGeneratingLabel] = useState<string | null>(null);
 
   // 생성 데이터 결과
   const [suggestedTopics, setSuggestedTopics] = useState<TopicSuggestion[]>([]);
@@ -51,7 +66,7 @@ export function PlannerApp() {
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
   const [needApiKeyModal, setNeedApiKeyModal] = useState(false);
 
-  // localStorage에서 이전에 선택한 AI 엔진 및 모델 복원
+  // 초기 로드 시 localStorage 복원 및 기본 추천 주제 로드
   useEffect(() => {
     try {
       const savedProvider = localStorage.getItem("threads_planner_provider") as AIModelProvider | null;
@@ -90,28 +105,79 @@ export function PlannerApp() {
     }
   }
 
-  // 1. [핵심] 페르소나 버튼 클릭 시: 해당 페르소나의 상황과 말투로 즉시 글 생성!
+  // 1. [핵심] 6대 상황별 페르소나 버튼 클릭: 해당 페르소나의 상황·말투로 즉시 글 생성!
   async function handleClickPersonaButton(persona: PlannerPersona) {
     setActivePersonaId(persona.id);
-    setGeneratingPersonaLabel(persona.name);
-    const topicToUse = topicInput.trim() || persona.defaultTopic;
+    const topicToUse = topicInput.trim() || templateProduct.trim() || persona.defaultTopic;
+    setGeneratingLabel(persona.name);
     await handleGenerate(topicToUse, persona.id, persona.name);
   }
 
-  // 2. 글 생성 실행 (페르소나 연동)
-  async function handleGenerate(targetTopic?: string, personaId?: string, personaName?: string) {
-    const topicToUse = (targetTopic || topicInput).trim();
+  // 2. 52만/1.6만 뷰 실전 템플릿 프리셋 적용 및 원클릭 생성
+  async function handleApplyPreset(preset: TemplatePreset) {
+    setTemplateProduct(preset.data.product || "");
+    setTemplateExperience(preset.data.experience || "");
+    setTemplateTarget(preset.data.targetAudience || "");
+    setTemplateBenchmark(preset.data.benchmarkPost || "");
+    setShowTemplateForm(true);
+
+    const topicToUse = preset.data.product
+      ? `${preset.data.product} 썰`
+      : preset.title;
+
+    setTopicInput(topicToUse);
+    setGeneratingLabel(preset.title);
+
+    showCopyToast(`📋 [${preset.title}] 프리셋이 적용되어 글을 생성합니다!`);
+
+    await handleGenerate(
+      topicToUse,
+      undefined,
+      preset.title,
+      {
+        product: preset.data.product,
+        experience: preset.data.experience,
+        targetAudience: preset.data.targetAudience,
+        persona: preset.data.persona,
+        benchmarkPost: preset.data.benchmarkPost,
+      }
+    );
+  }
+
+  // 3. 글 생성 실행
+  async function handleGenerate(
+    targetTopic?: string,
+    personaId?: string,
+    customLabel?: string,
+    customTemplateInput?: ThreadPlannerTemplateInput
+  ) {
+    let topicToUse = (targetTopic || topicInput).trim();
+    if (!topicToUse && templateProduct.trim()) {
+      topicToUse = `${templateProduct.trim()} 썰`;
+    }
+
     if (!topicToUse) {
-      setErrorMessage("주제를 입력하거나 아래 페르소나 버튼 또는 '오늘 뭐 쓰지?'를 선택해주세요.");
+      setErrorMessage("주제를 입력하거나 페르소나 버튼 또는 추천 프리셋을 선택해주세요.");
       return;
     }
 
     const effectivePersonaId = personaId || activePersonaId || undefined;
     const personaObj = effectivePersonaId ? PLANNER_PERSONAS.find(p => p.id === effectivePersonaId) : null;
-    const effectivePersonaName = personaName || (personaObj ? personaObj.name : null);
+    const effectiveLabel = customLabel || (personaObj ? personaObj.name : null);
+
+    // 템플릿 데이터 조합
+    let templateDataToSend: ThreadPlannerTemplateInput | undefined = customTemplateInput;
+    if (!templateDataToSend && (templateProduct.trim() || templateExperience.trim())) {
+      templateDataToSend = {
+        product: templateProduct.trim() || undefined,
+        experience: templateExperience.trim() || undefined,
+        targetAudience: templateTarget.trim() || undefined,
+        benchmarkPost: templateBenchmark.trim() || undefined,
+      };
+    }
 
     setIsGenerating(true);
-    setGeneratingPersonaLabel(effectivePersonaName);
+    setGeneratingLabel(effectiveLabel);
     setErrorMessage(null);
     try {
       const res = await generateThreadPlanAction(
@@ -121,7 +187,7 @@ export function PlannerApp() {
           provider: selectedProvider,
           model: selectedModel,
         },
-        undefined,
+        templateDataToSend,
         effectivePersonaId
       );
       if (res.needApiKey) {
@@ -136,19 +202,17 @@ export function PlannerApp() {
       setCurrentPlan(res.data);
       const activeModelObj = AI_MODEL_OPTIONS.find((o) => o.value === selectedModel);
       setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
-      setUsedPersonaLabel(effectivePersonaName);
+      setUsedPersonaLabel(effectiveLabel);
       setExpandedHookIdx(null);
-      // 생성 후 추천 목록은 닫고 결과 화면에 집중
-      setShowCategoryPicker(false);
     } catch {
       setErrorMessage("글 생성 중 오류가 발생했습니다.");
     } finally {
       setIsGenerating(false);
-      setGeneratingPersonaLabel(null);
+      setGeneratingLabel(null);
     }
   }
 
-  // 3. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천
+  // 4. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천
   async function handleSuggestTopics(categoryId?: string) {
     const targetCat = categoryId || selectedCategory || "tips";
     setSelectedCategory(targetCat);
@@ -182,13 +246,13 @@ export function PlannerApp() {
     }
   }
 
-  // 4. 추천 주제 카드 선택 후 즉시 글 생성
+  // 5. 추천 주제 카드 선택 후 즉시 글 생성
   async function handleSelectTopicAndGenerate(selectedTopic: string) {
     setTopicInput(selectedTopic);
     await handleGenerate(selectedTopic, activePersonaId || undefined);
   }
 
-  // 5. 7종 "다시 써줘" 원클릭 리라이팅
+  // 6. 7종 "다시 써줘" 원클릭 리라이팅
   async function handleRewrite(mode: RewriteMode) {
     if (!currentPlan) return;
 
@@ -221,7 +285,7 @@ export function PlannerApp() {
     }
   }
 
-  // 6. 5대 훅 유형 대안으로 메인 본문 즉시 전환
+  // 7. 5대 훅 유형 대안으로 메인 본문 즉시 전환
   function handleApplyHookVariant(variant: HookVariant) {
     if (!currentPlan) return;
     setCurrentPlan({
@@ -263,7 +327,7 @@ export function PlannerApp() {
           </div>
           <button
             onClick={() => setErrorMessage(null)}
-            className="text-rose-500 hover:text-rose-700 text-xs font-semibold ml-4"
+            className="text-rose-500 hover:text-rose-700 text-xs font-semibold ml-4 cursor-pointer"
           >
             닫기
           </button>
@@ -287,9 +351,9 @@ export function PlannerApp() {
         </p>
       </section>
 
-      {/* 메인 인터랙션 컨테이너 */}
-      <div className="rounded-3xl bg-white p-5 md:p-6 shadow-sm border border-neutral-200/80 space-y-5">
-        {/* 1. 키워드/소재 입력 바 + 액션 버튼들 */}
+      {/* 메인 인터랙션 패널 */}
+      <div className="rounded-3xl bg-white p-5 md:p-6 shadow-sm border border-neutral-200/80 space-y-6">
+        {/* 1. 키워드/소재 입력 바 */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative flex-1">
             <input
@@ -308,7 +372,7 @@ export function PlannerApp() {
               <button
                 type="button"
                 onClick={() => setTopicInput("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 text-sm"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 text-sm cursor-pointer"
               >
                 ✕
               </button>
@@ -316,15 +380,14 @@ export function PlannerApp() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 오늘 뭐 쓰지? (10선 주제 발굴 토글) */}
+            {/* 오늘 뭐 쓰지? 버튼 */}
             <button
               type="button"
               onClick={() => {
-                if (showCategoryPicker) {
-                  setShowCategoryPicker(false);
-                } else {
-                  handleSuggestTopics(selectedCategory || undefined);
+                if (!showCategoryPicker) {
+                  setShowCategoryPicker(true);
                 }
+                handleSuggestTopics(selectedCategory || undefined);
               }}
               disabled={isSuggesting}
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
@@ -333,7 +396,7 @@ export function PlannerApp() {
               <span>{isSuggesting ? "추천 중..." : "오늘 뭐 쓰지?"}</span>
             </button>
 
-            {/* 기본 글 생성 버튼 */}
+            {/* 글 생성 버튼 */}
             <button
               type="button"
               onClick={() => handleGenerate()}
@@ -346,12 +409,12 @@ export function PlannerApp() {
           </div>
         </div>
 
-        {/* 2. ★ 핵심 기능: 다양한 상황별 페르소나 원클릭 생성 버튼 그리드 */}
-        <div className="space-y-3 pt-2">
+        {/* 2. ★ 핵심 기능: 다양한 상황별 페르소나 원클릭 글 생성 버튼 그리드 (6대 페르소나) */}
+        <div className="space-y-3 pt-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
               <span>🎭</span>
-              <span>상황별 페르소나를 클릭하면 그에 맞는 콘텐츠가 즉시 만들어집니다! (원클릭 생성)</span>
+              <span>상황별 페르소나 원클릭 생성 (클릭 즉시 그 시점과 상황의 글이 완성됩니다)</span>
             </span>
             <span className="text-[11px] text-neutral-400">버튼 클릭 즉시 글 완성</span>
           </div>
@@ -359,7 +422,7 @@ export function PlannerApp() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
             {PLANNER_PERSONAS.map((persona) => {
               const isCurrent = activePersonaId === persona.id;
-              const isThisGenerating = isGenerating && generatingPersonaLabel === persona.name;
+              const isThisGenerating = isGenerating && generatingLabel === persona.name;
               return (
                 <button
                   key={persona.id}
@@ -412,24 +475,146 @@ export function PlannerApp() {
           </div>
         </div>
 
-        {/* 3. 오늘 뭐 쓰지? 10대 인기 업종 및 10선 추천 주제 영역 (토글형) */}
+        {/* 3. 🔥 상황별 페르소나 밑에 함께 위치하는: 실전 떡상 템플릿 프리셋 3선 */}
+        <div className="rounded-2xl bg-amber-50/60 border border-amber-200/80 p-3.5 md:p-4 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-900 inline-flex items-center gap-1.5">
+              <span>🔥</span>
+              <span>실전 떡상 템플릿 프리셋 3선 (클릭 시 벤치마킹 구조로 즉시 생성)</span>
+            </span>
+            <span className="text-[11px] text-amber-700/80">실제 터진 사례 벤치마킹</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {TEMPLATE_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                disabled={isGenerating}
+                onClick={() => handleApplyPreset(preset)}
+                className="text-left rounded-xl bg-white border border-amber-200 p-2.5 hover:border-amber-400 hover:shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-base">{preset.emoji}</span>
+                    <span className="text-xs font-bold text-neutral-900 group-hover:text-amber-800 line-clamp-1">
+                      {preset.title}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-neutral-500 line-clamp-1">
+                    {preset.data.product}
+                  </div>
+                </div>
+                <div className="mt-1.5 text-[10px] text-amber-600 font-semibold flex items-center justify-between">
+                  <span>{preset.badge}</span>
+                  <span className="text-neutral-400 group-hover:text-amber-700">바로 적용 →</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 4. 📝 내 실제 경험 · 상품 직접 지정하기 (접이식 상세 템플릿 폼) */}
+        <div className="pt-1 border-t border-neutral-100">
+          <button
+            type="button"
+            onClick={() => setShowTemplateForm(!showTemplateForm)}
+            className="text-xs font-bold text-neutral-600 hover:text-neutral-900 inline-flex items-center gap-1.5 cursor-pointer py-1"
+          >
+            <span>{showTemplateForm ? "▲ 접기" : "▼"}</span>
+            <span>내 실제 경험담 · 상품명 · 타깃 직접 입력하기 (상세 템플릿 폼)</span>
+          </button>
+
+          {showTemplateForm && (
+            <div className="mt-3 p-4 rounded-2xl bg-neutral-50/80 border border-neutral-200/80 space-y-3 animate-in fade-in duration-150">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-neutral-700 mb-1">
+                    연결할 상품/핵심 소재 (본문에는 숨겨지고 첫 댓글 CTA로 유도됨)
+                  </label>
+                  <input
+                    type="text"
+                    value={templateProduct}
+                    onChange={(e) => setTemplateProduct(e.target.value)}
+                    placeholder="예: 실리콘 전자레인지 찜기, 세탁조 클리너"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-neutral-700 mb-1">
+                    타깃 독자
+                  </label>
+                  <input
+                    type="text"
+                    value={templateTarget}
+                    onChange={(e) => setTemplateTarget(e.target.value)}
+                    placeholder="예: 20대 후반 자취 직장인, 살림하는 주부"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-bold text-neutral-700 mb-1">
+                    내 실제 경험담 / 상황 (지어내지 않고 솔직한 리얼 썰)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={templateExperience}
+                    onChange={(e) => setTemplateExperience(e.target.value)}
+                    placeholder="예: 퇴근 후 설거지가 너무 싫어서 저녁을 자주 거르다가 샀음. 써 본 지 2주째인데 삶의 질 수직 상승"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none resize-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-bold text-neutral-700 mb-1">
+                    참고할 터진 글 원문 (선택 사항 - 벤치마킹할 스레드 글이 있다면 붙여넣기)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={templateBenchmark}
+                    onChange={(e) => setTemplateBenchmark(e.target.value)}
+                    placeholder="예: 넘더러워서 안 올리려다 추천해준 치니 고마워서 올림... 워싱소다 다 소용없더라"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <button
+                  type="button"
+                  disabled={isGenerating}
+                  onClick={() => handleGenerate()}
+                  className="rounded-xl bg-neutral-900 hover:bg-black text-white px-4 py-2 text-xs font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  ✨ 입력한 템플릿으로 글 생성하기
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 5. 💡 업종별 카테고리 칩 & 추천 주제 10선 영역 (상시 펼침으로 누구나 쉽게 선택) */}
         {showCategoryPicker && (
-          <div className="pt-4 border-t border-neutral-100 space-y-4 animate-in fade-in slide-in-from-top-2">
+          <div className="pt-4 border-t border-neutral-100 space-y-3.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                💡 관심 있는 업종/타깃별 추천 주제 10선
+              <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
+                <span>💡</span>
+                <span>업종/타깃별 추천 주제 10선 (원하는 업종을 누르거나 추천 카드를 클릭해보세요)</span>
               </span>
               <button
                 type="button"
-                onClick={() => setShowCategoryPicker(false)}
-                className="text-xs text-neutral-400 hover:text-neutral-700 cursor-pointer"
+                onClick={() => handleSuggestTopics(selectedCategory)}
+                disabled={isSuggesting}
+                className="text-xs text-amber-600 hover:text-amber-800 font-semibold cursor-pointer"
               >
-                접기 ▲
+                🔄 새로 추천받기
               </button>
             </div>
 
             {/* 업종 칩 목록 */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {TARGET_CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat.id;
                 return (
@@ -455,56 +640,57 @@ export function PlannerApp() {
 
             {/* 추천된 10개 주제 목록 */}
             {isSuggesting ? (
-              <div className="py-8 text-center space-y-2">
+              <div className="py-6 text-center space-y-2">
                 <div className="inline-block animate-spin text-2xl">🌀</div>
-                <div className="text-sm font-semibold text-neutral-600">
+                <div className="text-xs font-semibold text-neutral-600">
                   스레드에서 지금 가장 반응 좋은 주제 10개를 발굴하고 있어요...
                 </div>
               </div>
             ) : suggestedTopics.length > 0 ? (
-              <div className="space-y-2.5 pt-2">
-                <div className="text-xs font-bold text-neutral-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-amber-500">🔥</span>
-                    <span>추천 주제를 클릭하면 바로 5단 구성 글이 완성됩니다! (10선)</span>
-                  </div>
-                  <span className="text-[11px] text-neutral-400 font-normal">
-                    원하는 주제 카드를 클릭하세요
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              <div className="space-y-2 pt-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {suggestedTopics.map((item, idx) => (
                     <button
                       key={item.id || idx}
                       type="button"
                       onClick={() => handleSelectTopicAndGenerate(item.topic)}
-                      className="text-left rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3.5 hover:bg-neutral-900 hover:text-white hover:border-neutral-900 transition-all group flex flex-col justify-between cursor-pointer shadow-xs"
+                      className="text-left rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3 hover:bg-neutral-900 hover:text-white hover:border-neutral-900 transition-all group flex flex-col justify-between cursor-pointer shadow-xs"
                     >
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 group-hover:bg-neutral-800 group-hover:text-amber-300">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 group-hover:bg-neutral-800 group-hover:text-amber-300">
                             #{idx + 1}
                           </span>
-                          <span className="text-xs text-neutral-400 group-hover:text-neutral-300 line-clamp-1">
+                          <span className="text-[11px] text-neutral-400 group-hover:text-neutral-300 line-clamp-1">
                             {item.whyItWorks}
                           </span>
                         </div>
-                        <div className="font-bold text-sm text-neutral-900 group-hover:text-white leading-snug">
+                        <div className="font-bold text-xs md:text-sm text-neutral-900 group-hover:text-white leading-snug">
                           {item.topic}
                         </div>
                       </div>
-                      <div className="mt-2 text-xs text-neutral-500 group-hover:text-neutral-300 italic truncate">
+                      <div className="mt-1.5 text-[11px] text-neutral-500 group-hover:text-neutral-300 italic truncate">
                         &quot;{item.hookPreview}&quot;
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <div className="text-center py-4 bg-neutral-50 rounded-2xl border border-neutral-100">
+                <button
+                  type="button"
+                  onClick={() => handleSuggestTopics(selectedCategory)}
+                  className="text-xs font-bold text-amber-700 hover:underline"
+                >
+                  🎲 [{TARGET_CATEGORIES.find(c => c.id === selectedCategory)?.name || "생활꿀팁"}] 추천 주제 10선 불러오기 클릭
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {/* 4. AI 추론 엔진 선택 (OpenAI / Claude / Gemini) */}
+        {/* 6. AI 추론 엔진 선택 (OpenAI / Claude / Gemini) */}
         <div className="pt-3 border-t border-neutral-100 space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
             <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
@@ -582,8 +768,8 @@ export function PlannerApp() {
         <div className="rounded-3xl bg-white border border-neutral-200 p-12 text-center space-y-4 shadow-sm animate-pulse">
           <div className="text-4xl">✍️</div>
           <div className="text-lg font-bold text-neutral-800">
-            {generatingPersonaLabel ? `[${generatingPersonaLabel}] 시점으로` : ""}{" "}
-            {PROVIDER_SHORT_LABELS[selectedProvider]} ({AI_MODEL_OPTIONS.find(o => o.value === selectedModel)?.shortLabel || selectedModel}) 기반 글을 작성하고 있어요...
+            {generatingLabel ? `[${generatingLabel}] 기반으로` : ""}{" "}
+            {PROVIDER_SHORT_LABELS[selectedProvider]} ({AI_MODEL_OPTIONS.find(o => o.value === selectedModel)?.shortLabel || selectedModel}) 글을 작성하고 있어요...
           </div>
           <p className="text-xs text-neutral-400 max-w-sm mx-auto">
             1초 만에 멈추는 5대 훅(자책·부정명령·썰·논쟁·반전)과 4단계 공감 본문, 댓글 유도 질문까지 한 번에 완성 중입니다.
