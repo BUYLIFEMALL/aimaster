@@ -175,7 +175,14 @@ export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: In
     })
   }
 
-  $('#root').contents().each((_, node) => {
+  // Tiptap이 이미지와 여러 문단을 하나의 레이아웃 div로 감싸 저장한 기존 글도 있다.
+  // 이전처럼 부모에 img가 있다는 이유로 전체를 textWithLinks()로 평탄화하면 이미지 뒤의
+  // 소제목·문단·목록 서식과 줄바꿈이 한 덩어리 텍스트로 바뀐다. 컨테이너는 재귀적으로
+  // 풀고, 실제 의미 블록과 이미지만 각각의 입력 블록으로 유지한다.
+  const contentTags = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'table'])
+  const containerTags = new Set(['div', 'section', 'article', 'main', 'aside', 'header', 'footer'])
+
+  const processNode = (node: AnyNode) => {
     if (node.type === 'text') {
       const text = clean($(node).text())
       if (!isDuplicateTitle(text)) pushText(text)
@@ -189,12 +196,28 @@ export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: In
       return
     }
     if (tag === 'script' || tag === 'style') return
-    const hasImage = $(el).is('img') || $(el).find('img').length > 0
-    if (hasImage) {
-      const before = textWithLinks($, el)
+
+    if (tag === 'img' || tag === 'figure') {
       pushImages(el)
-      return pushText(before)
+      return
     }
+
+    const children = $(el).contents().toArray() as AnyNode[]
+    const hasBlockChild = children.some((child) => child.type === 'tag' && (
+      contentTags.has((child as Element).tagName.toLowerCase()) ||
+      containerTags.has((child as Element).tagName.toLowerCase()) ||
+      (child as Element).tagName.toLowerCase() === 'figure' ||
+      (child as Element).tagName.toLowerCase() === 'img'
+    ))
+    if (containerTags.has(tag) && hasBlockChild) {
+      children.forEach(processNode)
+      return
+    }
+    if (!contentTags.has(tag) && children.length && hasBlockChild) {
+      children.forEach(processNode)
+      return
+    }
+
     const text = clean($(el).text())
     // 예전에 생성·저장한 글까지 포함해, 티스토리 제목과 정확히 같은 단독 본문 블록은
     // 제목 칸에 이미 입력되므로 확장 전송에서는 한 번 더 넣지 않는다.
@@ -207,7 +230,9 @@ export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: In
     const html = tistorySafeHtml($, el)
     if (html && text) blocks.push({ type: 'html', html, text })
     else pushText(textWithLinks($, el))
-  })
+  }
+
+  $('#root').contents().each((_, node) => processNode(node))
 
   // 블록이 주소로 끝나면(뒤에 바로 이미지가 오는 경우 등) 띄어쓰기를 붙여 네이버 자동 링크가 걸리게 한다.
   for (const block of blocks) {
