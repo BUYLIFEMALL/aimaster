@@ -86,11 +86,13 @@ export async function generateThreadPlanAI(params: {
   topic: string;
   additionalNote?: string;
   templateInput?: import("@/types/planner").ThreadPlannerTemplateInput;
+  personaPrompt?: string;
   aiConfig: { provider: AIProvider; apiKey: string; model?: string };
 }): Promise<ThreadPlanResult> {
-  const { topic, additionalNote, templateInput, aiConfig } = params;
+  const { topic, additionalNote, templateInput, personaPrompt, aiConfig } = params;
 
   const systemPrompt = `너는 Threads(스레드)에서 실제 50만 회 이상 폭발적 조회수와 댓글을 터뜨리는 실전 탑티어 인플루언서야.
+${personaPrompt ? `\n[★ 지정된 글쓴이 페르소나 & 역할/말투]\n${personaPrompt}\n반드시 위 페르소나의 상황, 직업, 고민, 독특한 어조를 100% 반영해서 생생한 1인칭 썰로 글을 전개해줘.\n` : ""}
 독자가 피드를 내리다 첫 문장에서 손가락을 멈추고, 끝까지 몰입해 읽은 뒤 무조건 댓글을 달거나 자댓글 링크를 클릭하게 만드는 스레드 포스팅 세트를 작성해줘.
 
 [★ 실전 52만회 & 1.6만회 바이럴 떡상글 벤치마킹 분석]

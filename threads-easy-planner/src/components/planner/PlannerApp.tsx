@@ -11,8 +11,9 @@ import type {
   ThreadPlanResult,
   HookVariant,
   RewriteMode,
+  PlannerPersona,
 } from "@/types/planner";
-import { REWRITE_MODES } from "@/types/planner";
+import { REWRITE_MODES, PLANNER_PERSONAS } from "@/types/planner";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
 import {
   AI_MODEL_OPTIONS,
@@ -24,6 +25,7 @@ import {
 export function PlannerApp() {
   // 메인 입력 상태
   const [topicInput, setTopicInput] = useState("");
+  const [activePersonaId, setActivePersonaId] = useState<string | null>(null);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -37,11 +39,13 @@ export function PlannerApp() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRewriting, setIsRewriting] = useState(false);
   const [activeRewriteMode, setActiveRewriteMode] = useState<RewriteMode | null>(null);
+  const [generatingPersonaLabel, setGeneratingPersonaLabel] = useState<string | null>(null);
 
   // 생성 데이터 결과
   const [suggestedTopics, setSuggestedTopics] = useState<TopicSuggestion[]>([]);
   const [currentPlan, setCurrentPlan] = useState<ThreadPlanResult | null>(null);
   const [usedModelLabel, setUsedModelLabel] = useState<string | null>(null);
+  const [usedPersonaLabel, setUsedPersonaLabel] = useState<string | null>(null);
   const [expandedHookIdx, setExpandedHookIdx] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
@@ -86,7 +90,65 @@ export function PlannerApp() {
     }
   }
 
-  // 1. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천 (또는 카테고리 토글)
+  // 1. [핵심] 페르소나 버튼 클릭 시: 해당 페르소나의 상황과 말투로 즉시 글 생성!
+  async function handleClickPersonaButton(persona: PlannerPersona) {
+    setActivePersonaId(persona.id);
+    setGeneratingPersonaLabel(persona.name);
+    const topicToUse = topicInput.trim() || persona.defaultTopic;
+    await handleGenerate(topicToUse, persona.id, persona.name);
+  }
+
+  // 2. 글 생성 실행 (페르소나 연동)
+  async function handleGenerate(targetTopic?: string, personaId?: string, personaName?: string) {
+    const topicToUse = (targetTopic || topicInput).trim();
+    if (!topicToUse) {
+      setErrorMessage("주제를 입력하거나 아래 페르소나 버튼 또는 '오늘 뭐 쓰지?'를 선택해주세요.");
+      return;
+    }
+
+    const effectivePersonaId = personaId || activePersonaId || undefined;
+    const personaObj = effectivePersonaId ? PLANNER_PERSONAS.find(p => p.id === effectivePersonaId) : null;
+    const effectivePersonaName = personaName || (personaObj ? personaObj.name : null);
+
+    setIsGenerating(true);
+    setGeneratingPersonaLabel(effectivePersonaName);
+    setErrorMessage(null);
+    try {
+      const res = await generateThreadPlanAction(
+        topicToUse,
+        undefined,
+        {
+          provider: selectedProvider,
+          model: selectedModel,
+        },
+        undefined,
+        effectivePersonaId
+      );
+      if (res.needApiKey) {
+        setMissingProviderName(res.missingProvider ? PROVIDER_SHORT_LABELS[res.missingProvider] : PROVIDER_SHORT_LABELS[selectedProvider]);
+        setNeedApiKeyModal(true);
+        return;
+      }
+      if (!res.success || !res.data) {
+        setErrorMessage(res.error || "글 생성에 실패했습니다.");
+        return;
+      }
+      setCurrentPlan(res.data);
+      const activeModelObj = AI_MODEL_OPTIONS.find((o) => o.value === selectedModel);
+      setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
+      setUsedPersonaLabel(effectivePersonaName);
+      setExpandedHookIdx(null);
+      // 생성 후 추천 목록은 닫고 결과 화면에 집중
+      setShowCategoryPicker(false);
+    } catch {
+      setErrorMessage("글 생성 중 오류가 발생했습니다.");
+    } finally {
+      setIsGenerating(false);
+      setGeneratingPersonaLabel(null);
+    }
+  }
+
+  // 3. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천
   async function handleSuggestTopics(categoryId?: string) {
     const targetCat = categoryId || selectedCategory || "tips";
     setSelectedCategory(targetCat);
@@ -120,66 +182,10 @@ export function PlannerApp() {
     }
   }
 
-  // 2. 카테고리 칩을 직접 클릭했을 때:
-  //    - 키워드가 이미 있으면 바로 그 키워드+카테고리로 즉시 글 생성!
-  //    - 키워드가 없으면 해당 카테고리의 10선 주제 즉시 추천!
-  async function handleClickCategoryChip(catId: string, catName: string) {
-    setSelectedCategory(catId);
-    if (topicInput.trim()) {
-      // 입력된 키워드가 있으면 바로 글 생성으로 직행!
-      const fullTopic = `${topicInput.trim()} (${catName})`;
-      await handleGenerate(fullTopic);
-    } else {
-      // 키워드가 없으면 해당 카테고리 10선 추천 로드
-      await handleSuggestTopics(catId);
-    }
-  }
-
-  // 3. 추천 주제 선택 후 즉시 글 생성
+  // 4. 추천 주제 카드 선택 후 즉시 글 생성
   async function handleSelectTopicAndGenerate(selectedTopic: string) {
     setTopicInput(selectedTopic);
-    await handleGenerate(selectedTopic);
-  }
-
-  // 4. 글 생성 실행
-  async function handleGenerate(targetTopic?: string) {
-    const topicToUse = (targetTopic || topicInput).trim();
-    if (!topicToUse) {
-      setErrorMessage("주제를 입력하거나 아래 '오늘 뭐 쓰지?'에서 추천 주제를 골라주세요.");
-      return;
-    }
-
-    setIsGenerating(true);
-    setErrorMessage(null);
-    try {
-      const res = await generateThreadPlanAction(
-        topicToUse,
-        undefined,
-        {
-          provider: selectedProvider,
-          model: selectedModel,
-        }
-      );
-      if (res.needApiKey) {
-        setMissingProviderName(res.missingProvider ? PROVIDER_SHORT_LABELS[res.missingProvider] : PROVIDER_SHORT_LABELS[selectedProvider]);
-        setNeedApiKeyModal(true);
-        return;
-      }
-      if (!res.success || !res.data) {
-        setErrorMessage(res.error || "글 생성에 실패했습니다.");
-        return;
-      }
-      setCurrentPlan(res.data);
-      const activeModelObj = AI_MODEL_OPTIONS.find((o) => o.value === selectedModel);
-      setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
-      setExpandedHookIdx(null);
-      // 생성 후 추천 목록은 닫고 결과 화면에 집중
-      setShowCategoryPicker(false);
-    } catch {
-      setErrorMessage("글 생성 중 오류가 발생했습니다.");
-    } finally {
-      setIsGenerating(false);
-    }
+    await handleGenerate(selectedTopic, activePersonaId || undefined);
   }
 
   // 5. 7종 "다시 써줘" 원클릭 리라이팅
@@ -269,21 +275,21 @@ export function PlannerApp() {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-semibold text-neutral-700">
           <span>⚡ 초보자 맞춤형</span>
           <span className="text-neutral-300">•</span>
-          <span>원클릭 4단계 공감 스레드 기획</span>
+          <span>원클릭 상황별 페르소나 스레드 기획</span>
         </div>
         <h1 className="text-3xl md:text-5xl font-black text-neutral-900 tracking-tight">
           오늘 스레드 뭐 쓰지? 🤔
         </h1>
         <p className="text-sm md:text-base text-neutral-500 max-w-xl mx-auto leading-relaxed">
-          고민하지 마세요. 주제를 입력하거나 버튼 하나만 누르면,
+          고민하지 마세요. 아래 <strong>가전 주부형, 독신형, 워킹맘</strong> 등 원하는 버튼만 누르면,
           <br className="hidden sm:block" />
-          피드를 멈추는 <strong>5대 훅(자책·부정명령·썰·논쟁·반전)부터 4단계 공감 본문</strong>까지 3초 만에 완성됩니다.
+          피드를 멈추는 <strong>5대 훅부터 4단계 공감 본문</strong>까지 상황에 맞게 3초 만에 완성됩니다.
         </p>
       </section>
 
-      {/* 핵심 인터랙션 바: 주제 입력 + 오늘 뭐 쓰지? 버튼 + 생성 버튼 */}
+      {/* 메인 인터랙션 컨테이너 */}
       <div className="rounded-3xl bg-white p-5 md:p-6 shadow-sm border border-neutral-200/80 space-y-5">
-        {/* 키워드 입력 및 액션 버튼들 (최초 완성 버전 UX 100% 복원) */}
+        {/* 1. 키워드/소재 입력 바 + 액션 버튼들 */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative flex-1">
             <input
@@ -295,7 +301,7 @@ export function PlannerApp() {
                   handleGenerate();
                 }
               }}
-              placeholder="예: 자취 꿀템, 월요병 극복법, 챗GPT 업무 활용 (비워두고 버튼 클릭 가능)"
+              placeholder="소재나 상품명을 입력하세요 (예: 전자레인지 찜기, 세탁조 클리너, 섀도, 월요병) - 비워두고 아래 버튼 클릭 가능!"
               className="w-full rounded-2xl border border-neutral-200 bg-neutral-50/50 px-4 py-3.5 text-base text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-4 focus:ring-neutral-900/5 transition-all font-medium"
             />
             {topicInput && (
@@ -310,7 +316,7 @@ export function PlannerApp() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 오늘 뭐 쓰지? 버튼: 클릭 즉시 카테고리 칩 및 추천 주제 펼치기 */}
+            {/* 오늘 뭐 쓰지? (10선 주제 발굴 토글) */}
             <button
               type="button"
               onClick={() => {
@@ -327,11 +333,11 @@ export function PlannerApp() {
               <span>{isSuggesting ? "추천 중..." : "오늘 뭐 쓰지?"}</span>
             </button>
 
-            {/* 글 생성 버튼: 입력한 키워드로 즉시 글 생성 */}
+            {/* 기본 글 생성 버튼 */}
             <button
               type="button"
               onClick={() => handleGenerate()}
-              disabled={isGenerating || (!topicInput.trim() && suggestedTopics.length === 0)}
+              disabled={isGenerating}
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-6 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
             >
               <span>{isGenerating ? "✍️" : "✨"}</span>
@@ -340,12 +346,78 @@ export function PlannerApp() {
           </div>
         </div>
 
-        {/* 오늘 뭐 쓰지? 카테고리 칩 선택 & 10개 추천 주제 영역 (입력창 바로 직하단에 즉시 전개!) */}
+        {/* 2. ★ 핵심 기능: 다양한 상황별 페르소나 원클릭 생성 버튼 그리드 */}
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
+              <span>🎭</span>
+              <span>상황별 페르소나를 클릭하면 그에 맞는 콘텐츠가 즉시 만들어집니다! (원클릭 생성)</span>
+            </span>
+            <span className="text-[11px] text-neutral-400">버튼 클릭 즉시 글 완성</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+            {PLANNER_PERSONAS.map((persona) => {
+              const isCurrent = activePersonaId === persona.id;
+              const isThisGenerating = isGenerating && generatingPersonaLabel === persona.name;
+              return (
+                <button
+                  key={persona.id}
+                  type="button"
+                  disabled={isGenerating}
+                  onClick={() => handleClickPersonaButton(persona)}
+                  className={`text-left rounded-2xl border p-3.5 transition-all group flex flex-col justify-between cursor-pointer active:scale-98 shadow-xs ${
+                    isCurrent
+                      ? "border-neutral-900 bg-neutral-900 text-white ring-2 ring-neutral-900 shadow-md"
+                      : "border-neutral-200 bg-neutral-50/70 hover:bg-white hover:border-neutral-400 text-neutral-800"
+                  } ${isGenerating ? "opacity-60 cursor-not-allowed" : ""}`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                      <span className="text-base flex items-center gap-1.5 font-black">
+                        <span>{persona.emoji}</span>
+                        <span className={`text-sm ${isCurrent ? "text-white" : "text-neutral-900 font-bold"}`}>
+                          {persona.name}
+                        </span>
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                          isCurrent
+                            ? "bg-amber-400 text-neutral-950 font-black"
+                            : "bg-amber-100 text-amber-900"
+                        }`}
+                      >
+                        {persona.badge}
+                      </span>
+                    </div>
+
+                    <div
+                      className={`text-xs leading-snug line-clamp-2 ${
+                        isCurrent ? "text-neutral-200" : "text-neutral-600"
+                      }`}
+                    >
+                      {persona.tagline}
+                    </div>
+                  </div>
+
+                  <div className="mt-2.5 pt-2 border-t border-neutral-200/50 flex items-center justify-between text-[11px]">
+                    <span className={isCurrent ? "text-amber-300 font-semibold" : "text-neutral-400"}>
+                      {isThisGenerating ? "✍️ 작성 중..." : "클릭하여 바로 생성 →"}
+                    </span>
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">⚡</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3. 오늘 뭐 쓰지? 10대 인기 업종 및 10선 추천 주제 영역 (토글형) */}
         {showCategoryPicker && (
           <div className="pt-4 border-t border-neutral-100 space-y-4 animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                💡 관심 있는 업종/타깃 카테고리를 클릭해보세요
+                💡 관심 있는 업종/타깃별 추천 주제 10선
               </span>
               <button
                 type="button"
@@ -356,7 +428,7 @@ export function PlannerApp() {
               </button>
             </div>
 
-            {/* 카테고리 칩 목록 (클릭 시 키워드가 있으면 즉시 글 생성, 없으면 추천 10선 로드) */}
+            {/* 업종 칩 목록 */}
             <div className="flex flex-wrap gap-2">
               {TARGET_CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat.id;
@@ -364,8 +436,11 @@ export function PlannerApp() {
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => handleClickCategoryChip(cat.id, cat.name)}
-                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs ${
+                    onClick={() => {
+                      setSelectedCategory(cat.id);
+                      handleSuggestTopics(cat.id);
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs ${
                       isSelected
                         ? "bg-neutral-900 text-white shadow-sm ring-2 ring-neutral-900"
                         : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
@@ -429,7 +504,7 @@ export function PlannerApp() {
           </div>
         )}
 
-        {/* 🎲오늘 뭐 쓰지? ✨글 생성하기 하단 추론 모델 선택 패널 (OpenAI / Claude / Gemini) */}
+        {/* 4. AI 추론 엔진 선택 (OpenAI / Claude / Gemini) */}
         <div className="pt-3 border-t border-neutral-100 space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
             <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
@@ -507,10 +582,11 @@ export function PlannerApp() {
         <div className="rounded-3xl bg-white border border-neutral-200 p-12 text-center space-y-4 shadow-sm animate-pulse">
           <div className="text-4xl">✍️</div>
           <div className="text-lg font-bold text-neutral-800">
-            {PROVIDER_SHORT_LABELS[selectedProvider]} ({AI_MODEL_OPTIONS.find(o => o.value === selectedModel)?.shortLabel || selectedModel}) 기반으로 글을 기획하고 있어요...
+            {generatingPersonaLabel ? `[${generatingPersonaLabel}] 시점으로` : ""}{" "}
+            {PROVIDER_SHORT_LABELS[selectedProvider]} ({AI_MODEL_OPTIONS.find(o => o.value === selectedModel)?.shortLabel || selectedModel}) 기반 글을 작성하고 있어요...
           </div>
           <p className="text-xs text-neutral-400 max-w-sm mx-auto">
-            1초 만에 멈추는 5대 훅(자책·부정명령·썰·논쟁·반전)과 4단계 공감 본문, 댓글 유도 질문까지 한번에 작성 중입니다.
+            1초 만에 멈추는 5대 훅(자책·부정명령·썰·논쟁·반전)과 4단계 공감 본문, 댓글 유도 질문까지 한 번에 완성 중입니다.
           </p>
         </div>
       )}
@@ -518,14 +594,19 @@ export function PlannerApp() {
       {/* 글 생성 결과 카드 */}
       {currentPlan && !isGenerating && (
         <div className="rounded-3xl bg-white border border-neutral-200/90 shadow-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200 space-y-0">
-          {/* 카드 헤더: 주제명 & 모델 배지 & 전체 복사 액션 */}
+          {/* 카드 헤더: 주제명 & 페르소나/모델 배지 & 전체 복사 액션 */}
           <div className="bg-neutral-900 text-white p-5 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1.5">
-              <div className="inline-flex items-center gap-2">
+              <div className="inline-flex items-center gap-2 flex-wrap">
                 <span className="inline-flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
                   <span>🎯</span>
                   <span>스레드 기획 완성</span>
                 </span>
+                {usedPersonaLabel && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold">
+                    🎭 {usedPersonaLabel}
+                  </span>
+                )}
                 {usedModelLabel && (
                   <span className="px-2 py-0.5 rounded-full bg-neutral-800 border border-neutral-700 text-[11px] text-neutral-300 font-medium">
                     ⚡ {usedModelLabel}

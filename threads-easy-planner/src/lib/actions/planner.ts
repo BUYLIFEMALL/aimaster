@@ -97,14 +97,17 @@ export async function getSuggestedTopicsAction(
   }
 }
 
+import { PLANNER_PERSONAS } from "@/types/planner";
+
 /**
- * 2. 선택한 주제로 5단 구성 스레드 글 생성
+ * 2. 선택한 주제로 5단 구성 스레드 글 생성 (페르소나 연동 지원)
  */
 export async function generateThreadPlanAction(
   topic: string,
   additionalNote?: string,
   modelConfig?: ModelConfigParam,
-  templateInput?: import("@/types/planner").ThreadPlannerTemplateInput
+  templateInput?: import("@/types/planner").ThreadPlannerTemplateInput,
+  personaId?: string
 ): Promise<ActionResult<ThreadPlanResult>> {
   try {
     const user = await requireProgramAccess();
@@ -121,10 +124,20 @@ export async function generateThreadPlanAction(
 
     const effectiveTopic = topic.trim() || templateInput?.product || templateInput?.experience || "스레드 바이럴 글";
 
+    // 페르소나 프롬프트 해결
+    let personaPrompt: string | undefined = undefined;
+    if (personaId) {
+      const p = PLANNER_PERSONAS.find((item) => item.id === personaId);
+      if (p) {
+        personaPrompt = `[페르소나: ${p.name} (${p.badge})]\n${p.tonePrompt}\n특징: ${p.description}`;
+      }
+    }
+
     const plan = await generateThreadPlanAI({
       topic: effectiveTopic,
       additionalNote: additionalNote?.trim(),
       templateInput,
+      personaPrompt,
       aiConfig: resolved.config,
     });
 
