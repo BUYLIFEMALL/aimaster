@@ -7,6 +7,7 @@ import type { SavedThreadPlan } from "@/types/planner";
 import {
   loadPlansFromStorage,
   deletePlanFromStorage,
+  getDaysRemaining,
 } from "@/lib/storage/savedPlansStorage";
 
 export function SavedPlansClient() {
@@ -108,6 +109,19 @@ export function SavedPlansClient() {
           <span>✍️</span>
           <span>새 글 기획하러 가기</span>
         </Link>
+      </div>
+
+      {/* 30일 보관 정책 안내 */}
+      <div className="rounded-2xl bg-neutral-100/90 border border-neutral-200/90 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-neutral-600">
+        <div className="flex items-center gap-2">
+          <span className="text-base">🕒</span>
+          <span>
+            생성 및 보관된 모든 콘텐츠는 <strong>30일간 안전하게 보관된 후 자동 삭제</strong>됩니다. 중요한 글은 미리 복사해 활용하세요.
+          </span>
+        </div>
+        <span className="text-[11px] font-bold text-neutral-500 bg-white px-2.5 py-1 rounded-lg border border-neutral-200 shrink-0 self-start sm:self-auto">
+          30일 자동 삭제 정책 적용
+        </span>
       </div>
 
       {/* 검색 및 필터 바 */}
@@ -214,6 +228,9 @@ export function SavedPlansClient() {
                         ⚡ {plan.model_label}
                       </span>
                     )}
+                    <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 text-[10px] font-semibold border border-neutral-200/80">
+                      🕒 {getDaysRemaining(plan.created_at)}일 후 자동삭제
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-1.5">

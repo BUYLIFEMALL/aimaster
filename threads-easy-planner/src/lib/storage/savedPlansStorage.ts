@@ -10,12 +10,40 @@ import {
 } from "@/lib/actions/savedPlans";
 
 const LOCAL_STORAGE_KEY = "tep_saved_plans_local_cache";
+export const RETENTION_DAYS = 30;
+export const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
+export function isPlanExpired(createdAt: string): boolean {
+  try {
+    const time = new Date(createdAt).getTime();
+    return Date.now() - time > RETENTION_MS;
+  } catch {
+    return false;
+  }
+}
+
+export function getDaysRemaining(createdAt: string): number {
+  try {
+    const time = new Date(createdAt).getTime();
+    const expiresTime = time + RETENTION_MS;
+    const diff = Math.ceil((expiresTime - Date.now()) / (24 * 60 * 60 * 1000));
+    return Math.max(0, diff);
+  } catch {
+    return 30;
+  }
+}
 
 function getLocalPlans(): SavedThreadPlan[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const list: SavedThreadPlan[] = JSON.parse(raw);
+    const valid = list.filter((p) => !isPlanExpired(p.created_at));
+    if (valid.length !== list.length) {
+      setLocalPlans(valid);
+    }
+    return valid;
   } catch {
     return [];
   }

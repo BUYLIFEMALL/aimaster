@@ -46,3 +46,7 @@ CREATE POLICY "tep_saved_plans_delete_own"
 -- 인덱스
 CREATE INDEX IF NOT EXISTS idx_tep_saved_plans_user_created
   ON tep_saved_plans (user_id, created_at DESC);
+
+-- 30일 보관 정책 자동 삭제 Sweep (크론 또는 함수용 쿼리)
+-- DELETE FROM tep_saved_plans WHERE created_at < NOW() - INTERVAL '30 days';
+

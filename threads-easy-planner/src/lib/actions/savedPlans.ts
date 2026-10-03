@@ -89,10 +89,22 @@ export async function getSavedThreadPlansAction(): Promise<{
     const user = await requireProgramAccess();
     const admin = createAdminClient();
 
+    // 30일 보관 정책: 30일 지난 생성 데이터 자동 삭제 (TTL Sweep)
+    const thirtyDaysAgoIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    try {
+      await (admin as any)
+        .from("tep_saved_plans")
+        .delete()
+        .lt("created_at", thirtyDaysAgoIso);
+    } catch {
+      // sweep 오류가 조회 자체를 중단시키지 않도록 방어
+    }
+
     const { data, error } = await (admin as any)
       .from("tep_saved_plans")
       .select("*")
       .eq("user_id", user.id)
+      .gte("created_at", thirtyDaysAgoIso)
       .order("created_at", { ascending: false });
 
     if (error) {
