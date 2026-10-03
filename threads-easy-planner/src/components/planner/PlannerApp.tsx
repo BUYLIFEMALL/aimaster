@@ -570,10 +570,10 @@ export function PlannerApp() {
               <div className="flex items-center justify-between pb-2 border-b border-neutral-200/60">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-neutral-700 inline-flex items-center gap-1.5">
-                    <span>📝 2. 스레드 전체 본문 (4~6줄 친근한 반말)</span>
+                    <span>📝 2. 스레드 전체 본문 (4~6줄 실전 떡상 스타일)</span>
                   </span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">
-                    광고 냄새 제거
+                    본문 제품명 배제 (호기심 극대화)
                   </span>
                 </div>
                 <button
@@ -591,11 +591,11 @@ export function PlannerApp() {
               </div>
             </div>
 
-            {/* 3. 마지막 댓글/CTA 박스 (알고리즘 댓글 폭발 열린 질문) */}
+            {/* 3. 마지막 댓글/CTA 박스 (알고리즘 댓글 폭발 열린 질문 또는 자댓글 링크 연결) */}
             <div className="rounded-2xl bg-blue-50/70 border border-blue-200/70 p-4 md:p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-blue-900 inline-flex items-center gap-1.5">
-                  <span>💬 3. 마지막 댓글 유도 질문 (알고리즘 폭발용)</span>
+                  <span>💬 3. 첫 댓글(자댓글) 및 CTA (댓글 폭발 / 제품명·링크 연결)</span>
                 </span>
                 <button
                   type="button"
@@ -609,7 +609,7 @@ export function PlannerApp() {
                 👉 {currentPlan.cta}
               </p>
               <p className="text-[11px] text-blue-600/80 mt-1">
-                * 본문 마지막 줄에 덧붙이거나, 첫 번째 댓글로 바로 남겨 독자들의 현실 답변을 이끌어내세요.
+                * 스레드 실전 꿀팁: 본문에는 제품명을 숨기고, 첫 번째 댓글(자댓글)로 이 멘트와 함께 제품명/링크를 올리면 반응률이 극대화됩니다!
               </p>
             </div>
 
