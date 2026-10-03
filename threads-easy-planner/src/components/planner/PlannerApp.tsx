@@ -11,10 +11,8 @@ import type {
   ThreadPlanResult,
   HookVariant,
   RewriteMode,
-  ThreadPlannerTemplateInput,
-  TemplatePreset,
 } from "@/types/planner";
-import { REWRITE_MODES, TEMPLATE_PRESETS } from "@/types/planner";
+import { REWRITE_MODES } from "@/types/planner";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
 import {
   AI_MODEL_OPTIONS,
@@ -24,23 +22,12 @@ import {
 } from "@/lib/ai/models";
 
 export function PlannerApp() {
-  // 입력 모드: "template" (실전 템플릿 입력) | "simple" (간편 한 줄 입력)
-  const [inputMode, setInputMode] = useState<"template" | "simple">("template");
-
-  // 실전 템플릿 입력 필드들
-  const [templateProduct, setTemplateProduct] = useState("실리콘 전자레인지 찜기");
-  const [templateExperience, setTemplateExperience] = useState("퇴근 후 설거지가 싫어서 저녁을 자주 거름. 써 본 지 2주째");
-  const [templateTarget, setTemplateTarget] = useState("20대 후반 자취 직장인");
-  const [templatePersona, setTemplatePersona] = useState("퇴근길 지친 34세 직장인");
-  const [templateBenchmark, setTemplateBenchmark] = useState("");
-  const [showBenchmarkInput, setShowBenchmarkInput] = useState(false);
-
-  // 간편 한 줄 주제 입력
+  // 메인 입력 상태
   const [topicInput, setTopicInput] = useState("");
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // AI 추론 엔진 및 모델 선택 상태
+  // AI 추론 엔진 및 모델 선택 상태 (OpenAI / Claude / Gemini)
   const [selectedProvider, setSelectedProvider] = useState<AIModelProvider>("openai");
   const [selectedModel, setSelectedModel] = useState<string>("gpt-4.1");
   const [missingProviderName, setMissingProviderName] = useState<string | null>(null);
@@ -51,7 +38,7 @@ export function PlannerApp() {
   const [isRewriting, setIsRewriting] = useState(false);
   const [activeRewriteMode, setActiveRewriteMode] = useState<RewriteMode | null>(null);
 
-  // 데이터
+  // 생성 데이터 결과
   const [suggestedTopics, setSuggestedTopics] = useState<TopicSuggestion[]>([]);
   const [currentPlan, setCurrentPlan] = useState<ThreadPlanResult | null>(null);
   const [usedModelLabel, setUsedModelLabel] = useState<string | null>(null);
@@ -99,7 +86,7 @@ export function PlannerApp() {
     }
   }
 
-  // 1. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천
+  // 1. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천 (또는 카테고리 토글)
   async function handleSuggestTopics(categoryId?: string) {
     const targetCat = categoryId || selectedCategory || "tips";
     setSelectedCategory(targetCat);
@@ -133,55 +120,32 @@ export function PlannerApp() {
     }
   }
 
-  // 템플릿 프리셋 원클릭 적용
-  function handleApplyPreset(preset: TemplatePreset) {
-    setTemplateProduct(preset.data.product || "");
-    setTemplateExperience(preset.data.experience || "");
-    setTemplateTarget(preset.data.targetAudience || "");
-    setTemplatePersona(preset.data.persona || "");
-    setTemplateBenchmark(preset.data.benchmarkPost || "");
-    if (preset.data.benchmarkPost) {
-      setShowBenchmarkInput(true);
+  // 2. 카테고리 칩을 직접 클릭했을 때:
+  //    - 키워드가 이미 있으면 바로 그 키워드+카테고리로 즉시 글 생성!
+  //    - 키워드가 없으면 해당 카테고리의 10선 주제 즉시 추천!
+  async function handleClickCategoryChip(catId: string, catName: string) {
+    setSelectedCategory(catId);
+    if (topicInput.trim()) {
+      // 입력된 키워드가 있으면 바로 글 생성으로 직행!
+      const fullTopic = `${topicInput.trim()} (${catName})`;
+      await handleGenerate(fullTopic);
+    } else {
+      // 키워드가 없으면 해당 카테고리 10선 추천 로드
+      await handleSuggestTopics(catId);
     }
-    showCopyToast(`📋 [${preset.title}] 템플릿이 적용되었습니다!`);
   }
 
-  // 2. 추천 주제 선택 후 즉시 글 생성
+  // 3. 추천 주제 선택 후 즉시 글 생성
   async function handleSelectTopicAndGenerate(selectedTopic: string) {
     setTopicInput(selectedTopic);
     await handleGenerate(selectedTopic);
   }
 
-  // 3. 글 생성 실행
+  // 4. 글 생성 실행
   async function handleGenerate(targetTopic?: string) {
-    let topicToUse = targetTopic || "";
-    let templateDataToSend: ThreadPlannerTemplateInput | undefined = undefined;
-
-    if (inputMode === "template") {
-      templateDataToSend = {
-        product: templateProduct.trim() || undefined,
-        experience: templateExperience.trim() || undefined,
-        targetAudience: templateTarget.trim() || undefined,
-        persona: templatePersona.trim() || undefined,
-        benchmarkPost: templateBenchmark.trim() || undefined,
-      };
-
-      // 템플릿 모드에서는 상품명이나 경험담 또는 사용자가 입력한 토픽을 메인 주제로 채택
-      topicToUse =
-        topicToUse.trim() ||
-        (templateProduct.trim() ? `${templateProduct.trim()} 관련 썰` : "") ||
-        templateExperience.trim() ||
-        "스레드 실전 떡상 글";
-    } else {
-      topicToUse = topicToUse.trim() || topicInput.trim();
-    }
-
-    if (!topicToUse.trim()) {
-      setErrorMessage(
-        inputMode === "template"
-          ? "연결할 상품명 또는 내 실제 경험담을 입력해주세요."
-          : "주제를 입력하거나 아래 '오늘 뭐 쓰지?'에서 추천 주제를 골라주세요."
-      );
+    const topicToUse = (targetTopic || topicInput).trim();
+    if (!topicToUse) {
+      setErrorMessage("주제를 입력하거나 아래 '오늘 뭐 쓰지?'에서 추천 주제를 골라주세요.");
       return;
     }
 
@@ -194,8 +158,7 @@ export function PlannerApp() {
         {
           provider: selectedProvider,
           model: selectedModel,
-        },
-        templateDataToSend
+        }
       );
       if (res.needApiKey) {
         setMissingProviderName(res.missingProvider ? PROVIDER_SHORT_LABELS[res.missingProvider] : PROVIDER_SHORT_LABELS[selectedProvider]);
@@ -219,7 +182,7 @@ export function PlannerApp() {
     }
   }
 
-  // 4. 7종 "다시 써줘" 원클릭 리라이팅
+  // 5. 7종 "다시 써줘" 원클릭 리라이팅
   async function handleRewrite(mode: RewriteMode) {
     if (!currentPlan) return;
 
@@ -252,7 +215,7 @@ export function PlannerApp() {
     }
   }
 
-  // 5. 5대 훅 유형 대안으로 메인 본문 즉시 전환
+  // 6. 5대 훅 유형 대안으로 메인 본문 즉시 전환
   function handleApplyHookVariant(variant: HookVariant) {
     if (!currentPlan) return;
     setCurrentPlan({
@@ -301,12 +264,12 @@ export function PlannerApp() {
         </div>
       )}
 
-      {/* 메인 히어로 & 주제 입력 영역 */}
+      {/* 메인 히어로 */}
       <section className="text-center pt-2 md:pt-6 space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-semibold text-neutral-700">
           <span>⚡ 초보자 맞춤형</span>
           <span className="text-neutral-300">•</span>
-          <span>4단계 황금 구조 스레드 기획</span>
+          <span>원클릭 4단계 공감 스레드 기획</span>
         </div>
         <h1 className="text-3xl md:text-5xl font-black text-neutral-900 tracking-tight">
           오늘 스레드 뭐 쓰지? 🤔
@@ -318,9 +281,9 @@ export function PlannerApp() {
         </p>
       </section>
 
-      {/* 핵심 인터랙션 바: 키워드 입력 + 오늘 뭐 쓰지? 버튼 + 생성 버튼 + AI 모델 선택기 */}
-      <div className="rounded-3xl bg-white p-5 md:p-6 shadow-sm border border-neutral-200/80 space-y-4">
-        {/* 키워드 입력 및 액션 버튼들 */}
+      {/* 핵심 인터랙션 바: 주제 입력 + 오늘 뭐 쓰지? 버튼 + 생성 버튼 */}
+      <div className="rounded-3xl bg-white p-5 md:p-6 shadow-sm border border-neutral-200/80 space-y-5">
+        {/* 키워드 입력 및 액션 버튼들 (최초 완성 버전 UX 100% 복원) */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative flex-1">
             <input
@@ -332,7 +295,7 @@ export function PlannerApp() {
                   handleGenerate();
                 }
               }}
-              placeholder="키워드나 주제를 입력하세요 (예: 자취 꿀템, 설거지, 세탁기 관리제, 섀도, 재테크)"
+              placeholder="예: 자취 꿀템, 월요병 극복법, 챗GPT 업무 활용 (비워두고 버튼 클릭 가능)"
               className="w-full rounded-2xl border border-neutral-200 bg-neutral-50/50 px-4 py-3.5 text-base text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-4 focus:ring-neutral-900/5 transition-all font-medium"
             />
             {topicInput && (
@@ -347,12 +310,15 @@ export function PlannerApp() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 오늘 뭐 쓰지? 버튼: 키워드 기반 카테고리별 추천 주제 즉시 열기 */}
+            {/* 오늘 뭐 쓰지? 버튼: 클릭 즉시 카테고리 칩 및 추천 주제 펼치기 */}
             <button
               type="button"
               onClick={() => {
-                const cat = selectedCategory || "tips";
-                handleSuggestTopics(cat);
+                if (showCategoryPicker) {
+                  setShowCategoryPicker(false);
+                } else {
+                  handleSuggestTopics(selectedCategory || undefined);
+                }
               }}
               disabled={isSuggesting}
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
@@ -374,142 +340,12 @@ export function PlannerApp() {
           </div>
         </div>
 
-        {/* (선택) 내 실제 경험 / 상품 템플릿 접이식 옵션 */}
-        <div className="pt-1">
-          <button
-            type="button"
-            onClick={() => setShowBenchmarkInput(!showBenchmarkInput)}
-            className="text-xs font-bold text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-1.5 cursor-pointer py-1"
-          >
-            <span>{showBenchmarkInput ? "▲" : "▼"}</span>
-            <span>내 실제 경험·상품명 직접 지정하기 (선택 템플릿 옵션)</span>
-          </button>
-
-          {showBenchmarkInput && (
-            <div className="mt-2.5 p-4 rounded-2xl bg-neutral-50/80 border border-neutral-200/80 space-y-3 animate-in fade-in duration-150">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-700">🔥 템플릿 예시 불러오기:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {TEMPLATE_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => handleApplyPreset(preset)}
-                      className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white border border-neutral-300 hover:bg-neutral-100 text-neutral-800 transition-all cursor-pointer"
-                    >
-                      {preset.emoji} {preset.title}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                <input
-                  type="text"
-                  value={templateProduct}
-                  onChange={(e) => setTemplateProduct(e.target.value)}
-                  placeholder="연결할 상품/소재 (예: 실리콘 전자레인지 찜기)"
-                  className="rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none"
-                />
-                <input
-                  type="text"
-                  value={templateTarget}
-                  onChange={(e) => setTemplateTarget(e.target.value)}
-                  placeholder="타깃 독자 (예: 20대 후반 자취 직장인)"
-                  className="rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none"
-                />
-                <textarea
-                  rows={2}
-                  value={templateExperience}
-                  onChange={(e) => setTemplateExperience(e.target.value)}
-                  placeholder="내 실제 경험 / 고민 (예: 퇴근 후 설거지가 싫어서 저녁을 자주 거름. 써 본 지 2주)"
-                  className="sm:col-span-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none resize-none"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* 🎲오늘 뭐 쓰지? ✨글 생성하기 하단 추론 모델 선택 패널 (OpenAI (GPT) / Claude / Gemini 3가지 선택) */}
-        <div className="rounded-2xl bg-neutral-50/90 p-3.5 md:p-4 border border-neutral-200/90 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
-              <span>🤖</span>
-              <span>AI 추론 엔진 선택 (OpenAI / Claude / Gemini)</span>
-            </span>
-            <span className="text-[11px] text-neutral-500 font-medium">
-              현재 설정: <strong className="text-neutral-900 font-bold">{AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel}</strong>
-            </span>
-          </div>
-
-          {/* 3대 Provider 선택 버튼 (OpenAI (GPT) / Claude / Gemini) */}
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => handleSelectProvider("openai")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                selectedProvider === "openai"
-                  ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
-                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">🤖</span>
-              <span className="text-xs leading-none">OpenAI (GPT)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleSelectProvider("anthropic")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                selectedProvider === "anthropic"
-                  ? "border-purple-600 bg-purple-600 text-white shadow-xs"
-                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">🧠</span>
-              <span className="text-xs leading-none">Claude</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleSelectProvider("gemini")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                selectedProvider === "gemini"
-                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
-                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">✨</span>
-              <span className="text-xs leading-none">Gemini</span>
-            </button>
-          </div>
-
-          {/* 세부 실행 모델 드롭다운 셀렉터 */}
-          <div className="pt-2 border-t border-neutral-200/60 flex flex-col sm:flex-row sm:items-center gap-2">
-            <label className="text-[11px] font-bold text-neutral-600 sm:w-44 flex-shrink-0 flex items-center gap-1">
-              <span>🎯</span>
-              <span>{PROVIDER_SHORT_LABELS[selectedProvider]} 세부 모델:</span>
-            </label>
-            <select
-              value={selectedModel}
-              onChange={(e) => handleSelectModel(e.target.value)}
-              className="flex-1 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
-            >
-              {AI_MODEL_OPTIONS.filter((opt) => opt.provider === selectedProvider).map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* 오늘 뭐 쓰지? 카테고리 칩 선택 & 10개 추천 주제 영역 */}
+        {/* 오늘 뭐 쓰지? 카테고리 칩 선택 & 10개 추천 주제 영역 (입력창 바로 직하단에 즉시 전개!) */}
         {showCategoryPicker && (
           <div className="pt-4 border-t border-neutral-100 space-y-4 animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                💡 관심 있는 업종/타깃을 골라보세요
+                💡 관심 있는 업종/타깃 카테고리를 클릭해보세요
               </span>
               <button
                 type="button"
@@ -520,7 +356,7 @@ export function PlannerApp() {
               </button>
             </div>
 
-            {/* 카테고리 칩 목록 */}
+            {/* 카테고리 칩 목록 (클릭 시 키워드가 있으면 즉시 글 생성, 없으면 추천 10선 로드) */}
             <div className="flex flex-wrap gap-2">
               {TARGET_CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat.id;
@@ -528,13 +364,10 @@ export function PlannerApp() {
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => {
-                      setSelectedCategory(cat.id);
-                      handleSuggestTopics(cat.id);
-                    }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    onClick={() => handleClickCategoryChip(cat.id, cat.name)}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs ${
                       isSelected
-                        ? "bg-neutral-900 text-white shadow-sm"
+                        ? "bg-neutral-900 text-white shadow-sm ring-2 ring-neutral-900"
                         : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
                     }`}
                   >
@@ -550,18 +383,18 @@ export function PlannerApp() {
               <div className="py-8 text-center space-y-2">
                 <div className="inline-block animate-spin text-2xl">🌀</div>
                 <div className="text-sm font-semibold text-neutral-600">
-                  4대 심리(공감·손해회피·호기심·반전) 기반 스레드 주제 10개를 발굴하고 있어요...
+                  스레드에서 지금 가장 반응 좋은 주제 10개를 발굴하고 있어요...
                 </div>
               </div>
             ) : suggestedTopics.length > 0 ? (
-              <div className="space-y-2 pt-2">
+              <div className="space-y-2.5 pt-2">
                 <div className="text-xs font-bold text-neutral-800 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <span className="text-amber-500">🔥</span>
                     <span>추천 주제를 클릭하면 바로 5단 구성 글이 완성됩니다! (10선)</span>
                   </div>
                   <span className="text-[11px] text-neutral-400 font-normal">
-                    원하는 주제를 클릭해보세요
+                    원하는 주제 카드를 클릭하세요
                   </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -570,7 +403,7 @@ export function PlannerApp() {
                       key={item.id || idx}
                       type="button"
                       onClick={() => handleSelectTopicAndGenerate(item.topic)}
-                      className="text-left rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3.5 hover:bg-neutral-900 hover:text-white hover:border-neutral-900 transition-all group flex flex-col justify-between cursor-pointer"
+                      className="text-left rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3.5 hover:bg-neutral-900 hover:text-white hover:border-neutral-900 transition-all group flex flex-col justify-between cursor-pointer shadow-xs"
                     >
                       <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -595,6 +428,78 @@ export function PlannerApp() {
             ) : null}
           </div>
         )}
+
+        {/* 🎲오늘 뭐 쓰지? ✨글 생성하기 하단 추론 모델 선택 패널 (OpenAI / Claude / Gemini) */}
+        <div className="pt-3 border-t border-neutral-100 space-y-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+            <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
+              <span>🤖</span>
+              <span>AI 추론 엔진 선택</span>
+            </span>
+            <span className="text-[11px] text-neutral-500 font-medium">
+              현재 설정: <strong className="text-neutral-900 font-bold">{AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel}</strong>
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
+            {/* 3대 Provider 버튼 (OpenAI / Claude / Gemini) */}
+            <div className="sm:col-span-6 grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleSelectProvider("openai")}
+                className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                  selectedProvider === "openai"
+                    ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                    : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
+                }`}
+              >
+                <span>🤖</span>
+                <span className="text-xs">OpenAI</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectProvider("anthropic")}
+                className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                  selectedProvider === "anthropic"
+                    ? "border-purple-600 bg-purple-600 text-white shadow-xs"
+                    : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
+                }`}
+              >
+                <span>🧠</span>
+                <span className="text-xs">Claude</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectProvider("gemini")}
+                className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                  selectedProvider === "gemini"
+                    ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                    : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
+                }`}
+              >
+                <span>✨</span>
+                <span className="text-xs">Gemini</span>
+              </button>
+            </div>
+
+            {/* 세부 실행 모델 드롭다운 셀렉터 */}
+            <div className="sm:col-span-6">
+              <select
+                value={selectedModel}
+                onChange={(e) => handleSelectModel(e.target.value)}
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
+              >
+                {AI_MODEL_OPTIONS.filter((opt) => opt.provider === selectedProvider).map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 로딩 표시 */}
@@ -618,52 +523,46 @@ export function PlannerApp() {
             <div className="space-y-1.5">
               <div className="inline-flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
-                  <span>🎯 기획 완료 주제</span>
+                  <span>🎯</span>
+                  <span>스레드 기획 완성</span>
                 </span>
                 {usedModelLabel && (
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300 border border-neutral-700">
-                    {usedModelLabel}
-                  </span>
-                )}
-                {currentPlan.hookType && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    {currentPlan.hookType}
+                  <span className="px-2 py-0.5 rounded-full bg-neutral-800 border border-neutral-700 text-[11px] text-neutral-300 font-medium">
+                    ⚡ {usedModelLabel}
                   </span>
                 )}
               </div>
-              <h2 className="text-lg md:text-xl font-bold tracking-tight">
+              <h2 className="text-lg md:text-xl font-black tracking-tight leading-snug">
                 {currentPlan.topic}
               </h2>
             </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() =>
-                  copyToClipboard(
-                    `${currentPlan.content}\n\n[첫 댓글/질문]\n${currentPlan.cta}`,
-                    "전체 스레드 세트가"
-                  )
-                }
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl bg-white text-neutral-900 font-bold px-4 py-2.5 text-xs hover:bg-neutral-100 transition-all shadow-sm active:scale-95 cursor-pointer"
-              >
-                <span>📋</span>
-                <span>전체 복사</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const fullText = `[후킹]\n${currentPlan.hook}\n\n[본문]\n${currentPlan.content}\n\n[댓글/CTA]\n${currentPlan.cta}`;
+                copyToClipboard(fullText, "전체 글(후킹+본문+댓글)이");
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-neutral-900 hover:bg-neutral-100 text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
+            >
+              <span>📋</span>
+              <span>전체 글 한 번에 복사</span>
+            </button>
           </div>
 
-          <div className="p-5 md:p-8 space-y-6">
-            {/* 1. 첫 문장 후킹 박스 (자극한 심리 및 이유 포함) */}
-            <div className="rounded-2xl bg-amber-50/80 border border-amber-200/80 p-4 md:p-5 relative space-y-2">
+          <div className="p-5 md:p-7 space-y-6">
+            {/* 1. 피드를 멈추는 첫 문장 후킹 박스 (황금 4단계 1단계) */}
+            <div className="rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4 md:p-5 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-800 inline-flex items-center gap-1.5">
-                  <span>⚡ 1. 첫 문장 후킹 (1초 만에 피드 멈춤)</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-amber-900 inline-flex items-center gap-1.5">
+                    <span>⚡ 1. 첫 문장 후킹 (1초 만에 피드 멈춤)</span>
+                  </span>
                   {currentPlan.hookType && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 font-semibold">
+                    <span className="px-2 py-0.5 rounded-md bg-amber-200/70 text-amber-900 text-[11px] font-bold">
                       {currentPlan.hookType}
                     </span>
                   )}
-                </span>
+                </div>
                 <button
                   type="button"
                   onClick={() => copyToClipboard(currentPlan.hook, "후킹 문장이")}
@@ -676,22 +575,100 @@ export function PlannerApp() {
                 &ldquo;{currentPlan.hook}&rdquo;
               </p>
               {currentPlan.whyHookWorks && (
-                <div className="pt-1 flex items-start gap-1.5 text-xs text-amber-900/80 font-medium">
-                  <span className="flex-shrink-0">💡 <strong>멈추게 하는 원리:</strong></span>
+                <div className="pt-2 border-t border-amber-200/60 text-[11px] text-amber-800 leading-relaxed flex items-start gap-1.5">
+                  <span className="font-bold flex-shrink-0">💡 멈추게 하는 이유:</span>
                   <span>{currentPlan.whyHookWorks}</span>
                 </div>
               )}
             </div>
 
-            {/* 2. 전체 글 본문 박스 (4단계 황금 구조: 멈추기 → 공감 → 반전 → 질문) */}
+            {/* 1-1. 5대 훅 유형 대안 글 세트 (자책형, 부정 명령형, 리얼 썰형, 논쟁형, 반전형) */}
+            {currentPlan.hookVariants && currentPlan.hookVariants.length > 0 && (
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50/50 p-4 md:p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
+                      <span>🎯</span>
+                      <span>5대 바이럴 훅 유형별 대안 글 (각각 다른 심리 자극)</span>
+                    </span>
+                    <span className="text-[11px] text-neutral-400 font-normal">
+                      (원하는 버전을 눌러 바로 적용해보세요)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 pt-1">
+                  {currentPlan.hookVariants.map((variant, vIdx) => {
+                    const isExpanded = expandedHookIdx === vIdx;
+                    return (
+                      <div
+                        key={vIdx}
+                        className="rounded-xl border border-neutral-200 bg-white p-3 space-y-2 hover:border-neutral-400 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-neutral-900 text-white text-[11px] font-bold">
+                              {variant.type}
+                            </span>
+                            <span className="text-xs text-neutral-500 font-medium">
+                              {variant.whyItWorks}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleApplyHookVariant(variant)}
+                              className="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                            >
+                              이 버전 본문에 적용 ↵
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setExpandedHookIdx(isExpanded ? null : vIdx)}
+                              className="text-[11px] text-neutral-400 hover:text-neutral-700 cursor-pointer"
+                            >
+                              {isExpanded ? "닫기 ▲" : "본문 미리보기 ▼"}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="text-xs font-semibold text-neutral-900 pl-1">
+                          &ldquo;{variant.hook}&rdquo;
+                        </div>
+
+                        {/* 펼쳤을 때 전체 본문 미리보기 및 복사 */}
+                        {isExpanded && variant.content && (
+                          <div className="pt-2 border-t border-neutral-100 space-y-2 animate-in fade-in duration-150">
+                            <div className="whitespace-pre-line text-xs text-neutral-700 leading-relaxed bg-neutral-50 p-2.5 rounded-lg border border-neutral-100">
+                              {variant.content}
+                            </div>
+                            <div className="flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => copyToClipboard(variant.content!, `[${variant.type}] 버전 본문이`)}
+                                className="text-[11px] font-semibold text-neutral-600 hover:text-neutral-900 underline cursor-pointer"
+                              >
+                                이 버전 본문만 복사
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 2. 전체 글 본문 박스 (황금 4단계: 멈춤 → 공감 → 반전 → 질문) */}
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50/40 p-4 md:p-6 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-neutral-200/60">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-neutral-700 inline-flex items-center gap-1.5">
-                    <span>📝 2. 스레드 전체 본문 (4~6줄 실전 떡상 스타일)</span>
+                  <span className="text-xs font-bold text-neutral-800 inline-flex items-center gap-1.5">
+                    <span>📝 2. 스레드 전체 본문 (4~6줄 극압축 친근 반말)</span>
                   </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">
-                    본문 제품명 배제 (호기심 극대화)
+                  <span className="text-[11px] text-neutral-400 font-normal">
+                    (공백 포함 약 {currentPlan.content.length}자)
                   </span>
                 </div>
                 <button
@@ -707,13 +684,17 @@ export function PlannerApp() {
               <div className="whitespace-pre-line text-sm md:text-base text-neutral-800 leading-relaxed font-sans pt-1">
                 {currentPlan.content}
               </div>
+
+              <div className="pt-2 text-[11px] text-neutral-400 border-t border-neutral-200/40">
+                💡 <strong>스레드 실전 떡상 팁:</strong> 본문에서는 상업적인 제품명을 숨겨 호기심을 극대화하고, 첫 번째 댓글(자댓글)로 제품명이나 링크를 연결하면 알고리즘 점수가 극대화됩니다.
+              </div>
             </div>
 
-            {/* 3. 마지막 댓글/CTA 박스 (알고리즘 댓글 폭발 열린 질문 또는 자댓글 링크 연결) */}
+            {/* 3. 마지막 댓글/CTA 박스 */}
             <div className="rounded-2xl bg-blue-50/70 border border-blue-200/70 p-4 md:p-5">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-blue-900 inline-flex items-center gap-1.5">
-                  <span>💬 3. 첫 댓글(자댓글) 및 CTA (댓글 폭발 / 제품명·링크 연결)</span>
+                  <span>💬 3. 마지막 댓글 / CTA (자댓글 유도 & 알고리즘 폭발)</span>
                 </span>
                 <button
                   type="button"
@@ -727,99 +708,9 @@ export function PlannerApp() {
                 👉 {currentPlan.cta}
               </p>
               <p className="text-[11px] text-blue-600/80 mt-1">
-                * 스레드 실전 꿀팁: 본문에는 제품명을 숨기고, 첫 번째 댓글(자댓글)로 이 멘트와 함께 제품명/링크를 올리면 반응률이 극대화됩니다!
+                * 본문 마지막 줄에 덧붙이거나, 첫 번째 댓글(자댓글)로 바로 남겨 독자 참여를 유도하세요.
               </p>
             </div>
-
-            {/* 🎯 5대 바이럴 훅 유형별 5개 글 세트 (자책형 · 부정명령형 · 리얼썰형 · 논쟁형 · 반전형) */}
-            {currentPlan.hookVariants && currentPlan.hookVariants.length > 0 && (
-              <div className="rounded-2xl bg-amber-50/40 border border-amber-200/70 p-4 md:p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base">🎯</span>
-                    <span className="text-xs md:text-sm font-extrabold text-neutral-900">
-                      5대 바이럴 훅 유형별 5개 글 세트
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-neutral-500">
-                    원하는 훅 스타일을 클릭해 본문을 바로 교체할 수 있어요
-                  </span>
-                </div>
-
-                <div className="space-y-2.5 pt-1">
-                  {currentPlan.hookVariants.map((item, idx) => {
-                    const isExpanded = expandedHookIdx === idx;
-                    const isCurrentlyActive = currentPlan.hook === item.hook;
-                    return (
-                      <div
-                        key={idx}
-                        className={`rounded-xl border transition-all ${
-                          isCurrentlyActive
-                            ? "bg-white border-amber-500 shadow-xs ring-2 ring-amber-500/10"
-                            : "bg-white/80 border-neutral-200 hover:border-neutral-300"
-                        } p-3.5 space-y-2`}
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-black px-2 py-0.5 rounded-md bg-neutral-900 text-white">
-                              {item.type}
-                            </span>
-                            <span className="text-xs text-neutral-500 font-medium">
-                              {item.whyItWorks}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {item.content && (
-                              <button
-                                type="button"
-                                onClick={() => setExpandedHookIdx(isExpanded ? null : idx)}
-                                className="text-[11px] px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold cursor-pointer"
-                              >
-                                {isExpanded ? "글 접기 ▲" : "전체 글 보기 ▼"}
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => handleApplyHookVariant(item)}
-                              disabled={isCurrentlyActive}
-                              className={`text-[11px] px-2.5 py-1 rounded font-bold transition-all cursor-pointer ${
-                                isCurrentlyActive
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-neutral-900 text-white hover:bg-black"
-                              }`}
-                            >
-                              {isCurrentlyActive ? "✓ 적용 중" : "이 버전 적용하기"}
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="text-sm font-bold text-neutral-900 leading-snug">
-                          &ldquo;{item.hook}&rdquo;
-                        </div>
-
-                        {/* 펼쳤을 때 전체 본문 표시 */}
-                        {isExpanded && item.content && (
-                          <div className="pt-2 border-t border-neutral-100 space-y-2 animate-in fade-in duration-150">
-                            <div className="whitespace-pre-line text-xs md:text-sm text-neutral-800 leading-relaxed font-sans bg-neutral-50 p-3 rounded-lg border border-neutral-200/60">
-                              {item.content}
-                            </div>
-                            <div className="flex justify-end">
-                              <button
-                                type="button"
-                                onClick={() => copyToClipboard(item.content, `${item.type} 전체 글이`)}
-                                className="text-xs text-neutral-600 hover:text-neutral-900 font-bold underline cursor-pointer"
-                              >
-                                이 버전만 복사하기
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             {/* 4. 이어질 후속 콘텐츠 5개 */}
             {currentPlan.followUpIdeas && currentPlan.followUpIdeas.length > 0 && (
@@ -894,10 +785,10 @@ export function PlannerApp() {
             </div>
             <div className="space-y-1.5">
               <h3 className="text-lg font-bold text-neutral-900">
-                {missingProviderName || PROVIDER_SHORT_LABELS[selectedProvider]} API 키 등록이 필요합니다
+                {missingProviderName || "AI"} API 키 등록이 필요합니다
               </h3>
               <p className="text-xs text-neutral-500 leading-relaxed">
-                스레드 글 생성을 위해 회원 본인의 {missingProviderName || PROVIDER_SHORT_LABELS[selectedProvider]} API 키를 등록해주세요.
+                선택하신 {missingProviderName || "AI"} 엔진으로 글을 생성하기 위해 회원 본인의 API 키를 등록해주세요.
                 (엔진은 무료 제공되며, 연료는 본인 키를 사용합니다)
               </p>
             </div>
