@@ -13,12 +13,10 @@ import type {
   RewriteMode,
   PlannerPersona,
   ThreadPlannerTemplateInput,
-  TemplatePreset,
 } from "@/types/planner";
 import {
   REWRITE_MODES,
   PLANNER_PERSONAS,
-  TEMPLATE_PRESETS,
 } from "@/types/planner";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
 import {
@@ -113,38 +111,7 @@ export function PlannerApp() {
     await handleGenerate(topicToUse, persona.id, persona.name);
   }
 
-  // 2. 52만/1.6만 뷰 실전 템플릿 프리셋 적용 및 원클릭 생성
-  async function handleApplyPreset(preset: TemplatePreset) {
-    setTemplateProduct(preset.data.product || "");
-    setTemplateExperience(preset.data.experience || "");
-    setTemplateTarget(preset.data.targetAudience || "");
-    setTemplateBenchmark(preset.data.benchmarkPost || "");
-    setShowTemplateForm(true);
-
-    const topicToUse = preset.data.product
-      ? `${preset.data.product} 썰`
-      : preset.title;
-
-    setTopicInput(topicToUse);
-    setGeneratingLabel(preset.title);
-
-    showCopyToast(`📋 [${preset.title}] 프리셋이 적용되어 글을 생성합니다!`);
-
-    await handleGenerate(
-      topicToUse,
-      undefined,
-      preset.title,
-      {
-        product: preset.data.product,
-        experience: preset.data.experience,
-        targetAudience: preset.data.targetAudience,
-        persona: preset.data.persona,
-        benchmarkPost: preset.data.benchmarkPost,
-      }
-    );
-  }
-
-  // 3. 글 생성 실행
+  // 2. 글 생성 실행
   async function handleGenerate(
     targetTopic?: string,
     personaId?: string,
@@ -480,51 +447,8 @@ export function PlannerApp() {
           </div>
         </div>
 
-        {/* 3. 🔥 상황별 페르소나 밑에 함께 위치하는: 실전 떡상 템플릿 프리셋 3선 */}
-        <div className="rounded-2xl bg-amber-50/70 border border-amber-200/90 p-4 md:p-5 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-2">
-              <span className="text-lg">🔥</span>
-              <span>실전 떡상 템플릿 프리셋 3선</span>
-              <span className="text-xs md:text-sm font-semibold text-amber-900/80 hidden sm:inline">
-                (클릭 시 52만·1.6만 뷰 검증된 바이럴 구조로 즉시 생성)
-              </span>
-            </span>
-            <span className="text-xs font-bold text-amber-800 bg-amber-100/90 px-2.5 py-1 rounded-lg">
-              실제 터진 사례 벤치마킹 ⚡
-            </span>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {TEMPLATE_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                disabled={isGenerating}
-                onClick={() => handleApplyPreset(preset)}
-                className="text-left rounded-xl bg-white border border-amber-200 p-2.5 hover:border-amber-400 hover:shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-base">{preset.emoji}</span>
-                    <span className="text-xs font-bold text-neutral-900 group-hover:text-amber-800 line-clamp-1">
-                      {preset.title}
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-neutral-500 line-clamp-1">
-                    {preset.data.product}
-                  </div>
-                </div>
-                <div className="mt-1.5 text-[10px] text-amber-600 font-semibold flex items-center justify-between">
-                  <span>{preset.badge}</span>
-                  <span className="text-neutral-400 group-hover:text-amber-700">바로 적용 →</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 4. 📝 내 실제 경험 · 상품 직접 지정하기 (접이식 상세 템플릿 폼) */}
+        {/* 3. 📝 내 실제 경험 · 상품 직접 지정하기 (접이식 상세 템플릿 폼) */}
         <div className="pt-2 border-t border-neutral-200/80">
           <button
             type="button"
@@ -620,7 +544,7 @@ export function PlannerApp() {
           )}
         </div>
 
-        {/* 5. 🔥 아무런 아이디어가 없을 때!!! (업종/타깃별 추천 주제 10선) */}
+        {/* 4. 🔥 아무런 아이디어가 없을 때!!! (업종/타깃별 추천 주제 10선) */}
         {showCategoryPicker && (
           <div className="pt-4 border-t border-neutral-200/80 space-y-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
