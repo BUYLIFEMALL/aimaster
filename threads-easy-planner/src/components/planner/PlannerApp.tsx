@@ -13,11 +13,16 @@ import type {
   RewriteMode,
   PlannerPersona,
   ThreadPlannerTemplateInput,
+  SavedThreadPlan,
 } from "@/types/planner";
 import {
   REWRITE_MODES,
   PLANNER_PERSONAS,
 } from "@/types/planner";
+import {
+  savePlanToStorage,
+  loadPlanByIdFromStorage,
+} from "@/lib/storage/savedPlansStorage";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
 import {
   AI_MODEL_OPTIONS,
@@ -64,6 +69,13 @@ export function PlannerApp() {
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
   const [needApiKeyModal, setNeedApiKeyModal] = useState(false);
 
+  // 보관함 저장 및 본문 직접 편집 상태
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isEditingContent, setIsEditingContent] = useState(false);
+  const [editedContent, setEditedContent] = useState("");
+  const [loadedFromStorageId, setLoadedFromStorageId] = useState<string | null>(null);
+
   // 초기 로드 시 localStorage 복원 및 기본 추천 주제 로드
   useEffect(() => {
     try {
@@ -80,7 +92,54 @@ export function PlannerApp() {
     } catch {
       // ignore
     }
+
+    // 보관함에서 넘어온 글 로드 처리 (sessionStorage 또는 ?load=<id>)
+    if (typeof window !== "undefined") {
+      try {
+        const storedPlanJson = sessionStorage.getItem("tep_load_plan");
+        if (storedPlanJson) {
+          sessionStorage.removeItem("tep_load_plan");
+          const plan: SavedThreadPlan = JSON.parse(storedPlanJson);
+          loadSavedPlanIntoState(plan);
+          return;
+        }
+      } catch (e) {
+        console.warn("sessionStorage 로드 에러:", e);
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const loadId = urlParams.get("load");
+      if (loadId) {
+        loadPlanByIdFromStorage(loadId).then((plan) => {
+          if (plan) {
+            loadSavedPlanIntoState(plan);
+          }
+        });
+      }
+    }
   }, []);
+
+  function loadSavedPlanIntoState(plan: SavedThreadPlan) {
+    const threadResult: ThreadPlanResult = {
+      topic: plan.topic,
+      hook: plan.hook,
+      whyHookWorks: plan.hook_reason,
+      hookVariants: plan.hook_variants || [],
+      content: plan.body_text,
+      cta: plan.reply_cta || "",
+      followUpIdeas: plan.follow_up_topics || [],
+    };
+    setCurrentPlan(threadResult);
+    setEditedContent(plan.body_text);
+    setTopicInput(plan.topic);
+    if (plan.persona_id) setActivePersonaId(plan.persona_id);
+    if (plan.persona_name) setUsedPersonaLabel(plan.persona_name);
+    if (plan.model_label) setUsedModelLabel(plan.model_label);
+    setLoadedFromStorageId(plan.id);
+    setIsSaved(true);
+    setIsEditingContent(false);
+    showCopyToast(`📂 [${plan.topic}] 콘텐츠를 보관함에서 불러왔습니다! 수정 후 다시 저장할 수 있습니다.`);
+  }
 
   function handleSelectProvider(provider: AIModelProvider) {
     setSelectedProvider(provider);
@@ -167,6 +226,10 @@ export function PlannerApp() {
         return;
       }
       setCurrentPlan(res.data);
+      setEditedContent(res.data.content);
+      setIsSaved(false);
+      setIsEditingContent(false);
+      setLoadedFromStorageId(null);
       const activeModelObj = AI_MODEL_OPTIONS.find((o) => o.value === selectedModel);
       setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
       setUsedPersonaLabel(effectiveLabel);
@@ -241,6 +304,9 @@ export function PlannerApp() {
         return;
       }
       setCurrentPlan(res.data);
+      setEditedContent(res.data.content);
+      setIsSaved(false);
+      setIsEditingContent(false);
       const activeModelObj = AI_MODEL_OPTIONS.find((o) => o.value === selectedModel);
       setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
       showCopyToast("새로운 버전으로 다시 작성되었습니다!");
@@ -255,14 +321,64 @@ export function PlannerApp() {
   // 7. 5대 훅 유형 대안으로 메인 본문 즉시 전환
   function handleApplyHookVariant(variant: HookVariant) {
     if (!currentPlan) return;
-    setCurrentPlan({
+    const updated = {
       ...currentPlan,
       hook: variant.hook,
       hookType: variant.type,
       whyHookWorks: variant.whyItWorks,
       content: variant.content || currentPlan.content,
-    });
+    };
+    setCurrentPlan(updated);
+    setEditedContent(updated.content);
+    setIsSaved(false);
+    setIsEditingContent(false);
     showCopyToast(`🎯 [${variant.type}] 버전으로 본문이 적용되었습니다!`);
+  }
+
+  // 8. 콘텐츠 보관함에 저장하기
+  async function handleSaveToStorage() {
+    if (!currentPlan) return;
+    setIsSaving(true);
+    try {
+      const contentToSave = isEditingContent ? editedContent : currentPlan.content;
+      const res = await savePlanToStorage({
+        topic: currentPlan.topic,
+        hook: currentPlan.hook,
+        hookReason: currentPlan.whyHookWorks,
+        hookVariants: currentPlan.hookVariants,
+        bodyText: contentToSave,
+        replyCta: currentPlan.cta,
+        followUpTopics: currentPlan.followUpIdeas,
+        personaId: activePersonaId || undefined,
+        personaName: usedPersonaLabel || undefined,
+        modelLabel: usedModelLabel || undefined,
+      });
+
+      if (res.success) {
+        setIsSaved(true);
+        showCopyToast(
+          res.isLocalOnly
+            ? "💾 보관함에 안전하게 저장되었습니다!"
+            : "💾 내 콘텐츠 보관함에 성공적으로 저장되었습니다!"
+        );
+      } else {
+        setErrorMessage(res.error || "보관함 저장에 실패했습니다.");
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  // 9. 본문 직접 편집 완료 및 적용
+  function handleApplyEditedContent() {
+    if (!currentPlan) return;
+    setCurrentPlan({
+      ...currentPlan,
+      content: editedContent,
+    });
+    setIsEditingContent(false);
+    setIsSaved(false);
+    showCopyToast("✏️ 본문 수정이 완료되었습니다! '보관함에 저장'을 눌러 안전하게 보관하세요.");
   }
 
   // 복사 헬퍼
@@ -297,6 +413,23 @@ export function PlannerApp() {
             className="text-rose-500 hover:text-rose-700 text-xs font-semibold ml-4 cursor-pointer"
           >
             닫기
+          </button>
+        </div>
+      )}
+
+      {/* 보관함에서 불러온 글 알림 배너 */}
+      {loadedFromStorageId && (
+        <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs md:text-sm text-amber-950 font-bold animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📂</span>
+            <span>보관함에서 불러온 글을 수정 중입니다. 수정한 내용은 아래 &apos;보관함에 저장&apos; 버튼으로 언제든 다시 저장할 수 있습니다.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setLoadedFromStorageId(null)}
+            className="text-xs text-amber-800 hover:text-amber-950 underline shrink-0 cursor-pointer"
+          >
+            알림 닫기
           </button>
         </div>
       )}
@@ -760,17 +893,37 @@ export function PlannerApp() {
                 {currentPlan.topic}
               </h2>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                const fullText = `[후킹]\n${currentPlan.hook}\n\n[본문]\n${currentPlan.content}\n\n[댓글/CTA]\n${currentPlan.cta}`;
-                copyToClipboard(fullText, "전체 글(후킹+본문+댓글)이");
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-neutral-900 hover:bg-neutral-100 text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
-            >
-              <span>📋</span>
-              <span>전체 글 한 번에 복사</span>
-            </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* 보관함 저장 버튼 */}
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={handleSaveToStorage}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer ${
+                  isSaved
+                    ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                    : "bg-amber-500 hover:bg-amber-600 text-white"
+                }`}
+                title="이 콘텐츠를 보관함에 저장하여 언제든 다시 불러올 수 있습니다"
+              >
+                <span>{isSaving ? "⏳" : isSaved ? "✅" : "💾"}</span>
+                <span>{isSaving ? "저장 중..." : isSaved ? "보관함 저장완료" : "보관함에 저장"}</span>
+              </button>
+
+              {/* 전체 글 복사 버튼 */}
+              <button
+                type="button"
+                onClick={() => {
+                  const currentBody = isEditingContent ? editedContent : currentPlan.content;
+                  const fullText = `[후킹]\n${currentPlan.hook}\n\n[본문]\n${currentBody}\n\n[댓글/CTA]\n${currentPlan.cta}`;
+                  copyToClipboard(fullText, "전체 글(후킹+본문+댓글)이");
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white text-neutral-900 hover:bg-neutral-100 text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
+              >
+                <span>📋</span>
+                <span>전체 복사</span>
+              </button>
+            </div>
           </div>
 
           <div className="p-5 md:p-7 space-y-6">
@@ -892,22 +1045,63 @@ export function PlannerApp() {
                     <span>📝 2. 스레드 전체 본문 (4~6줄 극압축 친근 반말)</span>
                   </span>
                   <span className="text-[11px] text-neutral-400 font-normal">
-                    (공백 포함 약 {currentPlan.content.length}자)
+                    (공백 포함 약 {(isEditingContent ? editedContent : currentPlan.content).length}자)
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard(currentPlan.content, "본문이")}
-                  className="text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:underline cursor-pointer"
-                >
-                  본문만 복사
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isEditingContent) {
+                        setEditedContent(currentPlan.content);
+                        setIsEditingContent(true);
+                      } else {
+                        handleApplyEditedContent();
+                      }
+                    }}
+                    className="text-xs font-bold text-amber-700 hover:text-amber-900 px-2.5 py-1 rounded-lg bg-amber-100/80 hover:bg-amber-100 transition-colors cursor-pointer"
+                  >
+                    {isEditingContent ? "완료 및 반영 ✓" : "✏️ 직접 수정"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(isEditingContent ? editedContent : currentPlan.content, "본문이")}
+                    className="text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:underline cursor-pointer"
+                  >
+                    본문만 복사
+                  </button>
+                </div>
               </div>
 
-              {/* 스레드 포스팅 뷰 */}
-              <div className="whitespace-pre-line text-sm md:text-base text-neutral-800 leading-relaxed font-sans pt-1">
-                {currentPlan.content}
-              </div>
+              {/* 편집 모드 또는 뷰 모드 */}
+              {isEditingContent ? (
+                <div className="space-y-2 pt-1 animate-in fade-in duration-150">
+                  <textarea
+                    rows={7}
+                    value={editedContent}
+                    onChange={(e) => setEditedContent(e.target.value)}
+                    className="w-full rounded-2xl border border-amber-300 bg-white p-3.5 text-sm md:text-base text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/10 font-sans leading-relaxed resize-y"
+                    placeholder="수정할 본문 내용을 직접 입력하세요..."
+                  />
+                  <div className="flex items-center justify-between text-xs text-neutral-500">
+                    <span>* 문장이나 말투를 다듬은 후 [완료 및 반영 ✓]을 누르면 적용됩니다.</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditedContent(currentPlan.content);
+                        setIsEditingContent(false);
+                      }}
+                      className="text-neutral-400 hover:text-neutral-700 underline cursor-pointer"
+                    >
+                      수정 취소
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="whitespace-pre-line text-sm md:text-base text-neutral-800 leading-relaxed font-sans pt-1">
+                  {currentPlan.content}
+                </div>
+              )}
 
               <div className="pt-2 text-[11px] text-neutral-400 border-t border-neutral-200/40">
                 💡 <strong>스레드 실전 떡상 팁:</strong> 본문에서는 상업적인 제품명을 숨겨 호기심을 극대화하고, 첫 번째 댓글(자댓글)로 제품명이나 링크를 연결하면 알고리즘 점수가 극대화됩니다.

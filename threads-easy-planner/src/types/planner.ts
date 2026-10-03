@@ -186,3 +186,24 @@ export const REWRITE_MODES: RewriteModeOption[] = [
   { mode: "no_ad", label: "광고 느낌 빼기", icon: "🛡️", desc: "제품명 100% 삭제, 내돈내산 찐경험담 톤" },
   { mode: "hooks_only", label: "후킹만 다시 만들기", icon: "🎯", desc: "5대 바이럴 훅 유형 집중 개선" },
 ];
+
+/**
+ * 저장된 콘텐츠 보관함 데이터 모델
+ */
+export interface SavedThreadPlan {
+  id: string;
+  user_id?: string;
+  topic: string;
+  hook: string;
+  hook_reason?: string;
+  hook_variants?: HookVariant[];
+  body_text: string;
+  reply_cta?: string;
+  follow_up_topics?: string[];
+  persona_id?: string;
+  persona_name?: string;
+  model_label?: string;
+  created_at: string;
+  updated_at?: string;
+}
+

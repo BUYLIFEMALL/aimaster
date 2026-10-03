@@ -7,6 +7,7 @@ import { APP_VERSION } from "@/lib/version";
 
 const MENU_ITEMS = [
   { href: "/", icon: "✏️", label: "스레드 기획기", desc: "주제 추천 및 원클릭 글 생성" },
+  { href: "/saved", icon: "📁", label: "내 콘텐츠 보관함", desc: "저장한 글 불러오기 & 수정" },
   { href: "/settings", icon: "🔑", label: "API키 등록·관리", desc: "OpenAI, Gemini 키 등록" },
   { href: "/guide", icon: "📖", label: "초보자 가이드", desc: "스레드 알고리즘 & 떡상 공식" },
 ];
