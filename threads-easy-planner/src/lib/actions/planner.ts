@@ -1,7 +1,7 @@
 "use server";
 
 import { requireProgramAccess } from "@/lib/access";
-import { resolveAvailableAI } from "@/lib/apiKeys";
+import { resolveApiKey, resolveAvailableAI } from "@/lib/apiKeys";
 import {
   suggestTopicsAI,
   generateThreadPlanAI,
@@ -11,12 +11,53 @@ import {
   type RewriteMode,
 } from "@/lib/ai/generator";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
+import { PROVIDER_SHORT_LABELS, type AIModelProvider } from "@/lib/ai/models";
 
 export interface ActionResult<T> {
   success: boolean;
   data?: T;
   error?: string;
   needApiKey?: boolean;
+  missingProvider?: AIModelProvider;
+}
+
+export interface ModelConfigParam {
+  provider: AIModelProvider;
+  model: string;
+}
+
+async function resolveAIConfig(
+  userId: string,
+  modelConfig?: ModelConfigParam
+): Promise<
+  | { success: true; config: { provider: AIModelProvider; apiKey: string; model?: string } }
+  | { success: false; needApiKey: true; missingProvider?: AIModelProvider; error: string }
+> {
+  if (modelConfig?.provider) {
+    const key = await resolveApiKey(userId, modelConfig.provider);
+    if (!key) {
+      return {
+        success: false,
+        needApiKey: true,
+        missingProvider: modelConfig.provider,
+        error: `선택하신 ${PROVIDER_SHORT_LABELS[modelConfig.provider] || modelConfig.provider} API 키가 등록되어 있지 않습니다. 우측 상단 API키 설정에서 본인 키를 등록해주세요.`,
+      };
+    }
+    return {
+      success: true,
+      config: { provider: modelConfig.provider, apiKey: key, model: modelConfig.model },
+    };
+  }
+
+  const fallback = await resolveAvailableAI(userId);
+  if (!fallback) {
+    return {
+      success: false,
+      needApiKey: true,
+      error: "AI API 키(OpenAI, Gemini 또는 Claude)가 등록되어 있지 않습니다. 우측 상단 API키 설정에서 본인 키를 등록해주세요.",
+    };
+  }
+  return { success: true, config: fallback };
 }
 
 /**
@@ -25,16 +66,18 @@ export interface ActionResult<T> {
 export async function getSuggestedTopicsAction(
   categoryId?: string,
   customKeyword?: string,
+  modelConfig?: ModelConfigParam
 ): Promise<ActionResult<TopicSuggestion[]>> {
   try {
     const user = await requireProgramAccess();
-    const ai = await resolveAvailableAI(user.id);
+    const resolved = await resolveAIConfig(user.id, modelConfig);
 
-    if (!ai) {
+    if (!resolved.success) {
       return {
         success: false,
         needApiKey: true,
-        error: "AI API 키(OpenAI, Gemini 또는 Claude)가 등록되어 있지 않습니다. 우측 상단 API키 설정에서 본인 키를 등록해주세요.",
+        missingProvider: resolved.missingProvider,
+        error: resolved.error,
       };
     }
 
@@ -44,7 +87,7 @@ export async function getSuggestedTopicsAction(
     const topics = await suggestTopicsAI({
       categoryName,
       customKeyword,
-      aiConfig: { provider: ai.provider, apiKey: ai.apiKey },
+      aiConfig: resolved.config,
     });
 
     return { success: true, data: topics };
@@ -60,16 +103,18 @@ export async function getSuggestedTopicsAction(
 export async function generateThreadPlanAction(
   topic: string,
   additionalNote?: string,
+  modelConfig?: ModelConfigParam
 ): Promise<ActionResult<ThreadPlanResult>> {
   try {
     const user = await requireProgramAccess();
-    const ai = await resolveAvailableAI(user.id);
+    const resolved = await resolveAIConfig(user.id, modelConfig);
 
-    if (!ai) {
+    if (!resolved.success) {
       return {
         success: false,
         needApiKey: true,
-        error: "AI API 키가 등록되어 있지 않습니다. API키 설정에서 등록해주세요.",
+        missingProvider: resolved.missingProvider,
+        error: resolved.error,
       };
     }
 
@@ -80,7 +125,7 @@ export async function generateThreadPlanAction(
     const plan = await generateThreadPlanAI({
       topic: topic.trim(),
       additionalNote: additionalNote?.trim(),
-      aiConfig: { provider: ai.provider, apiKey: ai.apiKey },
+      aiConfig: resolved.config,
     });
 
     return { success: true, data: plan };
@@ -96,23 +141,25 @@ export async function generateThreadPlanAction(
 export async function rewriteThreadPlanAction(
   currentPlan: ThreadPlanResult,
   mode: RewriteMode,
+  modelConfig?: ModelConfigParam
 ): Promise<ActionResult<ThreadPlanResult>> {
   try {
     const user = await requireProgramAccess();
-    const ai = await resolveAvailableAI(user.id);
+    const resolved = await resolveAIConfig(user.id, modelConfig);
 
-    if (!ai) {
+    if (!resolved.success) {
       return {
         success: false,
         needApiKey: true,
-        error: "AI API 키가 등록되어 있지 않습니다.",
+        missingProvider: resolved.missingProvider,
+        error: resolved.error,
       };
     }
 
     const updatedPlan = await rewriteThreadPlanAI({
       currentPlan,
       mode,
-      aiConfig: { provider: ai.provider, apiKey: ai.apiKey },
+      aiConfig: resolved.config,
     });
 
     return { success: true, data: updatedPlan };

@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.03, 2026-10-03)
+
+- **AI 추론 엔진 및 세부 모델 선택 기능 추가 (v1.03)**:
+  - 🎲오늘 뭐 쓰지? / ✨글 생성하기 버튼 바로 하단에 OpenAI / Google Gemini / Anthropic Claude 3대 AI 엔진 및 2026 최신 세부 모델 선택 패널을 구현했다.
+  - 지원 모델군: GPT-4.1(기본), GPT-6 Luna/Sol/Astra, GPT-5.6 시리즈, GPT-4o, Gemini 3.7/3.8 Flash, Gemini 3.5 Flash Lite, Gemini 2.0 Flash, Claude Sonnet 5, Claude Opus 5, Claude Haiku 4.5 등.
+  - 선택한 엔진 및 모델은 `localStorage`에 자동 저장되어 재접속 시에도 그대로 유지된다.
+  - 공급자별 API 키 미등록 시 "선택하신 {공급자} API 키가 등록되어 있지 않습니다" 안내 모달을 노출한다.
+  - 글 기획 완료 카드 헤더에 생성에 사용된 모델명을 배지로 표시한다.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.03`으로 갱신했다.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.02, 2026-10-03)
 
 - **버그 해결 및 안정화 (v1.02)**:

@@ -34,7 +34,7 @@ async function main() {
         description: "초보자도 쉽게 사용할 수 있는 스레드(Threads) AI 기획 프로그램 간단판입니다. 복잡한 프롬프트 작성이나 설정 없이, 주제를 입력하거나 '오늘 뭐 쓰지?' 버튼을 클릭하면 업종/타깃별 추천 주제 10개와 첫 문장 후킹, 가독성 최적화 본문, 댓글 유도 CTA, 후속 아이디어 5선까지 한 번에 완성합니다. 7종 다시 써줘(더 자극적으로, 더 자연스럽게 등) 원클릭 리라이팅 기능을 지원합니다.",
         category_id: "c188201d-6e04-4887-b4f9-e60936386bd1",
         is_active: true,
-        version: "v1.02",
+        version: "v1.03",
         badges: ["free", "new"],
         app_url: "https://threads-easy-planner.vercel.app",
       })
@@ -52,7 +52,7 @@ async function main() {
         category_id: "c188201d-6e04-4887-b4f9-e60936386bd1",
         is_active: true,
         sort_order: 4,
-        version: "v1.02",
+        version: "v1.03",
         badges: ["free", "new"],
         app_url: "https://threads-easy-planner.vercel.app",
       })

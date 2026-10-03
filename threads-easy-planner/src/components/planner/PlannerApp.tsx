@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   getSuggestedTopicsAction,
   generateThreadPlanAction,
@@ -9,13 +9,23 @@ import {
 import type { TopicSuggestion, ThreadPlanResult, RewriteMode } from "@/types/planner";
 import { REWRITE_MODES } from "@/types/planner";
 import { TARGET_CATEGORIES } from "@/lib/constants/categories";
-
+import {
+  AI_MODEL_OPTIONS,
+  DEFAULT_AI_MODELS,
+  PROVIDER_SHORT_LABELS,
+  type AIModelProvider,
+} from "@/lib/ai/models";
 
 export function PlannerApp() {
   // 상태 관리
   const [topicInput, setTopicInput] = useState("");
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // AI 추론 엔진 및 모델 선택 상태
+  const [selectedProvider, setSelectedProvider] = useState<AIModelProvider>("openai");
+  const [selectedModel, setSelectedModel] = useState<string>("gpt-4.1");
+  const [missingProviderName, setMissingProviderName] = useState<string | null>(null);
 
   // 로딩 상태
   const [isSuggesting, setIsSuggesting] = useState(false);
@@ -26,9 +36,49 @@ export function PlannerApp() {
   // 데이터
   const [suggestedTopics, setSuggestedTopics] = useState<TopicSuggestion[]>([]);
   const [currentPlan, setCurrentPlan] = useState<ThreadPlanResult | null>(null);
+  const [usedModelLabel, setUsedModelLabel] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
   const [needApiKeyModal, setNeedApiKeyModal] = useState(false);
+
+  // localStorage에서 이전에 선택한 AI 엔진 및 모델 복원
+  useEffect(() => {
+    try {
+      const savedProvider = localStorage.getItem("threads_planner_provider") as AIModelProvider | null;
+      const savedModel = localStorage.getItem("threads_planner_model");
+      if (savedProvider && ["openai", "gemini", "anthropic"].includes(savedProvider)) {
+        setSelectedProvider(savedProvider);
+        if (savedModel && AI_MODEL_OPTIONS.some((o) => o.value === savedModel && o.provider === savedProvider)) {
+          setSelectedModel(savedModel);
+        } else {
+          setSelectedModel(DEFAULT_AI_MODELS[savedProvider]);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  function handleSelectProvider(provider: AIModelProvider) {
+    setSelectedProvider(provider);
+    const defaultModel = DEFAULT_AI_MODELS[provider];
+    setSelectedModel(defaultModel);
+    try {
+      localStorage.setItem("threads_planner_provider", provider);
+      localStorage.setItem("threads_planner_model", defaultModel);
+    } catch {
+      // ignore
+    }
+  }
+
+  function handleSelectModel(modelVal: string) {
+    setSelectedModel(modelVal);
+    try {
+      localStorage.setItem("threads_planner_model", modelVal);
+    } catch {
+      // ignore
+    }
+  }
 
   // 1. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천
   async function handleSuggestTopics(categoryId?: string) {
@@ -38,8 +88,12 @@ export function PlannerApp() {
     setIsSuggesting(true);
     setErrorMessage(null);
     try {
-      const res = await getSuggestedTopicsAction(targetCat, topicInput.trim() || undefined);
+      const res = await getSuggestedTopicsAction(targetCat, topicInput.trim() || undefined, {
+        provider: selectedProvider,
+        model: selectedModel,
+      });
       if (res.needApiKey) {
+        setMissingProviderName(res.missingProvider ? PROVIDER_SHORT_LABELS[res.missingProvider] : PROVIDER_SHORT_LABELS[selectedProvider]);
         setNeedApiKeyModal(true);
         return;
       }
@@ -60,7 +114,6 @@ export function PlannerApp() {
     }
   }
 
-
   // 2. 추천 주제 선택 후 즉시 글 생성
   async function handleSelectTopicAndGenerate(selectedTopic: string) {
     setTopicInput(selectedTopic);
@@ -78,8 +131,12 @@ export function PlannerApp() {
     setIsGenerating(true);
     setErrorMessage(null);
     try {
-      const res = await generateThreadPlanAction(topicToUse);
+      const res = await generateThreadPlanAction(topicToUse, undefined, {
+        provider: selectedProvider,
+        model: selectedModel,
+      });
       if (res.needApiKey) {
+        setMissingProviderName(res.missingProvider ? PROVIDER_SHORT_LABELS[res.missingProvider] : PROVIDER_SHORT_LABELS[selectedProvider]);
         setNeedApiKeyModal(true);
         return;
       }
@@ -88,6 +145,8 @@ export function PlannerApp() {
         return;
       }
       setCurrentPlan(res.data);
+      const activeModelObj = AI_MODEL_OPTIONS.find((o) => o.value === selectedModel);
+      setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
       // 생성 후 추천 목록은 닫고 결과 화면에 집중
       setShowCategoryPicker(false);
     } catch {
@@ -105,8 +164,12 @@ export function PlannerApp() {
     setActiveRewriteMode(mode);
     setErrorMessage(null);
     try {
-      const res = await rewriteThreadPlanAction(currentPlan, mode);
+      const res = await rewriteThreadPlanAction(currentPlan, mode, {
+        provider: selectedProvider,
+        model: selectedModel,
+      });
       if (res.needApiKey) {
+        setMissingProviderName(res.missingProvider ? PROVIDER_SHORT_LABELS[res.missingProvider] : PROVIDER_SHORT_LABELS[selectedProvider]);
         setNeedApiKeyModal(true);
         return;
       }
@@ -115,6 +178,8 @@ export function PlannerApp() {
         return;
       }
       setCurrentPlan(res.data);
+      const activeModelObj = AI_MODEL_OPTIONS.find((o) => o.value === selectedModel);
+      setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
       showCopyToast("새로운 버전으로 다시 작성되었습니다!");
     } catch {
       setErrorMessage("다시 쓰기 중 오류가 발생했습니다.");
@@ -177,7 +242,7 @@ export function PlannerApp() {
         </p>
       </section>
 
-      {/* 핵심 인터랙션 바: 주제 입력 + 오늘 뭐 쓰지? 버튼 + 생성 버튼 */}
+      {/* 핵심 인터랙션 바: 주제 입력 + 오늘 뭐 쓰지? 버튼 + 생성 버튼 + 하단 AI 모델 선택기 */}
       <div className="rounded-3xl bg-white p-4 md:p-6 shadow-sm border border-neutral-200/80 space-y-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative flex-1">
@@ -213,7 +278,7 @@ export function PlannerApp() {
                 handleSuggestTopics(cat);
               }}
               disabled={isSuggesting}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               <span>{isSuggesting ? "⏳" : "🎲"}</span>
               <span>{isSuggesting ? "추천 중..." : "오늘 뭐 쓰지?"}</span>
@@ -224,11 +289,85 @@ export function PlannerApp() {
               type="button"
               onClick={() => handleGenerate()}
               disabled={isGenerating || (!topicInput.trim() && suggestedTopics.length === 0)}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-6 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-6 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
             >
               <span>{isGenerating ? "✍️" : "✨"}</span>
               <span>{isGenerating ? "작성 중..." : "글 생성하기"}</span>
             </button>
+          </div>
+        </div>
+
+        {/* 🎲오늘 뭐 쓰지? ✨글 생성하기 하단 추론 모델 선택 패널 */}
+        <div className="rounded-2xl bg-neutral-50/90 p-3.5 md:p-4 border border-neutral-200/90 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
+              <span>🤖</span>
+              <span>사용할 AI 추론 엔진 및 세부 모델 선택</span>
+            </span>
+            <span className="text-[11px] text-neutral-500 font-medium">
+              현재 설정: <strong className="text-neutral-900 font-bold">{AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel}</strong>
+            </span>
+          </div>
+
+          {/* 3대 Provider 선택 버튼 (OpenAI / Gemini / Claude) */}
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => handleSelectProvider("openai")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                selectedProvider === "openai"
+                  ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🤖</span>
+              <span className="text-xs leading-none">OpenAI (GPT)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelectProvider("gemini")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                selectedProvider === "gemini"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">✨</span>
+              <span className="text-xs leading-none">Google Gemini</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelectProvider("anthropic")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                selectedProvider === "anthropic"
+                  ? "border-purple-600 bg-purple-600 text-white shadow-xs"
+                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🧠</span>
+              <span className="text-xs leading-none">Anthropic Claude</span>
+            </button>
+          </div>
+
+          {/* 세부 실행 모델 드롭다운 셀렉터 */}
+          <div className="pt-2 border-t border-neutral-200/60 flex flex-col sm:flex-row sm:items-center gap-2">
+            <label className="text-[11px] font-bold text-neutral-600 sm:w-44 flex-shrink-0 flex items-center gap-1">
+              <span>🎯</span>
+              <span>{PROVIDER_SHORT_LABELS[selectedProvider]} 세부 모델:</span>
+            </label>
+            <select
+              value={selectedModel}
+              onChange={(e) => handleSelectModel(e.target.value)}
+              className="flex-1 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
+            >
+              {AI_MODEL_OPTIONS.filter((opt) => opt.provider === selectedProvider).map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -242,7 +381,7 @@ export function PlannerApp() {
               <button
                 type="button"
                 onClick={() => setShowCategoryPicker(false)}
-                className="text-xs text-neutral-400 hover:text-neutral-700"
+                className="text-xs text-neutral-400 hover:text-neutral-700 cursor-pointer"
               >
                 접기 ▲
               </button>
@@ -260,7 +399,7 @@ export function PlannerApp() {
                       setSelectedCategory(cat.id);
                       handleSuggestTopics(cat.id);
                     }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                       isSelected
                         ? "bg-neutral-900 text-white shadow-sm"
                         : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
@@ -283,9 +422,14 @@ export function PlannerApp() {
               </div>
             ) : suggestedTopics.length > 0 ? (
               <div className="space-y-2 pt-2">
-                <div className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
-                  <span className="text-amber-500">🔥</span>
-                  <span>추천 주제를 클릭하면 바로 글이 완성됩니다! (10선)</span>
+                <div className="text-xs font-bold text-neutral-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-amber-500">🔥</span>
+                    <span>추천 주제를 클릭하면 바로 글이 완성됩니다! (10선)</span>
+                  </div>
+                  <span className="text-[11px] text-neutral-400 font-normal">
+                    원하는 주제를 클릭해보세요
+                  </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                   {suggestedTopics.map((item, idx) => (
@@ -293,7 +437,7 @@ export function PlannerApp() {
                       key={item.id || idx}
                       type="button"
                       onClick={() => handleSelectTopicAndGenerate(item.topic)}
-                      className="text-left rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3.5 hover:bg-neutral-900 hover:text-white hover:border-neutral-900 transition-all group flex flex-col justify-between"
+                      className="text-left rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3.5 hover:bg-neutral-900 hover:text-white hover:border-neutral-900 transition-all group flex flex-col justify-between cursor-pointer"
                     >
                       <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -325,7 +469,7 @@ export function PlannerApp() {
         <div className="rounded-3xl bg-white border border-neutral-200 p-12 text-center space-y-4 shadow-sm animate-pulse">
           <div className="text-4xl">✍️</div>
           <div className="text-lg font-bold text-neutral-800">
-            스레드 알고리즘 맞춤 글을 작성하고 있어요...
+            {PROVIDER_SHORT_LABELS[selectedProvider]} ({AI_MODEL_OPTIONS.find(o => o.value === selectedModel)?.shortLabel || selectedModel}) 맞춤 글을 작성하고 있어요...
           </div>
           <p className="text-xs text-neutral-400 max-w-sm mx-auto">
             1초 만에 스크롤을 멈추는 첫 문장 후킹, 모바일 최적화 줄바꿈, 댓글 유도 질문까지 한번에 기획 중입니다.
@@ -336,11 +480,18 @@ export function PlannerApp() {
       {/* 글 생성 결과 카드 (5단 구성) */}
       {currentPlan && !isGenerating && (
         <div className="rounded-3xl bg-white border border-neutral-200/90 shadow-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-          {/* 카드 헤더: 주제명 & 전체 복사 액션 */}
+          {/* 카드 헤더: 주제명 & 모델 배지 & 전체 복사 액션 */}
           <div className="bg-neutral-900 text-white p-5 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
-                <span>🎯 기획 완료 주제</span>
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
+                  <span>🎯 기획 완료 주제</span>
+                </span>
+                {usedModelLabel && (
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300 border border-neutral-700">
+                    {usedModelLabel}
+                  </span>
+                )}
               </div>
               <h2 className="text-lg md:text-xl font-bold tracking-tight">
                 {currentPlan.topic}
@@ -355,7 +506,7 @@ export function PlannerApp() {
                     "전체 스레드 세트가"
                   )
                 }
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl bg-white text-neutral-900 font-bold px-4 py-2.5 text-xs hover:bg-neutral-100 transition-all shadow-sm active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl bg-white text-neutral-900 font-bold px-4 py-2.5 text-xs hover:bg-neutral-100 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <span>📋</span>
                 <span>전체 복사</span>
@@ -373,7 +524,7 @@ export function PlannerApp() {
                 <button
                   type="button"
                   onClick={() => copyToClipboard(currentPlan.hook, "후킹 문장이")}
-                  className="text-xs font-semibold text-amber-700 hover:text-amber-900 hover:underline"
+                  className="text-xs font-semibold text-amber-700 hover:text-amber-900 hover:underline cursor-pointer"
                 >
                   복사하기
                 </button>
@@ -395,7 +546,7 @@ export function PlannerApp() {
                 <button
                   type="button"
                   onClick={() => copyToClipboard(currentPlan.content, "본문이")}
-                  className="text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:underline"
+                  className="text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:underline cursor-pointer"
                 >
                   본문만 복사
                 </button>
@@ -416,7 +567,7 @@ export function PlannerApp() {
                 <button
                   type="button"
                   onClick={() => copyToClipboard(currentPlan.cta, "댓글/CTA가")}
-                  className="text-xs font-semibold text-blue-700 hover:text-blue-900 hover:underline"
+                  className="text-xs font-semibold text-blue-700 hover:text-blue-900 hover:underline cursor-pointer"
                 >
                   복사하기
                 </button>
@@ -448,7 +599,7 @@ export function PlannerApp() {
                       <button
                         type="button"
                         onClick={() => handleSelectTopicAndGenerate(idea)}
-                        className="text-[11px] text-neutral-400 hover:text-neutral-900 font-semibold underline ml-auto flex-shrink-0"
+                        className="text-[11px] text-neutral-400 hover:text-neutral-900 font-semibold underline ml-auto flex-shrink-0 cursor-pointer"
                       >
                         이 주제로 글 쓰기 →
                       </button>
@@ -481,7 +632,7 @@ export function PlannerApp() {
                     disabled={isRewriting}
                     onClick={() => handleRewrite(item.mode)}
                     title={item.desc}
-                    className="flex flex-col items-center justify-center gap-1 rounded-xl border border-neutral-200 bg-white p-2.5 text-center text-xs font-bold text-neutral-800 hover:bg-neutral-900 hover:text-white hover:border-neutral-900 transition-all active:scale-95 disabled:opacity-50 group"
+                    className="flex flex-col items-center justify-center gap-1 rounded-xl border border-neutral-200 bg-white p-2.5 text-center text-xs font-bold text-neutral-800 hover:bg-neutral-900 hover:text-white hover:border-neutral-900 transition-all active:scale-95 disabled:opacity-50 group cursor-pointer"
                   >
                     <span className="text-base">{item.icon}</span>
                     <span className="text-[11px] leading-tight">{item.label}</span>
@@ -502,10 +653,10 @@ export function PlannerApp() {
             </div>
             <div className="space-y-1.5">
               <h3 className="text-lg font-bold text-neutral-900">
-                AI API 키 등록이 필요합니다
+                {missingProviderName || PROVIDER_SHORT_LABELS[selectedProvider]} API 키 등록이 필요합니다
               </h3>
               <p className="text-xs text-neutral-500 leading-relaxed">
-                스레드 글 생성을 위해 회원 본인의 OpenAI 또는 Gemini API 키를 1회만 등록해주세요.
+                스레드 글 생성을 위해 회원 본인의 {missingProviderName || PROVIDER_SHORT_LABELS[selectedProvider]} API 키를 등록해주세요.
                 (엔진은 무료 제공되며, 연료는 본인 키를 사용합니다)
               </p>
             </div>
@@ -519,7 +670,7 @@ export function PlannerApp() {
               <button
                 type="button"
                 onClick={() => setNeedApiKeyModal(false)}
-                className="w-full rounded-xl py-2.5 text-xs text-neutral-500 hover:text-neutral-800"
+                className="w-full rounded-xl py-2.5 text-xs text-neutral-500 hover:text-neutral-800 cursor-pointer"
               >
                 닫기
               </button>

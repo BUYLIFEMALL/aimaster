@@ -206,7 +206,7 @@ async function callLLM(
   if (provider === "gemini") {
     const genAI = new GoogleGenerativeAI(apiKey);
     // Google Gemini 공식 지원 모델
-    const selectedModel = model || "gemini-2.0-flash";
+    const selectedModel = model || "gemini-3.7-flash";
     const geminiModel = genAI.getGenerativeModel({
       model: selectedModel,
       systemInstruction: systemPrompt,
@@ -220,7 +220,7 @@ async function callLLM(
 
   if (provider === "anthropic") {
     const anthropic = new Anthropic({ apiKey });
-    const selectedModel = model || "claude-3-5-sonnet-latest";
+    const selectedModel = model || "claude-sonnet-5";
     const res = await anthropic.messages.create({
       model: selectedModel,
       max_tokens: 1500,
@@ -231,9 +231,9 @@ async function callLLM(
     return firstBlock && "text" in firstBlock ? firstBlock.text : "";
   }
 
-  // 기본: OpenAI (공식 최신 gpt-4o-mini / gpt-4.1)
+  // 기본: OpenAI (공식 최신 gpt-4.1)
   const openai = new OpenAI({ apiKey });
-  const selectedModel = model || "gpt-4o-mini";
+  const selectedModel = model || "gpt-4.1";
   const completion = await openai.chat.completions.create({
     model: selectedModel,
     messages: [
