@@ -10,7 +10,8 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **시작 버전**: `v1.01` (`src/lib/version.ts`)
+- **현재 버전**: `v1.02` (`src/lib/version.ts` 및 DB `programs.version`)
+- **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
 
@@ -21,3 +22,14 @@
 3. **캐싱 방지**: 모든 권한 체크 레이아웃과 동적 라우트에 `dynamic = "force-dynamic"`, `fetchCache = "force-no-store"` 선언 필수.
 4. **버전 관리**: 코드 변경 배포 시 `src/lib/version.ts`의 `APP_VERSION`과 DB `programs.version` 동시 갱신 (+0.01).
 5. **사이드바 표준**: 21개 프로그램 공통 규격 준수 (메뉴 바로 아래 계정 표시 및 로그아웃).
+
+---
+
+## 📜 변경 이력
+
+- **v1.01 (2026-10-03)**: 최초 개발 및 릴리즈.
+  - "오늘 뭐 쓰지?" 업종/타깃 10개 추천, 5단 구성(주제/후킹/본문/댓글CTA/후속5선) 생성, 7종 원클릭 리라이팅 구현.
+- **v1.02 (2026-10-03)**:
+  - OpenAI `response_format: json_object` 사용 시 배열 대신 최상위 객체 반환으로 인한 추천 주제 렌더링 누락 버그 해결 (자동 언랩핑 보강).
+  - Gemini 모델 식별자 정상화 (`gemini-2.0-flash`).
+  - "오늘 뭐 쓰지?" 버튼 클릭 시 카테고리 피커 상시 토글 및 즉시 추천 트리거 동작 개선.

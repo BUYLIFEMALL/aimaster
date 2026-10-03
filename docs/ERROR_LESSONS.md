@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-03 OpenAI `json_object` 모드 배열 응답 미출력 및 언랩핑 누락 (threads-easy-planner v1.02)
+
+- **증상:** "오늘 뭐 쓰지?" 버튼을 클릭했을 때 추천 주제 10선이 화면에 전혀 렌더링되지 않고 빈 상태로 남았음.
+- **원인:** OpenAI API의 `response_format: { type: "json_object" }`는 시스템 프롬프트가 `[...]` 배열을 요구해도 최상위에 반드시 `{ "topics": [...] }` 등의 JSON Object로 감싸서 반환함. `parseJsonSafe` 결과가 배열이 아닌 일반 객체로 파싱되어, 클라이언트에서 `Array.isArray` 검증 및 `length > 0` 검사가 실패함. 또한 Gemini 모델 ID가 존재하지 않는 `gemini-2.5-flash`로 기재되어 있었음.
+- **해결(위치):** `threads-easy-planner/src/lib/ai/generator.ts`의 시스템 프롬프트를 명시적인 `{ "topics": [ ... ] }` 객체 스키마로 수정하고, 파싱 결과가 객체일 때 `candidate = parsed.topics || parsed.response || parsed.data || Object.values(parsed).find(Array.isArray)`로 자동 언랩핑하여 항상 배열을 반환하도록 보강함. Gemini 모델 ID는 `gemini-2.0-flash`로 정상화. 클라이언트 `PlannerApp.tsx`에서도 배열 방어 코드 및 오늘 뭐 쓰지 상시 추천 트리거 적용.
+- **다음부터 확인:** OpenAI의 `json_object` 응답 포맷을 사용할 때는 결코 배열(`[...]`)을 직접 기대하지 말고, 항상 객체(`{ items: [...] }`)로 프롬프트를 작성하고 백엔드에서 키 언랩핑 처리를 필수적으로 수행한다.
+
 ## 2026-10-02 리치 HTML 정리 과정에서 원본 텍스트 스타일을 과도하게 삭제함
 
 - **증상:** 내용은 입력되지만 글자 크기·굵기·줄간격·인용·목록 등 원본 서식이 모두 평문처럼 보였다.

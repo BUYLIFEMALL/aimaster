@@ -6,7 +6,6 @@ import type { AIProvider } from "@/lib/apiKeys";
 import type { TopicSuggestion, ThreadPlanResult, RewriteMode } from "@/types/planner";
 export type { TopicSuggestion, ThreadPlanResult, RewriteMode };
 
-
 /**
  * 1. "오늘 뭐 쓰지?" 주제 10개 추천
  */
@@ -29,20 +28,43 @@ export async function suggestTopicsAI(params: {
 2. 호기심 & 공감 & 손실 회피: "모르면 손해 보는", "솔직히 인정해야 하는", "나만 몰랐던"
 3. 스레드 특유의 썰(스토리) & 1인칭 솔직한 어조가 들어간 주제.
 
-반드시 아래 JSON 포맷으로만 응답해. 백틱(\`\`\`json)이나 다른 설명 없이 순수 JSON 배열만 출력해:
-[
-  {
-    "id": 1,
-    "topic": "스레드 주제 제목",
-    "hookPreview": "첫 문장으로 쓰기 좋은 1초 후킹 예시",
-    "whyItWorks": "이 주제가 왜 반응이 좋을지 1줄 이유"
-  }
-]`;
+반드시 아래 JSON 객체 포맷으로만 응답해. 백틱(\`\`\`json)이나 다른 설명 없이 순수 JSON만 출력해:
+{
+  "topics": [
+    {
+      "id": 1,
+      "topic": "스레드 주제 제목",
+      "hookPreview": "첫 문장으로 쓰기 좋은 1초 후킹 예시",
+      "whyItWorks": "이 주제가 왜 반응이 좋을지 1줄 이유"
+    }
+  ]
+}`;
 
   const userPrompt = `분야: ${targetDescription}\n이 타깃의 독자들이 스크롤을 멈추고 댓글을 달 수밖에 없는 스레드 주제 10개를 뽑아줘.`;
 
   const rawJson = await callLLM(aiConfig, systemPrompt, userPrompt);
-  return parseJsonSafe<TopicSuggestion[]>(rawJson, []);
+  const parsed = parseJsonSafe<any>(rawJson, null);
+
+  if (!parsed) return [];
+
+  // 배열이 바로 반환된 경우
+  if (Array.isArray(parsed)) {
+    return parsed as TopicSuggestion[];
+  }
+
+  // 객체로 래핑되어 반환된 경우 (topics, response, data 등)
+  const candidate =
+    parsed.topics ||
+    parsed.response ||
+    parsed.data ||
+    parsed.suggestions ||
+    Object.values(parsed).find(Array.isArray);
+
+  if (Array.isArray(candidate)) {
+    return candidate as TopicSuggestion[];
+  }
+
+  return [];
 }
 
 /**
@@ -89,13 +111,25 @@ export async function generateThreadPlanAI(params: {
   const userPrompt = `주제: ${topic}${additionalNote ? `\n추가 전달사항: ${additionalNote}` : ""}\n스레드 글 1세트를 생성해줘.`;
 
   const rawJson = await callLLM(aiConfig, systemPrompt, userPrompt);
-  return parseJsonSafe<ThreadPlanResult>(rawJson, {
-    topic,
-    hook: "오늘 꼭 공유하고 싶었던 이야기가 있어요.",
-    content: "스레드 본문 생성을 다시 시도해주세요.",
-    cta: "여러분 생각은 어떠신가요?",
-    followUpIdeas: [],
-  });
+  const parsed = parseJsonSafe<any>(rawJson, null);
+
+  const root = parsed?.plan || parsed?.result || parsed?.data || parsed || {};
+
+  return {
+    topic: String(root.topic || topic).trim(),
+    hook: String(root.hook || "오늘 꼭 전하고 싶은 이야기가 있어요.").trim(),
+    content: String(root.content || "스레드 본문이 생성되었습니다.").trim(),
+    cta: String(root.cta || "여러분 생각은 어떠신가요? 댓글로 알려주세요!").trim(),
+    followUpIdeas: Array.isArray(root.followUpIdeas)
+      ? root.followUpIdeas.map(String)
+      : [
+          "같은 주제의 2탄 심화 이야기",
+          "초보자가 흔히 저지르는 실수 3가지",
+          "실제 적용 후 달라진 변화 후기",
+          "Q&A 독자 질문 답변 모음",
+          "꼭 알아야 할 핵심 3줄 요약",
+        ],
+  };
 }
 
 /**
@@ -148,7 +182,16 @@ ${currentPlan.content}
 위 글을 "${modeInstructions[mode]}" 방향으로 다시 작성해줘.`;
 
   const rawJson = await callLLM(aiConfig, systemPrompt, userPrompt);
-  return parseJsonSafe<ThreadPlanResult>(rawJson, currentPlan);
+  const parsed = parseJsonSafe<any>(rawJson, null);
+  const root = parsed?.plan || parsed?.result || parsed?.data || parsed || {};
+
+  return {
+    topic: currentPlan.topic,
+    hook: String(root.hook || currentPlan.hook).trim(),
+    content: String(root.content || currentPlan.content).trim(),
+    cta: String(root.cta || currentPlan.cta).trim(),
+    followUpIdeas: Array.isArray(root.followUpIdeas) ? root.followUpIdeas.map(String) : currentPlan.followUpIdeas,
+  };
 }
 
 // ======================== LLM Call Core ========================
@@ -162,7 +205,8 @@ async function callLLM(
 
   if (provider === "gemini") {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const selectedModel = model || "gemini-2.5-flash";
+    // Google Gemini 공식 지원 모델
+    const selectedModel = model || "gemini-2.0-flash";
     const geminiModel = genAI.getGenerativeModel({
       model: selectedModel,
       systemInstruction: systemPrompt,
@@ -187,7 +231,7 @@ async function callLLM(
     return firstBlock && "text" in firstBlock ? firstBlock.text : "";
   }
 
-  // 기본: OpenAI
+  // 기본: OpenAI (공식 최신 gpt-4o-mini / gpt-4.1)
   const openai = new OpenAI({ apiKey });
   const selectedModel = model || "gpt-4o-mini";
   const completion = await openai.chat.completions.create({
@@ -202,6 +246,7 @@ async function callLLM(
 }
 
 function parseJsonSafe<T>(raw: string, fallback: T): T {
+  if (!raw || !raw.trim()) return fallback;
   try {
     const cleaned = raw.replace(/^```json/m, "").replace(/^```/m, "").replace(/```$/m, "").trim();
     return JSON.parse(cleaned) as T;

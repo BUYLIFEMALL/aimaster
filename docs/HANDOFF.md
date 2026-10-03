@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.02, 2026-10-03)
+
+- **버그 해결 및 안정화 (v1.02)**:
+  - "오늘 뭐 쓰지?" 버튼 클릭 시 추천 주제 10선이 화면에 렌더링되지 않던 문제 해결.
+  - 원인: OpenAI `response_format: json_object` 사용 시 최상위가 배열이 아닌 `{ "topics": [...] }` 객체로 반환되어 `Array.isArray` 검증 및 `length > 0` 검사가 실패했던 오류.
+  - 조치: 시스템 프롬프트를 `{ "topics": [...] }` 객체 구조로 명시하고, 백엔드(`src/lib/ai/generator.ts`)에서 객체 내 배열 키(`topics`, `response`, `data` 등)를 자동 언랩핑하여 100% 배열 반환 보장.
+  - Gemini 모델 ID 오기(`gemini-2.5-flash` → `gemini-2.0-flash`) 정상화.
+  - `PlannerApp.tsx`에서 "오늘 뭐 쓰지?" 클릭 시 카테고리 피커 상시 토글 및 즉시 추천 트리거 동작 개선.
+  - 버전 `v1.02` 판올림 (`src/lib/version.ts` 및 DB `programs.version`).
+
 ## Threads AI 기획 자동화 신설 (2026-10-03, threads-easy-planner v1.01)
 
 - 초보자 맞춤형 스레드(Threads) AI 기획기 서브프로젝트(`threads-easy-planner/`)를 신설했다.

@@ -32,10 +32,13 @@ export function PlannerApp() {
 
   // 1. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천
   async function handleSuggestTopics(categoryId?: string) {
+    const targetCat = categoryId || selectedCategory || "tips";
+    setSelectedCategory(targetCat);
+    setShowCategoryPicker(true);
     setIsSuggesting(true);
     setErrorMessage(null);
     try {
-      const res = await getSuggestedTopicsAction(categoryId, topicInput.trim() || undefined);
+      const res = await getSuggestedTopicsAction(targetCat, topicInput.trim() || undefined);
       if (res.needApiKey) {
         setNeedApiKeyModal(true);
         return;
@@ -44,14 +47,19 @@ export function PlannerApp() {
         setErrorMessage(res.error || "주제 추천에 실패했습니다.");
         return;
       }
-      setSuggestedTopics(res.data);
-      setShowCategoryPicker(true);
+      const list = Array.isArray(res.data) ? res.data : [];
+      if (list.length === 0) {
+        setErrorMessage("추천 주제를 가져오지 못했습니다. 잠시 후 다시 시도해주세요.");
+        return;
+      }
+      setSuggestedTopics(list);
     } catch {
       setErrorMessage("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsSuggesting(false);
     }
   }
+
 
   // 2. 추천 주제 선택 후 즉시 글 생성
   async function handleSelectTopicAndGenerate(selectedTopic: string) {
@@ -201,11 +209,8 @@ export function PlannerApp() {
             <button
               type="button"
               onClick={() => {
-                if (showCategoryPicker) {
-                  setShowCategoryPicker(false);
-                } else {
-                  handleSuggestTopics(selectedCategory || undefined);
-                }
+                const cat = selectedCategory || "tips";
+                handleSuggestTopics(cat);
               }}
               disabled={isSuggesting}
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50"
