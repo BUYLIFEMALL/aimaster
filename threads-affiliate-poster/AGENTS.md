@@ -200,3 +200,10 @@ vercel deploy --prod --yes
         - `[서브 카드 A] 🤖 AI 글 생성 엔진 선택`: GPT / Claude / Gemini 3대 탭 및 16종 세부 모델 선택기.
         - `[서브 카드 B] 🖼️ 이미지 & 미디어 설정`: NanoBanana / GPT Image / FLUX / Z-Image 4대 플랫폼 및 세부 모델, 대표 이미지 추가, 다중 미디어 직접 업로드(최대 20장), 동영상 첨부.
      3. **[STEP 3] 🚀 게시방식 결정 및 최종 발행 (슬레이트 테마)**: 즉시 게시 / 예약 발행 / 임시 저장 및 최종 발행 버튼.
+
+9. **FLUX 모델 라인업 최적화 - FLUX.1 계열 모델 제거 (2026-10-04, v1.23)**:
+   - **개편 배경**: 품질 및 디테일이 떨어지는 구형 FLUX.1 계열 모델(`flux-dev`, `flux-schnell`)을 선택 옵션에서 완전 제거.
+   - **유지 모델**: 상업용 극실사 고품질 최신 FLUX 2 플래그십 3종만 엄선 유지:
+     - `black-forest-labs/flux-2-dev` (정밀 디테일 & 초고속 최적화 - 기본 추천)
+     - `black-forest-labs/flux-2-pro` (상업용 극실사 고해상도)
+     - `black-forest-labs/flux-2-max` (최대 해상도 플래그십)

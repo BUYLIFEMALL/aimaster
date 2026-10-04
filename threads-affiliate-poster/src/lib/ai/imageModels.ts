@@ -77,8 +77,6 @@ export const IMAGE_MODEL_OPTIONS: ImageModelOption[] = [
   { value: "black-forest-labs/flux-2-dev", label: "FLUX 2 [dev] (정밀 디테일 & 초고속 최적화 - 추천)", provider: "flux" },
   { value: "black-forest-labs/flux-2-pro", label: "FLUX 2 [pro] (상업용 극실사 고해상도)", provider: "flux" },
   { value: "black-forest-labs/flux-2-max", label: "FLUX 2 [max] (최대 해상도 플래그십)", provider: "flux" },
-  { value: "black-forest-labs/flux-dev", label: "FLUX.1 [dev] (개발자 원작 모델)", provider: "flux" },
-  { value: "black-forest-labs/flux-schnell", label: "FLUX.1 [schnell] (4스텝 초고속)", provider: "flux" },
 
   // 4. Z-Image (Replicate)
   { value: "prunaai/z-image-turbo", label: "Z-Image Turbo (Alibaba 6B 0.5초 초고속 극실사 - 추천)", provider: "zimage" },

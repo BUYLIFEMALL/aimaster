@@ -2,6 +2,13 @@
 
 
 
+
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.23, 2026-10-04)
+
+- **FLUX 모델 라인업 최적화 - 저품질 FLUX.1 모델 삭제 (v1.23)**:
+  - `src/lib/ai/imageModels.ts`에서 퀄리티가 떨어지는 구형 FLUX.1 계열(`black-forest-labs/flux-dev`, `black-forest-labs/flux-schnell`)을 선택 옵션에서 완전 제거.
+  - 최신 극실사 플래그십인 **FLUX 2 계열 3종(`flux-2-dev`, `flux-2-pro`, `flux-2-max`)**만 엄선하여 고품질 생성 보장.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.23`으로 갱신했다.
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.22, 2026-10-04)
 
 - **글 생성 엔진 및 이미지/미디어 설정 대형 통합 박스 개편 (v1.22)**:
@@ -455,5 +462,6 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
+
 
 
