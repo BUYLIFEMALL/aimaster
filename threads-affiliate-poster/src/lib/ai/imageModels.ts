@@ -30,7 +30,7 @@ export const IMAGE_PROVIDERS: ImageProviderConfig[] = [
     subName: "OpenAI",
     icon: "🤖",
     apiKeyProvider: "openai",
-    description: "OpenAI 최신 GPT Image & DALL-E 3 고화질 라인업",
+    description: "OpenAI 최신 GPT Image 고화질 라인업",
   },
   {
     id: "flux",
@@ -71,7 +71,6 @@ export const IMAGE_MODEL_OPTIONS: ImageModelOption[] = [
   { value: "gpt-image-1-mini", label: "GPT Image 1 Mini (초고속 경량 미니)", provider: "openai" },
   { value: "gpt-image-2.5-flare", label: "GPT Image 2.5 Flare (데일리 고품질)", provider: "openai" },
   { value: "gpt-image-2.5-sunburst", label: "GPT Image 2.5 Sunburst (최상위 플래그십)", provider: "openai" },
-  { value: "dall-e-3", label: "DALL-E 3 (고해상도 창작 비주얼)", provider: "openai" },
 
   // 3. FLUX (Replicate)
   { value: "black-forest-labs/flux-2-dev", label: "FLUX 2 [dev] (정밀 디테일 & 초고속 최적화 - 추천)", provider: "flux" },

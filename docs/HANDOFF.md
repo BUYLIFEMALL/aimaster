@@ -3,6 +3,13 @@
 
 
 
+
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.24, 2026-10-04)
+
+- **GPT Image 모델 라인업 최적화 - 구형 DALL-E 3 모델 삭제 (v1.24)**:
+  - `src/lib/ai/imageModels.ts`에서 품질이 부족한 구형 `dall-e-3` 모델을 옵션에서 완전 제거.
+  - 최신 GPT Image 고품질 라인업 6종(`gpt-image-2`, `chatgpt-image-latest`, `gpt-image-1`, `gpt-image-1-mini`, `gpt-image-2.5-flare`, `gpt-image-2.5-sunburst`)만 엄선 유지.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.23, 2026-10-04)
 
 - **FLUX 모델 라인업 최적화 - 저품질 FLUX.1 모델 삭제 (v1.23)**:
@@ -462,6 +469,7 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
+
 
 
 

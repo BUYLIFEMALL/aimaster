@@ -207,3 +207,13 @@ vercel deploy --prod --yes
      - `black-forest-labs/flux-2-dev` (정밀 디테일 & 초고속 최적화 - 기본 추천)
      - `black-forest-labs/flux-2-pro` (상업용 극실사 고해상도)
      - `black-forest-labs/flux-2-max` (최대 해상도 플래그십)
+
+10. **GPT Image 모델 라인업 최적화 - DALL-E 3 모델 삭제 (2026-10-04, v1.24)**:
+   - **개편 배경**: 품질 및 선명도가 부족한 구형 `dall-e-3` 모델을 GPT Image 선택 옵션에서 완전 제거.
+   - **유지 모델**: 최신 고품질 GPT Image 전용 라인업만 엄선 유지:
+     - `gpt-image-2` (OpenAI 표준 비주얼 - 기본 추천)
+     - `chatgpt-image-latest` (최신 통합 플래그십)
+     - `gpt-image-1` (표준 1세대)
+     - `gpt-image-1-mini` (초고속 경량 미니)
+     - `gpt-image-2.5-flare` (데일리 고품질)
+     - `gpt-image-2.5-sunburst` (최상위 플래그십)
