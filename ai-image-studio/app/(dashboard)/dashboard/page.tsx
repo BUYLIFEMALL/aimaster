@@ -42,7 +42,7 @@ function DashboardContent() {
             🎨 이미지 생성 작업실
           </h1>
           <p className="text-sm text-zinc-300">
-            OpenAI, FLUX, Google Imagen 3, Stability AI 등 다양한 생성 플랫폼을 하나의 올인원 작업실에서 사용해보세요.
+            GPT Image·Gemini(Nano Banana)·FLUX.2·Z-Image 등 최신 AI 엔진을 하나의 올인원 작업실에서 사용해보세요.
           </p>
         </div>
 

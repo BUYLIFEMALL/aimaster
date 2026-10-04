@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AI 이미지 스튜디오 (Image Studio) — AIMaster",
-  description: "OpenAI DALL-E 3, FLUX, Google Imagen 3 등 다양한 AI 이미지 생성 플랫폼을 단일 인터페이스에서 맞춤 자동 생성합니다.",
+  description: "GPT Image, Gemini(Nano Banana), FLUX.2, Z-Image 등 최신 AI 엔진으로 이미지를 생성하고 세부 옵션을 맞춤 설정하세요.",
 };
 
 export default function RootLayout({

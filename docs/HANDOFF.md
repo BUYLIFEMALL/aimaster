@@ -8,6 +8,21 @@
 
 
 
+## 완료 — AI 이미지 스튜디오 카탈로그·대시보드 문구 (2026-10-04)
+
+- **운영 DB는 이미 반영됨**: `programs`의 `slug='ai-image-studio'`에 아래 값이 적용되어 있다.
+  - `short_desc`: `GPT Image·Gemini·FLUX.2·Z-Image 등 다양한 AI 엔진으로 1~10장 연속 생성과 세부 옵션 설정을 지원합니다.`
+  - `version`: `v1.04`
+- **배포됨**: `ai-image-studio`에서 `vercel deploy --prod --yes` 실행 및 Vercel 빌드 통과. 라이브 URL: `https://ai-image-studio.vercel.app/dashboard`.
+- **로컬 빌드 통과**: `ai-image-studio`에서 `npm.cmd run build` 성공. PowerShell 실행 정책상 `npm` 대신 `npm.cmd`를 사용한다.
+- **반영 파일**:
+  - `ai-image-studio/app/(dashboard)/dashboard/page.tsx` — 대시보드 소개를 `GPT Image·Gemini(Nano Banana)·FLUX.2·Z-Image` 최신 엔진 문구로 변경.
+  - `ai-image-studio/app/layout.tsx` — 동일 기준의 메타 설명 갱신.
+  - `ai-image-studio/lib/version.ts` — `v1.04`.
+  - `ai-image-studio/AGENTS.md`, `scripts/register_ai_image_studio.js`, `scripts/update_thumbnail.js`, `supabase/migrations/0012_register_ai_image_studio.sql`, `docs/ERROR_LESSONS.md` — 카탈로그 문구와 재등록 기준 동기화.
+- **검증**: `ai-image-studio`에서 `npm.cmd run build`를 다시 실행해 통과했다. 커밋·푸시 후 재배포는 필요 없으며, 이미 반영된 프로덕션 URL은 `https://ai-image-studio.vercel.app/dashboard`다.
+- **공유 작업 주의**: `threads-affiliate-poster/`, `shorts-viral-studio/`, `debug.log`, `scratch/`는 다른 작업 영역이므로 이 작업 커밋에 포함하지 않는다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.28, 2026-10-04)
 
 - **생성 장수 옵션 문구 최적화 - '연속' ➔ '생성' 단어 교체 (v1.28)**:
