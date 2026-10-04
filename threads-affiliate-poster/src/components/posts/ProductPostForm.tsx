@@ -302,8 +302,7 @@ export function ProductPostForm({
   };
 
   const [imagePrompt, setImagePrompt] = useState("");
-  const [aiMultiCut, setAiMultiCut] = useState(false);
-  const [aiCutCount, setAiCutCount] = useState(3);
+  const [imageGenerateCount, setImageGenerateCount] = useState<number>(1);
   const [isGeneratingImage, startGeneratingImage] = useTransition();
   const [imageGenError, setImageGenError] = useState<string | null>(null);
 
@@ -316,13 +315,19 @@ export function ProductPostForm({
       return;
     }
 
+    const availableSlots = 20 - imageUrls.length;
+    const countToGenerate = Math.min(Math.max(imageGenerateCount, 1), Math.min(10, availableSlots));
+    if (countToGenerate <= 0) {
+      setImageGenError("이미지는 최대 20장까지만 추가할 수 있습니다.");
+      return;
+    }
+
     setImageGenError(null);
     startGeneratingImage(async () => {
-      if (aiMultiCut && aiCutCount > 1) {
-        const count = Math.min(Math.max(aiCutCount, 2), 10);
+      if (countToGenerate > 1) {
         const generatedList: string[] = [];
-        for (let i = 1; i <= count; i++) {
-          const cutPrompt = `${prompt} (컷 ${i}/${count}: Threads 카드뉴스 visual angle ${i})`;
+        for (let i = 1; i <= countToGenerate; i++) {
+          const cutPrompt = `${prompt} (${i}/${countToGenerate}번째 이미지: visual scene ${i})`;
           const result = await generateImageAction({ prompt: cutPrompt, provider: imageProvider, model: imageModel });
           if (result.imageUrl) {
             generatedList.push(result.imageUrl);
@@ -332,7 +337,7 @@ export function ProductPostForm({
           setImageUrls((prev) => [...prev, ...generatedList].slice(0, 20));
           setVideoUrl("");
         } else {
-          setImageGenError("이미지 멀티컷 생성에 실패했습니다.");
+          setImageGenError("이미지 연속 생성에 실패했습니다.");
         }
       } else {
         const result = await generateImageAction({ prompt, provider: imageProvider, model: imageModel });
@@ -399,11 +404,12 @@ export function ProductPostForm({
       const currentProviderConfig = IMAGE_PROVIDERS.find((p) => p.id === imageProvider);
       const currentProviderLabel = currentProviderConfig?.name || "AI";
 
-      if (aiMultiCut && aiCutCount > 1) {
-        const count = Math.min(Math.max(aiCutCount, 2), 10);
-        setStatusMsg(`AI(${currentProviderLabel})가 Threads 카드뉴스용 멀티컷 이미지 ${count}장을 연속 생성 중입니다...`);
+      if (imageGenerateCount > 1) {
+        const availableSlots = 20 - currentUrls.length;
+        const count = Math.min(Math.max(imageGenerateCount, 1), Math.min(10, availableSlots));
+        setStatusMsg(`AI(${currentProviderLabel})가 이미지 ${count}장을 연속 생성 중입니다...`);
         for (let i = 1; i <= count; i++) {
-          const cutPrompt = `${prompt} (컷 ${i}/${count}: Threads 카드뉴스 visual angle ${i})`;
+          const cutPrompt = `${prompt} (${i}/${count}번째 이미지: visual scene ${i})`;
           const imageResult = await generateImageAction({ prompt: cutPrompt, provider: imageProvider, model: imageModel });
           if (imageResult.imageUrl) {
             currentUrls.push(imageResult.imageUrl);
@@ -908,7 +914,7 @@ export function ProductPostForm({
             </select>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-1">
+          <div className="flex flex-wrap items-center gap-2 pt-1">
             <Input
               className="min-w-[200px] flex-1 bg-neutral-50/50 text-sm"
               value={imagePrompt}
@@ -921,42 +927,33 @@ export function ProductPostForm({
               autoComplete="off"
               name="ai_image_prompt_field"
             />
+            <div className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-neutral-50/80 px-2.5 py-1.5 shadow-2xs">
+              <span className="text-xs font-bold text-neutral-700 whitespace-nowrap">생성 장수:</span>
+              <select
+                value={imageGenerateCount}
+                onChange={(e) => setImageGenerateCount(Number(e.target.value))}
+                className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-bold text-neutral-900 focus:border-neutral-900 focus:outline-none cursor-pointer"
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                  <option key={num} value={num}>
+                    {num}장 {num === 1 ? "(기본)" : "연속"}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Button
               type="button"
               variant="secondary"
               onClick={handleGenerateImage}
               disabled={isGeneratingImage || isGeneratingAll || imageUrls.length >= 20 || (!imagePrompt.trim() && !selectedProduct)}
+              className="font-bold whitespace-nowrap"
             >
-              {isGeneratingImage ? "생성 중..." : "이미지만 다시 생성"}
+              {isGeneratingImage
+                ? "생성 중..."
+                : imageGenerateCount > 1
+                ? `✨ 이미지 ${imageGenerateCount}장 연속 생성`
+                : "✨ 이미지만 다시 생성"}
             </Button>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium text-neutral-700">
-            <label className="inline-flex items-center gap-1.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={aiMultiCut}
-                onChange={(e) => setAiMultiCut(e.target.checked)}
-                className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
-              />
-              <span>🎨 AI 멀티컷 카드뉴스 연속 생성</span>
-            </label>
-            {aiMultiCut && (
-              <div className="inline-flex items-center gap-1">
-                <span>생성할 컷 수:</span>
-                <select
-                  value={aiCutCount}
-                  onChange={(e) => setAiCutCount(Number(e.target.value))}
-                  className="rounded border border-neutral-300 bg-white px-2 py-0.5 text-xs text-neutral-700"
-                >
-                  {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                    <option key={num} value={num}>
-                      {num}장
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
           </div>
 
           {imageGenError && <p className="text-xs font-semibold text-red-600">{imageGenError}</p>}

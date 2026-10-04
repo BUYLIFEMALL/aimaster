@@ -5,12 +5,25 @@
 
 
 
+
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.26, 2026-10-04)
+
+- **AI 이미지 생성 장수 선택기(1~10장, 기본 1장) 도입 및 멀티컷 토글 제거 (v1.26)**:
+  - `ProductPostForm.tsx`에서 "🎨 AI 멀티컷 카드뉴스 연속 생성" 체크박스 토글을 제거.
+  - 원하는 생성 장수를 1~10장(기본값: 1장) 중에서 바로 선택할 수 있는 직관적인 `생성 장수` 셀렉트박스를 프롬프트 인풋 옆에 배치.
+  - 선택된 수량에 맞춰 단발(1장) 또는 2~10장 연속 생성이 동작하며, 버튼 텍스트(`✨ 이미지 N장 연속 생성`)도 실시간 연동.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.26`으로 갱신했다.
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.25, 2026-10-04)
 
 - **STEP 2 헤더 텍스트 간소화 - 긴 부제 배지 제거 (v1.25)**:
   - `ProductPostForm.tsx`의 STEP 2 헤더에서 화면 폭에 따라 잘림 현상이 발생하던 긴 부제 배지("글 생성 모델 (GPT·Claude·Gemini) & 이미지·미디어 모델")를 삭제.
   - 메인 타이틀 `🤖 AI 생성 엔진 & 미디어 설정`만 미니멀하고 가독성 높게 표시되도록 정돈.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.25`로 갱신했다.
+## AI 이미지 스튜디오 카탈로그 설명 (2026-10-04)
+
+- 카탈로그 카드의 두 줄 한줄 설명을 `GPT Image·Gemini·FLUX.2·Z-Image 등 다양한 AI 엔진으로 1~10장 연속 생성과 세부 옵션 설정을 지원합니다.`로 갱신했다.
+- 운영 DB `programs.short_desc` 및 재등록 기준 파일(`supabase/migrations/0012_register_ai_image_studio.sql`, 관련 등록 스크립트)을 함께 동기화했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.24, 2026-10-04)
 
 - **GPT Image 모델 라인업 최적화 - 구형 DALL-E 3 모델 삭제 (v1.24)**:
@@ -476,6 +489,7 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
+
 
 
 
