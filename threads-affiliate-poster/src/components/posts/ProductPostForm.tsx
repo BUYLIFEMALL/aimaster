@@ -719,119 +719,117 @@ export function ProductPostForm({
       </section>
 
       {/* ========================================================
-          [섹션 2. 중간 기준 대형 박스]: 🤖 AI 글 생성 엔진 선택 (퍼플 테마)
-          - 기준점: GPT / Claude / Gemini
+          [섹션 2. 대형 통합 박스]: 🤖 AI 생성 엔진 및 미디어 설정 (퍼플 테마)
+          - 생성 모델 전체를 하나의 대형 박스로 통합:
+            1) 🤖 AI 글 생성 엔진 선택 (GPT / Claude / Gemini)
+            2) 🖼️ 이미지 & 미디어 설정 (NanoBanana / GPT Image / FLUX / Z-Image · 캐러셀 최대 20장 · 동영상)
          ======================================================== */}
-      <section className="rounded-2xl border-2 border-purple-200/90 bg-purple-50/30 p-4 sm:p-5 space-y-3.5 shadow-xs">
-        <div className="flex items-center justify-between pb-3 border-b border-purple-200/70">
+      <section className="rounded-2xl border-2 border-purple-200/90 bg-purple-50/25 p-4 sm:p-5 space-y-4 shadow-xs">
+        {/* 섹션 2 통합 헤더 */}
+        <div className="flex items-center justify-between pb-3 border-b border-purple-200/80">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-purple-600 text-white text-xs font-black shadow-xs">2</span>
             <h2 className="text-base font-extrabold text-purple-950 flex items-center gap-2">
-              <span>🤖 AI 글 생성 엔진 선택</span>
-              <span className="hidden sm:inline-block rounded-md bg-purple-600/10 text-purple-700 px-2 py-0.5 text-xs font-bold border border-purple-200">
-                GPT / Claude / Gemini
+              <span>🤖 AI 생성 엔진 & 미디어 설정</span>
+              <span className="hidden sm:inline-block rounded-md bg-purple-600/10 text-purple-800 px-2 py-0.5 text-xs font-bold border border-purple-200">
+                글 생성 모델 (GPT·Claude·Gemini) & 이미지·미디어 모델
               </span>
             </h2>
           </div>
-          <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-extrabold text-purple-700 border border-purple-200">
+          <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-extrabold text-purple-800 border border-purple-200">
             STEP 2
           </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          {/* 1. GPT */}
-          <button
-            type="button"
-            onClick={() => handleProviderChange("openai")}
-            className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
-              aiProvider === "openai"
-                ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
-                : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
-            }`}
-          >
-            <span className="text-base">🤖</span>
-            <span className="font-extrabold text-sm tracking-tight">GPT</span>
-            <span className="text-[10px] opacity-75 font-normal">OpenAI</span>
-          </button>
-
-          {/* 2. Claude */}
-          <button
-            type="button"
-            onClick={() => handleProviderChange("anthropic")}
-            className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
-              aiProvider === "anthropic"
-                ? "border-purple-600 bg-purple-600 text-white shadow-xs"
-                : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
-            }`}
-          >
-            <span className="text-base">🧠</span>
-            <span className="font-extrabold text-sm tracking-tight">Claude</span>
-            <span className="text-[10px] opacity-75 font-normal">Anthropic</span>
-          </button>
-
-          {/* 3. Gemini */}
-          <button
-            type="button"
-            onClick={() => handleProviderChange("gemini")}
-            className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
-              aiProvider === "gemini"
-                ? "border-amber-500 bg-amber-500 text-white shadow-xs"
-                : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
-            }`}
-          >
-            <span className="text-base">✨</span>
-            <span className="font-extrabold text-sm tracking-tight">Gemini</span>
-            <span className="text-[10px] opacity-75 font-normal">Google</span>
-          </button>
-        </div>
-
-        <div className="pt-2 border-t border-purple-200/80 space-y-1.5">
-          <label className="block text-[11px] font-bold text-purple-900 flex items-center justify-between">
-            <span>🎯 {PROVIDER_SHORT_LABELS[aiProvider]} 세부 실행 모델 (2026 최신 라인업):</span>
-          </label>
-          <select
-            value={aiModel}
-            onChange={(e) => handleModelChange(e.target.value)}
-            className="w-full rounded-xl border border-purple-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-purple-600 focus:outline-none shadow-2xs cursor-pointer"
-          >
-            {AI_MODEL_OPTIONS.filter((opt) => opt.provider === aiProvider).map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </section>
-
-      {/* ========================================================
-          [섹션 3. 하단 대형 박스]: 🖼️ 이미지 & 미디어 설정 (앰버 테마)
-          - 포함: 4대 AI 이미지 생성 엔진, 대표 이미지 추가, 파일 직접 업로드, 캐러셀 썸네일 그리드, 영상 등록
-         ======================================================== */}
-      <section className="rounded-2xl border-2 border-amber-200/90 bg-amber-50/25 p-4 sm:p-5 space-y-4 shadow-xs">
-        {/* 섹션 3 헤더 */}
-        <div className="flex items-center justify-between pb-3 border-b border-amber-200/70">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-amber-600 text-white text-xs font-black shadow-xs">3</span>
-            <h2 className="text-base font-extrabold text-amber-950 flex items-center gap-2">
-              <span>🖼️ 이미지 & 미디어 설정</span>
-              <span className="hidden sm:inline-block rounded-md bg-amber-600/10 text-amber-800 px-2 py-0.5 text-xs font-bold border border-amber-200">
-                캐러셀 최대 20장 · AI 이미지 · 동영상
-              </span>
-            </h2>
+        {/* [서브 카드 A]: 🤖 AI 글 생성 엔진 선택 (흰색 카드) */}
+        <div className="space-y-3 rounded-xl border border-purple-200/90 bg-white p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+              <span className="flex h-5 w-5 items-center justify-center rounded-md bg-purple-100 text-purple-700 text-[10px] font-black">A</span>
+              <span>🤖 AI 글 생성 엔진 선택</span>
+              <span className="hidden sm:inline-block text-[10px] text-neutral-500 font-normal">GPT / Claude / Gemini</span>
+            </label>
+            <span className="rounded-md bg-purple-50 px-2 py-0.5 text-[11px] font-bold text-purple-700 border border-purple-200">
+              글 생성 시 적용
+            </span>
           </div>
-          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-extrabold text-amber-800 border border-amber-200">
-            STEP 3
-          </span>
+
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            {/* 1. GPT */}
+            <button
+              type="button"
+              onClick={() => handleProviderChange("openai")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                aiProvider === "openai"
+                  ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                  : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🤖</span>
+              <span className="font-extrabold text-sm tracking-tight">GPT</span>
+              <span className="text-[10px] opacity-75 font-normal">OpenAI</span>
+            </button>
+
+            {/* 2. Claude */}
+            <button
+              type="button"
+              onClick={() => handleProviderChange("anthropic")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                aiProvider === "anthropic"
+                  ? "border-purple-600 bg-purple-600 text-white shadow-xs"
+                  : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🧠</span>
+              <span className="font-extrabold text-sm tracking-tight">Claude</span>
+              <span className="text-[10px] opacity-75 font-normal">Anthropic</span>
+            </button>
+
+            {/* 3. Gemini */}
+            <button
+              type="button"
+              onClick={() => handleProviderChange("gemini")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                aiProvider === "gemini"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                  : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">✨</span>
+              <span className="font-extrabold text-sm tracking-tight">Gemini</span>
+              <span className="text-[10px] opacity-75 font-normal">Google</span>
+            </button>
+          </div>
+
+          <div className="pt-2 border-t border-neutral-100 space-y-1.5">
+            <label className="block text-[11px] font-bold text-neutral-700 flex items-center justify-between">
+              <span>🎯 {PROVIDER_SHORT_LABELS[aiProvider]} 세부 실행 모델 (2026 최신 라인업):</span>
+            </label>
+            <select
+              value={aiModel}
+              onChange={(e) => handleModelChange(e.target.value)}
+              className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-purple-600 focus:outline-none shadow-2xs cursor-pointer"
+            >
+              {AI_MODEL_OPTIONS.filter((opt) => opt.provider === aiProvider).map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* 🎨 4대 AI 이미지 생성 엔진 카드 (흰색 카드) */}
+        {/* [서브 카드 B]: 🖼️ 이미지 & 미디어 설정 (흰색 카드) */}
         <div className="space-y-3 rounded-xl border border-amber-200/90 bg-white p-4 shadow-2xs">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
-              <span>🎨 AI 이미지 생성 엔진 선택</span>
-              <span className="text-[10px] text-neutral-500 font-normal">NanoBanana · GPT Image · FLUX · Z-Image</span>
+            <label className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+              <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-100 text-amber-800 text-[10px] font-black">B</span>
+              <span>🖼️ 이미지 & 미디어 설정</span>
+              <span className="hidden sm:inline-block text-[10px] text-neutral-500 font-normal">NanoBanana · GPT Image · FLUX · Z-Image</span>
             </label>
-            <span className="text-[10px] text-neutral-400">선택 시 세부 모델 자동 연동</span>
+            <span className="rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 border border-amber-200">
+              캐러셀 최대 20장 · AI 이미지 · 동영상
+            </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
@@ -1114,18 +1112,18 @@ export function ProductPostForm({
       </section>
 
       {/* ========================================================
-          [섹션 4. 발행 결정 대형 박스]: 🚀 게시방식 결정 및 최종 발행 (슬레이트 테마)
+          [섹션 3. 발행 결정 대형 박스]: 🚀 게시방식 결정 및 최종 발행 (슬레이트 테마)
          ======================================================== */}
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100/60 p-4 sm:p-5 space-y-4 shadow-xs">
         <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-900 text-white text-xs font-black shadow-xs">4</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-900 text-white text-xs font-black shadow-xs">3</span>
             <h2 className="text-base font-extrabold text-neutral-950 flex items-center gap-2">
               <span>🚀 게시방식 결정 및 최종 발행</span>
             </h2>
           </div>
           <span className="rounded-full bg-neutral-200 px-2.5 py-0.5 text-xs font-extrabold text-neutral-800">
-            STEP 4
+            STEP 3
           </span>
         </div>
 
