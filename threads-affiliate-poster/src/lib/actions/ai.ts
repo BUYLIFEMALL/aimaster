@@ -4,6 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { generateAffiliatePostContent, getDisclosureText } from "@/lib/ai/affiliateGenerator";
 import { generatePostImage, type NanoBananaModelType } from "@/lib/ai/generator";
 import type { ThreadsTone } from "@/lib/ai/generator";
+import {
+  type AIModelProvider,
+  DEFAULT_AI_MODELS,
+  PROVIDER_SHORT_LABELS,
+} from "@/lib/ai/models";
 import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getDetailPageExcerpt } from "@/lib/detailPages";
@@ -29,6 +34,8 @@ export async function generateAffiliateContentAction(input: {
   keywords?: string[];
   referenceUrls?: string[];
   apiKey?: string;
+  aiProvider?: AIModelProvider;
+  aiModel?: string;
 }): Promise<GenerateContentState> {
   const user = await requireProgramAccess();
 
@@ -49,9 +56,13 @@ export async function generateAffiliateContentAction(input: {
       return { error: "선택한 상품을 찾을 수 없습니다." };
     }
 
-    const apiKey = input.apiKey?.trim() || (await resolveApiKey(supabase, user.id, "openai"));
+    const provider: AIModelProvider = input.aiProvider || "openai";
+    const model = input.aiModel || DEFAULT_AI_MODELS[provider];
+    const providerLabel = PROVIDER_SHORT_LABELS[provider] || provider;
+
+    const apiKey = input.apiKey?.trim() || (await resolveApiKey(supabase, user.id, provider));
     if (!apiKey) {
-      return { error: "OpenAI API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+      return { error: `${providerLabel} API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요.` };
     }
 
     let detailPageExcerpt: string | null = null;
@@ -70,14 +81,20 @@ export async function generateAffiliateContentAction(input: {
         keySellingPoints: product.key_selling_points,
         detailPageExcerpt,
       },
-      { tone: input.tone, keywords: input.keywords, referenceUrls: input.referenceUrls },
+      {
+        tone: input.tone,
+        keywords: input.keywords,
+        referenceUrls: input.referenceUrls,
+        provider,
+        model,
+      },
       apiKey,
     );
 
     await logProgramUsage({
       userId: user.id,
-      action: "ai_generate_affiliate_post",
-      metadata: { productId: product.id, platform: product.platform },
+      action: `ai_generate_affiliate_post_${provider}`,
+      metadata: { productId: product.id, platform: product.platform, model },
     });
 
     return { content: result.content };

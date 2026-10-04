@@ -13,6 +13,12 @@ import { PLATFORM_LABELS } from "@/types/product";
 import { PersonaPicker } from "@/components/personas/PersonaPicker";
 import { listMyPersonasAction } from "@/lib/actions/personas";
 import { resolvePersonaTone, type SavedPersona } from "@/lib/personaTone";
+import {
+  type AIModelProvider,
+  AI_MODEL_OPTIONS,
+  DEFAULT_AI_MODELS,
+  PROVIDER_SHORT_LABELS,
+} from "@/lib/ai/models";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 1024 * 1024 * 1024; // Threads 공식 제한(1GB, 최대 5분, MP4/MOV)
@@ -200,8 +206,44 @@ export function ProductPostForm({
   const [keywordInput, setKeywordInput] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
-  const [openaiApiKey, setOpenaiApiKey] = useState("");
+  const [aiProvider, setAiProvider] = useState<AIModelProvider>("openai");
+  const [aiModel, setAiModel] = useState<string>(DEFAULT_AI_MODELS["openai"]);
+  const [customApiKey, setCustomApiKey] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const savedProvider = localStorage.getItem("threads_post_ai_provider") as AIModelProvider | null;
+      const savedModel = localStorage.getItem("threads_post_ai_model");
+      if (savedProvider && (savedProvider === "openai" || savedProvider === "gemini" || savedProvider === "anthropic")) {
+        setAiProvider(savedProvider);
+        if (savedModel && AI_MODEL_OPTIONS.some((o) => o.provider === savedProvider && o.value === savedModel)) {
+          setAiModel(savedModel);
+        } else {
+          setAiModel(DEFAULT_AI_MODELS[savedProvider]);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleProviderChange = (newProvider: AIModelProvider) => {
+    setAiProvider(newProvider);
+    const defaultModel = DEFAULT_AI_MODELS[newProvider];
+    setAiModel(defaultModel);
+    try {
+      localStorage.setItem("threads_post_ai_provider", newProvider);
+      localStorage.setItem("threads_post_ai_model", defaultModel);
+    } catch {}
+  };
+
+  const handleModelChange = (newModel: string) => {
+    setAiModel(newModel);
+    try {
+      localStorage.setItem("threads_post_ai_model", newModel);
+    } catch {}
+  };
 
   const handleReferenceUrlChange = (index: number, value: string) => {
     setReferenceUrls((prev) => {
@@ -297,7 +339,7 @@ export function ProductPostForm({
 
     if (!finalContent) {
       const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
-      setStatusMsg("AI가 선택한 페르소나 및 상품 정보를 바탕으로 홍보 게시글을 작성하고 있습니다...");
+      setStatusMsg(`AI(${PROVIDER_SHORT_LABELS[aiProvider]})가 선택한 페르소나 및 상품 정보를 바탕으로 홍보 게시글을 작성하고 있습니다...`);
 
       const personaTone = resolvePersonaTone(
         selectedPersonaId,
@@ -311,7 +353,9 @@ export function ProductPostForm({
         tone: personaTone,
         keywords,
         referenceUrls: validReferenceUrls,
-        apiKey: openaiApiKey,
+        apiKey: customApiKey,
+        aiProvider,
+        aiModel,
       });
       if (textResult.error) {
         setAiError(textResult.error);
@@ -480,6 +524,72 @@ export function ProductPostForm({
           />
         </div>
 
+        {/* AI 글 생성 엔진 & 2026 세부 모델 선택 */}
+        <div className="rounded-xl bg-white p-3.5 border border-neutral-200 space-y-3 shadow-2xs">
+          <label className="block text-xs font-bold text-neutral-800 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              🤖 AI 글 생성 엔진 선택 (OpenAI / Gemini / Claude)
+            </span>
+            <span className="text-[10px] text-neutral-400 font-normal">선택 시 세부 모델 목록 동적 변경</span>
+          </label>
+
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => handleProviderChange("openai")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                aiProvider === "openai"
+                  ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🤖</span>
+              <span>OpenAI (GPT)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleProviderChange("gemini")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                aiProvider === "gemini"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">✨</span>
+              <span>Google Gemini</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleProviderChange("anthropic")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                aiProvider === "anthropic"
+                  ? "border-purple-600 bg-purple-600 text-white shadow-xs"
+                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🧠</span>
+              <span>Anthropic Claude</span>
+            </button>
+          </div>
+
+          <div className="pt-2.5 border-t border-neutral-100 space-y-1.5">
+            <label className="block text-[11px] font-bold text-neutral-600 flex items-center justify-between">
+              <span>🎯 {PROVIDER_SHORT_LABELS[aiProvider]} 세부 실행 모델 (2026 최신 라인업):</span>
+            </label>
+            <select
+              value={aiModel}
+              onChange={(e) => handleModelChange(e.target.value)}
+              className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-2xs cursor-pointer"
+            >
+              {AI_MODEL_OPTIONS.filter((opt) => opt.provider === aiProvider).map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="space-y-1.5">
           <label className="block text-xs font-medium text-neutral-500">키워드 (선택)</label>
           <Input
@@ -539,7 +649,7 @@ export function ProductPostForm({
             onClick={handleGenerateAll}
             disabled={isGeneratingAll || !productId}
           >
-            {isGeneratingAll ? "생성 중..." : "✨ AI로 글+이미지 함께 생성"}
+            {isGeneratingAll ? "생성 중..." : `✨ ${PROVIDER_SHORT_LABELS[aiProvider]}로 글+이미지 함께 생성`}
           </Button>
         )}
 
@@ -551,11 +661,11 @@ export function ProductPostForm({
 
         <Input
           type="text"
-          name="openai_key_field"
+          name="custom_api_key_field"
           autoComplete="new-password"
-          value={openaiApiKey}
-          onChange={(e) => setOpenaiApiKey(e.target.value)}
-          placeholder="내 OpenAI API 키 (선택, 비워두면 설정에 저장된 키 사용)"
+          value={customApiKey}
+          onChange={(e) => setCustomApiKey(e.target.value)}
+          placeholder={`내 ${PROVIDER_SHORT_LABELS[aiProvider]} API 키 (선택, 비워두면 설정에 저장된 키 사용)`}
           className="text-xs"
           style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
         />

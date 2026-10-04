@@ -1,5 +1,14 @@
 import "server-only";
+import { Anthropic } from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 import { ensureParagraphBreaks } from "./formatContent";
+import {
+  type AIModelProvider,
+  DEFAULT_AI_MODELS,
+  AI_MODEL_OPTIONS,
+  PROVIDER_SHORT_LABELS,
+} from "./models";
 
 export type ThreadsTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는" | string;
 
@@ -88,9 +97,12 @@ async function fetchUrlExcerpt(url: string): Promise<string | null> {
 export async function generatePostContent(
   input: GeneratePostInput,
   apiKey: string,
+  provider: AIModelProvider = "openai",
+  model?: string,
 ): Promise<GeneratePostResult> {
+  const providerLabel = PROVIDER_SHORT_LABELS[provider] || provider;
   if (!apiKey) {
-    throw new Error("OpenAI API 키가 없습니다. 설정에서 본인 키를 등록해주세요.");
+    throw new Error(`${providerLabel} API 키가 없습니다. 설정에서 본인 키를 등록해주세요.`);
   }
 
   const targetLength = input.maxLength ?? 450;
@@ -112,38 +124,65 @@ export async function generatePostContent(
     referenceLine = `\n참고 웹페이지 내용 및 링크:\n${fetchedExcerpts.join("\n")}`;
   }
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
+  const userPrompt = `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})${keywordLine}${referenceLine}`;
+  const systemPrompt = buildThreadsSystemPrompt(targetLength);
+  const selectedModel = model || DEFAULT_AI_MODELS[provider];
+
+  let rawContent = "";
+
+  if (provider === "anthropic") {
+    const anthropic = new Anthropic({ apiKey });
+    const params: Anthropic.Beta.MessageCreateParamsNonStreaming = {
+      model: selectedModel,
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }],
+    };
+    if (selectedModel === "claude-opus-5") {
+      params.betas = ["server-side-fallback-2026-07-01"];
+      params.fallbacks = "default";
+    }
+    const response = await anthropic.beta.messages.create(params);
+    if (response.stop_reason === "refusal") {
+      throw new Error("Claude가 이 요청을 처리하지 않았습니다. 다른 AI 엔진이나 모델로 다시 시도해주세요.");
+    }
+    rawContent = response.content
+      .filter((block): block is Anthropic.Beta.BetaTextBlock => block.type === "text")
+      .map((block) => block.text)
+      .join("")
+      .trim();
+  } else if (provider === "gemini") {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const geminiModel = genAI.getGenerativeModel({
+      model: selectedModel,
+      systemInstruction: systemPrompt,
+    });
+    const result = await geminiModel.generateContent({
+      contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+      generationConfig: {
+        maxOutputTokens: 1000,
+        temperature: 0.7,
+      },
+    });
+    rawContent = result.response.text().trim();
+  } else {
+    // OpenAI
+    const openai = new OpenAI({ apiKey });
+    const isGpt4 = selectedModel.startsWith("gpt-4");
+    const completion = await openai.chat.completions.create({
+      model: selectedModel,
       messages: [
-        { role: "system", content: buildThreadsSystemPrompt(targetLength) },
-        {
-          role: "user",
-          content: `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})${keywordLine}${referenceLine}`,
-        },
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
       ],
       max_tokens: 600,
-      temperature: 0.8,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`AI 생성 요청이 실패했습니다. (${response.status}) ${errorBody}`);
+      ...(isGpt4 ? { temperature: 0.8 } : {}),
+    });
+    rawContent = completion.choices[0]?.message?.content?.trim() || "";
   }
 
-  const data = (await response.json()) as {
-    choices?: { message?: { content?: string } }[];
-  };
-
-  const rawContent = data.choices?.[0]?.message?.content?.trim();
   if (!rawContent) {
-    throw new Error("AI가 빈 응답을 반환했습니다.");
+    throw new Error(`${providerLabel} AI가 빈 응답을 반환했습니다.`);
   }
 
   const content = ensureParagraphBreaks(rawContent);

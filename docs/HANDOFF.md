@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.15, 2026-10-04)
+
+- **새 글 작성(/posts/new) 3대 AI 엔진(OpenAI / Gemini / Claude) 및 2026 세부 모델 선택 확장 (v1.15)**:
+  - 기존 `gpt-4o-mini` 단일 고정 생성 방식에서, 블로그(`ai-auto-blog`) 및 떡상 탐지기(`/trends`)와 동일한 구조로 **OpenAI(GPT), Google Gemini, Anthropic Claude** 3대 플랫폼 및 2026 최신 세부 모델 라인업(16종)을 자유롭게 선택하여 쓰레드 제휴 홍보글을 생성할 수 있도록 확장 완료.
+  - **프론트엔드(`ProductPostForm.tsx`)**:
+    - AI 엔진 3대 플랫폼 탭 버튼(OpenAI, Google Gemini, Anthropic Claude) 및 선택된 엔진별 세부 모델 드롭다운 탑재.
+    - 선택 엔진에 맞춰 API 키 입력 필드 동적 플레이스홀더 및 키 바인딩 전환.
+    - 사용자가 선택한 AI 엔진 및 모델은 `localStorage`(`threads_post_ai_provider`, `threads_post_ai_model`)에 자동 보관되어 재방문 시에도 유지.
+  - **백엔드(`generator.ts`, `affiliateGenerator.ts`, `actions/ai.ts`)**:
+    - `generatePostContent`가 `provider`와 `model`을 받아 `@anthropic-ai/sdk`, `@google/generative-ai`, `openai` SDK를 통해 제휴 게시글 본문을 완벽하게 생성하도록 확장.
+    - `generateAffiliateContentAction`에서 공급자별 API 키를 `resolveApiKey`로 조회하고 `logProgramUsage`에 공급자별 액션(`ai_generate_affiliate_post_${provider}`)을 기록.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.15`로 갱신했다.
+
 ## Codex 자율 실행 위임 명문화 (2026-10-03)
 
 - 루트 `AGENTS.md`와 `CLAUDE.md`에 기능 요청의 기본 범위를 조사부터 수정·검수·문서화·커밋·푸시·배포까지로 명시했다.

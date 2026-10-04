@@ -1,5 +1,6 @@
 import "server-only";
 import { generatePostContent, type GeneratePostInput, type ThreadsTone } from "./generator";
+import type { AIModelProvider } from "./models";
 import type { AffiliatePlatform } from "@/types/product";
 
 // 플랫폼별 제휴 고지 문구. 표시광고법은 특정 플랫폼이 아니라 "커미션을 받는
@@ -85,7 +86,13 @@ const TARGET_TOTAL_LENGTH = 490;
 
 export async function generateAffiliatePostContent(
   product: AffiliateProductContext,
-  options: { tone?: ThreadsTone; keywords?: string[]; referenceUrls?: string[] },
+  options: {
+    tone?: ThreadsTone;
+    keywords?: string[];
+    referenceUrls?: string[];
+    provider?: AIModelProvider;
+    model?: string;
+  },
   apiKey: string,
 ): Promise<{ content: string }> {
   const ctaText = PLATFORM_DEFAULT_CTA_TEXT[product.platform];
@@ -122,7 +129,7 @@ export async function generateAffiliatePostContent(
     maxLength: maxContentLength,
   };
 
-  const { content } = await generatePostContent(input, apiKey);
+  const { content } = await generatePostContent(input, apiKey, options.provider, options.model);
 
   // 2026-09-12 버그 수정: 이전엔 여기서 `content.slice(0, maxContentLength)`의
   // maxContentLength가 음수로 내려갈 수 있었는데, JS slice의 음수 인덱스 규칙상
