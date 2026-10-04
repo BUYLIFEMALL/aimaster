@@ -524,80 +524,6 @@ export function ProductPostForm({
           />
         </div>
 
-        {/* AI 글 생성 엔진 & 2026 세부 모델 선택 (GPT / Claude / Gemini) */}
-        <div className="rounded-xl bg-white p-3.5 border border-neutral-200 space-y-3 shadow-2xs">
-          <label className="block text-xs font-bold text-neutral-800 flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              🤖 AI 글 생성 엔진 선택 (GPT / Claude / Gemini)
-            </span>
-            <span className="text-[10px] text-neutral-400 font-normal">선택 시 세부 모델 목록 동적 변경</span>
-          </label>
-
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            {/* 1. GPT */}
-            <button
-              type="button"
-              onClick={() => handleProviderChange("openai")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
-                aiProvider === "openai"
-                  ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
-                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">🤖</span>
-              <span className="font-extrabold text-sm tracking-tight">GPT</span>
-              <span className="text-[10px] opacity-75 font-normal">OpenAI</span>
-            </button>
-
-            {/* 2. Claude */}
-            <button
-              type="button"
-              onClick={() => handleProviderChange("anthropic")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
-                aiProvider === "anthropic"
-                  ? "border-purple-600 bg-purple-600 text-white shadow-xs"
-                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">🧠</span>
-              <span className="font-extrabold text-sm tracking-tight">Claude</span>
-              <span className="text-[10px] opacity-75 font-normal">Anthropic</span>
-            </button>
-
-            {/* 3. Gemini */}
-            <button
-              type="button"
-              onClick={() => handleProviderChange("gemini")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
-                aiProvider === "gemini"
-                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
-                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">✨</span>
-              <span className="font-extrabold text-sm tracking-tight">Gemini</span>
-              <span className="text-[10px] opacity-75 font-normal">Google</span>
-            </button>
-          </div>
-
-          <div className="pt-2.5 border-t border-neutral-100 space-y-1.5">
-            <label className="block text-[11px] font-bold text-neutral-600 flex items-center justify-between">
-              <span>🎯 {PROVIDER_SHORT_LABELS[aiProvider]} 세부 실행 모델 (2026 최신 라인업):</span>
-            </label>
-            <select
-              value={aiModel}
-              onChange={(e) => handleModelChange(e.target.value)}
-              className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-2xs cursor-pointer"
-            >
-              {AI_MODEL_OPTIONS.filter((opt) => opt.provider === aiProvider).map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
         <div className="space-y-1.5">
           <label className="block text-xs font-medium text-neutral-500">키워드 (선택)</label>
           <Input
@@ -667,16 +593,6 @@ export function ProductPostForm({
           </p>
         )}
 
-        <Input
-          type="text"
-          name="custom_api_key_field"
-          autoComplete="new-password"
-          value={customApiKey}
-          onChange={(e) => setCustomApiKey(e.target.value)}
-          placeholder={`내 ${PROVIDER_SHORT_LABELS[aiProvider]} API 키 (선택, 비워두면 설정에 저장된 키 사용)`}
-          className="text-xs"
-          style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
-        />
         {aiError && <p className="text-xs text-red-600">{aiError}</p>}
       </div>
 
@@ -696,6 +612,91 @@ export function ProductPostForm({
           placeholder="Threads에 게시할 내용을 입력하세요."
         />
         <p className="mt-1 text-right text-xs text-neutral-400">{content.length} / 500</p>
+      </div>
+
+      {/* 🤖 AI 글 생성 엔진 선택 (GPT / Claude / Gemini) - 이미지 & 캐러셀 섹션 바로 위 */}
+      <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+        <label className="block text-sm font-medium text-neutral-800 flex items-center justify-between">
+          <span className="flex items-center gap-1.5 font-bold">
+            🤖 AI 글 생성 엔진 선택 (GPT / Claude / Gemini)
+          </span>
+          <span className="text-[10px] text-neutral-400 font-normal">선택 시 세부 실행 모델 동적 변경</span>
+        </label>
+
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          {/* 1. GPT */}
+          <button
+            type="button"
+            onClick={() => handleProviderChange("openai")}
+            className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+              aiProvider === "openai"
+                ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+            }`}
+          >
+            <span className="text-base">🤖</span>
+            <span className="font-extrabold text-sm tracking-tight">GPT</span>
+            <span className="text-[10px] opacity-75 font-normal">OpenAI</span>
+          </button>
+
+          {/* 2. Claude */}
+          <button
+            type="button"
+            onClick={() => handleProviderChange("anthropic")}
+            className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+              aiProvider === "anthropic"
+                ? "border-purple-600 bg-purple-600 text-white shadow-xs"
+                : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+            }`}
+          >
+            <span className="text-base">🧠</span>
+            <span className="font-extrabold text-sm tracking-tight">Claude</span>
+            <span className="text-[10px] opacity-75 font-normal">Anthropic</span>
+          </button>
+
+          {/* 3. Gemini */}
+          <button
+            type="button"
+            onClick={() => handleProviderChange("gemini")}
+            className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+              aiProvider === "gemini"
+                ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+            }`}
+          >
+            <span className="text-base">✨</span>
+            <span className="font-extrabold text-sm tracking-tight">Gemini</span>
+            <span className="text-[10px] opacity-75 font-normal">Google</span>
+          </button>
+        </div>
+
+        <div className="pt-2 border-t border-neutral-200/80 space-y-1.5">
+          <label className="block text-[11px] font-bold text-neutral-600 flex items-center justify-between">
+            <span>🎯 {PROVIDER_SHORT_LABELS[aiProvider]} 세부 실행 모델 (2026 최신 라인업):</span>
+          </label>
+          <select
+            value={aiModel}
+            onChange={(e) => handleModelChange(e.target.value)}
+            className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-2xs cursor-pointer"
+          >
+            {AI_MODEL_OPTIONS.filter((opt) => opt.provider === aiProvider).map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <Input
+          type="text"
+          name="custom_api_key_field"
+          autoComplete="new-password"
+          value={customApiKey}
+          onChange={(e) => setCustomApiKey(e.target.value)}
+          placeholder={`내 ${PROVIDER_SHORT_LABELS[aiProvider]} API 키 (선택, 비워두면 설정에 저장된 키 사용)`}
+          className="text-xs bg-white"
+          style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
+        />
       </div>
 
       <div>
