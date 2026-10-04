@@ -157,12 +157,13 @@ vercel deploy --prod --yes
 4. **제휴 고지 문구 자동 포함 의무화**:
    - `src/lib/ai/affiliateGenerator.ts`에서 `generateAffiliatePostContent()` 호출 시 각 플랫폼(쿠팡, 알리, 토스, 네이버)에 맞는 제휴 수수료 고지 문구가 500자 이내에 무조건 자동 트리밍되어 삽입됩니다. 우회하거나 지우면 안 됩니다.
 
-5. **새 글 작성(/posts/new) 3대 AI 엔진 및 최신 모델 선택 확장 (2026-10-04, v1.15 ~ v1.18)**:
+5. **새 글 작성(/posts/new) 3대 AI 엔진 및 최신 모델 선택 확장 (2026-10-04, v1.15 ~ v1.19)**:
    - **기능 개요**: 기존 `gpt-4o-mini` 단일 고정 생성 방식에서, 블로그(`ai-auto-blog`) 및 기획기(`threads-easy-planner`)와 일관된 구조로 **GPT(OpenAI), Claude(Anthropic), Gemini(Google)** 3대 엔진 및 2026 최신 세부 모델 라인업(총 16종)을 자유롭게 선택하여 홍보 글을 생성할 수 있도록 확장.
    - **연동 흐름**:
      - `ProductPostForm.tsx` & `ViralPostDetector.tsx`: **GPT / Claude / Gemini** 3대 엔진 선택 탭 버튼 순서 및 볼드 라벨 통일화. 세부 모델 드롭다운 연동. `localStorage`에 최근 선택 엔진/모델을 자동 저장 및 복원.
      - **UI 레이아웃 최적화 (v1.17)**: `ProductPostForm.tsx`에서 "🤖 AI 글 생성 엔진 선택 (GPT / Claude / Gemini)" 섹션을 "이미지 & 캐러셀 (최대 20장)" 섹션의 바로 위로 재배치하여, 상단(상품/페르소나) ➔ 중단(게시글 내용) ➔ 하단(글 생성 엔진 선택 ➔ 이미지/캐러셀 생성)으로 자연스러운 제작 흐름 완성.
      - **불필요한 API 키 인풋 제거 (v1.18)**: 환경설정 메뉴(`/settings`)에서 이미 계정별로 API 키를 등록하여 사용하므로, 글 작성 폼 내 불필요했던 API 키 수동 입력창(`customApiKey`)을 완전 제거하고 DB 저장 키 자동 연동(`resolveApiKey`)으로 심플화.
+     - **글 작성 폼 직관적 박스 및 색상 구분 개편 (v1.19)**: `ProductPostForm.tsx`에서 밋밋하게 나열되어 있던 상단 영역을 역할별 독립 카드 박스 및 테마 색상으로 구분(⚡ AI 안내 배너, 🛍️ 1. 제휴 상품 선택-블루, 🎭 2. AI 페르소나-퍼플, 🏷️ 3. 키워드/링크-에메랄드, ✍️ 4. 게시글 본문-슬레이트, 🤖 5. AI 엔진 선택, 🖼️ 6. 이미지 & 캐러셀). 직관적인 1~6단계 제작 UX 완성.
      - `generator.ts` (`generatePostContent`): `provider` 및 `model` 매개변수 지원. Anthropic (`@anthropic-ai/sdk`), Gemini (`@google/generative-ai`), OpenAI (`openai`) SDK 호출 완벽 연동.
      - `affiliateGenerator.ts` (`generateAffiliatePostContent`): 엔진/모델 옵션을 `generatePostContent`로 정확히 포워딩.
      - `actions/ai.ts` (`generateAffiliateContentAction`): 플랫폼별 API 키를 `resolveApiKey`로 동적 조회하고 `logProgramUsage`에 엔진별 사용량 기록.

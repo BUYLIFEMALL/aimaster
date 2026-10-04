@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.19, 2026-10-04)
+
+- **새 글 작성(/posts/new) 폼 직관적 박스 및 역할별 테마 색상 구분 개편 (v1.19)**:
+  - `ProductPostForm.tsx`에서 단조롭게 뭉쳐져 있던 상단 입력 영역을 역할별 독립 카드 박스 및 직관적인 테마 색상으로 전면 개편.
+  - `⚡ AI 원클릭 자동 생성 안내 배너`: 상단 안내 및 프로세스 요약.
+  - `🛍️ 1. 제휴 상품 선택`: 블루 테마 (`bg-blue-50/40 border-blue-200`) + 필수 배지 + 제휴 링크 및 공정위 광고 고지 문구 안내 카드.
+  - `🎭 2. AI 페르소나 스타일 선택`: 퍼플 테마 (`bg-purple-50/40 border-purple-200`) + 어조 반영 배지 + PersonaPicker.
+  - `🏷️ 3. 타겟 키워드 & 참고 링크`: 에메랄드 테마 (`bg-emerald-50/40 border-emerald-200`) + 선택 배지 + 태그 칩 & URL 인풋.
+  - `✍️ 4. Threads 게시글 본문`: 모던 슬레이트 테마 (`bg-neutral-50/70 border-neutral-300`) + 글자수 카운터 배지 (0/500자) + 본문 미리보기 및 직접 수정 Textarea.
+  - `🤖 5. AI 글 생성 엔진 선택` 및 `🖼️ 6. 이미지 & 캐러셀`까지 번호 매김 및 카드 스타일을 통일하여 1~6단계 물 흐르듯 자연스럽고 직관적인 제작 UX 완성.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.19`로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.18, 2026-10-04)
 
 - **새 글 작성(/posts/new) 3대 AI 엔진 선택 섹션 내 불필요한 API 키 수동 등록 입력창 제거 (v1.18)**:
