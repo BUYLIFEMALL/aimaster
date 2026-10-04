@@ -451,3 +451,9 @@
 - **원인:** PowerShell이 `npm.cmd`보다 `npm.ps1` 셸 래퍼를 우선 해석했고, 현재 세션의 실행 정책이 PowerShell 스크립트 실행을 막았다.
 - **해결(위치):** 코드 수정 없이 동일한 명령을 `npm.cmd run build`로 실행해 정상 빌드했다.
 - **다음부터 확인:** Windows 환경에서 npm 명령이 실행 정책 오류로 실패하면 정책을 바꾸지 말고 `npm.cmd`를 먼저 사용한다.
+## 2026-10-04 Vercel 프로덕션 배포 성공만으로 기본 `.vercel.app` 주소가 갱신되지는 않을 수 있음
+
+- **증상:** `vercel deploy --prod --yes`가 성공했는데도 `ai-image-studio.vercel.app`에서 이전 대시보드 문구와 메타 설명이 계속 보였다.
+- **원인:** 기본 별칭이 최신 배포 URL이 아닌 과거 배포본에 연결돼 있었다. 새 배포는 별도의 `*-buylife.vercel.app` 별칭만 받았다.
+- **해결(위치):** `vercel alias ls`로 기본 별칭의 원본 배포 URL을 확인하고, `vercel alias set <새-배포-URL> ai-image-studio.vercel.app`로 재연결한다.
+- **다음부터 확인:** 배포 뒤 실제 회원이 쓰는 기본 URL을 `curl`로 확인하고, 소스 코드가 아닌 응답 HTML의 문구·메타 설명까지 대조한다.

@@ -40,4 +40,4 @@
 
 - `programs.short_desc`: `GPT Image·Gemini·FLUX.2·Z-Image 등 다양한 AI 엔진으로 1~10장 연속 생성과 세부 옵션 설정을 지원합니다.`
 - 카탈로그 카드가 두 줄로 자르는 구조이므로, 상세 모델명과 프리미엄 소개는 `description`에만 둔다.
-- 대시보드 첫 화면과 메타 설명은 `GPT Image·Gemini(Nano Banana)·FLUX.2·Z-Image` 최신 라인업으로 표기한다. 현재 버전은 `v1.04`.
+- 대시보드 첫 화면과 메타 설명은 프로그램 상세 설명과 동일하게 `OpenAI GPT Image, Google Gemini(Nano Banana), FLUX.2, Z-Image`로 표기한다. 현재 버전은 `v1.05`.

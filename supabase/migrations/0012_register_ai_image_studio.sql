@@ -6,7 +6,7 @@ with new_category as (
   returning id
 ),
 new_program as (
-  insert into programs (category_id, required_grade_id, name, slug, short_desc, description, is_active, badges, sort_order, app_url, thumbnail_url)
+  insert into programs (category_id, required_grade_id, name, slug, short_desc, description, is_active, badges, sort_order, app_url, thumbnail_url, version)
   select 
     c.id,
     (select id from member_grades where name = 'basic' limit 1),
@@ -18,7 +18,8 @@ new_program as (
     ARRAY['new'],
     (select coalesce(max(sort_order), 0) + 1 from programs),
     'https://ai-image-studio.vercel.app',
-    'https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/ai-image-studio-thumbnail.jpg'
+    'https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/ai-image-studio-thumbnail.jpg',
+    'v1.05'
   from new_category c
   on conflict (slug) do update set
     name = excluded.name,
@@ -26,6 +27,7 @@ new_program as (
     description = excluded.description,
     app_url = excluded.app_url,
     thumbnail_url = excluded.thumbnail_url,
+    version = excluded.version,
     is_active = excluded.is_active
   returning id
 )

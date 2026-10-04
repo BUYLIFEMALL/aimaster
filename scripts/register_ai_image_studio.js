@@ -79,6 +79,7 @@ async function run() {
     slug: 'ai-image-studio',
     short_desc: 'GPT Image·Gemini·FLUX.2·Z-Image 등 다양한 AI 엔진으로 1~10장 연속 생성과 세부 옵션 설정을 지원합니다.',
     description: 'OpenAI GPT Image, Google Gemini(Nano Banana), FLUX.2, Z-Image 등 다양한 AI 엔진으로 1장~10장 연속 생성 및 세부 옵션 맞춤 설정이 가능한 프리미엄 이미지 스튜디오입니다.',
+    version: 'v1.05',
     is_active: true,
     badges: ['new'],
     sort_order: (maxProgOrder?.sort_order || 0) + 1,

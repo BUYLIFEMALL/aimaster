@@ -42,7 +42,7 @@ function DashboardContent() {
             🎨 이미지 생성 작업실
           </h1>
           <p className="text-sm text-zinc-300">
-            GPT Image·Gemini(Nano Banana)·FLUX.2·Z-Image 등 최신 AI 엔진을 하나의 올인원 작업실에서 사용해보세요.
+            OpenAI GPT Image, Google Gemini(Nano Banana), FLUX.2, Z-Image 등 다양한 AI 엔진으로 1장~10장 연속 생성과 세부 옵션 맞춤 설정을 사용해보세요.
           </p>
         </div>
 
