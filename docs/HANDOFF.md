@@ -8,17 +8,24 @@
 
 
 
+
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.29, 2026-10-04)
+
+- **AI 이미지 생성 버튼 명칭 직관화 및 선별/완성 워크플로우 정립 (v1.29)**:
+  - `ProductPostForm.tsx`에서 오해 소지가 있던 "✨ 이미지만 다시 생성" 버튼 명칭을 **`✨ AI 이미지 생성`** (다중 선택 시 `✨ 이미지 N장 생성`)으로 명확히 통일.
+  - 사용자가 AI로 원하는 만큼 이미지를 생성하고, 마음에 드는 이미지만 선별하여 남기거나(✕ 삭제), 내 PC 파일/URL로 추가 등록하고 순서를 변경(◀ ▶)하여 최종 마음에 드는 비주얼로 완성할 수 있도록 안내 가이드 동기화.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.29`로 갱신했다.
 ## 완료 — AI 이미지 스튜디오 카탈로그·대시보드 문구 (2026-10-04)
 
 - **운영 DB는 이미 반영됨**: `programs`의 `slug='ai-image-studio'`에 아래 값이 적용되어 있다.
   - `short_desc`: `GPT Image·Gemini·FLUX.2·Z-Image 등 다양한 AI 엔진으로 1~10장 연속 생성과 세부 옵션 설정을 지원합니다.`
-  - `version`: `v1.04`
+  - `version`: `v1.05`
 - **배포됨**: `ai-image-studio`에서 `vercel deploy --prod --yes` 실행 및 Vercel 빌드 통과. 라이브 URL: `https://ai-image-studio.vercel.app/dashboard`.
 - **로컬 빌드 통과**: `ai-image-studio`에서 `npm.cmd run build` 성공. PowerShell 실행 정책상 `npm` 대신 `npm.cmd`를 사용한다.
 - **반영 파일**:
-  - `ai-image-studio/app/(dashboard)/dashboard/page.tsx` — 대시보드 소개를 `GPT Image·Gemini(Nano Banana)·FLUX.2·Z-Image` 최신 엔진 문구로 변경.
+  - `ai-image-studio/app/(dashboard)/dashboard/page.tsx` — 대시보드 소개를 프로그램 상세 설명과 같은 `OpenAI GPT Image, Google Gemini(Nano Banana), FLUX.2, Z-Image` 모델 문구로 변경.
   - `ai-image-studio/app/layout.tsx` — 동일 기준의 메타 설명 갱신.
-  - `ai-image-studio/lib/version.ts` — `v1.04`.
+  - `ai-image-studio/lib/version.ts` — `v1.05`.
   - `ai-image-studio/AGENTS.md`, `scripts/register_ai_image_studio.js`, `scripts/update_thumbnail.js`, `supabase/migrations/0012_register_ai_image_studio.sql`, `docs/ERROR_LESSONS.md` — 카탈로그 문구와 재등록 기준 동기화.
 - **검증**: `ai-image-studio`에서 `npm.cmd run build`를 다시 실행해 통과했다. 커밋·푸시 후 재배포는 필요 없으며, 이미 반영된 프로덕션 URL은 `https://ai-image-studio.vercel.app/dashboard`다.
 - **공유 작업 주의**: `threads-affiliate-poster/`, `shorts-viral-studio/`, `debug.log`, `scratch/`는 다른 작업 영역이므로 이 작업 커밋에 포함하지 않는다.
@@ -54,7 +61,7 @@
 
 - 카탈로그 카드의 두 줄 한줄 설명을 `GPT Image·Gemini·FLUX.2·Z-Image 등 다양한 AI 엔진으로 1~10장 연속 생성과 세부 옵션 설정을 지원합니다.`로 갱신했다.
 - 운영 DB `programs.short_desc` 및 재등록 기준 파일(`supabase/migrations/0012_register_ai_image_studio.sql`, 관련 등록 스크립트)을 함께 동기화했다.
-- 대시보드 및 메타 설명도 `GPT Image·Gemini(Nano Banana)·FLUX.2·Z-Image` 최신 라인업으로 갱신하고 앱 버전을 `v1.04`로 올렸다.
+- 대시보드 및 메타 설명을 프로그램 상세 설명과 같은 `OpenAI GPT Image, Google Gemini(Nano Banana), FLUX.2, Z-Image` 모델 구성으로 갱신하고 앱 버전을 `v1.05`로 올렸다.
 
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.24, 2026-10-04)
 
@@ -521,6 +528,7 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
+
 
 
 

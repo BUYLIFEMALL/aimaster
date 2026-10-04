@@ -997,7 +997,7 @@ export function ProductPostForm({
                 ? "생성 중..."
                 : imageGenerateCount > 1
                 ? `✨ 이미지 ${imageGenerateCount}장 생성`
-                : "✨ 이미지만 다시 생성"}
+                : "✨ AI 이미지 생성"}
             </Button>
           </div>
 
@@ -1116,7 +1116,7 @@ export function ProductPostForm({
               <div className="flex items-center justify-between text-xs font-semibold text-neutral-700">
                 <span>📷 등록된 미디어 캐러셀 ({imageUrls.length}/20)</span>
                 <span className="text-[11px] text-blue-600 font-normal">
-                  * ✕ 버튼으로 개별 삭제, ◀ ▶ 화살표로 순서를 변경할 수 있습니다.
+                  * 생성/추가된 이미지 중 마음에 드는 것만 남기고 ✕로 삭제하거나, ◀ ▶로 순서를 조정하세요.
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
