@@ -168,5 +168,14 @@ vercel deploy --prod --yes
      - `affiliateGenerator.ts` (`generateAffiliatePostContent`): 엔진/모델 옵션을 `generatePostContent`로 정확히 포워딩.
      - `actions/ai.ts` (`generateAffiliateContentAction`): 플랫폼별 API 키를 `resolveApiKey`로 동적 조회하고 `logProgramUsage`에 엔진별 사용량 기록.
 
+6. **4대 AI 이미지 생성 플랫폼(NanoBanana, GPT Image, FLUX, Z-Image) 및 세부 모델 선택 확장 (2026-10-04, v1.20)**:
+   - **기능 개요**: 기존 Gemini NanoBanana 단일 플랫폼에서, `ai-image-studio`의 기술 스택을 바탕으로 **NanoBanana(Google Gemini), GPT Image(OpenAI), FLUX 2.0(Black Forest Labs), Z-Image(Alibaba 6B)** 4대 플랫폼 및 16종 세부 모델을 자유롭게 선택하여 캐러셀/홍보 이미지를 생성할 수 있도록 확장.
+   - **연동 흐름**:
+     - `imageModels.ts`: 4대 플랫폼 정보, 세부 모델 목록, 기본 모델 매핑 정의.
+     - `imageGenerator.ts`: Gemini REST API, OpenAI Image API, Replicate API(FLUX, Z-Image 동기/폴링) 통합 호출기 구현. 핵심 원칙 3번(인물 동아시아인 기본 묘사) 자동 결합. 생성된 이미지는 Supabase Storage `post-images` 버킷에 영구 저장되어 절대 깨지지 않는 영구 Public URL 반환.
+     - `actions/ai.ts` (`generateImageAction`): 선택된 플랫폼에 맞춰 `gemini`, `openai`, `replicate` API 키를 `resolveApiKey`로 동적 조회하여 안전하게 생성.
+     - `settings/page.tsx`: Replicate(FLUX) API 키 등록 필드 및 발급 매뉴얼(`78a00b16-eef5-...`) 링크 신설.
+     - `ProductPostForm.tsx`: 4분할 직관적 카드 탭 버튼(아이콘, 플랫폼명, 제공사) + 세부 모델 셀렉트박스 + 프롬프트/멀티컷 생성 옵션 제공. `localStorage` 최근 선택 엔진/모델 자동 복원. 원클릭 글+이미지 일괄 생성(`runGenerateAll`) 시에도 선택된 이미지 엔진으로 자동 생성 연동 완료.
+
 
 

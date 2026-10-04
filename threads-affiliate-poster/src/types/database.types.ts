@@ -3,6 +3,7 @@ export type ApiKeyProvider =
   | "openai"
   | "gemini"
   | "anthropic"
+  | "replicate"
   | "coupang_access_key"
   | "coupang_secret_key"
   | "aliexpress_app_key"

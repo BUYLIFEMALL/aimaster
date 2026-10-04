@@ -2,13 +2,17 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { generateAffiliatePostContent, getDisclosureText } from "@/lib/ai/affiliateGenerator";
-import { generatePostImage, type NanoBananaModelType } from "@/lib/ai/generator";
 import type { ThreadsTone } from "@/lib/ai/generator";
 import {
   type AIModelProvider,
   DEFAULT_AI_MODELS,
   PROVIDER_SHORT_LABELS,
 } from "@/lib/ai/models";
+import {
+  type ImageProvider,
+  DEFAULT_IMAGE_MODELS,
+} from "@/lib/ai/imageModels";
+import { generateMultiPlatformImage } from "@/lib/ai/imageGenerator";
 import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { getDetailPageExcerpt } from "@/lib/detailPages";
@@ -110,8 +114,9 @@ export async function getDisclosurePreviewAction(platform: "coupang" | "aliexpre
 
 export async function generateImageAction(input: {
   prompt: string;
+  provider?: ImageProvider;
+  model?: string;
   apiKey?: string;
-  model?: NanoBananaModelType;
 }): Promise<GenerateImageState> {
   const user = await requireProgramAccess();
 
@@ -119,32 +124,43 @@ export async function generateImageAction(input: {
     return { error: "이미지 프롬프트를 입력해주세요." };
   }
 
+  const provider: ImageProvider = input.provider || "nanobanana";
+  const model = input.model || DEFAULT_IMAGE_MODELS[provider];
+
   try {
     const supabase = await createClient();
-    const apiKey = input.apiKey?.trim() || (await resolveApiKey(supabase, user.id, "gemini"));
+
+    let keyProvider: "gemini" | "openai" | "replicate" = "gemini";
+    let keyLabel = "Google Gemini (NanoBanana)";
+    if (provider === "openai") {
+      keyProvider = "openai";
+      keyLabel = "OpenAI (GPT Image)";
+    } else if (provider === "flux" || provider === "zimage") {
+      keyProvider = "replicate";
+      keyLabel = provider === "flux" ? "Replicate (FLUX)" : "Replicate (Z-Image)";
+    }
+
+    const apiKey = input.apiKey?.trim() || (await resolveApiKey(supabase, user.id, keyProvider));
     if (!apiKey) {
-      return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+      return { error: `[${keyLabel}] API 키가 없습니다. 설정 메뉴에서 본인 API 키를 먼저 등록해주세요.` };
     }
 
-    const result = await generatePostImage({ prompt: input.prompt, model: input.model }, apiKey);
-    const ext = result.mimeType.split("/")[1] ?? "png";
-    const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+    const result = await generateMultiPlatformImage({
+      prompt: input.prompt,
+      provider,
+      model,
+      apiKey,
+      userId: user.id,
+      supabase,
+    });
 
-    const { error: uploadError } = await supabase.storage
-      .from("post-images")
-      .upload(path, Buffer.from(result.base64, "base64"), {
-        contentType: result.mimeType,
-        upsert: false,
-      });
-    if (uploadError) {
-      throw new Error(uploadError.message);
-    }
+    await logProgramUsage({
+      userId: user.id,
+      action: `ai_generate_image_${provider}`,
+      metadata: { prompt: input.prompt, provider, model, imageUrl: result.imageUrl },
+    });
 
-    const { data } = supabase.storage.from("post-images").getPublicUrl(path);
-
-    await logProgramUsage({ userId: user.id, action: "ai_generate_image", metadata: { prompt: input.prompt } });
-
-    return { imageUrl: data.publicUrl };
+    return { imageUrl: result.imageUrl };
   } catch (err) {
     const message = err instanceof Error ? err.message : "이미지 생성에 실패했습니다.";
     return { error: message };

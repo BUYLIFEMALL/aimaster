@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.20, 2026-10-04)
+
+- **4대 AI 이미지 생성 플랫폼(NanoBanana, GPT Image, FLUX, Z-Image) 및 세부 모델 선택 확장 (v1.20)**:
+  - 기존 Gemini NanoBanana 단일 이미지 생성에서, `ai-image-studio`의 검증된 기술 스택을 기반으로 **NanoBanana(Google Gemini), GPT Image(OpenAI), FLUX 2.0(Black Forest Labs), Z-Image(Alibaba 6B)** 4대 플랫폼 및 16종 세부 모델 선택 기능으로 대폭 확장.
+  - `src/lib/ai/imageModels.ts`: 4대 플랫폼 및 세부 모델 목록, 플랫폼별 기본 모델 정의.
+  - `src/lib/ai/imageGenerator.ts`: Gemini REST API, OpenAI Image API, Replicate API(FLUX, Z-Image 동기/폴링) 통합 호출기 구현. 모든 생성 이미지는 Supabase Storage `post-images` 버킷에 영구 저장되어 절대 깨지지 않는 영구 URL 반환.
+  - `src/lib/actions/ai.ts`: 선택된 플랫폼에 맞춰 `gemini`, `openai`, `replicate` API 키를 `resolveApiKey`로 자동 조회.
+  - `src/app/(dashboard)/settings/page.tsx`: Replicate(FLUX) API 키 등록 필드 및 발급 매뉴얼 링크 신설.
+  - `src/components/posts/ProductPostForm.tsx`: 4분할 카드 탭 버튼(아이콘, 플랫폼명, 제공사) + 세부 모델 셀렉트박스 + 프롬프트/멀티컷 연속 생성 지원. `localStorage` 선택 상태 자동 복원. 원클릭 글+이미지 일괄 생성 시에도 선택된 이미지 엔진으로 자동 생성 연동.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.20`으로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.19, 2026-10-04)
 
 - **새 글 작성(/posts/new) 폼 직관적 박스 및 역할별 테마 색상 구분 개편 (v1.19)**:

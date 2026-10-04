@@ -19,6 +19,12 @@ import {
   DEFAULT_AI_MODELS,
   PROVIDER_SHORT_LABELS,
 } from "@/lib/ai/models";
+import {
+  type ImageProvider,
+  IMAGE_PROVIDERS,
+  IMAGE_MODEL_OPTIONS,
+  DEFAULT_IMAGE_MODELS,
+} from "@/lib/ai/imageModels";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 1024 * 1024 * 1024; // Threads 공식 제한(1GB, 최대 5분, MP4/MOV)
@@ -33,13 +39,6 @@ const TONE_OPTIONS: { value: Tone; label: string }[] = [
   { value: "격식있는", label: "격식있는" },
   { value: "위트있는", label: "위트있는" },
 ];
-
-const IMAGE_MODEL_OPTIONS = [
-  { value: "nanobanana-2-2k", label: "NanoBanana 2-2K (2K 고화질 비주얼 - 추천)" },
-  { value: "nanobanana-2-4k", label: "NanoBanana 2-4K (4K 울트라 HD)" },
-  { value: "nanobanana-pro", label: "NanoBanana Pro (프로페셔널 인포그래픽)" },
-  { value: "nanobanana", label: "NanoBanana Standard (기본 모델)" },
-] as const;
 
 // 플랫폼별 제휴 고지 문구 미리보기(실제 삽입은 서버의 generateAffiliatePostContent()가
 // 담당한다 — 여기서는 사용자에게 "이 문구가 자동으로 붙습니다"를 미리 보여주는 용도).
@@ -222,6 +221,17 @@ export function ProductPostForm({
           setAiModel(DEFAULT_AI_MODELS[savedProvider]);
         }
       }
+
+      const savedImgProvider = localStorage.getItem("threads_post_image_provider") as ImageProvider | null;
+      const savedImgModel = localStorage.getItem("threads_post_image_model");
+      if (savedImgProvider && (savedImgProvider === "nanobanana" || savedImgProvider === "openai" || savedImgProvider === "flux" || savedImgProvider === "zimage")) {
+        setImageProvider(savedImgProvider);
+        if (savedImgModel && IMAGE_MODEL_OPTIONS.some((o) => o.provider === savedImgProvider && o.value === savedImgModel)) {
+          setImageModel(savedImgModel);
+        } else {
+          setImageModel(DEFAULT_IMAGE_MODELS[savedImgProvider]);
+        }
+      }
     } catch {
       // ignore
     }
@@ -241,6 +251,26 @@ export function ProductPostForm({
     setAiModel(newModel);
     try {
       localStorage.setItem("threads_post_ai_model", newModel);
+    } catch {}
+  };
+
+  const [imageProvider, setImageProvider] = useState<ImageProvider>("nanobanana");
+  const [imageModel, setImageModel] = useState<string>(DEFAULT_IMAGE_MODELS["nanobanana"]);
+
+  const handleImageProviderChange = (newProvider: ImageProvider) => {
+    setImageProvider(newProvider);
+    const defaultModel = DEFAULT_IMAGE_MODELS[newProvider];
+    setImageModel(defaultModel);
+    try {
+      localStorage.setItem("threads_post_image_provider", newProvider);
+      localStorage.setItem("threads_post_image_model", defaultModel);
+    } catch {}
+  };
+
+  const handleImageModelChange = (newModel: string) => {
+    setImageModel(newModel);
+    try {
+      localStorage.setItem("threads_post_image_model", newModel);
     } catch {}
   };
 
@@ -272,12 +302,8 @@ export function ProductPostForm({
   };
 
   const [imagePrompt, setImagePrompt] = useState("");
-  const [imageModel, setImageModel] = useState<(typeof IMAGE_MODEL_OPTIONS)[number]["value"]>(
-    "nanobanana-2-2k",
-  );
   const [aiMultiCut, setAiMultiCut] = useState(false);
   const [aiCutCount, setAiCutCount] = useState(3);
-  const [geminiApiKey, setGeminiApiKey] = useState("");
   const [isGeneratingImage, startGeneratingImage] = useTransition();
   const [imageGenError, setImageGenError] = useState<string | null>(null);
 
@@ -297,7 +323,7 @@ export function ProductPostForm({
         const generatedList: string[] = [];
         for (let i = 1; i <= count; i++) {
           const cutPrompt = `${prompt} (컷 ${i}/${count}: Threads 카드뉴스 visual angle ${i})`;
-          const result = await generateImageAction({ prompt: cutPrompt, apiKey: geminiApiKey, model: imageModel });
+          const result = await generateImageAction({ prompt: cutPrompt, provider: imageProvider, model: imageModel });
           if (result.imageUrl) {
             generatedList.push(result.imageUrl);
           }
@@ -309,7 +335,7 @@ export function ProductPostForm({
           setImageGenError("이미지 멀티컷 생성에 실패했습니다.");
         }
       } else {
-        const result = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+        const result = await generateImageAction({ prompt, provider: imageProvider, model: imageModel });
         if (result.error) {
           setImageGenError(result.error);
           return;
@@ -370,12 +396,15 @@ export function ProductPostForm({
     const prompt = imagePrompt.trim() || selectedProduct?.product_name.trim() || "";
     if (prompt && currentUrls.length === 0) {
       let lastError: string | undefined;
+      const currentProviderConfig = IMAGE_PROVIDERS.find((p) => p.id === imageProvider);
+      const currentProviderLabel = currentProviderConfig?.name || "AI";
+
       if (aiMultiCut && aiCutCount > 1) {
         const count = Math.min(Math.max(aiCutCount, 2), 10);
-        setStatusMsg(`AI가 Threads 카드뉴스용 멀티컷 이미지 ${count}장을 연속 생성 중입니다...`);
+        setStatusMsg(`AI(${currentProviderLabel})가 Threads 카드뉴스용 멀티컷 이미지 ${count}장을 연속 생성 중입니다...`);
         for (let i = 1; i <= count; i++) {
           const cutPrompt = `${prompt} (컷 ${i}/${count}: Threads 카드뉴스 visual angle ${i})`;
-          const imageResult = await generateImageAction({ prompt: cutPrompt, apiKey: geminiApiKey, model: imageModel });
+          const imageResult = await generateImageAction({ prompt: cutPrompt, provider: imageProvider, model: imageModel });
           if (imageResult.imageUrl) {
             currentUrls.push(imageResult.imageUrl);
           } else if (imageResult.error) {
@@ -390,10 +419,10 @@ export function ProductPostForm({
         for (let attempt = 1; attempt <= MAX_IMAGE_ATTEMPTS; attempt += 1) {
           setStatusMsg(
             attempt === 1
-              ? "게시글에 어울리는 이미지를 나노바나나로 생성하고 있습니다..."
+              ? `게시글에 어울리는 이미지를 ${currentProviderLabel}으로 생성하고 있습니다...`
               : `이미지 생성에 실패해서 다시 시도하고 있습니다... (${attempt}/${MAX_IMAGE_ATTEMPTS})`,
           );
-          const imageResult = await generateImageAction({ prompt, apiKey: geminiApiKey, model: imageModel });
+          const imageResult = await generateImageAction({ prompt, provider: imageProvider, model: imageModel });
           if (imageResult.imageUrl) {
             currentUrls.push(imageResult.imageUrl);
             setImageUrls(currentUrls);
@@ -788,24 +817,97 @@ export function ProductPostForm({
           </div>
         )}
 
-        <div className="mb-2 space-y-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-          <label className="block text-sm font-medium text-neutral-700">
-            AI로 이미지 생성 (나노바나나, 선택)
-          </label>
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-2 space-y-3 rounded-xl border border-neutral-200 bg-neutral-50/80 p-3.5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
+              <span>🎨 AI 이미지 생성 엔진 선택</span>
+              <span className="text-[10px] text-neutral-500 font-normal">NanoBanana · GPT Image · FLUX · Z-Image</span>
+            </label>
+            <span className="text-[10px] text-neutral-400">선택 시 세부 모델 자동 연동</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            {/* 1. NanoBanana */}
+            <button
+              type="button"
+              onClick={() => handleImageProviderChange("nanobanana")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                imageProvider === "nanobanana"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                  : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🍌</span>
+              <span className="font-extrabold text-xs tracking-tight">NanoBanana</span>
+              <span className="text-[10px] opacity-80 font-normal">Google Gemini</span>
+            </button>
+
+            {/* 2. GPT Image */}
+            <button
+              type="button"
+              onClick={() => handleImageProviderChange("openai")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                imageProvider === "openai"
+                  ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                  : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🤖</span>
+              <span className="font-extrabold text-xs tracking-tight">GPT Image</span>
+              <span className="text-[10px] opacity-80 font-normal">OpenAI</span>
+            </button>
+
+            {/* 3. FLUX */}
+            <button
+              type="button"
+              onClick={() => handleImageProviderChange("flux")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                imageProvider === "flux"
+                  ? "border-blue-600 bg-blue-600 text-white shadow-xs"
+                  : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">⚡</span>
+              <span className="font-extrabold text-xs tracking-tight">FLUX 2.0</span>
+              <span className="text-[10px] opacity-80 font-normal">Black Forest</span>
+            </button>
+
+            {/* 4. Z-Image */}
+            <button
+              type="button"
+              onClick={() => handleImageProviderChange("zimage")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                imageProvider === "zimage"
+                  ? "border-emerald-600 bg-emerald-600 text-white shadow-xs"
+                  : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">🚀</span>
+              <span className="font-extrabold text-xs tracking-tight">Z-Image</span>
+              <span className="text-[10px] opacity-80 font-normal">Alibaba 6B</span>
+            </button>
+          </div>
+
+          <div className="pt-2 border-t border-neutral-200/80 space-y-1.5">
+            <label className="block text-[11px] font-bold text-neutral-600 flex items-center justify-between">
+              <span>🎯 {IMAGE_PROVIDERS.find((p) => p.id === imageProvider)?.name} 세부 실행 모델:</span>
+            </label>
             <select
               value={imageModel}
-              onChange={(e) => setImageModel(e.target.value as typeof imageModel)}
-              className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700"
+              onChange={(e) => handleImageModelChange(e.target.value)}
+              className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-2xs cursor-pointer"
             >
-              {IMAGE_MODEL_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+              {IMAGE_MODEL_OPTIONS.filter((opt) => opt.provider === imageProvider).map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1">
             <Input
-              className="min-w-[200px] flex-1"
+              className="min-w-[200px] flex-1 bg-white text-sm"
               value={imagePrompt}
               onChange={(e) => setImagePrompt(e.target.value)}
               placeholder={
@@ -825,6 +927,7 @@ export function ProductPostForm({
               {isGeneratingImage ? "생성 중..." : "이미지만 다시 생성"}
             </Button>
           </div>
+
           <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium text-neutral-700">
             <label className="inline-flex items-center gap-1.5 cursor-pointer">
               <input
@@ -841,7 +944,7 @@ export function ProductPostForm({
                 <select
                   value={aiCutCount}
                   onChange={(e) => setAiCutCount(Number(e.target.value))}
-                  className="rounded border border-neutral-300 px-2 py-0.5 text-xs text-neutral-700"
+                  className="rounded border border-neutral-300 bg-white px-2 py-0.5 text-xs text-neutral-700"
                 >
                   {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                     <option key={num} value={num}>
@@ -852,17 +955,8 @@ export function ProductPostForm({
               </div>
             )}
           </div>
-          <Input
-            type="text"
-            name="gemini_key_field"
-            autoComplete="new-password"
-            value={geminiApiKey}
-            onChange={(e) => setGeminiApiKey(e.target.value)}
-            placeholder="내 Gemini API 키 (선택, 비워두면 설정에 저장된 키 사용)"
-            className="text-xs"
-            style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
-          />
-          {imageGenError && <p className="text-xs text-red-600">{imageGenError}</p>}
+
+          {imageGenError && <p className="text-xs font-semibold text-red-600">{imageGenError}</p>}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

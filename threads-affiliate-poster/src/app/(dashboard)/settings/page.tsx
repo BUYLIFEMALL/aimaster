@@ -14,6 +14,7 @@ import type { ApiKeyProvider } from "@/types/database.types";
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
   { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "78a00b16-eef5-42be-810b-80c513d57ab4", label: "Replicate(FLUX) API 키 발급받기" },
   { guideId: "343996d3-8c77-455d-9bd4-54bcd47a34cd", label: "쓰레드(Threads) 계정 연동하기" },
   { guideId: "117ffedb-c554-458a-9b92-e9ed6ee33988", label: "쿠팡파트너스 API 키 발급받기" },
   { guideId: "0eb4180e-a076-4ee6-b75e-6b3c3c9ec442", label: "알리익스프레스 API 키 발급받기" },
@@ -21,7 +22,7 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "e39a02e3-2b00-45a1-92ed-2e33d0d331d2", label: "네이버 브랜드커넥트 링크 등록하기" },
 ];
 
-const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "anthropic"];
+const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "anthropic", "replicate"];
 const META_PROVIDERS: ApiKeyProvider[] = ["threads_app_id", "threads_app_secret"];
 const COUPANG_PROVIDERS: ApiKeyProvider[] = ["coupang_access_key", "coupang_secret_key"];
 const ALIEXPRESS_PROVIDERS: ApiKeyProvider[] = [

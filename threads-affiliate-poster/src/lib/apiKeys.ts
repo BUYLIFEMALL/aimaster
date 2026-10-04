@@ -3,9 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ApiKeyProvider, Database } from "@/types/database.types";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
-  openai: "OpenAI (GPT — 게시글 캡션 생성)",
-  gemini: "Google (Gemini — 캡션 생성)",
+  openai: "OpenAI (GPT — 게시글 캡션 생성 / GPT Image)",
+  gemini: "Google (Gemini — 캡션 생성 / NanoBanana 이미지)",
   anthropic: "Anthropic (Claude — 웰메이드 캡션 생성)",
+  replicate: "Replicate (FLUX 2.0 / Z-Image 고화질 AI 이미지 생성)",
   threads_app_id: "Threads 앱 ID (Meta 앱 설정 > 기본 설정 하단의 Threads 앱 ID — 맨 위 '앱 ID' 아님)",
   threads_app_secret: "Threads 앱 시크릿 코드 (기본 설정 하단의 Threads 앱 시크릿 코드)",
   coupang_access_key: "쿠팡파트너스 Access Key (상품검색/딥링크 생성)",
