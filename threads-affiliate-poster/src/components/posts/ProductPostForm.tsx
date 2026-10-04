@@ -731,9 +731,6 @@ export function ProductPostForm({
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-purple-600 text-white text-xs font-black shadow-xs">2</span>
             <h2 className="text-base font-extrabold text-purple-950 flex items-center gap-2">
               <span>🤖 AI 생성 엔진 & 미디어 설정</span>
-              <span className="hidden sm:inline-block rounded-md bg-purple-600/10 text-purple-800 px-2 py-0.5 text-xs font-bold border border-purple-200">
-                글 생성 모델 (GPT·Claude·Gemini) & 이미지·미디어 모델
-              </span>
             </h2>
           </div>
           <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-extrabold text-purple-800 border border-purple-200">

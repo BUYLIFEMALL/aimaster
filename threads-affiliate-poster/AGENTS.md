@@ -217,3 +217,7 @@ vercel deploy --prod --yes
      - `gpt-image-1-mini` (초고속 경량 미니)
      - `gpt-image-2.5-flare` (데일리 고품질)
      - `gpt-image-2.5-sunburst` (최상위 플래그십)
+
+11. **STEP 2 헤더 텍스트 간소화 - 긴 부제 배지 제거 (2026-10-04, v1.25)**:
+   - **개편 배경**: `STEP 2` 헤더에 있던 긴 부제 텍스트 배지("글 생성 모델 (GPT·Claude·Gemini) & 이미지·미디어 모델")가 화면 폭에 따라 글자가 잘려 보이는 현상 개선.
+   - **조치 사항**: `ProductPostForm.tsx`의 STEP 2 헤더에서 긴 부제 배지를 깔끔히 삭제하고 메인 타이틀 `<span>🤖 AI 생성 엔진 & 미디어 설정</span>`만 심플하게 노출하도록 최적화.
