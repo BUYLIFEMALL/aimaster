@@ -1,11 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.17, 2026-10-04)
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.18, 2026-10-04)
 
-- **새 글 작성(/posts/new) 3대 AI 엔진 선택 섹션을 '이미지 & 캐러셀 (최대 20장)' 섹션 바로 위로 재배치 (v1.17)**:
-  - 기존 상단 박스 안에 묶여 있던 "🤖 AI 글 생성 엔진 선택 (GPT / Claude / Gemini)" 섹션을 사용자 피드백에 따라 **"이미지 & 캐러셀 (최대 20장)" 섹션의 바로 위**로 독립 이동 배치 완료.
-  - 상단(상품/페르소나/키워드) ➔ 중단(게시글 내용 에디터) ➔ 하단(AI 글 생성 엔진 선택 ➔ 이미지/캐러셀 나노바나나 생성)으로 시각적/기능적 작업 동선 최적화.
-  - `APP_VERSION` 및 DB `programs.version`을 `v1.17`로 갱신했다.
+- **새 글 작성(/posts/new) 3대 AI 엔진 선택 섹션 내 불필요한 API 키 수동 등록 입력창 제거 (v1.18)**:
+  - 사용자가 환경설정(`/settings`)에서 이미 API 키를 등록하여 사용하므로, 글 작성 폼 내에 남아있던 불필요한 API 키 입력창(`customApiKey`)을 완전 제거.
+  - 회원의 DB 저장 키(`user_api_keys`) 자동 연동으로 깔끔하고 미니멀한 UI 완성.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.18`로 갱신했다.
 
 ## Codex 자율 실행 위임 명문화 (2026-10-03)
 

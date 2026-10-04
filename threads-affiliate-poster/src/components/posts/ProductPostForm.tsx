@@ -208,7 +208,6 @@ export function ProductPostForm({
   const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
   const [aiProvider, setAiProvider] = useState<AIModelProvider>("openai");
   const [aiModel, setAiModel] = useState<string>(DEFAULT_AI_MODELS["openai"]);
-  const [customApiKey, setCustomApiKey] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -353,7 +352,6 @@ export function ProductPostForm({
         tone: personaTone,
         keywords,
         referenceUrls: validReferenceUrls,
-        apiKey: customApiKey,
         aiProvider,
         aiModel,
       });
@@ -686,17 +684,6 @@ export function ProductPostForm({
             ))}
           </select>
         </div>
-
-        <Input
-          type="text"
-          name="custom_api_key_field"
-          autoComplete="new-password"
-          value={customApiKey}
-          onChange={(e) => setCustomApiKey(e.target.value)}
-          placeholder={`내 ${PROVIDER_SHORT_LABELS[aiProvider]} API 키 (선택, 비워두면 설정에 저장된 키 사용)`}
-          className="text-xs bg-white"
-          style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
-        />
       </div>
 
       <div>
