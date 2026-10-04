@@ -157,10 +157,10 @@ vercel deploy --prod --yes
 4. **제휴 고지 문구 자동 포함 의무화**:
    - `src/lib/ai/affiliateGenerator.ts`에서 `generateAffiliatePostContent()` 호출 시 각 플랫폼(쿠팡, 알리, 토스, 네이버)에 맞는 제휴 수수료 고지 문구가 500자 이내에 무조건 자동 트리밍되어 삽입됩니다. 우회하거나 지우면 안 됩니다.
 
-5. **새 글 작성(/posts/new) 3대 AI 엔진 및 최신 모델 선택 확장 (2026-10-04, v1.15)**:
-   - **기능 개요**: 기존 `gpt-4o-mini` 단일 고정 생성 방식에서, 블로그(`ai-auto-blog`) 및 떡상 탐지기(`/trends`)와 일관된 구조로 **OpenAI(GPT), Google Gemini, Anthropic Claude** 3대 엔진 및 2026 최신 세부 모델 라인업(총 16종)을 자유롭게 선택하여 홍보 글을 생성할 수 있도록 확장.
+5. **새 글 작성(/posts/new) 3대 AI 엔진 및 최신 모델 선택 확장 (2026-10-04, v1.15 ~ v1.16)**:
+   - **기능 개요**: 기존 `gpt-4o-mini` 단일 고정 생성 방식에서, 블로그(`ai-auto-blog`) 및 떡상 탐지기(`/trends`)와 일관된 구조로 **GPT(OpenAI), Claude(Anthropic), Gemini(Google)** 3대 엔진 및 2026 최신 세부 모델 라인업(총 16종)을 자유롭게 선택하여 홍보 글을 생성할 수 있도록 확장.
    - **연동 흐름**:
-     - `ProductPostForm.tsx`: 3대 플랫폼 탭 버튼 + 세부 모델 드롭다운 + dynamic API 키 인풋 연동. `localStorage`에 최근 선택 엔진/모델을 자동 저장 및 복원.
+     - `ProductPostForm.tsx` & `ViralPostDetector.tsx`: **GPT / Claude / Gemini** 3대 엔진 선택 탭 버튼 순서 및 볼드 라벨 통일화. 세부 모델 드롭다운 + dynamic API 키 인풋 연동. `localStorage`에 최근 선택 엔진/모델을 자동 저장 및 복원.
      - `generator.ts` (`generatePostContent`): `provider` 및 `model` 매개변수 지원. Anthropic (`@anthropic-ai/sdk`), Gemini (`@google/generative-ai`), OpenAI (`openai`) SDK 호출 완벽 연동.
      - `affiliateGenerator.ts` (`generateAffiliatePostContent`): 엔진/모델 옵션을 `generatePostContent`로 정확히 포워딩.
      - `actions/ai.ts` (`generateAffiliateContentAction`): 플랫폼별 API 키를 `resolveApiKey`로 동적 조회하고 `logProgramUsage`에 엔진별 사용량 기록.

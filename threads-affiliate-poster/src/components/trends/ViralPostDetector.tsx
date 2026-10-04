@@ -875,52 +875,60 @@ export function ViralPostDetector() {
                 <span className="text-[10px] text-neutral-400 font-normal">선택한 카드 하단 세부 모델 변경</span>
               </label>
 
-              {/* 3대 Provider 선택 카드 (OpenAI / Gemini / Claude) */}
+              {/* 3대 Provider 선택 카드 (GPT / Claude / Gemini) */}
               <div className="grid grid-cols-3 gap-2 text-xs">
+                {/* 1. GPT */}
                 <button
                   type="button"
                   onClick={() => {
                     setAiProvider("openai");
                     setAiModel(DEFAULT_AI_MODELS["openai"]);
                   }}
-                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
+                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                     aiProvider === "openai"
                       ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
                       : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
                   }`}
                 >
                   <span className="text-sm">🤖</span>
-                  <span>OpenAI (GPT)</span>
+                  <span className="font-extrabold text-sm tracking-tight">GPT</span>
+                  <span className="text-[10px] opacity-75 font-normal">OpenAI</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAiProvider("gemini");
-                    setAiModel(DEFAULT_AI_MODELS["gemini"]);
-                  }}
-                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
-                    aiProvider === "gemini"
-                      ? "border-amber-500 bg-amber-500 text-white shadow-xs"
-                      : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
-                  }`}
-                >
-                  <span className="text-sm">✨</span>
-                  <span>Google Gemini</span>
-                </button>
+
+                {/* 2. Claude */}
                 <button
                   type="button"
                   onClick={() => {
                     setAiProvider("anthropic");
                     setAiModel(DEFAULT_AI_MODELS["anthropic"]);
                   }}
-                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all ${
+                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                     aiProvider === "anthropic"
                       ? "border-purple-600 bg-purple-600 text-white shadow-xs"
                       : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
                   }`}
                 >
                   <span className="text-sm">🧠</span>
-                  <span>Claude</span>
+                  <span className="font-extrabold text-sm tracking-tight">Claude</span>
+                  <span className="text-[10px] opacity-75 font-normal">Anthropic</span>
+                </button>
+
+                {/* 3. Gemini */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAiProvider("gemini");
+                    setAiModel(DEFAULT_AI_MODELS["gemini"]);
+                  }}
+                  className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                    aiProvider === "gemini"
+                      ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                      : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
+                  }`}
+                >
+                  <span className="text-sm">✨</span>
+                  <span className="font-extrabold text-sm tracking-tight">Gemini</span>
+                  <span className="text-[10px] opacity-75 font-normal">Google</span>
                 </button>
               </div>
 

@@ -524,51 +524,59 @@ export function ProductPostForm({
           />
         </div>
 
-        {/* AI 글 생성 엔진 & 2026 세부 모델 선택 */}
+        {/* AI 글 생성 엔진 & 2026 세부 모델 선택 (GPT / Claude / Gemini) */}
         <div className="rounded-xl bg-white p-3.5 border border-neutral-200 space-y-3 shadow-2xs">
           <label className="block text-xs font-bold text-neutral-800 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              🤖 AI 글 생성 엔진 선택 (OpenAI / Gemini / Claude)
+              🤖 AI 글 생성 엔진 선택 (GPT / Claude / Gemini)
             </span>
             <span className="text-[10px] text-neutral-400 font-normal">선택 시 세부 모델 목록 동적 변경</span>
           </label>
 
           <div className="grid grid-cols-3 gap-2 text-xs">
+            {/* 1. GPT */}
             <button
               type="button"
               onClick={() => handleProviderChange("openai")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                 aiProvider === "openai"
                   ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
                   : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
               }`}
             >
               <span className="text-base">🤖</span>
-              <span>OpenAI (GPT)</span>
+              <span className="font-extrabold text-sm tracking-tight">GPT</span>
+              <span className="text-[10px] opacity-75 font-normal">OpenAI</span>
             </button>
-            <button
-              type="button"
-              onClick={() => handleProviderChange("gemini")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-                aiProvider === "gemini"
-                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
-                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">✨</span>
-              <span>Google Gemini</span>
-            </button>
+
+            {/* 2. Claude */}
             <button
               type="button"
               onClick={() => handleProviderChange("anthropic")}
-              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                 aiProvider === "anthropic"
                   ? "border-purple-600 bg-purple-600 text-white shadow-xs"
                   : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
               }`}
             >
               <span className="text-base">🧠</span>
-              <span>Anthropic Claude</span>
+              <span className="font-extrabold text-sm tracking-tight">Claude</span>
+              <span className="text-[10px] opacity-75 font-normal">Anthropic</span>
+            </button>
+
+            {/* 3. Gemini */}
+            <button
+              type="button"
+              onClick={() => handleProviderChange("gemini")}
+              className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                aiProvider === "gemini"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              <span className="text-base">✨</span>
+              <span className="font-extrabold text-sm tracking-tight">Gemini</span>
+              <span className="text-[10px] opacity-75 font-normal">Google</span>
             </button>
           </div>
 

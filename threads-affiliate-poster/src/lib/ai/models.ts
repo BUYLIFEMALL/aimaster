@@ -38,7 +38,7 @@ export const DEFAULT_AI_MODELS: Record<AIModelProvider, string> = {
 };
 
 export const PROVIDER_SHORT_LABELS: Record<AIModelProvider, string> = {
-  openai: "OpenAI (GPT)",
-  gemini: "Google Gemini",
-  anthropic: "Anthropic Claude",
+  openai: "GPT (OpenAI)",
+  anthropic: "Claude (Anthropic)",
+  gemini: "Gemini (Google)",
 };
