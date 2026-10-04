@@ -29,7 +29,7 @@
   - `ai-image-studio/AGENTS.md`, `scripts/register_ai_image_studio.js`, `scripts/update_thumbnail.js`, `supabase/migrations/0012_register_ai_image_studio.sql`, `docs/ERROR_LESSONS.md` — 카탈로그 문구와 재등록 기준 동기화.
 - **검증**: `ai-image-studio`에서 `npm.cmd run build`를 다시 실행해 통과했다. 커밋·푸시 후 재배포는 필요 없으며, 이미 반영된 프로덕션 URL은 `https://ai-image-studio.vercel.app/dashboard`다.
 - **공유 작업 주의**: `threads-affiliate-poster/`, `shorts-viral-studio/`, `debug.log`, `scratch/`는 다른 작업 영역이므로 이 작업 커밋에 포함하지 않는다.
-- **배포 별칭 수정 (v1.05)**: 기본 주소 `ai-image-studio.vercel.app`가 11일 전 배포본을 가리켜 최신 배포 후에도 이전 문구가 노출됐다. 새 배포본을 만든 뒤 이 기본 별칭을 해당 배포본으로 명시적으로 다시 연결해야 한다.
+- **배포 별칭 수정 (v1.05, 완료)**: 기본 주소 `ai-image-studio.vercel.app`가 11일 전 배포본을 가리켜 최신 배포 후에도 이전 문구가 노출됐다. 새 배포본 `ai-image-studio-kd4xg0yec-buylife.vercel.app`으로 기본 별칭을 명시적으로 다시 연결했고, 실제 응답 HTML에서 새 모델 문구·`v1.05` 및 HTTP 200을 확인했다.
 
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.28, 2026-10-04)
 
