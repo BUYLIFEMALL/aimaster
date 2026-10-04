@@ -382,7 +382,7 @@ export function ProductPostForm({
           setImageUrls((prev) => [...prev, ...generatedList].slice(0, 20));
           setVideoUrl("");
         } else {
-          setImageGenError("이미지 연속 생성에 실패했습니다.");
+          setImageGenError("이미지 생성에 실패했습니다.");
         }
       } else {
         const result = await generateImageAction({ prompt, provider: imageProvider, model: imageModel });
@@ -452,7 +452,7 @@ export function ProductPostForm({
       if (imageGenerateCount > 1) {
         const availableSlots = 20 - currentUrls.length;
         const count = Math.min(Math.max(imageGenerateCount, 1), Math.min(10, availableSlots));
-        setStatusMsg(`AI(${currentProviderLabel})가 이미지 ${count}장을 연속 생성 중입니다...`);
+        setStatusMsg(`AI(${currentProviderLabel})가 이미지 ${count}장을 생성 중입니다...`);
         for (let i = 1; i <= count; i++) {
           const cutPrompt = `${prompt} (${i}/${count}번째 이미지: visual scene ${i})`;
           const imageResult = await generateImageAction({ prompt: cutPrompt, provider: imageProvider, model: imageModel });
@@ -981,7 +981,7 @@ export function ProductPostForm({
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                   <option key={num} value={num}>
-                    {num}장 {num === 1 ? "(기본)" : "연속"}
+                    {num}장 {num === 1 ? "(기본)" : "생성"}
                   </option>
                 ))}
               </select>
@@ -996,7 +996,7 @@ export function ProductPostForm({
               {isGeneratingImage
                 ? "생성 중..."
                 : imageGenerateCount > 1
-                ? `✨ 이미지 ${imageGenerateCount}장 연속 생성`
+                ? `✨ 이미지 ${imageGenerateCount}장 생성`
                 : "✨ 이미지만 다시 생성"}
             </Button>
           </div>
