@@ -490,227 +490,252 @@ export function ProductPostForm({
   const disclosurePreview = selectedProduct ? DISCLOSURE_PREVIEW[selectedProduct.platform] : null;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* ⚡ AI 원클릭 자동 생성 안내 배너 */}
-      <div className="flex items-start gap-3 rounded-xl border border-blue-200/70 bg-gradient-to-r from-blue-50 via-purple-50 to-amber-50 p-3.5 text-xs text-neutral-700 shadow-xs">
-        <span className="text-lg shrink-0">⚡</span>
+      <div className="flex items-start gap-3 rounded-2xl border border-blue-200/80 bg-gradient-to-r from-blue-50 via-purple-50 to-amber-50 p-4 text-xs text-neutral-700 shadow-xs">
+        <span className="text-xl shrink-0">⚡</span>
         <div className="space-y-0.5">
-          <p className="font-bold text-neutral-900">AI 원클릭 자동 생성 안내</p>
+          <p className="font-extrabold text-sm text-neutral-900">AI 원클릭 자동 생성 가이드</p>
           <p className="text-neutral-600 leading-relaxed">
-            등록된 상품을 고르고 하단 &quot;{submitLabel}&quot;를 누르면, 그 상품의 제휴 링크를 담아 500자 이내 반말/페르소나 톤 게시글과 나노바나나 고화질 이미지가 무조건 함께 생성되어 즉시 반영됩니다.
+            상품을 선택하고 하단 &quot;{submitLabel}&quot;를 누르면, 상품의 제휴 링크와 필수 고지 문구를 담아 500자 이내 맞춤형 Threads 캡션과 고화질 AI 이미지가 한 번에 자동 생성되어 즉시 반영됩니다.
           </p>
         </div>
       </div>
 
-      {/* 🛍️ 1. 상품 선택 박스 (블루 테마) */}
-      <div className="space-y-3 rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-xs">
-        <div className="flex items-center justify-between">
+      {/* ========================================================
+          [섹션 1. 상단 대형 박스]: 📝 게시글 작성 및 콘텐츠 설정 (블루 테마)
+          - 포함: 🛍️ 상품 선택, 🎭 AI 페르소나, 🏷️ 키워드/링크, ✍️ Threads 본문
+         ======================================================== */}
+      <section className="rounded-2xl border-2 border-blue-200/80 bg-blue-50/25 p-4 sm:p-5 space-y-4 shadow-xs">
+        {/* 섹션 1 헤더 */}
+        <div className="flex items-center justify-between pb-3 border-b border-blue-200/70">
           <div className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white text-[11px] font-bold">1</span>
-            <label className="text-sm font-bold text-blue-950 flex items-center gap-1.5">
-              <span>🛍️ 제휴 상품 선택</span>
-              <span className="rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">필수</span>
-            </label>
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-white text-xs font-black shadow-xs">1</span>
+            <h2 className="text-base font-extrabold text-blue-950 flex items-center gap-2">
+              <span>📝 게시글 작성 및 콘텐츠 설정</span>
+              <span className="hidden sm:inline-block rounded-md bg-blue-600/10 text-blue-700 px-2 py-0.5 text-xs font-bold border border-blue-200">
+                상품 · 페르소나 · 키워드 · 본문
+              </span>
+            </h2>
           </div>
-          <span className="text-[11px] font-medium text-blue-700/80">
-            {products.length > 0 ? `등록 상품 ${products.length}개` : "상품 없음"}
+          <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-extrabold text-blue-700 border border-blue-200">
+            STEP 1
           </span>
         </div>
 
-        <div>
-          <select
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-            className="w-full rounded-lg border border-blue-300 bg-white px-3 py-2.5 text-sm font-medium text-neutral-800 shadow-2xs focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-          >
-            <option value="">상품을 선택해주세요</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                [{PLATFORM_LABELS[p.platform]}] {p.product_name}
-              </option>
-            ))}
-          </select>
-          {products.length === 0 && (
-            <p className="mt-1.5 text-xs font-medium text-amber-700">
-              등록된 상품이 없습니다. 좌측 메뉴의 &quot;상품 관리&quot; 화면에서 먼저 상품을 등록해주세요.
-            </p>
-          )}
-        </div>
-
-        {selectedProduct && (
-          <div className="rounded-lg border border-blue-200/90 bg-white p-3 text-xs space-y-1.5 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-blue-900 font-semibold">
-              <span>🔗 제휴 링크:</span>
-              <span className="break-all font-mono font-normal text-neutral-600">{selectedProduct.affiliate_url}</span>
+        {/* 🛍️ 상품 선택 (흰색 카드) */}
+        <div className="space-y-3 rounded-xl border border-blue-200/90 bg-white p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
+                <span>🛍️ 제휴 상품 선택</span>
+                <span className="rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">필수</span>
+              </label>
             </div>
-            {disclosurePreview && (
-              <p className="text-amber-800 bg-amber-50 border border-amber-200/70 rounded p-2 text-[11px] leading-relaxed">
-                ⚠️ <strong>공정위 광고 고지 문구 자동 삽입:</strong> 캡션 끝에 아래 문구가 자동으로 포함됩니다:
-                <br />
-                <span className="font-semibold">{disclosurePreview}</span>
+            <span className="text-[11px] font-medium text-blue-700">
+              {products.length > 0 ? `등록 상품 ${products.length}개` : "상품 없음"}
+            </span>
+          </div>
+
+          <div>
+            <select
+              value={productId}
+              onChange={(e) => setProductId(e.target.value)}
+              className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm font-medium text-neutral-800 shadow-2xs focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            >
+              <option value="">상품을 선택해주세요</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  [{PLATFORM_LABELS[p.platform]}] {p.product_name}
+                </option>
+              ))}
+            </select>
+            {products.length === 0 && (
+              <p className="mt-1.5 text-xs font-medium text-amber-700">
+                등록된 상품이 없습니다. 좌측 메뉴의 &quot;상품 관리&quot; 화면에서 먼저 상품을 등록해주세요.
               </p>
             )}
           </div>
-        )}
-      </div>
 
-      {/* 🎭 2. AI 페르소나 스타일 박스 (퍼플 테마) */}
-      <div className="space-y-3 rounded-xl border border-purple-200 bg-purple-50/40 p-4 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-white text-[11px] font-bold">2</span>
-            <label className="text-sm font-bold text-purple-950 flex items-center gap-1.5">
-              <span>🎭 AI 페르소나 스타일 선택</span>
-              <span className="rounded bg-purple-600 px-1.5 py-0.5 text-[10px] font-bold text-white">어조 반영</span>
-            </label>
-          </div>
-          <span className="text-[11px] font-medium text-purple-700/80">선택 시 해당 인격 어조로 캡션 생성</span>
-        </div>
-
-        <PersonaPicker
-          value={selectedPersonaId}
-          onChange={setSelectedPersonaId}
-          customText={customPersonaText}
-          onCustomTextChange={setCustomPersonaText}
-          savedPersonas={savedPersonas}
-          onPersonaSaved={(p) => setSavedPersonas((prev) => [...prev, p])}
-        />
-      </div>
-
-      {/* 🏷️ 3. 키워드 & 참고 자료 박스 (에메랄드 테마) */}
-      <div className="space-y-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white text-[11px] font-bold">3</span>
-            <label className="text-sm font-bold text-emerald-950 flex items-center gap-1.5">
-              <span>🏷️ 타겟 키워드 & 참고 링크</span>
-              <span className="rounded bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white">선택</span>
-            </label>
-          </div>
-          <span className="text-[11px] font-medium text-emerald-700/80">강조할 키워드 및 레퍼런스</span>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-emerald-900">핵심 키워드</label>
-          <Input
-            value={keywordInput}
-            onChange={(e) => setKeywordInput(e.target.value)}
-            onKeyDown={handleKeywordKeyDown}
-            placeholder="키워드 입력 후 Enter (예: 가성비, 자취템, 필수템)"
-            className="text-sm bg-white border-emerald-300 focus:border-emerald-500 focus:ring-emerald-200"
-            autoComplete="off"
-            name="ai_keyword_field"
-          />
-          {keywords.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {keywords.map((kw) => (
-                <span
-                  key={kw}
-                  className="inline-flex items-center gap-1 rounded-md bg-emerald-100 border border-emerald-300 px-2 py-0.5 text-xs font-semibold text-emerald-800 shadow-2xs"
-                >
-                  #{kw}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveKeyword(kw)}
-                    className="text-emerald-600 hover:text-emerald-950 font-bold ml-0.5"
-                  >
-                    ✕
-                  </button>
-                </span>
-              ))}
+          {selectedProduct && (
+            <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-3 text-xs space-y-1.5">
+              <div className="flex items-center gap-1.5 text-blue-950 font-semibold">
+                <span>🔗 제휴 링크:</span>
+                <span className="break-all font-mono font-normal text-neutral-600">{selectedProduct.affiliate_url}</span>
+              </div>
+              {disclosurePreview && (
+                <p className="text-amber-800 bg-amber-50 border border-amber-200/70 rounded p-2 text-[11px] leading-relaxed">
+                  ⚠️ <strong>공정위 광고 고지 문구 자동 삽입:</strong> 캡션 끝에 아래 문구가 자동으로 포함됩니다:
+                  <br />
+                  <span className="font-semibold">{disclosurePreview}</span>
+                </p>
+              )}
             </div>
           )}
         </div>
 
-        <div className="space-y-1.5 pt-1">
+        {/* 🎭 AI 페르소나 스타일 선택 (흰색 카드) */}
+        <div className="space-y-3 rounded-xl border border-purple-200/90 bg-white p-4 shadow-2xs">
           <div className="flex items-center justify-between">
-            <label className="block text-xs font-semibold text-emerald-900">참고 웹페이지 링크</label>
-            <span className="text-[11px] text-emerald-700/70 font-medium">최대 3개</span>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
+                <span>🎭 AI 페르소나 스타일 선택</span>
+                <span className="rounded bg-purple-600 px-1.5 py-0.5 text-[10px] font-bold text-white">어조 반영</span>
+              </label>
+            </div>
+            <span className="text-[11px] font-medium text-purple-700">선택 시 해당 인격 어조로 캡션 생성</span>
           </div>
+
+          <PersonaPicker
+            value={selectedPersonaId}
+            onChange={setSelectedPersonaId}
+            customText={customPersonaText}
+            onCustomTextChange={setCustomPersonaText}
+            savedPersonas={savedPersonas}
+            onPersonaSaved={(p) => setSavedPersonas((prev) => [...prev, p])}
+          />
+        </div>
+
+        {/* 🏷️ 타겟 키워드 & 참고 자료 (흰색 카드) */}
+        <div className="space-y-3.5 rounded-xl border border-emerald-200/90 bg-white p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
+                <span>🏷️ 타겟 키워드 & 참고 링크</span>
+                <span className="rounded bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white">선택</span>
+              </label>
+            </div>
+            <span className="text-[11px] font-medium text-emerald-700">본문 카피에 자연스럽게 반영</span>
+          </div>
+
           <div className="space-y-1.5">
-            {referenceUrls.map((url, idx) => (
-              <Input
-                key={idx}
-                type="text"
-                name={`ai_reference_url_field_${idx + 1}`}
-                autoComplete="off"
-                value={url}
-                onChange={(e) => handleReferenceUrlChange(idx, e.target.value)}
-                placeholder={`https://example.com/reference-${idx + 1}`}
-                className="text-sm bg-white border-emerald-300 focus:border-emerald-500 focus:ring-emerald-200"
-              />
-            ))}
+            <label className="block text-xs font-semibold text-neutral-700">핵심 키워드</label>
+            <Input
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              onKeyDown={handleKeywordKeyDown}
+              placeholder="키워드 입력 후 Enter (예: 가성비, 자취템, 필수템)"
+              className="text-sm bg-neutral-50/50 border-neutral-300 focus:border-emerald-500 focus:ring-emerald-200"
+              autoComplete="off"
+              name="ai_keyword_field"
+            />
+            {keywords.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {keywords.map((kw) => (
+                  <span
+                    key={kw}
+                    className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-xs font-semibold text-emerald-800"
+                  >
+                    #{kw}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveKeyword(kw)}
+                      className="text-emerald-600 hover:text-emerald-950 font-bold ml-0.5"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
+
+          <div className="space-y-1.5 pt-1">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-neutral-700">참고 웹페이지 링크 (실시간 스크래핑 분석)</label>
+              <span className="text-[11px] text-neutral-400 font-medium">최대 3개</span>
+            </div>
+            <div className="space-y-1.5">
+              {referenceUrls.map((url, idx) => (
+                <Input
+                  key={idx}
+                  type="text"
+                  name={`ai_reference_url_field_${idx + 1}`}
+                  autoComplete="off"
+                  value={url}
+                  onChange={(e) => handleReferenceUrlChange(idx, e.target.value)}
+                  placeholder={`https://example.com/reference-${idx + 1}`}
+                  className="text-sm bg-neutral-50/50 border-neutral-300 focus:border-emerald-500 focus:ring-emerald-200"
+                />
+              ))}
+            </div>
+          </div>
+
+          {!aiGenerateOnSubmit && (
+            <div className="pt-1">
+              <Button
+                type="button"
+                onClick={handleGenerateAll}
+                disabled={isGeneratingAll || !productId}
+              >
+                {isGeneratingAll ? "생성 중..." : `✨ ${PROVIDER_SHORT_LABELS[aiProvider]}로 글+이미지 함께 생성`}
+              </Button>
+            </div>
+          )}
+
+          {statusMsg && (
+            <p className="animate-pulse rounded-md bg-blue-50 border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-900">
+              🚀 {statusMsg}
+            </p>
+          )}
+
+          {aiError && <p className="text-xs font-semibold text-red-600">{aiError}</p>}
         </div>
 
-        {!aiGenerateOnSubmit && (
-          <div className="pt-1">
-            <Button
-              type="button"
-              onClick={handleGenerateAll}
-              disabled={isGeneratingAll || !productId}
-            >
-              {isGeneratingAll ? "생성 중..." : `✨ ${PROVIDER_SHORT_LABELS[aiProvider]}로 글+이미지 함께 생성`}
-            </Button>
+        {/* ✍️ Threads 게시글 본문 (흰색 카드) */}
+        <div className="space-y-2.5 rounded-xl border border-neutral-300 bg-white p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
+                <span>✍️ Threads 게시글 본문</span>
+                <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-medium text-neutral-700">미리보기 & 직접 수정</span>
+              </label>
+            </div>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
+              content.length > 500
+                ? "bg-red-100 text-red-700 border border-red-200"
+                : "bg-neutral-100 text-neutral-600 border border-neutral-200"
+            }`}>
+              {content.length} / 500자
+            </span>
           </div>
-        )}
 
-        {statusMsg && (
-          <p className="animate-pulse rounded-md bg-emerald-100 border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-900">
-            🚀 {statusMsg}
-          </p>
-        )}
+          {aiGenerateOnSubmit && (
+            <p className="text-xs text-neutral-500 leading-relaxed">
+              💡 아래 &quot;{submitLabel}&quot; 버튼 클릭 시 선택한 상품 정보와 AI 엔진 설정에 맞춰 본문이 자동으로 생성되어 채워집니다. 필요 시 직접 수정할 수 있습니다.
+            </p>
+          )}
 
-        {aiError && <p className="text-xs font-semibold text-red-600">{aiError}</p>}
-      </div>
-
-      {/* ✍️ 4. Threads 게시글 본문 박스 (모던 슬레이트 테마) */}
-      <div className="space-y-2.5 rounded-xl border border-neutral-300 bg-neutral-50/70 p-4 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800 text-white text-[11px] font-bold">4</span>
-            <label className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
-              <span>✍️ Threads 게시글 본문</span>
-              <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-medium text-neutral-700">미리보기 & 직접 수정</span>
-            </label>
-          </div>
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
-            content.length > 500
-              ? "bg-red-100 text-red-700 border border-red-200"
-              : "bg-white text-neutral-600 border border-neutral-200"
-          }`}>
-            {content.length} / 500자
-          </span>
+          <Textarea
+            name="content"
+            rows={6}
+            maxLength={500}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Threads에 게시할 내용을 입력하거나, 생성된 내용이 여기에 표시됩니다."
+            className="bg-neutral-50/30 border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900 text-sm leading-relaxed"
+          />
         </div>
+      </section>
 
-        {aiGenerateOnSubmit && (
-          <p className="text-xs text-neutral-500 leading-relaxed">
-            💡 아래 &quot;{submitLabel}&quot; 버튼 클릭 시 선택한 상품 정보와 AI 엔진 설정에 맞춰 본문이 자동으로 생성되어 채워집니다.
-          </p>
-        )}
-
-        <Textarea
-          name="content"
-          rows={6}
-          maxLength={500}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Threads에 게시할 내용을 입력하거나, 생성된 내용이 여기에 표시됩니다."
-          className="bg-white border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900 text-sm leading-relaxed"
-        />
-      </div>
-
-      {/* 🤖 5. AI 글 생성 엔진 선택 (GPT / Claude / Gemini) - 이미지 & 캐러셀 섹션 바로 위 */}
-      <div className="space-y-3 rounded-xl border border-neutral-300 bg-neutral-50/80 p-4 shadow-xs">
-        <div className="flex items-center justify-between">
+      {/* ========================================================
+          [섹션 2. 중간 기준 대형 박스]: 🤖 AI 글 생성 엔진 선택 (퍼플 테마)
+          - 기준점: GPT / Claude / Gemini
+         ======================================================== */}
+      <section className="rounded-2xl border-2 border-purple-200/90 bg-purple-50/30 p-4 sm:p-5 space-y-3.5 shadow-xs">
+        <div className="flex items-center justify-between pb-3 border-b border-purple-200/70">
           <div className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800 text-white text-[11px] font-bold">5</span>
-            <label className="text-sm font-bold text-neutral-950 flex items-center gap-1.5">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-purple-600 text-white text-xs font-black shadow-xs">2</span>
+            <h2 className="text-base font-extrabold text-purple-950 flex items-center gap-2">
               <span>🤖 AI 글 생성 엔진 선택</span>
-              <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-medium text-neutral-700">GPT / Claude / Gemini</span>
-            </label>
+              <span className="hidden sm:inline-block rounded-md bg-purple-600/10 text-purple-700 px-2 py-0.5 text-xs font-bold border border-purple-200">
+                GPT / Claude / Gemini
+              </span>
+            </h2>
           </div>
-          <span className="text-[10px] text-neutral-500 font-normal">선택 시 세부 실행 모델 동적 변경</span>
+          <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-extrabold text-purple-700 border border-purple-200">
+            STEP 2
+          </span>
         </div>
 
         <div className="grid grid-cols-3 gap-2 text-xs">
@@ -760,14 +785,14 @@ export function ProductPostForm({
           </button>
         </div>
 
-        <div className="pt-2 border-t border-neutral-200/80 space-y-1.5">
-          <label className="block text-[11px] font-bold text-neutral-600 flex items-center justify-between">
+        <div className="pt-2 border-t border-purple-200/80 space-y-1.5">
+          <label className="block text-[11px] font-bold text-purple-900 flex items-center justify-between">
             <span>🎯 {PROVIDER_SHORT_LABELS[aiProvider]} 세부 실행 모델 (2026 최신 라인업):</span>
           </label>
           <select
             value={aiModel}
             onChange={(e) => handleModelChange(e.target.value)}
-            className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-2xs cursor-pointer"
+            className="w-full rounded-xl border border-purple-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-purple-600 focus:outline-none shadow-2xs cursor-pointer"
           >
             {AI_MODEL_OPTIONS.filter((opt) => opt.provider === aiProvider).map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -776,48 +801,31 @@ export function ProductPostForm({
             ))}
           </select>
         </div>
-      </div>
+      </section>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
+      {/* ========================================================
+          [섹션 3. 하단 대형 박스]: 🖼️ 이미지 & 미디어 설정 (앰버 테마)
+          - 포함: 4대 AI 이미지 생성 엔진, 대표 이미지 추가, 파일 직접 업로드, 캐러셀 썸네일 그리드, 영상 등록
+         ======================================================== */}
+      <section className="rounded-2xl border-2 border-amber-200/90 bg-amber-50/25 p-4 sm:p-5 space-y-4 shadow-xs">
+        {/* 섹션 3 헤더 */}
+        <div className="flex items-center justify-between pb-3 border-b border-amber-200/70">
           <div className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800 text-white text-[11px] font-bold">6</span>
-            <label className="text-sm font-bold text-neutral-950 flex items-center gap-1.5">
-              <span>🖼️ 이미지 & 캐러셀</span>
-              <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-medium text-neutral-700">최대 20장</span>
-            </label>
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-amber-600 text-white text-xs font-black shadow-xs">3</span>
+            <h2 className="text-base font-extrabold text-amber-950 flex items-center gap-2">
+              <span>🖼️ 이미지 & 미디어 설정</span>
+              <span className="hidden sm:inline-block rounded-md bg-amber-600/10 text-amber-800 px-2 py-0.5 text-xs font-bold border border-amber-200">
+                캐러셀 최대 20장 · AI 이미지 · 동영상
+              </span>
+            </h2>
           </div>
-          <span className="text-[11px] font-medium text-neutral-500">현재 {imageUrls.length} / 20장</span>
+          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-extrabold text-amber-800 border border-amber-200">
+            STEP 3
+          </span>
         </div>
 
-        {selectedProduct?.image_url && (
-          <div className="mb-2 flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={selectedProduct.image_url}
-              alt="상품 등록 이미지"
-              className="h-14 w-14 rounded object-cover"
-            />
-            <div className="flex-1 text-xs text-neutral-500">
-              상품 등록 시 선택한 대표 이미지가 있습니다.
-            </div>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                if (!imageUrls.includes(selectedProduct.image_url!)) {
-                  setImageUrls((prev) => [...prev, selectedProduct.image_url!].slice(0, 20));
-                  setVideoUrl("");
-                }
-              }}
-              disabled={imageUrls.includes(selectedProduct.image_url!)}
-            >
-              {imageUrls.includes(selectedProduct.image_url!) ? "추가됨" : "+ 대표 이미지 추가"}
-            </Button>
-          </div>
-        )}
-
-        <div className="mb-2 space-y-3 rounded-xl border border-neutral-200 bg-neutral-50/80 p-3.5 shadow-xs">
+        {/* 🎨 4대 AI 이미지 생성 엔진 카드 (흰색 카드) */}
+        <div className="space-y-3 rounded-xl border border-amber-200/90 bg-white p-4 shadow-2xs">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
               <span>🎨 AI 이미지 생성 엔진 선택</span>
@@ -907,7 +915,7 @@ export function ProductPostForm({
 
           <div className="flex flex-wrap gap-2 pt-1">
             <Input
-              className="min-w-[200px] flex-1 bg-white text-sm"
+              className="min-w-[200px] flex-1 bg-neutral-50/50 text-sm"
               value={imagePrompt}
               onChange={(e) => setImagePrompt(e.target.value)}
               placeholder={
@@ -959,175 +967,235 @@ export function ProductPostForm({
           {imageGenError && <p className="text-xs font-semibold text-red-600">{imageGenError}</p>}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,video/*"
-            multiple
-            onChange={handleFileChange}
-            disabled={isUploading || imageUrls.length >= 20}
-            className="hidden"
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading || imageUrls.length >= 20}
-          >
-            {isUploading ? "업로드 중..." : "파일 직접 등록하기 (다중 선택 가능)"}
-          </Button>
-        </div>
-        {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
-
-        {imageUrls.length > 0 && (
-          <div className="mt-3 space-y-2">
-            <div className="flex items-center justify-between text-xs font-medium text-neutral-600">
-              <span>📷 등록된 미디어 캐러셀 ({imageUrls.length}/20)</span>
-              {imageUrls.length > 1 && (
-                <span className="text-[11px] font-semibold text-blue-600">
-                  * 게시 시 Threads 캐러셀(슬라이드)로 등록됩니다.
-                </span>
-              )}
+        {/* 대표 상품 이미지 추가 (흰색 카드) */}
+        {selectedProduct?.image_url && (
+          <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3.5 shadow-2xs">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={selectedProduct.image_url}
+              alt="상품 등록 이미지"
+              className="h-14 w-14 rounded-lg object-cover border border-neutral-200"
+            />
+            <div className="flex-1 text-xs text-neutral-500">
+              상품 등록 시 수집된 대표 썸네일 이미지가 있습니다.
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {imageUrls.map((url, idx) => (
-                <div key={idx} className="group relative rounded-lg border border-neutral-200 bg-neutral-100 p-1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={url}
-                    alt={`미디어 ${idx + 1}`}
-                    className="h-24 w-full rounded object-cover"
-                  />
-                  <span className="absolute top-2 left-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                    {idx + 1}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => removeImage(idx)}
-                    className="absolute top-2 right-2 rounded-full bg-red-600 p-1 text-white opacity-90 transition-opacity hover:opacity-100"
-                    title="삭제"
-                  >
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                if (!imageUrls.includes(selectedProduct.image_url!)) {
+                  setImageUrls((prev) => [...prev, selectedProduct.image_url!].slice(0, 20));
+                  setVideoUrl("");
+                }
+              }}
+              disabled={imageUrls.includes(selectedProduct.image_url!)}
+            >
+              {imageUrls.includes(selectedProduct.image_url!) ? "추가됨" : "+ 대표 이미지 추가"}
+            </Button>
           </div>
         )}
-        <input type="hidden" name="imageUrl" value={imageUrls.join(",")} />
-      </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">영상 (선택)</label>
-        <p className="mb-2 text-xs text-neutral-500">
-          이미지와 영상은 동시에 첨부할 수 없습니다 — 영상을 등록하면 이미지는 자동으로 해제됩니다.
-          Threads 영상 규격: MP4/MOV, 최대 1GB, 최대 5분.
-        </p>
+        {/* 파일 직접 등록 버튼 & 캐러셀 썸네일 그리드 (흰색 카드) */}
+        <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-neutral-800">📁 미디어 파일 직접 업로드</span>
+            <span className="text-[11px] font-semibold text-neutral-500">현재 {imageUrls.length} / 20장</span>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            ref={videoInputRef}
-            type="file"
-            accept="video/*"
-            onChange={handleVideoFileChange}
-            disabled={isUploadingVideo}
-            className="hidden"
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => videoInputRef.current?.click()}
-            disabled={isUploadingVideo}
-          >
-            {isUploadingVideo ? "업로드 중..." : "영상 직접 등록하기"}
-          </Button>
-        </div>
-        {videoUploadError && <p className="mt-1 text-xs text-red-600">{videoUploadError}</p>}
-        <Input
-          name="videoUrl"
-          type="url"
-          value={videoUrl}
-          onChange={(e) => {
-            setVideoUrl(e.target.value);
-            if (e.target.value) setImageUrls([]);
-          }}
-          placeholder="https://example.com/video.mp4 (또는 위에서 직접 업로드)"
-          className="mt-2"
-        />
-        {videoUrl && (
-          <video
-            src={videoUrl}
-            controls
-            className="mt-2 max-h-40 rounded-lg border border-neutral-200"
-          />
-        )}
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium text-neutral-700">게시방식 결정</label>
-        <div className="flex flex-wrap gap-2">
-          {(
-            [
-              { value: "draft", label: "임시저장" },
-              { value: "schedule", label: "예약 게시" },
-              { value: "now", label: "즉시 게시" },
-            ] as const
-          ).map((option) => (
-            <label
-              key={option.value}
-              className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
-                publishMode === option.value
-                  ? "border-neutral-900 bg-neutral-900 text-white"
-                  : "border-neutral-300 text-neutral-600"
-              }`}
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              onChange={handleFileChange}
+              disabled={isUploading || imageUrls.length >= 20}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading || imageUrls.length >= 20}
             >
-              <input
-                type="radio"
-                name="publishMode"
-                value={option.value}
-                checked={publishMode === option.value}
-                onChange={() => setPublishMode(option.value)}
-                className="sr-only"
-              />
-              {option.label}
-            </label>
-          ))}
+              {isUploading ? "업로드 중..." : "파일 직접 등록하기 (다중 선택 가능)"}
+            </Button>
+          </div>
+          {uploadError && <p className="text-xs text-red-600">{uploadError}</p>}
+
+          {imageUrls.length > 0 && (
+            <div className="pt-2 space-y-2 border-t border-neutral-100">
+              <div className="flex items-center justify-between text-xs font-medium text-neutral-600">
+                <span>📷 등록된 미디어 캐러셀 ({imageUrls.length}/20)</span>
+                {imageUrls.length > 1 && (
+                  <span className="text-[11px] font-semibold text-blue-600">
+                    * 게시 시 Threads 캐러셀(슬라이드)로 자동 연결됩니다.
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {imageUrls.map((url, idx) => (
+                  <div key={idx} className="group relative rounded-lg border border-neutral-200 bg-neutral-100 p-1">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt={`미디어 ${idx + 1}`}
+                      className="h-24 w-full rounded object-cover"
+                    />
+                    <span className="absolute top-2 left-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                      {idx + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeImage(idx)}
+                      className="absolute top-2 right-2 rounded-full bg-red-600 p-1 text-white opacity-90 transition-opacity hover:opacity-100"
+                      title="삭제"
+                    >
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <input type="hidden" name="imageUrl" value={imageUrls.join(",")} />
         </div>
-        {publishMode === "now" && !hasThreadsAccount && (
-          <p className="mt-2 text-xs text-red-600">
-            Threads 계정이 연결되어 있지 않아 즉시 게시할 수 없습니다. 계정 연결 후 이용해주세요.
+
+        {/* 🎬 영상 (선택) (흰색 카드) */}
+        <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-2xs space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-neutral-800">🎬 동영상 첨부 (선택)</label>
+            <span className="text-[11px] text-neutral-400">MP4/MOV, 최대 1GB, 최대 5분</span>
+          </div>
+          <p className="text-xs text-neutral-500 leading-relaxed">
+            이미지와 영상은 동시에 첨부할 수 없습니다 — 영상을 등록하면 이미지는 자동으로 해제됩니다.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              onChange={handleVideoFileChange}
+              disabled={isUploadingVideo}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => videoInputRef.current?.click()}
+              disabled={isUploadingVideo}
+            >
+              {isUploadingVideo ? "업로드 중..." : "영상 직접 등록하기"}
+            </Button>
+          </div>
+          {videoUploadError && <p className="text-xs text-red-600">{videoUploadError}</p>}
+          <Input
+            name="videoUrl"
+            type="url"
+            value={videoUrl}
+            onChange={(e) => {
+              setVideoUrl(e.target.value);
+              if (e.target.value) setImageUrls([]);
+            }}
+            placeholder="https://example.com/video.mp4 (또는 위에서 직접 업로드)"
+            className="mt-2 text-sm bg-neutral-50/50"
+          />
+          {videoUrl && (
+            <video
+              src={videoUrl}
+              controls
+              className="mt-2 max-h-40 rounded-lg border border-neutral-200"
+            />
+          )}
+        </div>
+      </section>
+
+      {/* ========================================================
+          [섹션 4. 발행 결정 대형 박스]: 🚀 게시방식 결정 및 최종 발행 (슬레이트 테마)
+         ======================================================== */}
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100/60 p-4 sm:p-5 space-y-4 shadow-xs">
+        <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-900 text-white text-xs font-black shadow-xs">4</span>
+            <h2 className="text-base font-extrabold text-neutral-950 flex items-center gap-2">
+              <span>🚀 게시방식 결정 및 최종 발행</span>
+            </h2>
+          </div>
+          <span className="rounded-full bg-neutral-200 px-2.5 py-0.5 text-xs font-extrabold text-neutral-800">
+            STEP 4
+          </span>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-xs font-bold text-neutral-700">게시방식 선택</label>
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                { value: "draft", label: "임시저장" },
+                { value: "schedule", label: "예약 게시" },
+                { value: "now", label: "즉시 게시" },
+              ] as const
+            ).map((option) => (
+              <label
+                key={option.value}
+                className={`cursor-pointer rounded-xl border px-3.5 py-2 text-sm font-semibold transition-all ${
+                  publishMode === option.value
+                    ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                    : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="publishMode"
+                  value={option.value}
+                  checked={publishMode === option.value}
+                  onChange={() => setPublishMode(option.value)}
+                  className="sr-only"
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+          {publishMode === "now" && !hasThreadsAccount && (
+            <p className="mt-2 text-xs font-semibold text-red-600">
+              ⚠️ Threads 계정이 연결되어 있지 않아 즉시 게시할 수 없습니다. 설정 메뉴에서 계정 연결 후 이용해주세요.
+            </p>
+          )}
+        </div>
+
+        {publishMode === "schedule" && (
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-neutral-700">예약 시각</label>
+            <Input
+              type="datetime-local"
+              value={scheduledAtLocal}
+              onChange={(e) => setScheduledAtLocal(e.target.value)}
+              className="bg-white max-w-xs"
+            />
+          </div>
+        )}
+        <input type="hidden" name="scheduledAt" value={scheduledAtIso} />
+        <input type="hidden" name="productId" value={productId} />
+
+        {state.error && (
+          <p className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-700">
+            {state.error}
           </p>
         )}
-      </div>
 
-      {publishMode === "schedule" && (
-        <div>
-          <label className="mb-1 block text-sm font-medium text-neutral-700">예약 시각</label>
-          <Input
-            type="datetime-local"
-            value={scheduledAtLocal}
-            onChange={(e) => setScheduledAtLocal(e.target.value)}
-          />
+        <div className="pt-2">
+          <Button
+            type="submit"
+            className="w-full text-base font-bold py-3"
+            disabled={isPending || isGeneratingAll || (publishMode === "now" && !hasThreadsAccount)}
+          >
+            {isGeneratingAll ? "AI 자동 생성 중..." : isPending ? "처리 중..." : `✨ ${submitLabel}`}
+          </Button>
         </div>
-      )}
-      <input type="hidden" name="scheduledAt" value={scheduledAtIso} />
-      <input type="hidden" name="productId" value={productId} />
-
-      {state.error && (
-        <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-          {state.error}
-        </p>
-      )}
-
-      <Button
-        type="submit"
-        disabled={isPending || isGeneratingAll || (publishMode === "now" && !hasThreadsAccount)}
-      >
-        {isGeneratingAll ? "생성 중..." : isPending ? "처리 중..." : submitLabel}
-      </Button>
+      </section>
     </form>
   );
 }

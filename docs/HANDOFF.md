@@ -1,5 +1,20 @@
-# 작업 인수인계 현황판 (HANDOFF.md)
+﻿# 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.21, 2026-10-04)
+
+- **글 작성 폼 대형 테마 컨테이너 박스 및 은은한 배경색 대구분 UI 전면 개편 (v1.21)**:
+  - `ProductPostForm.tsx`에서 `🤖 AI 글 생성 엔진 선택 (GPT / Claude / Gemini)`을 중간 기준으로 삼아 상단 전체(글 콘텐츠 기획/작성)와 하단 전체(이미지 & 미디어 생성/등록)를 명확히 분리되는 커다란 대형 컨테이너 박스(`border-2` 테두리 및 옅은 파스텔 배경색)로 묶어, 단계별 워크플로우를 한눈에 직관적으로 파악할 수 있도록 UI를 대폭 개선.
+  - **4대 메이저 대형 섹션 구성**:
+    1. **[STEP 1] 📝 게시글 작성 및 콘텐츠 설정 (상단 대형 블루 박스 - `bg-blue-50/25 border-blue-200/80`)**:
+       - 내부 흰색 카드들: 🛍️ 1. 제휴 상품 선택, 🎭 2. AI 페르소나, 🏷️ 3. 키워드 & 참고 링크, ✍️ 4. Threads 본문 & 원클릭 일괄 생성.
+    2. **[STEP 2] 🤖 AI 글 생성 엔진 선택 (중간 기준 대형 퍼플 박스 - `bg-purple-50/30 border-purple-200/90`)**:
+       - 3대 글 생성 AI(GPT / Claude / Gemini) 탭 버튼 및 세부 모델 셀렉트박스.
+    3. **[STEP 3] 🖼️ 이미지 & 미디어 설정 (하단 대형 앰버 박스 - `bg-amber-50/25 border-amber-200/90`)**:
+       - 내부 흰색 카드들: 4대 이미지 생성 AI 엔진(NanoBanana / GPT Image / FLUX / Z-Image), 대표 이미지 추가, 파일 직접 업로드, 캐러셀 썸네일 그리드, 영상 등록.
+    4. **[STEP 4] 🚀 게시방식 결정 및 최종 발행 (발행 대형 슬레이트 박스 - `bg-neutral-100/60 border-neutral-300`)**:
+       - 즉시 게시 / 예약 발행 / 임시 저장 선택 및 최종 발행 실행 버튼.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.21`로 갱신했다.
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.20, 2026-10-04)
 
 - **4대 AI 이미지 생성 플랫폼(NanoBanana, GPT Image, FLUX, Z-Image) 및 세부 모델 선택 확장 (v1.20)**:
@@ -432,3 +447,4 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
+
