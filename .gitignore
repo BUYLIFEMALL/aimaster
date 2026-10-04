@@ -13,3 +13,6 @@ node_modules
 **/.bkit-memory.json
 **/.pdca-status.json
 **/.pdca-snapshots/
+
+# Temporary generated script assets
+scripts/.tmp-*

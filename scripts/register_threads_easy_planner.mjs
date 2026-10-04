@@ -37,6 +37,7 @@ async function main() {
         version: "v1.18",
         badges: ["free", "new"],
         app_url: "https://threads-easy-planner.vercel.app",
+        thumbnail_url: "https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/threads-easy-planner-thumbnail.jpg?v=1791076543712",
       })
       .eq("id", programId);
     if (error) throw error;
@@ -52,9 +53,10 @@ async function main() {
         category_id: "c188201d-6e04-4887-b4f9-e60936386bd1",
         is_active: true,
         sort_order: 4,
-        version: "v1.12",
+        version: "v1.18",
         badges: ["free", "new"],
         app_url: "https://threads-easy-planner.vercel.app",
+        thumbnail_url: "https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/threads-easy-planner-thumbnail.jpg?v=1791076543712",
       })
       .select("id")
       .single();
