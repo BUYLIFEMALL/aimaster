@@ -699,3 +699,14 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
   버튼 제출 시 직접 호출(`useActionState` 없이 `useState`)해서 React 18(Next 14)·19 양쪽에서 동작한다.
 - 새 프로그램은 이미 통일된 프로그램(예: `naver-cafe-poster/src/app/(auth)/`)의 두 파일을 복사해 제목만 바꾼다.
 - 일괄 적용 스크립트로 2026-10-01 24개 프로그램에 적용(아래 HANDOFF 기록). 예외: `naver-blog-seo-studio`(Codex 담당), 메인 사이트 `/login`(어두운 금색 디자인), `tistory-auto-blog`(BLOG 복사본이라 이미 같은 모양).
+
+---
+
+## 30. 유튜브 쇼츠 검색·분석 프로그램 패턴 — YouTube Data API 쿼터, 실제 영상 분석, 30일 보관 (2026-10-04, shorts-viral-studio)
+
+- **키는 회원 본인 것:** `user_api_keys.provider = 'youtube_api_key'`(DB 체크 제약에 이미 포함). 검색·조회·댓글 호출은 전부 Server Action에서 회원 키로만 한다(`shorts-viral-studio/src/lib/youtube/api.ts`).
+- **쿼터 계산:** `search.list` 1회 ≈ 100유닛, `videos.list`/`channels.list`/`commentThreads.list`는 ID 최대 50개를 묶어 1유닛. 기본 하루 1만유닛이면 검색 약 100회. `quotaExceeded`/`keyInvalid`/`accessNotConfigured`를 `reason`으로 구분해 회원에게 한국어로 안내한다. 필터(게시일·길이·조회수·구독자)는 가져온 결과에 클라이언트에서 적용해 추가 쿼터를 쓰지 않는다.
+- **떡상 지표:** 조회수÷구독자(등급 초대박 10↑·대박 5↑·떡상 3↑·양호 1↑), 채널 평균 대비 배율, 하루 평균 조회, 참여율. 구독자 비공개(`hiddenSubscriberCount`)는 `null`→"판정불가" — 0으로 계산하지 않는다.
+- **실제 영상 분석:** Gemini `generateContent`의 `fileData.fileUri`에 공개 YouTube 주소(`https://www.youtube.com/watch?v=ID`)를 넘기면 모델이 영상을 직접 본다. GPT·Claude는 영상을 볼 수 없으므로 제목·지표·설명·댓글 기반 **추정**임을 화면에 표시한다. 영상 분석이 실패하면 추정 모드로 자동 폴백하고 이유를 안내한다. 영상 분석은 비용이 크므로 한 번에 최대 3개로 제한한다.
+- **30일 보관:** YouTube API 데이터는 30일을 넘겨 저장하지 못한다(삭제 또는 갱신). 프로젝트 테이블은 `created_at` 30일 후 삭제하고 화면에 남은 일수를 표시한다.
+- **가짜 분석 금지:** AI에게 주지 않은 정보(컷 전환 주기, BGM 타이밍 등)를 "분석 결과"로 보여주지 않는다. 입력에 없는 정보는 `확인 불가` 또는 `(추정)` 표기 — §24와 같은 원칙(`docs/ERROR_LESSONS.md` G 2026-10-04).

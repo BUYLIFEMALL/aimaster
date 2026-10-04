@@ -261,6 +261,9 @@
 - **[2026-10-01] 경로 일괄 치환(`blog/`→`ai-auto-blog/`)이 옛 기록 속 다른 의미의 `blog/page.tsx`까지 바꿈** — 일괄 치환 후 반드시 바뀐 줄을 훑어보고 되돌릴 것은 되돌린다.
 - **[2026-10-01] 백그라운드로 넘어간 명령이 나중에 실행돼 파일을 다시 건드림** — 백그라운드 작업이 끝났다는 알림 후 `git status`로 의도치 않은 변경(줄바꿈만 바뀐 것 포함)을 확인하고 되돌린다.
 - **[2026-10-01] `server-only`를 import하는 파일은 `tsx`로 바로 실행하면 모듈 없음 오류** — 테스트할 때는 `NODE_PATH`에 빈 `server-only` 모듈을 둔 임시 폴더를 지정한다.
+  - **[2026-10-04 정정]** 프로젝트에 `node_modules/server-only`가 이미 있으면 `NODE_PATH` 방식은 통하지 않고 "Client Component에서 import할 수 없다"는 오류가 난다. 이때는 **`npx tsx --conditions=react-server 파일.ts`** 로 실행한다(`server-only`가 빈 모듈로 처리됨). 테스트용 임시 파일은 프로젝트 폴더에 만들고 끝나면 반드시 지운다.
+- **[2026-10-04] Git Bash에서 한글·따옴표가 많은 긴 heredoc을 여러 `cat > 파일 <<EOF`로 이어 쓰면 따옴표 짝이 안 맞아 통째로 실패** — 실패하면 아무 파일도 안 써진 채 끝나므로 결과를 `ls`로 확인하고, 긴 파일은 Write 도구로 하나씩 쓴다.
+- **[2026-10-04] `vercel link`는 해당 폴더의 `.env.local`을 덮어쓴다** — Supabase 로컬 실행 값은 루트 `.env.local`에서 다시 복사해 쓴다. 환경변수는 `printf '%s' "$VAL" | vercel env add 이름 production --scope buylife`로 넣으면 값이 화면에 안 나온다.
 
 ## F. 외부 사이트 연동
 
@@ -269,6 +272,17 @@
 - **[2026-10-01] AI 모델 ID 추측 금지** — 각 공급사 모델 목록 API(무료)로 실제 ID를 확인한 뒤 등록(`docs/AI_MODEL_INTEGRATION_STANDARD.md`). 예: Claude Haiku 4.5는 `claude-haiku-4-5-20251001`.
 
 ## G. 독립 앱 빌드
+
+- **[2026-10-04 · shorts-viral-studio v1.01] 튜토리얼/외부 소스를 그대로 옮기면 "있는 척하는 기능"이 따라온다**
+  - 증상: 원본 쇼츠 분석기는 Gemini에 제목·조회수·댓글만 보내면서 화면에는 컷 전환 주기·렌즈·BGM 타이밍을 "분석 결과"처럼 표시했고, 프롬프트의 예시 값("24mm", "Crash Zoom"…)을 그대로 베낄 수 있었다. 영상 설명 필드는 어디서도 채워지지 않아 항상 빈 값이었다.
+  - 해결: Gemini는 공개 YouTube 영상 주소(`fileData.fileUri`)를 직접 넘겨 실제로 보고 분석, 그 외 엔진·실패 시에는 `evidence: "metadata"` + 문장 앞 `(추정)` 표시, 프롬프트에는 예시 값 대신 필드 설명만(`shorts-viral-studio/src/lib/ai/pipeline.ts`).
+  - 다음부터 확인: 외부 소스를 이식할 때는 "화면에 보이는 결과가 AI에게 실제로 준 입력에서 나올 수 있는 정보인가"를 먼저 따진다. 입력에 없는 정보(영상 내용 등)를 "분석"으로 보여주면 §24와 같은 가짜 데이터 문제다. JSON 스키마 예시에 그럴듯한 값을 넣지 말 것.
+- **[2026-10-04 · shorts-viral-studio v1.01] 구독자 비공개 채널을 0으로 계산하면 "조회수÷구독자"가 0이 되어 등급이 왜곡됨**
+  - 해결: `hiddenSubscriberCount`이거나 0이면 `subs = null`, 비율·등급은 "판정불가"(`src/lib/youtube/metrics.ts`).
+  - 다음부터 확인: 외부 API의 "비공개/없음"은 0이 아니라 null로 다루고 화면에서도 "비공개"로 표시.
+- **[2026-10-04 · shorts-viral-studio v1.01] YouTube API 정책·할당량**
+  - 검색 `search.list` 1회 = 약 100유닛(+videos/channels 각 1유닛), 기본 하루 1만유닛 ≈ 100회. 할당량/키 오류는 `reason`(quotaExceeded 등)으로 구분해 한국어 안내.
+  - YouTube API 데이터는 30일 넘게 저장할 수 없다(삭제 또는 갱신). 이 프로그램은 프로젝트를 `created_at` 30일 후 삭제하고 화면에 남은 일수를 표시한다.
 
 - **[2026-10-01 · tistory-auto-blog v1.01] `pricing_plans` 등록 전 조회가 `created_at` 없음으로 실패**
   - 원인: 다른 테이블 관례를 적용해 `pricing_plans.created_at`으로 정렬을 가정했지만, 이 테이블에는 그 칼럼이 없다.

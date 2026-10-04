@@ -283,6 +283,7 @@ vercel deploy --prod --yes --scope buylife
 | 네이버 | 네이버 블로그 자동화(App) | naver-blog-auto-poster | https://www.buylife.xyz/naver-blog-auto-poster (데스크톱 앱 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 PC에서 실행됨) |
 | 네이버 | 네이버 블로그 자동화(Web) | naver-blog-auto-poster-web | https://www.buylife.xyz/naver-blog-auto-poster-web (크롬 확장 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 브라우저에서 실행됨) |
 | 네이버 | 네이버 블로그 SEO 스튜디오 | naver-blog-seo-studio | https://www.buylife.xyz/naver-blog-seo-studio (+ 크롬 확장, `naver-blog-seo-studio/extension/`) |
+| 쇼츠 | 쇼츠 떡상 분석·대본 자동화 | shorts-viral-studio | https://shorts-viral-studio.vercel.app (2026-10-04 신설 v1.01, 유료, 회원 본인 YouTube·AI 키 사용, 상세는 `shorts-viral-studio/AGENTS.md`) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).
@@ -371,6 +372,7 @@ vercel deploy --prod --yes --scope buylife
     `naver-blog-auto-poster_app/AGENTS.md`, `naver-blog-auto-poster_web/AGENTS.md`.
 28. **웹에서 만든 글을 크롬 확장으로 네이버 블로그 글쓰기 화면에 입력하기** — 연동 토큰·보낸 글 목록 API·입력 블록 변환·
     한 글자씩 입력(§20)·이미지 파일 업로드·발행 설정창까지(마지막 발행은 사람). 새 프로그램은 `ai-auto-blog/extension/` 구현을 복사해 이름만 바꾼다.
+30. **유튜브 쇼츠 검색·분석 프로그램 패턴** — YouTube Data API 쿼터(검색 1회≈100유닛), 떡상 지표·등급(구독자 비공개는 판정불가), Gemini 영상 주소 직접 분석 vs 지표 기반 "추정" 표시, 30일 보관. 참고 구현: `shorts-viral-studio/`.
 
 ---
 
