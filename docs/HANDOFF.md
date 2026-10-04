@@ -6,6 +6,15 @@
 
 
 
+
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.27, 2026-10-04)
+
+- **사용자 이미지 추가/삭제 및 캐러셀 순서 조정 관리 시스템 구축 (v1.27)**:
+  - `ProductPostForm.tsx`에 사용자가 직접 이미지를 추가/삭제/정렬할 수 있는 전용 관리 패널 완성.
+  - **추가**: PC 파일 다중 업로드, 웹 이미지 URL 직접 입력 추가(`+ URL로 추가`), 썸네일 그리드 내 `➕ 이미지 추가` 카드.
+  - **삭제**: 개별 썸네일 ✕ 버튼 & 삭제 텍스트 버튼, 상단 `🗑️ 전체 이미지 삭제` 일괄 비우기 버튼.
+  - **순서 변경**: 카드마다 `◀`, `▶` 화살표 버튼으로 대표 썸네일(1번) 및 캐러셀 순서 즉시 변경.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.27`로 갱신했다.
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.26, 2026-10-04)
 
 - **AI 이미지 생성 장수 선택기(1~10장, 기본 1장) 도입 및 멀티컷 토글 제거 (v1.26)**:
@@ -23,6 +32,7 @@
 
 - 카탈로그 카드의 두 줄 한줄 설명을 `GPT Image·Gemini·FLUX.2·Z-Image 등 다양한 AI 엔진으로 1~10장 연속 생성과 세부 옵션 설정을 지원합니다.`로 갱신했다.
 - 운영 DB `programs.short_desc` 및 재등록 기준 파일(`supabase/migrations/0012_register_ai_image_studio.sql`, 관련 등록 스크립트)을 함께 동기화했다.
+- 대시보드 및 메타 설명도 `GPT Image·Gemini(Nano Banana)·FLUX.2·Z-Image` 최신 라인업으로 갱신하고 앱 버전을 `v1.04`로 올렸다.
 
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.24, 2026-10-04)
 
@@ -489,6 +499,7 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
+
 
 
 

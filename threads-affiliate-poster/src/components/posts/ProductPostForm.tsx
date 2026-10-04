@@ -150,6 +150,51 @@ export function ProductPostForm({
     setImageUrls((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
+  const [customImageUrl, setCustomImageUrl] = useState("");
+  const [urlAddError, setUrlAddError] = useState<string | null>(null);
+
+  const handleAddCustomImageUrl = () => {
+    const trimmed = customImageUrl.trim();
+    setUrlAddError(null);
+    if (!trimmed) return;
+
+    if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+      setUrlAddError("올바른 이미지 웹 주소(http:// 또는 https://)를 입력해주세요.");
+      return;
+    }
+
+    if (imageUrls.length >= 20) {
+      setUrlAddError("이미지는 최대 20장까지 등록할 수 있습니다.");
+      return;
+    }
+
+    if (imageUrls.includes(trimmed)) {
+      setUrlAddError("이미 등록된 이미지 주소입니다.");
+      return;
+    }
+
+    setImageUrls((prev) => [...prev, trimmed].slice(0, 20));
+    setVideoUrl("");
+    setCustomImageUrl("");
+  };
+
+  const handleClearAllImages = () => {
+    if (imageUrls.length === 0) return;
+    if (confirm("등록된 모든 이미지를 삭제하시겠습니까?")) {
+      setImageUrls([]);
+    }
+  };
+
+  const moveImage = (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= imageUrls.length) return;
+    setImageUrls((prev) => {
+      const copy = [...prev];
+      const [item] = copy.splice(fromIdx, 1);
+      copy.splice(toIdx, 0, item);
+      return copy;
+    });
+  };
+
   const [videoUrl, setVideoUrl] = useState(initialVideoUrl);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [videoUploadError, setVideoUploadError] = useState<string | null>(null);
@@ -987,69 +1032,174 @@ export function ProductPostForm({
           </div>
         )}
 
-        {/* 파일 직접 등록 버튼 & 캐러셀 썸네일 그리드 (흰색 카드) */}
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-2xs space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-800">📁 미디어 파일 직접 업로드</span>
-            <span className="text-[11px] font-semibold text-neutral-500">현재 {imageUrls.length} / 20장</span>
+        {/* 📁 이미지 직접 추가 / 삭제 및 캐러셀 관리 카드 (흰색 카드) */}
+        <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-2xs space-y-3.5">
+          {/* 헤더 & 전체 삭제 버튼 */}
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+                <span>📁</span>
+                <span>사용자 이미지 추가 및 삭제 관리</span>
+              </span>
+              <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-bold text-neutral-700 border border-neutral-200">
+                {imageUrls.length} / 20장
+              </span>
+            </div>
+            {imageUrls.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClearAllImages}
+                className="text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 cursor-pointer transition-colors"
+              >
+                <span>🗑️ 전체 이미지 삭제</span>
+              </button>
+            )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              onChange={handleFileChange}
-              disabled={isUploading || imageUrls.length >= 20}
-              className="hidden"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading || imageUrls.length >= 20}
-            >
-              {isUploading ? "업로드 중..." : "파일 직접 등록하기 (다중 선택 가능)"}
-            </Button>
-          </div>
-          {uploadError && <p className="text-xs text-red-600">{uploadError}</p>}
+          {/* 이미지 추가 2가지 방식: 파일 업로드 버튼 + URL 직접 입력 추가 */}
+          <div className="space-y-2">
+            {/* 1) 파일 직접 업로드 버튼 */}
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                disabled={isUploading || imageUrls.length >= 20}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading || imageUrls.length >= 20}
+                className="text-xs font-bold"
+              >
+                {isUploading ? "업로드 중..." : "📂 내 PC에서 이미지 파일 추가 (다중 선택 가능)"}
+              </Button>
+              <span className="text-[11px] text-neutral-400">JPG, PNG, WEBP 지원 (최대 20장)</span>
+            </div>
 
-          {imageUrls.length > 0 && (
-            <div className="pt-2 space-y-2 border-t border-neutral-100">
-              <div className="flex items-center justify-between text-xs font-medium text-neutral-600">
+            {/* 2) 이미지 URL 직접 입력하여 추가 */}
+            <div className="flex items-center gap-2 pt-1">
+              <Input
+                type="url"
+                value={customImageUrl}
+                onChange={(e) => setCustomImageUrl(e.target.value)}
+                placeholder="이미지 웹 주소(URL)를 입력하여 추가 (예: https://.../image.jpg)"
+                className="text-xs bg-neutral-50/50 flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCustomImageUrl();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleAddCustomImageUrl}
+                disabled={!customImageUrl.trim() || imageUrls.length >= 20}
+                className="text-xs font-bold whitespace-nowrap"
+              >
+                + URL로 추가
+              </Button>
+            </div>
+            {urlAddError && <p className="text-xs font-semibold text-red-600">{urlAddError}</p>}
+            {uploadError && <p className="text-xs font-semibold text-red-600">{uploadError}</p>}
+          </div>
+
+          {/* 3) 등록된 이미지 썸네일 그리드 & 개별 삭제 버튼 */}
+          {imageUrls.length > 0 ? (
+            <div className="pt-2 space-y-2.5 border-t border-neutral-100">
+              <div className="flex items-center justify-between text-xs font-semibold text-neutral-700">
                 <span>📷 등록된 미디어 캐러셀 ({imageUrls.length}/20)</span>
-                {imageUrls.length > 1 && (
-                  <span className="text-[11px] font-semibold text-blue-600">
-                    * 게시 시 Threads 캐러셀(슬라이드)로 자동 연결됩니다.
-                  </span>
-                )}
+                <span className="text-[11px] text-blue-600 font-normal">
+                  * ✕ 버튼으로 개별 삭제, ◀ ▶ 화살표로 순서를 변경할 수 있습니다.
+                </span>
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {imageUrls.map((url, idx) => (
-                  <div key={idx} className="group relative rounded-lg border border-neutral-200 bg-neutral-100 p-1">
+                  <div
+                    key={idx}
+                    className="group relative rounded-xl border border-neutral-200 bg-neutral-100 p-1 overflow-hidden shadow-2xs hover:border-neutral-400 transition-all"
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={url}
                       alt={`미디어 ${idx + 1}`}
-                      className="h-24 w-full rounded object-cover"
+                      className="h-28 w-full rounded-lg object-cover"
                     />
-                    <span className="absolute top-2 left-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    <span className="absolute top-2 left-2 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-extrabold text-white shadow-xs">
                       {idx + 1}
                     </span>
                     <button
                       type="button"
                       onClick={() => removeImage(idx)}
-                      className="absolute top-2 right-2 rounded-full bg-red-600 p-1 text-white opacity-90 transition-opacity hover:opacity-100"
-                      title="삭제"
+                      className="absolute top-2 right-2 rounded-full bg-red-600 hover:bg-red-700 p-1.5 text-white shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                      title={`이미지 ${idx + 1} 삭제`}
                     >
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
+
+                    {/* 카드 하단 액션: 순서 이동 (◀ ▶) 및 삭제 */}
+                    <div className="mt-1 flex items-center justify-between px-1 text-[10px] text-neutral-500">
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => moveImage(idx, idx - 1)}
+                          disabled={idx === 0}
+                          className="rounded px-1 py-0.5 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-700 font-bold"
+                          title="앞으로 이동"
+                        >
+                          ◀
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImage(idx, idx + 1)}
+                          disabled={idx === imageUrls.length - 1}
+                          className="rounded px-1 py-0.5 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-700 font-bold"
+                          title="뒤로 이동"
+                        >
+                          ▶
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="text-red-500 hover:text-red-700 font-bold hover:underline cursor-pointer"
+                      >
+                        삭제
+                      </button>
+                    </div>
                   </div>
                 ))}
+
+                {/* + 추가하기 점선 카드 (20장 미만일 때) */}
+                {imageUrls.length < 20 && (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex h-36 flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50/50 hover:bg-neutral-100/70 hover:border-neutral-400 transition-all cursor-pointer text-neutral-500 hover:text-neutral-800"
+                    title="이미지 추가"
+                  >
+                    <span className="text-xl">➕</span>
+                    <span className="text-xs font-bold">이미지 추가</span>
+                    <span className="text-[10px] text-neutral-400">({imageUrls.length}/20)</span>
+                  </button>
+                )}
               </div>
+            </div>
+          ) : (
+            /* 등록된 이미지가 없을 때의 안내 박스 */
+            <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 p-6 text-center text-xs text-neutral-500 space-y-1">
+              <p className="font-semibold text-neutral-600">등록된 이미지가 없습니다.</p>
+              <p className="text-[11px] text-neutral-400">
+                위의 AI 이미지 생성기를 이용하거나, 내 PC 파일 추가 / 웹 URL 입력으로 이미지를 추가해보세요. (최대 20장)
+              </p>
             </div>
           )}
           <input type="hidden" name="imageUrl" value={imageUrls.join(",")} />
