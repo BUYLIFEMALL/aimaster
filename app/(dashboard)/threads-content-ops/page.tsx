@@ -34,9 +34,9 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
   const drafts = (posts ?? []).filter((post) => post.status === "draft").slice(0, 5);
   const tab = ["dashboard", "create", "manage", "settings"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
 
-  return <div className="flex min-h-screen">
+  return <div className="flex min-h-screen bg-dark">
     <ContentOpsSidebar email={user.email ?? ""} />
-    <div className="mx-auto min-w-0 max-w-6xl flex-1 space-y-6 p-4 pt-16 md:p-8">
+    <div className="mx-auto min-w-0 max-w-6xl flex-1 space-y-6 bg-dark p-4 pt-16 md:p-8">
     <header className="flex flex-wrap items-end justify-between gap-3"><div><p className="mb-1 text-xs font-medium text-gold">{APP_VERSION} · WEB AUTOMATION</p><h1 className="text-2xl font-bold text-white"><GoldGradientText>Threads 콘텐츠 운영 자동화</GoldGradientText></h1></div><p className="text-sm text-subtext">회원별 계정·초안·발행 이력 분리 관리</p></header>
     {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} />}
     {tab === "create" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={[]} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
