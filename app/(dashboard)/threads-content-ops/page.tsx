@@ -6,6 +6,7 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { createClient } from "@/lib/supabase/server";
 import TokenManager from "./TokenManager";
+import { APP_VERSION } from "@/threads-content-ops/lib/version";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -39,6 +40,7 @@ export default async function ThreadsContentOpsPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <header>
+        <p className="mb-1 text-xs font-medium text-gold">{APP_VERSION}</p>
         <h1 className="text-2xl font-bold text-white"><GoldGradientText>Threads 콘텐츠 운영 자동화</GoldGradientText></h1>
         <p className="mt-2 text-sm text-subtext">AIMaster 계정과 연결한 Windows 앱에서 여러 Threads 콘텐츠 작업을 안전하게 관리합니다.</p>
       </header>

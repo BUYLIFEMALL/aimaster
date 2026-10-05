@@ -1,6 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
+## Threads Content Ops v1.02 — AI generation API milestone (2026-10-05)
+
+- Added `POST /api/threads-content-ops/generate` as the server-side replacement foundation for the imported desktop source's local Codex CLI calls.
+- The route verifies the desktop personal-access token and live program entitlement, resolves only the member's own `user_api_keys.openai` key, and has no operator/global API-key fallback.
+- OpenAI Responses API uses `gpt-4o-mini` with strict Structured Outputs and validates the legacy `AgentResult` compatible payload before returning it. Web search is deliberately not enabled in this phase.
+- Root build passed. No paid model call was made because a real test must use an authorized test member's registered key.
+- Continuation: implement and test an OS credential-store backed `AIMasterAgentRunner` in `threads-content-ops/desktop`, then replace the imported Codex startup/status/settings pieces without touching existing Threads programs. See `threads-content-ops/docs/AI_GENERATION_API.md`.
+
  
-## Threads 콘텐츠 운영 자동화 (threads-content-ops v1.01 기반, 2026-10-05)
+## Threads 콘텐츠 운영 자동화 (threads-content-ops v1.02 기반, 2026-10-05)
 
 - 새 AIMaster 서브프로젝트 `threads-content-ops/`를 만들고, 사용자가 지정한 Electron 기반 원본을 `desktop/`으로 편입했다. 기존 `threads/`, `threads-comment-reply/`, `threads-affiliate-poster/`, `threads-easy-planner/`는 수정하지 않았다.
 - 루트 AIMaster에 전용 경로 `/threads-content-ops`, 전용 기기 연동 토큰 발급/폐기 액션, `GET /api/threads-content-ops/whoami` 검증 API를 추가했다. 토큰 유효성뿐 아니라 `threads-content-ops` 프로그램 이용 권한을 매 요청 확인하며, 페이지와 API에 `force-dynamic`/`force-no-store`를 선언했다.
@@ -754,7 +762,6 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
-
 
 
 

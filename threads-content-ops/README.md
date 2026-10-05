@@ -37,3 +37,7 @@
 - 앱 재시작만으로 자동 발행이 재개되면 안 되며, 예약/자동화는 기본 OFF로 시작한다.
 
 상세 실행 계획은 [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md)를, 작업 규칙은 [AGENTS.md](AGENTS.md)를 참고한다.
+
+## v1.02 — AI generation server foundation
+
+The AIMaster server now exposes the protected `POST /api/threads-content-ops/generate` endpoint. It accepts a desktop personal-access token, checks program access, resolves only the member-owned OpenAI key, and returns a validated structured result. The desktop adapter is the next isolated step; no existing Threads program was changed.
