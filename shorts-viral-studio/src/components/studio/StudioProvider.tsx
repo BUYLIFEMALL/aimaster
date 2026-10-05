@@ -29,7 +29,7 @@ export const EMPTY_PROJECT: ProjectData = {
 };
 
 const SESSION_KEY = "svs_state_v1";
-const MODEL_KEY = "svs_model_v1";
+const MODEL_KEY = "svs_model_v2"; // v2: 최초 기본값을 GPT-4.1로 바꾸면서 이전 선택값 초기화
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
@@ -69,8 +69,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [title, setTitleState] = useState("");
   const [model, setModelState] = useState<ModelConfig>({
-    provider: "gemini",
-    model: DEFAULT_AI_MODELS.gemini,
+    provider: "openai",
+    model: DEFAULT_AI_MODELS.openai,
   });
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);

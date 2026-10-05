@@ -6,7 +6,7 @@
 |---|---|
 | slug | `shorts-viral-studio` (카테고리: 쇼츠, 최소 등급: 일반, 배지: new, **유료 기본 요금제 1·2·3개월**) |
 | 라이브 | https://shorts-viral-studio.vercel.app (자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
-| 버전 | **v1.01** (2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
+| 버전 | **v1.02** (v1.01 = 2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
 | 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase(공용 DB) — `threads-easy-planner`를 틀로 복사해 만들었다 |
 | 출처 | 주인님이 준 유튜버 튜토리얼 소스(`D:\PDS\index.html`, "남다른AI Shorts 분석기", 단일 HTML) |
 
@@ -80,3 +80,8 @@ supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_gui
 - 배포: 이 폴더에서 `vercel deploy --prod --yes --scope buylife` (프레임워크 설정은 `vercel.json`). 환경변수 4개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, 선택 `NEXT_PUBLIC_MAIN_SITE_URL`)는 **루트 `.env.local` 값**으로 넣었다.
 - 루트 `.vercelignore`에 `/shorts-viral-studio`를 추가했다(루트 앱 배포 때 이 폴더를 올리지 않음).
 - `vercel link`는 이 폴더의 `.env.local`을 덮어쓴다(gitignore 대상) — 로컬 실행용 값이 필요하면 루트 `.env.local`의 Supabase 3개를 다시 복사.
+
+## 변경 이력
+
+- **v1.02 (2026-10-05):** 최초 기본 AI 엔진을 **OpenAI GPT-4.1**로 변경(주인님 지시, `StudioProvider.tsx`의 초기값). 회원이 모델을 바꾸면 `localStorage`(`svs_model_v2`)에 기억한다. 이전 키(`svs_model_v1`)는 쓰지 않으므로 기존 선택값은 한 번 초기화됨. 영상 직접 분석은 Gemini를 골라야 하므로 분석 화면의 안내 문구는 유지(GPT 기본값에서는 "지표·댓글 기반 추정"으로 표시됨).
+- **v1.01 (2026-10-04):** 신설.
