@@ -1,8 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## Threads Content Ops v1.16 — API and platform credential sections (2026-10-06)
+## Threads Content Ops v1.17 — credential save-state clarity (2026-10-06)
 
 - `threads-affiliate-poster` 설정 화면과 같은 `rounded-2xl / neutral-100 / border-2` 섹션 포맷으로 교체했다. 각 API 키는 개별 저장 버튼·마스킹 등록 상태를 갖고, Threads 계정 상태와 연동 매뉴얼 영역을 같은 방식으로 제공한다.
+- 저장값 보안상 재표시하지 않는 동작을 안내하고, 비활성 버튼도 `교체 입력 필요`/`값 입력 필요`로 명시해 저장 버튼이 보이지 않는 것처럼 보이는 혼동을 없앴다.
 - 프로그램 전용 화면의 배경 단계와 여백을 AIMaster 다크 레이아웃에 맞췄다. 본문은 `#0a0a0f`, 좌측 고정 메뉴는 `#12121a`, 경계는 `#222232`이며 카드만 한 단계 위로 올라온다.
 - `API키등록·플랫폼연동`은 번호형 업무 흐름 바로 아래 유틸리티 메뉴로 이동했다. 로그인 이메일과 로그아웃도 그 아래에 이어 붙였으며, 하단 고정 영역을 제거했다.
 - 기존 자동화 프로그램(`threads`, `threads-affiliate-poster`)과 동일하게, 프로그램 전용 화면은 흰색 배경·중성 회색 경계·어두운 글자·밝은 카드로 통일했다.
