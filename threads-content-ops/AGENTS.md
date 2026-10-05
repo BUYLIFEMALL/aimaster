@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.18`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.19`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
 
 ## 절대 규칙
 
@@ -11,6 +11,11 @@
 - 페이지, Server Action, API 콜백 모두 `checkProgramAccess()` 또는 API용 권한 검사로 프로그램 이용 권한까지 확인합니다. 로그인만 확인해서는 안 됩니다.
 - 권한이 관여하는 `page.tsx`/`route.ts`에는 `dynamic = "force-dynamic"`와 `fetchCache = "force-no-store"`를 함께 둡니다.
 - 자동 발행과 예약은 기본 OFF입니다. 회원이 웹에서 명시적으로 실행 또는 예약한 경우에만 처리합니다.
+
+## v1.19 완료 사항
+
+- Meta 오류 1349168(화이트리스트에 없는 redirect URI)을 막기 위해 `lib/oauth.ts`에 프로덕션 콜백 주소를 단일 상수로 뒀다. OAuth 시작, 코드 교환, 화면 안내가 같은 주소를 쓴다.
+- 설정 화면은 쇼핑제휴 자동화와 같은 안내 흐름으로, Threads API 액세스 설정의 유효한 OAuth 리디렉션 URI 칸과 Development 모드 Tester 역할 등록을 명시한다.
 
 ## v1.18 완료 사항
 

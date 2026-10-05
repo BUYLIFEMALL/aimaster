@@ -38,9 +38,11 @@ const GUIDES = [
 export default function WebSetup({
   connectedAccount: initialAccount,
   maskedCredentials,
+  redirectUri,
 }: {
   connectedAccount: ConnectedAccount | null;
   maskedCredentials: Record<string, string>;
+  redirectUri: string;
 }) {
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState<Provider | null>(null);
@@ -116,8 +118,10 @@ export default function WebSetup({
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
       <SectionTitle title="🧵 Threads 계정 연결" description="게시글을 자동으로 게시할 Threads 계정을 연결합니다(OAuth)." />
       <div className="mb-4 space-y-2 text-xs leading-relaxed text-neutral-600">
-        <p>Meta 앱의 OAuth 리디렉션 URI에 아래 주소를 등록한 뒤, 본인이 만든 Threads 앱 ID와 앱 시크릿을 입력하세요.</p>
-        <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 text-neutral-800">https://www.buylife.xyz/api/threads-content-ops/callback</code>
+        <p>Meta 앱이 개발(Development) 모드이면, 앱의 역할 메뉴에서 테스터로 등록한 본인 계정만 연결할 수 있습니다.</p>
+        <p><span className="font-semibold text-neutral-800">Meta 앱 대시보드 → 사용 사례 → Threads API 액세스 → 설정</span>의 <span className="font-semibold text-neutral-800">유효한 OAuth 리디렉션 URI</span>에 아래 주소를 한 글자도 바꾸지 않고 추가한 뒤 저장하세요. 웹훅 URL이나 Facebook 로그인 URL 칸에 넣으면 연결되지 않습니다.</p>
+        <code className="block break-all rounded bg-neutral-200 px-2 py-1.5 font-medium text-neutral-800">{redirectUri}</code>
+        <p>그 다음 역할 메뉴에서 연결할 Threads 계정을 테스터로 추가하고, 앱 ID와 앱 시크릿 코드를 저장한 뒤 연결을 시작하세요.</p>
       </div>
       <div className="space-y-3">
         <CredentialRow provider="threads_app_id" label="Threads 앱 ID (Meta 앱 설정 > 기본 설정 하단의 Threads 앱 ID)" maskedValue={credentials.threads_app_id} editing={editing === "threads_app_id"} saving={saving === "threads_app_id"} removing={removing === "threads_app_id"} onEdit={setEditing} onSave={save} onDelete={remove} />

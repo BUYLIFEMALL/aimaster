@@ -6,6 +6,7 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { createClient } from "@/lib/supabase/server";
 import { APP_VERSION } from "@/threads-content-ops/lib/version";
+import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
 import DraftComposer from "./DraftComposer";
 import ContentOpsSidebar from "./ContentOpsSidebar";
 import OperationsDashboard from "./OperationsDashboard";
@@ -47,7 +48,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} />}
     {tab === "create" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={[]} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
     {tab === "manage" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={drafts} /> : <GlassCard><h2 className="font-bold text-white">관리할 초안이 없습니다</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 콘텐츠 작성 메뉴에서 초안을 만드세요.</p></GlassCard>)}
-    {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-gold" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccount={connectedAccountInfo} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} /></div>}
+    {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-gold" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccount={connectedAccountInfo} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
     </div>
   </div>;
 }

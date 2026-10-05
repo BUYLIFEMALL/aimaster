@@ -8,6 +8,11 @@
 - `API키등록·플랫폼연동`은 번호형 업무 흐름 바로 아래 유틸리티 메뉴로 이동했다. 로그인 이메일과 로그아웃도 그 아래에 이어 붙였으며, 하단 고정 영역을 제거했다.
 - 기존 자동화 프로그램(`threads`, `threads-affiliate-poster`)과 동일하게, 프로그램 전용 화면은 흰색 배경·중성 회색 경계·어두운 글자·밝은 카드로 통일했다.
 
+## Threads Content Ops v1.19 — exact Meta OAuth callback (2026-10-06)
+
+- Meta 오류 1349168은 회원 Meta 앱의 OAuth 허용 URI에 현재 프로그램 콜백이 없을 때 발생한다. 쇼핑제휴 자동화의 설정 흐름을 대조해, `https://www.buylife.xyz/api/threads-content-ops/callback`을 OAuth 시작·코드 교환·화면 안내가 공통으로 사용하도록 고정했다.
+- 설정 화면에 Meta 앱 **사용 사례 → Threads API 액세스 → 설정 → 유효한 OAuth 리디렉션 URI**라는 정확한 입력 위치, URI 일치 조건, Development 모드 Tester 역할 등록 조건을 안내한다.
+
 ## Threads Content Ops v1.18 — credential rows and account disconnect (2026-10-06)
 
 - API키등록·플랫폼연동 화면을 Threads 쇼핑제휴 자동화의 등록 정보 행 형식으로 맞췄다. 저장된 키는 마스킹 값, 등록됨 상태, 수정·삭제만 표시하고 수정할 때에만 입력칸을 연다.

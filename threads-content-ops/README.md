@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.18`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.19`
 
 ## 목적
 
@@ -33,6 +33,12 @@
 - 새 API/권한 페이지는 `dynamic = "force-dynamic"`, `fetchCache = "force-no-store"`를 함께 선언합니다.
 - 자동 발행·예약은 기본 OFF이며, 회원이 웹에서 명시적으로 지시한 경우에만 실행합니다.
 - 버전을 바꾸면 `lib/version.ts`, `programs.version`, 이 문서와 `docs/HANDOFF.md`를 같은 작업에서 맞춥니다.
+
+## v1.19 Meta OAuth 리디렉션 URI
+
+- Threads OAuth 요청과 토큰 교환은 모두 `https://www.buylife.xyz/api/threads-content-ops/callback`만 사용합니다. 배포 별칭이나 환경값에 따라 서로 다른 주소를 보내지 않습니다.
+- Meta 앱 대시보드의 **사용 사례 → Threads API 액세스 → 설정 → 유효한 OAuth 리디렉션 URI**에 위 주소를 정확히 추가해야 합니다. Webhook 또는 Facebook 로그인 URI 칸은 대상이 아닙니다.
+- 앱이 Development 모드면 **역할** 메뉴에서 연결할 Threads 계정을 Tester로 추가해야 합니다.
 
 ## v1.18 연동값 관리 화면
 

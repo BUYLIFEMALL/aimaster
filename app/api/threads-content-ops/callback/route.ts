@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { createClient } from "@/lib/supabase/server";
+import {
+  THREADS_CONTENT_OPS_CALLBACK_URI,
+  THREADS_CONTENT_OPS_ORIGIN,
+} from "@/threads-content-ops/lib/oauth";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://www.buylife.xyz";
-const CALLBACK_PATH = "/api/threads-content-ops/callback";
-
 function redirectToSetup(query: string, clearState = false) {
-  const response = NextResponse.redirect(`${SITE_URL}/threads-content-ops?${query}`);
+  const response = NextResponse.redirect(`${THREADS_CONTENT_OPS_ORIGIN}/threads-content-ops?${query}`);
   if (clearState) response.cookies.delete("tco_threads_oauth_state");
   return response;
 }
@@ -37,12 +38,11 @@ export async function GET(request: NextRequest) {
   if (keyError || !appId || !appSecret) return redirectToSetup("error=app_missing", true);
 
   try {
-    const redirectUri = `${SITE_URL}${CALLBACK_PATH}`;
     const form = new URLSearchParams({
       client_id: appId,
       client_secret: appSecret,
       grant_type: "authorization_code",
-      redirect_uri: redirectUri,
+      redirect_uri: THREADS_CONTENT_OPS_CALLBACK_URI,
       code,
     });
     const tokenResponse = await fetch("https://graph.threads.net/oauth/access_token", {

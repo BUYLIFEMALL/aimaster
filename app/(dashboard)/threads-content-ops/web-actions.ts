@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
+import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
 
 const PROGRAM_SLUG = "threads-content-ops";
 const CREDENTIAL_PROVIDERS = new Set([
@@ -88,8 +89,6 @@ export async function startThreadsOAuth() {
   const secret = data?.find((row) => row.provider === "threads_app_secret")?.api_key;
   if (!appId || !secret) throw new Error("Threads 앱 ID와 앱 시크릿을 먼저 저장해 주세요.");
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://www.buylife.xyz";
-  const redirectUri = `${siteUrl}/api/threads-content-ops/callback`;
   const state = crypto.randomUUID();
   const cookieStore = await cookies();
   cookieStore.set("tco_threads_oauth_state", state, {
@@ -102,7 +101,7 @@ export async function startThreadsOAuth() {
 
   const params = new URLSearchParams({
     client_id: appId,
-    redirect_uri: redirectUri,
+    redirect_uri: THREADS_CONTENT_OPS_CALLBACK_URI,
     scope: "threads_basic,threads_content_publish",
     response_type: "code",
     state,
