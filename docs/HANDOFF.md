@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads Content Ops v1.11 — sidebar standard correction (2026-10-06)
+
+- `docs/SIDEBAR_LAYOUT_STANDARD.md`와 `D:\PDS\좌측메뉴.png`를 확인해, 공용 AIMaster 사이드바와 프로그램 메뉴가 중복되던 오류를 수정했다. `/threads-content-ops`는 이제 고정 프로그램 전용 사이드바 하나만 표시한다.
+- 표준 순서(프로그램명·버전·다른 프로그램 보기·대시보드·번호형 작업 흐름·API키등록·플랫폼연동·하단 계정/로그아웃)를 적용했다.
+
 ## Threads Content Ops v1.10 — program sidebar navigation (2026-10-06)
 
 - 기존 독립 자동화 프로그램과 동일한 흐름형 좌측 메뉴를 추가했다. 대시보드, 콘텐츠 작성, 초안·발행 관리, API키등록·플랫폼연동으로 웹 작업 영역을 `?tab=` 방식으로 전환한다.
