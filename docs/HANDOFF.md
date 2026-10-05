@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads Content Ops v1.09 — web operations dashboard and catalog thumbnail (2026-10-05)
+
+- 기본 진입 화면을 PC 브라우저용 콘텐츠 운영 대시보드로 교체했다. 설정 폼은 접힌 보조 영역으로 이동하고, 계정·초안·발행 이력·운영 상태가 첫 화면에 표시된다.
+- 실사형 웹 자동화 작업환경 썸네일을 새로 생성해 `program-images/catalog/threads-content-ops-thumbnail.png`에 등록했다. 소스는 `threads-content-ops/assets/threads-content-ops-thumbnail-v2.png`.
+
 ## Threads Content Ops v1.08 — explicit web publishing (2026-10-05)
 
 - 초안을 수정·저장하고, 회원이 브라우저 확인창에서 최종 승인한 경우에만 Threads 공식 생성/발행 API를 호출하는 1회 발행을 추가했다.
@@ -797,4 +802,3 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
-
