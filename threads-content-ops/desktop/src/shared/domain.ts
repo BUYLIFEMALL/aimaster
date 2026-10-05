@@ -396,6 +396,7 @@ export interface AppSettings {
 }
 
 export type CredentialKey =
+  | 'aimasterToken'
   | 'youtubeApiKey'
   | 'coupangAccessKey'
   | 'coupangSecretKey'

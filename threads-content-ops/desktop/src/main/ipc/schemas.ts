@@ -38,11 +38,11 @@ export const settingsSchema = z.object({
 });
 
 export const credentialKeySchema = z.string().refine((value) =>
-  ['youtubeApiKey','coupangAccessKey','coupangSecretKey'].includes(value)
+  ['aimasterToken','youtubeApiKey','coupangAccessKey','coupangSecretKey'].includes(value)
   || /^(threadsToken|youtubeApiKey|coupangAccessKey|coupangSecretKey):[0-9a-f-]{36}$/i.test(value),
 );
 export const writableCredentialKeySchema = z.string().refine((value) =>
-  ['youtubeApiKey','coupangAccessKey','coupangSecretKey'].includes(value)
+  ['aimasterToken','youtubeApiKey','coupangAccessKey','coupangSecretKey'].includes(value)
   || /^(youtubeApiKey|coupangAccessKey|coupangSecretKey):[0-9a-f-]{36}$/i.test(value),
 );
 export const reportQuerySchema = z.object({ accountIds: z.array(z.string().uuid()).max(100), from: z.string().datetime(), to: z.string().datetime() }).refine((value) => value.from <= value.to, '시작일은 종료일보다 늦을 수 없습니다.');

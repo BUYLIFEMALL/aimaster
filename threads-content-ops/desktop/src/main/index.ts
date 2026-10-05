@@ -6,7 +6,7 @@ import started from 'electron-squirrel-startup';
 import type { CredentialKey } from '../shared/domain';
 import { POLICY } from '../shared/policy';
 import { CodexRateLimitClient } from './codex/rate-limits';
-import { CodexRunner } from './codex/runner';
+import { AIMasterAgentRunner } from './aimaster/runner';
 import { AppDatabase } from './db/database';
 import { Repositories } from './db/repositories';
 import { registerIpc } from './ipc/register';
@@ -94,12 +94,9 @@ async function createApplication(): Promise<void> {
   await credentials.migrateLegacyThreadsToken(repositories.listAccounts().map((account) => account.id));
   await credentials.purgeDeprecatedThreadsAppCredentials();
   const eligibility = new PublishEligibility(repositories, credentials);
-  const codex = new CodexRunner(path.join(userData, 'agent-work'), userData);
-  try { await codex.initialize(); } catch { repositories.addLog('WARN', 'CODEX', 'Codex CLI를 찾지 못했습니다. 설치 후 다시 확인하세요.'); }
-  let executable: string | undefined;
-  try { executable = await codex.executablePath(); } catch { /* 상태 영역에서 설치 안내 */ }
-  const usage = new CodexRateLimitClient(executable ?? 'codex');
-  if (executable) void usage.start().catch(() => repositories.addLog('WARN', 'CODEX', '주간 사용가능량을 확인할 수 없습니다.'));
+  const codex = new AIMasterAgentRunner(credentials);
+  await codex.initialize();
+  const usage = new CodexRateLimitClient('');
   const registry = new ProviderRegistry();
   registry.registerDiscovery(new YouTubeProvider(credentials));
   registry.registerDiscovery(new BlogProvider());

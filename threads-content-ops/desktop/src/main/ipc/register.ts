@@ -10,7 +10,7 @@ import type { CoupangProvider, ProviderRegistry, ThreadsProvider } from '../prov
 import type { AutomationScheduler } from '../services/scheduler';
 import type { CredentialManager, SettingsManager } from '../services/settings';
 import type { CodexRateLimitClient } from '../codex/rate-limits';
-import type { CodexRunner } from '../codex/runner';
+import type { AIMasterAgentRunner } from '../aimaster/runner';
 import type { PublishEligibility } from '../services/publish-eligibility';
 import type { AutomationPipeline } from '../services/pipeline';
 import type { ThreadsIntegrationRuntime } from '../services/threads-integration-runtime';
@@ -29,7 +29,7 @@ import { accountSaveSchema, commentListSchema, coupangProductSearchSchema, coupa
 
 interface Dependencies {
   window: BrowserWindow; repositories: Repositories; settings: SettingsManager; credentials: CredentialManager;
-  scheduler: AutomationScheduler; codex: CodexRunner; usage: CodexRateLimitClient; registry: ProviderRegistry;
+  scheduler: AutomationScheduler; codex: AIMasterAgentRunner; usage: CodexRateLimitClient; registry: ProviderRegistry;
   threads: ThreadsProvider; coupang: CoupangProvider; eligibility: PublishEligibility; pipeline:AutomationPipeline; safeUiTestMode?: boolean;
   threadsIntegration:ThreadsIntegrationRuntime; ownedContent:ThreadsOwnedContentService; threadsAccounts:ThreadsAccountService;
   coupangCollector:CoupangChromeCollectorService;

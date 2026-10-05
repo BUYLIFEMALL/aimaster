@@ -3,7 +3,8 @@ import type { Account, AgentResult, AgentRole, CoupangLinkQueueStatus, CoupangPr
 import { POLICY } from '../../shared/policy';
 import { formatThreadsPostText } from '../../shared/threads-text';
 import type { CodexRateLimitClient } from '../codex/rate-limits';
-import type { CodexRunner } from '../codex/runner';
+import type { AgentInvocation, AgentInvocationResult } from '../codex/runner';
+import type { CodexHealth } from '../../shared/domain';
 import type { Repositories } from '../db/repositories';
 import { UncertainRemoteOperationError, type CoupangProvider, type ProviderRegistry, type ThreadsProvider } from '../providers/contracts';
 import { isThreadsRemoteObjectMissing } from '../providers/threads-error-classification';
@@ -42,7 +43,7 @@ export class AutomationPipeline implements JobHandler {
   constructor(
     private readonly repositories: Repositories,
     private readonly settings: SettingsManager,
-    private readonly codex: CodexRunner,
+    private readonly codex: { run(invocation: AgentInvocation): Promise<AgentInvocationResult>; health(): Promise<CodexHealth> },
     private readonly usage: CodexRateLimitClient,
     private readonly registry: ProviderRegistry,
     private readonly threads: ThreadsProvider,
