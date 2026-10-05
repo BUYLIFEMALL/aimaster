@@ -14,6 +14,14 @@
 
 
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.23, 2026-10-05)
+
+- **초보자 가이드를 '사용 매뉴얼'로 전면 개편 및 직관적 단계별 순서 가이드 구축 (v1.23)**:
+  - 주인님 요청: "좌측 메뉴 초보자 가이드를 없애고 이 자동화 프로그램 사용법을 보기 쉽고 직관적으로 이해할 수 있도록 순서대로 설명해주는 매뉴얼로 변경 작업해줘" 완벽 구현.
+  - `Sidebar.tsx`, `MobileNavigation.tsx`: 메뉴명을 '초보자 가이드' ➔ '사용 매뉴얼'로 변경.
+  - `guide/page.tsx`: 프로그램 실전 사용 순서(STEP 0 API키 등록 ➔ STEP 1 글감 준비 ➔ STEP 2 5대 훅 문장 교체 ➔ STEP 3 자댓글 CTA ➔ STEP 4 자동 저장 및 보관함 활용)를 한눈에 이해할 수 있는 실전 가이드로 전면 개편.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.23`으로 갱신했다.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.22, 2026-10-05)
 
 - **글 생성 즉시 보관함 자동 저장(Auto-save) 및 스토리지 안전망 강화 (v1.22)**:

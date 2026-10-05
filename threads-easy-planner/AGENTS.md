@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.22` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.23` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -123,3 +123,7 @@
   - **글 생성 즉시 보관함 자동 저장(Auto-save) 및 스토리지 Fallback 안전망 강화**:
     1) 글 생성 완료(`handleGenerate`) 시 사용자가 우측 상단 '보관함에 저장' 버튼을 수동으로 누르지 않아도 즉시 보관함에 자동 저장 연동 및 '보관함 저장완료' 상태로 자동 전환.
     2) `savedPlansStorage.ts`의 로컬 캐시 유효성 검증 강화 및 DB 미연결 시 로컬 스토리지 Fallback 100% 안전 저장 보장.
+- **v1.23 (2026-10-05)**:
+  - **초보자 가이드를 '사용 매뉴얼'로 전면 개편 및 직관적 단계별 순서 가이드 구축**:
+    1) 좌측 사이드바 및 모바일 헤더 메뉴명을 '초보자 가이드' ➔ '사용 매뉴얼'로 변경.
+    2) `/guide` 페이지를 이론 중심에서 실제 프로그램 사용 순서(STEP 0 API키 ➔ STEP 1 글감 준비 ➔ STEP 2 5대 훅 교체 ➔ STEP 3 자댓글 CTA ➔ STEP 4 자동 저장 및 보관함 활용)를 한눈에 이해할 수 있는 실전 비주얼 매뉴얼로 전면 개편.

@@ -21,7 +21,7 @@ export function MobileNavigation() {
           <span className="truncate text-sm font-black text-neutral-900">Threads AI 기획기</span>
           <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-500">{APP_VERSION}</span>
         </Link>
-        <Link href="/guide" className="rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[11px] font-bold text-neutral-700">사용 가이드</Link>
+        <Link href="/guide" className="rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[11px] font-bold text-neutral-700">사용 매뉴얼</Link>
       </header>
 
       <nav className="md:hidden fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-neutral-200 bg-white/95 px-2 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur">
