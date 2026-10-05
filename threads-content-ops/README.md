@@ -1,43 +1,38 @@
-# Threads 콘텐츠 운영 자동화 (PC 앱)
+# Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug 예정값: `threads-content-ops` · 최초 출시 버전: `v1.01`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.06`
 
 ## 목적
 
-여러 Threads 계정을 운영하는 회원이 자신의 API 키와 자신의 Meta Developers 앱을 연결하여, 콘텐츠 초안 작성·검토·예약·발행 이력을 하나의 Windows 데스크톱 앱에서 관리하도록 만든다. 이 프로그램은 AIMaster 전체 사이트 안에 등록되는 새 서브프로젝트이며, 회원·이용권한·결제·API 키·카탈로그는 AIMaster 공용 체계를 그대로 사용한다.
+별도 PC 프로그램 설치 없이 AIMaster 웹에서 개인 Threads 계정을 연결하고, 이후 AI 초안 생성·검토·명시적 발행·예약을 처리하는 회원별 콘텐츠 운영 프로그램입니다.
 
-이 폴더는 기존 `threads/`, `threads-comment-reply/`, `threads-affiliate-poster/`, `threads-easy-planner/`와 완전히 분리된 새 프로그램이다. 기존 프로그램의 파일·DB 데이터·배포를 변경하지 않는다.
+## 현재 실제 동작 범위 (v1.06)
 
-## 현재 단계
+- AIMaster 로그인과 `threads-content-ops` 이용 권한을 확인한 회원만 화면과 연동 기능을 사용할 수 있습니다.
+- 회원이 직접 만든 Meta Developers Threads 앱의 `threads_app_id`와 `threads_app_secret`만 저장합니다. 운영자 공용 Meta 앱 또는 공용 API 키는 사용하지 않습니다.
+- `https://www.buylife.xyz/api/threads-content-ops/callback` OAuth 콜백으로 Threads 계정을 연결합니다.
+- OAuth의 난수 `state`를 HTTP 전용·10분 만료 쿠키로 검증하고, 단기 토큰을 장기 토큰으로 교환한 뒤 서버에서만 저장합니다.
+- 연결 계정은 `tco_threads_accounts`, 향후 초안·예약·발행 이력은 `tco_posts`에 `user_id` 기준으로 분리 저장됩니다. 두 테이블은 owner-only RLS를 사용합니다.
 
-1단계 기반 편입 진행 중이다. `desktop/`에는 사용자가 지정한 `boksajang/threads-auto` 원본을 별도 사본으로 가져왔으며, 아직 AIMaster 인증·권한·키 관리로 전환하지 않았다. 원본의 Codex CLI 의존, 상표·저작권 표기, 외부 서비스 수집 기능은 출시 전에 교체 또는 제거 대상으로 관리한다.
+아직 초안 편집·발행·예약 화면은 다음 단계입니다. 아직 구현되지 않은 기능을 동작하는 것처럼 표시하거나 자동 발행하지 않습니다.
 
-## 목표 아키텍처
+## 회원 연결 순서
 
-- **AIMaster 루트 웹**: 로그인, `threads-content-ops` 이용 권한, 결제/구독, 카탈로그, 다운로드, 개인 액세스 토큰 발급, 회원별 API 키·Threads 앱 자격증명 관리
-- **Windows 데스크톱 앱**: 콘텐츠 작업 화면, 로컬 초안/예약/실행 이력, 공식 Threads API 호출 조율
-- **서버 API**: 개인 액세스 토큰과 프로그램 이용 권한을 동시에 확인한 뒤 회원 본인 API 키만 사용
-- **Threads 연동**: 회원이 직접 만든 Meta Developers Threads 앱의 `threads_app_id`/`threads_app_secret`만 사용. 운영자 공용 앱·공용 API 키는 사용하지 않는다.
+1. Meta Developers에서 회원 본인 명의의 Threads 앱을 만듭니다.
+2. 앱의 유효 OAuth 리디렉션 URI에 `https://www.buylife.xyz/api/threads-content-ops/callback`을 등록합니다.
+3. AIMaster `/threads-content-ops`에서 OpenAI 키(초안 단계용), Threads 앱 ID, 앱 시크릿을 저장합니다.
+4. **내 Threads 계정 연결하기**를 눌러 Meta 인증을 완료합니다.
 
-## 단계별 범위
+개발 모드 Meta 앱은 해당 회원이 앱 역할(관리자/개발자/테스터)에 등록돼 있어야 인증됩니다. 각 회원이 만든 앱만 쓰므로 다른 회원의 권한이나 토큰이 섞이지 않습니다.
 
-| 단계 | 범위 | 상태 |
-| --- | --- | --- |
-| 1 | 원본 편입, 독립 폴더·문서·위험요소 분리 | 진행 중 |
-| 2 | AIMaster 개인 액세스 토큰 연결 및 이용권한 검증 | 예정 |
-| 3 | 회원별 AI 키로 초안 생성, 단일 Threads 계정 수동 발행 | 예정 |
-| 4 | 예약 발행·로컬 실행 이력·다계정 운영 | 예정 |
-| 5 | 선택 기능(YouTube/RSS, 제휴 상품, Chrome 확장) 개별 심사 | 예정 |
+## 개발 규칙
 
-## 실행 전 유의사항
+- 기존 `threads/`, `threads-comment-reply/`, `threads-affiliate-poster/`, `threads-easy-planner/`는 수정하지 않습니다.
+- 모든 쓰기 API와 Server Action은 로그인뿐 아니라 프로그램 이용 권한도 재확인합니다.
+- 새 API/권한 페이지는 `dynamic = "force-dynamic"`, `fetchCache = "force-no-store"`를 함께 선언합니다.
+- 자동 발행·예약은 기본 OFF이며, 회원이 웹에서 명시적으로 지시한 경우에만 실행합니다.
+- 버전을 바꾸면 `lib/version.ts`, `programs.version`, 이 문서와 `docs/HANDOFF.md`를 같은 작업에서 맞춥니다.
 
-- `desktop/package.json`은 Node.js 24.15 이상을 요구한다.
-- 네이티브 모듈과 C# Native Messaging 호스트가 포함되어 있으므로, 의존성 설치나 설치 파일 생성 전 보안 검토를 먼저 한다.
-- 원본 저장소 루트에는 별도 `LICENSE`/`NOTICE` 파일이 없었다. 원저작자에게 상업적 이용·변경·재배포 권한을 확인한 뒤 제품 코드로 전환한다.
-- 앱 재시작만으로 자동 발행이 재개되면 안 되며, 예약/자동화는 기본 OFF로 시작한다.
+## 참고 원본
 
-상세 실행 계획은 [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md)를, 작업 규칙은 [AGENTS.md](AGENTS.md)를 참고한다.
-
-## v1.02 — AI generation server foundation
-
-The AIMaster server now exposes the protected `POST /api/threads-content-ops/generate` endpoint. It accepts a desktop personal-access token, checks program access, resolves only the member-owned OpenAI key, and returns a validated structured result. The desktop adapter is the next isolated step; no existing Threads program was changed.
+`desktop/`은 사용자가 지정한 외부 Electron 원본의 참고 사본입니다. 이 웹 서비스의 실행 경로가 아니며, 설치형 프로그램·기기 토큰 방식으로 확장하지 않습니다.

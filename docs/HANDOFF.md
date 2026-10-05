@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads Content Ops v1.06 — web OAuth account connection (2026-10-05)
+
+- `/threads-content-ops`에 회원별 OpenAI/Threads 앱 자격증명 저장과 **내 Threads 계정 연결하기**를 실제로 추가했다.
+- OAuth `state`는 예측 가능한 사용자 ID 대신 HTTP 전용·10분 만료 난수 쿠키로 검증한다. 콜백은 회원 권한과 회원 소유 앱 자격증명을 다시 확인하고, 장기 토큰 교환 후 `tco_threads_accounts`에만 저장한다.
+- 다음 단계는 초안 생성·저장, 그다음 명시적 1회 발행이다. 아직 발행/예약 기능은 구현되지 않았으므로 동작한다고 안내하지 않는다.
+
 ## Threads Content Ops v1.05 — web-first multi-tenant reset (2026-10-05)
 
 - User clarified the program must run online, not via a local installation. Desktop/token work is reference-only and must not be extended.
@@ -781,7 +787,6 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
-
 
 
 
