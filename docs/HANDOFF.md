@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads Content Ops catalog activation (2026-10-05)
+
+- User approved public catalog registration. Set `programs.is_active=true` for `threads-content-ops`; verified v1.04, thumbnail URL, and app URL in the shared production DB.
+
+
 ## Threads Content Ops thumbnail (2026-10-05)
 
 - Generated and visually reviewed a 16:9 photorealistic Korean SaaS-content-operations thumbnail (no text, logo, or watermark).
@@ -769,7 +774,6 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
-
 
 
 
