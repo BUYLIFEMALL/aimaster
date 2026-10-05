@@ -8,6 +8,7 @@ import { deletePostAction, publishNowAction } from "@/lib/actions/posts";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { PostContentRenderer } from "@/components/posts/PostContentRenderer";
 import { PostMediaViewer } from "@/components/posts/PostMediaViewer";
+import { getRemainingRetentionTime } from "@/lib/mediaRetention";
 
 export default async function PostDetailPage({
   params,
@@ -30,6 +31,8 @@ export default async function PostDetailPage({
     post.status === "scheduled" ||
     post.status === "failed" ||
     post.status === "publishing";
+
+  const remaining = getRemainingRetentionTime(post.created_at);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -91,10 +94,22 @@ export default async function PostDetailPage({
             </Button>
           </form>
         )}
-        <form action={deletePostAction}>
-          <input type="hidden" name="postId" value={post.id} />
-          <DeleteButton variant="solid" />
-        </form>
+        <div className="flex items-center gap-2">
+          <form action={deletePostAction}>
+            <input type="hidden" name="postId" value={post.id} />
+            <DeleteButton variant="solid" />
+          </form>
+          <span
+            className={`whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+              remaining.isUrgent
+                ? "bg-red-50 text-red-600 border border-red-200"
+                : "bg-neutral-100 text-neutral-600 border border-neutral-200"
+            }`}
+            title={`등록일: ${new Date(post.created_at).toLocaleString("ko-KR")} (30일 보관 후 자동 삭제)`}
+          >
+            {remaining.text}
+          </span>
+        </div>
       </div>
 
       {isEditable && post.status !== "scheduled" && !account && (

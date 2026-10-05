@@ -405,3 +405,13 @@ vercel deploy --prod --yes
    - **원인**: 과거 단일 미디어 시절 src/lib/validation.ts의 postFormSchema에 정의되어 있던 data.imageUrl && data.videoUrl 동시 첨부 금지 규칙 및 단일 URL 검증(z.string().url())이 남아 있어 서버 액션 폼 검증 단계에서 걸림.
    - **조치 사항**:
      - src/lib/validation.ts: 동시 첨부 금지 규칙 완전 삭제, 쉼표 다중 URL을 지원하는 mediaUrlStringSchema 적용, 이미지+영상 총합 20개 이하 검증으로 개편하여 혼합 캐러셀 포스팅 정상화.
+
+33. **게시글 30일 자동삭제 정책 안내 및 삭제 버튼 우측 남은 시점 표시 연동 (2026-10-05, v1.47)**:
+   - **개편 배경**: `https://threads-affiliate-poster.vercel.app/posts` "게시될 글은 30일후 자동삭제된다는 문구과 '삭제' 버튼 우측 남은 시점 표시해줘" 주인님 지시 반영.
+   - **조치 사항**:
+     - `src/lib/mediaRetention.ts`: `getRemainingRetentionTime(createdAt)` 헬퍼 함수 구현 (30일 기준 잔여 일수 및 시간 계산, 만료 시 '삭제 예정' 표시, 잔여 3일 이하 긴급 빨간색 강조).
+     - `src/app/(dashboard)/posts/page.tsx`:
+       - 상단에 `⏳ 게시글 및 미디어 자동 보관 정책 (30일 후 자동 삭제)` 안내 배너 추가.
+       - 게시글 목록의 각 `DeleteButton` 우측에 남은 시점 배지(`remaining.text`) 렌더링.
+     - `src/app/(dashboard)/posts/[id]/page.tsx`:
+       - 상세 페이지 하단 삭제 버튼 우측에도 일관되게 남은 시점 배지 연동.

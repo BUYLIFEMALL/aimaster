@@ -1,4 +1,4 @@
-﻿# 작업 인수인계 현황판 (HANDOFF.md)
+# 작업 인수인계 현황판 (HANDOFF.md)
  
 ## Threads AI Planner — shared mobile and desktop interface (v1.19, 2026-10-05)
 
@@ -22,6 +22,18 @@
     - `MobileNavigation.tsx` 신규 도입: 모바일 상단 미니 헤더 및 하단 고정 탭(기획하기, 보관함, 설정) 연동.
     - `PlannerApp.tsx`: 모바일 화면 하단에 고정 생성 버튼(`이 내용으로 글 생성하기`) 제공, 고급 AI 모델 설정 접이식(`details`) 정리.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.19`로 갱신했다.
+
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.47, 2026-10-05)
+
+- **게시글 30일 자동삭제 정책 안내 및 삭제 버튼 우측 남은 시점 표시 연동 (v1.47)**:
+  - 주인님 요청: `https://threads-affiliate-poster.vercel.app/posts` "게시될 글은 30일후 자동삭제된다는 문구과 '삭제' 버튼 우측 남은 시점 표시해줘" 완벽 구현.
+  - `src/lib/mediaRetention.ts`: `getRemainingRetentionTime(createdAt)` 계산 헬퍼 함수 구현 (30일 보관 만료 시점 기준 잔여 일/시간 포맷팅, 만료 시 '삭제 예정' 표시, 잔여 3일 이하 긴급 빨간색 강조).
+  - `src/app/(dashboard)/posts/page.tsx`:
+    - 상단에 `⏳ 게시글 및 미디어 자동 보관 정책 (30일 후 자동 삭제)` 안내 배너 추가.
+    - 게시글 목록의 각 `DeleteButton` 우측에 남은 시점 배지(`remaining.text`) 렌더링.
+  - `src/app/(dashboard)/posts/[id]/page.tsx`:
+    - 상세 페이지 하단 삭제 버튼 우측에도 일관되게 남은 시점 배지 연동.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.47`로 갱신했다.
 
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.46, 2026-10-05)
 

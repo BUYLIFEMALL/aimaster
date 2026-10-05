@@ -30,3 +30,41 @@ export function isVideoUrl(url: string): boolean {
   if (!url) return false;
   return Boolean(url.match(/\.(mp4|mov|webm)(\?.*)?$/i));
 }
+
+/**
+ * 등록 시점으로부터 30일 자동 삭제까지 남은 시점 텍스트 계산
+ */
+export function getRemainingRetentionTime(createdAt: string | Date): {
+  text: string;
+  days: number;
+  hours: number;
+  isUrgent: boolean;
+} {
+  const createdTime = new Date(createdAt).getTime();
+  const expiresTime = createdTime + MEDIA_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+  const diff = expiresTime - Date.now();
+
+  if (diff <= 0) {
+    return { text: "삭제 예정", days: 0, hours: 0, isUrgent: true };
+  }
+
+  const totalHours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours % 24;
+
+  if (days > 0) {
+    return {
+      text: `남은 시점: ${days}일 ${hours}시간`,
+      days,
+      hours,
+      isUrgent: days <= 3,
+    };
+  }
+
+  return {
+    text: `남은 시점: ${totalHours}시간`,
+    days: 0,
+    hours: totalHours,
+    isUrgent: true,
+  };
+}
