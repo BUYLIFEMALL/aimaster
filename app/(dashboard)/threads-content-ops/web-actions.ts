@@ -19,12 +19,18 @@ async function authorizedUser() {
 
 export async function saveMemberCredentials(input: {
   openaiKey?: string;
+  youtubeApiKey?: string;
+  coupangAccessKey?: string;
+  coupangSecretKey?: string;
   threadsAppId?: string;
   threadsAppSecret?: string;
 }) {
   const { supabase, user } = await authorizedUser();
   const rows = [
     ["openai", input.openaiKey],
+    ["youtube_api_key", input.youtubeApiKey],
+    ["coupang_access_key", input.coupangAccessKey],
+    ["coupang_secret_key", input.coupangSecretKey],
     ["threads_app_id", input.threadsAppId],
     ["threads_app_secret", input.threadsAppSecret],
   ].filter(([, value]) => typeof value === "string" && value.trim()) as Array<[string, string]>;

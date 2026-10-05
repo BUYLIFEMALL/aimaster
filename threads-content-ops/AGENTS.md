@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.15`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.16`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
 
 ## 절대 규칙
 
@@ -12,8 +12,9 @@
 - 권한이 관여하는 `page.tsx`/`route.ts`에는 `dynamic = "force-dynamic"`와 `fetchCache = "force-no-store"`를 함께 둡니다.
 - 자동 발행과 예약은 기본 OFF입니다. 회원이 웹에서 명시적으로 실행 또는 예약한 경우에만 처리합니다.
 
-## v1.15 완료 사항
+## v1.16 완료 사항
 
+- `threads-affiliate-poster` 설정 UI를 기준으로 플랫폼별 회색 섹션, API 키별 개별 저장, 등록됨/미등록 상태, Threads 연결 상태, 하단 연동 매뉴얼을 사용한다. 저장값은 화면에 재노출하지 않는다.
 - 회원별 Threads 앱 자격증명 저장 Server Action과 Meta OAuth 시작 화면을 구현했습니다.
 - OAuth `state`는 사용자 ID가 아니라 HTTP 전용·10분 만료 난수 쿠키로 검증합니다.
 - 콜백은 코드 교환 뒤 장기 토큰으로 교환하고, Threads 프로필과 토큰 만료시각을 `tco_threads_accounts`에 회원별로 저장합니다.

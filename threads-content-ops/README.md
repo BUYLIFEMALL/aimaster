@@ -1,12 +1,12 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.15`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.16`
 
 ## 목적
 
 별도 PC 프로그램 설치 없이 AIMaster 웹에서 개인 Threads 계정을 연결하고, 이후 AI 초안 생성·검토·명시적 발행·예약을 처리하는 회원별 콘텐츠 운영 프로그램입니다.
 
-## 현재 실제 동작 범위 (v1.15)
+## 현재 실제 동작 범위 (v1.16)
 
 - AIMaster 로그인과 `threads-content-ops` 이용 권한을 확인한 회원만 화면과 연동 기능을 사용할 수 있습니다.
 - 회원이 직접 만든 Meta Developers Threads 앱의 `threads_app_id`와 `threads_app_secret`만 저장합니다. 운영자 공용 Meta 앱 또는 공용 API 키는 사용하지 않습니다.
@@ -33,6 +33,12 @@
 - 새 API/권한 페이지는 `dynamic = "force-dynamic"`, `fetchCache = "force-no-store"`를 함께 선언합니다.
 - 자동 발행·예약은 기본 OFF이며, 회원이 웹에서 명시적으로 지시한 경우에만 실행합니다.
 - 버전을 바꾸면 `lib/version.ts`, `programs.version`, 이 문서와 `docs/HANDOFF.md`를 같은 작업에서 맞춥니다.
+
+## v1.16 설정 화면
+
+- `threads-affiliate-poster`의 설정 화면 포맷과 같이 플랫폼별 회색 섹션을 사용합니다.
+- OpenAI는 `AI 콘텐츠 생성` 섹션에 분리하고, Threads·YouTube·쿠팡 키는 각 플랫폼 섹션에서 개별 저장합니다.
+- 저장된 비밀값은 다시 표시하지 않고 `등록됨` 상태만 표시합니다. Threads 연결 상태와 연동 매뉴얼도 화면 하단에서 확인합니다.
 
 ## 참고 원본
 

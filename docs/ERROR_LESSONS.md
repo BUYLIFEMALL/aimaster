@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-06 Tailwind 슬래시 유틸리티 CSS 선택자 이스케이프 오류 (threads-content-ops v1.15)
+
+- 증상: `npm run build`에서 PostCSS `Unexpected '/'` 오류가 발생했다.
+- 원인: `border-white/10`, `bg-black/20` Tailwind 클래스를 전역 CSS 선택자로 덮어쓰면서 백슬래시를 두 번 기록해 유효하지 않은 selector가 됐다.
+- 해결(위치): `app/globals.css`의 `threads-content-ops-light` 범위 스타일을 `[class~="..."]` 속성 선택자로 교체했다.
+- 다음부터 확인: 슬래시 유틸리티를 일반 CSS에서 대상으로 삼을 때 이스케이프를 추측하지 말고 속성 선택자나 별도 의미 클래스를 사용한 뒤 `npm run build`로 PostCSS까지 검증한다.
+
 ## 2026-10-05 외부 Electron 원본 편입 시 테스트 부재·취약 의존성을 통과로 오인하지 않음 (threads-content-ops v1.01 기반)
 
 - 증상: 외부 Electron 원본을 새 AIMaster 서브프로젝트에 편입한 뒤 타입 검사와 린트는 통과했지만, `npm.cmd test`는 테스트 파일이 없어 종료 코드 1로 끝났고 `npm audit`는 critical 1건을 포함한 37건의 취약점 경고를 냈다.
