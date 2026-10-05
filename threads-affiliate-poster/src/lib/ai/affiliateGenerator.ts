@@ -22,10 +22,10 @@ const DISCLOSURE_TEXT: Record<AffiliatePlatform, string | null> = {
 };
 
 const PLATFORM_DEFAULT_CTA_TEXT: Record<AffiliatePlatform, string> = {
-  coupang: "지금 쿠팡에서 확인",
-  aliexpress: "지금 알리익스프레스에서 확인하기",
-  naver: "지금 확인하기",
-  toss: "지금 토스쇼핑에서 확인하기",
+  coupang: "상품링크:",
+  aliexpress: "상품링크:",
+  naver: "상품링크:",
+  toss: "상품링크:",
 };
 
 export function getDisclosureText(platform: AffiliatePlatform): string | null {

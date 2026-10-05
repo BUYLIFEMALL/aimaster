@@ -43,6 +43,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
+import { PostContentRenderer } from "@/components/posts/PostContentRenderer";
 
 const BRAND_TAGS = [
   "전체",
@@ -1187,7 +1188,7 @@ export function ViralPostDetector() {
                 )}
 
                 <div className="rounded-xl bg-neutral-900 p-4 text-xs font-mono text-neutral-100 whitespace-pre-line leading-relaxed">
-                  {generatedCaption}
+                  <PostContentRenderer content={generatedCaption} className="whitespace-pre-line text-neutral-100" />
                 </div>
 
                 <div className="space-y-2 pt-1">

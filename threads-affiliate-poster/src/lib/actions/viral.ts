@@ -653,7 +653,7 @@ RULES:
       });
     }
 
-    const ctaText = input.platform === "coupang" ? "지금 쿠팡에서 확인" : "지금 바로 확인하기";
+    const ctaText = "상품링크:";
     const finalCaption = `${disclosureText}\n\n${bodyText}\n\n${ctaText} ${input.affiliateUrl}`;
 
     let generatedImageUrl: string | undefined = undefined;

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Sparkles, Loader2 } from "lucide-react";
+import { PostContentRenderer } from "@/components/posts/PostContentRenderer";
 import type { PostActionState } from "@/lib/actions/posts";
 import { generateAffiliateContentAction, generateImageAction } from "@/lib/actions/ai";
 import { createClient } from "@/lib/supabase/client";
@@ -901,6 +902,18 @@ export function ProductPostForm({
             placeholder="Threads에 게시할 내용을 입력하거나, 생성된 내용이 여기에 표시됩니다."
             className="bg-neutral-50/30 border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900 text-sm leading-relaxed"
           />
+
+          {content && content.includes("http") && (
+            <div className="rounded-xl border border-blue-200/80 bg-blue-50/60 p-3 space-y-1.5 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900">
+                <span>🔗 상품 링크 바로가기 검수:</span>
+                <span className="text-[10px] font-normal text-blue-700">(클릭하여 실제 연결 페이지를 확인하세요)</span>
+              </div>
+              <div className="rounded-lg bg-white p-2.5 border border-blue-100 text-xs">
+                <PostContentRenderer content={content} className="whitespace-pre-wrap text-xs leading-relaxed text-neutral-800" />
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

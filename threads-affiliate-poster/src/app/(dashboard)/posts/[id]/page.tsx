@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/posts/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { deletePostAction, publishNowAction } from "@/lib/actions/posts";
 import { DeleteButton } from "@/components/posts/DeleteButton";
+import { PostContentRenderer } from "@/components/posts/PostContentRenderer";
 
 export default async function PostDetailPage({
   params,
@@ -77,9 +78,7 @@ export default async function PostDetailPage({
           )
         )}
         <div className="p-5">
-          <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-900">
-            {post.content}
-          </p>
+          <PostContentRenderer content={post.content} />
           <p className="mt-3 text-xs text-neutral-400">
             {new Date(post.created_at).toLocaleString("ko-KR")}
           </p>

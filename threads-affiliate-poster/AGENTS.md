@@ -321,6 +321,16 @@ vercel deploy --prod --yes
      - `src/components/trends/ViralPostDetector.tsx`: 셀렉트 옵션 및 기본 상태를 통일된 포맷과 `nanobanana-2-2k`로 동기화.
      - `src/components/posts/ProductPostForm.tsx`: 마이그레이션 플래그(`threads_post_img_default_v137`)를 적용하여 기존 브라우저 캐시와 무관하게 NanoBanana 선택 시 `2-2K (고화질 시네마틱 · 기본 추천)`이 깔끔하게 기본 선택되도록 보장.
 
+24. **하단 제휴 문구 '상품링크:' 통일 및 실제 클릭 가능 하이퍼링크 연동 (2026-10-05, v1.38)**:
+   - **개편 배경**: `게시글.png` 스크린샷 피드백 반영 — "위에 (광고)쿠팡파트너스 라고 표시되니, 하단부에는 상품링크 라고 표시해주고 제휴링크 실제로 링크해줘" 지시 완벽 반영.
+   - **조치 사항**:
+     - `src/lib/ai/affiliateGenerator.ts`: `PLATFORM_DEFAULT_CTA_TEXT`의 모든 플랫폼(쿠팡, 알리, 네이버, 토스) 하단 문구를 `상품링크:`로 통일.
+     - `src/lib/actions/viral.ts`: 벤치마킹 캡션 생성 시 `ctaText`를 `상품링크:`로 변경.
+     - `src/components/posts/PostContentRenderer.tsx`: 본문 내 URL(제휴 링크)을 자동 파싱하여 실제 클릭 시 새 탭(`target="_blank" rel="noopener noreferrer"`)으로 이동하는 파란색 하이퍼링크(`text-blue-600 underline font-semibold`) 및 `ExternalLink` 아이콘 컴포넌트 신설. 기존 저장된 글의 '지금 쿠팡에서 확인' 등 레거시 문구도 화면 표시 시 `상품링크:`로 자동 치환.
+     - `src/app/(dashboard)/posts/[id]/page.tsx`: 게시글 결과 상세 화면에 `PostContentRenderer`를 적용하여 상품 링크가 실제로 클릭 가능하도록 구현.
+     - `src/components/posts/ProductPostForm.tsx`: 새 게시글 작성 화면 본문 입력창 아래에 "🔗 상품 링크 바로가기 검수" 실시간 프리뷰 박스 연동.
+     - `src/components/trends/ViralPostDetector.tsx`: 떡상 탐지기 결과 캡션 영역에도 `PostContentRenderer` 적용.
+
 
 
 
