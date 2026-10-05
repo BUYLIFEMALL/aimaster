@@ -581,7 +581,7 @@ export function PlannerApp() {
         </div>
 
 
-        {/* 3. 📝 내 실제 경험 · 상품 직접 지정하기 (접이식 상세 템플릿 폼) */}
+        {/* 3. ✍️ 맞춤글 생성 (내 실제 경험담 · 상품명 · 타깃 직접 입력) */}
         <div className="pt-2 border-t border-neutral-200/80">
           <button
             type="button"
@@ -592,7 +592,7 @@ export function PlannerApp() {
               <span className="text-lg md:text-xl">✍️</span>
               <div>
                 <div className="text-sm md:text-base font-extrabold text-neutral-900 group-hover:text-black flex flex-wrap items-center gap-2">
-                  <span>내 실제 경험담 · 상품명 · 타깃 직접 입력하기 (상세 템플릿 폼)</span>
+                  <span>맞춤글 생성 (내 실제 경험담 · 상품명 · 타깃 직접 입력)</span>
                   <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-700">
                     나만의 맞춤 글
                   </span>

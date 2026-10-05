@@ -14,6 +14,13 @@
 
 
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.20, 2026-10-05)
+
+- **맞춤글 생성 아코디언 타이틀 직관적 개편 (v1.20)**:
+  - 주인님 요청: 상세 템플릿 폼의 아코디언 타이틀을 기존 `내 실제 경험담 · 상품명 · 타깃 직접 입력하기 (상세 템플릿 폼)`에서 `✍️ 맞춤글 생성 (내 실제 경험담 · 상품명 · 타깃 직접 입력)`으로 직관적 수정.
+  - `src/components/planner/PlannerApp.tsx`: 타이틀 및 주석 문구 개편 완료.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.20`으로 갱신했다.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.19, 2026-10-05)
 
 - **모바일 반응형 최적화 및 하단 고정 생성 네비게이션 연동 (v1.19)**:

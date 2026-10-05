@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.18` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.20` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -109,3 +109,10 @@
     1) 플랫폼 규격(docs/PLATFORM_PATTERNS.md §13 실사 16:9 무문구 원칙) 준수 포토리얼 한국인 인물 썸네일 생성 (`gemini-3-pro-image-preview`).
     2) Supabase Storage `program-images/catalog/threads-easy-planner-thumbnail.jpg` 업로드 및 `programs.thumbnail_url` 갱신 완비.
     3) 마이그레이션 SQL(`0002_update_thumbnail.sql`) 및 로컬 에셋(`public/threads-easy-planner-thumbnail.jpg`) 영구 보존.
+- **v1.19 (2026-10-05)**:
+  - **모바일 반응형 최적화 및 하단 고정 생성 네비게이션 연동**:
+    1) 모바일 상단 미니 헤더 및 하단 고정 탭(`MobileNavigation.tsx`) 신설.
+    2) 모바일 화면 하단에 고정 생성 액션 버튼 연동, 고급 AI 설정 접이식 정리.
+- **v1.20 (2026-10-05)**:
+  - **맞춤글 생성 아코디언 타이틀 직관적 개편**:
+    1) 상세 템플릿 폼의 타이틀을 `✍️ 맞춤글 생성 (내 실제 경험담 · 상품명 · 타깃 직접 입력)`으로 수정하여 사용자가 맞춤형 글 작성 기능임을 한눈에 인지할 수 있도록 개선.
