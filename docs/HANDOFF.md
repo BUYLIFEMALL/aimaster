@@ -4,7 +4,8 @@
 
 - 새 AIMaster 서브프로젝트 `threads-content-ops/`를 만들고, 사용자가 지정한 Electron 기반 원본을 `desktop/`으로 편입했다. 기존 `threads/`, `threads-comment-reply/`, `threads-affiliate-poster/`, `threads-easy-planner/`는 수정하지 않았다.
 - 루트 AIMaster에 전용 경로 `/threads-content-ops`, 전용 기기 연동 토큰 발급/폐기 액션, `GET /api/threads-content-ops/whoami` 검증 API를 추가했다. 토큰 유효성뿐 아니라 `threads-content-ops` 프로그램 이용 권한을 매 요청 확인하며, 페이지와 API에 `force-dynamic`/`force-no-store`를 선언했다.
-- 프로그램 DB 등록·기본 요금제·설치 파일 배포는 아직 하지 않았다. 다음 단계에서 카탈로그 데이터와 3단계 기본 요금제를 함께 등록한 뒤, 데스크톱 앱의 Codex CLI 의존을 회원별 AIMaster API 키 구조로 전환한다.
+- 운영 DB에 프로그램(id `b94cf8ad-edaf-4878-9889-ab196e6450aa`, slug `threads-content-ops`, `v1.01`)과 기본 1/2/3개월 요금제를 등록했다. 미완성 제품이 노출되지 않도록 `is_active=false`로 유지 중이다. SQL 기록은 `threads-content-ops/supabase/migrations/0001_register_threads_content_ops.sql`이다.
+- 다음 단계는 데스크톱 앱의 Codex CLI 의존을 회원별 AIMaster API 키 구조로 전환하는 작업이다.
 - 원본 기준선: Node 24.20.0, `npm.cmd run typecheck`·`npm.cmd run lint` 통과. 테스트 파일이 없어 `npm.cmd test`는 종료 코드 1이며, 의존성 감사는 37건(critical 1건 포함) 경고를 냈다. 설치 파일 생성·배포 전 의존성 정리와 테스트 추가가 필수다.
 
 ## Threads AI Planner — shared mobile and desktop interface (v1.19, 2026-10-05)
@@ -753,7 +754,6 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
-
 
 
 

@@ -24,6 +24,8 @@
 
 진행 현황(2026-10-05): `app/(dashboard)/threads-content-ops` 전용 대시보드와 기기별 연동 토큰 발급/폐기 액션, `GET /api/threads-content-ops/whoami` 토큰 검증 API를 추가했다. 모든 쓰기·검증 경로는 `threads-content-ops` 이용 권한을 다시 확인하며, 페이지와 route에는 동적 렌더링·무캐시 선언을 넣었다. 프로그램 DB 등록 전에는 권한 판정으로 접근이 막히는 것이 정상이다.
 
+운영 DB 등록 완료(2026-10-05): `programs`에 `threads-content-ops`(id `b94cf8ad-edaf-4878-9889-ab196e6450aa`, version `v1.01`)를 만들고 기본 1/2/3개월 요금제를 등록했다. 설치 파일과 MVP가 준비되기 전까지 `is_active=false`를 유지한다. 재현 가능한 SQL은 `supabase/migrations/0001_register_threads_content_ops.sql`에 남겼다.
+
 1. 프로그램 상세/다운로드/개인 액세스 토큰 페이지
 2. `personal_access_tokens` 기반의 `threads-content-ops` 전용 토큰 검증 API
 3. 이용권한 미보유 시 JSON 403 응답 및 구매 화면 안내
