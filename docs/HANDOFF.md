@@ -14,6 +14,16 @@
 
 
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.22, 2026-10-05)
+
+- **글 생성 즉시 보관함 자동 저장(Auto-save) 및 스토리지 안전망 강화 (v1.22)**:
+  - 주인님 제보: "왜 저장했는데 보관함에 저장된 콘텐츠가 없다고 나오지?" 현상 원인 규명 및 완벽 조치.
+  - 원인: 글 생성 후 수동으로 상단 우측 '보관함에 저장' 버튼을 누르지 않으면 저장이 누락되던 수동 의존 구조 + DB 테이블 미생성 환경에서의 로컬 스토리지 Fallback 안전망 미흡.
+  - 조치:
+    1) `PlannerApp.tsx`: `handleGenerate` 성공 즉시 백그라운드에서 `savePlanToStorage`를 자동 호출하는 Auto-save 기능 탑재. 결과 카드의 버튼도 `[✅ 보관함 저장완료]`로 즉시 전환.
+    2) `savedPlansStorage.ts`: `getLocalPlans` 파싱 검증 강화 및 DB 미연결 시 로컬 스토리지 Fallback 100% 안전 보관 보장.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.22`로 갱신했다.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.21, 2026-10-05)
 
 - **아코디언 타이틀 우측 불필요한 '나만의 맞춤 글' 배지 제거 (v1.21)**:

@@ -38,8 +38,11 @@ function getLocalPlans(): SavedThreadPlan[] {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (!raw) return [];
-    const list: SavedThreadPlan[] = JSON.parse(raw);
-    const valid = list.filter((p) => !isPlanExpired(p.created_at));
+    const list = JSON.parse(raw);
+    if (!Array.isArray(list)) return [];
+    const valid: SavedThreadPlan[] = list.filter(
+      (p) => p && typeof p === "object" && p.topic && !isPlanExpired(p.created_at)
+    );
     if (valid.length !== list.length) {
       setLocalPlans(valid);
     }
@@ -59,7 +62,7 @@ function setLocalPlans(plans: SavedThreadPlan[]) {
 }
 
 /**
- * 콘텐츠 보관함에 글 저장 (DB 우선 + 로컬 백업)
+ * 콘텐츠 보관함에 글 저장 (DB 우선 + 로컬 백업 보장)
  */
 export async function savePlanToStorage(input: SavePlanInput): Promise<{
   success: boolean;
@@ -67,20 +70,26 @@ export async function savePlanToStorage(input: SavePlanInput): Promise<{
   isLocalOnly?: boolean;
   error?: string;
 }> {
+  let dbPlan: SavedThreadPlan | null = null;
+
   // 1. Server Action (DB 저장 시도)
   try {
     const res = await saveThreadPlanAction(input);
     if (res.success && res.data) {
-      // 로컬 캐시에도 최신 항목 동기화
-      const local = getLocalPlans().filter((p) => p.id !== res.data!.id);
-      setLocalPlans([res.data, ...local]);
-      return { success: true, data: res.data, isLocalOnly: false };
+      dbPlan = res.data;
     }
   } catch (e) {
     console.warn("DB 저장 실패, 로컬 저장소로 자동 백업합니다:", e);
   }
 
-  // 2. Fallback: 로컬 스토리지에 저장
+  // DB 저장이 성공한 경우 로컬 캐시 동기화 후 반환
+  if (dbPlan) {
+    const local = getLocalPlans().filter((p) => p.id !== dbPlan!.id);
+    setLocalPlans([dbPlan, ...local]);
+    return { success: true, data: dbPlan, isLocalOnly: false };
+  }
+
+  // 2. Fallback: 로컬 스토리지에 무조건 안전하게 저장
   try {
     const newId = `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     const nowIso = new Date().toISOString();
@@ -100,7 +109,7 @@ export async function savePlanToStorage(input: SavePlanInput): Promise<{
       updated_at: nowIso,
     };
 
-    const current = getLocalPlans();
+    const current = getLocalPlans().filter((p) => p.id !== newId);
     setLocalPlans([localPlan, ...current]);
     return { success: true, data: localPlan, isLocalOnly: true };
   } catch (err: unknown) {

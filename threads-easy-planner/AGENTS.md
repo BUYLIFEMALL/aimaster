@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.21` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.22` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -119,3 +119,7 @@
 - **v1.21 (2026-10-05)**:
   - **아코디언 타이틀 우측 불필요한 '나만의 맞춤 글' 배지 제거**:
     1) 아코디언 헤더 우측의 `나만의 맞춤 글` 중복 라벨 배지를 제거하여 제목 영역의 가독성과 깔끔함을 극대화.
+- **v1.22 (2026-10-05)**:
+  - **글 생성 즉시 보관함 자동 저장(Auto-save) 및 스토리지 Fallback 안전망 강화**:
+    1) 글 생성 완료(`handleGenerate`) 시 사용자가 우측 상단 '보관함에 저장' 버튼을 수동으로 누르지 않아도 즉시 보관함에 자동 저장 연동 및 '보관함 저장완료' 상태로 자동 전환.
+    2) `savedPlansStorage.ts`의 로컬 캐시 유효성 검증 강화 및 DB 미연결 시 로컬 스토리지 Fallback 100% 안전 저장 보장.
