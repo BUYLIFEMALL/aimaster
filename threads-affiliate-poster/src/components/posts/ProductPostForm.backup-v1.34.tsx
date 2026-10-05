@@ -496,68 +496,10 @@ export function ProductPostForm({
     return { content: finalContent, imageUrl: currentUrls.join(",") };
   };
 
-  const [isGeneratingText, setIsGeneratingText] = useState(false);
-  const [generateSuccessMsg, setGenerateSuccessMsg] = useState<string | null>(null);
-
-  // 1) 본문 글만 다시 생성
-  const handleGenerateTextOnly = async () => {
-    if (!productId) {
-      setAiError("먼저 제휴 상품을 선택해주세요.");
-      return;
-    }
-    setAiError(null);
-    setIsGeneratingText(true);
-    setStatusMsg(`AI(${PROVIDER_SHORT_LABELS[aiProvider]})가 게시글 본문을 작성하고 있습니다...`);
-    try {
-      const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
-      const personaTone = resolvePersonaTone(
-        selectedPersonaId,
-        customPersonaText,
-        savedPersonas,
-        selectedPersonaId === "custom" ? "친근하고 자연스러운 어조" : tone,
-      );
-      const textResult = await generateAffiliateContentAction({
-        productId,
-        tone: personaTone,
-        keywords,
-        referenceUrls: validReferenceUrls,
-        aiProvider,
-        aiModel,
-      });
-      if (textResult.error) {
-        setAiError(textResult.error);
-        return;
-      }
-      if (textResult.content) {
-        setContent(textResult.content);
-        setGenerateSuccessMsg("✅ AI 본문이 새로 작성되었습니다.");
-      }
-    } finally {
-      setIsGeneratingText(false);
-      setStatusMsg(null);
-    }
-  };
-
-  // 2) AI 글 & 이미지 한 번에 실시간 생성 (미리보기 화면 채우기)
   const handleGenerateAll = async () => {
-    if (!productId) {
-      setAiError("먼저 제휴 상품을 선택해주세요.");
-      return;
-    }
-    setAiError(null);
-    setImageGenError(null);
-    setGenerateSuccessMsg(null);
     setIsGeneratingAll(true);
-    try {
-      const result = await runGenerateAll();
-      if (result && result.content) {
-        setGenerateSuccessMsg(
-          "✅ AI 글과 이미지가 생성되었습니다! 아래에서 내용을 확인 및 수정하거나, 불필요한 이미지는 ✕로 삭제/추가한 후 맨 아래에서 즉시 포스팅 또는 임시저장을 선택하세요."
-        );
-      }
-    } finally {
-      setIsGeneratingAll(false);
-    }
+    await runGenerateAll();
+    setIsGeneratingAll(false);
   };
 
   const scheduledAtIso =
@@ -565,119 +507,54 @@ export function ProductPostForm({
       ? new Date(scheduledAtLocal).toISOString()
       : "";
 
-  const buildFormData = (finalContent: string, finalImageUrl: string, targetMode: PublishMode = publishMode) => {
+  const buildFormData = (finalContent: string, finalImageUrl: string) => {
     const fd = new FormData();
     fd.set("content", finalContent);
     fd.set("imageUrl", finalImageUrl);
     fd.set("videoUrl", videoUrl);
-    fd.set("publishMode", targetMode);
-    fd.set("scheduledAt", targetMode === "schedule" && scheduledAtLocal ? new Date(scheduledAtLocal).toISOString() : "");
+    fd.set("publishMode", publishMode);
+    fd.set("scheduledAt", scheduledAtIso);
     fd.set("productId", productId);
     return fd;
   };
 
-  // 3) 최종 발행 / 임시저장 실행 (실시간 원클릭 분기)
-  const handleFinalSubmit = async (targetMode: PublishMode) => {
-    setPublishMode(targetMode);
-    setAiError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    if (targetMode === "now" && !hasThreadsAccount) {
-      setAiError("Threads 계정이 연결되어 있지 않아 즉시 게시할 수 없습니다. 설정 메뉴에서 계정 연결 후 이용해주세요.");
-      return;
-    }
-
-    if (!productId) {
-      setAiError("먼저 제휴 상품을 선택해주세요.");
-      return;
-    }
-
-    if (targetMode === "schedule" && !scheduledAtLocal) {
-      setAiError("예약 게시 날짜 및 시각을 선택해주세요.");
-      return;
-    }
-
-    // 아직 본문이 비어있다면 자동 생성 후 제출 (초고속 원클릭 모드)
-    if (!content.trim()) {
-      setIsGeneratingAll(true);
-      const result = await runGenerateAll();
-      setIsGeneratingAll(false);
-      if (!result) return;
+    if (!aiGenerateOnSubmit) {
       startTransition(() => {
-        formAction(buildFormData(result.content, result.imageUrl, targetMode));
+        formAction(buildFormData(content, imageUrls.join(",")));
       });
       return;
     }
 
-    // 이미 본문이 채워져 있다면 현재 화면의 본문과 이미지/영상을 그대로 즉시 제출
-    startTransition(() => {
-      formAction(buildFormData(content, imageUrls.join(","), targetMode));
-    });
-  };
+    if (!productId) {
+      setAiError("먼저 상품을 선택해주세요.");
+      return;
+    }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await handleFinalSubmit(publishMode);
+    setIsGeneratingAll(true);
+    const result = await runGenerateAll();
+    setIsGeneratingAll(false);
+    if (!result) return;
+    startTransition(() => {
+      formAction(buildFormData(result.content, result.imageUrl));
+    });
   };
 
   const disclosurePreview = selectedProduct ? DISCLOSURE_PREVIEW[selectedProduct.platform] : null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* ⚡ AI 글 & 이미지 실시간 원클릭 생성 바 */}
-      <div className="rounded-2xl border-2 border-amber-300/90 bg-gradient-to-r from-amber-50 via-orange-50/50 to-purple-50/40 p-4 sm:p-5 shadow-xs space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-0.5">
-            <h3 className="font-extrabold text-sm text-neutral-900 flex items-center gap-1.5">
-              <span>⚡</span>
-              <span>AI 글 & 이미지 실시간 원클릭 생성</span>
-            </h3>
-            <p className="text-xs text-neutral-600 leading-relaxed">
-              상품과 엔진을 선택한 후 버튼을 누르면, 화면에 본문 캡션과 고화질 이미지를 즉시 생성하여 펼쳐 보여줍니다.
-              생성된 글과 이미지를 확인·수정한 뒤 즉시 포스팅하거나 임시저장할 수 있습니다.
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="amber"
-            onClick={handleGenerateAll}
-            disabled={isGeneratingAll || !productId}
-            className="font-extrabold text-sm py-3 px-5 whitespace-nowrap shadow-xs cursor-pointer flex items-center gap-2 shrink-0"
-          >
-            {isGeneratingAll ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>AI가 글 & 이미지 생성 중...</span>
-              </>
-            ) : (
-              <>
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white text-amber-500 text-xs font-black shadow-2xs">
-                  ✨
-                </span>
-                <span>AI 글 & 이미지 생성하기</span>
-              </>
-            )}
-          </Button>
+      {/* ⚡ AI 원클릭 자동 생성 안내 배너 */}
+      <div className="flex items-start gap-3 rounded-2xl border border-blue-200/80 bg-gradient-to-r from-blue-50 via-purple-50 to-amber-50 p-4 text-xs text-neutral-700 shadow-xs">
+        <span className="text-xl shrink-0">⚡</span>
+        <div className="space-y-0.5">
+          <p className="font-extrabold text-sm text-neutral-900">AI 원클릭 자동 생성 가이드</p>
+          <p className="text-neutral-600 leading-relaxed">
+            상품을 선택하고 하단 &quot;{submitLabel}&quot;를 누르면, 상품의 제휴 링크와 필수 고지 문구를 담아 500자 이내 맞춤형 Threads 캡션과 고화질 AI 이미지가 한 번에 자동 생성되어 즉시 반영됩니다.
+          </p>
         </div>
-
-        {statusMsg && (
-          <div className="animate-pulse rounded-xl bg-blue-100/90 border border-blue-300 px-3.5 py-2.5 text-xs font-bold text-blue-900 flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin shrink-0 text-blue-700" />
-            <span>{statusMsg}</span>
-          </div>
-        )}
-
-        {generateSuccessMsg && (
-          <div className="rounded-xl bg-emerald-100/90 border border-emerald-300 px-3.5 py-2.5 text-xs font-bold text-emerald-900 flex items-center justify-between gap-2 shadow-2xs">
-            <span>{generateSuccessMsg}</span>
-            <button
-              type="button"
-              onClick={() => setGenerateSuccessMsg(null)}
-              className="text-emerald-700 hover:text-emerald-950 font-black cursor-pointer text-xs ml-2"
-            >
-              ✕
-            </button>
-          </div>
-        )}
       </div>
 
       {/* ========================================================
@@ -839,6 +716,24 @@ export function ProductPostForm({
             </div>
           </div>
 
+          {!aiGenerateOnSubmit && (
+            <div className="pt-1">
+              <Button
+                type="button"
+                onClick={handleGenerateAll}
+                disabled={isGeneratingAll || !productId}
+              >
+                {isGeneratingAll ? "생성 중..." : `✨ ${PROVIDER_SHORT_LABELS[aiProvider]}로 글+이미지 함께 생성`}
+              </Button>
+            </div>
+          )}
+
+          {statusMsg && (
+            <p className="animate-pulse rounded-md bg-blue-50 border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-900">
+              🚀 {statusMsg}
+            </p>
+          )}
+
           {aiError && <p className="text-xs font-semibold text-red-600">{aiError}</p>}
         </div>
 
@@ -850,15 +745,6 @@ export function ProductPostForm({
                 <span>✍️ Threads 게시글 본문</span>
                 <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-medium text-neutral-700">미리보기 & 직접 수정</span>
               </label>
-              <button
-                type="button"
-                onClick={handleGenerateTextOnly}
-                disabled={isGeneratingText || isGeneratingAll || !productId}
-                className="text-[11px] font-bold text-purple-700 hover:text-purple-900 hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-40 ml-1"
-              >
-                <span>🔄</span>
-                <span>{isGeneratingText ? "작성 중..." : "AI 글만 다시 생성"}</span>
-              </button>
             </div>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
               content.length > 500
@@ -869,9 +755,11 @@ export function ProductPostForm({
             </span>
           </div>
 
-          <p className="text-xs text-neutral-500 leading-relaxed">
-            💡 위에서 생성된 본문이 여기에 표시되며, 원하는 대로 직접 문구를 수정하거나 다듬을 수 있습니다.
-          </p>
+          {aiGenerateOnSubmit && (
+            <p className="text-xs text-neutral-500 leading-relaxed">
+              💡 아래 &quot;{submitLabel}&quot; 버튼 클릭 시 선택한 상품 정보와 AI 엔진 설정에 맞춰 본문이 자동으로 생성되어 채워집니다. 필요 시 직접 수정할 수 있습니다.
+            </p>
+          )}
 
           <Textarea
             name="content"
@@ -1411,85 +1299,54 @@ export function ProductPostForm({
           </span>
         </div>
 
-        {/* 2대 스마트 분기 버튼: [ ⚡ 즉시 Threads 포스팅 ] vs [ 📁 임시저장 ] */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-neutral-700">최종 발행 방식 선택</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            {/* 버튼 1. 즉시 Threads에 포스팅하기 */}
-            <button
-              type="button"
-              onClick={() => handleFinalSubmit("now")}
-              disabled={isPending || isGeneratingAll || !hasThreadsAccount}
-              className="w-full rounded-2xl bg-neutral-900 hover:bg-neutral-800 active:bg-black text-white p-4 font-black text-base shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1.5"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🚀</span>
-                <span>⚡ 즉시 Threads에 포스팅하기</span>
-              </div>
-              <span className="text-[11px] font-normal text-neutral-300">
-                {content.trim() ? "현재 확인된 글과 미디어 그대로 즉시 발행" : "AI 자동 생성 후 즉시 연동 계정에 자동 발행"}
-              </span>
-            </button>
-
-            {/* 버튼 2. 임시저장하기 */}
-            <button
-              type="button"
-              onClick={() => handleFinalSubmit("draft")}
-              disabled={isPending || isGeneratingAll}
-              className="w-full rounded-2xl bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-900 border-2 border-neutral-300 hover:border-neutral-400 p-4 font-black text-base shadow-2xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1.5"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xl">📁</span>
-                <span>💾 임시저장하기</span>
-              </div>
-              <span className="text-[11px] font-normal text-neutral-500">
-                보관함에 저장 (나중에 언제든 수정·발행 가능)
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {!hasThreadsAccount && (
-          <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">
-            ⚠️ Threads 계정이 연결되어 있지 않아 [즉시 포스팅]은 비활성화됩니다. [임시저장] 후 설정 메뉴에서 계정을 연결해주세요.
-          </p>
-        )}
-
-        {/* 예약 발행 접이식 영역 */}
-        <div className="pt-2 border-t border-neutral-200/80">
-          <details className="group">
-            <summary className="cursor-pointer text-xs font-bold text-neutral-700 hover:text-neutral-950 flex items-center justify-between py-1">
-              <span className="flex items-center gap-1.5">
-                <span>⏰</span>
-                <span>원하는 특정 시각에 예약 발행하고 싶으신가요? (예약 설정 펼치기)</span>
-              </span>
-              <span className="text-xs text-neutral-400 group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <div className="pt-3 pb-1 space-y-2.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <Input
-                  type="datetime-local"
-                  value={scheduledAtLocal}
-                  onChange={(e) => setScheduledAtLocal(e.target.value)}
-                  className="bg-white max-w-xs text-sm"
+        <div>
+          <label className="mb-2 block text-xs font-bold text-neutral-700">게시방식 선택</label>
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                { value: "draft", label: "임시저장" },
+                { value: "schedule", label: "예약 게시" },
+                { value: "now", label: "즉시 게시" },
+              ] as const
+            ).map((option) => (
+              <label
+                key={option.value}
+                className={`cursor-pointer rounded-xl border px-3.5 py-2 text-sm font-semibold transition-all ${
+                  publishMode === option.value
+                    ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                    : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="publishMode"
+                  value={option.value}
+                  checked={publishMode === option.value}
+                  onChange={() => setPublishMode(option.value)}
+                  className="sr-only"
                 />
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => handleFinalSubmit("schedule")}
-                  disabled={isPending || isGeneratingAll || !scheduledAtLocal || !hasThreadsAccount}
-                  className="font-bold whitespace-nowrap text-xs py-2 px-4 shadow-xs"
-                >
-                  📅 지정한 시각에 예약 발행하기
-                </Button>
-              </div>
-              <p className="text-[11px] text-neutral-500">
-                지정한 날짜와 시각이 되면 서버에서 자동으로 Threads에 포스팅합니다.
-              </p>
-            </div>
-          </details>
+                {option.label}
+              </label>
+            ))}
+          </div>
+          {publishMode === "now" && !hasThreadsAccount && (
+            <p className="mt-2 text-xs font-semibold text-red-600">
+              ⚠️ Threads 계정이 연결되어 있지 않아 즉시 게시할 수 없습니다. 설정 메뉴에서 계정 연결 후 이용해주세요.
+            </p>
+          )}
         </div>
 
+        {publishMode === "schedule" && (
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-neutral-700">예약 시각</label>
+            <Input
+              type="datetime-local"
+              value={scheduledAtLocal}
+              onChange={(e) => setScheduledAtLocal(e.target.value)}
+              className="bg-white max-w-xs"
+            />
+          </div>
+        )}
         <input type="hidden" name="scheduledAt" value={scheduledAtIso} />
         <input type="hidden" name="productId" value={productId} />
 
@@ -1499,11 +1356,15 @@ export function ProductPostForm({
           </p>
         )}
 
-        {aiError && (
-          <p className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-700">
-            {aiError}
-          </p>
-        )}
+        <div className="pt-2">
+          <Button
+            type="submit"
+            className="w-full text-base font-bold py-3"
+            disabled={isPending || isGeneratingAll || (publishMode === "now" && !hasThreadsAccount)}
+          >
+            {isGeneratingAll ? "AI 자동 생성 중..." : isPending ? "처리 중..." : `✨ ${submitLabel}`}
+          </Button>
+        </div>
       </section>
     </form>
   );
