@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads Content Ops v1.08 — explicit web publishing (2026-10-05)
+
+- 초안을 수정·저장하고, 회원이 브라우저 확인창에서 최종 승인한 경우에만 Threads 공식 생성/발행 API를 호출하는 1회 발행을 추가했다.
+- 발행 전 소유자·이용 권한·연결 토큰 만료를 확인하며, 성공·실패 결과를 `tco_posts`에 기록한다. 예약/자동 발행은 아직 없다.
+
 ## Threads Content Ops v1.07 — member-key draft generation (2026-10-05)
 
 - 연결된 회원이 주제를 입력하면 회원 본인의 `user_api_keys.openai` 키로만 Threads 초안을 생성하고, 소유자 RLS가 적용된 `tco_posts`에 `draft`로 저장한다. 버튼 클릭 전 AI 호출은 없고, 운영자 키 폴백도 없다.
@@ -792,5 +797,4 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
-
 

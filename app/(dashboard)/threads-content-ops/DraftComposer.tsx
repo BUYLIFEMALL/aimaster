@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { FilePenLine, Sparkles } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
-import { generateAndSaveDraft } from "./web-actions";
+import { generateAndSaveDraft, publishDraft, saveDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
 type Draft = { id: string; body: string; created_at: string; account_id: string };
@@ -13,6 +14,7 @@ export default function DraftComposer({ accounts, drafts }: { accounts: Account[
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const router = useRouter();
 
   if (!accounts.length) return null;
   const generate = async () => {
@@ -22,11 +24,26 @@ export default function DraftComposer({ accounts, drafts }: { accounts: Account[
       await generateAndSaveDraft({ accountId, topic });
       setTopic("");
       setMessage("초안을 저장했습니다. 다음 단계에서 검토 후 직접 발행할 수 있습니다.");
+      router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "초안 생성에 실패했습니다.");
     } finally {
       setBusy(false);
     }
+  };
+
+  const save = async (draft: Draft) => {
+    setBusy(true); setMessage("");
+    try { await saveDraft({ draftId: draft.id, body: draft.body }); setMessage("초안을 저장했습니다."); router.refresh(); }
+    catch (error) { setMessage(error instanceof Error ? error.message : "초안을 저장하지 못했습니다."); }
+    finally { setBusy(false); }
+  };
+  const publish = async (draft: Draft) => {
+    if (!window.confirm("이 초안을 지금 Threads에 공개 발행하시겠습니까? 발행 후에는 자동으로 되돌릴 수 없습니다.")) return;
+    setBusy(true); setMessage("");
+    try { await publishDraft(draft.id); setMessage("Threads에 발행했습니다."); router.refresh(); }
+    catch (error) { setMessage(error instanceof Error ? error.message : "발행하지 못했습니다."); }
+    finally { setBusy(false); }
   };
 
   return <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
@@ -40,7 +57,13 @@ export default function DraftComposer({ accounts, drafts }: { accounts: Account[
     </GlassCard>
     <GlassCard>
       <div className="mb-4 flex items-center gap-2"><FilePenLine size={18} className="text-gold" /><h2 className="font-bold text-white">내 초안</h2></div>
-      {drafts.length ? <div className="space-y-3">{drafts.map((draft) => <div key={draft.id} className="rounded-lg border border-white/10 bg-black/15 p-3"><p className="whitespace-pre-wrap text-sm text-white">{draft.body}</p><p className="mt-2 text-xs text-subtext">초안 · {new Date(draft.created_at).toLocaleString("ko-KR")}</p></div>)}</div> : <p className="text-sm text-subtext">아직 저장한 초안이 없습니다.</p>}
+      {drafts.length ? <div className="space-y-3">{drafts.map((draft) => <DraftCard key={draft.id} draft={draft} busy={busy} onSave={save} onPublish={publish} />)}</div> : <p className="text-sm text-subtext">아직 저장한 초안이 없습니다.</p>}
     </GlassCard>
   </div>;
+}
+
+function DraftCard({ draft, busy, onSave, onPublish }: { draft: Draft; busy: boolean; onSave: (draft: Draft) => Promise<void>; onPublish: (draft: Draft) => Promise<void> }) {
+  const [body, setBody] = useState(draft.body);
+  const editableDraft = { ...draft, body };
+  return <div className="rounded-lg border border-white/10 bg-black/15 p-3"><textarea className="min-h-28 w-full bg-transparent text-sm text-white outline-none" maxLength={5000} value={body} onChange={(event) => setBody(event.target.value)} /><div className="mt-2 flex items-center justify-between gap-2"><p className="text-xs text-subtext">초안 · {new Date(draft.created_at).toLocaleString("ko-KR")}</p><div className="flex gap-2"><button className="text-xs text-subtext hover:text-white disabled:opacity-50" disabled={busy} onClick={() => void onSave(editableDraft)}>저장</button><button className="rounded-md border border-gold/50 px-2 py-1 text-xs font-bold text-gold disabled:opacity-50" disabled={busy || !body.trim()} onClick={() => void onPublish(editableDraft)}>검토 후 지금 발행</button></div></div></div>;
 }

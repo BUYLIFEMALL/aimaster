@@ -119,3 +119,56 @@ export async function generateAndSaveDraft(input: { accountId: string; topic: st
   if (error) throw new Error("생성한 초안을 저장하지 못했습니다.");
   revalidatePath("/threads-content-ops");
 }
+
+export async function saveDraft(input: { draftId: string; body: string }) {
+  const body = input.body.trim();
+  if (!input.draftId || !body || body.length > 5_000) throw new Error("초안은 1~5,000자로 입력해 주세요.");
+  const { supabase, user } = await authorizedUser();
+  const { error } = await supabase.from("tco_posts")
+    .update({ body })
+    .eq("id", input.draftId)
+    .eq("user_id", user.id)
+    .eq("status", "draft");
+  if (error) throw new Error("초안을 저장하지 못했습니다.");
+  revalidatePath("/threads-content-ops");
+}
+
+export async function publishDraft(draftId: string) {
+  const { supabase, user } = await authorizedUser();
+  const { data: draft } = await supabase.from("tco_posts")
+    .select("id, body, account_id")
+    .eq("id", draftId).eq("user_id", user.id).eq("status", "draft").maybeSingle();
+  if (!draft) throw new Error("발행할 초안을 찾지 못했습니다.");
+  const { data: account } = await supabase.from("tco_threads_accounts")
+    .select("id, threads_user_id, access_token, token_expires_at")
+    .eq("id", draft.account_id).eq("user_id", user.id).maybeSingle();
+  if (!account) throw new Error("연결된 Threads 계정을 찾지 못했습니다.");
+  if (account.token_expires_at && new Date(account.token_expires_at) <= new Date()) throw new Error("Threads 연결 토큰이 만료되었습니다. 계정을 다시 연결해 주세요.");
+
+  await supabase.from("tco_posts").update({ status: "publishing", error_message: null }).eq("id", draft.id).eq("user_id", user.id);
+  try {
+    const createResponse = await fetch(`https://graph.threads.net/v1.0/${account.threads_user_id}/threads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ media_type: "TEXT", text: draft.body, access_token: account.access_token }),
+      cache: "no-store",
+    });
+    const container = await createResponse.json() as { id?: string };
+    if (!createResponse.ok || !container.id) throw new Error("Threads 게시물을 만들지 못했습니다.");
+    const publishResponse = await fetch(`https://graph.threads.net/v1.0/${account.threads_user_id}/threads_publish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ creation_id: container.id, access_token: account.access_token }),
+      cache: "no-store",
+    });
+    const published = await publishResponse.json() as { id?: string; permalink?: string };
+    if (!publishResponse.ok || !published.id) throw new Error("Threads 게시물 발행에 실패했습니다.");
+    const { error } = await supabase.from("tco_posts").update({ status: "published", published_at: new Date().toISOString(), threads_post_id: published.id, permalink: published.permalink ?? null }).eq("id", draft.id).eq("user_id", user.id);
+    if (error) throw error;
+  } catch (error) {
+    const message = error instanceof Error ? error.message.slice(0, 500) : "발행 중 알 수 없는 오류가 발생했습니다.";
+    await supabase.from("tco_posts").update({ status: "failed", error_message: message }).eq("id", draft.id).eq("user_id", user.id);
+    throw new Error(message);
+  }
+  revalidatePath("/threads-content-ops");
+}
