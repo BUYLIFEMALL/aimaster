@@ -7,6 +7,14 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
 
 const PROGRAM_SLUG = "threads-content-ops";
+const CREDENTIAL_PROVIDERS = new Set([
+  "openai",
+  "youtube_api_key",
+  "coupang_access_key",
+  "coupang_secret_key",
+  "threads_app_id",
+  "threads_app_secret",
+]);
 
 async function authorizedUser() {
   const supabase = await createClient();
@@ -42,6 +50,29 @@ export async function saveMemberCredentials(input: {
     { onConflict: "user_id,provider" },
   );
   if (error) throw new Error("연동 정보를 저장하지 못했습니다.");
+  revalidatePath("/threads-content-ops");
+}
+
+export async function deleteMemberCredential(provider: string) {
+  if (!CREDENTIAL_PROVIDERS.has(provider)) throw new Error("지원하지 않는 연동 정보입니다.");
+  const { supabase, user } = await authorizedUser();
+  const { error } = await supabase
+    .from("user_api_keys")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("provider", provider);
+  if (error) throw new Error("연동 정보를 삭제하지 못했습니다.");
+  revalidatePath("/threads-content-ops");
+}
+
+export async function disconnectThreadsAccount() {
+  const { supabase, user } = await authorizedUser();
+  const { error } = await supabase
+    .from("tco_threads_accounts")
+    .delete()
+    .eq("user_id", user.id);
+  if (error) throw new Error("Threads 계정 연결을 해제하지 못했습니다.");
+  revalidatePath("/threads-content-ops");
 }
 
 export async function startThreadsOAuth() {

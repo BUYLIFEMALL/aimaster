@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.17`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.18`
 
 ## 목적
 
@@ -33,6 +33,12 @@
 - 새 API/권한 페이지는 `dynamic = "force-dynamic"`, `fetchCache = "force-no-store"`를 함께 선언합니다.
 - 자동 발행·예약은 기본 OFF이며, 회원이 웹에서 명시적으로 지시한 경우에만 실행합니다.
 - 버전을 바꾸면 `lib/version.ts`, `programs.version`, 이 문서와 `docs/HANDOFF.md`를 같은 작업에서 맞춥니다.
+
+## v1.18 연동값 관리 화면
+
+- 등록된 API 키와 Threads 앱 자격증명은 실제 원문을 다시 노출하지 않고 앞·뒤 일부만 마스킹해 표시합니다.
+- 각 값은 등록 뒤 수정과 삭제를 개별로 실행할 수 있습니다. 삭제·계정 연결 해제 모두 본인 user_id 행만 대상으로 하며, 실행 전 확인창을 표시합니다.
+- 연결된 Threads 계정은 사용자명과 토큰 만료 시각을 보이고, 연결 해제는 계정 연결 레코드만 삭제합니다. 이미 저장한 초안과 발행 이력은 남습니다.
 
 ## v1.16 설정 화면
 

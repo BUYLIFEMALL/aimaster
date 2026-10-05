@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.17`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.18`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
 
 ## 절대 규칙
 
@@ -11,6 +11,12 @@
 - 페이지, Server Action, API 콜백 모두 `checkProgramAccess()` 또는 API용 권한 검사로 프로그램 이용 권한까지 확인합니다. 로그인만 확인해서는 안 됩니다.
 - 권한이 관여하는 `page.tsx`/`route.ts`에는 `dynamic = "force-dynamic"`와 `fetchCache = "force-no-store"`를 함께 둡니다.
 - 자동 발행과 예약은 기본 OFF입니다. 회원이 웹에서 명시적으로 실행 또는 예약한 경우에만 처리합니다.
+
+## v1.18 완료 사항
+
+- 설정 화면은 참조 프로그램의 등록 행 형식에 맞춰, 저장된 값은 마스킹 값 + 등록됨 + 수정/삭제만 보입니다. 새 값을 입력할 때만 비밀번호 입력칸이 열립니다.
+- deleteMemberCredential과 disconnectThreadsAccount는 checkProgramAccess 뒤 현재 로그인한 회원의 user_id로 다시 제한합니다. 계정 연결 해제는 tco_threads_accounts만 지우고 tco_posts 이력은 보존합니다.
+- 화면에 계정 사용자명, 토큰 만료 시각, 연결 해제 버튼을 표시합니다. 앱 ID·시크릿·OpenAI·YouTube·쿠팡 키는 각각 개별 수정/삭제할 수 있습니다.
 
 ## v1.17 완료 사항
 

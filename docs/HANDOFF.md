@@ -8,6 +8,12 @@
 - `API키등록·플랫폼연동`은 번호형 업무 흐름 바로 아래 유틸리티 메뉴로 이동했다. 로그인 이메일과 로그아웃도 그 아래에 이어 붙였으며, 하단 고정 영역을 제거했다.
 - 기존 자동화 프로그램(`threads`, `threads-affiliate-poster`)과 동일하게, 프로그램 전용 화면은 흰색 배경·중성 회색 경계·어두운 글자·밝은 카드로 통일했다.
 
+## Threads Content Ops v1.18 — credential rows and account disconnect (2026-10-06)
+
+- API키등록·플랫폼연동 화면을 Threads 쇼핑제휴 자동화의 등록 정보 행 형식으로 맞췄다. 저장된 키는 마스킹 값, 등록됨 상태, 수정·삭제만 표시하고 수정할 때에만 입력칸을 연다.
+- OpenAI, Threads 앱 ID/시크릿, YouTube, 쿠팡 키를 각각 실제로 저장·수정·삭제할 수 있다. 삭제 Server Action은 프로그램 이용 권한과 현재 회원 user_id를 모두 확인한다.
+- 연결된 Threads 계정은 사용자명·토큰 만료 시각과 연결 해제를 표시한다. 연결 해제는 tco_threads_accounts의 본인 행만 삭제하며, 초안과 발행 이력은 유지한다.
+
 ## Threads Content Ops v1.11 — sidebar standard correction (2026-10-06)
 
 - `docs/SIDEBAR_LAYOUT_STANDARD.md`와 `D:\PDS\좌측메뉴.png`를 확인해, 공용 AIMaster 사이드바와 프로그램 메뉴가 중복되던 오류를 수정했다. `/threads-content-ops`는 이제 고정 프로그램 전용 사이드바 하나만 표시한다.
