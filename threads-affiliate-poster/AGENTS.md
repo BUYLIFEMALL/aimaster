@@ -264,3 +264,10 @@ vercel deploy --prod --yes
      - **윗줄**: 세부 실행 모델 드롭다운(`flex-1`)과 `🔢 생성 장수` 드롭다운(`auto`)을 나란히 배치(`grid-cols-1 sm:grid-cols-[1fr_auto]`).
      - **아랫줄**: `✍️ 이미지 설명 프롬프트 입력` 인풋 필드를 가로 한 줄 전체(`flex-1`)로 넓히고, 그 바로 우측에 `✨ AI 이미지 생성` 버튼을 배치하여 프롬프트 작성 편의성과 시각적 균형감 극대화.
 
+17. **AI 이미지 생성 버튼 바탕색 및 가독성 개선 (2026-10-05, v1.31)**:
+   - **개편 배경**: 기존에 흰색 바탕(secondary)으로 되어 있어 흰색 입력창/카드 안에서 눈에 잘 띄지 않고 가독성이 낮았던 피드백 반영.
+   - **조치 사항**:
+     - `Button` 컴포넌트에 선명한 보라색 테마의 `purple` variant(`bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 disabled:bg-neutral-200`) 추가.
+     - `ProductPostForm.tsx`의 `✨ AI 이미지 생성` 버튼에 `variant="purple"`을 적용하여, 보라색 바탕 위의 선명한 흰색 굵은 텍스트로 시인성과 가독성을 극대화.
+
+

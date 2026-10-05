@@ -9,6 +9,13 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.31, 2026-10-05)
+
+- **AI 이미지 생성 버튼 바탕색 및 가독성 개선 (v1.31)**:
+  - 기존 흰색 바탕(secondary)으로 인해 흰색 카드 및 인풋 필드 옆에서 눈에 잘 띄지 않던 피드백 반영.
+  - `Button` 컴포넌트에 `purple` variant(`bg-purple-600 text-white hover:bg-purple-700`)를 신설 및 적용하여, 선명한 보라색 배경 위의 흰색 텍스트로 시인성과 가독성을 극대화.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.31`로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.30, 2026-10-05)
 
 - **프롬프트 인풋 한 줄 확장 및 생성 장수 상단 모델 옆 재배치 레이아웃 개편 (v1.30)**:

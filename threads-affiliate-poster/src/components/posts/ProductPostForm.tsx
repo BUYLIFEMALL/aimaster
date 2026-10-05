@@ -1000,10 +1000,10 @@ export function ProductPostForm({
             />
             <Button
               type="button"
-              variant="secondary"
+              variant="purple"
               onClick={handleGenerateImage}
               disabled={isGeneratingImage || isGeneratingAll || imageUrls.length >= 20 || (!imagePrompt.trim() && !selectedProduct)}
-              className="font-bold whitespace-nowrap px-4 py-2.5"
+              className="font-bold whitespace-nowrap px-4 py-2.5 cursor-pointer"
             >
               {isGeneratingImage
                 ? "생성 중..."
