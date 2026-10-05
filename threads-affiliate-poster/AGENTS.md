@@ -383,3 +383,19 @@ vercel deploy --prod --yes
        - ileInputRef를 hidden으로 배치하여 캐러셀의 [➕ 이미지 추가] 카드 및 빈 상태의 [📂 내 PC에서 이미지 파일 추가] 버튼과 직결.
        - 캐러셀 헤더 우측에 [🗑️ 전체 이미지 삭제] 버튼을 단정하게 통합 배치.
        - 이미지가 없을 때도 점선 카드 내에 명확한 추가 버튼 제공.
+
+31. **혼합 미디어 캐러셀(이미지+동영상 동시 포스팅) 및 30일 보관/자동·수동 삭제 파이프라인 (2026-10-05, v1.45)**:
+   - **개편 배경**: "쓰레드 포스팅시 이미지와 영상은 동시에 포스팅이 가능한지 관련 문서 확인해보고 진행해줘. 그리고 이미지, 영상 등 데이터 보관 기간은 등록시점 한달후 자동삭제로 동작되도록 해주고 사용자가 필요없는건 수동으로 삭제할 수 있도록도 해주고" 주인님 지시 완벽 반영.
+   - **조치 사항**:
+     - **혼합 미디어 캐러셀**:
+       - src/lib/threads/client.ts의 publishThreadsPost를 기반으로 src/lib/posts/publish-core.ts에서 이미지와 영상을 하나의 캐러셀(mediaItems: [{ url, type: "IMAGE" | "VIDEO" }])로 결합하여 Meta Threads API로 동시 발행 지원 (최대 20개).
+       - src/components/posts/ProductPostForm.tsx: 이미지와 영상의 배타적 초기화를 제거하고 통합 미디어 캐러셀로 개편. 점선 카드([➕ 이미지 추가], [🎬 영상 추가]), 순서 이동(◀, ▶), 동영상 미리보기 재생 오버레이 지원.
+       - src/components/posts/PostMediaViewer.tsx: 상세 페이지에서 이미지와 비디오가 섞여 있어도 슬라이드로 자연스럽게 전환·재생·확대 지원.
+     - **30일 자동 삭제 (Auto Cleanup)**:
+       - src/lib/mediaRetention.ts: 보관 기간 30일(MEDIA_RETENTION_DAYS = 30) 상수 및 컷오프 계산, 버킷 경로 추출 유틸 구현.
+       - src/app/api/cron/cleanup-media/route.ts: Vercel Cron(  18 * * * = 매일 KST 03:00) 연동 자동 정리 엔드포인트 구현 (30일 지난 	ap_posts 및 post-images 스토리지 파일 자동 영구 삭제).
+       - 	hreads-affiliate-poster/vercel.json: /api/cron/cleanup-media 및 /api/posts/dispatch-scheduled 크론 등록.
+     - **사용자 수동 삭제 (Manual Cleanup)**:
+       - src/lib/actions/posts.ts:
+         - deleteMediaFileAction: 작성 폼에서 개별 ✕ 삭제 또는 전체 미디어 삭제 시 본인이 업로드한 Storage 파일까지 즉시 삭제 연동.
+         - deletePostAction: 게시글 삭제 시 연결된 Storage 미디어 파일도 함께 회수.

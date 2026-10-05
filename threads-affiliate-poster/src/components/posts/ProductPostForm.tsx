@@ -4,12 +4,14 @@ import { startTransition, useActionState, useEffect, useRef, useState, useTransi
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import { Sparkles, Loader2, ZoomIn } from "lucide-react";
+import { Sparkles, Loader2, ZoomIn, Film, Play } from "lucide-react";
 import { PostContentRenderer } from "@/components/posts/PostContentRenderer";
 import { ImageLightboxModal } from "@/components/ui/ImageLightboxModal";
 import type { PostActionState } from "@/lib/actions/posts";
+import { deleteMediaFileAction } from "@/lib/actions/posts";
 import { generateAffiliateContentAction, generateImageAction } from "@/lib/actions/ai";
 import { createClient } from "@/lib/supabase/client";
+import { isVideoUrl } from "@/lib/mediaRetention";
 import type { ThreadsTone } from "@/lib/ai/generator";
 import type { AffiliateProduct } from "@/types/product";
 import { PLATFORM_LABELS } from "@/types/product";
@@ -89,17 +91,28 @@ export function ProductPostForm({
   const [scheduledAtLocal, setScheduledAtLocal] = useState(initialScheduledAtLocal);
   const [content, setContent] = useState(initialContent);
 
-  const parseInitialImages = (raw: string): string[] => {
-    if (!raw) return [];
-    return raw.split(",").map((u) => u.trim()).filter(Boolean);
+  const parseInitialMedia = (rawImages: string, rawVideo: string): string[] => {
+    const list: string[] = [];
+    if (rawImages) {
+      list.push(...rawImages.split(",").map((u) => u.trim()).filter(Boolean));
+    }
+    if (rawVideo && !list.includes(rawVideo.trim())) {
+      list.push(rawVideo.trim());
+    }
+    return list;
   };
 
-  const [imageUrls, setImageUrls] = useState<string[]>(parseInitialImages(initialImageUrl));
+  const [imageUrls, setImageUrls] = useState<string[]>(parseInitialMedia(initialImageUrl, initialVideoUrl));
+  const [videoUrl, setVideoUrl] = useState(initialVideoUrl);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [videoUploadError, setVideoUploadError] = useState<string | null>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -107,7 +120,7 @@ export function ProductPostForm({
     if (files.length === 0) return;
 
     if (imageUrls.length + files.length > 20) {
-      setUploadError("Threads에는 캐러셀 이미지를 최대 20장까지 등록할 수 있습니다.");
+      setUploadError("Threads에는 미디어(이미지+영상)를 최대 20개까지 등록할 수 있습니다.");
       return;
     }
 
@@ -142,7 +155,6 @@ export function ProductPostForm({
 
       if (uploadedUrls.length > 0) {
         setImageUrls((prev) => [...prev, ...uploadedUrls].slice(0, 20));
-        setVideoUrl(""); // 이미지와 동영상은 배타적
       }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
@@ -151,37 +163,15 @@ export function ProductPostForm({
     }
   };
 
-  const removeImage = (indexToRemove: number) => {
-    setImageUrls((prev) => prev.filter((_, idx) => idx !== indexToRemove));
-  };
-
-
-  const handleClearAllImages = () => {
-    if (imageUrls.length === 0) return;
-    if (confirm("등록된 모든 이미지를 삭제하시겠습니까?")) {
-      setImageUrls([]);
-    }
-  };
-
-  const moveImage = (fromIdx: number, toIdx: number) => {
-    if (toIdx < 0 || toIdx >= imageUrls.length) return;
-    setImageUrls((prev) => {
-      const copy = [...prev];
-      const [item] = copy.splice(fromIdx, 1);
-      copy.splice(toIdx, 0, item);
-      return copy;
-    });
-  };
-
-  const [videoUrl, setVideoUrl] = useState(initialVideoUrl);
-  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-  const [videoUploadError, setVideoUploadError] = useState<string | null>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
-
   const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (videoInputRef.current) videoInputRef.current.value = "";
     if (!file) return;
+
+    if (imageUrls.length >= 20) {
+      setVideoUploadError("Threads에는 미디어(이미지+영상)를 최대 20개까지 등록할 수 있습니다.");
+      return;
+    }
 
     if (!file.type.startsWith("video/")) {
       setVideoUploadError("영상 파일만 업로드할 수 있습니다(MP4, MOV).");
@@ -206,13 +196,44 @@ export function ProductPostForm({
       if (error) throw error;
 
       const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+      // 이미지를 삭제하지 않고 캐러셀 목록에 함께 추가하여 혼합 캐러셀 지원!
+      setImageUrls((prev) => [...prev, data.publicUrl].slice(0, 20));
       setVideoUrl(data.publicUrl);
-      setImageUrls([]); // 동영상 추가 시 이미지는 해제
     } catch (err) {
       setVideoUploadError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
     } finally {
       setIsUploadingVideo(false);
     }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    const targetUrl = imageUrls[indexToRemove];
+    setImageUrls((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    if (targetUrl) {
+      deleteMediaFileAction(targetUrl).catch(() => {});
+    }
+  };
+
+  const handleClearAllImages = () => {
+    if (imageUrls.length === 0) return;
+    if (confirm("등록된 모든 미디어(이미지·영상)를 삭제하시겠습니까?")) {
+      const targets = [...imageUrls];
+      setImageUrls([]);
+      setVideoUrl("");
+      for (const u of targets) {
+        deleteMediaFileAction(u).catch(() => {});
+      }
+    }
+  };
+
+  const moveImage = (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= imageUrls.length) return;
+    setImageUrls((prev) => {
+      const copy = [...prev];
+      const [item] = copy.splice(fromIdx, 1);
+      copy.splice(toIdx, 0, item);
+      return copy;
+    });
   };
 
   const [productId, setProductId] = useState(initialProductId);
@@ -1182,35 +1203,52 @@ export function ProductPostForm({
           </div>
         )}
 
-        {/* 📁 이미지 캐러셀 관리 카드 (흰색 카드) */}
+        {/* 📁 통합 미디어(이미지+영상) 캐러셀 관리 카드 (흰색 카드) */}
         <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-2xs space-y-3">
-          {/* 파일 직접 업로드 hidden 인풋 (➕ 이미지 추가 버튼과 연동) */}
+          {/* 이미지 직접 업로드 hidden 인풋 */}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             multiple
             onChange={handleFileChange}
-            disabled={isUploading || imageUrls.length >= 20}
+            disabled={isUploading || isUploadingVideo || imageUrls.length >= 20}
+            className="hidden"
+          />
+
+          {/* 영상 직접 업로드 hidden 인풋 */}
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            onChange={handleVideoFileChange}
+            disabled={isUploading || isUploadingVideo || imageUrls.length >= 20}
             className="hidden"
           />
 
           {uploadError && <p className="text-xs font-semibold text-red-600">{uploadError}</p>}
+          {videoUploadError && <p className="text-xs font-semibold text-red-600">{videoUploadError}</p>}
           {isUploading && (
             <p className="text-xs font-bold text-amber-600 flex items-center gap-1.5">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
               <span>이미지를 업로드하고 있습니다...</span>
             </p>
           )}
+          {isUploadingVideo && (
+            <p className="text-xs font-bold text-blue-600 flex items-center gap-1.5">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>동영상을 업로드하고 있습니다 (최대 1GB)...</span>
+            </p>
+          )}
 
-          {/* 등록된 이미지 썸네일 그리드 & 개별 삭제 버튼 */}
+          {/* 등록된 미디어 썸네일 그리드 & 개별 삭제 버튼 */}
           {imageUrls.length > 0 ? (
             <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs font-semibold text-neutral-700">
                 <div className="flex items-center gap-2">
-                  <span>📷 등록된 미디어 캐러셀</span>
+                  <span>📷 🎬 등록된 미디어 캐러셀</span>
                   <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-bold text-neutral-700 border border-neutral-200">
-                    {imageUrls.length} / 20장
+                    {imageUrls.length} / 20개
                   </span>
                 </div>
                 <button
@@ -1218,189 +1256,203 @@ export function ProductPostForm({
                   onClick={handleClearAllImages}
                   className="text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 cursor-pointer transition-colors"
                 >
-                  <span>🗑️ 전체 이미지 삭제</span>
+                  <span>🗑️ 전체 미디어 삭제</span>
                 </button>
               </div>
-              <p className="text-[11px] text-blue-600 font-normal">
-                * 생성/추가된 이미지 중 마음에 드는 것만 남기고 ✕로 삭제하거나, ◀ ▶로 순서를 조정하세요.
-              </p>
+
+              <div className="space-y-1">
+                <p className="text-[11px] text-blue-600 font-normal">
+                  * 이미지(JPG, PNG)와 동영상(MP4, MOV)을 자유롭게 섞어 최대 20개의 혼합 캐러셀로 포스팅할 수 있습니다. ◀ ▶로 순서를 조정하세요.
+                </p>
+                <p className="text-[11px] text-neutral-500 font-normal flex items-center gap-1">
+                  <span>⏳</span>
+                  <span><strong>데이터 보관 기간</strong>: 등록 시점 기준 30일 후 자동 삭제 (불필요한 파일은 언제든 수동 삭제 가능)</span>
+                </p>
+              </div>
+
               <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                {imageUrls.map((url, idx) => (
-                  <div
-                    key={idx}
-                    className="group relative rounded-xl border border-neutral-200 bg-neutral-100 p-1 overflow-hidden shadow-2xs hover:border-neutral-400 hover:shadow-xs transition-all"
-                  >
-                    {/* 이미지 클릭 시 라이트박스 확대 보기 */}
+                {imageUrls.map((url, idx) => {
+                  const isVid = isVideoUrl(url);
+                  return (
                     <div
-                      onClick={() => {
-                        setLightboxIndex(idx);
-                        setLightboxOpen(true);
-                      }}
-                      className="relative h-28 w-full overflow-hidden rounded-lg cursor-pointer bg-neutral-200"
-                      title="클릭하여 전체 이미지 확대 보기"
+                      key={idx}
+                      className="group relative rounded-xl border border-neutral-200 bg-neutral-100 p-1 overflow-hidden shadow-2xs hover:border-neutral-400 hover:shadow-xs transition-all"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={url}
-                        alt={`미디어 ${idx + 1}`}
-                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
-                      />
-
-                      {/* 호버 시 돋보기 오버레이 */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
-                        <span className="opacity-0 group-hover:opacity-100 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-xs transition-all transform scale-95 group-hover:scale-100 flex items-center gap-1 shadow-md">
-                          <ZoomIn className="h-3 w-3 text-amber-300" />
-                          <span>확대 보기</span>
-                        </span>
-                      </div>
-                    </div>
-
-                    <span className="absolute top-2 left-2 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-extrabold text-white shadow-xs pointer-events-none">
-                      {idx + 1}
-                    </span>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeImage(idx);
-                      }}
-                      className="absolute top-2 right-2 rounded-full bg-red-600 hover:bg-red-700 p-1.5 text-white shadow-xs transition-transform hover:scale-110 cursor-pointer z-10"
-                      title={`이미지 ${idx + 1} 삭제`}
-                    >
-                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-
-                    {/* 카드 하단 액션: 순서 이동 (◀ ▶) 및 삭제 */}
-                    <div className="mt-1 flex items-center justify-between px-1 text-[10px] text-neutral-500">
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveImage(idx, idx - 1);
-                          }}
-                          disabled={idx === 0}
-                          className="rounded px-1 py-0.5 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-700 font-bold"
-                          title="앞으로 이동"
+                      {isVid ? (
+                        /* 동영상 썸네일/미리보기 */
+                        <div
+                          onClick={() => window.open(url, "_blank")}
+                          className="relative h-28 w-full overflow-hidden rounded-lg cursor-pointer bg-black flex items-center justify-center"
+                          title="클릭하여 새 탭에서 영상 재생"
                         >
-                          ◀
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveImage(idx, idx + 1);
+                          <video src={url} className="h-full w-full object-cover opacity-80" />
+                          <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                            <span className="bg-black/75 text-white p-2 rounded-full shadow-md flex items-center gap-1 group-hover:scale-110 transition-transform">
+                              <Play className="h-4 w-4 fill-white text-white" />
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        /* 이미지 클릭 시 라이트박스 확대 보기 */
+                        <div
+                          onClick={() => {
+                            setLightboxIndex(idx);
+                            setLightboxOpen(true);
                           }}
-                          disabled={idx === imageUrls.length - 1}
-                          className="rounded px-1 py-0.5 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-700 font-bold"
-                          title="뒤로 이동"
+                          className="relative h-28 w-full overflow-hidden rounded-lg cursor-pointer bg-neutral-200"
+                          title="클릭하여 전체 이미지 확대 보기"
                         >
-                          ▶
-                        </button>
-                      </div>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={url}
+                            alt={`미디어 ${idx + 1}`}
+                            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                          />
+
+                          {/* 호버 시 돋보기 오버레이 */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                            <span className="opacity-0 group-hover:opacity-100 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-xs transition-all transform scale-95 group-hover:scale-100 flex items-center gap-1 shadow-md">
+                              <ZoomIn className="h-3 w-3 text-amber-300" />
+                              <span>확대 보기</span>
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 번호 및 미디어 타입 배지 */}
+                      <span className="absolute top-2 left-2 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-extrabold text-white shadow-xs pointer-events-none flex items-center gap-1">
+                        {isVid ? <span>🎬 {idx + 1}</span> : <span>📷 {idx + 1}</span>}
+                      </span>
+
+                      {/* 수동 개별 삭제 버튼 */}
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeImage(idx);
                         }}
-                        className="text-red-500 hover:text-red-700 font-bold hover:underline cursor-pointer"
+                        className="absolute top-2 right-2 rounded-full bg-red-600 hover:bg-red-700 p-1.5 text-white shadow-xs transition-transform hover:scale-110 cursor-pointer z-10"
+                        title={`미디어 ${idx + 1} 수동 삭제`}
                       >
-                        삭제
+                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                       </button>
-                    </div>
-                  </div>
-                ))}
 
-                {/* + 추가하기 점선 카드 (20장 미만일 때) */}
+                      {/* 카드 하단 액션: 순서 이동 (◀ ▶) 및 삭제 */}
+                      <div className="mt-1 flex items-center justify-between px-1 text-[10px] text-neutral-500">
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveImage(idx, idx - 1);
+                            }}
+                            disabled={idx === 0}
+                            className="rounded px-1 py-0.5 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-700 font-bold"
+                            title="앞으로 이동"
+                          >
+                            ◀
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveImage(idx, idx + 1);
+                            }}
+                            disabled={idx === imageUrls.length - 1}
+                            className="rounded px-1 py-0.5 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-700 font-bold"
+                            title="뒤로 이동"
+                          >
+                            ▶
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeImage(idx);
+                          }}
+                          className="text-red-500 hover:text-red-700 font-bold hover:underline cursor-pointer"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* + 이미지 추가 점선 카드 (20개 미만일 때) */}
                 {imageUrls.length < 20 && (
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
+                    disabled={isUploading || isUploadingVideo}
                     className="flex h-36 flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50/50 hover:bg-neutral-100/70 hover:border-neutral-400 transition-all cursor-pointer text-neutral-500 hover:text-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="내 PC에서 이미지 추가"
                   >
-                    <span className="text-xl">➕</span>
-                    <span className="text-xs font-bold">{isUploading ? "업로드 중..." : "이미지 추가"}</span>
+                    <span className="text-xl">📷</span>
+                    <span className="text-xs font-bold">{isUploading ? "업로드 중..." : "+ 이미지 추가"}</span>
                     <span className="text-[10px] text-neutral-400">({imageUrls.length}/20)</span>
+                  </button>
+                )}
+
+                {/* + 영상 추가 점선 카드 (20개 미만일 때) */}
+                {imageUrls.length < 20 && (
+                  <button
+                    type="button"
+                    onClick={() => videoInputRef.current?.click()}
+                    disabled={isUploading || isUploadingVideo}
+                    className="flex h-36 flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-blue-200 bg-blue-50/30 hover:bg-blue-50/70 hover:border-blue-400 transition-all cursor-pointer text-blue-600 hover:text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="내 PC에서 동영상 추가 (MP4, MOV)"
+                  >
+                    <span className="text-xl">🎬</span>
+                    <span className="text-xs font-bold">{isUploadingVideo ? "업로드 중..." : "+ 영상 추가"}</span>
+                    <span className="text-[10px] text-blue-400">(최대 1GB)</span>
                   </button>
                 )}
               </div>
             </div>
           ) : (
-            /* 등록된 이미지가 없을 때의 안내 박스 + 바로 추가 버튼 */
-            <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 p-6 text-center text-xs text-neutral-500 space-y-2.5">
-              <p className="font-semibold text-neutral-700 text-sm">등록된 이미지가 없습니다.</p>
-              <p className="text-[11px] text-neutral-400">
-                위의 AI 이미지 생성기를 이용하거나, 아래 버튼을 눌러 내 PC의 이미지를 추가해보세요. (최대 20장)
+            /* 등록된 미디어가 없을 때의 안내 박스 + 바로 추가 버튼 */
+            <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 p-6 text-center text-xs text-neutral-500 space-y-3">
+              <p className="font-semibold text-neutral-700 text-sm">등록된 미디어가 없습니다.</p>
+              <p className="text-[11px] text-neutral-400 max-w-md mx-auto">
+                위의 AI 이미지 생성기를 이용하거나, 아래 버튼을 눌러 내 PC의 이미지 또는 영상을 자유롭게 추가해보세요. (최대 20개 혼합 캐러셀 지원)
               </p>
-              <div>
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button
                   type="button"
                   variant="secondary"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="text-xs font-bold py-2 px-4 cursor-pointer"
+                  disabled={isUploading || isUploadingVideo}
+                  className="text-xs font-bold py-2 px-3.5 cursor-pointer flex items-center gap-1.5"
                 >
-                  {isUploading ? "업로드 중..." : "📂 내 PC에서 이미지 파일 추가"}
+                  <span>📷</span>
+                  <span>{isUploading ? "업로드 중..." : "이미지 파일 추가"}</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => videoInputRef.current?.click()}
+                  disabled={isUploading || isUploadingVideo}
+                  className="text-xs font-bold py-2 px-3.5 cursor-pointer flex items-center gap-1.5 text-blue-700 border-blue-200 hover:bg-blue-50"
+                >
+                  <span>🎬</span>
+                  <span>{isUploadingVideo ? "업로드 중..." : "영상 파일 추가 (최대 1GB)"}</span>
                 </Button>
               </div>
+              <p className="text-[10px] text-neutral-400">
+                ⏳ 데이터 보관 기간: 등록 시점 기준 30일 후 자동 삭제 (불필요한 파일은 언제든 수동 삭제 가능)
+              </p>
             </div>
           )}
           <input type="hidden" name="imageUrl" value={imageUrls.join(",")} />
-        </div>
-
-        {/* 🎬 영상 (선택) (흰색 카드) */}
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-2xs space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-neutral-800">🎬 동영상 첨부 (선택)</label>
-            <span className="text-[11px] text-neutral-400">MP4/MOV, 최대 1GB, 최대 5분</span>
-          </div>
-          <p className="text-xs text-neutral-500 leading-relaxed">
-            이미지와 영상은 동시에 첨부할 수 없습니다 — 영상을 등록하면 이미지는 자동으로 해제됩니다.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <input
-              ref={videoInputRef}
-              type="file"
-              accept="video/*"
-              onChange={handleVideoFileChange}
-              disabled={isUploadingVideo}
-              className="hidden"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => videoInputRef.current?.click()}
-              disabled={isUploadingVideo}
-            >
-              {isUploadingVideo ? "업로드 중..." : "영상 직접 등록하기"}
-            </Button>
-          </div>
-          {videoUploadError && <p className="text-xs text-red-600">{videoUploadError}</p>}
-          <Input
+          <input
+            type="hidden"
             name="videoUrl"
-            type="url"
-            value={videoUrl}
-            onChange={(e) => {
-              setVideoUrl(e.target.value);
-              if (e.target.value) setImageUrls([]);
-            }}
-            placeholder="https://example.com/video.mp4 (또는 위에서 직접 업로드)"
-            className="mt-2 text-sm bg-neutral-50/50"
+            value={imageUrls.find((u) => isVideoUrl(u)) ?? videoUrl ?? ""}
           />
-          {videoUrl && (
-            <video
-              src={videoUrl}
-              controls
-              className="mt-2 max-h-40 rounded-lg border border-neutral-200"
-            />
-          )}
         </div>
       </section>
 

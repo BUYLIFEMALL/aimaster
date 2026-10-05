@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 import { publishThreadsPost } from "@/lib/threads/client";
 
+import { isVideoUrl } from "@/lib/mediaRetention";
+
 interface PublishPostParams {
   supabase: SupabaseClient<Database>;
   postId: string;
@@ -32,21 +34,32 @@ export async function publishPost(params: PublishPostParams): Promise<PublishPos
     .eq("user_id", userId);
 
   try {
-    // imageUrl에 쉼표(,)로 연결된 여러 개의 URL이 존재하거나 imageUrls 배열이 주어진 경우 캐러셀 목록으로 파싱
-    let parsedImageUrls: string[] = [];
+    // 모든 이미지 및 비디오 URL 수집 및 미디어 아이템 구성 (혼합 캐러셀 지원)
+    const rawUrls: string[] = [];
     if (imageUrls && imageUrls.length > 0) {
-      parsedImageUrls = imageUrls;
-    } else if (imageUrl && imageUrl.includes(",")) {
-      parsedImageUrls = imageUrl.split(",").map((url) => url.trim()).filter(Boolean);
+      rawUrls.push(...imageUrls);
+    } else if (imageUrl) {
+      rawUrls.push(...imageUrl.split(",").map((url) => url.trim()).filter(Boolean));
     }
+    if (videoUrl) {
+      const vUrls = videoUrl.split(",").map((url) => url.trim()).filter(Boolean);
+      for (const v of vUrls) {
+        if (!rawUrls.includes(v)) rawUrls.push(v);
+      }
+    }
+
+    const mediaItems: Array<{ url: string; type: "IMAGE" | "VIDEO" }> = rawUrls.map((url) => ({
+      url,
+      type: isVideoUrl(url) ? "VIDEO" : "IMAGE",
+    }));
 
     const { threadsPostId, permalink } = await publishThreadsPost({
       accessToken,
       threadsUserId,
       text: content,
-      imageUrl: parsedImageUrls.length > 0 ? null : imageUrl,
-      videoUrl,
-      imageUrls: parsedImageUrls.length > 0 ? parsedImageUrls : null,
+      mediaItems: mediaItems.length > 0 ? mediaItems : null,
+      imageUrl: mediaItems.length === 1 && mediaItems[0].type === "IMAGE" ? mediaItems[0].url : null,
+      videoUrl: mediaItems.length === 1 && mediaItems[0].type === "VIDEO" ? mediaItems[0].url : null,
     });
 
     await supabase

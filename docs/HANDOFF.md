@@ -9,6 +9,16 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.45, 2026-10-05)
+
+- **혼합 미디어 캐러셀(이미지+동영상 동시 포스팅) 및 30일 보관/자동·수동 삭제 파이프라인 (v1.45)**:
+  - 주인님 지시 반영: 쓰레드 포스팅 시 이미지와 동영상을 동시에 혼합하여 최대 20개까지 캐러셀로 발행할 수 있도록 파이프라인 전면 개편.
+  - `ProductPostForm.tsx`: 이미지와 영상의 상호 배타적 초기화를 제거하고, 통합 캐러셀 그리드에서 `[➕ 이미지 추가]`와 `[🎬 영상 추가]`로 자유롭게 추가/순서 이동/동영상 미리보기를 지원.
+  - `PostMediaViewer.tsx`: 게시물 상세 페이지에서 이미지와 영상이 함께 들어있는 혼합 캐러셀을 슬라이드로 부드럽게 탐색 및 동영상 인라인 재생 지원.
+  - **30일 자동 삭제**: `src/lib/mediaRetention.ts`, `src/app/api/cron/cleanup-media/route.ts`, `vercel.json`(매일 03:00 KST)을 통해 등록 시점 기준 30일 경과 미디어 및 게시물 자동 영구 삭제.
+  - **사용자 수동 삭제**: 작성 폼 개별 ✕ 및 전체 미디어 삭제 시 `deleteMediaFileAction`으로 스토리지 파일 즉시 회수, 게시글 삭제 시(`deletePostAction`)에도 Storage 파일 동시 정리.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.45`로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.44, 2026-10-05)
 
 - **불필요한 중복 이미지 추가/삭제 관리 박스 제거 및 캐러셀 UI 일원화 (v1.44)**:
