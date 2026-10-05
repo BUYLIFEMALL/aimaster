@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.13`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.14`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
 
 ## 절대 규칙
 
@@ -12,7 +12,7 @@
 - 권한이 관여하는 `page.tsx`/`route.ts`에는 `dynamic = "force-dynamic"`와 `fetchCache = "force-no-store"`를 함께 둡니다.
 - 자동 발행과 예약은 기본 OFF입니다. 회원이 웹에서 명시적으로 실행 또는 예약한 경우에만 처리합니다.
 
-## v1.13 완료 사항
+## v1.14 완료 사항
 
 - 회원별 Threads 앱 자격증명 저장 Server Action과 Meta OAuth 시작 화면을 구현했습니다.
 - OAuth `state`는 사용자 ID가 아니라 HTTP 전용·10분 만료 난수 쿠키로 검증합니다.
@@ -24,6 +24,7 @@
 - `docs/SIDEBAR_LAYOUT_STANDARD.md`를 따라 `/threads-content-ops`에서는 AIMaster 공용 사이드바를 숨기고, 화면 가장자리의 고정 프로그램 전용 사이드바 하나만 표시합니다. 하단에는 로그인 계정·로그아웃을 둡니다.
 - 배경은 AIMaster 다크 토큰으로 고정했다: 본문 `bg-dark`(`#0a0a0f`), 좌측 바 `bg-dark-50`(`#12121a`), 경계 `border-dark-200`(`#222232`). 카드만 그 위 단계로 표시한다.
 - `API키등록·플랫폼연동`은 업무 흐름 메뉴 바로 아래 유틸리티 영역에 둔다. 하단 고정 영역은 로그인 계정과 로그아웃만 둔다.
+- 로그인 이메일과 로그아웃도 API키등록·플랫폼연동 바로 아래에 이어 붙인다. 사이드바 하단에 별도 고정하지 않는다.
 
 ## 다음 단계
 

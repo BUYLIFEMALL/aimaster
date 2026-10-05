@@ -1,9 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## Threads Content Ops v1.13 — sidebar utility order (2026-10-06)
+## Threads Content Ops v1.14 — compact sidebar account order (2026-10-06)
 
 - 프로그램 전용 화면의 배경 단계와 여백을 AIMaster 다크 레이아웃에 맞췄다. 본문은 `#0a0a0f`, 좌측 고정 메뉴는 `#12121a`, 경계는 `#222232`이며 카드만 한 단계 위로 올라온다.
-- `API키등록·플랫폼연동`은 번호형 업무 흐름 바로 아래 유틸리티 메뉴로 이동했다. 하단 고정 영역은 로그인 계정·로그아웃만 유지한다.
+- `API키등록·플랫폼연동`은 번호형 업무 흐름 바로 아래 유틸리티 메뉴로 이동했다. 로그인 이메일과 로그아웃도 그 아래에 이어 붙였으며, 하단 고정 영역을 제거했다.
 
 ## Threads Content Ops v1.11 — sidebar standard correction (2026-10-06)
 
