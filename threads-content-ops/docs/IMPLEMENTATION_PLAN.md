@@ -22,6 +22,8 @@
 
 루트 AIMaster에 아래를 새로 구현한다. 기존 자동화 프로그램의 route나 UI를 수정하지 않고, `threads-content-ops` 전용 경로와 구성요소를 만든다.
 
+진행 현황(2026-10-05): `app/(dashboard)/threads-content-ops` 전용 대시보드와 기기별 연동 토큰 발급/폐기 액션, `GET /api/threads-content-ops/whoami` 토큰 검증 API를 추가했다. 모든 쓰기·검증 경로는 `threads-content-ops` 이용 권한을 다시 확인하며, 페이지와 route에는 동적 렌더링·무캐시 선언을 넣었다. 프로그램 DB 등록 전에는 권한 판정으로 접근이 막히는 것이 정상이다.
+
 1. 프로그램 상세/다운로드/개인 액세스 토큰 페이지
 2. `personal_access_tokens` 기반의 `threads-content-ops` 전용 토큰 검증 API
 3. 이용권한 미보유 시 JSON 403 응답 및 구매 화면 안내
