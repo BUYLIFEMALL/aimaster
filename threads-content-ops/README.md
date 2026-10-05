@@ -1,18 +1,19 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.06`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.07`
 
 ## 목적
 
 별도 PC 프로그램 설치 없이 AIMaster 웹에서 개인 Threads 계정을 연결하고, 이후 AI 초안 생성·검토·명시적 발행·예약을 처리하는 회원별 콘텐츠 운영 프로그램입니다.
 
-## 현재 실제 동작 범위 (v1.06)
+## 현재 실제 동작 범위 (v1.07)
 
 - AIMaster 로그인과 `threads-content-ops` 이용 권한을 확인한 회원만 화면과 연동 기능을 사용할 수 있습니다.
 - 회원이 직접 만든 Meta Developers Threads 앱의 `threads_app_id`와 `threads_app_secret`만 저장합니다. 운영자 공용 Meta 앱 또는 공용 API 키는 사용하지 않습니다.
 - `https://www.buylife.xyz/api/threads-content-ops/callback` OAuth 콜백으로 Threads 계정을 연결합니다.
 - OAuth의 난수 `state`를 HTTP 전용·10분 만료 쿠키로 검증하고, 단기 토큰을 장기 토큰으로 교환한 뒤 서버에서만 저장합니다.
 - 연결 계정은 `tco_threads_accounts`, 향후 초안·예약·발행 이력은 `tco_posts`에 `user_id` 기준으로 분리 저장됩니다. 두 테이블은 owner-only RLS를 사용합니다.
+- 연결된 계정을 선택해 주제를 입력하면, 회원 본인의 OpenAI API 키로 Threads 초안을 한 번 생성하고 본인 `tco_posts` 초안으로 저장합니다.
 
 아직 초안 편집·발행·예약 화면은 다음 단계입니다. 아직 구현되지 않은 기능을 동작하는 것처럼 표시하거나 자동 발행하지 않습니다.
 

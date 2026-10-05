@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads Content Ops v1.07 — member-key draft generation (2026-10-05)
+
+- 연결된 회원이 주제를 입력하면 회원 본인의 `user_api_keys.openai` 키로만 Threads 초안을 생성하고, 소유자 RLS가 적용된 `tco_posts`에 `draft`로 저장한다. 버튼 클릭 전 AI 호출은 없고, 운영자 키 폴백도 없다.
+- 다음 단계는 초안 검토·수정 후의 명시적 1회 발행이다. 예약·자동 발행은 아직 만들지 않는다.
+
 ## Threads Content Ops v1.06 — web OAuth account connection (2026-10-05)
 
 - `/threads-content-ops`에 회원별 OpenAI/Threads 앱 자격증명 저장과 **내 Threads 계정 연결하기**를 실제로 추가했다.
@@ -787,6 +792,5 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
-
 
 

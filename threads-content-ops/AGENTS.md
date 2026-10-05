@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.06`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.07`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
 
 ## 절대 규칙
 
@@ -12,17 +12,17 @@
 - 권한이 관여하는 `page.tsx`/`route.ts`에는 `dynamic = "force-dynamic"`와 `fetchCache = "force-no-store"`를 함께 둡니다.
 - 자동 발행과 예약은 기본 OFF입니다. 회원이 웹에서 명시적으로 실행 또는 예약한 경우에만 처리합니다.
 
-## v1.06 완료 사항
+## v1.07 완료 사항
 
 - 회원별 Threads 앱 자격증명 저장 Server Action과 Meta OAuth 시작 화면을 구현했습니다.
 - OAuth `state`는 사용자 ID가 아니라 HTTP 전용·10분 만료 난수 쿠키로 검증합니다.
 - 콜백은 코드 교환 뒤 장기 토큰으로 교환하고, Threads 프로필과 토큰 만료시각을 `tco_threads_accounts`에 회원별로 저장합니다.
 - `0005_web_multitenancy.sql`의 `tco_threads_accounts`/`tco_posts`는 RLS owner-only입니다.
+- 연결 계정 선택·주제 입력으로 회원 본인의 OpenAI 키를 호출해 초안을 생성하고, `tco_posts`에 `draft`로 저장합니다. 클릭 전에는 AI 호출이 발생하지 않습니다.
 
 ## 다음 단계
 
-1. 연결된 계정에서 AI 초안을 생성·저장하는 웹 화면과 쓰기 API를 만든다.
-2. 초안 검토 후 명시적 1회 발행을 Threads 공식 API로 구현하고 실제 테스트 계정으로 검증한다.
-3. 예약은 명시적 opt-in, 취소, 실행 이력, 실패 재시도 정책을 포함해 별도 단계로 구현한다.
+1. 초안 검토·수정 후 명시적 1회 발행을 Threads 공식 API로 구현하고 실제 테스트 계정으로 검증한다.
+2. 예약은 명시적 opt-in, 취소, 실행 이력, 실패 재시도 정책을 포함해 별도 단계로 구현한다.
 
 작업 완료 시 루트 정책대로 빌드, 선택적 git add, 커밋, 푸시, `vercel deploy --prod --yes --scope buylife`, 문서 갱신까지 한 작업 세트로 끝냅니다.
