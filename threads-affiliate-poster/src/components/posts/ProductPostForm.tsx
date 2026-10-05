@@ -4,8 +4,9 @@ import { startTransition, useActionState, useEffect, useRef, useState, useTransi
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, ZoomIn } from "lucide-react";
 import { PostContentRenderer } from "@/components/posts/PostContentRenderer";
+import { ImageLightboxModal } from "@/components/ui/ImageLightboxModal";
 import type { PostActionState } from "@/lib/actions/posts";
 import { generateAffiliateContentAction, generateImageAction } from "@/lib/actions/ai";
 import { createClient } from "@/lib/supabase/client";
@@ -94,6 +95,8 @@ export function ProductPostForm({
   };
 
   const [imageUrls, setImageUrls] = useState<string[]>(parseInitialImages(initialImageUrl));
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1295,21 +1298,44 @@ export function ProductPostForm({
                 {imageUrls.map((url, idx) => (
                   <div
                     key={idx}
-                    className="group relative rounded-xl border border-neutral-200 bg-neutral-100 p-1 overflow-hidden shadow-2xs hover:border-neutral-400 transition-all"
+                    className="group relative rounded-xl border border-neutral-200 bg-neutral-100 p-1 overflow-hidden shadow-2xs hover:border-neutral-400 hover:shadow-xs transition-all"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={url}
-                      alt={`미디어 ${idx + 1}`}
-                      className="h-28 w-full rounded-lg object-cover"
-                    />
-                    <span className="absolute top-2 left-2 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-extrabold text-white shadow-xs">
+                    {/* 이미지 클릭 시 라이트박스 확대 보기 */}
+                    <div
+                      onClick={() => {
+                        setLightboxIndex(idx);
+                        setLightboxOpen(true);
+                      }}
+                      className="relative h-28 w-full overflow-hidden rounded-lg cursor-pointer bg-neutral-200"
+                      title="클릭하여 전체 이미지 확대 보기"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`미디어 ${idx + 1}`}
+                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      />
+
+                      {/* 호버 시 돋보기 오버레이 */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                        <span className="opacity-0 group-hover:opacity-100 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-xs transition-all transform scale-95 group-hover:scale-100 flex items-center gap-1 shadow-md">
+                          <ZoomIn className="h-3 w-3 text-amber-300" />
+                          <span>확대 보기</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="absolute top-2 left-2 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-extrabold text-white shadow-xs pointer-events-none">
                       {idx + 1}
                     </span>
+
                     <button
                       type="button"
-                      onClick={() => removeImage(idx)}
-                      className="absolute top-2 right-2 rounded-full bg-red-600 hover:bg-red-700 p-1.5 text-white shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage(idx);
+                      }}
+                      className="absolute top-2 right-2 rounded-full bg-red-600 hover:bg-red-700 p-1.5 text-white shadow-xs transition-transform hover:scale-110 cursor-pointer z-10"
                       title={`이미지 ${idx + 1} 삭제`}
                     >
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1322,7 +1348,10 @@ export function ProductPostForm({
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={() => moveImage(idx, idx - 1)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveImage(idx, idx - 1);
+                          }}
                           disabled={idx === 0}
                           className="rounded px-1 py-0.5 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-700 font-bold"
                           title="앞으로 이동"
@@ -1331,7 +1360,10 @@ export function ProductPostForm({
                         </button>
                         <button
                           type="button"
-                          onClick={() => moveImage(idx, idx + 1)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveImage(idx, idx + 1);
+                          }}
                           disabled={idx === imageUrls.length - 1}
                           className="rounded px-1 py-0.5 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-700 font-bold"
                           title="뒤로 이동"
@@ -1341,7 +1373,10 @@ export function ProductPostForm({
                       </div>
                       <button
                         type="button"
-                        onClick={() => removeImage(idx)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage(idx);
+                        }}
                         className="text-red-500 hover:text-red-700 font-bold hover:underline cursor-pointer"
                       >
                         삭제
@@ -1537,6 +1572,15 @@ export function ProductPostForm({
           </p>
         )}
       </section>
+
+      {/* 전체 이미지 확대 보기 라이트박스 모달 */}
+      <ImageLightboxModal
+        isOpen={lightboxOpen}
+        images={imageUrls}
+        currentIndex={lightboxIndex}
+        onClose={() => setLightboxOpen(false)}
+        onIndexChange={setLightboxIndex}
+      />
     </form>
   );
 }

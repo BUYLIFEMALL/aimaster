@@ -331,6 +331,15 @@ vercel deploy --prod --yes
      - `src/components/posts/ProductPostForm.tsx`: 새 게시글 작성 화면 본문 입력창 아래에 "🔗 상품 링크 바로가기 검수" 실시간 프리뷰 박스 연동.
      - `src/components/trends/ViralPostDetector.tsx`: 떡상 탐지기 결과 캡션 영역에도 `PostContentRenderer` 적용.
 
+25. **생성 및 등록된 이미지 클릭 시 전체 이미지 확대 뷰어(라이트박스 모달) 연동 (2026-10-05, v1.39)**:
+   - **개편 배경**: 새 게시글 작성 화면(`/posts/new`)에서 "생성된 이미지를 클릭했을 때 전체 이미지를 볼 수 있게 해줘" 지시 완벽 반영.
+   - **조치 사항**:
+     - `src/components/ui/ImageLightboxModal.tsx` 신설: 고화질 원본 전체 화면 모달, 이전/다음 네비게이션(◀, ▶, 키보드 좌우 화살표), ESC 키 닫기, 새 탭 원본 열기, 하단 썸네일 스트립 연동.
+     - `src/components/posts/ProductPostForm.tsx`:
+       - 썸네일 그리드에 호버 시 돋보기 아이콘 및 "확대 보기" 오버레이 적용.
+       - 썸네일 클릭 시 해당 이미지 인덱스로 라이트박스 전체 화면 모달 즉시 팝업.
+       - 삭제 버튼 및 순서 이동 버튼 클릭 시 이벤트 버블링 방지(`e.stopPropagation()`).
+
 
 
 
