@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.14`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.15`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
 
 ## 절대 규칙
 
@@ -12,7 +12,7 @@
 - 권한이 관여하는 `page.tsx`/`route.ts`에는 `dynamic = "force-dynamic"`와 `fetchCache = "force-no-store"`를 함께 둡니다.
 - 자동 발행과 예약은 기본 OFF입니다. 회원이 웹에서 명시적으로 실행 또는 예약한 경우에만 처리합니다.
 
-## v1.14 완료 사항
+## v1.15 완료 사항
 
 - 회원별 Threads 앱 자격증명 저장 Server Action과 Meta OAuth 시작 화면을 구현했습니다.
 - OAuth `state`는 사용자 ID가 아니라 HTTP 전용·10분 만료 난수 쿠키로 검증합니다.
@@ -25,6 +25,7 @@
 - 배경은 AIMaster 다크 토큰으로 고정했다: 본문 `bg-dark`(`#0a0a0f`), 좌측 바 `bg-dark-50`(`#12121a`), 경계 `border-dark-200`(`#222232`). 카드만 그 위 단계로 표시한다.
 - `API키등록·플랫폼연동`은 업무 흐름 메뉴 바로 아래 유틸리티 영역에 둔다. 하단 고정 영역은 로그인 계정과 로그아웃만 둔다.
 - 로그인 이메일과 로그아웃도 API키등록·플랫폼연동 바로 아래에 이어 붙인다. 사이드바 하단에 별도 고정하지 않는다.
+- `threads-content-ops` 작업 화면은 `threads`·`threads-affiliate-poster`와 동일한 흰색 배경, 중성 회색 경계, 어두운 본문 글자 구조를 사용한다. 루트 AIMaster의 다크 테마를 이 프로그램 화면에 억지로 적용하지 않는다.
 
 ## 다음 단계
 
