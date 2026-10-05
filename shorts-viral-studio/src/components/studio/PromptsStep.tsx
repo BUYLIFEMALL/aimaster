@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { generatePromptsAction } from "@/lib/actions/svs";
+import { savePromptSetAction } from "@/lib/actions/savedPrompts";
 import { downloadMarkdown } from "@/lib/export";
 import { useStudio } from "@/components/studio/StudioProvider";
 import {
@@ -15,40 +17,8 @@ import {
   SaveStatus,
   StepHeader,
   GhostButton,
+  CopyBox,
 } from "@/components/studio/ui";
-
-function CopyBox({ label, text, tone }: { label: string; text: string; tone: "dark" | "green" | "rose" }) {
-  const [copied, setCopied] = useState(false);
-  const badge =
-    tone === "dark" ? "bg-neutral-900 text-white" : tone === "green" ? "bg-emerald-600 text-white" : "bg-rose-600 text-white";
-  return (
-    <div>
-      <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className={`rounded px-2 py-0.5 text-[11px] font-extrabold ${badge}`}>{label}</span>
-        <button
-          type="button"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(text);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 1500);
-            } catch {
-              // 클립보드 권한이 없으면 직접 선택해서 복사하도록 둡니다.
-            }
-          }}
-          className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-            copied ? "border-emerald-500 text-emerald-600" : "border-neutral-200 text-neutral-600 hover:bg-neutral-100"
-          }`}
-        >
-          {copied ? "복사됨!" : "복사"}
-        </button>
-      </div>
-      <div className="whitespace-pre-wrap break-words rounded-lg border border-neutral-200 bg-white p-3 font-mono text-xs leading-relaxed text-neutral-800">
-        {text}
-      </div>
-    </div>
-  );
-}
 
 export function PromptsStep() {
   const router = useRouter();
@@ -57,6 +27,35 @@ export function PromptsStep() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const autoRan = useRef(false);
+  const [vault, setVault] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [vaultError, setVaultError] = useState<string | null>(null);
+
+  // 프롬프트를 새로 만들면 다시 저장할 수 있게 상태를 초기화
+  useEffect(() => {
+    setVault("idle");
+    setVaultError(null);
+  }, [data.promptsResult]);
+
+  async function saveToVault() {
+    const result = data.promptsResult;
+    if (!result || !data.selectedIdea) return;
+    setVault("saving");
+    setVaultError(null);
+    const res = await savePromptSetAction({
+      title: data.selectedIdea.title,
+      ideaTitle: data.selectedIdea.title,
+      hook: data.selectedIdea.hook,
+      keyword: data.search.query,
+      bgmPrompt: result.bgmPrompt,
+      prompts: result.prompts,
+    });
+    if (res.success) {
+      setVault("saved");
+    } else {
+      setVault("error");
+      setVaultError(res.error ?? "보관함에 저장하지 못했습니다.");
+    }
+  }
 
   const run = useCallback(async () => {
     if (!data.selectedIdea || data.scenes.length === 0) return;
@@ -111,9 +110,24 @@ export function PromptsStep() {
         <PrimaryButton onClick={run} disabled={running}>
           {running ? "생성 중…" : result ? "프롬프트 다시 만들기" : "프롬프트 생성"}
         </PrimaryButton>
+        {result && (
+          <GhostButton
+            onClick={saveToVault}
+            disabled={vault === "saving" || vault === "saved"}
+            className="border-rose-300 text-rose-600"
+          >
+            {vault === "saving" ? "저장 중…" : vault === "saved" ? "✓ 보관함에 저장됨" : "💾 보관함에 저장"}
+          </GhostButton>
+        )}
         <GhostButton onClick={() => downloadMarkdown(data)}>📥 전체 프로젝트 .md 저장</GhostButton>
         <SaveStatus />
+        {vault === "saved" && (
+          <Link href="/vault" className="text-xs font-semibold text-rose-600 underline">
+            📚 보관함 보기
+          </Link>
+        )}
       </div>
+      {vault === "error" && <ErrorBanner message={vaultError} />}
 
       <ErrorBanner message={error} />
       {running && <LoadingCard title="프롬프트 생성 중…" desc="씬별 이미지·영상 프롬프트와 BGM 프롬프트를 작성하고 있습니다." />}

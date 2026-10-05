@@ -4,7 +4,7 @@
 인수인계·설계 이유·남은 일은 [`AGENTS.md`](./AGENTS.md)에 자세히 있습니다.
 
 - 라이브: https://shorts-viral-studio.vercel.app
-- 버전: v1.02 (`src/lib/version.ts` ↔ 공용 DB `programs.version`)
+- 버전: v1.03 (`src/lib/version.ts` ↔ 공용 DB `programs.version`)
 - 방식: 회원 본인의 **YouTube Data API 키 + AI 키(GPT/Claude/Gemini 중 1개 이상)** 로 동작합니다. 운영자 키는 쓰지 않습니다.
 - Gemini 엔진은 공개 쇼츠 영상을 직접 보고 분석하고, GPT·Claude는 제목·지표·댓글 기반 추정으로 분석합니다(화면에 구분 표시).
 - 프로젝트는 만든 지 30일 뒤 자동 삭제됩니다(YouTube API 데이터 보관 정책). `.md`로 내보내 보관하세요.
@@ -28,7 +28,8 @@ npm run build
 
 ## DB
 
-- `svs_projects` — 회원별 프로젝트 저장(RLS 본인만). 마이그레이션: `supabase/migrations/0001_svs_projects.sql`
+- `svs_projects` — 회원별 프로젝트 저장(RLS 본인만, 30일 보관). 마이그레이션: `supabase/migrations/0001_svs_projects.sql`
+- `svs_saved_prompts` — 프롬프트 보관함(최종 이미지·영상·BGM 프롬프트만, RLS 본인만, 직접 삭제 전까지 보관). 마이그레이션: `supabase/migrations/0004_svs_saved_prompts.sql`
 - 프로그램·요금제·YouTube 키 발급 매뉴얼 등록: `supabase/migrations/0002_register_program_and_guide.sql`
 - 키 저장은 공용 `user_api_keys`(provider: `youtube_api_key`, `gemini`, `openai`, `anthropic`)
 

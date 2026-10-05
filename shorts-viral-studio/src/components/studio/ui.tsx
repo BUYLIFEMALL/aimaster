@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   AI_MODEL_OPTIONS,
   AI_PROVIDERS,
@@ -178,4 +178,38 @@ export function SaveStatus() {
 
 export function copyToClipboard(text: string): Promise<void> {
   return navigator.clipboard.writeText(text);
+}
+
+/** 프롬프트 박스 + 복사 버튼 (프롬프트 화면·보관함 공통) */
+export function CopyBox({ label, text, tone }: { label: string; text: string; tone: "dark" | "green" | "rose" }) {
+  const [copied, setCopied] = useState(false);
+  const badge =
+    tone === "dark" ? "bg-neutral-900 text-white" : tone === "green" ? "bg-emerald-600 text-white" : "bg-rose-600 text-white";
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className={`rounded px-2 py-0.5 text-[11px] font-extrabold ${badge}`}>{label}</span>
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(text);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            } catch {
+              // 클립보드 권한이 없으면 직접 선택해서 복사하도록 둡니다.
+            }
+          }}
+          className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+            copied ? "border-emerald-500 text-emerald-600" : "border-neutral-200 text-neutral-600 hover:bg-neutral-100"
+          }`}
+        >
+          {copied ? "복사됨!" : "복사"}
+        </button>
+      </div>
+      <div className="whitespace-pre-wrap break-words rounded-lg border border-neutral-200 bg-white p-3 font-mono text-xs leading-relaxed text-neutral-800">
+        {text}
+      </div>
+    </div>
+  );
 }

@@ -1,4 +1,4 @@
-import type { ProjectData } from "@/types/svs";
+import type { ProjectData, SavedPromptSet } from "@/types/svs";
 
 /** 프로젝트 전체를 마크다운 문자열로 만듭니다. */
 export function buildProjectMarkdown(data: ProjectData): string {
@@ -83,6 +83,50 @@ export function downloadMarkdown(data: ProjectData) {
   const a = document.createElement("a");
   a.href = url;
   a.download = `Shorts_${safe}_${new Date().toISOString().slice(0, 10)}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/** 보관함 한 세트를 붙여넣기 좋은 일반 텍스트로 만듭니다. */
+export function formatPromptSetText(set: SavedPromptSet): string {
+  const lines: string[] = [`# ${set.title}`];
+  if (set.hook) lines.push(`훅: ${set.hook}`);
+  if (set.keyword) lines.push(`키워드: ${set.keyword}`);
+  if (set.bgmPrompt?.sunoPrompt) {
+    lines.push("", "== BGM (Suno / Udio) ==", set.bgmPrompt.sunoPrompt);
+  }
+  for (const p of set.prompts) {
+    lines.push("", `== SCENE ${p.sceneNumber}${p.sceneSummary ? ` (${p.sceneSummary})` : ""} ==`);
+    if (p.imagePrompt) lines.push("[IMAGE]", p.imagePrompt);
+    if (p.videoPrompt) lines.push("[VIDEO]", p.videoPrompt);
+  }
+  return lines.join("\n");
+}
+
+/** 보관함 한 세트를 .md 파일로 저장합니다. */
+export function downloadPromptSetMarkdown(set: SavedPromptSet) {
+  let md = `# ${set.title}\n\n`;
+  if (set.hook) md += `- 1초 훅: "${set.hook}"\n`;
+  if (set.keyword) md += `- 검색 키워드: ${set.keyword}\n`;
+  md += `- 저장일: ${set.createdAt.slice(0, 10)}\n\n`;
+  const b = set.bgmPrompt;
+  if (b) {
+    md += `## BGM 프롬프트 (Suno / Udio)\n\n### ${b.title} (${b.bpm})\n\n`;
+    md += `- 장르·무드: ${b.genreAndMood}\n- 악기: ${b.instrumentation}\n- 전개: ${b.dynamicStructure}\n- 믹싱: ${b.audioMixingNotes}\n\n`;
+    md += "```text\n" + b.sunoPrompt + "\n```\n\n";
+  }
+  md += `## 씬별 이미지 · 영상 프롬프트\n\n`;
+  for (const p of set.prompts) {
+    md += `### SCENE ${p.sceneNumber}${p.sceneSummary ? ` (${p.sceneSummary})` : ""}\n\n`;
+    md += "이미지:\n```text\n" + p.imagePrompt + "\n```\n\n영상:\n```text\n" + p.videoPrompt + "\n```\n\n";
+  }
+  const safe = set.title.replace(/[^a-zA-Z0-9가-힣_-]/g, "_").slice(0, 30);
+  const url = URL.createObjectURL(new Blob([md], { type: "text/markdown;charset=utf-8;" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Prompts_${safe}_${set.createdAt.slice(0, 10)}.md`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

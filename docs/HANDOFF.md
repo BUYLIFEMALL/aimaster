@@ -20,6 +20,9 @@
   - 주인님 요청: "좌측 메뉴 초보자 가이드를 없애고 이 자동화 프로그램 사용법을 보기 쉽고 직관적으로 이해할 수 있도록 순서대로 설명해주는 매뉴얼로 변경 작업해줘" 완벽 구현.
   - `Sidebar.tsx`, `MobileNavigation.tsx`: 메뉴명을 '초보자 가이드' ➔ '사용 매뉴얼'로 변경.
   - `guide/page.tsx`: 프로그램 실전 사용 순서(STEP 0 API키 등록 ➔ STEP 1 글감 준비 ➔ STEP 2 5대 훅 문장 교체 ➔ STEP 3 자댓글 CTA ➔ STEP 4 자동 저장 및 보관함 활용)를 한눈에 이해할 수 있는 실전 가이드로 전면 개편.
+  - **작업 과정, 주의사항, 핵심 지침 문서화 완비 (2026-10-05 주인님 지시)**:
+    - `threads-easy-planner/AGENTS.md`: 작업 표준 워크플로우 6단계, 핵심 주의사항 6가지, 다음 작업 시 핵심 지침 섹션 신설 및 상세 기술.
+    - `docs/ERROR_LESSONS.md`: v1.23 실전 매뉴얼화 및 프로그램 UI 연계 가이드 작성 지침 추가.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.23`으로 갱신했다.
 
 ## Threads AI 기획 자동화 (threads-easy-planner v1.22, 2026-10-05)
@@ -218,6 +221,7 @@
 - 주인님이 준 유튜버 튜토리얼 소스(`D:\PDS\index.html`)를 이 플랫폼 규격으로 다시 만든 신규 서브프로젝트 `shorts-viral-studio/`를 만들어 **배포·등록까지 완료**했다. 라이브 https://shorts-viral-studio.vercel.app , 유료 기본 요금제(1·2·3개월) 등록, 카테고리 쇼츠.
 - 흐름: 쇼츠 검색(떡상 등급) → 바이럴 분석(Gemini는 영상 직접 분석, GPT·Claude는 지표·댓글 기반 "추정" 표시) → 소재 6개 → 주제 확정 → 대본(씬당 한 문장) → 이미지·영상·BGM 프롬프트. 프로젝트는 `svs_projects`에 자동 저장(30일 보관), `.md` 내보내기.
 - 운영 DB에 적용한 것: `svs_projects` 테이블(RLS 본인만, `pg_policies` 확인), `programs`/`pricing_plans` 3건 등록, `platform_guides`에 "YouTube Data API 키 발급받기" 매뉴얼(`72d39d06-…`) 신규 등록. SQL은 `shorts-viral-studio/supabase/migrations/0001~0002`.
+- **2026-10-05 v1.03 프롬프트 보관함:** 왼쪽 메뉴 `📚 프롬프트 보관함`(`/vault`) + 6단계 `💾 보관함에 저장`. 새 테이블 `svs_saved_prompts`(주인님 승인, RLS 본인만, `pg_policies`·롤백 테스트로 확인)에 최종 이미지·영상·BGM 프롬프트 세트를 저장하고 검색·복사·.md·삭제. 유튜브 데이터는 담지 않아 30일 삭제 대상이 아님. 상세는 `shorts-viral-studio/AGENTS.md` 변경 이력.
 - **2026-10-05 v1.02:** 최초 기본 AI 엔진을 GPT / GPT-4.1로 변경(`StudioProvider.tsx` 초기값, 저장 키 `svs_model_v2`로 올려 기존 선택값 초기화). 영상 직접 분석은 Gemini 선택 시에만 동작하므로 GPT 기본값에서는 "지표·댓글 기반 추정"으로 표시된다. `APP_VERSION`·DB `programs.version` 모두 v1.02.
 - **2026-10-05 썸네일 등록 완료:** §13 실사 템플릿(한국인 남녀 크리에이터 + 상승 그래프·쇼츠 목록 화면 + 글로우 아이콘, 16:9)으로 생성해 `programs.thumbnail_url` 반영, 메인 상세 페이지에서 참조 확인.
 - **남은 일:** ① 주인님이 실제 YouTube·Gemini 키를 설정 화면에 등록해 검색 1회 + 영상 1개 분석을 실검증(로그인 화면 클릭 검증과 실키 호출은 아직 못 함) ② 이상 있으면 v1.02. 상세·변경 이유는 `shorts-viral-studio/AGENTS.md`.

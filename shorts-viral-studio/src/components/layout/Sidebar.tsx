@@ -16,7 +16,10 @@ const FLOW_STEPS = [
   { step: 6, href: "/prompts", icon: "🎨", label: "프롬프트", desc: "이미지 · 영상 · BGM" },
 ];
 
-const UTILITY_ITEMS = [{ href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" }];
+const UTILITY_ITEMS = [
+  { href: "/vault", icon: "📚", label: "프롬프트 보관함" },
+  { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
+];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();

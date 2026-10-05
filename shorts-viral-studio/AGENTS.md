@@ -6,7 +6,7 @@
 |---|---|
 | slug | `shorts-viral-studio` (카테고리: 쇼츠, 최소 등급: 일반, 배지: new, **유료 기본 요금제 1·2·3개월**) |
 | 라이브 | https://shorts-viral-studio.vercel.app (자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
-| 버전 | **v1.02** (v1.01 = 2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
+| 버전 | **v1.03** (v1.01 = 2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
 | 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase(공용 DB) — `threads-easy-planner`를 틀로 복사해 만들었다 |
 | 출처 | 주인님이 준 유튜버 튜토리얼 소스(`D:\PDS\index.html`, "남다른AI Shorts 분석기", 단일 HTML) |
 
@@ -44,7 +44,7 @@ src/
   lib/actions/            svs(검색·분석·소재·대본·프롬프트) · projects(저장·목록·불러오기·삭제) · settings(키 저장) · auth
   lib/export.ts           프로젝트 → .md
   types/svs.ts            공용 타입
-supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_guide.sql
+supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_guide.sql · 0003_update_thumbnail.sql · 0004_svs_saved_prompts.sql
 ```
 
 ## 멀티테넌시·보안 체크 (모두 적용됨)
@@ -83,5 +83,6 @@ supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_gui
 
 ## 변경 이력
 
+- **v1.03 (2026-10-05):** **프롬프트 보관함** 추가(주인님 지시). 왼쪽 메뉴 `📚 프롬프트 보관함`(`/vault`) 신설, 6단계 화면에 `💾 보관함에 저장` 버튼. 최종 이미지·영상·BGM 프롬프트 세트를 `svs_saved_prompts`에 저장하고 보관함에서 검색·펼쳐 보기·개별 복사·세트 전체 복사·.md 저장·삭제. **유튜브 데이터(영상 제목·조회수 등)는 담지 않고 AI가 만든 프롬프트만 저장**하므로 프로젝트와 달리 30일 자동 삭제 대상이 아니며 회원이 지울 때까지 보관(회원당 최대 200세트). 마이그레이션 `supabase/migrations/0004_svs_saved_prompts.sql`(운영 DB 적용, RLS `to authenticated` + `auth.uid() = user_id` 3개 정책 — UPDATE 정책 없음, 수정 불가). 로그인 없이 DB에서 "본인 행만 조회·남의 user_id로 저장 차단"을 트랜잭션 롤백 테스트로 확인했고 임시 행은 0건. 코드: `lib/actions/savedPrompts.ts`, `components/studio/VaultPanel.tsx`, 공통 `CopyBox`는 `ui.tsx`로 이동.
 - **v1.02 (2026-10-05):** 최초 기본 AI 엔진을 **OpenAI GPT-4.1**로 변경(주인님 지시, `StudioProvider.tsx`의 초기값). 회원이 모델을 바꾸면 `localStorage`(`svs_model_v2`)에 기억한다. 이전 키(`svs_model_v1`)는 쓰지 않으므로 기존 선택값은 한 번 초기화됨. 영상 직접 분석은 Gemini를 골라야 하므로 분석 화면의 안내 문구는 유지(GPT 기본값에서는 "지표·댓글 기반 추정"으로 표시됨).
 - **v1.01 (2026-10-04):** 신설.

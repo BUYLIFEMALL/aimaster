@@ -175,3 +175,15 @@ export interface ActionResult<T> {
   needApiKey?: boolean;
   missingProvider?: string;
 }
+
+/** 프롬프트 보관함에 저장된 한 세트 (유튜브 데이터 없이 AI가 만든 프롬프트만) */
+export interface SavedPromptSet {
+  id: string;
+  title: string;
+  ideaTitle: string;
+  hook: string;
+  keyword: string;
+  bgmPrompt: BgmPrompt | null;
+  prompts: ScenePrompt[];
+  createdAt: string;
+}

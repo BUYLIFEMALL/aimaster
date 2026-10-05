@@ -295,6 +295,7 @@
 - **[2026-10-01] `server-only`를 import하는 파일은 `tsx`로 바로 실행하면 모듈 없음 오류** — 테스트할 때는 `NODE_PATH`에 빈 `server-only` 모듈을 둔 임시 폴더를 지정한다.
   - **[2026-10-04 정정]** 프로젝트에 `node_modules/server-only`가 이미 있으면 `NODE_PATH` 방식은 통하지 않고 "Client Component에서 import할 수 없다"는 오류가 난다. 이때는 **`npx tsx --conditions=react-server 파일.ts`** 로 실행한다(`server-only`가 빈 모듈로 처리됨). 테스트용 임시 파일은 프로젝트 폴더에 만들고 끝나면 반드시 지운다.
 - **[2026-10-04] Git Bash에서 한글·따옴표가 많은 긴 heredoc을 여러 `cat > 파일 <<EOF`로 이어 쓰면 따옴표 짝이 안 맞아 통째로 실패** — 실패하면 아무 파일도 안 써진 채 끝나므로 결과를 `ls`로 확인하고, 긴 파일은 Write 도구로 하나씩 쓴다.
+- **[2026-10-05 · shorts-viral-studio v1.03] TSX 코드를 `node -e "…"`로 파일에 덧붙이면 템플릿 리터럴(백틱 `${…}`)이 셸에서 먼저 풀려 `className={}`처럼 빈 값으로 저장됨** — 타입 검사는 통과하지만 화면 스타일이 사라진다. 코드 수정은 Edit/Write 도구로 하고, 쓴 뒤 `className={}` 같은 빈 표현식이 없는지 `grep -n "={}"`로 확인한다.
 - **[2026-10-04] `vercel link`는 해당 폴더의 `.env.local`을 덮어쓴다** — Supabase 로컬 실행 값은 루트 `.env.local`에서 다시 복사해 쓴다. 환경변수는 `printf '%s' "$VAL" | vercel env add 이름 production --scope buylife`로 넣으면 값이 화면에 안 나온다.
 
 ## F. 외부 사이트 연동
