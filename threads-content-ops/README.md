@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.19`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.20`
 
 ## 목적
 
@@ -33,6 +33,10 @@
 - 새 API/권한 페이지는 `dynamic = "force-dynamic"`, `fetchCache = "force-no-store"`를 함께 선언합니다.
 - 자동 발행·예약은 기본 OFF이며, 회원이 웹에서 명시적으로 지시한 경우에만 실행합니다.
 - 버전을 바꾸면 `lib/version.ts`, `programs.version`, 이 문서와 `docs/HANDOFF.md`를 같은 작업에서 맞춥니다.
+
+## v1.20 연결 해제 버튼 스타일
+
+- Threads 계정 연결 해제 버튼의 기본·호버·비활성 색상과 크기를 `threads-affiliate-poster`의 danger 버튼(`bg-red-600`, `hover:bg-red-500`, `disabled:bg-red-300`)과 동일하게 맞췄습니다.
 
 ## v1.19 Meta OAuth 리디렉션 URI
 

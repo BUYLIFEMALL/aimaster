@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.19`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.20`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
 
 ## 절대 규칙
 
@@ -11,6 +11,10 @@
 - 페이지, Server Action, API 콜백 모두 `checkProgramAccess()` 또는 API용 권한 검사로 프로그램 이용 권한까지 확인합니다. 로그인만 확인해서는 안 됩니다.
 - 권한이 관여하는 `page.tsx`/`route.ts`에는 `dynamic = "force-dynamic"`와 `fetchCache = "force-no-store"`를 함께 둡니다.
 - 자동 발행과 예약은 기본 OFF입니다. 회원이 웹에서 명시적으로 실행 또는 예약한 경우에만 처리합니다.
+
+## v1.20 완료 사항
+
+- Threads 계정 연결 해제는 쇼핑제휴 자동화 `Button`의 danger variant와 동일한 `bg-red-600` / hover `bg-red-500` / disabled `bg-red-300` 스타일을 쓴다.
 
 ## v1.19 완료 사항
 

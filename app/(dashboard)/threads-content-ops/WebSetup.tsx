@@ -132,7 +132,7 @@ export default function WebSetup({
           <p className="text-sm text-neutral-500">연결된 계정</p>
           <p className="mt-1 flex items-center gap-2 text-lg font-medium text-neutral-900"><CheckCircle2 size={18} className="text-emerald-600" />@{connectedAccount.username}</p>
           {connectedAccount.tokenExpiresAt && <p className="mt-1 text-xs text-neutral-500">토큰 만료: {new Date(connectedAccount.tokenExpiresAt).toLocaleString("ko-KR")}</p>}
-          <button className="mt-3 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50" disabled={disconnecting} onClick={() => void disconnect()}>{disconnecting ? "해제 중…" : "연결 해제"}</button>
+          <button className="mt-3 inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 disabled:cursor-not-allowed disabled:bg-red-300" disabled={disconnecting} onClick={() => void disconnect()}>{disconnecting ? "해제 중…" : "연결 해제"}</button>
         </div> : <div>
           <p className="mb-4 text-sm text-neutral-600">앱 ID와 앱 시크릿을 모두 저장한 뒤 Threads 계정을 연결하세요.</p>
           <button className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700" onClick={() => void connect()}>내 Threads 계정 연결하기</button>
