@@ -257,25 +257,44 @@ export function ProductPostForm({
 
   useEffect(() => {
     try {
-      const savedProvider = localStorage.getItem("threads_post_ai_provider") as AIModelProvider | null;
-      const savedModel = localStorage.getItem("threads_post_ai_model");
-      if (savedProvider && (savedProvider === "openai" || savedProvider === "gemini" || savedProvider === "anthropic")) {
-        setAiProvider(savedProvider);
-        if (savedModel && AI_MODEL_OPTIONS.some((o) => o.provider === savedProvider && o.value === savedModel)) {
-          setAiModel(savedModel);
-        } else {
-          setAiModel(DEFAULT_AI_MODELS[savedProvider]);
+      // v1.36: GPT / GPT-4.1 기본 선택 강제 적용
+      const hasAppliedV136 = localStorage.getItem("threads_post_ai_default_v136");
+      if (!hasAppliedV136) {
+        setAiProvider("openai");
+        setAiModel(DEFAULT_AI_MODELS["openai"]); // "gpt-4.1"
+        localStorage.setItem("threads_post_ai_provider", "openai");
+        localStorage.setItem("threads_post_ai_model", DEFAULT_AI_MODELS["openai"]);
+        localStorage.setItem("threads_post_ai_default_v136", "true");
+      } else {
+        const savedProvider = localStorage.getItem("threads_post_ai_provider") as AIModelProvider | null;
+        const savedModel = localStorage.getItem("threads_post_ai_model");
+        if (savedProvider && (savedProvider === "openai" || savedProvider === "gemini" || savedProvider === "anthropic")) {
+          setAiProvider(savedProvider);
+          if (savedModel && AI_MODEL_OPTIONS.some((o) => o.provider === savedProvider && o.value === savedModel)) {
+            setAiModel(savedModel);
+          } else {
+            setAiModel(DEFAULT_AI_MODELS[savedProvider]);
+          }
         }
       }
 
-      const savedImgProvider = localStorage.getItem("threads_post_image_provider") as ImageProvider | null;
-      const savedImgModel = localStorage.getItem("threads_post_image_model");
-      if (savedImgProvider && (savedImgProvider === "nanobanana" || savedImgProvider === "openai" || savedImgProvider === "flux" || savedImgProvider === "zimage")) {
-        setImageProvider(savedImgProvider);
-        if (savedImgModel && IMAGE_MODEL_OPTIONS.some((o) => o.provider === savedImgProvider && o.value === savedImgModel)) {
-          setImageModel(savedImgModel);
-        } else {
-          setImageModel(DEFAULT_IMAGE_MODELS[savedImgProvider]);
+      const hasAppliedImgV136 = localStorage.getItem("threads_post_img_default_v136");
+      if (!hasAppliedImgV136) {
+        setImageProvider("nanobanana");
+        setImageModel(DEFAULT_IMAGE_MODELS["nanobanana"]);
+        localStorage.setItem("threads_post_image_provider", "nanobanana");
+        localStorage.setItem("threads_post_image_model", DEFAULT_IMAGE_MODELS["nanobanana"]);
+        localStorage.setItem("threads_post_img_default_v136", "true");
+      } else {
+        const savedImgProvider = localStorage.getItem("threads_post_image_provider") as ImageProvider | null;
+        const savedImgModel = localStorage.getItem("threads_post_image_model");
+        if (savedImgProvider && (savedImgProvider === "nanobanana" || savedImgProvider === "openai" || savedImgProvider === "flux" || savedImgProvider === "zimage")) {
+          setImageProvider(savedImgProvider);
+          if (savedImgModel && IMAGE_MODEL_OPTIONS.some((o) => o.provider === savedImgProvider && o.value === savedImgModel)) {
+            setImageModel(savedImgModel);
+          } else {
+            setImageModel(DEFAULT_IMAGE_MODELS[savedImgProvider]);
+          }
         }
       }
     } catch {

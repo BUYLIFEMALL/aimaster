@@ -9,6 +9,14 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.36, 2026-10-05)
+
+- **글 생성 모델 GPT-4.1 및 NanoBanana 1K 표준 경량 모델 기본 선택 설정 (v1.36)**:
+  - 새 게시글 작성 화면(`/posts/new`) 진입 시 기본 선택 엔진 및 모델을 `GPT / GPT-4.1`로 항상 선택되도록 설정.
+  - NanoBanana 선택 시 세부 모델명을 `1K 표준 경량 모델`(`nanobanana`)로 수정하고 기본 추천 모델로 최상단 배치.
+  - 브라우저 localStorage 이전 캐시 간섭 방지 마이그레이션 플래그(`threads_post_ai_default_v136`, `threads_post_img_default_v136`) 적용으로 신규/재접속 회원 모두 첫 진입 시 확실하게 GPT-4.1 및 1K 표준 경량 모델 선택 보장.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.36`으로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.35, 2026-10-05)
 
 - **실시간 프리뷰 & 검수 및 즉시 포스팅 vs 임시저장 2대 스마트 분기 프로세스 구축 (v1.35)**:

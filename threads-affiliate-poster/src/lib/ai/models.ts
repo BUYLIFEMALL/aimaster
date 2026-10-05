@@ -8,14 +8,14 @@ export interface AIModelOption {
 }
 
 export const AI_MODEL_OPTIONS: AIModelOption[] = [
-  // OpenAI 최신 모델순 (2026-09-28 OpenAI 공식 모델 목록 대조)
+  // OpenAI 최신 모델순 (기본 추천 모델 최우선 배치)
+  { value: "gpt-4.1", label: "🚀 GPT-4.1 (최신 세대 스마트 모델 · 기본 추천)", shortLabel: "GPT-4.1", provider: "openai" },
   { value: "gpt-6-luna", label: "⚡ GPT-6 Luna (최신 세대 · 가성비 초고속)", shortLabel: "GPT-6 Luna", provider: "openai" },
   { value: "gpt-6-sol", label: "🎯 GPT-6 Sol (최신 세대 · 균형형)", shortLabel: "GPT-6 Sol", provider: "openai" },
   { value: "gpt-6-astra", label: "💎 GPT-6 Astra (최신 세대 · 최고 품질 플래그십)", shortLabel: "GPT-6 Astra", provider: "openai" },
   { value: "gpt-5.6-luna", label: "⚡ GPT-5.6 Luna (가성비 초고속)", shortLabel: "GPT-5.6 Luna", provider: "openai" },
   { value: "gpt-5.6-terra", label: "🎯 GPT-5.6 Terra (균형형 자연스러운 어조)", shortLabel: "GPT-5.6 Terra", provider: "openai" },
   { value: "gpt-5.6-sol", label: "💎 GPT-5.6 Sol (최고 품질 플래그십)", shortLabel: "GPT-5.6 Sol", provider: "openai" },
-  { value: "gpt-4.1", label: "🚀 GPT-4.1 (최신 세대 스마트 모델 · 기본 추천)", shortLabel: "GPT-4.1", provider: "openai" },
   { value: "o3", label: "🧩 o3 (고성능 논리 추론 모델)", shortLabel: "o3", provider: "openai" },
   { value: "gpt-4o", label: "⚙️ GPT-4o (범용 표준 모델)", shortLabel: "GPT-4o", provider: "openai" },
 
