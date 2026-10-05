@@ -942,26 +942,52 @@ export function ProductPostForm({
             </button>
           </div>
 
-          <div className="pt-2 border-t border-neutral-200/80 space-y-1.5">
-            <label className="block text-[11px] font-bold text-neutral-600 flex items-center justify-between">
-              <span>🎯 {IMAGE_PROVIDERS.find((p) => p.id === imageProvider)?.name} 세부 실행 모델:</span>
-            </label>
-            <select
-              value={imageModel}
-              onChange={(e) => handleImageModelChange(e.target.value)}
-              className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-2xs cursor-pointer"
-            >
-              {IMAGE_MODEL_OPTIONS.filter((opt) => opt.provider === imageProvider).map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+          <div className="pt-2 border-t border-neutral-200/80">
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-end">
+              {/* 좌측: 세부 실행 모델 선택 */}
+              <div className="space-y-1.5 flex-1 min-w-0">
+                <label className="block text-[11px] font-bold text-neutral-600">
+                  🎯 {IMAGE_PROVIDERS.find((p) => p.id === imageProvider)?.name} 세부 실행 모델:
+                </label>
+                <select
+                  value={imageModel}
+                  onChange={(e) => handleImageModelChange(e.target.value)}
+                  className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-2xs cursor-pointer"
+                >
+                  {IMAGE_MODEL_OPTIONS.filter((opt) => opt.provider === imageProvider).map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 우측: 생성 장수 선택 */}
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-bold text-neutral-600">
+                  🔢 생성 장수:
+                </label>
+                <div className="flex items-center rounded-xl border border-neutral-300 bg-white p-1 shadow-2xs">
+                  <select
+                    value={imageGenerateCount}
+                    onChange={(e) => setImageGenerateCount(Number(e.target.value))}
+                    className="rounded-lg bg-neutral-50 px-3 py-1.5 text-xs font-bold text-neutral-900 focus:border-neutral-900 focus:outline-none cursor-pointer"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                      <option key={num} value={num}>
+                        {num}장 {num === 1 ? "(기본)" : "생성"}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 pt-1">
+          {/* 한 줄 전체 이미지 설명 프롬프트 입력창 & 이미지 생성 버튼 */}
+          <div className="flex items-center gap-2 pt-1">
             <Input
-              className="min-w-[200px] flex-1 bg-neutral-50/50 text-sm"
+              className="flex-1 bg-neutral-50/50 text-sm"
               value={imagePrompt}
               onChange={(e) => setImagePrompt(e.target.value)}
               placeholder={
@@ -972,26 +998,12 @@ export function ProductPostForm({
               autoComplete="off"
               name="ai_image_prompt_field"
             />
-            <div className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-neutral-50/80 px-2.5 py-1.5 shadow-2xs">
-              <span className="text-xs font-bold text-neutral-700 whitespace-nowrap">생성 장수:</span>
-              <select
-                value={imageGenerateCount}
-                onChange={(e) => setImageGenerateCount(Number(e.target.value))}
-                className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-bold text-neutral-900 focus:border-neutral-900 focus:outline-none cursor-pointer"
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                  <option key={num} value={num}>
-                    {num}장 {num === 1 ? "(기본)" : "생성"}
-                  </option>
-                ))}
-              </select>
-            </div>
             <Button
               type="button"
               variant="secondary"
               onClick={handleGenerateImage}
               disabled={isGeneratingImage || isGeneratingAll || imageUrls.length >= 20 || (!imagePrompt.trim() && !selectedProduct)}
-              className="font-bold whitespace-nowrap"
+              className="font-bold whitespace-nowrap px-4 py-2.5"
             >
               {isGeneratingImage
                 ? "생성 중..."
