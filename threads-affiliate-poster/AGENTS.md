@@ -351,6 +351,14 @@ vercel deploy --prod --yes
    - **조치 사항**:
      - `src/components/posts/PostContentRenderer.tsx`: 최상단에 `"use client";` 지시어 추가하여 명시적 클라이언트 컴포넌트로 선언. 상세 페이지(`/posts/[id]`) 500 에러 완벽 해결.
 
+28. **캐러셀 다중 이미지(쉼표 구분) 파싱 및 상세 페이지 미디어 뷰어(PostMediaViewer) 연동 (2026-10-05, v1.42)**:
+   - **증상**: `/posts/[id]` 상세 페이지(예: `posts/7c950668-8223-4a68-a29b-2fdcfa304005`)에서 이미지가 엑박이 나고 보이지 않는 현상.
+   - **원인**: 2장 이상의 캐러셀 이미지가 쉼표(`,`)로 구분되어 DB `image_url`에 저장되는데, 상세 페이지에서 `<img src={post.image_url} />`로 통째로 대입하여 브라우저가 유효하지 않은 URL을 요청함.
+   - **조치 사항**:
+     - `src/components/posts/PostMediaViewer.tsx` 신설: 쉼표로 연결된 다중 이미지 URL 목록을 파싱하여, 여러 장일 때 좌우 슬라이드 탐색(◀, ▶), 카운트 배지(`📷 N / M장`), 하단 미니 썸네일 스트립 제공.
+     - 이미지 클릭 시 전체 화면 확대 라이트박스(`ImageLightboxModal`) 팝업 연동.
+     - `src/app/(dashboard)/posts/[id]/page.tsx`: 단일 img 태그를 `PostMediaViewer`로 교체하여 다중 캐러셀 이미지 및 동영상을 완벽하게 지원.
+
 
 
 

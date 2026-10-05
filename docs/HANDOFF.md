@@ -9,6 +9,13 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.42, 2026-10-05)
+
+- **캐러셀 다중 이미지(쉼표 구분) 파싱 및 상세 페이지 미디어 뷰어(PostMediaViewer) 연동 (v1.42)**:
+  - 주인님 제보: `/posts/[id]` 접근 시 이미지가 보이지 않는 버그 해결.
+  - 쉼표(`,`)로 연결된 다중 이미지 URL을 분할 파싱하여, 여러 장일 때 좌우 슬라이드 탐색(◀, ▶), 카운트 배지(`📷 N / M장`), 하단 미니 썸네일 스트립 및 클릭 시 `ImageLightboxModal` 전체 화면 확대 뷰어 연동.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.42`로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.41, 2026-10-05)
 
 - **Server Component 렌더링 500 에러 해결: PostContentRenderer 'use client' 명시 (v1.41)**:

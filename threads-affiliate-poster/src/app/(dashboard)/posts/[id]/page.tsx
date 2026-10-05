@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { deletePostAction, publishNowAction } from "@/lib/actions/posts";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { PostContentRenderer } from "@/components/posts/PostContentRenderer";
+import { PostMediaViewer } from "@/components/posts/PostMediaViewer";
 
 export default async function PostDetailPage({
   params,
@@ -65,18 +66,7 @@ export default async function PostDetailPage({
       )}
 
       <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        {post.video_url ? (
-          <video src={post.video_url} controls className="max-h-[420px] w-full object-cover" />
-        ) : (
-          post.image_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={post.image_url}
-              alt="게시글 이미지"
-              className="max-h-[420px] w-full object-cover"
-            />
-          )
-        )}
+        <PostMediaViewer videoUrl={post.video_url} imageUrl={post.image_url} />
         <div className="p-5">
           <PostContentRenderer content={post.content} />
           <p className="mt-3 text-xs text-neutral-400">

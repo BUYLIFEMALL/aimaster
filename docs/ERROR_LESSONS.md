@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-05 캐러셀 다중 이미지(쉼표 구분) 단일 img src 대입으로 인한 이미지 미출력 버그 해결 (threads-affiliate-poster v1.42)
+
+- **증상:** `/posts/[id]` 게시글 결과 상세 페이지에서 이미지가 전혀 보이지 않거나 엑박으로 표시됨 (예: `posts/7c950668-8223-4a68-a29b-2fdcfa304005`).
+- **원인:** 캐러셀 기능으로 인해 `tap_posts.image_url`에 쉼표(`,`)로 구분된 2장 이상의 이미지 URL 문자열이 저장됨. 상세 페이지(`src/app/(dashboard)/posts/[id]/page.tsx`)에서 이를 파싱하지 않고 `<img src={post.image_url} />`로 통째로 대입하여, 브라우저가 유효하지 않은 주소(`url1,url2`)를 요청해 404/이미지 로드 실패가 발생함.
+- **해결(위치):** `threads-affiliate-poster/src/components/posts/PostMediaViewer.tsx` 컴포넌트를 신설하여 `imageUrl`을 쉼표(`,`) 기준으로 분할(`split(",").map(...).filter(Boolean)`)하고, 다중 이미지일 경우 캐러셀 슬라이드 탐색(◀, ▶)과 카운트 배지(`📷 N / M장`), 하단 썸네일 내비게이션, 클릭 시 `ImageLightboxModal` 전체 화면 확대 보기까지 완벽하게 지원하도록 수정함.
+- **다음부터 확인:** 다중 이미지를 지원하는 프로그램의 `image_url` DB 필드는 단일 URL뿐 아니라 쉼표 구분 문자열일 수 있음을 항상 전제하고, 화면에 렌더링하기 전 반드시 쉼표 파싱 및 다중 캐러셀 뷰어를 적용한다.
+
 ## 2026-10-05 Server Component에서 onClick 핸들러를 포함한 컴포넌트 렌더링 시 500 에러 발생 (threads-affiliate-poster v1.41)
 
 - **증상:** `/posts/[id]` 게시글 결과 상세 페이지 접근 시 `This page couldn't load / A server error occurred. Reload to try again.` (500 에러) 발생. Vercel 로그에 `Error: Event handlers cannot be passed to Client Component props. { ... onClick: function onClick }` 발생.
