@@ -206,6 +206,7 @@ function Accounts({ accounts, runtime, settings, selectedAccountId, onSelectAcco
       <footer><label className="switch-row"><span>이 계정 자동화 사용</span><span className="switch"><input type="checkbox" checked={account.automationTarget} disabled={!ready} onChange={()=>void toggle(account)} aria-label={`${account.name} 자동화 사용`}/><span/></span></label><div className="actions"><button onClick={()=>openAccount(account.id)}>계정 설정</button><button onClick={()=>setEditing(account)}>운영정보</button><button className="danger-link" onClick={()=>void remove(account)}>삭제</button></div></footer>
     </article>})}</div>:<section className="panel"><Empty text="Threads Access Token을 입력해 첫 계정을 등록하세요."/></section>}
     {accounts.length>0&&<><div className="settings-section-title"><div><h2>계정별 상세 설정</h2><p>계정 성격, 자료 연결과 API 키의 확인·수정·삭제를 처리합니다.</p></div></div><div className="account-settings-list">{accounts.map(account=><div id={`account-settings-${account.id}`} key={account.id}><AccountSettingsCard account={account} onSaved={refresh} defaultOpen={account.id===selectedAccountId}/></div>)}</div></>}
+    <AIMasterTokenSettings/>
     <AppExecutionSettings value={settings} onSaved={refresh}/>
     {registering&&<ThreadsRegistrationDialog onClose={()=>setRegistering(false)} onRegistered={async(account)=>{onSelectAccount(account.id);await refresh();setRegistering(false);}}/>}
     {editing&&<AccountDialog value={editing} onClose={()=>setEditing(undefined)} onSaved={async()=>{setEditing(undefined);await refresh();}}/>}
@@ -583,6 +584,15 @@ function NaverBrandConnectProducts({snapshot,selectedAccountId,onSelectAccount,r
     </>}
     {collectorPromptOpen&&collectorStatus&&<ExtensionInstallGuide status={collectorStatus} onClose={()=>setCollectorPromptOpen(false)}/>}
   </PageFrame>;
+}
+
+function AIMasterTokenSettings(){
+  const [token,setToken]=useState('');const [stored,setStored]=useState(false);const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);
+  const refresh=async()=>{const status=await window.threadsAuto.credentials.status(['aimasterToken' as CredentialKey]);setStored(Boolean(status.aimasterToken?.stored));};
+  useEffect(()=>{let live=true;void window.threadsAuto.credentials.status(['aimasterToken' as CredentialKey]).then(status=>{if(live)setStored(Boolean(status.aimasterToken?.stored));});return()=>{live=false;};},[]);
+  const save=async()=>{if(!token.trim())return;setBusy(true);setMessage('');try{await window.threadsAuto.credentials.save('aimasterToken' as CredentialKey,token.trim());setToken('');await refresh();setMessage('AIMaster token saved securely on this device.');}catch(e){setMessage(cleanError(e));}finally{setBusy(false);}};
+  const remove=async()=>{setBusy(true);try{await window.threadsAuto.credentials.delete('aimasterToken' as CredentialKey);await refresh();setMessage('AIMaster token removed.');}catch(e){setMessage(cleanError(e));}finally{setBusy(false);}};
+  return <section className="panel app-execution-settings"><header><strong>AIMaster connection</strong><small>Use the personal access token issued in AIMaster. Your OpenAI key stays on the server.</small></header>{message&&<div className="notice" role="status">{message}</div>}<div className="credential-grid single"><SecretControl label="AIMaster personal access token" credentialKey={'aimasterToken' as CredentialKey} value={token} status={{stored}} onChange={setToken} onDelete={()=>void remove()}/></div><div className="settings-actions"><button className="primary" disabled={busy||!token.trim()} onClick={()=>void save()}>{busy?'Saving…':'Save token'}</button></div></section>;
 }
 
 function AppExecutionSettings({value,onSaved}:{value:AppSettings;onSaved:()=>Promise<void>}) {
