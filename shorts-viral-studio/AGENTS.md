@@ -68,7 +68,7 @@ supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_gui
 
 ## 남은 일
 
-1. **카탈로그 썸네일 생성·등록**(`programs.thumbnail_url`이 비어 있음) — `docs/PLATFORM_PATTERNS.md` §13 실사 16:9·글자 없음 템플릿, `scripts/generate-program-thumbnail.mjs`, 관리자 Gemini 키가 필요(키를 그때그때 확인받아 사용).
+1. ~~카탈로그 썸네일~~ **완료(2026-10-05)** — §13 실사 템플릿으로 `scripts/generate-program-thumbnail.mjs` 실행(Gemini 3 Pro Image, 관리자 계정 키 사용 1회), Storage `program-images/catalog/shorts-viral-studio-thumbnail.jpg` 업로드 후 `programs.thumbnail_url` 갱신, 다른 프로그램 썸네일과 육안 비교 완료. 로컬 백업 `public/shorts-viral-studio-thumbnail.jpg`, SQL 기록 `supabase/migrations/0003_update_thumbnail.sql`. 이미지에 노트북 화면의 작은 UI 라벨("VIEWS" 등)이 희미하게 보이는데 기존 썸네일(Instagram 글자)과 같은 수준이라 허용했다 — 거슬리면 같은 스크립트로 재생성(URL `?v=` 자동 갱신).
 2. 주인님이 실제 키로 1회 실검증 후 이상이 있으면 `v1.02`로 수정.
 3. 30일 지난 `svs_projects` 주기 삭제 크론(`ai-auto-blog/app/api/cron/cleanup-images` 패턴 참고) — 필요 시.
 4. 이후 후보(기획안 v1.02+): 채널 단위 분석, 컷 단위 정밀 분석(얼굴 vs 물체·소리), 관심 키워드 모아보기, 완성 대본을 `auto-shorts-posting`/`music-automation`으로 넘기는 연결.

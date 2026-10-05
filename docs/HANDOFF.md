@@ -210,7 +210,8 @@
 - 주인님이 준 유튜버 튜토리얼 소스(`D:\PDS\index.html`)를 이 플랫폼 규격으로 다시 만든 신규 서브프로젝트 `shorts-viral-studio/`를 만들어 **배포·등록까지 완료**했다. 라이브 https://shorts-viral-studio.vercel.app , 유료 기본 요금제(1·2·3개월) 등록, 카테고리 쇼츠.
 - 흐름: 쇼츠 검색(떡상 등급) → 바이럴 분석(Gemini는 영상 직접 분석, GPT·Claude는 지표·댓글 기반 "추정" 표시) → 소재 6개 → 주제 확정 → 대본(씬당 한 문장) → 이미지·영상·BGM 프롬프트. 프로젝트는 `svs_projects`에 자동 저장(30일 보관), `.md` 내보내기.
 - 운영 DB에 적용한 것: `svs_projects` 테이블(RLS 본인만, `pg_policies` 확인), `programs`/`pricing_plans` 3건 등록, `platform_guides`에 "YouTube Data API 키 발급받기" 매뉴얼(`72d39d06-…`) 신규 등록. SQL은 `shorts-viral-studio/supabase/migrations/0001~0002`.
-- **남은 일:** ① 카탈로그 썸네일 생성(관리자 Gemini 키 필요, `programs.thumbnail_url` 비어 있음) ② 주인님이 실제 YouTube·Gemini 키를 설정 화면에 등록해 검색 1회 + 영상 1개 분석을 실검증(로그인 화면 클릭 검증과 실키 호출은 아직 못 함) ③ 이상 있으면 v1.02. 상세·변경 이유는 `shorts-viral-studio/AGENTS.md`.
+- **2026-10-05 썸네일 등록 완료:** §13 실사 템플릿(한국인 남녀 크리에이터 + 상승 그래프·쇼츠 목록 화면 + 글로우 아이콘, 16:9)으로 생성해 `programs.thumbnail_url` 반영, 메인 상세 페이지에서 참조 확인.
+- **남은 일:** ① 주인님이 실제 YouTube·Gemini 키를 설정 화면에 등록해 검색 1회 + 영상 1개 분석을 실검증(로그인 화면 클릭 검증과 실키 호출은 아직 못 함) ② 이상 있으면 v1.02. 상세·변경 이유는 `shorts-viral-studio/AGENTS.md`.
 
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.29, 2026-10-04)
 
