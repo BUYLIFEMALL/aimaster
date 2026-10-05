@@ -9,6 +9,14 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.41, 2026-10-05)
+
+- **Server Component 렌더링 500 에러 해결: PostContentRenderer 'use client' 명시 (v1.41)**:
+  - 주인님 제보: `/posts/[id]` 접근 시 `This page couldn't load / A server error occurred.` 에러 발생.
+  - Vercel 런타임 로그 확인 결과, Server Component인 `posts/[id]/page.tsx`에서 사용하는 `PostContentRenderer.tsx`에 `"use client";` 지시어가 빠져 있어 `onClick` 이벤트 직렬화 에러 발생 확인.
+  - `PostContentRenderer.tsx`에 `"use client";`를 명시하여 500 에러 완벽 해결.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.41`로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.40, 2026-10-05)
 
 - **NanoBanana 2-2K 기본 모델 선택 강제화 및 이전 브라우저 캐시 완벽 격리 (v1.40)**:

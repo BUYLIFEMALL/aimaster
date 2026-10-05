@@ -345,6 +345,12 @@ vercel deploy --prod --yes
    - **조치 사항**:
      - `src/components/posts/ProductPostForm.tsx`: `useEffect` 내에서 이미지 공급자가 NanoBanana일 경우 무조건 `nanobanana-2-2k`(`NanoBanana 2-2K (고화질 시네마틱 · 기본 추천)`)를 기본값으로 강제 세팅 및 localStorage 동기화 처리.
 
+27. **Server Component 렌더링 500 에러 해결: PostContentRenderer 'use client' 명시 (2026-10-05, v1.41)**:
+   - **증상**: `/posts/[id]` 게시글 결과 상세 페이지 접근 시 `This page couldn't load / A server error occurred. Reload to try again.` (500 에러) 발생.
+   - **원인**: Server Component인 `src/app/(dashboard)/posts/[id]/page.tsx`에서 렌더링하는 `PostContentRenderer.tsx`에 `"use client";`가 빠져 있어 직렬화 단계에서 `onClick` 핸들러로 인한 에러 발생.
+   - **조치 사항**:
+     - `src/components/posts/PostContentRenderer.tsx`: 최상단에 `"use client";` 지시어 추가하여 명시적 클라이언트 컴포넌트로 선언. 상세 페이지(`/posts/[id]`) 500 에러 완벽 해결.
+
 
 
 

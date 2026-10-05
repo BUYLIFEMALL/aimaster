@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-05 Server Component에서 onClick 핸들러를 포함한 컴포넌트 렌더링 시 500 에러 발생 (threads-affiliate-poster v1.41)
+
+- **증상:** `/posts/[id]` 게시글 결과 상세 페이지 접근 시 `This page couldn't load / A server error occurred. Reload to try again.` (500 에러) 발생. Vercel 로그에 `Error: Event handlers cannot be passed to Client Component props. { ... onClick: function onClick }` 발생.
+- **원인:** 서버 컴포넌트인 `src/app/(dashboard)/posts/[id]/page.tsx`에서 본문 렌더링용으로 신설한 `PostContentRenderer.tsx`에 `"use client";` 지시어가 누락되어 있어 Server Component로 취급됨. 그 내부의 `<a>` 태그에 `onClick={(e) => e.stopPropagation()}` 핸들러가 포함되어 있어, Next.js 직렬화(stringify) 단계에서 서버 에러가 발생함.
+- **해결(위치):** `threads-affiliate-poster/src/components/posts/PostContentRenderer.tsx` 최상단에 `"use client";` 지시어를 추가하여 명시적 클라이언트 컴포넌트로 선언함으로써, 서버 컴포넌트에서 import 시에도 이벤트 핸들러가 포함된 JSX가 정상 렌더링되도록 수정함.
+- **다음부터 확인:** `onClick`, `onChange`, `useState`, `useEffect` 등 클라이언트 이벤트 및 상태를 포함하는 모든 UI 컴포넌트는 반드시 최상단에 `"use client";` 지시어를 명시한다. 특히 Server Component 페이지에서 새로 만든 컴포넌트를 import할 때 이 지시어 누락 여부를 필수로 점검한다.
+
 ## 2026-10-03 복잡한 템플릿 입력 모드로 인한 원클릭 페르소나 자동화 UX 회귀 및 복구 (threads-easy-planner v1.10~v1.11)
 
 - **증상:** "가전 주부형, 독신형 등 여러가지 페르소나가 있었고 다양한 상황에서 해당 버튼을 누르면 그에 맞는 다양한 버전의 콘텐츠가 만들어졌었는데 왜 삭제했나"라는 지적이 발생함. 복잡한 템플릿 입력 필드 4개가 메인을 가로막고, 사용자가 입력한 키워드 대신 더미 기본값이 내부적으로 전달되는 버그까지 발생함.
