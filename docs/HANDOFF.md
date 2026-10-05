@@ -9,6 +9,15 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.33, 2026-10-05)
+
+- **AI 이미지 생성 버튼 상시 주황색 노출 및 비활성화 회색 변환 방지 (v1.33)**:
+  - `주황색.png` 스크린샷 피드백 반영: 프롬프트 미입력 시 버튼이 `disabled` 상태로 인해 회색 박스로 변하여 주황색 테마가 보이지 않던 문제를 근본 해결.
+  - `Button.tsx`의 `amber` variant에서 `disabled:opacity-60`을 적용하여 비활성화 시에도 주황색 톤 유지.
+  - `ProductPostForm.tsx`에서 버튼 `disabled` 조건 중 `(!imagePrompt.trim() && !selectedProduct)`를 제거하여, 초기 진입 시에도 상단 Gemini 버튼과 동일한 선명한 주황색(`bg-amber-500 text-white`)으로 상시 노출.
+  - 버튼 내 이모티콘을 화이트 원형 칩(`bg-white`) 내 `✨`로 구성하여 시인성 및 가독성 완성.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.33`으로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.32, 2026-10-05)
 
 - **AI 이미지 생성 버튼 상단 일치형 주황색(Amber) 테마 및 이모티콘 독립 색상 연동 (v1.32)**:

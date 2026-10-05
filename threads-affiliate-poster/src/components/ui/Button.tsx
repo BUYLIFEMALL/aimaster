@@ -14,8 +14,8 @@ const variantClasses: Record<Variant, string> = {
   ghost: "bg-transparent text-neutral-600 hover:bg-neutral-100",
   muted: "bg-neutral-600 text-white border border-neutral-600 hover:bg-neutral-500",
   purple: "bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 disabled:bg-neutral-200 disabled:text-neutral-400 border border-purple-600 hover:border-purple-700 shadow-2xs",
-  amber: "bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 disabled:bg-neutral-200 disabled:text-neutral-400 border border-amber-500 hover:border-amber-600 shadow-2xs",
-  orange: "bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700 disabled:bg-neutral-200 disabled:text-neutral-400 border border-orange-500 hover:border-orange-600 shadow-2xs",
+  amber: "bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 disabled:opacity-60 border border-amber-500 hover:border-amber-600 shadow-2xs",
+  orange: "bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 border border-orange-500 hover:border-orange-600 shadow-2xs",
 };
 
 export function Button({ variant = "primary", className, ...props }: ButtonProps) {

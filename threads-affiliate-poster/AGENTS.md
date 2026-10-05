@@ -273,9 +273,17 @@ vercel deploy --prod --yes
 18. **AI 이미지 생성 버튼 상단 일치형 주황색(Amber) 테마 및 이모티콘 독립 색상 연동 (2026-10-05, v1.32)**:
    - **개편 배경**: "위에 주황색 색상으로 맞춰줘", "이모티콘은 다른 색상으로 해야겠지" 피드백 반영 — 상단의 NanoBanana(Google Gemini) 대표 선택 버튼과 동일한 따뜻하고 시인성 높은 주황색(Amber)으로 색상 톤을 통일하고, 주황색 바탕 위에서 이모티콘이 묻히지 않도록 독립된 화사한 골드 옐로우 색상으로 차별화.
    - **조치 사항**:
-     - `Button` 컴포넌트에 상단 NanoBanana 버튼과 동일한 `amber` variant(`bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 disabled:bg-neutral-200`) 추가.
+     - `Button` 컴포넌트에 상단 NanoBanana 버튼과 동일한 `amber` variant 추가.
      - `ProductPostForm.tsx`의 생성 버튼에 `variant="amber"`를 적용하여 상단 대표 모델 선택 영역과의 시각적 일체감 구현.
-     - 버튼 내 이모티콘을 반투명 화이트 칩(`bg-white/25`) 위에 화사한 골드 옐로우 `Sparkles` 아이콘(`fill-yellow-300 text-yellow-100`)으로 감싸, 주황색 배경 위에서 이모티콘이 선명하고 세련되게 돋보이도록 개선.
+
+19. **AI 이미지 생성 버튼 상시 주황색 노출 및 비활성화 회색 변환 방지 (2026-10-05, v1.33)**:
+   - **개편 배경**: `주황색.png` 스크린샷 피드백 반영 — 프롬프트가 비어있을 때 버튼이 `disabled` 상태로 인해 회색 박스로 변하여 주황색 테마가 보이지 않던 문제를 근본 해결.
+   - **조치 사항**:
+     - `Button.tsx`의 `amber` variant에서 disabled 시 회색으로 덮어쓰지 않고 `disabled:opacity-60`으로 주황색을 유지.
+     - `ProductPostForm.tsx`에서 버튼 `disabled` 조건 중 `(!imagePrompt.trim() && !selectedProduct)`를 제거하여, 초기 진입 시(프롬프트 미입력 시)에도 상단의 Gemini 버튼과 동일한 선명한 주황색(`bg-amber-500 text-white`)으로 상시 노출.
+     - 프롬프트 미입력 상태로 버튼 클릭 시 친절한 안내 문구(`이미지 설명 프롬프트를 입력하거나 먼저 제휴 상품을 선택해주세요`) 표시.
+     - 주황색 버튼 내 이모티콘을 선명한 화이트 원형 칩(`bg-white`) 내 `✨`로 구성하여 시인성 및 가독성 완성.
+
 
 
 

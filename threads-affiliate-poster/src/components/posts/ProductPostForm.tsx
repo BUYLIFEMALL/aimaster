@@ -354,7 +354,10 @@ export function ProductPostForm({
 
   const handleGenerateImage = () => {
     const prompt = imagePrompt.trim() || selectedProduct?.product_name.trim() || "";
-    if (!prompt) return;
+    if (!prompt) {
+      setImageGenError("이미지 설명 프롬프트를 입력하거나 먼저 제휴 상품을 선택해주세요.");
+      return;
+    }
 
     if (imageUrls.length >= 20) {
       setImageGenError("이미지는 최대 20장까지 등록할 수 있습니다.");
@@ -1003,8 +1006,8 @@ export function ProductPostForm({
               type="button"
               variant="amber"
               onClick={handleGenerateImage}
-              disabled={isGeneratingImage || isGeneratingAll || imageUrls.length >= 20 || (!imagePrompt.trim() && !selectedProduct)}
-              className="font-bold whitespace-nowrap px-4 py-2.5 cursor-pointer flex items-center gap-1.5 shadow-2xs"
+              disabled={isGeneratingImage || isGeneratingAll || imageUrls.length >= 20}
+              className="font-extrabold whitespace-nowrap px-4 py-2.5 cursor-pointer flex items-center gap-1.5 shadow-xs"
             >
               {isGeneratingImage ? (
                 <>
@@ -1013,8 +1016,8 @@ export function ProductPostForm({
                 </>
               ) : (
                 <>
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/25 text-yellow-200 shadow-2xs shrink-0">
-                    <Sparkles className="w-3.5 h-3.5 fill-yellow-300 text-yellow-100" />
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white text-amber-500 text-xs shadow-2xs shrink-0 font-black">
+                    ✨
                   </span>
                   <span>
                     {imageGenerateCount > 1
