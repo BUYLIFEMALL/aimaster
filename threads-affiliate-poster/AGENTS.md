@@ -399,3 +399,9 @@ vercel deploy --prod --yes
        - src/lib/actions/posts.ts:
          - deleteMediaFileAction: 작성 폼에서 개별 ✕ 삭제 또는 전체 미디어 삭제 시 본인이 업로드한 Storage 파일까지 즉시 삭제 연동.
          - deletePostAction: 게시글 삭제 시 연결된 Storage 미디어 파일도 함께 회수.
+
+32. **Zod validation.ts의 단일 미디어 배타적 규칙 잔존 버그 해결 (2026-10-05, v1.46)**:
+   - **증상**: 이미지와 동영상을 함께 첨부 후 최종 포스팅 시 "이미지와 영상은 동시에 첨부할 수 없습니다. 하나만 선택해주세요." 에러 발생.
+   - **원인**: 과거 단일 미디어 시절 src/lib/validation.ts의 postFormSchema에 정의되어 있던 data.imageUrl && data.videoUrl 동시 첨부 금지 규칙 및 단일 URL 검증(z.string().url())이 남아 있어 서버 액션 폼 검증 단계에서 걸림.
+   - **조치 사항**:
+     - src/lib/validation.ts: 동시 첨부 금지 규칙 완전 삭제, 쉼표 다중 URL을 지원하는 mediaUrlStringSchema 적용, 이미지+영상 총합 20개 이하 검증으로 개편하여 혼합 캐러셀 포스팅 정상화.

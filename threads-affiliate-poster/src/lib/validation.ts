@@ -1,5 +1,26 @@
 import { z } from "zod";
 
+const mediaUrlStringSchema = z
+  .string()
+  .trim()
+  .refine(
+    (val) => {
+      if (!val) return true;
+      const urls = val.split(",").map((u) => u.trim()).filter(Boolean);
+      return urls.every((u) => {
+        try {
+          const parsed = new URL(u);
+          return parsed.protocol === "http:" || parsed.protocol === "https:";
+        } catch {
+          return false;
+        }
+      });
+    },
+    { message: "올바른 미디어 URL 형식이 아닙니다." }
+  )
+  .optional()
+  .or(z.literal(""));
+
 export const postFormSchema = z
   .object({
     content: z
@@ -7,30 +28,24 @@ export const postFormSchema = z
       .trim()
       .min(1, "게시글 내용을 입력해주세요.")
       .max(500, "Threads 게시글은 500자를 초과할 수 없습니다."),
-    imageUrl: z
-      .string()
-      .trim()
-      .url("올바른 이미지 URL 형식이 아닙니다.")
-      .optional()
-      .or(z.literal("")),
-    videoUrl: z
-      .string()
-      .trim()
-      .url("올바른 영상 URL 형식이 아닙니다.")
-      .optional()
-      .or(z.literal("")),
+    imageUrl: mediaUrlStringSchema,
+    videoUrl: mediaUrlStringSchema,
     publishMode: z.enum(["now", "schedule", "draft"]),
     scheduledAt: z.string().optional().or(z.literal("")),
     productId: z.string().uuid().optional().or(z.literal("")),
   })
   .superRefine((data, ctx) => {
-    if (data.imageUrl && data.videoUrl) {
+    // 이미지와 영상의 총합 개수 검증 (최대 20개 허용)
+    const imgCount = data.imageUrl ? data.imageUrl.split(",").map((u) => u.trim()).filter(Boolean).length : 0;
+    const vidCount = data.videoUrl ? data.videoUrl.split(",").map((u) => u.trim()).filter(Boolean).length : 0;
+    if (imgCount + vidCount > 20) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "이미지와 영상은 동시에 첨부할 수 없습니다. 하나만 선택해주세요.",
-        path: ["videoUrl"],
+        message: "Threads 미디어(이미지+영상)는 최대 20개까지만 등록할 수 있습니다.",
+        path: ["imageUrl"],
       });
     }
+
     if (data.publishMode === "schedule") {
       if (!data.scheduledAt) {
         ctx.addIssue({

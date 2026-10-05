@@ -9,6 +9,14 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.46, 2026-10-05)
+
+- **Zod validation.ts의 단일 미디어 배타적 규칙 잔존 버그 해결 (v1.46)**:
+  - 주인님 제보: 이미지와 영상 첨부 후 포스팅 시 "이미지와 영상은 동시에 첨부할 수 없습니다" 에러 발생.
+  - 원인: `src/lib/validation.ts`의 `postFormSchema`에 과거 단일 미디어 시절의 동시 첨부 금지 규칙(`data.imageUrl && data.videoUrl`) 및 단일 URL 검증(`z.string().url()`)이 남아 있어 서버 액션 폼 검증(`parsePostForm`)에서 탈락함.
+  - 조치: `src/lib/validation.ts`에서 동시 첨부 금지 규칙을 완전 삭제하고, 쉼표 다중 URL을 지원하는 `mediaUrlStringSchema`로 교체하여 이미지+영상 혼합 캐러셀(최대 20개) 포스팅 정상화.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.46`으로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.45, 2026-10-05)
 
 - **혼합 미디어 캐러셀(이미지+동영상 동시 포스팅) 및 30일 보관/자동·수동 삭제 파이프라인 (v1.45)**:
