@@ -9,6 +9,16 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.34, 2026-10-05)
+
+- **글 생성 엔진 및 이미지 모델 선택 버튼 활성 주황색(Amber) 통일 (v1.34)**:
+  - `색상.png` 스크린샷 피드백 반영: 모델별로 상이하던 선택 버튼 색상(검정, 보라, 파랑, 초록 등)을 배제하고, "선택된 모델은 지금 사용된 주황색으로 보여줘, 선택 안 된 건 흰색 바탕이고" 지시 완벽 구현.
+  - 글 생성 엔진(GPT / Claude / Gemini) 및 이미지 모델(NanoBanana / GPT Image / FLUX 2.0 / Z-Image) 모두:
+    - 선택 시: 선명한 주황색(`border-amber-500 bg-amber-500 text-white shadow-xs`)
+    - 미선택 시: 깔끔한 흰색 바탕(`border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100`)
+  - STEP 2 전체 영역이 통일감 있는 프리미엄 주황색 테마로 정돈.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.34`로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.33, 2026-10-05)
 
 - **AI 이미지 생성 버튼 상시 주황색 노출 및 비활성화 회색 변환 방지 (v1.33)**:

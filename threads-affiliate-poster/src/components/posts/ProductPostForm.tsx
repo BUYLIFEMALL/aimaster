@@ -813,7 +813,7 @@ export function ProductPostForm({
               onClick={() => handleProviderChange("openai")}
               className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                 aiProvider === "openai"
-                  ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
                   : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
               }`}
             >
@@ -828,7 +828,7 @@ export function ProductPostForm({
               onClick={() => handleProviderChange("anthropic")}
               className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                 aiProvider === "anthropic"
-                  ? "border-purple-600 bg-purple-600 text-white shadow-xs"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
                   : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
               }`}
             >
@@ -906,7 +906,7 @@ export function ProductPostForm({
               onClick={() => handleImageProviderChange("openai")}
               className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                 imageProvider === "openai"
-                  ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
                   : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
               }`}
             >
@@ -921,7 +921,7 @@ export function ProductPostForm({
               onClick={() => handleImageProviderChange("flux")}
               className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                 imageProvider === "flux"
-                  ? "border-blue-600 bg-blue-600 text-white shadow-xs"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
                   : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
               }`}
             >
@@ -936,7 +936,7 @@ export function ProductPostForm({
               onClick={() => handleImageProviderChange("zimage")}
               className={`rounded-xl p-2.5 border font-bold text-center flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                 imageProvider === "zimage"
-                  ? "border-emerald-600 bg-emerald-600 text-white shadow-xs"
+                  ? "border-amber-500 bg-amber-500 text-white shadow-xs"
                   : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100"
               }`}
             >
