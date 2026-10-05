@@ -340,6 +340,11 @@ vercel deploy --prod --yes
        - 썸네일 클릭 시 해당 이미지 인덱스로 라이트박스 전체 화면 모달 즉시 팝업.
        - 삭제 버튼 및 순서 이동 버튼 클릭 시 이벤트 버블링 방지(`e.stopPropagation()`).
 
+26. **NanoBanana 2-2K 기본 모델 선택 강제화 및 이전 브라우저 캐시 완벽 격리 (2026-10-05, v1.40)**:
+   - **개편 배경**: "NANOBANANA 2-2K 기본 모델로 선택하게 해줘" 지시 완벽 반영. 브라우저 localStorage에 남아있던 이전 1K 캐시로 인해 덮어써지던 현상을 근본 방지.
+   - **조치 사항**:
+     - `src/components/posts/ProductPostForm.tsx`: `useEffect` 내에서 이미지 공급자가 NanoBanana일 경우 무조건 `nanobanana-2-2k`(`NanoBanana 2-2K (고화질 시네마틱 · 기본 추천)`)를 기본값으로 강제 세팅 및 localStorage 동기화 처리.
+
 
 
 

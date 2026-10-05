@@ -9,6 +9,13 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.40, 2026-10-05)
+
+- **NanoBanana 2-2K 기본 모델 선택 강제화 및 이전 브라우저 캐시 완벽 격리 (v1.40)**:
+  - 주인님 피드백 반영: `/posts/new` 진입 시 이미지 모델로 `NanoBanana 2-2K (고화질 시네마틱 · 기본 추천)`이 확실하게 기본 선택되도록 설정.
+  - 브라우저 localStorage에 남아있던 이전 1K 캐시로 인해 덮어써지던 현상을 방지하기 위해, NanoBanana 공급자일 경우 무조건 `nanobanana-2-2k`로 강제 초기화 및 스토리지 동기화.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.40`으로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.39, 2026-10-05)
 
 - **생성 및 등록된 이미지 클릭 시 전체 이미지 확대 뷰어(라이트박스 모달) 연동 (v1.39)**:

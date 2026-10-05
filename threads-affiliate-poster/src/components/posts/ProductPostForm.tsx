@@ -282,23 +282,25 @@ export function ProductPostForm({
         }
       }
 
-      const hasAppliedImgV137 = localStorage.getItem("threads_post_img_default_v137");
-      if (!hasAppliedImgV137) {
-        setImageProvider("nanobanana");
-        setImageModel(DEFAULT_IMAGE_MODELS["nanobanana"]);
+      const savedImgProvider = localStorage.getItem("threads_post_image_provider") as ImageProvider | null;
+      const targetImgProvider: ImageProvider =
+        savedImgProvider && (savedImgProvider === "nanobanana" || savedImgProvider === "openai" || savedImgProvider === "flux" || savedImgProvider === "zimage")
+          ? savedImgProvider
+          : "nanobanana";
+
+      setImageProvider(targetImgProvider);
+
+      if (targetImgProvider === "nanobanana") {
+        // NanoBanana 선택 시에는 무조건 2-2K (nanobanana-2-2k)를 기본값으로 강제 지정
+        setImageModel("nanobanana-2-2k");
         localStorage.setItem("threads_post_image_provider", "nanobanana");
-        localStorage.setItem("threads_post_image_model", DEFAULT_IMAGE_MODELS["nanobanana"]);
-        localStorage.setItem("threads_post_img_default_v137", "true");
+        localStorage.setItem("threads_post_image_model", "nanobanana-2-2k");
       } else {
-        const savedImgProvider = localStorage.getItem("threads_post_image_provider") as ImageProvider | null;
         const savedImgModel = localStorage.getItem("threads_post_image_model");
-        if (savedImgProvider && (savedImgProvider === "nanobanana" || savedImgProvider === "openai" || savedImgProvider === "flux" || savedImgProvider === "zimage")) {
-          setImageProvider(savedImgProvider);
-          if (savedImgModel && IMAGE_MODEL_OPTIONS.some((o) => o.provider === savedImgProvider && o.value === savedImgModel)) {
-            setImageModel(savedImgModel);
-          } else {
-            setImageModel(DEFAULT_IMAGE_MODELS[savedImgProvider]);
-          }
+        if (savedImgModel && IMAGE_MODEL_OPTIONS.some((o) => o.provider === targetImgProvider && o.value === savedImgModel)) {
+          setImageModel(savedImgModel);
+        } else {
+          setImageModel(DEFAULT_IMAGE_MODELS[targetImgProvider]);
         }
       }
     } catch {
