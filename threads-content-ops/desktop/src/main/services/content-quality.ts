@@ -138,4 +138,3 @@ ${PROMOTION_PROFILE_RULE}
 
 ${JSON.stringify({...input,profile:{...input.profile,topic:undefined}})}`;
 }
-

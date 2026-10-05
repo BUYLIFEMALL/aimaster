@@ -820,4 +820,3 @@ ${JSON.stringify({profile:this.profile(account),recent})}`;
   }
 }
 
-

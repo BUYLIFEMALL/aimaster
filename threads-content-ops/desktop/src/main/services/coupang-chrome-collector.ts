@@ -317,4 +317,3 @@ export class CoupangChromeCollectorService {
     await execFileAsync('reg.exe',['ADD',REGISTRY_KEY,'/ve','/t','REG_SZ','/d',this.manifestPath,'/f','/reg:64'],{windowsHide:true});
   }
 }
-
