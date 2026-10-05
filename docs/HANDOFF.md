@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads Content Ops v1.10 — program sidebar navigation (2026-10-06)
+
+- 기존 독립 자동화 프로그램과 동일한 흐름형 좌측 메뉴를 추가했다. 대시보드, 콘텐츠 작성, 초안·발행 관리, API키등록·플랫폼연동으로 웹 작업 영역을 `?tab=` 방식으로 전환한다.
+
 ## Threads Content Ops v1.09 — web operations dashboard and catalog thumbnail (2026-10-05)
 
 - 기본 진입 화면을 PC 브라우저용 콘텐츠 운영 대시보드로 교체했다. 설정 폼은 접힌 보조 영역으로 이동하고, 계정·초안·발행 이력·운영 상태가 첫 화면에 표시된다.
