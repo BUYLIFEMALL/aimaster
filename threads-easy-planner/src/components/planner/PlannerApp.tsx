@@ -593,9 +593,6 @@ export function PlannerApp() {
               <div>
                 <div className="text-sm md:text-base font-extrabold text-neutral-900 group-hover:text-black flex flex-wrap items-center gap-2">
                   <span>맞춤글 생성 (내 실제 경험담 · 상품명 · 타깃 직접 입력)</span>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-700">
-                    나만의 맞춤 글
-                  </span>
                 </div>
                 <p className="text-xs text-neutral-500 font-medium mt-0.5">
                   내가 직접 겪은 썰이나 특정 상품명을 넣어 100% 리얼하고 자연스러운 글을 완성합니다.

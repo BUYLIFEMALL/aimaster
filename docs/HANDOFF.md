@@ -14,6 +14,13 @@
 
 
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.21, 2026-10-05)
+
+- **아코디언 타이틀 우측 불필요한 '나만의 맞춤 글' 배지 제거 (v1.21)**:
+  - 주인님 요청: `맞춤글 생성 (내 실제 경험담 · 상품명 · 타깃 직접 입력)` 우측에 붙어 있던 불필요한 `나만의 맞춤 글` 배지 삭제.
+  - `src/components/planner/PlannerApp.tsx`: 배지 span 제거 완료.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.21`로 갱신했다.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.20, 2026-10-05)
 
 - **맞춤글 생성 아코디언 타이틀 직관적 개편 (v1.20)**:
