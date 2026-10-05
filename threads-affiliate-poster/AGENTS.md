@@ -301,16 +301,25 @@ vercel deploy --prod --yes
        - 📁 `[ 💾 임시저장하기 ]`: 보관함에 안전하게 임시저장하여 언제든 다시 꺼내 수정·발행 가능.
        - ⏰ `[ 📅 예약 발행 설정하기 ]`: 특정 일시에 자동 발행되도록 예약 접이식 설정 제공.
 
-22. **글 생성 기본 선택 모델 GPT-4.1 및 NanoBanana 1K 표준 경량 모델 설정 (2026-10-05, v1.36)**:
-   - **개편 배경**: 
-     1) 새 게시글 작성 화면(`/posts/new`) 진입 시 기본 선택 엔진 및 모델을 "GPT / GPT-4.1"로 항상 선택되도록 설정 요청 반영.
-     2) NanoBanana 모델 선택 시 기본 모델명을 "1K 표준 경량 모델"로 수정 요청 반영.
+22. **글 생성 기본 선택 모델 GPT-4.1 설정 (2026-10-05, v1.36)**:
+   - **개편 배경**: 새 게시글 작성 화면(`/posts/new`) 진입 시 기본 선택 엔진 및 모델을 "GPT / GPT-4.1"로 항상 선택되도록 설정 요청 반영.
    - **조치 사항**:
      - `src/lib/ai/models.ts`: OpenAI 모델 목록 최상단 첫 번째 항목으로 `GPT-4.1`(`gpt-4.1`, 최신 세대 스마트 모델 · 기본 추천) 배치.
-     - `src/lib/ai/imageModels.ts`: NanoBanana 세부 모델 옵션의 Standard 명칭을 `1K 표준 경량 모델`(`nanobanana`)로 수정하고 최상단 배치 및 기본값(`DEFAULT_IMAGE_MODELS.nanobanana`)으로 지정.
-     - `src/lib/ai/generator.ts`: NanoBanana 기본 모델 폴백을 `nanobanana` (1K)로 연동.
-     - `src/components/trends/ViralPostDetector.tsx`: 떡상 탐지기 내 나노바나나 기본 모델 및 셀렉트 옵션을 `1K 표준 경량 모델`로 일치.
-     - `src/components/posts/ProductPostForm.tsx`: 초기 상태를 `openai` / `gpt-4.1` 및 `nanobanana` / `1K 표준 경량 모델`로 기본 지정. 브라우저 localStorage의 이전 모델 캐시(Gemini 등)로 인해 덮어씌워지지 않도록 마이그레이션 플래그(`threads_post_ai_default_v136`, `threads_post_img_default_v136`)를 연동하여 접속 시 확실하게 기본 설정이 유지되도록 보장.
+     - `src/components/posts/ProductPostForm.tsx`: 초기 상태를 `openai` / `gpt-4.1`로 기본 지정 및 마이그레이션 플래그(`threads_post_ai_default_v136`) 적용.
+
+23. **NanoBanana 2-1K (표준 경량 모델) 네이밍 포맷 통일 및 2K 기본값 복원 (2026-10-05, v1.37)**:
+   - **개편 배경**: "앞에 Nanobanana 2-1K (표준 경량 모델) 로 해줘야지, 다른 모델명도 같은 포맷으로 맞춰주고, 기본값은 2K 로 해줘" 지시 완벽 반영.
+   - **조치 사항**:
+     - `src/lib/ai/imageModels.ts`:
+       - 네이밍 포맷 통일:
+         - `NanoBanana 2-2K (고화질 시네마틱 · 기본 추천)` (기본값)
+         - `NanoBanana 2-1K (표준 경량 모델)`
+         - `NanoBanana 2-4K (울트라 HD)`
+         - `NanoBanana Pro (프로페셔널 정밀 비주얼)`
+       - 나노바나나 기본 선택값(`DEFAULT_IMAGE_MODELS.nanobanana`)을 `nanobanana-2-2k`로 재설정.
+     - `src/lib/ai/generator.ts`: NanoBanana 기본 모델 폴백을 `nanobanana-2-2k`로 복원.
+     - `src/components/trends/ViralPostDetector.tsx`: 셀렉트 옵션 및 기본 상태를 통일된 포맷과 `nanobanana-2-2k`로 동기화.
+     - `src/components/posts/ProductPostForm.tsx`: 마이그레이션 플래그(`threads_post_img_default_v137`)를 적용하여 기존 브라우저 캐시와 무관하게 NanoBanana 선택 시 `2-2K (고화질 시네마틱 · 기본 추천)`이 깔끔하게 기본 선택되도록 보장.
 
 
 

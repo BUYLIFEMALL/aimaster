@@ -114,7 +114,7 @@ export function ViralPostDetector() {
   const [generating, setGenerating] = useState(false);
   const [creatingDirectPost, setCreatingDirectPost] = useState(false);
   const [publishingNow, setPublishingNow] = useState(false);
-  const [imageModel, setImageModel] = useState<string>("nanobanana");
+  const [imageModel, setImageModel] = useState<string>("nanobanana-2-2k");
   const [generatedCaption, setGeneratedCaption] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
@@ -1136,10 +1136,10 @@ export function ViralPostDetector() {
                   onChange={(e) => setImageModel(e.target.value)}
                   className="w-full rounded-xl border border-neutral-300 bg-white p-2.5 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
                 >
-                  <option value="nanobanana">🍌 1K 표준 경량 모델</option>
-                  <option value="nanobanana-2-2k">🍌 NanoBanana 2-2K (2K 고화질 비주얼)</option>
-                  <option value="nanobanana-pro">🍌 NanoBanana Pro (프로페셔널 인포그래픽)</option>
-                  <option value="nanobanana-2-4k">🍌 NanoBanana 2-4K (4K 울트라 HD)</option>
+                  <option value="nanobanana-2-2k">🍌 NanoBanana 2-2K (고화질 시네마틱 · 기본 추천)</option>
+                  <option value="nanobanana">🍌 NanoBanana 2-1K (표준 경량 모델)</option>
+                  <option value="nanobanana-2-4k">🍌 NanoBanana 2-4K (울트라 HD)</option>
+                  <option value="nanobanana-pro">🍌 NanoBanana Pro (프로페셔널 정밀 비주얼)</option>
                   <option value="none">🚫 이미지 생성 안 함 (텍스트 캡션만 생성)</option>
                 </select>
               </div>

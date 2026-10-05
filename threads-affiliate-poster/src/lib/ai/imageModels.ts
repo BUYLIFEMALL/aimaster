@@ -51,7 +51,7 @@ export const IMAGE_PROVIDERS: ImageProviderConfig[] = [
 ];
 
 export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = {
-  nanobanana: "nanobanana",
+  nanobanana: "nanobanana-2-2k",
   openai: "gpt-image-2",
   flux: "black-forest-labs/flux-2-dev",
   zimage: "prunaai/z-image-turbo",
@@ -59,10 +59,10 @@ export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = {
 
 export const IMAGE_MODEL_OPTIONS: ImageModelOption[] = [
   // 1. NanoBanana (Gemini)
-  { value: "nanobanana", label: "1K 표준 경량 모델", provider: "nanobanana" },
-  { value: "nanobanana-2-2k", label: "NanoBanana 2-2K (2K 고화질 시네마틱)", provider: "nanobanana" },
+  { value: "nanobanana-2-2k", label: "NanoBanana 2-2K (고화질 시네마틱 · 기본 추천)", provider: "nanobanana" },
+  { value: "nanobanana", label: "NanoBanana 2-1K (표준 경량 모델)", provider: "nanobanana" },
+  { value: "nanobanana-2-4k", label: "NanoBanana 2-4K (울트라 HD)", provider: "nanobanana" },
   { value: "nanobanana-pro", label: "NanoBanana Pro (프로페셔널 정밀 비주얼)", provider: "nanobanana" },
-  { value: "nanobanana-2-4k", label: "NanoBanana 2-4K (4K 울트라 HD)", provider: "nanobanana" },
 
   // 2. GPT Image (OpenAI)
   { value: "gpt-image-2", label: "GPT Image 2 (OpenAI 표준 비주얼 - 추천)", provider: "openai" },

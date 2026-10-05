@@ -243,11 +243,11 @@ const NANO_BANANA_MODEL_CONFIGS: Record<NanoBananaModelType, NanoBananaModelConf
 function getNanoBananaConfig(modelType?: string): NanoBananaModelConfig {
   return (
     NANO_BANANA_MODEL_CONFIGS[modelType as NanoBananaModelType] ??
-    NANO_BANANA_MODEL_CONFIGS["nanobanana"]
+    NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"]
   );
 }
 
-const DEFAULT_IMAGE_MODEL = (process.env.GEMINI_IMAGE_MODEL || "nanobanana") as NanoBananaModelType;
+const DEFAULT_IMAGE_MODEL = (process.env.GEMINI_IMAGE_MODEL || "nanobanana-2-2k") as NanoBananaModelType;
 
 const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
   "If this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";

@@ -9,12 +9,20 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.37, 2026-10-05)
+
+- **NanoBanana 2-1K (표준 경량 모델) 네이밍 포맷 통일 및 2K 기본값 복원 (v1.37)**:
+  - 주인님 피드백 반영: `NanoBanana 2-1K (표준 경량 모델)` 형식으로 전체 나노바나나 라인업 네이밍 포맷 일치 (`NanoBanana 2-2K (고화질 시네마틱 · 기본 추천)`, `NanoBanana 2-1K (표준 경량 모델)`, `NanoBanana 2-4K (울트라 HD)`, `NanoBanana Pro (프로페셔널 정밀 비주얼)`).
+  - 나노바나나 기본 선택값을 `2-2K`(`nanobanana-2-2k`)로 재설정하고 드롭다운 최상단 배치.
+  - 브라우저 localStorage 이전 캐시 간섭 방지 마이그레이션 플래그(`threads_post_img_default_v137`) 적용으로 NanoBanana 선택 시 2K 모델 기본 선택 보장.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.37`로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.36, 2026-10-05)
 
-- **글 생성 모델 GPT-4.1 및 NanoBanana 1K 표준 경량 모델 기본 선택 설정 (v1.36)**:
+- **글 생성 기본 선택 모델 GPT-4.1 설정 (v1.36)**:
   - 새 게시글 작성 화면(`/posts/new`) 진입 시 기본 선택 엔진 및 모델을 `GPT / GPT-4.1`로 항상 선택되도록 설정.
-  - NanoBanana 선택 시 세부 모델명을 `1K 표준 경량 모델`(`nanobanana`)로 수정하고 기본 추천 모델로 최상단 배치.
-  - 브라우저 localStorage 이전 캐시 간섭 방지 마이그레이션 플래그(`threads_post_ai_default_v136`, `threads_post_img_default_v136`) 적용으로 신규/재접속 회원 모두 첫 진입 시 확실하게 GPT-4.1 및 1K 표준 경량 모델 선택 보장.
+  - OpenAI 모델 목록 최상단 첫 번째 항목으로 `GPT-4.1` 배치.
+  - 브라우저 localStorage 이전 캐시 간섭 방지 마이그레이션 플래그(`threads_post_ai_default_v136`) 적용.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.36`으로 갱신했다.
 
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.35, 2026-10-05)

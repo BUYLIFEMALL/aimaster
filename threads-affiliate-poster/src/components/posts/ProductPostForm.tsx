@@ -278,13 +278,13 @@ export function ProductPostForm({
         }
       }
 
-      const hasAppliedImgV136 = localStorage.getItem("threads_post_img_default_v136");
-      if (!hasAppliedImgV136) {
+      const hasAppliedImgV137 = localStorage.getItem("threads_post_img_default_v137");
+      if (!hasAppliedImgV137) {
         setImageProvider("nanobanana");
         setImageModel(DEFAULT_IMAGE_MODELS["nanobanana"]);
         localStorage.setItem("threads_post_image_provider", "nanobanana");
         localStorage.setItem("threads_post_image_model", DEFAULT_IMAGE_MODELS["nanobanana"]);
-        localStorage.setItem("threads_post_img_default_v136", "true");
+        localStorage.setItem("threads_post_img_default_v137", "true");
       } else {
         const savedImgProvider = localStorage.getItem("threads_post_image_provider") as ImageProvider | null;
         const savedImgModel = localStorage.getItem("threads_post_image_model");
