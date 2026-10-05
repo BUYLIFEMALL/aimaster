@@ -8,6 +8,10 @@
 - `API키등록·플랫폼연동`은 번호형 업무 흐름 바로 아래 유틸리티 메뉴로 이동했다. 로그인 이메일과 로그아웃도 그 아래에 이어 붙였으며, 하단 고정 영역을 제거했다.
 - 기존 자동화 프로그램(`threads`, `threads-affiliate-poster`)과 동일하게, 프로그램 전용 화면은 흰색 배경·중성 회색 경계·어두운 글자·밝은 카드로 통일했다.
 
+## Threads Content Ops v1.21 — exact disconnect button color (2026-10-06)
+
+- 쇼핑제휴 설정 스크린샷의 연결 해제 버튼 중심 RGB(231, 0, 11)를 실측해 콘텐츠 운영 버튼 기본색을 `#e7000b`로 맞췄다. 이전 red-600은 같은 이름의 위험 스타일이어도 실제 색상이 달랐다.
+
 ## Threads Content Ops v1.20 — account disconnect visual parity (2026-10-06)
 
 - `?tab=settings`의 Threads 계정 연결 해제 버튼을 쇼핑제휴 자동화 danger 버튼과 같은 red-600 기본색, red-500 hover, red-300 비활성색 및 패딩으로 통일했다.

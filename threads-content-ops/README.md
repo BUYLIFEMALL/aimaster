@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.20`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.21`
 
 ## 목적
 
@@ -33,6 +33,10 @@
 - 새 API/권한 페이지는 `dynamic = "force-dynamic"`, `fetchCache = "force-no-store"`를 함께 선언합니다.
 - 자동 발행·예약은 기본 OFF이며, 회원이 웹에서 명시적으로 지시한 경우에만 실행합니다.
 - 버전을 바꾸면 `lib/version.ts`, `programs.version`, 이 문서와 `docs/HANDOFF.md`를 같은 작업에서 맞춥니다.
+
+## v1.21 연결 해제 실제 색상 일치
+
+- 참조 화면 픽셀을 확인해 연결 해제 버튼 기본색을 `#e7000b`로 고정했습니다. 이전 Tailwind 기본 red-600과의 색상 차이를 제거했습니다.
 
 ## v1.20 연결 해제 버튼 스타일
 
