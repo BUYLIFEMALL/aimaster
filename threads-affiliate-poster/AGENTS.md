@@ -270,4 +270,13 @@ vercel deploy --prod --yes
      - `Button` 컴포넌트에 선명한 보라색 테마의 `purple` variant(`bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 disabled:bg-neutral-200`) 추가.
      - `ProductPostForm.tsx`의 `✨ AI 이미지 생성` 버튼에 `variant="purple"`을 적용하여, 보라색 바탕 위의 선명한 흰색 굵은 텍스트로 시인성과 가독성을 극대화.
 
+18. **AI 이미지 생성 버튼 상단 일치형 주황색(Amber) 테마 및 이모티콘 독립 색상 연동 (2026-10-05, v1.32)**:
+   - **개편 배경**: "위에 주황색 색상으로 맞춰줘", "이모티콘은 다른 색상으로 해야겠지" 피드백 반영 — 상단의 NanoBanana(Google Gemini) 대표 선택 버튼과 동일한 따뜻하고 시인성 높은 주황색(Amber)으로 색상 톤을 통일하고, 주황색 바탕 위에서 이모티콘이 묻히지 않도록 독립된 화사한 골드 옐로우 색상으로 차별화.
+   - **조치 사항**:
+     - `Button` 컴포넌트에 상단 NanoBanana 버튼과 동일한 `amber` variant(`bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 disabled:bg-neutral-200`) 추가.
+     - `ProductPostForm.tsx`의 생성 버튼에 `variant="amber"`를 적용하여 상단 대표 모델 선택 영역과의 시각적 일체감 구현.
+     - 버튼 내 이모티콘을 반투명 화이트 칩(`bg-white/25`) 위에 화사한 골드 옐로우 `Sparkles` 아이콘(`fill-yellow-300 text-yellow-100`)으로 감싸, 주황색 배경 위에서 이모티콘이 선명하고 세련되게 돋보이도록 개선.
+
+
+
 

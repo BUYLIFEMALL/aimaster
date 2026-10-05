@@ -9,6 +9,14 @@
 
 
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.32, 2026-10-05)
+
+- **AI 이미지 생성 버튼 상단 일치형 주황색(Amber) 테마 및 이모티콘 독립 색상 연동 (v1.32)**:
+  - "위에 주황색 색상으로 맞춰줘", "이모티콘은 다른 색상으로 해야겠지" 피드백 반영: 상단의 대표 이미지 모델 선택 버튼(NanoBanana / Google Gemini)과 동일한 따뜻한 주황색(`amber-500`)으로 색상 일치.
+  - `Button` 컴포넌트에 `amber` variant(`bg-amber-500 text-white hover:bg-amber-600`)를 신설 및 적용하여, 상단 영역과 완벽한 톤앤매너 일체감 및 뛰어난 가독성 구현.
+  - 버튼 내 이모티콘을 반투명 화이트 칩(`bg-white/25`) 위에 화사한 골드 옐로우 `Sparkles` 아이콘(`fill-yellow-300 text-yellow-100`)으로 구성하여, 주황색 배경 위에서 이모티콘이 묻히지 않고 선명하게 돋보이도록 차별화.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.32`로 갱신했다.
+
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.31, 2026-10-05)
 
 - **AI 이미지 생성 버튼 바탕색 및 가독성 개선 (v1.31)**:

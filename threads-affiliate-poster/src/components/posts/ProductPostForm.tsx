@@ -4,6 +4,7 @@ import { startTransition, useActionState, useEffect, useRef, useState, useTransi
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { Sparkles, Loader2 } from "lucide-react";
 import type { PostActionState } from "@/lib/actions/posts";
 import { generateAffiliateContentAction, generateImageAction } from "@/lib/actions/ai";
 import { createClient } from "@/lib/supabase/client";
@@ -1000,16 +1001,28 @@ export function ProductPostForm({
             />
             <Button
               type="button"
-              variant="purple"
+              variant="amber"
               onClick={handleGenerateImage}
               disabled={isGeneratingImage || isGeneratingAll || imageUrls.length >= 20 || (!imagePrompt.trim() && !selectedProduct)}
-              className="font-bold whitespace-nowrap px-4 py-2.5 cursor-pointer"
+              className="font-bold whitespace-nowrap px-4 py-2.5 cursor-pointer flex items-center gap-1.5 shadow-2xs"
             >
-              {isGeneratingImage
-                ? "생성 중..."
-                : imageGenerateCount > 1
-                ? `✨ 이미지 ${imageGenerateCount}장 생성`
-                : "✨ AI 이미지 생성"}
+              {isGeneratingImage ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>생성 중...</span>
+                </>
+              ) : (
+                <>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/25 text-yellow-200 shadow-2xs shrink-0">
+                    <Sparkles className="w-3.5 h-3.5 fill-yellow-300 text-yellow-100" />
+                  </span>
+                  <span>
+                    {imageGenerateCount > 1
+                      ? `이미지 ${imageGenerateCount}장 생성`
+                      : "AI 이미지 생성"}
+                  </span>
+                </>
+              )}
             </Button>
           </div>
 
