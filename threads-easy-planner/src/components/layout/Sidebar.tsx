@@ -16,7 +16,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:border-b-0 md:border-r">
+    <aside className="hidden md:flex md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:flex-col md:border-r md:border-neutral-200 md:bg-white md:p-4">
       <div className="md:min-h-0 md:overflow-y-auto flex flex-col h-full">
         {/* 헤더 브랜딩 */}
         <div className="mb-6">

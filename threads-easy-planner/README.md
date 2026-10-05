@@ -6,6 +6,13 @@
 
 ---
 
+## Mobile and desktop support (v1.19)
+
+- The service uses a single responsive interface: the desktop sidebar becomes a compact mobile header and fixed bottom tabs below the `md` breakpoint.
+- Topic input, persona generation, saved plans, access checks, and AI-key handling stay on the same routes and server actions for every device.
+- On mobile, a fixed bottom action runs the same planner generation flow; the extra bottom spacing prevents it from covering content.
+- Provider and model controls are kept in the collapsible advanced-AI settings section to prioritize the fast mobile creation flow.
+
 ## 🎯 핵심 기능 및 워크플로우
 
 ### 1. 다양한 상황별 페르소나 원클릭 글 생성 (6대 핵심 페르소나)

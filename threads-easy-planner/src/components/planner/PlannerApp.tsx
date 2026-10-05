@@ -393,7 +393,7 @@ export function PlannerApp() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 pb-16">
+    <div className="w-full max-w-4xl mx-auto space-y-8 pb-28 md:pb-16">
       {/* 토스트 알림 */}
       {copySuccess && (
         <div className="fixed top-6 right-6 z-50 rounded-xl bg-neutral-900 text-white px-4 py-2.5 text-sm font-medium shadow-xl border border-neutral-700 animate-in fade-in slide-in-from-top-2">
@@ -781,7 +781,13 @@ export function PlannerApp() {
         )}
 
         {/* 6. AI 추론 엔진 선택 (OpenAI / Claude / Gemini) */}
-        <div className="pt-3 border-t border-neutral-100 space-y-2.5">
+        <details className="pt-3 border-t border-neutral-100 group">
+          <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl bg-neutral-50 px-3 py-2 text-xs font-bold text-neutral-700 hover:bg-neutral-100">
+            <span>⚙️ 고급 AI 설정</span>
+            <span className="text-[11px] font-medium text-neutral-500 group-open:hidden">필요할 때 열기</span>
+            <span className="hidden text-[11px] font-medium text-neutral-500 group-open:inline">접기</span>
+          </summary>
+          <div className="pt-3 space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
             <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
               <span>🤖</span>
@@ -850,7 +856,20 @@ export function PlannerApp() {
               </select>
             </div>
           </div>
-        </div>
+          </div>
+        </details>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-[4.5rem] z-30 border-t border-neutral-200 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur md:hidden">
+        <button
+          type="button"
+          onClick={() => handleGenerate()}
+          disabled={isGenerating}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-neutral-900 px-5 py-3.5 text-sm font-black text-white shadow-lg transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span>{isGenerating ? "✍️" : "✨"}</span>
+          <span>{isGenerating ? "글 작성 중..." : "이 내용으로 글 생성하기"}</span>
+        </button>
       </div>
 
       {/* 로딩 표시 */}

@@ -1,4 +1,11 @@
 ﻿# 작업 인수인계 현황판 (HANDOFF.md)
+ 
+## Threads AI Planner — shared mobile and desktop interface (v1.19, 2026-10-05)
+
+- Mobile uses a compact header and fixed bottom tabs for Planner, Saved, and Settings; desktop keeps the left sidebar.
+- The mobile fixed generation action reuses the existing `handleGenerate()` flow, including API-key and entitlement behavior.
+- Provider/model controls now live in collapsible advanced-AI settings, keeping the mobile first action focused.
+- See `threads-easy-planner/AGENTS.md` for the continuation rules. Keep code and `programs.version` synchronized at `v1.19`.
 
 
 
@@ -7,7 +14,14 @@
 
 
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.19, 2026-10-05)
 
+- **모바일 반응형 최적화 및 하단 고정 생성 네비게이션 연동 (v1.19)**:
+  - 데스크톱/모바일 단일 코드베이스 반응형 UX 개편:
+    - `Sidebar.tsx`: `md` 이상에서만 표시(`hidden md:flex`).
+    - `MobileNavigation.tsx` 신규 도입: 모바일 상단 미니 헤더 및 하단 고정 탭(기획하기, 보관함, 설정) 연동.
+    - `PlannerApp.tsx`: 모바일 화면 하단에 고정 생성 버튼(`이 내용으로 글 생성하기`) 제공, 고급 AI 모델 설정 접이식(`details`) 정리.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.19`로 갱신했다.
 
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.46, 2026-10-05)
 

@@ -5,6 +5,13 @@
 
 ---
 
+## Mobile and desktop shared interface (v1.19, 2026-10-05)
+
+- PC and mobile share one URL, authorization flow, AI generation actions, and saved-plan data. Do not create a separate mobile API or data model.
+- Keep the Sidebar from the `md` breakpoint upward. Below `md`, use `MobileNavigation` with a compact header and bottom tabs for Planner, Saved, and Settings.
+- The mobile fixed generate button must call `PlannerApp.handleGenerate()` so generation, entitlement, and API-key guidance remain identical on every screen size. Preserve bottom space with `pb-28`.
+- Keep provider and model selection in the collapsible advanced-AI settings area, leaving the mobile primary flow as topic input, persona choice, then generation.
+
 ## 📌 기본 정보
 
 - **서브프로젝트 폴더**: `threads-easy-planner/`
@@ -102,4 +109,3 @@
     1) 플랫폼 규격(docs/PLATFORM_PATTERNS.md §13 실사 16:9 무문구 원칙) 준수 포토리얼 한국인 인물 썸네일 생성 (`gemini-3-pro-image-preview`).
     2) Supabase Storage `program-images/catalog/threads-easy-planner-thumbnail.jpg` 업로드 및 `programs.thumbnail_url` 갱신 완비.
     3) 마이그레이션 SQL(`0002_update_thumbnail.sql`) 및 로컬 에셋(`public/threads-easy-planner-thumbnail.jpg`) 영구 보존.
-
