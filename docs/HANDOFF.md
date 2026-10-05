@@ -1,4 +1,4 @@
-# 작업 인수인계 현황판 (HANDOFF.md)
+﻿# 작업 인수인계 현황판 (HANDOFF.md)
 
 
 
@@ -8,6 +8,15 @@
 
 
 
+
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.43, 2026-10-05)
+
+- **최종 발행 방식 선택 버튼 순서 변경 및 임시저장하기 기본 선택 적용 (v1.43)**:
+  - 주인님 피드백(`게시글.png`): "임시 저장하기를 왼쪽으로 하고 기본값으로 선택되게 해줘" 완벽 반영.
+  - 새 게시글 작성 화면 STEP 3 버튼 순서 재배치: [📁 💾 임시저장하기]를 왼쪽 첫 번째로, [🚀 ⚡ 즉시 Threads에 포스팅하기]를 오른쪽 두 번째로 배치.
+  - 왼쪽 [임시저장하기] 버튼을 기본 주 버튼(Primary: g-neutral-900 text-white) 및 `기본값` 배지 부여로 시각적 기본값 지정.
+  - 오른쪽 [즉시 Threads에 포스팅하기] 버튼은 보조 버튼(Secondary: g-white text-neutral-900 border-2 border-neutral-300)으로 배치.
+  - APP_VERSION 및 DB programs.version을 1.43으로 갱신했다.
 
 ## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.42, 2026-10-05)
 
@@ -646,6 +655,7 @@
 
 - 증상/원인: 실제 글쓰기 화면에는 `업무` 태그 칩이 생성됐지만, v1.48 검증기는 예전 `.editor_tag > .txt_tag` 직계 구조만 조회해 현재의 “업무 태그 수정/삭제” 링크 구조를 찾지 못했다.
 - 조치: `extension/sidepanel.js`가 `.txt_tag`, `.tag_link`, 태그 링크를 함께 수집하고, Enter 후 최대 4.5초 동안 실제 칩 생성을 확인하도록 변경했다. 최종 저장·발행은 자동으로 누르지 않는다.
+
 
 
 

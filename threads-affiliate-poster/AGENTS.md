@@ -365,3 +365,12 @@ vercel deploy --prod --yes
 
 
 
+
+29. **최종 발행 방식 선택 버튼 순서 변경 및 임시저장하기 기본 선택 적용 (2026-10-05, v1.43)**:
+   - **개편 배경**: 새 글 작성 화면 STEP 3에서 "임시 저장하기를 왼쪽으로 하고 기본값으로 선택되게 해줘" 주인님 지시 반영.
+   - **조치 사항**:
+     - src/components/posts/ProductPostForm.tsx:
+       - STEP 3의 최종 발행 방식 버튼 순서 재배치: [📁 💾 임시저장하기]를 왼쪽 첫 번째로, [🚀 ⚡ 즉시 Threads에 포스팅하기]를 오른쪽 두 번째로 배치.
+       - 왼쪽 [임시저장하기] 버튼을 기본 주 버튼(Primary: g-neutral-900 text-white) 및 기본값 배지 부여로 시각적 기본값 지정.
+       - 오른쪽 [즉시 Threads에 포스팅하기] 버튼은 보조 버튼(Secondary: g-white text-neutral-900 border-2 border-neutral-300)으로 배치.
+       - 안내 문구 순서 통일 ("임시저장 또는 즉시 포스팅").

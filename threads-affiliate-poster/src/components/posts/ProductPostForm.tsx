@@ -577,7 +577,7 @@ export function ProductPostForm({
       const result = await runGenerateAll();
       if (result && result.content) {
         setGenerateSuccessMsg(
-          "✅ AI 글과 이미지가 생성되었습니다! 아래에서 내용을 확인 및 수정하거나, 불필요한 이미지는 ✕로 삭제/추가한 후 맨 아래에서 즉시 포스팅 또는 임시저장을 선택하세요."
+          "✅ AI 글과 이미지가 생성되었습니다! 아래에서 내용을 확인 및 수정하거나, 불필요한 이미지는 ✕로 삭제/추가한 후 맨 아래에서 임시저장 또는 즉시 포스팅을 선택하세요."
         );
       }
     } finally {
@@ -1480,39 +1480,42 @@ export function ProductPostForm({
           </span>
         </div>
 
-        {/* 2대 스마트 분기 버튼: [ ⚡ 즉시 Threads 포스팅 ] vs [ 📁 임시저장 ] */}
+        {/* 2대 스마트 분기 버튼: [ 📁 임시저장 (기본값) ] vs [ ⚡ 즉시 Threads 포스팅 ] */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-neutral-700">최종 발행 방식 선택</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            {/* 버튼 1. 즉시 Threads에 포스팅하기 */}
+            {/* 버튼 1 (왼쪽): 임시저장하기 (기본값) */}
+            <button
+              type="button"
+              onClick={() => handleFinalSubmit("draft")}
+              disabled={isPending || isGeneratingAll}
+              className="w-full rounded-2xl bg-neutral-900 hover:bg-neutral-800 active:bg-black text-white p-4 font-black text-base shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1.5"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📁</span>
+                <span>💾 임시저장하기</span>
+                <span className="text-[10px] font-bold bg-neutral-800 border border-neutral-700 text-neutral-200 px-1.5 py-0.5 rounded-full">
+                  기본값
+                </span>
+              </div>
+              <span className="text-[11px] font-normal text-neutral-300">
+                보관함에 저장 (나중에 언제든 수정·발행 가능)
+              </span>
+            </button>
+
+            {/* 버튼 2 (오른쪽): 즉시 Threads에 포스팅하기 */}
             <button
               type="button"
               onClick={() => handleFinalSubmit("now")}
               disabled={isPending || isGeneratingAll || !hasThreadsAccount}
-              className="w-full rounded-2xl bg-neutral-900 hover:bg-neutral-800 active:bg-black text-white p-4 font-black text-base shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1.5"
+              className="w-full rounded-2xl bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-900 border-2 border-neutral-300 hover:border-neutral-400 p-4 font-black text-base shadow-2xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1.5"
             >
               <div className="flex items-center gap-2">
                 <span className="text-xl">🚀</span>
                 <span>⚡ 즉시 Threads에 포스팅하기</span>
               </div>
-              <span className="text-[11px] font-normal text-neutral-300">
-                {content.trim() ? "현재 확인된 글과 미디어 그대로 즉시 발행" : "AI 자동 생성 후 즉시 연동 계정에 자동 발행"}
-              </span>
-            </button>
-
-            {/* 버튼 2. 임시저장하기 */}
-            <button
-              type="button"
-              onClick={() => handleFinalSubmit("draft")}
-              disabled={isPending || isGeneratingAll}
-              className="w-full rounded-2xl bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-900 border-2 border-neutral-300 hover:border-neutral-400 p-4 font-black text-base shadow-2xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1.5"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xl">📁</span>
-                <span>💾 임시저장하기</span>
-              </div>
               <span className="text-[11px] font-normal text-neutral-500">
-                보관함에 저장 (나중에 언제든 수정·발행 가능)
+                {content.trim() ? "현재 확인된 글과 미디어 그대로 즉시 발행" : "AI 자동 생성 후 즉시 연동 계정에 자동 발행"}
               </span>
             </button>
           </div>
