@@ -9,10 +9,11 @@ import {
   startThreadsOAuth,
 } from "./web-actions";
 
-type Provider = "openai" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
+type Provider = "openai" | "perplexity" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
 type SavePayload = {
   openaiKey?: string;
   youtubeApiKey?: string;
+  perplexityKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
   threadsAppId?: string;
@@ -23,6 +24,7 @@ type ConnectedAccount = { id: string; username: string | null; tokenExpiresAt: s
 const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   openai: "openaiKey",
   youtube_api_key: "youtubeApiKey",
+  perplexity: "perplexityKey",
   coupang_access_key: "coupangAccessKey",
   coupang_secret_key: "coupangSecretKey",
   threads_app_id: "threadsAppId",
@@ -33,6 +35,7 @@ const GUIDES = [
   ["1c5c24e2-15d4-49b8-b907-0ac6843dee3a", "OpenAI API 키 발급받기"],
   ["343996d3-8c77-455d-9bd4-54bcd47a34cd", "Threads 계정 연동하기"],
   ["117ffedb-c554-458a-9b92-e9ed6ee33988", "쿠팡 파트너스 API 발급받기"],
+  ["1df95d8b-6a27-4de0-b1d9-8bbc218534ad", "Perplexity API 키 발급받기"],
 ] as const;
 
 export default function WebSetup({
@@ -138,6 +141,11 @@ export default function WebSetup({
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
       <SectionTitle title="AI 콘텐츠 생성" description="콘텐츠 초안 생성에는 회원 본인의 OpenAI API 키를 사용합니다." />
       <CredentialRow provider="openai" label="OpenAI API 키" maskedValue={credentials.openai} editing={editing === "openai"} saving={saving === "openai"} removing={removing === "openai"} onEdit={setEditing} onSave={save} onDelete={remove} />
+    </section>
+
+    <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+      <SectionTitle title="화제 글감 검색 (Perplexity)" description="떡상 콘텐츠 등록의 '화제 검색'에 사용할 본인의 Perplexity API 키입니다. 키가 없어도 주소 지정 방식은 쓸 수 있습니다." />
+      <CredentialRow provider="perplexity" label="Perplexity API 키 (pplx-...)" maskedValue={credentials.perplexity} editing={editing === "perplexity"} saving={saving === "perplexity"} removing={removing === "perplexity"} onEdit={setEditing} onSave={save} onDelete={remove} />
     </section>
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">

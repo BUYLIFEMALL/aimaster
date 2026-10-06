@@ -7,6 +7,16 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
 import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
 import {
+  extractArticleLinks,
+  extractMainText,
+  fetchPublicHtml,
+  pickRandom,
+  rewriteToScrapableListingUrl,
+  searchPerplexityTrending,
+  structureCandidates,
+  type ViralCandidateDraft,
+} from "@/threads-content-ops/lib/collector";
+import {
   COUPANG_LINK_MESSAGES,
   checkCoupangAffiliateLink,
   isCoupangImageUrl,
@@ -18,6 +28,7 @@ const PROGRAM_SLUG = "threads-content-ops";
 const CREDENTIAL_PROVIDERS = new Set([
   "openai",
   "youtube_api_key",
+  "perplexity",
   "coupang_access_key",
   "coupang_secret_key",
   "threads_app_id",
@@ -36,6 +47,7 @@ async function authorizedUser() {
 export async function saveMemberCredentials(input: {
   openaiKey?: string;
   youtubeApiKey?: string;
+  perplexityKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
   threadsAppId?: string;
@@ -45,6 +57,7 @@ export async function saveMemberCredentials(input: {
   const rows = [
     ["openai", input.openaiKey],
     ["youtube_api_key", input.youtubeApiKey],
+    ["perplexity", input.perplexityKey],
     ["coupang_access_key", input.coupangAccessKey],
     ["coupang_secret_key", input.coupangSecretKey],
     ["threads_app_id", input.threadsAppId],
@@ -612,5 +625,127 @@ export async function saveCoupangSearchResult(input: {
     return { ok: true };
   } catch (error) {
     return sourceFailure(error, "상품을 소스로 저장하지 못했습니다.");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 떡상 콘텐츠 등록 = 글감 수집 (v1.34)
+// `threads/`의 글감 수집(HTTP·Perplexity + AI 구조화)을 옮겼다. 회원 본인의 OpenAI/Perplexity 키만 쓰고,
+// 원문 전체는 저장하지 않으며 AI가 정리한 후보(제목·본문·키워드)와 출처만 본인 계정에 저장한다.
+// 예상된 오류는 throw하지 않고 결과 객체로 돌려준다.
+// ---------------------------------------------------------------------------
+const MAX_VIRAL_PER_USER = 300;
+const VIRAL_STATUSES = ["ready", "used", "archived"];
+type CollectResult = { ok: true; count: number } | { ok: false; error: string; needKey?: "openai" | "perplexity" };
+
+async function saveViralDrafts(
+  supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"],
+  userId: string,
+  method: "http" | "perplexity",
+  sourceInput: string,
+  drafts: ViralCandidateDraft[],
+) {
+  const { count } = await supabase.from("tco_viral_candidates")
+    .select("id", { count: "exact", head: true }).eq("user_id", userId);
+  if ((count ?? 0) + drafts.length > MAX_VIRAL_PER_USER) {
+    throw new Error(`수집한 글감은 최대 ${MAX_VIRAL_PER_USER}건까지 보관할 수 있습니다. 사용한 글감을 삭제한 뒤 다시 수집해 주세요.`);
+  }
+  const now = Date.now();
+  const { error } = await supabase.from("tco_viral_candidates").insert(drafts.map((draft, index) => ({
+    user_id: userId,
+    method,
+    source_input: sourceInput.slice(0, 2_000),
+    title: draft.title,
+    content: draft.content,
+    keywords: draft.keywords,
+    created_at: new Date(now - index).toISOString(),
+  })));
+  if (error) throw new Error("수집한 글감을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+}
+
+/** 방식 1: 주소 지정 — 글 1건이면 그 글로, 목록 페이지면 안의 글 중 무작위 5건으로 글감 후보를 만든다. */
+export async function collectViralFromUrl(rawUrl: string): Promise<CollectResult> {
+  try {
+    const input = rawUrl.trim();
+    if (!input || input.length > 2_000) throw new Error("주소를 1~2,000자로 입력해 주세요.");
+    const { supabase, user } = await authorizedUser();
+    const openaiKey = await resolveApiKey(supabase, user.id, "openai");
+    if (!openaiKey) return { ok: false, needKey: "openai", error: "글감을 정리하려면 본인의 OpenAI API 키가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요." };
+
+    const listing = await fetchPublicHtml(rewriteToScrapableListingUrl(input));
+    const links = extractArticleLinks(listing.html, listing.finalUrl);
+    let rawText: string;
+    let maxItems = 1;
+    if (links.length >= 3) {
+      const picked = pickRandom(links, 5);
+      const articles = await Promise.all(picked.map(async (link) => {
+        try { return { ...link, text: extractMainText((await fetchPublicHtml(link.url)).html, 2_500) }; } catch { return null; }
+      }));
+      const valid = articles.filter((article): article is { url: string; title: string; text: string } => Boolean(article && article.text.length > 100));
+      if (!valid.length) throw new Error("목록의 게시글 내용을 가져오지 못했습니다. 개별 글 주소로 시도해 주세요.");
+      rawText = valid.map((article, index) => `[${index + 1}] ${article.title}\n${article.text}\n출처: ${article.url}`).join("\n\n");
+      maxItems = valid.length;
+    } else {
+      const text = extractMainText(listing.html);
+      if (text.length < 100) throw new Error("페이지에서 읽을 수 있는 본문을 찾지 못했습니다. 로그인이 필요하거나 화면이 자바스크립트로 그려지는 페이지일 수 있습니다.");
+      rawText = `${text}\n출처: ${listing.finalUrl}`;
+    }
+    const drafts = await structureCandidates({ rawText, maxItems, apiKey: openaiKey });
+    await saveViralDrafts(supabase, user.id, "http", input, drafts);
+    revalidatePath("/threads-content-ops");
+    return { ok: true, count: drafts.length };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "글감을 수집하지 못했습니다." };
+  }
+}
+
+/** 방식 2: Perplexity — 시드 주제로 최근 72시간 화제 이슈를 찾아 글감 후보를 만든다. */
+export async function collectViralFromPerplexity(rawTopic: string): Promise<CollectResult> {
+  try {
+    const topic = rawTopic.trim();
+    if (!topic || topic.length > 200) throw new Error("주제를 1~200자로 입력해 주세요.");
+    const { supabase, user } = await authorizedUser();
+    const [perplexityKey, openaiKey] = await Promise.all([
+      resolveApiKey(supabase, user.id, "perplexity"),
+      resolveApiKey(supabase, user.id, "openai"),
+    ]);
+    if (!perplexityKey) return { ok: false, needKey: "perplexity", error: "화제 검색에는 본인의 Perplexity API 키(pplx-...)가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요." };
+    if (!openaiKey) return { ok: false, needKey: "openai", error: "글감을 정리하려면 본인의 OpenAI API 키가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요." };
+
+    const trendText = await searchPerplexityTrending(topic, perplexityKey);
+    const drafts = await structureCandidates({ rawText: trendText, maxItems: 5, apiKey: openaiKey });
+    await saveViralDrafts(supabase, user.id, "perplexity", topic, drafts);
+    revalidatePath("/threads-content-ops");
+    return { ok: true, count: drafts.length };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "글감을 수집하지 못했습니다." };
+  }
+}
+
+export async function setViralCandidateStatus(input: { id: string; status: string }): Promise<SourceResult> {
+  try {
+    if (!VIRAL_STATUSES.includes(input.status)) throw new Error("지원하지 않는 상태입니다.");
+    const { supabase, user } = await authorizedUser();
+    const { data, error } = await supabase.from("tco_viral_candidates")
+      .update({ status: input.status, updated_at: new Date().toISOString() })
+      .eq("id", input.id).eq("user_id", user.id).select("id").maybeSingle();
+    if (error || !data) throw new Error("상태를 바꿀 글감을 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "상태를 바꾸지 못했습니다.");
+  }
+}
+
+export async function deleteViralCandidate(id: string): Promise<SourceResult> {
+  try {
+    const { supabase, user } = await authorizedUser();
+    const { data, error } = await supabase.from("tco_viral_candidates")
+      .delete().eq("id", id).eq("user_id", user.id).select("id").maybeSingle();
+    if (error || !data) throw new Error("삭제할 글감을 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "글감을 삭제하지 못했습니다.");
   }
 }
