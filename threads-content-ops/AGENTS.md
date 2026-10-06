@@ -1,6 +1,10 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.23`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.24`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+
+## v1.24 예상된 생성 오류
+
+- `generateAndSaveDraft()`는 OpenAI/API 키 오류를 throw하지 않고 `{ ok, error }` 결과로 반환한다. 클라이언트는 오류 경계 대신 화면 메시지로 표시한다.
 
 ## v1.23 복수 계정 연결
 

@@ -1,6 +1,10 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.22`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.24`
+
+## v1.24 AI 생성 오류 처리
+
+- OpenAI 키·권한·응답 오류가 발생해도 Server Components 오류 화면으로 전환하지 않고, 초안 카드 아래에 안전한 안내 문구로 표시합니다.
 
 ## v1.23 복수 Threads 계정 운영
 

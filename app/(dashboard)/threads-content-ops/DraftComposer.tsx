@@ -33,7 +33,7 @@ export default function DraftComposer({ accounts, drafts }: { accounts: Account[
     catch (error) { setMessage(error instanceof Error ? error.message : "작업을 완료하지 못했습니다."); }
     finally { setBusy(false); }
   };
-  const generate = () => run(async () => { await generateAndSaveDraft({ accountId, topic }); setTopic(""); }, "초안을 저장했습니다. 검토 후 즉시 발행하거나 예약 대기열에 넣을 수 있습니다.");
+  const generate = () => run(async () => { const result = await generateAndSaveDraft({ accountId, topic }); if (!result.ok) throw new Error(result.error); setTopic(""); }, "초안을 저장했습니다. 검토 후 즉시 발행하거나 예약 대기열에 넣을 수 있습니다.");
   const importYouTube = () => run(async () => { const source = await loadYouTubeSource(youtubeUrl); setTopic(source.prompt.slice(0, 1200)); setYoutubeUrl(""); }, "YouTube 공개 메타데이터를 소재로 불러왔습니다. 내용을 확인한 뒤 초안을 생성해 주세요.");
 
   return <div className="space-y-4">

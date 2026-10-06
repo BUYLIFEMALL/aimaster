@@ -111,7 +111,7 @@ export async function startThreadsOAuth() {
   return { authorizeUrl: `https://threads.net/oauth/authorize?${params.toString()}` };
 }
 
-export async function generateAndSaveDraft(input: { accountId: string; topic: string }) {
+async function generateAndSaveDraftInternal(input: { accountId: string; topic: string }) {
   const topic = input.topic.trim();
   if (!input.accountId || !topic || topic.length > 1_200) {
     throw new Error("연결 계정과 1~1,200자 주제를 확인해 주세요.");
@@ -156,6 +156,18 @@ export async function generateAndSaveDraft(input: { accountId: string; topic: st
   });
   if (error) throw new Error("생성한 초안을 저장하지 못했습니다.");
   revalidatePath("/threads-content-ops");
+}
+
+// Server Actions render an error boundary for expected provider failures when
+// they throw. Return a user-safe result instead, while keeping unexpected
+// failures contained on the server.
+export async function generateAndSaveDraft(input: { accountId: string; topic: string }) {
+  try {
+    await generateAndSaveDraftInternal(input);
+    return { ok: true as const };
+  } catch (error) {
+    return { ok: false as const, error: error instanceof Error ? error.message : "초안을 생성하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  }
 }
 
 export async function saveDraft(input: { draftId: string; body: string }) {
