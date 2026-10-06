@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
@@ -23,6 +23,7 @@ import {
   KeyRound,
   UserCheck,
   Sparkles,
+  LogOut,
 } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { cn } from "@/lib/utils/cn";
@@ -47,9 +48,27 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminSidebar() {
+  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string>("");
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      const supabase = createClient();
+      await fetch("/api/session/logout", { method: "POST" }).catch(() => {});
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    } catch {
+      router.push("/");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -117,14 +136,27 @@ export default function AdminSidebar() {
         ))}
       </nav>
 
-      {/* 좌하단 푸터: 관리자 | 로그인 계정 메일 정보 (맨 하단 고정) */}
-      <div className="p-4 border-t border-gold/20 bg-black/40 text-xs flex items-center gap-2 overflow-hidden flex-shrink-0">
-        <UserCheck size={14} className="text-gold flex-shrink-0" />
-        <span className="font-semibold text-gold flex-shrink-0">관리자</span>
-        <span className="text-white/30 flex-shrink-0 font-light">|</span>
-        <span className="truncate text-subtext font-medium" title={userEmail}>
-          {userEmail || "관리자 계정"}
-        </span>
+      {/* 좌하단 푸터: 로그아웃 버튼 + 관리자 계정 메일 정보 (맨 하단 고정) */}
+      <div className="p-3 border-t border-gold/20 bg-black/40 text-xs flex-shrink-0 space-y-2">
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-rose-500/15 text-subtext hover:text-rose-300 border border-white/5 hover:border-rose-500/30 transition-all font-medium text-xs cursor-pointer disabled:opacity-50"
+          title="관리자 로그아웃"
+        >
+          <LogOut size={13} className={loggingOut ? "animate-spin" : ""} />
+          <span>{loggingOut ? "로그아웃 중..." : "로그아웃"}</span>
+        </button>
+
+        <div className="flex items-center gap-2 overflow-hidden px-1 py-0.5">
+          <UserCheck size={14} className="text-gold flex-shrink-0" />
+          <span className="font-semibold text-gold flex-shrink-0">관리자</span>
+          <span className="text-white/30 flex-shrink-0 font-light">|</span>
+          <span className="truncate text-subtext font-medium" title={userEmail}>
+            {userEmail || "관리자 계정"}
+          </span>
+        </div>
       </div>
     </div>
   );
