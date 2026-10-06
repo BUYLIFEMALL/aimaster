@@ -1,5 +1,15 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-06 관리자 프로그램 관리(admin/programs) 목록의 외부 링크 버튼(↗) 단순 span 장식으로 인한 클릭 불가 해결
+
+- **증상:** 관리자 화면 `/admin/programs`에서 프로그램명 우측의 외부 링크 아이콘(`↗`)을 클릭해도 아무런 동작을 하지 않음.
+- **원인:** `components/admin/ProgramsAdminBoard.tsx`에서 `ExternalLink` 아이콘이 링크(`<a>`)가 아니라 단순 `<span>` 태그로 감싸져 있었음.
+- **해결(위치):** 
+  1) `components/admin/ProgramsAdminBoard.tsx`: `p.app_url`이 등록되어 있으면 해당 실제 서브프로그램 라이브 사이트(예: `https://threads-easy-planner.vercel.app`)로 즉시 새 탭(`target="_blank" rel="noopener noreferrer"`)으로 열리는 `<a>` 링크로 교체.
+  2) `app_url`이 없을 때의 대안으로 소개 페이지(`/programs/${p.slug}`)로 이동 연결, 아래 슬러그 텍스트도 새 창 `Link`로 연결.
+  3) 메인 지침(`CLAUDE.md`, `AGENTS.md`, `docs/PLATFORM_PATTERNS.md` §31)에 새 프로그램 등록 시 `app_url` 필수 등록 및 외부 링크 버튼 동작 보장 원칙 영구 명시.
+- **다음부터 확인:** 외부 링크 형태의 UI 아이콘(`↗`)을 배치할 때는 단순 시각적 span으로 두지 말고 실제 타깃 URL로 연결되는 `<a>` 태그로 구현해야 하며, 새 프로그램 DB 등록 시 `programs.app_url`을 빠뜨리지 않는다.
+
 ## 2026-10-06 Anthropic 워크스페이스 미지정 키(sk-ant-usr-...) 400 에러 노출 및 친절한 한글 안내 개선 (threads-easy-planner v1.24)
 
 - **증상:** Anthropic Claude API 키를 등록한 회원이 글 생성 시 `400 {"type":"error","error":{"type":"invalid_request_error","message":"This API key is not scoped to a workspace, so this request must include the anthropic-workspace-id header..."}}` 원문 JSON 에러가 화면 상단에 그대로 노출됨.

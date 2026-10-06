@@ -149,8 +149,7 @@ vercel deploy --prod --yes --scope buylife
   반드시 남긴다. Claude Code의 plan-mode 산출물은 저장소 밖에 있어 다른 클론/다른 도구에서는
   안 보이므로, 구현이 끝나면 핵심 결정을 그 프로젝트의 README로 옮겨 적는다.
 - **새 프로그램 등록 체크리스트** (전부 필수):
-  1. `programs` 테이블에 slug 등록 + **`pricing_plans`에 기본 3단계 요금제도 같은 작업
-     단위로 함께 등록**(아래 참고 — 빠뜨리기 쉬움, 에러 없이 조용히 비어있다).
+  1. `programs` 테이블에 slug 등록 시 **반드시 `app_url`(`https://<프로그램slug>.vercel.app` 형태)을 세트로 함께 등록**한다. 메인 관리자 프로그램 관리(`/admin/programs`) 및 카탈로그에서 프로그램명 우측 외부 링크 버튼(`↗`)을 누르면 실제 서브프로그램 라이브 사이트가 새 창(`target="_blank"`)으로 즉시 열리도록 `<a>` 태그로 보장되어야 하며, `app_url` 누락이나 단순 장식용 `<span>` 태그로 회귀시켜서는 안 된다. + **`pricing_plans`에 기본 3단계 요금제도 같은 작업 단위로 함께 등록**(아래 참고 — 빠뜨리기 쉬움, 에러 없이 조용히 비어있다).
   2. 대시보드 레이아웃에 `requireProgramAccess()` 게이트.
   3. 모든 쓰기 API/Server Action에 entitlement 체크(`requireProgramAccess()` 또는
      `checkProgramAccessApi()` — API route/OAuth 콜백은 절대 `redirect()` 쓰지 말고 JSON 에러

@@ -710,3 +710,16 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 - **실제 영상 분석:** Gemini `generateContent`의 `fileData.fileUri`에 공개 YouTube 주소(`https://www.youtube.com/watch?v=ID`)를 넘기면 모델이 영상을 직접 본다. GPT·Claude는 영상을 볼 수 없으므로 제목·지표·설명·댓글 기반 **추정**임을 화면에 표시한다. 영상 분석이 실패하면 추정 모드로 자동 폴백하고 이유를 안내한다. 영상 분석은 비용이 크므로 한 번에 최대 3개로 제한한다.
 - **30일 보관:** YouTube API 데이터는 30일을 넘겨 저장하지 못한다(삭제 또는 갱신). 프로젝트 테이블은 `created_at` 30일 후 삭제하고 화면에 남은 일수를 표시한다.
 - **가짜 분석 금지:** AI에게 주지 않은 정보(컷 전환 주기, BGM 타이밍 등)를 "분석 결과"로 보여주지 않는다. 입력에 없는 정보는 `확인 불가` 또는 `(추정)` 표기 — §24와 같은 원칙(`docs/ERROR_LESSONS.md` G 2026-10-04).
+
+---
+
+## 31. 프로그램 등록 시 app_url 필수 지정 및 관리자 외부 링크(↗) 인터랙션 표준 (2026-10-06 주인님 지시)
+
+- **원칙:** 모든 서브 자동화 프로그램은 고유의 Vercel 배포 URL을 가지므로, 공용 DB `programs.app_url`에 `https://<프로그램slug>.vercel.app`을 반드시 등록해야 한다. (새 프로그램 등록/수정 시 `app_url` 누락 금지)
+- **관리자 목록(/admin/programs) 외부 링크(↗) 버튼 불변칙:**
+  1. 프로그램명 우측의 `ExternalLink` 아이콘(`↗`)은 단순 텍스트 장식용 `<span>` 태그로 만들어서는 안 되며, 반드시 클릭 시 해당 실제 자동화 프로그램 라이브 사이트(`p.app_url`)가 새 탭/새 창(`target="_blank" rel="noopener noreferrer"`)으로 즉시 열리는 실제 `<a>` 링크여야 한다.
+  2. `p.app_url`이 미등록된 예외 상황에서는 메인 사이트의 프로그램 소개 페이지(`/programs/${p.slug}`)로 열리도록 폴백 처리한다.
+  3. 프로그램명 아래의 `/programs/${p.slug}` 슬러그 텍스트도 클릭 가능한 새 창 링크(`Link`)로 연결하여, 관리자가 사용자 관점의 상세 소개 페이지를 언제든 즉시 확인할 수 있게 한다.
+  4. 시각적 인터랙션: 마우스 호버 시 배경 하이라이트 및 골드 색상 변화(`hover:bg-gold/30 hover:text-white cursor-pointer`)를 부여해 링크 버튼임을 명확히 인지할 수 있게 유지한다.
+- **참고 구현:** `components/admin/ProgramsAdminBoard.tsx` (540~555행 프로그램명 셀 렌더링 부)
+

@@ -1,10 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 메인 관리자 프로그램 관리 (admin/programs) — 프로그램 바로가기 링크 활성화 (2026-10-06)
+## 메인 관리자 프로그램 관리 (admin/programs) — 프로그램 바로가기 링크 활성화 및 메인지침 반영 (2026-10-06 주인님 지시)
 
 - 주인님 피드백 반영: `/admin/programs` 프로그램 목록에서 프로그램명 우측 외부 링크 아이콘(`↗`)이 단순 span이 아닌 실제 클릭 가능한 `<a>` 링크로 동작하도록 수정.
 - `p.app_url`이 있으면 새 창(`target="_blank"`)으로 해당 실제 서브프로그램 라이브 사이트를 즉시 열고, 없으면 소개 상세 페이지(`/programs/${p.slug}`)를 열도록 연결.
 - 아래의 `/programs/${p.slug}` 텍스트도 새 창 소개 페이지 링크(`Link`)로 연결하여 관리자 편의성 대폭 개선.
+- **플랫폼 메인 지침 영구 반영 완료**:
+  - `CLAUDE.md`: 새 프로그램 체크리스트 1번에 `programs.app_url` 필수 등록 및 관리자 외부 링크(`↗`) 동작 보장 원칙 추가.
+  - `AGENTS.md`: Platform-hub 체크리스트 1번에 `app_url` 세트 등록 및 span 회귀 금지 규칙 반영.
+  - `docs/PLATFORM_PATTERNS.md`: `§31. 프로그램 등록 시 app_url 필수 지정 및 관리자 외부 링크(↗) 인터랙션 표준` 신설.
+  - `docs/ERROR_LESSONS.md`: 외부 링크 단순 span 장식 문제 및 해결 기록 추가.
 
 ## Threads AI 기획 자동화 (threads-easy-planner v1.24, 2026-10-06)
 
