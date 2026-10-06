@@ -37,7 +37,25 @@ import {
   buildMediaAttachmentFromImages,
   processVideoFile,
 } from "@/lib/mediaProcessor";
-import { Image as ImageIcon, Video as VideoIcon, Upload, Trash2, Loader2, Sparkles, CheckCircle2, Plus, X } from "lucide-react";
+import {
+  QUICK_MOOD_CHIPS,
+  getCurrentTimeContext,
+  getRandomLuckyPick,
+  type QuickMoodChip,
+} from "@/lib/constants/luckyTopics";
+import {
+  Image as ImageIcon,
+  Video as VideoIcon,
+  Upload,
+  Trash2,
+  Loader2,
+  Sparkles,
+  CheckCircle2,
+  Plus,
+  X,
+  Dices,
+  RotateCcw,
+} from "lucide-react";
 
 export function PlannerApp() {
   // 메인 키워드 입력
@@ -89,6 +107,11 @@ export function PlannerApp() {
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [editedContent, setEditedContent] = useState("");
   const [loadedFromStorageId, setLoadedFromStorageId] = useState<string | null>(null);
+
+  // 아무 생각 없을 때 랜덤 럭키 픽 상태
+  const [isLuckyGenerated, setIsLuckyGenerated] = useState(false);
+  const [luckyTimeLabel, setLuckyTimeLabel] = useState<string>("");
+  const [timeContext, setTimeContext] = useState(() => getCurrentTimeContext());
 
   // 초기 로드 시 localStorage 복원 및 기본 추천 주제 로드
   useEffect(() => {
@@ -460,6 +483,28 @@ export function PlannerApp() {
     }
   }
 
+  // 아무 생각 없을 때를 위한 원클릭 럭키 픽 실행 (요일/시간대 기반 검증된 썰 즉시 생성)
+  async function handleLuckyRandomGenerate() {
+    const pick = getRandomLuckyPick();
+    setTopicInput(pick.topic);
+    setActivePersonaId(pick.personaId);
+    setIsLuckyGenerated(true);
+    setLuckyTimeLabel(pick.timeLabel);
+    showCopyToast(`🎰 [${pick.timeLabel}] 맞춤 추천 썰을 즉시 작성합니다!`);
+    await handleGenerate(pick.topic, pick.personaId, `랜덤 픽 (${pick.timeLabel})`);
+  }
+
+  // 3대 감정 무드 칩 원클릭 실행
+  async function handleMoodChipClick(chip: QuickMoodChip) {
+    const randomSeed = chip.seedTopics[Math.floor(Math.random() * chip.seedTopics.length)];
+    setTopicInput(randomSeed);
+    setActivePersonaId(chip.personaId);
+    setIsLuckyGenerated(true);
+    setLuckyTimeLabel(chip.label);
+    showCopyToast(`✨ [${chip.label}] 썰을 즉시 작성합니다!`);
+    await handleGenerate(randomSeed, chip.personaId, chip.label);
+  }
+
   // 5. 추천 주제 카드 선택 후 즉시 글 생성
   async function handleSelectTopicAndGenerate(selectedTopic: string) {
     setTopicInput(selectedTopic);
@@ -667,8 +712,20 @@ export function PlannerApp() {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* 오늘 뭐 쓰지? 버튼 */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            {/* 0. 🎰 아무 생각 없을 때 (원클릭 썰) - 메인 추천 기능! */}
+            <button
+              type="button"
+              onClick={handleLuckyRandomGenerate}
+              disabled={isGenerating}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black px-4 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
+              title="아무런 생각이 안 날 때! 요일과 시간대에 맞춘 떡상 썰을 원클릭으로 바로 작성합니다"
+            >
+              <Dices className="w-4 h-4 text-purple-200" />
+              <span>{isGenerating && isLuckyGenerated ? "랜덤 썰 작성 중..." : "아무 생각 없을 때 (랜덤 썰)"}</span>
+            </button>
+
+            {/* 1. 오늘 뭐 쓰지? 버튼 */}
             <button
               type="button"
               onClick={() => {
@@ -683,12 +740,12 @@ export function PlannerApp() {
                 handleSuggestTopics(selectedCategory || undefined);
               }}
               disabled={isSuggesting || isGenerating}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              <span>{isSuggesting || (mediaAttachment && isGenerating) ? "⏳" : "🎲"}</span>
+              <span>{isSuggesting || (mediaAttachment && isGenerating && !isLuckyGenerated) ? "⏳" : "🎲"}</span>
               <span>
                 {mediaAttachment
-                  ? isGenerating
+                  ? isGenerating && !isLuckyGenerated
                     ? "사진 분석 작성 중..."
                     : "오늘 뭐 쓰지? (사진 분석)"
                   : isSuggesting
@@ -697,22 +754,47 @@ export function PlannerApp() {
               </span>
             </button>
 
-            {/* 글 생성 버튼 */}
+            {/* 2. 글 생성 버튼 */}
             <button
               type="button"
               onClick={() => handleGenerate()}
               disabled={isGenerating}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-6 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-5 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
             >
-              <span>{isGenerating ? "✍️" : "✨"}</span>
+              <span>{isGenerating && !isLuckyGenerated ? "✍️" : "✨"}</span>
               <span>
-                {isGenerating
+                {isGenerating && !isLuckyGenerated
                   ? "작성 중..."
                   : mediaAttachment
                     ? "사진 분석 글 생성하기"
                     : "글 생성하기"}
               </span>
             </button>
+          </div>
+        </div>
+
+        {/* 1-0. 아무 생각 없을 때를 위한 3초 감정 무드 칩 & 현재 시간대 추천 바 */}
+        <div className="flex flex-wrap items-center gap-2 pt-0.5">
+          <span className="text-[11px] font-extrabold text-neutral-600 flex items-center gap-1 bg-neutral-100 px-2.5 py-1 rounded-full shrink-0">
+            <span>⏰</span>
+            <span>{timeContext.timeLabel} 맞춤:</span>
+          </span>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            {QUICK_MOOD_CHIPS.map((chip) => (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => handleMoodChipClick(chip)}
+                disabled={isGenerating}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-50 hover:bg-neutral-900 text-neutral-700 hover:text-white border border-neutral-200/90 hover:border-neutral-900 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer disabled:opacity-50 group"
+                title={chip.tagline}
+              >
+                <span>{chip.emoji}</span>
+                <span>{chip.label}</span>
+                <span className="text-[10px] text-neutral-400 group-hover:text-amber-300">⚡</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -1356,6 +1438,12 @@ export function PlannerApp() {
                   <span>🎯</span>
                   <span>스레드 기획 완성</span>
                 </span>
+                {isLuckyGenerated && (
+                  <span className="px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/50 text-[11px] font-bold flex items-center gap-1">
+                    <span>🎰</span>
+                    <span>랜덤 럭키 픽</span>
+                  </span>
+                )}
                 {usedPersonaLabel && (
                   <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold">
                     🎭 {usedPersonaLabel}
@@ -1372,6 +1460,18 @@ export function PlannerApp() {
               </h2>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
+              {/* 다른 썰 뽑기 버튼 (랜덤 생성 시 원클릭 재시도 지원) */}
+              <button
+                type="button"
+                disabled={isGenerating}
+                onClick={handleLuckyRandomGenerate}
+                className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer disabled:opacity-50"
+                title="다른 떡상 썰을 새로 뽑아서 즉시 작성합니다"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>다른 썰 뽑기</span>
+              </button>
+
               {/* 보관함 저장 버튼 */}
               <button
                 type="button"
