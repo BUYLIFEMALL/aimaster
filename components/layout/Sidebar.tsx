@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Settings, KeyRound, Menu, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, Users, Settings, KeyRound, Menu, X, LogOut } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
@@ -17,15 +17,43 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       setAccountEmail(user?.email ?? null);
     });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.email) {
+        setAccountEmail(session.user.email);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await fetch("/api/session/logout", { credentials: "include" });
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      console.error("Logout failed:", err);
+      window.location.href = "/";
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   const navContent = (
     <>
@@ -55,16 +83,28 @@ export default function Sidebar() {
           </Link>
         ))}
       </nav>
-      {accountEmail && (
-        <div className="p-3 border-t border-white/10">
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl">
-            <div className="w-7 h-7 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+      {/* 좌하단 푸터: 로그아웃 버튼 + 사용자 이메일 정보 */}
+      <div className="p-3 border-t border-white/10 space-y-2 flex-shrink-0">
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-rose-500/15 text-subtext hover:text-rose-300 border border-white/5 hover:border-rose-500/30 transition-all font-medium text-xs cursor-pointer disabled:opacity-50"
+          title="로그아웃"
+        >
+          <LogOut size={13} className={loggingOut ? "animate-spin" : ""} />
+          <span>{loggingOut ? "로그아웃 중..." : "로그아웃"}</span>
+        </button>
+
+        {accountEmail && (
+          <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-white/[0.02]">
+            <div className="w-6 h-6 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
               <span className="text-gold text-xs font-bold">{accountEmail[0].toUpperCase()}</span>
             </div>
-            <p className="text-xs text-subtext truncate">{accountEmail}</p>
+            <p className="text-xs text-subtext truncate" title={accountEmail}>{accountEmail}</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 
