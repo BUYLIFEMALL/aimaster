@@ -48,6 +48,7 @@ export function PlannerApp() {
   const [mediaAttachment, setMediaAttachment] = useState<MediaAttachment | null>(null);
   const [isProcessingMedia, setIsProcessingMedia] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const topicsSectionRef = useRef<HTMLDivElement>(null);
 
   // 실전 템플릿 필드 (선택 입력)
   const [showTemplateForm, setShowTemplateForm] = useState(false);
@@ -448,6 +449,10 @@ export function PlannerApp() {
         return;
       }
       setSuggestedTopics(list);
+      showCopyToast("🎲 오늘 뭐 쓰지? 추천 주제 10선이 아래에 준비되었습니다!");
+      setTimeout(() => {
+        topicsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     } catch {
       setErrorMessage("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
@@ -667,16 +672,29 @@ export function PlannerApp() {
             <button
               type="button"
               onClick={() => {
+                if (mediaAttachment) {
+                  // ★ 사진/영상이 첨부된 경우: 사진을 분석하여 바로 글 생성 실행!
+                  handleGenerate();
+                  return;
+                }
                 if (!showCategoryPicker) {
                   setShowCategoryPicker(true);
                 }
                 handleSuggestTopics(selectedCategory || undefined);
               }}
-              disabled={isSuggesting}
+              disabled={isSuggesting || isGenerating}
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              <span>{isSuggesting ? "⏳" : "🎲"}</span>
-              <span>{isSuggesting ? "추천 중..." : "오늘 뭐 쓰지?"}</span>
+              <span>{isSuggesting || (mediaAttachment && isGenerating) ? "⏳" : "🎲"}</span>
+              <span>
+                {mediaAttachment
+                  ? isGenerating
+                    ? "사진 분석 작성 중..."
+                    : "오늘 뭐 쓰지? (사진 분석)"
+                  : isSuggesting
+                    ? "주제 추천 중..."
+                    : "오늘 뭐 쓰지?"}
+              </span>
             </button>
 
             {/* 글 생성 버튼 */}
@@ -687,7 +705,13 @@ export function PlannerApp() {
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-6 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
             >
               <span>{isGenerating ? "✍️" : "✨"}</span>
-              <span>{isGenerating ? "작성 중..." : "글 생성하기"}</span>
+              <span>
+                {isGenerating
+                  ? "작성 중..."
+                  : mediaAttachment
+                    ? "사진 분석 글 생성하기"
+                    : "글 생성하기"}
+              </span>
             </button>
           </div>
         </div>
@@ -753,6 +777,15 @@ export function PlannerApp() {
                     </div>
 
                     <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleGenerate()}
+                        disabled={isGenerating}
+                        className="text-xs font-bold bg-neutral-900 hover:bg-black text-white px-3.5 py-1.5 rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all active:scale-95"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>{isGenerating ? "영상 분석 중..." : "글 생성하기"}</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
@@ -828,6 +861,15 @@ export function PlannerApp() {
                     </div>
 
                     <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleGenerate()}
+                        disabled={isGenerating}
+                        className="text-xs font-bold bg-neutral-900 hover:bg-black text-white px-3.5 py-1.5 rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all active:scale-95"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>{isGenerating ? "사진 분석 중..." : "글 생성하기"}</span>
+                      </button>
                       {(mediaAttachment.imageCount || 1) < 5 && (
                         <button
                           type="button"
@@ -1096,7 +1138,7 @@ export function PlannerApp() {
 
         {/* 4. 🔥 아무런 아이디어가 없을 때!!! (업종/타깃별 추천 주제 10선) */}
         {showCategoryPicker && (
-          <div className="pt-4 border-t border-neutral-200/80 space-y-3.5">
+          <div ref={topicsSectionRef} className="pt-4 border-t border-neutral-200/80 space-y-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight animate-pulse">
