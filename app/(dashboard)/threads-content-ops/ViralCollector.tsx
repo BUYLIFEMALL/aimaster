@@ -99,7 +99,7 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
   return <div className="space-y-5">
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-bold text-gold">VIRAL CONTENT COLLECTOR</p>
-      <h2 className="mt-1 text-xl font-bold text-neutral-900">떡상 콘텐츠 등록</h2>
+      <h2 className="mt-1 text-xl font-bold text-neutral-900">떡상 콘텐츠 수집</h2>
       <p className="mt-2 text-sm leading-relaxed text-neutral-600">콘텐츠를 작성하기 전에 글감을 모으는 곳입니다. 뉴스·블로그 같은 공개 페이지 주소를 넣거나 주제를 검색하면, 회원님의 OpenAI 키로 Threads 글감 후보(제목·본문·키워드)를 만들어 보관합니다. 원문 전체는 저장하지 않고 정리된 글감과 출처만 본인 계정에 저장합니다.</p>
     </section>
 

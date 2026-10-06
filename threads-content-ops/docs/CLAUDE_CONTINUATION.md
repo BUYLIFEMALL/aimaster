@@ -1,6 +1,6 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-06 · 현재 배포 버전: `v1.34` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-06 · 현재 배포 버전: `v1.36` · 라이브: <https://www.buylife.xyz/threads-content-ops>
 
 ## 먼저 읽을 문서와 확인 순서
 
@@ -53,7 +53,7 @@
 - 외부 수집은 하지 않습니다. 서버 동작은 `web-actions.ts`의 `createContentSource`/`updateContentSource`/`setContentSourceStatus`/`deleteContentSource`이며, 모두 권한 검사 뒤 `user_id`로 제한하고 `{ ok, error }` 결과를 반환합니다(throw 금지 — 운영 서버가 메시지를 가림).
 - 대시보드 "즉시 작업" 카드는 실제 등록 건수만 보여줍니다. 소스로 초안을 만드는 연결(아래 4번)이 구현되기 전에는 `작업 가능`으로 표시하지 않습니다.
 
-> **v1.34 떡상 콘텐츠 등록(글감 수집):** 사이드바 1번에 새 메뉴 `떡상 콘텐츠 등록`(`?tab=viral`, `ViralCollector.tsx`, 수집기 `threads-content-ops/lib/collector.ts`)이 생겼고 아래 구현 순서에는 없는 주인님 추가 요청입니다. `threads/`(쓰레드 자동화)의 글감 수집(주소 지정·Perplexity)을 옮겼고 NewsBlur는 제외했습니다. 외부 주소를 읽는 코드이므로 SSRF 방어(`assertPublicHttpUrl`)를 약화하지 마세요. 상세는 `AGENTS.md` v1.34.
+> **v1.34 떡상 콘텐츠 수집(글감 수집):** 사이드바 1번에 새 메뉴 `떡상 콘텐츠 수집`(`?tab=viral`, `ViralCollector.tsx`, 수집기 `threads-content-ops/lib/collector.ts`)이 생겼고 아래 구현 순서에는 없는 주인님 추가 요청입니다. `threads/`(쓰레드 자동화)의 글감 수집(주소 지정·Perplexity)을 옮겼고 NewsBlur는 제외했습니다. 외부 주소를 읽는 코드이므로 SSRF 방어(`assertPublicHttpUrl`)를 약화하지 마세요. 상세는 `AGENTS.md` v1.34.
 >
 > **v1.33 메뉴명:** 사이드바 4번 메뉴의 표시 이름은 이제 **쇼핑제휴 상품 등록**입니다(이 문서의 "콘텐츠 소스"와 같은 화면, 주소 `?tab=sources`).
 >
@@ -109,6 +109,6 @@ vercel deploy --prod --yes --scope buylife
 ## 최근 기준점
 
 - 최신 기능 커밋: `git log --oneline -5 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인 — v1.28 `feat(threads-content-ops): 콘텐츠 소스 큐 등록 (v1.28)`이 최신이며, 그 직전 기능은 `77604d77`(v1.27 계정별 운영정보)입니다.
-- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.34'`
+- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.36'`
 - 실제 서비스 주소는 항상 `https://www.buylife.xyz/threads-content-ops`입니다(루트 AIMaster 프로젝트 배포).
 - 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `.analysis-threads-auto/`, `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.

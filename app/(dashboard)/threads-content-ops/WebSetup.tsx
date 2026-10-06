@@ -144,7 +144,7 @@ export default function WebSetup({
     </section>
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-      <SectionTitle title="화제 글감 검색 (Perplexity)" description="떡상 콘텐츠 등록의 '화제 검색'에 사용할 본인의 Perplexity API 키입니다. 키가 없어도 주소 지정 방식은 쓸 수 있습니다." />
+      <SectionTitle title="화제 글감 검색 (Perplexity)" description="떡상 콘텐츠 수집의 '화제 검색'에 사용할 본인의 Perplexity API 키입니다. 키가 없어도 주소 지정 방식은 쓸 수 있습니다." />
       <CredentialRow provider="perplexity" label="Perplexity API 키 (pplx-...)" maskedValue={credentials.perplexity} editing={editing === "perplexity"} saving={saving === "perplexity"} removing={removing === "perplexity"} onEdit={setEditing} onSave={save} onDelete={remove} />
     </section>
 
