@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.31` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.32` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -233,3 +233,6 @@
   - **고급 AI 추론 엔진 및 모델 설정 섹션을 상황별 페르소나 위로 재배치 (주인님 지시)**:
     1) `⚙️ 고급 AI 추론 엔진 및 모델 설정`(`details`) 패널을 상단 블루 박스 내부의 `🎭 상황별 페르소나 원클릭 생성` 바로 위로 위치 이동.
     2) 사용자가 페르소나 버튼을 누르기 전에 원하는 AI 모델(OpenAI / Claude / Gemini)을 직관적으로 확인하고 변경할 수 있도록 사용자 인터랙션 동선 최적화. DB `programs.version` 및 `APP_VERSION` `v1.31` 동기화.
+- **v1.32 (2026-10-06)**:
+  - **AI 설정 아코디언 타이틀 간소화 (주인님 지시)**:
+    1) 아코디언 헤더 라벨에서 '고급' 단어를 제거하여 **`⚙️ AI 추론 엔진 및 모델 설정`**으로 명칭 간소화. DB `programs.version` 및 `APP_VERSION` `v1.32` 동기화.

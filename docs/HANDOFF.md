@@ -39,6 +39,12 @@
   - `docs/PLATFORM_PATTERNS.md`: `§31. 프로그램 등록 시 app_url 필수 지정 및 관리자 외부 링크(↗) 인터랙션 표준` 신설.
   - `docs/ERROR_LESSONS.md`: 외부 링크 단순 span 장식 문제 및 해결 기록 추가.
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.32, 2026-10-06)
+
+- **AI 설정 아코디언 타이틀 간소화 (v1.32, 주인님 지시)**:
+  - 조치: 아코디언 헤더 라벨에서 '고급' 단어를 제거하여 **`⚙️ AI 추론 엔진 및 모델 설정`**으로 명칭 간소화 완료 (`PlannerApp.tsx`).
+  - `src/lib/version.ts` 및 공유 Supabase DB `programs.version`을 `v1.32`로 갱신 완료.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.31, 2026-10-06)
 
 - **고급 AI 추론 엔진 및 모델 설정 섹션을 상황별 페르소나 위로 재배치 (v1.31, 주인님 지시)**:

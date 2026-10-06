@@ -1014,7 +1014,7 @@ export function PlannerApp() {
           <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold text-neutral-700 hover:text-neutral-900">
             <span className="flex items-center gap-1.5">
               <span>⚙️</span>
-              <span>고급 AI 추론 엔진 및 모델 설정</span>
+              <span>AI 추론 엔진 및 모델 설정</span>
             </span>
             <span className="text-[11px] font-medium text-neutral-400 group-open:hidden">
               현재: {AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel} (클릭하여 변경)
