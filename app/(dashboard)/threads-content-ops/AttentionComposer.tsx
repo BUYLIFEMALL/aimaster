@@ -190,6 +190,15 @@ function VariantCard({ option, accountId, viralId, engine, onSaved }: { option: 
   const [rewriting, setRewriting] = useState<string | null>(null);
   const [error, setError] = useState("");
   const over = body.length > THREADS_LIMIT;
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+
+  // 결과 본문이 스크롤 없이 한 번에 모두 보이도록 글 길이에 맞춰 세로 칸을 키운다(다시 쓰기·직접 수정 때도 따라간다).
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + 4}px`;
+  }, [body]);
 
   const save = async () => {
     if (saving || saved) return;
@@ -234,7 +243,7 @@ function VariantCard({ option, accountId, viralId, engine, onSaved }: { option: 
     <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">{option.type}</span><span className={`text-xs ${over ? "font-bold text-rose-600" : "text-neutral-500"}`}>{body.length}/{THREADS_LIMIT}자{over ? " — Threads 글자 수를 넘습니다. 줄여 주세요" : ""}</span></div>
     {hook && <p className="mt-2 text-sm font-semibold text-neutral-900">“{hook}”</p>}
     {option.whyItWorks && <p className="mt-1 text-xs text-neutral-500">💡 {option.whyItWorks}</p>}
-    <textarea className={`${inputClass} mt-3 min-h-40 leading-relaxed`} value={body} maxLength={5000} onChange={(event) => { setBody(event.target.value); setSaved(false); }} aria-label={`${option.type} 본문`} />
+    <textarea ref={bodyRef} className={`${inputClass} mt-3 min-h-40 resize-y overflow-hidden leading-relaxed`} value={body} maxLength={5000} onChange={(event) => { setBody(event.target.value); setSaved(false); }} aria-label={`${option.type} 본문`} />
     <div className="mt-2 flex flex-wrap items-center gap-1.5"><span className="text-[11px] font-semibold text-neutral-500">다시 써줘</span>{REWRITE_MODES.map((item) => <button key={item.mode} type="button" disabled={rewriting !== null || saving} onClick={() => void rewrite(item.mode)} className="rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50">{rewriting === item.mode ? "수정 중…" : `${item.icon} ${item.label}`}</button>)}</div>
     {error && <p className="mt-2 text-sm text-rose-600" role="alert">{error}</p>}
     <div className="mt-3 flex flex-wrap gap-2">
