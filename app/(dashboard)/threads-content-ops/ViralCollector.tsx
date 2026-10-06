@@ -130,7 +130,7 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-bold text-gold">VIRAL CONTENT COLLECTOR</p>
       <h2 className="mt-1 text-xl font-bold text-neutral-900">떡상 콘텐츠 수집</h2>
-      <p className="mt-2 text-sm leading-relaxed text-neutral-600">콘텐츠를 작성하기 전에 글감을 모으는 곳입니다. 뉴스·블로그 같은 공개 페이지 주소를 넣거나 주제를 검색하면, 회원님의 OpenAI 키로 Threads 글감 후보(제목·본문·키워드)를 만들어 보관합니다. 원문 전체는 저장하지 않고 정리된 글감과 출처만 본인 계정에 저장합니다.</p>
+      <p className="mt-2 text-sm leading-relaxed text-neutral-600">콘텐츠를 생성하기 전에 글감을 모으는 곳입니다. 세 가지 방법으로 모을 수 있습니다. ① 뉴스·블로그 같은 공개 페이지 주소를 넣기 ② 주제를 검색해 최근 화제 이슈 찾기(Perplexity) ③ 유튜브 쇼츠를 검색해 구독자 대비 조회수가 터진 영상을 고르고, AI가 그 영상이 터진 이유를 분석해 글감으로 저장하기. 모은 글감은 아래 목록에서 보관하거나 삭제하고, 콘텐츠 생성에서 골라 주목받는 글로 만들 수 있습니다. 원문 전체는 저장하지 않고 정리된 글감과 출처만 본인 계정에 저장하며, 사용되는 OpenAI·Perplexity·YouTube·Gemini 키는 모두 회원님 본인의 키입니다.</p>
     </section>
 
     <section className="grid gap-3 sm:grid-cols-4">

@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.44`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.45`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.45 떡상 콘텐츠 수집 소개 문구 수정 (2026-10-06)
+
+- 화면 맨 위 설명글이 옛 기능(주소·Perplexity만, "작성")에 머물러 있어, 현재 기능(주소 지정·화제 검색·유튜브 쇼츠 검색 후 분석 저장, 보관·삭제, 콘텐츠 생성 연결, 회원 본인 키 4종)에 맞게 고쳤습니다(`ViralCollector.tsx`). 기능 변경 없음.
 
 ## v1.44 글감 일괄 삭제 (2026-10-06)
 

@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.44`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.45`
 
 개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
 
@@ -8,6 +8,10 @@
 
 - 콘텐츠 작성 화면(`DraftComposer`)의 좌우 분할 그리드를 제거하여 상단에 `AI 초안 만들기`, 하단에 `운영 대기열`이 full-width 행으로 넓게 표시되도록 레이아웃을 개편했습니다.
 - "YouTube 영상에서 소재 가져오기" 섹션 UI를 삭제했습니다(추후 떡상 콘텐츠 수집/글감 수집 쪽에 최적화하여 구현 예정).
+
+## v1.45 소개 문구 수정
+
+- 떡상 콘텐츠 수집 화면의 설명글을 현재 기능에 맞게 고쳤습니다.
 
 ## v1.44 글감 일괄 삭제
 
