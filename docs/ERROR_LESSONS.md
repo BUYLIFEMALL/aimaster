@@ -282,6 +282,11 @@
 - **[2026-09-20] 루트 앱 배포가 `EBUSY`로 실패** — 데스크톱 앱 `runtime/`·`node_modules`를 루트 `.vercelignore`에 넣는다(루트 `CLAUDE.md`).
 - **[2026-08-30] 권한 확인 결과가 캐시돼 다른 사람 화면이 보임** — 레이아웃·API에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"`, 배포 후 `X-Vercel-Cache: MISS` 확인(`PLATFORM_PATTERNS` §10).
 
+- **[2026-10-06 · 전 프로그램] 좌측 메뉴 "← 다른 프로그램 보기"가 `/dashboard` 대신 전체 프로그램 카탈로그(`/programs`)로 가야 함**
+  - 원인: 사이드바 링크가 과거 `https://www.buylife.xyz/dashboard`로 설정되어 있었으나, 사용자가 다른 자동화 프로그램을 둘러보기 위해서는 전체 프로그램 목록 카탈로그인 `https://www.buylife.xyz/programs`로 이동하는 것이 훨씬 직관적임.
+  - 해결: 24개 독립 서브프로그램 + Threads 운영 자동화 + SEO 스튜디오 전체의 `← 다른 프로그램 보기` 링크를 `https://www.buylife.xyz/programs`로 전수 수정하고, `docs/SIDEBAR_LAYOUT_STANDARD.md` 및 `CLAUDE.md`, `AGENTS.md` 새 프로그램 체크리스트에 공식 영구 반영.
+  - 다음부터 확인: 새 서브프로그램을 작성하거나 사이드바를 수정할 때 `← 다른 프로그램 보기` 링크는 반드시 `https://www.buylife.xyz/programs`로 연결한다.
+
 - **[2026-10-01 · 전 프로그램] 좌측 메뉴 "← 다른 프로그램 보기"가 BLOG 대시보드로 감**
   - 원인: 사이드바 표준이 `https://www.buylife.xyz/blog/dashboard`로 정해져 있었는데, BLOG를 단독 배포로 분리(v1.06)하면서 `/blog/*`를
     BLOG 새 주소로 넘기도록 해 모든 프로그램의 이 링크가 BLOG 대시보드로 가게 됐다. 분리할 때 다른 프로그램이 그 주소를 쓰는지 찾아보지 않았다.

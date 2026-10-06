@@ -8,7 +8,11 @@
   - 24개 독립 서브프로그램 사이드바 (`Sidebar.tsx`): ai-image-studio, booking-reminder, competitor-analysis, crm-google-form, instagram-comment-reply, instagram-dm-reply, insta_auto_poster, kakao_auto_poster, longtail-keyword-expander, music, naver-cafe-poster, real_estate_sales, shop-detail-page, shorts-viral-studio, shots, stepmail, threads, threads-affiliate-poster, threads-comment-reply, threads-easy-planner, trending-product-finder, video-to-gif, web-crawler/webapp, youtube-auto-reply
   - 네이버 블로그 SEO 스튜디오 (`naver-blog-seo-studio/components/StudioPage.tsx`)
   - 좌측 메뉴 표준 문서 (`docs/SIDEBAR_LAYOUT_STANDARD.md` §2)
-- 플랫폼 규칙 영구 반영: 앞으로 모든 서브프로그램의 `← 다른 프로그램 보기`는 `https://www.buylife.xyz/programs`를 가리키도록 표준 갱신.
+- 플랫폼 핵심 지침 영구 반영 완료:
+  - `CLAUDE.md`: 새 프로그램 체크리스트 9번에 사이드바 "← 다른 프로그램 보기" 링크(`https://www.buylife.xyz/programs`) 필수 규정 추가.
+  - `AGENTS.md`: Platform-hub 새 프로그램 등록 체크리스트 9번에 동일 규칙 반영.
+  - `docs/PLATFORM_PATTERNS.md`: `§32. 서브프로그램 좌측 사이드바 "← 다른 프로그램 보기" 링크 표준` 신설.
+  - `docs/ERROR_LESSONS.md`: 2026-10-06 전 프로그램 링크 점검·해결 기록 및 사전 점검 체크리스트 등록.
 
 ## 메인 관리자 사이드바 (AdminSidebar) — 좌하단 이메일 위 로그아웃 버튼 추가 (2026-10-06 주인님 지시)
 
