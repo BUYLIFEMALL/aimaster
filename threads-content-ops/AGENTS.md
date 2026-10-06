@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.52`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.53`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.53 콘텐츠 생성 하위 박스 색상 구분 (2026-10-06)
+
+- 주인님 지시로 2번 구역 안의 세 박스를 서로 다른 색 테두리로 구분했습니다: 맞춤글(노랑), AI 엔진·모델(초록), 이미지 생성 모델(분홍보라). 바탕은 흰색 유지(`AttentionComposer.tsx`). 기능 변경 없음.
 
 ## v1.52 이미지 모델 추가: GPT Image 2·1.5, Z-Image Turbo (2026-10-06)
 

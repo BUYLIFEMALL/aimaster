@@ -200,6 +200,10 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.53 — 하위 박스 색상 구분 (2026-10-06)
+
+- 색상만 변경.
+
 ## Threads Content Ops v1.52 — 이미지 모델 GPT Image 2·1.5, Z-Image Turbo 추가 (2026-10-06)
 
 - Replicate 키 항목 추가, replicate.delivery 주소만 내려받음. DB 변경 없음. 실제 키 호출 확인 필요.
