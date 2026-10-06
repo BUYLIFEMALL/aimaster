@@ -63,7 +63,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
   );
 
   if (!accounts.length) {
-    return <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"><h2 className="font-bold text-neutral-900">운영할 Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-neutral-600">API키등록·플랫폼연동에서 회원님의 Threads 앱과 계정을 연결하면 계정별 콘텐츠 소스를 등록할 수 있습니다.</p></div>;
+    return <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"><h2 className="font-bold text-neutral-900">운영할 Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-neutral-600">API키등록·플랫폼연동에서 회원님의 Threads 앱과 계정을 연결하면 계정별 쇼핑제휴 상품을 등록할 수 있습니다.</p></div>;
   }
 
   const selectedType = TYPES.find((type) => type.value === form.sourceType) ?? TYPES[0];
@@ -145,7 +145,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-xs font-bold text-gold">CONTENT SOURCE QUEUE</p>
-          <h2 className="mt-1 text-xl font-bold text-neutral-900">콘텐츠 소스</h2>
+          <h2 className="mt-1 text-xl font-bold text-neutral-900">쇼핑제휴 상품 등록</h2>
           <p className="mt-2 text-sm leading-relaxed text-neutral-600">Threads에 포스팅할 상품(쿠팡 파트너스, 네이버 브랜드 커넥트)을 계정별로 등록해 두는 곳입니다. 회원님이 선택하거나 입력한 값만 본인 계정에 저장하며, 외부 사이트에서 정보를 자동으로 가져오지 않습니다. 등록한 상품으로 초안을 만드는 연결은 다음 단계에서 추가됩니다.</p>
         </div>
         <select aria-label="운영 계정 선택" className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-800" value={accountId} onChange={(event) => { setAccountId(event.target.value); setEditingId(null); setMessage(null); }}>

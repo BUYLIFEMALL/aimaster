@@ -11,7 +11,7 @@ const flow = [
   { tab: "create", label: "콘텐츠 작성", icon: PenLine },
   { tab: "manage", label: "초안·발행 관리", icon: Send },
   { tab: "accounts", label: "계정 운영정보", icon: UsersRound },
-  { tab: "sources", label: "콘텐츠 소스", icon: Library },
+  { tab: "sources", label: "쇼핑제휴 상품 등록", icon: Library },
 ];
 
 export default function ContentOpsSidebar({ email }: { email: string }) {

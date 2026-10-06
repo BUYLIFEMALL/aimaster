@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.32`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.33`
 
 개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
+
+## v1.33 메뉴명 변경
+
+- 사이드바 4번 메뉴 이름을 "콘텐츠 소스"에서 **쇼핑제휴 상품 등록**으로 바꿨습니다(화면 제목·안내 문구 포함).
 
 ## v1.32 포스팅 상품 등록 화면 정리
 

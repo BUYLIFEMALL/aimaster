@@ -1,8 +1,13 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.32`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.33`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.33 메뉴명 변경: "콘텐츠 소스" → "쇼핑제휴 상품 등록" (2026-10-06)
+
+- 주인님 지시. 사이드바 4번 메뉴(`?tab=sources`, 주소·탭 값은 그대로), 화면 제목(`SourceQueue.tsx` h2), 계정 미연결 안내 문구, 대시보드 "즉시 작업" 카드 안내 문구의 표시 이름을 **쇼핑제휴 상품 등록**으로 바꿨다. 코드 내부 이름(`SourceQueue`, `tco_content_sources`, `source_type` 등)은 바꾸지 않았다.
+- 설정 화면의 "YouTube 콘텐츠 소스" 섹션 제목은 YouTube 키 섹션 이름이라 그대로 둔다(이 메뉴와 별개).
 
 ## v1.32 소스 화면을 "포스팅 상품 등록" 용도로 정리 — 블로그 등록 삭제 (2026-10-06)
 

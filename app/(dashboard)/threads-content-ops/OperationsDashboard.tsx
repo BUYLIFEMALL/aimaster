@@ -82,8 +82,8 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <OperationCard title="일상" description="운영 메모로 초안 생성" ready={Boolean(account) && providers.has("openai")} href="/threads-content-ops?tab=create" />
         <OperationCard title="YouTube" icon={Youtube} description="공개 영상 메타데이터 소재" ready={Boolean(account) && providers.has("openai") && providers.has("youtube_api_key")} href="/threads-content-ops?tab=create" />
-        <OperationCard title="쿠팡 파트너스" description={sourceDescription("coupang", "콘텐츠 소스에서 상품을 검색하거나 링크를 등록하세요")} ready={false} href="/threads-content-ops?tab=sources" />
-        <OperationCard title="네이버 브랜드 커넥트" description={sourceDescription("naver_brand_connect", "콘텐츠 소스에서 제휴 링크를 등록하세요 · 분석은 준비 중")} ready={false} href="/threads-content-ops?tab=sources" />
+        <OperationCard title="쿠팡 파트너스" description={sourceDescription("coupang", "쇼핑제휴 상품 등록에서 상품을 검색하거나 링크를 등록하세요")} ready={false} href="/threads-content-ops?tab=sources" />
+        <OperationCard title="네이버 브랜드 커넥트" description={sourceDescription("naver_brand_connect", "쇼핑제휴 상품 등록에서 제휴 링크를 등록하세요 · 분석은 준비 중")} ready={false} href="/threads-content-ops?tab=sources" />
       </div>
     </section>
 
