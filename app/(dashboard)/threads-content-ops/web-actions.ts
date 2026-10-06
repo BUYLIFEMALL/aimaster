@@ -763,7 +763,7 @@ export async function deleteViralCandidate(id: string): Promise<SourceResult> {
 
 // ---------------------------------------------------------------------------
 // 유튜브 쇼츠 검색 (v1.37) — shorts-viral-studio의 검색을 옮겼다. 회원 본인의 YouTube Data API 키만 쓴다.
-// 결과 영상은 글감으로 저장할 때만 DB에 들어가며, 저장 내용은 영상의 제목·수치와 링크뿐이다(영상 내용 복사 없음).
+// 검색 결과는 DB에 저장하지 않고, "글감으로 저장"(분석 후 글감 생성)을 누른 영상만 저장된다(아래 analyzeShortToViralCandidates).
 // ---------------------------------------------------------------------------
 type ShortsSearchResult = { ok: true; videos: ShortVideo[] } | { ok: false; error: string; needKey?: boolean };
 const SHORTS_ORDERS = ["viewCount", "relevance", "date"];
@@ -785,42 +785,6 @@ export async function searchViralShorts(input: { query: string; dateFrom?: strin
   } catch (error) {
     if (error instanceof YouTubeSearchError) return { ok: false, error: error.message, needKey: error.invalidKey };
     return { ok: false, error: error instanceof Error ? error.message : "유튜브 검색 중 오류가 발생했습니다." };
-  }
-}
-
-/** 검색한 쇼츠를 글감 후보로 저장한다. 영상 제목·수치·링크만 남기고, 이 영상의 주제를 참고해 새로 쓰도록 안내한다. */
-export async function saveShortAsViralCandidate(input: { id: string; title: string; channelName: string; views: number; subs: number | null; vsRatio: number | null; grade: string; publishedAt: string; searchQuery: string }): Promise<SourceResult> {
-  try {
-    if (!YOUTUBE_ID.test(input.id ?? "")) throw new Error("영상 정보가 올바르지 않습니다. 다시 검색해 주세요.");
-    const title = String(input.title ?? "").trim().slice(0, 100);
-    if (!title) throw new Error("영상 제목이 비어 있습니다.");
-    const number = (value: unknown) => (typeof value === "number" && Number.isFinite(value) && value >= 0 ? Math.round(value) : null);
-    const views = number(input.views);
-    const subs = number(input.subs);
-    const ratio = typeof input.vsRatio === "number" && Number.isFinite(input.vsRatio) ? input.vsRatio.toFixed(1) : null;
-    const parts = [
-      `유튜브 쇼츠 "${title}"`,
-      `채널: ${String(input.channelName ?? "").slice(0, 80)}`,
-      views !== null ? `조회수 ${views.toLocaleString("ko-KR")}회${subs ? ` · 구독자 ${subs.toLocaleString("ko-KR")}명` : ""}${ratio ? ` (구독자 대비 ${ratio}배)` : ""}` : null,
-      `등급: ${String(input.grade ?? "").slice(0, 10)} · 게시일 ${String(input.publishedAt ?? "").slice(0, 10)}`,
-      "이 영상이 왜 터졌는지 주제만 참고하고, 내용은 내 말투로 새로 작성하세요.",
-    ].filter(Boolean);
-    const { supabase, user } = await authorizedUser();
-    const sourceInput = `https://www.youtube.com/shorts/${input.id}`;
-    const { count } = await supabase.from("tco_viral_candidates").select("id", { count: "exact", head: true }).eq("user_id", user.id);
-    if ((count ?? 0) >= MAX_VIRAL_PER_USER) throw new Error(`수집한 글감은 최대 ${MAX_VIRAL_PER_USER}건까지 보관할 수 있습니다. 사용한 글감을 삭제한 뒤 다시 시도해 주세요.`);
-    const { data: existing } = await supabase.from("tco_viral_candidates").select("id").eq("user_id", user.id).eq("source_input", sourceInput).limit(1);
-    if (existing?.length) throw new Error("이미 글감으로 저장한 영상입니다.");
-    const keywords = String(input.searchQuery ?? "").trim().slice(0, 30);
-    const { error } = await supabase.from("tco_viral_candidates").insert({
-      user_id: user.id, method: "http", source_input: sourceInput,
-      title: title.slice(0, 60), content: parts.join("\n").slice(0, 1_000), keywords: keywords ? [keywords] : [],
-    });
-    if (error) throw new Error("글감을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
-    revalidatePath("/threads-content-ops");
-    return { ok: true };
-  } catch (error) {
-    return sourceFailure(error, "글감을 저장하지 못했습니다.");
   }
 }
 

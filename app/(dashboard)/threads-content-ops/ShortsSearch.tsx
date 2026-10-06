@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, CircleAlert, ExternalLink, Play, Search } from "lucide-react";
-import { analyzeShortToViralCandidates, saveShortAsViralCandidate, searchViralShorts } from "./web-actions";
+import { analyzeShortToViralCandidates, searchViralShorts } from "./web-actions";
 
 type Video = {
   id: string;
@@ -61,7 +61,6 @@ export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey
   const [videos, setVideos] = useState<Video[]>([]);
   const [searchedQuery, setSearchedQuery] = useState("");
   const [searching, setSearching] = useState(false);
-  const [savingId, setSavingId] = useState<string | null>(null);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
   const [savedNow, setSavedNow] = useState<string[]>([]);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
@@ -110,27 +109,6 @@ export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey
     }
   };
 
-  const save = async (video: Video) => {
-    setSavingId(video.id);
-    setMessage(null);
-    try {
-      const result = await saveShortAsViralCandidate({
-        id: video.id, title: video.title, channelName: video.channelName, views: video.views, subs: video.subs,
-        vsRatio: video.vsRatio, grade: video.grade, publishedAt: video.publishedAt, searchQuery: searchedQuery,
-      });
-      if (result.ok) {
-        setSavedNow((current) => [...current, video.id]);
-        setMessage({ ok: true, text: "글감으로 저장했습니다. 아래 '수집한 글감' 목록에서 이 글감으로 작성할 수 있습니다." });
-      } else {
-        setMessage({ ok: false, text: result.error });
-      }
-    } catch {
-      setMessage({ ok: false, text: "글감을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
-    } finally {
-      setSavingId(null);
-    }
-  };
-
   const analyze = async (video: Video) => {
     if (analyzingId) return;
     setAnalyzingId(video.id);
@@ -142,7 +120,7 @@ export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey
       });
       if (result.ok) {
         setSavedNow((current) => [...current, video.id]);
-        setMessage({ ok: true, text: `분석해서 글감 ${result.count}건을 만들었습니다(${result.evidence === "video" ? "영상 직접 분석" : "제목·수치·댓글 기반 추정"}). 아래 '수집한 글감' 목록에서 이 글감으로 작성할 수 있습니다.${result.note ? ` ${result.note}` : ""}` });
+        setMessage({ ok: true, text: `글감 ${result.count}건을 분석해서 저장했습니다(${result.evidence === "video" ? "영상 직접 분석" : "제목·수치·댓글 기반 추정"}). 아래 '수집한 글감' 목록에서 이 글감으로 작성할 수 있습니다.${result.note ? ` ${result.note}` : ""}` });
       } else {
         setMessage({ ok: false, text: result.error });
       }
@@ -157,8 +135,8 @@ export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey
 
   return <section className="rounded-2xl border-2 border-rose-300 bg-rose-50/60 p-5 shadow-sm">
     <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Play size={18} className="text-gold" />유튜브 쇼츠 검색</h3>
-    <p className="mt-2 text-sm leading-relaxed text-neutral-600">키워드로 쇼츠를 찾고, 구독자 대비 조회수가 크게 터진 영상을 골라 글감으로 저장합니다. 영상의 내용을 가져오는 것이 아니라 제목·조회수 같은 수치와 링크만 남기며, 글은 내 말투로 새로 쓰도록 안내합니다.</p>
-    <p className="mt-2 text-xs leading-relaxed text-neutral-500">결과의 <b>분석해서 글감 만들기</b>는 AI가 영상이 터진 이유(훅·구조)를 분석해 Threads 글감 최대 3건을 만듭니다. {hasGeminiKey ? "Gemini 키가 있어 영상을 직접 보고 분석합니다." : hasOpenaiKey ? "Gemini 키가 없어 OpenAI로 제목·수치·댓글을 근거로 추정 분석합니다(영상 직접 분석은 설정에서 Gemini 키 등록)." : "분석에는 Gemini 또는 OpenAI 키가 필요합니다."} 사용량은 회원님의 키에서 차감됩니다.</p>
+    <p className="mt-2 text-sm leading-relaxed text-neutral-600">키워드로 쇼츠를 찾고, 구독자 대비 조회수가 크게 터진 영상을 골라 글감으로 저장합니다. 영상의 대사·자막을 그대로 가져오지 않고, 분석한 훅·터진 이유와 새로 쓴 글감만 저장합니다.</p>
+    <p className="mt-2 text-xs leading-relaxed text-neutral-500">결과의 <b>글감으로 저장</b>을 누르면 AI가 영상이 터진 이유(훅·구조)를 분석해 Threads 글감 최대 3건을 만들어 저장합니다. {hasGeminiKey ? "Gemini 키가 있어 영상을 직접 보고 분석합니다." : hasOpenaiKey ? "Gemini 키가 없어 OpenAI로 제목·수치·댓글을 근거로 추정 분석합니다(영상 직접 분석은 설정에서 Gemini 키 등록)." : "분석에는 Gemini 또는 OpenAI 키가 필요합니다."} 사용량은 회원님의 키에서 차감됩니다.</p>
     {!hasYoutubeKey && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>YouTube Data API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장해 주세요.</span></p>}
 
     <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -212,8 +190,7 @@ export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey
           </div>
           <div className="flex shrink-0 flex-wrap gap-1.5">
             <a href={`https://www.youtube.com/shorts/${video.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50"><ExternalLink size={14} />영상 보기</a>
-            <button type="button" disabled={!canAnalyze || analyzingId !== null || savingId !== null} onClick={() => void analyze(video)} title={canAnalyze ? "AI가 영상이 터진 이유를 분석해 글감을 만듭니다" : "Gemini 또는 OpenAI 키가 필요합니다"} className="inline-flex items-center gap-1 rounded-lg border-2 border-rose-300 bg-white px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50">{analyzingId === video.id ? "분석 중… (최대 2분)" : "분석해서 글감 만들기"}</button>
-            <button type="button" disabled={isSaved || savingId !== null || analyzingId !== null} onClick={() => void save(video)} className="inline-flex items-center gap-1 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300">{isSaved ? "저장됨" : savingId === video.id ? "저장 중…" : "글감으로 저장"}</button>
+            <button type="button" disabled={isSaved || !canAnalyze || analyzingId !== null} onClick={() => void analyze(video)} title={canAnalyze ? "AI가 영상이 터진 이유를 분석해 Threads 글감으로 저장합니다" : "Gemini 또는 OpenAI 키가 필요합니다"} className="inline-flex items-center gap-1 rounded-lg border-2 border-rose-300 bg-white px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50">{isSaved ? "저장됨" : analyzingId === video.id ? "분석·저장 중… (최대 2분)" : "글감으로 저장"}</button>
           </div>
         </li>;
       })}</ul>}
