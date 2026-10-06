@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, CircleAlert, Copy, Sparkles } from "lucide-react";
 import { DEFAULT_ENGINE, ENGINES, PERSONAS, REWRITE_MODES, type EngineProvider } from "@/threads-content-ops/lib/personas";
@@ -29,6 +29,7 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
   const [viralId, setViralId] = useState(initial?.id ?? "");
   const [topic, setTopic] = useState(() => (initial ? viralPrompt(initial) : ""));
   const [note, setNote] = useState("");
+  const topicRef = useRef<HTMLTextAreaElement>(null);
   const [personaId, setPersonaId] = useState("");
   const [product, setProduct] = useState("");
   const [experience, setExperience] = useState("");
@@ -41,6 +42,14 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
   const engineKeyReady = configuredProviders.includes(engine.provider);
   const engineInfo = ENGINES.find((item) => item.provider === engine.provider) ?? ENGINES[0];
   const generating = generatingLabel !== null;
+
+  // 글감 내용이 스크롤 없이 모두 보이도록 입력 내용 길이에 맞춰 세로 칸을 키운다.
+  useEffect(() => {
+    const el = topicRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + 4}px`;
+  }, [topic]);
 
   const choose = (id: string) => {
     const next = viralCandidates.find((candidate) => candidate.id === id);
@@ -91,21 +100,18 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       <h3 className="font-bold text-neutral-900">1. 글감 고르기</h3>
       {viralCandidates.length
         ? <>
-          <p className="mt-2 text-xs text-neutral-600">떡상 콘텐츠 수집에서 모은 글감 {viralCandidates.length}건입니다. 제목을 눌러 글감을 고르면 아래 주제 칸에 내용이 채워집니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=viral">수집 화면으로 가기</Link></p>
-          <ul className="mt-3 max-h-72 space-y-1.5 overflow-y-auto pr-1" aria-label="수집한 글감 제목 목록">{viralCandidates.map((candidate) => {
-            const active = candidate.id === viralId;
-            const source = candidate.method === "perplexity" ? "Perplexity" : candidate.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소";
-            return <li key={candidate.id}><button type="button" onClick={() => choose(active ? "" : candidate.id)} aria-pressed={active} className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition ${active ? "border-violet-500 bg-white font-bold text-neutral-900 ring-2 ring-violet-300" : "border-violet-200 bg-white text-neutral-800 hover:border-violet-400"}`}>
-              <span className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${active ? "border-violet-600 bg-violet-600" : "border-neutral-300"}`}>{active && <span className="h-1.5 w-1.5 rounded-full bg-white" />}</span>
-              <span className="min-w-0 flex-1 truncate" title={candidate.title}>{candidate.title}</span>
-              <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">{source}</span>
-              {candidate.status === "used" && <span className="shrink-0 rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">사용 완료</span>}
-            </button></li>;
-          })}</ul>
+          <p className="mt-2 text-xs text-neutral-600">떡상 콘텐츠 수집에서 모은 글감 {viralCandidates.length}건입니다. 아래 선택 상자에서 글감을 고르면 주제 칸에 내용 전체가 채워집니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=viral">수집 화면으로 가기</Link></p>
+          <select className={`${inputClass} mt-3`} value={viralId} onChange={(event) => choose(event.target.value)} aria-label="수집한 글감 선택">
+            <option value="">글감을 선택하세요 ({viralCandidates.length}건)</option>
+            {viralCandidates.map((candidate) => {
+              const source = candidate.method === "perplexity" ? "Perplexity" : candidate.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소";
+              return <option key={candidate.id} value={candidate.id}>[{source}] {candidate.title}{candidate.status === "used" ? " (사용 완료)" : ""}</option>;
+            })}
+          </select>
         </>
         : <p className="mt-3 rounded-xl border border-dashed border-violet-300 bg-white p-3 text-sm text-neutral-600">사용할 수 있는 글감이 없습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=viral">떡상 콘텐츠 수집</Link>에서 글감을 모으거나 아래에 주제를 직접 입력하세요.</p>}
       <label className="mt-4 block text-sm font-medium text-neutral-700">글감·주제 <span className="font-normal text-neutral-500">(글감을 고르면 자동으로 채워지며 고쳐 써도 됩니다. 비워 두고 페르소나를 누르면 그 페르소나의 기본 주제로 만듭니다)</span></label>
-      <textarea className={`${inputClass} mt-1 min-h-28`} maxLength={1200} value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="예: 전자레인지 찜기, 세탁조 클리너, 월요병 (소재나 상품명도 좋아요)" />
+      <textarea ref={topicRef} className={`${inputClass} mt-1 min-h-48 resize-y overflow-hidden leading-relaxed`} maxLength={1200} value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="예: 전자레인지 찜기, 세탁조 클리너, 월요병 (소재나 상품명도 좋아요)" />
     </section>
 
     <section className="rounded-2xl border-2 border-sky-300 bg-sky-50/60 p-5 shadow-sm">
