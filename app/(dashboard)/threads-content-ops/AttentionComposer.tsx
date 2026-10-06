@@ -7,7 +7,7 @@ import { DEFAULT_ENGINE, ENGINES, PERSONAS, REWRITE_MODES, type EngineProvider }
 import { generateAttentionPost, rewriteGeneratedPost, saveGeneratedDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
-type Candidate = { id: string; method: string; source_input: string; title: string; content: string; keywords: string[] };
+type Candidate = { id: string; method: string; source_input: string; title: string; content: string; keywords: string[]; status?: string };
 type Variant = { type: string; hook: string; whyItWorks: string; content: string };
 type Plan = { hook: string; hookType: string; whyHookWorks: string; content: string; cta: string; followUpIdeas: string[]; hookVariants: Variant[] };
 type Engine = { provider: EngineProvider; model: string };
@@ -38,7 +38,6 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
   const [plan, setPlan] = useState<Plan | null>(null);
   const [generatingLabel, setGeneratingLabel] = useState<string | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
-  const selected = viralCandidates.find((candidate) => candidate.id === viralId);
   const engineKeyReady = configuredProviders.includes(engine.provider);
   const engineInfo = ENGINES.find((item) => item.provider === engine.provider) ?? ENGINES[0];
   const generating = generatingLabel !== null;
@@ -91,9 +90,20 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
     <section className="rounded-2xl border-2 border-violet-300 bg-violet-50/60 p-5 shadow-sm">
       <h3 className="font-bold text-neutral-900">1. 글감 고르기</h3>
       {viralCandidates.length
-        ? <select className={`${inputClass} mt-3`} value={viralId} onChange={(event) => choose(event.target.value)} aria-label="수집한 글감"><option value="">글감 선택 (직접 입력도 가능)</option>{viralCandidates.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.title}</option>)}</select>
+        ? <>
+          <p className="mt-2 text-xs text-neutral-600">떡상 콘텐츠 수집에서 모은 글감 {viralCandidates.length}건입니다. 쓰고 싶은 글감을 누르면 아래 주제 칸에 채워집니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=viral">수집 화면으로 가기</Link></p>
+          <ul className="mt-3 max-h-80 space-y-2 overflow-y-auto pr-1" aria-label="수집한 글감 목록">{viralCandidates.map((candidate) => {
+            const active = candidate.id === viralId;
+            const source = candidate.method === "perplexity" ? "Perplexity" : candidate.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소";
+            return <li key={candidate.id}><button type="button" onClick={() => choose(active ? "" : candidate.id)} aria-pressed={active} className={`w-full rounded-xl border p-3 text-left transition ${active ? "border-violet-500 bg-white ring-2 ring-violet-300" : "border-violet-200 bg-white hover:border-violet-400"}`}>
+              <span className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">{source}</span>{candidate.status === "used" && <span className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">사용 완료</span>}{active && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-semibold text-violet-700">선택됨</span>}</span>
+              <span className="mt-1 block text-sm font-semibold text-neutral-900">{candidate.title}</span>
+              <span className="mt-1 line-clamp-2 block whitespace-pre-wrap text-xs leading-relaxed text-neutral-600">{candidate.content}</span>
+              {candidate.keywords.length > 0 && <span className="mt-1.5 flex flex-wrap gap-1">{candidate.keywords.slice(0, 5).map((keyword) => <span key={keyword} className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">#{keyword}</span>)}</span>}
+            </button></li>;
+          })}</ul>
+        </>
         : <p className="mt-3 rounded-xl border border-dashed border-violet-300 bg-white p-3 text-sm text-neutral-600">사용할 수 있는 글감이 없습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=viral">떡상 콘텐츠 수집</Link>에서 글감을 모으거나 아래에 주제를 직접 입력하세요.</p>}
-      {selected && <div className="mt-3 rounded-xl border border-violet-200 bg-white p-3 text-sm"><p className="font-semibold text-neutral-900">{selected.title}</p><p className="mt-1 whitespace-pre-wrap text-neutral-700">{selected.content}</p></div>}
       <label className="mt-4 block text-sm font-medium text-neutral-700">글감·주제 <span className="font-normal text-neutral-500">(글감을 고르면 자동으로 채워지며 고쳐 써도 됩니다. 비워 두고 페르소나를 누르면 그 페르소나의 기본 주제로 만듭니다)</span></label>
       <textarea className={`${inputClass} mt-1 min-h-28`} maxLength={1200} value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="예: 전자레인지 찜기, 세탁조 클리너, 월요병 (소재나 상품명도 좋아요)" />
     </section>
