@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.48`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.49`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.49 맞춤글·AI 엔진 영역을 항상 펼친 상태로 (2026-10-06)
+
+- 주인님 지시로 콘텐츠 생성 2번 구역의 "맞춤글"과 "AI 엔진·모델" 접기(펼치기) 기능을 없애고 항상 펼쳐서 보이게 했습니다(`AttentionComposer.tsx`, `<details>` → 일반 영역). 기능 변경 없음.
 
 ## v1.48 콘텐츠 생성 구역 바탕색을 흰색으로 (2026-10-06)
 

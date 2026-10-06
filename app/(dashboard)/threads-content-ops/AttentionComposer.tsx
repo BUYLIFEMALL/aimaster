@@ -127,8 +127,8 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       })}</div>
       {personaId && <p className="mt-2 text-xs text-neutral-600">선택한 페르소나: <b>{PERSONAS.find((item) => item.id === personaId)?.name}</b> · 아래 "글 생성하기"도 이 시점으로 만듭니다. <button type="button" className="font-semibold underline" onClick={() => setPersonaId("")}>해제</button></p>}
 
-      <details className="mt-4 rounded-xl border border-neutral-200 bg-white p-3">
-        <summary className="cursor-pointer text-sm font-bold text-neutral-900">✍️ 맞춤글 (내 경험·상품·타깃 직접 입력) <span className="font-normal text-neutral-500">— 선택</span></summary>
+      <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-3">
+        <p className="text-sm font-bold text-neutral-900">✍️ 맞춤글 (내 경험·상품·타깃 직접 입력) <span className="font-normal text-neutral-500">— 선택</span></p>
         <div className="mt-3 space-y-3">
           <label className="block text-xs font-semibold text-neutral-600">내 실제 경험<textarea className={`${inputClass} mt-1 min-h-20`} maxLength={800} value={experience} onChange={(event) => setExperience(event.target.value)} placeholder="직접 겪은 일만 적어 주세요. 여기에 적은 경험만 1인칭 경험담으로 쓰입니다." /></label>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -137,10 +137,10 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
           </div>
           <p className="text-[11px] text-neutral-500">상품명은 본문에 쓰지 않고 첫 댓글 멘트에서만 언급합니다. 글감에 없는 사실은 여전히 지어내지 않습니다.</p>
         </div>
-      </details>
+      </div>
 
-      <details className="mt-3 rounded-xl border border-neutral-200 bg-white p-3">
-        <summary className="cursor-pointer text-sm font-bold text-neutral-900">⚙️ AI 엔진·모델 <span className="font-normal text-neutral-500">— 현재: {engineInfo.models.find((item) => item.value === engine.model)?.label ?? engine.model}</span></summary>
+      <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-3">
+        <p className="text-sm font-bold text-neutral-900">⚙️ AI 엔진·모델 <span className="font-normal text-neutral-500">— 현재: {engineInfo.models.find((item) => item.value === engine.model)?.label ?? engine.model}</span></p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label className="block text-xs font-semibold text-neutral-600">AI 엔진
             <select className={`${inputClass} mt-1`} value={engine.provider} onChange={(event) => { const next = ENGINES.find((item) => item.provider === event.target.value) ?? ENGINES[0]; setEngine({ provider: next.provider, model: next.models[0].value }); }}>{ENGINES.map((item) => <option key={item.provider} value={item.provider}>{item.label}{configuredProviders.includes(item.provider) ? "" : " (키 미등록)"}</option>)}</select>
@@ -150,7 +150,7 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
           </label>
         </div>
         {!engineKeyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{engineInfo.label} API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장하거나 다른 엔진을 선택해 주세요.</span></p>}
-      </details>
+      </div>
     </section>
 
     <section className="rounded-2xl border-2 border-rose-300 bg-white p-5 shadow-sm">
