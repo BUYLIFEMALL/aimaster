@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.02, 2026-10-07)
+
+- **크롬 확장 원클릭 ZIP 다운로드 자동 빌드(prebuild) 및 대시보드 연동 (v1.02)**:
+  - 배경: 회원이 크롬 확장을 수동으로 폴더 복사하지 않고, 웹 대시보드에서 클릭 한 번으로 최신 압축 파일(`naver-blog-agent-extension-latest.zip`)을 즉시 내려받을 수 있도록 개선 요청.
+  - 조치:
+    1) `scripts/build-extension-archive.mjs`: `src/lib/version.ts`의 `APP_VERSION`과 `manifest.json`을 자동 동기화하고, `public/downloads/naver-blog-agent-extension-latest.zip` 및 버전별 ZIP을 생성하는 패키징 파이프라인 구현.
+    2) `package.json`: `prebuild` 및 `build:extension` 스크립트를 추가하여 `npm run build` 시 자동으로 최신 ZIP 아카이브가 갱신되도록 연동 (`archiver@^7.0.1`).
+    3) UI 연동: `/guide` 실전 매뉴얼 STEP 2 및 `/settings` 크롬 확장 연동 카드에 `[📦 최신 크롬 확장프로그램 ZIP 다운로드]` 원클릭 다운로드 버튼 탑재.
+    4) `src/lib/version.ts`, DB `programs.version` 및 마이그레이션 `0002_nba_bump_version_v1_02.sql`을 `v1.02`로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.01, 2026-10-07 신규 구축)
 
 - **Chrome 확장 + 웹 대시보드 하이브리드 네이버 블로그 자동화 신규 런칭 (v1.01)**:

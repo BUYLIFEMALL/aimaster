@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Key, Globe, CheckCircle2, AlertCircle, RefreshCw, Copy, ExternalLink } from "lucide-react";
+import { Key, Globe, CheckCircle2, AlertCircle, RefreshCw, Copy, ExternalLink, Download } from "lucide-react";
 
 export default function SettingsPage() {
   const [provider, setProvider] = useState<"openai" | "gemini" | "anthropic">("openai");
@@ -220,10 +220,21 @@ export default function SettingsPage() {
             <div>
               <div className="text-xs font-semibold text-neutral-700 mb-2">연결 단계:</div>
               <ol className="text-xs text-neutral-600 space-y-1.5 list-decimal list-inside">
-                <li>크롬 브라우저에 [네이버 블로그 에이전트 확장]을 설치합니다.</li>
+                <li>아래 버튼으로 확장프로그램 ZIP을 다운받아 압축을 푼 뒤 크롬에 등록합니다.</li>
                 <li>아래 버튼을 눌러 발급된 8자리 페어링 코드를 복사합니다.</li>
                 <li>크롬 브라우저 우측 상단 확장 아이콘을 누르고 코드를 붙여넣습니다.</li>
               </ol>
+            </div>
+
+            <div>
+              <a
+                href="/downloads/naver-blog-agent-extension-latest.zip"
+                download
+                className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-neutral-900 text-white text-xs font-semibold hover:bg-neutral-800 transition-all shadow-sm"
+              >
+                <Download className="w-4 h-4 text-emerald-400" />
+                <span>📦 최신 크롬 확장프로그램 ZIP 다운로드</span>
+              </a>
             </div>
 
             {pairCode ? (

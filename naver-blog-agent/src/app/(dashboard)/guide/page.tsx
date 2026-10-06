@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Globe, CheckCircle2, ArrowRight, ShieldCheck, Zap, BookOpen } from "lucide-react";
+import { Globe, CheckCircle2, ArrowRight, ShieldCheck, Zap, BookOpen, Download } from "lucide-react";
 
 export default function GuidePage() {
   return (
@@ -74,7 +74,7 @@ export default function GuidePage() {
         </div>
 
         {/* STEP 2 */}
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-3">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 text-white font-bold text-xs">
               2
@@ -84,15 +84,30 @@ export default function GuidePage() {
             </h2>
           </div>
           <p className="text-xs text-neutral-600 leading-relaxed">
-            네이버 스마트에디터 ONE을 안전하게 자동 제어하기 위해 크롬 확장을 로드합니다.
+            네이버 스마트에디터 ONE을 안전하게 자동 제어하기 위해 전용 크롬 확장을 다운로드하여 브라우저에 등록합니다.
           </p>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="/downloads/naver-blog-agent-extension-latest.zip"
+              download
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-xs font-semibold hover:bg-neutral-800 transition-all shadow-sm"
+            >
+              <Download className="w-4 h-4 text-emerald-400" />
+              <span>📦 최신 크롬 확장프로그램 다운로드 (.ZIP)</span>
+            </a>
+            <span className="text-xs text-neutral-400">
+              * 다운로드 후 압축을 해제하세요.
+            </span>
+          </div>
+
           <div className="bg-neutral-50 rounded-xl p-4 border border-neutral-200 text-xs text-neutral-700 space-y-2">
-            <div className="font-semibold text-neutral-900">설치 방법:</div>
+            <div className="font-semibold text-neutral-900">간편 등록 순서:</div>
             <ol className="list-decimal list-inside space-y-1">
-              <li>제공된 <code className="bg-white px-1.5 py-0.5 rounded border border-neutral-200">naver-blog-agent/extension</code> 폴더를 준비합니다.</li>
+              <li>위 버튼을 눌러 ZIP 파일을 다운로드하고 임의의 폴더에 압축을 풉니다.</li>
               <li>Chrome 브라우저 주소창에 <code className="bg-white px-1.5 py-0.5 rounded border border-neutral-200">chrome://extensions</code> 를 입력해 이동합니다.</li>
-              <li>우측 상단의 <b>[개발자 모드]</b> 토글 스위치를 켭니다.</li>
-              <li>좌측 상단의 <b>[압축해제된 확장 프로그램을 로드합니다]</b> 버튼을 누르고 <code className="bg-white px-1.5 py-0.5 rounded border border-neutral-200">extension</code> 폴더를 선택합니다.</li>
+              <li>우측 상단의 <b>[개발자 모드]</b> 스위치를 켭니다.</li>
+              <li>좌측 상단의 <b>[압축해제된 확장 프로그램을 로드합니다]</b>를 누르고 압축을 푼 폴더를 선택하면 끝납니다!</li>
             </ol>
           </div>
         </div>
