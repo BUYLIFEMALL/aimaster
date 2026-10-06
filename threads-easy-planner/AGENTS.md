@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.29` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.30` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -224,3 +224,8 @@
        - **`⏰ [시간대] 맞춤:` 및 3초 무드 칩 바** (`🤣 찌질·공감 일상 썰`, `🧺 써보고 기절한 찐템`, `⚡ 직장·돈 버는 팩폭`)
        - **10대 인기 업종 카테고리 칩 및 10선 추천 카드 목록**을 상시 노출하여 원클릭 선택 지원.
     4) 사용 매뉴얼(`/guide`) 내 '방법 B' 가이드 내용을 새로운 원클릭 썰 & 추천 섹션 흐름과 100% 동기화. DB `programs.version` 및 `APP_VERSION` `v1.29` 동기화.
+- **v1.30 (2026-10-06)**:
+  - **상단(주제·글감·목적이 있을 때) vs 하단(아무런 아이디어가 없을 때) 서로 다른 색상 박스 컨테이너 분리 (주인님 지시)**:
+    1) 상단 영역: **`🎯 주제 · 글감 · 목적이 있을 때`** 전용 블루 테마 박스(`border-2 border-blue-200/90 ring-4 ring-blue-50/50 bg-white`)로 래핑하여 소재 입력창, 미디어 첨부, 6대 페르소나 그리드, 맞춤글 생성 아코디언을 명확히 그룹화.
+    2) 하단 영역: **`🔥 아무런 아이디어가 없을 때!!!`** 전용 앰버/오렌지 테마 박스(`border-2 border-amber-300/90 ring-4 ring-amber-50/50 bg-gradient-to-b from-amber-50/40 via-amber-50/20 to-white`)로 완전 독립 분리하여 원클릭 랜덤 썰 슬롯머신, 3초 무드 칩, 업종별 추천 주제 10선을 시각적으로 완벽히 구분.
+    3) 하단에 공통 고급 AI 추론 엔진 및 모델 설정(`details`) 카드를 깔끔하게 독립 배치. DB `programs.version` 및 `APP_VERSION` `v1.30` 동기화.

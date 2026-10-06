@@ -687,8 +687,21 @@ export function PlannerApp() {
         </p>
       </section>
 
-      {/* 메인 인터랙션 패널 */}
-      <div className="rounded-3xl bg-white p-5 md:p-6 shadow-sm border border-neutral-200/80 space-y-6">
+      {/* ============================================================ */}
+      {/* 📦 영역 1: 주제, 글감, 목적이 있을 때 (블루/인디고 포인트 테마) */}
+      {/* ============================================================ */}
+      <div className="rounded-3xl bg-white p-5 md:p-6 shadow-sm border-2 border-blue-200/90 ring-4 ring-blue-50/50 space-y-6">
+        {/* 영역 1 헤더 라벨 */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3.5 border-b border-blue-100">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight">
+              🎯 주제 · 글감 · 목적이 있을 때
+            </span>
+            <span className="text-xs md:text-sm font-bold text-neutral-700">
+              소재 입력, 사진 첨부, 6대 페르소나로 나만의 맞춤 글 생성
+            </span>
+          </div>
+        </div>
         {/* 1. 키워드/소재 입력 바 */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative flex-1">
@@ -1160,23 +1173,30 @@ export function PlannerApp() {
             </div>
           )}
         </div>
+      </div>
 
-        {/* 4. 🔥 아무런 아이디어가 없을 때!!! (원클릭 랜덤 썰 + 감정 무드 칩 + 업종별 추천 주제 10선 통합 섹션) */}
-        <div ref={topicsSectionRef} className="pt-5 border-t border-neutral-200/80 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight animate-pulse">
-                🔥 아무런 아이디어가 없을 때!!!
-              </span>
-              <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-1.5">
-                <span>원클릭 썰 뽑기 &amp; 추천 주제 10선</span>
-              </span>
-            </div>
+      {/* ============================================================ */}
+      {/* 📦 영역 2: 아무런 아이디어가 없을 때 (앰버/웜 오렌지 테마) */}
+      {/* ============================================================ */}
+      <div
+        ref={topicsSectionRef}
+        className="rounded-3xl bg-gradient-to-b from-amber-50/40 via-amber-50/20 to-white p-5 md:p-6 shadow-sm border-2 border-amber-300/90 ring-4 ring-amber-50/50 space-y-5"
+      >
+        {/* 영역 2 헤더 라벨 */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3.5 border-b border-amber-200/80">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight animate-pulse">
+              🔥 아무런 아이디어가 없을 때!!!
+            </span>
+            <span className="text-xs md:text-sm font-bold text-amber-950">
+              원클릭 랜덤 썰 뽑기 · 3초 무드 픽 · 업종별 추천 주제 10선
+            </span>
           </div>
+        </div>
 
-          <p className="text-xs text-neutral-500 font-medium">
-            아이디어가 전혀 떠오르지 않을 땐 원클릭으로 아무 썰이나 뽑거나, 현재 시간대/무드별 칩, 또는 업종별 추천 주제를 골라보세요.
-          </p>
+        <p className="text-xs text-neutral-600 font-medium leading-relaxed">
+          소재나 아이디어가 전혀 떠오르지 않을 땐 아래에서 원클릭으로 아무 썰이나 뽑거나, 현재 시간대/무드별 칩, 또는 업종별 추천 주제를 골라보세요.
+        </p>
 
           {/* A. 원클릭 랜덤 썰 버튼 & 요일/시간대 감정 무드 칩 바 */}
           <div className="p-3.5 md:p-4 rounded-2xl bg-gradient-to-br from-purple-50/70 via-indigo-50/40 to-neutral-50 border border-purple-200/70 space-y-3">
@@ -1329,14 +1349,19 @@ export function PlannerApp() {
         </div>
 
 
-        {/* 6. AI 추론 엔진 선택 (OpenAI / Claude / Gemini) */}
-        <details className="pt-3 border-t border-neutral-100 group">
-          <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl bg-neutral-50 px-3 py-2 text-xs font-bold text-neutral-700 hover:bg-neutral-100">
-            <span>⚙️ 고급 AI 설정</span>
-            <span className="text-[11px] font-medium text-neutral-500 group-open:hidden">필요할 때 열기</span>
-            <span className="hidden text-[11px] font-medium text-neutral-500 group-open:inline">접기</span>
-          </summary>
-          <div className="pt-3 space-y-2.5">
+      {/* 6. AI 추론 엔진 선택 (OpenAI / Claude / Gemini) - 하단 공통 설정 패널 */}
+      <details className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 md:p-4 group shadow-2xs">
+        <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold text-neutral-700 hover:text-neutral-900">
+          <span className="flex items-center gap-1.5">
+            <span>⚙️</span>
+            <span>고급 AI 추론 엔진 및 모델 설정</span>
+          </span>
+          <span className="text-[11px] font-medium text-neutral-400 group-open:hidden">
+            현재: {AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel} (클릭하여 변경)
+          </span>
+          <span className="hidden text-[11px] font-medium text-neutral-500 group-open:inline">접기 ▲</span>
+        </summary>
+        <div className="pt-3 space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
             <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
               <span>🤖</span>
@@ -1405,9 +1430,9 @@ export function PlannerApp() {
               </select>
             </div>
           </div>
-          </div>
-        </details>
-      </div>
+        </div>
+      </details>
+
 
       <div className="fixed inset-x-0 bottom-[4.5rem] z-30 border-t border-neutral-200 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur md:hidden">
         <button
