@@ -2,6 +2,8 @@
 
 > AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.27`
 
+개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
+
 ## v1.27 계정별 운영정보
 
 - 원본의 운영정보 수정 화면을 웹형 계정별 설정으로 구현했습니다. 주제·성격·말투·독자·금지 항목·일상/홍보 비율·게시 목표·댓글 확인 주기·운영 시간을 계정별로 저장·수정합니다.

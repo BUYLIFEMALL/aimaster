@@ -45,6 +45,7 @@
 - 주인님 승인 뒤 운영 DB에 `tco_operation_profiles`, `tco_content_sources`를 적용했다. 두 테이블은 `user_id` owner-only RLS, 작업별 select/insert/update/delete 정책, anon 권한 회수, authenticated 최소 권한만 갖는다. 점검 쿼리로 두 테이블 모두 RLS=true·정책 4개를 확인했다.
 - `/threads-content-ops?tab=accounts`를 세 번째 번호형 업무 흐름으로 추가했다. 회원은 자신이 연결한 Threads 계정별로 주제·말투·금지 항목·운영 비율·목표·시간을 실제로 저장한다. 서버 액션은 프로그램 접근 권한과 계정의 user_id 소유를 다시 검사한다.
 - 소스 큐 테이블은 블로그·쿠팡·네이버 브랜드 커넥트의 실제 수집/등록을 연결할 다음 단계용이다. 아직 외부 상품/성과/댓글을 지어내 표시하지 않는다.
+- **Claude 재개 문서:** `threads-content-ops/docs/CLAUDE_CONTINUATION.md`에 구현 이력(v1.17~v1.27), 다음 단계 순서(소스 큐 → 쿠팡 → 네이버 → 초안 → 댓글 → 성과 → 안전한 예약), 멀티테넌시 금지사항, 루트 AIMaster 배포 절차를 고정했다. 다음 작업은 이 문서를 먼저 읽고 `desktop/`이나 기존 Threads 프로그램을 건드리지 않는다.
 
 ## Threads Content Ops v1.26 — 웹 운영 대시보드 1단계·흰색 웹 표준 (2026-10-06)
 
