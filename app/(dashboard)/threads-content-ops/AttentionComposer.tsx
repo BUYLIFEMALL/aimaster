@@ -91,15 +91,15 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       <h3 className="font-bold text-neutral-900">1. 글감 고르기</h3>
       {viralCandidates.length
         ? <>
-          <p className="mt-2 text-xs text-neutral-600">떡상 콘텐츠 수집에서 모은 글감 {viralCandidates.length}건입니다. 쓰고 싶은 글감을 누르면 아래 주제 칸에 채워집니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=viral">수집 화면으로 가기</Link></p>
-          <ul className="mt-3 max-h-80 space-y-2 overflow-y-auto pr-1" aria-label="수집한 글감 목록">{viralCandidates.map((candidate) => {
+          <p className="mt-2 text-xs text-neutral-600">떡상 콘텐츠 수집에서 모은 글감 {viralCandidates.length}건입니다. 제목을 눌러 글감을 고르면 아래 주제 칸에 내용이 채워집니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=viral">수집 화면으로 가기</Link></p>
+          <ul className="mt-3 max-h-72 space-y-1.5 overflow-y-auto pr-1" aria-label="수집한 글감 제목 목록">{viralCandidates.map((candidate) => {
             const active = candidate.id === viralId;
             const source = candidate.method === "perplexity" ? "Perplexity" : candidate.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소";
-            return <li key={candidate.id}><button type="button" onClick={() => choose(active ? "" : candidate.id)} aria-pressed={active} className={`w-full rounded-xl border p-3 text-left transition ${active ? "border-violet-500 bg-white ring-2 ring-violet-300" : "border-violet-200 bg-white hover:border-violet-400"}`}>
-              <span className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">{source}</span>{candidate.status === "used" && <span className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">사용 완료</span>}{active && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-semibold text-violet-700">선택됨</span>}</span>
-              <span className="mt-1 block text-sm font-semibold text-neutral-900">{candidate.title}</span>
-              <span className="mt-1 line-clamp-2 block whitespace-pre-wrap text-xs leading-relaxed text-neutral-600">{candidate.content}</span>
-              {candidate.keywords.length > 0 && <span className="mt-1.5 flex flex-wrap gap-1">{candidate.keywords.slice(0, 5).map((keyword) => <span key={keyword} className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">#{keyword}</span>)}</span>}
+            return <li key={candidate.id}><button type="button" onClick={() => choose(active ? "" : candidate.id)} aria-pressed={active} className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition ${active ? "border-violet-500 bg-white font-bold text-neutral-900 ring-2 ring-violet-300" : "border-violet-200 bg-white text-neutral-800 hover:border-violet-400"}`}>
+              <span className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${active ? "border-violet-600 bg-violet-600" : "border-neutral-300"}`}>{active && <span className="h-1.5 w-1.5 rounded-full bg-white" />}</span>
+              <span className="min-w-0 flex-1 truncate" title={candidate.title}>{candidate.title}</span>
+              <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">{source}</span>
+              {candidate.status === "used" && <span className="shrink-0 rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-700">사용 완료</span>}
             </button></li>;
           })}</ul>
         </>
