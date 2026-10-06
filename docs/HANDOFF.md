@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 메인 대시보드 사이드바 (Sidebar.tsx) — 좌측 메뉴 로그아웃 버튼 추가 (2026-10-06 주인님 지시)
+
+- 메인 대시보드(`/dashboard`, `/affiliate`, `/api-settings`, `/settings` 공통) 좌측 사이드바(`components/layout/Sidebar.tsx`)에 **로그아웃 버튼** 신설.
+- 좌하단 계정 이메일 바로 위에 `LogOut` 아이콘 + 텍스트 버튼 배치.
+- 버튼 클릭 시 `/api/session/logout` (서버 세션 쿠키 정리) + `supabase.auth.signOut()` (클라이언트 세션 파기) 순차 호출 후 메인 홈(`/`)으로 리다이렉트 및 화면 새로고침.
+- 모바일 슬라이드 메뉴 및 데스크톱 고정 사이드바 양쪽에 공통 적용 완료.
+- 다른 서브프로그램 및 페이지 전수 점검 결과, 30여 개 독립 서브프로그램 및 관리자 사이드바 등 다른 모든 메뉴에는 이미 로그아웃이 정상 탑재되어 있음을 확인.
+
 ## 서브프로그램 좌측 메뉴 "← 다른 프로그램 보기" 링크 전수 통일 (2026-10-06 주인님 지시)
 
 - 주인님 피드백 반영: 서브프로그램 사이드바의 `← 다른 프로그램 보기` 클릭 시 기존 `/dashboard` 대신 **`https://www.buylife.xyz/programs`**(전체 프로그램 목록)로 이동하도록 전수 수정.
@@ -39,6 +47,12 @@
     1) `generator.ts`: `formatAIErrorMessage` 함수를 구현하여 Anthropic workspace 미지정 에러, 크레딧 부족, 잘못된 키, Rate limit 등 외부 SDK 오류를 사용자 친화적인 한글 안내문으로 가로채어 변환 제공.
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
+
+## Threads Content Ops v1.28 — 콘텐츠 소스 큐 UI·등록 (2026-10-06, Codex → Claude 인계 후 첫 작업)
+
+- `threads-content-ops/docs/CLAUDE_CONTINUATION.md`의 우선순위 1번을 구현했다. 사이드바 흐름 **4. 콘텐츠 소스**(`?tab=sources`)에서 회원이 계정별로 블로그·쿠팡 파트너스·네이버 브랜드 커넥트 링크를 등록·수정·삭제하고 상태(사용 가능/사용 완료/보관)를 바꾼다. 외부 수집·분석은 하지 않고 입력값만 본인 계정에 저장하며, 대시보드 카드는 실제 등록 건수만 표시한다(`작업 가능`으로 표시하지 않음).
+- DB 스키마 변경 없음(v1.27의 `tco_content_sources` 사용). 운영 DB에서 RLS 켜짐·authenticated 전용 4정책·anon 권한 없음·테스트 데이터 0건을 재확인했다. 서버 동작은 권한 검사 → `user_id` 제한 → 본인 계정 소유 확인 순이며 예상된 오류는 `{ ok, error }`로 반환한다. 링크는 http/https만 허용(`javascript:`·`data:` 거부).
+- **남은 일(다음 순서):** 쿠팡 파트너스 실제 검색 연동 → 네이버 브랜드 커넥트 링크 분석 → 소스+계정 운영정보로 초안 생성 → 댓글 → 성과 → 안전한 예약 실행. 기존 `youtube_api_key` 타입 오류(루트 `lib/apiKeys`)는 별도 정리 필요. 로그인한 화면에서 실제 등록·수정·삭제 클릭 확인은 아직 못 했다.
 
 ## Threads Content Ops v1.27 — 계정별 운영정보·소스 큐 DB 기반 (2026-10-06)
 

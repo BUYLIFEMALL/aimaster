@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-06 루트 앱 내장 기능은 타입 오류가 빌드에 안 잡히고, Server Action의 throw 메시지는 운영 서버에서 가려짐 (threads-content-ops v1.28)
+
+- **증상:** ① `npm run build`(루트)가 통과했는데 `npx tsc --noEmit`에서는 `web-actions.ts`의 `"youtube_api_key"` 타입 오류가 나왔다(이전 단계 코드, 런타임은 정상). ② 예상된 실패(키 없음·중복 링크 등)를 Server Action에서 `throw new Error("안내문")`하면 운영 서버에서는 클라이언트가 원문 대신 "Server Components render 오류" 같은 일반 문구를 받아 안내가 안 보인다(v1.24 생성 오류와 같은 원인).
+- **원인:** ① 루트 `next.config.mjs`가 `typescript.ignoreBuildErrors: true`라 `app/` 안 서브프로그램 코드의 타입 오류가 빌드를 막지 않는다. ② Next.js는 운영 빌드에서 Server Action이 던진 오류의 메시지를 클라이언트에 노출하지 않는다.
+- **해결(위치):** ① 루트에 내장된 프로그램을 고칠 때는 빌드와 별개로 `npx tsc --noEmit -p tsconfig.json 2>&1 | grep <프로그램 경로>`를 돌려 내 변경 파일의 오류가 없는지 확인한다(기존 오류는 기록만 하고 범위 밖이면 건드리지 않음). ② 새 Server Action은 `{ ok: true } | { ok: false; error: string }`을 반환하고 클라이언트가 `error`를 그대로 보여준다(`app/(dashboard)/threads-content-ops/web-actions.ts`의 소스 큐 4개 함수, `SourceQueue.tsx`).
+- **다음부터 확인:** 사용자에게 보여줄 한글 안내가 필요한 실패는 throw하지 말고 결과 객체로 돌려준다. 루트 내장 서브프로그램은 `tsc` 결과를 따로 확인한다.
+
 ## 2026-10-06 관리자 프로그램 관리(admin/programs) 목록의 외부 링크 버튼(↗) 단순 span 장식으로 인한 클릭 불가 해결
 
 - **증상:** 관리자 화면 `/admin/programs`에서 프로그램명 우측의 외부 링크 아이콘(`↗`)을 클릭해도 아무런 동작을 하지 않음.

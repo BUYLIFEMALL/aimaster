@@ -24,7 +24,8 @@ type Post = {
   account_id?: string | null;
 };
 
-type Props = { accounts: Account[]; posts: Post[]; configuredProviders: string[] };
+type SourceSummary = { source_type: string; status: string };
+type Props = { accounts: Account[]; posts: Post[]; configuredProviders: string[]; sources: SourceSummary[] };
 
 const POST_STATUS: Record<string, { label: string; tone: string }> = {
   draft: { label: "검토 대기", tone: "bg-sky-50 text-sky-700" },
@@ -35,8 +36,13 @@ const POST_STATUS: Record<string, { label: string; tone: string }> = {
   cancelled: { label: "취소됨", tone: "bg-neutral-100 text-neutral-600" },
 };
 
-export default function OperationsDashboard({ accounts, posts, configuredProviders }: Props) {
+export default function OperationsDashboard({ accounts, posts, configuredProviders, sources }: Props) {
   const account = accounts[0];
+  const readySources = (type: string) => sources.filter((source) => source.source_type === type && source.status === "ready").length;
+  const sourceDescription = (type: string, empty: string) => {
+    const count = readySources(type);
+    return count ? `사용 가능한 소스 ${count}건 등록됨 · 초안 연결은 다음 단계` : empty;
+  };
   const published = posts.filter((post) => post.status === "published");
   const drafts = posts.filter((post) => post.status === "draft");
   const scheduled = posts.filter((post) => post.status === "scheduled");
@@ -76,9 +82,9 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <OperationCard title="일상" description="운영 메모로 초안 생성" ready={Boolean(account) && providers.has("openai")} href="/threads-content-ops?tab=create" />
         <OperationCard title="YouTube" icon={Youtube} description="공개 영상 메타데이터 소재" ready={Boolean(account) && providers.has("openai") && providers.has("youtube_api_key")} href="/threads-content-ops?tab=create" />
-        <OperationCard title="블로그" description="소스 등록 기능 준비 단계" ready={false} href="/threads-content-ops?tab=settings" />
-        <OperationCard title="쿠팡 파트너스" description="상품 큐 구현 전, 키만 등록 가능" ready={false} href="/threads-content-ops?tab=settings" />
-        <OperationCard title="네이버 브랜드 커넥트" description="제휴 링크 분석 큐 구현 전" ready={false} href="/threads-content-ops?tab=settings" />
+        <OperationCard title="블로그" description={sourceDescription("blog", "콘텐츠 소스에서 블로그 글 주소를 등록하세요")} ready={false} href="/threads-content-ops?tab=sources" />
+        <OperationCard title="쿠팡 파트너스" description={sourceDescription("coupang", "콘텐츠 소스에서 상품 링크를 등록하세요 · 검색 연동은 준비 중")} ready={false} href="/threads-content-ops?tab=sources" />
+        <OperationCard title="네이버 브랜드 커넥트" description={sourceDescription("naver_brand_connect", "콘텐츠 소스에서 제휴 링크를 등록하세요 · 분석은 준비 중")} ready={false} href="/threads-content-ops?tab=sources" />
       </div>
     </section>
 

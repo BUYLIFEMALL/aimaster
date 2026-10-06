@@ -393,3 +393,133 @@ export async function loadYouTubeSource(rawUrl: string) {
     ].filter(Boolean).join("\n"),
   };
 }
+
+// ---------------------------------------------------------------------------
+// 콘텐츠 소스 큐 (v1.28) — 회원이 직접 등록한 블로그·쿠팡·네이버 브랜드 커넥트 자료.
+// 이 단계에서는 외부 수집/크롤링을 하지 않고, 회원이 입력한 값만 본인 계정에 저장한다.
+// 예상된 오류는 throw하지 않고 결과 객체로 돌려준다(운영 서버에서 Server Action의 throw 메시지가 가려지기 때문).
+// ---------------------------------------------------------------------------
+const SOURCE_TYPES = ["blog", "coupang", "naver_brand_connect"];
+const SOURCE_STATUSES = ["ready", "used", "archived"];
+const MAX_SOURCES_PER_USER = 200;
+
+type SourceResult = { ok: true } | { ok: false; error: string };
+
+function normalizeSourceUrl(raw: string): string {
+  const text = raw.trim();
+  if (!text || text.length > 2_000) throw new Error("링크는 1~2,000자로 입력해 주세요.");
+  let url: URL;
+  try { url = new URL(text); } catch { throw new Error("링크 형식을 확인해 주세요. https://로 시작하는 전체 주소를 입력해야 합니다."); }
+  if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("http 또는 https 링크만 등록할 수 있습니다.");
+  if (url.username || url.password) throw new Error("로그인 정보가 포함된 링크는 등록할 수 없습니다.");
+  return url.href;
+}
+
+function checkSourceText(title: string, summary: string) {
+  if (!title.trim() || title.trim().length > 200) throw new Error("제목은 1~200자로 입력해 주세요.");
+  if (summary.length > 1_000) throw new Error("메모는 1,000자 이내로 입력해 주세요.");
+}
+
+function sourceFailure(error: unknown, fallback: string): SourceResult {
+  return { ok: false, error: error instanceof Error ? error.message : fallback };
+}
+
+export async function createContentSource(input: {
+  accountId: string;
+  sourceType: string;
+  title: string;
+  sourceUrl: string;
+  summary: string;
+}): Promise<SourceResult> {
+  try {
+    if (!SOURCE_TYPES.includes(input.sourceType)) throw new Error("지원하지 않는 소스 종류입니다.");
+    checkSourceText(input.title, input.summary);
+    const sourceUrl = normalizeSourceUrl(input.sourceUrl);
+    const { supabase, user } = await authorizedUser();
+
+    const { data: account } = await supabase.from("tco_threads_accounts")
+      .select("id").eq("id", input.accountId).eq("user_id", user.id).maybeSingle();
+    if (!account) throw new Error("내가 연결한 Threads 계정을 찾지 못했습니다.");
+
+    const { count } = await supabase.from("tco_content_sources")
+      .select("id", { count: "exact", head: true }).eq("user_id", user.id);
+    if ((count ?? 0) >= MAX_SOURCES_PER_USER) throw new Error(`소스는 최대 ${MAX_SOURCES_PER_USER}건까지 등록할 수 있습니다. 사용한 소스를 삭제해 주세요.`);
+
+    const { data: duplicate } = await supabase.from("tco_content_sources")
+      .select("id").eq("user_id", user.id).eq("account_id", account.id).eq("source_url", sourceUrl).maybeSingle();
+    if (duplicate) throw new Error("이 계정에 이미 같은 링크가 등록되어 있습니다.");
+
+    const { error } = await supabase.from("tco_content_sources").insert({
+      user_id: user.id,
+      account_id: account.id,
+      source_type: input.sourceType,
+      title: input.title.trim(),
+      source_url: sourceUrl,
+      summary: input.summary.trim(),
+      status: "ready",
+    });
+    if (error) throw new Error("소스를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "소스를 등록하지 못했습니다.");
+  }
+}
+
+export async function updateContentSource(input: {
+  id: string;
+  title: string;
+  sourceUrl: string;
+  summary: string;
+}): Promise<SourceResult> {
+  try {
+    checkSourceText(input.title, input.summary);
+    const sourceUrl = normalizeSourceUrl(input.sourceUrl);
+    const { supabase, user } = await authorizedUser();
+
+    const { data: current } = await supabase.from("tco_content_sources")
+      .select("id, account_id").eq("id", input.id).eq("user_id", user.id).maybeSingle();
+    if (!current) throw new Error("수정할 소스를 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+
+    const { data: duplicate } = await supabase.from("tco_content_sources")
+      .select("id").eq("user_id", user.id).eq("account_id", current.account_id).eq("source_url", sourceUrl).neq("id", current.id).maybeSingle();
+    if (duplicate) throw new Error("이 계정에 이미 같은 링크가 등록되어 있습니다.");
+
+    const { error } = await supabase.from("tco_content_sources")
+      .update({ title: input.title.trim(), source_url: sourceUrl, summary: input.summary.trim(), updated_at: new Date().toISOString() })
+      .eq("id", current.id).eq("user_id", user.id);
+    if (error) throw new Error("소스를 수정하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "소스를 수정하지 못했습니다.");
+  }
+}
+
+export async function setContentSourceStatus(input: { id: string; status: string }): Promise<SourceResult> {
+  try {
+    if (!SOURCE_STATUSES.includes(input.status)) throw new Error("지원하지 않는 상태입니다.");
+    const { supabase, user } = await authorizedUser();
+    const { data, error } = await supabase.from("tco_content_sources")
+      .update({ status: input.status, error_message: null, updated_at: new Date().toISOString() })
+      .eq("id", input.id).eq("user_id", user.id).select("id").maybeSingle();
+    if (error || !data) throw new Error("상태를 바꿀 소스를 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "상태를 바꾸지 못했습니다.");
+  }
+}
+
+export async function deleteContentSource(id: string): Promise<SourceResult> {
+  try {
+    const { supabase, user } = await authorizedUser();
+    const { data, error } = await supabase.from("tco_content_sources")
+      .delete().eq("id", id).eq("user_id", user.id).select("id").maybeSingle();
+    if (error || !data) throw new Error("삭제할 소스를 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "소스를 삭제하지 못했습니다.");
+  }
+}

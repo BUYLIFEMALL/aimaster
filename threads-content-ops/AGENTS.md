@@ -1,8 +1,17 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.27`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.28`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.28 콘텐츠 소스 큐 UI·등록 (2026-10-06)
+
+- `docs/CLAUDE_CONTINUATION.md`의 다음 구현 우선순위 1번을 구현했다. 사이드바 번호 흐름에 **4. 콘텐츠 소스**(`?tab=sources`)를 추가하고, 회원이 계정별로 **블로그 글 주소·쿠팡 파트너스 상품 링크·네이버 브랜드 커넥트 제휴 링크**를 직접 등록·수정·삭제하며 상태(사용 가능/사용 완료/보관)를 바꿀 수 있다.
+- **이번 단계는 입력값 보관만 한다.** 외부 사이트 수집·크롤링·검색 연동은 하지 않고, 쿠팡·네이버 분석 결과를 지어내지 않는다. 대시보드 "즉시 작업" 카드의 블로그/쿠팡/네이버는 실제 등록 건수만 보여주고 `작업 가능`으로 표시하지 않는다(초안 연결은 다음 단계).
+- DB 스키마 변경 없음 — v1.27에서 만든 `tco_content_sources`(회원+계정 FK, owner-only RLS 4정책, anon 권한 없음)를 그대로 쓴다. 운영 DB에서 정책·권한·RLS를 다시 조회해 확인했다.
+- 서버 동작(`web-actions.ts`의 `createContentSource`/`updateContentSource`/`setContentSourceStatus`/`deleteContentSource`)은 모두 `authorizedUser()`(프로그램 이용 권한) 뒤에 `user_id`로 다시 제한하고, 등록 시 계정이 본인 소유인지 확인한다. 링크는 `http`/`https`만 허용하며 `javascript:`·`data:`·로그인 정보 포함 주소는 거부한다(화면에 `href`로 렌더링하기 때문). 같은 계정에 같은 링크 중복 등록 금지, 회원당 최대 200건.
+- **예상된 오류는 throw하지 않고 `{ ok, error }`로 반환**한다(운영 서버는 Server Action의 throw 메시지를 가려서 안내 문구가 안 보이기 때문 — v1.24와 같은 원칙). 새 서버 동작도 이 방식을 따른다.
+- 알려진 기존 이슈(이번 작업 범위 밖): `web-actions.ts`의 `resolveApiKey(supabase, user.id, "youtube_api_key")`가 루트 `lib/apiKeys`의 `ApiKeyProvider` 타입에 없어 `tsc`에서 오류가 난다. 루트 앱이 `typescript.ignoreBuildErrors`라 빌드는 통과하고 런타임 값은 정상이다. 루트 `lib/apiKeys` 타입을 넓히는 별도 작업으로 처리.
 
 ## v1.27 계정별 운영정보·회원별 데이터 기반
 
