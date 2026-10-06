@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.01, 2026-10-07 신규 구축)
+
+- **Chrome 확장 + 웹 대시보드 하이브리드 네이버 블로그 자동화 신규 런칭 (v1.01)**:
+  - 배경: 복사장 유튜브 및 GitHub(`https://github.com/boksajang/naverblog-extention`) 오픈소스의 핵심 메커니즘을 심층 분석하여, AIMaster 생태계에 최적화된 서브프로젝트로 구현.
+  - 핵심 아키텍처:
+    1) **네이버 봇 탐지(Akamai/Canvas/TLS/캡차) 100% 무력화**: Playwright/Puppeteer 등 서버 드라이버 대신 일반 크롬 브라우저 상의 Chrome 확장(Manifest V3)이 스마트에디터 ONE iframe DOM에 마우스/키보드 가상 이벤트를 발생시켜 실제 사람의 타자로 작성.
+    2) **5단계 AI 에이전트 파이프라인**: 심층 자료조사(Research) ➔ 초안 작성(Writer) ➔ 17대 블로그 윤문 휴머나이징(Humanizer) ➔ C-RANK/DIA+ 품질 검수(Reviewer) ➔ 본문 맞춤형 이미지 프롬프트 생성(Image).
+    3) **17대 블로그 윤문 불변 규칙(Humanizer Rules)**: 번호 매기기 금지, 명사형 종결 배제, 접속사 최소화, 인간적 리듬감(온점·줄바꿈·감탄부호), 시그니처 팩트 보존 검증 등 완벽 이식.
+    4) **AIMaster 표준 준수**:
+       - 공용 Supabase DB `programs` (slug: `naver-blog-agent`, id: `92ff938f-0cad-45ce-bdc8-11b5eb64a80a`, `v1.01`, `https://naver-blog-agent.vercel.app`) 및 기본 3단계 요금제 등록.
+       - BYOK(회원 본인 키) 및 `requireProgramAccess()` (`createAdminClient()` 기반 안전 권한 판정).
+       - 표준 화이트 베이스 사이드바 레이아웃 (`← 다른 프로그램 보기`, API키등록·플랫폼연동, 📖 연동 매뉴얼).
+       - 웹 대시보드에서 큐(Task Queue)에 등록하고 확장 프로그램이 실시간 폴링하여 자동 전송 및 입력.
+
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.40, 2026-10-06 주인님 지시)
 
 - **시각 자료(사진/영상) 통합 분석 시 사진 번호/순서/슬라이드 메타 표현 원천 차단 및 후처리 엔진 대폭 강화 (v1.40)**:

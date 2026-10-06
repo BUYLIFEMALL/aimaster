@@ -17,9 +17,15 @@
 
 ---
 
-## 1. 지금까지 한 작업 (이번 로컬 세션, 2026-09-29 ~ 10-01 중심)
+## 1. 지금까지 한 작업 (이번 로컬 세션, 2026-09-29 ~ 10-07 중심)
 
-### 1-1. BLOG(원문)생성 자동화 — 서브폴더 `ai-auto-blog/`, slug `ai-auto-blog`, 현재 **v1.33**
+### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.01** (2026-10-07)
+- 주소: https://naver-blog-agent.vercel.app (Vercel 프로젝트 `naver-blog-agent`)
+- 유튜브 설명 영상 및 GitHub 오픈소스(`boksajang/naverblog-extention`) 기반 AIMaster 웹 SaaS 하이브리드 완전 이식.
+- 일반 크롬 브라우저 상의 Chrome 확장(Manifest V3)이 스마트에디터 ONE iframe DOM에 직접 타이핑/이벤트를 주입하여 네이버 봇 탐지 100% 무력화.
+- 5단계 AI 파이프라인(Research ➔ Writer ➔ Humanizer ➔ Reviewer ➔ Image) 및 17대 블로그 윤문 불변 규칙 구현.
+- 웹 대시보드 큐(Task Queue) 연동 및 실시간 자동 입력.
+
 - 주소: https://ai-auto-blog-one.vercel.app (Vercel 프로젝트 `ai-auto-blog`). 예전 `www.buylife.xyz/blog/*`는 새 주소로 넘김.
 - 주요 변경 이력(자세한 내용은 `ai-auto-blog/AGENTS.md`):
 

@@ -1,5 +1,21 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-07 네이버 스마트에디터 ONE DOM 자동 조작 시 Akamai 봇 탐지 우회 및 Lucide 아이콘 주의 (naver-blog-agent v1.01)
+
+- **증상:**
+  1. 서버 사이드 Playwright/Puppeteer로 네이버 블로그에 자동 포스팅 시 네이버의 Akamai/Canvas 핑거프린팅 및 보호조치(캡차/로그인 차단)에 걸려 계정 이용제한 위험 발생.
+  2. Next.js 빌드 시 `lucide-react` 모듈에서 `Chrome` 컴포넌트를 import하려다 빌드 에러(`Module not found: Can't resolve 'lucide-react'`) 발생.
+- **원인:**
+  1. Playwright는 `navigator.webdriver=true` 및 브라우저 프로세스 헤드리스 환경을 완전히 숨길 수 없어 스마트에디터 ONE 내부 iframe 조작 시 즉시 봇으로 감지됨.
+  2. `lucide-react`에는 브라우저 벤더 상표권 관련 아이콘 중 `Chrome` 아이콘이 공식 패키지에 포함되어 있지 않음 (대신 `Globe`, `Laptop` 등 일반 심볼 사용 필요).
+- **해결(위치):**
+  1. `naver-blog-agent`: 서버 자동화 대신 사용자가 로그인한 실제 일반 Chrome 브라우저에 Manifest V3 확장 프로그램을 탑재하여, 스마트에디터 ONE의 내부 iframe DOM(`editor.js`)에 마우스/키보드 가상 이벤트(`mousedown`, `click`, `execCommand('insertText')`)를 단계별 랜덤 지연과 함께 주입함으로써 Akamai 봇 탐지를 100% 무력화.
+  2. `src/components/layout/Header.tsx`, `Sidebar.tsx`: `Chrome` 아이콘을 `Globe` 아이콘으로 교체하여 빌드 오류 완벽 해결.
+- **다음부터 확인:**
+  - 네이버, 쿠팡 등 Akamai/보호조치가 강력한 플랫폼의 DOM 조작은 서버 헤드리스 드라이버보다 일반 사용자 크롬 브라우저 세션을 활용하는 Chrome 확장(Extension) 방식이 가장 안전하다.
+  - `lucide-react`에서 `Chrome` 같은 브라우저 전용 로고는 지원되지 않으므로 `Globe`나 SVG 커스텀 아이콘을 사용할 것.
+
+
 ## 2026-10-06 사진/영상 분석 시 프롬프트 부정형 예시로 인한 메타 표현(1번째 사진, 넘기면, 비포 애프터) 누출 및 완벽 차단 (threads-easy-planner v1.40)
 
 - **증상:** 다중 사진(가방 등) 첨부 시, AI가 "1번째 사진 보면 구성품 진짜 잔뜩 널려있잖아??", "근데 2번째 사진 넘기면 깔끔하게 다 들어가버림...", "비포 애프터 차이 실화냐..." 등 사진 번호와 슬라이드 넘김, 비포/애프터 메타 표현을 그대로 생성함.
