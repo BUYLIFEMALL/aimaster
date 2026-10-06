@@ -149,6 +149,10 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.38 — 글감 수집(보라)·유튜브 쇼츠 검색(분홍) 박스 색상 구분 (2026-10-06)
+
+- 화면 색상만 변경, 기능·DB 변경 없음.
+
 ## Threads Content Ops v1.37 — 떡상 콘텐츠 수집에 유튜브 쇼츠 검색 추가 (2026-10-06)
 
 - 주인님 지시: `shorts-viral-studio/search`의 쇼츠 검색을 이 화면에 추가. 별도 패널(`ShortsSearch.tsx`), 서버 코드 `threads-content-ops/lib/youtubeShorts.ts`. 회원 본인 YouTube 키, DB 변경 없음(저장 시 `tco_viral_candidates`에 method='http'·쇼츠 주소로 저장). 상세는 프로그램 `AGENTS.md` v1.37.

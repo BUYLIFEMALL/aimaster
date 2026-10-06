@@ -130,7 +130,7 @@ export default function ShortsSearch({ hasYoutubeKey, savedSources }: { hasYoutu
     }
   };
 
-  return <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+  return <section className="rounded-2xl border-2 border-rose-300 bg-rose-50/60 p-5 shadow-sm">
     <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Play size={18} className="text-gold" />유튜브 쇼츠 검색</h3>
     <p className="mt-2 text-sm leading-relaxed text-neutral-600">키워드로 쇼츠를 찾고, 구독자 대비 조회수가 크게 터진 영상을 골라 글감으로 저장합니다. 영상의 내용을 가져오는 것이 아니라 제목·조회수 같은 수치와 링크만 남기며, 글은 내 말투로 새로 쓰도록 안내합니다.</p>
     {!hasYoutubeKey && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>YouTube Data API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장해 주세요.</span></p>}

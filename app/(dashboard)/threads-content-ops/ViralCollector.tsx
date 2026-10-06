@@ -111,7 +111,7 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
       <Overview label="보관" value={count("archived")} tone="text-neutral-600" />
     </section>
 
-    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border-2 border-violet-300 bg-violet-50/60 p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Search size={18} className="text-gold" />글감 수집</h3>
       <div className="mt-3 flex flex-wrap gap-2">{METHODS.map((item) => <button key={item.value} type="button" onClick={() => { setMethod(item.value); setMessage(null); }} className={`rounded-lg px-3 py-1.5 text-sm font-medium ${method === item.value ? "bg-neutral-900 text-[#ffffff]" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"}`}>{item.label}</button>)}</div>
       <p className="mt-3 text-sm leading-relaxed text-neutral-600">{current.hint}</p>
