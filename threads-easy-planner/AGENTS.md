@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.33` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.34` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -240,4 +240,11 @@
   - **좌측 사이드바 하단 팁 문구 제거 (주인님 지시)**:
     1) 사이드바(`Sidebar.tsx`) 좌하단에 표시되던 "💡 Tip: 스레드는 첫 문장에서 스크롤을 멈추고 마지막 댓글에서 반응을 끌어내는 것이 핵심입니다." 텍스트 배너 삭제.
     2) DB `programs.version` 및 `APP_VERSION` `v1.33` 동기화.
+- **v1.34 (2026-10-06)**:
+  - **글 생성 시 자동 보관함 저장 해제 및 수동 선택 저장으로 전환 (주인님 지시)**:
+    1) 글 생성 완료(`handleGenerate`) 시 무조건 호출되던 `savePlanToStorage` 자동 저장 로직을 제거하고 기본 상태를 미저장(`isSaved: false`)으로 초기화.
+    2) 사용자가 마음에 드는 콘텐츠일 때 상단 우측의 **`[💾 보관함에 저장]`** 버튼을 직접 클릭해야만 보관함에 저장되도록 변경.
+    3) 이미 저장된 콘텐츠 클릭 시 중복 저장 방지 안내 토스트 제공.
+    4) 사용 매뉴얼(`/guide`) STEP 4 안내 문구를 수동 선택 저장 방식에 맞춰 최신화. DB `programs.version` 및 `APP_VERSION` `v1.34` 동기화.
+
 

@@ -425,26 +425,7 @@ export function PlannerApp() {
       setUsedModelLabel(activeModelObj ? activeModelObj.shortLabel : selectedModel);
       setUsedPersonaLabel(effectiveLabel);
       setExpandedHookIdx(null);
-
-      // ★ 생성 즉시 보관함에 자동 저장 (수동 클릭 누락 방지)
-      savePlanToStorage({
-        topic: res.data.topic,
-        hook: res.data.hook,
-        hookReason: res.data.whyHookWorks,
-        hookVariants: res.data.hookVariants,
-        bodyText: res.data.content,
-        replyCta: res.data.cta,
-        followUpTopics: res.data.followUpIdeas,
-        personaId: effectivePersonaId || undefined,
-        personaName: effectiveLabel || undefined,
-        modelLabel: activeModelObj ? activeModelObj.shortLabel : selectedModel,
-      }).then((saveRes) => {
-        if (saveRes.success) {
-          setIsSaved(true);
-        }
-      }).catch(() => {
-        // silent fail
-      });
+      setIsSaved(false); // 생성 직후에는 미저장 상태로 시작 (마음에 드는 콘텐츠일 때 사용자가 [보관함에 저장] 클릭)
     } catch {
       setErrorMessage("글 생성 중 오류가 발생했습니다.");
     } finally {
@@ -574,6 +555,10 @@ export function PlannerApp() {
   // 8. 콘텐츠 보관함에 저장하기
   async function handleSaveToStorage() {
     if (!currentPlan) return;
+    if (isSaved) {
+      showCopyToast("✅ 이미 보관함에 저장된 콘텐츠입니다.");
+      return;
+    }
     setIsSaving(true);
     try {
       const contentToSave = isEditingContent ? editedContent : currentPlan.content;

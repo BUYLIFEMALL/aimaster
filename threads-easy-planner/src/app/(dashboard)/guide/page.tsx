@@ -249,7 +249,7 @@ export default function GuidePage() {
           </div>
         </div>
 
-        {/* STEP 4. 자동 저장 및 내 보관함 활용 */}
+        {/* STEP 4. 보관함 저장 및 내 보관함 활용 */}
         <div className="rounded-3xl border border-neutral-200 bg-white p-6 md:p-7 space-y-4 shadow-xs">
           <div className="flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white font-black text-sm">
@@ -258,22 +258,22 @@ export default function GuidePage() {
             <div>
               <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">보관 및 사후 관리</span>
               <h3 className="text-lg font-bold text-neutral-900">
-                자동 저장 (Auto-save) 및 내 보관함 활용법
+                마음에 드는 콘텐츠 보관 및 내 보관함 활용법
               </h3>
             </div>
           </div>
           <p className="text-xs md:text-sm text-neutral-600 leading-relaxed">
-            작성된 소중한 기획 글은 실수로 날아가지 않도록 자동으로 보관함에 보관됩니다.
+            작성된 다양한 기획 글 중 마음에 드는 콘텐츠만 선별하여 내 보관함에 안전하게 보관할 수 있습니다.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1 text-xs">
             <div className="rounded-2xl bg-neutral-50 p-4 border border-neutral-200 space-y-2">
               <span className="font-bold text-neutral-900 flex items-center gap-1.5">
-                <span>⚡</span>
-                <span>생성 즉시 자동 저장 (Auto-save)</span>
+                <span>💾</span>
+                <span>원하는 글만 원클릭 보관</span>
               </span>
               <p className="text-neutral-600 leading-relaxed">
-                글이 생성되면 상단 우측 버튼이 자동으로 <strong>[✅ 보관함 저장완료]</strong>로 바뀌며 보관함에 즉시 들어갑니다. 사용자가 수동 저장 버튼을 누르지 않아도 안심하고 다른 화면으로 이동하실 수 있습니다.
+                글이 생성된 후 결과물이 마음에 들 때 상단 우측의 <strong>[💾 보관함에 저장]</strong> 버튼을 누르면 즉시 저장되며 <strong>[✅ 보관함 저장완료]</strong>로 전환됩니다. 원치 않는 초안으로 보관함이 어지럽혀지지 않고 알짜 글만 선별해 보관할 수 있습니다.
               </p>
             </div>
 

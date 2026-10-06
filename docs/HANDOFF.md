@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.34, 2026-10-06 주인님 지시)
+
+- **글 생성 시 자동 보관함 저장 해제 및 수동 선택 저장으로 전환 (v1.34)**:
+  - 배경: 사용자가 콘텐츠를 생성할 때 무조건 보관함에 들어가던 방식에서, 결과물이 마음에 들 때만 선택적으로 저장할 수 있도록 개선 요청.
+  - 조치:
+    1) `PlannerApp.tsx`: `handleGenerate` 내부의 `savePlanToStorage` 자동 호출을 제거하고 기본 상태를 미저장(`isSaved: false`)으로 설정.
+    2) 상단 우측의 **`[💾 보관함에 저장]`** 버튼을 직접 클릭했을 때만 보관함에 저장되도록 변경. 이미 저장된 글은 중복 저장 방지 안내 피드백 제공.
+    3) 사용 매뉴얼(`/guide` `page.tsx`) STEP 4 안내 문구를 수동 선택 저장 방식에 맞춰 최신화.
+    4) `src/lib/version.ts`, 마이그레이션 `0004_tep_bump_version_v1_34.sql` 및 DB `programs.version`을 `v1.34`로 동기화.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.33, 2026-10-06 주인님 지시)
 
 - **좌측 사이드바 하단 팁 문구 제거 (v1.33)**:
