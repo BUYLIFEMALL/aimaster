@@ -3,15 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, CircleAlert, Copy, Sparkles } from "lucide-react";
-import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODEL, ENGINES, IMAGE_MODELS, IMAGE_PROVIDER_LABEL, IMAGE_RATIOS, PERSONAS, REWRITE_MODES, type EngineProvider, type ImageModel, type ImageRatio } from "@/threads-content-ops/lib/personas";
-import { generateAttentionPost, generatePostImage, rewriteGeneratedPost, saveGeneratedDraft } from "./web-actions";
+import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, ENGINES, IMAGE_KEY_LABEL, IMAGE_MODELS, IMAGE_PLATFORMS, IMAGE_RATIOS, MAX_GENERATE_COUNT, PERSONAS, REWRITE_MODES, type EngineProvider, type ImagePlatform, type ImageRatio } from "@/threads-content-ops/lib/personas";
+import { generateAttentionPost, generatePostImage, planPostImages, rewriteGeneratedPost, saveGeneratedDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
 type Candidate = { id: string; method: string; source_input: string; title: string; content: string; keywords: string[]; status?: string };
 type Variant = { type: string; hook: string; whyItWorks: string; content: string };
 type Plan = { hook: string; hookType: string; whyHookWorks: string; content: string; cta: string; followUpIdeas: string[]; hookVariants: Variant[] };
 type Engine = { provider: EngineProvider; model: string };
-type ImageSettings = { model: ImageModel; ratio: ImageRatio };
+type ImageSettings = { platform: ImagePlatform; model: string; ratio: ImageRatio; count: number };
+
+const MAX_CAROUSEL = 20;
+const pickedButton = "border-amber-500 bg-amber-500 text-[#ffffff] shadow-sm";
+const idleButton = "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100";
 
 const THREADS_LIMIT = 500;
 const inputClass = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400";
@@ -36,14 +40,14 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
   const [experience, setExperience] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
   const [engine, setEngine] = useState<Engine>(DEFAULT_ENGINE);
-  const [image, setImage] = useState<ImageSettings>({ model: DEFAULT_IMAGE_MODEL, ratio: "1:1" });
+  const [image, setImage] = useState<ImageSettings>({ platform: DEFAULT_IMAGE_PLATFORM, model: DEFAULT_IMAGE_MODELS[DEFAULT_IMAGE_PLATFORM], ratio: "1:1", count: 1 });
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [plan, setPlan] = useState<Plan | null>(null);
   const [generatingLabel, setGeneratingLabel] = useState<string | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const engineKeyReady = configuredProviders.includes(engine.provider);
-  const imageInfo = IMAGE_MODELS.find((item) => item.value === image.model) ?? IMAGE_MODELS[0];
-  const imageKeyReady = configuredProviders.includes(imageInfo.provider);
+  const imagePlatform = IMAGE_PLATFORMS.find((item) => item.id === image.platform) ?? IMAGE_PLATFORMS[0];
+  const imageKeyReady = configuredProviders.includes(imagePlatform.keyProvider);
   const engineInfo = ENGINES.find((item) => item.provider === engine.provider) ?? ENGINES[0];
   const generating = generatingLabel !== null;
 
@@ -144,30 +148,40 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       </div>
 
       <div className="mt-3 rounded-xl border-2 border-emerald-300 bg-white p-3">
-        <p className="text-sm font-bold text-neutral-900">⚙️ AI 엔진·모델 <span className="font-normal text-neutral-500">— 현재: {engineInfo.models.find((item) => item.value === engine.model)?.label ?? engine.model}</span></p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <label className="block text-xs font-semibold text-neutral-600">AI 엔진
-            <select className={`${inputClass} mt-1`} value={engine.provider} onChange={(event) => { const next = ENGINES.find((item) => item.provider === event.target.value) ?? ENGINES[0]; setEngine({ provider: next.provider, model: next.models[0].value }); }}>{ENGINES.map((item) => <option key={item.provider} value={item.provider}>{item.label}{configuredProviders.includes(item.provider) ? "" : " (키 미등록)"}</option>)}</select>
-          </label>
-          <label className="block text-xs font-semibold text-neutral-600">모델
-            <select className={`${inputClass} mt-1`} value={engine.model} onChange={(event) => setEngine({ ...engine, model: event.target.value })}>{engineInfo.models.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
-          </label>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-bold text-neutral-900">🤖 AI 글 생성 엔진 선택 <span className="hidden font-normal text-neutral-500 sm:inline">GPT / Claude / Gemini</span></p>
+          <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">글 생성·다시 쓰기에 적용</span>
         </div>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-xs">{ENGINES.map((item) => <button key={item.provider} type="button" onClick={() => setEngine({ provider: item.provider, model: item.models[0].value })} aria-pressed={engine.provider === item.provider} className={`flex flex-col items-center justify-center gap-0.5 rounded-xl border p-2.5 text-center font-bold transition-all ${engine.provider === item.provider ? pickedButton : idleButton}`}>
+          <span className="text-base">{item.icon}</span><span className="text-sm font-extrabold tracking-tight">{item.label}</span><span className="text-[10px] font-normal opacity-80">{item.sub}{configuredProviders.includes(item.provider) ? "" : " · 키 미등록"}</span>
+        </button>)}</div>
+        <label className="mt-3 block border-t border-neutral-100 pt-2 text-[11px] font-bold text-neutral-700">🎯 {engineInfo.label} 세부 실행 모델
+          <select className={`${inputClass} mt-1`} value={engine.model} onChange={(event) => setEngine({ ...engine, model: event.target.value })}>{engineInfo.models.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
+        </label>
         {!engineKeyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{engineInfo.label} API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장하거나 다른 엔진을 선택해 주세요.</span></p>}
       </div>
 
       <div className="mt-3 rounded-xl border-2 border-fuchsia-300 bg-white p-3">
-        <p className="text-sm font-bold text-neutral-900">🖼️ 이미지 생성 모델 <span className="font-normal text-neutral-500">— 현재: {imageInfo.label.split(" (")[0]} · {image.ratio}</span></p>
-        <p className="mt-1 text-xs text-neutral-500">결과 글의 "이미지 생성" 버튼이 이 모델로 본문에 어울리는 이미지를 만듭니다. 사람이 나오면 한국인으로 그리고 이미지 안에 글자는 넣지 않습니다.</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <label className="block text-xs font-semibold text-neutral-600">이미지 모델
-            <select className={`${inputClass} mt-1`} value={image.model} onChange={(event) => setImage({ ...image, model: event.target.value as ImageModel })}>{IMAGE_MODELS.map((item) => <option key={item.value} value={item.value}>{item.label}{configuredProviders.includes(item.provider) ? "" : " (키 미등록)"}</option>)}</select>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-bold text-neutral-900">🖼️ 이미지 생성 모델 <span className="hidden font-normal text-neutral-500 sm:inline">NanoBanana · GPT Image · FLUX · Z-Image</span></p>
+          <span className="rounded-md border border-fuchsia-200 bg-fuchsia-50 px-2 py-0.5 text-[11px] font-bold text-fuchsia-700">결과 글의 "이미지 생성"에 적용</span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">{IMAGE_PLATFORMS.map((item) => <button key={item.id} type="button" onClick={() => setImage({ ...image, platform: item.id, model: DEFAULT_IMAGE_MODELS[item.id] })} aria-pressed={image.platform === item.id} className={`flex flex-col items-center justify-center gap-0.5 rounded-xl border p-2.5 text-center font-bold transition-all ${image.platform === item.id ? pickedButton : idleButton}`}>
+          <span className="text-base">{item.icon}</span><span className="text-xs font-extrabold tracking-tight">{item.name}</span><span className="text-[10px] font-normal opacity-80">{item.sub}{configuredProviders.includes(item.keyProvider) ? "" : " · 키 미등록"}</span>
+        </button>)}</div>
+        <div className="mt-3 grid gap-3 border-t border-neutral-100 pt-2 sm:grid-cols-[1fr_auto_auto]">
+          <label className="block min-w-0 text-[11px] font-bold text-neutral-700">🎯 {imagePlatform.name} 세부 실행 모델
+            <select className={`${inputClass} mt-1`} value={image.model} onChange={(event) => setImage({ ...image, model: event.target.value })}>{IMAGE_MODELS.filter((item) => item.platform === image.platform).map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
           </label>
-          <label className="block text-xs font-semibold text-neutral-600">이미지 비율
+          <label className="block text-[11px] font-bold text-neutral-700">📐 비율
             <select className={`${inputClass} mt-1`} value={image.ratio} onChange={(event) => setImage({ ...image, ratio: event.target.value as ImageRatio })}>{IMAGE_RATIOS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
           </label>
+          <label className="block text-[11px] font-bold text-neutral-700">🔢 생성 장수
+            <select className={`${inputClass} mt-1`} value={image.count} onChange={(event) => setImage({ ...image, count: Number(event.target.value) })}>{Array.from({ length: MAX_GENERATE_COUNT }, (_, index) => index + 1).map((num) => <option key={num} value={num}>{num}장{num === 1 ? " (기본)" : " 생성"}</option>)}</select>
+          </label>
         </div>
-        {!imageKeyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{IMAGE_PROVIDER_LABEL[imageInfo.provider]} API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장하거나 다른 모델을 선택해 주세요.</span></p>}
+        <p className="mt-2 text-xs text-neutral-500">장수를 2장 이상 고르면 본문의 장면을 나눠 서로 다른 컷으로 순서대로 만듭니다. 사람이 나오면 한국인으로 그리고 이미지 안에 글자는 넣지 않습니다.</p>
+        {!imageKeyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{IMAGE_KEY_LABEL[imagePlatform.keyProvider]} API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장하거나 다른 플랫폼을 선택해 주세요.</span></p>}
       </div>
     </section>
 
@@ -209,23 +223,38 @@ function VariantCard({ option, accountId, viralId, engine, image, onSaved }: { o
   const [error, setError] = useState("");
   const over = body.length > THREADS_LIMIT;
   const bodyRef = useRef<HTMLTextAreaElement>(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const [imaging, setImaging] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [imaging, setImaging] = useState<{ done: number; total: number } | null>(null);
 
-  const makeImage = async () => {
+  const makeImages = async () => {
     if (imaging || saving || rewriting) return;
-    setImaging(true);
+    const want = Math.min(image.count, MAX_CAROUSEL - images.length);
+    if (want < 1) { setError(`이미지는 최대 ${MAX_CAROUSEL}장까지 둘 수 있습니다. 불필요한 이미지를 삭제한 뒤 다시 생성해 주세요.`); return; }
     setError("");
+    setImaging({ done: 0, total: want });
     try {
-      const result = await generatePostImage({ content: body, imageModel: image.model, ratio: image.ratio, engine });
-      if (result.ok) setImageUrl(result.url);
-      else setError(result.error);
+      const plan = await planPostImages({ content: body, count: want, engine });
+      if (!plan.ok) { setError(plan.error); return; }
+      for (let index = 0; index < plan.prompts.length; index += 1) {
+        const result = await generatePostImage({ prompt: plan.prompts[index], imageModel: image.model, ratio: image.ratio });
+        if (!result.ok) { setError(`${index}장을 만든 뒤 멈췄습니다. ${result.error}`); return; }
+        setImages((current) => [...current, result.url].slice(0, MAX_CAROUSEL));
+        setImaging({ done: index + 1, total: want });
+      }
     } catch {
       setError("이미지 생성 요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
     } finally {
-      setImaging(false);
+      setImaging(null);
     }
   };
+  const removeImage = (index: number) => setImages((current) => current.filter((_, position) => position !== index));
+  const moveImage = (index: number, delta: number) => setImages((current) => {
+    const target = index + delta;
+    if (target < 0 || target >= current.length) return current;
+    const next = [...current];
+    [next[index], next[target]] = [next[target], next[index]];
+    return next;
+  });
 
   // 결과 본문이 스크롤 없이 한 번에 모두 보이도록 글 길이에 맞춰 세로 칸을 키운다(다시 쓰기·직접 수정 때도 따라간다).
   useEffect(() => {
@@ -282,15 +311,24 @@ function VariantCard({ option, accountId, viralId, engine, image, onSaved }: { o
     <div className="mt-2 flex flex-wrap items-center gap-1.5"><span className="text-[11px] font-semibold text-neutral-500">다시 써줘</span>{REWRITE_MODES.map((item) => <button key={item.mode} type="button" disabled={rewriting !== null || saving} onClick={() => void rewrite(item.mode)} className="rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50">{rewriting === item.mode ? "수정 중…" : `${item.icon} ${item.label}`}</button>)}</div>
     {error && <p className="mt-2 text-sm text-rose-600" role="alert">{error}</p>}
     <div className="mt-3 flex flex-wrap gap-2">
-      <button type="button" className="inline-flex items-center gap-1 rounded-lg border-2 border-violet-300 bg-white px-3 py-1.5 text-xs font-bold text-violet-700 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50" disabled={imaging || saving || rewriting !== null || !body.trim()} onClick={() => void makeImage()}>{imaging ? "이미지 만드는 중… (최대 2분)" : imageUrl ? "🖼️ 이미지 다시 생성" : "🖼️ 이미지 생성"}</button>
-      <button type="button" className="inline-flex items-center rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={saving || saved || rewriting !== null || !body.trim() || !accountId} onClick={() => void save()}>{saved ? "저장됨" : saving ? "저장 중…" : "이 글로 초안 저장"}</button>
+      <button type="button" className="inline-flex items-center gap-1 rounded-lg border-2 border-violet-300 bg-white px-3 py-1.5 text-xs font-bold text-violet-700 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50" disabled={imaging !== null || saving || rewriting !== null || !body.trim()} onClick={() => void makeImages()}>{imaging ? `이미지 만드는 중… ${imaging.done}/${imaging.total}장` : images.length ? `🖼️ 이미지 ${image.count}장 더 생성` : image.count > 1 ? `🖼️ 이미지 ${image.count}장 생성` : "🖼️ 이미지 생성"}</button>
+      <button type="button" className="inline-flex items-center rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={saving || saved || rewriting !== null || imaging !== null || !body.trim() || !accountId} onClick={() => void save()}>{saved ? "저장됨" : saving ? "저장 중…" : "이 글로 초안 저장"}</button>
       <CopyButton value={body} label="본문 복사" />
     </div>
-    {imageUrl && <div className="mt-3 rounded-xl border border-violet-200 bg-white p-3">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imageUrl} alt="본문을 바탕으로 생성한 이미지" className="mx-auto max-h-[32rem] w-auto max-w-full rounded-lg" />
-      <div className="mt-2 flex flex-wrap items-center justify-center gap-2"><a href={imageUrl} target="_blank" rel="noopener noreferrer" download className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50">이미지 열기·저장</a><CopyButton value={imageUrl} label="이미지 주소 복사" /></div>
-      <p className="mt-2 text-center text-[11px] text-neutral-500">이미지는 회원님 전용 경로에 저장됩니다. 초안에 자동으로 붙지는 않으니 발행할 때 직접 첨부해 주세요.</p>
+    {images.length > 0 && <div className="mt-3 rounded-xl border-2 border-violet-200 bg-white p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-neutral-900">🖼️ 생성된 이미지 <span className="font-normal text-neutral-500">{images.length} / {MAX_CAROUSEL}장 · 마음에 드는 것만 남기고 ✕로 삭제하거나 ◀ ▶로 순서를 바꾸세요</span></p><button type="button" className="rounded-lg border border-rose-300 px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" onClick={() => { if (window.confirm("생성된 이미지를 화면에서 모두 지울까요? (저장된 파일은 그대로 남습니다)")) setImages([]); }}>🗑️ 전체 비우기</button></div>
+      <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">{images.map((url, index) => <li key={url} className="rounded-lg border border-neutral-200 p-1.5">
+        <a href={url} target="_blank" rel="noopener noreferrer" className="relative block" aria-label={`${index + 1}번 이미지 크게 보기`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={url} alt={`본문을 바탕으로 생성한 이미지 ${index + 1}`} className="w-full rounded-md object-cover" />
+          <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 text-[10px] font-bold text-[#ffffff]">{index + 1}</span>
+        </a>
+        <div className="mt-1.5 flex items-center justify-between gap-1">
+          <span className="flex gap-1"><button type="button" aria-label="앞으로" disabled={index === 0} onClick={() => moveImage(index, -1)} className="rounded border border-neutral-300 px-1.5 text-xs disabled:opacity-40">◀</button><button type="button" aria-label="뒤로" disabled={index === images.length - 1} onClick={() => moveImage(index, 1)} className="rounded border border-neutral-300 px-1.5 text-xs disabled:opacity-40">▶</button></span>
+          <span className="flex gap-1"><CopyButton value={url} label="주소" /><button type="button" onClick={() => removeImage(index)} className="rounded border border-rose-300 px-2 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" aria-label={`${index + 1}번 이미지 삭제`}>✕ 삭제</button></span>
+        </div>
+      </li>)}</ul>
+      <p className="mt-2 text-[11px] text-neutral-500">이미지는 회원님 전용 경로에 저장됩니다. 초안에 자동으로 붙지는 않으니 발행할 때 직접 첨부해 주세요.</p>
     </div>}
   </li>;
 }

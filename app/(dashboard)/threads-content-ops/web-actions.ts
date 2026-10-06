@@ -16,8 +16,8 @@ import {
   structureCandidates,
   type ViralCandidateDraft,
 } from "@/threads-content-ops/lib/collector";
-import { buildImagePromptFromPost, generateAttentionPlan, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
-import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_PROVIDER_LABEL, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
+import { generateAttentionPlan, planImagePrompts, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
+import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_KEY_LABEL, MAX_GENERATE_COUNT, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
 import { createServiceClient } from "@/lib/supabase/server";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
@@ -42,6 +42,7 @@ const CREDENTIAL_PROVIDERS = new Set([
   "youtube_api_key",
   "perplexity",
   "gemini",
+  "anthropic",
   "replicate",
   "coupang_access_key",
   "coupang_secret_key",
@@ -63,6 +64,7 @@ export async function saveMemberCredentials(input: {
   youtubeApiKey?: string;
   perplexityKey?: string;
   geminiKey?: string;
+  anthropicKey?: string;
   replicateKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
@@ -75,6 +77,7 @@ export async function saveMemberCredentials(input: {
     ["youtube_api_key", input.youtubeApiKey],
     ["perplexity", input.perplexityKey],
     ["gemini", input.geminiKey],
+    ["anthropic", input.anthropicKey],
     ["replicate", input.replicateKey],
     ["coupang_access_key", input.coupangAccessKey],
     ["coupang_secret_key", input.coupangSecretKey],
@@ -872,7 +875,7 @@ async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>
   if (!isKnownEngine(provider, model)) throw new Error("지원하지 않는 AI 엔진 또는 모델입니다. 다시 선택해 주세요.");
   const apiKey = await resolveApiKey(supabase, userId, provider);
   if (!apiKey) {
-    const name = provider === "openai" ? "OpenAI" : "Gemini";
+    const name = provider === "openai" ? "OpenAI" : provider === "anthropic" ? "Claude" : "Gemini";
     return { ok: false as const, error: `${name} API 키가 등록되어 있지 않습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 AI 엔진을 선택해 주세요.` };
   }
   return { ok: true as const, engine: { provider, model, apiKey } };
@@ -937,32 +940,44 @@ export async function saveGeneratedDraft(input: { accountId: string; body: strin
 }
 
 /**
- * 선택한 글 본문을 바탕으로 이미지를 만든다(v1.51). 텍스트 엔진으로 영어 이미지 프롬프트를 만든 뒤, 회원 본인의 Gemini(나노바나나)/OpenAI 키로
- * 이미지를 생성해 공개 버킷(ai-image-generations)의 회원별 경로에 올리고 공개 주소를 돌려준다. 버튼을 누를 때만 호출된다.
+ * 이미지 생성은 두 단계로 나눠 호출한다(v1.54): ① planPostImages — 글 본문에서 장면별 영어 프롬프트 N개를 만들고(선택한 텍스트 엔진),
+ * ② generatePostImage — 프롬프트 1개를 회원 본인의 Gemini/OpenAI/Replicate 키로 이미지로 만들어 공개 버킷(ai-image-generations)의 회원별 경로에
+ * 올리고 주소를 돌려준다. 화면이 ②를 한 장씩 순서대로 호출하므로 호출 하나가 길어지지 않는다. 버튼을 누를 때만 실행된다.
  */
-export async function generatePostImage(input: { content: string; imageModel: string; ratio: string; engine?: EngineInput }): Promise<{ ok: true; url: string; prompt: string } | { ok: false; error: string; needKey?: boolean }> {
+export async function planPostImages(input: { content: string; count: number; engine?: EngineInput }): Promise<{ ok: true; prompts: string[] } | { ok: false; error: string; needKey?: boolean }> {
   try {
     const content = clean(input.content, 5_001);
     if (!content || content.length > 5_000) throw new Error("이미지를 만들 본문을 1~5,000자로 확인해 주세요.");
+    const count = Math.floor(Number(input.count));
+    if (!Number.isFinite(count) || count < 1 || count > MAX_GENERATE_COUNT) throw new Error(`생성 장수는 1~${MAX_GENERATE_COUNT}장으로 선택해 주세요.`);
+    const { supabase, user } = await authorizedUser();
+    const resolved = await resolveEngine(supabase, user.id, input.engine);
+    if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
+    return { ok: true, prompts: await planImagePrompts({ content, count, engine: resolved.engine }) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "이미지 프롬프트를 만들지 못했습니다." };
+  }
+}
+
+export async function generatePostImage(input: { prompt: string; imageModel: string; ratio: string }): Promise<{ ok: true; url: string } | { ok: false; error: string; needKey?: boolean }> {
+  try {
+    const prompt = clean(input.prompt, 1_501);
+    if (!prompt || prompt.length > 1_500) throw new Error("이미지 프롬프트를 1~1,500자로 확인해 주세요.");
     const model = findImageModel(input.imageModel);
     if (!model) throw new Error("지원하지 않는 이미지 생성 모델입니다. 다시 선택해 주세요.");
     if (!isKnownRatio(input.ratio)) throw new Error("지원하지 않는 이미지 비율입니다.");
     const { supabase, user } = await authorizedUser();
-    const imageKey = await resolveApiKey(supabase, user.id, model.provider);
-    if (!imageKey) return { ok: false, needKey: true, error: `${IMAGE_PROVIDER_LABEL[model.provider]} API 키가 등록되어 있지 않습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 이미지 모델을 선택해 주세요.` };
-    const resolved = await resolveEngine(supabase, user.id, input.engine);
-    if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
+    const imageKey = await resolveApiKey(supabase, user.id, model.keyProvider);
+    if (!imageKey) return { ok: false, needKey: true, error: `${IMAGE_KEY_LABEL[model.keyProvider]} API 키가 등록되어 있지 않습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 이미지 모델을 선택해 주세요.` };
 
-    const prompt = await buildImagePromptFromPost({ content, engine: resolved.engine });
-    const image = await generateImageBytes({ model: model.value, provider: model.provider, ratio: input.ratio, prompt, apiKey: imageKey });
+    const image = await generateImageBytes({ model: model.value, ratio: input.ratio, prompt, apiKey: imageKey });
     if (image.bytes.length > 12_000_000) throw new Error("생성된 이미지가 너무 큽니다. 다른 모델이나 비율로 다시 시도해 주세요.");
     const extension = image.mime.includes("jpeg") ? "jpg" : image.mime.includes("webp") ? "webp" : "png";
     const path = `threads-content-ops/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
     const service = createServiceClient();
     const { error } = await service.storage.from("ai-image-generations").upload(path, image.bytes, { contentType: image.mime, upsert: false });
     if (error) throw new Error("생성한 이미지를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
-    const { data } = service.storage.from("ai-image-generations").getPublicUrl(path);
-    return { ok: true, url: data.publicUrl, prompt };
+    return { ok: true, url: service.storage.from("ai-image-generations").getPublicUrl(path).data.publicUrl };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "이미지를 생성하지 못했습니다." };
   }

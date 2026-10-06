@@ -3,7 +3,7 @@ import "server-only";
 // 주목받는 글 만들기 (v1.41). `threads-easy-planner`의 Threads 글 생성(황금 4단계 구조 + 5대 훅 유형 대안)을
 // 이 프로그램의 "글감 → 글" 흐름에 맞게 합쳤다. 회원 본인의 OpenAI 키만 쓴다.
 // 원본과 다른 점: 원본은 1인칭 체험담을 만들어 내지만, 여기서는 글감에 없는 사실·개인 경험·수치를 지어내지 않는다.
-import { PROMPT_SYSTEM, parsePromptJson } from "@/threads-content-ops/lib/postImage";
+import { extractJson, parsePromptsJson, promptSystem } from "@/threads-content-ops/lib/postImage";
 import { REWRITE_MODES, type EngineProvider, type RewriteMode } from "@/threads-content-ops/lib/personas";
 
 export const HOOK_TYPES = ["자책형", "부정 명령형", "리얼 썰형", "논쟁형", "반전형"] as const;
@@ -59,7 +59,7 @@ function text(value: unknown, max: number): string {
 }
 
 export function normalizeAttentionPlan(raw: string): AttentionPlan {
-  const cleaned = raw.replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
+  const cleaned = extractJson(raw);
   let parsed: Record<string, unknown>;
   try { parsed = JSON.parse(cleaned); } catch { throw new Error("AI 응답을 해석하지 못했습니다. 잠시 뒤 다시 시도해 주세요."); }
   const root = ((parsed.plan ?? parsed.result ?? parsed) as Record<string, unknown>) ?? {};
@@ -89,13 +89,25 @@ export type Engine = { provider: EngineProvider; model: string; apiKey: string }
 export type CustomInput = { product?: string; experience?: string; targetAudience?: string };
 
 function aiErrorMessage(status: number, provider: EngineProvider): string {
-  const name = provider === "openai" ? "OpenAI" : "Gemini";
+  const name = provider === "openai" ? "OpenAI" : provider === "anthropic" ? "Claude" : "Gemini";
   if (status === 401 || status === 403 || (provider === "gemini" && status === 400)) return `${name} API 키 또는 해당 모델 사용 권한을 확인해 주세요.`;
   if (status === 429) return `${name} API 할당량 또는 분당 요청 한도에 도달했습니다. 결제·사용 한도를 확인한 뒤 다시 시도해 주세요.`;
   return `글 생성 요청이 실패했습니다. (${name} ${status})`;
 }
 
 async function callJson(engine: Engine, system: string, user: string): Promise<string> {
+  if (engine.provider === "anthropic") {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": engine.apiKey, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: engine.model, max_tokens: 4096, system, messages: [{ role: "user", content: user }] }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(80_000),
+    });
+    if (!response.ok) throw new Error(aiErrorMessage(response.status, "anthropic"));
+    const data = (await response.json()) as { content?: { type?: string; text?: string }[] };
+    return (data.content ?? []).filter((block) => block.type === "text").map((block) => block.text ?? "").join("").trim();
+  }
   if (engine.provider === "gemini") {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${engine.model}:generateContent`, {
       method: "POST",
@@ -119,7 +131,8 @@ async function callJson(engine: Engine, system: string, user: string): Promise<s
       model: engine.model,
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
       response_format: { type: "json_object" },
-      temperature: 0.8,
+      // GPT-5.x/6 같은 추론 계열 모델은 temperature를 받지 않아 GPT-4 계열에만 보낸다.
+      ...(engine.model.startsWith("gpt-4") ? { temperature: 0.8 } : {}),
     }),
     cache: "no-store",
     signal: AbortSignal.timeout(80_000),
@@ -171,16 +184,18 @@ ${mode.instruction}
   const user = `<data>\n[첫 문장]\n${params.hook}\n\n[본문]\n${params.content}\n</data>`;
   const raw = await callJson(params.engine, system, user);
   let parsed: Record<string, unknown>;
-  try { parsed = JSON.parse(raw.replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim()); } catch { throw new Error("AI 응답을 해석하지 못했습니다. 잠시 뒤 다시 시도해 주세요."); }
+  try { parsed = JSON.parse(extractJson(raw)); } catch { throw new Error("AI 응답을 해석하지 못했습니다. 잠시 뒤 다시 시도해 주세요."); }
   const content = text(parsed.content, 1_500);
   if (!content) throw new Error("다시 쓴 글이 비어 있습니다. 다시 시도해 주세요.");
   return { hook: text(parsed.hook, 200) || params.hook, content };
 }
 
-/** 글 본문을 바탕으로 이미지 생성용 영어 프롬프트를 만든다(선택한 텍스트 엔진 사용). */
-export async function buildImagePromptFromPost(params: { content: string; engine: Engine }): Promise<string> {
-  const raw = await callJson(params.engine, PROMPT_SYSTEM, `<data>\n${params.content.slice(0, 1_500)}\n</data>`);
-  const prompt = parsePromptJson(raw);
-  if (!prompt) throw new Error("이미지 프롬프트를 만들지 못했습니다. 다시 시도해 주세요.");
-  return prompt;
+/** 글 본문을 바탕으로 이미지 생성용 영어 프롬프트를 장면별로 count개 만든다(선택한 텍스트 엔진 사용). */
+export async function planImagePrompts(params: { content: string; count: number; engine: Engine }): Promise<string[]> {
+  const raw = await callJson(params.engine, promptSystem(params.count), `<data>\n${params.content.slice(0, 1_500)}\n</data>`);
+  const prompts = parsePromptsJson(raw, params.count);
+  if (!prompts.length) throw new Error("이미지 프롬프트를 만들지 못했습니다. 다시 시도해 주세요.");
+  // 모델이 장수보다 적게 주면 마지막 장면을 변형 요청과 함께 이어 채운다.
+  while (prompts.length < params.count) prompts.push(`${prompts[prompts.length - 1]} Show a different angle and composition.`);
+  return prompts;
 }

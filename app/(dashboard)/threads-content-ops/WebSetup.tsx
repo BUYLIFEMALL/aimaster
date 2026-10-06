@@ -9,12 +9,13 @@ import {
   startThreadsOAuth,
 } from "./web-actions";
 
-type Provider = "openai" | "perplexity" | "gemini" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
+type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
 type SavePayload = {
   openaiKey?: string;
   youtubeApiKey?: string;
   perplexityKey?: string;
   geminiKey?: string;
+  anthropicKey?: string;
   replicateKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
@@ -28,6 +29,7 @@ const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   youtube_api_key: "youtubeApiKey",
   perplexity: "perplexityKey",
   gemini: "geminiKey",
+  anthropic: "anthropicKey",
   replicate: "replicateKey",
   coupang_access_key: "coupangAccessKey",
   coupang_secret_key: "coupangSecretKey",
@@ -158,7 +160,12 @@ export default function WebSetup({
     </section>
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-      <SectionTitle title="이미지 생성 (Replicate · Z-Image)" description="콘텐츠 생성의 이미지 생성에서 Z-Image Turbo 모델을 쓸 때 사용할 본인의 Replicate API 키입니다(r8_...). 나노바나나는 Gemini 키, GPT Image는 OpenAI 키를 씁니다." />
+      <SectionTitle title="Claude (글 생성 엔진)" description="콘텐츠 생성에서 Claude 엔진을 선택해 글을 만들 때 사용할 본인의 Anthropic API 키입니다(sk-ant-api03-...)." />
+      <CredentialRow provider="anthropic" label="Claude API 키 (sk-ant-api03-...)" maskedValue={credentials.anthropic} editing={editing === "anthropic"} saving={saving === "anthropic"} removing={removing === "anthropic"} onEdit={setEditing} onSave={save} onDelete={remove} />
+    </section>
+
+    <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+      <SectionTitle title="이미지 생성 (Replicate · FLUX · Z-Image)" description="콘텐츠 생성의 이미지 생성에서 FLUX 2.0·Z-Image 모델을 쓸 때 사용할 본인의 Replicate API 키입니다(r8_...). 나노바나나는 Gemini 키, GPT Image는 OpenAI 키를 씁니다." />
       <CredentialRow provider="replicate" label="Replicate API 키 (r8_...)" maskedValue={credentials.replicate} editing={editing === "replicate"} saving={saving === "replicate"} removing={removing === "replicate"} onEdit={setEditing} onSave={save} onDelete={remove} />
     </section>
 

@@ -1,8 +1,17 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.53`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.54`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.54 AI 엔진·이미지 설정을 threads-affiliate-poster 방식으로 확장 (2026-10-06)
+
+- 주인님 지시("threads-affiliate-poster /posts/new의 'AI 생성 엔진 & 미디어 설정'에 작업해 놓은 방식으로 확장·개선")에 따라 콘텐츠 생성 2번 구역을 그 구성에 맞췄습니다(원본 `src/components/posts/ProductPostForm.tsx` 섹션 2, `src/lib/ai/models.ts`·`imageModels.ts`·`imageGenerator.ts`는 읽기만 했고 수정하지 않았습니다).
+- **A. AI 글 생성 엔진:** GPT / Claude / Gemini **3대 엔진 버튼**(선택=주황, 미선택=흰색) + 엔진별 세부 모델 드롭다운(GPT-4.1 기본·GPT-6/5.6·Claude Sonnet 5/Opus 5/Haiku 4.5·Gemini 3.x). **Claude 엔진을 새로 지원**합니다(`lib/attention.ts`의 `callJson`, Anthropic Messages API, 설정 화면에 Claude 키 `anthropic` 추가). GPT-5.x/6 같은 추론 계열은 temperature를 보내지 않습니다(GPT-4 계열만 전송). Claude는 JSON 모드가 없어 응답에서 JSON을 뽑아 읽습니다(`extractJson`).
+- **B. 이미지 & 미디어:** **NanoBanana / GPT Image / FLUX 2.0 / Z-Image 4대 플랫폼 버튼** + 플랫폼별 세부 모델(원본 목록 15종) + **비율(1:1·4:5·16:9)** + **생성 장수(1~10)**. NanoBanana는 원본과 같은 모델·크기 매핑(1K=gemini-2.5-flash-image, 2K/4K/Pro=gemini-3.1-flash-image), GPT Image는 b64·주소 응답 모두 처리(주소는 OpenAI 계열 https만 허용), FLUX/Z-Image는 Replicate(결과는 `replicate.delivery`만 내려받음). 키는 플랫폼별로 Gemini·OpenAI·Replicate 본인 키입니다(`lib/postImage.ts`).
+- **여러 장 생성:** 글 하나당 `planPostImages`로 본문에서 장면별 영어 프롬프트 N개를 만들고(선택한 텍스트 엔진), 화면이 `generatePostImage`를 한 장씩 순서대로 호출해 진행 상황(n/N장)을 보여줍니다(호출 하나가 길어지지 않게). 생성된 이미지는 글 아래 **캐러셀 관리 카드**에 모이고 각 장마다 번호·◀ ▶ 순서 변경·✕ 삭제·주소 복사·크게 보기, 전체 비우기가 있습니다(최대 20장). 파일은 버킷 `ai-image-generations/threads-content-ops/<회원>/`에 남습니다(화면에서 지워도 파일 정리는 안 됨).
+- **이번에 옮기지 않은 것(다음 단계 후보):** 사용자 PC 이미지·동영상 직접 업로드와 혼합 미디어 캐러셀 **발행**(이쪽 발행은 아직 텍스트 전용), 30일 자동 삭제 정리, 상품 대표 이미지 추가. DB 변경 없음.
+- 검증: 모의 응답으로 Claude 호출 형식·코드블록 응답 해석, GPT-6 계열 temperature 미전송/GPT-4.1 전송, 장면 프롬프트 N개 보충, NanoBanana 모델·크기 매핑, GPT Image 크기, FLUX·Z-Image 입력(비율·해상도)을 확인했습니다. **실제 키로 호출해 본 확인은 아직 못 했습니다**(특히 Claude 모델 이름, NanoBanana gemini-3.1-flash-image, GPT Image 2.5 계열은 첫 호출 때 확인 필요 — 실패하면 오류 안내가 표시됩니다).
 
 ## v1.53 콘텐츠 생성 하위 박스 색상 구분 (2026-10-06)
 
