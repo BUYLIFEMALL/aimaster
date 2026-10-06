@@ -16,7 +16,8 @@ import {
   structureCandidates,
   type ViralCandidateDraft,
 } from "@/threads-content-ops/lib/collector";
-import { generateAttentionPlan, type AttentionPlan } from "@/threads-content-ops/lib/attention";
+import { generateAttentionPlan, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
+import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, isKnownEngine, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
   YouTubeSearchError,
@@ -833,19 +834,54 @@ export async function analyzeShortToViralCandidates(input: { id: string; title: 
 // 생성 결과는 저장하지 않고 화면에 보여준 뒤, 회원이 고른 글만 초안으로 저장한다(자동 발행 없음).
 // ---------------------------------------------------------------------------
 type AttentionResult = { ok: true; plan: AttentionPlan } | { ok: false; error: string; needKey?: boolean };
+type EngineInput = { provider: string; model: string };
+type CustomFields = { product?: string; experience?: string; targetAudience?: string };
 
-export async function generateAttentionPost(input: { topic: string; note?: string }): Promise<AttentionResult> {
+async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, engine: EngineInput | undefined) {
+  const provider = engine?.provider ?? DEFAULT_ENGINE.provider;
+  const model = engine?.model ?? DEFAULT_ENGINE.model;
+  if (!isKnownEngine(provider, model)) throw new Error("지원하지 않는 AI 엔진 또는 모델입니다. 다시 선택해 주세요.");
+  const apiKey = await resolveApiKey(supabase, userId, provider);
+  if (!apiKey) {
+    const name = provider === "openai" ? "OpenAI" : "Gemini";
+    return { ok: false as const, error: `${name} API 키가 등록되어 있지 않습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 AI 엔진을 선택해 주세요.` };
+  }
+  return { ok: true as const, engine: { provider, model, apiKey } };
+}
+
+const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : "");
+
+export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; custom?: CustomFields; engine?: EngineInput }): Promise<AttentionResult> {
   try {
-    const topic = String(input.topic ?? "").trim();
-    const note = String(input.note ?? "").trim();
+    const topic = clean(input.topic, 1_201);
+    const note = clean(input.note, 301);
     if (!topic || topic.length > 1_200) throw new Error("글감 또는 주제를 1~1,200자로 입력해 주세요.");
     if (note.length > 300) throw new Error("추가 요청은 300자 이내로 입력해 주세요.");
+    const persona = input.personaId ? PERSONAS.find((item) => item.id === input.personaId) : undefined;
+    if (input.personaId && !persona) throw new Error("지원하지 않는 페르소나입니다.");
+    const custom: CustomFields = { product: clean(input.custom?.product, 200), experience: clean(input.custom?.experience, 800), targetAudience: clean(input.custom?.targetAudience, 200) };
     const { supabase, user } = await authorizedUser();
-    const apiKey = await resolveApiKey(supabase, user.id, "openai");
-    if (!apiKey) return { ok: false, needKey: true, error: "글 생성에는 본인의 OpenAI API 키가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요." };
-    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, apiKey }) };
+    const resolved = await resolveEngine(supabase, user.id, input.engine);
+    if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
+    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone: persona?.tonePrompt, custom, engine: resolved.engine }) };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "글을 생성하지 못했습니다." };
+  }
+}
+
+/** 선택한 글 한 편을 7가지 방향 중 하나로 다시 쓴다(저장하지 않음). */
+export async function rewriteGeneratedPost(input: { hook: string; content: string; mode: string; engine?: EngineInput }): Promise<{ ok: true; hook: string; content: string } | { ok: false; error: string }> {
+  try {
+    const content = clean(input.content, 5_001);
+    if (!content || content.length > 5_000) throw new Error("다시 쓸 본문을 1~5,000자로 확인해 주세요.");
+    if (!REWRITE_MODES.some((item) => item.mode === input.mode)) throw new Error("지원하지 않는 다시 쓰기 방식입니다.");
+    const { supabase, user } = await authorizedUser();
+    const resolved = await resolveEngine(supabase, user.id, input.engine);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    const result = await rewriteAttentionPost({ hook: clean(input.hook, 200), content, mode: input.mode as RewriteMode, engine: resolved.engine });
+    return { ok: true, ...result };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "글을 다시 쓰지 못했습니다." };
   }
 }
 
