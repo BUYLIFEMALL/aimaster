@@ -1009,6 +1009,90 @@ export function PlannerApp() {
           )}
         </div>
 
+        {/* 고급 AI 추론 엔진 및 모델 설정 (상황별 페르소나 바로 위에 배치) */}
+        <details className="rounded-2xl border border-neutral-200/80 bg-neutral-50/70 p-3 md:p-3.5 group shadow-2xs">
+          <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold text-neutral-700 hover:text-neutral-900">
+            <span className="flex items-center gap-1.5">
+              <span>⚙️</span>
+              <span>고급 AI 추론 엔진 및 모델 설정</span>
+            </span>
+            <span className="text-[11px] font-medium text-neutral-400 group-open:hidden">
+              현재: {AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel} (클릭하여 변경)
+            </span>
+            <span className="hidden text-[11px] font-medium text-neutral-500 group-open:inline">접기 ▲</span>
+          </summary>
+          <div className="pt-3 space-y-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+              <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
+                <span>🤖</span>
+                <span>AI 추론 엔진 선택</span>
+              </span>
+              <span className="text-[11px] text-neutral-500 font-medium">
+                현재 설정: <strong className="text-neutral-900 font-bold">{AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel}</strong>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
+              {/* 3대 Provider 버튼 (OpenAI / Claude / Gemini) */}
+              <div className="sm:col-span-6 grid grid-cols-3 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleSelectProvider("openai")}
+                  className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                    selectedProvider === "openai"
+                      ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
+                      : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
+                  }`}
+                >
+                  <span>🤖</span>
+                  <span className="text-xs">OpenAI</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectProvider("anthropic")}
+                  className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                    selectedProvider === "anthropic"
+                      ? "border-purple-600 bg-purple-600 text-white shadow-xs"
+                      : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
+                  }`}
+                >
+                  <span>🧠</span>
+                  <span className="text-xs">Claude</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectProvider("gemini")}
+                  className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                    selectedProvider === "gemini"
+                      ? "border-amber-500 bg-amber-500 text-white shadow-xs"
+                      : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
+                  }`}
+                >
+                  <span>✨</span>
+                  <span className="text-xs">Gemini</span>
+                </button>
+              </div>
+
+              {/* 세부 실행 모델 드롭다운 셀렉터 */}
+              <div className="sm:col-span-6">
+                <select
+                  value={selectedModel}
+                  onChange={(e) => handleSelectModel(e.target.value)}
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
+                >
+                  {AI_MODEL_OPTIONS.filter((opt) => opt.provider === selectedProvider).map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </details>
+
         {/* 2. ★ 핵심 기능: 다양한 상황별 페르소나 원클릭 글 생성 버튼 그리드 (6대 페르소나) */}
         <div className="space-y-3 pt-1">
           <div className="flex flex-wrap items-center justify-between gap-1.5">
@@ -1348,90 +1432,6 @@ export function PlannerApp() {
           </div>
         </div>
 
-
-      {/* 6. AI 추론 엔진 선택 (OpenAI / Claude / Gemini) - 하단 공통 설정 패널 */}
-      <details className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 md:p-4 group shadow-2xs">
-        <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold text-neutral-700 hover:text-neutral-900">
-          <span className="flex items-center gap-1.5">
-            <span>⚙️</span>
-            <span>고급 AI 추론 엔진 및 모델 설정</span>
-          </span>
-          <span className="text-[11px] font-medium text-neutral-400 group-open:hidden">
-            현재: {AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel} (클릭하여 변경)
-          </span>
-          <span className="hidden text-[11px] font-medium text-neutral-500 group-open:inline">접기 ▲</span>
-        </summary>
-        <div className="pt-3 space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-            <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
-              <span>🤖</span>
-              <span>AI 추론 엔진 선택</span>
-            </span>
-            <span className="text-[11px] text-neutral-500 font-medium">
-              현재 설정: <strong className="text-neutral-900 font-bold">{AI_MODEL_OPTIONS.find((o) => o.value === selectedModel)?.shortLabel || selectedModel}</strong>
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
-            {/* 3대 Provider 버튼 (OpenAI / Claude / Gemini) */}
-            <div className="sm:col-span-6 grid grid-cols-3 gap-1.5">
-              <button
-                type="button"
-                onClick={() => handleSelectProvider("openai")}
-                className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                  selectedProvider === "openai"
-                    ? "border-neutral-900 bg-neutral-900 text-white shadow-xs"
-                    : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
-                }`}
-              >
-                <span>🤖</span>
-                <span className="text-xs">OpenAI</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSelectProvider("anthropic")}
-                className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                  selectedProvider === "anthropic"
-                    ? "border-purple-600 bg-purple-600 text-white shadow-xs"
-                    : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
-                }`}
-              >
-                <span>🧠</span>
-                <span className="text-xs">Claude</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSelectProvider("gemini")}
-                className={`rounded-xl py-2 px-1 border font-bold text-center flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                  selectedProvider === "gemini"
-                    ? "border-amber-500 bg-amber-500 text-white shadow-xs"
-                    : "border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-neutral-700"
-                }`}
-              >
-                <span>✨</span>
-                <span className="text-xs">Gemini</span>
-              </button>
-            </div>
-
-            {/* 세부 실행 모델 드롭다운 셀렉터 */}
-            <div className="sm:col-span-6">
-              <select
-                value={selectedModel}
-                onChange={(e) => handleSelectModel(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
-              >
-                {AI_MODEL_OPTIONS.filter((opt) => opt.provider === selectedProvider).map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-      </details>
 
 
       <div className="fixed inset-x-0 bottom-[4.5rem] z-30 border-t border-neutral-200 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur md:hidden">

@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.30` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.31` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -229,3 +229,7 @@
     1) 상단 영역: **`🎯 주제 · 글감 · 목적이 있을 때`** 전용 블루 테마 박스(`border-2 border-blue-200/90 ring-4 ring-blue-50/50 bg-white`)로 래핑하여 소재 입력창, 미디어 첨부, 6대 페르소나 그리드, 맞춤글 생성 아코디언을 명확히 그룹화.
     2) 하단 영역: **`🔥 아무런 아이디어가 없을 때!!!`** 전용 앰버/오렌지 테마 박스(`border-2 border-amber-300/90 ring-4 ring-amber-50/50 bg-gradient-to-b from-amber-50/40 via-amber-50/20 to-white`)로 완전 독립 분리하여 원클릭 랜덤 썰 슬롯머신, 3초 무드 칩, 업종별 추천 주제 10선을 시각적으로 완벽히 구분.
     3) 하단에 공통 고급 AI 추론 엔진 및 모델 설정(`details`) 카드를 깔끔하게 독립 배치. DB `programs.version` 및 `APP_VERSION` `v1.30` 동기화.
+- **v1.31 (2026-10-06)**:
+  - **고급 AI 추론 엔진 및 모델 설정 섹션을 상황별 페르소나 위로 재배치 (주인님 지시)**:
+    1) `⚙️ 고급 AI 추론 엔진 및 모델 설정`(`details`) 패널을 상단 블루 박스 내부의 `🎭 상황별 페르소나 원클릭 생성` 바로 위로 위치 이동.
+    2) 사용자가 페르소나 버튼을 누르기 전에 원하는 AI 모델(OpenAI / Claude / Gemini)을 직관적으로 확인하고 변경할 수 있도록 사용자 인터랙션 동선 최적화. DB `programs.version` 및 `APP_VERSION` `v1.31` 동기화.
