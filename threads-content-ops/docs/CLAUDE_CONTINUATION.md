@@ -1,6 +1,6 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-06 · 현재 배포 버전: `v1.31` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-06 · 현재 배포 버전: `v1.32` · 라이브: <https://www.buylife.xyz/threads-content-ops>
 
 ## 먼저 읽을 문서와 확인 순서
 
@@ -53,6 +53,8 @@
 - 외부 수집은 하지 않습니다. 서버 동작은 `web-actions.ts`의 `createContentSource`/`updateContentSource`/`setContentSourceStatus`/`deleteContentSource`이며, 모두 권한 검사 뒤 `user_id`로 제한하고 `{ ok, error }` 결과를 반환합니다(throw 금지 — 운영 서버가 메시지를 가림).
 - 대시보드 "즉시 작업" 카드는 실제 등록 건수만 보여줍니다. 소스로 초안을 만드는 연결(아래 4번)이 구현되기 전에는 `작업 가능`으로 표시하지 않습니다.
 
+> **v1.32 주인님 결정:** 콘텐츠 소스 화면은 **포스팅할 상품 등록 용도**이며 블로그 등록은 삭제했습니다. 소스 종류는 쿠팡 파트너스·네이버 브랜드 커넥트뿐입니다(위 4번 설명의 "블로그"는 v1.28 당시 기록). 이후 단계에서 블로그 RSS 수집을 다시 만들지 마세요.
+
 ### 5. 쿠팡 파트너스 상품 검색 → 소스 저장 (v1.30)
 
 - 콘텐츠 소스 탭 상단 검색 패널. 회원 본인 `coupang_access_key`/`coupang_secret_key`로만 호출(`threads-content-ops/lib/coupang.ts`, 쇼핑제휴 자동화의 검증된 클라이언트를 복사), 고른 상품만 `tco_content_sources`(`source_type='coupang'`, `metadata`에 상품 정보)에 저장합니다.
@@ -103,6 +105,6 @@ vercel deploy --prod --yes --scope buylife
 ## 최근 기준점
 
 - 최신 기능 커밋: `git log --oneline -5 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인 — v1.28 `feat(threads-content-ops): 콘텐츠 소스 큐 등록 (v1.28)`이 최신이며, 그 직전 기능은 `77604d77`(v1.27 계정별 운영정보)입니다.
-- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.31'`
+- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.32'`
 - 실제 서비스 주소는 항상 `https://www.buylife.xyz/threads-content-ops`입니다(루트 AIMaster 프로젝트 배포).
 - 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `.analysis-threads-auto/`, `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.

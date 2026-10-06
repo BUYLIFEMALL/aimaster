@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.31`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.32`
 
 개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
+
+## v1.32 포스팅 상품 등록 화면 정리
+
+- 이 화면은 Threads에 포스팅할 **상품**(쿠팡 파트너스, 네이버 브랜드 커넥트)을 등록하는 용도로 정리했습니다. 블로그 글 등록 기능은 삭제했습니다.
 
 ## v1.31 버튼 글자색 수정
 

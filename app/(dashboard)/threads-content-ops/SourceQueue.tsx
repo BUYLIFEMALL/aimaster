@@ -27,7 +27,6 @@ type Source = {
 };
 
 const TYPES: { value: string; label: string; urlLabel: string; urlHint: string; titleHint: string }[] = [
-  { value: "blog", label: "블로그", urlLabel: "블로그 글 주소", urlHint: "https://blog.naver.com/…", titleHint: "예: 겨울철 난방비 줄이는 방법 정리" },
   { value: "coupang", label: "쿠팡 파트너스", urlLabel: "쿠팡 파트너스 상품 링크", urlHint: "https://link.coupang.com/…", titleHint: "예: 전기 히터 상품명" },
   { value: "naver_brand_connect", label: "네이버 브랜드 커넥트", urlLabel: "브랜드 커넥트 제휴 링크", urlHint: "https://naver.me/…", titleHint: "예: 제휴 상품 또는 캠페인 이름" },
 ];
@@ -44,7 +43,7 @@ const typeLabel = (value: string) => TYPES.find((type) => type.value === value)?
 
 export default function SourceQueue({ accounts, sources, configuredProviders }: { accounts: Account[]; sources: Source[]; configuredProviders: string[] }) {
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
-  const [form, setForm] = useState({ sourceType: "blog", title: "", sourceUrl: "", summary: "" });
+  const [form, setForm] = useState({ sourceType: "coupang", title: "", sourceUrl: "", summary: "" });
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -147,7 +146,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
         <div>
           <p className="text-xs font-bold text-gold">CONTENT SOURCE QUEUE</p>
           <h2 className="mt-1 text-xl font-bold text-neutral-900">콘텐츠 소스</h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-600">블로그 글, 쿠팡 파트너스 상품, 네이버 브랜드 커넥트 링크를 계정별로 등록해 두는 곳입니다. 회원님이 입력한 값만 본인 계정에 저장하며, 외부 사이트에서 정보를 자동으로 가져오지 않습니다. 소스로 초안을 만드는 연결은 다음 단계에서 추가됩니다.</p>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">Threads에 포스팅할 상품(쿠팡 파트너스, 네이버 브랜드 커넥트)을 계정별로 등록해 두는 곳입니다. 회원님이 선택하거나 입력한 값만 본인 계정에 저장하며, 외부 사이트에서 정보를 자동으로 가져오지 않습니다. 등록한 상품으로 초안을 만드는 연결은 다음 단계에서 추가됩니다.</p>
         </div>
         <select aria-label="운영 계정 선택" className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-800" value={accountId} onChange={(event) => { setAccountId(event.target.value); setEditingId(null); setMessage(null); }}>
           {accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}
@@ -210,7 +209,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
         </div>
       </div>
 
-      {!visible.length ? <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm text-neutral-600">{mine.length ? "조건에 맞는 소스가 없습니다. 필터를 바꿔 보세요." : "아직 등록한 소스가 없습니다. 위에서 블로그·쿠팡·네이버 브랜드 커넥트 링크를 등록해 보세요."}</div> : <ul className="mt-4 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">{visible.map((source) => {
+      {!visible.length ? <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm text-neutral-600">{mine.length ? "조건에 맞는 소스가 없습니다. 필터를 바꿔 보세요." : "아직 등록한 상품이 없습니다. 위에서 쿠팡 상품을 검색하거나 쿠팡·네이버 브랜드 커넥트 링크를 등록해 보세요."}</div> : <ul className="mt-4 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">{visible.map((source) => {
         const status = STATUS[source.status] ?? { label: source.status, tone: "bg-neutral-100 text-neutral-600" };
         return <li key={source.id} className="p-4">
           {editingId === source.id ? <div className="space-y-3">

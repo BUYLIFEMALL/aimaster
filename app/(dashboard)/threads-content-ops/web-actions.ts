@@ -402,11 +402,11 @@ export async function loadYouTubeSource(rawUrl: string) {
 }
 
 // ---------------------------------------------------------------------------
-// 콘텐츠 소스 큐 (v1.28) — 회원이 직접 등록한 블로그·쿠팡·네이버 브랜드 커넥트 자료.
+// 콘텐츠 소스 큐 (v1.28) — 회원이 직접 등록한 포스팅 상품(쿠팡·네이버 브랜드 커넥트). 블로그 등록은 v1.32에서 제거(주인님 지시).
 // 이 단계에서는 외부 수집/크롤링을 하지 않고, 회원이 입력한 값만 본인 계정에 저장한다.
 // 예상된 오류는 throw하지 않고 결과 객체로 돌려준다(운영 서버에서 Server Action의 throw 메시지가 가려지기 때문).
 // ---------------------------------------------------------------------------
-const SOURCE_TYPES = ["blog", "coupang", "naver_brand_connect"];
+const SOURCE_TYPES = ["coupang", "naver_brand_connect"];
 const SOURCE_STATUSES = ["ready", "used", "archived"];
 const MAX_SOURCES_PER_USER = 200;
 

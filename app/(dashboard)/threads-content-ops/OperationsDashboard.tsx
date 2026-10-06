@@ -79,10 +79,9 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
         <div><h3 className="font-bold text-neutral-900">즉시 작업</h3><p className="mt-1 text-sm text-neutral-600">소스를 선택해 초안을 생성한 뒤, 직접 검토하고 발행합니다. 자동 발행은 기본으로 켜지지 않습니다.</p></div>
         <Link className="shrink-0 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50" href="/threads-content-ops?tab=create">콘텐츠 작성 열기</Link>
       </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <OperationCard title="일상" description="운영 메모로 초안 생성" ready={Boolean(account) && providers.has("openai")} href="/threads-content-ops?tab=create" />
         <OperationCard title="YouTube" icon={Youtube} description="공개 영상 메타데이터 소재" ready={Boolean(account) && providers.has("openai") && providers.has("youtube_api_key")} href="/threads-content-ops?tab=create" />
-        <OperationCard title="블로그" description={sourceDescription("blog", "콘텐츠 소스에서 블로그 글 주소를 등록하세요")} ready={false} href="/threads-content-ops?tab=sources" />
         <OperationCard title="쿠팡 파트너스" description={sourceDescription("coupang", "콘텐츠 소스에서 상품을 검색하거나 링크를 등록하세요")} ready={false} href="/threads-content-ops?tab=sources" />
         <OperationCard title="네이버 브랜드 커넥트" description={sourceDescription("naver_brand_connect", "콘텐츠 소스에서 제휴 링크를 등록하세요 · 분석은 준비 중")} ready={false} href="/threads-content-ops?tab=sources" />
       </div>
