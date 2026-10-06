@@ -537,16 +537,40 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                             </button>
                           </td>
                           <td className="p-4">
-                            <div className="flex items-center gap-1.5">
-                              <p className="text-white font-medium text-sm">{p.name}</p>
-                              {p.app_url && (
-                                <span title={`실행형 프로그램: ${p.app_url}`}>
-                                  <ExternalLink size={12} className="text-gold" />
-                                </span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-white font-medium text-sm">{p.name}</span>
+                              {p.app_url ? (
+                                <a
+                                  href={p.app_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center justify-center p-1 rounded-md bg-gold/15 hover:bg-gold/30 text-gold hover:text-white transition-all cursor-pointer shadow-xs"
+                                  title={`실제 프로그램 바로가기 (새 창 열기): ${p.app_url}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <ExternalLink size={13} />
+                                </a>
+                              ) : (
+                                <Link
+                                  href={`/programs/${p.slug}`}
+                                  target="_blank"
+                                  className="inline-flex items-center justify-center p-1 rounded-md bg-white/5 hover:bg-white/15 text-subtext hover:text-white transition-all cursor-pointer"
+                                  title={`프로그램 상세 페이지 열기 (새 창): /programs/${p.slug}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <ExternalLink size={13} />
+                                </Link>
                               )}
                             </div>
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
-                              <p className="text-subtext text-xs">/programs/{p.slug}</p>
+                              <Link
+                                href={`/programs/${p.slug}`}
+                                target="_blank"
+                                className="text-subtext text-xs hover:text-gold hover:underline transition-colors"
+                                title="사용자 상세 소개 페이지 열기 (새 창)"
+                              >
+                                /programs/{p.slug}
+                              </Link>
                               {(() => {
                                 const gradeObj = p.required_grade_id ? gradeMeta.get(p.required_grade_id) : null;
                                 const gradeName = gradeObj?.name ?? (p.required_grade_id ? "알 수 없음" : "전체 공개");
