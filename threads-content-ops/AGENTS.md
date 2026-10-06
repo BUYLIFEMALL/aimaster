@@ -1,8 +1,17 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.38`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.39`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.39 쇼츠 분석 → 글감 만들기 (2026-10-06)
+
+- 주인님 지시로 `shorts-viral-studio/analyze`의 영상 분석을 "떡상 콘텐츠 수집"의 쇼츠 검색 결과에 연결했습니다. 결과 카드의 **분석해서 글감 만들기** 버튼이 AI로 영상이 터진 이유(훅·구조)를 분석하고, 그 분석을 바탕으로 Threads 글감 후보 최대 3건(제목 10자·본문 450자·키워드, 반말)을 `tco_viral_candidates`에 저장합니다. 본문 끝에 `[영상 분석] 훅: … / 터진 이유: …` 한 줄이 붙어 콘텐츠 작성 때 근거로 쓰입니다.
+- 코드: `threads-content-ops/lib/shortsAnalysis.ts`(분석·프롬프트), `lib/youtubeShorts.ts`의 `fetchShortContext`(설명·상위 댓글), `web-actions.ts`의 `analyzeShortToViralCandidates`, 화면 `ShortsSearch.tsx`.
+- **분석 엔진:** 회원 본인의 **Gemini 키가 있으면 공개 영상을 직접 보고 분석**(`fileData`로 유튜브 주소 전달, 모델 `gemini-3.7-flash`, shorts-viral-studio와 동일). Gemini 키가 없거나 호출이 실패하면 **OpenAI(`gpt-4o-mini`)로 제목·수치·설명·댓글을 근거로 추정 분석**(화면·소리를 지어내지 않도록 지시)하고 결과 안내에 그 사실을 알립니다. 둘 다 없으면 키 등록 안내만 나오고 실행하지 않습니다. YouTube 키가 있으면 설명·댓글도 근거로 쓰고(약 2유닛), 없어도 동작합니다.
+- 설정 화면에 **Gemini API 키** 항목(`user_api_keys.provider = gemini`, 공용 체크 제약에 이미 있음)을 추가했습니다. 매뉴얼 버튼은 `platform_guides`에 Gemini 항목이 아직 없어 넣지 못했습니다 — 필요하면 /admin/guides에 등록 후 `WebSetup.tsx`의 `GUIDES`에 id를 추가하세요.
+- 영상 대사·자막을 그대로 옮기지 않고 새 문장으로 쓰도록 프롬프트에서 지시합니다. 같은 영상을 이미 분석했으면(`[영상 분석]`이 들어간 글감이 있으면) 호출 전에 막아 중복 비용을 방지합니다. DB 변경 없음.
+- 검증: 모의 응답으로 Gemini 영상 분석(영상 주소 전달 확인)·OpenAI 대체·키 없음 안내·JSON 코드블록 해석·본문 450자 제한·빈 후보 제외를 확인했습니다. **실제 Gemini/OpenAI 키로 분석해 본 확인은 아직 못 했습니다**(회원 키 필요, 호출 비용 발생).
 
 ## v1.38 구역 색상 구분 (2026-10-06)
 

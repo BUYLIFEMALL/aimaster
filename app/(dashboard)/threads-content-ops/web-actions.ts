@@ -16,8 +16,10 @@ import {
   structureCandidates,
   type ViralCandidateDraft,
 } from "@/threads-content-ops/lib/collector";
+import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
   YouTubeSearchError,
+  fetchShortContext,
   searchYoutubeShorts,
   type ShortVideo,
   type ShortsOrder,
@@ -35,6 +37,7 @@ const CREDENTIAL_PROVIDERS = new Set([
   "openai",
   "youtube_api_key",
   "perplexity",
+  "gemini",
   "coupang_access_key",
   "coupang_secret_key",
   "threads_app_id",
@@ -54,6 +57,7 @@ export async function saveMemberCredentials(input: {
   openaiKey?: string;
   youtubeApiKey?: string;
   perplexityKey?: string;
+  geminiKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
   threadsAppId?: string;
@@ -64,6 +68,7 @@ export async function saveMemberCredentials(input: {
     ["openai", input.openaiKey],
     ["youtube_api_key", input.youtubeApiKey],
     ["perplexity", input.perplexityKey],
+    ["gemini", input.geminiKey],
     ["coupang_access_key", input.coupangAccessKey],
     ["coupang_secret_key", input.coupangSecretKey],
     ["threads_app_id", input.threadsAppId],
@@ -816,5 +821,44 @@ export async function saveShortAsViralCandidate(input: { id: string; title: stri
     return { ok: true };
   } catch (error) {
     return sourceFailure(error, "글감을 저장하지 못했습니다.");
+  }
+}
+
+/**
+ * 쇼츠 분석 → 글감 (v1.39). Gemini 키가 있으면 영상을 직접 보고, 없으면 OpenAI로 제목·수치·댓글을 근거로 추정 분석해
+ * 터진 이유(훅·구조)와 Threads 글감 후보 최대 3건을 저장한다. 영상 대사·자막은 옮기지 않고 새 문장으로 쓰게 한다.
+ */
+type AnalyzeShortResult = { ok: true; count: number; evidence: "video" | "metadata"; note?: string } | { ok: false; error: string; needKey?: "openai" | "gemini" };
+
+export async function analyzeShortToViralCandidates(input: { id: string; title: string; channelName: string; views: number; subs: number | null; vsRatio: number | null; grade: string; publishedAt: string }): Promise<AnalyzeShortResult> {
+  try {
+    if (!YOUTUBE_ID.test(input.id ?? "")) throw new Error("영상 정보가 올바르지 않습니다. 다시 검색해 주세요.");
+    const title = String(input.title ?? "").trim().slice(0, 100);
+    if (!title) throw new Error("영상 제목이 비어 있습니다.");
+    const finite = (value: unknown) => (typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null);
+    const { supabase, user } = await authorizedUser();
+    const [geminiKey, openaiKey, youtubeKey] = await Promise.all([
+      resolveApiKey(supabase, user.id, "gemini"),
+      resolveApiKey(supabase, user.id, "openai"),
+      resolveApiKey(supabase, user.id, "youtube_api_key"),
+    ]);
+    if (!geminiKey && !openaiKey) return { ok: false, needKey: "gemini", error: "영상 분석에는 본인의 Gemini(영상 직접 분석) 또는 OpenAI(제목·댓글 기반 추정) API 키가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요." };
+
+    const sourceInput = `https://www.youtube.com/shorts/${input.id}`;
+    const { data: existing } = await supabase.from("tco_viral_candidates").select("id").eq("user_id", user.id).eq("source_input", sourceInput).like("content", "%[영상 분석]%").limit(1);
+    if (existing?.length) throw new Error("이미 분석해서 글감으로 만든 영상입니다. 아래 수집한 글감 목록을 확인해 주세요.");
+
+    const extra = youtubeKey ? await fetchShortContext(input.id, youtubeKey) : { description: "", comments: [] as string[] };
+    const analysis = await analyzeShortForThreads({
+      meta: { id: input.id, title, channelName: String(input.channelName ?? "").slice(0, 80), views: finite(input.views) ?? 0, subs: finite(input.subs), vsRatio: finite(input.vsRatio), grade: String(input.grade ?? "").slice(0, 10), publishedAt: String(input.publishedAt ?? "").slice(0, 10) },
+      extra, geminiKey, openaiKey,
+    });
+    const summary = [analysis.hook && `훅: ${analysis.hook}`, analysis.whyViral && `터진 이유: ${analysis.whyViral}`].filter(Boolean).join(" / ").slice(0, 400);
+    const drafts = analysis.candidates.map((draft) => ({ ...draft, content: summary ? `${draft.content}\n\n[영상 분석] ${summary}` : draft.content }));
+    await saveViralDrafts(supabase, user.id, "http", sourceInput, drafts);
+    revalidatePath("/threads-content-ops");
+    return { ok: true, count: drafts.length, evidence: analysis.evidence, note: analysis.note };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "영상을 분석하지 못했습니다." };
   }
 }

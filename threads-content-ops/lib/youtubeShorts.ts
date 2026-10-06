@@ -142,3 +142,15 @@ export async function searchYoutubeShorts(
   const now = new Date();
   return items.map((video) => buildShortVideo(video, channelMap.get(video.snippet.channelId), now));
 }
+
+/** 영상 설명과 상위 댓글(분석 근거용 보조 자료). 실패하거나 막혀 있으면 빈 값으로 둔다. */
+export async function fetchShortContext(id: string, apiKey: string): Promise<{ description: string; comments: string[] }> {
+  const [description, comments] = await Promise.all([
+    ytFetch<{ items?: { snippet?: { description?: string } }[] }>("videos", { part: "snippet", id }, apiKey)
+      .then((data) => data.items?.[0]?.snippet?.description ?? "").catch(() => ""),
+    ytFetch<{ items?: { snippet: { topLevelComment: { snippet: { textOriginal: string } } } }[] }>(
+      "commentThreads", { part: "snippet", videoId: id, maxResults: "15", order: "relevance", textFormat: "plainText" }, apiKey,
+    ).then((data) => (data.items ?? []).map((item) => item.snippet.topLevelComment.snippet.textOriginal).filter(Boolean)).catch(() => [] as string[]),
+  ]);
+  return { description, comments };
+}

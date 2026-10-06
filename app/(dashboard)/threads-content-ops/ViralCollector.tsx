@@ -125,7 +125,7 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
       <p className="mt-3 text-xs text-neutral-500">수집은 회원님의 OpenAI(와 Perplexity) 사용량을 소모합니다. 공개된 페이지만 읽을 수 있고, 로그인이 필요한 페이지나 내부 주소는 읽지 않습니다.</p>
     </section>
 
-    <ShortsSearch hasYoutubeKey={configuredProviders.includes("youtube_api_key")} savedSources={candidates.map((item) => item.source_input)} />
+    <ShortsSearch hasYoutubeKey={configuredProviders.includes("youtube_api_key")} hasGeminiKey={configuredProviders.includes("gemini")} hasOpenaiKey={hasOpenai} savedSources={candidates.map((item) => item.source_input)} />
 
     {message && <p className="flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status">{message.ok ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" /> : <CircleAlert size={16} className="mt-0.5 shrink-0 text-rose-600" />}{message.text}</p>}
 

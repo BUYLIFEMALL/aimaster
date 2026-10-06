@@ -9,11 +9,12 @@ import {
   startThreadsOAuth,
 } from "./web-actions";
 
-type Provider = "openai" | "perplexity" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
+type Provider = "openai" | "perplexity" | "gemini" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
 type SavePayload = {
   openaiKey?: string;
   youtubeApiKey?: string;
   perplexityKey?: string;
+  geminiKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
   threadsAppId?: string;
@@ -25,6 +26,7 @@ const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   openai: "openaiKey",
   youtube_api_key: "youtubeApiKey",
   perplexity: "perplexityKey",
+  gemini: "geminiKey",
   coupang_access_key: "coupangAccessKey",
   coupang_secret_key: "coupangSecretKey",
   threads_app_id: "threadsAppId",
@@ -146,6 +148,11 @@ export default function WebSetup({
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
       <SectionTitle title="화제 글감 검색 (Perplexity)" description="떡상 콘텐츠 수집의 '화제 검색'에 사용할 본인의 Perplexity API 키입니다. 키가 없어도 주소 지정 방식은 쓸 수 있습니다." />
       <CredentialRow provider="perplexity" label="Perplexity API 키 (pplx-...)" maskedValue={credentials.perplexity} editing={editing === "perplexity"} saving={saving === "perplexity"} removing={removing === "perplexity"} onEdit={setEditing} onSave={save} onDelete={remove} />
+    </section>
+
+    <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+      <SectionTitle title="쇼츠 영상 분석 (Gemini)" description="떡상 콘텐츠 수집의 쇼츠 '분석해서 글감 만들기'에서 영상을 직접 보고 분석할 때 사용할 본인의 Gemini API 키입니다. 키가 없으면 OpenAI로 제목·수치·댓글을 근거로 추정 분석합니다." />
+      <CredentialRow provider="gemini" label="Gemini API 키 (AIza...)" maskedValue={credentials.gemini} editing={editing === "gemini"} saving={saving === "gemini"} removing={removing === "gemini"} onEdit={setEditing} onSave={save} onDelete={remove} />
     </section>
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
