@@ -318,6 +318,48 @@ ${currentPlan.content}
 
 // ======================== LLM Call Core ========================
 
+export function formatAIErrorMessage(err: unknown, provider: AIProvider): string {
+  const rawMsg = err instanceof Error ? err.message : String(err);
+
+  // 1. Anthropic Workspace 미지정 키 (sk-ant-usr-... 등) 에러
+  if (
+    rawMsg.includes("not scoped to a workspace") ||
+    rawMsg.includes("anthropic-workspace-id")
+  ) {
+    return "등록하신 Claude API 키가 워크스페이스에 연결되지 않은 키(sk-ant-usr-...)입니다. Anthropic 콘솔(console.anthropic.com)의 [Workspaces] 메뉴에서 기본 워크스페이스(Default)를 선택한 후 API 키(sk-ant-api03-...)를 새로 발급받아 등록해주세요. (또는 OpenAI / Gemini 키를 등록하시면 즉시 정상 이용하실 수 있습니다.)";
+  }
+
+  // 2. 크레딧 부족 / 결제 문제
+  if (
+    rawMsg.includes("credit balance is too low") ||
+    rawMsg.includes("insufficient_quota") ||
+    rawMsg.includes("billing_hard_limit_reached") ||
+    rawMsg.includes("quota exceeded")
+  ) {
+    const providerName = provider === "openai" ? "OpenAI" : provider === "anthropic" ? "Anthropic" : "Google";
+    return `${providerName} API의 사용 크레딧(잔액)이 부족합니다. 해당 AI 사이트에서 결제 및 크레딧 충전을 확인하시거나 다른 AI(OpenAI, Gemini) 키를 등록해주세요.`;
+  }
+
+  // 3. 유효하지 않은 API 키 / 인증 실패
+  if (
+    rawMsg.includes("invalid_api_key") ||
+    rawMsg.includes("Incorrect API key") ||
+    rawMsg.includes("authentication_error") ||
+    rawMsg.includes("API_KEY_INVALID") ||
+    rawMsg.includes("401")
+  ) {
+    return "등록하신 API 키가 올바르지 않거나 인증에 실패했습니다. 키를 복사할 때 앞뒤 공백이 들어가지 않았는지 확인 후 다시 등록해주세요.";
+  }
+
+  // 4. Rate Limit (호출 한도 초과)
+  if (rawMsg.includes("rate_limit") || rawMsg.includes("429")) {
+    return "AI 호출 한도(Rate Limit)를 일시적으로 초과했습니다. 1~2분 후 다시 시도해주세요.";
+  }
+
+  // 5. JSON 파싱 실패 또는 500 계열
+  return `AI 글 생성 중 오류가 발생했습니다: ${rawMsg.slice(0, 150)}`;
+}
+
 async function callLLM(
   config: { provider: AIProvider; apiKey: string; model?: string },
   systemPrompt: string,
@@ -325,45 +367,49 @@ async function callLLM(
 ): Promise<string> {
   const { provider, apiKey, model } = config;
 
-  if (provider === "gemini") {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const selectedModel = model || "gemini-3.7-flash";
-    const geminiModel = genAI.getGenerativeModel({
-      model: selectedModel,
-      systemInstruction: systemPrompt,
-    });
-    const result = await geminiModel.generateContent({
-      contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-      generationConfig: { responseMimeType: "application/json" },
-    });
-    return result.response.text();
-  }
+  try {
+    if (provider === "gemini") {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const selectedModel = model || "gemini-3.7-flash";
+      const geminiModel = genAI.getGenerativeModel({
+        model: selectedModel,
+        systemInstruction: systemPrompt,
+      });
+      const result = await geminiModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        generationConfig: { responseMimeType: "application/json" },
+      });
+      return result.response.text();
+    }
 
-  if (provider === "anthropic") {
-    const anthropic = new Anthropic({ apiKey });
-    const selectedModel = model || "claude-sonnet-5";
-    const res = await anthropic.messages.create({
-      model: selectedModel,
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    });
-    const firstBlock = res.content[0];
-    return firstBlock && "text" in firstBlock ? firstBlock.text : "";
-  }
+    if (provider === "anthropic") {
+      const anthropic = new Anthropic({ apiKey });
+      const selectedModel = model || "claude-sonnet-5";
+      const res = await anthropic.messages.create({
+        model: selectedModel,
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+      });
+      const firstBlock = res.content[0];
+      return firstBlock && "text" in firstBlock ? firstBlock.text : "";
+    }
 
-  // 기본: OpenAI
-  const openai = new OpenAI({ apiKey });
-  const selectedModel = model || "gpt-4.1";
-  const completion = await openai.chat.completions.create({
-    model: selectedModel,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    response_format: { type: "json_object" },
-  });
-  return completion.choices[0]?.message?.content ?? "";
+    // 기본: OpenAI
+    const openai = new OpenAI({ apiKey });
+    const selectedModel = model || "gpt-4.1";
+    const completion = await openai.chat.completions.create({
+      model: selectedModel,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      response_format: { type: "json_object" },
+    });
+    return completion.choices[0]?.message?.content ?? "";
+  } catch (err) {
+    throw new Error(formatAIErrorMessage(err, provider));
+  }
 }
 
 function parseJsonSafe<T>(raw: string, fallback: T): T {

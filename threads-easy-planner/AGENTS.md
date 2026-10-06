@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.23` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.24` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -186,3 +186,8 @@
   - **초보자 가이드를 '사용 매뉴얼'로 전면 개편 및 직관적 단계별 순서 가이드 구축**:
     1) 좌측 사이드바 및 모바일 헤더 메뉴명을 '초보자 가이드' ➔ '사용 매뉴얼'로 변경.
     2) `/guide` 페이지를 이론 중심에서 실제 프로그램 사용 순서(STEP 0 API키 ➔ STEP 1 글감 준비 ➔ STEP 2 5대 훅 교체 ➔ STEP 3 자댓글 CTA ➔ STEP 4 자동 저장 및 보관함 활용)를 한눈에 이해할 수 있는 실전 비주얼 매뉴얼로 전면 개편.
+- **v1.24 (2026-10-06)**:
+  - **Anthropic 워크스페이스 미지정 키 오류 친절한 한글 안내 및 설정 가이드 보강**:
+    1) Anthropic 콘솔에서 워크스페이스가 바인딩되지 않은 키(`sk-ant-usr-...`) 사용 시 발생하는 400 에러("This API key is not scoped to a workspace...")를 가로채어, 해결 방법(콘솔 Workspaces에서 Default Workspace 선택 후 API Key 재발급 or OpenAI/Gemini 권장)을 친절한 한글 메시지로 안내하도록 `formatAIErrorMessage` 헬퍼 함수 구현 및 적용.
+    2) 설정 페이지(`/settings`)에 Anthropic 키 발급 시 워크스페이스 지정 필수 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
+    3) AI 호출 전반(OpenAI, Gemini, Claude)의 크레딧 부족, 잘못된 키, Rate Limit 에러를 모두 사용자 친화적인 한국어 안내로 정제.

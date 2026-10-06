@@ -6,23 +6,24 @@ import type { AIProvider } from "@/lib/apiKeys";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const PROVIDER_INFO: { id: AIProvider; name: string; desc: string; guideUrl: string }[] = [
+const PROVIDER_INFO: { id: AIProvider; name: string; desc: string; guideUrl: string; isRecommended?: boolean }[] = [
   {
     id: "openai",
-    name: "OpenAI API 키 (GPT-4o, GPT-4.1)",
-    desc: "가장 추천하는 AI 모델입니다. platform.openai.com에서 발급받은 'sk-...' 형태의 키를 입력하세요.",
+    name: "OpenAI API 키 (GPT-4.1, GPT-4o)",
+    desc: "★ 가장 안정적이고 추천하는 AI 엔진입니다. platform.openai.com에서 발급받은 일반/프로젝트 키('sk-...')를 입력하세요.",
     guideUrl: "https://platform.openai.com/api-keys",
+    isRecommended: true,
   },
   {
     id: "gemini",
     name: "Google Gemini API 키 (Gemini 2.5 Flash)",
-    desc: "속도가 빠르고 무료 사용량이 넉넉합니다. aistudio.google.com에서 발급받을 수 있습니다.",
+    desc: "생성 속도가 매우 빠르고 기본 무료 사용량이 넉넉합니다. aistudio.google.com에서 발급받을 수 있습니다.",
     guideUrl: "https://aistudio.google.com/app/apikey",
   },
   {
     id: "anthropic",
     name: "Anthropic Claude API 키 (Claude 3.5 Sonnet)",
-    desc: "자연스럽고 문장력이 뛰어납니다. console.anthropic.com에서 발급받을 수 있습니다.",
+    desc: "문장력이 우수합니다. (★ 주의: console.anthropic.com 콘솔에서 반드시 [Workspaces] 내의 특정 워크스페이스를 선택한 뒤 발급받은 'sk-ant-api03-...' 키를 입력해주세요. 워크스페이스가 미지정된 sk-ant-usr-... 키는 호출 시 오류가 발생합니다)",
     guideUrl: "https://console.anthropic.com/settings/keys",
   },
 ];
@@ -71,8 +72,13 @@ export default async function SettingsPage() {
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-sm text-neutral-900">{item.name}</span>
+                  {item.isRecommended && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                      👍 추천
+                    </span>
+                  )}
                   {isRegistered ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
                       ✓ 등록됨

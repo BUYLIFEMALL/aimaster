@@ -1,5 +1,14 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-06 Anthropic 워크스페이스 미지정 키(sk-ant-usr-...) 400 에러 노출 및 친절한 한글 안내 개선 (threads-easy-planner v1.24)
+
+- **증상:** Anthropic Claude API 키를 등록한 회원이 글 생성 시 `400 {"type":"error","error":{"type":"invalid_request_error","message":"This API key is not scoped to a workspace, so this request must include the anthropic-workspace-id header..."}}` 원문 JSON 에러가 화면 상단에 그대로 노출됨.
+- **원인:** Anthropic 콘솔에서 키를 생성할 때 특정 Workspace(Default)를 지정하지 않고 발급받은 키(`sk-ant-usr-...`)는 요청 헤더에 `anthropic-workspace-id`를 필수로 요구함. 이 에러가 발생했을 때 백엔드 에러 원문이 필터링 없이 그대로 사용자 화면에 노출됨.
+- **해결(위치):** 
+  1) `threads-easy-planner/src/lib/ai/generator.ts`: `formatAIErrorMessage` 함수를 신설하여 Anthropic workspace 에러 및 크레딧 부족, 잘못된 키 등의 SDK 오류를 사용자 친화적인 한글 안내문(해결 방법 및 OpenAI/Gemini 대안 안내)으로 가로채어 변환 제공.
+  2) `threads-easy-planner/src/app/(dashboard)/settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
+- **다음부터 확인:** 외부 AI 공급사(Anthropic, OpenAI 등)는 최근 워크스페이스/프로젝트 단위 키 정책을 강화하고 있으므로, LLM 호출부에서 SDK 에러 원문을 클라이언트에 그대로 던지지 말고 항상 `formatAIErrorMessage` 패턴으로 사용자 행동 요령(재발급 방법, 대안 엔진 권장)을 담은 한글 메시지로 정제한다.
+
 ## 2026-10-06 Tailwind 슬래시 유틸리티 CSS 선택자 이스케이프 오류 (threads-content-ops v1.15)
 
 - 증상: `npm run build`에서 PostCSS `Unexpected '/'` 오류가 발생했다.

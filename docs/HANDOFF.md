@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.24, 2026-10-06)
+
+- **Anthropic 워크스페이스 미지정 키 오류 친절한 한글 안내 및 설정 가이드 보강 (v1.24)**:
+  - 사용자(`kariy11@naver.com`) 제보 에러 분석 완료: Anthropic 콘솔에서 특정 워크스페이스가 지정되지 않은 키(`sk-ant-usr-...`)를 발급받아 등록 시 발생하는 `400 invalid_request_error` ("This API key is not scoped to a workspace...") 현상 원인 규명.
+  - 조치:
+    1) `generator.ts`: `formatAIErrorMessage` 함수를 구현하여 Anthropic workspace 미지정 에러, 크레딧 부족, 잘못된 키, Rate limit 등 외부 SDK 오류를 사용자 친화적인 한글 안내문으로 가로채어 변환 제공.
+    2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
+  - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
+
 ## Threads Content Ops v1.24 — 생성 오류 화면 방지 (2026-10-06)
 
 - OpenAI 생성 실패를 Server Action 예외로 던져 Next.js 오류 경계가 보이던 문제를 수정했다. 생성 액션은 사용자에게 보여줄 안전한 결과 객체를 반환하고, UI는 안내 문구로 표시한다.
