@@ -43,3 +43,26 @@ export const DEFAULT_ENGINE = { provider: "openai" as EngineProvider, model: "gp
 export function isKnownEngine(provider: string, model: string): provider is EngineProvider {
   return ENGINES.some((engine) => engine.provider === provider && engine.models.some((item) => item.value === model));
 }
+
+export type ImageRatio = "1:1" | "4:5" | "16:9";
+export const IMAGE_RATIOS: { value: ImageRatio; label: string }[] = [
+  { value: "1:1", label: "1:1 정사각형 (기본)" },
+  { value: "4:5", label: "4:5 세로형" },
+  { value: "16:9", label: "16:9 가로형" },
+];
+
+export type ImageModel = "gemini-2.5-flash-image" | "gemini-3-pro-image-preview" | "gpt-image-1-mini" | "gpt-image-1";
+export const IMAGE_MODELS: { value: ImageModel; provider: "gemini" | "openai"; label: string }[] = [
+  { value: "gemini-2.5-flash-image", provider: "gemini", label: "나노바나나 (Gemini 2.5 Flash Image · 기본 추천)" },
+  { value: "gemini-3-pro-image-preview", provider: "gemini", label: "나노바나나 Pro (Gemini 3 Pro Image · 고품질)" },
+  { value: "gpt-image-1-mini", provider: "openai", label: "GPT Image 1 mini (OpenAI · 빠르고 저렴)" },
+  { value: "gpt-image-1", provider: "openai", label: "GPT Image 1 (OpenAI · 고품질)" },
+];
+export const DEFAULT_IMAGE_MODEL: ImageModel = "gemini-2.5-flash-image";
+
+export function findImageModel(value: string) {
+  return IMAGE_MODELS.find((item) => item.value === value);
+}
+export function isKnownRatio(value: string): value is ImageRatio {
+  return IMAGE_RATIOS.some((item) => item.value === value);
+}

@@ -3,6 +3,7 @@ import "server-only";
 // 주목받는 글 만들기 (v1.41). `threads-easy-planner`의 Threads 글 생성(황금 4단계 구조 + 5대 훅 유형 대안)을
 // 이 프로그램의 "글감 → 글" 흐름에 맞게 합쳤다. 회원 본인의 OpenAI 키만 쓴다.
 // 원본과 다른 점: 원본은 1인칭 체험담을 만들어 내지만, 여기서는 글감에 없는 사실·개인 경험·수치를 지어내지 않는다.
+import { PROMPT_SYSTEM, parsePromptJson } from "@/threads-content-ops/lib/postImage";
 import { REWRITE_MODES, type EngineProvider, type RewriteMode } from "@/threads-content-ops/lib/personas";
 
 export const HOOK_TYPES = ["자책형", "부정 명령형", "리얼 썰형", "논쟁형", "반전형"] as const;
@@ -174,4 +175,12 @@ ${mode.instruction}
   const content = text(parsed.content, 1_500);
   if (!content) throw new Error("다시 쓴 글이 비어 있습니다. 다시 시도해 주세요.");
   return { hook: text(parsed.hook, 200) || params.hook, content };
+}
+
+/** 글 본문을 바탕으로 이미지 생성용 영어 프롬프트를 만든다(선택한 텍스트 엔진 사용). */
+export async function buildImagePromptFromPost(params: { content: string; engine: Engine }): Promise<string> {
+  const raw = await callJson(params.engine, PROMPT_SYSTEM, `<data>\n${params.content.slice(0, 1_500)}\n</data>`);
+  const prompt = parsePromptJson(raw);
+  if (!prompt) throw new Error("이미지 프롬프트를 만들지 못했습니다. 다시 시도해 주세요.");
+  return prompt;
 }

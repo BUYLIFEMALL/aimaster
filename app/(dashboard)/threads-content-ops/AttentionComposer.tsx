@@ -3,14 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, CircleAlert, Copy, Sparkles } from "lucide-react";
-import { DEFAULT_ENGINE, ENGINES, PERSONAS, REWRITE_MODES, type EngineProvider } from "@/threads-content-ops/lib/personas";
-import { generateAttentionPost, rewriteGeneratedPost, saveGeneratedDraft } from "./web-actions";
+import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODEL, ENGINES, IMAGE_MODELS, IMAGE_RATIOS, PERSONAS, REWRITE_MODES, type EngineProvider, type ImageModel, type ImageRatio } from "@/threads-content-ops/lib/personas";
+import { generateAttentionPost, generatePostImage, rewriteGeneratedPost, saveGeneratedDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
 type Candidate = { id: string; method: string; source_input: string; title: string; content: string; keywords: string[]; status?: string };
 type Variant = { type: string; hook: string; whyItWorks: string; content: string };
 type Plan = { hook: string; hookType: string; whyHookWorks: string; content: string; cta: string; followUpIdeas: string[]; hookVariants: Variant[] };
 type Engine = { provider: EngineProvider; model: string };
+type ImageSettings = { model: ImageModel; ratio: ImageRatio };
 
 const THREADS_LIMIT = 500;
 const inputClass = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400";
@@ -35,11 +36,14 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
   const [experience, setExperience] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
   const [engine, setEngine] = useState<Engine>(DEFAULT_ENGINE);
+  const [image, setImage] = useState<ImageSettings>({ model: DEFAULT_IMAGE_MODEL, ratio: "1:1" });
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [plan, setPlan] = useState<Plan | null>(null);
   const [generatingLabel, setGeneratingLabel] = useState<string | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const engineKeyReady = configuredProviders.includes(engine.provider);
+  const imageInfo = IMAGE_MODELS.find((item) => item.value === image.model) ?? IMAGE_MODELS[0];
+  const imageKeyReady = configuredProviders.includes(imageInfo.provider);
   const engineInfo = ENGINES.find((item) => item.provider === engine.provider) ?? ENGINES[0];
   const generating = generatingLabel !== null;
 
@@ -151,6 +155,20 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
         </div>
         {!engineKeyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{engineInfo.label} API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장하거나 다른 엔진을 선택해 주세요.</span></p>}
       </div>
+
+      <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-3">
+        <p className="text-sm font-bold text-neutral-900">🖼️ 이미지 생성 모델 <span className="font-normal text-neutral-500">— 현재: {imageInfo.label.split(" (")[0]} · {image.ratio}</span></p>
+        <p className="mt-1 text-xs text-neutral-500">결과 글의 "이미지 생성" 버튼이 이 모델로 본문에 어울리는 이미지를 만듭니다. 사람이 나오면 한국인으로 그리고 이미지 안에 글자는 넣지 않습니다.</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <label className="block text-xs font-semibold text-neutral-600">이미지 모델
+            <select className={`${inputClass} mt-1`} value={image.model} onChange={(event) => setImage({ ...image, model: event.target.value as ImageModel })}>{IMAGE_MODELS.map((item) => <option key={item.value} value={item.value}>{item.label}{configuredProviders.includes(item.provider) ? "" : " (키 미등록)"}</option>)}</select>
+          </label>
+          <label className="block text-xs font-semibold text-neutral-600">이미지 비율
+            <select className={`${inputClass} mt-1`} value={image.ratio} onChange={(event) => setImage({ ...image, ratio: event.target.value as ImageRatio })}>{IMAGE_RATIOS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
+          </label>
+        </div>
+        {!imageKeyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{imageInfo.provider === "gemini" ? "Gemini" : "OpenAI"} API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장하거나 다른 모델을 선택해 주세요.</span></p>}
+      </div>
     </section>
 
     <section className="rounded-2xl border-2 border-rose-300 bg-white p-5 shadow-sm">
@@ -164,11 +182,11 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       {message && !message.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status"><CircleAlert size={16} className="mt-0.5 shrink-0 text-rose-600" />{message.text}</p>}
     </section>
 
-    {plan && <PlanView plan={plan} accounts={accounts} accountId={accountId} onAccount={setAccountId} viralId={viralId} engine={engine} onSaved={(text) => setMessage({ ok: true, text })} message={message} />}
+    {plan && <PlanView plan={plan} accounts={accounts} accountId={accountId} onAccount={setAccountId} viralId={viralId} engine={engine} image={image} onSaved={(text) => setMessage({ ok: true, text })} message={message} />}
   </div>;
 }
 
-function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, onSaved, message }: { plan: Plan; accounts: Account[]; accountId: string; onAccount: (id: string) => void; viralId: string; engine: Engine; onSaved: (text: string) => void; message: { ok: boolean; text: string } | null }) {
+function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, image, onSaved, message }: { plan: Plan; accounts: Account[]; accountId: string; onAccount: (id: string) => void; viralId: string; engine: Engine; image: ImageSettings; onSaved: (text: string) => void; message: { ok: boolean; text: string } | null }) {
   const options = [{ type: `${plan.hookType} (대표)`, hook: plan.hook, whyItWorks: plan.whyHookWorks, content: plan.content }, ...plan.hookVariants];
   return <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -176,13 +194,13 @@ function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, onSav
       <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">저장할 계정<select className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900" value={accountId} onChange={(event) => onAccount(event.target.value)}>{accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}</select></label>
     </div>
     {message?.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" role="status"><CheckCircle2 size={16} className="mt-0.5 shrink-0" />{message.text} <Link className="font-semibold underline" href="/threads-content-ops?tab=manage">초안·발행 관리 열기</Link></p>}
-    <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} option={option} accountId={accountId} viralId={viralId} engine={engine} onSaved={onSaved} />)}</ul>
+    <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} option={option} accountId={accountId} viralId={viralId} engine={engine} image={image} onSaved={onSaved} />)}</ul>
     {plan.cta && <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><p className="font-semibold text-amber-900">댓글을 부르는 마무리·첫 댓글 멘트</p><p className="mt-1 text-neutral-800">{plan.cta}</p><div className="mt-2"><CopyButton value={plan.cta} label="멘트 복사" /></div></div>}
     {plan.followUpIdeas.length > 0 && <div className="mt-4"><p className="text-sm font-semibold text-neutral-900">이어 쓸 후속 아이디어</p><ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-neutral-700">{plan.followUpIdeas.map((idea) => <li key={idea}>{idea}</li>)}</ul></div>}
   </section>;
 }
 
-function VariantCard({ option, accountId, viralId, engine, onSaved }: { option: Variant; accountId: string; viralId: string; engine: Engine; onSaved: (text: string) => void }) {
+function VariantCard({ option, accountId, viralId, engine, image, onSaved }: { option: Variant; accountId: string; viralId: string; engine: Engine; image: ImageSettings; onSaved: (text: string) => void }) {
   const [body, setBody] = useState(option.content);
   const [hook, setHook] = useState(option.hook);
   const [saving, setSaving] = useState(false);
@@ -191,6 +209,23 @@ function VariantCard({ option, accountId, viralId, engine, onSaved }: { option: 
   const [error, setError] = useState("");
   const over = body.length > THREADS_LIMIT;
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [imaging, setImaging] = useState(false);
+
+  const makeImage = async () => {
+    if (imaging || saving || rewriting) return;
+    setImaging(true);
+    setError("");
+    try {
+      const result = await generatePostImage({ content: body, imageModel: image.model, ratio: image.ratio, engine });
+      if (result.ok) setImageUrl(result.url);
+      else setError(result.error);
+    } catch {
+      setError("이미지 생성 요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    } finally {
+      setImaging(false);
+    }
+  };
 
   // 결과 본문이 스크롤 없이 한 번에 모두 보이도록 글 길이에 맞춰 세로 칸을 키운다(다시 쓰기·직접 수정 때도 따라간다).
   useEffect(() => {
@@ -247,9 +282,16 @@ function VariantCard({ option, accountId, viralId, engine, onSaved }: { option: 
     <div className="mt-2 flex flex-wrap items-center gap-1.5"><span className="text-[11px] font-semibold text-neutral-500">다시 써줘</span>{REWRITE_MODES.map((item) => <button key={item.mode} type="button" disabled={rewriting !== null || saving} onClick={() => void rewrite(item.mode)} className="rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50">{rewriting === item.mode ? "수정 중…" : `${item.icon} ${item.label}`}</button>)}</div>
     {error && <p className="mt-2 text-sm text-rose-600" role="alert">{error}</p>}
     <div className="mt-3 flex flex-wrap gap-2">
+      <button type="button" className="inline-flex items-center gap-1 rounded-lg border-2 border-violet-300 bg-white px-3 py-1.5 text-xs font-bold text-violet-700 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50" disabled={imaging || saving || rewriting !== null || !body.trim()} onClick={() => void makeImage()}>{imaging ? "이미지 만드는 중… (최대 2분)" : imageUrl ? "🖼️ 이미지 다시 생성" : "🖼️ 이미지 생성"}</button>
       <button type="button" className="inline-flex items-center rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={saving || saved || rewriting !== null || !body.trim() || !accountId} onClick={() => void save()}>{saved ? "저장됨" : saving ? "저장 중…" : "이 글로 초안 저장"}</button>
       <CopyButton value={body} label="본문 복사" />
     </div>
+    {imageUrl && <div className="mt-3 rounded-xl border border-violet-200 bg-white p-3">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imageUrl} alt="본문을 바탕으로 생성한 이미지" className="mx-auto max-h-[32rem] w-auto max-w-full rounded-lg" />
+      <div className="mt-2 flex flex-wrap items-center justify-center gap-2"><a href={imageUrl} target="_blank" rel="noopener noreferrer" download className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50">이미지 열기·저장</a><CopyButton value={imageUrl} label="이미지 주소 복사" /></div>
+      <p className="mt-2 text-center text-[11px] text-neutral-500">이미지는 회원님 전용 경로에 저장됩니다. 초안에 자동으로 붙지는 않으니 발행할 때 직접 첨부해 주세요.</p>
+    </div>}
   </li>;
 }
 

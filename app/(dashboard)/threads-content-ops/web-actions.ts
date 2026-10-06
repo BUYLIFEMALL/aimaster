@@ -16,8 +16,10 @@ import {
   structureCandidates,
   type ViralCandidateDraft,
 } from "@/threads-content-ops/lib/collector";
-import { generateAttentionPlan, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
-import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, isKnownEngine, type RewriteMode } from "@/threads-content-ops/lib/personas";
+import { buildImagePromptFromPost, generateAttentionPlan, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
+import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
+import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
+import { createServiceClient } from "@/lib/supabase/server";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
   YouTubeSearchError,
@@ -928,5 +930,37 @@ export async function saveGeneratedDraft(input: { accountId: string; body: strin
     return { ok: true };
   } catch (error) {
     return sourceFailure(error, "초안을 저장하지 못했습니다.");
+  }
+}
+
+/**
+ * 선택한 글 본문을 바탕으로 이미지를 만든다(v1.51). 텍스트 엔진으로 영어 이미지 프롬프트를 만든 뒤, 회원 본인의 Gemini(나노바나나)/OpenAI 키로
+ * 이미지를 생성해 공개 버킷(ai-image-generations)의 회원별 경로에 올리고 공개 주소를 돌려준다. 버튼을 누를 때만 호출된다.
+ */
+export async function generatePostImage(input: { content: string; imageModel: string; ratio: string; engine?: EngineInput }): Promise<{ ok: true; url: string; prompt: string } | { ok: false; error: string; needKey?: boolean }> {
+  try {
+    const content = clean(input.content, 5_001);
+    if (!content || content.length > 5_000) throw new Error("이미지를 만들 본문을 1~5,000자로 확인해 주세요.");
+    const model = findImageModel(input.imageModel);
+    if (!model) throw new Error("지원하지 않는 이미지 생성 모델입니다. 다시 선택해 주세요.");
+    if (!isKnownRatio(input.ratio)) throw new Error("지원하지 않는 이미지 비율입니다.");
+    const { supabase, user } = await authorizedUser();
+    const imageKey = await resolveApiKey(supabase, user.id, model.provider);
+    if (!imageKey) return { ok: false, needKey: true, error: `${model.provider === "gemini" ? "Gemini" : "OpenAI"} API 키가 등록되어 있지 않습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 이미지 모델을 선택해 주세요.` };
+    const resolved = await resolveEngine(supabase, user.id, input.engine);
+    if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
+
+    const prompt = await buildImagePromptFromPost({ content, engine: resolved.engine });
+    const image = await generateImageBytes({ model: model.value, provider: model.provider, ratio: input.ratio, prompt, apiKey: imageKey });
+    if (image.bytes.length > 12_000_000) throw new Error("생성된 이미지가 너무 큽니다. 다른 모델이나 비율로 다시 시도해 주세요.");
+    const extension = image.mime.includes("jpeg") ? "jpg" : image.mime.includes("webp") ? "webp" : "png";
+    const path = `threads-content-ops/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+    const service = createServiceClient();
+    const { error } = await service.storage.from("ai-image-generations").upload(path, image.bytes, { contentType: image.mime, upsert: false });
+    if (error) throw new Error("생성한 이미지를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    const { data } = service.storage.from("ai-image-generations").getPublicUrl(path);
+    return { ok: true, url: data.publicUrl, prompt };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "이미지를 생성하지 못했습니다." };
   }
 }

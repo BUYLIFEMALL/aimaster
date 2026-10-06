@@ -1,6 +1,6 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.50`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.51`
 
 개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
 
@@ -8,6 +8,10 @@
 
 - 콘텐츠 작성 화면(`DraftComposer`)의 좌우 분할 그리드를 제거하여 상단에 `AI 초안 만들기`, 하단에 `운영 대기열`이 full-width 행으로 넓게 표시되도록 레이아웃을 개편했습니다.
 - "YouTube 영상에서 소재 가져오기" 섹션 UI를 삭제했습니다(추후 떡상 콘텐츠 수집/글감 수집 쪽에 최적화하여 구현 예정).
+
+## v1.51 이미지 생성
+
+- 이미지 생성 모델(나노바나나·GPT Image)과 비율을 고르고, 결과 글마다 "이미지 생성"으로 본문에 어울리는 이미지를 만들 수 있습니다. 회원님의 Gemini 또는 OpenAI 키를 쓰며 사람이 나오면 한국인으로 그립니다. 이미지는 초안에 자동 첨부되지 않으니 발행할 때 직접 올려 주세요.
 
 ## v1.50 결과 본문 전체 표시
 
