@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.33, 2026-10-06 주인님 지시)
+
+- **좌측 사이드바 하단 팁 문구 제거 (v1.33)**:
+  - 조치: 좌측 사이드바(`Sidebar.tsx`) 좌하단에 노출되던 "💡 Tip: 스레드는 첫 문장에서 스크롤을 멈추고 마지막 댓글에서 반응을 끌어내는 것이 핵심입니다." 텍스트 배너 삭제.
+  - `src/lib/version.ts`, 마이그레이션 `0003_tep_bump_version_v1_33.sql` 및 DB `programs.version`을 `v1.33`으로 동기화.
+
 ## Threads 콘텐츠 운영 자동화 (threads-content-ops v1.35, 2026-10-06 주인님 지시)
 
 - **콘텐츠 작성 레이아웃 개편 및 YouTube 소재 가져오기 분리**:

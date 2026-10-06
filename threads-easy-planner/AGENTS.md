@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.32` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.33` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -236,3 +236,8 @@
 - **v1.32 (2026-10-06)**:
   - **AI 설정 아코디언 타이틀 간소화 (주인님 지시)**:
     1) 아코디언 헤더 라벨에서 '고급' 단어를 제거하여 **`⚙️ AI 추론 엔진 및 모델 설정`**으로 명칭 간소화. DB `programs.version` 및 `APP_VERSION` `v1.32` 동기화.
+- **v1.33 (2026-10-06)**:
+  - **좌측 사이드바 하단 팁 문구 제거 (주인님 지시)**:
+    1) 사이드바(`Sidebar.tsx`) 좌하단에 표시되던 "💡 Tip: 스레드는 첫 문장에서 스크롤을 멈추고 마지막 댓글에서 반응을 끌어내는 것이 핵심입니다." 텍스트 배너 삭제.
+    2) DB `programs.version` 및 `APP_VERSION` `v1.33` 동기화.
+

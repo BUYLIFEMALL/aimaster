@@ -93,11 +93,6 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             </form>
           </div>
         </div>
-
-        {/* 하단 꿀팁 배너 */}
-        <div className="mt-auto pt-6 text-[11px] text-neutral-400 px-2 leading-relaxed hidden md:block">
-          💡 <strong>Tip:</strong> 스레드는 첫 문장에서 스크롤을 멈추고 마지막 댓글에서 반응을 끌어내는 것이 핵심입니다.
-        </div>
       </div>
     </aside>
   );
