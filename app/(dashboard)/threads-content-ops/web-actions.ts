@@ -142,10 +142,14 @@ async function generateAndSaveDraftInternal(input: { accountId: string; topic: s
     }),
     cache: "no-store",
   });
-  const payload = await response.json().catch(() => null) as { output_text?: unknown } | null;
-  const body = typeof payload?.output_text === "string" ? payload.output_text.trim() : "";
+  const payload = await response.json().catch(() => null) as { output_text?: unknown; output?: Array<{ content?: Array<{ type?: string; text?: string }> }>; error?: { message?: string; code?: string } } | null;
+  const fallbackText = payload?.output?.flatMap((item) => item.content ?? []).filter((part) => part.type === "output_text").map((part) => part.text ?? "").join("").trim();
+  const body = typeof payload?.output_text === "string" ? payload.output_text.trim() : fallbackText ?? "";
   if (!response.ok || !body || body.length > 5_000) {
-    throw new Error(response.status === 401 || response.status === 403 ? "OpenAI API 키 또는 권한을 확인해 주세요." : "초안을 생성하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    if (response.status === 401 || response.status === 403) throw new Error("OpenAI API 키 또는 해당 모델 사용 권한을 확인해 주세요.");
+    if (response.status === 429) throw new Error("OpenAI API 할당량 또는 분당 요청 한도에 도달했습니다. OpenAI 결제·사용 한도 후 다시 시도해 주세요.");
+    if (!response.ok) throw new Error("OpenAI가 초안 요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    throw new Error("OpenAI 응답에서 초안 본문을 읽지 못했습니다. 같은 요청을 한 번 더 시도해 주세요.");
   }
 
   const { error } = await supabase.from("tco_posts").insert({

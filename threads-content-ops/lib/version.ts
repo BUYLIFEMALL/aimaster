@@ -1,2 +1,2 @@
 /** AIMaster catalog version. Keep this in sync with programs.version. */
-export const APP_VERSION = "v1.24";
+export const APP_VERSION = "v1.25";
