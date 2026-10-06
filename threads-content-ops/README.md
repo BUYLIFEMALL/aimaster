@@ -1,6 +1,12 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.26`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.27`
+
+## v1.27 계정별 운영정보
+
+- 원본의 운영정보 수정 화면을 웹형 계정별 설정으로 구현했습니다. 주제·성격·말투·독자·금지 항목·일상/홍보 비율·게시 목표·댓글 확인 주기·운영 시간을 계정별로 저장·수정합니다.
+- `tco_operation_profiles`와 이후 소스 수집에 사용할 `tco_content_sources`는 회원별 `user_id`와 owner-only RLS로 분리돼 있습니다. anon에는 테이블 권한을 주지 않았고 authenticated도 본인 행만 접근할 수 있습니다.
+- 자동화 사용 스위치는 게시를 실행하지 않는 저장 선호값입니다. 무인 발행 워커가 안전하게 별도 구현되기 전까지 실제 게시를 자동 실행하지 않습니다.
 
 ## v1.26 웹 운영 대시보드 1단계
 

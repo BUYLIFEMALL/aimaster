@@ -40,6 +40,12 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.27 — 계정별 운영정보·소스 큐 DB 기반 (2026-10-06)
+
+- 주인님 승인 뒤 운영 DB에 `tco_operation_profiles`, `tco_content_sources`를 적용했다. 두 테이블은 `user_id` owner-only RLS, 작업별 select/insert/update/delete 정책, anon 권한 회수, authenticated 최소 권한만 갖는다. 점검 쿼리로 두 테이블 모두 RLS=true·정책 4개를 확인했다.
+- `/threads-content-ops?tab=accounts`를 세 번째 번호형 업무 흐름으로 추가했다. 회원은 자신이 연결한 Threads 계정별로 주제·말투·금지 항목·운영 비율·목표·시간을 실제로 저장한다. 서버 액션은 프로그램 접근 권한과 계정의 user_id 소유를 다시 검사한다.
+- 소스 큐 테이블은 블로그·쿠팡·네이버 브랜드 커넥트의 실제 수집/등록을 연결할 다음 단계용이다. 아직 외부 상품/성과/댓글을 지어내 표시하지 않는다.
+
 ## Threads Content Ops v1.26 — 웹 운영 대시보드 1단계·흰색 웹 표준 (2026-10-06)
 
 - 원본 프로그램 스크린샷을 기능 구조 참고 자료로 재분석했다. AIMaster 웹 화면은 전체 흰색 베이스를 유지하며, 원본 Electron의 다크 테마는 가져오지 않는다.

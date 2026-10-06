@@ -78,6 +78,65 @@ export async function disconnectThreadsAccount(accountId: string) {
   revalidatePath("/threads-content-ops");
 }
 
+export async function saveOperationProfile(input: {
+  accountId: string;
+  topic: string;
+  personality: string;
+  tone: string;
+  targetAudience: string;
+  forbiddenTopics: string;
+  forbiddenExpressions: string;
+  dailyRatio: number;
+  promotionalRatio: number;
+  dailyPostTarget: number;
+  commentCheckIntervalMinutes: number;
+  operatingStart: string;
+  operatingEnd: string;
+  automationEnabled: boolean;
+}) {
+  const { supabase, user } = await authorizedUser();
+  const accountId = input.accountId.trim();
+  if (!accountId) throw new Error("운영 정보를 저장할 Threads 계정을 선택해 주세요.");
+  const numeric = [input.dailyRatio, input.promotionalRatio, input.dailyPostTarget, input.commentCheckIntervalMinutes];
+  if (numeric.some((value) => !Number.isInteger(value))) throw new Error("운영 비율과 목표값은 정수로 입력해 주세요.");
+  if (input.dailyRatio < 0 || input.dailyRatio > 100 || input.promotionalRatio < 0 || input.promotionalRatio > 100 || input.dailyPostTarget < 0 || input.dailyPostTarget > 50 || input.commentCheckIntervalMinutes < 5 || input.commentCheckIntervalMinutes > 1440) {
+    throw new Error("운영 비율(0~100), 하루 게시 목표(0~50), 댓글 확인 주기(5~1,440분)를 확인해 주세요.");
+  }
+  const textFields = [input.topic, input.personality, input.tone, input.targetAudience, input.forbiddenTopics, input.forbiddenExpressions];
+  if (textFields.some((value) => value.length > 2_000)) throw new Error("운영 정보 항목은 각각 2,000자 이내로 입력해 주세요.");
+  if ((input.operatingStart && !/^\d{2}:\d{2}$/.test(input.operatingStart)) || (input.operatingEnd && !/^\d{2}:\d{2}$/.test(input.operatingEnd))) {
+    throw new Error("운영 시간 형식을 확인해 주세요.");
+  }
+
+  const { data: account } = await supabase.from("tco_threads_accounts")
+    .select("id")
+    .eq("id", accountId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!account) throw new Error("내가 연결한 Threads 계정을 찾지 못했습니다.");
+
+  const { error } = await supabase.from("tco_operation_profiles").upsert({
+    user_id: user.id,
+    account_id: accountId,
+    topic: input.topic.trim(),
+    personality: input.personality.trim(),
+    tone: input.tone.trim(),
+    target_audience: input.targetAudience.trim(),
+    forbidden_topics: input.forbiddenTopics.trim(),
+    forbidden_expressions: input.forbiddenExpressions.trim(),
+    daily_ratio: input.dailyRatio,
+    promotional_ratio: input.promotionalRatio,
+    daily_post_target: input.dailyPostTarget,
+    comment_check_interval_minutes: input.commentCheckIntervalMinutes,
+    operating_start: input.operatingStart || null,
+    operating_end: input.operatingEnd || null,
+    automation_enabled: input.automationEnabled,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "user_id,account_id" });
+  if (error) throw new Error("계정별 운영 정보를 저장하지 못했습니다.");
+  revalidatePath("/threads-content-ops");
+}
+
 export async function startThreadsOAuth() {
   const { supabase, user } = await authorizedUser();
   const { data, error } = await supabase

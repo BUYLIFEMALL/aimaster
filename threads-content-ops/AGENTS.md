@@ -1,6 +1,13 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.26`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.27`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+
+## v1.27 계정별 운영정보·회원별 데이터 기반
+
+- 운영 DB에 `tco_operation_profiles`, `tco_content_sources`를 적용했다. 두 테이블은 `user_id`와 계정 FK를 가지며 RLS를 활성화하고, authenticated 역할에 대해서도 select/insert/update/delete 각각 `(select auth.uid()) = user_id`만 허용한다. anon 권한은 회수했다.
+- `?tab=accounts`의 세 번째 번호형 흐름인 **계정 운영정보**에서 계정별 주제·성격·말투·대상 독자·금지 주제/표현·일상/홍보 비율·하루 목표·댓글 확인 주기·운영 시간·자동화 사용 선호를 실제로 저장한다.
+- `automation_enabled`는 발행 권한이 아니라 회원의 선호 설정이다. 무인 실행 워커와 안전한 스케줄 정책이 구현되기 전에는 어떤 게시도 자동으로 시작하지 않는다.
+- 콘텐츠 소스 큐는 다음 단계(블로그·쿠팡·네이버 브랜드 커넥트 실제 수집/등록)에 사용할 공통 회원별 기반이다. 아직 외부 결과나 성과를 임의로 생성하지 않는다.
 
 ## v1.26 웹 운영 대시보드 1단계
 

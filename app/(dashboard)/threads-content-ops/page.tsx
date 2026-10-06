@@ -9,6 +9,7 @@ import { APP_VERSION } from "@/threads-content-ops/lib/version";
 import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
 import DraftComposer from "./DraftComposer";
 import ContentOpsSidebar from "./ContentOpsSidebar";
+import AccountOperations from "./AccountOperations";
 import OperationsDashboard from "./OperationsDashboard";
 import WebSetup from "./WebSetup";
 
@@ -28,15 +29,18 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
 
   const { data: accounts } = await supabase.from("tco_threads_accounts")
     .select("id, username, token_expires_at").eq("user_id", user.id).order("updated_at", { ascending: false });
-  const [{ data: posts }, { data: credentials }] = await Promise.all([
+  const [{ data: posts }, { data: credentials }, { data: operationProfiles }] = await Promise.all([
     supabase.from("tco_posts")
     .select("id, body, status, created_at, scheduled_at, published_at, permalink, error_message, account_id")
     .eq("user_id", user.id).order("created_at", { ascending: false }).limit(30),
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
+    supabase.from("tco_operation_profiles")
+      .select("account_id, topic, personality, tone, target_audience, forbidden_topics, forbidden_expressions, daily_ratio, promotional_ratio, daily_post_target, comment_check_interval_minutes, operating_start, operating_end, automation_enabled, updated_at")
+      .eq("user_id", user.id),
   ]);
   const connectedAccountInfos = (accounts ?? []).map((account) => ({ id: account.id, username: account.username, tokenExpiresAt: account.token_expires_at }));
   const drafts = (posts ?? []).filter((post) => post.status === "draft" || post.status === "scheduled" || post.status === "failed").slice(0, 20);
-  const tab = ["dashboard", "create", "manage", "settings"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
+  const tab = ["dashboard", "create", "manage", "accounts", "settings"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
 
   return <div className="threads-content-ops-light flex min-h-screen bg-white text-neutral-900">
     <ContentOpsSidebar email={user.email ?? ""} />
@@ -45,6 +49,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
     {tab === "create" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={[]} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
     {tab === "manage" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={drafts} /> : <GlassCard><h2 className="font-bold text-white">관리할 초안이 없습니다</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 콘텐츠 작성 메뉴에서 초안을 만드세요.</p></GlassCard>)}
+    {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
     {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-gold" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccounts={connectedAccountInfos} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
     </div>
   </div>;
