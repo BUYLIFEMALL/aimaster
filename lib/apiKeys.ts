@@ -11,6 +11,7 @@ export type ApiKeyProvider =
   | "anthropic"
   | "gemini"
   | "perplexity"
+  | "replicate"
   | "youtube_api_key"
   | "coupang_access_key"
   | "coupang_secret_key";

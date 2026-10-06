@@ -1,8 +1,15 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.51`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.52`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.52 이미지 모델 추가: GPT Image 2·1.5, Z-Image Turbo (2026-10-06)
+
+- 주인님 지시로 이미지 생성 모델에 **GPT Image**(`gpt-image-2`, `gpt-image-1.5` 추가 — 기존 `gpt-image-1`·`mini`와 함께 4종, OpenAI 키)와 **Z-Image Turbo**(`prunaai/z-image-turbo`, Replicate 키)를 추가했습니다. 모델 이름은 `ai-image-studio`의 모델 목록에서 가져왔습니다(`lib/personas.ts`의 `IMAGE_MODELS`).
+- Z-Image는 `lib/postImage.ts`의 `generateWithReplicate`로 호출합니다: 비율별 해상도(1:1 1024×1024, 4:5 896×1120, 16:9 1280×720), `Prefer: wait=55` 후 필요하면 2초 간격으로 최대 50초 확인. **결과 이미지는 `replicate.delivery` 계열 https 주소만 서버가 내려받고**(그 밖의 주소는 거부, SSRF 방지) 우리 버킷에 올려 영구 주소로 씁니다.
+- 설정 화면에 **Replicate API 키**(`user_api_keys.provider = replicate`, 공용 제약에 이미 있음) 항목을 추가했고, 루트 `lib/apiKeys.ts`의 키 종류에 `replicate`를 넣었습니다. 이미지 모델 섹션에서 공급자별(Gemini·OpenAI·Replicate) 키 미등록 안내가 나옵니다. DB 변경 없음.
+- 검증: 모의 응답으로 Replicate 즉시 성공·진행 확인(polling)·비허용 주소 차단, 비율별 해상도를 확인했습니다. **실제 키로 Z-Image/GPT Image 2·1.5를 호출해 본 확인은 아직 못 했습니다**(모델 이름·크기 지원 여부는 해당 키로 첫 호출 때 확인 필요 — 실패하면 오류 안내가 표시됩니다).
 
 ## v1.51 이미지 생성 모델 섹션 + 글별 "이미지 생성" 버튼 (2026-10-06)
 

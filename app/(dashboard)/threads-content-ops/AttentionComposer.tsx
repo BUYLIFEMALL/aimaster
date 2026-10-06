@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, CircleAlert, Copy, Sparkles } from "lucide-react";
-import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODEL, ENGINES, IMAGE_MODELS, IMAGE_RATIOS, PERSONAS, REWRITE_MODES, type EngineProvider, type ImageModel, type ImageRatio } from "@/threads-content-ops/lib/personas";
+import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODEL, ENGINES, IMAGE_MODELS, IMAGE_PROVIDER_LABEL, IMAGE_RATIOS, PERSONAS, REWRITE_MODES, type EngineProvider, type ImageModel, type ImageRatio } from "@/threads-content-ops/lib/personas";
 import { generateAttentionPost, generatePostImage, rewriteGeneratedPost, saveGeneratedDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
@@ -167,7 +167,7 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
             <select className={`${inputClass} mt-1`} value={image.ratio} onChange={(event) => setImage({ ...image, ratio: event.target.value as ImageRatio })}>{IMAGE_RATIOS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
           </label>
         </div>
-        {!imageKeyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{imageInfo.provider === "gemini" ? "Gemini" : "OpenAI"} API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장하거나 다른 모델을 선택해 주세요.</span></p>}
+        {!imageKeyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{IMAGE_PROVIDER_LABEL[imageInfo.provider]} API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장하거나 다른 모델을 선택해 주세요.</span></p>}
       </div>
     </section>
 

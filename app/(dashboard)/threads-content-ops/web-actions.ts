@@ -17,7 +17,7 @@ import {
   type ViralCandidateDraft,
 } from "@/threads-content-ops/lib/collector";
 import { buildImagePromptFromPost, generateAttentionPlan, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
-import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
+import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_PROVIDER_LABEL, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
 import { createServiceClient } from "@/lib/supabase/server";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
@@ -42,6 +42,7 @@ const CREDENTIAL_PROVIDERS = new Set([
   "youtube_api_key",
   "perplexity",
   "gemini",
+  "replicate",
   "coupang_access_key",
   "coupang_secret_key",
   "threads_app_id",
@@ -62,6 +63,7 @@ export async function saveMemberCredentials(input: {
   youtubeApiKey?: string;
   perplexityKey?: string;
   geminiKey?: string;
+  replicateKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
   threadsAppId?: string;
@@ -73,6 +75,7 @@ export async function saveMemberCredentials(input: {
     ["youtube_api_key", input.youtubeApiKey],
     ["perplexity", input.perplexityKey],
     ["gemini", input.geminiKey],
+    ["replicate", input.replicateKey],
     ["coupang_access_key", input.coupangAccessKey],
     ["coupang_secret_key", input.coupangSecretKey],
     ["threads_app_id", input.threadsAppId],
@@ -946,7 +949,7 @@ export async function generatePostImage(input: { content: string; imageModel: st
     if (!isKnownRatio(input.ratio)) throw new Error("지원하지 않는 이미지 비율입니다.");
     const { supabase, user } = await authorizedUser();
     const imageKey = await resolveApiKey(supabase, user.id, model.provider);
-    if (!imageKey) return { ok: false, needKey: true, error: `${model.provider === "gemini" ? "Gemini" : "OpenAI"} API 키가 등록되어 있지 않습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 이미지 모델을 선택해 주세요.` };
+    if (!imageKey) return { ok: false, needKey: true, error: `${IMAGE_PROVIDER_LABEL[model.provider]} API 키가 등록되어 있지 않습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 이미지 모델을 선택해 주세요.` };
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
 

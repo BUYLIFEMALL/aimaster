@@ -9,12 +9,13 @@ import {
   startThreadsOAuth,
 } from "./web-actions";
 
-type Provider = "openai" | "perplexity" | "gemini" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
+type Provider = "openai" | "perplexity" | "gemini" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
 type SavePayload = {
   openaiKey?: string;
   youtubeApiKey?: string;
   perplexityKey?: string;
   geminiKey?: string;
+  replicateKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
   threadsAppId?: string;
@@ -27,6 +28,7 @@ const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   youtube_api_key: "youtubeApiKey",
   perplexity: "perplexityKey",
   gemini: "geminiKey",
+  replicate: "replicateKey",
   coupang_access_key: "coupangAccessKey",
   coupang_secret_key: "coupangSecretKey",
   threads_app_id: "threadsAppId",
@@ -153,6 +155,11 @@ export default function WebSetup({
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
       <SectionTitle title="쇼츠 영상 분석 (Gemini)" description="떡상 콘텐츠 수집의 쇼츠 '분석해서 글감 만들기'에서 영상을 직접 보고 분석할 때 사용할 본인의 Gemini API 키입니다. 키가 없으면 OpenAI로 제목·수치·댓글을 근거로 추정 분석합니다." />
       <CredentialRow provider="gemini" label="Gemini API 키 (AIza...)" maskedValue={credentials.gemini} editing={editing === "gemini"} saving={saving === "gemini"} removing={removing === "gemini"} onEdit={setEditing} onSave={save} onDelete={remove} />
+    </section>
+
+    <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+      <SectionTitle title="이미지 생성 (Replicate · Z-Image)" description="콘텐츠 생성의 이미지 생성에서 Z-Image Turbo 모델을 쓸 때 사용할 본인의 Replicate API 키입니다(r8_...). 나노바나나는 Gemini 키, GPT Image는 OpenAI 키를 씁니다." />
+      <CredentialRow provider="replicate" label="Replicate API 키 (r8_...)" maskedValue={credentials.replicate} editing={editing === "replicate"} saving={saving === "replicate"} removing={removing === "replicate"} onEdit={setEditing} onSave={save} onDelete={remove} />
     </section>
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
