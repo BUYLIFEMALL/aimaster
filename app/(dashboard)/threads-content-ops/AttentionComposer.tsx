@@ -96,7 +96,7 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       <p className="mt-2 text-sm leading-relaxed text-neutral-600">수집한 글감을 고르면 AI가 사람들의 시선을 멈추게 하는 Threads 글을 만들어 줍니다. 상황별 페르소나 버튼으로 한 번에 만들거나, 내 경험과 상품을 넣은 맞춤글도 만들 수 있고, 첫 문장이 다른 5가지 유형의 글을 받아 마음에 드는 글만 초안으로 저장하세요. 글감에 없는 사실이나 개인 경험은 지어내지 않습니다.</p>
     </section>
 
-    <section className="rounded-2xl border-2 border-violet-300 bg-violet-50/60 p-5 shadow-sm">
+    <section className="rounded-2xl border-2 border-violet-300 bg-white p-5 shadow-sm">
       <h3 className="font-bold text-neutral-900">1. 글감 고르기</h3>
       {viralCandidates.length
         ? <>
@@ -114,7 +114,7 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       <textarea ref={topicRef} className={`${inputClass} mt-1 min-h-48 resize-y overflow-hidden leading-relaxed`} maxLength={1200} value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="예: 전자레인지 찜기, 세탁조 클리너, 월요병 (소재나 상품명도 좋아요)" />
     </section>
 
-    <section className="rounded-2xl border-2 border-sky-300 bg-sky-50/60 p-5 shadow-sm">
+    <section className="rounded-2xl border-2 border-sky-300 bg-white p-5 shadow-sm">
       <h3 className="font-bold text-neutral-900">2. 상황별 페르소나 원클릭 생성 <span className="text-sm font-normal text-neutral-500">(누르면 바로 생성됩니다)</span></h3>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{PERSONAS.map((persona) => {
         const active = personaId === persona.id;
@@ -153,7 +153,7 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       </details>
     </section>
 
-    <section className="rounded-2xl border-2 border-rose-300 bg-rose-50/60 p-5 shadow-sm">
+    <section className="rounded-2xl border-2 border-rose-300 bg-white p-5 shadow-sm">
       <h3 className="font-bold text-neutral-900">3. 주목받는 글 만들기</h3>
       <label className="mt-3 block text-sm font-medium text-neutral-700">추가 요청 <span className="font-normal text-neutral-500">(선택)</span></label>
       <input className={`${inputClass} mt-1`} maxLength={300} value={note} onChange={(event) => setNote(event.target.value)} placeholder="예: 20대 직장인 말투로, 마지막은 질문으로 끝내줘" />
