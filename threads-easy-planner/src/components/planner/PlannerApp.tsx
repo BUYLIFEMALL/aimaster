@@ -1593,21 +1593,34 @@ export function PlannerApp() {
                           </div>
                         </div>
 
-                        <div className="text-xs font-semibold text-neutral-900 pl-1">
+                        <div className="text-xs md:text-sm font-bold text-neutral-900 pl-1">
                           &ldquo;{variant.hook}&rdquo;
                         </div>
 
+                        {variant.whyItWorks && !isExpanded && (
+                          <div className="text-[11px] text-amber-900 bg-amber-50/80 px-2.5 py-1.5 rounded-lg border border-amber-200/50 flex items-start gap-1.5 leading-relaxed">
+                            <span className="font-extrabold shrink-0 text-amber-700">💡 이 글의 첫 줄이 멈추게 하는 이유:</span>
+                            <span>{variant.whyItWorks}</span>
+                          </div>
+                        )}
+
                         {/* 펼쳤을 때 전체 본문 미리보기 및 복사 */}
                         {isExpanded && variant.content && (
-                          <div className="pt-2 border-t border-neutral-100 space-y-2 animate-in fade-in duration-150">
-                            <div className="whitespace-pre-line text-xs text-neutral-700 leading-relaxed bg-neutral-50 p-2.5 rounded-lg border border-neutral-100">
+                          <div className="pt-2 border-t border-neutral-100 space-y-2.5 animate-in fade-in duration-150">
+                            <div className="whitespace-pre-line text-xs md:text-sm text-neutral-800 leading-relaxed bg-neutral-50/80 p-3 rounded-xl border border-neutral-200/70">
                               {variant.content}
                             </div>
+                            {variant.whyItWorks && (
+                              <div className="text-[11px] text-amber-900 bg-amber-50/80 px-2.5 py-1.5 rounded-lg border border-amber-200/50 flex items-start gap-1.5 leading-relaxed">
+                                <span className="font-extrabold shrink-0 text-amber-700">💡 이 글의 첫 줄이 멈추게 하는 이유:</span>
+                                <span>{variant.whyItWorks}</span>
+                              </div>
+                            )}
                             <div className="flex justify-end">
                               <button
                                 type="button"
                                 onClick={() => copyToClipboard(variant.content!, `[${variant.type}] 버전 본문이`)}
-                                className="text-[11px] font-semibold text-neutral-600 hover:text-neutral-900 underline cursor-pointer"
+                                className="text-[11px] font-bold text-neutral-700 hover:text-neutral-900 underline cursor-pointer"
                               >
                                 이 버전 본문만 복사
                               </button>
