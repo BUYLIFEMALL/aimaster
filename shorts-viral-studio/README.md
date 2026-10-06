@@ -4,7 +4,7 @@
 인수인계·설계 이유·남은 일은 [`AGENTS.md`](./AGENTS.md)에 자세히 있습니다.
 
 - 라이브: https://shorts-viral-studio.vercel.app
-- 버전: v1.03 (`src/lib/version.ts` ↔ 공용 DB `programs.version`)
+- 버전: v1.04 (`src/lib/version.ts` ↔ 공용 DB `programs.version`)
 - 방식: 회원 본인의 **YouTube Data API 키 + AI 키(GPT/Claude/Gemini 중 1개 이상)** 로 동작합니다. 운영자 키는 쓰지 않습니다.
 - Gemini 엔진은 공개 쇼츠 영상을 직접 보고 분석하고, GPT·Claude는 제목·지표·댓글 기반 추정으로 분석합니다(화면에 구분 표시).
 - 프로젝트는 만든 지 30일 뒤 자동 삭제됩니다(YouTube API 데이터 보관 정책). `.md`로 내보내 보관하세요.
