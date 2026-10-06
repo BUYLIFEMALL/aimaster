@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Archive, CheckCircle2, CircleAlert, ExternalLink, Flame, PenLine, RotateCcw, Search, Trash2 } from "lucide-react";
+import ShortsSearch from "./ShortsSearch";
 import {
   collectViralFromPerplexity,
   collectViralFromUrl,
@@ -124,6 +125,8 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
       <p className="mt-3 text-xs text-neutral-500">수집은 회원님의 OpenAI(와 Perplexity) 사용량을 소모합니다. 공개된 페이지만 읽을 수 있고, 로그인이 필요한 페이지나 내부 주소는 읽지 않습니다.</p>
     </section>
 
+    <ShortsSearch hasYoutubeKey={configuredProviders.includes("youtube_api_key")} savedSources={candidates.map((item) => item.source_input)} />
+
     {message && <p className="flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status">{message.ok ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" /> : <CircleAlert size={16} className="mt-0.5 shrink-0 text-rose-600" />}{message.text}</p>}
 
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
@@ -135,7 +138,7 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
         const status = STATUS[item.status] ?? { label: item.status, tone: "bg-neutral-100 text-neutral-600" };
         const link = item.method === "http" ? safeHttpUrl(item.source_input) : null;
         return <li key={item.id} className="rounded-xl border border-neutral-200 p-4">
-          <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">{item.method === "perplexity" ? "Perplexity" : "주소"}</span><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${status.tone}`}>{status.label}</span><span className="text-xs text-neutral-400">{new Date(item.created_at).toLocaleDateString("ko-KR")}</span></div>
+          <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">{item.method === "perplexity" ? "Perplexity" : item.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소"}</span><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${status.tone}`}>{status.label}</span><span className="text-xs text-neutral-400">{new Date(item.created_at).toLocaleDateString("ko-KR")}</span></div>
           <p className="mt-2 font-semibold text-neutral-900">{item.title}</p>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">{item.content}</p>
           {item.keywords.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{item.keywords.map((keyword) => <span key={keyword} className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-600">#{keyword}</span>)}</div>}

@@ -1,8 +1,15 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.36`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.37`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.37 떡상 콘텐츠 수집에 유튜브 쇼츠 검색 추가 (2026-10-06)
+
+- 주인님 지시로 `shorts-viral-studio`의 쇼츠 검색(키워드 → 조회수·구독자 실측 → 떡상 등급·점수)을 "떡상 콘텐츠 수집" 화면의 별도 패널로 옮겼습니다. 서버 코드는 `threads-content-ops/lib/youtubeShorts.ts`, 서버 동작은 `web-actions.ts`의 `searchViralShorts`/`saveShortAsViralCandidate`, 화면은 `app/(dashboard)/threads-content-ops/ShortsSearch.tsx`입니다.
+- 회원 본인의 YouTube Data API 키(`youtube_api_key`, 설정 화면에 이미 있음)만 사용하며, 검색 1회는 약 102유닛입니다. 키가 없거나 잘못되면 설정 안내가 나옵니다. 길이·조회수·구독자 필터와 프리셋(지금 떡상·작은 채널 대박·급상승)은 가져온 결과에만 적용되어 추가 할당량을 쓰지 않습니다.
+- 검색 결과는 DB에 저장하지 않고, "글감으로 저장"을 누른 영상만 `tco_viral_candidates`에 `method='http'`, `source_input=https://www.youtube.com/shorts/<id>`로 저장합니다(새 DB 변경 없음). 저장 내용은 영상 제목·채널·조회수·구독자·등급·링크와 "주제만 참고해 새로 쓰라"는 안내뿐이며 영상 내용은 복사하지 않습니다. 같은 영상 중복 저장은 막고, 후보 카드의 출처가 쇼츠 주소이면 "유튜브 쇼츠" 배지로 보입니다. 이후 "이 글감으로 작성" 흐름은 기존과 같습니다.
+- 검증: 모의 YouTube 응답으로 지표 계산(구독자 대비 10배 → 초대박, 구독자 비공개 → 판정불가), 키 오류·할당량 초과 안내를 확인했습니다. 실제 YouTube 키로 검색해 본 확인은 아직 못 했습니다(회원 키 필요).
 
 ## 카탈로그 문구 변경 (2026-10-06, DB만 변경·코드 배포 없음·버전 유지)
 
