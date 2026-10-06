@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.36, 2026-10-06 주인님 지시)
+
+- **`requireProgramAccess()` createAdminClient() 기반 리팩터링 및 등급/권한 사용자 정상 접근 보장 (v1.36)**:
+  - 배경: 특정 회원(김강빈, `kariy11@naver.com`)이 일반 등급 및 관리자 부여 사용기간(~2026-11-05)을 정상 보유하고 있음에도 프로그램 접속 시 구독요청 페이지(`https://www.buylife.xyz/programs/threads-easy-planner`)로 튕기는 현상 발생 원인 규명 및 조치.
+  - 원인:
+    1) 기존 `threads-easy-planner/src/lib/access.ts`가 일반 세션 쿠키 SSR 클라이언트(`createClient()`)를 사용하여 `user_program_access`를 조회하다가 Supabase RLS 제약으로 인해 데이터가 `null`로 떨어짐.
+    2) `profiles.program_access_expires_at`이라는 DB 미존재 컬럼을 SELECT 쿼리하여 에러(`42703`) 발생.
+  - 조치:
+    1) `threads-easy-planner/src/lib/access.ts`: 사용자의 로그인 인증(세션 확인)은 `requireUser()`로 수행하고, 프로그램 권한·등급·구독·개별부여 조사는 `createAdminClient()`(Service Role Key)를 사용하여 RLS 차단 없이 판정하도록 전면 리팩터링.
+    2) 1단계(정지여부) ➔ 2단계(관리자/FREE배지) ➔ 3단계(활성구독) ➔ 4단계(개별부여권한) ➔ 5단계(요구등급 충족+부여기간) 순서로 판정하여 김강빈 회원을 포함한 등급/권한 보유 사용자의 정상 접근 100% 보장.
+    3) `src/lib/version.ts`, 마이그레이션 `0006_tep_bump_version_v1_36.sql` 및 DB `programs.version`을 `v1.36`으로 동기화.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.35, 2026-10-06 주인님 지시)
 
 - **동영상 심층 시각 분석 고도화 (5대 핵심 프레임 시퀀스 및 5대 미세 디테일 분석, v1.35)**:

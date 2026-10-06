@@ -154,15 +154,18 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
    - 크롬 확장 `manifest.json`의 `version`, Electron `package.json`의 `version`처럼 배포 도구가 형식을 강제하는 기술 버전은
      그대로 두고(숫자 앞자리 0 불가 등), 회원에게 보이는 버전만 이 규칙을 따른다.
 
-6. **사이트·프로그램 이용 권한 기본규칙 (2026-09-30 주인님 확정 — 베타테스트 기간 기준)**
+6. **사이트·프로그램 이용 권한 기본규칙 (2026-09-30 주인님 확정, 2026-10-06 권한 보장 지침 강화)**
    - **FREE 배지(`programs.badges`에 `free`)가 달린 프로그램은 AIMaster에 가입만 하면 누구나 사용할 수 있다 — 등급과 무관하다.**
      주인님이 등급을 바꿔주거나 사용기간을 넣어주지 않아도 가입 즉시 쓸 수 있어야 한다(등급이 비어 있는 신규 가입자 포함).
      회원가입 유도용 무료 프로그램(예: 타로 `tarot-reading`, 캐릭코드 `mbti-character`, 성격코드 `personality-code`)은 이 배지로 운영한다.
    - **FREE 배지가 없는 프로그램은 ① 결제한 구독이 있거나, ② "일반" 등급 이상이면서 주인님이 넣어준 사용기간
-     (`user_program_access.expires_at`, 비우면 무기한)이 남아 있어야 사용할 수 있다. 등급만으로는 열리지 않는다.**
-     베타테스트 기간에는 주인님이 관리자 회원 관리 화면에서 일반 이상 회원에게 사용기간과 사용 가능 프로그램(전체)을 직접 넣어준다.
+     (`user_program_access.expires_at`, 비우면 무기한)이 남아 있어야 사용할 수 있다.**
+     즉, 회원이 일반 등급 이상이고 관리자가 부여한 해당 프로그램 사용 권한(사용기간)이 등록되어 있으면, 구독요청 페이지로 튕기지 않고 프로그램으로 즉시 정상 접근할 수 있어야 한다.
+   - **[핵심 기술 규칙 - 서브프로그램 requireProgramAccess()의 createAdminClient() 필수 사용 (2026-10-06 확정)]**:
+     서브프로그램의 `requireProgramAccess()`에서 테이블 조회를 일반 세션 쿠키 클라이언트(`createClient()`)로 수행하면, Supabase RLS 정책 또는 Vercel 서브도메인 쿠키 미전달로 인해 `user_program_access`가 빈 값으로 떨어지거나 오류가 발생해 유효한 등급/권한 보유자가 구독요청 페이지로 잘못 튕기는 치명적인 사고가 발생한다.
+     따라서 **회원 본인 인증(로그인 상태 확인)은 `requireUser()`(쿠키 SSR)로 수행하되, 권한 판정에 필요한 DB 테이블(`profiles`, `programs`, `subscriptions`, `user_program_access`) 조사는 반드시 `createAdminClient()`(Service Role Key)로 수행하여 RLS 차단 없이 100% 안전하게 판정해야 한다.**
    - 관리자(`profiles.is_admin`)는 항상 사용 가능, 정지 계정(`profiles.is_suspended`)은 항상 차단.
-   - 판정 순서(모든 판정 코드 공통): 정지 → 관리자 → **FREE 배지** → 결제 구독 → (최소 등급 미지정 시 허용) → 등급 ≥ 최소 등급 **그리고** 사용기간 → 그 외 차단.
+   - 판정 순서(모든 판정 코드 공통): 정지 → 관리자 → **FREE 배지** → 결제 구독 → 개별 부여 권한(`user_program_access`) → (최소 등급 미지정 시 허용) → 등급 ≥ 최소 등급 **그리고** 사용기간 → 그 외 차단.
      **FREE 배지 확인은 반드시 등급·사용기간 확인보다 먼저** 둔다(그래야 등급 없는 가입자도 열린다).
    - 적용 위치: 루트 `lib/access/checkProgramAccess.ts`(`evaluateProgramAccess`), 각 서브프로젝트 `lib/access.ts`
      (`requireProgramAccess`/`checkProgramAccessApi`). **새 프로그램도 이 순서 그대로 만든다.** 상세는 아래 "이용 권한 판정 정책".

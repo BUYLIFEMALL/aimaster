@@ -1,5 +1,16 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-06 서브프로그램의 requireProgramAccess() 권한 조회 시 createClient() 대신 createAdminClient() 필수 사용 (threads-easy-planner v1.36)
+
+- **증상:** 관리자가 회원(김강빈 등)에게 정상적으로 프로그램 사용기간 및 등급을 부여했음에도, 프로그램 접속 시 구독요청 페이지(`https://www.buylife.xyz/programs/threads-easy-planner`)로 튕기는 현상 발생.
+- **원인:**
+  1. 서브프로그램(`threads-easy-planner/src/lib/access.ts`)의 `requireProgramAccess()`가 Supabase RLS 정책의 제약을 받는 일반 세션 쿠키 SSR 클라이언트(`createClient()`)를 사용하여 `user_program_access` 등을 조회하면서 데이터가 `null`로 떨어짐.
+  2. DB에 존재하지 않는 컬럼(`profiles.program_access_expires_at`)을 SELECT 쿼리하여 에러(`42703`) 발생.
+- **해결(위치):**
+  1. `threads-easy-planner/src/lib/access.ts`: 사용자의 로그인 인증(세션 확인)은 `requireUser()`로 수행하고, 프로그램 권한·등급·구독·개별부여 테이블 조사는 `createAdminClient()`(Service Role Key)를 사용하여 RLS 차단 없이 정확하게 판정하도록 전면 리팩터링.
+  2. 만료일 미존재 컬럼 쿼리를 제거하고 표준 테이블인 `user_program_access.expires_at` 및 `subscriptions.expires_at`을 정상 검사.
+- **다음부터 확인:** 서브프로그램의 entitlement/권한 판정 함수(`requireProgramAccess`)는 반드시 플랫폼 표준 보안 패턴(`PLATFORM_PATTERNS.md` §21)을 준수하여, 세션 검증 후 권한 조사는 `createAdminClient()`를 사용해야 RLS 및 쿠키 도메인 미전달로 인한 오작동을 원천 방지할 수 있다.
+
 ## 2026-10-06 이미지 첨부 후 '오늘 뭐 쓰지?' 클릭 시 무반응 현상 — 기능 역할 차이 및 화면 스크롤 부재 (threads-easy-planner v1.27)
 
 - **증상:** 상세페이지 사진을 2장 첨부한 후 `[오늘 뭐 쓰지?]` 버튼을 눌렀는데 화면에 아무런 반응도 나타나지 않음.

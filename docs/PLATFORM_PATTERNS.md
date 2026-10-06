@@ -740,3 +740,18 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
   1. 이전에는 회원별 이용 가능 프로그램 확인용 대시보드(`/dashboard` 또는 `https://www.buylife.xyz/dashboard`)로 연결되었으나, 사용자가 전체 마케팅 자동화 프로그램들을 둘러보고 탐색하기에는 전체 카탈로그/목록 페이지인 `/programs`가 적합하여 주인님 지시로 전수 변경되었다.
   2. 상대 경로(`href="/programs"`, `href="/dashboard"`)는 독립 배포 서브도메인에서 해당 앱 내부 경로로 오작동할 위험이 있으므로, 예외 없이 절대 URL인 **`https://www.buylife.xyz/programs`**를 직접 지정한다.
   3. 새 서브프로그램을 제작하거나 사이드바를 리팩토링할 때도 `docs/SIDEBAR_LAYOUT_STANDARD.md`에 정의된 필수 헤더 순서를 준수하여 이 링크를 누락 없이 탑재한다.
+
+---
+
+## 33. 프로그램 이용 권한 기본 원칙 및 requireProgramAccess()의 createAdminClient() 안전 판정 패턴 (2026-10-06 주인님 지시)
+
+- **핵심 정책 (일반 등급 이상 + 권한 사용자 즉시 접근 보장):**
+  1. **FREE 배지 프로그램:** AIMaster에 가입한 회원이면 등급 및 사용기간과 무관하게 즉시 이용 가능.
+  2. **일반 유료/승인제 프로그램:** 회원이 **일반 등급 이상**이면서 관리자가 부여한 해당 프로그램 사용 권한(`user_program_access` 사용기간, 비우면 무기한)이 있거나, 결제한 활성 구독(`subscriptions`)이 있으면 **구독요청 페이지로 튕기지 않고 바로 프로그램 메인 화면으로 접근**해야 한다.
+  3. 관리자(`is_admin`)는 항상 전 프로그램 즉시 접근, 정지 계정(`is_suspended`)은 차단.
+- **서브프로그램의 requireProgramAccess() 기술 구현 표준:**
+  1. 서브프로그램(`threads-easy-planner`, `tarot`, `shots` 등)은 독립 Vercel 도메인으로 배포되므로, 브라우저 세션 쿠키 기반의 일반 클라이언트(`createClient()`)로 DB 조회를 시도하면 Supabase RLS 정책 또는 세션 컨텍스트 제약으로 인해 `user_program_access` 및 `profiles` 조회가 실패하여 정상 권한자가 튕기는 치명적인 오류가 발생한다.
+  2. 따라서 서브프로그램의 권한 검사는 다음 2단계로 완벽하게 격리해야 한다:
+     - **사용자 로그인 세션 인증:** `requireUser()` (쿠키 SSR 클라이언트)로 현재 로그인한 회원의 `user.id` 획득. 비로그인 시 `/login` 리다이렉트.
+     - **권한·등급·구독·개별부여 테이블 조회:** `createAdminClient()` (Service Role Key)로 `profiles`, `programs`, `subscriptions`, `user_program_access`를 조회하여 RLS 간섭 없이 안전하고 정확하게 판정.
+  3. 또한, 존재하지 않는 임의 컬럼(예: `profiles.program_access_expires_at`)을 SELECT하지 말고, 표준 공용 테이블인 `user_program_access.expires_at` 및 `subscriptions.expires_at`을 검사해야 한다.

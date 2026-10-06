@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.35` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.36` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -251,6 +251,17 @@
     1) 비디오 추출을 기존 3컷에서 **5대 핵심 순간(10% 도입 ➔ 30% 전개 ➔ 50% 절정 ➔ 70% 반전/결과 ➔ 90% 엔딩)**으로 확장하고, 720p급(최대 960px, JPEG 82%) 해상도로 캡처 품질 상향 (`mediaProcessor.ts`).
     2) AI 시각 분석 지침(`generator.ts`)에 5대 미세 디테일(시간 흐름에 따른 상태 변화, 화면 속 자막/텍스트/오브젝트, 현장 청각/감각 유추, 무한 재생 유발 킬링 파트 떡밥, 영상-본문 200% 일치감) 프롬프트 대폭 강화.
     3) 키워드 미입력 시 폴백 주제를 "동영상 5컷 정밀 분석 현장 썰"로 구체화하고, 비디오 첨부 카드에 5컷 시퀀스 타임라인 안내 반영. DB `programs.version` 및 `APP_VERSION` `v1.35` 동기화.
+- **v1.36 (2026-10-06)**:
+  - **`requireProgramAccess()` createAdminClient() 기반 리팩터링 및 등급/권한 사용자 정상 접근 보장 (주인님 지시)**:
+    1) 기존 일반 세션 쿠키 SSR 클라이언트(`createClient()`)의 Supabase RLS 정책 제약으로 인해 `user_program_access` 조회가 차단/누락되거나, DB 미존재 컬럼(`profiles.program_access_expires_at`) SELECT 쿼리 오류로 인해 정상 권한 보유자가 구독요청 페이지로 튕기던 버그 원천 해결.
+    2) 플랫폼 표준 보안 패턴(`PLATFORM_PATTERNS.md` §21, `tarot`/`shots` 패턴)에 맞추어 `requireUser()`로 세션 검증 후 권한 조사는 `createAdminClient()`로 수행하도록 전면 리팩터링:
+       - 1단계: 계정 정지 여부(`is_suspended`)
+       - 2단계: 관리자(`is_admin`) 및 무료 배지(`badges.includes("free")`)
+       - 3단계: 활성 유료 구독(`subscriptions`)
+       - 4단계: 관리자 개별 부여 권한(`user_program_access.expires_at`)
+       - 5단계: 회원 등급(`member_grades.sort_order`) + 개별 부여 사용기간
+    3) 김강빈 회원(`kariy11@naver.com`, 만료일 2026-11-05 등록 계정)을 포함한 유효 등급 및 사용기간 보유 회원의 프로그램 정상 진입 검증 완료.
+    4) DB `programs.version` 및 `APP_VERSION` `v1.36` 동기화.
 
 
 
