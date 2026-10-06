@@ -1,6 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.21`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.22`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+
+## v1.22 운영 대기열과 YouTube 소재
+
+- 원본 `threads-auto`/영상의 YouTube 공개 메타데이터 소재 흐름을 웹형으로 옮겼습니다. `loadYouTubeSource()`는 현재 회원 권한과 본인 `youtube_api_key`를 확인한 뒤 공개 제목·설명만 읽고, 1,200자 이내의 초안 소재로 돌려줍니다.
+- `tco_posts` 기존 상태를 이용해 `draft → scheduled → draft`(예약/취소), `failed → draft`(재검토)를 서버 액션으로 구현했습니다. 모든 mutation에는 `user_id`, 현재 상태 조건, `checkProgramAccess()`가 함께 적용됩니다.
+- 예약 시간은 5분 후~180일 이내만 허용합니다. 아직 Vercel Cron 보안 비밀값과 요금제 실행 간격이 확인되지 않았으므로 예약 무인 발행은 켜지지 않았으며, UI도 이를 자동 실행이라고 표시하지 않습니다.
 
 ## 절대 규칙
 

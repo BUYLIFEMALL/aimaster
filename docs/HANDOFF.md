@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads Content Ops v1.22 — 운영 대기열·YouTube 소재 (2026-10-06)
+
+- 사용자 제공 원본/영상 구간(YouTube API 설정, 자동화 시작, 즉시 발행, 오류 처리)을 다시 대조했다. 웹형 우선 구현 범위는 회원별 YouTube 공개 메타데이터 소재, 초안·예약·실패 대기열, 즉시 발행의 안전한 분리다.
+- `?tab=create`에 YouTube URL 소재 불러오기를 추가했다. 회원 본인의 `youtube_api_key`만 사용하며, 공개 title/description을 1,200자 이내의 AI 초안 소재로 넣는다. 영상 내용을 추측해 수집하거나 공용 키로 폴백하지 않는다.
+- `?tab=manage`는 기존 `tco_posts` 상태를 사용해 예약(최소 5분, 최대 180일), 취소, 실패 글 재검토를 지원한다. 모든 서버 액션은 프로그램 권한·현재 회원 `user_id`·기대 상태를 함께 확인한다.
+- **남은 핵심 단계:** Vercel Cron용 `CRON_SECRET` 추가와 플랜의 최소 실행 간격 확인이 필요하다. 이는 환경변수 변경이므로 승인 후 보호된 실행 워커와 cron 항목을 연결한다. 그 전에는 예약을 보관만 하며 실제 자동 발행으로 표시하지 않는다.
+
 ## Threads Content Ops v1.17 — credential save-state clarity (2026-10-06)
 
 - `threads-affiliate-poster` 설정 화면과 같은 `rounded-2xl / neutral-100 / border-2` 섹션 포맷으로 교체했다. 각 API 키는 개별 저장 버튼·마스킹 등록 상태를 갖고, Threads 계정 상태와 연동 매뉴얼 영역을 같은 방식으로 제공한다.

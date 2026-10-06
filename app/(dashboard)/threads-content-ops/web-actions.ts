@@ -208,3 +208,111 @@ export async function publishDraft(draftId: string) {
   }
   revalidatePath("/threads-content-ops");
 }
+
+/**
+ * The table already has a per-member scheduled queue.  Keep all queue changes
+ * on the server so a browser cannot schedule or cancel another member's post.
+ * An unattended worker will consume only these server-owned queue records;
+ * the browser never gets authority to publish another member's content.
+ */
+export async function scheduleDraft(input: { draftId: string; scheduledAt: string }) {
+  const scheduledAt = new Date(input.scheduledAt);
+  const now = Date.now();
+  if (!input.draftId || Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < now + 5 * 60_000) {
+    throw new Error("예약 시간은 현재로부터 5분 이후로 지정해 주세요.");
+  }
+  if (scheduledAt.getTime() > now + 180 * 24 * 60 * 60_000) {
+    throw new Error("예약은 180일 이내의 시간만 지정할 수 있습니다.");
+  }
+
+  const { supabase, user } = await authorizedUser();
+  const { data, error } = await supabase.from("tco_posts")
+    .update({ status: "scheduled", scheduled_at: scheduledAt.toISOString(), error_message: null })
+    .eq("id", input.draftId)
+    .eq("user_id", user.id)
+    .eq("status", "draft")
+    .select("id")
+    .maybeSingle();
+  if (error || !data) throw new Error("예약할 수 있는 초안을 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+  revalidatePath("/threads-content-ops");
+}
+
+export async function cancelScheduledDraft(draftId: string) {
+  const { supabase, user } = await authorizedUser();
+  const { data, error } = await supabase.from("tco_posts")
+    .update({ status: "draft", scheduled_at: null })
+    .eq("id", draftId)
+    .eq("user_id", user.id)
+    .eq("status", "scheduled")
+    .select("id")
+    .maybeSingle();
+  if (error || !data) throw new Error("취소할 예약을 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+  revalidatePath("/threads-content-ops");
+}
+
+export async function retryFailedDraft(draftId: string) {
+  const { supabase, user } = await authorizedUser();
+  const { data, error } = await supabase.from("tco_posts")
+    .update({ status: "draft", scheduled_at: null, error_message: null })
+    .eq("id", draftId)
+    .eq("user_id", user.id)
+    .eq("status", "failed")
+    .select("id")
+    .maybeSingle();
+  if (error || !data) throw new Error("재시도할 실패 기록을 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+  revalidatePath("/threads-content-ops");
+}
+
+function parseYouTubeVideoId(rawUrl: string) {
+  try {
+    const url = new URL(rawUrl.trim());
+    if (url.hostname === "youtu.be") return url.pathname.split("/").filter(Boolean)[0] ?? null;
+    if (url.hostname.endsWith("youtube.com")) {
+      if (url.pathname === "/watch") return url.searchParams.get("v");
+      const [kind, id] = url.pathname.split("/").filter(Boolean);
+      if (["shorts", "embed", "live"].includes(kind)) return id ?? null;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+export async function loadYouTubeSource(rawUrl: string) {
+  const videoId = parseYouTubeVideoId(rawUrl);
+  if (!videoId || !/^[A-Za-z0-9_-]{6,20}$/.test(videoId)) {
+    throw new Error("YouTube 동영상 주소를 확인해 주세요.");
+  }
+
+  const { supabase, user } = await authorizedUser();
+  const apiKey = await resolveApiKey(supabase, user.id, "youtube_api_key");
+  if (!apiKey) throw new Error("YouTube 소재를 가져오려면 본인의 YouTube Data API 키를 먼저 등록해 주세요.");
+
+  const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?${new URLSearchParams({
+    part: "snippet",
+    id: videoId,
+    key: apiKey,
+  })}`, { cache: "no-store" });
+  const payload = await response.json().catch(() => null) as {
+    items?: Array<{ snippet?: { title?: string; description?: string; channelTitle?: string; publishedAt?: string } }>;
+  } | null;
+  const snippet = payload?.items?.[0]?.snippet;
+  if (!response.ok || !snippet?.title) {
+    throw new Error(response.status === 403 ? "YouTube API 키 또는 할당량을 확인해 주세요." : "동영상 정보를 찾지 못했습니다. 공개된 동영상 주소인지 확인해 주세요.");
+  }
+
+  const description = (snippet.description ?? "").replace(/\s+/g, " ").trim().slice(0, 3_000);
+  return {
+    title: snippet.title.slice(0, 300),
+    channelTitle: (snippet.channelTitle ?? "").slice(0, 200),
+    publishedAt: snippet.publishedAt ?? null,
+    sourceUrl: `https://www.youtube.com/watch?v=${videoId}`,
+    prompt: [
+      "다음 YouTube 영상의 공개 메타데이터를 바탕으로, 사실을 과장하거나 영상에 없는 경험을 지어내지 않는 한국어 Threads 초안을 작성해 주세요.",
+      `영상 제목: ${snippet.title}`,
+      snippet.channelTitle ? `채널: ${snippet.channelTitle}` : "",
+      description ? `영상 설명: ${description}` : "",
+      `출처 링크: https://www.youtube.com/watch?v=${videoId}`,
+    ].filter(Boolean).join("\n"),
+  };
+}

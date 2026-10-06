@@ -30,7 +30,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     .select("id, username, token_expires_at").eq("user_id", user.id).order("updated_at", { ascending: false });
   const [{ data: posts }, { data: credentials }] = await Promise.all([
     supabase.from("tco_posts")
-    .select("id, body, status, created_at, published_at, permalink, error_message, account_id")
+    .select("id, body, status, created_at, scheduled_at, published_at, permalink, error_message, account_id")
     .eq("user_id", user.id).order("created_at", { ascending: false }).limit(30),
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
   ]);
@@ -38,7 +38,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
   const connectedAccountInfo = accounts?.[0]
     ? { username: accounts[0].username, tokenExpiresAt: accounts[0].token_expires_at }
     : null;
-  const drafts = (posts ?? []).filter((post) => post.status === "draft").slice(0, 5);
+  const drafts = (posts ?? []).filter((post) => post.status === "draft" || post.status === "scheduled" || post.status === "failed").slice(0, 20);
   const tab = ["dashboard", "create", "manage", "settings"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
 
   return <div className="threads-content-ops-light flex min-h-screen bg-white text-neutral-900">
