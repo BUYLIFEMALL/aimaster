@@ -1,8 +1,14 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.34`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.35`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.35 콘텐츠 작성 레이아웃 정돈 & YouTube 소재 분리 준비 (2026-10-06)
+
+- 주인님 지시: "운영 대기열 박스를 아래로 가로열로 보이게 이동", "YouTube 영상 소재 가져오기는 삭제하고 떡상 콘텐츠 등록쪽에 구현할 예정".
+- `DraftComposer.tsx`의 2열 그리드(`lg:grid-cols-[1.15fr_0.85fr]`)를 세로 스택으로 변경하여 상단에 `AI 초안 만들기`, 하단에 `운영 대기열`이 가로 100% full-width 행으로 넓고 시원하게 배치되도록 개선.
+- `DraftComposer.tsx`에서 "YouTube 영상에서 소재 가져오기" 섹션 UI를 삭제(추후 떡상 콘텐츠 등록/글감 수집 탭으로 이전 구현 예정).
 
 ## v1.34 떡상 콘텐츠 등록 = 글감 수집 (2026-10-06)
 

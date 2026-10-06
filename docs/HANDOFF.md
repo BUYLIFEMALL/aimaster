@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads 콘텐츠 운영 자동화 (threads-content-ops v1.35, 2026-10-06 주인님 지시)
+
+- **콘텐츠 작성 레이아웃 개편 및 YouTube 소재 가져오기 분리**:
+  1) `DraftComposer.tsx`: 기존 2열 그리드(`lg:grid-cols-[1.15fr_0.85fr]`)를 세로 스택으로 변경하여, 상단 `AI 초안 만들기` 및 하단 `운영 대기열`이 화면 전체 가로폭(full-width 행)으로 넓고 쾌적하게 보이도록 레이아웃 재배치 완료.
+  2) `DraftComposer.tsx`: "YouTube 영상에서 소재 가져오기" 섹션 UI 삭제(추후 1번 떡상 콘텐츠 등록/글감 수집 탭으로 이전 통합 예정).
+  3) 버전 `v1.35` 갱신 (`threads-content-ops/lib/version.ts`, 마이그레이션 `20261006200000_tco_bump_version_v1_35.sql`).
+
 ## 메인 대시보드 사이드바 (Sidebar.tsx) — 좌측 메뉴 로그아웃 버튼 추가 (2026-10-06 주인님 지시)
 
 - 메인 대시보드(`/dashboard`, `/affiliate`, `/api-settings`, `/settings` 공통) 좌측 사이드바(`components/layout/Sidebar.tsx`)에 **로그아웃 버튼** 신설.
