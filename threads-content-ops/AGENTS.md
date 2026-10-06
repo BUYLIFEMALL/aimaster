@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.54`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.55`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.55 이미지 비율에 9:16 추가 (2026-10-06)
+
+- 주인님 지시로 이미지 비율에 **9:16(모바일 세로형)**을 추가했습니다(`lib/personas.ts`의 `IMAGE_RATIOS`). 플랫폼별 전달값: NanoBanana·FLUX는 비율 `9:16` 그대로, GPT Image는 1024×1536(OpenAI 세로 규격), Z-Image는 720×1280(`lib/postImage.ts`). 서버는 허용 비율 목록으로 검증합니다. 그 외 변경 없음.
 
 ## v1.54 AI 엔진·이미지 설정을 threads-affiliate-poster 방식으로 확장 (2026-10-06)
 

@@ -79,7 +79,7 @@ async function withGemini(model: string, ratio: ImageRatio, prompt: string, apiK
 }
 
 // ---- GPT Image (OpenAI) ----
-const OPENAI_SIZE: Record<ImageRatio, string> = { "1:1": "1024x1024", "4:5": "1024x1536", "16:9": "1536x1024" };
+const OPENAI_SIZE: Record<ImageRatio, string> = { "1:1": "1024x1024", "4:5": "1024x1536", "16:9": "1536x1024", "9:16": "1024x1536" };
 
 async function withOpenAI(model: string, ratio: ImageRatio, prompt: string, apiKey: string): Promise<ImageBytes> {
   const response = await fetch("https://api.openai.com/v1/images/generations", {
@@ -109,6 +109,7 @@ const Z_SIZE: Record<ImageRatio, { width: number; height: number }> = {
   "1:1": { width: 1024, height: 1024 },
   "4:5": { width: 896, height: 1120 },
   "16:9": { width: 1280, height: 720 },
+  "9:16": { width: 720, height: 1280 },
 };
 
 // Replicate가 돌려주는 결과 주소는 replicate.delivery 계열만 읽는다(그 밖의 주소는 서버가 열지 않는다).

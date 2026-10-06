@@ -58,11 +58,12 @@ export function isKnownEngine(provider: string, model: string): provider is Engi
 }
 
 // ----- 이미지 생성 (4대 플랫폼: NanoBanana / GPT Image / FLUX 2.0 / Z-Image) -----
-export type ImageRatio = "1:1" | "4:5" | "16:9";
+export type ImageRatio = "1:1" | "4:5" | "16:9" | "9:16";
 export const IMAGE_RATIOS: { value: ImageRatio; label: string }[] = [
   { value: "1:1", label: "1:1 정사각형 (기본)" },
   { value: "4:5", label: "4:5 세로형" },
   { value: "16:9", label: "16:9 가로형" },
+  { value: "9:16", label: "9:16 모바일 세로형" },
 ];
 
 export type ImagePlatform = "nanobanana" | "openai" | "flux" | "zimage";
