@@ -7,6 +7,13 @@
 - **해결(위치):** `shorts-viral-studio`를 v1.04로 올려 재배포. 라이브 반영은 배포 직후 해당 화면(또는 `vercel inspect`의 배포 시각)으로 확인.
 - **다음부터 확인:** 여러 프로그램에 걸친 규칙 변경은 "소스 수정"과 "각 프로그램 재배포·버전 +0.01"이 따로다. 일괄 수정 후 어느 프로그램이 재배포됐는지 `HANDOFF.md`에 남기고, 재배포하지 않은 프로그램은 남은 일로 기록한다.
 
+## 2026-10-06 흰색 화면 범위 규칙이 `text-white`를 어두운색으로 바꿔 검은 버튼 글자가 사라짐 — `!text-white`도 소용없음 (threads-content-ops v1.31)
+
+- **증상:** 콘텐츠 운영 자동화 화면의 검은 배경 버튼(`bg-neutral-900 text-white`) 글자가 보이지 않았다.
+- **원인:** `app/globals.css`의 `.threads-content-ops-light .text-white { color:#171717 }`(옛 다크 카드 글자를 흰 화면에서 읽히게 하는 규칙)가 버튼의 흰 글자까지 어두운색으로 바꿨다. 이를 피하려고 `!text-white`를 써도, Tailwind(v3)가 `@layer` 안의 `.text-white` 규칙을 `!text-white`용으로도 자동 생성(`.threads-content-ops-light .\!text-white { color:#171717 !important }`)해 더 높은 우선순위로 다시 덮었다.
+- **해결(위치):** 진한 배경 위 글자는 범위 규칙이 건드리지 않는 `text-[#ffffff]`를 쓴다(`AccountOperations.tsx`·`SourceQueue.tsx`·`WebSetup.tsx` 7곳). 서버가 만든 CSS(`/_next/static/css/app/layout.css`)에서 새 클래스 규칙이 생성되고 이를 덮는 범위 규칙이 없는 것을 직접 확인했다.
+- **다음부터 확인:** `.xxx-light` 같은 범위 안에서 `text-white`/`hover:text-white`를 진한 배경 버튼에 쓰지 말고, 글자색 수정은 렌더된 CSS를 열어 실제로 이기는 규칙을 확인한 뒤 확정한다(클래스만 바꾸고 "됐을 것"이라 가정하지 않는다). 브라우저를 직접 못 쓰면 `curl`로 CSS 파일을 받아 `grep -F`로 확인할 수 있다.
+
 ## 2026-10-06 다른 프로그램의 검증된 코드를 가져올 때: 복사 이식 + 키는 회원 본인 것 + 루트에는 `server-only` 패키지가 없음 (threads-content-ops v1.30)
 
 - **상황:** 쇼핑제휴 자동화에 이미 실계정으로 검증된 쿠팡 검색 구현이 있어 콘텐츠 운영 자동화로 옮겼다.

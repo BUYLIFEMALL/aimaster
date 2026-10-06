@@ -1,6 +1,6 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-06 · 현재 배포 버전: `v1.30` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-06 · 현재 배포 버전: `v1.31` · 라이브: <https://www.buylife.xyz/threads-content-ops>
 
 ## 먼저 읽을 문서와 확인 순서
 
@@ -57,7 +57,7 @@
 
 - 콘텐츠 소스 탭 상단 검색 패널. 회원 본인 `coupang_access_key`/`coupang_secret_key`로만 호출(`threads-content-ops/lib/coupang.ts`, 쇼핑제휴 자동화의 검증된 클라이언트를 복사), 고른 상품만 `tco_content_sources`(`source_type='coupang'`, `metadata`에 상품 정보)에 저장합니다.
 - 쿠팡 제약(시간당 10회·키워드당 10개, 누적 매출 15만원 이후 키 활성화)과 제휴 링크 검사(일반 쇼핑 주소 거부), 미리보기는 일반 상품 주소로 열기 규칙은 `AGENTS.md` v1.30 항목을 보세요.
-- 실제 키 호출 확인은 아직 필요합니다(모의 응답으로만 검증).
+- 실제 키 호출 확인: 주인님이 실계정으로 검색해 상품 목록이 정상으로 나오는 것을 확인했습니다(2026-10-06). 같은 날 v1.31에서 검은 버튼 글자색 문제를 고쳤습니다 — 이 화면의 진한 배경 버튼은 `text-white` 대신 `text-[#ffffff]`를 쓰세요(`AGENTS.md` v1.31).
 
 ## 다음 구현 우선순위
 
@@ -103,6 +103,6 @@ vercel deploy --prod --yes --scope buylife
 ## 최근 기준점
 
 - 최신 기능 커밋: `git log --oneline -5 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인 — v1.28 `feat(threads-content-ops): 콘텐츠 소스 큐 등록 (v1.28)`이 최신이며, 그 직전 기능은 `77604d77`(v1.27 계정별 운영정보)입니다.
-- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.30'`
+- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.31'`
 - 실제 서비스 주소는 항상 `https://www.buylife.xyz/threads-content-ops`입니다(루트 AIMaster 프로젝트 배포).
 - 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `.analysis-threads-auto/`, `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.

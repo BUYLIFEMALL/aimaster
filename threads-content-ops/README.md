@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.30`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.31`
 
 개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
+
+## v1.31 버튼 글자색 수정
+
+- 검은 배경 버튼(상품 검색, 소스로 저장, 소스 등록, 수정 저장, 운영정보 저장)의 글자가 보이지 않던 문제를 고쳤습니다. 설정 화면의 파란·빨간 버튼 글자도 흰색으로 맞췄습니다.
 
 ## v1.30 쿠팡 파트너스 상품 검색
 

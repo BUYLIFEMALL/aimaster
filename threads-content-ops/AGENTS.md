@@ -1,8 +1,15 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.30`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.31`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.31 검은 버튼 글자가 안 보이던 문제 수정 (2026-10-06)
+
+- 증상: 콘텐츠 소스 화면의 `상품 검색`·`소스로 저장`·`소스 등록`·`수정 저장` 버튼과 계정 운영정보의 `운영정보 저장` 버튼이 검은 배경에 글자가 안 보였다(주인님 스크린샷). 설정 화면의 파란/빨간 버튼도 흰색이어야 할 글자가 어두운색이었다.
+- 원인: 이 화면은 `app/globals.css`의 `.threads-content-ops-light .text-white { color: #171717 }`(옛 다크 테마 카드의 흰 글자를 흰 화면에서 읽히게 하려는 규칙) 범위 안에 있다. 버튼이 `bg-neutral-900 text-white`면 이 규칙이 글자를 어두운색으로 바꿔 검은 배경 위에서 사라진다. 처음 시도한 `!text-white`도 소용없었다 — Tailwind가 `@layer` 안의 `.text-white` 규칙을 `!text-white`용으로도 자동 생성(`!important` 포함, 더 높은 우선순위)해서 다시 덮였다(서버가 만든 CSS를 직접 열어 확인).
+- 해결: 진한 배경(`bg-neutral-900`·`bg-sky-600`·`bg-[#e7000b]`) 위 글자는 `text-white` 대신 **`text-[#ffffff]`**를 쓴다. 이 값은 범위 규칙이 건드리지 않는 일반 클래스라 항상 흰색이다. 7개 버튼에 적용(`AccountOperations.tsx` 1, `SourceQueue.tsx` 4, `WebSetup.tsx` 2).
+- **새 버튼을 만들 때:** 이 프로그램 화면에서 진한 배경 버튼에 `text-white`를 쓰지 말고 `text-[#ffffff]`를 쓴다. 글자색 때문에 `globals.css`의 범위 규칙을 고치지는 않는다(다른 화면 영향).
 
 ## v1.30 쿠팡 파트너스 상품 검색 → 소스 저장 (2026-10-06)
 

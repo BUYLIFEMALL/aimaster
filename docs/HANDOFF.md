@@ -63,6 +63,12 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.31 — 검은 버튼 글자색 수정 (2026-10-06)
+
+- v1.30 쿠팡 검색은 주인님 실계정에서 **실제 상품 목록이 정상으로 나오는 것을 확인**했다(키 활성화·서명·응답 해석 실검증 완료). 같은 화면에서 `상품 검색`·`소스로 저장` 등 검은 버튼의 글자가 안 보이는 문제가 발견돼 고쳤다.
+- 원인: `app/globals.css`의 `.threads-content-ops-light .text-white { color:#171717 }` 범위 규칙이 `text-white`를 어두운색으로 바꿔 검은 배경 위에서 글자가 사라졌다. `!text-white`는 Tailwind가 그 규칙을 `!important`로도 자동 생성해 소용없었다(서버 CSS를 직접 열어 확인). `text-[#ffffff]`로 교체(7개 버튼: 계정 운영정보 저장 1, 소스 화면 4, 설정 화면 파란·빨간 2). 임시 미리보기 페이지·서버는 삭제했다.
+- 남은 일(다음 순서)은 그대로: 네이버 브랜드 커넥트 링크 분석 → 소스+운영정보 초안 생성 → 댓글 → 성과 → 안전한 예약 실행.
+
 ## Threads Content Ops v1.30 — 쿠팡 파트너스 상품 검색 → 소스 저장 (2026-10-06)
 
 - 주인님 지시("쇼핑제휴 자동화에 이미 구현돼 있으니 검토 후 이 프로그램에 맞게 구현, API 값은 가져다 쓰기")대로 `threads-affiliate-poster`의 쿠팡 클라이언트(2026-09-11 실계정 실호출 검증)를 검토해 `threads-content-ops/lib/coupang.ts`로 옮겼다. **"API 값"은 운영자 값이 아니라 회원이 `user_api_keys`에 저장한 본인 `coupang_access_key`/`coupang_secret_key`** — 두 프로그램이 같은 항목을 공유하므로 한 번 등록하면 둘 다 쓴다.
