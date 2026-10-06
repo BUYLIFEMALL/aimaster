@@ -16,6 +16,7 @@ import {
   structureCandidates,
   type ViralCandidateDraft,
 } from "@/threads-content-ops/lib/collector";
+import { generateAttentionPlan, type AttentionPlan } from "@/threads-content-ops/lib/attention";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
   YouTubeSearchError,
@@ -824,5 +825,48 @@ export async function analyzeShortToViralCandidates(input: { id: string; title: 
     return { ok: true, count: drafts.length, evidence: analysis.evidence, note: analysis.note };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "영상을 분석하지 못했습니다." };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 주목받는 글 만들기 (v1.41) — threads-easy-planner의 글 생성(4단계 구조 + 5대 훅 유형)을 글감 흐름에 합쳤다.
+// 생성 결과는 저장하지 않고 화면에 보여준 뒤, 회원이 고른 글만 초안으로 저장한다(자동 발행 없음).
+// ---------------------------------------------------------------------------
+type AttentionResult = { ok: true; plan: AttentionPlan } | { ok: false; error: string; needKey?: boolean };
+
+export async function generateAttentionPost(input: { topic: string; note?: string }): Promise<AttentionResult> {
+  try {
+    const topic = String(input.topic ?? "").trim();
+    const note = String(input.note ?? "").trim();
+    if (!topic || topic.length > 1_200) throw new Error("글감 또는 주제를 1~1,200자로 입력해 주세요.");
+    if (note.length > 300) throw new Error("추가 요청은 300자 이내로 입력해 주세요.");
+    const { supabase, user } = await authorizedUser();
+    const apiKey = await resolveApiKey(supabase, user.id, "openai");
+    if (!apiKey) return { ok: false, needKey: true, error: "글 생성에는 본인의 OpenAI API 키가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요." };
+    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, apiKey }) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "글을 생성하지 못했습니다." };
+  }
+}
+
+/** 마음에 드는 생성 글을 검토 대기 초안으로 저장한다. 글감에서 만든 글이면 그 글감을 사용 완료로 표시한다. */
+export async function saveGeneratedDraft(input: { accountId: string; body: string; viralId?: string }): Promise<SourceResult> {
+  try {
+    const body = String(input.body ?? "").trim();
+    if (!input.accountId || !body || body.length > 5_000) throw new Error("연결 계정과 1~5,000자 본문을 확인해 주세요.");
+    const { supabase, user } = await authorizedUser();
+    const { data: account } = await supabase.from("tco_threads_accounts").select("id")
+      .eq("id", input.accountId).eq("user_id", user.id).maybeSingle();
+    if (!account) throw new Error("연결된 Threads 계정을 찾지 못했습니다.");
+    const { error } = await supabase.from("tco_posts").insert({ user_id: user.id, account_id: account.id, body, status: "draft" });
+    if (error) throw new Error("초안을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    if (input.viralId) {
+      await supabase.from("tco_viral_candidates").update({ status: "used", updated_at: new Date().toISOString() })
+        .eq("id", input.viralId).eq("user_id", user.id);
+    }
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "초안을 저장하지 못했습니다.");
   }
 }

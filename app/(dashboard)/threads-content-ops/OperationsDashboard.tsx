@@ -77,7 +77,7 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
         <div><h3 className="font-bold text-neutral-900">즉시 작업</h3><p className="mt-1 text-sm text-neutral-600">소스를 선택해 초안을 생성한 뒤, 직접 검토하고 발행합니다. 자동 발행은 기본으로 켜지지 않습니다.</p></div>
-        <Link className="shrink-0 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50" href="/threads-content-ops?tab=create">콘텐츠 작성 열기</Link>
+        <Link className="shrink-0 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50" href="/threads-content-ops?tab=create">콘텐츠 생성 열기</Link>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <OperationCard title="일상" description="운영 메모로 초안 생성" ready={Boolean(account) && providers.has("openai")} href="/threads-content-ops?tab=create" />

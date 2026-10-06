@@ -161,6 +161,11 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.41 — 콘텐츠 생성(주목받는 글 만들기) (2026-10-06)
+
+- 주인님 지시: "콘텐츠 작성" → "콘텐츠 생성" 이름 변경, 글감 선택 시 threads-easy-planner의 글 생성 방식을 합쳐 주목받는 글 생성. `AttentionComposer.tsx` + `lib/attention.ts`, 대표 글 + 5대 훅 유형 글 + CTA, 저장은 사용자가 고른 글만 초안으로. 원본의 체험담 날조는 제외(글감 사실만). 원본 폴더는 수정하지 않음. DB 변경 없음. 상세는 `AGENTS.md` v1.41.
+- **남은 일:** 실제 OpenAI 키로 생성 1회 확인. 원하면 원본의 페르소나·다시 써줘 7종·사진/영상 분석을 이쪽에 추가.
+
 ## Threads Content Ops v1.40 — 쇼츠 결과 버튼을 "글감으로 저장" 하나로 정리 (2026-10-06)
 
 - 분석 버튼 이름을 "글감으로 저장"으로 변경, 분석 없는 검정 저장 버튼·서버 동작 삭제. DB 변경 없음.
