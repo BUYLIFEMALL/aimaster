@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads AI 기획 자동화 (threads-easy-planner v1.37, 2026-10-06 주인님 지시)
+
+- **AI 추론 엔진 및 모델 설정 섹션 접기/펼치기 아코디언 제거 및 상시 노출 전환 (v1.37)**:
+  - 배경: 사용자가 AI 모델이나 엔진을 변경할 때 매번 아코디언을 클릭해 펼쳐야 하는 번거로움을 줄이고, 항상 바로 노출되어 직관적으로 엔진 및 모델을 조작할 수 있도록 개선 요청.
+  - 조치:
+    1) `PlannerApp.tsx`: `<details>`/`<summary>` 접기 기능을 삭제하고, 상시 노출되는 카드 레이아웃(`<div>`)으로 전환.
+    2) 헤더에 설정 명칭 및 현재 모델 상태(`현재 설정: GPT-4.1`)를 표시하고, 3대 엔진 선택 버튼(OpenAI / Claude / Gemini)과 모델 드롭다운을 상시 오픈 형태로 제공.
+    3) `src/lib/version.ts`, 마이그레이션 `0007_tep_bump_version_v1_37.sql` 및 DB `programs.version`을 `v1.37`로 동기화.
+
 ## Threads AI 기획 자동화 (threads-easy-planner v1.36, 2026-10-06 주인님 지시)
 
 - **`requireProgramAccess()` createAdminClient() 기반 리팩터링 및 등급/권한 사용자 정상 접근 보장 (v1.36)**:

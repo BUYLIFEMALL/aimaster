@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.36` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.37` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -262,6 +262,11 @@
        - 5단계: 회원 등급(`member_grades.sort_order`) + 개별 부여 사용기간
     3) 김강빈 회원(`kariy11@naver.com`, 만료일 2026-11-05 등록 계정)을 포함한 유효 등급 및 사용기간 보유 회원의 프로그램 정상 진입 검증 완료.
     4) DB `programs.version` 및 `APP_VERSION` `v1.36` 동기화.
+- **v1.37 (2026-10-06)**:
+  - **AI 추론 엔진 및 모델 설정 섹션 접기/펼치기 아코디언 제거 및 상시 노출 전환 (주인님 지시)**:
+    1) 기존 `<details>` 및 `<summary>` 태그로 접혀 있던 `⚙️ AI 추론 엔진 및 모델 설정` 영역을 상시 바로 노출되는 플랫 카드 컨테이너(`<div>`)로 전환.
+    2) 상단 헤더에 설정 명칭 및 현재 모델 상태(`현재 설정: GPT-4.1` 등)를 직관적으로 표시하고, 3대 AI 엔진 버튼(OpenAI / Claude / Gemini)과 세부 모델 선택 드롭다운이 클릭 없이 한눈에 보이도록 인터랙션 최적화.
+    3) DB `programs.version` 및 `APP_VERSION` `v1.37` 동기화.
 
 
 
