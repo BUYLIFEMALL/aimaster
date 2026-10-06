@@ -127,7 +127,9 @@ export async function generateThreadPlanAction(
       topic.trim() ||
       templateInput?.product ||
       templateInput?.experience ||
-      (mediaData ? `${mediaData.type === "video" ? "동영상" : "사진"} 현장 상황 및 리얼 썰` : "스레드 바이럴 글");
+      (mediaData
+        ? `${mediaData.type === "video" ? "동영상" : (mediaData.base64List?.length || 1) > 1 ? `사진 ${mediaData.base64List.length}장 비교` : "사진"} 현장 상황 및 리얼 썰`
+        : "스레드 바이럴 글");
 
     // 페르소나 프롬프트 해결
     let personaPrompt: string | undefined = undefined;

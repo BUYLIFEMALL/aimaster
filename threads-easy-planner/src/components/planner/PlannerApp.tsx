@@ -31,8 +31,13 @@ import {
   PROVIDER_SHORT_LABELS,
   type AIModelProvider,
 } from "@/lib/ai/models";
-import { processImageFile, processVideoFile } from "@/lib/mediaProcessor";
-import { Image as ImageIcon, Video as VideoIcon, Upload, Trash2, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import {
+  processSingleImage,
+  processMultipleImages,
+  buildMediaAttachmentFromImages,
+  processVideoFile,
+} from "@/lib/mediaProcessor";
+import { Image as ImageIcon, Video as VideoIcon, Upload, Trash2, Loader2, Sparkles, CheckCircle2, Plus, X } from "lucide-react";
 
 export function PlannerApp() {
   // 메인 키워드 입력
@@ -173,54 +178,96 @@ export function PlannerApp() {
   // 미디어(이미지/동영상) 드래그앤드롭 상태
   const [isDragging, setIsDragging] = useState(false);
 
-  // 파일 선택 및 처리 핸들러
+  // 파일 선택 및 처리 핸들러 (여러 장 동시 선택 또는 추가 선택 지원)
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await processMediaFile(file);
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length === 0) return;
+    await processSelectedFiles(files);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   }
 
-  async function processMediaFile(file: File) {
+  async function processSelectedFiles(files: File[]) {
     setIsProcessingMedia(true);
     setErrorMessage(null);
     try {
-      const isVideo = file.type.startsWith("video/");
-      const isImage = file.type.startsWith("image/");
+      // 1. 동영상 파일 포함 여부 확인
+      const videoFiles = files.filter((f) => f.type.startsWith("video/"));
+      const imageFiles = files.filter((f) => f.type.startsWith("image/"));
 
-      if (!isImage && !isVideo) {
+      if (videoFiles.length === 0 && imageFiles.length === 0) {
         setErrorMessage("이미지(JPG, PNG, WEBP 등) 또는 동영상(MP4, MOV, WEBM 등) 파일만 지원됩니다.");
         return;
       }
 
-      // 최대 파일 크기 (비디오 100MB, 이미지 30MB)
-      const maxBytes = isVideo ? 100 * 1024 * 1024 : 30 * 1024 * 1024;
-      if (file.size > maxBytes) {
-        setErrorMessage(`${isVideo ? "동영상은 100MB" : "이미지는 30MB"} 이하 파일만 첨부할 수 있습니다.`);
+      // 동영상이 포함되어 있는 경우: 동영상은 1개만 단독 처리
+      if (videoFiles.length > 0) {
+        const videoFile = videoFiles[0];
+        if (videoFile.size > 100 * 1024 * 1024) {
+          setErrorMessage("동영상은 100MB 이하 파일만 첨부할 수 있습니다.");
+          return;
+        }
+        if (files.length > 1) {
+          showCopyToast("🎬 동영상은 1개만 첨부할 수 있어 첫 번째 동영상을 분석합니다.");
+        }
+        const processed = await processVideoFile(videoFile);
+        setMediaAttachment({
+          ...processed,
+          fileSize: videoFile.size,
+        });
         return;
       }
 
-      if (isVideo) {
-        const processed = await processVideoFile(file);
-        setMediaAttachment({
-          ...processed,
-          fileSize: file.size,
-        });
-      } else {
-        const processed = await processImageFile(file);
-        setMediaAttachment({
-          ...processed,
-          fileSize: file.size,
-        });
+      // 2. 이미지만 있는 경우 (다중 이미지 최대 5장)
+      const existingItems =
+        mediaAttachment?.type === "image" && mediaAttachment.imageItems
+          ? mediaAttachment.imageItems
+          : [];
+
+      const remainingSlots = 5 - existingItems.length;
+      if (remainingSlots <= 0) {
+        setErrorMessage("이미지는 최대 5장까지 첨부할 수 있습니다. 기존 이미지를 삭제 후 추가해주세요.");
+        return;
       }
+
+      const filesToProcess = imageFiles.slice(0, remainingSlots);
+      if (imageFiles.length > remainingSlots) {
+        showCopyToast(`📸 이미지는 최대 5장까지 가능하여 ${remainingSlots}장만 추가되었습니다.`);
+      }
+
+      // 각 파일 크기 체크 (장당 30MB)
+      for (const f of filesToProcess) {
+        if (f.size > 30 * 1024 * 1024) {
+          setErrorMessage(`이미지 파일(${f.name})은 30MB 이하만 첨부할 수 있습니다.`);
+          return;
+        }
+      }
+
+      const newProcessedItems = await processMultipleImages(filesToProcess);
+      const combinedItems = [...existingItems, ...newProcessedItems];
+      const newAttachment = buildMediaAttachmentFromImages(combinedItems);
+      setMediaAttachment(newAttachment);
     } catch (err) {
       console.error("미디어 처리 오류:", err);
       const msg = err instanceof Error ? err.message : "미디어 파일 분석 중 오류가 발생했습니다.";
       setErrorMessage(msg);
     } finally {
       setIsProcessingMedia(false);
+    }
+  }
+
+  // 특정 단일 이미지 삭제 (다중 이미지 중 1장 삭제)
+  function handleRemoveSingleImage(id: string) {
+    if (!mediaAttachment || mediaAttachment.type !== "image" || !mediaAttachment.imageItems) {
+      handleRemoveMedia();
+      return;
+    }
+    const remaining = mediaAttachment.imageItems.filter((item) => item.id !== id);
+    if (remaining.length === 0) {
+      handleRemoveMedia();
+    } else {
+      setMediaAttachment(buildMediaAttachmentFromImages(remaining));
     }
   }
 
@@ -244,9 +291,9 @@ export function PlannerApp() {
   async function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      await processMediaFile(file);
+    const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+    if (files.length > 0) {
+      await processSelectedFiles(files);
     }
   }
 
@@ -254,7 +301,11 @@ export function PlannerApp() {
   async function handleClickPersonaButton(persona: PlannerPersona) {
     setActivePersonaId(persona.id);
     const defaultTopicForMedia = mediaAttachment
-      ? (mediaAttachment.type === "video" ? "동영상 현장 리얼 썰" : "사진 현장 리얼 썰")
+      ? (mediaAttachment.type === "video"
+          ? "동영상 현장 리얼 썰"
+          : (mediaAttachment.imageCount || 1) > 1
+            ? `사진 ${mediaAttachment.imageCount}장 비교 현장 썰`
+            : "사진 현장 리얼 썰")
       : persona.defaultTopic;
     const topicToUse = topicInput.trim() || templateProduct.trim() || defaultTopicForMedia;
     setGeneratingLabel(persona.name);
@@ -274,7 +325,12 @@ export function PlannerApp() {
     }
     // 미디어가 첨부되어 있는 경우 키워드가 없어도 시각 분석 글 생성 허용
     if (!topicToUse && mediaAttachment) {
-      topicToUse = mediaAttachment.type === "video" ? "동영상 현장 리얼 썰" : "사진 현장 리얼 썰";
+      topicToUse =
+        mediaAttachment.type === "video"
+          ? "동영상 현장 리얼 썰"
+          : (mediaAttachment.imageCount || 1) > 1
+            ? `사진 ${mediaAttachment.imageCount}장 비교 현장 썰`
+            : "사진 현장 리얼 썰";
     }
 
     if (!topicToUse && !mediaAttachment) {
@@ -638,10 +694,11 @@ export function PlannerApp() {
 
         {/* 1-1. [신규] 이미지/동영상 시각 분석 첨부 영역 ('오늘 뭐 쓰지' 바로 아래) */}
         <div className="pt-0.5">
-          {/* 숨겨진 파일 인풋 */}
+          {/* 숨겨진 파일 인풋 (다중 선택 지원) */}
           <input
             ref={fileInputRef}
             type="file"
+            multiple
             accept="image/*,video/*"
             onChange={handleFileSelect}
             className="hidden"
@@ -652,95 +709,189 @@ export function PlannerApp() {
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 flex items-center justify-center gap-3 text-neutral-700">
               <Loader2 className="w-5 h-5 animate-spin text-neutral-800" />
               <div className="text-sm font-semibold">
-                미디어 최적화 및 시각 분석 데이터를 추출하는 중입니다... (고화질 동영상도 가볍게 변환)
+                미디어 최적화 및 시각 분석 데이터를 추출하는 중입니다... (고화질 사진/영상도 가볍게 변환)
               </div>
             </div>
           ) : mediaAttachment ? (
             /* 미디어 첨부 완료 미리보기 카드 */
-            <div className="rounded-2xl border border-neutral-300 bg-white p-4 shadow-sm space-y-3">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden border border-neutral-200 bg-neutral-100">
-                    <img
-                      src={mediaAttachment.previewUrl}
-                      alt="첨부 미디어 미리보기"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-1 right-1 bg-black/70 text-white rounded p-0.5 text-[10px]">
-                      {mediaAttachment.type === "video" ? <VideoIcon className="w-3 h-3" /> : <ImageIcon className="w-3 h-3" />}
-                    </div>
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        {mediaAttachment.type === "video" ? "동영상 분석 준비 완료" : "이미지 분석 준비 완료"}
-                      </span>
-                      {mediaAttachment.videoDuration && (
-                        <span className="text-[11px] text-neutral-500 font-medium">
-                          재생 약 {Math.round(mediaAttachment.videoDuration)}초
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm font-bold text-neutral-900 truncate mt-1">
-                      {mediaAttachment.fileName}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      {mediaAttachment.type === "video"
-                        ? "핵심 장면 3컷 추출 완료 · AI가 상황과 맥락을 분석해 썰을 풀어냅니다"
-                        : "고해상도 이미지 시각 정보 주입 완료 · 사진 속 디테일을 바탕으로 글이 작성됩니다"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="text-xs font-medium text-neutral-600 hover:text-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors cursor-pointer"
-                  >
-                    다른 파일로 변경
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleRemoveMedia}
-                    className="text-xs font-medium text-rose-600 hover:text-rose-700 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors flex items-center gap-1 cursor-pointer"
-                    title="첨부 파일 삭제"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>삭제</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 동영상인 경우: 캡처된 3개 프레임 미리보기 */}
-              {mediaAttachment.type === "video" && mediaAttachment.base64List.length > 1 && (
-                <div className="pt-2 border-t border-neutral-100 flex items-center gap-2 overflow-x-auto">
-                  <span className="text-[11px] font-semibold text-neutral-500 shrink-0">
-                    🎬 AI 분석 장면:
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {mediaAttachment.base64List.map((b64, idx) => (
-                      <div
-                        key={idx}
-                        className="relative w-12 h-10 rounded border border-neutral-200 overflow-hidden bg-neutral-100 shrink-0"
-                      >
+            <div className="rounded-2xl border border-neutral-300 bg-white p-4 shadow-sm space-y-3.5">
+              {/* 동영상 첨부 카드 */}
+              {mediaAttachment.type === "video" ? (
+                <>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden border border-neutral-200 bg-neutral-100">
                         <img
-                          src={`data:${mediaAttachment.mimeType};base64,${b64}`}
-                          alt={`장면 ${idx + 1}`}
+                          src={mediaAttachment.previewUrl}
+                          alt="동영상 미리보기"
                           className="w-full h-full object-cover"
                         />
-                        <span className="absolute bottom-0 right-0 bg-black/60 text-white text-[9px] px-1 font-mono">
-                          #{idx + 1}
+                        <div className="absolute bottom-1 right-1 bg-black/70 text-white rounded p-0.5 text-[10px]">
+                          <VideoIcon className="w-3 h-3" />
+                        </div>
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            동영상 분석 준비 완료
+                          </span>
+                          {mediaAttachment.videoDuration && (
+                            <span className="text-[11px] text-neutral-500 font-medium">
+                              재생 약 {Math.round(mediaAttachment.videoDuration)}초
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-bold text-neutral-900 truncate mt-1">
+                          {mediaAttachment.fileName}
+                        </p>
+                        <p className="text-xs text-neutral-500">
+                          핵심 장면 3컷 추출 완료 · AI가 상황과 맥락을 분석해 썰을 풀어냅니다
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-xs font-medium text-neutral-600 hover:text-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors cursor-pointer"
+                      >
+                        다른 파일로 변경
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRemoveMedia}
+                        className="text-xs font-medium text-rose-600 hover:text-rose-700 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors flex items-center gap-1 cursor-pointer"
+                        title="첨부 파일 삭제"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>삭제</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 캡처된 3개 프레임 미리보기 */}
+                  {mediaAttachment.base64List.length > 1 && (
+                    <div className="pt-2 border-t border-neutral-100 flex items-center gap-2 overflow-x-auto">
+                      <span className="text-[11px] font-semibold text-neutral-500 shrink-0">
+                        🎬 AI 분석 장면:
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {mediaAttachment.base64List.map((b64, idx) => (
+                          <div
+                            key={idx}
+                            className="relative w-12 h-10 rounded border border-neutral-200 overflow-hidden bg-neutral-100 shrink-0"
+                          >
+                            <img
+                              src={`data:${mediaAttachment.mimeType};base64,${b64}`}
+                              alt={`장면 ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <span className="absolute bottom-0 right-0 bg-black/60 text-white text-[9px] px-1 font-mono">
+                              #{idx + 1}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <span className="text-[11px] text-neutral-400">
+                        (초반·중반·후반 핵심 순간을 골라 AI에게 전달합니다)
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                /* 이미지 첨부 카드 (단일 또는 다중 이미지 갤러리) */
+                <>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {(mediaAttachment.imageCount || 1) > 1
+                            ? `사진 ${mediaAttachment.imageCount}장 비교 분석 준비 완료`
+                            : "사진 1장 분석 준비 완료"}
+                        </span>
+                        <span className="text-[11px] text-neutral-500 font-medium">
+                          최대 5장 첨부 가능
                         </span>
                       </div>
-                    ))}
+                      <p className="text-sm font-bold text-neutral-900 truncate mt-1">
+                        {mediaAttachment.fileName}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        {(mediaAttachment.imageCount || 1) > 1
+                          ? "순서별 변화와 비포&애프터 차이를 AI가 입체적으로 분석해 썰을 작성합니다"
+                          : "고해상도 이미지 시각 정보 주입 완료 · 사진 속 디테일을 바탕으로 글이 작성됩니다"}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                      {(mediaAttachment.imageCount || 1) < 5 && (
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-xs font-semibold text-neutral-700 hover:text-black px-3 py-1.5 rounded-lg border border-neutral-300 hover:bg-neutral-50 transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>사진 추가 ({5 - (mediaAttachment.imageCount || 1)}장 남음)</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleRemoveMedia}
+                        className="text-xs font-medium text-rose-600 hover:text-rose-700 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors flex items-center gap-1 cursor-pointer"
+                        title="전체 사진 삭제"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>전체 삭제</span>
+                      </button>
+                    </div>
                   </div>
-                  <span className="text-[11px] text-neutral-400">
-                    (초반·중반·후반 핵심 순간을 골라 AI에게 전달합니다)
-                  </span>
-                </div>
+
+                  {/* 첨부된 사진 썸네일 그리드 (개별 삭제 및 순서 라벨 제공) */}
+                  <div className="pt-2 border-t border-neutral-100 flex items-center gap-2.5 overflow-x-auto pb-1">
+                    {(mediaAttachment.imageItems || []).map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border border-neutral-200 bg-neutral-100 group shadow-2xs"
+                      >
+                        <img
+                          src={item.previewUrl}
+                          alt={item.fileName}
+                          className="w-full h-full object-cover"
+                        />
+                        {/* 순서 라벨 */}
+                        <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md font-mono">
+                          #{idx + 1}
+                        </span>
+                        {/* 개별 삭제 버튼 */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSingleImage(item.id)}
+                          className="absolute top-1 right-1 bg-black/60 hover:bg-rose-600 text-white rounded-full p-1 transition-colors cursor-pointer"
+                          title="이 사진 삭제"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* 5장 미만일 때 추가 버튼 슬롯 */}
+                    {(mediaAttachment.imageCount || 1) < 5 && (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl border-2 border-dashed border-neutral-300 hover:border-neutral-900 bg-neutral-50/50 hover:bg-neutral-50 flex flex-col items-center justify-center gap-1 text-neutral-400 hover:text-neutral-900 transition-all cursor-pointer"
+                        title="사진 추가하기"
+                      >
+                        <Plus className="w-5 h-5" />
+                        <span className="text-[10px] font-bold">추가</span>
+                      </button>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           ) : (
@@ -762,7 +913,7 @@ export function PlannerApp() {
                     <ImageIcon className="w-4 h-4 text-neutral-700" />
                     <VideoIcon className="w-4 h-4 text-neutral-700" />
                   </div>
-                  <span>사진 또는 동영상 첨부하기</span>
+                  <span>사진(최대 5장) 또는 동영상 첨부하기</span>
                   <span className="text-xs text-neutral-400 font-normal hidden md:inline">
                     (클릭 또는 드래그앤드롭)
                   </span>
@@ -770,8 +921,8 @@ export function PlannerApp() {
 
                 <div className="text-xs text-neutral-500 font-normal">
                   <span className="text-neutral-400 hidden sm:inline">|</span>{" "}
-                  <span className="text-neutral-700 font-medium">📸 사진 속 디테일</span>이나{" "}
-                  <span className="text-neutral-700 font-medium">🎬 영상 속 장면</span>을 AI가 직접 분석해 생생한 현장 썰을 풀어냅니다
+                  <span className="text-neutral-700 font-medium">📸 비포&애프터 비교 샷이나 여러 장의 제품 컷</span>,{" "}
+                  <span className="text-neutral-700 font-medium">🎬 영상</span>을 올리면 AI가 시각 정보를 직접 비교 분석하여 생생한 썰을 풀어냅니다
                 </div>
               </div>
             </div>

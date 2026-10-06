@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.25` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.26` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -198,3 +198,9 @@
     3) OpenAI, Anthropic Claude, Google Gemini 3사 AI SDK 멀티모달 시각 분석(Base64 Vision) 파라미터 및 프롬프트 연동 (`generator.ts`).
     4) 키워드를 입력하지 않아도 사진이나 영상 속 실제 상황, 디테일, 분위기를 AI가 면밀히 분석하여 생생한 1인칭 현장 썰로 글을 작성하도록 폴백 지원.
     5) 첨부 취소 및 다른 파일로 변경 기능 완비. DB `programs.version` 및 `APP_VERSION` `v1.25` 동기화.
+- **v1.26 (2026-10-06)**:
+  - **다중 이미지(최대 5장) 비교 및 연속 시각 분석 고도화 (비포&애프터 및 순서별 스토리텔링)**:
+    1) 파일 선택창에 `multiple` 속성 추가 및 드래그앤드롭/추가 선택을 통해 이미지를 최대 5장까지 누적 첨부할 수 있도록 지원 (`processMultipleImages`, `buildMediaAttachmentFromImages`).
+    2) 첨부된 사진 갤러리 UI 제공: 각 사진에 `#1`, `#2`... 순서 배지 및 개별 삭제(`✕`) 버튼 지원, 5장 미만일 때 직관적인 `[+ 사진 추가]` 슬롯 노출.
+    3) AI 시각 분석 프롬프트 고도화: 사진이 2장 이상일 경우 *"첨부된 사진들의 순서와 변화, 차이점(비포&애프터, 사용 전후, 디테일)을 입체적으로 분석하여 독자가 사진을 넘겨보게 만드는 비교 썰을 작성할 것"*이라는 비교 분석 지침 주입 (`generator.ts`).
+    4) 키워드 미입력 시 `사진 N장 비교 현장 상황 및 리얼 썰`로 주제 자동 폴백 처리 (`actions/planner.ts`). DB `programs.version` 및 `APP_VERSION` `v1.26` 동기화.

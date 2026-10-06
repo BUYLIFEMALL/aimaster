@@ -24,19 +24,33 @@ export interface ThreadPlanResult {
 }
 
 /**
+ * 개별 최적화 이미지 아이템 (다중 이미지 지원)
+ */
+export interface ProcessedImageItem {
+  id: string;
+  fileName: string;
+  previewUrl: string;
+  base64: string;
+  mimeType: string;
+  fileSize?: number;
+}
+
+/**
  * 이미지 및 영상 첨부 분석 페이로드
  */
 export interface MediaPayload {
   type: "image" | "video";
   fileName: string;
   mimeType: string;
-  base64List: string[]; // base64 문자열 (이미지 1장, 영상 추출 프레임 1~3장)
+  base64List: string[]; // base64 문자열 (이미지 1~5장, 또는 영상 추출 프레임 1~3장)
   videoDuration?: number;
+  imageCount?: number;
 }
 
 export interface MediaAttachment extends MediaPayload {
-  previewUrl: string; // 클라이언트 미리보기용 blob/data URL
+  previewUrl: string; // 대표 미리보기 (첫 번째 이미지 또는 비디오 프레임)
   fileSize?: number;
+  imageItems?: ProcessedImageItem[]; // 다중 이미지인 경우 개별 아이템 배열
 }
 
 /**

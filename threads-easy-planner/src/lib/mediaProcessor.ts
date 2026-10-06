@@ -1,11 +1,11 @@
 "use client";
 
-import type { MediaAttachment } from "@/types/planner";
+import type { MediaAttachment, ProcessedImageItem } from "@/types/planner";
 
 /**
- * 이미지 파일을 최적화(최대 1280px 리사이즈 및 JPEG 82% 압축)하여 Base64로 추출
+ * 단일 이미지 파일을 최적화(최대 1280px 리사이즈 및 JPEG 82% 압축)하여 ProcessedImageItem으로 추출
  */
-export async function processImageFile(file: File): Promise<MediaAttachment> {
+export async function processSingleImage(file: File): Promise<ProcessedImageItem> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("이미지 파일을 읽는데 실패했습니다."));
@@ -41,17 +41,58 @@ export async function processImageFile(file: File): Promise<MediaAttachment> {
         const base64 = dataUrl.split(",")[1];
 
         resolve({
-          type: "image",
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           fileName: file.name,
           mimeType: "image/jpeg",
           previewUrl: dataUrl,
-          base64List: [base64],
+          base64,
+          fileSize: file.size,
         });
       };
       img.src = reader.result as string;
     };
     reader.readAsDataURL(file);
   });
+}
+
+/**
+ * 여러 이미지 파일을 병렬 최적화하여 배열로 반환
+ */
+export async function processMultipleImages(files: File[]): Promise<ProcessedImageItem[]> {
+  const promises = files.map((f) => processSingleImage(f));
+  return Promise.all(promises);
+}
+
+/**
+ * ProcessedImageItem 배열로부터 MediaAttachment 객체 생성
+ */
+export function buildMediaAttachmentFromImages(items: ProcessedImageItem[]): MediaAttachment {
+  if (items.length === 0) {
+    throw new Error("첨부된 이미지가 없습니다.");
+  }
+  const first = items[0];
+  const count = items.length;
+  const fileNameLabel = count === 1 ? first.fileName : `사진 ${count}장 (${first.fileName} 외 ${count - 1}개)`;
+  const totalSize = items.reduce((sum, item) => sum + (item.fileSize || 0), 0);
+
+  return {
+    type: "image",
+    fileName: fileNameLabel,
+    mimeType: "image/jpeg",
+    previewUrl: first.previewUrl,
+    base64List: items.map((it) => it.base64),
+    fileSize: totalSize,
+    imageCount: count,
+    imageItems: items,
+  };
+}
+
+/**
+ * 단일 이미지 파일 처리 (하위 호환 래퍼)
+ */
+export async function processImageFile(file: File): Promise<MediaAttachment> {
+  const item = await processSingleImage(file);
+  return buildMediaAttachmentFromImages([item]);
 }
 
 /**
