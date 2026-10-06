@@ -128,7 +128,7 @@ export async function generateThreadPlanAction(
       templateInput?.product ||
       templateInput?.experience ||
       (mediaData
-        ? `${mediaData.type === "video" ? "동영상" : (mediaData.base64List?.length || 1) > 1 ? `사진 ${mediaData.base64List.length}장 비교` : "사진"} 현장 상황 및 리얼 썰`
+        ? `${mediaData.type === "video" ? "동영상 현장 디테일 및 리얼 썰" : "제품 실사용 디테일 및 리얼 후기 썰"}`
         : "스레드 바이럴 글");
 
     // 페르소나 프롬프트 해결

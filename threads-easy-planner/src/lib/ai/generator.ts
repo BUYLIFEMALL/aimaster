@@ -77,6 +77,24 @@ export async function suggestTopicsAI(params: {
 }
 
 /**
+ * 사진이나 영상의 번호/순서 메타 표현("1번째 사진", "2번째 사진", "첫 번째 사진", "1번 사진", "영상 N초" 등)을 제거하고
+ * 순수한 내용 중심의 자연스러운 문장으로 정제한다.
+ */
+export function cleanMediaMetaPhrases(text: string): string {
+  if (!text) return "";
+  let cleaned = text;
+  // 1. "1번째 사진만 보면", "1번째 사진 보면", "2번째 사진 보면", "첫 번째 사진 보면" 등
+  cleaned = cleaned.replace(/(?:[0-9]+|첫|두|세|네|다섯)\s*번째\s*사진(?:만)?\s*(?:보면|보니까|에서|속|은|이|을|의|에)?\s*/g, "");
+  // 2. "1번 사진", "2번 사진", "1번 컷", "2번 컷"
+  cleaned = cleaned.replace(/(?:[0-9]+)\s*번\s*(?:사진|컷)(?:만)?\s*(?:보면|보니까|에서|속|은|이|을|의|에)?\s*/g, "");
+  // 3. "영상 N초(쯤에/에서)"
+  cleaned = cleaned.replace(/영상\s*[0-9]+\s*초(?:쯤에|에서|경|대)?\s*/g, "");
+  // 4. 연속 빈 줄 정리
+  cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
+  return cleaned.trim();
+}
+
+/**
  * 2. 선택한 주제로 스레드 글 및 5대 훅 유형별 글 세트 자동 생성
  * - 황금 4단계 구조: 멈추게 하기 → 공감 쌓기 → 반전 한 방 → 질문 던지기
  * - 4~6줄 친근한 반말(친구/언니 카톡 톤), AI 티 완전 제거, 제품명 노출 금지
@@ -101,29 +119,28 @@ export async function generateThreadPlanAI(params: {
 
     if (isVideo) {
       mediaGuideline = `
-[★ 첨부된 동영상 5대 핵심 프레임(시간 순서별 5컷 시퀀스) 심층 시각 분석 지침]
-- 사용자가 첨부한 동영상에서 시간 순서(10% 도입 ➔ 30% 전개 ➔ 50% 핵심 절정 ➔ 70% 반전/결과 ➔ 90% 최종 반응)로 추출된 5장의 연속 장면을 면밀히 분석해줘.
-- 영상 속에서 다음 5대 미세 디테일(Micro-Detail)을 극도로 정밀하게 관찰하고 글에 생생하게 녹여낼 것:
-  1. 【시간의 흐름과 상태 변화】: 1~2번 컷에서 시작된 상황이 3~5번 컷을 거치며 어떻게 달라졌는지(색상/탁도 변화, 거품/제형/오염도 반응, 부풀어 오름, 싹 지워지는 과정, 뜻밖의 반전 등)를 생생하게 포착할 것.
-  2. 【화면 속 시각 요소 & 자막/오브젝트】: 화면에 보이는 텍스트/자막, 손동작의 움직임(망설임, 분주함, 놀람), 제품/도구의 형태와 질감, 주변 공간/배경의 리얼한 상태를 구체적으로 묘사할 것.
-  3. 【현장감 넘치는 청각/감각 유추】: 영상 속 장면에서 들렸을 법한 소리("치이익 소리 나면서", "탁 꽂히는 소리", "우당탕", "숨죽이고 보게 됨")나 촉감/감각을 글에 감칠맛 나게 더해줄 것.
-  4. 【무한 재생을 부르는 관전 포인트(킬링 파트)】: 독자가 스레드 피드에서 영상을 무한 반복 재생하게 만드는 포인트("영상 3초쯤에 튈 때 개놀람ㅋㅋㅋ", "마지막에 싹 닦여나가는 거 보임?? 카타르시스 오짐", "손 떠는 거 다 찍혔네;;")를 본문이나 첫 문장에 결정적인 떡밥으로 심어줄 것.
-  5. 【영상과 본문의 200% 일치감】: 글을 읽은 독자가 영상을 재생하며 "헐 진짜 글에 쓴 그대로네", "영상 보니까 이해 쏙쏙 됨" 하고 댓글을 달 수밖에 없도록 영상의 실제 내용에 철저히 기반하여 작성할 것 (가짜 사실 날조 절대 금지).
+[★ 첨부된 동영상 종합 시각 분석 지침 (※ 사진/영상 번호나 시간 지칭 절대 금지)]
+- 사용자가 첨부한 동영상의 시작부터 전개, 절정, 결과까지 전체 흐름과 디테일을 면밀히 분석해줘.
+- 영상 속에서 일어난 상태 변화(오염/얼룩이 싹 지워지는 과정, 거품/제형 반응, 색상 변화, 극적인 반전 등)와 시각적 디테일(손동작, 도구의 형태, 현장의 리얼한 반응)을 바탕으로 글을 작성해줘.
+- 【절대 불변 원칙: 메타 발언 일체 금지】: 본문이나 첫 문장에 "영상 3초", "1번 컷", "마지막 장면에서" 같은 영상 프레임/시간/컷 지칭 문구를 절대 쓰지 말 것!
+- 독자는 글쓴이가 직접 현장에서 겪고 느낀 생생한 1인칭 리얼 경험담("직접 해보고 기절할 뻔함", "치이익 소리 나면서 싹 닦여나가는데 카타르시스 오짐")으로 읽혀야 해.
 `;
     } else if (imageCount > 1) {
       mediaGuideline = `
-[★ 첨부된 다중 사진(${imageCount}장) 비교 및 연속 시각 분석 지침]
-- 사용자가 ${imageCount}장의 사진을 순서대로 첨부했어.
-- 1번째 사진과 다음 사진들 사이의 변화, 차이점(비포 & 애프터, 사용 전후, 패키지와 실사용 모습, 디테일 차이)이나 상황 흐름을 입체적으로 분석해줘.
-- "1번째 사진 보면 ~했는데 2번째 사진 봐봐 ㄷㄷ", "비포 애프터 차이 실화냐;;", "사진 넘겨보니까 진짜 확 와닿네" 처럼 독자가 여러 장의 사진을 넘겨보게 유도하고, 사진 간의 극적인 차이나 연속성을 글 속에 생생하게 녹여내줘.
-- 여러 장의 사진이 서로 맞물려 하나의 설득력 있는 스토리(경험담)를 완성하도록 구성해줘.
+[★ 첨부된 ${imageCount}장의 사진 종합 시각 분석 지침 (※ "1번째 사진", "2번째 사진" 등 사진 번호 지칭 일체 금지)]
+- 사용자가 첨부한 ${imageCount}장의 사진 전체를 종합하여, 제품의 외관·구조적 디테일(뚜껑, 입구, 마감, 재질 등)과 실제 사용 과정 및 전후의 변화(오염 제거, 사용감, 편리함 등)를 완벽하게 종합 분석해줘.
+- 【절대 불변 원칙: "1번째 사진", "2번째 사진" 등 사진 번호 지칭 일체 금지 (초특급 중요)】:
+  * ❌ 절대 금지: "1번째 사진만 보면 평범한데", "2번째 사진 보면 뚜껑이 대박", "첫 번째 사진에서는 ~", "2번째 사진에서 ~"
+  * ⭕ 올바른 방식: 사진 번호를 일체 언급하지 않고, 순수하게 사진 속 '내용과 구조적 디테일, 사용 경험'에만 집중하여 글쓴이가 직접 써보고 놀란 1인칭 썰로 녹여낼 것!
+  * 모범 예시: "그냥 흔한 세제인 줄 알고 샀다가 뚜껑 열어보고 진심 감탄함... 펌프 줄줄 새서 손 묻고 끈적거리던 거 극혐이었는데 이건 뚜껑 구조부터 손 안 묻게 딱 떨어지네. 이런 사소한 디테일 하나에 살림 짬바 갈리는 거 알지? 치니들 세제 유목민이면 무조건 갈아타라."
+- 사진 속 시각 정보를 통해 확인된 '제품의 특징, 구조, 사용감, 극적인 결과'만을 100% 자연스러운 글쓴이의 찐경험 썰로 승화시켜 작성해줘.
 `;
     } else {
       mediaGuideline = `
-[★ 첨부된 사진 이미지 정밀 시각 분석 지침]
-- 사용자가 첨부한 사진 속 제품, 상황, 디테일, 색감, 감정선을 면밀히 분석해줘.
-- 사진을 본 독자가 스크롤을 내리다 "헐 사진 보니까 진짜네", "사진 속 저거 어디꺼냐", "디테일 대박이다" 하고 무조건 반응할 수 있도록, 사진에서 포착된 사실적 디테일을 글에 자연스럽게 묘사해줘.
-- 글을 읽자마자 첨부된 사진을 보게 만들고, 사진이 본문의 썰을 100% 뒷받침하는 느낌을 줄 것!
+[★ 첨부된 사진 정밀 시각 분석 지침 (※ 사진 언급 절대 금지)]
+- 사용자가 첨부한 사진 속 제품, 상황, 구조적 디테일, 색감, 현장 상태를 면밀히 분석해줘.
+- 【절대 불변 원칙】: "사진 보면", "첨부된 사진처럼" 같은 사진 메타 언급 없이, 글쓴이가 직접 눈앞에서 제품을 보거나 현장을 겪고 있는 듯한 생생한 1인칭 썰로 작성할 것!
+- 사진 속에서 포착된 사실적 디테일(패키지 구조, 질감, 상황)이 본문의 썰에 100% 자연스럽게 녹아들게 해줘.
 `;
     }
 
@@ -172,12 +189,15 @@ ${mediaGuideline}
    - 스레드 유저 호칭: "스치니", "치니", "치니들"을 필요에 따라 자연스럽게 녹여낼 것.
 3. 본문 내 상업적 제품명/브랜드명 절대 노출 금지:
    - 본문에서는 특정 제품명을 쓰지 않고 "이거", "치니 추천템", "가성비템", "이 조합" 등으로만 지칭해 호기심을 극대화할 것. (제품명과 링크는 첫 댓글에서 푸는 것이 스레드 공식).
-4. 황금 4단계 전개 구조:
+4. ★【첨부 사진/영상 번호 지칭 절대 금지 (초특급 중요)】:
+   - 첫 문장(hook), 본문(content), 5대 훅 대안(hookVariants) 어디에도 "1번째 사진", "2번째 사진", "첫 번째 사진", "1번 컷", "영상 N초" 같은 사진/영상 번호나 순서 지칭 문구를 절대 쓰지 말 것!
+   - 첨부된 시각 자료의 '내용과 디테일'만 종합 분석하여 글쓴이의 리얼한 사용 썰, 감탄, 후회, 추천 경험담으로 100% 순수하게 승화시킬 것.
+5. 황금 4단계 전개 구조:
    - [멈추기]: 솔직한 치부 고백, 의외의 착각, 강한 후회 ("넘더러워서 안 올리려다...", "비싼 건 줄 알았는데;;")
    - [공감]: 남들 다 해본 뻔한 방법의 실패 경험 ("워싱소다 백식초 다 써봐도 안 되길래", "과하지도 않고 자연스러워")
    - [반전/체험]: 시각적·감정적 충격과 찐후기 ("물색깔 보고 기절함.... 얼마 안 쓴 건데 이래ㅠㅠ", "버릴 색이 1도 없다...")
    - [해결 종결]: 확실한 문제 해결 한 줄 ("수건 쉰내 싹 없어지더라", "이거 하나로 종결 땅땅!")
-5. 마지막 댓글/CTA:
+6. 마지막 댓글/CTA:
    - 알고리즘 댓글 폭발을 부르는 질문("스치니들은 뭐 써??") 또는 첫 댓글(자댓글)에 달아둘 찰진 한마디("그냥 세탁기에 넣으면 돼 진짜 강추야... [링크]")를 제시할 것.
 
 [5대 훅 유형별 실전 대안]
@@ -255,7 +275,7 @@ ${mediaGuideline}
   }
   if (mediaData) {
     const isVideo = mediaData.type === "video";
-    userPrompt += `\n\n[첨부 미디어 파일: ${mediaData.fileName} (${isVideo ? "동영상 핵심 프레임" : "사진 이미지"})]\n위 첨부된 시각 자료를 면밀히 분석하여 글 속에 시각적 생생함과 디테일을 100% 반영해줘.`;
+    userPrompt += `\n\n[첨부 미디어 파일: ${mediaData.fileName} (${isVideo ? "동영상 핵심 프레임" : "사진 이미지"})]\n위 첨부된 시각 자료의 '내용과 디테일'만 종합 분석하여 글 속에 생생하게 녹여내줘. (※ 주의: "1번째 사진", "2번째 사진", "영상 N초" 같은 사진/영상 번호나 프레임 지칭 문구는 절대 쓰지 말고, 순수한 글쓴이의 1인칭 사용 경험 썰로만 작성할 것!)`;
   }
   userPrompt += `\n\n위 정보를 바탕으로 실전 떡상 스타일의 스레드 글 1세트와 5대 훅 유형별 글 5개를 생성해줘.`;
 
@@ -267,19 +287,19 @@ ${mediaGuideline}
   const hookVariants: HookVariant[] = Array.isArray(root.hookVariants)
     ? root.hookVariants.map((v: any) => ({
         type: String(v.type || "리얼 썰형"),
-        hook: String(v.hook || ""),
-        whyItWorks: String(v.whyItWorks || "호기심과 공감을 자극해 스크롤을 멈춤"),
-        content: String(v.content || ""),
+        hook: cleanMediaMetaPhrases(String(v.hook || "")),
+        whyItWorks: cleanMediaMetaPhrases(String(v.whyItWorks || "호기심과 공감을 자극해 스크롤을 멈춤")),
+        content: cleanMediaMetaPhrases(String(v.content || "")),
       }))
     : [];
 
   return {
     topic: String(root.topic || topic).trim(),
-    hook: String(root.hook || "솔직히 나만 이런 줄 알았는데 아니더라.").trim(),
+    hook: cleanMediaMetaPhrases(String(root.hook || "솔직히 나만 이런 줄 알았는데 아니더라.")),
     hookType: String(root.hookType || "리얼 썰형").trim(),
-    whyHookWorks: String(root.whyHookWorks || "일상 속 공감과 호기심을 자극해 1초 만에 스크롤을 멈추게 함").trim(),
-    content: String(root.content || "스레드 본문이 생성되었습니다.").trim(),
-    cta: String(root.cta || "여러분은 어떠신가요? 댓글로 알려줘요!").trim(),
+    whyHookWorks: cleanMediaMetaPhrases(String(root.whyHookWorks || "일상 속 공감과 호기심을 자극해 1초 만에 스크롤을 멈추게 함")),
+    content: cleanMediaMetaPhrases(String(root.content || "스레드 본문이 생성되었습니다.")),
+    cta: cleanMediaMetaPhrases(String(root.cta || "여러분은 어떠신가요? 댓글로 알려줘요!")),
     followUpIdeas: Array.isArray(root.followUpIdeas)
       ? root.followUpIdeas.map(String)
       : [
@@ -353,11 +373,11 @@ ${currentPlan.content}
 
   return {
     topic: currentPlan.topic,
-    hook: String(root.hook || currentPlan.hook).trim(),
+    hook: cleanMediaMetaPhrases(String(root.hook || currentPlan.hook)),
     hookType: String(root.hookType || currentPlan.hookType || "리얼 썰형").trim(),
-    whyHookWorks: String(root.whyHookWorks || currentPlan.whyHookWorks || "호기심과 공감을 자극해 스크롤을 멈춤").trim(),
-    content: String(root.content || currentPlan.content).trim(),
-    cta: String(root.cta || currentPlan.cta).trim(),
+    whyHookWorks: cleanMediaMetaPhrases(String(root.whyHookWorks || currentPlan.whyHookWorks || "호기심과 공감을 자극해 스크롤을 멈춤")),
+    content: cleanMediaMetaPhrases(String(root.content || currentPlan.content)),
+    cta: cleanMediaMetaPhrases(String(root.cta || currentPlan.cta)),
     followUpIdeas: Array.isArray(root.followUpIdeas) ? root.followUpIdeas.map(String) : currentPlan.followUpIdeas,
     hookVariants: currentPlan.hookVariants,
   };
