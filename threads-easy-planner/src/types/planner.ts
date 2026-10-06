@@ -24,6 +24,22 @@ export interface ThreadPlanResult {
 }
 
 /**
+ * 이미지 및 영상 첨부 분석 페이로드
+ */
+export interface MediaPayload {
+  type: "image" | "video";
+  fileName: string;
+  mimeType: string;
+  base64List: string[]; // base64 문자열 (이미지 1장, 영상 추출 프레임 1~3장)
+  videoDuration?: number;
+}
+
+export interface MediaAttachment extends MediaPayload {
+  previewUrl: string; // 클라이언트 미리보기용 blob/data URL
+  fileSize?: number;
+}
+
+/**
  * 실전 기획 템플릿 입력 데이터
  */
 export interface ThreadPlannerTemplateInput {

@@ -17,7 +17,7 @@
 - **서브프로젝트 폴더**: `threads-easy-planner/`
 - **프로그램 slug**: `threads-easy-planner`
 - **프로그램명**: `Threads AI 기획기`
-- **현재 버전**: `v1.24` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.25` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://threads-easy-planner.vercel.app`
 
 ---
@@ -191,3 +191,10 @@
     1) Anthropic 콘솔에서 워크스페이스가 바인딩되지 않은 키(`sk-ant-usr-...`) 사용 시 발생하는 400 에러("This API key is not scoped to a workspace...")를 가로채어, 해결 방법(콘솔 Workspaces에서 Default Workspace 선택 후 API Key 재발급 or OpenAI/Gemini 권장)을 친절한 한글 메시지로 안내하도록 `formatAIErrorMessage` 헬퍼 함수 구현 및 적용.
     2) 설정 페이지(`/settings`)에 Anthropic 키 발급 시 워크스페이스 지정 필수 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
     3) AI 호출 전반(OpenAI, Gemini, Claude)의 크레딧 부족, 잘못된 키, Rate Limit 에러를 모두 사용자 친화적인 한국어 안내로 정제.
+- **v1.25 (2026-10-06)**:
+  - **이미지 및 동영상 시각 분석(Multimodal Vision) 기반 콘텐츠 자동 생성 기능 구현**:
+    1) '오늘은 뭐 쓰지?' 및 '글 생성하기' 버튼 바로 아래에 직관적인 사진/동영상 첨부 드롭존 및 미리보기 카드 신설.
+    2) 클라이언트 단 이미지 최적화(최대 1280px 리사이즈, JPEG 압축) 및 동영상 핵심 장면 3컷(20%, 50%, 80%) 캔버스 자동 캡처 (`mediaProcessor.ts`). Vercel 4.5MB 페이로드 한도 초과(413) 방지.
+    3) OpenAI, Anthropic Claude, Google Gemini 3사 AI SDK 멀티모달 시각 분석(Base64 Vision) 파라미터 및 프롬프트 연동 (`generator.ts`).
+    4) 키워드를 입력하지 않아도 사진이나 영상 속 실제 상황, 디테일, 분위기를 AI가 면밀히 분석하여 생생한 1인칭 현장 썰로 글을 작성하도록 폴백 지원.
+    5) 첨부 취소 및 다른 파일로 변경 기능 완비. DB `programs.version` 및 `APP_VERSION` `v1.25` 동기화.

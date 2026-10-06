@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   getSuggestedTopicsAction,
   generateThreadPlanAction,
@@ -14,6 +14,7 @@ import type {
   PlannerPersona,
   ThreadPlannerTemplateInput,
   SavedThreadPlan,
+  MediaAttachment,
 } from "@/types/planner";
 import {
   REWRITE_MODES,
@@ -30,11 +31,18 @@ import {
   PROVIDER_SHORT_LABELS,
   type AIModelProvider,
 } from "@/lib/ai/models";
+import { processImageFile, processVideoFile } from "@/lib/mediaProcessor";
+import { Image as ImageIcon, Video as VideoIcon, Upload, Trash2, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
 
 export function PlannerApp() {
   // 메인 키워드 입력
   const [topicInput, setTopicInput] = useState("");
   const [activePersonaId, setActivePersonaId] = useState<string | null>(null);
+
+  // 미디어(이미지/영상) 첨부 상태
+  const [mediaAttachment, setMediaAttachment] = useState<MediaAttachment | null>(null);
+  const [isProcessingMedia, setIsProcessingMedia] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 실전 템플릿 필드 (선택 입력)
   const [showTemplateForm, setShowTemplateForm] = useState(false);
@@ -162,10 +170,93 @@ export function PlannerApp() {
     }
   }
 
+  // 미디어(이미지/동영상) 드래그앤드롭 상태
+  const [isDragging, setIsDragging] = useState(false);
+
+  // 파일 선택 및 처리 핸들러
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processMediaFile(file);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
+  async function processMediaFile(file: File) {
+    setIsProcessingMedia(true);
+    setErrorMessage(null);
+    try {
+      const isVideo = file.type.startsWith("video/");
+      const isImage = file.type.startsWith("image/");
+
+      if (!isImage && !isVideo) {
+        setErrorMessage("이미지(JPG, PNG, WEBP 등) 또는 동영상(MP4, MOV, WEBM 등) 파일만 지원됩니다.");
+        return;
+      }
+
+      // 최대 파일 크기 (비디오 100MB, 이미지 30MB)
+      const maxBytes = isVideo ? 100 * 1024 * 1024 : 30 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        setErrorMessage(`${isVideo ? "동영상은 100MB" : "이미지는 30MB"} 이하 파일만 첨부할 수 있습니다.`);
+        return;
+      }
+
+      if (isVideo) {
+        const processed = await processVideoFile(file);
+        setMediaAttachment({
+          ...processed,
+          fileSize: file.size,
+        });
+      } else {
+        const processed = await processImageFile(file);
+        setMediaAttachment({
+          ...processed,
+          fileSize: file.size,
+        });
+      }
+    } catch (err) {
+      console.error("미디어 처리 오류:", err);
+      const msg = err instanceof Error ? err.message : "미디어 파일 분석 중 오류가 발생했습니다.";
+      setErrorMessage(msg);
+    } finally {
+      setIsProcessingMedia(false);
+    }
+  }
+
+  function handleRemoveMedia() {
+    setMediaAttachment(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(true);
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+  }
+
+  async function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await processMediaFile(file);
+    }
+  }
+
   // 1. [핵심] 6대 상황별 페르소나 버튼 클릭: 해당 페르소나의 상황·말투로 즉시 글 생성!
   async function handleClickPersonaButton(persona: PlannerPersona) {
     setActivePersonaId(persona.id);
-    const topicToUse = topicInput.trim() || templateProduct.trim() || persona.defaultTopic;
+    const defaultTopicForMedia = mediaAttachment
+      ? (mediaAttachment.type === "video" ? "동영상 현장 리얼 썰" : "사진 현장 리얼 썰")
+      : persona.defaultTopic;
+    const topicToUse = topicInput.trim() || templateProduct.trim() || defaultTopicForMedia;
     setGeneratingLabel(persona.name);
     await handleGenerate(topicToUse, persona.id, persona.name);
   }
@@ -181,9 +272,13 @@ export function PlannerApp() {
     if (!topicToUse && templateProduct.trim()) {
       topicToUse = `${templateProduct.trim()} 썰`;
     }
+    // 미디어가 첨부되어 있는 경우 키워드가 없어도 시각 분석 글 생성 허용
+    if (!topicToUse && mediaAttachment) {
+      topicToUse = mediaAttachment.type === "video" ? "동영상 현장 리얼 썰" : "사진 현장 리얼 썰";
+    }
 
-    if (!topicToUse) {
-      setErrorMessage("주제를 입력하거나 페르소나 버튼 또는 추천 프리셋을 선택해주세요.");
+    if (!topicToUse && !mediaAttachment) {
+      setErrorMessage("주제를 입력하거나 사진/영상을 첨부해주세요 (또는 페르소나 버튼/추천 프리셋 선택).");
       return;
     }
 
@@ -214,7 +309,16 @@ export function PlannerApp() {
           model: selectedModel,
         },
         templateDataToSend,
-        effectivePersonaId
+        effectivePersonaId,
+        mediaAttachment
+          ? {
+              type: mediaAttachment.type,
+              fileName: mediaAttachment.fileName,
+              mimeType: mediaAttachment.mimeType,
+              base64List: mediaAttachment.base64List,
+              videoDuration: mediaAttachment.videoDuration,
+            }
+          : undefined
       );
       if (res.needApiKey) {
         setMissingProviderName(res.missingProvider ? PROVIDER_SHORT_LABELS[res.missingProvider] : PROVIDER_SHORT_LABELS[selectedProvider]);
@@ -484,7 +588,11 @@ export function PlannerApp() {
                   handleGenerate();
                 }
               }}
-              placeholder="소재나 상품명을 입력하세요 (예: 전자레인지 찜기, 세탁조 클리너, 섀도, 월요병) - 비워두고 아래 버튼 클릭 가능!"
+              placeholder={
+                mediaAttachment
+                  ? "사진/영상에 덧붙일 설명이나 상품명을 적어보세요 (비워두면 사진/영상 상황만으로 자동 생성!)"
+                  : "소재나 상품명을 입력하세요 (예: 전자레인지 찜기, 세탁조 클리너, 섀도, 월요병) - 비워두고 아래 버튼 클릭 가능!"
+              }
               className="w-full rounded-2xl border border-neutral-200 bg-neutral-50/50 px-4 py-3.5 text-base text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none focus:ring-4 focus:ring-neutral-900/5 transition-all font-medium"
             />
             {topicInput && (
@@ -526,6 +634,148 @@ export function PlannerApp() {
               <span>{isGenerating ? "작성 중..." : "글 생성하기"}</span>
             </button>
           </div>
+        </div>
+
+        {/* 1-1. [신규] 이미지/동영상 시각 분석 첨부 영역 ('오늘 뭐 쓰지' 바로 아래) */}
+        <div className="pt-0.5">
+          {/* 숨겨진 파일 인풋 */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+
+          {isProcessingMedia ? (
+            /* 미디어 처리/분석 중 로더 */
+            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 flex items-center justify-center gap-3 text-neutral-700">
+              <Loader2 className="w-5 h-5 animate-spin text-neutral-800" />
+              <div className="text-sm font-semibold">
+                미디어 최적화 및 시각 분석 데이터를 추출하는 중입니다... (고화질 동영상도 가볍게 변환)
+              </div>
+            </div>
+          ) : mediaAttachment ? (
+            /* 미디어 첨부 완료 미리보기 카드 */
+            <div className="rounded-2xl border border-neutral-300 bg-white p-4 shadow-sm space-y-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden border border-neutral-200 bg-neutral-100">
+                    <img
+                      src={mediaAttachment.previewUrl}
+                      alt="첨부 미디어 미리보기"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-1 right-1 bg-black/70 text-white rounded p-0.5 text-[10px]">
+                      {mediaAttachment.type === "video" ? <VideoIcon className="w-3 h-3" /> : <ImageIcon className="w-3 h-3" />}
+                    </div>
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        {mediaAttachment.type === "video" ? "동영상 분석 준비 완료" : "이미지 분석 준비 완료"}
+                      </span>
+                      {mediaAttachment.videoDuration && (
+                        <span className="text-[11px] text-neutral-500 font-medium">
+                          재생 약 {Math.round(mediaAttachment.videoDuration)}초
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm font-bold text-neutral-900 truncate mt-1">
+                      {mediaAttachment.fileName}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      {mediaAttachment.type === "video"
+                        ? "핵심 장면 3컷 추출 완료 · AI가 상황과 맥락을 분석해 썰을 풀어냅니다"
+                        : "고해상도 이미지 시각 정보 주입 완료 · 사진 속 디테일을 바탕으로 글이 작성됩니다"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs font-medium text-neutral-600 hover:text-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors cursor-pointer"
+                  >
+                    다른 파일로 변경
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRemoveMedia}
+                    className="text-xs font-medium text-rose-600 hover:text-rose-700 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors flex items-center gap-1 cursor-pointer"
+                    title="첨부 파일 삭제"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>삭제</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 동영상인 경우: 캡처된 3개 프레임 미리보기 */}
+              {mediaAttachment.type === "video" && mediaAttachment.base64List.length > 1 && (
+                <div className="pt-2 border-t border-neutral-100 flex items-center gap-2 overflow-x-auto">
+                  <span className="text-[11px] font-semibold text-neutral-500 shrink-0">
+                    🎬 AI 분석 장면:
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {mediaAttachment.base64List.map((b64, idx) => (
+                      <div
+                        key={idx}
+                        className="relative w-12 h-10 rounded border border-neutral-200 overflow-hidden bg-neutral-100 shrink-0"
+                      >
+                        <img
+                          src={`data:${mediaAttachment.mimeType};base64,${b64}`}
+                          alt={`장면 ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-0 right-0 bg-black/60 text-white text-[9px] px-1 font-mono">
+                          #{idx + 1}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-[11px] text-neutral-400">
+                    (초반·중반·후반 핵심 순간을 골라 AI에게 전달합니다)
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* 미디어 미첨부 시 드롭존 카드 */
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`group cursor-pointer rounded-2xl border-2 border-dashed transition-all p-3.5 sm:p-4 text-center ${
+                isDragging
+                  ? "border-neutral-900 bg-neutral-100/80 scale-[1.005]"
+                  : "border-neutral-200/90 hover:border-neutral-400 bg-neutral-50/40 hover:bg-neutral-50/90"
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-neutral-600">
+                <div className="flex items-center gap-1.5 text-neutral-700 font-semibold text-sm">
+                  <div className="p-1.5 rounded-xl bg-neutral-100 group-hover:bg-white transition-colors border border-neutral-200 flex items-center gap-1 text-neutral-800">
+                    <ImageIcon className="w-4 h-4 text-neutral-700" />
+                    <VideoIcon className="w-4 h-4 text-neutral-700" />
+                  </div>
+                  <span>사진 또는 동영상 첨부하기</span>
+                  <span className="text-xs text-neutral-400 font-normal hidden md:inline">
+                    (클릭 또는 드래그앤드롭)
+                  </span>
+                </div>
+
+                <div className="text-xs text-neutral-500 font-normal">
+                  <span className="text-neutral-400 hidden sm:inline">|</span>{" "}
+                  <span className="text-neutral-700 font-medium">📸 사진 속 디테일</span>이나{" "}
+                  <span className="text-neutral-700 font-medium">🎬 영상 속 장면</span>을 AI가 직접 분석해 생생한 현장 썰을 풀어냅니다
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 2. ★ 핵심 기능: 다양한 상황별 페르소나 원클릭 글 생성 버튼 그리드 (6대 페르소나) */}

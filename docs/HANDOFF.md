@@ -39,7 +39,15 @@
   - `docs/PLATFORM_PATTERNS.md`: `§31. 프로그램 등록 시 app_url 필수 지정 및 관리자 외부 링크(↗) 인터랙션 표준` 신설.
   - `docs/ERROR_LESSONS.md`: 외부 링크 단순 span 장식 문제 및 해결 기록 추가.
 
-## Threads AI 기획 자동화 (threads-easy-planner v1.24, 2026-10-06)
+## Threads AI 기획 자동화 (threads-easy-planner v1.25, 2026-10-06)
+
+- **이미지 및 동영상 시각 분석(Multimodal Vision) 기반 콘텐츠 자동 생성 (v1.25, 주인님 지시)**:
+  - '오늘은 뭐 쓰지?' 및 '글 생성하기' 버튼 바로 아래에 직관적인 사진/동영상 첨부 드롭존 및 미리보기 카드 신설.
+  - 브라우저 단에서 이미지 최적화(최대 1280px 리사이즈, JPEG 82% 압축) 및 동영상 핵심 장면 3컷(20%, 50%, 80% 타임스탬프) HTML5 Canvas 캡처(`src/lib/mediaProcessor.ts`).
+  - Vercel Serverless 페이로드 용량 한도(4.5MB) 초과 에러(413)를 원천 차단하기 위해 원본 영상 대신 경량화된 Base64 프레임(약 300~500KB)만 전송.
+  - OpenAI(GPT-4.1/4o), Anthropic(Claude Sonnet), Google Gemini 3사 AI SDK Vision API 멀티모달 파라미터 및 스레드 바이럴 시각 분석 지침 주입 완료 (`src/lib/ai/generator.ts`).
+  - 키워드를 입력하지 않아도 사진이나 동영상만 첨부하면 시각 정보에서 디테일과 현장 상황을 포착하여 생생한 1인칭 썰을 자동 생성하도록 폴백 지원.
+  - `src/lib/version.ts` 및 공유 Supabase DB `programs.version`을 `v1.25`로 갱신 완료.
 
 - **Anthropic 워크스페이스 미지정 키 오류 친절한 한글 안내 및 설정 가이드 보강 (v1.24)**:
   - 사용자(`kariy11@naver.com`) 제보 에러 분석 완료: Anthropic 콘솔에서 특정 워크스페이스가 지정되지 않은 키(`sk-ant-usr-...`)를 발급받아 등록 시 발생하는 `400 invalid_request_error` ("This API key is not scoped to a workspace...") 현상 원인 규명.

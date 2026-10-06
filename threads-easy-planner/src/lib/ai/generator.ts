@@ -87,12 +87,32 @@ export async function generateThreadPlanAI(params: {
   additionalNote?: string;
   templateInput?: import("@/types/planner").ThreadPlannerTemplateInput;
   personaPrompt?: string;
+  mediaData?: import("@/types/planner").MediaPayload;
   aiConfig: { provider: AIProvider; apiKey: string; model?: string };
 }): Promise<ThreadPlanResult> {
-  const { topic, additionalNote, templateInput, personaPrompt, aiConfig } = params;
+  const { topic, additionalNote, templateInput, personaPrompt, mediaData, aiConfig } = params;
+
+  let mediaGuideline = "";
+  let imagesForLLM: { data: string; mimeType: string }[] | undefined = undefined;
+
+  if (mediaData && mediaData.base64List && mediaData.base64List.length > 0) {
+    const isVideo = mediaData.type === "video";
+    mediaGuideline = `
+[★ 첨부된 ${isVideo ? "동영상 핵심 프레임(장면 캡처)" : "사진 이미지"} 정밀 시각 분석 지침]
+- 사용자가 첨부한 ${isVideo ? "동영상 속 상황, 행동, 변화, 분위기, 눈에 띄는 디테일" : "사진 속 제품, 상황, 디테일, 색감, 감정선"}을 면밀히 분석해줘.
+- 사진이나 영상을 본 독자가 스크롤을 내리다 "헐 사진 보니까 진짜네", "영상 속 저거 대박이다 ㅋㅋㅋ", "물색깔 봐;; 실화냐" 하고 무조건 반응할 수 있도록, 시각 자료에서 포착된 사실적 디테일을 글에 자연스럽게 묘사해줘.
+- 글을 읽자마자 첨부된 ${isVideo ? "영상" : "사진"}을 보게 만들고, 사진/영상이 본문의 썰을 100% 뒷받침하는 느낌을 줄 것!
+`;
+
+    imagesForLLM = mediaData.base64List.map((b64) => ({
+      data: b64,
+      mimeType: mediaData.mimeType || "image/jpeg",
+    }));
+  }
 
   const systemPrompt = `너는 Threads(스레드)에서 실제 50만 회 이상 폭발적 조회수와 댓글을 터뜨리는 실전 탑티어 인플루언서야.
 ${personaPrompt ? `\n[★ 지정된 글쓴이 페르소나 & 역할/말투]\n${personaPrompt}\n반드시 위 페르소나의 상황, 직업, 고민, 독특한 어조를 100% 반영해서 생생한 1인칭 썰로 글을 전개해줘.\n` : ""}
+${mediaGuideline}
 독자가 피드를 내리다 첫 문장에서 손가락을 멈추고, 끝까지 몰입해 읽은 뒤 무조건 댓글을 달거나 자댓글 링크를 클릭하게 만드는 스레드 포스팅 세트를 작성해줘.
 
 [★ 실전 52만회 & 1.6만회 바이럴 떡상글 벤치마킹 분석]
@@ -210,9 +230,13 @@ ${personaPrompt ? `\n[★ 지정된 글쓴이 페르소나 & 역할/말투]\n${p
   if (additionalNote) {
     userPrompt += `\n\n추가 요청사항: ${additionalNote}`;
   }
+  if (mediaData) {
+    const isVideo = mediaData.type === "video";
+    userPrompt += `\n\n[첨부 미디어 파일: ${mediaData.fileName} (${isVideo ? "동영상 핵심 프레임" : "사진 이미지"})]\n위 첨부된 시각 자료를 면밀히 분석하여 글 속에 시각적 생생함과 디테일을 100% 반영해줘.`;
+  }
   userPrompt += `\n\n위 정보를 바탕으로 실전 떡상 스타일의 스레드 글 1세트와 5대 훅 유형별 글 5개를 생성해줘.`;
 
-  const rawJson = await callLLM(aiConfig, systemPrompt, userPrompt);
+  const rawJson = await callLLM(aiConfig, systemPrompt, userPrompt, imagesForLLM);
   const parsed = parseJsonSafe<any>(rawJson, null);
 
   const root = parsed?.plan || parsed?.result || parsed?.data || parsed || {};
@@ -364,19 +388,33 @@ async function callLLM(
   config: { provider: AIProvider; apiKey: string; model?: string },
   systemPrompt: string,
   userPrompt: string,
+  images?: { data: string; mimeType: string }[],
 ): Promise<string> {
   const { provider, apiKey, model } = config;
 
   try {
     if (provider === "gemini") {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const selectedModel = model || "gemini-3.7-flash";
+      const selectedModel = model || "gemini-2.0-flash";
       const geminiModel = genAI.getGenerativeModel({
         model: selectedModel,
         systemInstruction: systemPrompt,
       });
+
+      const parts: any[] = [{ text: userPrompt }];
+      if (images && images.length > 0) {
+        for (const img of images) {
+          parts.push({
+            inlineData: {
+              data: img.data,
+              mimeType: img.mimeType,
+            },
+          });
+        }
+      }
+
       const result = await geminiModel.generateContent({
-        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        contents: [{ role: "user", parts }],
         generationConfig: { responseMimeType: "application/json" },
       });
       return result.response.text();
@@ -385,11 +423,32 @@ async function callLLM(
     if (provider === "anthropic") {
       const anthropic = new Anthropic({ apiKey });
       const selectedModel = model || "claude-sonnet-5";
+
+      let content: any = userPrompt;
+      if (images && images.length > 0) {
+        const blocks: any[] = [];
+        for (const img of images) {
+          const safeMime = ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(img.mimeType)
+            ? (img.mimeType as any)
+            : "image/jpeg";
+          blocks.push({
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: safeMime,
+              data: img.data,
+            },
+          });
+        }
+        blocks.push({ type: "text", text: userPrompt });
+        content = blocks;
+      }
+
       const res = await anthropic.messages.create({
         model: selectedModel,
         max_tokens: 2000,
         system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
+        messages: [{ role: "user", content }],
       });
       const firstBlock = res.content[0];
       return firstBlock && "text" in firstBlock ? firstBlock.text : "";
@@ -398,11 +457,27 @@ async function callLLM(
     // 기본: OpenAI
     const openai = new OpenAI({ apiKey });
     const selectedModel = model || "gpt-4.1";
+
+    let userContent: any = userPrompt;
+    if (images && images.length > 0) {
+      const blocks: any[] = [{ type: "text", text: userPrompt }];
+      for (const img of images) {
+        const mime = img.mimeType || "image/jpeg";
+        blocks.push({
+          type: "image_url",
+          image_url: {
+            url: `data:${mime};base64,${img.data}`,
+          },
+        });
+      }
+      userContent = blocks;
+    }
+
     const completion = await openai.chat.completions.create({
       model: selectedModel,
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
+        { role: "user", content: userContent },
       ],
       response_format: { type: "json_object" },
     });
