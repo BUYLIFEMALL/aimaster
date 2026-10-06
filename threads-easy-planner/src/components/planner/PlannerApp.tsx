@@ -75,8 +75,7 @@ export function PlannerApp() {
   const [templateTarget, setTemplateTarget] = useState("");
   const [templateBenchmark, setTemplateBenchmark] = useState("");
 
-  // 오늘 뭐 쓰지? 카테고리 & 10선 주제 영역
-  const [showCategoryPicker, setShowCategoryPicker] = useState(true); // 기본 노출하여 바로 선택 가능!
+  // 업종별 추천 주제 영역 선택 카테고리
   const [selectedCategory, setSelectedCategory] = useState<string>("tips");
 
   // AI 추론 엔진 및 모델 선택 상태 (OpenAI / Claude / Gemini)
@@ -358,8 +357,17 @@ export function PlannerApp() {
     }
 
     if (!topicToUse && !mediaAttachment) {
-      setErrorMessage("주제를 입력하거나 사진/영상을 첨부해주세요 (또는 페르소나 버튼/추천 프리셋 선택).");
-      return;
+      // 주제와 미디어가 모두 없을 경우: 요일/시간대 기반 검증된 추천 썰로 자동 생성!
+      const pick = getRandomLuckyPick();
+      topicToUse = pick.topic;
+      setTopicInput(pick.topic);
+      if (!personaId && !activePersonaId) {
+        personaId = pick.personaId;
+        setActivePersonaId(pick.personaId);
+      }
+      setIsLuckyGenerated(true);
+      setLuckyTimeLabel(pick.timeLabel);
+      showCopyToast(`🎰 입력된 소재가 없어 [${pick.timeLabel}] 맞춤 추천 썰로 자동 생성합니다!`);
     }
 
     const effectivePersonaId = personaId || activePersonaId || undefined;
@@ -445,11 +453,10 @@ export function PlannerApp() {
     }
   }
 
-  // 4. "오늘 뭐 쓰지?" 카테고리 기반 주제 추천
+  // 4. 업종별 카테고리 기반 주제 추천
   async function handleSuggestTopics(categoryId?: string) {
     const targetCat = categoryId || selectedCategory || "tips";
     setSelectedCategory(targetCat);
-    setShowCategoryPicker(true);
     setIsSuggesting(true);
     setErrorMessage(null);
     try {
@@ -712,89 +719,25 @@ export function PlannerApp() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            {/* 0. 🎰 아무 생각 없을 때 (원클릭 썰) - 메인 추천 기능! */}
-            <button
-              type="button"
-              onClick={handleLuckyRandomGenerate}
-              disabled={isGenerating}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black px-4 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
-              title="아무런 생각이 안 날 때! 요일과 시간대에 맞춘 떡상 썰을 원클릭으로 바로 작성합니다"
-            >
-              <Dices className="w-4 h-4 text-purple-200" />
-              <span>{isGenerating && isLuckyGenerated ? "랜덤 썰 작성 중..." : "아무 생각 없을 때 (랜덤 썰)"}</span>
-            </button>
-
-            {/* 1. 오늘 뭐 쓰지? 버튼 */}
-            <button
-              type="button"
-              onClick={() => {
-                if (mediaAttachment) {
-                  // ★ 사진/영상이 첨부된 경우: 사진을 분석하여 바로 글 생성 실행!
-                  handleGenerate();
-                  return;
-                }
-                if (!showCategoryPicker) {
-                  setShowCategoryPicker(true);
-                }
-                handleSuggestTopics(selectedCategory || undefined);
-              }}
-              disabled={isSuggesting || isGenerating}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-3.5 text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
-            >
-              <span>{isSuggesting || (mediaAttachment && isGenerating && !isLuckyGenerated) ? "⏳" : "🎲"}</span>
-              <span>
-                {mediaAttachment
-                  ? isGenerating && !isLuckyGenerated
-                    ? "사진 분석 작성 중..."
-                    : "오늘 뭐 쓰지? (사진 분석)"
-                  : isSuggesting
-                    ? "주제 추천 중..."
-                    : "오늘 뭐 쓰지?"}
-              </span>
-            </button>
-
-            {/* 2. 글 생성 버튼 */}
+          <div className="flex items-center gap-2">
+            {/* 단일 메인 액션 버튼: 글 생성하기 (사진/영상 첨부 시 자동 감지) */}
             <button
               type="button"
               onClick={() => handleGenerate()}
               disabled={isGenerating}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-5 py-3.5 text-sm transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-neutral-900 hover:bg-black text-white font-bold px-6 py-3.5 text-sm md:text-base transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer shrink-0"
             >
-              <span>{isGenerating && !isLuckyGenerated ? "✍️" : "✨"}</span>
+              <span>{isGenerating ? "✍️" : "✨"}</span>
               <span>
-                {isGenerating && !isLuckyGenerated
+                {isGenerating
                   ? "작성 중..."
                   : mediaAttachment
-                    ? "사진 분석 글 생성하기"
+                    ? mediaAttachment.type === "video"
+                      ? "동영상 분석 글 생성하기"
+                      : "사진 분석 글 생성하기"
                     : "글 생성하기"}
               </span>
             </button>
-          </div>
-        </div>
-
-        {/* 1-0. 아무 생각 없을 때를 위한 3초 감정 무드 칩 & 현재 시간대 추천 바 */}
-        <div className="flex flex-wrap items-center gap-2 pt-0.5">
-          <span className="text-[11px] font-extrabold text-neutral-600 flex items-center gap-1 bg-neutral-100 px-2.5 py-1 rounded-full shrink-0">
-            <span>⏰</span>
-            <span>{timeContext.timeLabel} 맞춤:</span>
-          </span>
-
-          <div className="flex flex-wrap items-center gap-1.5">
-            {QUICK_MOOD_CHIPS.map((chip) => (
-              <button
-                key={chip.id}
-                type="button"
-                onClick={() => handleMoodChipClick(chip)}
-                disabled={isGenerating}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-50 hover:bg-neutral-900 text-neutral-700 hover:text-white border border-neutral-200/90 hover:border-neutral-900 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer disabled:opacity-50 group"
-                title={chip.tagline}
-              >
-                <span>{chip.emoji}</span>
-                <span>{chip.label}</span>
-                <span className="text-[10px] text-neutral-400 group-hover:text-amber-300">⚡</span>
-              </button>
-            ))}
           </div>
         </div>
 
@@ -1218,20 +1161,84 @@ export function PlannerApp() {
           )}
         </div>
 
-        {/* 4. 🔥 아무런 아이디어가 없을 때!!! (업종/타깃별 추천 주제 10선) */}
-        {showCategoryPicker && (
-          <div ref={topicsSectionRef} className="pt-4 border-t border-neutral-200/80 space-y-3.5">
+        {/* 4. 🔥 아무런 아이디어가 없을 때!!! (원클릭 랜덤 썰 + 감정 무드 칩 + 업종별 추천 주제 10선 통합 섹션) */}
+        <div ref={topicsSectionRef} className="pt-5 border-t border-neutral-200/80 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight animate-pulse">
+                🔥 아무런 아이디어가 없을 때!!!
+              </span>
+              <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-1.5">
+                <span>원클릭 썰 뽑기 &amp; 추천 주제 10선</span>
+              </span>
+            </div>
+          </div>
+
+          <p className="text-xs text-neutral-500 font-medium">
+            아이디어가 전혀 떠오르지 않을 땐 원클릭으로 아무 썰이나 뽑거나, 현재 시간대/무드별 칩, 또는 업종별 추천 주제를 골라보세요.
+          </p>
+
+          {/* A. 원클릭 랜덤 썰 버튼 & 요일/시간대 감정 무드 칩 바 */}
+          <div className="p-3.5 md:p-4 rounded-2xl bg-gradient-to-br from-purple-50/70 via-indigo-50/40 to-neutral-50 border border-purple-200/70 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-base md:text-lg">🎰</span>
+                <div>
+                  <div className="text-xs md:text-sm font-black text-neutral-900 flex items-center gap-1.5">
+                    <span>원클릭 랜덤 썰 뽑기</span>
+                    <span className="text-[10px] text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-bold">
+                      {timeContext.timeLabel} 맞춤
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-neutral-500 font-medium mt-0.5">
+                    고민 없이 누르면 현재 시간대와 요일에 최적화된 떡상 썰을 3초 만에 작성합니다.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleLuckyRandomGenerate}
+                disabled={isGenerating}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black px-4 py-2.5 text-xs md:text-sm transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer shrink-0"
+              >
+                <Dices className="w-4 h-4 text-purple-200" />
+                <span>{isGenerating && isLuckyGenerated ? "랜덤 썰 작성 중..." : "지금 아무 썰이나 뽑아줘 (원클릭)"}</span>
+              </button>
+            </div>
+
+            {/* 3초 감정 무드 칩 바 */}
+            <div className="pt-2.5 border-t border-purple-100/90 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-extrabold text-neutral-600 flex items-center gap-1 shrink-0">
+                <span>⏰</span>
+                <span>{timeContext.timeLabel} 맞춤:</span>
+              </span>
+
+              <div className="flex flex-wrap items-center gap-1.5">
+                {QUICK_MOOD_CHIPS.map((chip) => (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    onClick={() => handleMoodChipClick(chip)}
+                    disabled={isGenerating}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white hover:bg-neutral-900 text-neutral-700 hover:text-white border border-purple-200 hover:border-neutral-900 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer disabled:opacity-50 group"
+                    title={chip.tagline}
+                  >
+                    <span>{chip.emoji}</span>
+                    <span>{chip.label}</span>
+                    <span className="text-[10px] text-neutral-400 group-hover:text-amber-300">⚡</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* B. 업종/타깃별 추천 주제 10선 영역 */}
+          <div className="space-y-3 pt-1">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs md:text-sm font-black shadow-xs tracking-tight animate-pulse">
-                  🔥 아무런 아이디어가 없을 때!!!
-                </span>
-                <span className="text-sm md:text-base font-extrabold text-neutral-900 flex items-center gap-1.5">
-                  <span>업종/타깃별 추천 주제 10선</span>
-                  <span className="text-xs md:text-sm font-semibold text-neutral-500 hidden sm:inline">
-                    (원하는 업종을 누르거나 추천 카드를 클릭해보세요)
-                  </span>
-                </span>
+              <div className="text-xs md:text-sm font-bold text-neutral-800 flex items-center gap-1.5">
+                <span>📁 업종/타깃별 추천 주제 10선</span>
+                <span className="text-[11px] text-neutral-400 font-normal hidden sm:inline">(원하는 주제를 누르면 바로 글이 생성됩니다)</span>
               </div>
               <button
                 type="button"
@@ -1319,7 +1326,8 @@ export function PlannerApp() {
               </div>
             )}
           </div>
-        )}
+        </div>
+
 
         {/* 6. AI 추론 엔진 선택 (OpenAI / Claude / Gemini) */}
         <details className="pt-3 border-t border-neutral-100 group">

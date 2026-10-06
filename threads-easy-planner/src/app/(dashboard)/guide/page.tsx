@@ -128,11 +128,11 @@ export default function GuidePage() {
             <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 space-y-2 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950">
-                  <span className="text-base">🎲</span>
-                  <span>방법 B. &apos;오늘 뭐 쓰지?&apos; 추천</span>
+                  <span className="text-base">🎰</span>
+                  <span>방법 B. 아무런 아이디어가 없을 때</span>
                 </div>
                 <p className="text-xs text-neutral-700 mt-2 leading-relaxed">
-                  오늘 뭘 써야 할지 막막할 때 주황색 <strong>[🎲 오늘 뭐 쓰지?]</strong> 버튼을 누르면, 하단에 <strong>업종/타깃별 추천 주제 10선</strong> 카드가 뜹니다. 마음에 드는 주제 카드를 클릭하면 즉시 글이 작성됩니다.
+                  소재가 전혀 떠오르지 않을 땐 상단 입력창을 비워둔 채 <strong>[✨ 글 생성하기]</strong>만 눌러도 현재 요일/시간대 맞춤 떡상 썰이 자동 완성됩니다. 또는 하단 <strong>[🔥 아무런 아이디어가 없을 때!!!]</strong> 섹션에서 <strong>[원클릭 랜덤 썰]</strong>이나 3초 무드 칩, 10대 추천 주제를 클릭해보세요.
                 </p>
               </div>
               <div className="pt-2 text-[11px] font-semibold text-amber-800">
