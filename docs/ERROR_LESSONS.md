@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-06 grid의 `fr` 열이 긴 문장 때문에 늘어나 옆 칸이 찌그러지고 화면 밖으로 넘침 (threads-content-ops v1.29)
+
+- **증상:** 대시보드의 두 칸 배치에서 오른쪽 칸의 긴 초안 한 줄이 칸 폭을 밀어내, 왼쪽 칸(`운영·API 상태`)이 세로로 찌그러지고 오른쪽은 화면 밖으로 넘쳤다.
+- **원인:** `grid-cols-[0.85fr_1.15fr]`의 `fr` 열은 최소 폭이 `auto`(내용 폭)라서, 안쪽에 `truncate`가 있어도 부모 열이 먼저 늘어난다. `truncate`는 부모가 줄어들 수 있을 때만 동작한다.
+- **해결(위치):** `app/(dashboard)/threads-content-ops/OperationsDashboard.tsx` — 열을 `minmax(0,0.85fr)_minmax(0,1.15fr)`로, 칸마다 `min-w-0`.
+- **다음부터 확인:** 사용자 입력·AI 생성 같은 긴 문장이 들어가는 칸을 `fr` 그리드나 flex에 둘 때는 `minmax(0,…fr)`/`min-w-0`을 기본으로 쓰고, 짧은 샘플이 아니라 긴 문장 샘플로 화면을 확인한다. 로그인이 필요한 화면은 임시 미리보기 페이지에 목 데이터를 넣어 확인한 뒤 반드시 삭제(커밋 금지)한다.
+
 ## 2026-10-06 루트 앱 내장 기능은 타입 오류가 빌드에 안 잡히고, Server Action의 throw 메시지는 운영 서버에서 가려짐 (threads-content-ops v1.28)
 
 - **증상:** ① `npm run build`(루트)가 통과했는데 `npx tsc --noEmit`에서는 `web-actions.ts`의 `"youtube_api_key"` 타입 오류가 나왔다(이전 단계 코드, 런타임은 정상). ② 예상된 실패(키 없음·중복 링크 등)를 Server Action에서 `throw new Error("안내문")`하면 운영 서버에서는 클라이언트가 원문 대신 "Server Components render 오류" 같은 일반 문구를 받아 안내가 안 보인다(v1.24 생성 오류와 같은 원인).

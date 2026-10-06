@@ -48,6 +48,10 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.29 — 대시보드 두 칸 배치 수정 (2026-10-06)
+
+- 주인님 스크린샷의 증상(`운영·API 상태` 칸이 세로로 찌그러지고 `실제 작업 진행`이 화면 밖으로 넘침)을 고쳤다. 원인은 `grid-cols-[0.85fr_1.15fr]`가 긴 초안 문장(`truncate`) 때문에 열 폭을 내용 폭으로 늘린 것 — `minmax(0,…fr)` + 카드 `min-w-0`으로 해결(`OperationsDashboard.tsx`). 임시 미리보기 페이지로 같은 긴 문장을 넣어 1500px에서 눈으로 확인 후 삭제했다. DB 변경 없음, 다음 단계 순서는 아래 v1.28 항목 그대로.
+
 ## Threads Content Ops v1.28 — 콘텐츠 소스 큐 UI·등록 (2026-10-06, Codex → Claude 인계 후 첫 작업)
 
 - `threads-content-ops/docs/CLAUDE_CONTINUATION.md`의 우선순위 1번을 구현했다. 사이드바 흐름 **4. 콘텐츠 소스**(`?tab=sources`)에서 회원이 계정별로 블로그·쿠팡 파트너스·네이버 브랜드 커넥트 링크를 등록·수정·삭제하고 상태(사용 가능/사용 완료/보관)를 바꾼다. 외부 수집·분석은 하지 않고 입력값만 본인 계정에 저장하며, 대시보드 카드는 실제 등록 건수만 표시한다(`작업 가능`으로 표시하지 않음).

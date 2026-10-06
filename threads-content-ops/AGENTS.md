@@ -1,8 +1,14 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.28`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.29`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.29 대시보드 두 칸 배치 수정 (2026-10-06)
+
+- 증상: 대시보드 `운영·API 상태`(왼쪽)와 `실제 작업 진행`(오른쪽) 두 칸에서, 오른쪽의 긴 초안 문장이 칸 폭을 밀어내 왼쪽 칸이 세로로 찌그러지고 오른쪽은 화면 밖으로 넘쳤다(주인님 스크린샷).
+- 원인: `grid-cols-[0.85fr_1.15fr]`의 `fr` 열은 기본 최소 폭이 내용 폭(`min-content`)이라 `truncate` 문장이 있어도 열이 늘어난다.
+- 해결(`OperationsDashboard.tsx`): 열을 `xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]`로, 두 카드에 `min-w-0`을 추가. 임시 미리보기 페이지에 같은 긴 문장(스크린샷의 MBC 뉴스 초안)을 넣어 1500px 폭에서 두 칸이 균형 있게 나뉘고 문장이 `…`로 줄어드는 것을 눈으로 확인한 뒤 미리보기 파일은 삭제했다. DB 변경 없음.
 
 ## v1.28 콘텐츠 소스 큐 UI·등록 (2026-10-06)
 

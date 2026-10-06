@@ -88,8 +88,8 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
       </div>
     </section>
 
-    <section className="grid gap-4 xl:grid-cols-[0.85fr_1.15fr]">
-      <GlassCard className="p-5">
+    <section className="grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <GlassCard className="min-w-0 p-5">
         <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-2"><Settings2 size={18} className="text-gold" /><h3 className="font-bold text-white">운영·API 상태</h3></div><Link href="/threads-content-ops?tab=settings" className="text-xs font-semibold text-gold hover:underline">설정 열기</Link></div>
         <div className="mt-4 divide-y divide-neutral-200 text-sm">
           <StateRow label="Threads 계정" value={account ? "연결됨" : "연결 필요"} good={Boolean(account)} />
@@ -101,7 +101,7 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
         </div>
       </GlassCard>
 
-      <GlassCard className="p-5">
+      <GlassCard className="min-w-0 p-5">
         <div className="flex items-center gap-2"><ListChecks size={18} className="text-gold" /><div><h3 className="font-bold text-white">실제 작업 진행</h3><p className="mt-1 text-xs text-subtext">회원님의 초안·예약·발행 결과만 표시합니다.</p></div></div>
         {posts.length ? <div className="mt-4 divide-y divide-neutral-200 rounded-xl border border-neutral-200">{posts.slice(0, 5).map((post) => {
           const status = POST_STATUS[post.status] ?? { label: post.status, tone: "bg-neutral-100 text-neutral-600" };

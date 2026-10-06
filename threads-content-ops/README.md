@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.28`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.29`
 
 개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
+
+## v1.29 대시보드 배치 수정
+
+- 대시보드의 `운영·API 상태`와 `실제 작업 진행` 두 칸이, 긴 초안 문장 때문에 한쪽이 찌그러지고 다른 쪽이 화면 밖으로 넘치던 배치를 바로잡았습니다. 긴 문장은 한 줄로 줄임 표시됩니다.
 
 ## v1.28 콘텐츠 소스 큐
 
