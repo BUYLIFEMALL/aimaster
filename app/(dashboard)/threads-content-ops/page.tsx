@@ -34,10 +34,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     .eq("user_id", user.id).order("created_at", { ascending: false }).limit(30),
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
   ]);
-  const connectedAccount = accounts?.[0]?.username ?? null;
-  const connectedAccountInfo = accounts?.[0]
-    ? { username: accounts[0].username, tokenExpiresAt: accounts[0].token_expires_at }
-    : null;
+  const connectedAccountInfos = (accounts ?? []).map((account) => ({ id: account.id, username: account.username, tokenExpiresAt: account.token_expires_at }));
   const drafts = (posts ?? []).filter((post) => post.status === "draft" || post.status === "scheduled" || post.status === "failed").slice(0, 20);
   const tab = ["dashboard", "create", "manage", "settings"].includes(searchParams.tab ?? "") ? searchParams.tab! : "dashboard";
 
@@ -48,7 +45,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} />}
     {tab === "create" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={[]} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
     {tab === "manage" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={drafts} /> : <GlassCard><h2 className="font-bold text-white">관리할 초안이 없습니다</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 콘텐츠 작성 메뉴에서 초안을 만드세요.</p></GlassCard>)}
-    {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-gold" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccount={connectedAccountInfo} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
+    {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-gold" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccounts={connectedAccountInfos} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
     </div>
   </div>;
 }

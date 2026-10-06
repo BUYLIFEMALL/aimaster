@@ -18,7 +18,7 @@ type SavePayload = {
   threadsAppId?: string;
   threadsAppSecret?: string;
 };
-type ConnectedAccount = { username: string | null; tokenExpiresAt: string | null };
+type ConnectedAccount = { id: string; username: string | null; tokenExpiresAt: string | null };
 
 const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   openai: "openaiKey",
@@ -36,11 +36,11 @@ const GUIDES = [
 ] as const;
 
 export default function WebSetup({
-  connectedAccount: initialAccount,
+  connectedAccounts: initialAccounts,
   maskedCredentials,
   redirectUri,
 }: {
-  connectedAccount: ConnectedAccount | null;
+  connectedAccounts: ConnectedAccount[];
   maskedCredentials: Record<string, string>;
   redirectUri: string;
 }) {
@@ -50,7 +50,7 @@ export default function WebSetup({
   const [disconnecting, setDisconnecting] = useState(false);
   const [credentials, setCredentials] = useState(maskedCredentials);
   const [editing, setEditing] = useState<Provider | null>(null);
-  const [connectedAccount, setConnectedAccount] = useState(initialAccount);
+  const [connectedAccounts, setConnectedAccounts] = useState(initialAccounts);
 
   const save = async (provider: Provider, value: string) => {
     if (!value.trim()) return;
@@ -99,13 +99,13 @@ export default function WebSetup({
     }
   };
 
-  const disconnect = async () => {
+  const disconnect = async (account: ConnectedAccount) => {
     if (!window.confirm("연결된 Threads 계정을 해제할까요? 저장된 초안과 발행 이력은 삭제하지 않습니다.")) return;
     setDisconnecting(true);
     setMessage("");
     try {
-      await disconnectThreadsAccount();
-      setConnectedAccount(null);
+      await disconnectThreadsAccount(account.id);
+      setConnectedAccounts((previous) => previous.filter((item) => item.id !== account.id));
       setMessage("Threads 계정 연결을 해제했습니다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "계정 연결 해제에 실패했습니다.");
@@ -128,15 +128,10 @@ export default function WebSetup({
         <CredentialRow provider="threads_app_secret" label="Threads 앱 시크릿 코드 (기본 설정 하단의 Threads 앱 시크릿 코드)" maskedValue={credentials.threads_app_secret} editing={editing === "threads_app_secret"} saving={saving === "threads_app_secret"} removing={removing === "threads_app_secret"} onEdit={setEditing} onSave={save} onDelete={remove} />
       </div>
       <div className="mt-4 rounded-lg border border-neutral-200 bg-white p-4">
-        {connectedAccount ? <div>
-          <p className="text-sm text-neutral-500">연결된 계정</p>
-          <p className="mt-1 flex items-center gap-2 text-lg font-medium text-neutral-900"><CheckCircle2 size={18} className="text-emerald-600" />@{connectedAccount.username}</p>
-          {connectedAccount.tokenExpiresAt && <p className="mt-1 text-xs text-neutral-500">토큰 만료: {new Date(connectedAccount.tokenExpiresAt).toLocaleString("ko-KR")}</p>}
-          <button className="mt-3 inline-flex items-center justify-center rounded-lg bg-[#e7000b] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#c90009] disabled:cursor-not-allowed disabled:bg-[#f3a0a5]" disabled={disconnecting} onClick={() => void disconnect()}>{disconnecting ? "해제 중…" : "연결 해제"}</button>
-        </div> : <div>
-          <p className="mb-4 text-sm text-neutral-600">앱 ID와 앱 시크릿을 모두 저장한 뒤 Threads 계정을 연결하세요.</p>
-          <button className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700" onClick={() => void connect()}>내 Threads 계정 연결하기</button>
-        </div>}
+        <div>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><p className="text-sm text-neutral-500">연결된 계정 {connectedAccounts.length ? `(${connectedAccounts.length})` : ""}</p><button className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700" onClick={() => void connect()}>Threads 계정 추가 연결</button></div>
+          {connectedAccounts.length ? <div className="space-y-2">{connectedAccounts.map((account) => <div key={account.id} className="rounded-lg border border-neutral-200 p-3"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="flex items-center gap-2 text-base font-medium text-neutral-900"><CheckCircle2 size={18} className="text-emerald-600" />@{account.username ?? "Threads 계정"}</p>{account.tokenExpiresAt && <p className="mt-1 text-xs text-neutral-500">토큰 만료: {new Date(account.tokenExpiresAt).toLocaleString("ko-KR")}</p>}</div><button className="inline-flex items-center justify-center rounded-lg bg-[#e7000b] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#c90009] disabled:cursor-not-allowed disabled:bg-[#f3a0a5]" disabled={disconnecting} onClick={() => void disconnect(account)}>{disconnecting ? "해제 중…" : "연결 해제"}</button></div></div>)}</div> : <p className="text-sm text-neutral-600">앱 ID와 앱 시크릿을 모두 저장한 뒤 첫 Threads 계정을 연결하세요.</p>}
+        </div>
       </div>
     </section>
 

@@ -1,6 +1,10 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.22`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+현재 버전은 `v1.23`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다.
+
+## v1.23 복수 계정 연결
+
+- `WebSetup`은 `tco_threads_accounts`의 모든 본인 계정을 표시하고 OAuth로 계정을 추가 연결할 수 있습니다. `disconnectThreadsAccount(accountId)`는 `user_id`와 `id`를 동시에 제한해 계정별로만 제거합니다.
 
 ## v1.22 운영 대기열과 YouTube 소재
 

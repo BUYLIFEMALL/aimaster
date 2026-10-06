@@ -66,12 +66,14 @@ export async function deleteMemberCredential(provider: string) {
   revalidatePath("/threads-content-ops");
 }
 
-export async function disconnectThreadsAccount() {
+export async function disconnectThreadsAccount(accountId: string) {
+  if (!accountId) throw new Error("연결 해제할 Threads 계정을 확인해 주세요.");
   const { supabase, user } = await authorizedUser();
   const { error } = await supabase
     .from("tco_threads_accounts")
     .delete()
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .eq("id", accountId);
   if (error) throw new Error("Threads 계정 연결을 해제하지 못했습니다.");
   revalidatePath("/threads-content-ops");
 }
