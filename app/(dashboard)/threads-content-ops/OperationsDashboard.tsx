@@ -83,7 +83,7 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
         <OperationCard title="일상" description="운영 메모로 초안 생성" ready={Boolean(account) && providers.has("openai")} href="/threads-content-ops?tab=create" />
         <OperationCard title="YouTube" icon={Youtube} description="공개 영상 메타데이터 소재" ready={Boolean(account) && providers.has("openai") && providers.has("youtube_api_key")} href="/threads-content-ops?tab=create" />
         <OperationCard title="블로그" description={sourceDescription("blog", "콘텐츠 소스에서 블로그 글 주소를 등록하세요")} ready={false} href="/threads-content-ops?tab=sources" />
-        <OperationCard title="쿠팡 파트너스" description={sourceDescription("coupang", "콘텐츠 소스에서 상품 링크를 등록하세요 · 검색 연동은 준비 중")} ready={false} href="/threads-content-ops?tab=sources" />
+        <OperationCard title="쿠팡 파트너스" description={sourceDescription("coupang", "콘텐츠 소스에서 상품을 검색하거나 링크를 등록하세요")} ready={false} href="/threads-content-ops?tab=sources" />
         <OperationCard title="네이버 브랜드 커넥트" description={sourceDescription("naver_brand_connect", "콘텐츠 소스에서 제휴 링크를 등록하세요 · 분석은 준비 중")} ready={false} href="/threads-content-ops?tab=sources" />
       </div>
     </section>
@@ -96,7 +96,7 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
           <StateRow label="Threads 토큰" value={account ? (tokenValid ? "확인됨" : "갱신 필요") : "계정 연결 필요"} good={tokenValid} />
           <StateRow label="OpenAI 초안 생성" value={providers.has("openai") ? "키 등록됨" : "키 등록 필요"} good={providers.has("openai")} />
           <StateRow label="YouTube 소재" value={providers.has("youtube_api_key") ? "키 등록됨" : "사용 안 함"} good={providers.has("youtube_api_key")} />
-          <StateRow label="쿠팡 파트너스" value={providers.has("coupang_access_key") && providers.has("coupang_secret_key") ? "키 등록됨 · 기능 준비 중" : "키 미등록"} good={false} />
+          <StateRow label="쿠팡 파트너스" value={providers.has("coupang_access_key") && providers.has("coupang_secret_key") ? "키 등록됨 · 상품 검색 가능" : "키 미등록"} good={providers.has("coupang_access_key") && providers.has("coupang_secret_key")} />
           <StateRow label="자동 발행" value="기본 OFF" good={false} />
         </div>
       </GlassCard>

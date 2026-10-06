@@ -5,7 +5,15 @@ import "server-only";
 // "API 키 등록 필요" 안내로 이어가야 한다(조용히 실패시키지 말 것). 각 서브프로젝트의
 // utils/apiKeys.ts(blog 등)와 동일한 패턴 — 루트 앱에는 이 파일이 없어서 새로 만듦.
 
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
+// 2026-10-06: threads-content-ops가 쓰는 회원 본인 키 3종 추가(공용 user_api_keys 체크 제약에 이미 있는 값).
+export type ApiKeyProvider =
+  | "openai"
+  | "anthropic"
+  | "gemini"
+  | "perplexity"
+  | "youtube_api_key"
+  | "coupang_access_key"
+  | "coupang_secret_key";
 
 type SupabaseLike = {
   from: (table: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any

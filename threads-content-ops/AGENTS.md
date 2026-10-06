@@ -1,8 +1,20 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.29`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.30`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.30 쿠팡 파트너스 상품 검색 → 소스 저장 (2026-10-06)
+
+- 다음 구현 우선순위 2번. `콘텐츠 소스` 탭 맨 위에 **쿠팡 파트너스 상품 검색** 패널을 추가했다. 회원 본인의 `coupang_access_key`/`coupang_secret_key`(공용 `user_api_keys`, 쇼핑제휴 자동화와 같은 항목이라 한 번 등록하면 두 프로그램이 같이 씀)로 검색하고, 결과 카드(사진·이름·가격·로켓/무료배송)에서 **고른 상품만** `tco_content_sources`에 `source_type='coupang'`으로 저장한다. 검색 결과 자체는 저장하지 않는다.
+- **구현 출처:** `threads-affiliate-poster/src/lib/coupang/{client,links}.ts`(2026-09-11 실계정 실호출 검증)의 서명·엔드포인트·오류 해석을 `threads-content-ops/lib/coupang.ts`로 **복사**했다(다른 프로그램의 `@/` 별칭이 루트와 달라 직접 import 불가). 규격이 바뀌면 두 곳을 같이 고칠 것. 서명은 `signedDate+method+path+query`(path와 query 사이에 `?` 없음)이며 모의 테스트에서 재계산 값과 일치함을 확인했다.
+- **운영자 키 사용 없음:** 키는 로그인한 회원의 `user_api_keys` 행만 읽는다. 키가 없으면 검색 버튼을 막고 `API키등록·플랫폼연동` 안내만 보인다(예시 상품 없음).
+- **알려진 제약(쿠팡 쪽):** 검색은 키워드당 10개·시간당 10회, API 키는 쿠팡 파트너스 **누적 매출 15만원 이후**에 활성화(`401 Specified key is not registered` = 정상 대기 상태). 이 문구들을 화면 안내로 옮겼다. 키가 활성화되기 전에는 파트너스 사이트에서 만든 링크를 `새 소스 등록`에 직접 붙여넣는다.
+- **제휴 링크 검사(`checkCoupangAffiliateLink`):** 쿠팡 종류 소스는 수수료가 잡히는 추적 링크(`link.coupang.com/...` 또는 `lptag=AF…`)만 저장·수정할 수 있다. 일반 쇼핑 주소(`www.coupang.com/vp/products/…`)는 수수료 0이라 거부한다(v1.28에서는 막지 않았던 동작 변경). 상품 사진은 `https://*.coupangcdn.com`만 저장·표시한다.
+- **미리보기 링크 주의:** 검색 결과의 `productUrl`은 본인 제휴 추적 링크라 열면 제휴 클릭으로 잡힐 수 있어, 화면의 `상품 페이지`는 일반 주소 `https://www.coupang.com/vp/products/{productId}`로 연다(쇼핑제휴 자동화 README와 같은 규칙).
+- 저장 시 `metadata`에 `{ via: "coupang_search", productId, price, imageUrl, isRocket, isFreeShipping, savedAt }`를 담고 소스 목록에 사진·가격을 보여준다.
+- 루트 `lib/apiKeys.ts`의 `ApiKeyProvider` 타입에 `youtube_api_key`/`coupang_access_key`/`coupang_secret_key`를 추가했다(v1.28에서 기록한 `tsc` 오류 해소, 기존 값·동작 변경 없음).
+- DB 스키마 변경 없음. **실제 쿠팡 키로 검색해 본 확인은 아직 못 했다**(회원 키 필요 — 모의 응답으로 서명·해석·오류 안내·링크 검사만 검증).
 
 ## v1.29 대시보드 두 칸 배치 수정 (2026-10-06)
 

@@ -1,6 +1,6 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-06 · 현재 배포 버전: `v1.29` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-06 · 현재 배포 버전: `v1.30` · 라이브: <https://www.buylife.xyz/threads-content-ops>
 
 ## 먼저 읽을 문서와 확인 순서
 
@@ -53,12 +53,18 @@
 - 외부 수집은 하지 않습니다. 서버 동작은 `web-actions.ts`의 `createContentSource`/`updateContentSource`/`setContentSourceStatus`/`deleteContentSource`이며, 모두 권한 검사 뒤 `user_id`로 제한하고 `{ ok, error }` 결과를 반환합니다(throw 금지 — 운영 서버가 메시지를 가림).
 - 대시보드 "즉시 작업" 카드는 실제 등록 건수만 보여줍니다. 소스로 초안을 만드는 연결(아래 4번)이 구현되기 전에는 `작업 가능`으로 표시하지 않습니다.
 
+### 5. 쿠팡 파트너스 상품 검색 → 소스 저장 (v1.30)
+
+- 콘텐츠 소스 탭 상단 검색 패널. 회원 본인 `coupang_access_key`/`coupang_secret_key`로만 호출(`threads-content-ops/lib/coupang.ts`, 쇼핑제휴 자동화의 검증된 클라이언트를 복사), 고른 상품만 `tco_content_sources`(`source_type='coupang'`, `metadata`에 상품 정보)에 저장합니다.
+- 쿠팡 제약(시간당 10회·키워드당 10개, 누적 매출 15만원 이후 키 활성화)과 제휴 링크 검사(일반 쇼핑 주소 거부), 미리보기는 일반 상품 주소로 열기 규칙은 `AGENTS.md` v1.30 항목을 보세요.
+- 실제 키 호출 확인은 아직 필요합니다(모의 응답으로만 검증).
+
 ## 다음 구현 우선순위
 
 다음 단계는 한 번에 모두 만들지 말고, 아래 순서를 지킵니다. 각 번호를 하나의 독립 작업 세트(구현 → 빌드 → 문서 → 커밋 → 푸시 → 루트 배포)로 끝냅니다.
 
 1. ~~**콘텐츠 소스 큐 UI와 등록**~~ — **완료(v1.28, 2026-10-06).** 위 "4. 콘텐츠 소스 큐 UI와 등록" 참고.
-2. **쿠팡 파트너스 실제 검색 연동**: 회원 본인의 쿠팡 파트너스 키로만 검색하고, 사용자가 선택한 결과만 소스 큐로 저장합니다. 키가 없거나 API가 실패하면 명확한 안내를 보이며 예시 상품을 대신 표시하지 않습니다.
+2. ~~**쿠팡 파트너스 실제 검색 연동**~~ — **완료(v1.30, 2026-10-06).** 위 "5. 쿠팡 파트너스 상품 검색 → 소스 저장" 참고.
 3. **네이버 브랜드 커넥트 링크 분석·등록**: 회원이 입력한 제휴 링크를 분석해 실제 결과만 큐에 저장합니다. 크롤링 또는 외부 연결이 필요하면 권한·정책·실제 응답을 먼저 검증합니다.
 4. **계정별 즉시 초안 생성 흐름 확장**: 선택 소스와 계정 운영정보를 프롬프트에 넣어 초안을 만들고, 사용자가 검토한 뒤에만 명시적으로 발행합니다.
 5. **댓글 관리**: Meta 공식 API로 실제 수집 가능한 댓글만 표시하고, AI 제안 답변과 최종 전송을 분리합니다. 자동 답글은 기본 OFF입니다.
@@ -97,6 +103,6 @@ vercel deploy --prod --yes --scope buylife
 ## 최근 기준점
 
 - 최신 기능 커밋: `git log --oneline -5 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인 — v1.28 `feat(threads-content-ops): 콘텐츠 소스 큐 등록 (v1.28)`이 최신이며, 그 직전 기능은 `77604d77`(v1.27 계정별 운영정보)입니다.
-- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.29'` (v1.29는 대시보드 두 칸 배치만 수정)
+- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.30'`
 - 실제 서비스 주소는 항상 `https://www.buylife.xyz/threads-content-ops`입니다(루트 AIMaster 프로젝트 배포).
 - 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `.analysis-threads-auto/`, `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.

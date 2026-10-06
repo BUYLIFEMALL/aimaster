@@ -6,6 +6,13 @@ import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
 import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
+import {
+  COUPANG_LINK_MESSAGES,
+  checkCoupangAffiliateLink,
+  isCoupangImageUrl,
+  searchCoupangProducts,
+  type CoupangProduct,
+} from "@/threads-content-ops/lib/coupang";
 
 const PROGRAM_SLUG = "threads-content-ops";
 const CREDENTIAL_PROVIDERS = new Set([
@@ -424,6 +431,43 @@ function sourceFailure(error: unknown, fallback: string): SourceResult {
   return { ok: false, error: error instanceof Error ? error.message : fallback };
 }
 
+/** 쿠팡 소스는 수수료가 잡히는 제휴 추적 링크만 허용한다(일반 쇼핑 주소는 수수료 0). */
+function assertCoupangAffiliateUrl(url: string) {
+  const check = checkCoupangAffiliateLink(url);
+  if (!check.ok) throw new Error(COUPANG_LINK_MESSAGES[check.reason]);
+}
+
+/** 계정 소유 확인 → 개수 제한 → 중복 확인 → 저장. 직접 등록과 쿠팡 검색 결과 저장이 함께 쓴다. */
+async function insertContentSource(
+  supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"],
+  userId: string,
+  input: { accountId: string; sourceType: string; title: string; sourceUrl: string; summary: string; metadata?: Record<string, unknown> },
+) {
+  const { data: account } = await supabase.from("tco_threads_accounts")
+    .select("id").eq("id", input.accountId).eq("user_id", userId).maybeSingle();
+  if (!account) throw new Error("내가 연결한 Threads 계정을 찾지 못했습니다.");
+
+  const { count } = await supabase.from("tco_content_sources")
+    .select("id", { count: "exact", head: true }).eq("user_id", userId);
+  if ((count ?? 0) >= MAX_SOURCES_PER_USER) throw new Error(`소스는 최대 ${MAX_SOURCES_PER_USER}건까지 등록할 수 있습니다. 사용한 소스를 삭제해 주세요.`);
+
+  const { data: duplicate } = await supabase.from("tco_content_sources")
+    .select("id").eq("user_id", userId).eq("account_id", account.id).eq("source_url", input.sourceUrl).maybeSingle();
+  if (duplicate) throw new Error("이 계정에 이미 같은 링크가 등록되어 있습니다.");
+
+  const { error } = await supabase.from("tco_content_sources").insert({
+    user_id: userId,
+    account_id: account.id,
+    source_type: input.sourceType,
+    title: input.title.trim(),
+    source_url: input.sourceUrl,
+    summary: input.summary.trim(),
+    metadata: input.metadata ?? {},
+    status: "ready",
+  });
+  if (error) throw new Error("소스를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+}
+
 export async function createContentSource(input: {
   accountId: string;
   sourceType: string;
@@ -435,30 +479,9 @@ export async function createContentSource(input: {
     if (!SOURCE_TYPES.includes(input.sourceType)) throw new Error("지원하지 않는 소스 종류입니다.");
     checkSourceText(input.title, input.summary);
     const sourceUrl = normalizeSourceUrl(input.sourceUrl);
+    if (input.sourceType === "coupang") assertCoupangAffiliateUrl(sourceUrl);
     const { supabase, user } = await authorizedUser();
-
-    const { data: account } = await supabase.from("tco_threads_accounts")
-      .select("id").eq("id", input.accountId).eq("user_id", user.id).maybeSingle();
-    if (!account) throw new Error("내가 연결한 Threads 계정을 찾지 못했습니다.");
-
-    const { count } = await supabase.from("tco_content_sources")
-      .select("id", { count: "exact", head: true }).eq("user_id", user.id);
-    if ((count ?? 0) >= MAX_SOURCES_PER_USER) throw new Error(`소스는 최대 ${MAX_SOURCES_PER_USER}건까지 등록할 수 있습니다. 사용한 소스를 삭제해 주세요.`);
-
-    const { data: duplicate } = await supabase.from("tco_content_sources")
-      .select("id").eq("user_id", user.id).eq("account_id", account.id).eq("source_url", sourceUrl).maybeSingle();
-    if (duplicate) throw new Error("이 계정에 이미 같은 링크가 등록되어 있습니다.");
-
-    const { error } = await supabase.from("tco_content_sources").insert({
-      user_id: user.id,
-      account_id: account.id,
-      source_type: input.sourceType,
-      title: input.title.trim(),
-      source_url: sourceUrl,
-      summary: input.summary.trim(),
-      status: "ready",
-    });
-    if (error) throw new Error("소스를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    await insertContentSource(supabase, user.id, { ...input, sourceUrl });
     revalidatePath("/threads-content-ops");
     return { ok: true };
   } catch (error) {
@@ -478,8 +501,9 @@ export async function updateContentSource(input: {
     const { supabase, user } = await authorizedUser();
 
     const { data: current } = await supabase.from("tco_content_sources")
-      .select("id, account_id").eq("id", input.id).eq("user_id", user.id).maybeSingle();
+      .select("id, account_id, source_type").eq("id", input.id).eq("user_id", user.id).maybeSingle();
     if (!current) throw new Error("수정할 소스를 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+    if (current.source_type === "coupang") assertCoupangAffiliateUrl(sourceUrl);
 
     const { data: duplicate } = await supabase.from("tco_content_sources")
       .select("id").eq("user_id", user.id).eq("account_id", current.account_id).eq("source_url", sourceUrl).neq("id", current.id).maybeSingle();
@@ -521,5 +545,72 @@ export async function deleteContentSource(id: string): Promise<SourceResult> {
     return { ok: true };
   } catch (error) {
     return sourceFailure(error, "소스를 삭제하지 못했습니다.");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 쿠팡 파트너스 검색 → 소스 저장 (v1.30)
+// 회원 본인의 Access/Secret Key(user_api_keys)로만 검색하고, 검색 결과는 저장하지 않는다.
+// 회원이 고른 상품만 소스 큐에 저장한다. 키가 없거나 실패하면 안내만 돌려주며 예시 상품은 만들지 않는다.
+// ---------------------------------------------------------------------------
+type CoupangSearchResult =
+  | { ok: true; products: CoupangProduct[] }
+  | { ok: false; error: string; needKeys?: boolean };
+
+export async function searchCoupangForSources(keyword: string): Promise<CoupangSearchResult> {
+  try {
+    const query = keyword.trim();
+    if (!query || query.length > 100) throw new Error("검색어는 1~100자로 입력해 주세요.");
+    const { supabase, user } = await authorizedUser();
+    const [accessKey, secretKey] = await Promise.all([
+      resolveApiKey(supabase, user.id, "coupang_access_key"),
+      resolveApiKey(supabase, user.id, "coupang_secret_key"),
+    ]);
+    if (!accessKey || !secretKey) {
+      return { ok: false, needKeys: true, error: "쿠팡 파트너스 Access Key와 Secret Key를 먼저 등록해 주세요. API키등록·플랫폼연동에서 본인 키를 저장하면 검색할 수 있습니다." };
+    }
+    const products = await searchCoupangProducts(query, { accessKey, secretKey, limit: 10 });
+    return { ok: true, products };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "쿠팡 상품을 검색하지 못했습니다." };
+  }
+}
+
+export async function saveCoupangSearchResult(input: {
+  accountId: string;
+  product: CoupangProduct;
+  summary: string;
+}): Promise<SourceResult> {
+  try {
+    const product = input.product;
+    const title = typeof product?.productName === "string" ? product.productName.trim().slice(0, 200) : "";
+    if (!title) throw new Error("저장할 상품 정보를 확인해 주세요. 다시 검색해서 선택해 주세요.");
+    if (input.summary.length > 1_000) throw new Error("메모는 1,000자 이내로 입력해 주세요.");
+    const sourceUrl = normalizeSourceUrl(String(product.productUrl ?? ""));
+    assertCoupangAffiliateUrl(sourceUrl);
+
+    const price = Number(product.productPrice);
+    const productId = Number(product.productId);
+    const { supabase, user } = await authorizedUser();
+    await insertContentSource(supabase, user.id, {
+      accountId: input.accountId,
+      sourceType: "coupang",
+      title,
+      sourceUrl,
+      summary: input.summary,
+      metadata: {
+        via: "coupang_search",
+        productId: Number.isFinite(productId) ? productId : null,
+        price: Number.isFinite(price) && price >= 0 ? price : null,
+        imageUrl: typeof product.productImage === "string" && isCoupangImageUrl(product.productImage) ? product.productImage : null,
+        isRocket: Boolean(product.isRocket),
+        isFreeShipping: Boolean(product.isFreeShipping),
+        savedAt: new Date().toISOString(),
+      },
+    });
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "상품을 소스로 저장하지 못했습니다.");
   }
 }
