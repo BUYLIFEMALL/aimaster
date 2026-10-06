@@ -692,7 +692,7 @@ export default function StudioPage({ email }: { email: string }) {
           <div className="brand"><em>SEO블로그</em> 스튜디오</div>
           <div className="brand-sub">네이버 블로그 콘텐츠 제작 도우미</div>
           <div className="app-version">{APP_VERSION}</div>
-          <a className="sidebar-back" href="https://www.buylife.xyz/blog/dashboard">← 다른 프로그램 보기</a>
+          <a className="sidebar-back" href="https://www.buylife.xyz/programs">← 다른 프로그램 보기</a>
         </div>
         <nav className="nav" aria-label="주 메뉴">
           <button type="button" className={`nav-overview ${activeMenu === "dashboard" ? "active" : ""}`} onClick={() => openMenu("dashboard")}>🏠 대시보드</button>

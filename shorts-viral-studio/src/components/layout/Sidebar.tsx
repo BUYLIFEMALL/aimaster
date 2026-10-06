@@ -44,7 +44,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             </span>
           </div>
           <a
-            href="https://www.buylife.xyz/dashboard"
+            href="https://www.buylife.xyz/programs"
             className="mt-2 block px-2 text-xs text-neutral-500 transition-colors hover:text-neutral-900"
           >
             ← 다른 프로그램 보기

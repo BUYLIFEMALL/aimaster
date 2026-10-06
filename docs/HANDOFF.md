@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 서브프로그램 좌측 메뉴 "← 다른 프로그램 보기" 링크 전수 통일 (2026-10-06 주인님 지시)
+
+- 주인님 피드백 반영: 서브프로그램 사이드바의 `← 다른 프로그램 보기` 클릭 시 기존 `/dashboard` 대신 **`https://www.buylife.xyz/programs`**(전체 프로그램 목록)로 이동하도록 전수 수정.
+- 수정 대상 (27개 파일):
+  - 메인 통합형 Threads 운영 자동화(`app/(dashboard)/threads-content-ops/ContentOpsSidebar.tsx`)
+  - 24개 독립 서브프로그램 사이드바 (`Sidebar.tsx`): ai-image-studio, booking-reminder, competitor-analysis, crm-google-form, instagram-comment-reply, instagram-dm-reply, insta_auto_poster, kakao_auto_poster, longtail-keyword-expander, music, naver-cafe-poster, real_estate_sales, shop-detail-page, shorts-viral-studio, shots, stepmail, threads, threads-affiliate-poster, threads-comment-reply, threads-easy-planner, trending-product-finder, video-to-gif, web-crawler/webapp, youtube-auto-reply
+  - 네이버 블로그 SEO 스튜디오 (`naver-blog-seo-studio/components/StudioPage.tsx`)
+  - 좌측 메뉴 표준 문서 (`docs/SIDEBAR_LAYOUT_STANDARD.md` §2)
+- 플랫폼 규칙 영구 반영: 앞으로 모든 서브프로그램의 `← 다른 프로그램 보기`는 `https://www.buylife.xyz/programs`를 가리키도록 표준 갱신.
+
 ## 메인 관리자 사이드바 (AdminSidebar) — 좌하단 이메일 위 로그아웃 버튼 추가 (2026-10-06 주인님 지시)
 
 - 관리자 콘솔(`/admin/*`) 좌측 사이드바(`AdminSidebar.tsx`) 최하단 사용자 이메일 표시 위치 바로 위에 **로그아웃 버튼** 신설.

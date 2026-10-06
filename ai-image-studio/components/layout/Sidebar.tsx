@@ -39,7 +39,7 @@ export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
           <div className="text-lg font-bold text-white tracking-tight">AI 이미지 스튜디오</div>
           <p className="text-xs text-zinc-500">{APP_VERSION}</p>
           <a
-            href="https://www.buylife.xyz/dashboard"
+            href="https://www.buylife.xyz/programs"
             className="block text-xs text-zinc-400 hover:text-amber-400 transition-colors mt-0.5"
           >
             ← 다른 프로그램 보기

@@ -59,7 +59,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <div className="px-2 text-lg font-semibold text-neutral-900">네이버 카페 포스팅 자동화</div>
           <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
           <a
-            href="https://www.buylife.xyz/dashboard"
+            href="https://www.buylife.xyz/programs"
             className="block px-2 text-xs text-neutral-500 hover:text-neutral-900"
           >
             ← 다른 프로그램 보기
