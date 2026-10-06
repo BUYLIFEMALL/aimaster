@@ -9,6 +9,7 @@
     2) `package.json`: `prebuild` 및 `build:extension` 스크립트를 추가하여 `npm run build` 시 자동으로 최신 ZIP 아카이브가 갱신되도록 연동 (`archiver@^7.0.1`).
     3) UI 연동: `/guide` 실전 매뉴얼 STEP 2 및 `/settings` 크롬 확장 연동 카드에 `[📦 최신 크롬 확장프로그램 ZIP 다운로드]` 원클릭 다운로드 버튼 탑재.
     4) `src/lib/version.ts`, DB `programs.version` 및 마이그레이션 `0002_nba_bump_version_v1_02.sql`을 `v1.02`로 동기화.
+    5) **메인 카탈로그 고화질 실사 썸네일 등록**: 한국인 디지털 마케터의 블로그 작업 실사 사진을 생성하여 Supabase Storage(`program-images/catalog/naver-blog-agent-thumbnail.jpg`) 업로드 및 `programs.thumbnail_url` 연동 완료. 메인 카탈로그(`https://www.buylife.xyz/programs`) 카드에 정상 노출.
 
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.01, 2026-10-07 신규 구축)
 
