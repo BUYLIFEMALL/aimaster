@@ -763,6 +763,30 @@ export async function deleteViralCandidate(id: string): Promise<SourceResult> {
   }
 }
 
+/**
+ * 글감 일괄 삭제. 보관(archived) 상태의 글감은 어떤 경우에도 삭제하지 않는다(서버에서 강제).
+ * ids를 주면 그 중 보관이 아닌 것만, "all_unarchived"면 본인 글감 중 보관이 아닌 전부를 지운다.
+ */
+export async function deleteViralCandidates(input: { ids: string[] | "all_unarchived" }): Promise<{ ok: true; deleted: number } | { ok: false; error: string }> {
+  try {
+    const { supabase, user } = await authorizedUser();
+    let query = supabase.from("tco_viral_candidates").delete().eq("user_id", user.id).neq("status", "archived");
+    if (input.ids !== "all_unarchived") {
+      const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!Array.isArray(input.ids) || !input.ids.length || input.ids.length > MAX_VIRAL_PER_USER || !input.ids.every((id) => typeof id === "string" && uuid.test(id))) {
+        throw new Error("삭제할 글감을 선택해 주세요.");
+      }
+      query = query.in("id", input.ids);
+    }
+    const { data, error } = await query.select("id");
+    if (error) throw new Error("글감을 삭제하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true, deleted: data?.length ?? 0 };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "글감을 삭제하지 못했습니다." };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 유튜브 쇼츠 검색 (v1.37) — shorts-viral-studio의 검색을 옮겼다. 회원 본인의 YouTube Data API 키만 쓴다.
 // 검색 결과는 DB에 저장하지 않고, "글감으로 저장"(분석 후 글감 생성)을 누른 영상만 저장된다(아래 analyzeShortToViralCandidates).

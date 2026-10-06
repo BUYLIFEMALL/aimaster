@@ -8,6 +8,7 @@ import {
   collectViralFromPerplexity,
   collectViralFromUrl,
   deleteViralCandidate,
+  deleteViralCandidates,
   setViralCandidateStatus,
 } from "./web-actions";
 
@@ -51,6 +52,7 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
   const [busy, setBusy] = useState(false);
   const [collecting, setCollecting] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [checked, setChecked] = useState<string[]>([]);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   const hasOpenai = configuredProviders.includes("openai");
@@ -97,6 +99,33 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
     await run(() => deleteViralCandidate(item.id), "글감을 삭제했습니다.");
   };
 
+  // 보관 글감은 선택·삭제 대상에서 제외한다(서버에서도 한 번 더 막는다).
+  const deletable = visible.filter((item) => item.status !== "archived");
+  const checkedDeletable = checked.filter((id) => deletable.some((item) => item.id === id));
+  const unarchivedTotal = candidates.filter((item) => item.status !== "archived").length;
+  const archivedTotal = candidates.length - unarchivedTotal;
+  const toggleChecked = (id: string) => setChecked((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]));
+
+  const bulkDelete = async (ids: string[] | "all_unarchived", count: number) => {
+    const scope = ids === "all_unarchived" ? `보관하지 않은 글감 전체 ${count}건` : `선택한 글감 ${count}건`;
+    if (!window.confirm(`${scope}을 삭제할까요? 보관한 글감은 삭제되지 않으며, 삭제한 글감은 되돌릴 수 없습니다.`)) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const result = await deleteViralCandidates({ ids });
+      if (result.ok) {
+        setChecked([]);
+        setMessage({ ok: true, text: `글감 ${result.deleted}건을 삭제했습니다.${archivedTotal ? " 보관한 글감은 그대로 남아 있습니다." : ""}` });
+      } else {
+        setMessage({ ok: false, text: result.error });
+      }
+    } catch {
+      setMessage({ ok: false, text: "삭제 요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return <div className="space-y-5">
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-bold text-gold">VIRAL CONTENT COLLECTOR</p>
@@ -134,10 +163,19 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
         <h3 className="font-bold text-neutral-900">수집한 글감 <span className="text-sm font-normal text-neutral-500">({visible.length}건)</span></h3>
         <select aria-label="상태 필터" className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-800" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">전체 상태</option><option value="ready">사용 가능</option><option value="used">사용 완료</option><option value="archived">보관</option></select>
       </div>
+      {candidates.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700">
+        <label className="inline-flex items-center gap-1.5 font-semibold"><input type="checkbox" className="h-4 w-4 accent-rose-600" checked={deletable.length > 0 && checkedDeletable.length === deletable.length} disabled={busy || !deletable.length} onChange={(event) => setChecked(event.target.checked ? deletable.map((item) => item.id) : [])} />현재 목록 전체 선택</label>
+        <span className="text-neutral-500">선택 {checkedDeletable.length}건</span>
+        <button type="button" disabled={busy || !checkedDeletable.length} onClick={() => void bulkDelete(checkedDeletable, checkedDeletable.length)} className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-3 py-1.5 font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"><Trash2 size={13} />선택 삭제</button>
+        <button type="button" disabled={busy || !unarchivedTotal} onClick={() => void bulkDelete("all_unarchived", unarchivedTotal)} className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 font-bold text-[#ffffff] hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-neutral-300"><Trash2 size={13} />보관 제외 전체 삭제 ({unarchivedTotal}건)</button>
+        <span className="text-neutral-500">※ 보관한 글감({archivedTotal}건)은 삭제되지 않습니다.</span>
+      </div>}
       {!visible.length ? <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm text-neutral-600">{candidates.length ? "조건에 맞는 글감이 없습니다. 필터를 바꿔 보세요." : "아직 수집한 글감이 없습니다. 위에서 주소를 넣거나 주제를 검색해 글감을 모아 보세요."}</div> : <ul className="mt-4 space-y-3">{visible.map((item) => {
         const status = STATUS[item.status] ?? { label: item.status, tone: "bg-neutral-100 text-neutral-600" };
         const link = item.method === "http" ? safeHttpUrl(item.source_input) : null;
+        const locked = item.status === "archived";
         return <li key={item.id} className="rounded-xl border border-neutral-200 p-4">
+          <label className={`mb-2 inline-flex items-center gap-1.5 text-xs ${locked ? "text-neutral-400" : "text-neutral-600"}`}><input type="checkbox" className="h-4 w-4 accent-rose-600" checked={!locked && checked.includes(item.id)} disabled={busy || locked} onChange={() => toggleChecked(item.id)} />{locked ? "보관 글감은 삭제 대상에서 제외됩니다" : "삭제할 글감으로 선택"}</label>
           <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">{item.method === "perplexity" ? "Perplexity" : item.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소"}</span><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${status.tone}`}>{status.label}</span><span className="text-xs text-neutral-400">{new Date(item.created_at).toLocaleDateString("ko-KR")}</span></div>
           <p className="mt-2 font-semibold text-neutral-900">{item.title}</p>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">{item.content}</p>
