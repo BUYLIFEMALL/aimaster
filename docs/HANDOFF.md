@@ -36,6 +36,16 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.26 — 웹 운영 대시보드 1단계·흰색 웹 표준 (2026-10-06)
+
+- 원본 프로그램 스크린샷을 기능 구조 참고 자료로 재분석했다. AIMaster 웹 화면은 전체 흰색 베이스를 유지하며, 원본 Electron의 다크 테마는 가져오지 않는다.
+- `/threads-content-ops` 대시보드에 실제 계정·초안·예약·발행 이력 기반의 운영 계정, 5개 상태 지표, 즉시 작업 소스, 운영·API 상태, 실제 작업 진행, 전체 예약 작업을 구현했다. 없는 쿠팡/네이버/블로그 소스와 댓글/성과 데이터는 가짜 값 대신 `설정·구현 필요` 또는 빈 상태로 표시한다.
+- 다음 기능 단위: 원본의 계정별 운영정보, 소스 큐(블로그·쿠팡·네이버 브랜드 커넥트), 댓글, 성과 이력을 위한 사용자별 DB 테이블·RLS. 이는 스키마 변경 승인이 필요한 다음 단계다.
+
+## Threads Content Ops v1.25 — OpenAI 응답 호환 (2026-10-06)
+
+- Responses API 응답의 `output_text`와 `output[].content[].text` 형식을 함께 읽고, 잘못된 키/권한·할당량·빈 응답을 서로 구분해 표시한다.
+
 ## Threads Content Ops v1.24 — 생성 오류 화면 방지 (2026-10-06)
 
 - OpenAI 생성 실패를 Server Action 예외로 던져 Next.js 오류 경계가 보이던 문제를 수정했다. 생성 액션은 사용자에게 보여줄 안전한 결과 객체를 반환하고, UI는 안내 문구로 표시한다.

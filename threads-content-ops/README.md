@@ -1,6 +1,17 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.24`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.26`
+
+## v1.26 웹 운영 대시보드 1단계
+
+- 원본 자동화 프로그램의 대시보드 흐름(운영 계정 → 즉시 작업 → 운영/API 상태 → 실제 작업 이력 → 예약 작업)을 AIMaster 웹의 흰색 레이아웃으로 재구성했습니다.
+- 숫자·상태·이력은 `tco_threads_accounts`, `tco_posts`, 회원 본인 API 키 등록 결과만 사용합니다. 비어 있는 쿠팡·네이버·댓글·성과 영역을 실제 동작하는 것처럼 채우지 않습니다.
+- 일상과 YouTube 소재는 현재 동작 가능한 진입점이며, 블로그·쿠팡 파트너스·네이버 브랜드 커넥트는 실제 소스 큐·API·RLS를 구현하는 다음 단계 전까지 준비 상태로만 표시합니다.
+- AIMaster 웹 서브프로그램의 작업 화면은 흰색 베이스라는 공통 규칙을 따릅니다. 원본 Electron의 다크 화면은 기능만 참고합니다.
+
+## v1.25 OpenAI 응답 호환
+
+- OpenAI Responses API의 두 본문 형식(`output_text`, `output[].content[].text`)을 모두 처리하고 키·권한·할당량·빈 응답을 구분해 안내합니다.
 
 ## v1.24 AI 생성 오류 처리
 
