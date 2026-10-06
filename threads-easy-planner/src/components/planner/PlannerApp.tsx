@@ -350,7 +350,7 @@ export function PlannerApp() {
     if (!topicToUse && mediaAttachment) {
       topicToUse =
         mediaAttachment.type === "video"
-          ? "동영상 현장 리얼 썰"
+          ? "동영상 5컷 정밀 분석 현장 썰"
           : (mediaAttachment.imageCount || 1) > 1
             ? `사진 ${mediaAttachment.imageCount}장 비교 현장 썰`
             : "사진 현장 리얼 썰";
@@ -794,7 +794,7 @@ export function PlannerApp() {
                           {mediaAttachment.fileName}
                         </p>
                         <p className="text-xs text-neutral-500">
-                          핵심 장면 3컷 추출 완료 · AI가 상황과 맥락을 분석해 썰을 풀어냅니다
+                          핵심 장면 5컷 정밀 추출 완료 · 시간 흐름(도입·전개·절정·반전·엔딩)과 미세 디테일을 분석합니다
                         </p>
                       </div>
                     </div>
@@ -828,7 +828,7 @@ export function PlannerApp() {
                     </div>
                   </div>
 
-                  {/* 캡처된 3개 프레임 미리보기 */}
+                  {/* 캡처된 5개 프레임 미리보기 */}
                   {mediaAttachment.base64List.length > 1 && (
                     <div className="pt-2 border-t border-neutral-100 flex items-center gap-2 overflow-x-auto">
                       <span className="text-[11px] font-semibold text-neutral-500 shrink-0">
@@ -852,7 +852,7 @@ export function PlannerApp() {
                         ))}
                       </div>
                       <span className="text-[11px] text-neutral-400">
-                        (초반·중반·후반 핵심 순간을 골라 AI에게 전달합니다)
+                        (도입 10% · 전개 30% · 절정 50% · 반전 70% · 결과 90% 순서로 AI에게 전달합니다)
                       </span>
                     </div>
                   )}

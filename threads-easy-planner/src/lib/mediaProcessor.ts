@@ -121,17 +121,17 @@ export async function processVideoFile(file: File): Promise<MediaAttachment> {
     video.onloadedmetadata = async () => {
       try {
         const duration = video.duration || 1;
-        // 3개 시점 (20%, 50%, 80%)
-        const timestamps = [
-          Math.max(0.1, duration * 0.2),
-          Math.max(0.2, duration * 0.5),
-          Math.max(0.3, duration * 0.8),
-        ];
+        // 5개 핵심 시점 (10% 도입 ➔ 30% 전개 ➔ 50% 절정 ➔ 70% 반전/결과 ➔ 90% 엔딩)
+        const ratios = [0.1, 0.3, 0.5, 0.7, 0.9];
+        const timestamps = ratios.map((r) => {
+          const target = duration * r;
+          return Math.min(Math.max(0.05, target), Math.max(0.05, duration - 0.05));
+        });
 
         const base64List: string[] = [];
         let previewDataUrl = "";
 
-        const maxDim = 854; // 480p 해상도로 가볍게 압축
+        const maxDim = 960; // 720p급 해상도로 정밀 캡처 (자막, 제품 디테일, 손동작 가독성 대폭 향상)
         let width = video.videoWidth || 640;
         let height = video.videoHeight || 360;
 
