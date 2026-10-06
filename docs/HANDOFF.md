@@ -1,6 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.02, 2026-10-07)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.03, 2026-10-07)
+
+- **통합 계정(buylifemall 등) 연동 AI 키 시각화 및 자동 공유 체계 고도화 (v1.03)**:
+  - 배경: `buylifemall@naver.com` 등 회원의 AIMaster 통합 계정에 기등록된 AI API 키(OpenAI, Gemini, Claude, Perplexity 등)를 찾아 자동 연동하고, 설정 페이지(`/settings`)에서 등록 현황과 마스킹 키를 명확히 확인할 수 있도록 개선 요청.
+  - 조치:
+    1) `api/keys/route.ts`: 마스킹된 키 값(`maskedKey: sk-proj••••••••tGkA`)과 최종 수정일시를 반환하도록 GET 엔드포인트를 고도화하고, 불필요한 키 삭제를 위한 DELETE 엔드포인트 신설.
+    2) `settings/page.tsx`: 4대 AI 엔진(OpenAI, Gemini, Claude, Perplexity) 연동 상태를 카드 그리드로 시각화. 계정에 이미 키가 등록되어 있는 경우 "AIMaster 통합 계정에 등록된 키가 자동 연동되어 있습니다" 안내 배너 및 각 키의 마스킹 값 표시.
+    3) 신규 키 등록/변경 폼 및 크롬 확장 연동과의 분리 레이아웃 적용.
+    4) `src/lib/version.ts`, DB `programs.version` 및 마이그레이션 `0003_nba_bump_version_v1_03.sql`을 `v1.03`으로 동기화.
+
 
 - **크롬 확장 원클릭 ZIP 다운로드 자동 빌드(prebuild) 및 대시보드 연동 (v1.02)**:
   - 배경: 회원이 크롬 확장을 수동으로 폴더 복사하지 않고, 웹 대시보드에서 클릭 한 번으로 최신 압축 파일(`naver-blog-agent-extension-latest.zip`)을 즉시 내려받을 수 있도록 개선 요청.
