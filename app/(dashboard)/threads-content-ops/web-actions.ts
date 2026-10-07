@@ -19,6 +19,8 @@ import {
 import { generateAttentionPlan, planImagePrompts, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
 import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_KEY_LABEL, MAX_GENERATE_COUNT, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
+import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, isSupportedMediaUrl, memberMediaFolder, mediaTypeOf, ownedMediaPath, type PostMedia } from "@/threads-content-ops/lib/media";
+import { publishToThreads } from "@/threads-content-ops/lib/threadsPublish";
 import { PRODUCT_SOURCE_TYPES, assemblePostBody, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { createServiceClient } from "@/lib/supabase/server";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
@@ -291,7 +293,7 @@ export async function saveDraft(input: { draftId: string; body: string }) {
 export async function publishDraft(draftId: string) {
   const { supabase, user } = await authorizedUser();
   const { data: draft } = await supabase.from("tco_posts")
-    .select("id, body, account_id")
+    .select("id, body, account_id, media")
     .eq("id", draftId).eq("user_id", user.id).eq("status", "draft").maybeSingle();
   if (!draft) throw new Error("발행할 초안을 찾지 못했습니다.");
   const { data: account } = await supabase.from("tco_threads_accounts")
@@ -302,23 +304,13 @@ export async function publishDraft(draftId: string) {
 
   await supabase.from("tco_posts").update({ status: "publishing", error_message: null }).eq("id", draft.id).eq("user_id", user.id);
   try {
-    const createResponse = await fetch(`https://graph.threads.net/v1.0/${account.threads_user_id}/threads`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ media_type: "TEXT", text: draft.body, access_token: account.access_token }),
-      cache: "no-store",
-    });
-    const container = await createResponse.json() as { id?: string };
-    if (!createResponse.ok || !container.id) throw new Error("Threads 게시물을 만들지 못했습니다.");
-    const publishResponse = await fetch(`https://graph.threads.net/v1.0/${account.threads_user_id}/threads_publish`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ creation_id: container.id, access_token: account.access_token }),
-      cache: "no-store",
-    });
-    const published = await publishResponse.json() as { id?: string; permalink?: string };
-    if (!publishResponse.ok || !published.id) throw new Error("Threads 게시물 발행에 실패했습니다.");
-    const { error } = await supabase.from("tco_posts").update({ status: "published", published_at: new Date().toISOString(), threads_post_id: published.id, permalink: published.permalink ?? null }).eq("id", draft.id).eq("user_id", user.id);
+    const media = sanitizeMedia(user.id, draft.media);
+    for (const item of media) {
+      if (item.type === "IMAGE" && item.size && item.size > MAX_IMAGE_BYTES) throw new Error("8MB를 넘는 이미지는 Threads에 올릴 수 없습니다. 더 작은 이미지로 바꿔 주세요.");
+      if (item.type === "VIDEO" && item.size && item.size > MAX_VIDEO_BYTES) throw new Error("1GB를 넘는 영상은 Threads에 올릴 수 없습니다.");
+    }
+    const published = await publishToThreads({ threadsUserId: account.threads_user_id, accessToken: account.access_token, text: draft.body, media });
+    const { error } = await supabase.from("tco_posts").update({ status: "published", published_at: new Date().toISOString(), threads_post_id: published.id, permalink: published.permalink }).eq("id", draft.id).eq("user_id", user.id);
     if (error) throw error;
   } catch (error) {
     const message = error instanceof Error ? error.message.slice(0, 500) : "발행 중 알 수 없는 오류가 발생했습니다.";
@@ -881,6 +873,25 @@ async function loadLinkedProduct(supabase: Awaited<ReturnType<typeof authorizedU
   return { id: data.id, source_type: data.source_type, title: data.title ?? "", summary: data.summary ?? "", source_url: data.source_url, price: Number.isFinite(price) && price > 0 ? price : null };
 }
 
+/** 클라이언트가 보낸 미디어 목록을 검증한다: 최대 20개, JPEG/PNG/MP4/MOV, 이 회원의 이 프로그램 전용 경로 주소만 허용(다른 회원·외부 주소 거부). */
+function sanitizeMedia(userId: string, raw: unknown): PostMedia[] {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) throw new Error("미디어 목록 형식이 올바르지 않습니다.");
+  if (raw.length > MAX_MEDIA) throw new Error(`미디어는 최대 ${MAX_MEDIA}개까지 붙일 수 있습니다.`);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const seen = new Set<string>();
+  return raw.map((item) => {
+    const url = typeof (item as PostMedia)?.url === "string" ? (item as PostMedia).url : "";
+    if (!url || !ownedMediaPath(url, userId, supabaseUrl)) throw new Error("내 계정에서 올린 이미지·영상만 붙일 수 있습니다. 미디어를 다시 올려 주세요.");
+    if (!isSupportedMediaUrl(url)) throw new Error("Threads는 JPEG·PNG 이미지와 MP4·MOV 영상만 올릴 수 있습니다.");
+    if (seen.has(url)) throw new Error("같은 미디어가 두 번 들어 있습니다.");
+    seen.add(url);
+    const type = mediaTypeOf(url);
+    const size = Number((item as PostMedia).size);
+    return { url, type, ...(Number.isFinite(size) && size > 0 ? { size: Math.round(size) } : {}) } as PostMedia;
+  });
+}
+
 async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, engine: EngineInput | undefined) {
   const provider = engine?.provider ?? DEFAULT_ENGINE.provider;
   const model = engine?.model ?? DEFAULT_ENGINE.model;
@@ -933,7 +944,7 @@ export async function rewriteGeneratedPost(input: { hook: string; content: strin
 }
 
 /** 마음에 드는 생성 글을 검토 대기 초안으로 저장한다. 글감에서 만든 글이면 그 글감을 사용 완료로 표시한다. */
-export async function saveGeneratedDraft(input: { accountId: string; body: string; viralId?: string; productId?: string }): Promise<SourceResult> {
+export async function saveGeneratedDraft(input: { accountId: string; body: string; viralId?: string; productId?: string; media?: PostMedia[] }): Promise<SourceResult> {
   try {
     let body = String(input.body ?? "").trim();
     if (!input.accountId || !body || body.length > 5_000) throw new Error("연결 계정과 1~5,000자 본문을 확인해 주세요.");
@@ -945,7 +956,8 @@ export async function saveGeneratedDraft(input: { accountId: string; body: strin
     const linked = await loadLinkedProduct(supabase, user.id, input.productId);
     body = assemblePostBody(body, linked);
     if (body.length > 5_000) throw new Error("본문이 너무 깁니다. 줄여 주세요.");
-    const { error } = await supabase.from("tco_posts").insert({ user_id: user.id, account_id: account.id, body, status: "draft" });
+    const media = sanitizeMedia(user.id, input.media);
+    const { error } = await supabase.from("tco_posts").insert({ user_id: user.id, account_id: account.id, body, status: "draft", media });
     if (error) throw new Error("초안을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
     if (input.viralId) {
       await supabase.from("tco_viral_candidates").update({ status: "used", updated_at: new Date().toISOString() })
@@ -978,7 +990,7 @@ export async function planPostImages(input: { content: string; count: number; en
   }
 }
 
-export async function generatePostImage(input: { prompt: string; imageModel: string; ratio: string }): Promise<{ ok: true; url: string } | { ok: false; error: string; needKey?: boolean }> {
+export async function generatePostImage(input: { prompt: string; imageModel: string; ratio: string }): Promise<{ ok: true; url: string; size: number } | { ok: false; error: string; needKey?: boolean }> {
   try {
     const prompt = clean(input.prompt, 1_501);
     if (!prompt || prompt.length > 1_500) throw new Error("이미지 프롬프트를 1~1,500자로 확인해 주세요.");
@@ -992,12 +1004,27 @@ export async function generatePostImage(input: { prompt: string; imageModel: str
     const image = await generateImageBytes({ model: model.value, ratio: input.ratio, prompt, apiKey: imageKey });
     if (image.bytes.length > 12_000_000) throw new Error("생성된 이미지가 너무 큽니다. 다른 모델이나 비율로 다시 시도해 주세요.");
     const extension = image.mime.includes("jpeg") ? "jpg" : image.mime.includes("webp") ? "webp" : "png";
-    const path = `threads-content-ops/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+    if (extension === "webp") throw new Error("이 모델이 Threads에서 쓸 수 없는 webp 이미지로 돌려주었습니다. 다른 이미지 모델을 선택해 주세요.");
+    const path = `${memberMediaFolder(user.id, "ai")}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
     const service = createServiceClient();
-    const { error } = await service.storage.from("ai-image-generations").upload(path, image.bytes, { contentType: image.mime, upsert: false });
+    const { error } = await service.storage.from(MEDIA_BUCKET).upload(path, image.bytes, { contentType: image.mime, upsert: false });
     if (error) throw new Error("생성한 이미지를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
-    return { ok: true, url: service.storage.from("ai-image-generations").getPublicUrl(path).data.publicUrl };
+    return { ok: true, url: service.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl, size: image.bytes.length };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "이미지를 생성하지 못했습니다." };
+  }
+}
+
+/** 회원이 올리거나 만든 미디어 파일 한 개를 저장소에서 지운다(수동 삭제). 본인의 이 프로그램 전용 경로가 아니면 거부한다. */
+export async function deleteMediaFile(url: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const { user } = await authorizedUser();
+    const path = ownedMediaPath(String(url ?? ""), user.id, process.env.NEXT_PUBLIC_SUPABASE_URL);
+    if (!path) throw new Error("내 계정에서 올린 미디어만 삭제할 수 있습니다.");
+    const { error } = await createServiceClient().storage.from(MEDIA_BUCKET).remove([path]);
+    if (error) throw new Error("파일을 삭제하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "파일을 삭제하지 못했습니다." };
   }
 }

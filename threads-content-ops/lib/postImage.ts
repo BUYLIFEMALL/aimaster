@@ -125,14 +125,17 @@ function assertReplicateDelivery(value: string): URL {
 async function withReplicate(platform: "flux" | "zimage", model: string, ratio: ImageRatio, prompt: string, apiKey: string): Promise<ImageBytes> {
   const key = apiKey.trim().replace(/^(Bearer|Token)\s+/i, "");
   const headers = { Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
-  const input: Record<string, unknown> = platform === "zimage" ? { prompt, ...Z_SIZE[ratio] } : { prompt, aspect_ratio: ratio, go_fast: true };
-  const created = await fetch(`https://api.replicate.com/v1/models/${model}/predictions`, {
+  const baseInput: Record<string, unknown> = platform === "zimage" ? { prompt, ...Z_SIZE[ratio] } : { prompt, aspect_ratio: ratio, go_fast: true };
+  const create = (input: Record<string, unknown>) => fetch(`https://api.replicate.com/v1/models/${model}/predictions`, {
     method: "POST",
     headers: { ...headers, Prefer: "wait=55" },
     body: JSON.stringify({ input }),
     cache: "no-store",
     signal: AbortSignal.timeout(110_000),
   });
+  // Threads는 JPEG/PNG만 올릴 수 있어 PNG로 달라고 요청한다. 모델이 이 옵션을 거부하면(422) 옵션 없이 다시 요청한다.
+  let created = await create({ ...baseInput, output_format: "png" });
+  if (created.status === 422) created = await create(baseInput);
   if (!created.ok) throw new Error(imageErrorMessage(created.status, "Replicate", await created.text().catch(() => "")));
 
   type Prediction = { status?: string; output?: string | string[]; error?: string; urls?: { get?: string } };

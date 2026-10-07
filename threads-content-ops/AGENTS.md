@@ -1,8 +1,19 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.58`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.59`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.59 멀티 이미지·영상 미디어 카드 + 혼합 캐러셀 발행 + 30일 자동 삭제 (2026-10-07)
+
+- 주인님 지시(`threads-affiliate-poster /posts/new`의 멀티이미지·영상 추가/삭제 기능을 확장 구현, DB 칸 추가와 자동 삭제까지 한 번에 승인)로 구현했습니다. 원본 폴더는 읽기만 했습니다.
+- **DB(승인받음):** `tco_posts.media jsonb not null default '[]'`(+ 배열 검사 제약) 추가 — 마이그레이션 `20261007100000_tco_posts_media.sql`, 운영 DB 적용·확인(기존 5행 모두 빈 배열). 새 RLS 정책 없음(기존 owner-only 정책 그대로). 값: `[{url, type: "IMAGE"|"VIDEO", size?}]`.
+- **미디어 카드(콘텐츠 생성 2번 구역 맨 아래, `AttentionComposer.tsx`의 `MediaManager`):** "📷 이미지 파일 추가"(JPEG·PNG 8MB 이하, 여러 장) / "🎬 영상 파일 추가 (최대 1GB, MP4·MOV)", 이미지+영상 합쳐 **최대 20개**, 번호·◀ ▶ 순서 변경·✕ 개별 삭제·전체 삭제, 영상 미리보기, 클릭하면 크게 보기(←/→/Esc), 30일 보관 안내. **AI로 만든 이미지(글의 "이미지 생성")도 이 카드에 모입니다**(v1.54의 글 카드별 이미지 영역은 이 공용 카드로 옮겼습니다).
+- **저장·발행:** "이 글로 초안 저장"이 미디어 목록을 함께 저장하고(`saveGeneratedDraft`가 서버에서 검증), 초안·발행 관리 화면의 초안에 첨부 썸네일이 보입니다. 발행(`publishDraft`)은 `lib/threadsPublish.ts`로 **글만 / 이미지 1장 / 영상 1개 / 혼합 캐러셀(2~20개)**을 올립니다(`threads-affiliate-poster`의 검증된 컨테이너→FINISHED 확인→캐러셀 부모→게시 순서, 영상은 최대 3분 대기). 8MB 넘는 이미지·1GB 넘는 영상은 발행 전에 막고 안내합니다.
+- **파일 저장 위치·보안:** 공개 버킷 `ai-image-generations`의 `<회원id>/threads-content-ops/{ai,up}/` (`lib/media.ts`). PC 파일은 브라우저가 바로 올리며(큰 영상이 서버 한도에 걸리지 않게) 버킷 정책이 "첫 폴더=내 id"만 허용합니다. 서버는 저장·발행·삭제 때 **주소가 내 폴더의 JPEG/PNG/MP4/MOV인지**(`ownedMediaPath`) 검증해 다른 회원·외부 주소를 거부합니다. AI 이미지 경로도 같은 폴더 구조로 바꿨습니다(이전 v1.51~1.58의 `threads-content-ops/<id>/` 경로 파일은 추적·정리되지 않음). Replicate(FLUX·Z-Image)는 PNG로 받도록 요청하고(거부되면 옵션 없이 재요청) webp 결과는 Threads가 못 쓰므로 거부합니다.
+- **30일 자동 삭제(`lib/mediaCleanup.ts`):** 올린 지 30일 지난 파일을 지우고 그 파일을 쓰던 글의 미디어 목록에서도 뺍니다. 두 곳에서 동작: ① 하루 1회 크론 `/api/threads-content-ops/cleanup-media`(`vercel.json`, 매일 03:00 KST) ② 회원이 콘텐츠 생성·초안 화면을 열 때 **본인 몫 정리**. ⚠️ ①은 루트 Vercel 프로젝트에 `CRON_SECRET` 환경변수가 **없어서 지금은 호출이 막힌 상태(503)**입니다 — 환경변수 변경은 승인 대상이라 만들지 않았습니다. 주인님이 `CRON_SECRET`(임의의 긴 문자열)을 Vercel에 추가하면 Vercel이 자동으로 `Authorization: Bearer`를 붙여 호출합니다. 그 전에도 ②로 회원별 정리는 됩니다(기존 `subscription-expiry` 크론의 `?secret=${CRON_SECRET}` 경로도 같은 이유로 확인이 필요합니다).
+- **한계·확인 필요:** 영상 최대 1GB 업로드는 Supabase 프로젝트의 파일 크기 한도 설정(Storage 설정)에 달려 있어 실제 큰 영상으로 확인하지 못했습니다(`threads-affiliate-poster`가 같은 방식이라 같은 한도). 예약 발행(`scheduleDraft`)은 기존대로 데스크톱 작업자가 소비하며, 그쪽이 `media`를 읽어 올리는 처리는 이번에 하지 않았습니다. 실제 Threads 계정으로 캐러셀을 올려 본 확인과 로그인 화면 클릭 확인은 아직 못 했습니다.
+- 검증: 모의 응답으로 경로 소유 검증 6가지(타 회원·타 버킷·외부·`..`·다른 폴더 거부), Threads 캐러셀·단일 영상·글만 발행 순서와 파라미터, 30일 정리(만료 파일 삭제+글 목록에서 제거, 신규 유지)를 확인했습니다.
 
 ## v1.58 맞춤글 생성 박스를 threads-easy-planner 구성으로 (2026-10-07)
 

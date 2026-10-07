@@ -4,7 +4,8 @@ import { Settings2 } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { cleanupUserMedia } from "@/threads-content-ops/lib/mediaCleanup";
 import { APP_VERSION } from "@/threads-content-ops/lib/version";
 import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
 import AttentionComposer from "./AttentionComposer";
@@ -30,11 +31,16 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
   }
   if (!(await checkProgramAccess(supabase, user.id, PROGRAM_SLUG)).allowed) redirect(`/programs/${PROGRAM_SLUG}`);
 
+  // 30일 지난 내 미디어 파일은 콘텐츠 생성·초안 화면을 열 때 함께 정리한다(하루 1회 크론과 별개로 동작). 실패해도 화면에는 영향 없음.
+  if (searchParams.tab === "create" || searchParams.tab === "manage") {
+    try { await cleanupUserMedia(createServiceClient(), user.id); } catch { /* 정리 실패는 무시 */ }
+  }
+
   const { data: accounts } = await supabase.from("tco_threads_accounts")
     .select("id, username, token_expires_at").eq("user_id", user.id).order("updated_at", { ascending: false });
   const [{ data: posts }, { data: credentials }, { data: operationProfiles }, { data: contentSources }, { data: viralCandidates }] = await Promise.all([
     supabase.from("tco_posts")
-    .select("id, body, status, created_at, scheduled_at, published_at, permalink, error_message, account_id")
+    .select("id, body, status, created_at, scheduled_at, published_at, permalink, error_message, account_id, media")
     .eq("user_id", user.id).order("created_at", { ascending: false }).limit(30),
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase.from("tco_operation_profiles")
@@ -57,7 +63,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     <div className="mx-auto min-w-0 max-w-6xl flex-1 space-y-6 bg-white p-4 pt-16 md:p-8">
     <header className="flex flex-wrap items-end justify-between gap-3"><div><p className="mb-1 text-xs font-medium text-gold">{APP_VERSION} · WEB AUTOMATION</p><h1 className="text-2xl font-bold text-white"><GoldGradientText>Threads 콘텐츠 운영 자동화</GoldGradientText></h1></div><p className="text-sm text-subtext">회원별 계정·초안·발행 이력 분리 관리</p></header>
     {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} sources={(contentSources ?? []).map((source) => ({ source_type: source.source_type, status: source.status }))} />}
-    {tab === "create" && (accounts?.length ? <AttentionComposer accounts={accounts} products={(contentSources ?? []).filter((source) => (source.source_type === "coupang" || source.source_type === "naver_brand_connect") && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
+    {tab === "create" && (accounts?.length ? <AttentionComposer userId={user.id} accounts={accounts} products={(contentSources ?? []).filter((source) => (source.source_type === "coupang" || source.source_type === "naver_brand_connect") && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
     {tab === "manage" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={drafts} viralCandidates={usableViral} /> : <GlassCard><h2 className="font-bold text-white">관리할 초안이 없습니다</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 콘텐츠 생성 메뉴에서 초안을 만드세요.</p></GlassCard>)}
     {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
     {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}

@@ -80,6 +80,13 @@
 - **모의 테스트가 잡은 구멍:** `http://[::ffff:127.0.0.1]/`이 통과했다. URL 분석기가 이 표기를 `[::ffff:7f00:1]`로 바꿔서, 점 표기(`::ffff:a.b.c.d`)만 보던 규칙이 놓친 것. **IPv6는 사설/예약 대역을 나열해 막지 말고, 일반 공개 대역(`2000::/3`)만 허용**하고 그 안의 6to4(`2002::`)·Teredo(`2001::`)·문서용(`2001:db8`)만 추가로 거부한다.
 - **다음부터 확인:** 사용자가 넣은 주소를 서버가 여는 코드를 쓰거나 이식할 때는 ① 위 방어를 적용하고 ② IPv4(사설·링크로컬·루프백·`0.0.0.0`·CGNAT·숫자/16진수/8진수 표기)와 IPv6(루프백·링크로컬·사설·IPv4 매핑·NAT64·6to4·Teredo), 리다이렉트 우회, 무한 리다이렉트, 큰 응답을 모의 테스트로 확인한다. 알려진 한계: 검사와 실제 접속 사이의 DNS 재바인딩은 `fetch`가 IP를 고정하지 않아 완전히 막지 못한다(더 강한 보호는 IP 고정 접속).
 
+## 2026-10-07 Threads에 올릴 미디어는 JPEG/PNG(8MB)·MP4/MOV(1GB)만, 크론은 CRON_SECRET이 있어야 호출됨 (threads-content-ops v1.59)
+
+- **Threads 미디어 규격:** 이미지는 JPEG·PNG 8MB 이하만 가능하다(webp·gif 불가). Replicate(FLUX·Z-Image)는 기본 결과가 webp라 `output_format: "png"`로 요청하고(거부되면 옵션 없이 재요청), webp면 거부한다. Gemini 4K PNG는 8MB를 넘을 수 있어 `size`를 저장해 발행 전에 막는다. 영상은 MP4·MOV 1GB·5분. 위치: `threads-content-ops/lib/media.ts`, `lib/postImage.ts`.
+- **큰 파일 업로드:** 서버 액션으로 영상을 보내면 Vercel 본문 4.5MB 제한에 걸린다 → 브라우저가 Supabase Storage로 직접 올린다. 버킷 정책이 "첫 폴더=내 uid"만 허용하므로 경로는 반드시 `<uid>/threads-content-ops/...`. 서버는 저장·발행·삭제 때 주소가 그 경로인지 검증한다(`ownedMediaPath`).
+- **크론:** 루트 Vercel 프로젝트에 `CRON_SECRET` 환경변수가 없으면 `/api/threads-content-ops/cleanup-media`는 503으로 막힌다(보안상 의도). 환경변수 추가는 승인 대상이라 주인님이 넣어야 한다. 기존 `vercel.json`의 `subscription-expiry` 크론은 경로에 `${CRON_SECRET}`을 넣어 두었는데 Vercel이 경로의 환경변수를 치환하는지 확인되지 않았다 — 다음에 만지면 헤더 방식(`Authorization: Bearer`)으로 바꿀 것. 크론이 안 돌아도 회원이 화면을 열 때 본인 몫 정리가 동작한다.
+- **다음부터 확인:** 미디어를 다루는 기능을 만들 때 ① 파일 형식·크기 제한을 대상 플랫폼 규격으로 먼저 확인 ② 큰 파일은 서버를 거치지 않기 ③ 경로 소유 검증 ④ 보관 기간 정리 수단(크론+화면 열 때)을 같이 둘 것.
+
 ## 2026-10-06 흰색 화면 범위 규칙이 `text-white`를 어두운색으로 바꿔 검은 버튼 글자가 사라짐 — `!text-white`도 소용없음 (threads-content-ops v1.31)
 
 - **증상:** 콘텐츠 운영 자동화 화면의 검은 배경 버튼(`bg-neutral-900 text-white`) 글자가 보이지 않았다.
