@@ -8,6 +8,12 @@ export interface PipelineInput {
   publishPurpose?: string;
   preferredTone?: string; // "해요체" | "합니다체" | "친근한 반말"
   recentTitles?: string[]; // 중복 방지용
+  persona?: {
+    id: string;
+    name: string;
+    badge: string;
+    tonePrompt: string;
+  };
   aiConfig: AIModelConfig;
 }
 
@@ -16,6 +22,7 @@ export interface PipelineResult {
   content: string;
   tags: string[];
   category: string;
+  personaName?: string;
   images: {
     type: "thumbnail" | "body";
     prompt: string;
@@ -29,18 +36,23 @@ export interface PipelineResult {
 }
 
 export async function runBlogGenerationPipeline(input: PipelineInput): Promise<PipelineResult> {
-  const { category, searchKeywords, publishPurpose, preferredTone = "해요체", recentTitles = [], aiConfig } = input;
+  const { category, searchKeywords, publishPurpose, preferredTone = "해요체", recentTitles = [], persona, aiConfig } = input;
   const stepsLog: PipelineResult["stepsLog"] = [];
+
+  const personaPromptSnippet = persona
+    ? `\n- 작성자 페르소나 캐릭터: "${persona.name}" [${persona.badge}]\n- 페르소나 관점 및 어조 가이드: ${persona.tonePrompt}`
+    : "";
 
   // 1단계: Research Agent (주제 및 소제목 기획)
   const researchSystemPrompt = `너는 네이버 블로그 전문 기획 에이전트야.
 네이버 C-Rank 및 D-I-A+ 검색 알고리즘에 최적화되고, 실제 독자의 클릭과 긴 체류시간을 유도하는 제목과 3~4개의 핵심 소제목 목차를 기획해줘.
-최근 발행된 글 제목들과 소재가 중복되지 않도록 참신하고 신뢰도 높은 관점을 제시해야 해.`;
+최근 발행된 글 제목들과 소재가 중복되지 않도록 참신하고 신뢰도 높은 관점을 제시해야 해.
+${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 가장 궁금해하고 신뢰할 수 있는 소제목으로 구성해줘.` : ""}`;
 
   const researchUserPrompt = `[기획 조건]
 - 카테고리: ${category}
 - 검색 키워드: ${searchKeywords || "자동 발굴"}
-- 발행 목적: ${publishPurpose || "정보 제공 및 독자 체류시간 극대화"}
+- 발행 목적: ${publishPurpose || "정보 제공 및 독자 체류시간 극대화"}${personaPromptSnippet}
 - 최근 발행 글 목록 (소재 중복 절대 금지):
 ${recentTitles.slice(0, 10).map((t) => "- " + t).join("\n") || "(없음)"}
 ${input.topic ? `- 사용자가 지정한 주제: ${input.topic}` : ""}
@@ -69,11 +81,24 @@ ${input.topic ? `- 사용자가 지정한 주제: ${input.topic}` : ""}
   stepsLog.push({
     step: "1. Research Agent",
     status: "done",
-    message: `주제 및 3개 소제목 기획 완료: "${researchData.finalTitle}"`,
+    message: `주제 및 3개 소제목 기획 완료: "${researchData.finalTitle}"${persona ? ` (${persona.name} 시점)` : ""}`,
   });
 
   // 2단계: Writer Agent (1,800~2,500자 블로그 본문 작성)
-  const writerSystemPrompt = `너는 네이버 블로그 상위 0.1% 전문 파워블로거 라이터야.
+  const writerSystemPrompt = persona
+    ? `너는 "${persona.name}" [${persona.badge}] 페르소나를 지닌 네이버 블로그 상위 0.1% 전문 파워블로거 라이터야.
+${persona.tonePrompt}
+주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 1,800~2,500자 분량의 포스팅 본문을 작성해줘.
+
+[작성 규칙]
+1. 말투: ${persona.tonePrompt}를 최우선으로 반영하되 기본 어조는 자연스러운 ${preferredTone}. (기계적인 AI 번역투 절대 금지)
+2. 구조화 태그:
+   - 소제목 시작 시: [SECTION - 소제목명]
+   - 이미지 들어갈 자리: [IMAGE INSERT - 상황을 설명하는 상세 묘사]
+   - 마지막에: [SECTION - 참고자료] (출처 및 공식 기관 안내 또는 이웃 소통 맺음말)
+3. 모바일 가독성을 위해 2~3문장마다 빈 줄(\\n\\n)로 단락을 띄울 것.
+4. 해당 인물의 생생한 실사용/실경험 썰, 구체적 수치, 독자가 무릎을 칠 꿀팁 위주로 작성할 것.`
+    : `너는 네이버 블로그 상위 0.1% 전문 파워블로거 라이터야.
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 1,800~2,500자 분량의 정보성 포스팅 본문을 작성해줘.
 
 [작성 규칙]
@@ -88,6 +113,7 @@ ${input.topic ? `- 사용자가 지정한 주제: ${input.topic}` : ""}
   const writerUserPrompt = `[기획된 글 정보]
 제목: ${researchData.finalTitle}
 카테고리: ${category}
+${persona ? `작성자 캐릭터: ${persona.name} (${persona.badge})` : ""}
 소제목 구성:
 ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}: ${s.keyPoints.join(", ")}`).join("\n")}
 
@@ -189,6 +215,7 @@ ${humanizedArticle.slice(0, 1500)}
     content: humanizedArticle,
     tags: reviewerData.tags,
     category,
+    personaName: persona?.name,
     images: imagePrompts,
     stepsLog,
   };

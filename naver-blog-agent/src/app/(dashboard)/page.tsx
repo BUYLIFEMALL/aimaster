@@ -2,17 +2,37 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, Send, Save, CheckCircle2, AlertCircle, RefreshCw, Copy, ExternalLink, ChevronRight, Layers } from "lucide-react";
+import {
+  Sparkles,
+  Send,
+  Save,
+  CheckCircle2,
+  AlertCircle,
+  RefreshCw,
+  Copy,
+  ExternalLink,
+  ChevronRight,
+  Layers,
+  Zap,
+  User,
+  Tag,
+  ArrowDown,
+  Check,
+  Wand2,
+} from "lucide-react";
 import type { PipelineResult } from "@/lib/ai/pipeline";
+import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 
 export default function MainPage() {
-  const [topic, setTopic] = useState("");
-  const [category, setCategory] = useState("생활정보");
-  const [searchKeywords, setSearchKeywords] = useState("정부지원금, 일상 꿀팁, 절약 노하우");
-  const [publishPurpose, setPublishPurpose] = useState("실생활에 유용한 복지 및 지원금 정보를 알기 쉽게 전달");
-  const [preferredTone, setPreferredTone] = useState("해요체");
+  const [activePersonaId, setActivePersonaId] = useState<string | null>("housewife");
+  const [topic, setTopic] = useState("살림 9단이 직접 써보고 엄선한 삶의 질 수직상승 살림·가전 필수템 솔직 후기");
+  const [category, setCategory] = useState("생활/살림꿀팁");
+  const [searchKeywords, setSearchKeywords] = useState("가전제품 비교, 살림 꿀팁, 세탁 노하우, 가성비 주방용품, 삶의 질 상승템");
+  const [publishPurpose, setPublishPurpose] = useState("실제 주부 입장에서 가성비와 찐활용도를 꼼꼼하게 비교 분석하여 이웃들에게 추천");
+  const [preferredTone, setPreferredTone] = useState<string>("해요체");
 
   const [loading, setLoading] = useState(false);
+  const [generatingPersonaName, setGeneratingPersonaName] = useState<string | null>(null);
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [needKey, setNeedKey] = useState(false);
@@ -30,20 +50,59 @@ export default function MainPage() {
         setAccounts(parsed);
         if (parsed.length > 0) {
           setSelectedBlogId(parsed[0].blog_id);
-          if (parsed[0].categories.length > 0) {
-            const firstCat = parsed[0].categories[0];
-            setCategory(firstCat.category_name);
-            setSearchKeywords(firstCat.search_keywords);
-            setPublishPurpose(firstCat.publish_purpose);
-            setPreferredTone(firstCat.preferred_tone);
-          }
         }
       } catch {}
     }
   }, []);
 
-  const handleGenerate = async (e: React.FormEvent) => {
+  // 페르소나 클릭 시 조건 자동 세팅
+  const handleSelectPersona = (p: BlogPersona) => {
+    setActivePersonaId(p.id);
+    setCategory(p.defaultCategory);
+    setTopic(p.defaultTopic);
+    setSearchKeywords(p.defaultKeywords);
+    setPublishPurpose(p.defaultPurpose);
+    setPreferredTone(p.preferredTone);
+  };
+
+  // 페르소나 카드의 [⚡ 즉시 생성] 클릭 시
+  const handleGenerateWithPersona = async (p: BlogPersona) => {
+    handleSelectPersona(p);
+    setGeneratingPersonaName(p.name);
+    await executeGeneration({
+      overrideTopic: topic.trim() || p.defaultTopic,
+      overrideCategory: p.defaultCategory,
+      overrideKeywords: p.defaultKeywords,
+      overridePurpose: p.defaultPurpose,
+      overrideTone: p.preferredTone,
+      overridePersona: p,
+    });
+    setGeneratingPersonaName(null);
+  };
+
+  // 폼 제출 시 생성
+  const handleGenerateForm = async (e: React.FormEvent) => {
     e.preventDefault();
+    const activePersona = BLOG_PERSONAS.find((p) => p.id === activePersonaId);
+    await executeGeneration({
+      overrideTopic: topic.trim() || undefined,
+      overrideCategory: category,
+      overrideKeywords: searchKeywords,
+      overridePurpose: publishPurpose,
+      overrideTone: preferredTone,
+      overridePersona: activePersona,
+    });
+  };
+
+  // 공통 생성 실행 함수
+  const executeGeneration = async (params: {
+    overrideTopic?: string;
+    overrideCategory: string;
+    overrideKeywords?: string;
+    overridePurpose?: string;
+    overrideTone: string;
+    overridePersona?: BlogPersona;
+  }) => {
     setLoading(true);
     setError(null);
     setNeedKey(false);
@@ -54,11 +113,19 @@ export default function MainPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          topic: topic.trim() || undefined,
-          category,
-          searchKeywords,
-          publishPurpose,
-          preferredTone,
+          topic: params.overrideTopic || undefined,
+          category: params.overrideCategory,
+          searchKeywords: params.overrideKeywords,
+          publishPurpose: params.overridePurpose,
+          preferredTone: params.overrideTone,
+          persona: params.overridePersona
+            ? {
+                id: params.overridePersona.id,
+                name: params.overridePersona.name,
+                badge: params.overridePersona.badge,
+                tonePrompt: params.overridePersona.tonePrompt,
+              }
+            : undefined,
         }),
       });
 
@@ -69,6 +136,12 @@ export default function MainPage() {
       }
 
       setResult(data.result);
+
+      // 결과 화면으로 부드럽게 스크롤 이동
+      setTimeout(() => {
+        const el = document.getElementById("result-section");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 150);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -128,20 +201,20 @@ export default function MainPage() {
 
   return (
     <div className="space-y-6">
-      {/* 상단 타이틀 */}
+      {/* 1. 상단 타이틀 */}
       <div>
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             5단계 AI 파이프라인
           </span>
           <span className="text-xs text-neutral-400">·</span>
-          <span className="text-xs text-neutral-500">크롬 확장 연동 스마트에디터 자동 발행</span>
+          <span className="text-xs text-neutral-500">네이버 C-Rank & DIA+ 알고리즘 최적화</span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900 mt-1">
           네이버 블로그 원고 자동 생성
         </h1>
         <p className="text-xs text-neutral-500 mt-0.5">
-          카테고리와 키워드를 선택하면 리서치부터 휴머나이저 윤문, 스마트에디터 서식 생성까지 100% 자동 완성됩니다.
+          6대 상황별 페르소나를 선택하거나 맞춤 기획 조건을 입력하면, 리서치부터 휴머나이저 윤문, 스마트에디터 서식 생성까지 100% 자동 완성됩니다.
         </p>
       </div>
 
@@ -160,324 +233,466 @@ export default function MainPage() {
         </div>
       )}
 
-      {/* 메인 작업 영역: 좌측 설정 / 우측 결과 */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* 좌측 입력 폼 (5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm space-y-4">
-            <h2 className="text-sm font-bold text-neutral-900 flex items-center gap-2 border-b border-neutral-100 pb-3">
-              <Sparkles className="w-4 h-4 text-emerald-600" />
-              <span>기획 조건 설정</span>
-            </h2>
-
-            <form onSubmit={handleGenerate} className="space-y-3.5">
-              {/* 계정 선택 */}
-              {accounts.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-semibold text-neutral-700">
-                      발행할 네이버 블로그 ID
-                    </label>
-                    <Link
-                      href="/accounts"
-                      className="text-[10px] text-emerald-600 hover:text-emerald-700 font-medium"
-                    >
-                      계정·카테고리 설정 ↗
-                    </Link>
-                  </div>
-                  <select
-                    value={selectedBlogId}
-                    onChange={(e) => {
-                      setSelectedBlogId(e.target.value);
-                      const acc = accounts.find((a) => a.blog_id === e.target.value);
-                      if (acc && acc.categories.length > 0) {
-                        const first = acc.categories[0];
-                        setCategory(first.category_name);
-                        setSearchKeywords(first.search_keywords || "");
-                        setPublishPurpose(first.publish_purpose || "");
-                        setPreferredTone(first.preferred_tone || "해요체");
-                      }
-                    }}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900"
-                  >
-                    {accounts.map((acc) => (
-                      <option key={acc.id} value={acc.blog_id}>
-                        {acc.label} ({acc.blog_id})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* 등록된 카테고리 빠른 선택 버튼 (계정에 등록된 카테고리가 있는 경우) */}
-              {currentAcc && currentAcc.categories && currentAcc.categories.length > 0 && (
-                <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200/80 space-y-1.5">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-semibold text-neutral-700">등록 카테고리 빠른 선택</span>
-                    <span className="text-[10px] text-neutral-400">클릭 시 자동 반영</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {currentAcc.categories.map((c: any) => {
-                      const isSelected = category === c.category_name;
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => {
-                            setCategory(c.category_name);
-                            setSearchKeywords(c.search_keywords || "");
-                            setPublishPurpose(c.publish_purpose || "");
-                            setPreferredTone(c.preferred_tone || "해요체");
-                          }}
-                          className={`px-2.5 py-1 rounded-lg text-xs transition-all flex items-center gap-1 border ${
-                            isSelected
-                              ? "bg-emerald-600 border-emerald-600 text-white font-semibold shadow-xs"
-                              : "bg-white border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50"
-                          }`}
-                        >
-                          <span>{c.category_name}</span>
-                          <span
-                            className={`text-[10px] ${
-                              isSelected ? "text-emerald-100" : "text-neutral-400"
-                            }`}
-                          >
-                            ({c.preferred_tone})
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* 카테고리 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                  네이버 블로그 카테고리
-                </label>
-                <input
-                  type="text"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  placeholder="예: 생활정보, 국내여행, IT정보"
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
-                  required
-                />
-              </div>
-
-              {/* 특정 주제 지정 (선택) */}
-              <div>
-                <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                  특정 주제 (비워두면 AI가 최신 트렌드로 자동 발굴)
-                </label>
-                <input
-                  type="text"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="예: 2026 청년 취업지원금 신청 절차"
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
-                />
-              </div>
-
-              {/* 검색 키워드 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                  검색 키워드 (쉼표 구분)
-                </label>
-                <input
-                  type="text"
-                  value={searchKeywords}
-                  onChange={(e) => setSearchKeywords(e.target.value)}
-                  placeholder="예: 정부지원금, 일상 꿀팁, 절약 노하우"
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
-                />
-              </div>
-
-              {/* 발행 목적 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                  발행 목적 및 독자 타깃
-                </label>
-                <input
-                  type="text"
-                  value={publishPurpose}
-                  onChange={(e) => setPublishPurpose(e.target.value)}
-                  placeholder="예: 사회초년생을 위한 실전 복지 혜택 가이드"
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
-                />
-              </div>
-
-              {/* 말투 */}
-              <div>
-                <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                  원고 문체 (어조)
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {["해요체", "합니다체", "친근한 반말"].map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => setPreferredTone(t)}
-                      className={`py-1.5 px-2 text-xs font-medium rounded-lg border transition-all ${
-                        preferredTone === t
-                          ? "bg-neutral-900 text-white border-neutral-900"
-                          : "bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-50"
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 생성 버튼 */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {loading ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>5단계 AI 에이전트 작업 중...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    <span>5단계 AI 글 생성 시작</span>
-                  </>
-                )}
-              </button>
-            </form>
+      {/* 2. 상단 섹션: 페르소나 선택 & 기획 조건 설정 (전체 폭) */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-6">
+        
+        {/* 2-1. [상황별 페르소나 원클릭 생성] 섹션 (threads-easy-planner 이식 및 확장) */}
+        <div className="space-y-3 pb-6 border-b border-neutral-100">
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🎭</span>
+              <span className="text-sm md:text-base font-extrabold text-neutral-900">
+                상황별 페르소나 원클릭 생성
+              </span>
+              <span className="text-xs font-semibold text-neutral-500 hidden sm:inline">
+                (클릭 시 해당 캐릭터의 시각·말투·키워드로 즉시 세팅 및 완성됩니다)
+              </span>
+            </div>
+            <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full flex items-center gap-1">
+              <Zap className="w-3 h-3 text-emerald-600 fill-emerald-600" />
+              <span>원클릭 블로그 원고 완성</span>
+            </span>
           </div>
 
-          {/* 5단계 파이프라인 소개 미니 카드 */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm text-xs text-neutral-600 space-y-2">
-            <div className="font-semibold text-neutral-800 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-emerald-600" />
-              <span>5단계 멀티 에이전트 프로세스</span>
-            </div>
-            <div className="space-y-1 text-[11px] text-neutral-500">
-              <div>1. <b>Research</b>: 최신 검색 및 신뢰도 높은 소제목 3개 기획</div>
-              <div>2. <b>Writer</b>: 1,800~2,500자 스마트에디터 ONE 서식 본문 작성</div>
-              <div>3. <b>Humanizer</b>: 상투적 AI 번역투 제거 및 17대 윤문 적용</div>
-              <div>4. <b>Reviewer</b>: 팩트 검수 및 네이버 SEO 태그 추출</div>
-              <div>5. <b>Image</b>: 대표 썸네일 & 본문 삽입 이미지 프롬프트 생성</div>
-            </div>
+          {/* 6대 페르소나 카드 그리드 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {BLOG_PERSONAS.map((p) => {
+              const isSelected = activePersonaId === p.id;
+              const isThisGenerating = loading && generatingPersonaName === p.name;
+
+              return (
+                <div
+                  key={p.id}
+                  onClick={() => handleSelectPersona(p)}
+                  className={`text-left rounded-2xl border p-4 transition-all group flex flex-col justify-between cursor-pointer active:scale-[0.99] shadow-xs relative ${
+                    isSelected
+                      ? "border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-600/20 shadow-md"
+                      : "border-neutral-200 bg-neutral-50/60 hover:bg-white hover:border-neutral-400 text-neutral-800"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                      <span className="flex items-center gap-1.5 font-bold text-sm text-neutral-900">
+                        <span className="text-base">{p.emoji}</span>
+                        <span>{p.name}</span>
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          isSelected
+                            ? "bg-emerald-600 text-white"
+                            : "bg-amber-100 text-amber-900"
+                        }`}
+                      >
+                        {p.badge}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-neutral-600 leading-snug line-clamp-2 mt-1">
+                      {p.tagline}
+                    </p>
+
+                    <div className="mt-2 text-[11px] text-neutral-400 flex items-center gap-1">
+                      <span className="text-neutral-500 font-medium shrink-0">추천 주제:</span>
+                      <span className="truncate text-neutral-700">{p.defaultTopic}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-neutral-200/70 flex items-center justify-between text-xs">
+                    <span
+                      className={`font-semibold flex items-center gap-1 ${
+                        isSelected ? "text-emerald-700 font-bold" : "text-neutral-500 group-hover:text-neutral-900"
+                      }`}
+                    >
+                      {isSelected ? "✓ 선택됨" : "조건 불러오기"}
+                    </span>
+
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGenerateWithPersona(p);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 shadow-xs ${
+                        isSelected
+                          ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                          : "bg-neutral-900 text-white hover:bg-neutral-800"
+                      }`}
+                      title="이 페르소나로 즉시 5단계 글 생성 시작"
+                    >
+                      {isThisGenerating ? (
+                        <>
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          <span>작성 중...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-3 h-3" />
+                          <span>즉시 생성 →</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* 우측 결과물 뷰어 (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          {error && (
-            <div className="p-4 rounded-2xl border border-red-200 bg-red-50 text-red-700 text-xs flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+        {/* 2-2. 기획 조건 직접 설정 및 미세 조정 폼 */}
+        <form onSubmit={handleGenerateForm} className="space-y-4">
+          <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+            <h2 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <span>기획 세부 조건 미세 조정</span>
+            </h2>
+            <span className="text-xs text-neutral-400">
+              페르소나 선택 시 자동 입력되며, 자유롭게 수정할 수 있습니다.
+            </span>
+          </div>
+
+          {/* 블로그 계정 및 등록 카테고리 빠른 선택 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 계정 선택 */}
+            {accounts.length > 0 && (
               <div>
-                <div className="font-semibold">오류 발생</div>
-                <div>{error}</div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] font-semibold text-neutral-700">
+                    발행할 네이버 블로그 ID
+                  </label>
+                  <Link
+                    href="/accounts"
+                    className="text-[10px] text-emerald-600 hover:text-emerald-700 font-medium"
+                  >
+                    계정·카테고리 설정 ↗
+                  </Link>
+                </div>
+                <select
+                  value={selectedBlogId}
+                  onChange={(e) => {
+                    setSelectedBlogId(e.target.value);
+                    const acc = accounts.find((a) => a.blog_id === e.target.value);
+                    if (acc && acc.categories.length > 0) {
+                      const first = acc.categories[0];
+                      setCategory(first.category_name);
+                      setSearchKeywords(first.search_keywords || "");
+                      setPublishPurpose(first.publish_purpose || "");
+                      setPreferredTone(first.preferred_tone || "해요체");
+                    }
+                  }}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900"
+                >
+                  {accounts.map((acc) => (
+                    <option key={acc.id} value={acc.blog_id}>
+                      {acc.label} ({acc.blog_id})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* 등록된 카테고리 빠른 선택 버튼 (계정에 등록된 카테고리가 있는 경우) */}
+            {currentAcc && currentAcc.categories && currentAcc.categories.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-semibold text-neutral-700">등록 카테고리 원클릭 선택</span>
+                  <span className="text-[10px] text-neutral-400">클릭 시 자동 반영</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {currentAcc.categories.map((c: any) => {
+                    const isSelected = category === c.category_name;
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setCategory(c.category_name);
+                          setSearchKeywords(c.search_keywords || "");
+                          setPublishPurpose(c.publish_purpose || "");
+                          setPreferredTone(c.preferred_tone || "해요체");
+                        }}
+                        className={`px-2.5 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 border ${
+                          isSelected
+                            ? "bg-emerald-600 border-emerald-600 text-white font-semibold shadow-xs"
+                            : "bg-white border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50"
+                        }`}
+                      >
+                        <span>{c.category_name}</span>
+                        <span
+                          className={`text-[10px] ${
+                            isSelected ? "text-emerald-100" : "text-neutral-400"
+                          }`}
+                        >
+                          ({c.preferred_tone})
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 카테고리 & 특정 주제 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+                네이버 블로그 카테고리
+              </label>
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="예: 생활정보, 국내여행, IT정보"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+                특정 주제 (비워두면 페르소나 및 트렌드로 자동 발굴)
+              </label>
+              <input
+                type="text"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="예: 2026 청년 취업지원금 신청 절차"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
+              />
+            </div>
+          </div>
+
+          {/* 검색 키워드 & 발행 목적 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+                검색 키워드 (쉼표 구분)
+              </label>
+              <input
+                type="text"
+                value={searchKeywords}
+                onChange={(e) => setSearchKeywords(e.target.value)}
+                placeholder="예: 정부지원금, 일상 꿀팁, 절약 노하우"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+                발행 목적 및 독자 타깃
+              </label>
+              <input
+                type="text"
+                value={publishPurpose}
+                onChange={(e) => setPublishPurpose(e.target.value)}
+                placeholder="예: 사회초년생을 위한 실전 복지 혜택 가이드"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
+              />
+            </div>
+          </div>
+
+          {/* 원고 문체(어조) & 실행 버튼 */}
+          <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-neutral-100">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-neutral-700">원고 문체:</span>
+              <div className="flex items-center gap-1.5">
+                {["해요체", "합니다체", "친근한 반말"].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setPreferredTone(t)}
+                    className={`py-1.5 px-3 text-xs font-medium rounded-lg border transition-all ${
+                      preferredTone === t
+                        ? "bg-neutral-900 text-white border-neutral-900 font-bold"
+                        : "bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-50"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
               </div>
             </div>
-          )}
 
-          {result ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-5">
-              {/* 상단 컨트롤 버튼 바 */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-4">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    {result.category}
-                  </span>
-                  <span className="text-xs text-neutral-400">
-                    공백 제외 약 {result.content.replace(/\s/g, "").length}자
-                  </span>
-                </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="py-3 px-6 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 min-w-[240px]"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>5단계 AI 에이전트 작업 중...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>5단계 AI 블로그 글 생성 시작</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={copyContent}
-                    className="px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 text-xs font-medium text-neutral-700 flex items-center gap-1.5 transition-colors"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>{copied ? "복사됨!" : "원고 복사"}</span>
-                  </button>
-                  <button
-                    onClick={handleSaveDraft}
-                    className="px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 text-xs font-medium text-neutral-700 flex items-center gap-1.5 transition-colors"
-                  >
-                    <Save className="w-3.5 h-3.5" />
-                    <span>보관함 저장</span>
-                  </button>
-                  <button
-                    onClick={handlePublishToQueue}
-                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-semibold text-white flex items-center gap-1.5 shadow-xs transition-colors"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>네이버로 즉시 발행</span>
-                  </button>
-                </div>
+      {/* 3. 하단 섹션: AI 생성 결과물 보이는 섹션 (결과물 보이는 섹션을 아래로 이동) */}
+      <div id="result-section" className="space-y-4 pt-2">
+        {error && (
+          <div className="p-4 rounded-2xl border border-red-200 bg-red-50 text-red-700 text-xs flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-semibold">오류 발생</div>
+              <div>{error}</div>
+            </div>
+          </div>
+        )}
+
+        {result ? (
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6 md:p-8 shadow-sm space-y-6">
+            {/* 상단 컨트롤 바 */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-4">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  {result.category}
+                </span>
+                {result.personaName && (
+                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-neutral-100 text-neutral-700">
+                    🎭 {result.personaName} 관점
+                  </span>
+                )}
+                <span className="text-xs text-neutral-400">·</span>
+                <span className="text-xs text-neutral-500 font-medium">
+                  공백 제외 약 {result.content.replace(/\s/g, "").length}자
+                </span>
               </div>
 
-              {/* 단계별 실행 로그 */}
-              <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1">
-                <div className="text-[11px] font-semibold text-neutral-700">에이전트 실행 내역:</div>
-                <div className="space-y-0.5">
-                  {result.stepsLog.map((log, idx) => (
-                    <div key={idx} className="text-[11px] text-neutral-600 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                      <span className="font-medium text-neutral-800">{log.step}:</span>
-                      <span>{log.message}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={copyContent}
+                  className="px-3.5 py-2 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-xs font-semibold text-neutral-700 flex items-center gap-1.5 transition-colors"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{copied ? "복사 완료!" : "원고 복사"}</span>
+                </button>
+                <button
+                  onClick={handleSaveDraft}
+                  className="px-3.5 py-2 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-xs font-semibold text-neutral-700 flex items-center gap-1.5 transition-colors"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>보관함 저장</span>
+                </button>
+                <button
+                  onClick={handlePublishToQueue}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-colors"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>🚀 네이버 블로그로 즉시 발행</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 5단계 에이전트 단계별 실행 내역 요약 박스 */}
+            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">
+              <div className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
+                <Layers className="w-4 h-4 text-emerald-600" />
+                <span>5단계 AI 에이전트 실행 내역:</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 pt-1">
+                {result.stepsLog.map((log, idx) => (
+                  <div key={idx} className="text-xs text-neutral-600 flex items-center gap-1.5 bg-white p-2 rounded-lg border border-neutral-100">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-neutral-800 shrink-0">{log.step}:</span>
+                    <span className="truncate">{log.message}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 제목 */}
+            <div className="space-y-1">
+              <div className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">
+                네이버 블로그 제목
+              </div>
+              <h2 className="text-xl md:text-2xl font-extrabold text-neutral-900 leading-snug">
+                {result.title}
+              </h2>
+            </div>
+
+            {/* 본문 미리보기 (가로 폭 넓고 쾌적하게 렌더링) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide">
+                  스마트에디터 ONE 서식 원고 본문
+                </span>
+                <span className="text-xs text-neutral-400">
+                  크롬 확장이 네이버 에디터에 제목/본문/태그를 동일 서식으로 자동 입력합니다.
+                </span>
+              </div>
+              <div className="p-6 rounded-2xl bg-neutral-50/70 border border-neutral-200 font-sans text-sm text-neutral-800 leading-relaxed whitespace-pre-wrap max-h-[550px] overflow-y-auto shadow-inner">
+                {result.content}
+              </div>
+            </div>
+
+            {/* 태그 */}
+            <div className="space-y-2">
+              <div className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide">
+                추천 SEO 검색 태그 ({result.tags.length})
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {result.tags.map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1.5 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold border border-neutral-200/60"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* AI 이미지 프롬프트 안내 (대표 썸네일 & 본문 삽입 컷) */}
+            {result.images && result.images.length > 0 && (
+              <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/80 space-y-2 text-xs">
+                <div className="font-bold text-amber-950 flex items-center gap-1.5">
+                  <span>🖼️ AI 이미지 생성 추천 프롬프트 (썸네일 & 본문 컷)</span>
+                </div>
+                <div className="space-y-2 pt-1">
+                  {result.images.map((img, idx) => (
+                    <div key={idx} className="bg-white p-3 rounded-lg border border-amber-200/60 space-y-1">
+                      <div className="font-semibold text-neutral-800 flex items-center justify-between">
+                        <span>[{img.type === "thumbnail" ? "대표 썸네일" : "본문 삽입 이미지"}] {img.caption}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(img.prompt);
+                            alert("이미지 프롬프트가 복사되었습니다!");
+                          }}
+                          className="text-[11px] text-amber-700 hover:text-amber-900 font-medium underline"
+                        >
+                          프롬프트 복사
+                        </button>
+                      </div>
+                      <div className="text-[11px] font-mono text-neutral-600 bg-neutral-50 p-2 rounded">
+                        {img.prompt}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* 제목 */}
-              <div>
-                <div className="text-[11px] font-semibold text-neutral-400 mb-1">제목</div>
-                <h2 className="text-lg font-bold text-neutral-900 leading-snug">
-                  {result.title}
-                </h2>
-              </div>
-
-              {/* 본문 미리보기 */}
-              <div>
-                <div className="text-[11px] font-semibold text-neutral-400 mb-1">
-                  스마트에디터 ONE 원고 본문
-                </div>
-                <div className="p-4 rounded-xl bg-neutral-50/70 border border-neutral-200 font-sans text-xs text-neutral-800 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto">
-                  {result.content}
-                </div>
-              </div>
-
-              {/* 태그 */}
-              <div>
-                <div className="text-[11px] font-semibold text-neutral-400 mb-1.5">
-                  추천 SEO 태그
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {result.tags.map((tag, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-700 text-xs font-medium"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
+            )}
+          </div>
+        ) : (
+          /* 대기 상태 안내 카드 */
+          <div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-12 text-center text-neutral-400 shadow-xs flex flex-col items-center justify-center min-h-[300px]">
+            <Sparkles className="w-10 h-10 text-neutral-300 mb-3 animate-pulse" />
+            <div className="font-bold text-neutral-700 text-base">
+              5단계 AI 에이전트 파이프라인 대기 중
             </div>
-          ) : (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center text-neutral-400 text-xs shadow-sm flex flex-col items-center justify-center min-h-[450px]">
-              <Sparkles className="w-8 h-8 text-neutral-300 mb-3" />
-              <div className="font-semibold text-neutral-600 text-sm">
-                5단계 AI 에이전트 준비 완료
-              </div>
-              <p className="mt-1 text-xs max-w-sm text-neutral-400">
-                좌측에서 카테고리와 키워드를 설정한 후 [5단계 AI 글 생성 시작] 버튼을 누르면 스마트에디터 ONE 원고가 완성됩니다.
-              </p>
-            </div>
-          )}
-        </div>
+            <p className="mt-1 text-xs max-w-md text-neutral-500 leading-relaxed">
+              상단에서 <b>6대 상황별 페르소나</b>를 선택하거나 주제/키워드를 입력한 후 <b>[5단계 AI 블로그 글 생성 시작]</b>을 누르면, 리서치부터 휴머나이징 윤문이 완료된 스마트에디터 ONE 원고가 이 자리에 완성됩니다.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
