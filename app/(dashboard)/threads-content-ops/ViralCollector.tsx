@@ -30,7 +30,7 @@ const METHODS = [
 
 const STATUS: Record<string, { label: string; tone: string }> = {
   ready: { label: "사용 가능", tone: "bg-emerald-50 text-emerald-700" },
-  used: { label: "사용 완료", tone: "bg-sky-50 text-sky-700" },
+  used: { label: "✅ 사용 완료", tone: "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300" },
   archived: { label: "📦 보관 중", tone: "bg-amber-100 text-amber-800 ring-1 ring-amber-300" },
 };
 
@@ -184,10 +184,12 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
           <div className="mt-3 flex flex-wrap gap-1.5">
             <Link href={`/threads-content-ops?tab=create&viral=${item.id}`} className="inline-flex items-center gap-1 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700"><PenLine size={14} />이 글감으로 작성</Link>
             {item.status !== "ready" && <ActionButton label="사용가능 전환" onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "ready" }), "사용 가능으로 되돌렸습니다.")} disabled={busy}><RotateCcw size={14} /></ActionButton>}
-            {item.status !== "used" && <ActionButton label="사용 완료 표시" onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "used" }), "사용 완료로 표시했습니다.")} disabled={busy}><CheckCircle2 size={14} /></ActionButton>}
+            {item.status === "used"
+              ? <ActionButton label="사용 완료 (눌러서 해제)" ok onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "ready" }), "사용 완료를 해제하고 사용 가능으로 되돌렸습니다.")} disabled={busy}><CheckCircle2 size={14} /></ActionButton>
+              : <ActionButton label="사용 완료 표시" onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "used" }), "사용 완료로 표시했습니다.")} disabled={busy}><CheckCircle2 size={14} /></ActionButton>}
             {item.status === "archived"
-              ? <ActionButton label="보관 중 (눌러서 해제)" warn onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "ready" }), "보관을 해제하고 사용 가능으로 되돌렸습니다.")} disabled={busy}><Archive size={14} /></ActionButton>
-              : <ActionButton label="보관" onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "archived" }), "보관했습니다. 보관한 글감은 일괄 삭제에서 제외됩니다.")} disabled={busy}><Archive size={14} /></ActionButton>}
+              ? <ActionButton label="보관 중" warn onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "ready" }), "보관을 해제하고 사용 가능으로 되돌렸습니다.")} disabled={busy}><Archive size={14} /></ActionButton>
+              : <ActionButton label="보관하기" onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "archived" }), "보관했습니다. 보관한 글감은 일괄 삭제에서 제외됩니다.")} disabled={busy}><Archive size={14} /></ActionButton>}
             <ActionButton label="삭제" danger onClick={() => void remove(item)} disabled={busy}><Trash2 size={14} /></ActionButton>
           </div>
         </li>;
@@ -200,6 +202,6 @@ function Overview({ label, value, tone }: { label: string; value: number; tone: 
   return <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"><p className="text-xs text-neutral-500">{label}</p><p className={`mt-2 text-2xl font-bold ${tone}`}>{value}</p></div>;
 }
 
-function ActionButton({ label, onClick, disabled, danger, warn, children }: { label: string; onClick: () => void; disabled?: boolean; danger?: boolean; warn?: boolean; children: React.ReactNode }) {
-  return <button type="button" title={label} aria-label={label} disabled={disabled} onClick={onClick} className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${danger ? "border-rose-200 text-rose-600 hover:bg-rose-50" : warn ? "border-amber-400 bg-amber-300 text-amber-950 hover:bg-amber-200" : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"}`}>{children}{label}</button>;
+function ActionButton({ label, onClick, disabled, danger, warn, ok, children }: { label: string; onClick: () => void; disabled?: boolean; danger?: boolean; warn?: boolean; ok?: boolean; children: React.ReactNode }) {
+  return <button type="button" title={label} aria-label={label} disabled={disabled} onClick={onClick} className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${danger ? "border-rose-200 text-rose-600 hover:bg-rose-50" : ok ? "border-emerald-600 bg-emerald-500 text-[#ffffff] hover:bg-emerald-600" : warn ? "border-amber-400 bg-amber-300 text-amber-950 hover:bg-amber-200" : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"}`}>{children}{label}</button>;
 }

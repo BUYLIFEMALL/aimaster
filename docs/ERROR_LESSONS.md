@@ -87,6 +87,12 @@
 - **모의 테스트가 잡은 구멍:** `http://[::ffff:127.0.0.1]/`이 통과했다. URL 분석기가 이 표기를 `[::ffff:7f00:1]`로 바꿔서, 점 표기(`::ffff:a.b.c.d`)만 보던 규칙이 놓친 것. **IPv6는 사설/예약 대역을 나열해 막지 말고, 일반 공개 대역(`2000::/3`)만 허용**하고 그 안의 6to4(`2002::`)·Teredo(`2001::`)·문서용(`2001:db8`)만 추가로 거부한다.
 - **다음부터 확인:** 사용자가 넣은 주소를 서버가 여는 코드를 쓰거나 이식할 때는 ① 위 방어를 적용하고 ② IPv4(사설·링크로컬·루프백·`0.0.0.0`·CGNAT·숫자/16진수/8진수 표기)와 IPv6(루프백·링크로컬·사설·IPv4 매핑·NAT64·6to4·Teredo), 리다이렉트 우회, 무한 리다이렉트, 큰 응답을 모의 테스트로 확인한다. 알려진 한계: 검사와 실제 접속 사이의 DNS 재바인딩은 `fetch`가 IP를 고정하지 않아 완전히 막지 못한다(더 강한 보호는 IP 고정 접속).
 
+## 2026-10-07 공유 스테이징 영역 때문에 다른 도구의 작업이 내 커밋에 섞임 (threads-content-ops v1.63)
+
+- **증상:** `git add <내 파일들>` 후 `git commit`을 했더니 다른 CLI가 미리 `git add`해 둔 `naver-blog-agent/` 변경 20여 개가 내 커밋(`6f3a257d`)에 같이 들어가 push됨.
+- **원인:** 같은 작업 폴더의 스테이징 영역(index)을 여러 도구가 공유한다(루트 CLAUDE.md에도 있는 위험). `git commit`은 index 전체를 커밋한다.
+- **해결·다음부터:** 커밋은 반드시 **`git commit -m "..." -- <내 경로들>`**(경로 지정 커밋)으로 하고, 그 전에 `git diff --cached --name-only`로 남의 파일이 섞였는지 확인한다. 이미 push된 섞인 커밋은 force-push가 필요해 되돌리지 않고 기록으로 남겼다(다른 도구의 파일 내용 자체는 손상 없음).
+
 ## 2026-10-07 Threads에 올릴 미디어는 JPEG/PNG(8MB)·MP4/MOV(1GB)만, 크론은 CRON_SECRET이 있어야 호출됨 (threads-content-ops v1.59)
 
 - **Threads 미디어 규격:** 이미지는 JPEG·PNG 8MB 이하만 가능하다(webp·gif 불가). Replicate(FLUX·Z-Image)는 기본 결과가 webp라 `output_format: "png"`로 요청하고(거부되면 옵션 없이 재요청), webp면 거부한다. Gemini 4K PNG는 8MB를 넘을 수 있어 `size`를 저장해 발행 전에 막는다. 영상은 MP4·MOV 1GB·5분. 위치: `threads-content-ops/lib/media.ts`, `lib/postImage.ts`.
