@@ -8,6 +8,7 @@ export interface BlogViralCandidate {
   keywords: string[];
   angle?: string;
   status: "ready" | "used" | "archived";
+  is_archived?: boolean; // 보관 여부 (사용 상태 ready/used와 완전히 독립적인 보관 속성)
   created_at: string;
 }
 
@@ -60,6 +61,7 @@ export const INITIAL_SAMPLE_CANDIDATES: BlogViralCandidate[] = [
     keywords: ["청년도약계좌", "청년월세지원", "정부지원금", "복지혜택2026"],
     angle: "놓치면 평생 후회하는 2030 정부 지원금 현실 신청 가이드",
     status: "ready",
+    is_archived: false,
     created_at: new Date(Date.now() - 3600000).toISOString(),
   },
   {
@@ -72,6 +74,7 @@ export const INITIAL_SAMPLE_CANDIDATES: BlogViralCandidate[] = [
     keywords: ["다이소추천템", "자취생필수템", "살림꿀팁", "가성비살림"],
     angle: "비싼 살림템 살 필요 없이 3천 원으로 삶의 질 2배 올리는 꿀템 썰",
     status: "ready",
+    is_archived: false,
     created_at: new Date(Date.now() - 7200000).toISOString(),
   },
   {
@@ -84,6 +87,7 @@ export const INITIAL_SAMPLE_CANDIDATES: BlogViralCandidate[] = [
     keywords: ["수건쉰내제거", "세탁조청소", "과탄산소다활용법", "살림노하우"],
     angle: "워싱소다 백식초 다 써보고 실패했던 사람이 정착한 세탁조 꿀팁",
     status: "ready",
+    is_archived: false,
     created_at: new Date(Date.now() - 14400000).toISOString(),
   },
 ];

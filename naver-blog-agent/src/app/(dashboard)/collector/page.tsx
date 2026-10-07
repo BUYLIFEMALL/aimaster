@@ -123,13 +123,27 @@ export default function CollectorPage() {
       setCategories(DEFAULT_COLLECTOR_CATEGORIES);
     }
 
-    // 1-2. 글감 로드
+    // 1-2. 글감 로드 (보관 여부 is_archived 하위 호환 마이그레이션 포함)
     try {
       const saved = localStorage.getItem("nba_viral_candidates");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setCandidates(parsed);
+          const migrated: BlogViralCandidate[] = parsed.map((item) => {
+            let status = item.status;
+            let is_archived = Boolean(item.is_archived);
+            if (status === "archived") {
+              status = "ready";
+              is_archived = true;
+            }
+            return {
+              ...item,
+              status: status === "used" ? "used" : "ready",
+              is_archived,
+            };
+          });
+          setCandidates(migrated);
+          localStorage.setItem("nba_viral_candidates", JSON.stringify(migrated));
           setMounted(true);
           return;
         }
@@ -175,8 +189,10 @@ export default function CollectorPage() {
     });
   };
 
-  // 5. 통계 집계
-  const countOf = (st: string) => candidates.filter((c) => c.status === st).length;
+  // 5. 통계 집계 (사용 가능, 사용 완료, 보관 중)
+  const readyCount = candidates.filter((c) => c.status === "ready").length;
+  const usedCount = candidates.filter((c) => c.status === "used").length;
+  const archivedCount = candidates.filter((c) => Boolean(c.is_archived)).length;
 
   // 카테고리별 글감 수 집계
   const categoryCounts = useMemo(() => {
@@ -198,8 +214,12 @@ export default function CollectorPage() {
   // 필터링된 글감 목록 (상태 필터 + 카테고리 필터)
   const visibleCandidates = useMemo(() => {
     return candidates.filter((c) => {
-      // 상태 필터
-      if (statusFilter !== "all" && c.status !== statusFilter) return false;
+      // 상태 필터 (보관과 무관한 사용 가능/완료 및 보관함 전용 필터)
+      if (statusFilter === "ready" && c.status !== "ready") return false;
+      if (statusFilter === "used" && c.status !== "used") return false;
+      if (statusFilter === "archived" && !c.is_archived) return false;
+      if (statusFilter === "unarchived" && c.is_archived) return false;
+
       // 카테고리 필터
       if (categoryFilter !== "all") {
         if (categoryFilter === "uncategorized") {
@@ -211,10 +231,10 @@ export default function CollectorPage() {
     });
   }, [candidates, statusFilter, categoryFilter, categories]);
 
-  // 삭제 가능한 글감 (보관 제외)
-  const deletable = visibleCandidates.filter((c) => c.status !== "archived");
+  // 삭제 가능한 일반 글감 (보관된 글감은 전체 삭제 대상에서 무조건 제외 및 보호)
+  const deletable = visibleCandidates.filter((c) => !c.is_archived);
   const checkedDeletable = checkedIds.filter((id) => deletable.some((c) => c.id === id));
-  const unarchivedCount = candidates.filter((c) => c.status !== "archived").length;
+  const unarchivedCount = candidates.filter((c) => !c.is_archived).length;
 
   // 체크박스 토글
   const toggleCheck = (id: string) => {
@@ -271,7 +291,11 @@ export default function CollectorPage() {
         setMessage({ type: "error", text: data.error || "수집 실패", needKey: data.needKey });
         return;
       }
-      const newItems: BlogViralCandidate[] = data.candidates || [];
+      const newItems: BlogViralCandidate[] = (data.candidates || []).map((c: any) => ({
+        ...c,
+        status: "ready" as const,
+        is_archived: false,
+      }));
       const updated = [...newItems, ...candidates];
       persistCandidates(updated);
       setUrlInput("");
@@ -308,7 +332,11 @@ export default function CollectorPage() {
         setMessage({ type: "error", text: data.error || "수집 실패", needKey: data.needKey });
         return;
       }
-      const newItems: BlogViralCandidate[] = data.candidates || [];
+      const newItems: BlogViralCandidate[] = (data.candidates || []).map((c: any) => ({
+        ...c,
+        status: "ready" as const,
+        is_archived: false,
+      }));
       const updated = [...newItems, ...candidates];
       persistCandidates(updated);
       setTopicInput("");
@@ -386,7 +414,11 @@ export default function CollectorPage() {
         setMessage({ type: "error", text: data.error || "분석 실패", needKey: data.needKey });
         return;
       }
-      const newItems: BlogViralCandidate[] = data.candidates || [];
+      const newItems: BlogViralCandidate[] = (data.candidates || []).map((c: any) => ({
+        ...c,
+        status: "ready" as const,
+        is_archived: false,
+      }));
       const updated = [...newItems, ...candidates];
       persistCandidates(updated);
       setMessage({
@@ -400,10 +432,34 @@ export default function CollectorPage() {
     }
   };
 
-  // 개별 상태 변경
-  const updateStatus = (id: string, newStatus: "ready" | "used" | "archived") => {
-    const updated = candidates.map((c) => (c.id === id ? { ...c, status: newStatus } : c));
+  // 1) 사용 상태 토글 (ready ↔ used: 보관 여부와 100% 무관하게 독립 동작)
+  const toggleCandidateStatus = (id: string) => {
+    const updated = candidates.map((c) => {
+      if (c.id !== id) return c;
+      const nextStatus: "ready" | "used" = c.status === "used" ? "ready" : "used";
+      return { ...c, status: nextStatus };
+    });
     persistCandidates(updated);
+  };
+
+  // 2) 보관 상태 토글 (is_archived: 사용 상태와 100% 무관하게 독립 동작, 전체 삭제 보호용)
+  const toggleCandidateArchive = (id: string) => {
+    const updated = candidates.map((c) => {
+      if (c.id !== id) return c;
+      const nextArchived = !c.is_archived;
+      return { ...c, is_archived: nextArchived };
+    });
+    persistCandidates(updated);
+    const target = candidates.find((c) => c.id === id);
+    if (target) {
+      const willBeArchived = !target.is_archived;
+      setMessage({
+        type: "success",
+        text: willBeArchived
+          ? `"${target.title.slice(0, 25)}..." 글감을 보관함에 보관했습니다. 전체 선택 삭제 시에도 안전하게 보호됩니다.`
+          : `"${target.title.slice(0, 25)}..." 글감의 보관을 해제했습니다.`,
+      });
+    }
   };
 
   // 글감 인라인 편집 (제목/요약 수정)
@@ -438,28 +494,59 @@ export default function CollectorPage() {
 
   // 단일 삭제
   const deleteCandidate = (item: BlogViralCandidate) => {
-    if (!window.confirm(`"${item.title.slice(0, 30)}" 글감을 삭제하시겠습니까?`)) return;
+    const warning = item.is_archived
+      ? `⚠️ 이 글감은 [보관] 상태로 보호 중입니다!\n정말 삭제하시겠습니까?\n("${item.title.slice(0, 30)}")`
+      : `"${item.title.slice(0, 30)}" 글감을 삭제하시겠습니까?`;
+    if (!window.confirm(warning)) return;
     const updated = candidates.filter((c) => c.id !== item.id);
     persistCandidates(updated);
     setCheckedIds((prev) => prev.filter((i) => i !== item.id));
   };
 
-  // 일괄 삭제
+  // 일괄 삭제 (보관된 글감 보호 원칙 100% 적용)
   const bulkDelete = (mode: "selected" | "all_unarchived") => {
     if (mode === "selected") {
-      if (!checkedDeletable.length) return;
-      if (!window.confirm(`선택한 글감 ${checkedDeletable.length}건을 삭제하시겠습니까? (보관 상태는 유지)`)) return;
-      const updated = candidates.filter((c) => !checkedDeletable.includes(c.id));
+      if (!checkedIds.length) return;
+      // 보관된 글감은 일괄 삭제 대상에서 무조건 제외
+      const toDeleteIds = candidates
+        .filter((c) => checkedIds.includes(c.id) && !c.is_archived)
+        .map((c) => c.id);
+      const archivedProtectedCount = checkedIds.length - toDeleteIds.length;
+
+      if (!toDeleteIds.length) {
+        alert("선택하신 글감은 모두 [보관] 상태로 보호 중입니다.\n보관된 콘텐츠는 전체 삭제 대상에서 안전하게 제외됩니다.\n삭제를 원하시면 먼저 개별 보관 해제를 진행해 주세요.");
+        return;
+      }
+
+      const confirmMsg = archivedProtectedCount > 0
+        ? `선택한 ${checkedIds.length}건 중 보관된 ${archivedProtectedCount}건은 안전하게 제외(보호)되고, 일반 글감 ${toDeleteIds.length}건만 삭제됩니다.\n계속 진행하시겠습니까?`
+        : `선택한 글감 ${toDeleteIds.length}건을 삭제하시겠습니까?`;
+
+      if (!window.confirm(confirmMsg)) return;
+
+      const updated = candidates.filter((c) => !toDeleteIds.includes(c.id));
       persistCandidates(updated);
       setCheckedIds([]);
-      setMessage({ type: "success", text: `선택한 글감 ${checkedDeletable.length}건을 삭제했습니다.` });
+      setMessage({
+        type: "success",
+        text: archivedProtectedCount > 0
+          ? `선택 글감 중 보관된 ${archivedProtectedCount}건은 안전하게 보존되었으며, 일반 글감 ${toDeleteIds.length}건이 삭제되었습니다.`
+          : `선택한 글감 ${toDeleteIds.length}건을 삭제했습니다.`,
+      });
     } else {
-      if (!unarchivedCount) return;
-      if (!window.confirm(`보관된 글감을 제외한 전체 ${unarchivedCount}건의 글감을 모두 삭제하시겠습니까?`)) return;
-      const updated = candidates.filter((c) => c.status === "archived");
+      if (!unarchivedCount) {
+        alert("정리할 수 있는 일반 글감이 없습니다. (모든 글감이 [보관] 상태로 안전하게 보호 중입니다)");
+        return;
+      }
+      const archivedTotal = candidates.length - unarchivedCount;
+      if (!window.confirm(`보관된 글감(${archivedTotal}건)은 100% 안전하게 보호되며, 보관되지 않은 일반 글감 전체 ${unarchivedCount}건만 모두 삭제됩니다.\n계속 진행하시겠습니까?`)) return;
+      const updated = candidates.filter((c) => Boolean(c.is_archived));
       persistCandidates(updated);
       setCheckedIds([]);
-      setMessage({ type: "success", text: `보관 제외 글감 ${unarchivedCount}건을 일괄 정리했습니다.` });
+      setMessage({
+        type: "success",
+        text: `보관된 글감 ${archivedTotal}건을 안전하게 보존하고, 일반 글감 ${unarchivedCount}건을 일괄 정리했습니다.`,
+      });
     }
   };
 
@@ -505,7 +592,7 @@ export default function CollectorPage() {
         </div>
       </section>
 
-      {/* 2. 통계 지표 카드 */}
+      {/* 2. 통계 지표 카드 (사용 상태 및 보관함 독립 집계) */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
           <span className="text-xs font-semibold text-neutral-500">전체 수집 글감</span>
@@ -513,15 +600,17 @@ export default function CollectorPage() {
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm">
           <span className="text-xs font-semibold text-emerald-700">사용 가능</span>
-          <p className="mt-1.5 text-2xl font-black text-emerald-700">{countOf("ready")}</p>
+          <p className="mt-1.5 text-2xl font-black text-emerald-700">{readyCount}</p>
         </div>
         <div className="rounded-2xl border border-sky-200 bg-sky-50/50 p-4 shadow-sm">
-          <span className="text-xs font-semibold text-sky-700">발행 완료</span>
-          <p className="mt-1.5 text-2xl font-black text-sky-700">{countOf("used")}</p>
+          <span className="text-xs font-semibold text-sky-700">사용 완료 (발행)</span>
+          <p className="mt-1.5 text-2xl font-black text-sky-700">{usedCount}</p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 shadow-sm">
-          <span className="text-xs font-semibold text-neutral-600">영구 보관</span>
-          <p className="mt-1.5 text-2xl font-black text-neutral-700">{countOf("archived")}</p>
+        <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-4 shadow-sm">
+          <span className="text-xs font-semibold text-indigo-700 flex items-center gap-1">
+            <Archive size={12} /> 보관함 (삭제 보호)
+          </span>
+          <p className="mt-1.5 text-2xl font-black text-indigo-700">{archivedCount}</p>
         </div>
       </section>
 
@@ -893,12 +982,13 @@ export default function CollectorPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-xl border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-800"
+              className="rounded-xl border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-800 focus:border-neutral-900 focus:outline-none"
             >
               <option value="all">전체 상태 보기</option>
               <option value="ready">사용 가능만</option>
               <option value="used">사용 완료만</option>
-              <option value="archived">영구 보관만</option>
+              <option value="archived">🗄 보관함만 보기 ({archivedCount}건)</option>
+              <option value="unarchived">일반 글감만 (보관 제외)</option>
             </select>
           </div>
         </div>
@@ -967,18 +1057,19 @@ export default function CollectorPage() {
                     setCheckedIds(e.target.checked ? deletable.map((c) => c.id) : [])
                   }
                 />
-                목록 전체 선택
+                일반 목록 전체 선택
               </label>
               <span className="text-neutral-300">|</span>
               <span className="text-neutral-600 font-medium">선택 {checkedIds.length}건</span>
               <button
                 type="button"
-                disabled={!checkedDeletable.length || busy}
+                disabled={!checkedIds.length || busy}
                 onClick={() => bulkDelete("selected")}
                 className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                title="보관된 글감은 자동 제외되고 보호됩니다"
               >
                 <Trash2 size={12} />
-                선택 삭제
+                선택 삭제 (보관 보호)
               </button>
               <button
                 type="button"
@@ -1080,11 +1171,25 @@ export default function CollectorPage() {
                         </select>
                       </div>
 
+                      {/* 사용 상태 뱃지 (ready: 사용 가능, used: 사용 완료) */}
                       <span
-                        className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${statusCfg.tone}`}
+                        className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${
+                          item.status === "used"
+                            ? "bg-sky-50 text-sky-700 border-sky-200"
+                            : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        }`}
                       >
-                        {statusCfg.label}
+                        {item.status === "used" ? "사용 완료" : "사용 가능"}
                       </span>
+
+                      {/* 보관 상태 뱃지 (보관 중일 때 독립적으로 표시) */}
+                      {item.is_archived && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
+                          <Archive size={11} />
+                          보관중
+                        </span>
+                      )}
+
                       <span className="text-[11px] text-neutral-400">
                         {new Date(item.created_at).toLocaleDateString("ko-KR")}
                       </span>
@@ -1212,59 +1317,49 @@ export default function CollectorPage() {
                   {/* 하단 액션 버튼 그룹 */}
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      {/* 1) ready(사용 가능) 상태: 사용 완료 표시 / 보관 */}
-                      {item.status === "ready" && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => updateStatus(item.id, "used")}
-                            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
-                          >
-                            <CheckCircle2 size={13} className="text-emerald-600" />
-                            사용 완료 표시
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => updateStatus(item.id, "archived")}
-                            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
-                          >
-                            <Archive size={13} className="text-neutral-500" />
-                            보관
-                          </button>
-                        </>
-                      )}
-
-                      {/* 2) used(발행 완료) 상태: 사용 가능으로 복원 / 보관 */}
-                      {item.status === "used" && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => updateStatus(item.id, "ready")}
-                            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
-                          >
-                            <RotateCcw size={13} className="text-sky-600" />
-                            사용 가능으로 복원
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => updateStatus(item.id, "archived")}
-                            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
-                          >
-                            <Archive size={13} className="text-neutral-500" />
-                            보관
-                          </button>
-                        </>
-                      )}
-
-                      {/* 3) archived(보관) 상태: 보관 해제 1개만 단독 노출 */}
-                      {item.status === "archived" && (
+                      {/* 1) 사용 상태 토글 (ready ↔ used, 보관과 100% 무관하게 독립 동작) */}
+                      {item.status === "used" ? (
                         <button
                           type="button"
-                          onClick={() => updateStatus(item.id, "ready")}
-                          className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/60 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                          onClick={() => toggleCandidateStatus(item.id)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          title="이 글감을 다시 사용 가능 상태로 복원합니다"
+                        >
+                          <RotateCcw size={13} className="text-sky-600" />
+                          사용 가능으로 복원
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => toggleCandidateStatus(item.id)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          title="이 글감을 사용 완료(발행 완료) 상태로 표시합니다"
+                        >
+                          <CheckCircle2 size={13} className="text-emerald-600" />
+                          사용 완료 표시
+                        </button>
+                      )}
+
+                      {/* 2) 보관 상태 토글 (is_archived: 사용 상태와 무관하게 독립 동작, 전체 삭제 보호용) */}
+                      {item.is_archived ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleCandidateArchive(item.id)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/80 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                          title="보관을 해제하여 일반 상태로 되돌립니다"
                         >
                           <RotateCcw size={13} className="text-indigo-600" />
-                          보관 해제 (사용 가능으로 복원)
+                          보관 해제
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => toggleCandidateArchive(item.id)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          title="이 글감을 보관함에 보관합니다 (전체선택 삭제 대상에서 100% 제외 및 보호)"
+                        >
+                          <Archive size={13} className="text-neutral-500" />
+                          보관
                         </button>
                       )}
                     </div>

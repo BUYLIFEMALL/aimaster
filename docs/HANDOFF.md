@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.14, 2026-10-07)
+
+- **보관(is_archived) 독립 속성 분리 및 전체선택 삭제 시 보관 콘텐츠 100% 안전 보호 (v1.14)**:
+  - 배경: 주인이 보관 기능의 본질적 목적("해당 콘텐츠를 보관해놨다가 사용하려는 기능")을 명시하며, 보관과 무관하게 사용가능/불가능(사용 완료) 기능이 자유롭게 동작해야 하고, 전체선택 삭제 시 보관된 콘텐츠는 무조건 제외/보호되어야 함을 지시.
+  - 조치:
+    1) `src/types/collector.ts`:
+       - `BlogViralCandidate`에 `is_archived?: boolean` 독립 필드 추가.
+    2) `src/app/(dashboard)/collector/page.tsx`:
+       - LocalStorage 데이터 로드 시 기존 `status: 'archived'` 데이터를 `status: 'ready'`, `is_archived: true`로 자동 하위 호환 마이그레이션.
+       - 사용 상태 토글(`toggleCandidateStatus`: ready ↔ used)과 보관 토글(`toggleCandidateArchive`: is_archived toggle)을 완전 독립 분리.
+       - 각 카드 상단에 사용 상태 뱃지(`사용 가능` / `사용 완료`)와 보관 뱃지(`🗄 보관중`)를 독립 렌더링.
+       - 하단 액션 버튼 그룹: `[사용 완료 표시/복원]` + `[보관/보관 해제]` 2대 버튼이 상시 독립적으로 깔끔하게 제공.
+       - 전체선택 삭제 및 일괄 정리 시 보관된 콘텐츠는 자동 제외/보호하는 원칙 100% 적용 (`deletable` 필터링 및 `bulkDelete` 내 보관 콘텐츠 영구 보존).
+       - 상단 통계 카드에 `사용 가능`, `사용 완료 (발행)`, `보관함 (삭제 보호)` 3대 독립 지표 집계.
+    3) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0014_nba_bump_version_v1_14.sql`을 `v1.14`로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.13, 2026-10-07)
 
 - **수집된 글감 보관함(/collector) 상태 버튼 로직 재구성 및 인라인 편집 기능 추가 (v1.13)**:
