@@ -45,21 +45,30 @@ export default function MainPage() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [selectedBlogId, setSelectedBlogId] = useState("");
 
+  // 당해 연도(현재 2026년) 자동 정제 헬퍼
+  const cleanCurrentYear = (text: string | null | undefined): string => {
+    if (!text) return "";
+    const currentYear = new Date().getFullYear();
+    return text
+      .replace(/202[0-5]년/g, `${currentYear}년`)
+      .replace(/202[0-5](?=\s|[-_/.,;:!?)}\]>]|$)/g, `${currentYear}`);
+  };
+
   // 수집된 떡상 글감 목록 & 현재 선택된 글감
   const [viralCandidates, setViralCandidates] = useState<BlogViralCandidate[]>([]);
   const [selectedViral, setSelectedViral] = useState<BlogViralCandidate | null>(null);
 
   const applyViralCandidate = (cand: BlogViralCandidate) => {
     setSelectedViral(cand);
-    setTopic(cand.title);
+    setTopic(cleanCurrentYear(cand.title));
     if (cand.category) setCategory(cand.category);
     if (cand.keywords && cand.keywords.length > 0) {
-      setSearchKeywords(cand.keywords.join(", "));
+      setSearchKeywords(cand.keywords.map((k) => cleanCurrentYear(k)).join(", "));
     }
-    const purpose = cand.angle
+    const rawPurpose = cand.angle
       ? `${cand.angle} — ${cand.content.slice(0, 100)}`
       : cand.content.slice(0, 100);
-    setPublishPurpose(purpose);
+    setPublishPurpose(cleanCurrentYear(rawPurpose));
   };
 
   const handleClearViral = () => {
@@ -99,7 +108,7 @@ export default function MainPage() {
                 applyViralCandidate(matched);
               }
             } else if (paramTopic) {
-              setTopic(decodeURIComponent(paramTopic));
+              setTopic(cleanCurrentYear(decodeURIComponent(paramTopic)));
               if (paramCategory) setCategory(decodeURIComponent(paramCategory));
             }
           }
@@ -166,10 +175,10 @@ export default function MainPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          topic: params.overrideTopic || undefined,
+          topic: cleanCurrentYear(params.overrideTopic) || undefined,
           category: params.overrideCategory,
-          searchKeywords: params.overrideKeywords,
-          publishPurpose: params.overridePurpose,
+          searchKeywords: cleanCurrentYear(params.overrideKeywords),
+          publishPurpose: cleanCurrentYear(params.overridePurpose),
           preferredTone: params.overrideTone,
           targetLength: targetCharCount,
           persona: params.overridePersona

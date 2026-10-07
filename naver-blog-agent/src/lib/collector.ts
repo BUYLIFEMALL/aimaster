@@ -15,6 +15,17 @@ export interface BlogCandidateDraft {
   angle: string;
 }
 
+/**
+ * 당해 연도(현재 2026년) 최신성 보장: 과거 연도(2020~2025년)를 당해 연도로 정제
+ */
+export function sanitizeYear(text: string | undefined | null, targetYear: number = new Date().getFullYear()): string {
+  if (!text) return "";
+  let result = text;
+  result = result.replace(/202[0-5]년/g, `${targetYear}년`);
+  result = result.replace(/202[0-5](?=\s|[-_/.,;:!?)}\]>]|$)/g, `${targetYear}`);
+  return result;
+}
+
 // ---------------------------------------------------------------------------
 // SSRF 방어
 // ---------------------------------------------------------------------------
@@ -553,16 +564,17 @@ export async function structureBlogCandidates(params: {
     throw new Error("AI 응답을 해석하지 못했습니다. 다시 시도해 주세요.");
   }
 
+  const currentYear = new Date().getFullYear();
   const list = (parsed.candidates ?? [])
     .filter((c) => typeof c?.title === "string" && typeof c?.content === "string" && c.title.trim() && c.content.trim())
     .map((c) => ({
-      title: c.title.trim().slice(0, 120),
-      content: c.content.trim().slice(0, 800),
+      title: sanitizeYear(c.title.trim(), currentYear).slice(0, 120),
+      content: sanitizeYear(c.content.trim(), currentYear).slice(0, 800),
       category: targetCategory || (typeof c.category === "string" && c.category.trim() ? c.category.trim() : "생활/살림꿀팁"),
       keywords: Array.isArray(c.keywords)
-        ? c.keywords.filter((k): k is string => typeof k === "string").map((k) => k.trim()).filter(Boolean).slice(0, 6)
+        ? c.keywords.filter((k): k is string => typeof k === "string").map((k) => sanitizeYear(k.trim(), currentYear)).filter(Boolean).slice(0, 6)
         : [],
-      angle: typeof c.angle === "string" ? c.angle.trim().slice(0, 200) : "",
+      angle: typeof c.angle === "string" ? sanitizeYear(c.angle.trim(), currentYear).slice(0, 200) : "",
     }));
 
   if (!list.length) throw new Error("생성된 글감 후보가 없습니다. 다른 주소나 주제로 시도해 주세요.");

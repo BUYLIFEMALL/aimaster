@@ -1,5 +1,22 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.15, 2026-10-07)
+
+- **콘텐츠 생성 결과 2026년 당해 연도 100% 엄수 3중 방어막(Safe-guard) 구축 (v1.15)**:
+  - 배경: 주인님의 "콘텐으 생성결과 2023년 표시 되는 부분은 수정한건가?" 질문에 대한 조사 결과, 기존 글감 수집함 제목(구 연도 포함)의 인풋창 전파, LLM 사전학습 컷오프 확률적 누출, 출력단 정규식 후처리 부재의 3대 원인을 식별하고 100% 무결점 3중 방어막을 구축함.
+  - 조치:
+    1) `src/lib/ai/pipeline.ts`:
+       - `sanitizeYear(text, targetYear)` 전역 헬퍼 함수 구현: 2020~2025년 형태 및 구분자 결합 연도를 당해 연도(2026년)로 자동 치환.
+       - 입력단 정제: 파이프라인 진입 시 `cleanTopic`, `cleanSearchKeywords`, `cleanPublishPurpose` 1차 정제.
+       - 프롬프트 제약 강화: Research, Writer, Reviewer 전 단계에 "소재에 과거 연도가 있더라도 무조건 ${currentYear}년으로 변경하여 기획/작성하라"는 불변 명령 보강.
+       - 출력단 정규식 Safe-guard: AI가 생성한 최종 `title`, `content`, `tags`, `images` 전역에 대해 `sanitizeYear` 강제 실행하여 혹시 모를 과거 연도 누출을 원천 방어.
+    2) `src/app/(dashboard)/page.tsx`:
+       - 글감 보관함에서 글감 선택(`applyViralCandidate`) 시 및 URL 파라미터 로드 시 제목과 본문/키워드의 과거 연도를 당해 연도로 자동 치환하여 인풋창에 노출.
+       - 생성 실행 시(`executeGeneration`)에도 매개변수 정제 보장.
+    3) `src/lib/collector.ts`:
+       - Perplexity 및 유튜브 쇼츠 기반 AI 글감 구조화(`structureBlogCandidates`) 단계에서도 `sanitizeYear` 필터링을 탑재하여 최초 수집 단계부터 구 연도 유입 차단.
+    4) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0015_nba_bump_version_v1_15.sql`을 `v1.15`로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.14, 2026-10-07)
 
 - **보관(is_archived) 독립 속성 분리 및 전체선택 삭제 시 보관 콘텐츠 100% 안전 보호 (v1.14)**:

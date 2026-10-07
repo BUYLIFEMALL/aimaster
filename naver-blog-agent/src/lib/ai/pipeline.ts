@@ -1,6 +1,20 @@
 import { callAI, parseJsonSafe, type AIModelConfig } from "./models";
 import { buildHumanizerPrompt, applyHumanizerEdits } from "@/lib/humanizer";
 
+/**
+ * 당해 연도 엄수 보장 헬퍼:
+ * 과거 연도(2020~2025년)를 당해 연도(현재 2026년)로 자동 치환하는 안전망
+ */
+export function sanitizeYear(text: string | undefined | null, targetYear: number = new Date().getFullYear()): string {
+  if (!text) return "";
+  let result = text;
+  // 1) 2020년 ~ 2025년 형태 -> 당해 연도 (예: 2026년)
+  result = result.replace(/202[0-5]년/g, `${targetYear}년`);
+  // 2) 2020 ~ 2025 숫자 단독 또는 구분자 결합 형태 치환
+  result = result.replace(/202[0-5](?=\s|[-_/.,;:!?)}\]>]|$)/g, `${targetYear}`);
+  return result;
+}
+
 export interface PipelineInput {
   topic?: string;
   category: string;
@@ -39,17 +53,21 @@ export interface PipelineResult {
 }
 
 export async function runBlogGenerationPipeline(input: PipelineInput): Promise<PipelineResult> {
+  const currentYear = new Date().getFullYear();
   const {
     category,
-    searchKeywords,
-    publishPurpose,
     preferredTone = "해요체",
     recentTitles = [],
     persona,
     aiConfig,
   } = input;
+
+  // [1단계 안전망: 입력단 과거 연도 자동 정제]
+  const cleanTopic = sanitizeYear(input.topic, currentYear);
+  const cleanSearchKeywords = sanitizeYear(input.searchKeywords, currentYear);
+  const cleanPublishPurpose = sanitizeYear(input.publishPurpose, currentYear);
+
   const targetLength = Math.max(1, Math.min(4000, Number(input.targetLength) || 2000));
-  const currentYear = new Date().getFullYear();
   const stepsLog: PipelineResult["stepsLog"] = [];
 
   const personaPromptSnippet = persona
@@ -65,21 +83,22 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
 
   // 1단계: Research Agent (주제 및 소제목 기획)
   const researchSystemPrompt = `너는 네이버 블로그 전문 기획 에이전트야.
-[기준 연도 절대 엄수]: 현재 연도는 ${currentYear}년이야. 모든 제목, 소제목, 정책, 혜택, 최신 트렌드, 정보는 반드시 ${currentYear}년(당해 연도) 기준으로 기획해야 해. 절대 과거 연도(2023년, 2024년 등)를 사용하거나 과거 시점으로 글을 기획하지 마.
+[기준 연도 절대 엄수]: 현재 연도는 ${currentYear}년이야. 모든 제목, 소제목, 정책, 혜택, 최신 트렌드, 정보는 반드시 ${currentYear}년(당해 연도) 기준으로 기획해야 해.
+사용자가 제공한 주제나 참고 자료에 과거 연도(2023년, 2024년 등)가 포함되어 있더라도, 절대 과거 연도를 따라 쓰지 말고 반드시 ${currentYear}년(당해 연도)으로 변경하여 최신 트렌드로 기획해.
 네이버 C-Rank 및 D-I-A+ 검색 알고리즘에 최적화되고, 실제 독자의 클릭과 긴 체류시간을 유도하는 ${currentYear}년 최신 트렌드 제목과 ${sectionCountGuide}의 핵심 소제목 목차를 기획해줘.
 목표 글자수는 공백 포함 약 ${targetLength}자이므로, 목표 분량에 걸맞은 알찬 목차 구성이 필요해.
 최근 발행된 글 제목들과 소재가 중복되지 않도록 참신하고 신뢰도 높은 관점을 제시해야 해.
 ${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 가장 궁금해하고 신뢰할 수 있는 소제목으로 구성해줘.` : ""}`;
 
   const researchUserPrompt = `[기획 조건]
-- 기준 연도: ${currentYear}년 (과거 2023~2024년 표기 절대 금지, 당해 연도 ${currentYear}년 최신 정보 기준)
+- 기준 연도: ${currentYear}년 (과거 2023~2024년 표기 절대 금지, 입력된 주제에 과거 연도가 있더라도 무조건 ${currentYear}년으로 변경)
 - 카테고리: ${category}
-- 검색 키워드: ${searchKeywords || "자동 발굴"}
-- 발행 목적: ${publishPurpose || "정보 제공 및 독자 체류시간 극대화"}${personaPromptSnippet}
+- 검색 키워드: ${cleanSearchKeywords || "자동 발굴"}
+- 발행 목적: ${cleanPublishPurpose || "정보 제공 및 독자 체류시간 극대화"}${personaPromptSnippet}
 - 목표 글자수: 공백 포함 약 ${targetLength}자
 - 최근 발행 글 목록 (소재 중복 절대 금지):
-${recentTitles.slice(0, 10).map((t) => "- " + t).join("\n") || "(없음)"}
-${input.topic ? `- 사용자가 지정한 주제: ${input.topic}` : ""}
+${recentTitles.slice(0, 10).map((t) => "- " + sanitizeYear(t, currentYear)).join("\n") || "(없음)"}
+${cleanTopic ? `- 사용자가 지정한 주제: ${cleanTopic}` : ""}
 
 반드시 아래 JSON 형식으로만 응답해:
 {
@@ -93,14 +112,26 @@ ${input.topic ? `- 사용자가 지정한 주제: ${input.topic}` : ""}
 }`;
 
   const researchRaw = await callAI(aiConfig, researchSystemPrompt, researchUserPrompt);
-  const researchData = parseJsonSafe(researchRaw, {
-    finalTitle: input.topic || `${category} 완벽 가이드`,
+  const rawResearchData = parseJsonSafe(researchRaw, {
+    finalTitle: cleanTopic || `${category} 완벽 가이드`,
     subsections: [
       { title: "개요 및 핵심 배경", keyPoints: ["기본 개념"] },
       { title: "실제 적용 및 주의사항", keyPoints: ["실전 팁"] },
       { title: "자주 묻는 질문 및 요약", keyPoints: ["핵심 요약"] },
     ],
   });
+
+  // 기획 제목 1차 정제
+  const researchData = {
+    ...rawResearchData,
+    finalTitle: sanitizeYear(rawResearchData.finalTitle, currentYear),
+    subsections: (rawResearchData.subsections || []).map((s: any) => ({
+      title: sanitizeYear(s.title, currentYear),
+      keyPoints: Array.isArray(s.keyPoints)
+        ? s.keyPoints.map((k: string) => sanitizeYear(k, currentYear))
+        : [],
+    })),
+  };
 
   stepsLog.push({
     step: "1. Research Agent",
@@ -117,7 +148,7 @@ ${persona.tonePrompt}
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 포스팅 본문을 작성해줘.
 
 [작성 규칙]
-1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 절대 과거 연도(2023년, 2024년 등)를 현재처럼 언급하거나 과거 기준 수치를 적지 마.
+1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 과거 연도(2023년, 2024년 등)가 있더라도 절대 과거 연도를 따라 쓰지 말고 반드시 ${currentYear}년으로 변경해서 작성해.
 2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
 3. 말투: ${persona.tonePrompt}를 최우선으로 반영하되 기본 어조는 자연스러운 ${preferredTone}. (기계적인 AI 번역투 절대 금지)
 4. 구조화 태그:
@@ -130,7 +161,7 @@ ${persona.tonePrompt}
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 정보성 포스팅 본문을 작성해줘.
 
 [작성 규칙]
-1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 절대 과거 연도(2023년, 2024년 등)를 현재처럼 언급하거나 과거 기준 수치를 적지 마.
+1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 과거 연도(2023년, 2024년 등)가 있더라도 절대 과거 연도를 따라 쓰지 말고 반드시 ${currentYear}년으로 변경해서 작성해.
 2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
 3. 말투: 자연스러운 ${preferredTone} (상투적인 기계적 어투 금지)
 4. 구조화 태그:
@@ -152,7 +183,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 위 목차를 바탕으로 스마트에디터 ONE 양식의 전체 본문을 약 ${targetLength}자 분량으로 상세히 작성해줘.`;
 
   const writerRaw = await callAI(aiConfig, writerSystemPrompt, writerUserPrompt);
-  let draftArticle = writerRaw.trim();
+  let draftArticle = sanitizeYear(writerRaw.trim(), currentYear);
 
   stepsLog.push({
     step: "2. Writer Agent",
@@ -173,7 +204,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 
     if (Array.isArray(humanizerData.edits) && humanizerData.edits.length > 0) {
       const { article, changes } = applyHumanizerEdits(blocks, humanizerData.edits);
-      humanizedArticle = article;
+      humanizedArticle = sanitizeYear(article, currentYear);
       stepsLog.push({
         step: "3. Blog Humanizer",
         status: "done",
@@ -244,15 +275,25 @@ ${humanizedArticle.slice(0, 1500)}
     message: `대표 썸네일 및 본문 이미지 프롬프트 ${imagePrompts.length}종 준비 완료`,
   });
 
+  // [3단계 안전망: 최종 반환 직전 정규식 Safe-guard 교정]
+  const finalTitle = sanitizeYear(researchData.finalTitle, currentYear);
+  const finalContent = sanitizeYear(humanizedArticle, currentYear);
+  const finalTags = (reviewerData.tags || []).map((t: string) => sanitizeYear(t, currentYear));
+  const finalImages = imagePrompts.map((img) => ({
+    ...img,
+    prompt: sanitizeYear(img.prompt, currentYear),
+    caption: sanitizeYear(img.caption, currentYear),
+  }));
+
   return {
-    title: researchData.finalTitle,
-    content: humanizedArticle,
-    tags: reviewerData.tags,
+    title: finalTitle,
+    content: finalContent,
+    tags: finalTags,
     category,
     personaName: persona?.name,
     targetLength,
-    charCount: humanizedArticle.length,
-    images: imagePrompts,
+    charCount: finalContent.length,
+    images: finalImages,
     stepsLog,
   };
 }

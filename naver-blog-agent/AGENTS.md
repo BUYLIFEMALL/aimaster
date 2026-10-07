@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.14` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.15` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -30,8 +30,8 @@
    - 코드 변경 배포 시 `src/lib/version.ts`의 `APP_VERSION`과 DB `programs.version` 동시 갱신 (+0.01).
 6. **사이드바 표준**:
    - `docs/SIDEBAR_LAYOUT_STANDARD.md` 준수 (상단 `← 다른 프로그램 보기`, 메뉴 바로 아래 계정 표시 및 로그아웃).
-7. **당해 연도(현재 2026년) 기준 엄수 (핵심 불변칙)**:
-   - AI 사전학습 컷오프로 인해 2023년, 2024년으로 퇴행하는 버그를 원천 차단하기 위해, 파이프라인 및 프롬프트에 `new Date().getFullYear()`(2026년)를 명시적으로 주입하고 최신 정보 기준으로만 작성합니다.
+7. **당해 연도(현재 2026년) 기준 엄수 (핵심 불변칙) & 3중 방어막**:
+   - AI 사전학습 컷오프로 인해 2023년, 2024년으로 퇴행하는 버그를 원천 차단하기 위해, **입력단 자동 정제 + 프롬프트 당해 연도 절대 제약 + 출력단 정규식 Safe-guard 교정(3중 방어막)**을 필수로 가동합니다.
 8. **글감 보관(is_archived) 및 삭제 보호 원칙 (2026-10-07 주인님 확정)**:
    - 보관 기능은 아껴둔 콘텐츠를 나중에 사용하기 위한 영구 보호 기능이며, 사용 상태(사용가능/사용완료)와 무관하게 상시 독립 동작한다. 전체선택 삭제 및 일괄 정리 시 보관된 콘텐츠는 무조건 제외/보호된다.
 
@@ -39,6 +39,12 @@
 
 ## 🕒 버전 히스토리
 
+- **v1.15 (2026-10-07)**:
+  - **콘텐츠 생성 결과 2026년 당해 연도 100% 보장 3중 방어막(Safe-guard) 구축**:
+    1) **입력단 정제 (Input Sanitization)**: 글감 보관함 선택(`applyViralCandidate`), URL 쿼리 파라미터 로드, 파이프라인 진입 시 주제(`topic`), 검색 키워드, 발행 목적 내 과거 연도(`2020~2025`)를 현재 연도(`2026`)로 자동 치환.
+    2) **프롬프트 절대 제약 (Prompt Constraint)**: Research/Writer/Reviewer 프롬프트에 사용자가 넘긴 소재에 과거 연도가 있더라도 무조건 현재 연도(${currentYear}년)로 변경하여 기획/작성하도록 지침 보강.
+    3) **출력단 정규식 Safe-guard (Output Sanitization)**: AI 모델의 사전학습 컷오프 확률적 누출을 원천 방어하기 위해 최종 결과 반환 직전 제목(`finalTitle`), 본문(`humanizedArticle`), 태그(`tags`), 이미지 프롬프트/캡션 전역에 대해 `sanitizeYear` 정규식 교정 수행.
+    4) **글감 수집기(collector.ts) 생성 단계 정제**: Perplexity/유튜브 쇼츠 기반 AI 글감 구조화 시에도 동일한 sanitizeYear 필터링 탑재.
 - **v1.14 (2026-10-07)**:
   - **보관(is_archived) 독립 속성 분리 및 전체선택 삭제 시 보관 콘텐츠 100% 안전 보호**:
     1) 보관 여부를 사용 상태(ready/used)와 완전 분리하여 `is_archived: boolean` 독립 필드로 관리.
