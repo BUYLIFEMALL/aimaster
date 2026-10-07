@@ -21,7 +21,7 @@ const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL || 'https://esgxyikcn
 async function main() {
   const { data, error } = await supabase
     .from('programs')
-    .update({ version: 'v1.70', updated_at: new Date().toISOString() })
+    .update({ version: 'v1.69', updated_at: new Date().toISOString() })
     .eq('slug', 'threads-content-ops')
     .select('id, slug, version');
   if (error) {
