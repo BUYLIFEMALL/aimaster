@@ -19,6 +19,14 @@
 
 ## 1. 지금까지 한 작업 (이번 로컬 세션, 2026-09-29 ~ 10-07 중심)
 
+### 1-00. Threads 콘텐츠 운영 자동화 — 루트 내장, slug `threads-content-ops`, 현재 **v1.69** (2026-10-07)
+- 주소: https://www.buylife.xyz/threads-content-ops
+- **v1.69**: **쿠팡 파트너스 34자 공식 단축 링크(`link.coupang.com/a/...`) 자동 생성 및 저장**. 상품 검색 후 소스로 저장 시(또는 URL 직접 입력 시) 쿠팡 딥링크 API(`openapi/v1/deeplink`)를 자동 호출하여 34자 단축 링크로 자동 변환 저장. 기존 220자짜리 긴 URL로 인해 Threads 500자 제한 내에서 본문 글자 수가 220자로 줄어들던 문제를 완벽 해결하여, AI 본문 작성 목표 공간을 410~420자로 대폭 확장(풍성한 4~5단락 포스팅 완성).
+- **v1.68**: 글감 카드 위쪽에 카테고리 변경 배지 탑재.
+- **v1.67**: 유튜브 쇼츠 검색을 떡상 글감 수집 3번째 탭으로 통합.
+- **v1.66**: 떡상 글감 카테고리 관리/이동 시스템 구축.
+- **v1.60**: Threads 글 분량 450~480자(상품 글은 고지·링크 포함) 꽉 채우기 최적화.
+
 ### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.15** (2026-10-07)
 - 주소: https://naver-blog-agent.vercel.app (Vercel 프로젝트 `naver-blog-agent`)
 - 유튜브 설명 영상 및 GitHub 오픈소스(`boksajang/naverblog-extention`) 기반 AIMaster 웹 SaaS 하이브리드 완전 이식.

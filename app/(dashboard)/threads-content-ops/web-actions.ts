@@ -33,8 +33,11 @@ import {
 } from "@/threads-content-ops/lib/youtubeShorts";
 import {
   COUPANG_LINK_MESSAGES,
+  buildProductDetailUrl,
   checkCoupangAffiliateLink,
+  createCoupangDeeplink,
   isCoupangImageUrl,
+  isCoupangShortUrl,
   searchCoupangProducts,
   type CoupangProduct,
 } from "@/threads-content-ops/lib/coupang";
@@ -505,9 +508,28 @@ export async function createContentSource(input: {
   try {
     if (!SOURCE_TYPES.includes(input.sourceType)) throw new Error("지원하지 않는 소스 종류입니다.");
     checkSourceText(input.title, input.summary);
-    const sourceUrl = normalizeSourceUrl(input.sourceUrl);
-    if (input.sourceType === "coupang") assertCoupangAffiliateUrl(sourceUrl);
+    let sourceUrl = normalizeSourceUrl(input.sourceUrl);
     const { supabase, user } = await authorizedUser();
+
+    if (input.sourceType === "coupang") {
+      // 이미 link.coupang.com/a/... 단축 링크가 아니면, 본인 쿠팡 키로 단축 링크 자동 생성 시도
+      if (!isCoupangShortUrl(sourceUrl)) {
+        try {
+          const accessKey = await resolveApiKey(supabase, user.id, "coupang_access_key");
+          const secretKey = await resolveApiKey(supabase, user.id, "coupang_secret_key");
+          if (accessKey && secretKey) {
+            const deeplinks = await createCoupangDeeplink([sourceUrl], { accessKey, secretKey });
+            if (deeplinks[0] && isCoupangShortUrl(deeplinks[0])) {
+              sourceUrl = deeplinks[0];
+            }
+          }
+        } catch {
+          // 키 미등록이거나 변환 실패 시 아래 검사에서 정상 처리 또는 안내
+        }
+      }
+      assertCoupangAffiliateUrl(sourceUrl);
+    }
+
     await insertContentSource(supabase, user.id, { ...input, sourceUrl });
     revalidatePath("/threads-content-ops");
     return { ok: true };
@@ -613,12 +635,33 @@ export async function saveCoupangSearchResult(input: {
     const title = typeof product?.productName === "string" ? product.productName.trim().slice(0, 200) : "";
     if (!title) throw new Error("저장할 상품 정보를 확인해 주세요. 다시 검색해서 선택해 주세요.");
     if (input.summary.length > 1_000) throw new Error("메모는 1,000자 이내로 입력해 주세요.");
-    const sourceUrl = normalizeSourceUrl(String(product.productUrl ?? ""));
+
+    const { supabase, user } = await authorizedUser();
+    let sourceUrl = normalizeSourceUrl(String(product.productUrl ?? ""));
+
+    // [쿠팡 공식 단축 링크(link.coupang.com/a/...) 자동 발급]
+    // 검색 API의 기본 productUrl(link.coupang.com/re/...)은 220자로 길어 Threads 500자 제한을 많이 소모하므로,
+    // 회원 쿠팡 키가 등록되어 있으면 딥링크 API를 자동 호출해 34자 단축 링크로 자동 변환하여 저장한다.
+    try {
+      const accessKey = await resolveApiKey(supabase, user.id, "coupang_access_key");
+      const secretKey = await resolveApiKey(supabase, user.id, "coupang_secret_key");
+      if (accessKey && secretKey) {
+        const detailUrl = buildProductDetailUrl(product);
+        if (detailUrl) {
+          const deeplinks = await createCoupangDeeplink([detailUrl], { accessKey, secretKey });
+          if (deeplinks[0] && isCoupangShortUrl(deeplinks[0])) {
+            sourceUrl = deeplinks[0];
+          }
+        }
+      }
+    } catch (deeplinkError) {
+      console.warn("쿠팡 단축 링크 자동 생성 건너뜀 (기본 검색 URL 사용):", deeplinkError);
+    }
+
     assertCoupangAffiliateUrl(sourceUrl);
 
     const price = Number(product.productPrice);
     const productId = Number(product.productId);
-    const { supabase, user } = await authorizedUser();
     await insertContentSource(supabase, user.id, {
       accountId: input.accountId,
       sourceType: "coupang",

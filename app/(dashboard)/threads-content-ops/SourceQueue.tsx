@@ -163,7 +163,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
 
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Search size={18} className="text-gold" />쿠팡 파트너스 상품 검색</h3>
-      <p className="mt-1 text-sm leading-relaxed text-neutral-600">회원님이 등록한 쿠팡 파트너스 키로 상품을 검색하고, 마음에 드는 상품만 소스로 저장합니다. 검색 결과는 저장되지 않으며, 검색은 시간당 10회·키워드당 10개까지입니다.</p>
+      <p className="mt-1 text-sm leading-relaxed text-neutral-600">회원님이 등록한 쿠팡 파트너스 키로 상품을 검색하고, 마음에 드는 상품만 소스로 저장합니다. 소스로 저장 시 쿠팡 딥링크 API를 통해 34자 공식 단축 링크(link.coupang.com/a/...)로 자동 변환 저장되어 Threads 500자 제한 내에서 본문 글자 수를 400자 이상 넉넉히 쓸 수 있습니다.</p>
       {!keysReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>쿠팡 파트너스 Access Key와 Secret Key가 등록되지 않았습니다. <a className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</a>에서 본인 키를 저장하면 검색할 수 있습니다. 키가 아직 없다면 아래 새 소스 등록에 파트너스 링크를 직접 붙여넣어도 됩니다.</span></p>}
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <input className={inputClass} maxLength={100} value={keyword} onChange={(event) => setKeyword(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void searchCoupang(); }} placeholder="검색어 (예: 전기 히터, 무선 청소기)" aria-label="쿠팡 상품 검색어" />

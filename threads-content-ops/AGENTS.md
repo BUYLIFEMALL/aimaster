@@ -1,8 +1,18 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.68`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.69`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.69 쿠팡 파트너스 34자 공식 단축 링크 자동 생성 및 저장 (2026-10-07)
+
+- 주인님 지시("상품 등록할 때 자동으로 단축 링크를 생성해서 걸 수 있는 방법이 있나?"):
+  - 배경: 쿠팡 검색 API(`products/search`)가 반환하는 기본 `productUrl`은 트래킹 파라미터가 모두 붙은 긴 주소(`link.coupang.com/re/AFFSDP?...`, 약 220자)라, Threads 500자 제한 내에서 본문 공간을 220자밖에 쓰지 못해 본문 스토리가 너무 짧아지는 문제 발생.
+  - 해결:
+    1) `threads-content-ops/lib/coupang.ts`: 쿠팡 파트너스 공식 Deeplink API(`POST /v2/providers/affiliate_open_api/apis/openapi/v1/deeplink`) 연동 함수 `createCoupangDeeplink`, 일반 상품 상세 주소 조립 함수 `buildProductDetailUrl`, 단축 링크 검증 함수 `isCoupangShortUrl` 구현.
+    2) `web-actions.ts` (`saveCoupangSearchResult` & `createContentSource`): 상품을 소스로 저장할 때 회원의 쿠팡 키로 딥링크 API를 자동 호출하여 34자 공식 단축 링크(`https://link.coupang.com/a/...`)로 자동 변환 저장.
+    3) 효과: 링크 길이가 228자에서 34자로 대폭 줄어들어, AI 본문 작성 공간이 **410~420자(2배 이상)**로 대폭 넓어짐. Threads 500자 제한 내에서 본문 스토리가 4~5단락으로 풍성하고 꽉 차게 생성됨.
+    4) 키 미등록이거나 딥링크 호출 실패 시 기존 검색 링크로 안전 폴백.
 
 ## v1.68 글감 카드 카테고리 변경 배지 (2026-10-07)
 

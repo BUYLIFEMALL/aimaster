@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads 콘텐츠 운영 자동화 (threads-content-ops v1.69, 2026-10-07)
+
+- **쿠팡 파트너스 34자 공식 단축 링크 자동 생성 및 저장 (v1.69)**:
+  - 배경: Threads 콘텐츠 생성 시 본문 콘텐츠가 200자 안팎(2~3문장)으로 너무 짧게 나오는 문제 검수. 쿠팡 검색 API의 `productUrl`이 220자짜리 긴 주소라 오버헤드(259자)로 인해 본문 공간이 221자로 축소된 것이 원인임을 확인하고, 주인님 지시("자동으로 상품등록할때 단축링크를 생성해서 걸수 있는 방법이 있나? -> 구현해줘")에 따라 100% 자동 생성 파이프라인 탑재.
+  - 조치:
+    1) `threads-content-ops/lib/coupang.ts`:
+       - 쿠팡 파트너스 공식 Deeplink API(`POST /v2/providers/affiliate_open_api/apis/openapi/v1/deeplink`) 연동 `createCoupangDeeplink`, 일반 상품 주소 조립 `buildProductDetailUrl`, 단축 링크 유효성 검증 `isCoupangShortUrl` 구현.
+       - POST 서명 생성을 위해 `buildAuthorizationHeader`가 GET/POST 공용 지원하도록 확장.
+    2) `app/(dashboard)/threads-content-ops/web-actions.ts`:
+       - `saveCoupangSearchResult`: 검색 결과에서 상품 저장 시 회원의 쿠팡 키로 딥링크 API를 자동 호출하여 34자 단축 링크(`link.coupang.com/a/...`)로 자동 변환 저장 (키 미등록 시 기존 링크 폴백).
+       - `createContentSource`: 직접 URL 등록 시에도 일반 쿠팡 주소가 들어오면 단축 링크로 자동 변환.
+    3) `app/(dashboard)/threads-content-ops/SourceQueue.tsx`:
+       - 상품 검색 박스 설명에 "소스로 저장 시 34자 공식 단축 링크로 자동 변환되어 본문 글자 수를 400자 이상 넉넉히 확보" 안내 문구 추가.
+    4) 효과: 링크 길이가 228자에서 34자로 대폭 단축되어 AI 본문 작성 목표 공간이 221자에서 **410~420자(2배 이상)**로 대폭 넓어짐. Threads 500자 제한 내에서 본문 스토리가 4~5단락으로 풍성하고 꽉 차게 생성됨.
+    5) `threads-content-ops/lib/version.ts`, DB `programs.version` 및 마이그레이션 `20261007160000_tco_bump_version_v1_69.sql`을 `v1.69`로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.15, 2026-10-07)
 
 - **콘텐츠 생성 결과 2026년 당해 연도 100% 엄수 3중 방어막(Safe-guard) 구축 (v1.15)**:

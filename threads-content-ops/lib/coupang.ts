@@ -10,6 +10,7 @@ import crypto from "node:crypto";
 
 const API_GATEWAY = "https://api-gateway.coupang.com";
 const SEARCH_PATH = "/v2/providers/affiliate_open_api/apis/openapi/products/search";
+const DEEPLINK_PATH = "/v2/providers/affiliate_open_api/apis/openapi/v1/deeplink";
 
 export interface CoupangProduct {
   productId: number;
@@ -43,7 +44,7 @@ function buildCoupangErrorMessage(status: number, body: string): string {
  * 서명 대상 문자열은 signedDate + method + path + query를 그대로 이은 것이다 — path와 query 사이에
  * "?"를 넣지 않는다(넣으면 "Invalid signature" 401, 2026-09-11 실계정 확인).
  */
-function buildAuthorizationHeader(method: "GET", path: string, query: string, accessKey: string, secretKey: string): string {
+function buildAuthorizationHeader(method: "GET" | "POST", path: string, query: string, accessKey: string, secretKey: string): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   const signedDate =
@@ -52,6 +53,90 @@ function buildAuthorizationHeader(method: "GET", path: string, query: string, ac
   const message = `${signedDate}${method}${path}${query}`;
   const signature = crypto.createHmac("sha256", secretKey).update(message).digest("hex");
   return `CEA algorithm=HmacSHA256, access-key=${accessKey}, signed-date=${signedDate}, signature=${signature}`;
+}
+
+/** 검색 결과 상품 객체에서 일반 쿠팡 상품 상세 URL(https://www.coupang.com/vp/products/{productId})을 추출/생성 */
+export function buildProductDetailUrl(product: { productId: number | string; productUrl?: string }): string {
+  const productId = String(product.productId ?? "").trim();
+  if (!/^\d+$/.test(productId)) return "";
+  let source: URL | undefined;
+  try {
+    source = new URL(String(product.productUrl ?? ""));
+  } catch {}
+  const value = (name: string): string => {
+    const direct = String((product as any)[name] ?? "").trim();
+    const fromUrl = source?.searchParams.get(name)?.trim() ?? "";
+    return /^\d+$/.test(direct) ? direct : /^\d+$/.test(fromUrl) ? fromUrl : "";
+  };
+  const url = new URL(`https://www.coupang.com/vp/products/${productId}`);
+  const itemId = value("itemId");
+  const vendorItemId = value("vendorItemId");
+  if (itemId) url.searchParams.set("itemId", itemId);
+  if (vendorItemId) url.searchParams.set("vendorItemId", vendorItemId);
+  return url.toString();
+}
+
+/** link.coupang.com/a/... 유효한 단축 링크인지 검증 */
+export function isCoupangShortUrl(value: unknown): value is string {
+  if (typeof value !== "string" || !value.trim()) return false;
+  try {
+    const url = new URL(value.trim());
+    return (
+      url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
+      !url.port &&
+      url.hostname.toLowerCase() === "link.coupang.com" &&
+      /^\/a\/[^/]+\/?$/i.test(url.pathname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** 쿠팡 파트너스 딥링크 생성 API를 호출하여 일반 쿠팡 상품 URL을 34자 공식 단축 링크(link.coupang.com/a/...)로 자동 변환 */
+export async function createCoupangDeeplink(
+  coupangUrls: string[],
+  auth: { accessKey: string; secretKey: string },
+  subId?: string
+): Promise<string[]> {
+  if (!coupangUrls.length) return [];
+  const body = { coupangUrls, ...(subId ? { subId } : {}) };
+  const response = await fetch(`${API_GATEWAY}${DEEPLINK_PATH}`, {
+    method: "POST",
+    headers: {
+      Authorization: buildAuthorizationHeader("POST", DEEPLINK_PATH, "", auth.accessKey, auth.secretKey),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+    cache: "no-store",
+    signal: AbortSignal.timeout(10_000),
+  });
+
+  if (!response.ok) {
+    throw new Error(buildCoupangErrorMessage(response.status, await response.text()));
+  }
+
+  const data = (await response.json()) as {
+    rCode?: string;
+    rMessage?: string;
+    data?: Array<{ originalUrl?: string; shortenUrl?: string; landingUrl?: string }>;
+  };
+
+  if (data.rCode && data.rCode !== "0") {
+    throw new Error(`쿠팡 단축 링크 생성 실패: ${data.rMessage ?? data.rCode}`);
+  }
+
+  const results: string[] = [];
+  for (const item of data.data ?? []) {
+    if (isCoupangShortUrl(item.shortenUrl)) {
+      results.push(item.shortenUrl.trim());
+    } else if (item.shortenUrl) {
+      results.push(item.shortenUrl.trim());
+    }
+  }
+
+  return results;
 }
 
 /** 키워드로 상품 검색. 검색 API는 키워드당 최대 10개·시간당 10회 제한이 있어 호출부가 결과를 화면에 유지해 재검색을 줄인다. */
