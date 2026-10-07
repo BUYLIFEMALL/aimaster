@@ -1,6 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.03, 2026-10-07)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.04, 2026-10-07)
+
+- **설정 화면(/settings) SSR 서버 컴포넌트 전환으로 계정 연동 AI 키 즉시 로딩 보장 (v1.04)**:
+  - 배경: 클라이언트 비동기 로딩(`fetch`) 시 브라우저 세션 타이밍이나 쿠키 상태에 따라 키가 지연되어 뜨거나 미등록으로 오인되는 현상 원천 차단.
+  - 조치:
+    1) `settings/page.tsx`: SSR 서버 컴포넌트로 전면 전환하고, `requireProgramAccess()` 세션 검증 후 `createAdminClient()`로 회원의 `user_api_keys`를 직접 쿼리하여 마스킹된 키 값(`initialDetails`)과 등록 목록을 즉시 획득.
+    2) `SettingsClient.tsx`: 클라이언트 인터랙션 컴포넌트를 분리하여 서버에서 전달받은 키 정보를 첫 렌더링 즉시 100% 완전 노출. "🔄 계정 키 다시 불러오기" 버튼으로 실시간 동기화 지원.
+    3) `src/lib/version.ts`, DB `programs.version` 및 마이그레이션 `0004_nba_bump_version_v1_04.sql`을 `v1.04`로 동기화.
+
 
 - **통합 계정(buylifemall 등) 연동 AI 키 시각화 및 자동 공유 체계 고도화 (v1.03)**:
   - 배경: `buylifemall@naver.com` 등 회원의 AIMaster 통합 계정에 기등록된 AI API 키(OpenAI, Gemini, Claude, Perplexity 등)를 찾아 자동 연동하고, 설정 페이지(`/settings`)에서 등록 현황과 마스킹 키를 명확히 확인할 수 있도록 개선 요청.
