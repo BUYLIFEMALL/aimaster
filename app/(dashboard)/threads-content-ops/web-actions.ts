@@ -19,6 +19,7 @@ import {
 import { generateAttentionPlan, planImagePrompts, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
 import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_KEY_LABEL, MAX_GENERATE_COUNT, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
+import { PRODUCT_SOURCE_TYPES, assemblePostBody, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { createServiceClient } from "@/lib/supabase/server";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
@@ -867,7 +868,17 @@ export async function analyzeShortToViralCandidates(input: { id: string; title: 
 // ---------------------------------------------------------------------------
 type AttentionResult = { ok: true; plan: AttentionPlan } | { ok: false; error: string; needKey?: boolean };
 type EngineInput = { provider: string; model: string };
-type CustomFields = { product?: string; experience?: string; targetAudience?: string };
+type CustomFields = { product?: string; experience?: string; targetAudience?: string; linkedProduct?: { name: string; summary: string } };
+
+/** 회원 본인이 등록한 상품(쇼핑제휴 상품 등록)을 id로 읽는다. 보관한 상품·다른 회원의 상품은 읽지 않는다. 링크·고지는 항상 서버 값만 쓴다. */
+async function loadLinkedProduct(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, productId: string | undefined): Promise<LinkedProduct | null> {
+  if (!productId) return null;
+  const { data } = await supabase.from("tco_content_sources")
+    .select("id, source_type, title, summary, source_url")
+    .eq("id", productId).eq("user_id", userId).in("source_type", [...PRODUCT_SOURCE_TYPES]).neq("status", "archived").maybeSingle();
+  if (!data?.source_url) throw new Error("연결할 상품을 찾지 못했습니다. 쇼핑제휴 상품 등록에서 상품을 확인해 주세요.");
+  return { id: data.id, source_type: data.source_type, title: data.title ?? "", summary: data.summary ?? "", source_url: data.source_url };
+}
 
 async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, engine: EngineInput | undefined) {
   const provider = engine?.provider ?? DEFAULT_ENGINE.provider;
@@ -883,7 +894,7 @@ async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>
 
 const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 
-export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; custom?: CustomFields; engine?: EngineInput }): Promise<AttentionResult> {
+export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; custom?: CustomFields; engine?: EngineInput; productId?: string }): Promise<AttentionResult> {
   try {
     const topic = clean(input.topic, 1_201);
     const note = clean(input.note, 301);
@@ -893,6 +904,8 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
     if (input.personaId && !persona) throw new Error("지원하지 않는 페르소나입니다.");
     const custom: CustomFields = { product: clean(input.custom?.product, 200), experience: clean(input.custom?.experience, 800), targetAudience: clean(input.custom?.targetAudience, 200) };
     const { supabase, user } = await authorizedUser();
+    const linked = await loadLinkedProduct(supabase, user.id, input.productId);
+    if (linked) custom.linkedProduct = { name: linked.title.slice(0, 200), summary: linked.summary.slice(0, 600) };
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
     return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone: persona?.tonePrompt, custom, engine: resolved.engine }) };
@@ -902,15 +915,16 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
 }
 
 /** 선택한 글 한 편을 7가지 방향 중 하나로 다시 쓴다(저장하지 않음). */
-export async function rewriteGeneratedPost(input: { hook: string; content: string; mode: string; engine?: EngineInput }): Promise<{ ok: true; hook: string; content: string } | { ok: false; error: string }> {
+export async function rewriteGeneratedPost(input: { hook: string; content: string; mode: string; engine?: EngineInput; productId?: string }): Promise<{ ok: true; hook: string; content: string } | { ok: false; error: string }> {
   try {
     const content = clean(input.content, 5_001);
     if (!content || content.length > 5_000) throw new Error("다시 쓸 본문을 1~5,000자로 확인해 주세요.");
     if (!REWRITE_MODES.some((item) => item.mode === input.mode)) throw new Error("지원하지 않는 다시 쓰기 방식입니다.");
     const { supabase, user } = await authorizedUser();
+    const linked = await loadLinkedProduct(supabase, user.id, input.productId);
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, error: resolved.error };
-    const result = await rewriteAttentionPost({ hook: clean(input.hook, 200), content, mode: input.mode as RewriteMode, engine: resolved.engine });
+    const result = await rewriteAttentionPost({ hook: clean(input.hook, 200), content, mode: input.mode as RewriteMode, engine: resolved.engine, productName: linked?.title.slice(0, 200) });
     return { ok: true, ...result };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "글을 다시 쓰지 못했습니다." };
@@ -918,14 +932,18 @@ export async function rewriteGeneratedPost(input: { hook: string; content: strin
 }
 
 /** 마음에 드는 생성 글을 검토 대기 초안으로 저장한다. 글감에서 만든 글이면 그 글감을 사용 완료로 표시한다. */
-export async function saveGeneratedDraft(input: { accountId: string; body: string; viralId?: string }): Promise<SourceResult> {
+export async function saveGeneratedDraft(input: { accountId: string; body: string; viralId?: string; productId?: string }): Promise<SourceResult> {
   try {
-    const body = String(input.body ?? "").trim();
+    let body = String(input.body ?? "").trim();
     if (!input.accountId || !body || body.length > 5_000) throw new Error("연결 계정과 1~5,000자 본문을 확인해 주세요.");
     const { supabase, user } = await authorizedUser();
     const { data: account } = await supabase.from("tco_threads_accounts").select("id")
       .eq("id", input.accountId).eq("user_id", user.id).maybeSingle();
     if (!account) throw new Error("연결된 Threads 계정을 찾지 못했습니다.");
+    // 상품을 연결한 글은 고지 문구(첫 줄)와 상품 링크(끝)를 서버 값으로 항상 다시 붙인다(화면에서 지울 수 없음).
+    const linked = await loadLinkedProduct(supabase, user.id, input.productId);
+    body = assemblePostBody(body, linked);
+    if (body.length > 5_000) throw new Error("본문이 너무 깁니다. 줄여 주세요.");
     const { error } = await supabase.from("tco_posts").insert({ user_id: user.id, account_id: account.id, body, status: "draft" });
     if (error) throw new Error("초안을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
     if (input.viralId) {

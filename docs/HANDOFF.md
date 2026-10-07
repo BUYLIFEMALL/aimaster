@@ -235,6 +235,10 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.56 — 콘텐츠 생성에 등록 상품 연결 (2026-10-06)
+
+- 상품 연결 시 본문 끝 상품 소개 + 하단 상품링크 + 첫 줄 제휴 고지(서버가 저장 때 재조립), 미연결 시 일반 글. DB 변경 없음. 상세는 프로그램 AGENTS.md v1.56.
+
 ## Threads Content Ops v1.55 — 이미지 비율 9:16 추가 (2026-10-06)
 
 - 비율 목록·플랫폼별 크기 매핑만 추가. DB 변경 없음.

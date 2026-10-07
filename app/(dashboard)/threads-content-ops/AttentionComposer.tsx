@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, CircleAlert, Copy, Sparkles } from "lucide-react";
 import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, ENGINES, IMAGE_KEY_LABEL, IMAGE_MODELS, IMAGE_PLATFORMS, IMAGE_RATIOS, MAX_GENERATE_COUNT, PERSONAS, REWRITE_MODES, type EngineProvider, type ImagePlatform, type ImageRatio } from "@/threads-content-ops/lib/personas";
+import { assemblePostBody, disclosureFor, productPlatformLabel, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { generateAttentionPost, generatePostImage, planPostImages, rewriteGeneratedPost, saveGeneratedDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
@@ -29,7 +30,7 @@ function viralPrompt(candidate: Candidate) {
   ].filter(Boolean).join("\n").slice(0, 1200);
 }
 
-export default function AttentionComposer({ accounts, viralCandidates, initialViralId, configuredProviders }: { accounts: Account[]; viralCandidates: Candidate[]; initialViralId?: string; configuredProviders: string[] }) {
+export default function AttentionComposer({ accounts, products, viralCandidates, initialViralId, configuredProviders }: { accounts: Account[]; products: LinkedProduct[]; viralCandidates: Candidate[]; initialViralId?: string; configuredProviders: string[] }) {
   const initial = viralCandidates.find((candidate) => candidate.id === initialViralId);
   const [viralId, setViralId] = useState(initial?.id ?? "");
   const [topic, setTopic] = useState(() => (initial ? viralPrompt(initial) : ""));
@@ -37,6 +38,8 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
   const topicRef = useRef<HTMLTextAreaElement>(null);
   const [personaId, setPersonaId] = useState("");
   const [product, setProduct] = useState("");
+  const [productId, setProductId] = useState("");
+  const linkedProduct = products.find((item) => item.id === productId);
   const [experience, setExperience] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
   const [engine, setEngine] = useState<Engine>(DEFAULT_ENGINE);
@@ -76,7 +79,7 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
     try {
       const result = await generateAttentionPost({
         topic: effectiveTopic, note, personaId: forcedPersonaId ?? (personaId || undefined),
-        custom: { product, experience, targetAudience }, engine,
+        custom: { product, experience, targetAudience }, engine, productId: productId || undefined,
       });
       if (result.ok) setPlan(result.plan);
       else setMessage({ ok: false, text: result.error });
@@ -138,9 +141,24 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       <div className="mt-4 rounded-xl border-2 border-amber-300 bg-white p-3">
         <p className="text-sm font-bold text-neutral-900">✍️ 맞춤글 (내 경험·상품·타깃 직접 입력) <span className="font-normal text-neutral-500">— 선택</span></p>
         <div className="mt-3 space-y-3">
+          <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-3">
+            <label className="block text-xs font-bold text-neutral-800">🛍️ 등록한 상품 연결 <span className="font-normal text-neutral-500">— 선택 안 하면 일반 Threads 글이 됩니다</span>
+              <select className={`${inputClass} mt-1`} value={productId} onChange={(event) => { setProductId(event.target.value); setPlan(null); }} aria-label="등록한 상품 연결">
+                <option value="">연결 안 함 (일반 포스팅)</option>
+                {products.map((item) => <option key={item.id} value={item.id}>[{productPlatformLabel(item.source_type)}] {item.title || item.source_url}</option>)}
+              </select>
+            </label>
+            {!products.length && <p className="mt-2 text-xs text-neutral-600">등록된 상품이 없습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=sources">쇼핑제휴 상품 등록</Link>에서 상품을 먼저 등록해 주세요.</p>}
+            {linkedProduct && <div className="mt-2 rounded-lg border border-amber-200 bg-white p-2.5 text-xs leading-relaxed text-neutral-700">
+              <p className="font-semibold text-neutral-900">{linkedProduct.title}</p>
+              {linkedProduct.summary && <p className="mt-0.5">{linkedProduct.summary}</p>}
+              <p className="mt-1 break-all text-neutral-500">상품링크: {linkedProduct.source_url}</p>
+              <p className="mt-1 text-neutral-600">AI가 글감 이야기를 쓰고 <b>맨 끝에서 상품을 자연스럽게 소개</b>하며, 글 첫 줄에 제휴 고지 문구(“{disclosureFor(linkedProduct.source_type)}”)와 하단에 상품링크가 자동으로 붙습니다. 고지 문구는 법에 따라 지울 수 없습니다.</p>
+            </div>}
+          </div>
           <label className="block text-xs font-semibold text-neutral-600">내 실제 경험<textarea className={`${inputClass} mt-1 min-h-20`} maxLength={800} value={experience} onChange={(event) => setExperience(event.target.value)} placeholder="직접 겪은 일만 적어 주세요. 여기에 적은 경험만 1인칭 경험담으로 쓰입니다." /></label>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="block text-xs font-semibold text-neutral-600">연결할 상품·핵심 소재<input className={`${inputClass} mt-1`} maxLength={200} value={product} onChange={(event) => setProduct(event.target.value)} placeholder="예: 실리콘 전자레인지 찜기" /></label>
+            <label className="block text-xs font-semibold text-neutral-600">연결할 상품·핵심 소재{linkedProduct ? " (등록 상품 연결 중 — 위 상품이 우선합니다)" : ""}<input disabled={Boolean(linkedProduct)} className={`${inputClass} mt-1 disabled:bg-neutral-100`} maxLength={200} value={product} onChange={(event) => setProduct(event.target.value)} placeholder="예: 실리콘 전자레인지 찜기" /></label>
             <label className="block text-xs font-semibold text-neutral-600">타깃 독자<input className={`${inputClass} mt-1`} maxLength={200} value={targetAudience} onChange={(event) => setTargetAudience(event.target.value)} placeholder="예: 퇴근 후 설거지가 싫은 자취 직장인" /></label>
           </div>
           <p className="text-[11px] text-neutral-500">상품명은 본문에 쓰지 않고 첫 댓글 멘트에서만 언급합니다. 글감에 없는 사실은 여전히 지어내지 않습니다.</p>
@@ -196,11 +214,11 @@ export default function AttentionComposer({ accounts, viralCandidates, initialVi
       {message && !message.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status"><CircleAlert size={16} className="mt-0.5 shrink-0 text-rose-600" />{message.text}</p>}
     </section>
 
-    {plan && <PlanView plan={plan} accounts={accounts} accountId={accountId} onAccount={setAccountId} viralId={viralId} engine={engine} image={image} onSaved={(text) => setMessage({ ok: true, text })} message={message} />}
+    {plan && <PlanView plan={plan} accounts={accounts} accountId={accountId} onAccount={setAccountId} viralId={viralId} engine={engine} image={image} product={linkedProduct} onSaved={(text) => setMessage({ ok: true, text })} message={message} />}
   </div>;
 }
 
-function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, image, onSaved, message }: { plan: Plan; accounts: Account[]; accountId: string; onAccount: (id: string) => void; viralId: string; engine: Engine; image: ImageSettings; onSaved: (text: string) => void; message: { ok: boolean; text: string } | null }) {
+function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, image, product, onSaved, message }: { plan: Plan; accounts: Account[]; accountId: string; onAccount: (id: string) => void; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; onSaved: (text: string) => void; message: { ok: boolean; text: string } | null }) {
   const options = [{ type: `${plan.hookType} (대표)`, hook: plan.hook, whyItWorks: plan.whyHookWorks, content: plan.content }, ...plan.hookVariants];
   return <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -208,20 +226,21 @@ function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, image
       <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">저장할 계정<select className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900" value={accountId} onChange={(event) => onAccount(event.target.value)}>{accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}</select></label>
     </div>
     {message?.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" role="status"><CheckCircle2 size={16} className="mt-0.5 shrink-0" />{message.text} <Link className="font-semibold underline" href="/threads-content-ops?tab=manage">초안·발행 관리 열기</Link></p>}
-    <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} option={option} accountId={accountId} viralId={viralId} engine={engine} image={image} onSaved={onSaved} />)}</ul>
+    <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} option={option} accountId={accountId} viralId={viralId} engine={engine} image={image} product={product} onSaved={onSaved} />)}</ul>
     {plan.cta && <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><p className="font-semibold text-amber-900">댓글을 부르는 마무리·첫 댓글 멘트</p><p className="mt-1 text-neutral-800">{plan.cta}</p><div className="mt-2"><CopyButton value={plan.cta} label="멘트 복사" /></div></div>}
     {plan.followUpIdeas.length > 0 && <div className="mt-4"><p className="text-sm font-semibold text-neutral-900">이어 쓸 후속 아이디어</p><ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-neutral-700">{plan.followUpIdeas.map((idea) => <li key={idea}>{idea}</li>)}</ul></div>}
   </section>;
 }
 
-function VariantCard({ option, accountId, viralId, engine, image, onSaved }: { option: Variant; accountId: string; viralId: string; engine: Engine; image: ImageSettings; onSaved: (text: string) => void }) {
+function VariantCard({ option, accountId, viralId, engine, image, product, onSaved }: { option: Variant; accountId: string; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; onSaved: (text: string) => void }) {
   const [body, setBody] = useState(option.content);
   const [hook, setHook] = useState(option.hook);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [rewriting, setRewriting] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const over = body.length > THREADS_LIMIT;
+  const finalBody = assemblePostBody(body, product);
+  const over = finalBody.length > THREADS_LIMIT;
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const [images, setImages] = useState<string[]>([]);
   const [imaging, setImaging] = useState<{ done: number; total: number } | null>(null);
@@ -269,7 +288,7 @@ function VariantCard({ option, accountId, viralId, engine, image, onSaved }: { o
     setSaving(true);
     setError("");
     try {
-      const result = await saveGeneratedDraft({ accountId, body, viralId: viralId || undefined });
+      const result = await saveGeneratedDraft({ accountId, body, viralId: viralId || undefined, productId: product?.id });
       if (result.ok) {
         setSaved(true);
         onSaved("초안으로 저장했습니다. 초안·발행 관리에서 검토한 뒤 발행하세요.");
@@ -288,7 +307,7 @@ function VariantCard({ option, accountId, viralId, engine, image, onSaved }: { o
     setRewriting(mode);
     setError("");
     try {
-      const result = await rewriteGeneratedPost({ hook, content: body, mode, engine });
+      const result = await rewriteGeneratedPost({ hook, content: body, mode, engine, productId: product?.id });
       if (result.ok) {
         setBody(result.content);
         setHook(result.hook);
@@ -304,16 +323,18 @@ function VariantCard({ option, accountId, viralId, engine, image, onSaved }: { o
   };
 
   return <li className="rounded-xl border border-neutral-200 p-4">
-    <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">{option.type}</span><span className={`text-xs ${over ? "font-bold text-rose-600" : "text-neutral-500"}`}>{body.length}/{THREADS_LIMIT}자{over ? " — Threads 글자 수를 넘습니다. 줄여 주세요" : ""}</span></div>
+    <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">{option.type}</span><span className={`text-xs ${over ? "font-bold text-rose-600" : "text-neutral-500"}`}>{finalBody.length}/{THREADS_LIMIT}자{product ? " (고지·링크 포함)" : ""}{over ? " — Threads 글자 수를 넘습니다. 본문을 줄여 주세요" : ""}</span></div>
     {hook && <p className="mt-2 text-sm font-semibold text-neutral-900">“{hook}”</p>}
     {option.whyItWorks && <p className="mt-1 text-xs text-neutral-500">💡 {option.whyItWorks}</p>}
-    <textarea ref={bodyRef} className={`${inputClass} mt-3 min-h-40 resize-y overflow-hidden leading-relaxed`} value={body} maxLength={5000} onChange={(event) => { setBody(event.target.value); setSaved(false); }} aria-label={`${option.type} 본문`} />
+    {product && <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900">{disclosureFor(product.source_type)} <span className="font-normal text-amber-700">(첫 줄에 자동으로 붙습니다)</span></p>}
+    <textarea ref={bodyRef} className={`${inputClass} ${product ? "mt-1.5" : "mt-3"} min-h-40 resize-y overflow-hidden leading-relaxed`} value={body} maxLength={5000} onChange={(event) => { setBody(event.target.value); setSaved(false); }} aria-label={`${option.type} 본문`} />
+    {product && <p className="mt-1.5 break-all rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-900"><b>상품링크:</b> {product.source_url} <span className="text-amber-700">(하단에 자동으로 붙습니다 · {product.title})</span></p>}
     <div className="mt-2 flex flex-wrap items-center gap-1.5"><span className="text-[11px] font-semibold text-neutral-500">다시 써줘</span>{REWRITE_MODES.map((item) => <button key={item.mode} type="button" disabled={rewriting !== null || saving} onClick={() => void rewrite(item.mode)} className="rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50">{rewriting === item.mode ? "수정 중…" : `${item.icon} ${item.label}`}</button>)}</div>
     {error && <p className="mt-2 text-sm text-rose-600" role="alert">{error}</p>}
     <div className="mt-3 flex flex-wrap gap-2">
       <button type="button" className="inline-flex items-center gap-1 rounded-lg border-2 border-violet-300 bg-white px-3 py-1.5 text-xs font-bold text-violet-700 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50" disabled={imaging !== null || saving || rewriting !== null || !body.trim()} onClick={() => void makeImages()}>{imaging ? `이미지 만드는 중… ${imaging.done}/${imaging.total}장` : images.length ? `🖼️ 이미지 ${image.count}장 더 생성` : image.count > 1 ? `🖼️ 이미지 ${image.count}장 생성` : "🖼️ 이미지 생성"}</button>
       <button type="button" className="inline-flex items-center rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={saving || saved || rewriting !== null || imaging !== null || !body.trim() || !accountId} onClick={() => void save()}>{saved ? "저장됨" : saving ? "저장 중…" : "이 글로 초안 저장"}</button>
-      <CopyButton value={body} label="본문 복사" />
+      <CopyButton value={finalBody} label="본문 복사" />
     </div>
     {images.length > 0 && <div className="mt-3 rounded-xl border-2 border-violet-200 bg-white p-3">
       <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-neutral-900">🖼️ 생성된 이미지 <span className="font-normal text-neutral-500">{images.length} / {MAX_CAROUSEL}장 · 마음에 드는 것만 남기고 ✕로 삭제하거나 ◀ ▶로 순서를 바꾸세요</span></p><button type="button" className="rounded-lg border border-rose-300 px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" onClick={() => { if (window.confirm("생성된 이미지를 화면에서 모두 지울까요? (저장된 파일은 그대로 남습니다)")) setImages([]); }}>🗑️ 전체 비우기</button></div>
