@@ -406,6 +406,36 @@ export default function CollectorPage() {
     persistCandidates(updated);
   };
 
+  // 글감 인라인 편집 (제목/요약 수정)
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+
+  const startEdit = (item: BlogViralCandidate) => {
+    setEditingId(item.id);
+    setEditTitle(item.title);
+    setEditContent(item.content);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTitle("");
+    setEditContent("");
+  };
+
+  const saveEdit = (id: string) => {
+    if (!editTitle.trim()) {
+      alert("글감 제목을 입력해 주세요.");
+      return;
+    }
+    const updated = candidates.map((c) =>
+      c.id === id ? { ...c, title: editTitle.trim(), content: editContent.trim() } : c
+    );
+    persistCandidates(updated);
+    setEditingId(null);
+    setMessage({ type: "success", text: "글감 정보가 수정되었습니다." });
+  };
+
   // 단일 삭제
   const deleteCandidate = (item: BlogViralCandidate) => {
     if (!window.confirm(`"${item.title.slice(0, 30)}" 글감을 삭제하시겠습니까?`)) return;
@@ -1060,34 +1090,92 @@ export default function CollectorPage() {
                       </span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => deleteCandidate(item)}
-                      className="text-neutral-400 hover:text-rose-600 transition-colors p-1"
-                      title="글감 삭제"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => (editingId === item.id ? cancelEdit() : startEdit(item))}
+                        className={`transition-colors p-1 rounded ${
+                          editingId === item.id
+                            ? "text-indigo-600 bg-indigo-50"
+                            : "text-neutral-400 hover:text-indigo-600 hover:bg-neutral-100"
+                        }`}
+                        title={editingId === item.id ? "편집 취소" : "글감 제목·내용 수정"}
+                      >
+                        <PenLine size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteCandidate(item)}
+                        className="text-neutral-400 hover:text-rose-600 hover:bg-neutral-100 transition-colors p-1 rounded"
+                        title="글감 삭제"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* 제목 */}
-                  <h3 className="mt-2.5 text-base font-bold text-neutral-900 leading-snug">
-                    {item.title}
-                  </h3>
-
-                  {/* 공략 앵글 */}
-                  {item.angle && (
-                    <div className="mt-1.5 flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/70 px-2.5 py-1 rounded-lg border border-amber-200/50">
-                      <TrendingUp size={13} className="text-amber-700 shrink-0" />
-                      <span className="font-semibold">공략 앵글:</span>
-                      <span className="text-amber-800">{item.angle}</span>
+                  {/* 제목 & 본문 (수정 모드 vs 일반 모드) */}
+                  {editingId === item.id ? (
+                    <div className="mt-3 space-y-2.5 rounded-xl border border-indigo-200 bg-indigo-50/40 p-3.5">
+                      <div>
+                        <label className="text-[11px] font-bold text-neutral-600">글감 제목</label>
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          className="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm font-bold text-neutral-900 focus:border-indigo-600 focus:outline-none"
+                          placeholder="블로그 제목을 입력하세요"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-neutral-600">본문 요약 및 배경 팩트</label>
+                        <textarea
+                          rows={3}
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs text-neutral-800 focus:border-indigo-600 focus:outline-none"
+                          placeholder="본문 요약 및 전개 가이드를 입력하세요"
+                        />
+                      </div>
+                      <div className="flex items-center justify-end gap-1.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1 text-xs font-semibold text-neutral-600 hover:bg-neutral-100"
+                        >
+                          취소
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => saveEdit(item.id)}
+                          className="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-bold text-white hover:bg-indigo-700 shadow-sm"
+                        >
+                          저장하기
+                        </button>
+                      </div>
                     </div>
-                  )}
+                  ) : (
+                    <>
+                      {/* 제목 */}
+                      <h3 className="mt-2.5 text-base font-bold text-neutral-900 leading-snug">
+                        {item.title}
+                      </h3>
 
-                  {/* 요약 본문 */}
-                  <p className="mt-2 text-sm leading-relaxed text-neutral-700 whitespace-pre-wrap">
-                    {item.content}
-                  </p>
+                      {/* 공략 앵글 */}
+                      {item.angle && (
+                        <div className="mt-1.5 flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/70 px-2.5 py-1 rounded-lg border border-amber-200/50">
+                          <TrendingUp size={13} className="text-amber-700 shrink-0" />
+                          <span className="font-semibold">공략 앵글:</span>
+                          <span className="text-amber-800">{item.angle}</span>
+                        </div>
+                      )}
+
+                      {/* 요약 본문 */}
+                      <p className="mt-2 text-sm leading-relaxed text-neutral-700 whitespace-pre-wrap">
+                        {item.content}
+                      </p>
+                    </>
+                  )}
 
                   {/* 키워드 태그 */}
                   {item.keywords && item.keywords.length > 0 && (
@@ -1124,43 +1212,59 @@ export default function CollectorPage() {
                   {/* 하단 액션 버튼 그룹 */}
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      {item.status !== "ready" && (
+                      {/* 1) ready(사용 가능) 상태: 사용 완료 표시 / 보관 */}
+                      {item.status === "ready" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => updateStatus(item.id, "used")}
+                            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          >
+                            <CheckCircle2 size={13} className="text-emerald-600" />
+                            사용 완료 표시
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => updateStatus(item.id, "archived")}
+                            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          >
+                            <Archive size={13} className="text-neutral-500" />
+                            보관
+                          </button>
+                        </>
+                      )}
+
+                      {/* 2) used(발행 완료) 상태: 사용 가능으로 복원 / 보관 */}
+                      {item.status === "used" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => updateStatus(item.id, "ready")}
+                            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          >
+                            <RotateCcw size={13} className="text-sky-600" />
+                            사용 가능으로 복원
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => updateStatus(item.id, "archived")}
+                            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          >
+                            <Archive size={13} className="text-neutral-500" />
+                            보관
+                          </button>
+                        </>
+                      )}
+
+                      {/* 3) archived(보관) 상태: 보관 해제 1개만 단독 노출 */}
+                      {item.status === "archived" && (
                         <button
                           type="button"
                           onClick={() => updateStatus(item.id, "ready")}
-                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50"
+                          className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/60 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
                         >
-                          <RotateCcw size={13} />
-                          사용 가능으로
-                        </button>
-                      )}
-                      {item.status !== "used" && (
-                        <button
-                          type="button"
-                          onClick={() => updateStatus(item.id, "used")}
-                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50"
-                        >
-                          <CheckCircle2 size={13} />
-                          사용 완료 표시
-                        </button>
-                      )}
-                      {item.status !== "archived" ? (
-                        <button
-                          type="button"
-                          onClick={() => updateStatus(item.id, "archived")}
-                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50"
-                        >
-                          <Archive size={13} />
-                          보관
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => updateStatus(item.id, "ready")}
-                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50"
-                        >
-                          <RotateCcw size={13} />
-                          보관 해제
+                          <RotateCcw size={13} className="text-indigo-600" />
+                          보관 해제 (사용 가능으로 복원)
                         </button>
                       )}
                     </div>
