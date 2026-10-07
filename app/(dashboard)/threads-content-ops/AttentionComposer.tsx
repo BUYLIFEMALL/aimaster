@@ -226,11 +226,11 @@ export default function AttentionComposer({ userId, accounts, products, viralCan
       {message && !message.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status"><CircleAlert size={16} className="mt-0.5 shrink-0 text-rose-600" />{message.text}</p>}
     </section>
 
-    {plan && <PlanView plan={plan} accounts={accounts} accountId={accountId} onAccount={setAccountId} viralId={viralId} engine={engine} image={image} product={linkedProduct} media={media} onAddMedia={(item) => setMedia((current) => (current.length >= MAX_MEDIA || current.some((entry) => entry.url === item.url) ? current : [...current, item]))} onSaved={(text) => setMessage({ ok: true, text })} message={message} />}
+    {plan && <PlanView plan={plan} accounts={accounts} accountId={accountId} onAccount={setAccountId} viralId={viralId} engine={engine} image={image} product={linkedProduct} media={media} onSaved={(text) => setMessage({ ok: true, text })} message={message} />}
   </div>;
 }
 
-function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, image, product, media, onAddMedia, onSaved, message }: { plan: Plan; accounts: Account[]; accountId: string; onAccount: (id: string) => void; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; media: PostMedia[]; onAddMedia: (item: PostMedia) => void; onSaved: (text: string) => void; message: { ok: boolean; text: string } | null }) {
+function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, image, product, media, onSaved, message }: { plan: Plan; accounts: Account[]; accountId: string; onAccount: (id: string) => void; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; media: PostMedia[]; onSaved: (text: string) => void; message: { ok: boolean; text: string } | null }) {
   const options = [{ type: `${plan.hookType} (대표)`, hook: plan.hook, whyItWorks: plan.whyHookWorks, content: plan.content }, ...plan.hookVariants];
   return <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -238,13 +238,13 @@ function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, image
       <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">저장할 계정<select className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900" value={accountId} onChange={(event) => onAccount(event.target.value)}>{accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}</select></label>
     </div>
     {message?.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" role="status"><CheckCircle2 size={16} className="mt-0.5 shrink-0" />{message.text} <Link className="font-semibold underline" href="/threads-content-ops?tab=manage">초안·발행 관리 열기</Link></p>}
-    <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} option={option} accountId={accountId} viralId={viralId} engine={engine} image={image} product={product} media={media} onAddMedia={onAddMedia} onSaved={onSaved} />)}</ul>
+    <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} option={option} accountId={accountId} viralId={viralId} engine={engine} image={image} product={product} media={media} onSaved={onSaved} />)}</ul>
     {plan.cta && <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><p className="font-semibold text-amber-900">댓글을 부르는 마무리·첫 댓글 멘트</p><p className="mt-1 text-neutral-800">{plan.cta}</p><div className="mt-2"><CopyButton value={plan.cta} label="멘트 복사" /></div></div>}
     {plan.followUpIdeas.length > 0 && <div className="mt-4"><p className="text-sm font-semibold text-neutral-900">이어 쓸 후속 아이디어</p><ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-neutral-700">{plan.followUpIdeas.map((idea) => <li key={idea}>{idea}</li>)}</ul></div>}
   </section>;
 }
 
-function VariantCard({ option, accountId, viralId, engine, image, product, media, onAddMedia, onSaved }: { option: Variant; accountId: string; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; media: PostMedia[]; onAddMedia: (item: PostMedia) => void; onSaved: (text: string) => void }) {
+function VariantCard({ option, accountId, viralId, engine, image, product, media, onSaved }: { option: Variant; accountId: string; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; media: PostMedia[]; onSaved: (text: string) => void }) {
   const [body, setBody] = useState(option.content);
   const [hook, setHook] = useState(option.hook);
   const [saving, setSaving] = useState(false);
@@ -254,12 +254,32 @@ function VariantCard({ option, accountId, viralId, engine, image, product, media
   const finalBody = assemblePostBody(body, product);
   const over = finalBody.length > THREADS_LIMIT;
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const [images, setImages] = useState<PostMedia[]>([]);
+  const [viewer, setViewer] = useState<number | null>(null);
   const [imaging, setImaging] = useState<{ done: number; total: number } | null>(null);
+  const removeImage = (index: number) => {
+    const target = images[index];
+    setImages((current) => current.filter((_, position) => position !== index));
+    if (target) void deleteMediaFile(target.url);
+  };
+  const clearImages = () => {
+    if (!images.length || !window.confirm("이 글의 생성 이미지를 모두 삭제할까요? 파일도 함께 지워지며 되돌릴 수 없습니다.")) return;
+    const targets = [...images];
+    setImages([]);
+    for (const item of targets) void deleteMediaFile(item.url);
+  };
+  const moveImage = (index: number, delta: number) => setImages((current) => {
+    const target = index + delta;
+    if (target < 0 || target >= current.length) return current;
+    const next = [...current];
+    [next[index], next[target]] = [next[target], next[index]];
+    return next;
+  });
 
   const makeImages = async () => {
     if (imaging || saving || rewriting) return;
-    const want = Math.min(image.count, MAX_MEDIA - media.length);
-    if (want < 1) { setError(`미디어는 최대 ${MAX_MEDIA}개까지 둘 수 있습니다. 위 미디어 카드에서 불필요한 파일을 삭제한 뒤 다시 생성해 주세요.`); return; }
+    const want = Math.min(image.count, MAX_MEDIA - media.length - images.length);
+    if (want < 1) { setError(`이 글에 붙는 미디어는 공통 미디어와 합쳐 최대 ${MAX_MEDIA}개입니다. 불필요한 이미지를 삭제한 뒤 다시 생성해 주세요.`); return; }
     setError("");
     setImaging({ done: 0, total: want });
     try {
@@ -268,7 +288,7 @@ function VariantCard({ option, accountId, viralId, engine, image, product, media
       for (let index = 0; index < plan.prompts.length; index += 1) {
         const result = await generatePostImage({ prompt: plan.prompts[index], imageModel: image.model, ratio: image.ratio });
         if (!result.ok) { setError(`${index}장을 만든 뒤 멈췄습니다. ${result.error}`); return; }
-        onAddMedia({ url: result.url, type: "IMAGE", size: result.size });
+        setImages((current) => [...current, { url: result.url, type: "IMAGE" as const, size: result.size }].slice(0, MAX_MEDIA));
         setImaging({ done: index + 1, total: want });
       }
     } catch {
@@ -291,10 +311,10 @@ function VariantCard({ option, accountId, viralId, engine, image, product, media
     setSaving(true);
     setError("");
     try {
-      const result = await saveGeneratedDraft({ accountId, body, viralId: viralId || undefined, productId: product?.id, media });
+      const result = await saveGeneratedDraft({ accountId, body, viralId: viralId || undefined, productId: product?.id, media: [...images, ...media].slice(0, MAX_MEDIA) });
       if (result.ok) {
         setSaved(true);
-        onSaved(media.length ? `초안으로 저장했습니다(이미지·영상 ${media.length}개 포함). 초안·발행 관리에서 검토한 뒤 발행하세요.` : "초안으로 저장했습니다. 초안·발행 관리에서 검토한 뒤 발행하세요.");
+        onSaved(images.length + media.length ? `초안으로 저장했습니다(이미지·영상 ${Math.min(images.length + media.length, MAX_MEDIA)}개 포함). 초안·발행 관리에서 검토한 뒤 발행하세요.` : "초안으로 저장했습니다. 초안·발행 관리에서 검토한 뒤 발행하세요.");
       } else {
         setError(result.error);
       }
@@ -339,6 +359,23 @@ function VariantCard({ option, accountId, viralId, engine, image, product, media
       <button type="button" className="inline-flex items-center rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={saving || saved || rewriting !== null || imaging !== null || !body.trim() || !accountId} onClick={() => void save()}>{saved ? "저장됨" : saving ? "저장 중…" : "이 글로 초안 저장"}</button>
       <CopyButton value={finalBody} label="본문 복사" />
     </div>
+    {images.length > 0 && <div className="mt-3 rounded-xl border-2 border-violet-200 bg-white p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-neutral-900">🖼️ 이 글의 이미지 <span className="font-normal text-neutral-500">{images.length}장 · 마음에 드는 것만 남기고 ✕로 삭제하거나 ◀ ▶로 순서를 바꾸세요</span></p><button type="button" className="rounded-lg border border-rose-300 px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" onClick={clearImages}>🗑️ 이 글 이미지 전체 삭제</button></div>
+      <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">{images.map((item, index) => <li key={item.url} className="rounded-lg border border-neutral-200 p-1.5">
+        <button type="button" onClick={() => setViewer(index)} className="relative block w-full" aria-label={`${index + 1}번 이미지 크게 보기`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={item.url} alt={`이 글의 이미지 ${index + 1}`} className="w-full rounded-md object-cover" />
+          <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 text-[10px] font-bold text-[#ffffff]">{index + 1}</span>
+        </button>
+        {item.size !== undefined && item.size > MAX_IMAGE_BYTES && <p className="mt-1 text-[10px] font-semibold text-rose-600">8MB 초과 — Threads 발행 불가</p>}
+        <div className="mt-1.5 flex items-center justify-between gap-1">
+          <span className="flex gap-1"><button type="button" aria-label="앞으로" disabled={index === 0} onClick={() => moveImage(index, -1)} className="rounded border border-neutral-300 px-1.5 text-xs disabled:opacity-40">◀</button><button type="button" aria-label="뒤로" disabled={index === images.length - 1} onClick={() => moveImage(index, 1)} className="rounded border border-neutral-300 px-1.5 text-xs disabled:opacity-40">▶</button></span>
+          <span className="flex gap-1"><CopyButton value={item.url} label="주소" /><button type="button" onClick={() => removeImage(index)} className="rounded border border-rose-300 px-2 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" aria-label={`${index + 1}번 이미지 삭제`}>✕ 삭제</button></span>
+        </div>
+      </li>)}</ul>
+      <p className="mt-2 text-[11px] text-neutral-500">이 글을 "초안 저장"하면 이 이미지들이 함께 저장되고{media.length > 0 ? ` 위 공통 미디어 ${media.length}개도 뒤에 이어 붙으며` : ""}, 발행하면 캐러셀로 올라갑니다. 이미지는 올린 지 {MEDIA_RETENTION_DAYS}일 후 자동 삭제됩니다.</p>
+    </div>}
+    {viewer !== null && images[viewer] && <MediaViewer media={images} index={viewer} onIndex={setViewer} />}
   </li>;
 }
 
@@ -415,12 +452,12 @@ function MediaManager({ userId, media, onChange }: { userId: string; media: Post
     <input ref={imageInput} type="file" accept="image/jpeg,image/png" multiple className="hidden" onChange={(event) => { const files = Array.from(event.target.files ?? []); event.target.value = ""; void upload(files, "image"); }} />
     <input ref={videoInput} type="file" accept="video/mp4,video/quicktime" className="hidden" onChange={(event) => { const files = Array.from(event.target.files ?? []); event.target.value = ""; void upload(files, "video"); }} />
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <p className="text-sm font-bold text-neutral-900">📁 미디어 (이미지·영상 혼합 캐러셀) <span className="text-xs font-normal text-neutral-500">{media.length} / {MAX_MEDIA}개</span></p>
-      <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-700">AI 이미지 · PC 파일 · 동영상 · 최대 {MAX_MEDIA}개</span>
+      <p className="text-sm font-bold text-neutral-900">📁 공통 미디어 (내 PC 이미지·영상) <span className="text-xs font-normal text-neutral-500">{media.length} / {MAX_MEDIA}개</span></p>
+      <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-700">모든 글에 공통으로 붙음 · 최대 {MAX_MEDIA}개</span>
     </div>
     {media.length === 0 ? <div className="mt-3 rounded-xl border-2 border-dashed border-neutral-300 p-5 text-center">
       <p className="text-sm font-bold text-neutral-800">등록된 미디어가 없습니다.</p>
-      <p className="mt-1 text-xs text-neutral-500">위 이미지 생성 모델로 글의 "이미지 생성"을 누르거나, 아래 버튼으로 내 PC의 이미지·영상을 추가하세요. (최대 {MAX_MEDIA}개 혼합 캐러셀 지원)</p>
+      <p className="mt-1 text-xs text-neutral-500">내 PC의 이미지·영상을 올리면 아래 모든 글에 공통으로 함께 저장됩니다. AI로 만든 이미지는 각 글 바로 아래에 따로 보입니다. (이미지·영상 합쳐 글당 최대 {MAX_MEDIA}개 혼합 캐러셀)</p>
     </div> : <>
       <div className="mt-2 flex justify-end"><button type="button" onClick={clearAll} className="rounded-lg border border-rose-300 px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50">🗑️ 전체 미디어 삭제</button></div>
       <ul className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">{media.map((item, index) => <li key={item.url} className="rounded-lg border border-neutral-200 p-1.5">
@@ -443,7 +480,7 @@ function MediaManager({ userId, media, onChange }: { userId: string; media: Post
       <button type="button" disabled={full || uploading !== null} onClick={() => videoInput.current?.click()} className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-xs font-semibold text-neutral-800 hover:bg-neutral-50 disabled:opacity-50">{uploading === "video" ? "영상 올리는 중… (큰 파일은 오래 걸립니다)" : "🎬 영상 파일 추가 (최대 1GB)"}</button>
     </div>
     {error && <p className="mt-2 text-center text-xs font-semibold text-rose-600" role="alert">{error}</p>}
-    <p className="mt-2 text-center text-[11px] text-neutral-500">⏳ 데이터 보관 기간: 등록 시점 기준 {MEDIA_RETENTION_DAYS}일 후 자동 삭제 (불필요한 파일은 언제든 수동 삭제 가능) · 이미지는 JPEG·PNG 8MB 이하, 영상은 MP4·MOV 1GB·5분 이하 · 결과 글의 "이 글로 초안 저장"을 누르면 이 미디어가 함께 저장되고, 발행하면 캐러셀로 올라갑니다.</p>
+    <p className="mt-2 text-center text-[11px] text-neutral-500">⏳ 데이터 보관 기간: 등록 시점 기준 {MEDIA_RETENTION_DAYS}일 후 자동 삭제 (불필요한 파일은 언제든 수동 삭제 가능) · 이미지는 JPEG·PNG 8MB 이하, 영상은 MP4·MOV 1GB·5분 이하 · 결과 글의 "이 글로 초안 저장"을 누르면 그 글의 AI 이미지와 이 공통 미디어가 함께 저장되고, 발행하면 캐러셀로 올라갑니다.</p>
     {viewer !== null && media[viewer] && <MediaViewer media={media} index={viewer} onIndex={setViewer} />}
   </div>;
 }
