@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.16` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.17` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -34,11 +34,22 @@
    - AI 사전학습 컷오프로 인해 2023년, 2024년으로 퇴행하는 버그를 원천 차단하기 위해, **입력단 자동 정제 + 프롬프트 당해 연도 절대 제약 + 출력단 정규식 Safe-guard 교정(3중 방어막)**을 필수로 가동합니다.
 8. **글감 보관(is_archived) 및 삭제 보호 원칙 (2026-10-07 주인님 확정)**:
    - 보관 기능은 아껴둔 콘텐츠를 나중에 사용하기 위한 영구 보호 기능이며, 사용 상태(사용가능/사용완료)와 무관하게 상시 독립 동작한다. 전체선택 삭제 및 일괄 정리 시 보관된 콘텐츠는 무조건 제외/보호된다.
+9. **AI 글 생성 엔진 및 멀티 AI 이미지 생성 모델 선택 UX (2026-10-07 주인님 확정)**:
+   - `threads-content-ops`와 100% 동일한 AI 텍스트 엔진(GPT, Claude, Gemini) 및 멀티 AI 이미지 생성 플랫폼(NanoBanana, GPT Image, FLUX 2.0, Z-Image) 선택 인터페이스를 제공한다.
+   - 본문 생성 후 추천된 썸네일/본문 컷 프롬프트를 바탕으로 실제 이미지를 클라우드에 생성/업로드하고 갤러리로 제공하며 크롬 확장 발행 대기열에 포함한다.
 
 ---
 
 ## 🕒 버전 히스토리
 
+- **v1.17 (2026-10-07)**:
+  - **AI 글 생성 엔진 & 멀티 이미지 생성 플랫폼 선택 및 실제 이미지 생성 기능 탑재 (주인님 확정)**:
+    1) **AI 글 생성 엔진 선택**: `threads-content-ops`와 동일하게 🤖 OpenAI GPT (`gpt-4.1`, `gpt-6-luna`, `gpt-4o` 등), Anthropic Claude (`claude-sonnet-5`, `claude-opus-5` 등), Google Gemini (`gemini-3.7-flash` 등) 3개사 12종 최신 플래그십 모델 선택 지원.
+    2) **멀티 AI 이미지 생성 플랫폼 & 모델 선택**: 🖼️ Google NanoBanana (`nanobanana-2-2k`, `nanobanana-pro` 등), OpenAI GPT Image (`gpt-image-2`, `chatgpt-image-latest` 등), Black Forest FLUX 2.0 (`flux-2-dev`, `flux-2-pro` 등), Alibaba Z-Image (`z-image-turbo`) 4개 플랫폼 15종 모델 지원.
+    3) **이미지 생성 설정**: 생성 장수(1~5장) 및 종횡비(1:1 정사각, 4:5 세로형, 16:9 가로형 와이드, 9:16 모바일) 완비.
+    4) **실제 이미지 생성 API (`/api/generate-image`) 구축**: Gemini, OpenAI, Replicate API를 통해 한국인(동아시아인) 기본 묘사 + 텍스트 제외 원칙이 적용된 실사 이미지를 생성하고 Supabase Storage(`ai-image-generations` 버킷)에 자동 업로드.
+    5) **결과 화면 이미지 갤러리 & 파란색 일괄 생성 버튼**: 결과물 섹션 상단에 파란색 `[🖼️ AI 이미지 생성 (N장)]` 버튼 배치, 실시간 프로그레스 바, 생성 이미지 갤러리 그리드(대표 썸네일/본문 컷 배지, URL 복사, 다운로드, 삭제), 개별 컷 즉시 생성 버튼, 클릭 시 고해상도 확대 모달 뷰어 제공.
+    6) **크롬 확장 발행 대기열 자동 연동**: 실제 생성된 이미지가 있을 시 대기열 등록 및 보관함 저장 시 자동으로 포함되어 크롬 확장이 스마트에디터 ONE에 직접 첨부.
 - **v1.16 (2026-10-07)**:
   - **글감 보관함(/collector) 하단 액션 버튼 색상 개편 (주인님 확정)**:
     1) **사용완료 버튼**: 파란색 바탕(`bg-blue-600 text-white hover:bg-blue-700 shadow-sm`)으로 변경하여 명확한 완료 액션 강조. (사용 완료 상태일 때는 `bg-blue-50 text-blue-700 border-blue-300` 복원 버튼으로 토글).

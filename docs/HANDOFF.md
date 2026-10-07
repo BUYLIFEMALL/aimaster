@@ -1,5 +1,24 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.17, 2026-10-07)
+
+- **AI 글 생성 엔진 & 멀티 이미지 생성 플랫폼 선택 및 실제 이미지 생성 기능 탑재 (v1.17)**:
+  - 배경: 주인님의 "본문은 잘 만들어졌는데 이미지가 생성 안되어 있네 여기에 이미지 생성 기능을 추가 해야 할것 같아. threads-content-ops에 구현해 놓은 AI생성 모델과 이미지 생성모델을 선택 사용하는 기능을 추가해줘" 요청에 따른 전면 개편.
+  - 조치:
+    1) `naver-blog-agent/src/lib/ai/contentModels.ts`:
+       - `threads-content-ops`와 100% 동일한 AI 텍스트 생성 엔진(GPT 6종, Claude 4종, Gemini 2종 등 12개 모델) 및 멀티 이미지 생성 플랫폼(NanoBanana 4종, GPT Image 7종, FLUX 2.0 3종, Z-Image 1종 등 15개 모델) 레지스트리 구축.
+       - 이미지 종횡비(1:1, 4:5, 16:9, 9:16) 및 최대 생성 장수 설정 완비.
+    2) `naver-blog-agent/src/lib/ai/imageGenerator.ts`:
+       - Google Gemini(`withGemini`), OpenAI(`withOpenAI`), Replicate(`withReplicate`) 연동 실사 이미지 생성기 구축.
+       - 핵심 원칙 3번(인물 묘사 시 한국인/동아시아인 기본 묘사, 텍스트/워터마크 제외 규칙) 자동 프롬프트 보정(`finalizePrompt`) 적용.
+    3) `naver-blog-agent/src/app/api/generate-image/route.ts`:
+       - 이미지 실시간 생성 및 Supabase Storage(`ai-image-generations` 버킷) 자동 업로드, 고유 영구 공개 URL 발급 API 신설.
+    4) `naver-blog-agent/src/app/(dashboard)/page.tsx`:
+       - 상단 입력 폼에 🤖 AI 글 생성 엔진 선택 카드 & 🖼️ AI 이미지 생성 모델/종횡비/장수 설정 카드 탑재.
+       - 결과 화면의 기존 텍스트 프롬프트 복사 영역을 파란색 바탕 `[🖼️ AI 이미지 생성 (N장)]` 버튼 + 실시간 진행 프로그레스 바 + 생성 이미지 갤러리 그리드(대표 썸네일/본문 컷 배지, URL 복사, 다운로드, 삭제) + 개별 컷 생성 버튼 + 클릭 시 고해상도 확대 모달 뷰어로 전면 교체.
+       - 크롬 확장 자동 발행 큐 등록(`handlePublishToQueue`) 및 보관함 저장(`handleSaveDraft`) 시 실제 생성된 이미지가 자동 포함되도록 연동.
+    5) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0017_nba_bump_version_v1_17.sql`을 `v1.17`로 동기화.
+
 ## Threads 콘텐츠 운영 자동화 v1.70 — 이미지 생성 버튼 파란색 + 생성 중 자리표시 (2026-10-07)
 
 - 결과 글의 '이미지 생성' 버튼 파란 바탕, 생성 중 자리표시 칸 추가. 화면만 변경.

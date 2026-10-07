@@ -20,10 +20,30 @@ import {
   Check,
   Wand2,
   Flame,
+  Loader2,
+  Download,
+  Trash2,
+  Maximize2,
+  X,
+  ImageIcon,
 } from "lucide-react";
 import type { PipelineResult } from "@/lib/ai/pipeline";
 import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate } from "@/types/collector";
+import {
+  ENGINES,
+  DEFAULT_ENGINE,
+  IMAGE_PLATFORMS,
+  IMAGE_MODELS,
+  DEFAULT_IMAGE_MODELS,
+  DEFAULT_IMAGE_PLATFORM,
+  IMAGE_RATIOS,
+  IMAGE_KEY_LABEL,
+  findImageModel,
+  type EngineProvider,
+  type ImagePlatform,
+  type ImageRatio,
+} from "@/lib/ai/contentModels";
 
 export default function MainPage() {
   const [activePersonaId, setActivePersonaId] = useState<string | null>("housewife");
@@ -33,6 +53,27 @@ export default function MainPage() {
   const [publishPurpose, setPublishPurpose] = useState("실제 주부 입장에서 가성비와 찐활용도를 꼼꼼하게 비교 분석하여 이웃들에게 추천");
   const [preferredTone, setPreferredTone] = useState<string>("해요체");
   const [targetCharCount, setTargetCharCount] = useState<number>(2000);
+
+  // AI 엔진 & 이미지 모델 선택 상태 (threads-content-ops와 동일 구조)
+  const [engine, setEngine] = useState<{ provider: EngineProvider; model: string }>(DEFAULT_ENGINE);
+  const [imageSettings, setImageSettings] = useState<{
+    platform: ImagePlatform;
+    model: string;
+    ratio: ImageRatio;
+    count: number;
+  }>({
+    platform: DEFAULT_IMAGE_PLATFORM,
+    model: DEFAULT_IMAGE_MODELS[DEFAULT_IMAGE_PLATFORM],
+    ratio: "1:1",
+    count: 2,
+  });
+  const [configuredProviders, setConfiguredProviders] = useState<string[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<
+    { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[]
+  >([]);
+  const [imageGenerating, setImageGenerating] = useState<{ done: number; total: number } | null>(null);
+  const [singleGeneratingIndex, setSingleGeneratingIndex] = useState<number | null>(null);
+  const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [generatingPersonaName, setGeneratingPersonaName] = useState<string | null>(null);
@@ -115,6 +156,16 @@ export default function MainPage() {
         }
       }
     } catch {}
+
+    // 등록된 AI 및 이미지 키 목록 불러오기
+    fetch("/api/keys")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data.registered)) {
+          setConfiguredProviders(data.registered);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // 페르소나 클릭 시 조건 자동 세팅
@@ -169,6 +220,7 @@ export default function MainPage() {
     setError(null);
     setNeedKey(false);
     setResult(null);
+    setGeneratedImages([]); // 새 글 생성 시 기존 생성 이미지 초기화
 
     try {
       const res = await fetch("/api/generate", {
@@ -181,6 +233,7 @@ export default function MainPage() {
           publishPurpose: cleanCurrentYear(params.overridePurpose),
           preferredTone: params.overrideTone,
           targetLength: targetCharCount,
+          engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!
           persona: params.overridePersona
             ? {
                 id: params.overridePersona.id,
@@ -228,8 +281,108 @@ export default function MainPage() {
     }
   };
 
+  // AI 이미지 일괄 생성 핸들러
+  const handleGenerateImages = async () => {
+    if (!result || imageGenerating) return;
+    const promptsToUse = result.images || [];
+    const countToGenerate = Math.min(imageSettings.count, Math.max(promptsToUse.length, 1));
+    setImageGenerating({ done: 0, total: countToGenerate });
+    setError(null);
+
+    try {
+      for (let i = 0; i < countToGenerate; i++) {
+        const baseItem = promptsToUse[i] || {
+          prompt: `High quality detailed blog photo about ${result.title}, ${result.category}, photorealistic, natural lighting, no text`,
+          caption: `${i === 0 ? "대표 썸네일" : "본문 상세 컷 " + i}`,
+          type: (i === 0 ? "thumbnail" : "body") as "thumbnail" | "body",
+        };
+
+        const res = await fetch("/api/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: baseItem.prompt,
+            imageModel: imageSettings.model,
+            ratio: imageSettings.ratio,
+            caption: baseItem.caption,
+            type: baseItem.type,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          if (data.needKey) setNeedKey(true);
+          throw new Error(data.error || `${i + 1}번째 이미지 생성 실패`);
+        }
+
+        setGeneratedImages((prev) => [
+          ...prev,
+          {
+            url: data.url,
+            type: data.type,
+            caption: data.caption,
+            prompt: data.prompt,
+          },
+        ]);
+        setImageGenerating({ done: i + 1, total: countToGenerate });
+      }
+    } catch (err: any) {
+      alert(err.message || "이미지 생성 중 오류가 발생했습니다.");
+    } finally {
+      setImageGenerating(null);
+    }
+  };
+
+  // 특정 컷 단일 이미지 생성 핸들러
+  const handleGenerateSingleImage = async (
+    index: number,
+    item: { prompt: string; caption: string; type: "thumbnail" | "body" }
+  ) => {
+    if (singleGeneratingIndex !== null || imageGenerating) return;
+    setSingleGeneratingIndex(index);
+    setError(null);
+    try {
+      const res = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: item.prompt,
+          imageModel: imageSettings.model,
+          ratio: imageSettings.ratio,
+          caption: item.caption,
+          type: item.type,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.needKey) setNeedKey(true);
+        throw new Error(data.error || "이미지 생성 실패");
+      }
+
+      setGeneratedImages((prev) => [
+        ...prev,
+        {
+          url: data.url,
+          type: data.type,
+          caption: data.caption,
+          prompt: data.prompt,
+        },
+      ]);
+    } catch (err: any) {
+      alert(err.message || "이미지 생성 중 오류가 발생했습니다.");
+    } finally {
+      setSingleGeneratingIndex(null);
+    }
+  };
+
+  const handleRemoveGeneratedImage = (targetIndex: number) => {
+    setGeneratedImages((prev) => prev.filter((_, idx) => idx !== targetIndex));
+  };
+
   const handlePublishToQueue = () => {
     if (!result) return;
+    const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
     const newPost = {
       id: "post-" + Date.now(),
       blog_id: selectedBlogId || "myblog_sample",
@@ -237,7 +390,7 @@ export default function MainPage() {
       title: result.title,
       content: result.content,
       tags: result.tags,
-      images: result.images,
+      images: finalImagesToSave,
       status: "queued" as const,
       created_at: new Date().toISOString(),
     };
@@ -245,11 +398,12 @@ export default function MainPage() {
     const existing = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
     localStorage.setItem("nba_saved_posts", JSON.stringify([newPost, ...existing]));
 
-    alert("크롬 확장의 자동 발행 큐에 등록되었습니다! 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑을 시작합니다.");
+    alert("크롬 확장의 자동 발행 큐에 등록되었습니다! 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
   };
 
   const handleSaveDraft = () => {
     if (!result) return;
+    const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
     const newPost = {
       id: "post-" + Date.now(),
       blog_id: selectedBlogId || "myblog_sample",
@@ -257,7 +411,7 @@ export default function MainPage() {
       title: result.title,
       content: result.content,
       tags: result.tags,
-      images: result.images,
+      images: finalImagesToSave,
       status: "draft" as const,
       created_at: new Date().toISOString(),
     };
@@ -786,6 +940,191 @@ export default function MainPage() {
             </div>
           </div>
 
+          {/* 2-4. [🤖 AI 글 생성 엔진 선택] 카드 (threads-content-ops와 동일 구조) */}
+          {(() => {
+            const engineInfo = ENGINES.find((item) => item.provider === engine.provider) ?? ENGINES[0];
+            const engineKeyReady = configuredProviders.includes(engine.provider);
+            const imagePlatform = IMAGE_PLATFORMS.find((item) => item.id === imageSettings.platform) ?? IMAGE_PLATFORMS[0];
+            const imageKeyReady = configuredProviders.includes(imagePlatform.keyProvider);
+
+            return (
+              <>
+                <div className="rounded-xl border-2 border-emerald-300 bg-white p-4 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
+                      <span>🤖 AI 글 생성 엔진 선택</span>
+                      <span className="hidden font-normal text-neutral-500 sm:inline text-xs">(GPT / Claude / Gemini)</span>
+                    </p>
+                    <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                      5단계 파이프라인 전체 적용
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    {ENGINES.map((item) => {
+                      const isPicked = engine.provider === item.provider;
+                      const hasKey = configuredProviders.includes(item.provider);
+                      return (
+                        <button
+                          key={item.provider}
+                          type="button"
+                          onClick={() => setEngine({ provider: item.provider, model: item.models[0].value })}
+                          aria-pressed={isPicked}
+                          className={`flex flex-col items-center justify-center gap-0.5 rounded-xl border p-2.5 text-center font-bold transition-all ${
+                            isPicked ? "border-emerald-600 bg-emerald-600 text-white shadow-xs" : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
+                          }`}
+                        >
+                          <span className="text-base">{item.icon}</span>
+                          <span className="text-sm font-extrabold tracking-tight">{item.label}</span>
+                          <span className="text-[10px] font-normal opacity-80">
+                            {item.sub}
+                            {hasKey ? "" : " · 키 미등록"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <label className="block border-t border-neutral-100 pt-2 text-[11px] font-bold text-neutral-700">
+                    🎯 {engineInfo.label} 세부 실행 모델
+                    <select
+                      className="w-full mt-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                      value={engine.model}
+                      onChange={(e) => setEngine({ ...engine, model: e.target.value })}
+                    >
+                      {engineInfo.models.map((item) => (
+                        <option key={item.value} value={item.value}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  {!engineKeyReady && (
+                    <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">
+                      <AlertCircle size={15} className="mt-0.5 shrink-0 text-amber-700" />
+                      <span>
+                        {engineInfo.label} API 키가 등록되지 않았습니다.{" "}
+                        <Link className="font-semibold underline" href="/settings">
+                          API키등록·플랫폼연동
+                        </Link>
+                        에서 본인 키를 저장하거나 다른 엔진을 선택해 주세요.
+                      </span>
+                    </p>
+                  )}
+                </div>
+
+                {/* 2-5. [🖼️ 이미지 생성 모델 설정] 카드 (4대 플랫폼) */}
+                <div className="rounded-xl border-2 border-fuchsia-300 bg-white p-4 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
+                      <span>🖼️ 이미지 생성 모델 설정</span>
+                      <span className="hidden font-normal text-neutral-500 sm:inline text-xs">(NanoBanana · GPT Image · FLUX · Z-Image)</span>
+                    </p>
+                    <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                      하단 결과의 파란색 [AI 이미지 생성]에 적용
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                    {IMAGE_PLATFORMS.map((item) => {
+                      const isPicked = imageSettings.platform === item.id;
+                      const hasKey = configuredProviders.includes(item.keyProvider);
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() =>
+                            setImageSettings({
+                              ...imageSettings,
+                              platform: item.id,
+                              model: DEFAULT_IMAGE_MODELS[item.id],
+                            })
+                          }
+                          aria-pressed={isPicked}
+                          className={`flex flex-col items-center justify-center gap-0.5 rounded-xl border p-2.5 text-center font-bold transition-all ${
+                            isPicked ? "border-blue-600 bg-blue-600 text-white shadow-xs" : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
+                          }`}
+                        >
+                          <span className="text-base">{item.icon}</span>
+                          <span className="text-xs font-extrabold tracking-tight">{item.name}</span>
+                          <span className="text-[10px] font-normal opacity-80">
+                            {item.sub}
+                            {hasKey ? "" : " · 키 미등록"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid gap-3 border-t border-neutral-100 pt-2 sm:grid-cols-[1fr_auto_auto]">
+                    <label className="block min-w-0 text-[11px] font-bold text-neutral-700">
+                      🎯 {imagePlatform.name} 세부 실행 모델
+                      <select
+                        className="w-full mt-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                        value={imageSettings.model}
+                        onChange={(e) => setImageSettings({ ...imageSettings, model: e.target.value })}
+                      >
+                        {IMAGE_MODELS.filter((item) => item.platform === imageSettings.platform).map((item) => (
+                          <option key={item.value} value={item.value}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block text-[11px] font-bold text-neutral-700">
+                      📐 비율
+                      <select
+                        className="w-full mt-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                        value={imageSettings.ratio}
+                        onChange={(e) => setImageSettings({ ...imageSettings, ratio: e.target.value as ImageRatio })}
+                      >
+                        {IMAGE_RATIOS.map((item) => (
+                          <option key={item.value} value={item.value}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block text-[11px] font-bold text-neutral-700">
+                      🔢 생성 장수
+                      <select
+                        className="w-full mt-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                        value={imageSettings.count}
+                        onChange={(e) => setImageSettings({ ...imageSettings, count: Number(e.target.value) })}
+                      >
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <option key={num} value={num}>
+                            {num}장 {num === 2 ? "(썸네일+본문 기본)" : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <p className="text-[11px] text-neutral-500">
+                    💡 사람이 등장할 경우 항상 한국인/동아시아인으로 생성하며, 이미지 내 글자·워터마크를 넣지 않고 깔끔한 실사로 만듭니다.
+                  </p>
+
+                  {!imageKeyReady && (
+                    <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">
+                      <AlertCircle size={15} className="mt-0.5 shrink-0 text-amber-700" />
+                      <span>
+                        {IMAGE_KEY_LABEL[imagePlatform.keyProvider]} API 키가 등록되지 않았습니다.{" "}
+                        <Link className="font-semibold underline" href="/settings">
+                          API키등록·플랫폼연동
+                        </Link>
+                        에서 본인 키를 저장하거나 다른 플랫폼을 선택해 주세요.
+                      </span>
+                    </p>
+                  )}
+                </div>
+              </>
+            );
+          })()}
+
           {/* 원고 문체(어조) & 실행 버튼 */}
           <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-neutral-100">
             <div className="flex items-center gap-2">
@@ -947,33 +1286,215 @@ export default function MainPage() {
               </div>
             </div>
 
-            {/* AI 이미지 프롬프트 안내 (대표 썸네일 & 본문 삽입 컷) */}
+            {/* AI 이미지 생성 & 갤러리 섹션 */}
             {result.images && result.images.length > 0 && (
-              <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/80 space-y-2 text-xs">
-                <div className="font-bold text-amber-950 flex items-center gap-1.5">
-                  <span>🖼️ AI 이미지 생성 추천 프롬프트 (썸네일 & 본문 컷)</span>
-                </div>
-                <div className="space-y-2 pt-1">
-                  {result.images.map((img, idx) => (
-                    <div key={idx} className="bg-white p-3 rounded-lg border border-amber-200/60 space-y-1">
-                      <div className="font-semibold text-neutral-800 flex items-center justify-between">
-                        <span>[{img.type === "thumbnail" ? "대표 썸네일" : "본문 삽입 이미지"}] {img.caption}</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard.writeText(img.prompt);
-                            alert("이미지 프롬프트가 복사되었습니다!");
-                          }}
-                          className="text-[11px] text-amber-700 hover:text-amber-900 font-medium underline"
-                        >
-                          프롬프트 복사
-                        </button>
-                      </div>
-                      <div className="text-[11px] font-mono text-neutral-600 bg-neutral-50 p-2 rounded">
-                        {img.prompt}
-                      </div>
+              <div className="p-5 rounded-2xl bg-neutral-50/80 border border-neutral-200 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/60 pb-3">
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-blue-600" />
+                      <span>AI 블로그 이미지 생성 ({result.images.length}장 컷 추천)</span>
                     </div>
-                  ))}
+                    <div className="text-[11px] text-neutral-500">
+                      모델: <span className="font-semibold text-neutral-700">{IMAGE_PLATFORMS.find((p) => p.id === imageSettings.platform)?.name} · {findImageModel(imageSettings.model)?.label}</span> ({IMAGE_RATIOS.find((r) => r.value === imageSettings.ratio)?.label || imageSettings.ratio})
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleGenerateImages}
+                    disabled={imageGenerating !== null || singleGeneratingIndex !== null}
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {imageGenerating ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>AI 이미지 생성 중... ({imageGenerating.done}/{imageGenerating.total}장)</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>🖼️ AI 이미지 일괄 생성 ({Math.min(imageSettings.count, result.images.length)}장)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* 진행 상태 바 */}
+                {imageGenerating && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-1.5">
+                    <div className="flex items-center justify-between text-xs font-semibold text-blue-900">
+                      <span className="flex items-center gap-1.5">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                        AI 이미지 실시간 생성 및 클라우드 업로드 중...
+                      </span>
+                      <span>
+                        {imageGenerating.done} / {imageGenerating.total}장 완료
+                      </span>
+                    </div>
+                    <div className="w-full bg-blue-200/60 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-blue-600 h-1.5 transition-all duration-300 rounded-full"
+                        style={{
+                          width: `${(imageGenerating.done / Math.max(imageGenerating.total, 1)) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* 실제 생성된 이미지 갤러리 */}
+                {generatedImages.length > 0 && (
+                  <div className="space-y-3 pt-1">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>생성 완료된 이미지 ({generatedImages.length}장)</span>
+                      </div>
+                      <span className="text-[11px] text-neutral-500">
+                        발행 시 스마트에디터 ONE에 자동으로 첨부됩니다.
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {generatedImages.map((genImg, idx) => (
+                        <div
+                          key={idx}
+                          className="group relative rounded-xl border border-neutral-200 bg-white overflow-hidden shadow-xs hover:shadow-md transition-shadow"
+                        >
+                          {/* 이미지 썸네일 */}
+                          <div
+                            className="relative aspect-square w-full bg-neutral-100 cursor-pointer overflow-hidden"
+                            onClick={() => setViewingImageUrl(genImg.url)}
+                          >
+                            <img
+                              src={genImg.url}
+                              alt={genImg.caption}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                            />
+                            <div className="absolute top-2 left-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold shadow-xs ${
+                                  genImg.type === "thumbnail"
+                                    ? "bg-emerald-600 text-white"
+                                    : "bg-blue-600 text-white"
+                                }`}
+                              >
+                                {genImg.type === "thumbnail" ? "⭐ 대표 썸네일" : `본문 컷 #${idx + 1}`}
+                              </span>
+                            </div>
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <span className="p-2 rounded-full bg-white/90 text-neutral-800 shadow-md">
+                                <Maximize2 className="w-4 h-4" />
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* 하단 정보 & 액션 */}
+                          <div className="p-2.5 space-y-2">
+                            <div className="text-xs font-medium text-neutral-800 line-clamp-1" title={genImg.caption}>
+                              {genImg.caption}
+                            </div>
+                            <div className="flex items-center justify-between gap-1 pt-1 border-t border-neutral-100 text-[11px]">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(genImg.url);
+                                  alert("이미지 URL이 복사되었습니다!");
+                                }}
+                                className="px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-medium flex items-center gap-1 transition-colors"
+                              >
+                                <Copy className="w-3 h-3" />
+                                <span>URL 복사</span>
+                              </button>
+                              <a
+                                href={genImg.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download={`blog-image-${idx + 1}.png`}
+                                className="px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-medium flex items-center gap-1 transition-colors"
+                              >
+                                <Download className="w-3 h-3" />
+                                <span>다운로드</span>
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveGeneratedImage(idx)}
+                                className="p-1 rounded text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                title="이미지 삭제"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 컷별 추천 프롬프트 세부 목록 */}
+                <div className="space-y-2 pt-2 border-t border-neutral-200/60">
+                  <div className="text-[11px] font-bold text-neutral-600 uppercase tracking-wide">
+                    각 컷별 AI 프롬프트 상세 ({result.images.length}개)
+                  </div>
+                  <div className="space-y-2">
+                    {result.images.map((img, idx) => (
+                      <div key={idx} className="bg-white p-3 rounded-xl border border-neutral-200 space-y-1.5 shadow-xs">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                img.type === "thumbnail"
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : "bg-blue-50 text-blue-700 border border-blue-200"
+                              }`}
+                            >
+                              {img.type === "thumbnail" ? "⭐ 대표 썸네일" : `본문 컷 #${idx + 1}`}
+                            </span>
+                            <span className="text-xs font-semibold text-neutral-800">{img.caption}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(img.prompt);
+                                alert("이미지 프롬프트가 복사되었습니다!");
+                              }}
+                              className="text-[11px] text-neutral-600 hover:text-neutral-900 font-medium underline flex items-center gap-1"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>프롬프트 복사</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleGenerateSingleImage(idx, img)}
+                              disabled={singleGeneratingIndex !== null || imageGenerating !== null}
+                              className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-bold border border-blue-200 flex items-center gap-1 transition-colors disabled:opacity-50"
+                            >
+                              {singleGeneratingIndex === idx ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  <span>생성 중...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-3 h-3" />
+                                  <span>이 컷만 생성</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="text-[11px] font-mono text-neutral-600 bg-neutral-50 p-2 rounded-lg border border-neutral-100 break-all leading-relaxed">
+                          {img.prompt}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -991,6 +1512,47 @@ export default function MainPage() {
           </div>
         )}
       </div>
+
+      {/* 이미지 크게 보기 모달 */}
+      {viewingImageUrl && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-xs"
+          onClick={() => setViewingImageUrl(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] bg-neutral-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-3 bg-neutral-900/90 text-white border-b border-neutral-800">
+              <span className="text-xs font-medium text-neutral-300">AI 생성 이미지 원본 미리보기</span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={viewingImageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-xs text-neutral-200 flex items-center gap-1 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>새 탭에서 열기</span>
+                </a>
+                <button
+                  onClick={() => setViewingImageUrl(null)}
+                  className="p-1 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 flex items-center justify-center bg-black/50 overflow-auto">
+              <img
+                src={viewingImageUrl}
+                alt="AI Generated Blog Preview"
+                className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-lg"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

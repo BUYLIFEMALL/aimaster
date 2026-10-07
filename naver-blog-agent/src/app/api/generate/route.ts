@@ -26,8 +26,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "카테고리를 입력해주세요." }, { status: 400 });
     }
 
+    const targetProvider = body.engine?.provider || provider;
     // 1. 사용자 AI 키 조회
-    const ai = await resolveAvailableAI(user.id, provider);
+    const ai = await resolveAvailableAI(user.id, targetProvider);
     if (!ai) {
       return NextResponse.json(
         {
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
       aiConfig: {
         provider: ai.provider,
         apiKey: ai.apiKey,
+        model: body.engine?.model,
       },
     });
 

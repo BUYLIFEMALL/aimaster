@@ -31,6 +31,25 @@ export function parseJsonSafe<T>(raw: string, fallback: T): T {
   }
 }
 
+function resolveGeminiModel(model?: string): string {
+  if (!model) return "gemini-2.0-flash";
+  if (model.startsWith("gemini-3")) return "gemini-2.0-flash"; // 현재 v1 API 안정 지원 모델
+  return model;
+}
+
+function resolveClaudeModel(model?: string): string {
+  if (!model) return "claude-3-5-sonnet-20241022";
+  if (model.includes("opus")) return "claude-3-opus-20240229";
+  if (model.includes("haiku")) return "claude-3-5-haiku-20241022";
+  return "claude-3-5-sonnet-20241022";
+}
+
+function resolveOpenAIModel(model?: string): string {
+  if (!model) return "gpt-4o";
+  if (model.startsWith("gpt-6") || model.startsWith("gpt-5") || model === "gpt-4.1") return "gpt-4o";
+  return model;
+}
+
 export async function callAI(
   config: AIModelConfig,
   systemPrompt: string,
@@ -40,7 +59,7 @@ export async function callAI(
 
   if (provider === "gemini") {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const selectedModel = model || "gemini-2.0-flash";
+    const selectedModel = resolveGeminiModel(model);
     const geminiModel = genAI.getGenerativeModel({
       model: selectedModel,
       systemInstruction: systemPrompt,
@@ -54,7 +73,7 @@ export async function callAI(
 
   if (provider === "anthropic") {
     const anthropic = new Anthropic({ apiKey });
-    const selectedModel = model || "claude-3-5-sonnet-20241022";
+    const selectedModel = resolveClaudeModel(model);
     const msg = await anthropic.messages.create({
       model: selectedModel,
       max_tokens: 4096,
@@ -67,7 +86,7 @@ export async function callAI(
 
   // 기본값: OpenAI
   const openai = new OpenAI({ apiKey });
-  const selectedModel = model || "gpt-4o";
+  const selectedModel = resolveOpenAIModel(model);
   const res = await openai.chat.completions.create({
     model: selectedModel,
     messages: [
@@ -78,3 +97,4 @@ export async function callAI(
   });
   return res.choices[0]?.message?.content || "";
 }
+

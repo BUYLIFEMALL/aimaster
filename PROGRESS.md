@@ -27,8 +27,13 @@
 - **v1.66**: 떡상 글감 카테고리 관리/이동 시스템 구축.
 - **v1.60**: Threads 글 분량 450~480자(상품 글은 고지·링크 포함) 꽉 채우기 최적화.
 
-### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.16** (2026-10-07)
+### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.17** (2026-10-07)
 - 주소: https://naver-blog-agent.vercel.app (Vercel 프로젝트 `naver-blog-agent`)
+- **v1.17**: **AI 글 생성 엔진 선택(GPT, Claude, Gemini) 및 멀티 AI 이미지 생성 플랫폼(NanoBanana, GPT Image, FLUX 2.0, Z-Image) 탑재 & 실제 이미지 생성/갤러리 연동 (주인님 확정)**.
+  - `threads-content-ops`와 100% 동일한 AI 텍스트 생성 엔진(12종) 및 멀티 이미지 플랫폼(4개사 15종 모델, 종횡비 4종, 1~5장) 선택 인터페이스 구축.
+  - 실제 이미지 생성 API(`/api/generate-image`) 구축 (Gemini, OpenAI, Replicate 연동, 한국인/동아시아인 기본 묘사, Supabase Storage `ai-image-generations` 업로드 및 공개 URL 발급).
+  - 결과 화면에 파란색 `[🖼️ AI 이미지 생성 (N장)]` 버튼, 실시간 진행 게이지, 생성 이미지 갤러리 그리드(배지, URL 복사, 다운로드, 삭제), 개별 컷 생성 버튼, 고해상도 확대 모달 뷰어 제공.
+  - 크롬 확장 자동 발행 큐 및 보관함 저장 시 실제 생성 이미지 자동 첨부 연동.
 - **v1.16**: **글감 보관함(/collector) 하단 액션 버튼 색상 개편 (주인님 확정)**. 사용완료 버튼을 파란색 바탕(`bg-blue-600 text-white`)으로, 보관 버튼을 초록색 바탕(`bg-emerald-600 text-white`)으로 변경하여 액션 시인성 극대화 및 상단 보관 배지 에메랄드 톤 통일.
 - 유튜브 설명 영상 및 GitHub 오픈소스(`boksajang/naverblog-extention`) 기반 AIMaster 웹 SaaS 하이브리드 완전 이식.
 - 일반 크롬 브라우저 상의 Chrome 확장(Manifest V3)이 스마트에디터 ONE iframe DOM에 직접 타이핑/이벤트를 주입하여 네이버 봇 탐지 100% 무력화.
