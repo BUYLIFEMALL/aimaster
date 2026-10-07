@@ -49,6 +49,7 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
     aiConfig,
   } = input;
   const targetLength = Math.max(1, Math.min(4000, Number(input.targetLength) || 2000));
+  const currentYear = new Date().getFullYear();
   const stepsLog: PipelineResult["stepsLog"] = [];
 
   const personaPromptSnippet = persona
@@ -64,12 +65,14 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
 
   // 1단계: Research Agent (주제 및 소제목 기획)
   const researchSystemPrompt = `너는 네이버 블로그 전문 기획 에이전트야.
-네이버 C-Rank 및 D-I-A+ 검색 알고리즘에 최적화되고, 실제 독자의 클릭과 긴 체류시간을 유도하는 제목과 ${sectionCountGuide}의 핵심 소제목 목차를 기획해줘.
+[기준 연도 절대 엄수]: 현재 연도는 ${currentYear}년이야. 모든 제목, 소제목, 정책, 혜택, 최신 트렌드, 정보는 반드시 ${currentYear}년(당해 연도) 기준으로 기획해야 해. 절대 과거 연도(2023년, 2024년 등)를 사용하거나 과거 시점으로 글을 기획하지 마.
+네이버 C-Rank 및 D-I-A+ 검색 알고리즘에 최적화되고, 실제 독자의 클릭과 긴 체류시간을 유도하는 ${currentYear}년 최신 트렌드 제목과 ${sectionCountGuide}의 핵심 소제목 목차를 기획해줘.
 목표 글자수는 공백 포함 약 ${targetLength}자이므로, 목표 분량에 걸맞은 알찬 목차 구성이 필요해.
 최근 발행된 글 제목들과 소재가 중복되지 않도록 참신하고 신뢰도 높은 관점을 제시해야 해.
 ${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 가장 궁금해하고 신뢰할 수 있는 소제목으로 구성해줘.` : ""}`;
 
   const researchUserPrompt = `[기획 조건]
+- 기준 연도: ${currentYear}년 (과거 2023~2024년 표기 절대 금지, 당해 연도 ${currentYear}년 최신 정보 기준)
 - 카테고리: ${category}
 - 검색 키워드: ${searchKeywords || "자동 발굴"}
 - 발행 목적: ${publishPurpose || "정보 제공 및 독자 체류시간 극대화"}${personaPromptSnippet}
@@ -80,7 +83,7 @@ ${input.topic ? `- 사용자가 지정한 주제: ${input.topic}` : ""}
 
 반드시 아래 JSON 형식으로만 응답해:
 {
-  "finalTitle": "클릭률 높은 네이버 블로그 최종 제목 (특수문자 남발 금지)",
+  "finalTitle": "클릭률 높은 네이버 블로그 최종 제목 (특수문자 남발 금지, 연도 언급 시 반드시 ${currentYear}년)",
   "subsections": [
     { "title": "소제목 1", "keyPoints": ["포함할 핵심 팩트 1", "팩트 2"] },
     { "title": "소제목 2", "keyPoints": ["포함할 핵심 팩트 1", "팩트 2"] },
@@ -102,7 +105,7 @@ ${input.topic ? `- 사용자가 지정한 주제: ${input.topic}` : ""}
   stepsLog.push({
     step: "1. Research Agent",
     status: "done",
-    message: `주제 및 소제목 기획 완료 (목표: 약 ${targetLength}자): "${researchData.finalTitle}"${persona ? ` (${persona.name} 시점)` : ""}`,
+    message: `주제 및 소제목 기획 완료 (기준: ${currentYear}년, 목표: 약 ${targetLength}자): "${researchData.finalTitle}"${persona ? ` (${persona.name} 시점)` : ""}`,
   });
 
   // 2단계: Writer Agent (목표 글자수 반영 본문 작성)
@@ -114,28 +117,31 @@ ${persona.tonePrompt}
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 포스팅 본문을 작성해줘.
 
 [작성 규칙]
-1. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
-2. 말투: ${persona.tonePrompt}를 최우선으로 반영하되 기본 어조는 자연스러운 ${preferredTone}. (기계적인 AI 번역투 절대 금지)
-3. 구조화 태그:
+1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 절대 과거 연도(2023년, 2024년 등)를 현재처럼 언급하거나 과거 기준 수치를 적지 마.
+2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
+3. 말투: ${persona.tonePrompt}를 최우선으로 반영하되 기본 어조는 자연스러운 ${preferredTone}. (기계적인 AI 번역투 절대 금지)
+4. 구조화 태그:
    - 소제목 시작 시: [SECTION - 소제목명]
    - 이미지 들어갈 자리: [IMAGE INSERT - 상황을 설명하는 상세 묘사]
    - 마지막에: [SECTION - 참고자료] (출처 및 공식 기관 안내 또는 이웃 소통 맺음말)
-4. 모바일 가독성을 위해 2~3문장마다 빈 줄(\\n\\n)로 단락을 띄울 것.
-5. 해당 인물의 생생한 실사용/실경험 썰, 구체적 수치, 독자가 무릎을 칠 꿀팁 위주로 작성할 것.`
+5. 모바일 가독성을 위해 2~3문장마다 빈 줄(\\n\\n)로 단락을 띄울 것.
+6. 해당 인물의 생생한 실사용/실경험 썰, 구체적 수치, 독자가 무릎을 칠 꿀팁 위주로 작성할 것.`
     : `너는 네이버 블로그 상위 0.1% 전문 파워블로거 라이터야.
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 정보성 포스팅 본문을 작성해줘.
 
 [작성 규칙]
-1. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
-2. 말투: 자연스러운 ${preferredTone} (상투적인 기계적 어투 금지)
-3. 구조화 태그:
+1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 절대 과거 연도(2023년, 2024년 등)를 현재처럼 언급하거나 과거 기준 수치를 적지 마.
+2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
+3. 말투: 자연스러운 ${preferredTone} (상투적인 기계적 어투 금지)
+4. 구조화 태그:
    - 소제목 시작 시: [SECTION - 소제목명]
    - 이미지 들어갈 자리: [IMAGE INSERT - 상황을 설명하는 상세 묘사]
    - 마지막에: [SECTION - 참고자료] (출처 및 공식 기관 안내)
-4. 모바일 가독성을 위해 2~3문장마다 빈 줄(\\n\\n)로 단락을 띄울 것.
-5. 신뢰할 수 있는 사실, 구체적 예시, 독자가 궁금해할 실전 꿀팁 위주로 작성할 것.`;
+5. 모바일 가독성을 위해 2~3문장마다 빈 줄(\\n\\n)로 단락을 띄울 것.
+6. 신뢰할 수 있는 사실, 구체적 예시, 독자가 궁금해할 실전 꿀팁 위주로 작성할 것.`;
 
   const writerUserPrompt = `[기획된 글 정보]
+기준 연도: ${currentYear}년 (과거 연도 2023~2024년 표기 금지, ${currentYear}년 최신 정보 기준)
 제목: ${researchData.finalTitle}
 카테고리: ${category}
 목표 분량: 공백 포함 약 ${targetLength}자
@@ -190,9 +196,11 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 
   // 4단계: Reviewer Agent (태그 추천 및 최종 검수)
   const reviewerSystemPrompt = `너는 네이버 블로그 SEO 및 팩트체크 검수관이야.
+[기준 연도 엄수]: 현재 연도는 ${currentYear}년이야. 본문 및 태그 검수 시 과거 연도(2023년, 2024년 등)가 포함되지 않도록 하고, 필요 시 ${currentYear}년 최신 태그를 부여해줘.
 완성된 본문을 검토하고, 네이버 블로그 검색 노출에 가장 효과적인 태그 5~10개를 선정해줘.`;
 
-  const reviewerUserPrompt = `제목: ${researchData.finalTitle}
+  const reviewerUserPrompt = `기준 연도: ${currentYear}년
+제목: ${researchData.finalTitle}
 카테고리: ${category}
 본문 미리보기:
 ${humanizedArticle.slice(0, 1500)}
@@ -201,7 +209,7 @@ ${humanizedArticle.slice(0, 1500)}
 {
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
   "reviewStatus": "PASS",
-  "reviewNote": "검수 완료 의견"
+  "reviewNote": "검수 완료 의견 (${currentYear}년 최신성 검증 포함)"
 }`;
 
   const reviewerRaw = await callAI(aiConfig, reviewerSystemPrompt, reviewerUserPrompt);

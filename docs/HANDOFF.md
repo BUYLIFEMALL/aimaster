@@ -1,5 +1,23 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.12, 2026-10-07)
+
+- **당해 연도(현재 2026년) 기준 엄수 및 LLM 사전학습 컷오프(2023/2024년) 퇴행 방지 전면 보강 (v1.12)**:
+  - 배경: 생성 결과물에서 연도가 2023년으로 잡히는 LLM 고질적 사전학습 컷오프 퇴행 버그 해결. 올해는 2026년도이므로 항상 당해 연도 기준으로 결과물을 생성하도록 프롬프트 보강 및 메인 지침 확정 요청.
+  - 조치:
+    1) 루트 `CLAUDE.md` 불변의 핵심 원칙 8번 및 `AGENTS.md` 원칙 9번에 **"모든 콘텐츠 생성 및 AI 프롬프트는 항상 당해 연도(현재 2026년) 기준으로 작성한다"** 메인 지침 확정.
+    2) `docs/ERROR_LESSONS.md` 최상단에 LLM 사전학습 컷오프(2023/2024년) 퇴행 생성 버그 및 당해 연도 기준 엄수 점검 체크리스트 등재.
+    3) `src/lib/ai/pipeline.ts`:
+       - `const currentYear = new Date().getFullYear();` 정의.
+       - 1단계 Research Agent: `[기준 연도 절대 엄수]: 현재 연도는 ${currentYear}년이야. 모든 제목, 소제목, 정책, 혜택, 최신 트렌드, 정보는 반드시 ${currentYear}년(당해 연도) 기준으로 기획해야 해. 절대 과거 연도(2023년, 2024년 등)를 사용하거나 과거 시점으로 글을 기획하지 마.` 주입.
+       - 2단계 Writer Agent: `1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 절대 과거 연도(2023년, 2024년 등)를 현재처럼 언급하거나 과거 기준 수치를 적지 마.` 주입.
+       - 4단계 Reviewer Agent: `[기준 연도 엄수]: 현재 연도는 ${currentYear}년이야. 본문 및 태그 검수 시 과거 연도(2023년, 2024년 등)가 포함되지 않도록 하고, 필요 시 ${currentYear}년 최신 태그를 부여해줘.` 주입.
+    4) `src/lib/humanizer/rules.ts`:
+       - 13번 규칙 추가: `13. 연도 표기는 항상 당해 연도(현재 2026년)를 기준으로 유지한다. 과거 연도(2023년, 2024년 등)로 잘못 언급된 문맥이 있다면 당해 연도 최신 기준으로 자연스럽게 바로잡는다.`
+    5) `src/lib/collector.ts`:
+       - `getPerplexitySystemPrompt()` 및 `getBlogStructurePrompt()` 함수로 동적 전환하여 `currentYear` 주입: Perplexity 실시간 트렌드 검색 및 블로그 글감 AI 구조화 시 당해 연도 최신 팩트 및 키워드 추출 엄수.
+    6) `src/lib/version.ts`, `package.json`, Supabase DB `programs.version` 및 마이그레이션 `0012_nba_bump_version_v1_12.sql`을 `v1.12`로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.11, 2026-10-07)
 
 - **글감 수집소(/collector) 카테고리 관리/이동 시스템 구축 (ai-auto-blog 스타일 이식) (v1.11)**:

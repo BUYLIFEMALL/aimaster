@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.11` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.12` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -30,10 +30,19 @@
    - 코드 변경 배포 시 `src/lib/version.ts`의 `APP_VERSION`과 DB `programs.version` 동시 갱신 (+0.01).
 6. **사이드바 표준**:
    - `docs/SIDEBAR_LAYOUT_STANDARD.md` 준수 (상단 `← 다른 프로그램 보기`, 메뉴 바로 아래 계정 표시 및 로그아웃).
+7. **당해 연도(현재 2026년) 기준 엄수 (핵심 불변칙)**:
+   - AI 사전학습 컷오프로 인해 2023년, 2024년으로 퇴행하는 버그를 원천 차단하기 위해, 파이프라인 및 프롬프트에 `new Date().getFullYear()`(2026년)를 명시적으로 주입하고 최신 정보 기준으로만 작성합니다.
 
 ---
 
 ## 🕒 버전 히스토리
+
+- **v1.12 (2026-10-07)**:
+  - **당해 연도(현재 2026년) 기준 엄수 및 LLM 사전학습 컷오프 퇴행 방지 전면 보강**:
+    1) 루트 `CLAUDE.md`(원칙 8), `AGENTS.md`(원칙 9), `docs/ERROR_LESSONS.md`에 당해 연도 엄수 메인 지침 확정.
+    2) 4단계 멀티 에이전트 파이프라인(`Research`, `Writer`, `Reviewer`)에 동적 `currentYear` 연동 및 기준 연도 절대 엄수 프롬프트 주입.
+    3) 블로그 휴머나이저(`rules.ts`) 13번 규칙에 당해 연도 최신 기준 윤문 및 과거 연도 언급 자동 교정 규칙 추가.
+    4) 떡상 글감 수집소(`collector.ts`)의 Perplexity 72시간 핫이슈 및 AI 글감 구조화 프롬프트에 당해 연도 최신 기준 팩트/키워드 추출 규칙 적용.
 
 - **v1.11 (2026-10-07)**:
   - **글감 수집소(/collector) 카테고리 관리/이동 시스템 구축 (ai-auto-blog 스타일 이식)**:

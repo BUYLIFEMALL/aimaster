@@ -1,5 +1,16 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-07 LLM 사전학습 컷오프로 인한 과거 연도(2023년/2024년) 퇴행 생성 버그 및 당해 연도(현재 2026년) 기준 엄수 지침 (naver-blog-agent v1.12, 전 서브프로젝트 공통)
+
+- **증상:** 블로그 글, 지원금 정책, 쇼핑 팁, 최신 트렌드 글 자동 생성 시 AI가 "2023년 청년도약계좌", "2023년 최신 지원금" 등 과거 연도(2023년)를 현재 시점인 것처럼 작성하여 결과물 신뢰도를 치명적으로 훼손함.
+- **원인:** OpenAI GPT-4o, Claude, Gemini 등 대형 언어 모델의 사전 학습 데이터 컷오프(2023~2024년)로 인해, 시스템 프롬프트에 명시적인 기준 연도 제약이 없으면 LLM이 기본 지식 베이스의 시점(2023년)으로 퇴행하여 글을 작성함.
+- **해결(위치):**
+  1. 루트 불변 원칙: `CLAUDE.md`(핵심 원칙 8번) 및 `AGENTS.md`(핵심 원칙 9번)에 "당해 연도(현재 2026년) 기준 작성 불변 원칙"을 플랫폼 전역 메인 지침으로 확정.
+  2. `naver-blog-agent/src/lib/ai/pipeline.ts`: Research, Writer, Reviewer 전 단계에 `const currentYear = new Date().getFullYear();`를 동적으로 연동하고 `[기준 연도 엄수]: 현재 연도는 ${currentYear}년입니다. 모든 제목, 소제목, 본문, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이며, 절대 과거 연도(2023년, 2024년 등)를 현재처럼 언급하거나 과거 시점으로 후퇴하지 마세요.` 불변 제약 주입.
+  3. `naver-blog-agent/src/lib/collector.ts`: 글감 수집 AI 구조화 프롬프트에 당해 연도(${currentYear}년) 기준 작성 지침 반영.
+  4. `naver-blog-agent/src/lib/humanizer/rules.ts`: 17대 윤문 규칙에 당해 연도(현재 2026년) 기준 유지 및 과거 연도 언급 시 최신 연도 기준으로 정제하는 규칙 추가.
+- **다음부터 확인:** AI를 활용한 모든 콘텐츠 생성 프롬프트(블로그, 쓰레드, 쇼츠, 상세페이지 등)에는 반드시 `const currentYear = new Date().getFullYear();`를 동적으로 전달하여 모델이 당해 연도를 정확히 인지하도록 제약을 필수 포함해야 한다.
+
 ## 2026-10-07 Lucide React 패키지 내 플랫폼 브랜드 아이콘(Youtube, Chrome 등) 누락 주의 (naver-blog-agent v1.08)
 
 - **증상:** Next.js 빌드 시 `Export Youtube doesn't exist in target module` Turbopack 컴파일 에러 발생.
