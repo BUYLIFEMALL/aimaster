@@ -273,6 +273,10 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.60 — 글 분량 450~480자(상품 글은 고지·링크 포함) (2026-10-07)
+
+- 범위 계산·프롬프트·재요청 1회+문장 경계 자르기. 화면 목표 표시. DB 변경 없음.
+
 ## Threads Content Ops v1.59 — 멀티 이미지·영상 미디어 카드 + 혼합 캐러셀 발행 + 30일 자동 삭제 (2026-10-07)
 
 - tco_posts.media 칸 추가(승인·적용 완료), 미디어 카드(PC 업로드·AI 이미지·삭제·순서), 혼합 캐러셀 발행, 30일 정리(화면 열 때 본인 몫 + 크론). **남은 일(주인님):** 루트 Vercel 프로젝트에 `CRON_SECRET` 환경변수 추가(없으면 크론 503). 상세는 프로그램 AGENTS.md v1.59.

@@ -22,3 +22,17 @@ export function assemblePostBody(body: string, product?: Pick<LinkedProduct, "so
   if (!product) return text;
   return `${disclosureFor(product.source_type)}\n\n${text}\n\n상품링크: ${product.source_url}`;
 }
+
+// ----- 글자 수 목표 (v1.60): Threads 상한은 500자지만 480자 안팎으로 꽉 채운다. 일반 글은 본문만, 상품 글은 고지 문구·상품링크까지 합쳐 450~480자.
+export const TARGET_MIN = 450;
+export const TARGET_MAX = 480;
+export type LengthRange = { min: number; max: number };
+
+/** AI가 쓸 "본문" 글자 수 범위. 상품이 연결되면 고지·링크가 붙는 길이를 먼저 빼서 합계가 450~480자가 되게 한다. */
+export function contentRange(product?: Pick<LinkedProduct, "source_type" | "source_url"> | null): LengthRange {
+  if (!product) return { min: TARGET_MIN, max: TARGET_MAX };
+  const overhead = assemblePostBody("", product).length;
+  const max = TARGET_MAX - overhead;
+  if (max < 150) throw new Error(`상품 링크가 너무 길어서 고지 문구와 링크만으로 ${overhead}자라 본문을 쓸 공간이 부족합니다. 더 짧은 제휴 링크로 다시 등록해 주세요.`);
+  return { min: Math.max(120, TARGET_MIN - overhead), max };
+}

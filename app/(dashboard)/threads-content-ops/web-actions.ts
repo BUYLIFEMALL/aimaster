@@ -21,7 +21,7 @@ import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_KEY_LABEL, MAX_GENERATE_
 import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
 import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, isSupportedMediaUrl, memberMediaFolder, mediaTypeOf, ownedMediaPath, type PostMedia } from "@/threads-content-ops/lib/media";
 import { publishToThreads } from "@/threads-content-ops/lib/threadsPublish";
-import { PRODUCT_SOURCE_TYPES, assemblePostBody, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
+import { PRODUCT_SOURCE_TYPES, assemblePostBody, contentRange, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { createServiceClient } from "@/lib/supabase/server";
 import { analyzeShortForThreads } from "@/threads-content-ops/lib/shortsAnalysis";
 import {
@@ -917,10 +917,11 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
     const custom: CustomFields = { product: clean(input.custom?.product, 200), experience: clean(input.custom?.experience, 800), targetAudience: clean(input.custom?.targetAudience, 200), benchmarkPost: clean(input.custom?.benchmarkPost, 2_000) };
     const { supabase, user } = await authorizedUser();
     const linked = await loadLinkedProduct(supabase, user.id, input.productId);
+    const range = contentRange(linked); // 일반 글 450~480자 / 상품 글은 고지·링크 포함 합계 450~480자
     if (linked) custom.linkedProduct = { name: linked.title.slice(0, 200), summary: linked.summary.slice(0, 600), price: linked.price ?? null };
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
-    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone: persona?.tonePrompt, custom, engine: resolved.engine }) };
+    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone: persona?.tonePrompt, custom, engine: resolved.engine, range }) };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "글을 생성하지 못했습니다." };
   }
@@ -936,7 +937,7 @@ export async function rewriteGeneratedPost(input: { hook: string; content: strin
     const linked = await loadLinkedProduct(supabase, user.id, input.productId);
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, error: resolved.error };
-    const result = await rewriteAttentionPost({ hook: clean(input.hook, 200), content, mode: input.mode as RewriteMode, engine: resolved.engine, productName: linked?.title.slice(0, 200) });
+    const result = await rewriteAttentionPost({ hook: clean(input.hook, 200), content, mode: input.mode as RewriteMode, engine: resolved.engine, productName: linked?.title.slice(0, 200), range: contentRange(linked) });
     return { ok: true, ...result };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "글을 다시 쓰지 못했습니다." };

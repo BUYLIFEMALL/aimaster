@@ -326,7 +326,7 @@ function VariantCard({ option, accountId, viralId, engine, image, product, media
   };
 
   return <li className="rounded-xl border border-neutral-200 p-4">
-    <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">{option.type}</span><span className={`text-xs ${over ? "font-bold text-rose-600" : "text-neutral-500"}`}>{finalBody.length}/{THREADS_LIMIT}자{product ? " (고지·링크 포함)" : ""}{over ? " — Threads 글자 수를 넘습니다. 본문을 줄여 주세요" : ""}</span></div>
+    <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">{option.type}</span><span className={`text-xs ${over ? "font-bold text-rose-600" : "text-neutral-500"}`}>{finalBody.length}/{THREADS_LIMIT}자{product ? " (고지·링크 포함)" : ""} · 목표 450~480자{over ? " — Threads 글자 수를 넘습니다. 본문을 줄여 주세요" : ""}</span></div>
     {hook && <p className="mt-2 text-sm font-semibold text-neutral-900">“{hook}”</p>}
     {option.whyItWorks && <p className="mt-1 text-xs text-neutral-500">💡 {option.whyItWorks}</p>}
     {product && <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900">{disclosureFor(product.source_type)} <span className="font-normal text-amber-700">(첫 줄에 자동으로 붙습니다)</span></p>}
