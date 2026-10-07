@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.73`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.74`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.74 보관함 본문 세로 확장 (2026-10-08)
+
+- 주인님 지시: 콘텐츠 보관함 카드의 본문 칸에 스크롤바가 생기지 않고 글 전체가 한 번에 보이도록 글 길이에 맞춰 세로로 자동 확장합니다(`DraftComposer.tsx` `DraftCard`의 textarea auto-height, `resize-none overflow-hidden`). 화면만 변경.
 
 ## v1.73 콘텐츠 보관함 (2026-10-08)
 
