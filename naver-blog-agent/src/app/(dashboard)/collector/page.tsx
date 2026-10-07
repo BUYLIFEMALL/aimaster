@@ -1184,7 +1184,7 @@ export default function CollectorPage() {
 
                       {/* 보관 상태 뱃지 (보관 중일 때 독립적으로 표시) */}
                       {item.is_archived && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
                           <Archive size={11} />
                           보관중
                         </span>
@@ -1317,48 +1317,48 @@ export default function CollectorPage() {
                   {/* 하단 액션 버튼 그룹 */}
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      {/* 1) 사용 상태 토글 (ready ↔ used, 보관과 100% 무관하게 독립 동작) */}
+                      {/* 1) 사용완료 상태 토글 (ready ↔ used, 파란색 바탕 계열) */}
                       {item.status === "used" ? (
                         <button
                           type="button"
                           onClick={() => toggleCandidateStatus(item.id)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors shadow-sm"
                           title="이 글감을 다시 사용 가능 상태로 복원합니다"
                         >
-                          <RotateCcw size={13} className="text-sky-600" />
+                          <RotateCcw size={13} className="text-blue-600" />
                           사용 가능으로 복원
                         </button>
                       ) : (
                         <button
                           type="button"
                           onClick={() => toggleCandidateStatus(item.id)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors"
                           title="이 글감을 사용 완료(발행 완료) 상태로 표시합니다"
                         >
-                          <CheckCircle2 size={13} className="text-emerald-600" />
+                          <CheckCircle2 size={13} className="text-white" />
                           사용 완료 표시
                         </button>
                       )}
 
-                      {/* 2) 보관 상태 토글 (is_archived: 사용 상태와 무관하게 독립 동작, 전체 삭제 보호용) */}
+                      {/* 2) 보관 상태 토글 (is_archived: 초록색 계열, 전체 삭제 보호용) */}
                       {item.is_archived ? (
                         <button
                           type="button"
                           onClick={() => toggleCandidateArchive(item.id)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/80 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors shadow-sm"
                           title="보관을 해제하여 일반 상태로 되돌립니다"
                         >
-                          <RotateCcw size={13} className="text-indigo-600" />
+                          <RotateCcw size={13} className="text-emerald-700" />
                           보관 해제
                         </button>
                       ) : (
                         <button
                           type="button"
                           onClick={() => toggleCandidateArchive(item.id)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
                           title="이 글감을 보관함에 보관합니다 (전체선택 삭제 대상에서 100% 제외 및 보호)"
                         >
-                          <Archive size={13} className="text-neutral-500" />
+                          <Archive size={13} className="text-white" />
                           보관
                         </button>
                       )}

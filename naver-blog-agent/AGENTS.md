@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.15` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.16` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -39,6 +39,11 @@
 
 ## 🕒 버전 히스토리
 
+- **v1.16 (2026-10-07)**:
+  - **글감 보관함(/collector) 하단 액션 버튼 색상 개편 (주인님 확정)**:
+    1) **사용완료 버튼**: 파란색 바탕(`bg-blue-600 text-white hover:bg-blue-700 shadow-sm`)으로 변경하여 명확한 완료 액션 강조. (사용 완료 상태일 때는 `bg-blue-50 text-blue-700 border-blue-300` 복원 버튼으로 토글).
+    2) **보관 버튼**: 초록색 바탕(`bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm`)으로 변경하여 안전 보관 액션 시각화. (보관 중일 때는 `bg-emerald-50 text-emerald-800 border-emerald-300` 보관 해제 버튼으로 토글).
+    3) 카드 상단의 `보관중` 뱃지도 `indigo`에서 `emerald` 톤으로 통일감 부여.
 - **v1.15 (2026-10-07)**:
   - **콘텐츠 생성 결과 2026년 당해 연도 100% 보장 3중 방어막(Safe-guard) 구축**:
     1) **입력단 정제 (Input Sanitization)**: 글감 보관함 선택(`applyViralCandidate`), URL 쿼리 파라미터 로드, 파이프라인 진입 시 주제(`topic`), 검색 키워드, 발행 목적 내 과거 연도(`2020~2025`)를 현재 연도(`2026`)로 자동 치환.

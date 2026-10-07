@@ -20,6 +20,17 @@
     4) 효과: 링크 길이가 228자에서 34자로 대폭 단축되어 AI 본문 작성 목표 공간이 221자에서 **410~420자(2배 이상)**로 대폭 넓어짐. Threads 500자 제한 내에서 본문 스토리가 4~5단락으로 풍성하고 꽉 차게 생성됨.
     5) `threads-content-ops/lib/version.ts`, DB `programs.version` 및 마이그레이션 `20261007160000_tco_bump_version_v1_69.sql`을 `v1.69`로 동기화.
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.16, 2026-10-07)
+
+- **글감 보관함(/collector) 하단 액션 버튼 색상 개편 (v1.16)**:
+  - 배경: 주인님 요청("보관 버튼은 초록색, 사용완료 버튼은 파란색 바탕으로 해줘")에 따른 시각적 명확성 개편.
+  - 조치:
+    1) `src/app/(dashboard)/collector/page.tsx`:
+       - 사용완료 버튼(`사용 완료 표시`): 파란색 바탕(`bg-blue-600 text-white hover:bg-blue-700 shadow-sm`)으로 변경. 사용 완료 상태일 때는 파란 톤 복원 버튼(`bg-blue-50 text-blue-700 border-blue-300`)으로 일관성 유지.
+       - 보관 버튼(`보관`): 초록색 바탕(`bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm`)으로 변경. 보관 중 상태일 때는 초록 톤 해제 버튼(`bg-emerald-50 text-emerald-800 border-emerald-300`)으로 일관성 유지.
+       - 카드 상단 `보관중` 배지도 에메랄드 톤으로 통일.
+    2) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0016_nba_bump_version_v1_16.sql`을 `v1.16`으로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.15, 2026-10-07)
 
 - **콘텐츠 생성 결과 2026년 당해 연도 100% 엄수 3중 방어막(Safe-guard) 구축 (v1.15)**:

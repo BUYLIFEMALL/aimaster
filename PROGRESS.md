@@ -27,8 +27,9 @@
 - **v1.66**: 떡상 글감 카테고리 관리/이동 시스템 구축.
 - **v1.60**: Threads 글 분량 450~480자(상품 글은 고지·링크 포함) 꽉 채우기 최적화.
 
-### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.15** (2026-10-07)
+### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.16** (2026-10-07)
 - 주소: https://naver-blog-agent.vercel.app (Vercel 프로젝트 `naver-blog-agent`)
+- **v1.16**: **글감 보관함(/collector) 하단 액션 버튼 색상 개편 (주인님 확정)**. 사용완료 버튼을 파란색 바탕(`bg-blue-600 text-white`)으로, 보관 버튼을 초록색 바탕(`bg-emerald-600 text-white`)으로 변경하여 액션 시인성 극대화 및 상단 보관 배지 에메랄드 톤 통일.
 - 유튜브 설명 영상 및 GitHub 오픈소스(`boksajang/naverblog-extention`) 기반 AIMaster 웹 SaaS 하이브리드 완전 이식.
 - 일반 크롬 브라우저 상의 Chrome 확장(Manifest V3)이 스마트에디터 ONE iframe DOM에 직접 타이핑/이벤트를 주입하여 네이버 봇 탐지 100% 무력화.
 - 5단계 AI 파이프라인(Research ➔ Writer ➔ Humanizer ➔ Reviewer ➔ Image) 및 17대 블로그 윤문 불변 규칙 구현.
