@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.71`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.72`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.72 공통 미디어 칸 제거 (2026-10-07)
+
+- 주인님 지시: 글마다 이미지를 만들고 직접 추가하므로 콘텐츠 생성 화면의 '공통 미디어(내 PC 이미지·영상)' 칸이 필요 없어 제거했습니다(`AttentionComposer.tsx`의 `MediaManager`·`media` 상태 삭제). 이제 이미지·영상은 각 글 카드의 '이 글의 이미지·영상'(AI 생성 + 직접 추가)에만 있고 글당 최대 MAX_MEDIA개입니다. 서버·DB 변경 없음.
 
 ## v1.71 저장됨 초록 버튼 + 글별 직접 이미지·영상 추가 (2026-10-07)
 

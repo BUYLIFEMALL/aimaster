@@ -1,5 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.19, 2026-10-08)
+
+- **스마트 에디터(수정·편집) 듀얼 위지윅 편집기 구축 (`ai-auto-blog` 레퍼런스 이식, v1.19)**:
+  - 배경: 주인님의 "본문에 이미지는 잘 들어갔어. 생성된 본문 편집기능을 추가해줘. https://ai-auto-blog-one.vercel.app/posts/110/edit 편집기 참고해서 이렇게 기능 구현해주면되" 요청에 따른 스마트 에디터 전면 이식 및 연동.
+  - 조치:
+    1) `naver-blog-agent/src/components/RichTextEditor.tsx`:
+       - Tiptap 기반 풀 위지윅 에디터 탑재 (H1~H3, Bold, Italic, Underline, Strikethrough, Highlight, Code, 11색상 팔레트 Color Picker, 정렬, 글머리기호, 번호목록, 인용, 구분선, 표 3x3, YouTube 삽입, 하이퍼링크 삽입, Undo/Redo).
+       - PC 이미지 파일 첨부: 로컬 파일 선택 시 `/api/upload-image`를 통해 Supabase Storage `ai-image-generations` 버킷에 안전 업로드 후 에디터에 즉시 인라인 삽입.
+       - ✨ AI 이미지 즉시 생성 삽입: 툴바 팝오버에서 원하는 피사체/상황 한글 프롬프트 입력 시 `/api/generate-image`를 호출해 커서 위치에 즉시 삽입.
+    2) `naver-blog-agent/src/components/BlogSmartEditorModal.tsx`:
+       - `ai-auto-blog/posts/[id]/edit` 페이지와 동일한 듀얼 모드 편집 화면 구축:
+         * 블로그 제목 (인풋) 및 요약문 (textarea) 실시간 편집.
+         * 추천 SEO 검색 태그 칩 삭제(`×`) 및 신규 태그 추가.
+         * `[🎨 비주얼 스마트 위지윅]` 탭: 서식 툴바 + 이미지 + AI생성 + 유튜브 + 표 + 링크.
+         * `[💻 코드 / 텍스트]` 탭: 마크다운 서식 도구 + 텍스트에어리어 직접 편집.
+         * `[✓ 편집 완료 및 본문 적용]` 클릭 시 상위 결과 객체에 즉시 반영.
+    3) `naver-blog-agent/src/app/(dashboard)/page.tsx`:
+       - 결과 카드 상단 액션 바 및 본문 뷰어 바로 위에 `[✏️ 스마트 에디터 편집]`, `[✏️ 원고 편집]` 버튼 배치.
+       - 본문 뷰어(`renderSmartArticle`): 에디터에서 편집된 HTML 서식(`dangerouslySetInnerHTML`)과 기존 스마트 파서를 완벽 지원하여 실시간 동기화.
+       - 클립보드 복사(`copyContent`) 및 네이버 스마트에디터 ONE 자동 발행 대기열에 수정된 내용 100% 반영.
+    4) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0019_nba_bump_version_v1_19.sql`을 `v1.19`로 동기화.
+    5) Chrome 확장 최신 번들 `naver-blog-agent-extension-v1.19.zip` 및 `latest.zip` prebuild 자동 생성 완료.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.18, 2026-10-07)
 
 - **원클릭 본문 + 이미지 동시 생성 및 본문 사이사이 인라인 이미지 렌더링 구축 (v1.18)**:
@@ -74,6 +97,10 @@
        - 결과 화면의 기존 텍스트 프롬프트 복사 영역을 파란색 바탕 `[🖼️ AI 이미지 생성 (N장)]` 버튼 + 실시간 진행 프로그레스 바 + 생성 이미지 갤러리 그리드(대표 썸네일/본문 컷 배지, URL 복사, 다운로드, 삭제) + 개별 컷 생성 버튼 + 클릭 시 고해상도 확대 모달 뷰어로 전면 교체.
        - 크롬 확장 자동 발행 큐 등록(`handlePublishToQueue`) 및 보관함 저장(`handleSaveDraft`) 시 실제 생성된 이미지가 자동 포함되도록 연동.
     5) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0017_nba_bump_version_v1_17.sql`을 `v1.17`로 동기화.
+
+## Threads 콘텐츠 운영 자동화 v1.72 — 공통 미디어 칸 제거 (2026-10-08)
+
+- 콘텐츠 생성 화면의 공통 미디어 칸 삭제. 글별 이미지·영상만 사용. 화면만 변경.
 
 ## Threads 콘텐츠 운영 자동화 v1.71 — 저장됨 초록 버튼 + 글별 직접 이미지·영상 추가 (2026-10-07)
 
