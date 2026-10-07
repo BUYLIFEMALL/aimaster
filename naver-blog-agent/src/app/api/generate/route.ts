@@ -11,7 +11,16 @@ export async function POST(req: Request) {
   try {
     const user = await requireUser();
     const body = await req.json();
-    const { topic, category, searchKeywords, publishPurpose, preferredTone, provider, persona } = body;
+    const {
+      topic,
+      category,
+      searchKeywords,
+      publishPurpose,
+      preferredTone,
+      provider,
+      persona,
+      targetLength,
+    } = body;
 
     if (!category) {
       return NextResponse.json({ error: "카테고리를 입력해주세요." }, { status: 400 });
@@ -37,6 +46,7 @@ export async function POST(req: Request) {
       publishPurpose,
       preferredTone,
       persona,
+      targetLength: typeof targetLength === "number" ? targetLength : undefined,
       aiConfig: {
         provider: ai.provider,
         apiKey: ai.apiKey,

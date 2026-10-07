@@ -19,6 +19,9 @@ export function Header({ userEmail }: { userEmail: string }) {
         </span>
       </div>
       <div className="flex items-center gap-3 text-xs">
+        <Link href="/dashboard" className="text-neutral-700 font-medium hover:text-neutral-900">
+          대시보드
+        </Link>
         <Link href="/collector" className="text-rose-600 font-semibold hover:text-rose-700">
           🔥 글감
         </Link>

@@ -32,6 +32,7 @@ export default function MainPage() {
   const [searchKeywords, setSearchKeywords] = useState("가전제품 비교, 살림 꿀팁, 세탁 노하우, 가성비 주방용품, 삶의 질 상승템");
   const [publishPurpose, setPublishPurpose] = useState("실제 주부 입장에서 가성비와 찐활용도를 꼼꼼하게 비교 분석하여 이웃들에게 추천");
   const [preferredTone, setPreferredTone] = useState<string>("해요체");
+  const [targetCharCount, setTargetCharCount] = useState<number>(2000);
 
   const [loading, setLoading] = useState(false);
   const [generatingPersonaName, setGeneratingPersonaName] = useState<string | null>(null);
@@ -170,6 +171,7 @@ export default function MainPage() {
           searchKeywords: params.overrideKeywords,
           publishPurpose: params.overridePurpose,
           preferredTone: params.overrideTone,
+          targetLength: targetCharCount,
           persona: params.overridePersona
             ? {
                 id: params.overridePersona.id,
@@ -411,21 +413,21 @@ export default function MainPage() {
           )}
         </div>
 
-        {/* 2-1. [상황별 페르소나 원클릭 생성] 섹션 (threads-easy-planner 이식 및 확장) */}
+        {/* 2-1. [글의 화자(페르소나) 원클릭 선택] 섹션 */}
         <div className="space-y-3 pb-6 border-b border-neutral-100">
           <div className="flex flex-wrap items-center justify-between gap-1.5">
             <div className="flex items-center gap-2">
               <span className="text-lg">🎭</span>
               <span className="text-sm md:text-base font-extrabold text-neutral-900">
-                상황별 페르소나 원클릭 생성
+                글의 화자 (페르소나) 선택
               </span>
               <span className="text-xs font-semibold text-neutral-500 hidden sm:inline">
-                (클릭 시 해당 캐릭터의 시각·말투·키워드로 즉시 세팅 및 완성됩니다)
+                (글을 작성하는 주인공·화자의 시각·말투·경험 캐릭터를 설정합니다)
               </span>
             </div>
             <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full flex items-center gap-1">
               <Zap className="w-3 h-3 text-emerald-600 fill-emerald-600" />
-              <span>원클릭 블로그 원고 완성</span>
+              <span>화자 맞춤형 자동 작성</span>
             </span>
           </div>
 
@@ -514,7 +516,115 @@ export default function MainPage() {
           </div>
         </div>
 
-        {/* 2-2. 기획 조건 직접 설정 및 미세 조정 폼 */}
+        {/* 2-2. [🎯 원하는 글자수 생성 설정 (1 ~ 4,000자)] 섹션 */}
+        <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/40 p-4 sm:p-5 space-y-3.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-xs">
+                📏
+              </span>
+              <div>
+                <span className="text-sm md:text-base font-extrabold text-neutral-900">
+                  원하는 글자수 생성 설정
+                </span>
+                <span className="ml-2 rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[11px] font-bold">
+                  1 ~ 4,000자 범위 설정
+                </span>
+              </div>
+            </div>
+
+            {/* 현재 설정된 글자수 뱃지 및 직접 숫자 입력 */}
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <span className="text-xs text-neutral-600 font-semibold">목표 글자수:</span>
+              <span className="inline-flex items-center gap-1 rounded-xl bg-neutral-900 px-3 py-1 text-sm font-black text-white shadow-xs">
+                {targetCharCount.toLocaleString()}자
+              </span>
+              <div className="flex items-center rounded-xl border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-800 shadow-2xs">
+                <input
+                  type="number"
+                  min="1"
+                  max="4000"
+                  value={targetCharCount}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val >= 1 && val <= 4000) setTargetCharCount(val);
+                  }}
+                  className="w-14 text-right font-bold focus:outline-none"
+                />
+                <span className="ml-1 text-neutral-400 font-medium">자</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 슬라이더 바 트랙 */}
+          <div className="space-y-1.5 pt-1">
+            <div className="relative flex items-center">
+              <input
+                type="range"
+                min="1"
+                max="4000"
+                step="50"
+                value={targetCharCount}
+                onChange={(e) => setTargetCharCount(Number(e.target.value))}
+                className="w-full h-3 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 focus:outline-none transition-all"
+              />
+            </div>
+
+            {/* 주요 눈금 가이드 */}
+            <div className="flex justify-between text-[11px] font-semibold text-neutral-400 px-1">
+              <span>1자</span>
+              <span>1,000자</span>
+              <span className="font-bold text-emerald-700">2,000자 (추천 표준)</span>
+              <span>3,000자</span>
+              <span>4,000자 (최대)</span>
+            </div>
+          </div>
+
+          {/* 구간별 성격 안내 및 빠른 선택 버튼 */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-emerald-200/60">
+            <div className="text-xs font-semibold text-emerald-900 flex items-center gap-1.5">
+              <span>
+                {targetCharCount <= 800
+                  ? "💡 [초단문 요약] 인스타·카드뉴스 연동형 퀵 요약 (단락 1~2개)"
+                  : targetCharCount <= 1500
+                  ? "💡 [단문 리뷰] 가벼운 일상·제품 퀵 리뷰·빠른 정보 전달 (소제목 2~3개)"
+                  : targetCharCount <= 2500
+                  ? "💡 [네이버 블로그 표준] C-Rank / DIA+ 검색 상위 노출 황금 분량 (소제목 3~4개)"
+                  : targetCharCount <= 3500
+                  ? "💡 [전문 심층 분석] 독자 체류시간 극대화, 상세 팩트체크 및 비교 가이드 (소제목 4~5개)"
+                  : "💡 [초대형 완벽 가이드] 분야별 총정리 완벽 백과사전 가이드 (소제목 5개 이상)"}
+              </span>
+            </div>
+
+            {/* 빠른 프리셋 버튼들 */}
+            <div className="flex flex-wrap items-center gap-1 text-[11px]">
+              <span className="text-neutral-500 font-bold mr-0.5">빠른 선택:</span>
+              {[
+                { label: "1,000자", val: 1000 },
+                { label: "1,800자 (기본)", val: 1800 },
+                { label: "2,000자 (추천)", val: 2000 },
+                { label: "2,500자 (상위)", val: 2500 },
+                { label: "3,500자 (심층)", val: 3500 },
+                { label: "4,000자 (최대)", val: 4000 },
+              ].map((preset) => (
+                <button
+                  key={preset.val}
+                  type="button"
+                  onClick={() => setTargetCharCount(preset.val)}
+                  className={`rounded-lg px-2.5 py-1 font-bold transition-all ${
+                    targetCharCount === preset.val
+                      ? "bg-neutral-900 text-white shadow-xs"
+                      : "bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-100"
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 2-3. 기획 조건 직접 설정 및 미세 조정 폼 */}
         <form onSubmit={handleGenerateForm} className="space-y-4">
           <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
             <h2 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
@@ -736,8 +846,11 @@ export default function MainPage() {
                   </span>
                 )}
                 <span className="text-xs text-neutral-400">·</span>
-                <span className="text-xs text-neutral-500 font-medium">
-                  공백 제외 약 {result.content.replace(/\s/g, "").length}자
+                <span className="text-xs text-neutral-700 font-semibold bg-neutral-100 px-2 py-0.5 rounded">
+                  공백 포함 약 {result.content.length.toLocaleString()}자 (목표: {(result.targetLength || targetCharCount).toLocaleString()}자)
+                </span>
+                <span className="text-[11px] text-neutral-400">
+                  (공백 제외 {result.content.replace(/\s/g, "").length.toLocaleString()}자)
                 </span>
               </div>
 
