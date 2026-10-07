@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.62`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.63`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.63 버튼명 변경 (2026-10-07)
+
+- 주인님 지시로 글감 카드의 "사용 가능으로" 버튼 이름을 **"사용가능 전환"**으로 바꿨습니다(`ViralCollector.tsx`). 동작은 같습니다(상태를 사용 가능으로 되돌림).
 
 ## v1.62 보관 상태 표시 (2026-10-07)
 

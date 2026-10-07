@@ -1,5 +1,27 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.08, 2026-10-07)
+
+- **떡상 글감 수집소(트렌드·뉴스·쇼츠) 신설 및 블로그 글 생성기 연동 (v1.08)**:
+  - 배경: `threads-content-ops`의 글감 수집(웹 주소 스크랩, Perplexity 72시간 핫이슈, 유튜브 쇼츠 대박 영상 분석) 메커니즘을 네이버 블로그 장문/검색(C-Rank, DIA+) 생태계에 맞춰 확장 이식하고, 메인 글 생성기에서 수집된 글감을 선택해 즉시 원고를 생성할 수 있도록 연동 요청.
+  - 조치:
+    1) `Sidebar.tsx` & `Header.tsx`: 좌측 내비게이션 및 모바일 헤더에 **[🔥 글감 수집 (떡상·트렌드)]** (`/collector`) 메뉴 신설.
+    2) `types/collector.ts` & `src/lib/collector.ts`:
+       - SSRF 안전 방어(내부/사설 IP 차단, 10초 타임아웃, 본문 2MB 제한, 네이버 뉴스 구버전 LSD 주소 리라이트) 및 Cheerio 기반 본문/기사 링크 추출 구현.
+       - Perplexity `sonar-pro` 연동 실시간 72시간 한국어권 화제 이슈 검색 구현.
+       - YouTube Data API v3 연동 쇼츠 떡상 영상 검색(구독자 대비 조회수 터짐 비율, Outlier, Viral Score, 등급 산출) 및 AI(OpenAI/Gemini/Claude) 영상 훅·터진 이유 분석 구현.
+       - 네이버 블로그 전용 구조화 프롬프트: 검색 유입 제목(25~45자), 팩트/배경 요약(200~400자), 추천 카테고리, 롱테일 키워드 3~5개, 독자 공략 앵글 생성.
+    3) `api/collector/route.ts`:
+       - `url` (웹 기사/목록 스크랩 글감 생성), `perplexity` (72시간 핫이슈 수집), `shorts_search` (쇼츠 검색), `shorts_analyze` (쇼츠 분석 후 글감 생성) 통합 엔드포인트 구축.
+    4) `app/(dashboard)/collector/page.tsx`:
+       - 떡상 글감 수집소 전용 UI 신설 (화이트 베이스 규격).
+       - 4대 통계 카드(전체 수집, 사용 가능, 발행 완료, 영구 보관), 3대 수집 방식 탭(URL 지정, Perplexity 화제 검색, 유튜브 쇼츠 검색/분석), 상태 필터, 일괄 선택 삭제, [✍️ 이 글감으로 블로그 글 생성] 원클릭 이동 지원.
+    5) `app/(dashboard)/page.tsx` (메인 글 자동 생성기):
+       - 상단 기획 영역에 **[🔥 수집한 떡상 글감에서 선택하기]** 바 탑재.
+       - URL 파라미터(`?viralId=...&topic=...&category=...`) 및 드롭다운/빠른 선택 칩을 통해 클릭 1번으로 주제·카테고리·키워드·발행목적 즉시 자동 세팅.
+       - 글 생성 완료 시 해당 글감을 `used(발행 완료)` 상태로 자동 전환.
+    6) `src/lib/version.ts`, DB `programs.version` 및 마이그레이션 `0008_nba_bump_version_v1_08.sql`을 `v1.08`로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.07, 2026-10-07)
 
 - **상황별 6대 페르소나 원클릭 생성 엔진 탑재 및 결과물 섹션 하단 수직 이동 레이아웃 구현 (v1.07)**:
@@ -290,6 +312,10 @@
     1) `generator.ts`: `formatAIErrorMessage` 함수를 구현하여 Anthropic workspace 미지정 에러, 크레딧 부족, 잘못된 키, Rate limit 등 외부 SDK 오류를 사용자 친화적인 한글 안내문으로 가로채어 변환 제공.
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
+
+## Threads Content Ops v1.63 — 버튼명 '사용가능 전환' (2026-10-07)
+
+- 문구만 변경.
 
 ## Threads Content Ops v1.62 — 글감 보관 상태 노란색 표시 (2026-10-07)
 

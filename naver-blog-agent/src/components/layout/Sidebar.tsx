@@ -7,6 +7,7 @@ import { APP_VERSION } from "@/lib/version";
 
 const MENU_ITEMS = [
   { href: "/", icon: "✍️", label: "블로그 글 자동 생성", desc: "5단계 AI 기획·작성·윤문" },
+  { href: "/collector", icon: "🔥", label: "글감 수집 (떡상·트렌드)", desc: "뉴스·URL·화제 검색 글감 수집" },
   { href: "/accounts", icon: "👥", label: "네이버 계정·카테고리", desc: "다중 블로그 ID & 키워드 설정" },
   { href: "/queue", icon: "🚀", label: "발행 대기 큐 & 이력", desc: "스마트에디터 ONE 자동 발행 현황" },
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동", desc: "AI 키 등록 & 크롬 확장 페어링" },

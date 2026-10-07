@@ -27,6 +27,7 @@ const PROVIDERS = [
   { id: "gemini", name: "Google Gemini", desc: "고화질 블로그 이미지 프롬프트 생성 및 멀티모달 분석" },
   { id: "anthropic", name: "Claude (Anthropic)", desc: "17대 블로그 윤문 휴머나이저 및 정밀 문맥 교정에 사용" },
   { id: "perplexity", name: "Perplexity AI", desc: "최신 트렌드 키워드 실시간 검색 및 심층 자료조사에 사용" },
+  { id: "youtube_api_key", name: "YouTube Data API v3", desc: "유튜브 쇼츠 떡상 영상 검색 및 수치 지표 분석에 사용" },
 ];
 
 export function SettingsClient({

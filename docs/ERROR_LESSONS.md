@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-07 Lucide React 패키지 내 플랫폼 브랜드 아이콘(Youtube, Chrome 등) 누락 주의 (naver-blog-agent v1.08)
+
+- **증상:** Next.js 빌드 시 `Export Youtube doesn't exist in target module` Turbopack 컴파일 에러 발생.
+- **원인:** `lucide-react`는 범용 오픈소스 UI 아이콘 팩으로서, 상표권이나 유지보수 정책에 따라 특정 브랜드 아이콘(예: `Youtube`, `Chrome`, `Facebook` 등)이 포함되어 있지 않거나 제거됨.
+- **해결(위치):** `collector/page.tsx`: `Youtube` 대신 범용 영상 심볼인 `Video` 또는 `Play` 아이콘을 사용하여 빌드 성공.
+- **다음부터 확인:** `lucide-react`에서 아이콘을 import할 때는 브랜드 고유명칭(`Youtube`, `Chrome` 등) 대신 기능적 심볼(`Video`, `Globe`, `Share2` 등)을 우선적으로 채택하거나 공식 문서의 Icon list를 사전에 검증할 것.
+
 ## 2026-10-07 네이버 스마트에디터 ONE DOM 자동 조작 시 Akamai 봇 탐지 우회 및 Lucide 아이콘 주의 (naver-blog-agent v1.01)
 
 - **증상:**
