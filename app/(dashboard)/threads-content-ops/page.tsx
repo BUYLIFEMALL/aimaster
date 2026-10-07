@@ -38,7 +38,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
 
   const { data: accounts } = await supabase.from("tco_threads_accounts")
     .select("id, username, token_expires_at").eq("user_id", user.id).order("updated_at", { ascending: false });
-  const [{ data: posts }, { data: credentials }, { data: operationProfiles }, { data: contentSources }, { data: viralCandidates }] = await Promise.all([
+  const [{ data: posts }, { data: credentials }, { data: operationProfiles }, { data: contentSources }, { data: viralCandidates }, { data: viralCategories }] = await Promise.all([
     supabase.from("tco_posts")
     .select("id, body, status, created_at, scheduled_at, published_at, permalink, error_message, account_id, media")
     .eq("user_id", user.id).order("created_at", { ascending: false }).limit(30),
@@ -50,8 +50,10 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
       .select("id, account_id, source_type, title, source_url, summary, metadata, status, created_at, updated_at")
       .eq("user_id", user.id).order("created_at", { ascending: false }).limit(200),
     supabase.from("tco_viral_candidates")
-      .select("id, method, source_input, title, content, keywords, status, created_at")
+      .select("id, method, source_input, title, content, keywords, status, category_id, created_at")
       .eq("user_id", user.id).order("created_at", { ascending: false }).limit(300),
+    supabase.from("tco_viral_categories")
+      .select("id, name, sort_order").eq("user_id", user.id).order("sort_order", { ascending: true }).order("created_at", { ascending: true }),
   ]);
   const connectedAccountInfos = (accounts ?? []).map((account) => ({ id: account.id, username: account.username, tokenExpiresAt: account.token_expires_at }));
   const drafts = (posts ?? []).filter((post) => post.status === "draft" || post.status === "scheduled" || post.status === "failed").slice(0, 20);
@@ -66,7 +68,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     {tab === "create" && (accounts?.length ? <AttentionComposer userId={user.id} accounts={accounts} products={(contentSources ?? []).filter((source) => (source.source_type === "coupang" || source.source_type === "naver_brand_connect") && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
     {tab === "manage" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={drafts} viralCandidates={usableViral} /> : <GlassCard><h2 className="font-bold text-white">관리할 초안이 없습니다</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 콘텐츠 생성 메뉴에서 초안을 만드세요.</p></GlassCard>)}
     {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
-    {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
+    {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} categories={viralCategories ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
     {tab === "sources" && <SourceQueue accounts={accounts ?? []} sources={contentSources ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
     {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-gold" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccounts={connectedAccountInfos} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
     </div>

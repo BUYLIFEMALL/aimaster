@@ -2,13 +2,15 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Archive, CheckCircle2, CircleAlert, ExternalLink, Flame, PenLine, RotateCcw, Search, Trash2 } from "lucide-react";
+import { Archive, CheckCircle2, CircleAlert, ExternalLink, Flame, FolderCog, FolderInput, PenLine, Search, Trash2 } from "lucide-react";
+import ViralCategoryManager, { type ViralCategory } from "./ViralCategoryManager";
 import ShortsSearch from "./ShortsSearch";
 import {
   collectViralFromPerplexity,
   collectViralFromUrl,
   deleteViralCandidate,
   deleteViralCandidates,
+  moveViralCandidates,
   setViralCandidateStatus,
 } from "./web-actions";
 
@@ -20,6 +22,7 @@ type Candidate = {
   content: string;
   keywords: string[];
   status: string;
+  category_id: string | null;
   created_at: string;
 };
 
@@ -45,20 +48,35 @@ function safeHttpUrl(value: string): string | null {
   }
 }
 
-export default function ViralCollector({ candidates, configuredProviders }: { candidates: Candidate[]; configuredProviders: string[] }) {
+export default function ViralCollector({ candidates, categories, configuredProviders }: { candidates: Candidate[]; categories: ViralCategory[]; configuredProviders: string[] }) {
   const [method, setMethod] = useState<"http" | "perplexity">("http");
   const [url, setUrl] = useState("");
   const [topic, setTopic] = useState("");
   const [busy, setBusy] = useState(false);
   const [collecting, setCollecting] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all"); // all | none(미분류) | 카테고리 id
+  const [collectCategory, setCollectCategory] = useState(""); // 수집·저장 대상 카테고리 id(빈 값 = 미분류)
+  const [bulkMoveTo, setBulkMoveTo] = useState("");
+  const [managing, setManaging] = useState(false);
   const [checked, setChecked] = useState<string[]>([]);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   const hasOpenai = configuredProviders.includes("openai");
   const hasPerplexity = configuredProviders.includes("perplexity");
   const keysReady = hasOpenai && (method === "http" || hasPerplexity);
-  const visible = useMemo(() => candidates.filter((item) => statusFilter === "all" || item.status === statusFilter), [candidates, statusFilter]);
+  const categoryIds = useMemo(() => new Set(categories.map((item) => item.id)), [categories]);
+  // 카테고리가 지워졌거나 없는 글감은 모두 미분류로 본다.
+  const categoryOf = (item: Candidate) => (item.category_id && categoryIds.has(item.category_id) ? item.category_id : null);
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const item of candidates) {
+      const key = item.category_id && categoryIds.has(item.category_id) ? item.category_id : "none";
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts;
+  }, [candidates, categoryIds]);
+  const visible = useMemo(() => candidates.filter((item) => (statusFilter === "all" || item.status === statusFilter) && (categoryFilter === "all" || (categoryFilter === "none" ? !(item.category_id && categoryIds.has(item.category_id)) : item.category_id === categoryFilter))), [candidates, statusFilter, categoryFilter, categoryIds]);
   const count = (status: string) => candidates.filter((item) => item.status === status).length;
   const current = METHODS.find((item) => item.value === method) ?? METHODS[0];
 
@@ -67,7 +85,7 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
     setCollecting(true);
     setMessage(null);
     try {
-      const result = method === "http" ? await collectViralFromUrl(url) : await collectViralFromPerplexity(topic);
+      const result = method === "http" ? await collectViralFromUrl(url, collectCategory || null) : await collectViralFromPerplexity(topic, collectCategory || null);
       if (result.ok) {
         setMessage({ ok: true, text: `글감 ${result.count}건을 수집했습니다. 아래 목록에서 확인하고, 마음에 드는 글감으로 콘텐츠를 작성해 보세요.` });
         if (method === "http") setUrl(""); else setTopic("");
@@ -105,6 +123,28 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
   const unarchivedTotal = candidates.filter((item) => item.status !== "archived").length;
   const archivedTotal = candidates.length - unarchivedTotal;
   const toggleChecked = (id: string) => setChecked((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]));
+
+  const moveTo = async (ids: string[], target: string, label: string) => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const result = await moveViralCandidates({ ids, categoryId: target || null });
+      if (result.ok) {
+        setChecked([]);
+        setBulkMoveTo("");
+        setMessage({ ok: true, text: `글감 ${result.moved}건을 "${label}" 카테고리로 이동했습니다.` });
+      } else {
+        setMessage({ ok: false, text: result.error });
+      }
+    } catch {
+      setMessage({ ok: false, text: "이동 요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
+    } finally {
+      setBusy(false);
+    }
+  };
+  const labelOf = (id: string) => (id ? categories.find((item) => item.id === id)?.name ?? "미분류" : "미분류");
+  // 이동은 보관 글감도 가능하다(삭제만 막힘) — 그래서 선택 목록은 visible 기준으로 따로 쓴다.
+  const checkedVisible = checked.filter((id) => visible.some((item) => item.id === id));
 
   const bulkDelete = async (ids: string[] | "all_unarchived", count: number) => {
     const scope = ids === "all_unarchived" ? `보관하지 않은 글감 전체 ${count}건` : `선택한 글감 ${count}건`;
@@ -151,10 +191,14 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
           : <input className={inputClass} maxLength={200} value={topic} onChange={(event) => setTopic(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && topic.trim() && keysReady) void collect(); }} placeholder="예: 다이어트 보조제, 겨울 난방비" aria-label="시드 주제" />}
         <button className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={collecting || !keysReady || !(method === "http" ? url.trim() : topic.trim())} onClick={() => void collect()}><Flame size={16} />{collecting ? "수집 중… (최대 1분)" : "글감 수집"}</button>
       </div>
+      <label className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-neutral-800">📁 저장할 카테고리
+        <select className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm font-normal text-neutral-800" value={collectCategory} onChange={(event) => setCollectCategory(event.target.value)} aria-label="수집한 글감을 저장할 카테고리"><option value="">미분류</option>{categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
+        <span className="text-xs font-normal text-neutral-500">아래 유튜브 쇼츠 "글감으로 저장"에도 같은 카테고리가 적용됩니다.</span>
+      </label>
       <p className="mt-3 text-xs text-neutral-500">수집은 회원님의 OpenAI(와 Perplexity) 사용량을 소모합니다. 공개된 페이지만 읽을 수 있고, 로그인이 필요한 페이지나 내부 주소는 읽지 않습니다.</p>
     </section>
 
-    <ShortsSearch hasYoutubeKey={configuredProviders.includes("youtube_api_key")} hasGeminiKey={configuredProviders.includes("gemini")} hasOpenaiKey={hasOpenai} savedSources={candidates.map((item) => item.source_input)} />
+    <ShortsSearch hasYoutubeKey={configuredProviders.includes("youtube_api_key")} hasGeminiKey={configuredProviders.includes("gemini")} hasOpenaiKey={hasOpenai} savedSources={candidates.map((item) => item.source_input)} categoryId={collectCategory || null} />
 
     {message && <p className="flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status">{message.ok ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" /> : <CircleAlert size={16} className="mt-0.5 shrink-0 text-rose-600" />}{message.text}</p>}
 
@@ -163,20 +207,31 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
         <h3 className="font-bold text-neutral-900">수집한 글감 <span className="text-sm font-normal text-neutral-500">({visible.length}건)</span></h3>
         <select aria-label="상태 필터" className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-800" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">전체 상태</option><option value="ready">사용 가능</option><option value="used">사용 완료</option><option value="archived">보관</option></select>
       </div>
+      <div className="mt-3 flex flex-wrap items-center gap-1.5" role="tablist" aria-label="카테고리 필터">
+        <CategoryChip active={categoryFilter === "all"} onClick={() => setCategoryFilter("all")}>전체 ({candidates.length})</CategoryChip>
+        {categories.map((item) => <CategoryChip key={item.id} active={categoryFilter === item.id} onClick={() => setCategoryFilter(item.id)}>{item.name} ({categoryCounts[item.id] ?? 0})</CategoryChip>)}
+        {(categoryCounts.none ?? 0) > 0 && <CategoryChip active={categoryFilter === "none"} onClick={() => setCategoryFilter("none")}>미분류 ({categoryCounts.none})</CategoryChip>}
+        <button type="button" onClick={() => setManaging(true)} className="ml-auto inline-flex items-center gap-1 rounded-lg border border-violet-300 bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-800 hover:bg-violet-100"><FolderCog size={14} />카테고리 관리</button>
+      </div>
       {candidates.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700">
-        <label className="inline-flex items-center gap-1.5 font-semibold"><input type="checkbox" className="h-4 w-4 accent-rose-600" checked={deletable.length > 0 && checkedDeletable.length === deletable.length} disabled={busy || !deletable.length} onChange={(event) => setChecked(event.target.checked ? deletable.map((item) => item.id) : [])} />현재 목록 전체 선택</label>
-        <span className="text-neutral-500">선택 {checkedDeletable.length}건</span>
+        <label className="inline-flex items-center gap-1.5 font-semibold"><input type="checkbox" className="h-4 w-4 accent-rose-600" checked={visible.length > 0 && checkedVisible.length === visible.length} disabled={busy || !visible.length} onChange={(event) => setChecked(event.target.checked ? visible.map((item) => item.id) : [])} />현재 목록 전체 선택</label>
+        <span className="text-neutral-500">선택 {checkedVisible.length}건 (삭제 가능 {checkedDeletable.length}건)</span>
         <button type="button" disabled={busy || !checkedDeletable.length} onClick={() => void bulkDelete(checkedDeletable, checkedDeletable.length)} className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-3 py-1.5 font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"><Trash2 size={13} />선택 삭제</button>
         <button type="button" disabled={busy || !unarchivedTotal} onClick={() => void bulkDelete("all_unarchived", unarchivedTotal)} className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 font-bold text-[#ffffff] hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-neutral-300"><Trash2 size={13} />보관 제외 전체 삭제 ({unarchivedTotal}건)</button>
         <span className="text-neutral-500">※ 보관한 글감({archivedTotal}건)은 삭제되지 않습니다.</span>
+        <span className="flex w-full flex-wrap items-center gap-2 border-t border-neutral-200 pt-2">
+          <FolderInput size={14} className="text-violet-700" /><span className="font-semibold">선택한 글감 {checkedVisible.length}건을</span>
+          <select aria-label="이동할 카테고리" className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-xs text-neutral-800" value={bulkMoveTo} onChange={(event) => setBulkMoveTo(event.target.value)}><option value="">카테고리 선택…</option><option value="none">미분류</option>{categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
+          <button type="button" disabled={busy || !checkedVisible.length || !bulkMoveTo} onClick={() => void moveTo(checkedVisible, bulkMoveTo === "none" ? "" : bulkMoveTo, labelOf(bulkMoveTo === "none" ? "" : bulkMoveTo))} className="rounded-lg bg-violet-600 px-3 py-1.5 font-bold text-[#ffffff] hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-neutral-300">선택 이동</button>
+        </span>
       </div>}
       {!visible.length ? <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm text-neutral-600">{candidates.length ? "조건에 맞는 글감이 없습니다. 필터를 바꿔 보세요." : "아직 수집한 글감이 없습니다. 위에서 주소를 넣거나 주제를 검색해 글감을 모아 보세요."}</div> : <ul className="mt-4 space-y-3">{visible.map((item) => {
         const status = STATUS[item.status] ?? { label: item.status, tone: "bg-neutral-100 text-neutral-600" };
         const link = item.method === "http" ? safeHttpUrl(item.source_input) : null;
         const locked = item.status === "archived";
         return <li key={item.id} className="rounded-xl border border-neutral-200 p-4">
-          <label className={`mb-2 inline-flex items-center gap-1.5 text-xs ${locked ? "text-neutral-400" : "text-neutral-600"}`}><input type="checkbox" className="h-4 w-4 accent-rose-600" checked={!locked && checked.includes(item.id)} disabled={busy || locked} onChange={() => toggleChecked(item.id)} />{locked ? "보관 글감은 삭제 대상에서 제외됩니다" : "삭제할 글감으로 선택"}</label>
-          <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">{item.method === "perplexity" ? "Perplexity" : item.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소"}</span>{item.status !== "used" && <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${status.tone}`}>{status.label}</span>}<span className="text-xs text-neutral-400">{new Date(item.created_at).toLocaleDateString("ko-KR")}</span></div>
+          <label className="mb-2 inline-flex items-center gap-1.5 text-xs text-neutral-600"><input type="checkbox" className="h-4 w-4 accent-rose-600" checked={checked.includes(item.id)} disabled={busy} onChange={() => toggleChecked(item.id)} />{locked ? "선택 (보관 글감은 삭제에서 제외, 이동은 가능)" : "삭제·이동할 글감으로 선택"}</label>
+          <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">{item.method === "perplexity" ? "Perplexity" : item.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소"}</span>{item.status !== "used" && <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${status.tone}`}>{status.label}</span>}<span className="rounded-full bg-violet-50 px-2 py-0.5 text-xs font-semibold text-violet-800">📁 {labelOf(categoryOf(item) ?? "")}</span><span className="text-xs text-neutral-400">{new Date(item.created_at).toLocaleDateString("ko-KR")}</span></div>
           <p className="mt-2 font-semibold text-neutral-900">{item.title}</p>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">{item.content}</p>
           {item.keywords.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{item.keywords.map((keyword) => <span key={keyword} className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-600">#{keyword}</span>)}</div>}
@@ -189,12 +244,20 @@ export default function ViralCollector({ candidates, configuredProviders }: { ca
             {item.status === "archived"
               ? <ActionButton label="보관 중" warn onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "ready" }), "보관을 해제하고 사용 가능으로 되돌렸습니다.")} disabled={busy}><Archive size={14} /></ActionButton>
               : <ActionButton label="보관하기" onClick={() => void run(() => setViralCandidateStatus({ id: item.id, status: "archived" }), "보관했습니다. 보관한 글감은 일괄 삭제에서 제외됩니다.")} disabled={busy}><Archive size={14} /></ActionButton>}
+            <label className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-700"><FolderInput size={14} />이동
+              <select aria-label="카테고리 이동" disabled={busy} value={categoryOf(item) ?? ""} onChange={(event) => void moveTo([item.id], event.target.value, labelOf(event.target.value))} className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-xs font-normal text-neutral-800"><option value="">미분류</option>{categories.map((cat) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}</select>
+            </label>
             <ActionButton label="삭제" danger onClick={() => void remove(item)} disabled={busy}><Trash2 size={14} /></ActionButton>
           </div>
         </li>;
       })}</ul>}
     </section>
+    {managing && <ViralCategoryManager categories={categories} counts={categoryCounts} onClose={() => setManaging(false)} />}
   </div>;
+}
+
+function CategoryChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`rounded-full px-3 py-1 text-xs font-semibold ${active ? "bg-neutral-900 text-[#ffffff]" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"}`}>{children}</button>;
 }
 
 function Overview({ label, value, tone }: { label: string; value: number; tone: string }) {

@@ -434,6 +434,10 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.66 — 글감 카테고리 등록·수정·이동 (2026-10-07)
+
+- 새 테이블 tco_viral_categories + 글감 category_id(DB 적용 완료). 관리 창·칩 필터·수집 시 카테고리 지정·개별/일괄 이동. 상세는 threads-content-ops/AGENTS.md v1.66.
+
 ## Threads Content Ops v1.65 — 글감 카드 버튼 정리 (2026-10-07)
 
 - 사용가능 전환 삭제, 사용완료↔사용가능 토글, 상단 '사용 완료' 배지 삭제. 화면만 변경.

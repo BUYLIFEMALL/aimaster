@@ -50,7 +50,7 @@ function formatDuration(totalSeconds: number): string {
   return `${Math.floor(totalSeconds / 60)}:${String(Math.round(totalSeconds % 60)).padStart(2, "0")}`;
 }
 
-export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey, savedSources }: { hasYoutubeKey: boolean; hasGeminiKey: boolean; hasOpenaiKey: boolean; savedSources: string[] }) {
+export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey, savedSources, categoryId }: { hasYoutubeKey: boolean; hasGeminiKey: boolean; hasOpenaiKey: boolean; savedSources: string[]; categoryId?: string | null }) {
   const [query, setQuery] = useState("");
   const [dateFrom, setDateFrom] = useState(() => isoDay(-30));
   const [dateTo, setDateTo] = useState(() => isoDay(0));
@@ -116,7 +116,7 @@ export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey
     try {
       const result = await analyzeShortToViralCandidates({
         id: video.id, title: video.title, channelName: video.channelName, views: video.views, subs: video.subs,
-        vsRatio: video.vsRatio, grade: video.grade, publishedAt: video.publishedAt,
+        vsRatio: video.vsRatio, grade: video.grade, publishedAt: video.publishedAt, categoryId: categoryId || null,
       });
       if (result.ok) {
         setSavedNow((current) => [...current, video.id]);

@@ -650,6 +650,17 @@ export async function saveCoupangSearchResult(input: {
 // ---------------------------------------------------------------------------
 const MAX_VIRAL_PER_USER = 300;
 const VIRAL_STATUSES = ["ready", "used", "archived"];
+const MAX_VIRAL_CATEGORIES = 30;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** 내 카테고리 id만 통과시킨다(없음/미분류는 null). 남의 카테고리 id나 이상한 값은 오류. */
+async function ownedViralCategoryId(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, categoryId: string | null | undefined): Promise<string | null> {
+  if (!categoryId) return null;
+  if (!UUID_RE.test(categoryId)) throw new Error("카테고리가 올바르지 않습니다.");
+  const { data } = await supabase.from("tco_viral_categories").select("id").eq("id", categoryId).eq("user_id", userId).maybeSingle();
+  if (!data) throw new Error("카테고리를 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+  return data.id;
+}
 type CollectResult = { ok: true; count: number } | { ok: false; error: string; needKey?: "openai" | "perplexity" };
 
 async function saveViralDrafts(
@@ -658,7 +669,9 @@ async function saveViralDrafts(
   method: "http" | "perplexity",
   sourceInput: string,
   drafts: ViralCandidateDraft[],
+  categoryId?: string | null,
 ) {
+  const category = await ownedViralCategoryId(supabase, userId, categoryId);
   const { count } = await supabase.from("tco_viral_candidates")
     .select("id", { count: "exact", head: true }).eq("user_id", userId);
   if ((count ?? 0) + drafts.length > MAX_VIRAL_PER_USER) {
@@ -672,13 +685,14 @@ async function saveViralDrafts(
     title: draft.title,
     content: draft.content,
     keywords: draft.keywords,
+    category_id: category,
     created_at: new Date(now - index).toISOString(),
   })));
   if (error) throw new Error("수집한 글감을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
 }
 
 /** 방식 1: 주소 지정 — 글 1건이면 그 글로, 목록 페이지면 안의 글 중 무작위 5건으로 글감 후보를 만든다. */
-export async function collectViralFromUrl(rawUrl: string): Promise<CollectResult> {
+export async function collectViralFromUrl(rawUrl: string, categoryId?: string | null): Promise<CollectResult> {
   try {
     const input = rawUrl.trim();
     if (!input || input.length > 2_000) throw new Error("주소를 1~2,000자로 입력해 주세요.");
@@ -705,7 +719,7 @@ export async function collectViralFromUrl(rawUrl: string): Promise<CollectResult
       rawText = `${text}\n출처: ${listing.finalUrl}`;
     }
     const drafts = await structureCandidates({ rawText, maxItems, apiKey: openaiKey });
-    await saveViralDrafts(supabase, user.id, "http", input, drafts);
+    await saveViralDrafts(supabase, user.id, "http", input, drafts, categoryId);
     revalidatePath("/threads-content-ops");
     return { ok: true, count: drafts.length };
   } catch (error) {
@@ -714,7 +728,7 @@ export async function collectViralFromUrl(rawUrl: string): Promise<CollectResult
 }
 
 /** 방식 2: Perplexity — 시드 주제로 최근 72시간 화제 이슈를 찾아 글감 후보를 만든다. */
-export async function collectViralFromPerplexity(rawTopic: string): Promise<CollectResult> {
+export async function collectViralFromPerplexity(rawTopic: string, categoryId?: string | null): Promise<CollectResult> {
   try {
     const topic = rawTopic.trim();
     if (!topic || topic.length > 200) throw new Error("주제를 1~200자로 입력해 주세요.");
@@ -728,7 +742,7 @@ export async function collectViralFromPerplexity(rawTopic: string): Promise<Coll
 
     const trendText = await searchPerplexityTrending(topic, perplexityKey);
     const drafts = await structureCandidates({ rawText: trendText, maxItems: 5, apiKey: openaiKey });
-    await saveViralDrafts(supabase, user.id, "perplexity", topic, drafts);
+    await saveViralDrafts(supabase, user.id, "perplexity", topic, drafts, categoryId);
     revalidatePath("/threads-content-ops");
     return { ok: true, count: drafts.length };
   } catch (error) {
@@ -788,6 +802,99 @@ export async function deleteViralCandidates(input: { ids: string[] | "all_unarch
   }
 }
 
+// 글감 카테고리 (v1.66) — naver-blog-agent 글감 수집소의 카테고리 등록·수정·삭제·순서·이동을 서버 저장 방식으로 이식.
+type CategoryResult = { ok: true } | { ok: false; error: string };
+const cleanCategoryName = (raw: unknown) => {
+  const name = String(raw ?? "").replace(/\s+/g, " ").trim();
+  if (!name || name.length > 20) throw new Error("카테고리 이름은 1~20자로 입력해 주세요.");
+  return name;
+};
+
+export async function createViralCategory(rawName: string): Promise<CategoryResult> {
+  try {
+    const name = cleanCategoryName(rawName);
+    const { supabase, user } = await authorizedUser();
+    const { data: rows } = await supabase.from("tco_viral_categories").select("name, sort_order").eq("user_id", user.id);
+    if ((rows?.length ?? 0) >= MAX_VIRAL_CATEGORIES) throw new Error(`카테고리는 최대 ${MAX_VIRAL_CATEGORIES}개까지 만들 수 있습니다.`);
+    if (rows?.some((row) => row.name.toLowerCase() === name.toLowerCase())) throw new Error("이미 같은 이름의 카테고리가 있습니다.");
+    const next = rows?.length ? Math.max(...rows.map((row) => row.sort_order)) + 1 : 1;
+    const { error } = await supabase.from("tco_viral_categories").insert({ user_id: user.id, name, sort_order: next });
+    if (error) throw new Error("카테고리를 만들지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "카테고리를 만들지 못했습니다.");
+  }
+}
+
+export async function renameViralCategory(input: { id: string; name: string }): Promise<CategoryResult> {
+  try {
+    const name = cleanCategoryName(input.name);
+    const { supabase, user } = await authorizedUser();
+    const id = await ownedViralCategoryId(supabase, user.id, input.id);
+    if (!id) throw new Error("카테고리를 찾지 못했습니다.");
+    const { data: rows } = await supabase.from("tco_viral_categories").select("id, name").eq("user_id", user.id);
+    if (rows?.some((row) => row.id !== id && row.name.toLowerCase() === name.toLowerCase())) throw new Error("이미 같은 이름의 다른 카테고리가 있습니다.");
+    const { error } = await supabase.from("tco_viral_categories").update({ name }).eq("id", id).eq("user_id", user.id);
+    if (error) throw new Error("카테고리 이름을 바꾸지 못했습니다.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "카테고리 이름을 바꾸지 못했습니다.");
+  }
+}
+
+/** 삭제하면 그 카테고리의 글감은 미분류(category_id null)로 남는다(글감은 지워지지 않음). */
+export async function deleteViralCategory(idRaw: string): Promise<CategoryResult> {
+  try {
+    const { supabase, user } = await authorizedUser();
+    const id = await ownedViralCategoryId(supabase, user.id, idRaw);
+    if (!id) throw new Error("카테고리를 찾지 못했습니다.");
+    const { error } = await supabase.from("tco_viral_categories").delete().eq("id", id).eq("user_id", user.id);
+    if (error) throw new Error("카테고리를 삭제하지 못했습니다.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "카테고리를 삭제하지 못했습니다.");
+  }
+}
+
+/** 화면에 보이는 순서대로 id 목록을 받아 sort_order를 다시 매긴다. */
+export async function reorderViralCategories(ids: string[]): Promise<CategoryResult> {
+  try {
+    if (!Array.isArray(ids) || !ids.length || ids.length > MAX_VIRAL_CATEGORIES || !ids.every((id) => typeof id === "string" && UUID_RE.test(id)) || new Set(ids).size !== ids.length) throw new Error("순서 정보가 올바르지 않습니다.");
+    const { supabase, user } = await authorizedUser();
+    const { data: rows } = await supabase.from("tco_viral_categories").select("id").eq("user_id", user.id);
+    const owned = new Set((rows ?? []).map((row) => row.id));
+    if (ids.length !== owned.size || !ids.every((id) => owned.has(id))) throw new Error("카테고리 목록이 바뀌었습니다. 새로고침 후 다시 시도해 주세요.");
+    for (let index = 0; index < ids.length; index += 1) {
+      const { error } = await supabase.from("tco_viral_categories").update({ sort_order: index + 1 }).eq("id", ids[index]).eq("user_id", user.id);
+      if (error) throw new Error("순서를 저장하지 못했습니다.");
+    }
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "순서를 바꾸지 못했습니다.");
+  }
+}
+
+/** 글감 이동(1건·여러 건 공통). categoryId가 null이면 미분류로 옮긴다. 보관 글감도 이동할 수 있다(삭제만 막힘). */
+export async function moveViralCandidates(input: { ids: string[]; categoryId: string | null }): Promise<{ ok: true; moved: number } | { ok: false; error: string }> {
+  try {
+    if (!Array.isArray(input.ids) || !input.ids.length || input.ids.length > MAX_VIRAL_PER_USER || !input.ids.every((id) => typeof id === "string" && UUID_RE.test(id))) throw new Error("이동할 글감을 선택해 주세요.");
+    const { supabase, user } = await authorizedUser();
+    const category = await ownedViralCategoryId(supabase, user.id, input.categoryId);
+    const { data, error } = await supabase.from("tco_viral_candidates")
+      .update({ category_id: category, updated_at: new Date().toISOString() })
+      .eq("user_id", user.id).in("id", input.ids).select("id");
+    if (error) throw new Error("글감을 이동하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true, moved: data?.length ?? 0 };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "글감을 이동하지 못했습니다." };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 유튜브 쇼츠 검색 (v1.37) — shorts-viral-studio의 검색을 옮겼다. 회원 본인의 YouTube Data API 키만 쓴다.
 // 검색 결과는 DB에 저장하지 않고, "글감으로 저장"(분석 후 글감 생성)을 누른 영상만 저장된다(아래 analyzeShortToViralCandidates).
@@ -821,7 +928,7 @@ export async function searchViralShorts(input: { query: string; dateFrom?: strin
  */
 type AnalyzeShortResult = { ok: true; count: number; evidence: "video" | "metadata"; note?: string } | { ok: false; error: string; needKey?: "openai" | "gemini" };
 
-export async function analyzeShortToViralCandidates(input: { id: string; title: string; channelName: string; views: number; subs: number | null; vsRatio: number | null; grade: string; publishedAt: string }): Promise<AnalyzeShortResult> {
+export async function analyzeShortToViralCandidates(input: { id: string; title: string; channelName: string; views: number; subs: number | null; vsRatio: number | null; grade: string; publishedAt: string; categoryId?: string | null }): Promise<AnalyzeShortResult> {
   try {
     if (!YOUTUBE_ID.test(input.id ?? "")) throw new Error("영상 정보가 올바르지 않습니다. 다시 검색해 주세요.");
     const title = String(input.title ?? "").trim().slice(0, 100);
@@ -846,7 +953,7 @@ export async function analyzeShortToViralCandidates(input: { id: string; title: 
     });
     const summary = [analysis.hook && `훅: ${analysis.hook}`, analysis.whyViral && `터진 이유: ${analysis.whyViral}`].filter(Boolean).join(" / ").slice(0, 400);
     const drafts = analysis.candidates.map((draft) => ({ ...draft, content: summary ? `${draft.content}\n\n[영상 분석] ${summary}` : draft.content }));
-    await saveViralDrafts(supabase, user.id, "http", sourceInput, drafts);
+    await saveViralDrafts(supabase, user.id, "http", sourceInput, drafts, input.categoryId);
     revalidatePath("/threads-content-ops");
     return { ok: true, count: drafts.length, evidence: analysis.evidence, note: analysis.note };
   } catch (error) {

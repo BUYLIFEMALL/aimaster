@@ -1,8 +1,13 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.65`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.66`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.66 글감 카테고리 (2026-10-07)
+
+- 주인님 지시: naver-blog-agent `/collector`의 카테고리 등록·수정·이동 기능을 떡상 콘텐츠 수집에 확장. **DB 변경(주인님 승인)**: `tco_viral_categories`(회원별, RLS owner-only, 이름 1~20자·회원당 최대 30개·대소문자 무시 중복 금지) 신설 + `tco_viral_candidates.category_id`(`on delete set null` → 카테고리를 지우면 글감은 삭제되지 않고 미분류). 마이그레이션 `20261007110000_tco_viral_categories.sql`(적용 완료). 네이버 쪽은 브라우저 localStorage 저장이지만 여기는 서버(회원별) 저장입니다.
+- 기능: ① `ViralCategoryManager.tsx` 관리 창 — 추가·이름 수정·삭제·▲▼ 순서 변경 ② 수집 박스의 "저장할 카테고리" 선택(주소·Perplexity·쇼츠 "글감으로 저장" 모두 적용) ③ 목록 위 카테고리 칩 필터(건수, 미분류) ④ 글감 카드별 이동 select, 선택 이동(일괄) — 보관 글감도 이동 가능, 삭제만 보관 제외 유지. 서버 액션: `createViralCategory`/`renameViralCategory`/`deleteViralCategory`/`reorderViralCategories`/`moveViralCandidates`(모두 본인 id만 허용, `ownedViralCategoryId`).
 
 ## v1.65 글감 카드 버튼 정리 (2026-10-07)
 
