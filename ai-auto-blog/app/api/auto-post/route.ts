@@ -36,6 +36,7 @@ interface SavePostParams {
   contentHtml: string
   readingMinutes: number
   categorySlugs: string[]
+  postId?: number
 }
 
 async function savePostToDatabase({
@@ -46,7 +47,34 @@ async function savePostToDatabase({
   contentHtml,
   readingMinutes,
   categorySlugs,
+  postId,
 }: SavePostParams) {
+  // 기존 게시글 업데이트 모드인 경우
+  if (postId && Number(postId) > 0) {
+    const { data: updatedPost, error: updateError } = await supabase
+      .from('blog_posts')
+      .update({
+        title,
+        excerpt,
+        content: contentHtml,
+        reading_minutes: readingMinutes,
+      })
+      .eq('id', Number(postId))
+      .eq('user_id', userId)
+      .select('id, title, published_at')
+      .single()
+
+    if (updateError || !updatedPost) {
+      console.error('[AutoPost API] DB update error:', updateError)
+      return {
+        error: `게시글 수정 저장 오류: ${updateError?.message || '알 수 없는 오류'}`,
+        details: updateError,
+      }
+    }
+
+    return { post: updatedPost }
+  }
+
   // 1. 저자 ID 확보 — 게시글은 이제 작성한 AIMaster 회원 본인 명의로 귀속된다
   let authorId: number
   const { data: ownAuthor } = await supabase
@@ -172,6 +200,7 @@ export async function POST(request: NextRequest) {
         contentHtml,
         readingMinutes,
         categorySlugs: requestCategorySlugs,
+        postId: body.postId ? Number(body.postId) : undefined,
       })
 
       if (saveResult.error || !saveResult.post) {
@@ -325,6 +354,16 @@ export async function POST(request: NextRequest) {
         postUrl,
         title: saveResult.post.title,
         excerpt: postData.excerpt,
+        contentMarkdown: postData.contentMarkdown,
+        contentHtml: postData.contentHtml,
+        readingMinutes: postData.readingMinutes,
+        categorySlug: postData.categorySlug,
+        categorySlugs: requestCategorySlugs,
+        coverImage: postData.coverImage,
+        sections: postData.sections,
+        cta: postData.cta,
+        hashtags: postData.hashtags,
+        topKeywords: newsData.topKeywords,
         topic: options.topic,
         collectedNewsCount: newsData.articles.length,
         signals: newsData.signals,

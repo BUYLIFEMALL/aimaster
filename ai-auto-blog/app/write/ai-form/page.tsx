@@ -7,11 +7,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import {
   Sparkles,
-  RefreshCw,
   Copy,
   Save,
   Send,
-  Check,
   CheckCircle2,
   AlertCircle,
   ArrowUp,
@@ -22,7 +20,6 @@ import {
   Maximize2,
   X,
   ImageIcon,
-  Layers,
   Eye,
   Download,
   Loader2,
@@ -32,6 +29,9 @@ import {
   Link as LinkIcon,
   ChevronRight,
   Folder,
+  RotateCcw,
+  Edit3,
+  BookOpen,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
@@ -43,10 +43,7 @@ import {
   DEFAULT_IMAGE_MODEL,
   IMAGE_COUNT_OPTIONS,
   IMAGE_MODEL_OPTIONS,
-  IMAGE_PROVIDER_LABEL,
   contentModelLabel,
-  findContentModel,
-  findImageModel,
   getContentModels,
   imageModelLabel,
   getDefaultContentModel,
@@ -107,15 +104,17 @@ export interface PostSection {
 }
 
 export interface DraftResultData {
-  title: string
-  excerpt: string
-  contentMarkdown: string
-  contentHtml: string
-  readingMinutes: number
-  categorySlug: string
-  topKeywords: string[]
+  postId?: number
+  postUrl?: string
+  title?: string
+  excerpt?: string
+  contentMarkdown?: string
+  contentHtml?: string
+  readingMinutes?: number
+  categorySlug?: string
+  categorySlugs?: string[]
   coverImage?: { url: string; caption?: string }
-  sections: PostSection[]
+  sections?: PostSection[]
   cta?: { text: string; url: string }
   hashtags?: string
 }
@@ -144,12 +143,12 @@ function AiFormPageInner() {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [categories, setCategories] = useState<CategoryOption[]>(DEFAULT_CATEGORIES)
 
-  // 1. 폼 입력 상태
+  // 폼 입력 상태
   const [categorySlugs, setCategorySlugs] = useState<string[]>(['architecture'])
   const [topic, setTopic] = useState(() => searchParams.get('topic') ?? '')
   const [tone, setTone] = useState('전문적')
   const [targetAudience, setTargetAudience] = useState('')
-  const [targetWordCount, setTargetWordCount] = useState(1000)
+  const [targetWordCount, setTargetWordCount] = useState(2000)
   const [keywordInput, setKeywordInput] = useState('')
   const [keywords, setKeywords] = useState<string[]>(() => {
     const raw = searchParams.get('keywords')
@@ -157,21 +156,16 @@ function AiFormPageInner() {
   })
   const [referenceUrls, setReferenceUrls] = useState<string[]>(['', '', ''])
 
-  // AI 모델 설정 상태
+  // AI 본문 및 이미지 설정
   const [imageModel, setImageModel] = useState<string>(DEFAULT_IMAGE_MODEL)
   const [imageCount, setImageCount] = useState<number>(DEFAULT_IMAGE_COUNT)
   const [contentProvider, setContentProvider] = useState<ContentProvider>(DEFAULT_CONTENT_PROVIDER)
   const [contentModel, setContentModel] = useState<string>(getDefaultContentModel(DEFAULT_CONTENT_PROVIDER))
 
-  // 마지막으로 고른 모델 기억
+  // 로컬 스토리지 모델 기억
   useEffect(() => {
     try {
-      const saved = JSON.parse(window.localStorage.getItem(MODEL_STORAGE_KEY) ?? 'null') as {
-        contentProvider?: unknown
-        contentModel?: unknown
-        imageModel?: unknown
-        imageCount?: unknown
-      } | null
+      const saved = JSON.parse(window.localStorage.getItem(MODEL_STORAGE_KEY) ?? 'null')
       if (saved && isContentProvider(saved.contentProvider)) {
         setContentProvider(saved.contentProvider)
         setContentModel(resolveContentModel(saved.contentProvider, saved.contentModel))
@@ -180,7 +174,6 @@ function AiFormPageInner() {
       if (saved?.imageCount) setImageCount(resolveImageCount(saved.imageCount))
     } catch {}
   }, [])
-
   useEffect(() => {
     try {
       window.localStorage.setItem(
@@ -190,16 +183,24 @@ function AiFormPageInner() {
     } catch {}
   }, [contentProvider, contentModel, imageModel, imageCount])
 
-  // 추천 링크 (CTA) 및 추가 지시사항
+  // CTA 및 추가 지시
   const [ctaText, setCtaText] = useState('추천링크')
   const [ctaUrl, setCtaUrl] = useState('')
   const [customPrompt, setCustomPrompt] = useState('')
 
+  // 로딩 & 상태 메시지
   const [loading, setLoading] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
 
-  // 2. 실시간 검토 & 블록 편집기 상태
+  // 생성 완료된 결과 상태
   const [draftResult, setDraftResult] = useState<DraftResultData | null>(null)
+  const [savedPostId, setSavedPostId] = useState<number | null>(null)
+  const [savedPostUrl, setSavedPostUrl] = useState<string | null>(null)
+
+  // 뷰어 모드: 'article' (완성본 블로그 뷰) | 'edit' (인라인 블록 빠른 편집)
+  const [viewMode, setViewMode] = useState<'article' | 'edit'>('article')
+
+  // 인라인 수정 상태
   const [draftTitle, setDraftTitle] = useState('')
   const [draftExcerpt, setDraftExcerpt] = useState('')
   const [draftCoverImage, setDraftCoverImage] = useState('')
@@ -208,16 +209,22 @@ function AiFormPageInner() {
   const [draftCtaUrl, setDraftCtaUrl] = useState('')
   const [draftHashtags, setDraftHashtags] = useState('')
 
+  // 수정사항 DB 저장 로딩
   const [isSaving, setIsSaving] = useState(false)
-  const [savedPostId, setSavedPostId] = useState<number | null>(null)
-  const [regeneratingCover, setRegeneratingCover] = useState(false)
-  const [regeneratingSectionId, setRegeneratingSectionId] = useState<string | null>(null)
-  const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+
+  // 네이버 크롬 확장 연동 상태
   const [handoffStatus, setHandoffStatus] = useState<string | null>(null)
   const [handoffLoading, setHandoffLoading] = useState(false)
 
-  const editorSectionRef = useRef<HTMLDivElement>(null)
+  // 이미지 모달 뷰어 상태
+  const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
+
+  // 이미지 개별 재생성 로딩
+  const [regeneratingCover, setRegeneratingCover] = useState(false)
+  const [regeneratingSectionId, setRegeneratingSectionId] = useState<string | null>(null)
+
+  const resultSectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!supabase) return
@@ -229,7 +236,6 @@ function AiFormPageInner() {
       setUserEmail(session?.user?.email ?? null)
     })
 
-    // DB에서 카테고리 목록 동적 로드
     supabase
       .from('blog_categories')
       .select('id, name, slug')
@@ -284,7 +290,7 @@ function AiFormPageInner() {
     })
   }
 
-  // 1단계 생성 요청 (미리보기 모드)
+  // ★ [원클릭 생성 & DB 즉시 등록]: 본문 + 이미지 생성 및 사이사이 배치 후 DB에 한번에 저장
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!topic.trim()) {
@@ -294,9 +300,11 @@ function AiFormPageInner() {
 
     try {
       setLoading(true)
-      setStatusMsg(`AI 모델이 트렌드를 분석하고 본문 및 ${imageCount}장의 AI 이미지를 생성하고 있습니다...`)
+      setStatusMsg(`실시간 뉴스/트렌드 분석 ➔ AI 본문 생성 ➔ ${imageCount}장의 고화질 이미지 생성 ➔ 본문 사이사이 배치 ➔ 블로그 자동 등록을 한 번에 진행하고 있습니다...`)
       setSavedPostId(null)
+      setSavedPostUrl(null)
       setHandoffStatus(null)
+      setViewMode('article') // 기본 완성본 뷰
 
       const validUrls = referenceUrls.map((u) => normalizeUrl(u)).filter((u) => u.length > 0)
 
@@ -313,7 +321,6 @@ function AiFormPageInner() {
         contentModel,
         imageModel,
         imageCount,
-        previewOnly: true, // DB 즉시 저장이 아닌 실시간 검토 & 편집 모드로 수신
         cta: ctaText.trim() || ctaUrl.trim()
           ? {
               text: ctaText.trim() || '자세히 보기',
@@ -341,21 +348,27 @@ function AiFormPageInner() {
         throw new Error(data.error || 'AI 포스팅 생성에 실패했습니다.')
       }
 
-      const draft: DraftResultData = data.data
-      setDraftResult(draft)
-      setDraftTitle(draft.title || topic.trim())
-      setDraftExcerpt(draft.excerpt || '')
-      setDraftCoverImage(draft.coverImage?.url || '')
-      setDraftSections(draft.sections && draft.sections.length > 0 ? draft.sections : [
-        { id: 'sec-1', heading: '주요 개요 및 핵심 분석', body: draft.contentMarkdown || '' }
-      ])
-      setDraftCtaText(draft.cta?.text || ctaText || '자세히 보기')
-      setDraftCtaUrl(draft.cta?.url || ctaUrl || '')
-      setDraftHashtags(draft.hashtags || '')
+      const result: DraftResultData = data.data
+      setDraftResult(result)
+      const createdId = result.postId || data.postId
+      if (createdId) {
+        setSavedPostId(createdId)
+        setSavedPostUrl(result.postUrl || `/posts/${createdId}`)
+      }
 
-      // 결과 편집 섹션으로 스크롤 이동
+      setDraftTitle(result.title || topic.trim())
+      setDraftExcerpt(result.excerpt || '')
+      setDraftCoverImage(result.coverImage?.url || '')
+      setDraftSections(result.sections && result.sections.length > 0 ? result.sections : [
+        { id: 'sec-1', heading: '주요 개요 및 핵심 분석', body: result.contentMarkdown || '' }
+      ])
+      setDraftCtaText(result.cta?.text || ctaText || '자세히 보기')
+      setDraftCtaUrl(result.cta?.url || ctaUrl || '')
+      setDraftHashtags(result.hashtags || '')
+
+      // 결과 섹션으로 스크롤 이동
       setTimeout(() => {
-        const el = document.getElementById('editor-section')
+        const el = document.getElementById('result-section')
         if (el) el.scrollIntoView({ behavior: 'smooth' })
       }, 150)
     } catch (err: any) {
@@ -367,7 +380,7 @@ function AiFormPageInner() {
     }
   }
 
-  // 문단 블록 편집 핸들러
+  // 문단 블록 인라인 수정 핸들러
   const handleUpdateSection = (id: string, field: 'heading' | 'body', value: string) => {
     setDraftSections((prev) =>
       prev.map((sec) => (sec.id === id ? { ...sec, [field]: value } : sec))
@@ -412,7 +425,7 @@ function AiFormPageInner() {
     )
   }
 
-  // 대표 이미지 다시 생성
+  // 대표 이미지 재생성
   const handleRegenerateCoverImage = async () => {
     if (regeneratingCover) return
     setRegeneratingCover(true)
@@ -433,7 +446,7 @@ function AiFormPageInner() {
     }
   }
 
-  // 문단 이미지 다시 생성
+  // 문단 이미지 재생성
   const handleRegenerateSectionImage = async (sec: PostSection) => {
     if (regeneratingSectionId) return
     setRegeneratingSectionId(sec.id)
@@ -450,261 +463,275 @@ function AiFormPageInner() {
         prev.map((item) => (item.id === sec.id ? { ...item, imageUrl: data.url } : item))
       )
     } catch (err: any) {
-      alert(err.message || '문단 이미지 생성 중 오류가 발생했습니다.')
+      alert(err.message || '문단 이미지 재생성 중 오류가 발생했습니다.')
     } finally {
       setRegeneratingSectionId(null)
     }
   }
 
-  // 현재 편집된 상태를 단일 마크다운으로 재조립
+  // 조립된 마크다운 빌더
   const buildCurrentMarkdown = () => {
-    const coverLine = draftCoverImage ? `![${draftTitle} 대표 비주얼](${draftCoverImage})` : ''
-    const sectionsText = draftSections
-      .map((sec) => {
-        const imgLine = sec.imageUrl ? `![${sec.heading} 비주얼](${sec.imageUrl})` : ''
-        return [`## ${sec.heading}`, imgLine, sec.body].filter(Boolean).join('\n\n')
-      })
-      .join('\n\n')
-
-    const ctaBlock =
-      draftCtaText && draftCtaUrl
-        ? `---\n\n> [👉 ${draftCtaText} 바로가기](${normalizeUrl(draftCtaUrl)})\n`
-        : ''
-
-    const hashtagsBlock = draftHashtags ? `---\n\n${draftHashtags}` : ''
-
-    return `
-> ${draftExcerpt}
-
-${coverLine}
-
-${sectionsText}
-
-${ctaBlock}
-
-${hashtagsBlock}
-`.trim()
+    const parts: string[] = []
+    if (draftExcerpt.trim()) {
+      parts.push(`> ${draftExcerpt.trim()}`)
+    }
+    if (draftCoverImage) {
+      parts.push(`![${draftTitle} 대표 비주얼](${draftCoverImage})`)
+    }
+    draftSections.forEach((sec) => {
+      const sectionLines: string[] = []
+      if (sec.heading.trim()) sectionLines.push(`## ${sec.heading.trim()}`)
+      if (sec.imageUrl) sectionLines.push(`![${sec.heading} 비주얼](${sec.imageUrl})`)
+      if (sec.body.trim()) sectionLines.push(sec.body.trim())
+      if (sectionLines.length > 0) parts.push(sectionLines.join('\n\n'))
+    })
+    if (draftCtaText.trim() && draftCtaUrl.trim()) {
+      parts.push(`---\n\n> [👉 ${draftCtaText.trim()} 바로가기](${normalizeUrl(draftCtaUrl)})`)
+    }
+    if (draftHashtags.trim()) {
+      parts.push(`---\n\n${draftHashtags.trim()}`)
+    }
+    return parts.join('\n\n')
   }
 
-  // 최종 DB 저장
-  const handleSaveFinalPost = async () => {
+  // 인라인 수정 사항 DB 저장/업데이트
+  const handleSaveUpdatedPost = async () => {
     if (!draftTitle.trim()) {
       alert('게시글 제목을 입력해주세요.')
       return
     }
-    setIsSaving(true)
     try {
-      const markdown = buildCurrentMarkdown()
+      setIsSaving(true)
+      const compiledMarkdown = buildCurrentMarkdown()
+      const payload = {
+        saveOnly: true,
+        mode: 'save',
+        postId: savedPostId || undefined,
+        title: draftTitle.trim(),
+        excerpt: draftExcerpt.trim(),
+        contentMarkdown: compiledMarkdown,
+        category_slugs: categorySlugs,
+      }
+
       const res = await fetch('/api/auto-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          saveOnly: true,
-          title: draftTitle.trim(),
-          excerpt: draftExcerpt.trim(),
-          contentMarkdown: markdown,
-          category_slugs: categorySlugs,
-        }),
+        body: JSON.stringify(payload),
       })
       const data = await res.json()
       if (!res.ok || !data.success) {
-        throw new Error(data.error || '게시글 저장에 실패했습니다.')
+        throw new Error(data.error || '게시글 수정 저장에 실패했습니다.')
       }
 
-      const newPostId = data.data?.postId
-      setSavedPostId(newPostId)
-      if (
-        window.confirm(
-          '게시글이 성공적으로 등록되었습니다!\n\n작성된 게시글 상세 페이지로 지금 이동할까요?'
-        )
-      ) {
-        router.push(`${getBlogBasePath()}/posts/${newPostId}`)
+      const updatedId = data.data?.postId || savedPostId
+      if (updatedId) {
+        setSavedPostId(updatedId)
+        setSavedPostUrl(`/posts/${updatedId}`)
       }
+      alert('✅ 수정사항이 블로그 데이터베이스에 안전하게 반영되었습니다!')
+      setViewMode('article') // 저장 후 완성본 뷰로 전환
     } catch (err: any) {
+      console.error('[Update Save Error]:', err)
       alert(err.message || '저장 중 오류가 발생했습니다.')
     } finally {
       setIsSaving(false)
     }
   }
 
-  // 전체 복사
+  // 원고 클립보드 복사
   const handleCopyContent = async () => {
-    const markdown = buildCurrentMarkdown()
-    const fullText = `${draftTitle}\n\n${markdown}`
     try {
+      const compiledMarkdown = buildCurrentMarkdown()
+      const fullText = `# ${draftTitle}\n\n${compiledMarkdown}`
       await navigator.clipboard.writeText(fullText)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setTimeout(() => setCopied(false), 2500)
     } catch {
-      alert('클립보드 복사에 실패했습니다.')
+      alert('클립보드 복사에 실패했습니다. 수동으로 복사해주세요.')
     }
   }
 
-  // 네이버 입력기(Chrome 확장)로 전송
+  // 크롬 확장 프로그램으로 스마트에디터 전송
   const handleSendToExtension = async () => {
-    let targetPostId = savedPostId
-    if (!targetPostId) {
-      if (
-        window.confirm(
-          '네이버 입력기로 전송하려면 먼저 게시글을 저장해야 합니다.\n지금 저장하고 전송할까요?'
-        )
-      ) {
-        setIsSaving(true)
-        try {
-          const markdown = buildCurrentMarkdown()
-          const res = await fetch('/api/auto-post', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              saveOnly: true,
-              title: draftTitle.trim(),
-              excerpt: draftExcerpt.trim(),
-              contentMarkdown: markdown,
-              category_slugs: categorySlugs,
-            }),
-          })
-          const data = await res.json()
-          if (!res.ok || !data.success) throw new Error(data.error || '게시글 저장 실패')
-          targetPostId = data.data?.postId
-          setSavedPostId(targetPostId)
-        } catch (err: any) {
-          alert(err.message || '저장 중 오류가 발생했습니다.')
-          setIsSaving(false)
-          return
-        } finally {
-          setIsSaving(false)
-        }
-      } else {
-        return
-      }
+    if (!savedPostId) {
+      alert('게시글 등록 정보를 확인할 수 없습니다.')
+      return
     }
-
-    if (!targetPostId) return
-    setHandoffLoading(true)
-    setHandoffStatus(null)
     try {
-      const res = await fetch(`/api/posts/${targetPostId}/extension-handoff`, {
+      setHandoffLoading(true)
+      setHandoffStatus('네이버 입력기 크롬 확장에 등록 중...')
+      const res = await fetch(`/api/posts/${savedPostId}/extension-handoff`, {
         method: 'POST',
       })
       const data = await res.json()
-      if (!res.ok || !data.success) throw new Error(data.error || '확장 전송 실패')
-      setHandoffStatus(
-        '✓ 네이버 입력기(Chrome 확장)로 성공적으로 전송되었습니다! Chrome 확장 사이드패널에서 선택 후 입력을 시작하세요.'
-      )
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || '크롬 확장 전달에 실패했습니다.')
+      }
+      setHandoffStatus('🧩 네이버 입력기 등록 완료! 네이버 블로그 스마트에디터 ONE 창에서 [글 입력 시작]을 눌러주세요.')
     } catch (err: any) {
-      setHandoffStatus(`⚠️ 전송 실패: ${err.message}`)
+      setHandoffStatus(`⚠️ 전달 오류: ${err.message}`)
     } finally {
       setHandoffLoading(false)
     }
   }
 
-  // 총 글자 수 실시간 계산
+  // 새 글 쓰기 (폼 초기화)
+  const handleResetForm = () => {
+    if (confirm('새 블로그 글을 작성하시겠습니까? 현재 결과 화면이 초기화됩니다.')) {
+      setDraftResult(null)
+      setSavedPostId(null)
+      setSavedPostUrl(null)
+      setHandoffStatus(null)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  // 글자 수 실시간 집계
   const currentTotalCharacters = draftSections.reduce(
-    (acc, sec) => acc + sec.heading.length + sec.body.length,
+    (acc, s) => acc + s.heading.length + s.body.length,
     draftTitle.length + draftExcerpt.length
   )
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans ai-form-container pb-20">
-      {/* 메인 헤더 및 기획 폼 */}
-      <main className="max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 space-y-10">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans ai-form-container">
+      {/* 상단 네비게이션 헤더 */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href={basePath ? `${basePath}/dashboard` : '/dashboard'}
+              className="text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
+            >
+              <span>← 대시보드</span>
+            </Link>
+            <span className="text-slate-300">|</span>
+            <span className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-blue-600" />
+              <span>AI 맞춤 자동 글쓰기</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {savedPostId && (
+              <a
+                href={savedPostUrl || `/posts/${savedPostId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold border border-blue-200 flex items-center gap-1 transition-colors"
+              >
+                <span>등록된 글 보기</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
+            <Link
+              href={basePath ? `${basePath}/settings` : '/settings'}
+              className="text-xs font-semibold text-slate-600 hover:text-blue-600 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              API키·플랫폼설정
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* 메인 워크스페이스 컨테이너 */}
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {/* ================================================================== */}
+        {/* [1단계] 블로그 생성 폼: 주제, 옵션, 모델, 이미지 장수 설정           */}
+        {/* ================================================================== */}
         <form
           onSubmit={handleSubmit}
           autoComplete="off"
-          className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl space-y-8"
+          className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6"
         >
           {/* 타이틀 헤더 */}
-          <div className="space-y-2 border-b border-slate-100 pb-6">
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                AI 블로그(원문) 스튜디오
-              </span>
-              <span className="text-xs text-slate-400">·</span>
-              <span className="text-xs text-slate-500 font-medium">실시간 본문 및 이미지 생성 & 블록 편집기</span>
+          <div className="space-y-1.5 border-b border-slate-100 pb-5">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <span>AI 맞춤 자동 블로그 생성</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-blue-100 text-blue-800">
+                  원클릭 본문+이미지 통합 완성
+                </span>
+              </h1>
+              {draftResult && (
+                <button
+                  type="button"
+                  onClick={handleResetForm}
+                  className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 font-semibold"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>새로 입력</span>
+                </button>
+              )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              AI 맞춤 자동 글쓰기 & 실시간 편집
-            </h1>
-            <p className="text-sm font-medium text-slate-500">
-              카테고리, 주제, AI 모델 및 이미지를 설정하시면 완성도 높은 본문과 이미지가 자동 생성되며, 생성 즉시 블록별로 편집하실 수 있습니다.
+            <p className="text-xs font-medium text-slate-500 leading-relaxed">
+              주제와 옵션을 지정하고 [AI 글 생성 시작] 버튼을 누르면, <strong>AI 본문 텍스트와 1~5장의 고화질 이미지가 사이사이에 자동 배치</strong>된 완성본 포스트가 즉시 데이터베이스에 등록됩니다.
             </p>
           </div>
 
-          {/* [상단] 1. 카테고리 복수 선택 섹션 */}
-          <div className="space-y-3 bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                <Folder className="w-4 h-4 text-blue-600" />
-                <span>포스팅 카테고리 선택 (복수 선택 가능)</span>
-              </label>
-              <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
-                {categorySlugs.length}개 선택됨
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2 pt-1">
+          {/* 1. 카테고리 다중 선택 바 */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+              <Folder className="w-3.5 h-3.5 text-blue-600" />
+              <span>포스팅 카테고리 (복수 선택 가능)</span>
+            </label>
+            <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => {
-                const isSelected = categorySlugs.includes(cat.slug)
+                const active = categorySlugs.includes(cat.slug)
                 return (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => handleToggleCategory(cat.slug)}
-                    className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105'
-                        : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      active
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    {isSelected && <span className="text-[10px]">✓</span>}
-                    <span>{cat.name}</span>
+                    {cat.name}
                   </button>
                 )
               })}
             </div>
           </div>
 
-          {/* 2. 글 주제 입력 */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                <FileText className="w-4 h-4 text-slate-600" />
-                <span>블로그 핵심 주제 <span className="text-red-500">*</span></span>
-              </label>
-              <span className="text-[11px] font-semibold text-slate-400">구체적일수록 높은 품질</span>
-            </div>
-
-            {/* 추천 예시 주제 칩 */}
-            <div className="flex flex-wrap gap-1.5 pb-1">
-              <span className="text-[11px] font-bold text-slate-400 self-center mr-1">추천 주제:</span>
-              {SUGGESTED_TOPICS.map((suggested, idx) => (
+          {/* 2. 주제 입력 & 추천 예시 칩 */}
+          <div className="space-y-2.5">
+            <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+              <span>블로그 핵심 주제 / 글감 *</span>
+              <span className="text-[11px] font-normal text-slate-400">네이버/구글 검색 최적화 반영</span>
+            </label>
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="예: 2026 직장인 생산성 2배 올리는 AI 자동화 툴 5선"
+              className="w-full p-4 rounded-2xl border border-slate-300 bg-white text-base font-extrabold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all shadow-xs"
+            />
+            {/* 추천 주제 칩 */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              <span className="text-[11px] font-bold text-slate-400">💡 추천 주제:</span>
+              {SUGGESTED_TOPICS.map((sTopic, idx) => (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => setTopic(suggested)}
-                  className="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 rounded-lg transition-colors border border-slate-200/60"
+                  onClick={() => setTopic(sTopic)}
+                  className="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 hover:border-blue-300 text-[11px] font-semibold text-slate-600 hover:text-blue-700 transition-colors"
                 >
-                  {suggested}
+                  {sTopic}
                 </button>
               ))}
             </div>
-
-            <textarea
-              rows={3}
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="예: 실무에서 바로 써먹는 2026 Next.js 16 최적화 꿀팁 7가지"
-              className="w-full p-4 rounded-2xl border-2 border-slate-200 focus:outline-none focus:border-blue-600 transition-colors text-sm font-bold text-slate-900 placeholder-slate-400 shadow-xs"
-            />
           </div>
 
           {/* 3. 톤 & 타깃 독자 & 목표 글자수 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50/50 p-5 rounded-2xl border border-slate-200/60">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50/60 p-4 rounded-2xl border border-slate-200/70">
+            <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">문체 및 어조 (Tone)</label>
               <select
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
-                className="w-full p-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
+                className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
               >
                 {TONE_OPTIONS.map((t) => (
                   <option key={t} value={t}>
@@ -714,18 +741,18 @@ ${hashtagsBlock}
               </select>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">주요 타깃 독자</label>
               <input
                 type="text"
                 value={targetAudience}
                 onChange={(e) => setTargetAudience(e.target.value)}
                 placeholder="예: 30대 IT 직장인, 주부, 초보 창업자"
-                className="w-full p-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
+                className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700">목표 글자수</label>
                 <span className="text-xs font-extrabold text-blue-600">{targetWordCount.toLocaleString()}자</span>
@@ -733,7 +760,7 @@ ${hashtagsBlock}
               <input
                 type="range"
                 min={800}
-                max={3000}
+                max={3500}
                 step={200}
                 value={targetWordCount}
                 onChange={(e) => setTargetWordCount(Number(e.target.value))}
@@ -743,22 +770,22 @@ ${hashtagsBlock}
           </div>
 
           {/* 4. 필수 키워드 & 참고 URL */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">포함할 핵심 키워드 (엔터로 추가)</label>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700">포함할 핵심 키워드 (선택, 엔터 추가)</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={keywordInput}
                   onChange={(e) => setKeywordInput(e.target.value)}
                   onKeyDown={handleKeywordKeyDown}
-                  placeholder="예: 성능최적화, 실무팁 (입력 후 Enter)"
-                  className="flex-1 p-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
+                  placeholder="예: 실무팁, 생산성, 가성비 (입력 후 Enter)"
+                  className="flex-1 p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddKeyword(keywordInput)}
-                  className="px-4 py-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-xs"
+                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-xs"
                 >
                   추가
                 </button>
@@ -768,7 +795,7 @@ ${hashtagsBlock}
                   {keywords.map((kw, idx) => (
                     <span
                       key={idx}
-                      className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200 flex items-center gap-1"
+                      className="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200 flex items-center gap-1"
                     >
                       #{kw}
                       <button
@@ -785,7 +812,7 @@ ${hashtagsBlock}
             </div>
 
             {/* 참고 URL (선택) */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">참고 URL / 벤치마킹 링크 (선택 3개)</label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {referenceUrls.map((url, idx) => (
@@ -804,11 +831,11 @@ ${hashtagsBlock}
             </div>
           </div>
 
-          {/* 5. AI 본문 및 이미지 생성 모델 설정 (SEO 스튜디오와 동일 구조) */}
+          {/* 5. AI 본문 및 이미지 생성 모델 설정 */}
           <div className="space-y-4 pt-2 border-t border-slate-100">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* 본문 생성 모델 카드 */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                     <span>🤖 본문 생성 AI 엔진</span>
@@ -851,7 +878,7 @@ ${hashtagsBlock}
               </div>
 
               {/* 이미지 생성 모델 카드 */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                     <span>🖼️ 이미지 생성 엔진</span>
@@ -883,7 +910,7 @@ ${hashtagsBlock}
                   </select>
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  문단별 핵심 내용을 분석하여 대표 및 본문 이미지를 분할 생성합니다.
+                  1번 대표 썸네일 및 문단 1~4 소제목 밑에 고르게 분할 삽입됩니다.
                 </p>
               </div>
             </div>
@@ -894,13 +921,13 @@ ${hashtagsBlock}
           {/* 6. 추천 링크 (CTA) & 지시사항 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">추천 버튼 문구 (CTA)</label>
+              <label className="text-xs font-bold text-slate-700">추천 버튼 문구 (CTA - 행동 유도)</label>
               <input
                 type="text"
                 value={ctaText}
                 onChange={(e) => setCtaText(e.target.value)}
                 placeholder="예: 무료 전자책 가이드 다운로드"
-                className="w-full p-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
+                className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
               />
             </div>
             <div className="space-y-1.5">
@@ -912,23 +939,23 @@ ${hashtagsBlock}
                 onChange={(e) => setCtaUrl(e.target.value)}
                 onBlur={(e) => setCtaUrl(normalizeUrl(e.target.value))}
                 placeholder="https://example.com/offer"
-                className="w-full p-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
+                className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-xs"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-700">추가 지시사항 (선택 프롬프트)</label>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700">추가 지시사항 (선택 커스텀 프롬프트)</label>
             <textarea
               rows={2}
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="꼭 다뤄야 할 내용, 피해야 할 내용 등 특별 요구사항"
+              placeholder="꼭 다뤄야 할 내용, 피해야 할 표현, 강조할 점 등 (선택)"
               className="w-full p-3 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800 focus:outline-none focus:border-blue-600 resize-none shadow-xs"
             />
           </div>
 
-          {/* 상태 메시지 */}
+          {/* 상태 메시지 게이지 */}
           {statusMsg && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs font-bold text-blue-700 flex items-center gap-2 animate-pulse">
               <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
@@ -936,7 +963,7 @@ ${hashtagsBlock}
             </div>
           )}
 
-          {/* 1단계 생성 시작 버튼 */}
+          {/* 블로그 생성 및 등록 버튼 */}
           <div className="pt-2">
             <button
               type="submit"
@@ -946,549 +973,497 @@ ${hashtagsBlock}
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin text-white" />
-                  <span>AI 글 & 이미지 생성 진행 중...</span>
+                  <span>AI 본문 + 이미지 동시 생성 및 블로그 자동 등록 중...</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
-                  <span>✨ AI 블로그 글 & 이미지 생성 시작</span>
+                  <span>✨ AI 블로그 포스트 생성 및 즉시 등록 (원클릭)</span>
                 </>
               )}
             </button>
           </div>
         </form>
 
-        {/* ------------------------------------------------------------------ */}
-        {/* [2단계] 생성된 블로그(원문) 검토 및 블록 편집기 (Content Block Editor) */}
-        {/* ------------------------------------------------------------------ */}
+        {/* ================================================================== */}
+        {/* [2단계] 생성 완료된 블로그 포스트 결과 화면 (Article Viewer & Actions) */}
+        {/* ================================================================== */}
         {draftResult && (
           <section
-            id="editor-section"
-            ref={editorSectionRef}
-            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl space-y-8 animate-fadeIn"
+            id="result-section"
+            ref={resultSectionRef}
+            className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6 animate-fadeIn"
           >
-            {/* 상단 컨트롤 & 상태 바 */}
+            {/* 상단 완료 배지 & 컨트롤 바 */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    생성 완료 · 검토 및 편집 모드
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="px-3 py-1 rounded-lg text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>블로그 등록 완료 #{savedPostId}</span>
                   </span>
-                  <span className="text-xs text-slate-400">·</span>
-                  <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md">
+                  <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md">
                     총 {currentTotalCharacters.toLocaleString()}자 (공백 포함)
                   </span>
-                  <span className="text-[11px] text-slate-400">
-                    (공백 제외 {draftSections.reduce((acc, s) => acc + s.heading.replace(/\s/g, '').length + s.body.replace(/\s/g, '').length, draftTitle.replace(/\s/g, '').length + draftExcerpt.replace(/\s/g, '').length).toLocaleString()}자)
+                  <span className="text-xs text-slate-400">·</span>
+                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>약 {draftResult.readingMinutes || 3}분 소요</span>
                   </span>
                 </div>
                 <p className="text-xs text-slate-500">
-                  생성된 제목, 요약, 문단과 이미지를 자유롭게 수정하고 순서를 변경할 수 있습니다.
+                  본문 사이사이에 이미지가 자동 배치된 완성본 포스트입니다. 원고 복사 또는 네이버 입력기로 바로 전송할 수 있습니다.
                 </p>
               </div>
 
-              {/* 우측 빠른 액션 버튼 */}
-              <div className="flex items-center gap-2">
+              {/* 뷰 모드 탭 토글: 완성본 뷰 vs 빠른 편집 */}
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
                 <button
                   type="button"
-                  onClick={handleCopyContent}
-                  className="px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition-colors shadow-xs"
+                  onClick={() => setViewMode('article')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    viewMode === 'article'
+                      ? 'bg-white text-blue-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
                 >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>{copied ? '복사 완료!' : '원고 복사'}</span>
+                  <Eye className="w-3.5 h-3.5 inline mr-1" />
+                  <span>완성본 미리보기</span>
                 </button>
                 <button
                   type="button"
-                  onClick={handleSaveFinalPost}
-                  disabled={isSaving}
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-colors disabled:opacity-50"
+                  onClick={() => setViewMode('edit')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    viewMode === 'edit'
+                      ? 'bg-white text-blue-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
                 >
-                  {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                  <span>{savedPostId ? '저장 완료 (다시 저장)' : '최종 발행 및 저장'}</span>
+                  <Edit3 className="w-3.5 h-3.5 inline mr-1" />
+                  <span>빠른 내용 수정</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 원클릭 빠른 액션 버튼 바 */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleCopyContent}
+                  className="px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs font-extrabold text-slate-800 flex items-center gap-1.5 shadow-xs transition-colors"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{copied ? '복사 완료!' : '📋 원고 전체 복사'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleSendToExtension}
                   disabled={handoffLoading}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-colors disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-extrabold text-white flex items-center gap-1.5 shadow-xs transition-colors disabled:opacity-50"
                 >
                   {handoffLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   <span>🧩 네이버 입력기 전송</span>
                 </button>
+                {savedPostId && (
+                  <a
+                    href={savedPostUrl || `/posts/${savedPostId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs font-bold text-blue-700 flex items-center gap-1 shadow-xs transition-colors"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>등록된 글 보기</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {savedPostId && (
+                  <Link
+                    href={`/posts/${savedPostId}/edit`}
+                    className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-xs font-bold text-slate-700 flex items-center gap-1 transition-colors"
+                  >
+                    <span>상세 에디터</span>
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={handleResetForm}
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-600 transition-colors"
+                >
+                  새 글 작성
+                </button>
               </div>
             </div>
 
-            {/* 네이버 입력기 상태 안내 */}
+            {/* 네이버 스마트에디터 확장 전송 알림 바 */}
             {handoffStatus && (
-              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800 flex items-center gap-2">
+              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>{handoffStatus}</span>
               </div>
             )}
 
-            {/* 1. 포스트 제목 편집 */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-blue-700 uppercase tracking-wide flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5" />
-                <span>블로그 포스트 제목 (클릭하여 수정)</span>
-              </label>
-              <input
-                type="text"
-                value={draftTitle}
-                onChange={(e) => setDraftTitle(e.target.value)}
-                className="w-full p-4 rounded-2xl border-2 border-slate-200 focus:border-blue-600 focus:outline-none text-lg sm:text-xl font-extrabold text-slate-900 shadow-xs"
-              />
-            </div>
-
-            {/* 2. 핵심 요약문 (Excerpt) 편집 */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5" />
-                <span>포스트 핵심 요약 인용문 (Excerpt)</span>
-              </label>
-              <textarea
-                rows={2}
-                value={draftExcerpt}
-                onChange={(e) => setDraftExcerpt(e.target.value)}
-                className="w-full p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-blue-600 focus:outline-none text-xs font-semibold text-slate-800 shadow-xs resize-none"
-              />
-            </div>
-
-            {/* 3. 대표 이미지 (Cover Image) 관리 카드 */}
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 pb-3">
-                <div className="space-y-0.5">
-                  <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <ImageIcon className="w-4 h-4 text-emerald-600" />
-                    <span>대표 비주얼 이미지 (Title Cover Image)</span>
+            {/* -------------------------------------------------------------- */}
+            {/* [모드 1] 완성본 블로그 뷰어 (실제 포스트 레이아웃)                   */}
+            {/* -------------------------------------------------------------- */}
+            {viewMode === 'article' && (
+              <article className="space-y-6 pt-2">
+                {/* 1. 포스트 메인 타이틀 */}
+                <div className="space-y-2 border-b border-slate-100 pb-4">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+                    {draftTitle}
+                  </h2>
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <span className="font-semibold text-blue-600">
+                      {categories.find((c) => categorySlugs.includes(c.slug))?.name || '블로그'}
+                    </span>
+                    <span>·</span>
+                    <span>{new Date().toLocaleDateString('ko-KR')}</span>
                   </div>
-                  <p className="text-[11px] text-slate-500">
-                    글 요약문 바로 아래 삽입되는 전체 대표 이미지입니다.
-                  </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* 2. 핵심 요약문 인용구 */}
+                {draftExcerpt && (
+                  <blockquote className="p-4 rounded-2xl bg-slate-50 border-l-4 border-blue-500 text-slate-700 text-sm font-semibold leading-relaxed italic">
+                    {draftExcerpt}
+                  </blockquote>
+                )}
+
+                {/* 3. 대표 썸네일 이미지 (선택한 1번 이미지) */}
+                {draftCoverImage && (
+                  <figure className="space-y-2 my-4">
+                    <div
+                      onClick={() => setViewingImageUrl(draftCoverImage)}
+                      className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 group cursor-zoom-in shadow-xs"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={draftCoverImage}
+                        alt={`${draftTitle} 대표 비주얼`}
+                        className="w-full max-h-[460px] object-cover group-hover:scale-[1.01] transition-transform duration-200"
+                      />
+                      <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 backdrop-blur-xs text-white text-[11px] font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        클릭하여 확대
+                      </div>
+                    </div>
+                    <figcaption className="text-center text-xs text-slate-400 font-medium">
+                      📷 {draftTitle} 대표 비주얼
+                    </figcaption>
+                  </figure>
+                )}
+
+                {/* 4. 본문 섹션들 (소제목 + 사이사이 이미지 + 본문 텍스트) */}
+                <div className="space-y-8 pt-2">
+                  {draftSections.map((sec, idx) => (
+                    <section key={sec.id} className="space-y-4">
+                      {/* 소제목 H2 */}
+                      <h3 className="text-xl font-extrabold text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">
+                        <span className="text-blue-600 font-black">0{idx + 1}.</span>
+                        <span>{sec.heading}</span>
+                      </h3>
+
+                      {/* 소제목 바로 밑에 삽입된 고화질 이미지 */}
+                      {sec.imageUrl && (
+                        <figure className="space-y-1.5 my-3">
+                          <div
+                            onClick={() => setViewingImageUrl(sec.imageUrl!)}
+                            className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 group cursor-zoom-in shadow-xs"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={sec.imageUrl}
+                              alt={`${sec.heading} 비주얼`}
+                              className="w-full max-h-[420px] object-cover group-hover:scale-[1.01] transition-transform duration-200"
+                            />
+                            <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 backdrop-blur-xs text-white text-[11px] font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                              클릭하여 확대
+                            </div>
+                          </div>
+                          <figcaption className="text-center text-xs text-slate-400 font-medium">
+                            📷 {sec.heading} 비주얼
+                          </figcaption>
+                        </figure>
+                      )}
+
+                      {/* 문단 본문 (가독성 높은 줄바꿈) */}
+                      <div className="text-slate-800 text-sm sm:text-base leading-relaxed whitespace-pre-line font-normal space-y-3">
+                        {sec.body}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+
+                {/* 5. 추천/홍보 링크 박스 (CTA) */}
+                {draftCtaText && draftCtaUrl && (
+                  <div className="p-5 rounded-2xl bg-blue-50/70 border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-3 my-6">
+                    <div className="space-y-0.5 text-center sm:text-left">
+                      <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">추천 링크</span>
+                      <p className="text-sm font-extrabold text-slate-900">{draftCtaText}</p>
+                    </div>
+                    <a
+                      href={normalizeUrl(draftCtaUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition-colors shrink-0"
+                    >
+                      자세히 보기 →
+                    </a>
+                  </div>
+                )}
+
+                {/* 6. 추천 해시태그 목록 */}
+                {draftHashtags && (
+                  <div className="pt-4 border-t border-slate-100">
+                    <span className="text-xs font-bold text-slate-400 block mb-2">SEO 해시태그:</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {draftHashtags.split(/\s+/).filter(Boolean).map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold"
+                        >
+                          {tag.startsWith('#') ? tag : `#${tag}`}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </article>
+            )}
+
+            {/* -------------------------------------------------------------- */}
+            {/* [모드 2] 빠른 내용 수정 모드 (소제목/본문/이미지 인라인 에디터)        */}
+            {/* -------------------------------------------------------------- */}
+            {viewMode === 'edit' && (
+              <div className="space-y-6 pt-2">
+                <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 font-semibold flex items-center justify-between">
+                  <span>💡 문단 내용을 수정한 후 하단의 [수정사항 DB 저장] 버튼을 누르면 즉시 데이터베이스에 반영됩니다.</span>
                   <button
                     type="button"
-                    onClick={handleRegenerateCoverImage}
-                    disabled={regeneratingCover}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors disabled:opacity-50"
+                    onClick={handleSaveUpdatedPost}
+                    disabled={isSaving}
+                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs disabled:opacity-50 shrink-0 ml-2"
                   >
-                    {regeneratingCover ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>생성 중...</span>
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        <span>대표 이미지 다시 생성</span>
-                      </>
-                    )}
+                    {isSaving ? '저장 중...' : '💾 수정사항 DB 저장'}
                   </button>
-                  {draftCoverImage && (
+                </div>
+
+                {/* 제목 수정 */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">포스트 제목</label>
+                  <input
+                    type="text"
+                    value={draftTitle}
+                    onChange={(e) => setDraftTitle(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-300 bg-white text-base font-extrabold text-slate-900 focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+
+                {/* 요약문 수정 */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">핵심 요약문</label>
+                  <textarea
+                    rows={2}
+                    value={draftExcerpt}
+                    onChange={(e) => setDraftExcerpt(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800 focus:outline-none focus:border-blue-600 resize-none"
+                  />
+                </div>
+
+                {/* 대표 이미지 카드 */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-800">대표 이미지 (썸네일)</span>
                     <button
                       type="button"
-                      onClick={() => setDraftCoverImage('')}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                      title="대표 이미지 제거"
+                      onClick={handleRegenerateCoverImage}
+                      disabled={regeneratingCover}
+                      className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 disabled:opacity-50"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {regeneratingCover ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                      <span>다시 생성</span>
                     </button>
+                  </div>
+                  {draftCoverImage ? (
+                    <div className="flex items-center gap-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={draftCoverImage}
+                        alt="대표 이미지"
+                        className="w-32 h-20 object-cover rounded-xl border border-slate-200 cursor-pointer"
+                        onClick={() => setViewingImageUrl(draftCoverImage)}
+                      />
+                      <div className="text-xs text-slate-500 space-y-1">
+                        <p className="font-semibold text-slate-700">대표 썸네일로 설정됨</p>
+                        <p className="text-[11px] text-slate-400">클릭하여 원본 크기 확인</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-slate-400 italic">이미지 없음</div>
                   )}
                 </div>
-              </div>
 
-              {draftCoverImage ? (
-                <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                  <div
-                    className="relative w-full sm:w-60 h-36 bg-slate-100 rounded-lg overflow-hidden cursor-pointer group shrink-0"
-                    onClick={() => setViewingImageUrl(draftCoverImage)}
-                  >
-                    <img
-                      src={draftCoverImage}
-                      alt={draftTitle}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                    />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="p-1.5 rounded-full bg-white/90 text-slate-800 shadow-md">
-                        <Maximize2 className="w-4 h-4" />
-                      </span>
-                    </div>
+                {/* 본문 문단 블록 리스트 */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-800">본문 문단 목록 ({draftSections.length}개)</span>
+                    <button
+                      type="button"
+                      onClick={handleAddSection}
+                      className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold border border-blue-200 flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>문단 추가</span>
+                    </button>
                   </div>
 
-                  <div className="flex-1 space-y-2 text-xs w-full">
-                    <div className="font-semibold text-slate-800">
-                      대표 이미지 저장 완료 (Supabase Storage)
-                    </div>
-                    <div className="text-[11px] font-mono text-slate-500 bg-slate-50 p-2 rounded truncate">
-                      {draftCoverImage}
-                    </div>
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(draftCoverImage)
-                          alert('대표 이미지 URL이 복사되었습니다!')
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium flex items-center gap-1"
-                      >
-                        <Copy className="w-3 h-3" />
-                        <span>URL 복사</span>
-                      </button>
-                      <a
-                        href={draftCoverImage}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download="blog-cover.png"
-                        className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium flex items-center gap-1"
-                      >
-                        <Download className="w-3 h-3" />
-                        <span>다운로드</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6 text-center rounded-xl border border-dashed border-slate-300 text-slate-400 text-xs">
-                  대표 이미지가 설정되어 있지 않습니다. 우측 [대표 이미지 다시 생성] 버튼을 눌러 생성할 수 있습니다.
-                </div>
-              )}
-            </div>
-
-            {/* 4. 본문 문단 블록 편집기 (Content Block Editor) */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="space-y-0.5">
-                  <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-blue-600" />
-                    <span>본문 문단 블록 편집기 ({draftSections.length}개 문단)</span>
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    문단별 소제목과 본문을 직접 편집하고, 위·아래 버튼으로 문단 순서를 재배치할 수 있습니다.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAddSection}
-                  className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold flex items-center gap-1 transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>문단 추가</span>
-                </button>
-              </div>
-
-              {/* 문단 카드 리스트 */}
-              <div className="space-y-5">
-                {draftSections.map((sec, idx) => (
-                  <div
-                    key={sec.id}
-                    className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-4 hover:border-slate-300 transition-colors"
-                  >
-                    {/* 블록 상단 툴바 */}
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 text-slate-700">
-                          문단 #{idx + 1}
-                        </span>
-                        <span className="text-[11px] text-slate-400">
-                          약 {sec.body.length.toLocaleString()}자
-                        </span>
+                  {draftSections.map((sec, idx) => (
+                    <div
+                      key={sec.id}
+                      className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-blue-600">문단 0{idx + 1}</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleMoveSection(idx, -1)}
+                            disabled={idx === 0}
+                            className="p-1 rounded text-slate-400 hover:text-slate-700 disabled:opacity-20"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveSection(idx, 1)}
+                            disabled={idx === draftSections.length - 1}
+                            className="p-1 rounded text-slate-400 hover:text-slate-700 disabled:opacity-20"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSection(sec.id)}
+                            className="p-1 rounded text-red-400 hover:text-red-700"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
 
-                      {/* 순서 이동 & 삭제 액션 */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => handleMoveSection(idx, -1)}
-                          disabled={idx === 0}
-                          className="p-1 rounded-md hover:bg-slate-100 text-slate-600 disabled:opacity-30 transition-colors"
-                          title="위로 이동"
-                        >
-                          <ArrowUp className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleMoveSection(idx, 1)}
-                          disabled={idx === draftSections.length - 1}
-                          className="p-1 rounded-md hover:bg-slate-100 text-slate-600 disabled:opacity-30 transition-colors"
-                          title="아래로 이동"
-                        >
-                          <ArrowDown className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteSection(sec.id)}
-                          className="p-1 rounded-md hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors ml-1"
-                          title="문단 삭제"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* 소제목 인풋 */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
-                        소제목 (H2)
-                      </label>
                       <input
                         type="text"
                         value={sec.heading}
                         onChange={(e) => handleUpdateSection(sec.id, 'heading', e.target.value)}
-                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-sm text-slate-900 focus:outline-none focus:border-blue-600 shadow-xs"
+                        placeholder="소제목을 입력하세요"
+                        className="w-full p-2.5 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 focus:outline-none focus:border-blue-600"
                       />
-                    </div>
 
-                    {/* 문단 전용 이미지 (있는 경우) */}
-                    {sec.imageUrl ? (
-                      <div className="flex flex-col sm:flex-row items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div
-                          className="relative w-full sm:w-44 h-28 bg-slate-200 rounded-lg overflow-hidden cursor-pointer group shrink-0"
-                          onClick={() => setViewingImageUrl(sec.imageUrl!)}
-                        >
-                          <img
-                            src={sec.imageUrl}
-                            alt={sec.heading}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                          />
-                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Maximize2 className="w-4 h-4 text-white" />
+                      {/* 문단 이미지 영역 */}
+                      <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                        {sec.imageUrl ? (
+                          <div className="flex items-center gap-3">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={sec.imageUrl}
+                              alt={sec.heading}
+                              className="w-16 h-10 object-cover rounded-lg border border-slate-200 cursor-pointer"
+                              onClick={() => setViewingImageUrl(sec.imageUrl!)}
+                            />
+                            <span className="text-xs text-slate-600 font-medium">삽입된 이미지</span>
                           </div>
-                        </div>
-
-                        <div className="flex-1 space-y-1.5 text-xs w-full">
-                          <div className="font-semibold text-slate-800">
-                            문단 #{idx + 1} 삽입 이미지
-                          </div>
-                          <div className="flex items-center gap-2 pt-1">
-                            <button
-                              type="button"
-                              onClick={() => handleRegenerateSectionImage(sec)}
-                              disabled={regeneratingSectionId === sec.id}
-                              className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-bold border border-blue-200 flex items-center gap-1 transition-colors disabled:opacity-50"
-                            >
-                              {regeneratingSectionId === sec.id ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                  <span>생성 중...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <RefreshCw className="w-3 h-3" />
-                                  <span>이 이미지만 다시 생성</span>
-                                </>
-                              )}
-                            </button>
+                        ) : (
+                          <span className="text-xs text-slate-400">이미지 없음</span>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleRegenerateSectionImage(sec)}
+                            disabled={regeneratingSectionId === sec.id}
+                            className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                          >
+                            {regeneratingSectionId === sec.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                            <span>{sec.imageUrl ? '다시 생성' : '이미지 생성'}</span>
+                          </button>
+                          {sec.imageUrl && (
                             <button
                               type="button"
                               onClick={() => handleRemoveSectionImage(sec.id)}
-                              className="p-1 rounded text-slate-400 hover:text-red-600 transition-colors"
-                              title="이미지 제거"
+                              className="text-xs text-red-500 hover:text-red-700"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              삭제
                             </button>
-                          </div>
+                          )}
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex items-center justify-between p-2.5 bg-slate-50/70 rounded-xl border border-dashed border-slate-200 text-[11px] text-slate-400">
-                        <span>이 문단에는 이미지가 삽입되어 있지 않습니다.</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRegenerateSectionImage(sec)}
-                          disabled={regeneratingSectionId === sec.id}
-                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 font-semibold border border-slate-200 flex items-center gap-1 transition-colors"
-                        >
-                          {regeneratingSectionId === sec.id ? (
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                          ) : (
-                            <ImageIcon className="w-3 h-3 text-emerald-600" />
-                          )}
-                          <span>AI 이미지 생성</span>
-                        </button>
-                      </div>
-                    )}
 
-                    {/* 본문 텍스트에어리어 */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
-                        문단 본문 내용
-                      </label>
                       <textarea
-                        rows={6}
+                        rows={4}
                         value={sec.body}
                         onChange={(e) => handleUpdateSection(sec.id, 'body', e.target.value)}
-                        className="w-full p-4 rounded-xl border border-slate-200 text-sm leading-relaxed text-slate-800 font-sans focus:outline-none focus:border-blue-600 shadow-inner"
+                        className="w-full p-3 rounded-xl border border-slate-300 text-xs font-normal text-slate-800 leading-relaxed focus:outline-none focus:border-blue-600"
                       />
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* 하단 문단 추가 버튼 */}
-              <div className="pt-2 text-center">
-                <button
-                  type="button"
-                  onClick={handleAddSection}
-                  className="px-5 py-2.5 rounded-2xl border-2 border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/50 text-slate-600 hover:text-blue-700 text-xs font-bold transition-all inline-flex items-center gap-1.5"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>새 본문 문단 추가하기</span>
-                </button>
-              </div>
-            </div>
-
-            {/* 5. CTA 및 태그 정보 */}
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                    <LinkIcon className="w-3.5 h-3.5 text-blue-600" />
-                    <span>추천 링크 (CTA) 버튼 문구</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={draftCtaText}
-                    onChange={(e) => setDraftCtaText(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">추천 대상 링크 URL</label>
-                  <input
-                    type="text"
-                    inputMode="url"
-                    value={draftCtaUrl}
-                    onChange={(e) => setDraftCtaUrl(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
-                  />
-                </div>
-              </div>
-
-              {/* 추천 해시태그 */}
-              {draftHashtags && (
-                <div className="space-y-1.5 pt-2 border-t border-slate-200/60">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                      <Tag className="w-3.5 h-3.5 text-blue-600" />
-                      <span>추천 SEO 태그</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(draftHashtags)
-                        alert('해시태그가 복사되었습니다!')
-                      }}
-                      className="text-[11px] text-blue-600 hover:underline font-semibold"
-                    >
-                      태그 복사
-                    </button>
-                  </div>
-                  <div className="text-xs font-semibold text-slate-700 bg-white p-3 rounded-xl border border-slate-200">
-                    {draftHashtags}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 6. 최종 액션 바 (하단 고정형 느낌의 완료 바) */}
-            <div className="p-6 rounded-2xl bg-slate-900 text-white space-y-4 shadow-xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <div className="text-sm font-extrabold text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-400" />
-                    <span>편집이 완료되었습니다!</span>
-                  </div>
-                  <p className="text-xs text-slate-400">
-                    블로그에 정식 저장하거나 크롬 확장 네이버 입력기로 바로 전송할 수 있습니다.
-                  </p>
+                  ))}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                {/* 하단 수정사항 저장 버튼 */}
+                <div className="pt-2">
                   <button
                     type="button"
-                    onClick={handleCopyContent}
-                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-1.5 transition-colors border border-slate-700"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>{copied ? '복사 완료!' : '전체 원고 복사'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSendToExtension}
-                    disabled={handoffLoading}
-                    className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white flex items-center gap-1.5 shadow-md transition-colors disabled:opacity-50"
-                  >
-                    {handoffLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                    <span>🧩 네이버 입력기 전송</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSaveFinalPost}
+                    onClick={handleSaveUpdatedPost}
                     disabled={isSaving}
-                    className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white flex items-center gap-1.5 shadow-md shadow-blue-500/30 transition-colors disabled:opacity-50"
+                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-sm rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2"
                   >
-                    {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                    <span>{savedPostId ? '저장 완료 (다시 저장)' : '🚀 최종 발행 및 블로그에 등록'}</span>
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    <span>💾 수정사항 블로그에 반영 및 저장</span>
                   </button>
                 </div>
               </div>
-
-              {savedPostId && (
-                <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 flex items-center justify-between">
-                  <span>게시글이 성공적으로 DB에 등록되었습니다! (ID #{savedPostId})</span>
-                  <Link
-                    href={`${getBlogBasePath()}/posts/${savedPostId}`}
-                    className="font-bold underline text-white hover:text-emerald-200"
-                  >
-                    게시글 상세 페이지 바로가기 →
-                  </Link>
-                </div>
-              )}
-            </div>
+            )}
           </section>
         )}
       </main>
 
-      {/* 이미지 크게 보기 모달 */}
+      {/* 이미지 고해상도 확대 모달 */}
       {viewingImageUrl && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-xs"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setViewingImageUrl(null)}
         >
           <div
-            className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col"
+            className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-3 bg-slate-900 text-white border-b border-slate-800">
-              <span className="text-xs font-medium text-slate-300">AI 이미지 고해상도 미리보기</span>
+            <div className="w-full p-4 flex items-center justify-between text-white border-b border-slate-800">
+              <span className="text-xs font-bold">📷 고화질 원본 이미지 뷰어</span>
               <div className="flex items-center gap-2">
                 <a
                   href={viewingImageUrl}
+                  download="blog-image.png"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 flex items-center gap-1 transition-colors"
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1"
                 >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>새 탭에서 열기</span>
+                  <Download className="w-4 h-4" />
                 </a>
                 <button
                   type="button"
                   onClick={() => setViewingImageUrl(null)}
-                  className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
-            <div className="p-4 flex items-center justify-center bg-black/40 overflow-auto">
+            <div className="p-2 overflow-auto max-h-[80vh] flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={viewingImageUrl}
-                alt="AI Blog Preview"
-                className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-lg"
+                alt="확대 이미지"
+                className="max-h-[75vh] w-auto object-contain rounded-xl"
               />
             </div>
           </div>

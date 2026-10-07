@@ -1,5 +1,23 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## AI 맞춤 자동 블로그 (ai-auto-blog v1.36, 2026-10-07)
+
+- **원클릭 본문+이미지 사이사이 자동 배치 & 완성본 통합 뷰어 구축 (v1.36)**:
+  - 배경: 주인님의 "여기 어떻게 텍스트와 이미지를 동시에 생성하는지 콘텐츠 생성 로직과 이미지를 사이사이 어떻게 넣는지 확인하고 블로그 생성 버튼 누르면 한번에 본문+이미지가 들어가는 구조로 만들어져야 해. 먼저 어떻게 만들어졌는지 구조와 프롬프트, 로직 분석후 다시 작업해" 요청에 따른 완성형 원클릭 개편.
+  - 파이프라인 분석: 실시간 뉴스 수집(`collector.ts`) ➔ SEO 본문 JSON 생성(`generator.ts`) ➔ 문단 묶음(`groupParagraphs`) 및 Gemini 2.5 Flash 핵심 문장 추출(`imageGenerator.ts`) ➔ NanoBanana/Gemini 실사 이미지 생성 및 Supabase Storage(`post-images`) 업로드 ➔ 소제목 바로 밑과 요약문 밑에 이미지 마크다운 조립(`imageLine`) ➔ HTML 변환(`mdLiteToHtml`) 구조 정밀 분석 보고 완료.
+  - 조치:
+    1) `ai-auto-blog/app/api/auto-post/route.ts`:
+       - [AI 글 생성 시작] 원클릭 호출 시 백엔드에서 텍스트 + 1~5장 실사 이미지 생성 + 본문 사이사이 마크다운/HTML 조립 + DB `blog_posts` 및 카테고리 매핑 등록을 단일 트랜잭션으로 한 번에 완료.
+       - 응답 시 `postId`, `postUrl`뿐 아니라 `contentMarkdown`, `contentHtml`, `coverImage`, `sections`, `hashtags`, `cta` 등 완성본 포스트 전체를 반환.
+       - `savePostToDatabase`에서 `postId` 전달 시 기존 게시글을 즉시 갱신(`update`)하도록 지원.
+    2) `ai-auto-blog/app/write/ai-form/page.tsx`:
+       - 폼 제출 시 원클릭 생성 & 즉시 DB 등록 파이프라인 연동.
+       - 생성 완료 시 쪼개진 폼이 아닌 **실제 블로그 포스팅처럼 이미지가 본문 사이사이에 완벽하게 배치된 완성본 포스트 뷰어(Article Viewer)**가 기본으로 즉시 펼쳐짐.
+       - 상단/하단 원클릭 퀵 액션: `[📋 원고 전체 복사]`, `[🧩 네이버 입력기 전송]`, `[📖 등록된 글 보기]`, `[✏️ 상세 에디터]`, `[🔄 새 글 작성]`.
+       - 인라인 빠른 내용 수정 탭: 필요 시 소제목/본문/이미지를 즉석에서 다듬고 `[💾 수정사항 DB 저장]`을 누르면 방금 등록된 글이 즉시 업데이트.
+    3) `utils/version.ts`, DB `programs.version` 및 마이그레이션 `0006_bump_version_v1_36.sql`을 `v1.36`으로 동기화.
+    4) Chrome 확장 최신 번들 `ai-auto-blog-extension-v1.36.zip` prebuild 자동 생성.
+
 ## AI 맞춤 자동 블로그 (ai-auto-blog v1.35, 2026-10-07)
 
 - **AI 맞춤 자동 글쓰기(/write/ai-form) 본문+이미지 실시간 생성 & 블록 편집기 전면 구축 (v1.35)**:
