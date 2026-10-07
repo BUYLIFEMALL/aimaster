@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
     // 1. URL 스크랩 글감 수집
     if (action === "url") {
-      const { url } = body;
+      const { url, targetCategory } = body;
       const rawUrl = String(url || "").trim();
       if (!rawUrl || rawUrl.length > 2000) {
         return NextResponse.json({ error: "주소를 올바르게 입력해 주세요." }, { status: 400 });
@@ -86,7 +86,12 @@ export async function POST(req: Request) {
         maxItems = 2;
       }
 
-      const drafts = await structureBlogCandidates({ rawText, maxItems, aiKeys });
+      const drafts = await structureBlogCandidates({
+        rawText,
+        maxItems,
+        aiKeys,
+        targetCategory: targetCategory ? String(targetCategory).trim() : undefined,
+      });
       const now = Date.now();
       const candidates: BlogViralCandidate[] = drafts.map((d, index) => ({
         id: `viral-url-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
@@ -106,7 +111,7 @@ export async function POST(req: Request) {
 
     // 2. Perplexity 실시간 화제 트렌드 검색
     if (action === "perplexity") {
-      const { topic } = body;
+      const { topic, targetCategory } = body;
       const rawTopic = String(topic || "").trim();
       if (!rawTopic || rawTopic.length > 200) {
         return NextResponse.json({ error: "검색 주제를 1~200자로 입력해 주세요." }, { status: 400 });
@@ -133,7 +138,12 @@ export async function POST(req: Request) {
       }
 
       const trendReport = await searchPerplexityTrending(rawTopic, perplexityKey);
-      const drafts = await structureBlogCandidates({ rawText: trendReport, maxItems: 4, aiKeys });
+      const drafts = await structureBlogCandidates({
+        rawText: trendReport,
+        maxItems: 4,
+        aiKeys,
+        targetCategory: targetCategory ? String(targetCategory).trim() : undefined,
+      });
       const now = Date.now();
       const candidates: BlogViralCandidate[] = drafts.map((d, index) => ({
         id: `viral-pplx-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,
@@ -180,9 +190,9 @@ export async function POST(req: Request) {
 
     // 4. 유튜브 쇼츠 분석 후 글감 생성
     if (action === "shorts_analyze") {
-      const { video } = body;
+      const { video, targetCategory } = body;
       if (!video || !video.id) {
-        return NextResponse.json({ error: "영상 정보가 올바르지 않습니다." }, { status: 400 });
+        return NextResponse.json({ error: "영상 정보가 올바르게 입력되지 않았습니다." }, { status: 400 });
       }
       if (!hasAnyAiKey) {
         return NextResponse.json(
@@ -199,7 +209,12 @@ export async function POST(req: Request) {
         ? await fetchShortContext(video.id, youtubeKey)
         : { description: "", comments: [] };
 
-      const analysis = await analyzeShortForBlog({ video, context: extraContext, aiKeys });
+      const analysis = await analyzeShortForBlog({
+        video,
+        context: extraContext,
+        aiKeys,
+        targetCategory: targetCategory ? String(targetCategory).trim() : undefined,
+      });
       const now = Date.now();
       const candidates: BlogViralCandidate[] = analysis.candidates.map((d, index) => ({
         id: `viral-shorts-${now}-${index}-${Math.random().toString(36).slice(2, 6)}`,

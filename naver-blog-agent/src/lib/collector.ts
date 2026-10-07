@@ -478,9 +478,13 @@ export async function structureBlogCandidates(params: {
   rawText: string;
   maxItems: number;
   aiKeys: { openai?: string | null; gemini?: string | null; anthropic?: string | null };
+  targetCategory?: string;
 }): Promise<BlogCandidateDraft[]> {
-  const { rawText, maxItems, aiKeys } = params;
-  const userContent = `아래 원본 자료를 바탕으로 네이버 블로그 글감 후보를 최대 ${maxItems}개 만들어주세요.\n\n<data>\n${rawText.slice(0, 14_000)}\n</data>`;
+  const { rawText, maxItems, aiKeys, targetCategory } = params;
+  const categoryInstruction = targetCategory
+    ? `\n- 반드시 지정된 카테고리인 "${targetCategory}"(으)로 분류되도록 최적화하여 작성하세요.`
+    : "";
+  const userContent = `아래 원본 자료를 바탕으로 네이버 블로그 글감 후보를 최대 ${maxItems}개 만들어주세요.${categoryInstruction}\n\n<data>\n${rawText.slice(0, 14_000)}\n</data>`;
 
   let rawJson = "";
 
@@ -539,7 +543,7 @@ export async function structureBlogCandidates(params: {
     .map((c) => ({
       title: c.title.trim().slice(0, 120),
       content: c.content.trim().slice(0, 800),
-      category: typeof c.category === "string" && c.category.trim() ? c.category.trim() : "일반",
+      category: targetCategory || (typeof c.category === "string" && c.category.trim() ? c.category.trim() : "생활/살림꿀팁"),
       keywords: Array.isArray(c.keywords)
         ? c.keywords.filter((k): k is string => typeof k === "string").map((k) => k.trim()).filter(Boolean).slice(0, 6)
         : [],
@@ -557,8 +561,9 @@ export async function analyzeShortForBlog(params: {
   video: { id: string; title: string; channelName: string; views: number; subs: number | null; vsRatio: number | null; grade: string };
   context: { description: string; comments: string[] };
   aiKeys: { openai?: string | null; gemini?: string | null; anthropic?: string | null };
+  targetCategory?: string;
 }): Promise<{ hook: string; whyViral: string; candidates: BlogCandidateDraft[] }> {
-  const { video, context, aiKeys } = params;
+  const { video, context, aiKeys, targetCategory } = params;
 
   const commentsSnippet = context.comments.length
     ? context.comments.slice(0, 10).map((c, i) => `  ${i + 1}. ${c.replace(/\s+/g, " ").slice(0, 120)}`).join("\n")
@@ -577,6 +582,7 @@ ${commentsSnippet}`;
     rawText,
     maxItems: 3,
     aiKeys,
+    targetCategory,
   });
 
   return {

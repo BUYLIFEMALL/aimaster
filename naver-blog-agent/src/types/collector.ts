@@ -11,6 +11,22 @@ export interface BlogViralCandidate {
   created_at: string;
 }
 
+export interface CollectorCategory {
+  id: string;
+  name: string;
+  slug: string;
+  sort_order: number;
+}
+
+export const DEFAULT_COLLECTOR_CATEGORIES: CollectorCategory[] = [
+  { id: "cat-life", name: "생활/살림꿀팁", slug: "life-tips", sort_order: 1 },
+  { id: "cat-living", name: "자취/원룸생활", slug: "single-living", sort_order: 2 },
+  { id: "cat-tech", name: "IT/테크리뷰", slug: "tech-review", sort_order: 3 },
+  { id: "cat-finance", name: "재테크/정부지원금", slug: "finance-subsidy", sort_order: 4 },
+  { id: "cat-travel", name: "국내여행/맛집", slug: "travel-food", sort_order: 5 },
+  { id: "cat-shopping", name: "쇼핑/가성비추천", slug: "shopping-deals", sort_order: 6 },
+];
+
 export type ShortsOrder = "relevance" | "viewCount" | "date";
 export type ShortsGrade = "초대박" | "대박" | "떡상" | "양호" | "보통" | "판정불가";
 

@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.11, 2026-10-07)
+
+- **글감 수집소(/collector) 카테고리 관리/이동 시스템 구축 (ai-auto-blog 스타일 이식) (v1.11)**:
+  - 배경: 주인이 `ai-auto-blog-one.vercel.app/candidates`의 카테고리 추가/수정/삭제, 순서 이동(▲▼), 글감 수집 시 카테고리 지정, 특정 글감의 카테고리 이동 기능을 `naver-blog-agent`의 `/collector`에 동일하게 확장 구현 요청.
+  - 조치:
+    1) `src/types/collector.ts`:
+       - `CollectorCategory` 인터페이스 및 `DEFAULT_COLLECTOR_CATEGORIES` (기본 6종) 선언.
+    2) `src/lib/collector.ts` & `src/app/api/collector/route.ts`:
+       - `structureBlogCandidates` 및 `analyzeShortForBlog`에 `targetCategory?: string` 파라미터 추가.
+       - URL 스크랩, Perplexity 72h 핫이슈, 유튜브 쇼츠 분석 시 지정된 카테고리를 프롬프트에 주입하고 결과 객체에 우선 매핑.
+    3) `src/components/collector/CategoryManagementModal.tsx`:
+       - 카테고리 관리 모달 신설 (새 카테고리 추가, 인라인 수정, 안전 삭제, ▲/▼ 순서 이동).
+    4) `src/app/(dashboard)/collector/page.tsx`:
+       - 상단 `[🗂 글감 수집 카테고리 관리]` 섹션 탑재 (순서 번호 및 건수 실시간 칩 표시).
+       - 3대 수집 탭에 `[📁 수집할 카테고리]` 선택 드롭다운 탑재.
+       - 수집 보관함 상단에 실시간 카테고리별 건수 칩 및 원클릭 분류 필터 탭 제공.
+       - 체크박스 선택 시 일괄 카테고리 이동 바(`[이동할 카테고리] ➔ [선택 이동]`) 및 개별 글감 카드 내 1초 원클릭 카테고리 변경 셀렉트(`변경 ▼`) 탑재.
+       - 카테고리 삭제 시 기존 글감은 '미분류'로 자동 안전 전환.
+    5) `src/lib/version.ts`, DB `programs.version` 및 마이그레이션 `0011_nba_bump_version_v1_11.sql`을 `v1.11`로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.10, 2026-10-07)
 
 - **사이드바 메뉴 순서 개편: 글감 수집 최상단 배치 (v1.10)**:

@@ -21,9 +21,14 @@ import {
   Check,
   ChevronRight,
   TrendingUp,
+  Folder,
+  FolderInput,
+  Settings2,
+  ArrowRightLeft,
 } from "lucide-react";
-import type { BlogViralCandidate, ShortVideo, ShortsOrder } from "@/types/collector";
-import { INITIAL_SAMPLE_CANDIDATES } from "@/types/collector";
+import type { BlogViralCandidate, ShortVideo, ShortsOrder, CollectorCategory } from "@/types/collector";
+import { INITIAL_SAMPLE_CANDIDATES, DEFAULT_COLLECTOR_CATEGORIES } from "@/types/collector";
+import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 
 const STATUS_MAP: Record<string, { label: string; tone: string }> = {
   ready: { label: "사용 가능", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" },
@@ -61,6 +66,17 @@ export default function CollectorPage() {
   const [candidates, setCandidates] = useState<BlogViralCandidate[]>([]);
   const [mounted, setMounted] = useState(false);
 
+  // 카테고리 관리 상태
+  const [categories, setCategories] = useState<CollectorCategory[]>([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+
+  // 수집 시 저장할 카테고리 선택
+  const [collectCategory, setCollectCategory] = useState<string>("");
+
+  // 선택한 글감 카테고리 일괄 이동 상태
+  const [bulkMoveCategory, setBulkMoveCategory] = useState<string>("");
+
   // 수집 탭 및 입력값
   const [activeTab, setActiveTab] = useState<"url" | "perplexity" | "shorts">("url");
   const [urlInput, setUrlInput] = useState("");
@@ -82,12 +98,32 @@ export default function CollectorPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string; needKey?: boolean } | null>(null);
 
-  // 글감 필터 & 선택
+  // 글감 상태 필터 & 체크박스 선택
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [checkedIds, setCheckedIds] = useState<string[]>([]);
 
-  // 1. LocalStorage 로드
+  // 1. LocalStorage 로드 (글감 및 카테고리)
   useEffect(() => {
+    // 1-1. 카테고리 로드
+    try {
+      const savedCats = localStorage.getItem("nba_collector_categories");
+      if (savedCats) {
+        const parsed = JSON.parse(savedCats);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCategories(parsed);
+        } else {
+          setCategories(DEFAULT_COLLECTOR_CATEGORIES);
+          localStorage.setItem("nba_collector_categories", JSON.stringify(DEFAULT_COLLECTOR_CATEGORIES));
+        }
+      } else {
+        setCategories(DEFAULT_COLLECTOR_CATEGORIES);
+        localStorage.setItem("nba_collector_categories", JSON.stringify(DEFAULT_COLLECTOR_CATEGORIES));
+      }
+    } catch {
+      setCategories(DEFAULT_COLLECTOR_CATEGORIES);
+    }
+
+    // 1-2. 글감 로드
     try {
       const saved = localStorage.getItem("nba_viral_candidates");
       if (saved) {
@@ -98,7 +134,6 @@ export default function CollectorPage() {
           return;
         }
       }
-      // 초기 기본 글감 제공
       setCandidates(INITIAL_SAMPLE_CANDIDATES);
       localStorage.setItem("nba_viral_candidates", JSON.stringify(INITIAL_SAMPLE_CANDIDATES));
     } catch {
@@ -118,13 +153,65 @@ export default function CollectorPage() {
     }
   };
 
-  // 통계 집계
-  const countOf = (st: string) => candidates.filter((c) => c.status === st).length;
-  const visibleCandidates = useMemo(() => {
-    return candidates.filter((c) => statusFilter === "all" || c.status === statusFilter);
-  }, [candidates, statusFilter]);
+  // 3. 카테고리 저장 헬퍼
+  const persistCategories = (updated: CollectorCategory[]) => {
+    setCategories(updated);
+    try {
+      localStorage.setItem("nba_collector_categories", JSON.stringify(updated));
+    } catch (e) {
+      console.error("Failed to save categories to local storage:", e);
+    }
+  };
 
-  // 보관 아닌 삭제 가능 글감
+  // 4. 카테고리 삭제 시 기존 글감 미분류 전환
+  const handleCategoryDeleted = (deletedName: string) => {
+    const updated = candidates.map((c) =>
+      c.category === deletedName ? { ...c, category: "미분류" } : c
+    );
+    persistCandidates(updated);
+    setMessage({
+      type: "success",
+      text: `"${deletedName}" 카테고리가 삭제되었으며, 기존 글감은 '미분류'로 안전하게 재분류되었습니다.`,
+    });
+  };
+
+  // 5. 통계 집계
+  const countOf = (st: string) => candidates.filter((c) => c.status === st).length;
+
+  // 카테고리별 글감 수 집계
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const cat of categories) {
+      counts[cat.name] = 0;
+    }
+    let uncategorized = 0;
+    for (const c of candidates) {
+      if (counts[c.category] !== undefined) {
+        counts[c.category] += 1;
+      } else {
+        uncategorized += 1;
+      }
+    }
+    return { counts, uncategorized };
+  }, [categories, candidates]);
+
+  // 필터링된 글감 목록 (상태 필터 + 카테고리 필터)
+  const visibleCandidates = useMemo(() => {
+    return candidates.filter((c) => {
+      // 상태 필터
+      if (statusFilter !== "all" && c.status !== statusFilter) return false;
+      // 카테고리 필터
+      if (categoryFilter !== "all") {
+        if (categoryFilter === "uncategorized") {
+          return !categories.some((cat) => cat.name === c.category);
+        }
+        if (c.category !== categoryFilter) return false;
+      }
+      return true;
+    });
+  }, [candidates, statusFilter, categoryFilter, categories]);
+
+  // 삭제 가능한 글감 (보관 제외)
   const deletable = visibleCandidates.filter((c) => c.status !== "archived");
   const checkedDeletable = checkedIds.filter((id) => deletable.some((c) => c.id === id));
   const unarchivedCount = candidates.filter((c) => c.status !== "archived").length;
@@ -132,6 +219,34 @@ export default function CollectorPage() {
   // 체크박스 토글
   const toggleCheck = (id: string) => {
     setCheckedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+  };
+
+  // 특정 글감 1건의 카테고리 변경
+  const handleMoveSingleCandidate = (candidateId: string, newCategory: string) => {
+    if (!newCategory) return;
+    const updated = candidates.map((c) =>
+      c.id === candidateId ? { ...c, category: newCategory } : c
+    );
+    persistCandidates(updated);
+    setMessage({
+      type: "success",
+      text: `글감 카테고리를 "${newCategory}"(으)로 변경했습니다.`,
+    });
+  };
+
+  // 선택한 글감 일괄 카테고리 이동
+  const handleBulkMoveCategory = () => {
+    if (!checkedIds.length || !bulkMoveCategory) return;
+    const updated = candidates.map((c) =>
+      checkedIds.includes(c.id) ? { ...c, category: bulkMoveCategory } : c
+    );
+    persistCandidates(updated);
+    const count = checkedIds.length;
+    setCheckedIds([]);
+    setMessage({
+      type: "success",
+      text: `선택한 ${count}건의 글감을 "${bulkMoveCategory}" 카테고리로 성공적으로 이동했습니다.`,
+    });
   };
 
   // URL 스크랩 수집 실행
@@ -145,7 +260,11 @@ export default function CollectorPage() {
       const res = await fetch("/api/collector", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "url", url: urlInput.trim() }),
+        body: JSON.stringify({
+          action: "url",
+          url: urlInput.trim(),
+          targetCategory: collectCategory || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -158,7 +277,7 @@ export default function CollectorPage() {
       setUrlInput("");
       setMessage({
         type: "success",
-        text: `웹 페이지에서 블로그 글감 ${newItems.length}건을 성공적으로 발굴·생성했습니다.`,
+        text: `웹 페이지에서 블로그 글감 ${newItems.length}건을 성공적으로 발굴·생성했습니다. (카테고리: ${collectCategory || "AI 자동 판정"})`,
       });
     } catch (err: any) {
       setMessage({ type: "error", text: "수집 요청 오류: " + err.message });
@@ -178,7 +297,11 @@ export default function CollectorPage() {
       const res = await fetch("/api/collector", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "perplexity", topic: topicInput.trim() }),
+        body: JSON.stringify({
+          action: "perplexity",
+          topic: topicInput.trim(),
+          targetCategory: collectCategory || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -191,7 +314,7 @@ export default function CollectorPage() {
       setTopicInput("");
       setMessage({
         type: "success",
-        text: `최근 72시간 화제 이슈에서 네이버 블로그 글감 ${newItems.length}건을 수집했습니다.`,
+        text: `최근 72시간 화제 이슈에서 네이버 블로그 글감 ${newItems.length}건을 수집했습니다. (카테고리: ${collectCategory || "AI 자동 판정"})`,
       });
     } catch (err: any) {
       setMessage({ type: "error", text: "화제 검색 오류: " + err.message });
@@ -252,7 +375,11 @@ export default function CollectorPage() {
       const res = await fetch("/api/collector", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "shorts_analyze", video }),
+        body: JSON.stringify({
+          action: "shorts_analyze",
+          video,
+          targetCategory: collectCategory || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -264,7 +391,7 @@ export default function CollectorPage() {
       persistCandidates(updated);
       setMessage({
         type: "success",
-        text: `"${video.title.slice(0, 30)}..." 쇼츠에서 떡상 블로그 글감 ${newItems.length}건을 생성했습니다!`,
+        text: `"${video.title.slice(0, 30)}..." 쇼츠에서 떡상 블로그 글감 ${newItems.length}건을 생성했습니다! (카테고리: ${collectCategory || "AI 자동 판정"})`,
       });
     } catch (err: any) {
       setMessage({ type: "error", text: "영상 분석 오류: " + err.message });
@@ -396,11 +523,82 @@ export default function CollectorPage() {
         </div>
       )}
 
-      {/* 3. 수집 컨트롤러 박스 (3대 수집 방식 탭) */}
+      {/* 3. [🗂 카테고리 관리] 섹션 (ai-auto-blog 스타일 이식) */}
+      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <Folder size={17} className="text-indigo-600" />
+              <h2 className="text-sm font-bold text-neutral-900">🗂 글감 수집 카테고리 관리</h2>
+              <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-bold text-neutral-600">
+                {categories.length}개 카테고리
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-neutral-500">
+              카테고리를 추가하고 ▲▼ 버튼으로 순서를 정렬할 수 있으며, 글감 수집 시 자동으로 분류하거나 보관함에서 원하는 카테고리로 이동할 수 있습니다.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsCategoryModalOpen(true)}
+            className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-indigo-50 border border-indigo-200 px-3.5 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-all shadow-sm"
+          >
+            <Settings2 size={14} />
+            ⚙️ 카테고리 추가·수정·삭제 (순서 정렬)
+          </button>
+        </div>
+
+        {/* 등록된 카테고리 칩 목록 */}
+        <div className="mt-3.5 flex flex-wrap items-center gap-2 pt-3 border-t border-neutral-100">
+          {categories.map((cat, idx) => (
+            <span
+              key={cat.id}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-700"
+            >
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-600">
+                {idx + 1}
+              </span>
+              {cat.name}
+              <span className="text-[10px] text-neutral-400 font-mono">
+                ({categoryCounts.counts[cat.name] || 0}건)
+              </span>
+            </span>
+          ))}
+          {categoryCounts.uncategorized > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-xl border border-dashed border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-800">
+              미분류 ({categoryCounts.uncategorized}건)
+            </span>
+          )}
+        </div>
+      </section>
+
+      {/* 4. 수집 컨트롤러 박스 (3대 수집 방식 탭 + 수집할 카테고리 선택) */}
       <section className="rounded-2xl border-2 border-neutral-200 bg-white p-5 md:p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <Search size={18} className="text-emerald-600" />
-          <h2 className="text-base font-bold text-neutral-900">글감 수집 방식 선택</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Search size={18} className="text-emerald-600" />
+            <h2 className="text-base font-bold text-neutral-900">글감 수집 방식 선택</h2>
+          </div>
+
+          {/* 수집할 카테고리 선택 드롭다운 (핵심 기능) */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-bold text-neutral-700 shrink-0">
+              📁 수집할 카테고리:
+            </label>
+            <select
+              value={collectCategory}
+              onChange={(e) => setCollectCategory(e.target.value)}
+              className="rounded-xl border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-800 focus:border-neutral-900 focus:outline-none"
+            >
+              <option value="">✨ AI 자동 판정 (기본)</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* 탭 버튼들 */}
@@ -449,6 +647,11 @@ export default function CollectorPage() {
             <p className="text-xs text-neutral-600 leading-relaxed">
               기사 1건의 주소를 넣으면 해당 기사를, 목록 페이지(예: 네이버 뉴스 섹션, IT 포털)를 넣으면 상위 기사 중
               무작위로 선별하여 네이버 블로그에 최적화된 글감 후보로 재가공합니다.
+              {collectCategory && (
+                <span className="font-bold text-indigo-600 ml-1">
+                  (선택된 &quot;{collectCategory}&quot; 카테고리로 등록됩니다)
+                </span>
+              )}
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
               <input
@@ -478,14 +681,19 @@ export default function CollectorPage() {
           <form onSubmit={handleCollectPerplexity} className="mt-4 space-y-3">
             <p className="text-xs text-neutral-600 leading-relaxed">
               시드 키워드나 관심 주제를 입력하면, Perplexity AI가 최근 72시간 이내 한국어권에서 대중의 클릭이 폭발한
-              핵심 이슈를 심층 조사하여 네이버 블로그 맞춤형 글감으로 구조화합니다.
+              핫이슈와 핵심 팩트를 실시간 웹 검색으로 요약한 뒤, 블로그 글감 후보 4건으로 즉시 기획합니다.
+              {collectCategory && (
+                <span className="font-bold text-indigo-600 ml-1">
+                  (선택된 &quot;{collectCategory}&quot; 카테고리로 등록됩니다)
+                </span>
+              )}
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 value={topicInput}
                 onChange={(e) => setTopicInput(e.target.value)}
-                placeholder="예: 2026 청년 복지 지원금 혜택, 다이소 살림 꿀템, 신형 로봇청소기 비교"
+                placeholder="예: 2026 청년 복지 지원금 정책, 봄 환절기 보습 꿀템, AI 직무 자동화 트렌드"
                 className="flex-1 rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none"
               />
               <button
@@ -494,11 +702,11 @@ export default function CollectorPage() {
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-neutral-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 <Sparkles size={16} />
-                {collecting ? "실시간 검색 중..." : "72시간 화제 수집"}
+                {collecting ? "실시간 검색 및 기획 중..." : "72h 화제 검색"}
               </button>
             </div>
             <p className="text-[11px] text-neutral-500">
-              ※ 본인이 [API키등록·플랫폼연동] 메뉴에 등록한 Perplexity API 키(pplx-...)가 사용됩니다.
+              ※ [API키등록·플랫폼연동] 메뉴에 Perplexity API 키(pplx-...)가 연동되어 있어야 합니다.
             </p>
           </form>
         )}
@@ -506,47 +714,16 @@ export default function CollectorPage() {
         {/* 탭 3: 유튜브 쇼츠 떡상 분석 */}
         {activeTab === "shorts" && (
           <div className="mt-4 space-y-4">
-            <p className="text-xs text-neutral-600 leading-relaxed">
-              조회수 대비 채널 구독자 수가 적은데도 폭발적으로 터진(Outlier) 유튜브 쇼츠를 검색하고,
-              AI가 시청자를 사로잡은 훅(Hook)과 전개 방식을 분석하여 블로그 글감으로 바로 저장합니다.
-            </p>
-
-            {/* 빠른 프리셋 */}
-            <div className="flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="font-semibold text-neutral-500 mr-1">빠른 프리셋:</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setShortsDateFrom(isoDay(-7));
-                  setMinViews("50000");
-                  setMaxSubs("");
-                }}
-                className="rounded-lg bg-neutral-100 px-2.5 py-1 text-neutral-700 hover:bg-neutral-200"
-              >
-                🔥 최근 7일 대박 쇼츠
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShortsDateFrom(isoDay(-30));
-                  setMinViews("10000");
-                  setMaxSubs("50000");
-                }}
-                className="rounded-lg bg-neutral-100 px-2.5 py-1 text-neutral-700 hover:bg-neutral-200"
-              >
-                🌱 소형 채널(구독자 5만 이하) 떡상
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShortsDateFrom(isoDay(-1));
-                  setMinViews("5000");
-                  setMaxSubs("");
-                }}
-                className="rounded-lg bg-neutral-100 px-2.5 py-1 text-neutral-700 hover:bg-neutral-200"
-              >
-                ⚡ 24시간 실시간 급상승
-              </button>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-neutral-600">
+              <p>
+                검색어를 입력하여 최근 조회수가 폭발한 쇼츠를 발굴하고, 대박 훅(Hook)과 시청자 공감 포인트를 분석해
+                네이버 블로그 포스팅으로 재가공합니다.
+              </p>
+              {collectCategory && (
+                <span className="font-bold text-indigo-600 shrink-0">
+                  📁 수집 시 &quot;{collectCategory}&quot; 카테고리로 등록
+                </span>
+              )}
             </div>
 
             {/* 검색 폼 */}
@@ -668,8 +845,9 @@ export default function CollectorPage() {
         )}
       </section>
 
-      {/* 4. 수집한 글감 목록 섹션 */}
+      {/* 5. 수집한 글감 목록 섹션 */}
       <section className="rounded-2xl border border-neutral-200 bg-white p-5 md:p-6 shadow-sm">
+        {/* 상단 타이틀 및 상태 필터 */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-100">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-neutral-900">
@@ -695,51 +873,127 @@ export default function CollectorPage() {
           </div>
         </div>
 
-        {/* 일괄 제어 바 */}
+        {/* 카테고리 필터 탭 바 (ai-auto-blog 스타일) */}
+        <div className="mt-3 flex flex-wrap items-center gap-1.5 pb-3 border-b border-neutral-100">
+          <span className="text-xs font-bold text-neutral-500 mr-1 flex items-center gap-1">
+            <Folder size={13} /> 분류 필터:
+          </span>
+          <button
+            type="button"
+            onClick={() => setCategoryFilter("all")}
+            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+              categoryFilter === "all"
+                ? "bg-neutral-900 text-white shadow-sm"
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+            }`}
+          >
+            전체 ({candidates.length})
+          </button>
+          {categories.map((cat) => {
+            const count = categoryCounts.counts[cat.name] || 0;
+            const isActive = categoryFilter === cat.name;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setCategoryFilter(cat.name)}
+                className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+                  isActive
+                    ? "bg-neutral-900 text-white shadow-sm"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                }`}
+              >
+                {cat.name} ({count})
+              </button>
+            );
+          })}
+          {categoryCounts.uncategorized > 0 && (
+            <button
+              type="button"
+              onClick={() => setCategoryFilter("uncategorized")}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+                categoryFilter === "uncategorized"
+                  ? "bg-amber-600 text-white shadow-sm"
+                  : "bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100"
+              }`}
+            >
+              미분류 ({categoryCounts.uncategorized})
+            </button>
+          )}
+        </div>
+
+        {/* 일괄 제어 바 (선택 삭제 + 선택 글감 카테고리 이동) */}
         {candidates.length > 0 && (
-          <div className="mt-3.5 flex flex-wrap items-center gap-2 rounded-xl bg-neutral-50 p-3 text-xs text-neutral-700 border border-neutral-200">
-            <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
-              <input
-                type="checkbox"
-                className="h-4 w-4 accent-neutral-900 rounded"
-                checked={deletable.length > 0 && checkedDeletable.length === deletable.length}
-                disabled={busy || !deletable.length}
-                onChange={(e) =>
-                  setCheckedIds(e.target.checked ? deletable.map((c) => c.id) : [])
-                }
-              />
-              목록 전체 선택
-            </label>
-            <span className="text-neutral-400">|</span>
-            <span className="text-neutral-600 font-medium">선택 {checkedDeletable.length}건</span>
-            <button
-              type="button"
-              disabled={!checkedDeletable.length || busy}
-              onClick={() => bulkDelete("selected")}
-              className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Trash2 size={12} />
-              선택 삭제
-            </button>
-            <button
-              type="button"
-              disabled={!unarchivedCount || busy}
-              onClick={() => bulkDelete("all_unarchived")}
-              className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Trash2 size={12} />
-              보관 제외 전체 정리 ({unarchivedCount}건)
-            </button>
-            <span className="text-[11px] text-neutral-400 ml-auto">
-              ※ [보관] 상태의 글감은 일괄 삭제 시에도 영구 보존됩니다.
-            </span>
+          <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2.5 rounded-xl bg-neutral-50 p-3 text-xs text-neutral-700 border border-neutral-200">
+            {/* 좌측: 체크박스 및 삭제 */}
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-neutral-900 rounded"
+                  checked={deletable.length > 0 && checkedDeletable.length === deletable.length}
+                  disabled={busy || !deletable.length}
+                  onChange={(e) =>
+                    setCheckedIds(e.target.checked ? deletable.map((c) => c.id) : [])
+                  }
+                />
+                목록 전체 선택
+              </label>
+              <span className="text-neutral-300">|</span>
+              <span className="text-neutral-600 font-medium">선택 {checkedIds.length}건</span>
+              <button
+                type="button"
+                disabled={!checkedDeletable.length || busy}
+                onClick={() => bulkDelete("selected")}
+                className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Trash2 size={12} />
+                선택 삭제
+              </button>
+              <button
+                type="button"
+                disabled={!unarchivedCount || busy}
+                onClick={() => bulkDelete("all_unarchived")}
+                className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Trash2 size={12} />
+                보관 제외 전체 정리 ({unarchivedCount}건)
+              </button>
+            </div>
+
+            {/* 우측: 선택한 글감 카테고리 일괄 이동 (핵심 기능) */}
+            <div className="flex items-center gap-1.5 ml-auto">
+              <ArrowRightLeft size={13} className="text-indigo-600" />
+              <span className="font-bold text-neutral-700">카테고리 이동:</span>
+              <select
+                value={bulkMoveCategory}
+                onChange={(e) => setBulkMoveCategory(e.target.value)}
+                disabled={!checkedIds.length}
+                className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-800 disabled:opacity-50"
+              >
+                <option value="">이동할 카테고리 선택</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={handleBulkMoveCategory}
+                disabled={!checkedIds.length || !bulkMoveCategory}
+                className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+              >
+                선택 이동
+              </button>
+            </div>
           </div>
         )}
 
         {/* 글감 리스트 */}
         {visibleCandidates.length === 0 ? (
           <div className="mt-6 rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-8 text-center text-sm text-neutral-500">
-            조건에 맞는 글감이 없습니다. 상단에서 URL이나 검색어로 새 글감을 수집해 보세요.
+            조건에 맞는 글감이 없습니다. 상단에서 URL이나 검색어로 새 글감을 수집하거나 필터를 조정해 보세요.
           </div>
         ) : (
           <div className="mt-4 space-y-3.5">
@@ -756,14 +1010,15 @@ export default function CollectorPage() {
                       : "border-neutral-200 bg-neutral-50/70"
                   }`}
                 >
+                  {/* 상단 뱃지 및 메타 정보 */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <label className="inline-flex items-center gap-1.5 cursor-pointer">
                         <input
                           type="checkbox"
                           className="h-4 w-4 accent-neutral-900 rounded"
-                          checked={!isLocked && checkedIds.includes(item.id)}
-                          disabled={busy || isLocked}
+                          checked={checkedIds.includes(item.id)}
+                          disabled={busy}
                           onChange={() => toggleCheck(item.id)}
                         />
                       </label>
@@ -774,9 +1029,27 @@ export default function CollectorPage() {
                           ? "🎬 유튜브 쇼츠"
                           : "🌐 웹 기사"}
                       </span>
-                      <span className="rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-semibold">
-                        {item.category}
-                      </span>
+
+                      {/* 카테고리 뱃지 & 원클릭 카테고리 변경 셀렉트 */}
+                      <div className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-full px-2.5 py-0.5 text-[11px] font-semibold">
+                        <span>📁 {item.category}</span>
+                        <select
+                          value=""
+                          onChange={(e) => handleMoveSingleCandidate(item.id, e.target.value)}
+                          className="bg-transparent text-[10px] text-emerald-700 font-bold border-l border-emerald-300 pl-1.5 ml-0.5 focus:outline-none cursor-pointer"
+                          title="다른 카테고리로 변경"
+                        >
+                          <option value="" disabled>
+                            변경 ▼
+                          </option>
+                          {categories.map((cat) => (
+                            <option key={cat.id} value={cat.name}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       <span
                         className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${statusCfg.tone}`}
                       >
@@ -908,6 +1181,15 @@ export default function CollectorPage() {
           </div>
         )}
       </section>
+
+      {/* 카테고리 관리 모달 */}
+      <CategoryManagementModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        categories={categories}
+        onUpdateCategories={persistCategories}
+        onCategoryDeleted={handleCategoryDeleted}
+      />
     </div>
   );
 }
