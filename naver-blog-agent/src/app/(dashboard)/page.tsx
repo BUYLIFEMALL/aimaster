@@ -124,6 +124,8 @@ export default function MainPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const currentAcc = accounts.find((a) => a.blog_id === selectedBlogId);
+
   return (
     <div className="space-y-6">
       {/* 상단 타이틀 */}
@@ -172,9 +174,17 @@ export default function MainPage() {
               {/* 계정 선택 */}
               {accounts.length > 0 && (
                 <div>
-                  <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                    발행할 네이버 블로그 ID
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-semibold text-neutral-700">
+                      발행할 네이버 블로그 ID
+                    </label>
+                    <Link
+                      href="/accounts"
+                      className="text-[10px] text-emerald-600 hover:text-emerald-700 font-medium"
+                    >
+                      계정·카테고리 설정 ↗
+                    </Link>
+                  </div>
                   <select
                     value={selectedBlogId}
                     onChange={(e) => {
@@ -183,9 +193,9 @@ export default function MainPage() {
                       if (acc && acc.categories.length > 0) {
                         const first = acc.categories[0];
                         setCategory(first.category_name);
-                        setSearchKeywords(first.search_keywords);
-                        setPublishPurpose(first.publish_purpose);
-                        setPreferredTone(first.preferred_tone);
+                        setSearchKeywords(first.search_keywords || "");
+                        setPublishPurpose(first.publish_purpose || "");
+                        setPreferredTone(first.preferred_tone || "해요체");
                       }
                     }}
                     className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900"
@@ -196,6 +206,47 @@ export default function MainPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              )}
+
+              {/* 등록된 카테고리 빠른 선택 버튼 (계정에 등록된 카테고리가 있는 경우) */}
+              {currentAcc && currentAcc.categories && currentAcc.categories.length > 0 && (
+                <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200/80 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-semibold text-neutral-700">등록 카테고리 빠른 선택</span>
+                    <span className="text-[10px] text-neutral-400">클릭 시 자동 반영</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {currentAcc.categories.map((c: any) => {
+                      const isSelected = category === c.category_name;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setCategory(c.category_name);
+                            setSearchKeywords(c.search_keywords || "");
+                            setPublishPurpose(c.publish_purpose || "");
+                            setPreferredTone(c.preferred_tone || "해요체");
+                          }}
+                          className={`px-2.5 py-1 rounded-lg text-xs transition-all flex items-center gap-1 border ${
+                            isSelected
+                              ? "bg-emerald-600 border-emerald-600 text-white font-semibold shadow-xs"
+                              : "bg-white border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50"
+                          }`}
+                        >
+                          <span>{c.category_name}</span>
+                          <span
+                            className={`text-[10px] ${
+                              isSelected ? "text-emerald-100" : "text-neutral-400"
+                            }`}
+                          >
+                            ({c.preferred_tone})
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 

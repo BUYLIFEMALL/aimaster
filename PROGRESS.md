@@ -19,7 +19,7 @@
 
 ## 1. 지금까지 한 작업 (이번 로컬 세션, 2026-09-29 ~ 10-07 중심)
 
-### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.05** (2026-10-07)
+### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.06** (2026-10-07)
 - 주소: https://naver-blog-agent.vercel.app (Vercel 프로젝트 `naver-blog-agent`)
 - 유튜브 설명 영상 및 GitHub 오픈소스(`boksajang/naverblog-extention`) 기반 AIMaster 웹 SaaS 하이브리드 완전 이식.
 - 일반 크롬 브라우저 상의 Chrome 확장(Manifest V3)이 스마트에디터 ONE iframe DOM에 직접 타이핑/이벤트를 주입하여 네이버 봇 탐지 100% 무력화.
@@ -29,6 +29,7 @@
 - **v1.03**: `buylifemall` 등 통합 계정에 저장된 AI 키(OpenAI, Gemini, Claude, Perplexity) 자동 연동 안내 및 마스킹 현황 시각화, 키 관리 기능 고도화.
 - **v1.04**: `/settings` 화면을 SSR 서버 컴포넌트로 전면 개편하여 `createAdminClient()` 기반 계정 연동 키 즉시 공급 및 렌더링 지연 완전 해소.
 - **v1.05**: `/guide` 실전 매뉴얼 페이지를 초보자 맞춤형(원리·연동준비·실전발행·꿀팁·FAQ)으로 전면 개편.
+- **v1.06**: `/accounts` 카테고리 순서 위/아래 이동(▲▼), 인라인 정보 수정(✎) 탑재 및 상단(블로그 계정 목록) ➔ 하단(카테고리 & 키워드 설정) 수직 스택 레이아웃 개편. 메인 글 생성 시 카테고리 원클릭 칩 선택 연동.
 
 
 
