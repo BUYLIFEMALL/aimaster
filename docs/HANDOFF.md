@@ -1,5 +1,24 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.20, 2026-10-08)
+
+- **생성 콘텐츠 영구 자동 저장(Auto-save) & 전용 원고 보관소(/queue) 전면 개편 (v1.20)**:
+  - 배경: 주인님의 "생성된 콘텐츠는 어디에서 볼수 있지? 저장 안해놓나?" 질문에 대한 조사 결과, ① 글 생성 시 자동으로 보관함에 들어가지 않고 수동 저장 버튼을 눌러야만 했던 점, ② 사이드바 메뉴명이 "발행 대기 큐 & 이력"으로 되어 있어 보관함인지 인지하기 어려웠던 점, ③ `/queue` 페이지에서 본문/이미지 상세 열람 및 복사/수정 기능이 없었던 점을 완전 개선.
+  - 조치:
+    1) `naver-blog-agent/src/app/(dashboard)/page.tsx`:
+       - 글 생성(`executeGeneration`) 및 이미지 생성(`generateImagesFor`) 완료 즉시 `savePostToStorage`를 통해 로컬 보관함(`nba_saved_posts`)에 100% 자동 영구 저장. 새로고침이나 창 종료 후에도 데이터 영구 보존.
+       - 결과 카드 상단에 "✅ 보관함 자동 저장됨" 배지 추가.
+       - 메인 타이틀 우측에 `[📑 생성 원고 보관함 (${savedPostCount}건)]` 퀵 링크 및 `[최근 원고 열기]` 모달 탑재. 모달에서 원하는 원고 클릭 시 메인 결과 화면으로 즉시 로드.
+    2) `naver-blog-agent/src/components/layout/Sidebar.tsx`:
+       - 사이드바 메뉴 명칭을 `📑 생성 원고 보관함 & 발행 큐`로 직관화 (설명: "생성된 글 열람·편집·스마트에디터 발행").
+    3) `naver-blog-agent/src/app/(dashboard)/queue/page.tsx`:
+       - 전용 원고 보관소 페이지로 전면 업그레이드:
+         * 상태별 요약 카드 (전체, 임시보관, 발행대기, 발행완료 건수).
+         * 원고 카드 목록: 대표 썸네일 미리보기, 제목, 요약 프리뷰, 글자 수, 태그 배지.
+         * 액션 버튼: `[👁️ 열람]` (소제목 및 인라인 이미지 전체 상세 모달 뷰어), `[📋 복사]`, `[✏️ 편집]` (`BlogSmartEditorModal` 즉시 수정 연동), `[🚀 발행 전송]` (스마트에디터 ONE 자동 발행 큐 전송), `[🗑️ 삭제]`.
+    4) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0020_nba_bump_version_v1_20.sql`을 `v1.20`으로 동기화.
+    5) Chrome 확장 최신 번들 `naver-blog-agent-extension-v1.20.zip` 및 `latest.zip` prebuild 자동 생성 완료.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.19, 2026-10-08)
 
 - **스마트 에디터(수정·편집) 듀얼 위지윅 편집기 구축 (`ai-auto-blog` 레퍼런스 이식, v1.19)**:

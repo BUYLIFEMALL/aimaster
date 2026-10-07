@@ -21,7 +21,7 @@ const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL || 'https://esgxyikcn
 async function main() {
   const { data, error } = await supabase
     .from('programs')
-    .update({ version: 'v1.19', updated_at: new Date().toISOString() })
+    .update({ version: 'v1.20', updated_at: new Date().toISOString() })
     .eq('slug', 'naver-blog-agent')
     .select('id, slug, version');
   if (error) {

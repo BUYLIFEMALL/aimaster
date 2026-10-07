@@ -27,6 +27,7 @@ import {
   X,
   ImageIcon,
   SquarePen,
+  BookOpen,
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import type { PipelineResult } from "@/lib/ai/pipeline";
@@ -85,6 +86,9 @@ export default function MainPage() {
   const [copied, setCopied] = useState(false);
   const [previewMode, setPreviewMode] = useState<"smart" | "raw">("smart");
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [currentPostId, setCurrentPostId] = useState<string | null>(null);
+  const [savedPostCount, setSavedPostCount] = useState<number>(0);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   // 계정 목록 불러오기
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -170,7 +174,83 @@ export default function MainPage() {
         }
       })
       .catch(() => {});
+
+    // 보관된 원고 목록 개수 확인
+    try {
+      const savedPosts = localStorage.getItem("nba_saved_posts");
+      if (savedPosts) {
+        const parsed = JSON.parse(savedPosts);
+        if (Array.isArray(parsed)) setSavedPostCount(parsed.length);
+      }
+    } catch {}
   }, []);
+
+  // 로컬 스토리지 보관함에 원고 자동 저장 및 갱신 헬퍼
+  const savePostToStorage = (
+    postId: string,
+    targetResult: PipelineResult,
+    imagesToSave: any[],
+    status: "draft" | "queued" = "draft"
+  ) => {
+    if (!targetResult || typeof window === "undefined") return;
+    try {
+      const existing: any[] = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
+      const postItem = {
+        id: postId,
+        blog_id: selectedBlogId || "myblog_sample",
+        category_name: targetResult.category,
+        title: targetResult.title,
+        content: targetResult.content,
+        excerpt: targetResult.excerpt || "",
+        tags: targetResult.tags,
+        images: imagesToSave.length > 0 ? imagesToSave : targetResult.images || [],
+        status,
+        created_at: new Date().toISOString(),
+      };
+
+      const existingIndex = existing.findIndex((p) => p.id === postId);
+      let updatedList: any[];
+      if (existingIndex >= 0) {
+        updatedList = [...existing];
+        updatedList[existingIndex] = {
+          ...updatedList[existingIndex],
+          ...postItem,
+          created_at: updatedList[existingIndex].created_at || postItem.created_at,
+        };
+      } else {
+        updatedList = [postItem, ...existing];
+      }
+
+      localStorage.setItem("nba_saved_posts", JSON.stringify(updatedList));
+      setSavedPostCount(updatedList.length);
+    } catch (err) {
+      console.warn("로컬 원고 저장 실패:", err);
+    }
+  };
+
+  // 과거 저장된 원고 불러오기
+  const handleLoadSavedPost = (post: any) => {
+    setCurrentPostId(post.id);
+    setResult({
+      title: post.title,
+      content: post.content,
+      excerpt: post.excerpt || "",
+      tags: post.tags || [],
+      category: post.category_name,
+      images: post.images || [],
+      stepsLog: [
+        { step: "보관함 로드", status: "done", message: "저장된 원고 데이터를 성공적으로 복원했습니다." },
+      ],
+    });
+    if (Array.isArray(post.images)) {
+      setGeneratedImages(post.images);
+    }
+    setIsHistoryModalOpen(false);
+    setTimeout(() => {
+      const el = document.getElementById("result-section");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
 
   // 페르소나 클릭 시 조건 자동 세팅
   const handleSelectPersona = (p: BlogPersona) => {
@@ -255,7 +335,11 @@ export default function MainPage() {
         throw new Error(data.error || "글 생성 실패");
       }
 
+      const newPostId = "post-" + Date.now();
+      setCurrentPostId(newPostId);
       setResult(data.result);
+      // 생성 완료 즉시 로컬 원고 보관함에 자동 저장
+      savePostToStorage(newPostId, data.result, [], "draft");
 
       // 글 생성이 완료되면 해당 글감을 사용 완료(used) 상태로 업데이트
       if (selectedViral) {
@@ -297,6 +381,7 @@ export default function MainPage() {
     const countToGenerate = Math.min(imageSettings.count, Math.max(promptsToUse.length, 1));
     setImageGenerating({ done: 0, total: countToGenerate });
     setError(null);
+    const newlyCollected: { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[] = [];
 
     try {
       for (let i = 0; i < countToGenerate; i++) {
@@ -325,20 +410,26 @@ export default function MainPage() {
           continue;
         }
 
+        const newImg = {
+          url: data.url,
+          type: data.type,
+          caption: data.caption,
+          prompt: data.prompt,
+        };
+        newlyCollected.push(newImg);
+
         setGeneratedImages((prev) => {
           // 중복 방지
           const filtered = prev.filter((img) => img.caption !== data.caption);
-          return [
-            ...filtered,
-            {
-              url: data.url,
-              type: data.type,
-              caption: data.caption,
-              prompt: data.prompt,
-            },
-          ];
+          return [...filtered, newImg];
         });
         setImageGenerating({ done: i + 1, total: countToGenerate });
+      }
+
+      // 이미지 생성 완료 후 보관함 원고에 최신 이미지 목록 자동 갱신 저장
+      if (newlyCollected.length > 0) {
+        const targetId = currentPostId || "post-" + Date.now();
+        savePostToStorage(targetId, targetResult, newlyCollected, "draft");
       }
     } catch (err: any) {
       console.error("이미지 생성 중 오류:", err);
@@ -611,20 +702,44 @@ export default function MainPage() {
   return (
     <div className="space-y-6">
       {/* 1. 상단 타이틀 */}
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            5단계 AI 파이프라인
-          </span>
-          <span className="text-xs text-neutral-400">·</span>
-          <span className="text-xs text-neutral-500">네이버 C-Rank & DIA+ 알고리즘 최적화</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              5단계 AI 파이프라인
+            </span>
+            <span className="text-xs text-neutral-400">·</span>
+            <span className="text-xs text-neutral-500">네이버 C-Rank & DIA+ 알고리즘 최적화</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 mt-1">
+            네이버 블로그 원고 자동 생성
+          </h1>
+          <p className="text-xs text-neutral-500 mt-0.5">
+            6대 상황별 페르소나를 선택하거나 맞춤 기획 조건을 입력하면, 리서치부터 휴머나이저 윤문, 스마트에디터 서식 생성까지 100% 자동 완성됩니다.
+          </p>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900 mt-1">
-          네이버 블로그 원고 자동 생성
-        </h1>
-        <p className="text-xs text-neutral-500 mt-0.5">
-          6대 상황별 페르소나를 선택하거나 맞춤 기획 조건을 입력하면, 리서치부터 휴머나이저 윤문, 스마트에디터 서식 생성까지 100% 자동 완성됩니다.
-        </p>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href="/queue"
+            className="px-3.5 py-2 rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 text-xs font-bold text-neutral-700 shadow-2xs flex items-center gap-1.5 transition-all"
+            title="생성된 모든 원고와 이미지가 보관된 목록으로 이동"
+          >
+            <BookOpen size={14} className="text-emerald-600" />
+            <span>📑 생성 원고 보관함</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
+              {savedPostCount}건
+            </span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setIsHistoryModalOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
+            title="최근 저장된 원고 목록에서 선택해 다시 열기"
+          >
+            <span>최근 원고 열기</span>
+          </button>
+        </div>
       </div>
 
       {needKey && (
@@ -1364,6 +1479,10 @@ export default function MainPage() {
                 <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   {result.category}
                 </span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <CheckCircle2 size={12} className="text-emerald-600" />
+                  <span>보관함 자동 저장됨</span>
+                </span>
                 {result.personaName && (
                   <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-neutral-100 text-neutral-700">
                     🎭 {result.personaName} 관점
@@ -1814,6 +1933,127 @@ export default function MainPage() {
           activeImageModel={imageSettings.model}
           onSave={handleSaveEditedContent}
         />
+      )}
+
+      {/* 5. 최근 저장된 원고 열기 모달 */}
+      {isHistoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-150">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden flex flex-col max-h-[85vh]">
+            <header className="border-b border-neutral-200 px-6 py-4 flex items-center justify-between bg-neutral-50 shrink-0">
+              <div className="space-y-0.5">
+                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">
+                  로컬 보관함 원고 목록
+                </span>
+                <h3 className="text-base font-extrabold text-neutral-900">
+                  최근 보관된 원고 불러오기
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/queue"
+                  className="text-xs text-neutral-500 hover:text-neutral-900 font-semibold underline mr-2"
+                >
+                  전체 보관함 보기 ↗
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setIsHistoryModalOpen(false)}
+                  className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </header>
+
+            <div className="p-5 overflow-y-auto space-y-3 flex-1 divide-y divide-neutral-100">
+              {(() => {
+                let savedList: any[] = [];
+                try {
+                  savedList = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
+                } catch {}
+
+                if (!Array.isArray(savedList) || savedList.length === 0) {
+                  return (
+                    <div className="p-8 text-center text-xs text-neutral-400">
+                      보관된 원고가 없습니다. 새 글을 생성하면 자동으로 이곳에 보관됩니다.
+                    </div>
+                  );
+                }
+
+                return savedList.slice(0, 15).map((post, idx) => {
+                  const thumb = post.images?.[0]?.url;
+                  const imgCount = post.images?.length || 0;
+
+                  return (
+                    <div
+                      key={post.id || idx}
+                      className="pt-3 first:pt-0 flex items-center justify-between gap-3 group"
+                    >
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
+                        {thumb ? (
+                          <img
+                            src={thumb}
+                            alt=""
+                            className="w-12 h-12 rounded-lg object-cover border border-neutral-200 shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-400 shrink-0">
+                            <BookOpen size={16} />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                              {post.category_name || "일반"}
+                            </span>
+                            {imgCount > 0 && (
+                              <span className="text-[10px] text-neutral-400">
+                                사진 {imgCount}장
+                              </span>
+                            )}
+                            <span className="text-[10px] text-neutral-400">
+                              · {new Date(post.created_at).toLocaleDateString("ko-KR")}
+                            </span>
+                          </div>
+                          <div
+                            onClick={() => handleLoadSavedPost(post)}
+                            className="font-bold text-xs sm:text-sm text-neutral-900 group-hover:text-emerald-700 transition-colors truncate cursor-pointer"
+                          >
+                            {post.title}
+                          </div>
+                          <p className="text-[11px] text-neutral-400 truncate">
+                            {post.excerpt || post.content?.slice(0, 80)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleLoadSavedPost(post)}
+                        className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold shrink-0 transition-colors cursor-pointer"
+                      >
+                        불러오기
+                      </button>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+
+            <footer className="border-t border-neutral-200 px-6 py-3 bg-neutral-50 flex items-center justify-between shrink-0">
+              <span className="text-xs text-neutral-400">
+                원고를 선택하면 편집기 및 완성 뷰어에 즉시 로드됩니다.
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsHistoryModalOpen(false)}
+                className="px-3 py-1.5 rounded-lg bg-neutral-200 hover:bg-neutral-300 text-neutral-700 text-xs font-semibold"
+              >
+                닫기
+              </button>
+            </footer>
+          </div>
+        </div>
       )}
     </div>
   );
