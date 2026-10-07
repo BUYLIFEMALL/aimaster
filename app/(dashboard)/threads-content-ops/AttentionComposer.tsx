@@ -153,7 +153,7 @@ export default function AttentionComposer({ accounts, products, viralCandidates,
               <p className="font-semibold text-neutral-900">{linkedProduct.title}</p>
               {linkedProduct.summary && <p className="mt-0.5">{linkedProduct.summary}</p>}
               <p className="mt-1 break-all text-neutral-500">상품링크: {linkedProduct.source_url}</p>
-              <p className="mt-1 text-neutral-600">AI가 글감 이야기를 쓰고 <b>맨 끝에서 상품을 자연스럽게 소개</b>하며, 글 첫 줄에 제휴 고지 문구(“{disclosureFor(linkedProduct.source_type)}”)와 하단에 상품링크가 자동으로 붙습니다. 고지 문구는 법에 따라 지울 수 없습니다.</p>
+              <p className="mt-1 text-neutral-600">글 형식: 첫 줄 제휴 고지(“{disclosureFor(linkedProduct.source_type)}”) → 이모티콘+짧은 제목 → 글감 이야기에서 상품 특징·가격으로 이어지는 3개 단락 → 맨 아래 “상품링크: 주소”. 고지와 링크는 자동으로 붙고 법에 따라 지울 수 없습니다.</p>
             </div>}
           </div>
           <label className="block text-xs font-semibold text-neutral-600">내 실제 경험<textarea className={`${inputClass} mt-1 min-h-20`} maxLength={800} value={experience} onChange={(event) => setExperience(event.target.value)} placeholder="직접 겪은 일만 적어 주세요. 여기에 적은 경험만 1인칭 경험담으로 쓰입니다." /></label>

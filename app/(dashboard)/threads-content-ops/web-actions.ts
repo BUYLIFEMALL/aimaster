@@ -868,16 +868,17 @@ export async function analyzeShortToViralCandidates(input: { id: string; title: 
 // ---------------------------------------------------------------------------
 type AttentionResult = { ok: true; plan: AttentionPlan } | { ok: false; error: string; needKey?: boolean };
 type EngineInput = { provider: string; model: string };
-type CustomFields = { product?: string; experience?: string; targetAudience?: string; linkedProduct?: { name: string; summary: string } };
+type CustomFields = { product?: string; experience?: string; targetAudience?: string; linkedProduct?: { name: string; summary: string; price?: number | null } };
 
 /** 회원 본인이 등록한 상품(쇼핑제휴 상품 등록)을 id로 읽는다. 보관한 상품·다른 회원의 상품은 읽지 않는다. 링크·고지는 항상 서버 값만 쓴다. */
 async function loadLinkedProduct(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, productId: string | undefined): Promise<LinkedProduct | null> {
   if (!productId) return null;
   const { data } = await supabase.from("tco_content_sources")
-    .select("id, source_type, title, summary, source_url")
+    .select("id, source_type, title, summary, source_url, metadata")
     .eq("id", productId).eq("user_id", userId).in("source_type", [...PRODUCT_SOURCE_TYPES]).neq("status", "archived").maybeSingle();
   if (!data?.source_url) throw new Error("연결할 상품을 찾지 못했습니다. 쇼핑제휴 상품 등록에서 상품을 확인해 주세요.");
-  return { id: data.id, source_type: data.source_type, title: data.title ?? "", summary: data.summary ?? "", source_url: data.source_url };
+  const price = Number((data.metadata as { price?: unknown } | null)?.price);
+  return { id: data.id, source_type: data.source_type, title: data.title ?? "", summary: data.summary ?? "", source_url: data.source_url, price: Number.isFinite(price) && price > 0 ? price : null };
 }
 
 async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, engine: EngineInput | undefined) {
@@ -905,7 +906,7 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
     const custom: CustomFields = { product: clean(input.custom?.product, 200), experience: clean(input.custom?.experience, 800), targetAudience: clean(input.custom?.targetAudience, 200) };
     const { supabase, user } = await authorizedUser();
     const linked = await loadLinkedProduct(supabase, user.id, input.productId);
-    if (linked) custom.linkedProduct = { name: linked.title.slice(0, 200), summary: linked.summary.slice(0, 600) };
+    if (linked) custom.linkedProduct = { name: linked.title.slice(0, 200), summary: linked.summary.slice(0, 600), price: linked.price ?? null };
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
     return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone: persona?.tonePrompt, custom, engine: resolved.engine }) };
