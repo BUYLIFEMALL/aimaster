@@ -117,6 +117,10 @@
        - 크롬 확장 자동 발행 큐 등록(`handlePublishToQueue`) 및 보관함 저장(`handleSaveDraft`) 시 실제 생성된 이미지가 자동 포함되도록 연동.
     5) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0017_nba_bump_version_v1_17.sql`을 `v1.17`로 동기화.
 
+## Threads 콘텐츠 운영 자동화 v1.73 — 콘텐츠 보관함 (2026-10-08)
+
+- tab=manage: AI 초안 만들기 카드 삭제, 메뉴명 '콘텐츠 보관함'. 화면만 변경.
+
 ## Threads 콘텐츠 운영 자동화 v1.72 — 공통 미디어 칸 제거 (2026-10-08)
 
 - 콘텐츠 생성 화면의 공통 미디어 칸 삭제. 글별 이미지·영상만 사용. 화면만 변경.

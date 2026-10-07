@@ -10,7 +10,7 @@ import { APP_VERSION } from "@/threads-content-ops/lib/version";
 const flow = [
   { tab: "viral", label: "떡상 콘텐츠 수집", icon: Flame },
   { tab: "create", label: "콘텐츠 생성", icon: PenLine },
-  { tab: "manage", label: "초안·발행 관리", icon: Send },
+  { tab: "manage", label: "콘텐츠 보관함", icon: Send },
   { tab: "accounts", label: "계정 운영정보", icon: UsersRound },
   { tab: "sources", label: "쇼핑제휴 상품 등록", icon: Library },
 ];

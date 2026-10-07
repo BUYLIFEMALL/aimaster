@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.72`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.73`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.73 콘텐츠 보관함 (2026-10-08)
+
+- 주인님 지시: `tab=manage` 메뉴는 생성된 콘텐츠 완성본이 저장되는 곳이라 위쪽 'AI 초안 만들기' 카드를 삭제하고(`DraftComposer.tsx`에서 카드·관련 상태/함수 제거, `page.tsx`의 `viralCandidates` 전달 제거) 이름을 '초안·발행 관리' → **'콘텐츠 보관함'**으로 바꿨습니다(사이드바 라벨, 목록 제목 '콘텐츠 보관함', 저장 안내문). 서버 액션 `generateAndSaveDraft`는 코드에 남아 있으나 화면에서 호출하지 않습니다. DB 변경 없음.
 
 ## v1.72 공통 미디어 칸 제거 (2026-10-07)
 

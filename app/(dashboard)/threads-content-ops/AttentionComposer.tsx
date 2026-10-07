@@ -348,7 +348,7 @@ function VariantCard({ userId, option, accountId, viralId, engine, image, produc
       const result = await saveGeneratedDraft({ accountId, body, viralId: viralId || undefined, productId: product?.id, media: images.slice(0, MAX_MEDIA) });
       if (result.ok) {
         setSaved(true);
-        onSaved(images.length ? `초안으로 저장했습니다(이미지·영상 ${Math.min(images.length, MAX_MEDIA)}개 포함). 초안·발행 관리에서 검토한 뒤 발행하세요.` : "초안으로 저장했습니다. 초안·발행 관리에서 검토한 뒤 발행하세요.");
+        onSaved(images.length ? `초안으로 저장했습니다(이미지·영상 ${Math.min(images.length, MAX_MEDIA)}개 포함). 콘텐츠 보관함에서 검토한 뒤 발행하세요.` : "초안으로 저장했습니다. 콘텐츠 보관함에서 검토한 뒤 발행하세요.");
       } else {
         setError(result.error);
       }
