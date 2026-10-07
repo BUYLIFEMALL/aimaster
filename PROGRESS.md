@@ -27,8 +27,12 @@
 - **v1.66**: 떡상 글감 카테고리 관리/이동 시스템 구축.
 - **v1.60**: Threads 글 분량 450~480자(상품 글은 고지·링크 포함) 꽉 채우기 최적화.
 
-### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.17** (2026-10-07)
+### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.18** (2026-10-07)
 - 주소: https://naver-blog-agent.vercel.app (Vercel 프로젝트 `naver-blog-agent`)
+- **v1.18**: **원클릭 본문 + 이미지 동시 생성 및 본문 사이사이 인라인 이미지 렌더링 구축 (주인님 확정)**.
+  - 글 생성 시 AI 본문 작성 후 추천된 2장의 AI 이미지를 백엔드에서 자동으로 즉시 연계 생성하여 원클릭으로 본문과 이미지를 한 번에 완성.
+  - 본문 화면의 `[SECTION - ...]`을 스마트 소제목으로, `[IMAGE INSERT - ...]`를 실제 생성된 고화질 이미지 카드(16:9 반응형, 캡션, 확대 모달)로 본문 사이사이에 쏙 들어가게 인라인 치환 렌더링.
+  - 상단 대표 썸네일 이미지 렌더링, [🎨 서식·이미지 완성 뷰] / [📄 원본 텍스트] 모드 토글 제공, 원고 복사 시 실제 이미지 마크다운(`![캡션](url)`) 자동 삽입 연동.
 - **v1.17**: **AI 글 생성 엔진 선택(GPT, Claude, Gemini) 및 멀티 AI 이미지 생성 플랫폼(NanoBanana, GPT Image, FLUX 2.0, Z-Image) 탑재 & 실제 이미지 생성/갤러리 연동 (주인님 확정)**.
   - `threads-content-ops`와 100% 동일한 AI 텍스트 생성 엔진(12종) 및 멀티 이미지 플랫폼(4개사 15종 모델, 종횡비 4종, 1~5장) 선택 인터페이스 구축.
   - 실제 이미지 생성 API(`/api/generate-image`) 구축 (Gemini, OpenAI, Replicate 연동, 한국인/동아시아인 기본 묘사, Supabase Storage `ai-image-generations` 업로드 및 공개 URL 발급).

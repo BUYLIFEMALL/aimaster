@@ -81,6 +81,7 @@ export default function MainPage() {
   const [error, setError] = useState<string | null>(null);
   const [needKey, setNeedKey] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [previewMode, setPreviewMode] = useState<"smart" | "raw">("smart");
 
   // 계정 목록 불러오기
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -274,6 +275,11 @@ export default function MainPage() {
         const el = document.getElementById("result-section");
         if (el) el.scrollIntoView({ behavior: "smooth" });
       }, 150);
+
+      // ★ [본문 + 이미지 원클릭 동시 생성]: 본문 작성이 완료되면 곧바로 추천 이미지 컷 자동 생성 연동!
+      if (data.result && Array.isArray(data.result.images) && data.result.images.length > 0) {
+        generateImagesFor(data.result);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -281,10 +287,10 @@ export default function MainPage() {
     }
   };
 
-  // AI 이미지 일괄 생성 핸들러
-  const handleGenerateImages = async () => {
-    if (!result || imageGenerating) return;
-    const promptsToUse = result.images || [];
+  // AI 이미지 자동 생성 공통 실행기
+  const generateImagesFor = async (targetResult: PipelineResult) => {
+    if (!targetResult || imageGenerating) return;
+    const promptsToUse = targetResult.images || [];
     const countToGenerate = Math.min(imageSettings.count, Math.max(promptsToUse.length, 1));
     setImageGenerating({ done: 0, total: countToGenerate });
     setError(null);
@@ -292,7 +298,7 @@ export default function MainPage() {
     try {
       for (let i = 0; i < countToGenerate; i++) {
         const baseItem = promptsToUse[i] || {
-          prompt: `High quality detailed blog photo about ${result.title}, ${result.category}, photorealistic, natural lighting, no text`,
+          prompt: `High quality detailed blog photo about ${targetResult.title}, ${targetResult.category}, photorealistic, natural lighting, no text`,
           caption: `${i === 0 ? "대표 썸네일" : "본문 상세 컷 " + i}`,
           type: (i === 0 ? "thumbnail" : "body") as "thumbnail" | "body",
         };
@@ -312,25 +318,37 @@ export default function MainPage() {
         const data = await res.json();
         if (!res.ok) {
           if (data.needKey) setNeedKey(true);
-          throw new Error(data.error || `${i + 1}번째 이미지 생성 실패`);
+          console.warn(`${i + 1}번째 이미지 생성 실패:`, data.error);
+          continue;
         }
 
-        setGeneratedImages((prev) => [
-          ...prev,
-          {
-            url: data.url,
-            type: data.type,
-            caption: data.caption,
-            prompt: data.prompt,
-          },
-        ]);
+        setGeneratedImages((prev) => {
+          // 중복 방지
+          const filtered = prev.filter((img) => img.caption !== data.caption);
+          return [
+            ...filtered,
+            {
+              url: data.url,
+              type: data.type,
+              caption: data.caption,
+              prompt: data.prompt,
+            },
+          ];
+        });
         setImageGenerating({ done: i + 1, total: countToGenerate });
       }
     } catch (err: any) {
-      alert(err.message || "이미지 생성 중 오류가 발생했습니다.");
+      console.error("이미지 생성 중 오류:", err);
     } finally {
       setImageGenerating(null);
     }
+  };
+
+  // AI 이미지 일괄 생성 핸들러 (수동 클릭 시)
+  const handleGenerateImages = async () => {
+    if (!result || imageGenerating) return;
+    setGeneratedImages([]); // 기존 것 초기화 후 재생성
+    await generateImagesFor(result);
   };
 
   // 특정 컷 단일 이미지 생성 핸들러
@@ -424,10 +442,134 @@ export default function MainPage() {
 
   const copyContent = () => {
     if (!result) return;
-    const full = `${result.title}\n\n${result.content}\n\n태그: ${result.tags.map((t) => "#" + t).join(" ")}`;
+    let formatted = result.content;
+    let bodySlotIndex = 1;
+    // [IMAGE INSERT - ...] 위치를 생성된 실제 이미지 URL 마크다운으로 치환
+    formatted = formatted.replace(/\[IMAGE INSERT\s*-\s*([^\]]+)\]/g, (match, desc) => {
+      const img = generatedImages[bodySlotIndex] || generatedImages.find((item) => item.type === "body");
+      bodySlotIndex++;
+      if (img?.url) {
+        return `\n\n![${img.caption || desc}](${img.url})\n\n`;
+      }
+      return match;
+    });
+
+    const thumbImg = generatedImages[0]?.url ? `![${result.title} 대표 썸네일](${generatedImages[0].url})\n\n` : "";
+    const full = `# ${result.title}\n\n${thumbImg}${formatted}\n\n태그: ${result.tags.map((t) => "#" + t).join(" ")}`;
     navigator.clipboard.writeText(full);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // 스마트에디터 본문 인라인 렌더링 헬퍼 (소제목 서식화 및 [IMAGE INSERT] 실제 이미지 치환)
+  const renderSmartArticle = (content: string) => {
+    if (!content) return null;
+    const lines = content.split("\n");
+    const elements: React.ReactNode[] = [];
+    let currentParagraphLines: string[] = [];
+    let bodySlotIndex = 0; // 본문 내 [IMAGE INSERT] 출현 순서
+
+    const flushParagraph = (key: string) => {
+      if (currentParagraphLines.length > 0) {
+        const text = currentParagraphLines.join("\n").trim();
+        if (text) {
+          elements.push(
+            <p key={key} className="text-sm sm:text-base text-neutral-800 leading-relaxed whitespace-pre-line font-normal my-3">
+              {text}
+            </p>
+          );
+        }
+        currentParagraphLines = [];
+      }
+    };
+
+    lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+
+      // 1. [SECTION - ...] 스마트에디터 소제목
+      if (trimmed.startsWith("[SECTION") && trimmed.endsWith("]")) {
+        flushParagraph(`p-before-sec-${idx}`);
+        const secTitle = trimmed.replace(/^\[SECTION\s*-\s*/, "").replace(/\]$/, "");
+        elements.push(
+          <div key={`sec-${idx}`} className="pt-4 pb-1 border-b border-neutral-200 my-4">
+            <h3 className="text-base sm:text-lg font-extrabold text-neutral-900 flex items-center gap-2">
+              <span className="text-emerald-600 font-black">📌</span>
+              <span>{secTitle}</span>
+            </h3>
+          </div>
+        );
+        return;
+      }
+
+      // 2. [IMAGE INSERT - ...] 인라인 이미지 삽입 위치
+      if (trimmed.startsWith("[IMAGE INSERT") && trimmed.endsWith("]")) {
+        flushParagraph(`p-before-img-${idx}`);
+        const imgDesc = trimmed.replace(/^\[IMAGE INSERT\s*-\s*/, "").replace(/\]$/, "");
+        bodySlotIndex++;
+        const targetSlot = bodySlotIndex; // 1, 2, ...
+        // 매칭 이미지: index 0은 썸네일, 본문 컷은 targetSlot (1번째 본문 컷 = index 1)
+        const matchedImage = generatedImages[targetSlot] || (bodySlotIndex === 1 ? generatedImages.find((img) => img.type === "body") : undefined);
+        const promptItem = result?.images?.[targetSlot] || result?.images?.find((p) => p.type === "body") || result?.images?.[0];
+
+        if (matchedImage && matchedImage.url) {
+          elements.push(
+            <figure key={`img-slot-${idx}`} className="my-5 rounded-2xl overflow-hidden border border-neutral-200 bg-white shadow-xs group cursor-zoom-in">
+              <div onClick={() => setViewingImageUrl(matchedImage.url)} className="relative overflow-hidden">
+                <img
+                  src={matchedImage.url}
+                  alt={matchedImage.caption || imgDesc}
+                  className="w-full max-h-[460px] object-cover group-hover:scale-[1.01] transition-transform duration-200"
+                />
+                <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 backdrop-blur-xs text-white text-[11px] font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                  클릭하여 원본 확대
+                </div>
+              </div>
+              <figcaption className="text-center text-xs text-neutral-500 py-2.5 font-medium bg-neutral-50/80 border-t border-neutral-100 flex items-center justify-center gap-1.5">
+                <span>📷 {matchedImage.caption || imgDesc}</span>
+              </figcaption>
+            </figure>
+          );
+        } else {
+          elements.push(
+            <div key={`img-slot-${idx}`} className="my-4 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+              <div className="space-y-0.5 text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-bold text-blue-900">
+                  <ImageIcon className="w-4 h-4 text-blue-600" />
+                  <span>본문 이미지 삽입 위치 (본문 컷 #{bodySlotIndex})</span>
+                </div>
+                <p className="text-xs text-neutral-600 font-medium">{imgDesc}</p>
+              </div>
+              {promptItem && (
+                <button
+                  type="button"
+                  onClick={() => handleGenerateSingleImage(targetSlot, promptItem)}
+                  disabled={imageGenerating !== null || singleGeneratingIndex !== null}
+                  className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-colors shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {singleGeneratingIndex === targetSlot ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>생성 중...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>이 위치 이미지 생성</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          );
+        }
+        return;
+      }
+
+      currentParagraphLines.push(line);
+    });
+
+    flushParagraph("p-last");
+    return elements;
   };
 
   const currentAcc = accounts.find((a) => a.blog_id === selectedBlogId);
@@ -1254,19 +1396,72 @@ export default function MainPage() {
               </h2>
             </div>
 
-            {/* 본문 미리보기 (가로 폭 넓고 쾌적하게 렌더링) */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide">
-                  스마트에디터 ONE 서식 원고 본문
-                </span>
-                <span className="text-xs text-neutral-400">
-                  크롬 확장이 네이버 에디터에 제목/본문/태그를 동일 서식으로 자동 입력합니다.
-                </span>
+            {/* 본문 미리보기 (서식 및 인라인 이미지 렌더링) */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="space-y-0.5">
+                  <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide block">
+                    스마트에디터 ONE 서식 원고 본문
+                  </span>
+                  <span className="text-xs text-neutral-400">
+                    본문 사이사이에 고화질 이미지가 자동 배치되어 완성된 포스팅 형태로 렌더링됩니다.
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewMode("smart")}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      previewMode === "smart"
+                        ? "bg-white text-emerald-700 shadow-2xs"
+                        : "text-neutral-600 hover:text-neutral-900"
+                    }`}
+                  >
+                    🎨 서식·이미지 완성 뷰
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewMode("raw")}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      previewMode === "raw"
+                        ? "bg-white text-emerald-700 shadow-2xs"
+                        : "text-neutral-600 hover:text-neutral-900"
+                    }`}
+                  >
+                    📄 원본 텍스트
+                  </button>
+                </div>
               </div>
-              <div className="p-6 rounded-2xl bg-neutral-50/70 border border-neutral-200 font-sans text-sm text-neutral-800 leading-relaxed whitespace-pre-wrap max-h-[550px] overflow-y-auto shadow-inner">
-                {result.content}
-              </div>
+
+              {/* 1. 대표 썸네일 이미지 (생성된 경우 상단 렌더링) */}
+              {generatedImages[0]?.url && previewMode === "smart" && (
+                <figure className="my-2 rounded-2xl overflow-hidden border border-neutral-200 bg-white shadow-xs group cursor-zoom-in">
+                  <div onClick={() => setViewingImageUrl(generatedImages[0].url)} className="relative overflow-hidden">
+                    <img
+                      src={generatedImages[0].url}
+                      alt={`${result.title} 대표 썸네일`}
+                      className="w-full max-h-[460px] object-cover group-hover:scale-[1.01] transition-transform duration-200"
+                    />
+                    <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 backdrop-blur-xs text-white text-[11px] font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                      클릭하여 원본 확대
+                    </div>
+                  </div>
+                  <figcaption className="text-center text-xs text-neutral-500 py-2.5 font-medium bg-neutral-50/80 border-t border-neutral-100">
+                    📷 {result.title} 대표 썸네일
+                  </figcaption>
+                </figure>
+              )}
+
+              {/* 2. 본문 박스 */}
+              {previewMode === "smart" ? (
+                <div className="p-6 rounded-2xl bg-neutral-50/70 border border-neutral-200 font-sans shadow-inner space-y-2">
+                  {renderSmartArticle(result.content)}
+                </div>
+              ) : (
+                <div className="p-6 rounded-2xl bg-neutral-50/70 border border-neutral-200 font-sans text-sm text-neutral-800 leading-relaxed whitespace-pre-wrap max-h-[550px] overflow-y-auto shadow-inner">
+                  {result.content}
+                </div>
+              )}
             </div>
 
             {/* 태그 */}
