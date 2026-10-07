@@ -71,6 +71,13 @@ export interface AutoPostOptions {
   }
 }
 
+export interface PostSectionItem {
+  id: string
+  heading: string
+  body: string
+  imageUrl?: string
+}
+
 export interface GeneratedPostResult {
   title: string
   excerpt: string
@@ -79,6 +86,10 @@ export interface GeneratedPostResult {
   readingMinutes: number
   categorySlug: string
   topKeywords: string[]
+  coverImage?: { url: string; prompt?: string; caption?: string }
+  sections?: PostSectionItem[]
+  cta?: { text: string; url: string }
+  hashtags?: string
 }
 
 function generateHashtags(topic: string, keywords: string[], parsedJson?: any): string {
@@ -119,7 +130,15 @@ async function generateWithContentModel(
   newsData: CollectedNewsResult,
   options: AutoPostOptions,
   apiKey: string
-): Promise<{ title: string; excerpt: string; contentMarkdown: string }> {
+): Promise<{
+  title: string
+  excerpt: string
+  contentMarkdown: string
+  coverImage?: { url: string; caption?: string }
+  sections?: PostSectionItem[]
+  cta?: { text: string; url: string }
+  hashtags?: string
+}> {
   const keywordsList = options.keywords && options.keywords.length > 0
     ? options.keywords.slice(0, 5)
     : newsData.topKeywords.slice(0, 5)
@@ -276,7 +295,22 @@ ${
 ${hashtags}
 `.trim()
 
-  return { title, excerpt, contentMarkdown }
+  const structuredSections: PostSectionItem[] = headings.map((heading, idx) => ({
+    id: `sec-${idx + 1}`,
+    heading,
+    body: sectionBodies[idx],
+    imageUrl: imageBySection.get(idx) || undefined,
+  }))
+
+  return {
+    title,
+    excerpt,
+    contentMarkdown,
+    coverImage: images[0]?.url ? { url: images[0].url, caption: `${title} 대표 비주얼` } : undefined,
+    sections: structuredSections,
+    cta: options.cta,
+    hashtags,
+  }
 }
 
 export async function generateAutoPost(
@@ -302,6 +336,10 @@ export async function generateAutoPost(
     readingMinutes,
     categorySlug,
     topKeywords: newsData.topKeywords,
+    coverImage: postData.coverImage,
+    sections: postData.sections,
+    cta: postData.cta,
+    hashtags: postData.hashtags,
   }
 }
 

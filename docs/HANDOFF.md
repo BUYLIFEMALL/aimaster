@@ -1,5 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## AI 맞춤 자동 블로그 (ai-auto-blog v1.35, 2026-10-07)
+
+- **AI 맞춤 자동 글쓰기(/write/ai-form) 본문+이미지 실시간 생성 & 블록 편집기 전면 구축 (v1.35)**:
+  - 배경: 주인님의 "https://ai-auto-blog-one.vercel.app/write/ai-form 다른 블로그(원문)자동화에 구현해 놓은 본문+이미지생성기능과 편집 기능을 면밀히 분석후 여기에 구현해줘" 요청에 따른 완성형 실시간 편집기 탑재.
+  - 조치:
+    1) `ai-auto-blog/utils/news/generator.ts`:
+       - `PostSectionItem` 및 `GeneratedPostResult` 인터페이스 확장 (`coverImage`, `sections`, `cta`, `hashtags`).
+       - `generateWithContentModel` 및 `generateAutoPost`가 소제목, 문단 본문, 문단별 매칭 이미지 URL을 구조화된 배열로 반환하도록 개선.
+    2) `ai-auto-blog/app/api/auto-post/route.ts`:
+       - `savePostToDatabase` 모듈화 함수 추출.
+       - `previewOnly: true` (또는 `mode: 'generate'`): AI 생성 완료 후 DB insert 없이 구조화된 글/이미지 객체를 즉시 반환하여 프론트엔드 편집기 연동.
+       - `saveOnly: true` (또는 `mode: 'save'`): 사용자가 편집 완료한 제목, 요약문, 마크다운/HTML 본문, 카테고리를 수신해 DB `blog_posts` 및 매핑 테이블에 단일 트랜잭션으로 안전하게 저장.
+    3) `ai-auto-blog/app/write/ai-form/page.tsx`:
+       - `previewOnly` 생성 파이프라인 연동.
+       - 상단 메타 바: 실시간 글자 수 카운터, 상태 배지, 원고 복사, 최종 저장, 네이버 입력기 전송.
+       - 제목 & 요약문 실시간 인라인 편집.
+       - 대표 이미지 카드: 썸네일, 고해상도 확대 모달, [대표 이미지 다시 생성 (`/api/posts/generate-editor-image`)].
+       - 본문 문단 블록 편집기: 문단별 소제목 H2 & 본문 `textarea` 편집, 문단 순서 이동(`[▲]`/`[▼]`), 문단 삭제, `[새 본문 문단 추가]`.
+       - 문단별 이미지 카드: [이 이미지만 다시 생성], [이미지 제거], 미배정 시 [AI 이미지 생성].
+       - 추천 링크(CTA) & 추천 SEO 태그 카드.
+       - 최종 액션 바: `[최종 발행 및 블로그에 등록]`, `[전체 원고 복사]`, `[네이버 입력기 전송]`.
+       - 고해상도 이미지 모달 뷰어(`viewingImageUrl`).
+    4) `utils/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0005_bump_version_v1_35.sql`을 `v1.35`로 동기화.
+    5) Chrome 확장 최신 번들 `ai-auto-blog-extension-v1.35.zip` prebuild 자동 생성 완료.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.17, 2026-10-07)
 
 - **AI 글 생성 엔진 & 멀티 이미지 생성 플랫폼 선택 및 실제 이미지 생성 기능 탑재 (v1.17)**:
