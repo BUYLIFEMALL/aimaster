@@ -8,6 +8,11 @@
     1) `settings/page.tsx`: SSR 서버 컴포넌트로 전면 전환하고, `requireProgramAccess()` 세션 검증 후 `createAdminClient()`로 회원의 `user_api_keys`를 직접 쿼리하여 마스킹된 키 값(`initialDetails`)과 등록 목록을 즉시 획득.
     2) `SettingsClient.tsx`: 클라이언트 인터랙션 컴포넌트를 분리하여 서버에서 전달받은 키 정보를 첫 렌더링 즉시 100% 완전 노출. "🔄 계정 키 다시 불러오기" 버튼으로 실시간 동기화 지원.
     3) `src/lib/version.ts`, DB `programs.version` 및 마이그레이션 `0004_nba_bump_version_v1_04.sql`을 `v1.04`로 동기화.
+    4) **AIMaster 메인 사이트 정식 등록 & 메인지침 썸네일 완결**:
+       - 메인지침 §13(포토리얼리즘, 한국인 마케터, 16:9, shallow depth of field, 85mm 렌즈룩, 텍스트 배제, floating glowing icon)을 100% 준수한 고화질 실사 썸네일 생성.
+       - `scripts/upload-program-thumbnail.mjs`로 Supabase Storage 업로드 및 `programs.thumbnail_url` 갱신 (`?v=1791335274850`).
+       - `programs` 테이블의 `category_id`를 '블로그'(`8e8be410-3ed4-46f7-80d9-4b408af61cc1`)로 지정하고 `badges: ["new"]`, `sort_order: 1` 설정 완료.
+       - 메인 카탈로그(`https://www.buylife.xyz/programs`) 및 상세 소개 페이지(`https://www.buylife.xyz/programs/naver-blog-agent`)에 정상 노출 확인 (HTTP 200 OK).
 
 
 - **통합 계정(buylifemall 등) 연동 AI 키 시각화 및 자동 공유 체계 고도화 (v1.03)**:
