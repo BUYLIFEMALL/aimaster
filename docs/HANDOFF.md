@@ -350,6 +350,10 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.65 — 글감 카드 버튼 정리 (2026-10-07)
+
+- 사용가능 전환 삭제, 사용완료↔사용가능 토글, 상단 '사용 완료' 배지 삭제. 화면만 변경.
+
 ## Threads Content Ops v1.64 — 사용 완료 초록색 표시 (2026-10-07)
 
 - 사용 완료 배지·버튼 초록색, 버튼으로 해제. 화면만 변경.
