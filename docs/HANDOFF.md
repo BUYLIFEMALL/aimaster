@@ -248,6 +248,10 @@
     2) `settings/page.tsx`: 설정 화면의 Anthropic 키 발급 안내에 콘솔에서 Default Workspace 선택 후 발급(`sk-ant-api03-...`)해야 한다는 주의사항 명시 및 가장 안정적인 OpenAI (GPT-4.1) 추천 배지 탑재.
   - `APP_VERSION` 및 DB `programs.version`을 `v1.24`로 갱신했다.
 
+## Threads Content Ops v1.58 — 맞춤글 생성 박스를 threads-easy-planner 구성으로 (2026-10-07)
+
+- 터진 글 원문(벤치마킹, 구조만 참고·표절 금지) 입력과 '입력한 템플릿으로 글 생성하기' 버튼 추가. 사진·영상 첨부는 미이식. DB 변경 없음.
+
 ## Threads Content Ops v1.57 — 상품 연결 글 형식을 실제 게시 예시에 맞춤 (2026-10-07)
 
 - 고지 → 이모티콘 제목 → 3단락(특징·가격) → 상품링크: 주소 한 줄, 네이버는 쿠팡과 같은 형식의 고지(이름만 변경). DB 변경 없음.

@@ -868,7 +868,7 @@ export async function analyzeShortToViralCandidates(input: { id: string; title: 
 // ---------------------------------------------------------------------------
 type AttentionResult = { ok: true; plan: AttentionPlan } | { ok: false; error: string; needKey?: boolean };
 type EngineInput = { provider: string; model: string };
-type CustomFields = { product?: string; experience?: string; targetAudience?: string; linkedProduct?: { name: string; summary: string; price?: number | null } };
+type CustomFields = { product?: string; experience?: string; targetAudience?: string; linkedProduct?: { name: string; summary: string; price?: number | null }; benchmarkPost?: string };
 
 /** 회원 본인이 등록한 상품(쇼핑제휴 상품 등록)을 id로 읽는다. 보관한 상품·다른 회원의 상품은 읽지 않는다. 링크·고지는 항상 서버 값만 쓴다. */
 async function loadLinkedProduct(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, productId: string | undefined): Promise<LinkedProduct | null> {
@@ -903,7 +903,7 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
     if (note.length > 300) throw new Error("추가 요청은 300자 이내로 입력해 주세요.");
     const persona = input.personaId ? PERSONAS.find((item) => item.id === input.personaId) : undefined;
     if (input.personaId && !persona) throw new Error("지원하지 않는 페르소나입니다.");
-    const custom: CustomFields = { product: clean(input.custom?.product, 200), experience: clean(input.custom?.experience, 800), targetAudience: clean(input.custom?.targetAudience, 200) };
+    const custom: CustomFields = { product: clean(input.custom?.product, 200), experience: clean(input.custom?.experience, 800), targetAudience: clean(input.custom?.targetAudience, 200), benchmarkPost: clean(input.custom?.benchmarkPost, 2_000) };
     const { supabase, user } = await authorizedUser();
     const linked = await loadLinkedProduct(supabase, user.id, input.productId);
     if (linked) custom.linkedProduct = { name: linked.title.slice(0, 200), summary: linked.summary.slice(0, 600), price: linked.price ?? null };

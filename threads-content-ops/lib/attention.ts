@@ -87,7 +87,7 @@ export function normalizeAttentionPlan(raw: string): AttentionPlan {
 
 export type Engine = { provider: EngineProvider; model: string; apiKey: string };
 export type LinkedProductInput = { name: string; summary: string; price?: number | null };
-export type CustomInput = { product?: string; experience?: string; targetAudience?: string; linkedProduct?: LinkedProductInput };
+export type CustomInput = { product?: string; experience?: string; targetAudience?: string; linkedProduct?: LinkedProductInput; benchmarkPost?: string };
 
 function aiErrorMessage(status: number, provider: EngineProvider): string {
   const name = provider === "openai" ? "OpenAI" : provider === "anthropic" ? "Claude" : "Gemini";
@@ -146,6 +146,7 @@ async function callJson(engine: Engine, system: string, user: string): Promise<s
 function systemWith(personaTone: string | undefined, custom: CustomInput) {
   const extras: string[] = [];
   if (personaTone) extras.push(`[글쓴이 페르소나 — 시점과 말투만 반영]\n${personaTone}\n페르소나는 어조와 관점을 정하는 용도입니다. 페르소나의 직업·상황을 근거로 구체적인 체험담이나 사실을 지어내지 마세요.`);
+  if (custom.benchmarkPost) extras.push("[참고할 터진 글 — 구조만 벤치마킹]\n<data>의 [참고할 터진 글]은 반응이 좋았던 글입니다. 첫 문장의 후킹 방식, 건드리는 심리, 전개 순서(뼈대)만 분석해서 그 뼈대에 이번 글감을 넣어 새로 쓰세요. 그 글의 문장·표현·소재·고유한 디테일을 그대로 옮기거나 살짝만 바꿔 쓰지 마세요(표절 금지). 그 글에 나온 사실이나 경험을 이번 글의 사실로 가져오지 마세요.");
   if (custom.experience) extras.push(`[회원이 직접 입력한 실제 경험 — 이 안에서만 개인 경험으로 쓸 수 있음]\n위 '사실 원칙'의 예외로, <data>의 [내 실제 경험]에 적힌 내용은 글쓴이가 실제로 겪은 일이므로 1인칭 경험담으로 자연스럽게 살려 쓰세요. 거기에 없는 경험·수치는 여전히 지어내지 마세요.`);
   if (custom.linkedProduct) extras.push("[등록 상품 연결 — 상품 소개 글 형식]\n상품이 연결된 글은 아래 형식을 content와 hookVariants의 모든 content에 똑같이 적용하세요(고지 문구·상품 링크는 시스템이 앞뒤에 붙이므로 쓰지 마세요).\n1) 첫 줄: 어울리는 이모티콘 1개 + 10자 이내 짧은 제목(글감과 상품이 만나는 한마디). hook과 같은 문장으로 쓰세요.\n2) 빈 줄 후 본문 3개 단락(각 단락 사이 빈 줄 \\\\n\\\\n, 단락당 1~2문장, 짧고 읽기 쉽게):\n  ① 글감 이야기에서 시작해 공감 가는 상황·고민을 말하고 자연스럽게 상품으로 이어가기\n  ② [연결 상품]의 특징을 2~3개 구체적으로 소개(상품명은 여기서 자연스럽게 한 번 언급)\n  ③ 마무리 한 줄 — [연결 상품]에 가격이 적혀 있으면 가격(예: 49,800원)을 넣어 '이 가격에 이 정도면 가성' 식으로 담백하게 정리, 가격이 없으면 가격은 쓰지 마세요.\n3) [연결 상품]에 적힌 정보만 쓰고, 없는 기능·효과·가격·후기·사용 경험을 절대 지어내지 마세요. 광고 문구처럼 과장하거나 구매를 재촉하지 말고 담백하고 자연스럽게 쓰세요.\n4) content 전체(제목 줄 포함)는 공백 포함 330자 이내 — 앞뒤에 고지 문구와 링크가 붙어도 Threads 500자를 넘지 않게 하기 위함입니다. cta는 구매 재촉 없이 공감이나 질문으로 쓰세요.");
   if (custom.product && !custom.linkedProduct) extras.push("[상품 노출 규칙]\n본문(content)에는 상품명·브랜드명을 쓰지 말고 '이거', '이 조합'처럼 호기심을 키우는 표현만 쓰세요. 상품명은 cta(첫 댓글 멘트)에서만 자연스럽게 언급할 수 있습니다.");
@@ -157,6 +158,7 @@ export async function generateAttentionPlan(params: { topic: string; note?: stri
   const parts = [`[글감]\n${params.topic}`];
   if (custom.product && !custom.linkedProduct) parts.push(`[연결할 상품/핵심 소재]\n${custom.product}`);
   if (custom.linkedProduct) parts.push(`[연결 상품]\n상품명: ${custom.linkedProduct.name}${custom.linkedProduct.summary ? `\n상품 설명: ${custom.linkedProduct.summary}` : ""}${custom.linkedProduct.price ? `\n가격: ${custom.linkedProduct.price.toLocaleString("ko-KR")}원` : ""}`);
+  if (custom.benchmarkPost) parts.push(`[참고할 터진 글]\n${custom.benchmarkPost}`);
   if (custom.experience) parts.push(`[내 실제 경험]\n${custom.experience}`);
   if (custom.targetAudience) parts.push(`[타깃 독자]\n${custom.targetAudience}`);
   if (params.note) parts.push(`[추가 요청]\n${params.note}`);

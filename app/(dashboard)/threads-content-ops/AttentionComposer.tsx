@@ -42,6 +42,7 @@ export default function AttentionComposer({ accounts, products, viralCandidates,
   const linkedProduct = products.find((item) => item.id === productId);
   const [experience, setExperience] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
+  const [benchmark, setBenchmark] = useState("");
   const [engine, setEngine] = useState<Engine>(DEFAULT_ENGINE);
   const [image, setImage] = useState<ImageSettings>({ platform: DEFAULT_IMAGE_PLATFORM, model: DEFAULT_IMAGE_MODELS[DEFAULT_IMAGE_PLATFORM], ratio: "1:1", count: 1 });
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
@@ -79,7 +80,7 @@ export default function AttentionComposer({ accounts, products, viralCandidates,
     try {
       const result = await generateAttentionPost({
         topic: effectiveTopic, note, personaId: forcedPersonaId ?? (personaId || undefined),
-        custom: { product, experience, targetAudience }, engine, productId: productId || undefined,
+        custom: { product, experience, targetAudience, benchmarkPost: benchmark }, engine, productId: productId || undefined,
       });
       if (result.ok) setPlan(result.plan);
       else setMessage({ ok: false, text: result.error });
@@ -139,7 +140,10 @@ export default function AttentionComposer({ accounts, products, viralCandidates,
       {personaId && <p className="mt-2 text-xs text-neutral-600">선택한 페르소나: <b>{PERSONAS.find((item) => item.id === personaId)?.name}</b> · 아래 "글 생성하기"도 이 시점으로 만듭니다. <button type="button" className="font-semibold underline" onClick={() => setPersonaId("")}>해제</button></p>}
 
       <div className="mt-4 rounded-xl border-2 border-amber-300 bg-white p-3">
-        <p className="text-sm font-bold text-neutral-900">✍️ 맞춤글 (내 경험·상품·타깃 직접 입력) <span className="font-normal text-neutral-500">— 선택</span></p>
+        <div className="flex items-start gap-3">
+          <span className="text-2xl" aria-hidden>✍️</span>
+          <div className="min-w-0"><p className="text-sm font-bold text-neutral-900">맞춤글 생성 (내 실제 경험담 · 상품명 · 타깃 직접 입력)</p><p className="mt-0.5 text-xs text-neutral-500">내가 직접 겪은 썰이나 특정 상품을 넣어, 지어내지 않고 리얼하고 자연스러운 글로 완성합니다. 모두 선택 사항입니다.</p></div>
+        </div>
         <div className="mt-3 space-y-3">
           <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-3">
             <label className="block text-xs font-bold text-neutral-800">🛍️ 등록한 상품 연결 <span className="font-normal text-neutral-500">— 선택 안 하면 일반 Threads 글이 됩니다</span>
@@ -156,12 +160,17 @@ export default function AttentionComposer({ accounts, products, viralCandidates,
               <p className="mt-1 text-neutral-600">글 형식: 첫 줄 제휴 고지(“{disclosureFor(linkedProduct.source_type)}”) → 이모티콘+짧은 제목 → 글감 이야기에서 상품 특징·가격으로 이어지는 3개 단락 → 맨 아래 “상품링크: 주소”. 고지와 링크는 자동으로 붙고 법에 따라 지울 수 없습니다.</p>
             </div>}
           </div>
-          <label className="block text-xs font-semibold text-neutral-600">내 실제 경험<textarea className={`${inputClass} mt-1 min-h-20`} maxLength={800} value={experience} onChange={(event) => setExperience(event.target.value)} placeholder="직접 겪은 일만 적어 주세요. 여기에 적은 경험만 1인칭 경험담으로 쓰입니다." /></label>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="block text-xs font-semibold text-neutral-600">연결할 상품·핵심 소재{linkedProduct ? " (등록 상품 연결 중 — 위 상품이 우선합니다)" : ""}<input disabled={Boolean(linkedProduct)} className={`${inputClass} mt-1 disabled:bg-neutral-100`} maxLength={200} value={product} onChange={(event) => setProduct(event.target.value)} placeholder="예: 실리콘 전자레인지 찜기" /></label>
-            <label className="block text-xs font-semibold text-neutral-600">타깃 독자<input className={`${inputClass} mt-1`} maxLength={200} value={targetAudience} onChange={(event) => setTargetAudience(event.target.value)} placeholder="예: 퇴근 후 설거지가 싫은 자취 직장인" /></label>
+            <label className="block text-xs font-semibold text-neutral-700">연결할 상품/핵심 소재 <span className="font-normal text-neutral-500">(본문에는 숨겨지고 첫 댓글 CTA로 유도됨){linkedProduct ? " — 등록 상품 연결 중이라 위 상품이 우선합니다" : ""}</span><input disabled={Boolean(linkedProduct)} className={`${inputClass} mt-1 disabled:bg-neutral-100`} maxLength={200} value={product} onChange={(event) => setProduct(event.target.value)} placeholder="예: 실리콘 전자레인지 찜기, 세탁조 클리너" /></label>
+            <label className="block text-xs font-semibold text-neutral-700">타깃 독자<input className={`${inputClass} mt-1`} maxLength={200} value={targetAudience} onChange={(event) => setTargetAudience(event.target.value)} placeholder="예: 20대 후반 자취 직장인, 살림하는 주부" /></label>
           </div>
-          <p className="text-[11px] text-neutral-500">상품명은 본문에 쓰지 않고 첫 댓글 멘트에서만 언급합니다. 글감에 없는 사실은 여전히 지어내지 않습니다.</p>
+          <label className="block text-xs font-semibold text-neutral-700">내 실제 경험담 / 상황 <span className="font-normal text-neutral-500">(지어내지 않고 솔직한 리얼 썰 — 여기에 적은 경험만 1인칭 경험담으로 쓰입니다)</span><textarea className={`${inputClass} mt-1 min-h-20`} maxLength={800} value={experience} onChange={(event) => setExperience(event.target.value)} placeholder="예: 퇴근 후 설거지가 너무 싫어서 저녁을 자주 거르다가 샀음. 써 본 지 2주째인데 삶의 질 수직 상승" /></label>
+          <label className="block text-xs font-semibold text-neutral-700">참고할 터진 글 원문 <span className="font-normal text-neutral-500">(선택 사항 — 벤치마킹할 스레드 글이 있다면 붙여넣기)</span><textarea className={`${inputClass} mt-1 min-h-20`} maxLength={2000} value={benchmark} onChange={(event) => setBenchmark(event.target.value)} placeholder="예: 넘더러워서 안 올리려다 추천해준 치니 고마워서 올림... 워싱소다 다 소용없더라" /></label>
+          <p className="text-[11px] text-neutral-500">터진 글은 첫 문장 후킹·심리·전개 순서(뼈대)만 참고하고, 문장이나 소재는 그대로 따라 쓰지 않습니다. 직접 쓴 경험에 없는 사실은 지어내지 않습니다.</p>
+          <div className="flex flex-col items-end gap-1">
+            <button type="button" className="inline-flex items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={generating || !(topic.trim() || product.trim() || experience.trim() || benchmark.trim() || linkedProduct)} onClick={() => void generate("custom", undefined, topic.trim() || linkedProduct?.title || product.trim() || experience.trim().slice(0, 300) || benchmark.trim().slice(0, 300))}><Sparkles size={15} />{generatingLabel === "custom" ? "맞춤글 만드는 중… (최대 1분)" : "입력한 템플릿으로 글 생성하기"}</button>
+            <span className="text-[11px] text-neutral-500">글감 칸이 비어 있으면 위 입력(상품·경험담)을 주제로 씁니다.</span>
+          </div>
         </div>
       </div>
 
