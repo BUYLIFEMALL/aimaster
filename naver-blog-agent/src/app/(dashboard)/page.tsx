@@ -175,39 +175,57 @@ export default function MainPage() {
       })
       .catch(() => {});
 
-    // 보관된 원고 목록 개수 확인
-    try {
-      const savedPosts = localStorage.getItem("nba_saved_posts");
-      if (savedPosts) {
-        const parsed = JSON.parse(savedPosts);
-        if (Array.isArray(parsed)) setSavedPostCount(parsed.length);
-      }
-    } catch {}
+    // 서버 및 로컬 보관된 원고 목록 동기화 및 개수 확인
+    fetch("/api/posts")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.posts && Array.isArray(data.posts)) {
+          setSavedPostCount(data.posts.length);
+          localStorage.setItem("nba_saved_posts", JSON.stringify(data.posts));
+        } else {
+          const savedPosts = localStorage.getItem("nba_saved_posts");
+          if (savedPosts) {
+            const parsed = JSON.parse(savedPosts);
+            if (Array.isArray(parsed)) setSavedPostCount(parsed.length);
+          }
+        }
+      })
+      .catch(() => {
+        try {
+          const savedPosts = localStorage.getItem("nba_saved_posts");
+          if (savedPosts) {
+            const parsed = JSON.parse(savedPosts);
+            if (Array.isArray(parsed)) setSavedPostCount(parsed.length);
+          }
+        } catch {}
+      });
   }, []);
 
-  // 로컬 스토리지 보관함에 원고 자동 저장 및 갱신 헬퍼
-  const savePostToStorage = (
+  // 로컬 및 Supabase 서버 DB에 원고 영구 저장 및 갱신 헬퍼
+  const savePostToStorage = async (
     postId: string,
     targetResult: PipelineResult,
     imagesToSave: any[],
     status: "draft" | "queued" = "draft"
   ) => {
     if (!targetResult || typeof window === "undefined") return;
+    const finalImages = imagesToSave.length > 0 ? imagesToSave : targetResult.images || [];
+    const postItem = {
+      id: postId,
+      blog_id: selectedBlogId || "myblog_sample",
+      category_name: targetResult.category,
+      title: targetResult.title,
+      content: targetResult.content,
+      excerpt: targetResult.excerpt || "",
+      tags: targetResult.tags,
+      images: finalImages,
+      status,
+      created_at: new Date().toISOString(),
+    };
+
+    // 1) 로컬 캐시 즉시 업데이트
     try {
       const existing: any[] = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-      const postItem = {
-        id: postId,
-        blog_id: selectedBlogId || "myblog_sample",
-        category_name: targetResult.category,
-        title: targetResult.title,
-        content: targetResult.content,
-        excerpt: targetResult.excerpt || "",
-        tags: targetResult.tags,
-        images: imagesToSave.length > 0 ? imagesToSave : targetResult.images || [],
-        status,
-        created_at: new Date().toISOString(),
-      };
-
       const existingIndex = existing.findIndex((p) => p.id === postId);
       let updatedList: any[];
       if (existingIndex >= 0) {
@@ -224,7 +242,24 @@ export default function MainPage() {
       localStorage.setItem("nba_saved_posts", JSON.stringify(updatedList));
       setSavedPostCount(updatedList.length);
     } catch (err) {
-      console.warn("로컬 원고 저장 실패:", err);
+      console.warn("로컬 원고 캐시 실패:", err);
+    }
+
+    // 2) Supabase DB 서버 영구 저장 (/api/posts)
+    try {
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postItem),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.post?.id && data.post.id !== postId) {
+          setCurrentPostId(data.post.id);
+        }
+      }
+    } catch (apiErr) {
+      console.warn("서버 DB 영구 저장 중 오류 (로컬 보관 유지):", apiErr);
     }
   };
 
@@ -495,42 +530,16 @@ export default function MainPage() {
   const handlePublishToQueue = () => {
     if (!result) return;
     const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
-    const newPost = {
-      id: "post-" + Date.now(),
-      blog_id: selectedBlogId || "myblog_sample",
-      category_name: result.category,
-      title: result.title,
-      content: result.content,
-      tags: result.tags,
-      images: finalImagesToSave,
-      status: "queued" as const,
-      created_at: new Date().toISOString(),
-    };
-
-    const existing = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-    localStorage.setItem("nba_saved_posts", JSON.stringify([newPost, ...existing]));
-
+    const targetId = currentPostId || "post-" + Date.now();
+    savePostToStorage(targetId, result, finalImagesToSave, "queued");
     alert("크롬 확장의 자동 발행 큐에 등록되었습니다! 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
   };
 
   const handleSaveDraft = () => {
     if (!result) return;
     const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
-    const newPost = {
-      id: "post-" + Date.now(),
-      blog_id: selectedBlogId || "myblog_sample",
-      category_name: result.category,
-      title: result.title,
-      content: result.content,
-      tags: result.tags,
-      images: finalImagesToSave,
-      status: "draft" as const,
-      created_at: new Date().toISOString(),
-    };
-
-    const existing = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-    localStorage.setItem("nba_saved_posts", JSON.stringify([newPost, ...existing]));
-
+    const targetId = currentPostId || "post-" + Date.now();
+    savePostToStorage(targetId, result, finalImagesToSave, "draft");
     alert("보관함에 원고가 안전하게 저장되었습니다.");
   };
 

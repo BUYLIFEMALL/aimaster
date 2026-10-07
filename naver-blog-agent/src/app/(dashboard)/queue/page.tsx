@@ -46,50 +46,44 @@ export default function QueuePage() {
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
+  const fetchPosts = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/posts");
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+          setPosts(data.posts);
+          localStorage.setItem("nba_saved_posts", JSON.stringify(data.posts));
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("서버 원고 로드 실패, 로컬 캐시 확인:", err);
+    }
+
+    // 서버에 글이 없거나 실패 시 로컬스토리지 캐시 확인
     const saved = localStorage.getItem("nba_saved_posts");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           setPosts(parsed);
+          setIsLoading(false);
+          return;
         }
       } catch {}
-    } else {
-      const initial: SavedPostItem[] = [
-        {
-          id: "post-sample-1",
-          blog_id: "myblog_sample",
-          category_name: "생활정보",
-          title: "2026 청년 취업지원금 신청 자격 및 필수 서류 총정리",
-          content:
-            "[SECTION - 2026 청년 취업지원금이란?]\n올해 새롭게 개편된 청년 지원 정책으로, 취업을 준비하는 만 19세~34세 청년을 위한 실질적인 구직활동 지원금입니다.\n\n[IMAGE INSERT - 청년 취업 준비 서류와 노트북]\n\n[SECTION - 신청 자격 및 소득 기준]\n가구 기준 중위소득 120% 이하를 충족해야 하며, 졸업 후 2년 이내인 미취업 청년이 우선 대상자입니다.\n\n[SECTION - 필수 제출 서류 및 신청 방법]\n주민등록등본, 최종학력 졸업증명서, 구직활동 계획서를 고용복지플러스센터 누리집을 통해 온라인 제출하시면 됩니다.",
-          excerpt: "2026년 청년 취업지원금의 신청 자격, 지원 금액, 필수 서류 및 신청 노하우를 한눈에 정리했습니다.",
-          tags: ["청년취업지원금", "2026청년정책", "취업지원금신청", "구직활동지원금"],
-          images: [
-            {
-              url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80",
-              type: "thumbnail",
-              caption: "청년 취업 서류 준비 대표 썸네일",
-              prompt: "A young person studying with laptop and notebook",
-            },
-            {
-              url: "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&auto=format&fit=crop&q=80",
-              type: "body",
-              caption: "청년 취업 지원 서류 및 노트북 작업 공간",
-              prompt: "Desk with documents and laptop",
-            },
-          ],
-          status: "published",
-          created_at: new Date(Date.now() - 3600000).toISOString(),
-          published_at: new Date().toISOString(),
-          post_url: "https://blog.naver.com/myblog_sample/2234567890",
-        },
-      ];
-      setPosts(initial);
-      localStorage.setItem("nba_saved_posts", JSON.stringify(initial));
     }
+
+    setPosts([]);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchPosts();
   }, []);
 
   const savePosts = (items: SavedPostItem[]) => {
@@ -97,8 +91,8 @@ export default function QueuePage() {
     localStorage.setItem("nba_saved_posts", JSON.stringify(items));
   };
 
-  // 즉시 발행 요청 (크롬 확장 큐로 전송)
-  const handlePublishNow = (id: string) => {
+  // 즉시 발행 요청 (크롬 확장 큐로 전송 & 서버 DB 동기화)
+  const handlePublishNow = async (id: string) => {
     const updated = posts.map((p) => {
       if (p.id === id) {
         return { ...p, status: "queued" as const };
@@ -106,17 +100,36 @@ export default function QueuePage() {
       return p;
     });
     savePosts(updated);
+
+    try {
+      await fetch("/api/posts", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: "queued" }),
+      });
+    } catch (err) {
+      console.warn("서버 상태 갱신 실패:", err);
+    }
+
     alert(
       "크롬 확장의 자동 발행 큐에 등록되었습니다!\n크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다."
     );
   };
 
-  // 원고 삭제
-  const handleDelete = (id: string) => {
+  // 원고 삭제 (서버 DB 및 로컬 캐시 동시 삭제)
+  const handleDelete = async (id: string) => {
     if (!confirm("이 원고를 보관함에서 삭제하시겠습니까?")) return;
     const updated = posts.filter((p) => p.id !== id);
     savePosts(updated);
     if (viewingDetailPost?.id === id) setViewingDetailPost(null);
+
+    try {
+      await fetch(`/api/posts?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.warn("서버 원고 삭제 실패:", err);
+    }
   };
 
   // 원고 복사
@@ -145,8 +158,8 @@ export default function QueuePage() {
     alert("원고 내용과 이미지 링크가 클립보드에 복사되었습니다!");
   };
 
-  // 에디터 수정 완료 저장
-  const handleSaveEditor = (updated: {
+  // 에디터 수정 완료 저장 (서버 DB 및 로컬 캐시 동시 저장)
+  const handleSaveEditor = async (updated: {
     title: string;
     content: string;
     excerpt: string;
@@ -154,8 +167,9 @@ export default function QueuePage() {
     isHtml: boolean;
   }) => {
     if (!editingPost) return;
+    const targetId = editingPost.id;
     const updatedList = posts.map((p) => {
-      if (p.id === editingPost.id) {
+      if (p.id === targetId) {
         return {
           ...p,
           title: updated.title,
@@ -168,6 +182,23 @@ export default function QueuePage() {
     });
     savePosts(updatedList);
     setEditingPost(null);
+
+    try {
+      await fetch("/api/posts", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: targetId,
+          title: updated.title,
+          content: updated.content,
+          excerpt: updated.excerpt,
+          tags: updated.tags,
+        }),
+      });
+    } catch (err) {
+      console.warn("서버 원고 수정 실패:", err);
+    }
+
     alert("원고가 스마트 에디터에서 성공적으로 수정 및 저장되었습니다!");
   };
 
@@ -355,12 +386,29 @@ export default function QueuePage() {
             <BookOpen size={14} className="text-emerald-600" />
             <span>보관된 블로그 원고 목록 ({filteredPosts.length}건)</span>
           </div>
-          <div className="text-[11px] text-neutral-400">
-            제목을 클릭하면 완성된 서식과 이미지가 포함된 상세 뷰어가 열립니다.
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline text-[11px] text-neutral-400">
+              제목을 클릭하면 완성된 서식과 이미지가 포함된 상세 뷰어가 열립니다.
+            </span>
+            <button
+              type="button"
+              onClick={fetchPosts}
+              disabled={isLoading}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-neutral-900 hover:border-neutral-300 transition-all disabled:opacity-50"
+              title="원고 목록 새로고침"
+            >
+              <RefreshCw size={12} className={isLoading ? "animate-spin text-emerald-600" : ""} />
+              <span>새로고침</span>
+            </button>
           </div>
         </div>
 
-        {filteredPosts.length === 0 ? (
+        {isLoading ? (
+          <div className="p-16 text-center space-y-3">
+            <RefreshCw size={24} className="animate-spin text-emerald-600 mx-auto" />
+            <div className="text-sm font-semibold text-neutral-700">서버 보관함에서 원고 목록을 불러오는 중...</div>
+          </div>
+        ) : filteredPosts.length === 0 ? (
           <div className="p-16 text-center space-y-3">
             <div className="text-3xl">📭</div>
             <div className="text-sm font-bold text-neutral-700">보관된 원고가 없습니다.</div>

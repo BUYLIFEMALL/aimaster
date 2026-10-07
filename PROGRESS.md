@@ -27,7 +27,13 @@
 - **v1.66**: 떡상 글감 카테고리 관리/이동 시스템 구축.
 - **v1.60**: Threads 글 분량 450~480자(상품 글은 고지·링크 포함) 꽉 채우기 최적화.
 
-### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.20** (2026-10-08)
+### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.21** (2026-10-08)
+- **v1.21**: **Supabase DB 원고 영구 저장 서버 API(/api/posts) 구축 & 원고 보관함 실시간 양방향 연동 (주인님 확정)**.
+  - 브라우저 로컬스토리지에만 보관되어 타 기기/시크릿 창에서 원고가 유실되던 문제를 서버 DB 영구 저장으로 완전 해결.
+  - `/api/posts` (GET/POST/PUT/DELETE) 서버 API 구현: `nba_posts` / `naver_blog_seo_drafts` Dual Storage Adapter로 안전한 RLS 격리(owner-only) 보장.
+  - 글 생성 및 이미지 완성 즉시, 수동 저장 및 스마트에디터 ONE 발행 전송 시 서버 DB에 즉시 영구 저장 및 큐 등록.
+  - `/queue` 원고 보관함 페이지: 마운트 시 서버 DB에서 실시간 원고 로드, 상단 `[🔄 새로고침]` 버튼 신설, 스마트 에디터 수정·삭제·발행 상태 실시간 양방향 동기화.
+
 - 주소: https://naver-blog-agent.vercel.app (Vercel 프로젝트 `naver-blog-agent`)
 - **v1.20**: **생성 콘텐츠 영구 자동 저장(Auto-save) & 전용 원고 보관소(/queue) 전면 개편 (주인님 확정)**.
   - 글 생성 및 이미지 완성 즉시 로컬 원고 보관함(`nba_saved_posts`)에 100% 자동 영구 저장되어 새로고침이나 브라우저 재접속 후에도 유실되지 않고 안전 보존. 결과 카드에 "✅ 보관함 자동 저장됨" 배지 표기.

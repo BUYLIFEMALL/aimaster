@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.21, 2026-10-08)
+
+- **Supabase DB 원고 영구 저장 서버 API(/api/posts) 구축 & 원고 보관함 실시간 양방향 연동 (v1.21, 주인님 확정)**:
+  - 배경: 주인님의 "왜 여기에 완성본을 저장하는 기능이 구현안되어 있어?" 지적에 따라 브라우저 임시 localStorage에만 의존하던 기존 저장 구조를 해결하고, 어떤 환경/기기에서도 작성한 블로그 글이 영구 보존되도록 서버 DB 연동 완성.
+  - 조치:
+    1) `naver-blog-agent/src/app/api/posts/route.ts`:
+       - `GET`, `POST`, `PUT`, `DELETE` 핸들러 신설.
+       - `force-dynamic`, `force-no-store` 캐싱 방지 선언 및 `createAdminClient()` 활용 안전한 RLS 격리(owner-only).
+       - Dual Storage Adapter 패턴 적용으로 `nba_posts` / `naver_blog_seo_drafts` 모두 완벽 호환 보장.
+    2) `naver-blog-agent/src/app/(dashboard)/page.tsx`:
+       - 글 생성 및 이미지 생성 완료 시 서버 `/api/posts`로 즉시 자동 영구 저장.
+       - 수동 저장(`handleSaveDraft`) 및 발행 전송(`handlePublishToQueue`) 시 서버 DB 즉시 저장 및 큐 전환.
+       - 페이지 로드 시 서버 DB의 최신 원고 개수로 상단 보관함 배지 실시간 동기화.
+    3) `naver-blog-agent/src/app/(dashboard)/queue/page.tsx`:
+       - 마운트 시 서버 `/api/posts`에서 실시간 원고 로드 및 로딩 스피너 제공.
+       - 목록 헤더 바에 `[🔄 새로고침]` 버튼 신설.
+       - 스마트 에디터 수정(`handleSaveEditor`), 삭제(`handleDelete`), 즉시 발행(`handlePublishNow`) 모두 서버 DB와 실시간 동기화.
+    4) `src/lib/version.ts`, `package.json`, `extension/manifest.json`, DB `programs.version` 및 마이그레이션 `0021_bump_version_v1_21.sql`을 `v1.21`로 동기화.
+
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.20, 2026-10-08)
 
 - **생성 콘텐츠 영구 자동 저장(Auto-save) & 전용 원고 보관소(/queue) 전면 개편 (v1.20)**:

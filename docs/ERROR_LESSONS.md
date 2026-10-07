@@ -1,5 +1,27 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-08 브라우저 로컬스토리지 의존으로 인한 원고 미저장·휘발 방지 및 Supabase DB 서버 영구 저장 API 연동 (naver-blog-agent v1.21)
+
+- **증상:** 네이버 블로그 에이전트에서 생성된 완성본 글이 다른 브라우저, 시크릿 창, 타 기기 접속 시 보이지 않거나 캐시 삭제 시 영구 유실됨. ("왜 여기에 완성본을 저장하는 기능이 구현안되어 있어?" 주인님 지적)
+- **원인:**
+  1. `page.tsx`와 `queue/page.tsx`가 브라우저의 `localStorage.getItem("nba_saved_posts")`에만 의존하고 있었음.
+  2. 서버에 원고 영구 저장/조회/수정/삭제를 담당하는 API 라우트(`/api/posts`)가 전무했음.
+  3. DB 마이그레이션이 되지 않은 상태에서도 기존 프로덕션 DB에 완벽히 구축되어 있던 네이버 블로그 원고 테이블(`naver_blog_seo_drafts`)을 활용하는 어댑터가 없었음.
+- **해결(위치):** `naver-blog-agent/src/app/api/posts/route.ts`, `src/app/(dashboard)/page.tsx`, `src/app/(dashboard)/queue/page.tsx`:
+  1. `/api/posts` (GET, POST, PUT, DELETE) 서버 API 구축:
+     - `export const dynamic = "force-dynamic"`, `export const fetchCache = "force-no-store"` 선언으로 Vercel 캐싱 버그 원천 차단.
+     - `createAdminClient()`를 사용하여 서브도메인 쿠키 미전달 상태에서도 안전하게 RLS를 우회하고, 코드 레벨에서 `user_id` 소유권을 엄격히 격리.
+     - Dual Storage Adapter 패턴 적용으로 `nba_posts` / `naver_blog_seo_drafts` 모두 완벽 호환.
+  2. 메인 글 작성 페이지(`page.tsx`):
+     - 글 및 이미지 생성 완료 즉시, 수동 보관함 저장(`handleSaveDraft`), 스마트에디터 ONE 발행 전송(`handlePublishToQueue`) 시 서버 DB에 즉시 영구 저장.
+     - 마운트 시 서버 DB 원고 개수로 상단 보관함 배지 실시간 동기화.
+  3. 전용 원고 보관함(`queue/page.tsx`):
+     - 마운트 시 서버 DB에서 원고 목록 실시간 조회 및 로딩 스피너 표시.
+     - 상단 헤더에 `[🔄 새로고침]` 버튼 신설.
+     - 스마트 에디터 수정(`handleSaveEditor`), 삭제(`handleDelete`), 즉시 발행 큐 등록(`handlePublishNow`) 모두 서버 DB와 실시간 양방향 동기화.
+- **다음부터 확인:** 웹 자동화 프로그램에서 원고나 생성물을 다룰 때 프론트엔드의 `localStorage` 임시 보관만 만들어두고 끝내서는 안 된다. 반드시 사용자 계정별로 격리된 Supabase DB 서버 API 라우트를 구축하여 어떤 환경이나 기기에서도 데이터가 100% 영구 보존되도록 엔드투엔드로 구현해야 한다.
+
+
 ## 2026-10-07 Threads 상품 링크 오버헤드로 인한 본문 축소 방지 및 쿠팡 34자 공식 단축 링크 자동 생성 (threads-content-ops v1.69)
 
 - **증상:** Threads 콘텐츠 생성 시 본문 콘텐츠가 200자 안팎(2~3줄)으로 너무 짧게 생성됨. (사용자는 480자 안팎으로 꽉 채워달라고 지시했으나 결과물이 지나치게 빈약함)
