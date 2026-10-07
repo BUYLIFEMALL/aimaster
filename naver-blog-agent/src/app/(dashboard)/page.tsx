@@ -26,7 +26,9 @@ import {
   Maximize2,
   X,
   ImageIcon,
+  SquarePen,
 } from "lucide-react";
+import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import type { PipelineResult } from "@/lib/ai/pipeline";
 import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate } from "@/types/collector";
@@ -82,6 +84,7 @@ export default function MainPage() {
   const [needKey, setNeedKey] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewMode, setPreviewMode] = useState<"smart" | "raw">("smart");
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
 
   // 계정 목록 불러오기
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -461,9 +464,40 @@ export default function MainPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // 스마트 에디터에서 편집 완료 시 호출되는 핸들러
+  const handleSaveEditedContent = (updated: {
+    title: string;
+    content: string;
+    excerpt: string;
+    tags: string[];
+    isHtml: boolean;
+  }) => {
+    if (!result) return;
+    setResult({
+      ...result,
+      title: updated.title,
+      content: updated.content,
+      excerpt: updated.excerpt,
+      tags: updated.tags,
+    });
+    alert("스마트 에디터에서 편집된 원고가 본문에 성공적으로 적용되었습니다!");
+  };
+
   // 스마트에디터 본문 인라인 렌더링 헬퍼 (소제목 서식화 및 [IMAGE INSERT] 실제 이미지 치환)
   const renderSmartArticle = (content: string) => {
     if (!content) return null;
+
+    // 만약 위지윅 에디터에서 편집된 HTML 콘텐츠인 경우 prose 스타일로 렌더링
+    const isHtmlContent = /<(p|h1|h2|h3|img|div|ul|ol|table|blockquote)[^>]*>/i.test(content);
+    if (isHtmlContent) {
+      return (
+        <div
+          className="prose max-w-none text-sm sm:text-base text-neutral-800 leading-relaxed font-sans space-y-3"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+      );
+    }
+
     const lines = content.split("\n");
     const elements: React.ReactNode[] = [];
     let currentParagraphLines: string[] = [];
@@ -1353,6 +1387,14 @@ export default function MainPage() {
                   <span>{copied ? "복사 완료!" : "원고 복사"}</span>
                 </button>
                 <button
+                  type="button"
+                  onClick={() => setIsEditorOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-xs font-extrabold text-emerald-800 border border-emerald-300 flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                >
+                  <SquarePen className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>✏️ 스마트 에디터 편집</span>
+                </button>
+                <button
                   onClick={handleSaveDraft}
                   className="px-3.5 py-2 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-xs font-semibold text-neutral-700 flex items-center gap-1.5 transition-colors"
                 >
@@ -1407,29 +1449,39 @@ export default function MainPage() {
                     본문 사이사이에 고화질 이미지가 자동 배치되어 완성된 포스팅 형태로 렌더링됩니다.
                   </span>
                 </div>
-                <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-xl">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setPreviewMode("smart")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      previewMode === "smart"
-                        ? "bg-white text-emerald-700 shadow-2xs"
-                        : "text-neutral-600 hover:text-neutral-900"
-                    }`}
+                    onClick={() => setIsEditorOpen(true)}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
                   >
-                    🎨 서식·이미지 완성 뷰
+                    <SquarePen className="w-3.5 h-3.5" />
+                    <span>✏️ 원고 편집</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setPreviewMode("raw")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      previewMode === "raw"
-                        ? "bg-white text-emerald-700 shadow-2xs"
-                        : "text-neutral-600 hover:text-neutral-900"
-                    }`}
-                  >
-                    📄 원본 텍스트
-                  </button>
+                  <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMode("smart")}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                        previewMode === "smart"
+                          ? "bg-white text-emerald-700 shadow-2xs"
+                          : "text-neutral-600 hover:text-neutral-900"
+                      }`}
+                    >
+                      🎨 서식·이미지 완성 뷰
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMode("raw")}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                        previewMode === "raw"
+                          ? "bg-white text-emerald-700 shadow-2xs"
+                          : "text-neutral-600 hover:text-neutral-900"
+                      }`}
+                    >
+                      📄 원본 텍스트
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1747,6 +1799,21 @@ export default function MainPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 4. 스마트 에디터 원고 편집 모달 */}
+      {result && (
+        <BlogSmartEditorModal
+          isOpen={isEditorOpen}
+          onClose={() => setIsEditorOpen(false)}
+          title={result.title}
+          content={result.content}
+          excerpt={result.excerpt || ""}
+          tags={result.tags}
+          generatedImages={generatedImages}
+          activeImageModel={imageSettings.model}
+          onSave={handleSaveEditedContent}
+        />
       )}
     </div>
   );

@@ -35,6 +35,7 @@ export interface PipelineInput {
 export interface PipelineResult {
   title: string;
   content: string;
+  excerpt?: string;
   tags: string[];
   category: string;
   personaName?: string;
