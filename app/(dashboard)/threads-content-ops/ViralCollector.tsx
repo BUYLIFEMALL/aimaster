@@ -29,6 +29,7 @@ type Candidate = {
 const METHODS = [
   { value: "http", label: "주소 지정", hint: "글 1건이면 그 글로, 목록 페이지(예: 뉴스 섹션)면 안의 글 중 무작위 5건으로 글감을 만듭니다." },
   { value: "perplexity", label: "화제 검색 (Perplexity)", hint: "주제를 넣으면 최근 72시간 안에 화제가 된 이슈를 찾아 글감을 만듭니다." },
+  { value: "shorts", label: "유튜브 쇼츠 떡상 분석", hint: "" },
 ] as const;
 
 const STATUS: Record<string, { label: string; tone: string }> = {
@@ -49,7 +50,7 @@ function safeHttpUrl(value: string): string | null {
 }
 
 export default function ViralCollector({ candidates, categories, configuredProviders }: { candidates: Candidate[]; categories: ViralCategory[]; configuredProviders: string[] }) {
-  const [method, setMethod] = useState<"http" | "perplexity">("http");
+  const [method, setMethod] = useState<"http" | "perplexity" | "shorts">("http");
   const [url, setUrl] = useState("");
   const [topic, setTopic] = useState("");
   const [busy, setBusy] = useState(false);
@@ -64,7 +65,7 @@ export default function ViralCollector({ candidates, categories, configuredProvi
 
   const hasOpenai = configuredProviders.includes("openai");
   const hasPerplexity = configuredProviders.includes("perplexity");
-  const keysReady = hasOpenai && (method === "http" || hasPerplexity);
+  const keysReady = hasOpenai && (method !== "perplexity" || hasPerplexity);
   const categoryIds = useMemo(() => new Set(categories.map((item) => item.id)), [categories]);
   // 카테고리가 지워졌거나 없는 글감은 모두 미분류로 본다.
   const categoryOf = (item: Candidate) => (item.category_id && categoryIds.has(item.category_id) ? item.category_id : null);
@@ -85,6 +86,7 @@ export default function ViralCollector({ candidates, categories, configuredProvi
     setCollecting(true);
     setMessage(null);
     try {
+      if (method === "shorts") return;
       const result = method === "http" ? await collectViralFromUrl(url, collectCategory || null) : await collectViralFromPerplexity(topic, collectCategory || null);
       if (result.ok) {
         setMessage({ ok: true, text: `글감 ${result.count}건을 수집했습니다. 아래 목록에서 확인하고, 마음에 드는 글감으로 콘텐츠를 작성해 보세요.` });
@@ -183,6 +185,13 @@ export default function ViralCollector({ candidates, categories, configuredProvi
     <section className="rounded-2xl border-2 border-violet-300 bg-violet-50/60 p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Search size={18} className="text-gold" />글감 수집</h3>
       <div className="mt-3 flex flex-wrap gap-2">{METHODS.map((item) => <button key={item.value} type="button" onClick={() => { setMethod(item.value); setMessage(null); }} className={`rounded-lg px-3 py-1.5 text-sm font-medium ${method === item.value ? "bg-neutral-900 text-[#ffffff]" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"}`}>{item.label}</button>)}</div>
+      <label className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-neutral-800">📁 저장할 카테고리
+        <select className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm font-normal text-neutral-800" value={collectCategory} onChange={(event) => setCollectCategory(event.target.value)} aria-label="수집한 글감을 저장할 카테고리"><option value="">미분류</option>{categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
+        <span className="text-xs font-normal text-neutral-500">모든 수집 방법(쇼츠 "글감으로 저장" 포함)에 적용됩니다.</span>
+      </label>
+      {method === "shorts"
+        ? <div className="mt-4"><ShortsSearch embedded hasYoutubeKey={configuredProviders.includes("youtube_api_key")} hasGeminiKey={configuredProviders.includes("gemini")} hasOpenaiKey={hasOpenai} savedSources={candidates.map((item) => item.source_input)} categoryId={collectCategory || null} /></div>
+        : <>
       <p className="mt-3 text-sm leading-relaxed text-neutral-600">{current.hint}</p>
       {!keysReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>{!hasOpenai ? "글감 정리에 쓸 OpenAI API 키가 등록되지 않았습니다. " : "Perplexity API 키(pplx-...)가 등록되지 않았습니다. "}<Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장해 주세요.</span></p>}
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -191,14 +200,10 @@ export default function ViralCollector({ candidates, categories, configuredProvi
           : <input className={inputClass} maxLength={200} value={topic} onChange={(event) => setTopic(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && topic.trim() && keysReady) void collect(); }} placeholder="예: 다이어트 보조제, 겨울 난방비" aria-label="시드 주제" />}
         <button className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={collecting || !keysReady || !(method === "http" ? url.trim() : topic.trim())} onClick={() => void collect()}><Flame size={16} />{collecting ? "수집 중… (최대 1분)" : "글감 수집"}</button>
       </div>
-      <label className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-neutral-800">📁 저장할 카테고리
-        <select className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm font-normal text-neutral-800" value={collectCategory} onChange={(event) => setCollectCategory(event.target.value)} aria-label="수집한 글감을 저장할 카테고리"><option value="">미분류</option>{categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
-        <span className="text-xs font-normal text-neutral-500">아래 유튜브 쇼츠 "글감으로 저장"에도 같은 카테고리가 적용됩니다.</span>
-      </label>
       <p className="mt-3 text-xs text-neutral-500">수집은 회원님의 OpenAI(와 Perplexity) 사용량을 소모합니다. 공개된 페이지만 읽을 수 있고, 로그인이 필요한 페이지나 내부 주소는 읽지 않습니다.</p>
+        </>}
     </section>
 
-    <ShortsSearch hasYoutubeKey={configuredProviders.includes("youtube_api_key")} hasGeminiKey={configuredProviders.includes("gemini")} hasOpenaiKey={hasOpenai} savedSources={candidates.map((item) => item.source_input)} categoryId={collectCategory || null} />
 
     {message && <p className="flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status">{message.ok ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" /> : <CircleAlert size={16} className="mt-0.5 shrink-0 text-rose-600" />}{message.text}</p>}
 

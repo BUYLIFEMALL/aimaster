@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.66`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.67`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.67 유튜브 쇼츠 검색을 수집 방식 탭으로 통합 (2026-10-07)
+
+- 주인님 지시(naver-blog-agent `/collector`처럼): 아래에 따로 있던 유튜브 쇼츠 검색 박스를 위쪽 "글감 수집" 박스의 **세 번째 탭 "유튜브 쇼츠 떡상 분석"**으로 합쳤습니다(`ViralCollector.tsx`, `ShortsSearch`의 `embedded` 모드). 탭: 주소 지정 / 화제 검색(Perplexity) / 유튜브 쇼츠 떡상 분석. "저장할 카테고리"는 세 방법 모두에 적용됩니다. 쇼츠 탭에서는 주소·주제 입력칸과 "글감 수집" 버튼이 숨고 쇼츠 검색 화면이 나타납니다. 기능·서버 변경 없음.
 
 ## v1.66 글감 카테고리 (2026-10-07)
 

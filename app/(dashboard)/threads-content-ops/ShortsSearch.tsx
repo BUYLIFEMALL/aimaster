@@ -50,7 +50,7 @@ function formatDuration(totalSeconds: number): string {
   return `${Math.floor(totalSeconds / 60)}:${String(Math.round(totalSeconds % 60)).padStart(2, "0")}`;
 }
 
-export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey, savedSources, categoryId }: { hasYoutubeKey: boolean; hasGeminiKey: boolean; hasOpenaiKey: boolean; savedSources: string[]; categoryId?: string | null }) {
+export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey, savedSources, categoryId, embedded }: { hasYoutubeKey: boolean; hasGeminiKey: boolean; hasOpenaiKey: boolean; savedSources: string[]; categoryId?: string | null; embedded?: boolean }) {
   const [query, setQuery] = useState("");
   const [dateFrom, setDateFrom] = useState(() => isoDay(-30));
   const [dateTo, setDateTo] = useState(() => isoDay(0));
@@ -133,8 +133,8 @@ export default function ShortsSearch({ hasYoutubeKey, hasGeminiKey, hasOpenaiKey
 
   const canAnalyze = hasGeminiKey || hasOpenaiKey;
 
-  return <section className="rounded-2xl border-2 border-rose-300 bg-rose-50/60 p-5 shadow-sm">
-    <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Play size={18} className="text-gold" />유튜브 쇼츠 검색</h3>
+  return <section className={embedded ? "" : "rounded-2xl border-2 border-rose-300 bg-rose-50/60 p-5 shadow-sm"}>
+    {!embedded && <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Play size={18} className="text-gold" />유튜브 쇼츠 검색</h3>}
     <p className="mt-2 text-sm leading-relaxed text-neutral-600">키워드로 쇼츠를 찾고, 구독자 대비 조회수가 크게 터진 영상을 골라 글감으로 저장합니다. 영상의 대사·자막을 그대로 가져오지 않고, 분석한 훅·터진 이유와 새로 쓴 글감만 저장합니다.</p>
     <p className="mt-2 text-xs leading-relaxed text-neutral-500">결과의 <b>글감으로 저장</b>을 누르면 AI가 영상이 터진 이유(훅·구조)를 분석해 Threads 글감 최대 3건을 만들어 저장합니다. {hasGeminiKey ? "Gemini 키가 있어 영상을 직접 보고 분석합니다." : hasOpenaiKey ? "Gemini 키가 없어 OpenAI로 제목·수치·댓글을 근거로 추정 분석합니다(영상 직접 분석은 설정에서 Gemini 키 등록)." : "분석에는 Gemini 또는 OpenAI 키가 필요합니다."} 사용량은 회원님의 키에서 차감됩니다.</p>
     {!hasYoutubeKey && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>YouTube Data API 키가 등록되지 않았습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</Link>에서 본인 키를 저장해 주세요.</span></p>}
