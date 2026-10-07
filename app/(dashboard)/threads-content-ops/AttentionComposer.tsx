@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, CircleAlert, Copy, Sparkles } from "lucide-react";
+import { CheckCircle2, CircleAlert, Copy, Loader2, Sparkles } from "lucide-react";
 import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, ENGINES, IMAGE_KEY_LABEL, IMAGE_MODELS, IMAGE_PLATFORMS, IMAGE_RATIOS, MAX_GENERATE_COUNT, PERSONAS, REWRITE_MODES, type EngineProvider, type ImagePlatform, type ImageRatio } from "@/threads-content-ops/lib/personas";
 import { createClient } from "@/lib/supabase/client";
 import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, MEDIA_RETENTION_DAYS, memberMediaFolder, type PostMedia } from "@/threads-content-ops/lib/media";
@@ -193,7 +193,7 @@ export default function AttentionComposer({ userId, accounts, products, viralCan
       <div className="mt-3 rounded-xl border-2 border-fuchsia-300 bg-white p-3">
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-bold text-neutral-900">🖼️ 이미지 생성 모델 <span className="hidden font-normal text-neutral-500 sm:inline">NanoBanana · GPT Image · FLUX · Z-Image</span></p>
-          <span className="rounded-md border border-fuchsia-200 bg-fuchsia-50 px-2 py-0.5 text-[11px] font-bold text-fuchsia-700">결과 글의 "이미지 생성"에 적용</span>
+          <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">하단 각 글의 파란색 [이미지 생성] 버튼에 적용</span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">{IMAGE_PLATFORMS.map((item) => <button key={item.id} type="button" onClick={() => setImage({ ...image, platform: item.id, model: DEFAULT_IMAGE_MODELS[item.id] })} aria-pressed={image.platform === item.id} className={`flex flex-col items-center justify-center gap-0.5 rounded-xl border p-2.5 text-center font-bold transition-all ${image.platform === item.id ? pickedButton : idleButton}`}>
           <span className="text-base">{item.icon}</span><span className="text-xs font-extrabold tracking-tight">{item.name}</span><span className="text-[10px] font-normal opacity-80">{item.sub}{configuredProviders.includes(item.keyProvider) ? "" : " · 키 미등록"}</span>
@@ -238,6 +238,7 @@ function PlanView({ plan, accounts, accountId, onAccount, viralId, engine, image
       <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">저장할 계정<select className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900" value={accountId} onChange={(event) => onAccount(event.target.value)}>{accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}</select></label>
     </div>
     {message?.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" role="status"><CheckCircle2 size={16} className="mt-0.5 shrink-0" />{message.text} <Link className="font-semibold underline" href="/threads-content-ops?tab=manage">초안·발행 관리 열기</Link></p>}
+    <p className="mt-2 text-xs text-neutral-600">💡 5가지 글마다 하단의 파란색 <b className="text-blue-600">🖼️ 이미지 생성</b> 버튼을 누르면 해당 글의 내용에 맞춘 AI 이미지가 글 바로 아래에 각각 생성되어 표시됩니다. 마음에 드는 글과 이미지를 확인한 뒤 <b>"이 글로 초안 저장"</b>을 누르세요.</p>
     <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} option={option} accountId={accountId} viralId={viralId} engine={engine} image={image} product={product} media={media} onSaved={onSaved} />)}</ul>
     {plan.cta && <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><p className="font-semibold text-amber-900">댓글을 부르는 마무리·첫 댓글 멘트</p><p className="mt-1 text-neutral-800">{plan.cta}</p><div className="mt-2"><CopyButton value={plan.cta} label="멘트 복사" /></div></div>}
     {plan.followUpIdeas.length > 0 && <div className="mt-4"><p className="text-sm font-semibold text-neutral-900">이어 쓸 후속 아이디어</p><ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-neutral-700">{plan.followUpIdeas.map((idea) => <li key={idea}>{idea}</li>)}</ul></div>}
@@ -353,27 +354,36 @@ function VariantCard({ option, accountId, viralId, engine, image, product, media
     <textarea ref={bodyRef} className={`${inputClass} ${product ? "mt-1.5" : "mt-3"} min-h-40 resize-y overflow-hidden leading-relaxed`} value={body} maxLength={5000} onChange={(event) => { setBody(event.target.value); setSaved(false); }} aria-label={`${option.type} 본문`} />
     {product && <p className="mt-1.5 break-all rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-900"><b>상품링크:</b> {product.source_url} <span className="text-amber-700">(하단에 자동으로 붙습니다 · {product.title})</span></p>}
     <div className="mt-2 flex flex-wrap items-center gap-1.5"><span className="text-[11px] font-semibold text-neutral-500">다시 써줘</span>{REWRITE_MODES.map((item) => <button key={item.mode} type="button" disabled={rewriting !== null || saving} onClick={() => void rewrite(item.mode)} className="rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50">{rewriting === item.mode ? "수정 중…" : `${item.icon} ${item.label}`}</button>)}</div>
-    {error && <p className="mt-2 text-sm text-rose-600" role="alert">{error}</p>}
+    {error && <p className="mt-2 flex items-start gap-1.5 rounded-lg border border-rose-200 bg-rose-50 p-2.5 text-xs font-medium text-rose-700" role="alert"><CircleAlert size={15} className="mt-0.5 shrink-0" /><span>{error}</span></p>}
     <div className="mt-3 flex flex-wrap gap-2">
-      <button type="button" className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300" disabled={imaging !== null || saving || rewriting !== null || !body.trim()} onClick={() => void makeImages()}>{imaging ? `이미지 만드는 중… ${imaging.done}/${imaging.total}장` : image.count > 1 ? `🖼️ 이미지 ${image.count}장 생성` : "🖼️ 이미지 생성"}</button>
-      <button type="button" className="inline-flex items-center rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={saving || saved || rewriting !== null || imaging !== null || !body.trim() || !accountId} onClick={() => void save()}>{saved ? "저장됨" : saving ? "저장 중…" : "이 글로 초안 저장"}</button>
+      <button type="button" className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-[#ffffff] shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300 transition-colors" disabled={imaging !== null || saving || rewriting !== null || !body.trim()} onClick={() => void makeImages()}>
+        {imaging ? <><Loader2 size={13} className="animate-spin" /><span>이미지 만드는 중… {imaging.done}/{imaging.total}장</span></> : <><Sparkles size={13} /><span>{image.count > 1 ? `🖼️ 이미지 ${image.count}장 생성` : "🖼️ 이미지 생성"}</span></>}
+      </button>
+      <button type="button" className="inline-flex items-center rounded-lg bg-neutral-900 px-3.5 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300 transition-colors" disabled={saving || saved || rewriting !== null || imaging !== null || !body.trim() || !accountId} onClick={() => void save()}>{saved ? "저장됨" : saving ? "저장 중…" : "이 글로 초안 저장"}</button>
       <CopyButton value={finalBody} label="본문 복사" />
     </div>
-    {(images.length > 0 || imaging !== null) && <div className="mt-3 rounded-xl border-2 border-blue-200 bg-white p-3">
-      <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-neutral-900">🖼️ 이 글의 이미지 <span className="font-normal text-neutral-500">{images.length}장 · 마음에 드는 것만 남기고 ✕로 삭제하거나 ◀ ▶로 순서를 바꾸세요</span></p><button type="button" className="rounded-lg border border-rose-300 px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" onClick={clearImages}>🗑️ 이 글 이미지 전체 삭제</button></div>
-      <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">{images.map((item, index) => <li key={item.url} className="rounded-lg border border-neutral-200 p-1.5">
-        <button type="button" onClick={() => setViewer(index)} className="relative block w-full" aria-label={`${index + 1}번 이미지 크게 보기`}>
+    {(images.length > 0 || imaging !== null) && <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/20 p-3.5 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <span className="rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">이 글 전용</span>
+          <p className="text-xs font-bold text-neutral-900">🖼️ 생성된 이미지 <span className="font-extrabold text-blue-700">{images.length}장</span> <span className="font-normal text-neutral-500 text-[11px]">(클릭 시 크게 보기 · ✕ 삭제 · ◀ ▶ 순서 변경)</span></p>
+        </div>
+        {images.length > 0 && <button type="button" className="rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" onClick={clearImages}>🗑️ 이 글 이미지 전체 삭제</button>}
+      </div>
+      <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">{images.map((item, index) => <li key={item.url} className="rounded-lg border border-neutral-200 bg-white p-1.5 shadow-sm">
+        <button type="button" onClick={() => setViewer(index)} className="group relative block w-full aspect-square overflow-hidden rounded-md bg-neutral-100" aria-label={`${index + 1}번 이미지 크게 보기`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.url} alt={`이 글의 이미지 ${index + 1}`} className="w-full rounded-md object-cover" />
-          <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 text-[10px] font-bold text-[#ffffff]">{index + 1}</span>
+          <img src={item.url} alt={`이 글의 이미지 ${index + 1}`} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+          <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 text-[10px] font-bold text-[#ffffff]">#{index + 1}</span>
+          <span className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-bold">🔍 크게 보기</span>
         </button>
         {item.size !== undefined && item.size > MAX_IMAGE_BYTES && <p className="mt-1 text-[10px] font-semibold text-rose-600">8MB 초과 — Threads 발행 불가</p>}
         <div className="mt-1.5 flex items-center justify-between gap-1">
-          <span className="flex gap-1"><button type="button" aria-label="앞으로" disabled={index === 0} onClick={() => moveImage(index, -1)} className="rounded border border-neutral-300 px-1.5 text-xs disabled:opacity-40">◀</button><button type="button" aria-label="뒤로" disabled={index === images.length - 1} onClick={() => moveImage(index, 1)} className="rounded border border-neutral-300 px-1.5 text-xs disabled:opacity-40">▶</button></span>
-          <span className="flex gap-1"><CopyButton value={item.url} label="주소" /><button type="button" onClick={() => removeImage(index)} className="rounded border border-rose-300 px-2 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" aria-label={`${index + 1}번 이미지 삭제`}>✕ 삭제</button></span>
+          <span className="flex gap-1"><button type="button" aria-label="앞으로" disabled={index === 0} onClick={() => moveImage(index, -1)} className="rounded border border-neutral-300 bg-white px-1.5 text-xs text-neutral-700 hover:bg-neutral-50 disabled:opacity-40">◀</button><button type="button" aria-label="뒤로" disabled={index === images.length - 1} onClick={() => moveImage(index, 1)} className="rounded border border-neutral-300 bg-white px-1.5 text-xs text-neutral-700 hover:bg-neutral-50 disabled:opacity-40">▶</button></span>
+          <span className="flex gap-1"><CopyButton value={item.url} label="주소" /><button type="button" onClick={() => removeImage(index)} className="rounded border border-rose-300 bg-white px-2 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" aria-label={`${index + 1}번 이미지 삭제`}>✕ 삭제</button></span>
         </div>
-      </li>)}{imaging && Array.from({ length: Math.max(imaging.total - imaging.done, 0) }, (_, index) => <li key={`pending-${index}`} className="flex aspect-square items-center justify-center rounded-lg border border-dashed border-blue-300 bg-blue-50 text-xs font-semibold text-blue-700">{index === 0 ? "만드는 중…" : "대기 중"}</li>)}</ul>
-      <p className="mt-2 text-[11px] text-neutral-500">이 글을 "초안 저장"하면 이 이미지들이 함께 저장되고{media.length > 0 ? ` 위 공통 미디어 ${media.length}개도 뒤에 이어 붙으며` : ""}, 발행하면 캐러셀로 올라갑니다. 이미지는 올린 지 {MEDIA_RETENTION_DAYS}일 후 자동 삭제됩니다.</p>
+      </li>)}{imaging && Array.from({ length: Math.max(imaging.total - imaging.done, 0) }, (_, index) => <li key={`pending-${index}`} className="flex aspect-square flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50/60 p-2 text-center text-xs font-semibold text-blue-700 animate-pulse"><Loader2 size={18} className="animate-spin text-blue-600" /><span>{index === 0 ? "AI 이미지 생성 중…" : "대기 중"}</span><span className="text-[10px] text-blue-500 font-normal">{index === 0 ? `(${imaging.done + 1}/${imaging.total}장)` : ""}</span></li>)}</ul>
+      <p className="mt-2 text-[11px] text-neutral-500">💡 이 글의 <b>"이 글로 초안 저장"</b>을 누르면 이 생성 이미지({images.length}장)가 이 글에 묶여 함께 저장되며{media.length > 0 ? `, 상단 공통 미디어 ${media.length}개도 뒤에 이어 붙어` : ""} Threads 발행 시 캐러셀 피드로 올라갑니다. 이미지는 생성 후 {MEDIA_RETENTION_DAYS}일 동안 보관됩니다.</p>
     </div>}
     {viewer !== null && images[viewer] && <MediaViewer media={images} index={viewer} onIndex={setViewer} />}
   </li>;
