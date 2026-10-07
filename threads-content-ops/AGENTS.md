@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.70`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.71`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.71 저장됨 초록 버튼 + 글별 직접 이미지·영상 추가 (2026-10-07)
+
+- 주인님 지시: 결과 글 카드의 '저장됨' 버튼을 초록색(✓ 저장됨)으로, 카드 하단에 '📎 직접 추가'(내 이미지/내 영상) 기능을 추가했습니다(`AttentionComposer.tsx` `VariantCard.uploadOwn`). 공통 미디어(MediaManager)와 같은 규칙(JPEG·PNG 8MB, MP4·MOV 1GB, 공통 미디어와 합쳐 글당 최대 10개, 브라우저에서 바로 Storage 업로드)이며, 올린 파일은 AI 생성 이미지와 같은 '이 글의 이미지·영상' 목록에 모여 그 글에만 붙습니다(◀▶ 순서·삭제·크게보기 동일, 영상은 🎬 표시). 업로드하면 저장 상태가 풀려 다시 '초안 저장'을 눌러야 합니다. 서버·DB 변경 없음.
 
 ## v1.70 이미지 생성 버튼 파란색 + 생성 중 자리표시 (2026-10-07)
 
