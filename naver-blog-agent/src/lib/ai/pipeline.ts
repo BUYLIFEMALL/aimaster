@@ -1,5 +1,6 @@
 import { callAI, parseJsonSafe, type AIModelConfig } from "./models";
 import { buildHumanizerPrompt, applyHumanizerEdits } from "@/lib/humanizer";
+import { WRITING_STYLES, buildWritingStylePrompt, isWritingTone, isWritingStyle, type WritingTone, type WritingStyle } from "./writingStyles";
 
 /**
  * 당해 연도 엄수 보장 헬퍼:
@@ -20,7 +21,8 @@ export interface PipelineInput {
   category: string;
   searchKeywords?: string;
   publishPurpose?: string;
-  preferredTone?: string; // "해요체" | "합니다체" | "친근한 반말"
+  preferredTone?: string;
+  writingStyle?: WritingStyle;
   recentTitles?: string[]; // 중복 방지용
   targetLength?: number; // 목표 글자수 (1 ~ 4000자, 기본 2000자)
   persona?: {
@@ -39,6 +41,8 @@ export interface PipelineResult {
   tags: string[];
   category: string;
   personaName?: string;
+  preferredTone?: WritingTone;
+  writingStyle?: WritingStyle;
   targetLength?: number;
   charCount?: number;
   images: {
@@ -57,11 +61,13 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
   const currentYear = new Date().getFullYear();
   const {
     category,
-    preferredTone = "해요체",
     recentTitles = [],
     persona,
     aiConfig,
   } = input;
+  const preferredTone = isWritingTone(input.preferredTone) ? input.preferredTone : "해요체";
+  const writingStyle = isWritingStyle(input.writingStyle) ? input.writingStyle : "default";
+  const writingStylePrompt = buildWritingStylePrompt(preferredTone, writingStyle);
 
   // [1단계 안전망: 입력단 과거 연도 자동 정제]
   const cleanTopic = sanitizeYear(input.topic, currentYear);
@@ -151,13 +157,13 @@ ${persona.tonePrompt}
 [작성 규칙]
 1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 과거 연도(2023년, 2024년 등)가 있더라도 절대 과거 연도를 따라 쓰지 말고 반드시 ${currentYear}년으로 변경해서 작성해.
 2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
-3. 말투: ${persona.tonePrompt}를 최우선으로 반영하되 기본 어조는 자연스러운 ${preferredTone}. (기계적인 AI 번역투 절대 금지)
+3. 말투: 회원이 선택한 ${preferredTone}와 문체를 페르소나의 어조보다 우선 반영한다. (기계적인 AI 번역투 절대 금지)
 4. 구조화 태그:
    - 소제목 시작 시: [SECTION - 소제목명]
    - 이미지 들어갈 자리: [IMAGE INSERT - 상황을 설명하는 상세 묘사]
    - 마지막에: [SECTION - 참고자료] (출처 및 공식 기관 안내 또는 이웃 소통 맺음말)
 5. 모바일 가독성을 위해 2~3문장마다 빈 줄(\\n\\n)로 단락을 띄울 것.
-6. 해당 인물의 생생한 실사용/실경험 썰, 구체적 수치, 독자가 무릎을 칠 꿀팁 위주로 작성할 것.`
+6. 제공된 사실·경험에 근거하여 실용적으로 작성한다. 페르소나를 이유로 실사용/실경험이나 수치를 지어내지 않는다.`
     : `너는 네이버 블로그 상위 0.1% 전문 파워블로거 라이터야.
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 정보성 포스팅 본문을 작성해줘.
 
@@ -183,13 +189,13 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 
 위 목차를 바탕으로 스마트에디터 ONE 양식의 전체 본문을 약 ${targetLength}자 분량으로 상세히 작성해줘.`;
 
-  const writerRaw = await callAI(aiConfig, writerSystemPrompt, writerUserPrompt);
+  const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}\n\n${writingStylePrompt}`, writerUserPrompt);
   let draftArticle = sanitizeYear(writerRaw.trim(), currentYear);
 
   stepsLog.push({
     step: "2. Writer Agent",
     status: "done",
-    message: `1차 본문 작성 완료 (공백 포함 약 ${draftArticle.length}자 / 목표: ${targetLength}자)`,
+    message: `1차 본문 작성 완료 (${preferredTone} · ${WRITING_STYLES.find((style) => style.value === writingStyle)?.label}, 공백 포함 약 ${draftArticle.length}자 / 목표: ${targetLength}자)`,
   });
 
   // 3단계: Blog Humanizer (문장 다듬기 & AI 티 제거)
@@ -200,7 +206,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
       researchData.finalTitle,
       category
     );
-    const humanizerRaw = await callAI(aiConfig, hSys, hUser);
+    const humanizerRaw = await callAI(aiConfig, `${hSys}\n\n${writingStylePrompt}`, hUser);
     const humanizerData = parseJsonSafe(humanizerRaw, { edits: [] });
 
     if (Array.isArray(humanizerData.edits) && humanizerData.edits.length > 0) {
@@ -244,7 +250,7 @@ ${humanizedArticle.slice(0, 1500)}
   "reviewNote": "검수 완료 의견 (${currentYear}년 최신성 검증 포함)"
 }`;
 
-  const reviewerRaw = await callAI(aiConfig, reviewerSystemPrompt, reviewerUserPrompt);
+  const reviewerRaw = await callAI(aiConfig, `${reviewerSystemPrompt}\n\n${writingStylePrompt}\n선택된 말끝과 문체의 적용 여부도 검수 의견에 포함한다.`, reviewerUserPrompt);
   const reviewerData = parseJsonSafe(reviewerRaw, {
     tags: [category, "블로그정보", "꿀팁", "생활정보", "최신정보"],
     reviewStatus: "PASS",
@@ -292,6 +298,8 @@ ${humanizedArticle.slice(0, 1500)}
     tags: finalTags,
     category,
     personaName: persona?.name,
+    preferredTone,
+    writingStyle,
     targetLength,
     charCount: finalContent.length,
     images: finalImages,

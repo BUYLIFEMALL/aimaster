@@ -3,6 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { resolveAvailableAI } from "@/lib/apiKeys";
 import { runBlogGenerationPipeline } from "@/lib/ai/pipeline";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isWritingTone, isWritingStyle } from "@/lib/ai/writingStyles";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,6 +20,7 @@ export async function POST(req: Request) {
       searchKeywords,
       publishPurpose,
       preferredTone,
+      writingStyle,
       provider,
       persona,
       targetLength,
@@ -26,6 +28,11 @@ export async function POST(req: Request) {
 
     if (!category) {
       return NextResponse.json({ error: "카테고리를 입력해주세요." }, { status: 400 });
+    }
+
+    if ((preferredTone !== undefined && !isWritingTone(preferredTone)) ||
+        (writingStyle !== undefined && !isWritingStyle(writingStyle))) {
+      return NextResponse.json({ error: "지원하는 말끝과 문체를 선택해 주세요." }, { status: 400 });
     }
 
     const targetProvider = body.engine?.provider || provider;
@@ -48,6 +55,7 @@ export async function POST(req: Request) {
       searchKeywords,
       publishPurpose,
       preferredTone,
+      writingStyle,
       persona,
       targetLength: typeof targetLength === "number" ? targetLength : undefined,
       aiConfig: {

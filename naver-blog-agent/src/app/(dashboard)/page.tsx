@@ -35,6 +35,7 @@ import { retentionDaysLeft } from "@/lib/retention";
 import type { PipelineResult } from "@/lib/ai/pipeline";
 import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate } from "@/types/collector";
+import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import {
   ENGINES,
   DEFAULT_ENGINE,
@@ -56,7 +57,8 @@ export default function MainPage() {
   const [category, setCategory] = useState("생활/살림꿀팁");
   const [searchKeywords, setSearchKeywords] = useState("가전제품 비교, 살림 꿀팁, 세탁 노하우, 가성비 주방용품, 삶의 질 상승템");
   const [publishPurpose, setPublishPurpose] = useState("실제 주부 입장에서 가성비와 찐활용도를 꼼꼼하게 비교 분석하여 이웃들에게 추천");
-  const [preferredTone, setPreferredTone] = useState<string>("해요체");
+  const [preferredTone, setPreferredTone] = useState<WritingTone>("해요체");
+  const [writingStyle, setWritingStyle] = useState<WritingStyle>("default");
   const [targetCharCount, setTargetCharCount] = useState<number>(2000);
 
   // AI 엔진 & 이미지 모델 선택 상태 (threads-content-ops와 동일 구조)
@@ -376,7 +378,6 @@ export default function MainPage() {
     setTopic(p.defaultTopic);
     setSearchKeywords(p.defaultKeywords);
     setPublishPurpose(p.defaultPurpose);
-    setPreferredTone(p.preferredTone);
   };
 
   // 페르소나 카드의 [⚡ 즉시 생성] 클릭 시
@@ -388,7 +389,7 @@ export default function MainPage() {
       overrideCategory: p.defaultCategory,
       overrideKeywords: p.defaultKeywords,
       overridePurpose: p.defaultPurpose,
-      overrideTone: p.preferredTone,
+      overrideTone: preferredTone,
       overridePersona: p,
     });
     setGeneratingPersonaName(null);
@@ -437,6 +438,7 @@ export default function MainPage() {
           searchKeywords: cleanCurrentYear(params.overrideKeywords),
           publishPurpose: cleanCurrentYear(params.overridePurpose),
           preferredTone: params.overrideTone,
+          writingStyle,
           targetLength: targetCharCount,
           engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!
           persona: params.overridePersona
@@ -1216,7 +1218,6 @@ export default function MainPage() {
                       setCategory(first.category_name);
                       setSearchKeywords(first.search_keywords || "");
                       setPublishPurpose(first.publish_purpose || "");
-                      setPreferredTone(first.preferred_tone || "해요체");
                     }
                   }}
                   className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900"
@@ -1248,7 +1249,6 @@ export default function MainPage() {
                           setCategory(c.category_name);
                           setSearchKeywords(c.search_keywords || "");
                           setPublishPurpose(c.publish_purpose || "");
-                          setPreferredTone(c.preferred_tone || "해요체");
                         }}
                         className={`px-2.5 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 border ${
                           isSelected
@@ -1331,28 +1331,50 @@ export default function MainPage() {
             </div>
           </div>
 
-          {/* 원고 문체(어조) & 실행 버튼 */}
-          <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-neutral-100">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-neutral-700">원고 문체:</span>
-              <div className="flex items-center gap-1.5">
-                {["해요체", "합니다체", "친근한 반말"].map((t) => (
+          <fieldset disabled={loading} className="min-w-0 rounded-xl border border-neutral-200 bg-white p-4 space-y-4 disabled:opacity-70">
+            <legend className="px-2 text-sm font-bold text-neutral-900">원고 말끝·문체 설정</legend>
+            <p className="text-xs text-neutral-500">페르소나는 글의 화자입니다. 말끝과 문체는 별도로 선택하며, 페르소나·카테고리를 바꿔도 선택값을 유지합니다.</p>
+            <div>
+              <p className="text-xs font-semibold text-neutral-700 mb-2">말끝 선택</p>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="말끝 선택">
+                {WRITING_TONES.map((tone) => (
                   <button
-                    key={t}
+                    key={tone.value}
                     type="button"
-                    onClick={() => setPreferredTone(t)}
+                    onClick={() => setPreferredTone(tone.value)}
+                    aria-pressed={preferredTone === tone.value}
+                    title={tone.description}
                     className={`py-1.5 px-3 text-xs font-medium rounded-lg border transition-all ${
-                      preferredTone === t
+                      preferredTone === tone.value
                         ? "bg-neutral-900 text-white border-neutral-900 font-bold"
                         : "bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-50"
                     }`}
                   >
-                    {t}
+                    {tone.value}
                   </button>
                 ))}
               </div>
             </div>
-
+            <div>
+              <p className="text-xs font-semibold text-neutral-700 mb-2">문체 선택</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" role="group" aria-label="문체 선택">
+                {WRITING_STYLES.map((style) => (
+                  <button key={style.value} type="button" aria-pressed={writingStyle === style.value}
+                    onClick={() => setWritingStyle(style.value)}
+                    className={`min-w-0 rounded-lg border p-3 text-left transition-colors ${writingStyle === style.value ? "border-emerald-500 bg-emerald-50 text-emerald-900" : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"}`}>
+                    <span className="block text-xs font-bold">{style.label}</span>
+                    <span className="mt-1 block text-[11px]">{style.description}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-lg bg-neutral-50 p-3 text-xs text-neutral-700" aria-live="polite">
+              <p className="font-semibold">표현 예시 · {preferredTone} + {WRITING_STYLES.find((s) => s.value === writingStyle)?.label}</p>
+              <p className="mt-1 leading-relaxed">{getWritingStyleExample(preferredTone, writingStyle)}</p>
+              <p className="mt-2 text-[11px] text-neutral-500">문체 차이를 보여주는 예시입니다. 실제 원고는 입력한 주제로 작성하며 경험·후기·수치를 지어내지 않습니다.</p>
+            </div>
+          </fieldset>
+          <div className="pt-2 flex justify-end border-t border-neutral-100">
             <button
               type="submit"
               disabled={loading || !preferencesLoaded}
@@ -1628,6 +1650,11 @@ export default function MainPage() {
                 {result.personaName && (
                   <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-neutral-100 text-neutral-700">
                     🎭 {result.personaName} 관점
+                  </span>
+                )}
+                {result.preferredTone && result.writingStyle && (
+                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-neutral-100 text-neutral-700">
+                    {result.preferredTone} · {WRITING_STYLES.find((s) => s.value === result.writingStyle)?.label || "기본"}
                   </span>
                 )}
                 <span className="text-xs text-neutral-400">·</span>

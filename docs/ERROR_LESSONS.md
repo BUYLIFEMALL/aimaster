@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-08 — 문체 선택은 페르소나 기본 어조나 윤문에서 덮어쓰지 않는다 (naver-blog-agent v1.34)
+
+- **증상:** 회원이 말끝·문체를 골라도 페르소나 즉시 생성이나 카테고리 선택으로 다른 어조가 적용될 수 있었고, 프롬프트도 페르소나 말투를 최우선으로 명령했다.
+- **원인:** 페르소나·계정·카테고리 선택 함수가 `preferredTone`을 덮어썼으며, 생성 단계 이후 윤문·검수는 명시적 회원 문체를 전달받지 않았다.
+- **해결(위치):** `naver-blog-agent/src/app/(dashboard)/page.tsx`의 말끝·문체 선택을 독립 상태로 유지하고 `src/lib/ai/writingStyles.ts` 공통 지침을 작성·윤문·검수에 전달한다. 실제 경험·후기·수치·출처를 문체 때문에 만들어내지 않도록 명시한다.
+- **다음부터 확인:** UI 선택→폼/즉시 생성 요청→Writer→Humanizer→Reviewer 경로 전체를 검사한다. `npm run test:writing-styles`는 32조합 전달 검증이며 실제 LLM 품질 검수와 구분한다.
+
 ## 2026-10-08 ESLint 9 구성 파일 부재로 `npm run lint`가 시작되지 않는 문제 (naver-blog-agent v1.29)
 
 - **증상:** `naver-blog-agent`에서 `npm run lint` 실행 시 ESLint 9가 `eslint.config.*` 파일을 찾지 못해 검사 시작 전에 종료됨.

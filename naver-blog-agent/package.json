@@ -1,12 +1,13 @@
 {
   "name": "naver-blog-agent",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/build-extension-archive.mjs",
     "build": "next build",
     "build:extension": "node scripts/build-extension-archive.mjs",
+    "test:writing-styles": "node scripts/test-writing-styles.cjs",
     "start": "next start",
     "lint": "eslint"
   },
