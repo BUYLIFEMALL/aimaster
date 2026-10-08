@@ -22,10 +22,15 @@ const client = createClient(environment.NEXT_PUBLIC_SUPABASE_URL, environment.SU
 })
 const { data, error } = await client
   .from('programs')
-  .update({ version })
+  .update({
+    version,
+    // 확장 운영 규칙(docs/EXTENSION_RELEASE_RULES.md): 프로그램 버전과 확장 버전·다운로드 주소를 같은 갱신으로 맞춘다.
+    extension_version: version,
+    extension_download_url: `https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-${version}.zip`,
+  })
   .eq('slug', 'tistory-auto-blog')
-  .select('slug, version')
+  .select('slug, version, extension_version, extension_download_url')
 
 if (error) throw error
-if (data?.length !== 1 || data[0].version !== version) throw new Error('programs.version 동기화를 확인하지 못했습니다.')
-console.log(`programs.version updated: ${version}`)
+if (data?.length !== 1 || data[0].version !== version || data[0].extension_version !== version) throw new Error('programs.version 동기화를 확인하지 못했습니다.')
+console.log(`programs.version / extension_version / extension_download_url updated: ${version}`)

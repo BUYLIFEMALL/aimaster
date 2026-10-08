@@ -36,17 +36,33 @@ async function verifyToken(token) {
     });
     const body = await response.json().catch(() => ({}));
     return response.ok
-      ? { ok: true, email: body.email || "이메일 없음", latestVersion: body.latestVersion }
+      ? { ok: true, email: body.email || "이메일 없음", latestVersion: body.latestVersion, downloadUrl: body.downloadUrl }
       : { ok: false, error: body.error || `연결 실패 (${response.status})` };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
+// 새 버전 안내: 서버가 알려주는 최신 버전이 설치된 확장 버전보다 높을 때만 배너를 보여준다. 안내 주소는 이 사이트의 /downloads/ 아래만 허용한다.
+const versionParts = (value) => { const m = /^v?(\d+)\.(\d+)/.exec(String(value || "")); return m ? [Number(m[1]), Number(m[2])] : null; };
+function isNewerVersion(latest, current) {
+  const a = versionParts(latest), b = versionParts(current);
+  return Boolean(a && b && (a[0] > b[0] || (a[0] === b[0] && a[1] > b[1])));
+}
+function renderUpdateBanner(result) {
+  const current = extensionVersion();
+  const link = result?.downloadUrl ? `${BASE}${result.downloadUrl}` : "";
+  const outdated = Boolean(result?.ok && link.startsWith(`${BASE}/downloads/`) && isNewerVersion(result.latestVersion, current));
+  $("updateBanner").hidden = !outdated;
+  if (!outdated) return;
+  $("updateBannerText").textContent = `설치된 확장 ${current} → 최신 ${result.latestVersion}. 최신 ZIP을 내려받아 같은 폴더에 덮어쓴 뒤 chrome://extensions에서 이 확장의 새로고침 버튼을 눌러 주세요.`;
+  $("updateBannerLink").href = link;
+  $("updateBannerLink").textContent = `최신 버전(${result.latestVersion}) ZIP 바로 받기`;
+}
+
 function renderConnection(result) {
-  $("connectionStatus").textContent = result.ok
-    ? `연결됨: ${result.email}${result.latestVersion && result.latestVersion !== extensionVersion() ? ` · 최신 확장 ${result.latestVersion} 필요` : ""}`
-    : result.error || "연결되지 않음";
+  renderUpdateBanner(result);
+  $("connectionStatus").textContent = result.ok ? `연결됨: ${result.email}` : result.error || "연결되지 않음";
 }
 
 async function restoreConnection() {

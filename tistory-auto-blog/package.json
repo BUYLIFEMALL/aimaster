@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "build:extension": "node scripts/build-extension-archive.mjs"
+    "build:extension": "node scripts/build-extension-archive.mjs",
+    "test:update-banner": "node --test tests/update-banner.test.mjs",
+    "sync:program-version": "node scripts/sync-program-version.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
