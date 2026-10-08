@@ -148,7 +148,7 @@ export default function GuidePage() {
                   <span>방법 C. 페르소나 원클릭</span>
                 </div>
                 <p className="text-xs text-neutral-600 mt-2 leading-relaxed">
-                  <strong>[가전·살림 주부형]</strong>, <strong>[독신·자취생형]</strong>, <strong>[워킹맘]</strong> 등 원하는 캐릭터 카드를 클릭하면, 아무것도 입력하지 않아도 해당 인물의 말투로 대표 글이 3초 만에 완성됩니다.
+                  <strong>[가전·살림 주부형]</strong>, <strong>[고부간 갈등 공감형]</strong>, <strong>[독신·자취생형]</strong>, <strong>[워킹맘]</strong> 등 원하는 캐릭터 카드를 클릭하면, 아무것도 입력하지 않아도 해당 인물의 말투로 대표 글이 3초 만에 완성됩니다.
                 </p>
               </div>
               <div className="pt-2 text-[11px] font-semibold text-neutral-500">

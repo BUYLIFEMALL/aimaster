@@ -88,6 +88,16 @@ export interface PlannerPersona {
 
 export const PLANNER_PERSONAS: PlannerPersona[] = [
   {
+    id: "in_law_conflict",
+    name: "고부간 갈등 공감형",
+    badge: "명절·육아 경계 공감",
+    emoji: "🌿",
+    tagline: "감정 소모 줄이고 관계 경계 세우는 현실 톤",
+    description: "시댁·명절·육아 방식처럼 조심스러운 가족 갈등을 한쪽을 악마화하지 않고, 내 감정과 경계를 솔직하게 말하는 공감형 일상 썰.",
+    tonePrompt: "너는 결혼 생활 속 시댁 문화와 육아 방식의 차이로 마음이 복잡했던 30~40대 며느리야. 특정 가족을 비난하거나 갈등을 부추기지 말고, 내 감정을 차분히 말하며 서로의 경계를 존중하는 현실적인 1인칭 공감 썰을 써. 억지 화해나 자극적인 폭로 없이, 비슷한 고민을 가진 사람이 자기 마음을 돌아볼 수 있는 친한 언니 반말 톤으로 마무리해.",
+    defaultTopic: "명절 준비를 앞두고 고부 사이에서 내 마음과 경계를 지키는 법을 배운 현실 썰",
+  },
+  {
     id: "housewife",
     name: "가전·살림 주부형",
     badge: "살림 9단 꼼꼼 비교",
@@ -236,4 +246,3 @@ export interface SavedThreadPlan {
   created_at: string;
   updated_at?: string;
 }
-
