@@ -21,7 +21,7 @@
 - `sanitizeMedia`를 `web-actions.ts`에서 `lib/media.ts`로 옮겨 직접 발행과 실행기가 같이 쓴다. 상태 기록 시 `updated_at`을 직접 찍는다(이 테이블은 자동 갱신 트리거가 없을 수 있어 멈춘 글 판정에 쓰는 값이라 반드시 명시).
 - 화면 문구: 계정 관리·대시보드의 "워커 없음" 안내를 "예약한 글만 자동 발행, 새 글 자동 생성 없음"으로 정정.
 - **만들지 않은 것(요청 시 별도 단계)**: ① 새 글 자동 생성·게시(일상/홍보 비율·하루 목표·운영 시간·자동화 스위치) — 회원 AI 키 비용과 회원 계정 외부 게시가 걸려 있어 명시적 설계·승인이 필요, 지금도 저장만 됨. ② 댓글 확인 — Threads 댓글 조회는 `threads_read_replies` 권한이 필요한데 연결 스코프(`threads_basic,threads_content_publish`)에 없고, 스코프를 넣으면 회원 Meta 앱에 권한이 없을 때 OAuth 자체가 실패한다(poster AGENTS.md 트러블슈팅 3번). 회원별 opt-in 재연결 방식으로 별도 설계해야 한다.
-- **운영 전 필수(주인님)**: 루트 Vercel(Production)에 `CRON_SECRET` 환경변수 등록 후 재배포. 없으면 이 크론과 일일 정리 크론 모두 503. 등록 명령(값은 주인님이 직접): `! cd /d/Antigravity/AIMaster && vercel env add CRON_SECRET production --value "$(openssl rand -hex 32)" --yes --sensitive --scope buylife`.
+- **운영 상태(2026-10-08 갱신)**: `CRON_SECRET`을 등록하고 재배포했으며, 시험 글(DB에 직접 넣은 예약 글)이 실제로 `buylife.co.kr`에 발행되는 것까지 확인했다(예약 시각 약 30초 뒤, `published` + permalink 기록). 시험 글은 Threads에서 직접 지워야 한다. 아래는 등록 전 기록이다 — 루트 Vercel(Production)에 `CRON_SECRET` 환경변수 등록 후 재배포. 없으면 이 크론과 일일 정리 크론 모두 503. 등록 명령(값은 주인님이 직접): `! cd /d/Antigravity/AIMaster && vercel env add CRON_SECRET production --value "$(openssl rand -hex 32)" --yes --sensitive --scope buylife`.
 - 검수: 가짜 DB·가짜 Threads로 14개 시나리오(정상·동시 실행 중복 방지·24시간 지연·시각 전·권한 없음·토큰 만료·계정 없음·남의 미디어·8MB 초과·미디어 동반 발행·발행 오류·멈춘 글 정리·시간 예산·한 건 실패 후 계속) 통과. 실제 Threads 발행은 회원 토큰이 필요해 확인하지 못했다. DB 변경 없음.
 
 ## v1.83 AI 지시문에 당해 연도 규칙 반영 (2026-10-08)

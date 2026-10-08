@@ -292,8 +292,8 @@
 - **DB 변경(주인님 승인, 적용 완료)**: `tco_posts.category_id`(v1.75), `tco_content_sources.source_type` 허용 값에 `aliexpress`·`toss` 추가(v1.79).
 - **환경변수**: 루트 Vercel(Production)에 `FIXIE_URL` 추가(Sensitive, 주인님이 직접 등록). 값은 threads-affiliate-poster와 같은 Fixie 프록시이며 poster 설정은 변경하지 않았다.
 - **패키지**: 루트 `package.json`에 `undici`(`^7.29.0`)를 직접 의존성으로 추가(토스 프록시 호출용, 이미 설치돼 있던 버전).
-- **v1.83·v1.84**: 모든 AI 지시문에 당해 연도 규칙(`lib/yearRule.ts`), 예약 발행 실행기(`lib/scheduledDispatch.ts` + 1분 크론). **예약 발행이 동작하려면 루트 Vercel에 `CRON_SECRET` 등록 후 재배포가 필요**하다(주인님이 직접, 명령은 `threads-content-ops/AGENTS.md` v1.84).
-- **v1.85**: 콘텐츠 생성 결과 카드에 게시방식 결정 박스(임시저장 기본·즉시 포스팅·예약 발행, poster `/posts/new` STEP 3 구성). 예약 발행은 `CRON_SECRET` 등록 후에 실제로 나간다.
+- **v1.83·v1.84**: 모든 AI 지시문에 당해 연도 규칙(`lib/yearRule.ts`), 예약 발행 실행기(`lib/scheduledDispatch.ts` + 1분 크론). `CRON_SECRET`은 2026-10-08 등록·재배포 완료, 예약 발행은 실제 Threads로 검증했다(시험 글 `buylife.co.kr`).
+- **v1.85**: 콘텐츠 생성 결과 카드에 게시방식 결정 박스(임시저장 기본·즉시 포스팅·예약 발행, poster `/posts/new` STEP 3 구성). 예약 발행은 `CRON_SECRET` 등록(완료) 후에 실제로 나간다.
 - **남은 일**: 새 글 자동 생성·게시와 댓글 확인 없음(운영 시간·비율·목표·자동화 스위치는 저장만, 댓글은 `threads_read_replies` 권한 필요) / `CRON_SECRET` 미설정 / 알리익스프레스 실등록·AI 이미지 실키 검증 대기 / poster의 상세페이지 분석 탭·쿠팡 직접 등록 안내 미이식 / `lib/coupang.ts` 135번째 줄 기존 타입 오류(다른 CLI, v1.69).
 - **주의**: 이 파일의 `naver-blog-agent` 절은 다른 CLI가 작업하는 영역이다. 그 CLI의 올라가지 않은 변경이 이 파일에 섞여 있을 수 있으니 `git commit`은 항상 경로를 지정한다.
 

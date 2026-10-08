@@ -40,8 +40,8 @@
 
 1. ~~글 생성 지시문에 당해 연도 규칙 없음~~ — **완료(v1.83, 2026-10-08).** `lib/yearRule.ts`의 `withYearRule()`을 모든 AI 지시문에 적용했습니다. 새 AI 호출을 추가할 때도 감싸세요.
 2. **새 글 자동 생성·게시와 댓글 확인은 없음** — 예약한 글의 시각 발행은 v1.84에서 구현됐지만(`lib/scheduledDispatch.ts`), 계정 관리의 자동화 스위치·일상/홍보 비율·하루 게시 목표·운영 시간은 **저장만** 되고 새 글을 만들어 올리지 않습니다. 댓글 확인은 `threads_read_replies` 권한이 연결 스코프에 없어 보류(회원별 opt-in 재연결 설계 필요). 화면에서 "새 글을 자동으로 올린다"고 표현하지 마세요.
-3. **`CRON_SECRET` 미설정 — 예약 발행 크론이 동작하려면 필수** — 루트 Vercel 프로젝트에 없으면 예약 발행 크론(`dispatch-scheduled`)과 일일 정리 크론이 모두 503을 돌려줍니다(예약해도 발행되지 않음, 화면을 열 때의 본인 몫 정리만 동작). 주인님이 직접 `! cd /d/Antigravity/AIMaster && vercel env add CRON_SECRET production --value "$(openssl rand -hex 32)" --yes --sensitive --scope buylife` 후 재배포해야 합니다. 30일 자동 삭제 첫 실행은 2026-11-07 이후.
-4. **실키 검증 대기** — Claude·NanoBanana·GPT Image·Replicate 이미지 생성, Threads 캐러셀 게시, **알리익스프레스 실등록(제휴 링크·이미지)**. 1GB 영상 업로드는 Supabase 파일 크기 한도에 달려 있습니다.
+3. ~~`CRON_SECRET` 미설정~~ — **완료(2026-10-08).** 루트 Vercel(Production)에 임의 값으로 등록(Sensitive)하고 재배포했습니다. 예약 발행 크론(`dispatch-scheduled`)과 일일 정리 크론(`cleanup-media`)이 이제 인증을 통과해야 동작합니다(암호 없이 호출하면 401). 값은 읽을 수 없으니 바꿀 때는 새로 `vercel env add`로 다시 등록하고 재배포하세요. 30일 자동 삭제 첫 실행은 2026-11-07 이후.
+4. **실키 검증 대기** — **예약 발행은 실제 Threads로 검증 완료(2026-10-08, 시험 글이 예약 시각 약 30초 뒤 `buylife.co.kr`에 발행됨).** 아직 남은 것: 결과 카드의 "게시방식 결정" 박스(임시저장·즉시·예약)를 로그인 화면에서 눌러 보는 확인, Claude·NanoBanana·GPT Image·Replicate 이미지 생성, Threads 캐러셀 게시, **알리익스프레스 실등록(제휴 링크·이미지)**. 1GB 영상 업로드는 Supabase 파일 크기 한도에 달려 있습니다.
 5. 예약 발행 데스크톱 워커는 `media`를 읽지 않습니다.
 6. poster에서 아직 이식하지 않은 것: "상품·상세페이지 분석으로 등록" 탭(이미지·설명 분석), 쿠팡 "API 키 없을 때 직접 등록" 안내 박스(HTML 붙여넣기), 상품 목록의 미리보기 버튼. threads-easy-planner 쪽 기능도 미이식.
 7. **기존 타입 오류(내 변경 아님)**: `threads-content-ops/lib/coupang.ts(135,36) TS2339 Property 'trim' does not exist on type 'never'` (v1.69, 다른 CLI). 빌드는 통과하며 `ignoreBuildErrors` 때문에 보이지 않습니다. 이 오류와 무관한 작업이면 건드리지 말고 보고에 적습니다.
