@@ -202,7 +202,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
    - **배경**: 확장(`<프로그램>/extension/`)은 사이트 코드와 따로 배포되기 쉬워, 코드만 올리고 확장 폴더·ZIP·DB 버전이 서로 다른 버전으로 남는 사고가 생긴다. 회원이 받는 파일과 사이트가 말하는 버전이 항상 같아야 한다.
    - **확장 소스의 위치는 항상 `<프로그램>/extension/` 하나다.** 확장 동작을 바꾸면 이 폴더의 실제 파일을 고친다(루트 폴더나 다른 위치에 복제본을 만들지 않는다).
    - **그 프로그램을 업데이트·배포하는 같은 작업(같은 커밋·같은 배포)에서 아래 4가지를 반드시 함께 처리한다.** 하나라도 빠지면 작업이 끝난 것이 아니다.
-     1. **확장 폴더 반영**: `extension/manifest.json`의 `version`(Chrome 규격 `메이저.마이너.0`)과 `version_name`(`vX.YY`)이 프로그램 버전(`lib/version.ts`)과 같아야 한다. 빌드 스크립트(`scripts/build-extension-archive.mjs`)가 자동으로 맞추는 프로그램은 그 스크립트가 돌았는지 확인하고, 스크립트가 없는 프로그램은 손으로 맞춘다.
+     1. **확장 폴더 반영 (프로그램이 업데이트되면 `extension/` 폴더도 반드시 그 업데이트된 내용으로 갱신한다)**: 업데이트가 확장과 관련 있으면(확장이 호출하는 서버 API·원고 형식·화면 흐름·설정값이 바뀐 경우 포함) `extension/` 안의 실제 코드를 함께 고치고, 관련이 없어도 아래 버전 일치와 ZIP 재생성은 생략하지 않는다. `extension/manifest.json`의 `version`(Chrome 규격 `메이저.마이너.0`)과 `version_name`(`vX.YY`)이 프로그램 버전(`lib/version.ts`)과 같아야 한다. 빌드 스크립트(`scripts/build-extension-archive.mjs`)가 자동으로 맞추는 프로그램은 그 스크립트가 돌았는지 확인하고, 스크립트가 없는 프로그램은 손으로 맞춘다.
      2. **다운로드 파일 교체**: 확장 폴더 내용(폴더 자체가 아니라 내용물)을 ZIP으로 만들어 **기존 다운로드 주소·파일명 그대로** 최신으로 바꾼다. 방식은 프로그램별 기존 방식을 따르고 새 방식을 만들지 않는다 — 사이트 포함형(`public/downloads/<프로그램>-extension-latest.zip` + 버전 파일, 배포에 포함)이 기본이고, `naver-blog-auto-poster_web`은 GitHub 릴리스 `gh release upload … --clobber`(같은 릴리스·같은 파일명)를 쓴다.
      3. **DB 갱신**: 공용 DB `programs.version`을 같은 버전으로 올린다(핵심 원칙 5번). `programs`나 그 프로그램 테이블에 확장 다운로드 주소·버전을 저장하는 칸을 둔 프로그램은 그 값도 같은 작업에서 함께 갱신한다. 버전 마이그레이션 SQL 파일도 남긴다.
      4. **배포 후 실물 검증**: 라이브 다운로드 주소가 200인지 확인하고, 내려받은 ZIP 안의 `manifest.json`의 `version_name`이 프로그램 버전과 같은지(필요하면 핵심 파일 해시를 로컬과 비교) 확인한 뒤 보고한다. 업로드했다는 사실만으로 성공이라 보고하지 않는다.
