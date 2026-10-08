@@ -39,6 +39,14 @@ const TYPES: { value: string; label: string; urlLabel: string; urlHint: string; 
 // 알리익스프레스는 아래 전용 등록 영역에서 제휴 링크를 자동으로 만들어 저장하므로 "새 소스 등록"의 직접 입력 종류에는 넣지 않고, 목록 라벨·필터에만 쓴다.
 const LIST_TYPES = [...TYPES, { value: "aliexpress", label: "알리익스프레스" }, { value: "toss", label: "토스쇼핑" }];
 
+type PlatformTab = "coupang" | "aliexpress" | "naver_brand_connect" | "toss";
+const PLATFORM_TABS: { value: PlatformTab; label: string }[] = [
+  { value: "coupang", label: "쿠팡파트너스" },
+  { value: "aliexpress", label: "알리익스프레스" },
+  { value: "naver_brand_connect", label: "네이버 브랜드커넥트" },
+  { value: "toss", label: "토스쇼핑 쉐어링크" },
+];
+
 type TossMode = "best" | "category" | "today";
 const TOSS_TABS: { value: TossMode; label: string }[] = [
   { value: "best", label: "🔥 베스트 상품" },
@@ -58,6 +66,7 @@ const typeLabel = (value: string) => LIST_TYPES.find((type) => type.value === va
 
 export default function SourceQueue({ accounts, sources, configuredProviders, tossProxyReady }: { accounts: Account[]; sources: Source[]; configuredProviders: string[]; tossProxyReady: boolean }) {
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
+  const [tab, setTab] = useState<PlatformTab>("coupang");
   const [form, setForm] = useState({ sourceType: "coupang", title: "", sourceUrl: "", summary: "" });
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -91,7 +100,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
     return <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"><h2 className="font-bold text-neutral-900">운영할 Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-neutral-600">API키등록·플랫폼연동에서 회원님의 Threads 앱과 계정을 연결하면 계정별 쇼핑제휴 상품을 등록할 수 있습니다.</p></div>;
   }
 
-  const selectedType = TYPES.find((type) => type.value === form.sourceType) ?? TYPES[0];
+  const selectedType = TYPES.find((type) => type.value === tab) ?? TYPES[0];
   const count = (status: string) => mine.filter((source) => source.status === status).length;
 
   const run = async (action: () => Promise<{ ok: true } | { ok: false; error: string }>, success: string) => {
@@ -110,7 +119,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
   };
 
   const register = async () => {
-    const ok = await run(() => createContentSource({ accountId, ...form }), "소스를 등록했습니다.");
+    const ok = await run(() => createContentSource({ accountId, ...form, sourceType: tab }), "소스를 등록했습니다.");
     if (ok) setForm((current) => ({ ...current, title: "", sourceUrl: "", summary: "" }));
   };
 
@@ -260,6 +269,13 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
     </section>
 
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <h3 className="font-bold text-neutral-900">🔎 상품 검색·등록</h3>
+      <p className="mt-1 text-sm text-neutral-600">등록할 플랫폼을 선택하세요.</p>
+      <div className="mt-3 flex flex-wrap gap-2" role="tablist" aria-label="상품 등록 플랫폼">{PLATFORM_TABS.map((item) => <button key={item.value} type="button" role="tab" aria-selected={tab === item.value} onClick={() => { setTab(item.value); setMessage(null); }} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${tab === item.value ? "bg-neutral-900 text-[#ffffff]" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"}`}>{item.label}</button>)}</div>
+    </section>
+
+    {tab === "coupang" && (
+    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Search size={18} className="text-gold" />쿠팡 파트너스 상품 검색</h3>
       <p className="mt-1 text-sm leading-relaxed text-neutral-600">회원님이 등록한 쿠팡 파트너스 키로 상품을 검색하고, 마음에 드는 상품만 소스로 저장합니다. 소스로 저장 시 쿠팡 딥링크 API를 통해 34자 공식 단축 링크(link.coupang.com/a/...)로 자동 변환 저장되어 Threads 500자 제한 내에서 본문 글자 수를 400자 이상 넉넉히 쓸 수 있습니다.</p>
       {!keysReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>쿠팡 파트너스 Access Key와 Secret Key가 등록되지 않았습니다. <a className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</a>에서 본인 키를 저장하면 검색할 수 있습니다. 키가 아직 없다면 아래 새 소스 등록에 파트너스 링크를 직접 붙여넣어도 됩니다.</span></p>}
@@ -284,7 +300,9 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
       })}</ul>}
       <p className="mt-3 text-xs text-neutral-500">쿠팡 파트너스 API 키는 계정의 누적 매출 15만원 이후에 활성화됩니다. 상품 페이지는 일반 주소로 열려 제휴 클릭으로 집계되지 않습니다.</p>
     </section>
+    )}
 
+    {tab === "aliexpress" && (
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Plus size={18} className="text-gold" />알리익스프레스 상품 등록</h3>
       <p className="mt-1 text-sm leading-relaxed text-neutral-600">알리익스프레스 상품 주소를 붙여넣으면 회원님의 알리익스프레스 키로 제휴 링크를 자동으로 만들고 상품 이미지도 가져옵니다. 모바일 공유 단축 주소(a.aliexpress.com/…)도 됩니다.</p>
@@ -296,7 +314,9 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
       </div>
       <div className="mt-4 flex justify-end"><button className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={aliBusy || busy || !aliKeysReady || !ali.title.trim() || !ali.productUrl.trim()} onClick={() => void registerAli()}><Plus size={16} />{aliBusy ? "제휴 링크 만드는 중…" : "제휴 링크 자동 생성 후 등록"}</button></div>
     </section>
+    )}
 
+    {tab === "toss" && (
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Search size={18} className="text-gold" />토스쇼핑 쉐어링크 상품</h3>
       <p className="mt-1 text-sm leading-relaxed text-neutral-600">토스쇼핑은 키워드 검색을 지원하지 않아 베스트 상품·카테고리별·오늘의 특가 목록에서 상품을 골라 저장합니다. 저장 버튼을 누를 때만 회원님 키로 쉐어링크(제휴 링크)를 발급합니다.</p>
@@ -323,17 +343,19 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
       })}</ul>}
       <p className="mt-3 text-xs text-neutral-500">베스트 상품은 1시간 단위로 갱신됩니다. 상품 페이지는 일반 주소로 열려 제휴 클릭으로 집계되지 않습니다.</p>
     </section>
+    )}
 
+    {(tab === "coupang" || tab === "naver_brand_connect") && (
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-      <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Plus size={18} className="text-gold" />새 소스 등록</h3>
+      <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Plus size={18} className="text-gold" />{selectedType.label} 링크 등록</h3>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <label><span className="mb-2 block text-sm font-semibold text-neutral-800">소스 종류</span><select className={inputClass} value={form.sourceType} onChange={(event) => setForm({ ...form, sourceType: event.target.value })}>{TYPES.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}</select></label>
         <label><span className="mb-2 block text-sm font-semibold text-neutral-800">제목</span><input className={inputClass} maxLength={200} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder={selectedType.titleHint} /></label>
         <label className="md:col-span-2"><span className="mb-2 block text-sm font-semibold text-neutral-800">{selectedType.urlLabel}</span><input className={inputClass} maxLength={2000} inputMode="url" value={form.sourceUrl} onChange={(event) => setForm({ ...form, sourceUrl: event.target.value })} placeholder={selectedType.urlHint} /></label>
         <label className="md:col-span-2"><span className="mb-2 block text-sm font-semibold text-neutral-800">메모 (선택)</span><textarea className={`${inputClass} min-h-20 resize-y`} maxLength={1000} value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} placeholder="초안에 꼭 넣고 싶은 핵심 내용, 강조점, 주의사항을 적어 두세요." /></label>
       </div>
       <div className="mt-4 flex justify-end"><button className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={busy || !form.title.trim() || !form.sourceUrl.trim()} onClick={() => void register()}><Plus size={16} />{busy ? "처리 중…" : "소스 등록"}</button></div>
     </section>
+    )}
 
     {message && <p className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status">{message.ok ? <CheckCircle2 size={16} className="shrink-0 text-emerald-600" /> : <CircleAlert size={16} className="shrink-0 text-rose-600" />}{message.text}</p>}
 
