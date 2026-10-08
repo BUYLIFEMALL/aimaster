@@ -207,6 +207,14 @@ AGENTS.md §4)을 다시 확인한 사례이고, 그래서 매번 실제 결과�
 
 ---
 
+## 9-1. v1.02 (2026-10-09) — 버전 표기 정렬 + 확장 새 버전 안내
+
+- 확장 `manifest.json`에 `version_name: "v1.02"`를 추가하고 Chrome 내부 번호를 `1.2.0`으로 올렸다(프로그램 표시 버전 `programs.version`과 같은 `vX.YY` 체계로 정렬. 예전 `0.1.0`/`v1.01` 불일치 해소).
+- **ZIP 파일명은 그대로** `AIMaster-Naver-Blog-Auto-Poster-Extension-0.1.0.zip`이다(고정 GitHub 릴리스 주소를 유지하기 위한 의도. 파일명의 `0.1.0`은 옛 이름일 뿐 내용 버전이 아니다).
+- 서버(`app/api/naver-blog-auto-poster-web/whoami/route.ts`)가 `latestVersion`·`downloadUrl`을 함께 돌려준다. 값의 출처는 `lib/naverBlogAutoPosterWebExtension.ts`(`POSTER_WEB_EXTENSION_VERSION`, `POSTER_WEB_EXTENSION_DOWNLOAD_URL`) 한 곳이다. 확장 사이드패널은 토큰 연동 후 설치된 버전보다 최신이 높을 때만 "새 버전이 나왔습니다" 배너를 보여준다(링크는 `https://github.com/BUYLIFEMALL/aimaster/releases/download/` 아래만 허용).
+- **다음 배포 때 같은 작업에서 함께 바꿀 것**: `extension/manifest.json`(`version`, `version_name`), `lib/naverBlogAutoPosterWebExtension.ts`의 버전, DB `programs`의 `version`·`extension_version`(`extension_download_url`은 고정 주소 유지). 그 뒤 §10 절차로 ZIP을 교체하고 `node scripts/check-extension-release.mjs naver-blog-auto-poster-web`로 확인한다. 검사: 루트에서 `npm run test:poster-web-update`.
+- ZIP 만들기 팁: PowerShell 5.1의 `Compress-Archive`는 항목 경로에 역슬래시를 넣을 수 있어 Python `zipfile`(항목명 `파일명` 그대로, 폴더 **내용물**만)로 만들었다.
+
 ## 10. 배포 방식 — Chrome 웹스토어 대신 zip 직접 배포
 
 Chrome 웹스토어 개발자 계정은 만들어뒀지만(§3 참고) 아직 정식 심사를 제출하지 않기로 했다.

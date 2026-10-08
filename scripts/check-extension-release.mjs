@@ -11,8 +11,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 // 확장이 있는 프로그램. 새 확장 프로그램을 만들면 여기에 추가한다.
 const EXTENSION_PROGRAMS = ["naver-blog-agent", "ai-auto-blog", "naver-blog-seo-studio", "tistory-auto-blog", "naver-blog-auto-poster-web"];
-// 예전 방식이라 manifest에 version_name이 없고 숫자 버전을 쓰는 프로그램(규칙 위반이지만 경고로만 표시)
-const LEGACY_NUMERIC = new Set(["naver-blog-auto-poster-web"]);
+// manifest에 version_name이 없는 예전 방식 프로그램(규칙 위반이지만 경고로만 표시). 현재는 없다 — 예외를 새로 만들지 않는다.
+const LEGACY_NUMERIC = new Set([]);
 
 function envValue(name) {
   if (process.env[name]) return process.env[name];

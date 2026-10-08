@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:poster-web-update": "node --test naver-blog-auto-poster_web/tests/update-banner.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",

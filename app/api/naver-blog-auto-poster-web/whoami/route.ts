@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPersonalAccessTokenWithProgramAccess } from "@/lib/personalAccessTokenAuth";
+import { POSTER_WEB_EXTENSION_DOWNLOAD_URL, POSTER_WEB_EXTENSION_VERSION } from "@/lib/naverBlogAutoPosterWebExtension";
 
 // 크롬 확장(웹버전)이 `Authorization: Bearer <토큰>`으로 호출해서 "이 토큰이 아직 유효하고,
 // 이 프로그램 이용 권한(구독/개별부여/등급)이 있는지"를 확인하는 용도. 2026-09-21에
@@ -23,6 +24,9 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     email: result.token.email,
     name: result.token.name,
-    isAdmin: result.token.isAdmin
+    isAdmin: result.token.isAdmin,
+    // 설치된 확장이 자기 버전과 비교해 새 버전 안내를 띄운다(docs/EXTENSION_RELEASE_RULES.md)
+    latestVersion: POSTER_WEB_EXTENSION_VERSION,
+    downloadUrl: POSTER_WEB_EXTENSION_DOWNLOAD_URL
   });
 }

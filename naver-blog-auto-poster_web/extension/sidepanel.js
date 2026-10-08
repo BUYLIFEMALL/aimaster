@@ -34,7 +34,7 @@ async function checkAimasterToken(token) {
       return { linked: false, error: body.error || `연동 확인 실패 (${response.status})` };
     }
     const body = await response.json();
-    return { linked: true, email: body.email, name: body.name, isAdmin: Boolean(body.isAdmin) };
+    return { linked: true, email: body.email, name: body.name, isAdmin: Boolean(body.isAdmin), latestVersion: body.latestVersion, downloadUrl: body.downloadUrl };
   } catch (error) {
     return { linked: false, error: error instanceof Error ? error.message : String(error) };
   }
@@ -45,7 +45,28 @@ const linkButton = document.getElementById("aimaster-link-btn");
 const statusBox = document.getElementById("aimaster-status");
 const adminOnlySection = document.getElementById("admin-only-section");
 
+// 새 버전 안내: 서버가 알려주는 최신 버전이 설치된 확장 버전보다 높을 때만 보여준다.
+// 안내 주소는 우리 GitHub 릴리스 다운로드 주소만 허용한다.
+const UPDATE_LINK_PREFIX = "https://github.com/BUYLIFEMALL/aimaster/releases/download/";
+const versionParts = (value) => { const m = /^v?(\d+)\.(\d+)/.exec(String(value || "")); return m ? [Number(m[1]), Number(m[2])] : null; };
+function isNewerVersion(latest, current) {
+  const a = versionParts(latest), b = versionParts(current);
+  return Boolean(a && b && (a[0] > b[0] || (a[0] === b[0] && a[1] > b[1])));
+}
+function renderUpdateBanner(result) {
+  const manifest = chrome.runtime?.getManifest?.();
+  const current = manifest?.version_name || (manifest?.version ? `v${manifest.version}` : "");
+  const link = String(result?.downloadUrl || "");
+  const outdated = Boolean(result?.linked && link.startsWith(UPDATE_LINK_PREFIX) && isNewerVersion(result.latestVersion, current));
+  document.getElementById("update-banner").hidden = !outdated;
+  if (!outdated) return;
+  document.getElementById("update-banner-text").textContent = `설치된 확장 ${current} → 최신 ${result.latestVersion}. 최신 ZIP을 내려받아 같은 폴더에 덮어쓴 뒤 chrome://extensions에서 이 확장의 새로고침 버튼을 눌러 주세요.`;
+  document.getElementById("update-banner-link").href = link;
+  document.getElementById("update-banner-link").textContent = `최신 버전(${result.latestVersion}) ZIP 바로 받기`;
+}
+
 function renderStatus(result) {
+  renderUpdateBanner(result);
   if (result.linked) {
     statusBox.textContent = `연동됨: ${result.name ? `${result.name} · ` : ""}${result.email}`;
   } else {
