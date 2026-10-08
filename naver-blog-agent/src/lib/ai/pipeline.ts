@@ -2,19 +2,10 @@ import { callAI, parseJsonSafe, type AIModelConfig } from "./models";
 import { buildHumanizerPrompt, applyHumanizerEdits } from "@/lib/humanizer";
 import { WRITING_STYLES, buildWritingStylePrompt, isWritingTone, isWritingStyle, type WritingTone, type WritingStyle } from "./writingStyles";
 
-/**
- * 당해 연도 엄수 보장 헬퍼:
- * 과거 연도(2020~2025년)를 당해 연도(현재 2026년)로 자동 치환하는 안전망
- */
-export function sanitizeYear(text: string | undefined | null, targetYear: number = new Date().getFullYear()): string {
-  if (!text) return "";
-  let result = text;
-  // 1) 2020년 ~ 2025년 형태 -> 당해 연도 (예: 2026년)
-  result = result.replace(/202[0-5]년/g, `${targetYear}년`);
-  // 2) 2020 ~ 2025 숫자 단독 또는 구분자 결합 형태 치환
-  result = result.replace(/202[0-5](?=\s|[-_/.,;:!?)}\]>]|$)/g, `${targetYear}`);
-  return result;
-}
+import { sanitizeYear, sanitizeBodyYear } from "@/lib/yearPolicy";
+
+// 연도 정책은 src/lib/yearPolicy.ts (올해 기준, 본문은 과거 사실 보존)
+export { sanitizeYear, sanitizeBodyYear };
 
 export interface PipelineInput {
   topic?: string;
@@ -93,14 +84,14 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
   // 1단계: Research Agent (주제 및 소제목 기획)
   const researchSystemPrompt = `너는 네이버 블로그 전문 기획 에이전트야.
 [기준 연도 절대 엄수]: 현재 연도는 ${currentYear}년이야. 모든 제목, 소제목, 정책, 혜택, 최신 트렌드, 정보는 반드시 ${currentYear}년(당해 연도) 기준으로 기획해야 해.
-사용자가 제공한 주제나 참고 자료에 과거 연도(2023년, 2024년 등)가 포함되어 있더라도, 절대 과거 연도를 따라 쓰지 말고 반드시 ${currentYear}년(당해 연도)으로 변경하여 최신 트렌드로 기획해.
+사용자가 제공한 주제나 참고 자료에 과거 연도(2023년, 2024년 등)가 최신 정보·정책·혜택·트렌드의 기준으로 쓰였다면 따라 쓰지 말고 ${currentYear}년(당해 연도)으로 바꿔서 기획해. 단, 출시·발표·시행처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 둬.
 네이버 C-Rank 및 D-I-A+ 검색 알고리즘에 최적화되고, 실제 독자의 클릭과 긴 체류시간을 유도하는 ${currentYear}년 최신 트렌드 제목과 ${sectionCountGuide}의 핵심 소제목 목차를 기획해줘.
 목표 글자수는 공백 포함 약 ${targetLength}자이므로, 목표 분량에 걸맞은 알찬 목차 구성이 필요해.
 최근 발행된 글 제목들과 소재가 중복되지 않도록 참신하고 신뢰도 높은 관점을 제시해야 해.
 ${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 가장 궁금해하고 신뢰할 수 있는 소제목으로 구성해줘.` : ""}`;
 
   const researchUserPrompt = `[기획 조건]
-- 기준 연도: ${currentYear}년 (과거 2023~2024년 표기 절대 금지, 입력된 주제에 과거 연도가 있더라도 무조건 ${currentYear}년으로 변경)
+- 기준 연도: ${currentYear}년 (최신 정보를 과거 연도 기준으로 쓰지 말 것. 실제로 있었던 과거 사실의 연도만 그대로 허용)
 - 카테고리: ${category}
 - 검색 키워드: ${cleanSearchKeywords || "자동 발굴"}
 - 발행 목적: ${cleanPublishPurpose || "정보 제공 및 독자 체류시간 극대화"}${personaPromptSnippet}
@@ -157,7 +148,7 @@ ${persona.tonePrompt}
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 포스팅 본문을 작성해줘.
 
 [작성 규칙]
-1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 과거 연도(2023년, 2024년 등)가 있더라도 절대 과거 연도를 따라 쓰지 말고 반드시 ${currentYear}년으로 변경해서 작성해.
+1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 최신 정보 기준으로 쓰인 과거 연도(2023년, 2024년 등)가 있으면 ${currentYear}년으로 바꿔서 작성해. 단, 출시·발표·시행·사건처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 쓰고 올해로 바꾸지 마.
 2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
 3. 말투: 회원이 선택한 ${preferredTone}와 문체를 페르소나의 어조보다 우선 반영한다. (기계적인 AI 번역투 절대 금지)
 4. 구조화 태그:
@@ -170,7 +161,7 @@ ${persona.tonePrompt}
 주어진 목차를 바탕으로 네이버 스마트에디터 ONE에 최적화된 ${lengthGuideline} 분량의 정보성 포스팅 본문을 작성해줘.
 
 [작성 규칙]
-1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 과거 연도(2023년, 2024년 등)가 있더라도 절대 과거 연도를 따라 쓰지 말고 반드시 ${currentYear}년으로 변경해서 작성해.
+1. 기준 연도 절대 엄수: 현재 연도는 ${currentYear}년이야. 모든 본문 내용, 제도, 지원금, 제품, 가이드, 연도 표기는 반드시 ${currentYear}년(당해 연도) 최신 기준이야. 주어진 목차나 소재에 최신 정보 기준으로 쓰인 과거 연도(2023년, 2024년 등)가 있으면 ${currentYear}년으로 바꿔서 작성해. 단, 출시·발표·시행·사건처럼 실제로 있었던 과거 사실의 연도는 정확히 그대로 쓰고 올해로 바꾸지 마.
 2. 분량 준수: 공백 포함 약 ${targetLength}자 내외를 목표로 충실하게 내용을 전개할 것.
 3. 말투: 자연스러운 ${preferredTone} (상투적인 기계적 어투 금지)
 4. 구조화 태그:
@@ -181,7 +172,7 @@ ${persona.tonePrompt}
 6. 신뢰할 수 있는 사실, 구체적 예시, 독자가 궁금해할 실전 꿀팁 위주로 작성할 것.`;
 
   const writerUserPrompt = `[기획된 글 정보]
-기준 연도: ${currentYear}년 (과거 연도 2023~2024년 표기 금지, ${currentYear}년 최신 정보 기준)
+기준 연도: ${currentYear}년 (최신 정보는 ${currentYear}년 기준, 실제 과거 사실의 연도는 그대로)
 제목: ${researchData.finalTitle}
 카테고리: ${category}
 ${cleanTopic ? `사용자가 지정한 주제: ${cleanTopic}
@@ -196,7 +187,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.`;
 
   const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}\n\n${writingStylePrompt}`, writerUserPrompt);
-  let draftArticle = sanitizeYear(writerRaw.trim(), currentYear);
+  let draftArticle = sanitizeBodyYear(writerRaw.trim(), currentYear);
 
   stepsLog.push({
     step: "2. Writer Agent",
@@ -217,7 +208,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 
     if (Array.isArray(humanizerData.edits) && humanizerData.edits.length > 0) {
       const { article, changes } = applyHumanizerEdits(blocks, humanizerData.edits);
-      humanizedArticle = sanitizeYear(article, currentYear);
+      humanizedArticle = sanitizeBodyYear(article, currentYear);
       stepsLog.push({
         step: "3. Blog Humanizer",
         status: "done",
@@ -251,7 +242,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
   const lengthNote = `본문 ${measuredLength}자 (목표 ${targetLength}자, 허용 ${minLength}~${maxLength}자) ${lengthOk ? "범위 내" : measuredLength < minLength ? "부족" : "초과"}`;
 
   const reviewerSystemPrompt = `너는 네이버 블로그 SEO 및 팩트체크 검수관이야.
-[기준 연도 엄수]: 현재 연도는 ${currentYear}년이야. 본문 및 태그 검수 시 과거 연도(2023년, 2024년 등)가 포함되지 않도록 하고, 필요 시 ${currentYear}년 최신 태그를 부여해줘.
+[기준 연도 엄수]: 현재 연도는 ${currentYear}년이야. 본문 및 태그 검수 시 최신 정보가 과거 연도(2023년, 2024년 등) 기준으로 쓰이지 않았는지 보고(실제 과거 사실의 연도는 정상), 필요 시 ${currentYear}년 최신 태그를 부여해줘.
 본문 전체를 처음부터 끝까지 검토해. 지어낸 수치·출처·경험, 과거 연도 사용, 선택된 말끝·문체 불일치, 주제·키워드 이탈이 있으면 지적하고,
 네이버 블로그 검색 노출에 가장 효과적인 태그 5~10개를 선정해줘.
 reviewStatus는 문제가 없으면 "PASS", 고쳐야 할 점이 있으면 "WARN", 그대로 발행하면 안 되면 "FAIL"로만 답해.`;
@@ -316,7 +307,7 @@ ${humanizedArticle}
 
   // [3단계 안전망: 최종 반환 직전 정규식 Safe-guard 교정]
   const finalTitle = sanitizeYear(researchData.finalTitle, currentYear);
-  const finalContent = sanitizeYear(humanizedArticle, currentYear);
+  const finalContent = sanitizeBodyYear(humanizedArticle, currentYear);
   const finalTags = tags.map((t: string) => sanitizeYear(t, currentYear));
   const finalImages = imagePrompts.map((img) => ({
     ...img,

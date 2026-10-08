@@ -9,6 +9,10 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
+### v1.47 추가 (연도 정책)
+
+- `src/lib/yearPolicy.ts`: `sanitizeYear`(짧은 문구, 과거→올해 전부), `sanitizeBodyYear`(본문, 범위·"지난"·과거형 단서가 있으면 보존, 기준·현재·신청 등 최신 단서면 올해). `pipeline.ts`는 제목/목차/태그는 전자, 초안·윤문·최종 본문은 후자. 한계는 AGENTS.md v1.47 참고.
+
 ### v1.46 추가 (Reviewer 보강)
 
 - `pipeline.ts` 4단계: 본문 전체 전달, 글자수 코드 측정(`[SECTION]`/`[IMAGE INSERT]` 줄 제외, 85~115%), 파싱 실패=`UNKNOWN`, `reviewStatus`는 `PipelineResult`에 선택 필드(저장글 로드 시 없음). 화면은 stepsLog의 warn으로 표시. 자동 재생성은 미구현(필요 시 후속).

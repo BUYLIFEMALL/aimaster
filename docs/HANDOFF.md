@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.47, 2026-10-09) — 연도 정책
+
+- 올해(생성 시점) 기준. 제목·태그 등은 과거 연도 전부 올해로, 본문은 과거 사실 보존(`src/lib/yearPolicy.ts`, `npm run test:years`). 남은 일: 6번(회원별 DB 이관, 스키마 승인), 7번(ESLint·CRON_SECRET).
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.46, 2026-10-09) — Reviewer 보강
 
 - 본문 전체 검수, 글자수 코드 판정, 파싱 실패≠PASS(`UNKNOWN`). 다음은 5번 연도 치환(올해 기준, v1.47).

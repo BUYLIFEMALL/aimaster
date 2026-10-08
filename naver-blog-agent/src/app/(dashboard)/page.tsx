@@ -34,6 +34,7 @@ import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft } from "@/lib/retention";
 import type { PipelineResult } from "@/lib/ai/pipeline";
+import { sanitizeYear } from "@/lib/yearPolicy";
 import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate, CollectorCategory } from "@/types/collector";
 import { useContentCategories } from "@/hooks/useContentCategories";
@@ -117,13 +118,7 @@ export default function MainPage() {
   const [selectedBlogId, setSelectedBlogId] = useState("");
 
   // 당해 연도(현재 2026년) 자동 정제 헬퍼
-  const cleanCurrentYear = (text: string | null | undefined): string => {
-    if (!text) return "";
-    const currentYear = new Date().getFullYear();
-    return text
-      .replace(/202[0-5]년/g, `${currentYear}년`)
-      .replace(/202[0-5](?=\s|[-_/.,;:!?)}\]>]|$)/g, `${currentYear}`);
-  };
+  const cleanCurrentYear = (text: string | null | undefined): string => sanitizeYear(text);
 
   // 수집된 떡상 글감 목록 & 현재 선택된 글감
   const [viralCandidates, setViralCandidates] = useState<BlogViralCandidate[]>([]);

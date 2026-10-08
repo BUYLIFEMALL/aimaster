@@ -15,16 +15,8 @@ export interface BlogCandidateDraft {
   angle: string;
 }
 
-/**
- * 당해 연도(현재 2026년) 최신성 보장: 과거 연도(2020~2025년)를 당해 연도로 정제
- */
-export function sanitizeYear(text: string | undefined | null, targetYear: number = new Date().getFullYear()): string {
-  if (!text) return "";
-  let result = text;
-  result = result.replace(/202[0-5]년/g, `${targetYear}년`);
-  result = result.replace(/202[0-5](?=\s|[-_/.,;:!?)}\]>]|$)/g, `${targetYear}`);
-  return result;
-}
+import { sanitizeYear } from "@/lib/yearPolicy";
+export { sanitizeYear };
 
 // ---------------------------------------------------------------------------
 // SSRF 방어
