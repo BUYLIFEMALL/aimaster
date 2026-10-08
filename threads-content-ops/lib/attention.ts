@@ -155,21 +155,28 @@ export function hasOperationRules(rules?: OperationRules): rules is OperationRul
   return Boolean(rules && (rules.topic || rules.personality || rules.tone || rules.targetAudience || rules.forbiddenTopics || rules.forbiddenExpressions));
 }
 
-function operationBlock(rules?: OperationRules): string {
+/**
+ * forbiddenOnly=true(페르소나를 고른 글 생성·다시 쓰기): 주제·성격·말투·대상 독자는 빼고 금지 주제·금지 표현만 넣는다.
+ * 페르소나를 고르지 않았을 때만 운영정보 전체가 기본값으로 적용된다.
+ */
+function operationBlock(rules?: OperationRules, forbiddenOnly = false): string {
   if (!hasOperationRules(rules)) return "";
   const lines: string[] = [];
-  if (rules.topic) lines.push(`- 이 계정의 주제 분야: ${rules.topic}`);
-  if (rules.personality) lines.push(`- 글쓴이 성격: ${rules.personality}`);
-  if (rules.tone) lines.push(`- 말투: ${rules.tone} (위의 기본 말투 규칙보다 이 말투를 따르세요. 단 페르소나를 따로 골랐다면 페르소나 어조가 우선입니다)`);
-  if (rules.targetAudience) lines.push(`- 기본 대상 독자: ${rules.targetAudience} (<data>의 [타깃 독자]가 있으면 그것이 우선)`);
+  if (!forbiddenOnly) {
+    if (rules.topic) lines.push(`- 이 계정의 주제 분야: ${rules.topic}`);
+    if (rules.personality) lines.push(`- 글쓴이 성격: ${rules.personality}`);
+    if (rules.tone) lines.push(`- 말투: ${rules.tone} (위의 기본 말투 규칙보다 이 말투를 따르세요)`);
+    if (rules.targetAudience) lines.push(`- 기본 대상 독자: ${rules.targetAudience} (<data>의 [타깃 독자]가 있으면 그것이 우선)`);
+  }
   if (rules.forbiddenTopics) lines.push(`- 금지 주제: ${rules.forbiddenTopics} — 이 주제는 글에서 다루거나 언급하지 마세요.`);
   if (rules.forbiddenExpressions) lines.push(`- 금지 표현: ${rules.forbiddenExpressions} — 이 표현·단어는 어떤 글(대표 글·훅 변형·첫 댓글 멘트 포함)에도 절대 쓰지 마세요.`);
-  return `[계정 운영 설정 — 이 Threads 계정의 글 방향]\n${lines.join("\n")}\n이 설정은 글의 방향·말투·금지 사항을 정하는 용도입니다. 이 설정을 근거로 경험·사실·수치를 지어내지 마세요.`;
+  if (!lines.length) return "";
+  return `[계정 운영 설정 — 이 Threads 계정의 ${forbiddenOnly ? "금지 사항" : "글 방향"}]\n${lines.join("\n")}\n이 설정은 글의 방향·말투·금지 사항을 정하는 용도입니다. 이 설정을 근거로 경험·사실·수치를 지어내지 마세요.`;
 }
 
 function systemWith(personaTone: string | undefined, custom: CustomInput, range: LengthRange, operation?: OperationRules) {
   const extras: string[] = [];
-  const operationText = operationBlock(operation);
+  const operationText = operationBlock(operation, Boolean(personaTone));
   if (operationText) extras.push(operationText);
   if (personaTone) extras.push(`[글쓴이 페르소나 — 시점과 말투만 반영]\n${personaTone}\n페르소나는 어조와 관점을 정하는 용도입니다. 페르소나의 직업·상황을 근거로 구체적인 체험담이나 사실을 지어내지 마세요.`);
   if (custom.benchmarkPost) extras.push("[참고할 터진 글 — 구조만 벤치마킹]\n<data>의 [참고할 터진 글]은 반응이 좋았던 글입니다. 첫 문장의 후킹 방식, 건드리는 심리, 전개 순서(뼈대)만 분석해서 그 뼈대에 이번 글감을 넣어 새로 쓰세요. 그 글의 문장·표현·소재·고유한 디테일을 그대로 옮기거나 살짝만 바꿔 쓰지 마세요(표절 금지). 그 글에 나온 사실이나 경험을 이번 글의 사실로 가져오지 마세요.");
@@ -253,7 +260,7 @@ export async function rewriteAttentionPost(params: { hook: string; content: stri
 3. 친근한 날것의 반말, 존댓말 금지. 감성 부호(';;', '...', '??', 'ㅠㅠ')는 과하지 않게.
 4. ${params.productName ? `첫 줄 '이모티콘+짧은 제목', 3개 단락 구조, 그리고 '${params.productName}'의 특징·가격 소개는 유지하세요(요청이 '광고 느낌 빼기'면 더 담백하게). 새로 지어낸 상품 정보나 URL·'(광고)' 문구는 쓰지 마세요.` : "특정 상품명·브랜드 광고 문구 금지."}
 
-${operationBlock(params.operation) ? `${operationBlock(params.operation)}\n(금지 주제·금지 표현은 고쳐 쓴 글에서도 반드시 지키세요.)\n` : ""}
+${operationBlock(params.operation, true) ? `${operationBlock(params.operation, true)}\n(금지 주제·금지 표현은 고쳐 쓴 글에서도 반드시 지키세요. 말투는 원문의 말투를 유지하세요.)\n` : ""}
 [요청]
 ${mode.instruction}
 
