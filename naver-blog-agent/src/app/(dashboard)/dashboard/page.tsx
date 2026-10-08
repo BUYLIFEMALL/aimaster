@@ -229,32 +229,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* 작업 1: 글 생성 */}
-          <Link
-            href="/"
-            className="group rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 hover:border-emerald-500 hover:bg-emerald-50/40 hover:shadow-sm transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-neutral-200 text-lg group-hover:scale-105 transition-transform">
-                  ✍️
-                </span>
-                <ArrowUpRight size={16} className="text-neutral-400 group-hover:text-emerald-700 transition-colors" />
-              </div>
-              <h3 className="mt-3 text-sm font-bold text-neutral-900 group-hover:text-emerald-800">
-                블로그 글 자동 생성
-              </h3>
-              <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
-                6대 화자 페르소나와 1~4000자 목표 글자수 슬라이더 맞춤 생성.
-              </p>
-            </div>
-            <div className="mt-3 pt-2.5 border-t border-neutral-200/60 text-[11px] font-bold text-emerald-700 flex items-center gap-1">
-              <span>5단계 AI 작성 시작하기</span>
-              <ChevronRight size={12} />
-            </div>
-          </Link>
-
-          {/* 작업 2: 글감 수집 */}
+          {/* 작업 1: 글감 수집 */}
           <Link
             href="/collector"
             className="group rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 hover:border-rose-400 hover:bg-rose-50/40 hover:shadow-sm transition-all flex flex-col justify-between"
@@ -275,6 +250,31 @@ export default function DashboardPage() {
             </div>
             <div className="mt-3 pt-2.5 border-t border-neutral-200/60 text-[11px] font-bold text-rose-700 flex items-center gap-1">
               <span>인기 소재 발굴하기</span>
+              <ChevronRight size={12} />
+            </div>
+          </Link>
+
+          {/* 작업 2: 글 생성 */}
+          <Link
+            href="/"
+            className="group rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 hover:border-emerald-500 hover:bg-emerald-50/40 hover:shadow-sm transition-all flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-neutral-200 text-lg group-hover:scale-105 transition-transform">
+                  ✍️
+                </span>
+                <ArrowUpRight size={16} className="text-neutral-400 group-hover:text-emerald-700 transition-colors" />
+              </div>
+              <h3 className="mt-3 text-sm font-bold text-neutral-900 group-hover:text-emerald-800">
+                블로그 글 자동 생성
+              </h3>
+              <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
+                6대 화자 페르소나와 1~4000자 목표 글자수 슬라이더 맞춤 생성.
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-neutral-200/60 text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+              <span>5단계 AI 작성 시작하기</span>
               <ChevronRight size={12} />
             </div>
           </Link>
