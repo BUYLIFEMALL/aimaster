@@ -286,6 +286,7 @@ vercel deploy --prod --yes --scope buylife
 | 네이버 | 네이버 블로그 자동화(Web) | naver-blog-auto-poster-web | https://www.buylife.xyz/naver-blog-auto-poster-web (크롬 확장 다운로드 + 계정 연동 토큰 발급, 실제 자동화는 사용자 브라우저에서 실행됨) |
 | 네이버 | 네이버 블로그 SEO 스튜디오 | naver-blog-seo-studio | https://www.buylife.xyz/naver-blog-seo-studio (+ 크롬 확장, `naver-blog-seo-studio/extension/`) |
 | 쇼츠 | 쇼츠 떡상 분석·대본 자동화 | shorts-viral-studio | https://shorts-viral-studio.vercel.app (2026-10-04 신설 v1.01, 유료, 회원 본인 YouTube·AI 키 사용, 상세는 `shorts-viral-studio/AGENTS.md`) |
+| 네이버 | 네이버 블로그 에이전트 | naver-blog-agent | https://naver-blog-agent.vercel.app (현재 v1.28, 5단계 AI 글 생성 + 크롬 확장 스마트에디터 ONE 자동 타이핑 + 글감 수집소 + Tiptap 스마트 에디터 원고 보관함) |
 
 각 프로그램의 상세 아키텍처/기능/트러블슈팅 히스토리는 해당 폴더의 `README.md`를 참고할 것
 (이 표는 "무엇이 있는지" 색인일 뿐, "어떻게 만들었는지"는 각 폴더 문서가 훨씬 자세하다).
