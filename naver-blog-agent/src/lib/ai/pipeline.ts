@@ -187,7 +187,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.`;
 
   const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}\n\n${writingStylePrompt}`, writerUserPrompt);
-  let draftArticle = sanitizeBodyYear(writerRaw.trim(), currentYear);
+  const draftArticle = sanitizeBodyYear(writerRaw.trim(), currentYear);
 
   stepsLog.push({
     step: "2. Writer Agent",

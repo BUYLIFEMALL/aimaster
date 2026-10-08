@@ -9,6 +9,10 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
+### v1.48 추가 (ESLint, CRON_SECRET 점검)
+
+- `eslint.config.mjs`(경고 기반 기준선). `CRON_SECRET` 미설정 확인(`vercel env ls`): `/api/cron/cleanup`은 비밀값이 없으면 항상 401(안전하게 닫힘)이지만 `vercel.json`의 크론이 매일 401만 받습니다. 또한 라우트가 `?key=` 쿼리로도 비밀값을 받으므로 URL이 로그에 남을 수 있습니다(헤더 인증만 남기는 것을 권장, 미변경).
+
 ### v1.47 추가 (연도 정책)
 
 - `src/lib/yearPolicy.ts`: `sanitizeYear`(짧은 문구, 과거→올해 전부), `sanitizeBodyYear`(본문, 범위·"지난"·과거형 단서가 있으면 보존, 기준·현재·신청 등 최신 단서면 올해). `pipeline.ts`는 제목/목차/태그는 전자, 초안·윤문·최종 본문은 후자. 한계는 AGENTS.md v1.47 참고.

@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.48, 2026-10-09) — ESLint · CRON_SECRET 점검
+
+- `eslint.config.mjs` 추가, `npm run lint` 오류 0건(경고 163건 기준선). **프로덕션에 `CRON_SECRET` 없음 → 30일 자동 삭제 크론이 401로만 끝남. 환경변수 추가 승인 대기.** 남은 일: 6번(회원별 DB 이관, 스키마 승인).
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.47, 2026-10-09) — 연도 정책
 
 - 올해(생성 시점) 기준. 제목·태그 등은 과거 연도 전부 올해로, 본문은 과거 사실 보존(`src/lib/yearPolicy.ts`, `npm run test:years`). 남은 일: 6번(회원별 DB 이관, 스키마 승인), 7번(ESLint·CRON_SECRET).
