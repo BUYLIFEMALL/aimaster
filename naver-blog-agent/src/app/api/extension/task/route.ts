@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { evaluateProgramAccessForUser } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -25,6 +26,9 @@ export async function POST(req: Request) {
     if (tokenErr || !tokenRecord) {
       return NextResponse.json({ error: "유효하지 않은 토큰입니다. 다시 페어링해주세요." }, { status: 401 });
     }
+
+    const access = await evaluateProgramAccessForUser(tokenRecord.user_id);
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
     await admin
       .from("nba_extension_tokens")

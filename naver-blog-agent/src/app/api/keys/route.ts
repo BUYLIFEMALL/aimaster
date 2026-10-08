@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,9 @@ function maskSecret(key: string): string {
 
 export async function GET() {
   try {
-    const user = await requireUser();
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
     const admin = createAdminClient() as any;
 
     const { data, error } = await admin
@@ -38,7 +40,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const user = await requireUser();
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
     const { provider, apiKey } = await req.json();
 
     if (!provider || !apiKey) {
@@ -67,7 +71,9 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const user = await requireUser();
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
     const { provider } = await req.json();
 
     if (!provider) {

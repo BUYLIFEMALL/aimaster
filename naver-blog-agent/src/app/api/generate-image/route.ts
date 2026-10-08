@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { findImageModel, isKnownRatio, IMAGE_KEY_LABEL, type ImageRatio } from "@/lib/ai/contentModels";
 import { generateImageBytes } from "@/lib/ai/imageGenerator";
@@ -12,7 +12,9 @@ const MEDIA_BUCKET = "ai-image-generations";
 
 export async function POST(req: Request) {
   try {
-    const user = await requireUser();
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
     const body = await req.json();
     const { prompt, imageModel, ratio = "1:1", caption = "", type = "body" } = body;
 

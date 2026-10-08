@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getOptionalUser } from "@/lib/auth";
+import { checkProgramAccessApi, evaluateProgramAccessForUser } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import crypto from "node:crypto";
 
@@ -9,10 +9,9 @@ export const fetchCache = "force-no-store";
 // 웹 화면에서 페어링 코드 발급
 export async function GET() {
   try {
-    const user = await getOptionalUser();
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-    }
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
 
     const pairCode = crypto.randomBytes(4).toString("hex").toUpperCase(); // 8자리 코드
     const token = crypto.randomBytes(24).toString("hex");
@@ -64,6 +63,9 @@ export async function POST(req: Request) {
     if (new Date(record.pair_code_expires_at) < new Date()) {
       return NextResponse.json({ error: "연결 코드 유효기간(10분)이 만료되었습니다. 새 코드를 발급받아주세요." }, { status: 400 });
     }
+
+    const access = await evaluateProgramAccessForUser(record.user_id);
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
     // 페어링 코드 일회성 소진 및 디바이스 기록
     await admin

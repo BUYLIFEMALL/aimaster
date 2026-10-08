@@ -7,7 +7,12 @@
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
 - **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.28, 2026-10-08)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.29, 2026-10-08)
+
+- **API·확장 이용 권한 검증 (v1.29)**:
+  - 글감 수집·글/이미지 생성·이미지 업로드·원고 보관함·API 키·확장 페어링 API에 `checkProgramAccessApi()`를 적용했다. 인증 실패는 리다이렉트가 아닌 JSON 401/403으로 반환한다.
+  - 확장 토큰은 발행 작업 수신과 결과 반영 전 `evaluateProgramAccessForUser()`로 토큰 소유자의 현재 권한을 다시 확인한다.
+  - 다음 단계는 **수집 글감과 카테고리의 localStorage 의존을 회원별 Supabase DB로 전환**하는 일이다. 실제 테이블·RLS·기존 브라우저 데이터 이관 방안을 확인한 뒤 진행하며, 예시 데이터가 실제 수집 결과처럼 표시되지 않도록 빈 상태 UI로 교체한다.
 
 - **좌측 사이드바(`Sidebar.tsx`) 번호형 작업 흐름(1~4) 및 API키등록·플랫폼연동 구분선 분리 표준 레이아웃 적용 (v1.28, 주인님 확정)**:
   - 배경: 주인님의 "이것 처럼 좌측 메뉴에 api키 등록 플랫폼 연동을 구분해줘" 요청 및 스크린샷(`orca-paste-1791431348408-988326c8-fb5d-4ec3-b51c-e2d896e68030.png`) 지시에 따라 `threads-content-ops` 및 `docs/SIDEBAR_LAYOUT_STANDARD.md` 표준 사이드바 정보 구조와 100% 동일하게 UI 개편.

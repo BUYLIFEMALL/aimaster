@@ -1,6 +1,6 @@
 # 🤖 네이버 블로그 에이전트 (naver-blog-agent) — CLI 인수인계 & 작업 가이드 (CONTINUATION.md)
 
-> **최종 갱신**: 2026-10-08 | **현재 버전**: `v1.28` | **라이브 URL**: https://naver-blog-agent.vercel.app  
+> **최종 갱신**: 2026-10-08 | **현재 버전**: `v1.29` | **라이브 URL**: https://naver-blog-agent.vercel.app
 > Claude Code, Codex, Gemini 등 **어떤 AI 에이전트가 이어서 작업하더라도 즉시 파악하고 안전하게 작업할 수 있도록 정리한 기술 인수인계 문서**입니다.
 
 ---
@@ -38,7 +38,7 @@
 ```
 naver-blog-agent/
 ├── extension/                     # 🌐 크롬 브라우저 확장 프로그램 (Manifest V3)
-│   ├── manifest.json             # 확장 메타데이터 및 권한 설정 (v1.28.0)
+│   ├── manifest.json             # 확장 메타데이터 및 권한 설정 (v1.29.0)
 │   ├── background.js             # 백그라운드 서비스 워커 (대기열 주기적 폴링 & 탭 오픈)
 │   ├── content.js                # 스마트에디터 ONE 내부 DOM 조작 & 사람 타자 모사 (30~120ms 딜레이)
 │   ├── popup.html / popup.js     # 확장 팝업 UI (8자리 페어링 코드 입력 & 연결 상태 점검)
@@ -78,15 +78,16 @@ naver-blog-agent/
 │   └── lib/
 │       ├── access.ts             # AIMaster 통합 권한 체크 (requireProgramAccess)
 │       ├── retention.ts          # 30일 만료일 및 잔여일수(D-xx) 계산 유틸리티
-│       └── version.ts            # 프로그램 버전 (APP_VERSION = "v1.28")
+│       └── version.ts            # 프로그램 버전 (APP_VERSION = "v1.29")
 ```
 
 ---
 
-## 💡 2. 최근 주요 작업 내역 (v1.20 ~ v1.28)
+## 💡 2. 최근 주요 작업 내역 (v1.20 ~ v1.29)
 
 | 버전 | 작업 일자 | 핵심 구현 내용 |
 |---|---|---|
+| **v1.29** | 2026-10-08 | **API·확장 이용 권한 검증**: 웹 API는 `checkProgramAccessApi()`로 JSON 401/403을 반환하고, 확장 토큰은 페어링·작업 수신·결과 반영 전 `evaluateProgramAccessForUser()`로 소유자의 현재 이용 권한을 재검증 |
 | **v1.28** | 2026-10-08 | **좌측 사이드바 표준 Stepper 및 API키등록 분리**: 최상단 대시보드 ➔ 1~4 원형 번호 배지 및 세로선(떡상 콘텐츠 수집 ➔ 콘텐츠 생성 ➔ 콘텐츠 보관함 ➔ 계정 운영정보) ➔ 구분선(`border-t`) 아래 `🔑 API키등록·플랫폼연동`, 매뉴얼, 계정, 로그아웃 분리 배치 |
 | **v1.27** | 2026-10-08 | **연동 & 실전 사용 매뉴얼(`/guide`) 전면 개편**: Akamai 보안 우회 원리, 3분 연동, 실전 4단계 워크플로우, 30일 보관 정책, FAQ 6종 집대성 |
 | **v1.26** | 2026-10-08 | **사이드바 및 대시보드 메뉴 순서 정렬**: 계정·카테고리 메뉴를 원고 보관함 밑으로 배치하여 작업 흐름 동기화 |
@@ -110,3 +111,6 @@ naver-blog-agent/
    - 크롬 확장의 `content.js`는 스마트에디터 ONE의 내부 iframe 셀렉터(`.se-title-text`, `.se-component-content` 등)를 기반으로 작동합니다. 네이버 에디터 업데이트 시 셀렉터 폴백 로직을 확인해야 합니다.
 4. **흰색 베이스 UI 원칙 준수 (Rule 8)**:
    - 본문, 카드, 모달, 입력창은 항상 흰색 또는 옅은 중성색(`bg-white`, `border-neutral-200`, `bg-neutral-50`)을 기본으로 유지합니다.
+5. **API route에서는 `requireProgramAccess()`를 호출하지 말 것**:
+   - 이 함수는 페이지 이동을 위한 `redirect()`를 사용합니다. API는 `checkProgramAccessApi()`로 JSON 오류를 반환해야 합니다.
+   - 확장처럼 웹 세션이 없는 요청은 토큰에서 `user_id`를 확인한 뒤 `evaluateProgramAccessForUser(userId)`를 사용합니다.

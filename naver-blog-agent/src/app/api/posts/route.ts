@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkProgramAccessApi } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -47,14 +47,9 @@ function isUuid(id?: string): boolean {
 // GET: 로그인 사용자의 원고 목록 조회
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-    }
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
 
     const { searchParams } = new URL(request.url);
     const filterStatus = searchParams.get("status");
@@ -141,14 +136,9 @@ export async function GET(request: Request) {
 // POST: 신규 원고 영구 저장 (생성 완료/수동 저장 시)
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-    }
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
 
     const payload: SavedPostPayload = await request.json();
     if (!payload.title && !payload.content) {
@@ -248,14 +238,9 @@ export async function POST(request: Request) {
 // PUT: 기존 원고 수정 및 상태 갱신 (에디터 수정/발행 큐 등록 시)
 export async function PUT(request: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-    }
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
 
     const payload: SavedPostPayload & { id: string } = await request.json();
     if (!payload.id) {
@@ -332,14 +317,9 @@ export async function PUT(request: Request) {
 // DELETE: 원고 삭제
 export async function DELETE(request: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-    }
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

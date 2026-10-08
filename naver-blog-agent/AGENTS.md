@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.28` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.29` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -28,6 +28,9 @@
    - 모든 권한 체크 레이아웃과 동적 라우트에 `dynamic = "force-dynamic"`, `fetchCache = "force-no-store"` 선언 필수.
 5. **버전 관리**:
    - 코드 변경 배포 시 `src/lib/version.ts`의 `APP_VERSION`과 DB `programs.version` 동시 갱신 (+0.01).
+6. **API·확장 권한 검증**:
+   - 웹 API는 `checkProgramAccessApi()`를 사용해 리다이렉트가 아닌 JSON 401/403을 반환합니다.
+   - 크롬 확장 토큰 경로는 토큰 소유자를 확인한 뒤 `evaluateProgramAccessForUser()`로 현재 이용 권한을 다시 검증합니다.
 6. **사이드바 표준**:
    - `docs/SIDEBAR_LAYOUT_STANDARD.md` 준수 (상단 `← 다른 프로그램 보기`, 메뉴 바로 아래 계정 표시 및 로그아웃).
 7. **당해 연도(현재 2026년) 기준 엄수 (핵심 불변칙) & 3중 방어막**:
@@ -49,6 +52,11 @@
 ---
 
 ## 🕒 버전 히스토리
+
+- **v1.29 (2026-10-08)**:
+  - 글감 수집·글/이미지 생성·이미지 업로드·원고 보관함·API 키·확장 페어링 코드 API에 AIMaster 이용 권한 검증을 적용했습니다.
+  - 확장 토큰은 작업 수신과 결과 반영 전에도 소유자의 현재 이용 권한을 재검증합니다.
+  - API 경로의 로그인 실패는 페이지 이동이 아닌 JSON 401/403 응답으로 통일했습니다.
 
 - **v1.28 (2026-10-08)**:
   - **좌측 사이드바(`Sidebar.tsx`) 번호형 작업 흐름(1~4) 및 API키등록·플랫폼연동 구분선 분리 표준 레이아웃 적용 (주인님 확정)**:

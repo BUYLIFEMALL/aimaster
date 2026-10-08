@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import {
   fetchPublicHtml,
@@ -20,7 +20,9 @@ export const fetchCache = "force-no-store";
 
 export async function POST(req: Request) {
   try {
-    const user = await requireUser();
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = { id: access.userId };
     const body = await req.json();
     const { action } = body;
 

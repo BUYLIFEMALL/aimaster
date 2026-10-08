@@ -76,7 +76,7 @@
   1. **로컬 빌드 및 사전 검수**: 해당 프로젝트에서 `npm run build`로 타입 및 컴파일 100% 정상 검수
   2. **Git Commit**: 변경 내용을 명확한 커밋 메시지로 로컬 커밋
   3. **Git Push**: `git push origin master`로 원격 저장소 상시 동기화
-  4. **Vercel 프로덕션 배포 & 결과 보고**: `vercel deploy --prod --yes`로 실제 서버에 즉시 반영 후 라이브 URL과 함께 결과 보고
+  4. **Vercel 프로덕션 배포 & 결과 보고**: `vercel deploy --prod --yes`로 실제 서버에 즉시 반영 후, **작업 내용·검수/배포 결과·해당 프로그램 라이브 링크**를 함께 결과 보고
   5. **인수인계 문서 반영 (2026-09-29 주인님 지시, 매 작업 필수)**: 다른 CLI가 이어서 작업할 수 있게 서브프로젝트
      `AGENTS.md`/`README.md`(진행 상태·남은 일)와 필요 시 이 문서 §5/§10, `docs/PLATFORM_PATTERNS.md`를 같은 커밋으로 갱신한다.
 - **여러 CLI(Claude Code, Codex 등)가 같은 로컬 저장소를 동시에 쓴다** — 스테이징 영역도 공유되므로 `git add`는 커밋 직전에만
@@ -95,7 +95,7 @@
   - 단순 모니터링 ON/OFF + 간격 + 활성시간 → `real_estate_sales/src/components/districts/MonitoringSettings.tsx`
   - 배열 필드 개별 추가/삭제(× 칩 + 입력창) → `trending-product-finder/components/watchlist/WatchlistRow.tsx`
   - 목록/테이블(수신자, 리드 등) → `stepmail/app/(dashboard)/leads/page.tsx` + `LeadsTable.tsx`/`LeadRow.tsx`
-- 작업 완료 후에는 변경사항·테스트 결과·라이브 배포 URL만 간결하게 정리해서 보고한다.
+- 작업 완료 후에는 **무엇을 작업했는지**, **빌드·검수·커밋·푸시·배포 결과**, **해당 프로그램의 라이브 링크**를 빠짐없이 함께 보고한다. 링크만 단독으로 제공하거나 작업 결과를 생략하지 않는다.
 
 
 ---

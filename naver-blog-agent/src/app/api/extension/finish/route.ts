@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { evaluateProgramAccessForUser } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -24,6 +25,9 @@ export async function POST(req: Request) {
     if (!tokenRecord) {
       return NextResponse.json({ error: "인증 실패" }, { status: 401 });
     }
+
+    const access = await evaluateProgramAccessForUser(tokenRecord.user_id);
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
     const { taskId, success, postUrl, error } = await req.json();
 

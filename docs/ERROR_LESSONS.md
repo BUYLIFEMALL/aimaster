@@ -1,5 +1,19 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-08 ESLint 9 구성 파일 부재로 `npm run lint`가 시작되지 않는 문제 (naver-blog-agent v1.29)
+
+- **증상:** `naver-blog-agent`에서 `npm run lint` 실행 시 ESLint 9가 `eslint.config.*` 파일을 찾지 못해 검사 시작 전에 종료됨.
+- **원인:** `package.json`은 ESLint 9를 사용하지만 프로젝트 루트에는 Flat Config 형식의 `eslint.config.js`/`.mjs`/`.cjs`가 없음.
+- **해결(검수):** 이번 변경은 `npm run build`의 TypeScript·프로덕션 컴파일로 검수했다. 린트 설정 전환은 기존 전역 설정 문제이므로 기능 변경과 섞지 않고 별도 작업 단위로 처리한다.
+- **다음부터 확인:** 새 기능 검수 시 린트 실패가 코드 규칙 위반인지 도구 구성 부재인지 먼저 구분하고, 구성 오류는 빌드 성공과 별도로 명확히 기록한다.
+
+## 2026-10-08 API route에서 페이지용 권한 함수 사용으로 HTML 리다이렉트가 반환되는 문제 방지 (naver-blog-agent v1.29)
+
+- **증상:** 로그인하지 않았거나 이용 권한이 없는 사용자가 글감 수집·글 생성·API 키·보관함 API를 호출했을 때, JSON 오류 대신 로그인 페이지 리다이렉트가 응답되어 클라이언트가 오류를 일관되게 처리하지 못할 수 있었음. 이미 페어링된 확장 토큰도 구독 종료 뒤 작업을 계속 가져갈 여지가 있었음.
+- **원인:** 페이지용 `requireProgramAccess()`와 `requireUser()`는 `redirect()`를 사용하지만, 기존 API route 일부가 이를 그대로 사용하거나 로그인 여부만 확인했음. 확장 route는 웹 세션이 없어 기존 페이지용 권한 함수를 적용할 수 없었음.
+- **해결(위치):** `naver-blog-agent/src/lib/access.ts`에 `checkProgramAccessApi()` 및 `evaluateProgramAccessForUser()`를 추가하고, 웹 API 전체와 `extension/auth`, `extension/task`, `extension/finish`에 적용했다. 웹 API는 JSON 401/403으로 반환하고, 확장 route는 토큰 소유자 ID를 기준으로 같은 권한 규칙을 재평가한다.
+- **다음부터 확인:** 새 API route는 페이지 이동 함수 대신 JSON용 권한 검사 함수를 사용한다. 브라우저 세션이 없는 확장·웹훅·배치 요청은 인증 수단에서 사용자 ID를 얻은 뒤 세션 독립형 권한 평가 함수를 사용한다.
+
 ## 2026-10-08 서브프로젝트 사이드바 메뉴 임의 나열 방지 및 표준 번호형 Stepper·연동 분리 레이아웃 준수 (naver-blog-agent v1.28)
 
 - **증상:** 서브프로젝트 사이드바에서 핵심 작업 메뉴(글감 수집, 글 생성, 원고 보관함, 계정 관리)와 연동/유틸리티 메뉴(API키등록, 매뉴얼, 로그아웃)가 하나의 단일 리스트로 섞여 나열되어, 사용자가 작업 순서를 직관적으로 파악하기 어렵고 "api키 등록 플랫폼 연동을 구분해줘"라는 피드백 발생.
