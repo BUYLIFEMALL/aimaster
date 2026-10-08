@@ -71,6 +71,8 @@
 
 ## 🕒 버전 히스토리
 
+> 확장 운영 규칙: 프로그램을 업데이트할 때 `extension/` 폴더·다운로드 ZIP·DB 버전을 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증합니다(루트 `CLAUDE.md` 핵심 원칙 10번). 이 프로그램의 미구현: DB 다운로드 주소 칸, 확장 내 새 버전 알림.
+
 - **v1.49 (2026-10-09)**:
   - **계정·콘텐츠 분류를 회원별 DB로 이관**(주인님 승인). 서버가 기준, 브라우저 저장소(`nba_accounts_local`, `nba_collector_categories`)는 캐시입니다. `/api/accounts`(GET, PUT=목록 전체 저장·blog_id 기준)와 `/api/content-categories`(GET, PUT)는 `checkProgramAccessApi` + `user_id` 필터 + 입력 검증. 이 브라우저에서 처음 연결할 때만 로컬 데이터를 서버에 합쳐 올립니다(견본 계정 `myblog_sample`은 올리지 않음). 이후에는 서버 목록을 따릅니다. 서버를 읽지 못하면 로컬 값으로 계속 동작합니다.
   - **프로덕션 DB에 `nba_accounts`·`nba_posts`·`nba_extension_tokens` 테이블이 없었음을 발견**(최초 마이그레이션 `0001`이 적용되지 않음). 이 때문에 v1.43 확장 연결(`nba_extension_tokens`/`nba_posts`)이 실제로는 동작할 수 없었습니다. `0049_nba_core_tables.sql`로 `nba_accounts`, `nba_content_categories`(신규), `nba_posts`, `nba_extension_tokens`를 owner-only RLS로 생성했습니다(프로덕션 적용 완료). 이제 `/api/posts`가 `nba_posts`를 쓰고 `naver_blog_seo_drafts` 폴백은 쓰이지 않습니다(그 테이블 53건은 SEO 스튜디오 원고이며 이 에이전트 데이터는 0건이었음).
