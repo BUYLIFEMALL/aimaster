@@ -13,12 +13,17 @@ const API_BASE = "https://sharelink.toss.im/openapi";
 
 export const TOSS_PROXY_MISSING_MESSAGE = "토스쇼핑 연동용 고정 IP 프록시(FIXIE_URL)가 이 서버에 아직 설정되지 않았습니다. 운영자가 설정하면 사용할 수 있습니다.";
 
+// 환경변수 값 앞뒤에 공백이 섞여 저장돼도 동작하도록 항상 trim해서 읽는다.
+function proxyUrl(): string {
+  return (process.env.FIXIE_URL ?? "").trim();
+}
+
 export function isTossProxyConfigured(): boolean {
-  return Boolean(process.env.FIXIE_URL);
+  return Boolean(proxyUrl());
 }
 
 function getProxyAgent(): ProxyAgent {
-  const fixieUrl = process.env.FIXIE_URL;
+  const fixieUrl = proxyUrl();
   if (!fixieUrl) throw new Error(TOSS_PROXY_MISSING_MESSAGE);
   return new ProxyAgent(fixieUrl);
 }

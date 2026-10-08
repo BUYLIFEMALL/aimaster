@@ -1,8 +1,14 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.81`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.82`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.82 토스쇼핑 프록시(FIXIE_URL) 등록 (2026-10-08)
+
+- 주인님이 루트 AIMaster Vercel 프로젝트(Production)에 `FIXIE_URL`을 직접 등록(Sensitive). threads-affiliate-poster와 같은 Fixie 프록시(허용 IP 52.87.82.133·52.5.155.132)를 쓰며 poster 설정은 건드리지 않았다. 두 프로그램이 Fixie 월 요청 한도(Tricycle 500건)와 토스 쉐어링크 발급 한도를 같이 쓴다.
+- 등록 중 값 앞에 공백이 붙어 저장돼(`! Value starts with whitespace`), `lib/toss.ts`가 `FIXIE_URL`을 항상 trim해서 읽도록 수정. 환경변수는 재배포 후 적용된다.
+- 한계: 실제 토스 목록 조회·쉐어링크 발급은 로그인한 회원 화면이 필요해 에이전트가 끝까지 확인하지 못했다. Sensitive 환경변수는 값을 내려받을 수 없으니(`vercel env pull`에 `[SENSITIVE]`만 나옴), 값을 옮길 때는 소유자가 직접 `vercel env add --value`로 넣어야 한다.
 
 ## v1.81 상품 등록 플랫폼 탭 레이아웃 (2026-10-08)
 
