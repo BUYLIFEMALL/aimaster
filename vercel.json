@@ -5,6 +5,10 @@
       "schedule": "0 9 * * *"
     },
     {
+      "path": "/api/threads-content-ops/dispatch-scheduled",
+      "schedule": "* * * * *"
+    },
+    {
       "path": "/api/threads-content-ops/cleanup-media",
       "schedule": "0 18 * * *"
     }

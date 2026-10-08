@@ -19,7 +19,7 @@ import {
 import { generateAttentionPlan, hasOperationRules, planImagePrompts, rewriteAttentionPost, type AttentionPlan, type OperationRules } from "@/threads-content-ops/lib/attention";
 import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_KEY_LABEL, MAX_GENERATE_COUNT, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
-import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, isSupportedMediaUrl, memberMediaFolder, mediaTypeOf, ownedMediaPath, type PostMedia } from "@/threads-content-ops/lib/media";
+import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MEDIA_BUCKET, memberMediaFolder, ownedMediaPath, sanitizeMedia, type PostMedia } from "@/threads-content-ops/lib/media";
 import { publishToThreads } from "@/threads-content-ops/lib/threadsPublish";
 import { PRODUCT_SOURCE_TYPES, assemblePostBody, contentRange, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -1212,24 +1212,6 @@ async function loadLinkedProduct(supabase: Awaited<ReturnType<typeof authorizedU
 }
 
 /** 클라이언트가 보낸 미디어 목록을 검증한다: 최대 20개, JPEG/PNG/MP4/MOV, 이 회원의 이 프로그램 전용 경로 주소만 허용(다른 회원·외부 주소 거부). */
-function sanitizeMedia(userId: string, raw: unknown): PostMedia[] {
-  if (raw === undefined || raw === null) return [];
-  if (!Array.isArray(raw)) throw new Error("미디어 목록 형식이 올바르지 않습니다.");
-  if (raw.length > MAX_MEDIA) throw new Error(`미디어는 최대 ${MAX_MEDIA}개까지 붙일 수 있습니다.`);
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const seen = new Set<string>();
-  return raw.map((item) => {
-    const url = typeof (item as PostMedia)?.url === "string" ? (item as PostMedia).url : "";
-    if (!url || !ownedMediaPath(url, userId, supabaseUrl)) throw new Error("내 계정에서 올린 이미지·영상만 붙일 수 있습니다. 미디어를 다시 올려 주세요.");
-    if (!isSupportedMediaUrl(url)) throw new Error("Threads는 JPEG·PNG 이미지와 MP4·MOV 영상만 올릴 수 있습니다.");
-    if (seen.has(url)) throw new Error("같은 미디어가 두 번 들어 있습니다.");
-    seen.add(url);
-    const type = mediaTypeOf(url);
-    const size = Number((item as PostMedia).size);
-    return { url, type, ...(Number.isFinite(size) && size > 0 ? { size: Math.round(size) } : {}) } as PostMedia;
-  });
-}
-
 async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, engine: EngineInput | undefined) {
   const provider = engine?.provider ?? DEFAULT_ENGINE.provider;
   const model = engine?.model ?? DEFAULT_ENGINE.model;

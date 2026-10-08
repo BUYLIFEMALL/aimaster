@@ -1,8 +1,19 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.83`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.84`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.84 예약 발행 실행기 (2026-10-08)
+
+- 주인님 지시: 남은 일 2번(자동 발행·댓글 확인 워커) 진행. **범위는 "회원이 예약해 둔 글을 시각이 되면 발행"까지만** 구현했다. 새 글을 자동으로 만들어 올리거나 댓글을 읽는 기능은 아래 이유로 만들지 않았다.
+- 구현: `lib/scheduledDispatch.ts`의 `dispatchDueScheduledPosts(service)` + 크론 경로 `app/api/threads-content-ops/dispatch-scheduled/route.ts`(GET·POST, `CRON_SECRET` Bearer 필수, 없으면 503) + `vercel.json` 크론 `* * * * *`(1분). `status='scheduled'`이고 `scheduled_at`이 지난 글을 오래된 순으로 최대 25건 처리한다.
+- 안전 장치: ① **중복 발행 방지** — `scheduled → publishing` 조건부 update로 먼저 가져간 실행만 발행(크론이 겹쳐도 한 번). ② 24시간 넘게 늦은 예약은 실패 처리. ③ `publishing`으로 30분 넘게 멈춘 *예약* 글(scheduled_at이 있는 글)은 실패 처리하고 자동 재시도하지 않는다(Threads에 올라갔을 수 있음). ④ 매번 이용 권한(`checkProgramAccess`)·계정 연결·토큰 만료·미디어 소유(`sanitizeMedia`)·용량 확인. ⑤ 취소는 기존 "예약 취소"가 중단 장치. ⑥ 한 건 실패가 다음 건에 영향 없음, 실행 시간 200초 예산 초과분은 다음 실행으로 넘김.
+- `sanitizeMedia`를 `web-actions.ts`에서 `lib/media.ts`로 옮겨 직접 발행과 실행기가 같이 쓴다. 상태 기록 시 `updated_at`을 직접 찍는다(이 테이블은 자동 갱신 트리거가 없을 수 있어 멈춘 글 판정에 쓰는 값이라 반드시 명시).
+- 화면 문구: 계정 관리·대시보드의 "워커 없음" 안내를 "예약한 글만 자동 발행, 새 글 자동 생성 없음"으로 정정.
+- **만들지 않은 것(요청 시 별도 단계)**: ① 새 글 자동 생성·게시(일상/홍보 비율·하루 목표·운영 시간·자동화 스위치) — 회원 AI 키 비용과 회원 계정 외부 게시가 걸려 있어 명시적 설계·승인이 필요, 지금도 저장만 됨. ② 댓글 확인 — Threads 댓글 조회는 `threads_read_replies` 권한이 필요한데 연결 스코프(`threads_basic,threads_content_publish`)에 없고, 스코프를 넣으면 회원 Meta 앱에 권한이 없을 때 OAuth 자체가 실패한다(poster AGENTS.md 트러블슈팅 3번). 회원별 opt-in 재연결 방식으로 별도 설계해야 한다.
+- **운영 전 필수(주인님)**: 루트 Vercel(Production)에 `CRON_SECRET` 환경변수 등록 후 재배포. 없으면 이 크론과 일일 정리 크론 모두 503. 등록 명령(값은 주인님이 직접): `! cd /d/Antigravity/AIMaster && vercel env add CRON_SECRET production --value "$(openssl rand -hex 32)" --yes --sensitive --scope buylife`.
+- 검수: 가짜 DB·가짜 Threads로 14개 시나리오(정상·동시 실행 중복 방지·24시간 지연·시각 전·권한 없음·토큰 만료·계정 없음·남의 미디어·8MB 초과·미디어 동반 발행·발행 오류·멈춘 글 정리·시간 예산·한 건 실패 후 계속) 통과. 실제 Threads 발행은 회원 토큰이 필요해 확인하지 못했다. DB 변경 없음.
 
 ## v1.83 AI 지시문에 당해 연도 규칙 반영 (2026-10-08)
 

@@ -29,3 +29,22 @@ export function ownedMediaPath(url: string, userId: string, supabaseUrl: string 
   if (path.includes("..") || !path.startsWith(`${userId}/${MEDIA_FOLDER}/`)) return null;
   return path;
 }
+
+/** 저장된 미디어 목록을 검증한다: 형식·개수·본인 파일·지원 형식·중복. 직접 발행과 예약 발행 실행기가 같이 쓴다. */
+export function sanitizeMedia(userId: string, raw: unknown): PostMedia[] {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) throw new Error("미디어 목록 형식이 올바르지 않습니다.");
+  if (raw.length > MAX_MEDIA) throw new Error(`미디어는 최대 ${MAX_MEDIA}개까지 붙일 수 있습니다.`);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const seen = new Set<string>();
+  return raw.map((item) => {
+    const url = typeof (item as PostMedia)?.url === "string" ? (item as PostMedia).url : "";
+    if (!url || !ownedMediaPath(url, userId, supabaseUrl)) throw new Error("내 계정에서 올린 이미지·영상만 붙일 수 있습니다. 미디어를 다시 올려 주세요.");
+    if (!isSupportedMediaUrl(url)) throw new Error("Threads는 JPEG·PNG 이미지와 MP4·MOV 영상만 올릴 수 있습니다.");
+    if (seen.has(url)) throw new Error("같은 미디어가 두 번 들어 있습니다.");
+    seen.add(url);
+    const type = mediaTypeOf(url);
+    const size = Number((item as PostMedia).size);
+    return { url, type, ...(Number.isFinite(size) && size > 0 ? { size: Math.round(size) } : {}) } as PostMedia;
+  });
+}
