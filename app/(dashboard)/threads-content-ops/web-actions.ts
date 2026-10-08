@@ -42,6 +42,7 @@ import {
   type CoupangProduct,
 } from "@/threads-content-ops/lib/coupang";
 import { TOSS_PROXY_MISSING_MESSAGE, getTossBestSelling, getTossCategories, getTossCategoryBestSelling, getTossTodayDeals, isTossProxyConfigured, issueTossShareLink, type TossCategory, type TossProduct } from "@/threads-content-ops/lib/toss";
+import { withYearRule } from "@/threads-content-ops/lib/yearRule";
 import { ALIEXPRESS_IMAGE_WARNING, createAliexpressPromotionLink, findAliexpressImage, resolveAliexpressUrl } from "@/threads-content-ops/lib/aliexpress";
 
 const PROGRAM_SLUG = "threads-content-ops";
@@ -261,7 +262,7 @@ async function generateAndSaveDraftInternal(input: { accountId: string; topic: s
     body: JSON.stringify({
       model: "gpt-4o-mini",
       input: [
-        { role: "developer", content: "Write one Korean Threads draft. Be concise, natural, and useful. Do not invent personal experiences or facts. Return only the post body, without a title, labels, hashtags, or quotation marks." },
+        { role: "developer", content: withYearRule("Write one Korean Threads draft. Be concise, natural, and useful. Do not invent personal experiences or facts. Return only the post body, without a title, labels, hashtags, or quotation marks.") },
         { role: "user", content: topic },
       ],
       max_output_tokens: 700,

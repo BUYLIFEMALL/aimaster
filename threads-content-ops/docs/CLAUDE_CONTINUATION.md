@@ -1,6 +1,6 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-08 · 현재 배포 버전: `v1.82` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-08 · 현재 배포 버전: `v1.83` · 라이브: <https://www.buylife.xyz/threads-content-ops>
 
 ## ★ 최신 작업 요약 (v1.70 ~ v1.82, 2026-10-08) — 이 절을 먼저 읽으세요
 
@@ -35,7 +35,7 @@
 
 ### 남은 일 (요청이 있을 때만 시작)
 
-1. **글 생성 지시문에 당해 연도 규칙 없음** — 루트 `CLAUDE.md` 핵심 원칙 8번(현재 연도 동적 주입)이 `threads-content-ops/lib`에 아직 반영되지 않았습니다. 별도 작업 단위로 처리하세요.
+1. ~~글 생성 지시문에 당해 연도 규칙 없음~~ — **완료(v1.83, 2026-10-08).** `lib/yearRule.ts`의 `withYearRule()`을 모든 AI 지시문에 적용했습니다. 새 AI 호출을 추가할 때도 감싸세요.
 2. **자동 발행·댓글 확인 워커 없음** — 계정 관리의 자동화 스위치·일상/홍보 비율·하루 게시 목표·댓글 간격·운영 시간은 **저장만** 되고 실행하는 워커가 없습니다. 화면에서 "동작한다"고 표현하지 마세요.
 3. **`CRON_SECRET` 미설정** — 루트 Vercel 프로젝트에 없어서 일일 정리 크론이 503을 돌려줍니다(화면을 열 때의 본인 몫 정리는 동작). 30일 자동 삭제 첫 실행은 2026-11-07 이후입니다.
 4. **실키 검증 대기** — Claude·NanoBanana·GPT Image·Replicate 이미지 생성, Threads 캐러셀 게시, **알리익스프레스 실등록(제휴 링크·이미지)**. 1GB 영상 업로드는 Supabase 파일 크기 한도에 달려 있습니다.
@@ -159,6 +159,6 @@ vercel deploy --prod --yes --scope buylife
 ## 최근 기준점
 
 - 최신 기능 커밋: `git log --oneline -10 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인하세요(2026-10-08 기준 v1.82 `c1f5ca79`). 위 "★ 최신 작업 요약"이 현재 기준입니다.
-- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.82'`
+- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.83'`
 - 실제 서비스 주소는 항상 `https://www.buylife.xyz/threads-content-ops`입니다(루트 AIMaster 프로젝트 배포).
 - 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `.analysis-threads-auto/`, `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.

@@ -1,4 +1,5 @@
 import "server-only";
+import { withYearRule } from "./yearRule";
 import { ensureParagraphBreaks, type ViralCandidateDraft } from "@/threads-content-ops/lib/collector";
 
 // 유튜브 쇼츠 분석 → Threads 글감 (v1.39). `shorts-viral-studio`의 영상 분석(Gemini가 공개 영상을 직접 보고 분석,
@@ -62,7 +63,8 @@ ${comments}
 </data>`;
 }
 
-async function callGeminiWithVideo(apiKey: string, system: string, user: string, videoId: string): Promise<string> {
+async function callGeminiWithVideo(apiKey: string, systemPrompt: string, user: string, videoId: string): Promise<string> {
+  const system = withYearRule(systemPrompt);
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
@@ -82,7 +84,8 @@ async function callGeminiWithVideo(apiKey: string, system: string, user: string,
   return data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
 }
 
-async function callOpenAi(apiKey: string, system: string, user: string): Promise<string> {
+async function callOpenAi(apiKey: string, systemPrompt: string, user: string): Promise<string> {
+  const system = withYearRule(systemPrompt);
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },

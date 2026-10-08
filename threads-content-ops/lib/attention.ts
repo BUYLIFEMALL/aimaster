@@ -1,4 +1,5 @@
 import "server-only";
+import { withYearRule } from "./yearRule";
 
 // 주목받는 글 만들기 (v1.41). `threads-easy-planner`의 Threads 글 생성(황금 4단계 구조 + 5대 훅 유형 대안)을
 // 이 프로그램의 "글감 → 글" 흐름에 맞게 합쳤다. 회원 본인의 OpenAI 키만 쓴다.
@@ -97,7 +98,8 @@ function aiErrorMessage(status: number, provider: EngineProvider): string {
   return `글 생성 요청이 실패했습니다. (${name} ${status})`;
 }
 
-async function callJson(engine: Engine, system: string, user: string): Promise<string> {
+async function callJson(engine: Engine, systemPrompt: string, user: string): Promise<string> {
+  const system = withYearRule(systemPrompt); // 핵심 원칙 8번: 항상 당해 연도 기준
   if (engine.provider === "anthropic") {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",

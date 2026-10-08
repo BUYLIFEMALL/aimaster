@@ -1,8 +1,15 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.82`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.83`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.83 AI 지시문에 당해 연도 규칙 반영 (2026-10-08)
+
+- 주인님 지시: 루트 `CLAUDE.md` 핵심 원칙 8번(모든 콘텐츠 생성은 당해 연도 기준) 미반영분 보완(남은 일 1번).
+- 구현: `lib/yearRule.ts` — `currentYearKst()`(한국 시간 기준 현재 연도, 하드코딩 없음)·`yearRule()`·`withYearRule(prompt)`(지시문 끝에 `[기준 연도 엄수: 현재 연도는 N년입니다 …]`를 한 번만 붙임). 적용 지점: `lib/attention.ts`의 `callJson`(글 생성·분량 보정·다시 쓰기·이미지 프롬프트가 모두 거치는 한 곳), `lib/collector.ts`(Perplexity 글감 수집·구조화), `lib/shortsAnalysis.ts`(Gemini·OpenAI 쇼츠 분석), `web-actions.ts`의 계정 화면 즉시 초안 생성.
+- 새 AI 호출을 추가할 때는 지시문을 `withYearRule()`로 감싼다(연도를 직접 쓰지 않는다).
+- 검수: 연말 경계(UTC 12/31 16:00 = KST 1/1 → 다음 해)·중복 방지·해 변경 시 문구 변경을 직접 시험해 통과. 실제 AI 응답이 연도를 지키는지는 회원 키가 필요해 확인하지 못함. DB 변경 없음.
 
 ## v1.82 토스쇼핑 프록시(FIXIE_URL) 등록 (2026-10-08)
 

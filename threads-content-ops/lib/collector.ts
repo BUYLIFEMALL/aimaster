@@ -1,4 +1,5 @@
 import "server-only";
+import { withYearRule } from "./yearRule";
 import dns from "node:dns/promises";
 import net from "node:net";
 import * as cheerio from "cheerio";
@@ -209,7 +210,7 @@ export async function searchPerplexityTrending(topic: string, apiKey: string): P
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
       model: "sonar-pro",
-      messages: [{ role: "system", content: PERPLEXITY_SYSTEM_PROMPT }, { role: "user", content: `주제: ${topic}` }],
+      messages: [{ role: "system", content: withYearRule(PERPLEXITY_SYSTEM_PROMPT) }, { role: "user", content: `주제: ${topic}` }],
       temperature: 0.3,
     }),
     cache: "no-store",
@@ -261,7 +262,7 @@ export async function structureCandidates(params: { rawText: string; maxItems: n
     body: JSON.stringify({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: STRUCTURE_SYSTEM_PROMPT },
+        { role: "system", content: withYearRule(STRUCTURE_SYSTEM_PROMPT) },
         { role: "user", content: `아래 원본 자료로 Threads 게시글 후보를 최대 ${maxItems}개 만들어주세요.\n\n<data>\n${rawText.slice(0, 14_000)}\n</data>` },
       ],
       response_format: { type: "json_object" },
