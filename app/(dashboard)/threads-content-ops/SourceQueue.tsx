@@ -5,6 +5,8 @@ import { Archive, CheckCircle2, CircleAlert, ExternalLink, Pencil, Plus, RotateC
 import {
   createContentSource,
   deleteContentSource,
+  refreshAliexpressSourceImage,
+  registerAliexpressSource,
   saveCoupangSearchResult,
   searchCoupangForSources,
   setContentSourceStatus,
@@ -30,6 +32,8 @@ const TYPES: { value: string; label: string; urlLabel: string; urlHint: string; 
   { value: "coupang", label: "쿠팡 파트너스", urlLabel: "쿠팡 파트너스 상품 링크", urlHint: "https://link.coupang.com/…", titleHint: "예: 전기 히터 상품명" },
   { value: "naver_brand_connect", label: "네이버 브랜드 커넥트", urlLabel: "브랜드 커넥트 제휴 링크", urlHint: "https://naver.me/…", titleHint: "예: 제휴 상품 또는 캠페인 이름" },
 ];
+// 알리익스프레스는 아래 전용 등록 영역에서 제휴 링크를 자동으로 만들어 저장하므로 "새 소스 등록"의 직접 입력 종류에는 넣지 않고, 목록 라벨·필터에만 쓴다.
+const LIST_TYPES = [...TYPES, { value: "aliexpress", label: "알리익스프레스" }];
 
 const STATUS: Record<string, { label: string; tone: string }> = {
   ready: { label: "사용 가능", tone: "bg-emerald-50 text-emerald-700" },
@@ -39,7 +43,7 @@ const STATUS: Record<string, { label: string; tone: string }> = {
 };
 
 const inputClass = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400";
-const typeLabel = (value: string) => TYPES.find((type) => type.value === value)?.label ?? value;
+const typeLabel = (value: string) => LIST_TYPES.find((type) => type.value === value)?.label ?? value;
 
 export default function SourceQueue({ accounts, sources, configuredProviders }: { accounts: Account[]; sources: Source[]; configuredProviders: string[] }) {
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
@@ -55,6 +59,9 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
   const [searchError, setSearchError] = useState("");
   const [savingProductId, setSavingProductId] = useState<number | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [ali, setAli] = useState({ title: "", productUrl: "", summary: "" });
+  const [aliBusy, setAliBusy] = useState(false);
+  const [refreshingId, setRefreshingId] = useState<string | null>(null);
 
   const mine = useMemo(() => sources.filter((source) => source.account_id === accountId), [sources, accountId]);
   const visible = useMemo(
@@ -90,6 +97,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
   };
 
   const keysReady = configuredProviders.includes("coupang_access_key") && configuredProviders.includes("coupang_secret_key");
+  const aliKeysReady = ["aliexpress_app_key", "aliexpress_app_secret", "aliexpress_tracking_id"].every((provider) => configuredProviders.includes(provider));
   const savedUrls = new Set(mine.map((source) => source.source_url));
 
   const searchCoupang = async () => {
@@ -123,6 +131,34 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
     }
   };
 
+  const registerAli = async () => {
+    if (aliBusy) return;
+    setAliBusy(true);
+    setMessage(null);
+    try {
+      const result = await registerAliexpressSource({ accountId, ...ali });
+      if (result.ok) {
+        setMessage({ ok: !result.warning, text: result.warning ?? "알리익스프레스 상품을 등록했습니다. 제휴 링크가 자동으로 만들어졌습니다." });
+        setAli({ title: "", productUrl: "", summary: "" });
+      } else {
+        setMessage({ ok: false, text: result.error });
+      }
+    } catch {
+      setMessage({ ok: false, text: "요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
+    } finally {
+      setAliBusy(false);
+    }
+  };
+
+  const refreshImage = async (source: Source) => {
+    setRefreshingId(source.id);
+    try {
+      await run(() => refreshAliexpressSourceImage(source.id), "상품 이미지를 다시 가져왔습니다.");
+    } finally {
+      setRefreshingId(null);
+    }
+  };
+
   const startEdit = (source: Source) => {
     setEditingId(source.id);
     setDraft({ title: source.title, sourceUrl: source.source_url ?? "", summary: source.summary });
@@ -146,7 +182,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
         <div>
           <p className="text-xs font-bold text-gold">CONTENT SOURCE QUEUE</p>
           <h2 className="mt-1 text-xl font-bold text-neutral-900">쇼핑제휴 상품 등록</h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-600">Threads에 포스팅할 상품(쿠팡 파트너스, 네이버 브랜드 커넥트)을 계정별로 등록해 두는 곳입니다. 회원님이 선택하거나 입력한 값만 본인 계정에 저장하며, 외부 사이트에서 정보를 자동으로 가져오지 않습니다. 등록한 상품으로 초안을 만드는 연결은 다음 단계에서 추가됩니다.</p>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">Threads에 포스팅할 상품(쿠팡 파트너스, 알리익스프레스, 네이버 브랜드 커넥트)을 계정별로 등록해 두는 곳입니다. 회원님이 선택하거나 입력한 값만 본인 계정에 저장하며, 외부 사이트에서 정보를 자동으로 가져오지 않습니다. 등록한 상품으로 초안을 만드는 연결은 다음 단계에서 추가됩니다.</p>
         </div>
         <select aria-label="운영 계정 선택" className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-800" value={accountId} onChange={(event) => { setAccountId(event.target.value); setEditingId(null); setMessage(null); }}>
           {accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}
@@ -188,6 +224,18 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
     </section>
 
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Plus size={18} className="text-gold" />알리익스프레스 상품 등록</h3>
+      <p className="mt-1 text-sm leading-relaxed text-neutral-600">알리익스프레스 상품 주소를 붙여넣으면 회원님의 알리익스프레스 키로 제휴 링크를 자동으로 만들고 상품 이미지도 가져옵니다. 모바일 공유 단축 주소(a.aliexpress.com/…)도 됩니다.</p>
+      {!aliKeysReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>알리익스프레스 App Key·App Secret·Tracking ID가 모두 등록되지 않았습니다. <a className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</a>에서 본인 키를 저장하면 등록할 수 있습니다.</span></p>}
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <label><span className="mb-2 block text-sm font-semibold text-neutral-800">상품명</span><input className={inputClass} maxLength={200} value={ali.title} onChange={(event) => setAli({ ...ali, title: event.target.value })} placeholder="상품명을 입력하세요" /></label>
+        <label><span className="mb-2 block text-sm font-semibold text-neutral-800">알리익스프레스 상품 URL</span><input className={inputClass} maxLength={2000} inputMode="url" value={ali.productUrl} onChange={(event) => setAli({ ...ali, productUrl: event.target.value })} placeholder="https://www.aliexpress.com/item/…" /></label>
+        <label className="md:col-span-2"><span className="mb-2 block text-sm font-semibold text-neutral-800">메모 (선택)</span><textarea className={`${inputClass} min-h-16 resize-y`} maxLength={1000} value={ali.summary} onChange={(event) => setAli({ ...ali, summary: event.target.value })} placeholder="초안에 꼭 넣고 싶은 핵심 내용, 강조점을 적어 두세요." /></label>
+      </div>
+      <div className="mt-4 flex justify-end"><button className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={aliBusy || busy || !aliKeysReady || !ali.title.trim() || !ali.productUrl.trim()} onClick={() => void registerAli()}><Plus size={16} />{aliBusy ? "제휴 링크 만드는 중…" : "제휴 링크 자동 생성 후 등록"}</button></div>
+    </section>
+
+    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Plus size={18} className="text-gold" />새 소스 등록</h3>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <label><span className="mb-2 block text-sm font-semibold text-neutral-800">소스 종류</span><select className={inputClass} value={form.sourceType} onChange={(event) => setForm({ ...form, sourceType: event.target.value })}>{TYPES.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}</select></label>
@@ -204,12 +252,12 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="font-bold text-neutral-900">등록한 소스 <span className="text-sm font-normal text-neutral-500">({visible.length}건)</span></h3>
         <div className="flex flex-wrap gap-2">
-          <select aria-label="종류 필터" className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-800" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}><option value="all">전체 종류</option>{TYPES.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}</select>
+          <select aria-label="종류 필터" className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-800" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}><option value="all">전체 종류</option>{LIST_TYPES.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}</select>
           <select aria-label="상태 필터" className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-800" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">전체 상태</option><option value="ready">사용 가능</option><option value="used">사용 완료</option><option value="archived">보관</option></select>
         </div>
       </div>
 
-      {!visible.length ? <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm text-neutral-600">{mine.length ? "조건에 맞는 소스가 없습니다. 필터를 바꿔 보세요." : "아직 등록한 상품이 없습니다. 위에서 쿠팡 상품을 검색하거나 쿠팡·네이버 브랜드 커넥트 링크를 등록해 보세요."}</div> : <ul className="mt-4 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">{visible.map((source) => {
+      {!visible.length ? <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm text-neutral-600">{mine.length ? "조건에 맞는 소스가 없습니다. 필터를 바꿔 보세요." : "아직 등록한 상품이 없습니다. 위에서 쿠팡 상품을 검색하거나 알리익스프레스 상품 주소·쿠팡·네이버 브랜드 커넥트 링크를 등록해 보세요."}</div> : <ul className="mt-4 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">{visible.map((source) => {
         const status = STATUS[source.status] ?? { label: source.status, tone: "bg-neutral-100 text-neutral-600" };
         return <li key={source.id} className="p-4">
           {editingId === source.id ? <div className="space-y-3">
@@ -225,6 +273,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
               {source.summary && <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-600">{source.summary}</p>}
             </div>
             <div className="flex shrink-0 flex-wrap gap-1.5">
+              {source.source_type === "aliexpress" && <IconButton label={refreshingId === source.id ? "가져오는 중…" : "이미지 다시 가져오기"} onClick={() => void refreshImage(source)} disabled={busy || refreshingId === source.id}><RotateCcw size={14} /></IconButton>}
               <IconButton label="수정" onClick={() => startEdit(source)} disabled={busy}><Pencil size={14} /></IconButton>
               {source.status !== "ready" && <IconButton label="사용 가능으로" onClick={() => void run(() => setContentSourceStatus({ id: source.id, status: "ready" }), "사용 가능으로 되돌렸습니다.")} disabled={busy}><RotateCcw size={14} /></IconButton>}
               {source.status !== "used" && <IconButton label="사용 완료 표시" onClick={() => void run(() => setContentSourceStatus({ id: source.id, status: "used" }), "사용 완료로 표시했습니다.")} disabled={busy}><CheckCircle2 size={14} /></IconButton>}

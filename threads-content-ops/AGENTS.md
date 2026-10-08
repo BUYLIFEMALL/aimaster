@@ -1,8 +1,15 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.78`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.79`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.79 상품 등록에 알리익스프레스 추가 (2026-10-08)
+
+- 주인님 지시: `threads-affiliate-poster`의 /products에 구현된 알리익스프레스 등록 흐름을 쇼핑제휴 상품 등록(tab=sources)에 이식. 토스쇼핑은 별도 작업 단위(v1.80)로 이어서 진행.
+- 구현: `lib/aliexpress.ts`(poster의 `aliexpress/client.ts` + `products.ts` 이미지 수집 이식) — 단축 주소 → 원본 item 주소 확정 → `aliexpress.affiliate.link.generate`로 제휴 링크 생성 → 공식 `productdetail.get`(ApiCallLimit 시 1.2/2.5/4초 재시도) → 상품 페이지 메타 이미지 순. `web-actions.ts`의 `registerAliexpressSource`(제휴 링크로 저장, 이미지 못 찾으면 경고만 하고 저장)·`refreshAliexpressSourceImage`(목록의 "이미지 다시 가져오기"). 키는 본인 것만(`aliexpress_app_key/secret/tracking_id`, 설정 탭에 입력 3칸·매뉴얼 버튼 추가). `productPost.ts`: 콘텐츠 생성에서 연결 가능한 상품 종류에 aliexpress 추가, 고지 문구는 poster와 같은 "(광고) 제휴 활동으로 수수료를 받을 수 있습니다.".
+- DB(주인님 승인): `tco_content_sources.source_type` check에 `aliexpress`, `toss` 허용 추가(`20261008180000_tco_content_sources_aliexpress_toss.sql`, 적용 완료, 기존 데이터 변경 없음). `user_api_keys.provider` 제약에는 알리·토스 키가 이미 있음. 루트 `lib/apiKeys.ts`의 `ApiKeyProvider`에 알리 3종 추가.
+- 한계: 실제 알리 키로 호출 검증은 못 함(회원 키 필요). 토스쇼핑은 고정 IP 프록시(FIXIE_URL)가 루트 Vercel 프로젝트에 없어 v1.80에서 키 등록 후 활성화 방식으로 진행.
 
 ## v1.78 페르소나 선택 시 페르소나 우선, 미선택 시 운영정보 (2026-10-08)
 

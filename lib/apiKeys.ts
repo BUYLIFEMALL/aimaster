@@ -14,7 +14,10 @@ export type ApiKeyProvider =
   | "replicate"
   | "youtube_api_key"
   | "coupang_access_key"
-  | "coupang_secret_key";
+  | "coupang_secret_key"
+  | "aliexpress_app_key"
+  | "aliexpress_app_secret"
+  | "aliexpress_tracking_id";
 
 type SupabaseLike = {
   from: (table: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any

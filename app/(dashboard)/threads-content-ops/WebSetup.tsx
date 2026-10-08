@@ -9,7 +9,7 @@ import {
   startThreadsOAuth,
 } from "./web-actions";
 
-type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "threads_app_id" | "threads_app_secret";
+type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "aliexpress_app_key" | "aliexpress_app_secret" | "aliexpress_tracking_id" | "threads_app_id" | "threads_app_secret";
 type SavePayload = {
   openaiKey?: string;
   youtubeApiKey?: string;
@@ -19,6 +19,9 @@ type SavePayload = {
   replicateKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
+  aliexpressAppKey?: string;
+  aliexpressAppSecret?: string;
+  aliexpressTrackingId?: string;
   threadsAppId?: string;
   threadsAppSecret?: string;
 };
@@ -33,6 +36,9 @@ const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   replicate: "replicateKey",
   coupang_access_key: "coupangAccessKey",
   coupang_secret_key: "coupangSecretKey",
+  aliexpress_app_key: "aliexpressAppKey",
+  aliexpress_app_secret: "aliexpressAppSecret",
+  aliexpress_tracking_id: "aliexpressTrackingId",
   threads_app_id: "threadsAppId",
   threads_app_secret: "threadsAppSecret",
 };
@@ -41,6 +47,7 @@ const GUIDES = [
   ["1c5c24e2-15d4-49b8-b907-0ac6843dee3a", "OpenAI API 키 발급받기"],
   ["343996d3-8c77-455d-9bd4-54bcd47a34cd", "Threads 계정 연동하기"],
   ["117ffedb-c554-458a-9b92-e9ed6ee33988", "쿠팡 파트너스 API 발급받기"],
+  ["0eb4180e-a076-4ee6-b75e-6b3c3c9ec442", "알리익스프레스 API 키 발급받기"],
   ["1df95d8b-6a27-4de0-b1d9-8bbc218534ad", "Perplexity API 키 발급받기"],
 ] as const;
 
@@ -179,6 +186,15 @@ export default function WebSetup({
       <div className="space-y-3">
         <CredentialRow provider="coupang_access_key" label="쿠팡 파트너스 Access Key" maskedValue={credentials.coupang_access_key} editing={editing === "coupang_access_key"} saving={saving === "coupang_access_key"} removing={removing === "coupang_access_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
         <CredentialRow provider="coupang_secret_key" label="쿠팡 파트너스 Secret Key" maskedValue={credentials.coupang_secret_key} editing={editing === "coupang_secret_key"} saving={saving === "coupang_secret_key"} removing={removing === "coupang_secret_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
+      </div>
+    </section>
+
+    <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+      <SectionTitle title="🌏 알리익스프레스" description="상품 주소를 제휴 링크로 바꾸고 상품 이미지를 가져오는 데 쓰는 App Key·App Secret·Tracking ID입니다(portals.aliexpress.com에서 발급)." />
+      <div className="space-y-3">
+        <CredentialRow provider="aliexpress_app_key" label="알리익스프레스 App Key" maskedValue={credentials.aliexpress_app_key} editing={editing === "aliexpress_app_key"} saving={saving === "aliexpress_app_key"} removing={removing === "aliexpress_app_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
+        <CredentialRow provider="aliexpress_app_secret" label="알리익스프레스 App Secret" maskedValue={credentials.aliexpress_app_secret} editing={editing === "aliexpress_app_secret"} saving={saving === "aliexpress_app_secret"} removing={removing === "aliexpress_app_secret"} onEdit={setEditing} onSave={save} onDelete={remove} />
+        <CredentialRow provider="aliexpress_tracking_id" label="알리익스프레스 Tracking ID" maskedValue={credentials.aliexpress_tracking_id} editing={editing === "aliexpress_tracking_id"} saving={saving === "aliexpress_tracking_id"} removing={removing === "aliexpress_tracking_id"} onEdit={setEditing} onSave={save} onDelete={remove} />
       </div>
     </section>
 

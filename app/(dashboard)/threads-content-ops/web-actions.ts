@@ -41,6 +41,7 @@ import {
   searchCoupangProducts,
   type CoupangProduct,
 } from "@/threads-content-ops/lib/coupang";
+import { ALIEXPRESS_IMAGE_WARNING, createAliexpressPromotionLink, findAliexpressImage, resolveAliexpressUrl } from "@/threads-content-ops/lib/aliexpress";
 
 const PROGRAM_SLUG = "threads-content-ops";
 const CREDENTIAL_PROVIDERS = new Set([
@@ -52,6 +53,9 @@ const CREDENTIAL_PROVIDERS = new Set([
   "replicate",
   "coupang_access_key",
   "coupang_secret_key",
+  "aliexpress_app_key",
+  "aliexpress_app_secret",
+  "aliexpress_tracking_id",
   "threads_app_id",
   "threads_app_secret",
 ]);
@@ -74,6 +78,9 @@ export async function saveMemberCredentials(input: {
   replicateKey?: string;
   coupangAccessKey?: string;
   coupangSecretKey?: string;
+  aliexpressAppKey?: string;
+  aliexpressAppSecret?: string;
+  aliexpressTrackingId?: string;
   threadsAppId?: string;
   threadsAppSecret?: string;
 }) {
@@ -87,6 +94,9 @@ export async function saveMemberCredentials(input: {
     ["replicate", input.replicateKey],
     ["coupang_access_key", input.coupangAccessKey],
     ["coupang_secret_key", input.coupangSecretKey],
+    ["aliexpress_app_key", input.aliexpressAppKey],
+    ["aliexpress_app_secret", input.aliexpressAppSecret],
+    ["aliexpress_tracking_id", input.aliexpressTrackingId],
     ["threads_app_id", input.threadsAppId],
     ["threads_app_secret", input.threadsAppSecret],
   ].filter(([, value]) => typeof value === "string" && value.trim()) as Array<[string, string]>;
@@ -682,6 +692,76 @@ export async function saveCoupangSearchResult(input: {
     return { ok: true };
   } catch (error) {
     return sourceFailure(error, "상품을 소스로 저장하지 못했습니다.");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 알리익스프레스 상품 등록 (v1.79) — threads-affiliate-poster의 등록 흐름을 이식.
+// 상품 주소(단축 주소 포함)를 원본 주소로 확정 → 회원 본인 키로 제휴 링크 생성 → 썸네일 수집 후 소스로 저장한다.
+// 이미지를 못 찾아도 상품은 저장하고 경고를 돌려준다(목록의 '이미지 다시 가져오기'로 재시도).
+// ---------------------------------------------------------------------------
+type AliexpressKeys = { appKey: string; appSecret: string; trackingId: string };
+
+async function loadAliexpressKeys(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string): Promise<AliexpressKeys> {
+  const [appKey, appSecret, trackingId] = await Promise.all([
+    resolveApiKey(supabase, userId, "aliexpress_app_key"),
+    resolveApiKey(supabase, userId, "aliexpress_app_secret"),
+    resolveApiKey(supabase, userId, "aliexpress_tracking_id"),
+  ]);
+  if (!appKey || !appSecret || !trackingId) {
+    throw new Error("알리익스프레스 App Key·App Secret·Tracking ID를 먼저 등록해 주세요. API키등록·플랫폼연동에서 본인 키를 저장하면 등록할 수 있습니다.");
+  }
+  return { appKey, appSecret, trackingId };
+}
+
+export async function registerAliexpressSource(input: { accountId: string; title: string; productUrl: string; summary: string }): Promise<{ ok: true; warning?: string } | { ok: false; error: string }> {
+  try {
+    checkSourceText(input.title, input.summary);
+    const productUrl = normalizeSourceUrl(input.productUrl);
+    const { supabase, user } = await authorizedUser();
+    const keys = await loadAliexpressKeys(supabase, user.id);
+
+    const resolvedUrl = await resolveAliexpressUrl(productUrl);
+    const promotionLink = await createAliexpressPromotionLink(resolvedUrl, keys);
+    if (!promotionLink) throw new Error("제휴 링크를 만들지 못했습니다. 알리익스프레스 상품 주소를 확인해 주세요.");
+    const imageUrl = await findAliexpressImage([resolvedUrl, productUrl], keys);
+
+    await insertContentSource(supabase, user.id, {
+      accountId: input.accountId,
+      sourceType: "aliexpress",
+      title: input.title,
+      sourceUrl: normalizeSourceUrl(promotionLink),
+      summary: input.summary,
+      metadata: { via: "aliexpress_url", originalUrl: productUrl, resolvedUrl, imageUrl, savedAt: new Date().toISOString() },
+    });
+    revalidatePath("/threads-content-ops");
+    return imageUrl ? { ok: true } : { ok: true, warning: ALIEXPRESS_IMAGE_WARNING };
+  } catch (error) {
+    return sourceFailure(error, "알리익스프레스 상품을 등록하지 못했습니다.") as { ok: false; error: string };
+  }
+}
+
+export async function refreshAliexpressSourceImage(id: string): Promise<SourceResult> {
+  try {
+    const { supabase, user } = await authorizedUser();
+    const { data: source } = await supabase.from("tco_content_sources")
+      .select("id, source_url, metadata").eq("id", id).eq("user_id", user.id).eq("source_type", "aliexpress").maybeSingle();
+    if (!source) throw new Error("상품을 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+    const keys = await loadAliexpressKeys(supabase, user.id);
+
+    const metadata = (source.metadata ?? {}) as Record<string, unknown>;
+    const urls = [metadata.resolvedUrl, metadata.originalUrl, source.source_url].filter((value): value is string => typeof value === "string" && Boolean(value));
+    const resolved = urls.length ? await resolveAliexpressUrl(urls[0]) : "";
+    const imageUrl = await findAliexpressImage([resolved, ...urls].filter(Boolean), keys);
+    if (!imageUrl) throw new Error("이번에도 이미지를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+
+    const { error } = await supabase.from("tco_content_sources")
+      .update({ metadata: { ...metadata, imageUrl }, updated_at: new Date().toISOString() }).eq("id", source.id).eq("user_id", user.id);
+    if (error) throw new Error("이미지를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "이미지를 다시 가져오지 못했습니다.");
   }
 }
 
