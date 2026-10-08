@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.25, 2026-10-08)
+
+- **생성 콘텐츠(글감, 본문 원고, 이미지) 30일 보관·자동 삭제 시스템 및 관련 공지 구축 (v1.25, 주인님 확정)**:
+  - 배경: 주인님의 "항목은 글감, 본문, 이미지 등 생성된 콘텐츠 자동 삭제 기능이야. 다른 블로그쪽(ai-auto-blog) 어떻게 작업했는지 확인하고 진행해" 지시에 따라 `ai-auto-blog`의 30일 보관 표준 패턴을 그대로 이식.
+  - 조치:
+    1) **30일 보관 유틸리티 (`src/lib/retention.ts`)**: `RETENTION_DAYS = 30`, 잔여 일수 계산(`retentionDaysLeft`), 만료일 계산(`retentionDeleteAt`), 커트오프 판정(`retentionCutoff`).
+    2) **공지 배너 컴포넌트 (`ContentRetentionNotice.tsx`)**: 원고 보관함(`/queue`), 글감 수집소(`/collector`), 메인 글 생성기(`/`)에 30일 자동 삭제 정책 및 보관함 영구 보호 안내 공지 배너 탑재.
+    3) **항목별 잔여 일수 배지**: 원고 목록 및 글감 목록에 `🗓️ D-xx (xx일 후 자동삭제)` 배지 제공 (7일 이하 시 경고색 표시), 보관된 글감에는 `🛡️ 영구 보관 (삭제 보호)` 배지 표시.
+    4) **서버측 자동 정리 Cron (`src/app/api/cron/cleanup/route.ts`) & Vercel Cron (`vercel.json`)**: 30일 경과 DB 원고 및 Storage 이미지 파일 매일 새벽 자동 정리.
+  - `src/lib/version.ts`, `package.json`, `extension/manifest.json`, DB `programs.version` 및 마이그레이션 `0025_bump_version_v1_25.sql`을 `v1.25`로 동기화.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.24, 2026-10-08)
 
 - **원고 보관함 & 발행 큐(`/queue`) 떡상 글감 수집소(`/collector`) 카테고리 연계 분류 및 관리 기능 추가 (v1.24, 주인님 확정)**:
@@ -168,6 +179,10 @@
        - 결과 화면의 기존 텍스트 프롬프트 복사 영역을 파란색 바탕 `[🖼️ AI 이미지 생성 (N장)]` 버튼 + 실시간 진행 프로그레스 바 + 생성 이미지 갤러리 그리드(대표 썸네일/본문 컷 배지, URL 복사, 다운로드, 삭제) + 개별 컷 생성 버튼 + 클릭 시 고해상도 확대 모달 뷰어로 전면 교체.
        - 크롬 확장 자동 발행 큐 등록(`handlePublishToQueue`) 및 보관함 저장(`handleSaveDraft`) 시 실제 생성된 이미지가 자동 포함되도록 연동.
     5) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0017_nba_bump_version_v1_17.sql`을 `v1.17`로 동기화.
+
+## Threads 콘텐츠 운영 자동화 v1.76 — 글감·보관함 글 30일 자동 삭제 (2026-10-08)
+
+- 글감(보관 중 제외)·보관함 글(검토 대기/발행 실패)을 만든 지 30일 후 삭제, 안내 박스·남은 일수 표시. 정책 시작 2026-10-08, 첫 삭제는 2026-11-07 이후. 크론은 CRON_SECRET 미설정이면 503(화면 열 때 정리는 동작).
 
 ## Threads 콘텐츠 운영 자동화 v1.75 — 보관함 카테고리 (2026-10-08)
 

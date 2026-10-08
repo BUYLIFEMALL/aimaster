@@ -29,6 +29,8 @@ import {
 import type { BlogViralCandidate, ShortVideo, ShortsOrder, CollectorCategory } from "@/types/collector";
 import { INITIAL_SAMPLE_CANDIDATES, DEFAULT_COLLECTOR_CATEGORIES } from "@/types/collector";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
+import ContentRetentionNotice from "@/components/ContentRetentionNotice";
+import { retentionDaysLeft, retentionDeleteAt, isRetentionExpired } from "@/lib/retention";
 
 const STATUS_MAP: Record<string, { label: string; tone: string }> = {
   ready: { label: "사용 가능", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" },
@@ -142,8 +144,12 @@ export default function CollectorPage() {
               is_archived,
             };
           });
-          setCandidates(migrated);
-          localStorage.setItem("nba_viral_candidates", JSON.stringify(migrated));
+          const activeCandidates = migrated.filter((item) => {
+            if (item.is_archived) return true;
+            return !isRetentionExpired(item.created_at);
+          });
+          setCandidates(activeCandidates);
+          localStorage.setItem("nba_viral_candidates", JSON.stringify(activeCandidates));
           setMounted(true);
           return;
         }
@@ -613,6 +619,9 @@ export default function CollectorPage() {
           <p className="mt-1.5 text-2xl font-black text-indigo-700">{archivedCount}</p>
         </div>
       </section>
+
+      {/* 2-2. 30일 보관 정책 안내 공지 배너 */}
+      <ContentRetentionNotice />
 
       {/* 메시지 알림 바 */}
       {message && (
@@ -1183,11 +1192,31 @@ export default function CollectorPage() {
                       </span>
 
                       {/* 보관 상태 뱃지 (보관 중일 때 독립적으로 표시) */}
-                      {item.is_archived && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
-                          <Archive size={11} />
-                          보관중
+                      {item.is_archived ? (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800"
+                          title="이 글감은 [보관] 상태로 자동 삭제 대상에서 영구 제외 및 보호됩니다."
+                        >
+                          <Archive size={10} />
+                          <span>보관 (영구 보호)</span>
                         </span>
+                      ) : (
+                        (() => {
+                          const left = retentionDaysLeft(item.created_at);
+                          const isWarning = left <= 7;
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                isWarning
+                                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                                  : "bg-amber-50 text-amber-800 border-amber-200"
+                              }`}
+                              title={`생성일시: ${new Date(item.created_at).toLocaleString("ko-KR")}\n자동삭제 예정: ${retentionDeleteAt(item.created_at).toLocaleDateString("ko-KR")}`}
+                            >
+                              <span>{left === 0 ? "오늘 자동삭제 예정" : `${left}일 후 자동삭제`}</span>
+                            </span>
+                          );
+                        })()
                       )}
 
                       <span className="text-[11px] text-neutral-400">

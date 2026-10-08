@@ -30,6 +30,8 @@ import {
   BookOpen,
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
+import ContentRetentionNotice from "@/components/ContentRetentionNotice";
+import { retentionDaysLeft } from "@/lib/retention";
 import type { PipelineResult } from "@/lib/ai/pipeline";
 import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate } from "@/types/collector";
@@ -1486,7 +1488,9 @@ export default function MainPage() {
         )}
 
         {result ? (
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6 md:p-8 shadow-sm space-y-6">
+          <>
+            <ContentRetentionNotice />
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6 md:p-8 shadow-sm space-y-6">
             {/* 상단 컨트롤 바 */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-4">
               <div className="flex items-center gap-2">
@@ -1879,6 +1883,7 @@ export default function MainPage() {
               </div>
             )}
           </div>
+          </>
         ) : (
           /* 대기 상태 안내 카드 */
           <div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-12 text-center text-neutral-400 shadow-xs flex flex-col items-center justify-center min-h-[300px]">
@@ -1980,6 +1985,10 @@ export default function MainPage() {
               </div>
             </header>
 
+            <div className="px-5 pt-4 pb-1">
+              <ContentRetentionNotice compact />
+            </div>
+
             <div className="p-5 overflow-y-auto space-y-3 flex-1 divide-y divide-neutral-100">
               {(() => {
                 let savedList: any[] = [];
@@ -2017,7 +2026,7 @@ export default function MainPage() {
                           </div>
                         )}
                         <div className="min-w-0 flex-1 space-y-0.5">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
                               {post.category_name || "일반"}
                             </span>
@@ -2029,6 +2038,21 @@ export default function MainPage() {
                             <span className="text-[10px] text-neutral-400">
                               · {new Date(post.created_at).toLocaleDateString("ko-KR")}
                             </span>
+                            {(() => {
+                              const left = retentionDaysLeft(post.created_at);
+                              const isWarning = left <= 7;
+                              return (
+                                <span
+                                  className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${
+                                    isWarning
+                                      ? "bg-rose-50 text-rose-700 border-rose-200"
+                                      : "bg-amber-50 text-amber-800 border-amber-200"
+                                  }`}
+                                >
+                                  {left === 0 ? "오늘 삭제 예정" : `D-${left}`}
+                                </span>
+                              );
+                            })()}
                           </div>
                           <div
                             onClick={() => handleLoadSavedPost(post)}

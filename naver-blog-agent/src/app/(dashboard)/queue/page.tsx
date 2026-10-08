@@ -31,6 +31,8 @@ import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import type { CollectorCategory } from "@/types/collector";
 import { DEFAULT_COLLECTOR_CATEGORIES } from "@/types/collector";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
+import ContentRetentionNotice from "@/components/ContentRetentionNotice";
+import { retentionDaysLeft, retentionDeleteAt } from "@/lib/retention";
 
 interface SavedPostItem {
   id: string;
@@ -657,6 +659,9 @@ export default function QueuePage() {
         ))}
       </div>
 
+      {/* 2-2. 30일 보관 정책 공지 배너 */}
+      <ContentRetentionNotice />
+
       {/* 3. 떡상 글감 수집소 연계 카테고리 분류 탭 & 관리 바 */}
       <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-neutral-100">
@@ -1009,6 +1014,25 @@ export default function QueuePage() {
                         <span className="text-[11px] font-mono text-neutral-400">
                           ID: {post.blog_id || "myblog"}
                         </span>
+
+                        {/* 30일 보관 — 삭제까지 남은 일수 배지 */}
+                        {(() => {
+                          const left = retentionDaysLeft(post.created_at);
+                          const isWarning = left <= 7;
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                isWarning
+                                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                                  : "bg-amber-50 text-amber-800 border-amber-200"
+                              }`}
+                              title={`생성일시: ${new Date(post.created_at).toLocaleString("ko-KR")}\n자동삭제 예정: ${retentionDeleteAt(post.created_at).toLocaleDateString("ko-KR")}`}
+                            >
+                              <Clock size={10} className={isWarning ? "text-rose-600 animate-pulse" : "text-amber-600"} />
+                              <span>{left === 0 ? "오늘 자동삭제 예정" : `${left}일 후 자동삭제`}</span>
+                            </span>
+                          );
+                        })()}
                       </div>
 
                       {/* 제목 (클릭 시 상세 열람) */}
@@ -1221,10 +1245,14 @@ export default function QueuePage() {
             </div>
 
             {/* 모달 푸터 */}
-            <footer className="border-t border-neutral-200 px-6 py-3.5 flex items-center justify-between bg-neutral-50 shrink-0">
-              <span className="text-xs text-neutral-400">
-                생성일시: {new Date(viewingDetailPost.created_at).toLocaleString("ko-KR")}
-              </span>
+            <footer className="border-t border-neutral-200 px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-neutral-50 shrink-0">
+              <div className="flex items-center gap-2 text-xs text-neutral-500 flex-wrap">
+                <span>생성: {new Date(viewingDetailPost.created_at).toLocaleString("ko-KR")}</span>
+                <span>·</span>
+                <span className="text-amber-800 font-semibold">
+                  자동삭제 예정: {retentionDeleteAt(viewingDetailPost.created_at).toLocaleDateString("ko-KR")} ({retentionDaysLeft(viewingDetailPost.created_at)}일 남음)
+                </span>
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"

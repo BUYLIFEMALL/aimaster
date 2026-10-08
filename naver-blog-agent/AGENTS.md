@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.24` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.25` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -43,10 +43,22 @@
    - 글이 생성되거나 이미지가 추가·편집될 때마다 Supabase DB(`/api/posts`)에 100% 영구 저장되며, 사이드바의 `📑 생성 원고 보관함 & 발행 큐`(`/queue`)에서 완성된 원고를 언제든 실시간 조회, 복사, 스마트 에디터 재편집, 스마트에디터 ONE 자동 발행할 수 있다. 메인 홈 상단에도 `[📑 생성 원고 보관함]`과 `[최근 원고 열기]` 퀵 모달을 제공한다.
 12. **원고 보관함&발행 큐 떡상 글감 수집소 카테고리 연계 체계 (2026-10-08 주인님 확정)**:
    - `📑 생성 원고 보관함 & 발행 큐`(`/queue`)가 `🔥 떡상 글감 수집소`(`/collector`)의 카테고리 체계(`nba_collector_categories`)를 100% 공유하여, 카테고리별 탭 필터링, 개별 원고 원클릭 카테고리 변경, 체크박스 다중 선택 일괄 카테고리 이동(Bulk Move), 카테고리 관리 모달(`CategoryManagementModal`), 스마트 에디터 내부 카테고리 설정 기능을 지원한다.
+13. **생성 콘텐츠(글감, 본문 원고, 이미지) 30일 보관 및 자동 삭제 정책 (2026-10-08 주인님 확정)**:
+   - `ai-auto-blog`와 동일하게 DB 용량 무제한 누적을 방지하기 위해 생성 콘텐츠 일체(수집 글감, 본문 원고, AI 생성 이미지)는 각각 생성일로부터 30일만 보관 후 자동 삭제된다. 단, 글감 수집소에서 [보관함(초록색 책갈피)]에 담아둔 중요 글감은 영구 보존된다. `/api/cron/cleanup` 라우트(Vercel Cron)와 `ContentRetentionNotice` 공지 배너 및 각 항목별 `D-xx` 잔여 일수 배지가 제공된다.
 
 ---
 
 ## 🕒 버전 히스토리
+
+- **v1.25 (2026-10-08)**:
+  - **생성 콘텐츠(글감, 본문 원고, 이미지) 30일 보관·자동 삭제 시스템 및 관련 공지 구축 (주인님 확정)**:
+    - 배경: 주인님의 "항목은 글감, 본문, 이미지 등 생성된 콘텐츠 자동 삭제 기능이야. 다른 블로그쪽(ai-auto-blog) 어떻게 작업했는지 확인하고 진행해" 지시에 따라 `ai-auto-blog`의 30일 보관 표준 패턴을 그대로 이식.
+    - 조치:
+      1) **30일 보관 유틸리티 (`src/lib/retention.ts`)**: `RETENTION_DAYS = 30`, 잔여 일수 계산(`retentionDaysLeft`), 만료일 계산(`retentionDeleteAt`), 커트오프 판정(`retentionCutoff`).
+      2) **공지 배너 컴포넌트 (`ContentRetentionNotice.tsx`)**: 원고 보관함(`/queue`), 글감 수집소(`/collector`), 메인 글 생성기(`/`)에 30일 자동 삭제 정책 및 보관함 영구 보호 안내 공지 배너 탑재.
+      3) **항목별 잔여 일수 배지**: 원고 목록 및 글감 목록에 `🗓️ D-xx (xx일 후 자동삭제)` 배지 제공 (7일 이하 시 경고색 표시), 보관된 글감에는 `🛡️ 영구 보관 (삭제 보호)` 배지 표시.
+      4) **서버측 자동 정리 Cron (`src/app/api/cron/cleanup/route.ts`) & Vercel Cron (`vercel.json`)**: 30일 경과 DB 원고 및 Storage 이미지 파일 매일 새벽 자동 정리.
+    - 버전 v1.25 갱신: `version.ts`, `package.json`, `extension/manifest.json`, DB `programs.version`, 마이그레이션 `0025_bump_version_v1_25.sql` 동기화 완료.
 
 - **v1.24 (2026-10-08)**:
   - **원고 보관함 & 발행 큐(`/queue`) 떡상 글감 수집소(`/collector`) 카테고리 연계 분류 및 관리 기능 추가 (주인님 확정)**:
