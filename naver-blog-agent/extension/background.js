@@ -3,7 +3,7 @@ const API = 'https://naver-blog-agent.vercel.app';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let busy = false;
 let refreshSession = false;
-const stored = () => chrome.storage.local.get(['connection','deviceId','session','editorTab','completedEditorTab','activeTask','pendingResult','connectionError']);
+const stored = () => chrome.storage.local.get(['connection','deviceId','session','editorTab','completedEditorTab','activeTask','pendingResult','connectionError','update']);
 async function web(path, body, token) {
   const response = await fetch(API + path, { method: 'POST', headers: { 'Content-Type':'application/json', ...(token ? {Authorization:`Bearer ${token}`} : {}) }, body:JSON.stringify(body || {}), signal:AbortSignal.timeout(15000) });
   const data = await response.json().catch(()=>({})); if (!response.ok) throw new Error(data.error || '웹 서버 연결 오류 ('+response.status+')'); return data;
@@ -22,6 +22,25 @@ async function api(route, body = {}, override) {
     case '/progress': case '/stage': case '/waiting': return {};
     default: throw new Error('지원하지 않는 요청: '+route);
   }
+}
+// 새 버전 알림: 서버가 알려주는 최신 버전(/api/extension/version)과 이 확장의 version_name을 비교한다.
+const installedVersion = () => chrome.runtime.getManifest().version_name || 'v' + chrome.runtime.getManifest().version;
+const versionParts = v => { const m = /^v?(\d+)\.(\d+)/.exec(String(v || '')); return m ? [Number(m[1]), Number(m[2])] : null; };
+function isNewer(latest, current) {
+  const a = versionParts(latest), b = versionParts(current);
+  return Boolean(a && b && (a[0] > b[0] || (a[0] === b[0] && a[1] > b[1])));
+}
+async function checkUpdate() {
+  try {
+    const response = await fetch(API + '/api/extension/version', {cache:'no-store', signal:AbortSignal.timeout(10000)});
+    if (!response.ok) return;
+    const data = await response.json();
+    if (!versionParts(data.latest) || !String(data.downloadUrl || '').startsWith(API + '/')) return; // 우리 사이트 주소만 안내한다
+    const current = installedVersion(), outdated = isNewer(data.latest, current);
+    await chrome.storage.local.set({update:{latest:data.latest, current, downloadUrl:data.downloadUrl, outdated, checkedAt:Date.now()}});
+    await chrome.action.setBadgeText({text: outdated ? 'NEW' : ''});
+    if (outdated) await chrome.action.setBadgeBackgroundColor({color:'#e5484d'});
+  } catch {}
 }
 async function loadAsset(task, index) {
   const asset = task.payload.assets?.[index];
@@ -255,6 +274,7 @@ async function pump() {
   }catch(error){await chrome.storage.local.set({connectionError:error.message});}finally{clearInterval(heartbeat);busy=false;}
 }
 chrome.alarms.create('connection',{periodInMinutes:.5});chrome.alarms.onAlarm.addListener(()=>pump());
+chrome.alarms.create('update-check',{periodInMinutes:360});chrome.alarms.onAlarm.addListener(alarm=>{if(alarm.name==='update-check')checkUpdate();});
 chrome.action.onClicked.addListener(()=>chrome.tabs.create({url:chrome.runtime.getURL('connect.html')}));
 chrome.tabs.onUpdated.addListener(async(id,change)=>{
   if(change.status!=='complete')return;
@@ -263,15 +283,17 @@ chrome.tabs.onUpdated.addListener(async(id,change)=>{
   // Also receive queued requests promptly when the user's blog first opens.
   if(id===state.editorTab || /^https:\/\/(blog|nid)\.naver\.com\//.test(change.url || (await chrome.tabs.get(id).catch(()=>null))?.url || ''))pump();
 });
-chrome.runtime.onStartup.addListener(()=>pump());
-chrome.runtime.onInstalled.addListener(()=>pump());
+chrome.runtime.onStartup.addListener(()=>{pump();checkUpdate();});
+chrome.runtime.onInstalled.addListener(()=>{pump();checkUpdate();});
 // Poll the AIMaster web queue every 10s while awake; alarms remain the worker-suspension fallback.
 // Idle editor inspection is still limited to once per minute or a page load.
 setInterval(()=>pump(),10000);
 pump();
+checkUpdate();
 chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
   (async()=>{
     if(message.type==='status'){pump();return stored();}
+    if(message.type==='checkUpdate'){await checkUpdate();return {update:(await stored()).update || null};}
     if(message.type==='pair'){
       const state=await stored();if(state.activeTask)throw new Error('진행 중인 작업을 먼저 취소하세요.');
       const blogId=String(message.blogId||'').trim();if(!/^[A-Za-z0-9_-]{2,40}$/.test(blogId))throw new Error('네이버 블로그 ID를 영문·숫자 2~40자로 입력하세요.');

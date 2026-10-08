@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.49` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.50` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -72,6 +72,12 @@
 ## 🕒 버전 히스토리
 
 > 확장 운영 규칙: 프로그램을 업데이트할 때 `extension/` 폴더·다운로드 ZIP·DB 버전을 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증합니다(루트 `CLAUDE.md` 핵심 원칙 10번). 이 프로그램의 DB 칸(`programs.extension_download_url`, `extension_version`)은 v1.49 시점에 채워 두었고(`0051` 마이그레이션), 배포할 때마다 `version`과 함께 갱신합니다. 미구현: 확장 내 새 버전 알림, 메인 사이트 프로그램 상세의 다운로드 버튼.
+
+- **v1.50 (2026-10-09)**:
+  - **확장 새 버전 알림**(확장 운영 규칙의 "새 버전 알림" 목표 구현). 공개 경로 `GET /api/extension/version`이 `{latest: APP_VERSION, downloadUrl}`을 돌려주고(`src/lib/version.ts`가 출처라 배포와 항상 같이 바뀜), 확장 `background.js`가 시작/설치 시·6시간마다 비교해 새 버전이면 아이콘에 붉은 `NEW`를 표시하고 팝업(`connect.html`)에 "새 버전이 있습니다 + 다운로드 + 덮어쓰기 안내"를 보여줍니다. 안내 주소는 `https://naver-blog-agent.vercel.app/` 아래만 허용합니다. 설정 화면에도 현재 배포 확장 버전과 갱신 방법을 안내합니다.
+  - **이 알림 기능이 들어 있는 확장(v1.50 이상)을 회원이 한 번은 직접 다시 설치해야** 이후부터 알림이 뜹니다(v1.49 이하 확장에는 알림 코드가 없음).
+  - 이 배포부터 DB 갱신 SQL에 `extension_version`·`extension_download_url`을 함께 넣습니다(`0052`).
+  - 테스트: `test:extension`에 버전 비교·알림·악성 주소 거부·오프라인 무시 추가.
 
 - **v1.49 (2026-10-09)**:
   - **계정·콘텐츠 분류를 회원별 DB로 이관**(주인님 승인). 서버가 기준, 브라우저 저장소(`nba_accounts_local`, `nba_collector_categories`)는 캐시입니다. `/api/accounts`(GET, PUT=목록 전체 저장·blog_id 기준)와 `/api/content-categories`(GET, PUT)는 `checkProgramAccessApi` + `user_id` 필터 + 입력 검증. 이 브라우저에서 처음 연결할 때만 로컬 데이터를 서버에 합쳐 올립니다(견본 계정 `myblog_sample`은 올리지 않음). 이후에는 서버 목록을 따릅니다. 서버를 읽지 못하면 로컬 값으로 계속 동작합니다.

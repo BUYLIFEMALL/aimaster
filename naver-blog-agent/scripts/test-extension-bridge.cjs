@@ -15,6 +15,7 @@ function loadTS(filename) {
   const req = (id) => {
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => db };
     if (id === '@/lib/access') return { evaluateProgramAccessForUser: async () => access };
+    if (id === '@/lib/version') return loadTS(path.join(root, 'src/lib/version.ts'));
     if (id === '@/lib/extensionBridge') return loadTS(path.join(root, 'src/lib/extensionBridge.ts'));
     if (id === 'next/server') return { NextResponse: { json: (body, init) => ({ body, status: init?.status || 200 }) } };
     return require(id);
@@ -123,15 +124,17 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
 
   // ---------- 3. 확장: 어댑터 호출 매핑 ----------
   const calls = [];
+  const stored = [];
+  const badges = [];
   const sandbox = {
     console, URL, AbortSignal, Uint8Array, btoa,
     importScripts() {}, setInterval() {}, clearInterval() {}, crypto: { randomUUID: () => 'dev' },
     chrome: {
-      storage: { local: { get: async () => ({}), set: async () => {}, remove: async () => {} } },
+      storage: { local: { get: async () => ({}), set: async (v) => { stored.push(v); }, remove: async () => {} } },
       alarms: { create() {}, onAlarm: { addListener() {} } },
-      action: { onClicked: { addListener() {} } },
+      action: { onClicked: { addListener() {} }, setBadgeText: async (v) => { badges.push(v.text); }, setBadgeBackgroundColor: async () => {} },
       tabs: { onUpdated: { addListener() {} } },
-      runtime: { onStartup: { addListener() {} }, onInstalled: { addListener() {} }, onMessage: { addListener() {} }, getURL: (x) => x },
+      runtime: { onStartup: { addListener() {} }, onInstalled: { addListener() {} }, onMessage: { addListener() {} }, getURL: (x) => x, getManifest: () => ({ version: '1.49.0', version_name: 'v1.49' }) },
     },
     fetch: async (url, init) => {
       calls.push({ url, init });
@@ -175,6 +178,39 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   const asset = await sandbox.loadAsset({ payload: { assets: [{ url: 'https://x.supabase.co/b1.png', name: 'blog_img_1.png' }] } }, 0);
   assert.equal([asset.mime, asset.name, asset.data].join('|'), ['image/png', 'blog_img_1.png', Buffer.from([137, 80, 78, 71]).toString('base64')].join('|'));
   await assert.rejects(() => sandbox.loadAsset({ payload: { assets: [{ url: 'http://insecure/x.png' }] } }, 0), /올바르지/);
+
+  // ---------- 3-1. 새 버전 알림 ----------
+  const versionRoute = loadTS(path.join(root, 'src/app/api/extension/version/route.ts'));
+  const versionRes = await versionRoute.GET({ url: 'https://naver-blog-agent.vercel.app/api/extension/version' });
+  assert.equal(versionRes.body.latest, loadTS(path.join(root, 'src/lib/version.ts')).APP_VERSION);
+  assert.equal(versionRes.body.downloadUrl, 'https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip');
+  assert.equal(JSON.stringify(Object.keys(versionRes.body).sort()), '["downloadUrl","latest"]', '공개 경로는 버전과 주소만 돌려줌');
+  const isNewer = sandbox.isNewer;
+  for (const [latest, current, expected] of [['v1.50', 'v1.49', true], ['v1.49', 'v1.49', false], ['v1.48', 'v1.49', false], ['v2.01', 'v1.99', true], ['v1.10', 'v1.9', true], ['garbage', 'v1.49', false], [undefined, 'v1.49', false]]) {
+    assert.equal(isNewer(latest, current), expected, `${latest} vs ${current}`);
+  }
+  const setVersionReply = (reply) => { sandbox.fetch = async (url) => { assert.equal(url, 'https://naver-blog-agent.vercel.app/api/extension/version'); return reply; }; };
+  stored.length = 0; badges.length = 0;
+  setVersionReply({ ok: true, json: async () => ({ latest: 'v1.50', downloadUrl: 'https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip' }) });
+  await sandbox.checkUpdate();
+  assert.equal(stored.at(-1).update.outdated, true);
+  assert.equal(stored.at(-1).update.current, 'v1.49');
+  assert.equal(badges.at(-1), 'NEW');
+  setVersionReply({ ok: true, json: async () => ({ latest: 'v1.49', downloadUrl: 'https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip' }) });
+  await sandbox.checkUpdate();
+  assert.equal(stored.at(-1).update.outdated, false);
+  assert.equal(badges.at(-1), '', '최신이면 NEW 표시를 지움');
+  const before2 = stored.length;
+  setVersionReply({ ok: true, json: async () => ({ latest: 'v1.99', downloadUrl: 'https://evil.example/x.zip' }) });
+  await sandbox.checkUpdate();
+  setVersionReply({ ok: false, json: async () => ({}) });
+  await sandbox.checkUpdate();
+  sandbox.fetch = async () => { throw new Error('offline'); };
+  await sandbox.checkUpdate();
+  assert.equal(stored.length, before2, '다른 사이트 주소·서버 오류·오프라인이면 아무것도 저장하거나 표시하지 않음');
+  const popupJs = fs.readFileSync(path.join(root, 'extension/connect.js'), 'utf8');
+  assert.ok(popupJs.includes('showUpdate') && popupJs.includes("action('checkUpdate')"), '팝업이 새 버전 안내를 보여줌');
+  assert.ok(fs.readFileSync(path.join(root, 'extension/connect.html'), 'utf8').includes('id="update"'));
 
   // 연결 해제 → 토큰 삭제
   await statusRoute.POST(post('tok1', { disconnect: true }));

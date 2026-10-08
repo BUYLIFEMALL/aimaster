@@ -9,6 +9,10 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
+### v1.50 추가 (확장 새 버전 알림)
+
+- 서버: `src/app/api/extension/version/route.ts`(공개, 버전·다운로드 주소만). 확장: `background.js`의 `isNewer`/`checkUpdate`(시작·설치·알람 `update-check` 6시간·팝업 열 때 `checkUpdate` 메시지), 결과는 `chrome.storage.local.update`, 아이콘 배지 `NEW`. 팝업: `connect.html #update`, `connect.js showUpdate`. 다른 확장 프로그램에 이식할 때는 이 세 부분(버전 경로·확장 비교·팝업 배너)을 그대로 복사한다.
+
 ### v1.49 추가 (회원별 DB 이관 + 핵심 테이블 생성)
 
 - 테이블: `nba_accounts(user_id, blog_id UNIQUE per user, label)`, `nba_content_categories(user_id, id text, name, slug, sort_order, PK(user_id,id))`, `nba_posts`, `nba_extension_tokens` — 전부 RLS owner-only(`supabase/migrations/0049_nba_core_tables.sql`, 프로덕션 적용 완료). `nba_categories`(0001의 계정별 프리셋)는 쓰이지 않아 만들지 않았습니다.

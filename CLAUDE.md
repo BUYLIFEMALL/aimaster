@@ -209,7 +209,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
    - **회원 PC에 설치된 확장은 자동으로 바뀌지 않는다**(압축 해제 방식). 확장을 바꾼 배포의 완료 보고에는 항상 "ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → `chrome://extensions`에서 새로고침" 안내를 넣는다. 새 확장 프로그램이나 크게 고치는 확장에는 서버가 알려주는 최신 버전과 비교해 팝업에서 "새 버전이 있습니다"를 보여주는 기능을 목표로 한다(현황은 각 프로그램 `AGENTS.md`).
    - **확장 ↔ 서버 API 계약**: 서버 응답을 바꾸면 이미 설치된 옛 확장이 깨지지 않게 하위 호환을 유지하거나, 최소 지원 버전을 확장이 알 수 있게 한다. 서버만 고친 배포라도 프로그램 버전은 올린다(핵심 원칙 5번).
    - **상세 절차·프로그램별 다운로드 주소·예외·새 확장 프로그램 만드는 법은 [`docs/EXTENSION_RELEASE_RULES.md`](docs/EXTENSION_RELEASE_RULES.md)에 있다. 확장이 있는 프로그램을 배포하기 전에 반드시 읽는다.**
-   - **현황(2026-10-09)**: 확장이 있는 5개 프로그램(`naver-blog-agent`·`ai-auto-blog`·`naver-blog-seo-studio`·`tistory-auto-blog`·`naver-blog-auto-poster-web`)의 DB 칸(`programs.extension_download_url`/`extension_version`)을 2026-10-09 채우고 검증 스크립트로 확인했다(`naver-blog-auto-poster-web`만 manifest에 `version_name`이 없어 WARN). DB 갱신은 배포 때 SQL로 수동이다. **확장 내 새 버전 알림과 메인 사이트 프로그램 상세의 다운로드 버튼은 미구현**. `ai-auto-blog`·`naver-blog-seo-studio`·`tistory-auto-blog`는 같은 빌드 스크립트 방식, `naver-blog-auto-poster_web`은 GitHub 릴리스 방식이다. 새로 손대는 프로그램은 이 규칙에 맞춰 부족한 항목을 채운다.
+   - **현황(2026-10-09)**: 확장이 있는 5개 프로그램(`naver-blog-agent`·`ai-auto-blog`·`naver-blog-seo-studio`·`tistory-auto-blog`·`naver-blog-auto-poster-web`)의 DB 칸(`programs.extension_download_url`/`extension_version`)을 2026-10-09 채우고 검증 스크립트로 확인했다(`naver-blog-auto-poster-web`만 manifest에 `version_name`이 없어 WARN). DB 갱신은 배포 때 SQL로 수동이다. **확장 내 새 버전 알림은 `naver-blog-agent` v1.50에만 구현(나머지 4개 미구현), 메인 사이트 프로그램 상세의 다운로드 버튼은 미구현**. `ai-auto-blog`·`naver-blog-seo-studio`·`tistory-auto-blog`는 같은 빌드 스크립트 방식, `naver-blog-auto-poster_web`은 GitHub 릴리스 방식이다. 새로 손대는 프로그램은 이 규칙에 맞춰 부족한 항목을 채운다.
 
 ## Communication
 

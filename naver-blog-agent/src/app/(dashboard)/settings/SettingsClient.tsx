@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { APP_VERSION } from "@/lib/version";
 import {
   Key,
   Globe,
@@ -365,6 +366,9 @@ export function SettingsClient({
                 <Download className="w-4 h-4 text-emerald-400" />
                 <span>📦 최신 크롬 확장프로그램 ZIP 다운로드</span>
               </a>
+              <p className="mt-2 text-[11px] text-neutral-500">
+                현재 배포된 확장 버전은 <b>{APP_VERSION}</b>입니다. 설치된 확장 아이콘에 붉은 <b>NEW</b> 표시가 뜨면 이 ZIP을 다시 받아 기존 폴더에 덮어쓰고 chrome://extensions에서 새로고침하세요.
+              </p>
             </div>
 
             {pairCode ? (

@@ -2,6 +2,7 @@
 <body><main><span class="eyebrow">BLOGAUTO / CHROME</span><h1>평소 쓰던 계정 그대로.</h1><p>이 Chrome에 로그인된 네이버 블로그 계정을 AIMaster 웹에 연결합니다. 비밀번호는 앱으로 전달하지 않습니다.</p>
 <ol><li>AIMaster 웹의 <b>API키등록·플랫폼연동</b>에서 연결 코드를 발급받으세요.</li><li>네이버 블로그 ID와 연결 코드를 아래에 입력하세요.</li><li>로그인이 필요할 때만 열린 블로그 화면에서 직접 로그인하세요.</li></ol>
 <form id="pairForm"><label for="blogId">네이버 블로그 ID</label><div class="row"><input id="blogId" autocomplete="off" maxlength="40" placeholder="예: myblog123" required></div><label for="code">웹에 표시된 연결 코드</label><div class="row"><input id="code" autocomplete="off" maxlength="10" placeholder="8자리 코드" required><button>이 Chrome 연결</button></div></form>
+<aside id="update" hidden><b>새 버전이 있습니다</b><p id="updateText"></p><a id="updateLink" href="#" target="_blank" rel="noopener">최신 확장 ZIP 다운로드</a><p>받은 ZIP을 기존 확장 폴더에 덮어쓴 뒤 <b>chrome://extensions</b>에서 이 확장의 새로고침 버튼을 눌러 주세요.</p></aside>
 <p id="status" role="status" aria-live="polite">연결 확인 중…</p><div class="row"><button id="login">로그인 / 상태 확인</button><button id="disconnect" class="secondary">이 Chrome 연결 해제</button></div>
 <aside><b>계정별로 로그인 유지</b><p>해당 블로그 계정으로 로그인한 Chrome에서 연결하세요. 웹의 원고 보관함에서 ‘발행 전송’을 누르면 이 Chrome이 글쓰기 화면에서 직접 입력합니다. 확장은 로그인 쿠키를 읽거나 교체하지 않습니다.</p></aside>
 <small>작성 중에는 대상 탭을 조작하지 마세요. 확장의 페이지 스크립트가 입력합니다. 브라우저 자동화 드라이버나 디버거를 사용하지 않습니다.</small>
