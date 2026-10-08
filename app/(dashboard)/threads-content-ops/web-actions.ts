@@ -16,7 +16,7 @@ import {
   structureCandidates,
   type ViralCandidateDraft,
 } from "@/threads-content-ops/lib/collector";
-import { generateAttentionPlan, planImagePrompts, rewriteAttentionPost, type AttentionPlan } from "@/threads-content-ops/lib/attention";
+import { generateAttentionPlan, hasOperationRules, planImagePrompts, rewriteAttentionPost, type AttentionPlan, type OperationRules } from "@/threads-content-ops/lib/attention";
 import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_KEY_LABEL, MAX_GENERATE_COUNT, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
 import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, isSupportedMediaUrl, memberMediaFolder, mediaTypeOf, ownedMediaPath, type PostMedia } from "@/threads-content-ops/lib/media";
@@ -1071,9 +1071,23 @@ async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>
   return { ok: true as const, engine: { provider, model, apiKey } };
 }
 
+/** 선택한 계정에 저장된 운영정보(계정 관리)를 읽는다. 내 계정이 아니거나 비어 있으면 undefined. */
+async function loadOperationRules(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, accountId: unknown): Promise<OperationRules | undefined> {
+  if (typeof accountId !== "string" || !UUID_RE.test(accountId)) return undefined;
+  const { data } = await supabase.from("tco_operation_profiles")
+    .select("topic, personality, tone, target_audience, forbidden_topics, forbidden_expressions")
+    .eq("user_id", userId).eq("account_id", accountId).maybeSingle();
+  if (!data) return undefined;
+  const rules: OperationRules = {
+    topic: clean(data.topic, 500), personality: clean(data.personality, 500), tone: clean(data.tone, 500),
+    targetAudience: clean(data.target_audience, 500), forbiddenTopics: clean(data.forbidden_topics, 1_000), forbiddenExpressions: clean(data.forbidden_expressions, 1_000),
+  };
+  return hasOperationRules(rules) ? rules : undefined;
+}
+
 const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 
-export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; custom?: CustomFields; engine?: EngineInput; productId?: string }): Promise<AttentionResult> {
+export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; custom?: CustomFields; engine?: EngineInput; productId?: string; accountId?: string }): Promise<AttentionResult> {
   try {
     const topic = clean(input.topic, 1_201);
     const note = clean(input.note, 301);
@@ -1088,14 +1102,15 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
     if (linked) custom.linkedProduct = { name: linked.title.slice(0, 200), summary: linked.summary.slice(0, 600), price: linked.price ?? null };
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
-    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone: persona?.tonePrompt, custom, engine: resolved.engine, range }) };
+    const operation = await loadOperationRules(supabase, user.id, input.accountId);
+    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone: persona?.tonePrompt, custom, engine: resolved.engine, range, operation }) };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "글을 생성하지 못했습니다." };
   }
 }
 
 /** 선택한 글 한 편을 7가지 방향 중 하나로 다시 쓴다(저장하지 않음). */
-export async function rewriteGeneratedPost(input: { hook: string; content: string; mode: string; engine?: EngineInput; productId?: string }): Promise<{ ok: true; hook: string; content: string } | { ok: false; error: string }> {
+export async function rewriteGeneratedPost(input: { hook: string; content: string; mode: string; engine?: EngineInput; productId?: string; accountId?: string }): Promise<{ ok: true; hook: string; content: string } | { ok: false; error: string }> {
   try {
     const content = clean(input.content, 5_001);
     if (!content || content.length > 5_000) throw new Error("다시 쓸 본문을 1~5,000자로 확인해 주세요.");
@@ -1104,7 +1119,7 @@ export async function rewriteGeneratedPost(input: { hook: string; content: strin
     const linked = await loadLinkedProduct(supabase, user.id, input.productId);
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, error: resolved.error };
-    const result = await rewriteAttentionPost({ hook: clean(input.hook, 200), content, mode: input.mode as RewriteMode, engine: resolved.engine, productName: linked?.title.slice(0, 200), range: contentRange(linked) });
+    const result = await rewriteAttentionPost({ hook: clean(input.hook, 200), content, mode: input.mode as RewriteMode, engine: resolved.engine, productName: linked?.title.slice(0, 200), range: contentRange(linked), operation: await loadOperationRules(supabase, user.id, input.accountId) });
     return { ok: true, ...result };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "글을 다시 쓰지 못했습니다." };

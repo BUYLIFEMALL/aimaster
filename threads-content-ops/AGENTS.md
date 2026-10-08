@@ -1,8 +1,14 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.76`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.77`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.77 계정 운영정보를 글 생성에 반영 (2026-10-08)
+
+- 배경: 계정 관리(tab=accounts)에 저장하는 `tco_operation_profiles`(주제·말투·성격·대상 독자·금지 주제·금지 표현)를 어디에서도 읽지 않아 저장만 되던 상태였음(점검 결과). 주인님 지시로 **글 생성·다시 쓰기에 반영**.
+- 구현: `lib/attention.ts`의 `OperationRules`/`operationBlock` — 시스템 프롬프트에 '[계정 운영 설정]' 블록 추가(말투는 기본 반말 규칙보다 우선, 페르소나를 고르면 페르소나 우선, 금지 주제·표현은 대표 글·훅 변형·첫 댓글 멘트 모두 금지, 설정을 근거로 사실·경험을 지어내지 말 것). `web-actions.ts`의 `loadOperationRules`가 선택 계정(본인 것만)의 프로필을 읽고, `generateAttentionPost`·`rewriteGeneratedPost`가 `accountId`를 받아 적용. 콘텐츠 생성 화면은 현재 '저장할 계정' 선택값을 보내며, 3번 영역에 반영 여부 안내(초록/회색)와 계정 관리 링크를 표시.
+- 한계: 금지 표현은 프롬프트 지시로만 막습니다(생성 결과를 서버에서 다시 검사하진 않음). 아직 동작하지 않는 것: 자동 발행·댓글 확인 워커, 일상/홍보 비율·하루 게시 목표·운영 시간(저장만 됨). DB 변경 없음.
 
 ## v1.76 글감·보관함 글 30일 자동 삭제 (2026-10-08)
 

@@ -148,8 +148,29 @@ function lengthRule(range: LengthRange, linked: boolean): string {
   return `content(대표 글)와 hookVariants 5개의 모든 content는 각각 공백·줄바꿈·이모티콘을 모두 포함해 ${range.min}~${range.max}자로 꽉 채워 쓰세요. ${range.max}자를 절대 넘기지 말고 ${range.min}자보다 짧게 끝내지 마세요(100~300자처럼 짧게 끝내면 안 됩니다). 짧은 문장들에 구체적인 장면·감정·디테일·공감 포인트를 알차게 채우되 같은 말을 반복해 늘리지 마세요.${linked ? " (상품 연결 글은 고지 문구와 상품링크가 앞뒤에 붙어 전체가 450~480자가 됩니다.)" : ""}`;
 }
 
-function systemWith(personaTone: string | undefined, custom: CustomInput, range: LengthRange) {
+/** 계정 관리(tab=accounts)에 저장한 계정별 운영정보. 글 생성·다시 쓰기 프롬프트에 반영한다(v1.77). */
+export type OperationRules = { topic: string; personality: string; tone: string; targetAudience: string; forbiddenTopics: string; forbiddenExpressions: string };
+
+export function hasOperationRules(rules?: OperationRules): rules is OperationRules {
+  return Boolean(rules && (rules.topic || rules.personality || rules.tone || rules.targetAudience || rules.forbiddenTopics || rules.forbiddenExpressions));
+}
+
+function operationBlock(rules?: OperationRules): string {
+  if (!hasOperationRules(rules)) return "";
+  const lines: string[] = [];
+  if (rules.topic) lines.push(`- 이 계정의 주제 분야: ${rules.topic}`);
+  if (rules.personality) lines.push(`- 글쓴이 성격: ${rules.personality}`);
+  if (rules.tone) lines.push(`- 말투: ${rules.tone} (위의 기본 말투 규칙보다 이 말투를 따르세요. 단 페르소나를 따로 골랐다면 페르소나 어조가 우선입니다)`);
+  if (rules.targetAudience) lines.push(`- 기본 대상 독자: ${rules.targetAudience} (<data>의 [타깃 독자]가 있으면 그것이 우선)`);
+  if (rules.forbiddenTopics) lines.push(`- 금지 주제: ${rules.forbiddenTopics} — 이 주제는 글에서 다루거나 언급하지 마세요.`);
+  if (rules.forbiddenExpressions) lines.push(`- 금지 표현: ${rules.forbiddenExpressions} — 이 표현·단어는 어떤 글(대표 글·훅 변형·첫 댓글 멘트 포함)에도 절대 쓰지 마세요.`);
+  return `[계정 운영 설정 — 이 Threads 계정의 글 방향]\n${lines.join("\n")}\n이 설정은 글의 방향·말투·금지 사항을 정하는 용도입니다. 이 설정을 근거로 경험·사실·수치를 지어내지 마세요.`;
+}
+
+function systemWith(personaTone: string | undefined, custom: CustomInput, range: LengthRange, operation?: OperationRules) {
   const extras: string[] = [];
+  const operationText = operationBlock(operation);
+  if (operationText) extras.push(operationText);
   if (personaTone) extras.push(`[글쓴이 페르소나 — 시점과 말투만 반영]\n${personaTone}\n페르소나는 어조와 관점을 정하는 용도입니다. 페르소나의 직업·상황을 근거로 구체적인 체험담이나 사실을 지어내지 마세요.`);
   if (custom.benchmarkPost) extras.push("[참고할 터진 글 — 구조만 벤치마킹]\n<data>의 [참고할 터진 글]은 반응이 좋았던 글입니다. 첫 문장의 후킹 방식, 건드리는 심리, 전개 순서(뼈대)만 분석해서 그 뼈대에 이번 글감을 넣어 새로 쓰세요. 그 글의 문장·표현·소재·고유한 디테일을 그대로 옮기거나 살짝만 바꿔 쓰지 마세요(표절 금지). 그 글에 나온 사실이나 경험을 이번 글의 사실로 가져오지 마세요.");
   if (custom.experience) extras.push(`[회원이 직접 입력한 실제 경험 — 이 안에서만 개인 경험으로 쓸 수 있음]\n위 '사실 원칙'의 예외로, <data>의 [내 실제 경험]에 적힌 내용은 글쓴이가 실제로 겪은 일이므로 1인칭 경험담으로 자연스럽게 살려 쓰세요. 거기에 없는 경험·수치는 여전히 지어내지 마세요.`);
@@ -203,7 +224,7 @@ export async function fitPlanToRange(plan: AttentionPlan, range: LengthRange, en
   return { ...plan, content: finalContents[0], hookVariants: plan.hookVariants.map((variant, index) => ({ ...variant, content: finalContents[index + 1] })) };
 }
 
-export async function generateAttentionPlan(params: { topic: string; note?: string; personaTone?: string; custom?: CustomInput; engine: Engine; range?: LengthRange }): Promise<AttentionPlan> {
+export async function generateAttentionPlan(params: { topic: string; note?: string; personaTone?: string; custom?: CustomInput; engine: Engine; range?: LengthRange; operation?: OperationRules }): Promise<AttentionPlan> {
   const range = params.range ?? { min: 450, max: 480 };
   const custom = params.custom ?? {};
   const parts = [`[글감]\n${params.topic}`];
@@ -214,13 +235,13 @@ export async function generateAttentionPlan(params: { topic: string; note?: stri
   if (custom.targetAudience) parts.push(`[타깃 독자]\n${custom.targetAudience}`);
   if (params.note) parts.push(`[추가 요청]\n${params.note}`);
   const user = `<data>\n${parts.join("\n\n")}\n</data>\n\n위 글감으로 주목받는 Threads 글 1세트와 5대 훅 유형별 글 5개를 만들어줘.`;
-  const raw = await callJson(params.engine, systemWith(params.personaTone, custom, range), user);
+  const raw = await callJson(params.engine, systemWith(params.personaTone, custom, range, params.operation), user);
   if (!raw) throw new Error("AI가 빈 응답을 반환했습니다. 다시 시도해 주세요.");
   return fitPlanToRange(normalizeAttentionPlan(raw), range, params.engine, Boolean(custom.linkedProduct));
 }
 
 /** "다시 써줘" — 선택한 글 한 편을 7가지 방향 중 하나로 고쳐 쓴다. 사실 원칙은 그대로 유지한다. */
-export async function rewriteAttentionPost(params: { hook: string; content: string; mode: RewriteMode; engine: Engine; productName?: string; range?: LengthRange }): Promise<{ hook: string; content: string }> {
+export async function rewriteAttentionPost(params: { hook: string; content: string; mode: RewriteMode; engine: Engine; productName?: string; range?: LengthRange; operation?: OperationRules }): Promise<{ hook: string; content: string }> {
   const mode = REWRITE_MODES.find((item) => item.mode === params.mode);
   if (!mode) throw new Error("지원하지 않는 다시 쓰기 방식입니다.");
   const system = `너는 Threads 글을 실전 떡상글의 맛과 톤으로 변신시키는 리라이팅 전문가야.
@@ -232,6 +253,7 @@ export async function rewriteAttentionPost(params: { hook: string; content: stri
 3. 친근한 날것의 반말, 존댓말 금지. 감성 부호(';;', '...', '??', 'ㅠㅠ')는 과하지 않게.
 4. ${params.productName ? `첫 줄 '이모티콘+짧은 제목', 3개 단락 구조, 그리고 '${params.productName}'의 특징·가격 소개는 유지하세요(요청이 '광고 느낌 빼기'면 더 담백하게). 새로 지어낸 상품 정보나 URL·'(광고)' 문구는 쓰지 마세요.` : "특정 상품명·브랜드 광고 문구 금지."}
 
+${operationBlock(params.operation) ? `${operationBlock(params.operation)}\n(금지 주제·금지 표현은 고쳐 쓴 글에서도 반드시 지키세요.)\n` : ""}
 [요청]
 ${mode.instruction}
 
