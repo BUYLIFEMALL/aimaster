@@ -7,6 +7,13 @@
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
 - **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.32, 2026-10-08)
+
+- **회원별 기본 생성 모델 저장 (v1.32)**:
+  - 콘텐츠 생성 화면에서 선택한 GPT/Claude/Gemini 글 생성 모델과 NanoBanana/GPT Image/FLUX/Z-Image 모델·비율·장수를 `기본 모델 설정 저장`으로 한 번에 저장한다.
+  - `nba_generation_preferences`는 `user_id` 단일 키 + owner-only RLS로 회원별로 격리했고, `/api/generation-preferences`는 프로그램 이용 권한과 등록된 모델 조합을 검증한다.
+  - 다음 CLI는 `naver-blog-agent/AGENTS.md`, `docs/CONTINUATION.md`를 먼저 읽고 모델 레지스트리를 바꿀 때 저장 API 검증 규칙도 함께 갱신해야 한다.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.31, 2026-10-08)
 
 - **계정·카테고리 관리 분리 (v1.31)**:

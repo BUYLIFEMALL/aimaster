@@ -72,6 +72,9 @@ export default function MainPage() {
     ratio: "1:1",
     count: 2,
   });
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [preferencesSaving, setPreferencesSaving] = useState(false);
+  const [preferencesNotice, setPreferencesNotice] = useState<string | null>(null);
   const [configuredProviders, setConfiguredProviders] = useState<string[]>([]);
   const [generatedImages, setGeneratedImages] = useState<
     { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[]
@@ -177,6 +180,35 @@ export default function MainPage() {
       })
       .catch(() => {});
 
+    // 회원별 기본 AI 모델 설정을 불러옵니다. 등록값이 없으면 현재 기본값을 그대로 사용합니다.
+    fetch("/api/generation-preferences", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const preferences = data?.preferences;
+        if (!preferences) return;
+
+        const savedEngine = ENGINES.find(
+          (item) =>
+            item.provider === preferences.textProvider &&
+            item.models.some((model) => model.value === preferences.textModel)
+        );
+        if (savedEngine) {
+          setEngine({ provider: savedEngine.provider, model: preferences.textModel });
+        }
+
+        const savedImage = findImageModel(preferences.imageModel);
+        if (savedImage && IMAGE_RATIOS.some((ratio) => ratio.value === preferences.imageRatio)) {
+          setImageSettings({
+            platform: savedImage.platform,
+            model: savedImage.value,
+            ratio: preferences.imageRatio as ImageRatio,
+            count: Math.min(5, Math.max(1, Number(preferences.imageCount) || 2)),
+          });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setPreferencesLoaded(true));
+
     // 서버 및 로컬 보관된 원고 목록 동기화 및 개수 확인
     fetch("/api/posts")
       .then((res) => (res.ok ? res.json() : null))
@@ -202,6 +234,31 @@ export default function MainPage() {
         } catch {}
       });
   }, []);
+
+  const saveGenerationPreferences = async () => {
+    setPreferencesSaving(true);
+    setPreferencesNotice(null);
+    try {
+      const res = await fetch("/api/generation-preferences", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          textProvider: engine.provider,
+          textModel: engine.model,
+          imageModel: imageSettings.model,
+          imageRatio: imageSettings.ratio,
+          imageCount: imageSettings.count,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "기본 모델 설정을 저장하지 못했습니다.");
+      setPreferencesNotice("기본 모델 설정을 저장했습니다. 다음 글 생성에도 자동 적용됩니다.");
+    } catch (saveError: any) {
+      setPreferencesNotice(saveError.message || "기본 모델 설정을 저장하지 못했습니다.");
+    } finally {
+      setPreferencesSaving(false);
+    }
+  };
 
   // 로컬 및 Supabase 서버 DB에 원고 영구 저장 및 갱신 헬퍼
   const savePostToStorage = async (
@@ -1414,6 +1471,36 @@ export default function MainPage() {
                   <p className="text-[11px] text-neutral-500">
                     💡 사람이 등장할 경우 항상 한국인/동아시아인으로 생성하며, 이미지 내 글자·워터마크를 넣지 않고 깔끔한 실사로 만듭니다.
                   </p>
+
+                  <div className="flex flex-col gap-2 border-t border-neutral-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-[11px] text-neutral-500">
+                      {preferencesLoaded
+                        ? "선택한 글·이미지 생성 모델을 회원님의 기본값으로 저장할 수 있습니다."
+                        : "회원님의 저장된 기본 모델을 불러오는 중입니다."}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={saveGenerationPreferences}
+                      disabled={!preferencesLoaded || preferencesSaving}
+                      className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300"
+                    >
+                      {preferencesSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                      {preferencesSaving ? "저장 중" : "기본 모델 설정 저장"}
+                    </button>
+                  </div>
+
+                  {preferencesNotice && (
+                    <p
+                      role="status"
+                      className={`rounded-lg px-3 py-2 text-xs font-medium ${
+                        preferencesNotice.includes("저장했습니다")
+                          ? "border border-emerald-200 bg-emerald-50 text-emerald-800"
+                          : "border border-rose-200 bg-rose-50 text-rose-800"
+                      }`}
+                    >
+                      {preferencesNotice}
+                    </p>
+                  )}
 
                   {!imageKeyReady && (
                     <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">

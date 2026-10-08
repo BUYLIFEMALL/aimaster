@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.31` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.32` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -48,10 +48,17 @@
    - `📑 생성 원고 보관함 & 발행 큐`(`/queue`)가 `🔥 떡상 글감 수집소`(`/collector`)의 카테고리 체계(`nba_collector_categories`)를 100% 공유하여, 카테고리별 탭 필터링, 개별 원고 원클릭 카테고리 변경, 체크박스 다중 선택 일괄 카테고리 이동(Bulk Move), 카테고리 관리 모달(`CategoryManagementModal`), 스마트 에디터 내부 카테고리 설정 기능을 지원한다.
 13. **생성 콘텐츠(글감, 본문 원고, 이미지) 30일 보관 및 자동 삭제 정책 (2026-10-08 주인님 확정)**:
    - `ai-auto-blog`와 동일하게 DB 용량 무제한 누적을 방지하기 위해 생성 콘텐츠 일체(수집 글감, 본문 원고, AI 생성 이미지)는 각각 생성일로부터 30일만 보관 후 자동 삭제된다. 단, 글감 수집소에서 [보관함(초록색 책갈피)]에 담아둔 중요 글감은 영구 보존된다. `/api/cron/cleanup` 라우트(Vercel Cron)와 `ContentRetentionNotice` 공지 배너 및 각 항목별 `D-xx` 잔여 일수 배지가 제공된다.
+14. **회원별 기본 생성 모델 저장 (2026-10-08 주인님 확정)**:
+   - 글 생성 엔진과 이미지 생성 모델·비율·장수는 `nba_generation_preferences`에 회원별로 분리 저장한다.
+   - `/api/generation-preferences`는 `checkProgramAccessApi()`로 권한을 확인하고, 지원 모델 레지스트리 검증을 거친 값만 저장한다. 첫 접속에는 기본값을 쓰고, 저장 후 다음 글 생성 화면에서는 회원의 최근 선택을 자동 복원한다.
 
 ---
 
 ## 🕒 버전 히스토리
+
+- **v1.32 (2026-10-08)**:
+  - 콘텐츠 생성 화면에 `기본 모델 설정 저장` 버튼을 추가했습니다. GPT/Claude/Gemini 글 생성 모델과 NanoBanana/GPT Image/FLUX/Z-Image 이미지 모델·비율·장수를 한 번에 회원별 기본값으로 저장합니다.
+  - 새 전용 테이블 `nba_generation_preferences`와 owner-only RLS 정책, 권한 검증 API `/api/generation-preferences`를 추가해 다른 회원의 설정과 완전히 분리했습니다.
 
 - **v1.31 (2026-10-08)**:
   - 네이버 블로그 계정 추가·선택·수정·삭제 섹션을 `/accounts`에서 `/settings`의 `API키등록·플랫폼연동` 화면으로 이동했습니다.
