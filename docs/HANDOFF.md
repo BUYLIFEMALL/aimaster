@@ -23,6 +23,7 @@
        - `<hr>` 구분선(`border-t border-neutral-200`) 하단에 `🔑 API키등록·플랫폼연동`(`KeyRound`) 및 `📖 연동 & 사용 매뉴얼`(`BookOpen`) 배치.
        - 로그인 계정 이메일(`userEmail`) 및 `[-> 로그아웃`(`LogOut`) 버튼 통합.
   - `src/lib/version.ts`, `package.json`, `extension/manifest.json`, DB `programs.version` 및 마이그레이션 `0028_bump_version_v1_28.sql`을 `v1.28`로 동기화.
+  - **다음 CLI 재개 문서:** `naver-blog-agent/docs/CONTINUATION.md`를 신설했다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `naver-blog-agent/`만 명시적으로 스테이징하여 작업한다.
 
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.27, 2026-10-08)
 
