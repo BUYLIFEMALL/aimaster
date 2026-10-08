@@ -1,85 +1,52 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { evaluateProgramAccessForUser } from "@/lib/access";
+import { authenticateExtension, buildBridgePayload } from "@/lib/extensionBridge";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+// 크롬 확장이 발행 대기(queued) 원고 1건을 가져가는 경로 (확장 폴링)
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get("authorization");
-    const token = authHeader?.replace(/^Bearer\s+/i, "")?.trim();
+    const auth = await authenticateExtension(req);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const { admin, userId, token } = auth;
 
-    if (!token) {
-      return NextResponse.json({ error: "인증 토큰이 누락되었습니다." }, { status: 401 });
-    }
+    await admin.from("nba_extension_tokens").update({ last_ping_at: new Date().toISOString() }).eq("token", token);
 
-    const admin = createAdminClient() as any;
-
-    // 1. 토큰으로 사용자 확인 및 하트비트 갱신
-    const { data: tokenRecord, error: tokenErr } = await admin
-      .from("nba_extension_tokens")
-      .select("user_id")
-      .eq("token", token)
-      .maybeSingle();
-
-    if (tokenErr || !tokenRecord) {
-      return NextResponse.json({ error: "유효하지 않은 토큰입니다. 다시 페어링해주세요." }, { status: 401 });
-    }
-
-    const access = await evaluateProgramAccessForUser(tokenRecord.user_id);
-    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-
-    await admin
-      .from("nba_extension_tokens")
-      .update({ last_ping_at: new Date().toISOString() })
-      .eq("token", token);
-
-    // 2. 요청 본문(현재 활성화된 블로그 ID 등)
     const body = await req.json().catch(() => ({}));
-    const { blogId } = body;
+    const blogId = typeof body?.blogId === "string" ? body.blogId : "";
 
-    // 3. 해당 사용자의 queued 상태인 글 1건 조회
     let query = admin
       .from("nba_posts")
       .select("*")
-      .eq("user_id", tokenRecord.user_id)
+      .eq("user_id", userId)
       .eq("status", "queued")
       .order("created_at", { ascending: true })
       .limit(1);
-
-    if (blogId) {
-      query = query.eq("blog_id", blogId);
-    }
+    if (blogId) query = query.eq("blog_id", blogId);
 
     const { data: posts, error: postErr } = await query;
+    if (postErr || !posts || posts.length === 0) return NextResponse.json({ task: null });
 
-    if (postErr || !posts || posts.length === 0) {
-      return NextResponse.json({ task: null });
-    }
+    const row = posts[0];
 
-    const task = posts[0];
-
-    // 4. 상태를 publishing으로 업데이트
-    await admin
+    // 동시에 두 번 폴링해도 한 번만 가져가도록 queued일 때만 전환
+    const { data: claimed } = await admin
       .from("nba_posts")
-      .update({
-        status: "publishing",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", task.id);
+      .update({ status: "publishing", error_message: null, updated_at: new Date().toISOString() })
+      .eq("id", row.id)
+      .eq("user_id", userId)
+      .eq("status", "queued")
+      .select("id");
+    if (!claimed || claimed.length === 0) return NextResponse.json({ task: null });
 
     return NextResponse.json({
       task: {
-        id: task.id,
-        blogId: task.blog_id,
-        category: task.category_name,
-        title: task.title,
-        article: task.content,
-        tags: task.tags || [],
-        images: task.images || [],
-        isReserved: task.is_reserved || false,
-        scheduledAt: task.scheduled_at,
+        id: row.id,
+        type: "publish",
+        platform: "naver",
+        blogId: row.blog_id,
+        payload: buildBridgePayload(row),
       },
     });
   } catch (err: any) {

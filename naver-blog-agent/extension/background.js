@@ -1,25 +1,43 @@
-importScripts('editor.js','article-plan.js','writer.js','tistory.js','tistory-writer.js');
-const API = 'http://127.0.0.1:46321';
+importScripts('editor.js','article-plan.js','writer.js');
+const API = 'https://naver-blog-agent.vercel.app';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let busy = false;
 let refreshSession = false;
 const stored = () => chrome.storage.local.get(['connection','deviceId','session','editorTab','completedEditorTab','activeTask','pendingResult','connectionError']);
+async function web(path, body, token) {
+  const response = await fetch(API + path, { method: 'POST', headers: { 'Content-Type':'application/json', ...(token ? {Authorization:`Bearer ${token}`} : {}) }, body:JSON.stringify(body || {}), signal:AbortSignal.timeout(15000) });
+  const data = await response.json().catch(()=>({})); if (!response.ok) throw new Error(data.error || '웹 서버 연결 오류 ('+response.status+')'); return data;
+}
+// 확장 내부 흐름은 그대로 두고, 호출만 AIMaster 웹 API(/api/extension/*)로 연결하는 어댑터
 async function api(route, body = {}, override) {
   const c = override || (await stored()).connection;
-  const response = await fetch(API + route, { method: 'POST', headers: { 'Content-Type':'application/json', ...(c ? {Authorization:`Bearer ${c.token}`} : {}) }, body:JSON.stringify(body), signal:AbortSignal.timeout(10000) });
-  const data = await response.json(); if (!response.ok) throw new Error(data.error || '앱 연결 오류'); return data;
+  switch (route) {
+    case '/pair': { const d = await web('/api/extension/auth', {code:body.code, deviceName:'Chrome'}); return {token:d.token, label:'네이버 블로그', blogId:body.blogId, platform:'naver'}; }
+    case '/poll': return web('/api/extension/task', {blogId:c.blogId}, c.token);
+    case '/result': return web('/api/extension/finish', {taskId:body.id, success:Boolean(body.result?.published), postUrl:body.result?.url || null, error:body.error ? `[${body.code || 'ERROR'}] ${body.error}` : null}, c.token);
+    case '/task/status': return web('/api/extension/status', {id:body.id}, c.token);
+    case '/heartbeat': return {};
+    case '/status': return web('/api/extension/status', {}, c.token);
+    case '/disconnect': return web('/api/extension/status', {disconnect:true}, c.token);
+    case '/progress': case '/stage': case '/waiting': return {};
+    default: throw new Error('지원하지 않는 요청: '+route);
+  }
+}
+async function loadAsset(task, index) {
+  const asset = task.payload.assets?.[index];
+  if (!asset || !/^https:\/\//i.test(asset.url)) throw new Error('이미지 주소가 올바르지 않습니다.');
+  const response = await fetch(asset.url, {signal:AbortSignal.timeout(30000)});
+  if (!response.ok) throw new Error('이미지를 가져오지 못했습니다. ('+response.status+')');
+  const blob = await response.blob(); const bytes = new Uint8Array(await blob.arrayBuffer()); let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  const mime = blob.type && blob.type.startsWith('image/') ? blob.type : 'image/png';
+  return {data:btoa(binary), name:asset.name || 'blog_img.png', mime};
 }
 async function frameResults(tabId, command, args = {}) {
   const results = await chrome.scripting.executeScript({target:{tabId,allFrames:true},func:editorCommand,args:[command,args]});
   return results.map(item=>({...item.result,frameId:item.frameId,...(!item.result?{status:'unknown',reason:'확장 페이지 응답 없음 · frame '+item.frameId}:{} )}));
 }
-async function tistoryRun(tabId,command,args) {
-  const results=await chrome.scripting.executeScript({target:{tabId},world:'MAIN',func:tistoryCommand,args:[command,args]});
-  return results[0]?.result || {error:'티스토리 페이지 응답 없음'};
-}
 async function inspect(tabId) {
-  const state=await stored();
-  if(state.connection?.platform==='tistory')return tistoryRun(tabId,'inspect',{blogId:state.activeTask?.blogId || state.connection.blogId});
   const {connection} = await stored(); const tab = await chrome.tabs.get(tabId); const url = new URL(tab.url);
   if (url.hostname === 'blog.naver.com' && !(url.pathname === `/${connection.blogId}/postwrite` || url.searchParams.get('blogId') === connection.blogId)) return {status:'unknown',reason:'대상 블로그 글쓰기 화면으로 이동해 주세요.'};
   const results = await frameResults(tabId,'inspect',{blogId:connection.blogId});
@@ -27,19 +45,13 @@ async function inspect(tabId) {
 }
 async function editorTab(interactive = false,task) {
   const current=await stored();
-  const tistory=current.connection?.platform==='tistory';
   const blogId=task?.blogId || current.connection.blogId;
-  const host=tistory?blogId+'.tistory.com':'blog.naver.com';
-  const url=tistory?`https://${host}/manage/post`:`https://${host}/${encodeURIComponent(blogId)}/postwrite`;
+  const host='blog.naver.com';
+  const url=`https://${host}/${encodeURIComponent(blogId)}/postwrite`;
   const kind=tab=>{
     let u;try{u=new URL(tab.url || 'about:blank');}catch{return '';}
-    if(!tistory && u.hostname==='nid.naver.com')return 'login';
+    if(u.hostname==='nid.naver.com')return 'login';
     if(u.hostname!==host)return '';
-    if(tistory){
-      if(/^\/manage\/(?:post|newpost)\/?$/.test(u.pathname))return 'editor';
-      if(/^\/$|^\/\d+\/?$|^\/manage\/?$|^\/manage\/posts\/?$/.test(u.pathname))return 'read';
-      return '';
-    }
     const own=u.pathname.split('/')[1]===blogId || u.searchParams.get('blogId')===blogId;
     if(!own)return '';
     if(u.pathname===`/${blogId}/postwrite` || /\/PostWriteForm\.naver$/i.test(u.pathname))return 'editor';
@@ -47,13 +59,7 @@ async function editorTab(interactive = false,task) {
     return '';
   };
   let tab=current.editorTab?await chrome.tabs.get(current.editorTab).catch(()=>null):null;
-  // Tistory shares one login across destinations. Only our tracked read-only
-  // tab may cross blogs; never navigate an editor with another blog's draft.
-  let sharedRead=false;
-  if(tistory && tab){
-    try{const u=new URL(tab.url);sharedRead=/^[a-zA-Z0-9-]+\.tistory\.com$/.test(u.hostname) && /^\/$|^\/\d+\/?$|^\/manage\/?$|^\/manage\/posts\/?$/.test(u.pathname);}catch{}
-  }
-  if(tab && !kind(tab) && !sharedRead)tab=null;
+  if(tab && !kind(tab))tab=null;
   if(!tab){
     const tabs=await chrome.tabs.query({url:`https://${host}/*`});
     tab=tabs.find(t=>kind(t)==='editor') || tabs.find(t=>kind(t)==='read');
@@ -67,7 +73,7 @@ async function editorTab(interactive = false,task) {
       const snapshot=await command(tab.id,'snapshot',{blogId}).catch(()=>null);
       completed=Boolean(snapshot && JSON.stringify(snapshot)===JSON.stringify(current.completedEditorTab.snapshot));
     }
-    if((task?.freshEditor && !tistory) || sharedRead || kind(tab)==='read' || (kind(tab)==='editor' && completed)){
+    if(task?.freshEditor || kind(tab)==='read' || (kind(tab)==='editor' && completed)){
       tab=await chrome.tabs.update(tab.id,{url,active:interactive});
       await chrome.storage.local.remove('completedEditorTab');
     }else if(interactive)await chrome.tabs.update(tab.id,{active:true});
@@ -79,18 +85,13 @@ async function inspectSession(tabId) {
   let result;
   for (let n=0;n<6;n++) {result=await inspect(tabId).catch(error=>({status:'unknown',reason:`편집기 확인 실패: ${error.message}`})); if(result.status!=='unknown')break; await sleep(500);}
   const diagnostic=await chrome.storage.local.get('titleProbeBuild');
-  if((await stored()).connection?.platform!=='tistory' && result?.status==='valid' && diagnostic.titleProbeBuild!=='20260927.7' && !(await stored()).activeTask){
+  if(result?.status==='valid' && diagnostic.titleProbeBuild!=='20260927.7' && !(await stored()).activeTask){
     const probe=(await chrome.scripting.executeScript({target:{tabId,frameIds:[result.frameId]},func:editorCommand,args:['probeTitle',{}]}).catch(()=>[]))[0]?.result;
     if(probe?.ok){result.reason=probe.reason;await chrome.storage.local.set({titleProbeBuild:'20260927.7'});}
   }
   const session={...result,checkedAt:new Date().toISOString()}; await chrome.storage.local.set({session});return session;
 }
 async function command(tabId,command,args={}) {
-  const state=await stored();
-  if(state.connection?.platform==='tistory'){
-    const result=await tistoryRun(tabId,command,{...args,blogId:args.blogId || state.activeTask?.blogId || state.connection.blogId});
-    if(!result.ok)throw new Error(result.error || result.reason || '티스토리 작업 실패');return result;
-  }
   const editor=await inspect(tabId);
   if(editor.status!=='valid')throw new Error(editor.reason || '글쓰기 계정을 확인할 수 없습니다.');
   const injected=await chrome.scripting.executeScript({target:{tabId,frameIds:[editor.frameId]},func:editorCommand,args:[command,args]});
@@ -111,16 +112,13 @@ async function finish(result) {
 }
 async function verifyReservation(task) {
   if(task.payload.publishScheduleMode!=='reserve')throw new Error('예약 발행 확인 요청이 아닙니다.');
-  const isTistory=task.platform==='tistory';
-  const tab=await chrome.tabs.create({url:isTistory?`https://${task.blogId}.tistory.com/manage/posts/`:`https://blog.naver.com/${encodeURIComponent(task.blogId)}/postwrite`,active:false});
+  const tab=await chrome.tabs.create({url:`https://blog.naver.com/${encodeURIComponent(task.blogId)}/postwrite`,active:false});
   let reason='예약 목록을 확인하지 못했습니다.';
   try {
     for(let n=0;n<30;n++){
       await sleep(500);
       const args={blogId:task.blogId,title:task.payload.title,scheduledAt:task.payload.scheduledAt,publishScheduleMode:'reserve',publishVisibility:task.payload.publishVisibility || 'public'};
-      const results=isTistory
-        ? [await tistoryRun(tab.id,'published',args).catch(()=>null)].filter(Boolean)
-        : await frameResults(tab.id,'reserved',args).catch(()=>[]);
+      const results=await frameResults(tab.id,'reserved',args).catch(()=>[]);
       const done=results.find(r=>r.complete);
       if(done){const {complete,frameId,...result}=done;return {...result,published:true};}
       reason=results.find(r=>r.reason)?.reason || reason;
@@ -129,7 +127,6 @@ async function verifyReservation(task) {
   }finally{await chrome.tabs.remove(tab.id).catch(()=>{});}
 }
 async function publish(task) {
-  if(task.platform==='tistory')return publishTistory(task);
   const tabId=task.tabId, p=task.payload;
   const plan=articlePlan(p.article);
   const steps=[{type:'title',text:p.title},{type:'quote',text:p.title,style:'default'}];
@@ -142,8 +139,7 @@ async function publish(task) {
     read:()=>command(tabId,'snapshot'),
     apply:async(block,anchor)=>{
       if(block.type==='image'){
-        const {connection}=await stored();const response=await fetch(API+'/asset?task='+task.id+'&index='+block.index,{headers:{Authorization:'Bearer '+connection.token},signal:AbortSignal.timeout(15000)});
-        if(!response.ok)throw new Error('이미지를 가져오지 못했습니다.');return command(tabId,'image',{...await response.json(),...anchor});
+        return command(tabId,'image',{...await loadAsset(task,block.index),...anchor});
       }
       return command(tabId,block.type,{...block,...anchor,breakSentences:p.breakSentencesInBody});
     },
@@ -200,7 +196,7 @@ async function prepareFreshNaver(task) {
 }
 async function resume(task) {
   const state=await api('/task/status',{id:task.id});if(state.state!=='running'){await chrome.storage.local.remove('activeTask');return;}
-  const fresh=task.platform!=='tistory' && (task.type==='publish' || task.payload.preflightTitle);
+  const fresh=task.type==='publish';
   let session;
   try{session=fresh?await prepareFreshNaver(task):await inspectSession(task.tabId);}
   catch(error){return finish({id:task.id,error:error.message,code:'EDITOR_PREPARATION_FAILED'});}
@@ -213,17 +209,6 @@ async function resume(task) {
     }
     await api('/waiting',{id:task.id,reason:session.reason,status:session.status});
     await chrome.storage.local.set({activeTask:{...task,stage:'waiting_login'}});return;
-  }
-  if(task.type==='session'){
-    if(task.platform!=='tistory' && task.payload.preflightTitle){
-      try{await command(task.tabId,'preflightTitle');}
-      catch(error){return finish({id:task.id,error:error.message,code:'NAVER_PREFLIGHT_FAILED'});}
-    }
-    if(task.platform==='tistory'){
-      try{await command(task.tabId,'preflight',{blogId:task.blogId,category:task.payload.category});}
-      catch(error){return finish({id:task.id,error:error.message,code:'TISTORY_PREFLIGHT_FAILED'});}
-    }
-    return finish({id:task.id,result:session});
   }
   await api('/stage',{id:task.id,stage:'writing'});await chrome.storage.local.set({activeTask:{...task,stage:'writing'}});
   try {await finish({id:task.id,result:await publish(task)});}catch(error){
@@ -239,7 +224,7 @@ async function pump() {
     if(state.activeTask){
       if(['waiting_login','writing'].includes(state.activeTask.stage)){
         const task=state.activeTask;
-        if(task.stage==='writing' && task.platform!=='tistory')task.editorResetStarted=false;
+        if(task.stage==='writing')task.editorResetStarted=false;
         await resume(task);
       }
       else if(state.activeTask.payload.publishScheduleMode==='reserve'){
@@ -257,11 +242,10 @@ async function pump() {
         catch(error){await finish({id:task.id,error:error.message,code:'PUBLISH_UNCERTAIN'});}
         return;
       }
-      if(!['session','publish'].includes(task.type)){
+      if(task.type!=='publish'){
         await finish({id:task.id,error:'지원하지 않는 확장 작업입니다. 확장을 업데이트하세요.',code:'UNSUPPORTED_TASK'});return;
       }
-      const fresh=task.platform!=='tistory' && (task.type==='publish' || task.payload.preflightTitle);
-      const tabId=fresh?undefined:await editorTab(task.payload.interactive || task.type==='publish',task);
+      const tabId=undefined;
       const active={...task,tabId,stage:'waiting_login'};await chrome.storage.local.set({activeTask:active});await resume(active);
     }else if(state.editorTab && (refreshSession || !state.session || Date.now()-Date.parse(state.session.checkedAt)>60000)) {
       refreshSession=false;
@@ -281,19 +265,20 @@ chrome.tabs.onUpdated.addListener(async(id,change)=>{
 });
 chrome.runtime.onStartup.addListener(()=>pump());
 chrome.runtime.onInstalled.addListener(()=>pump());
-// Fast loopback polling while awake; alarms remain the worker-suspension fallback.
+// Poll the AIMaster web queue every 10s while awake; alarms remain the worker-suspension fallback.
 // Idle editor inspection is still limited to once per minute or a page load.
-setInterval(()=>pump(),2000);
+setInterval(()=>pump(),10000);
 pump();
 chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
   (async()=>{
     if(message.type==='status'){pump();return stored();}
     if(message.type==='pair'){
       const state=await stored();if(state.activeTask)throw new Error('진행 중인 작업을 먼저 취소하세요.');
-      const deviceId=state.deviceId || crypto.randomUUID();const connection=await api('/pair',{code:message.code,deviceId});
+      const blogId=String(message.blogId||'').trim();if(!/^[A-Za-z0-9_-]{2,40}$/.test(blogId))throw new Error('네이버 블로그 ID를 영문·숫자 2~40자로 입력하세요.');
+      const deviceId=state.deviceId || crypto.randomUUID();const connection=await api('/pair',{code:message.code,deviceId,blogId});
       await chrome.storage.local.set({deviceId,connection});await chrome.storage.local.remove(['session','editorTab']);return {ok:true};
     }
-    if(message.type==='session'){await api('/session/request');pump();return {ok:true};}
+    if(message.type==='session'){if(!(await stored()).connection)throw new Error('먼저 연결 코드를 입력하세요.');const tabId=await editorTab(true);await inspectSession(tabId);pump();return {ok:true};}
     if(message.type==='disconnect'){if((await stored()).activeTask)throw new Error('앱에서 대기를 먼저 취소하세요.');await api('/disconnect');await chrome.storage.local.remove(['connection','session','editorTab']);return {ok:true};}
     throw new Error('지원하지 않는 요청');
   })().then(reply,error=>reply({error:error.message}));return true;

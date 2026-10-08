@@ -181,7 +181,7 @@ export default function GuidePage() {
                 </li>
                 <li>생성된 8자리 코드(예: A1B2C3D4) 복사</li>
                 <li>크롬 브라우저 우측 상단 퍼즐 모양 확장 아이콘 클릭</li>
-                <li>코드 붙여넣기 후 [연결하기] 누르면 초록불 ON!</li>
+                <li>네이버 블로그 ID와 코드를 입력하고 [이 Chrome 연결]을 누르면 연결 완료!</li>
               </ol>
             </div>
 

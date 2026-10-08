@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.42` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.43` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -70,6 +70,10 @@
    - 기존 저장된 사용자 목록과 순서를 유지하고, 명시적으로 비운 목록을 기본 목록으로 되살리지 않습니다. 현재 목록은 기존 브라우저 저장 방식이며 회원별 서버 저장/다른 기기 동기화로 설명하지 않습니다. DB 이관은 별도 승인 과제입니다.
 
 ## 🕒 버전 히스토리
+
+- **v1.43 (2026-10-08)**:
+  - 크롬 확장이 데스크톱 로컬 브리지 대신 웹 큐(`/api/extension/auth|task|status|finish`)와 통신하도록 연결했습니다. 번호형 이미지 자리표시자·HTML 원고 변환을 `src/lib/extensionBridge.ts`에 두었고, 콘텐츠 분류는 네이버 카테고리로 넘기지 않습니다. 확장 팝업에 블로그 ID 입력을 추가하고 티스토리 코드·`127.0.0.1` 권한을 제거했습니다.
+  - `npm run test:extension` 추가. 실제 Chrome 설치·네이버 발행은 미검수입니다. 상세: `docs/CONTINUATION.md`.
 
 - **v1.42 (2026-10-08)**:
   - 페르소나의 `조건 불러오기`를 실제 파란색 버튼으로 변경했습니다. 현재 선택 항목은 초록색 `✓ 선택됨` 버튼이며 다른 항목 선택 시 이전 버튼은 파란색으로 돌아옵니다.

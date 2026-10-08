@@ -352,7 +352,7 @@ export function SettingsClient({
               <ol className="text-xs text-neutral-600 space-y-1 list-decimal list-inside">
                 <li>아래 버튼으로 확장 ZIP을 다운받아 압축을 푼 뒤 크롬에 등록합니다.</li>
                 <li>코드 발급 버튼을 눌러 생성된 8자리 페어링 코드를 복사합니다.</li>
-                <li>크롬 브라우저 우측 상단 확장 아이콘을 누르고 코드를 붙여넣습니다.</li>
+                <li>크롬 브라우저 우측 상단 확장 아이콘을 누르고 네이버 블로그 ID와 코드를 입력해 연결합니다. (등록한 블로그 ID와 같아야 합니다.)</li>
               </ol>
             </div>
 

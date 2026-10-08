@@ -9,6 +9,14 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
+### v1.43 추가 (확장 ↔ 웹 큐 연결, 이 절이 아래 "남은 검토 과제 2번"을 대체)
+
+- **구조**: 확장 `extension/background.js`의 `api(route, body)`가 어댑터입니다. `/pair`→`POST /api/extension/auth`, `/poll`→`/task`(연결한 블로그 ID의 `queued` 글 1건을 `publishing`으로 선점), `/result`→`/finish`, `/task/status`·`/status`·`/disconnect`→`/status`. `/progress`·`/stage`·`/waiting`·`/heartbeat`는 서버 호출 없는 no-op입니다. 폴링 주기는 10초입니다(알람 30초 보조).
+- **변환** `src/lib/extensionBridge.ts`: `[IMAGE INSERT - 설명]`을 실제 본문 이미지 순서대로 `[IMAGE INSERT - N]`으로 재번호하고 연결할 이미지가 없는 자리는 삭제(확장 검증과 일치). 스마트 에디터 HTML 원고는 줄 단위로 변환(h1~h3→`[SECTION]`). 썸네일은 제목 이미지. 이미지는 `payload.assets[].url`을 확장이 직접 내려받아 base64로 변환(`*.supabase.co` 권한). **`category_name`은 콘텐츠 분류이므로 네이버 카테고리 선택에 전달하지 않습니다.** 공개 설정은 `public`, 예약은 `is_reserved && scheduled_at`일 때만.
+- **연결 UI**: 확장 팝업에 네이버 블로그 ID 입력 추가(영문·숫자·`_`·`-` 2~40자). 웹 원고의 `blog_id`와 같아야 가져갑니다.
+- **알려진 한계**: 실제 Chrome 설치·페어링·네이버 발행은 검수하지 않았습니다(승인 필요). `publishing`에서 멈춘 글의 자동 복구, 웹 쪽 진행 상황 표시는 없습니다. 확장이 쓰던 `heartbeat`로 웹에 연결 상태를 표시하지 않습니다(`last_ping_at`은 폴링마다 갱신).
+- **검수**: `npm run test:extension`(변환·선점·권한·결과·어댑터 모의), 기존 4개 테스트, `npm run build` 통과. 다음 배포는 v1.44.
+
 ### 현재 상태와 작업 범위
 
 - 이번 기능 수정은 v1.29~v1.42입니다. 최신 기능 커밋은 `0db81a1d`(페르소나 조건 버튼), 직전은 `4d636a4c`(카테고리 설명 제거)이며 둘 다 `origin/master`에 푸시하고 프로덕션 배포했습니다.
