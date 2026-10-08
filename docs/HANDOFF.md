@@ -13,7 +13,12 @@
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
 - **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.41, 2026-10-08)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.42, 2026-10-08)
+
+### 후속 v1.42 — 페르소나 조건 불러오기 버튼 색상/선택 상태
+
+- 미선택은 파란색 실제 버튼, 선택 항목은 초록색 `✓ 선택됨`입니다. 기존 조건 적용/카드 선택/즉시 생성 핸들러는 유지하며 조건 버튼만으로 생성/발행하지 않습니다.
+- `type="button"`, 클릭 전파 차단, `aria-pressed`, 키보드 포커스 표시 및 생성 중 잠금. `test:personas`에서 6개 항목 실제 JSX/조건 핸들러의 색상 전환·조건 적용·중복 호출 방지를 모의 검수합니다. 기존 테스트/빌드 및 소스/확장/DB 표시 버전 v1.42 동기화.
 
 ### 후속 v1.41 — 카테고리 아래 설명 삭제로 기획 폼 행 높이 정리
 

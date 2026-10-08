@@ -1055,13 +1055,22 @@ export default function MainPage() {
                   </div>
 
                   <div className="mt-3 pt-2.5 border-t border-neutral-200/70 flex items-center justify-between text-xs">
-                    <span
-                      className={`font-semibold flex items-center gap-1 ${
-                        isSelected ? "text-emerald-700 font-bold" : "text-neutral-500 group-hover:text-neutral-900"
+                    <button
+                      type="button"
+                      aria-pressed={isSelected}
+                      disabled={loading}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectPersona(p);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        isSelected
+                          ? "bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-600"
+                          : "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-600"
                       }`}
                     >
                       {isSelected ? "✓ 선택됨" : "조건 불러오기"}
-                    </span>
+                    </button>
 
                     <button
                       type="button"
