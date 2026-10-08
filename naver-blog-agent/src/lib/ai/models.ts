@@ -31,23 +31,16 @@ export function parseJsonSafe<T>(raw: string, fallback: T): T {
   }
 }
 
-function resolveGeminiModel(model?: string): string {
-  if (!model) return "gemini-2.0-flash";
-  if (model.startsWith("gemini-3")) return "gemini-2.0-flash"; // 현재 v1 API 안정 지원 모델
-  return model;
-}
+// 화면(contentModels.ts)에서 고른 모델 ID를 그대로 호출한다. 몰래 다른 모델로 바꾸지 않는다.
+// 모델이 없을 때만 기본값을 쓰고, 잘못된 ID는 공급사 API 오류로 그대로 드러나게 한다.
+export const DEFAULT_MODELS: Record<AIProvider, string> = {
+  gemini: "gemini-3.7-flash",
+  anthropic: "claude-sonnet-5",
+  openai: "gpt-4.1",
+};
 
-function resolveClaudeModel(model?: string): string {
-  if (!model) return "claude-3-5-sonnet-20241022";
-  if (model.includes("opus")) return "claude-3-opus-20240229";
-  if (model.includes("haiku")) return "claude-3-5-haiku-20241022";
-  return "claude-3-5-sonnet-20241022";
-}
-
-function resolveOpenAIModel(model?: string): string {
-  if (!model) return "gpt-4o";
-  if (model.startsWith("gpt-6") || model.startsWith("gpt-5") || model === "gpt-4.1") return "gpt-4o";
-  return model;
+export function resolveModel(provider: AIProvider, model?: string): string {
+  return model?.trim() || DEFAULT_MODELS[provider] || DEFAULT_MODELS.openai;
 }
 
 export async function callAI(
@@ -59,7 +52,7 @@ export async function callAI(
 
   if (provider === "gemini") {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const selectedModel = resolveGeminiModel(model);
+    const selectedModel = resolveModel("gemini", model);
     const geminiModel = genAI.getGenerativeModel({
       model: selectedModel,
       systemInstruction: systemPrompt,
@@ -73,7 +66,7 @@ export async function callAI(
 
   if (provider === "anthropic") {
     const anthropic = new Anthropic({ apiKey });
-    const selectedModel = resolveClaudeModel(model);
+    const selectedModel = resolveModel("anthropic", model);
     const msg = await anthropic.messages.create({
       model: selectedModel,
       max_tokens: 4096,
@@ -86,7 +79,7 @@ export async function callAI(
 
   // 기본값: OpenAI
   const openai = new OpenAI({ apiKey });
-  const selectedModel = resolveOpenAIModel(model);
+  const selectedModel = resolveModel("openai", model);
   const res = await openai.chat.completions.create({
     model: selectedModel,
     messages: [

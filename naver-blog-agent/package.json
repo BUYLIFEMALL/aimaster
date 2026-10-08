@@ -1,6 +1,6 @@
 {
   "name": "naver-blog-agent",
-  "version": "1.43.0",
+  "version": "1.44.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,6 +12,7 @@
     "test:navigation": "node scripts/test-retired-accounts.cjs",
     "test:personas": "node scripts/test-persona-selection.cjs",
     "test:extension": "node scripts/test-extension-bridge.cjs",
+    "test:models": "node scripts/test-model-selection.cjs",
     "start": "next start",
     "lint": "eslint"
   },

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-09 — 화면에서 고른 AI 모델과 실제 호출 모델은 같아야 한다 (naver-blog-agent v1.44)
+
+- **증상:** 화면은 GPT-5/6·Gemini 3.x·Claude Sonnet 5를 보여주지만, `src/lib/ai/models.ts`가 호출 직전에 gpt-4o·gemini-2.0-flash·Claude 3.x로 몰래 바꿔 호출했습니다.
+- **원인:** 모델 ID가 확정되지 않았을 때 넣은 임시 안전 매핑이 그대로 남았습니다.
+- **해결(위치):** 선택 ID를 그대로 호출, 비었을 때만 `DEFAULT_MODELS`. `scripts/test-model-selection.cjs`(`npm run test:models`)가 `contentModels.ts` 목록 전체를 모의 SDK로 검증.
+- **다음부터 확인:** 모델 목록을 추가하면 `test:models`가 자동 포함합니다. 조용한 치환 폴백은 만들지 않습니다. (`collector.ts`의 수집용 고정 모델은 별개 경로라 이번에 손대지 않음)
+
 ## 2026-10-08 — 다른 앱에서 가져온 확장은 "서버가 같은 말을 하는지"부터 대조한다 (naver-blog-agent v1.43)
 
 - **증상:** 웹에서 `발행 전송`으로 큐에 넣어도 크롬 확장이 글을 가져가지 못할 가능성이 컸습니다(설치 검수 전 코드 대조로 확인).

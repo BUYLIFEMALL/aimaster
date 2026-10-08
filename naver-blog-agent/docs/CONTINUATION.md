@@ -9,6 +9,11 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
+### v1.44 추가 (모델 매핑 정직화)
+
+- `src/lib/ai/models.ts`: `resolveModel(provider, model)`이 선택 ID를 그대로 반환, 비었을 때만 `DEFAULT_MODELS`. 옛 모델로 치환하던 코드 삭제. `test:models`가 `contentModels.ts` 목록 전체를 모의 SDK로 검증.
+- **결정(주인님, 2026-10-09)**: 연도는 글을 생성하는 시점의 올해(`new Date().getFullYear()`) 기준. 최신 정보 연도만 올해로, 역사적 날짜는 보존(5번 작업에서 구현).
+
 ### v1.43 추가 (확장 ↔ 웹 큐 연결, 이 절이 아래 "남은 검토 과제 2번"을 대체)
 
 - **구조**: 확장 `extension/background.js`의 `api(route, body)`가 어댑터입니다. `/pair`→`POST /api/extension/auth`, `/poll`→`/task`(연결한 블로그 ID의 `queued` 글 1건을 `publishing`으로 선점), `/result`→`/finish`, `/task/status`·`/status`·`/disconnect`→`/status`. `/progress`·`/stage`·`/waiting`·`/heartbeat`는 서버 호출 없는 no-op입니다. 폴링 주기는 10초입니다(알람 30초 보조).

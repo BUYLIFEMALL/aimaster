@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.43` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.44` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -70,6 +70,10 @@
    - 기존 저장된 사용자 목록과 순서를 유지하고, 명시적으로 비운 목록을 기본 목록으로 되살리지 않습니다. 현재 목록은 기존 브라우저 저장 방식이며 회원별 서버 저장/다른 기기 동기화로 설명하지 않습니다. DB 이관은 별도 승인 과제입니다.
 
 ## 🕒 버전 히스토리
+
+- **v1.44 (2026-10-09)**:
+  - `src/lib/ai/models.ts`가 화면에서 고른 모델 ID를 그대로 호출합니다(GPT-4.1·GPT-5/6·Gemini 3.x를 gpt-4o·gemini-2.0-flash로, Claude를 옛 3.x ID로 몰래 바꾸던 매핑 삭제). 모델이 비어 있을 때만 `DEFAULT_MODELS`(화면 기본 추천과 동일)를 씁니다. 잘못된 ID는 공급사 오류로 그대로 드러납니다.
+  - `npm run test:models` 추가(화면 모델 17개 전부 모의 SDK로 호출 ID 일치 확인). 연도 정책은 "글 생성 시점의 올해(동적)"로 결정(5번, 별도 배포 예정).
 
 - **v1.43 (2026-10-08)**:
   - 크롬 확장이 데스크톱 로컬 브리지 대신 웹 큐(`/api/extension/auth|task|status|finish`)와 통신하도록 연결했습니다. 번호형 이미지 자리표시자·HTML 원고 변환을 `src/lib/extensionBridge.ts`에 두었고, 콘텐츠 분류는 네이버 카테고리로 넘기지 않습니다. 확장 팝업에 블로그 ID 입력을 추가하고 티스토리 코드·`127.0.0.1` 권한을 제거했습니다.
