@@ -1,6 +1,56 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-06 · 현재 배포 버전: `v1.82` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-08 · 현재 배포 버전: `v1.82` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+
+## ★ 최신 작업 요약 (v1.70 ~ v1.82, 2026-10-08) — 이 절을 먼저 읽으세요
+
+아래 "완료된 구현 순서"는 v1.34 무렵까지의 기록이라 오래됐습니다. **현재(v1.82) 상태는 이 절이 기준**입니다. 자세한 구현 이유는 `AGENTS.md`의 같은 버전 절을 보세요.
+
+### 버전별 변경
+
+| 버전 | 내용 | 핵심 위치 |
+|---|---|---|
+| v1.70 | 콘텐츠 생성 결과 카드의 "이미지 생성" 버튼을 파란색으로, 생성 중 자리 표시 타일, 카드별 이미지 표시 | `AttentionComposer.tsx` |
+| v1.71 | 저장되면 초록 "✓ 저장됨" 버튼, 카드별 "📎 직접 추가"(내 이미지·영상 업로드) | `AttentionComposer.tsx`(`uploadOwn`) |
+| v1.72 | 공통 미디어 섹션(MediaManager) 제거 — 이미지는 카드별로만 | `AttentionComposer.tsx` |
+| v1.73 | `?tab=manage` 이름을 **콘텐츠 보관함**으로, "AI 초안 만들기" 카드 삭제 | `DraftComposer.tsx`, `ContentOpsSidebar.tsx` |
+| v1.74 | 보관함 본문 칸이 스크롤 없이 세로로 자동 확장 | `DraftComposer.tsx` |
+| v1.75 | 보관함 글에 카테고리 — **글감 수집과 같은 카테고리를 공유**(`tco_posts.category_id`, 글감의 카테고리를 상속) | `DraftComposer.tsx`, `web-actions.ts`(`moveDrafts`, `saveGeneratedDraft`) |
+| v1.76 | 글감(보관 중 제외)·보관함 글(검토 대기·발행 실패) **만든 지 30일 후 자동 삭제** + 안내 박스·남은 일수 배지 | `lib/retention.ts`, `lib/contentCleanup.ts`, `RetentionNotice.tsx`, `app/api/threads-content-ops/cleanup-media/route.ts` |
+| v1.77 | 계정 관리의 **운영정보(주제·말투·성격·대상 독자·금지 주제·금지 표현)를 글 생성·다시 쓰기 프롬프트에 반영** | `lib/attention.ts`(`OperationRules`, `operationBlock`), `web-actions.ts`(`loadOperationRules`) |
+| v1.78 | **페르소나를 고르지 않으면 운영정보 전체, 페르소나를 고르면 그 페르소나로 생성(운영정보는 금지 주제·금지 표현만 유지)**. 다시 쓰기는 원문 말투 유지 + 금지 사항만 | `lib/attention.ts`(`operationBlock(rules, forbiddenOnly)`) |
+| v1.79 | 쇼핑제휴 상품 등록에 **알리익스프레스** 추가(주소 → 제휴 링크 자동 생성 + 썸네일 + "이미지 다시 가져오기") | `lib/aliexpress.ts`, `web-actions.ts`(`registerAliexpressSource`, `refreshAliexpressSourceImage`) |
+| v1.80 | 쇼핑제휴 상품 등록에 **토스쇼핑 쉐어링크** 추가(베스트·카테고리별·오늘의 특가 목록에서 골라 저장 시 쉐어링크 발급) | `lib/toss.ts`, `web-actions.ts`(`browseTossForSources`, `fetchTossCategoriesForSources`, `registerTossSource`) |
+| v1.81 | 상품 등록 화면을 **플랫폼 탭**(쿠팡파트너스·알리익스프레스·네이버 브랜드커넥트·토스쇼핑 쉐어링크)으로 개편. poster의 오른쪽 "상품·상세페이지 분석" 탭은 하지 않음(주인님 지시) | `SourceQueue.tsx` |
+| v1.82 | 토스용 `FIXIE_URL`을 루트 Vercel 프로젝트에 등록(주인님이 직접), 값 앞 공백 대비 trim | `lib/toss.ts` |
+
+### 지금 동작하는 구조 (알아야 할 사실)
+
+- **콘텐츠 생성**: 글감 선택 → 페르소나(선택) → AI 엔진(GPT/Claude/Gemini) → 결과 카드(대표 글 + 훅 변형 5개). 글 생성에 쓰는 **운영정보 규칙은 v1.78 표를 따릅니다**(페르소나 선택 시 금지 사항만). 저장은 계정별 보관함(`tco_posts`)으로 갑니다.
+- **상품 연결 글**: `lib/productPost.ts`의 `PRODUCT_SOURCE_TYPES`(coupang·naver_brand_connect·aliexpress·toss)만 콘텐츠 생성에서 연결됩니다. 종류별 제휴 고지 문구(`DISCLOSURE`)는 `threads-affiliate-poster/src/lib/ai/affiliateGenerator.ts`와 같게 유지합니다 — **고지 문구를 지우거나 조건부로 만들지 마세요**(표시광고법).
+- **키는 모두 회원 본인 것**이며 poster와 **같은 `user_api_keys` 테이블**을 읽습니다. 그래서 poster에서 등록한 알리·토스 키가 이 프로그램에서 그대로 보입니다. 새 키 종류를 쓰려면 ① `user_api_keys.provider` check 제약에 값이 있는지, ② 루트 `lib/apiKeys.ts`의 `ApiKeyProvider` 타입, ③ `web-actions.ts`의 `CREDENTIAL_PROVIDERS`·`saveMemberCredentials`, ④ `WebSetup.tsx`(타입·`PROVIDER_FIELD`·입력 행)를 모두 맞춥니다.
+- **소스 종류 추가 시**: `tco_content_sources.source_type` check 제약(`tco_content_sources_source_type_check`)을 마이그레이션으로 바꿔야 합니다(현재 허용: daily, youtube, blog, coupang, naver_brand_connect, aliexpress, toss). DB 변경은 주인님 사전 승인 사항입니다.
+- **토스쇼핑**은 호출 서버 IP가 고정이어야 해서 `FIXIE_URL`(Fixie 프록시, 허용 IP 52.87.82.133·52.5.155.132) 환경변수가 **루트 AIMaster Vercel 프로젝트**에 있어야 합니다(없으면 화면에 안내 문구). poster와 같은 프록시·월 요청 한도(Tricycle 500건)·토스 쉐어링크 발급 한도(하루 1만 건)를 함께 씁니다. 주인님이 "잘 동작된다"고 확인했습니다(v1.82).
+- **상품 화면 레이아웃**: `?tab=sources`는 플랫폼 탭으로 영역이 바뀝니다. 알리익스프레스는 "새 소스 등록"의 직접 입력 종류에 넣지 않고 전용 영역에서만 저장합니다(제휴 링크 자동 생성을 거치게 하려고).
+
+### 남은 일 (요청이 있을 때만 시작)
+
+1. **글 생성 지시문에 당해 연도 규칙 없음** — 루트 `CLAUDE.md` 핵심 원칙 8번(현재 연도 동적 주입)이 `threads-content-ops/lib`에 아직 반영되지 않았습니다. 별도 작업 단위로 처리하세요.
+2. **자동 발행·댓글 확인 워커 없음** — 계정 관리의 자동화 스위치·일상/홍보 비율·하루 게시 목표·댓글 간격·운영 시간은 **저장만** 되고 실행하는 워커가 없습니다. 화면에서 "동작한다"고 표현하지 마세요.
+3. **`CRON_SECRET` 미설정** — 루트 Vercel 프로젝트에 없어서 일일 정리 크론이 503을 돌려줍니다(화면을 열 때의 본인 몫 정리는 동작). 30일 자동 삭제 첫 실행은 2026-11-07 이후입니다.
+4. **실키 검증 대기** — Claude·NanoBanana·GPT Image·Replicate 이미지 생성, Threads 캐러셀 게시, **알리익스프레스 실등록(제휴 링크·이미지)**. 1GB 영상 업로드는 Supabase 파일 크기 한도에 달려 있습니다.
+5. 예약 발행 데스크톱 워커는 `media`를 읽지 않습니다.
+6. poster에서 아직 이식하지 않은 것: "상품·상세페이지 분석으로 등록" 탭(이미지·설명 분석), 쿠팡 "API 키 없을 때 직접 등록" 안내 박스(HTML 붙여넣기), 상품 목록의 미리보기 버튼. threads-easy-planner 쪽 기능도 미이식.
+7. **기존 타입 오류(내 변경 아님)**: `threads-content-ops/lib/coupang.ts(135,36) TS2339 Property 'trim' does not exist on type 'never'` (v1.69, 다른 CLI). 빌드는 통과하며 `ignoreBuildErrors` 때문에 보이지 않습니다. 이 오류와 무관한 작업이면 건드리지 말고 보고에 적습니다.
+
+### 이 대화에서 확립된 작업 방식
+
+- 사용자(주인님)는 요청을 연달아 보냅니다. **요청 하나를 한 작업 단위로** 끝내세요: 빌드 → 경로 지정 커밋 → 푸시 → 배포 → `programs.version` 올리기 → 문서 → 한국어 존댓말(-습니다체) 보고. 보고 끝에 bkit 사용 현황 박스를 붙입니다.
+- 커밋은 항상 `git commit -m ... -- <경로들>`로 하세요(여러 CLI가 같은 작업 폴더·스테이징을 씁니다). 이 문서를 쓰는 시점에 `naver-blog-agent`의 다른 CLI 작업이 올라가지 않은 채 남아 있습니다.
+- 배포: 깨끗한 임시 작업 폴더에서 합니다 — `git worktree add --detach D:/Antigravity/_aimaster_deploy_tmp HEAD` → `.vercel` 복사 → `vercel deploy --prod --yes --scope buylife`(`Aliased https://www.buylife.xyz`, `readyState: READY` 확인) → `git worktree remove --force`(잠금이 걸리면 8초 뒤 재시도). 버전은 `lib/version.ts`·`README.md`·`AGENTS.md`·이 문서·DB `programs.version`을 함께 올리고 `supabase/migrations/<시각>_tco_bump_version_vX_YY.sql`을 남깁니다.
+- 패치 스크립트에서 here-doc/sed로 백틱·`$`가 든 코드를 다루면 깨집니다. Edit 도구나 파일로 저장한 `.mjs`를 쓰세요.
+- 에이전트는 **비밀번호·접속 주소(키가 든 값)를 명령에 직접 넣을 수 없습니다**(보안 검사가 차단). 환경변수 등록은 주인님이 `! cd /d/Antigravity/AIMaster && vercel env add <이름> production --value "<값>" --yes --sensitive --scope buylife`로 직접 하게 안내하세요(`!` 셸은 bash라 경로는 `/d/...`, 비대화형이라 `--value` 필수).
+- DB 스키마·환경변수 변경, 삭제는 사전 승인(AskUserQuestion)을 받습니다.
 
 ## 먼저 읽을 문서와 확인 순서
 
@@ -57,7 +107,7 @@
 >
 > **v1.33 메뉴명:** 사이드바 4번 메뉴의 표시 이름은 이제 **쇼핑제휴 상품 등록**입니다(이 문서의 "콘텐츠 소스"와 같은 화면, 주소 `?tab=sources`).
 >
-> **v1.32 주인님 결정:** 콘텐츠 소스 화면은 **포스팅할 상품 등록 용도**이며 블로그 등록은 삭제했습니다. 소스 종류는 쿠팡 파트너스·네이버 브랜드 커넥트뿐입니다(위 4번 설명의 "블로그"는 v1.28 당시 기록). 이후 단계에서 블로그 RSS 수집을 다시 만들지 마세요.
+> **v1.32 주인님 결정:** 콘텐츠 소스 화면은 **포스팅할 상품 등록 용도**이며 블로그 등록은 삭제했습니다. 소스 종류는 당시 쿠팡 파트너스·네이버 브랜드 커넥트뿐이었고(위 4번 설명의 "블로그"는 v1.28 당시 기록), v1.79~80에서 알리익스프레스·토스쇼핑이 추가됐습니다. 이후 단계에서 블로그 RSS 수집을 다시 만들지 마세요.
 
 ### 5. 쿠팡 파트너스 상품 검색 → 소스 저장 (v1.30)
 
@@ -108,7 +158,7 @@ vercel deploy --prod --yes --scope buylife
 
 ## 최근 기준점
 
-- 최신 기능 커밋: `git log --oneline -5 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인 — v1.28 `feat(threads-content-ops): 콘텐츠 소스 큐 등록 (v1.28)`이 최신이며, 그 직전 기능은 `77604d77`(v1.27 계정별 운영정보)입니다.
+- 최신 기능 커밋: `git log --oneline -10 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인하세요(2026-10-08 기준 v1.82 `c1f5ca79`). 위 "★ 최신 작업 요약"이 현재 기준입니다.
 - 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.82'`
 - 실제 서비스 주소는 항상 `https://www.buylife.xyz/threads-content-ops`입니다(루트 AIMaster 프로젝트 배포).
 - 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `.analysis-threads-auto/`, `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.

@@ -1,5 +1,26 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-08 — 민감(Sensitive) 환경변수는 `vercel env pull`로 복사할 수 없다 / `!` 셸은 bash·비대화형 (threads-content-ops v1.82)
+
+- **증상:** 다른 Vercel 프로젝트(threads-affiliate-poster)의 `FIXIE_URL`을 루트 AIMaster 프로젝트로 옮기려고 `vercel env pull`을 했더니 값이 실제 주소가 아니라 `[SENSITIVE]` 표시만 나왔다. 에이전트가 접속 정보를 명령에 직접 넣으려 하면 보안 검사(Credential Leakage)가 차단했다. 사용자가 `! cd D:\...` 로 실행하니 `cd: D:AntigravityAIMaster: No such file` 오류, 이어서 `vercel env add`가 `missing_value`(비대화형)로 멈췄다. 값 앞에 공백이 붙어 저장돼 `! Value starts with whitespace` 경고도 났다.
+- **원인:** Sensitive 유형 환경변수는 저장 후 읽을 수 없다. Claude Code의 `!` 명령은 bash(역슬래시가 이스케이프로 사라짐)이고 질문에 답할 수 없다. 에이전트는 비밀값을 명령에 넣을 수 없다.
+- **해결(위치):** 소유자가 값을 Fixie 대시보드에서 복사해 직접 실행 — `! cd /d/Antigravity/AIMaster && vercel env add FIXIE_URL production --value "<값>" --yes --sensitive --scope buylife`. 앞뒤 공백에 대비해 `threads-content-ops/lib/toss.ts`가 `FIXIE_URL`을 항상 `trim()`해서 읽는다. 환경변수는 **재배포 후** 적용된다.
+- **다음부터 확인:** 프로젝트 간 비밀값 복사는 에이전트가 하지 못하니 처음부터 소유자에게 직접 등록을 안내한다(경로는 `/d/...`, `--value` 필수). 값을 넣을 때 따옴표 안쪽 맨 앞 공백을 넣지 않는다. 화면 이미지에 접속 암호가 찍히면 대화 기록에 남으니 재발급을 권한다.
+
+## 2026-10-08 — 소스 종류·키 종류를 늘릴 때 DB check 제약과 타입을 함께 본다 (threads-content-ops v1.79~80)
+
+- **증상(예방):** 알리익스프레스·토스쇼핑을 쇼핑제휴 상품 등록에 넣으려면 `tco_content_sources.source_type` check 제약이 막고, 키는 루트 `lib/apiKeys.ts`의 `ApiKeyProvider` 타입에 없으면 `resolveApiKey` 호출이 타입 오류가 났다.
+- **원인:** 종류 목록이 DB 제약·서버 허용 목록·타입 세 곳에 따로 있다. 반대로 `user_api_keys.provider` 제약에는 알리·토스 키가 이미 있었고, **poster와 같은 테이블이라 poster에 등록한 키가 그대로 읽힌다**(재입력 불필요).
+- **해결(위치):** `threads-content-ops/supabase/migrations/20261008180000_tco_content_sources_aliexpress_toss.sql`(승인 후 적용), `lib/apiKeys.ts`, `web-actions.ts`의 `CREDENTIAL_PROVIDERS`/`saveMemberCredentials`, `lib/productPost.ts`의 `PRODUCT_SOURCE_TYPES`·고지 문구.
+- **다음부터 확인:** 새 소스/키 종류는 ① 제약(`pg_get_constraintdef`로 먼저 조회), ② 타입, ③ 서버 허용 목록, ④ 화면 목록, ⑤ 콘텐츠 생성의 상품 연결 목록(`page.tsx` 필터)을 한 번에 맞춘다. DB 변경은 사전 승인.
+
+## 2026-10-08 — 페르소나 선택 시 계정 운영정보와 충돌하지 않게 한다 (threads-content-ops v1.78)
+
+- **증상:** 운영정보(말투·성격·주제)와 페르소나(10종)를 둘 다 프롬프트에 넣으면 성격이 섞이고 어느 쪽 말투가 이기는지 AI 판단에 맡겨졌다.
+- **원인:** v1.77에서 운영정보 전체를 항상 넣고 "말투는 페르소나 우선"만 지시문으로 적었다.
+- **해결(위치):** `threads-content-ops/lib/attention.ts`의 `operationBlock(rules, forbiddenOnly)` — 페르소나를 고르면 금지 주제·금지 표현만 넣고 나머지는 뺀다. 다시 쓰기는 원문 말투 유지 + 금지 사항만. 금지 표현은 프롬프트 지시일 뿐 서버 재검사는 없다.
+- **다음부터 확인:** 생성 지시문을 늘릴 때 "항상 적용 / 선택 시 대체"를 구분해 코드로 정하고, 충돌을 문장 한 줄로만 해결하지 않는다. 같은 파일에서 당해 연도 규칙(핵심 원칙 8번)이 아직 빠져 있다.
+
 ## 2026-10-08 — 문체 선택은 페르소나 기본 어조나 윤문에서 덮어쓰지 않는다 (naver-blog-agent v1.34)
 
 - **증상:** 회원이 말끝·문체를 골라도 페르소나 즉시 생성이나 카테고리 선택으로 다른 어조가 적용될 수 있었고, 프롬프트도 페르소나 말투를 최우선으로 명령했다.
