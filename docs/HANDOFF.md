@@ -4,6 +4,10 @@
 
 - 루트 `CLAUDE.md` 핵심 원칙 10번 / `AGENTS.md` 11번: 프로그램 업데이트 시 `extension/` 폴더·다운로드 ZIP·DB 버전을 같은 작업에서 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증. 설치된 확장은 자동 갱신되지 않으므로 보고에 재설치 안내 포함. `programs.extension_download_url`/`extension_version` 칸을 추가하고 확장이 있는 5개 프로그램 값을 모두 채움(`naver-blog-agent/supabase/migrations/0051`, 나머지 4개는 SQL로 입력). 상세 규칙·프로그램별 주소: `docs/EXTENSION_RELEASE_RULES.md`, 검증: `node scripts/check-extension-release.mjs`(5개 OK, `naver-blog-auto-poster-web`만 manifest `version_name` 없어 WARN). 미구현: 확장 내 새 버전 알림, 메인 사이트 프로그램 상세 다운로드 버튼.
 
+## 네이버 블로그 에이전트 — 보관함(/queue) 콘텐츠가 안 보이는 건 (2026-10-09, 승인 대기)
+
+- 원인: v1.49가 `nba_posts`를 만들면서 `/api/posts`가 SEO 스튜디오 테이블 폴백에서 새 테이블로 바뀜. 그동안 보관함에 보이던 53건은 `buylifemall@naver.com`의 SEO 스튜디오 원고였다(원본 그대로 있음). 복사 SQL은 `naver-blog-agent/supabase/migrations/0053_import_seo_drafts_to_nba_posts.sql.pending` — 주인님 승인 후 적용. 자세한 내용은 `docs/ERROR_LESSONS.md` 최상단.
+
 ## 네이버 블로그 자동화(Web) 확장 (naver-blog-auto-poster-web v1.02, 2026-10-09) — 버전 정렬 + 새 버전 배너
 
 - manifest `version_name: v1.02`/`version: 1.2.0`, 루트 `whoami`가 `latestVersion`/`downloadUrl` 반환(`lib/naverBlogAutoPosterWebExtension.ts`), 사이드패널 배너, `npm run test:poster-web-update`. GitHub 릴리스 ZIP(고정 파일명 `…Extension-0.1.0.zip`) 교체 후 재다운로드 해시 일치 확인. DB `programs.version` v1.01→v1.02, `extension_version` v1.02. 폴더 `AGENTS.md` §9-1 참고.
