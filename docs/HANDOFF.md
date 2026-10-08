@@ -18,7 +18,7 @@
 
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.50, 2026-10-09) — 확장 새 버전 알림
 
-- `GET /api/extension/version` + 확장 `checkUpdate`(6시간마다·시작/설치 시) + 팝업 배너 + 아이콘 `NEW`. 알림이 들어간 확장은 회원이 한 번 직접 재설치해야 함. DB 갱신 SQL에 `extension_version`/`extension_download_url` 포함. 이식 방법: `naver-blog-agent/docs/CONTINUATION.md` v1.50. ※ 2026-10-09 정정: `ai-auto-blog`는 이미 배너가 있었고 `tistory-auto-blog`는 문구만 있었음. `naver-blog-seo-studio`는 v1.60에 추가 완료. 현황표는 `docs/EXTENSION_RELEASE_RULES.md`. `naver-blog-auto-poster-web`도 v1.02에 추가 완료. 남은 곳: `tistory-auto-blog`(문구만).
+- `GET /api/extension/version` + 확장 `checkUpdate`(6시간마다·시작/설치 시) + 팝업 배너 + 아이콘 `NEW`. 알림이 들어간 확장은 회원이 한 번 직접 재설치해야 함. DB 갱신 SQL에 `extension_version`/`extension_download_url` 포함. 이식 방법: `naver-blog-agent/docs/CONTINUATION.md` v1.50. ※ 2026-10-09 정정: `ai-auto-blog`는 이미 배너가 있었고 `tistory-auto-blog`는 문구만 있었음. `naver-blog-seo-studio`는 v1.60에 추가 완료. 현황표는 `docs/EXTENSION_RELEASE_RULES.md`. `naver-blog-auto-poster-web`도 v1.02, `tistory-auto-blog`도 v1.54(배너)에 추가 완료 — 확장 5개 모두 알림 있음.
 
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.49, 2026-10-09) — 회원별 DB 이관
 

@@ -51,7 +51,7 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
   | `naver-blog-agent` (v1.50) | 있음 | 연결 없이도 동작: 공개 `GET /api/extension/version` + 확장이 6시간마다·시작 시 확인 → 아이콘 `NEW` 배지 + 팝업 배너 |
   | `naver-blog-seo-studio` (v1.60) | 있음 | 토큰 연결 후: `GET /api/extension/whoami`의 `latestVersion`/`downloadUrl` → 사이드패널 배너(더 높을 때만) |
   | `ai-auto-blog` | 있음 | 토큰 연결 후: `whoami`의 `latestVersion`/`downloadUrl` → 사이드패널 배너(버전이 다르면) |
-  | `tistory-auto-blog` | 부분 | 토큰 연결 후 상태 문구에 "최신 확장 vX 필요"만 표시(배너·다운로드 링크 없음) |
+  | `tistory-auto-blog` (v1.54) | 있음 | 토큰 연결 후: `whoami`의 `latestVersion`/`downloadUrl` → 사이드패널 배너(더 높을 때만). DB 갱신은 `npm run sync:program-version`이 `version`·`extension_version`·`extension_download_url`을 함께 처리 |
   | `naver-blog-auto-poster-web` (v1.02) | 있음 | 토큰 연동 후: 루트 `whoami`의 `latestVersion`/`downloadUrl`(출처 `lib/naverBlogAutoPosterWebExtension.ts`) → 사이드패널 배너. 링크는 우리 GitHub 릴리스 주소만 허용 |
 
   새 확장 프로그램과 크게 고치는 확장에는 `naver-blog-agent` 방식(연결 없이도 동작)을 권장한다. 알림 코드가 들어간 확장을 회원이 한 번은 직접 다시 설치해야 이후부터 알림이 뜬다.
