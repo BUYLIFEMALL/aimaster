@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-09 — 확장 ZIP이 올라가 있어도 DB·메인 사이트가 모르면 "없는 것"처럼 보인다 (확장 프로그램 공통)
+
+- **증상:** 확장 ZIP은 각 프로그램 사이트에 올라가 있었지만, 공용 DB(`programs`)에는 확장 다운로드 주소·버전을 담는 칸이 없어 DB와 메인 사이트에서는 확장이 없는 것처럼 보였고, 배포마다 ZIP·`manifest`·DB 버전이 서로 어긋날 수 있었습니다. SEO 스튜디오 ZIP은 메인 도메인(`buylife.xyz`) 아래가 아니라 자체 Vercel 주소에 있어 주소를 추측하면 404가 났습니다.
+- **원인:** 확장 배포가 프로그램 배포의 필수 단계로 정의돼 있지 않았고, 일치 여부를 확인하는 검증이 없었습니다.
+- **해결(위치):** `programs.extension_download_url`/`extension_version` 칸 추가 및 5개 프로그램 입력, `scripts/check-extension-release.mjs`(DB 값과 라이브 ZIP 안 manifest 비교), 규칙 문서 `docs/EXTENSION_RELEASE_RULES.md`, 루트 `CLAUDE.md` 핵심 원칙 10번.
+- **다음부터 확인:** 확장이 있는 프로그램을 배포하면 DB 3개 값을 같은 SQL로 갱신하고 `node scripts/check-extension-release.mjs <slug>`가 OK인지 본다. ZIP 주소는 추측하지 말고 문서의 표를 따른다.
+
 ## 2026-10-09 — 마이그레이션 파일이 있다고 DB에 적용된 것이 아니다 (naver-blog-agent v1.49)
 
 - **증상:** `0001_init_naver_blog_agent.sql`에 `nba_accounts`·`nba_posts`·`nba_extension_tokens`가 정의돼 있었지만 프로덕션 DB에는 `nba_generation_preferences` 하나뿐이었습니다. `/api/posts`는 조용히 다른 프로그램 테이블(`naver_blog_seo_drafts`)로 폴백했고, v1.43 확장 연결은 토큰 테이블이 없어 실제로는 동작할 수 없었습니다. 정리 크론은 그 다른 프로그램 테이블까지 지우도록 되어 있었습니다.

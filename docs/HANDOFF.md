@@ -2,7 +2,7 @@
 
 ## 크롬 확장 운영 규칙 신설 (2026-10-09, 모든 CLI 공통)
 
-- 루트 `CLAUDE.md` 핵심 원칙 10번 / `AGENTS.md` 11번: 프로그램 업데이트 시 `extension/` 폴더·다운로드 ZIP·DB 버전을 같은 작업에서 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증. 설치된 확장은 자동 갱신되지 않으므로 보고에 재설치 안내 포함. `programs.extension_download_url`/`extension_version` 칸을 추가하고 `naver-blog-agent` 값(v1.49)을 채움(`naver-blog-agent/supabase/migrations/0051`). 다른 확장 프로그램의 칸은 비어 있음. 미구현: 확장 내 새 버전 알림, 메인 사이트 프로그램 상세 다운로드 버튼.
+- 루트 `CLAUDE.md` 핵심 원칙 10번 / `AGENTS.md` 11번: 프로그램 업데이트 시 `extension/` 폴더·다운로드 ZIP·DB 버전을 같은 작업에서 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증. 설치된 확장은 자동 갱신되지 않으므로 보고에 재설치 안내 포함. `programs.extension_download_url`/`extension_version` 칸을 추가하고 확장이 있는 5개 프로그램 값을 모두 채움(`naver-blog-agent/supabase/migrations/0051`, 나머지 4개는 SQL로 입력). 상세 규칙·프로그램별 주소: `docs/EXTENSION_RELEASE_RULES.md`, 검증: `node scripts/check-extension-release.mjs`(5개 OK, `naver-blog-auto-poster-web`만 manifest `version_name` 없어 WARN). 미구현: 확장 내 새 버전 알림, 메인 사이트 프로그램 상세 다운로드 버튼.
 
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.49, 2026-10-09) — 회원별 DB 이관
 
