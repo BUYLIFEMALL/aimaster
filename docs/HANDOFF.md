@@ -5,6 +5,7 @@
 - **상황별 페르소나 원클릭 생성에 `🌿 고부간 갈등 공감형`을 추가했다.** 키워드가 비어 있어도 명절·시댁 문화·육아 방식의 차이 속에서 내 감정과 경계를 지키는 대표 소재로 바로 생성한다.
 - 생성 프롬프트는 특정 가족의 악마화, 폭로성 서사, 갈등 조장을 금지하고, 각자의 경계를 존중하는 현실적인 1인칭 공감 썰만 만들도록 제한했다. 사용 매뉴얼에도 새 카드를 반영했다.
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
+- **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.28, 2026-10-08)
 

@@ -3,6 +3,8 @@
 이 문서는 **Threads AI 기획기(threads-easy-planner)** 서브프로젝트의 인수인계 문서입니다.
 루트 `CLAUDE.md`(핵심 원칙 7가지) 및 `AGENTS.md`를 기반으로 동작합니다.
 
+> 다음 CLI는 작업 전 [`docs/CONTINUATION.md`](docs/CONTINUATION.md)를 읽습니다. 최신 완료 기능, 파일 위치, 안전 규칙, 다음 작업 기준, 커밋·배포 절차를 v1.41 기준으로 정리했습니다.
+
 ---
 
 ## Mobile and desktop shared interface (v1.19, 2026-10-05)
@@ -298,5 +300,4 @@
        - `1번째 사진 보면`, `2번째 사진 넘기면`, `첫 번째 사진 보니까` 등 사진 번호+서술어 제거
        - 단독 잔여물(`근데 넘기면` ➔ `근데 `, `넘겨보면` 등) 및 구두점 정제
     4) DB `programs.version` 및 `APP_VERSION` `v1.40` 동기화.
-
 
