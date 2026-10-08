@@ -225,12 +225,26 @@ const categories = [
   const topicField = layoutFields.get("generation-topic");
   const keywordsField = layoutFields.get("generation-keywords");
   const purposeField = layoutFields.get("generation-purpose");
+  const blogField = layoutFields.get("generation-blog-id");
+  const accountCategoryRow = layoutFields.get("generation-account-category-row");
+  const topicPurposeRow = layoutFields.get("generation-topic-purpose-row");
   assert.ok(selectField && managerButton && topicField && keywordsField && purposeField);
   assert.equal(selectField.parent, managerButton.parent, "Select and manager button must share an input row");
-  assert.ok(selectField.parent.openingElement.getText(ast).includes("sm:flex-row"), "Mobile stacks without overflowing");
-  assert.equal(topicField.parent.parent, selectField.parent.parent.parent, "Topic must be its own row below category");
-  assert.equal(keywordsField.parent.parent, purposeField.parent.parent, "Keywords and purpose share an aligned grid row");
-  assert.ok(keywordsField.parent.parent.openingElement.getText(ast).includes("md:grid-cols-2"));
-  assert.ok(selectField.pos < topicField.pos && topicField.pos < keywordsField.pos);
+  assert.ok(selectField.parent.openingElement.getText(ast).includes("xl:flex-row"), "Narrow category columns stack without overflowing");
+  assert.ok(blogField && accountCategoryRow && topicPurposeRow);
+  const isInside = (node, ancestor) => {
+    for (let current = node.parent; current; current = current.parent) if (current === ancestor) return true;
+    return false;
+  };
+  assert.ok(isInside(blogField, accountCategoryRow) && isInside(selectField, accountCategoryRow), "Blog ID and category share the first row");
+  assert.equal(topicField.parent.parent, topicPurposeRow);
+  assert.equal(purposeField.parent.parent, topicPurposeRow, "Topic and purpose share the second row");
+  for (const row of [accountCategoryRow, topicPurposeRow]) assert.ok(row.openingElement.getText(ast).includes("grid-cols-1 md:grid-cols-2"));
+  assert.equal(keywordsField.parent.parent, topicPurposeRow.parent, "Keywords use their own full-width row");
+  assert.ok(selectField.pos < topicField.pos && topicField.pos < purposeField.pos && purposeField.pos < keywordsField.pos);
+  for (const field of [blogField, selectField, topicField, purposeField, keywordsField]) {
+    const opening = ts.isJsxElement(field) ? field.openingElement : field;
+    assert.ok(opening.getText(ast).includes("h-10"), "All planning controls have the same height");
+  }
   console.log("PASS: shared categories/events, 3-screen manager CRUD/reordering/duplicate/cancellation/failure/last-item protection, selected rename/delete, no draft deletion, no nested forms, generation/save flow");
 })().catch((error) => { console.error(error); process.exitCode = 1; });

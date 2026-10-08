@@ -1217,12 +1217,12 @@ export default function MainPage() {
           </div>
 
           {/* 블로그 계정 및 등록 카테고리 빠른 선택 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div id="generation-account-category-row" className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             {/* 계정 선택 */}
             {accounts.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[11px] font-semibold text-neutral-700">
+                  <label htmlFor="generation-blog-id" className="text-[11px] font-semibold text-neutral-700">
                     발행할 네이버 블로그 ID
                   </label>
                   <Link
@@ -1233,10 +1233,11 @@ export default function MainPage() {
                   </Link>
                 </div>
                 <select
+                  id="generation-blog-id"
                   value={selectedBlogId}
                   onChange={(e) => handleSelectBlogAccount(e.target.value)}
                   disabled={loading}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900"
+                  className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900"
                 >
                   {accounts.map((acc) => (
                     <option key={acc.id} value={acc.blog_id}>
@@ -1246,21 +1247,19 @@ export default function MainPage() {
                 </select>
               </div>
             )}
-          </div>
-
-          {/* 카테고리 선택과 관리 버튼은 같은 입력 행에 배치 */}
-          <div>
+            {/* 카테고리 선택과 관리 버튼은 블로그 ID 우측에 배치 */}
+            <div className="min-w-0">
               <label htmlFor="generation-category" className="block text-[11px] font-semibold text-neutral-700 mb-1">
                 카테고리 선택
               </label>
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex flex-col xl:flex-row gap-2">
                 <select
                   id="generation-category"
                   aria-describedby="generation-category-help"
                   value={selectedRegisteredCategory?.id || ""}
                   onChange={(e) => handleSelectRegisteredCategory(e.target.value)}
                   disabled={loading || !categoriesLoaded || registeredCategories.length === 0}
-                  className="min-w-0 w-full sm:flex-1 h-10 px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500"
+                  className="min-w-0 w-full xl:flex-1 h-10 px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500"
                 >
                   <option value="" disabled>
                     {!categoriesLoaded
@@ -1292,10 +1291,12 @@ export default function MainPage() {
                   <span className="block mt-1">현재 기획 카테고리: {category} (등록 목록 외 값). 등록된 항목을 선택하면 교체됩니다.</span>
                 )}
               </p>
+            </div>
           </div>
 
-          {/* 특정 주제는 카테고리 아래의 전체 너비 입력 행 */}
-          <div>
+          {/* 특정 주제와 발행 목적은 다음 행의 같은 높이 2열 입력 */}
+          <div id="generation-topic-purpose-row" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
               <label htmlFor="generation-topic" className="block text-[11px] font-semibold text-neutral-700 mb-1">
                 특정 주제 (비워두면 페르소나 및 트렌드로 자동 발굴)
               </label>
@@ -1305,23 +1306,7 @@ export default function MainPage() {
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="예: 2026 청년 취업지원금 신청 절차"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
-              />
-          </div>
-
-          {/* 검색 키워드 & 발행 목적 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="generation-keywords" className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                검색 키워드 (쉼표 구분)
-              </label>
-              <input
-                id="generation-keywords"
-                type="text"
-                value={searchKeywords}
-                onChange={(e) => setSearchKeywords(e.target.value)}
-                placeholder="예: 정부지원금, 일상 꿀팁, 절약 노하우"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
+                className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
               />
             </div>
 
@@ -1335,9 +1320,24 @@ export default function MainPage() {
                 value={publishPurpose}
                 onChange={(e) => setPublishPurpose(e.target.value)}
                 placeholder="예: 사회초년생을 위한 실전 복지 혜택 가이드"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
+                className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
               />
             </div>
+          </div>
+
+          {/* 검색 키워드는 기획 두 행 아래의 전체 너비 입력 */}
+          <div>
+            <label htmlFor="generation-keywords" className="block text-[11px] font-semibold text-neutral-700 mb-1">
+              검색 키워드 (쉼표 구분)
+            </label>
+            <input
+              id="generation-keywords"
+              type="text"
+              value={searchKeywords}
+              onChange={(e) => setSearchKeywords(e.target.value)}
+              placeholder="예: 정부지원금, 일상 꿀팁, 절약 노하우"
+              className="w-full h-10 px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
+            />
           </div>
 
           <fieldset disabled={loading} className="min-w-0 rounded-xl border border-neutral-200 bg-white p-4 space-y-4 disabled:opacity-70">
