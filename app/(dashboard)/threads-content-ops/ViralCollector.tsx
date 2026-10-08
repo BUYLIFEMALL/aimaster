@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Archive, CheckCircle2, CircleAlert, ExternalLink, Flame, FolderCog, FolderInput, PenLine, Search, Trash2 } from "lucide-react";
+import RetentionNotice from "./RetentionNotice";
+import { retentionDaysLeft } from "@/threads-content-ops/lib/retention";
 import ViralCategoryManager, { type ViralCategory } from "./ViralCategoryManager";
 import ShortsSearch from "./ShortsSearch";
 import {
@@ -175,6 +177,8 @@ export default function ViralCollector({ candidates, categories, configuredProvi
       <p className="mt-2 text-sm leading-relaxed text-neutral-600">콘텐츠를 생성하기 전에 글감을 모으는 곳입니다. 세 가지 방법으로 모을 수 있습니다. ① 뉴스·블로그 같은 공개 페이지 주소를 넣기 ② 주제를 검색해 최근 화제 이슈 찾기(Perplexity) ③ 유튜브 쇼츠를 검색해 구독자 대비 조회수가 터진 영상을 고르고, AI가 그 영상이 터진 이유를 분석해 글감으로 저장하기. 모은 글감은 아래 목록에서 보관하거나 삭제하고, 콘텐츠 생성에서 골라 주목받는 글로 만들 수 있습니다. 원문 전체는 저장하지 않고 정리된 글감과 출처만 본인 계정에 저장하며, 사용되는 OpenAI·Perplexity·YouTube·Gemini 키는 모두 회원님 본인의 키입니다.</p>
     </section>
 
+    <RetentionNotice scope="viral" />
+
     <section className="grid gap-3 sm:grid-cols-4">
       <Overview label="수집한 글감" value={candidates.length} tone="text-violet-700" />
       <Overview label="사용 가능" value={count("ready")} tone="text-emerald-700" />
@@ -238,6 +242,7 @@ export default function ViralCollector({ candidates, categories, configuredProvi
           <label className="mb-2 inline-flex items-center gap-1.5 text-xs text-neutral-600"><input type="checkbox" className="h-4 w-4 accent-rose-600" checked={checked.includes(item.id)} disabled={busy} onChange={() => toggleChecked(item.id)} />{locked ? "선택 (보관 글감은 삭제에서 제외, 이동은 가능)" : "삭제·이동할 글감으로 선택"}</label>
           <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">{item.method === "perplexity" ? "Perplexity" : item.source_input.startsWith("https://www.youtube.com/shorts/") ? "유튜브 쇼츠" : "주소"}</span>{item.status !== "used" && <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${status.tone}`}>{status.label}</span>}<label className="relative inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-violet-300 bg-violet-50 px-2.5 py-0.5 text-xs font-semibold text-violet-800 focus-within:ring-2 focus-within:ring-violet-400 hover:bg-violet-100"><FolderInput size={12} />{labelOf(categoryOf(item) ?? "")}<span className="border-l border-violet-300 pl-1.5">변경 ▼</span><select aria-label="카테고리 변경" disabled={busy} value={categoryOf(item) ?? ""} onChange={(event) => void moveTo([item.id], event.target.value, labelOf(event.target.value))} className="absolute inset-0 h-full w-full cursor-pointer opacity-0"><option value="">미분류</option>{categories.map((cat) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}</select></label><span className="text-xs text-neutral-400">{new Date(item.created_at).toLocaleDateString("ko-KR")}</span></div>
           <p className="mt-2 font-semibold text-neutral-900">{item.title}</p>
+          {locked ? <p className="mt-0.5 text-[11px] font-semibold text-amber-700">📦 보관 중 · 자동 삭제 제외</p> : <p className="mt-0.5 text-[11px] text-neutral-500">🗓️ {retentionDaysLeft(item.created_at) <= 3 ? <b className="text-rose-600">{retentionDaysLeft(item.created_at)}일 뒤 자동 삭제</b> : `${retentionDaysLeft(item.created_at)}일 뒤 자동 삭제`}</p>}
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">{item.content}</p>
           {item.keywords.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{item.keywords.map((keyword) => <span key={keyword} className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-600">#{keyword}</span>)}</div>}
           <p className="mt-2 flex items-center gap-1 text-xs text-neutral-500">{item.method === "perplexity" ? "검색 주제: " : "출처: "}{link ? <a className="inline-flex min-w-0 items-center gap-1 text-sky-700 hover:underline" href={link} target="_blank" rel="noopener noreferrer"><ExternalLink size={12} className="shrink-0" /><span className="truncate">{item.source_input}</span></a> : <span className="truncate">{item.source_input}</span>}</p>

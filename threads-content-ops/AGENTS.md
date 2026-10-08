@@ -1,8 +1,14 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.75`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.76`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.76 글감·보관함 글 30일 자동 삭제 (2026-10-08)
+
+- 주인님 지시: naver-blog-agent(`src/lib/retention.ts`·`ContentRetentionNotice`·`api/cron/cleanup`)의 30일 자동 삭제를 이 프로그램에 확장. 기존 이미지·영상 30일 삭제(v1.59, `mediaCleanup.ts`)에 더해 **글감**과 **보관함 글**을 만든 지 30일이 지나면 삭제합니다.
+- 규칙: 글감(`tco_viral_candidates`)은 '📦 보관 중'(archived)이면 영구 보관(삭제 제외). 보관함 글(`tco_posts`)은 검토 대기(draft)·발행 실패(failed)만 삭제하고 예약 대기(scheduled)·발행 기록(published)은 유지. **정책 시작일 2026-10-08(KST) 이전 데이터도 시작일+30일(2026-11-07)까지 유예**(`lib/retention.ts` `retentionCutoff`가 null이면 아무것도 지우지 않음).
+- 구현: `lib/retention.ts`(공용 규칙·남은 일수) / `lib/contentCleanup.ts`(`cleanupUserContent`, 서버) / `RetentionNotice.tsx`(안내 박스) / 글감 카드·보관함 카드에 'N일 뒤 자동 삭제' 표시(3일 이하 빨강, 보관 글감은 '자동 삭제 제외'). 실행: ① 회원이 떡상 수집·콘텐츠 생성·보관함 화면을 열 때 본인 몫(`page.tsx`) ② 하루 1회 크론 `api/threads-content-ops/cleanup-media`(응답에 viralDeleted·draftsDeleted 추가). 크론은 `CRON_SECRET` 환경변수가 있어야 동작(미설정 시 503) — 화면 열 때 정리는 크론과 무관하게 동작합니다. DB 변경 없음.
 
 ## v1.75 콘텐츠 보관함 카테고리 (2026-10-08)
 

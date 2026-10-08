@@ -5,6 +5,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { cleanupUserContent } from "@/threads-content-ops/lib/contentCleanup";
 import { cleanupUserMedia } from "@/threads-content-ops/lib/mediaCleanup";
 import { APP_VERSION } from "@/threads-content-ops/lib/version";
 import { THREADS_CONTENT_OPS_CALLBACK_URI } from "@/threads-content-ops/lib/oauth";
@@ -34,6 +35,10 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
   // 30일 지난 내 미디어 파일은 콘텐츠 생성·초안 화면을 열 때 함께 정리한다(하루 1회 크론과 별개로 동작). 실패해도 화면에는 영향 없음.
   if (searchParams.tab === "create" || searchParams.tab === "manage") {
     try { await cleanupUserMedia(createServiceClient(), user.id); } catch { /* 정리 실패는 무시 */ }
+  }
+  // 만든 지 30일 지난 글감·보관함 글(검토 대기·발행 실패)도 화면을 열 때 본인 몫을 정리한다(v1.76, 보관 중 글감은 제외).
+  if (searchParams.tab === "viral" || searchParams.tab === "create" || searchParams.tab === "manage") {
+    try { await cleanupUserContent(createServiceClient(), user.id); } catch { /* 정리 실패는 무시 */ }
   }
 
   const { data: accounts } = await supabase.from("tco_threads_accounts")
