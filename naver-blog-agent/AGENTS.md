@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.27` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.28` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -49,6 +49,22 @@
 ---
 
 ## 🕒 버전 히스토리
+
+- **v1.28 (2026-10-08)**:
+  - **좌측 사이드바(`Sidebar.tsx`) 번호형 작업 흐름(1~4) 및 API키등록·플랫폼연동 구분선 분리 표준 레이아웃 적용 (주인님 확정)**:
+    - 배경: 주인님의 "이것 처럼 좌측 메뉴에 api키 등록 플랫폼 연동을 구분해줘" 요청 및 스크린샷(`orca-paste-1791431348408-988326c8-fb5d-4ec3-b51c-e2d896e68030.png`) 지시에 따라 `threads-content-ops` 및 `docs/SIDEBAR_LAYOUT_STANDARD.md` 표준 사이드바 정보 구조와 100% 동일하게 UI 개편.
+    - 조치:
+      1) **최상단 대시보드 (`/dashboard`)**: `LayoutDashboard` 아이콘과 함께 직관적인 진입점 배치.
+      2) **핵심 작업 흐름 (번호 배지 1~4 & 세로 연결선)**:
+         - 1: `🔥 떡상 콘텐츠 수집` (`/collector`, `Flame`)
+         - 2: `✏️ 콘텐츠 생성` (`/`, `PenLine`)
+         - 3: `↗️ 콘텐츠 보관함` (`/queue`, `Send`)
+         - 4: `👥 계정 운영정보` (`/accounts`, `UsersRound`)
+         - 활성 상태 시 브랜드 오렌지(`bg-amber-500 text-white`) 원형 번호 배지 및 `bg-amber-50 text-amber-900` 배경 하이라이트.
+      3) **하단 구분선 및 연동/유틸리티 분리**:
+         - `<hr>` 구분선(`border-t border-neutral-200`) 하단에 `🔑 API키등록·플랫폼연동`(`KeyRound`) 및 `📖 연동 & 사용 매뉴얼`(`BookOpen`) 배치.
+         - 로그인 계정 이메일(`userEmail`) 및 `[-> 로그아웃`(`LogOut`) 버튼 통합.
+    - 버전 v1.28 갱신: `version.ts`, `package.json`, `extension/manifest.json`, DB `programs.version`, 마이그레이션 `0028_bump_version_v1_28.sql` 동기화 완료.
 
 - **v1.27 (2026-10-08)**:
   - **연동 & 실전 사용 매뉴얼(`/guide`) 전면 개편 및 최신 구현 기능 집대성 (주인님 확정)**:

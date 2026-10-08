@@ -2,101 +2,151 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Flame,
+  KeyRound,
+  LayoutDashboard,
+  LogOut,
+  PenLine,
+  Send,
+  UsersRound,
+  BookOpen,
+} from "lucide-react";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
 
-const MENU_ITEMS = [
-  { href: "/dashboard", icon: "📊", label: "운영 대시보드", desc: "블로그 운영 현황 및 통계" },
-  { href: "/collector", icon: "🔥", label: "글감 수집 (떡상·트렌드)", desc: "뉴스·URL·화제 검색 글감 수집" },
-  { href: "/", icon: "✍️", label: "블로그 글 자동 생성", desc: "5단계 AI 기획·작성·윤문" },
-  { href: "/queue", icon: "📑", label: "생성 원고 보관함 & 발행 큐", desc: "생성된 글 열람·편집·스마트에디터 발행" },
-  { href: "/accounts", icon: "👥", label: "네이버 계정·카테고리", desc: "다중 블로그 ID & 키워드 설정" },
-  { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동", desc: "AI 키 등록 & 크롬 확장 페어링" },
-  { href: "/guide", icon: "📖", label: "연동 & 사용 매뉴얼", desc: "크롬 확장 설치 및 네이버 연동 가이드" },
+const flow = [
+  { href: "/collector", label: "떡상 콘텐츠 수집", icon: Flame },
+  { href: "/", label: "콘텐츠 생성", icon: PenLine },
+  { href: "/queue", label: "콘텐츠 보관함", icon: Send },
+  { href: "/accounts", label: "계정 운영정보", icon: UsersRound },
 ];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:flex-col md:border-r md:border-neutral-200 md:bg-white md:p-4">
-      <div className="md:min-h-0 md:overflow-y-auto flex flex-col h-full">
-        {/* 헤더 브랜딩 */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 px-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold text-sm shadow-sm">
-              N
-            </span>
-            <div className="text-lg font-bold text-neutral-900 tracking-tight">
-              네이버 블로그 에이전트
-            </div>
-          </div>
-          <div className="flex items-center gap-2 px-2 mt-1.5">
-            <span className="inline-block rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] font-semibold text-neutral-600">
-              {APP_VERSION}
-            </span>
-            <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              확장 연동형
-            </span>
-          </div>
-          <a
-            href="https://www.buylife.xyz/programs"
-            className="mt-2.5 block px-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
-          >
-            ← 다른 프로그램 보기
-          </a>
-        </div>
+    <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-neutral-200 bg-white md:sticky md:top-0 md:flex">
+      {/* 1. 헤더 브랜딩 & 버전 */}
+      <div className="border-b border-neutral-200 p-5">
+        <p className="text-lg font-bold text-neutral-900">네이버 블로그 에이전트</p>
+        <p className="mt-1 text-xs text-neutral-400">{APP_VERSION}</p>
+        <a
+          className="mt-2 block text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+          href="https://www.buylife.xyz/programs"
+        >
+          ← 다른 프로그램 보기
+        </a>
+      </div>
 
-        {/* 내비게이션 메뉴 */}
-        <nav className="space-y-1.5">
-          {MENU_ITEMS.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-start gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                  isActive
-                    ? "bg-neutral-900 text-white shadow-sm"
-                    : "text-neutral-700 hover:bg-neutral-100"
-                }`}
-              >
-                <span className="text-lg leading-none">{item.icon}</span>
-                <div className="min-w-0 flex-1">
-                  <div className="leading-tight">{item.label}</div>
+      {/* 2. 내비게이션 영역 */}
+      <nav className="flex-1 p-3 flex flex-col justify-between overflow-y-auto">
+        <div>
+          {/* 최상단 대시보드 */}
+          <Link
+            href="/dashboard"
+            className={`mb-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+              pathname === "/dashboard"
+                ? "bg-sky-50 text-sky-700 font-bold"
+                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+            }`}
+          >
+            <LayoutDashboard size={16} />
+            <span>대시보드</span>
+          </Link>
+
+          {/* 핵심 작업 흐름: 번호 배지와 세로 연결선 (1 -> 2 -> 3 -> 4) */}
+          <div className="relative">
+            {flow.map(({ href, label, icon: Icon }, index) => {
+              const active = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className="group relative flex gap-3 pb-2 transition-all"
+                >
+                  <div className="flex flex-col items-center">
+                    <span
+                      className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all ${
+                        active
+                          ? "bg-amber-500 text-white shadow-xs"
+                          : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+                      }`}
+                    >
+                      {index + 1}
+                    </span>
+                    {index < flow.length - 1 && (
+                      <span className="mt-1 h-4 w-px bg-neutral-200" />
+                    )}
+                  </div>
                   <div
-                    className={`text-[11px] mt-0.5 truncate ${
-                      isActive ? "text-neutral-300" : "text-neutral-400"
+                    className={`flex-1 rounded-lg px-2 py-1.5 transition-all ${
+                      active ? "bg-amber-50" : "group-hover:bg-neutral-50"
                     }`}
                   >
-                    {item.desc}
+                    <p
+                      className={`flex items-center gap-2 text-sm font-bold ${
+                        active ? "text-amber-900" : "text-neutral-800"
+                      }`}
+                    >
+                      <Icon size={15} />
+                      <span>{label}</span>
+                    </p>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* 사용자 계정 정보 & 로그아웃 (메뉴 바로 밑 위치 규격) */}
-        <div className="mt-6 pt-4 border-t border-neutral-100">
-          <div className="rounded-xl bg-neutral-50 p-3">
-            <div className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-              로그인 계정
-            </div>
-            <div className="mt-1 truncate text-xs font-medium text-neutral-800" title={userEmail}>
-              {userEmail || "로그인 사용자"}
-            </div>
-            <form action={signOutAction} className="mt-2.5">
-              <button
-                type="submit"
-                className="w-full rounded-lg border border-neutral-200 bg-white py-1.5 text-center text-xs font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
-              >
-                로그아웃
-              </button>
-            </form>
+                </Link>
+              );
+            })}
           </div>
         </div>
-      </div>
+
+        {/* 3. 구분선 및 하단 연동/유틸리티 & 사용자 계정 정보 */}
+        <div className="mt-2 border-t border-neutral-200 pt-3 space-y-1">
+          {/* API키등록·플랫폼연동 */}
+          <Link
+            href="/settings"
+            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+              pathname === "/settings"
+                ? "bg-sky-50 text-sky-700 font-bold"
+                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+            }`}
+          >
+            <KeyRound size={16} />
+            <span>API키등록·플랫폼연동</span>
+          </Link>
+
+          {/* 연동 & 사용 매뉴얼 */}
+          <Link
+            href="/guide"
+            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+              pathname === "/guide"
+                ? "bg-sky-50 text-sky-700 font-bold"
+                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+            }`}
+          >
+            <BookOpen size={16} />
+            <span>연동 & 사용 매뉴얼</span>
+          </Link>
+
+          {/* 로그인 계정 */}
+          <p
+            className="mt-1 truncate px-3 py-1.5 text-xs text-neutral-500"
+            title={userEmail}
+          >
+            {userEmail || "로그인 계정"}
+          </p>
+
+          {/* 로그아웃 버튼 */}
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
+            >
+              <LogOut size={16} />
+              <span>로그아웃</span>
+            </button>
+          </form>
+        </div>
+      </nav>
     </aside>
   );
 }
