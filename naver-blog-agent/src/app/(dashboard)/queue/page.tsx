@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import type { CollectorCategory } from "@/types/collector";
-import { DEFAULT_COLLECTOR_CATEGORIES } from "@/types/collector";
+import { useContentCategories } from "@/hooks/useContentCategories";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft, retentionDeleteAt } from "@/lib/retention";
@@ -60,7 +60,7 @@ export default function QueuePage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // 1. 카테고리 연계 상태 (떡상 글감 수집소와 동일한 로컬스토리지 공유)
-  const [categories, setCategories] = useState<CollectorCategory[]>([]);
+  const { categories, saveCategories } = useContentCategories();
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [bulkMoveCategory, setBulkMoveCategory] = useState<string>("");
@@ -68,24 +68,6 @@ export default function QueuePage() {
   // 2. 다중 선택 체크박스 상태
   const [checkedIds, setCheckedIds] = useState<string[]>([]);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
-
-  // 3. 로컬스토리지에서 카테고리 로드
-  useEffect(() => {
-    try {
-      const savedCats = localStorage.getItem("nba_collector_categories");
-      if (savedCats) {
-        const parsed = JSON.parse(savedCats);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setCategories(parsed);
-          return;
-        }
-      }
-      setCategories(DEFAULT_COLLECTOR_CATEGORIES);
-      localStorage.setItem("nba_collector_categories", JSON.stringify(DEFAULT_COLLECTOR_CATEGORIES));
-    } catch {
-      setCategories(DEFAULT_COLLECTOR_CATEGORIES);
-    }
-  }, []);
 
   // 4. 원고 목록 로드
   const fetchPosts = async () => {
@@ -133,8 +115,7 @@ export default function QueuePage() {
 
   // 5. 카테고리 업데이트 핸들러 (모달 연계)
   const handleUpdateCategories = (updatedCats: CollectorCategory[]) => {
-    setCategories(updatedCats);
-    localStorage.setItem("nba_collector_categories", JSON.stringify(updatedCats));
+    saveCategories(updatedCats);
   };
 
   // 6. 카테고리 삭제 시 연계 원고 안전 전환

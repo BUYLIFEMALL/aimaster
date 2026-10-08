@@ -35,6 +35,7 @@ import { retentionDaysLeft } from "@/lib/retention";
 import type { PipelineResult } from "@/lib/ai/pipeline";
 import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate } from "@/types/collector";
+import { useContentCategories } from "@/hooks/useContentCategories";
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import {
   ENGINES,
@@ -55,6 +56,7 @@ export default function MainPage() {
   const [activePersonaId, setActivePersonaId] = useState<string | null>("housewife");
   const [topic, setTopic] = useState("살림 9단이 직접 써보고 엄선한 삶의 질 수직상승 살림·가전 필수템 솔직 후기");
   const [category, setCategory] = useState("생활/살림꿀팁");
+  const { categories: registeredCategories, loaded: categoriesLoaded } = useContentCategories();
   const [searchKeywords, setSearchKeywords] = useState("가전제품 비교, 살림 꿀팁, 세탁 노하우, 가성비 주방용품, 삶의 질 상승템");
   const [publishPurpose, setPublishPurpose] = useState("실제 주부 입장에서 가성비와 찐활용도를 꼼꼼하게 비교 분석하여 이웃들에게 추천");
   const [preferredTone, setPreferredTone] = useState<WritingTone>("해요체");
@@ -373,27 +375,17 @@ export default function MainPage() {
 
   const handleSelectBlogAccount = (blogId: string) => {
     setSelectedBlogId(blogId);
-    const account = accounts.find((a) => a.blog_id === blogId);
-    const first = Array.isArray(account?.categories) ? account.categories[0] : undefined;
-    setCategory(first?.category_name || "");
-    setSearchKeywords(first?.search_keywords || "");
-    setPublishPurpose(first?.publish_purpose || "");
   };
 
   const handleSelectRegisteredCategory = (categoryId: string) => {
-    const account = accounts.find((a) => a.blog_id === selectedBlogId);
-    const categories = Array.isArray(account?.categories) ? account.categories : [];
-    const selected = categories.find((c: any) => c.id === categoryId);
+    const selected = registeredCategories.find((c) => c.id === categoryId);
     if (!selected) return;
-    setCategory(selected.category_name);
-    setSearchKeywords(selected.search_keywords || "");
-    setPublishPurpose(selected.publish_purpose || "");
+    setCategory(selected.name);
   };
 
   // 페르소나 클릭 시 조건 자동 세팅
   const handleSelectPersona = (p: BlogPersona) => {
     setActivePersonaId(p.id);
-    setCategory(p.defaultCategory);
     setTopic(p.defaultTopic);
     setSearchKeywords(p.defaultKeywords);
     setPublishPurpose(p.defaultPurpose);
@@ -405,7 +397,7 @@ export default function MainPage() {
     setGeneratingPersonaName(p.name);
     await executeGeneration({
       overrideTopic: topic.trim() || p.defaultTopic,
-      overrideCategory: p.defaultCategory,
+      overrideCategory: category || p.defaultCategory,
       overrideKeywords: p.defaultKeywords,
       overridePurpose: p.defaultPurpose,
       overrideTone: preferredTone,
@@ -818,9 +810,7 @@ export default function MainPage() {
     return elements;
   };
 
-  const currentAcc = accounts.find((a) => a.blog_id === selectedBlogId);
-  const registeredCategories = Array.isArray(currentAcc?.categories) ? currentAcc.categories : [];
-  const selectedRegisteredCategory = registeredCategories.find((c: any) => c.category_name === category);
+  const selectedRegisteredCategory = registeredCategories.find((c) => c.name === category);
 
   return (
     <div className="space-y-6">
@@ -1249,31 +1239,30 @@ export default function MainPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="generation-category" className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                네이버 블로그 카테고리
+                카테고리 선택
               </label>
               <select
                 id="generation-category"
                 aria-describedby="generation-category-help"
                 value={selectedRegisteredCategory?.id || ""}
                 onChange={(e) => handleSelectRegisteredCategory(e.target.value)}
-                disabled={loading || registeredCategories.length === 0}
+                disabled={loading || !categoriesLoaded || registeredCategories.length === 0}
                 className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500"
               >
                 <option value="" disabled>
-                  {!currentAcc
-                    ? "먼저 네이버 블로그 계정을 등록해 주세요"
+                  {!categoriesLoaded
+                    ? "카테고리 목록을 불러오는 중입니다"
                     : registeredCategories.length === 0
                       ? "등록된 카테고리가 없습니다"
                       : "등록된 카테고리를 선택하세요"}
                 </option>
-                {registeredCategories.map((c: any) => (
-                  <option key={c.id} value={c.id}>{c.category_name}</option>
+                {registeredCategories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
               <p id="generation-category-help" className="mt-1.5 text-[11px] text-neutral-500">
-                {registeredCategories.length > 0
-                  ? "선택하면 등록된 검색 키워드와 발행 목적도 함께 불러옵니다."
-                  : <>선택한 계정에 카테고리를 먼저 등록해 주세요. <Link href="/accounts" className="text-emerald-600 hover:underline">카테고리 등록 ↗</Link></>}
+                콘텐츠 보관함·글감 수집소와 같은 분류 목록입니다. 검색 키워드와 발행 목적은 유지됩니다. <Link href="/queue" className="text-emerald-600 hover:underline">카테고리 관리 ↗</Link>
+                {categoriesLoaded && registeredCategories.length === 0 && <span className="block mt-1">보관함에서 콘텐츠 카테고리를 등록해 주세요.</span>}
                 {!selectedRegisteredCategory && category && (
                   <span className="block mt-1">현재 기획 카테고리: {category} (등록 목록 외 값). 등록된 항목을 선택하면 교체됩니다.</span>
                 )}
@@ -2092,6 +2081,7 @@ export default function MainPage() {
           excerpt={result.excerpt || ""}
           tags={result.tags}
           category={result.category}
+          categories={registeredCategories}
           generatedImages={generatedImages}
           activeImageModel={imageSettings.model}
           onSave={handleSaveEditedContent}

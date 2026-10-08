@@ -27,7 +27,8 @@ import {
   ArrowRightLeft,
 } from "lucide-react";
 import type { BlogViralCandidate, ShortVideo, ShortsOrder, CollectorCategory } from "@/types/collector";
-import { INITIAL_SAMPLE_CANDIDATES, DEFAULT_COLLECTOR_CATEGORIES } from "@/types/collector";
+import { INITIAL_SAMPLE_CANDIDATES } from "@/types/collector";
+import { useContentCategories } from "@/hooks/useContentCategories";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft, retentionDeleteAt, isRetentionExpired } from "@/lib/retention";
@@ -69,7 +70,7 @@ export default function CollectorPage() {
   const [mounted, setMounted] = useState(false);
 
   // 카테고리 관리 상태
-  const [categories, setCategories] = useState<CollectorCategory[]>([]);
+  const { categories, saveCategories } = useContentCategories();
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
@@ -106,25 +107,6 @@ export default function CollectorPage() {
 
   // 1. LocalStorage 로드 (글감 및 카테고리)
   useEffect(() => {
-    // 1-1. 카테고리 로드
-    try {
-      const savedCats = localStorage.getItem("nba_collector_categories");
-      if (savedCats) {
-        const parsed = JSON.parse(savedCats);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setCategories(parsed);
-        } else {
-          setCategories(DEFAULT_COLLECTOR_CATEGORIES);
-          localStorage.setItem("nba_collector_categories", JSON.stringify(DEFAULT_COLLECTOR_CATEGORIES));
-        }
-      } else {
-        setCategories(DEFAULT_COLLECTOR_CATEGORIES);
-        localStorage.setItem("nba_collector_categories", JSON.stringify(DEFAULT_COLLECTOR_CATEGORIES));
-      }
-    } catch {
-      setCategories(DEFAULT_COLLECTOR_CATEGORIES);
-    }
-
     // 1-2. 글감 로드 (보관 여부 is_archived 하위 호환 마이그레이션 포함)
     try {
       const saved = localStorage.getItem("nba_viral_candidates");
@@ -175,12 +157,7 @@ export default function CollectorPage() {
 
   // 3. 카테고리 저장 헬퍼
   const persistCategories = (updated: CollectorCategory[]) => {
-    setCategories(updated);
-    try {
-      localStorage.setItem("nba_collector_categories", JSON.stringify(updated));
-    } catch (e) {
-      console.error("Failed to save categories to local storage:", e);
-    }
+    saveCategories(updated);
   };
 
   // 4. 카테고리 삭제 시 기존 글감 미분류 전환
