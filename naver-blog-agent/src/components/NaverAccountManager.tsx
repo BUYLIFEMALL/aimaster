@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Edit2, User, Check } from "lucide-react";
+import { useAccountsSync } from "@/hooks/useAccountsSync";
 
 interface Account {
   id: string;
@@ -30,7 +31,10 @@ export function NaverAccountManager() {
   const [editAccountLabel, setEditAccountLabel] = useState("");
   const [editAccountBlogId, setEditAccountBlogId] = useState("");
 
-  // 로컬 스토리지 기반 관리 (기본 샘플 포함)
+  // 회원별 DB와 동기화(서버가 기준, 로컬 저장소는 캐시)
+  useAccountsSync(accounts, setAccounts);
+
+  // 로컬 스토리지 캐시 (처음 쓰는 브라우저는 견본 계정을 보여주되 서버에는 저장하지 않음)
   useEffect(() => {
     const saved = localStorage.getItem("nba_accounts_local");
     if (saved) {

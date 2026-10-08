@@ -59,13 +59,22 @@ const categories = [
     removeEventListener: (event, fn) => listeners.get(event)?.delete(fn),
     dispatchEvent: (event) => { for (const fn of listeners.get(event.type) || []) fn(event); },
   };
+  // 회원별 서버 저장 모의(네트워크 없음): /api/content-categories GET/PUT
+  let serverCats = [];
+  let putCount = 0;
+  const fakeFetch = async (url, init) => {
+    if (url !== "/api/content-categories") return { ok: false };
+    if (init && init.method === "PUT") { serverCats = JSON.parse(init.body).categories; putCount++; return { ok: true, json: async () => ({ success: true }) }; }
+    return { ok: true, json: async () => ({ categories: serverCats }) };
+  };
+  const sync = loadModule("lib/serverSync.ts", {}, { fetch: fakeFetch });
   function mountHook() {
     const states = [], effects = [];
     const react = {
       useState: (value) => { const index = states.length; states.push(value); return [value, (next) => { states[index] = next; }]; },
       useEffect: (effect) => effects.push(effect), useCallback: (fn) => fn,
     };
-    const hook = loadModule("hooks/useContentCategories.ts", { react, "@/lib/contentCategories": store }, { window: browser, Event });
+    const hook = loadModule("hooks/useContentCategories.ts", { react, "@/lib/contentCategories": store, "@/lib/serverSync": sync }, { window: browser, Event });
     const value = hook.useContentCategories();
     const cleanup = effects.map((effect) => effect());
     return { states, value, unmount: () => cleanup.forEach((fn) => fn()) };
@@ -84,6 +93,46 @@ const categories = [
   for (const screen of screens) assert.deepEqual(names(screen.states[0]), names(categories));
   screens.forEach((screen) => screen.unmount());
   for (const callbacks of listeners.values()) assert.equal(callbacks.size, 0, "Listener cleanup");
+
+  // 서버 동기화: 처음 연결한 브라우저는 합쳐 올리고, 이후에는 서버가 기준
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 5));
+  const mountFresh = async (local, done) => {
+    entries.clear();
+    if (local !== undefined) entries.set(store.CONTENT_CATEGORIES_KEY, JSON.stringify(local));
+    if (done) entries.set("nba_server_sync_done_categories", "1");
+    const screen = mountHook();
+    await tick(); await tick();
+    return screen;
+  };
+  const serverItem = { id: "srv", name: "서버 분류", slug: "srv", sort_order: 1 };
+  serverCats = [];
+  let screen = await mountFresh(categories, false);
+  assert.deepEqual(names(serverCats), names(categories), "First connect uploads this browser's saved categories");
+  assert.equal(entries.get("nba_server_sync_done_categories"), "1");
+  screen.unmount();
+  serverCats = [serverItem];
+  screen = await mountFresh(undefined, false);
+  assert.deepEqual(names(store.readContentCategories(storage)), ["서버 분류"], "A new browser receives the member's server categories");
+  screen.unmount();
+  serverCats = [serverItem];
+  screen = await mountFresh(categories, false);
+  assert.equal(serverCats.length, 3, "First connect merges local-only categories into the server list");
+  screen.unmount();
+  serverCats = [serverItem]; putCount = 0;
+  screen = await mountFresh(categories, true);
+  assert.deepEqual(names(store.readContentCategories(storage)), ["서버 분류"], "After first connect the server list wins");
+  assert.equal(putCount, 0, "No upload when only reading the server list");
+  screen.unmount();
+  screen = await mountFresh(undefined, true);
+  serverCats = [];
+  screen.value.saveCategories(categories);
+  await tick();
+  assert.deepEqual(names(serverCats), names(categories), "Saving categories also saves to the server");
+  screen.unmount();
+  serverCats = [];
+  await mountFresh(undefined, false).then((s) => s.unmount());
+  assert.equal(putCount, 1, "Defaults that were never saved are not uploaded");
+  entries.clear();
 
   const state = { selectedBlogId: "a", category: "old", searchKeywords: "original keywords", publishPurpose: "original purpose", topic: "original topic", preferredTone: "합니다체", writingStyle: "concise" };
   const context = { ...state, registeredCategories: categories, setActivePersonaId() {}, setGeneratingPersonaName() {},

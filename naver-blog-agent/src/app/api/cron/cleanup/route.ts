@@ -63,26 +63,10 @@ export async function GET(request: NextRequest) {
       console.warn("nba_posts cleanup error:", e);
     }
 
-    // 2. 오래된 원고 삭제 (naver_blog_seo_drafts)
-    try {
-      const { data: oldDrafts, error: draftsErr } = await admin
-        .from("naver_blog_seo_drafts")
-        .select("id")
-        .lt("created_at", cutoff.toISOString());
+    // naver_blog_seo_drafts는 다른 프로그램(네이버 블로그 SEO 스튜디오)의 원고 테이블이라 여기서 지우지 않는다.
+    // (v1.49 이전에는 nba_posts가 없어 이 에이전트도 그 테이블에 임시 저장했지만, 이제 nba_posts가 생겨 해당 없음)
 
-      if (!draftsErr && oldDrafts && oldDrafts.length > 0) {
-        expiredPostsCount += oldDrafts.length;
-        if (!dryRun) {
-          const ids = oldDrafts.map((d: any) => d.id);
-          const { error: delDraftErr } = await admin.from("naver_blog_seo_drafts").delete().in("id", ids);
-          if (!delDraftErr) removedPostsCount += ids.length;
-        }
-      }
-    } catch (e) {
-      console.warn("naver_blog_seo_drafts cleanup error:", e);
-    }
-
-    // 3. 오래된 AI 이미지 파일 삭제 (ai-image-generations 버킷의 naver-blog-agent/ 폴더 하위)
+    // 2. 오래된 AI 이미지 파일 삭제 (ai-image-generations 버킷의 naver-blog-agent/ 폴더 하위)
     try {
       const storage = admin.storage.from(MEDIA_BUCKET);
       // naver-blog-agent 하위 사용자 폴더 탐색

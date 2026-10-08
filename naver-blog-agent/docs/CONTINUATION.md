@@ -9,6 +9,12 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
+### v1.49 추가 (회원별 DB 이관 + 핵심 테이블 생성)
+
+- 테이블: `nba_accounts(user_id, blog_id UNIQUE per user, label)`, `nba_content_categories(user_id, id text, name, slug, sort_order, PK(user_id,id))`, `nba_posts`, `nba_extension_tokens` — 전부 RLS owner-only(`supabase/migrations/0049_nba_core_tables.sql`, 프로덕션 적용 완료). `nba_categories`(0001의 계정별 프리셋)는 쓰이지 않아 만들지 않았습니다.
+- 동기화: `src/lib/serverSync.ts`(pull/push/merge), `src/hooks/useAccountsSync.ts`(계정), `src/hooks/useContentCategories.ts`(분류). 처음 연결한 브라우저는 로컬+서버 합치기 후 `nba_server_sync_done_*` 표시, 이후 서버 우선.
+- 이전까지 `/api/posts`는 `nba_posts`가 없어 `naver_blog_seo_drafts`로 폴백했고, 확장 연결용 테이블이 없어 v1.43 흐름은 DB 단계에서 막혀 있었습니다. 이제 열렸지만 실제 Chrome 설치·발행 시험은 여전히 미실시입니다.
+
 ### v1.48 추가 (ESLint, CRON_SECRET 점검)
 
 - `eslint.config.mjs`(경고 기반 기준선). `CRON_SECRET` 미설정 확인(`vercel env ls`): `/api/cron/cleanup`은 비밀값이 없으면 항상 401(안전하게 닫힘)이지만 `vercel.json`의 크론이 매일 401만 받습니다. 또한 라우트가 `?key=` 쿼리로도 비밀값을 받으므로 URL이 로그에 남을 수 있습니다(헤더 인증만 남기는 것을 권장, 미변경).

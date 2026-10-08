@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.48` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.49` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -70,6 +70,13 @@
    - 기존 저장된 사용자 목록과 순서를 유지하고, 명시적으로 비운 목록을 기본 목록으로 되살리지 않습니다. 현재 목록은 기존 브라우저 저장 방식이며 회원별 서버 저장/다른 기기 동기화로 설명하지 않습니다. DB 이관은 별도 승인 과제입니다.
 
 ## 🕒 버전 히스토리
+
+- **v1.49 (2026-10-09)**:
+  - **계정·콘텐츠 분류를 회원별 DB로 이관**(주인님 승인). 서버가 기준, 브라우저 저장소(`nba_accounts_local`, `nba_collector_categories`)는 캐시입니다. `/api/accounts`(GET, PUT=목록 전체 저장·blog_id 기준)와 `/api/content-categories`(GET, PUT)는 `checkProgramAccessApi` + `user_id` 필터 + 입력 검증. 이 브라우저에서 처음 연결할 때만 로컬 데이터를 서버에 합쳐 올립니다(견본 계정 `myblog_sample`은 올리지 않음). 이후에는 서버 목록을 따릅니다. 서버를 읽지 못하면 로컬 값으로 계속 동작합니다.
+  - **프로덕션 DB에 `nba_accounts`·`nba_posts`·`nba_extension_tokens` 테이블이 없었음을 발견**(최초 마이그레이션 `0001`이 적용되지 않음). 이 때문에 v1.43 확장 연결(`nba_extension_tokens`/`nba_posts`)이 실제로는 동작할 수 없었습니다. `0049_nba_core_tables.sql`로 `nba_accounts`, `nba_content_categories`(신규), `nba_posts`, `nba_extension_tokens`를 owner-only RLS로 생성했습니다(프로덕션 적용 완료). 이제 `/api/posts`가 `nba_posts`를 쓰고 `naver_blog_seo_drafts` 폴백은 쓰이지 않습니다(그 테이블 53건은 SEO 스튜디오 원고이며 이 에이전트 데이터는 0건이었음).
+  - 정리 크론(`/api/cron/cleanup`)이 SEO 스튜디오의 `naver_blog_seo_drafts`까지 지우던 코드를 제거했습니다(`CRON_SECRET`을 켜기 전 필수 수정).
+  - 새 테스트 `npm run test:member-data`, `test:categories`에 서버 동기화 5개 시나리오 추가.
+  - 알려진 한계: 분류 목록이 서버에서 비어 있으면 "아직 저장 안 함"으로 보므로, 다른 기기에서 "모두 삭제"한 상태는 이 기기에 전파되지 않습니다.
 
 - **v1.48 (2026-10-09)**:
   - `eslint.config.mjs` 추가(형제 서브프로젝트와 같은 Next 16 flat config). `npm run lint`가 오류 0건으로 동작합니다. 확장·스크립트·public은 제외. 기존 부채(`no-explicit-any` 90곳, 훅 규칙 7곳, 이스케이프 6곳)는 경고로 낮췄고(경고 163건), 새 구문 오류는 막습니다. 부채를 고칠 때마다 해당 규칙을 error로 되돌립니다.
