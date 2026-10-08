@@ -182,12 +182,16 @@ ${persona.tonePrompt}
 기준 연도: ${currentYear}년 (과거 연도 2023~2024년 표기 금지, ${currentYear}년 최신 정보 기준)
 제목: ${researchData.finalTitle}
 카테고리: ${category}
+${cleanTopic ? `사용자가 지정한 주제: ${cleanTopic}
+` : ""}검색 키워드: ${cleanSearchKeywords || "(지정 없음)"}
+발행 목적: ${cleanPublishPurpose || "정보 제공 및 독자 체류시간 극대화"}
 목표 분량: 공백 포함 약 ${targetLength}자
 ${persona ? `작성자 캐릭터: ${persona.name} (${persona.badge})` : ""}
 소제목 구성:
 ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}: ${s.keyPoints.join(", ")}`).join("\n")}
 
-위 목차를 바탕으로 스마트에디터 ONE 양식의 전체 본문을 약 ${targetLength}자 분량으로 상세히 작성해줘.`;
+위 목차를 바탕으로 스마트에디터 ONE 양식의 전체 본문을 약 ${targetLength}자 분량으로 상세히 작성해줘.
+검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.`;
 
   const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}\n\n${writingStylePrompt}`, writerUserPrompt);
   let draftArticle = sanitizeYear(writerRaw.trim(), currentYear);

@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.44` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.45` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -70,6 +70,10 @@
    - 기존 저장된 사용자 목록과 순서를 유지하고, 명시적으로 비운 목록을 기본 목록으로 되살리지 않습니다. 현재 목록은 기존 브라우저 저장 방식이며 회원별 서버 저장/다른 기기 동기화로 설명하지 않습니다. DB 이관은 별도 승인 과제입니다.
 
 ## 🕒 버전 히스토리
+
+- **v1.45 (2026-10-09)**:
+  - Writer(`src/lib/ai/pipeline.ts`)에 지정 주제·검색 키워드·발행 목적을 직접 전달합니다(이전에는 기획 단계에만 들어가고 본문 작성에는 전달되지 않음).
+  - 페르소나 `⚡ 즉시 생성`이 이전에 입력/선택돼 있던 주제(`topic` 상태, setState 지연으로 낡은 값)를 섞던 문제를 수정: 선택한 페르소나의 `defaultTopic`만 사용. `test:categories`·`test:writing-styles`에 회귀 검증 추가.
 
 - **v1.44 (2026-10-09)**:
   - `src/lib/ai/models.ts`가 화면에서 고른 모델 ID를 그대로 호출합니다(GPT-4.1·GPT-5/6·Gemini 3.x를 gpt-4o·gemini-2.0-flash로, Claude를 옛 3.x ID로 몰래 바꾸던 매핑 삭제). 모델이 비어 있을 때만 `DEFAULT_MODELS`(화면 기본 추천과 동일)를 씁니다. 잘못된 ID는 공급사 오류로 그대로 드러납니다.

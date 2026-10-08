@@ -9,6 +9,10 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
+### v1.45 추가 (Writer 입력 보강 + 페르소나 주제 혼합 해소)
+
+- `pipeline.ts` `writerUserPrompt`에 주제·키워드·발행 목적 추가. `page.tsx handleGenerateWithPersona`는 `overrideTopic: p.defaultTopic`(낡은 `topic` 상태 미사용). 카테고리는 기존대로 사용자가 고른 콘텐츠 분류 우선.
+
 ### v1.44 추가 (모델 매핑 정직화)
 
 - `src/lib/ai/models.ts`: `resolveModel(provider, model)`이 선택 ID를 그대로 반환, 비었을 때만 `DEFAULT_MODELS`. 옛 모델로 치환하던 코드 삭제. `test:models`가 `contentModels.ts` 목록 전체를 모의 SDK로 검증.

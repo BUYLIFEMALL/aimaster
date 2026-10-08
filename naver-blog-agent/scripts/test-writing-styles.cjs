@@ -43,6 +43,10 @@ function loadTS(filename) {
 (async () => {
   const styles = loadTS(path.join(root, 'src/lib/ai/writingStyles.ts'));
   const { runBlogGenerationPipeline } = loadTS(path.join(root, 'src/lib/ai/pipeline.ts'));
+  calls = [];
+  await runBlogGenerationPipeline({ category: '생활정보', topic: '에어컨 전기요금', searchKeywords: '에어컨 절전, 인버터', publishPurpose: '여름철 전기요금 절약 안내', aiConfig: { provider: 'openai', apiKey: 'mock-not-a-key' } });
+  const writerCall = calls.find((c) => c.system.includes('파워블로거'));
+  for (const text of ['에어컨 전기요금', '에어컨 절전, 인버터', '여름철 전기요금 절약 안내']) assert.ok(writerCall.user.includes(text), `Writer prompt must include: ${text}`);
   assert.equal(styles.WRITING_TONES.length, 4);
   assert.equal(styles.WRITING_STYLES.length, 8);
   for (const tone of styles.WRITING_TONES) {

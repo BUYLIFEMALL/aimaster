@@ -409,7 +409,8 @@ export default function MainPage() {
     handleSelectPersona(p);
     setGeneratingPersonaName(p.name);
     await executeGeneration({
-      overrideTopic: topic.trim() || p.defaultTopic,
+      // setTopic은 다음 렌더에서야 반영되므로 이전 페르소나/입력 주제(topic)를 섞지 않고 선택한 페르소나의 주제를 쓴다.
+      overrideTopic: p.defaultTopic,
       overrideCategory: category || p.defaultCategory,
       overrideKeywords: p.defaultKeywords,
       overridePurpose: p.defaultPurpose,

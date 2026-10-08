@@ -112,7 +112,10 @@ const categories = [
   context.handleSelectPersona = evaluate("handleSelectPersona", context);
   context.handleSelectPersona(persona);
   assert.equal(state.category, categories[1].name, "Persona preserves content classification");
+  state.topic = "stale topic"; context.topic = "stale topic";
+  context.handleSelectPersona = () => {};
   await evaluate("handleGenerateWithPersona", context)(persona);
+  assert.equal(requested.overrideTopic, "new topic", "Persona instant generation must not mix a previous topic");
   assert.equal(requested.overrideCategory, categories[1].name);
   assert.equal(state.preferredTone, "합니다체");
   assert.equal(state.writingStyle, "concise");

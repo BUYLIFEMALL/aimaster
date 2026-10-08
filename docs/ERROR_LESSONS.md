@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-09 — setState 직후 같은 함수에서 그 상태를 읽으면 낡은 값이다 (naver-blog-agent v1.45)
+
+- **증상:** 페르소나 `즉시 생성`이 직전에 입력했거나 다른 페르소나로 채워진 주제를 섞어 글을 만들 수 있었습니다. 또 키워드·발행 목적은 기획 단계에만 들어가고 본문 작성 AI에는 전달되지 않았습니다.
+- **원인:** `handleSelectPersona`의 `setTopic()` 직후 같은 핸들러에서 `topic` 상태를 읽음(다음 렌더 전이라 이전 값). Writer 프롬프트는 기획 결과(제목·소제목)만 받았습니다.
+- **해결(위치):** `src/app/(dashboard)/page.tsx`는 페르소나 값을 직접 전달. `src/lib/ai/pipeline.ts` writerUserPrompt에 주제·키워드·목적 추가. 회귀 테스트: `test:categories`(낡은 topic 주입), `test:writing-styles`.
+- **다음부터 확인:** 핸들러 안에서 setState 직후 같은 상태를 읽지 말고 값을 변수로 들고 간다. 단계형 AI 파이프라인은 각 단계 프롬프트에 사용자 조건이 실제로 들어갔는지 모의 호출로 확인한다.
+
 ## 2026-10-09 — 화면에서 고른 AI 모델과 실제 호출 모델은 같아야 한다 (naver-blog-agent v1.44)
 
 - **증상:** 화면은 GPT-5/6·Gemini 3.x·Claude Sonnet 5를 보여주지만, `src/lib/ai/models.ts`가 호출 직전에 gpt-4o·gemini-2.0-flash·Claude 3.x로 몰래 바꿔 호출했습니다.
