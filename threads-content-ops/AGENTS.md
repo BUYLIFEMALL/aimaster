@@ -1,8 +1,17 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.84`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.85`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.85 콘텐츠 생성 결과 카드에 "게시방식 결정 및 최종 발행" (2026-10-08)
+
+- 주인님 지시: threads-affiliate-poster `/posts/new`의 STEP 3(`ProductPostForm.tsx` 게시방식 결정 박스)과 같은 구성으로 구현. 결과 카드(`VariantCard`)마다 이미지·영상 영역 아래에 박스가 생긴다 — 기존 "이 글로 초안 저장" 버튼은 이 박스의 "임시저장하기"로 대체됐다.
+- 구성: ① **임시저장하기(기본값, 검은 버튼)** — 보관함 초안으로 저장, 저장되면 초록 "✓ 저장됨". ② **즉시 Threads에 포스팅하기(흰 버튼)** — 확인창 후 저장 → 발행. ③ **예약 설정 펼치기** — 날짜·시각(현재로부터 5분 이후) 선택 후 "지정한 시각에 예약 발행하기". 발행·예약이 끝나면 "✓ Threads에 발행했습니다(게시글 보기)" / "✓ …에 발행하도록 예약했습니다"가 표시된다.
+- 서버(`web-actions.ts`): `saveGeneratedDraft`가 새 글 `id`를 돌려준다. `publishDraft`는 `permalink`를 돌려준다. 새 `publishSavedDraft(draftId)`·`scheduleSavedDraft({draftId, scheduledAt})`는 기존 `publishDraft`·`scheduleDraft`를 그대로 쓰되 **결과 객체**로 돌려준다(운영 서버는 Server Action이 throw한 메시지를 가려 화면이 사유를 못 보기 때문). 발행에 실패해 '발행 실패'가 된 글은 같은 버튼을 다시 누르면 보관함 "재시도"와 같이 초안으로 되돌린 뒤 다시 발행한다.
+- 동작 규칙: 발행·예약은 먼저 보관함 초안으로 저장한 뒤 진행하므로 실패해도 글이 보관함에 남는다. 저장 뒤 본문을 고치면 다음 저장은 새 초안이다(기존과 같음). 글자 수(450~480자 목표, Threads 500자 상한)를 넘으면 즉시·예약 버튼이 막힌다. 발행·예약이 끝난 카드는 같은 글을 다시 발행하지 못하게 버튼을 잠근다.
+- **예약은 서버 크론이 켜져 있어야 실제로 발행된다**(v1.84, `CRON_SECRET` 필요). 서버에 `CRON_SECRET`이 없으면 박스 안에 노란 안내가 나온다(`page.tsx`가 `schedulerReady`를 전달). 안내를 지우지 말 것.
+- 한계: 로그인한 실제 화면에서 눌러 보는 확인과 실제 Threads 발행·예약 확인은 하지 못했다(회원 토큰·로그인 필요). 빌드·타입 검사만 통과. DB 변경 없음.
 
 ## v1.84 예약 발행 실행기 (2026-10-08)
 

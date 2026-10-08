@@ -7,7 +7,7 @@ import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, ENGINES, 
 import { createClient } from "@/lib/supabase/client";
 import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, MEDIA_RETENTION_DAYS, memberMediaFolder, type PostMedia } from "@/threads-content-ops/lib/media";
 import { assemblePostBody, disclosureFor, productPlatformLabel, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
-import { deleteMediaFile, generateAttentionPost, generatePostImage, planPostImages, rewriteGeneratedPost, saveGeneratedDraft } from "./web-actions";
+import { deleteMediaFile, generateAttentionPost, generatePostImage, planPostImages, publishSavedDraft, rewriteGeneratedPost, saveGeneratedDraft, scheduleSavedDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
 type Candidate = { id: string; method: string; source_input: string; title: string; content: string; keywords: string[]; status?: string };
@@ -31,7 +31,7 @@ function viralPrompt(candidate: Candidate) {
   ].filter(Boolean).join("\n").slice(0, 1200);
 }
 
-export default function AttentionComposer({ userId, operationAccountIds, accounts, products, viralCandidates, initialViralId, configuredProviders }: { userId: string; operationAccountIds: string[]; accounts: Account[]; products: LinkedProduct[]; viralCandidates: Candidate[]; initialViralId?: string; configuredProviders: string[] }) {
+export default function AttentionComposer({ userId, schedulerReady, operationAccountIds, accounts, products, viralCandidates, initialViralId, configuredProviders }: { userId: string; schedulerReady: boolean; operationAccountIds: string[]; accounts: Account[]; products: LinkedProduct[]; viralCandidates: Candidate[]; initialViralId?: string; configuredProviders: string[] }) {
   const initial = viralCandidates.find((candidate) => candidate.id === initialViralId);
   const [viralId, setViralId] = useState(initial?.id ?? "");
   const [topic, setTopic] = useState(() => (initial ? viralPrompt(initial) : ""));
@@ -227,11 +227,11 @@ export default function AttentionComposer({ userId, operationAccountIds, account
       {message && !message.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800" role="status"><CircleAlert size={16} className="mt-0.5 shrink-0 text-rose-600" />{message.text}</p>}
     </section>
 
-    {plan && <PlanView userId={userId} plan={plan} accounts={accounts} accountId={accountId} onAccount={setAccountId} viralId={viralId} engine={engine} image={image} product={linkedProduct} onSaved={(text) => setMessage({ ok: true, text })} message={message} />}
+    {plan && <PlanView userId={userId} schedulerReady={schedulerReady} plan={plan} accounts={accounts} accountId={accountId} onAccount={setAccountId} viralId={viralId} engine={engine} image={image} product={linkedProduct} onSaved={(text) => setMessage({ ok: true, text })} message={message} />}
   </div>;
 }
 
-function PlanView({ userId, plan, accounts, accountId, onAccount, viralId, engine, image, product, onSaved, message }: { userId: string; plan: Plan; accounts: Account[]; accountId: string; onAccount: (id: string) => void; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; onSaved: (text: string) => void; message: { ok: boolean; text: string } | null }) {
+function PlanView({ userId, schedulerReady, plan, accounts, accountId, onAccount, viralId, engine, image, product, onSaved, message }: { userId: string; schedulerReady: boolean; plan: Plan; accounts: Account[]; accountId: string; onAccount: (id: string) => void; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; onSaved: (text: string) => void; message: { ok: boolean; text: string } | null }) {
   const options = [{ type: `${plan.hookType} (대표)`, hook: plan.hook, whyItWorks: plan.whyHookWorks, content: plan.content }, ...plan.hookVariants];
   return <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -239,17 +239,21 @@ function PlanView({ userId, plan, accounts, accountId, onAccount, viralId, engin
       <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">저장할 계정<select className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900" value={accountId} onChange={(event) => onAccount(event.target.value)}>{accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}</select></label>
     </div>
     {message?.ok && <p className="mt-3 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" role="status"><CheckCircle2 size={16} className="mt-0.5 shrink-0" />{message.text} <Link className="font-semibold underline" href="/threads-content-ops?tab=manage">초안·발행 관리 열기</Link></p>}
-    <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} userId={userId} option={option} accountId={accountId} viralId={viralId} engine={engine} image={image} product={product} onSaved={onSaved} />)}</ul>
+    <ul className="mt-4 space-y-4">{options.map((option, index) => <VariantCard key={`${option.type}-${index}`} userId={userId} schedulerReady={schedulerReady} option={option} accountId={accountId} viralId={viralId} engine={engine} image={image} product={product} onSaved={onSaved} />)}</ul>
     {plan.cta && <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><p className="font-semibold text-amber-900">댓글을 부르는 마무리·첫 댓글 멘트</p><p className="mt-1 text-neutral-800">{plan.cta}</p><div className="mt-2"><CopyButton value={plan.cta} label="멘트 복사" /></div></div>}
     {plan.followUpIdeas.length > 0 && <div className="mt-4"><p className="text-sm font-semibold text-neutral-900">이어 쓸 후속 아이디어</p><ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-neutral-700">{plan.followUpIdeas.map((idea) => <li key={idea}>{idea}</li>)}</ul></div>}
   </section>;
 }
 
-function VariantCard({ userId, option, accountId, viralId, engine, image, product, onSaved }: { userId: string; option: Variant; accountId: string; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; onSaved: (text: string) => void }) {
+function VariantCard({ userId, schedulerReady, option, accountId, viralId, engine, image, product, onSaved }: { userId: string; schedulerReady: boolean; option: Variant; accountId: string; viralId: string; engine: Engine; image: ImageSettings; product?: LinkedProduct; onSaved: (text: string) => void }) {
   const [body, setBody] = useState(option.content);
   const [hook, setHook] = useState(option.hook);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [working, setWorking] = useState<"draft" | "now" | "schedule" | null>(null);
+  const [scheduleAt, setScheduleAt] = useState("");
+  const [finalState, setFinalState] = useState<{ kind: "published"; permalink: string | null } | { kind: "scheduled"; at: string } | null>(null);
   const [rewriting, setRewriting] = useState<string | null>(null);
   const [error, setError] = useState("");
   const finalBody = assemblePostBody(body, product);
@@ -343,21 +347,57 @@ function VariantCard({ userId, option, accountId, viralId, engine, image, produc
     el.style.height = `${el.scrollHeight + 4}px`;
   }, [body]);
 
-  const save = async () => {
-    if (saving || saved) return;
-    setSaving(true);
+  // 게시방식 결정 (poster /posts/new의 STEP 3와 같은 구성): 임시저장(기본) · 즉시 Threads 포스팅 · 예약 발행.
+  // 셋 다 먼저 이 글을 보관함 초안으로 저장하고, 즉시·예약은 그 초안을 발행/예약한다(발행 실패해도 글은 보관함에 남는다).
+  const ensureDraft = async (): Promise<string | null> => {
+    if (draftId && saved) return draftId;
+    const result = await saveGeneratedDraft({ accountId, body, viralId: viralId || undefined, productId: product?.id, media: images.slice(0, MAX_MEDIA) });
+    if (!result.ok) { setError(result.error); return null; }
+    setDraftId(result.id);
+    setSaved(true);
+    return result.id;
+  };
+
+  const finalize = async (mode: "draft" | "now" | "schedule") => {
+    if (working || finalState || rewriting || imaging) return;
     setError("");
+    let scheduledIso = "";
+    if (mode === "schedule") {
+      const at = new Date(scheduleAt);
+      if (!scheduleAt || Number.isNaN(at.getTime())) { setError("예약 발행할 날짜와 시각을 선택해 주세요."); return; }
+      if (at.getTime() < Date.now() + 5 * 60_000) { setError("예약 시간은 현재로부터 5분 이후로 지정해 주세요."); return; }
+      scheduledIso = at.toISOString();
+    }
+    if (mode === "now" && !window.confirm("이 글을 지금 바로 연결된 Threads 계정에 발행합니다. 발행한 글은 이 화면에서 되돌릴 수 없습니다. 계속할까요?")) return;
+    setWorking(mode);
+    setSaving(true);
     try {
-      const result = await saveGeneratedDraft({ accountId, body, viralId: viralId || undefined, productId: product?.id, media: images.slice(0, MAX_MEDIA) });
-      if (result.ok) {
-        setSaved(true);
+      const id = await ensureDraft();
+      if (!id) return;
+      if (mode === "draft") {
         onSaved(images.length ? `초안으로 저장했습니다(이미지·영상 ${Math.min(images.length, MAX_MEDIA)}개 포함). 콘텐츠 보관함에서 검토한 뒤 발행하세요.` : "초안으로 저장했습니다. 콘텐츠 보관함에서 검토한 뒤 발행하세요.");
+      } else if (mode === "now") {
+        const result = await publishSavedDraft(id);
+        if (result.ok) {
+          setFinalState({ kind: "published", permalink: result.permalink });
+          onSaved("Threads에 발행했습니다. 콘텐츠 보관함에서 발행 기록을 확인할 수 있습니다.");
+        } else {
+          setError(`${result.error} 글은 콘텐츠 보관함에 초안으로 남아 있습니다. 같은 버튼을 다시 누르면 다시 시도합니다.`);
+        }
       } else {
-        setError(result.error);
+        const result = await scheduleSavedDraft({ draftId: id, scheduledAt: scheduledIso });
+        if (result.ok) {
+          const label = new Date(scheduledIso).toLocaleString("ko-KR");
+          setFinalState({ kind: "scheduled", at: label });
+          onSaved(`${label}에 발행하도록 예약했습니다. 취소는 콘텐츠 보관함에서 할 수 있습니다.`);
+        } else {
+          setError(`${result.error} 글은 콘텐츠 보관함에 초안으로 남아 있습니다.`);
+        }
       }
     } catch {
-      setError("초안을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+      setError("요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요. 글이 저장됐는지는 콘텐츠 보관함에서 확인할 수 있습니다.");
     } finally {
+      setWorking(null);
       setSaving(false);
     }
   };
@@ -393,7 +433,6 @@ function VariantCard({ userId, option, accountId, viralId, engine, image, produc
     {error && <p className="mt-2 text-sm text-rose-600" role="alert">{error}</p>}
     <div className="mt-3 flex flex-wrap gap-2">
       <button type="button" className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300" disabled={imaging !== null || saving || rewriting !== null || !body.trim()} onClick={() => void makeImages()}>{imaging ? `이미지 만드는 중… ${imaging.done}/${imaging.total}장` : image.count > 1 ? `🖼️ 이미지 ${image.count}장 생성` : "🖼️ 이미지 생성"}</button>
-      <button type="button" className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-bold text-[#ffffff] disabled:cursor-not-allowed ${saved ? "bg-emerald-600 disabled:bg-emerald-600" : "bg-neutral-900 hover:bg-neutral-700 disabled:bg-neutral-300"}`} disabled={saving || saved || rewriting !== null || imaging !== null || !body.trim() || !accountId} onClick={() => void save()}>{saved ? "✓ 저장됨" : saving ? "저장 중…" : "이 글로 초안 저장"}</button>
       <CopyButton value={finalBody} label="본문 복사" />
     </div>
     {(images.length > 0 || imaging !== null) && <div className="mt-3 rounded-xl border-2 border-blue-200 bg-white p-3">
@@ -422,6 +461,38 @@ function VariantCard({ userId, option, accountId, viralId, engine, image, produc
         <span className="text-[11px] text-neutral-500">JPEG·PNG 8MB 이하 / MP4·MOV 1GB 이하 · 최대 {MAX_MEDIA}개 · 이 글에만 붙습니다</span>
       </div>
     </div>
+    <section className="mt-4 space-y-4 rounded-2xl border-2 border-neutral-300 bg-neutral-100/60 p-4">
+      <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
+        <div className="flex items-center gap-2"><span className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-900 text-xs font-black text-[#ffffff]">5</span><h4 className="text-base font-extrabold text-neutral-950">🚀 게시방식 결정 및 최종 발행</h4></div>
+        <span className="rounded-full bg-neutral-200 px-2.5 py-0.5 text-xs font-extrabold text-neutral-800">STEP 5</span>
+      </div>
+      <div className="space-y-2">
+        <p className="text-xs font-bold text-neutral-700">최종 발행 방식 선택</p>
+        <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+          <button type="button" onClick={() => void finalize("draft")} disabled={working !== null || finalState !== null || rewriting !== null || imaging !== null || !body.trim() || !accountId || (saved && !finalState)} className={`flex w-full flex-col items-center gap-1 rounded-2xl p-4 text-base font-black text-[#ffffff] shadow-sm transition disabled:cursor-not-allowed ${saved ? "bg-emerald-600 disabled:bg-emerald-600" : "bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50"}`}>
+            <span className="flex items-center gap-2"><span className="text-xl">📁</span><span>{saved ? "✓ 저장됨" : working === "draft" ? "저장 중…" : "💾 임시저장하기"}</span>{!saved && <span className="rounded-full border border-neutral-700 bg-neutral-800 px-1.5 py-0.5 text-[10px] font-bold text-neutral-200">기본값</span>}</span>
+            <span className="text-[11px] font-normal text-neutral-200">{saved ? "콘텐츠 보관함에 저장했습니다" : "보관함에 저장 (나중에 언제든 수정·발행 가능)"}</span>
+          </button>
+          <button type="button" onClick={() => void finalize("now")} disabled={working !== null || finalState !== null || rewriting !== null || imaging !== null || !body.trim() || !accountId || over} className="flex w-full flex-col items-center gap-1 rounded-2xl border-2 border-neutral-300 bg-white p-4 text-base font-black text-neutral-900 shadow-sm transition hover:border-neutral-400 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50">
+            <span className="flex items-center gap-2"><span className="text-xl">🚀</span><span>{working === "now" ? "발행 중…" : "⚡ 즉시 Threads에 포스팅하기"}</span></span>
+            <span className="text-[11px] font-normal text-neutral-500">{over ? "글자 수가 넘어 발행할 수 없습니다. 본문을 줄여 주세요" : "현재 글과 이미지·영상 그대로 연동 계정에 즉시 발행"}</span>
+          </button>
+        </div>
+      </div>
+      <details className="group border-t border-neutral-200/80 pt-2">
+        <summary className="flex cursor-pointer items-center justify-between py-1 text-xs font-bold text-neutral-700 hover:text-neutral-950"><span>⏰ 원하는 특정 시각에 예약 발행하고 싶으신가요? (예약 설정 펼치기)</span><span className="text-xs text-neutral-400 transition group-open:rotate-180">▼</span></summary>
+        <div className="space-y-2.5 pb-1 pt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <input type="datetime-local" aria-label="예약 발행 시각" className="max-w-xs rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900" value={scheduleAt} onChange={(event) => setScheduleAt(event.target.value)} />
+            <button type="button" onClick={() => void finalize("schedule")} disabled={working !== null || finalState !== null || rewriting !== null || imaging !== null || !body.trim() || !accountId || !scheduleAt || over} className="whitespace-nowrap rounded-lg bg-neutral-900 px-4 py-2 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300">{working === "schedule" ? "예약 중…" : "📅 지정한 시각에 예약 발행하기"}</button>
+          </div>
+          <p className="text-[11px] text-neutral-500">지정한 날짜와 시각이 되면 서버가 자동으로 Threads에 포스팅합니다(1분 간격으로 확인). 현재로부터 5분 이후부터 지정할 수 있고, 예약 취소는 콘텐츠 보관함에서 합니다.</p>
+          {!schedulerReady && <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">예약 발행을 실행하는 서버 설정(CRON_SECRET)이 아직 켜지지 않았습니다. 지금 예약하면 글은 예약 상태로 저장되지만, 설정이 켜지기 전까지는 시각이 되어도 자동 발행되지 않습니다. 운영자 설정 후 이어서 발행됩니다(24시간 넘게 지나면 자동 발행되지 않고 실패 처리됩니다).</p>}
+        </div>
+      </details>
+      {finalState?.kind === "published" && <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">✓ Threads에 발행했습니다.{finalState.permalink && <> <a className="underline" href={finalState.permalink} target="_blank" rel="noopener noreferrer">게시글 보기</a></>}</p>}
+      {finalState?.kind === "scheduled" && <p className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">✓ {finalState.at}에 발행하도록 예약했습니다.</p>}
+    </section>
     {viewer !== null && images[viewer] && <MediaViewer media={images} index={viewer} onIndex={setViewer} />}
   </li>;
 }

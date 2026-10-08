@@ -327,6 +327,7 @@ export async function publishDraft(draftId: string) {
   if (account.token_expires_at && new Date(account.token_expires_at) <= new Date()) throw new Error("Threads 연결 토큰이 만료되었습니다. 계정을 다시 연결해 주세요.");
 
   await supabase.from("tco_posts").update({ status: "publishing", error_message: null }).eq("id", draft.id).eq("user_id", user.id);
+  let permalink: string | null = null;
   try {
     const media = sanitizeMedia(user.id, draft.media);
     for (const item of media) {
@@ -336,12 +337,14 @@ export async function publishDraft(draftId: string) {
     const published = await publishToThreads({ threadsUserId: account.threads_user_id, accessToken: account.access_token, text: draft.body, media });
     const { error } = await supabase.from("tco_posts").update({ status: "published", published_at: new Date().toISOString(), threads_post_id: published.id, permalink: published.permalink }).eq("id", draft.id).eq("user_id", user.id);
     if (error) throw error;
+    permalink = published.permalink;
   } catch (error) {
     const message = error instanceof Error ? error.message.slice(0, 500) : "발행 중 알 수 없는 오류가 발생했습니다.";
     await supabase.from("tco_posts").update({ status: "failed", error_message: message }).eq("id", draft.id).eq("user_id", user.id);
     throw new Error(message);
   }
   revalidatePath("/threads-content-ops");
+  return { permalink };
 }
 
 /**
@@ -370,6 +373,34 @@ export async function scheduleDraft(input: { draftId: string; scheduledAt: strin
     .maybeSingle();
   if (error || !data) throw new Error("예약할 수 있는 초안을 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
   revalidatePath("/threads-content-ops");
+}
+
+/**
+ * 콘텐츠 생성 화면의 "게시방식 결정" 영역용 (v1.85): 방금 저장한 초안을 바로 발행하거나 예약한다.
+ * 같은 규칙(publishDraft·scheduleDraft)을 그대로 쓰되, 화면이 오류 문구를 볼 수 있게 결과 객체로 돌려준다.
+ * 발행에 실패해 '발행 실패'가 된 글은 회원이 다시 누른 것이므로 보관함의 "재시도"와 같이 초안으로 되돌린 뒤 다시 발행한다.
+ */
+export async function publishSavedDraft(draftId: string): Promise<{ ok: true; permalink: string | null } | { ok: false; error: string }> {
+  try {
+    if (!UUID_RE.test(String(draftId))) throw new Error("발행할 글을 확인해 주세요.");
+    const { supabase, user } = await authorizedUser();
+    await supabase.from("tco_posts").update({ status: "draft", scheduled_at: null })
+      .eq("id", draftId).eq("user_id", user.id).eq("status", "failed");
+    const result = await publishDraft(draftId);
+    return { ok: true, permalink: result?.permalink ?? null };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "발행하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  }
+}
+
+export async function scheduleSavedDraft(input: { draftId: string; scheduledAt: string }): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    if (!UUID_RE.test(String(input.draftId))) throw new Error("예약할 글을 확인해 주세요.");
+    await scheduleDraft(input);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "예약하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  }
 }
 
 export async function cancelScheduledDraft(draftId: string) {
@@ -1280,7 +1311,7 @@ export async function rewriteGeneratedPost(input: { hook: string; content: strin
 }
 
 /** 마음에 드는 생성 글을 검토 대기 초안으로 저장한다. 글감에서 만든 글이면 그 글감을 사용 완료로 표시한다. */
-export async function saveGeneratedDraft(input: { accountId: string; body: string; viralId?: string; productId?: string; media?: PostMedia[] }): Promise<SourceResult> {
+export async function saveGeneratedDraft(input: { accountId: string; body: string; viralId?: string; productId?: string; media?: PostMedia[] }): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   try {
     let body = String(input.body ?? "").trim();
     if (!input.accountId || !body || body.length > 5_000) throw new Error("연결 계정과 1~5,000자 본문을 확인해 주세요.");
@@ -1299,16 +1330,16 @@ export async function saveGeneratedDraft(input: { accountId: string; body: strin
       const { data: source } = await supabase.from("tco_viral_candidates").select("category_id").eq("id", input.viralId).eq("user_id", user.id).maybeSingle();
       categoryId = source?.category_id ?? null;
     }
-    const { error } = await supabase.from("tco_posts").insert({ user_id: user.id, account_id: account.id, body, status: "draft", media, category_id: categoryId });
-    if (error) throw new Error("초안을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    const { data: inserted, error } = await supabase.from("tco_posts").insert({ user_id: user.id, account_id: account.id, body, status: "draft", media, category_id: categoryId }).select("id").single();
+    if (error || !inserted) throw new Error("초안을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
     if (input.viralId) {
       await supabase.from("tco_viral_candidates").update({ status: "used", updated_at: new Date().toISOString() })
         .eq("id", input.viralId).eq("user_id", user.id);
     }
     revalidatePath("/threads-content-ops");
-    return { ok: true };
+    return { ok: true, id: inserted.id };
   } catch (error) {
-    return sourceFailure(error, "초안을 저장하지 못했습니다.");
+    return sourceFailure(error, "초안을 저장하지 못했습니다.") as { ok: false; error: string };
   }
 }
 

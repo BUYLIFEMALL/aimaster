@@ -1,8 +1,8 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-08 · 현재 배포 버전: `v1.84` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-08 · 현재 배포 버전: `v1.85` · 라이브: <https://www.buylife.xyz/threads-content-ops>
 
-## ★ 최신 작업 요약 (v1.70 ~ v1.84, 2026-10-08) — 이 절을 먼저 읽으세요
+## ★ 최신 작업 요약 (v1.70 ~ v1.85, 2026-10-08) — 이 절을 먼저 읽으세요
 
 아래 "완료된 구현 순서"는 v1.34 무렵까지의 기록이라 오래됐습니다. **현재(v1.82) 상태는 이 절이 기준**입니다. 자세한 구현 이유는 `AGENTS.md`의 같은 버전 절을 보세요.
 
@@ -22,6 +22,7 @@
 | v1.79 | 쇼핑제휴 상품 등록에 **알리익스프레스** 추가(주소 → 제휴 링크 자동 생성 + 썸네일 + "이미지 다시 가져오기") | `lib/aliexpress.ts`, `web-actions.ts`(`registerAliexpressSource`, `refreshAliexpressSourceImage`) |
 | v1.80 | 쇼핑제휴 상품 등록에 **토스쇼핑 쉐어링크** 추가(베스트·카테고리별·오늘의 특가 목록에서 골라 저장 시 쉐어링크 발급) | `lib/toss.ts`, `web-actions.ts`(`browseTossForSources`, `fetchTossCategoriesForSources`, `registerTossSource`) |
 | v1.81 | 상품 등록 화면을 **플랫폼 탭**(쿠팡파트너스·알리익스프레스·네이버 브랜드커넥트·토스쇼핑 쉐어링크)으로 개편. poster의 오른쪽 "상품·상세페이지 분석" 탭은 하지 않음(주인님 지시) | `SourceQueue.tsx` |
+| v1.85 | 콘텐츠 생성 결과 카드에 **게시방식 결정 및 최종 발행** 박스(임시저장 기본·즉시 Threads 포스팅·예약 발행, poster `/posts/new` STEP 3 구성). 예약은 v1.84 크론(`CRON_SECRET`)이 켜져야 실제 발행 | `AttentionComposer.tsx`(`VariantCard`), `web-actions.ts`(`publishSavedDraft`, `scheduleSavedDraft`) |
 | v1.84 | **예약 발행 실행기** — 회원이 예약해 둔 글을 시각이 되면 1분 간격 크론이 본인 Threads 계정으로 발행(중복 발행 방지·권한·토큰·미디어 재검증). 새 글 자동 생성·댓글 확인은 만들지 않음 | `lib/scheduledDispatch.ts`, `app/api/threads-content-ops/dispatch-scheduled/route.ts`, `vercel.json` |
 | v1.83 | 모든 AI 지시문에 당해 연도 규칙(`withYearRule`) | `lib/yearRule.ts` |
 | v1.82 | 토스용 `FIXIE_URL`을 루트 Vercel 프로젝트에 등록(주인님이 직접), 값 앞 공백 대비 trim | `lib/toss.ts` |
@@ -160,7 +161,7 @@ vercel deploy --prod --yes --scope buylife
 
 ## 최근 기준점
 
-- 최신 기능 커밋: `git log --oneline -10 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인하세요(2026-10-08 기준 v1.84). 위 "★ 최신 작업 요약"이 현재 기준입니다.
-- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.84'`
+- 최신 기능 커밋: `git log --oneline -10 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인하세요(2026-10-08 기준 v1.85). 위 "★ 최신 작업 요약"이 현재 기준입니다.
+- 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.85'`
 - 실제 서비스 주소는 항상 `https://www.buylife.xyz/threads-content-ops`입니다(루트 AIMaster 프로젝트 배포).
 - 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `.analysis-threads-auto/`, `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.
