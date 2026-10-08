@@ -1248,73 +1248,75 @@ export default function MainPage() {
             )}
           </div>
 
-          {/* 카테고리 & 특정 주제 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-                <label htmlFor="generation-category" className="block text-[11px] font-semibold text-neutral-700">
-                  카테고리 선택
-                </label>
+          {/* 카테고리 선택과 관리 버튼은 같은 입력 행에 배치 */}
+          <div>
+              <label htmlFor="generation-category" className="block text-[11px] font-semibold text-neutral-700 mb-1">
+                카테고리 선택
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <select
+                  id="generation-category"
+                  aria-describedby="generation-category-help"
+                  value={selectedRegisteredCategory?.id || ""}
+                  onChange={(e) => handleSelectRegisteredCategory(e.target.value)}
+                  disabled={loading || !categoriesLoaded || registeredCategories.length === 0}
+                  className="min-w-0 w-full sm:flex-1 h-10 px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500"
+                >
+                  <option value="" disabled>
+                    {!categoriesLoaded
+                      ? "카테고리 목록을 불러오는 중입니다"
+                      : registeredCategories.length === 0
+                        ? "등록된 카테고리가 없습니다"
+                        : "등록된 카테고리를 선택하세요"}
+                  </option>
+                  {registeredCategories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
                 <button
+                  id="generation-category-manager"
                   type="button"
                   onClick={() => setIsCategoryModalOpen(true)}
                   disabled={loading || !categoriesLoaded}
                   aria-haspopup="dialog"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 disabled:opacity-40 transition-colors"
+                  className="inline-flex shrink-0 items-center justify-center gap-1.5 h-10 px-3 py-2 text-[11px] font-semibold whitespace-nowrap rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 disabled:opacity-40 transition-colors"
                 >
                   <Settings2 size={13} />
                   카테고리 추가·수정·삭제 (순서 정렬)
                 </button>
               </div>
-              <select
-                id="generation-category"
-                aria-describedby="generation-category-help"
-                value={selectedRegisteredCategory?.id || ""}
-                onChange={(e) => handleSelectRegisteredCategory(e.target.value)}
-                disabled={loading || !categoriesLoaded || registeredCategories.length === 0}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500"
-              >
-                <option value="" disabled>
-                  {!categoriesLoaded
-                    ? "카테고리 목록을 불러오는 중입니다"
-                    : registeredCategories.length === 0
-                      ? "등록된 카테고리가 없습니다"
-                      : "등록된 카테고리를 선택하세요"}
-                </option>
-                {registeredCategories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
               <p id="generation-category-help" className="mt-1.5 text-[11px] text-neutral-500">
-                위 관리 버튼에서 등록·수정하면 글감 수집소·콘텐츠 보관함에도 같은 목록이 반영됩니다. 검색 키워드와 발행 목적은 유지됩니다.
-                {categoriesLoaded && registeredCategories.length === 0 && <span className="block mt-1">위 관리 버튼에서 콘텐츠 카테고리를 등록해 주세요.</span>}
+                관리 버튼에서 등록·수정하면 글감 수집소·콘텐츠 보관함에도 같은 목록이 반영됩니다. 검색 키워드와 발행 목적은 유지됩니다.
+                {categoriesLoaded && registeredCategories.length === 0 && <span className="block mt-1">관리 버튼에서 콘텐츠 카테고리를 등록해 주세요.</span>}
                 {!selectedRegisteredCategory && category && (
                   <span className="block mt-1">현재 기획 카테고리: {category} (등록 목록 외 값). 등록된 항목을 선택하면 교체됩니다.</span>
                 )}
               </p>
-            </div>
+          </div>
 
-            <div>
-              <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+          {/* 특정 주제는 카테고리 아래의 전체 너비 입력 행 */}
+          <div>
+              <label htmlFor="generation-topic" className="block text-[11px] font-semibold text-neutral-700 mb-1">
                 특정 주제 (비워두면 페르소나 및 트렌드로 자동 발굴)
               </label>
               <input
+                id="generation-topic"
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="예: 2026 청년 취업지원금 신청 절차"
                 className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
               />
-            </div>
           </div>
 
           {/* 검색 키워드 & 발행 목적 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+              <label htmlFor="generation-keywords" className="block text-[11px] font-semibold text-neutral-700 mb-1">
                 검색 키워드 (쉼표 구분)
               </label>
               <input
+                id="generation-keywords"
                 type="text"
                 value={searchKeywords}
                 onChange={(e) => setSearchKeywords(e.target.value)}
@@ -1324,10 +1326,11 @@ export default function MainPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+              <label htmlFor="generation-purpose" className="block text-[11px] font-semibold text-neutral-700 mb-1">
                 발행 목적 및 독자 타깃
               </label>
               <input
+                id="generation-purpose"
                 type="text"
                 value={publishPurpose}
                 onChange={(e) => setPublishPurpose(e.target.value)}

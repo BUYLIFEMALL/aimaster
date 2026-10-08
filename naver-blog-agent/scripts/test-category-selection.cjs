@@ -210,5 +210,27 @@ const categories = [
   }
   checkModalPlacement(ast);
   assert.ok(source.includes("카테고리 추가·수정·삭제 (순서 정렬)"));
+  const layoutFields = new Map();
+  function readLayout(node) {
+    if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) {
+      const opening = ts.isJsxElement(node) ? node.openingElement : node;
+      const id = opening.attributes.properties.find((attr) => ts.isJsxAttribute(attr) && attr.name.getText(ast) === "id");
+      if (id?.initializer && ts.isStringLiteral(id.initializer)) layoutFields.set(id.initializer.text, node);
+    }
+    ts.forEachChild(node, readLayout);
+  }
+  readLayout(ast);
+  const selectField = layoutFields.get("generation-category");
+  const managerButton = layoutFields.get("generation-category-manager");
+  const topicField = layoutFields.get("generation-topic");
+  const keywordsField = layoutFields.get("generation-keywords");
+  const purposeField = layoutFields.get("generation-purpose");
+  assert.ok(selectField && managerButton && topicField && keywordsField && purposeField);
+  assert.equal(selectField.parent, managerButton.parent, "Select and manager button must share an input row");
+  assert.ok(selectField.parent.openingElement.getText(ast).includes("sm:flex-row"), "Mobile stacks without overflowing");
+  assert.equal(topicField.parent.parent, selectField.parent.parent.parent, "Topic must be its own row below category");
+  assert.equal(keywordsField.parent.parent, purposeField.parent.parent, "Keywords and purpose share an aligned grid row");
+  assert.ok(keywordsField.parent.parent.openingElement.getText(ast).includes("md:grid-cols-2"));
+  assert.ok(selectField.pos < topicField.pos && topicField.pos < keywordsField.pos);
   console.log("PASS: shared categories/events, 3-screen manager CRUD/reordering/duplicate/cancellation/failure/last-item protection, selected rename/delete, no draft deletion, no nested forms, generation/save flow");
 })().catch((error) => { console.error(error); process.exitCode = 1; });
