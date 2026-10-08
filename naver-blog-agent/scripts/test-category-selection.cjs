@@ -230,6 +230,8 @@ const categories = [
   const topicPurposeRow = layoutFields.get("generation-topic-purpose-row");
   assert.ok(selectField && managerButton && topicField && keywordsField && purposeField);
   assert.equal(selectField.parent, managerButton.parent, "Select and manager button must share an input row");
+  assert.ok(!source.includes("generation-category-help"), "Remove category helper block and its dangling accessibility reference");
+  assert.ok(!source.includes("관리 버튼에서 등록·수정하면") && !source.includes("현재 기획 카테고리:"), "Do not restore layout-expanding category descriptions");
   assert.ok(selectField.parent.openingElement.getText(ast).includes("xl:flex-row"), "Narrow category columns stack without overflowing");
   assert.ok(blogField && accountCategoryRow && topicPurposeRow);
   const isInside = (node, ancestor) => {

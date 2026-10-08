@@ -1255,7 +1255,6 @@ export default function MainPage() {
               <div className="flex flex-col xl:flex-row gap-2">
                 <select
                   id="generation-category"
-                  aria-describedby="generation-category-help"
                   value={selectedRegisteredCategory?.id || ""}
                   onChange={(e) => handleSelectRegisteredCategory(e.target.value)}
                   disabled={loading || !categoriesLoaded || registeredCategories.length === 0}
@@ -1284,13 +1283,6 @@ export default function MainPage() {
                   카테고리 추가·수정·삭제 (순서 정렬)
                 </button>
               </div>
-              <p id="generation-category-help" className="mt-1.5 text-[11px] text-neutral-500">
-                관리 버튼에서 등록·수정하면 글감 수집소·콘텐츠 보관함에도 같은 목록이 반영됩니다. 검색 키워드와 발행 목적은 유지됩니다.
-                {categoriesLoaded && registeredCategories.length === 0 && <span className="block mt-1">관리 버튼에서 콘텐츠 카테고리를 등록해 주세요.</span>}
-                {!selectedRegisteredCategory && category && (
-                  <span className="block mt-1">현재 기획 카테고리: {category} (등록 목록 외 값). 등록된 항목을 선택하면 교체됩니다.</span>
-                )}
-              </p>
             </div>
           </div>
 

@@ -13,7 +13,12 @@
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
 - **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.40, 2026-10-08)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.41, 2026-10-08)
+
+### 후속 v1.41 — 카테고리 아래 설명 삭제로 기획 폼 행 높이 정리
+
+- 공유 분류 안내·현재 기획 카테고리 문구와 도움말 블록/여백을 제거했습니다. 삭제된 블록을 참조하던 `aria-describedby`도 제거했습니다. 기존 값·공유 분류 관리·2열 배치는 유지합니다.
+- 카테고리 테스트에 설명/블록/잔존 참조 부재 검사를 추가했습니다. 카테고리/메뉴/문체 테스트 및 빌드로 검수합니다. 소스/패키지/확장/DB 표시 버전 v1.41이며 회원 데이터·유료 생성은 변경하지 않습니다.
 
 ### 후속 v1.40 — 불필요한 계정·카테고리 메뉴/화면 제거
 
