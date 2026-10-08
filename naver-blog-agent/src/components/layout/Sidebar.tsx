@@ -19,7 +19,7 @@ const flow = [
   { href: "/collector", label: "떡상 콘텐츠 수집", icon: Flame },
   { href: "/", label: "콘텐츠 생성", icon: PenLine },
   { href: "/queue", label: "콘텐츠 보관함", icon: Send },
-  { href: "/accounts", label: "계정 운영정보", icon: UsersRound },
+  { href: "/accounts", label: "계정·카테고리 관리", icon: UsersRound },
 ];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
@@ -40,7 +40,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       </div>
 
       {/* 2. 내비게이션 영역 */}
-      <nav className="flex-1 p-3 flex flex-col justify-between overflow-y-auto">
+      <nav className="flex-1 overflow-y-auto p-3">
         <div>
           {/* 최상단 대시보드 */}
           <Link
@@ -100,7 +100,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </div>
 
         {/* 3. 구분선 및 하단 연동/유틸리티 & 사용자 계정 정보 */}
-        <div className="mt-2 border-t border-neutral-200 pt-3 space-y-1">
+        <div className="mt-1 border-t border-neutral-200 pt-3 space-y-1">
           {/* API키등록·플랫폼연동 */}
           <Link
             href="/settings"

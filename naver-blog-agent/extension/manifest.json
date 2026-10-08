@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AIMaster · 네이버 블로그 에이전트",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "minimum_chrome_version": "120",
   "description": "일반 Chrome 브라우저에서 네이버 스마트에디터 ONE에 글을 안전하게 자동 작성 및 발행합니다.",
   "permissions": [
@@ -36,5 +36,5 @@
       "32": "icons/icon-32.png"
     }
   },
-  "version_name": "v1.29"
+  "version_name": "v1.30"
 }

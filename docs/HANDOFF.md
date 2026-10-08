@@ -7,7 +7,10 @@
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
 - **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.29, 2026-10-08)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.30, 2026-10-08)
+
+- **사이드바 연결 메뉴 위치 조정 (v1.30)**:
+  - `Sidebar.tsx`에서 `justify-between` 하단 고정을 제거했다. 4번 메뉴는 `계정·카테고리 관리`로 명확히 표기하며, API키등록·플랫폼연동, 연동 매뉴얼, 로그인 계정, 로그아웃은 그 바로 아래에 표시된다.
 
 - **API·확장 이용 권한 검증 (v1.29)**:
   - 글감 수집·글/이미지 생성·이미지 업로드·원고 보관함·API 키·확장 페어링 API에 `checkProgramAccessApi()`를 적용했다. 인증 실패는 리다이렉트가 아닌 JSON 401/403으로 반환한다.
