@@ -28,14 +28,16 @@ import {
   ImageIcon,
   SquarePen,
   BookOpen,
+  Settings2,
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft } from "@/lib/retention";
 import type { PipelineResult } from "@/lib/ai/pipeline";
 import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
-import type { BlogViralCandidate } from "@/types/collector";
+import type { BlogViralCandidate, CollectorCategory } from "@/types/collector";
 import { useContentCategories } from "@/hooks/useContentCategories";
+import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import {
   ENGINES,
@@ -56,7 +58,8 @@ export default function MainPage() {
   const [activePersonaId, setActivePersonaId] = useState<string | null>("housewife");
   const [topic, setTopic] = useState("살림 9단이 직접 써보고 엄선한 삶의 질 수직상승 살림·가전 필수템 솔직 후기");
   const [category, setCategory] = useState("생활/살림꿀팁");
-  const { categories: registeredCategories, loaded: categoriesLoaded } = useContentCategories();
+  const { categories: registeredCategories, loaded: categoriesLoaded, saveCategories } = useContentCategories();
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [searchKeywords, setSearchKeywords] = useState("가전제품 비교, 살림 꿀팁, 세탁 노하우, 가성비 주방용품, 삶의 질 상승템");
   const [publishPurpose, setPublishPurpose] = useState("실제 주부 입장에서 가성비와 찐활용도를 꼼꼼하게 비교 분석하여 이웃들에게 추천");
   const [preferredTone, setPreferredTone] = useState<WritingTone>("해요체");
@@ -381,6 +384,16 @@ export default function MainPage() {
     const selected = registeredCategories.find((c) => c.id === categoryId);
     if (!selected) return;
     setCategory(selected.name);
+  };
+
+  const handleUpdateRegisteredCategories = (updated: CollectorCategory[]) => {
+    const selected = registeredCategories.find((c) => c.name === category);
+    if (!saveCategories(updated)) return false;
+    if (selected) {
+      // Follow a renamed item by ID; do not keep a deleted classification selected.
+      setCategory(updated.find((c) => c.id === selected.id)?.name || "");
+    }
+    return true;
   };
 
   // 페르소나 클릭 시 조건 자동 세팅
@@ -1238,9 +1251,21 @@ export default function MainPage() {
           {/* 카테고리 & 특정 주제 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="generation-category" className="block text-[11px] font-semibold text-neutral-700 mb-1">
-                카테고리 선택
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <label htmlFor="generation-category" className="block text-[11px] font-semibold text-neutral-700">
+                  카테고리 선택
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryModalOpen(true)}
+                  disabled={loading || !categoriesLoaded}
+                  aria-haspopup="dialog"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 disabled:opacity-40 transition-colors"
+                >
+                  <Settings2 size={13} />
+                  카테고리 추가·수정·삭제 (순서 정렬)
+                </button>
+              </div>
               <select
                 id="generation-category"
                 aria-describedby="generation-category-help"
@@ -1261,8 +1286,8 @@ export default function MainPage() {
                 ))}
               </select>
               <p id="generation-category-help" className="mt-1.5 text-[11px] text-neutral-500">
-                콘텐츠 보관함·글감 수집소와 같은 분류 목록입니다. 검색 키워드와 발행 목적은 유지됩니다. <Link href="/queue" className="text-emerald-600 hover:underline">카테고리 관리 ↗</Link>
-                {categoriesLoaded && registeredCategories.length === 0 && <span className="block mt-1">보관함에서 콘텐츠 카테고리를 등록해 주세요.</span>}
+                위 관리 버튼에서 등록·수정하면 글감 수집소·콘텐츠 보관함에도 같은 목록이 반영됩니다. 검색 키워드와 발행 목적은 유지됩니다.
+                {categoriesLoaded && registeredCategories.length === 0 && <span className="block mt-1">위 관리 버튼에서 콘텐츠 카테고리를 등록해 주세요.</span>}
                 {!selectedRegisteredCategory && category && (
                   <span className="block mt-1">현재 기획 카테고리: {category} (등록 목록 외 값). 등록된 항목을 선택하면 교체됩니다.</span>
                 )}
@@ -2069,6 +2094,16 @@ export default function MainPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* The manager contains its own form, so render outside the generation form. */}
+      {isCategoryModalOpen && (
+        <CategoryManagementModal
+          isOpen={isCategoryModalOpen}
+          onClose={() => setIsCategoryModalOpen(false)}
+          categories={registeredCategories}
+          onUpdateCategories={handleUpdateRegisteredCategories}
+        />
       )}
 
       {/* 4. 스마트 에디터 원고 편집 모달 */}

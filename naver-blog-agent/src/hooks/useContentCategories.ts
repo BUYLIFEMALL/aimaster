@@ -31,8 +31,10 @@ export function useContentCategories() {
     try {
       writeContentCategories(window.localStorage, updated);
       window.dispatchEvent(new Event(CONTENT_CATEGORIES_EVENT));
+      return true;
     } catch (error) {
       console.error("Failed to save content categories:", error);
+      return false;
     }
   }, []);
 

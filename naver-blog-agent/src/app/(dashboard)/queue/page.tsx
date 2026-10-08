@@ -115,7 +115,7 @@ export default function QueuePage() {
 
   // 5. 카테고리 업데이트 핸들러 (모달 연계)
   const handleUpdateCategories = (updatedCats: CollectorCategory[]) => {
-    saveCategories(updatedCats);
+    return saveCategories(updatedCats);
   };
 
   // 6. 카테고리 삭제 시 연계 원고 안전 전환

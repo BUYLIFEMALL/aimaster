@@ -8,11 +8,14 @@ const root = path.join(__dirname, "../src");
 const source = fs.readFileSync(path.join(root, "app/(dashboard)/page.tsx"), "utf8");
 const ast = ts.createSourceFile("page.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 const declarations = new Map();
-function visit(node) {
-  if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) declarations.set(node.name.text, node.initializer.getText(ast));
-  ts.forEachChild(node, visit);
+function visit(node, currentAst = ast) {
+  if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) declarations.set(node.name.text, node.initializer.getText(currentAst));
+  ts.forEachChild(node, (child) => visit(child, currentAst));
 }
 visit(ast);
+const modalSource = fs.readFileSync(path.join(root, "components/collector/CategoryManagementModal.tsx"), "utf8");
+const modalAst = ts.createSourceFile("manager.tsx", modalSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+visit(modalAst, modalAst);
 function transpile(code) {
   return ts.transpileModule(code, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.CommonJS } }).outputText;
 }
@@ -127,5 +130,85 @@ const categories = [
   }
   assert.ok(source.includes("카테고리 선택"));
   assert.ok(source.includes("categories={registeredCategories}"));
-  console.log("PASS: shared user categories, order/empty/corrupt storage, same-screen/cross-tab/focus sync, cleanup, account/persona preservation, form/instant generation, draft payload, editor list, 3-screen integration");
+
+  const managers = [mountHook(), mountHook(), mountHook()];
+  Object.assign(context, {
+    registeredCategories: categories,
+    saveCategories: (updated) => {
+      const saved = managers[0].value.saveCategories(updated);
+      if (saved) context.registeredCategories = managers[0].states[0];
+      return saved;
+    },
+  });
+  const updateCategories = evaluate("handleUpdateRegisteredCategories", context);
+  const manager = {
+    categories: context.registeredCategories, newCatName: "새 분류", editingName: "수정한 여행",
+    generateSlug: (name) => name.toLowerCase(), window: { confirm: () => true },
+    onUpdateCategories: updateCategories, deleted: [], errors: [],
+    onCategoryDeleted: (name) => manager.deleted.push(name),
+    setNewCatName: (value) => { manager.newCatName = value; },
+    setEditingId() {}, setEditingName: (value) => { manager.editingName = value; },
+    setErrorMsg: (value) => manager.errors.push(value),
+  };
+  manager.commitCategories = evaluate("commitCategories", manager);
+  const checkManagers = () => {
+    for (const screen of managers) assert.deepEqual(names(screen.states[0]), names(context.registeredCategories), "Manager updates all screens");
+    manager.categories = context.registeredCategories;
+  };
+  evaluate("handleAddCategory", manager)({ preventDefault() {} });
+  checkManagers();
+  assert.equal(manager.categories.length, 3);
+  assert.equal(manager.categories[2].name, "새 분류");
+  manager.newCatName = "새 분류";
+  evaluate("handleAddCategory", manager)({ preventDefault() {} });
+  assert.equal(manager.categories.length, 3, "Duplicate registration blocked");
+
+  evaluate("handleSaveEdit", manager)("custom-trip");
+  checkManagers();
+  assert.equal(state.category, "수정한 여행", "Rename follows selected item ID");
+  const orderBeforeMove = manager.categories.map((item) => ({ ...item }));
+  evaluate("handleMoveCategory", manager)(2, "up");
+  checkManagers();
+  assert.equal(manager.categories[1].name, "새 분류");
+  assert.equal(orderBeforeMove[1].sort_order, 1, "Reordering must not mutate the previous objects");
+  evaluate("handleMoveCategory", manager)(0, "up");
+  checkManagers();
+
+  const selectedForDelete = manager.categories.find((item) => item.id === "custom-trip");
+  manager.window.confirm = () => false;
+  evaluate("handleDeleteCategory", manager)(selectedForDelete);
+  assert.equal(manager.categories.length, 3, "Delete cancellation preserved");
+  manager.window.confirm = () => true;
+  evaluate("handleDeleteCategory", manager)(selectedForDelete);
+  checkManagers();
+  assert.equal(state.category, "", "Deleted selection cleared");
+  assert.deepEqual(manager.deleted, ["수정한 여행"]);
+  assert.equal(JSON.parse(storage.getItem("nba_saved_posts"))[0].content, "test content", "Category management must not delete existing drafts");
+
+  const selectedBeforeFailure = { ...state };
+  const categoriesBeforeFailure = JSON.stringify(manager.categories);
+  const realSave = context.saveCategories;
+  context.saveCategories = () => false;
+  manager.newCatName = "실패 테스트";
+  evaluate("handleAddCategory", manager)({ preventDefault() {} });
+  assert.equal(manager.newCatName, "실패 테스트", "Failed save keeps input for retry");
+  assert.equal(JSON.stringify(manager.categories), categoriesBeforeFailure);
+  assert.deepEqual(state, selectedBeforeFailure);
+  assert.ok(manager.errors.at(-1).includes("저장하지 못했습니다"));
+  context.saveCategories = realSave;
+
+  managers[0].value.saveCategories(manager.categories.slice(0, 1));
+  manager.categories = managers[0].states[0];
+  evaluate("handleDeleteCategory", manager)(manager.categories[0]);
+  assert.equal(managers[0].states[0].length, 1, "Last category protected");
+  managers.forEach((screen) => screen.unmount());
+  function checkModalPlacement(node, insideForm = false) {
+    const tag = ts.isJsxElement(node) ? node.openingElement.tagName.getText(ast) : "";
+    const isManager = ts.isJsxSelfClosingElement(node) && node.tagName.getText(ast) === "CategoryManagementModal";
+    if (isManager) assert.equal(insideForm, false, "Manager form must not be nested inside generation form");
+    ts.forEachChild(node, (child) => checkModalPlacement(child, insideForm || tag === "form"));
+  }
+  checkModalPlacement(ast);
+  assert.ok(source.includes("카테고리 추가·수정·삭제 (순서 정렬)"));
+  console.log("PASS: shared categories/events, 3-screen manager CRUD/reordering/duplicate/cancellation/failure/last-item protection, selected rename/delete, no draft deletion, no nested forms, generation/save flow");
 })().catch((error) => { console.error(error); process.exitCode = 1; });

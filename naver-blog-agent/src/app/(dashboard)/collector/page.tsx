@@ -157,7 +157,7 @@ export default function CollectorPage() {
 
   // 3. 카테고리 저장 헬퍼
   const persistCategories = (updated: CollectorCategory[]) => {
-    saveCategories(updated);
+    return saveCategories(updated);
   };
 
   // 4. 카테고리 삭제 시 기존 글감 미분류 전환

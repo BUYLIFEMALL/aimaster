@@ -8,7 +8,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   categories: CollectorCategory[];
-  onUpdateCategories: (updated: CollectorCategory[]) => void;
+  onUpdateCategories: (updated: CollectorCategory[]) => boolean | void;
   onCategoryDeleted?: (deletedCategoryName: string) => void;
 }
 
@@ -35,6 +35,14 @@ export function CategoryManagementModal({
 
   if (!isOpen) return null;
 
+  const commitCategories = (updated: CollectorCategory[]) => {
+    if (onUpdateCategories(updated) === false) {
+      setErrorMsg("카테고리를 저장하지 못했습니다. 브라우저 저장 공간을 확인한 후 다시 시도해 주세요.");
+      return false;
+    }
+    return true;
+  };
+
   // 1. 카테고리 추가
   const handleAddCategory = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +65,7 @@ export function CategoryManagementModal({
     };
 
     const updated = [...categories, newCat];
-    onUpdateCategories(updated);
+    if (!commitCategories(updated)) return;
     setNewCatName("");
     setErrorMsg(null);
   };
@@ -75,7 +83,7 @@ export function CategoryManagementModal({
     const updated = categories.map((c) =>
       c.id === id ? { ...c, name: trimmed, slug: generateSlug(trimmed) } : c
     );
-    onUpdateCategories(updated);
+    if (!commitCategories(updated)) return;
     setEditingId(null);
     setEditingName("");
     setErrorMsg(null);
@@ -88,12 +96,12 @@ export function CategoryManagementModal({
       return;
     }
 
-    if (!window.confirm(`"${cat.name}" 카테고리를 정말 삭제하시겠습니까?\n해당 카테고리로 수집된 기존 글감들은 '미분류'로 자동 전환됩니다.`)) {
+    if (!window.confirm(`"${cat.name}" 카테고리를 분류 목록에서 삭제하시겠습니까?\n기존 글감과 원고 본문은 삭제되지 않습니다.`)) {
       return;
     }
 
     const updated = categories.filter((c) => c.id !== cat.id);
-    onUpdateCategories(updated);
+    if (!commitCategories(updated)) return;
     if (onCategoryDeleted) {
       onCategoryDeleted(cat.name);
     }
@@ -105,7 +113,7 @@ export function CategoryManagementModal({
     const swapIndex = direction === "up" ? index - 1 : index + 1;
     if (swapIndex < 0 || swapIndex >= categories.length) return;
 
-    const currentList = [...categories];
+    const currentList = categories.map((category) => ({ ...category }));
     const currentItem = currentList[index];
     const swapItem = currentList[swapIndex];
 
@@ -117,12 +125,13 @@ export function CategoryManagementModal({
     currentList[index] = swapItem;
     currentList[swapIndex] = currentItem;
 
-    onUpdateCategories(currentList);
+    if (!commitCategories(currentList)) return;
+    setErrorMsg(null);
   };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-neutral-900/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white border border-neutral-200 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[85vh]">
+      <div role="dialog" aria-modal="true" aria-labelledby="content-category-manager-title" className="bg-white border border-neutral-200 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[85vh]">
         {/* 모달 헤더 */}
         <div className="px-6 py-4 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/70">
           <div className="flex items-center gap-2">
@@ -130,11 +139,13 @@ export function CategoryManagementModal({
               🗂
             </span>
             <div>
-              <h3 className="text-base font-extrabold text-neutral-900">글감 수집 카테고리 관리</h3>
+              <h3 id="content-category-manager-title" className="text-base font-extrabold text-neutral-900">글감 수집 카테고리 관리</h3>
               <p className="text-[11px] text-neutral-500 font-medium">카테고리 추가·수정·삭제 및 위/아래 순서 정렬</p>
             </div>
           </div>
           <button
+            type="button"
+            aria-label="카테고리 관리 닫기"
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-500 flex items-center justify-center font-bold text-sm transition-colors"
           >
