@@ -279,7 +279,32 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          {/* 작업 3: 계정 및 카테고리 */}
+          {/* 작업 3: 생성 원고 보관함 & 발행 큐 */}
+          <Link
+            href="/queue"
+            className="group rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 hover:border-sky-400 hover:bg-sky-50/40 hover:shadow-sm transition-all flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-neutral-200 text-lg group-hover:scale-105 transition-transform">
+                  📑
+                </span>
+                <ArrowUpRight size={16} className="text-neutral-400 group-hover:text-sky-700 transition-colors" />
+              </div>
+              <h3 className="mt-3 text-sm font-bold text-neutral-900 group-hover:text-sky-900">
+                생성 원고 보관함 & 발행 큐
+              </h3>
+              <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
+                생성된 글 열람·에디터 수정 및 크롬 확장의 스마트에디터 ONE 자동 발행 전송.
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-neutral-200/60 text-[11px] font-bold text-sky-700 flex items-center gap-1">
+              <span>보관함 열기</span>
+              <ChevronRight size={12} />
+            </div>
+          </Link>
+
+          {/* 작업 4: 계정 및 카테고리 */}
           <Link
             href="/accounts"
             className="group rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 hover:border-amber-400 hover:bg-amber-50/40 hover:shadow-sm transition-all flex flex-col justify-between"
@@ -300,31 +325,6 @@ export default function DashboardPage() {
             </div>
             <div className="mt-3 pt-2.5 border-t border-neutral-200/60 text-[11px] font-bold text-amber-800 flex items-center gap-1">
               <span>카테고리 설정하기</span>
-              <ChevronRight size={12} />
-            </div>
-          </Link>
-
-          {/* 작업 4: 발행 대기 큐 */}
-          <Link
-            href="/queue"
-            className="group rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 hover:border-sky-400 hover:bg-sky-50/40 hover:shadow-sm transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-neutral-200 text-lg group-hover:scale-105 transition-transform">
-                  🚀
-                </span>
-                <ArrowUpRight size={16} className="text-neutral-400 group-hover:text-sky-700 transition-colors" />
-              </div>
-              <h3 className="mt-3 text-sm font-bold text-neutral-900 group-hover:text-sky-900">
-                스마트에디터 ONE 발행 큐
-              </h3>
-              <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
-                크롬 확장 프로그램의 자동 타이핑 전송 큐 및 발행 이력 실시간 확인.
-              </p>
-            </div>
-            <div className="mt-3 pt-2.5 border-t border-neutral-200/60 text-[11px] font-bold text-sky-700 flex items-center gap-1">
-              <span>대기열 확인하기</span>
               <ChevronRight size={12} />
             </div>
           </Link>
