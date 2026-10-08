@@ -5,6 +5,78 @@
 
 ---
 
+## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
+
+### 현재 상태와 작업 범위
+
+- 이번 기능 수정은 v1.29~v1.42입니다. 최신 기능 커밋은 `0db81a1d`(페르소나 조건 버튼), 직전은 `4d636a4c`(카테고리 설명 제거)이며 둘 다 `origin/master`에 푸시하고 프로덕션 배포했습니다.
+- v1.42 기능 배포는 `dpl_598FvMXEF5DYGDDJbZAg7FD2jram`, 주소는 `https://naver-blog-agent-mtg89vr9s-buylife.vercel.app`, 운영 주소는 https://naver-blog-agent.vercel.app 입니다. 배포 READY, Next.js 16.2.11, 서버 빌드 17초를 확인했습니다.
+- 이번 마감 작업은 문서만 보강하고 같은 v1.42를 재배포합니다. 기능/소스/패키지/DB/확장 버전을 새 기능 없이 올리지 않습니다. 다음 **코드 변경 배포**는 v1.43부터 시작합니다.
+- 다른 CLI가 작업한 Threads 폴더·루트 임시 파일·`supabase/.temp/cli-latest`는 보존합니다. 작업 트리 전체가 깨끗하지 않아도 이 프로그램 변경분만 확인하고 정확한 경로를 커밋합니다.
+
+### 구현 순서와 최종 확정 사항
+
+| 순서 | 버전/기능 커밋 | 최종 반영 사항 |
+|---|---|---|
+| 1 | v1.29 `4af368cd`, v1.30 `b9b62e1b` | API·확장 이용 권한 검증, 사이드바 보조 메뉴/로그인 정보를 작업 메뉴 바로 아래 배치 |
+| 2 | v1.31 `9b0f7bf5` | 네이버 계정 등록·수정을 `/settings`로 이동 |
+| 3 | v1.32 `b05cf8f5`, v1.33 `e02011a8` | 회원별 글·이미지 모델 저장/복원, 생성 시작 버튼 아래 독립 흰색 설정 박스 |
+| 4 | v1.34 `f8522ad0` | 페르소나와 독립된 말끝 4종·문체 8종, 파이프라인 공통 지침/검증 |
+| 5 | v1.35 `e88f6abe` → v1.36 `d05cbd12` | 처음 계정별 네이버 메뉴로 잘못 연결했던 카테고리를 사용자 콘텐츠 분류로 정정. v1.35 방식으로 되돌리지 않음 |
+| 6 | v1.37 `849c084b` | 생성 화면에서도 같은 공통 창으로 카테고리 등록·수정·삭제·순서 관리 |
+| 7 | v1.38 `a02299fe` → v1.39 `af495bd8` | 기획 폼 행 배치 최종 확정: 블로그 ID/카테고리, 주제/목적, 키워드 전체 너비 |
+| 8 | v1.40 `b46a1685` | 계정·카테고리 메뉴 폐기, `/accounts`는 `/settings` 리다이렉트, 계정 관리 컴포넌트 분리·기존 데이터 보존 |
+| 9 | v1.41 `4d636a4c` | 카테고리 설명 두 줄과 여백·잔존 접근성 참조 제거 |
+| 10 | v1.42 `0db81a1d` | 조건 불러오기 파란색 실제 버튼 → 선택됨 초록색. 이전 항목은 파란색 복귀 |
+
+### 핵심 연결과 반드시 유지할 동작
+
+- **기획 화면**: `src/app/(dashboard)/page.tsx`. 위 표의 최종 배치를 유지합니다. 모든 서브프로그램은 흰색 베이스이며 메인 플랫폼의 검정 배경을 복사하지 않습니다.
+- **공통 분류**: `src/lib/contentCategories.ts` + `src/hooks/useContentCategories.ts` + `CategoryManagementModal.tsx`. 저장 키는 `nba_collector_categories`, 생성/수집소/보관함/편집기가 같은 목록을 읽습니다. 같은 창 이벤트·다른 탭 storage·focus 갱신이 있으며 다른 기기와 회원별 서버 동기화는 아닙니다.
+- **분류 선택**: 분류명만 변경합니다. 키워드·목적·말끝·문체를 덮어쓰지 않습니다. 현재 선택 이름 변경은 ID를 따라가고 삭제 시 현재 선택만 해제합니다. 목록 변경으로 기존 글감·원고 본문을 지우거나 기존 기록의 분류를 일괄 변경하지 않습니다. 명시적인 빈 목록을 기본 목록으로 되살리지 않습니다.
+- **계정 연결**: `/settings`의 `src/components/NaverAccountManager.tsx`. `nba_accounts_local`의 기존 계정 객체와 옛 categories/default_category/추가 필드를 보존합니다. 더 이상 `/accounts/page.tsx`를 컴포넌트처럼 import하지 않습니다.
+- **모델 설정**: `/api/generation-preferences` + `nba_generation_preferences`(회원별). 글 엔진·세부 모델, 이미지 플랫폼·모델·비율·장수만 저장합니다. 저장 버튼은 생성/발행을 실행하지 않습니다. 말끝·문체·페르소나·카테고리까지 영구 저장된다고 설명하지 않습니다. 로딩 완료 전 생성/모델 변경 잠금을 유지합니다.
+- **문체**: `src/lib/ai/writingStyles.ts`. 말끝/문체 선택은 페르소나 어조보다 우선합니다. Writer/Humanizer/Reviewer에 전달하되 사실·조건·숫자·인용 보존 및 허구 경험/후기 금지를 유지합니다.
+- **페르소나 버튼**: `activePersonaId === p.id`로 단일 선택을 표시합니다. `handleSelectPersona`가 주제·키워드·목적을 적용하며 분류/문체는 유지합니다. 버튼의 `type="button"`·`stopPropagation()`·`aria-pressed`·포커스 표시를 유지합니다. `조건 불러오기`는 무료 로컬 조건 적용이며 `즉시 생성`과 구분합니다.
+- **저장·보관**: 원고는 `/api/posts` 서버 저장을 사용하고 로컬 저장은 임시 버퍼입니다. 자동 저장과 영구 무제한 보관은 다릅니다. 원고/이미지/수집 글감에는 30일 정리 정책이 있고 보관 표시된 중요 글감은 삭제 대상에서 제외합니다.
+- **권한/키**: AIMaster 공용 권한과 회원 본인 API 키를 사용합니다. API는 JSON 401/403, 페이지는 기존 접근 게이트, 확장은 토큰 소유자의 현재 프로그램 권한을 재검증합니다. 관리자 키 폴백·개별 회원가입/별도 DB를 만들지 않습니다.
+
+### 확인 완료와 검수 한계를 구분합니다
+
+- v1.42에서 `test:personas`, `test:categories`, `test:writing-styles`, `test:navigation`, `npm run build`가 모두 통과했습니다. 실제 JSX/핸들러 모의 검수이며 유료 AI 응답 품질/실제 최종 발행 성공 검수가 아닙니다.
+- 로그인된 운영 브라우저 v1.42의 실제 화면에서 파란색 버튼·선택 초록색을 확인했습니다. 자취생 조건 버튼 클릭 후 이전 주부 버튼 파란색 복귀·새 버튼 초록색·주제/목적 변경을 확인하고 원래 주부 선택으로 복구했습니다. 실제 AI 생성/회원 데이터 삭제/네이버 발행은 하지 않았습니다.
+- 로그인 없는 HTTP 요청의 `/` 응답 307은 로그인 안내로 정상입니다. 확장 v1.42 ZIP은 HTTP 200입니다. 배포 직후 해당 배포의 1시간 error 로그 조회는 `No logs found`였습니다. 장기 모니터링·외부 로그 전송(Drains) 설정은 확인하지 않았습니다.
+- `npm run lint`는 기존 ESLint 설정 파일 부재로 실행 불가 이력이 있습니다. 빌드/테스트 성공을 린트 성공으로 보고하지 않습니다.
+
+### 남은 검토 과제 — 이번 문서 마감에서 수정하지 않았습니다
+
+1. **선택 모델과 실제 호출 모델 일치(우선)**: `src/lib/ai/models.ts`에서 gpt-4.1/gpt-5*/gpt-6*를 gpt-4o로, gemini-3*를 gemini-2.0-flash로, Claude를 opus/haiku/sonnet 구형 ID로 치환합니다. 저장/복원 UI 정상과 선택 모델 실제 사용은 별개입니다. 공급자 공식 지원 모델·회원 키 접근 가능 여부 확인 후 명시적인 오류/폴백 정책과 모의 요청 테스트를 설계해야 합니다. 실제 유료 호출은 이번에 하지 않았습니다.
+2. **확장과 웹 큐 연결(우선)**: 배포 확장 `extension/background.js`의 API는 `http://127.0.0.1:46321` 로컬 브리지입니다. 웹 `/api/extension/*` 경로 존재·ZIP 다운로드 성공만으로 브라우저 단독 페어링/발행 완료를 보장하지 않습니다. 실제 설치·페어링·웹 큐 전달을 별도 검수해야 합니다.
+3. **글 입력 전체 반영**: 페르소나 즉시 생성의 `overrideTopic: topic.trim() || p.defaultTopic`은 이전 주제와 새 화자를 섞을 수 있습니다. `pipeline.ts`의 Writer 사용자 프롬프트는 원본 키워드/목적을 직접 넣지 않고 기획 결과를 사용합니다. 자동 조건/사용자 수정 우선순위를 먼저 확정하고 단계별 전달을 검수해야 합니다.
+4. **품질 판정**: Reviewer는 `humanizedArticle.slice(0, 1500)`만 검수하고 파싱 실패의 기본값에 PASS가 있습니다. 목표 글자수 준수/전체 본문 검수/실패 판정은 별도 보완 대상입니다. 테스트 통과를 전체 원고 품질 보장으로 설명하지 않습니다.
+5. **데이터 격리/동기화**: 계정·공통 분류는 기존 브라우저 저장입니다. 회원별 DB 이관/다른 기기 동기화는 DB 스키마 변경 승인과 기존 데이터 이관 계획이 필요합니다. 임의 초기화로 해결하지 않습니다.
+6. **이전 정책 검토**: 과거 연도를 당해 연도로 일괄 치환하는 기존 방어막은 실제 과거 사실과 충돌할 수 있습니다. 최신 정보 확보와 역사적 날짜 보존을 분리하는 개선은 사용자 정책 확인 후 별도 작업합니다.
+
+### 다음 CLI의 실행 순서
+
+1. 루트 `PROGRESS.md` → `docs/HANDOFF.md` → `docs/ERROR_LESSONS.md` → 이 문서/프로젝트 `AGENTS.md`를 읽습니다. 다른 CLI 담당 폴더를 건드리지 않습니다.
+2. `git status`·`git log --oneline -10`·`git fetch origin master`·`git rev-list --left-right --count origin/master...HEAD`로 최신 클론/브랜치를 확인합니다. 사용자 변경을 reset/checkout으로 덮어쓰지 않습니다.
+3. 다음 요청 범위의 코드만 수정하고 아래 검수를 실행합니다(프로젝트 폴더 안).
+
+```powershell
+npm run test:personas
+npm run test:categories
+npm run test:writing-styles
+npm run test:navigation
+npm run build
+```
+
+4. 코드 변경 시 버전 +0.01, 프로젝트 문서·루트 HANDOFF·에러 교훈을 같은 커밋에 반영합니다. 정확한 경로만 `git add`한 직후 커밋·`git push origin master`·`vercel deploy --prod --yes --scope buylife`를 진행합니다.
+5. READY·운영 주소·버전·인증 리다이렉트·ZIP·error 로그를 확인합니다. 로그인 화면은 사용자 로그인 세션으로 검수하며 캡처/쿠키/API 키를 Git에 넣지 않습니다. 완료 보고에는 작업 결과와 프로그램 링크를 항상 함께 제공합니다.
+6. 파괴적 삭제/force-push·비밀번호/API 키 변경·환경변수/DB 스키마 변경·유료 API 대량 호출·회원 대신 최종 발행/결제/외부 공개는 별도 승인 대상입니다.
+
+---
+
 ## 📌 0. 작업 시작 전 필수 점검 사항 (Checklist)
 
 1. **로컬 Git 상태 및 동기화 확인**:
@@ -38,7 +110,7 @@
 ```
 naver-blog-agent/
 ├── extension/                     # 🌐 크롬 브라우저 확장 프로그램 (Manifest V3)
-│   ├── manifest.json             # 확장 메타데이터 및 권한 설정 (v1.32.0)
+│   ├── manifest.json             # 확장 메타데이터 및 권한 설정 (v1.42.0)
 │   ├── background.js             # 백그라운드 서비스 워커 (대기열 주기적 폴링 & 탭 오픈)
 │   ├── content.js                # 스마트에디터 ONE 내부 DOM 조작 & 사람 타자 모사 (30~120ms 딜레이)
 │   ├── popup.html / popup.js     # 확장 팝업 UI (8자리 페어링 코드 입력 & 연결 상태 점검)
@@ -60,7 +132,7 @@ naver-blog-agent/
 │   │   │   └── guide/            # 📖 연동 & 실전 사용 매뉴얼 (최신 개정판)
 │   │   └── api/
 │   │       ├── collector/        # 글감 수집, 카테고리, 보관함 책갈피 API
-│   │       ├── posts/            # Supabase DB 원고 영구 저장 (GET/POST/PUT/DELETE)
+│   │       ├── posts/            # Supabase DB 원고 저장 (30일 정책, GET/POST/PUT/DELETE)
 │   │       ├── generate/         # 5단계 AI 글 생성 파이프라인
 │   │       ├── generate-image/   # 4대 AI 이미지 생성 플랫폼 연동
 │   │       ├── generation-preferences/ # 회원별 기본 글·이미지 모델 저장/복원
@@ -80,7 +152,7 @@ naver-blog-agent/
 │   └── lib/
 │       ├── access.ts             # AIMaster 통합 권한 체크 (requireProgramAccess)
 │       ├── retention.ts          # 30일 만료일 및 잔여일수(D-xx) 계산 유틸리티
-│       └── version.ts            # 프로그램 버전 (APP_VERSION = "v1.32")
+│       └── version.ts            # 프로그램 버전 (APP_VERSION = "v1.42")
 ```
 
 ---
