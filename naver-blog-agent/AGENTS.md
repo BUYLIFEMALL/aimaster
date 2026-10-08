@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.21` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.22` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 
 ---
@@ -45,6 +45,14 @@
 ---
 
 ## 🕒 버전 히스토리
+
+- **v1.22 (2026-10-08)**:
+  - **사이드바 메뉴 순서 개편 — `📊 운영 대시보드` 메뉴 최상단 배치 (주인님 확정)**:
+    - 배경: 주인님의 "운영 대시보드 메뉴를 맨위로 올려줘" 요청에 따라 사이드바 내비게이션 순서 개편.
+    - 조치:
+      1) `Sidebar.tsx`의 `MENU_ITEMS` 배열에서 `/dashboard` 항목을 첫 번째(최상단)로 이동.
+      2) 전체 메뉴 체계: `📊 운영 대시보드` ➔ `🔥 글감 수집` ➔ `✍️ 블로그 글 자동 생성` ➔ `👥 네이버 계정·카테고리` ➔ `📑 생성 원고 보관함 & 발행 큐` ➔ `🔑 API키등록·플랫폼연동` ➔ `📖 연동 & 사용 매뉴얼`.
+      3) 버전 v1.22 갱신: `version.ts`, `package.json`, `extension/manifest.json`, DB `programs.version`, 마이그레이션 `0022_bump_version_v1_22.sql` 동기화 완료.
 
 - **v1.21 (2026-10-08)**:
   - **Supabase DB 원고 영구 저장 서버 API(/api/posts) 구축 & 원고 보관함 실시간 양방향 연동 (주인님 확정)**:

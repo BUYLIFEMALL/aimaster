@@ -27,7 +27,10 @@
 - **v1.66**: 떡상 글감 카테고리 관리/이동 시스템 구축.
 - **v1.60**: Threads 글 분량 450~480자(상품 글은 고지·링크 포함) 꽉 채우기 최적화.
 
-### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.21** (2026-10-08)
+### 1-0. 네이버 블로그 에이전트 — 서브폴더 `naver-blog-agent/`, slug `naver-blog-agent`, 현재 **v1.22** (2026-10-08)
+- **v1.22**: **사이드바 메뉴 순서 개편 — `📊 운영 대시보드` 메뉴 최상단 배치 (주인님 확정)**.
+  - `Sidebar.tsx`의 `MENU_ITEMS`에서 `/dashboard` 메뉴를 첫 번째(맨 위)로 이동하여 블로그 운영 지표 및 통계 현황에 즉시 접근할 수 있도록 동선 최적화.
+
 - **v1.21**: **Supabase DB 원고 영구 저장 서버 API(/api/posts) 구축 & 원고 보관함 실시간 양방향 연동 (주인님 확정)**.
   - 브라우저 로컬스토리지에만 보관되어 타 기기/시크릿 창에서 원고가 유실되던 문제를 서버 DB 영구 저장으로 완전 해결.
   - `/api/posts` (GET/POST/PUT/DELETE) 서버 API 구현: `nba_posts` / `naver_blog_seo_drafts` Dual Storage Adapter로 안전한 RLS 격리(owner-only) 보장.

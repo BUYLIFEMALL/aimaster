@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.22, 2026-10-08)
+
+- **사이드바 메뉴 순서 개편 — `📊 운영 대시보드` 메뉴 최상단 배치 (v1.22, 주인님 확정)**:
+  - 배경: 주인님의 "운영 대시보드 메뉴를 맨위로 올려줘" 요청에 따라 사이드바 내비게이션 순서 개편.
+  - 조치:
+    1) `naver-blog-agent/src/components/layout/Sidebar.tsx`:
+       - `MENU_ITEMS` 배열에서 `/dashboard`("📊 운영 대시보드") 항목을 첫 번째(최상단)로 이동.
+       - 전체 메뉴 체계: `📊 운영 대시보드` ➔ `🔥 글감 수집` ➔ `✍️ 블로그 글 자동 생성` ➔ `👥 네이버 계정·카테고리` ➔ `📑 생성 원고 보관함 & 발행 큐` ➔ `🔑 API키등록·플랫폼연동` ➔ `📖 연동 & 사용 매뉴얼`.
+    2) `src/lib/version.ts`, `package.json`, `extension/manifest.json`, DB `programs.version` 및 마이그레이션 `0022_bump_version_v1_22.sql`을 `v1.22`로 동기화.
+
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.21, 2026-10-08)
 
 - **Supabase DB 원고 영구 저장 서버 API(/api/posts) 구축 & 원고 보관함 실시간 양방향 연동 (v1.21, 주인님 확정)**:

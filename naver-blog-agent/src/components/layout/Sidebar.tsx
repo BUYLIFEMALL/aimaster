@@ -6,9 +6,9 @@ import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
 
 const MENU_ITEMS = [
+  { href: "/dashboard", icon: "📊", label: "운영 대시보드", desc: "블로그 운영 현황 및 통계" },
   { href: "/collector", icon: "🔥", label: "글감 수집 (떡상·트렌드)", desc: "뉴스·URL·화제 검색 글감 수집" },
   { href: "/", icon: "✍️", label: "블로그 글 자동 생성", desc: "5단계 AI 기획·작성·윤문" },
-  { href: "/dashboard", icon: "📊", label: "운영 대시보드", desc: "블로그 운영 현황 및 통계" },
   { href: "/accounts", icon: "👥", label: "네이버 계정·카테고리", desc: "다중 블로그 ID & 키워드 설정" },
   { href: "/queue", icon: "📑", label: "생성 원고 보관함 & 발행 큐", desc: "생성된 글 열람·편집·스마트에디터 발행" },
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동", desc: "AI 키 등록 & 크롬 확장 페어링" },
