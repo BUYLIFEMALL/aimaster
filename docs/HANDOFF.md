@@ -4,9 +4,13 @@
 
 - 루트 `CLAUDE.md` 핵심 원칙 10번 / `AGENTS.md` 11번: 프로그램 업데이트 시 `extension/` 폴더·다운로드 ZIP·DB 버전을 같은 작업에서 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증. 설치된 확장은 자동 갱신되지 않으므로 보고에 재설치 안내 포함. `programs.extension_download_url`/`extension_version` 칸을 추가하고 확장이 있는 5개 프로그램 값을 모두 채움(`naver-blog-agent/supabase/migrations/0051`, 나머지 4개는 SQL로 입력). 상세 규칙·프로그램별 주소: `docs/EXTENSION_RELEASE_RULES.md`, 검증: `node scripts/check-extension-release.mjs`(5개 OK, `naver-blog-auto-poster-web`만 manifest `version_name` 없어 WARN). 미구현: 확장 내 새 버전 알림, 메인 사이트 프로그램 상세 다운로드 버튼.
 
+## 네이버 블로그 SEO 스튜디오 (naver-blog-seo-studio v1.60, 2026-10-09) — 확장 새 버전 배너
+
+- `whoami`에 `latestVersion`/`downloadUrl` 추가, 사이드패널에 "새 버전이 나왔습니다" 배너(더 높을 때만, 우리 사이트 `/downloads/` 주소만 허용), `npm run test:update-banner`. 배포 전 `npm run extension:archive`로 ZIP을 직접 만들어야 함(prebuild 아님). DB `version`/`extension_version`/`extension_download_url` v1.60으로 갱신, `check-extension-release.mjs` OK.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.50, 2026-10-09) — 확장 새 버전 알림
 
-- `GET /api/extension/version` + 확장 `checkUpdate`(6시간마다·시작/설치 시) + 팝업 배너 + 아이콘 `NEW`. 알림이 들어간 확장은 회원이 한 번 직접 재설치해야 함. DB 갱신 SQL에 `extension_version`/`extension_download_url` 포함. 이식 방법: `naver-blog-agent/docs/CONTINUATION.md` v1.50. 나머지 확장 4개에는 미적용.
+- `GET /api/extension/version` + 확장 `checkUpdate`(6시간마다·시작/설치 시) + 팝업 배너 + 아이콘 `NEW`. 알림이 들어간 확장은 회원이 한 번 직접 재설치해야 함. DB 갱신 SQL에 `extension_version`/`extension_download_url` 포함. 이식 방법: `naver-blog-agent/docs/CONTINUATION.md` v1.50. ※ 2026-10-09 정정: `ai-auto-blog`는 이미 배너가 있었고 `tistory-auto-blog`는 문구만 있었음. `naver-blog-seo-studio`는 v1.60에 추가 완료. 현황표는 `docs/EXTENSION_RELEASE_RULES.md`. 남은 곳: `naver-blog-auto-poster-web`(없음), `tistory-auto-blog`(문구만).
 
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.49, 2026-10-09) — 회원별 DB 이관
 

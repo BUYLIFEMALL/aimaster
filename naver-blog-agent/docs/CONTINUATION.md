@@ -11,7 +11,7 @@
 
 ### v1.50 추가 (확장 새 버전 알림)
 
-- 서버: `src/app/api/extension/version/route.ts`(공개, 버전·다운로드 주소만). 확장: `background.js`의 `isNewer`/`checkUpdate`(시작·설치·알람 `update-check` 6시간·팝업 열 때 `checkUpdate` 메시지), 결과는 `chrome.storage.local.update`, 아이콘 배지 `NEW`. 팝업: `connect.html #update`, `connect.js showUpdate`. 다른 확장 프로그램에 이식할 때는 이 세 부분(버전 경로·확장 비교·팝업 배너)을 그대로 복사한다.
+- 서버: `src/app/api/extension/version/route.ts`(공개, 버전·다운로드 주소만). 확장: `background.js`의 `isNewer`/`checkUpdate`(시작·설치·알람 `update-check` 6시간·팝업 열 때 `checkUpdate` 메시지), 결과는 `chrome.storage.local.update`, 아이콘 배지 `NEW`. 팝업: `connect.html #update`, `connect.js showUpdate`. 다른 확장 프로그램에 이식할 때는 이 세 부분(버전 경로·확장 비교·팝업 배너)을 그대로 복사한다. (정정 2026-10-09: `ai-auto-blog`는 자체 배너가 이미 있고 `naver-blog-seo-studio`는 v1.60에 whoami 방식으로 추가함. 현황표: 루트 `docs/EXTENSION_RELEASE_RULES.md`)
 
 ### v1.49 추가 (회원별 DB 이관 + 핵심 테이블 생성)
 

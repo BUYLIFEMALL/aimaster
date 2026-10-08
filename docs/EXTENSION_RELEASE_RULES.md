@@ -44,7 +44,17 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
 
 - `naver-blog-auto-poster-web`: manifest에 `version_name`이 없고 숫자 `0.1.0`을 쓰며 프로그램 버전은 `v1.01`이다. 규칙상 어긋나 **검증 스크립트가 WARN**을 낸다. 이 프로그램을 다음에 배포할 때 manifest에 `version_name`을 넣고 `extension_version`을 프로그램 버전으로 맞춘다.
 - 메인 사이트(buylife.xyz) 프로그램 상세 화면에는 아직 확장 다운로드 버튼이 없다(루트 앱 배포가 필요). DB 칸은 이 버튼을 위해 채워 둔 것이다.
-- **확장 안 "새 버전이 있습니다" 알림**: `naver-blog-agent` v1.50에 구현됨(`GET /api/extension/version` + 확장 `checkUpdate` + 팝업 배너 + 아이콘 `NEW`, 구현 위치는 `naver-blog-agent/docs/CONTINUATION.md` v1.50). 나머지 4개 프로그램에는 아직 없다. 새 확장 프로그램과 크게 고치는 확장에는 같은 방식으로 넣는다. 알림 코드가 들어간 확장을 회원이 한 번은 직접 다시 설치해야 이후부터 알림이 뜬다.
+- **확장 안 "새 버전이 있습니다" 알림 현황 (2026-10-09 코드로 확인)**:
+
+  | 프로그램 | 알림 | 방식 |
+  |---|---|---|
+  | `naver-blog-agent` (v1.50) | 있음 | 연결 없이도 동작: 공개 `GET /api/extension/version` + 확장이 6시간마다·시작 시 확인 → 아이콘 `NEW` 배지 + 팝업 배너 |
+  | `naver-blog-seo-studio` (v1.60) | 있음 | 토큰 연결 후: `GET /api/extension/whoami`의 `latestVersion`/`downloadUrl` → 사이드패널 배너(더 높을 때만) |
+  | `ai-auto-blog` | 있음 | 토큰 연결 후: `whoami`의 `latestVersion`/`downloadUrl` → 사이드패널 배너(버전이 다르면) |
+  | `tistory-auto-blog` | 부분 | 토큰 연결 후 상태 문구에 "최신 확장 vX 필요"만 표시(배너·다운로드 링크 없음) |
+  | `naver-blog-auto-poster-web` | 없음 | `whoami`에 버전 정보 없음. 아직 미구현(루트 앱 배포와 GitHub 릴리스 교체가 필요) |
+
+  새 확장 프로그램과 크게 고치는 확장에는 `naver-blog-agent` 방식(연결 없이도 동작)을 권장한다. 알림 코드가 들어간 확장을 회원이 한 번은 직접 다시 설치해야 이후부터 알림이 뜬다.
 - 버전 파일명(`-vX.YY.zip`)을 쓰는 프로그램은 배포 때마다 다운로드 주소가 바뀌므로 **DB 주소를 빠뜨리면 DB가 옛 파일을 가리킨다.** 가능하면 `naver-blog-agent`처럼 고정 `-latest.zip` 주소를 함께 두는 방식으로 옮긴다.
 
 ## 4. 새 확장 프로그램을 만들 때
