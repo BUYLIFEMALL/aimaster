@@ -1,6 +1,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SettingsClient, KeyDetail } from "./SettingsClient";
+import { AccountCategoryManager } from "../accounts/page";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -28,10 +29,13 @@ export default async function SettingsPage() {
   }));
 
   return (
-    <SettingsClient
-      userEmail={user.email || ""}
-      initialDetails={initialDetails}
-      initialRegistered={initialRegistered}
-    />
+    <div className="space-y-8">
+      <SettingsClient
+        userEmail={user.email || ""}
+        initialDetails={initialDetails}
+        initialRegistered={initialRegistered}
+      />
+      <AccountCategoryManager section="accounts" />
+    </div>
   );
 }

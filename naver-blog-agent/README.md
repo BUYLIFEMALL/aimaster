@@ -2,7 +2,7 @@
 
 크롬 확장프로그램과 5단계 멀티 AI 에이전트로 봇 탐지 및 아이디 보호조치 없이 네이버 스마트에디터 ONE에 글을 자동 기획·작성·윤문·발행하는 마케팅 자동화 프로그램입니다.
 
-- **현재 버전**: `v1.30` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.31` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **아키텍처**: Next.js 16 (Turbopack, App Router) + Supabase + Chrome Extension (Manifest V3)
 - **인수인계 문서**: [`AGENTS.md`](./AGENTS.md) 및 [`docs/CONTINUATION.md`](./docs/CONTINUATION.md)

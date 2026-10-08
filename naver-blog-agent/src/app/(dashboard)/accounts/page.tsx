@@ -31,7 +31,7 @@ interface Category {
   preferred_tone: string;
 }
 
-export default function AccountsPage() {
+export function AccountCategoryManager({ section }: { section: "accounts" | "categories" }) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [newBlogId, setNewBlogId] = useState("");
   const [newLabel, setNewLabel] = useState("");
@@ -288,14 +288,17 @@ export default function AccountsPage() {
       {/* 상단 페이지 타이틀 */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
-          네이버 계정 & 카테고리 관리
+          {section === "accounts" ? "네이버 블로그 계정 연결" : "네이버 카테고리 관리"}
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          발행할 네이버 블로그 ID와 카테고리별 검색 키워드, 발행 목적을 등록하고 관리합니다.
+          {section === "accounts"
+            ? "발행에 사용할 네이버 블로그 ID를 등록하고 관리합니다."
+            : "선택한 네이버 블로그의 카테고리별 검색 키워드와 발행 목적을 관리합니다."}
         </p>
       </div>
 
       {/* 1. 상단: 네이버 블로그 계정 목록 */}
+      {section === "accounts" && (
       <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-neutral-100 pb-4">
           <div>
@@ -470,8 +473,10 @@ export default function AccountsPage() {
           })}
         </div>
       </div>
+      )}
 
       {/* 2. 하단: 선택된 계정의 카테고리 & 키워드 설정 (블로그 계정 목록 바로 밑으로 위치 이동) */}
+      {section === "categories" && (
       <div>
         {selectedAccount ? (
           <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-6">
@@ -485,6 +490,21 @@ export default function AccountsPage() {
                   선택된 네이버 블로그 ID: <span className="font-mono text-emerald-700 font-semibold">{selectedAccount.blog_id}</span>
                 </p>
               </div>
+              <select
+                value={selectedAccountId || ""}
+                onChange={(event) => {
+                  setSelectedAccountId(event.target.value || null);
+                  setEditingCatId(null);
+                }}
+                className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-700 focus:border-neutral-900 focus:outline-none"
+                aria-label="카테고리를 관리할 네이버 블로그 계정 선택"
+              >
+                {accounts.map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.label} ({account.blog_id})
+                  </option>
+                ))}
+              </select>
               <span className="text-xs text-neutral-500">
                 원하는 카테고리를 추가하고 ▲▼ 화살표로 순서를 정렬하세요.
               </span>
@@ -769,6 +789,11 @@ export default function AccountsPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
+}
+
+export default function AccountsPage() {
+  return <AccountCategoryManager section="categories" />;
 }

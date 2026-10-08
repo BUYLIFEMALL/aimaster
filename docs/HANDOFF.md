@@ -7,7 +7,11 @@
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
 - **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.30, 2026-10-08)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.31, 2026-10-08)
+
+- **계정·카테고리 관리 분리 (v1.31)**:
+  - 네이버 블로그 계정 연결·추가·수정·삭제 UI는 `/settings`의 `API키등록·플랫폼연동`으로 이동했다.
+  - `/accounts`는 카테고리·키워드 관리 전용으로 정리했으며, 여러 블로그 계정은 상단 드롭다운에서 선택한다.
 
 - **사이드바 연결 메뉴 위치 조정 (v1.30)**:
   - `Sidebar.tsx`에서 `justify-between` 하단 고정을 제거했다. 4번 메뉴는 `계정·카테고리 관리`로 명확히 표기하며, API키등록·플랫폼연동, 연동 매뉴얼, 로그인 계정, 로그아웃은 그 바로 아래에 표시된다.
