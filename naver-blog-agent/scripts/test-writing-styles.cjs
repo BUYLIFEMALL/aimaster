@@ -10,12 +10,14 @@ let calls = [];
 let hasAccess = true;
 let keyLookups = 0;
 let keyAvailable = false;
+let reviewerReply = null;
 
 async function callAI(config, system, user) {
   calls.push({ system, user });
   if (system.includes('기획 에이전트')) return JSON.stringify({ finalTitle: '유지비 비교', subsections: [{ title: '비교 항목', keyPoints: ['소비전력 확인'] }] });
   if (system.includes('파워블로거')) return '[SECTION - 비교 항목]\n\n가격과 유지비를 확인한다.\n\n[SECTION - 참고자료]';
   if (system.includes('Humanizer 지침')) return JSON.stringify({ edits: [] });
+  if (reviewerReply !== null) return reviewerReply;
   return JSON.stringify({ tags: ['유지비'], reviewStatus: 'PASS' });
 }
 
@@ -47,6 +49,28 @@ function loadTS(filename) {
   await runBlogGenerationPipeline({ category: '생활정보', topic: '에어컨 전기요금', searchKeywords: '에어컨 절전, 인버터', publishPurpose: '여름철 전기요금 절약 안내', aiConfig: { provider: 'openai', apiKey: 'mock-not-a-key' } });
   const writerCall = calls.find((c) => c.system.includes('파워블로거'));
   for (const text of ['에어컨 전기요금', '에어컨 절전, 인버터', '여름철 전기요금 절약 안내']) assert.ok(writerCall.user.includes(text), `Writer prompt must include: ${text}`);
+  // Reviewer: 본문 전체 전달, 파싱 실패≠PASS, 글자수 판정
+  const base = { category: '생활정보', aiConfig: { provider: 'openai', apiKey: 'mock-not-a-key' } };
+  calls = []; reviewerReply = null;
+  const okLen = await runBlogGenerationPipeline({ ...base, targetLength: 14 });
+  const reviewCall = calls.find((c) => c.system.includes('검수관'));
+  assert.ok(reviewCall.user.includes('가격과 유지비를 확인한다.'), 'Reviewer must receive the full body');
+  assert.equal(okLen.reviewStatus, 'PASS');
+  reviewerReply = '이건 JSON이 아닙니다';
+  const broken = await runBlogGenerationPipeline({ ...base, targetLength: 14 });
+  assert.equal(broken.reviewStatus, 'UNKNOWN', 'Unparseable review must not be PASS');
+  assert.equal(broken.stepsLog.find((l) => l.step.startsWith('4.')).status, 'warn');
+  assert.ok(broken.tags.length >= 5, 'fallback tags');
+  reviewerReply = JSON.stringify({ reviewStatus: 'PASS' });
+  const noTags = await runBlogGenerationPipeline({ ...base, targetLength: 14 });
+  assert.ok(Array.isArray(noTags.tags) && noTags.tags.length > 0, 'missing tags must not crash');
+  reviewerReply = JSON.stringify({ tags: ['a'], reviewStatus: 'PASS' });
+  const tooShort = await runBlogGenerationPipeline({ ...base, targetLength: 4000 });
+  assert.equal(tooShort.reviewStatus, 'WARN', 'PASS with length out of range must downgrade');
+  assert.ok(tooShort.stepsLog.find((l) => l.step.startsWith('4.')).message.includes('부족'));
+  reviewerReply = JSON.stringify({ tags: ['a'], reviewStatus: 'FAIL', reviewNote: '수치 근거 없음' });
+  assert.equal((await runBlogGenerationPipeline({ ...base, targetLength: 14 })).reviewStatus, 'FAIL');
+  reviewerReply = null;
   assert.equal(styles.WRITING_TONES.length, 4);
   assert.equal(styles.WRITING_STYLES.length, 8);
   for (const tone of styles.WRITING_TONES) {

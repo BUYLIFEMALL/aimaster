@@ -45,6 +45,8 @@ export interface PipelineResult {
   writingStyle?: WritingStyle;
   targetLength?: number;
   charCount?: number;
+  reviewStatus?: "PASS" | "WARN" | "FAIL" | "UNKNOWN"; // 저장 글을 불러온 경우에는 없음
+  reviewNote?: string;
   images: {
     type: "thumbnail" | "body";
     prompt: string;
@@ -236,34 +238,60 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
     });
   }
 
-  // 4단계: Reviewer Agent (태그 추천 및 최종 검수)
+  // 4단계: Reviewer Agent (본문 전체 검수 · 글자수 판정 · 태그 추천)
+  // 글자수는 AI 추측이 아니라 코드로 측정한다. [SECTION]/[IMAGE INSERT] 구조 태그 줄은 제외한다.
+  const measuredLength = humanizedArticle
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*\[(SECTION|IMAGE INSERT)\b[^\]]*\]\s*$/i.test(line))
+    .join("\n")
+    .trim().length;
+  const minLength = Math.round(targetLength * 0.85);
+  const maxLength = Math.round(targetLength * 1.15);
+  const lengthOk = measuredLength >= minLength && measuredLength <= maxLength;
+  const lengthNote = `본문 ${measuredLength}자 (목표 ${targetLength}자, 허용 ${minLength}~${maxLength}자) ${lengthOk ? "범위 내" : measuredLength < minLength ? "부족" : "초과"}`;
+
   const reviewerSystemPrompt = `너는 네이버 블로그 SEO 및 팩트체크 검수관이야.
 [기준 연도 엄수]: 현재 연도는 ${currentYear}년이야. 본문 및 태그 검수 시 과거 연도(2023년, 2024년 등)가 포함되지 않도록 하고, 필요 시 ${currentYear}년 최신 태그를 부여해줘.
-완성된 본문을 검토하고, 네이버 블로그 검색 노출에 가장 효과적인 태그 5~10개를 선정해줘.`;
+본문 전체를 처음부터 끝까지 검토해. 지어낸 수치·출처·경험, 과거 연도 사용, 선택된 말끝·문체 불일치, 주제·키워드 이탈이 있으면 지적하고,
+네이버 블로그 검색 노출에 가장 효과적인 태그 5~10개를 선정해줘.
+reviewStatus는 문제가 없으면 "PASS", 고쳐야 할 점이 있으면 "WARN", 그대로 발행하면 안 되면 "FAIL"로만 답해.`;
 
   const reviewerUserPrompt = `기준 연도: ${currentYear}년
 제목: ${researchData.finalTitle}
 카테고리: ${category}
-본문 미리보기:
-${humanizedArticle.slice(0, 1500)}
+검색 키워드: ${cleanSearchKeywords || "(지정 없음)"}
+발행 목적: ${cleanPublishPurpose || "정보 제공 및 독자 체류시간 극대화"}
+글자수 측정(코드 계산): ${lengthNote}
+본문 전체:
+${humanizedArticle}
 
 반드시 아래 JSON 형식으로만 응답해:
 {
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
-  "reviewStatus": "PASS",
-  "reviewNote": "검수 완료 의견 (${currentYear}년 최신성 검증 포함)"
+  "reviewStatus": "PASS | WARN | FAIL 중 하나",
+  "reviewNote": "검수 의견 (${currentYear}년 최신성, 문체, 키워드 반영 여부 포함)"
 }`;
 
   const reviewerRaw = await callAI(aiConfig, `${reviewerSystemPrompt}\n\n${writingStylePrompt}\n선택된 말끝과 문체의 적용 여부도 검수 의견에 포함한다.`, reviewerUserPrompt);
-  const reviewerData = parseJsonSafe(reviewerRaw, {
-    tags: [category, "블로그정보", "꿀팁", "생활정보", "최신정보"],
-    reviewStatus: "PASS",
-  });
+  // 파싱 실패를 PASS로 간주하지 않는다. 읽지 못하면 UNKNOWN으로 남기고 경고한다.
+  const reviewerData = parseJsonSafe<{ tags?: unknown; reviewStatus?: unknown; reviewNote?: unknown } | null>(reviewerRaw, null);
+  const parsedStatus = String(reviewerData?.reviewStatus || "").toUpperCase();
+  let reviewStatus: NonNullable<PipelineResult["reviewStatus"]> =
+    parsedStatus === "PASS" || parsedStatus === "WARN" || parsedStatus === "FAIL" ? parsedStatus : "UNKNOWN";
+  if (reviewStatus === "PASS" && !lengthOk) reviewStatus = "WARN";
+  const reviewerTags = Array.isArray(reviewerData?.tags)
+    ? (reviewerData!.tags as unknown[]).filter((t): t is string => typeof t === "string" && t.trim().length > 0)
+    : [];
+  const tags = reviewerTags.length > 0 ? reviewerTags : [category, "블로그정보", "꿀팁", "생활정보", "최신정보"];
+  const reviewNote = [typeof reviewerData?.reviewNote === "string" ? reviewerData.reviewNote : "", lengthNote].filter(Boolean).join(" / ");
 
   stepsLog.push({
     step: "4. Reviewer Agent",
-    status: "done",
-    message: `SEO 태그 ${reviewerData.tags.length}개 추출 및 최종 검수 통과`,
+    status: reviewStatus === "PASS" ? "done" : "warn",
+    message:
+      reviewStatus === "UNKNOWN"
+        ? `검수 결과를 읽지 못했습니다(통과로 보지 않음). 기본 태그 사용. ${lengthNote}`
+        : `검수 ${reviewStatus} · 태그 ${tags.length}개 · ${lengthNote}`,
   });
 
   // 5단계: Image Prompts 생성 (썸네일 1장 + 본문 삽입 2장)
@@ -289,7 +317,7 @@ ${humanizedArticle.slice(0, 1500)}
   // [3단계 안전망: 최종 반환 직전 정규식 Safe-guard 교정]
   const finalTitle = sanitizeYear(researchData.finalTitle, currentYear);
   const finalContent = sanitizeYear(humanizedArticle, currentYear);
-  const finalTags = (reviewerData.tags || []).map((t: string) => sanitizeYear(t, currentYear));
+  const finalTags = tags.map((t: string) => sanitizeYear(t, currentYear));
   const finalImages = imagePrompts.map((img) => ({
     ...img,
     prompt: sanitizeYear(img.prompt, currentYear),
@@ -306,6 +334,8 @@ ${humanizedArticle.slice(0, 1500)}
     writingStyle,
     targetLength,
     charCount: finalContent.length,
+    reviewStatus,
+    reviewNote: sanitizeYear(reviewNote, currentYear),
     images: finalImages,
     stepsLog,
   };

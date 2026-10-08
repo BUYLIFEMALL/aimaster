@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.45` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.46` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -70,6 +70,11 @@
    - 기존 저장된 사용자 목록과 순서를 유지하고, 명시적으로 비운 목록을 기본 목록으로 되살리지 않습니다. 현재 목록은 기존 브라우저 저장 방식이며 회원별 서버 저장/다른 기기 동기화로 설명하지 않습니다. DB 이관은 별도 승인 과제입니다.
 
 ## 🕒 버전 히스토리
+
+- **v1.46 (2026-10-09)**:
+  - Reviewer(`src/lib/ai/pipeline.ts`)가 본문 전체를 검수합니다(이전: 앞 1,500자). 글자수는 AI 추측이 아니라 코드로 측정해(구조 태그 줄 제외, 목표의 85~115%) 프롬프트와 결과에 반영합니다.
+  - 검수 응답을 읽지 못하면 PASS가 아니라 `UNKNOWN`(경고, 기본 태그)으로 처리하고, `tags` 누락 시 오류 없이 기본 태그를 씁니다. 결과에 `reviewStatus`(PASS/WARN/FAIL/UNKNOWN)·`reviewNote`가 추가됩니다(글자수 범위 밖이면 PASS도 WARN). 자동 재생성은 하지 않습니다.
+  - `test:writing-styles`에 본문 전체 전달·파싱 실패·글자수 판정 검증 추가.
 
 - **v1.45 (2026-10-09)**:
   - Writer(`src/lib/ai/pipeline.ts`)에 지정 주제·검색 키워드·발행 목적을 직접 전달합니다(이전에는 기획 단계에만 들어가고 본문 작성에는 전달되지 않음).

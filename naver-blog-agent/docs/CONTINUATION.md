@@ -9,6 +9,10 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
+### v1.46 추가 (Reviewer 보강)
+
+- `pipeline.ts` 4단계: 본문 전체 전달, 글자수 코드 측정(`[SECTION]`/`[IMAGE INSERT]` 줄 제외, 85~115%), 파싱 실패=`UNKNOWN`, `reviewStatus`는 `PipelineResult`에 선택 필드(저장글 로드 시 없음). 화면은 stepsLog의 warn으로 표시. 자동 재생성은 미구현(필요 시 후속).
+
 ### v1.45 추가 (Writer 입력 보강 + 페르소나 주제 혼합 해소)
 
 - `pipeline.ts` `writerUserPrompt`에 주제·키워드·발행 목적 추가. `page.tsx handleGenerateWithPersona`는 `overrideTopic: p.defaultTopic`(낡은 `topic` 상태 미사용). 카테고리는 기존대로 사용자가 고른 콘텐츠 분류 우선.
