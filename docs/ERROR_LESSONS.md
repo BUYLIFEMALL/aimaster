@@ -4,7 +4,7 @@
 
 - **증상:** v1.49 배포 뒤 `/queue`(원고 보관함)에 예전에 보이던 콘텐츠가 사라졌다.
 - **원인:** v1.49 이전에는 `nba_posts`가 없어 `/api/posts`가 `naver_blog_seo_drafts`(SEO 스튜디오 원고 테이블)를 대신 읽었고, 사용자 필터만 있어 그 회원이 SEO 스튜디오에서 만든 원고 53건(2026-09-22~09-30, 에이전트가 저장한 것은 0건)이 에이전트 보관함에 그대로 보였다. `nba_posts`를 만들자 어댑터가 새 테이블로 바뀌어 그 53건이 보이지 않게 됐다. 당시 "에이전트 데이터는 0건이라 옮길 것이 없다"고 판단한 것이 틀렸다 — 화면에 실제로 보이던 데이터를 확인하지 않았다.
-- **해결(위치):** 원본은 그대로 있다. `naver-blog-agent/supabase/migrations/0053_import_seo_drafts_to_nba_posts.sql.pending`(복사 SQL, 승인 대기)으로 에이전트 보관함에 복사할 수 있다.
+- **해결(위치):** 원본은 그대로 두고 주인님 승인 후 `naver-blog-agent/supabase/migrations/0053_import_seo_drafts_to_nba_posts.sql`로 53건을 `nba_posts`에 복사했다(검증: 복사 53건, 제목·본문·생성일 동일). 되돌리기: `delete from public.nba_posts where research_summary->>'imported_from' = 'naver_blog_seo_drafts';`
 - **다음부터 확인:** 폴백/어댑터를 바꾸는 배포 전에는 "지금 화면에 실제로 보이는 데이터가 어느 테이블에서 오는지"를 사용자 계정 기준으로 조회해 보고, 사라지는 데이터가 있으면 먼저 알린다. 다른 프로그램의 테이블을 읽는 폴백은 만들지 않는다.
 
 ## 2026-10-09 — 확장 ZIP이 올라가 있어도 DB·메인 사이트가 모르면 "없는 것"처럼 보인다 (확장 프로그램 공통)
