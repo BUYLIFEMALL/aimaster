@@ -169,6 +169,10 @@
        - 크롬 확장 자동 발행 큐 등록(`handlePublishToQueue`) 및 보관함 저장(`handleSaveDraft`) 시 실제 생성된 이미지가 자동 포함되도록 연동.
     5) `src/lib/version.ts`, `package.json`, DB `programs.version` 및 마이그레이션 `0017_nba_bump_version_v1_17.sql`을 `v1.17`로 동기화.
 
+## Threads 콘텐츠 운영 자동화 v1.75 — 보관함 카테고리 (2026-10-08)
+
+- tco_posts.category_id 추가(DB 적용 완료), 글감 카테고리와 공유, 보관함 칩 필터·개별 변경·글감 카테고리 자동 상속. 상세는 threads-content-ops/AGENTS.md v1.75.
+
 ## Threads 콘텐츠 운영 자동화 v1.74 — 보관함 본문 세로 확장 (2026-10-08)
 
 - 보관함 카드 본문 칸이 스크롤 없이 전체가 보이도록 자동 확장. 화면만 변경.

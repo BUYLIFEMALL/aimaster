@@ -258,7 +258,7 @@ export default function ViralCollector({ candidates, categories, configuredProvi
   </div>;
 }
 
-function CategoryChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+export function CategoryChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`rounded-full px-3 py-1 text-xs font-semibold ${active ? "bg-neutral-900 text-[#ffffff]" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"}`}>{children}</button>;
 }
 

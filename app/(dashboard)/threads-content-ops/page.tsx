@@ -40,7 +40,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     .select("id, username, token_expires_at").eq("user_id", user.id).order("updated_at", { ascending: false });
   const [{ data: posts }, { data: credentials }, { data: operationProfiles }, { data: contentSources }, { data: viralCandidates }, { data: viralCategories }] = await Promise.all([
     supabase.from("tco_posts")
-    .select("id, body, status, created_at, scheduled_at, published_at, permalink, error_message, account_id, media")
+    .select("id, body, status, created_at, scheduled_at, published_at, permalink, error_message, account_id, media, category_id")
     .eq("user_id", user.id).order("created_at", { ascending: false }).limit(30),
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase.from("tco_operation_profiles")
@@ -66,7 +66,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     <header className="flex flex-wrap items-end justify-between gap-3"><div><p className="mb-1 text-xs font-medium text-gold">{APP_VERSION} · WEB AUTOMATION</p><h1 className="text-2xl font-bold text-white"><GoldGradientText>Threads 콘텐츠 운영 자동화</GoldGradientText></h1></div><p className="text-sm text-subtext">회원별 계정·초안·발행 이력 분리 관리</p></header>
     {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} sources={(contentSources ?? []).map((source) => ({ source_type: source.source_type, status: source.status }))} />}
     {tab === "create" && (accounts?.length ? <AttentionComposer userId={user.id} accounts={accounts} products={(contentSources ?? []).filter((source) => (source.source_type === "coupang" || source.source_type === "naver_brand_connect") && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <GlassCard><h2 className="font-bold text-white">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 본인 API 키로 AI 초안을 만들 수 있습니다.</p></GlassCard>)}
-    {tab === "manage" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={drafts} /> : <GlassCard><h2 className="font-bold text-white">보관된 콘텐츠가 없습니다</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 콘텐츠 생성 메뉴에서 초안을 만드세요.</p></GlassCard>)}
+    {tab === "manage" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={drafts} categories={viralCategories ?? []} /> : <GlassCard><h2 className="font-bold text-white">보관된 콘텐츠가 없습니다</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 콘텐츠 생성 메뉴에서 초안을 만드세요.</p></GlassCard>)}
     {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
     {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} categories={viralCategories ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
     {tab === "sources" && <SourceQueue accounts={accounts ?? []} sources={contentSources ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}

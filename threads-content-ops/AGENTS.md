@@ -1,8 +1,13 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.74`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.75`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.75 콘텐츠 보관함 카테고리 (2026-10-08)
+
+- 주인님 지시: 보관함(`tab=manage`)에도 글감 수집과 연계된 카테고리 기능. **DB 변경(주인님 승인)**: `tco_posts.category_id uuid references tco_viral_categories(id) on delete set null` + 인덱스(마이그레이션 `20261008130000_tco_posts_category.sql`, 적용 완료). 카테고리 목록은 글감 수집과 **같은 `tco_viral_categories`를 공유**합니다(관리 창 `ViralCategoryManager` 재사용).
+- 동작: ① 콘텐츠 생성에서 글감(viral)으로 만든 글을 저장하면 그 글감의 카테고리를 자동으로 이어받음(`saveGeneratedDraft`) ② 보관함 위 카테고리 칩 필터(건수·미분류) + 카테고리 관리 버튼 ③ 카드 위쪽 '📁 이름 | 변경 ▼' 배지로 개별 변경(`moveDrafts` 서버 액션, 본인 카테고리 id만 허용). 기존 글은 미분류.
 
 ## v1.74 보관함 본문 세로 확장 (2026-10-08)
 

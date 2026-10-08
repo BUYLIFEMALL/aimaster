@@ -938,6 +938,23 @@ export async function moveViralCandidates(input: { ids: string[]; categoryId: st
   }
 }
 
+/** 콘텐츠 보관함 글의 카테고리를 바꾼다(글감 수집과 같은 카테고리 목록을 공유). categoryId가 null이면 미분류. */
+export async function moveDrafts(input: { ids: string[]; categoryId: string | null }): Promise<{ ok: true; moved: number } | { ok: false; error: string }> {
+  try {
+    if (!Array.isArray(input.ids) || !input.ids.length || input.ids.length > 100 || !input.ids.every((id) => typeof id === "string" && UUID_RE.test(id))) throw new Error("이동할 글을 선택해 주세요.");
+    const { supabase, user } = await authorizedUser();
+    const category = await ownedViralCategoryId(supabase, user.id, input.categoryId);
+    const { data, error } = await supabase.from("tco_posts")
+      .update({ category_id: category })
+      .eq("user_id", user.id).in("id", input.ids).select("id");
+    if (error) throw new Error("글을 이동하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    revalidatePath("/threads-content-ops");
+    return { ok: true, moved: data?.length ?? 0 };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "글을 이동하지 못했습니다." };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 유튜브 쇼츠 검색 (v1.37) — shorts-viral-studio의 검색을 옮겼다. 회원 본인의 YouTube Data API 키만 쓴다.
 // 검색 결과는 DB에 저장하지 않고, "글감으로 저장"(분석 후 글감 생성)을 누른 영상만 저장된다(아래 analyzeShortToViralCandidates).
@@ -1108,7 +1125,13 @@ export async function saveGeneratedDraft(input: { accountId: string; body: strin
     body = assemblePostBody(body, linked);
     if (body.length > 5_000) throw new Error("본문이 너무 깁니다. 줄여 주세요.");
     const media = sanitizeMedia(user.id, input.media);
-    const { error } = await supabase.from("tco_posts").insert({ user_id: user.id, account_id: account.id, body, status: "draft", media });
+    // 글감에서 만든 글이면 그 글감의 카테고리를 그대로 이어받는다(글감 수집과 보관함 카테고리 연계).
+    let categoryId: string | null = null;
+    if (input.viralId && UUID_RE.test(input.viralId)) {
+      const { data: source } = await supabase.from("tco_viral_candidates").select("category_id").eq("id", input.viralId).eq("user_id", user.id).maybeSingle();
+      categoryId = source?.category_id ?? null;
+    }
+    const { error } = await supabase.from("tco_posts").insert({ user_id: user.id, account_id: account.id, body, status: "draft", media, category_id: categoryId });
     if (error) throw new Error("초안을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
     if (input.viralId) {
       await supabase.from("tco_viral_candidates").update({ status: "used", updated_at: new Date().toISOString() })
