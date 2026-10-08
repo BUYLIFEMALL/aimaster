@@ -3,7 +3,6 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { ProductPreviewButton } from "@/components/products/ProductPreviewButton";
 import { Button } from "@/components/ui/Button";
-import { EnrichmentFields } from "./EnrichmentFields";
 import {
   browseTossProductsAction,
   fetchTossCategoriesAction,
@@ -11,9 +10,6 @@ import {
   type RegisterProductState,
 } from "@/lib/actions/products";
 import type { TossProduct, TossCategory } from "@/lib/toss/client";
-import type { DetailPageSummary } from "@/lib/detailPages";
-import type { RegistrationMode } from "./PlatformTabs";
-import { Input } from "@/components/ui/Input";
 
 const initialState: RegisterProductState = {};
 
@@ -25,13 +21,7 @@ const BROWSE_TABS: { value: BrowseMode; label: string }[] = [
   { value: "today", label: "⏰ 오늘의 특가" },
 ];
 
-export function TossProductForm({
-  detailPages,
-  mode,
-}: {
-  detailPages: DetailPageSummary[];
-  mode: RegistrationMode;
-}) {
+export function TossProductForm() {
   const [browseMode, setBrowseMode] = useState<BrowseMode>("best");
   const [categories, setCategories] = useState<TossCategory[]>([]);
   const [categoryId, setCategoryId] = useState("");
@@ -39,7 +29,6 @@ export function TossProductForm({
   const [browseError, setBrowseError] = useState<string | null>(null);
   const [isBrowsing, startBrowsing] = useTransition();
   const [selected, setSelected] = useState<TossProduct | null>(null);
-  const [analyzeProductName, setAnalyzeProductName] = useState("");
   const [state, formAction, isPending] = useActionState(registerTossProductAction, initialState);
 
   // 카테고리 탭을 처음 열 때 카테고리 목록을 한 번만 불러온다.
@@ -88,7 +77,6 @@ export function TossProductForm({
 
   const handleSelect = (product: TossProduct) => {
     setSelected(product);
-    setAnalyzeProductName(product.productName);
   };
 
   return (
@@ -169,38 +157,14 @@ export function TossProductForm({
       {selected && (
         <div className="rounded-lg border border-neutral-300 bg-neutral-50 p-3">
           <p className="text-sm font-medium text-neutral-900">선택한 상품: {selected.productName}</p>
-          {mode !== "analyze" && (
-            <>
-              <input type="hidden" name="productName" value={selected.productName} />
-              <input type="hidden" name="imageUrl" value={selected.imageUrl ?? ""} />
-            </>
-          )}
+          <input type="hidden" name="productName" value={selected.productName} />
+          <input type="hidden" name="imageUrl" value={selected.imageUrl ?? ""} />
           <input type="hidden" name="tacaId" value={selected.tacaId} />
           {selected.tacaItemId != null && <input type="hidden" name="tacaItemId" value={selected.tacaItemId} />}
           <input type="hidden" name="price" value={selected.price ?? ""} />
         </div>
       )}
 
-      {mode === "analyze" && (
-        <>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
-            <Input
-              name="productName"
-              placeholder="상품명을 입력하거나, 아래 이미지 분석 결과로 자동 채워보세요."
-              value={analyzeProductName}
-              onChange={(e) => setAnalyzeProductName(e.target.value)}
-              required
-            />
-          </div>
-          <EnrichmentFields
-            detailPages={detailPages}
-            productName={analyzeProductName}
-            onProductNameSuggested={setAnalyzeProductName}
-            initialImageUrl={selected?.imageUrl ?? undefined}
-          />
-        </>
-      )}
 
       <Button
         type="submit"

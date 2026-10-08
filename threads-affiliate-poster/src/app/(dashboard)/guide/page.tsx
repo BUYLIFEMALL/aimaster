@@ -6,24 +6,12 @@ export default function GuidePage() {
       </div>
 
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-bold text-neutral-900">1️⃣ 등록 방식 먼저 선택</h2>
-        <p className="mb-3 text-xs text-neutral-500">
-          상품 관리 화면 상단에 두 가지 버튼이 있습니다.
-        </p>
-        <div className="space-y-2">
-          <div className="rounded-lg border border-neutral-200 bg-white p-3">
-            <p className="text-sm font-medium text-neutral-900">🔗 링크로 빠르게 등록</p>
-            <p className="text-xs text-neutral-500">
-              URL/검색만으로 최소 정보만 넣고 바로 등록합니다. 빠릅니다.
-            </p>
-          </div>
-          <div className="rounded-lg border border-neutral-200 bg-white p-3">
-            <p className="text-sm font-medium text-neutral-900">🔍 상품·상세페이지 분석으로 등록</p>
-            <p className="text-xs text-neutral-500">
-              이미지를 올려 AI가 분석하게 해서 더 풍부한 캡션 재료까지 만들어 등록합니다. 느리지만
-              게시글 품질이 올라갑니다.
-            </p>
-          </div>
+        <h2 className="mb-3 text-sm font-bold text-neutral-900">1️⃣ 상품 등록 방식</h2>
+        <div className="rounded-lg border border-neutral-200 bg-white p-3">
+          <p className="text-sm font-medium text-neutral-900">🔗 링크·검색으로 등록</p>
+          <p className="text-xs text-neutral-500">
+            상품 URL이나 검색만으로 최소 정보를 넣고 바로 등록합니다.
+          </p>
         </div>
       </section>
 
@@ -91,29 +79,7 @@ export default function GuidePage() {
       </section>
 
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-bold text-neutral-900">
-          3️⃣ (선택) &quot;분석으로 등록&quot;을 골랐다면 6단계 진행
-        </h2>
-        <ol className="list-inside list-decimal space-y-2 text-xs text-neutral-700">
-          <li>대표 이미지 업로드</li>
-          <li>상세페이지 이미지 추가 업로드 (선택, 최대 10장)</li>
-          <li>알고 있는 상품 원본 정보를 자유 텍스트로 입력</li>
-          <li>
-            <span className="font-medium">&quot;✨ AI로 상품 분석하기&quot;</span> 클릭 → OpenAI가
-            이미지+텍스트를 분석해 카테고리/가격/핵심특징/타겟고객/컬러톤 등을 자동으로 채움
-            (결과는 그 자리에서 직접 수정 가능)
-          </li>
-          <li>
-            게시글용 대표 이미지 선택 — 업로드한 이미지 중 고르거나,{" "}
-            <span className="font-medium">&quot;✨ AI로 대표 이미지 생성&quot;</span>(Gemini)으로
-            새로 생성
-          </li>
-          <li>최종 확인 요약을 보고 아래 등록 버튼 클릭</li>
-        </ol>
-      </section>
-
-      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-bold text-neutral-900">4️⃣ 등록 완료 후</h2>
+        <h2 className="mb-3 text-sm font-bold text-neutral-900">3️⃣ 등록 완료 후</h2>
         <p className="text-xs text-neutral-700">
           제출하면 등록된 상품 목록에 바로 나타납니다. 이후{" "}
           <span className="font-medium">게시글 관리 → 새 게시글 작성</span> 화면에서 이 상품을

@@ -1,6 +1,5 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { listUserDetailPages } from "@/lib/detailPages";
 import { PlatformTabs } from "@/components/products/PlatformTabs";
 import { ProductList } from "@/components/products/ProductList";
 
@@ -16,14 +15,11 @@ export default async function ProductsPage({
   const supabase = await createClient();
   const { keyword } = await searchParams;
 
-  const [{ data: products }, detailPages] = await Promise.all([
-    supabase
-      .from("affiliate_products")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false }),
-    listUserDetailPages(supabase, user.id),
-  ]);
+  const { data: products } = await supabase
+    .from("affiliate_products")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -48,9 +44,6 @@ export default async function ProductsPage({
             <span className="font-semibold text-neutral-900">네이버 &amp; 토스쇼핑</span>: 직접 발급받은 네이버 브랜드커넥트 딥링크를 입력하거나 토스 베스트/오늘의특가 상품 목록에서 선택하여 등록합니다.
           </li>
           <li>
-            <span className="font-semibold text-neutral-900">AI 소구점 분석 (선택)</span>: 상품 이미지나 상세페이지를 업로드하면 AI가 핵심 셀링포인트를 분석해 글쓰기에 자동 반영합니다.
-          </li>
-          <li>
             <span className="font-semibold text-neutral-900">게시글 작성 활용</span>: 등록된 상품은 &quot;게시글 작성&quot; 화면에서 바로 선택하여 쓰레드 AI 홍보 캡션을 자동 생성할 수 있습니다.
           </li>
         </ol>
@@ -62,7 +55,7 @@ export default async function ProductsPage({
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-bold text-neutral-900">🔎 상품 검색·등록</h2>
         <div className="rounded-lg border border-neutral-200 bg-white p-4">
-          <PlatformTabs detailPages={detailPages} initialKeyword={keyword} />
+          <PlatformTabs initialKeyword={keyword} />
         </div>
       </section>
 

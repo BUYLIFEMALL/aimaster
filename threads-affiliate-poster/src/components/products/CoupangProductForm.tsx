@@ -11,7 +11,6 @@ import {
 } from "@/lib/coupang/links";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { EnrichmentFields } from "./EnrichmentFields";
 import {
   searchCoupangProductsAction,
   registerCoupangProductAction,
@@ -19,18 +18,12 @@ import {
   type RegisterProductState,
 } from "@/lib/actions/products";
 import type { CoupangProduct } from "@/lib/coupang/client";
-import type { DetailPageSummary } from "@/lib/detailPages";
-import type { RegistrationMode } from "./PlatformTabs";
 
 const initialState: RegisterProductState = {};
 
 export function CoupangProductForm({
-  detailPages,
-  mode,
   initialKeyword,
 }: {
-  detailPages: DetailPageSummary[];
-  mode: RegistrationMode;
   initialKeyword?: string;
 }) {
   const [keyword, setKeyword] = useState(initialKeyword ?? "");
@@ -38,7 +31,6 @@ export function CoupangProductForm({
   const [searchError, setSearchError] = useState<string | null>(null);
   const [isSearching, startSearching] = useTransition();
   const [selected, setSelected] = useState<CoupangProduct | null>(null);
-  const [analyzeProductName, setAnalyzeProductName] = useState("");
   const [manualName, setManualName] = useState("");
   const [manualUrl, setManualUrl] = useState("");
   const [manualError, setManualError] = useState<string | null>(null);
@@ -63,7 +55,6 @@ export function CoupangProductForm({
 
   const handleSelect = (product: CoupangProduct) => {
     setSelected(product);
-    setAnalyzeProductName(product.productName);
   };
 
   const handleSearch = () => {
@@ -248,36 +239,11 @@ export function CoupangProductForm({
       {selected && (
         <div className="rounded-lg border border-neutral-300 bg-neutral-50 p-3">
           <p className="text-sm font-medium text-neutral-900">선택한 상품: {selected.productName}</p>
-          {mode !== "analyze" && (
-            <>
-              <input type="hidden" name="productName" value={selected.productName} />
-              <input type="hidden" name="imageUrl" value={selected.productImage} />
-            </>
-          )}
+          <input type="hidden" name="productName" value={selected.productName} />
+          <input type="hidden" name="imageUrl" value={selected.productImage} />
           <input type="hidden" name="productUrl" value={selected.productUrl} />
           <input type="hidden" name="price" value={selected.productPrice} />
         </div>
-      )}
-
-      {mode === "analyze" && (
-        <>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-500">상품명</label>
-            <Input
-              name="productName"
-              placeholder="상품명을 입력하거나, 아래 이미지 분석 결과로 자동 채워보세요."
-              value={analyzeProductName}
-              onChange={(e) => setAnalyzeProductName(e.target.value)}
-              required
-            />
-          </div>
-          <EnrichmentFields
-            detailPages={detailPages}
-            productName={analyzeProductName}
-            onProductNameSuggested={setAnalyzeProductName}
-            initialImageUrl={selected?.productImage}
-          />
-        </>
       )}
 
       <Button

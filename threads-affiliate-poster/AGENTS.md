@@ -415,3 +415,12 @@ vercel deploy --prod --yes
        - 게시글 목록의 각 `DeleteButton` 우측에 남은 시점 배지(`remaining.text`) 렌더링.
      - `src/app/(dashboard)/posts/[id]/page.tsx`:
        - 상세 페이지 하단 삭제 버튼 우측에도 일관되게 남은 시점 배지 연동.
+
+34. **상품 관리 "상품·상세페이지 분석으로 등록" 기능 삭제 (2026-10-08, v1.48)**:
+    - **배경**: `https://threads-affiliate-poster.vercel.app/products` 주인님 "상품, 상세페이지 분석으로 등록 기능은 필요 없을 것 같아 해당 기능 삭제" 지시.
+    - **조치 사항**:
+      - `PlatformTabs.tsx`: "링크로 빠르게 / 상품·상세페이지 분석으로" 모드 토글 및 `RegistrationMode` 타입 삭제 → 링크·검색 등록만 유지. props는 `initialKeyword`만 받음.
+      - `Coupang/Aliexpress/Naver/TossProductForm.tsx`: `mode`/`detailPages` props, `analyze` 분기, `EnrichmentFields` 사용 전부 제거(상품명·이미지는 선택 상품 hidden input 또는 직접 입력으로 고정).
+      - `products/page.tsx`: `listUserDetailPages` 조회 제거, 사용방법의 "AI 소구점 분석" 항목 삭제. `guide/page.tsx`: 등록 방식 2종/분석 6단계 안내 삭제 후 번호 재정렬.
+    - **남겨둔 것(의도적)**: 서버쪽 `parseEnrichmentFields`/`analyzeProductImagesAction`/`productAnalyzer.ts`/`detailPages.ts`와 `EnrichmentFields.tsx` 파일은 호출처만 사라진 미사용 코드다. 기존에 `input_mode='manual'`로 등록된 상품의 `detailPageExcerpt` 반영(`affiliateGenerator.ts`)이 계속 동작해야 해서 지우지 않았다. 완전 삭제하려면 주인님 승인 후 별도 작업.
+    - 버전 v1.48: `version.ts`, DB `programs.version`, 마이그레이션 `0008_bump_version_v1_48.sql`.

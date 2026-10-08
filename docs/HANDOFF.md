@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads 쇼핑제휴 자동화 (threads-affiliate-poster v1.48, 2026-10-08)
+
+- **상품 관리의 "상품·상세페이지 분석으로 등록" 기능 삭제(주인님 지시)**: `/products`는 링크·검색 등록만 남았다. 모드 토글, 4개 플랫폼 폼의 analyze 분기, 사용방법/가이드의 분석 안내를 제거했다.
+- 서버 코드(`analyzeProductImagesAction`, `productAnalyzer.ts`, `detailPages.ts`)와 `EnrichmentFields.tsx`는 미사용 상태로 남겨뒀다(기존 manual 상품의 상세 발췌 반영 유지). 완전 삭제는 주인님 승인 후. 상세는 `threads-affiliate-poster/AGENTS.md` 34번.
+- `programs.version`·`version.ts`는 `v1.48`, SQL은 `threads-affiliate-poster/supabase/migrations/0008_bump_version_v1_48.sql`.
+
 ## Threads AI 기획기 (threads-easy-planner v1.41, 2026-10-08)
 
 - **상황별 페르소나 원클릭 생성에 `🌿 고부간 갈등 공감형`을 추가했다.** 키워드가 비어 있어도 명절·시댁 문화·육아 방식의 차이 속에서 내 감정과 경계를 지키는 대표 소재로 바로 생성한다.
