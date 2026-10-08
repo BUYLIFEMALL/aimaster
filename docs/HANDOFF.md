@@ -13,7 +13,14 @@
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
 - **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.32, 2026-10-08)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.35, 2026-10-08)
+
+### 후속 v1.35 — 등록 카테고리 선택 상자 (2026-10-08)
+
+- 생성 폼의 카테고리 직접 입력칸을 현재 블로그 계정의 등록 목록 드롭다운으로 교체했습니다. 선택 시 등록된 키워드·발행 목적을 함께 불러오고, 빈 계정 전환 시 이전 계정의 값이 남지 않게 했습니다. 주제·말끝·문체는 유지합니다.
+- 데이터 출처는 기존 `/accounts`의 브라우저 저장 `nba_accounts_local`입니다. 회원별 서버 동기화는 이번 UI 변경에 포함하지 않았습니다. 수집소/보관함 분류 목록과도 구분합니다.
+- `npm run test:categories`는 실제 TSX 핸들러와 폼 전달을 모의 검수하며 유료 AI 호출이나 네이버 최종 발행은 하지 않습니다. 코드·패키지·확장 ZIP·DB 표시 버전은 v1.35로 맞춥니다.
+- 세부 재개 지침·별도 후속 과제는 `naver-blog-agent/docs/CONTINUATION.md`에 남겼습니다. 다른 CLI의 Threads 작업은 수정하지 않습니다.
 
 ### 후속 v1.34 — 말끝·문체 확장 (2026-10-08)
 

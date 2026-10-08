@@ -371,6 +371,25 @@ export default function MainPage() {
     }, 100);
   };
 
+  const handleSelectBlogAccount = (blogId: string) => {
+    setSelectedBlogId(blogId);
+    const account = accounts.find((a) => a.blog_id === blogId);
+    const first = Array.isArray(account?.categories) ? account.categories[0] : undefined;
+    setCategory(first?.category_name || "");
+    setSearchKeywords(first?.search_keywords || "");
+    setPublishPurpose(first?.publish_purpose || "");
+  };
+
+  const handleSelectRegisteredCategory = (categoryId: string) => {
+    const account = accounts.find((a) => a.blog_id === selectedBlogId);
+    const categories = Array.isArray(account?.categories) ? account.categories : [];
+    const selected = categories.find((c: any) => c.id === categoryId);
+    if (!selected) return;
+    setCategory(selected.category_name);
+    setSearchKeywords(selected.search_keywords || "");
+    setPublishPurpose(selected.publish_purpose || "");
+  };
+
   // 페르소나 클릭 시 조건 자동 세팅
   const handleSelectPersona = (p: BlogPersona) => {
     setActivePersonaId(p.id);
@@ -800,6 +819,8 @@ export default function MainPage() {
   };
 
   const currentAcc = accounts.find((a) => a.blog_id === selectedBlogId);
+  const registeredCategories = Array.isArray(currentAcc?.categories) ? currentAcc.categories : [];
+  const selectedRegisteredCategory = registeredCategories.find((c: any) => c.category_name === category);
 
   return (
     <div className="space-y-6">
@@ -1210,16 +1231,8 @@ export default function MainPage() {
                 </div>
                 <select
                   value={selectedBlogId}
-                  onChange={(e) => {
-                    setSelectedBlogId(e.target.value);
-                    const acc = accounts.find((a) => a.blog_id === e.target.value);
-                    if (acc && acc.categories.length > 0) {
-                      const first = acc.categories[0];
-                      setCategory(first.category_name);
-                      setSearchKeywords(first.search_keywords || "");
-                      setPublishPurpose(first.publish_purpose || "");
-                    }
-                  }}
+                  onChange={(e) => handleSelectBlogAccount(e.target.value)}
+                  disabled={loading}
                   className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900"
                 >
                   {accounts.map((acc) => (
@@ -1230,62 +1243,41 @@ export default function MainPage() {
                 </select>
               </div>
             )}
-
-            {/* 등록된 카테고리 빠른 선택 버튼 (계정에 등록된 카테고리가 있는 경우) */}
-            {currentAcc && currentAcc.categories && currentAcc.categories.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-semibold text-neutral-700">등록 카테고리 원클릭 선택</span>
-                  <span className="text-[10px] text-neutral-400">클릭 시 자동 반영</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {currentAcc.categories.map((c: any) => {
-                    const isSelected = category === c.category_name;
-                    return (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          setCategory(c.category_name);
-                          setSearchKeywords(c.search_keywords || "");
-                          setPublishPurpose(c.publish_purpose || "");
-                        }}
-                        className={`px-2.5 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 border ${
-                          isSelected
-                            ? "bg-emerald-600 border-emerald-600 text-white font-semibold shadow-xs"
-                            : "bg-white border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50"
-                        }`}
-                      >
-                        <span>{c.category_name}</span>
-                        <span
-                          className={`text-[10px] ${
-                            isSelected ? "text-emerald-100" : "text-neutral-400"
-                          }`}
-                        >
-                          ({c.preferred_tone})
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* 카테고리 & 특정 주제 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-neutral-700 mb-1">
+              <label htmlFor="generation-category" className="block text-[11px] font-semibold text-neutral-700 mb-1">
                 네이버 블로그 카테고리
               </label>
-              <input
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="예: 생활정보, 국내여행, IT정보"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900"
-                required
-              />
+              <select
+                id="generation-category"
+                aria-describedby="generation-category-help"
+                value={selectedRegisteredCategory?.id || ""}
+                onChange={(e) => handleSelectRegisteredCategory(e.target.value)}
+                disabled={loading || registeredCategories.length === 0}
+                className="w-full px-3 py-2 text-xs rounded-lg border border-neutral-200 bg-white focus:outline-none focus:border-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500"
+              >
+                <option value="" disabled>
+                  {!currentAcc
+                    ? "먼저 네이버 블로그 계정을 등록해 주세요"
+                    : registeredCategories.length === 0
+                      ? "등록된 카테고리가 없습니다"
+                      : "등록된 카테고리를 선택하세요"}
+                </option>
+                {registeredCategories.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.category_name}</option>
+                ))}
+              </select>
+              <p id="generation-category-help" className="mt-1.5 text-[11px] text-neutral-500">
+                {registeredCategories.length > 0
+                  ? "선택하면 등록된 검색 키워드와 발행 목적도 함께 불러옵니다."
+                  : <>선택한 계정에 카테고리를 먼저 등록해 주세요. <Link href="/accounts" className="text-emerald-600 hover:underline">카테고리 등록 ↗</Link></>}
+                {!selectedRegisteredCategory && category && (
+                  <span className="block mt-1">현재 기획 카테고리: {category} (등록 목록 외 값). 등록된 항목을 선택하면 교체됩니다.</span>
+                )}
+              </p>
             </div>
 
             <div>

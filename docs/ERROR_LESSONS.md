@@ -1,5 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-08 — 등록 카테고리 선택은 계정별 목록과 연결 필드를 함께 검수한다 (naver-blog-agent v1.35)
+
+- **증상:** 생성 폼의 카테고리가 직접 입력칸이라 등록 목록을 바로 고를 수 없었고, 카테고리 없는 다른 계정으로 바꾸면 이전 계정의 값이 남았습니다.
+- **원인:** 등록 목록은 별도 칩에만 표시했고, 계정 변경 핸들러는 카테고리가 있을 때만 세 값을 갱신했습니다.
+- **해결(위치):** `naver-blog-agent/src/app/(dashboard)/page.tsx`에서 계정별 등록 목록 드롭다운과 공통 선택 핸들러를 연결했습니다. 선택 시 카테고리·키워드·목적을 갱신하고, 빈 계정 전환 시 세 값을 비웁니다.
+- **다음부터 확인:** 목록의 실제 출처(`/accounts`의 `nba_accounts_local`)를 서버 DB 목록으로 오인하지 않습니다. 다른 계정 항목 차단·연결 필드·빈 목록·폼 전달·주제/문체 유지까지 `npm run test:categories`로 검수하며, 실제 LLM 생성/최종 발행 성공 검수와 구분합니다.
+
+
 ## 2026-10-08 — 민감(Sensitive) 환경변수는 `vercel env pull`로 복사할 수 없다 / `!` 셸은 bash·비대화형 (threads-content-ops v1.82)
 
 - **증상:** 다른 Vercel 프로젝트(threads-affiliate-poster)의 `FIXIE_URL`을 루트 AIMaster 프로젝트로 옮기려고 `vercel env pull`을 했더니 값이 실제 주소가 아니라 `[SENSITIVE]` 표시만 나왔다. 에이전트가 접속 정보를 명령에 직접 넣으려 하면 보안 검사(Credential Leakage)가 차단했다. 사용자가 `! cd D:\...` 로 실행하니 `cd: D:AntigravityAIMaster: No such file` 오류, 이어서 `vercel env add`가 `missing_value`(비대화형)로 멈췄다. 값 앞에 공백이 붙어 저장돼 `! Value starts with whitespace` 경고도 났다.
