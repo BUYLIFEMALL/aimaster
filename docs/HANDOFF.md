@@ -9,6 +9,12 @@
 
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.32, 2026-10-08)
 
+### 후속 v1.33 (2026-10-08)
+
+- 글·이미지 모델 선택과 공통 저장 버튼을 생성 폼 바깥, 생성 시작 버튼 바로 아래의 흰색 독립 박스로 이동했다. 저장은 현재 두 모델의 설정 및 이미지 비율·장수만 반영하고 생성·발행을 실행하지 않는다.
+- 저장 상태/변경 상태를 비교 표시하고, 저장된 값을 불러오는 동안 모델 변경과 생성 실행을 막아 값 덮어쓰기 경합을 방지했다. 저장 API와 `nba_generation_preferences` 테이블은 v1.32 구현을 그대로 재사용한다.
+- 작업 기록·재개 기준은 `naver-blog-agent/AGENTS.md`, `README.md`, `docs/CONTINUATION.md`에 반영한다. 소스·확장·패키지·DB 버전 v1.33 동기화.
+
 - **회원별 기본 생성 모델 저장 (v1.32)**:
   - 콘텐츠 생성 화면에서 선택한 GPT/Claude/Gemini 글 생성 모델과 NanoBanana/GPT Image/FLUX/Z-Image 모델·비율·장수를 `기본 모델 설정 저장`으로 한 번에 저장한다.
   - `nba_generation_preferences`는 `user_id` 단일 키 + owner-only RLS로 회원별로 격리했고, `/api/generation-preferences`는 프로그램 이용 권한과 등록된 모델 조합을 검증한다.

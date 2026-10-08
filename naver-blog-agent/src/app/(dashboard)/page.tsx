@@ -75,6 +75,16 @@ export default function MainPage() {
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [preferencesSaving, setPreferencesSaving] = useState(false);
   const [preferencesNotice, setPreferencesNotice] = useState<string | null>(null);
+  const [savedPreferences, setSavedPreferences] = useState<string | null>(null);
+  const [preferencesError, setPreferencesError] = useState(false);
+  const currentPreferences = JSON.stringify({
+    textProvider: engine.provider,
+    textModel: engine.model,
+    imageModel: imageSettings.model,
+    imageRatio: imageSettings.ratio,
+    imageCount: imageSettings.count,
+  });
+  const preferencesUnchanged = savedPreferences === currentPreferences;
   const [configuredProviders, setConfiguredProviders] = useState<string[]>([]);
   const [generatedImages, setGeneratedImages] = useState<
     { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[]
@@ -182,7 +192,11 @@ export default function MainPage() {
 
     // 회원별 기본 AI 모델 설정을 불러옵니다. 등록값이 없으면 현재 기본값을 그대로 사용합니다.
     fetch("/api/generation-preferences", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : null))
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error("저장된 모델 설정을 불러오지 못했습니다. 현재 선택값을 확인 후 저장해 주세요.");
+        return data;
+      })
       .then((data) => {
         const preferences = data?.preferences;
         if (!preferences) return;
@@ -205,8 +219,20 @@ export default function MainPage() {
             count: Math.min(5, Math.max(1, Number(preferences.imageCount) || 2)),
           });
         }
+        if (savedEngine && savedImage) {
+          setSavedPreferences(JSON.stringify({
+            textProvider: savedEngine.provider,
+            textModel: preferences.textModel,
+            imageModel: savedImage.value,
+            imageRatio: preferences.imageRatio,
+            imageCount: preferences.imageCount,
+          }));
+        }
       })
-      .catch(() => {})
+      .catch((loadError: Error) => {
+        setPreferencesError(true);
+        setPreferencesNotice(loadError.message);
+      })
       .finally(() => setPreferencesLoaded(true));
 
     // 서버 및 로컬 보관된 원고 목록 동기화 및 개수 확인
@@ -237,23 +263,20 @@ export default function MainPage() {
 
   const saveGenerationPreferences = async () => {
     setPreferencesSaving(true);
+    setPreferencesError(false);
     setPreferencesNotice(null);
     try {
       const res = await fetch("/api/generation-preferences", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          textProvider: engine.provider,
-          textModel: engine.model,
-          imageModel: imageSettings.model,
-          imageRatio: imageSettings.ratio,
-          imageCount: imageSettings.count,
-        }),
+        body: currentPreferences,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "기본 모델 설정을 저장하지 못했습니다.");
+      setSavedPreferences(currentPreferences);
       setPreferencesNotice("기본 모델 설정을 저장했습니다. 다음 글 생성에도 자동 적용됩니다.");
     } catch (saveError: any) {
+      setPreferencesError(true);
       setPreferencesNotice(saveError.message || "기본 모델 설정을 저장하지 못했습니다.");
     } finally {
       setPreferencesSaving(false);
@@ -394,6 +417,10 @@ export default function MainPage() {
     overrideTone: string;
     overridePersona?: BlogPersona;
   }) => {
+    if (!preferencesLoaded) {
+      setError("저장된 기본 모델을 불러오는 중입니다. 잠시 뒤 생성해 주세요.");
+      return;
+    }
     setLoading(true);
     setError(null);
     setNeedKey(false);
@@ -1304,6 +1331,55 @@ export default function MainPage() {
             </div>
           </div>
 
+          {/* 원고 문체(어조) & 실행 버튼 */}
+          <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-neutral-100">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-neutral-700">원고 문체:</span>
+              <div className="flex items-center gap-1.5">
+                {["해요체", "합니다체", "친근한 반말"].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setPreferredTone(t)}
+                    className={`py-1.5 px-3 text-xs font-medium rounded-lg border transition-all ${
+                      preferredTone === t
+                        ? "bg-neutral-900 text-white border-neutral-900 font-bold"
+                        : "bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-50"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !preferencesLoaded}
+              className="py-3 px-6 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 min-w-[240px]"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>5단계 AI 에이전트 작업 중...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>{preferencesLoaded ? "5단계 AI 블로그 글 생성 시작" : "기본 모델 설정 불러오는 중..."}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <section aria-labelledby="generation-model-settings" className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+        <div>
+          <h2 id="generation-model-settings" className="text-base font-bold text-neutral-900">AI 글·이미지 생성 기본 모델 설정</h2>
+          <p className="mt-1 text-xs text-neutral-500">선택한 모델로 글과 이미지를 생성합니다. 기본값으로 저장하면 다음 접속에도 그대로 적용됩니다.</p>
+        </div>
+        <fieldset disabled={!preferencesLoaded || preferencesSaving} className="min-w-0 space-y-4 disabled:opacity-70">
           {/* 2-4. [🤖 AI 글 생성 엔진 선택] 카드 (threads-content-ops와 동일 구조) */}
           {(() => {
             const engineInfo = ENGINES.find((item) => item.provider === engine.provider) ?? ENGINES[0];
@@ -1312,7 +1388,7 @@ export default function MainPage() {
             const imageKeyReady = configuredProviders.includes(imagePlatform.keyProvider);
 
             return (
-              <>
+              <div className="space-y-4">
                 <div className="rounded-xl border-2 border-emerald-300 bg-white p-4 shadow-2xs space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
@@ -1472,36 +1548,6 @@ export default function MainPage() {
                     💡 사람이 등장할 경우 항상 한국인/동아시아인으로 생성하며, 이미지 내 글자·워터마크를 넣지 않고 깔끔한 실사로 만듭니다.
                   </p>
 
-                  <div className="flex flex-col gap-2 border-t border-neutral-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-[11px] text-neutral-500">
-                      {preferencesLoaded
-                        ? "선택한 글·이미지 생성 모델을 회원님의 기본값으로 저장할 수 있습니다."
-                        : "회원님의 저장된 기본 모델을 불러오는 중입니다."}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={saveGenerationPreferences}
-                      disabled={!preferencesLoaded || preferencesSaving}
-                      className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300"
-                    >
-                      {preferencesSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                      {preferencesSaving ? "저장 중" : "기본 모델 설정 저장"}
-                    </button>
-                  </div>
-
-                  {preferencesNotice && (
-                    <p
-                      role="status"
-                      className={`rounded-lg px-3 py-2 text-xs font-medium ${
-                        preferencesNotice.includes("저장했습니다")
-                          ? "border border-emerald-200 bg-emerald-50 text-emerald-800"
-                          : "border border-rose-200 bg-rose-50 text-rose-800"
-                      }`}
-                    >
-                      {preferencesNotice}
-                    </p>
-                  )}
-
                   {!imageKeyReady && (
                     <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">
                       <AlertCircle size={15} className="mt-0.5 shrink-0 text-amber-700" />
@@ -1515,52 +1561,43 @@ export default function MainPage() {
                     </p>
                   )}
                 </div>
-              </>
+              </div>
             );
           })()}
+        </fieldset>
+                  <div className="flex flex-col gap-2 border-t border-neutral-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-[11px] text-neutral-500">
+                      {!preferencesLoaded
+                        ? "회원님의 저장된 기본 모델을 불러오는 중입니다."
+                        : preferencesUnchanged
+                          ? "현재 글·이미지 모델 설정이 기본값으로 저장되어 있습니다."
+                          : "현재 선택값으로 생성됩니다. 계속 사용하려면 기본 모델 설정을 저장해 주세요."}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={saveGenerationPreferences}
+                      disabled={!preferencesLoaded || preferencesSaving}
+                      className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300"
+                    >
+                      {preferencesSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                      {preferencesSaving ? "저장 중" : "기본 모델 설정 저장"}
+                    </button>
+                  </div>
 
-          {/* 원고 문체(어조) & 실행 버튼 */}
-          <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-neutral-100">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-neutral-700">원고 문체:</span>
-              <div className="flex items-center gap-1.5">
-                {["해요체", "합니다체", "친근한 반말"].map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setPreferredTone(t)}
-                    className={`py-1.5 px-3 text-xs font-medium rounded-lg border transition-all ${
-                      preferredTone === t
-                        ? "bg-neutral-900 text-white border-neutral-900 font-bold"
-                        : "bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-50"
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
+                  {preferencesNotice && (preferencesError || preferencesUnchanged) && (
+                    <p
+                      role="status"
+                      className={`rounded-lg px-3 py-2 text-xs font-medium ${
+                        preferencesError
+                          ? "border border-rose-200 bg-rose-50 text-rose-800"
+                          : "border border-emerald-200 bg-emerald-50 text-emerald-800"
+                      }`}
+                    >
+                      {preferencesNotice}
+                    </p>
+                  )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="py-3 px-6 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 min-w-[240px]"
-            >
-              {loading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>5단계 AI 에이전트 작업 중...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>5단계 AI 블로그 글 생성 시작</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
+      </section>
 
       {/* 3. 하단 섹션: AI 생성 결과물 보이는 섹션 (결과물 보이는 섹션을 아래로 이동) */}
       <div id="result-section" className="space-y-4 pt-2">

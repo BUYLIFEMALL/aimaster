@@ -2,7 +2,7 @@
 
 크롬 확장프로그램과 5단계 멀티 AI 에이전트로 봇 탐지 및 아이디 보호조치 없이 네이버 스마트에디터 ONE에 글을 자동 기획·작성·윤문·발행하는 마케팅 자동화 프로그램입니다.
 
-- **현재 버전**: `v1.31` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.33` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **아키텍처**: Next.js 16 (Turbopack, App Router) + Supabase + Chrome Extension (Manifest V3)
 - **인수인계 문서**: [`AGENTS.md`](./AGENTS.md) 및 [`docs/CONTINUATION.md`](./docs/CONTINUATION.md)
@@ -21,6 +21,7 @@
    - **텍스트 엔진 선택**: GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro 자유 선택.
    - **멀티 AI 이미지 플랫폼**: NanoBanana(포토리얼리즘), GPT Image(DALL-E 3), FLUX 2.0, Z-Image 지원 및 본문 문맥 맞춤 프롬프트 생성/클라우드 업로드.
    - **5단계 파이프라인**: Research ➔ Writer ➔ Humanizer (17대 윤문 규칙) ➔ Reviewer ➔ Image.
+   - **기본 모델 설정 저장**: 생성 시작 버튼 아래 독립 박스에서 글 엔진·세부 모델과 이미지 모델·비율·장수를 선택하고 함께 저장합니다. 회원별 DB에 보관하며 다음 접속에 자동 복원합니다. 저장 버튼은 AI 생성이나 글 발행을 실행하지 않습니다.
    - **2026년 당해 연도 3중 방어막**: 과거 연도(2023, 2024년) 퇴행 원천 차단.
    - **서버 DB 100% 자동 영구 저장 (Auto-save)**: 생성 즉시 Supabase DB 저장 및 `[최근 원고 열기]` 퀵 모달 지원.
 4. **📑 3단계: 생성 원고 보관함 & 스마트 에디터 원고 편집 (`/queue`)**:
