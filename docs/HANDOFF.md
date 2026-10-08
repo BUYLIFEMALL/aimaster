@@ -13,7 +13,13 @@
 - `src/lib/version.ts`와 `programs.version`은 `v1.41`로 동기화한다. SQL은 `threads-easy-planner/supabase/migrations/0011_tep_bump_version_v1_41.sql`.
 - **다음 CLI 재개 문서:** `threads-easy-planner/docs/CONTINUATION.md`를 새로 만들었다. 다음 작업자는 이 문서와 해당 폴더 `AGENTS.md`를 먼저 읽고, `threads-easy-planner/`만 명시적으로 스테이징한다.
 
-## 네이버 블로그 에이전트 (naver-blog-agent v1.39, 2026-10-08)
+## 네이버 블로그 에이전트 (naver-blog-agent v1.40, 2026-10-08)
+
+### 후속 v1.40 — 불필요한 계정·카테고리 메뉴/화면 제거
+
+- 사이드바 `계정·카테고리 관리` 및 대시보드의 같은 작업 카드를 제거했습니다. 핵심 흐름은 수집/생성/보관함 1~3, 계정 연결은 `/settings`입니다. 관련 링크/사용 매뉴얼도 갱신했습니다.
+- `/accounts`에는 설정 화면 리다이렉트만 남겼으며 계정 부분을 `NaverAccountManager`로 분리했습니다. 설정에서 라우트를 import하지 않습니다. 기존 계정·옛 메뉴·공유 콘텐츠 분류 데이터는 삭제/이관하지 않습니다.
+- `test:navigation`(계정 실제 핸들러·기존 필드 보존·메뉴 제거·리다이렉트), 기존 카테고리/문체 테스트 및 빌드 통과. 실제 회원 데이터 삭제·유료 생성·발행 없음. 소스/패키지/확장/DB 표시 버전 v1.40.
 
 ### 후속 v1.39 — 블로그 ID·카테고리 / 주제·목적 2열 배치 (2026-10-08)
 

@@ -1226,10 +1226,10 @@ export default function MainPage() {
                     발행할 네이버 블로그 ID
                   </label>
                   <Link
-                    href="/accounts"
+                    href="/settings"
                     className="text-[10px] text-emerald-600 hover:text-emerald-700 font-medium"
                   >
-                    계정·카테고리 설정 ↗
+                    블로그 계정 설정 ↗
                   </Link>
                 </div>
                 <select

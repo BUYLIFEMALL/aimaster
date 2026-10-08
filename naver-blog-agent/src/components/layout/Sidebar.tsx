@@ -9,7 +9,6 @@ import {
   LogOut,
   PenLine,
   Send,
-  UsersRound,
   BookOpen,
 } from "lucide-react";
 import { signOutAction } from "@/lib/actions/auth";
@@ -19,7 +18,6 @@ const flow = [
   { href: "/collector", label: "떡상 콘텐츠 수집", icon: Flame },
   { href: "/", label: "콘텐츠 생성", icon: PenLine },
   { href: "/queue", label: "콘텐츠 보관함", icon: Send },
-  { href: "/accounts", label: "계정·카테고리 관리", icon: UsersRound },
 ];
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
@@ -55,7 +53,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             <span>대시보드</span>
           </Link>
 
-          {/* 핵심 작업 흐름: 번호 배지와 세로 연결선 (1 -> 2 -> 3 -> 4) */}
+          {/* 핵심 작업 흐름: 번호 배지와 세로 연결선 (1 -> 2 -> 3) */}
           <div className="relative">
             {flow.map(({ href, label, icon: Icon }, index) => {
               const active = pathname === href;

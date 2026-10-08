@@ -557,19 +557,19 @@ export default function GuidePage() {
           <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-bold text-neutral-900 text-sm flex items-center gap-1.5">
-                👥 네이버 계정·카테고리 관리 (/accounts)
+                👥 네이버 블로그 계정 연결 (/settings)
               </span>
-              <Link href="/accounts" className="text-xs text-neutral-500 hover:text-neutral-900">
+              <Link href="/settings" className="text-xs text-neutral-500 hover:text-neutral-900">
                 바로가기 ↗
               </Link>
             </div>
             <p className="text-neutral-600 leading-relaxed">
-              블로그를 여러 개 운영 중이신가요? <Link href="/accounts" className="underline font-semibold text-neutral-900">계정·카테고리 관리</Link>에서 여러 개의 네이버 블로그 ID를 등록하고 대표 계정을 설정할 수 있습니다.
+              블로그를 여러 개 운영 중이신가요? <Link href="/settings" className="underline font-semibold text-neutral-900">API키등록·플랫폼연동</Link>의 네이버 블로그 계정 연결에서 블로그 ID를 등록·수정할 수 있습니다.
             </p>
             <ul className="list-disc list-inside space-y-1 text-neutral-500 text-[11px]">
-              <li>블로그별 카테고리 등록 및 위/아래 순서 자유 이동</li>
-              <li>자주 쓰는 카테고리에 타겟 검색 롱테일 키워드 사전 매핑</li>
-              <li>원고 작성 시 해당 카테고리와 키워드가 1초 만에 자동 완성</li>
+              <li>사용자 콘텐츠 카테고리는 생성·수집소·보관함의 공통 관리 창에서 등록·수정·정렬합니다.</li>
+              <li>콘텐츠 분류와 네이버 블로그의 실제 메뉴는 서로 다른 설정입니다.</li>
+              <li>검색 키워드와 발행 목적은 콘텐츠 생성 화면에서 직접 지정합니다.</li>
             </ul>
           </div>
 
@@ -586,8 +586,8 @@ export default function GuidePage() {
               <Link href="/dashboard" className="underline font-semibold text-neutral-900">운영 대시보드</Link>에서는 수집된 글감 현황, 보관된 원고 수, 발행 완료 통계를 한눈에 모니터링할 수 있습니다.
             </p>
             <ul className="list-disc list-inside space-y-1 text-neutral-500 text-[11px]">
-              <li>화면 상단 '원클릭 빠른 작업 시작' 4개 카드로 작업 동선 최적화</li>
-              <li>글감 수집 ➔ 글 생성 ➔ 원고 보관함 ➔ 계정 관리 순차 이동</li>
+              <li>화면 상단 '원클릭 빠른 작업 시작' 3개 카드로 작업 동선 최적화</li>
+              <li>글감 수집 ➔ 글 생성 ➔ 원고 보관함 순차 이동, 계정 연결은 설정 화면에서 관리</li>
               <li>발행 성공률 및 크롬 확장 연동 상태 실시간 점검</li>
             </ul>
           </div>

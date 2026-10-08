@@ -135,7 +135,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between text-xs text-neutral-500 mb-1">
               <span>현재 주 운영 블로그</span>
               <Link
-                href="/accounts"
+                href="/settings"
                 className="text-emerald-700 font-semibold hover:underline flex items-center gap-0.5"
               >
                 계정 관리 →
@@ -228,7 +228,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
           {/* 작업 1: 글감 수집 */}
           <Link
             href="/collector"
@@ -304,30 +304,6 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          {/* 작업 4: 계정 및 카테고리 */}
-          <Link
-            href="/accounts"
-            className="group rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 hover:border-amber-400 hover:bg-amber-50/40 hover:shadow-sm transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-neutral-200 text-lg group-hover:scale-105 transition-transform">
-                  👥
-                </span>
-                <ArrowUpRight size={16} className="text-neutral-400 group-hover:text-amber-700 transition-colors" />
-              </div>
-              <h3 className="mt-3 text-sm font-bold text-neutral-900 group-hover:text-amber-900">
-                계정 & 카테고리 관리
-              </h3>
-              <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
-                다중 블로그 ID 등록, 카테고리 순서 위/아래 이동 및 롱테일 키워드 세팅.
-              </p>
-            </div>
-            <div className="mt-3 pt-2.5 border-t border-neutral-200/60 text-[11px] font-bold text-amber-800 flex items-center gap-1">
-              <span>카테고리 설정하기</span>
-              <ChevronRight size={12} />
-            </div>
-          </Link>
         </div>
       </section>
 

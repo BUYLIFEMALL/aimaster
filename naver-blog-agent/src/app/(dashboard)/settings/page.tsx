@@ -1,7 +1,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SettingsClient, KeyDetail } from "./SettingsClient";
-import { AccountCategoryManager } from "../accounts/page";
+import { NaverAccountManager } from "@/components/NaverAccountManager";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -35,7 +35,7 @@ export default async function SettingsPage() {
         initialDetails={initialDetails}
         initialRegistered={initialRegistered}
       />
-      <AccountCategoryManager section="accounts" />
+      <NaverAccountManager />
     </div>
   );
 }

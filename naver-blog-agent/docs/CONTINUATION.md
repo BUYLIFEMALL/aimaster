@@ -1,6 +1,6 @@
 # 🤖 네이버 블로그 에이전트 (naver-blog-agent) — CLI 인수인계 & 작업 가이드 (CONTINUATION.md)
 
-> **최종 갱신**: 2026-10-08 | **현재 버전**: `v1.39` | **라이브 URL**: https://naver-blog-agent.vercel.app
+> **최종 갱신**: 2026-10-08 | **현재 버전**: `v1.40` | **라이브 URL**: https://naver-blog-agent.vercel.app
 > Claude Code, Codex, Gemini 등 **어떤 AI 에이전트가 이어서 작업하더라도 즉시 파악하고 안전하게 작업할 수 있도록 정리한 기술 인수인계 문서**입니다.
 
 ---
@@ -54,8 +54,8 @@ naver-blog-agent/
 │   │   │   ├── page.tsx          # ✍️ 2단계: 5단계 AI 글 생성 & 멀티 이미지 스튜디오
 │   │   │   ├── collector/        # 🔥 1단계: 떡상 글감 수집소 (트렌드/뉴스/URL 분석)
 │   │   │   ├── queue/            # 📑 3단계: 생성 원고 보관함 & 스마트 에디터 & 발행 큐
-│   │   │   ├── accounts/         # 👥 4단계: 네이버 계정 및 카테고리 관리
-│   │   │   ├── dashboard/        # 📊 최상단 운영 대시보드 (통계 & 4단계 빠른 작업 카드)
+│   │   │   ├── accounts/         # 옛 주소 호환: /settings로 리다이렉트만
+│   │   │   ├── dashboard/        # 📊 최상단 운영 대시보드 (통계 & 3개 빠른 작업 카드)
 │   │   │   ├── settings/         # 🔑 API키등록·플랫폼연동 (BYOK 키 & 페어링 코드)
 │   │   │   └── guide/            # 📖 연동 & 실전 사용 매뉴얼 (최신 개정판)
 │   │   └── api/
@@ -70,10 +70,11 @@ naver-blog-agent/
 │   │       └── cron/cleanup/     # 30일 만료 콘텐츠 자동 삭제 Cron (Vercel Cron 연동)
 │   ├── components/
 │   │   ├── layout/
-│   │   │   ├── Sidebar.tsx       # 1~4 번호형 Stepper & 하단 구분선 분리 표준 사이드바
+│   │   │   ├── Sidebar.tsx       # 1~3 번호형 Stepper & 하단 구분선 분리 표준 사이드바
 │   │   │   └── Header.tsx        # 모바일 헤더
 │   │   ├── collector/
 │   │   │   └── CategoryManagementModal.tsx # 카테고리 관리 모달
+│   │   ├── NaverAccountManager.tsx # /settings의 블로그 ID 등록·수정, 기존 데이터 보존
 │   │   ├── BlogSmartEditorModal.tsx # Tiptap 기반 듀얼(위지윅/코드) 스마트 에디터
 │   │   └── ContentRetentionNotice.tsx # 30일 보관 및 자동 삭제 공지 배너
 │   └── lib/
@@ -84,10 +85,11 @@ naver-blog-agent/
 
 ---
 
-## 💡 2. 최근 주요 작업 내역 (v1.20 ~ v1.39)
+## 💡 2. 최근 주요 작업 내역 (v1.20 ~ v1.40)
 
 | 버전 | 작업 일자 | 핵심 구현 내용 |
 |---|---|---|
+| **v1.40** | 2026-10-08 | **불필요한 계정·카테고리 페이지/메뉴 제거**: 작업 흐름 1~3, 대시보드 3개 카드. `/accounts`는 설정 리다이렉트만. 계정 관리 컴포넌트 분리·설정/생성 링크/매뉴얼 갱신. 기존 계정·옛 분류·공유 분류 데이터 보존. `test:navigation` 모의 검수 추가 |
 | **v1.39** | 2026-10-08 | **기획 폼 2열 재배치**: 첫 행 블로그 ID/카테고리 선택·관리, 두 번째 행 특정 주제/발행 목적·독자 타깃, 아래 전체 너비 키워드. 동일 높이·좁은 화면 세로 전환. 기존 값/핸들러 유지 및 JSX 행·순서·높이 검수 |
 | **v1.38** | 2026-10-08 | **기획 폼 정렬**: 카테고리 선택 상자+관리 버튼 동일 입력 행(40px), 특정 주제는 아래 전체 너비, 검색 키워드·발행 목적/독자 타깃은 다음 행 2열. 모바일 세로 전환 및 라벨 연결. 기존 입력/관리/생성 로직 보존, JSX 구조 테스트 추가 |
 | **v1.37** | 2026-10-08 | **생성 화면 직접 카테고리 관리**: 수집소와 동일한 버튼·공통 모달로 등록/수정/삭제/정렬. 세 화면 공유 목록, 선택 항목 수정 시 ID 기준 이름 갱신·삭제 시 선택 해제. 저장 실패 완료 처리 방지·순서 변경 불변성·모달 폼 중첩 방지. 기존 원고 본문 보존 및 모달 실제 핸들러 모의 검수 |
@@ -112,6 +114,12 @@ naver-blog-agent/
 ---
 
 ## ⚠️ 3. 다음 작업 시 반드시 주의할 핵심 사항 (Gotchas)
+
+0-3. **v1.40 폐기 페이지와 계정 컴포넌트 분리**:
+   - `/accounts`는 `/settings`로 리다이렉트만 합니다. 이 라우트를 client 컴포넌트로 import하거나 옛 메뉴/계정별 카테고리 UI를 복원하지 않습니다.
+   - 설정은 `components/NaverAccountManager.tsx`를 사용합니다. 기존 저장 키와 account 객체의 categories/default_category/기타 필드를 보존하며 일괄 삭제/이관은 하지 않습니다. 기존 샘플 초기화 동작은 유지합니다.
+   - 생성/대시보드 계정 링크는 `/settings`, 사용자 분류 관리는 기존 공통 모달입니다. 사이드바 1~3 및 빠른 작업 카드 3개입니다.
+   - `npm run test:navigation`, `test:categories`, `test:writing-styles`, `npm run build`로 검수합니다. 실제 회원 데이터 쓰기·유료 생성·발행은 실행하지 않습니다.
 
 0-2. **v1.39 입력 폼 배치 (v1.38 후속 사용자 지정)**:
    - `generation-account-category-row`의 왼쪽은 `generation-blog-id`, 오른쪽은 카테고리 선택·관리 묶음입니다. 카테고리 내부는 `xl:flex-row` 이전에는 세로 배치해 좁은 열 넘침을 막습니다. 관리 버튼은 `type="button"`이고 공통 모달을 엽니다.
