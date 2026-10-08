@@ -29,6 +29,8 @@ interface BlogSmartEditorModalProps {
   content: string;
   excerpt: string;
   tags: string[];
+  category?: string;
+  categories?: { id: string; name: string }[];
   generatedImages: { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[];
   activeImageModel?: string;
   onSave: (updated: {
@@ -36,6 +38,7 @@ interface BlogSmartEditorModalProps {
     content: string;
     excerpt: string;
     tags: string[];
+    category?: string;
     isHtml: boolean;
   }) => void;
 }
@@ -110,6 +113,8 @@ export default function BlogSmartEditorModal({
   content: initialContent,
   excerpt: initialExcerpt,
   tags: initialTags,
+  category: initialCategory = "일반",
+  categories = [],
   generatedImages,
   activeImageModel,
   onSave,
@@ -117,6 +122,7 @@ export default function BlogSmartEditorModal({
   const [title, setTitle] = useState(initialTitle);
   const [excerpt, setExcerpt] = useState(initialExcerpt);
   const [tags, setTags] = useState<string[]>(initialTags);
+  const [category, setCategory] = useState(initialCategory || "일반");
   const [tagInput, setTagInput] = useState("");
 
   // 듀얼 에디터 모드 (비주얼 vs 코드)
@@ -137,12 +143,13 @@ export default function BlogSmartEditorModal({
       setTitle(initialTitle);
       setExcerpt(initialExcerpt);
       setTags([...initialTags]);
+      setCategory(initialCategory || "일반");
       setCodeContent(initialContent);
 
       const converted = convertTextToEditorHtml(initialContent, generatedImages);
       setHtmlContent(converted);
     }
-  }, [isOpen, initialTitle, initialContent, initialExcerpt, initialTags, generatedImages]);
+  }, [isOpen, initialTitle, initialContent, initialExcerpt, initialTags, initialCategory, generatedImages]);
 
   if (!isOpen) return null;
 
@@ -233,6 +240,7 @@ export default function BlogSmartEditorModal({
       content: finalContent,
       excerpt: excerpt.trim(),
       tags,
+      category: category.trim(),
       isHtml,
     });
 
@@ -341,6 +349,46 @@ export default function BlogSmartEditorModal({
                   <Plus size={12} />
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* A-2. 블로그 카테고리 분류 (떡상 글감 수집소 연계) */}
+          <div className="bg-white border border-neutral-200 rounded-2xl p-4 space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-neutral-800 uppercase tracking-wide flex items-center gap-1.5">
+                <Folder size={14} className="text-emerald-600" />
+                <span>블로그 카테고리 분류</span>
+              </label>
+              <span className="text-[11px] text-neutral-400">
+                떡상 글감 수집소 카테고리와 실시간 연계됩니다.
+              </span>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              {categories && categories.length > 0 && (
+                <select
+                  value={categories.some((c) => c.name === category) ? category : "__custom__"}
+                  onChange={(e) => {
+                    if (e.target.value !== "__custom__") {
+                      setCategory(e.target.value);
+                    }
+                  }}
+                  className="sm:w-56 px-3 py-2 text-xs rounded-xl border border-neutral-300 bg-white font-semibold text-neutral-800 focus:outline-none focus:border-emerald-600 cursor-pointer"
+                >
+                  <option value="__custom__">직접 입력 / 기타</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="카테고리명 (예: 생활/살림꿀팁, IT/테크리뷰)"
+                className="flex-1 rounded-xl border border-neutral-300 bg-white px-3.5 py-2 text-xs font-semibold text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-emerald-600 transition-colors"
+              />
             </div>
           </div>
 

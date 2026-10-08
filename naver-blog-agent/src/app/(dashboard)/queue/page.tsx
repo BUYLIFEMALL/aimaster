@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -19,8 +19,18 @@ import {
   Layers,
   Sparkles,
   BookOpen,
+  Folder,
+  FolderInput,
+  Settings2,
+  ArrowRightLeft,
+  Flame,
+  Check,
+  Filter,
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
+import type { CollectorCategory } from "@/types/collector";
+import { DEFAULT_COLLECTOR_CATEGORIES } from "@/types/collector";
+import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 
 interface SavedPostItem {
   id: string;
@@ -43,11 +53,39 @@ export default function QueuePage() {
   const [selectedPost, setSelectedPost] = useState<SavedPostItem | null>(null);
   const [viewingDetailPost, setViewingDetailPost] = useState<SavedPostItem | null>(null);
   const [editingPost, setEditingPost] = useState<SavedPostItem | null>(null);
-  const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // 1. 카테고리 연계 상태 (떡상 글감 수집소와 동일한 로컬스토리지 공유)
+  const [categories, setCategories] = useState<CollectorCategory[]>([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [bulkMoveCategory, setBulkMoveCategory] = useState<string>("");
+
+  // 2. 다중 선택 체크박스 상태
+  const [checkedIds, setCheckedIds] = useState<string[]>([]);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+
+  // 3. 로컬스토리지에서 카테고리 로드
+  useEffect(() => {
+    try {
+      const savedCats = localStorage.getItem("nba_collector_categories");
+      if (savedCats) {
+        const parsed = JSON.parse(savedCats);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCategories(parsed);
+          return;
+        }
+      }
+      setCategories(DEFAULT_COLLECTOR_CATEGORIES);
+      localStorage.setItem("nba_collector_categories", JSON.stringify(DEFAULT_COLLECTOR_CATEGORIES));
+    } catch {
+      setCategories(DEFAULT_COLLECTOR_CATEGORIES);
+    }
+  }, []);
+
+  // 4. 원고 목록 로드
   const fetchPosts = async () => {
     setIsLoading(true);
     try {
@@ -91,7 +129,197 @@ export default function QueuePage() {
     localStorage.setItem("nba_saved_posts", JSON.stringify(items));
   };
 
-  // 즉시 발행 요청 (크롬 확장 큐로 전송 & 서버 DB 동기화)
+  // 5. 카테고리 업데이트 핸들러 (모달 연계)
+  const handleUpdateCategories = (updatedCats: CollectorCategory[]) => {
+    setCategories(updatedCats);
+    localStorage.setItem("nba_collector_categories", JSON.stringify(updatedCats));
+  };
+
+  // 6. 카테고리 삭제 시 연계 원고 안전 전환
+  const handleCategoryDeleted = async (deletedCategoryName: string) => {
+    const affectedPosts = posts.filter((p) => p.category_name === deletedCategoryName);
+    if (affectedPosts.length === 0) return;
+
+    const updated = posts.map((p) => {
+      if (p.category_name === deletedCategoryName) {
+        return { ...p, category_name: "일반" };
+      }
+      return p;
+    });
+    savePosts(updated);
+
+    // 서버 DB에도 비동기 반영
+    try {
+      await Promise.allSettled(
+        affectedPosts.map((p) =>
+          fetch("/api/posts", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: p.id, category_name: "일반" }),
+          })
+        )
+      );
+    } catch (err) {
+      console.warn("카테고리 삭제 후 원고 일괄 갱신 오류:", err);
+    }
+  };
+
+  // 7. 단일 원고 카테고리 즉시 변경
+  const handleUpdatePostCategory = async (postId: string, newCategory: string) => {
+    const updated = posts.map((p) => {
+      if (p.id === postId) {
+        return { ...p, category_name: newCategory };
+      }
+      return p;
+    });
+    savePosts(updated);
+
+    if (viewingDetailPost?.id === postId) {
+      setViewingDetailPost((prev) => (prev ? { ...prev, category_name: newCategory } : null));
+    }
+
+    try {
+      await fetch("/api/posts", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: postId, category_name: newCategory }),
+      });
+    } catch (err) {
+      console.warn("서버 원고 카테고리 갱신 실패:", err);
+    }
+  };
+
+  // 8. 다중 선택 체크박스 조작
+  const handleToggleCheck = (id: string) => {
+    setCheckedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = (filteredList: SavedPostItem[]) => {
+    const allFilteredIds = filteredList.map((p) => p.id);
+    const isAllSelected = allFilteredIds.length > 0 && allFilteredIds.every((id) => checkedIds.includes(id));
+    if (isAllSelected) {
+      setCheckedIds((prev) => prev.filter((id) => !allFilteredIds.includes(id)));
+    } else {
+      const merged = Array.from(new Set([...checkedIds, ...allFilteredIds]));
+      setCheckedIds(merged);
+    }
+  };
+
+  // 9. 선택 원고 카테고리 일괄 이동 (Bulk Move)
+  const handleBulkMoveCategory = async () => {
+    if (!bulkMoveCategory) {
+      alert("이동할 대상 카테고리를 선택해주세요.");
+      return;
+    }
+    if (checkedIds.length === 0) {
+      alert("카테고리를 이동할 원고를 1건 이상 선택해주세요.");
+      return;
+    }
+
+    setIsBulkUpdating(true);
+    const targetCat = bulkMoveCategory;
+    const targetIds = [...checkedIds];
+
+    const updated = posts.map((p) => {
+      if (targetIds.includes(p.id)) {
+        return { ...p, category_name: targetCat };
+      }
+      return p;
+    });
+    savePosts(updated);
+
+    try {
+      await Promise.allSettled(
+        targetIds.map((id) =>
+          fetch("/api/posts", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, category_name: targetCat }),
+          })
+        )
+      );
+    } catch (err) {
+      console.warn("서버 카테고리 일괄 이동 실패:", err);
+    }
+
+    setIsBulkUpdating(false);
+    setCheckedIds([]);
+    setBulkMoveCategory("");
+    alert(`선택하신 원고 ${targetIds.length}건이 "${targetCat}" 카테고리로 안전하게 이동되었습니다!`);
+  };
+
+  // 10. 선택 원고 일괄 발행 큐 전송
+  const handleBulkPublishNow = async () => {
+    if (checkedIds.length === 0) return;
+    if (!confirm(`선택한 원고 ${checkedIds.length}건을 스마트에디터 ONE 자동 발행 큐에 일괄 등록하시겠습니까?`)) {
+      return;
+    }
+
+    setIsBulkUpdating(true);
+    const targetIds = [...checkedIds];
+    const updated = posts.map((p) => {
+      if (targetIds.includes(p.id)) {
+        return { ...p, status: "queued" as const };
+      }
+      return p;
+    });
+    savePosts(updated);
+
+    try {
+      await Promise.allSettled(
+        targetIds.map((id) =>
+          fetch("/api/posts", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, status: "queued" }),
+          })
+        )
+      );
+    } catch (err) {
+      console.warn("서버 상태 일괄 갱신 실패:", err);
+    }
+
+    setIsBulkUpdating(false);
+    setCheckedIds([]);
+    alert(`선택한 원고 ${targetIds.length}건이 크롬 확장 자동 발행 큐에 등록되었습니다!`);
+  };
+
+  // 11. 선택 원고 일괄 삭제
+  const handleBulkDelete = async () => {
+    if (checkedIds.length === 0) return;
+    if (!confirm(`선택한 원고 ${checkedIds.length}건을 보관함에서 정말 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    setIsBulkUpdating(true);
+    const targetIds = [...checkedIds];
+    const updated = posts.filter((p) => !targetIds.includes(p.id));
+    savePosts(updated);
+
+    if (viewingDetailPost && targetIds.includes(viewingDetailPost.id)) {
+      setViewingDetailPost(null);
+    }
+
+    try {
+      await Promise.allSettled(
+        targetIds.map((id) =>
+          fetch(`/api/posts?id=${encodeURIComponent(id)}`, {
+            method: "DELETE",
+          })
+        )
+      );
+    } catch (err) {
+      console.warn("서버 원고 일괄 삭제 실패:", err);
+    }
+
+    setIsBulkUpdating(false);
+    setCheckedIds([]);
+    alert(`선택한 원고 ${targetIds.length}건이 삭제되었습니다.`);
+  };
+
+  // 즉시 발행 요청 (단일)
   const handlePublishNow = async (id: string) => {
     const updated = posts.map((p) => {
       if (p.id === id) {
@@ -116,11 +344,12 @@ export default function QueuePage() {
     );
   };
 
-  // 원고 삭제 (서버 DB 및 로컬 캐시 동시 삭제)
+  // 단일 원고 삭제
   const handleDelete = async (id: string) => {
     if (!confirm("이 원고를 보관함에서 삭제하시겠습니까?")) return;
     const updated = posts.filter((p) => p.id !== id);
     savePosts(updated);
+    setCheckedIds((prev) => prev.filter((i) => i !== id));
     if (viewingDetailPost?.id === id) setViewingDetailPost(null);
 
     try {
@@ -137,7 +366,6 @@ export default function QueuePage() {
     let formatted = post.content || "";
     const images = post.images || [];
 
-    // [IMAGE INSERT] 마크다운 치환
     let bodySlotIndex = 1;
     formatted = formatted.replace(/\[IMAGE INSERT\s*-\s*([^\]]+)\]/g, (match, desc) => {
       const img = images[bodySlotIndex] || images.find((item) => item.type === "body");
@@ -158,16 +386,19 @@ export default function QueuePage() {
     alert("원고 내용과 이미지 링크가 클립보드에 복사되었습니다!");
   };
 
-  // 에디터 수정 완료 저장 (서버 DB 및 로컬 캐시 동시 저장)
+  // 에디터 수정 완료 저장
   const handleSaveEditor = async (updated: {
     title: string;
     content: string;
     excerpt: string;
     tags: string[];
+    category?: string;
     isHtml: boolean;
   }) => {
     if (!editingPost) return;
     const targetId = editingPost.id;
+    const nextCategory = updated.category || editingPost.category_name || "일반";
+
     const updatedList = posts.map((p) => {
       if (p.id === targetId) {
         return {
@@ -176,6 +407,7 @@ export default function QueuePage() {
           content: updated.content,
           excerpt: updated.excerpt,
           tags: updated.tags,
+          category_name: nextCategory,
         };
       }
       return p;
@@ -193,6 +425,7 @@ export default function QueuePage() {
           content: updated.content,
           excerpt: updated.excerpt,
           tags: updated.tags,
+          category_name: nextCategory,
         }),
       });
     } catch (err) {
@@ -206,7 +439,6 @@ export default function QueuePage() {
   const renderSmartArticle = (content: string, images: any[] = []) => {
     if (!content) return null;
 
-    // 만약 위지윅 에디터에서 편집된 HTML 콘텐츠인 경우
     const isHtmlContent = /<(p|h1|h2|h3|img|div|ul|ol|table|blockquote)[^>]*>/i.test(content);
     if (isHtmlContent) {
       return (
@@ -239,7 +471,6 @@ export default function QueuePage() {
     lines.forEach((line, idx) => {
       const trimmed = line.trim();
 
-      // 소제목
       if (trimmed.startsWith("[SECTION") && trimmed.endsWith("]")) {
         flushParagraph(`sec-p-${idx}`);
         const secTitle = trimmed.replace(/^\[SECTION\s*-\s*/, "").replace(/\]$/, "");
@@ -254,7 +485,6 @@ export default function QueuePage() {
         return;
       }
 
-      // 인라인 이미지
       if (trimmed.startsWith("[IMAGE INSERT") && trimmed.endsWith("]")) {
         flushParagraph(`img-p-${idx}`);
         const imgDesc = trimmed.replace(/^\[IMAGE INSERT\s*-\s*/, "").replace(/\]$/, "");
@@ -292,11 +522,50 @@ export default function QueuePage() {
     return elements;
   };
 
-  // 필터링된 게시글
-  const filteredPosts = posts.filter((p) => {
-    if (filterStatus === "all") return true;
-    return p.status === filterStatus;
-  });
+  // 등록된 카테고리 이름 목록 + 미분류/기타 처리
+  const categoryNames = useMemo(() => categories.map((c) => c.name), [categories]);
+
+  // 카테고리별 원고 개수 집계
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    posts.forEach((p) => {
+      const cat = p.category_name || "일반";
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return counts;
+  }, [posts]);
+
+  // 필터링된 게시글 (상태 필터 + 카테고리 필터 동시 적용)
+  const filteredPosts = useMemo(() => {
+    return posts.filter((p) => {
+      // 1) 상태 필터
+      if (filterStatus !== "all" && p.status !== filterStatus) {
+        return false;
+      }
+      // 2) 카테고리 필터
+      if (filterCategory === "all") {
+        return true;
+      }
+      if (filterCategory === "__uncategorized__") {
+        return !p.category_name || !categoryNames.includes(p.category_name);
+      }
+      return p.category_name === filterCategory;
+    });
+  }, [posts, filterStatus, filterCategory, categoryNames]);
+
+  // 모든 카테고리 옵션 목록 (선택 셀렉트용: 기본 + 현재 원고들에 존재하는 커스텀 카테고리 포함)
+  const allSelectableCategories = useMemo(() => {
+    const set = new Set<string>();
+    categories.forEach((c) => set.add(c.name));
+    posts.forEach((p) => {
+      if (p.category_name) set.add(p.category_name);
+    });
+    if (!set.has("일반")) set.add("일반");
+    return Array.from(set);
+  }, [categories, posts]);
+
+  const isAllFilteredSelected =
+    filteredPosts.length > 0 && filteredPosts.every((p) => checkedIds.includes(p.id));
 
   return (
     <div className="space-y-6">
@@ -314,17 +583,27 @@ export default function QueuePage() {
             생성 원고 보관함 & 발행 큐
           </h1>
           <p className="mt-1 text-xs text-neutral-500">
-            5단계 AI로 생성된 모든 원고와 이미지가 자동 보관되며, 언제든 본문 열람, 에디터 수정, 네이버 스마트에디터 ONE 자동 발행이 가능합니다.
+            5단계 AI로 생성된 모든 원고와 이미지가 자동 보관되며, 떡상 글감 수집소와 연계된 카테고리별 분류, 에디터 편집, 스마트에디터 ONE 자동 발행이 가능합니다.
           </p>
         </div>
 
-        <Link
-          href="/"
-          className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 shrink-0"
-        >
-          <Plus size={15} />
-          <span>새 블로그 글 자동 생성</span>
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href="/collector"
+            className="px-3.5 py-2.5 rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5"
+            title="떡상 글감 수집소로 이동"
+          >
+            <Flame size={14} className="text-rose-600" />
+            <span>떡상 글감 수집소</span>
+          </Link>
+          <Link
+            href="/"
+            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+          >
+            <Plus size={15} />
+            <span>새 블로그 글 자동 생성</span>
+          </Link>
+        </div>
       </div>
 
       {/* 2. 상태 요약 통계 카드 */}
@@ -378,14 +657,206 @@ export default function QueuePage() {
         ))}
       </div>
 
-      {/* 3. 원고 보관 목록 그리드 */}
+      {/* 3. 떡상 글감 수집소 연계 카테고리 분류 탭 & 관리 바 */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-neutral-100">
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">
+              <Folder size={14} />
+            </span>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-neutral-900">
+                카테고리별 원고 분류
+              </h3>
+              <span className="text-[11px] text-neutral-400 hidden sm:inline">
+                (떡상 글감 수집소와 100% 동일한 카테고리 공유)
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsCategoryModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            >
+              <Settings2 size={13} className="text-neutral-500" />
+              <span>카테고리 관리</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 카테고리 칩 필터 바 */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+          <button
+            type="button"
+            onClick={() => setFilterCategory("all")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+              filterCategory === "all"
+                ? "bg-neutral-900 text-white shadow-xs"
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+            }`}
+          >
+            <span>전체 카테고리</span>
+            <span className="ml-1.5 opacity-80">({posts.length})</span>
+          </button>
+
+          {categories.map((cat) => {
+            const count = categoryCounts[cat.name] || 0;
+            const isSelected = filterCategory === cat.name;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setFilterCategory(cat.name)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                  isSelected
+                    ? "bg-emerald-600 text-white shadow-xs"
+                    : "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/60"
+                }`}
+              >
+                <span>{cat.name}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    isSelected ? "bg-white/20 text-white" : "bg-emerald-200/60 text-emerald-900"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+
+          {/* 등록된 카테고리 외 기타/미분류가 있는 경우 */}
+          {posts.some((p) => !categoryNames.includes(p.category_name || "일반")) && (
+            <button
+              type="button"
+              onClick={() => setFilterCategory("__uncategorized__")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                filterCategory === "__uncategorized__"
+                  ? "bg-neutral-800 text-white shadow-xs"
+                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+              }`}
+            >
+              <span>기타/미분류</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-neutral-200 text-neutral-700">
+                {posts.filter((p) => !categoryNames.includes(p.category_name || "일반")).length}
+              </span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 4. 선택 원고 일괄 액션 바 (선택 항목 있을 때 상단 고정 바 표시) */}
+      {checkedIds.length > 0 && (
+        <div className="rounded-2xl border-2 border-emerald-500 bg-emerald-50/80 p-3.5 sm:p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-xs shadow-xs">
+              {checkedIds.length}
+            </span>
+            <div>
+              <div className="text-xs font-bold text-emerald-950">
+                선택된 원고 {checkedIds.length}건 작업
+              </div>
+              <div className="text-[11px] text-emerald-700">
+                카테고리 일괄 이동, 발행 전송 또는 일괄 삭제가 가능합니다.
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* 카테고리 일괄 이동 드롭다운 & 버튼 */}
+            <div className="flex items-center gap-1.5 bg-white rounded-xl border border-emerald-300 p-1 shadow-2xs">
+              <FolderInput size={14} className="text-emerald-700 ml-1.5" />
+              <select
+                value={bulkMoveCategory}
+                onChange={(e) => setBulkMoveCategory(e.target.value)}
+                disabled={isBulkUpdating}
+                className="text-xs font-semibold px-2 py-1 bg-transparent text-neutral-800 focus:outline-none cursor-pointer"
+              >
+                <option value="">카테고리 선택...</option>
+                {allSelectableCategories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={handleBulkMoveCategory}
+                disabled={!bulkMoveCategory || isBulkUpdating}
+                className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all disabled:opacity-40 cursor-pointer"
+              >
+                {isBulkUpdating ? "이동 중..." : "카테고리 이동"}
+              </button>
+            </div>
+
+            {/* 일괄 발행 전송 */}
+            <button
+              type="button"
+              onClick={handleBulkPublishNow}
+              disabled={isBulkUpdating}
+              className="px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+            >
+              <Send size={12} />
+              <span>일괄 발행 전송</span>
+            </button>
+
+            {/* 일괄 삭제 */}
+            <button
+              type="button"
+              onClick={handleBulkDelete}
+              disabled={isBulkUpdating}
+              className="px-3 py-1.5 rounded-xl border border-red-200 bg-white hover:bg-red-50 text-red-700 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+            >
+              <Trash2 size={12} />
+              <span>선택 삭제</span>
+            </button>
+
+            {/* 선택 해제 */}
+            <button
+              type="button"
+              onClick={() => setCheckedIds([])}
+              className="px-2.5 py-1.5 text-xs text-neutral-500 hover:text-neutral-800 font-semibold"
+            >
+              해제
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 5. 원고 보관 목록 카드 */}
       <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
         {/* 목록 헤더 바 */}
         <div className="p-4 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/60">
-          <div className="font-bold text-xs text-neutral-800 flex items-center gap-2">
-            <BookOpen size={14} className="text-emerald-600" />
-            <span>보관된 블로그 원고 목록 ({filteredPosts.length}건)</span>
+          <div className="flex items-center gap-3">
+            {/* 전체 선택 체크박스 */}
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isAllFilteredSelected}
+                onChange={() => handleToggleSelectAll(filteredPosts)}
+                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-neutral-300 cursor-pointer"
+              />
+              <span className="text-xs font-bold text-neutral-700">
+                {checkedIds.length > 0 ? `선택 (${checkedIds.length}건)` : "전체 선택"}
+              </span>
+            </label>
+
+            <span className="text-neutral-300">|</span>
+
+            <div className="font-bold text-xs text-neutral-800 flex items-center gap-1.5">
+              <BookOpen size={14} className="text-emerald-600" />
+              <span>
+                보관 원고 목록 ({filteredPosts.length}건
+                {filterCategory !== "all" && (
+                  <span className="text-emerald-700 ml-1">· [{filterCategory}]</span>
+                )}
+                )
+              </span>
+            </div>
           </div>
+
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline text-[11px] text-neutral-400">
               제목을 클릭하면 완성된 서식과 이미지가 포함된 상세 뷰어가 열립니다.
@@ -394,7 +865,7 @@ export default function QueuePage() {
               type="button"
               onClick={fetchPosts}
               disabled={isLoading}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-neutral-900 hover:border-neutral-300 transition-all disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-neutral-900 hover:border-neutral-300 transition-all disabled:opacity-50 cursor-pointer"
               title="원고 목록 새로고침"
             >
               <RefreshCw size={12} className={isLoading ? "animate-spin text-emerald-600" : ""} />
@@ -406,26 +877,42 @@ export default function QueuePage() {
         {isLoading ? (
           <div className="p-16 text-center space-y-3">
             <RefreshCw size={24} className="animate-spin text-emerald-600 mx-auto" />
-            <div className="text-sm font-semibold text-neutral-700">서버 보관함에서 원고 목록을 불러오는 중...</div>
+            <div className="text-sm font-semibold text-neutral-700">
+              서버 보관함에서 원고 목록을 불러오는 중...
+            </div>
           </div>
         ) : filteredPosts.length === 0 ? (
           <div className="p-16 text-center space-y-3">
             <div className="text-3xl">📭</div>
-            <div className="text-sm font-bold text-neutral-700">보관된 원고가 없습니다.</div>
+            <div className="text-sm font-bold text-neutral-700">
+              {filterCategory !== "all"
+                ? `"${filterCategory}" 카테고리에 속한 원고가 없습니다.`
+                : "보관된 원고가 없습니다."}
+            </div>
             <p className="text-xs text-neutral-400 max-w-sm mx-auto">
-              [블로그 글 자동 생성] 메뉴에서 첫 글을 생성해보세요. 생성되는 즉시 이곳에 안전하게 자동 저장됩니다.
+              [블로그 글 자동 생성] 메뉴에서 첫 글을 생성해보세요. 생성되는 즉시 이곳에 카테고리별로 자동 저장됩니다.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm"
-            >
-              <Sparkles size={13} />
-              <span>첫 블로그 글 생성하기</span>
-            </Link>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <Link
+                href="/collector"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 text-xs font-bold transition-all shadow-2xs"
+              >
+                <Flame size={13} className="text-rose-600" />
+                <span>떡상 글감 수집하기</span>
+              </Link>
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm"
+              >
+                <Sparkles size={13} />
+                <span>첫 블로그 글 생성하기</span>
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="divide-y divide-neutral-100">
             {filteredPosts.map((post) => {
+              const isChecked = checkedIds.includes(post.id);
               const thumbUrl = post.images?.[0]?.url;
               const imageCount = post.images?.length || 0;
               const charCount = (post.content || "").length;
@@ -433,10 +920,22 @@ export default function QueuePage() {
               return (
                 <div
                   key={post.id}
-                  className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-neutral-50/60 transition-colors"
+                  className={`p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition-colors ${
+                    isChecked ? "bg-emerald-50/40" : "hover:bg-neutral-50/60"
+                  }`}
                 >
-                  {/* 좌측: 썸네일 & 메타 정보 */}
-                  <div className="flex items-start gap-4 min-w-0 flex-1">
+                  {/* 좌측: 체크박스 & 썸네일 & 메타 정보 */}
+                  <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                    {/* 선택 체크박스 */}
+                    <div className="pt-2 shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleToggleCheck(post.id)}
+                        className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-neutral-300 cursor-pointer"
+                      />
+                    </div>
+
                     {/* 대표 썸네일 */}
                     <div
                       onClick={() => setViewingDetailPost(post)}
@@ -463,7 +962,7 @@ export default function QueuePage() {
 
                     {/* 본문 정보 */}
                     <div className="space-y-1.5 min-w-0 flex-1">
-                      {/* 상태 배지 & 카테고리 */}
+                      {/* 상태 배지 & 카테고리 연계 드롭다운 */}
                       <div className="flex items-center gap-2 flex-wrap">
                         {post.status === "published" && (
                           <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
@@ -489,9 +988,24 @@ export default function QueuePage() {
                           </span>
                         )}
 
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-                          {post.category_name || "일반"}
-                        </span>
+                        {/* 카테고리 빠른 변경 인라인 셀렉트 */}
+                        <div className="relative inline-flex items-center" title="클릭하여 카테고리 즉시 변경">
+                          <select
+                            value={post.category_name || "일반"}
+                            onChange={(e) => handleUpdatePostCategory(post.id, e.target.value)}
+                            className="text-[11px] font-semibold pl-2 pr-5 py-0.5 rounded-md bg-emerald-50 text-emerald-900 border border-emerald-200 hover:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer appearance-none"
+                          >
+                            {allSelectableCategories.map((cName) => (
+                              <option key={cName} value={cName}>
+                                📁 {cName}
+                              </option>
+                            ))}
+                          </select>
+                          <span className="absolute right-1 text-[9px] pointer-events-none text-emerald-600">
+                            ▼
+                          </span>
+                        </div>
+
                         <span className="text-[11px] font-mono text-neutral-400">
                           ID: {post.blog_id || "myblog"}
                         </span>
@@ -603,16 +1117,34 @@ export default function QueuePage() {
         )}
       </div>
 
-      {/* 4. 상세 원고 열람 모달 (Viewing Detail Modal) */}
+      {/* 6. 상세 원고 열람 모달 (Viewing Detail Modal) */}
       {viewingDetailPost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
           <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-neutral-200 flex flex-col max-h-[90vh] overflow-hidden">
             {/* 모달 헤더 */}
-            <header className="border-b border-neutral-200 px-6 py-4 flex items-center justify-between bg-neutral-50 shrink-0">
-              <div className="space-y-0.5">
-                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">
-                  원고 상세 열람 ({viewingDetailPost.category_name})
-                </span>
+            <header className="border-b border-neutral-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-50 shrink-0">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">
+                    원고 상세 열람
+                  </span>
+                  <span className="text-neutral-300">·</span>
+                  {/* 상세 뷰어 내부 카테고리 변경 */}
+                  <div className="flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-neutral-300">
+                    <Folder size={11} className="text-emerald-600" />
+                    <select
+                      value={viewingDetailPost.category_name || "일반"}
+                      onChange={(e) => handleUpdatePostCategory(viewingDetailPost.id, e.target.value)}
+                      className="text-xs font-semibold text-neutral-800 bg-transparent focus:outline-none cursor-pointer"
+                    >
+                      {allSelectableCategories.map((cName) => (
+                        <option key={cName} value={cName}>
+                          {cName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
                 <h2 className="text-base sm:text-lg font-extrabold text-neutral-900 line-clamp-1">
                   {viewingDetailPost.title}
                 </h2>
@@ -718,7 +1250,7 @@ export default function QueuePage() {
         </div>
       )}
 
-      {/* 5. 스마트 에디터 편집 모달 (Editing Modal) */}
+      {/* 7. 스마트 에디터 편집 모달 (Editing Modal) */}
       {editingPost && (
         <BlogSmartEditorModal
           isOpen={true}
@@ -727,10 +1259,21 @@ export default function QueuePage() {
           content={editingPost.content}
           excerpt={editingPost.excerpt || ""}
           tags={editingPost.tags || []}
+          category={editingPost.category_name || "일반"}
+          categories={categories}
           generatedImages={editingPost.images || []}
           onSave={handleSaveEditor}
         />
       )}
+
+      {/* 8. 떡상 글감 수집소 연계 카테고리 관리 모달 */}
+      <CategoryManagementModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        categories={categories}
+        onUpdateCategories={handleUpdateCategories}
+        onCategoryDeleted={handleCategoryDeleted}
+      />
     </div>
   );
 }

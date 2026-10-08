@@ -570,6 +570,7 @@ export default function MainPage() {
     content: string;
     excerpt: string;
     tags: string[];
+    category?: string;
     isHtml: boolean;
   }) => {
     if (!result) return;
@@ -579,7 +580,11 @@ export default function MainPage() {
       content: updated.content,
       excerpt: updated.excerpt,
       tags: updated.tags,
+      category: updated.category || result.category,
     });
+    if (updated.category) {
+      setCategory(updated.category);
+    }
     alert("스마트 에디터에서 편집된 원고가 본문에 성공적으로 적용되었습니다!");
   };
 
@@ -1938,6 +1943,7 @@ export default function MainPage() {
           content={result.content}
           excerpt={result.excerpt || ""}
           tags={result.tags}
+          category={result.category}
           generatedImages={generatedImages}
           activeImageModel={imageSettings.model}
           onSave={handleSaveEditedContent}
