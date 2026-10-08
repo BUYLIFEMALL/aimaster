@@ -1,8 +1,15 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.79`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.80`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.80 상품 등록에 토스쇼핑 추가 (2026-10-08)
+
+- 주인님 지시: `threads-affiliate-poster` /products의 토스쇼핑 등록 흐름을 쇼핑제휴 상품 등록(tab=sources)에 이식(알리익스프레스 v1.79에 이어 별도 작업 단위). poster에 등록한 알리·토스 키는 같은 `user_api_keys`를 읽으므로 다시 입력하지 않아도 된다(설정 탭에도 같은 값이 마스킹으로 보임).
+- 구현: `lib/toss.ts`(poster `toss/client.ts` 이식) — OAuth 토큰(메모리 캐시)·베스트/카테고리별/오늘의 특가 목록·`issueTossShareLink`(쉐어링크 발급, subTagId는 보내지 않음). 모든 호출은 고정 IP 프록시(`FIXIE_URL`, `undici` ProxyAgent)를 거친다. `web-actions.ts`의 `browseTossForSources`·`fetchTossCategoriesForSources`·`registerTossSource`(저장 버튼을 누를 때만 쉐어링크 발급, 한도 절약). 화면은 상품 등록 탭의 "토스쇼핑 쉐어링크 상품" 영역(탭 3개·카테고리 선택·소스로 저장), 설정 탭에 토스 키 3칸·매뉴얼 버튼. 고지 문구는 poster와 같은 "(광고) 토스쇼핑 쉐어링크 활동으로 수수료를 받을 수 있습니다.". 루트 `package.json`에 `undici`를 직접 의존성으로 추가(`^7.29.0`, 이미 설치돼 있던 것).
+- **남은 일(운영자)**: 루트 AIMaster Vercel 프로젝트에는 `FIXIE_URL`이 없어 토스 목록·쉐어링크는 지금 안내 문구만 나온다. 값은 threads-affiliate-poster 프로젝트에 등록된 것과 같게 넣고(토스 어드민에 등록된 고정 IP가 같아야 함) 재배포하면 바로 동작한다. 환경변수 변경은 주인님 승인 사항이라 에이전트가 넣지 않았다.
+- 한계: 실제 토스 키·프록시로 호출 검증은 못 함. DB 변경 없음(v1.79에서 source_type에 toss 추가 완료).
 
 ## v1.79 상품 등록에 알리익스프레스 추가 (2026-10-08)
 

@@ -4,15 +4,19 @@ import { useMemo, useState } from "react";
 import { Archive, CheckCircle2, CircleAlert, ExternalLink, Pencil, Plus, RotateCcw, Search, Trash2 } from "lucide-react";
 import {
   createContentSource,
+  browseTossForSources,
   deleteContentSource,
+  fetchTossCategoriesForSources,
   refreshAliexpressSourceImage,
   registerAliexpressSource,
+  registerTossSource,
   saveCoupangSearchResult,
   searchCoupangForSources,
   setContentSourceStatus,
   updateContentSource,
 } from "./web-actions";
 import type { CoupangProduct } from "@/threads-content-ops/lib/coupang";
+import type { TossCategory, TossProduct } from "@/threads-content-ops/lib/toss";
 
 type Account = { id: string; username: string | null };
 type Source = {
@@ -33,7 +37,14 @@ const TYPES: { value: string; label: string; urlLabel: string; urlHint: string; 
   { value: "naver_brand_connect", label: "네이버 브랜드 커넥트", urlLabel: "브랜드 커넥트 제휴 링크", urlHint: "https://naver.me/…", titleHint: "예: 제휴 상품 또는 캠페인 이름" },
 ];
 // 알리익스프레스는 아래 전용 등록 영역에서 제휴 링크를 자동으로 만들어 저장하므로 "새 소스 등록"의 직접 입력 종류에는 넣지 않고, 목록 라벨·필터에만 쓴다.
-const LIST_TYPES = [...TYPES, { value: "aliexpress", label: "알리익스프레스" }];
+const LIST_TYPES = [...TYPES, { value: "aliexpress", label: "알리익스프레스" }, { value: "toss", label: "토스쇼핑" }];
+
+type TossMode = "best" | "category" | "today";
+const TOSS_TABS: { value: TossMode; label: string }[] = [
+  { value: "best", label: "🔥 베스트 상품" },
+  { value: "category", label: "🗂️ 카테고리별" },
+  { value: "today", label: "⏰ 오늘의 특가" },
+];
 
 const STATUS: Record<string, { label: string; tone: string }> = {
   ready: { label: "사용 가능", tone: "bg-emerald-50 text-emerald-700" },
@@ -45,7 +56,7 @@ const STATUS: Record<string, { label: string; tone: string }> = {
 const inputClass = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400";
 const typeLabel = (value: string) => LIST_TYPES.find((type) => type.value === value)?.label ?? value;
 
-export default function SourceQueue({ accounts, sources, configuredProviders }: { accounts: Account[]; sources: Source[]; configuredProviders: string[] }) {
+export default function SourceQueue({ accounts, sources, configuredProviders, tossProxyReady }: { accounts: Account[]; sources: Source[]; configuredProviders: string[]; tossProxyReady: boolean }) {
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [form, setForm] = useState({ sourceType: "coupang", title: "", sourceUrl: "", summary: "" });
   const [typeFilter, setTypeFilter] = useState("all");
@@ -62,6 +73,13 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
   const [ali, setAli] = useState({ title: "", productUrl: "", summary: "" });
   const [aliBusy, setAliBusy] = useState(false);
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
+  const [tossMode, setTossMode] = useState<TossMode | null>(null);
+  const [tossCategories, setTossCategories] = useState<TossCategory[]>([]);
+  const [tossCategoryId, setTossCategoryId] = useState("");
+  const [tossProducts, setTossProducts] = useState<TossProduct[] | null>(null);
+  const [tossLoading, setTossLoading] = useState(false);
+  const [tossError, setTossError] = useState("");
+  const [savingTossKey, setSavingTossKey] = useState<string | null>(null);
 
   const mine = useMemo(() => sources.filter((source) => source.account_id === accountId), [sources, accountId]);
   const visible = useMemo(
@@ -97,6 +115,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
   };
 
   const keysReady = configuredProviders.includes("coupang_access_key") && configuredProviders.includes("coupang_secret_key");
+  const tossKeysReady = ["toss_access_key", "toss_secret_key", "toss_publisher_id"].every((provider) => configuredProviders.includes(provider));
   const aliKeysReady = ["aliexpress_app_key", "aliexpress_app_secret", "aliexpress_tracking_id"].every((provider) => configuredProviders.includes(provider));
   const savedUrls = new Set(mine.map((source) => source.source_url));
 
@@ -150,6 +169,49 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
     }
   };
 
+  const loadToss = async (mode: TossMode, categoryId?: string) => {
+    setTossLoading(true);
+    setTossError("");
+    setTossProducts(null);
+    try {
+      if (mode === "category" && !tossCategories.length) {
+        const categories = await fetchTossCategoriesForSources();
+        if (!categories.ok) { setTossError(categories.error); return; }
+        setTossCategories(categories.categories);
+        return;
+      }
+      if (mode === "category" && !categoryId) return;
+      const result = await browseTossForSources(mode, categoryId);
+      if (result.ok) {
+        setTossProducts(result.products);
+        if (!result.products.length) setTossError("불러온 상품이 없습니다. 잠시 뒤 다시 시도해 주세요.");
+      } else {
+        setTossError(result.error);
+      }
+    } catch {
+      setTossError("요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    } finally {
+      setTossLoading(false);
+    }
+  };
+
+  const pickTossMode = (mode: TossMode) => {
+    setTossMode(mode);
+    if (mode !== "category") void loadToss(mode);
+    else { setTossProducts(null); setTossError(""); if (!tossCategories.length) void loadToss("category"); else if (tossCategoryId) void loadToss("category", tossCategoryId); }
+  };
+
+  const tossKey = (product: TossProduct) => `${product.tacaId ?? ""}-${product.tacaItemId ?? ""}`;
+
+  const saveToss = async (product: TossProduct) => {
+    setSavingTossKey(tossKey(product));
+    try {
+      await run(() => registerTossSource({ accountId, product, summary: "" }), "토스쇼핑 상품을 쉐어링크로 저장했습니다.");
+    } finally {
+      setSavingTossKey(null);
+    }
+  };
+
   const refreshImage = async (source: Source) => {
     setRefreshingId(source.id);
     try {
@@ -182,7 +244,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
         <div>
           <p className="text-xs font-bold text-gold">CONTENT SOURCE QUEUE</p>
           <h2 className="mt-1 text-xl font-bold text-neutral-900">쇼핑제휴 상품 등록</h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-600">Threads에 포스팅할 상품(쿠팡 파트너스, 알리익스프레스, 네이버 브랜드 커넥트)을 계정별로 등록해 두는 곳입니다. 회원님이 선택하거나 입력한 값만 본인 계정에 저장하며, 외부 사이트에서 정보를 자동으로 가져오지 않습니다. 등록한 상품으로 초안을 만드는 연결은 다음 단계에서 추가됩니다.</p>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">Threads에 포스팅할 상품(쿠팡 파트너스, 알리익스프레스, 토스쇼핑, 네이버 브랜드 커넥트)을 계정별로 등록해 두는 곳입니다. 회원님이 선택하거나 입력한 값만 본인 계정에 저장하며, 외부 사이트에서 정보를 자동으로 가져오지 않습니다. 등록한 상품으로 초안을 만드는 연결은 다음 단계에서 추가됩니다.</p>
         </div>
         <select aria-label="운영 계정 선택" className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-800" value={accountId} onChange={(event) => { setAccountId(event.target.value); setEditingId(null); setMessage(null); }}>
           {accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}
@@ -236,6 +298,33 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
     </section>
 
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Search size={18} className="text-gold" />토스쇼핑 쉐어링크 상품</h3>
+      <p className="mt-1 text-sm leading-relaxed text-neutral-600">토스쇼핑은 키워드 검색을 지원하지 않아 베스트 상품·카테고리별·오늘의 특가 목록에서 상품을 골라 저장합니다. 저장 버튼을 누를 때만 회원님 키로 쉐어링크(제휴 링크)를 발급합니다.</p>
+      {!tossKeysReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>토스쇼핑 Access Key·Secret Key·Publisher ID가 모두 등록되지 않았습니다. <a className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</a>에서 본인 키를 저장하면 사용할 수 있습니다.</span></p>}
+      {!tossProxyReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>토스쇼핑 연동에 필요한 고정 IP 프록시(FIXIE_URL)가 이 서버에 아직 설정되지 않아 상품을 불러올 수 없습니다. 운영자가 설정하면 바로 사용할 수 있습니다.</span></p>}
+      <div className="mt-4 flex flex-wrap gap-2">{TOSS_TABS.map((tab) => <button key={tab.value} type="button" disabled={tossLoading || !tossKeysReady || !tossProxyReady} onClick={() => pickTossMode(tab.value)} className={`rounded-full px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${tossMode === tab.value ? "bg-neutral-900 text-[#ffffff]" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"}`}>{tab.label}</button>)}</div>
+      {tossMode === "category" && tossCategories.length > 0 && <select aria-label="토스쇼핑 카테고리" className={`${inputClass} mt-3`} value={tossCategoryId} onChange={(event) => { setTossCategoryId(event.target.value); void loadToss("category", event.target.value); }}><option value="">카테고리를 선택해 주세요</option>{tossCategories.map((category) => <option key={category.categoryId} value={category.categoryId}>{category.name}</option>)}</select>}
+      {tossLoading && <p className="mt-3 text-sm text-neutral-500">불러오는 중…</p>}
+      {tossError && <p className="mt-3 flex items-start gap-2 text-sm text-rose-700" role="alert"><CircleAlert size={16} className="mt-0.5 shrink-0" />{tossError}</p>}
+      {tossProducts && tossProducts.length > 0 && <ul className="mt-4 grid gap-3 md:grid-cols-2">{tossProducts.map((product) => {
+        const key = tossKey(product);
+        const previewUrl = product.productUrl ?? (product.tacaItemId ? `https://toss.shopping/t/${product.tacaItemId}` : null);
+        return <li key={key} className="flex gap-3 rounded-xl border border-neutral-200 p-3">
+          {product.imageUrl ? <img src={product.imageUrl} alt="" referrerPolicy="no-referrer" className="h-20 w-20 shrink-0 rounded-lg border border-neutral-100 object-cover" /> : <div className="h-20 w-20 shrink-0 rounded-lg bg-neutral-100" />}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <p className="line-clamp-2 text-sm font-semibold text-neutral-900">{product.productName}</p>
+            <p className="mt-1 text-sm font-bold text-neutral-800">{product.price != null ? `${product.price.toLocaleString("ko-KR")}원` : "가격 정보 없음"}</p>
+            <div className="mt-auto flex items-center gap-2 pt-2">
+              <button className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={busy || savingTossKey === key} onClick={() => void saveToss(product)}>{savingTossKey === key ? "쉐어링크 발급 중…" : "소스로 저장"}</button>
+              {previewUrl && <a className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:underline" href={previewUrl} target="_blank" rel="noopener noreferrer"><ExternalLink size={12} />상품 페이지</a>}
+            </div>
+          </div>
+        </li>;
+      })}</ul>}
+      <p className="mt-3 text-xs text-neutral-500">베스트 상품은 1시간 단위로 갱신됩니다. 상품 페이지는 일반 주소로 열려 제휴 클릭으로 집계되지 않습니다.</p>
+    </section>
+
+    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Plus size={18} className="text-gold" />새 소스 등록</h3>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <label><span className="mb-2 block text-sm font-semibold text-neutral-800">소스 종류</span><select className={inputClass} value={form.sourceType} onChange={(event) => setForm({ ...form, sourceType: event.target.value })}>{TYPES.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}</select></label>
@@ -257,7 +346,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders }: 
         </div>
       </div>
 
-      {!visible.length ? <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm text-neutral-600">{mine.length ? "조건에 맞는 소스가 없습니다. 필터를 바꿔 보세요." : "아직 등록한 상품이 없습니다. 위에서 쿠팡 상품을 검색하거나 알리익스프레스 상품 주소·쿠팡·네이버 브랜드 커넥트 링크를 등록해 보세요."}</div> : <ul className="mt-4 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">{visible.map((source) => {
+      {!visible.length ? <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm text-neutral-600">{mine.length ? "조건에 맞는 소스가 없습니다. 필터를 바꿔 보세요." : "아직 등록한 상품이 없습니다. 위에서 쿠팡 상품을 검색하거나 알리익스프레스 상품 주소·토스쇼핑 상품·쿠팡·네이버 브랜드 커넥트 링크를 등록해 보세요."}</div> : <ul className="mt-4 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">{visible.map((source) => {
         const status = STATUS[source.status] ?? { label: source.status, tone: "bg-neutral-100 text-neutral-600" };
         return <li key={source.id} className="p-4">
           {editingId === source.id ? <div className="space-y-3">

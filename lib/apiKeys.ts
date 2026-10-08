@@ -17,7 +17,10 @@ export type ApiKeyProvider =
   | "coupang_secret_key"
   | "aliexpress_app_key"
   | "aliexpress_app_secret"
-  | "aliexpress_tracking_id";
+  | "aliexpress_tracking_id"
+  | "toss_access_key"
+  | "toss_secret_key"
+  | "toss_publisher_id";
 
 type SupabaseLike = {
   from: (table: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any

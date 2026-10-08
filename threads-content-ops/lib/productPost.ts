@@ -4,7 +4,7 @@
 
 export type LinkedProduct = { id: string; source_type: string; title: string; summary: string; source_url: string; price?: number | null };
 
-export const PRODUCT_SOURCE_TYPES = ["coupang", "naver_brand_connect", "aliexpress"] as const;
+export const PRODUCT_SOURCE_TYPES = ["coupang", "naver_brand_connect", "aliexpress", "toss"] as const;
 
 const DISCLOSURE: Record<string, string> = {
   coupang: "(광고)쿠팡파트너스 활동으로 수수료를 받을 수 있음",
@@ -12,8 +12,10 @@ const DISCLOSURE: Record<string, string> = {
   naver_brand_connect: "(광고)네이버 브랜드커넥트 활동으로 수수료를 받을 수 있음",
   // threads-affiliate-poster(affiliateGenerator.ts)의 알리익스프레스 고지 문구와 같다.
   aliexpress: "(광고) 제휴 활동으로 수수료를 받을 수 있습니다.",
+  // threads-affiliate-poster(affiliateGenerator.ts)의 토스쇼핑 고지 문구와 같다.
+  toss: "(광고) 토스쇼핑 쉐어링크 활동으로 수수료를 받을 수 있습니다.",
 };
-const PLATFORM_LABEL: Record<string, string> = { coupang: "쿠팡 파트너스", naver_brand_connect: "네이버 브랜드 커넥트", aliexpress: "알리익스프레스" };
+const PLATFORM_LABEL: Record<string, string> = { coupang: "쿠팡 파트너스", naver_brand_connect: "네이버 브랜드 커넥트", aliexpress: "알리익스프레스", toss: "토스쇼핑" };
 
 export const productPlatformLabel = (type: string) => PLATFORM_LABEL[type] ?? type;
 export const disclosureFor = (type: string) => DISCLOSURE[type] ?? "(광고) 제휴 활동으로 수수료를 받을 수 있습니다.";

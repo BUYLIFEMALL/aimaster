@@ -41,6 +41,7 @@ import {
   searchCoupangProducts,
   type CoupangProduct,
 } from "@/threads-content-ops/lib/coupang";
+import { TOSS_PROXY_MISSING_MESSAGE, getTossBestSelling, getTossCategories, getTossCategoryBestSelling, getTossTodayDeals, isTossProxyConfigured, issueTossShareLink, type TossCategory, type TossProduct } from "@/threads-content-ops/lib/toss";
 import { ALIEXPRESS_IMAGE_WARNING, createAliexpressPromotionLink, findAliexpressImage, resolveAliexpressUrl } from "@/threads-content-ops/lib/aliexpress";
 
 const PROGRAM_SLUG = "threads-content-ops";
@@ -56,6 +57,9 @@ const CREDENTIAL_PROVIDERS = new Set([
   "aliexpress_app_key",
   "aliexpress_app_secret",
   "aliexpress_tracking_id",
+  "toss_access_key",
+  "toss_secret_key",
+  "toss_publisher_id",
   "threads_app_id",
   "threads_app_secret",
 ]);
@@ -81,6 +85,9 @@ export async function saveMemberCredentials(input: {
   aliexpressAppKey?: string;
   aliexpressAppSecret?: string;
   aliexpressTrackingId?: string;
+  tossAccessKey?: string;
+  tossSecretKey?: string;
+  tossPublisherId?: string;
   threadsAppId?: string;
   threadsAppSecret?: string;
 }) {
@@ -97,6 +104,9 @@ export async function saveMemberCredentials(input: {
     ["aliexpress_app_key", input.aliexpressAppKey],
     ["aliexpress_app_secret", input.aliexpressAppSecret],
     ["aliexpress_tracking_id", input.aliexpressTrackingId],
+    ["toss_access_key", input.tossAccessKey],
+    ["toss_secret_key", input.tossSecretKey],
+    ["toss_publisher_id", input.tossPublisherId],
     ["threads_app_id", input.threadsAppId],
     ["threads_app_secret", input.threadsAppSecret],
   ].filter(([, value]) => typeof value === "string" && value.trim()) as Array<[string, string]>;
@@ -762,6 +772,86 @@ export async function refreshAliexpressSourceImage(id: string): Promise<SourceRe
     return { ok: true };
   } catch (error) {
     return sourceFailure(error, "이미지를 다시 가져오지 못했습니다.");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 토스쇼핑 쉐어링크 상품 등록 (v1.80) — threads-affiliate-poster의 토스 등록 흐름을 이식.
+// 토스는 키워드 검색이 없어 베스트·카테고리별·오늘의 특가 목록에서 상품을 고른다. 목록은 저장하지 않고,
+// 회원이 '소스로 저장'을 누를 때만 쉐어링크(제휴 링크)를 발급한다(발급 한도를 아끼기 위해). 키는 본인 것만 쓴다.
+// 고정 IP 프록시(FIXIE_URL)가 서버에 없으면 호출하지 않고 안내만 돌려준다.
+// ---------------------------------------------------------------------------
+async function loadTossAuth(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string) {
+  if (!isTossProxyConfigured()) throw new Error(TOSS_PROXY_MISSING_MESSAGE);
+  const [accessKey, secretKey, publisherId] = await Promise.all([
+    resolveApiKey(supabase, userId, "toss_access_key"),
+    resolveApiKey(supabase, userId, "toss_secret_key"),
+    resolveApiKey(supabase, userId, "toss_publisher_id"),
+  ]);
+  if (!accessKey || !secretKey || !publisherId) {
+    throw new Error("토스쇼핑 쉐어링크 Access Key·Secret Key·Publisher ID를 먼저 등록해 주세요. API키등록·플랫폼연동에서 본인 키를 저장하면 사용할 수 있습니다.");
+  }
+  return { accessKey, secretKey, publisherId };
+}
+
+export async function browseTossForSources(mode: "best" | "category" | "today", categoryId?: string): Promise<{ ok: true; products: TossProduct[] } | { ok: false; error: string }> {
+  try {
+    if (!["best", "category", "today"].includes(mode)) throw new Error("지원하지 않는 목록입니다.");
+    const { supabase, user } = await authorizedUser();
+    const auth = await loadTossAuth(supabase, user.id);
+    if (mode === "best") return { ok: true, products: await getTossBestSelling(auth) };
+    if (mode === "today") return { ok: true, products: await getTossTodayDeals(auth) };
+    if (!categoryId || categoryId.length > 100) throw new Error("카테고리를 먼저 선택해 주세요.");
+    return { ok: true, products: await getTossCategoryBestSelling(auth, categoryId) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "토스쇼핑 상품을 불러오지 못했습니다." };
+  }
+}
+
+export async function fetchTossCategoriesForSources(): Promise<{ ok: true; categories: TossCategory[] } | { ok: false; error: string }> {
+  try {
+    const { supabase, user } = await authorizedUser();
+    const auth = await loadTossAuth(supabase, user.id);
+    return { ok: true, categories: await getTossCategories(auth) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "토스쇼핑 카테고리를 불러오지 못했습니다." };
+  }
+}
+
+export async function registerTossSource(input: { accountId: string; product: TossProduct; summary: string }): Promise<SourceResult> {
+  try {
+    const product = input.product;
+    const title = typeof product?.productName === "string" ? product.productName.trim().slice(0, 200) : "";
+    const tacaItemId = product?.tacaItemId != null && Number.isFinite(Number(product.tacaItemId)) ? Number(product.tacaItemId) : null;
+    const tacaId = product?.tacaId != null && Number.isFinite(Number(product.tacaId)) ? Number(product.tacaId) : null;
+    if (!title || (tacaItemId == null && tacaId == null)) throw new Error("상품 정보가 올바르지 않습니다. 목록에서 다시 선택해 주세요.");
+    if (input.summary.length > 1_000) throw new Error("메모는 1,000자 이내로 입력해 주세요.");
+
+    const { supabase, user } = await authorizedUser();
+    const auth = await loadTossAuth(supabase, user.id);
+    const link = await issueTossShareLink(auth, { tacaItemId, tacaId });
+
+    const price = Number(product.price);
+    await insertContentSource(supabase, user.id, {
+      accountId: input.accountId,
+      sourceType: "toss",
+      title,
+      sourceUrl: normalizeSourceUrl(link.shortUrl),
+      summary: input.summary,
+      metadata: {
+        via: "toss_browse",
+        tacaItemId,
+        tacaId,
+        originUrl: link.originUrl,
+        price: Number.isFinite(price) && price >= 0 ? price : null,
+        imageUrl: typeof product.imageUrl === "string" && product.imageUrl.startsWith("https://") ? product.imageUrl : null,
+        savedAt: new Date().toISOString(),
+      },
+    });
+    revalidatePath("/threads-content-ops");
+    return { ok: true };
+  } catch (error) {
+    return sourceFailure(error, "토스쇼핑 상품을 저장하지 못했습니다.");
   }
 }
 

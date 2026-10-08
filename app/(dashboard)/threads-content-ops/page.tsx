@@ -18,6 +18,7 @@ import ViralCollector from "./ViralCollector";
 import OperationsDashboard from "./OperationsDashboard";
 import WebSetup from "./WebSetup";
 import { PRODUCT_SOURCE_TYPES } from "@/threads-content-ops/lib/productPost";
+import { isTossProxyConfigured } from "@/threads-content-ops/lib/toss";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -75,7 +76,7 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
     {tab === "manage" && (accounts?.length ? <DraftComposer accounts={accounts} drafts={drafts} categories={viralCategories ?? []} /> : <GlassCard><h2 className="font-bold text-white">보관된 콘텐츠가 없습니다</h2><p className="mt-2 text-sm text-subtext">계정 연결 후 콘텐츠 생성 메뉴에서 초안을 만드세요.</p></GlassCard>)}
     {tab === "accounts" && <AccountOperations accounts={accounts ?? []} profiles={operationProfiles ?? []} />}
     {tab === "viral" && <ViralCollector candidates={viralCandidates ?? []} categories={viralCategories ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
-    {tab === "sources" && <SourceQueue accounts={accounts ?? []} sources={contentSources ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
+    {tab === "sources" && <SourceQueue tossProxyReady={isTossProxyConfigured()} accounts={accounts ?? []} sources={contentSources ?? []} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} />}
     {tab === "settings" && <div><div className="mb-6 flex items-center gap-2"><Settings2 size={18} className="text-gold" /><div><h2 className="font-bold text-neutral-900">API키등록·플랫폼연동</h2><p className="mt-1 text-sm text-neutral-600">플랫폼별 키를 개별 저장하고 등록 상태를 확인하세요.</p></div></div><WebSetup connectedAccounts={connectedAccountInfos} maskedCredentials={Object.fromEntries((credentials ?? []).map((credential) => [credential.provider, maskCredential(credential.api_key)]))} redirectUri={THREADS_CONTENT_OPS_CALLBACK_URI} /></div>}
     </div>
   </div>;

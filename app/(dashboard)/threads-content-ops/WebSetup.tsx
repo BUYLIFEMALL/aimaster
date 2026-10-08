@@ -9,7 +9,7 @@ import {
   startThreadsOAuth,
 } from "./web-actions";
 
-type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "aliexpress_app_key" | "aliexpress_app_secret" | "aliexpress_tracking_id" | "threads_app_id" | "threads_app_secret";
+type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "aliexpress_app_key" | "aliexpress_app_secret" | "aliexpress_tracking_id" | "toss_access_key" | "toss_secret_key" | "toss_publisher_id" | "threads_app_id" | "threads_app_secret";
 type SavePayload = {
   openaiKey?: string;
   youtubeApiKey?: string;
@@ -22,6 +22,9 @@ type SavePayload = {
   aliexpressAppKey?: string;
   aliexpressAppSecret?: string;
   aliexpressTrackingId?: string;
+  tossAccessKey?: string;
+  tossSecretKey?: string;
+  tossPublisherId?: string;
   threadsAppId?: string;
   threadsAppSecret?: string;
 };
@@ -39,6 +42,9 @@ const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   aliexpress_app_key: "aliexpressAppKey",
   aliexpress_app_secret: "aliexpressAppSecret",
   aliexpress_tracking_id: "aliexpressTrackingId",
+  toss_access_key: "tossAccessKey",
+  toss_secret_key: "tossSecretKey",
+  toss_publisher_id: "tossPublisherId",
   threads_app_id: "threadsAppId",
   threads_app_secret: "threadsAppSecret",
 };
@@ -48,6 +54,7 @@ const GUIDES = [
   ["343996d3-8c77-455d-9bd4-54bcd47a34cd", "Threads 계정 연동하기"],
   ["117ffedb-c554-458a-9b92-e9ed6ee33988", "쿠팡 파트너스 API 발급받기"],
   ["0eb4180e-a076-4ee6-b75e-6b3c3c9ec442", "알리익스프레스 API 키 발급받기"],
+  ["de6e2878-1615-455a-a219-c9b0b3d0795a", "토스쇼핑 쉐어링크 API 키 발급받기"],
   ["1df95d8b-6a27-4de0-b1d9-8bbc218534ad", "Perplexity API 키 발급받기"],
 ] as const;
 
@@ -195,6 +202,15 @@ export default function WebSetup({
         <CredentialRow provider="aliexpress_app_key" label="알리익스프레스 App Key" maskedValue={credentials.aliexpress_app_key} editing={editing === "aliexpress_app_key"} saving={saving === "aliexpress_app_key"} removing={removing === "aliexpress_app_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
         <CredentialRow provider="aliexpress_app_secret" label="알리익스프레스 App Secret" maskedValue={credentials.aliexpress_app_secret} editing={editing === "aliexpress_app_secret"} saving={saving === "aliexpress_app_secret"} removing={removing === "aliexpress_app_secret"} onEdit={setEditing} onSave={save} onDelete={remove} />
         <CredentialRow provider="aliexpress_tracking_id" label="알리익스프레스 Tracking ID" maskedValue={credentials.aliexpress_tracking_id} editing={editing === "aliexpress_tracking_id"} saving={saving === "aliexpress_tracking_id"} removing={removing === "aliexpress_tracking_id"} onEdit={setEditing} onSave={save} onDelete={remove} />
+      </div>
+    </section>
+
+    <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+      <SectionTitle title="🛍️ 토스쇼핑 쉐어링크" description="베스트·카테고리별·오늘의 특가 상품을 불러와 쉐어링크(제휴 링크)를 만드는 데 쓰는 Access Key·Secret Key·Publisher ID입니다." />
+      <div className="space-y-3">
+        <CredentialRow provider="toss_access_key" label="토스쇼핑 Access Key" maskedValue={credentials.toss_access_key} editing={editing === "toss_access_key"} saving={saving === "toss_access_key"} removing={removing === "toss_access_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
+        <CredentialRow provider="toss_secret_key" label="토스쇼핑 Secret Key" maskedValue={credentials.toss_secret_key} editing={editing === "toss_secret_key"} saving={saving === "toss_secret_key"} removing={removing === "toss_secret_key"} onEdit={setEditing} onSave={save} onDelete={remove} />
+        <CredentialRow provider="toss_publisher_id" label="토스쇼핑 Publisher ID" maskedValue={credentials.toss_publisher_id} editing={editing === "toss_publisher_id"} saving={saving === "toss_publisher_id"} removing={removing === "toss_publisher_id"} onEdit={setEditing} onSave={save} onDelete={remove} />
       </div>
     </section>
 
