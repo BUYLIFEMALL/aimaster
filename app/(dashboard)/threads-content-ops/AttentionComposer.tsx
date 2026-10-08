@@ -216,8 +216,8 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
     <section className="rounded-2xl border-2 border-rose-300 bg-white p-5 shadow-sm">
       <h3 className="font-bold text-neutral-900">3. 주목받는 글 만들기</h3>
       {operationAccountIds.includes(accountId)
-        ? <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">✅ @{accounts.find((account) => account.id === accountId)?.username ?? "선택한 계정"}의 운영정보가 반영됩니다 — 페르소나를 고르지 않으면 주제·말투 등 전체, 페르소나를 고르면 그 페르소나로 쓰되 금지 주제·금지 표현만 적용됩니다. <a href="/threads-content-ops?tab=accounts" className="underline">계정 관리에서 수정</a></p>
-        : <p className="mt-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs text-neutral-600">계정 관리에서 주제·말투·금지 표현을 저장하면 글 생성에 자동 반영됩니다. <a href="/threads-content-ops?tab=accounts" className="font-semibold underline">운영정보 입력하기</a></p>}
+        ? <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">✅ @{accounts.find((account) => account.id === accountId)?.username ?? "선택한 계정"}의 콘셉트 설정이 반영됩니다 — 페르소나를 고르지 않으면 주제·말투 등 전체, 페르소나를 고르면 그 페르소나로 쓰되 금지 주제·금지 표현만 적용됩니다. <a href="/threads-content-ops?tab=accounts" className="underline">계정 콘셉트 설정에서 수정</a></p>
+        : <p className="mt-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs text-neutral-600">계정 콘셉트 설정에서 주제·말투·금지 표현을 저장하면 글 생성에 자동 반영됩니다. <a href="/threads-content-ops?tab=accounts" className="font-semibold underline">콘셉트 입력하기</a></p>}
       <label className="mt-3 block text-sm font-medium text-neutral-700">추가 요청 <span className="font-normal text-neutral-500">(선택)</span></label>
       <input className={`${inputClass} mt-1`} maxLength={300} value={note} onChange={(event) => setNote(event.target.value)} placeholder="예: 20대 직장인 말투로, 마지막은 질문으로 끝내줘" />
       <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">

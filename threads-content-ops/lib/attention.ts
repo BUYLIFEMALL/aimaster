@@ -150,7 +150,7 @@ function lengthRule(range: LengthRange, linked: boolean): string {
   return `content(대표 글)와 hookVariants 5개의 모든 content는 각각 공백·줄바꿈·이모티콘을 모두 포함해 ${range.min}~${range.max}자로 꽉 채워 쓰세요. ${range.max}자를 절대 넘기지 말고 ${range.min}자보다 짧게 끝내지 마세요(100~300자처럼 짧게 끝내면 안 됩니다). 짧은 문장들에 구체적인 장면·감정·디테일·공감 포인트를 알차게 채우되 같은 말을 반복해 늘리지 마세요.${linked ? " (상품 연결 글은 고지 문구와 상품링크가 앞뒤에 붙어 전체가 450~480자가 됩니다.)" : ""}`;
 }
 
-/** 계정 관리(tab=accounts)에 저장한 계정별 운영정보. 글 생성·다시 쓰기 프롬프트에 반영한다(v1.77). */
+/** 계정 콘셉트 설정(tab=accounts)에 저장한 계정별 운영정보. 글 생성·다시 쓰기 프롬프트에 반영한다(v1.77). */
 export type OperationRules = { topic: string; personality: string; tone: string; targetAudience: string; forbiddenTopics: string; forbiddenExpressions: string };
 
 export function hasOperationRules(rules?: OperationRules): rules is OperationRules {

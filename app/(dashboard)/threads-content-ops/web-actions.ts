@@ -1255,7 +1255,7 @@ async function resolveEngine(supabase: Awaited<ReturnType<typeof authorizedUser>
   return { ok: true as const, engine: { provider, model, apiKey } };
 }
 
-/** 선택한 계정에 저장된 운영정보(계정 관리)를 읽는다. 내 계정이 아니거나 비어 있으면 undefined. */
+/** 선택한 계정에 저장된 운영정보(계정 콘셉트 설정)을 읽는다. 내 계정이 아니거나 비어 있으면 undefined. */
 async function loadOperationRules(supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"], userId: string, accountId: unknown): Promise<OperationRules | undefined> {
   if (typeof accountId !== "string" || !UUID_RE.test(accountId)) return undefined;
   const { data } = await supabase.from("tco_operation_profiles")
