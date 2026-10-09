@@ -16,6 +16,10 @@
 
 - `whoami`에 `latestVersion`/`downloadUrl` 추가, 사이드패널에 "새 버전이 나왔습니다" 배너(더 높을 때만, 우리 사이트 `/downloads/` 주소만 허용), `npm run test:update-banner`. 배포 전 `npm run extension:archive`로 ZIP을 직접 만들어야 함(prebuild 아님). DB `version`/`extension_version`/`extension_download_url` v1.60으로 갱신, `check-extension-release.mjs` OK.
 
+## 네이버 블로그 에이전트 — 실제 Chrome 시험 발행 성공 (2026-10-09, v1.52)
+
+- 확장 연결 → 비공개 시험 발행 → 웹 `published`/`post_url` 반영까지 실제로 확인(DB 조회). 미검증: 전체공개·이미지 포함·예약·연속 발행. 남은 일: 복사해 둔 53건의 블로그 ID(`myblog_sample`→실제 ID) 교체, 메인 사이트 상세 다운로드 버튼, 나머지 "수집소" 표기 정리(선택). 상세: `naver-blog-agent/AGENTS.md`.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.51, 2026-10-09) — 발행 공개 범위(기본 비공개)
 
 - 발행 공개 범위 선택 구현: `nba_posts.publish_visibility`(`0054`), `/queue` 상단 선택(기본 비공개), 서버 페이로드는 `public`일 때만 전체공개. 확장 예약 확인 기본값도 비공개로 바꿔 ZIP v1.51 재생성(회원은 ZIP 재설치 필요). 실제 네이버 비공개 시험 발행은 Chrome 확인 대기. 상세: `naver-blog-agent/AGENTS.md` v1.51, `docs/ERROR_LESSONS.md` 최상단.
