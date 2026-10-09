@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.53` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.54` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -76,6 +76,8 @@
 - **가져온 원고 53건 블로그 ID 교체 (2026-10-09, `0057`)**: 임시값 `myblog_sample` → 실제 계정 `buylifemall`(`account_id`도 연결). 상태 draft·공개 범위 private 유지. 되돌리기 SQL은 마이그레이션 파일 하단 주석. **53건 모두 이미지 0개**라, 이미지가 필요한 글은 발행 전에 이미지를 새로 만들어야 합니다.
 
 - **실제 Chrome 시험 발행 완료 (2026-10-09, v1.51 배포 후)**: 확장 설치·페어링 → 웹에서 계정 `buylifemall` 등록(서버 저장·새로고침 유지 확인) → 시험 글 1건을 **비공개로 "발행 전송"** → 확장이 스마트에디터 ONE에 입력·발행하고 웹에 `published` + 글 주소(`post_url`)가 반영됨을 DB로 확인(`publish_visibility='private'`). 시험 글은 보관함에서 정리했고 네이버 쪽 글은 주인님이 삭제합니다. 이로써 "웹→DB→확장→네이버→웹 결과 반영" 전체 흐름이 실제로 검증되었습니다. 미검증: 전체공개 발행, 이미지 포함 원고, 예약 발행, 여러 건 연속 발행.
+
+- **v1.54 (2026-10-09)**: **글감 정리 단계 AI 자동 전환**. 떡상 글감 수집소의 "72h 화제 검색" 등에서 퍼플렉시티 결과를 글감 4건으로 정리하는 `structureBlogCandidates`가 OpenAI 키가 있으면 OpenAI만 쓰고 실패해도 멈췄습니다(실제 사례: OpenAI 크레딧 소진 `429 credit_balance_exhausted`로 Gemini·Claude 키가 있는데도 실패 — Vercel 로그로 확인, 퍼플렉시티 문제 아님). 이제 `src/lib/ai/providerFallback.ts`의 `runWithProviderFallback`이 **OpenAI → Gemini → Claude 순서로** 시도하고, 크레딧 부족·한도·키 오류·모델 없음·빈 응답이면 다음 공급사로 넘어갑니다. 전부 실패하면 "등록된 AI가 모두 실패했습니다: OpenAI(크레딧 또는 사용 한도 부족), Gemini(...)"처럼 공급사별 이유를 알려줍니다. 키는 모두 회원 본인 키입니다. Gemini·Claude 모델은 글 생성과 같은 `DEFAULT_MODELS`를 쓰도록 바꿨고(예전 하드코딩 `gemini-2.0-flash`, `claude-3-5-sonnet-20241022` 제거), OpenAI는 `gpt-4o-mini` 유지. 테스트 `npm run test:fallback`(모의 호출, 유료 호출 없음). **미검증**: 실제 Gemini/Claude 호출과 `DEFAULT_MODELS` ID의 실존 여부(`gemini-3.7-flash`, `claude-sonnet-5`) — 실제 글감 수집으로 확인 필요. 확장 코드 변경 없음(ZIP·manifest만 v1.54).
 
 - **v1.53 (2026-10-09)**: **스마트 에디터 "편집 완료 및 본문 적용"이 보관함에도 저장되도록 수정**. 이전에는 화면의 원고(`result`)만 바꾸고 저장하지 않아서, 편집 후 "보관함 저장"을 따로 누르지 않고 이동·새로고침하면 수정본이 사라졌습니다(알림 문구는 "성공적으로 적용"이라 저장된 것처럼 보였음). 지금은 서버에 이미 있는 글(UUID)이면 `PUT /api/posts`로 제목·본문·분류·태그만 고치고 **상태(대기/발행)는 건드리지 않으며**(`src/lib/editedPostSave.ts`), 서버 저장 전의 임시 글이면 새로 저장합니다. 실패하면 "보관함 저장을 눌러 주세요"로 안내합니다. 테스트 `npm run test:edit-save`. 알려진 한계: 기존 "보관함 저장"(`handleSaveDraft`)은 `POST`로 상태를 `draft`로 덮어쓰므로 이미 대기·발행된 글을 불러와 누르면 상태가 임시보관으로 돌아갑니다(미수정). 확장 코드 변경 없음(ZIP·manifest만 v1.53).
 

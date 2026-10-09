@@ -1,6 +1,6 @@
 {
   "name": "naver-blog-agent",
-  "version": "1.53.0",
+  "version": "1.54.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,6 +16,7 @@
     "test:years": "node scripts/test-year-policy.cjs",
     "test:member-data": "node scripts/test-member-data.cjs",
     "test:edit-save": "node scripts/test-edited-post-save.cjs",
+    "test:fallback": "node scripts/test-provider-fallback.cjs",
     "start": "next start",
     "lint": "eslint"
   },

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-09 — "여러 AI 키를 등록받는" 단계는 한 곳이 막혀도 다음으로 넘어가야 한다 (naver-blog-agent v1.54)
+
+- 증상: 떡상 글감 수집소 "72h 화제 검색"이 `429 You have no credits remaining ... platform.openai.com`으로 실패. 퍼플렉시티 잔액은 충분했고 Gemini·Claude 키도 등록되어 있었다.
+- 원인: 퍼플렉시티 검색은 통과했고, 결과를 글감으로 정리하는 `structureBlogCandidates`가 `if (openai) ... else if (gemini) ...` 구조라 OpenAI 키만 있으면 무조건 OpenAI를 쓰고 실패해도 다음으로 넘어가지 않았다. 화면 오류는 OpenAI SDK 원문이라 어느 서비스 문제인지 알기 어려웠다. Vercel 로그(`vercel --scope buylife logs --project naver-blog-agent --query collector`)에서 응답 호스트 `api.openai.com`·`credit_balance_exhausted`로 확인.
+- 해결: `src/lib/ai/providerFallback.ts`(`runWithProviderFallback`)로 OpenAI→Gemini→Claude 순차 시도, 공급사별 실패 이유를 한국어로 표시. 테스트 `test:fallback`.
+- 다음부터 확인: "키가 여러 개 등록 가능한" 단계가 `if/else if`로 공급사를 하나만 고르는지 본다(실패 시 전환 여부). 오류는 공급사 이름과 이유를 함께 보여준다. 같은 패턴이 다른 호출부에 남아 있는지 검색(`aiKeys.openai`, `resolveApiKey(`)한다. 또 회원이 채팅에 API 키를 붙여 넣으면 그 키는 노출된 것이므로 폐기·재발급을 안내한다(코드·채팅 어디에도 키를 적지 않는다).
+
 ## 2026-10-09 — "확장이 지원한다"와 "웹이 그 값을 보낸다"는 다른 말이다 — 공개 범위 (naver-blog-agent v1.51)
 
 - 증상: 확장 `editor.js`는 비공개를 선택할 수 있는데, 웹 서버가 모든 발행 작업에 `publishVisibility: "public"`을 고정으로 보내고 있었다(타입도 `"public"` 하나). 비공개를 고를 화면·API 값이 없어서 어떤 글이든 전체공개로 올라가는 상태. 시험 발행 직전에 코드를 대조하다가 발견(실제 발행 전이라 피해 없음).

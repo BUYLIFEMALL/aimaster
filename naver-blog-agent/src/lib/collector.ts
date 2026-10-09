@@ -16,6 +16,8 @@ export interface BlogCandidateDraft {
 }
 
 import { sanitizeYear } from "@/lib/yearPolicy";
+import { DEFAULT_MODELS } from "@/lib/ai/models";
+import { runWithProviderFallback, type FallbackProvider, type ProviderCaller } from "@/lib/ai/providerFallback";
 export { sanitizeYear };
 
 // ---------------------------------------------------------------------------
@@ -491,6 +493,44 @@ function getBlogStructurePrompt(): string {
 }`;
 }
 
+// 글감 정리용 공급사 호출. 모델은 글 생성 파이프라인과 같은 기본값(DEFAULT_MODELS)을 쓴다. OpenAI는 짧은 정리 작업이라 가벼운 모델을 유지한다.
+const STRUCTURE_CALLERS: Record<FallbackProvider, ProviderCaller> = {
+  openai: async (apiKey, system, user) => {
+    const openai = new OpenAI({ apiKey });
+    const res = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.5,
+    });
+    return res.choices[0]?.message?.content?.trim() || "";
+  },
+  gemini: async (apiKey, system, user) => {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: DEFAULT_MODELS.gemini,
+      systemInstruction: system,
+      generationConfig: { responseMimeType: "application/json" },
+    });
+    const result = await model.generateContent(user);
+    return result.response.text();
+  },
+  anthropic: async (apiKey, system, user) => {
+    const anthropic = new Anthropic({ apiKey });
+    const msg = await anthropic.messages.create({
+      model: DEFAULT_MODELS.anthropic,
+      max_tokens: 4096,
+      system,
+      messages: [{ role: "user", content: user }],
+    });
+    const block = msg.content[0];
+    return block && block.type === "text" ? block.text : "";
+  },
+};
+
 export async function structureBlogCandidates(params: {
   rawText: string;
   maxItems: number;
@@ -504,46 +544,10 @@ export async function structureBlogCandidates(params: {
   const userContent = `아래 원본 자료를 바탕으로 네이버 블로그 글감 후보를 최대 ${maxItems}개 만들어주세요.${categoryInstruction}\n\n<data>\n${rawText.slice(0, 14_000)}\n</data>`;
   const blogStructurePrompt = getBlogStructurePrompt();
 
-  let rawJson = "";
-
-  // 1순위: OpenAI
-  if (aiKeys.openai) {
-    const openai = new OpenAI({ apiKey: aiKeys.openai });
-    const res = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: blogStructurePrompt },
-        { role: "user", content: userContent },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.5,
-    });
-    rawJson = res.choices[0]?.message?.content?.trim() || "";
-  }
-  // 2순위: Gemini
-  else if (aiKeys.gemini) {
-    const genAI = new GoogleGenerativeAI(aiKeys.gemini);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      systemInstruction: blogStructurePrompt,
-      generationConfig: { responseMimeType: "application/json" },
-    });
-    const result = await model.generateContent(userContent);
-    rawJson = result.response.text();
-  }
-  // 3순위: Claude
-  else if (aiKeys.anthropic) {
-    const anthropic = new Anthropic({ apiKey: aiKeys.anthropic });
-    const msg = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 4096,
-      system: blogStructurePrompt,
-      messages: [{ role: "user", content: userContent }],
-    });
-    const block = msg.content[0];
-    rawJson = block && block.type === "text" ? block.text : "";
-  } else {
-    throw new Error("AI API 키(OpenAI, Gemini, 또는 Claude)가 등록되어 있지 않습니다. [API키등록·플랫폼연동]에서 키를 등록해 주세요.");
+  // OpenAI → Gemini → Claude 순서로 시도하고, 크레딧 부족·키 오류 등으로 실패하면 다음 공급사로 넘어간다.
+  const { text: rawJson, provider: usedProvider, attempts } = await runWithProviderFallback(aiKeys, blogStructurePrompt, userContent, STRUCTURE_CALLERS);
+  if (attempts.length > 0) {
+    console.warn(`글감 정리: ${attempts.map((a) => `${a.provider}(${a.reason})`).join(", ")} 실패 → ${usedProvider}로 처리`);
   }
 
   if (!rawJson) throw new Error("AI가 빈 응답을 반환했습니다. 다시 시도해 주세요.");
