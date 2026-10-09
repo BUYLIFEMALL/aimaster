@@ -1,8 +1,12 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.90`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.91`
 
 개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
+
+## v1.91 설정 화면 저장 버튼
+
+API 키·앱 정보의 저장 버튼은 검은 배경·흰 글자로 선명하게 표시됩니다. 입력이 없거나 저장 중이면 회색 배경·진한 회색 글자로 표시됩니다. 저장 동작은 그대로입니다.
 
 ## v1.90 페르소나 카드 표시
 

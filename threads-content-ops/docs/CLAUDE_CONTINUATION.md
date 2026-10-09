@@ -1,6 +1,10 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-09 · 현재 버전: `v1.90` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-10 · 현재 버전: `v1.91` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+
+## v1.91 최신 변경 — 설정 화면 저장 버튼 대비
+
+`WebSetup` 공통 `CredentialRow` 저장 버튼을 명시적 흰 글자로 고쳤습니다. `.threads-content-ops-light .text-white`가 버튼 글자도 검게 바꾸던 같은 원인이었습니다. 비활성 회색 배경·진한 글자, 키보드 초점·마우스 올림 상태 추가. 모든 제공자 공통 적용, 실제 키 변경 없는 표시 수정입니다. 버전만 SQL·동기화 스크립트로 갱신하며 스키마 변경 없습니다.
 
 ## v1.90 최신 변경 — 카드 버튼 대비·예시 디자인
 

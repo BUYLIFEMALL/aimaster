@@ -258,7 +258,7 @@ function CredentialRow({
     <label className="mb-2 block text-sm font-medium text-neutral-800">{label}</label>
     <div className="flex flex-col gap-2 sm:flex-row">
       <input className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400" type="password" autoComplete="off" placeholder={registered ? "새 값을 입력하면 기존 값이 교체됩니다" : `${label} 입력`} value={value} onChange={(event) => setValue(event.target.value)} />
-      <div className="flex gap-2"><button className="rounded-lg bg-neutral-800 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={saving || !value.trim()} onClick={() => void onSave(provider, value).then(() => setValue(""))}>{saving ? "저장 중…" : "저장"}</button>{registered && <button className="rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50" onClick={() => { setValue(""); onEdit(null); }}>취소</button>}</div>
+      <div className="flex gap-2"><button className="rounded-lg bg-neutral-800 px-3 py-2 text-sm font-semibold text-[#ffffff] transition-colors hover:bg-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-700" disabled={saving || !value.trim()} onClick={() => void onSave(provider, value).then(() => setValue(""))}>{saving ? "저장 중…" : "저장"}</button>{registered && <button className="rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50" onClick={() => { setValue(""); onEdit(null); }}>취소</button>}</div>
     </div>
   </div>;
 }
