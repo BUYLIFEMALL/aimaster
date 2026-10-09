@@ -2017,6 +2017,7 @@
 - 2026-10-10 `real_estate_sales` v1.06: 작업 화면 흰색 베이스 통일 + 좌측 메뉴 제목 "부동산 투자분석 자동화"로 단축(globals.css 토큰 재매핑 + 클래스 치환). 로그인 화면은 원래 흰색이라 그대로.
 - 2026-10-10 `shots` v1.07: 좌측 사이드바 제목을 두 줄("YOUTUBE Shots 자동화" / "(이미지 스토리)")로 줄바꿈 처리.
 - 2026-10-10 루트: 관리자/회원 로그인 불가 버그 해결. `middleware.ts`에서 매 요청마다 모든 `sb-*` 쿠키에 `Set-Cookie: Max-Age=0`을 내려보내 세션을 즉각 파괴하던 버그 코드 제거, `LoginForm.tsx`에서 클라이언트 측 호스트 쿠키 안전 정리, `session_token` 발급 시 `cookieDomain` 일관 적용.
+- 2026-10-10 루트: 대시보드(`/dashboard`, `/affiliate`, `/api-settings`, `/settings`) 좌측 사이드바(`components/layout/Sidebar.tsx`)에 관리자 계정(`profiles.is_admin=true`) 전용 "관리자 패널"(`/admin`) 메뉴 추가. `DashboardLayout`에서 `initialIsAdmin` SSR 주입 및 클라이언트 실시간 동기화 지원.
 - 2026-10-10 **전 프로그램 로그인 공유(SSO) 진행 중 — A방식(주소 통일)**: 프로그램마다 주소(vercel.app)가 달라 쿠키가 공유되지 않아 프로그램마다 다시 로그인하던 문제. 해결: 모든 프로그램을 `<이름>.buylife.xyz` 로 열고 Supabase 로그인 쿠키 도메인을 `.buylife.xyz` 로 공유.
   - 코드 패턴(프로그램마다 3곳): `lib/supabase/cookieDomain.ts`(host 가 buylife.xyz 계열일 때만 `.buylife.xyz`, 그 외 undefined — vercel.app 에서는 기존 그대로) + 브라우저 client `cookieOptions.domain` + server client/미들웨어(proxy) 의 `setAll` 에서 `domain` 지정. (주의: 미들웨어에서 `Set-Cookie: Max-Age=0` 일괄 만료는 정상 세션 파괴를 유발하므로 클라이언트 로그인 시점에만 안전하게 정리해야 함).
   - 선행 작업(주인님): Cloudflare DNS 에 `*` CNAME → `cname.vercel-dns.com`(프록시 끔/DNS only). 그 뒤 프로그램별 `vercel domains add <이름>.buylife.xyz` + `programs.app_url` 갱신.

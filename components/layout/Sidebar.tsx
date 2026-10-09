@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Settings, KeyRound, Menu, X, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Settings, KeyRound, Menu, X, LogOut, Shield } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
@@ -15,10 +15,11 @@ const NAV_ITEMS = [
   { href: "/settings", icon: Settings, label: "설정" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ initialIsAdmin = false }: { initialIsAdmin?: boolean } = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -26,11 +27,32 @@ export default function Sidebar() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       setAccountEmail(user?.email ?? null);
+      if (user) {
+        supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", user.id)
+          .single()
+          .then(({ data }) => {
+            if (data?.is_admin) setIsAdmin(true);
+          });
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user?.email) {
         setAccountEmail(session.user.email);
+        supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", session.user.id)
+          .single()
+          .then(({ data }) => {
+            setIsAdmin(!!data?.is_admin);
+          });
+      } else {
+        setAccountEmail(null);
+        setIsAdmin(false);
       }
     });
 
@@ -82,6 +104,23 @@ export default function Sidebar() {
             {label}
           </Link>
         ))}
+
+        {isAdmin && (
+          <>
+            <div className="my-2 border-t border-white/10" />
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1 text-gold/90 hover:text-gold hover:bg-gold/10",
+                pathname?.startsWith("/admin") && "bg-gold/15 font-semibold text-gold"
+              )}
+            >
+              <Shield size={16} className="text-gold" />
+              <span>관리자 패널</span>
+            </Link>
+          </>
+        )}
       </nav>
       {/* 좌하단 푸터: 로그아웃 버튼 + 사용자 이메일 정보 */}
       <div className="p-3 border-t border-white/10 space-y-2 flex-shrink-0">
