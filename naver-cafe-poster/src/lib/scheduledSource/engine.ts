@@ -17,6 +17,9 @@ import { getNaverAccountOrError, getTargetOrError, resolveNaverAppCredentials } 
 import { publishCafePost } from "@/lib/posts/publish-core";
 import type { ScheduledSource } from "@/types/post";
 
+// 후보함이 비어 실패한 경우 — 재시도해도 결과가 같으므로 주기를 지켜 다시 시도하게 구분한다.
+class EmptyPoolError extends Error {}
+
 type SupabaseLike = {
   from: (table: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
@@ -97,7 +100,7 @@ async function pickFromCandidatePool(
     | { id: string; title: string; content: string; category_id: string | null }
     | undefined;
   if (!picked) {
-    throw new Error(
+    throw new EmptyPoolError(
       categoryIds.length > 0
         ? "지정한 카테고리에 예약포스팅 대상 게시글 후보가 없습니다. 먼저 그 카테고리로 글감을 수집해주세요."
         : "예약포스팅 대상 게시글 후보가 없습니다. 먼저 글감을 수집해주세요.",
@@ -199,7 +202,16 @@ export async function runScheduledSource(
     return { success: true, postId: inserted.id };
   } catch (err) {
     const message = err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.";
-    await supabase.from("ncafe_scheduled_sources").update({ last_error: message }).eq("id", source.id);
+    // 후보 없음은 크론이 5분마다 같은 실패를 반복하지 않도록 last_run_at도 갱신해 설정한 주기(매일 등)를 따른다.
+    // 그 밖의 일시 오류(네트워크 등)는 기존처럼 다음 크론에서 바로 재시도한다.
+    await supabase
+      .from("ncafe_scheduled_sources")
+      .update(
+        err instanceof EmptyPoolError
+          ? { last_error: message, last_run_at: new Date().toISOString() }
+          : { last_error: message },
+      )
+      .eq("id", source.id);
     return { success: false, error: message };
   }
 }
