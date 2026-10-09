@@ -19,6 +19,7 @@ interface SavedPostPayload {
   post_url?: string;
   error_message?: string;
   scheduled_at?: string;
+  publish_visibility?: "private" | "public";
 }
 
 // 사용할 테이블 탐색 캐시 (nba_posts 우선, 부재 시 naver_blog_seo_drafts)
@@ -262,6 +263,9 @@ export async function PUT(request: Request) {
       if (payload.status !== undefined) updates.status = payload.status;
       if (payload.post_url !== undefined) updates.post_url = payload.post_url;
       if (payload.error_message !== undefined) updates.error_message = payload.error_message;
+      if (payload.publish_visibility !== undefined) {
+        updates.publish_visibility = payload.publish_visibility === "public" ? "public" : "private";
+      }
 
       const { data, error } = await admin
         .from("nba_posts")

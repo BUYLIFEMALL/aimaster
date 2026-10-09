@@ -42,6 +42,13 @@ assert.equal(p.article, '[SECTION - 첫째]\n[IMAGE INSERT - 1]\n본문 1\n[SECT
 assert.equal(p.publishScheduleMode, 'now');
 assert.equal('category' in p, false, '콘텐츠 분류를 네이버 카테고리로 넘기면 안 됨');
 
+// 공개 범위: 기본·알 수 없는 값은 비공개, 'public'만 전체공개
+assert.equal(p.publishVisibility, 'private', '값이 없으면 비공개');
+assert.equal(bridge.buildBridgePayload({ title: 't', content: '본문', publish_visibility: 'public' }).publishVisibility, 'public');
+assert.equal(bridge.buildBridgePayload({ title: 't', content: '본문', publish_visibility: 'private' }).publishVisibility, 'private');
+assert.equal(bridge.buildBridgePayload({ title: 't', content: '본문', publish_visibility: 'PUBLIC ' }).publishVisibility, 'private', '알 수 없는 값은 비공개');
+assert.equal(bridge.buildBridgePayload({ title: 't', content: '본문', publish_visibility: null }).publishVisibility, 'private');
+
 // 스마트 에디터 HTML 원고
 p = bridge.buildBridgePayload({
   title: 't', images: [], content: '<h2>소제목 &amp; 하나</h2><p>문단 <strong>강조</strong></p><img src="https://x.supabase.co/c.png"><p>다음</p><img src="http://insecure/x.png">',

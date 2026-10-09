@@ -35,7 +35,7 @@ export interface BridgePayload {
   titleImageName?: string;
   bodyImages: { sequence: number; index: number; name: string }[];
   assets: BridgeAsset[];
-  publishVisibility: "public";
+  publishVisibility: "private" | "public";
   publishScheduleMode: "now" | "reserve";
   scheduledAt?: string;
   breakSentencesInBody: boolean;
@@ -81,6 +81,7 @@ export function buildBridgePayload(row: {
   images?: any[] | null;
   is_reserved?: boolean | null;
   scheduled_at?: string | null;
+  publish_visibility?: string | null;
 }): BridgePayload {
   const images = (Array.isArray(row.images) ? row.images : []).filter((img) => typeof img?.url === "string" && /^https:\/\//i.test(img.url));
   const thumbnail = images.find((img) => img.type === "thumbnail");
@@ -130,7 +131,8 @@ export function buildBridgePayload(row: {
     titleImageName: "blog_img_title.png",
     bodyImages,
     assets,
-    publishVisibility: "public",
+    // 'public'으로 명시된 경우에만 전체공개. 값이 없거나 알 수 없으면 비공개(실수로 공개되지 않게).
+    publishVisibility: row.publish_visibility === "public" ? "public" : "private",
     publishScheduleMode: reserve ? "reserve" : "now",
     ...(reserve ? { scheduledAt: row.scheduled_at as string } : {}),
     breakSentencesInBody: false,

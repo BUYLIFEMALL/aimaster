@@ -16,6 +16,10 @@
 
 - `whoami`에 `latestVersion`/`downloadUrl` 추가, 사이드패널에 "새 버전이 나왔습니다" 배너(더 높을 때만, 우리 사이트 `/downloads/` 주소만 허용), `npm run test:update-banner`. 배포 전 `npm run extension:archive`로 ZIP을 직접 만들어야 함(prebuild 아님). DB `version`/`extension_version`/`extension_download_url` v1.60으로 갱신, `check-extension-release.mjs` OK.
 
+## 네이버 블로그 에이전트 (naver-blog-agent v1.51, 2026-10-09) — 발행 공개 범위(기본 비공개)
+
+- 발행 공개 범위 선택 구현: `nba_posts.publish_visibility`(`0054`), `/queue` 상단 선택(기본 비공개), 서버 페이로드는 `public`일 때만 전체공개. 확장 예약 확인 기본값도 비공개로 바꿔 ZIP v1.51 재생성(회원은 ZIP 재설치 필요). 실제 네이버 비공개 시험 발행은 Chrome 확인 대기. 상세: `naver-blog-agent/AGENTS.md` v1.51, `docs/ERROR_LESSONS.md` 최상단.
+
 ## 네이버 블로그 에이전트 (naver-blog-agent v1.50, 2026-10-09) — 확장 새 버전 알림
 
 - `GET /api/extension/version` + 확장 `checkUpdate`(6시간마다·시작/설치 시) + 팝업 배너 + 아이콘 `NEW`. 알림이 들어간 확장은 회원이 한 번 직접 재설치해야 함. DB 갱신 SQL에 `extension_version`/`extension_download_url` 포함. 이식 방법: `naver-blog-agent/docs/CONTINUATION.md` v1.50. ※ 2026-10-09 정정: `ai-auto-blog`는 이미 배너가 있었고 `tistory-auto-blog`는 문구만 있었음. `naver-blog-seo-studio`는 v1.60에 추가 완료. 현황표는 `docs/EXTENSION_RELEASE_RULES.md`. `naver-blog-auto-poster-web`도 v1.02, `tistory-auto-blog`도 v1.54(배너)에 추가 완료 — 확장 5개 모두 알림 있음.

@@ -136,7 +136,7 @@ async function verifyReservation(task) {
   try {
     for(let n=0;n<30;n++){
       await sleep(500);
-      const args={blogId:task.blogId,title:task.payload.title,scheduledAt:task.payload.scheduledAt,publishScheduleMode:'reserve',publishVisibility:task.payload.publishVisibility || 'public'};
+      const args={blogId:task.blogId,title:task.payload.title,scheduledAt:task.payload.scheduledAt,publishScheduleMode:'reserve',publishVisibility:task.payload.publishVisibility || 'private'};
       const results=await frameResults(tab.id,'reserved',args).catch(()=>[]);
       const done=results.find(r=>r.complete);
       if(done){const {complete,frameId,...result}=done;return {...result,published:true};}

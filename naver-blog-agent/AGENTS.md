@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.50` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.51` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -71,7 +71,15 @@
 
 ## 🕒 버전 히스토리
 
-> 확장 운영 규칙: 프로그램을 업데이트할 때 `extension/` 폴더·다운로드 ZIP·DB 버전을 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증합니다(루트 `CLAUDE.md` 핵심 원칙 10번). 이 프로그램의 DB 칸(`programs.extension_download_url`, `extension_version`)은 v1.49 시점에 채워 두었고(`0051` 마이그레이션), 배포할 때마다 `version`과 함께 갱신합니다. 미구현: 확장 내 새 버전 알림, 메인 사이트 프로그램 상세의 다운로드 버튼.
+> 확장 운영 규칙: 프로그램을 업데이트할 때 `extension/` 폴더·다운로드 ZIP·DB 버전을 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증합니다(루트 `CLAUDE.md` 핵심 원칙 10번). 이 프로그램의 DB 칸(`programs.extension_download_url`, `extension_version`)은 v1.49 시점에 채워 두었고(`0051` 마이그레이션), 배포할 때마다 `version`과 함께 갱신합니다. 미구현: 메인 사이트 프로그램 상세의 다운로드 버튼.
+
+- **v1.51 (2026-10-09)**:
+  - **발행 공개 범위 선택 구현**. 이전에는 서버가 모든 발행 작업에 `publishVisibility: "public"`을 고정으로 보내서(비공개를 고를 화면·값이 없었음) 어떤 글이든 전체공개로 올라가는 상태였습니다(확장 `editor.js`는 `public`이 아니면 비공개를 선택하도록 이미 되어 있었음).
+  - DB `nba_posts.publish_visibility`(`private`/`public`, 기본 `private`, `0054`) 추가. `PUT /api/posts`가 `publish_visibility`를 저장하고, `buildBridgePayload`는 **`public`으로 명시된 경우에만 전체공개**, 값이 없거나 알 수 없으면 비공개로 보냅니다.
+  - 보관함(`/queue`) 상단에 "발행 공개 범위(비공개/전체공개)" 선택을 추가했습니다. **화면을 열 때마다 비공개가 기본**이며, 전체공개로 단일 발행할 때는 확인 창이 뜹니다. 일괄 발행·단일 발행·상세 모달 발행 모두 이 선택을 따릅니다.
+  - 확장 `background.js` 예약 발행 확인의 기본값도 `public`→`private`으로 바꿨습니다(안전 기본값). 그래서 확장 ZIP도 v1.51로 다시 만들었습니다 — 회원은 ZIP을 다시 받아 덮어쓰고 `chrome://extensions`에서 새로고침해야 합니다.
+  - 테스트: `test:extension`에 공개 범위 기본·명시·알 수 없는 값 처리 추가. 이미 있던 53건(SEO 스튜디오에서 복사)은 모두 `private`으로 들어갑니다.
+  - 남은 한계: 예약 발행 글의 공개 범위는 큐 등록 시점 값을 따릅니다(예약 후 변경 불가). 실제 네이버 비공개 발행은 Chrome에서 시험 발행으로 확인 필요.
 
 - **v1.50 (2026-10-09)**:
   - **확장 새 버전 알림**(확장 운영 규칙의 "새 버전 알림" 목표 구현). 공개 경로 `GET /api/extension/version`이 `{latest: APP_VERSION, downloadUrl}`을 돌려주고(`src/lib/version.ts`가 출처라 배포와 항상 같이 바뀜), 확장 `background.js`가 시작/설치 시·6시간마다 비교해 새 버전이면 아이콘에 붉은 `NEW`를 표시하고 팝업(`connect.html`)에 "새 버전이 있습니다 + 다운로드 + 덮어쓰기 안내"를 보여줍니다. 안내 주소는 `https://naver-blog-agent.vercel.app/` 아래만 허용합니다. 설정 화면에도 현재 배포 확장 버전과 갱신 방법을 안내합니다.

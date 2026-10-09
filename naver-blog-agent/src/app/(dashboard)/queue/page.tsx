@@ -69,6 +69,10 @@ export default function QueuePage() {
   const [checkedIds, setCheckedIds] = useState<string[]>([]);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
+  // 발행 공개 범위: 기본은 비공개. 화면을 새로 열 때마다 비공개로 돌아가 실수로 공개되지 않게 한다.
+  const [publishVisibility, setPublishVisibility] = useState<"private" | "public">("private");
+  const visibilityLabel = publishVisibility === "public" ? "전체공개" : "비공개";
+
   // 4. 원고 목록 로드
   const fetchPosts = async () => {
     setIsLoading(true);
@@ -236,7 +240,7 @@ export default function QueuePage() {
   // 10. 선택 원고 일괄 발행 큐 전송
   const handleBulkPublishNow = async () => {
     if (checkedIds.length === 0) return;
-    if (!confirm(`선택한 원고 ${checkedIds.length}건을 스마트에디터 ONE 자동 발행 큐에 일괄 등록하시겠습니까?`)) {
+    if (!confirm(`선택한 원고 ${checkedIds.length}건을 ${visibilityLabel}로 스마트에디터 ONE 자동 발행 큐에 일괄 등록하시겠습니까?`)) {
       return;
     }
 
@@ -256,7 +260,7 @@ export default function QueuePage() {
           fetch("/api/posts", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, status: "queued" }),
+            body: JSON.stringify({ id, status: "queued", publish_visibility: publishVisibility }),
           })
         )
       );
@@ -304,6 +308,7 @@ export default function QueuePage() {
 
   // 즉시 발행 요청 (단일)
   const handlePublishNow = async (id: string) => {
+    if (publishVisibility === "public" && !confirm("이 원고를 전체공개로 네이버 블로그에 발행합니다. 계속하시겠습니까?")) return;
     const updated = posts.map((p) => {
       if (p.id === id) {
         return { ...p, status: "queued" as const };
@@ -316,14 +321,14 @@ export default function QueuePage() {
       await fetch("/api/posts", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, status: "queued" }),
+        body: JSON.stringify({ id, status: "queued", publish_visibility: publishVisibility }),
       });
     } catch (err) {
       console.warn("서버 상태 갱신 실패:", err);
     }
 
     alert(
-      "크롬 확장의 자동 발행 큐에 등록되었습니다!\n크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다."
+      `크롬 확장의 자동 발행 큐에 ${visibilityLabel}로 등록되었습니다!\n크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.`
     );
   };
 
@@ -587,6 +592,34 @@ export default function QueuePage() {
             <span>새 블로그 글 자동 생성</span>
           </Link>
         </div>
+      </div>
+
+      {/* 발행 공개 범위 (모든 발행 전송에 적용, 기본 비공개) */}
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3">
+        <span className="text-xs font-bold text-neutral-900">발행 공개 범위</span>
+        <div className="inline-flex rounded-xl border border-neutral-300 p-0.5 bg-neutral-50">
+          {([
+            ["private", "비공개"],
+            ["public", "전체공개"],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setPublishVisibility(value)}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                publishVisibility === value ? "bg-neutral-900 text-white" : "text-neutral-600 hover:text-neutral-900"
+              }`}
+              aria-pressed={publishVisibility === value}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <span className="text-[11px] text-neutral-500">
+          {publishVisibility === "private"
+            ? "비공개로 발행합니다. 네이버에서 나만 볼 수 있습니다."
+            : "전체공개로 발행합니다. 누구나 볼 수 있으니 주의하세요."}
+        </span>
       </div>
 
       {/* 2. 상태 요약 통계 카드 */}
