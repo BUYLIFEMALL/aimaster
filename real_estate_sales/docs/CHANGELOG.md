@@ -187,3 +187,9 @@ real_estate_sales의 기능 확장**으로 진행됨.
 - `src/lib/publicdata/schedule.ts` — 예약 조회 주기/시간대 판정 + 선택지 정의
 - `src/lib/publicdata/client.ts` — 서울/공공데이터포털/VWorld API 클라이언트 (개별공시지가·토지이용계획 포함)
 - `supabase/migrations/` — 스키마 변경 이력 (타임스탬프 순서대로 적용)
+
+## v1.04 (2026-10-09) — AI 키는 회원 본인 것만
+
+- **최상위 규칙 적용**(루트 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`): AI 키(OpenAI·Perplexity 등)는 **로그인한 회원 본인이 등록한 키만** 쓴다. 예전에는 본인 키가 없으면 운영자 환경변수 키(`OPENAI_API_KEY`·`PERPLEXITY_API_KEY` 등)로 폴백했고, 폴백 사용자끼리는 같은 매물의 AI 분석 결과를 서로 복사해 갔다(운영자 비용 절감용). 둘 다 삭제했다(`src/lib/apiKeys.ts`, `src/lib/actions/analysis.ts`). 키가 없으면 "설정에서 본인 키를 등록해주세요" 안내가 나온다.
+- 테스트 `npm run test:api-keys`(본인 키만, 환경변수·타인 키 폴백 없음). README·`.env.local.example`의 폴백 안내 삭제.
+- **남은 결정(주인님)**: 이 프로그램의 매물 수집은 운영자 공용 공공데이터 키(`SEOUL_OPENDATA_API_KEY`·`DATA_GO_KR_SERVICE_KEY`·`VWORLD_API_KEY`, 앱 공용)를 쓴다. "회원마다 본인 API" 규칙에 비춰 회원별 키 등록으로 바꿀지 결정이 필요하다. Vercel의 운영자 `OPENAI_API_KEY`·`PERPLEXITY_API_KEY` 환경변수는 이제 쓰이지 않으니 삭제해도 된다(비용·노출 방지).
