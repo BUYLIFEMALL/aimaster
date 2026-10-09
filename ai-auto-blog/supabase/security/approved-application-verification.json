@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-10",
+  "migration": "20261009164750_blog_personal_access_hardening",
+  "approval": "BLOG DB security policy changes approved; preserve existing data",
+  "counts": {
+    "likes": 0,
+    "posts": 20,
+    "authors": 11,
+    "comments": 0,
+    "candidates": 60,
+    "categories": 10,
+    "unowned_posts": 7,
+    "post_categories": 16
+  },
+  "dataPreservation": {
+    "allSevenFingerprintsMatch": true,
+    "after": [
+      {
+        "table_name": "blog_authors",
+        "fingerprint": "2702010fa2220b53ac7534fefd2974d7"
+      },
+      {
+        "table_name": "blog_candidates",
+        "fingerprint": "48866f41cdf58da62981ff0ac3136cf6"
+      },
+      {
+        "table_name": "blog_categories",
+        "fingerprint": "7edc71d10faf0728c76f3929d1f98f27"
+      },
+      {
+        "table_name": "blog_comments",
+        "fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "table_name": "blog_likes",
+        "fingerprint": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      {
+        "table_name": "blog_post_categories",
+        "fingerprint": "644ee0cef74040be9a8b74721cc8648c"
+      },
+      {
+        "table_name": "blog_posts",
+        "fingerprint": "edb17268749da5bcde9b2e33bed87352"
+      }
+    ]
+  },
+  "verification": {
+    "checks": 27,
+    "passed": true,
+    "results": [
+      "member sees exactly own posts",
+      "blog_posts: foreign/unowned rows hidden",
+      "blog_posts: ownership transfer blocked",
+      "blog_posts: foreign update/delete affect zero rows",
+      "blog_authors: foreign/unowned rows hidden",
+      "blog_authors: ownership transfer blocked",
+      "blog_authors: foreign update/delete affect zero rows",
+      "blog_candidates: foreign/unowned rows hidden",
+      "blog_candidates: ownership transfer blocked",
+      "blog_candidates: foreign update/delete affect zero rows",
+      "owner post insert/update/delete allowed",
+      "member category read allowed; insert/update/delete blocked",
+      "blog_post_categories: only own parent rows visible",
+      "blog_comments: only own parent rows visible",
+      "blog_likes: only own parent rows visible",
+      "owner category mapping delete/insert allowed",
+      "foreign category mapping insert blocked",
+      "blog_comments: member writes denied",
+      "blog_likes: member writes denied",
+      "actual admin category insert/update/delete allowed",
+      "blog_posts: anon read/write and dangerous member grants denied",
+      "blog_authors: anon read/write and dangerous member grants denied",
+      "blog_candidates: anon read/write and dangerous member grants denied",
+      "blog_categories: anon read/write and dangerous member grants denied",
+      "blog_post_categories: anon read/write and dangerous member grants denied",
+      "blog_comments: anon read/write and dangerous member grants denied",
+      "blog_likes: anon read/write and dangerous member grants denied"
+    ],
+    "real_browser_login": false,
+    "fixtures_rolled_back": true
+  }
+}

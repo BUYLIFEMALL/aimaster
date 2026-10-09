@@ -1,12 +1,32 @@
 # 보안 마무리 작업 — 2026-10-10
 
-## 현재 상태
+## 현재 상태 — 승인된 BLOG RLS 적용 완료, v1.39 릴리스 검수 중
+
+- 주인님이 "BLOG DB 보안 정책 변경을 승인합니다. 기존 데이터는 보존하고 진행하세요."라고 승인했습니다.
+- Supabase CLI 2.120.0으로 생성·운영 적용 후 원격 기록과 시각을 맞춘 파일:
+  `supabase/migrations/20261009164750_blog_personal_access_hardening.sql`.
+- 7개 테이블 익명/PUBLIC 권한 회수·본인 행과 본인 글 연결만 허용.
+  공통 분류 변경은 관리자만, 댓글/좋아요는 본인 글 관련 조회만 허용하며 쓰기는 차단합니다.
+  authenticated의 TRUNCATE/REFERENCES/TRIGGER도 제거했습니다.
+- 게시글 20(미귀속 7)·작성자 11·글감 60·분류 10·연결 16·댓글/좋아요 0 보존,
+  전체 행 내용 지문 7곳 모두 일치. 기존 행 삭제·내용 변경·임의 귀속 없음.
+- DB 역할 검증 27개 통과, 시험용 행과 변경은 예외 하위 트랜잭션으로 전부 되돌림.
+  `verify-blog-access.sql`, `approved-application-verification.json`에 기록했습니다.
+- 실제 REST 익명 조회 7곳 HTTP 401/42501, `node scripts/check-blog-anon-access.mjs`로 재검증 가능.
+- v1.39 로컬 빌드·보안 테스트 39개 통과, 확장/로컬 ZIP v1.39. 운영 릴리스 검수 진행 중.
+- 브라우저 장애 해소·루트 시험 계정 실제 로그인 성공. BLOG 자체 로그인 화면에는 저장된 정보
+  자동 입력이 없어 주인님께 로그인 확인을 요청했습니다. 실제 BLOG 회원 화면 검수는 그 확인 후 진행합니다.
+- advisors 재실행: BLOG 관련 추가 지적 없음. 기존 공통 함수 search_path 3곳,
+  handle_new_user 실행 권한, 유출 비밀번호 보호 설정은 이번 BLOG 승인 범위 밖이며 유지합니다.
+- RLS는 TRUNCATE/REFERENCES를 제한하지 않으므로 GRANT도 함께 검증합니다.
+  [PostgreSQL 공식 문서](https://www.postgresql.org/docs/17/ddl-rowsecurity.html).
+
+## 이전 v1.38 코드 배포 기록 (아래 당시 상태는 위 적용 기록으로 갱신)
 
 BLOG v1.38 코드 커밋 `01bb999f`·푸시·운영 배포를 완료했습니다.
 프로그램 DB·확장·운영 ZIP은 모두 v1.38입니다. 배포 ID는
 `dpl_58t2bftvriNo9V2ScPD1QmQsn2dj`, 라이브는 https://ai-auto-blog-one.vercel.app 입니다.
-DB 정책 적용·실제 회원 검수·옛 서비스 키 폐기는 아직 완료하지 않았습니다.
-운영 DB 직접 접근 취약점은 RLS 정책 변경을 마칠 때까지 남아 있습니다.
+이후 DB 정책을 승인받아 적용했습니다. 실제 BLOG 회원 검수·옛 서비스 키 폐기는 남아 있습니다.
 
 ## 확인된 운영 문제와 준비한 수정
 
@@ -19,7 +39,8 @@ DB 정책 적용·실제 회원 검수·옛 서비스 키 폐기는 아직 완�
 - 권한 판정은 RLS에 막히지 않도록 관리자 클라이언트로 조회합니다.
   서버 키 미설정 시 공개 키로 대신 동작하지 않습니다.
 - `supabase/security/blog-access-hardening.proposed.sql`에 7개 BLOG 테이블의 RLS·권한 변경안을
-  준비했습니다. 아직 미적용. 이전 정책·권한은 `before-blog-access.json`에 보관했습니다.
+  준비해 승인 후 적용했습니다. 이전 정책·권한은 `before-blog-access.json`,
+  적용 직전 스냅샷·지문은 `before-approved-application.json`에 보관했습니다.
 - 운영 데이터: 게시글 20건, 이 중 소유자 없는 7건. 작성자 11건, 분류 10건,
   분류 연결 16건, 댓글·좋아요 0건. 귀속이 확인된 13건은 작성자 소유권도 일치합니다.
   소유자 없는 글을 임의로 관리자/시험 회원에게 귀속시키지 않습니다. 삭제도 하지 않습니다.
@@ -48,7 +69,7 @@ DB 정책 적용·실제 회원 검수·옛 서비스 키 폐기는 아직 완�
 
 - `npm run test:security`: 39개 통과. 실제 핸들러를 격리된 모의 DB로 호출하며
   비로그인·권한 없음·타인·소유자 없음·소유권 변경·DB 오류·관리자 위장 요청을 검사합니다.
-  실제 서비스 데이터 변경·유료 API 호출 없음. SQL 정책 검증은 승인 후 수행해야 합니다.
+  실제 서비스 데이터 변경·유료 API 호출 없음. 승인된 SQL 정책 검증 27개도 완료했습니다.
 - `npm run build`: 최종 코드 타입·컴파일 통과. 확장 manifest와 로컬 ZIP v1.38.
 - `node scripts/check-security-lint.cjs`: 기존 HEAD와 비교한 신규 린트 오류 0건.
   변경 파일의 기존 오류 7건·경고 3건은 남습니다. 전체 lint 성공으로 보고하지 않습니다.
@@ -60,7 +81,7 @@ DB 정책 적용·실제 회원 검수·옛 서비스 키 폐기는 아직 완�
 - 이전 실행에서는 경로 지정 git add가 `.git/index.lock: Permission denied`로 실패했습니다.
   이어진 세션에서 파일·네트워크 제한이 해제됐고 GitHub 원격 조회도 정상입니다.
   보안 테스트 39개와 신규 린트 오류 0건을 다시 확인했으며, BLOG 변경 파일만 지정해
-  커밋·푸시를 완료했습니다. DB 정책 승인과 실제 회원 검수는 여전히 별도 미완료 항목입니다.
+  커밋·푸시를 완료했습니다. DB 정책도 승인받아 적용했으며 실제 BLOG 회원 검수는 남아 있습니다.
 - Google Inter 다운로드가 네트워크 제한으로 실패해 저장소에 있는 Geist 글꼴을
   자기완결적으로 복사하고 `next/font/local`로 변경했습니다. Latin 글꼴은 바뀝니다.
   라이선스는 `app/fonts/OFL.txt`, 출처는 `app/fonts/README.md`.
@@ -74,8 +95,7 @@ DB 정책 적용·실제 회원 검수·옛 서비스 키 폐기는 아직 완�
 ## 이어서 적용할 순서
 
 1. **완료:** v1.38 경로 지정 커밋·origin/master 푸시·BLOG 운영 배포.
-2. 준비한 BLOG RLS 변경안을 승인받고, Supabase CLI로 마이그레이션 파일을 생성합니다.
-   기존 정책 스냅샷을 확인하고 운영 적용 뒤 데이터 건수 보존·소유권·익명 차단을 검증합니다.
+2. **완료:** RLS 승인·CLI 마이그레이션 생성·운영 적용·데이터 내용 보존·소유권·익명 차단 검증.
 3. **완료:** `release-v1.38.sql`로 programs.version·extension_version·extension_download_url을
    함께 갱신하고 `node scripts/check-extension-release.mjs ai-auto-blog`로 라이브 ZIP을 검증했습니다.
 4. 타로를 같은 소스로 재배포하고 실제 회원으로 모든 영향 앱의 정상 동작을 확인합니다.
