@@ -30,6 +30,7 @@ export function ExtensionSettings() {
 
   useEffect(() => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
       setDownloaded(window.localStorage.getItem(DOWNLOAD_MARKER_KEY) === EXTENSION_VERSION)
       setInstalledVersion(window.localStorage.getItem(INSTALLED_VERSION_KEY))
     } catch { /* 저장소를 못 쓰는 브라우저 */ }

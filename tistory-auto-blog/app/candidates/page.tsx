@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import CategoryManagementModal from '@/blog/app/_components/CategoryManagementModal'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 interface Candidate {
   id: string
@@ -49,11 +50,12 @@ const SOURCE_LABELS: Record<Method, string> = {
 
 export default function CandidatesPage() {
   const router = useRouter()
-  const [supabase, setSupabase] = useState<any>(null)
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
   const [basePath, setBasePath] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
       setSupabase(createClient())
       setBasePath(getBlogBasePath())
     }
@@ -92,7 +94,7 @@ export default function CandidatesPage() {
   const [nbPasswordInput, setNbPasswordInput] = useState('')
   const [nbSaving, setNbSaving] = useState(false)
 
-  const loadCandidates = async (sb: any, userId: string) => {
+  const loadCandidates = async (sb: ReturnType<typeof createClient>, userId: string) => {
     const { data } = await sb
       .from('tistory_candidates')
       .select('*')
@@ -101,7 +103,7 @@ export default function CandidatesPage() {
     setCandidates(data ?? [])
   }
 
-  const loadCategories = async (sb: any) => {
+  const loadCategories = async (sb: ReturnType<typeof createClient>) => {
     const { data } = await sb.from('tistory_categories').select('id, name, slug').order('id', { ascending: true })
     setCategories(data ?? [])
   }
@@ -122,7 +124,7 @@ export default function CandidatesPage() {
 
   useEffect(() => {
     if (!supabase) return
-    supabase.auth.getUser().then(async ({ data }: any) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       const user = data?.user
       if (!user) {
         router.push(`${getBlogAuthPath()}?redirect=${getBlogBasePath()}/candidates`)
@@ -175,12 +177,13 @@ export default function CandidatesPage() {
         throw new Error(data.error || '수집에 실패했습니다.')
       }
       setResultMsg(`블로그 주제 ${data.count}건을 수집했습니다.`)
+      if (!supabase) throw new Error('Supabase 클라이언트가 아직 준비되지 않았습니다.')
       const {
         data: { user },
       } = await supabase.auth.getUser()
       if (user) await loadCandidates(supabase, user.id)
-    } catch (err: any) {
-      setErrorMsg(err.message || '알 수 없는 오류가 발생했습니다.')
+    } catch (err) {
+      setErrorMsg(getErrorMessage(err) || '알 수 없는 오류가 발생했습니다.')
     } finally {
       setCollecting(false)
     }
@@ -229,8 +232,8 @@ export default function CandidatesPage() {
       setNbUsernameInput('')
       setNbPasswordInput('')
       await loadNewsblurFeeds()
-    } catch (err: any) {
-      setNewsblurLoadError(err.message || 'NewsBlur 계정 연결에 실패했습니다.')
+    } catch (err) {
+      setNewsblurLoadError(getErrorMessage(err) || 'NewsBlur 계정 연결에 실패했습니다.')
     } finally {
       setNbSaving(false)
     }
@@ -251,8 +254,8 @@ export default function CandidatesPage() {
       const data = await res.json()
       if (!res.ok || !data.success) throw new Error(data.error || '삭제에 실패했습니다.')
       setCandidates((prev) => prev.filter((c) => c.id !== id))
-    } catch (err: any) {
-      alert(err.message || '삭제 중 오류가 발생했습니다.')
+    } catch (err) {
+      alert(getErrorMessage(err) || '삭제 중 오류가 발생했습니다.')
     } finally {
       setDeletingId(null)
     }
@@ -671,7 +674,7 @@ export default function CandidatesPage() {
         onCategoriesUpdated={() => {
           if (!supabase) return
           loadCategories(supabase)
-          supabase.auth.getUser().then(({ data }: any) => {
+          supabase.auth.getUser().then(({ data }) => {
             if (data?.user) loadCandidates(supabase, data.user.id)
           })
         }}

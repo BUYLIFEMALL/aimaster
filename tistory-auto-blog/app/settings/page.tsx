@@ -38,6 +38,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
       setSupabase(createClient())
     }
   }, [])
@@ -81,7 +82,7 @@ export default function SettingsPage() {
             <h2 className="text-sm font-bold text-zinc-900">🤖 AI 모델 API 키</h2>
             <p className="text-xs text-zinc-500">
               본문 생성에는 AI 글쓰기 화면에서 고른 플랫폼(OpenAI·Anthropic·Gemini)의 키가, 이미지
-              생성에는 Gemini 키가, "글감 수집"에는 Perplexity 키가 쓰입니다. 등록해야 해당 기능이
+              생성에는 Gemini 키가, &quot;글감 수집&quot;에는 Perplexity 키가 쓰입니다. 등록해야 해당 기능이
               동작합니다.
             </p>
           </div>

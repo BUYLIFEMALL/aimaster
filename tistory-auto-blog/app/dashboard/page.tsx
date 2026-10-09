@@ -24,11 +24,12 @@ interface RecentCandidate {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [supabase, setSupabase] = useState<any>(null)
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
   const [basePath, setBasePath] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
       setSupabase(createClient())
       setBasePath(getBlogBasePath())
     }
@@ -47,7 +48,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!supabase) return
 
-    supabase.auth.getUser().then(async ({ data }: any) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       const user = data?.user
       if (!user) {
         router.push(`${getBlogAuthPath()}?redirect=${getBlogBasePath()}/dashboard`)

@@ -32,6 +32,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
   // 다른 blog 클라이언트 컴포넌트와 동일하게 useEffect에서 지연 생성한다.
   const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
     setSupabase(createClient())
   }, [])
   const [categories, setCategories] = useState<Category[]>([])
@@ -62,6 +63,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
       fetchCategories()
       setNewCatName('')
       setEditingId(null)

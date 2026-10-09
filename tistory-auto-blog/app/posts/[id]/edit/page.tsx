@@ -21,6 +21,7 @@ import {
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, splitImagePromptSection, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 import RichTextEditor from '@/blog/components/RichTextEditor'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -56,7 +57,7 @@ function replaceBase64WithImageTags(contentStr: string): string {
     const endAlt2 = updated.indexOf(")", startIdx)
     const endAlt3 = updated.indexOf(" ", startIdx)
 
-    let validEnds = [endIdx, endAlt1, endAlt2, endAlt3].filter(idx => idx > startIdx)
+    const validEnds = [endIdx, endAlt1, endAlt2, endAlt3].filter(idx => idx > startIdx)
     if (validEnds.length === 0) break
 
     endIdx = Math.min(...validEnds)
@@ -133,9 +134,9 @@ export default function PostEditPage() {
 
         setSelectedCategoryIds(postData.category_ids || [])
         setCategories(postData.all_categories || [])
-      } catch (err: any) {
+      } catch (err) {
         console.error('[Edit Page Load Error]:', err)
-        setError(err.message || '게시글 정보를 불러오지 못했습니다.')
+        setError(getErrorMessage(err) || '게시글 정보를 불러오지 못했습니다.')
       } finally {
         setLoading(false)
       }
@@ -237,7 +238,7 @@ export default function PostEditPage() {
         })
       })
 
-      let json: any = {}
+      let json: { success?: boolean; error?: string } = {}
       try {
         json = await res.json()
       } catch (e) {
@@ -250,9 +251,9 @@ export default function PostEditPage() {
       } else {
         alert('수정 실패: ' + (json.error || '알 수 없는 오류 (Status: ' + res.status + ')'))
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('[Edit Submit Error]:', err)
-      alert('서버 통신 오류: ' + (err.message || String(err)))
+      alert('서버 통신 오류: ' + (getErrorMessage(err) || String(err)))
     } finally {
       setSaving(false)
     }

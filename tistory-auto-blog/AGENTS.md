@@ -2,6 +2,13 @@
 
 > **작업 시작 전 필독:** [운영·개발 인수인계 및 검수 체크포인트](docs/OPERATIONS_HANDOFF.md)를 먼저 읽는다. 실제 장애 원인, 금지된 우회 방식, 부분 입력 시 조치, 배포 전 검수 순서가 정리되어 있다.
 
+## v1.55 (2026-10-09)
+
+- **ESLint 오류 53건 → 0건** 정리(경고 17건은 그대로). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.55).
+  - `catch (err: any)` 14곳 → `catch (err)` + `utils/errorMessage.ts`의 `getErrorMessage(err)`(기존 `err?.message || '대체 문구'` 동작 그대로). Supabase 콜백·상태·`generateHashtags` 등 나머지 `any`는 실제 타입으로 교체(`tsc` 통과).
+  - 마운트 후 1회 초기화(`setSupabase(createClient())`, localStorage 읽기 등) 9곳은 서버 렌더에서 브라우저 값을 못 쓰기 때문에 구조를 바꾸지 않고 사유를 적은 `eslint-disable-next-line react-hooks/set-state-in-effect`로 표시했다. `HomePage`의 렌더 중 ref 대입은 `useEffect`로 옮겼다. 설정 화면의 따옴표는 `&quot;`로 바꿨다.
+  - 검사: `npx eslint .`(오류 0), `npx tsc --noEmit`, `npm run build`, `npm run test:update-banner`.
+
 ## v1.54 (2026-10-09)
 
 - 확장 새 버전 안내를 문구에서 **배너**로 보강했다. `GET /api/extension/whoami`의 `latestVersion`/`downloadUrl`(이미 있던 값)로, 사이드패널은 설치된 확장 버전(`manifest.version_name`)보다 최신이 **더 높을 때만** 상단에 "새 버전이 나왔습니다" 배너와 ZIP 링크를 보여준다(링크는 이 사이트 `/downloads/` 아래만 허용). 연결(토큰) 전에는 뜨지 않는다. 이전 버전 확장에는 배너 코드가 없어 회원이 한 번은 직접 다시 설치해야 한다.

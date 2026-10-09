@@ -54,16 +54,16 @@ function parseRssXml(xmlText: string): NewsArticle[] {
 
     if (!titleMatch) continue
 
-    let rawTitle = titleMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim()
-    let rawLink = linkMatch ? linkMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
-    let pubDateStr = pubDateMatch ? pubDateMatch[1].trim() : ''
-    let rawSource = sourceMatch ? sourceMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
-    let rawSnippet = descriptionMatch ? descriptionMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
+    const rawTitle = titleMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim()
+    const rawLink = linkMatch ? linkMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
+    const pubDateStr = pubDateMatch ? pubDateMatch[1].trim() : ''
+    const rawSource = sourceMatch ? sourceMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
+    const rawSnippet = descriptionMatch ? descriptionMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
 
     // clean HTML
     let title = cleanHtml(rawTitle)
     let source = cleanHtml(rawSource)
-    let snippet = cleanHtml(rawSnippet)
+    const snippet = cleanHtml(rawSnippet)
 
     // 언론사 분리 (구글 뉴스 제목 형식: "기사 제목 - 언론사명")
     if (!source && title.includes(' - ')) {

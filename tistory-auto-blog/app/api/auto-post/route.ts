@@ -13,6 +13,7 @@ import {
   resolveImageModel,
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest) {
         .in('slug', requestCategorySlugs)
 
       if (matchedCats && matchedCats.length > 0) {
-        targetCategoryIds = matchedCats.map((c: any) => c.id)
+        targetCategoryIds = matchedCats.map((c) => c.id)
       }
     }
 
@@ -240,11 +241,11 @@ export async function POST(request: NextRequest) {
         publishedAt: createdPost.published_at,
       },
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[AutoPost API] Internal Server Error:', error)
     return NextResponse.json(
       // 고른 모델의 생성 실패 사유(키 한도 초과, 모델 미지원 등)를 화면에 그대로 보여준다.
-      { error: error?.message || '서버 내부 오류가 발생했습니다.', message: error?.message },
+      { error: getErrorMessage(error) || '서버 내부 오류가 발생했습니다.', message: getErrorMessage(error) },
       { status: 500 }
     )
   }

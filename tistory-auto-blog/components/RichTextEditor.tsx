@@ -41,6 +41,7 @@ import {
   Baseline,
   Sparkles,
 } from 'lucide-react'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 // kakao_auto_poster의 components/ui/RichTextEditor.tsx(Tiptap 기반, 이미지 업로드+YouTube
 // 삽입)를 검토한 뒤 그대로 옮겨왔다(사용자 요청, 2026-09-16). blog는 이미지를 Supabase
@@ -246,8 +247,8 @@ function Toolbar({ editor }: { editor: Editor }) {
       editor.chain().focus().setImage({ src: data.url }).run()
       setAiPrompt('')
       setShowAiImageInput(false)
-    } catch (err: any) {
-      setAiError(err?.message || '이미지 생성에 실패했습니다.')
+    } catch (err) {
+      setAiError(getErrorMessage(err) || '이미지 생성에 실패했습니다.')
     } finally {
       setIsGeneratingImage(false)
     }
@@ -285,8 +286,8 @@ function Toolbar({ editor }: { editor: Editor }) {
       try {
         const url = await uploadAttachedImage(file)
         editor.chain().focus().setImage({ src: url }).run()
-      } catch (err: any) {
-        setUploadError('이미지를 올리지 못했습니다: ' + (err?.message || '오류'))
+      } catch (err) {
+        setUploadError('이미지를 올리지 못했습니다: ' + (getErrorMessage(err) || '오류'))
       } finally {
         setUploading(false)
         if (fileInputRef.current) fileInputRef.current.value = ''

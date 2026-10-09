@@ -3,6 +3,7 @@ import { createAdminClient } from '@/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { mdLiteToHtml } from '@/utils/markdown'
 import { removeDuplicateTitleHtml, removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -91,8 +92,8 @@ export async function GET(
     }
 
     return NextResponse.json({ success: true, data: post })
-  } catch (err: any) {
-    return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.', message: err?.message }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.', message: getErrorMessage(err) }, { status: 500 })
   }
 }
 
@@ -193,11 +194,11 @@ export async function PUT(
       message: '게시글이 성공적으로 수정되었습니다.',
       data: updatedPost,
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[Post Edit PUT Exception]:', err)
     return NextResponse.json({
       error: '서버 내부 오류가 발생했습니다.',
-      message: err?.message,
+      message: getErrorMessage(err),
       details: String(err),
     }, { status: 500 })
   }
@@ -248,7 +249,7 @@ export async function DELETE(
       success: true,
       message: '게시글이 성공적으로 삭제되었습니다.',
     })
-  } catch (err: any) {
-    return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.', message: err?.message }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: '서버 내부 오류가 발생했습니다.', message: getErrorMessage(err) }, { status: 500 })
   }
 }

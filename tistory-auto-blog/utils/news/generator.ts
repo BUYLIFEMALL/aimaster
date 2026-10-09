@@ -57,7 +57,7 @@ export interface GeneratedPostResult {
   topKeywords: string[]
 }
 
-function generateHashtags(topic: string, keywords: string[], parsedJson?: any): string {
+function generateHashtags(topic: string, keywords: string[], parsedJson?: Record<string, string>): string {
   const candidateSet = new Set<string>()
 
   const topicWords = topic.replace(/[^\w\s가-힣]/g, ' ').split(/\s+/).filter((w) => w.length >= 2)

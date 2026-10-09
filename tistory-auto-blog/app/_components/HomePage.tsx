@@ -62,7 +62,9 @@ export default function HomePage() {
   const [isManageModalOpen, setIsManageModalOpen] = useState(false)
 
   const categoriesRef = useRef<Category[]>([])
-  categoriesRef.current = categories
+  useEffect(() => {
+    categoriesRef.current = categories
+  }, [categories])
 
   useEffect(() => {
     async function fetchCategories() {
@@ -78,7 +80,7 @@ export default function HomePage() {
 
   /* ---- 로그인 확인: 게시글 관리 화면이라 로그인 없이는 접근할 수 없다 ---- */
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }: any) => {
+    supabase.auth.getUser().then(({ data }) => {
       const user = data?.user
       if (!user) {
         router.push(`${getBlogAuthPath()}?redirect=${getBlogBasePath()}`)

@@ -1051,3 +1051,4 @@
 - **다음부터 확인:** 서버 기본 설정 복원은 첫 생성 이전에 완료됐는지 확인하고, 성공 안내는 실제 현재 값과 저장된 값이 일치할 때만 유지한다.
 
 - (2026-10-09, naver-cafe-poster v1.04, 자동화·크론) 증상: 예약 소스 후보함이 비어 크론 로그에 "후보가 없습니다" 오류 6시간 50건 → 원인: 실패 시 `last_run_at` 미갱신이라 매 크론마다 "실행할 차례"로 판정 → 해결: `src/lib/scheduledSource/engine.ts`에서 후보 없음 실패 때만 `last_run_at` 갱신 → 다음부터: 주기(interval)로 도는 크론 소스는 "결과가 같은 실패"일 때도 마지막 실행 시각을 갱신하는지 확인.
+- (2026-10-09, tistory-auto-blog v1.55, 코드 품질) 증상: 복제 원본(ai-auto-blog)에서 가져온 ESLint 오류 53건(`no-explicit-any` 34, `set-state-in-effect` 9 등) → 해결: catch는 `unknown`+`utils/errorMessage.ts`, 나머지는 실제 타입, 마운트 초기화는 사유 적은 `eslint-disable-next-line`(구조 변경 시 서버 렌더/하이드레이션 위험) → 다음부터: 프로그램을 복제해 새로 만들 때 `npx eslint .`·`npx tsc --noEmit`를 먼저 돌려 오류 기준선을 0으로 만든다.

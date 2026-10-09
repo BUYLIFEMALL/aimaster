@@ -28,6 +28,7 @@ import {
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 interface CategoryOption {
   id: number
@@ -83,11 +84,12 @@ export default function AiFormPage() {
 function AiFormPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [supabase, setSupabase] = useState<any>(null)
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
   const [basePath, setBasePath] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
       setSupabase(createClient())
       setBasePath(getBlogBasePath())
     }
@@ -123,6 +125,7 @@ function AiFormPageInner() {
     try {
       const saved = JSON.parse(window.localStorage.getItem(MODEL_STORAGE_KEY) ?? 'null') as { contentProvider?: unknown; contentModel?: unknown; imageModel?: unknown; imageCount?: unknown } | null
       if (saved && isContentProvider(saved.contentProvider)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
         setContentProvider(saved.contentProvider)
         setContentModel(resolveContentModel(saved.contentProvider, saved.contentModel))
       }
@@ -146,11 +149,11 @@ function AiFormPageInner() {
 
   useEffect(() => {
     if (!supabase) return
-    supabase.auth.getUser().then(({ data }: any) => {
+    supabase.auth.getUser().then(({ data }) => {
       setUserEmail(data?.user?.email ?? null)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user?.email ?? null)
     })
 
@@ -159,7 +162,7 @@ function AiFormPageInner() {
       .from('tistory_categories')
       .select('id, name, slug')
       .order('id', { ascending: true })
-      .then(({ data, error }: any) => {
+      .then(({ data, error }) => {
         if (!error && data && data.length > 0) {
           setCategories(data)
           // 첫 접속 시 데이터베이스의 첫번째 카테고리가 포함되도록 기본값 갱신
@@ -268,9 +271,9 @@ function AiFormPageInner() {
       } else {
         router.push(getBlogBasePath() || '/')
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('[AI Form Error]:', err)
-      alert(err.message || 'AI 글 생성 중 오류가 발생했습니다.')
+      alert(getErrorMessage(err) || 'AI 글 생성 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
       setStatusMsg(null)

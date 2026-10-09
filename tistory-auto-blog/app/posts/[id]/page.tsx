@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -248,7 +249,7 @@ export default function PostDetailPage() {
       setLoading(true)
 
       // 1차: Supabase Client SDK로 포스트 데이터 로드 (2.5초 타임아웃 래퍼로 무한 펜딩 100% 방지)
-      let postData: any = null
+      let postData: Post | null = null
       try {
         const queryPromise = supabase
           .from('tistory_posts')
@@ -260,7 +261,7 @@ export default function PostDetailPage() {
           setTimeout(() => reject(new Error('TIMEOUT')), 2500)
         )
 
-        const result: any = await Promise.race([queryPromise, timeoutPromise])
+        const result = (await Promise.race([queryPromise, timeoutPromise])) as { data?: Post | null; error?: unknown } | undefined
         if (result && result.data && !result.error) {
           postData = result.data
         }
@@ -292,7 +293,7 @@ export default function PostDetailPage() {
 
               if (d.tistory_post_categories && Array.isArray(d.tistory_post_categories)) {
                 const cats = d.tistory_post_categories
-                  .map((pc: any) => pc.tistory_categories)
+                  .map((pc: { tistory_categories: Category }) => pc.tistory_categories)
                   .filter(Boolean)
                 setCategories(cats)
               }
@@ -328,7 +329,7 @@ export default function PostDetailPage() {
           .from('tistory_post_categories')
           .select('category_id')
           .eq('post_id', postId)
-        const catIds = pcData?.map((r: any) => r.category_id) ?? []
+        const catIds = pcData?.map((r) => r.category_id) ?? []
         if (catIds.length > 0) {
           const { data: catsData } = await supabase
             .from('tistory_categories')
@@ -348,6 +349,7 @@ export default function PostDetailPage() {
 
   useEffect(() => {
     if (postId && !isNaN(postId)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 후 1회 초기화(서버 렌더/정적 프리렌더 단계에서는 브라우저 값을 쓸 수 없음)
       fetchPost()
     } else if (rawId === 'undefined' || (rawId && isNaN(postId))) {
       setNotFound(true)
@@ -567,9 +569,9 @@ export default function PostDetailPage() {
                       if (!res.ok) throw new Error(json.error || '티스토리 입력기로 보내기에 실패했습니다.')
                       setHandoffState('sent')
                       alert('티스토리 크롬 확장 목록에 올렸습니다.\n티스토리 글쓰기 화면을 열고 확장 프로그램에서 이 글을 선택해 입력하세요.\n(확장 설치·연결은 설정 페이지에서 할 수 있습니다.)')
-                    } catch (err: any) {
+                    } catch (err) {
                       setHandoffState('idle')
-                      alert(err?.message || '티스토리 입력기로 보내기에 실패했습니다.')
+                      alert(getErrorMessage(err) || '티스토리 입력기로 보내기에 실패했습니다.')
                     }
                   }}
                   title="티스토리 크롬 확장으로 티스토리 글쓰기 화면에 입력합니다(마지막 발행은 직접)"

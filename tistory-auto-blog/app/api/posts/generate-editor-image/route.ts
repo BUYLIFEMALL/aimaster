@@ -8,6 +8,7 @@ import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
 import { generateEditorImage } from '@/blog/utils/ai/editorImage'
 import { uploadDataUriImage } from '@/blog/utils/imageStorage'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -42,8 +43,8 @@ export async function POST(request: NextRequest) {
     const dataUri = await generateEditorImage(prompt, apiKey)
     const url = await uploadDataUriImage(access.user.id, dataUri)
     return NextResponse.json({ success: true, url })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[Editor Image Generate Error]:', err)
-    return NextResponse.json({ error: err?.message || '이미지 생성에 실패했습니다.' }, { status: 500 })
+    return NextResponse.json({ error: getErrorMessage(err) || '이미지 생성에 실패했습니다.' }, { status: 500 })
   }
 }
