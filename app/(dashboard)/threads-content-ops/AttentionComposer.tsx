@@ -150,17 +150,17 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
     </section>
 
     <section className="rounded-2xl border-2 border-sky-300 bg-white p-5 shadow-sm">
-      <h3 className="font-bold text-neutral-900">2. 상황별 페르소나 선택 <span className="text-sm font-normal text-neutral-500">(불러온 뒤 아래 입력란을 수정하거나 즉시 생성하세요)</span></h3>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{PERSONAS.map((persona) => {
+      <h3 className="font-bold text-neutral-900">2. 글의 화자 (페르소나) 선택 <span className="text-sm font-normal text-neutral-500">(글을 작성하는 주인공·화자의 시각·말투를 설정합니다)</span></h3>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{PERSONAS.map((persona) => {
         const active = personaId === persona.id;
         const busy = generatingLabel === persona.name;
-        return <div key={persona.id} className={`rounded-xl border p-3 text-left transition ${active ? "border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-200" : "border-neutral-200 bg-white"}`}>
-          <span className="flex items-center justify-between gap-2"><span className="text-sm font-bold text-neutral-900">{persona.emoji} {persona.name}</span><span className="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">{persona.badge}</span></span>
-          <span className="mt-1 block text-xs text-neutral-600">{persona.tagline}</span>
-          <p className="mt-2 truncate text-xs text-neutral-500" title={persona.defaultTopic}>추천 주제: {persona.defaultTopic}</p>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 pt-3">
-            <button type="button" disabled={generating} aria-pressed={active} aria-label={`${persona.name} 페르소나 불러오기`} onClick={() => loadPersona(persona.id)} className={`rounded-lg px-3 py-1.5 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-60 ${active ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"}`}>{active ? "✓ 선택됨" : "페르소나 불러오기"}</button>
-            <button type="button" disabled={generating} aria-label={`${persona.name} 즉시 생성`} onClick={() => generatePersona(persona.id)} className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600 disabled:cursor-not-allowed disabled:opacity-60 ${active ? "bg-emerald-600 hover:bg-emerald-700" : "bg-neutral-900 hover:bg-neutral-700"}`}>{busy ? <Loader2 size={13} className="animate-spin" /> : <Zap size={13} />}{busy ? "생성 중…" : "즉시 생성 →"}</button>
+        return <div key={persona.id} className={`rounded-2xl border p-5 text-left shadow-sm transition ${active ? "border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-200" : "border-neutral-200 bg-neutral-50/40"}`}>
+          <span className="flex flex-wrap items-center justify-between gap-2"><span className="text-base font-bold text-neutral-900">{persona.emoji} {persona.name}</span><span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${active ? "bg-emerald-600 text-[#ffffff]" : "bg-amber-100 text-amber-800"}`}>{persona.badge}</span></span>
+          <span className="mt-2 block text-sm text-neutral-600">{persona.tagline}</span>
+          <p className="mt-3 truncate text-xs text-neutral-500" title={persona.defaultTopic}>추천 주제: {persona.defaultTopic}</p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 pt-3">
+            <button type="button" disabled={generating} aria-pressed={active} aria-label={`${persona.name} 페르소나 불러오기`} onClick={() => loadPersona(persona.id)} className={`rounded-lg px-3 py-1.5 text-sm font-bold text-[#ffffff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-60 ${active ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"}`}>{active ? "✓ 선택됨" : "페르소나 불러오기"}</button>
+            <button type="button" disabled={generating} aria-label={`${persona.name} 즉시 생성`} onClick={() => generatePersona(persona.id)} className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-bold text-[#ffffff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600 disabled:cursor-not-allowed disabled:opacity-60 ${active ? "bg-emerald-600 hover:bg-emerald-700" : "bg-neutral-900 hover:bg-neutral-700"}`}>{busy ? <Loader2 size={13} className="animate-spin" /> : <Zap size={13} />}{busy ? "생성 중…" : "즉시 생성 →"}</button>
           </div>
         </div>;
       })}</div>

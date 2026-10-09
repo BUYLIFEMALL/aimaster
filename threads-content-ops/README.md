@@ -1,8 +1,13 @@
 # Threads 콘텐츠 운영 자동화
 
-> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.89`
+> AIMaster 프로그램 slug: `threads-content-ops` · 현재 버전: `v1.90`
 
 개발을 이어받는 에이전트용 구현 순서·주의사항·배포 방법은 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)에 정리돼 있습니다.
+
+## v1.90 페르소나 카드 표시
+
+- 버튼 글자를 흰색으로 고정해 밝은 화면의 공통 색상 규칙에 묻히던 표시를 수정했습니다.
+- 선택 카드는 초록 테두리·옅은 초록 배경·초록 배지와 버튼, 나머지는 파란 불러오기·검은 즉시 생성 버튼입니다. 예시의 카드 여백·제목·배지 모양에 맞췄습니다.
 
 ## v1.89 페르소나 불러오기·수정 후 생성
 
