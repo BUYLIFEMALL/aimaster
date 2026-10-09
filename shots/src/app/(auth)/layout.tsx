@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       }}>
       <div className="w-full max-w-[440px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <h1 className="mb-1 text-3xl font-extrabold tracking-tight text-[#005acc]">YOUTUBE Shots(이미지 스토리) 자동화</h1>
+          <h1 className="mb-1 text-3xl font-extrabold tracking-tight text-[#005acc]">YOUTUBE Shots 자동화<br />(이미지 스토리)</h1>
           <p className="text-sm font-medium text-zinc-500">AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
         </div>
         {children}

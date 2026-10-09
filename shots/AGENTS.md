@@ -56,3 +56,6 @@ shots는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 �
 - 페이지/레이아웃은 `requireProgramAccess()`(권한 없으면 redirect), API route는 반드시 redirect 대신 결과 객체를 반환하는 방식으로 로그인 여부뿐 아니라 프로그램 이용 권한까지 확인한다.
 - 사용자 소유 데이터 테이블은 `user_id` + RLS owner-only 정책으로 격리한다 (`shorts_candidates`, `shorts_videos`, `newsblur_accounts`, `youtube_accounts`, `instagram_accounts`, `user_api_keys` 참고).
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`)에서 **로그인한 회원 본인 키만** 쓴다(2026-10-09 v1.04: 앱 기본 키·환경변수 폴백 삭제 — 최상위 규칙 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`). 키가 없으면 null이므로 호출부는 "설정에서 본인 키를 등록해주세요" 안내를 보여준다.
+
+## 작업 기록
+- 2026-10-10 v1.05: 로그인 화면(`src/app/(auth)/layout.tsx`) 제목을 "YOUTUBE Shots 자동화" + 줄바꿈 + "(이미지 스토리)" 두 줄로 변경(기존엔 "스토/리"처럼 글자 중간에서 줄이 꺾임). 마이그레이션 `20261010100000_bump_version_v1_05.sql`.
