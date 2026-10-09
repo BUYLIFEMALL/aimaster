@@ -2,6 +2,7 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/blog/utils/supabase/server'
+import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { checkProgramAccess } from '@/lib/access/checkProgramAccess'
 
 // 이 앱(blog)은 AIMaster와 같은 Supabase 프로젝트를 공유한다.
@@ -33,7 +34,7 @@ export async function requireProgramAccess() {
   }
 
   // 판정 규칙(2026-09-29 베타테스트 정책)은 lib/access/checkProgramAccess.ts(루트 같은 파일의 사본 — 규칙이 바뀌면 둘 다 고칠 것)에 둔다.
-  const access = await checkProgramAccess(supabase as unknown as SupabaseLike, user!.id, THIS_PROGRAM_SLUG)
+  const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user!.id, THIS_PROGRAM_SLUG)
   if (access.reason === 'suspended') {
     redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?error=suspended`)
   }
@@ -69,7 +70,7 @@ export async function checkProgramAccessApi(): Promise<
     return { allowed: false, error: '로그인이 필요합니다.', status: 401 }
   }
 
-  const access = await checkProgramAccess(supabase as unknown as SupabaseLike, user.id, THIS_PROGRAM_SLUG)
+  const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user.id, THIS_PROGRAM_SLUG)
   if (access.reason === 'suspended') {
     return { allowed: false, error: '계정이 정지되어 이용할 수 없습니다. 고객센터에 문의해주세요.', status: 403 }
   }

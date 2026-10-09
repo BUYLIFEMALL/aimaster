@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/blog/utils/supabase/client'
+
 
 interface Category {
   id: number
@@ -16,24 +16,8 @@ interface Props {
   onCategoriesUpdated: () => void
 }
 
-function generateSlug(name: string): string {
-  const clean = name
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s가-힣-]/g, '')
-    .replace(/\s+/g, '-')
-  return clean || `cat-${Date.now()}`
-}
-
 export default function CategoryManagementModal({ isOpen, onClose, onCategoriesUpdated }: Props) {
-  // createClient()를 렌더 본문에서 바로 호출하면, 이 모달을 <Modal isOpen={false} .../> 형태로
-  // 항상 마운트해두는 페이지(candidates/page.tsx 등)가 루트 앱에 내장돼 정적 프리렌더링될 때
-  // 서버 사이드에서도 실행돼 "Supabase URL/API key 필요" 빌드 에러를 낸다(2026-09-16 발견).
-  // 다른 blog 클라이언트 컴포넌트와 동일하게 useEffect에서 지연 생성한다.
-  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
-  useEffect(() => {
-    setSupabase(createClient())
-  }, [])
+  const [canManage, setCanManage] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
   const [newCatName, setNewCatName] = useState('')
@@ -43,21 +27,20 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
   const [movingId, setMovingId] = useState<number | null>(null)
 
   const fetchCategories = async () => {
-    if (!supabase) return
     setLoading(true)
     setErrorMsg(null)
-    const { data, error } = await supabase
-      .from('blog_categories')
-      .select('*')
-      .order('sort_order', { ascending: true })
-      .order('id', { ascending: true })
-
-    if (error) {
-      setErrorMsg('카테고리 목록을 불러오지 못했습니다: ' + error.message)
-    } else if (data) {
-      setCategories(data)
+    try {
+      const response = await fetch('/api/categories', { cache: 'no-store' })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || '카테고리를 불러오지 못했습니다.')
+      setCategories(result.data ?? [])
+      setCanManage(result.canManage === true)
+    } catch (error) {
+      setCanManage(false)
+      setErrorMsg(error instanceof Error ? error.message : '카테고리를 불러오지 못했습니다.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   useEffect(() => {
@@ -70,98 +53,44 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
 
   if (!isOpen) return null
 
-  // 1. 카테고리 추가
+  const changeCategory = async (method: string, body: Record<string, unknown>) => {
+    if (!canManage) return
+    setErrorMsg(null)
+    setLoading(true)
+    try {
+      const response = await fetch('/api/categories', {
+        method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || '카테고리 변경에 실패했습니다.')
+      setNewCatName('')
+      setEditingId(null)
+      await fetchCategories()
+      onCategoriesUpdated()
+    } catch (error) {
+      setErrorMsg(error instanceof Error ? error.message : '카테고리 변경에 실패했습니다.')
+    } finally {
+      setLoading(false)
+      setMovingId(null)
+    }
+  }
+
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newCatName.trim() || !supabase) return
-
-    const slug = generateSlug(newCatName)
-    setErrorMsg(null)
-    setLoading(true)
-
-    const nextSortOrder = categories.length > 0 ? Math.max(...categories.map((c) => c.sort_order)) + 1 : 1
-
-    const { error } = await supabase
-      .from('blog_categories')
-      .insert([{ name: newCatName.trim(), slug, sort_order: nextSortOrder }])
-
-    if (error) {
-      setErrorMsg('카테고리 추가 실패: ' + error.message)
-    } else {
-      setNewCatName('')
-      await fetchCategories()
-      onCategoriesUpdated()
-    }
-    setLoading(false)
+    if (newCatName.trim()) await changeCategory('POST', { name: newCatName.trim() })
   }
-
-  // 2. 카테고리 수정 저장
   const handleSaveEdit = async (id: number) => {
-    if (!editingName.trim() || !supabase) return
-    setErrorMsg(null)
-    setLoading(true)
-
-    const { error } = await supabase
-      .from('blog_categories')
-      .update({ name: editingName.trim() })
-      .eq('id', id)
-
-    if (error) {
-      setErrorMsg('카테고리 수정 실패: ' + error.message)
-    } else {
-      setEditingId(null)
-      setEditingName('')
-      await fetchCategories()
-      onCategoriesUpdated()
-    }
-    setLoading(false)
+    if (editingName.trim()) await changeCategory('PATCH', { id, name: editingName.trim() })
   }
-
-  // 3. 카테고리 삭제
   const handleDeleteCategory = async (id: number, name: string) => {
-    if (!confirm(`'${name}' 카테고리를 정말 삭제하시겠습니까?`) || !supabase) return
-
-    setErrorMsg(null)
-    setLoading(true)
-
-    // 카테고리 릴레이션 삭제 후 본체 삭제
-    await supabase.from('blog_post_categories').delete().eq('category_id', id)
-    const { error } = await supabase.from('blog_categories').delete().eq('id', id)
-
-    if (error) {
-      setErrorMsg('카테고리 삭제 실패: ' + error.message)
-    } else {
-      await fetchCategories()
-      onCategoriesUpdated()
-    }
-    setLoading(false)
+    if (canManage && confirm(`'${name}' 카테고리를 정말 삭제하시겠습니까?`)) await changeCategory('DELETE', { id })
   }
-
-  // 4. 카테고리 순서 변경 — 바로 위/아래 카테고리와 sort_order를 맞바꾼다
-  // (naver-cafe-poster의 moveCategoryAction과 동일한 방식, 2026-09-16 요청).
   const handleMoveCategory = async (index: number, direction: 'up' | 'down') => {
-    if (!supabase) return
+    if (!canManage) return
     const swapIndex = direction === 'up' ? index - 1 : index + 1
     if (swapIndex < 0 || swapIndex >= categories.length) return
-
-    const current = categories[index]
-    const swapWith = categories[swapIndex]
-
-    setMovingId(current.id)
-    setErrorMsg(null)
-
-    const [{ error: err1 }, { error: err2 }] = await Promise.all([
-      supabase.from('blog_categories').update({ sort_order: swapWith.sort_order }).eq('id', current.id),
-      supabase.from('blog_categories').update({ sort_order: current.sort_order }).eq('id', swapWith.id),
-    ])
-
-    if (err1 || err2) {
-      setErrorMsg('순서 변경 실패: ' + (err1?.message || err2?.message))
-    } else {
-      await fetchCategories()
-      onCategoriesUpdated()
-    }
-    setMovingId(null)
+    setMovingId(categories[index].id)
+    await changeCategory('PATCH', { id: categories[index].id, swapId: categories[swapIndex].id })
   }
 
   return (
@@ -190,7 +119,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
           )}
 
           {/* 추가 폼 */}
-          <form onSubmit={handleAddCategory} className="space-y-2">
+          {canManage && <form onSubmit={handleAddCategory} className="space-y-2">
             <label className="text-xs font-bold text-slate-700">➕ 새 카테고리 추가</label>
             <div className="flex gap-2">
               <input
@@ -208,7 +137,8 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
                 추가
               </button>
             </div>
-          </form>
+          </form>}
+          {!canManage && <p className="text-xs text-slate-600">공통 카테고리는 관리자만 변경할 수 있습니다. 글 작성 시 카테고리를 선택할 수 있습니다.</p>}
 
           {/* 카테고리 리스트 */}
           <div className="space-y-2">
@@ -254,7 +184,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
                     ) : (
                       <>
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="flex flex-col flex-shrink-0">
+                          <div className={canManage ? "flex flex-col flex-shrink-0" : "hidden"}>
                             <button
                               type="button"
                               onClick={() => handleMoveCategory(index, 'up')}
@@ -277,7 +207,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
                           <span className="text-xs font-bold text-slate-800 truncate">{cat.name}</span>
                           <span className="text-[10px] text-slate-400 font-mono">({cat.slug})</span>
                         </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <div className={canManage ? "flex items-center gap-1.5 flex-shrink-0" : "hidden"}>
                           <button
                             onClick={() => {
                               setEditingId(cat.id)

@@ -1,9 +1,13 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import BlogShell from './_components/BlogShell'
 
-const inter = Inter({ subsets: ['latin'] })
+const sans = localFont({
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  weight: '100 900',
+})
 
 export const metadata: Metadata = {
   title: 'BLOG(원문)생성 자동화',
@@ -17,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={inter.className}>
+      <body className={`${sans.variable} ${sans.className}`}>
         <BlogShell>{children}</BlogShell>
       </body>
     </html>

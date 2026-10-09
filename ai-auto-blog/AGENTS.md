@@ -11,7 +11,18 @@ blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시
 - blog는 개발자 전용 도구가 아니라, AIMaster 회원 중 이 프로그램(`programs.slug = "ai-auto-blog"`) 이용 권한(구독/개별부여/등급)이 있는 모든 사용자가 각자 자신의 계정으로 동일하게 쓸 수 있어야 한다.
 - 페이지/레이아웃은 `requireProgramAccess()`(권한 없으면 redirect), **쓰기 작업을 하는 모든 API route(`/api/auto-post`, `/api/posts/[id]` PUT·DELETE 등)는 반드시 `checkProgramAccessApi()`로 로그인 여부뿐 아니라 프로그램 이용 권한까지 확인**한다 (`getSessionUser()`만으로 로그인 여부만 확인하고 끝내지 말 것 — 2026-08-06 감사에서 이 부분이 빠져 있던 것을 발견해 수정함).
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만 사용, 앱/운영자 공용 키로 폴백하지 않음 — 2026-08-12 정책, 2026-09-03에 이 서브프로젝트에 남아있던 옛 폴백 로직 제거)을 그대로 쓴다. 본인 키가 없으면 `null`을 반환하니, 호출부는 조용히 실패시키지 말고 "API 키 등록 필요" 안내로 이어가야 한다.
-- `blog_posts`/`blog_categories`/`blog_authors`는 현재 사용자별로 격리되어 있지 않고 하나의 공유 블로그로 설계돼 있다 (누가 작성하든 같은 게시판에 게시됨). 이 설계를 바꾸려면(사용자별 개인 블로그로 전환) 먼저 사용자와 상의할 것 — 스키마/RLS 전면 변경이 필요한 큰 결정이다.
+- 최상위 본인 계정 규칙에 따라 `blog_posts`/`blog_authors`는 회원 본인 소유 데이터입니다. 소유자가 없는 옛 글은 임의 귀속·접근 허용하지 않습니다. `blog_categories`는 공통 분류 목록이며 변경은 관리자만 가능합니다. 이전의 공유 블로그 설명은 최상위 규칙과 충돌하므로 사용하지 않습니다.
+
+# 보안 마무리 — v1.38 로컬 준비, 운영 미적용 (2026-10-10)
+
+- 코드·확장·로컬 ZIP은 v1.38 준비 상태, 운영 DB·라이브는 v1.37입니다. 아직 릴리스 완료로 보고하지 않습니다.
+- 글 GET/PUT/DELETE는 로그인+이용 권한+본인 소유 조건을 확인하고 조회·수정·삭제 쿼리에 `user_id`를 적용합니다. 소유자 null·타인 글은 404, DB 조회 오류는 삭제를 중단합니다. 모든 해당 API 응답은 `private, no-store`입니다.
+- 상세 화면에도 서버 권한 게이트를 넣고 인증 없는 SDK 직접 조회를 제거했습니다. 공통 카테고리 변경은 `/api/categories`에서 실제 `profiles.is_admin`을 확인하며 일반 회원 화면은 읽기만 가능합니다. 권한 조회는 관리자 클라이언트, 서버 키 미설정 시 공개 키 폴백 없음. RLS 해제 오류 안내 제거.
+- 검수: `npm run test:security` 39개 통과, `npm run build` 타입 포함 통과, `node scripts/check-security-lint.cjs` 신규 오류 0건(변경 파일의 기존 오류 7건·경고 3건 유지). 로컬 API GET 두 곳 비로그인 401+no-store, 상세 화면 307→auth 확인. 유료 호출·실제 회원 데이터 변경 없음.
+- Google Fonts 네트워크 제한으로 최종 빌드가 실패해 저장소의 Geist 글꼴을 이 폴더에 복사하고 `next/font/local`로 변경했습니다. 이후 빌드 성공. 폰트 라이선스 포함.
+- **승인 전 운영 RLS 변경 금지:** `supabase/security/blog-access-hardening.proposed.sql`은 검토안이며 미적용입니다. 현재 7개 blog 테이블의 공개/공통 쓰기 정책이 살아 있습니다. `before-blog-access.json`은 변경 전 정책·권한 기록입니다. 글 20건(소유자 없는 7건), 카테고리 10건을 그대로 보존합니다. 댓글·좋아요는 현재 0건이며 익명 입력을 차단하는 안입니다.
+- 릴리스 다음 순서: 커밋·푸시 → BLOG 프로덕션 배포 → 승인된 RLS 적용·실제 회원 검수 → `release-v1.38.sql` 버전 3칸 갱신 → 루트 `node scripts/check-extension-release.mjs ai-auto-blog`. 승인 후 CLI로 마이그레이션 파일을 생성해 이 프로젝트 `supabase/migrations/`에 기록합니다(이번 세션에는 Supabase CLI가 없고 설치도 네트워크 제한으로 실패해 SQL 검토안만 작성).
+- 배포 도구는 `requires approval / approval policy is never`로 타로 키 반영 재배포를 거부했습니다. 보안 완료 선언 금지. 전체 기록: `docs/SECURITY_REVIEW_2026-10-10.md`.
 
 # 이미지 생성 로직 (2026-09-30 개편, 프로그램 버전 v1.03)
 

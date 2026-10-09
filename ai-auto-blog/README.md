@@ -1,11 +1,17 @@
-# DevFlow 블로그 (`AIMaster_dev` 통합 DB 사용)
+# BLOG(원문)생성 자동화 — AIMaster 통합 DB 사용
 
-DevFlow는 `AIMaster_dev` 프로젝트 가이드에 따라 개발된 블로그 프로그램입니다.
-통합 Supabase 데이터베이스(`AIMaster_dev`) 환경에서 `blog_` 접두사가 부여된 데이터베이스 개체를 공유하여 동작합니다.
+AIMaster 공용 Supabase(`esgxyikcnnvmlhygjkth`)에서 회원 본인의 글·작성자·API 키를 사용합니다.
+공통 카테고리 변경은 관리자만 가능합니다. 라이브: https://ai-auto-blog-one.vercel.app.
+
+2026-10-10 보안 수정은 **v1.38 로컬 준비 상태**이며 운영 DB·라이브는 v1.37입니다.
+로그인·이용 권한·소유권 검사, 인증 없는 글 조회 제거, 관리자 카테고리 API,
+서비스 키 폴백 제거를 구현했습니다. 빌드·39개 보안 검사 통과.
+운영 RLS 적용·배포·옛 서비스 키 폐기는 미완료입니다.
+다음 작업자는 [보안 검토 기록](docs/SECURITY_REVIEW_2026-10-10.md)을 먼저 확인합니다.
 
 ## 실행 방법 (Getting Started)
 
-1. **환경 변수 구성**: `.env.local` 파일에 Supabase `AIMaster_dev` 프로젝트의 URL과 Key 입력
+1. **환경 변수 구성**: `.env.local` 파일에 AIMaster 공용 Supabase 연결 설정을 등록합니다. 서버 서비스 키는 서버 환경변수로만 관리합니다.
 2. **개발 서버 실행**:
 
 ```bash
@@ -26,4 +32,3 @@ npm run dev
   - `ai-auto-blog/app/posts/[id]/page.tsx`에 **Client-side Event Delegation** 적용 (`handleContentClick`).
   - 클릭된 요소가 복사 버튼인 경우 다중 DOM 트래버스(Sibling -> Parent -> Following DOM Node)로 프롬프트 구문(`code`)을 탐색하여 복사 후 `✓ 복사완료!` 피드백 노출.
   - 상세 내용은 루트 `docs/PLATFORM_PATTERNS.md` §26 참조.
-

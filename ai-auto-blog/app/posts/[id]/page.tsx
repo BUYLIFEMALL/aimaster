@@ -247,96 +247,24 @@ export default function PostDetailPage() {
     try {
       setLoading(true)
 
-      // 1차: Supabase Client SDK로 포스트 데이터 로드 (2.5초 타임아웃 래퍼로 무한 펜딩 100% 방지)
-      let postData: any = null
-      try {
-        const queryPromise = supabase
-          .from('blog_posts')
-          .select('*')
-          .eq('id', postId)
-          .maybeSingle()
-
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('TIMEOUT')), 2500)
-        )
-
-        const result: any = await Promise.race([queryPromise, timeoutPromise])
-        if (result && result.data && !result.error) {
-          postData = result.data
-        }
-      } catch (e) {
-        console.warn('[FetchPost] Supabase client query delayed or failed, trying REST API fallback')
-      }
-
-      // 2차: REST API 백엔드(/api/posts/[id]) 폴백 로드
-      if (!postData) {
-        try {
-          const apiRes = await fetch(`/api/posts/${postId}`)
-          if (apiRes.ok) {
-            const apiJson = await apiRes.json()
-            if (apiJson.success && apiJson.data) {
-              const d = apiJson.data
-              postData = {
-                id: d.id,
-                title: d.title,
-                excerpt: d.excerpt,
-                content: d.content,
-                reading_minutes: d.reading_minutes,
-                published_at: d.published_at || d.created_at,
-                author_id: d.blog_authors?.id || 1,
-              }
-
-              if (d.blog_authors) {
-                setAuthor(d.blog_authors)
-              }
-
-              if (d.blog_post_categories && Array.isArray(d.blog_post_categories)) {
-                const cats = d.blog_post_categories
-                  .map((pc: any) => pc.blog_categories)
-                  .filter(Boolean)
-                setCategories(cats)
-              }
-            }
-          }
-        } catch (apiErr) {
-          console.error('[FetchPost] REST API fallback failed:', apiErr)
-        }
-      }
-
-      if (!postData) {
+      // 로그인·이용 권한·소유자를 확인하는 API를 편집 화면과 함께 사용합니다.
+      const apiRes = await fetch(`/api/posts/${postId}`, { cache: 'no-store' })
+      if (!apiRes.ok) {
+        setPost(null)
         setNotFound(true)
         return
       }
-
-      setPost(postData)
-
-      // 저자 정보 로드 (REST API에서 안 가져온 경우)
-      if (postData.author_id) {
-        try {
-          const { data: authorData } = await supabase
-            .from('blog_authors')
-            .select('*')
-            .eq('id', postData.author_id)
-            .maybeSingle()
-          if (authorData) setAuthor(authorData)
-        } catch (e) {}
+      const apiJson = await apiRes.json()
+      if (!apiJson.success || !apiJson.data) {
+        setPost(null)
+        setNotFound(true)
+        return
       }
-
-      // 카테고리 정보 로드
-      try {
-        const { data: pcData } = await supabase
-          .from('blog_post_categories')
-          .select('category_id')
-          .eq('post_id', postId)
-        const catIds = pcData?.map((r: any) => r.category_id) ?? []
-        if (catIds.length > 0) {
-          const { data: catsData } = await supabase
-            .from('blog_categories')
-            .select('*')
-            .in('id', catIds)
-          if (catsData) setCategories(catsData)
-        }
-      } catch (e) {}
+      const d = apiJson.data
+      setPost({ ...d, published_at: d.published_at || d.created_at, author_id: d.blog_authors?.id })
+      setAuthor(d.blog_authors ?? null)
+      setCategories((d.blog_post_categories ?? []).map((pc: { blog_categories: Category | null }) => pc.blog_categories).filter(Boolean))
+      setNotFound(false)
 
     } catch (err) {
       console.error('[FetchPost Error]:', err)
@@ -344,7 +272,7 @@ export default function PostDetailPage() {
     } finally {
       setLoading(false)
     }
-  }, [supabase, postId])
+  }, [postId])
 
   useEffect(() => {
     if (postId && !isNaN(postId)) {

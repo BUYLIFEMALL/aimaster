@@ -335,8 +335,7 @@ export async function POST(request: NextRequest) {
     if (saveResult.error || !saveResult.post) {
       return NextResponse.json(
         {
-          error: `게시글 DB 저장 오류: ${saveResult.error}. Supabase 대시보드에서 RLS 해제(ALTER TABLE blog_posts DISABLE ROW LEVEL SECURITY;)가 필요할 수 있습니다.`,
-          details: saveResult.details,
+          error: '게시글 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.',
         },
         { status: 500 }
       )
