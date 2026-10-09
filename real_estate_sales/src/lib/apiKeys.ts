@@ -9,14 +9,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   perplexity: "Perplexity (시세/입지 리서치)",
 };
 
-// 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
-const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
-  openai: process.env.OPENAI_API_KEY,
-  anthropic: process.env.ANTHROPIC_API_KEY,
-  gemini: process.env.GEMINI_API_KEY,
-  perplexity: process.env.PERPLEXITY_API_KEY,
-};
-
 export async function getUserApiKey(
   supabase: SupabaseClient<Database>,
   userId: string,
@@ -32,36 +24,16 @@ export async function getUserApiKey(
   return data?.api_key ?? null;
 }
 
-/** 본인 키가 등록돼 있으면 그 키를, 없으면 앱 공용 키로 폴백한다. 기본적으로 본인 키를 우선한다. */
+/**
+ * 로그인한 회원 본인이 등록한 키만 돌려준다. 없으면 null — 운영자·다른 회원 키로 대신하지 않는다
+ * (최상위 규칙 docs/TOP_RULE_PERSONAL_ACCOUNT_API.md). 2026-10-09 앱 공용 환경변수 폴백 삭제.
+ */
 export async function resolveApiKey(
   supabase: SupabaseClient<Database>,
   userId: string,
   provider: ApiKeyProvider,
 ): Promise<string | null> {
-  const ownKey = await getUserApiKey(supabase, userId, provider);
-  return ownKey || FALLBACK_ENV_KEYS[provider] || null;
-}
-
-export interface ResolvedApiKey {
-  key: string | null;
-  /** true면 사용자 본인이 등록한 키, false면 앱 공용 폴백 키를 쓴 것. */
-  isOwnKey: boolean;
-}
-
-/**
- * resolveApiKey와 동일하지만, 반환된 키가 본인 키인지 앱 폴백 키인지도 함께 알려준다.
- * 폴백 키를 쓴 경우엔 같은 입력(매물+모델)에 대한 AI 분석 결과를 사용자 간에 공유해서
- * 캐싱할 수 있어 앱 공용 키 비용을 아낄 수 있다 — real_estate_sales의
- * runListingAnalysis에서 사용.
- */
-export async function resolveApiKeyWithSource(
-  supabase: SupabaseClient<Database>,
-  userId: string,
-  provider: ApiKeyProvider,
-): Promise<ResolvedApiKey> {
-  const ownKey = await getUserApiKey(supabase, userId, provider);
-  if (ownKey) return { key: ownKey, isOwnKey: true };
-  return { key: FALLBACK_ENV_KEYS[provider] ?? null, isOwnKey: false };
+  return getUserApiKey(supabase, userId, provider);
 }
 
 export async function getRegisteredProviders(

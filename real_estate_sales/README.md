@@ -179,7 +179,6 @@ npm run dev
 | `VWORLD_API_KEY` | VWorld 공동주택 공시가격 API 키 (앱 공용) |
 | `VWORLD_REGISTERED_DOMAIN` | (선택) VWorld 키에 등록된 도메인. 미설정 시 `n8n.buylife.xyz`(과거 n8n 서버 도메인) 사용. VWorld 개발자 포털에서 도메인을 실제 서비스 도메인으로 바꾸면 이 값도 같이 바꿔야 함 — [자세한 내용](#vworld-api-키-도메인-등록-주의) |
 | `N8N_VWORLD_PROXY_URL` / `N8N_VWORLD_PROXY_TOKEN` | icn1 직접 호출이 막힐 경우의 폴백(현재 코드에서는 미사용, 참고용) |
-| `OPENAI_API_KEY` / `PERPLEXITY_API_KEY` | 사용자가 개인 키를 등록하지 않았을 때의 앱 기본 폴백 키 |
 | `CRON_SECRET` | `/api/collect/dispatch` 보호용 임의의 긴 문자열 |
 | `NEXT_PUBLIC_SITE_URL` / `NEXT_PUBLIC_MAIN_SITE_URL` | 배포 도메인 / AIMaster 메인 사이트 |
 
