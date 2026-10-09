@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
 
 export async function middleware(request: NextRequest) {
   // blog처럼 루트 앱 라우트에 내장되는 서브프로젝트는 자기 페이지에서 로그인이 필요할 때
@@ -9,6 +10,8 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-pathname", request.nextUrl.pathname + request.nextUrl.search);
 
   let supabaseResponse = NextResponse.next({ request: { headers: requestHeaders } });
+
+  const cookieDomain = cookieDomainForHost(request.headers.get("x-forwarded-host") ?? request.headers.get("host"));
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,7 +27,7 @@ export async function middleware(request: NextRequest) {
           );
           supabaseResponse = NextResponse.next({ request: { headers: requestHeaders } });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options)
           );
         },
       },
@@ -107,6 +110,16 @@ export async function middleware(request: NextRequest) {
     if (!isSessionExpired) {
       return NextResponse.redirect(new URL("/", request.url));
     }
+  }
+
+  // 쿠키 도메인을 .buylife.xyz 로 바꾸기 전에 www 에서만 쓰이던 옛 로그인 쿠키(호스트 전용)가 남아 있으면
+  // 새 쿠키와 이름이 같아 옛 값이 먼저 읽히므로, 한 번 만료시켜 정리한다(도메인 쿠키는 영향 없음).
+  if (cookieDomain) {
+    request.cookies.getAll().forEach(({ name }) => {
+      if (name.startsWith("sb-")) {
+        supabaseResponse.headers.append("set-cookie", `${name}=; Max-Age=0; Path=/`);
+      }
+    });
   }
 
   return supabaseResponse;

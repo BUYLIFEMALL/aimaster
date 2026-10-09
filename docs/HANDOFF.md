@@ -2007,3 +2007,7 @@
 - 2026-10-10 루트: `/login?redirect=/dashboard`(대시보드 북마크·옛 링크 경유)로 들어와도 로그인 후 `/`(메인 홈)로 이동하도록 LoginForm에서 `/dashboard` redirect 값을 무시. 그 외 redirect(예: /admin, /affiliate)는 기존대로 유지.
 - 2026-10-10 `shots` v1.05: 로그인 화면 제목 두 줄 표기("YOUTUBE Shots 자동화" / "(이미지 스토리)"). 사이드바 제목은 그대로.
 - 2026-10-10 `real_estate_sales` v1.06: 작업 화면 흰색 베이스 통일 + 좌측 메뉴 제목 "부동산 투자분석 자동화"로 단축(globals.css 토큰 재매핑 + 클래스 치환). 로그인 화면은 원래 흰색이라 그대로.
+- 2026-10-10 **전 프로그램 로그인 공유(SSO) 진행 중 — A방식(주소 통일)**: 프로그램마다 주소(vercel.app)가 달라 쿠키가 공유되지 않아 프로그램마다 다시 로그인하던 문제. 해결: 모든 프로그램을 `<이름>.buylife.xyz` 로 열고 Supabase 로그인 쿠키 도메인을 `.buylife.xyz` 로 공유.
+  - 코드 패턴(프로그램마다 3곳): `lib/supabase/cookieDomain.ts`(host 가 buylife.xyz 계열일 때만 `.buylife.xyz`, 그 외 undefined — vercel.app 에서는 기존 그대로) + 브라우저 client `cookieOptions.domain` + server client/미들웨어(proxy) 의 `setAll` 에서 `domain` 지정. 루트 `middleware.ts` 는 www 의 옛 호스트 전용 `sb-*` 쿠키를 만료시키는 정리 포함.
+  - 선행 작업(주인님): Cloudflare DNS 에 `*` CNAME → `cname.vercel-dns.com`(프록시 끔/DNS only). 그 뒤 프로그램별 `vercel domains add <이름>.buylife.xyz` + `programs.app_url` 갱신.
+  - 파일럿: 루트(v 없음) + `shots` v1.06 코드 반영. 나머지 프로그램은 파일럿 검증(주소 이동 후 로그인 공유 확인) 뒤 순서대로 진행. **OAuth 리디렉트 URI(회원이 본인 Meta/Google 앱에 등록한 주소)는 옛 vercel.app 주소 기준이므로 옛 주소는 계속 유지한다 — 새 주소만 추가.**
