@@ -38,6 +38,7 @@ import { sanitizeYear } from "@/lib/yearPolicy";
 import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate, CollectorCategory } from "@/types/collector";
 import { useContentCategories } from "@/hooks/useContentCategories";
+import { buildEditedPostPatch } from "@/lib/editedPostSave";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import {
@@ -673,7 +674,7 @@ export default function MainPage() {
   };
 
   // 스마트 에디터에서 편집 완료 시 호출되는 핸들러
-  const handleSaveEditedContent = (updated: {
+  const handleSaveEditedContent = async (updated: {
     title: string;
     content: string;
     excerpt: string;
@@ -682,18 +683,67 @@ export default function MainPage() {
     isHtml: boolean;
   }) => {
     if (!result) return;
-    setResult({
+    const nextResult = {
       ...result,
       title: updated.title,
       content: updated.content,
       excerpt: updated.excerpt,
       tags: updated.tags,
       category: updated.category || result.category,
-    });
+    };
+    setResult(nextResult);
     if (updated.category) {
       setCategory(updated.category);
     }
-    alert("스마트 에디터에서 편집된 원고가 본문에 성공적으로 적용되었습니다!");
+
+    // 편집 내용을 보관함에도 바로 저장한다(저장 버튼을 따로 누르지 않아도 수정본이 남는다).
+    let saved = false;
+    const patch = buildEditedPostPatch(currentPostId, {
+      title: nextResult.title,
+      content: nextResult.content,
+      category: nextResult.category,
+      tags: nextResult.tags,
+    });
+    if (patch) {
+      // 서버에 이미 있는 글: 내용만 고치고 상태(대기/발행)는 그대로 둔다.
+      try {
+        const cached: any[] = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
+        localStorage.setItem(
+          "nba_saved_posts",
+          JSON.stringify(
+            cached.map((p) =>
+              p.id === patch.id
+                ? { ...p, title: patch.title, content: patch.content, tags: patch.tags, category_name: patch.category_name ?? p.category_name }
+                : p
+            )
+          )
+        );
+      } catch {}
+      try {
+        const res = await fetch("/api/posts", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patch),
+        });
+        saved = res.ok;
+      } catch {
+        saved = false;
+      }
+    } else {
+      // 서버에 아직 저장되지 않은 글: 새로 보관함에 저장한다.
+      await savePostToStorage(
+        currentPostId || "post-" + Date.now(),
+        nextResult,
+        generatedImages.length > 0 ? generatedImages : nextResult.images || [],
+        "draft"
+      );
+      saved = true;
+    }
+    alert(
+      saved
+        ? "편집한 원고가 본문에 적용되고 보관함에도 저장되었습니다."
+        : "편집한 원고가 화면에는 적용되었지만 보관함 저장에 실패했습니다. 오른쪽 위 [보관함 저장]을 눌러 주세요."
+    );
   };
 
   // 스마트에디터 본문 인라인 렌더링 헬퍼 (소제목 서식화 및 [IMAGE INSERT] 실제 이미지 치환)
