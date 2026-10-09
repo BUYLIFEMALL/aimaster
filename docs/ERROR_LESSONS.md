@@ -6,6 +6,13 @@
 - 해결: `lib/email/guard.ts`·`guardStore.ts`·`platform_email_log`로 쿨다운 30분, 중복 10분, 수신자·전체 일일 상한, 형식·길이 검사. 상세는 `docs/HANDOFF.md` 같은 날짜 항목.
 - 다음부터 확인: 외부 메일/문자/알림을 보내는 코드는 ① 한도·인증 오류 시 **연달아 재시도하지 않는지** ② 같은 내용 중복 발송 방지가 있는지 ③ **공개(비로그인) 입구가 임의 수신자에게 보낼 수 있는지**(수신자를 입력받는 공개 API 금지·상한 필수) ④ 하루 상한이 있는지 본다. 재시도는 Gmail 같은 제한 서비스에서 제한 시간을 더 늘린다.
 
+## 2026-10-09 — 서비스 키가 공개 저장소에 올라가 있었다 → 전체 교체 진행 중 (ai-image-studio 발견, 공용 키 28곳)
+
+- 사실: `ai-image-studio/lib/supabase/server.ts`(2026-09-23 커밋 `22f46e41`)에 Supabase 서비스(비밀) 키가 base64로 박혀 있었고 **저장소 `BUYLIFEMALL/aimaster`는 공개(PUBLIC)** 다. 로그인 없이 `raw.githubusercontent.com`에서 받아 확인했다(같은 값이 `docs/PLATFORM_PATTERNS.md`에도 있었음). 이 키는 루트·`naver-blog-agent`·`kakao_auto_poster`·`tarot`·`threads` 등 **프로젝트 약 28곳이 같이 쓰는 공용 키**(Supabase 대시보드 이름 `aimaster`, 앞부분 `sb_secret_uRX6U`)다. 실제로 악용됐다는 증거는 없으나 확인할 방법도 없어 **노출된 비밀로 취급**한다. 다른 종류의 키(OpenAI·구글·퍼플렉시티·GitHub 등)는 저장소 전체 검사에서 발견되지 않았다.
+- 진행(주인님 새 키 발급 완료, 2026-10-09 `aimaster-2026-10`): ① `scripts/rotate-supabase-service-key.mjs --dry-run`으로 대상 확인 ② `--only <프로젝트>`로 한 곳 시험 → 재배포·동작 확인 ③ 전체 실행(키는 저장소 밖 `C:/Users/Administrator/new-supabase-key.txt`에서 읽고 화면에 출력하지 않으며, Vercel 환경변수·로컬 `.env.local`만 교체) ④ 프로젝트별 `vercel redeploy`(환경변수는 새 배포부터 적용) ⑤ 모두 정상일 때 **옛 키 폐기** ⑥ `ai-image-studio` 소스의 박힌 키(`DEFAULT_SERVICE_ROLE_KEY`)와 `scripts/test-flux-pipeline.mjs`, `docs/PLATFORM_PATTERNS.md`의 인코딩 값 삭제(깃 이력에는 남으므로 교체·폐기가 본질) ⑦ 새 키 파일 삭제.
+- 다음부터 확인: 코드·문서·스크립트에 비밀 키를 **base64로라도** 넣지 않는다(인코딩은 보호가 아님). 환경변수가 없으면 시작을 실패시키고 기본값을 두지 않는다. **저장소가 공개인지**(`gh repo view --json visibility`) 먼저 확인하고, 공개 저장소에는 키·토큰·비밀번호를 어떤 형태로도 올리지 않는다. 키 교체는 새 키 추가 → 전 프로젝트 반영·재배포 → 옛 키 폐기 순서(옛 키를 먼저 지우면 공용 키를 쓰는 모든 프로그램이 멈춤).
+- 열려 있는 결정: 저장소 비공개 전환(GitHub 릴리스 주소로 배포하는 `naver-blog-auto-poster-web` 확장 ZIP 다운로드가 끊길 수 있어 대체 경로 마련 후 검토).
+
 ## 2026-10-09 — 취약한 코드가 살아 있는 동안 쓰기 API로 "막혔는지" 확인하면 그 요청이 실제로 실행된다 / 운영 주소가 새 배포를 안 가리킬 수 있다 (ai-image-studio v1.06)
 
 - 증상: v1.06 배포 후 배포 상태가 Ready라서 곧바로 `POST /api/prompts/seed`(비로그인)로 401을 기대하고 확인했더니 200이 나왔고, 공유 표 `style_preset_prompts`에 시드 160행이 실제로 들어갔다(점검 전에는 빈 표, 모두 같은 시각 `2026-10-09 03:52:55 UTC`).
