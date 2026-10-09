@@ -1,6 +1,8 @@
 "use server";
 
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
+import { createClient } from "@/lib/supabase/server";
+import { resolveApiKey } from "@/lib/apiKeys";
 import { fetchSearchTrend, type TrendKeywordGroup, type TrendResultGroup, type TrendTimeUnit } from "@/lib/naver/trend";
 import { buildCacheKey, getCachedTrend, saveCachedTrend } from "@/lib/naver/trendCache";
 
@@ -15,17 +17,23 @@ function toDateStr(d: Date) {
 }
 
 /**
- * 네이버 검색어트렌드는 회원 개인 데이터가 아니라 공개 시장 데이터라(누가 조회하든 결과 동일),
- * 회원 각자 네이버 앱을 등록하게 하지 않고 AIMaster(사장님) 계정의 공용 키
- * (NAVER_TREND_CLIENT_ID/SECRET 환경변수, NAVER API HUB에서 발급)로 조회한 뒤 캐시(24시간)를
- * 거쳐 전체 회원에게 제공한다. 이렇게 하면 회원 수가 늘어도 실제 API 호출량은 "하루에 새로
- * 묻는 키워드 조합 수"로만 늘어난다.
+ * 네이버 검색어트렌드: 회원 본인이 등록한 네이버 Client ID/Secret으로만 조회한다(운영자 공용 키 없음 — 최상위 규칙).
+ * 결과는 공개 시장 데이터라 24시간 캐시를 공유하지만, 캐시를 읽기 전에도 본인 키 등록을 먼저 확인한다.
  */
 export async function fetchTrendAction(
   groups: TrendKeywordGroup[],
   periodMonths: 1 | 3 | 6,
 ): Promise<FetchTrendState> {
   const user = await requireProgramAccess();
+
+  const supabase = await createClient();
+  const [clientId, clientSecret] = await Promise.all([
+    resolveApiKey(supabase, user.id, "naver_client_id"),
+    resolveApiKey(supabase, user.id, "naver_client_secret"),
+  ]);
+  if (!clientId || !clientSecret) {
+    return { error: "네이버 API 키가 없습니다. API키등록·플랫폼연동에서 본인 네이버 Client ID/Secret을 등록해주세요." };
+  }
 
   const cleaned = groups
     .map((g) => ({
@@ -46,12 +54,6 @@ export async function fetchTrendAction(
   if (cached) {
     await logProgramUsage({ userId: user.id, action: "fetch_naver_trend_cached" });
     return { results: cached, fromCache: true };
-  }
-
-  const clientId = process.env.NAVER_TREND_CLIENT_ID;
-  const clientSecret = process.env.NAVER_TREND_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    return { error: "네이버 트렌드 조회용 공용 API 키가 아직 설정되지 않았습니다. 관리자에게 문의해주세요." };
   }
 
   const end = new Date();

@@ -9,6 +9,8 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   replicate: "Replicate (FLUX 2.0 / Z-Image 고화질 AI 이미지 생성)",
   threads_app_id: "Threads 앱 ID (Meta 앱 설정 > 기본 설정 하단의 Threads 앱 ID — 맨 위 '앱 ID' 아님)",
   threads_app_secret: "Threads 앱 시크릿 코드 (기본 설정 하단의 Threads 앱 시크릿 코드)",
+  naver_client_id: "네이버 Client ID (네이버 개발자센터 애플리케이션 — 검색·데이터랩 API 사용 설정)",
+  naver_client_secret: "네이버 Client Secret (같은 애플리케이션의 Client Secret)",
   coupang_access_key: "쿠팡파트너스 Access Key (상품검색/딥링크 생성)",
   coupang_secret_key: "쿠팡파트너스 Secret Key (상품검색/딥링크 생성)",
   aliexpress_app_key: "알리익스프레스 App Key (제휴 링크 생성)",

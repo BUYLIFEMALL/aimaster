@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:naver-key": "node scripts/test-naver-own-key.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

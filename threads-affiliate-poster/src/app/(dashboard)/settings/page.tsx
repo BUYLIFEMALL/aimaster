@@ -24,6 +24,7 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
 
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "anthropic", "replicate"];
 const META_PROVIDERS: ApiKeyProvider[] = ["threads_app_id", "threads_app_secret"];
+const NAVER_PROVIDERS: ApiKeyProvider[] = ["naver_client_id", "naver_client_secret"];
 const COUPANG_PROVIDERS: ApiKeyProvider[] = ["coupang_access_key", "coupang_secret_key"];
 const ALIEXPRESS_PROVIDERS: ApiKeyProvider[] = [
   "aliexpress_app_key",
@@ -163,6 +164,28 @@ export default async function SettingsPage({
         </div>
         <div className="space-y-3">
           {AI_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🔎 네이버 검색·데이터랩 (트렌드/시장 조사)</h2>
+          <p className="text-xs text-neutral-500">
+            <a href="https://developers.naver.com" target="_blank" rel="noreferrer" className="underline">
+              developers.naver.com
+            </a>
+            에서 애플리케이션을 만들고 &quot;검색&quot;과 &quot;데이터랩(검색어트렌드)&quot; API를 사용 설정한 뒤 발급받은 Client ID/Secret을 등록해주세요. 본인 키로만 조회됩니다.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {NAVER_PROVIDERS.map((provider) => (
             <ApiKeyRow
               key={provider}
               provider={provider}

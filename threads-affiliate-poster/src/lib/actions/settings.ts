@@ -15,6 +15,8 @@ const VALID_PROVIDERS: ApiKeyProvider[] = [
   "gemini",
   "threads_app_id",
   "threads_app_secret",
+  "naver_client_id",
+  "naver_client_secret",
   "coupang_access_key",
   "coupang_secret_key",
   "aliexpress_app_key",

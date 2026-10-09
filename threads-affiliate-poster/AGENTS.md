@@ -424,3 +424,10 @@ vercel deploy --prod --yes
       - `products/page.tsx`: `listUserDetailPages` 조회 제거, 사용방법의 "AI 소구점 분석" 항목 삭제. `guide/page.tsx`: 등록 방식 2종/분석 6단계 안내 삭제 후 번호 재정렬.
     - **남겨둔 것(의도적)**: 서버쪽 `parseEnrichmentFields`/`analyzeProductImagesAction`/`productAnalyzer.ts`/`detailPages.ts`와 `EnrichmentFields.tsx` 파일은 호출처만 사라진 미사용 코드다. 기존에 `input_mode='manual'`로 등록된 상품의 `detailPageExcerpt` 반영(`affiliateGenerator.ts`)이 계속 동작해야 해서 지우지 않았다. 완전 삭제하려면 주인님 승인 후 별도 작업.
     - 버전 v1.48: `version.ts`, DB `programs.version`, 마이그레이션 `0008_bump_version_v1_48.sql`.
+
+35. **네이버 트렌드·시장 조사를 회원 본인 네이버 API 키로 전환 (2026-10-09, v1.49)**: 최상위 규칙(docs/TOP_RULE_PERSONAL_ACCOUNT_API.md) 위반 수정.
+    - 이전: 운영자 하나의 `NAVER_TREND_CLIENT_ID/SECRET` 환경변수를 모든 회원이 공유 → 운영자 키 한도·책임이 회원 전체에 퍼짐.
+    - 이후: `fetchTrendAction`/`fetchMarketResearchAction`이 `user_api_keys`의 본인 `naver_client_id`/`naver_client_secret`만 사용(없으면 "API키등록·플랫폼연동에서 등록" 안내). 결과 캐시(공개 시장 데이터)는 유지하되 캐시 읽기 전에 본인 키 등록을 먼저 확인.
+    - 화면: API키등록·플랫폼연동에 "네이버 검색·데이터랩" 입력 칸 추가. DB provider 제약에는 이미 `naver_client_id/secret`이 있어 스키마 변경 없음.
+    - 시험: `npm run test:naver-key`. 버전 v1.49: `version.ts`, DB `programs.version`, 마이그레이션 `0009_bump_version_v1_49.sql`.
+    - 남은 일: Vercel 환경변수 `NAVER_TREND_CLIENT_ID/SECRET`(이제 코드가 안 읽음) 삭제.

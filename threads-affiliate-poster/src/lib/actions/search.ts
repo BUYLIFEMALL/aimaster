@@ -1,6 +1,8 @@
 "use server";
 
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
+import { createClient } from "@/lib/supabase/server";
+import { resolveApiKey } from "@/lib/apiKeys";
 import { searchNaver, type NaverSearchItem, type NaverSearchType } from "@/lib/naver/search";
 import { getCachedSearch, saveCachedSearch } from "@/lib/naver/searchCache";
 
@@ -19,10 +21,8 @@ const TYPES: { type: NaverSearchType; key: "news" | "blog" | "cafe" }[] = [
 ];
 
 /**
- * 뉴스·블로그·카페글 검색도 트렌드와 마찬가지로 공개 데이터라, 회원 개인 키 대신
- * AIMaster 공용 키(NAVER_TREND_CLIENT_ID/SECRET — 트렌드와 같은 앱, 같은 자격증명)로
- * 조회하고 12시간 캐시한다. "이 키워드에 대해 사람들이 뭐라고 하는지" 시장 반응을
- * 상품 소싱 전에 훑어보는 용도.
+ * 뉴스·블로그·카페글 검색: 회원 본인이 등록한 네이버 Client ID/Secret으로만 조회한다(운영자 공용 키 없음).
+ * 결과는 공개 데이터라 12시간 캐시를 공유한다. "이 키워드에 대해 사람들이 뭐라고 하는지" 시장 반응 확인용.
  */
 export async function fetchMarketResearchAction(query: string): Promise<MarketResearchState> {
   const user = await requireProgramAccess();
@@ -32,8 +32,14 @@ export async function fetchMarketResearchAction(query: string): Promise<MarketRe
     return { error: "검색할 키워드를 입력해주세요." };
   }
 
-  const clientId = process.env.NAVER_TREND_CLIENT_ID;
-  const clientSecret = process.env.NAVER_TREND_CLIENT_SECRET;
+  const supabase = await createClient();
+  const [clientId, clientSecret] = await Promise.all([
+    resolveApiKey(supabase, user.id, "naver_client_id"),
+    resolveApiKey(supabase, user.id, "naver_client_secret"),
+  ]);
+  if (!clientId || !clientSecret) {
+    return { error: "네이버 API 키가 없습니다. API키등록·플랫폼연동에서 본인 네이버 Client ID/Secret을 등록해주세요." };
+  }
 
   const results: Partial<Record<"news" | "blog" | "cafe", NaverSearchItem[]>> = {};
   let anyFresh = false;
@@ -43,10 +49,6 @@ export async function fetchMarketResearchAction(query: string): Promise<MarketRe
     if (cached) {
       results[key] = cached;
       continue;
-    }
-
-    if (!clientId || !clientSecret) {
-      return { error: "네이버 검색용 공용 API 키가 아직 설정되지 않았습니다. 관리자에게 문의해주세요." };
     }
 
     try {
