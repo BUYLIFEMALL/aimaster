@@ -12,7 +12,7 @@
 | 1 | **게시글 주제 수집** (`/candidates`) | HTTP(URL 지정) / RSS(NewsBlur) / Perplexity(트렌드 검색) 중 하나로 게시글 주제(제목·캡션·해시태그·키워드) 자동 수집 |
 | 2 | **게시글 작성** (`/posts/new`, `/posts/[id]/edit`) | 주제만 주면 AI가 인스타그램 톤(반말, 450자 이내)으로 캡션+해시태그를 생성하고, 나노바나나(Gemini)로 1:1 이미지까지 함께 생성 |
 | 3 | **게시글 관리** (`/posts`) | 임시저장/예약/즉시 게시 관리, 실패 시 재시도 |
-| 4 | **인스타그램 계정 연결** (`/accounts`) | 기본(Facebook 로그인, 운영자 공용 앱)으로 바로 연결하거나, 안 될 경우 대체(Instagram Login, 본인 Meta 앱 App ID/Secret)로 연결. 두 방식 병행 지원 (2026-09-07 변경, 아래 참고) |
+| 4 | **인스타그램 계정 연결** (`/accounts`) | 회원 본인 Meta 앱(App ID/Secret)을 먼저 등록한 뒤 Facebook 로그인 방식 또는 Instagram Login 방식으로 연결. 두 방식 모두 본인 앱만 사용(2026-10-09 v1.04: 운영자 공용 앱 제거) |
 | 5 | **API 키 설정 / API 키 등록 및 연동** (`/settings`) | 본인 OpenAI/Gemini/Perplexity API 키 등록(필수) + 인스타그램 대체 연결용 Meta App ID/Secret 등록(선택, 아래 "API 키 정책" 참고) |
 
 ## 설계 배경 / 왜 이렇게 만들었는가
@@ -303,3 +303,10 @@ Login(BYOK) 방식으로 전면 교체했었다 — buylife 소유 공용 앱이
   아직 실계정으로 전부 테스트하지 않았다. 특히 Facebook 로그인 방식이 운영자 외 계정에서도
   동작하는지(App Review 상태)는 확인된 바 없다 — 재배포 후 각 방식으로 처음 연결/게시할 때
   결과를 확인할 것.
+
+## 2026-10-09 v1.04 — 운영자 공용 Meta 앱 제거 (최상위 규칙)
+
+- `facebook_login`이 쓰던 운영자 공용 앱(`META_APP_ID/SECRET` 환경변수)을 없애고, 회원이 등록한 본인 `meta_app_id`/`meta_app_secret`으로 Facebook 로그인·토큰 교환을 한다(`src/lib/instagram/client.ts`는 appId/appSecret을 인자로 받음).
+- 앱이 없으면 연결 버튼이 보이지 않고, 서버 액션·콜백도 본인 키가 없으면 안내와 함께 중단한다. 본인 Meta 앱의 OAuth 리디렉션 URI에 `/api/instagram/callback`(Facebook 방식)과 `/api/instagram/callback/byok`(Instagram 방식)을 등록해야 한다.
+- 시험: `npm run test:own-meta`. 마이그레이션: `0007_bump_version_v1_04.sql`.
+- 남은 일: Vercel 환경변수 `META_APP_ID`·`META_APP_SECRET` 삭제(이제 코드가 안 읽음).

@@ -177,28 +177,32 @@ export default async function SettingsPage({
             ) : (
               <div>
                 <p className="mb-4 text-sm text-neutral-600">
-                  게시글을 자동으로 게시하려면 먼저 인스타그램 계정을 연결해야 합니다. 별도 설정 없이
-                  바로 아래 버튼으로 연결해보세요.
+                  게시글을 자동으로 게시하려면 먼저 위 &quot;API 키 등록 및 연동&quot;에서 본인 소유의
+                  Meta 앱(App ID/Secret)을 등록한 뒤, 인스타그램 계정을 연결해야 합니다.
                 </p>
-                <form action={connectInstagramAccountAction}>
-                  <input type="hidden" name="method" value="facebook_login" />
-                  <Button type="submit">인스타그램 계정 연결하기</Button>
-                </form>
-
-                <div className="mt-5 border-t border-neutral-200 pt-4">
-                  <p className="text-xs text-neutral-500">
-                    위 방법으로 연결이 안 되시나요? 바로 위 &quot;API 키 등록 및 연동&quot;에서 본인
-                    소유의 Meta 앱(API 키)을 등록하면 대신 연결할 수 있습니다.
-                  </p>
-                  {hasMetaKeys && (
-                    <form action={connectInstagramAccountAction} className="mt-3">
+                {hasMetaKeys ? (
+                  <div className="space-y-3">
+                    <form action={connectInstagramAccountAction}>
+                      <input type="hidden" name="method" value="facebook_login" />
+                      <Button type="submit">Facebook 페이지로 연결하기</Button>
+                    </form>
+                    <p className="text-xs text-neutral-500">
+                      Facebook 로그인 방식은 내 Meta 앱의 유효한 OAuth 리디렉션 URI에{" "}
+                      <code className="break-all rounded bg-neutral-100 px-1 py-0.5 text-neutral-800">
+                        {process.env.NEXT_PUBLIC_SITE_URL ?? "https://insta-auto-poster.vercel.app"}/api/instagram/callback
+                      </code>
+                      도 추가해야 합니다.
+                    </p>
+                    <form action={connectInstagramAccountAction}>
                       <input type="hidden" name="method" value="instagram_login" />
                       <Button type="submit" variant="secondary">
-                        API 키 방식으로 연결하기
+                        Instagram 로그인 방식으로 연결하기
                       </Button>
                     </form>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-neutral-500">Meta 앱 ID/Secret을 등록하면 연결 버튼이 나타납니다.</p>
+                )}
               </div>
             )}
           </div>

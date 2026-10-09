@@ -1,3 +1,4 @@
+import { resolveApiKey } from "@/lib/apiKeys";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccessApi } from "@/lib/access";
@@ -11,9 +12,7 @@ import { PENDING_INSTAGRAM_CONNECTION_COOKIE, type PendingInstagramConnection } 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// Facebook 로그인(운영자 공용 앱) 방식의 Instagram OAuth 콜백. 별도 설정 없이 바로 연결
-// 가능한 기본(1차) 연결 방법이다 — 이 방식으로 안 되는 회원은 /settings에서 API 키(BYOK)
-// 방식(/api/instagram/callback/byok)으로 대체 연결할 수 있다.
+// Facebook 로그인 방식의 Instagram OAuth 콜백. 회원 본인 Meta 앱(App ID/Secret)으로만 동작한다(운영자 공용 앱 없음).
 // Access Token은 여기서만 처리되고, 브라우저로는 절대 직접 전달되지 않습니다 (짧게 사는
 // httpOnly 쿠키에 담아 선택 화면으로만 넘깁니다).
 export async function GET(request: NextRequest) {
@@ -45,8 +44,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const shortLived = await exchangeFacebookCode(code);
-    const longLived = await exchangeForLongLivedFacebookToken(shortLived);
+    // 회원 본인 Meta 앱 키만 사용한다(운영자 공용 앱 없음).
+    const [appId, appSecret] = await Promise.all([
+      resolveApiKey(supabase, user.id, "meta_app_id"),
+      resolveApiKey(supabase, user.id, "meta_app_secret"),
+    ]);
+    if (!appId || !appSecret) {
+      return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
+    }
+    const shortLived = await exchangeFacebookCode(code, appId, appSecret);
+    const longLived = await exchangeForLongLivedFacebookToken(shortLived, appId, appSecret);
     const candidates = await findInstagramBusinessAccounts(longLived.accessToken);
 
     // Meta가 fb_exchange_token 응답에 expires_in을 안 주거나 이상한 값을 준 경우를 대비한 방어 코드.

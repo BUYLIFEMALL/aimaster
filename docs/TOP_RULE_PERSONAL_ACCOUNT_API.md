@@ -75,7 +75,7 @@ git grep -n -E "process\.env\.(OPENAI|GEMINI|ANTHROPIC|PERPLEXITY|REPLICATE|FAL)
 | `real_estate_sales` | `resolveApiKey()`가 본인 키가 없으면 **운영자 환경변수 키**(OpenAI·Claude·Gemini·퍼플렉시티)로 폴백, 폴백 사용 시 분석 결과를 회원 간 공유 캐시 | **수정 완료(v1.04)** — AI 키는 본인 것만. 단 매물 수집용 운영자 공공데이터 키는 주인님 결정 대기 |
 | `shots` | `resolveApiKey()`가 본인 키가 없으면 **운영자 환경변수 키**(OpenAI·Claude·Gemini·퍼플렉시티·Suno·JSON2Video·Google OAuth)로 폴백(`shots/AGENTS.md`에도 "없으면 앱 기본 키"라고 적혀 있음) | **수정 완료 2026-10-09 (shots v1.04)** — 폴백 삭제, 본인 키만. `npm run test:api-keys`. Vercel의 `OPENAI_API_KEY`·`GEMINI_API_KEY`·`META_APP_*`는 이제 안 쓰므로 주인님이 지워도 됨 |
 | `threads-affiliate-poster` | 네이버 검색·트렌드 조회가 운영자의 공용 키(`NAVER_TREND_CLIENT_ID/SECRET`)를 모든 회원이 공유 | **수정 완료 2026-10-09 (threads-affiliate-poster v1.49)** — 회원 본인 네이버 Client ID/Secret 등록·사용. `npm run test:naver-key`. Vercel `NAVER_TREND_*` 환경변수는 삭제 대상 |
-| `insta_auto_poster` | 인스타 연결 방식 `facebook_login`이 운영자 공용 Meta 앱(`META_APP_ID/SECRET`)으로 동작(개발 모드라 테스터 외에는 인증 거부). 본인 앱을 쓰는 `instagram_login` 방식은 이미 있음 | 주인님 결정 필요(기본 방식을 본인 앱 방식으로 일원화할지) |
+| `insta_auto_poster` | 인스타 연결 방식 `facebook_login`이 운영자 공용 Meta 앱(`META_APP_ID/SECRET`)으로 동작(개발 모드라 테스터 외에는 인증 거부). 본인 앱을 쓰는 `instagram_login` 방식은 이미 있음 | **수정 완료 2026-10-09 (insta_auto_poster v1.04)** — 두 연결 방식 모두 회원 본인 Meta 앱 사용. `npm run test:own-meta`. Vercel `META_APP_*`는 삭제 대상 |
 | (2026-10-09 전체 환경변수 점검) | 33개 Vercel 프로젝트 점검 결과: 운영자 키를 코드가 실제로 읽는 곳은 위 표의 `shots`(수정 완료)·`threads-affiliate-poster`·`insta_auto_poster`·`real_estate_sales`(공공데이터)·`blog_auto_poster`뿐. `threads`의 `OPENAI/GEMINI_API_KEY`·`THREADS_APP_*`, `kakao_auto_poster`·`naver-cafe-poster`의 앱 키는 환경변수만 남고 코드는 읽지 않음(정리 대상) | 해당 없음 |
 | `blog_auto_poster` | 환경변수 Gemini 키 사용(운영자용 예전 CLI 도구로 보이며 회원 서비스가 아님) | 확인 필요(회원 서비스가 아니면 이 규칙 대상 밖이므로 저장소 밖으로 분리할지 결정) |
 

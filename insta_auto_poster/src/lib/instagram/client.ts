@@ -5,10 +5,10 @@ import type { InstagramAuthMethod } from "@/types/database.types";
 // 여기서만 Instagram/Facebook Graph API(Meta)를 호출한다.
 //
 // 2026-09-07: 두 가지 연동 방식을 함께 지원한다.
-// 1) facebook_login — 운영자 공용 앱(META_APP_ID/META_APP_SECRET)으로 Facebook 로그인 후
-//    연결된 Facebook 페이지의 인스타그램 비즈니스 계정을 찾는 기존 방식. 별도 설정 없이 바로
-//    쓸 수 있어 기본(1차) 연결 방법으로 유지한다. 다만 이 앱이 Meta App Review(Live 전환)를
-//    받은 적이 없어, 운영자 본인이 테스터로 등록되지 않은 계정에서는 작동하지 않을 수 있다.
+// 1) facebook_login — 회원 본인 Meta 앱(App ID/Secret)으로 Facebook 로그인 후
+//    연결된 Facebook 페이지의 인스타그램 비즈니스 계정을 찾는 방식. 2026-10-09부터 운영자 공용
+//    앱(META_APP_ID/SECRET 환경변수)은 쓰지 않는다 — 최상위 규칙(docs/TOP_RULE_PERSONAL_ACCOUNT_API.md).
+//    앱 ID/Secret은 호출부가 회원 본인 키(user_api_keys)에서 읽어 넘긴다.
 // 2) instagram_login — 회원이 각자 본인 소유 Meta 앱을 만들어 App ID/Secret을 등록하는
 //    "Instagram API with Instagram Login" 방식(threads-comment-reply, instagram-comment-reply,
 //    instagram-dm-reply와 동일 패턴). Facebook 페이지 연결이 필요 없고, AIMaster 루트
@@ -37,7 +37,7 @@ async function parseGraphResponse<T>(response: Response): Promise<T> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 1) facebook_login — 운영자 공용 앱 + Facebook 페이지 방식 (기존/기본 방식)
+// 1) facebook_login — 회원 본인 Meta 앱 + Facebook 페이지 방식
 
 const FACEBOOK_GRAPH_VERSION = "v21.0";
 const FACEBOOK_GRAPH_BASE = `https://graph.facebook.com/${FACEBOOK_GRAPH_VERSION}`;
@@ -54,9 +54,9 @@ const FACEBOOK_INSTAGRAM_SCOPES = [
   "business_management",
 ].join(",");
 
-export function getFacebookAuthorizeUrl(state: string): string {
+export function getFacebookAuthorizeUrl(state: string, appId: string): string {
   const params = new URLSearchParams({
-    client_id: getEnv("META_APP_ID"),
+    client_id: appId,
     redirect_uri: getEnv("META_INSTAGRAM_REDIRECT_URI"),
     scope: FACEBOOK_INSTAGRAM_SCOPES,
     response_type: "code",
@@ -65,10 +65,10 @@ export function getFacebookAuthorizeUrl(state: string): string {
   return `${FACEBOOK_AUTHORIZE_BASE}?${params.toString()}`;
 }
 
-export async function exchangeFacebookCode(code: string): Promise<string> {
+export async function exchangeFacebookCode(code: string, appId: string, appSecret: string): Promise<string> {
   const params = new URLSearchParams({
-    client_id: getEnv("META_APP_ID"),
-    client_secret: getEnv("META_APP_SECRET"),
+    client_id: appId,
+    client_secret: appSecret,
     redirect_uri: getEnv("META_INSTAGRAM_REDIRECT_URI"),
     code,
   });
@@ -78,14 +78,14 @@ export async function exchangeFacebookCode(code: string): Promise<string> {
 }
 
 /** 60일짜리 장기 토큰으로 교환한다. */
-export async function exchangeForLongLivedFacebookToken(shortLivedToken: string): Promise<{
+export async function exchangeForLongLivedFacebookToken(shortLivedToken: string, appId: string, appSecret: string): Promise<{
   accessToken: string;
   expiresInSeconds: number;
 }> {
   const params = new URLSearchParams({
     grant_type: "fb_exchange_token",
-    client_id: getEnv("META_APP_ID"),
-    client_secret: getEnv("META_APP_SECRET"),
+    client_id: appId,
+    client_secret: appSecret,
     fb_exchange_token: shortLivedToken,
   });
   const response = await fetch(`${FACEBOOK_GRAPH_BASE}/oauth/access_token?${params.toString()}`);

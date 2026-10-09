@@ -12,28 +12,27 @@ import type { InstagramAuthMethod } from "@/types/database.types";
 
 /**
  * 인스타그램 연결을 시작한다. formData의 hidden "method" 필드로 방식을 고른다.
- * - facebook_login(기본): 운영자 공용 앱으로 바로 연결 — 별도 등록 불필요.
- * - instagram_login(대체): 회원 본인 Meta 앱(App ID/Secret)이 등록되어 있어야 한다.
+ * 두 방식 모두 회원 본인 Meta 앱(App ID/Secret)이 먼저 등록되어 있어야 한다(운영자 공용 앱 없음).
+ * - facebook_login: Facebook 로그인 + 페이지에 연결된 인스타그램 비즈니스 계정.
+ * - instagram_login: Instagram API with Instagram Login.
  */
 export async function connectInstagramAccountAction(formData: FormData) {
   const user = await requireProgramAccess();
   const method = (String(formData.get("method") ?? "facebook_login") as InstagramAuthMethod);
 
-  if (method === "instagram_login") {
-    const supabase = await createClient();
-    const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
-    if (!appId) {
-      redirect(
-        `/settings?error=connect_failed&reason=${encodeURIComponent(
-          `${PROVIDER_LABELS.meta_app_id}가 없습니다. 설정 페이지에서 본인 Meta 앱을 먼저 등록해주세요.`,
-        )}`,
-      );
-    }
-    // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
-    redirect(getInstagramAuthorizeUrl(user.id, appId));
+  const supabase = await createClient();
+  const appId = await resolveApiKey(supabase, user.id, "meta_app_id");
+  if (!appId) {
+    redirect(
+      `/settings?error=connect_failed&reason=${encodeURIComponent(
+        `${PROVIDER_LABELS.meta_app_id}가 없습니다. 설정 페이지에서 본인 Meta 앱을 먼저 등록해주세요.`,
+      )}`,
+    );
   }
 
-  redirect(getFacebookAuthorizeUrl(user.id));
+  // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
+  if (method === "instagram_login") redirect(getInstagramAuthorizeUrl(user.id, appId));
+  redirect(getFacebookAuthorizeUrl(user.id, appId));
 }
 
 /** accounts/select 화면에서 사용자가 페이지를 확정 선택했을 때만 실제로 DB에 저장한다(facebook_login 전용). */
