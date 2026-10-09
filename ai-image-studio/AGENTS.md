@@ -53,3 +53,9 @@
 - 점검용 코드 `lib/checkFlux2Max.ts`(아무 회원의 replicate 키를 읽던 미사용 코드)를 삭제했다.
 - 테스트: `npm run test:access`(메모리 DB — 비로그인 401, 이용 권한, 관리자 전용, 타인 키 폴백 없음, 소스에 게스트 우회 재발 방지).
 - **남은 문제(별도 처리 필요)**: `lib/supabase/server.ts`에 관리자 서비스 키가 base64로 소스에 박혀 있고(`DEFAULT_SERVICE_ROLE_KEY`), `scripts/test-flux-pipeline.mjs`에도 있다. 이 프로젝트의 Vercel에는 환경변수가 하나도 없어 지금은 그 박힌 키로만 DB에 접근한다. 키를 새로 발급해 Vercel `SUPABASE_SERVICE_ROLE_KEY`로 등록한 뒤 코드의 기본값을 지워야 한다(순서를 지키지 않으면 서비스가 멈춤). 기록: `docs/ERROR_LESSONS.md` 최상단.
+
+### 배포 주의 — 운영 주소는 자동으로 새 배포를 가리키지 않는다 (2026-10-09)
+
+- `vercel deploy --prod`를 해도 `https://ai-image-studio.vercel.app`(= `programs.app_url`)은 **이전 배포에 그대로 남는다**(새 배포에는 `-swart`·`-buylife` 주소만 붙음). v1.06 배포 직후 운영 주소가 이전 코드를 계속 서비스한 것을 확인했다.
+- 배포 후 반드시 `vercel alias set <새 배포 주소> ai-image-studio.vercel.app --scope buylife`로 운영 주소를 옮기고, 읽기 요청(예: `GET /api/user-keys`가 401, `/login`이 200)으로 새 코드가 서비스되는지 확인한다.
+- 검증용 요청으로 `POST`(쓰기) API를 두드리지 않는다 — 이전 코드가 살아 있으면 실제로 실행된다(`/api/prompts/seed`가 비로그인으로 실행되어 `style_preset_prompts`에 160행이 들어간 사고, 아래 참고).
