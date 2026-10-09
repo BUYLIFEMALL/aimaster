@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-09 — 클라이언트가 보낸 ID로 upsert하면 남의 데이터를 덮어쓴다 / 임시보관 저장이 발행 상태를 되돌린다 (naver-blog-agent v1.55)
+
+- 증상: ① 이미 발행 큐에 있거나 발행된 글을 "보관함 저장"하면 상태가 임시보관으로 돌아감. ② `POST /api/posts`가 클라이언트가 보낸 UUID를 `record.id`로 넣어 upsert(관리자 클라이언트, RLS 우회) — 다른 회원 글 ID를 보내면 그 글의 소유자·내용이 덮어써질 수 있었음(테스트 작성 중 발견, 실제 악용 사례는 확인되지 않음. UUID는 추측하기 어렵지만 방어가 코드에 없었다).
+- 원인: upsert가 요청의 `status`·`id`를 그대로 신뢰. 소유자 확인과 "되돌리면 안 되는 상태" 규칙이 없었다.
+- 해결: `src/lib/postStatus.ts`(draft 요청은 queued/publishing/published를 유지), `POST /api/posts`에서 기존 행을 조회해 소유자가 다르면 그 ID를 쓰지 않고 새 글로 저장. 테스트 `test:post-status`.
+- 다음부터 확인: 관리자(서비스 롤) 클라이언트로 `upsert`/`update`를 할 때는 **행이 이미 있으면 소유자(user_id)가 현재 회원인지** 먼저 확인한다(루트 CLAUDE.md 멀티테넌시 원칙 2번). 클라이언트가 보낸 `status`처럼 "단계가 진행되는 값"은 뒤로 되돌리지 못하게 서버 규칙을 둔다. 같은 패턴(`upsert(record)` + 클라이언트 id)이 다른 서브프로젝트에 있는지 `grep`으로 점검한다.
+
 ## 2026-10-09 — "여러 AI 키를 등록받는" 단계는 한 곳이 막혀도 다음으로 넘어가야 한다 (naver-blog-agent v1.54)
 
 - 증상: 떡상 글감 수집소 "72h 화제 검색"이 `429 You have no credits remaining ... platform.openai.com`으로 실패. 퍼플렉시티 잔액은 충분했고 Gemini·Claude 키도 등록되어 있었다.

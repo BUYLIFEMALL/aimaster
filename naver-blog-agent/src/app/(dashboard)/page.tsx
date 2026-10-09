@@ -39,6 +39,7 @@ import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate, CollectorCategory } from "@/types/collector";
 import { useContentCategories } from "@/hooks/useContentCategories";
 import { buildEditedPostPatch } from "@/lib/editedPostSave";
+import { resolveSaveStatus } from "@/lib/postStatus";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import {
@@ -318,6 +319,8 @@ export default function MainPage() {
         updatedList[existingIndex] = {
           ...updatedList[existingIndex],
           ...postItem,
+          // 이미 대기·발행 중인 글을 임시보관으로 저장해도 상태는 되돌리지 않는다.
+          status: resolveSaveStatus(updatedList[existingIndex].status, status),
           created_at: updatedList[existingIndex].created_at || postItem.created_at,
         };
       } else {

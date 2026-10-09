@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkProgramAccessApi } from "@/lib/access";
+import { resolveSaveStatus } from "@/lib/postStatus";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -150,6 +151,23 @@ export async function POST(request: Request) {
     const targetTable = await resolveActiveTable(admin);
 
     if (targetTable === "nba_posts") {
+      // 이미 대기·발행 중인 글에 "임시보관 저장"이 들어오면 상태를 되돌리지 않는다.
+      // 다른 회원의 글 ID가 오면 그 글을 덮어쓰지 않고(소유자 불일치) 새 글로 저장한다.
+      let existingStatus: string | null = null;
+      let usableId = false;
+      if (isUuid(payload.id)) {
+        const { data: existing } = await admin
+          .from("nba_posts")
+          .select("status, user_id")
+          .eq("id", payload.id)
+          .maybeSingle();
+        if (!existing) usableId = true;
+        else if (existing.user_id === user.id) {
+          usableId = true;
+          existingStatus = existing.status ?? null;
+        }
+      }
+
       const record: any = {
         user_id: user.id,
         blog_id: payload.blog_id || "myblog_sample",
@@ -158,11 +176,11 @@ export async function POST(request: Request) {
         content: payload.content || "",
         tags: Array.isArray(payload.tags) ? payload.tags : [],
         images: Array.isArray(payload.images) ? payload.images : [],
-        status: payload.status || "draft",
+        status: resolveSaveStatus(existingStatus, payload.status),
         updated_at: new Date().toISOString(),
       };
 
-      if (isUuid(payload.id)) {
+      if (usableId) {
         record.id = payload.id;
       }
       if (payload.scheduled_at) record.scheduled_at = payload.scheduled_at;
