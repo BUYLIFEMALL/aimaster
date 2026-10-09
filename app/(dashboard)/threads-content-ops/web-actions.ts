@@ -1309,7 +1309,7 @@ async function loadOperationRules(supabase: Awaited<ReturnType<typeof authorized
 
 const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 
-export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; custom?: CustomFields; engine?: EngineInput; productId?: string; accountId?: string }): Promise<AttentionResult> {
+export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; personaTone?: string; custom?: CustomFields; engine?: EngineInput; productId?: string; accountId?: string }): Promise<AttentionResult> {
   try {
     const topic = clean(input.topic, 1_201);
     const note = clean(input.note, 301);
@@ -1325,7 +1325,8 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
     const resolved = await resolveEngine(supabase, user.id, input.engine);
     if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
     const operation = await loadOperationRules(supabase, user.id, input.accountId);
-    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone: persona?.tonePrompt, custom, engine: resolved.engine, range, operation }) };
+    const personaTone = input.personaTone === undefined ? persona?.tonePrompt : clean(input.personaTone, 800);
+    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone, custom, engine: resolved.engine, range, operation }) };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "글을 생성하지 못했습니다." };
   }

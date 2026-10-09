@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, CircleAlert, Copy, Sparkles } from "lucide-react";
-import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, ENGINES, IMAGE_KEY_LABEL, IMAGE_MODELS, IMAGE_PLATFORMS, IMAGE_RATIOS, MAX_GENERATE_COUNT, PERSONAS, REWRITE_MODES, type EngineProvider, type ImagePlatform, type ImageRatio } from "@/threads-content-ops/lib/personas";
+import { CheckCircle2, CircleAlert, Copy, Loader2, Sparkles, Zap } from "lucide-react";
+import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, ENGINES, IMAGE_KEY_LABEL, IMAGE_MODELS, IMAGE_PLATFORMS, IMAGE_RATIOS, MAX_GENERATE_COUNT, PERSONAS, PERSONA_AUDIENCES, REWRITE_MODES, type EngineProvider, type ImagePlatform, type ImageRatio } from "@/threads-content-ops/lib/personas";
 import { createClient } from "@/lib/supabase/client";
 import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, MEDIA_RETENTION_DAYS, memberMediaFolder, type PostMedia } from "@/threads-content-ops/lib/media";
 import { assemblePostBody, disclosureFor, productPlatformLabel, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
@@ -38,6 +38,9 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
   const [note, setNote] = useState("");
   const topicRef = useRef<HTMLTextAreaElement>(null);
   const [personaId, setPersonaId] = useState("");
+  const [personaTone, setPersonaTone] = useState("");
+  const loadedTemplate = useRef({ topic: "", targetAudience: "" });
+  const generationLock = useRef(false);
   const [product, setProduct] = useState("");
   const [productId, setProductId] = useState("");
   const linkedProduct = products.find((item) => item.id === productId);
@@ -72,34 +75,53 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
     setMessage(null);
   };
 
-  const generate = async (label: string, forcedPersonaId?: string, forcedTopic?: string) => {
-    if (generating) return;
+  const generate = async (label: string, forcedPersonaId?: string, forcedTopic?: string, template?: { product: string; targetAudience: string; personaTone: string }) => {
+    if (generationLock.current) return;
     const effectiveTopic = (forcedTopic ?? topic).trim();
     if (!effectiveTopic) return;
+    generationLock.current = true;
     setGeneratingLabel(label);
     setMessage(null);
     try {
       const result = await generateAttentionPost({
         topic: effectiveTopic, note, personaId: forcedPersonaId ?? (personaId || undefined),
-        custom: { product, experience, targetAudience, benchmarkPost: benchmark }, engine, productId: productId || undefined, accountId: accountId || undefined,
+        personaTone: template?.personaTone ?? (personaId ? personaTone : undefined),
+        custom: { product: template?.product ?? product, experience, targetAudience: template?.targetAudience ?? targetAudience, benchmarkPost: benchmark }, engine, productId: productId || undefined, accountId: accountId || undefined,
       });
       if (result.ok) setPlan(result.plan);
       else setMessage({ ok: false, text: result.error });
     } catch {
       setMessage({ ok: false, text: "글 생성 요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
     } finally {
+      generationLock.current = false;
       setGeneratingLabel(null);
     }
   };
 
-  const clickPersona = (id: string) => {
+  const loadPersona = (id: string) => {
     const persona = PERSONAS.find((item) => item.id === id);
     if (!persona) return;
     setPersonaId(id);
-    // 글감이 없으면 그 페르소나의 기본 주제로 바로 만든다(원클릭). 있으면 고른 글감을 그 페르소나의 시점으로 쓴다.
-    const nextTopic = topic.trim() ? topic : persona.defaultTopic;
-    if (!topic.trim()) setTopic(persona.defaultTopic);
-    void generate(persona.name, id, nextTopic);
+    const previous = loadedTemplate.current;
+    const useDefaultTopic = !topic.trim() || (!viralId && topic === previous.topic);
+    const nextTopic = useDefaultTopic ? persona.defaultTopic : topic;
+    const nextAudience = !targetAudience.trim() || targetAudience === previous.targetAudience ? PERSONA_AUDIENCES[id] : targetAudience;
+    setTopic(nextTopic);
+    setTargetAudience(nextAudience);
+    setPersonaTone(persona.tonePrompt);
+    loadedTemplate.current = { topic: useDefaultTopic ? persona.defaultTopic : "", targetAudience: PERSONA_AUDIENCES[id] };
+    setMessage(null);
+    return { persona, topic: nextTopic, product, targetAudience: nextAudience, personaTone: persona.tonePrompt };
+  };
+
+  const generatePersona = (id: string) => {
+    if (id === personaId) {
+      void generate(PERSONAS.find((item) => item.id === id)!.name, id, topic.trim() || linkedProduct?.title || product.trim() || experience.trim().slice(0, 300) || benchmark.trim().slice(0, 300));
+      return;
+    }
+    const template = loadPersona(id);
+    if (!template) return;
+    void generate(template.persona.name, id, template.topic.trim() || linkedProduct?.title || template.product.trim(), template);
   };
 
   return <div className="space-y-5">
@@ -128,17 +150,21 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
     </section>
 
     <section className="rounded-2xl border-2 border-sky-300 bg-white p-5 shadow-sm">
-      <h3 className="font-bold text-neutral-900">2. 상황별 페르소나 원클릭 생성 <span className="text-sm font-normal text-neutral-500">(누르면 바로 생성됩니다)</span></h3>
+      <h3 className="font-bold text-neutral-900">2. 상황별 페르소나 선택 <span className="text-sm font-normal text-neutral-500">(불러온 뒤 아래 입력란을 수정하거나 즉시 생성하세요)</span></h3>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{PERSONAS.map((persona) => {
         const active = personaId === persona.id;
         const busy = generatingLabel === persona.name;
-        return <button key={persona.id} type="button" disabled={generating} onClick={() => clickPersona(persona.id)} className={`rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-60 ${active ? "border-sky-500 bg-white ring-2 ring-sky-300" : "border-neutral-200 bg-white hover:border-sky-300"}`}>
+        return <div key={persona.id} className={`rounded-xl border p-3 text-left transition ${active ? "border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-200" : "border-neutral-200 bg-white"}`}>
           <span className="flex items-center justify-between gap-2"><span className="text-sm font-bold text-neutral-900">{persona.emoji} {persona.name}</span><span className="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">{persona.badge}</span></span>
           <span className="mt-1 block text-xs text-neutral-600">{persona.tagline}</span>
-          <span className="mt-2 block text-[11px] font-semibold text-sky-700">{busy ? "생성 중…" : "클릭하여 바로 생성 →"}</span>
-        </button>;
+          <p className="mt-2 truncate text-xs text-neutral-500" title={persona.defaultTopic}>추천 주제: {persona.defaultTopic}</p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 pt-3">
+            <button type="button" disabled={generating} aria-pressed={active} aria-label={`${persona.name} 페르소나 불러오기`} onClick={() => loadPersona(persona.id)} className={`rounded-lg px-3 py-1.5 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-60 ${active ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"}`}>{active ? "✓ 선택됨" : "페르소나 불러오기"}</button>
+            <button type="button" disabled={generating} aria-label={`${persona.name} 즉시 생성`} onClick={() => generatePersona(persona.id)} className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600 disabled:cursor-not-allowed disabled:opacity-60 ${active ? "bg-emerald-600 hover:bg-emerald-700" : "bg-neutral-900 hover:bg-neutral-700"}`}>{busy ? <Loader2 size={13} className="animate-spin" /> : <Zap size={13} />}{busy ? "생성 중…" : "즉시 생성 →"}</button>
+          </div>
+        </div>;
       })}</div>
-      {personaId && <p className="mt-2 text-xs text-neutral-600">선택한 페르소나: <b>{PERSONAS.find((item) => item.id === personaId)?.name}</b> · 아래 "글 생성하기"도 이 시점으로 만듭니다. <button type="button" className="font-semibold underline" onClick={() => setPersonaId("")}>해제</button></p>}
+      {personaId && <p className="mt-2 text-xs text-neutral-600" role="status">선택한 페르소나: <b>{PERSONAS.find((item) => item.id === personaId)?.name}</b> · 아래 입력란을 확인·수정한 뒤 생성하세요. <button type="button" disabled={generating} className="font-semibold underline disabled:opacity-50" onClick={() => { setPersonaId(""); setPersonaTone(""); }}>해제</button></p>}
 
       <div className="mt-4 rounded-xl border-2 border-amber-300 bg-white p-3">
         <div className="flex items-start gap-3">
@@ -146,6 +172,10 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
           <div className="min-w-0"><p className="text-sm font-bold text-neutral-900">맞춤글 생성 (내 실제 경험담 · 상품명 · 타깃 직접 입력)</p><p className="mt-0.5 text-xs text-neutral-500">내가 직접 겪은 썰이나 특정 상품을 넣어, 지어내지 않고 리얼하고 자연스러운 글로 완성합니다. 모두 선택 사항입니다.</p></div>
         </div>
         <div className="mt-3 space-y-3">
+          {personaId && <>
+            <label className="block text-xs font-semibold text-neutral-700">글 주제 <span className="font-normal text-neutral-500">(불러온 주제나 선택한 글감을 수정할 수 있습니다)</span><textarea className={`${inputClass} mt-1 min-h-20`} maxLength={1200} value={topic} onChange={(event) => setTopic(event.target.value)} /></label>
+            <label className="block text-xs font-semibold text-neutral-700">불러온 페르소나 시점·말투 <span className="font-normal text-neutral-500">(수정한 내용으로 글을 만듭니다)</span><textarea className={`${inputClass} mt-1 min-h-20`} maxLength={800} value={personaTone} onChange={(event) => setPersonaTone(event.target.value)} /></label>
+          </>}
           <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-3">
             <label className="block text-xs font-bold text-neutral-800">🛍️ 등록한 상품 연결 <span className="font-normal text-neutral-500">— 선택 안 하면 일반 Threads 글이 됩니다</span>
               <select className={`${inputClass} mt-1`} value={productId} onChange={(event) => { setProductId(event.target.value); setPlan(null); }} aria-label="등록한 상품 연결">
@@ -169,7 +199,7 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
           <label className="block text-xs font-semibold text-neutral-700">참고할 터진 글 원문 <span className="font-normal text-neutral-500">(선택 사항 — 벤치마킹할 스레드 글이 있다면 붙여넣기)</span><textarea className={`${inputClass} mt-1 min-h-20`} maxLength={2000} value={benchmark} onChange={(event) => setBenchmark(event.target.value)} placeholder="예: 넘더러워서 안 올리려다 추천해준 치니 고마워서 올림... 워싱소다 다 소용없더라" /></label>
           <p className="text-[11px] text-neutral-500">터진 글은 첫 문장 후킹·심리·전개 순서(뼈대)만 참고하고, 문장이나 소재는 그대로 따라 쓰지 않습니다. 직접 쓴 경험에 없는 사실은 지어내지 않습니다.</p>
           <div className="flex flex-col items-end gap-1">
-            <button type="button" className="inline-flex items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={generating || !(topic.trim() || product.trim() || experience.trim() || benchmark.trim() || linkedProduct)} onClick={() => void generate("custom", undefined, topic.trim() || linkedProduct?.title || product.trim() || experience.trim().slice(0, 300) || benchmark.trim().slice(0, 300))}><Sparkles size={15} />{generatingLabel === "custom" ? "맞춤글 만드는 중… (최대 1분)" : "입력한 템플릿으로 글 생성하기"}</button>
+            <button type="button" className="inline-flex items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={generating || !(topic.trim() || product.trim() || experience.trim() || benchmark.trim() || linkedProduct)} onClick={() => void generate("custom", undefined, topic.trim() || linkedProduct?.title || product.trim() || experience.trim().slice(0, 300) || benchmark.trim().slice(0, 300))}><Sparkles size={15} />{generatingLabel === "custom" ? "맞춤글 만드는 중… (최대 1분)" : "입력된 템플릿으로 글 생성하기"}</button>
             <span className="text-[11px] text-neutral-500">글감 칸이 비어 있으면 위 입력(상품·경험담)을 주제로 씁니다.</span>
           </div>
         </div>
@@ -192,7 +222,7 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
       <div className="mt-3 rounded-xl border-2 border-fuchsia-300 bg-white p-3">
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-bold text-neutral-900">🖼️ 이미지 생성 모델 <span className="hidden font-normal text-neutral-500 sm:inline">NanoBanana · GPT Image · FLUX · Z-Image</span></p>
-          <span className="rounded-md border border-fuchsia-200 bg-fuchsia-50 px-2 py-0.5 text-[11px] font-bold text-fuchsia-700">결과 글의 "이미지 생성"에 적용</span>
+          <span className="rounded-md border border-fuchsia-200 bg-fuchsia-50 px-2 py-0.5 text-[11px] font-bold text-fuchsia-700">결과 글의 ‘이미지 생성’에 적용</span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">{IMAGE_PLATFORMS.map((item) => <button key={item.id} type="button" onClick={() => setImage({ ...image, platform: item.id, model: DEFAULT_IMAGE_MODELS[item.id] })} aria-pressed={image.platform === item.id} className={`flex flex-col items-center justify-center gap-0.5 rounded-xl border p-2.5 text-center font-bold transition-all ${image.platform === item.id ? pickedButton : idleButton}`}>
           <span className="text-base">{item.icon}</span><span className="text-xs font-extrabold tracking-tight">{item.name}</span><span className="text-[10px] font-normal opacity-80">{item.sub}{configuredProviders.includes(item.keyProvider) ? "" : " · 키 미등록"}</span>
@@ -449,7 +479,7 @@ function VariantCard({ userId, schedulerReady, option, accountId, viralId, engin
           <span className="flex gap-1"><CopyButton value={item.url} label="주소" /><button type="button" onClick={() => removeImage(index)} className="rounded border border-rose-300 px-2 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50" aria-label={`${index + 1}번 이미지 삭제`}>✕ 삭제</button></span>
         </div>
       </li>)}{imaging && Array.from({ length: Math.max(imaging.total - imaging.done, 0) }, (_, index) => <li key={`pending-${index}`} className="flex aspect-square items-center justify-center rounded-lg border border-dashed border-blue-300 bg-blue-50 text-xs font-semibold text-blue-700">{index === 0 ? "만드는 중…" : "대기 중"}</li>)}</ul>
-      <p className="mt-2 text-[11px] text-neutral-500">이 글을 "초안 저장"하면 이 이미지들이 함께 저장되고, 발행하면 캐러셀로 올라갑니다. 이미지는 올린 지 {MEDIA_RETENTION_DAYS}일 후 자동 삭제됩니다.</p>
+      <p className="mt-2 text-[11px] text-neutral-500">이 글을 ‘초안 저장’하면 이 이미지들이 함께 저장되고, 발행하면 캐러셀로 올라갑니다. 이미지는 올린 지 {MEDIA_RETENTION_DAYS}일 후 자동 삭제됩니다.</p>
     </div>}
     <div className="mt-3 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-3">
       <input ref={ownImageInput} type="file" accept="image/jpeg,image/png" multiple className="hidden" onChange={(event) => { const files = Array.from(event.target.files ?? []); event.target.value = ""; void uploadOwn(files, "image"); }} />

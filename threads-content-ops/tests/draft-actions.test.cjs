@@ -16,7 +16,7 @@ function fixture(options = {}) {
   const state = {
     post: { id: draftId, user_id: userId, account_id: accountId, body: "발행 전 본문", status: "draft", media: [], ...options.post },
     account: { id: accountId, user_id: userId, threads_user_id: "test-threads-user", access_token: "fake-test-token", token_expires_at: "2099-01-01", ...options.account },
-    calls: [], refreshes: 0,
+    calls: [], generations: [], refreshes: 0,
   };
   class Query {
     constructor(table) { this.table = table; this.filters = []; this.values = null; }
@@ -40,6 +40,18 @@ function fixture(options = {}) {
     if (id === "next/cache") return { revalidatePath: () => state.refreshes++ };
     if (id === "@/lib/supabase/server") return { createClient: async () => db };
     if (id === "@/lib/access/checkProgramAccess") return { checkProgramAccess: async () => ({ allowed: !options.noAccess }) };
+    if (id === "@/lib/apiKeys") return { resolveApiKey: async () => options.noKey ? null : "fake-member-ai-key" };
+    if (id === "@/threads-content-ops/lib/personas") {
+      const personasModule = { exports: {} };
+      const personasSource = fs.readFileSync(path.join(root, "threads-content-ops/lib/personas.ts"), "utf8");
+      vm.runInNewContext(ts.transpileModule(personasSource, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { module: personasModule, exports: personasModule.exports });
+      return personasModule.exports;
+    }
+    if (id === "@/threads-content-ops/lib/productPost") return { contentRange: () => ({ min: 450, max: 480 }) };
+    if (id === "@/threads-content-ops/lib/attention") return { generateAttentionPlan: async (input) => {
+      state.generations.push(structuredClone(input));
+      return { content: "모의 생성 결과" };
+    } };
     if (id === "@/threads-content-ops/lib/media") return {
       MAX_IMAGE_BYTES: 8 * 1024 * 1024, MAX_VIDEO_BYTES: 1024 ** 3,
       sanitizeMedia: (owner, media) => {
@@ -162,4 +174,33 @@ test("발행 실패 콘텐츠는 명시적으로 재검토 상태로 돌린 뒤 
   assert.equal((await actions.runDraftAction({ draftId, intent: "save", body: "재검토 수정 본문" })).ok, true);
   assert.equal(state.post.status, "draft");
   assert.equal(state.post.body, "재검토 수정 본문");
+});
+
+test("페르소나 템플릿에서 수정한 주제·말투·독자·경험·상품·참고글을 생성기로 전달한다", async () => {
+  const { state, actions } = fixture();
+  const custom = { product: "입력한 소재", experience: "내 실제 경험", targetAudience: "수정한 타깃", benchmarkPost: "내 참고글" };
+  const result = await actions.generateAttentionPost({ topic: "수정한 주제", personaId: "single", personaTone: "차분한 존댓말", custom });
+  assert.equal(result.ok, true);
+  assert.equal(state.generations.length, 1);
+  assert.equal(state.generations[0].topic, "수정한 주제");
+  assert.equal(state.generations[0].personaTone, "차분한 존댓말");
+  assert.deepEqual(state.generations[0].custom, custom);
+  assert.equal(state.generations[0].engine.apiKey, "fake-member-ai-key");
+  assert.equal(state.calls.length, 0);
+});
+
+test("말투를 전달하지 않은 기존 요청은 기본 페르소나를 유지하고 명시적 빈 값은 강제로 되살리지 않는다", async () => {
+  const { state, actions } = fixture();
+  await actions.generateAttentionPost({ topic: "기본 주제", personaId: "single" });
+  assert.match(state.generations[0].personaTone, /원룸 자취/);
+  await actions.generateAttentionPost({ topic: "기본 주제", personaId: "single", personaTone: "" });
+  assert.equal(state.generations[1].personaTone, "");
+});
+
+test("페르소나 생성도 회원 권한·본인 AI 키가 없으면 호출하지 않는다", async () => {
+  for (const options of [{ loggedOut: true }, { noAccess: true }, { noKey: true }]) {
+    const { state, actions } = fixture(options);
+    assert.equal((await actions.generateAttentionPost({ topic: "주제", personaId: "single" })).ok, false);
+    assert.equal(state.generations.length, 0);
+  }
 });

@@ -12,6 +12,15 @@ export const PERSONAS: Persona[] = [
   { id: "side_hustle", name: "N잡러·재테크 부업형", badge: "자본주의 현실 극복", emoji: "💰", tagline: "월 100 더 버는 현실 실행 톤", tonePrompt: "본업 외에 스마트스토어, 블로그, 제휴마케팅 등 추가 수입을 만들려는 30대 N잡러의 시점. 뜬구름 잡는 강의 팔이가 아닌 현실적인 돈 버는 이야기 톤.", defaultTopic: "통장 잔고 50만원에서 부업으로 월 100만원 파이프라인 만드는 현실 과정" },
 ];
 
+export const PERSONA_AUDIENCES: Record<string, string> = {
+  housewife: "가전·살림템을 꼼꼼하게 비교하는 주부",
+  single: "퇴근 후 편하게 살고 싶은 20~30대 자취 직장인",
+  working_mom: "육아·살림·직장을 병행하며 시간을 아끼고 싶은 30대",
+  editor: "가성비와 감각적인 쇼핑·뷰티 정보를 찾는 20대",
+  tech: "전자기기·생산성 도구의 실제 기능과 가성비를 비교하는 독자",
+  side_hustle: "본업과 함께 부업·추가 수입을 준비하는 직장인",
+};
+
 export type RewriteMode = "provocative" | "natural" | "shorter" | "expert" | "funny" | "no_ad" | "hooks_only";
 
 export const REWRITE_MODES: { mode: RewriteMode; label: string; icon: string; instruction: string }[] = [
