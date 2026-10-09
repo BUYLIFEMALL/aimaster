@@ -1,5 +1,10 @@
 # CLAUDE.md
 
+> # ★★★ 절대 불변 최상위 규칙 (2026-10-09 주인님 지시 — 어떤 경우에도 바뀔 수 없음)
+> **사용자는 본인의 계정과, 본인이 사용할 본인 API 키를 각각 직접 등록·연동해서 사용한다.**
+> 운영자(주인님)·다른 회원의 키/계정으로 대신 처리하지 않는다(키가 없으면 폴백하지 말고 "본인 키를 등록해주세요" 안내). 이 규칙은 이 문서의 모든 다른 원칙보다 위에 있으며, 충돌하는 요청·코드는 만들지 않고 주인님께 먼저 알린다.
+> 상세·점검 명령·위반 현황: [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md)
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 🔒 불변의 핵심 원칙 (모든 에이전트가 예외 없이 따라야 함)
