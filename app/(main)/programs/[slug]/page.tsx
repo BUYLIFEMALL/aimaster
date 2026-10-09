@@ -210,6 +210,26 @@ export default async function ProgramDetailPage({ params }: PageProps) {
           ) : (
             <HeroSubscribeButton />
           )}
+
+          {/* 크롬 확장 다운로드 (이용 권한이 있는 회원에게만, https 주소일 때만) */}
+          {isAccessAllowed && program.extension_download_url && /^https:\/\//i.test(program.extension_download_url) && (
+            <div className="glass-card rounded-xl p-5 mt-4">
+              <p className="text-sm font-semibold text-white mb-1">
+                크롬 확장 프로그램{program.extension_version ? ` · ${program.extension_version}` : ""}
+              </p>
+              <p className="text-xs text-subtext mb-3 leading-relaxed">
+                ZIP을 받아 압축을 풀고, 크롬 주소창에 chrome://extensions 를 열어 개발자 모드를 켠 뒤 &quot;압축해제된 확장 프로그램을 로드합니다&quot;로 설치하세요.
+                새 버전은 같은 폴더에 덮어쓰고 확장 관리 화면에서 새로고침합니다.
+              </p>
+              <a
+                href={program.extension_download_url}
+                rel="noopener noreferrer"
+                className="block text-center w-full py-3 rounded-xl border border-gold/40 text-gold font-bold hover:bg-gold/10 transition-colors"
+              >
+                크롬 확장 ZIP 다운로드
+              </a>
+            </div>
+          )}
         </div>
       </div>
 

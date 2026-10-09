@@ -43,7 +43,7 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
 ### 알려진 예외·미해결 (다음 CLI가 이어받을 것)
 
 - `naver-blog-auto-poster-web`: 2026-10-09 v1.02에서 manifest에 `version_name`을 넣어 `vX.YY` 체계로 정렬했다(예외 없음). 단 **ZIP 파일명은 고정 주소 유지를 위해 옛 이름 `…Extension-0.1.0.zip` 그대로**이므로 파일명 숫자로 버전을 판단하지 않는다.
-- 메인 사이트(buylife.xyz) 프로그램 상세 화면에는 아직 확장 다운로드 버튼이 없다(루트 앱 배포가 필요). DB 칸은 이 버튼을 위해 채워 둔 것이다.
+- 메인 사이트(buylife.xyz) 프로그램 상세 화면(`app/(main)/programs/[slug]/page.tsx`)에 **확장 다운로드 버튼이 있다(2026-10-09)**. DB `programs.extension_download_url`/`extension_version`을 읽어 **이용 권한이 있는 회원에게만, https 주소일 때만** 보여준다. 그래서 확장이 있는 프로그램은 배포 때 이 DB 칸을 갱신하는 것이 곧 이 버튼의 주소·버전 갱신이다.
 - **확장 안 "새 버전이 있습니다" 알림 현황 (2026-10-09 코드로 확인)**:
 
   | 프로그램 | 알림 | 방식 |

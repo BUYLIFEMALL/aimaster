@@ -2,7 +2,7 @@
 
 ## 크롬 확장 운영 규칙 신설 (2026-10-09, 모든 CLI 공통)
 
-- 루트 `CLAUDE.md` 핵심 원칙 10번 / `AGENTS.md` 11번: 프로그램 업데이트 시 `extension/` 폴더·다운로드 ZIP·DB 버전을 같은 작업에서 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증. 설치된 확장은 자동 갱신되지 않으므로 보고에 재설치 안내 포함. `programs.extension_download_url`/`extension_version` 칸을 추가하고 확장이 있는 5개 프로그램 값을 모두 채움(`naver-blog-agent/supabase/migrations/0051`, 나머지 4개는 SQL로 입력). 상세 규칙·프로그램별 주소: `docs/EXTENSION_RELEASE_RULES.md`, 검증: `node scripts/check-extension-release.mjs`(5개 OK, `naver-blog-auto-poster-web`만 manifest `version_name` 없어 WARN). 미구현: 확장 내 새 버전 알림, 메인 사이트 프로그램 상세 다운로드 버튼.
+- 루트 `CLAUDE.md` 핵심 원칙 10번 / `AGENTS.md` 11번: 프로그램 업데이트 시 `extension/` 폴더·다운로드 ZIP·DB 버전을 같은 작업에서 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증. 설치된 확장은 자동 갱신되지 않으므로 보고에 재설치 안내 포함. `programs.extension_download_url`/`extension_version` 칸을 추가하고 확장이 있는 5개 프로그램 값을 모두 채움(`naver-blog-agent/supabase/migrations/0051`, 나머지 4개는 SQL로 입력). 상세 규칙·프로그램별 주소: `docs/EXTENSION_RELEASE_RULES.md`, 검증: `node scripts/check-extension-release.mjs`(5개 OK, `naver-blog-auto-poster-web`만 manifest `version_name` 없어 WARN). 메인 사이트 프로그램 상세 다운로드 버튼은 2026-10-09 구현됨.
 
 ## 네이버 블로그 에이전트 — 보관함(/queue) 콘텐츠가 안 보이던 건 (2026-10-09, 복구 완료)
 
@@ -15,6 +15,10 @@
 ## 네이버 블로그 SEO 스튜디오 (naver-blog-seo-studio v1.60, 2026-10-09) — 확장 새 버전 배너
 
 - `whoami`에 `latestVersion`/`downloadUrl` 추가, 사이드패널에 "새 버전이 나왔습니다" 배너(더 높을 때만, 우리 사이트 `/downloads/` 주소만 허용), `npm run test:update-banner`. 배포 전 `npm run extension:archive`로 ZIP을 직접 만들어야 함(prebuild 아님). DB `version`/`extension_version`/`extension_download_url` v1.60으로 갱신, `check-extension-release.mjs` OK.
+
+## 메인 사이트 프로그램 상세 — 확장 다운로드 버튼 (2026-10-09)
+
+- `app/(main)/programs/[slug]/page.tsx`가 `programs.extension_download_url`/`extension_version`을 읽어 이용 권한이 있는 회원에게만 "크롬 확장 ZIP 다운로드"(설치 방법 안내 포함)를 보여줌. 주소는 https일 때만. 확장 배포 때 DB 칸 갱신이 곧 버튼 갱신(`docs/EXTENSION_RELEASE_RULES.md`).
 
 ## 전체 소유권·권한 점검 (2026-10-09) — ai-image-studio 심각 항목 발견, 미수정
 
