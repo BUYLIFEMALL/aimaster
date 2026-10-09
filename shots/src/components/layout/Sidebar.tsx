@@ -58,7 +58,11 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       {/* The account block sits right under the menu; on long menus only the menu scrolls so it stays in view. */}
       <div className="md:min-h-0 md:overflow-y-auto">
         <div className="mb-4 md:mb-6">
-          <div className="px-2 text-lg font-semibold text-neutral-900">YOUTUBE Shots(이미지 스토리) 자동화</div>
+          <div className="px-2 text-lg font-semibold leading-tight text-neutral-900">
+            YOUTUBE Shots 자동화
+            <br />
+            (이미지 스토리)
+          </div>
           <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
           <a
             href="https://www.buylife.xyz/programs"

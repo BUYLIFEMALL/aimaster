@@ -60,3 +60,4 @@ shots는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 �
 ## 작업 기록
 - 2026-10-10 v1.05: 로그인 화면(`src/app/(auth)/layout.tsx`) 제목을 "YOUTUBE Shots 자동화" + 줄바꿈 + "(이미지 스토리)" 두 줄로 변경(기존엔 "스토/리"처럼 글자 중간에서 줄이 꺾임). 마이그레이션 `20261010100000_bump_version_v1_05.sql`.
 - 2026-10-10 v1.06: 로그인 쿠키 도메인 공유(파일럿). `src/lib/supabase/cookieDomain.ts`(host 가 *.buylife.xyz 일 때만 `.buylife.xyz`), `client.ts`/`server.ts`/`src/proxy.ts` 에 적용. `*.vercel.app` 주소에서는 기존과 동일(도메인 미지정). 마이그레이션 `20261010120000_bump_version_v1_06.sql`.
+- 2026-10-10 v1.07: 좌측 사이드바(`src/components/layout/Sidebar.tsx`) 제목을 "YOUTUBE Shots 자동화" + 줄바꿈 + "(이미지 스토리)" 두 줄로 줄바꿈 처리. 마이그레이션 `20261010130000_bump_version_v1_07.sql`.
