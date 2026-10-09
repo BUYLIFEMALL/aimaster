@@ -2,6 +2,10 @@
 
 > **작업 시작 전 필독:** [운영·개발 인수인계 및 검수 체크포인트](docs/OPERATIONS_HANDOFF.md)를 먼저 읽는다. 실제 장애 원인, 금지된 우회 방식, 부분 입력 시 조치, 배포 전 검수 순서가 정리되어 있다.
 
+## v1.56 (2026-10-09)
+
+- **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.
+
 ## v1.55 (2026-10-09)
 
 - **ESLint 오류 53건 → 0건** 정리(경고 17건은 그대로). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.55).

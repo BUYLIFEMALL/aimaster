@@ -26,7 +26,7 @@ const { data, error } = await client
     version,
     // 확장 운영 규칙(docs/EXTENSION_RELEASE_RULES.md): 프로그램 버전과 확장 버전·다운로드 주소를 같은 갱신으로 맞춘다.
     extension_version: version,
-    extension_download_url: `https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-${version}.zip`,
+    extension_download_url: `https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-latest.zip`,
   })
   .eq('slug', 'tistory-auto-blog')
   .select('slug, version, extension_version, extension_download_url')

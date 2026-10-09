@@ -45,4 +45,7 @@ await new Promise((resolve, reject) => {
   archive.finalize()
 })
 
+const latestPath = path.join(downloadsRoot, `tistory-auto-blog-extension-latest.zip`)
+fs.copyFileSync(archivePath, latestPath)
 console.log(`Created ${path.relative(projectRoot, archivePath)} (${fs.statSync(archivePath).size} bytes)`)
+console.log(`Created ${path.relative(projectRoot, latestPath)} (고정 주소용 최신 사본)`)

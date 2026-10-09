@@ -21,14 +21,14 @@ function makeContext(installed) {
   vm.runInContext(code, context);
   return { context, nodes };
 }
-const ok = (latestVersion, downloadUrl = `/downloads/tistory-auto-blog-extension-${latestVersion}.zip`) => ({ ok: true, latestVersion, downloadUrl });
+const ok = (latestVersion, downloadUrl = '/downloads/tistory-auto-blog-extension-latest.zip') => ({ ok: true, latestVersion, downloadUrl });
 
 test("최신 버전이 더 높으면 배너와 ZIP 링크를 보여준다", () => {
   const { context, nodes } = makeContext("v1.53");
   context.renderUpdateBanner(ok("v1.54"));
   assert.equal(nodes.updateBanner.hidden, false);
   assert.match(nodes.updateBannerText.textContent, /v1\.53 → 최신 v1\.54/);
-  assert.equal(nodes.updateBannerLink.href, `${BASE}/downloads/tistory-auto-blog-extension-v1.54.zip`);
+  assert.equal(nodes.updateBannerLink.href, `${BASE}/downloads/tistory-auto-blog-extension-latest.zip`);
 });
 
 test("같거나 낮은 버전, 연결 실패, 다른 사이트 주소에서는 숨긴다", () => {
