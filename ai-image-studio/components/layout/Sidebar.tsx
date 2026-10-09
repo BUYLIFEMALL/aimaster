@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION } from "@/lib/version";
+import { signOutAction } from "@/lib/actions/auth";
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
 
 const FLOW_STEPS = [
   {
@@ -135,12 +135,14 @@ export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
 
       <div className="mt-4 shrink-0 border-t border-zinc-800/80 pt-4">
         <p className="mb-2 truncate px-2 text-xs font-medium text-zinc-400">{userEmail}</p>
-        <a
-          href={`${MAIN_SITE_URL}/logout`}
-          className="block w-full rounded-lg px-2 py-1 text-left text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
-        >
-          로그아웃
-        </a>
+        <form action={signOutAction}>
+          <button
+            type="submit"
+            className="block w-full rounded-lg px-2 py-1 text-left text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+          >
+            로그아웃
+          </button>
+        </form>
       </div>
     </aside>
   );

@@ -1,4 +1,4 @@
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkProgramAccessApi, checkAdminApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -6,6 +6,9 @@ export const fetchCache = "force-no-store";
 
 // GET: 화풍별 추천 프롬프트 예시 목록 조회
 export async function GET(req: Request) {
+  const { access, errorResponse } = await checkProgramAccessApi();
+  if (errorResponse) return errorResponse;
+
   try {
     const { searchParams } = new URL(req.url);
     const styleId = searchParams.get("style_id");
@@ -28,7 +31,8 @@ export async function GET(req: Request) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    return Response.json({ prompts: data || [] });
+    // canEdit: 공유 추천 프롬프트는 관리자만 추가·수정·삭제할 수 있다(화면 버튼 표시용, 서버가 다시 확인한다).
+    return Response.json({ prompts: data || [], canEdit: access?.reason === "admin" });
   } catch (err: any) {
     console.error("GET /api/prompts error:", err);
     return Response.json({ error: err.message || "Failed to load prompts" }, { status: 500 });
@@ -37,7 +41,7 @@ export async function GET(req: Request) {
 
 // POST: 새 화풍 프롬프트 등록
 export async function POST(req: Request) {
-  const { user, errorResponse } = await checkProgramAccessApi();
+  const { user, errorResponse } = await checkAdminApi();
   if (errorResponse) return errorResponse;
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -74,7 +78,7 @@ export async function POST(req: Request) {
 
 // PUT: 기존 화풍 프롬프트 수정
 export async function PUT(req: Request) {
-  const { user, errorResponse } = await checkProgramAccessApi();
+  const { user, errorResponse } = await checkAdminApi();
   if (errorResponse) return errorResponse;
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -112,7 +116,7 @@ export async function PUT(req: Request) {
 
 // DELETE: 화풍 프롬프트 삭제
 export async function DELETE(req: Request) {
-  const { user, errorResponse } = await checkProgramAccessApi();
+  const { user, errorResponse } = await checkAdminApi();
   if (errorResponse) return errorResponse;
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 

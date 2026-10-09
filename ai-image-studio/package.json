@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:access": "node scripts/test-access.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

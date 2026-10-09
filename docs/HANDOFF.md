@@ -20,9 +20,9 @@
 
 - `app/(main)/programs/[slug]/page.tsx`가 `programs.extension_download_url`/`extension_version`을 읽어 이용 권한이 있는 회원에게만 "크롬 확장 ZIP 다운로드"(설치 방법 안내 포함)를 보여줌. 주소는 https일 때만. 확장 배포 때 DB 칸 갱신이 곧 버튼 갱신(`docs/EXTENSION_RELEASE_RULES.md`).
 
-## 전체 소유권·권한 점검 (2026-10-09) — ai-image-studio 심각 항목 발견, 미수정
+## 전체 소유권·권한 점검 (2026-10-09) — ai-image-studio access는 v1.06 수정, 박힌 서비스 키는 주인님 조치 대기
 
-- `ai-image-studio/lib/access.ts`가 비로그인 방문자를 하드코딩된 회원으로 취급하고, 권한 확인 없이 항상 허용하며, 본인 키가 없으면 아무 회원의 AI 키를 사용함(2026-09-23 `f93a0b7b`). 공유 추천 프롬프트 쓰기 API도 관리자 확인 없음. **주인님 결정 후 수정 필요**(수정 방법·영향은 `docs/ERROR_LESSONS.md` 최상단). 나머지 upsert/update/delete 점검은 이상 없음(`naver-blog-agent`의 `nba_posts`만 v1.55에서 수정).
+- `ai-image-studio` v1.06: 게스트 우회·항상 허용·타인 키 폴백 제거, 로그인 필수, 공용 프롬프트 쓰기는 관리자만(`buylifemall@gmail.com`). **남은 문제**: 같은 폴더 `lib/supabase/server.ts`에 관리자 서비스 키가 base64로 박혀 있고 Vercel에 환경변수가 없음 — 새 키 발급 → Vercel 등록 → 코드에서 삭제 → 기존 키 폐기 순서로 처리(`docs/ERROR_LESSONS.md` 최상단). 나머지 upsert/update/delete 점검은 이상 없음.
 
 ## 네이버 블로그 에이전트 — 실제 Chrome 시험 발행 성공 (2026-10-09, v1.52)
 

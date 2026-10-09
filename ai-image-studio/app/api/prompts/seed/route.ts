@@ -1,4 +1,4 @@
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAdminApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -199,7 +199,7 @@ const SEED_PROMPTS_DATA: Array<{ style_id: string; label: string; prompt: string
 ];
 
 export async function POST(req: Request) {
-  const { user, errorResponse } = await checkProgramAccessApi();
+  const { user, errorResponse } = await checkAdminApi();
   if (errorResponse) return errorResponse;
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 

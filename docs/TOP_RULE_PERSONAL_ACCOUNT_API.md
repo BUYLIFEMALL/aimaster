@@ -60,7 +60,8 @@ git grep -n -E "process\.env\.(OPENAI|GEMINI|ANTHROPIC|PERPLEXITY|REPLICATE|FAL)
 
 | 프로그램 | 위반 내용 | 상태 |
 |---|---|---|
-| `ai-image-studio` | `lib/access.ts`: 비로그인을 테스트 계정으로 간주, API 권한 확인 없이 항상 허용, 본인 키 없으면 **아무 회원의 키**를 사용(`getUserApiKey`), 공용 추천 프롬프트 쓰기에 관리자 확인 없음 | **미수정 — 주인님 결정 대기**(상세·수정안: `docs/ERROR_LESSONS.md` 2026-10-09 점검 항목) |
+| `ai-image-studio` | `lib/access.ts` 게스트 우회·항상 허용·타인 키 폴백·공용 프롬프트 쓰기 무방비 | **수정 완료(v1.06, 2026-10-09)** — 로그인 필수, 본인 키만, 공용 프롬프트는 관리자만 |
+| `ai-image-studio` | 관리자 서비스 키가 소스(`lib/supabase/server.ts`, `scripts/test-flux-pipeline.mjs`)에 base64로 박혀 있고 Vercel에 환경변수가 없음 | **미수정 — 주인님이 새 키를 발급해 Vercel에 등록해야 코드에서 지울 수 있음**(`docs/ERROR_LESSONS.md` 2026-10-09 항목) |
 
 새 위반을 찾으면 이 표에 추가하고, 고치면 상태를 갱신한다.
 

@@ -40,4 +40,16 @@
 
 - `programs.short_desc`: `GPT Image·Gemini·FLUX.2·Z-Image 등 다양한 AI 엔진으로 1~10장 연속 생성과 세부 옵션 설정을 지원합니다.`
 - 카탈로그 카드가 두 줄로 자르는 구조이므로, 상세 모델명과 프리미엄 소개는 `description`에만 둔다.
-- 대시보드 첫 화면과 메타 설명은 프로그램 상세 설명과 동일하게 `OpenAI GPT Image, Google Gemini(Nano Banana), FLUX.2, Z-Image`로 표기한다. 현재 버전은 `v1.05`.
+- 대시보드 첫 화면과 메타 설명은 프로그램 상세 설명과 동일하게 `OpenAI GPT Image, Google Gemini(Nano Banana), FLUX.2, Z-Image`로 표기한다. 현재 버전은 `v1.06`.
+
+
+## 권한 표준화 — 로그인 필수·본인 키만·공유 프롬프트는 관리자만 (2026-10-09, v1.06)
+
+최상위 규칙(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`)에 맞춰 `lib/access.ts`를 다른 프로그램과 같은 표준으로 되돌렸다.
+
+- **예전(2026-09-23 `f93a0b7b` "게스트 즉시 열람 허용")**: 비로그인 방문자를 하드코딩된 회원(`buylifemall@naver.com` 테스트 계정)으로 간주, `checkProgramAccessApi()`가 인증·권한 확인 없이 항상 허용, `getUserApiKey()`가 본인 키가 없으면 **아무 회원의 키**를 사용, 공유 추천 프롬프트 쓰기 API에 관리자 확인 없음.
+- **지금**: `requireUser`는 비로그인이면 `/login?redirect=<원래 경로>`로 보낸다(`middleware.ts`가 `x-pathname` 헤더를 실어줌). `requireProgramAccess`/`checkProgramAccessApi`는 로그인 + 이용 권한을 `createAdminClient()`로 판정하고, API는 401/403 JSON을 돌려준다. `getUserApiKey`는 **로그인한 회원 본인의 키만**(없으면 null → "API 키 등록 필요" 안내). `checkAdminApi`(= 이용 권한 + 관리자)를 `/api/prompts` POST·PUT·DELETE와 `/api/prompts/seed`에 적용, `GET /api/prompts`도 로그인 필요(응답의 `canEdit`으로 화면이 관리자에게만 추가·수정·삭제·초기 주입 버튼을 보여준다).
+- 로그인 화면은 `app/login`(AIMaster 같은 계정, 회원가입은 메인 사이트). 도메인이 달라 세션이 메인 사이트와 공유되지 않으므로 이 프로그램에서 한 번 로그인해야 한다(다른 독립 배포 프로그램과 같음). 사이드바 로그아웃은 이 앱의 세션을 끊고 `/login`으로 간다. 시험은 `buylifemall@naver.com`으로 실제 로그인해서 한다.
+- 점검용 코드 `lib/checkFlux2Max.ts`(아무 회원의 replicate 키를 읽던 미사용 코드)를 삭제했다.
+- 테스트: `npm run test:access`(메모리 DB — 비로그인 401, 이용 권한, 관리자 전용, 타인 키 폴백 없음, 소스에 게스트 우회 재발 방지).
+- **남은 문제(별도 처리 필요)**: `lib/supabase/server.ts`에 관리자 서비스 키가 base64로 소스에 박혀 있고(`DEFAULT_SERVICE_ROLE_KEY`), `scripts/test-flux-pipeline.mjs`에도 있다. 이 프로젝트의 Vercel에는 환경변수가 하나도 없어 지금은 그 박힌 키로만 DB에 접근한다. 키를 새로 발급해 Vercel `SUPABASE_SERVICE_ROLE_KEY`로 등록한 뒤 코드의 기본값을 지워야 한다(순서를 지키지 않으면 서비스가 멈춤). 기록: `docs/ERROR_LESSONS.md` 최상단.

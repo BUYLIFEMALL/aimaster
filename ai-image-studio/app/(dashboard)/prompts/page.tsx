@@ -41,6 +41,8 @@ const PRESET_STYLES = [
 export default function PromptsManagementPage() {
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [loading, setLoading] = useState(true);
+  // 공유 추천 프롬프트는 관리자만 바꿀 수 있다(서버가 canEdit로 알려준다).
+  const [canEdit, setCanEdit] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -70,6 +72,7 @@ export default function PromptsManagementPage() {
 
       if (res.ok) {
         setPrompts(data.prompts || []);
+        setCanEdit(Boolean(data.canEdit));
       } else {
         console.error("Fetch prompts error:", data.error);
       }
@@ -203,12 +206,13 @@ export default function PromptsManagementPage() {
               화풍 프롬프트 게시판 관리
             </h1>
             <p className="text-xs text-zinc-400 mt-1">
-              13가지 화풍별 추천 아이디어 태그 및 프롬프트 예시를 게시판 형태로 등록·수정·삭제할 수 있습니다.
+              13가지 화풍별 추천 아이디어 태그 및 프롬프트 예시입니다. 등록·수정·삭제는 관리자만 할 수 있습니다.
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {canEdit && (
           <button
             type="button"
             onClick={handleSeedData}
@@ -218,6 +222,7 @@ export default function PromptsManagementPage() {
             <Sparkles className="h-3.5 w-3.5 text-amber-400" />
             초기 130개 주입
           </button>
+          )}
           <button
             type="button"
             onClick={fetchPrompts}
@@ -226,6 +231,7 @@ export default function PromptsManagementPage() {
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-amber-400" : ""}`} />
             새로고침
           </button>
+          {canEdit && (
           <button
             type="button"
             onClick={openCreateModal}
@@ -234,6 +240,7 @@ export default function PromptsManagementPage() {
             <Plus className="h-4 w-4 stroke-[3]" />
             새 예시 프롬프트 등록
           </button>
+          )}
         </div>
       </div>
 
@@ -328,6 +335,7 @@ export default function PromptsManagementPage() {
                     </td>
                     <td className="px-4 py-3.5 text-center">
                       <div className="flex items-center justify-center gap-1.5">
+                        {canEdit && (<>
                         <button
                           type="button"
                           onClick={() => openEditModal(item)}
@@ -344,6 +352,7 @@ export default function PromptsManagementPage() {
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
+                        </>)}
                       </div>
                     </td>
                   </tr>
