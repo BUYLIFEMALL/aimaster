@@ -51,7 +51,7 @@ for (const persona of personas) {
     const selected = candidate.id === persona.id;
     assert.equal(current.props["aria-pressed"], selected);
     assert.ok(current.props.className.includes(selected ? "bg-emerald-600" : "bg-blue-600"));
-    assert.equal(current.children.join(""), selected ? "✓ 선택됨" : "조건 불러오기");
+    assert.equal(current.children.join(""), selected ? "✓ 선택됨" : "페르소나 불러오기");
   }
   assert.equal(render(persona, true).props.disabled, true);
 }

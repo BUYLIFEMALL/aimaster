@@ -78,7 +78,7 @@
 - **계정 연결**: `/settings`의 `src/components/NaverAccountManager.tsx`. `nba_accounts_local`의 기존 계정 객체와 옛 categories/default_category/추가 필드를 보존합니다. 더 이상 `/accounts/page.tsx`를 컴포넌트처럼 import하지 않습니다.
 - **모델 설정**: `/api/generation-preferences` + `nba_generation_preferences`(회원별). 글 엔진·세부 모델, 이미지 플랫폼·모델·비율·장수만 저장합니다. 저장 버튼은 생성/발행을 실행하지 않습니다. 말끝·문체·페르소나·카테고리까지 영구 저장된다고 설명하지 않습니다. 로딩 완료 전 생성/모델 변경 잠금을 유지합니다.
 - **문체**: `src/lib/ai/writingStyles.ts`. 말끝/문체 선택은 페르소나 어조보다 우선합니다. Writer/Humanizer/Reviewer에 전달하되 사실·조건·숫자·인용 보존 및 허구 경험/후기 금지를 유지합니다.
-- **페르소나 버튼**: `activePersonaId === p.id`로 단일 선택을 표시합니다. `handleSelectPersona`가 주제·키워드·목적을 적용하며 분류/문체는 유지합니다. 버튼의 `type="button"`·`stopPropagation()`·`aria-pressed`·포커스 표시를 유지합니다. `조건 불러오기`는 무료 로컬 조건 적용이며 `즉시 생성`과 구분합니다.
+- **페르소나 버튼**: `activePersonaId === p.id`로 단일 선택을 표시합니다. `handleSelectPersona`가 주제·키워드·목적을 적용하며 분류/문체는 유지합니다. 버튼의 `type="button"`·`stopPropagation()`·`aria-pressed`·포커스 표시를 유지합니다. `페르소나 불러오기`는 무료 로컬 조건 적용이며 `즉시 생성`과 구분합니다.
 - **저장·보관**: 원고는 `/api/posts` 서버 저장을 사용하고 로컬 저장은 임시 버퍼입니다. 자동 저장과 영구 무제한 보관은 다릅니다. 원고/이미지/수집 글감에는 30일 정리 정책이 있고 보관 표시된 중요 글감은 삭제 대상에서 제외합니다.
 - **권한/키**: AIMaster 공용 권한과 회원 본인 API 키를 사용합니다. API는 JSON 401/403, 페이지는 기존 접근 게이트, 확장은 토큰 소유자의 현재 프로그램 권한을 재검증합니다. 관리자 키 폴백·개별 회원가입/별도 DB를 만들지 않습니다.
 
@@ -231,7 +231,7 @@ naver-blog-agent/
 ## ⚠️ 3. 다음 작업 시 반드시 주의할 핵심 사항 (Gotchas)
 
 0-5. **v1.42 페르소나 조건 버튼**:
-   - `조건 불러오기`와 `✓ 선택됨`은 같은 실제 버튼의 상태입니다. `activePersonaId === p.id` 기준으로 파란색/초록색을 전환합니다. 기본 선택 페르소나도 초록색이며 조건 불러오기는 AI 생성/발행을 실행하지 않습니다.
+   - `페르소나 불러오기`와 `✓ 선택됨`은 같은 실제 버튼의 상태입니다(v1.57에서 "조건 불러오기"에서 이름 변경). `activePersonaId === p.id` 기준으로 파란색/초록색을 전환합니다. 기본 선택 페르소나도 초록색이며 페르소나 불러오기는 AI 생성/발행을 실행하지 않습니다.
    - `type="button"`·`stopPropagation()`·`aria-pressed`·포커스 표시·생성 중 잠금을 유지합니다. 기존 카드 선택 및 즉시 생성 핸들러는 변경하지 않습니다. `npm run test:personas`와 기존 테스트/빌드를 실행합니다.
 
 0-4. **v1.41 카테고리 설명 제거**:

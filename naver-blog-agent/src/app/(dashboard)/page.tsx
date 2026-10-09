@@ -1118,7 +1118,7 @@ export default function MainPage() {
                           : "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-600"
                       }`}
                     >
-                      {isSelected ? "✓ 선택됨" : "조건 불러오기"}
+                      {isSelected ? "✓ 선택됨" : "페르소나 불러오기"}
                     </button>
 
                     <button
