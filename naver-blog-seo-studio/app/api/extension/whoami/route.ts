@@ -15,6 +15,6 @@ export async function GET(request: Request) {
     name: user.name,
     isAdmin: user.isAdmin,
     latestVersion: APP_VERSION,
-    downloadUrl: `/downloads/naver-blog-seo-studio-extension-${APP_VERSION}.zip`,
+    downloadUrl: `/downloads/naver-blog-seo-studio-extension-latest.zip`,
   });
 }

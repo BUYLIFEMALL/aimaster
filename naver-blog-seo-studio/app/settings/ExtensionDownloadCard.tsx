@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import extensionManifest from "../../extension/manifest.json";
 
 const EXTENSION_VERSION = extensionManifest.version_name ?? `v${extensionManifest.version}`;
-const EXTENSION_ARCHIVE = `/downloads/naver-blog-seo-studio-extension-${EXTENSION_VERSION}.zip`;
+const EXTENSION_ARCHIVE = `/downloads/naver-blog-seo-studio-extension-latest.zip`;
 const INSTALLED_VERSION_KEY = "naver-blog-seo-studio-extension-version";
 const DOWNLOAD_MARKER_KEY = "naver-blog-seo-studio-extension-downloaded";
 
