@@ -13,6 +13,12 @@ import type { ApiKeyProvider } from "@/types/database.types";
 import type { AnalysisModel } from "@/lib/ai/models";
 
 const PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
+const PUBLIC_DATA_PROVIDERS: ApiKeyProvider[] = [
+  "seoul_opendata_api_key",
+  "data_go_kr_service_key",
+  "vworld_api_key",
+  "vworld_domain",
+];
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
 // 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
@@ -74,6 +80,27 @@ export default async function SettingsPage() {
         <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
           <div className="space-y-3">
             {PROVIDERS.map((provider) => (
+              <ApiKeyRow
+                key={provider}
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <h2 className="text-lg font-semibold text-gold">공공데이터 키 (선택)</h2>
+          <p className="text-sm text-neutral-400">
+            실거래·건축물대장·공시가격 조회에 쓰입니다. 등록하지 않으면 운영자 공용 키로 조회되고, 본인 키를 등록하면 본인 키로 조회돼요(호출 한도가 걱정되면 등록하세요). 브이월드는 키와 도메인을 함께 등록해야 적용됩니다.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
+          <div className="space-y-3">
+            {PUBLIC_DATA_PROVIDERS.map((provider) => (
               <ApiKeyRow
                 key={provider}
                 provider={provider}

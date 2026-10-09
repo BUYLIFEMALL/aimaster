@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:api-keys": "node scripts/test-api-keys.cjs"
+    "test:api-keys": "node scripts/test-api-keys.cjs",
+    "test:public-keys": "node scripts/test-public-keys.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

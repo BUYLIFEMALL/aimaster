@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveMemberPublicDataKeys } from "@/lib/publicdata/memberKeys";
 import { collectDistrict, findUnmatchedListingIds, notifyUserForListings } from "@/lib/realestate/collect";
 
 // 사용자가 직접 누르는 "지금 조회하기" — 이 서비스의 기본(default) 동작 방식이다.
@@ -43,6 +44,7 @@ export async function queryDistrictsAction(): Promise<QueryDistrictsResult> {
     .maybeSingle();
   const telegramLinked = !!(telegramLink?.bot_token && telegramLink?.chat_id);
 
+  const publicDataKeys = await resolveMemberPublicDataKeys(admin, user.id); // 본인 키가 있으면 그 키로, 없으면 공용 키
   const year = new Date().getFullYear();
   const now = new Date();
   let totalNew = 0;
@@ -61,7 +63,7 @@ export async function queryDistrictsAction(): Promise<QueryDistrictsResult> {
 
     if (!recentlyCollected) {
       try {
-        await collectDistrict(admin, w.sgg_cd, w.sgg_nm, year);
+        await collectDistrict(admin, w.sgg_cd, w.sgg_nm, year, publicDataKeys);
         await admin
           .from("real_estate_district_collect_state")
           .upsert({ sgg_cd: w.sgg_cd, last_collected_at: now.toISOString() }, { onConflict: "sgg_cd" });

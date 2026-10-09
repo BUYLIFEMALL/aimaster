@@ -10,6 +10,7 @@ import { analyzeListing } from "@/lib/ai/analyze";
 import type { AnalysisModel } from "@/lib/ai/models";
 import { getDistrictSentiment } from "@/lib/ai/sentiment";
 import { ensureLandInfo } from "@/lib/realestate/collect";
+import { resolveMemberPublicDataKeys } from "@/lib/publicdata/memberKeys";
 import type { Database } from "@/types/database.types";
 
 export interface AnalysisActionState {
@@ -53,9 +54,10 @@ export async function runListingAnalysis(
   }
 
   try {
+    const publicDataKeys = await resolveMemberPublicDataKeys(supabase, userId);
     const [sentiment, landInfo] = await Promise.all([
       getDistrictSentiment(supabase, listing.sgg_nm, perplexityKey),
-      listing.pnu ? ensureLandInfo(listing.pnu) : Promise.resolve(null),
+      listing.pnu ? ensureLandInfo(listing.pnu, publicDataKeys) : Promise.resolve(null),
     ]);
 
     // 전세가율/괴리율은 원본 API에 없어 여기서 계산한다.

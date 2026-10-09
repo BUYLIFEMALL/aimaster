@@ -9,6 +9,7 @@ import {
   fetchLandUsePlan,
   fetchSeoulRentComparables,
   fetchSeoulTrades,
+  type PublicDataKeys,
 } from "@/lib/publicdata/client";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
@@ -29,8 +30,9 @@ export async function collectDistrict(
   sggCd: string,
   sggNm: string,
   year: number,
+  keys?: PublicDataKeys, // 회원 본인 공공데이터 키(없으면 운영자 공용 키)
 ): Promise<{ newCount: number }> {
-  const trades = await fetchSeoulTrades({ sggCd, year, numOfRows: 200 });
+  const trades = await fetchSeoulTrades({ sggCd, year, numOfRows: 200, keys });
   const validTrades = trades.filter((row) => row.CTRT_DAY && row.BLDG_NM);
 
   // 최대 200건을 매번 한 건씩 존재 여부 조회하던 것을, 한 번의 IN 쿼리로 일괄 확인하도록 변경.
@@ -56,13 +58,14 @@ export async function collectDistrict(
     // 신규 실거래 → 건축물대장/공시가격/전월세 3종을 병렬로 조회 (하나 실패해도 나머지는 반영).
     const [buildingResult, priceResult, rentResult] = await Promise.allSettled([
       fetchBuildingRegister({
+        keys,
         sigunguCd: row.CGG_CD,
         bjdongCd: row.STDG_CD,
         bun: row.MNO,
         ji: row.SNO,
       }),
-      fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1 }),
-      fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year }),
+      fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, keys }),
+      fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }),
     ]);
 
     let exclusiveArea: number | null = null;
@@ -279,7 +282,7 @@ export interface LandInfo {
 // 공시지가는 연 1회만 갱신되므로, 이미 캐싱돼 있으면 재호출하지 않는다(같은 단지 여러
 // 매물이 같은 PNU를 공유하는 경우가 많아 비용 절감 효과가 큼). 재건축/토지가치 관점의
 // AI 투자분석(analyzeListing)에 이 값을 함께 넘겨준다.
-export async function ensureLandInfo(pnu: string): Promise<LandInfo | null> {
+export async function ensureLandInfo(pnu: string, keys?: PublicDataKeys): Promise<LandInfo | null> {
   if (!pnu) return null;
   const admin = createAdminClient();
 
@@ -301,8 +304,8 @@ export async function ensureLandInfo(pnu: string): Promise<LandInfo | null> {
   try {
     const stdrYear = new Date().getFullYear() - 1; // 아파트 공시가격 조회와 동일한 관례(전년도 기준)
     const [priceRows, useRows] = await Promise.all([
-      fetchLandPrice({ pnu, stdrYear }),
-      fetchLandUsePlan({ pnu }),
+      fetchLandPrice({ pnu, stdrYear, keys }),
+      fetchLandUsePlan({ pnu, keys }),
     ]);
 
     const latestPrice = [...priceRows].sort((a, b) =>

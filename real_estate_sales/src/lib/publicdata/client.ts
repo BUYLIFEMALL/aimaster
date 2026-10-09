@@ -17,6 +17,16 @@ const VWORLD_BASE = "https://api.vworld.kr/ned/data";
 // (n8n 서버가 나중에 정리되어 이 도메인이 없어져도 코드가 깨지지 않도록 하는 안전장치).
 const VWORLD_REGISTERED_DOMAIN = process.env.VWORLD_REGISTERED_DOMAIN ?? "n8n.buylife.xyz";
 
+// 회원이 설정 화면에 본인 공공데이터 키를 등록하면 그 키로, 안 넣으면 운영자 공용 키(환경변수)로 호출한다
+// (무료 공공데이터 키 예외 — docs/TOP_RULE_PERSONAL_ACCOUNT_API.md §8). vworld 키와 도메인은 짝이라
+// 둘 다 있을 때만 본인 것을 쓴다(memberKeys.ts).
+export interface PublicDataKeys {
+  seoul?: string;
+  dataGoKr?: string;
+  vworld?: string;
+  vworldDomain?: string;
+}
+
 function requireEnv(name: string): string {
   const v = process.env[name];
   if (!v) throw new Error(`환경변수 ${name}가 설정되지 않았습니다.`);
@@ -45,11 +55,12 @@ export interface SeoulRtmsRow {
 
 // 실거래가 목록 조회 (아파트 매매). numOfRows는 최대 1000.
 export async function fetchSeoulTrades(params: {
+  keys?: PublicDataKeys;
   sggCd: string;
   year: number;
   numOfRows?: number;
 }): Promise<SeoulRtmsRow[]> {
-  const key = requireEnv("SEOUL_OPENDATA_API_KEY");
+  const key = params.keys?.seoul || requireEnv("SEOUL_OPENDATA_API_KEY");
   const { sggCd, year, numOfRows = 1000 } = params;
   const url = `${SEOUL_BASE}/${key}/json/tbLnOpendataRtmsV/1/${numOfRows}/${year}/${sggCd}`;
 
@@ -80,12 +91,13 @@ export interface BuildingRegisterItem {
 
 // 건축물대장 표제부/전유부 조회 (전용면적 등)
 export async function fetchBuildingRegister(params: {
+  keys?: PublicDataKeys;
   sigunguCd: string;
   bjdongCd: string;
   bun: string;
   ji: string;
 }): Promise<BuildingRegisterItem[]> {
-  const key = requireEnv("DATA_GO_KR_SERVICE_KEY");
+  const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
   const { sigunguCd, bjdongCd, bun, ji } = params;
   const qs = new URLSearchParams({
     serviceKey: key,
@@ -119,11 +131,12 @@ export interface VworldPriceField {
 
 // 공동주택 공시가격 조회 (PNU 19자리 필요)
 export async function fetchApartAssessedPrice(params: {
+  keys?: PublicDataKeys;
   pnu: string;
   stdrYear: number;
   numOfRows?: number;
 }): Promise<VworldPriceField[]> {
-  const key = requireEnv("VWORLD_API_KEY");
+  const key = params.keys?.vworld || requireEnv("VWORLD_API_KEY");
   const { pnu, stdrYear, numOfRows = 10 } = params;
   const qs = new URLSearchParams({
     pnu,
@@ -132,7 +145,7 @@ export async function fetchApartAssessedPrice(params: {
     numOfRows: String(numOfRows),
     pageNo: "1",
     key,
-    domain: VWORLD_REGISTERED_DOMAIN,
+    domain: params.keys?.vworldDomain || VWORLD_REGISTERED_DOMAIN,
   });
 
   const res = await fetch(`${VWORLD_BASE}/getApartHousingPriceAttr?${qs.toString()}`, {
@@ -168,13 +181,14 @@ export interface SeoulRentRow {
 // 법정동 전체 결과가 돌아옴), 동 단위로 넉넉히 받아온 뒤 건물명으로 클라이언트에서
 // 필터링하고 최신 계약일 순으로 정렬해서 반환한다.
 export async function fetchSeoulRentComparables(params: {
+  keys?: PublicDataKeys;
   sggCd: string;
   sggNm: string;
   stdgCd: string;
   bldgNm: string;
   year: number;
 }): Promise<SeoulRentRow[]> {
-  const key = requireEnv("SEOUL_OPENDATA_API_KEY");
+  const key = params.keys?.seoul || requireEnv("SEOUL_OPENDATA_API_KEY");
   const { sggCd, sggNm, stdgCd, bldgNm, year } = params;
   const url = `${SEOUL_BASE}/${key}/json/tbLnOpendataRentV/1/1000/${year}/${sggCd}/${encodeURIComponent(sggNm)}/${stdgCd}/`;
 
@@ -202,11 +216,12 @@ export interface VworldLandPriceField {
 // 개별공시지가 조회 (PNU 19자리 필요). 같은 stdrYear에도 정정 등으로 여러 행이 올 수 있어
 // 호출부에서 lastUpdtDt 기준 최신 행을 골라 써야 한다.
 export async function fetchLandPrice(params: {
+  keys?: PublicDataKeys;
   pnu: string;
   stdrYear: number;
   numOfRows?: number;
 }): Promise<VworldLandPriceField[]> {
-  const key = requireEnv("VWORLD_API_KEY");
+  const key = params.keys?.vworld || requireEnv("VWORLD_API_KEY");
   const { pnu, stdrYear, numOfRows = 10 } = params;
   const qs = new URLSearchParams({
     pnu,
@@ -215,7 +230,7 @@ export async function fetchLandPrice(params: {
     numOfRows: String(numOfRows),
     pageNo: "1",
     key,
-    domain: VWORLD_REGISTERED_DOMAIN,
+    domain: params.keys?.vworldDomain || VWORLD_REGISTERED_DOMAIN,
   });
 
   const res = await fetch(`${VWORLD_BASE}/getIndvdLandPriceAttr?${qs.toString()}`, {
@@ -237,10 +252,11 @@ export interface VworldLandUseField {
 // 토지이용계획(용도지역·지구·구역) 조회. 한 필지에 여러 지구/구역이 동시에 걸쳐있는 게
 // 일반적이라(용도지역 + 각종 규제구역) 배열 전체를 반환한다.
 export async function fetchLandUsePlan(params: {
+  keys?: PublicDataKeys;
   pnu: string;
   numOfRows?: number;
 }): Promise<VworldLandUseField[]> {
-  const key = requireEnv("VWORLD_API_KEY");
+  const key = params.keys?.vworld || requireEnv("VWORLD_API_KEY");
   const { pnu, numOfRows = 100 } = params;
   const qs = new URLSearchParams({
     pnu,
@@ -248,7 +264,7 @@ export async function fetchLandUsePlan(params: {
     numOfRows: String(numOfRows),
     pageNo: "1",
     key,
-    domain: VWORLD_REGISTERED_DOMAIN,
+    domain: params.keys?.vworldDomain || VWORLD_REGISTERED_DOMAIN,
   });
 
   const res = await fetch(`${VWORLD_BASE}/getLandUseAttr?${qs.toString()}`, {

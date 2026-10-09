@@ -236,3 +236,11 @@ npm run lint    # ESLint
 ## 공공데이터 운영자 키 예외 (2026-10-09 주인님 승인)
 
 `SEOUL_OPENDATA_API_KEY`·`DATA_GO_KR_SERVICE_KEY`·`VWORLD_API_KEY`는 무료 정부 공개 데이터라 운영자 키로 5분 주기 수집을 계속한다(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8). AI 키는 예외가 아니며 회원 본인 키만 쓴다(v1.04). 회원이 공공데이터 API를 직접 연동하기 어려워 당분간 공용 키로 유지하고, 한도에 걸리거나 필요해지면 회원 개별 등록으로 전환한다(주인님 2026-10-09).
+
+## 2026-10-09 v1.05 — 공공데이터 키 개인 등록(선택) 기능
+
+- 설정 화면에 "공공데이터 키 (선택)" 칸 추가: 서울열린데이터, 공공데이터포털, 브이월드 키 + 브이월드 등록 도메인.
+- **본인 키를 넣으면 본인 키로, 안 넣으면 운영자 공용 키**로 호출한다(`src/lib/publicdata/memberKeys.ts` → `client.ts`의 `keys` 인자). 브이월드는 키와 도메인이 짝일 때만 본인 것을 쓴다.
+- 적용 범위: 회원이 직접 누르는 "지금 조회하기"(`lib/actions/query.ts`)와 매물 분석의 토지정보 조회(`lib/actions/analysis.ts`). 5분 주기 예약 수집(`api/collect/dispatch`)은 운영자 공용 키를 그대로 쓴다.
+- DB: 공용 `user_api_keys.provider` 허용 목록에 `seoul_opendata_api_key`·`data_go_kr_service_key`·`vworld_api_key`·`vworld_domain` 추가(`supabase/migrations/20261009140000_user_api_keys_public_data_providers.sql`).
+- 시험: `npm run test:public-keys`.

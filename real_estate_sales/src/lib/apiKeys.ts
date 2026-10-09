@@ -7,6 +7,10 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   anthropic: "Anthropic (Claude)",
   gemini: "Google (Gemini)",
   perplexity: "Perplexity (시세/입지 리서치)",
+  seoul_opendata_api_key: "서울 열린데이터광장 인증키 (선택 — 비우면 공용 키 사용)",
+  data_go_kr_service_key: "공공데이터포털 서비스키 (선택 — 비우면 공용 키 사용)",
+  vworld_api_key: "브이월드 인증키 (선택 — 도메인과 함께 등록)",
+  vworld_domain: "브이월드에 등록한 도메인 (선택 — 브이월드 키와 함께 등록)",
 };
 
 export async function getUserApiKey(

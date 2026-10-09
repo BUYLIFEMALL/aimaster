@@ -1,4 +1,12 @@
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
+export type ApiKeyProvider =
+  | "openai"
+  | "anthropic"
+  | "gemini"
+  | "perplexity"
+  | "seoul_opendata_api_key"
+  | "data_go_kr_service_key"
+  | "vworld_api_key"
+  | "vworld_domain";
 
 export type Json =
   | string
