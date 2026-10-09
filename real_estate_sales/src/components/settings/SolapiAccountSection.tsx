@@ -80,8 +80,8 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
     <div>
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-medium text-neutral-100">💬 카카오톡/문자 알림 (SOLAPI)</h2>
-          <p className="text-sm text-neutral-400">
+          <h2 className="text-lg font-medium text-zinc-900">💬 카카오톡/문자 알림 (SOLAPI)</h2>
+          <p className="text-sm text-zinc-500">
             <a href="https://solapi.com/" target="_blank" rel="noreferrer" className="text-gold-light hover:underline">
               solapi.com
             </a>
@@ -97,17 +97,17 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
 
       <div>
         {account && !isEditing ? (
-          <div className="space-y-3 rounded-xl border border-white/5 bg-dark-50 p-4">
-            <p className="text-sm text-neutral-300">
+          <div className="space-y-3 rounded-xl border border-zinc-200 bg-dark-50 p-4">
+            <p className="text-sm text-zinc-700">
               API Key: <span className="font-mono">{maskApiKey(account.api_key)}</span>
             </p>
-            <p className="text-sm text-neutral-300">발신번호: {account.sender_phone}</p>
-            <p className="text-sm text-neutral-300">
+            <p className="text-sm text-zinc-700">발신번호: {account.sender_phone}</p>
+            <p className="text-sm text-zinc-700">
               카카오 채널(pfId):{" "}
-              {account.kakao_pf_id ?? <span className="text-neutral-500">미등록 — 카카오톡 알림 안 됨</span>}
+              {account.kakao_pf_id ?? <span className="text-zinc-500">미등록 — 카카오톡 알림 안 됨</span>}
             </p>
 
-            <div className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-3">
+            <div className="flex flex-wrap items-center gap-3 border-t border-zinc-200 pt-3">
               <button
                 type="button"
                 onClick={handleCheckBalance}
@@ -116,19 +116,19 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
               >
                 {isCheckingBalance ? "조회 중..." : "💰 잔액 조회"}
               </button>
-              <button type="button" onClick={handleDelete} disabled={isDeleting} className="text-xs text-red-400 hover:underline disabled:opacity-60">
+              <button type="button" onClick={handleDelete} disabled={isDeleting} className="text-xs text-red-600 hover:underline disabled:opacity-60">
                 {isDeleting ? "삭제 중..." : "삭제"}
               </button>
             </div>
             {balance && (
-              <p className="text-sm text-neutral-300">
-                잔액: <span className="font-medium text-neutral-100">{balance.balance.toLocaleString()}원</span> · 포인트:{" "}
-                <span className="font-medium text-neutral-100">{balance.point.toLocaleString()}</span>
+              <p className="text-sm text-zinc-700">
+                잔액: <span className="font-medium text-zinc-900">{balance.balance.toLocaleString()}원</span> · 포인트:{" "}
+                <span className="font-medium text-zinc-900">{balance.point.toLocaleString()}</span>
               </p>
             )}
-            {balanceError && <p className="text-xs text-red-400">{balanceError}</p>}
+            {balanceError && <p className="text-xs text-red-600">{balanceError}</p>}
 
-            <div className="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3">
+            <div className="flex flex-wrap items-center gap-2 border-t border-zinc-200 pt-3">
               <Input
                 value={testPhone}
                 onChange={(e) => setTestPhone(e.target.value)}
@@ -139,17 +139,17 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
                 {isTesting ? "발송 중..." : "✉️ 테스트 문자 발송"}
               </Button>
             </div>
-            {testResult && <p className={`text-xs ${testResult.ok ? "text-green-400" : "text-red-400"}`}>{testResult.message}</p>}
+            {testResult && <p className={`text-xs ${testResult.ok ? "text-green-400" : "text-red-600"}`}>{testResult.message}</p>}
           </div>
         ) : (
-          <form action={formAction} className="space-y-3 rounded-xl border border-white/5 bg-dark-50 p-4">
+          <form action={formAction} className="space-y-3 rounded-xl border border-zinc-200 bg-dark-50 p-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-xs text-neutral-400">API Key</label>
+                <label className="mb-1 block text-xs text-zinc-500">API Key</label>
                 <Input name="apiKey" required defaultValue={account?.api_key ?? ""} autoComplete="off" />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-neutral-400">API Secret</label>
+                <label className="mb-1 block text-xs text-zinc-500">API Secret</label>
                 <Input
                   name="apiSecret"
                   type="password"
@@ -161,15 +161,15 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-xs text-neutral-400">발신번호</label>
+                <label className="mb-1 block text-xs text-zinc-500">발신번호</label>
                 <Input name="senderPhone" required defaultValue={account?.sender_phone ?? ""} placeholder="01012345678" />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-neutral-400">카카오 채널 ID (pfId, 선택)</label>
+                <label className="mb-1 block text-xs text-zinc-500">카카오 채널 ID (pfId, 선택)</label>
                 <Input name="kakaoPfId" defaultValue={account?.kakao_pf_id ?? ""} placeholder="KA01PF..." />
               </div>
             </div>
-            {state.error && <p className="text-xs text-red-400">{state.error}</p>}
+            {state.error && <p className="text-xs text-red-600">{state.error}</p>}
             <div className="flex gap-2">
               <Button type="submit" variant="primary" disabled={isPending}>
                 {isPending ? "저장 중..." : "저장"}

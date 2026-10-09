@@ -37,7 +37,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const isOverviewActive = pathname?.startsWith(OVERVIEW_ITEM.href);
 
   return (
-    <aside className="flex w-full flex-col border-b border-white/10 bg-dark-50 p-4 md:w-64 md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:shrink-0">
+    <aside className="flex w-full flex-col border-b border-zinc-200 bg-dark-50 p-4 md:w-64 md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:shrink-0">
       {/* The account block sits right under the menu; on long menus only the menu scrolls so it stays in view. */}
       <div className="md:min-h-0 md:overflow-y-auto">
         <div className="mb-4 md:mb-6">
@@ -45,12 +45,12 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             href="https://www.buylife.xyz/programs"
             className="gold-text block px-2 text-lg font-semibold hover:opacity-80"
           >
-            부동산 실거래 투자분석 자동화
+            부동산 투자분석 자동화
           </a>
-          <p className="px-2 text-xs text-neutral-400">{APP_VERSION}</p>
+          <p className="px-2 text-xs text-zinc-500">{APP_VERSION}</p>
           <a
             href="https://www.buylife.xyz/programs"
-            className="block px-2 text-xs text-neutral-500 hover:text-gold-light"
+            className="block px-2 text-xs text-zinc-500 hover:text-gold-light"
           >
             ← 다른 프로그램 보기
           </a>
@@ -61,7 +61,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           className={`mb-3 block rounded-lg px-3 py-2 text-sm font-medium ${
             isOverviewActive
               ? "bg-dark-100 text-gold-light"
-              : "text-neutral-300 hover:bg-dark-100 hover:text-gold-light"
+              : "text-zinc-700 hover:bg-dark-100 hover:text-gold-light"
           }`}
         >
           {OVERVIEW_ITEM.icon} {OVERVIEW_ITEM.label}
@@ -78,13 +78,13 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                       isActive
-                        ? "bg-gold-gradient text-dark-50"
-                        : "bg-dark-100 text-neutral-400 group-hover:bg-dark-100/70"
+                        ? "bg-gold-gradient text-white"
+                        : "bg-dark-100 text-zinc-500 group-hover:bg-dark-100/70"
                     }`}
                   >
                     {item.step}
                   </span>
-                  {!isLast && <span className="mt-1 w-px flex-1 bg-white/10" />}
+                  {!isLast && <span className="mt-1 w-px flex-1 bg-zinc-200" />}
                 </div>
 
                 {/* 라벨 + 설명 */}
@@ -93,17 +93,17 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     isActive ? "bg-dark-100" : "group-hover:bg-dark-100/60"
                   }`}
                 >
-                  <p className={`text-sm font-bold ${isActive ? "text-gold-light" : "text-neutral-200"}`}>
+                  <p className={`text-sm font-bold ${isActive ? "text-gold-light" : "text-zinc-800"}`}>
                     {item.icon} {item.label}
                   </p>
-                  <p className="text-xs text-neutral-500">{item.description}</p>
+                  <p className="text-xs text-zinc-500">{item.description}</p>
                 </div>
               </Link>
             );
           })}
         </nav>
 
-        <div className="mt-6 border-t border-white/10 pt-3">
+        <div className="mt-6 border-t border-zinc-200 pt-3">
           {UTILITY_ITEMS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
@@ -113,7 +113,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 className={`block rounded-lg px-3 py-2 text-sm font-medium ${
                   isActive
                     ? "bg-dark-100 text-gold-light"
-                    : "text-neutral-300 hover:bg-dark-100 hover:text-gold-light"
+                    : "text-zinc-700 hover:bg-dark-100 hover:text-gold-light"
                 }`}
               >
                 {item.icon} {item.label}
@@ -123,12 +123,12 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </div>
       </div>
 
-      <div className="mt-4 shrink-0 border-t border-white/10 pt-4">
-        <p className="mb-2 truncate px-2 text-xs text-neutral-500">{userEmail}</p>
+      <div className="mt-4 shrink-0 border-t border-zinc-200 pt-4">
+        <p className="mb-2 truncate px-2 text-xs text-zinc-500">{userEmail}</p>
         <form action={signOutAction}>
           <button
             type="submit"
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-400 hover:bg-dark-100"
+            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-500 hover:bg-dark-100"
           >
             로그아웃
           </button>

@@ -47,7 +47,7 @@ export function QueryNowButton() {
         {loading ? "조회 중... (최대 1~2분 소요될 수 있어요)" : "지금 조회하기"}
       </Button>
       {message && (
-        <p className={`mt-2 text-sm ${isError ? "text-red-400" : "text-neutral-300"}`}>{message}</p>
+        <p className={`mt-2 text-sm ${isError ? "text-red-600" : "text-zinc-700"}`}>{message}</p>
       )}
     </div>
   );

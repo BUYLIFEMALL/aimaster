@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0f;
-  --foreground: #f5f5f7;
+  --background: #ffffff;
+  --foreground: #18181b;
 }
 
 @theme inline {
@@ -11,17 +11,17 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* 루트 tailwind.config.ts의 다크 럭셔리 테마 토큰과 동일 (docs/PLATFORM_PATTERNS.md 참고) */
-  --color-gold: #d4af37;
-  --color-gold-light: #f5c842;
-  --color-gold-dark: #b8960c;
-  --color-dark: #0a0a0f;
-  --color-dark-50: #12121a;
-  --color-dark-100: #1a1a26;
-  --color-dark-200: #222232;
+  /* 흰색 베이스 + 파랑(#005acc) 포인트 (2026-10-10, 웹 서브프로그램 작업 화면 흰색 통일 규칙). 기존 gold/dark 이름은 그대로 두고 값만 라이트 톤으로 매핑 */
+  --color-gold: #005acc;
+  --color-gold-light: #005acc;
+  --color-gold-dark: #004bb9;
+  --color-dark: #ffffff;
+  --color-dark-50: #f8fafc;
+  --color-dark-100: #f1f5f9;
+  --color-dark-200: #e2e8f0;
 
-  --background-image-gold-gradient: linear-gradient(135deg, #d4af37, #f5c842);
-  --background-image-dark-gradient: linear-gradient(180deg, #0a0a0f 0%, #12121a 100%);
+  --background-image-gold-gradient: linear-gradient(135deg, #005acc, #004bb9);
+  --background-image-dark-gradient: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
   --background-image-hero-gradient: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.15) 0%, transparent 70%), linear-gradient(180deg, #0a0a0f 0%, #0d0d18 100%);
 }
 
@@ -32,15 +32,11 @@ body {
 }
 
 .gold-text {
-  background-image: linear-gradient(135deg, #d4af37, #f5c842);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
+  color: #005acc;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
   border-radius: 1rem;
 }

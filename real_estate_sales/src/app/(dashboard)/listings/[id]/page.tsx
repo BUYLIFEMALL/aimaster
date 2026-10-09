@@ -56,55 +56,55 @@ export default async function ListingDetailPage({
 
   return (
     <div className="max-w-2xl">
-      <p className="text-sm text-neutral-400">
+      <p className="text-sm text-zinc-500">
         {listing.sgg_nm} {listing.stdg_nm}
       </p>
       <h1 className="gold-text mb-4 text-2xl font-semibold">{listing.bldg_nm}</h1>
 
       <div className="glass-card mb-6 grid grid-cols-2 gap-y-2 p-5 text-sm">
-        <span className="text-neutral-400">계약일</span>
-        <span className="text-neutral-100">{listing.contract_date ?? "-"}</span>
-        <span className="text-neutral-400">전용면적</span>
-        <span className="text-neutral-100">{listing.exclusive_area ?? "-"}m²</span>
-        <span className="text-neutral-400">건물면적</span>
-        <span className="text-neutral-100">{listing.building_area ?? "-"}m²</span>
-        <span className="text-neutral-400">층</span>
-        <span className="text-neutral-100">{listing.floor ?? "-"}층</span>
-        <span className="text-neutral-400">건축년도</span>
-        <span className="text-neutral-100">{listing.building_year ?? "-"}</span>
-        <span className="text-neutral-400">거래금액</span>
+        <span className="text-zinc-500">계약일</span>
+        <span className="text-zinc-900">{listing.contract_date ?? "-"}</span>
+        <span className="text-zinc-500">전용면적</span>
+        <span className="text-zinc-900">{listing.exclusive_area ?? "-"}m²</span>
+        <span className="text-zinc-500">건물면적</span>
+        <span className="text-zinc-900">{listing.building_area ?? "-"}m²</span>
+        <span className="text-zinc-500">층</span>
+        <span className="text-zinc-900">{listing.floor ?? "-"}층</span>
+        <span className="text-zinc-500">건축년도</span>
+        <span className="text-zinc-900">{listing.building_year ?? "-"}</span>
+        <span className="text-zinc-500">거래금액</span>
         <span className="text-gold-light font-medium">{formatWon(listing.price_amount)}</span>
-        <span className="text-neutral-400">공시가격</span>
-        <span className="text-neutral-100">
+        <span className="text-zinc-500">공시가격</span>
+        <span className="text-zinc-900">
           {formatWon(listing.official_price ? listing.official_price / 10000 : null)}
         </span>
       </div>
 
       {landInfo && (landInfo.price_per_m2 || landInfo.use_zones) && (
         <div className="glass-card mb-6 grid grid-cols-2 gap-y-2 p-5 text-sm">
-          <h2 className="col-span-2 mb-1 text-base font-medium text-neutral-100">
+          <h2 className="col-span-2 mb-1 text-base font-medium text-zinc-900">
             토지(대지) 정보
           </h2>
-          <span className="text-neutral-400">
+          <span className="text-zinc-500">
             개별공시지가{landInfo.price_stdr_year ? ` (${landInfo.price_stdr_year}년)` : ""}
           </span>
-          <span className="text-neutral-100">
+          <span className="text-zinc-900">
             {landInfo.price_per_m2
               ? `${landInfo.price_per_m2.toLocaleString("ko-KR")}원/m²`
               : "-"}
           </span>
-          <span className="text-neutral-400">용도지역/지구/구역</span>
-          <span className="text-neutral-100">{landInfo.use_zones ?? "-"}</span>
+          <span className="text-zinc-500">용도지역/지구/구역</span>
+          <span className="text-zinc-900">{landInfo.use_zones ?? "-"}</span>
         </div>
       )}
 
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-neutral-100">AI 투자 분석</h2>
+        <h2 className="text-lg font-medium text-zinc-900">AI 투자 분석</h2>
         {latest && <ReanalyzeButton listingId={listing.id} />}
       </div>
 
       {!hasKeys ? (
-        <div className="glass-card p-4 text-sm text-neutral-400">
+        <div className="glass-card p-4 text-sm text-zinc-500">
           AI 분석을 보려면 먼저{" "}
           <Link href="/settings" className="text-gold-light underline">
             설정
@@ -112,7 +112,7 @@ export default async function ListingDetailPage({
           에서 OpenAI·Perplexity API 키와 선호 모델을 등록해주세요.
         </div>
       ) : !latest ? (
-        <div className="glass-card p-4 text-sm text-neutral-400">
+        <div className="glass-card p-4 text-sm text-zinc-500">
           분석에 실패했어요. 설정에서 등록한 API 키가 유효한지 확인 후, 아래 버튼으로
           다시 시도해주세요.
           <div className="mt-3">
@@ -125,35 +125,35 @@ export default async function ListingDetailPage({
             <span className="text-gold-light text-base font-medium">
               투자 매력도 {latest.investment_score ?? "-"}점
             </span>
-            <span className="text-xs text-neutral-500">{latest.model}</span>
+            <span className="text-xs text-zinc-500">{latest.model}</span>
           </div>
-          <p className="mb-1 text-neutral-300">
+          <p className="mb-1 text-zinc-700">
             저평가지수 {latest.undervaluation_index ?? "-"} · 1년 상승예측률{" "}
             {latest.predicted_growth_pct ?? "-"}%
           </p>
           {latest.rationale && (
-            <p className="whitespace-pre-line text-neutral-400">{latest.rationale}</p>
+            <p className="whitespace-pre-line text-zinc-500">{latest.rationale}</p>
           )}
         </div>
       )}
 
       {analyses && analyses.length > 1 && (
         <div className="mt-4 space-y-3">
-          <h3 className="text-sm font-medium text-neutral-400">이전 분석 이력</h3>
+          <h3 className="text-sm font-medium text-zinc-500">이전 분석 이력</h3>
           {analyses.slice(1).map((a) => (
             <div key={a.id} className="glass-card p-4 text-sm opacity-70">
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-gold-light font-medium">
                   투자 매력도 {a.investment_score ?? "-"}점
                 </span>
-                <span className="text-xs text-neutral-500">{a.model}</span>
+                <span className="text-xs text-zinc-500">{a.model}</span>
               </div>
-              <p className="mb-1 text-neutral-300">
+              <p className="mb-1 text-zinc-700">
                 저평가지수 {a.undervaluation_index ?? "-"} · 1년 상승예측률{" "}
                 {a.predicted_growth_pct ?? "-"}%
               </p>
               {a.rationale && (
-                <p className="whitespace-pre-line text-neutral-400">{a.rationale}</p>
+                <p className="whitespace-pre-line text-zinc-500">{a.rationale}</p>
               )}
             </div>
           ))}

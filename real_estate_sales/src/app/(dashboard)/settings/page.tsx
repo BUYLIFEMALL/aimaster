@@ -65,15 +65,15 @@ export default async function SettingsPage() {
     <div className="max-w-xl space-y-8">
       <div>
         <h1 className="gold-text mb-2 text-2xl font-semibold">설정</h1>
-        <p className="text-sm text-neutral-400">
+        <p className="text-sm text-zinc-500">
           이 서비스는 각 사용자가 자신의 API 키와 텔레그램 봇을 직접 등록해서 사용해요.
         </p>
       </div>
 
       <section>
         <div className="mb-3">
-          <h2 className="text-lg font-medium text-neutral-100">🤖 AI 분석 키 (OpenAI / Perplexity)</h2>
-          <p className="text-sm text-neutral-400">
+          <h2 className="text-lg font-medium text-zinc-900">🤖 AI 분석 키 (OpenAI / Perplexity)</h2>
+          <p className="text-sm text-zinc-500">
             AI 분석(투자 매력도 분석)에 사용돼요. 등록하지 않으면 분석 기능을 쓸 수 없어요.
           </p>
         </div>
@@ -94,7 +94,7 @@ export default async function SettingsPage() {
       <section>
         <div className="mb-3">
           <h2 className="text-lg font-semibold text-gold">공공데이터 키 (선택)</h2>
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-zinc-500">
             실거래·건축물대장·공시가격 조회에 쓰입니다. 등록하지 않으면 운영자 공용 키로 조회되고, 본인 키를 등록하면 본인 키로 조회돼요(호출 한도가 걱정되면 등록하세요). 브이월드는 키와 도메인을 함께 등록해야 적용됩니다.
           </p>
         </div>
@@ -113,8 +113,8 @@ export default async function SettingsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-medium text-neutral-100">AI 분석 모델</h2>
-        <p className="mb-3 text-sm text-neutral-400">
+        <h2 className="mb-3 text-lg font-medium text-zinc-900">AI 분석 모델</h2>
+        <p className="mb-3 text-sm text-zinc-500">
           여기서 고른 모델로, 새 실거래를 열어볼 때 매번 누르지 않아도 자동으로 투자 분석이
           되어 바로 보여요.
         </p>
@@ -130,14 +130,14 @@ export default async function SettingsPage() {
 
       <section>
         <div className="mb-3">
-          <h2 className="text-lg font-medium text-neutral-100">📨 텔레그램 봇 연동</h2>
-          <p className="text-sm text-neutral-400">
+          <h2 className="text-lg font-medium text-zinc-900">📨 텔레그램 봇 연동</h2>
+          <p className="text-sm text-zinc-500">
             새 매물이 발견되면 본인 텔레그램 봇으로 알림과 AI 분석 결과를 받아요.
           </p>
         </div>
         <div className="rounded-2xl border border-gold/30 bg-dark-100 p-5">
           {telegramLink ? (
-            <div className="space-y-3 rounded-xl border border-white/5 bg-dark-50 p-4">
+            <div className="space-y-3 rounded-xl border border-zinc-200 bg-dark-50 p-4">
               <p className="text-sm text-green-400">
                 ✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.
               </p>
@@ -148,8 +148,8 @@ export default async function SettingsPage() {
               </form>
             </div>
           ) : (
-            <div className="space-y-4 rounded-xl border border-white/5 bg-dark-50 p-4">
-              <ol className="list-inside list-decimal space-y-2 text-sm text-neutral-300">
+            <div className="space-y-4 rounded-xl border border-zinc-200 bg-dark-50 p-4">
+              <ol className="list-inside list-decimal space-y-2 text-sm text-zinc-700">
                 <li>
                   텔레그램에서 <span className="text-gold-light">@BotFather</span>를 검색해서 대화를
                   시작하세요.
@@ -177,8 +177,8 @@ export default async function SettingsPage() {
 
       <section>
         <div className="mb-3">
-          <h2 className="text-lg font-medium text-neutral-100">📖 연동 매뉴얼</h2>
-          <p className="text-sm text-neutral-400">
+          <h2 className="text-lg font-medium text-zinc-900">📖 연동 매뉴얼</h2>
+          <p className="text-sm text-zinc-500">
             이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
             따라 할 수 있어요.
           </p>

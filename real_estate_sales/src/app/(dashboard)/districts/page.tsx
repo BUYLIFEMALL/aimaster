@@ -22,7 +22,7 @@ export default async function DistrictsPage() {
   return (
     <div>
       <h1 className="gold-text mb-2 text-2xl font-semibold">관심 지역 설정</h1>
-      <p className="mb-6 text-sm text-neutral-400">
+      <p className="mb-6 text-sm text-zinc-500">
         관심 있는 자치구를 선택하면, 그 지역에 새 실거래가 신고될 때마다 알려드려요.
         여러 개 선택할 수 있어요.
       </p>
@@ -40,8 +40,8 @@ export default async function DistrictsPage() {
       {watchMap.size > 0 && (
         <>
           <div className="mt-8">
-            <h2 className="mb-1 text-lg font-medium text-neutral-100">실거래가 조회</h2>
-            <p className="mb-4 text-sm text-neutral-400">
+            <h2 className="mb-1 text-lg font-medium text-zinc-900">실거래가 조회</h2>
+            <p className="mb-4 text-sm text-zinc-500">
               버튼을 누르면 선택한 지역의 최근 실거래를 바로 조회해서 AI 분석까지 마친 뒤,
               연동해둔 텔레그램으로 결과를 보내드려요. 필요할 때마다 직접 눌러서 받아보는
               기본 방식이에요.
@@ -50,8 +50,8 @@ export default async function DistrictsPage() {
           </div>
 
           <div className="mt-8">
-            <h2 className="mb-1 text-lg font-medium text-neutral-100">예약 조회 (선택)</h2>
-            <p className="mb-4 text-sm text-neutral-400">
+            <h2 className="mb-1 text-lg font-medium text-zinc-900">예약 조회 (선택)</h2>
+            <p className="mb-4 text-sm text-zinc-500">
               매번 직접 누르지 않아도, 정해둔 주기·시간대에 자동으로 조회해서 텔레그램으로
               받아보고 싶다면 지역별로 켜두세요. 꺼두면 위 &quot;지금 조회하기&quot; 버튼으로만
               동작하고 자동으로는 아무 것도 실행되지 않아요.

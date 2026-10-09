@@ -2006,3 +2006,4 @@
 - 2026-10-10 루트(정정): 로그인·가입 후 기본 이동 페이지를 `/programs` → `/`(메인 홈)로 재변경. 같은 3곳(LoginForm, RegisterForm, middleware). `?redirect=` 지정 시에는 기존대로 그 경로로 이동.
 - 2026-10-10 루트: `/login?redirect=/dashboard`(대시보드 북마크·옛 링크 경유)로 들어와도 로그인 후 `/`(메인 홈)로 이동하도록 LoginForm에서 `/dashboard` redirect 값을 무시. 그 외 redirect(예: /admin, /affiliate)는 기존대로 유지.
 - 2026-10-10 `shots` v1.05: 로그인 화면 제목 두 줄 표기("YOUTUBE Shots 자동화" / "(이미지 스토리)"). 사이드바 제목은 그대로.
+- 2026-10-10 `real_estate_sales` v1.06: 작업 화면 흰색 베이스 통일 + 좌측 메뉴 제목 "부동산 투자분석 자동화"로 단축(globals.css 토큰 재매핑 + 클래스 치환). 로그인 화면은 원래 흰색이라 그대로.

@@ -25,9 +25,9 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
   const showForm = !maskedValue || isEditing;
 
   return (
-    <div className="rounded-xl border border-white/5 bg-dark-50 p-4">
+    <div className="rounded-xl border border-zinc-200 bg-dark-50 p-4">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-medium text-neutral-100">{label}</p>
+        <p className="text-sm font-medium text-zinc-900">{label}</p>
         {maskedValue && !isEditing && (
           <div className="flex items-center gap-3">
             <button
@@ -39,7 +39,7 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
             </button>
             <form action={deleteApiKeyAction}>
               <input type="hidden" name="provider" value={provider} />
-              <button type="submit" className="text-xs text-red-400 hover:underline">
+              <button type="submit" className="text-xs text-red-600 hover:underline">
                 삭제
               </button>
             </form>
@@ -66,9 +66,9 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
           )}
         </form>
       ) : (
-        <p className="font-mono text-sm text-neutral-400">{maskedValue} · 등록됨</p>
+        <p className="font-mono text-sm text-zinc-500">{maskedValue} · 등록됨</p>
       )}
-      {state.error && <p className="mt-1 text-xs text-red-400">{state.error}</p>}
+      {state.error && <p className="mt-1 text-xs text-red-600">{state.error}</p>}
       {state.success && <p className="mt-1 text-xs text-green-400">저장되었습니다.</p>}
     </div>
   );

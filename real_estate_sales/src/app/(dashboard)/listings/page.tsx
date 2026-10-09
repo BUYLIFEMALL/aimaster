@@ -25,12 +25,12 @@ export default async function ListingsPage() {
   return (
     <div>
       <h1 className="gold-text mb-2 text-2xl font-semibold">실거래 내역</h1>
-      <p className="mb-6 text-sm text-neutral-400">
+      <p className="mb-6 text-sm text-zinc-500">
         관심 지역에서 새로 신고된 실거래예요. 설정한 주기로 자동 수집됩니다.
       </p>
 
       {rows.length === 0 && (
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-zinc-500">
           아직 매칭된 실거래가 없어요. 먼저 &quot;관심 지역 설정&quot;에서 지역을 선택해주세요.
         </p>
       )}
@@ -43,13 +43,13 @@ export default async function ListingsPage() {
             <Link key={m.id} href={`/listings/${listing.id}`} className="block">
               <div className="glass-card p-4 transition-colors hover:border-gold/40">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-neutral-400">
+                  <span className="text-sm text-zinc-500">
                     {listing.sgg_nm} {listing.stdg_nm}
                   </span>
-                  <span className="text-xs text-neutral-500">{listing.contract_date}</span>
+                  <span className="text-xs text-zinc-500">{listing.contract_date}</span>
                 </div>
-                <h3 className="mt-1 text-lg font-medium text-neutral-100">{listing.bldg_nm}</h3>
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-300">
+                <h3 className="mt-1 text-lg font-medium text-zinc-900">{listing.bldg_nm}</h3>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-700">
                   <span>전용 {listing.exclusive_area ?? "-"}m²</span>
                   <span>{listing.floor ?? "-"}층</span>
                   <span className="text-gold-light font-medium">

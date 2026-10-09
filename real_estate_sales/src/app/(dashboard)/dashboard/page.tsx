@@ -52,7 +52,7 @@ export default async function DashboardPage() {
       {(program?.description || program?.short_desc) && (
         <div className="glass-card mb-6 p-5">
           {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
-            <p key={i} className="mb-2 text-sm leading-relaxed text-neutral-300 last:mb-0">
+            <p key={i} className="mb-2 text-sm leading-relaxed text-zinc-700 last:mb-0">
               {sentence}
             </p>
           ))}
@@ -61,18 +61,18 @@ export default async function DashboardPage() {
 
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-2">
         <Link href="/districts" className="glass-card p-5 hover:border-gold/40">
-          <p className="text-sm text-neutral-400">관심 등록한 지역</p>
+          <p className="text-sm text-zinc-500">관심 등록한 지역</p>
           <p className="gold-text mt-1 text-3xl font-semibold">{districtCount ?? 0}개</p>
         </Link>
         <Link href="/listings" className="glass-card p-5 hover:border-gold/40">
-          <p className="text-sm text-neutral-400">아직 안 본 새 실거래</p>
+          <p className="text-sm text-zinc-500">아직 안 본 새 실거래</p>
           <p className="gold-text mt-1 text-3xl font-semibold">{newCount ?? 0}건</p>
         </Link>
       </div>
 
-      <h2 className="mb-3 text-lg font-medium text-neutral-100">최근 발견된 실거래</h2>
+      <h2 className="mb-3 text-lg font-medium text-zinc-900">최근 발견된 실거래</h2>
       {recentListings.length === 0 ? (
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-zinc-500">
           아직 매칭된 실거래가 없어요. 먼저 &quot;관심 지역 설정&quot;에서 지역을 선택해주세요.
         </p>
       ) : (
@@ -81,13 +81,13 @@ export default async function DashboardPage() {
             <Link key={listing.id} href={`/listings/${listing.id}`} className="block">
               <div className="glass-card p-4 hover:border-gold/40">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-neutral-400">
+                  <span className="text-sm text-zinc-500">
                     {listing.sgg_nm} {listing.stdg_nm}
                   </span>
-                  <span className="text-xs text-neutral-500">{listing.contract_date}</span>
+                  <span className="text-xs text-zinc-500">{listing.contract_date}</span>
                 </div>
-                <h3 className="mt-1 text-base font-medium text-neutral-100">{listing.bldg_nm}</h3>
-                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-300">
+                <h3 className="mt-1 text-base font-medium text-zinc-900">{listing.bldg_nm}</h3>
+                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-700">
                   <span>전용 {listing.exclusive_area ?? "-"}m²</span>
                   <span className="text-gold-light font-medium">
                     거래 {formatWon(listing.price_amount)}
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
           ))}
           <Link
             href="/listings"
-            className="block text-center text-sm text-neutral-400 hover:text-gold-light"
+            className="block text-center text-sm text-zinc-500 hover:text-gold-light"
           >
             전체 실거래 내역 보기 →
           </Link>

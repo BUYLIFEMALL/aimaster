@@ -18,7 +18,7 @@ export function TelegramConnectForm() {
         required
         autoComplete="off"
       />
-      {state.error && <p className="text-sm text-red-400">{state.error}</p>}
+      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
       {state.success && <p className="text-sm text-green-400">{state.success}</p>}
       <Button type="submit" disabled={isPending}>
         {isPending ? "확인 중..." : "연동 확인하기"}

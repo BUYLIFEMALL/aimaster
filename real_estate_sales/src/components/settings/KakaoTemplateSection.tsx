@@ -11,11 +11,11 @@ export function KakaoTemplateSection({ templateId }: { templateId: string | null
   const [state, formAction, isPending] = useActionState(saveKakaoTemplateAction, initialState);
 
   return (
-    <div className="border-t border-white/10 pt-4">
+    <div className="border-t border-zinc-200 pt-4">
       <div className="mb-3">
-        <h2 className="text-lg font-medium text-neutral-100">🔔 카카오 알림톡 템플릿 (선택)</h2>
-        <p className="text-sm text-neutral-400">
-          <span className="font-medium text-neutral-200">SOLAPI 계정에 등록된 카카오 채널로 알림톡 받는 방법</span>
+        <h2 className="text-lg font-medium text-zinc-900">🔔 카카오 알림톡 템플릿 (선택)</h2>
+        <p className="text-sm text-zinc-500">
+          <span className="font-medium text-zinc-800">SOLAPI 계정에 등록된 카카오 채널로 알림톡 받는 방법</span>
           <br />
           SOLAPI에서 발송 문구 전체를 담는 변수 1개(예: <code className="rounded bg-dark-200 px-1 py-0.5">#{"{내용}"}</code>)로
           구성한 템플릿을 만들어 승인받은 뒤, 템플릿 ID를 아래에 등록해주세요
@@ -23,15 +23,15 @@ export function KakaoTemplateSection({ templateId }: { templateId: string | null
           친구톡과 달리 채널을 추가하지 않은 회원에게도 발송할 수 있는 정보성 메시지입니다.
         </p>
       </div>
-      <form action={formAction} className="flex flex-wrap items-end gap-3 rounded-xl border border-white/5 bg-dark-50 p-4">
+      <form action={formAction} className="flex flex-wrap items-end gap-3 rounded-xl border border-zinc-200 bg-dark-50 p-4">
         <div className="min-w-[220px] flex-1">
-          <label className="mb-1 block text-xs text-neutral-400">알림톡 템플릿 ID</label>
+          <label className="mb-1 block text-xs text-zinc-500">알림톡 템플릿 ID</label>
           <Input name="templateId" defaultValue={templateId ?? ""} placeholder="KA01TP..." />
         </div>
         <Button type="submit" variant="secondary" disabled={isPending}>
           {isPending ? "저장 중..." : "저장"}
         </Button>
-        {state.error && <p className="w-full text-xs text-red-400">{state.error}</p>}
+        {state.error && <p className="w-full text-xs text-red-600">{state.error}</p>}
         {state.success && <p className="w-full text-xs text-green-400">{state.success}</p>}
       </form>
     </div>

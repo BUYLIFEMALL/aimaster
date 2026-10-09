@@ -244,3 +244,8 @@ npm run lint    # ESLint
 - 적용 범위: 회원이 직접 누르는 "지금 조회하기"(`lib/actions/query.ts`)와 매물 분석의 토지정보 조회(`lib/actions/analysis.ts`). 5분 주기 예약 수집(`api/collect/dispatch`)은 운영자 공용 키를 그대로 쓴다.
 - DB: 공용 `user_api_keys.provider` 허용 목록에 `seoul_opendata_api_key`·`data_go_kr_service_key`·`vworld_api_key`·`vworld_domain` 추가(`supabase/migrations/20261009140000_user_api_keys_public_data_providers.sql`).
 - 시험: `npm run test:public-keys`.
+
+## 2026-10-10 v1.06 — 작업 화면 흰색 베이스 + 좌측 메뉴 제목 단축
+- 대시보드 등 작업 화면을 다크 → 흰색 베이스로 변경(루트 지침 "웹 서브프로그램 작업 화면은 흰색 베이스"). `src/app/globals.css`에서 기존 gold/dark 토큰 이름은 그대로 두고 값만 파랑(#005acc)·라이트 회색으로 재매핑, `.gold-text`/`.glass-card`를 라이트 톤으로 변경, 각 화면의 `text-neutral-*`/`border-white/*` 클래스를 zinc 계열로 치환.
+- 좌측 메뉴 제목을 "부동산 투자분석 자동화"로 단축(두 줄로 글자가 잘리던 문제). 사이트 프로그램명(DB)은 그대로.
+- 마이그레이션 `supabase/migrations/20261010110000_bump_version_v1_06.sql`.

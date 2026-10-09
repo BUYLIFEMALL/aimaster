@@ -21,7 +21,7 @@ export function GuideLinkButton({ guideId, label }: { guideId: string; label: st
     <button
       type="button"
       onClick={openGuide}
-      className="rounded-lg border border-white/10 bg-dark-50 px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-dark-200"
+      className="rounded-lg border border-zinc-200 bg-dark-50 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-dark-200"
     >
       📄 {label}
     </button>
