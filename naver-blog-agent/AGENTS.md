@@ -10,7 +10,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.51` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.52` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
@@ -72,6 +72,8 @@
 ## 🕒 버전 히스토리
 
 > 확장 운영 규칙: 프로그램을 업데이트할 때 `extension/` 폴더·다운로드 ZIP·DB 버전을 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증합니다(루트 `CLAUDE.md` 핵심 원칙 10번). 이 프로그램의 DB 칸(`programs.extension_download_url`, `extension_version`)은 v1.49 시점에 채워 두었고(`0051` 마이그레이션), 배포할 때마다 `version`과 함께 갱신합니다. 미구현: 메인 사이트 프로그램 상세의 다운로드 버튼.
+
+- **v1.52 (2026-10-09)**: 보관함(`/queue`) 상단 버튼 문구 오타 수정 "떡상 글감 수집소"→"떡상 글감 수집"(버튼·툴팁만). 다른 화면(대시보드·수집 화면 제목·가이드)의 "수집소" 표기는 주인님 지시가 있을 때 정리합니다. 확장 코드 변경 없음(ZIP·manifest만 v1.52로 맞춤).
 
 - **v1.51 (2026-10-09)**:
   - **발행 공개 범위 선택 구현**. 이전에는 서버가 모든 발행 작업에 `publishVisibility: "public"`을 고정으로 보내서(비공개를 고를 화면·값이 없었음) 어떤 글이든 전체공개로 올라가는 상태였습니다(확장 `editor.js`는 `public`이 아니면 비공개를 선택하도록 이미 되어 있었음).

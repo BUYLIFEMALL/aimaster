@@ -579,10 +579,10 @@ export default function QueuePage() {
           <Link
             href="/collector"
             className="px-3.5 py-2.5 rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5"
-            title="떡상 글감 수집소로 이동"
+            title="떡상 글감 수집으로 이동"
           >
             <Flame size={14} className="text-rose-600" />
-            <span>떡상 글감 수집소</span>
+            <span>떡상 글감 수집</span>
           </Link>
           <Link
             href="/"
