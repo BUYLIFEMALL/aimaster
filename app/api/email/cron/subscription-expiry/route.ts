@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { sendExpiryReminderEmail } from "@/lib/email/sender";
+import { purgeOldEmailLog } from "@/lib/email/guardStore";
 
 /**
  * 구독 만료 알림 Cron 엔드포인트
@@ -17,6 +18,9 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
+
+  // 메일 발송 안전장치 기록은 30일만 보관한다(하루 한 번 이 크론에서 정리).
+  await purgeOldEmailLog(30);
 
   const now = new Date();
   const sevenDaysLater = new Date();

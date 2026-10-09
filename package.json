@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test:email-guard": "node scripts/test-email-guard.cjs",
     "test:poster-web-update": "node --test naver-blog-auto-poster_web/tests/update-banner.test.mjs"
   },
   "dependencies": {

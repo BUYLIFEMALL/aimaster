@@ -16,6 +16,11 @@
 
 - `whoami`에 `latestVersion`/`downloadUrl` 추가, 사이드패널에 "새 버전이 나왔습니다" 배너(더 높을 때만, 우리 사이트 `/downloads/` 주소만 허용), `npm run test:update-banner`. 배포 전 `npm run extension:archive`로 ZIP을 직접 만들어야 함(prebuild 아님). DB `version`/`extension_version`/`extension_download_url` v1.60으로 갱신, `check-extension-release.mjs` OK.
 
+## 플랫폼 메일 발송 안전장치 (2026-10-09) — 운영자 Gmail 한도 보호
+
+- 루트 `lib/email/sender.ts`(가입 환영·결제·문의·만료 알림, 운영자 SMTP)에 안전장치 추가: `lib/email/guard.ts`(판단 규칙·오류 분류), `lib/email/guardStore.ts`(기록 표 `platform_email_log` 읽기·쓰기, 마이그레이션 `supabase/migrations/0020_platform_email_log.sql`, 운영 DB 적용 완료). ① Gmail 한도·인증 오류(421·450·452·454·535, 5.4.5, 429 등)가 나면 **30분간 모든 발송 중단**(재시도 없음) ② 같은 수신자·종류·제목은 **10분 안에 중복 발송 안 함** ③ 수신자별 하루 상한(환영 1·접수확인 3·결제/만료 5·관리자 문의 20)과 하루 전체 상한 **300통**(환경변수 `EMAIL_DAILY_LIMIT`로 변경) ④ 기록 표를 못 읽어도 메일은 평소처럼 나감 ⑤ 기록은 30일만 보관(매일 만료 알림 크론이 정리). 공개 API `POST /api/support`에 이메일 형식·길이 검사 추가. 테스트 `npm run test:email-guard`.
+- 범위: **루트 운영자 SMTP만** 해당. 회원이 등록한 SMTP를 쓰는 서브 프로그램(`stepmail` 등)은 회원 본인 계정이라 이번에 손대지 않음. Make 시나리오(저장소 밖)는 Make에서 직접 수정해야 함.
+
 ## Gmail 호출 점검 (2026-10-09) — 프로그램 중 Gmail을 계속 호출하는 곳은 없음
 
 - 저장소 전체: Gmail API·IMAP으로 메일을 읽거나 폴링하는 코드는 **없다**. 메일은 모두 SMTP로 "보낼 때만" 연결한다. 발송 코드: 루트(`lib/email/sender.ts` — 가입 환영·결제·문의·만료 알림, 운영자 SMTP), `stepmail`(예약 발송), `booking-reminder`(15분 크론이지만 대상이 있을 때만 SMTP 연결), `crm-google-form`(하루 1회 팔로우업), `kakao_auto_poster`(예약 리포트 알림·카카오 실패 대체), `trending-product-finder`(변동 감지 시에만). 회원이 등록한 SMTP(본인 Gmail 포함)를 쓰므로 운영자 Gmail 한도와 무관(최상위 규칙 유지).
