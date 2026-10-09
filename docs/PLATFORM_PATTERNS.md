@@ -425,26 +425,28 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 
 ---
 
-## 21. 신규 서브프로젝트 API 키 저장·조회 시 RLS 에러 방지 & Service Role Key 안전 폴백 패턴 (필수, 2026-09-23 사용자 지시사항)
+## 21. 신규 서브프로젝트 API 키 저장·조회 시 RLS 에러 방지 & Service Role Key는 환경변수로만 (필수, 2026-09-23 사용자 지시사항)
 
 **배경**: 신규 서브프로젝트(`ai-image-studio` 등)를 독립 Vercel 도메인(`ai-image-studio.vercel.app`)으로 처음 구축할 때, 메인 도메인(`www.buylife.xyz`)의 세션 쿠키가 서브프로젝트 라우트로 온전히 전달되지 않는 상태에서 `/api/save-key`를 호출하는 경우나, 신규 Vercel 프로젝트 환경변수에 `SUPABASE_SERVICE_ROLE_KEY`가 미등록된 경우, `createAdminClient()`가 익명 키(`SUPABASE_ANON_KEY`)로 조용히 폴백되면서 Supabase RLS 정책(`auth.uid() = user_id`)에 차단되어 `new row violates row-level security policy for table "user_api_keys"` 에러가 터지는 버그를 발견함.
 
 **원칙 및 표준 코드 구조 (모든 새 서브프로젝트 필수 지침)**:
 
-1. **`lib/supabase/server.ts`에 Service Role Key 안전 폴백을 반드시 포함할 것**:
-   GitHub Push Protection에 하드코딩 Secret으로 차단당하지 않도록 Base64 디코딩 방식으로 플랫폼 공용 Service Role Key를 안전 내장한다.
+1. **서비스(Service Role) 키는 환경변수로만 받는다 — 코드·문서·스크립트에 기본값(폴백)을 절대 넣지 않는다.**
+   - **이전 지침 폐기(2026-10-09)**: 이 항목은 한때 "GitHub Push Protection을 피하려고 서비스 키를 base64로 코드에 내장하라"고 안내했다. 이 방식이 `ai-image-studio`에 적용되어 **공개 저장소에 서비스 키가 노출**되었고(인코딩은 보호가 아니다), 공용 키라 프로젝트 약 28곳의 키를 교체해야 했다. 상세: `docs/ERROR_LESSONS.md` "서비스 키가 공개 저장소에 올라가 있었다". **어떤 형태(평문·base64·분할·난독화)로도 키를 소스에 넣지 않는다.**
+   - 신규 Vercel 프로젝트는 `SUPABASE_SERVICE_ROLE_KEY`를 **반드시 환경변수로 등록**(민감값)한 뒤 배포한다. 등록 안 된 채 익명 키로 조용히 폴백되면 RLS 오류가 나는 문제는, 폴백이 아니라 **환경변수가 없으면 시작을 실패시켜서** 바로 알아차리게 하는 것으로 막는다.
+   - `NEXT_PUBLIC_` 접두사 변수에 서비스 키를 넣지 않는다(브라우저로 전달됨).
    ```ts
    // lib/supabase/server.ts
    import { createServerClient } from "@supabase/ssr";
    import { createClient as createSupabaseClient } from "@supabase/supabase-js";
    import { cookies } from "next/headers";
 
-   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://esgxyikcnnvmlhygjkth.supabase.co";
-   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "sb_publishable_dpa8WnGOUodpmS7_eNy91g_G-smJrml";
-   const DEFAULT_SERVICE_ROLE_KEY = Buffer.from("c2Jfc2VjcmV0X3VSWDZVM09MNENkSTlRSV9hbkRNeWdfSzZ5ZFR0dWQ=", "base64").toString("utf8");
+   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;            // 공개값
+   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;  // 공개(publishable) 키
 
    export function createAdminClient() {
-     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SERVICE_ROLE_KEY;
+     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+     if (!serviceRoleKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY 환경변수가 설정되지 않았습니다.");
      return createSupabaseClient(SUPABASE_URL, serviceRoleKey);
    }
    ```

@@ -30,9 +30,10 @@ export async function createClient() {
   );
 }
 
-const DEFAULT_SERVICE_ROLE_KEY = Buffer.from("c2Jfc2VjcmV0X3VSWDZVM09MNENkSTlRSV9hbkRNeWdfSzZ5ZFR0dWQ=", "base64").toString("utf8");
-
 export function createAdminClient() {
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SERVICE_ROLE_KEY;
+  // 서비스(비밀) 키는 반드시 환경변수로만 받는다. 코드·문서에 기본값을 넣지 않는다(2026-10-09 키 노출 사고: docs/ERROR_LESSONS.md).
+  // NEXT_PUBLIC_ 접두사 변수는 브라우저에 실리므로 서비스 키에 쓰지 않는다.
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY 환경변수가 설정되지 않았습니다.");
   return createSupabaseClient(SUPABASE_URL, serviceRoleKey);
 }

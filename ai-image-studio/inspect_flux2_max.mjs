@@ -12,7 +12,8 @@ envText.split('\n').forEach(line => {
 });
 
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || 'https://esgxyikcnnvmlhygjkth.supabase.co';
-const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZ3h5aWtjbm52bWxoeWdqa3RoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDI0ODEyOSwiZXhwIjoyMDU1ODI0MTI5fQ.0NndE7L-Q1iHk01n1kQ1i1i1i1i1i1i1i1i1i1i1i1i';
+const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY; // 환경변수로만 받는다(코드에 기본값을 두지 않는다)
+if (!serviceRoleKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY 환경변수가 필요합니다.');
 
 async function run() {
   const keyRes = await fetch(`${supabaseUrl}/rest/v1/user_api_keys?select=provider,api_key`, {
