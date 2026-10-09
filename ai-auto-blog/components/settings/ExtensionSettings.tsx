@@ -12,7 +12,7 @@ import {
 // 설정 화면의 "🧩 네이버 블로그 입력 확장 프로그램" 박스 — 다운로드·설치 안내 + 연동 토큰 발급/폐기(2026-10-01).
 // naver-blog-seo-studio의 ExtensionDownloadCard·ExtensionTokenManager를 BLOG 화면 스타일로 옮겼다.
 const EXTENSION_VERSION = extensionManifest.version_name ?? `v${extensionManifest.version}`
-const EXTENSION_ARCHIVE = `/downloads/ai-auto-blog-extension-${EXTENSION_VERSION}.zip`
+const EXTENSION_ARCHIVE = `/downloads/ai-auto-blog-extension-latest.zip`
 // 설치·업데이트 상태 안내(naver-blog-seo-studio ExtensionDownloadCard와 같은 방식). 웹은 확장 설치 여부를 직접 알 수 없어서
 // 이 브라우저에 "내려받음/설치 완료 표시"를 기록해 두고, 프로그램이 새 버전이 되면(=확장도 새 버전) 업데이트 필요로 안내한다.
 const INSTALLED_VERSION_KEY = 'ai-auto-blog-extension-version'

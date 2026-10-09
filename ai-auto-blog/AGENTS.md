@@ -444,3 +444,6 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
     - [🔄 새 글 작성] (원클릭 폼 초기화)
   - **선택형 빠른 내용 수정 탭**: 완성본 미리보기와 빠른 내용 수정(인라인 에디터) 탭을 두어, 필요한 경우 제목/문단을 가볍게 수정하고 `[💾 수정사항 DB 저장]`을 누르면 이미 등록된 게시글이 즉시 `UPDATE` 되도록 구현.
 - **동기화**: `utils/version.ts` v1.36, DB `programs.version` v1.36, 마이그레이션 `0006_bump_version_v1_36.sql`.
+
+## 2026-10-09 v1.37 — 확장 다운로드 고정 주소(`-latest.zip`)
+- 다운로드 주소를 `/downloads/ai-auto-blog-extension-latest.zip`로 통일했다(빌드가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다). 설정 화면 버튼·`GET /api/extension/whoami`의 `downloadUrl`·DB `extension_download_url`(마이그레이션 0007)이 같은 주소를 쓴다. 기능·확장 코드 변경 없음(ZIP·manifest만 v1.37).

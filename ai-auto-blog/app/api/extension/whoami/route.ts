@@ -14,6 +14,6 @@ export async function GET(request: Request) {
     email: user.email,
     name: user.name,
     latestVersion: APP_VERSION,
-    downloadUrl: `/downloads/ai-auto-blog-extension-${APP_VERSION}.zip`,
+    downloadUrl: `/downloads/ai-auto-blog-extension-latest.zip`,
   })
 }
