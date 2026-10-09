@@ -232,3 +232,7 @@ npm run lint    # ESLint
 - ⏳ **카테고리 / 썸네일 미설정** — `/programs` 목록 노출용 메타데이터 필요
 - ⏳ 관심 지역은 현재 서울만 지원 (경기/인천 등 확장 시 `src/lib/publicdata/districts.ts`에
   자치구 코드 추가 + 서울 열린데이터광장 API를 다른 지자체 API로 교체 필요)
+
+## 공공데이터 운영자 키 예외 (2026-10-09 주인님 승인)
+
+`SEOUL_OPENDATA_API_KEY`·`DATA_GO_KR_SERVICE_KEY`·`VWORLD_API_KEY`는 무료 정부 공개 데이터라 운영자 키로 5분 주기 수집을 계속한다(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8). AI 키는 예외가 아니며 회원 본인 키만 쓴다(v1.04).
