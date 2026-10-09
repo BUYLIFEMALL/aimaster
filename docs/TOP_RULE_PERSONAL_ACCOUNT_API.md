@@ -71,7 +71,7 @@ git grep -n -E "process\.env\.(OPENAI|GEMINI|ANTHROPIC|PERPLEXITY|REPLICATE|FAL)
 | `ai-image-studio` | 게스트 우회·항상 허용·타인 키 폴백·공용 프롬프트 쓰기 무방비 | **수정 완료(v1.06)** |
 | `ai-image-studio` 외 공용 | 서비스 키가 공개 저장소 소스에 base64로 내장 | **교체·삭제 진행 중**(v1.07, 키 교체 후 옛 키 폐기 예정 — `docs/ERROR_LESSONS.md`) |
 | `real_estate_sales` | `resolveApiKey()`가 본인 키가 없으면 **운영자 환경변수 키**(OpenAI·Claude·Gemini·퍼플렉시티)로 폴백, 폴백 사용 시 분석 결과를 회원 간 공유 캐시 | **수정 완료(v1.04)** — AI 키는 본인 것만. 단 매물 수집용 운영자 공공데이터 키는 주인님 결정 대기 |
-| `shots` | `resolveApiKey()`가 본인 키가 없으면 **운영자 환경변수 키**(OpenAI·Claude·Gemini·퍼플렉시티·Suno·JSON2Video·Google OAuth)로 폴백(`shots/AGENTS.md`에도 "없으면 앱 기본 키"라고 적혀 있음) | 수정 대기 |
+| `shots` | `resolveApiKey()`가 본인 키가 없으면 **운영자 환경변수 키**(OpenAI·Claude·Gemini·퍼플렉시티·Suno·JSON2Video·Google OAuth)로 폴백(`shots/AGENTS.md`에도 "없으면 앱 기본 키"라고 적혀 있음) | **수정 완료 2026-10-09 (shots v1.04)** — 폴백 삭제, 본인 키만. `npm run test:api-keys`. Vercel의 `OPENAI_API_KEY`·`GEMINI_API_KEY`·`META_APP_*`는 이제 안 쓰므로 주인님이 지워도 됨 |
 | `threads-affiliate-poster` | 네이버 검색·트렌드 조회가 운영자의 공용 키(`NAVER_TREND_CLIENT_ID/SECRET`)를 모든 회원이 공유 | 주인님 결정 필요(회원별 네이버 API 키 등록 화면 추가 필요) |
 | `blog_auto_poster` | 환경변수 Gemini 키 사용(운영자용 예전 CLI 도구로 보이며 회원 서비스가 아님) | 확인 필요(회원 서비스가 아니면 이 규칙 대상 밖이므로 저장소 밖으로 분리할지 결정) |
 

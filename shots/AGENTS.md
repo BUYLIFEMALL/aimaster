@@ -55,4 +55,4 @@ shots는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 �
 - shots는 개발자 전용 도구가 아니라, AIMaster 회원 중 이 프로그램(`programs.slug = "auto-shorts-posting"`) 이용 권한(구독/개별부여/등급)이 있는 모든 사용자가 각자 자신의 계정으로 동일하게 쓸 수 있어야 한다.
 - 페이지/레이아웃은 `requireProgramAccess()`(권한 없으면 redirect), API route는 반드시 redirect 대신 결과 객체를 반환하는 방식으로 로그인 여부뿐 아니라 프로그램 이용 권한까지 확인한다.
 - 사용자 소유 데이터 테이블은 `user_id` + RLS owner-only 정책으로 격리한다 (`shorts_candidates`, `shorts_videos`, `newsblur_accounts`, `youtube_accounts`, `instagram_accounts`, `user_api_keys` 참고).
-- API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키 우선, 없으면 앱 기본 키)을 그대로 쓴다.
+- API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`)에서 **로그인한 회원 본인 키만** 쓴다(2026-10-09 v1.04: 앱 기본 키·환경변수 폴백 삭제 — 최상위 규칙 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`). 키가 없으면 null이므로 호출부는 "설정에서 본인 키를 등록해주세요" 안내를 보여준다.

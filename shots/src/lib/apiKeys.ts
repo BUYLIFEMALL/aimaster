@@ -22,25 +22,6 @@ export const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as ApiKeyProvider[];
 // 설정 페이지에서 그룹으로 나눠 보여주기 위한 목록.
 export const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity", "suno", "json2video"];
 
-// 프로바이더별 앱 공용(기본) 키. 사용자가 본인 키를 등록하지 않았을 때만 폴백으로 쓰인다.
-// 주의: meta_app_id/meta_app_secret은 절대 폴백을 두지 않는다 — 이 값이 바로 "회원마다 본인
-// Meta 앱을 등록해야 한다"는 이번 수정의 핵심이라, 폴백을 두면 buylife 공용 Meta 앱(Development
-// 모드라 등록된 Tester만 OAuth 가능) 문제가 그대로 되살아난다. google_client_id/secret도 같은
-// 이유로 YouTube 쪽에서 이미 폴백 없이 동작 중이며(해당 env var는 Vercel에 등록되지 않음),
-// 여기 남은 값은 사용하지 않는 것이 원칙이다(루트 CLAUDE.md 멀티테넌시 원칙 3번).
-const FALLBACK_ENV_KEYS: Record<ApiKeyProvider, string | undefined> = {
-  openai: process.env.OPENAI_API_KEY,
-  anthropic: process.env.ANTHROPIC_API_KEY,
-  gemini: process.env.GEMINI_API_KEY,
-  perplexity: process.env.PERPLEXITY_API_KEY,
-  suno: process.env.SUNO_API_KEY,
-  json2video: process.env.JSON2VIDEO_API_KEY,
-  google_client_id: process.env.GOOGLE_CLIENT_ID,
-  google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
-  meta_app_id: undefined,
-  meta_app_secret: undefined,
-};
-
 export async function getUserApiKey(
   supabase: SupabaseClient<Database>,
   userId: string,
@@ -56,14 +37,16 @@ export async function getUserApiKey(
   return data?.api_key ?? null;
 }
 
-/** 본인 키가 등록돼 있으면 그 키를, 없으면 앱 공용 키로 폴백한다. 기본적으로 본인 키를 우선한다. */
+/**
+ * 로그인한 회원 본인이 등록한 키만 돌려준다. 없으면 null — 운영자·다른 회원 키로 대신하지 않는다
+ * (최상위 규칙 docs/TOP_RULE_PERSONAL_ACCOUNT_API.md). 2026-10-09 앱 공용 환경변수 폴백 삭제.
+ */
 export async function resolveApiKey(
   supabase: SupabaseClient<Database>,
   userId: string,
   provider: ApiKeyProvider,
 ): Promise<string | null> {
-  const ownKey = await getUserApiKey(supabase, userId, provider);
-  return ownKey || FALLBACK_ENV_KEYS[provider] || null;
+  return getUserApiKey(supabase, userId, provider);
 }
 
 /**
