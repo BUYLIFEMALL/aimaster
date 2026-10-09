@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-09 — 코드는 "본인 키만"이라고 말하는데 환경변수에 운영자 키가 남아 있으면 비용이 샌다 (shots v1.04 외 전체 점검)
+
+- 증상/위험: `shots`가 회원 키가 없으면 환경변수의 운영자 OpenAI·Gemini 키로 대신 처리하고 있었다(주인님 요금 증가). 같은 구조가 `threads-affiliate-poster`(네이버 공용 키), `insta_auto_poster`(공용 Meta 앱)에도 있었다. 일부 프로그램은 코드에서 읽기를 끊었는데도 환경변수 값이 그대로 남아 있었다.
+- 원인: "폴백 금지" 정책(2026-08-12)을 문서에 적고도 프로그램별로 코드를 전수 확인하지 않았고, 정책이 바뀐 뒤 환경변수를 정리하지 않았다.
+- 해결: 폴백 삭제와 본인 키 전환(`shots` v1.04, `threads-affiliate-poster` v1.49, `insta_auto_poster` v1.04), 무료 공공데이터 키 예외 승인(`real_estate_sales` v1.05는 본인 키 선택 등록 + 없으면 공용 키), 쓰이지 않는 운영자 환경변수 삭제. 상세와 승인 예외는 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §7·§8.
+- 다음부터 확인: 새 프로그램이나 키를 추가할 때 ① `process.env`로 AI·외부 서비스 키를 읽는 곳이 없는지(`grep -rnE "process\.env\.(OPENAI|GEMINI|ANTHROPIC|PERPLEXITY|NAVER|META_APP|THREADS_APP|KAKAO)" <폴더>/src`) ② `vercel env ls`에 그런 이름이 남아 있지 않은지 ③ 무료 키라도 계정당 호출 한도가 있으면 회원 본인 키로 한다(메인 지침 하단 예외 조항).
+
 ## 2026-10-09 — 메일 발송은 "한도 오류 뒤 멈춤·중복 방지·상한"이 없으면 공개 입구 하나로 운영자 계정이 막힌다 (루트 메일 발송)
 
 - 증상/위험: 운영자 Gmail에서 `[429] User-rate limit exceeded`가 났다(Make 시나리오 시험 중). 루트 메일 코드에는 오류 후 멈춤·중복 방지·상한이 없었고, **로그인 없이 호출되는 `POST /api/support`가 입력한 주소로 접수 확인 메일을 보냈다**(스팸 중계·한도 소진 가능). `POST /api/email/welcome`도 로그인한 회원이 반복 호출하면 무제한 발송.

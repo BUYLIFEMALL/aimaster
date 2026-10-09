@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 최상위 규칙(본인 계정·본인 API) 이행 (2026-10-09) — 4건 처리 완료, 로그인 후 확인 대기
+
+- 처리: `shots` v1.04(운영자 AI 키 폴백 삭제), `threads-affiliate-poster` v1.49(네이버 트렌드·검색을 회원 본인 키로), `insta_auto_poster` v1.04(Facebook 연결도 회원 본인 Meta 앱), `real_estate_sales` v1.05(공공데이터 키 선택 등록, 없으면 공용 키 — 무료 키 예외), `blog_auto_poster`(운영자 전용 도구로 표기). 메인 지침 맨 위에 최상위 규칙, 맨 아래에 무료 키 예외 조항(계정당 한도가 있으면 본인 키) 추가.
+- 환경변수 점검: 33개 Vercel 프로젝트에서 운영자 AI 키 없음 확인(남은 것은 redirect URI·모델명·플랫폼 자체 SMTP/Payapp·승인된 공공데이터 키뿐).
+- 남은 일: ① 4개 프로그램의 로그인 후 실제 동작을 `buylifemall@naver.com`으로 확인 ② 인스타 연결 방식 변경(본인 Meta 앱 필요) 회원 공지 ③ Supabase 새 키로 앱들이 정상 동작하는지 확인 후 옛 키 `aimaster` 폐기·키 파일 삭제 ④ Supabase "EXCEEDING USAGE LIMITS"(2026-10-20 제한) 화면 확인.
+
 ## 크롬 확장 운영 규칙 신설 (2026-10-09, 모든 CLI 공통)
 
 - 루트 `CLAUDE.md` 핵심 원칙 10번 / `AGENTS.md` 11번: 프로그램 업데이트 시 `extension/` 폴더·다운로드 ZIP·DB 버전을 같은 작업에서 함께 갱신하고 배포 후 ZIP 안 `version_name`까지 검증. 설치된 확장은 자동 갱신되지 않으므로 보고에 재설치 안내 포함. `programs.extension_download_url`/`extension_version` 칸을 추가하고 확장이 있는 5개 프로그램 값을 모두 채움(`naver-blog-agent/supabase/migrations/0051`, 나머지 4개는 SQL로 입력). 상세 규칙·프로그램별 주소: `docs/EXTENSION_RELEASE_RULES.md`, 검증: `node scripts/check-extension-release.mjs`(5개 OK, `naver-blog-auto-poster-web`만 manifest `version_name` 없어 WARN). 메인 사이트 프로그램 상세 다운로드 버튼은 2026-10-09 구현됨.
