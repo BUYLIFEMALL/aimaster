@@ -1,6 +1,10 @@
 # Claude 작업 재개 안내 — Threads 콘텐츠 운영 자동화
 
-> 기준일: 2026-10-09 · 현재 버전: `v1.87` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+> 기준일: 2026-10-09 · 현재 버전: `v1.88` · 라이브: <https://www.buylife.xyz/threads-content-ops>
+
+## v1.88 최신 변경 — 보관함 수정·지금 발행·포스팅완료
+
+`DraftComposer`에 수정→본문 편집→저장·수정 취소, 지금 발행 진행 상태, 완료된 글·발행 시각·게시글 보기, 상태 필터·포스팅완료 집계를 추가했습니다. `page.tsx`는 publishing/published도 보관함에 전달하며 전체 상태별 DB 건수(조회 실패는 숫자 대신 —)를 집계합니다. 목록 최근 300건, 메인 대시보드 이력 최근 30건. `web-actions.ts`의 `runDraftAction`은 안전한 결과 객체, `saveDraft`는 실제 갱신 확인, `publishDraft`는 조건부 상태 변경으로 중복 발행을 방지합니다. 외부 게시 뒤 DB 기록 실패는 failed로 되돌리지 않습니다. 모의 검수 16개: `node --test threads-content-ops/tests/draft-actions.test.cjs`. 실제 회원 계정 외부 게시 시험은 수행하지 않았습니다. DB 스키마 변경 없음. 상세는 `AGENTS.md` v1.88을 읽으세요.
 
 ## v1.87 최신 변경 — 미분류 기본 카테고리
 

@@ -10,6 +10,7 @@ import {
   Youtube,
 } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
+import { POST_STATUS, safePostLink, type PostCounts, type PostStatus } from "@/threads-content-ops/lib/postStatus";
 
 type Account = { id: string; username: string | null; token_expires_at?: string | null };
 type Post = {
@@ -25,28 +26,16 @@ type Post = {
 };
 
 type SourceSummary = { source_type: string; status: string };
-type Props = { accounts: Account[]; posts: Post[]; configuredProviders: string[]; sources: SourceSummary[] };
+type Props = { accounts: Account[]; posts: Post[]; postCounts: Record<keyof PostCounts, number | null>; configuredProviders: string[]; sources: SourceSummary[] };
 
-const POST_STATUS: Record<string, { label: string; tone: string }> = {
-  draft: { label: "검토 대기", tone: "bg-sky-50 text-sky-700" },
-  scheduled: { label: "예약 대기", tone: "bg-amber-50 text-amber-800" },
-  publishing: { label: "발행 처리 중", tone: "bg-violet-50 text-violet-700" },
-  published: { label: "발행 완료", tone: "bg-emerald-50 text-emerald-700" },
-  failed: { label: "재검토 필요", tone: "bg-rose-50 text-rose-700" },
-  cancelled: { label: "취소됨", tone: "bg-neutral-100 text-neutral-600" },
-};
-
-export default function OperationsDashboard({ accounts, posts, configuredProviders, sources }: Props) {
+export default function OperationsDashboard({ accounts, posts, postCounts, configuredProviders, sources }: Props) {
   const account = accounts[0];
   const readySources = (type: string) => sources.filter((source) => source.source_type === type && source.status === "ready").length;
   const sourceDescription = (type: string, empty: string) => {
     const count = readySources(type);
     return count ? `사용 가능한 소스 ${count}건 등록됨 · 초안 연결은 다음 단계` : empty;
   };
-  const published = posts.filter((post) => post.status === "published");
-  const drafts = posts.filter((post) => post.status === "draft");
   const scheduled = posts.filter((post) => post.status === "scheduled");
-  const failed = posts.filter((post) => post.status === "failed");
   const providers = new Set(configuredProviders);
   const accountName = account?.username ? `@${account.username}` : "연결된 Threads 계정 없음";
   const tokenValid = Boolean(account && (!account.token_expires_at || new Date(account.token_expires_at) > new Date()));
@@ -67,11 +56,11 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
     </section>
 
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-      <Metric icon={Send} label="누적 게시" value={published.length} tone="text-emerald-600" />
-      <Metric icon={FilePenLine} label="초안 완료" value={drafts.length} tone="text-violet-600" />
+      <Metric icon={Send} label="포스팅완료" value={postCounts.published} tone="text-emerald-600" />
+      <Metric icon={FilePenLine} label="초안 완료" value={postCounts.draft} tone="text-violet-600" />
       <Metric icon={Settings2} label="연결 계정" value={accounts.length} tone="text-amber-600" />
-      <Metric icon={CircleAlert} label="발행 실패" value={failed.length} tone="text-rose-600" />
-      <Metric icon={CalendarClock} label="대기 작업" value={scheduled.length} tone="text-sky-600" />
+      <Metric icon={CircleAlert} label="발행 실패" value={postCounts.failed} tone="text-rose-600" />
+      <Metric icon={CalendarClock} label="대기 작업" value={postCounts.scheduled} tone="text-sky-600" />
     </section>
 
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
@@ -103,8 +92,9 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
       <GlassCard className="min-w-0 p-5">
         <div className="flex items-center gap-2"><ListChecks size={18} className="text-gold" /><div><h3 className="font-bold text-white">실제 작업 진행</h3><p className="mt-1 text-xs text-subtext">회원님의 초안·예약·발행 결과만 표시합니다.</p></div></div>
         {posts.length ? <div className="mt-4 divide-y divide-neutral-200 rounded-xl border border-neutral-200">{posts.slice(0, 5).map((post) => {
-          const status = POST_STATUS[post.status] ?? { label: post.status, tone: "bg-neutral-100 text-neutral-600" };
-          return <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center" key={post.id}><span className={`w-fit rounded-full px-2 py-1 text-xs font-semibold ${status.tone}`}>{status.label}</span><p className="min-w-0 flex-1 truncate text-sm text-neutral-800">{post.body}</p><span className="shrink-0 text-xs text-neutral-500">{formatDate(post.published_at ?? post.scheduled_at ?? post.created_at)}</span></div>;
+          const status = POST_STATUS[post.status as PostStatus] ?? { label: post.status, tone: "bg-neutral-100 text-neutral-600" };
+          const link = safePostLink(post.permalink);
+          return <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center" key={post.id}><span className={`w-fit rounded-full px-2 py-1 text-xs font-semibold ${status.tone}`}>{status.label}</span><p className="min-w-0 flex-1 truncate text-sm text-neutral-800">{post.body}</p>{post.status === "published" && link && <a href={link} target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs font-semibold text-emerald-700 underline">게시글 보기</a>}<span className="shrink-0 text-xs text-neutral-500">{formatDate(post.published_at ?? post.scheduled_at ?? post.created_at)}</span></div>;
         })}</div> : <EmptyState icon={ListChecks} text="아직 기록된 작업이 없습니다. 계정 연결과 초안 생성을 완료하면 실제 이력이 표시됩니다." />}
       </GlassCard>
     </section>
@@ -116,8 +106,8 @@ export default function OperationsDashboard({ accounts, posts, configuredProvide
   </div>;
 }
 
-function Metric({ icon: Icon, label, value, tone }: { icon: typeof Send; label: string; value: number; tone: string }) {
-  return <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"><Icon size={18} className={tone} /><p className="mt-3 text-2xl font-bold text-neutral-900">{value}</p><p className="mt-1 text-sm text-neutral-600">{label}</p></div>;
+function Metric({ icon: Icon, label, value, tone }: { icon: typeof Send; label: string; value: number | null; tone: string }) {
+  return <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"><Icon size={18} className={tone} /><p className="mt-3 text-2xl font-bold text-neutral-900">{value ?? "—"}</p><p className="mt-1 text-sm text-neutral-600">{label}</p></div>;
 }
 
 function OperationCard({ title, description, ready, href, icon: Icon = Sparkles }: { title: string; description: string; ready: boolean; href: string; icon?: typeof Sparkles }) {

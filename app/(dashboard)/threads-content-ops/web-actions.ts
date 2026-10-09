@@ -305,12 +305,12 @@ export async function saveDraft(input: { draftId: string; body: string }) {
   const body = input.body.trim();
   if (!input.draftId || !body || body.length > 5_000) throw new Error("초안은 1~5,000자로 입력해 주세요.");
   const { supabase, user } = await authorizedUser();
-  const { error } = await supabase.from("tco_posts")
-    .update({ body })
+  const { data, error } = await supabase.from("tco_posts")
+    .update({ body, updated_at: new Date().toISOString() })
     .eq("id", input.draftId)
     .eq("user_id", user.id)
-    .eq("status", "draft");
-  if (error) throw new Error("초안을 저장하지 못했습니다.");
+    .eq("status", "draft").select("id").maybeSingle();
+  if (error || !data) throw new Error("저장할 수 있는 초안을 찾지 못했습니다. 상태가 변경됐는지 확인해 주세요.");
   revalidatePath("/threads-content-ops");
 }
 
@@ -320,14 +320,21 @@ export async function publishDraft(draftId: string) {
     .select("id, body, account_id, media")
     .eq("id", draftId).eq("user_id", user.id).eq("status", "draft").maybeSingle();
   if (!draft) throw new Error("발행할 초안을 찾지 못했습니다.");
+  if (!draft.body.trim() || draft.body.trim().length > 500) throw new Error("Threads에 올릴 본문은 1~500자로 수정해 주세요.");
   const { data: account } = await supabase.from("tco_threads_accounts")
     .select("id, threads_user_id, access_token, token_expires_at")
     .eq("id", draft.account_id).eq("user_id", user.id).maybeSingle();
   if (!account) throw new Error("연결된 Threads 계정을 찾지 못했습니다.");
   if (account.token_expires_at && new Date(account.token_expires_at) <= new Date()) throw new Error("Threads 연결 토큰이 만료되었습니다. 계정을 다시 연결해 주세요.");
 
-  await supabase.from("tco_posts").update({ status: "publishing", error_message: null }).eq("id", draft.id).eq("user_id", user.id);
+  // 현재 상태와 본문이 그대로인 초안만 가져간다. 동시 요청·예약 전환·수정 중에는 중복으로 게시하지 않는다.
+  const { data: claimed, error: claimError } = await supabase.from("tco_posts")
+    .update({ status: "publishing", scheduled_at: null, error_message: null, updated_at: new Date().toISOString() })
+    .eq("id", draft.id).eq("user_id", user.id).eq("status", "draft").eq("body", draft.body)
+    .select("id").maybeSingle();
+  if (claimError || !claimed) throw new Error("이미 발행 중이거나 초안이 변경되었습니다. 새로고침 후 상태를 확인해 주세요.");
   let permalink: string | null = null;
+  let posted = false;
   try {
     const media = sanitizeMedia(user.id, draft.media);
     for (const item of media) {
@@ -335,16 +342,46 @@ export async function publishDraft(draftId: string) {
       if (item.type === "VIDEO" && item.size && item.size > MAX_VIDEO_BYTES) throw new Error("1GB를 넘는 영상은 Threads에 올릴 수 없습니다.");
     }
     const published = await publishToThreads({ threadsUserId: account.threads_user_id, accessToken: account.access_token, text: draft.body, media });
-    const { error } = await supabase.from("tco_posts").update({ status: "published", published_at: new Date().toISOString(), threads_post_id: published.id, permalink: published.permalink }).eq("id", draft.id).eq("user_id", user.id);
-    if (error) throw error;
+    posted = true;
+    const { data: saved, error } = await supabase.from("tco_posts")
+      .update({ status: "published", published_at: new Date().toISOString(), threads_post_id: published.id, permalink: published.permalink, error_message: null, updated_at: new Date().toISOString() })
+      .eq("id", draft.id).eq("user_id", user.id).eq("status", "publishing").select("id").maybeSingle();
+    if (error || !saved) throw new Error("Threads에는 포스팅됐지만 완료 기록을 저장하지 못했습니다. 중복 발행하지 말고 Threads에서 게시 여부를 확인해 주세요.");
     permalink = published.permalink;
   } catch (error) {
     const message = error instanceof Error ? error.message.slice(0, 500) : "발행 중 알 수 없는 오류가 발생했습니다.";
-    await supabase.from("tco_posts").update({ status: "failed", error_message: message }).eq("id", draft.id).eq("user_id", user.id);
+    // 외부 게시 성공 후 DB 기록 실패는 재시도 가능한 failed로 되돌리지 않는다.
+    await supabase.from("tco_posts").update({ status: posted ? "publishing" : "failed", error_message: message, updated_at: new Date().toISOString() })
+      .eq("id", draft.id).eq("user_id", user.id).eq("status", "publishing");
+    revalidatePath("/threads-content-ops");
     throw new Error(message);
   }
   revalidatePath("/threads-content-ops");
   return { permalink };
+}
+
+/** 보관함의 저장·즉시 발행·예약: 운영 환경에서도 오류 사유가 화면에 보이도록 결과 객체를 돌려준다. */
+export async function runDraftAction(input: { draftId: string; intent: "save" | "publish" | "schedule" | "cancel" | "retry"; body?: string; scheduledAt?: string }): Promise<{ ok: true; permalink?: string | null } | { ok: false; error: string }> {
+  try {
+    if (!UUID_RE.test(String(input.draftId))) throw new Error("작업할 콘텐츠를 확인해 주세요.");
+    if (input.intent === "cancel") {
+      await cancelScheduledDraft(input.draftId);
+    } else if (input.intent === "retry") {
+      await retryFailedDraft(input.draftId);
+    } else if (input.intent === "save" || input.intent === "publish" || input.intent === "schedule") {
+      if (typeof input.body !== "string") throw new Error("저장할 본문을 확인해 주세요.");
+      if (input.intent !== "save" && (!input.body.trim() || input.body.trim().length > 500)) throw new Error("Threads에 올릴 본문은 1~500자로 수정해 주세요.");
+      await saveDraft({ draftId: input.draftId, body: input.body });
+      if (input.intent === "publish") return { ok: true, ...(await publishDraft(input.draftId)) };
+      if (input.intent === "schedule") await scheduleDraft({ draftId: input.draftId, scheduledAt: input.scheduledAt ?? "" });
+    } else {
+      throw new Error("지원하지 않는 작업입니다.");
+    }
+    return { ok: true };
+  } catch (error) {
+    revalidatePath("/threads-content-ops");
+    return { ok: false, error: error instanceof Error ? error.message : "작업을 완료하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  }
 }
 
 /**
