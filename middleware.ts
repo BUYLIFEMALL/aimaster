@@ -105,7 +105,7 @@ export async function middleware(request: NextRequest) {
   if (user && (pathname === "/login" || pathname === "/register")) {
     const isSessionExpired = request.nextUrl.searchParams.get("session_expired") === "true";
     if (!isSessionExpired) {
-      return NextResponse.redirect(new URL("/programs", request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
