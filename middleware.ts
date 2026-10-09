@@ -112,16 +112,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 쿠키 도메인을 .buylife.xyz 로 바꾸기 전에 www 에서만 쓰이던 옛 로그인 쿠키(호스트 전용)가 남아 있으면
-  // 새 쿠키와 이름이 같아 옛 값이 먼저 읽히므로, 한 번 만료시켜 정리한다(도메인 쿠키는 영향 없음).
-  if (cookieDomain) {
-    request.cookies.getAll().forEach(({ name }) => {
-      if (name.startsWith("sb-")) {
-        supabaseResponse.headers.append("set-cookie", `${name}=; Max-Age=0; Path=/`);
-      }
-    });
-  }
-
   return supabaseResponse;
 }
 

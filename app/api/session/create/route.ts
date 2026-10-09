@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import crypto from "crypto";
+import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -58,12 +59,15 @@ export async function POST(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // 쿠키에 세션 토큰 저장
+  const headerStore = await headers();
+  const cookieDomain = cookieDomainForHost(headerStore.get("x-forwarded-host") ?? headerStore.get("host"));
   const cookieStore = await cookies();
   cookieStore.set("session_token", sessionToken, {
     httpOnly: true,
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 30, // 30일
     path: "/",
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
   });
 
   return NextResponse.json({ success: true });

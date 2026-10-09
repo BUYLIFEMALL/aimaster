@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 보안 마무리 — BLOG v1.38 로컬 준비·운영 미적용 (2026-10-10)
+
+- BLOG 글 GET/PUT/DELETE의 로그인·이용 권한·본인 필터·no-store, 소유자 없는 글 접근 차단, 상세 화면 서버 게이트·인증 없는 SDK 조회 제거, 관리자 카테고리 API, 서버 키 공개 키 폴백 제거. 코드·확장·로컬 ZIP v1.38 준비, 운영 DB·라이브 v1.37 유지. 최종 빌드·타입·39개 검사 통과, 신규 린트 오류 0건(기존 7건·경고 3건). Google Fonts 네트워크 실패는 저장소 로컬 Geist 글꼴로 해결.
+- **운영 DB RLS는 아직 열려 있음**: 7개 BLOG 테이블 정책 검토안·변경 전 스냅샷 준비, 적용 전 주인님 승인 필요. 글 20건 중 소유자 없는 7건은 임의 귀속·삭제하지 않음. `ai-auto-blog/supabase/security/blog-access-hardening.proposed.sql`.
+- Vercel 메타데이터 점검: 32개 중 서버 키 있는 29개, 28개는 변수 변경 이후 READY production. **타로만 최신 배포가 키 변경보다 앞섬**, 재배포는 도구 승인 정책 never로 거부. 키 값을 열지 않았으므로 실제 키 일치·회원 동작 검수를 증명한 것은 아님. 옛 키 폐기는 타로 재배포·회원 검수 이후 승인받아 진행.
+- 루트 `scripts/audit-supabase-key-rotation.mjs`: 추적 텍스트 2,889개에서 패턴상 내장 서비스 키 없음, 로컬 설정 18개에 알려진 옛 키 없음. 새 키 임시 파일은 저장소 밖에 아직 존재. Supabase는 ACTIVE_HEALTHY이나 브라우저 ENOMEM으로 사용량 경고·폐기 상태 확인 못 함.
+- **미완료**: 커밋·푸시·BLOG 배포, 승인된 RLS 적용, 운영 버전 갱신·라이브 ZIP 검증, 타로 재배포·회원 동작 검수, 옛 키 폐기·임시 키 파일 삭제, Supabase 사용량 화면 확인. git add는 `.git/index.lock: Permission denied`로 실패(.git 읽기 전용 세션), 커밋·푸시 미실행. 변경은 로컬 작업 폴더에 보존. 자세한 재개 절차: `ai-auto-blog/docs/SECURITY_REVIEW_2026-10-10.md`.
+
 ## Threads 콘텐츠 운영 자동화 — 쿠팡 키 없는 상품 직접 등록 (2026-10-10, v1.92)
 
 - 쇼핑제휴 `/products` 참고 기능을 이식: 쿠팡 검색 아래 5단계 안내·HTML/링크 붙여넣기·상품명/사진 자동 채움·수정·메모·**상품 등록**. 이전 쿠팡 링크 폼 통합, 네이버 직접 등록 버튼명도 상품 등록. 직접 등록은 쿠팡 API·키 사용 없음.
@@ -2008,7 +2016,8 @@
 - 2026-10-10 `shots` v1.05: 로그인 화면 제목 두 줄 표기("YOUTUBE Shots 자동화" / "(이미지 스토리)"). 사이드바 제목은 그대로.
 - 2026-10-10 `real_estate_sales` v1.06: 작업 화면 흰색 베이스 통일 + 좌측 메뉴 제목 "부동산 투자분석 자동화"로 단축(globals.css 토큰 재매핑 + 클래스 치환). 로그인 화면은 원래 흰색이라 그대로.
 - 2026-10-10 `shots` v1.07: 좌측 사이드바 제목을 두 줄("YOUTUBE Shots 자동화" / "(이미지 스토리)")로 줄바꿈 처리.
+- 2026-10-10 루트: 관리자/회원 로그인 불가 버그 해결. `middleware.ts`에서 매 요청마다 모든 `sb-*` 쿠키에 `Set-Cookie: Max-Age=0`을 내려보내 세션을 즉각 파괴하던 버그 코드 제거, `LoginForm.tsx`에서 클라이언트 측 호스트 쿠키 안전 정리, `session_token` 발급 시 `cookieDomain` 일관 적용.
 - 2026-10-10 **전 프로그램 로그인 공유(SSO) 진행 중 — A방식(주소 통일)**: 프로그램마다 주소(vercel.app)가 달라 쿠키가 공유되지 않아 프로그램마다 다시 로그인하던 문제. 해결: 모든 프로그램을 `<이름>.buylife.xyz` 로 열고 Supabase 로그인 쿠키 도메인을 `.buylife.xyz` 로 공유.
-  - 코드 패턴(프로그램마다 3곳): `lib/supabase/cookieDomain.ts`(host 가 buylife.xyz 계열일 때만 `.buylife.xyz`, 그 외 undefined — vercel.app 에서는 기존 그대로) + 브라우저 client `cookieOptions.domain` + server client/미들웨어(proxy) 의 `setAll` 에서 `domain` 지정. 루트 `middleware.ts` 는 www 의 옛 호스트 전용 `sb-*` 쿠키를 만료시키는 정리 포함.
+  - 코드 패턴(프로그램마다 3곳): `lib/supabase/cookieDomain.ts`(host 가 buylife.xyz 계열일 때만 `.buylife.xyz`, 그 외 undefined — vercel.app 에서는 기존 그대로) + 브라우저 client `cookieOptions.domain` + server client/미들웨어(proxy) 의 `setAll` 에서 `domain` 지정. (주의: 미들웨어에서 `Set-Cookie: Max-Age=0` 일괄 만료는 정상 세션 파괴를 유발하므로 클라이언트 로그인 시점에만 안전하게 정리해야 함).
   - 선행 작업(주인님): Cloudflare DNS 에 `*` CNAME → `cname.vercel-dns.com`(프록시 끔/DNS only). 그 뒤 프로그램별 `vercel domains add <이름>.buylife.xyz` + `programs.app_url` 갱신.
   - 파일럿: 루트(v 없음) + `shots` v1.06 코드 반영. 나머지 프로그램은 파일럿 검증(주소 이동 후 로그인 공유 확인) 뒤 순서대로 진행. **OAuth 리디렉트 URI(회원이 본인 Meta/Google 앱에 등록한 주소)는 옛 vercel.app 주소 기준이므로 옛 주소는 계속 유지한다 — 새 주소만 추가.**

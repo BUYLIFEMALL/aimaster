@@ -37,6 +37,16 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    // 기존 호스트(www.buylife.xyz) 전용 옛 sb-* 쿠키가 남아 있으면 도메인 쿠키와 충돌할 수 있으므로 브라우저에서 먼저 만료 정리
+    if (typeof document !== "undefined") {
+      document.cookie.split(";").forEach((cookie) => {
+        const name = cookie.split("=")[0]?.trim();
+        if (name && name.startsWith("sb-")) {
+          document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        }
+      });
+    }
+
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) {
       setError("이메일 또는 비밀번호가 올바르지 않습니다.");
