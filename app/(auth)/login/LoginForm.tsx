@@ -17,7 +17,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") ?? "/";
+  // 기본 이동은 메인 홈("/"). 예전 기본값이던 /dashboard 가 redirect 로 들어와도 홈으로 보낸다.
+  const redirectParam = searchParams.get("redirect");
+  const redirectTo = !redirectParam || redirectParam === "/dashboard" ? "/" : redirectParam;
   const isSessionExpired = searchParams.get("session_expired") === "true";
   const supabase = createClient();
 

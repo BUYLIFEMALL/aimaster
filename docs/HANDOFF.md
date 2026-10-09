@@ -1998,3 +1998,4 @@
 
 - 2026-10-10 루트: 로그인·가입 후 기본 이동 페이지를 `/dashboard` → `/programs`로 변경(LoginForm, RegisterForm, middleware의 로그인 상태 auth 페이지 접근 리디렉트). `?redirect=` 지정 시에는 기존대로 그 경로로 이동.
 - 2026-10-10 루트(정정): 로그인·가입 후 기본 이동 페이지를 `/programs` → `/`(메인 홈)로 재변경. 같은 3곳(LoginForm, RegisterForm, middleware). `?redirect=` 지정 시에는 기존대로 그 경로로 이동.
+- 2026-10-10 루트: `/login?redirect=/dashboard`(대시보드 북마크·옛 링크 경유)로 들어와도 로그인 후 `/`(메인 홈)로 이동하도록 LoginForm에서 `/dashboard` redirect 값을 무시. 그 외 redirect(예: /admin, /affiliate)는 기존대로 유지.
