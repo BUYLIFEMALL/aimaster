@@ -1,12 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 보안 마무리 — BLOG RLS 적용 완료·v1.39 릴리스 검수 중 (2026-10-10)
+## 보안 마무리 — BLOG RLS 적용·v1.39 운영 배포 완료 (2026-10-10)
 
 - BLOG 글 GET/PUT/DELETE의 로그인·이용 권한·본인 필터·no-store, 소유자 없는 글 접근 차단, 상세 화면 서버 게이트·인증 없는 SDK 조회 제거, 관리자 카테고리 API, 서버 키 공개 키 폴백 제거. 코드 커밋 `01bb999f`·푸시·프로덕션 배포 완료, 운영 DB·확장·라이브 ZIP v1.38 일치(검증 실패/경고 0). 최종 빌드·타입·39개 검사 통과, 신규 린트 오류 0건(기존 7건·경고 3건). 운영 API 비로그인 401+no-store+캐시 MISS, 상세 화면 307 확인. Google Fonts 네트워크 실패는 저장소 로컬 Geist 글꼴로 해결.
-- **주인님 승인 후 운영 RLS 적용 완료**: `ai-auto-blog/supabase/migrations/20261009164750_blog_personal_access_hardening.sql`. 7개 테이블 익명/PUBLIC 권한 제거·본인 행/본인 글 연결만 허용·관리자만 공통 분류 변경·댓글/좋아요 쓰기 차단. authenticated TRUNCATE/REFERENCES/TRIGGER도 회수. 게시글 20(미귀속 7)·작성자 11·글감 60·분류 10·연결 16·댓글/좋아요 0, 전체 행 지문 7곳 일치. DB 역할 검증 27개·REST 익명 401 차단 7곳 통과. v1.39 빌드·보안 검사 39개 통과, 확장/로컬 ZIP v1.39 릴리스 진행 중.
+- **주인님 승인 후 운영 RLS 적용 완료**: `ai-auto-blog/supabase/migrations/20261009164750_blog_personal_access_hardening.sql`. 7개 테이블 익명/PUBLIC 권한 제거·본인 행/본인 글 연결만 허용·관리자만 공통 분류 변경·댓글/좋아요 쓰기 차단. authenticated TRUNCATE/REFERENCES/TRIGGER도 회수. 게시글 20(미귀속 7)·작성자 11·글감 60·분류 10·연결 16·댓글/좋아요 0, 전체 행 지문 7곳 일치. DB 역할 검증 27개·REST 익명 401 차단 7곳 통과. v1.39 코드 커밋 `d0e014b5`·푸시·운영 배포 완료, DB/확장/라이브 ZIP v1.39 일치(검증 실패·경고 0). 운영 API 401+no-store+캐시 MISS, 상세 페이지 307 확인. 버전 마이그레이션 `20261009165944_blog_bump_version_v1_39.sql`.
 - Vercel 메타데이터 점검: 32개 중 서버 키 있는 29개, 28개는 변수 변경 이후 READY production. **타로만 최신 배포가 키 변경보다 앞섬**, 재배포는 도구 승인 정책 never로 거부. 키 값을 열지 않았으므로 실제 키 일치·회원 동작 검수를 증명한 것은 아님. 옛 키 폐기는 타로 재배포·회원 검수 이후 승인받아 진행.
 - 루트 `scripts/audit-supabase-key-rotation.mjs`: 추적 텍스트 2,889개에서 패턴상 내장 서비스 키 없음, 로컬 설정 18개에 알려진 옛 키 없음. 새 키 임시 파일은 저장소 밖에 아직 존재. Supabase는 ACTIVE_HEALTHY이나 브라우저 ENOMEM으로 사용량 경고·폐기 상태 확인 못 함.
-- **미완료**: 실제 BLOG 회원 화면 검수(v1.39 릴리스 결과는 보안 기록 참고), 타로 재배포·회원 동작 검수, 옛 키 폐기·임시 키 파일 삭제, Supabase 사용량 화면 확인. 브라우저 복구·루트 시험 계정 실제 로그인 성공. BLOG 자체 저장된 정보 자동 입력이 없어 주인님께 로그인 확인 요청. 라이브 https://ai-auto-blog-one.vercel.app . 자세한 재개 절차: `ai-auto-blog/docs/SECURITY_REVIEW_2026-10-10.md`.
+- **미완료**: 실제 BLOG 회원 화면 검수, 타로 재배포·회원 동작 검수, 옛 키 폐기·임시 키 파일 삭제, Supabase 사용량 화면 확인. 브라우저 복구·루트 시험 계정 실제 로그인 성공. BLOG 자체 저장된 정보 자동 입력이 없어 주인님께 로그인 확인 요청. 라이브 https://ai-auto-blog-one.vercel.app . 자세한 재개 절차: `ai-auto-blog/docs/SECURITY_REVIEW_2026-10-10.md`.
 
 ## Threads 콘텐츠 운영 자동화 — 쿠팡 키 없는 상품 직접 등록 (2026-10-10, v1.92)
 

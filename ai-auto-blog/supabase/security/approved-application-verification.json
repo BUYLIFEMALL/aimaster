@@ -2,6 +2,22 @@
   "date": "2026-10-10",
   "migration": "20261009164750_blog_personal_access_hardening",
   "approval": "BLOG DB security policy changes approved; preserve existing data",
+  "productionRelease": {
+    "version": "v1.39",
+    "codeCommit": "d0e014b5",
+    "deploymentId": "dpl_HCYqUNJKrWyw1rQES1jPRxYwtNmR",
+    "url": "https://ai-auto-blog-one.vercel.app",
+    "versionMigration": "20261009165944_blog_bump_version_v1_39",
+    "buildPassed": true,
+    "codeSecurityTestsPassed": 39,
+    "anonymousRestTablesBlocked": 7,
+    "extensionReleaseCheckPassed": true,
+    "loggedOutApiStatuses": [401, 401],
+    "loggedOutDetailStatus": 307,
+    "apiCacheControl": "private, no-store, max-age=0",
+    "apiVercelCache": "MISS",
+    "blogBrowserLoginVerified": false
+  },
   "counts": {
     "likes": 0,
     "posts": 20,

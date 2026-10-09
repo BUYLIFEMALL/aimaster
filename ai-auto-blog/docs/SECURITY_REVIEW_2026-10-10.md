@@ -1,6 +1,6 @@
 # 보안 마무리 작업 — 2026-10-10
 
-## 현재 상태 — 승인된 BLOG RLS 적용 완료, v1.39 릴리스 검수 중
+## 현재 상태 — 승인된 BLOG RLS 적용·v1.39 운영 배포 완료
 
 - 주인님이 "BLOG DB 보안 정책 변경을 승인합니다. 기존 데이터는 보존하고 진행하세요."라고 승인했습니다.
 - Supabase CLI 2.120.0으로 생성·운영 적용 후 원격 기록과 시각을 맞춘 파일:
@@ -13,7 +13,12 @@
 - DB 역할 검증 27개 통과, 시험용 행과 변경은 예외 하위 트랜잭션으로 전부 되돌림.
   `verify-blog-access.sql`, `approved-application-verification.json`에 기록했습니다.
 - 실제 REST 익명 조회 7곳 HTTP 401/42501, `node scripts/check-blog-anon-access.mjs`로 재검증 가능.
-- v1.39 로컬 빌드·보안 테스트 39개 통과, 확장/로컬 ZIP v1.39. 운영 릴리스 검수 진행 중.
+- v1.39 로컬/운영 빌드·보안 테스트 39개 통과. 코드 커밋 `d0e014b5`·origin/master 푸시,
+  프로덕션 배포 `dpl_HCYqUNJKrWyw1rQES1jPRxYwtNmR` READY,
+  라이브 https://ai-auto-blog-one.vercel.app .
+- 운영 버전 3칸 갱신 마이그레이션 `20261009165944_blog_bump_version_v1_39.sql` 적용 완료.
+  DB/확장/라이브 ZIP v1.39 일치·실패/경고 0. 운영 API 두 곳 401+no-store+캐시 MISS,
+  상세 페이지 307→auth 확인. 고정 다운로드 ZIP 200 확인.
 - 브라우저 장애 해소·루트 시험 계정 실제 로그인 성공. BLOG 자체 로그인 화면에는 저장된 정보
   자동 입력이 없어 주인님께 로그인 확인을 요청했습니다. 실제 BLOG 회원 화면 검수는 그 확인 후 진행합니다.
 - advisors 재실행: BLOG 관련 추가 지적 없음. 기존 공통 함수 search_path 3곳,
