@@ -16,6 +16,14 @@
 
 - `whoami`에 `latestVersion`/`downloadUrl` 추가, 사이드패널에 "새 버전이 나왔습니다" 배너(더 높을 때만, 우리 사이트 `/downloads/` 주소만 허용), `npm run test:update-banner`. 배포 전 `npm run extension:archive`로 ZIP을 직접 만들어야 함(prebuild 아님). DB `version`/`extension_version`/`extension_download_url` v1.60으로 갱신, `check-extension-release.mjs` OK.
 
+## Gmail 호출 점검 (2026-10-09) — 프로그램 중 Gmail을 계속 호출하는 곳은 없음
+
+- 저장소 전체: Gmail API·IMAP으로 메일을 읽거나 폴링하는 코드는 **없다**. 메일은 모두 SMTP로 "보낼 때만" 연결한다. 발송 코드: 루트(`lib/email/sender.ts` — 가입 환영·결제·문의·만료 알림, 운영자 SMTP), `stepmail`(예약 발송), `booking-reminder`(15분 크론이지만 대상이 있을 때만 SMTP 연결), `crm-google-form`(하루 1회 팔로우업), `kakao_auto_poster`(예약 리포트 알림·카카오 실패 대체), `trending-product-finder`(변동 감지 시에만). 회원이 등록한 SMTP(본인 Gmail 포함)를 쓰므로 운영자 Gmail 한도와 무관(최상위 규칙 유지).
+- 최근 24시간 실제 발송: stepmail 0건(마지막 2026-10-03, 누적 50), booking 0, crm 0. 운영자 Gmail(`buylifemall@gmail.com`)을 SMTP로 등록한 스텝메일 캠페인은 0개. 가입 30명/7일, 결제·만료 알림 0건이라 플랫폼 메일량도 하루 한 자릿수.
+- **Make 계정(BUYLIFE, 시나리오 500개)**: Gmail 모듈을 쓰는 시나리오 16개 중 자동 실행은 2개. 실제로 도는 것은 **`01🟢공구신청접수|Webhook>GSheet>Gmail 확인메일`(id 4965923, 2026-10-09 03:00 UTC 생성)** 하나 — 웹훅 → 구글시트 한 줄 추가 → Gmail 확인메일 → 시트 상태 갱신. 오늘 03:01~03:38 UTC에 9번 실행되어 **8번이 Gmail `[429] User-rate limit exceeded`(Retry after 약 +15분)로 실패, 마지막 1번만 성공**. 재시도할 때마다 대기 시각이 뒤로 밀렸다(03:16→03:48). 첫 실행부터 제한 상태였던 점은 이 계정의 다른 Gmail 사용(Make 연결 `4875841`을 쓰는 곳, 개인 사용 등)을 Google 계정 활동 기록에서 확인해야 알 수 있다.
+- **주의(위험)**: 위 시나리오의 웹훅 주소를 아는 사람은 누구나 `email` 값을 넣어 **운영자 Gmail로 임의 주소에 메일을 보낼 수 있다**(스팸 중계·한도 소진·계정 정지 위험). 인증값(비밀 토큰 검사) 또는 수신자 제한이 필요하다. 시나리오는 저장소 밖(Make)에 있어 코드로는 못 고치고 주인님이 Make에서 수정해야 한다.
+- 못 확인한 것: Supabase Auth 메일(가입 확인·비밀번호 재설정)의 SMTP 설정(대시보드 값), 루트 Vercel `SMTP_HOST` 실제 값(민감값이라 안 보임, 로컬 `.env.local`은 `smtp.gmail.com`).
+
 ## 메인 사이트 프로그램 상세 — 확장 다운로드 버튼 (2026-10-09)
 
 - `app/(main)/programs/[slug]/page.tsx`가 `programs.extension_download_url`/`extension_version`을 읽어 이용 권한이 있는 회원에게만 "크롬 확장 ZIP 다운로드"(설치 방법 안내 포함)를 보여줌. 주소는 https일 때만. 확장 배포 때 DB 칸 갱신이 곧 버튼 갱신(`docs/EXTENSION_RELEASE_RULES.md`).
