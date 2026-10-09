@@ -1,8 +1,16 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.91`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.92`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.92 쿠팡 API 키 없는 직접 상품 등록 (2026-10-10)
+
+- `threads-affiliate-poster`의 `CoupangProductForm`·`links`·`widget`을 참고해 쿠팡 검색 아래 직접 등록 영역에 같은 5단계 안내·링크 생성 화면·상품명·HTML 입력·사진 확인·등록을 넣었습니다. 버튼명은 주인님 추가 지시대로 **상품 등록**입니다. 네이버 직접 등록 버튼도 같은 이름입니다. 이전 쿠팡 단순 링크 폼은 이 영역으로 통합했습니다. 메모 입력 유지, 등록 상품은 기존 콘텐츠 생성의 상품 선택에 연결됩니다.
+- `coupangLinks.ts`는 브라우저/서버 공용 파서·제휴 링크/CDN 검사입니다. HTML 실행 없이 이름·제휴 링크·사진 URL 추출, 엔티티 해석, 일반 쇼핑 주소·iframe 안내·도메인 위장·비HTTP·자격증명·비표준 포트·20,000자 초과 차단. API 검색 클라이언트는 이 검사를 재내보냅니다.
+- `coupangBanner.ts`: 참고 프로그램과 같은 240×480 배너의 상품 사진 영역을 `jpeg-js@0.4.4`로 자릅니다. 쿠팡 CDN HTTPS만, 리다이렉트 금지, 8초·2MB·4MP·메모리 제한. 미리보기는 데이터 URL 반환이며 저장 없음. 입력 변경 시 지연 미리보기의 이전 응답 무시, 직접 수정한 상품명 유지, 계정 전환 시 폼 초기화, 등록 중 중복 클릭 방지.
+- `previewCoupangShare`·`registerCoupangManualSource`는 회원 이용 권한을 확인하며 쿠팡 API/키를 사용하지 않습니다. 등록은 서버에서 원본 HTML 재해석 후 본인 계정·200건 한도·중복 확인을 먼저 수행합니다. 사진은 기존 `ai-image-generations`의 본인 `threads-content-ops/up` 경로에 저장(기존 30일 정리 정책). 사진 실패는 상품 등록 유지+경고, DB 저장 실패는 해당 요청의 임시 사진만 정리합니다. 생 HTML·미리보기 데이터를 DB에 저장하지 않습니다. DB 스키마 변경 없음.
+- 검수: 루트 빌드 성공, 신규 9개+기존 19개 **28개 통과**(`node --test threads-content-ops/tests/coupang-manual.test.cjs threads-content-ops/tests/draft-actions.test.cjs`), 신규 타입/린트 오류 없음. 기존 타입 오류 4건·img 경고 유지. 실제 쿠팡 API·유료 생성·외부 발행 시험 없음. 배포 전 로그인한 기존 상품 화면 확인. 버전 기록: `20261009153832_tco_bump_version_v1_92.sql`.
 
 ## v1.91 설정 저장 버튼 글자 대비 (2026-10-10)
 

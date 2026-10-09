@@ -183,33 +183,4 @@ export async function searchCoupangProducts(
 //   허용: link.coupang.com/a/...(링크 생성기), link.coupang.com/re/AFFSDP?...(검색 API),
 //         *.coupang.com/...?lptag=AF...(제휴 링크가 이동한 최종 주소)
 // ---------------------------------------------------------------------------
-export type CoupangLinkCheck = { ok: true } | { ok: false; reason: "invalid" | "not_coupang" | "plain_store_url" | "widget_url" };
-
-export function checkCoupangAffiliateLink(raw: string): CoupangLinkCheck {
-  let url: URL;
-  try { url = new URL(raw.trim()); } catch { return { ok: false, reason: "invalid" }; }
-  const host = url.hostname.toLowerCase();
-  if (host === "link.coupang.com") return { ok: true };
-  if (host === "coupa.ng") return { ok: false, reason: "widget_url" };
-  if (host === "coupang.com" || host.endsWith(".coupang.com")) {
-    return /^AF/i.test(url.searchParams.get("lptag") ?? "") ? { ok: true } : { ok: false, reason: "plain_store_url" };
-  }
-  return { ok: false, reason: "not_coupang" };
-}
-
-export const COUPANG_LINK_MESSAGES: Record<Exclude<CoupangLinkCheck, { ok: true }>["reason"], string> = {
-  invalid: "올바른 링크 형식이 아닙니다. https:// 로 시작하는 전체 링크를 붙여넣어 주세요.",
-  not_coupang: "쿠팡 링크가 아닙니다. 쿠팡 파트너스에서 만든 링크(link.coupang.com/...)를 넣어 주세요.",
-  plain_store_url: "일반 쿠팡 쇼핑 주소라서 수수료가 잡히지 않습니다. 쿠팡 파트너스 사이트(partners.coupang.com)의 [링크 생성]에서 만든 링크(link.coupang.com/a/...)를 넣어 주세요.",
-  widget_url: "\"일반태그\"(iframe) 주소(coupa.ng)는 게시용 링크가 아닙니다. 같은 화면에서 만든 link.coupang.com 링크를 넣어 주세요.",
-};
-
-/** 상품 사진은 쿠팡 CDN(https)만 저장·표시한다. */
-export function isCoupangImageUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" && /(^|\.)coupangcdn\.com$/i.test(url.hostname);
-  } catch {
-    return false;
-  }
-}
+export { checkCoupangAffiliateLink, COUPANG_LINK_MESSAGES, isCoupangImageUrl, type CoupangLinkCheck } from "./coupangLinks";

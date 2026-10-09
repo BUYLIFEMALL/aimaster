@@ -44,6 +44,8 @@ import {
 import { TOSS_PROXY_MISSING_MESSAGE, getTossBestSelling, getTossCategories, getTossCategoryBestSelling, getTossTodayDeals, isTossProxyConfigured, issueTossShareLink, type TossCategory, type TossProduct } from "@/threads-content-ops/lib/toss";
 import { withYearRule } from "@/threads-content-ops/lib/yearRule";
 import { ALIEXPRESS_IMAGE_WARNING, createAliexpressPromotionLink, findAliexpressImage, resolveAliexpressUrl } from "@/threads-content-ops/lib/aliexpress";
+import { readCoupangShare } from "@/threads-content-ops/lib/coupangLinks";
+import { cropPhotoFromCoupangBanner } from "@/threads-content-ops/lib/coupangBanner";
 
 const PROGRAM_SLUG = "threads-content-ops";
 const CREDENTIAL_PROVIDERS = new Set([
@@ -546,7 +548,7 @@ function checkSourceText(title: string, summary: string) {
   if (summary.length > 1_000) throw new Error("메모는 1,000자 이내로 입력해 주세요.");
 }
 
-function sourceFailure(error: unknown, fallback: string): SourceResult {
+function sourceFailure(error: unknown, fallback: string): { ok: false; error: string } {
   return { ok: false, error: error instanceof Error ? error.message : fallback };
 }
 
@@ -561,6 +563,7 @@ async function insertContentSource(
   supabase: Awaited<ReturnType<typeof authorizedUser>>["supabase"],
   userId: string,
   input: { accountId: string; sourceType: string; title: string; sourceUrl: string; summary: string; metadata?: Record<string, unknown> },
+  prepareMetadata?: () => Promise<Record<string, unknown>>,
 ) {
   const { data: account } = await supabase.from("tco_threads_accounts")
     .select("id").eq("id", input.accountId).eq("user_id", userId).maybeSingle();
@@ -581,10 +584,71 @@ async function insertContentSource(
     title: input.title.trim(),
     source_url: input.sourceUrl,
     summary: input.summary.trim(),
-    metadata: input.metadata ?? {},
+    metadata: prepareMetadata ? await prepareMetadata() : input.metadata ?? {},
     status: "ready",
   });
   if (error) throw new Error("소스를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+}
+
+/** Preview only: no key, affiliate click, storage write or product registration. */
+export async function previewCoupangShare(text: string): Promise<
+  { ok: true; url: string; name?: string; imageUrl?: string; warning?: string } | { ok: false; error: string }
+> {
+  try {
+    await authorizedUser();
+    const parsed = readCoupangShare(text);
+    let imageUrl = parsed.imageUrl;
+    let warning: string | undefined;
+    if (parsed.bannerUrl) {
+      try {
+        const bytes = await cropPhotoFromCoupangBanner(parsed.bannerUrl);
+        if (bytes) imageUrl = `data:image/jpeg;base64,${bytes.toString("base64")}`;
+        else warning = "상품 사진을 만들지 못했습니다. 상품명·링크는 등록할 수 있습니다.";
+      } catch { warning = "상품 사진을 가져오지 못했습니다. 상품명·링크는 등록할 수 있습니다."; }
+    }
+    return { ok: true, url: parsed.url, name: parsed.name, imageUrl, warning };
+  } catch (error) { return sourceFailure(error, "붙여넣은 코드를 확인하지 못했습니다."); }
+}
+
+/** API-free registration: parse the original code again, never trust client image metadata. */
+export async function registerCoupangManualSource(input: {
+  accountId: string; title: string; shareCode: string; summary: string;
+}): Promise<{ ok: true; warning?: string } | { ok: false; error: string }> {
+  let uploadedPath: string | undefined;
+  let db: Awaited<ReturnType<typeof authorizedUser>>["supabase"] | undefined;
+  try {
+    const { supabase, user } = await authorizedUser();
+    db = supabase;
+    const parsed = readCoupangShare(input.shareCode);
+    const title = input.title.trim() || parsed.name || "";
+    checkSourceText(title, input.summary);
+    let warning: string | undefined;
+    await insertContentSource(supabase, user.id, {
+      accountId: input.accountId, sourceType: "coupang", title,
+      sourceUrl: normalizeSourceUrl(parsed.url), summary: input.summary,
+    }, async () => {
+      let imageUrl = parsed.imageUrl;
+      if (parsed.bannerUrl) {
+        try {
+          const photo = await cropPhotoFromCoupangBanner(parsed.bannerUrl);
+          if (!photo) throw new Error("상품 배너 형식을 확인할 수 없습니다.");
+          const imagePath = `${memberMediaFolder(user.id, "up")}/coupang-${crypto.randomUUID()}.jpg`;
+          const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(imagePath, photo, { contentType: "image/jpeg", upsert: false });
+          if (error) throw error;
+          uploadedPath = imagePath;
+          imageUrl = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(imagePath).data.publicUrl;
+        } catch { warning = "상품은 등록했지만 사진을 가져오지 못했습니다. 상품명·제휴 링크는 저장됐습니다."; }
+      }
+      return { via: "coupang_manual", imageUrl: imageUrl ?? null, savedAt: new Date().toISOString() };
+    });
+    revalidatePath("/threads-content-ops");
+    return { ok: true, warning };
+  } catch (error) {
+    if (uploadedPath && db) {
+      try { await db.storage.from(MEDIA_BUCKET).remove([uploadedPath]); } catch { /* Own temporary upload only. */ }
+    }
+    return sourceFailure(error, "상품을 등록하지 못했습니다.");
+  }
 }
 
 export async function createContentSource(input: {

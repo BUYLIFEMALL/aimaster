@@ -9,6 +9,7 @@ import {
   fetchTossCategoriesForSources,
   refreshAliexpressSourceImage,
   registerAliexpressSource,
+  registerCoupangManualSource,
   registerTossSource,
   saveCoupangSearchResult,
   searchCoupangForSources,
@@ -17,6 +18,7 @@ import {
 } from "./web-actions";
 import type { CoupangProduct } from "@/threads-content-ops/lib/coupang";
 import type { TossCategory, TossProduct } from "@/threads-content-ops/lib/toss";
+import CoupangManualRegistration from "./CoupangManualRegistration";
 
 type Account = { id: string; username: string | null };
 type Source = {
@@ -103,12 +105,12 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
   const selectedType = TYPES.find((type) => type.value === tab) ?? TYPES[0];
   const count = (status: string) => mine.filter((source) => source.status === status).length;
 
-  const run = async (action: () => Promise<{ ok: true } | { ok: false; error: string }>, success: string) => {
+  const run = async (action: () => Promise<{ ok: true; warning?: string } | { ok: false; error: string }>, success: string) => {
     setBusy(true);
     setMessage(null);
     try {
       const result = await action();
-      setMessage(result.ok ? { ok: true, text: success } : { ok: false, text: result.error });
+      setMessage(result.ok ? { ok: true, text: result.warning ? `${success} ${result.warning}` : success } : { ok: false, text: result.error });
       return result.ok;
     } catch {
       setMessage({ ok: false, text: "요청을 처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
@@ -119,7 +121,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
   };
 
   const register = async () => {
-    const ok = await run(() => createContentSource({ accountId, ...form, sourceType: tab }), "소스를 등록했습니다.");
+    const ok = await run(() => createContentSource({ accountId, ...form, sourceType: tab }), "상품을 등록했습니다.");
     if (ok) setForm((current) => ({ ...current, title: "", sourceUrl: "", summary: "" }));
   };
 
@@ -253,9 +255,9 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
         <div>
           <p className="text-xs font-bold text-gold">CONTENT SOURCE QUEUE</p>
           <h2 className="mt-1 text-xl font-bold text-neutral-900">쇼핑제휴 상품 등록</h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-600">Threads에 포스팅할 상품(쿠팡 파트너스, 알리익스프레스, 토스쇼핑, 네이버 브랜드 커넥트)을 계정별로 등록해 두는 곳입니다. 회원님이 선택하거나 입력한 값만 본인 계정에 저장하며, 외부 사이트에서 정보를 자동으로 가져오지 않습니다. 등록한 상품으로 초안을 만드는 연결은 다음 단계에서 추가됩니다.</p>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">Threads에 포스팅할 상품(쿠팡 파트너스, 알리익스프레스, 토스쇼핑, 네이버 브랜드 커넥트)을 계정별로 등록합니다. 쿠팡 API 키가 없어도 제휴 링크·블로그용 HTML로 등록할 수 있습니다. 등록한 상품은 콘텐츠 생성 화면에서 선택해 글에 연결할 수 있습니다.</p>
         </div>
-        <select aria-label="운영 계정 선택" className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-800" value={accountId} onChange={(event) => { setAccountId(event.target.value); setEditingId(null); setMessage(null); }}>
+        <select disabled={busy} aria-label="운영 계정 선택" className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-800" value={accountId} onChange={(event) => { setAccountId(event.target.value); setEditingId(null); setMessage(null); }}>
           {accounts.map((account) => <option key={account.id} value={account.id}>@{account.username ?? "Threads 계정"}</option>)}
         </select>
       </div>
@@ -278,7 +280,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Search size={18} className="text-gold" />쿠팡 파트너스 상품 검색</h3>
       <p className="mt-1 text-sm leading-relaxed text-neutral-600">회원님이 등록한 쿠팡 파트너스 키로 상품을 검색하고, 마음에 드는 상품만 소스로 저장합니다. 소스로 저장 시 쿠팡 딥링크 API를 통해 34자 공식 단축 링크(link.coupang.com/a/...)로 자동 변환 저장되어 Threads 500자 제한 내에서 본문 글자 수를 400자 이상 넉넉히 쓸 수 있습니다.</p>
-      {!keysReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>쿠팡 파트너스 Access Key와 Secret Key가 등록되지 않았습니다. <a className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</a>에서 본인 키를 저장하면 검색할 수 있습니다. 키가 아직 없다면 아래 새 소스 등록에 파트너스 링크를 직접 붙여넣어도 됩니다.</span></p>}
+      {!keysReady && <p className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><CircleAlert size={16} className="mt-0.5 shrink-0" /><span>쿠팡 파트너스 Access Key와 Secret Key가 등록되지 않았습니다. <a className="font-semibold underline" href="/threads-content-ops?tab=settings">API키등록·플랫폼연동</a>에서 본인 키를 저장하면 검색할 수 있습니다. 키가 없다면 아래 직접 등록 영역에 제휴 링크·블로그용 HTML을 붙여넣어 주세요.</span></p>}
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <input className={inputClass} maxLength={100} value={keyword} onChange={(event) => setKeyword(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void searchCoupang(); }} placeholder="검색어 (예: 전기 히터, 무선 청소기)" aria-label="쿠팡 상품 검색어" />
         <button className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={searching || !keyword.trim() || !keysReady} onClick={() => void searchCoupang()}><Search size={16} />{searching ? "검색 중…" : "상품 검색"}</button>
@@ -299,6 +301,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
         </li>;
       })}</ul>}
       <p className="mt-3 text-xs text-neutral-500">쿠팡 파트너스 API 키는 계정의 누적 매출 15만원 이후에 활성화됩니다. 상품 페이지는 일반 주소로 열려 제휴 클릭으로 집계되지 않습니다.</p>
+      <div className="mt-4"><CoupangManualRegistration key={accountId} busy={busy} onRegister={input => run(() => registerCoupangManualSource({ accountId, ...input }), "상품을 등록했습니다.")} /></div>
     </section>
     )}
 
@@ -345,7 +348,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
     </section>
     )}
 
-    {(tab === "coupang" || tab === "naver_brand_connect") && (
+    {tab === "naver_brand_connect" && (
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <h3 className="flex items-center gap-2 font-bold text-neutral-900"><Plus size={18} className="text-gold" />{selectedType.label} 링크 등록</h3>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -353,7 +356,7 @@ export default function SourceQueue({ accounts, sources, configuredProviders, to
         <label className="md:col-span-2"><span className="mb-2 block text-sm font-semibold text-neutral-800">{selectedType.urlLabel}</span><input className={inputClass} maxLength={2000} inputMode="url" value={form.sourceUrl} onChange={(event) => setForm({ ...form, sourceUrl: event.target.value })} placeholder={selectedType.urlHint} /></label>
         <label className="md:col-span-2"><span className="mb-2 block text-sm font-semibold text-neutral-800">메모 (선택)</span><textarea className={`${inputClass} min-h-20 resize-y`} maxLength={1000} value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} placeholder="초안에 꼭 넣고 싶은 핵심 내용, 강조점, 주의사항을 적어 두세요." /></label>
       </div>
-      <div className="mt-4 flex justify-end"><button className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={busy || !form.title.trim() || !form.sourceUrl.trim()} onClick={() => void register()}><Plus size={16} />{busy ? "처리 중…" : "소스 등록"}</button></div>
+      <div className="mt-4 flex justify-end"><button className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-700" disabled={busy || !form.title.trim() || !form.sourceUrl.trim()} onClick={() => void register()}><Plus size={16} />{busy ? "처리 중…" : "상품 등록"}</button></div>
     </section>
     )}
 
