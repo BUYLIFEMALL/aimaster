@@ -235,4 +235,4 @@ npm run lint    # ESLint
 
 ## 공공데이터 운영자 키 예외 (2026-10-09 주인님 승인)
 
-`SEOUL_OPENDATA_API_KEY`·`DATA_GO_KR_SERVICE_KEY`·`VWORLD_API_KEY`는 무료 정부 공개 데이터라 운영자 키로 5분 주기 수집을 계속한다(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8). AI 키는 예외가 아니며 회원 본인 키만 쓴다(v1.04).
+`SEOUL_OPENDATA_API_KEY`·`DATA_GO_KR_SERVICE_KEY`·`VWORLD_API_KEY`는 무료 정부 공개 데이터라 운영자 키로 5분 주기 수집을 계속한다(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8). AI 키는 예외가 아니며 회원 본인 키만 쓴다(v1.04). 회원이 공공데이터 API를 직접 연동하기 어려워 당분간 공용 키로 유지하고, 한도에 걸리거나 필요해지면 회원 개별 등록으로 전환한다(주인님 2026-10-09).
