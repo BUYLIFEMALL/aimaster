@@ -191,7 +191,7 @@ export default function ViralCollector({ candidates, categories, configuredProvi
       <div className="mt-3 flex flex-wrap gap-2">{METHODS.map((item) => <button key={item.value} type="button" onClick={() => { setMethod(item.value); setMessage(null); }} className={`rounded-lg px-3 py-1.5 text-sm font-medium ${method === item.value ? "bg-neutral-900 text-[#ffffff]" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"}`}>{item.label}</button>)}</div>
       <label className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-neutral-800">📁 저장할 카테고리
         <select className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm font-normal text-neutral-800" value={collectCategory} onChange={(event) => setCollectCategory(event.target.value)} aria-label="수집한 글감을 저장할 카테고리"><option value="">미분류</option>{categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
-        <span className="text-xs font-normal text-neutral-500">모든 수집 방법(쇼츠 "글감으로 저장" 포함)에 적용됩니다.</span>
+        <span className="text-xs font-normal text-neutral-500">선택하지 않으면 미분류에 저장됩니다. 쇼츠를 포함한 모든 수집 방법에 적용됩니다.</span>
       </label>
       {method === "shorts"
         ? <div className="mt-4"><ShortsSearch embedded hasYoutubeKey={configuredProviders.includes("youtube_api_key")} hasGeminiKey={configuredProviders.includes("gemini")} hasOpenaiKey={hasOpenai} savedSources={candidates.map((item) => item.source_input)} categoryId={collectCategory || null} /></div>
@@ -219,7 +219,7 @@ export default function ViralCollector({ candidates, categories, configuredProvi
       <div className="mt-3 flex flex-wrap items-center gap-1.5" role="tablist" aria-label="카테고리 필터">
         <CategoryChip active={categoryFilter === "all"} onClick={() => setCategoryFilter("all")}>전체 ({candidates.length})</CategoryChip>
         {categories.map((item) => <CategoryChip key={item.id} active={categoryFilter === item.id} onClick={() => setCategoryFilter(item.id)}>{item.name} ({categoryCounts[item.id] ?? 0})</CategoryChip>)}
-        {(categoryCounts.none ?? 0) > 0 && <CategoryChip active={categoryFilter === "none"} onClick={() => setCategoryFilter("none")}>미분류 ({categoryCounts.none})</CategoryChip>}
+        <CategoryChip active={categoryFilter === "none"} onClick={() => setCategoryFilter("none")}>미분류 ({categoryCounts.none ?? 0})</CategoryChip>
         <button type="button" onClick={() => setManaging(true)} className="ml-auto inline-flex items-center gap-1 rounded-lg border border-violet-300 bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-800 hover:bg-violet-100"><FolderCog size={14} />카테고리 관리</button>
       </div>
       {candidates.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700">

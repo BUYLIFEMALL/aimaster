@@ -1,8 +1,16 @@
 # Threads 콘텐츠 운영 자동화 — 작업 인수인계
 
-현재 버전은 `v1.86`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
+현재 버전은 `v1.87`입니다. 이 폴더는 AIMaster 웹 안에서 동작하는 `threads-content-ops` 전용 작업 공간입니다. (실제 화면·서버 동작 코드는 루트 `app/(dashboard)/threads-content-ops/`에 있고, 배포는 저장소 루트에서 합니다.)
 
 > Claude를 포함한 다음 작업 에이전트는 먼저 [`docs/CLAUDE_CONTINUATION.md`](docs/CLAUDE_CONTINUATION.md)를 읽습니다. v1.17부터 v1.27까지의 구현 순서, 다음 기능 우선순위, 흰색 UI·멀티테넌시·배포 주의사항을 한곳에 정리했습니다.
+
+## v1.87 미분류 기본 카테고리 (2026-10-09)
+
+- 글감 수집·콘텐츠 보관함에서 **미분류를 0건이어도 항상 표시**하고, 공통 카테고리 관리 창에도 건수와 함께 기본 항목으로 표시합니다. 수집할 카테고리를 선택하지 않으면 미분류로 자동 저장된다는 안내를 추가했습니다.
+- 미분류는 기존 `category_id = null`을 그대로 사용합니다. 기존 미지정 콘텐츠, 카테고리를 삭제한 콘텐츠, 카테고리를 이어받지 않은 생성 초안 모두 미분류입니다. 별도의 회원별 DB 행을 만들지 않아 기본 항목을 삭제·이름 변경할 수 없고, 직접 추가 30개 한도에서도 제외됩니다. 같은 이름의 직접 추가·이름 변경은 서버에서 차단합니다.
+- 저장 경로는 기존 `saveViralDrafts`(주소·Perplexity·쇼츠 공통)·`saveGeneratedDraft`를 유지합니다. 개별·일괄 미분류 이동도 기존 서버 소유권 검사를 사용합니다. DB 스키마·콘텐츠 데이터 변경 없음.
+- 검수: 루트 `npm run build` 성공, 변경 파일 ESLint 오류 0건(기존 img 경고 1건), 별도 타입 검사에서 변경 파일 오류 0건. 기존 타입 오류 4건(`ProgramsAdminBoard`, `getProgramAccessMap` 2건, `lib/coupang.ts` 1건)은 범위 밖입니다. 배포 전 로그인 화면에서 기존 미분류 글감 5건을 확인했습니다.
+- 버전 동기화: `node threads-content-ops/scripts/sync-program-version.mjs`는 코드 버전을 읽어 공유 DB의 해당 slug만 갱신하고 재조회합니다. 변경 기록은 `supabase/migrations/20261009111442_tco_bump_version_v1_87.sql`입니다.
 
 ## v1.86 메뉴 이름 변경: "계정 운영정보" → "계정 콘셉트 설정" (2026-10-08)
 

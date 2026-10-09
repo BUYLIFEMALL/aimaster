@@ -1052,3 +1052,9 @@
 
 - (2026-10-09, naver-cafe-poster v1.04, 자동화·크론) 증상: 예약 소스 후보함이 비어 크론 로그에 "후보가 없습니다" 오류 6시간 50건 → 원인: 실패 시 `last_run_at` 미갱신이라 매 크론마다 "실행할 차례"로 판정 → 해결: `src/lib/scheduledSource/engine.ts`에서 후보 없음 실패 때만 `last_run_at` 갱신 → 다음부터: 주기(interval)로 도는 크론 소스는 "결과가 같은 실패"일 때도 마지막 실행 시각을 갱신하는지 확인.
 - (2026-10-09, tistory-auto-blog v1.55, 코드 품질) 증상: 복제 원본(ai-auto-blog)에서 가져온 ESLint 오류 53건(`no-explicit-any` 34, `set-state-in-effect` 9 등) → 해결: catch는 `unknown`+`utils/errorMessage.ts`, 나머지는 실제 타입, 마운트 초기화는 사유 적은 `eslint-disable-next-line`(구조 변경 시 서버 렌더/하이드레이션 위험) → 다음부터: 프로그램을 복제해 새로 만들 때 `npx eslint .`·`npx tsc --noEmit`를 먼저 돌려 오류 기준선을 0으로 만든다.
+## 2026-10-09 — 기본 미분류 카테고리는 0건이어도 표시 (threads-content-ops v1.87)
+
+- **증상:** 카테고리 관리 창에 미분류가 없고, 미분류 글감이 없으면 목록의 미분류 칩도 사라졌습니다.
+- **원인:** 서버는 미선택 콘텐츠를 `category_id = null`로 정상 저장했지만, 칩은 `count > 0`일 때만 표시하고 관리 창은 회원이 직접 만든 카테고리만 표시했습니다.
+- **해결(위치):** `ViralCollector.tsx`·`DraftComposer.tsx`에서 미분류 칩을 항상 표시하고 건수는 `?? 0`으로 처리합니다. `ViralCategoryManager.tsx`에 삭제·이름 변경할 수 없는 기본 항목을 추가하고 `web-actions.ts`에서 같은 이름 등록·변경을 차단합니다. 기존 null 저장·소유권 검사 유지, 스키마 변경 없음.
+- **다음부터 확인:** 기본 카테고리는 빈 목록·미분류 0건·기존 null 콘텐츠·카테고리 삭제 후 콘텐츠·수집 방법별 미선택 저장을 함께 확인합니다. 기본 항목을 직접 추가 한도나 수정·삭제·순서 변경 대상에 넣지 않습니다.

@@ -1052,6 +1052,7 @@ type CategoryResult = { ok: true } | { ok: false; error: string };
 const cleanCategoryName = (raw: unknown) => {
   const name = String(raw ?? "").replace(/\s+/g, " ").trim();
   if (!name || name.length > 20) throw new Error("카테고리 이름은 1~20자로 입력해 주세요.");
+  if (name === "미분류") throw new Error('"미분류"는 기본 카테고리로 이미 제공됩니다. 다른 이름을 입력해 주세요.');
   return name;
 };
 

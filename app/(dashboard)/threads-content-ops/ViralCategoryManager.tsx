@@ -42,12 +42,20 @@ export default function ViralCategoryManager({ categories, counts, onClose }: { 
       <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50 px-5 py-4">
         <div>
           <h3 className="text-base font-extrabold text-neutral-900">🗂 글감 카테고리 관리</h3>
-          <p className="text-xs text-neutral-500">카테고리 추가·이름 수정·삭제·순서 변경 (최대 30개)</p>
+          <p className="text-xs text-neutral-500">카테고리 추가·이름 수정·삭제·순서 변경 (직접 추가 최대 30개)</p>
         </div>
         <button type="button" onClick={onClose} aria-label="닫기" className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 hover:bg-neutral-200"><X size={16} /></button>
       </div>
       <div className="flex-1 space-y-5 overflow-y-auto p-5">
         {error && <p className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-700" role="alert">{error}</p>}
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-neutral-900">📁 미분류</span>
+            <span className="text-xs text-neutral-500">{counts.none ?? 0}건</span>
+            <span className="ml-auto rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">기본 카테고리</span>
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-neutral-500">카테고리를 선택하지 않은 콘텐츠는 자동으로 이곳에 들어갑니다. 미분류는 이름을 바꾸거나 삭제할 수 없습니다.</p>
+        </div>
         <form className="space-y-2" onSubmit={(event) => { event.preventDefault(); if (name.trim()) void run(() => createViralCategory(name), () => setName("")); }}>
           <label className="text-xs font-bold text-neutral-700" htmlFor="viral-cat-new">➕ 새 카테고리 추가</label>
           <div className="flex gap-2">
@@ -56,9 +64,9 @@ export default function ViralCategoryManager({ categories, counts, onClose }: { 
           </div>
         </form>
         <div className="space-y-2">
-          <p className="text-xs font-bold text-neutral-700">📋 등록된 카테고리 ({categories.length}개) <span className="font-normal text-neutral-400">▲▼로 순서 변경</span></p>
+          <p className="text-xs font-bold text-neutral-700">📋 직접 추가한 카테고리 ({categories.length}개) <span className="font-normal text-neutral-400">▲▼로 순서 변경</span></p>
           {!categories.length
-            ? <p className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-center text-xs text-neutral-500">아직 카테고리가 없습니다. 위에서 추가해 보세요. 카테고리가 없으면 모든 글감이 &quot;미분류&quot;로 보입니다.</p>
+            ? <p className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-center text-xs text-neutral-500">직접 추가한 카테고리가 없습니다. 위에서 추가해 보세요. 모든 콘텐츠는 기본 &quot;미분류&quot; 카테고리에서 확인할 수 있습니다.</p>
             : <ul className="divide-y divide-neutral-100 overflow-hidden rounded-xl border border-neutral-200">{categories.map((item, index) => <li key={item.id} className="flex items-center justify-between gap-3 p-3">
               {editingId === item.id
                 ? <form className="flex flex-1 items-center gap-2" onSubmit={(event) => { event.preventDefault(); if (editingName.trim()) void run(() => renameViralCategory({ id: item.id, name: editingName }), () => setEditingId(null)); }}>

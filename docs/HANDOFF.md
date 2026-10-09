@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## Threads 콘텐츠 운영 자동화 — 미분류 기본 카테고리 (2026-10-09, v1.87)
+
+- 글감 수집(`?tab=viral`)·보관함에 미분류 칩을 0건이어도 항상 표시하고, 공통 카테고리 관리 창에 삭제·이름 변경할 수 없는 기본 항목과 건수를 추가했습니다. 카테고리 미선택 콘텐츠는 기존 `category_id = null` 저장 규칙에 따라 자동으로 포함됩니다. 기존 미분류 콘텐츠도 바로 표시됩니다.
+- 루트 빌드 성공, 변경 파일 ESLint 오류 0건(기존 img 경고 1건), 변경 파일 타입 오류 0건. 기존 범위 밖 타입 오류 4건은 유지. 배포 전 로그인 화면에서 미분류 글감 5건 확인. DB 스키마 변경 없음, 코드·DB 버전 v1.87 동기화 및 재조회 완료.
+- 위치: `ViralCollector.tsx`, `DraftComposer.tsx`, `ViralCategoryManager.tsx`, `web-actions.ts`. 버전 동기화 스크립트: `threads-content-ops/scripts/sync-program-version.mjs`. 상세: `threads-content-ops/AGENTS.md` v1.87. 서비스: https://www.buylife.xyz/threads-content-ops?tab=viral.
+
 ## 최상위 규칙(본인 계정·본인 API) 이행 (2026-10-09) — 4건 처리 완료, 로그인 후 확인 대기
 
 - 처리: `shots` v1.04(운영자 AI 키 폴백 삭제), `threads-affiliate-poster` v1.49(네이버 트렌드·검색을 회원 본인 키로), `insta_auto_poster` v1.04(Facebook 연결도 회원 본인 Meta 앱), `real_estate_sales` v1.05(공공데이터 키 선택 등록, 없으면 공용 키 — 무료 키 예외), `blog_auto_poster`(운영자 전용 도구로 표기). 메인 지침 맨 위에 최상위 규칙, 맨 아래에 무료 키 예외 조항(계정당 한도가 있으면 본인 키) 추가.
