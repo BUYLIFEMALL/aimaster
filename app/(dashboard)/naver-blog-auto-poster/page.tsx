@@ -21,9 +21,8 @@ export const metadata = { title: "네이버 블로그 자동화(App) - 기기 �
 // 데스크톱 앱(PC 앱) 전용이다. 로직/유지보수가 서로 달라 앞으로도 각자 독립적으로
 // 발전시킨다(사용자 명시적 결정).
 const PROGRAM_SLUG = "naver-blog-auto-poster";
-const RELEASE_BASE =
-  "https://github.com/BUYLIFEMALL/aimaster/releases/download/naver-blog-auto-poster-v0.1.0";
-const DESKTOP_DOWNLOAD_URL = `${RELEASE_BASE}/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`;
+// 2026-10-09: 설치 파일은 GitHub 릴리스가 아니라 이 사이트(public/downloads)에서 내려받는다(저장소를 비공개로 바꿔도 링크가 유지되게).
+const DESKTOP_DOWNLOAD_URL = "/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe";
 
 // buylife.xyz의 공개 매뉴얼 게시판(platform_guides)에 이미 등록된 게시글 id를 재사용한다
 // (CLAUDE.md "API키등록·플랫폼연동 페이지 표준" — 새 매뉴얼을 만들지 않고 기존 것을 재사용).

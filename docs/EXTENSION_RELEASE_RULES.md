@@ -38,11 +38,11 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
 | `ai-auto-blog` | `ai-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://ai-auto-blog-one.vercel.app/downloads/ai-auto-blog-extension-vX.YY.zip` (버전 파일명, 배포마다 주소 변경 → **DB 주소도 갱신**) | `scripts/build-extension-archive.mjs` |
 | `naver-blog-seo-studio` | `naver-blog-seo-studio/extension` | 사이트 포함형(빌드 스크립트) | `https://naver-blog-seo-studio.vercel.app/downloads/naver-blog-seo-studio-extension-vX.YY.zip` (**메인 도메인 buylife.xyz 아래가 아니라 자체 Vercel 주소**. 버전 파일명) | `scripts/build-extension-archive.mjs` |
 | `tistory-auto-blog` | `tistory-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-vX.YY.zip` (버전 파일명) | `scripts/build-extension-archive.mjs` |
-| `naver-blog-auto-poster-web` | `naver-blog-auto-poster_web/extension` | GitHub 릴리스 | `https://github.com/BUYLIFEMALL/aimaster/releases/download/naver-blog-auto-poster-v0.1.0/AIMaster-Naver-Blog-Auto-Poster-Extension-0.1.0.zip` | 수동. ZIP 만들기 → `gh release upload naver-blog-auto-poster-v0.1.0 <zip> --repo BUYLIFEMALL/aimaster --clobber`(같은 릴리스·같은 파일명) → 루트 앱 배포(`lib/naverBlogAutoPosterWebExtension.ts` 버전 반영). 절차 전문: 그 폴더 `AGENTS.md` §9-1·§10 |
+| `naver-blog-auto-poster-web` | `naver-blog-auto-poster_web/extension` | 사이트 포함형(루트 `public/downloads`) | `https://www.buylife.xyz/downloads/naver-blog-auto-poster-web-extension-latest.zip` | `node naver-blog-auto-poster_web/scripts/build-extension-archive.mjs`(저장소 루트에서, manifest `version_name`과 `lib/naverBlogAutoPosterWebExtension.ts` 버전이 같아야 함) → 루트 앱 배포(`vercel deploy --prod --yes`). 2026-10-09 v1.03에서 GitHub 릴리스를 대체(저장소 비공개 전환 대비). 절차: 그 폴더 `AGENTS.md` §9-2 |
 
 ### 알려진 예외·미해결 (다음 CLI가 이어받을 것)
 
-- `naver-blog-auto-poster-web`: 2026-10-09 v1.02에서 manifest에 `version_name`을 넣어 `vX.YY` 체계로 정렬했다(예외 없음). 단 **ZIP 파일명은 고정 주소 유지를 위해 옛 이름 `…Extension-0.1.0.zip` 그대로**이므로 파일명 숫자로 버전을 판단하지 않는다.
+- `naver-blog-auto-poster-web`: 2026-10-09 v1.02에서 manifest에 `version_name`을 넣어 `vX.YY` 체계로 정렬했다(예외 없음). 단 **ZIP 파일명은 (v1.03부터는 사이트 주소 `naver-blog-auto-poster-web-extension-latest.zip`으로 옮겨 옛 이름 문제가 없다)**이므로 파일명 숫자로 버전을 판단하지 않는다.
 - 메인 사이트(buylife.xyz) 프로그램 상세 화면(`app/(main)/programs/[slug]/page.tsx`)에 **확장 다운로드 버튼이 있다(2026-10-09)**. DB `programs.extension_download_url`/`extension_version`을 읽어 **이용 권한이 있는 회원에게만, https 주소일 때만** 보여준다. 그래서 확장이 있는 프로그램은 배포 때 이 DB 칸을 갱신하는 것이 곧 이 버튼의 주소·버전 갱신이다.
 - **확장 안 "새 버전이 있습니다" 알림 현황 (2026-10-09 코드로 확인)**:
 
@@ -52,7 +52,7 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
   | `naver-blog-seo-studio` (v1.60) | 있음 | 토큰 연결 후: `GET /api/extension/whoami`의 `latestVersion`/`downloadUrl` → 사이드패널 배너(더 높을 때만) |
   | `ai-auto-blog` | 있음 | 토큰 연결 후: `whoami`의 `latestVersion`/`downloadUrl` → 사이드패널 배너(버전이 다르면) |
   | `tistory-auto-blog` (v1.54) | 있음 | 토큰 연결 후: `whoami`의 `latestVersion`/`downloadUrl` → 사이드패널 배너(더 높을 때만). DB 갱신은 `npm run sync:program-version`이 `version`·`extension_version`·`extension_download_url`을 함께 처리 |
-  | `naver-blog-auto-poster-web` (v1.02) | 있음 | 토큰 연동 후: 루트 `whoami`의 `latestVersion`/`downloadUrl`(출처 `lib/naverBlogAutoPosterWebExtension.ts`) → 사이드패널 배너. 링크는 우리 GitHub 릴리스 주소만 허용 |
+  | `naver-blog-auto-poster-web` (v1.03) | 있음 | 토큰 연동 후: 루트 `whoami`의 `latestVersion`/`downloadUrl`(출처 `lib/naverBlogAutoPosterWebExtension.ts`) → 사이드패널 배너. 링크는 `https://www.buylife.xyz/downloads/` 아래 주소만 허용 |
 
   새 확장 프로그램과 크게 고치는 확장에는 `naver-blog-agent` 방식(연결 없이도 동작)을 권장한다. 알림 코드가 들어간 확장을 회원이 한 번은 직접 다시 설치해야 이후부터 알림이 뜬다.
 - 버전 파일명(`-vX.YY.zip`)을 쓰는 프로그램은 배포 때마다 다운로드 주소가 바뀌므로 **DB 주소를 빠뜨리면 DB가 옛 파일을 가리킨다.** 가능하면 `naver-blog-agent`처럼 고정 `-latest.zip` 주소를 함께 두는 방식으로 옮긴다.
@@ -85,3 +85,6 @@ node scripts/check-extension-release.mjs naver-blog-agent  # 하나만
 - SEO 스튜디오 ZIP 주소를 `buylife.xyz` 아래로 착각해 404가 난다 → 위 3번 표의 자체 Vercel 주소를 쓴다.
 - `manifest.json`의 `version`에 `1.49` 같은 두 자리 규격이나 앞자리 0(`1.01.0`)을 넣는다 → Chrome 규격은 `메이저.마이너.0`(`1.1.0`, `1.49.0`), 회원에게 보이는 `vX.YY`는 `version_name`에 둔다.
 - 확장 이식 시 서버 API 응답·원고 형식·테이블 존재를 대조하지 않는다 → `docs/ERROR_LESSONS.md`의 naver-blog-agent v1.43·v1.49 항목 참고(확장은 연결됐지만 DB 테이블이 없어 동작 불가였던 사례).
+
+### 데스크톱 앱 설치 파일(naver-blog-auto-poster, 2026-10-09)
+- 설치 파일(`AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`, 약 69MB)도 GitHub 릴리스 대신 루트 사이트 `public/downloads/`에서 내려받는다(`/downloads/…exe`). 용량 때문에 **git에는 넣지 않고(`.gitignore`) 로컬 파일을 그대로 배포에 포함**한다 — 루트 앱을 배포하는 PC에 이 파일이 `public/downloads/`에 있어야 하며, 없으면 링크가 404가 된다. 새 설치 파일을 만들면 같은 파일명으로 이 폴더에 덮어쓰고 루트를 배포한 뒤 `curl -I https://www.buylife.xyz/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`로 200을 확인한다.

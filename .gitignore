@@ -16,3 +16,6 @@ node_modules
 
 # Temporary generated script assets
 scripts/.tmp-*
+
+# 데스크톱 앱 설치 파일(69MB)은 git에 넣지 않고 로컬에서 사이트 배포에 포함한다 (docs/EXTENSION_RELEASE_RULES.md)
+public/downloads/*.exe

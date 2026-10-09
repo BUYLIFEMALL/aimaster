@@ -46,8 +46,8 @@ const statusBox = document.getElementById("aimaster-status");
 const adminOnlySection = document.getElementById("admin-only-section");
 
 // 새 버전 안내: 서버가 알려주는 최신 버전이 설치된 확장 버전보다 높을 때만 보여준다.
-// 안내 주소는 우리 GitHub 릴리스 다운로드 주소만 허용한다.
-const UPDATE_LINK_PREFIX = "https://github.com/BUYLIFEMALL/aimaster/releases/download/";
+// 안내 주소는 우리 사이트(www.buylife.xyz)의 다운로드 주소만 허용한다(v1.03부터. 이전 v1.02까지는 GitHub 릴리스 주소).
+const UPDATE_LINK_PREFIX = "https://www.buylife.xyz/downloads/";
 const versionParts = (value) => { const m = /^v?(\d+)\.(\d+)/.exec(String(value || "")); return m ? [Number(m[1]), Number(m[2])] : null; };
 function isNewerVersion(latest, current) {
   const a = versionParts(latest), b = versionParts(current);

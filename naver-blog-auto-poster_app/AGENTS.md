@@ -231,3 +231,6 @@ supabase/migrations/0010_*.sql         PC 앱/크롬 확장 완전 별도 유료
    `../naver-blog-auto-poster_web/AGENTS.md` §13 참고.
 3. 그 외 이 매뉴얼의 원칙(사람이 발행 버튼 클릭, 봇 탐지 회피, 실측 후 자동화, 기능 단위
    검증 루프)은 어떤 새 자동화 기능을 추가하든 예외 없이 동일하게 적용할 것.
+
+## 2026-10-09 — 설치 파일 다운로드 주소 이전 (프로그램 v1.02)
+- 저장소 비공개 전환에 대비해 설치 파일 다운로드를 GitHub 릴리스에서 루트 사이트로 옮겼다: `app/(dashboard)/naver-blog-auto-poster/page.tsx`의 `DESKTOP_DOWNLOAD_URL` = `/downloads/AIMaster-Naver-Blog-Auto-Poster-0.1.0.exe`. 파일은 루트 `public/downloads/`에 두며 용량(약 69MB) 때문에 git에는 넣지 않는다(`.gitignore`) — 루트를 배포하는 PC에 있어야 한다. 새 설치 파일을 만들면 이 위치에 같은 파일명으로 덮어쓰고 루트를 배포한다(`gh release` 업로드는 더 이상 쓰지 않음).

@@ -8,7 +8,7 @@ import vm from "node:vm";
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
 const read = (rel) => readFileSync(new URL(rel, import.meta.url), "utf8");
-const DOWNLOAD = "https://github.com/BUYLIFEMALL/aimaster/releases/download/naver-blog-auto-poster-v0.1.0/AIMaster-Naver-Blog-Auto-Poster-Extension-0.1.0.zip";
+const DOWNLOAD = "https://www.buylife.xyz/downloads/naver-blog-auto-poster-web-extension-latest.zip";
 
 const panel = read("../extension/sidepanel.js");
 const start = panel.indexOf("const UPDATE_LINK_PREFIX");
@@ -27,7 +27,7 @@ function makeBanner(installed) {
 }
 const linked = (latestVersion, downloadUrl = DOWNLOAD) => ({ linked: true, latestVersion, downloadUrl });
 
-test("서버 최신 버전이 더 높으면 배너와 릴리스 ZIP 링크를 보여준다", () => {
+test("서버 최신 버전이 더 높으면 배너와 사이트 ZIP 링크를 보여준다", () => {
   const { context, nodes } = makeBanner("v1.01");
   context.renderUpdateBanner(linked("v1.02"));
   assert.equal(nodes["update-banner"].hidden, false);
@@ -35,13 +35,13 @@ test("서버 최신 버전이 더 높으면 배너와 릴리스 ZIP 링크를 �
   assert.equal(nodes["update-banner-link"].href, DOWNLOAD);
 });
 
-test("같거나 낮은 버전, 연동 실패, 우리 릴리스가 아닌 주소에서는 숨긴다", () => {
+test("같거나 낮은 버전, 연동 실패, 우리 사이트가 아닌 주소에서는 숨긴다", () => {
   for (const [installed, result] of [
     ["v1.02", linked("v1.02")],
     ["v1.02", linked("v1.01")],
     ["v1.01", { linked: false, error: "x" }],
     ["v1.01", linked("v1.02", "https://evil.example/x.zip")],
-    ["v1.01", linked("v1.02", "https://github.com/someone-else/repo/releases/download/x/y.zip")],
+    ["v1.01", linked("v1.02", "https://github.com/BUYLIFEMALL/aimaster/releases/download/x/y.zip")],
     ["v1.01", linked("garbage")],
     ["v1.01", linked(undefined)],
   ]) {
@@ -75,5 +75,5 @@ test("whoami가 최신 버전과 다운로드 주소를 돌려주고 확장 mani
 
   const manifest = JSON.parse(read("../extension/manifest.json"));
   assert.equal(manifest.version_name, POSTER_WEB_EXTENSION_VERSION, "확장 manifest version_name과 서버가 알리는 최신 버전이 같아야 한다");
-  assert.equal(manifest.version, "1.2.0");
+  assert.equal(manifest.version, "1.3.0");
 });

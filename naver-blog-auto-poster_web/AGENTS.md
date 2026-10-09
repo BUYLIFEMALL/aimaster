@@ -288,3 +288,10 @@ GitHub Releases + zip 방식을 따른다.
    만들어둔 개발자 계정으로 제출. 그 전까지는 zip 직접 배포 유지.
 2. 그 외 이 매뉴얼의 원칙(사람이 발행 버튼 클릭, 봇 탐지 회피, 실측 후 자동화, 기능 단위
    검증 루프)은 어떤 새 기능을 추가하든 예외 없이 동일하게 적용할 것.
+
+## 9-2. v1.03 (2026-10-09) — 다운로드를 GitHub 릴리스에서 사이트로 이전
+
+- **이유**: 저장소(`BUYLIFEMALL/aimaster`)를 비공개로 바꿔도 회원이 최신 확장을 링크로 받을 수 있어야 한다. 비공개 저장소의 릴리스 파일은 권한자만 받을 수 있다.
+- **새 방식(위 §9-1·§10의 `gh release upload` 절차를 대체)**: 저장소 루트에서 `node naver-blog-auto-poster_web/scripts/build-extension-archive.mjs` → `public/downloads/naver-blog-auto-poster-web-extension-latest.zip` 생성(`extension/` 폴더 내용물, `manifest.version_name`과 `lib/naverBlogAutoPosterWebExtension.ts`의 버전이 다르면 중단). 이어서 루트 앱 `vercel deploy --prod --yes`. 주소: `https://www.buylife.xyz/downloads/naver-blog-auto-poster-web-extension-latest.zip`.
+- 확장 사이드패널의 새 버전 안내 링크 허용 범위를 `https://www.buylife.xyz/downloads/`로 바꿨다. **v1.02 이하 설치본은 옛 규칙(GitHub 주소만 허용)이라 새 주소의 안내를 열지 않으므로 회원이 한 번 새 ZIP을 받아 덮어써야 한다.**
+- DB `programs`: `version`·`extension_version` = v1.03, `extension_download_url` = 위 사이트 주소(마이그레이션 `supabase/migrations/20261009150000_poster_web_v1_03_self_hosted_zip.sql`). GitHub 릴리스의 옛 ZIP은 새 주소 확인 뒤 정리한다.
