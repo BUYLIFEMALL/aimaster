@@ -253,7 +253,7 @@ export default function GuidePage() {
         </div>
 
         <div className="space-y-5">
-          {/* 1단계: 🔥 떡상 글감 수집소 */}
+          {/* 1단계: 🔥 떡상 글감 수집 */}
           <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100">
               <div className="flex items-center gap-2.5">
@@ -262,20 +262,20 @@ export default function GuidePage() {
                 </span>
                 <h3 className="text-base font-bold text-neutral-900 flex items-center gap-1.5">
                   <Flame className="w-4 h-4 text-rose-600" />
-                  <span>🔥 떡상 글감 수집소에서 화제 키워드 발굴</span>
+                  <span>🔥 떡상 글감 수집에서 화제 키워드 발굴</span>
                 </h3>
               </div>
               <Link
                 href="/collector"
                 className="text-xs font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 shrink-0"
               >
-                <span>글감 수집소 바로가기</span>
+                <span>글감 수집 바로가기</span>
                 <ChevronRight size={14} />
               </Link>
             </div>
 
             <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-              매번 어떤 글을 써야 할지 고민할 필요가 없습니다. <Link href="/collector" className="underline font-bold text-neutral-900">글감 수집소</Link>에서 3대 실시간 수집 채널을 활용해 지금 가장 반응이 뜨거운 주제를 1초 만에 가져옵니다:
+              매번 어떤 글을 써야 할지 고민할 필요가 없습니다. <Link href="/collector" className="underline font-bold text-neutral-900">글감 수집</Link>에서 3대 실시간 수집 채널을 활용해 지금 가장 반응이 뜨거운 주제를 1초 만에 가져옵니다:
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -425,10 +425,10 @@ export default function GuidePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
               <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
                 <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  📂 글감 수집소 카테고리 연계 분류
+                  📂 글감 수집 카테고리 연계 분류
                 </span>
                 <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  글감 수집소와 100% 동일한 카테고리 칩으로 필터링하고, 원고별 드롭다운 변경 및 <b>체크박스 다중 선택 일괄 이동(Bulk Move)</b>이 가능합니다.
+                  글감 수집와 100% 동일한 카테고리 칩으로 필터링하고, 원고별 드롭다운 변경 및 <b>체크박스 다중 선택 일괄 이동(Bulk Move)</b>이 가능합니다.
                 </p>
               </div>
 
@@ -513,7 +513,7 @@ export default function GuidePage() {
               🗓️ D-xx 잔여 일수 실시간 표시
             </span>
             <p className="text-[11px] text-neutral-600 leading-relaxed">
-              원고 보관함과 글감 수집소 목록에 만료일까지 남은 일수가 <b>[🗓️ D-xx (xx일 후 자동삭제)]</b> 배지로 친절하게 표시됩니다. (만료 7일 전부터 경고색으로 강조)
+              원고 보관함과 글감 수집 목록에 만료일까지 남은 일수가 <b>[🗓️ D-xx (xx일 후 자동삭제)]</b> 배지로 친절하게 표시됩니다. (만료 7일 전부터 경고색으로 강조)
             </p>
           </div>
 
@@ -522,7 +522,7 @@ export default function GuidePage() {
               🛡️ 중요 글감 [보관함 책갈피] 영구 보호
             </span>
             <p className="text-[11px] text-neutral-600 leading-relaxed">
-              나중에 언제든 다시 쓰고 싶은 소중한 글감은 글감 수집소에서 <b>초록색 책갈피(보관함)</b>를 클릭해 두시면 30일이 지나도 절대 삭제되지 않고 영구 보존됩니다.
+              나중에 언제든 다시 쓰고 싶은 소중한 글감은 글감 수집에서 <b>초록색 책갈피(보관함)</b>를 클릭해 두시면 30일이 지나도 절대 삭제되지 않고 영구 보존됩니다.
             </p>
           </div>
 
@@ -567,7 +567,7 @@ export default function GuidePage() {
               블로그를 여러 개 운영 중이신가요? <Link href="/settings" className="underline font-semibold text-neutral-900">API키등록·플랫폼연동</Link>의 네이버 블로그 계정 연결에서 블로그 ID를 등록·수정할 수 있습니다.
             </p>
             <ul className="list-disc list-inside space-y-1 text-neutral-500 text-[11px]">
-              <li>사용자 콘텐츠 카테고리는 생성·수집소·보관함의 공통 관리 창에서 등록·수정·정렬합니다.</li>
+              <li>사용자 콘텐츠 카테고리는 생성·수집·보관함의 공통 관리 창에서 등록·수정·정렬합니다.</li>
               <li>콘텐츠 분류와 네이버 블로그의 실제 메뉴는 서로 다른 설정입니다.</li>
               <li>검색 키워드와 발행 목적은 콘텐츠 생성 화면에서 직접 지정합니다.</li>
             </ul>
@@ -653,7 +653,7 @@ export default function GuidePage() {
           <div className="pt-3 space-y-1">
             <p className="font-bold text-neutral-900">Q. 30일 자동 삭제 후 작성했던 글이 사라지면 어떻게 하나요?</p>
             <p className="text-neutral-600 leading-relaxed">
-              이미 네이버 블로그에 발행을 완료한 글은 네이버 서버에 영구적으로 안전하게 보관되므로 웹 대시보드 삭제와 전혀 무관합니다. 또한 소중한 글감은 글감 수집소에서 <b>[초록색 책갈피(보관함)]</b>를 눌러두시면 30일이 지나도 절대 지워지지 않고 영구 보존됩니다.
+              이미 네이버 블로그에 발행을 완료한 글은 네이버 서버에 영구적으로 안전하게 보관되므로 웹 대시보드 삭제와 전혀 무관합니다. 또한 소중한 글감은 글감 수집에서 <b>[초록색 책갈피(보관함)]</b>를 눌러두시면 30일이 지나도 절대 지워지지 않고 영구 보존됩니다.
             </p>
           </div>
 
@@ -688,7 +688,7 @@ export default function GuidePage() {
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-neutral-300 text-neutral-800 text-xs font-bold hover:bg-neutral-50 transition-all shadow-xs"
           >
             <Flame className="w-3.5 h-3.5 text-rose-500" />
-            <span>1단계 글감 수집소</span>
+            <span>1단계 글감 수집</span>
           </Link>
 
           <Link

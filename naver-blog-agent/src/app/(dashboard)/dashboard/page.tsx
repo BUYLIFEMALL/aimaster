@@ -242,7 +242,7 @@ export default function DashboardPage() {
                 <ArrowUpRight size={16} className="text-neutral-400 group-hover:text-rose-600 transition-colors" />
               </div>
               <h3 className="mt-3 text-sm font-bold text-neutral-900 group-hover:text-rose-900">
-                떡상 글감 수집소
+                떡상 글감 수집
               </h3>
               <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
                 웹 뉴스 스크랩, Perplexity 72시간 핫이슈, 유튜브 쇼츠 대박 분석.
@@ -481,7 +481,7 @@ export default function DashboardPage() {
 
           {candidates.length === 0 ? (
             <div className="py-10 text-center text-xs text-neutral-400">
-              수집된 글감이 없습니다. [떡상 글감 수집소]에서 실시간 화제를 찾아보세요.
+              수집된 글감이 없습니다. [떡상 글감 수집]에서 실시간 화제를 찾아보세요.
             </div>
           ) : (
             <div className="divide-y divide-neutral-100 space-y-2">

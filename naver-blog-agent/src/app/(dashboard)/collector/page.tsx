@@ -539,7 +539,7 @@ export default function CollectorPage() {
   };
 
   if (!mounted) {
-    return <div className="p-8 text-neutral-500 text-sm">글감 수집소를 불러오는 중...</div>;
+    return <div className="p-8 text-neutral-500 text-sm">글감 수집를 불러오는 중...</div>;
   }
 
   return (
@@ -557,7 +557,7 @@ export default function CollectorPage() {
               </p>
             </div>
             <h1 className="mt-2 text-2xl font-black text-neutral-900 tracking-tight">
-              떡상 글감 수집소
+              떡상 글감 수집
             </h1>
             <p className="mt-1.5 text-sm leading-relaxed text-neutral-600 max-w-3xl">
               실제 검색량과 대중 반응이 터진 소재를 발굴하여, 네이버 C-Rank / D-I-A+ 검색 상위 노출에 최적화된

@@ -352,7 +352,7 @@ export default function BlogSmartEditorModal({
             </div>
           </div>
 
-          {/* A-2. 블로그 카테고리 분류 (떡상 글감 수집소 연계) */}
+          {/* A-2. 블로그 카테고리 분류 (떡상 글감 수집 연계) */}
           <div className="bg-white border border-neutral-200 rounded-2xl p-4 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-neutral-800 uppercase tracking-wide flex items-center gap-1.5">
@@ -360,7 +360,7 @@ export default function BlogSmartEditorModal({
                 <span>블로그 카테고리 분류</span>
               </label>
               <span className="text-[11px] text-neutral-400">
-                떡상 글감 수집소 카테고리와 실시간 연계됩니다.
+                떡상 글감 수집 카테고리와 실시간 연계됩니다.
               </span>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">

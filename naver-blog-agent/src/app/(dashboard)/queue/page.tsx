@@ -59,7 +59,7 @@ export default function QueuePage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // 1. 카테고리 연계 상태 (떡상 글감 수집소와 동일한 로컬스토리지 공유)
+  // 1. 카테고리 연계 상태 (떡상 글감 수집와 동일한 로컬스토리지 공유)
   const { categories, saveCategories } = useContentCategories();
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("all");
@@ -571,7 +571,7 @@ export default function QueuePage() {
             생성 원고 보관함 & 발행 큐
           </h1>
           <p className="mt-1 text-xs text-neutral-500">
-            5단계 AI로 생성된 모든 원고와 이미지가 자동 보관되며, 떡상 글감 수집소와 연계된 카테고리별 분류, 에디터 편집, 스마트에디터 ONE 자동 발행이 가능합니다.
+            5단계 AI로 생성된 모든 원고와 이미지가 자동 보관되며, 떡상 글감 수집와 연계된 카테고리별 분류, 에디터 편집, 스마트에디터 ONE 자동 발행이 가능합니다.
           </p>
         </div>
 
@@ -676,7 +676,7 @@ export default function QueuePage() {
       {/* 2-2. 30일 보관 정책 공지 배너 */}
       <ContentRetentionNotice />
 
-      {/* 3. 떡상 글감 수집소 연계 카테고리 분류 탭 & 관리 바 */}
+      {/* 3. 떡상 글감 수집 연계 카테고리 분류 탭 & 관리 바 */}
       <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-neutral-100">
           <div className="flex items-center gap-2">
@@ -688,7 +688,7 @@ export default function QueuePage() {
                 카테고리별 원고 분류
               </h3>
               <span className="text-[11px] text-neutral-400 hidden sm:inline">
-                (떡상 글감 수집소와 100% 동일한 카테고리 공유)
+                (떡상 글감 수집와 100% 동일한 카테고리 공유)
               </span>
             </div>
           </div>
@@ -1308,7 +1308,7 @@ export default function QueuePage() {
         />
       )}
 
-      {/* 8. 떡상 글감 수집소 연계 카테고리 관리 모달 */}
+      {/* 8. 떡상 글감 수집 연계 카테고리 관리 모달 */}
       <CategoryManagementModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}

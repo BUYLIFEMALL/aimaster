@@ -69,7 +69,7 @@ export default function ContentRetentionNotice({ compact = false, className = ""
           <span className="text-emerald-700 font-bold shrink-0">3.</span>
           <span className="flex items-center gap-1 flex-wrap">
             <ShieldCheck size={13} className="text-emerald-700 inline shrink-0" />
-            <strong className="text-emerald-800">보관함 보호 기능:</strong> 떡상 글감 수집소에서 <strong>[초록색 책갈피(보관함)]</strong>에 담아둔 글감은 자동 삭제 대상에서 제외되어 <strong>영구적으로 안전하게 보호</strong>됩니다.
+            <strong className="text-emerald-800">보관함 보호 기능:</strong> 떡상 글감 수집에서 <strong>[초록색 책갈피(보관함)]</strong>에 담아둔 글감은 자동 삭제 대상에서 제외되어 <strong>영구적으로 안전하게 보호</strong>됩니다.
           </span>
         </p>
       </div>
