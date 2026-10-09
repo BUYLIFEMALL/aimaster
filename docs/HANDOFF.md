@@ -16,6 +16,10 @@
 
 - `whoami`에 `latestVersion`/`downloadUrl` 추가, 사이드패널에 "새 버전이 나왔습니다" 배너(더 높을 때만, 우리 사이트 `/downloads/` 주소만 허용), `npm run test:update-banner`. 배포 전 `npm run extension:archive`로 ZIP을 직접 만들어야 함(prebuild 아님). DB `version`/`extension_version`/`extension_download_url` v1.60으로 갱신, `check-extension-release.mjs` OK.
 
+## 전체 소유권·권한 점검 (2026-10-09) — ai-image-studio 심각 항목 발견, 미수정
+
+- `ai-image-studio/lib/access.ts`가 비로그인 방문자를 하드코딩된 회원으로 취급하고, 권한 확인 없이 항상 허용하며, 본인 키가 없으면 아무 회원의 AI 키를 사용함(2026-09-23 `f93a0b7b`). 공유 추천 프롬프트 쓰기 API도 관리자 확인 없음. **주인님 결정 후 수정 필요**(수정 방법·영향은 `docs/ERROR_LESSONS.md` 최상단). 나머지 upsert/update/delete 점검은 이상 없음(`naver-blog-agent`의 `nba_posts`만 v1.55에서 수정).
+
 ## 네이버 블로그 에이전트 — 실제 Chrome 시험 발행 성공 (2026-10-09, v1.52)
 
 - 확장 연결 → 비공개 시험 발행 → 웹 `published`/`post_url` 반영까지 실제로 확인(DB 조회). 미검증: 전체공개·이미지 포함·예약·연속 발행. 53건 블로그 ID는 `buylifemall`로 교체 완료(`0057`, 이미지 0개). 남은 일: 메인 사이트 상세 다운로드 버튼, 나머지 "수집소" 표기 정리(선택). 상세: `naver-blog-agent/AGENTS.md`.

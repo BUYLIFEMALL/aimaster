@@ -1,5 +1,16 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-09 — 전체 점검: 소유자 확인 없는 쓰기 / 비로그인 우회 (ai-image-studio에서 심각한 항목 발견, 미수정·주인님 결정 대기)
+
+- 점검 방법: 저장소 전체(`git ls-files`, node_modules 제외)에서 `upsert`(113곳), 관리자 클라이언트의 `update/delete`(id만으로 조회·54곳), `user_api_keys` 조회(user_id 없는 곳), `GUEST` 우회를 스크립트로 모아 회원이 직접 호출하는 경로만 실제 코드로 읽었다. 읽기 전용, 코드 수정 없음.
+- 결과 요약:
+  1. `upsert` 113곳 중 충돌 기준(`onConflict`)이 없거나 `id`인 곳은 5곳. 관리자 전용 화면 3곳(`app/api/admin/settings`, `components/admin/ProgramForm`, `app/api/admin/prompts/seed`)은 문제 없음. `naver-blog-agent` 2곳 중 `nba_posts`는 v1.55에서 수정. 같은 파일의 `naver_blog_seo_drafts` 대체 경로(POST)에도 같은 패턴이 남아 있으나 `nba_posts`가 있으면 실행되지 않는 죽은 경로라 이번에는 수정하지 않음(필요하면 같은 소유자 확인을 넣는다).
+  2. 관리자 클라이언트 `update/delete` 54곳 중 대부분은 관리자 화면·크론·외부 웹훅. 회원용 `ai-auto-blog/app/api/posts/[id]`는 소유자를 먼저 확인(단, `user_id`가 없는 옛 글은 누구나 수정·삭제 가능하게 둠 — AGENTS.md에 기록된 설계). `ai-image-studio/app/api/gallery/delete`는 `user_id`로 한정되어 안전.
+  3. **심각 — `ai-image-studio/lib/access.ts`(2026-09-23 커밋 `f93a0b7b` "게스트 즉시 열람 허용")**: ① `requireUser()`가 비로그인이면 하드코딩된 회원(`buylifemall@naver.com`의 ID)을 로그인한 것처럼 돌려줌 ② `checkProgramAccessApi()`가 인증·권한 확인 없이 항상 허용 ③ `requireProgramAccess()`가 권한이 없어도 허용 ④ `getUserApiKey()`가 본인 키가 없으면 **아무 회원의 키나** 가져다 씀(`limit(1)`) → 비로그인 방문자가 다른 회원의 AI 키로 이미지를 생성할 수 있고(비용·키 오남용), 그 회원의 갤러리를 지울 수 있으며, `/api/prompts`(POST/PUT/DELETE)·`/api/prompts/seed`로 모든 회원이 공유하는 추천 프롬프트를 바꿀 수 있다(DB 정책은 관리자 전용으로 설계했지만 API가 서비스 키를 쓰면서 관리자 확인이 없음). 루트 CLAUDE.md 멀티테넌시 원칙 1·3(권한 확인, 본인 키만)과 정면으로 충돌. 도메인이 달라 세션이 안 넘어갈 때 로그인 루프를 피하려고 넣은 임시 우회가 그대로 남은 것으로 보임.
+  4. `ai-image-studio/lib/checkFlux2Max.ts`는 `provider=replicate` 키를 아무 회원 것이나 읽지만 어디에서도 호출되지 않는 점검용 코드(삭제 후보).
+- 해야 할 일(주인님 결정 필요, 다른 CLI가 이 폴더를 만지는지 먼저 확인): `ai-image-studio/lib/access.ts`를 다른 프로그램과 같은 표준(`requireUser` + `checkProgramAccess`, `checkProgramAccessApi`는 `{allowed,error,status}` 반환, `createAdminClient()`로 권한 조회)으로 되돌리고 `getUserApiKey`의 타인 키 폴백 삭제, `/api/prompts`·`/api/prompts/seed`의 쓰기는 `profiles.is_admin` 확인 추가. 비로그인 방문자는 로그인 화면으로 보낸다. 이미 이 우회로 쓰던 회원이 있다면 로그인해서 써야 하므로 영향 공지 필요.
+- 다음부터 확인: 새 서브프로젝트의 `lib/access.ts`를 만들 때 "임시로 열어두기"(게스트 계정, 항상 허용, 타인 키 폴백)를 넣지 않는다. 로그인 루프가 문제면 우회가 아니라 쿠키 도메인·리다이렉트 원인을 고친다. 점검 스크립트: `GUEST_USER`·`no_restriction as const, programId: null`·`from("user_api_keys")`에 `user_id` 없는 조회를 검색.
+
 ## 2026-10-09 — 클라이언트가 보낸 ID로 upsert하면 남의 데이터를 덮어쓴다 / 임시보관 저장이 발행 상태를 되돌린다 (naver-blog-agent v1.55)
 
 - 증상: ① 이미 발행 큐에 있거나 발행된 글을 "보관함 저장"하면 상태가 임시보관으로 돌아감. ② `POST /api/posts`가 클라이언트가 보낸 UUID를 `record.id`로 넣어 upsert(관리자 클라이언트, RLS 우회) — 다른 회원 글 ID를 보내면 그 글의 소유자·내용이 덮어써질 수 있었음(테스트 작성 중 발견, 실제 악용 사례는 확인되지 않음. UUID는 추측하기 어렵지만 방어가 코드에 없었다).
