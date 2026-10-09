@@ -683,7 +683,7 @@
 3. 고칠 서브프로젝트의 `AGENTS.md`/`README.md`를 먼저 읽는다.
 4. 버전 규칙: 배포할 때마다 `lib/version.ts`(또는 `utils/version.ts`) `APP_VERSION` + DB `programs.version`을 같이 +0.01.
 5. 새/수정 API·Server Action은 **로그인 + 프로그램 이용 권한**(`checkProgramAccessApi`/`requireProgramAccess`) + `dynamic`/`fetchCache` 두 줄.
-6. API 키는 **회원 본인 키만**(운영자 키 폴백 금지). 외부 계정 OAuth 앱도 회원 본인 앱.
+6. **★ 최상위 규칙**: 모든 프로그램은 회원 개인이 본인 계정·본인 API를 연동해서 쓴다 — API 키는 **로그인한 회원 본인 키만**(타인·운영자 키 폴백 금지), 비로그인 게스트 우회·항상 허용 API 금지, 외부 계정 OAuth 앱도 회원 본인 앱. 확인 체크리스트·위반 점검 명령은 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`.
 7. 유료 API 호출·DB 구조 변경·환경변수 변경·실제 데이터 삭제는 먼저 주인님께 확인.
 8. 브라우저 자동화(네이버 등)는 `docs/PLATFORM_PATTERNS.md` §20(봇 탐지 회피)·§28(웹→확장→네이버 입력)을 먼저 읽는다.
 

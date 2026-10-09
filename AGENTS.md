@@ -19,6 +19,11 @@
 
 ## 0. 가장 먼저 확인할 것
 
+00. **★ 최상위 절대 규칙 — 모든 프로그램은 회원 개인이 본인 계정·본인 API를 연동해서 쓴다(2026-10-09 주인님 지시).** 다른 모든 규칙보다 위에 있다.
+    비로그인 "게스트 우회"·항상 허용 API·**타인/운영자 키 폴백**·운영자 공용 OAuth 앱·소유자 확인 없는 쓰기를 만들지 않는다. 시험은 테스트 계정
+    (`buylifemall@naver.com`, 일반 회원과 같은 권한)으로 실제 로그인해서 하고, `buylifemall@gmail.com`은 유일한 관리자다.
+    코드를 쓰기 전에 [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md)를 읽는다(체크리스트·위반 점검 명령·알려진 위반 현황).
+
 0-1. 루트 [`PROGRESS.md`](PROGRESS.md)(최근 세션 요약 — 한 작업·남은 작업·클라우드 세션 주의점)를 먼저 훑는다.
      **클라우드 세션이면 [`docs/CLOUD_SESSION.md`](docs/CLOUD_SESSION.md)를 따른다** — `cloud-work` 브랜치에서만 작업, 배포·버전·DB 쓰기는 로컬 병합 때.
 0. [`docs/HANDOFF.md`](docs/HANDOFF.md)로 현재 멈춰 있는 일, 남은 일, 손대지 말아야 할 폴더(다른 CLI 작업 중)를 확인한다.
