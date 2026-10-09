@@ -1,12 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 보안 마무리 — BLOG v1.38 로컬 준비·운영 미적용 (2026-10-10)
+## 보안 마무리 — BLOG v1.38 운영 배포·RLS 승인 대기 (2026-10-10)
 
-- BLOG 글 GET/PUT/DELETE의 로그인·이용 권한·본인 필터·no-store, 소유자 없는 글 접근 차단, 상세 화면 서버 게이트·인증 없는 SDK 조회 제거, 관리자 카테고리 API, 서버 키 공개 키 폴백 제거. 코드·확장·로컬 ZIP v1.38 준비, 운영 DB·라이브 v1.37 유지. 최종 빌드·타입·39개 검사 통과, 신규 린트 오류 0건(기존 7건·경고 3건). Google Fonts 네트워크 실패는 저장소 로컬 Geist 글꼴로 해결.
+- BLOG 글 GET/PUT/DELETE의 로그인·이용 권한·본인 필터·no-store, 소유자 없는 글 접근 차단, 상세 화면 서버 게이트·인증 없는 SDK 조회 제거, 관리자 카테고리 API, 서버 키 공개 키 폴백 제거. 코드 커밋 `01bb999f`·푸시·프로덕션 배포 완료, 운영 DB·확장·라이브 ZIP v1.38 일치(검증 실패/경고 0). 최종 빌드·타입·39개 검사 통과, 신규 린트 오류 0건(기존 7건·경고 3건). 운영 API 비로그인 401+no-store+캐시 MISS, 상세 화면 307 확인. Google Fonts 네트워크 실패는 저장소 로컬 Geist 글꼴로 해결.
 - **운영 DB RLS는 아직 열려 있음**: 7개 BLOG 테이블 정책 검토안·변경 전 스냅샷 준비, 적용 전 주인님 승인 필요. 글 20건 중 소유자 없는 7건은 임의 귀속·삭제하지 않음. `ai-auto-blog/supabase/security/blog-access-hardening.proposed.sql`.
 - Vercel 메타데이터 점검: 32개 중 서버 키 있는 29개, 28개는 변수 변경 이후 READY production. **타로만 최신 배포가 키 변경보다 앞섬**, 재배포는 도구 승인 정책 never로 거부. 키 값을 열지 않았으므로 실제 키 일치·회원 동작 검수를 증명한 것은 아님. 옛 키 폐기는 타로 재배포·회원 검수 이후 승인받아 진행.
 - 루트 `scripts/audit-supabase-key-rotation.mjs`: 추적 텍스트 2,889개에서 패턴상 내장 서비스 키 없음, 로컬 설정 18개에 알려진 옛 키 없음. 새 키 임시 파일은 저장소 밖에 아직 존재. Supabase는 ACTIVE_HEALTHY이나 브라우저 ENOMEM으로 사용량 경고·폐기 상태 확인 못 함.
-- **미완료**: 커밋·푸시·BLOG 배포, 승인된 RLS 적용, 운영 버전 갱신·라이브 ZIP 검증, 타로 재배포·회원 동작 검수, 옛 키 폐기·임시 키 파일 삭제, Supabase 사용량 화면 확인. git add는 `.git/index.lock: Permission denied`로 실패(.git 읽기 전용 세션), 커밋·푸시 미실행. 변경은 로컬 작업 폴더에 보존. 자세한 재개 절차: `ai-auto-blog/docs/SECURITY_REVIEW_2026-10-10.md`.
+- **미완료**: 승인된 RLS 적용, 타로 재배포·회원 동작 검수, 옛 키 폐기·임시 키 파일 삭제, Supabase 사용량 화면 확인. 이전 .git 쓰기·네트워크 제한은 해제되어 BLOG 커밋·푸시·배포는 완료. 라이브 https://ai-auto-blog-one.vercel.app . 자세한 재개 절차: `ai-auto-blog/docs/SECURITY_REVIEW_2026-10-10.md`.
 
 ## Threads 콘텐츠 운영 자동화 — 쿠팡 키 없는 상품 직접 등록 (2026-10-10, v1.92)
 

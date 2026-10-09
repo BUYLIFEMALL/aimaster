@@ -2,9 +2,11 @@
 
 ## 현재 상태
 
-BLOG v1.38 코드는 로컬에서 검수했습니다. 운영 배포·DB 정책 적용·옛 서비스 키 폐기는
-아직 완료하지 않았습니다. 프로그램 DB와 운영 ZIP은 v1.37입니다.
-운영 보안 취약점은 배포와 RLS 정책 변경을 마칠 때까지 남아 있습니다.
+BLOG v1.38 코드 커밋 `01bb999f`·푸시·운영 배포를 완료했습니다.
+프로그램 DB·확장·운영 ZIP은 모두 v1.38입니다. 배포 ID는
+`dpl_58t2bftvriNo9V2ScPD1QmQsn2dj`, 라이브는 https://ai-auto-blog-one.vercel.app 입니다.
+DB 정책 적용·실제 회원 검수·옛 서비스 키 폐기는 아직 완료하지 않았습니다.
+운영 DB 직접 접근 취약점은 RLS 정책 변경을 마칠 때까지 남아 있습니다.
 
 ## 확인된 운영 문제와 준비한 수정
 
@@ -52,12 +54,13 @@ BLOG v1.38 코드는 로컬에서 검수했습니다. 운영 배포·DB 정책 �
   변경 파일의 기존 오류 7건·경고 3건은 남습니다. 전체 lint 성공으로 보고하지 않습니다.
 - 로컬 production 서버: `/api/posts/1`, `/api/categories` 비로그인 401;
   `Cache-Control: private, no-store, max-age=0`. `/posts/1`은 307→`/auth?redirect=...`.
-  로컬 최신 ZIP은 200. 운영 ZIP 검증은 아직 미수행입니다.
+  로컬 최신 ZIP은 200. 운영에서도 두 API 401+no-store+X-Vercel-Cache MISS와 상세 화면 307을 확인했습니다.
+  `node scripts/check-extension-release.mjs ai-auto-blog`: 라이브 ZIP 200, DB/확장/ZIP v1.38 일치, 실패·경고 0건.
 - 로컬 ZIP 내부 manifest도 확인해 version_name=v1.38, version=1.38.0 일치를 검증했습니다.
 - 이전 실행에서는 경로 지정 git add가 `.git/index.lock: Permission denied`로 실패했습니다.
   이어진 세션에서 파일·네트워크 제한이 해제됐고 GitHub 원격 조회도 정상입니다.
   보안 테스트 39개와 신규 린트 오류 0건을 다시 확인했으며, BLOG 변경 파일만 지정해
-  커밋·푸시합니다. DB 정책 승인과 운영 반영 검증은 여전히 별도 미완료 항목입니다.
+  커밋·푸시를 완료했습니다. DB 정책 승인과 실제 회원 검수는 여전히 별도 미완료 항목입니다.
 - Google Inter 다운로드가 네트워크 제한으로 실패해 저장소에 있는 Geist 글꼴을
   자기완결적으로 복사하고 `next/font/local`로 변경했습니다. Latin 글꼴은 바뀝니다.
   라이선스는 `app/fonts/OFL.txt`, 출처는 `app/fonts/README.md`.
@@ -70,11 +73,11 @@ BLOG v1.38 코드는 로컬에서 검수했습니다. 운영 배포·DB 정책 �
 
 ## 이어서 적용할 순서
 
-1. v1.38 로컬 변경을 경로 지정 커밋·origin/master 푸시하고 BLOG 운영에 배포합니다.
+1. **완료:** v1.38 경로 지정 커밋·origin/master 푸시·BLOG 운영 배포.
 2. 준비한 BLOG RLS 변경안을 승인받고, Supabase CLI로 마이그레이션 파일을 생성합니다.
    기존 정책 스냅샷을 확인하고 운영 적용 뒤 데이터 건수 보존·소유권·익명 차단을 검증합니다.
-3. `release-v1.38.sql`로 programs.version·extension_version·extension_download_url을
-   함께 갱신하고 `node scripts/check-extension-release.mjs ai-auto-blog`로 라이브 ZIP을 검증합니다.
+3. **완료:** `release-v1.38.sql`로 programs.version·extension_version·extension_download_url을
+   함께 갱신하고 `node scripts/check-extension-release.mjs ai-auto-blog`로 라이브 ZIP을 검증했습니다.
 4. 타로를 같은 소스로 재배포하고 실제 회원으로 모든 영향 앱의 정상 동작을 확인합니다.
 5. 옛 서비스 키 폐기와 저장소 밖 임시 키 파일 삭제는 별도 승인 후 진행합니다.
 6. Supabase 대시보드 사용량 경고를 확인합니다. 비용이 드는 플랜 변경은 자동 실행하지 않습니다.
