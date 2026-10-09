@@ -35,9 +35,9 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
 | slug | 확장 폴더 | 배포 방식 | 다운로드 주소 | 버전 동기화 |
 |---|---|---|---|---|
 | `naver-blog-agent` | `naver-blog-agent/extension` | 사이트 포함형(빌드 스크립트) | `https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip` (항상 최신 고정 주소) | `scripts/build-extension-archive.mjs`가 `version.ts`→`manifest.json` 자동 동기화 + ZIP 생성 |
-| `ai-auto-blog` | `ai-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://ai-auto-blog-one.vercel.app/downloads/ai-auto-blog-extension-vX.YY.zip` (버전 파일명, 배포마다 주소 변경 → **DB 주소도 갱신**) | `scripts/build-extension-archive.mjs` |
-| `naver-blog-seo-studio` | `naver-blog-seo-studio/extension` | 사이트 포함형(빌드 스크립트) | `https://naver-blog-seo-studio.vercel.app/downloads/naver-blog-seo-studio-extension-vX.YY.zip` (**메인 도메인 buylife.xyz 아래가 아니라 자체 Vercel 주소**. 버전 파일명) | `scripts/build-extension-archive.mjs` |
-| `tistory-auto-blog` | `tistory-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-vX.YY.zip` (버전 파일명) | `scripts/build-extension-archive.mjs` |
+| `ai-auto-blog` | `ai-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://ai-auto-blog-one.vercel.app/downloads/ai-auto-blog-extension-latest.zip` (고정 주소 `-latest.zip`, 2026-10-09 통일. 빌드가 버전별 ZIP과 함께 사본을 만든다) | `scripts/build-extension-archive.mjs` |
+| `naver-blog-seo-studio` | `naver-blog-seo-studio/extension` | 사이트 포함형(빌드 스크립트) | `https://naver-blog-seo-studio.vercel.app/downloads/naver-blog-seo-studio-extension-latest.zip` (**메인 도메인 buylife.xyz 아래가 아니라 자체 Vercel 주소**. 고정 주소 `-latest.zip`) | `scripts/build-extension-archive.mjs` |
+| `tistory-auto-blog` | `tistory-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-latest.zip` (고정 주소 `-latest.zip`) | `scripts/build-extension-archive.mjs` |
 | `naver-blog-auto-poster-web` | `naver-blog-auto-poster_web/extension` | 사이트 포함형(루트 `public/downloads`) | `https://www.buylife.xyz/downloads/naver-blog-auto-poster-web-extension-latest.zip` | `node naver-blog-auto-poster_web/scripts/build-extension-archive.mjs`(저장소 루트에서, manifest `version_name`과 `lib/naverBlogAutoPosterWebExtension.ts` 버전이 같아야 함) → 루트 앱 배포(`vercel deploy --prod --yes`). 2026-10-09 v1.03에서 GitHub 릴리스를 대체(저장소 비공개 전환 대비). 절차: 그 폴더 `AGENTS.md` §9-2 |
 
 ### 알려진 예외·미해결 (다음 CLI가 이어받을 것)
