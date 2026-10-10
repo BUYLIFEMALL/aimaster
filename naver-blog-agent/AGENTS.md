@@ -23,7 +23,8 @@
 - `background.js prepareFreshNaver()`는 이어쓰기 팝업이 첫 빈 편집기 조회 뒤 늦게 도착하는 경우를 처리하도록 취소 후 2초간 빈 화면을 반복 확인합니다. 이미 내용이 있으면 그대로 중지합니다.
 - **실제 Chrome 검수 통과:** v1.60, 32/32 단계 완료, 대표 1장+본문 3장=4장, 고유 파일명 4개(`blog_img_title.png`, `blog_img_1.png`~`3`), 인용구 5개, 본문 4개 컴포넌트, 본문 마지막 ‘이웃 추가와 소통은 언제나 환영해요.’까지 확인. `imageAi`·전체 원고 `verify` 통과. 최종 발행은 실행하지 않았습니다. 별도 검수 탭에 입력된 글을 남겼습니다.
 - 자동 검수: 빌드·`test:extension`·`test:edit-save`·JS 문법 검사 통과. 회귀 검사에는 이모지 뒤 텍스트 손실/복합 이모지 보존과 늦은 이어쓰기 팝업 후 재확인을 추가했습니다.
-- 프로그램/패키지/확장/다운로드 ZIP v1.60. 버전 정보만 갱신하는 SQL은 `supabase/migrations/20261010054000_nba_bump_version_v1_60.sql`; 사용자 원고·이미지 데이터는 수정하지 않습니다. 배포 완료 결과는 `docs/CONTINUATION.md`에 이어 기록합니다.
+- 코드 커밋 `a134f3ab`·origin/master 푸시·프로덕션 READY 배포 완료(`dpl_3X9pYRbJMcjcP8AdCnttUhTmS2zf`). 프로그램/패키지/확장/다운로드 ZIP v1.60. DB/확장/라이브 ZIP 버전 검증 실패 0·경고 0, 라이브 ZIP HTTP 200, `background.js`·`editor.js`·`writer.js`·manifest SHA256 로컬 일치. 주인님 PC 확장도 최종 코드로 새로고침했으며 검수 완료 원고 탭을 표시했습니다.
+- 버전 정보만 갱신하는 SQL `supabase/migrations/20261010054000_nba_bump_version_v1_60.sql` 적용 완료. 기존 실패 원고의 본문/이미지 지문·이미지 4개·상태를 보존했습니다. 자세한 배포 결과는 `docs/CONTINUATION.md` 참고.
 
 ## 2026-10-10 v1.59 — 확장 이미지 중복·입력 중단 수정
 
