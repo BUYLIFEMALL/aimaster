@@ -104,21 +104,35 @@ export function buildBridgePayload(row: {
 
   const bodyImages: BridgePayload["bodyImages"] = [];
   const lines: string[] = [];
+  const inlineImageUrl = (line: string) => line.match(/^\[\[IMG:(https:\/\/[^\]]+)\]\]$/i)?.[1]
+    || line.match(/^!\[[^\]]*\]\((https:\/\/[^)\s]+)\)$/i)?.[1];
+  const inlineUrls = rawLines.map(inlineImageUrl).filter((url): url is string => Boolean(url));
+  // v1.58 이하의 편집기는 [대표, 본문1, 본문2]를 본문 3자리에 넣어 본문3을 누락했다.
+  // 정확히 그 순서의 생성 이미지가 들어간 기존 원고만 본문 이미지 순서로 복구한다.
+  const shiftedEditorImages = Boolean(thumbnail && inlineUrls.length && inlineUrls.length <= bodyPool.length
+    && inlineUrls.every((url, index) => url === images[index]?.url)
+    && inlineUrls[0] === thumbnail.url);
+  const usedUrls = new Set<string>(thumbnail ? [thumbnail.url] : []);
+  let inlineCursor = 0;
   let poolCursor = 0;
   for (const line of rawLines) {
-    const inlineUrl = line.match(/^\[\[IMG:(https:\/\/[^\]]+)\]\]$/i)?.[1] || line.match(/^!\[[^\]]*\]\((https:\/\/[^)\s]+)\)$/i)?.[1];
+    const inlineUrl = inlineImageUrl(line);
     let url: string | undefined;
-    if (inlineUrl) url = inlineUrl;
-    else if (PLACEHOLDER.test(line)) url = bodyPool[poolCursor++]?.url;
+    if (inlineUrl) url = shiftedEditorImages ? bodyPool[inlineCursor++]?.url : inlineUrl;
+    else if (PLACEHOLDER.test(line)) {
+      while (bodyPool[poolCursor] && usedUrls.has(bodyPool[poolCursor].url)) poolCursor++;
+      url = bodyPool[poolCursor++]?.url;
+    }
     else if (/^\[\[IMG:/.test(line)) continue;
     else {
       lines.push(line);
       continue;
     }
-    if (!url) continue; // 연결할 이미지가 없는 자리는 삭제
+    if (!url || usedUrls.has(url)) continue; // 같은 이미지와 표지를 본문에 다시 삽입하지 않는다.
+    usedUrls.add(url);
     const sequence = bodyImages.length + 1;
     const index = assetIndex(url, `blog_img_${sequence}.png`);
-    bodyImages.push({ sequence, index, name: `blog_img_${sequence}.png` });
+    bodyImages.push({ sequence, index, name: assets[index].name });
     lines.push(`[IMAGE INSERT - ${sequence}]`);
   }
 

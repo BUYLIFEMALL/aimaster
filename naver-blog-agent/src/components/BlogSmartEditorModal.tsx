@@ -57,6 +57,11 @@ function convertTextToEditorHtml(
 
   const lines = raw.split("\n");
   const htmlParts: string[] = [];
+  // 대표 이미지는 확장이 표지로 별도 삽입한다. 본문 자리에는 본문 이미지만 한 번씩 연결한다.
+  const bodyImages = images.filter((image, index) =>
+    image.type === "body" && Boolean(image.url) &&
+    images.findIndex((other) => other.url === image.url) === index
+  );
   let bodyImageIdx = 0;
 
   for (let i = 0; i < lines.length; i++) {
@@ -74,10 +79,8 @@ function convertTextToEditorHtml(
     const imageMatch = line.match(/^\[IMAGE INSERT\s*-\s*(.+?)\]$/i);
     if (imageMatch) {
       const caption = imageMatch[1].trim();
-      // 생성된 이미지 중에서 순서대로 매핑
-      const matchedImg = images[bodyImageIdx] || images.find((im) => im.caption.includes(caption));
+      const matchedImg = bodyImages[bodyImageIdx++];
       if (matchedImg) {
-        bodyImageIdx++;
         htmlParts.push(
           `<p><img src="${matchedImg.url}" alt="${caption}" /></p><p><em>📷 ${caption}</em></p>`
         );

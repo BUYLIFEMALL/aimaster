@@ -56,6 +56,34 @@ p = bridge.buildBridgePayload({
 assert.equal(p.article, '[SECTION - 소제목 & 하나]\n문단 강조\n[IMAGE INSERT - 1]\n다음');
 assert.equal(p.assets.length, 1);
 
+// v1.58 편집기가 대표 이미지를 첫 본문 자리에 넣고 마지막 본문 이미지를 누락한 실제 실패 형태.
+const fourImages = [...imgs, { url: 'https://x.supabase.co/b3.png', type: 'body' }];
+const legacyHtml = '<h2>첫째</h2><p>본문 1</p><img src="https://x.supabase.co/t.png"><h2>둘째</h2><p>본문 2</p><img src="https://x.supabase.co/b1.png"><h2>셋째</h2><p>본문 3</p><img src="https://x.supabase.co/b2.png">';
+const repaired = bridge.buildBridgePayload({ title: '제목', images: fourImages, content: legacyHtml });
+assert.deepEqual(repaired.assets.map(a => a.url), fourImages.map(i => i.url));
+assert.deepEqual(repaired.bodyImages.map(i => i.index), [1, 2, 3]);
+assert.ok(repaired.bodyImages.every(i => i.name === repaired.assets[i.index].name), '업로드 파일명과 검증 파일명 일치');
+
+// 정상 HTML은 명시된 이미지 위치를 유지하고 대표/본문 동일 URL의 반복만 제거한다.
+const repeated = bridge.buildBridgePayload({ title: '제목', images: fourImages, content: '<img src="https://x.supabase.co/t.png"><h2>본문</h2><img src="https://x.supabase.co/b3.png"><img src="https://x.supabase.co/b1.png"><img src="https://x.supabase.co/b1.png"><img src="https://x.supabase.co/b2.png">' });
+assert.deepEqual(repeated.bodyImages.map(i => repeated.assets[i.index].url), [fourImages[3].url, fourImages[1].url, fourImages[2].url]);
+assert.equal(new Set(repeated.assets.map(a => a.url)).size, 4);
+
+// 실제 스마트 편집기 변환 함수를 AST로 읽어 검사한다(React 화면/유료 AI 호출 없음).
+const modalPath = path.join(root, 'src/components/BlogSmartEditorModal.tsx');
+const modalSource = ts.createSourceFile(modalPath, fs.readFileSync(modalPath, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+const convertNode = modalSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'convertTextToEditorHtml');
+assert.ok(convertNode);
+const convertJs = ts.transpileModule(convertNode.getText(modalSource), { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText;
+const convert = new Function(`${convertJs};return convertTextToEditorHtml;`)();
+const rawDraft = '[SECTION - 첫째]\n본문 1\n[IMAGE INSERT - 첫 사진]\n[SECTION - 둘째]\n본문 2\n[IMAGE INSERT - 둘째 사진]\n[SECTION - 셋째]\n본문 3\n[IMAGE INSERT - 셋째 사진]';
+const converted = convert(rawDraft, fourImages);
+assert.deepEqual([...converted.matchAll(/<img src="([^"]+)"/g)].map(m => m[1]), fourImages.slice(1).map(i => i.url));
+assert.equal(convert(converted, fourImages), converted, '이미 HTML인 원고는 변환하지 않음');
+assert.equal((convert(rawDraft + '\n[IMAGE INSERT - 남는 자리]', fourImages).match(/<img /g) || []).length, 3, '본문 사진을 반복 사용하지 않음');
+const convertedPayload = bridge.buildBridgePayload({ title: '제목', images: fourImages, content: converted });
+assert.deepEqual(convertedPayload.assets.map(a => a.url), fourImages.map(i => i.url));
+
 // 예약 발행
 p = bridge.buildBridgePayload({ title: 't', content: '본문', is_reserved: true, scheduled_at: '2026-10-20T01:00:00Z' });
 assert.equal(p.publishScheduleMode, 'reserve');
@@ -185,6 +213,40 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   const asset = await sandbox.loadAsset({ payload: { assets: [{ url: 'https://x.supabase.co/b1.png', name: 'blog_img_1.png' }] } }, 0);
   assert.equal([asset.mime, asset.name, asset.data].join('|'), ['image/png', 'blog_img_1.png', Buffer.from([137, 80, 78, 71]).toString('base64')].join('|'));
   await assert.rejects(() => sandbox.loadAsset({ payload: { assets: [{ url: 'http://insecure/x.png' }] } }, 0), /올바르지/);
+
+  // ---------- 3-0. 이미지 삽입 계획 → 순차 입력 → 마지막 검증(최종 발행 없음) ----------
+  const writer = require('../extension/writer.js');
+  const { articlePlan } = require('../extension/article-plan.js');
+  const oldPayload = { ...repaired, bodyImages: [{ sequence: 99, index: 0, name: 'blog_img_99.png' }, ...repaired.bodyImages], article: '[IMAGE INSERT - 99]\n' + repaired.article };
+  const layout = writer.buildWriterSteps(oldPayload, articlePlan(oldPayload.article));
+  assert.equal(layout.imageCount, 4, '옛 서버가 보낸 대표 중복 자리도 확장에서 방어');
+  assert.equal(layout.plan.some(b => b.sequence === 99), false);
+  assert.deepEqual(layout.steps.filter(s => s.type === 'image').map(s => s.name), repaired.assets.map(a => a.name));
+  const entered = { ok: true, title: '', blocks: [] };
+  const authoringCommands = [];
+  sandbox.articlePlan = articlePlan;
+  Object.assign(sandbox, writer);
+  sandbox.loadAsset = async (task, index) => ({ data: 'iVBORw==', mime: 'image/png', name: task.payload.assets[index].name });
+  sandbox.command = async (_tab, type, args = {}) => {
+    authoringCommands.push(type);
+    if (type === 'snapshot') return structuredClone(entered);
+    if (type === 'title') entered.title = args.text;
+    if (['quote', 'paragraph', 'image'].includes(type)) entered.blocks.push({ id: 'c' + entered.blocks.length, type, text: args.text, style: args.style || '', name: args.name || '' });
+    if (type === 'verify') assert.equal(args.imageCount, 4);
+    return { ok: true };
+  };
+  const written = await sandbox.writeArticle({ id: 'draft-verification', tabId: 123, blogId: 'myblog', payload: oldPayload }, { checkCancelled: async () => {}, save: async () => {}, onProgress: async () => {} });
+  assert.equal(written.complete, true);
+  assert.equal(entered.blocks.filter(b => b.type === 'image').length, 4);
+  assert.equal(writer.matchingWriterPrefix(entered, layout.steps), layout.steps.length);
+  assert.equal(authoringCommands.includes('click'), false, '실제 편집기 검수와 원고 입력은 최종 발행 버튼을 누르지 않음');
+  assert.equal(authoringCommands.includes('settings'), false);
+  assert.equal(authoringCommands.at(-1), 'verify', '본문 입력 후 검증까지 완료');
+
+  // 이미지 업로드는 비동기다. 시간 초과 후 변화가 아직 안 보여도 다시 업로드하면 안 된다.
+  let uploadAttempts = 0;
+  await assert.rejects(() => writer.runWriter({ steps: [{ type: 'title', text: '제목' }, { type: 'image', name: 'slow.png' }], read: async () => ({ title: '제목', blocks: [] }), apply: async () => { uploadAttempts++; throw new Error('업로드 시간 초과'); }, save: async () => {}, checkCancelled: async () => {} }), /업로드 시간 초과/);
+  assert.equal(uploadAttempts, 1, '지연된 이미지 업로드를 중복 재시도하지 않음');
 
   // ---------- 3-1. 새 버전 알림 ----------
   const versionRoute = loadTS(path.join(root, 'src/app/api/extension/version/route.ts'));

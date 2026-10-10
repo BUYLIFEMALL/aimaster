@@ -2,6 +2,28 @@
 // No AI calls, text rewriting, blind retries, or final publication here.
 const writerNormalize = value => String(value || '').replace(/[\s\u200b\ufeff]/g,'');
 function writerLink(value){try{const url=new URL(value);if(!/^https?:$/.test(url.protocol))return '';return url.href.replace(/\/$/,'');}catch{return '';}}
+function buildWriterSteps(payload,plan) {
+  const steps=[{type:'title',text:payload.title},{type:'quote',text:payload.title,style:'default'}];
+  const seen=new Set(),filteredPlan=[];
+  const image=(index,name)=>{
+    const asset=payload.assets?.[index];
+    if(!asset || !/^https:\/\//i.test(asset.url || '') || seen.has(asset.url))return false;
+    seen.add(asset.url);
+    steps.push({type:'image',index,name:asset.name || name || 'blog_img.png'});
+    return true;
+  };
+  if(payload.titleImageIndex!==null && payload.titleImageIndex!==undefined)image(payload.titleImageIndex,payload.titleImageName);
+  for(const block of plan){
+    if(block.type==='image'){
+      const asset=payload.bodyImages.find(item=>Number(item.sequence)===block.sequence);
+      if(asset && image(asset.index,asset.name))filteredPlan.push(block);
+    }else{
+      filteredPlan.push(block);
+      steps.push({...block,type:block.type==='section'?'quote':'paragraph'});
+    }
+  }
+  return {steps,plan:filteredPlan,imageCount:seen.size};
+}
 function withoutGeneratedPreviews(blocks){
   const content=[];
   for(const block of blocks){
@@ -65,14 +87,14 @@ async function runWriter({steps,read,apply,save,checkCancelled,onProgress,requir
       const next=matchingWriterPrefix(snapshot,steps);
       if(next===cursor+1){cursor=next;failure=null;break;}
       // Retry only a proven no-op; never append over partial or unexpected input.
-      if(next!==cursor || JSON.stringify(snapshot)!==JSON.stringify(before))break;
+      if(next!==cursor || JSON.stringify(snapshot)!==JSON.stringify(before) || step.type==='image')break;
       if(!failure)failure=new Error('입력 명령 후 문서가 변경되지 않았습니다.');
     }
-    if(failure || cursor!==startCursor+1 || matchingWriterPrefix(snapshot,steps)!==cursor)throw failure || new Error('입력 결과가 원고와 달라 중지했습니다.');
+    if(failure || cursor!==startCursor+1 || matchingWriterPrefix(snapshot,steps)!==cursor)throw failure || new Error(`입력 ${startCursor+1}/${steps.length} (${step.type}${step.name?' · '+step.name:''}) 결과가 원고와 달라 중지했습니다.`);
     if(JSON.stringify(snapshot)===JSON.stringify(before))throw new Error('입력 위치를 확보하지 못했습니다. 원고는 보존돼 있습니다.');
     await save({cursor,anchorId:snapshot.blocks.at(-1)?.id || '',snapshot});
     await onProgress?.(cursor,steps.length,step.type);
   }
   return {complete:true,cursor};
 }
-if(typeof module!=='undefined')module.exports={writerUnits,matchingWriterPrefix,runWriter};
+if(typeof module!=='undefined')module.exports={buildWriterSteps,writerUnits,matchingWriterPrefix,runWriter};

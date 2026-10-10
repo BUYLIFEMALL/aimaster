@@ -145,29 +145,29 @@ async function verifyReservation(task) {
     throw Object.assign(new Error(reason+' 자동으로 재발행하지 않습니다.'),{code:'PUBLISH_UNCERTAIN'});
   }finally{await chrome.tabs.remove(tab.id).catch(()=>{});}
 }
-async function publish(task) {
+// Authoring and final publication are separate so a real editor can be verified without publishing.
+async function writeArticle(task,options={}) {
   const tabId=task.tabId, p=task.payload;
-  const plan=articlePlan(p.article);
-  const steps=[{type:'title',text:p.title},{type:'quote',text:p.title,style:'default'}];
-  if(p.titleImageIndex!==null)steps.push({type:'image',index:p.titleImageIndex,name:p.titleImageName || 'blog_img_title.png'});
-  for(const block of plan){
-    if(block.type==='image'){const asset=p.bodyImages.find(i=>Number(i.sequence)===block.sequence);if(asset?.index>=0)steps.push({type:'image',index:asset.index,name:asset.name || 'blog_img_'+block.sequence+'.png'});}
-    else steps.push({...block,type:block.type==='section'?'quote':'paragraph'});
-  }
+  const {steps,plan,imageCount}=buildWriterSteps(p,articlePlan(p.article));
   await runWriter({steps,requireEmpty:true,
     read:()=>command(tabId,'snapshot'),
     apply:async(block,anchor)=>{
       if(block.type==='image'){
-        return command(tabId,'image',{...await loadAsset(task,block.index),...anchor});
+        return command(tabId,'image',{...await loadAsset(task,block.index),name:block.name,...anchor});
       }
       return command(tabId,block.type,{...block,...anchor,breakSentences:p.breakSentencesInBody});
     },
-    save:checkpoint=>chrome.storage.local.set({authoringCheckpoint:{...checkpoint,blogId:task.blogId,title:p.title,taskId:task.id}}),
-    onProgress:(done,total,type)=>type==='paragraph' && done!==total ? undefined : api('/progress',{id:task.id,message:`네이버 ${done}/${total} · ${type==='image'?'이미지':type==='quote'?'제목·섹션':'본문'} 입력 확인 완료`}),
-    checkCancelled:async()=>{if((await api('/task/status',{id:task.id})).state!=='running')throw new Error('작업이 취소되었습니다. 입력한 내용은 보존됩니다.');}
+    save:options.save || (checkpoint=>chrome.storage.local.set({authoringCheckpoint:{...checkpoint,blogId:task.blogId,title:p.title,taskId:task.id}})),
+    onProgress:options.onProgress || ((done,total,type)=>type==='paragraph' && done!==total ? undefined : api('/progress',{id:task.id,message:`네이버 ${done}/${total} · ${type==='image'?'이미지':type==='quote'?'제목·섹션':'본문'} 입력 확인 완료`})),
+    checkCancelled:options.checkCancelled || (async()=>{if((await api('/task/status',{id:task.id})).state!=='running')throw new Error('작업이 취소되었습니다. 입력한 내용은 보존됩니다.');})
   });
   await command(tabId,'imageAi');
-  await command(tabId,'verify',{title:p.title,article:p.article,plan,titleQuote:true,requireAi:true,sectionStyle:'quotation_line',imageCount:p.bodyImages.filter(i=>i.index>=0).length+(p.titleImageIndex!==null?1:0)});
+  await command(tabId,'verify',{title:p.title,article:p.article,plan,titleQuote:true,requireAi:true,sectionStyle:'quotation_line',imageCount});
+  return {complete:true,imageCount,steps:steps.length};
+}
+async function publish(task) {
+  const tabId=task.tabId,p=task.payload;
+  await writeArticle(task);
   await command(tabId,'click',{selector:'button[data-click-area="tpb.publish"], button[class*="publish_btn__"]',skipIfSelector:'button[data-testid="seOnePublishBtn"]'}); await sleep(400);
   await command(tabId,'settings',p);
   if((await inspect(tabId)).status!=='valid')throw new Error('로그인 상태가 변경되었습니다. 작성된 글을 확인하세요.');

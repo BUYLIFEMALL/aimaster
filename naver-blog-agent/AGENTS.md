@@ -10,11 +10,20 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.58` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.59` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
 ---
+
+## 2026-10-10 v1.59 — 확장 이미지 중복·입력 중단 수정
+
+- 실제 실패 글은 HTML 본문 이미지가 [대표, 본문1, 본문2]였고, 메타데이터는 [대표, 본문1, 본문2, 본문3]이었습니다. 웹 변환은 대표를 표지와 본문에 두 번 넣었으며 URL 공유 후 업로드 이름은 `blog_img_title.png`, 입력 검증 이름은 `blog_img_1.png`가 되어 두 번째 사진에서 `AUTHORING_FAILED`로 중지했습니다.
+- `BlogSmartEditorModal.tsx`는 본문 이미지로만 순서대로 연결하고 같은 이미지를 반복 사용하지 않습니다. `extensionBridge.ts`는 정확히 위 순서의 옛 편집 원고를 본문 이미지 순서로 복구하며 대표/동일 URL 중복을 제거합니다. DB 원고 본문·이미지 데이터 자체는 변경하지 않습니다.
+- `extension/writer.js`는 기존 서버 작업도 URL 기준으로 중복 방어하고 파일명을 자산과 일치시킵니다. 업로드 시간 초과 이미지를 자동 재업로드하지 않습니다. 중지 메시지에 단계·파일명을 포함합니다.
+- `background.js`의 `writeArticle()`(입력·검증만)과 `publish()`(최종 발행)를 분리했습니다. 실제 검수는 회원 로그인 Chrome에서 새 글 입력까지만 수행하며 최종 발행은 하지 않습니다.
+- 자동 검수: `npm run test:extension`·`test:edit-save`·빌드 통과. 변경 파일 ESLint 오류 0·경고 5(스마트 편집기 2, 변환 모듈 3). 실제 실패 원고를 새 변환에 넣어 자산 4개·고유 URL 4개·본문 이미지 3개·업로드 이름 일치·저장된 4장 모두 포함을 확인했습니다.
+- 실제 Chrome 검수는 대기 중입니다. UIA 상태 조회는 가능하지만 화면 캡처 실패·키보드 `window_not_focused`(restore 후에도 실패)라 네이버 입력까지 실행하지 못했습니다. 주인님께 PC 화면/Chrome 확인을 요청했습니다. 확장은 로컬 `naver-blog-agent/extension`을 직접 로드한 ID `jghcffojjhpadflbhmdbophincpciajm`입니다. 화면 복구 후 확장 새로고침 → 별도 새 편집기 → `writeArticle()`로 입력·검증까지만 수행하고 4장/중복 0/본문 끝 확인이 필요합니다. **최종 발행하지 않습니다.** 배포 결과는 마감 시 기록합니다.
 
 ## 2026-10-10 v1.58 — 결과 작업 버튼 오른쪽 정렬·저장 버튼 강조
 
