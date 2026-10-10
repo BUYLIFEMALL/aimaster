@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
-import { AUTO_START_WINDOW_MS, RUNNING_GUARD_MS } from '@/blog/utils/extensionTask'
+import { AUTO_START_WINDOW_MS, isRunActive } from '@/blog/utils/extensionTask'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -20,15 +20,15 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
   const supabase = createAdminClient()
   const { data: current, error: readError } = await supabase
     .from('blog_posts')
-    .select('id, naver_input_status, extension_handoff_at')
+    .select('id, naver_input_status, extension_handoff_at, naver_lease_expires_at')
     .eq('id', postId)
     .eq('user_id', access.user.id)
     .maybeSingle()
   if (readError) return NextResponse.json({ error: '네이버 입력기로 보내기에 실패했습니다.' }, { status: 500 })
   if (!current) return NextResponse.json({ error: '본인이 작성한 글만 보낼 수 있습니다.' }, { status: 403 })
 
-  const handoffAge = current.extension_handoff_at ? Date.now() - new Date(current.extension_handoff_at).getTime() : Infinity
-  if (current.naver_input_status === 'in_progress' && handoffAge < RUNNING_GUARD_MS) {
+  // 살아 있는 실행(임대가 남은 입력 중)이 있으면 덮어쓰지 않는다. 임대가 끝난 실행(PC 꺼짐·확장 종료)은 다시 보낼 수 있다.
+  if (isRunActive(current)) {
     return NextResponse.json({ error: '이 글은 지금 네이버 입력이 진행 중입니다. 입력이 끝난 뒤 다시 보내주세요.' }, { status: 409 })
   }
 
@@ -39,6 +39,8 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
       naver_input_status: null,
       naver_input_completed_at: null,
       naver_input_error: null,
+      naver_run_id: null,
+      naver_lease_expires_at: null,
     })
     .eq('id', postId)
     .eq('user_id', access.user.id)

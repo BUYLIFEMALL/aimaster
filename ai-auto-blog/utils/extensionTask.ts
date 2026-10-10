@@ -10,6 +10,24 @@ export const AUTO_START_WINDOW_MS = 30 * 60 * 1000
 // 입력 중이라고 표시된 글을 다시 보내려면 이 시간이 지나야 한다(진행 중인 입력을 덮어쓰지 않기 위함).
 export const RUNNING_GUARD_MS = 90 * 60 * 1000
 
+// 실행 임대(v1.43): 확장이 가져가거나 직접 시작할 때 서버가 실행 번호(naver_run_id)와 임대 만료 시각을 정한다.
+// 확장은 입력하는 동안 HEARTBEAT 간격으로 임대를 연장하고, 연장하지 못한 채 LEASE_MS가 지나면(PC 꺼짐·확장 종료) 웹에서 다시 보낼 수 있다.
+// 이 경우에도 "자동으로 대기로 되돌리지" 않는다 — 이미 입력됐거나 발행됐을 수 있어 회원이 확인하고 다시 보내야 한다.
+export const LEASE_MS = 3 * 60 * 1000
+export const HEARTBEAT_MS = 45 * 1000
+
+export const leaseExpiry = (now = Date.now()) => new Date(now + LEASE_MS).toISOString()
+export const newRunId = () => globalThis.crypto.randomUUID()
+
+/** 입력 중인 글을 다시 보내거나 직접 시작해도 되는가(살아 있는 실행을 덮어쓰지 않기 위함). */
+export function isRunActive(row: { naver_input_status?: string | null; naver_lease_expires_at?: string | null; extension_handoff_at?: string | null }, now = Date.now()): boolean {
+  if (row.naver_input_status !== 'in_progress') return false
+  if (row.naver_lease_expires_at) return new Date(row.naver_lease_expires_at).getTime() > now
+  // 임대 정보가 없는 옛 확장의 실행: 보낸 지 RUNNING_GUARD_MS 안이면 진행 중으로 본다.
+  const sent = row.extension_handoff_at ? new Date(row.extension_handoff_at).getTime() : 0
+  return now - sent < RUNNING_GUARD_MS
+}
+
 export const INPUT_STATUSES = ['in_progress', 'completed', 'publish_ready', 'failed'] as const
 export type InputStatus = (typeof INPUT_STATUSES)[number]
 

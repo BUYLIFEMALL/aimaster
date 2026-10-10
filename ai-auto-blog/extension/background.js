@@ -20,6 +20,7 @@ const { TaskError, runInputTask } = self.BlogEngine;
 
 let busy = false;
 let cancelRequested = false;
+let superseded = false;
 let currentTask = null;
 
 const get = (keys) => chrome.storage.local.get(keys);
@@ -61,7 +62,7 @@ async function flushPending() {
   const token = stored[KEY.token];
   if (!pending || !token) return true;
   try {
-    const { ok, status, data } = await web(`/api/extension/posts/${encodeURIComponent(pending.id)}/input-result`, { method: "POST", token, body: { status: pending.status, error: pending.error || "" } });
+    const { ok, status, data } = await web(`/api/extension/posts/${encodeURIComponent(pending.id)}/input-result`, { method: "POST", token, body: { status: pending.status, error: pending.error || "", ...(pending.runId ? { runId: pending.runId } : {}) } });
     if (ok && data.success === true && data.persisted === true && data.status === pending.status) {
       await chrome.storage.local.remove(KEY.pending);
       return true;
@@ -76,8 +77,8 @@ async function flushPending() {
   return false;
 }
 
-async function reportStatus(id, status, error = "") {
-  await set({ [KEY.pending]: { id, status, error: String(error || "").slice(0, 500), at: Date.now() } });
+async function reportStatus(id, status, error = "", runId = "") {
+  await set({ [KEY.pending]: { id, status, error: String(error || "").slice(0, 500), runId: runId || "", at: Date.now() } });
   const done = await flushPending();
   if (!done) await setState({ reportNote: "서버에 결과를 아직 전달하지 못했습니다. 결과는 확장에 보관되어 있으며 연결되면 다시 보고합니다." });
   return done;
@@ -110,8 +111,19 @@ async function runTask(task, mode) {
   const blogId = String(stored[KEY.blogId] || "").trim();
   currentTask = task.id;
   cancelRequested = false;
-  await set({ [KEY.active]: { id: task.id, title: task.title, mode, startedAt: Date.now(), stage: "preparing" } });
-  await setState({ id: task.id, title: task.title, mode, final: false, outcome: "", stage: "preparing", message: "작업을 준비하는 중...", typedChars: 0, totalChars: 0, warnings: [], reportNote: "" });
+  superseded = false;
+  const runId = task.runId || "";
+  await set({ [KEY.active]: { id: task.id, runId, title: task.title, mode, startedAt: Date.now(), stage: "preparing" } });
+  // 실행 임대: 입력하는 동안 45초마다 서버에 "살아 있음"을 알린다. 서버가 이 실행이 더는 유효하지 않다고(409) 답하면 입력을 중지한다.
+  const heartbeat = runId ? setInterval(() => run(async () => {
+    const token = (await get(KEY.token))[KEY.token];
+    if (!token) return;
+    try {
+      const { status } = await web(`/api/extension/posts/${encodeURIComponent(task.id)}/heartbeat`, { method: "POST", token, body: { runId } });
+      if (status === 409) { superseded = true; cancelRequested = true; }
+    } catch { /* 네트워크 오류는 무시 — 임대가 끝나면 서버가 알아서 정리한다 */ }
+  }), 45000) : null;
+  await setState({ id: task.id, runId, title: task.title, mode, final: false, outcome: "", stage: "preparing", message: "작업을 준비하는 중...", typedChars: 0, totalChars: 0, warnings: [], reportNote: "" });
   await setBadge("", "#000000");
 
   const adapter = self.BlogNaverAdapter.createNaverAdapter({ chrome, pageFn: self.blogEditorCommand, TaskError, sleep });
@@ -137,7 +149,7 @@ async function runTask(task, mode) {
           if (active?.id === task.id && active.stage !== stage) await set({ [KEY.active]: { ...active, stage } });
         });
       },
-      report: (status, error) => reportStatus(task.id, status, error),
+      report: (status, error) => reportStatus(task.id, status, error, runId),
       isCancelled: () => cancelRequested,
       sleep,
     });
@@ -146,10 +158,12 @@ async function runTask(task, mode) {
   } catch (error) {
     const code = error instanceof TaskError ? error.code : "INPUT_FAILED";
     const message = error instanceof TaskError ? error.message : self.BlogCore.formatBrowserError(error, "네이버 편집기 입력");
-    await reportStatus(task.id, "failed", `[${code}] ${message}`);
-    await setState({ final: true, outcome: code === "CANCELLED" ? "cancelled" : "failed", stage: "failed", message });
+    const stopped = superseded && code === "CANCELLED";
+    await reportStatus(task.id, "failed", `[${code}] ${message}`, runId); // 대체된 실행의 보고는 서버가 거절(409)하고 확장은 보관을 끝낸다
+    await setState({ final: true, outcome: code === "CANCELLED" ? "cancelled" : "failed", stage: "failed", message: stopped ? "웹에서 이 글이 다시 보내졌거나 이 실행이 끝난 것으로 처리되어 입력을 중지했습니다. 네이버 화면의 내용을 확인한 뒤 필요하면 다시 보내주세요." : message });
     await setBadge(code === "CANCELLED" ? "" : "실패", "#dc2626");
   } finally {
+    if (heartbeat) clearInterval(heartbeat);
     try { await adapter.cleanup(); } catch { /* ignore */ }
     currentTask = null;
     await chrome.storage.local.remove(KEY.active);
@@ -162,7 +176,7 @@ async function recoverInterrupted(active) {
     await chrome.storage.local.remove(KEY.active); // 입력은 이미 검증·보고됨
     return;
   }
-  await reportStatus(active.id, "failed", "[EXTENSION_INTERRUPTED] 입력 중 확장이 다시 시작되어 중단했습니다. 네이버 편집기에 일부 입력된 내용이 남아 있을 수 있습니다. 내용을 확인한 뒤 BLOG에서 다시 보내주세요. 자동으로 다시 입력하지 않았습니다.");
+  await reportStatus(active.id, "failed", "[EXTENSION_INTERRUPTED] 입력 중 확장이 다시 시작되어 중단했습니다. 네이버 편집기에 일부 입력된 내용이 남아 있을 수 있습니다. 내용을 확인한 뒤 BLOG에서 다시 보내주세요. 자동으로 다시 입력하지 않았습니다.", active.runId || "");
   await setState({ id: active.id, title: active.title, final: true, outcome: "failed", stage: "failed", message: "입력 중 확장이 다시 시작되어 중단했습니다. 네이버 화면을 확인하고 BLOG에서 다시 보내주세요." });
   await chrome.storage.local.remove(KEY.active);
 }
@@ -196,10 +210,10 @@ async function startManual(postId) {
     if (!list.ok) throw new Error(list.data.error || `보낸 글 조회 실패 (${list.status})`);
     const post = (list.data.posts || []).find((item) => String(item.id) === String(postId));
     if (!post) throw new Error("선택한 글을 찾지 못했습니다. 목록을 새로고침해주세요.");
-    // 직접 시작은 서버에 "입력 중"을 먼저 기록하고(저장 확인), 그 확인이 와야 시작한다.
-    const claimed = await web(`/api/extension/posts/${encodeURIComponent(post.id)}/input-result`, { method: "POST", token: stored[KEY.token], body: { status: "in_progress" } });
-    if (!claimed.ok || claimed.data.success !== true || claimed.data.persisted !== true) throw new Error(claimed.data.error || `입력 시작을 서버에 기록하지 못했습니다 (${claimed.status})`);
-    const task = { id: post.id, title: post.title || "", blocks: post.blocks || [], tags: post.tags || [] };
+    // 직접 시작은 서버에서 새 실행 번호와 임대를 받아야(저장 확인) 시작한다. 살아 있는 다른 실행이 있으면 서버가 거절한다.
+    const claimed = await web(`/api/extension/posts/${encodeURIComponent(post.id)}/start`, { method: "POST", token: stored[KEY.token], body: {} });
+    if (!claimed.ok || claimed.data.success !== true || claimed.data.persisted !== true || !claimed.data.runId) throw new Error(claimed.data.error || `입력 시작을 서버에 기록하지 못했습니다 (${claimed.status})`);
+    const task = { id: post.id, runId: claimed.data.runId, title: post.title || "", blocks: post.blocks || [], tags: post.tags || [] };
     // 작업은 기다리지 않고 백그라운드에서 진행한다(busy는 작업이 끝날 때 해제).
     runTask(task, "manual").catch(recordError).finally(() => { busy = false; });
   } catch (error) { busy = false; throw error; }
@@ -226,7 +240,7 @@ async function reapplySettings() {
       if (settings.category) await adapter.applyCategory(settings.category);
     } finally { await adapter.cleanup(); }
     const last = (stored[KEY.state] || {});
-    if (last.id) await reportStatus(last.id, "publish_ready", "");
+    if (last.id) await reportStatus(last.id, "publish_ready", "", last.runId || "");
     await setState({ final: true, outcome: "publish_ready", stage: "publish_ready", message: "카테고리·태그 입력 완료. 내용을 확인한 뒤 네이버의 마지막 발행 버튼만 직접 누르세요." });
   } finally { busy = false; }
 }

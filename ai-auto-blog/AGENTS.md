@@ -495,3 +495,14 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - **뉴스 지표 표기**(`utils/news/collector.ts`): `signals`는 기사 수·출처 수·키워드 포함 비율로 계산한 **내부 추정값**(SNS 언급량·검색 순위·실제 성과 조회가 아님)임을 타입 주석과 `estimated: true`로 명시, 기사를 못 모았으면 예전처럼 50점을 주지 않고 `hasData:false`·0점·`articleCount:0`. (현재 화면은 이 값을 표시하지 않고 API 응답에만 있다. 화면에 표시할 때는 "추정"이라고 적고 hasData가 false면 "데이터 없음"으로 보여줄 것.)
 - 검사: `npm run test:generation` 7개(글자수 정리·단어 지시 제거·연도 지침·주제 연도 보정·생성기 통합: 프롬프트에 올해/글자 지침이 들어가고 제목·소제목·본문의 과거 연도 보정, 과거 사실 보존, 예전 wordCount 호환) + 기존 `test:extension`(48)·`test:extension-api`(19)·`test:security`(39)·`npm run build`·`tsc --noEmit`. 실제 AI 유료 생성(모델이 새 지침을 얼마나 지키는지, 실제 결과 글자 수)은 아직 시험하지 않았다 — 회원 키로 짧은 생성 1회 후 응답의 `bodyChars`와 `targetChars` 비교 필요.
 - 확장은 코드 변경 없음(manifest·ZIP 버전만 v1.42로 동기화).
+
+## 2026-10-10 v1.43 — 실행 번호·임대 (DB 칸 2개 추가, 주인님 승인)
+
+문제: `taskId`가 글 번호라서, 웹에서 글을 다시 보낸 뒤 늦게 도착한 **옛 실행의 보고**가 새 실행의 상태를 덮어쓸 수 있었고(v1.40의 "이전 상태" 조건으로 대부분 막았지만 같은 상태 이동은 구별 불가), 입력 중 PC가 꺼지면 90분 동안 다시 보내지 못했다.
+
+- **DB(승인 후 MCP로 운영 적용, 파일 `supabase/migrations/20261010200000_blog_extension_run_lease.sql`)**: `blog_posts.naver_run_id uuid`(실행 번호), `blog_posts.naver_lease_expires_at timestamptz`(임대 만료). 기존 행은 둘 다 null(옛 규칙으로 동작). RLS·권한 변경 없음(서버 관리자 클라이언트만 사용).
+- **흐름**: 가져가기(`POST /api/extension/task`) 또는 직접 시작(`POST /api/extension/posts/[id]/start`, 신규)이 서버에서 **새 실행 번호 + 3분 임대**를 만들어 돌려준다 → 확장은 입력하는 동안 45초마다 `POST /api/extension/posts/[id]/heartbeat`(신규)로 임대를 연장 → 모든 결과 보고에 `runId`를 실어 보낸다. 서버는 번호가 지금 실행과 다르면 `409 {superseded:true}`로 거절한다.
+- **규칙**: ① 임대가 살아 있는 입력 중 글은 웹에서 다시 보내기·직접 시작 모두 409(`isRunActive`, `utils/extensionTask.ts`) ② 임대가 끝난 입력 중 글(PC 꺼짐·확장 종료)은 다시 보내거나 직접 시작할 수 있다 — **자동으로 대기로 되돌리지는 않는다**(이미 입력·발행됐을 수 있어 회원이 확인해야 함) ③ 웹에서 다시 보내면 실행 번호·임대를 지워 옛 실행의 보고가 거절되게 한다 ④ 하트비트가 409면 확장은 입력을 중지하고 "웹에서 이 글이 다시 보내졌거나 끝난 것으로 처리되어 중지했습니다"를 보여 준다 ⑤ 입력 완료(`completed`) 직후에는 발행 설정 단계 동안 임대를 이어 가고 `publish_ready`·`failed`에서 비운다 ⑥ **옛 확장(번호 없이 보고)은 예전 규칙으로 계속 동작**(번호 없는 `in_progress` 시작은 실행 번호를 비움).
+- **확장**: `background.js` — `runId`를 활성 작업·보관 결과·재시작 복구 보고에 모두 포함, 하트비트 타이머(실행이 끝나면 해제), 직접 시작은 `/start` 응답(`runId`)이 와야 시작.
+- 검사: `test:extension-api` 32개(번호·임대 생성, 이중 가져가기/시작 1건만, 대체된 실행 보고 409, 임대 연장·종료, 하트비트 소유자·완료·DB 오류, 직접 시작 상태별·살아 있는 실행 거절·만료 후 재시작·경쟁·DB 오류, 다시 보내기 보호·만료 허용·번호 비움, 번호 없는 옛 확장 호환), `test:extension` 50개(하트비트 중 대체 감지 시 입력 중지, 재시작 보고에 번호 포함 추가), `test:security` 39, `test:generation` 7, 빌드.
+- **Codex 참고(네이버 블로그 에이전트에 적용할 때)**: 에이전트의 `nba_posts` 선점(`queued→publishing`)에 같은 칸(`run_id`, `lease_expires_at`)을 추가하면 응답 유실·PC 단절 뒤 "무조건 queued로 되돌리지 않고" 안전하게 복구할 수 있다. 상세 제안은 `docs/SHARED_NAVER_ENGINE_PROPOSAL_2026-10-10.md`.

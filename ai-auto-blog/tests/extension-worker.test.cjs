@@ -35,11 +35,13 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
   const store = { ...storage };
   const listeners = {};
   const requests = [];
+  const intervals = [];
   const ctx = {
     console: { error() {}, log() {} }, Promise, Date, JSON, Math, URL, Uint8Array, ArrayBuffer, Symbol, Intl, Set, Map, Error, String, Number, Array, Object, RegExp, parseInt, isFinite, encodeURIComponent, setTimeout, clearTimeout,
     btoa: (value) => Buffer.from(value, 'binary').toString('base64'),
     AbortSignal: { timeout: () => undefined },
-    setInterval: () => 0,
+    setInterval: (fn) => { intervals.push(fn); return intervals.length; },
+    clearInterval: (id) => { intervals[id - 1] = null; },
     fetch: async (url, init = {}) => {
       const pathName = String(url).replace('https://ai-auto-blog-one.vercel.app', '');
       requests.push({ path: pathName, method: init.method || 'GET', body: init.body ? JSON.parse(init.body) : null });
@@ -71,11 +73,12 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
   ctx.BlogNaverAdapter.createNaverAdapter = () => adapter;
   const send = (message) => new Promise((resolve) => listeners.message(message, {}, resolve));
   const settled = async (predicate, tries = 200) => { for (let i = 0; i < tries; i += 1) { if (predicate()) return true; await new Promise((r) => setTimeout(r, 5)); } return false; };
-  return { store, requests, adapter, send, settled, ctx };
+  const heartbeats = () => intervals.slice(1).filter(Boolean);
+  return { store, requests, adapter, send, settled, ctx, heartbeats };
 }
 
-const task = (extra = {}) => ({ id: 11, title: '제목입니다', handoffAt: 'now', tags: ['태그'], blocks: [{ type: 'text', text: '본문입니다' }, { type: 'image', url: 'https://x/a.png', alt: '' }], ...extra });
-const ack = (req) => ({ status: 200, body: { success: true, persisted: true, status: req.body.status, postId: 11 } });
+const task = (extra = {}) => ({ id: 11, runId: 'run-aaa', title: '제목입니다', handoffAt: 'now', tags: ['태그'], blocks: [{ type: 'text', text: '본문입니다' }, { type: 'image', url: 'https://x/a.png', alt: '' }], ...extra });
+const ack = (req) => (req.path.endsWith('/start') ? { status: 200, body: { success: true, persisted: true, postId: 11, runId: 'run-manual' } } : { status: 200, body: { success: true, persisted: true, status: req.body.status, postId: 11 } });
 const base = { aiAutoBlogToken: 'pat_x', aiAutoBlogBlogId: 'myblog' };
 const resultCalls = (w) => w.requests.filter((r) => r.path.includes('/input-result')).map((r) => r.body.status);
 
@@ -86,6 +89,7 @@ test('auto flow: claims a task, types it, reports completed then publish_ready a
   assert.ok(await w.settled(() => w.store.blogTaskState?.final));
   assert.equal(w.store.blogTaskState.outcome, 'publish_ready');
   assert.deepEqual(resultCalls(w), ['completed', 'publish_ready']);
+  assert.ok(w.requests.filter((r) => r.path.includes('/input-result')).every((r) => r.body.runId === 'run-aaa'), 'every report carries the run id');
   assert.equal(w.store.blogPendingResult, undefined); assert.equal(w.store.blogActiveTask, undefined);
   assert.equal(w.adapter.doc.title, '제목입니다');
 });
@@ -170,7 +174,9 @@ test('manual start records in_progress with a confirmed save before typing; a fa
   const okWorker = loadWorker({ storage: base, routes: { '/api/extension/posts?': () => ({ status: 200, body: { posts } }), '/api/extension/posts': (req) => (req.method === 'GET' ? { status: 200, body: { posts } } : ack(req)), '/api/extension/task': () => ({ status: 200, body: { task: null } }) } });
   assert.equal((await okWorker.send({ type: 'start', postId: 11 })).ok, true);
   assert.ok(await okWorker.settled(() => okWorker.store.blogTaskState?.final));
-  assert.deepEqual(resultCalls(okWorker).slice(0, 2), ['in_progress', 'completed']);
+  assert.ok(okWorker.requests.some((r) => r.path.endsWith('/start')), 'manual start asks the server for a run');
+  assert.deepEqual(resultCalls(okWorker).slice(0, 1), ['completed']);
+  assert.ok(okWorker.requests.filter((r) => r.path.includes('/input-result')).every((r) => r.body.runId === 'run-manual'));
 
   const blocked = loadWorker({ storage: base, routes: { '/api/extension/posts': (req) => (req.method === 'GET' ? { status: 200, body: { posts } } : { status: 409, body: { error: '진행 중' } }) } });
   const response = await blocked.send({ type: 'start', postId: 11 });
@@ -192,4 +198,31 @@ test('a second manual start while one is running is refused', async () => {
 test('cancel when idle is harmless and cancel while running stops the post as failed/cancelled', async () => {
   const w = loadWorker({ storage: base, routes: { '/api/extension/task': () => ({ status: 200, body: { task: null } }) } });
   assert.equal((await w.send({ type: 'cancel' })).idle, true);
+});
+
+test('heartbeat: while typing the worker extends the lease; a superseded answer stops the run and explains it', async () => {
+  let served = false;
+  const w = loadWorker({ storage: base, routes: {
+    '/api/extension/task': () => { if (served) return { status: 200, body: { task: null } }; served = true; return { status: 200, body: { task: task({ tags: [] }) } }; },
+    '/api/extension/posts/': (req) => (req.path.endsWith('/heartbeat') ? { status: 409, body: { superseded: true } } : { status: 409, body: { error: 'superseded' } }),
+  } });
+  let release; const gate = new Promise((resolve) => { release = resolve; });
+  w.adapter.prepareEditor = async () => { await gate; };
+  await w.send({ type: 'pump' });
+  assert.ok(await w.settled(() => w.heartbeats().length === 1), 'a heartbeat timer is running');
+  w.heartbeats()[0]();
+  assert.ok(await w.settled(() => w.requests.some((r) => r.path.endsWith('/heartbeat') && r.body.runId === 'run-aaa')));
+  await new Promise((r) => setTimeout(r, 20));
+  release();
+  assert.ok(await w.settled(() => w.store.blogTaskState?.final));
+  assert.equal(w.store.blogTaskState.outcome, 'cancelled'); assert.match(w.store.blogTaskState.message, /웹에서/);
+  assert.equal(w.heartbeats().length, 0, 'the heartbeat timer is cleared when the run ends');
+  assert.equal(w.adapter.doc.title, '', 'nothing was typed after the lease was lost');
+});
+
+test('a worker restart reports the interruption with the run id', async () => {
+  const w = loadWorker({ storage: { ...base, blogActiveTask: { id: 11, runId: 'run-zzz', title: '제목', stage: 'typing', mode: 'auto' } }, routes: { '/api/extension/task': () => ({ status: 200, body: { task: null } }), '/api/extension/posts/': ack } });
+  await w.send({ type: 'pump' });
+  assert.ok(await w.settled(() => w.store.blogActiveTask === undefined));
+  assert.equal(w.requests.find((r) => r.path.includes('/input-result')).body.runId, 'run-zzz');
 });

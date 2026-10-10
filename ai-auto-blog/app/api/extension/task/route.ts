@@ -1,7 +1,7 @@
 import { verifyExtensionToken } from '@/blog/utils/extensionAuth'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { htmlToInputBlocks } from '@/blog/utils/extensionContent'
-import { autoStartCutoff } from '@/blog/utils/extensionTask'
+import { autoStartCutoff, leaseExpiry, newRunId, LEASE_MS } from '@/blog/utils/extensionTask'
 import { privateJson } from '@/blog/utils/privateResponse'
 
 export const dynamic = 'force-dynamic'
@@ -37,9 +37,10 @@ async function claimTask(request: Request) {
   if (findError) return privateJson({ error: '자동 입력 작업을 확인하지 못했습니다.' }, { status: 503 })
   if (!candidate) return privateJson({ task: null })
 
+  const runId = newRunId()
   const { data: claimed, error: claimError } = await supabase
     .from('blog_posts')
-    .update({ naver_input_status: 'in_progress', naver_input_completed_at: null, naver_input_error: null })
+    .update({ naver_input_status: 'in_progress', naver_input_completed_at: null, naver_input_error: null, naver_run_id: runId, naver_lease_expires_at: leaseExpiry() })
     .eq('id', candidate.id)
     .eq('user_id', user.userId)
     .is('naver_input_status', null)
@@ -53,6 +54,8 @@ async function claimTask(request: Request) {
   return privateJson({
     task: {
       id: claimed.id,
+      runId,
+      leaseSeconds: LEASE_MS / 1000,
       title: claimed.title || '',
       handoffAt: claimed.extension_handoff_at,
       blocks,
