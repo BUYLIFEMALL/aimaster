@@ -126,13 +126,14 @@
       },
 
       // 본인 블로그의 비어 있는 새 글쓰기 화면을 준비한다. 기존 글이 들어 있는 탭은 건드리지 않고 새 탭을 연다.
-      async prepareEditor({ blogId, progress = () => {}, isCancelled = () => false }) {
+      async prepareEditor({ blogId, progress = () => {}, isCancelled = () => false, reuse = true }) {
         state.blogId = blogId;
         state.editorFrame = null;
         state.settingsFrame = null;
         const url = `https://blog.naver.com/${encodeURIComponent(blogId)}/postwrite`;
         let tab = null;
-        const existing = (await chrome.tabs.query({ url: "https://blog.naver.com/*" })).filter((candidate) => ownEditorUrl(candidate.url, blogId));
+        // reuse=false(카테고리 목록 읽기)는 회원의 기존 탭을 건드리지 않고 항상 새 탭에서 한다.
+        const existing = reuse ? (await chrome.tabs.query({ url: "https://blog.naver.com/*" })).filter((candidate) => ownEditorUrl(candidate.url, blogId)) : [];
         for (const candidate of existing) {
           try {
             const inspection = await inspectTab(candidate.id);
@@ -348,12 +349,29 @@
         return Array.isArray(final?.registered) ? final.registered : requested;
       },
 
-      async applyCategory(name) {
+      // 회원의 실제 네이버 카테고리 목록(번호·이름)을 읽는다. 발행 설정창이 열려 있어야 한다. 선택은 하지 않는다.
+      async readCategories() {
         const frameId = state.settingsFrame;
         if (frameId == null) throw new TaskError("SETTINGS_NOT_OPEN", "발행 설정창이 열려 있지 않습니다.");
-        const result = await runInFrame(frameId, "categorySelect", { name });
+        const result = await runInFrame(frameId, "categories");
+        if (!result?.ok) throw new TaskError("CATEGORY_LIST_FAILED", result?.reason || result?.error || "네이버 카테고리 목록을 읽지 못했습니다.");
+        return result.categories;
+      },
+
+      // BLOG에서 고른 카테고리(번호+이름)를 선택한다. 번호와 이름이 실제 목록과 정확히 같을 때만 선택한다.
+      async applyCategory(category) {
+        const frameId = state.settingsFrame;
+        if (frameId == null) throw new TaskError("SETTINGS_NOT_OPEN", "발행 설정창이 열려 있지 않습니다.");
+        const result = await runInFrame(frameId, "categorySelect", { id: category.id, name: category.name });
         if (!result?.ok) throw new TaskError("CATEGORY_FAILED", `${result?.reason || result?.error || "카테고리를 선택하지 못했습니다."}${result?.available?.length ? ` (네이버 카테고리: ${result.available.join(", ")})` : ""}`);
         return { name: result.name, id: result.id };
+      },
+
+      // 카테고리 목록을 읽으려고 우리가 연 탭을 닫는다.
+      async closeTab() {
+        if (state.tabId == null) return;
+        try { await chrome.tabs.remove(state.tabId); } catch { /* 이미 닫힘 */ }
+        state.tabId = null;
       },
 
       async cleanup() { await detachDebugger(); },

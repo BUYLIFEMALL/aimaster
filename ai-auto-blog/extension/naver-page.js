@@ -303,7 +303,7 @@ async function blogEditorCommand(command, args = {}) {
       return { ok: true, inputPresent: Boolean(input), inputValue: input?.value || "", registered };
     }
 
-    if (command === "categorySelect") {
+    if (command === "categories" || command === "categorySelect") {
       const categoryKey = (value) => String(value || "").normalize("NFC").replace(/^[●◆★▶\s]+/u, "").replace(/[\s​﻿]+/gu, "");
       const button = () => find("button[data-click-area='tpb*i.category'], button[aria-label='카테고리 목록 버튼']");
       const info = (element) => {
@@ -320,21 +320,33 @@ async function blogEditorCommand(command, args = {}) {
       if (!trigger) return { ok: false, reason: "발행 설정의 카테고리 선택을 찾지 못했습니다." };
       if (trigger.getAttribute("aria-expanded") !== "true") trigger.click();
       if (!(await waitFor(() => options().length > 0))) return { ok: false, reason: "네이버 카테고리 목록을 읽지 못했습니다." };
-      const wanted = categoryKey(args.name);
       const labels = options();
-      const exact = labels.filter((label) => categoryKey(info(label).name) === wanted);
-      const candidates = exact.length ? exact : labels.filter((label) => categoryKey(info(label).name).includes(wanted));
+      // 회원의 실제 네이버 카테고리 목록(번호·이름)만 읽어 돌려주고 닫는다. 아무것도 선택하지 않는다.
+      if (command === "categories") {
+        const seen = new Set();
+        const categories = labels.map(info).filter((item) => !seen.has(item.id) && seen.add(item.id));
+        trigger.click();
+        return { ok: true, categories };
+      }
+      // 번호(id)로 정확히 하나를 찾고, 이름이 BLOG에서 고른 때와 같을 때만 선택한다(이름이 바뀌었거나 같은 번호가 없으면 선택하지 않고 중지).
+      const wantedId = String(args.id || "");
+      const wantedName = categoryKey(args.name);
+      const candidates = labels.filter((label) => info(label).id === wantedId);
       if (candidates.length !== 1) {
         const names = labels.map((label) => info(label).name).slice(0, 20);
         trigger.click();
-        return { ok: false, reason: candidates.length ? "같은 이름의 카테고리가 여러 개 있습니다. 전체 이름을 입력해주세요." : `등록한 카테고리를 찾지 못했습니다: ${args.name}`, available: names };
+        return { ok: false, reason: `BLOG에서 고른 카테고리를 네이버에서 찾지 못했습니다: ${args.name}. BLOG에서 카테고리 목록을 다시 불러와 고른 뒤 보내 주세요.`, available: names };
       }
       const expected = info(candidates[0]);
+      if (categoryKey(expected.name) !== wantedName) {
+        trigger.click();
+        return { ok: false, reason: `카테고리 이름이 바뀌었습니다(BLOG: ${args.name} → 네이버: ${expected.name}). BLOG에서 카테고리 목록을 다시 불러와 고른 뒤 보내 주세요.` };
+      }
       candidates[0].scrollIntoView({ block: "nearest" });
       candidates[0].click();
       const done = await waitFor(() => {
         const now = info(button());
-        return button()?.getAttribute("aria-expanded") === "false" && now?.id === expected.id;
+        return button()?.getAttribute("aria-expanded") === "false" && now?.id === expected.id && categoryKey(now.name) === categoryKey(expected.name);
       });
       return done ? { ok: true, id: expected.id, name: expected.name } : { ok: false, reason: "카테고리 선택 결과를 확인하지 못했습니다." };
     }

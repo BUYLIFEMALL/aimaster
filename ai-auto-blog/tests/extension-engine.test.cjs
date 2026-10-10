@@ -64,7 +64,7 @@ function fakeEditor(options = {}) {
     async applyImageAi() { calls.push('imageAi'); if (options.aiError) throw new Error('토글 없음'); },
     async openPublishSettings() { calls.push('settings'); if (options.settingsError) throw new TaskError('SETTINGS_NOT_OPEN', '설정창 없음'); },
     async applyTags(tags) { calls.push(`tags:${tags.length}`); },
-    async applyCategory(name) { calls.push(`category:${name}`); },
+    async applyCategory(category) { calls.push(`category:${category.id}:${category.name}`); },
   };
   return { adapter, doc, calls, close() { closed = true; } };
 }
@@ -85,7 +85,7 @@ async function run(editor, overrides = {}) {
     assets: overrides.assets ?? { 1: asset(1) },
     adapter: editor.adapter,
     blogId: 'myblog',
-    settings: overrides.settings ?? { category: '', tags: [] },
+    settings: overrides.settings ?? {},
     progress: (stage, message) => progress.push([stage, message]),
     report: async (status, error) => { reports.push([status, error]); },
     isCancelled: overrides.isCancelled ?? (() => false),
@@ -101,14 +101,14 @@ const rejects = async (promise, code) => {
 
 test('happy path: title, text, image, link in order, verified, ready for manual publish', async () => {
   const editor = fakeEditor();
-  const { result, reports } = await run(editor, { settings: { category: '경제', tags: ['태그1'], imageAi: true } });
+  const { result, reports } = await run(editor, { task: { category: { id: '12', name: '경제' } }, settings: { imageAi: true } });
   assert.equal(result.status, 'publish_ready'); assert.equal(result.settingsApplied, true);
   assert.deepEqual(reports.map((r) => r[0]), ['completed', 'publish_ready']);
   assert.equal(editor.doc.title, '테스트 제목');
   assert.equal(editor.doc.blocks.filter((b) => b.type === 'image').length, 1);
   assert.ok(!editor.calls.some((c) => /publish$|finalPublish/i.test(c)), 'final publish is never clicked');
   assert.ok(editor.calls.indexOf('imageAi') > editor.calls.indexOf('image'));
-  assert.ok(editor.calls.includes('settings') && editor.calls.includes('tags:1') && editor.calls.includes('category:경제'));
+  assert.ok(editor.calls.includes('settings') && editor.calls.includes('tags:2') && editor.calls.includes('category:12:경제'));
 });
 
 test('without category or tags the settings layer is not opened and status stays completed', async () => {
@@ -189,13 +189,13 @@ test('tab closing mid-run stops with TAB_CLOSED', async () => {
 });
 
 test('image AI mark failure is only a warning', async () => {
-  const { result } = await run(fakeEditor({ aiError: true }), { settings: { category: '', tags: [], imageAi: true } });
+  const { result } = await run(fakeEditor({ aiError: true }), { settings: { imageAi: true } });
   assert.ok(result.warnings.some((w) => w.includes('AI 활용')));
 });
 
 test('settings failure keeps typed content as completed and never reports publish_ready', async () => {
   const editor = fakeEditor({ settingsError: true });
-  const { result, reports } = await run(editor, { settings: { category: '경제', tags: [] } });
+  const { result, reports } = await run(editor, { task: { category: { id: '12', name: '경제' }, tags: [] }, settings: {} });
   assert.equal(result.status, 'completed'); assert.ok(result.settingsError);
   assert.deepEqual(reports.map((r) => r[0]), ['completed']);
 });
@@ -291,12 +291,21 @@ test('image AI mark is off by default and only applied when the member turned it
   await run(off);
   assert.ok(!off.calls.includes('imageAi'), 'default: the AI mark is not touched');
   const explicitOff = fakeEditor();
-  await run(explicitOff, { settings: { category: '', tags: [], imageAi: false } });
+  await run(explicitOff, { settings: { imageAi: false } });
   assert.ok(!explicitOff.calls.includes('imageAi'));
   const on = fakeEditor();
-  await run(on, { settings: { category: '', tags: [], imageAi: true } });
+  await run(on, { settings: { imageAi: true } });
   assert.ok(on.calls.includes('imageAi'));
   const noImages = fakeEditor();
-  await run(noImages, { settings: { category: '', tags: [], imageAi: true }, assets: {} });
+  await run(noImages, { settings: { imageAi: true }, assets: {} });
   assert.ok(!noImages.calls.includes('imageAi'), 'nothing to mark when no image was placed');
+});
+
+test('category and tags come only from the task: a malformed category is ignored, the saved settings never override', async () => {
+  const bad = fakeEditor();
+  const { result } = await run(bad, { task: { category: { id: 'x', name: '경제' }, tags: [] }, settings: { category: '다른', tags: ['설정태그'] } });
+  assert.equal(result.status, 'completed'); assert.ok(!bad.calls.includes('settings'), 'nothing to apply: the settings layer stays closed');
+  const both = fakeEditor();
+  await run(both, { task: { category: { id: '3', name: '일상' }, tags: ['a', 'b', 'c'] }, settings: { category: '무시', tags: ['무시'] } });
+  assert.ok(both.calls.includes('category:3:일상') && both.calls.includes('tags:3'));
 });

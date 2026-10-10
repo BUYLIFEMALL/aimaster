@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
+import NaverCategoryPicker from '@/blog/components/NaverCategoryPicker'
+import type { NaverCategory } from '@/blog/utils/naverCategory'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -124,6 +126,8 @@ export default function PostDetailPage() {
   const [compressing, setCompressing] = useState(false)
   // 네이버 입력기로 보내기(BLOG 크롬 확장 목록에 올리기, 2026-10-01)
   const [handoffState, setHandoffState] = useState<'idle' | 'sending' | 'sent'>('idle')
+  // 네이버 카테고리(v1.57): 확장이 읽어 온 내 네이버 카테고리 중 고른 것. 글과 함께 확장으로 보낸다.
+  const [naverCategory, setNaverCategory] = useState<NaverCategory | null>(null)
 
   // 고화질 이미지 라이트박스 팝업 상태
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -485,12 +489,13 @@ export default function PostDetailPage() {
                 >
                   {compressing ? '⏳ 이미지 750KB 압축 중...' : copied ? '✓ 본문 & 이미지 복사 완료! (Ctrl+V로 붙여넣으세요)' : '📋 본문 복사하기'}
                 </button>
+                <NaverCategoryPicker value={naverCategory} onChange={setNaverCategory} disabled={handoffState === 'sending'} />
                 <button
                   disabled={handoffState === 'sending'}
                   onClick={async () => {
                     setHandoffState('sending')
                     try {
-                      const res = await fetch(`/api/posts/${post.id}/extension-handoff`, { method: 'POST' })
+                      const res = await fetch(`/api/posts/${post.id}/extension-handoff`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category: naverCategory }) })
                       const json = await res.json().catch(() => ({}))
                       if (!res.ok) throw new Error(json.error || '네이버 입력기로 보내기에 실패했습니다.')
                       setHandoffState('sent')

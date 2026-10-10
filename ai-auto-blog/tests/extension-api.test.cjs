@@ -60,12 +60,14 @@ function harness(route, { user = { userId: 'member-a', email: 'a@test', name: 'A
     throw Error(`Unexpected import: ${name}`);
   });
   const taskModule = loadTs('utils/extensionTask.ts', () => { throw Error('no imports expected'); });
+  const categoryModule = loadTs('utils/naverCategory.ts', () => { throw Error('no imports expected'); });
   const mockRequire = (name) => {
     if (name === 'next/server') return { NextResponse: { json: (body, init) => Response.json(body, init) } };
     if (name.endsWith('/extensionAuth')) return { verifyExtensionToken: async () => user };
     if (name.endsWith('/supabase/admin')) return { createAdminClient: () => client };
     if (name.endsWith('/extensionContent')) return { htmlToInputBlocks: (html) => ({ blocks: [{ type: 'text', text: String(html) }], tags: ['태그'] }) };
     if (name.endsWith('/extensionTask')) return taskModule;
+    if (name.endsWith('/naverCategory')) return categoryModule;
     if (name.endsWith('/utils/version')) return { APP_VERSION: 'v0.00' };
     if (name.endsWith('/privateResponse')) return privateModule;
     if (name.endsWith('/access')) return { checkProgramAccessApi: async () => (access.allowed ? { allowed: true, user: { id: 'member-a' } } : access) };
@@ -78,6 +80,7 @@ const taskRoute = 'app/api/extension/task/route.ts';
 const resultRoute = 'app/api/extension/posts/[id]/input-result/route.ts';
 const handoffRoute = 'app/api/posts/[id]/extension-handoff/route.ts';
 const heartbeatRoute = 'app/api/extension/posts/[id]/heartbeat/route.ts';
+const categoryDefaultRoute = 'app/api/posts/naver-category-default/route.ts';
 const startRoute = 'app/api/extension/posts/[id]/start/route.ts';
 const RUN_A = '11111111-1111-4111-8111-111111111111';
 const RUN_B = '22222222-2222-4222-8222-222222222222';
@@ -350,4 +353,42 @@ test('verifyExtensionToken reads is_admin from the profile and treats anything b
   const request = new Request('https://test.invalid', { headers: { authorization: 'Bearer pat_x' } });
   assert.equal((await load('u1').verifyExtensionToken(request)).isAdmin, true);
   assert.equal((await load('u2').verifyExtensionToken(request)).isAdmin, false);
+});
+
+// ---------- 네이버 카테고리(v1.57) ----------
+const jsonReq = (body) => new Request('https://test.invalid', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+test('handoff: the chosen Naver category is saved with the post, null clears it, and a send without it keeps the old choice', async () => {
+  const h = harness(handoffRoute, { posts: [post()] });
+  assert.equal((await h.handlers.POST(jsonReq({ category: { id: '12', name: '경제 이야기' } }), ctx(1))).status, 200);
+  assert.deepEqual(JSON.parse(JSON.stringify(h.rows.blog_posts[0].naver_category)), { id: '12', name: '경제 이야기' });
+  assert.equal((await h.handlers.POST(req(), ctx(1))).status, 200);
+  assert.deepEqual(JSON.parse(JSON.stringify(h.rows.blog_posts[0].naver_category)), { id: '12', name: '경제 이야기' }, 'no category key keeps the choice');
+  assert.equal((await h.handlers.POST(jsonReq({ category: null }), ctx(1))).status, 200);
+  assert.equal(h.rows.blog_posts[0].naver_category, null);
+});
+test('handoff: an invalid category is refused before anything is written', async () => {
+  for (const category of ['경제', { id: 'abc', name: 'x' }, { id: '12', name: '' }, { id: '12', name: 'x'.repeat(121) }, { id: '1234567890123', name: 'x' }]) {
+    const h = harness(handoffRoute, { posts: [post()] });
+    const r = await h.handlers.POST(jsonReq({ category }), ctx(1));
+    assert.equal(r.status, 400); assert.equal(h.calls.writes.length, 0);
+  }
+});
+test('task: the claimed task carries the chosen category (null when none)', async () => {
+  const withCategory = harness(taskRoute, { posts: [post({ naver_category: { id: '7', name: '일상' } })] });
+  assert.deepEqual(JSON.parse(JSON.stringify((await (await withCategory.handlers.POST(req())).json()).task.category)), { id: '7', name: '일상' });
+  const none = harness(taskRoute, { posts: [post()] });
+  assert.equal((await (await none.handlers.POST(req())).json()).task.category, null);
+  const broken = harness(taskRoute, { posts: [post({ naver_category: { id: 'x' } })] });
+  assert.equal((await (await broken.handlers.POST(req())).json()).task.category, null, 'a damaged stored value is treated as no category');
+});
+test('category default: the most recently sent post with a category, own posts only, access required', async () => {
+  const h = harness(categoryDefaultRoute, { posts: [
+    post({ id: 1, extension_handoff_at: iso(50 * MINUTE), naver_category: { id: '1', name: '옛 카테고리' } }),
+    post({ id: 2, extension_handoff_at: iso(5 * MINUTE), naver_category: { id: '2', name: '최근 카테고리' } }),
+    post({ id: 3, extension_handoff_at: iso(1 * MINUTE), naver_category: null }),
+    post({ id: 4, user_id: 'member-b', extension_handoff_at: iso(1 * MINUTE), naver_category: { id: '9', name: '남의 카테고리' } }),
+  ] });
+  assert.deepEqual(JSON.parse(JSON.stringify((await (await h.handlers.GET()).json()).category)), { id: '2', name: '최근 카테고리' });
+  const denied = harness(categoryDefaultRoute, { posts: [post()], access: { allowed: false, status: 403, error: 'Denied' } });
+  assert.equal((await denied.handlers.GET()).status, 403); assert.equal(denied.calls.reads, 0);
 });

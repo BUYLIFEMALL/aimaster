@@ -15,7 +15,7 @@ function makeAdapter(options = {}) {
     state: { tabId: 77 }, calls, doc,
     ownEditorUrl: () => true,
     async ensureAlive() {},
-    async prepareEditor() { calls.push('prepare'); if (options.prepareError) throw options.prepareError; },
+    async prepareEditor(args) { calls.push('prepare'); adapter.prepareArgs = args; if (options.prepareError) throw options.prepareError; },
     async snapshot() { return JSON.parse(JSON.stringify(doc)); },
     async focusTitle() { cursor = 'title'; }, async focusBody() { cursor = 'body'; },
     async typeText(text, { onProgress }) {
@@ -26,6 +26,8 @@ function makeAdapter(options = {}) {
     async pasteLink(label) { doc.blocks.push({ type: 'paragraph', text: label }); return { linked: true, inserted: true }; },
     async uploadImage() { doc.blocks.push({ type: 'image', text: '' }); },
     async applyImageAi() {}, async openPublishSettings() { calls.push('settings'); }, async applyTags() { calls.push('tags'); }, async applyCategory() { calls.push('category'); },
+    async readCategories() { calls.push('readCategories'); if (options.categoriesError) throw options.categoriesError; return [{ id: '12', name: '경제 이야기' }]; },
+    async closeTab() { calls.push('closeTab'); },
     async cleanup() {},
   };
   return adapter;
@@ -74,7 +76,7 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
   // background.js는 로드 시 importScripts → 실제 adapter 팩토리를 가짜로 교체해야 하므로 로드 후 교체한다.
   vm.runInContext(fs.readFileSync(path.join(extensionDir, 'background.js'), 'utf8'), ctx, { filename: 'background.js' });
   ctx.BlogNaverAdapter.createNaverAdapter = () => adapter;
-  const send = (message) => new Promise((resolve) => listeners.message(message, {}, resolve));
+  const send = (message, sender = {}) => new Promise((resolve) => listeners.message(message, sender, resolve));
   const settled = async (predicate, tries = 200) => { for (let i = 0; i < tries; i += 1) { if (predicate()) return true; await new Promise((r) => setTimeout(r, 5)); } return false; };
   const heartbeats = () => intervals.slice(1).filter(Boolean);
   return { store, requests, adapter, send, settled, ctx, heartbeats, events, click: (id) => listeners.notificationClick(id) };
@@ -264,4 +266,40 @@ test('the worker passes the saved AI-mark choice to the run (default off)', asyn
   const on = make({ ...base, aiAutoBlogImageAi: true });
   await on.send({ type: 'pump' }); assert.ok(await on.settled(() => on.store.blogTaskState?.final));
   assert.equal(calls.length, 1);
+});
+
+// ---- 네이버 카테고리 목록 읽기(v1.57): BLOG 화면 요청만, 새 탭에서 읽고 닫는다 ----
+const blogSender = { url: 'https://ai-auto-blog-one.vercel.app/posts/1', tab: { id: 31, windowId: 4 } };
+test('categories: a BLOG page request reads the list in a fresh tab, closes it and returns to the BLOG tab', async () => {
+  const w = loadWorker({ storage: base });
+  const response = await w.send({ type: 'categories' }, blogSender);
+  assert.deepEqual(JSON.parse(JSON.stringify(response)), { blogId: 'myblog', categories: [{ id: '12', name: '경제 이야기' }] });
+  assert.deepEqual(w.adapter.calls, ['prepare', 'settings', 'readCategories', 'closeTab']);
+  assert.equal(w.adapter.prepareArgs.reuse, false, 'never borrows the member editor tab');
+  assert.ok(w.events.tabUpdates.some(([id, props]) => id === 31 && props.active === true), 'focus returns to the BLOG tab');
+  assert.equal(w.adapter.doc.title, '', 'nothing is typed or selected');
+});
+test('categories: requests that do not come from the BLOG site are refused and nothing opens', async () => {
+  const w = loadWorker({ storage: base });
+  for (const sender of [{}, { url: 'chrome-extension://abc/sidepanel.html' }, { url: 'https://evil.example/https://ai-auto-blog-one.vercel.app/' }, { url: 'https://ai-auto-blog-one.vercel.app.evil.example/' }]) {
+    assert.match((await w.send({ type: 'categories' }, sender)).error, /허용되지 않은/);
+  }
+  assert.deepEqual(w.adapter.calls, []);
+});
+test('categories: refused without a token or blog id, and while an input task is running; the tab is closed even when reading fails', async () => {
+  const noBlog = loadWorker({ storage: { aiAutoBlogToken: 'pat_x' } });
+  assert.match((await noBlog.send({ type: 'categories' }, blogSender)).error, /블로그 ID/); assert.ok(!noBlog.adapter.calls.includes('prepare'), 'no tab is opened');
+  const noToken = loadWorker({ storage: { aiAutoBlogBlogId: 'myblog' } });
+  assert.match((await noToken.send({ type: 'categories' }, blogSender)).error, /연동 토큰/);
+  const failing = loadWorker({ storage: base, adapterOptions: { categoriesError: new Error('목록 없음') } });
+  assert.match((await failing.send({ type: 'categories' }, blogSender)).error, /목록 없음/);
+  assert.ok(failing.adapter.calls.includes('closeTab'), 'the tab we opened is closed after a failure');
+  const w = loadWorker({ storage: base, routes: { '/api/extension/task': () => ({ status: 200, body: { task: task({ tags: [] }) } }), '/api/extension/posts/': ack } });
+  let release; const gate = new Promise((resolve) => { release = resolve; });
+  w.adapter.prepareEditor = async () => { await gate; };
+  await w.send({ type: 'pump' });
+  assert.ok(await w.settled(() => w.store.blogActiveTask));
+  assert.match((await w.send({ type: 'categories' }, blogSender)).error, /작업이 끝난 뒤/);
+  release();
+  assert.ok(await w.settled(() => w.store.blogTaskState?.final));
 });

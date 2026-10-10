@@ -3,6 +3,7 @@ import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { htmlToInputBlocks } from '@/blog/utils/extensionContent'
 import { autoStartCutoff, leaseExpiry, newRunId, LEASE_MS } from '@/blog/utils/extensionTask'
 import { privateJson } from '@/blog/utils/privateResponse'
+import { readNaverCategory } from '@/blog/utils/naverCategory'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -45,7 +46,7 @@ async function claimTask(request: Request) {
     .eq('user_id', user.userId)
     .is('naver_input_status', null)
     .gte('extension_handoff_at', cutoff)
-    .select('id, title, content, extension_handoff_at')
+    .select('id, title, content, extension_handoff_at, naver_category')
     .maybeSingle()
   if (claimError) return privateJson({ error: '자동 입력 작업을 가져가지 못했습니다.' }, { status: 503 })
   if (!claimed) return privateJson({ task: null }) // 다른 확장이 먼저 가져감
@@ -60,6 +61,7 @@ async function claimTask(request: Request) {
       handoffAt: claimed.extension_handoff_at,
       blocks,
       tags,
+      category: readNaverCategory(claimed.naver_category), // 회원이 BLOG에서 고른 네이버 카테고리(없으면 null — 지정 안 함)
     },
   })
 }

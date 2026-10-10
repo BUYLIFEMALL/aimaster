@@ -54,6 +54,8 @@ import {
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
+import NaverCategoryPicker from '@/blog/components/NaverCategoryPicker'
+import type { NaverCategory } from '@/blog/utils/naverCategory'
 
 interface CategoryOption {
   id: number
@@ -216,6 +218,8 @@ function AiFormPageInner() {
   // 네이버 크롬 확장 연동 상태
   const [handoffStatus, setHandoffStatus] = useState<string | null>(null)
   const [handoffLoading, setHandoffLoading] = useState(false)
+  // 네이버 카테고리(v1.57): 확장이 읽어 온 내 네이버 카테고리 중 고른 것. 글과 함께 확장으로 보낸다.
+  const [naverCategory, setNaverCategory] = useState<NaverCategory | null>(null)
 
   // 이미지 모달 뷰어 상태
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null)
@@ -562,6 +566,8 @@ function AiFormPageInner() {
       setHandoffStatus('네이버 입력기 크롬 확장에 등록 중...')
       const res = await fetch(`/api/posts/${savedPostId}/extension-handoff`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: naverCategory }),
       })
       const data = await res.json()
       if (!res.ok || !data.ok) {
@@ -1096,6 +1102,11 @@ function AiFormPageInner() {
                   새 글 작성
                 </button>
               </div>
+            </div>
+
+            {/* 네이버 카테고리 선택(확장이 내 네이버 카테고리 목록을 읽어 준다) */}
+            <div className="p-3 bg-white rounded-2xl border border-slate-200">
+              <NaverCategoryPicker value={naverCategory} onChange={setNaverCategory} disabled={handoffLoading} />
             </div>
 
             {/* 네이버 스마트에디터 확장 전송 알림 바 */}

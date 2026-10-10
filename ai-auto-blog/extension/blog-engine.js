@@ -184,10 +184,12 @@
     await report("completed", "");
 
     // ---- 6. 발행 설정(카테고리·태그). 마지막 발행 버튼은 누르지 않는다 ----
-    const category = String(settings.category || "").trim();
-    const tags = (Array.isArray(settings.tags) && settings.tags.length ? settings.tags : Array.isArray(task.tags) ? task.tags : []).slice(0, 30);
+    // 카테고리·태그는 BLOG에서 완성해 글과 함께 보낸 값만 쓴다(카테고리: 회원이 고른 실제 네이버 카테고리 번호+이름, 태그: 글의 해시태그).
+    const rawCategory = task.category;
+    const category = rawCategory && /^\d{1,12}$/.test(String(rawCategory.id)) && String(rawCategory.name || "").trim() ? { id: String(rawCategory.id), name: String(rawCategory.name).trim() } : null;
+    const tags = (Array.isArray(task.tags) ? task.tags : []).slice(0, 30);
     if (!category && !tags.length) {
-      return { ...summary, status: "completed", settingsApplied: false, message: "제목·본문·이미지 입력을 끝냈습니다. 카테고리·태그를 정하지 않아 발행 설정창은 열지 않았습니다. 내용을 확인하고 네이버에서 직접 발행하세요." };
+      return { ...summary, status: "completed", settingsApplied: false, message: "제목·본문·이미지 입력을 끝냈습니다. 보낸 글에 카테고리·태그가 없어 발행 설정창은 열지 않았습니다. 내용을 확인하고 네이버에서 직접 발행하세요." };
     }
     try {
       await checkpoint();
@@ -196,11 +198,11 @@
       if (tags.length) await adapter.applyTags(tags, { shouldStop: isCancelled });
       if (category) await adapter.applyCategory(category);
       await report("publish_ready", "");
-      return { ...summary, status: "publish_ready", settingsApplied: true, tagCount: tags.length, category, message: "발행 직전 준비가 끝났습니다. 내용을 확인한 뒤 네이버의 마지막 발행 버튼만 직접 누르세요." };
+      return { ...summary, status: "publish_ready", settingsApplied: true, tagCount: tags.length, category: category ? category.name : "", message: "발행 직전 준비가 끝났습니다. 내용을 확인한 뒤 네이버의 마지막 발행 버튼만 직접 누르세요." };
     } catch (error) {
       if (error instanceof TaskError && error.code === "CANCELLED") throw error;
       warnings.push(`카테고리·태그 자동 입력에 실패했습니다: ${error.message || error}`);
-      return { ...summary, status: "completed", settingsApplied: false, settingsError: String(error.message || error), message: "제목·본문·이미지 입력은 끝났지만 카테고리·태그 자동 입력에 실패했습니다. 사이드패널의 '카테고리·태그 다시 입력'을 쓰거나 네이버에서 직접 입력하세요." };
+      return { ...summary, status: "completed", settingsApplied: false, settingsError: String(error.message || error), message: "제목·본문·이미지 입력은 끝났지만 카테고리·태그 자동 입력에 실패했습니다. 네이버에서 직접 입력하거나 BLOG에서 카테고리를 확인해 다시 보내주세요." };
     }
   }
 

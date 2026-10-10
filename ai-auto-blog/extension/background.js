@@ -101,7 +101,7 @@ async function loadAsset(block, index) {
 async function loadSettings() {
   const all = await get([KEY.settings, KEY.imageAi]);
   const stored = all[KEY.settings] || {};
-  return { category: String(stored.category || "").trim(), tags: [], imageAi: all[KEY.imageAi] === true };
+  return { imageAi: all[KEY.imageAi] === true };
 }
 
 async function setBadge(text, color) {
@@ -221,32 +221,36 @@ async function pump() {
 }
 
 // ---- 사이드패널 메시지 ----
-// 이미 입력이 끝난 글의 발행 설정(카테고리·태그)만 다시 입력
-async function reapplySettings() {
-  if (busy || currentTask !== null) throw new Error("입력 작업이 진행 중입니다. 끝난 뒤 다시 시도해주세요.");
+// BLOG 화면이 요청하면 회원의 실제 네이버 카테고리 목록을 읽어 돌려준다(BLOG에서 글마다 카테고리를 고르기 위함).
+// 새 탭에서 발행 설정창만 열어 읽고 닫는다 — 아무것도 선택·발행하지 않으며, 회원이 쓰던 탭은 건드리지 않는다.
+async function readCategories(sender) {
+  if (busy || currentTask !== null) throw new Error("확장 입력 작업이 끝난 뒤 카테고리를 불러와 주세요.");
   busy = true;
+  const adapter = self.BlogNaverAdapter.createNaverAdapter({ chrome, pageFn: self.blogEditorCommand, TaskError, sleep, loginWaitMs: 90000 });
   try {
-    const stored = await get([KEY.blogId, KEY.state]);
+    const stored = await get([KEY.token, KEY.blogId, KEY.active]);
+    if (!stored[KEY.token]) throw new Error("먼저 확장 프로그램을 BLOG 연동 토큰으로 연결해 주세요.");
     const blogId = String(stored[KEY.blogId] || "").trim();
-    if (!blogId) throw new Error("내 네이버 블로그 ID를 먼저 저장해주세요.");
-    const settings = await loadSettings();
-    if (!settings.category) throw new Error("카테고리를 먼저 입력해주세요.");
-    const adapter = self.BlogNaverAdapter.createNaverAdapter({ chrome, pageFn: self.blogEditorCommand, TaskError, sleep });
-    adapter.state.blogId = blogId;
-    const tabs = (await chrome.tabs.query({ url: "https://blog.naver.com/*" })).filter((tab) => adapter.ownEditorUrl(tab.url, blogId));
-    if (tabs.length !== 1) throw new Error(tabs.length ? "내 블로그 글쓰기 탭이 여러 개 열려 있습니다. 하나만 남기고 다시 시도해주세요." : "내 블로그 글쓰기 탭을 찾지 못했습니다.");
-    adapter.state.tabId = tabs[0].id;
-    try {
-      await adapter.openPublishSettings();
-      if (settings.category) await adapter.applyCategory(settings.category);
-    } finally { await adapter.cleanup(); }
-    const last = (stored[KEY.state] || {});
-    if (last.id) await reportStatus(last.id, "publish_ready", "", last.runId || "");
-    await setState({ final: true, outcome: "publish_ready", stage: "publish_ready", message: "카테고리·태그 입력 완료. 내용을 확인한 뒤 네이버의 마지막 발행 버튼만 직접 누르세요." });
-  } finally { busy = false; }
+    if (!blogId) throw new Error("확장 프로그램 사이드패널에서 내 네이버 블로그 ID를 먼저 저장해 주세요.");
+    if (stored[KEY.active]) throw new Error("이전 작업 정리가 끝나지 않았습니다. 잠시 후 다시 불러와 주세요.");
+    await adapter.prepareEditor({ blogId, reuse: false });
+    await adapter.openPublishSettings();
+    const categories = await adapter.readCategories();
+    return { blogId, categories };
+  } catch (error) {
+    throw new Error(error instanceof TaskError ? error.message : self.BlogCore.formatBrowserError(error, "네이버 카테고리 읽기"));
+  } finally {
+    try { await adapter.cleanup(); } catch { /* ignore */ }
+    try { await adapter.closeTab(); } catch { /* ignore */ }
+    // 목록을 요청한 BLOG 화면으로 돌아간다(닫혔으면 무시).
+    if (sender?.tab?.id != null) {
+      try { await chrome.tabs.update(sender.tab.id, { active: true }); if (sender.tab.windowId != null) await chrome.windows.update(sender.tab.windowId, { focused: true }); } catch { /* ignore */ }
+    }
+    busy = false;
+  }
 }
 
-chrome.runtime.onMessage.addListener((message, _sender, reply) => {
+chrome.runtime.onMessage.addListener((message, sender, reply) => {
   (async () => {
     if (message.type === "status") {
       const stored = await get([KEY.active, KEY.pending, KEY.state]);
@@ -254,7 +258,11 @@ chrome.runtime.onMessage.addListener((message, _sender, reply) => {
       return { active: stored[KEY.active] || null, pending: stored[KEY.pending] || null, state: stored[KEY.state] || null, running: currentTask !== null };
     }
     if (message.type === "cancel") { if (currentTask === null) return { ok: true, idle: true }; cancelRequested = true; return { ok: true }; }
-    if (message.type === "reapplySettings") { await reapplySettings(); return { ok: true }; }
+    // 카테고리 목록은 BLOG 사이트 화면(web-bridge.js)에서 온 요청만 받는다. 사이드패널·다른 사이트 요청은 거절.
+    if (message.type === "categories") {
+      if (!String(sender?.url || "").startsWith("https://ai-auto-blog-one.vercel.app/")) throw new Error("허용되지 않은 요청입니다.");
+      return await readCategories(sender);
+    }
     if (message.type === "ackBadge") { await setBadge("", "#000000"); return { ok: true }; }
     if (message.type === "pump") { run(pump); return { ok: true }; }
     throw new Error("지원하지 않는 요청");

@@ -2,7 +2,7 @@
 
 // BLOG(원문)생성 자동화 → 네이버 블로그 입력 확장 사이드패널(v1.41 개편, 2026-10-10).
 // 실제 입력은 작업기(background.js)가 한다 — 이 패널은 연결·블로그 ID 설정, 진행 상태 표시와 중지,
-// 카테고리 설정, 구조 분석만 맡는다. 패널을 닫아도 작업은 계속된다.
+// 구조 분석(관리자)만 맡는다. 카테고리·태그는 BLOG에서 정해 글과 함께 보낸다. 패널을 닫아도 작업은 계속된다.
 // 웹에서 "네이버 입력기로 보내기"를 누르면 작업기가 30분 안에 자동으로 가져가 발행 직전까지 입력한다(마지막 발행은 회원이 직접).
 
 const BASE = "https://ai-auto-blog-one.vercel.app";
@@ -10,7 +10,6 @@ const KEY = "aiAutoBlogToken";
 const BLOG_ID_KEY = "aiAutoBlogBlogId";
 const NOTIFY_KEY = "aiAutoBlogNotify";
 const IMAGE_AI_KEY = "aiAutoBlogImageAi";
-const PUBLISH_SETTINGS_KEY = "aiAutoBlogPublishSettings";
 const TASK_STATE_KEY = "blogTaskState";
 const $ = (id) => document.getElementById(id);
 const Core = self.BlogCore;
@@ -126,24 +125,6 @@ $("link").addEventListener("click", async () => {
   if (result.ok) chrome.runtime.sendMessage({ type: "pump" }).catch(() => {});
 });
 
-// ---- 카테고리 ----
-$("savePublishSettings").addEventListener("click", async () => {
-  await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: { category: $("publishCategory").value.trim(), tags: "" } });
-  $("publishStatus").textContent = "카테고리를 저장했습니다. 다음 자동 입력부터 적용됩니다.";
-});
-
-$("fillPublishInfo").addEventListener("click", async () => {
-  $("fillPublishInfo").disabled = true;
-  $("publishStatus").textContent = "네이버 설정창에 카테고리를 입력하는 중...";
-  try {
-    await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: { category: $("publishCategory").value.trim(), tags: "" } });
-    const response = await chrome.runtime.sendMessage({ type: "reapplySettings" });
-    $("publishStatus").textContent = response?.error ? Core.formatBrowserError(new Error(response.error), "카테고리 입력") : "카테고리 입력 완료. 내용을 확인한 뒤 네이버의 마지막 발행 버튼을 직접 누르세요.";
-  } catch (error) {
-    $("publishStatus").textContent = Core.formatBrowserError(error, "카테고리 입력");
-  } finally { $("fillPublishInfo").disabled = false; }
-});
-
 // ---- 구조 분석(오류 보고용) ----
 async function findNaverTab() {
   const tabs = await chrome.tabs.query({ url: ["https://blog.naver.com/*", "https://m.blog.naver.com/*"] });
@@ -180,11 +161,6 @@ $("inspect").addEventListener("click", async () => {
     $("inspectStatus").textContent = Core.formatBrowserError(error, "구조 분석");
   } finally { $("inspect").disabled = false; }
 });
-
-chrome.storage.local.get(PUBLISH_SETTINGS_KEY).then((stored) => {
-  const settings = stored[PUBLISH_SETTINGS_KEY] || {};
-  $("publishCategory").value = settings.category || "";
-}).catch(() => {});
 
 // 작업 상태가 바뀌면 진행 상태 카드를 갱신한다.
 chrome.storage.onChanged.addListener((changes, area) => {

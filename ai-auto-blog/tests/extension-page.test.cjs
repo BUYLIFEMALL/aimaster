@@ -103,3 +103,37 @@ test('an empty body paragraph that shows the placeholder text is empty, not "has
   const result = await sandbox.blogEditorCommand('focus', { kind: 'body' });
   assert.equal(result.ok, true, JSON.stringify(result)); assert.ok(events.includes('mousedown'));
 });
+
+// ---- 네이버 카테고리(v1.57): 목록 읽기와 번호로 선택 ----
+function categoryRun(command, args, names) {
+  let expanded = false; let selected = null;
+  const items = new Map(names.map(([id, name]) => [id, { getAttribute: (key) => (key === 'data-testid' ? `categoryItemText_${id}` : null), cloneNode: () => ({ querySelectorAll: () => [], textContent: name }), matches: () => true }]));
+  const labels = names.map(([id]) => ({ htmlFor: `cat${id}`, matches: () => false, querySelector: () => items.get(id), scrollIntoView() {}, click() { selected = id; expanded = false; } }));
+  const trigger = {
+    getClientRects: () => [{}], matches: () => false, getAttribute: (key) => (key === 'aria-expanded' ? String(expanded) : null), click() { expanded = !expanded; },
+    parentElement: { querySelector: () => ({ querySelectorAll: () => (expanded ? labels : []) }) }, querySelector: () => (selected ? items.get(selected) : null),
+  };
+  const document = { querySelectorAll: (selector) => (/tpb\*i\.category/.test(selector) ? [trigger] : []), getElementById: () => ({ disabled: false }), body: { innerText: '' }, activeElement: null };
+  const sandbox = { window: {}, document, getComputedStyle: () => ({ visibility: 'visible' }), location: { href: 'https://blog.naver.com/myblog/postwrite', hostname: 'blog.naver.com' }, URL, Promise, setTimeout, Math, String, Array, Object, Set, Boolean, console, module: undefined, MouseEvent: class {}, Node: { DOCUMENT_POSITION_FOLLOWING: 4 } };
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.resolve(__dirname, '..', 'extension/naver-page.js'), 'utf8'), sandbox);
+  return sandbox.blogEditorCommand(command, args).then((result) => ({ result, selected, expanded }));
+}
+const NAVER_CATEGORIES = [['1', '전체보기'], ['12', '경제 이야기'], ['15', '일상'], ['12', '경제 이야기']];
+
+test('categories reads the real list (id + name, no duplicates), selects nothing and closes the list', async () => {
+  const { result, selected, expanded } = await categoryRun('categories', {}, NAVER_CATEGORIES);
+  assert.equal(result.ok, true); assert.deepEqual(JSON.parse(JSON.stringify(result.categories)), [{ id: '1', name: '전체보기' }, { id: '12', name: '경제 이야기' }, { id: '15', name: '일상' }]);
+  assert.equal(selected, null); assert.equal(expanded, false);
+});
+
+test('categorySelect picks by id and only when the name still matches', async () => {
+  const ok = await categoryRun('categorySelect', { id: '15', name: '일상' }, NAVER_CATEGORIES);
+  assert.equal(ok.result.ok, true); assert.equal(ok.selected, '15');
+  const renamed = await categoryRun('categorySelect', { id: '15', name: '옛 이름' }, NAVER_CATEGORIES);
+  assert.equal(renamed.result.ok, false); assert.match(renamed.result.reason, /이름이 바뀌었습니다/); assert.equal(renamed.selected, null);
+  const missing = await categoryRun('categorySelect', { id: '99', name: '없음' }, NAVER_CATEGORIES);
+  assert.equal(missing.result.ok, false); assert.match(missing.result.reason, /찾지 못했습니다/); assert.ok(missing.result.available.includes('일상')); assert.equal(missing.selected, null);
+  const sameName = await categoryRun('categorySelect', { id: '99', name: '일상' }, [['15', '일상'], ['16', '일상']]);
+  assert.equal(sameName.result.ok, false, 'a name alone never selects a category: the id must exist');
+});

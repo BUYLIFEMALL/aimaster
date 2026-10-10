@@ -6,7 +6,7 @@ const { TaskError } = require('../extension/blog-engine.js');
 // 실제 adapter를 가짜 chrome(탭·프레임·디버거)에 연결해 "어느 프레임에서, 몇 번, 어떤 순서로" 동작하는지 시험한다. 실제 네이버 없음.
 function setup({ frames, tabs = [], handlers = {}, loginSequence = null, startTime = 1_000_000 } = {}) {
   const log = { mutating: [], debugger: [], created: [], updated: [], insert: [] };
-  const MUTATING = new Set(['focus', 'setImageFile', 'pasteLink', 'clickImageButton', 'openPublishSettings', 'tagFocus', 'categorySelect', 'imageAi', 'dismissResume']);
+  const MUTATING = new Set(['focus', 'setImageFile', 'pasteLink', 'clickImageButton', 'openPublishSettings', 'tagFocus', 'categorySelect', 'categories', 'imageAi', 'dismissResume']);
   let clock = startTime;
   let nextTabId = 100;
   const tabState = new Map(tabs.map((tab) => [tab.id, { ...tab }]));
@@ -16,6 +16,7 @@ function setup({ frames, tabs = [], handlers = {}, loginSequence = null, startTi
       async get(id) { if (!tabState.has(id)) throw new Error(`No tab with id: ${id}.`); return { ...tabState.get(id) }; },
       async create(info) { const tab = { id: nextTabId++, windowId: 1, status: 'complete', url: info.url, active: true }; tabState.set(tab.id, tab); log.created.push(info.url); return { ...tab }; },
       async update(id, props) { const tab = tabState.get(id); Object.assign(tab, props); log.updated.push([id, props]); return { ...tab }; },
+      async remove(id) { if (!tabState.has(id)) throw new Error(`No tab with id: ${id}.`); tabState.delete(id); log.removed = [...(log.removed || []), id]; },
     },
     windows: { async update() {} },
     debugger: {
@@ -201,4 +202,37 @@ test('own editor url detection accepts only the connected blog', () => {
   assert.equal(adapter.ownEditorUrl('https://blog.naver.com/other/postwrite', 'myblog'), false);
   assert.equal(adapter.ownEditorUrl('https://blog.naver.com/PostWriteForm.naver?blogId=myblog', 'myblog'), true);
   assert.equal(adapter.ownEditorUrl('https://evil.example/myblog/postwrite', 'myblog'), false);
+});
+
+test('reuse:false opens a brand new tab even when an empty own editor tab exists (category read never borrows the member tab)', async () => {
+  const s = setup({ frames: { 0: validFrame() }, tabs: [ownTab()] });
+  await s.adapter.prepareEditor({ blogId: 'myblog', reuse: false });
+  assert.equal(s.log.created.length, 1); assert.notEqual(s.adapter.state.tabId, 1);
+  const reused = setup({ frames: { 0: validFrame() }, tabs: [ownTab()] });
+  await reused.adapter.prepareEditor({ blogId: 'myblog' });
+  assert.equal(reused.log.created.length, 0); assert.equal(reused.adapter.state.tabId, 1);
+});
+
+test('readCategories and applyCategory run in the settings frame only; applyCategory sends id and name; closeTab removes only our tab', async () => {
+  const seen = [];
+  const frames = { 0: validFrame(), 2: (command, args) => { if (command === 'categories' || command === 'categorySelect') seen.push([command, args]); if (command === 'inspect') return { status: 'unknown' }; if (command === 'dismissResume') return { ok: true, dismissed: false }; return command === 'categories' ? { ok: true, categories: [{ id: '12', name: '경제 이야기' }] } : { ok: true, id: args.id, name: args.name }; } };
+  const s = setup({ frames, tabs: [] });
+  await s.adapter.prepareEditor({ blogId: 'myblog', reuse: false });
+  s.adapter.state.settingsFrame = 2;
+  assert.deepEqual(JSON.parse(JSON.stringify(await s.adapter.readCategories())), [{ id: '12', name: '경제 이야기' }]);
+  assert.deepEqual(await s.adapter.applyCategory({ id: '12', name: '경제 이야기' }), { name: '경제 이야기', id: '12' });
+  assert.deepEqual(JSON.parse(JSON.stringify(seen)), [['categories', {}], ['categorySelect', { id: '12', name: '경제 이야기' }]]);
+  assert.ok(s.log.mutating.every((entry) => !entry.allFrames), 'category commands never run in all frames');
+  const ourTab = s.adapter.state.tabId;
+  await s.adapter.closeTab();
+  assert.deepEqual(s.log.removed, [ourTab]); assert.equal(s.adapter.state.tabId, null);
+  await s.adapter.closeTab(); // 두 번 불러도 안전
+});
+
+test('a failed category selection becomes CATEGORY_FAILED with the reason and the available names', async () => {
+  const s = setup({ frames: { 0: validFrame(), 2: () => ({ ok: false, reason: '찾지 못했습니다', available: ['일상', '여행'] }) }, tabs: [] });
+  await s.adapter.prepareEditor({ blogId: 'myblog', reuse: false });
+  s.adapter.state.settingsFrame = 2;
+  await assert.rejects(() => s.adapter.applyCategory({ id: '9', name: '없음' }), (error) => error.code === 'CATEGORY_FAILED' && /일상, 여행/.test(error.message));
+  await assert.rejects(() => s.adapter.readCategories(), (error) => error.code === 'CATEGORY_LIST_FAILED');
 });
