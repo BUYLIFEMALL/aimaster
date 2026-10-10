@@ -21,13 +21,13 @@ const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE
 async function main() {
   const slug = "youtube-viral-studio";
   const newName = "유튜브 떡상 쇼츠 발굴 자동화";
-
-  console.log(`Updating program name for ${slug} to "${newName}"...`);
+  console.log(`Updating program ${slug} to "${newName}" and version v1.05...`);
 
   const { data, error } = await supabase
     .from("programs")
     .update({
       name: newName,
+      version: "v1.05",
       badges: ["free", "new", "best"],
     })
     .eq("slug", slug)
@@ -35,11 +35,11 @@ async function main() {
     .single();
 
   if (error) {
-    console.error("Error updating program name:", error);
+    console.error("Error updating program:", error);
     process.exit(1);
   }
 
-  console.log("Updated program name successfully:", data.name);
+  console.log("Updated program successfully:", data);
 }
 
 main().catch(console.error);

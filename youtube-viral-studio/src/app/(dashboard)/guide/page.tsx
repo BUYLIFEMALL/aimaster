@@ -45,11 +45,11 @@ export default function GuidePage() {
             <HelpCircle className="w-5 h-5" />
           </span>
           <h1 className="text-xl font-bold text-gray-900">
-            YouTube Viral Studio 이용 가이드
+            유튜브 떡상 쇼츠 발굴 이용 가이드
           </h1>
         </div>
         <p className="text-sm text-gray-500 mt-1">
-          골든 파인더 엔진의 핵심 지표를 이해하고, 알고리즘을 뚫어내는 떡상 쇼츠를 찾는 마스터 가이드입니다.
+          핵심 지표를 이해하고, 알고리즘을 뚫어내는 떡상 쇼츠를 찾는 마스터 가이드입니다.
         </p>
       </div>
 

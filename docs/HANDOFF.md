@@ -1,6 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-10 유튜브 떡상 쇼츠 발굴(골든 파인더) 자동화 v1.04 — 이용 접근 권한 게이트 수정 & 프로그램명 표준화
+## 2026-10-10 유튜브 떡상 쇼츠 발굴 자동화 v1.05 — 프로그램명 정제 및 골든 파인더 문구 전면 제거
+
+- **프로그램명 및 문구 전면 정제 (v1.05)**:
+  1. **주인님 지시사항 완벽 이행**:
+     - 기존 `유튜브 떡상 쇼츠 발굴(골든 파인더) 자동화`에서 괄호 및 '골든 파인더'를 완전히 제거하여 공식 프로그램명을 **`유튜브 떡상 쇼츠 발굴 자동화`**로 전면 통일.
+     - 코드베이스(`APP_NAME`, 사이드바 뱃지 태그, 가이드/소개 문구, 주석), DB `programs` 테이블 (`name`), 스크립트, 마이그레이션 SQL 및 인수인계 문서 전체에서 `골든 파인더` / `골든 파인드` 문구 완전 제거.
+  2. **버전 갱신**:
+     - `v1.04` ➔ `v1.05` (+0.01 마이너 판올림 규칙 준수).
+     - 코드 `src/lib/version.ts`, `package.json`, DB `programs.version` 동기화 완료.
+  3. **배포 및 검증**:
+     - `youtube-viral-studio` v1.05 로컬 빌드(`npm run build`) 통과.
+     - Vercel 프로덕션 배포 완료 (`https://youtube-viral-studio.buylife.xyz`).
+     - 메인 사이트(`https://www.buylife.xyz/programs/youtube-viral-studio`)에서 변경된 프로그램명(`유튜브 떡상 쇼츠 발굴 자동화`) 및 `v1.05` 실시간 반영 확인.
+- **상세 인수인계 전용 문서**: [`docs/YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md`](YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md) 및 [`youtube-viral-studio/AGENTS.md`](../youtube-viral-studio/AGENTS.md) 최신화 완료.
+
+## 2026-10-10 유튜브 떡상 쇼츠 발굴 자동화 v1.04 — 이용 접근 권한 게이트 수정 & 프로그램명 표준화
 
 - **접근 불가 이슈 해결 (v1.04)**:
   1. **원인 규명**:

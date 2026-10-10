@@ -231,7 +231,7 @@ export default function ViralShortsPage() {
               </select>
             </div>
 
-            {/* 채널 최대 구독자수 (골든 파인더 핵심) */}
+            {/* 채널 최대 구독자수 (소형 채널 발굴) */}
             <div>
               <label className="block text-gray-500 font-semibold mb-1.5">
                 채널 최대 구독자수 (소형 채널 발굴)

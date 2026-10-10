@@ -1,9 +1,9 @@
-# 유튜브 떡상 쇼츠 발굴(골든 파인더) 자동화 v1.04 상세 인수인계 문서
+# 유튜브 떡상 쇼츠 발굴 자동화 v1.05 상세 인수인계 문서
 
 > **작성일자**: 2026-10-10  
-> **프로그램명**: 유튜브 떡상 쇼츠 발굴(골든 파인더) 자동화  
+> **프로그램명**: 유튜브 떡상 쇼츠 발굴 자동화  
 > **Slug**: `youtube-viral-studio`  
-> **현재 버전**: `v1.04` (`src/lib/version.ts`, `package.json` 및 DB `programs.version`)  
+> **현재 버전**: `v1.05` (`src/lib/version.ts`, `package.json` 및 DB `programs.version`)  
 > **공식 라이브 주소**: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)  
 > **Vercel 주소**: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)  
 > **공유 DB**: Supabase Project `esgxyikcnnvmlhygjkth`  
@@ -11,9 +11,9 @@
 ---
 
 ## 1. 개요 및 배경
-- 사용자가 제공한 레퍼런스(골든 파인더 Golden Finder v1.2.0 벤치마킹 도구 스크린샷 5장)를 기반으로, 쇼츠/롱폼 크리에이터가 **"소형 채널에서 터진 순수 알고리즘 떡상 콘텐츠"**를 실시간으로 발굴하고 벤치마킹할 수 있는 독립 웹 스튜디오입니다.
+- 쇼츠/롱폼 크리에이터가 **"소형 채널에서 터진 순수 알고리즘 떡상 콘텐츠"**를 실시간으로 발굴하고 벤치마킹할 수 있는 독립 웹 스튜디오입니다.
 - AIMaster의 4단계 로드맵([`docs/YOUTUBE_AUTOMATION_ROADMAP.md`](YOUTUBE_AUTOMATION_ROADMAP.md)) 중:
-  - **Phase 1(골든 파인더형 벤치마킹 & 떡상 발굴 엔진)** 완료.
+  - **Phase 1(벤치마킹 & 떡상 발굴 엔진)** 완료.
   - **Phase 2(떡상 쇼츠 훅킹 대본 AI 분석 & 벤치마킹 인사이트)** 완료 (v1.02).
   - **Phase 3 준비(도메인 SSO 연동 및 로그인/세션 아키텍처 보강)** 완료 (v1.03).
 
@@ -59,8 +59,8 @@
 ### 공유 Supabase DB 등록 및 메인 사이트 연동 완료
 - `programs` 테이블:
   - `slug`: `'youtube-viral-studio'`
-  - `name`: `'YouTube Viral Studio (골든 파인더)'`
-  - `version`: `'v1.03'`
+  - `name`: `'유튜브 떡상 쇼츠 발굴 자동화'`
+  - `version`: `'v1.05'`
   - `category_id`: `'cb3c7c75-da5e-4474-a185-f069a6dcbda9'` (카테고리: `영상/유튜브`, `slug: 'youtube'`)
   - `badges`: `['free', 'new']`
   - `thumbnail_url`: `'https://www.buylife.xyz/thumbnails/youtube-viral-studio.png'`

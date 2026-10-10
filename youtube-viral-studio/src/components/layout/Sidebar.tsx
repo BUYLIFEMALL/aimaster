@@ -93,9 +93,6 @@ export function Sidebar({ userEmail }: SidebarProps) {
               </span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[11px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
-                골든 파인더 엔진
-              </span>
               <span className="text-[11px] text-gray-500 font-mono">
                 {APP_VERSION}
               </span>

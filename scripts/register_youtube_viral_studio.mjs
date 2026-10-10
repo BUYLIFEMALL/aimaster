@@ -42,10 +42,10 @@ async function run() {
   }
   console.log("Category ID:", catData.id, "(", catData.name, ")");
 
-  console.log("2. Upserting 'YouTube Viral Studio (골든 파인더)' program...");
+  console.log("2. Upserting '유튜브 떡상 쇼츠 발굴 자동화' program...");
   const programPayload = {
     category_id: catData.id,
-    name: "YouTube Viral Studio (골든 파인더)",
+    name: "유튜브 떡상 쇼츠 발굴 자동화",
     slug: "youtube-viral-studio",
     short_desc: "소형 채널 떡상 쇼츠 발굴, 황금 채널 스크리닝, 실시간 VPH 급상승 영상 랭킹 및 롱폼 원본 역추적",
     description: "구독자 1만명 이하 소형 채널에서 터진 떡상 쇼츠 발굴, 영상당 수십만 회 급성장 황금 채널 스크리닝, 시간당 조회수 속도(VPH) 랭킹 및 쇼츠 원본 역추적까지 지원하는 유튜브 벤치마킹 전문 스튜디오입니다.",
