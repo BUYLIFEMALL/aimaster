@@ -5,39 +5,37 @@
 -- 1. programs 테이블 등록 (이미 존재하는 경우 업데이트)
 INSERT INTO public.programs (
   slug,
-  title,
+  name,
+  short_desc,
   description,
   app_url,
   version,
   is_active,
   badges,
-  icon,
-  category,
-  sort_order
+  thumbnail_url
 )
 VALUES (
   'youtube-viral-studio',
   'YouTube Viral Studio (골든 파인더)',
   '소형 채널 떡상 쇼츠 발굴, 황금 채널 스크리닝, 실시간 VPH 급상승 영상 랭킹 및 롱폼 원본 역추적',
-  'https://youtube-viral-studio.buylife.xyz',
+  '구독자 1만명 이하 소형 채널에서 터진 떡상 쇼츠 발굴, 영상당 수십만 회 급성장 황금 채널 스크리닝, 시간당 조회수 속도(VPH) 랭킹 및 쇼츠 원본 역추적까지 지원하는 유튜브 벤치마킹 전문 스튜디오입니다.',
+  'https://youtube-viral-studio.vercel.app',
   'v1.01',
   true,
-  ARRAY['free', 'hot']::text[],
-  'Flame',
-  'youtube',
-  5
+  ARRAY['free', 'new']::text[],
+  'https://www.buylife.xyz/thumbnails/youtube-viral-studio.png'
 )
 ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title,
+  name = EXCLUDED.name,
+  short_desc = EXCLUDED.short_desc,
   description = EXCLUDED.description,
   app_url = EXCLUDED.app_url,
   version = EXCLUDED.version,
   is_active = EXCLUDED.is_active,
   badges = EXCLUDED.badges,
-  category = EXCLUDED.category,
   updated_at = NOW();
 
--- 2. pricing_plans 기본 요금제 등록
+-- 2. pricing_plans 기본 3단계 요금제 등록
 DO $$
 DECLARE
   v_program_id UUID;
@@ -45,13 +43,12 @@ BEGIN
   SELECT id INTO v_program_id FROM public.programs WHERE slug = 'youtube-viral-studio';
 
   IF v_program_id IS NOT NULL THEN
-    -- 기존 요금제가 없으면 3단계 요금제 등록
     IF NOT EXISTS (SELECT 1 FROM public.pricing_plans WHERE program_id = v_program_id) THEN
-      INSERT INTO public.pricing_plans (program_id, plan_name, plan_type, price_monthly, features, is_active, sort_order)
+      INSERT INTO public.pricing_plans (program_id, name, billing_type, price, original_price, is_active, sort_order)
       VALUES
-        (v_program_id, '무료 체험', 'free', 0, '["일일 쇼츠 발굴 20회", "기본 VPH 랭킹", "본인 YouTube API 연동"]'::jsonb, true, 1),
-        (v_program_id, '프로 크리에이터', 'pro', 29000, '["무제한 쇼츠 발굴", "황금 채널 무제한 스크리닝", "롱폼 원본 역추적", "CSV 내보내기"]'::jsonb, true, 2),
-        (v_program_id, '마스터 스튜디오', 'enterprise', 59000, '["프로 기능 전체", "AI 쇼츠 스크립트 재구성 연동", "채널 모니터링", "우선 지원"]'::jsonb, true, 3);
+        (v_program_id, '1개월 이용권', 'monthly', 29000, 39000, true, 1),
+        (v_program_id, '2개월 이용권 (할인)', 'bimonthly', 54000, 78000, true, 2),
+        (v_program_id, '3개월 이용권 (최대할인)', 'quarterly', 75000, 117000, true, 3);
     END IF;
   END IF;
 END $$;
