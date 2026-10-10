@@ -59,7 +59,7 @@
     }
 
     // ---- CDP ----
-    async function withDebugger(tabId, task) {
+    async function attachDebugger(tabId) {
       try { await chrome.debugger.attach({ tabId }, "1.3"); }
       catch (error) {
         if (!/already attached/i.test(error?.message || "")) throw error;
@@ -67,8 +67,41 @@
         try { await chrome.debugger.detach({ tabId }); } catch { /* ignore */ }
         await chrome.debugger.attach({ tabId }, "1.3");
       }
+    }
+
+    async function withDebugger(tabId, task) {
+      await attachDebugger(tabId);
       try { return await task(); }
       finally { try { await chrome.debugger.detach({ tabId }); } catch { /* page may navigate */ } }
+    }
+
+    // 티스토리는 글쓰기 화면을 열 때 이전 임시저장이 있으면 "저장된 글이 있습니다. 이어서 작성하시겠습니까?"라는 브라우저 기본 확인창(confirm)을 띄운다(v1.60 실제 시험에서 확인).
+    // 이 창이 떠 있으면 화면 조사도 멈추므로, 자동 입력은 항상 빈 새 글이어야 하는 만큼 이 창만 '취소'로 닫는다(확인을 누르면 이전 글이 불려온다).
+    // 다른 종류의 대화상자는 건드리지 않는다. 디버거는 글쓰기 주소로 이동하기 전에 빈 탭에서 미리 붙여 두어야 창이 뜨는 순간을 놓치지 않는다.
+    async function startDialogGuard(tabId, onHandled) {
+      const handled = [];
+      const onEvent = (source, method, params) => {
+        if (source?.tabId !== tabId || method !== "Page.javascriptDialogOpening") return;
+        const message = String(params?.message || "");
+        if (!/저장된 글이 있습니다/.test(message) || !/이어서 작성/.test(message)) return;
+        Promise.resolve(chrome.debugger.sendCommand({ tabId }, "Page.handleJavaScriptDialog", { accept: false }))
+          .then(() => { handled.push(message); onHandled?.("저장된 글 이어쓰기 확인창을 '취소'로 닫고 빈 새 글로 시작합니다."); })
+          .catch(() => { /* 이미 닫힘 */ });
+      };
+      let attached = false;
+      try {
+        chrome.debugger.onEvent?.addListener(onEvent);
+        await attachDebugger(tabId);
+        attached = true;
+        await chrome.debugger.sendCommand({ tabId }, "Page.enable");
+      } catch { /* 가드 없이 진행한다 — 확인창이 뜨면 회원이 직접 '취소'를 누를 때까지 기다린다(아래 안내) */ }
+      return {
+        handled,
+        async stop() {
+          try { chrome.debugger.onEvent?.removeListener(onEvent); } catch { /* ignore */ }
+          if (attached) { try { await chrome.debugger.detach({ tabId }); } catch { /* 이미 떨어짐 */ } }
+        },
+      };
     }
 
     async function humanType(tabId, text, { onProgress, shouldStop } = {}) {
@@ -803,9 +836,12 @@
         state.blogName = blogName;
         state.bodyFrame = null;
         const url = Core.editorUrl(blogName);
-        const tab = await chrome.tabs.create({ url, active: true });
+        const tab = await chrome.tabs.create({ url: "about:blank", active: true });
         state.tabId = tab.id;
+        const guard = await startDialogGuard(tab.id, (message) => progress(message));
+        try {
         await focusWindow(tab);
+        await chrome.tabs.update(tab.id, { url });
 
         const deadline = now() + loginWaitMs;
         let stableSince = 0;
@@ -849,6 +885,7 @@
           await sleep(500);
         }
         throw new TaskError("EDITOR_PREPARATION_FAILED", "5분 안에 글쓰기 화면을 준비하지 못했습니다. 티스토리 로그인·알림 창을 확인한 뒤 BLOG에서 다시 보내주세요.");
+        } finally { await guard.stop(); }
       },
 
       async readDraft() { return readTistoryDraftState(state.tabId, state.bodyFrame); },

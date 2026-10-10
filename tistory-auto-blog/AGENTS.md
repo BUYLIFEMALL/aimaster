@@ -43,6 +43,14 @@
 - **시험**: `tests/extension-publish-dialog.test.cjs`(새, 5개) — 어댑터가 발행 설정창에 주입하는 함수를 가짜 화면에서 실제로 실행(수정 전 어댑터에서는 이름 불일치 시험 2개가 실패함을 확인). `test:extension` 60개.
 - **남은 확인**: 다른 홈주제 이름도 실제와 다를 수 있다. 값이 다르면 이제 오류에 실제 목록이 표시되므로 그 목록으로 `TISTORY_HOME_TOPICS`를 정확히 맞춘다.
 
+## v1.61 (2026-10-10) — "저장된 글이 있습니다. 이어서 작성하시겠습니까?" 확인창 자동 취소 (실제 시험에서 발견)
+
+- **증상(주인님 실제 화면)**: 새 탭으로 열린 티스토리 글쓰기 화면에 브라우저 기본 확인창 "저장된 글이 있습니다. 이어서 작성하시겠습니까?"(확인/취소)가 떠서 진행 상태가 "준비 중"에 멈췄다. 확장은 안내만 띄우고 회원이 "취소"를 누를 때까지 기다리도록 되어 있었다(v1.59 설계). 주인님이 직접 닫아 주자 홈주제·공개 발행 설정까지 정상 적용됐다(v1.60 수정 확인).
+- **원인**: 이 창은 페이지 안 요소가 아니라 네이티브 `confirm()`이라 화면 주입 스크립트로는 닫을 수 없고, 떠 있는 동안 `executeScript`도 응답하지 않는다.
+- **수정**(`extension/tistory-adapter.js` `startDialogGuard`): `prepareEditor`가 **빈 탭(about:blank)을 만든 뒤 디버거를 붙이고 `Page.enable`을 한 다음** 글쓰기 주소로 이동한다(창이 뜨는 순간을 놓치지 않기 위함). `Page.javascriptDialogOpening` 이벤트의 메시지에 "저장된 글이 있습니다"와 "이어서 작성"이 모두 있을 때만 `Page.handleJavaScriptDialog {accept:false}`로 **취소**한다(확인하면 이전 글이 불려와 빈 새 글이 아니게 된다). 다른 대화상자는 건드리지 않고, 준비가 끝나면(성공·실패 모두) 디버거를 뗀다. 디버거 연결에 실패해도 중단하지 않고 기존 대기·안내로 되돌아간다. 상태 안내: "저장된 글 이어쓰기 확인창을 '취소'로 닫고 빈 새 글로 시작합니다."
+- **시험**: `tests/extension-adapter.test.cjs`에 3개 추가(자동 취소·다른 대화상자 무시·가드 실패 시 계속 진행) + 새 탭 시작 방식 반영. `test:extension` 63개.
+- **미확인**: 이벤트가 글쓰기 화면 로드 중 놓치지 않고 전달되는지는 실제 화면에서 확인이 필요하다(빈 탭에서 미리 붙이는 방식으로 대비). 놓치면 기존처럼 직접 "취소"를 누르면 이어진다.
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.

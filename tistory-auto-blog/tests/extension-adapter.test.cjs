@@ -5,8 +5,9 @@ const { TaskError } = require('../extension/tistory-engine.js');
 
 // 실제 adapter를 가짜 chrome(탭·프레임·디버거)에 연결해 "어느 탭을 열고, 무엇을 기다리고, 언제 멈추는지"를 시험한다. 실제 티스토리 없음.
 // 편집기 안에서 도는 주입 함수(TinyMCE 삽입·태그 칩·발행 설정창)는 가짜 화면에서 실행할 수 없어 여기서는 다루지 않는다 — 그 부분은 실제 티스토리 화면에서 확인한다.
-function setup({ probes = null, tabs = [], scripting = null, loginWaitMs = 30_000, startTime = 1_000_000 } = {}) {
-  const log = { created: [], updated: [], removed: [], debugger: [], insert: [], keys: [], windows: [] };
+function setup({ probes = null, tabs = [], scripting = null, loginWaitMs = 30_000, startTime = 1_000_000, dialog = null } = {}) {
+  const log = { created: [], updated: [], removed: [], debugger: [], insert: [], keys: [], windows: [], dialogCommands: [] };
+  const listeners = [];
   let clock = startTime;
   let nextTabId = 100;
   const tabState = new Map(tabs.map((tab) => [tab.id, { ...tab }]));
@@ -15,14 +16,20 @@ function setup({ probes = null, tabs = [], scripting = null, loginWaitMs = 30_00
     tabs: {
       async get(id) { if (!tabState.has(id)) throw new Error(`No tab with id: ${id}.`); return { ...tabState.get(id) }; },
       async create(info) { const tab = { id: nextTabId++, windowId: 1, status: 'complete', url: info.url, active: true }; tabState.set(tab.id, tab); log.created.push(info.url); return { ...tab }; },
-      async update(id, props) { const tab = tabState.get(id); if (!tab) throw new Error(`No tab with id: ${id}.`); log.updated.push([id, props]); if (props.url && !String(props.url).includes('SHOULD_STAY')) Object.assign(tab, props); return { ...tab }; },
+      async update(id, props) {
+        const tab = tabState.get(id); if (!tab) throw new Error(`No tab with id: ${id}.`); log.updated.push([id, props]); if (props.url && !String(props.url).includes('SHOULD_STAY')) Object.assign(tab, props);
+        // 티스토리가 글쓰기 화면을 열 때 브라우저 기본 확인창을 띄우는 상황을 흉내 낸다(디버거가 붙어 있을 때만 이벤트가 전달된다).
+        if (dialog && props.url && /\/manage\/newpost/.test(props.url)) listeners.forEach((fn) => fn({ tabId: id }, 'Page.javascriptDialogOpening', { message: dialog }));
+        return { ...tab };
+      },
       async remove(id) { if (!tabState.has(id)) throw new Error(`No tab with id: ${id}.`); tabState.delete(id); log.removed.push(id); },
     },
     windows: { async update(id, props) { log.windows.push([id, props]); } },
     debugger: {
       async attach() { log.debugger.push('attach'); },
       async detach() { log.debugger.push('detach'); },
-      async sendCommand(_t, method, params) { if (method === 'Input.insertText') log.insert.push(params.text); if (method === 'Input.dispatchKeyEvent') log.keys.push(`${params.type}:${params.key}`); },
+      onEvent: { addListener(fn) { listeners.push(fn); }, removeListener(fn) { const i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); } },
+      async sendCommand(_t, method, params) { if (method === 'Page.handleJavaScriptDialog') log.dialogCommands.push(params); if (method === 'Input.insertText') log.insert.push(params.text); if (method === 'Input.dispatchKeyEvent') log.keys.push(`${params.type}:${params.key}`); },
     },
     scripting: {
       async executeScript(details) {
@@ -49,7 +56,8 @@ const editorWith = (patch = {}, bodyPatch = {}) => {
 test('prepareEditor always opens a brand new tab on the own blog and returns once the empty editor has been stable for 2 seconds', async () => {
   const s = setup({ probes: emptyEditor, tabs: [{ id: 1, windowId: 1, status: 'complete', url: 'https://myblog.tistory.com/manage/newpost/?type=post', active: false }] });
   await s.adapter.prepareEditor({ blogName: 'myblog' });
-  assert.equal(s.log.created.length, 1); assert.match(s.log.created[0], /^https:\/\/myblog\.tistory\.com\/manage\/newpost\//);
+  assert.equal(s.log.created.length, 1); assert.equal(s.log.created[0], 'about:blank', 'the tab starts blank so the debugger can be attached before Tistory loads');
+  assert.ok(s.log.updated.some(([, props]) => /^https:\/\/myblog\.tistory\.com\/manage\/newpost\//.test(props.url || '')), 'then it navigates to the own blog editor');
   assert.notEqual(s.adapter.state.tabId, 1, 'the member\'s existing tab is never borrowed');
   assert.equal(s.adapter.state.bodyFrame, 3);
   assert.ok(s.clock() - 1_000_000 >= 2000, 'waited for the editor to stay empty');
@@ -182,4 +190,29 @@ test('the adapter never touches the final publish button', async () => {
     const code = source.split('\n').filter((line) => !line.trim().startsWith('//')).join('\n');
     assert.ok(!/#publish-btn/.test(code), `${file} must not select #publish-btn`);
   }
+});
+
+test('the "saved draft — continue writing?" confirm box is cancelled automatically so the run starts on an empty new post (v1.60 real run)', async () => {
+  const message = '2026. 10. 10. 21:36에 저장된 글이 있습니다.\n이어서 작성하시겠습니까?';
+  const s = setup({ probes: emptyEditor, dialog: message });
+  const notes = [];
+  await s.adapter.prepareEditor({ blogName: 'myblog', progress: (m) => notes.push(m) });
+  assert.deepEqual(s.log.dialogCommands, [{ accept: false }], 'cancel, never confirm (confirming would load the old draft)');
+  assert.ok(notes.some((m) => m.includes('빈 새 글로 시작')));
+  assert.equal(s.adapter.state.bodyFrame, 3);
+  assert.equal(s.log.debugger.at(-1), 'detach', 'the debugger is released when preparation ends');
+});
+
+test('other browser dialogs are never touched by the guard', async () => {
+  const s = setup({ probes: emptyEditor, dialog: '정말 이 페이지를 떠나시겠습니까?' });
+  await s.adapter.prepareEditor({ blogName: 'myblog' });
+  assert.deepEqual(s.log.dialogCommands, []);
+});
+
+test('a failure to attach the guard does not stop the run (the member can still press cancel)', async () => {
+  const s = setup({ probes: emptyEditor });
+  s.chrome.debugger.attach = async () => { throw new Error('Another debugger is already attached to the tab'); };
+  s.chrome.debugger.detach = async () => { throw new Error('not attached'); };
+  await s.adapter.prepareEditor({ blogName: 'myblog' });
+  assert.equal(s.adapter.state.bodyFrame, 3);
 });
