@@ -143,7 +143,8 @@ async function blogEditorCommand(command, args = {}) {
         container = pool.at(-1);
         // 마지막 문단에 글이 이미 있으면 클릭으로 커서를 옮기지 않는다: 여러 줄 문단은 클릭한 줄·위치에 커서가 생겨 글 중간에 입력된다.
         // 입력 위치를 새로 잡는 때는 비어 있는 새 문단(제목 직후·이미지 직후)뿐이어야 한다.
-        if (container && (container.innerText || container.textContent || "").replace(/[\s\u200b\ufeff]/g, "")) {
+        // 빈 본문 칸에는 안내 문구("글감과 함께 나의 일상을 기록해보세요!", .se-placeholder)가 들어 있어 innerText만 보면 글이 있는 것으로 오인한다 — readText는 안내 문구를 뺀다.
+        if (container && normalize(readText(container))) {
           return { ok: false, reason: "마지막 본문 문단에 글이 이미 있어 입력 위치를 새로 잡지 않았습니다(글 중간에 입력될 수 있습니다)." };
         }
       }

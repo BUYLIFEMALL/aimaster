@@ -53,6 +53,7 @@ function focusRun(paragraphs) {
     name, innerText: text, textContent: text, isContentEditable: true, ownerDocument,
     getClientRects: () => [{}], getBoundingClientRect: () => ({ left: 0, top: 0, width: 300, height: 20 }),
     matches: () => false, closest: () => null, querySelector: () => null, scrollIntoView() {}, focus() {},
+    cloneNode: () => ({ textContent: text, querySelectorAll: () => [] }),
     dispatchEvent: (event) => { events.push([name, event.type]); return true; },
   });
   const list = paragraphs.map(([name, text]) => make(name, text));
@@ -80,4 +81,25 @@ test('body focus refuses to click a last paragraph that already has text (a clic
 test('body focus uses the new empty paragraph at the very end (after an image)', async () => {
   const { result, clicked } = await focusRun([['p1', '앞 문단'], ['blank', ''], ['newEmpty', '']]);
   assert.equal(result.ok, true); assert.deepEqual(clicked, ['newEmpty']);
+});
+
+test('an empty body paragraph that shows the placeholder text is empty, not "has text" (v1.47 real failure)', async () => {
+  // 실제 화면: 제목만 입력한 새 글의 본문 문단에는 안내 문구(.se-placeholder)가 들어 있어 innerText가 비어 있지 않다.
+  const placeholder = '글감과 함께 나의 일상을 기록해보세요!';
+  const events = [];
+  const range = { selectNodeContents() {}, collapse() {} };
+  const ownerDocument = { createRange: () => range, getSelection: () => ({ removeAllRanges() {}, addRange() {} }) };
+  const paragraph = {
+    innerText: placeholder, textContent: placeholder, isContentEditable: true, ownerDocument,
+    getClientRects: () => [{}], getBoundingClientRect: () => ({ left: 0, top: 0, width: 300, height: 20 }),
+    matches: () => false, closest: () => null, querySelector: () => null, scrollIntoView() {}, focus() {},
+    cloneNode: () => { const clone = { textContent: placeholder, querySelectorAll: () => [{ remove() { clone.textContent = ''; } }] }; return clone; },
+    dispatchEvent: (event) => { events.push(event.type); return true; },
+  };
+  const document = { querySelectorAll: (selector) => (selector === '.se-text-paragraph' ? [paragraph] : []), querySelector: () => null, body: { innerText: '' }, activeElement: null };
+  const sandbox = { window: {}, document, getComputedStyle: () => ({ visibility: 'visible' }), location: { href: 'https://blog.naver.com/myblog/postwrite', hostname: 'blog.naver.com' }, URL, Promise, setTimeout, Math, String, Array, Object, Set, Boolean, console, module: undefined, MouseEvent: class { constructor(type) { this.type = type; } }, Node: { DOCUMENT_POSITION_FOLLOWING: 4 } };
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.resolve(__dirname, '..', 'extension/naver-page.js'), 'utf8'), sandbox);
+  const result = await sandbox.blogEditorCommand('focus', { kind: 'body' });
+  assert.equal(result.ok, true, JSON.stringify(result)); assert.ok(events.includes('mousedown'));
 });
