@@ -1,4 +1,4 @@
-# 유튜브 떡상 쇼츠 발굴 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
+# YOUTUBE VIRAL FINDER — AI 에이전트 인수인계 문서 (AGENTS.md)
 
 > # ★★★ 최상위 절대 불변 규칙 (2026-10-09 주인님 지시)
 > **모든 사용자는 본인의 계정과, 본인이 사용할 본인 YouTube API 키 및 AI 키(Gemini/OpenAI)를 각각 직접 등록·연동해서 사용한다.**
@@ -7,9 +7,9 @@
 ---
 
 ## 1. 개요 & 버전 현황
-- 프로그램명: **유튜브 떡상 쇼츠 발굴 자동화**
+- 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.06` (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.07` (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.2.11 + React 19 + Tailwind CSS v4 + Supabase SSR

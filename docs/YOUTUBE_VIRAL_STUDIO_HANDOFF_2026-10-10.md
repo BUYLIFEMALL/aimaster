@@ -1,9 +1,9 @@
-# 유튜브 떡상 쇼츠 발굴 자동화 v1.05 상세 인수인계 문서
+# YOUTUBE VIRAL FINDER v1.07 상세 인수인계 문서
 
 > **작성일자**: 2026-10-10  
-> **프로그램명**: 유튜브 떡상 쇼츠 발굴 자동화  
+> **프로그램명**: YOUTUBE VIRAL FINDER  
 > **Slug**: `youtube-viral-studio`  
-> **현재 버전**: `v1.05` (`src/lib/version.ts`, `package.json` 및 DB `programs.version`)  
+> **현재 버전**: `v1.07` (`src/lib/version.ts`, `package.json` 및 DB `programs.version`)  
 > **공식 라이브 주소**: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)  
 > **Vercel 주소**: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)  
 > **공유 DB**: Supabase Project `esgxyikcnnvmlhygjkth`  
@@ -59,8 +59,8 @@
 ### 공유 Supabase DB 등록 및 메인 사이트 연동 완료
 - `programs` 테이블:
   - `slug`: `'youtube-viral-studio'`
-  - `name`: `'유튜브 떡상 쇼츠 발굴 자동화'`
-  - `version`: `'v1.05'`
+  - `name`: `'YOUTUBE VIRAL FINDER'`
+  - `version`: `'v1.07'`
   - `category_id`: `'cb3c7c75-da5e-4474-a185-f069a6dcbda9'` (카테고리: `영상/유튜브`, `slug: 'youtube'`)
   - `badges`: `['free', 'new']`
   - `thumbnail_url`: `'https://www.buylife.xyz/thumbnails/youtube-viral-studio.png'`

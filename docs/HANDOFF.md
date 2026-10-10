@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-10 YOUTUBE VIRAL FINDER v1.07 — 자동화 프로그램 명칭 'YOUTUBE VIRAL FINDER'로 전면 변경
+
+- **프로그램 명칭 'YOUTUBE VIRAL FINDER' 전면 변경 (v1.07)**:
+  1. **주인님 지시사항 이행**:
+     - 기존 명칭을 주인님 지시에 따라 **`YOUTUBE VIRAL FINDER`**로 전면 변경.
+     - DB `programs` 테이블: `name = 'YOUTUBE VIRAL FINDER'`, `version = 'v1.07'` 실시간 동기화 완료.
+     - 서브프로그램 코드베이스: [`APP_NAME = "YOUTUBE VIRAL FINDER"`](file:///D:/Antigravity/AIMaster/youtube-viral-studio/src/lib/version.ts), RootLayout [`title = "YOUTUBE VIRAL FINDER - AIMaster"`](file:///D:/Antigravity/AIMaster/youtube-viral-studio/src/app/layout.tsx), 가이드 타이틀, `package.json`(`1.07.0`) 전면 반영.
+     - 문서 및 스크립트: `README.md`, `AGENTS.md`, `docs/YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md`, 등록 및 업데이트 스크립트, 마이그레이션 SQL 동기화.
+  2. **버전 판올림**: `v1.06` ➔ `v1.07` (+0.01 마이너 판올림 규칙 준수).
+  3. **배포 및 검증**: 로컬 빌드 100% 통과, Vercel 프로덕션 배포 및 라이브 메인 상세 페이지 반영 확인.
+
 ## 2026-10-10 유튜브 떡상 쇼츠 발굴 자동화 v1.06 — 사이드바 표준화 레이아웃 개편, 유튜브 로고 적용 & 설정 페이지 개선
 
 - **사이드바 레이아웃 표준화 & 유튜브 로고 적용 (v1.06)**:

@@ -45,7 +45,7 @@ export default function GuidePage() {
             <HelpCircle className="w-5 h-5" />
           </span>
           <h1 className="text-xl font-bold text-gray-900">
-            유튜브 떡상 쇼츠 발굴 이용 가이드
+            YOUTUBE VIRAL FINDER 이용 가이드
           </h1>
         </div>
         <p className="text-sm text-gray-500 mt-1">
