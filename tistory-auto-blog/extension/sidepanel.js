@@ -30,7 +30,7 @@ async function verifyToken(token) {
     });
     const body = await response.json().catch(() => ({}));
     return response.ok
-      ? { ok: true, email: body.email || "이메일 없음", latestVersion: body.latestVersion, downloadUrl: body.downloadUrl }
+      ? { ok: true, email: body.email || "이메일 없음", isAdmin: body.isAdmin === true, latestVersion: body.latestVersion, downloadUrl: body.downloadUrl }
       : { ok: false, error: body.error || `연결 실패 (${response.status})` };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
@@ -56,6 +56,8 @@ function renderUpdateBanner(result) {
 
 function renderConnection(result) {
   renderUpdateBanner(result);
+  // 관리자 계정으로 연결된 경우에만 구조 분석 도구를 보여 준다(연결이 안 되었거나 일반 회원이면 숨김).
+  $("inspectCard").hidden = !(result.ok && result.isAdmin);
   $("connectionStatus").textContent = result.ok ? `연결됨: ${result.email}` : result.error || "연결되지 않음";
 }
 

@@ -55,6 +55,14 @@
 
 - 주인님 지적: 글 보기 화면에서 발행 설정 패널이 버튼 줄(본문 복사하기·티스토리 입력기로 보내기·수정·삭제) 한가운데에 끼어 있어 버튼들이 세로로 늘어나고 글자가 꺾였다. 패널을 버튼 줄에서 빼서 **작성자 줄 바로 아래 전체 폭 블록**으로 옮기고(`app/posts/[id]/page.tsx`), 버튼은 한 줄 크기를 유지(`whitespace-nowrap`·`shrink-0`)하며 좁으면 줄바꿈하도록 했다. 패널(`components/TistoryPublishPanel.tsx`)은 넓은 화면에서 공개 범위·댓글·홈주제·발행 시점을 한 줄 4칸, 보통 화면에서 2칸×2줄로 배치하고 카테고리 칸은 한 줄 전체를 쓴다. 기능·서버·확장 변경 없음(확장은 ZIP·manifest 버전만 v1.62).
 
+## v1.63 (2026-10-10) — 확장의 "화면 구조 분석"을 관리자 계정에만 표시 (주인님 지시, BLOG v1.50과 같은 방식)
+
+- 구조 분석(티스토리 글쓰기 화면의 요소를 수집해 오류 진단에 쓰는 도구)은 앞으로 확장 개발·진단에 계속 필요할 수 있어 **없애지 않고 관리자 계정으로 연결했을 때만** 사이드패널에 보이게 했다. 일반 회원 화면에는 나타나지 않는다(연결 전·연결 실패 시에도 숨김).
+- 서버: `verifyExtensionToken`(`utils/extensionAuth.ts`)이 `profiles.is_admin`을 함께 읽어 `isAdmin`(`=== true`일 때만 true)을 돌려주고, `GET /api/extension/whoami` 응답에 `isAdmin`을 넣는다. **화면 표시용 값이며 서버 API 권한 판정에는 쓰지 않는다**(구조 분석은 회원 본인 PC에서 본인 티스토리 화면만 읽는 읽기 전용 도구).
+- 확장: `sidepanel.html`의 구조 분석 카드를 기본 숨김(`hidden`, "관리자" 배지)으로 바꾸고 `sidepanel.js`의 `renderConnection`이 연결 결과의 `isAdmin`으로 표시를 정한다.
+- 시험: `test:extension-api` 36개(whoami가 관리자 여부를 돌려줌, 토큰 검증이 `is_admin`을 읽고 true가 아니면 일반 회원 처리). 확장 63개 유지.
+- 확인 방법: `buylifemall@gmail.com`(관리자) 토큰으로 연결하면 카드가 보이고, `buylifemall@naver.com`(일반 회원) 토큰으로 연결하면 보이지 않는다. ZIP 덮어쓰기 후 `chrome://extensions` 새로고침 필요.
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.

@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     email: user.email,
     name: user.name,
+    isAdmin: user.isAdmin, // 화면 표시용(관리자 전용 구조 분석 카드). 서버 API 권한에는 쓰지 않는다.
     latestVersion: APP_VERSION,
     downloadUrl: `/downloads/tistory-auto-blog-extension-latest.zip`,
   })

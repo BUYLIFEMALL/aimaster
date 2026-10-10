@@ -356,3 +356,39 @@ test('publish default: the most recently sent post with settings, own posts only
   const denied = harness(publishDefaultRoute, { posts: [post()], access: { allowed: false, status: 403, error: 'Denied' } });
   assert.equal((await denied.handlers.GET()).status, 403); assert.equal(denied.calls.reads, 0);
 });
+
+// ---------- 관리자 전용 구조 분석: 서버가 관리자 여부를 알려 준다 ----------
+test('whoami tells the extension whether the connected account is an admin (display only)', async () => {
+  for (const isAdmin of [true, false]) {
+    const h = harness('app/api/extension/whoami/route.ts', { user: { userId: 'member-a', email: 'a@test', name: 'A', isAdmin } });
+    const body = await (await h.handlers.GET(new Request('https://test.invalid/api'))).json();
+    assert.equal(body.isAdmin, isAdmin); assert.equal(body.email, 'a@test');
+  }
+});
+
+test('verifyExtensionToken reads is_admin from the profile and treats anything but true as not admin', async () => {
+  const tables = {
+    personal_access_tokens: [{ id: 1, user_id: 'u1', token_hash: require('node:crypto').createHash('sha256').update('pat_x').digest('hex'), program_slug: 'tistory-auto-blog', revoked_at: null }],
+    profiles: [{ id: 'u1', email: 'a@test', name: 'A', is_admin: true }, { id: 'u2', email: 'b@test', name: 'B', is_admin: null }],
+  };
+  const makeClient = () => ({ from(table) {
+    const filters = []; let op = 'select';
+    const q = { select() { return q; }, eq(k, v) { filters.push((r) => r[k] === v); return q; }, is(k, v) { filters.push((r) => (r[k] ?? null) === v); return q; }, update() { op = 'update'; return q; },
+      maybeSingle: async () => ({ data: tables[table].find((row) => filters.every((fn) => fn(row))) ?? null, error: null }),
+      then(resolve) { resolve({ data: null, error: null }); } };
+    return q;
+  } });
+  const load = (userId) => {
+    tables.personal_access_tokens[0].user_id = userId;
+    return loadTs('utils/extensionAuth.ts', (name) => {
+      if (name === 'server-only') return {};
+      if (name === 'node:crypto') return { ...require('node:crypto'), default: require('node:crypto') };
+      if (name.endsWith('/supabase/admin')) return { createAdminClient: makeClient };
+      if (name.endsWith('/checkProgramAccess')) return { checkProgramAccess: async () => ({ allowed: true }) };
+      throw Error(`Unexpected import: ${name}`);
+    });
+  };
+  const request = new Request('https://test.invalid', { headers: { authorization: 'Bearer pat_x' } });
+  assert.equal((await load('u1').verifyExtensionToken(request)).isAdmin, true);
+  assert.equal((await load('u2').verifyExtensionToken(request)).isAdmin, false);
+});
