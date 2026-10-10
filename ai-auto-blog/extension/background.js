@@ -101,7 +101,7 @@ async function loadAsset(block, index) {
 async function loadSettings() {
   const all = await get([KEY.settings, KEY.imageAi]);
   const stored = all[KEY.settings] || {};
-  return { category: String(stored.category || "").trim(), tags: self.BlogCore.parseTagInput(stored.tags), imageAi: all[KEY.imageAi] === true };
+  return { category: String(stored.category || "").trim(), tags: [], imageAi: all[KEY.imageAi] === true };
 }
 
 async function setBadge(text, color) {
@@ -221,27 +221,6 @@ async function pump() {
 }
 
 // ---- 사이드패널 메시지 ----
-async function startManual(postId) {
-  if (busy || currentTask !== null) throw new Error("이미 입력 작업이 진행 중입니다. 끝나거나 중지한 뒤 시작해주세요.");
-  busy = true;
-  try {
-    const stored = await get([KEY.token, KEY.blogId, KEY.active]);
-    if (!stored[KEY.token]) throw new Error("먼저 BLOG 연동 토큰으로 연결해주세요.");
-    if (!String(stored[KEY.blogId] || "").trim()) throw new Error("내 네이버 블로그 ID를 먼저 저장해주세요.");
-    if (stored[KEY.active]) throw new Error("이전 작업 정리가 끝나지 않았습니다. 잠시 후 다시 시도해주세요.");
-    const list = await web("/api/extension/posts", { token: stored[KEY.token] });
-    if (!list.ok) throw new Error(list.data.error || `보낸 글 조회 실패 (${list.status})`);
-    const post = (list.data.posts || []).find((item) => String(item.id) === String(postId));
-    if (!post) throw new Error("선택한 글을 찾지 못했습니다. 목록을 새로고침해주세요.");
-    // 직접 시작은 서버에서 새 실행 번호와 임대를 받아야(저장 확인) 시작한다. 살아 있는 다른 실행이 있으면 서버가 거절한다.
-    const claimed = await web(`/api/extension/posts/${encodeURIComponent(post.id)}/start`, { method: "POST", token: stored[KEY.token], body: {} });
-    if (!claimed.ok || claimed.data.success !== true || claimed.data.persisted !== true || !claimed.data.runId) throw new Error(claimed.data.error || `입력 시작을 서버에 기록하지 못했습니다 (${claimed.status})`);
-    const task = { id: post.id, runId: claimed.data.runId, title: post.title || "", blocks: post.blocks || [], tags: post.tags || [] };
-    // 작업은 기다리지 않고 백그라운드에서 진행한다(busy는 작업이 끝날 때 해제).
-    runTask(task, "manual").catch(recordError).finally(() => { busy = false; });
-  } catch (error) { busy = false; throw error; }
-}
-
 // 이미 입력이 끝난 글의 발행 설정(카테고리·태그)만 다시 입력
 async function reapplySettings() {
   if (busy || currentTask !== null) throw new Error("입력 작업이 진행 중입니다. 끝난 뒤 다시 시도해주세요.");
@@ -251,7 +230,7 @@ async function reapplySettings() {
     const blogId = String(stored[KEY.blogId] || "").trim();
     if (!blogId) throw new Error("내 네이버 블로그 ID를 먼저 저장해주세요.");
     const settings = await loadSettings();
-    if (!settings.category && !settings.tags.length) throw new Error("태그 또는 카테고리를 입력해주세요.");
+    if (!settings.category) throw new Error("카테고리를 먼저 입력해주세요.");
     const adapter = self.BlogNaverAdapter.createNaverAdapter({ chrome, pageFn: self.blogEditorCommand, TaskError, sleep });
     adapter.state.blogId = blogId;
     const tabs = (await chrome.tabs.query({ url: "https://blog.naver.com/*" })).filter((tab) => adapter.ownEditorUrl(tab.url, blogId));
@@ -259,7 +238,6 @@ async function reapplySettings() {
     adapter.state.tabId = tabs[0].id;
     try {
       await adapter.openPublishSettings();
-      if (settings.tags.length) await adapter.applyTags(settings.tags, { shouldStop: () => cancelRequested });
       if (settings.category) await adapter.applyCategory(settings.category);
     } finally { await adapter.cleanup(); }
     const last = (stored[KEY.state] || {});
@@ -275,7 +253,6 @@ chrome.runtime.onMessage.addListener((message, _sender, reply) => {
       run(pump);
       return { active: stored[KEY.active] || null, pending: stored[KEY.pending] || null, state: stored[KEY.state] || null, running: currentTask !== null };
     }
-    if (message.type === "start") { await startManual(message.postId); return { ok: true }; }
     if (message.type === "cancel") { if (currentTask === null) return { ok: true, idle: true }; cancelRequested = true; return { ok: true }; }
     if (message.type === "reapplySettings") { await reapplySettings(); return { ok: true }; }
     if (message.type === "ackBadge") { await setBadge("", "#000000"); return { ok: true }; }

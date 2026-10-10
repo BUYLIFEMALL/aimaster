@@ -35,56 +35,20 @@
       <div id="taskMessage" class="status"></div>
       <div id="taskNotes" class="status task-notes"></div>
       <button id="cancelTask" class="secondary" hidden>입력 중지</button>
-      <p class="hint">입력 중에는 네이버 탭을 닫거나 글쓰기 화면을 직접 만지지 마세요. 이 패널을 닫아도 작업은 계속됩니다.</p>
-    </section>
-    <section class="card" aria-labelledby="post-list-title">
-      <h2 id="post-list-title">보낸 글</h2>
-      <p class="hint">BLOG 글 보기 화면에서 "네이버 입력기로 보내기"를 누르면 확장이 30분 안에 자동으로 입력을 시작합니다. 자동으로 시작되지 않은 글(오래된 글·실패한 글)은 아래에서 선택해 직접 시작하세요.</p>
-      <select id="postList" aria-label="보낸 글 선택"><option value="">보낸 글이 없습니다.</option></select>
-      <div class="draft-actions">
-        <a class="web-create-link" href="https://ai-auto-blog-one.vercel.app/write/ai-form" target="_blank" rel="noreferrer">BLOG에서 새 글 만들기</a>
-        <button id="refreshPosts" class="secondary">보낸 글 목록 새로고침</button>
-        <button id="openPreview" class="secondary">전체 미리보기</button>
-      </div>
-      <div id="postStatus" class="status">대기 중</div>
-      <dialog id="postPreview" class="web-draft-preview" aria-labelledby="postPreviewHeading">
-        <div class="web-draft-preview-header">
-          <div><span class="eyebrow">최종 확인</span><h3 id="postPreviewHeading">전체 미리보기</h3></div>
-          <button id="closePreview" class="icon-button" type="button" aria-label="미리보기 닫기">×</button>
-        </div>
-        <p class="hint">네이버에 입력될 제목·본문·이미지 순서를 그대로 확인하세요. 소제목 크기·굵은 글씨 같은 서식은 입력되지 않습니다.</p>
-        <article id="postPreviewContent" class="web-draft-preview-content" aria-label="입력할 전체 내용"></article>
-        <div class="web-draft-preview-actions">
-          <button id="closePreviewFooter" class="secondary" type="button">닫기</button>
-          <button id="previewFill" class="primary" type="button">이 글 직접 입력 시작</button>
-        </div>
-      </dialog>
-      <div class="content-input-row">
-        <div class="content-progress" aria-live="polite">
-          <strong>네이버 입력 진행 상황</strong>
-          <div id="inputStatus" class="status">대기 중 · 자동 입력이 안 된 글만 선택해 직접 시작하세요.</div>
-        </div>
-        <button id="fill" class="primary">직접 입력 시작</button>
-      </div>
-      <p class="hint">사람처럼 한 글자씩 입력하기 때문에 글 길이에 따라 5~10분 정도 걸립니다. 새 글쓰기 탭을 열어 입력하며, 이미 작성 중인 글이 있는 탭은 건드리지 않습니다.</p>
+      <p class="hint">입력 중에는 네이버 탭을 닫거나 글쓰기 화면을 직접 만지지 마세요. 이 패널을 닫아도 작업은 계속되며, 사람처럼 한 글자씩 입력해 글 길이에 따라 5~10분 정도 걸립니다.</p>
     </section>
     <section class="card">
-      <h2>카테고리·태그 설정</h2>
-      <p class="hint">저장한 카테고리·태그는 본문 입력이 끝난 뒤 발행 설정창에 자동으로 넣습니다. 태그를 비워 두면 글 끝의 해시태그를 씁니다. 네이버의 마지막 발행 버튼은 직접 누릅니다.</p>
+      <h2>카테고리 설정</h2>
+      <p class="hint">저장한 카테고리는 본문 입력이 끝난 뒤 발행 설정창에 자동으로 넣습니다. 태그는 BLOG 글 끝의 해시태그를 그대로 씁니다. 네이버의 마지막 발행 버튼은 직접 누릅니다.</p>
       <div class="publish-field">
         <label for="publishCategory">카테고리명</label>
         <input id="publishCategory" placeholder="카테고리 전체 이름 (예: 경제 이야기)">
       </div>
-      <div class="publish-field">
-        <label for="publishTags">추천테그</label>
-        <input id="publishTags" placeholder="추천테그 추출 후 직접 수정할 수 있습니다">
-      </div>
       <div class="publish-actions">
-        <button id="extractRecommendedTags" class="secondary">추천테그 추출</button>
-        <button id="savePublishSettings" class="secondary">카테고리·태그 저장</button>
-        <button id="fillPublishInfo" class="primary">카테고리·태그 다시 입력</button>
+        <button id="savePublishSettings" class="secondary">카테고리 저장</button>
+        <button id="fillPublishInfo" class="primary">카테고리 다시 입력</button>
       </div>
-      <div id="publishStatus" class="status">카테고리·태그 설정 대기 중</div>
+      <div id="publishStatus" class="status">카테고리 설정 대기 중</div>
     </section>
     <!-- 관리자 계정으로 연결했을 때만 보인다(개발·오류 진단용). 일반 회원 화면에는 나타나지 않는다. -->
     <section class="card" id="inspectCard" hidden>

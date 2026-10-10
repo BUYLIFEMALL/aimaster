@@ -205,7 +205,7 @@ export function ExtensionSettings() {
           </li>
           <li>
             <strong className="text-zinc-800">자동 시작</strong>: 글 보기 화면에서 &quot;네이버 입력기로 보내기&quot;를 누르면 확장이 보낸 뒤 <strong className="text-zinc-800">30분 안에</strong> 자동으로 입력을 시작합니다(크롬이 켜져 있고 확장이 연결되어 있어야 합니다).
-            30분이 지난 글이나 실패한 글은 사이드패널의 &quot;보낸 글&quot;에서 글을 골라 &quot;직접 입력 시작&quot;을 누르세요. 이미 작성 중인 글이 있는 글쓰기 탭은 건드리지 않고 새 탭을 열어 입력합니다.
+            30분이 지났거나 입력에 실패한 글은 BLOG에서 &quot;네이버 입력기로 보내기&quot;를 다시 눌러 주세요. 이미 작성 중인 글이 있는 글쓰기 탭은 건드리지 않고 새 탭을 열어 입력합니다.
           </li>
           <li>
             <strong className="text-zinc-800">카테고리·태그</strong>: 사이드패널의 &quot;카테고리·태그 설정&quot;에 저장해 두면 본문 입력 뒤 발행 설정창에 자동으로 넣습니다. 태그를 비워 두면 글 끝의 해시태그를 씁니다.

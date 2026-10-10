@@ -81,7 +81,7 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
 }
 
 const task = (extra = {}) => ({ id: 11, runId: 'run-aaa', title: '제목입니다', handoffAt: 'now', tags: ['태그'], blocks: [{ type: 'text', text: '본문입니다' }, { type: 'image', url: 'https://x/a.png', alt: '' }], ...extra });
-const ack = (req) => (req.path.endsWith('/start') ? { status: 200, body: { success: true, persisted: true, postId: 11, runId: 'run-manual' } } : { status: 200, body: { success: true, persisted: true, status: req.body.status, postId: 11 } });
+const ack = (req) => ({ status: 200, body: { success: true, persisted: true, status: req.body.status, postId: 11 } });
 const base = { aiAutoBlogToken: 'pat_x', aiAutoBlogBlogId: 'myblog' };
 const resultCalls = (w) => w.requests.filter((r) => r.path.includes('/input-result')).map((r) => r.body.status);
 
@@ -170,32 +170,6 @@ test('an editor that is not empty fails the post with a code and keeps the conte
   assert.ok(await w.settled(() => w.store.blogTaskState?.final));
   assert.equal(w.store.blogTaskState.outcome, 'failed');
   assert.match(w.requests.find((r) => r.path.includes('/input-result')).body.error, /^\[EDITOR_NOT_EMPTY\]/);
-});
-
-test('manual start records in_progress with a confirmed save before typing; a failed record blocks the start', async () => {
-  const posts = [{ id: 11, title: '직접 글', blocks: task().blocks, tags: [] }];
-  const okWorker = loadWorker({ storage: base, routes: { '/api/extension/posts?': () => ({ status: 200, body: { posts } }), '/api/extension/posts': (req) => (req.method === 'GET' ? { status: 200, body: { posts } } : ack(req)), '/api/extension/task': () => ({ status: 200, body: { task: null } }) } });
-  assert.equal((await okWorker.send({ type: 'start', postId: 11 })).ok, true);
-  assert.ok(await okWorker.settled(() => okWorker.store.blogTaskState?.final));
-  assert.ok(okWorker.requests.some((r) => r.path.endsWith('/start')), 'manual start asks the server for a run');
-  assert.deepEqual(resultCalls(okWorker).slice(0, 1), ['completed']);
-  assert.ok(okWorker.requests.filter((r) => r.path.includes('/input-result')).every((r) => r.body.runId === 'run-manual'));
-
-  const blocked = loadWorker({ storage: base, routes: { '/api/extension/posts': (req) => (req.method === 'GET' ? { status: 200, body: { posts } } : { status: 409, body: { error: '진행 중' } }) } });
-  const response = await blocked.send({ type: 'start', postId: 11 });
-  assert.match(response.error, /진행 중|기록하지/); assert.equal(blocked.adapter.calls.length, 0);
-});
-
-test('a second manual start while one is running is refused', async () => {
-  const posts = [{ id: 11, title: '직접 글', blocks: task().blocks, tags: [] }];
-  const w = loadWorker({ storage: base, routes: { '/api/extension/posts': (req) => (req.method === 'GET' ? { status: 200, body: { posts } } : ack(req)), '/api/extension/task': () => ({ status: 200, body: { task: null } }) } });
-  let release; const gate = new Promise((resolve) => { release = resolve; });
-  w.adapter.prepareEditor = async () => { await gate; };
-  assert.equal((await w.send({ type: 'start', postId: 11 })).ok, true);
-  const second = await w.send({ type: 'start', postId: 11 });
-  assert.match(second.error, /진행 중/);
-  release();
-  assert.ok(await w.settled(() => w.store.blogTaskState?.final));
 });
 
 test('cancel when idle is harmless and cancel while running stops the post as failed/cancelled', async () => {

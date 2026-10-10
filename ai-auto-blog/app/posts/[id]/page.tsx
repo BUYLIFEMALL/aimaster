@@ -496,7 +496,7 @@ export default function PostDetailPage() {
                       setHandoffState('sent')
                       alert(`네이버 입력기로 보냈습니다.
 확장 프로그램이 연결돼 있으면 ${json.autoStartMinutes ?? 30}분 안에 네이버 글쓰기 화면을 새로 열어 자동으로 입력을 시작합니다. (마지막 발행은 직접 누르세요.)
-자동으로 시작되지 않으면 확장 사이드패널에서 이 글을 선택해 시작할 수 있습니다.
+30분 안에 시작되지 않았거나 입력에 실패하면 이 화면에서 다시 보내 주세요.
 (확장 설치·연결은 설정 페이지에서 할 수 있습니다.)`)
                     } catch (err: any) {
                       setHandoffState('idle')

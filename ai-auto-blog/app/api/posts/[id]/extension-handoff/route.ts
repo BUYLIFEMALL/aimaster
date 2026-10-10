@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
 // 글 보기 화면의 "네이버 입력기로 보내기" — 이 글을 BLOG 크롬 확장의 "자동 입력 대기"로 올린다(본인 글만, 이용 권한 확인).
-// 확장이 켜져 있으면 보낸 뒤 30분 안에 가져가 네이버 편집기 입력을 자동으로 시작한다(v1.40). 30분이 지나면 확장 목록에서 직접 시작한다.
+// 확장이 켜져 있으면 보낸 뒤 30분 안에 가져가 네이버 편집기 입력을 자동으로 시작한다(v1.40). 30분이 지나면 자동 시작하지 않으니 웹에서 다시 보낸다.
 // 다시 보내면 입력 상태를 지우고 목록 맨 위로 올린다. 단, 지금 입력 중인 글은 덮어쓰지 않는다.
 export async function POST(_request: Request, context: { params: Promise<{ id: string }> }) {
   const access = await checkProgramAccessApi()
