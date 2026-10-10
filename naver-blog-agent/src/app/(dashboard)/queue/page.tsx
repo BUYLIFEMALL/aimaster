@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
+import PostReviewGate from "@/components/PostReviewGate";
+import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import type { CollectorCategory } from "@/types/collector";
 import { useContentCategories } from "@/hooks/useContentCategories";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
@@ -56,6 +58,7 @@ export default function QueuePage() {
   const [selectedPost, setSelectedPost] = useState<SavedPostItem | null>(null);
   const [viewingDetailPost, setViewingDetailPost] = useState<SavedPostItem | null>(null);
   const [publishingBlocked, setPublishingBlocked] = useState(false);
+  const [reviewBlocked,setReviewBlocked]=useState(true);
   const [editingPost, setEditingPost] = useState<SavedPostItem | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -248,31 +251,19 @@ export default function QueuePage() {
 
     setIsBulkUpdating(true);
     const targetIds = [...checkedIds];
-    const updated = posts.map((p) => {
-      if (targetIds.includes(p.id)) {
-        return { ...p, status: "queued" as const };
-      }
-      return p;
-    });
-    savePosts(updated);
-
-    try {
-      await Promise.allSettled(
-        targetIds.map((id) =>
-          fetch("/api/posts", {
+    const outcomes=await Promise.allSettled(targetIds.map(async id=>{
+      const res=await fetch("/api/posts", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id, status: "queued", publish_visibility: publishVisibility }),
-          })
-        )
-      );
-    } catch (err) {
-      console.warn("서버 상태 일괄 갱신 실패:", err);
-    }
+      });const data=await res.json();if(!res.ok)throw new Error(data.error || "전송 실패");return data.post;
+    }));
+    const accepted=outcomes.filter((outcome):outcome is PromiseFulfilledResult<SavedPostItem>=>outcome.status==="fulfilled").map(outcome=>outcome.value);
+    savePosts(posts.map(post=>accepted.find(item=>item.id===post.id) || post));
 
     setIsBulkUpdating(false);
     setCheckedIds([]);
-    alert(`선택한 원고 ${targetIds.length}건이 크롬 확장 작업 대기에 등록되었습니다!`);
+    alert(`작업 대기 등록 ${accepted.length}건 / 실패 ${targetIds.length-accepted.length}건. 실패한 원고는 보관함에서 최종 검수·발행 설정을 확인해 주세요.`);
   };
 
   // 11. 선택 원고 일괄 삭제
@@ -311,22 +302,16 @@ export default function QueuePage() {
   // 즉시 발행 요청 (단일)
   const handlePublishNow = async (id: string) => {
     if (publishVisibility === "public" && !confirm("전체공개 설정으로 전송합니다. 저장한 진행 방식이 자동 발행이면 최종 버튼까지 누릅니다. 계속하시겠습니까?")) return;
-    const updated = posts.map((p) => {
-      if (p.id === id) {
-        return { ...p, status: "queued" as const };
-      }
-      return p;
-    });
-    savePosts(updated);
-
     try {
-      await fetch("/api/posts", {
+      const res=await fetch("/api/posts", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status: "queued", publish_visibility: publishVisibility }),
       });
+      const data=await res.json();if(!res.ok || !data.post)throw new Error(data.error || "전송 실패");
+      savePosts(posts.map(post=>post.id===id?data.post:post));
     } catch (err) {
-      console.warn("서버 상태 갱신 실패:", err);
+      alert(err instanceof Error?err.message:"작업 대기 등록 실패");return;
     }
 
     alert(
@@ -1230,6 +1215,7 @@ export default function QueuePage() {
                 setPosts(prev => prev.map(p => p.id === viewingDetailPost.id ? { ...p, tags, status:p.status==="prepared"?"draft":p.status } : p));
                 setViewingDetailPost(prev => prev ? { ...prev, tags } : prev);
               }} />
+              <PostReviewGate key={viewingDetailPost.id} postId={viewingDetailPost.id} snapshot={postReviewSnapshot(viewingDetailPost)} onBlockingChange={setReviewBlocked} />
 
               {/* 대표 썸네일 */}
               {viewingDetailPost.images?.[0]?.url && (
@@ -1290,15 +1276,15 @@ export default function QueuePage() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (publishingBlocked) return;
+                    if (publishingBlocked || reviewBlocked) return;
                     handlePublishNow(viewingDetailPost.id);
                     setViewingDetailPost(null);
                   }}
-                  disabled={publishingBlocked}
+                  disabled={publishingBlocked || reviewBlocked}
                   className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50"
                 >
                   <Send size={13} />
-                  <span>스마트에디터 ONE 자동 발행 전송</span>
+                  <span>네이버 확장 작업 대기에 전송</span>
                 </button>
               </div>
             </footer>

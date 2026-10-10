@@ -32,6 +32,8 @@ import {
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
+import PostReviewGate from "@/components/PostReviewGate";
+import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft } from "@/lib/retention";
 import type { PipelineResult } from "@/lib/ai/pipeline";
@@ -114,6 +116,7 @@ export default function MainPage() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [currentPostId, setCurrentPostId] = useState<string | null>(null);
   const [publishingBlocked, setPublishingBlocked] = useState(false);
+  const [reviewBlocked,setReviewBlocked]=useState(true);
   const [savedPostCount, setSavedPostCount] = useState<number>(0);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -311,7 +314,18 @@ export default function MainPage() {
       created_at: new Date().toISOString(),
     };
 
-    // 1) 로컬 캐시 즉시 업데이트
+    // Queue state is visible only after the server accepted the reviewed content.
+    let serverPost:any=null;
+    try {
+      const res=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(postItem)});
+      const data=await res.json();
+      if(!res.ok || !data.post?.id)throw new Error(data.error || "서버 원고 저장 실패");
+      serverPost=data.post;
+      if(serverPost.id!==postId)setCurrentPostId(serverPost.id);
+    }catch(err){setError(err instanceof Error?err.message:"서버 저장 실패");}
+    if(status==="queued" && !serverPost)return false;
+
+    // Keep a local draft on storage failure; it is never reported as queued.
     try {
       const existing: any[] = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
       const existingIndex = existing.findIndex((p) => p.id === postId);
@@ -320,13 +334,13 @@ export default function MainPage() {
         updatedList = [...existing];
         updatedList[existingIndex] = {
           ...updatedList[existingIndex],
-          ...postItem,
+          ...postItem,...serverPost,
           // 이미 대기·발행 중인 글을 임시보관으로 저장해도 상태는 되돌리지 않는다.
-          status: resolveSaveStatus(updatedList[existingIndex].status, status),
+          status: serverPost?.status || resolveSaveStatus(updatedList[existingIndex].status, status),
           created_at: updatedList[existingIndex].created_at || postItem.created_at,
         };
       } else {
-        updatedList = [postItem, ...existing];
+        updatedList = [{...postItem,...serverPost}, ...existing];
       }
 
       localStorage.setItem("nba_saved_posts", JSON.stringify(updatedList));
@@ -335,22 +349,7 @@ export default function MainPage() {
       console.warn("로컬 원고 캐시 실패:", err);
     }
 
-    // 2) Supabase DB 서버 영구 저장 (/api/posts)
-    try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(postItem),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.post?.id && data.post.id !== postId) {
-          setCurrentPostId(data.post.id);
-        }
-      }
-    } catch (apiErr) {
-      console.warn("서버 DB 영구 저장 중 오류 (로컬 보관 유지):", apiErr);
-    }
+    return Boolean(serverPost);
   };
 
   // 과거 저장된 원고 불러오기
@@ -460,6 +459,7 @@ export default function MainPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          blogId:selectedBlogId,
           topic: cleanCurrentYear(params.overrideTopic) || undefined,
           category: params.overrideCategory,
           searchKeywords: cleanCurrentYear(params.overrideKeywords),
@@ -485,11 +485,19 @@ export default function MainPage() {
         throw new Error(data.error || "글 생성 실패");
       }
 
-      const newPostId = "post-" + Date.now();
+      const newPostId = data.postId || "post-" + Date.now();
       setCurrentPostId(newPostId);
       setResult(data.result);
       // 생성 완료 즉시 로컬 원고 보관함에 자동 저장
-      savePostToStorage(newPostId, data.result, [], "draft");
+      if(!data.saved)await savePostToStorage(newPostId,data.result,[],"draft");
+      else {
+        try {
+          const old=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
+          const cache=[{id:newPostId,blog_id:selectedBlogId,category_name:data.result.category,title:data.result.title,content:data.result.content,tags:data.result.tags,images:data.result.images,status:"draft",created_at:new Date().toISOString()},...(Array.isArray(old)?old:[]).filter((post:any)=>post.id!==newPostId)];
+          localStorage.setItem("nba_saved_posts",JSON.stringify(cache));setSavedPostCount(cache.length);
+        }catch{/* The server draft remains saved when the optional browser cache fails. */}
+      }
+      if(data.saveError)setError(data.saveError);
 
       // 글 생성이 완료되면 해당 글감을 사용 완료(used) 상태로 업데이트
       if (selectedViral) {
@@ -642,20 +650,21 @@ export default function MainPage() {
     setGeneratedImages((prev) => prev.filter((_, idx) => idx !== targetIndex));
   };
 
-  const handlePublishToQueue = () => {
+  const handlePublishToQueue = async () => {
     if (!result) return;
+    if(reviewBlocked || publishingBlocked)return;
     const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
     const targetId = currentPostId || "post-" + Date.now();
-    savePostToStorage(targetId, result, finalImagesToSave, "queued");
+    if(!await savePostToStorage(targetId, result, finalImagesToSave, "queued")){alert("작업 대기 등록에 실패했습니다. 오류 안내를 확인하고 원고를 다시 검수해 주세요.");return;}
     alert("크롬 확장의 작업 대기에 등록되었습니다. 저장한 진행 방식에 따라 준비 또는 최종 발행을 진행합니다. 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!result) return;
     const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
     const targetId = currentPostId || "post-" + Date.now();
-    savePostToStorage(targetId, result, finalImagesToSave, "draft");
-    alert("보관함에 원고가 안전하게 저장되었습니다.");
+    const saved=await savePostToStorage(targetId, result, finalImagesToSave, "draft");
+    alert(saved?"서버 보관함에 원고를 저장했습니다.":"서버 저장에 실패했습니다. 화면과 로컬 원고를 유지하며 오류 안내를 확인해 주세요.");
   };
 
   const copyContent = () => {
@@ -737,13 +746,12 @@ export default function MainPage() {
       }
     } else {
       // 서버에 아직 저장되지 않은 글: 새로 보관함에 저장한다.
-      await savePostToStorage(
+      saved=Boolean(await savePostToStorage(
         currentPostId || "post-" + Date.now(),
         nextResult,
         generatedImages.length > 0 ? generatedImages : nextResult.images || [],
         "draft"
-      );
-      saved = true;
+      ));
     }
     alert(
       saved
@@ -1754,11 +1762,11 @@ export default function MainPage() {
                 </button>
                 <button
                   onClick={handlePublishToQueue}
-                  disabled={publishingBlocked}
+                  disabled={publishingBlocked || reviewBlocked}
                   className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-colors"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>🚀 네이버 블로그로 즉시 발행</span>
+                  <span>🚀 네이버 확장 작업 대기에 전송</span>
                 </button>
               </div>
             </div>
@@ -1770,6 +1778,7 @@ export default function MainPage() {
                 if (Array.isArray(cache)) localStorage.setItem("nba_saved_posts", JSON.stringify(cache.map(p => p.id === currentPostId ? { ...p, tags } : p)));
               } catch { /* Server settings remain saved if the browser cache is unavailable. */ }
             }} />
+            <PostReviewGate key={currentPostId} postId={currentPostId} snapshot={postReviewSnapshot({blog_id:selectedBlogId,title:result.title,content:result.content,tags:result.tags,images:generatedImages.length>0?generatedImages:result.images})} onBlockingChange={setReviewBlocked} />
 
             {/* 5단계 에이전트 단계별 실행 내역 요약 박스 */}
             <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">

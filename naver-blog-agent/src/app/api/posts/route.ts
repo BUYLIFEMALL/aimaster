@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveSaveStatus } from "@/lib/postStatus";
+import { getPostReview, changesAuthoring } from "@/lib/postReview";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -88,6 +89,7 @@ export async function GET(request: Request) {
         published_at: row.published_at,
         post_url: row.post_url,
         error_message: row.error_message,
+        review: getPostReview(row),
       }));
 
       return NextResponse.json({ posts });
@@ -143,7 +145,7 @@ export async function POST(request: Request) {
     const user = { id: access.userId };
 
     const payload: SavedPostPayload = await request.json();
-    if (payload.status === "prepared") return NextResponse.json({error:"준비 완료는 확장 검수 결과로만 기록합니다."},{status:400});
+    if (["prepared","publishing","published"].includes(payload.status || "")) return NextResponse.json({error:"입력·준비·발행 완료 상태는 확장 결과로만 기록합니다."},{status:400});
     if (!payload.title && !payload.content) {
       return NextResponse.json({ error: "제목 또는 본문이 비어있습니다." }, { status: 400 });
     }
@@ -155,17 +157,20 @@ export async function POST(request: Request) {
       // 이미 대기·발행 중인 글에 "임시보관 저장"이 들어오면 상태를 되돌리지 않는다.
       // 다른 회원의 글 ID가 오면 그 글을 덮어쓰지 않고(소유자 불일치) 새 글로 저장한다.
       let existingStatus: string | null = null;
+      let existingPost: any = null;
       let usableId = false;
       if (isUuid(payload.id)) {
-        const { data: existing } = await admin
+        const { data: existing, error:readError } = await admin
           .from("nba_posts")
-          .select("status, user_id")
+          .select("*")
           .eq("id", payload.id)
+          .eq("user_id", user.id)
           .maybeSingle();
-        if (!existing) usableId = true;
-        else if (existing.user_id === user.id) {
+        if(readError)return NextResponse.json({error:"기존 원고를 확인하지 못했습니다."},{status:503});
+        if (existing) {
           usableId = true;
           existingStatus = existing.status ?? null;
+          existingPost=existing;
         }
       }
 
@@ -187,17 +192,18 @@ export async function POST(request: Request) {
       if (payload.scheduled_at) record.scheduled_at = payload.scheduled_at;
       if (payload.post_url) record.post_url = payload.post_url;
 
-      const { data, error } = await admin
-        .from("nba_posts")
-        .upsert(record)
-        .select()
-        .single();
+      if(existingPost && ["queued","publishing"].includes(existingPost.status) && changesAuthoring(existingPost,record))return NextResponse.json({error:"대기·입력 중인 원고는 변경할 수 없습니다. 대기를 취소한 뒤 저장해 주세요."},{status:409});
+      if(record.status==="queued" && !getPostReview({...existingPost,...record}).allowed)return NextResponse.json({error:"저장한 최종 원고를 직접 검수한 뒤 전송해 주세요."},{status:422});
+
+      let query=existingPost?admin.from("nba_posts").update(record).eq("id",existingPost.id).eq("user_id",user.id).eq("status",existingPost.status):admin.from("nba_posts").insert(record);
+      if(existingPost?.updated_at)query=query.eq("updated_at",existingPost.updated_at);
+      const {data,error}=await query.select().single();
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      return NextResponse.json({ post: data, success: true });
+      return NextResponse.json({ post: {...data,review:getPostReview(data)}, success: true });
     } else {
       // naver_blog_seo_drafts 테이블 활용
       const record: any = {
@@ -263,7 +269,7 @@ export async function PUT(request: Request) {
     const user = { id: access.userId };
 
     const payload: SavedPostPayload & { id: string } = await request.json();
-    if (payload.status === "prepared") return NextResponse.json({error:"준비 완료는 확장 검수 결과로만 기록합니다."},{status:400});
+    if (["prepared","publishing","published"].includes(payload.status || "")) return NextResponse.json({error:"입력·준비·발행 완료 상태는 확장 결과로만 기록합니다."},{status:400});
     if (!payload.id) {
       return NextResponse.json({ error: "원고 ID가 필요합니다." }, { status: 400 });
     }
@@ -272,6 +278,12 @@ export async function PUT(request: Request) {
     const targetTable = await resolveActiveTable(admin);
 
     if (targetTable === "nba_posts") {
+      const {data:current,error:readError}=await admin.from("nba_posts").select("*")
+        .eq("id",payload.id).eq("user_id",user.id).maybeSingle();
+      if(readError)return NextResponse.json({error:"원고 상태를 확인하지 못했습니다."},{status:503});
+      if(!current)return NextResponse.json({error:"본인 원고를 찾을 수 없습니다."},{status:404});
+      if(["queued","publishing"].includes(current.status) && changesAuthoring(current,payload as unknown as Record<string,unknown>))return NextResponse.json({error:"대기·입력 중인 원고는 변경할 수 없습니다. 대기를 취소한 뒤 저장해 주세요."},{status:409});
+
       const updates: any = {
         updated_at: new Date().toISOString(),
       };
@@ -290,27 +302,27 @@ export async function PUT(request: Request) {
       // A ready browser draft describes the old content/settings; an edit invalidates it.
       let invalidatePrepared = false;
       if (payload.status === undefined && [payload.title,payload.content,payload.tags,payload.images,payload.publish_visibility].some(value=>value!==undefined)) {
-        const {data:current,error:readError}=await admin.from("nba_posts").select("status")
-          .eq("id",payload.id).eq("user_id",user.id).maybeSingle();
-        if(readError)return NextResponse.json({error:"원고 상태를 확인하지 못했습니다."},{status:503});
-        if(!current)return NextResponse.json({error:"본인 원고를 찾을 수 없습니다."},{status:404});
         invalidatePrepared=current.status==="prepared";
         if(invalidatePrepared)updates.status="draft";
       }
+
+      // Only fields that will actually be saved participate; client review metadata is untrusted.
+      if(updates.status==="queued" && !getPostReview({...current,...updates}).allowed)return NextResponse.json({error:"저장한 최종 원고를 직접 검수한 뒤 전송해 주세요."},{status:422});
 
       let query = admin
         .from("nba_posts")
         .update(updates)
         .eq("id", payload.id)
         .eq("user_id", user.id);
-      if(invalidatePrepared)query=query.eq("status","prepared");
+      query=query.eq("status",current.status);
+      if(current.updated_at)query=query.eq("updated_at",current.updated_at);
       const { data, error } = await query.select().single();
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      return NextResponse.json({ post: data, success: true });
+      return NextResponse.json({ post: {...data,review:getPostReview(data)}, success: true });
     } else {
       // naver_blog_seo_drafts 테이블 업데이트
       const updates: any = {

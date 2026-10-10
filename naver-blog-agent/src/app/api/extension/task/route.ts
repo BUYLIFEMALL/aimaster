@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticateExtension, buildBridgePayload } from "@/lib/extensionBridge";
+import { getPostReview } from "@/lib/postReview";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
     if (postErr || !posts || posts.length === 0) return NextResponse.json({ task: null });
 
     const row = posts[0];
+    if(!getPostReview(row).allowed)return NextResponse.json({error:"원고가 미검수·검수 실패 또는 검수 후 변경 상태입니다. 대기를 취소하고 보관함에서 최종 원고를 직접 검수해 주세요."},{status:409});
     const { data: account, error: accountError } = await admin.from("nba_accounts").select("default_category")
       .eq("user_id", userId).eq("blog_id", row.blog_id).maybeSingle();
     if (accountError) return NextResponse.json({ error: "블로그 발행 기본값을 확인하지 못했습니다." }, { status: 500 });
@@ -38,13 +40,15 @@ export async function POST(req: Request) {
     }
 
     // 동시에 두 번 폴링해도 한 번만 가져가도록 queued일 때만 전환
-    const { data: claimed } = await admin
+    let claim = admin
       .from("nba_posts")
       .update({ status: "publishing", error_message: null, updated_at: new Date().toISOString() })
       .eq("id", row.id)
       .eq("user_id", userId)
-      .eq("status", "queued")
-      .select("id");
+      .eq("status", "queued");
+    if(row.updated_at)claim=claim.eq("updated_at",row.updated_at);
+    const {data:claimed,error:claimError}=await claim.select("id");
+    if(claimError)return NextResponse.json({error:"작업 가져오기를 확인하지 못했습니다."},{status:503});
     if (!claimed || claimed.length === 0) return NextResponse.json({ task: null });
 
     return NextResponse.json({

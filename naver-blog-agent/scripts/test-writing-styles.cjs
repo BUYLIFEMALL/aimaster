@@ -30,7 +30,7 @@ function loadTS(filename) {
     if (id === './models') return { callAI, parseJsonSafe: (text, fallback) => { try { return JSON.parse(text); } catch { return fallback; } } };
     if (id === '@/lib/access') return { checkProgramAccessApi: async () => hasAccess ? { allowed: true, userId: 'test-user' } : { allowed: false, error: '로그인이 필요합니다.', status: 401 } };
     if (id === '@/lib/apiKeys') return { resolveAvailableAI: async (userId) => { assert.equal(userId, 'test-user'); keyLookups++; return keyAvailable ? { provider: 'openai', apiKey: 'mock-not-a-key' } : null; } };
-    if (id === '@/lib/supabase/admin') return { createAdminClient() { throw new Error('DB should not be called'); } };
+    if (id === '@/lib/supabase/admin') return { createAdminClient:()=>({from(table){let inserted=false;const q={select(){return q;},eq(){return q;},order(){return q;},limit(){return q;},insert(){inserted=true;return q;},maybeSingle:async()=>({data:{id:'account'}}),single:async()=>({data:{id:'00000000-0000-4000-8000-000000000001'}}),then(resolve){resolve({data:[],error:null});}};return q;}}) };
     if (id.startsWith('@/') || id.startsWith('.')) {
       const target = id.startsWith('@/') ? path.join(root, 'src', id.slice(2)) : path.resolve(path.dirname(filename), id);
       return loadTS(fs.existsSync(target + '.ts') ? target + '.ts' : path.join(target, 'index.ts'));
@@ -98,7 +98,7 @@ function loadTS(filename) {
   assert.ok(!styles.isWritingStyle({ value: 'plain' }));
 
   const { POST } = loadTS(path.join(root, 'src/app/api/generate/route.ts'));
-  const request = (body) => new Request('https://test.local/api/generate', { method: 'POST', body: JSON.stringify(body) });
+  const request = (body) => new Request('https://test.local/api/generate', { method: 'POST', body: JSON.stringify({blogId:'myblog',...body}) });
   assert.equal((await POST(request({ category: '생활', preferredTone: '임의 말투' }))).status, 400);
   assert.equal((await POST(request({ category: '생활', writingStyle: ['plain'] }))).status, 400);
   assert.equal(keyLookups, 0, 'invalid styles must fail before API key lookup');

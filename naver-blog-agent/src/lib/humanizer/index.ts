@@ -89,7 +89,8 @@ export function applyHumanizerEdits(
     // 숫자 보존 검증: 원래 숫자가 임의로 바뀌었으면 원본 유지
     const sigBefore = extractSignatures(block.text);
     const sigAfter = extractSignatures(edit.text);
-    if (JSON.stringify(sigBefore.numbers) !== JSON.stringify(sigAfter.numbers)) {
+    if (JSON.stringify(sigBefore.numbers) !== JSON.stringify(sigAfter.numbers) ||
+        JSON.stringify(sigBefore.urls) !== JSON.stringify(sigAfter.urls)) {
       // 숫자 왜곡 발견 시 윤문 취소하고 원본 유지
       continue;
     }

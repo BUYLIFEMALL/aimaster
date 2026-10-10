@@ -20,10 +20,12 @@ function table(name) {
     limit() { return api; },
     eq(col, val) { filters[col] = val; return api; },
     upsert(row) { op = 'upsert'; payload = row; return api; },
+    insert(row) { op = 'upsert'; payload = row; return api; },
     update(row) { op = 'update'; payload = row; return api; },
     maybeSingle: async () => ({ data: db[name].find((r) => Object.entries(filters).every(([k, v]) => r[k] === v)) || null }),
     single: async () => {
       if(op==='update'){
+        upserts.push({...payload});
         const row=db[name].find(r=>Object.entries(filters).every(([k,v])=>r[k]===v));
         return row?{data:Object.assign(row,payload),error:null}:{data:null,error:{message:'not found'}};
       }
@@ -52,7 +54,9 @@ function loadTS(rel) {
     if (id === '@/lib/access') return { checkProgramAccessApi: async () => ({ allowed: true, userId: currentUser }) };
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => admin };
     if (id === '@/lib/postStatus') return loadTS('lib/postStatus.ts');
-    throw new Error('Unexpected import: ' + id);
+    if (id === '@/lib/postReview') return loadTS('lib/postReview.ts');
+    if (id === './postReviewSnapshot') return loadTS('lib/postReviewSnapshot.ts');
+    return require(id);
   };
   vm.runInThisContext(`(function(require,module,exports){${js}\n})`, { filename })(mockRequire, module, module.exports);
   cache.set(filename, module.exports);
@@ -78,9 +82,11 @@ assert.equal(resolveSaveStatus('published', 'queued'), 'queued', '명시적 큐 
   const C = '33333333-3333-4333-8333-333333333333';
   db.nba_posts.push(
     { id: A, user_id: 'user-a', status: 'published', title: '발행됨', post_url: 'https://blog.naver.com/x' },
-    { id: B, user_id: 'user-a', status: 'queued', title: '대기' },
+    { id: B, user_id: 'user-a', blog_id:'myblog_sample', status: 'queued', title: '대기',content:'본문',images:[],tags:[] },
     { id: C, user_id: 'user-b', status: 'published', title: '남의 글' },
   );
+  const review=loadTS('lib/postReview.ts'),queued=db.nba_posts.find(row=>row.id===B);
+  queued.research_summary=review.withPostReview(null,{status:'PASS',source:'ai',fingerprint:review.reviewFingerprint(queued),note:'검수',checkedAt:'now'});
   const post = (body) => posts.POST({ json: async () => body });
 
   // 발행된 글을 "보관함 저장"(draft)해도 상태 유지, 내용은 갱신
@@ -109,8 +115,8 @@ assert.equal(resolveSaveStatus('published', 'queued'), 'queued', '명시적 큐 
   // 새 글(임시 ID)은 draft, 큐 등록 요청은 queued
   await post({ id: 'post-1791513869817', title: '새 글', content: '본문', status: 'draft' });
   assert.equal(upserts.at(-1).status, 'draft');
-  await post({ id: 'post-1791513869818', title: '새 글2', content: '본문', status: 'queued' });
-  assert.equal(upserts.at(-1).status, 'queued');
+  assert.equal((await post({ id: 'post-1791513869818', title: '새 글2', content: '본문', status: 'queued' })).status,422);
+  assert.equal(upserts.at(-1).status, 'draft','미검수 신규 원고는 전송하지 않음');
 
   db.nba_posts.find(r=>r.id===B).status='prepared';
   let edited=await posts.PUT({json:async()=>({id:B,title:'준비 후 수정'})});

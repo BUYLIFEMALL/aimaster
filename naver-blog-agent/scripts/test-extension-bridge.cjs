@@ -38,6 +38,8 @@ function loadTS(filename) {
     if (id === '@/lib/version') return loadTS(path.join(root, 'src/lib/version.ts'));
     if (id === '@/lib/extensionBridge') return loadTS(path.join(root, 'src/lib/extensionBridge.ts'));
     if (id === '@/lib/naverPublishing') return loadTS(path.join(root, 'src/lib/naverPublishing.ts'));
+    if (id === '@/lib/postReview') return loadTS(path.join(root, 'src/lib/postReview.ts'));
+    if (id === './postReviewSnapshot') return loadTS(path.join(root, 'src/lib/postReviewSnapshot.ts'));
     if (id === 'next/server') return { NextResponse: { json: (body, init) => ({ body, status: init?.status || 200 }) } };
     return require(id);
   };
@@ -162,6 +164,8 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
     { id: 'p3', user_id: 'u1', blog_id: 'other', status: 'queued', title: '다른 블로그', content: 'x', images: [], tags: [], created_at: '0' },
   ];
   db = fakeDb(rows, [{ token: 'tok1', user_id: 'u1' }]);
+  const review=loadTS(path.join(root,'src/lib/postReview.ts'));
+  for(const row of rows)row.research_summary=review.withPostReview(null,{status:'PASS',source:'ai',fingerprint:review.reviewFingerprint(row),note:'검수',checkedAt:'now'});
 
   let res = await taskRoute.POST(post(null, {}));
   assert.equal(res.status, 401);
@@ -193,7 +197,7 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   res = await statusRoute.POST(post('tok1', { id: 'p2' }));
   assert.equal(res.body.state, 'missing', '다른 회원 글 상태는 조회 불가');
 
-  rows[0].status='queued';rows[0].research_summary={naver_publishing:{blog_id:'myblog',execution_mode:'prepare'}};
+  rows[0].status='queued';rows[0].research_summary={...rows[0].research_summary,naver_publishing:{blog_id:'myblog',execution_mode:'prepare'}};
   res=await taskRoute.POST(post('tok1',{blogId:'myblog'}));
   assert.equal(res.status,409);assert.equal(rows[0].status,'queued','old extensions cannot claim prepare jobs');
   res=await taskRoute.POST(post('tok1',{blogId:'myblog',supportsPrepare:true}));

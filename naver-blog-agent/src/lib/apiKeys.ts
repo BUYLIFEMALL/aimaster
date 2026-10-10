@@ -28,7 +28,7 @@ export async function resolveAvailableAI(
 ): Promise<{ provider: AIProvider; apiKey: string } | null> {
   if (preferredProvider) {
     const key = await resolveApiKey(userId, preferredProvider);
-    if (key) return { provider: preferredProvider, apiKey: key };
+    return key ? { provider: preferredProvider, apiKey: key } : null;
   }
 
   const providers: AIProvider[] = ["openai", "gemini", "anthropic"];

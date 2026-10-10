@@ -5,13 +5,14 @@ const path = require('node:path');
 const ts = require('typescript');
 const root = path.resolve(__dirname, '..');
 const sent = [];
+const openaiRequests=[];
 
 function load() {
   const module = { exports: {} };
   const js = ts.transpileModule(fs.readFileSync(path.join(root, 'src/lib/ai/models.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const mockRequire = (id) => {
     if (id === '@google/generative-ai') return { GoogleGenerativeAI: class { getGenerativeModel(o) { sent.push(['gemini', o.model]); return { generateContent: async () => ({ response: { text: () => 'ok' } }) }; } } };
-    if (id === 'openai') return { default: class { constructor() { this.chat = { completions: { create: async (o) => { sent.push(['openai', o.model]); return { choices: [{ message: { content: 'ok' } }] }; } } }; } } };
+    if (id === 'openai') return { default: class { constructor() { this.chat = { completions: { create: async (o) => { sent.push(['openai', o.model]);openaiRequests.push(o); return { choices: [{ message: { content: 'ok' } }] }; } } }; } } };
     if (id === '@anthropic-ai/sdk') return { default: class { constructor() { this.messages = { create: async (o) => { sent.push(['anthropic', o.model]); return { content: [{ type: 'text', text: 'ok' }] }; } }; } } };
     return {};
   };
@@ -27,6 +28,7 @@ function load() {
   assert.ok(listed.length >= 15, '화면 모델 목록을 읽지 못했습니다');
   for (const [provider, model] of listed) await callAI({ provider, apiKey: 'x', model }, 's', 'u');
   assert.deepEqual(sent, listed, '선택한 모델과 실제 호출 모델이 다릅니다');
+  for(const request of openaiRequests)assert.equal('temperature' in request,/^gpt-4(?:[.o-]|$)/i.test(request.model),'추론 모델에 비지원 sampling 설정을 강제로 전달하지 않음');
 
   sent.length = 0;
   for (const p of ['openai', 'anthropic', 'gemini']) await callAI({ provider: p, apiKey: 'x' }, 's', 'u');

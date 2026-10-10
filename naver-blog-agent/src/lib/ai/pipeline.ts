@@ -97,7 +97,7 @@ ${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 
 - 발행 목적: ${cleanPublishPurpose || "정보 제공 및 독자 체류시간 극대화"}${personaPromptSnippet}
 - 목표 글자수: 공백 포함 약 ${targetLength}자
 - 최근 발행 글 목록 (소재 중복 절대 금지):
-${recentTitles.slice(0, 10).map((t) => "- " + sanitizeYear(t, currentYear)).join("\n") || "(없음)"}
+${recentTitles.slice(0, 10).map((t) => "- " + t).join("\n") || "(없음)"}
 ${cleanTopic ? `- 사용자가 지정한 주제: ${cleanTopic}` : ""}
 
 반드시 아래 JSON 형식으로만 응답해:
@@ -248,6 +248,7 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
 reviewStatus는 문제가 없으면 "PASS", 고쳐야 할 점이 있으면 "WARN", 그대로 발행하면 안 되면 "FAIL"로만 답해.`;
 
   const reviewerUserPrompt = `기준 연도: ${currentYear}년
+최종 제목: ${sanitizeYear(researchData.finalTitle, currentYear)}
 제목: ${researchData.finalTitle}
 카테고리: ${category}
 검색 키워드: ${cleanSearchKeywords || "(지정 없음)"}

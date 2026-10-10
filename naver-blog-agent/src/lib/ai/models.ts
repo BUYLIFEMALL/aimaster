@@ -86,7 +86,8 @@ export async function callAI(
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
     ],
-    temperature: 0.7,
+    // Supply sampling settings only to the established non-reasoning family.
+    ...(/^gpt-4(?:[.o-]|$)/i.test(selectedModel) ? {temperature:0.7} : {}),
   });
   return res.choices[0]?.message?.content || "";
 }
