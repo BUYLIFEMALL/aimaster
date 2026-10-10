@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-10 — PowerShell의 Stop 설정이 Git 경고를 실패로 처리 (메인 지침 문서 배포)
+
+- **증상:** 임시 배포 worktree 정리는 성공했지만, 후속 `git diff --check 2>$null`에서 LF→CRLF 경고 때문에 결과 기록 커밋 단계가 중단됐습니다.
+- **원인:** Windows PowerShell에서 `$ErrorActionPreference='Stop'`일 때 native 명령의 stderr 경고가 `NativeCommandError`로 처리될 수 있습니다. Git 경고와 실제 종료 코드 실패를 구분하지 못한 셸 처리 문제였습니다.
+- **해결(위치):** 후속 Git 명령은 해당 실행 블록에서 `Continue`로 처리하고 각 native 명령 바로 뒤 `$LASTEXITCODE`를 확인했습니다. 공백 검사·커밋·푸시는 실제 종료 코드 0으로 완료했습니다. Git 파일/줄바꿈 설정이나 다른 CLI 변경은 수정하지 않았습니다.
+- **다음부터 확인:** PowerShell 버전과 native stderr 처리 방식을 확인합니다. 경고를 성공/실패로 단정하지 않고 종료 코드·출력·실제 반영 상태로 판정합니다. 명령이 중단되면 앞선 변경이 이미 완료됐는지 읽고 미완료 단계만 재개합니다. 공통 절차: `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` §11.
+
 
 ### v1.62 추가 — 상태 확인과 카테고리 조회 잠금 충돌
 

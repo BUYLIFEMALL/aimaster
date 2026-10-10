@@ -244,6 +244,8 @@ node --check extension/web-bridge.js
 
 변경 파일에 필요한 ESLint 검사를 실행하고 `git diff --check`로 변경 공백 문제를 확인합니다. 검수 기록에는 명령·실행 위치·결과·오류/경고·검사 대상 버전을 남깁니다. 셸에서 여러 명령을 실행할 때 실패 후 다음 단계로 넘어가지 않도록 종료 코드를 확인합니다. 예를 들어:
 
+Windows PowerShell의 `$ErrorActionPreference='Stop'`은 Git의 LF→CRLF 같은 stderr 경고도 native 오류로 처리할 수 있습니다. 셸 버전에 맞게 stderr를 처리하면서 **각 native 명령 직후 `$LASTEXITCODE`를 확인**하고, 경고와 실제 실패를 구분합니다. 중단됐다면 앞 단계의 실제 반영 여부를 읽고 미완료 단계부터 재개합니다. 이번 문서 배포 후 결과 기록에서 발생한 사례는 `ERROR_LESSONS.md`에 남겼습니다.
+
 ```powershell
 npm run build
 if ($LASTEXITCODE -ne 0) { throw '빌드 실패: 배포를 진행하지 않습니다.' }
