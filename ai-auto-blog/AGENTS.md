@@ -601,3 +601,7 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - **확장**: `manifest.json`에 `content_scripts`(BLOG 사이트 전용 `web-bridge.js`; 새 권한 없음). `web-bridge.js`는 같은 출처의 `ping`·`categories` 요청만 `chrome.runtime`으로 전달(토큰·입력·발행 명령은 전달하지 않음). `background.js`의 `categories` 메시지는 **BLOG 사이트(`sender.url`이 `https://ai-auto-blog-one.vercel.app/`로 시작)에서 온 것만** 받고, 입력 작업 중이면 거절한다. 읽기는 **회원의 기존 탭을 건드리지 않고 새 탭**(`prepareEditor({reuse:false})`)에서 발행 설정창만 열어(`naver-page.js` `categories` 명령 — 아무것도 선택하지 않고 목록을 닫음) 읽은 뒤 우리가 연 탭을 닫고 BLOG 탭으로 돌아간다(실패해도 탭을 닫음, 로그인 대기 90초). 입력 때는 `categorySelect`가 **번호(id)로 정확히 하나를 찾고 이름이 같을 때만** 선택하며, 이름이 바뀌었거나 번호가 없으면 선택하지 않고 안내와 함께 "입력 완료"로 둔다(내용은 보존). 태그는 항상 글의 해시태그(작업 `tags`), 카테고리는 작업 `category`만 쓴다 — 확장에 저장해 둔 값은 무시.
 - **시험**: `test:extension` 74개(카테고리 읽기·번호/이름 선택·새 탭만 사용·단일 프레임·탭 닫기·BLOG 외 요청 거절·작업 중 거절·실패 시 탭 닫기·엔진이 작업 값만 사용), `test:extension-api` 38개(저장/해제/유지/형식 오류 400·task에 category·기본값 조회·소유자·접근 권한), 보안 39·생성 7·빌드·tsc.
 - **미검증(주인님 PC 필요)**: 실제 네이버 발행 설정창의 카테고리 목록 읽기(셀렉터는 에이전트가 실제 화면에서 확인한 `categoryItemText_<번호>`를 그대로 사용), 새 탭이 열렸다 닫히는 동작, 목록 선택 → 보내기 → 입력 때 카테고리 자동 선택. 확인 순서: ZIP 덮어쓰기 → `chrome://extensions` 새로고침 → BLOG 화면 새로고침 → 글 보기에서 "카테고리 불러오기" → 고르기 → "네이버 입력기로 보내기".
+
+## 2026-10-10 최종 인수인계 문서
+
+- v1.40~v1.57 자동 포스팅 개선 전체(핵심·처리 과정·로직·주의사항·시험·남은 작업)는 루트 `docs/BLOG_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md`에 한 번에 정리했다. 이 폴더를 이어받는 CLI는 이 문서부터 읽는다.
