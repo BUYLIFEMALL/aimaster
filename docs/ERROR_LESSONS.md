@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-10 — 자동화 비교에서 발견한 성공 판정 공백 (아직 미수정)
+
+- **증상:** BLOG 실제 검증 함수를 모의 문서에 실행하면 기존 제목 혼합·본문 중복도 ok:true. 에이전트 실제 finish route에 DB update 오류 응답을 주면 HTTP200 success:true.
+- **원인:** BLOG는 제목/문단 포함 여부만 검사하며 기존 내용·순서·중복을 검증하지 않습니다. 에이전트 서버는 DB update의 error/반영 행 확인 없이 결과 ACK를 보냅니다.
+- **현재 상태/위치:** `ai-auto-blog/extension/sidepanel.js verifyNaverEditorContent`, `naver-blog-agent/src/app/api/extension/finish/route.ts`. 이번은 비교 분석이며 기능은 미수정입니다. [전체 근거·재사용 방향·후속 우선순위](../naver-blog-agent/docs/AUTOMATION_COMPARISON_2026-10-10.md).
+- **다음부터 확인:** 네트워크 성공·DB 반영 성공·편집기 정확성·외부 발행 성공을 각각 확인합니다. 실제 코드 모의 검사에 중복·순서/기존 내용·DB error/0행·입력 중 원고 선택 경쟁을 포함합니다. 기존 테스트 통과를 아직 다루지 않은 경계의 통과로 확대하지 않습니다.
+
 ## 2026-10-10 — 닫힌 Chrome 탭 참조와 발행 결과 재보고 (naver-blog-agent v1.63)
 
 - **증상:** 실제 확장 오류 `Uncaught (in promise) Error: No tab with id: 693809025.`. worker 모의 검사에서 닫힌 탭 참조 잔존·작성 중 재시작 후 편집기 초기화·발행 성공 후 보고 실패 시 성공 결과 덮어쓰기 확인.
