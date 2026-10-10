@@ -93,6 +93,8 @@
 
     // ---- 3. 본문 블록 순서대로 ----
     let previous = null; // text | link | image
+    // 입력 위치를 새로 잡아야 하는 때: 본문의 첫 블록(제목 입력 직후) 또는 이미지 바로 뒤(네이버가 만든 새 빈 문단). 글·링크 뒤에는 커서가 이미 끝에 있다.
+    const needsFocus = (last) => last === null || last === "image";
     let imageIndex = 0;
     let linkedCount = 0;
     const skippedImages = [];
@@ -119,7 +121,9 @@
       }
 
       if (block.type === "link") {
-        await adapter.focusBody();
+        // 커서는 글을 입력한 직후 이미 문서 끝에 있다. 글·링크 다음에는 다시 클릭하지 않는다 — SmartEditor는 클릭한 "화면 위치"에 커서를 두므로
+        // 여러 줄 문단을 다시 클릭하면 문단 중간에 들어간다(v1.46 실제 시험: 추천 링크가 마지막 문단 중간에 붙음). 본문 시작·이미지 뒤에만 입력 위치를 잡는다.
+        if (needsFocus(previous)) await adapter.focusBody();
         if (previous === "text" || previous === "link") await type("\n\n");
         emit("typing", `링크를 넣는 중... (${block.text})`, { typedChars, totalChars });
         // 붙여넣기가 됐는지는 붙여넣은 프레임의 개수가 아니라 **편집기 문서의 실제 상태**로 판단한다.
@@ -147,7 +151,7 @@
 
       // 글 덩어리
       const prefix = previous === "link" ? "\n\n" : "";
-      await adapter.focusBody();
+      if (needsFocus(previous)) await adapter.focusBody();
       await type(prefix + block.text);
       expected.addText(block.text);
       const check = await settle(expected, { expectTitle: title });

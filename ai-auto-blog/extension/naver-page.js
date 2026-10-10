@@ -141,6 +141,11 @@ async function blogEditorCommand(command, args = {}) {
         // **항상 문서의 맨 끝 문단**에 커서를 둔다. 예전에는 "처음 만나는 빈 문단"을 골랐는데, 본문의 문단 사이 빈 줄(\n\n)도 빈 문단이라
         // 링크·다음 글이 이미 입력된 글 한가운데에 들어갔다(v1.45 실제 시험: 추천 링크가 본문 중간에 붙음). 이미지 뒤 새 빈 문단은 맨 끝이므로 그대로 선택된다.
         container = pool.at(-1);
+        // 마지막 문단에 글이 이미 있으면 클릭으로 커서를 옮기지 않는다: 여러 줄 문단은 클릭한 줄·위치에 커서가 생겨 글 중간에 입력된다.
+        // 입력 위치를 새로 잡는 때는 비어 있는 새 문단(제목 직후·이미지 직후)뿐이어야 한다.
+        if (container && (container.innerText || container.textContent || "").replace(/[\s\u200b\ufeff]/g, "")) {
+          return { ok: false, reason: "마지막 본문 문단에 글이 이미 있어 입력 위치를 새로 잡지 않았습니다(글 중간에 입력될 수 있습니다)." };
+        }
       }
       if (!container) return { ok: false, reason: isTitle ? "제목 입력 위치를 찾지 못했습니다." : "본문 입력 위치를 찾지 못했습니다." };
       container.scrollIntoView({ block: "center", inline: "nearest" });

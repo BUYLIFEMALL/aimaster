@@ -66,9 +66,15 @@ function focusRun(paragraphs) {
   return sandbox.blogEditorCommand('focus', { kind: 'body' }).then((result) => ({ result, clicked: [...new Set(events.filter(([, type]) => type === 'mousedown').map(([name]) => name))] }));
 }
 
-test('body focus goes to the last paragraph even when blank lines exist in the middle of the text', async () => {
-  const { result, clicked } = await focusRun([['p1', '첫 문단'], ['blank', ''], ['p2', '둘째 문단'], ['blank2', ''], ['last', '마지막 문단']]);
-  assert.equal(result.ok, true, JSON.stringify(result)); assert.deepEqual(clicked, ["last"]);
+test('body focus goes to the last (empty) paragraph even when blank lines exist in the middle of the text', async () => {
+  const { result, clicked } = await focusRun([['p1', '첫 문단'], ['blank', ''], ['p2', '둘째 문단'], ['blank2', ''], ['last', '']]);
+  assert.equal(result.ok, true, JSON.stringify(result)); assert.deepEqual(clicked, ['last']);
+});
+
+test('body focus refuses to click a last paragraph that already has text (a click would put the caret in the middle of it)', async () => {
+  // v1.46 실제 시험: 여러 줄 문단을 다시 클릭하자 커서가 문단 가운데 줄에 생겨 추천 링크가 글 중간에 들어갔다.
+  const { result, clicked } = await focusRun([['p1', '첫 문단'], ['blank', ''], ['last', '마지막 문단은 길어서 여러 줄이 됩니다']]);
+  assert.equal(result.ok, false); assert.match(result.reason, /글이 이미 있어/); assert.deepEqual(clicked, []);
 });
 
 test('body focus uses the new empty paragraph at the very end (after an image)', async () => {

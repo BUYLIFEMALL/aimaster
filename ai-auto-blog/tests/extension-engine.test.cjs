@@ -267,3 +267,21 @@ test('countLinks reads linked hrefs from the editor document', () => {
   assert.equal(Core.countLinks(blocks, 'https://nothing.example'), 0);
   assert.equal(Core.countLinks(undefined, 'x'), 0);
 });
+
+test('the cursor is not re-clicked after text or a link (only at the body start and right after an image)', async () => {
+  const editor = fakeEditor();
+  await run(editor, { task: { blocks: [
+    { type: 'text', text: '첫 문단입니다.\n둘째 줄입니다.' },
+    { type: 'link', text: '👉 첫 링크', url: 'https://a.example' },
+    { type: 'text', text: '링크 뒤 문단입니다.' },
+    { type: 'image', url: 'https://x/1.png', alt: '' },
+    { type: 'text', text: '이미지 뒤 문단입니다.' },
+    { type: 'link', text: '👉 마지막 링크', url: 'https://buylife.blog' },
+  ], tags: [] }, assets: { 3: asset(3) } });
+  const focusCalls = editor.calls.filter((c) => c === 'focusBody').length;
+  assert.equal(focusCalls, 2, 'focusBody only before the first block and after the image');
+  const at = (prefix) => editor.calls.findIndex((c) => c.startsWith(prefix));
+  const pasteIndexes = editor.calls.map((c, i) => (c === 'paste' ? i : -1)).filter((i) => i >= 0);
+  for (const i of pasteIndexes) assert.notEqual(editor.calls[i - 1] === 'focusBody' && editor.calls[i - 2]?.startsWith('type:') , true, 'no focus between typed text and the link paste');
+  assert.ok(at('type:') > 0);
+});
