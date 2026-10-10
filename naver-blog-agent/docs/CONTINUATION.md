@@ -1,6 +1,6 @@
 # 🤖 네이버 블로그 에이전트 (naver-blog-agent) — CLI 인수인계 & 작업 가이드 (CONTINUATION.md)
 
-> **최종 갱신**: 2026-10-08 | **현재 버전**: `v1.42` | **라이브 URL**: https://naver-blog-agent.vercel.app
+> **최종 갱신**: 2026-10-10 | **현재 버전**: `v1.58` | **라이브 URL**: https://naver-blog-agent.vercel.app
 > Claude Code, Codex, Gemini 등 **어떤 AI 에이전트가 이어서 작업하더라도 즉시 파악하고 안전하게 작업할 수 있도록 정리한 기술 인수인계 문서**입니다.
 
 ---
@@ -9,7 +9,12 @@
 
 ## 2026-10-08 최종 인수인계 요약 — 다음 CLI는 이 절부터 읽습니다
 
-### v1.50 추가 (확장 새 버전 알림)
+### v1.58 추가 (결과 작업 버튼 정렬·저장 버튼 강조)
+
+- `src/app/(dashboard)/page.tsx` 결과 카드: 상태 정보와 작업 버튼을 두 줄로 분리, 버튼 줄 `justify-end`+줄바꿈. 「보관함 저장」 파란 배경·흰 글자·초점 표시.
+- 자동 저장 후속 과제: 개별 이미지 추가/제거는 현재 서버 저장을 호출하지 않고, 자동 저장 배지도 성공 결과 없이 표시됩니다. 초기 임시 ID가 서버 UUID로 바뀌는 사이 이미지 저장에서 다른 임시 ID를 사용할 수 있어 중복 원고가 생깁니다. 이번 UI 변경은 이 로직을 수정하지 않습니다. 확인된 원고는 수동 저장 후 4개 이미지 URL이 서버에 반영됐습니다.
+
+### v1.50 기록 (확장 새 버전 알림)
 
 - 서버: `src/app/api/extension/version/route.ts`(공개, 버전·다운로드 주소만). 확장: `background.js`의 `isNewer`/`checkUpdate`(시작·설치·알람 `update-check` 6시간·팝업 열 때 `checkUpdate` 메시지), 결과는 `chrome.storage.local.update`, 아이콘 배지 `NEW`. 팝업: `connect.html #update`, `connect.js showUpdate`. 다른 확장 프로그램에 이식할 때는 이 세 부분(버전 경로·확장 비교·팝업 배너)을 그대로 복사한다. (정정 2026-10-09: `ai-auto-blog`는 자체 배너가 이미 있고 `naver-blog-seo-studio`는 v1.60에 whoami 방식으로 추가함. 현황표: 루트 `docs/EXTENSION_RELEASE_RULES.md`)
 

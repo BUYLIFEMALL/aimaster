@@ -2,13 +2,15 @@
 
 크롬 확장프로그램과 5단계 멀티 AI 에이전트로 네이버 블로그 글 기획·작성·윤문·발행을 지원하는 프로그램입니다. 네이버 보안 차단 여부와 실제 발행 성공은 환경별 검수가 필요하며 보장하지 않습니다.
 
-- **현재 버전**: `v1.42` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.58` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **아키텍처**: Next.js 16 (Turbopack, App Router) + Supabase + Chrome Extension (Manifest V3)
 - **인수인계 문서**: [`AGENTS.md`](./AGENTS.md) 및 [`docs/CONTINUATION.md`](./docs/CONTINUATION.md)
 - **다음 CLI 시작점**: `CONTINUATION.md` 맨 위의 최종 요약에 작업 순서/커밋, 실제 검수 결과, 핵심 연결, 남은 검토 과제와 재개 명령을 모았습니다. 모델 ID 치환·확장 로컬 브리지 의존은 아직 해결하지 않은 우선 확인 사항입니다.
 
 ---
+
+2026-10-10 v1.58: 생성 결과 카드의 작업 버튼을 오른쪽 정렬하고 「보관함 저장」을 파란 배경·흰 글자로 강조했습니다. 작은 화면에서는 버튼을 오른쪽 정렬 상태로 줄바꿈합니다.
 
 ## 🚀 핵심 특징 및 주요 기능
 

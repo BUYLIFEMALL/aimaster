@@ -1697,8 +1697,8 @@ export default function MainPage() {
             <ContentRetentionNotice />
             <div className="rounded-2xl border border-neutral-200 bg-white p-6 md:p-8 shadow-sm space-y-6">
             {/* 상단 컨트롤 바 */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-4">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-3 border-b border-neutral-100 pb-4">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   {result.category}
                 </span>
@@ -1725,7 +1725,7 @@ export default function MainPage() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div role="group" aria-label="원고 작업 버튼" className="flex w-full flex-wrap items-center justify-end gap-2">
                 <button
                   onClick={copyContent}
                   className="px-3.5 py-2 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-xs font-semibold text-neutral-700 flex items-center gap-1.5 transition-colors"
@@ -1742,8 +1742,9 @@ export default function MainPage() {
                   <span>✏️ 스마트 에디터 편집</span>
                 </button>
                 <button
+                  type="button"
                   onClick={handleSaveDraft}
-                  className="px-3.5 py-2 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-xs font-semibold text-neutral-700 flex items-center gap-1.5 transition-colors"
+                  className="px-3.5 py-2 rounded-xl border border-blue-600 bg-blue-600 hover:bg-blue-700 text-xs font-bold text-[#ffffff] flex items-center gap-1.5 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>보관함 저장</span>
