@@ -1,9 +1,9 @@
-# YouTube Viral Studio (골든 파인더 엔진) v1.03 상세 인수인계 문서
+# 유튜브 떡상 쇼츠 발굴(골든 파인더) 자동화 v1.04 상세 인수인계 문서
 
 > **작성일자**: 2026-10-10  
-> **프로그램명**: YouTube Viral Studio (골든 파인더 엔진)  
+> **프로그램명**: 유튜브 떡상 쇼츠 발굴(골든 파인더) 자동화  
 > **Slug**: `youtube-viral-studio`  
-> **현재 버전**: `v1.03` (`src/lib/version.ts`, `package.json` 및 DB `programs.version`)  
+> **현재 버전**: `v1.04` (`src/lib/version.ts`, `package.json` 및 DB `programs.version`)  
 > **공식 라이브 주소**: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)  
 > **Vercel 주소**: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)  
 > **공유 DB**: Supabase Project `esgxyikcnnvmlhygjkth`  

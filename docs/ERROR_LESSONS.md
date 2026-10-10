@@ -1,6 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
-## 2026-10-10 — 신규 서브프로그램 최초 상품등록 시 기본 가격 플랜은 플랫폼 표준(1만/2만/3만)을 준수해야 한다 (youtube-viral-studio v1.03)
+## 2026-10-10 — 서브프로그램 requireProgramAccess에서 등급 미지정(!required_grade_id) 허용 누락으로 인한 ?need_access=1 무한루프 (youtube-viral-studio v1.04)
+
+- **증상**: 메인 상세 페이지에서는 `required_grade_id === null`이므로 "지금 바로 이용하기" 버튼이 정상 노출되었으나, 클릭 시 서브프로그램 진입 후 즉시 `?need_access=1`로 리다이렉트되어 되돌아옴.
+- **원인**: 메인 사이트의 `evaluateProgramAccess`는 `!input.requiredGradeId`일 때 `allowed: true (no_restriction)`로 통과시키는데 반해, 서브프로그램 `access.ts`는 FREE 배지가 없으면 오직 구독·개별부여·등급일치만 검사하고 `!required_grade_id` 분기가 누락되어 `redirect(?need_access=1)`로 직행함.
+- **해결(위치)**: `youtube-viral-studio/src/lib/access.ts`에 `if (!program.required_grade_id) return user;` 분기를 추가하여 메인 사이트 공용 판정 로직과 100% 일치시킴. 또한 DB `badges`에 `free`를 복원하여 가입 회원 누구나 무료 이용 보장.
+- **다음부터 확인**: 새 프로그램의 `requireProgramAccess()` 작성 시 `threads-easy-planner/src/lib/access.ts` 및 메인 `checkProgramAccess.ts` 표준 판정 순서(정지 → 관리자 → FREE 배지 → 구독 → 개별부여 → !required_grade_id → 등급일치)를 엄격히 일치시킨다.
 
 - **증상**: 신규 프로그램 등록 스크립트 작성 시 임의의 SaaS 가격대(29,000원 / 54,000원 / 75,000원)로 `pricing_plans`를 등록하여 관리자 화면 및 카탈로그에서 플랫폼 표준과 어긋남.
 - **원인**: 플랫폼 기본 표준 요금제는 `1개월: 10,000원, 2개월: 20,000원, 3개월: 30,000원`으로 확정되어 있으나(`components/admin/ProgramForm.tsx` DEFAULT_PLANS), 등록 스크립트 작성 시 이를 간과하고 임의 요금을 주입함.

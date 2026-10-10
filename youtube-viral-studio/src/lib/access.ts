@@ -46,25 +46,24 @@ export async function requireProgramAccess() {
     return user;
   }
 
-  // FREE 배지 프로그램은 가입 회원 누구나 무료 이용
+  // 1. FREE 배지 프로그램은 가입 회원 누구나 무료 이용 (핵심 원칙 6번)
   const badges: string[] = program.badges ?? [];
   if (badges.includes("free")) {
     return user;
   }
 
-  // 1. 활성 구독 확인
+  // 2. 활성 유료 구독 확인
   const { data: subs } = await adminClient
     .from("subscriptions")
     .select("status, expires_at")
     .eq("user_id", user.id)
-    .eq("program_id", program.id)
-    .eq("status", "active");
+    .eq("program_id", program.id);
 
-  if (subs && subs.some((s: { expires_at: string | null }) => isNotExpired(s.expires_at))) {
+  if (subs && subs.some((s: { status: string; expires_at: string | null }) => s.status === "active" && isNotExpired(s.expires_at))) {
     return user;
   }
 
-  // 2. 관리자가 직접 넣어준 프로그램 접근 권한 (user_program_access)
+  // 3. 관리자가 직접 넣어준 프로그램 접근 권한 (user_program_access)
   const { data: directAccess } = await adminClient
     .from("user_program_access")
     .select("expires_at")
@@ -76,21 +75,24 @@ export async function requireProgramAccess() {
     return user;
   }
 
-  // 3. 회원 등급 기반 확인
-  if (program.required_grade_id) {
-    const { data: userGrades } = await adminClient
-      .from("user_grades")
-      .select("grade_id, expires_at")
-      .eq("user_id", user.id);
+  // 4. 최소 등급 제한이 없는 프로그램이면 로그인 회원 즉시 통과 (메인 evaluateProgramAccess no_restriction과 동일)
+  if (!program.required_grade_id) {
+    return user;
+  }
 
-    const hasValidGrade = (userGrades ?? []).some(
-      (ug: { grade_id: string; expires_at: string | null }) =>
-        ug.grade_id === program.required_grade_id && isNotExpired(ug.expires_at)
-    );
+  // 5. 회원 등급 기반 확인 (요구 등급 이상)
+  const { data: userGrades } = await adminClient
+    .from("user_grades")
+    .select("grade_id, expires_at")
+    .eq("user_id", user.id);
 
-    if (hasValidGrade) {
-      return user;
-    }
+  const hasValidGrade = (userGrades ?? []).some(
+    (ug: { grade_id: string; expires_at: string | null }) =>
+      ug.grade_id === program.required_grade_id && isNotExpired(ug.expires_at)
+  );
+
+  if (hasValidGrade) {
+    return user;
   }
 
   // 권한이 없으면 안내 페이지로 리다이렉트

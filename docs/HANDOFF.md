@@ -1,26 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-10 YouTube Viral Studio (골든 파인더 엔진) v1.03 — 도메인 SSO & 로그인 연동 및 가격 플랜 표준화
+## 2026-10-10 유튜브 떡상 쇼츠 발굴(골든 파인더) 자동화 v1.04 — 이용 접근 권한 게이트 수정 & 프로그램명 표준화
 
-- **작업 내용 (v1.03)**:
-  1. **커스텀 도메인 연동 & SSO 완성**:
-     - `vercel domains add youtube-viral-studio.buylife.xyz` 및 Cloudflare 와일드카드 CNAME/A 연동으로 `https://youtube-viral-studio.buylife.xyz` 라이브 개통.
-     - `cookieDomainForHost` 기반으로 `.buylife.xyz` 도메인 간 Supabase 세션 쿠키 공유.
-  2. **서브프로그램 자체 로그인 화면 구현**:
-     - `src/app/(auth)/login/page.tsx`, `signInAction()`, `signOutAction()` 구축.
-     - 로그인 후 원래 접근하려던 딥링크(`/viral-shorts` 등)로 안전하게 자동 복귀.
-  3. **메인 사이트 로그인 복귀 지원**:
-     - 메인 사이트 `LoginForm.tsx`에 `redirectTo`가 절대 URL인 경우 `window.location.href = redirectTo` 지원 추가 후 프로덕션 배포 완료 (`dpl_4pA8xPbCyujsb9eMKfW3roytXTp8`).
-  4. **가격 플랜 표준화 완료**:
-     - 플랫폼 기본 표준 요금제(1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원)로 `pricing_plans` 테이블 및 등록 스크립트 전면 동기화 완료.
-  5. **DB & 버전 동기화**:
-     - `programs.app_url` = `https://youtube-viral-studio.buylife.xyz`, `programs.version` = `v1.03`.
+- **접근 불가 이슈 해결 (v1.04)**:
+  1. **원인 규명**:
+     - 메인 상세 페이지(`app/(main)/programs/[slug]/page.tsx` 및 `evaluateProgramAccess`)는 `required_grade_id === null`(등급 제한 없음)일 때 `allowed: true (no_restriction)`로 판정하여 "지금 바로 이용하기" 버튼을 노출.
+     - 그러나 서브프로그램의 `requireProgramAccess()`(`src/lib/access.ts`)에는 `!program.required_grade_id`인 경우(등급 제한 없음 = 전체 공개)에 대한 허용 로직이 빠져 있어, 가입 회원이 "지금 바로 이용하기" 버튼을 눌러도 `?need_access=1`로 리다이렉트되어 튕기는 무한루프 발생.
+  2. **수정 조치**:
+     - `youtube-viral-studio/src/lib/access.ts`에 `!program.required_grade_id`인 경우 로그인 회원 즉시 통과 로직을 추가하여 메인 사이트 판정 기준과 100% 일치시킴.
+     - DB `programs` 테이블에서 `badges: ['free', 'new', 'best']`로 FREE 배지 복원하여 가입 회원 누구나 무료 이용 보장.
+     - 플랫폼 명명 규칙(한글 중심 + [플랫폼] [기능] 자동화 패턴)에 따라 프로그램명을 **`유튜브 떡상 쇼츠 발굴(골든 파인더) 자동화`**로 통일 (`programs.name` 및 `APP_NAME`).
+     - 버전 갱신: `v1.03` ➔ `v1.04` (코드 `APP_VERSION`, `package.json`, DB `programs.version`).
 - **배포 및 검증 결과**:
-  - `youtube-viral-studio` 프로덕션 배포 완료 (`dpl_3UvzX9GYYiMxsrtbKZPFCxoNa2DA`, READY).
-  - 메인 사이트 `aimaster` 프로덕션 배포 완료 (`dpl_4pA8xPbCyujsb9eMKfW3roytXTp8`, READY).
-  - curl 테스트: `https://youtube-viral-studio.buylife.xyz/viral-shorts` 비인가 시 `307 Location: /login?redirect=%2Fviral-shorts` 정상.
-  - curl 테스트: `https://youtube-viral-studio.buylife.xyz/login` 접근 시 `HTTP 200 OK` 정상.
-  - 관리자 편집 화면(`https://www.buylife.xyz/admin/programs/7d3895af-f1b8-4c24-9a62-cfebf7bd9676/edit`)에서 표준 플랜(1만/2만/3만) 노출 확인.
+  - `youtube-viral-studio` v1.04 로컬 빌드 및 Vercel 프로덕션 배포 완료 (`dpl_CvdL49GLNzxv4MgzudXjMypVgJcp`, READY).
+  - 메인 사이트(`https://www.buylife.xyz/programs/youtube-viral-studio`)에서 변경된 프로그램명 및 `v1.04` 노출 확인.
+  - 로그인 회원이 "지금 바로 이용하기" 클릭 시 차단 없이 정상 서브프로그램 진입 확인.
 - **상세 인수인계 전용 문서**: [`docs/YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md`](YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md) 최신화 완료.
 
 ## 2026-10-10 Codex — 네이버 에이전트 v1.69 실행/복구
