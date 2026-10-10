@@ -82,6 +82,7 @@
 - v1.56(블로그 완성 → 확장은 포스팅만 1/2): 확장 사이드패널 "보낸 글" 섹션(목록·미리보기·직접 시작·새 글 링크)과 확장의 태그 칸·추천테그 추출 삭제. 태그는 BLOG 글의 해시태그만 사용. 실패·30분 경과 글은 BLOG에서 다시 보내기. 서버 목록/start API는 옛 확장용으로 유지.
 - v1.57(블로그 완성 → 확장은 포스팅만 2/2, DB 칸 `blog_posts.naver_category` 추가 승인): 카테고리는 BLOG에서 확장이 읽어 준 실제 네이버 목록(번호+이름)으로 글마다 고르고, 태그는 글의 해시태그를 그대로 사용. 확장 사이드패널의 카테고리·태그 칸 삭제. 번호·이름이 실제 목록과 정확히 같을 때만 선택. 실제 네이버 화면 확인은 주인님 PC에서 필요.
 - v1.58(게시글 주제 수집에 유튜브 쇼츠 떡상 분석 추가): `/candidates`의 4번째 방식 — 쇼츠 검색(본인 YouTube 키) → "주제로 저장" 시 AI(본인 Gemini/OpenAI 키)가 터진 이유를 분석해 블로그 주제 후보 최대 3건 저장. DB 변경 없음(`source_type='http'`+쇼츠 주소), 카테고리는 공통 목록 존재 확인. 설정에 YouTube 키 항목 추가. 테스트 계정 본인 키로 실제 호출 확인 완료.
+- ai-auto-blog v1.59: `/candidates` 화면 기존 ESLint 오류 9건 정리(기능 변경 없음). 상세: ai-auto-blog/AGENTS.md 2026-10-10 v1.59.
 - **BLOG 자동 포스팅 개선(v1.40~v1.57) 최종 인수인계 문서**: `docs/BLOG_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md` — 핵심 내용·처리 과정·로직·주의사항·시험 방법·남은 작업 전체 정리.
 - tistory-auto-blog v1.67: 홈주제 목록을 내 티스토리의 실제 목록과 맞춤 — 입력 중 발행 설정창에서 읽은 실제 홈주제 목록을 확장이 `tistoryHomeTopics`에 기억하고 웹 발행 설정 패널이 기본 목록과 병합해 보여 줌(`topics` 요청, 사이트 출처만). DB 변경 없음. 상세: tistory-auto-blog/AGENTS.md v1.67.
 - tistory-auto-blog v1.66: `/candidates`에 "유튜브 쇼츠 떡상 분석" 방식 추가(threads-content-ops·naver-blog-agent 기능 이식). 쇼츠 검색(본인 YouTube 키) → "주제로 저장" 시 AI(본인 Gemini/OpenAI 키)가 터진 이유를 분석해 블로그 주제 후보 최대 3건 저장. DB 변경 없음(`source_type='http'`+쇼츠 주소). 설정에 YouTube 키 항목 추가. 실제 키 호출 확인 완료(테스트 계정 본인 키로 검색·Gemini 영상 분석·DB 저장 형식 확인).

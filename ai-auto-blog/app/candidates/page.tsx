@@ -37,6 +37,10 @@ interface NewsblurFeed {
 type Method = 'http' | 'rss' | 'perplexity' | 'shorts'
 
 // 유튜브 쇼츠 떡상 분석(v1.58)으로 저장한 주제는 DB 변경 없이 source_type='http', source_input=쇼츠 주소로 저장되어 있다.
+type BrowserSupabase = ReturnType<typeof createClient>
+type AuthUserResult = { data: { user: { id: string; email?: string | null } | null } }
+const errorText = (err: unknown, fallback: string) => (err instanceof Error && err.message) || fallback
+
 const SHORTS_URL_PATTERN = /^https:\/\/www\.youtube\.com\/shorts\/[\w-]{11}$/
 const isShortsCandidate = (candidate: { source_input: string }) => SHORTS_URL_PATTERN.test(candidate.source_input)
 
@@ -56,11 +60,13 @@ const SOURCE_LABELS: Record<Method, string> = {
 
 export default function CandidatesPage() {
   const router = useRouter()
-  const [supabase, setSupabase] = useState<any>(null)
+  const [supabase, setSupabase] = useState<BrowserSupabase | null>(null)
   const [basePath, setBasePath] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // 서버 렌더에서는 브라우저 클라이언트를 만들 수 없어 마운트 후 한 번만 초기화한다.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSupabase(createClient())
       setBasePath(getBlogBasePath())
     }
@@ -99,7 +105,7 @@ export default function CandidatesPage() {
   const [nbPasswordInput, setNbPasswordInput] = useState('')
   const [nbSaving, setNbSaving] = useState(false)
 
-  const loadCandidates = async (sb: any, userId: string) => {
+  const loadCandidates = async (sb: BrowserSupabase, userId: string) => {
     const { data } = await sb
       .from('blog_candidates')
       .select('*')
@@ -108,7 +114,7 @@ export default function CandidatesPage() {
     setCandidates(data ?? [])
   }
 
-  const loadCategories = async (sb: any) => {
+  const loadCategories = async (sb: BrowserSupabase) => {
     const { data } = await sb.from('blog_categories').select('id, name, slug').order('id', { ascending: true })
     setCategories(data ?? [])
   }
@@ -129,7 +135,7 @@ export default function CandidatesPage() {
 
   useEffect(() => {
     if (!supabase) return
-    supabase.auth.getUser().then(async ({ data }: any) => {
+    supabase.auth.getUser().then(async ({ data }: AuthUserResult) => {
       const user = data?.user
       if (!user) {
         router.push(`${getBlogAuthPath()}?redirect=${getBlogBasePath()}/candidates`)
@@ -182,12 +188,14 @@ export default function CandidatesPage() {
         throw new Error(data.error || '수집에 실패했습니다.')
       }
       setResultMsg(`블로그 주제 ${data.count}건을 수집했습니다.`)
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) await loadCandidates(supabase, user.id)
-    } catch (err: any) {
-      setErrorMsg(err.message || '알 수 없는 오류가 발생했습니다.')
+      if (supabase) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (user) await loadCandidates(supabase, user.id)
+      }
+    } catch (err) {
+      setErrorMsg(errorText(err, '알 수 없는 오류가 발생했습니다.'))
     } finally {
       setCollecting(false)
     }
@@ -236,8 +244,8 @@ export default function CandidatesPage() {
       setNbUsernameInput('')
       setNbPasswordInput('')
       await loadNewsblurFeeds()
-    } catch (err: any) {
-      setNewsblurLoadError(err.message || 'NewsBlur 계정 연결에 실패했습니다.')
+    } catch (err) {
+      setNewsblurLoadError(errorText(err, 'NewsBlur 계정 연결에 실패했습니다.'))
     } finally {
       setNbSaving(false)
     }
@@ -258,8 +266,8 @@ export default function CandidatesPage() {
       const data = await res.json()
       if (!res.ok || !data.success) throw new Error(data.error || '삭제에 실패했습니다.')
       setCandidates((prev) => prev.filter((c) => c.id !== id))
-    } catch (err: any) {
-      alert(err.message || '삭제 중 오류가 발생했습니다.')
+    } catch (err) {
+      alert(errorText(err, '삭제 중 오류가 발생했습니다.'))
     } finally {
       setDeletingId(null)
     }
@@ -699,7 +707,7 @@ export default function CandidatesPage() {
         onCategoriesUpdated={() => {
           if (!supabase) return
           loadCategories(supabase)
-          supabase.auth.getUser().then(({ data }: any) => {
+          supabase.auth.getUser().then(({ data }: AuthUserResult) => {
             if (data?.user) loadCandidates(supabase, data.user.id)
           })
         }}

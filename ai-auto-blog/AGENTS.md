@@ -616,3 +616,8 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - **시험**: `npm run test:shorts` 18개(지표·등급·검색 호출 방식·오류 문구·키 비노출·프롬프트·JSON 정리·Gemini 영상/OpenAI 대체/키 없음·접근 권한·입력 검증·중복 선차단·카테고리 존재 확인·저장 형식·실패 처리). **실제 호출 확인(2026-10-10, 주인님 승인, 테스트 계정 buylifemall@naver.com의 본인 키)**: "재테크 팁" 검색 36개 → 1위 영상을 Gemini가 영상을 직접 보고 분석해 주제 3건을 만들었고, 실제 `blog_candidates`에 저장 형식으로 넣고 읽은 뒤 시험 행은 삭제했다. 화면(로그인 필요) 확인은 주인님 PC에서. 확장은 변경 없음(ZIP·manifest 버전만 v1.58).
 - 참고: `app/candidates/page.tsx`의 기존 ESLint 오류(BLOG는 아직 정리 전)는 이번에 늘리지 않았고, 새 파일은 오류 0이다.
 - **API 경로 실제 시험(2026-10-10, 테스트 계정 본인 키, BLOG 카테고리는 공통 목록)**: 실제 route 코드를 실제 YouTube·Gemini·DB로 실행(인증 층만 계정 고정) — GET 키 등록 여부(값 비노출) → 검색 50개 → 1위 영상 분석·저장(영상 직접 분석, 주제 3건, 본인 카테고리 반영) → DB 행 확인 → 같은 영상 재분석 409(AI 미호출) → 잘못된 영상 ID 400 → 시험 행 삭제까지 모두 통과. 로그인 쿠키를 거치는 화면 흐름만 주인님 PC에서 확인이 남아 있다.
+
+## 2026-10-10 v1.59 — `/candidates` 화면의 기존 ESLint 오류 정리 (기능 변경 없음)
+
+- `app/candidates/page.tsx`의 ESLint 오류 9건 → 0건(경고 1건 `userEmail` 미사용은 그대로). `any`를 실제 타입으로 교체(`BrowserSupabase = ReturnType<typeof createClient>`, 로그인 정보 결과 타입 `AuthUserResult`), `catch (err: any)` 3곳은 `errorText(err, 대체문구)`로 바꿔 기존 `err.message || '대체 문구'` 동작을 유지, 마운트 후 한 번만 하는 브라우저 클라이언트 초기화에는 사유를 적은 `eslint-disable-next-line react-hooks/set-state-in-effect`를 붙였다(서버 렌더에서는 만들 수 없어 구조 유지). 수집 직후 `supabase`가 비어 있으면 목록 새로고침만 건너뛴다.
+- 검사: `npx eslint app/candidates/page.tsx`(오류 0), `npx tsc --noEmit`, `test:shorts` 등 자동 시험, `npm run build`. 확장은 변경 없음(ZIP·manifest 버전만 v1.59).
