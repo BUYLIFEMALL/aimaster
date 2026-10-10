@@ -553,3 +553,10 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - **코드**: `background.js` `loadSettings()`가 옵션을 읽어 엔진 `settings.imageAi`로 전달, `blog-engine.js` 4단계가 `settings.imageAi === true`일 때만 `applyImageAi()` 호출, `sidepanel.js/html` 체크박스. 서버 변경 없음.
 - **시험**: `tests/extension-engine.test.cjs` 29개(기본·명시 꺼짐은 호출 없음, 켜짐은 호출, 이미지 없으면 호출 없음), `tests/extension-worker.test.cjs` 17개(저장값이 실행에 전달됨). `npm run test:extension` 67개.
 - **참고**: 네이버가 AI 생성 이미지 표시를 얼마나 엄격히 요구하는지는 확인하지 않았다(주인님 판단으로 기본 꺼짐). 정책 요구가 확인되면 기본값을 켜짐으로 되돌릴 수 있다(`background.js`의 `imageAi: all[KEY.imageAi] === true` 한 줄과 사이드패널 기본 체크).
+
+## 2026-10-10 v1.50 — 확장 "에디터 구조 분석"을 관리자 계정에만 표시 (주인님 지시, 정리 1/6)
+
+- 구조 분석(네이버 글쓰기 화면의 요소를 수집해 오류 진단에 쓰는 도구)은 앞으로 확장 개발·오류 진단에 계속 필요할 수 있어 **없애지 않고 관리자 계정으로 연결했을 때만** 사이드패널에 보이게 했다. 일반 회원 화면에는 나타나지 않는다.
+- 서버: `verifyExtensionToken`(`utils/extensionAuth.ts`)이 `profiles.is_admin`을 함께 읽어 `isAdmin`(true일 때만 true)을 돌려주고, `GET /api/extension/whoami` 응답에 `isAdmin`을 넣는다. **화면 표시용 값이며 서버 API 권한 판정에는 쓰지 않는다**(구조 분석은 회원 본인 PC에서 본인 네이버 화면만 읽는 읽기 전용 도구).
+- 확장: `sidepanel.html` 구조 분석 카드를 기본 숨김(`hidden`, "관리자" 배지), `sidepanel.js`가 연결 확인(`renderStatus`·연결 버튼) 결과의 `isAdmin`으로 표시를 결정. 연결 안 됨·오프라인·일반 회원이면 숨김.
+- 시험: `tests/extension-api.test.cjs` 34개(whoami가 관리자 여부를 돌려줌, 토큰 검증이 `is_admin`을 읽고 true가 아니면 일반 회원 처리). `test:extension` 67개, 보안 39, 생성 7, 빌드.

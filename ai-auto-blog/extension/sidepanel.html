@@ -95,8 +95,9 @@
       </div>
       <div id="publishStatus" class="status">카테고리·태그 설정 대기 중</div>
     </section>
-    <section class="card">
-      <h2>에디터 구조 분석</h2>
+    <!-- 관리자 계정으로 연결했을 때만 보인다(개발·오류 진단용). 일반 회원 화면에는 나타나지 않는다. -->
+    <section class="card" id="inspectCard" hidden>
+      <h2>에디터 구조 분석 <span class="review-badge">관리자</span></h2>
       <p class="hint">입력 오류가 나면 네이버 글쓰기 화면에서 이 분석을 실행하고 결과를 복사해 전달해주세요.</p>
       <button id="inspect">구조 분석</button>
       <div id="inspectStatus" class="status">대기 중</div>

@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     email: user.email,
     name: user.name,
+    isAdmin: user.isAdmin,
     latestVersion: APP_VERSION,
     downloadUrl: `/downloads/ai-auto-blog-extension-latest.zip`,
   })
