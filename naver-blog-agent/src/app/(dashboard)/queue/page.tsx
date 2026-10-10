@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -27,6 +27,8 @@ import {
   Check,
   Filter,
 } from "lucide-react";
+import ExecutionProgress from "@/components/ExecutionProgress";
+import type { ExecutionStatus } from "@/lib/executionStatus";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import { bodyImageAt } from "@/lib/draftImages";
@@ -52,9 +54,11 @@ interface SavedPostItem {
   published_at?: string;
   post_url?: string;
   error_message?: string;
+  execution?: ExecutionStatus | null;
 }
 
 export default function QueuePage() {
+  const listEpoch=useRef(0);
   const [posts, setPosts] = useState<SavedPostItem[]>([]);
   const [selectedPost, setSelectedPost] = useState<SavedPostItem | null>(null);
   const [viewingDetailPost, setViewingDetailPost] = useState<SavedPostItem | null>(null);
@@ -80,13 +84,15 @@ export default function QueuePage() {
   const visibilityLabel = publishVisibility === "public" ? "전체공개" : "비공개";
 
   // 4. 원고 목록 로드
-  const fetchPosts = async () => {
-    setIsLoading(true);
+  const fetchPosts = useCallback(async (background = false) => {
+    const epoch=++listEpoch.current;
+    if(!background)setIsLoading(true);
     try {
       const res = await fetch("/api/posts");
       if (res.ok) {
         const data = await res.json();
-        if (data?.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+        if(epoch!==listEpoch.current)return;
+        if (Array.isArray(data?.posts)) {
           setPosts(data.posts);
           localStorage.setItem("nba_saved_posts", JSON.stringify(data.posts));
           setIsLoading(false);
@@ -97,7 +103,8 @@ export default function QueuePage() {
       console.warn("서버 원고 로드 실패, 로컬 캐시 확인:", err);
     }
 
-    // 서버에 글이 없거나 실패 시 로컬스토리지 캐시 확인
+    if(background || epoch!==listEpoch.current)return;
+    // 서버 응답을 확인하지 못했을 때만 로컬 캐시 확인
     const saved = localStorage.getItem("nba_saved_posts");
     if (saved) {
       try {
@@ -112,13 +119,22 @@ export default function QueuePage() {
 
     setPosts([]);
     setIsLoading(false);
-  };
+  },[]);
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
+
+  const hasRunning=posts.some(post=>["queued","publishing"].includes(post.status));
+  useEffect(()=>{
+    if(!hasRunning)return;
+    const timer=setInterval(()=>{fetchPosts(true);},10000);
+    return ()=>clearInterval(timer);
+  },[hasRunning,fetchPosts]);
 
   const savePosts = (items: SavedPostItem[]) => {
+    listEpoch.current++;
+    setIsLoading(false);
     setPosts(items);
     localStorage.setItem("nba_saved_posts", JSON.stringify(items));
   };
@@ -276,28 +292,15 @@ export default function QueuePage() {
 
     setIsBulkUpdating(true);
     const targetIds = [...checkedIds];
-    const updated = posts.filter((p) => !targetIds.includes(p.id));
-    savePosts(updated);
-
-    if (viewingDetailPost && targetIds.includes(viewingDetailPost.id)) {
-      setViewingDetailPost(null);
-    }
-
-    try {
-      await Promise.allSettled(
-        targetIds.map((id) =>
-          fetch(`/api/posts?id=${encodeURIComponent(id)}`, {
-            method: "DELETE",
-          })
-        )
-      );
-    } catch (err) {
-      console.warn("서버 원고 일괄 삭제 실패:", err);
-    }
-
-    setIsBulkUpdating(false);
-    setCheckedIds([]);
-    alert(`선택한 원고 ${targetIds.length}건이 삭제되었습니다.`);
+    const outcomes=await Promise.allSettled(targetIds.map(async id=>{
+      const res=await fetch(`/api/posts?id=${encodeURIComponent(id)}`,{method:"DELETE"});
+      const data=await res.json();if(!res.ok || data.success!==true)throw new Error(data.error || "삭제 실패");return id;
+    }));
+    const accepted=outcomes.filter((item):item is PromiseFulfilledResult<string>=>item.status==="fulfilled").map(item=>item.value);
+    savePosts(posts.filter(post=>!accepted.includes(post.id)));
+    if(viewingDetailPost && accepted.includes(viewingDetailPost.id))setViewingDetailPost(null);
+    setIsBulkUpdating(false);setCheckedIds([]);
+    alert(`삭제 ${accepted.length}건 / 실패 ${targetIds.length-accepted.length}건. 진행 중인 원고는 먼저 결과를 확인해 주세요.`);
   };
 
   // 즉시 발행 요청 (단일)
@@ -323,18 +326,13 @@ export default function QueuePage() {
   // 단일 원고 삭제
   const handleDelete = async (id: string) => {
     if (!confirm("이 원고를 보관함에서 삭제하시겠습니까?")) return;
-    const updated = posts.filter((p) => p.id !== id);
-    savePosts(updated);
-    setCheckedIds((prev) => prev.filter((i) => i !== id));
-    if (viewingDetailPost?.id === id) setViewingDetailPost(null);
-
     try {
-      await fetch(`/api/posts?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
-    } catch (err) {
-      console.warn("서버 원고 삭제 실패:", err);
-    }
+      const res=await fetch(`/api/posts?id=${encodeURIComponent(id)}`,{method:"DELETE"});
+      const data=await res.json();if(!res.ok || data.success!==true)throw new Error(data.error || "삭제 저장을 확인하지 못했습니다.");
+      savePosts(posts.filter(post=>post.id!==id));
+      setCheckedIds(prev=>prev.filter(item=>item!==id));
+      if(viewingDetailPost?.id===id)setViewingDetailPost(null);
+    }catch(err){alert(err instanceof Error?err.message:"삭제를 확인하지 못했습니다.");}
   };
 
   // 원고 복사
@@ -845,7 +843,7 @@ export default function QueuePage() {
             </span>
             <button
               type="button"
-              onClick={fetchPosts}
+              onClick={()=>{fetchPosts();}}
               disabled={isLoading}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-neutral-900 hover:border-neutral-300 transition-all disabled:opacity-50 cursor-pointer"
               title="원고 목록 새로고침"
@@ -944,6 +942,7 @@ export default function QueuePage() {
 
                     {/* 본문 정보 */}
                     <div className="space-y-1.5 min-w-0 flex-1">
+                      <ExecutionProgress key={post.execution?.runId || post.id} id={post.id} status={post.status} execution={post.execution} onRecovered={()=>{fetchPosts(true);}} />
                       {/* 상태 배지 & 카테고리 연계 드롭다운 */}
                       <div className="flex items-center gap-2 flex-wrap">
                         {post.status === "prepared" && <span className="text-xs text-sky-700">발행 전 준비 완료 · 열린 네이버 탭에서 직접 최종 발행</span>}

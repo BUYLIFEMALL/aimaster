@@ -10,11 +10,12 @@ export async function authenticateExtension(
   if (!token) return { ok: false, error: "인증 토큰이 누락되었습니다.", status: 401 };
 
   const admin = createAdminClient() as any;
-  const { data: record } = await admin
+  const { data: record, error: tokenError } = await admin
     .from("nba_extension_tokens")
     .select("user_id")
     .eq("token", token)
     .maybeSingle();
+  if(tokenError)return {ok:false,error:"확장 연결 확인이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.",status:503};
   if (!record) return { ok: false, error: "유효하지 않은 토큰입니다. 다시 연결해주세요.", status: 401 };
 
   const access = await evaluateProgramAccessForUser(record.user_id);

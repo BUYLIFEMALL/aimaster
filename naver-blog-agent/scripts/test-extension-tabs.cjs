@@ -14,8 +14,8 @@ async function browser(initial={}) {
   const data=structuredClone(initial), tabs=new Map(), events={}, calls=[], reports=[], warnings=[];
   let execute = async({args})=>[{frameId:0,result:args[0]==='inspect'?{status:'valid',hasContent:false}:{ok:true,categories:[{id:'29',name:'AI'}]}}];
   const normalNetwork=async(url,init)=>({ok:true,json:async()=>url.endsWith('/finish')
-    ? {success:true,persisted:true,taskId:JSON.parse(init.body).taskId,status:JSON.parse(init.body).prepared?'prepared':JSON.parse(init.body).success?'published':'failed'}
-    : {task:null,state:'running',userId:'owner'}});
+    ? {success:true,persisted:true,taskId:JSON.parse(init.body).taskId,runId:JSON.parse(init.body).runId,status:JSON.parse(init.body).prepared?'prepared':JSON.parse(init.body).success?'published':'failed'}
+    : {task:null,state:'running',runId:init?.body?JSON.parse(init.body).runId:undefined,leaseMs:180000,userId:'owner'}});
   let network = normalNetwork;
   const event=name=>({addListener(fn){events[name]=fn;}});
   const absent=id=>new Error('No tab with id: '+id+'.');
@@ -212,6 +212,47 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     await b.events.updated(999,{status:'complete'},{url:'https://example.com'});assert.equal(b.data.connectionError,'Storage unavailable');
     b.sandbox.chrome.storage.local.set=async()=>{throw new Error('Storage unavailable');};
     await b.events.removed(1);assert.equal(b.warnings.length,1);
+  });
+  await scenario('lost claim response returns recovery without editor input',async()=>{
+    const b=await browser({connection});
+    b.network(async()=>({ok:true,json:async()=>({task:null,recovery:{id:'task',runId:'lost',stage:'claimed'}})}));
+    await b.sandbox.pump();assert.equal(b.data.recovery.runId,'lost');assert.equal(b.calls.some(call=>['create','script','update'].includes(call[0])),false);assert.equal(b.reports.length,0);
+  });
+  await scenario('wrong run receipt retains pending result and retries only reporting',async()=>{
+    const active={...task('prepared'),runId:'current',type:'prepare',payload:{executionMode:'prepare'}};
+    const b=await browser({connection,activeTask:active});b.add();
+    b.network(async()=>({ok:true,json:async()=>({success:true,persisted:true,taskId:'task',runId:'wrong',status:'prepared'})}));
+    await b.sandbox.pump();assert.equal(b.data.pendingResult.runId,'current');assert.equal(b.data.activeTask.stage,'prepared');assert.equal(b.calls.some(call=>call[0]==='script'),false);
+    b.resetNetwork();await b.sandbox.pump();assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.activeTask,undefined);assert.equal(b.reports.every(result=>result.runId==='current'),true);
+  });
+  await scenario('superseded result preserves actual outcome and checkpoint separately',async()=>{
+    const active={...task('final_publish'),runId:'old'};
+    const b=await browser({connection,activeTask:active,pendingResult:{id:'task',runId:'old',result:{published:true,url:'https://blog.naver.com/myblog/123'}},authoringCheckpoint:{done:8}});
+    b.network(async()=>({ok:false,status:409,json:async()=>({error:'이전 실행',code:'RUN_SUPERSEDED'})}));
+    await b.sandbox.pump();assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.activeTask,undefined);
+    assert.equal(b.data.resultConflicts[0].result.published,true);assert.equal(b.data.resultConflicts[0].checkpoint.done,8);assert.equal(b.calls.some(call=>call[0]==='script'||call[0]==='create'),false);
+  });
+  await scenario('expired run stops before any tab change and awaits member recovery',async()=>{
+    const b=await browser({connection,activeTask:{...task('waiting_login'),runId:'expired'},authoringCheckpoint:{done:2}});b.add();
+    b.network(async()=>({ok:false,status:409,json:async()=>({error:'실행 만료',code:'LEASE_EXPIRED'})}));
+    await b.sandbox.pump();assert.equal(b.data.activeTask.runId,'expired');assert.equal(b.data.authoringCheckpoint.done,2);assert.equal(b.calls.length,0);assert.equal(b.reports.length,0);
+  });
+  await scenario('modern injection carries run identity and finite browser deadline',async()=>{
+    const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});b.add();let permission;
+    b.execute(async request=>{if(request.args[0]==='paragraph')permission=request.args[1];return [{frameId:0,result:request.args[0]==='inspect'?{status:'valid'}:{ok:true}}];});
+    await b.sandbox.command(1,'paragraph',{text:'본문'});assert.equal(permission.runId,'current');assert.ok(permission.executionUntil>Date.now());assert.ok(permission.executionUntil<=Date.now()+180000);
+  });
+  await scenario('final stage refusal prevents the actual final publication click',async()=>{
+    const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});b.add();let finalClicks=0;
+    b.sandbox.writeArticle=async()=>({complete:true});
+    b.execute(async request=>{if(request.args[0]==='click' && request.args[1].selector.includes('tpb*i.publish'))finalClicks++;return [{frameId:0,result:request.args[0]==='inspect'?{status:'valid'}:{ok:true}}];});
+    b.network(async(_url,init)=>{const body=JSON.parse(init.body);return body.action==='stage'&&body.stage==='final_publish'?{ok:false,status:409,json:async()=>({error:'만료',code:'LEASE_EXPIRED'})}:{ok:true,json:async()=>({state:'running',runId:body.runId,leaseMs:180000})};});
+    await assert.rejects(()=>b.sandbox.publish({...task('writing'),runId:'current'}),error=>error.code==='LEASE_EXPIRED');assert.equal(finalClicks,0);
+  });
+  await scenario('member recovery retires local stopped task so the extension can accept a new run',async()=>{
+    const b=await browser({connection,activeTask:{...task('waiting_login'),runId:'retired'},authoringCheckpoint:{done:4}});
+    b.network(async()=>({ok:true,json:async()=>({state:'draft',execution:{runId:'retired',stage:'abandoned'}})}));
+    await b.sandbox.pump();assert.equal(b.data.activeTask,undefined);assert.equal(b.data.resultConflicts[0].runId,'retired');assert.equal(b.data.resultConflicts[0].checkpoint.done,4);assert.equal(b.calls.length,0);
   });
   console.log(`${passed} browser lifecycle regression scenarios passed`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -53,6 +53,7 @@ function loadTS(rel) {
     if (id === 'next/server') return { NextResponse: { json: (body, init) => ({ status: (init && init.status) || 200, body }) } };
     if (id === '@/lib/access') return { checkProgramAccessApi: async () => ({ allowed: true, userId: currentUser }) };
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => admin };
+    if (id === '@/lib/executionRuns') return loadTS('lib/executionRuns.ts');
     if (id === '@/lib/postStatus') return loadTS('lib/postStatus.ts');
     if (id === '@/lib/postReview') return loadTS('lib/postReview.ts');
     if (id === './postReviewSnapshot') return loadTS('lib/postReviewSnapshot.ts');

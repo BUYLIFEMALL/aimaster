@@ -11,7 +11,7 @@ const queue='src/app/(dashboard)/queue/page.tsx',main='src/app/(dashboard)/page.
 function environment(fetch) {
   const saved=[],alerts=[],errors=[],ids=[],cache=new Map();
   const posts=[{id:'a',status:'draft'},{id:'b',status:'draft'}];
-  return {saved,alerts,errors,ids,cache,env:{fetch,posts,checkedIds:['a','b'],publishVisibility:'private',visibilityLabel:'비공개',confirm:()=>true,alert:value=>alerts.push(value),savePosts:rows=>saved.push(rows),setIsBulkUpdating(){},setCheckedIds(){},
+  return {saved,alerts,errors,ids,cache,env:{useCallback:fn=>fn,listEpoch:{current:0},fetch,posts,checkedIds:['a','b'],publishVisibility:'private',visibilityLabel:'비공개',confirm:()=>true,alert:value=>alerts.push(value),savePosts:rows=>saved.push(rows),setIsBulkUpdating(){},setCheckedIds(){},
     sourceEpoch:{current:1},postIdRef:{current:null},selectedBlogId:'myblog',window:{},localStorage:{getItem:key=>cache.get(key)||null,setItem:(key,value)=>cache.set(key,value)},setError:value=>errors.push(value),setCurrentPostId:value=>ids.push(value),setSavedPostCount(){},resolveSaveStatus:(_previous,current)=>current}};
 }
 test('single dispatch rejection never changes local status or reports registration success',async()=>{
@@ -121,4 +121,28 @@ test('rejected editor save preserves the queue row and editor buffer; modal clos
   const base={saving:false,title:'edit',editorMode:'code',codeContent:'body',htmlContent:'',excerpt:'',tags:[],category:'category',setSaving(){},onClose:()=>closes++,alert(){}};
   await handler(modal,'handleSave',{...base,onSave:async()=>false})();assert.equal(closes,0);
   await handler(modal,'handleSave',{...base,onSave:async()=>true})();assert.equal(closes,1);
+});
+
+test('running post delete rejection keeps local row; bulk deletion updates only accepted IDs',async()=>{
+  const h=environment(async()=>({ok:false,json:async()=>({error:'입력 중 삭제 불가'})}));
+  Object.assign(h.env,{viewingDetailPost:null,setViewingDetailPost(){}});
+  await handler(queue,'handleDelete',h.env)('a');assert.equal(h.saved.length,0);assert.match(h.alerts[0],/입력 중/);
+  const bulk=environment(async url=>({ok:url.includes('id=a'),json:async()=>url.includes('id=a')?{success:true}:{error:'입력 중'}}));
+  Object.assign(bulk.env,{viewingDetailPost:null,setViewingDetailPost(){}});
+  await handler(queue,'handleBulkDelete',bulk.env)();assert.deepEqual(bulk.saved[0].map(post=>post.id),['b']);assert.match(bulk.alerts[0],/삭제 1건 \/ 실패 1건/);
+});
+test('server empty queue never resurrects old cached tasks during refresh',async()=>{
+  const h=environment(async()=>({ok:true,json:async()=>({posts:[]})}));let shown;
+  h.cache.set('nba_saved_posts',JSON.stringify([{id:'stale',status:'publishing'}]));
+  Object.assign(h.env,{setIsLoading(){},setPosts:posts=>shown=posts});
+  await handler(queue,'fetchPosts',h.env)();assert.deepEqual(shown,[]);assert.deepEqual(JSON.parse(h.cache.get('nba_saved_posts')),[]);
+});
+
+test('late list response cannot replace a newer member save ACK',async()=>{
+  let resolve,shown=0;
+  const h=environment(()=>new Promise(done=>resolve=done));
+  Object.assign(h.env,{setIsLoading(){},setPosts:()=>shown++});
+  const fetchList=handler(queue,'fetchPosts',h.env);const pending=fetchList(true);
+  h.env.listEpoch.current++;resolve({ok:true,json:async()=>({posts:[{id:'a',status:'draft'}]})});
+  await pending;assert.equal(shown,0);assert.equal(h.cache.size,0);
 });

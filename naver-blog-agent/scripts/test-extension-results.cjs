@@ -10,6 +10,10 @@ const source = process.argv[2]
   ? require('node:child_process').execFileSync('git',['show',process.argv[2]+':naver-blog-agent/src/app/api/extension/finish/route.ts'],{encoding:'utf8'})
   : fs.readFileSync(filename,'utf8');
 const compiled = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+function loadRuntime(){
+ const m={exports:{}};const js=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/executionRuns.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
+ new Function('require','module','exports',js)(require,m,m.exports);return m.exports;
+}
 function loadPublishing(){
  const m={exports:{}};const js=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/naverPublishing.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
  new Function('module','exports',js)(m,m.exports);return m.exports;
@@ -38,7 +42,7 @@ function harness(options={}) {
   const module={exports:{}};
   const requireMock=name=>name==='next/server'?{NextResponse:{json:(body,init)=>({body,status:init?.status||200,headers:init?.headers||{}})}}
     :name==='@/lib/supabase/admin'?{createAdminClient:()=>admin}
-    :name==='@/lib/naverPublishing'?loadPublishing():name==='@/lib/access'?{evaluateProgramAccessForUser:async()=>access}:require(name);
+    :name==='@/lib/executionRuns'?loadRuntime():name==='@/lib/naverPublishing'?loadPublishing():name==='@/lib/access'?{evaluateProgramAccessForUser:async()=>access}:require(name);
   new Function('require','module','exports',compiled)(requireMock,module,module.exports);
   const send=(body={taskId:'task',success:true,postUrl:'https://blog.naver.com/myblog/123'},token='token')=>module.exports.POST({
     headers:{get:()=>token?`Bearer ${token}`:null},json:async()=>{if(body==='invalid-json')throw new Error('bad json');return body;},

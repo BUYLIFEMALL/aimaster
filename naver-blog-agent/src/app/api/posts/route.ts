@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveSaveStatus } from "@/lib/postStatus";
 import { getPostReview, changesAuthoring } from "@/lib/postReview";
+import { publicExecution, publicPost } from "@/lib/executionRuns";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -90,6 +91,7 @@ export async function GET(request: Request) {
         post_url: row.post_url,
         error_message: row.error_message,
         review: getPostReview(row),
+        execution: publicExecution(row.research_summary),
       }));
 
       return NextResponse.json({ posts });
@@ -203,7 +205,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      return NextResponse.json({ post: {...data,review:getPostReview(data)}, success: true });
+      return NextResponse.json({ post: {...publicPost(data),review:getPostReview(data)}, success: true });
     } else {
       // naver_blog_seo_drafts 테이블 활용
       const record: any = {
@@ -282,6 +284,7 @@ export async function PUT(request: Request) {
         .eq("id",payload.id).eq("user_id",user.id).maybeSingle();
       if(readError)return NextResponse.json({error:"원고 상태를 확인하지 못했습니다."},{status:503});
       if(!current)return NextResponse.json({error:"본인 원고를 찾을 수 없습니다."},{status:404});
+      if(current.status==="publishing" && (payload.status!==undefined || payload.publish_visibility!==undefined || payload.post_url!==undefined || payload.error_message!==undefined))return NextResponse.json({error:"입력 중인 원고는 진행 결과 또는 연결 종료 후 복구로만 상태를 바꿀 수 있습니다."},{status:409});
       if(["queued","publishing"].includes(current.status) && changesAuthoring(current,payload as unknown as Record<string,unknown>))return NextResponse.json({error:"대기·입력 중인 원고는 변경할 수 없습니다. 대기를 취소한 뒤 저장해 주세요."},{status:409});
 
       const updates: any = {
@@ -322,7 +325,7 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      return NextResponse.json({ post: {...data,review:getPostReview(data)}, success: true });
+      return NextResponse.json({ post: {...publicPost(data),review:getPostReview(data)}, success: true });
     } else {
       // naver_blog_seo_drafts 테이블 업데이트
       const updates: any = {
@@ -379,15 +382,20 @@ export async function DELETE(request: Request) {
     const targetTable = await resolveActiveTable(admin);
 
     if (targetTable === "nba_posts") {
-      const { error } = await admin
+      const {data:current,error:readError}=await admin.from("nba_posts").select("id,status,updated_at").eq("id",id).eq("user_id",user.id).maybeSingle();
+      if(readError)return NextResponse.json({error:"삭제 전 실행 상태를 확인하지 못했습니다."},{status:503});
+      if(!current)return NextResponse.json({error:"본인 원고를 찾을 수 없습니다."},{status:404});
+      if(current.status==="publishing")return NextResponse.json({error:"입력 중인 원고는 삭제할 수 없습니다. 연결 종료 후 복구해 주세요."},{status:409});
+      const { data:deleted,error } = await admin
         .from("nba_posts")
         .delete()
         .eq("id", id)
-        .eq("user_id", user.id);
+        .eq("user_id", user.id).eq("status",current.status).eq("updated_at",current.updated_at).select("id");
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
+      if(!deleted?.length)return NextResponse.json({error:"원고 상태가 변경됐습니다. 새로고침해 주세요."},{status:409});
     } else {
       const { error } = await admin
         .from("naver_blog_seo_drafts")

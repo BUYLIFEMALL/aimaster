@@ -8,7 +8,7 @@ const source=process.argv[2]
   : fs.readFileSync(path.join(__dirname,'../extension/editor.js'),'utf8');
 // Run the real editor command. A minimal screen lets us distinguish a library
 // panel from a real alert without typing or publishing in a member's browser.
-async function focus(popups=[],library=false){
+async function focus(popups=[],library=false,args={},replaceOnWait=false){
   const clicks=[];
   const title={id:'title',tagName:'P',isContentEditable:true,getClientRects:()=>[{}],
     getBoundingClientRect:()=>({left:0,top:0,width:100,height:20}),querySelectorAll:()=>[],
@@ -21,11 +21,11 @@ async function focus(popups=[],library=false){
       :selector==='.se-popup-container,[role="dialog"][aria-modal="true"]'?[...popups,...(library?[{getClientRects:()=>[{}]}]:[])]
       :selector.includes('[role="dialog"]')&&library?[{getClientRects:()=>[{}]}]:[]};
   title.ownerDocument=document;
-  const sandbox={document,window:{},console,URL,Promise,setTimeout:fn=>fn(),
+  const sandbox={document,window:{},console,URL,Promise,setTimeout:fn=>{if(replaceOnWait)sandbox.__nbaExecutionRun="new-run";fn();},
     getComputedStyle:el=>({visibility:el.hidden?'hidden':'visible'}),
     getSelection:()=>({removeAllRanges(){},addRange(){}}),MouseEvent:class{constructor(type){this.type=type;}}};
   vm.createContext(sandbox);vm.runInContext(source,sandbox);
-  return {result:await sandbox.editorCommand('preflightTitle'),clicks};
+  return {result:await sandbox.editorCommand('preflightTitle',args),clicks};
 }
 function popup({title='',message='',hidden=false,rects=[{}]}={}){
   return {hidden,getClientRects:()=>rects,querySelector:selector=>{
@@ -48,4 +48,13 @@ test('hidden and unlabeled containers do not block a fresh empty editor',async()
   for(const options of [{title:'숨겨짐',hidden:true},{title:'숨겨짐',rects:[]},{}]){
     const {result}=await focus([popup(options)]);assert.equal(result.ok,true,JSON.stringify(result));
   }
+});
+
+test('an injected command whose lease expired stops before any DOM selection',async()=>{
+  const {result,clicks}=await focus([],false,{runId:'old-run',executionUntil:Date.now()-1});
+  assert.equal(result.ok,false);assert.match(result.error,/실행 연결이 만료/);assert.deepEqual(clicks,[]);
+});
+test('a delayed injected operation cannot continue after a newer run takes the same frame',async()=>{
+  const {result}=await focus([],false,{runId:'old-run',executionUntil:Date.now()+180000},true);
+  assert.equal(result.ok,false);assert.match(result.error,/새 실행으로 바뀌어/);
 });
