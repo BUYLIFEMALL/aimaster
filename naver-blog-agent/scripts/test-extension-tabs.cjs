@@ -13,7 +13,10 @@ async function scenario(name, check) { await check(); passed++; console.log('PAS
 async function browser(initial={}) {
   const data=structuredClone(initial), tabs=new Map(), events={}, calls=[], reports=[], warnings=[];
   let execute = async({args})=>[{frameId:0,result:args[0]==='inspect'?{status:'valid',hasContent:false}:{ok:true,categories:[{id:'29',name:'AI'}]}}];
-  let network = async()=>({ok:true,json:async()=>({task:null,state:'running',userId:'owner'})});
+  const normalNetwork=async(url,init)=>({ok:true,json:async()=>url.endsWith('/finish')
+    ? {success:true,persisted:true,taskId:JSON.parse(init.body).taskId,status:JSON.parse(init.body).success?'published':'failed'}
+    : {task:null,state:'running',userId:'owner'}});
+  let network = normalNetwork;
   const event=name=>({addListener(fn){events[name]=fn;}});
   const absent=id=>new Error('No tab with id: '+id+'.');
   const get=async id=>{calls.push(['get',id]);if(!tabs.has(id))throw absent(id);return structuredClone(tabs.get(id));};
@@ -35,7 +38,7 @@ async function browser(initial={}) {
   const connection=data.connection;delete data.connection;
   vm.createContext(sandbox);vm.runInContext(source,sandbox);await flush();
   if(connection)data.connection=connection;
-  return {sandbox,data,tabs,events,calls,reports,warnings,execute:fn=>execute=fn,network:fn=>network=fn,
+  return {sandbox,data,tabs,events,calls,reports,warnings,execute:fn=>execute=fn,network:fn=>network=fn,resetNetwork:()=>network=normalNetwork,
     send:(message,sender={})=>new Promise(resolve=>events.message(message,sender,resolve)),
     add:(id=1)=>tabs.set(id,{id,windowId:1,status:'complete',url:'https://blog.naver.com/myblog/postwrite'})};
 }
@@ -128,8 +131,30 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     b.network(async url=>{if(url.endsWith('/finish'))throw new Error('Failed to fetch');return {ok:true,json:async()=>({state:'running'})};});
     await assert.rejects(()=>b.sandbox.resume(task('writing')),/Failed to fetch/);
     assert.equal(b.reports.length,1);assert.equal(b.data.pendingResult.result.published,true);assert.equal(b.data.pendingResult.error,undefined);
-    b.network(async()=>({ok:true,json:async()=>({task:null})}));await b.sandbox.pump();
+    b.resetNetwork();await b.sandbox.pump();
     assert.equal(b.reports.length,2);assert.equal(b.reports[1].success,true);assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.activeTask,undefined);assert.equal(b.data.authoringCheckpoint.done,10);
+  });
+  for(const [name,receipt] of [
+    ['missing storage confirmation',{success:true}],
+    ['storage failure',{success:true,persisted:false,taskId:'task',status:'published'}],
+    ['different task',{success:true,persisted:true,taskId:'other',status:'published'}],
+    ['different outcome',{success:true,persisted:true,taskId:'task',status:'failed'}],
+  ])await scenario('HTTP 200 '+name+': keep success and retry reporting without input',async()=>{
+    const pending={id:'task',result:{published:true,url:'https://blog.naver.com/myblog/123'}};
+    const b=await browser({connection,activeTask:task('final_publish'),pendingResult:pending,authoringCheckpoint:{done:10}});
+    b.network(async()=>({ok:true,json:async()=>receipt}));await b.sandbox.pump();
+    assert.deepEqual(b.data.pendingResult,pending);assert.equal(b.data.activeTask.stage,'final_publish');
+    assert.match(b.data.connectionError,/결과 저장 확인/);assert.equal(b.calls.length,0);
+    b.resetNetwork();await b.sandbox.pump();assert.equal(b.reports.length,2);
+    assert.equal(b.reports[1].success,true);assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.activeTask,undefined);
+    assert.equal(b.data.authoringCheckpoint.done,10);assert.equal(b.calls.length,0);
+  });
+  await scenario('HTTP 503 DB rejection: keep confirmed result until server recovers',async()=>{
+    const pending={id:'task',result:{published:true,url:null}};
+    const b=await browser({connection,activeTask:task('final_publish'),pendingResult:pending});
+    b.network(async()=>({ok:false,status:503,json:async()=>({error:'발행 결과 저장을 확인하지 못했습니다.'})}));
+    await b.sandbox.pump();assert.deepEqual(b.data.pendingResult,pending);assert.match(b.data.connectionError,/저장/);
+    b.resetNetwork();await b.sandbox.pump();assert.equal(b.data.pendingResult,undefined);assert.equal(b.calls.length,0);
   });
   await scenario('successful category read survives closed web requester; member isolation still enforced',async()=>{
     const b=await browser({connection,editorTab:1});b.add();

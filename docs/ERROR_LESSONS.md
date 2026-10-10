@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-10 — HTTP 성공으로 DB 저장 성공을 판정하면 확정 결과가 유실 (naver-blog-agent v1.64)
+
+- **증상:** 기존 finish route는 Supabase가 update error를 반환하거나 반영된 원고가 없어도 HTTP200 success:true. 확장이 실제 발행 결과를 지울 수 있었습니다.
+- **원인:** Supabase update는 기본적으로 행을 반환하지 않으며 error가 반드시 throw되는 것도 아닙니다. 네트워크 성공만으로 저장 성공을 판정했습니다.
+- **해결(위치):** `naver-blog-agent/src/app/api/extension/finish/route.ts`는 소유자/진행 상태 조건과 `.select().maybeSingle()`·error·0행을 확인합니다. 동일 결과 재보고는 최초 시각 보존, 취소/상이한 결과는409, 오류503, 소유자 원고 없음404. `extension/background.js`는 persisted/taskId/status 확인 후에만 pendingResult를 정리합니다. 모의 route14개·worker21개, 기존 회귀·빌드 통과. 운영 반영 확인은 개선 계획 문서의 후속 기록 참고.
+- **다음부터 확인:** DB error/0행·취소 경쟁·응답 유실 후 같은 결과 재보고·상이한 taskId/상태의 HTTP200을 실제 실행 코드에 주입합니다. 결과 선보관·보고만 재시도·중복 입력/발행 없음까지 확인합니다. 원고 ID와 실행 ID가 같을 때 재시작한 별도 실행 구별은 여전히 후속입니다. [개선 계획·검수 범위](../naver-blog-agent/docs/AUTOMATION_IMPROVEMENT_PLAN_2026-10-10.md).
+
 ## 2026-10-10 — 자동화 비교에서 발견한 성공 판정 공백 (아직 미수정)
 
 - **증상:** BLOG 실제 검증 함수를 모의 문서에 실행하면 기존 제목 혼합·본문 중복도 ok:true. 에이전트 실제 finish route에 DB update 오류 응답을 주면 HTTP200 success:true.

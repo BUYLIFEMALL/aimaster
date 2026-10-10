@@ -212,6 +212,10 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
       calls.push({ url, init });
       if (url.startsWith('https://x.supabase.co/')) return { ok: true, blob: async () => ({ type: 'image/png', arrayBuffer: async () => new Uint8Array([137, 80, 78, 71]).buffer }) };
       if (url.endsWith('/api/extension/auth')) return { ok: true, json: async () => ({ token: 'tok9' }) };
+      if (url.endsWith('/api/extension/finish')) {
+        const result=JSON.parse(init.body);
+        return {ok:true,json:async()=>({success:true,persisted:true,taskId:result.taskId,status:result.success?'published':'failed'})};
+      }
       return { ok: true, json: async () => ({ ok: true }) };
     },
   };

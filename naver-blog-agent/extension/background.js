@@ -63,7 +63,14 @@ async function api(route, body = {}, override) {
   switch (route) {
     case '/pair': { const d = await web('/api/extension/auth', {code:body.code, deviceName:'Chrome'}); return {token:d.token, label:'네이버 블로그', blogId:body.blogId, platform:'naver'}; }
     case '/poll': return web('/api/extension/task', {blogId:c.blogId}, c.token);
-    case '/result': return web('/api/extension/finish', {taskId:body.id, success:Boolean(body.result?.published), postUrl:body.result?.url || null, error:body.error ? `[${body.code || 'ERROR'}] ${body.error}` : null}, c.token);
+    case '/result': {
+      const success=Boolean(body.result?.published);
+      const receipt=await web('/api/extension/finish', {taskId:body.id, success, postUrl:body.result?.url || null, error:body.error ? `[${body.code || 'ERROR'}] ${body.error}` : null}, c.token);
+      if(receipt.success!==true || receipt.persisted!==true || receipt.taskId!==body.id || receipt.status!==(success?'published':'failed')){
+        throw new Error('서버의 결과 저장 확인이 일치하지 않습니다. 결과는 보관되며 보고만 다시 시도합니다.');
+      }
+      return receipt;
+    }
     case '/task/status': return web('/api/extension/status', {id:body.id}, c.token);
     case '/heartbeat': return {};
     case '/status': return web('/api/extension/status', {}, c.token);
