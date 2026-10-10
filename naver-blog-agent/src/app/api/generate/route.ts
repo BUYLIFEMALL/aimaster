@@ -38,6 +38,8 @@ export async function POST(req: Request) {
     }
     if(!/^[A-Za-z0-9_-]{2,40}$/.test(blogId))return NextResponse.json({error:"본인 블로그 ID를 선택해 주세요."},{status:400});
 
+    if(body.imageCount !== undefined && (!Number.isInteger(body.imageCount) || body.imageCount < 1 || body.imageCount > 5))return NextResponse.json({error:"이미지 장수는 1~5장으로 선택해 주세요."},{status:400});
+
     const targetProvider = body.engine?.provider || provider;
     if(targetProvider && !["openai","anthropic","gemini"].includes(targetProvider))return NextResponse.json({error:"지원하는 AI 공급사를 선택해 주세요."},{status:400});
     // 1. 사용자 AI 키 조회
@@ -69,6 +71,7 @@ export async function POST(req: Request) {
       writingStyle,
       persona,
       targetLength: typeof targetLength === "number" ? targetLength : undefined,
+      imageCount:body.imageCount ?? 2,
       recentTitles:(recent || []).map((post:any)=>post.title).filter((title:unknown)=>typeof title==="string" && title.trim()),
       aiConfig: {
         provider: ai.provider,

@@ -1,6 +1,6 @@
 {
   "name": "naver-blog-agent",
-  "version": "1.67.0",
+  "version": "1.68.0",
   "private": true,
   "scripts": {
     "test:post-review": "node --test scripts/test-post-review.cjs scripts/test-queue-confirmation.cjs",

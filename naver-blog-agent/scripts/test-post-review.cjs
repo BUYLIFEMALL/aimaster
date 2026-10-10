@@ -136,6 +136,7 @@ test('generation uses only the owner blog recent titles and persists the real AI
 });
 test('generation rejects foreign blogs or title-query errors before AI execution',async()=>{
   const h=harness(),r=h.load('app/api/generate/route.ts');
+  for(const imageCount of [0,6,2.5,'5'])assert.equal((await r.POST(h.request({category:'생활',blogId:'myblog',imageCount}))).status,400);
   assert.equal((await r.POST(h.request({category:'생활',blogId:'foreign_blog'}))).status,400);assert.equal(h.input,null);
   h.fail('nba_posts:select');assert.equal((await r.POST(h.request({category:'생활',blogId:'myblog'}))).status,503);assert.equal(h.input,null);
 });

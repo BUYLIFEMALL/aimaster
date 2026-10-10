@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -33,6 +33,7 @@ import {
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import PostReviewGate from "@/components/PostReviewGate";
+import { draftImageList, mergeDraftImage, bodyImageAt, removeImageFromArticle } from "@/lib/draftImages";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft } from "@/lib/retention";
@@ -102,6 +103,14 @@ export default function MainPage() {
   const [generatedImages, setGeneratedImages] = useState<
     { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[]
   >([]);
+  const coverImage=generatedImages.find(image=>image.type==="thumbnail");
+  const [imagesEdited, setImagesEdited] = useState(false);
+  const [imageSaveNotice, setImageSaveNotice] = useState<string | null>(null);
+  const imagesRef = useRef<typeof generatedImages>([]);
+  const sourceEpoch = useRef(0);
+  const imageBusy = useRef<number | null>(null);
+  const postIdRef = useRef<string | null>(null);
+  useEffect(() => () => { sourceEpoch.current++; }, []);
   const [imageGenerating, setImageGenerating] = useState<{ done: number; total: number } | null>(null);
   const [singleGeneratingIndex, setSingleGeneratingIndex] = useState<number | null>(null);
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null);
@@ -296,11 +305,12 @@ export default function MainPage() {
   const savePostToStorage = async (
     postId: string,
     targetResult: PipelineResult,
-    imagesToSave: any[],
+    imagesToSave: any[] | undefined,
     status: "draft" | "queued" = "draft"
   ) => {
     if (!targetResult || typeof window === "undefined") return;
-    const finalImages = imagesToSave.length > 0 ? imagesToSave : targetResult.images || [];
+    const epoch = sourceEpoch.current;
+    const finalImages = imagesToSave ?? targetResult.images ?? [];
     const postItem = {
       id: postId,
       blog_id: selectedBlogId || "myblog_sample",
@@ -321,7 +331,7 @@ export default function MainPage() {
       const data=await res.json();
       if(!res.ok || !data.post?.id)throw new Error(data.error || "서버 원고 저장 실패");
       serverPost=data.post;
-      if(serverPost.id!==postId)setCurrentPostId(serverPost.id);
+      if(epoch===sourceEpoch.current){postIdRef.current=serverPost.id;if(serverPost.id!==postId)setCurrentPostId(serverPost.id);}
     }catch(err){setError(err instanceof Error?err.message:"서버 저장 실패");}
     if(status==="queued" && !serverPost)return false;
 
@@ -354,6 +364,12 @@ export default function MainPage() {
 
   // 과거 저장된 원고 불러오기
   const handleLoadSavedPost = (post: any) => {
+    sourceEpoch.current++;
+    setLoading(false);setImageGenerating(null);setSingleGeneratingIndex(null);
+    postIdRef.current=post.id;
+    setImagesEdited(!post.images?.length || post.images.some((image:any)=>image.url));
+    imagesRef.current=(post.images || []).filter((image:any)=>image.url);
+    setImageSaveNotice(null);
     setCurrentPostId(post.id);
     if (post.blog_id) setSelectedBlogId(post.blog_id);
     setResult({
@@ -368,7 +384,7 @@ export default function MainPage() {
       ],
     });
     if (Array.isArray(post.images)) {
-      setGeneratedImages(post.images);
+      setGeneratedImages(imagesRef.current);
     }
     setIsHistoryModalOpen(false);
     setTimeout(() => {
@@ -444,10 +460,14 @@ export default function MainPage() {
     overrideTone: string;
     overridePersona?: BlogPersona;
   }) => {
+    if(imageBusy.current!==null){setError("이미지 생성·저장이 끝난 뒤 새 원고를 생성해 주세요.");return;}
     if (!preferencesLoaded) {
       setError("저장된 기본 모델을 불러오는 중입니다. 잠시 뒤 생성해 주세요.");
       return;
     }
+    const epoch=++sourceEpoch.current;
+    postIdRef.current=null;
+    imagesRef.current=[];setImagesEdited(false);setImageSaveNotice(null);
     setLoading(true);
     setError(null);
     setNeedKey(false);
@@ -460,6 +480,7 @@ export default function MainPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           blogId:selectedBlogId,
+          imageCount:imageSettings.count,
           topic: cleanCurrentYear(params.overrideTopic) || undefined,
           category: params.overrideCategory,
           searchKeywords: cleanCurrentYear(params.overrideKeywords),
@@ -485,11 +506,13 @@ export default function MainPage() {
         throw new Error(data.error || "글 생성 실패");
       }
 
+      if(epoch!==sourceEpoch.current)return;
       const newPostId = data.postId || "post-" + Date.now();
+      postIdRef.current=newPostId;
       setCurrentPostId(newPostId);
       setResult(data.result);
       // 생성 완료 즉시 로컬 원고 보관함에 자동 저장
-      if(!data.saved)await savePostToStorage(newPostId,data.result,[],"draft");
+      if(!data.saved)await savePostToStorage(newPostId,data.result,undefined,"draft");
       else {
         try {
           const old=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
@@ -523,7 +546,7 @@ export default function MainPage() {
 
       // ★ [본문 + 이미지 원클릭 동시 생성]: 본문 작성이 완료되면 곧바로 추천 이미지 컷 자동 생성 연동!
       if (data.result && Array.isArray(data.result.images) && data.result.images.length > 0) {
-        generateImagesFor(data.result);
+        await generateImagesFor(data.result,postIdRef.current || newPostId,epoch);
       }
     } catch (err: any) {
       setError(err.message);
@@ -532,136 +555,104 @@ export default function MainPage() {
     }
   };
 
-  // AI 이미지 자동 생성 공통 실행기
-  const generateImagesFor = async (targetResult: PipelineResult) => {
-    if (!targetResult || imageGenerating) return;
-    const promptsToUse = targetResult.images || [];
-    const countToGenerate = Math.min(imageSettings.count, Math.max(promptsToUse.length, 1));
-    setImageGenerating({ done: 0, total: countToGenerate });
-    setError(null);
-    const newlyCollected: { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[] = [];
-
+  // Image changes update only the originating draft; content edits are never overwritten.
+  const persistImages = async (postId: string, images: typeof generatedImages, epoch: number, content?: string) => {
+    if(epoch!==sourceEpoch.current)return false;
+    setImageSaveNotice("이미지 변경을 서버에 저장 중입니다.");
     try {
-      for (let i = 0; i < countToGenerate; i++) {
-        const baseItem = promptsToUse[i] || {
-          prompt: `High quality detailed blog photo about ${targetResult.title}, ${targetResult.category}, photorealistic, natural lighting, no text`,
-          caption: `${i === 0 ? "대표 썸네일" : "본문 상세 컷 " + i}`,
-          type: (i === 0 ? "thumbnail" : "body") as "thumbnail" | "body",
-        };
-
-        const res = await fetch("/api/generate-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prompt: baseItem.prompt,
-            imageModel: imageSettings.model,
-            ratio: imageSettings.ratio,
-            caption: baseItem.caption,
-            type: baseItem.type,
-          }),
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          if (data.needKey) setNeedKey(true);
-          console.warn(`${i + 1}번째 이미지 생성 실패:`, data.error);
-          continue;
-        }
-
-        const newImg = {
-          url: data.url,
-          type: data.type,
-          caption: data.caption,
-          prompt: data.prompt,
-        };
-        newlyCollected.push(newImg);
-
-        setGeneratedImages((prev) => {
-          // 중복 방지
-          const filtered = prev.filter((img) => img.caption !== data.caption);
-          return [...filtered, newImg];
-        });
-        setImageGenerating({ done: i + 1, total: countToGenerate });
-      }
-
-      // 이미지 생성 완료 후 보관함 원고에 최신 이미지 목록 자동 갱신 저장
-      if (newlyCollected.length > 0) {
-        const targetId = currentPostId || "post-" + Date.now();
-        savePostToStorage(targetId, targetResult, newlyCollected, "draft");
-      }
-    } catch (err: any) {
-      console.error("이미지 생성 중 오류:", err);
-    } finally {
-      setImageGenerating(null);
+      if(!/^[0-9a-f-]{36}$/i.test(postId))throw new Error("원고를 서버에 먼저 저장한 뒤 이미지를 저장해 주세요.");
+      const res=await fetch("/api/posts",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:postId,images,...(content!==undefined?{content}:{})})});
+      const data=await res.json();
+      if(!res.ok || data.post?.id!==postId)throw new Error(data.error || "이미지 저장 확인에 실패했습니다.");
+      try {
+        const cached=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
+        localStorage.setItem("nba_saved_posts",JSON.stringify(cached.map((post:any)=>post.id===postId?{...post,...data.post}:post)));
+      }catch{/* Server storage remains authoritative when the optional cache fails. */}
+      if(epoch===sourceEpoch.current)setImageSaveNotice("이미지 변경을 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
+      return true;
+    }catch(err){
+      if(epoch===sourceEpoch.current)setImageSaveNotice(`이미지 저장 실패: ${err instanceof Error?err.message:"통신 오류"} 보관함 저장으로 다시 저장해 주세요.`);
+      return false;
     }
   };
 
-  // AI 이미지 일괄 생성 핸들러 (수동 클릭 시)
+  const generateImagesFor = async (targetResult: PipelineResult, targetId: string, epoch=sourceEpoch.current) => {
+    if(!targetResult || imageBusy.current!==null)return;
+    const promptsToUse=targetResult.images || [];
+    if(!promptsToUse.length)return;
+    imageBusy.current=epoch;
+    setImageGenerating({done:0,total:promptsToUse.length});setError(null);
+    let failed=0;
+    try {
+      for(let i=0;i<promptsToUse.length;i++){
+        if(epoch!==sourceEpoch.current)break;
+        const item=promptsToUse[i];
+        try {
+          const res=await fetch("/api/generate-image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:item.prompt,imageModel:imageSettings.model,ratio:imageSettings.ratio,caption:item.caption,type:item.type})});
+          const data=await res.json();
+          if(epoch!==sourceEpoch.current)break;
+          if(!res.ok || !data.url){if(data.needKey)setNeedKey(true);throw new Error(data.error || "이미지 주소가 없습니다.");}
+          const image={url:data.url,type:item.type,caption:item.caption,prompt:item.prompt};
+          const next=mergeDraftImage(imagesRef.current,image,promptsToUse);
+          imagesRef.current=next;setGeneratedImages(next);setImagesEdited(true);
+          // Each completed image survives a later provider/network failure.
+          if(!await persistImages(targetId,next,epoch))break;
+        }catch(err){failed++;if(epoch===sourceEpoch.current)setError(`${i+1}번째 이미지 생성 실패: ${err instanceof Error?err.message:"통신 오류"}`);}
+        if(epoch===sourceEpoch.current)setImageGenerating({done:i+1,total:promptsToUse.length});
+      }
+      if(failed && epoch===sourceEpoch.current)setError(`이미지 ${failed}장 생성에 실패했습니다. 성공한 이미지는 보존합니다. 실패한 컷만 다시 생성해 주세요.`);
+    }finally{
+      if(imageBusy.current===epoch)imageBusy.current=null;
+      if(epoch===sourceEpoch.current)setImageGenerating(null);
+    }
+  };
+
   const handleGenerateImages = async () => {
-    if (!result || imageGenerating) return;
-    setGeneratedImages([]); // 기존 것 초기화 후 재생성
-    await generateImagesFor(result);
+    if(!result || !currentPostId || imageBusy.current!==null)return;
+    await generateImagesFor(result,currentPostId);
   };
 
-  // 특정 컷 단일 이미지 생성 핸들러
-  const handleGenerateSingleImage = async (
-    index: number,
-    item: { prompt: string; caption: string; type: "thumbnail" | "body" }
-  ) => {
-    if (singleGeneratingIndex !== null || imageGenerating) return;
-    setSingleGeneratingIndex(index);
-    setError(null);
+  const handleGenerateSingleImage = async (index:number,item:{prompt:string;caption:string;type:"thumbnail"|"body"}) => {
+    if(!result || !currentPostId || imageBusy.current!==null)return;
+    const epoch=sourceEpoch.current,targetId=currentPostId;
+    imageBusy.current=epoch;setSingleGeneratingIndex(index);setError(null);
     try {
-      const res = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: item.prompt,
-          imageModel: imageSettings.model,
-          ratio: imageSettings.ratio,
-          caption: item.caption,
-          type: item.type,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        if (data.needKey) setNeedKey(true);
-        throw new Error(data.error || "이미지 생성 실패");
-      }
-
-      setGeneratedImages((prev) => [
-        ...prev,
-        {
-          url: data.url,
-          type: data.type,
-          caption: data.caption,
-          prompt: data.prompt,
-        },
-      ]);
-    } catch (err: any) {
-      alert(err.message || "이미지 생성 중 오류가 발생했습니다.");
-    } finally {
-      setSingleGeneratingIndex(null);
-    }
+      const res=await fetch("/api/generate-image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:item.prompt,imageModel:imageSettings.model,ratio:imageSettings.ratio,caption:item.caption,type:item.type})});
+      const data=await res.json();
+      if(epoch!==sourceEpoch.current)return;
+      if(!res.ok || !data.url){if(data.needKey)setNeedKey(true);throw new Error(data.error || "이미지 생성 실패");}
+      const image={url:data.url,type:item.type,caption:item.caption,prompt:item.prompt};
+      const next=mergeDraftImage(imagesRef.current,image,result.images);
+      imagesRef.current=next;setGeneratedImages(next);setImagesEdited(true);
+      await persistImages(targetId,next,epoch);
+    }catch(err){if(epoch===sourceEpoch.current)setError(err instanceof Error?err.message:"이미지 생성 실패");}
+    finally{if(imageBusy.current===epoch)imageBusy.current=null;if(epoch===sourceEpoch.current)setSingleGeneratingIndex(null);}
   };
 
-  const handleRemoveGeneratedImage = (targetIndex: number) => {
-    setGeneratedImages((prev) => prev.filter((_, idx) => idx !== targetIndex));
+  const handleRemoveGeneratedImage = async (targetIndex:number) => {
+    if(!currentPostId || imageBusy.current!==null)return;
+    const epoch=sourceEpoch.current;imageBusy.current=epoch;
+    const removed=imagesRef.current[targetIndex];
+    const content=result && removed?.url?removeImageFromArticle(result.content,removed.url):undefined;
+    const changed=content!==undefined && content!==result?.content;
+    const next=imagesRef.current.filter((_,index)=>index!==targetIndex);
+    imagesRef.current=next;setGeneratedImages(next);setImagesEdited(true);
+    if(changed)setResult(previous=>previous?{...previous,content:content!,reviewStatus:undefined,reviewNote:undefined}:previous);
+    try{await persistImages(currentPostId,next,epoch,changed?content:undefined);}finally{if(imageBusy.current===epoch)imageBusy.current=null;}
   };
 
   const handlePublishToQueue = async () => {
     if (!result) return;
-    if(reviewBlocked || publishingBlocked)return;
-    const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
+    if(reviewBlocked || publishingBlocked || imageBusy.current!==null || loading)return;
+    const finalImagesToSave = draftImageList(generatedImages, result.images, imagesEdited);
     const targetId = currentPostId || "post-" + Date.now();
     if(!await savePostToStorage(targetId, result, finalImagesToSave, "queued")){alert("작업 대기 등록에 실패했습니다. 오류 안내를 확인하고 원고를 다시 검수해 주세요.");return;}
     alert("크롬 확장의 작업 대기에 등록되었습니다. 저장한 진행 방식에 따라 준비 또는 최종 발행을 진행합니다. 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
   };
 
   const handleSaveDraft = async () => {
-    if (!result) return;
-    const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
+    if (!result || imageBusy.current!==null || loading) return;
+    const finalImagesToSave = draftImageList(generatedImages, result.images, imagesEdited);
     const targetId = currentPostId || "post-" + Date.now();
     const saved=await savePostToStorage(targetId, result, finalImagesToSave, "draft");
     alert(saved?"서버 보관함에 원고를 저장했습니다.":"서버 저장에 실패했습니다. 화면과 로컬 원고를 유지하며 오류 안내를 확인해 주세요.");
@@ -673,7 +664,7 @@ export default function MainPage() {
     let bodySlotIndex = 1;
     // [IMAGE INSERT - ...] 위치를 생성된 실제 이미지 URL 마크다운으로 치환
     formatted = formatted.replace(/\[IMAGE INSERT\s*-\s*([^\]]+)\]/g, (match, desc) => {
-      const img = generatedImages[bodySlotIndex] || generatedImages.find((item) => item.type === "body");
+      const img = bodyImageAt(generatedImages, bodySlotIndex - 1);
       bodySlotIndex++;
       if (img?.url) {
         return `\n\n![${img.caption || desc}](${img.url})\n\n`;
@@ -681,7 +672,7 @@ export default function MainPage() {
       return match;
     });
 
-    const thumbImg = generatedImages[0]?.url ? `![${result.title} 대표 썸네일](${generatedImages[0].url})\n\n` : "";
+    const thumbImg = coverImage?.url ? `![${result.title} 대표 썸네일](${coverImage!.url})\n\n` : "";
     const full = `# ${result.title}\n\n${thumbImg}${formatted}\n\n태그: ${result.tags.map((t) => "#" + t).join(" ")}`;
     navigator.clipboard.writeText(full);
     setCopied(true);
@@ -697,67 +688,27 @@ export default function MainPage() {
     category?: string;
     isHtml: boolean;
   }) => {
-    if (!result) return;
-    const nextResult = {
-      ...result,
-      title: updated.title,
-      content: updated.content,
-      excerpt: updated.excerpt,
-      tags: updated.tags,
-      category: updated.category || result.category,
-    };
-    setResult(nextResult);
-    if (updated.category) {
-      setCategory(updated.category);
-    }
-
-    // 편집 내용을 보관함에도 바로 저장한다(저장 버튼을 따로 누르지 않아도 수정본이 남는다).
-    let saved = false;
-    const patch = buildEditedPostPatch(currentPostId, {
-      title: nextResult.title,
-      content: nextResult.content,
-      category: nextResult.category,
-      tags: nextResult.tags,
-    });
-    if (patch) {
-      // 서버에 이미 있는 글: 내용만 고치고 상태(대기/발행)는 그대로 둔다.
-      try {
-        const cached: any[] = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-        localStorage.setItem(
-          "nba_saved_posts",
-          JSON.stringify(
-            cached.map((p) =>
-              p.id === patch.id
-                ? { ...p, title: patch.title, content: patch.content, tags: patch.tags, category_name: patch.category_name ?? p.category_name }
-                : p
-            )
-          )
-        );
-      } catch {}
-      try {
-        const res = await fetch("/api/posts", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(patch),
-        });
-        saved = res.ok;
-      } catch {
-        saved = false;
+    if(!result)return false;
+    const epoch=sourceEpoch.current;
+    const nextResult={...result,title:updated.title,content:updated.content,excerpt:updated.excerpt,tags:updated.tags,category:updated.category || result.category,reviewStatus:undefined,reviewNote:undefined};
+    const patch=buildEditedPostPatch(currentPostId,{title:nextResult.title,content:nextResult.content,category:nextResult.category,tags:nextResult.tags});
+    try {
+      if(patch){
+        const res=await fetch("/api/posts",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(patch)});
+        const data=await res.json();
+        if(!res.ok || data.post?.id!==patch.id)throw new Error(data.error || "원고 저장 확인에 실패했습니다.");
+        try {
+          const cached=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
+          localStorage.setItem("nba_saved_posts",JSON.stringify(cached.map((post:any)=>post.id===patch.id?{...post,...data.post}:post)));
+        }catch{/* Server save is complete even when browser caching fails. */}
+      }else if(!await savePostToStorage(currentPostId || "post-"+Date.now(),nextResult,draftImageList(generatedImages,nextResult.images || [],imagesEdited),"draft")){
+        throw new Error("서버 저장에 실패했습니다. 편집 내용을 보존한 채 다시 저장해 주세요.");
       }
-    } else {
-      // 서버에 아직 저장되지 않은 글: 새로 보관함에 저장한다.
-      saved=Boolean(await savePostToStorage(
-        currentPostId || "post-" + Date.now(),
-        nextResult,
-        generatedImages.length > 0 ? generatedImages : nextResult.images || [],
-        "draft"
-      ));
-    }
-    alert(
-      saved
-        ? "편집한 원고가 본문에 적용되고 보관함에도 저장되었습니다."
-        : "편집한 원고가 화면에는 적용되었지만 보관함 저장에 실패했습니다. 오른쪽 위 [보관함 저장]을 눌러 주세요."
-    );
+      if(epoch!==sourceEpoch.current)return false;
+      setResult(nextResult);if(updated.category)setCategory(updated.category);
+      alert("편집한 원고를 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
+      return true;
+    }catch(err){alert(err instanceof Error?err.message:"원고 저장 실패");return false;}
   };
 
   // 스마트에디터 본문 인라인 렌더링 헬퍼 (소제목 서식화 및 [IMAGE INSERT] 실제 이미지 치환)
@@ -819,7 +770,7 @@ export default function MainPage() {
         bodySlotIndex++;
         const targetSlot = bodySlotIndex; // 1, 2, ...
         // 매칭 이미지: index 0은 썸네일, 본문 컷은 targetSlot (1번째 본문 컷 = index 1)
-        const matchedImage = generatedImages[targetSlot] || (bodySlotIndex === 1 ? generatedImages.find((img) => img.type === "body") : undefined);
+        const matchedImage = bodyImageAt(generatedImages, bodySlotIndex - 1);
         const promptItem = result?.images?.[targetSlot] || result?.images?.find((p) => p.type === "body") || result?.images?.[0];
 
         if (matchedImage && matchedImage.url) {
@@ -1746,6 +1697,7 @@ export default function MainPage() {
                 </button>
                 <button
                   type="button"
+                  disabled={loading || imageGenerating!==null || singleGeneratingIndex!==null || Boolean(imageSaveNotice?.includes("저장 중"))}
                   onClick={() => setIsEditorOpen(true)}
                   className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-xs font-extrabold text-emerald-800 border border-emerald-300 flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
                 >
@@ -1755,6 +1707,7 @@ export default function MainPage() {
                 <button
                   type="button"
                   onClick={handleSaveDraft}
+                  disabled={loading || imageGenerating!==null || singleGeneratingIndex!==null || Boolean(imageSaveNotice?.includes("저장 중"))}
                   className="px-3.5 py-2 rounded-xl border border-blue-600 bg-blue-600 hover:bg-blue-700 text-xs font-bold text-[#ffffff] flex items-center gap-1.5 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 >
                   <Save className="w-3.5 h-3.5" />
@@ -1762,7 +1715,7 @@ export default function MainPage() {
                 </button>
                 <button
                   onClick={handlePublishToQueue}
-                  disabled={publishingBlocked || reviewBlocked}
+                  disabled={publishingBlocked || reviewBlocked || loading || imageGenerating!==null || singleGeneratingIndex!==null || Boolean(imageSaveNotice?.includes("저장 중"))}
                   className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-colors"
                 >
                   <Send className="w-3.5 h-3.5" />
@@ -1778,7 +1731,7 @@ export default function MainPage() {
                 if (Array.isArray(cache)) localStorage.setItem("nba_saved_posts", JSON.stringify(cache.map(p => p.id === currentPostId ? { ...p, tags } : p)));
               } catch { /* Server settings remain saved if the browser cache is unavailable. */ }
             }} />
-            <PostReviewGate key={currentPostId} postId={currentPostId} snapshot={postReviewSnapshot({blog_id:selectedBlogId,title:result.title,content:result.content,tags:result.tags,images:generatedImages.length>0?generatedImages:result.images})} onBlockingChange={setReviewBlocked} />
+            <PostReviewGate key={currentPostId} postId={currentPostId} snapshot={postReviewSnapshot({blog_id:selectedBlogId,title:result.title,content:result.content,tags:result.tags,images:draftImageList(generatedImages,result.images,imagesEdited)})} onBlockingChange={setReviewBlocked} />
 
             {/* 5단계 에이전트 단계별 실행 내역 요약 박스 */}
             <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">
@@ -1855,11 +1808,11 @@ export default function MainPage() {
               </div>
 
               {/* 1. 대표 썸네일 이미지 (생성된 경우 상단 렌더링) */}
-              {generatedImages[0]?.url && previewMode === "smart" && (
+              {coverImage?.url && previewMode === "smart" && (
                 <figure className="my-2 rounded-2xl overflow-hidden border border-neutral-200 bg-white shadow-xs group cursor-zoom-in">
-                  <div onClick={() => setViewingImageUrl(generatedImages[0].url)} className="relative overflow-hidden">
+                  <div onClick={() => setViewingImageUrl(coverImage!.url)} className="relative overflow-hidden">
                     <img
-                      src={generatedImages[0].url}
+                      src={coverImage!.url}
                       alt={`${result.title} 대표 썸네일`}
                       className="w-full max-h-[460px] object-cover group-hover:scale-[1.01] transition-transform duration-200"
                     />
@@ -1930,11 +1883,13 @@ export default function MainPage() {
                     ) : (
                       <>
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>🖼️ AI 이미지 일괄 생성 ({Math.min(imageSettings.count, result.images.length)}장)</span>
+                        <span>🖼️ AI 이미지 일괄 생성 ({result.images.length}장)</span>
                       </>
                     )}
                   </button>
                 </div>
+
+                {imageSaveNotice && <p role="status" className="text-xs text-neutral-700">{imageSaveNotice}</p>}
 
                 {/* 진행 상태 바 */}
                 {imageGenerating && (

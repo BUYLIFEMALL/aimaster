@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
+import { bodyImageAt } from "@/lib/draftImages";
 import PostReviewGate from "@/components/PostReviewGate";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import type { CollectorCategory } from "@/types/collector";
@@ -343,7 +344,7 @@ export default function QueuePage() {
 
     let bodySlotIndex = 1;
     formatted = formatted.replace(/\[IMAGE INSERT\s*-\s*([^\]]+)\]/g, (match, desc) => {
-      const img = images[bodySlotIndex] || images.find((item) => item.type === "body");
+      const img = bodyImageAt(images, bodySlotIndex - 1);
       bodySlotIndex++;
       if (img?.url) {
         return `\n\n![${img.caption || desc}](${img.url})\n\n`;
@@ -351,7 +352,8 @@ export default function QueuePage() {
       return match;
     });
 
-    const thumbImg = images[0]?.url ? `![${post.title} 대표 썸네일](${images[0].url})\n\n` : "";
+    const thumbnail=images.find(image=>image.type==="thumbnail");
+    const thumbImg = thumbnail?.url ? `![${post.title} 대표 썸네일](${thumbnail.url})\n\n` : "";
     const tagsStr = post.tags && post.tags.length > 0 ? `\n\n태그: ${post.tags.map((t) => "#" + t).join(" ")}` : "";
     const full = `# ${post.title}\n\n${thumbImg}${formatted}${tagsStr}`;
 
@@ -370,45 +372,17 @@ export default function QueuePage() {
     category?: string;
     isHtml: boolean;
   }) => {
-    if (!editingPost) return;
-    const targetId = editingPost.id;
-    const nextCategory = updated.category || editingPost.category_name || "일반";
-
-    const updatedList = posts.map((p) => {
-      if (p.id === targetId) {
-        return {
-          ...p,
-          title: updated.title,
-          content: updated.content,
-          excerpt: updated.excerpt,
-          tags: updated.tags,
-          category_name: nextCategory,
-          status: p.status === "prepared" ? "draft" : p.status,
-        };
-      }
-      return p;
-    });
-    savePosts(updatedList);
-    setEditingPost(null);
-
+    if(!editingPost)return false;
+    const targetId=editingPost.id;
     try {
-      await fetch("/api/posts", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: targetId,
-          title: updated.title,
-          content: updated.content,
-          excerpt: updated.excerpt,
-          tags: updated.tags,
-          category_name: nextCategory,
-        }),
-      });
-    } catch (err) {
-      console.warn("서버 원고 수정 실패:", err);
-    }
-
-    alert("원고가 스마트 에디터에서 성공적으로 수정 및 저장되었습니다!");
+      const res=await fetch("/api/posts",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:targetId,title:updated.title,content:updated.content,excerpt:updated.excerpt,tags:updated.tags,category_name:updated.category || editingPost.category_name || "일반"})});
+      const data=await res.json();
+      if(!res.ok || data.post?.id!==targetId)throw new Error(data.error || "서버 원고 저장 실패");
+      savePosts(posts.map(post=>post.id===targetId?{...post,...data.post}:post));
+      setEditingPost(null);
+      alert("편집한 원고를 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
+      return true;
+    }catch(err){alert(err instanceof Error?err.message:"서버 원고 저장 실패");return false;}
   };
 
   // 본문 스마트 렌더링 파서
@@ -466,7 +440,7 @@ export default function QueuePage() {
         const imgDesc = trimmed.replace(/^\[IMAGE INSERT\s*-\s*/, "").replace(/\]$/, "");
         bodySlotIndex++;
         const targetSlot = bodySlotIndex;
-        const matchedImage = images[targetSlot] || (bodySlotIndex === 1 ? images.find((i) => i.type === "body") : undefined);
+        const matchedImage = bodyImageAt(images, bodySlotIndex - 1);
 
         if (matchedImage && matchedImage.url) {
           elements.push(
@@ -921,7 +895,7 @@ export default function QueuePage() {
           <div className="divide-y divide-neutral-100">
             {filteredPosts.map((post) => {
               const isChecked = checkedIds.includes(post.id);
-              const thumbUrl = post.images?.[0]?.url;
+              const thumbUrl = post.images?.find(image=>image.type==="thumbnail")?.url;
               const imageCount = post.images?.length || 0;
               const charCount = (post.content || "").length;
 
@@ -1218,10 +1192,10 @@ export default function QueuePage() {
               <PostReviewGate key={viewingDetailPost.id} postId={viewingDetailPost.id} snapshot={postReviewSnapshot(viewingDetailPost)} onBlockingChange={setReviewBlocked} />
 
               {/* 대표 썸네일 */}
-              {viewingDetailPost.images?.[0]?.url && (
+              {viewingDetailPost.images?.find(image=>image.type==="thumbnail")?.url && (
                 <figure className="rounded-2xl overflow-hidden border border-neutral-200 bg-white shadow-xs">
                   <img
-                    src={viewingDetailPost.images[0].url}
+                    src={viewingDetailPost.images.find(image=>image.type==="thumbnail")!.url}
                     alt={viewingDetailPost.title}
                     className="w-full max-h-[420px] object-cover"
                   />

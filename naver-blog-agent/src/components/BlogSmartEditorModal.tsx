@@ -40,7 +40,7 @@ interface BlogSmartEditorModalProps {
     tags: string[];
     category?: string;
     isHtml: boolean;
-  }) => void;
+  }) => boolean | Promise<boolean>;
 }
 
 // 원본 텍스트([SECTION], [IMAGE INSERT])를 Tiptap 위지윅 에디터용 HTML로 변환하는 유틸리티
@@ -154,6 +154,7 @@ export default function BlogSmartEditorModal({
     }
   }, [isOpen, initialTitle, initialContent, initialExcerpt, initialTags, initialCategory, generatedImages]);
 
+  const [saving, setSaving] = useState(false);
   if (!isOpen) return null;
 
   // 태그 추가
@@ -229,7 +230,8 @@ export default function BlogSmartEditorModal({
   };
 
   // 최종 저장 적용
-  const handleSave = () => {
+  const handleSave = async () => {
+    if(saving)return;
     if (!title.trim()) {
       alert("게시글 제목을 입력해주세요.");
       return;
@@ -238,7 +240,9 @@ export default function BlogSmartEditorModal({
     const finalContent = editorMode === "visual" ? htmlContent : codeContent;
     const isHtml = editorMode === "visual";
 
-    onSave({
+    setSaving(true);
+    try {
+      const saved=await onSave({
       title: title.trim(),
       content: finalContent,
       excerpt: excerpt.trim(),
@@ -247,7 +251,8 @@ export default function BlogSmartEditorModal({
       isHtml,
     });
 
-    onClose();
+      if(saved)onClose();
+    }finally{setSaving(false);}
   };
 
   return (
@@ -259,6 +264,7 @@ export default function BlogSmartEditorModal({
             <button
               type="button"
               onClick={onClose}
+              disabled={saving}
               className="text-neutral-500 hover:text-neutral-900 text-xs font-bold transition-colors flex items-center gap-1 px-2.5 py-1.5 rounded-lg hover:bg-neutral-100"
             >
               <ArrowLeft size={15} /> 닫기
@@ -284,6 +290,7 @@ export default function BlogSmartEditorModal({
             <button
               type="button"
               onClick={onClose}
+              disabled={saving}
               className="px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors"
             >
               취소
@@ -291,6 +298,7 @@ export default function BlogSmartEditorModal({
             <button
               type="button"
               onClick={handleSave}
+              disabled={saving}
               className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Check size={15} />
@@ -588,6 +596,7 @@ export default function BlogSmartEditorModal({
             <button
               type="button"
               onClick={onClose}
+              disabled={saving}
               className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors"
             >
               닫기
@@ -595,6 +604,7 @@ export default function BlogSmartEditorModal({
             <button
               type="button"
               onClick={handleSave}
+              disabled={saving}
               className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Check size={15} />

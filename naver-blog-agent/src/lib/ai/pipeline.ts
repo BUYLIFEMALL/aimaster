@@ -1,3 +1,4 @@
+import { buildImagePlan, placePlannedImages } from "@/lib/draftImages";
 import { callAI, parseJsonSafe, type AIModelConfig } from "./models";
 import { buildHumanizerPrompt, applyHumanizerEdits } from "@/lib/humanizer";
 import { WRITING_STYLES, buildWritingStylePrompt, isWritingTone, isWritingStyle, type WritingTone, type WritingStyle } from "./writingStyles";
@@ -15,6 +16,7 @@ export interface PipelineInput {
   preferredTone?: string;
   writingStyle?: WritingStyle;
   recentTitles?: string[]; // 중복 방지용
+  imageCount?: number; // 썸네일 포함 1~5장
   targetLength?: number; // 목표 글자수 (1 ~ 4000자, 기본 2000자)
   persona?: {
     id: string;
@@ -153,7 +155,7 @@ ${persona.tonePrompt}
 3. 말투: 회원이 선택한 ${preferredTone}와 문체를 페르소나의 어조보다 우선 반영한다. (기계적인 AI 번역투 절대 금지)
 4. 구조화 태그:
    - 소제목 시작 시: [SECTION - 소제목명]
-   - 이미지 들어갈 자리: [IMAGE INSERT - 상황을 설명하는 상세 묘사]
+   - 이미지 들어갈 자리: [IMAGE INSERT - 상황을 설명하는 상세 묘사], 본문에 총 ${Math.min(5, Math.max(1, Math.trunc(Number(input.imageCount) || 2))) - 1}곳만 배치(0곳이면 넣지 않음)
    - 마지막에: [SECTION - 참고자료] (출처 및 공식 기관 안내 또는 이웃 소통 맺음말)
 5. 모바일 가독성을 위해 2~3문장마다 빈 줄(\\n\\n)로 단락을 띄울 것.
 6. 제공된 사실·경험에 근거하여 실용적으로 작성한다. 페르소나를 이유로 실사용/실경험이나 수치를 지어내지 않는다.`
@@ -166,7 +168,7 @@ ${persona.tonePrompt}
 3. 말투: 자연스러운 ${preferredTone} (상투적인 기계적 어투 금지)
 4. 구조화 태그:
    - 소제목 시작 시: [SECTION - 소제목명]
-   - 이미지 들어갈 자리: [IMAGE INSERT - 상황을 설명하는 상세 묘사]
+   - 이미지 들어갈 자리: [IMAGE INSERT - 상황을 설명하는 상세 묘사], 본문에 총 ${Math.min(5, Math.max(1, Math.trunc(Number(input.imageCount) || 2))) - 1}곳만 배치(0곳이면 넣지 않음)
    - 마지막에: [SECTION - 참고자료] (출처 및 공식 기관 안내)
 5. 모바일 가독성을 위해 2~3문장마다 빈 줄(\\n\\n)로 단락을 띄울 것.
 6. 신뢰할 수 있는 사실, 구체적 예시, 독자가 궁금해할 실전 꿀팁 위주로 작성할 것.`;
@@ -229,6 +231,9 @@ ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}:
     });
   }
 
+  const imagePrompts: PipelineResult["images"] = buildImagePlan(researchData.finalTitle, category, researchData.subsections, input.imageCount);
+  humanizedArticle=placePlannedImages(humanizedArticle,imagePrompts);
+
   // 4단계: Reviewer Agent (본문 전체 검수 · 글자수 판정 · 태그 추천)
   // 글자수는 AI 추측이 아니라 코드로 측정한다. [SECTION]/[IMAGE INSERT] 구조 태그 줄은 제외한다.
   const measuredLength = humanizedArticle
@@ -286,20 +291,7 @@ ${humanizedArticle}
         : `검수 ${reviewStatus} · 태그 ${tags.length}개 · ${lengthNote}`,
   });
 
-  // 5단계: Image Prompts 생성 (썸네일 1장 + 본문 삽입 2장)
-  const imagePrompts: PipelineResult["images"] = [
-    {
-      type: "thumbnail",
-      prompt: `Clean, modern blog thumbnail photo about ${researchData.finalTitle}, East Asian person or professional setting, photorealistic, 8k, bright natural lighting, no text`,
-      caption: `${researchData.finalTitle} 대표 이미지`,
-    },
-    {
-      type: "body",
-      prompt: `Informative detailed close-up shot about ${category}, clean workspace or real-life scene, photorealistic, high quality, soft shadows, no text`,
-      caption: "관련 상세 안내 이미지",
-    },
-  ];
-
+  // The selected total includes one cover and distinct body scenes; no extra AI call.
   stepsLog.push({
     step: "5. Image Agent",
     status: "done",

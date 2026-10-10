@@ -97,6 +97,16 @@ function loadTS(filename) {
   assert.ok(!styles.isWritingStyle('임의 프롬프트'));
   assert.ok(!styles.isWritingStyle({ value: 'plain' }));
 
+  for(const imageCount of [1,2,3,4,5]){
+    calls=[];
+    const result=await runBlogGenerationPipeline({category:'생활정보',imageCount,aiConfig:{}});
+    assert.equal(result.images.length,imageCount);
+    assert.equal(new Set(result.images.map(image=>image.prompt)).size,imageCount);
+    assert.equal((result.content.match(/\[IMAGE INSERT/g) || []).length,imageCount-1);
+    assert.equal(calls.length,4,'planning must not introduce another paid AI call');
+    assert.ok(calls.find(call=>call.system.includes('검수관')).user.includes(result.content));
+  }
+
   const { POST } = loadTS(path.join(root, 'src/app/api/generate/route.ts'));
   const request = (body) => new Request('https://test.local/api/generate', { method: 'POST', body: JSON.stringify({blogId:'myblog',...body}) });
   assert.equal((await POST(request({ category: '생활', preferredTone: '임의 말투' }))).status, 400);
