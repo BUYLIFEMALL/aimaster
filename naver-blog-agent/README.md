@@ -4,7 +4,7 @@
 
 - **공식 개발 방식**: [AI 에이전트 기반 자율 개발·검수·배포](../docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) — 공통 메인 지침·다른 CLI 인수인계 양식
 - **현재 버전**: `v1.67` (검수 저장·전송 확인, [검수·운영 기록](docs/REVIEW_GATE_2026-10-10.md))
-- **최신 개선**: 서버 검수 기록·원고 지문이 같은 PASS/직접 검수 CONFIRMED만 확장 전송, 수정 후 재검수, 실제 저장 확인·일괄 부분 성공 안내. 운영 확인 진행 중이며 실제 새 네이버 E2E/이미지 자동 저장/실행 번호는 후속입니다.
+- **최신 개선**: 서버 검수 기록·원고 지문이 같은 PASS/직접 검수 CONFIRMED만 확장 전송, 수정 후 재검수, 실제 저장 확인·일괄 부분 성공 안내. 운영 READY·DB/ZIP 검증 완료이며 실제 새 네이버 E2E/이미지 자동 저장/실행 번호는 후속입니다.
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **아키텍처**: Next.js 16 (Turbopack, App Router) + Supabase + Chrome Extension (Manifest V3)
 - **인수인계 문서**: [`AGENTS.md`](./AGENTS.md) 및 [`docs/CONTINUATION.md`](./docs/CONTINUATION.md)

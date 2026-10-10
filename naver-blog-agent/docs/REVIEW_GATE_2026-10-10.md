@@ -39,4 +39,7 @@
 
 ## 운영 기록
 
-코드/문서 커밋 후 에이전트의 격리 worktree에서 프로덕션 배포합니다. 운영 배포 번호·DB/라이브 ZIP/버전 API·회원 원고 지문은 아래에 확인 후 기록합니다. 현재 이 항목의 운영 배포 검증은 진행 중입니다.
+- 코드/인수인계 커밋 `3f9d80b4` origin/master 푸시 완료. 다른 CLI의 스테이징/티스토리 작업을 보존하고 지정 파일만 커밋, 해당 커밋의 격리 worktree에서 에이전트만 배포했습니다.
+- 프로덕션 `dpl_AoXq8d9SyiFZatju5MraGtgZWgUY` READY, https://naver-blog-agent.vercel.app . 로컬/운영 빌드·타입 통과. DB version/extension_version/기존 다운로드 주소 같은 SQL 갱신 완료. 스키마/키/환경변수 변경 없음.
+- DB/프로그램/확장/라이브 ZIP v1.67 일치, 릴리스 검사 실패0/경고0. 버전 API200, ZIP200·전체14파일 릴리스 커밋과 줄바꿈 정규화 후 일치. 로그인200, 비로그인 검수GET/POST401+no-store, finish401+no-store, task/posts401 확인.
+- 원고2건의 배포 전후 draft/failed 상태 및 본문/이미지 지문 동일. 실제 검수/prepare E2E와 PC 최신 ZIP 적용은 미실행이며 자동 검사/배포 확인과 구분합니다.
