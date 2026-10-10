@@ -9,8 +9,9 @@
 
 - **공식 개발 방식**: [AI 에이전트 기반 자율 개발·검수·배포](../docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) — 공통 메인 지침·다른 CLI 인수인계 양식
 - **현재 버전**: `v1.69` (실행 번호·진행·복구, [검수·운영 기록](docs/EXECUTION_RUNS_2026-10-10.md))
+- **실제 크롬 검수(2026-10-11)**: 본인 회원의 별도 prepare 원고18/18·이미지4장/중복0·본문 마지막·카테고리29/태그3/비공개·prepared ACK·탭 보호 통과. PC v1.69 적용 완료, 최종 발행 없음. 실제 장애/새 유료 이미지/공개 발행 시험은 별도로 남았습니다.
 - **이미지 개선**: 선택1~5장 계획/본문 자리 일치, 새 서버 ID에 개별 생성·교체·삭제 자동 저장, 빈 목록 유지·이전 원고의 늦은 결과 차단. 운영 READY·DB/ZIP 검증 완료.
-- **검수 개선(v1.67)**: 서버 검수 기록·원고 지문이 같은 PASS/직접 검수 CONFIRMED만 확장 전송, 수정 후 재검수, 실제 저장 확인·일괄 부분 성공 안내. 운영 READY·DB/ZIP 검증 완료이며 실제 새 네이버 E2E/실행 번호는 후속입니다.
+- **검수 개선(v1.67)**: 서버 검수 기록·원고 지문이 같은 PASS/직접 검수 CONFIRMED만 확장 전송, 수정 후 재검수, 실제 저장 확인·일괄 부분 성공 안내. 실행 번호/임대는 v1.69에 구현·운영 반영했고 실제 준비 검수는 [실행 인수인계](docs/EXECUTION_RUNS_2026-10-10.md)를 확인합니다.
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **아키텍처**: Next.js 16 (Turbopack, App Router) + Supabase + Chrome Extension (Manifest V3)
 - **인수인계 문서**: [`AGENTS.md`](./AGENTS.md) 및 [`docs/CONTINUATION.md`](./docs/CONTINUATION.md)
