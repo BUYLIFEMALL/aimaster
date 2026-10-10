@@ -31,6 +31,7 @@ import {
   Settings2,
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
+import NaverPublishSettings from "@/components/NaverPublishSettings";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft } from "@/lib/retention";
 import type { PipelineResult } from "@/lib/ai/pipeline";
@@ -112,6 +113,7 @@ export default function MainPage() {
   const [previewMode, setPreviewMode] = useState<"smart" | "raw">("smart");
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [currentPostId, setCurrentPostId] = useState<string | null>(null);
+  const [publishingBlocked, setPublishingBlocked] = useState(false);
   const [savedPostCount, setSavedPostCount] = useState<number>(0);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -354,6 +356,7 @@ export default function MainPage() {
   // 과거 저장된 원고 불러오기
   const handleLoadSavedPost = (post: any) => {
     setCurrentPostId(post.id);
+    if (post.blog_id) setSelectedBlogId(post.blog_id);
     setResult({
       title: post.title,
       content: post.content,
@@ -1751,6 +1754,7 @@ export default function MainPage() {
                 </button>
                 <button
                   onClick={handlePublishToQueue}
+                  disabled={publishingBlocked}
                   className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-colors"
                 >
                   <Send className="w-3.5 h-3.5" />
@@ -1758,6 +1762,14 @@ export default function MainPage() {
                 </button>
               </div>
             </div>
+
+            <NaverPublishSettings postId={currentPostId} onBlockingChange={setPublishingBlocked} onSaved={tags => {
+              setResult(prev => prev ? { ...prev, tags } : prev);
+              try {
+                const cache = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
+                if (Array.isArray(cache)) localStorage.setItem("nba_saved_posts", JSON.stringify(cache.map(p => p.id === currentPostId ? { ...p, tags } : p)));
+              } catch { /* Server settings remain saved if the browser cache is unavailable. */ }
+            }} />
 
             {/* 5단계 에이전트 단계별 실행 내역 요약 박스 */}
             <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">

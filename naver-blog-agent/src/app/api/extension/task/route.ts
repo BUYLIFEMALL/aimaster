@@ -29,6 +29,9 @@ export async function POST(req: Request) {
     if (postErr || !posts || posts.length === 0) return NextResponse.json({ task: null });
 
     const row = posts[0];
+    const { data: account, error: accountError } = await admin.from("nba_accounts").select("default_category")
+      .eq("user_id", userId).eq("blog_id", row.blog_id).maybeSingle();
+    if (accountError) return NextResponse.json({ error: "블로그 발행 기본값을 확인하지 못했습니다." }, { status: 500 });
 
     // 동시에 두 번 폴링해도 한 번만 가져가도록 queued일 때만 전환
     const { data: claimed } = await admin
@@ -46,7 +49,7 @@ export async function POST(req: Request) {
         type: "publish",
         platform: "naver",
         blogId: row.blog_id,
-        payload: buildBridgePayload(row),
+        payload: buildBridgePayload(row, account?.default_category),
       },
     });
   } catch (err: any) {

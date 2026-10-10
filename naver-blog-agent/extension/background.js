@@ -58,7 +58,7 @@ async function frameResults(tabId, command, args = {}) {
 }
 async function inspect(tabId) {
   const {connection} = await stored(); const tab = await chrome.tabs.get(tabId); const url = new URL(tab.url);
-  if (url.hostname === 'blog.naver.com' && !(url.pathname === `/${connection.blogId}/postwrite` || url.searchParams.get('blogId') === connection.blogId)) return {status:'unknown',reason:'대상 블로그 글쓰기 화면으로 이동해 주세요.'};
+  if (url.hostname === 'blog.naver.com' && !(url.pathname === `/${connection.blogId}/postwrite` || url.searchParams.get('blogId') === connection.blogId || (url.pathname === `/${connection.blogId}` && url.searchParams.get('Redirect')?.toLowerCase()==='write'))) return {status:'unknown',reason:'대상 블로그 글쓰기 화면으로 이동해 주세요.'};
   const results = await frameResults(tabId,'inspect',{blogId:connection.blogId});
   return results.find(r=>['security_check','expired','account_mismatch'].includes(r.status)) || results.find(r=>r.status==='valid') || results.find(r=>r.diagnostics?.componentCount) || results[0];
 }
@@ -73,7 +73,7 @@ async function editorTab(interactive = false,task) {
     if(u.hostname!==host)return '';
     const own=u.pathname.split('/')[1]===blogId || u.searchParams.get('blogId')===blogId;
     if(!own)return '';
-    if(u.pathname===`/${blogId}/postwrite` || /\/PostWriteForm\.naver$/i.test(u.pathname))return 'editor';
+    if(u.pathname===`/${blogId}/postwrite` || /\/PostWriteForm\.naver$/i.test(u.pathname) || (u.pathname===`/${blogId}` && u.searchParams.get('Redirect')?.toLowerCase()==='write'))return 'editor';
     if(u.pathname===`/${blogId}` || new RegExp('^/'+blogId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'/\\d+/?$').test(u.pathname) || /^\/(PostView|PostList)\.naver$/i.test(u.pathname))return 'read';
     return '';
   };
@@ -296,6 +296,21 @@ pump();
 checkUpdate();
 chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
   (async()=>{
+    if(message.type==='categories'){
+      const state=await stored();
+      if(!state.connection)throw new Error('확장을 본인 계정으로 먼저 연결해 주세요.');
+      const auth=await api('/status',{},state.connection);
+      if(auth.userId!==message.userId || !message.userId)throw new Error('프로그램 로그인 회원과 확장 연결 회원이 다릅니다. 본인 계정으로 다시 연결해 주세요.');
+      if(state.connection.blogId!==message.blogId)throw new Error('확장에 연결된 블로그와 원고의 블로그가 다릅니다. 해당 블로그를 연결해 주세요.');
+      if(busy || (await stored()).activeTask)throw new Error('확장 작업이 끝난 뒤 카테고리를 불러와 주세요.');
+      busy=true;
+      try{
+        const tabId=await editorTab(true);
+        const result=await command(tabId,'categories');
+        if(_sender.tab?.id && _sender.url?.startsWith('https://naver-blog-agent.vercel.app/'))await chrome.tabs.update(_sender.tab.id,{active:true});
+        return {blogId:state.connection.blogId,categories:result.categories};
+      }finally{busy=false;}
+    }
     if(message.type==='status'){pump();return stored();}
     if(message.type==='checkUpdate'){await checkUpdate();return {update:(await stored()).update || null};}
     if(message.type==='pair'){

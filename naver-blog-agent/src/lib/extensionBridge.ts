@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { evaluateProgramAccessForUser } from "@/lib/access";
+import { normalizeNaverTags, readNaverCategory } from "@/lib/naverPublishing";
 
 /** 확장 토큰으로 회원을 확인하고 현재 이용 권한을 다시 검증한다. */
 export async function authenticateExtension(
@@ -31,6 +32,8 @@ export interface BridgePayload {
   title: string;
   article: string;
   tags: string[];
+  category?: string;
+  categoryId?: string;
   titleImageIndex: number | null;
   titleImageName?: string;
   bodyImages: { sequence: number; index: number; name: string }[];
@@ -72,7 +75,7 @@ function htmlToLines(html: string): string[] {
 /**
  * 웹 원고(content + images)를 확장 발행 작업으로 변환한다.
  * - 본문 이미지 자리표시자는 순서대로 실제 이미지에 연결하고, 이미지가 없는 자리는 지운다(확장 검증과 일치).
- * - 카테고리는 콘텐츠 분류이므로 네이버 카테고리 선택에는 전달하지 않는다.
+ * - 글감 분류는 전달하지 않는다. 별도로 저장한 네이버 발행 카테고리만 전달한다.
  */
 export function buildBridgePayload(row: {
   title: string;
@@ -82,7 +85,10 @@ export function buildBridgePayload(row: {
   is_reserved?: boolean | null;
   scheduled_at?: string | null;
   publish_visibility?: string | null;
-}): BridgePayload {
+  blog_id?: string;
+  research_summary?: unknown;
+}, defaultCategory?: string): BridgePayload {
+  const naverCategory = readNaverCategory(row.research_summary, row.blog_id || "");
   const images = (Array.isArray(row.images) ? row.images : []).filter((img) => typeof img?.url === "string" && /^https:\/\//i.test(img.url));
   const thumbnail = images.find((img) => img.type === "thumbnail");
   const bodyPool = images.filter((img) => img !== thumbnail && img.type !== "thumbnail");
@@ -140,7 +146,9 @@ export function buildBridgePayload(row: {
   return {
     title: row.title,
     article: lines.join("\n"),
-    tags: Array.isArray(row.tags) ? row.tags.filter(Boolean).slice(0, 10) : [],
+    tags: normalizeNaverTags(row.tags),
+    ...(naverCategory ? { category: naverCategory.name, categoryId: naverCategory.id }
+      : defaultCategory?.trim() ? { category: defaultCategory.trim() } : {}),
     titleImageIndex,
     titleImageName: "blog_img_title.png",
     bodyImages,

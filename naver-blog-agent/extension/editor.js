@@ -1,6 +1,6 @@
 // This function runs only inside the editor's isolated world. No debugger or remote control.
 async function editorCommand(command, args = {}) {
-  const build='20261010.1';let step='locate';
+  const build='20261010.2';let step='locate';
   try {
   const visible = el => Boolean(el && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
   const find = selector => [...document.querySelectorAll(selector)].find(visible);
@@ -129,6 +129,35 @@ async function editorCommand(command, args = {}) {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, value);
     }
     el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const categoryButton=()=>find('button[data-click-area="tpb*i.category"], button[aria-label="카테고리 목록 버튼"]');
+  const categoryKey=value=>String(value || '').normalize('NFC').replace(/[\s\u200b\ufeff]+/gu,'');
+  const categoryInfo=element=>{
+    const item=element?.matches('[data-testid^="categoryItemText_"]') ? element : element?.querySelector('[data-testid^="categoryItemText_"]');
+    const id=item?.getAttribute('data-testid')?.match(/^categoryItemText_(\d+)$/)?.[1];
+    if(!id)return null;
+    const clone=item.cloneNode(true);clone.querySelectorAll('.blind,[aria-hidden="true"]').forEach(node=>node.remove());
+    const name=clone.textContent.normalize('NFC').replace(/[\u200b\ufeff]/g,'').trim();
+    return name ? {id,name} : null;
+  };
+  const categoryOptions=()=>[...(categoryButton()?.parentElement?.querySelector('[role="menu"]')?.querySelectorAll('label[for]') || [])]
+    .filter(label=>categoryInfo(label) && !document.getElementById(label.htmlFor)?.disabled);
+  const openCategories=async()=>{
+    const button=categoryButton();
+    if(!button)throw new Error('발행 설정의 카테고리 선택을 찾지 못했습니다.');
+    if(button.getAttribute('aria-expanded')!=='true')button.click();
+    if(!await waitFor(()=>categoryOptions().length>0))throw new Error('네이버 카테고리 목록을 읽지 못했습니다.');
+    return categoryOptions();
+  };
+  const tagInput=()=>find('#tag-input, input[placeholder*="태그"], input[class*="tag_input"]');
+  const tagKey=value=>String(value || '').normalize('NFC').replace(/[#\s\u200b\ufeff]/gu,'');
+  const registeredTags=()=>{
+    const input=tagInput(),area=input?.closest('[class*="tag_textarea"]');
+    if(!area)return [];
+    return [...area.children].filter(el=>!el.matches('input') && !el.contains(input)).map(el=>{
+      const clone=el.cloneNode(true);clone.querySelectorAll('button,input,.blind,[aria-hidden="true"]').forEach(node=>node.remove());
+      return tagKey(clone.textContent);
+    }).filter(Boolean);
   };
   const lastBody = async () => {
     const components=[...document.querySelectorAll('.se-component')].filter(el=>!el.closest('.se-title, .se-documentTitle'));
@@ -407,54 +436,49 @@ async function editorCommand(command, args = {}) {
     const el = args.selector ? find(args.selector) : exact(args.text);
     if (!el) throw new Error(`${args.text || '요청한'} 버튼을 찾지 못했습니다.`); el.click(); return { ok: true };
   }
+  if(command==='categories'){
+    if(!categoryButton()){
+      const button=find('button[data-click-area="tpb.publish"], button[class*="publish_btn__"]');
+      if(!button)throw new Error('네이버 글쓰기 화면을 열고 로그인해 주세요.');
+      button.click();
+      if(!await waitFor(()=>categoryButton()))throw new Error('발행 설정을 열지 못했습니다.');
+    }
+    const labels=await openCategories();
+    const categories=labels.map(categoryInfo);
+    categoryButton().click();
+    return {ok:true,categories};
+  }
+  if(command==='settingsSnapshot')return {ok:true,category:categoryInfo(categoryButton()),tags:registeredTags()};
   if (command === 'settings') {
     if (args.category) {
-      const categoryButton=()=>find('button[data-click-area="tpb*i.category"], button[aria-label="카테고리 목록 버튼"]');
-      const button = categoryButton();
-      if (!button) throw new Error('카테고리 선택을 확인할 수 없습니다.'); if(button.getAttribute('aria-expanded')!=='true'){button.click();await wait(150);}
-      // Search the whole category menu, regardless of nesting depth. Accessibility
-      // hints describe hierarchy, but are not part of the category's name.
-      const categoryKey=text=>String(text).normalize('NFC').replace(/[\s\u200b\ufeff]+/gu,'');
-      const categoryName=el=>{
-        if(!el)return '';
-        const clone=el.cloneNode(true);
-        clone.querySelectorAll('.blind, [aria-hidden="true"]').forEach(node=>node.remove());
-        return categoryKey(clone.textContent);
-      };
-      const requested=String(args.category).replace(/\s+/g,' ').trim();
-      const requestedKey=categoryKey(args.category);
-      const options=()=>[...(categoryButton()?.parentElement?.querySelector('[role="menu"]')?.querySelectorAll('label[for]') || [])]
-        .filter(label=>label.querySelector('[data-testid^="categoryItemText_"]'));
-      let candidates=[];
-      for(let n=0;n<20;n++){
-        candidates=options().filter(label=>categoryName(label.querySelector('[data-testid^="categoryItemText_"]'))===requestedKey);
-        if(candidates.length)break;
-        await wait(100);
-      }
-      if(!candidates.length)throw new Error(`등록한 카테고리를 찾지 못했습니다: ${requested}`);
-      if(candidates.length>1)throw new Error(`같은 이름의 카테고리가 ${candidates.length}개 있습니다: ${requested}. 카테고리명을 구분해 주세요.`);
-      const category=candidates[0];
-      const itemId=category.querySelector('[data-testid^="categoryItemText_"]').getAttribute('data-testid');
-      const selected=()=>{
-        const current=categoryButton();
-        const item=current?.querySelector('[data-testid^="categoryItemText_"]');
-        return current?.getAttribute('aria-expanded')==='false' && item?.getAttribute('data-testid')===itemId && categoryName(item)===requestedKey;
-      };
-      category.scrollIntoView({block:'nearest'});category.click();
-      for(let n=0;n<20 && !selected();n++)await wait(100);
-      if(!selected())throw new Error('카테고리 선택 결과를 확인할 수 없습니다.');
+      const labels=await openCategories();
+      const candidates=labels.filter(label=>{
+        const item=categoryInfo(label);
+        return args.categoryId ? item.id===String(args.categoryId) : categoryKey(item.name)===categoryKey(args.category);
+      });
+      if(candidates.length!==1)throw new Error(candidates.length ? '같은 이름의 카테고리가 여러 개 있습니다. 실제 목록에서 다시 선택해 주세요.' : '등록한 카테고리를 찾지 못했습니다: '+args.category);
+      const expected=categoryInfo(candidates[0]);
+      if(categoryKey(expected.name)!==categoryKey(args.category))throw new Error('카테고리 이름이 변경됐습니다. 목록을 다시 불러와 주세요.');
+      candidates[0].scrollIntoView({block:'nearest'});candidates[0].click();
+      if(!await waitFor(()=>{const item=categoryInfo(categoryButton());return categoryButton()?.getAttribute('aria-expanded')==='false' && item?.id===expected.id && categoryKey(item.name)===categoryKey(expected.name);}))throw new Error('카테고리 선택 결과를 확인하지 못했습니다.');
     }
     const visibility = args.publishVisibility === 'public' ? '전체공개' : '비공개';
     const label = exact(visibility); if (!label) throw new Error('공개 설정을 찾지 못했습니다.'); label.click(); await wait(100);
     const radio = label.querySelector('input') || document.getElementById(label.htmlFor || '');
     if (!(radio?.checked || label.getAttribute('aria-checked') === 'true')) throw new Error('공개 설정을 확인하지 못했습니다.');
-    const tagInput = find('input[placeholder*="태그"], input[class*="tag_input"]');
-    for (const tag of args.tags || []) {
-      if (!tagInput) throw new Error('태그 입력란을 찾지 못했습니다.'); setField(tagInput, tag);
-      tagInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
-      tagInput.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
-      await wait(40); if (tagInput.value) throw new Error('태그 입력 반영을 확인하지 못했습니다.');
+    const requestedTags=[...new Set((args.tags || []).map(tagKey).filter(Boolean))];
+    const beforeTags=registeredTags();
+    if(new Set([...beforeTags,...requestedTags]).size>30)throw new Error('네이버 태그 한도 30개를 초과합니다. 기존 태그를 확인해 주세요.');
+    for (const tag of requestedTags) {
+      if(registeredTags().includes(tag))continue;
+      const input=tagInput();
+      if(!input)throw new Error('태그 입력란을 찾지 못했습니다.');
+      input.focus();setField(input,tag);
+      input.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',keyCode:13,which:13,bubbles:true,cancelable:true}));
+      input.dispatchEvent(new KeyboardEvent('keyup',{key:'Enter',code:'Enter',keyCode:13,which:13,bubbles:true,cancelable:true}));
+      if(!await waitFor(()=>registeredTags().includes(tag) && !tagInput()?.value))throw new Error('태그 등록 결과를 확인하지 못했습니다: '+tag);
     }
+    if(![...beforeTags,...requestedTags].every(tag=>registeredTags().includes(tag)))throw new Error('일부 태그가 누락됐습니다. 기존 글을 보존합니다.');
     if (args.publishScheduleMode === 'reserve') {
       step='reserve';
       const reserve = exact('예약'); if (!reserve) throw new Error('예약 설정을 찾지 못했습니다.'); reserve.click(); await wait(100);

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ state: data?.status === "publishing" ? "running" : data?.status || "missing" });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, userId });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

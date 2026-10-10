@@ -28,6 +28,7 @@ import {
   Filter,
 } from "lucide-react";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
+import NaverPublishSettings from "@/components/NaverPublishSettings";
 import type { CollectorCategory } from "@/types/collector";
 import { useContentCategories } from "@/hooks/useContentCategories";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
@@ -54,6 +55,7 @@ export default function QueuePage() {
   const [posts, setPosts] = useState<SavedPostItem[]>([]);
   const [selectedPost, setSelectedPost] = useState<SavedPostItem | null>(null);
   const [viewingDetailPost, setViewingDetailPost] = useState<SavedPostItem | null>(null);
+  const [publishingBlocked, setPublishingBlocked] = useState(false);
   const [editingPost, setEditingPost] = useState<SavedPostItem | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -1114,6 +1116,8 @@ export default function QueuePage() {
                       <span>편집</span>
                     </button>
 
+                    <button type="button" onClick={() => setViewingDetailPost(post)} className="px-3 py-1.5 rounded-xl border border-blue-200 text-xs font-bold text-blue-700">발행 설정</button>
+
                     {/* 4. 크롬 확장의 스마트에디터 ONE으로 즉시 자동 발행 */}
                     {post.status !== "published" && post.status !== "publishing" && (
                       <button
@@ -1238,6 +1242,11 @@ export default function QueuePage() {
                 {renderSmartArticle(viewingDetailPost.content, viewingDetailPost.images)}
               </div>
 
+              <NaverPublishSettings postId={viewingDetailPost.id} onBlockingChange={setPublishingBlocked} onSaved={tags => {
+                setPosts(prev => prev.map(p => p.id === viewingDetailPost.id ? { ...p, tags } : p));
+                setViewingDetailPost(prev => prev ? { ...prev, tags } : prev);
+              }} />
+
               {/* 태그 */}
               {viewingDetailPost.tags && viewingDetailPost.tags.length > 0 && (
                 <div className="space-y-1.5 pt-2">
@@ -1278,10 +1287,12 @@ export default function QueuePage() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (publishingBlocked) return;
                     handlePublishNow(viewingDetailPost.id);
                     setViewingDetailPost(null);
                   }}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+                  disabled={publishingBlocked}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50"
                 >
                   <Send size={13} />
                   <span>스마트에디터 ONE 자동 발행 전송</span>

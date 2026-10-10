@@ -37,6 +37,7 @@ function loadTS(filename) {
     if (id === '@/lib/access') return { evaluateProgramAccessForUser: async () => access };
     if (id === '@/lib/version') return loadTS(path.join(root, 'src/lib/version.ts'));
     if (id === '@/lib/extensionBridge') return loadTS(path.join(root, 'src/lib/extensionBridge.ts'));
+    if (id === '@/lib/naverPublishing') return loadTS(path.join(root, 'src/lib/naverPublishing.ts'));
     if (id === 'next/server') return { NextResponse: { json: (body, init) => ({ body, status: init?.status || 200 }) } };
     return require(id);
   };
@@ -44,6 +45,21 @@ function loadTS(filename) {
   return module.exports;
 }
 const bridge = loadTS(path.join(root, 'src/lib/extensionBridge.ts'));
+const publishing = loadTS(path.join(root, 'src/lib/naverPublishing.ts'));
+assert.deepEqual(publishing.normalizeNaverTags(['#가성비 스마트폰', '가성비스마트폰', '', null, ' #AI 툴 ']), ['가성비스마트폰', 'AI툴']);
+const categoryPrefs = { id: '29', name: '●AI자동화' };
+const summary = { sources: ['기존 자료'], unrelated: { preserve: true } };
+const withPrefs = publishing.withNaverCategory(summary, 'myblog', categoryPrefs);
+assert.deepEqual(withPrefs.sources, summary.sources);
+assert.deepEqual(withPrefs.unrelated, summary.unrelated);
+assert.deepEqual(publishing.readNaverCategory(withPrefs, 'myblog'), categoryPrefs);
+assert.equal(publishing.readNaverCategory(withPrefs, 'otherblog'), null, '블로그 변경 시 다른 계정 카테고리 재사용 금지');
+const configuredPayload = bridge.buildBridgePayload({title:'제목',content:'본문',blog_id:'myblog',research_summary:withPrefs,tags:['#AI 툴', 'AI툴']}, '기본값');
+assert.equal(configuredPayload.category, categoryPrefs.name);
+assert.equal(configuredPayload.categoryId, '29');
+assert.deepEqual(configuredPayload.tags, ['AI툴']);
+assert.equal(bridge.buildBridgePayload({title:'제목',content:'본문'}, '기본값').category, '기본값');
+assert.throws(()=>publishing.parseNaverCategory({id:'not-an-id',name:'카테고리'}));
 
 const imgs = [
   { url: 'https://x.supabase.co/t.png', type: 'thumbnail', caption: '대표' },
@@ -181,6 +197,7 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   const calls = [];
   const stored = [];
   const badges = [];
+  let runtimeListener;
   const sandbox = {
     console, URL, AbortSignal, Uint8Array, btoa,
     importScripts() {}, setInterval() {}, clearInterval() {}, crypto: { randomUUID: () => 'dev' },
@@ -189,7 +206,7 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
       alarms: { create() {}, onAlarm: { addListener() {} } },
       action: { onClicked: { addListener() {} }, setBadgeText: async (v) => { badges.push(v.text); }, setBadgeBackgroundColor: async () => {} },
       tabs: { onUpdated: { addListener() {} } },
-      runtime: { onStartup: { addListener() {} }, onInstalled: { addListener() {} }, onMessage: { addListener() {} }, getURL: (x) => x, getManifest: () => ({ version: '1.49.0', version_name: 'v1.49' }) },
+      runtime: { onStartup: { addListener() {} }, onInstalled: { addListener() {} }, onMessage: { addListener(listener) { runtimeListener=listener; } }, getURL: (x) => x, getManifest: () => ({ version: '1.49.0', version_name: 'v1.49' }) },
     },
     fetch: async (url, init) => {
       calls.push({ url, init });
@@ -279,6 +296,28 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   sandbox.api = originalApi;
   delete sandbox.Date;
   delete sandbox.setTimeout;
+
+  // The website bridge must never operate a different member's connected account
+  // or return its bearer token to the page.
+  const previousGet = sandbox.chrome.storage.local.get;
+  const previousCommand = sandbox.command;
+  const previousTab = sandbox.editorTab;
+  sandbox.chrome.storage.local.get = async () => ({connection:{blogId:'myblog',token:'secret-test-only'}});
+  sandbox.api = async () => ({userId:'owner'});
+  let categoryActions=0;
+  sandbox.editorTab = async () => { categoryActions++;return 123; };
+  sandbox.command = async () => ({ok:true,categories:[{id:'29',name:'●AI자동화'}]});
+  const send = message => new Promise(resolve=>runtimeListener(message,{},resolve));
+  assert.match((await send({type:'categories',userId:'other',blogId:'myblog'})).error,/회원이 다릅니다/);
+  assert.match((await send({type:'categories',userId:'owner',blogId:'otherblog'})).error,/블로그.*다릅니다/);
+  assert.equal(categoryActions,0,'다른 회원/블로그는 편집기 접촉 전에 차단');
+  const categoryReply=await send({type:'categories',userId:'owner',blogId:'myblog'});
+  assert.equal(categoryReply.categories[0].id,'29');
+  assert.equal(JSON.stringify(categoryReply).includes('secret-test-only'),false);
+  sandbox.api=originalApi;
+  sandbox.command=previousCommand;
+  sandbox.editorTab=previousTab;
+  sandbox.chrome.storage.local.get=previousGet;
 
   // 이미지 업로드는 비동기다. 시간 초과 후 변화가 아직 안 보여도 다시 업로드하면 안 된다.
   let uploadAttempts = 0;

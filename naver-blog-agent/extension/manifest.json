@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AIMaster · 네이버 블로그 에이전트",
-  "version": "1.60.0",
+  "version": "1.61.0",
   "minimum_chrome_version": "120",
   "description": "일반 Chrome 브라우저에서 네이버 스마트에디터 ONE에 글을 안전하게 자동 작성 및 발행합니다.",
   "permissions": [
@@ -20,6 +20,17 @@
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://naver-blog-agent.vercel.app/*"
+      ],
+      "js": [
+        "web-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
@@ -34,5 +45,5 @@
       "32": "icons/icon-32.png"
     }
   },
-  "version_name": "v1.60"
+  "version_name": "v1.61"
 }
