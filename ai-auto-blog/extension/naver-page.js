@@ -37,6 +37,11 @@ async function blogEditorCommand(command, args = {}) {
     const bodyParagraphs = () => [...document.querySelectorAll(".se-section-text .se-text-paragraph, .se-text-paragraph")]
       .filter((el, index, list) => list.indexOf(el) === index && !isTitleOwned(el) && !el.closest(".se-caption, .se-source, .se-image, .se-component-image, .se-section-image, .se-module-image, .se-quotation, .se-oglink") && visible(el));
     const components = () => [...document.querySelectorAll(".se-component")].filter((el) => !el.closest(".se-documentTitle") && !el.matches(".se-documentTitle"));
+    // 입력을 막는 "진짜" 팝업만 찾는다: 제목(.se-popup-title)이나 안내 문구(.se-popup-alert-text)가 있는 알림 창.
+    // 이미지를 올리면 네이버가 오른쪽에 여는 "라이브러리" 패널·접근성 대화상자(role=dialog)는 입력을 막지 않으므로 팝업으로 보지 않는다
+    // (v1.44에서 이 패널을 팝업으로 오인해 이미지 뒤 본문 입력이 중단됨 — 주인님 실제 화면에서 확인).
+    const blockingPopup = () => [...document.querySelectorAll(".se-popup-container")].find((el) => visible(el) && el.querySelector(".se-popup-title, .se-popup-alert-text"));
+    const popupLabel = (el) => String(el.querySelector(".se-popup-title")?.textContent || el.querySelector(".se-popup-alert-text")?.textContent || el.className).replace(/\s+/g, " ").trim().slice(0, 60);
     const imageComponents = () => [...document.querySelectorAll(".se-component.se-image, .se-component[data-comp-type='image']")];
 
     // ---- 읽기 ----
@@ -81,7 +86,7 @@ async function blogEditorCommand(command, args = {}) {
           status: "valid",
           build,
           hasContent: Boolean(normalize(readText(title)) || hasText || hasOther),
-          dialogOpen: Boolean(find(".se-popup-container,[role='dialog'][aria-modal='true']")),
+          dialogOpen: Boolean(blockingPopup()),
           reason: `글쓰기 화면 확인 · ${build}`,
         };
       }
@@ -121,7 +126,8 @@ async function blogEditorCommand(command, args = {}) {
     // ---- 바꾸기: 한 프레임에서만 실행 ----
     // 제목/본문 입력 위치로 이동. 마우스를 올리고 잠깐 기다린 뒤 클릭(봇 탐지 회피 §20 규칙 2).
     if (command === "focus") {
-      if (find(".se-popup-container,[role='dialog'][aria-modal='true']")) return { ok: false, reason: "편집기 팝업이 열려 있습니다. 팝업을 닫은 뒤 다시 시도하세요." };
+      const popup = blockingPopup();
+      if (popup) return { ok: false, reason: `편집기 팝업이 열려 있습니다(${popupLabel(popup)}). 팝업을 닫은 뒤 다시 시도하세요.` };
       const isTitle = args.kind === "title";
       let container;
       if (isTitle) container = document.querySelector(".se-title-text");
