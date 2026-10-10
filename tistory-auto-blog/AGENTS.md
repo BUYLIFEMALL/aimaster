@@ -11,6 +11,15 @@
 - **옛 확장(v1.56 이하) 호환**: `GET /api/extension/posts`와 실행 번호 없는 `input-result` 보고는 예전처럼 동작한다(허용된 상태 이동만 검사). 새 큐는 v1.58 확장부터 쓴다 — 그 전까지는 사용자 화면·확장 동작이 바뀌지 않는다.
 - **시험**: `npm run test:extension-api` 33개(가져가기 경쟁·오래된/진행 중/타인 글 제외·임대·늦은 보고 409·멱등·하트비트·보내기 보호·발행 설정 저장/검증/보호글 거절/예약 검증·옛 확장 호환), `npx tsc --noEmit`, `npm run build`.
 
+## v1.58 (2026-10-10) — 웹에서 발행 설정(카테고리·공개 범위·댓글·홈주제·예약) 선택 (BLOG 방식 이식 2/4)
+
+- 글 보기 화면의 "티스토리 입력기로 보내기" 옆에 **"발행 설정" 패널**(`components/TistoryPublishPanel.tsx`)을 넣었다. 카테고리·공개 범위(공개/비공개)·댓글(허용/비허용)·홈주제·발행 시점(현재/예약, 한국 시간)을 글마다 정해 보내기 때 `{publish}`로 함께 보낸다(서버는 v1.57에서 검증·저장). 마지막으로 보낸 글의 설정이 다음 글의 기본값이다(`GET /api/posts/tistory-publish-default`, 별도 테이블 없이 본인 글에서만 읽음, 예약은 이어받지 않음).
+- **카테고리**는 티스토리 확장이 읽어 준 실제 목록에서 고른다("카테고리 불러오기" → `window.postMessage`, `tistory-publishing-app` ↔ `tistory-publishing-extension`, `ping`·`categories`). **확장 쪽 응답(web-bridge)은 v1.59에서 들어온다** — 그 전(또는 확장이 없을 때)에는 "확장(v1.59 이상)을 찾지 못했습니다. 카테고리 이름을 직접 입력하세요" 안내와 함께 이름을 직접 입력하는 칸이 나온다. 티스토리 카테고리는 번호 없이 이름(`aria-label`)으로만 구분되므로 이름이 정확히 같아야 선택된다.
+- **홈주제**는 `utils/tistoryPublish.ts`의 `TISTORY_HOME_TOPICS`(확장의 기본 목록과 같음)에서 고른다. 빈 새 글에서는 티스토리가 발행 설정창을 열지 않아 실제 목록을 미리 읽을 수 없기 때문이다. 입력 때 확장이 현재 티스토리 목록과 정확히 일치하는 항목만 선택한다.
+- **보호글은 자동 입력에서 지원하지 않는다**(비밀번호를 DB에 두지 않기 위한 주인님 결정). 화면에 안내 문구가 있고 서버도 거절한다.
+- 확장(v1.56 이하)은 아직 이 설정을 쓰지 않는다 — 기존 사이드패널 설정으로 입력한다. 새 확장(v1.59)부터 웹에서 보낸 설정을 쓴다.
+- 시험: `test:extension-api` 34개(기본값 조회 포함), `tsc`, `eslint`(오류 0), `npm run build`.
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.

@@ -7,6 +7,8 @@ import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 import { getErrorMessage } from '@/utils/errorMessage'
+import TistoryPublishPanel from '@/blog/components/TistoryPublishPanel'
+import { DEFAULT_TISTORY_PUBLISH, type TistoryPublish } from '@/blog/utils/tistoryPublish'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -125,6 +127,8 @@ export default function PostDetailPage() {
   const [compressing, setCompressing] = useState(false)
   // 티스토리 입력기로 보내기(티스토리 크롬 확장 목록에 올리기, 2026-10-01)
   const [handoffState, setHandoffState] = useState<'idle' | 'sending' | 'sent'>('idle')
+  // 발행 설정(v1.58): 카테고리·공개 범위·댓글·홈주제·발행 시점. 글과 함께 확장으로 보낸다.
+  const [publish, setPublish] = useState<TistoryPublish>(DEFAULT_TISTORY_PUBLISH)
 
   // 고화질 이미지 라이트박스 팝업 상태
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -559,12 +563,13 @@ export default function PostDetailPage() {
                 >
                   {compressing ? '⏳ 이미지 750KB 압축 중...' : copied ? '✓ 본문 & 이미지 복사 완료! (Ctrl+V로 붙여넣으세요)' : '📋 본문 복사하기'}
                 </button>
+                <TistoryPublishPanel value={publish} onChange={setPublish} disabled={handoffState === 'sending'} />
                 <button
                   disabled={handoffState === 'sending'}
                   onClick={async () => {
                     setHandoffState('sending')
                     try {
-                      const res = await fetch(`/api/posts/${post.id}/extension-handoff`, { method: 'POST' })
+                      const res = await fetch(`/api/posts/${post.id}/extension-handoff`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ publish }) })
                       const json = await res.json().catch(() => ({}))
                       if (!res.ok) throw new Error(json.error || '티스토리 입력기로 보내기에 실패했습니다.')
                       setHandoffState('sent')

@@ -80,6 +80,7 @@ const taskRoute = 'app/api/extension/task/route.ts';
 const resultRoute = 'app/api/extension/posts/[id]/input-result/route.ts';
 const handoffRoute = 'app/api/posts/[id]/extension-handoff/route.ts';
 const heartbeatRoute = 'app/api/extension/posts/[id]/heartbeat/route.ts';
+const publishDefaultRoute = 'app/api/posts/tistory-publish-default/route.ts';
 const RUN_A = '11111111-1111-4111-8111-111111111111';
 const RUN_B = '22222222-2222-4222-8222-222222222222';
 const future = (ms) => new Date(Date.now() + ms).toISOString();
@@ -339,4 +340,19 @@ test('legacy extension (v1.56 and older): list API and run-id-less reports still
   const h = harness(resultRoute, { posts: [post({ extension_handoff_at: iso(5 * 60 * MINUTE) })] });
   for (const status of ['in_progress', 'publish_ready']) assert.equal((await h.handlers.POST(jsonReq({ status }), ctx(1))).status, 200);
   assert.equal(h.rows.tistory_posts[0].tistory_input_status, 'publish_ready');
+});
+
+test('publish default: the most recently sent post with settings, own posts only, reservation not carried over, access required', async () => {
+  const h = harness(publishDefaultRoute, { posts: [
+    post({ id: 1, extension_handoff_at: iso(50 * MINUTE), tistory_publish: { category: '옛 카테고리', visibility: 'public', comment: 'allow', topic: '', timing: 'now' } }),
+    post({ id: 2, extension_handoff_at: iso(5 * MINUTE), tistory_publish: { category: '최근 카테고리', visibility: 'private', comment: 'deny', topic: '경제', timing: 'reserve', reserveDate: FUTURE_DATE(), reserveTime: '09:00' } }),
+    post({ id: 3, extension_handoff_at: iso(1 * MINUTE), tistory_publish: null }),
+    post({ id: 4, user_id: 'member-b', extension_handoff_at: iso(1 * MINUTE), tistory_publish: { category: '남의 카테고리' } }),
+  ] });
+  const body = await (await h.handlers.GET()).json();
+  assert.deepEqual(plain(body.publish), { category: '최근 카테고리', visibility: 'private', comment: 'deny', topic: '경제', timing: 'now', reserveDate: '', reserveTime: '' });
+  const none = harness(publishDefaultRoute, { posts: [post()] });
+  assert.equal((await (await none.handlers.GET()).json()).publish, null);
+  const denied = harness(publishDefaultRoute, { posts: [post()], access: { allowed: false, status: 403, error: 'Denied' } });
+  assert.equal((await denied.handlers.GET()).status, 403); assert.equal(denied.calls.reads, 0);
 });

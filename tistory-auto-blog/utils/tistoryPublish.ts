@@ -24,6 +24,17 @@ export const DEFAULT_TISTORY_PUBLISH: TistoryPublish = {
   category: '', visibility: 'public', comment: 'allow', topic: '', timing: 'now', reserveDate: '', reserveTime: '',
 }
 
+// 홈주제 기본 목록(확장 `extension/sidepanel.js`의 DEFAULT_HOME_TOPICS와 같다). 빈 새 글에서는 티스토리가 발행 설정창을 열지 않아 실제 목록을 미리 읽을 수 없어서,
+// 웹에서는 이 목록으로 고르고 확장은 입력할 때 현재 티스토리 목록과 정확히 일치하는 항목만 선택한다(없으면 선택하지 않고 안내).
+export const TISTORY_HOME_TOPICS = [
+  '일상', '육아', '건강', '요리', '패션·미용', '반려동물',
+  '여행', '맛집', '국내여행', '해외여행',
+  'TV', '스타', '영화', '음악', '책', '만화·애니', '공연·전시·축제', '창작',
+  'IT·인터넷', '모바일', '게임', '과학', 'IT 제품리뷰',
+  '정치', '사회', '교육', '국제', '경제', '경영·직장',
+  '야구', '축구', '농구', '배구', '골프', '기타 스포츠',
+] as const
+
 const clean = (value: unknown, max: number, label: string) => {
   if (value === undefined || value === null || value === '') return ''
   if (typeof value !== 'string') throw new Error(`${label} 형식이 올바르지 않습니다.`)
