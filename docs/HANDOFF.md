@@ -4,7 +4,8 @@
 
 - 주인님이 네이버 개발 방식을 **「AI 에이전트 기반 자율 개발·검수·배포」**로 명명하고 모든 프로그램·다른 CLI가 활용하도록 메인 지침으로 지정했습니다. 공통 전문: [`AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md).
 - 공통 전문에 실제 도구·권한 범위·조사·구현·자동 검사·실제 로그인 Chrome·운영 검증·커밋/푸시/배포·확장 ZIP·데이터 보존·실패 처리·시작/완료 양식을 정리했습니다. 네이버 v1.58~v1.62 사례의 확인 범위와 최종 발행 미실행, 별도 자동 저장 후속 문제를 구분했습니다.
-- 루트 AGENTS.md 핵심 원칙14·CLAUDE.md 핵심 원칙13 및 README, 네이버 AGENTS/README/CONTINUATION에 연결했습니다. 이번 변경은 지침·문서만이며 네이버 코드/DB/확장 버전은 v1.62 유지입니다. 문서 내부 및 진입점 링크28개·15절 구조·코드 블록·공백 검사 통과, 루트 `npm run build` 성공(기존 `ignoreBuildErrors` 설정으로 타입 검사 생략 — 타입 통과를 주장하지 않음). 커밋·푸시·배포 후 운영 확인 결과는 아래에서 마감합니다.
+- 루트 AGENTS.md 핵심 원칙14·CLAUDE.md 핵심 원칙13 및 README, 네이버 AGENTS/README/CONTINUATION에 연결했습니다. 이번 변경은 지침·문서만이며 네이버 코드/DB/확장 버전은 v1.62 유지입니다. 문서 내부 및 진입점 링크28개·15절 구조·코드 블록·공백 검사 통과, 루트 `npm run build` 성공(기존 `ignoreBuildErrors` 설정으로 타입 검사 생략 — 타입 통과를 주장하지 않음).
+- **커밋·푸시·배포 완료:** 메인 지침 커밋 `86a3436a`를 origin/master에 푸시했습니다. 무관한 임시 파일을 제외하도록 해당 커밋의 별도 Git worktree에서 루트 `aimaster`/`buylife` 프로덕션을 배포했습니다. `dpl_Gh3EXtZRtBPtcPCVx1q7TaHsRQj7` READY, 운영 별칭 https://www.buylife.xyz . 메인 `/`·`/programs` HTTP200, 네이버 공개 버전 API v1.62 유지 확인. 기능 코드·DB·키·환경변수 변경 없음. 운영 결과는 이 후속 문서 커밋으로 마감합니다.
 
 ## 네이버 블로그 에이전트 v1.62 — 실제 웹 설정 검수·배포 완료 (2026-10-10)
 
