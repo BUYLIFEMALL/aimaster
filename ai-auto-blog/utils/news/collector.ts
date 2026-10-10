@@ -7,12 +7,18 @@ export interface NewsArticle {
   hoursAgo: number
 }
 
+// 이 점수들은 모은 뉴스 기사 수·출처 수·키워드 포함 비율로 계산한 **내부 추정값**이다. SNS 언급량·검색 순위·실제 성과를 조회한 값이 아니다.
+// 기사를 하나도 못 모았으면 데이터 없음(hasData=false, 점수 0)이며 예전처럼 50점을 주지 않는다(2026-10-10 v1.42).
 export interface IssueSignalScore {
   trendScore: number
   exposureScore: number
+  /** 이름과 달리 SNS 언급량이 아니라 "서로 다른 뉴스 출처 수" 기반 추정값 */
   socialMentionScore: number
   impactScore: number
   totalScore: number
+  hasData: boolean
+  estimated: true
+  articleCount: number
 }
 
 export interface CollectedNewsResult {
@@ -94,7 +100,7 @@ function parseRssXml(xmlText: string): NewsArticle[] {
 function analyzeSignals(articles: NewsArticle[]): { signals: IssueSignalScore; topKeywords: string[] } {
   if (articles.length === 0) {
     return {
-      signals: { trendScore: 50, exposureScore: 50, socialMentionScore: 50, impactScore: 50, totalScore: 50 },
+      signals: { trendScore: 0, exposureScore: 0, socialMentionScore: 0, impactScore: 0, totalScore: 0, hasData: false, estimated: true, articleCount: 0 },
       topKeywords: [],
     }
   }
@@ -155,6 +161,9 @@ function analyzeSignals(articles: NewsArticle[]): { signals: IssueSignalScore; t
       socialMentionScore,
       impactScore,
       totalScore,
+      hasData: true,
+      estimated: true,
+      articleCount: articles.length,
     },
     topKeywords: sortedKeywords,
   }

@@ -314,7 +314,7 @@ function AiFormPageInner() {
         category_slug: categorySlugs[0],
         tone,
         target_audience: targetAudience.trim() || undefined,
-        target_word_count: targetWordCount,
+        targetChars: targetWordCount, // 공백 제외 글자 수(화면의 "목표 글자수"와 같은 단위)
         keywords,
         reference_urls: validUrls,
         contentProvider,

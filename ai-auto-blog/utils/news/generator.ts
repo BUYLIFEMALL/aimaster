@@ -2,6 +2,8 @@ import { CollectedNewsResult } from './collector'
 import { mdLiteToHtml, estimateReadingMinutes, extractExcerpt, formatReadableParagraphs } from '@/blog/utils/markdown'
 import { generateSegmentImages } from './imageGenerator'
 import { generateContentJson } from '@/blog/utils/ai/contentJson'
+import { sanitizeYear, sanitizeBodyYear } from '@/blog/utils/yearPolicy'
+import { buildLengthRules, buildYearRule, countChars, resolveTargetChars } from './promptRules'
 import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, resolveImageCount, type ContentProvider } from '@/blog/utils/ai/contentModels'
 
 /** 이미지 생성에 실패한 칸은 빈 이미지 태그를 남기지 않는다. */
@@ -50,6 +52,8 @@ export interface AutoPostOptions {
   categorySlug?: string
   tone?: string
   targetAudience?: string
+  /** 공백 제외 목표 글자 수(800~3,500, 기본 2,000). 예전 이름 wordCount도 같은 뜻(글자 수)으로 받는다. */
+  targetChars?: number
   wordCount?: number
   keywords?: string[]
   referenceUrls?: string[]
@@ -90,6 +94,9 @@ export interface GeneratedPostResult {
   sections?: PostSectionItem[]
   cta?: { text: string; url: string }
   hashtags?: string
+  /** 4개 문단의 실제 공백 제외 글자 수와 요청한 목표(2026-10-10 v1.42) */
+  bodyChars?: number
+  targetChars?: number
 }
 
 function generateHashtags(topic: string, keywords: string[], parsedJson?: any): string {
@@ -138,7 +145,19 @@ async function generateWithContentModel(
   sections?: PostSectionItem[]
   cta?: { text: string; url: string }
   hashtags?: string
+  bodyChars?: number
+  targetChars?: number
 }> {
+  // 기준 연도: 생성하는 해(new Date().getFullYear())를 기준으로 하고, 주제·키워드의 과거 연도는 올해로 바꾼다(루트 CLAUDE.md 핵심 원칙 8번).
+  const currentYear = new Date().getFullYear()
+  options = {
+    ...options,
+    topic: sanitizeYear(options.topic, currentYear),
+    keywords: options.keywords?.map((keyword) => sanitizeYear(keyword, currentYear)),
+  }
+  const targetChars = resolveTargetChars(options.targetChars ?? options.wordCount)
+  const lengthRules = buildLengthRules(targetChars)
+
   const keywordsList = options.keywords && options.keywords.length > 0
     ? options.keywords.slice(0, 5)
     : newsData.topKeywords.slice(0, 5)
@@ -151,13 +170,15 @@ async function generateWithContentModel(
 
   const toneRule = options.tone ? `- 글 분위기 (Tone): '${options.tone}' 어조와 문체로 작성하세요.` : ''
   const audienceRule = options.targetAudience ? `- 대상 독자 (Target Audience): '${options.targetAudience}' 독자층을 염두에 두고 맞춤형 용어와 어조로 작성하세요.` : ''
-  const wordCountRule = options.wordCount ? `- 목표 단어 수 (Word Count): 약 ${options.wordCount}단어 (공백 제외 약 ${Math.round(options.wordCount * 3.5)}자 이상)로 풍부하게 작성하세요.` : ''
+  const wordCountRule = lengthRules.option
   const referenceRule = options.referenceUrls && options.referenceUrls.length > 0 ? `- 참고 URL: ${options.referenceUrls.join(', ')}` : ''
   const customRule = options.customInstructions ? `- 추가 필수 지시사항 (Custom Instructions): ${options.customInstructions} (★ 이 지침을 최우선으로 반영할 것)` : ''
 
   const prompt = `
 당신은 대한민국 최고의 SEO 블로그 전문 에디터입니다.
 구글과 네이버 검색엔진이 선호하는 고품질 SEO 맞춤 포스트를 지정된 JSON 형식으로 생성해 주세요.
+
+${buildYearRule(currentYear)}
 
 [주제 및 키워드 정보]:
 - 주제: ${options.topic}
@@ -184,7 +205,7 @@ ${customRule}
    - 글 전체 내용 중 구체적 세부 설명 부분에 마크다운 ### (<h3>) 태그를 정확히 3번 사용하세요.
    - 글 전체 내용 중 리스트 또는 핵심 질문/답변 목록 부분에 마크다운 - (<li>) 태그를 2번 이상 사용하세요.
 4. 분량 및 딥다이브 설명:
-   - 각 문단("문단 1", "문단 2", "문단 3", "문단 4")은 구체적인 정보, 설명, 풍부한 예시를 포함하여 총 전체 글자 수가 공백 제외 2,000자 이상이 되도록 길고 풍부하게 작성하세요.
+   - ${lengthRules.deepDive}
 5. 가독성 및 톤앤매너:
    - 정보성 글을 작성하되, 사람들이 끝까지 읽기 편하도록 대학생 수준에서 편하게 읽을 수 있는 명확하고 친절한 어조로 작성하세요.
    - 구글 검색 사용자의 검색 의도를 고려하여 질의-답변(Q&A) 구조와 명쾌한 해결책을 제시하세요.
@@ -219,20 +240,23 @@ ${customRule}
     user: prompt,
   })) as Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  const title = parsed['제목'] || `[SEO] ${options.topic} 완벽 가이드`
-  const excerpt = parsed['요약글'] || `${options.topic}에 관한 심층 분석 리포트입니다.`
+  // 모델이 과거 연도를 올해 정보처럼 쓰면 올해로 바로잡는다(제목·소제목은 모두, 본문은 최신 정보 표기만 — 실제 과거 사실의 연도는 보존).
+  const title = sanitizeYear(parsed['제목'] || `[SEO] ${options.topic} 완벽 가이드`, currentYear)
+  const excerpt = sanitizeBodyYear(parsed['요약글'] || `${options.topic}에 관한 심층 분석 리포트입니다.`, currentYear)
 
-  const heading1 = parsed['소제목 1'] || subKey1
-  const heading2 = parsed['소제목 2'] || subKey2
-  const heading3 = parsed['소제목 3'] || subKey3
-  const heading4 = parsed['소제목 4'] || subKey4
+  const heading1 = sanitizeYear(parsed['소제목 1'] || subKey1, currentYear)
+  const heading2 = sanitizeYear(parsed['소제목 2'] || subKey2, currentYear)
+  const heading3 = sanitizeYear(parsed['소제목 3'] || subKey3, currentYear)
+  const heading4 = sanitizeYear(parsed['소제목 4'] || subKey4, currentYear)
 
-  const body1Text = stripLeadingHeadingEcho(formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || ''), heading1, title)
-  const body2Text = stripLeadingHeadingEcho(formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || ''), heading2, title)
-  const body3Text = stripLeadingHeadingEcho(formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || ''), heading3, title)
-  const body4Text = stripLeadingHeadingEcho(formatReadableParagraphs(parsed['문단 4'] || parsed['4문단'] || ''), heading4, title)
+  const body1Text = stripLeadingHeadingEcho(formatReadableParagraphs(sanitizeBodyYear(parsed['문단 1'] || parsed['1문단'] || '', currentYear)), heading1, title)
+  const body2Text = stripLeadingHeadingEcho(formatReadableParagraphs(sanitizeBodyYear(parsed['문단 2'] || parsed['2문단'] || '', currentYear)), heading2, title)
+  const body3Text = stripLeadingHeadingEcho(formatReadableParagraphs(sanitizeBodyYear(parsed['문단 3'] || parsed['3문단'] || '', currentYear)), heading3, title)
+  const body4Text = stripLeadingHeadingEcho(formatReadableParagraphs(sanitizeBodyYear(parsed['문단 4'] || parsed['4문단'] || '', currentYear)), heading4, title)
 
-  const hashtags = generateHashtags(options.topic, keywordsList, parsed)
+  const hashtags = sanitizeYear(generateHashtags(options.topic, keywordsList, parsed), currentYear)
+  const bodyChars = countChars([body1Text, body2Text, body3Text, body4Text].join(''))
+  console.log(`[AI Post Generator] body length ${bodyChars} chars (target ${targetChars}, year ${currentYear})`)
 
   // 이미지 배치(2026-10-01 주인님 지시): 1번은 글 전체를 대표하는 "제목용" 이미지(요약 바로 아래).
   // 나머지(문단 이미지 k장)는 문단 4개를 k개 묶음으로 나눠 **글 전체에 고르게** 맡긴다 — 앞 문단에만 몰리지 않게.
@@ -310,6 +334,8 @@ ${hashtags}
     sections: structuredSections,
     cta: options.cta,
     hashtags,
+    bodyChars,
+    targetChars,
   }
 }
 
@@ -340,6 +366,8 @@ export async function generateAutoPost(
     sections: postData.sections,
     cta: postData.cta,
     hashtags: postData.hashtags,
+    bodyChars: postData.bodyChars,
+    targetChars: postData.targetChars,
   }
 }
 

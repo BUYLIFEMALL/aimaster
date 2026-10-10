@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { collect24HourNews } from '@/blog/utils/news/collector'
+import { resolveTargetChars } from '@/blog/utils/news/promptRules'
+import { sanitizeYear } from '@/blog/utils/yearPolicy'
 import { generateSeoPost, AutoPostOptions } from '@/blog/utils/news/generator'
 import { mdLiteToHtml, estimateReadingMinutes } from '@/blog/utils/markdown'
 import { checkProgramAccessApi } from '@/blog/utils/access'
@@ -253,11 +255,13 @@ export async function POST(request: NextRequest) {
 
     // 단일 topic 또는 세부 options 객체 수신 지원
     const options: AutoPostOptions = {
-      topic: body.topic || body.keyword || body.query || '',
+      // 주제의 과거 연도는 올해로 바꿔 뉴스 검색과 생성 모두 당해 연도 기준이 되게 한다(핵심 원칙 8번)
+      topic: sanitizeYear(String(body.topic || body.keyword || body.query || ''), new Date().getFullYear()),
       categorySlug: body.category_slug || body.categorySlug,
       tone: body.tone,
       targetAudience: body.targetAudience || body.target_audience,
-      wordCount: body.wordCount ? Number(body.wordCount) : body.target_word_count ? Number(body.target_word_count) : undefined,
+      // 공백 제외 목표 글자수(800~3,500). targetChars가 새 이름이고 예전 target_word_count·wordCount도 같은 뜻(글자 수)으로 받는다.
+      targetChars: resolveTargetChars(body.targetChars ?? body.target_chars ?? body.target_word_count ?? body.wordCount),
       keywords: Array.isArray(body.keywords) ? body.keywords : body.keywords ? [body.keywords] : undefined,
       referenceUrls: Array.isArray(body.referenceUrls) ? body.referenceUrls : Array.isArray(body.reference_urls) ? body.reference_urls : body.referenceUrl ? [body.referenceUrl] : undefined,
       customInstructions: body.customInstructions || body.custom_prompt,
@@ -305,6 +309,8 @@ export async function POST(request: NextRequest) {
           hashtags: postData.hashtags,
           collectedNewsCount: newsData.articles.length,
           signals: newsData.signals,
+          bodyChars: postData.bodyChars,
+          targetChars: postData.targetChars,
           topic: options.topic,
         },
       })
@@ -366,6 +372,8 @@ export async function POST(request: NextRequest) {
         topic: options.topic,
         collectedNewsCount: newsData.articles.length,
         signals: newsData.signals,
+        bodyChars: postData.bodyChars,
+        targetChars: postData.targetChars,
         publishedAt: saveResult.post.published_at,
       },
     })

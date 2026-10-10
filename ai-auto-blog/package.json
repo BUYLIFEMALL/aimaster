@@ -11,6 +11,7 @@
     "build:extension": "node scripts/build-extension-archive.mjs",
     "test:security": "node --test tests/security.test.cjs",
     "test:extension-api": "node --test tests/extension-api.test.cjs",
+    "test:generation": "node --test tests/generation-rules.test.cjs",
     "test:extension": "node --test tests/extension-engine.test.cjs tests/extension-worker.test.cjs tests/extension-adapter.test.cjs"
   },
   "dependencies": {
