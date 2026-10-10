@@ -477,7 +477,8 @@
           const buttons = [...(root?.querySelectorAll("button.mce-btn-type1.select_btn") || [])].filter(visible);
           const target = buttons[1];
           if (!target) return null;
-          if (String(target.textContent || "").replace(/\s+/g, " ").includes(name)) return { selected: true };
+          const key = (value) => String(value || "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+          if (key(target.textContent).includes(key(name))) return { selected: true };
           target.scrollIntoView({ block: "center", inline: "nearest" });
           const rect = target.getBoundingClientRect();
           return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
@@ -495,10 +496,11 @@
           target: { tabId, frameIds: [0] }, args: [topic],
           func: (name) => {
             const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+            const key = (value) => String(value || "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
             const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
             const matches = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])]
-              .filter((node) => visible(node) && String(node.textContent || "").replace(/\s+/g, " ").trim() === name)
-              .filter((node) => ![...node.children].some((child) => String(child.textContent || "").replace(/\s+/g, " ").trim() === name));
+              .filter((node) => visible(node) && key(node.textContent) === key(name))
+              .filter((node) => ![...node.children].some((child) => key(child.textContent) === key(name)));
             if (matches.length !== 1) return null;
             const rect = matches[0].getBoundingClientRect();
             return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
@@ -517,7 +519,8 @@
             const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
             const root = [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")].find(visible);
             const buttons = [...(root?.querySelectorAll("button.mce-btn-type1.select_btn") || [])].filter(visible);
-            return Boolean(buttons[1] && String(buttons[1].textContent || "").replace(/\s+/g, " ").includes(name));
+            const key = (value) => String(value || "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+            return Boolean(buttons[1] && key(buttons[1].textContent).includes(key(name)));
           },
         });
         if (verified[0]?.result === true) return;
@@ -529,6 +532,8 @@
       const applied = await chrome.scripting.executeScript({
         target: { tabId, frameIds: [0] }, args: [settings],
         func: async (requested) => {
+          // 주입 함수의 예외는 executeScript에서 값 없음(undefined)으로 보여 원인이 사라진다 — 항상 사유를 담아 돌려준다(v1.60).
+          try {
           const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
           const dialog = () => [...document.querySelectorAll(".editor_layer[role='dialog'], .editor_layer.ReactModal__Content--after-open")].find((node) => Boolean(node.getClientRects().length));
           const visible = (node) => Boolean(node?.getClientRects().length);
@@ -565,15 +570,23 @@
           }
 
           const selectButtons = [...root.querySelectorAll("button.mce-btn-type1.select_btn")].filter(visible);
+          // 티스토리의 실제 글자(예: "IT 인터넷")와 우리 목록(예: "IT·인터넷")이 공백·문장부호만 다른 경우를 같은 항목으로 본다. 그래도 하나로 식별되지 않으면 실제 목록을 보여 주며 중단한다.
+          const key = (value) => String(value || "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
           const chooseListOption = async (button, label, required = true) => {
             if (!button) { if (!required) return; throw new Error("발행 설정 선택 메뉴를 찾지 못했습니다."); }
             await click(button);
             const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
-            const matches = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])]
-              .filter((node) => visible(node) && nodeText(node) === label);
-            if (matches.length !== 1) throw new Error(`‘${label}’ 항목이 현재 티스토리 목록에 없습니다. 제목·본문 입력 뒤 홈주제 목록 갱신을 누르고 다시 선택해 주세요.`);
+            const wanted = key(label);
+            const candidates = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])].filter((node) => visible(node) && nodeText(node));
+            const matches = candidates
+              .filter((node) => key(nodeText(node)) === wanted)
+              .filter((node) => ![...node.children].some((child) => key(nodeText(child)) === wanted));
+            if (matches.length !== 1) {
+              const names = [...new Set(candidates.filter((node) => node.children.length === 0).map(nodeText))].slice(0, 40);
+              throw new Error(`‘${label}’ 항목을 현재 티스토리 목록에서 하나로 찾지 못했습니다(${matches.length}개). 티스토리 목록: ${names.join(", ") || "읽지 못함"}`);
+            }
             await click(matches[0]);
-            if (!nodeText(button).includes(label)) throw new Error(`‘${label}’ 선택 적용을 확인하지 못했습니다.`);
+            if (!key(nodeText(button)).includes(wanted)) throw new Error(`‘${label}’ 선택 적용을 확인하지 못했습니다.`);
           };
           await chooseListOption(selectButtons[0], requested.comment === "allow" ? "댓글 허용" : "댓글 비허용");
           if (requested.topic) await chooseListOption(selectButtons[1], requested.topic);
@@ -614,8 +627,10 @@
             if (Number(hourInput.value) !== Number(hour) || Number(minuteInput.value) !== Number(minute)) throw new Error("예약 시간 적용을 확인하지 못했습니다.");
           }
           return { visibility: visibilityLabel, timing: timingLabel };
+          } catch (error) { return { error: String(error?.message || error) }; }
         },
       });
+      if (applied[0]?.result?.error) throw new Error(applied[0].result.error);
       if (!applied[0]?.result) throw new Error("발행 설정 적용 결과를 확인하지 못했습니다.");
       return applied[0].result;
     }
