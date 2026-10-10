@@ -356,12 +356,6 @@
         return { name: result.name, id: result.id };
       },
 
-      // 구조 분석(오류 보고용): 모든 프레임의 읽기 조사
-      async inspectStructure(tabId) {
-        const entries = await readAllFrames("inspect", { blogId: state.blogId }, tabId);
-        return entries;
-      },
-
       async cleanup() { await detachDebugger(); },
     };
   }
