@@ -11,10 +11,9 @@ export const AUTO_START_WINDOW_MS = 30 * 60 * 1000
 export const RUNNING_GUARD_MS = 90 * 60 * 1000
 
 // 실행 임대(v1.43): 확장이 가져가거나 직접 시작할 때 서버가 실행 번호(naver_run_id)와 임대 만료 시각을 정한다.
-// 확장은 입력하는 동안 HEARTBEAT 간격으로 임대를 연장하고, 연장하지 못한 채 LEASE_MS가 지나면(PC 꺼짐·확장 종료) 웹에서 다시 보낼 수 있다.
+// 확장은 입력하는 동안 45초마다(`extension/background.js`) 임대를 연장하고, 연장하지 못한 채 LEASE_MS가 지나면(PC 꺼짐·확장 종료) 웹에서 다시 보낼 수 있다.
 // 이 경우에도 "자동으로 대기로 되돌리지" 않는다 — 이미 입력됐거나 발행됐을 수 있어 회원이 확인하고 다시 보내야 한다.
 export const LEASE_MS = 3 * 60 * 1000
-export const HEARTBEAT_MS = 45 * 1000
 
 export const leaseExpiry = (now = Date.now()) => new Date(now + LEASE_MS).toISOString()
 export const newRunId = () => globalThis.crypto.randomUUID()

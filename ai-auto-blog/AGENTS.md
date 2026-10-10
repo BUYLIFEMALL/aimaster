@@ -574,3 +574,7 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 ## 2026-10-10 v1.53 — 호출되지 않는 `inspectStructure` 코드 제거 (주인님 지시, 정리 4/6)
 
 - `extension/naver-adapter.js`의 `inspectStructure()`는 어디에서도 호출되지 않는 죽은 코드였다(사이드패널의 구조 분석은 자체 스크립트를 쓴다). 제거했고 동작 변화는 없다. 시험: `test:extension` 67개.
+
+## 2026-10-10 v1.54 — 서버에서 쓰이지 않는 `HEARTBEAT_MS` 상수 제거 (주인님 지시, 정리 5/6)
+
+- `utils/extensionTask.ts`의 `HEARTBEAT_MS`는 서버에서 쓰이지 않았다(확장 `background.js`가 45초를 직접 사용). 제거하고 주석에 "45초마다(`extension/background.js`)"로 명시했다. 동작 변화 없음. 시험: `test:extension-api` 34개, 보안 39개, 빌드.
