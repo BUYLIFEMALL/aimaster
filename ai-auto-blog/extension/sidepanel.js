@@ -9,6 +9,7 @@ const BASE = "https://ai-auto-blog-one.vercel.app";
 const KEY = "aiAutoBlogToken";
 const BLOG_ID_KEY = "aiAutoBlogBlogId";
 const NOTIFY_KEY = "aiAutoBlogNotify";
+const IMAGE_AI_KEY = "aiAutoBlogImageAi";
 const PUBLISH_SETTINGS_KEY = "aiAutoBlogPublishSettings";
 const TASK_STATE_KEY = "blogTaskState";
 const AUTO_WINDOW_MS = 30 * 60 * 1000;
@@ -108,6 +109,9 @@ $("saveBlogId").addEventListener("click", async () => {
 // ---- 완료 알림 설정(기본 켜짐) ----
 chrome.storage.local.get(NOTIFY_KEY).then((stored) => { $("notifyToggle").checked = stored[NOTIFY_KEY] !== false; }).catch(() => {});
 $("notifyToggle").addEventListener("change", () => chrome.storage.local.set({ [NOTIFY_KEY]: $("notifyToggle").checked }).catch(() => {}));
+// 이미지에 "AI 활용" 표시 자동 켜기: 기본 꺼짐(true로 저장한 회원만 켠다)
+chrome.storage.local.get(IMAGE_AI_KEY).then((stored) => { $("imageAiToggle").checked = stored[IMAGE_AI_KEY] === true; }).catch(() => {});
+$("imageAiToggle").addEventListener("change", () => chrome.storage.local.set({ [IMAGE_AI_KEY]: $("imageAiToggle").checked }).catch(() => {}));
 
 // ---- 보낸 글 목록 ----
 function formatPostLabel(post) {

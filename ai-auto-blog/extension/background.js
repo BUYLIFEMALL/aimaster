@@ -15,6 +15,7 @@ const KEY = {
   pending: "blogPendingResult", // 서버가 저장을 확인해 줄 때까지 보관하는 결과
   state: "blogTaskState", // 사이드패널에 보여줄 진행 상태
   notify: "aiAutoBlogNotify", // 작업이 끝나면 크롬 알림(기본 켜짐, false면 끔)
+  imageAi: "aiAutoBlogImageAi", // 이미지에 "AI 활용" 표시 자동 켜기(기본 꺼짐, true면 켬)
 };
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const { TaskError, runInputTask } = self.BlogEngine;
@@ -98,8 +99,9 @@ async function loadAsset(block, index) {
 }
 
 async function loadSettings() {
-  const stored = (await get(KEY.settings))[KEY.settings] || {};
-  return { category: String(stored.category || "").trim(), tags: self.BlogCore.parseTagInput(stored.tags) };
+  const all = await get([KEY.settings, KEY.imageAi]);
+  const stored = all[KEY.settings] || {};
+  return { category: String(stored.category || "").trim(), tags: self.BlogCore.parseTagInput(stored.tags), imageAi: all[KEY.imageAi] === true };
 }
 
 async function setBadge(text, color) {

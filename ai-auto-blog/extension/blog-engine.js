@@ -160,9 +160,9 @@
       await sleep(0);
     }
 
-    // ---- 4. 이미지 AI 활용 표시(실패해도 입력은 유지, 경고로만 알림) ----
+    // ---- 4. 이미지 AI 활용 표시: 회원이 사이드패널에서 켠 경우에만(기본 꺼짐, v1.49). 실패해도 입력은 유지하고 경고로만 알린다 ----
     const placedImages = expected.imageCount();
-    if (placedImages > 0) {
+    if (placedImages > 0 && settings.imageAi === true) {
       await checkpoint();
       emit("verifying", "이미지 AI 활용 표시를 설정하는 중...", { typedChars, totalChars });
       try { await adapter.applyImageAi(); } catch (error) { warnings.push(`이미지 AI 활용 표시를 자동으로 켜지 못했습니다: ${error.message || error}`); }

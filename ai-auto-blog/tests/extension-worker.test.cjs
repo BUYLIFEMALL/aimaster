@@ -276,3 +276,18 @@ test('notification: a click for a closed tab or an unknown notification does not
   w.ctx.chrome.tabs.update = async () => { throw new Error('No tab with id: 9.'); };
   await w.click('n1');
 });
+
+test('the worker passes the saved AI-mark choice to the run (default off)', async () => {
+  const calls = [];
+  const make = (storage) => {
+    const w = loadWorker({ storage, routes: { '/api/extension/task': oneTask(task({ tags: [] })), '/api/extension/posts/': ack } });
+    const original = w.adapter.applyImageAi; w.adapter.applyImageAi = async () => { calls.push('imageAi'); return original(); };
+    return w;
+  };
+  const off = make(base);
+  await off.send({ type: 'pump' }); assert.ok(await off.settled(() => off.store.blogTaskState?.final));
+  assert.equal(calls.length, 0);
+  const on = make({ ...base, aiAutoBlogImageAi: true });
+  await on.send({ type: 'pump' }); assert.ok(await on.settled(() => on.store.blogTaskState?.final));
+  assert.equal(calls.length, 1);
+});

@@ -101,7 +101,7 @@ const rejects = async (promise, code) => {
 
 test('happy path: title, text, image, link in order, verified, ready for manual publish', async () => {
   const editor = fakeEditor();
-  const { result, reports } = await run(editor, { settings: { category: '경제', tags: ['태그1'] } });
+  const { result, reports } = await run(editor, { settings: { category: '경제', tags: ['태그1'], imageAi: true } });
   assert.equal(result.status, 'publish_ready'); assert.equal(result.settingsApplied, true);
   assert.deepEqual(reports.map((r) => r[0]), ['completed', 'publish_ready']);
   assert.equal(editor.doc.title, '테스트 제목');
@@ -189,7 +189,7 @@ test('tab closing mid-run stops with TAB_CLOSED', async () => {
 });
 
 test('image AI mark failure is only a warning', async () => {
-  const { result } = await run(fakeEditor({ aiError: true }));
+  const { result } = await run(fakeEditor({ aiError: true }), { settings: { category: '', tags: [], imageAi: true } });
   assert.ok(result.warnings.some((w) => w.includes('AI 활용')));
 });
 
@@ -284,4 +284,19 @@ test('the cursor is not re-clicked after text or a link (only at the body start 
   const pasteIndexes = editor.calls.map((c, i) => (c === 'paste' ? i : -1)).filter((i) => i >= 0);
   for (const i of pasteIndexes) assert.notEqual(editor.calls[i - 1] === 'focusBody' && editor.calls[i - 2]?.startsWith('type:') , true, 'no focus between typed text and the link paste');
   assert.ok(at('type:') > 0);
+});
+
+test('image AI mark is off by default and only applied when the member turned it on', async () => {
+  const off = fakeEditor();
+  await run(off);
+  assert.ok(!off.calls.includes('imageAi'), 'default: the AI mark is not touched');
+  const explicitOff = fakeEditor();
+  await run(explicitOff, { settings: { category: '', tags: [], imageAi: false } });
+  assert.ok(!explicitOff.calls.includes('imageAi'));
+  const on = fakeEditor();
+  await run(on, { settings: { category: '', tags: [], imageAi: true } });
+  assert.ok(on.calls.includes('imageAi'));
+  const noImages = fakeEditor();
+  await run(noImages, { settings: { category: '', tags: [], imageAi: true }, assets: {} });
+  assert.ok(!noImages.calls.includes('imageAi'), 'nothing to mark when no image was placed');
 });
