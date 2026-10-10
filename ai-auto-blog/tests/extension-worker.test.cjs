@@ -12,7 +12,7 @@ function makeAdapter(options = {}) {
   let cursor = null;
   const calls = [];
   const adapter = {
-    state: {}, calls, doc,
+    state: { tabId: 77 }, calls, doc,
     ownEditorUrl: () => true,
     async ensureAlive() {},
     async prepareEditor() { calls.push('prepare'); if (options.prepareError) throw options.prepareError; },
@@ -36,6 +36,7 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
   const listeners = {};
   const requests = [];
   const intervals = [];
+  const events = { notifications: [], tabUpdates: [], windowUpdates: [] };
   const ctx = {
     console: { error() {}, log() {} }, Promise, Date, JSON, Math, URL, Uint8Array, ArrayBuffer, Symbol, Intl, Set, Map, Error, String, Number, Array, Object, RegExp, parseInt, isFinite, encodeURIComponent, setTimeout, clearTimeout,
     btoa: (value) => Buffer.from(value, 'binary').toString('base64'),
@@ -61,7 +62,9 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
       alarms: { create() { return Promise.resolve(); }, onAlarm: { addListener() {} } },
       sidePanel: { setPanelBehavior: () => Promise.resolve() },
       action: { setBadgeText: async () => {}, setBadgeBackgroundColor: async () => {} },
-      tabs: { query: async () => [] },
+      tabs: { query: async () => [], update: async (id, props) => { events.tabUpdates.push([id, props]); return { id, windowId: 5 }; } },
+      windows: { update: async (id, props) => { events.windowUpdates.push([id, props]); } },
+      notifications: { create: async (id, options) => { events.notifications.push({ id, options }); }, clear: async () => {}, onClicked: { addListener(fn) { listeners.notificationClick = fn; } } },
     },
   };
   ctx.self = ctx;
@@ -74,7 +77,7 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
   const send = (message) => new Promise((resolve) => listeners.message(message, {}, resolve));
   const settled = async (predicate, tries = 200) => { for (let i = 0; i < tries; i += 1) { if (predicate()) return true; await new Promise((r) => setTimeout(r, 5)); } return false; };
   const heartbeats = () => intervals.slice(1).filter(Boolean);
-  return { store, requests, adapter, send, settled, ctx, heartbeats };
+  return { store, requests, adapter, send, settled, ctx, heartbeats, events, click: (id) => listeners.notificationClick(id) };
 }
 
 const task = (extra = {}) => ({ id: 11, runId: 'run-aaa', title: '제목입니다', handoffAt: 'now', tags: ['태그'], blocks: [{ type: 'text', text: '본문입니다' }, { type: 'image', url: 'https://x/a.png', alt: '' }], ...extra });
@@ -225,4 +228,51 @@ test('a worker restart reports the interruption with the run id', async () => {
   await w.send({ type: 'pump' });
   assert.ok(await w.settled(() => w.store.blogActiveTask === undefined));
   assert.equal(w.requests.find((r) => r.path.includes('/input-result')).body.runId, 'run-zzz');
+});
+
+// ---------- 완료 알림 (v1.44) ----------
+const oneTask = (taskValue) => { let served = false; return () => { if (served) return { status: 200, body: { task: null } }; served = true; return { status: 200, body: { task: taskValue } }; }; };
+
+test('notification: publish_ready, completed and failed each notify once; clicking it focuses the naver tab', async () => {
+  const ready = loadWorker({ storage: base, routes: { '/api/extension/task': oneTask(task()), '/api/extension/posts/': ack } });
+  await ready.send({ type: 'pump' });
+  assert.ok(await ready.settled(() => ready.store.blogTaskState?.final && ready.events.notifications.length === 1));
+  const note = ready.events.notifications[0];
+  assert.match(note.options.title, /발행 직전 준비 완료/); assert.ok(note.options.message.includes('제목입니다')); assert.equal(note.options.requireInteraction, true);
+  await ready.click(note.id);
+  assert.equal(JSON.stringify(ready.events.tabUpdates[0]), JSON.stringify([77, { active: true }])); assert.equal(JSON.stringify(ready.events.windowUpdates[0]), JSON.stringify([5, { focused: true }]));
+
+  const completed = loadWorker({ storage: base, routes: { '/api/extension/task': oneTask(task({ tags: [] })), '/api/extension/posts/': ack } });
+  await completed.send({ type: 'pump' });
+  assert.ok(await completed.settled(() => completed.events.notifications.length === 1));
+  assert.match(completed.events.notifications[0].options.title, /입력 완료/);
+
+  const failed = loadWorker({ storage: base, routes: { '/api/extension/task': oneTask(task()), '/api/extension/posts/': ack } });
+  failed.adapter.prepareEditor = async () => { throw new failed.ctx.BlogEngine.TaskError('EDITOR_NOT_EMPTY', '비어 있지 않음'); };
+  await failed.send({ type: 'pump' });
+  assert.ok(await failed.settled(() => failed.events.notifications.length === 1));
+  assert.match(failed.events.notifications[0].options.title, /입력 중단/); assert.match(failed.events.notifications[0].options.message, /비어 있지 않음/);
+});
+
+test('notification: turned off by the member, or cancelled by the member, sends nothing', async () => {
+  const off = loadWorker({ storage: { ...base, aiAutoBlogNotify: false }, routes: { '/api/extension/task': oneTask(task()), '/api/extension/posts/': ack } });
+  await off.send({ type: 'pump' });
+  assert.ok(await off.settled(() => off.store.blogTaskState?.final)); await new Promise((r) => setTimeout(r, 20));
+  assert.equal(off.events.notifications.length, 0);
+
+  const cancelled = loadWorker({ storage: base, routes: { '/api/extension/task': oneTask(task()), '/api/extension/posts/': ack } });
+  let release; const gate = new Promise((resolve) => { release = resolve; });
+  cancelled.adapter.prepareEditor = async () => { await gate; };
+  await cancelled.send({ type: 'pump' });
+  assert.ok(await cancelled.settled(() => cancelled.store.blogActiveTask));
+  await cancelled.send({ type: 'cancel' }); release();
+  assert.ok(await cancelled.settled(() => cancelled.store.blogTaskState?.final)); await new Promise((r) => setTimeout(r, 20));
+  assert.equal(cancelled.store.blogTaskState.outcome, 'cancelled'); assert.equal(cancelled.events.notifications.length, 0);
+});
+
+test('notification: a click for a closed tab or an unknown notification does nothing and never throws', async () => {
+  const w = loadWorker({ storage: { ...base, blogNotifyTab: { id: 'n1', tabId: 9 } }, routes: { '/api/extension/task': () => ({ status: 200, body: { task: null } }) } });
+  await w.click('other'); assert.equal(w.events.tabUpdates.length, 0);
+  w.ctx.chrome.tabs.update = async () => { throw new Error('No tab with id: 9.'); };
+  await w.click('n1');
 });

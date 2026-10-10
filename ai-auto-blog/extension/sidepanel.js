@@ -8,6 +8,7 @@
 const BASE = "https://ai-auto-blog-one.vercel.app";
 const KEY = "aiAutoBlogToken";
 const BLOG_ID_KEY = "aiAutoBlogBlogId";
+const NOTIFY_KEY = "aiAutoBlogNotify";
 const PUBLISH_SETTINGS_KEY = "aiAutoBlogPublishSettings";
 const TASK_STATE_KEY = "blogTaskState";
 const AUTO_WINDOW_MS = 30 * 60 * 1000;
@@ -103,6 +104,10 @@ $("saveBlogId").addEventListener("click", async () => {
   $("blogIdStatus").textContent = `저장됨: ${value} — 이 블로그의 글쓰기 화면에만 입력합니다.`;
   chrome.runtime.sendMessage({ type: "pump" }).catch(() => {});
 });
+
+// ---- 완료 알림 설정(기본 켜짐) ----
+chrome.storage.local.get(NOTIFY_KEY).then((stored) => { $("notifyToggle").checked = stored[NOTIFY_KEY] !== false; }).catch(() => {});
+$("notifyToggle").addEventListener("change", () => chrome.storage.local.set({ [NOTIFY_KEY]: $("notifyToggle").checked }).catch(() => {}));
 
 // ---- 보낸 글 목록 ----
 function formatPostLabel(post) {

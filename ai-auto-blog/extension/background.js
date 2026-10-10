@@ -14,6 +14,7 @@ const KEY = {
   active: "blogActiveTask", // 지금 입력 중인 작업(작업기가 재시작되면 이 기록으로 중단을 알 수 있다)
   pending: "blogPendingResult", // 서버가 저장을 확인해 줄 때까지 보관하는 결과
   state: "blogTaskState", // 사이드패널에 보여줄 진행 상태
+  notify: "aiAutoBlogNotify", // 작업이 끝나면 크롬 알림(기본 켜짐, false면 끔)
 };
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const { TaskError, runInputTask } = self.BlogEngine;
@@ -105,6 +106,24 @@ async function setBadge(text, color) {
   try { await chrome.action.setBadgeText({ text }); if (text) await chrome.action.setBadgeBackgroundColor({ color }); } catch { /* ignore */ }
 }
 
+// ---- 완료 알림(v1.44) ----
+// 입력이 끝나면(발행 직전 준비 완료·입력 완료·실패) 크롬 알림으로 알려 준다. 알림을 누르면 그 네이버 글쓰기 탭으로 이동한다. 사용자가 중지한 경우는 알리지 않는다.
+async function notifyOutcome({ outcome, title, message, tabId }) {
+  try {
+    if (!chrome.notifications || !["publish_ready", "completed", "failed"].includes(outcome)) return;
+    if ((await get(KEY.notify))[KEY.notify] === false) return;
+    const heading = outcome === "publish_ready" ? "발행 직전 준비 완료" : outcome === "completed" ? "네이버 입력 완료" : "네이버 입력 중단";
+    const body = outcome === "publish_ready"
+      ? `「${title}」 내용을 확인하고 네이버의 마지막 발행 버튼을 눌러 주세요.`
+      : outcome === "completed"
+        ? `「${title}」 본문 입력은 끝났습니다. 카테고리·태그를 확인하고 직접 발행해 주세요.`
+        : `「${title}」 ${String(message || "").slice(0, 120)}`;
+    const id = `blog-${outcome}-${Date.now()}`;
+    await chrome.notifications.create(id, { type: "basic", iconUrl: "icons/icon128.png", title: `BLOG 네이버 입력기 · ${heading}`, message: body, priority: 2, requireInteraction: outcome !== "failed" });
+    if (tabId != null) await set({ blogNotifyTab: { id, tabId } });
+  } catch { /* 알림 실패는 작업 결과에 영향이 없다 */ }
+}
+
 // ---- 작업 실행 ----
 async function runTask(task, mode) {
   const stored = await get([KEY.blogId]);
@@ -155,6 +174,7 @@ async function runTask(task, mode) {
     });
     await setState({ final: true, outcome: result.status, stage: result.status, message: result.message, warnings: result.warnings || [], imageCount: result.imageCount, linkedCount: result.linkedCount });
     await setBadge(result.status === "publish_ready" ? "준비" : "완료", result.status === "publish_ready" ? "#16a34a" : "#2563eb");
+    await notifyOutcome({ outcome: result.status, title: task.title, message: result.message, tabId: adapter.state.tabId });
   } catch (error) {
     const code = error instanceof TaskError ? error.code : "INPUT_FAILED";
     const message = error instanceof TaskError ? error.message : self.BlogCore.formatBrowserError(error, "네이버 편집기 입력");
@@ -162,6 +182,7 @@ async function runTask(task, mode) {
     await reportStatus(task.id, "failed", `[${code}] ${message}`, runId); // 대체된 실행의 보고는 서버가 거절(409)하고 확장은 보관을 끝낸다
     await setState({ final: true, outcome: code === "CANCELLED" ? "cancelled" : "failed", stage: "failed", message: stopped ? "웹에서 이 글이 다시 보내졌거나 이 실행이 끝난 것으로 처리되어 입력을 중지했습니다. 네이버 화면의 내용을 확인한 뒤 필요하면 다시 보내주세요." : message });
     await setBadge(code === "CANCELLED" ? "" : "실패", "#dc2626");
+    if (code !== "CANCELLED") await notifyOutcome({ outcome: "failed", title: task.title, message, tabId: adapter.state.tabId });
   } finally {
     if (heartbeat) clearInterval(heartbeat);
     try { await adapter.cleanup(); } catch { /* ignore */ }
@@ -261,6 +282,17 @@ chrome.runtime.onMessage.addListener((message, _sender, reply) => {
   })().then((result) => { try { reply(result); } catch { /* 패널이 닫힘 */ } }, (error) => { try { reply({ error: error?.message || String(error) }); } catch { /* ignore */ } });
   return true;
 });
+
+// 알림을 누르면 입력한 네이버 글쓰기 탭으로 이동한다(탭이 이미 닫혔다면 아무것도 하지 않는다).
+chrome.notifications?.onClicked?.addListener((notificationId) => run(async () => {
+  const stored = (await get("blogNotifyTab")).blogNotifyTab;
+  try { await chrome.notifications.clear(notificationId); } catch { /* ignore */ }
+  if (!stored || stored.id !== notificationId || stored.tabId == null) return;
+  try {
+    const tab = await chrome.tabs.update(stored.tabId, { active: true });
+    if (tab?.windowId != null) await chrome.windows.update(tab.windowId, { focused: true });
+  } catch { /* 탭이 닫힘 */ }
+}));
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
 try { Promise.resolve(chrome.alarms.create("blog-pump", { periodInMinutes: 0.5 })).catch(() => {}); } catch { /* ignore */ }

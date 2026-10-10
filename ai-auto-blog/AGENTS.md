@@ -506,3 +506,11 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - **확장**: `background.js` — `runId`를 활성 작업·보관 결과·재시작 복구 보고에 모두 포함, 하트비트 타이머(실행이 끝나면 해제), 직접 시작은 `/start` 응답(`runId`)이 와야 시작.
 - 검사: `test:extension-api` 32개(번호·임대 생성, 이중 가져가기/시작 1건만, 대체된 실행 보고 409, 임대 연장·종료, 하트비트 소유자·완료·DB 오류, 직접 시작 상태별·살아 있는 실행 거절·만료 후 재시작·경쟁·DB 오류, 다시 보내기 보호·만료 허용·번호 비움, 번호 없는 옛 확장 호환), `test:extension` 50개(하트비트 중 대체 감지 시 입력 중지, 재시작 보고에 번호 포함 추가), `test:security` 39, `test:generation` 7, 빌드.
 - **Codex 참고(네이버 블로그 에이전트에 적용할 때)**: 에이전트의 `nba_posts` 선점(`queued→publishing`)에 같은 칸(`run_id`, `lease_expires_at`)을 추가하면 응답 유실·PC 단절 뒤 "무조건 queued로 되돌리지 않고" 안전하게 복구할 수 있다. 상세 제안은 `docs/SHARED_NAVER_ENGINE_PROPOSAL_2026-10-10.md`.
+
+## 2026-10-10 v1.44 — 입력 완료 크롬 알림
+
+- 입력이 끝나면 크롬 알림으로 알린다: **발행 직전 준비 완료**(`publish_ready`, 확인 전까지 남아 있는 알림), **입력 완료**(`completed`, 카테고리·태그 없음 또는 자동 입력 실패 — 직접 확인 안내), **입력 중단**(`failed`, 사유 120자). 회원이 직접 중지한 경우와 서버가 대체한 실행(하트비트 409)으로 멈춘 경우는 알리지 않는다. 알림을 누르면 그 네이버 글쓰기 탭으로 이동한다(탭이 닫혔으면 아무 일도 하지 않음).
+- 크롬 권한 `notifications` 추가(`manifest.json`). 사이드패널 "입력이 끝나면 크롬 알림 받기" 체크(기본 켜짐, 저장 키 `aiAutoBlogNotify`, false면 끔). 알림 생성이 실패해도 입력 결과에는 영향이 없다(`notifyOutcome` 전체 try/catch).
+- 코드: `extension/background.js` `notifyOutcome()`·`notifications.onClicked`, `sidepanel.js/html`. 서버 변경 없음.
+- 검사: `test:extension` 53개(발행 준비·입력 완료·중단 각각 1회 알림과 클릭 이동, 끄기·중지 시 알림 없음, 닫힌 탭·모르는 알림 클릭 무해) + 기존 전체 통과 + 빌드.
+- 회원 안내: ZIP 덮어쓰기 후 `chrome://extensions`에서 새로고침하면 새 권한(알림)이 적용된다. Windows는 Chrome 알림이 "집중 지원/방해 금지" 상태면 보이지 않을 수 있다.
