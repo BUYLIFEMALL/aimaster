@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import CategoryManagementModal from '@/blog/app/_components/CategoryManagementModal'
+import ShortsSearch from '@/blog/components/candidates/ShortsSearch'
 
 interface Candidate {
   id: string
@@ -33,18 +34,24 @@ interface NewsblurFeed {
   link: string
 }
 
-type Method = 'http' | 'rss' | 'perplexity'
+type Method = 'http' | 'rss' | 'perplexity' | 'shorts'
+
+// 유튜브 쇼츠 떡상 분석(v1.58)으로 저장한 주제는 DB 변경 없이 source_type='http', source_input=쇼츠 주소로 저장되어 있다.
+const SHORTS_URL_PATTERN = /^https:\/\/www\.youtube\.com\/shorts\/[\w-]{11}$/
+const isShortsCandidate = (candidate: { source_input: string }) => SHORTS_URL_PATTERN.test(candidate.source_input)
 
 const METHOD_LABELS: Record<Method, string> = {
   http: 'HTTP (URL 지정)',
   rss: 'RSS (NewsBlur 구독 피드)',
   perplexity: 'Perplexity (트렌드 검색)',
+  shorts: '유튜브 쇼츠 떡상 분석',
 }
 
 const SOURCE_LABELS: Record<Method, string> = {
   http: 'HTTP',
   rss: 'RSS',
   perplexity: 'Perplexity',
+  shorts: '유튜브 쇼츠',
 }
 
 export default function CandidatesPage() {
@@ -258,8 +265,9 @@ export default function CandidatesPage() {
     }
   }
 
-  const sourceCounts: Record<Method, number> = { http: 0, rss: 0, perplexity: 0 }
-  for (const c of candidates) sourceCounts[c.source_type] += 1
+  const sourceCounts: Record<Method, number> = { http: 0, rss: 0, perplexity: 0, shorts: 0 }
+  for (const c of candidates) sourceCounts[isShortsCandidate(c) ? 'shorts' : c.source_type] += 1
+  const savedShortsSources = candidates.filter(isShortsCandidate).map((c) => c.source_input)
 
   const filteredCandidates = candidates.filter((c) => {
     if (categoryFilter === 'all') return true
@@ -287,7 +295,7 @@ export default function CandidatesPage() {
           <ImageStorageNotice compact />
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {(Object.keys(sourceCounts) as Method[]).map((type) => (
             <div key={type} className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="text-2xl font-extrabold text-slate-900">{sourceCounts[type]}</div>
@@ -347,7 +355,7 @@ export default function CandidatesPage() {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-8">
-          <div className="mb-4 flex gap-2 border-b border-slate-100 pb-4">
+          <div className="mb-4 flex flex-wrap gap-2 border-b border-slate-100 pb-4">
             {(Object.keys(METHOD_LABELS) as Method[]).map((m) => (
               <button
                 key={m}
@@ -520,6 +528,18 @@ export default function CandidatesPage() {
             </form>
           )}
 
+          {method === 'shorts' && (
+            <ShortsSearch
+              categoryId={collectCategoryId}
+              savedSources={savedShortsSources}
+              settingsHref={`${basePath}/settings`}
+              onSaved={() => {
+                if (!supabase) return
+                supabase.auth.getUser().then(({ data }: { data: { user: { id: string } | null } }) => { if (data?.user) loadCandidates(supabase, data.user.id) })
+              }}
+            />
+          )}
+
           {resultMsg && <p className="mt-3 text-sm font-semibold text-green-600">{resultMsg}</p>}
           {errorMsg && <p className="mt-3 text-sm font-semibold text-red-600">{errorMsg}</p>}
         </div>
@@ -656,7 +676,15 @@ export default function CandidatesPage() {
                     </div>
                   )}
                   <p className="mt-2 text-xs text-slate-400">
-                    {SOURCE_LABELS[c.source_type]} · {c.source_input} · {new Date(c.created_at).toLocaleString('ko-KR')}
+                    {isShortsCandidate(c) ? (
+                      <>
+                        <span className="mr-1 rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">▶ 유튜브 쇼츠</span>
+                        <a href={c.source_input} target="_blank" rel="noopener noreferrer" className="underline">{c.source_input}</a>
+                      </>
+                    ) : (
+                      <>{SOURCE_LABELS[c.source_type]} · {c.source_input}</>
+                    )}{' '}
+                    · {new Date(c.created_at).toLocaleString('ko-KR')}
                   </p>
                 </li>
               )

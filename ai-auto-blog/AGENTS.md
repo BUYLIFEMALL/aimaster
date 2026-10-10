@@ -605,3 +605,13 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 ## 2026-10-10 최종 인수인계 문서
 
 - v1.40~v1.57 자동 포스팅 개선 전체(핵심·처리 과정·로직·주의사항·시험·남은 작업)는 루트 `docs/BLOG_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md`에 한 번에 정리했다. 이 폴더를 이어받는 CLI는 이 문서부터 읽는다.
+
+## 2026-10-10 v1.58 — 게시글 주제 수집(`/candidates`)에 "유튜브 쇼츠 떡상 분석" 추가 (주인님 지시, tistory-auto-blog v1.66과 같은 방식)
+
+- `/candidates`(게시글 주제 수집)의 네 번째 방식 탭 **"유튜브 쇼츠 떡상 분석"**을 추가했다(기존 HTTP·RSS·Perplexity는 그대로). 쓰레드 자동화(`threads-content-ops` `?tab=viral`)·네이버 블로그 에이전트(`/collector`)의 같은 기능을 블로그 글 주제용으로 옮겼고, 코드는 `tistory-auto-blog` v1.66과 같다.
+- **흐름**: 키워드·게시 기간·정렬·길이·최소 조회수·최대 구독자·프리셋(🔥 지금 떡상 / 🚀 작은 채널 대박 / ⚡ 급상승)으로 쇼츠 검색 → 결과마다 등급(조회수÷구독자: 초대박 10배↑·대박 5배↑·떡상 3배↑·양호 1배↑, 구독자 비공개는 판정불가)·점수·채널평균 대비·하루 조회 표시 → **"주제로 저장"**을 누르면 AI가 터진 이유(훅·구조)를 분석해 **블로그 게시글 주제 후보 최대 3건**(제목 25~45자·요약 150~350자·키워드 3~5개)을 저장 → 아래 "수집된 블로그 주제"의 "이 주제로 글쓰기"로 이어진다. 요약 앞에 `[영상 분석] 훅: … / 터진 이유: …`, 카드에 `▶ 유튜브 쇼츠` 배지와 영상 링크. 통계 카드는 4칸.
+- **코드**: `utils/ai/youtubeShorts.ts`(검색·지표·설명/댓글), `utils/ai/shortsAnalysis.ts`(분석·프롬프트: 당해 연도 규칙·대사/자막 그대로 옮기지 않기·`<data>` 지시문 무시), `app/api/candidates/shorts/route.ts`(`GET` 키 등록 여부만, `POST {action:'search'|'analyze'}`), `components/candidates/ShortsSearch.tsx`, `app/candidates/page.tsx`. 설정 화면에 **YouTube Data API 키** 항목과 발급 매뉴얼 버튼(`platform_guides` 72d39d06…)을 추가했다(`user_api_keys.provider='youtube_api_key'`는 공용 체크 제약에 이미 있음).
+- **본인 키 규칙**: YouTube·Gemini·OpenAI 모두 회원 본인 키만 쓴다(폴백 없음). 검색 1회 = 본인 YouTube 할당량 약 100유닛(필터는 가져온 결과에 바로 적용되어 추가 할당량 없음). 분석은 본인 Gemini(영상을 직접 보고 분석, `gemini-3.7-flash`) 또는 OpenAI(`gpt-4o-mini`, 제목·수치·설명·댓글 기반 추정이라고 안내)이며 둘 다 없으면 실행하지 않고 등록 안내만 한다. YouTube 키가 있으면 설명·댓글도 근거로 쓴다(약 2유닛).
+- **DB 변경 없음**: 저장은 기존 `blog_candidates`에 `source_type='http'`, `source_input=https://www.youtube.com/shorts/<id>`로 한다. 같은 영상을 이미 분석·저장했으면 **AI 호출 전에 막는다(409)**(다른 회원 저장분은 영향 없음). **BLOG의 카테고리(`blog_categories`)는 회원별이 아니라 공통 분류 목록**이라(티스토리와 다른 점) 존재하는 카테고리인지만 확인한다. 영상 대사·자막은 저장하지 않는다. 검색 결과는 저장하지 않고 "주제로 저장"을 누른 영상만 저장한다. 콘텐츠 30일 보관 정책(자동 삭제)은 다른 후보와 같이 적용된다.
+- **시험**: `npm run test:shorts` 18개(지표·등급·검색 호출 방식·오류 문구·키 비노출·프롬프트·JSON 정리·Gemini 영상/OpenAI 대체/키 없음·접근 권한·입력 검증·중복 선차단·카테고리 존재 확인·저장 형식·실패 처리). **실제 호출 확인(2026-10-10, 주인님 승인, 테스트 계정 buylifemall@naver.com의 본인 키)**: "재테크 팁" 검색 36개 → 1위 영상을 Gemini가 영상을 직접 보고 분석해 주제 3건을 만들었고, 실제 `blog_candidates`에 저장 형식으로 넣고 읽은 뒤 시험 행은 삭제했다. 화면(로그인 필요) 확인은 주인님 PC에서. 확장은 변경 없음(ZIP·manifest 버전만 v1.58).
+- 참고: `app/candidates/page.tsx`의 기존 ESLint 오류(BLOG는 아직 정리 전)는 이번에 늘리지 않았고, 새 파일은 오류 0이다.
