@@ -24,6 +24,11 @@
 - **운영 배포 및 직접 검증**:
   - Vercel 프로덕션 배포 완료 (`https://youtube-viral-studio.vercel.app`)
   - DB `programs` (FREE 배지) 및 `pricing_plans` 3단계 요금제 등록 완료
+  - **카탈로그 썸네일 생성 및 업로드 완료**: `gemini-3-pro-image-preview` 모델로 16:9 떡상 분석 테마 썸네일 자동 생성 후 Supabase Storage(`program-images`) 업로드 및 `programs.thumbnail_url` 반영 완료
+  - **AIMaster 메인 사이트 연동 확인**:
+    - 메인 홈페이지(`https://www.buylife.xyz`) 유튜브 섹션에 프로그램 및 썸네일 실시간 노출 확인
+    - 카탈로그(`https://www.buylife.xyz/programs`) 및 유튜브 카테고리(`https://www.buylife.xyz/programs/category/youtube`) 노출 확인
+    - 상세 페이지(`https://www.buylife.xyz/programs/youtube-viral-studio`) HTTP 200 정상 서빙 확인
   - curl 라이브 307 리다이렉트 및 401 비인가 차단 보안 검증 통과
 
 ## 2026-10-10 Codex — 네이버 에이전트 v1.69 실행/복구

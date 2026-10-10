@@ -68,17 +68,24 @@
   - `SUPABASE_SERVICE_ROLE_KEY`
   - `NEXT_PUBLIC_MAIN_SITE_URL`
 
-### 공유 Supabase DB 등록 완료
+### 공유 Supabase DB 등록 및 메인 사이트 연동 완료
 - `programs` 테이블:
   - `slug`: `'youtube-viral-studio'`
   - `name`: `'YouTube Viral Studio (골든 파인더)'`
-  - `version`: `'v1.01'`
-  - `badges`: `['free', 'new']` (FREE 배지 프로그램으로 가입 회원 누구나 이용 가능)
+  - `version`: `'v1.02'`
+  - `category_id`: `'cb3c7c75-da5e-4474-a185-f069a6dcbda9'` (카테고리: `유튜브`, `slug: 'youtube'`)
+  - `badges`: `['free', 'new']` (FREE 배지 프로그램으로 가입 회원 누구나 무료 이용 가능)
+  - `thumbnail_url`: `'https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/youtube-viral-studio-thumbnail.jpg?v=1791641119708'`
   - `app_url`: `'https://youtube-viral-studio.vercel.app'`
 - `pricing_plans` 테이블:
   - 1개월 이용권 (`monthly`, 29,000원)
   - 2개월 이용권 (`bimonthly`, 54,000원)
   - 3개월 이용권 (`quarterly`, 75,000원)
+- 메인 사이트 연동 확인:
+  - 메인 홈페이지: `https://www.buylife.xyz` (유튜브 섹션에 프로그램 및 썸네일 노출 확인)
+  - 카탈로그 페이지: `https://www.buylife.xyz/programs` (노출 확인)
+  - 유튜브 카테고리 전용 페이지: `https://www.buylife.xyz/programs/category/youtube` (노출 확인)
+  - 프로그램 상세 페이지: `https://www.buylife.xyz/programs/youtube-viral-studio` (HTTP 200 정상 서빙 확인)
 
 ---
 
