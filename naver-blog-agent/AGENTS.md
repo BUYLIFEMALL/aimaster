@@ -12,11 +12,20 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.62` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.63` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최신 요약 및 [v1.62 실제 검수 보고](docs/CATEGORY_TAG_VERIFICATION_2026-10-10.md). 현재 기능·검수·배포·남은 작업은 최신 항목을 먼저 확인합니다.
 
 ---
+
+## 2026-10-10 v1.63 — 닫힌 탭·확장 재시작·발행 결과 보존
+
+- 실제 Chrome 오류 `Uncaught (in promise) Error: No tab with id: 693809025.`를 확인했습니다. `background.js`는 탭 조회·주입·이동 전 존재 확인과 실행 중 소실 예외 처리를 함께 적용합니다. 닫힌/교체된 참조만 정리하고 연결·원고·체크포인트·결과 보고를 보존합니다. 이전 탭의 늦은 이벤트/조회가 새 세션을 덮어쓰지 않도록 저장을 순서대로 처리합니다.
+- `onUpdated`는 Chrome이 전달한 Tab을 사용합니다. 이벤트·타이머·시작점의 Promise 실패를 처리하고 빈 프레임은 상태 확인 안내를 반환합니다. 카테고리 조회 완료 후 웹 탭이 닫혀도 결과를 실패로 바꾸지 않습니다. 다른 권한 오류는 그대로 안내합니다.
+- 작성 중 재시작은 `EDITOR_INTERRUPTED`로 중지하며 자동 새 편집기/재입력 없음. 작성/로그인 중 소실은 `EDITOR_TAB_CLOSED`, 최종 발행 단계는 `PUBLISH_UNCERTAIN`으로 보고합니다. 확정 결과를 먼저 `pendingResult`에 보관하며 서버 통신 실패 때 보고만 재시도합니다.
+- 검수: `test:extension-tabs` 16개 worker 모의 시나리오, `test:extension`, `test:publishing`, `test:edit-save`, JS 문법 검사 및 빌드 통과. 이전 `96a35d20`은 같은 검사에서 닫힌 탭 참조 잔존으로 실패합니다. extension/scripts는 기존 Next ESLint 설정에서 제외되어 린트 통과를 주장하지 않습니다.
+- PC 로컬 확장 ID `jghcffojjhpadflbhmdbophincpciajm` 새로고침→v1.63 표시 확인. 기존 오류 1건 확인·정리 후 추가 오류 관찰. DevTools 키보드는 `window_not_focused`로 제한되어 실제 편집기 입력/탭 소실 검수는 미실행이며 모의 검사와 구분합니다. 기존 원고 2건 본문·이미지 지문/상태 보존. 최종 발행·유료 호출·환경변수/스키마 변경 없음.
+- 배포·라이브 ZIP/DB 결과: [`docs/TAB_LIFECYCLE_VERIFICATION_2026-10-10.md`](docs/TAB_LIFECYCLE_VERIFICATION_2026-10-10.md). 다른 PC는 ZIP 재다운로드→덮어쓰기→`chrome://extensions` 새로고침이 필요합니다.
 
 ## 2026-10-10 v1.62 — 카테고리 조회와 상태 확인 충돌 보완
 

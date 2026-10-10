@@ -3,7 +3,7 @@
 크롬 확장프로그램과 5단계 멀티 AI 에이전트로 네이버 블로그 글 기획·작성·윤문·발행을 지원하는 프로그램입니다. 네이버 보안 차단 여부와 실제 발행 성공은 환경별 검수가 필요하며 보장하지 않습니다.
 
 - **공식 개발 방식**: [AI 에이전트 기반 자율 개발·검수·배포](../docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) — 공통 메인 지침·다른 CLI 인수인계 양식
-- **현재 버전**: `v1.62` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.63` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **아키텍처**: Next.js 16 (Turbopack, App Router) + Supabase + Chrome Extension (Manifest V3)
 - **인수인계 문서**: [`AGENTS.md`](./AGENTS.md) 및 [`docs/CONTINUATION.md`](./docs/CONTINUATION.md)
@@ -46,6 +46,12 @@
    - 각 항목별 `🗓️ D-xx (xx일 후 자동삭제)` 배지 안내, 보관함(초록색 책갈피) 글감은 영구 보호.
 7. **좌측 사이드바 표준 Stepper 레이아웃 (`Sidebar.tsx`)**:
    - 최상단 대시보드 ➔ 1~3 번호 배지 & 세로선(떡상 콘텐츠 수집 ➔ 콘텐츠 생성 ➔ 콘텐츠 보관함) ➔ 구분선 아래 `🔑 API키등록·플랫폼연동` 및 매뉴얼/로그아웃 분리 배치.
+
+## 2026-10-10 v1.63 — 탭 닫힘과 재시작 안전 처리
+
+닫힌 글쓰기 탭 참조를 자동 정리하고 확인 직후 탭이 닫혀도 원고를 보존하며 안내합니다. 작성 도중 확장 재시작은 자동 재입력 없이 중지합니다. 최종 결과가 불확실하면 자동 재발행하지 않으며, 성공 후 통신 실패는 결과 보고만 다시 시도합니다. 16개 worker 회귀 검사·기존 연결/발행 설정/저장 검사·빌드 통과. PC v1.63 표시 확인, 실제 입력 검수는 PC 키보드 제어 제한으로 미실행입니다. 상세: [탭 수명주기 검수 보고](docs/TAB_LIFECYCLE_VERIFICATION_2026-10-10.md).
+
+다른 PC는 최신 ZIP 다시 받기→기존 폴더에 덮어쓰기→`chrome://extensions` 새로고침이 필요합니다.
 
 ## 2026-10-10 v1.62 — 카테고리 조회와 상태 확인 충돌 보완
 

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-10 — 닫힌 Chrome 탭 참조와 발행 결과 재보고 (naver-blog-agent v1.63)
+
+- **증상:** 실제 확장 오류 `Uncaught (in promise) Error: No tab with id: 693809025.`. worker 모의 검사에서 닫힌 탭 참조 잔존·작성 중 재시작 후 편집기 초기화·발행 성공 후 보고 실패 시 성공 결과 덮어쓰기 확인.
+- **원인:** 탭 조회 직후에도 탭이 사라질 수 있고 저장된 번호는 재시작 후 무효가 됩니다. `onRemoved`/`onReplaced` 정리와 이벤트 최상위 실패 처리가 없었습니다. `resume` 및 예약 확인은 발행/검증과 `finish`를 같은 try/catch에 묶어 서버 보고 실패를 작업 실패로 처리했습니다.
+- **해결(위치):** `naver-blog-agent/extension/background.js`의 `getTab`/`requireTab`/`inTab`·순차 참조 갱신·이벤트 처리. `onUpdated`는 전달된 Tab 사용. 작성 재시작은 안전 중지, final 단계는 불확실·자동 재발행 금지. `finish`는 결과 선보관, `resume`/`reportReservation`은 보고 오류와 작업 오류 분리. `scripts/test-extension-tabs.cjs` 16개 회귀 검사.
+- **다음부터 확인:** 조회 직후 주입/이동 전 탭 닫힘, 로그인 대기 중 닫힘, 작성/final 단계 worker 재시작, 오래된 이벤트와 새 세션 경쟁, 성공 후 보고 통신 실패를 실제 worker 코드로 검사합니다. 오류 로그를 지우기 전에 원문을 기록하고, UI 버전 반영·오류 재발 없음과 실제 입력 검수 범위를 구분합니다.
+
 ## 2026-10-10 — PowerShell의 Stop 설정이 Git 경고를 실패로 처리 (메인 지침 문서 배포)
 
 - **증상:** 임시 배포 worktree 정리는 성공했지만, 후속 `git diff --check 2>$null`에서 LF→CRLF 경고 때문에 결과 기록 커밋 단계가 중단됐습니다.

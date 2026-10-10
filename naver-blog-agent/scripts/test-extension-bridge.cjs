@@ -205,7 +205,7 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
       storage: { local: { get: async () => ({}), set: async (v) => { stored.push(v); }, remove: async () => {} } },
       alarms: { create() {}, onAlarm: { addListener() {} } },
       action: { onClicked: { addListener() {} }, setBadgeText: async (v) => { badges.push(v.text); }, setBadgeBackgroundColor: async () => {} },
-      tabs: { onUpdated: { addListener() {} } },
+      tabs: { onUpdated: { addListener() {} }, onRemoved: { addListener() {} }, onReplaced: { addListener() {} } },
       runtime: { onStartup: { addListener() {} }, onInstalled: { addListener() {} }, onMessage: { addListener(listener) { runtimeListener=listener; } }, getURL: (x) => x, getManifest: () => ({ version: '1.49.0', version_name: 'v1.49' }) },
     },
     fetch: async (url, init) => {
