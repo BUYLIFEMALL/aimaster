@@ -28,7 +28,7 @@ function askExtension<T>(type: 'ping' | 'categories', timeoutMs: number): Promis
   })
 }
 
-const field = 'rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 disabled:opacity-60'
+const field = 'w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 disabled:opacity-60'
 const label = 'text-[11px] font-semibold text-slate-600'
 
 export default function TistoryPublishPanel({ value, onChange, disabled }: { value: TistoryPublish; onChange: (next: TistoryPublish) => void; disabled?: boolean }) {
@@ -78,21 +78,21 @@ export default function TistoryPublishPanel({ value, onChange, disabled }: { val
   const busy = disabled || loading
 
   return (
-    <details className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+    <details className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
       <summary className="cursor-pointer select-none text-xs font-bold text-slate-700">
         발행 설정 — {value.category || '카테고리 없음'} · {value.visibility === 'private' ? '비공개' : '공개'} · {value.timing === 'reserve' ? `예약 ${value.reserveDate} ${value.reserveTime}` : '현재 발행'}
       </summary>
-      <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <div className="flex flex-col gap-1 sm:col-span-2">
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-col gap-1 sm:col-span-2 lg:col-span-4">
           <span className={label}>카테고리</span>
           <div className="flex flex-wrap items-center gap-1.5">
             {categoryOptions.length > 0 ? (
-              <select disabled={busy} value={value.category} onChange={(event) => set({ category: event.target.value })} className={`${field} max-w-[240px]`} aria-label="티스토리 카테고리">
+              <select disabled={busy} value={value.category} onChange={(event) => set({ category: event.target.value })} className={`${field} sm:max-w-[320px]`} aria-label="티스토리 카테고리">
                 <option value="">지정 안 함 (티스토리 기본 카테고리)</option>
                 {categoryOptions.map((name) => <option key={name} value={name}>{name}</option>)}
               </select>
             ) : (
-              <input disabled={busy} value={value.category} onChange={(event) => set({ category: event.target.value })} maxLength={120} placeholder="카테고리 전체 이름(비우면 지정 안 함)" className={`${field} w-[240px]`} aria-label="티스토리 카테고리 이름" />
+              <input disabled={busy} value={value.category} onChange={(event) => set({ category: event.target.value })} maxLength={120} placeholder="카테고리 전체 이름(비우면 지정 안 함)" className={`${field} sm:max-w-[320px]`} aria-label="티스토리 카테고리 이름" />
             )}
             <button type="button" disabled={busy} onClick={loadCategories} className="cursor-pointer rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60">
               {loading ? '⏳ 불러오는 중...' : '카테고리 불러오기'}
@@ -128,9 +128,9 @@ export default function TistoryPublishPanel({ value, onChange, disabled }: { val
           </select>
         </label>
         {value.timing === 'reserve' && (
-          <div className="flex flex-wrap items-center gap-1.5 sm:col-span-2">
-            <input disabled={busy} type="date" value={value.reserveDate} onChange={(event) => set({ reserveDate: event.target.value })} className={field} aria-label="예약 날짜" />
-            <input disabled={busy} type="time" step={60} value={value.reserveTime} onChange={(event) => set({ reserveTime: event.target.value })} className={field} aria-label="예약 시간" />
+          <div className="flex flex-wrap items-center gap-1.5 sm:col-span-2 lg:col-span-4">
+            <input disabled={busy} type="date" value={value.reserveDate} onChange={(event) => set({ reserveDate: event.target.value })} className={`${field} !w-auto`} aria-label="예약 날짜" />
+            <input disabled={busy} type="time" step={60} value={value.reserveTime} onChange={(event) => set({ reserveTime: event.target.value })} className={`${field} !w-auto`} aria-label="예약 시간" />
             <span className="text-[11px] text-slate-500">한국 시간 기준, 지금보다 뒤여야 합니다.</span>
           </div>
         )}

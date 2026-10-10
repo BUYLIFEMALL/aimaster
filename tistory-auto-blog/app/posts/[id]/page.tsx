@@ -463,8 +463,9 @@ export default function PostDetailPage() {
             </h1>
 
             {/* Author + meta + Action Buttons */}
-            <div className="flex items-center justify-between gap-4 mb-5 pb-4 border-b border-zinc-100">
-              <div className="flex items-center gap-3">
+            <div className="mb-5 pb-4 border-b border-zinc-100 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+              <div className="flex items-center gap-3 min-w-0">
                 {author && (
                   <>
                     <div className="avatar-circle">{getInitials(author.name)}</div>
@@ -478,8 +479,8 @@ export default function PostDetailPage() {
                 )}
               </div>
 
-              {/* 포스트 관리 (본문 복사 / 수정 / 삭제) 버튼 */}
-              <div className="flex items-center gap-2">
+              {/* 포스트 관리 (본문 복사 / 티스토리 입력기로 보내기 / 수정 / 삭제) 버튼 — 글자가 세로로 꺾이지 않게 한 줄 크기를 유지하고 좁으면 줄바꿈 */}
+              <div className="flex flex-wrap items-center justify-end gap-2 [&>*]:shrink-0 [&>*]:whitespace-nowrap">
                 <button
                   disabled={compressing}
                   onClick={async () => {
@@ -563,7 +564,6 @@ export default function PostDetailPage() {
                 >
                   {compressing ? '⏳ 이미지 750KB 압축 중...' : copied ? '✓ 본문 & 이미지 복사 완료! (Ctrl+V로 붙여넣으세요)' : '📋 본문 복사하기'}
                 </button>
-                <TistoryPublishPanel value={publish} onChange={setPublish} disabled={handoffState === 'sending'} />
                 <button
                   disabled={handoffState === 'sending'}
                   onClick={async () => {
@@ -612,6 +612,9 @@ export default function PostDetailPage() {
                   🗑️ 삭제
                 </button>
               </div>
+            </div>
+            {/* 발행 설정(카테고리·공개 범위·댓글·홈주제·발행 시점): 버튼 줄과 분리해 전체 폭으로 펼친다 */}
+            <TistoryPublishPanel value={publish} onChange={setPublish} disabled={handoffState === 'sending'} />
             </div>
 
             {/* Category tags */}

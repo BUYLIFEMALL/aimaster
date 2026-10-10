@@ -51,6 +51,10 @@
 - **시험**: `tests/extension-adapter.test.cjs`에 3개 추가(자동 취소·다른 대화상자 무시·가드 실패 시 계속 진행) + 새 탭 시작 방식 반영. `test:extension` 63개.
 - **미확인**: 이벤트가 글쓰기 화면 로드 중 놓치지 않고 전달되는지는 실제 화면에서 확인이 필요하다(빈 탭에서 미리 붙이는 방식으로 대비). 놓치면 기존처럼 직접 "취소"를 누르면 이어진다.
 
+## v1.62 (2026-10-10) — 글 보기 화면 발행 설정 패널 레이아웃 정리
+
+- 주인님 지적: 글 보기 화면에서 발행 설정 패널이 버튼 줄(본문 복사하기·티스토리 입력기로 보내기·수정·삭제) 한가운데에 끼어 있어 버튼들이 세로로 늘어나고 글자가 꺾였다. 패널을 버튼 줄에서 빼서 **작성자 줄 바로 아래 전체 폭 블록**으로 옮기고(`app/posts/[id]/page.tsx`), 버튼은 한 줄 크기를 유지(`whitespace-nowrap`·`shrink-0`)하며 좁으면 줄바꿈하도록 했다. 패널(`components/TistoryPublishPanel.tsx`)은 넓은 화면에서 공개 범위·댓글·홈주제·발행 시점을 한 줄 4칸, 보통 화면에서 2칸×2줄로 배치하고 카테고리 칸은 한 줄 전체를 쓴다. 기능·서버·확장 변경 없음(확장은 ZIP·manifest 버전만 v1.62).
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.
