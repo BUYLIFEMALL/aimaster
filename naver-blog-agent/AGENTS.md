@@ -14,7 +14,7 @@
 - **프로그램명**: `네이버 블로그 에이전트`
 - **현재 버전**: `v1.63` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
-- **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최신 요약 및 [v1.62 실제 검수 보고](docs/CATEGORY_TAG_VERIFICATION_2026-10-10.md). 현재 기능·검수·배포·남은 작업은 최신 항목을 먼저 확인합니다.
+- **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md)의 v1.63 재개 순서 및 [v1.63 탭 수명주기 검수 보고](docs/TAB_LIFECYCLE_VERIFICATION_2026-10-10.md). 카테고리·태그의 이전 실제 검수는 [v1.62 보고](docs/CATEGORY_TAG_VERIFICATION_2026-10-10.md)를 참고합니다. 현재 상태는 최신 항목을 먼저 확인합니다.
 
 ---
 

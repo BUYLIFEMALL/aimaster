@@ -45,3 +45,16 @@ Chrome API의 Promise 실패 처리 및 Tab 이벤트 정의는 [공식 Tabs 문
 남은 검수: PC 키보드 제어 복구 후 별도 새 편집기에서 입력 중 탭 닫힘→안내·안전 중지→회원이 명시적으로 다시 시작하는 흐름 확인. 자동 검사16개·배포·ZIP·DB·PC 버전/오류 관찰은 완료했으며 실제 최종 발행은 수행하지 않았습니다.
 
 다른 PC 적용: 최신 ZIP 재다운로드→기존 폴더에 덮어쓰기→`chrome://extensions` 새로고침.
+
+## 다음 CLI의 실제 검수 재개 절차
+
+이 작업의 코드 커밋은 `94310de6`, 운영 결과 기록은 `39acc05e`이며 둘 다 origin/master 푸시 완료입니다. 배포용 worktree `D:/Antigravity/AIMaster-release-nba-94310de6`는 검증을 끝낸 뒤 정리했습니다. 코드·배포·DB/ZIP 확인을 처음부터 반복하지 말고 아래 미확인 구간을 이어서 검사합니다.
+
+1. `computer-use` 스킬과 현재 Orca 가이드를 읽고 PC Chrome 창의 실제 키보드 제어가 복구됐는지 확인합니다. `window_not_focused` 발생 시 허용된 한 번의 복구 후에도 실패하면 실제 입력 성공으로 기록하지 않습니다.
+2. 테스트 회원 `buylifemall@naver.com`과 본인 네이버 블로그 `buylifemall` 연결을 확인합니다. 토큰/API 키/전체 인증 저장소는 콘솔·문서에 출력하지 않습니다. 기존 `activeTask` 또는 `pendingResult`가 있으면 이를 보존하고 검사와 섞지 않습니다.
+3. 기존 원고·입력 탭을 보존하고 **별도 새 글쓰기 탭**을 만듭니다. 실제로 빈 편집기인지 확인한 뒤, 입력과 검증만 하는 `writeArticle()` 경로로 검사합니다. `publish()`·최종 발행 버튼·운영 발행 큐 전송은 실행하지 않습니다.
+4. 검수 탭에서 입력 중 해당 탭만 닫습니다. `EDITOR_TAB_CLOSED` 안내, `editorTab`/해당 `completedEditorTab` 참조 정리, 기존 연결·체크포인트 보존, 오류 로그에 새로운 처리되지 않은 `No tab` 없음, 자동 새 편집기/재발행 없음 여부를 확인합니다.
+5. 회원의 명시적 재연결 동작으로 본인 편집기를 다시 확인합니다. 다른 블로그를 사용하거나 기존 입력 내용을 초기화하지 않는지 확인합니다. 재시작/final 단계의 자동 재발행 방어는 이미 모의 검사한 범위이며 실제 발행 검수로 표기하지 않습니다.
+6. 확인 결과와 미확인 구간을 이 문서 및 `AGENTS.md`/`CONTINUATION.md`/루트 `docs/HANDOFF.md`에 갱신합니다. 코드 수정이 없으면 v1.63 유지, 코드 수정·배포가 필요하면 다음 마이너 버전으로 정식 릴리스합니다.
+
+자동 검사 재실행이 필요한 변경이 있을 때는 프로그램 폴더에서 `npm run test:extension-tabs`, `npm run test:extension`, `npm run test:publishing`, `npm run test:edit-save`, `npm run build`를 실행합니다. 운영 릴리스 검사는 저장소 루트에서 `node scripts/check-extension-release.mjs naver-blog-agent`입니다.
