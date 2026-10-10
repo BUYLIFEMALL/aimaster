@@ -1,7 +1,9 @@
 # 🤖 네이버 블로그 에이전트 — 인수인계 문서 (AGENTS.md)
 
 이 문서는 **네이버 블로그 에이전트(naver-blog-agent)** 서브프로젝트의 인수인계 문서입니다.
-루트 `CLAUDE.md`(핵심 원칙 7가지) 및 `AGENTS.md`를 기반으로 동작합니다.
+루트 `CLAUDE.md` 및 `AGENTS.md`를 기반으로 동작합니다.
+
+**공식 개발 방식:** [AI 에이전트 기반 자율 개발·검수·배포](../docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md). 이 프로그램의 실제 개발·검수 사례를 정리한 공통 메인 지침이며 다른 프로그램 개발·CLI 인수인계에도 적용합니다.
 
 ---
 
@@ -12,7 +14,7 @@
 - **프로그램명**: `네이버 블로그 에이전트`
 - **현재 버전**: `v1.62` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
-- **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
+- **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최신 요약 및 [v1.62 실제 검수 보고](docs/CATEGORY_TAG_VERIFICATION_2026-10-10.md). 현재 기능·검수·배포·남은 작업은 최신 항목을 먼저 확인합니다.
 
 ---
 

@@ -1,3 +1,11 @@
+# AIMaster
+
+공식 개발 방식은 **「AI 에이전트 기반 자율 개발·검수·배포」**입니다. 다른 프로그램 개발 및 CLI 인수인계는 아래 메인 지침부터 확인합니다.
+
+- [공통 개발·검수·배포 지침 및 인수인계 양식](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md)
+- [모든 CLI 공통 지침](AGENTS.md) · [Claude Code 지침](CLAUDE.md)
+- [현재 진행 상황·남은 작업](docs/HANDOFF.md) · [오류 해결 기록](docs/ERROR_LESSONS.md)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

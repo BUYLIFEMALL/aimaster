@@ -7,6 +7,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**공식 공통 개발 방식은 「AI 에이전트 기반 자율 개발·검수·배포」입니다.** 다른 프로그램 개발이나 CLI 인수인계 시 [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md)를 함께 읽습니다. 실제 사용 도구, 조사·구현·검수·배포 절차, 완료 증거와 재개 양식을 이 문서에서 관리합니다.
+
 ## 🔒 불변의 핵심 원칙 (모든 에이전트가 예외 없이 따라야 함)
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
@@ -235,6 +237,11 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
    - 인수인계 문서는 커밋 전에 반영한다. 기존 특수 작업의 사전 승인·클라우드 세션 제한을 제외하면 중간 승인이나 "배포할까요?" 재질문 없이 진행한다.
    - 결과 보고에는 **변경 내용·검수 결과·커밋 번호·푸시 결과·프로덕션 배포 결과·프로그램 버전·라이브 링크·남은 작업(없으면 없음)**을 포함한다. 배포·확장 등 필요한 운영 검증이 끝나야 완료로 보고한다.
    - 실패한 단계는 원인을 조사·복구하고, 복구할 수 없으면 **실패 원인·완료한 단계·미완료한 단계**를 명시한다. 각 단계의 성공 여부를 확인한 사실대로 적는다. 상세 절차는 아래 "작업 자율성 지침"을 따른다.
+
+13. **공식 개발 방식 — 「AI 에이전트 기반 자율 개발·검수·배포」(2026-10-10 주인님 명명, 모든 프로그램·CLI 공통).**
+   - 기존 지침·코드·실제 데이터를 조사하고 승인된 범위의 구현·오류 수정·자동 검사·실제 회원 흐름 검수·인수인계·커밋·푸시·운영 배포·운영 검증·보고를 이어서 수행한다.
+   - 자동 검사와 실제 화면 검사, 운영 배포 검사를 구분하고 확인한 증거로 완료를 판단한다. 본인 계정·API 최상위 규칙, 특수 작업 사전 승인 및 클라우드 제한은 유지한다.
+   - 다른 프로그램에 적용하거나 다른 CLI가 인수받을 때 필독: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md). 루트 `AGENTS.md` 핵심 원칙 14번도 같은 정의를 사용한다.
 
 ## Communication
 
