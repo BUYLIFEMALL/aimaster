@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **유튜브 떡상 쇼츠 발굴 자동화**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.05` (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.06` (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.2.11 + React 19 + Tailwind CSS v4 + Supabase SSR
