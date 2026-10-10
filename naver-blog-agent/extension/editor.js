@@ -1,6 +1,6 @@
 // This function runs only inside the editor's isolated world. No debugger or remote control.
 async function editorCommand(command, args = {}) {
-  const build='20260928.6';let step='locate';
+  const build='20261010.1';let step='locate';
   try {
   const visible = el => Boolean(el && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
   const find = selector => [...document.querySelectorAll(selector)].find(visible);
@@ -86,14 +86,32 @@ async function editorCommand(command, args = {}) {
     const range = document.createRange(); range.selectNodeContents(el); range.collapse(false);
     const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range);
   };
-  const insertText = value => {
+  // SmartEditor consumes an emoji grapheme from a single insertText event and
+  // can discard the following text. Keep emoji sequences (including ZWJ and
+  // modifiers) intact, but commit them separately from ordinary text.
+  function textInputChunks(value) {
+    const chunks=[];let plain='';
+    for(const {segment} of new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(String(value))){
+      if(/[\u{10000}-\u{10FFFF}]/u.test(segment)){
+        if(plain){chunks.push(plain);plain='';}
+        chunks.push(segment);
+      }else plain+=segment;
+    }
+    if(plain)chunks.push(plain);
+    return chunks;
+  }
+  const insertText = async value => {
     const el = inputDocument.activeElement;
     if (el?.matches('input,textarea')) {
       const setter = Object.getOwnPropertyDescriptor(el.tagName === 'INPUT' ? inputDocument.defaultView.HTMLInputElement.prototype : inputDocument.defaultView.HTMLTextAreaElement.prototype, 'value').set;
       setter.call(el, el.value + value); el.dispatchEvent(new inputDocument.defaultView.Event('input', { bubbles: true }));
       el.dispatchEvent(new inputDocument.defaultView.Event('change', { bubbles: true })); return;
     }
-    if (!inputDocument.execCommand('insertText', false, value)) throw new Error('편집기가 본문 입력을 허용하지 않았습니다.');
+    const chunks=textInputChunks(value);
+    for(const chunk of chunks){
+      if (!inputDocument.execCommand('insertText', false, chunk)) throw new Error('편집기가 본문 입력을 허용하지 않았습니다.');
+      if(chunks.length>1 || /[\u{10000}-\u{10FFFF}]/u.test(chunk))await wait(100);
+    }
   };
   const insertParagraph = async () => {
     if(inputDocument!==document){
@@ -258,7 +276,7 @@ async function editorCommand(command, args = {}) {
     await activateTitle();
     // The hidden SmartEditor input buffer is shared by title and body. Its focus
     // alone is not proof of which model will receive the text.
-    step='insert-title';insertText(args.text);step='verify-title';
+    step='insert-title';await insertText(args.text);step='verify-title';
     // SmartEditor can replace the paragraph node while committing an edit.
     // Reacquire it instead of checking a detached pre-input node after 80 ms.
     let observed='';
@@ -285,7 +303,7 @@ async function editorCommand(command, args = {}) {
     } else lines.push(value);
     for(let i=0;i<lines.length;i++){
       if(i){await insertParagraph();await insertParagraph();}
-      insertText(lines[i]);
+      await insertText(lines[i]);
       // Wait for the editor model to commit before Enter or a toolbar action.
       if(!await waitFor(()=>bodyText()===beforeText+normalize(lines.slice(0,i+1).join(''))))throw new Error('본문 입력이 원문과 일치하지 않아 다음 요소 삽입을 중지했습니다.');
     }
@@ -322,7 +340,7 @@ async function editorCommand(command, args = {}) {
     if (!quote || quotes().length <= before) throw new Error('네이버 인용구 삽입을 확인하지 못했습니다.');
     const field = [...quote.querySelectorAll('.se-text-paragraph,[contenteditable="true"]')].find(el=>!el.closest('.se-source,[class*="source"],[class*="caption"]'));
     if (!field) throw new Error('인용구 입력 영역이 없습니다.');
-    await activateParagraph(field); insertText(args.text);
+    await activateParagraph(field); await insertText(args.text);
     if(!await waitFor(()=>normalize(readText(quotes().at(-1)))===normalize(args.text)))throw new Error('인용구 제목 입력이 완료되지 않았습니다.');
     if(bodyText()!==beforeText)throw new Error('인용구 삽입 중 기존 본문이 변경되었습니다.');
     if(!quotes().at(-1).classList.contains('se-l-'+styleName))throw new Error('인용구 스타일 반영 실패: '+styleName);

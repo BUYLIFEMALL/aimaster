@@ -6,6 +6,26 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const root = path.resolve(__dirname, '..');
 
+// SmartEditor can retain only the first emoji when a whole caption is inserted
+// in one event. Exercise the real chunker and keep compound graphemes intact.
+const editorAst = ts.createSourceFile('editor.js', fs.readFileSync(path.join(root, 'extension/editor.js'), 'utf8'), ts.ScriptTarget.Latest, true);
+let chunkNode;
+function findChunker(node) {
+  if (ts.isFunctionDeclaration(node) && node.name?.text === 'textInputChunks') chunkNode = node;
+  ts.forEachChild(node, findChunker);
+}
+findChunker(editorAst);
+assert.ok(chunkNode);
+const inputChunks = new Function(`${chunkNode.getText(editorAst)};return textInputChunks;`)();
+assert.deepEqual(inputChunks('일반 한글 문단'), ['일반 한글 문단']);
+assert.deepEqual(inputChunks('📷 사진 설명 전체'), ['📷', ' 사진 설명 전체']);
+assert.deepEqual(inputChunks('본문 🧑🏽‍💻 끝'), ['본문 ', '🧑🏽‍💻', ' 끝']);
+assert.deepEqual(inputChunks('👨‍👩‍👧‍👦 가족 🇰🇷 한국'), ['👨‍👩‍👧‍👦', ' 가족 ', '🇰🇷', ' 한국']);
+const caption = '📷 세 가지 스마트폰 디스플레이 비교';
+const smartEditorInsert = value => /[\u{10000}-\u{10FFFF}]/u.test(value) ? [...new Intl.Segmenter(undefined, {granularity:'grapheme'}).segment(value)][0].segment : value;
+assert.notEqual(smartEditorInsert(caption), caption, '회귀 검수는 편집기의 이모지 뒤 텍스트 손실을 재현');
+assert.equal(inputChunks(caption).map(smartEditorInsert).join(''), caption);
+
 // ---------- 1. 웹: 원고 → 확장 작업 변환 ----------
 let access = { allowed: true };
 let db;
@@ -242,6 +262,23 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   assert.equal(authoringCommands.includes('click'), false, '실제 편집기 검수와 원고 입력은 최종 발행 버튼을 누르지 않음');
   assert.equal(authoringCommands.includes('settings'), false);
   assert.equal(authoringCommands.at(-1), 'verify', '본문 입력 후 검증까지 완료');
+
+  // A resume popup can arrive after an initially valid, empty editor snapshot.
+  // Observe it and require a fresh stable interval instead of starting title input.
+  let elapsed = 0, dialogReads = 0;
+  const originalApi = sandbox.api;
+  sandbox.Date = class extends Date { static now() { return elapsed; } };
+  sandbox.setTimeout = (resolve, ms) => { elapsed += ms; resolve(); };
+  sandbox.api = async () => ({ state: 'running' });
+  sandbox.chrome.tabs.get = async () => ({ status: 'complete' });
+  sandbox.frameResults = async () => [{ ok: true, dismissed: ++dialogReads === 2 }];
+  sandbox.inspect = async () => ({ status: 'valid', hasContent: false });
+  const prepared = await sandbox.prepareFreshNaver({ id: 'late-resume', tabId: 123, editorResetStarted: true });
+  assert.equal(prepared.status, 'valid');
+  assert.ok(elapsed >= 3000 && dialogReads >= 7, '이어쓰기 창 취소 후에도 2초간 빈 편집기를 재확인');
+  sandbox.api = originalApi;
+  delete sandbox.Date;
+  delete sandbox.setTimeout;
 
   // 이미지 업로드는 비동기다. 시간 초과 후 변화가 아직 안 보여도 다시 업로드하면 안 된다.
   let uploadAttempts = 0;

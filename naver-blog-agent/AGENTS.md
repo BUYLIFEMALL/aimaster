@@ -10,11 +10,20 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.59` (`src/lib/version.ts` 및 DB `programs.version`)
+- **현재 버전**: `v1.60` (`src/lib/version.ts` 및 DB `programs.version`)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [`docs/CONTINUATION.md`](docs/CONTINUATION.md) 최상단 최종 요약 — v1.29~v1.42 작업 순서/검수/핵심 연결/주의사항/미완료 과제를 정리했습니다. 기능 최신 커밋 `0db81a1d`, 문서 마감은 기능 변경 없이 v1.42 유지입니다.
 
 ---
+
+## 2026-10-10 v1.60 — 실제 네이버 편집기 검수·이모지 설명 입력 복구
+
+- 주인님이 Chrome을 열어 화면 제어가 복구됐습니다. 본인 연결 계정 `buylifemall`의 별도 새 편집기에서 기존 실패 원고를 `writeArticle()`로 직접 검수했습니다. v1.59에서는 첫 사진 설명의 `📷`만 입력되고 뒤의 설명이 사라지는 추가 문제를 재현했습니다.
+- `extension/editor.js`는 비 BMP 이모지를 글자 묶음(grapheme) 단위로 일반 텍스트와 분리해 순서대로 입력합니다. 가족/국기/피부색/ZWJ 조합을 분해하지 않으며 제목·인용구·본문 모두 적용합니다. 입력 후 기존 원문 일치 검사는 유지합니다. 편집기 빌드 `20261010.1`.
+- `background.js prepareFreshNaver()`는 이어쓰기 팝업이 첫 빈 편집기 조회 뒤 늦게 도착하는 경우를 처리하도록 취소 후 2초간 빈 화면을 반복 확인합니다. 이미 내용이 있으면 그대로 중지합니다.
+- **실제 Chrome 검수 통과:** v1.60, 32/32 단계 완료, 대표 1장+본문 3장=4장, 고유 파일명 4개(`blog_img_title.png`, `blog_img_1.png`~`3`), 인용구 5개, 본문 4개 컴포넌트, 본문 마지막 ‘이웃 추가와 소통은 언제나 환영해요.’까지 확인. `imageAi`·전체 원고 `verify` 통과. 최종 발행은 실행하지 않았습니다. 별도 검수 탭에 입력된 글을 남겼습니다.
+- 자동 검수: 빌드·`test:extension`·`test:edit-save`·JS 문법 검사 통과. 회귀 검사에는 이모지 뒤 텍스트 손실/복합 이모지 보존과 늦은 이어쓰기 팝업 후 재확인을 추가했습니다.
+- 프로그램/패키지/확장/다운로드 ZIP v1.60. 버전 정보만 갱신하는 SQL은 `supabase/migrations/20261010054000_nba_bump_version_v1_60.sql`; 사용자 원고·이미지 데이터는 수정하지 않습니다. 배포 완료 결과는 `docs/CONTINUATION.md`에 이어 기록합니다.
 
 ## 2026-10-10 v1.59 — 확장 이미지 중복·입력 중단 수정
 
@@ -23,7 +32,7 @@
 - `extension/writer.js`는 기존 서버 작업도 URL 기준으로 중복 방어하고 파일명을 자산과 일치시킵니다. 업로드 시간 초과 이미지를 자동 재업로드하지 않습니다. 중지 메시지에 단계·파일명을 포함합니다.
 - `background.js`의 `writeArticle()`(입력·검증만)과 `publish()`(최종 발행)를 분리했습니다. 실제 검수는 회원 로그인 Chrome에서 새 글 입력까지만 수행하며 최종 발행은 하지 않습니다.
 - 자동 검수: `npm run test:extension`·`test:edit-save`·빌드 통과. 변경 파일 ESLint 오류 0·경고 5(스마트 편집기 2, 변환 모듈 3). 실제 실패 원고를 새 변환에 넣어 자산 4개·고유 URL 4개·본문 이미지 3개·업로드 이름 일치·저장된 4장 모두 포함을 확인했습니다.
-- 실제 Chrome 검수는 대기 중입니다. UIA 상태 조회는 가능하지만 화면 캡처 실패·키보드 `window_not_focused`(restore 후에도 실패)라 네이버 입력까지 실행하지 못했습니다. 주인님께 PC 화면/Chrome 확인을 요청했습니다. 확장은 로컬 `naver-blog-agent/extension`을 직접 로드한 ID `jghcffojjhpadflbhmdbophincpciajm`입니다. 화면 복구 후 확장 새로고침 → 별도 새 편집기 → `writeArticle()`로 입력·검증까지만 수행하고 4장/중복 0/본문 끝 확인이 필요합니다. **최종 발행하지 않습니다.**
+- 당시 실제 Chrome 검수는 화면 캡처·focus 오류로 대기했습니다. 주인님이 Chrome을 열어 해결했고 v1.60에서 실제 입력·검증까지 완료했습니다(위 항목). 확장은 로컬 `naver-blog-agent/extension`을 직접 로드한 ID `jghcffojjhpadflbhmdbophincpciajm`입니다. **검수에서 최종 발행하지 않습니다.**
 - 코드 커밋 `34c023ab`·origin/master 푸시·프로덕션 배포 완료(`dpl_8Pw7dBMuQk4ojPxsXbHA1GdDBr9z`, READY). 운영 DB/확장/라이브 ZIP v1.59 일치, 확장 검증 실패 0·경고 0. 라이브 ZIP의 `background.js`·`writer.js`·`manifest.json` SHA256이 로컬과 일치합니다. 기존 실패 원고 본문·이미지 지문과 상태가 배포 전후 동일하며 이미지 4장을 보존했습니다.
 
 ## 2026-10-10 v1.58 — 결과 작업 버튼 오른쪽 정렬·저장 버튼 강조

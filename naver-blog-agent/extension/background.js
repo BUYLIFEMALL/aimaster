@@ -194,21 +194,25 @@ async function prepareFreshNaver(task) {
     await api('/progress',{id:task.id,message:'글쓰기 화면을 새로 열어 처음부터 입력할 준비를 합니다. 저장된 본문과 이미지를 재사용합니다.'});
     await sleep(700);
   }
+  let stableSince=0;
   for(let n=0;n<40;n++){
     if((await api('/task/status',{id:task.id})).state!=='running')throw new Error('작업이 취소되었습니다.');
     const tab=await chrome.tabs.get(task.tabId);
-    if(tab.status==='loading'){await sleep(500);continue;}
+    if(tab.status==='loading'){stableSince=0;await sleep(500);continue;}
     try {
       const dialogs=await frameResults(task.tabId,'dismissResume');
       const blocked=dialogs.find(r=>r.error);if(blocked)throw Object.assign(new Error(blocked.error),{stop:true});
-      if(dialogs.some(r=>r.dismissed)){await sleep(500);continue;}
+      if(dialogs.some(r=>r.dismissed)){stableSince=0;await sleep(500);continue;}
       const session=await inspect(task.tabId);
       if(['expired','security_check','account_mismatch'].includes(session.status))return {...session,checkedAt:new Date().toISOString()};
       if(session.status==='valid'){
         if(session.hasContent)throw Object.assign(new Error('새 글쓰기 화면에 이전 내용이 남아 있습니다. 임시글 이어쓰기를 취소한 뒤 다시 시작해 주세요.'),{stop:true});
-        return {...session,checkedAt:new Date().toISOString()};
-      }
-    }catch(error){if(error.stop)throw error;}
+        // The resume dialog may arrive after the first valid editor snapshot.
+        // Continue observing the blank editor before accepting it for authoring.
+        if(!stableSince)stableSince=Date.now();
+        if(Date.now()-stableSince>=2000)return {...session,checkedAt:new Date().toISOString()};
+      }else stableSince=0;
+    }catch(error){stableSince=0;if(error.stop)throw error;}
     await sleep(500);
   }
   throw new Error('새 글쓰기 화면을 준비하지 못했습니다. Chrome의 로그인·알림을 확인한 뒤 작업 시작을 눌러 주세요.');
