@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { fetchNaverCategories } from "@/lib/naverExtensionClient";
-import { normalizeNaverTags, type NaverCategory } from "@/lib/naverPublishing";
+import { normalizeNaverTags, type NaverCategory, type NaverExecutionMode } from "@/lib/naverPublishing";
 
 type Props = { postId: string | null; onSaved?: (tags: string[]) => void; onBlockingChange?: (blocked: boolean) => void };
 export default function NaverPublishSettings(props: Props) {
@@ -16,6 +16,7 @@ function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const [identity, setIdentity] = useState<{userId: string; blogId: string} | null>(null);
   const [category, setCategory] = useState<NaverCategory | null>(null);
+  const [executionMode,setExecutionMode]=useState<NaverExecutionMode>("publish");
   const [categories, setCategories] = useState<NaverCategory[]>([]);
   const [defaultCategory, setDefaultCategory] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -25,7 +26,7 @@ function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [savedForm, setSavedForm] = useState<string | null>(null);
-  const form = JSON.stringify({category,tags,setDefault});
+  const form = JSON.stringify({category,tags,setDefault,executionMode});
   const dirty = savedForm !== null && form !== savedForm;
   const pendingTag = Boolean(tagInput.trim());
   useEffect(() => {
@@ -44,7 +45,8 @@ function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
         if (!cancelled) {
           setIdentity({userId:data.userId,blogId:data.blogId}); setCategory(data.category);
           setDefaultCategory(data.defaultCategory); setTags(data.tags);
-          setSavedForm(JSON.stringify({category:data.category,tags:data.tags,setDefault:false}));
+          setExecutionMode(data.executionMode);
+          setSavedForm(JSON.stringify({category:data.category,tags:data.tags,setDefault:false,executionMode:data.executionMode}));
         }
       } catch (err) { if (!cancelled) setError(err instanceof Error ? err.message : "발행 설정을 확인해 주세요."); }
       finally { if (!cancelled) setBusy(null); }
@@ -72,24 +74,30 @@ function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
     setBusy("save"); setError(""); setMessage("");
     try {
       if (tagInput.trim()) throw new Error("입력 중인 태그를 먼저 추가해 주세요.");
-      const res = await fetch(`/api/posts/${postId}/publishing`, { method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({category,tags,setDefault}) });
+      const res = await fetch(`/api/posts/${postId}/publishing`, { method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({category,tags,setDefault,executionMode}) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "발행 설정 저장 실패");
       if (!mounted.current) return;
-      setTags(data.tags); onSaved?.(data.tags); setMessage("카테고리와 태그를 저장했습니다. 다음 발행 전송에 자동 적용됩니다.");
+      setTags(data.tags); setExecutionMode(data.executionMode); onSaved?.(data.tags); setMessage("진행 방식·카테고리·태그를 저장했습니다. 다음 전송에 적용됩니다. 준비 완료 원고의 설정을 바꾸면 다시 준비해야 합니다.");
       if (setDefault) setDefaultCategory(category?.name || "");
-      setSetDefault(false); setSavedForm(JSON.stringify({category,tags:data.tags,setDefault:false}));
+      setSetDefault(false); setSavedForm(JSON.stringify({category,tags:data.tags,setDefault:false,executionMode:data.executionMode}));
     } catch (err) { if (mounted.current) setError(err instanceof Error ? err.message : "발행 설정 저장 실패"); }
     finally { if (mounted.current) setBusy(null); }
   }
 
-  return <section className="rounded-xl border border-neutral-200 bg-white p-4 space-y-3" aria-label="네이버 발행 카테고리·태그">
+  return <section className="rounded-xl border border-neutral-200 bg-white p-4 space-y-3" aria-label="네이버 발행 설정">
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <p className="font-bold text-sm text-neutral-900">네이버 발행 카테고리·태그</p>
+      <p className="font-bold text-sm text-neutral-900">네이버 발행 설정</p>
       <button type="button" onClick={loadCategories} disabled={!identity || Boolean(busy)} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs font-bold text-neutral-700 disabled:opacity-50">{busy === "categories" ? "불러오는 중…" : "네이버 카테고리 불러오기"}</button>
     </div>
     {!validId ? <p className="text-xs text-neutral-600">원고를 보관함에 저장한 뒤 카테고리와 태그를 설정할 수 있습니다.</p> : <>
       <p className="text-xs text-neutral-500">{identity?.blogId || "블로그 확인 중"} · 글감 분류와 별도로 네이버에 등록된 카테고리를 선택합니다.</p>
+      <label htmlFor={`${id}-mode`} className="block text-xs font-semibold text-neutral-700">확장 진행 방식</label>
+      <select id={`${id}-mode`} value={executionMode} disabled={Boolean(busy)} onChange={event=>{setExecutionMode(event.target.value as NaverExecutionMode);setMessage("");}} className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900">
+        <option value="prepare">발행 전 준비까지만 · 최종 버튼은 직접 누름</option>
+        <option value="publish">최종 발행까지 자동 진행</option>
+      </select>
+      <p className="text-xs text-neutral-600">{executionMode==="prepare" ? "본문·이미지·카테고리·태그·공개 범위·예약 설정까지 준비한 뒤 멈춥니다. 최신 확장이 필요합니다. 열린 원고를 확인하고 직접 최종 발행해 주세요." : "기존 자동 발행 방식입니다. 전송하면 확장이 최종 발행 버튼까지 누릅니다."}</p>
       <label htmlFor={`${id}-category`} className="block text-xs font-semibold text-neutral-700">네이버 발행 카테고리</label>
       <select id={`${id}-category`} value={category?.id || ""} disabled={Boolean(busy)} onChange={event => { setCategory(categories.find(c=>c.id===event.target.value) || null); setSetDefault(false); setMessage(""); }} className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900">
         <option value="">{defaultCategory ? `블로그 기본값 사용: ${defaultCategory}` : "네이버에서 현재 선택된 카테고리 유지"}</option>

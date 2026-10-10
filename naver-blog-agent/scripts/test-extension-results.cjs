@@ -10,6 +10,10 @@ const source = process.argv[2]
   ? require('node:child_process').execFileSync('git',['show',process.argv[2]+':naver-blog-agent/src/app/api/extension/finish/route.ts'],{encoding:'utf8'})
   : fs.readFileSync(filename,'utf8');
 const compiled = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+function loadPublishing(){
+ const m={exports:{}};const js=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/naverPublishing.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
+ new Function('module','exports',js)(m,m.exports);return m.exports;
+}
 const initial = {id:'task',user_id:'owner',status:'publishing',title:'보존 제목',content:'보존 본문',images:[{url:'original'}],post_url:null,error_message:null,published_at:null};
 function harness(options={}) {
   const row=structuredClone({...initial,...options.row}), writes=[];
@@ -34,7 +38,7 @@ function harness(options={}) {
   const module={exports:{}};
   const requireMock=name=>name==='next/server'?{NextResponse:{json:(body,init)=>({body,status:init?.status||200,headers:init?.headers||{}})}}
     :name==='@/lib/supabase/admin'?{createAdminClient:()=>admin}
-    :name==='@/lib/access'?{evaluateProgramAccessForUser:async()=>access}:require(name);
+    :name==='@/lib/naverPublishing'?loadPublishing():name==='@/lib/access'?{evaluateProgramAccessForUser:async()=>access}:require(name);
   new Function('require','module','exports',compiled)(requireMock,module,module.exports);
   const send=(body={taskId:'task',success:true,postUrl:'https://blog.naver.com/myblog/123'},token='token')=>module.exports.POST({
     headers:{get:()=>token?`Bearer ${token}`:null},json:async()=>{if(body==='invalid-json')throw new Error('bad json');return body;},
@@ -100,4 +104,15 @@ test('late failure or changed URL never replaces a confirmed publication',async(
   rejected(await h.send({taskId:'task',success:false,error:'late failure'}),409);
   rejected(await h.send({taskId:'task',success:true,postUrl:'https://blog.naver.com/myblog/456'}),409);
   assert.equal(JSON.stringify(h.row),committed);assert.equal(h.writes.length,1);
+});
+
+test('prepared outcome is separate, idempotent, and cannot become published',async()=>{
+ const h=harness({row:{blog_id:'myblog',research_summary:{naver_publishing:{blog_id:'myblog',execution_mode:'prepare'}}}});
+ const body={taskId:'task',success:false,prepared:true};acknowledged(await h.send(body),'prepared');
+ assert.equal(h.row.published_at,null);assert.equal(h.row.post_url,null);acknowledged(await h.send(body),'prepared');
+ rejected(await h.send(),409);assert.equal(h.writes.length,1);
+});
+test('prepared reports require saved prepare mode and cannot include publication claims',async()=>{
+ rejected(await harness().send({taskId:'task',success:false,prepared:true}),409);
+ rejected(await harness().send({taskId:'task',success:true,prepared:true}),400);
 });

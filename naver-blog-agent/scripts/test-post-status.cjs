@@ -20,8 +20,13 @@ function table(name) {
     limit() { return api; },
     eq(col, val) { filters[col] = val; return api; },
     upsert(row) { op = 'upsert'; payload = row; return api; },
+    update(row) { op = 'update'; payload = row; return api; },
     maybeSingle: async () => ({ data: db[name].find((r) => Object.entries(filters).every(([k, v]) => r[k] === v)) || null }),
     single: async () => {
+      if(op==='update'){
+        const row=db[name].find(r=>Object.entries(filters).every(([k,v])=>r[k]===v));
+        return row?{data:Object.assign(row,payload),error:null}:{data:null,error:{message:'not found'}};
+      }
       if (op === 'upsert') {
         upserts.push({ ...payload });
         const i = db[name].findIndex((r) => r.id === payload.id);
@@ -106,6 +111,16 @@ assert.equal(resolveSaveStatus('published', 'queued'), 'queued', '명시적 큐 
   assert.equal(upserts.at(-1).status, 'draft');
   await post({ id: 'post-1791513869818', title: '새 글2', content: '본문', status: 'queued' });
   assert.equal(upserts.at(-1).status, 'queued');
+
+  db.nba_posts.find(r=>r.id===B).status='prepared';
+  let edited=await posts.PUT({json:async()=>({id:B,title:'준비 후 수정'})});
+  assert.equal(edited.status,200);assert.equal(db.nba_posts.find(r=>r.id===B).status,'draft');
+  db.nba_posts.find(r=>r.id===B).status='prepared';
+  await post({id:B,title:'준비 후 저장',status:'draft'});
+  assert.equal(db.nba_posts.find(r=>r.id===B).status,'draft');
+  assert.equal((await post({id:B,title:'허위 준비',status:'prepared'})).status,400);
+  assert.equal((await posts.PUT({json:async()=>({id:B,status:'prepared'})})).status,400);
+  assert.equal(db.nba_posts.find(r=>r.id===B).status,'draft');
 
   console.log('post status ok');
 })().catch((e) => { console.error(e); process.exit(1); });

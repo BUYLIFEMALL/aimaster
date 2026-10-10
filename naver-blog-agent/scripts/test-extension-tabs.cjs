@@ -14,7 +14,7 @@ async function browser(initial={}) {
   const data=structuredClone(initial), tabs=new Map(), events={}, calls=[], reports=[], warnings=[];
   let execute = async({args})=>[{frameId:0,result:args[0]==='inspect'?{status:'valid',hasContent:false}:{ok:true,categories:[{id:'29',name:'AI'}]}}];
   const normalNetwork=async(url,init)=>({ok:true,json:async()=>url.endsWith('/finish')
-    ? {success:true,persisted:true,taskId:JSON.parse(init.body).taskId,status:JSON.parse(init.body).success?'published':'failed'}
+    ? {success:true,persisted:true,taskId:JSON.parse(init.body).taskId,status:JSON.parse(init.body).prepared?'prepared':JSON.parse(init.body).success?'published':'failed'}
     : {task:null,state:'running',userId:'owner'}});
   let network = normalNetwork;
   const event=name=>({addListener(fn){events[name]=fn;}});
@@ -155,6 +155,47 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     b.network(async()=>({ok:false,status:503,json:async()=>({error:'발행 결과 저장을 확인하지 못했습니다.'})}));
     await b.sandbox.pump();assert.deepEqual(b.data.pendingResult,pending);assert.match(b.data.connectionError,/저장/);
     b.resetNetwork();await b.sandbox.pump();assert.equal(b.data.pendingResult,undefined);assert.equal(b.calls.length,0);
+  });
+  await scenario('prepare ends after settings; protected editor survives the next task',async()=>{
+    const t={...task('waiting_login'),type:'prepare',payload:{title:'준비 원고',executionMode:'prepare',publishScheduleMode:'reserve',interactive:true}};
+    const b=await browser({connection,editorTab:1,activeTask:t});b.add();
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});
+    await b.sandbox.resume(t);
+    assert.equal(b.reports[0].prepared,true);assert.equal(b.reports[0].success,false);
+    assert.equal(b.data.lastPrepared.taskId,'task');assert.equal(b.data.preparedEditorTabs[0].id,1);
+    const clicks=b.calls.filter(c=>c[0]==='script' && c[1]==='click');assert.equal(clicks.length,1);
+    assert.equal(b.data.activeTask,undefined);assert.equal(b.data.pendingResult,undefined);
+    const next=await b.sandbox.editorTab(false,{blogId:'myblog',freshEditor:true});assert.notEqual(next,1);
+    assert.equal(b.calls.some(c=>c[0]==='update' && c[1]===1),false);
+    await b.events.removed(1);assert.equal(b.data.preparedEditorTabs.length,0);
+  });
+  await scenario('prepare reporting failure retains ready editor; retry restores protection without input',async()=>{
+    const t={...task('prepared'),type:'prepare',payload:{title:'준비 원고',executionMode:'prepare',publishScheduleMode:'reserve'}};
+    const pending={id:'task',result:{prepared:true,published:false}};
+    const b=await browser({connection,activeTask:t,pendingResult:pending});b.add();
+    b.network(async()=>({ok:false,status:503,json:async()=>({error:'결과 저장 실패'})}));
+    await b.sandbox.pump();assert.deepEqual(b.data.pendingResult,pending);
+    assert.equal(b.data.preparedEditorTabs[0].id,1);assert.equal(b.data.activeTask.stage,'prepared');
+    delete b.data.preparedEditorTabs;delete b.data.lastPrepared;
+    b.resetNetwork();await b.sandbox.pump();
+    assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.preparedEditorTabs[0].id,1);
+    assert.equal(b.calls.some(c=>['script','update','create'].includes(c[0])),false);
+    assert.equal(b.reports.length,2);assert.equal(b.reports[1].prepared,true);
+  });
+  await scenario('prepare settings failure never reports ready or presses final button',async()=>{
+    const t={...task('waiting_login'),type:'prepare',payload:{executionMode:'prepare',publishScheduleMode:'now'}};
+    const b=await browser({connection,activeTask:t});b.add();
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});
+    b.execute(async({args})=>{if(args[0]==='settings')return [{frameId:0,result:{error:'카테고리 확인 실패'}}];
+      return [{frameId:0,result:args[0]==='inspect'?{status:'valid'}:{ok:true}}];});
+    await b.sandbox.resume(t);assert.equal(b.reports[0].prepared,false);assert.match(b.reports[0].error,/카테고리/);
+    assert.equal(b.data.lastPrepared,undefined);
+    assert.equal(b.calls.filter(c=>c[0]==='script' && c[1]==='click').length,1);
+  });
+  await scenario('restart after prepared checkpoint only reports readiness, never clicks or reserves',async()=>{
+    const t={...task('prepared'),type:'prepare',payload:{title:'준비 원고',executionMode:'prepare',publishScheduleMode:'reserve'}};
+    const b=await browser({connection,activeTask:t});b.add();await b.sandbox.pump();
+    assert.equal(b.reports[0].prepared,true);assert.equal(b.calls.some(c=>c[0]==='script'),false);
   });
   await scenario('successful category read survives closed web requester; member isolation still enforced',async()=>{
     const b=await browser({connection,editorTab:1});b.add();

@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { evaluateProgramAccessForUser } from "@/lib/access";
-import { normalizeNaverTags, readNaverCategory } from "@/lib/naverPublishing";
+import { normalizeNaverTags, readNaverCategory, readNaverExecutionMode } from "@/lib/naverPublishing";
 
 /** 확장 토큰으로 회원을 확인하고 현재 이용 권한을 다시 검증한다. */
 export async function authenticateExtension(
@@ -29,6 +29,7 @@ export interface BridgeAsset {
 }
 
 export interface BridgePayload {
+  executionMode: "prepare" | "publish";
   title: string;
   article: string;
   tags: string[];
@@ -145,6 +146,7 @@ export function buildBridgePayload(row: {
   const reserve = Boolean(row.is_reserved && row.scheduled_at);
   return {
     title: row.title,
+    executionMode: readNaverExecutionMode(row.research_summary, row.blog_id || ""),
     article: lines.join("\n"),
     tags: normalizeNaverTags(row.tags),
     ...(naverCategory ? { category: naverCategory.name, categoryId: naverCategory.id }

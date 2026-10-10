@@ -1,4 +1,9 @@
 export interface NaverCategory { id: string; name: string }
+export type NaverExecutionMode = "prepare" | "publish";
+export function parseNaverExecutionMode(value: unknown): NaverExecutionMode {
+  if (value !== "prepare" && value !== "publish") throw new Error("진행 방식을 선택해 주세요.");
+  return value;
+}
 
 export function parseNaverCategory(value: unknown): NaverCategory | null {
   if (value === null) return null;
@@ -25,8 +30,18 @@ export function readNaverCategory(summary: unknown, blogId: string): NaverCatego
   try { return parseNaverCategory(prefs.category); } catch { return null; }
 }
 
-export function withNaverCategory(summary: unknown, blogId: string, category: NaverCategory | null) {
+export function readNaverExecutionMode(summary: unknown, blogId: string): NaverExecutionMode {
+  const prefs = isRecord(summary) && isRecord(summary.naver_publishing) ? summary.naver_publishing : null;
+  if (prefs && prefs.execution_mode !== undefined && prefs.blog_id !== blogId) throw new Error("저장한 진행 방식의 블로그가 다릅니다. 발행 설정을 다시 저장해 주세요.");
+  // Preserve legacy automatic publication. Invalid explicit values never become publish.
+  return prefs && prefs.blog_id === blogId && prefs.execution_mode !== undefined
+    ? parseNaverExecutionMode(prefs.execution_mode) : "publish";
+}
+
+export function withNaverCategory(summary: unknown, blogId: string, category: NaverCategory | null, executionMode?: NaverExecutionMode) {
   const previous = isRecord(summary)
     ? summary : summary == null ? {} : { original_summary: summary };
-  return { ...previous, naver_publishing: { blog_id: blogId, category } };
+  const oldPrefs = isRecord(previous.naver_publishing) && previous.naver_publishing.blog_id === blogId ? previous.naver_publishing : {};
+  return { ...previous, naver_publishing: { ...oldPrefs, blog_id: blogId, category,
+    ...(executionMode ? { execution_mode: executionMode } : {}) } };
 }

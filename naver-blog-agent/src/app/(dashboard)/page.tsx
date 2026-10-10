@@ -647,7 +647,7 @@ export default function MainPage() {
     const finalImagesToSave = generatedImages.length > 0 ? generatedImages : result.images;
     const targetId = currentPostId || "post-" + Date.now();
     savePostToStorage(targetId, result, finalImagesToSave, "queued");
-    alert("크롬 확장의 자동 발행 큐에 등록되었습니다! 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
+    alert("크롬 확장의 작업 대기에 등록되었습니다. 저장한 진행 방식에 따라 준비 또는 최종 발행을 진행합니다. 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
   };
 
   const handleSaveDraft = () => {

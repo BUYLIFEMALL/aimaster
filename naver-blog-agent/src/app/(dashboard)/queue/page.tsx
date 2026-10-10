@@ -44,7 +44,7 @@ interface SavedPostItem {
   excerpt?: string;
   tags?: string[];
   images?: { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[];
-  status: "draft" | "queued" | "publishing" | "published" | "failed";
+  status: "draft" | "queued" | "publishing" | "prepared" | "published" | "failed";
   created_at: string;
   published_at?: string;
   post_url?: string;
@@ -242,7 +242,7 @@ export default function QueuePage() {
   // 10. 선택 원고 일괄 발행 큐 전송
   const handleBulkPublishNow = async () => {
     if (checkedIds.length === 0) return;
-    if (!confirm(`선택한 원고 ${checkedIds.length}건을 ${visibilityLabel}로 스마트에디터 ONE 자동 발행 큐에 일괄 등록하시겠습니까?`)) {
+    if (!confirm(`선택한 원고 ${checkedIds.length}건을 ${visibilityLabel}로 스마트에디터 ONE 작업 대기에 일괄 등록하시겠습니까?`)) {
       return;
     }
 
@@ -272,7 +272,7 @@ export default function QueuePage() {
 
     setIsBulkUpdating(false);
     setCheckedIds([]);
-    alert(`선택한 원고 ${targetIds.length}건이 크롬 확장 자동 발행 큐에 등록되었습니다!`);
+    alert(`선택한 원고 ${targetIds.length}건이 크롬 확장 작업 대기에 등록되었습니다!`);
   };
 
   // 11. 선택 원고 일괄 삭제
@@ -310,7 +310,7 @@ export default function QueuePage() {
 
   // 즉시 발행 요청 (단일)
   const handlePublishNow = async (id: string) => {
-    if (publishVisibility === "public" && !confirm("이 원고를 전체공개로 네이버 블로그에 발행합니다. 계속하시겠습니까?")) return;
+    if (publishVisibility === "public" && !confirm("전체공개 설정으로 전송합니다. 저장한 진행 방식이 자동 발행이면 최종 버튼까지 누릅니다. 계속하시겠습니까?")) return;
     const updated = posts.map((p) => {
       if (p.id === id) {
         return { ...p, status: "queued" as const };
@@ -330,7 +330,7 @@ export default function QueuePage() {
     }
 
     alert(
-      `크롬 확장의 자동 발행 큐에 ${visibilityLabel}로 등록되었습니다!\n크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.`
+      `크롬 확장의 작업 대기에 ${visibilityLabel}설정으로 등록되었습니다!\n크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.`
     );
   };
 
@@ -398,6 +398,7 @@ export default function QueuePage() {
           excerpt: updated.excerpt,
           tags: updated.tags,
           category_name: nextCategory,
+          status: p.status === "prepared" ? "draft" : p.status,
         };
       }
       return p;
@@ -648,6 +649,7 @@ export default function QueuePage() {
             color: "text-amber-700 bg-amber-50/70 border-amber-200 hover:border-amber-300",
             icon: "⏳",
           },
+          { key: "prepared", label: "발행 전 준비 완료", count: posts.filter(p=>p.status==="prepared").length, color: "text-sky-700 bg-sky-50 border-sky-200", icon: "📋" },
           {
             key: "published",
             label: "네이버 발행 완료",
@@ -985,6 +987,7 @@ export default function QueuePage() {
                     <div className="space-y-1.5 min-w-0 flex-1">
                       {/* 상태 배지 & 카테고리 연계 드롭다운 */}
                       <div className="flex items-center gap-2 flex-wrap">
+                        {post.status === "prepared" && <span className="text-xs text-sky-700">발행 전 준비 완료 · 열린 네이버 탭에서 직접 최종 발행</span>}
                         {post.status === "published" && (
                           <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                             <CheckCircle2 className="w-3 h-3" />
@@ -1224,7 +1227,7 @@ export default function QueuePage() {
             {/* 모달 본문 (스크롤 영역) */}
             <div className="p-6 overflow-y-auto space-y-5 flex-1">
               <NaverPublishSettings postId={viewingDetailPost.id} onBlockingChange={setPublishingBlocked} onSaved={tags => {
-                setPosts(prev => prev.map(p => p.id === viewingDetailPost.id ? { ...p, tags } : p));
+                setPosts(prev => prev.map(p => p.id === viewingDetailPost.id ? { ...p, tags, status:p.status==="prepared"?"draft":p.status } : p));
                 setViewingDetailPost(prev => prev ? { ...prev, tags } : prev);
               }} />
 

@@ -193,6 +193,13 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   res = await statusRoute.POST(post('tok1', { id: 'p2' }));
   assert.equal(res.body.state, 'missing', '다른 회원 글 상태는 조회 불가');
 
+  rows[0].status='queued';rows[0].research_summary={naver_publishing:{blog_id:'myblog',execution_mode:'prepare'}};
+  res=await taskRoute.POST(post('tok1',{blogId:'myblog'}));
+  assert.equal(res.status,409);assert.equal(rows[0].status,'queued','old extensions cannot claim prepare jobs');
+  res=await taskRoute.POST(post('tok1',{blogId:'myblog',supportsPrepare:true}));
+  assert.equal(res.body.task.type,'prepare');assert.equal(res.body.task.payload.executionMode,'prepare');
+  assert.equal(rows[0].status,'publishing');
+
   // ---------- 3. 확장: 어댑터 호출 매핑 ----------
   const calls = [];
   const stored = [];

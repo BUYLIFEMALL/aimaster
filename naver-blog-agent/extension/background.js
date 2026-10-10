@@ -3,7 +3,7 @@ const API = 'https://naver-blog-agent.vercel.app';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let busy = false;
 let refreshSession = false;
-const stored = () => chrome.storage.local.get(['connection','deviceId','session','editorTab','completedEditorTab','activeTask','pendingResult','connectionError','update']);
+const stored = () => chrome.storage.local.get(['connection','deviceId','session','editorTab','completedEditorTab','preparedEditorTabs','lastPrepared','activeTask','pendingResult','connectionError','update']);
 const missingTab = error => /No tab with id:|Invalid tab ID/i.test(error?.message || '');
 const closedTabError = () => Object.assign(new Error('네이버 글쓰기 탭이 닫혔거나 변경되었습니다. 원고는 보존됩니다. 글쓰기 화면을 확인한 뒤 다시 시작해 주세요.'), {code:'EDITOR_TAB_CLOSED',stop:true});
 // Serialize reference updates so a delayed old-tab event cannot erase a new tab/session.
@@ -22,6 +22,7 @@ function forgetTab(tabId) {
       await chrome.storage.local.set({session:{status:'unknown',reason:closedTabError().message,checkedAt:new Date().toISOString()}});
     }
     if(state.completedEditorTab?.id === tabId)keys.push('completedEditorTab');
+    if(state.preparedEditorTabs?.some(tab=>tab.id===tabId))await chrome.storage.local.set({preparedEditorTabs:state.preparedEditorTabs.filter(tab=>tab.id!==tabId)});
     if(keys.length)await chrome.storage.local.remove(keys);
     // Keep activeTask, pendingResult and authoringCheckpoint for safe outcome reporting.
   });
@@ -62,11 +63,12 @@ async function api(route, body = {}, override) {
   const c = override || (await stored()).connection;
   switch (route) {
     case '/pair': { const d = await web('/api/extension/auth', {code:body.code, deviceName:'Chrome'}); return {token:d.token, label:'네이버 블로그', blogId:body.blogId, platform:'naver'}; }
-    case '/poll': return web('/api/extension/task', {blogId:c.blogId}, c.token);
+    case '/poll': return web('/api/extension/task', {blogId:c.blogId,supportsPrepare:true}, c.token);
     case '/result': {
       const success=Boolean(body.result?.published);
-      const receipt=await web('/api/extension/finish', {taskId:body.id, success, postUrl:body.result?.url || null, error:body.error ? `[${body.code || 'ERROR'}] ${body.error}` : null}, c.token);
-      if(receipt.success!==true || receipt.persisted!==true || receipt.taskId!==body.id || receipt.status!==(success?'published':'failed')){
+      const prepared=body.result?.prepared===true;
+      const receipt=await web('/api/extension/finish', {taskId:body.id, success, prepared, postUrl:body.result?.url || null, error:body.error ? `[${body.code || 'ERROR'}] ${body.error}` : null}, c.token);
+      if(receipt.success!==true || receipt.persisted!==true || receipt.taskId!==body.id || receipt.status!==(prepared?'prepared':success?'published':'failed')){
         throw new Error('서버의 결과 저장 확인이 일치하지 않습니다. 결과는 보관되며 보고만 다시 시도합니다.');
       }
       return receipt;
@@ -123,6 +125,7 @@ async function inspect(tabId) {
 }
 async function editorTab(interactive = false,task) {
   const current=await stored();
+  const protectedTab=id=>current.preparedEditorTabs?.some(tab=>tab.id===id);
   const blogId=task?.blogId || current.connection?.blogId;
   if(!blogId)throw new Error('확장을 본인 계정으로 먼저 연결해 주세요.');
   const host='blog.naver.com';
@@ -138,10 +141,10 @@ async function editorTab(interactive = false,task) {
     return '';
   };
   let tab=await getTab(current.editorTab);
-  if(tab && !kind(tab))tab=null;
+  if(tab && (!kind(tab) || protectedTab(tab.id)))tab=null;
   if(!tab){
     const tabs=await chrome.tabs.query({url:`https://${host}/*`});
-    tab=tabs.find(t=>kind(t)==='editor') || tabs.find(t=>kind(t)==='read');
+    tab=tabs.find(t=>!protectedTab(t.id) && kind(t)==='editor') || tabs.find(t=>!protectedTab(t.id) && kind(t)==='read');
   }
   if(!tab)tab=await chrome.tabs.create({url,active:interactive});
   else {
@@ -191,6 +194,15 @@ async function command(tabId,command,args={}) {
 async function finish(result) {
   // Persist the actual outcome before optional tab diagnostics or a network retry.
   await chrome.storage.local.set({pendingResult:result});
+  if(result.result?.prepared===true){
+    await updateTabState(async()=>{
+      const state=await stored(),task=state.activeTask;
+      if(!task?.tabId)return;
+      const tab=await chrome.tabs.get(task.tabId).catch(()=>null);if(!tab)return;
+      const ready={id:tab.id,taskId:result.id,blogId:task.blogId,title:task.payload.title,preparedAt:Date.now()};
+      await chrome.storage.local.set({lastPrepared:ready,preparedEditorTabs:[...(state.preparedEditorTabs || []).filter(item=>item.id!==tab.id),ready]});
+    });
+  }
   if(result.result?.published===true){
     try{
       const state=await stored();
@@ -251,10 +263,16 @@ async function writeArticle(task,options={}) {
 }
 async function publish(task) {
   const tabId=task.tabId,p=task.payload;
+  if(p.executionMode!==undefined && !['prepare','publish'].includes(p.executionMode))throw new Error('진행 방식이 올바르지 않습니다. 원고는 보존됩니다.');
   await writeArticle(task);
   await command(tabId,'click',{selector:'button[data-click-area="tpb.publish"], button[class*="publish_btn__"]',skipIfSelector:'button[data-testid="seOnePublishBtn"]'}); await sleep(400);
   await command(tabId,'settings',p);
   if((await inspect(tabId)).status!=='valid')throw new Error('로그인 상태가 변경되었습니다. 작성된 글을 확인하세요.');
+  if(task.type==='prepare' || p.executionMode==='prepare'){
+    if((await api('/task/status',{id:task.id})).state!=='running')throw new Error('작업이 취소되었습니다. 입력한 내용은 보존됩니다.');
+    await chrome.storage.local.set({activeTask:{...task,stage:'prepared'}});
+    return {prepared:true,published:false};
+  }
   await api('/stage',{id:task.id,stage:'final_publish'});
   await chrome.storage.local.set({activeTask:{...task,stage:'final_publish'}});
   await command(tabId,'click',{selector:'button[data-testid="seOnePublishBtn"], button[data-click-area="tpb*i.publish"]'});
@@ -303,7 +321,7 @@ async function prepareFreshNaver(task) {
 }
 async function resume(task) {
   const state=await api('/task/status',{id:task.id});if(state.state!=='running'){await chrome.storage.local.remove('activeTask');return;}
-  const fresh=task.type==='publish';
+  const fresh=['publish','prepare'].includes(task.type);
   let session;
   try{session=fresh?await prepareFreshNaver(task):await inspectSession(task.tabId);}
   catch(error){return finish({id:task.id,error:error.message,code:error.code || 'EDITOR_PREPARATION_FAILED'});}
@@ -331,9 +349,17 @@ async function pump() {
   try {
     let state=await stored(); if(!state.connection)return;
     await api('/heartbeat'); heartbeat=setInterval(()=>api('/heartbeat').catch(()=>{}),20000);
-    if(state.pendingResult){await api('/result',state.pendingResult);await chrome.storage.local.remove(['pendingResult','activeTask']);state=await stored();}
+    if(state.pendingResult){
+      // Rebuild ready-tab protection before confirming a recovered prepare result.
+      if(state.pendingResult.result?.prepared)await finish(state.pendingResult);
+      else {await api('/result',state.pendingResult);await chrome.storage.local.remove(['pendingResult','activeTask']);}
+      state=await stored();
+    }
     if(state.activeTask){
-      if(state.activeTask.stage==='waiting_login'){
+      if(state.activeTask.stage==='prepared'){
+        await finish({id:state.activeTask.id,result:{prepared:true,published:false}});
+      }
+      else if(state.activeTask.stage==='waiting_login'){
         await resume(state.activeTask);
       }
       else if(state.activeTask.stage==='writing'){
@@ -352,7 +378,7 @@ async function pump() {
         await reportReservation(task);
         return;
       }
-      if(task.type!=='publish'){
+      if(!['publish','prepare'].includes(task.type)){
         await finish({id:task.id,error:'지원하지 않는 확장 작업입니다. 확장을 업데이트하세요.',code:'UNSUPPORTED_TASK'});return;
       }
       const tabId=undefined;
@@ -409,16 +435,23 @@ chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
         return {blogId:state.connection.blogId,categories:result.categories};
       }finally{busy=false;}
     }
+    if(message.type==='openPrepared'){
+      const state=await stored(),ready=state.lastPrepared;
+      if(!ready || ready.blogId!==state.connection?.blogId)throw new Error('이 연결에서 준비한 원고가 없습니다.');
+      const tab=await requireTab(ready.id);
+      if((await inspect(tab.id)).status!=='valid')throw new Error('준비된 글쓰기 화면을 확인해 주세요.');
+      await inTab(tab.id,()=>chrome.tabs.update(tab.id,{active:true}));await chrome.windows.update(tab.windowId,{focused:true});return {ok:true};
+    }
     if(message.type==='status'){runBackground(pump);return stored();}
     if(message.type==='checkUpdate'){await checkUpdate();return {update:(await stored()).update || null};}
     if(message.type==='pair'){
       const state=await stored();if(state.activeTask)throw new Error('진행 중인 작업을 먼저 취소하세요.');
       const blogId=String(message.blogId||'').trim();if(!/^[A-Za-z0-9_-]{2,40}$/.test(blogId))throw new Error('네이버 블로그 ID를 영문·숫자 2~40자로 입력하세요.');
       const deviceId=state.deviceId || crypto.randomUUID();const connection=await api('/pair',{code:message.code,deviceId,blogId});
-      await chrome.storage.local.set({deviceId,connection});await chrome.storage.local.remove(['session','editorTab']);return {ok:true};
+      await chrome.storage.local.set({deviceId,connection});await chrome.storage.local.remove(['session','editorTab','lastPrepared']);return {ok:true};
     }
     if(message.type==='session'){if(!(await stored()).connection)throw new Error('먼저 연결 코드를 입력하세요.');const tabId=await editorTab(true);await inspectSession(tabId);runBackground(pump);return {ok:true};}
-    if(message.type==='disconnect'){if((await stored()).activeTask)throw new Error('앱에서 대기를 먼저 취소하세요.');await api('/disconnect');await chrome.storage.local.remove(['connection','session','editorTab']);return {ok:true};}
+    if(message.type==='disconnect'){if((await stored()).activeTask)throw new Error('앱에서 대기를 먼저 취소하세요.');await api('/disconnect');await chrome.storage.local.remove(['connection','session','editorTab','lastPrepared']);return {ok:true};}
     throw new Error('지원하지 않는 요청');
   })().then(result=>{try{reply(result);}catch{}},error=>{try{reply({error:error.message});}catch{}});return true;
 });

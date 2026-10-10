@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { normalizeNaverTags, parseNaverCategory, readNaverCategory, withNaverCategory } from "@/lib/naverPublishing";
+import { normalizeNaverTags, parseNaverCategory, readNaverCategory, withNaverCategory, parseNaverExecutionMode, readNaverExecutionMode } from "@/lib/naverPublishing";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -25,6 +25,7 @@ export async function GET(_req: Request, context: Context) {
     .eq("user_id", access.userId).eq("blog_id", post.blog_id).maybeSingle();
   if (accountError) return NextResponse.json({ error: "블로그 기본 카테고리를 확인하지 못했습니다." }, { status: 500 });
   return NextResponse.json({ userId: access.userId, blogId: post.blog_id,
+    executionMode: readNaverExecutionMode(post.research_summary, post.blog_id),
     category: readNaverCategory(post.research_summary, post.blog_id), defaultCategory: account?.default_category || "", tags: normalizeNaverTags(post.tags) });
 }
 
@@ -43,8 +44,12 @@ export async function PUT(req: Request, context: Context) {
   if (["queued", "publishing"].includes(post.status)) return NextResponse.json({ error: "대기를 취소한 뒤 발행 설정을 변경해 주세요." }, { status: 409 });
   if (body.tags !== undefined && !Array.isArray(body.tags)) return NextResponse.json({ error: "태그 목록 형식을 확인해 주세요." }, { status: 400 });
   const tags = normalizeNaverTags(body.tags === undefined ? post.tags : body.tags);
+  let executionMode;
+  try { executionMode = body.executionMode === undefined ? readNaverExecutionMode(post.research_summary, post.blog_id) : parseNaverExecutionMode(body.executionMode); }
+  catch { return NextResponse.json({ error: "진행 방식을 확인해 주세요." }, { status: 400 }); }
   const { data, error: saveError } = await admin.from("nba_posts")
-    .update({ research_summary: withNaverCategory(post.research_summary, post.blog_id, category), tags, updated_at: new Date().toISOString() })
+    .update({ research_summary: withNaverCategory(post.research_summary, post.blog_id, category, executionMode), tags,
+      ...(post.status === "prepared" ? {status:"draft"} : {}), updated_at: new Date().toISOString() })
     .eq("id", id).eq("user_id", access.userId).not("status", "in", '("queued","publishing")').select("id");
   if (saveError) return NextResponse.json({ error: "카테고리를 저장하지 못했습니다." }, { status: 500 });
   if (!data?.length) return NextResponse.json({ error: "원고 상태가 변경됐습니다. 새로고침해 주세요." }, { status: 409 });
@@ -53,5 +58,5 @@ export async function PUT(req: Request, context: Context) {
       .eq("user_id", access.userId).eq("blog_id", post.blog_id).select("id");
     if (defaultError || !defaults?.length) return NextResponse.json({ error: "원고 카테고리는 저장했지만 블로그 기본값을 저장하지 못했습니다. 블로그 계정 등록을 확인해 주세요." }, { status: 500 });
   }
-  return NextResponse.json({ success: true, category, tags });
+  return NextResponse.json({ success: true, category, tags, executionMode });
 }

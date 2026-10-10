@@ -1,7 +1,7 @@
 // "임시보관으로 저장"이 이미 대기·발행 중인 글의 상태를 되돌리지 않게 하는 규칙.
 // 보관함 저장·이미지 생성 완료 저장은 모두 status="draft"로 요청하는데, 이미 발행 큐에 있거나 발행된 글에
 // 그대로 적용하면 대기/발행 상태가 임시보관으로 돌아가 발행 결과가 사라져 보인다.
-export type PostStatus = "draft" | "queued" | "publishing" | "published" | "failed";
+export type PostStatus = "draft" | "queued" | "publishing" | "prepared" | "published" | "failed";
 
 const PROTECTED: PostStatus[] = ["queued", "publishing", "published"];
 

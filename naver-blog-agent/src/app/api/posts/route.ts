@@ -15,7 +15,7 @@ interface SavedPostPayload {
   excerpt?: string;
   tags?: string[];
   images?: any[];
-  status?: "draft" | "queued" | "publishing" | "published" | "failed";
+  status?: "draft" | "queued" | "publishing" | "prepared" | "published" | "failed";
   published_at?: string;
   post_url?: string;
   error_message?: string;
@@ -143,6 +143,7 @@ export async function POST(request: Request) {
     const user = { id: access.userId };
 
     const payload: SavedPostPayload = await request.json();
+    if (payload.status === "prepared") return NextResponse.json({error:"준비 완료는 확장 검수 결과로만 기록합니다."},{status:400});
     if (!payload.title && !payload.content) {
       return NextResponse.json({ error: "제목 또는 본문이 비어있습니다." }, { status: 400 });
     }
@@ -262,6 +263,7 @@ export async function PUT(request: Request) {
     const user = { id: access.userId };
 
     const payload: SavedPostPayload & { id: string } = await request.json();
+    if (payload.status === "prepared") return NextResponse.json({error:"준비 완료는 확장 검수 결과로만 기록합니다."},{status:400});
     if (!payload.id) {
       return NextResponse.json({ error: "원고 ID가 필요합니다." }, { status: 400 });
     }
@@ -285,13 +287,24 @@ export async function PUT(request: Request) {
         updates.publish_visibility = payload.publish_visibility === "public" ? "public" : "private";
       }
 
-      const { data, error } = await admin
+      // A ready browser draft describes the old content/settings; an edit invalidates it.
+      let invalidatePrepared = false;
+      if (payload.status === undefined && [payload.title,payload.content,payload.tags,payload.images,payload.publish_visibility].some(value=>value!==undefined)) {
+        const {data:current,error:readError}=await admin.from("nba_posts").select("status")
+          .eq("id",payload.id).eq("user_id",user.id).maybeSingle();
+        if(readError)return NextResponse.json({error:"원고 상태를 확인하지 못했습니다."},{status:503});
+        if(!current)return NextResponse.json({error:"본인 원고를 찾을 수 없습니다."},{status:404});
+        invalidatePrepared=current.status==="prepared";
+        if(invalidatePrepared)updates.status="draft";
+      }
+
+      let query = admin
         .from("nba_posts")
         .update(updates)
         .eq("id", payload.id)
-        .eq("user_id", user.id)
-        .select()
-        .single();
+        .eq("user_id", user.id);
+      if(invalidatePrepared)query=query.eq("status","prepared");
+      const { data, error } = await query.select().single();
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

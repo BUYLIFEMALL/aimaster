@@ -39,7 +39,7 @@ interface SavedPost {
   title: string;
   content: string;
   tags?: string[];
-  status: "draft" | "queued" | "publishing" | "published" | "failed";
+  status: "draft" | "queued" | "publishing" | "prepared" | "published" | "failed";
   created_at: string;
 }
 
@@ -457,7 +457,7 @@ export default function DashboardPage() {
                         ? "발행 대기중"
                         : post.status === "published"
                         ? "발행 완료"
-                        : "보관함 저장"}
+                        : post.status === "prepared" ? "발행 전 준비 완료" : "보관함 저장"}
                     </span>
                   </div>
                 </div>

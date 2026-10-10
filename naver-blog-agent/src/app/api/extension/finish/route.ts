@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { evaluateProgramAccessForUser } from "@/lib/access";
+import { readNaverExecutionMode } from "@/lib/naverPublishing";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -26,13 +27,23 @@ export async function POST(req: Request) {
     if (!access.allowed) return reply({ error: access.error }, access.status);
     const body = await req.json().catch(() => null);
     if (!body || typeof body.taskId !== "string" || !body.taskId.trim() ||
-        typeof body.success !== "boolean" ||
+        typeof body.success !== "boolean" || (body.prepared !== undefined && typeof body.prepared !== "boolean") ||
         (body.postUrl != null && typeof body.postUrl !== "string") ||
         (body.error != null && typeof body.error !== "string")) {
       return reply({ error: "taskId와 올바른 발행 결과가 필요합니다." }, 400);
     }
     const { taskId, success } = body;
-    const status = success ? "published" : "failed";
+    const prepared = body.prepared === true;
+    if (prepared && (success || body.error || body.postUrl)) return reply({ error: "준비 완료와 발행 완료를 함께 보고할 수 없습니다." }, 400);
+    const { data: owned, error: ownerError } = await admin.from("nba_posts")
+      .select("id,blog_id,research_summary").eq("id",taskId).eq("user_id",tokenRecord.user_id).maybeSingle();
+    if (ownerError) return unavailable();
+    if (!owned) return reply({ error: "본인 원고를 찾을 수 없습니다." }, 404);
+    const mode = readNaverExecutionMode(owned.research_summary, owned.blog_id);
+    if ((prepared && mode !== "prepare") || (success && mode === "prepare")) {
+      return reply({ error: "원고에 저장된 진행 방식과 보고 결과가 다릅니다." }, 409);
+    }
+    const status = prepared ? "prepared" : success ? "published" : "failed";
     const postUrl = body.postUrl || null;
     const message = body.error || null;
     const now = new Date().toISOString();

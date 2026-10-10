@@ -32,6 +32,10 @@ export async function POST(req: Request) {
     const { data: account, error: accountError } = await admin.from("nba_accounts").select("default_category")
       .eq("user_id", userId).eq("blog_id", row.blog_id).maybeSingle();
     if (accountError) return NextResponse.json({ error: "블로그 발행 기본값을 확인하지 못했습니다." }, { status: 500 });
+    const payload = buildBridgePayload(row, account?.default_category);
+    if (payload.executionMode === "prepare" && body.supportsPrepare !== true) {
+      return NextResponse.json({ error: "발행 전 준비를 지원하는 최신 확장으로 업데이트해 주세요." }, { status: 409 });
+    }
 
     // 동시에 두 번 폴링해도 한 번만 가져가도록 queued일 때만 전환
     const { data: claimed } = await admin
@@ -46,10 +50,10 @@ export async function POST(req: Request) {
     return NextResponse.json({
       task: {
         id: row.id,
-        type: "publish",
+        type: payload.executionMode === "prepare" ? "prepare" : "publish",
         platform: "naver",
         blogId: row.blog_id,
-        payload: buildBridgePayload(row, account?.default_category),
+        payload,
       },
     });
   } catch (err: any) {
