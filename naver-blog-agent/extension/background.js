@@ -302,8 +302,13 @@ chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
       const auth=await api('/status',{},state.connection);
       if(auth.userId!==message.userId || !message.userId)throw new Error('프로그램 로그인 회원과 확장 연결 회원이 다릅니다. 본인 계정으로 다시 연결해 주세요.');
       if(state.connection.blogId!==message.blogId)throw new Error('확장에 연결된 블로그와 원고의 블로그가 다릅니다. 해당 블로그를 연결해 주세요.');
-      if(busy || (await stored()).activeTask)throw new Error('확장 작업이 끝난 뒤 카테고리를 불러와 주세요.');
-      busy=true;
+      const deadline=Date.now()+10000;
+      while(true){
+        if((await stored()).activeTask)throw new Error('확장 작업이 끝난 뒤 카테고리를 불러와 주세요.');
+        if(!busy){busy=true;break;}
+        if(Date.now()>=deadline)throw new Error('확장 상태 확인이 지연되고 있습니다. 잠시 후 다시 불러와 주세요.');
+        await sleep(150);
+      }
       try{
         const tabId=await editorTab(true);
         const result=await command(tabId,'categories');

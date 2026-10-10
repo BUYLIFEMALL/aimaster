@@ -314,6 +314,17 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   const categoryReply=await send({type:'categories',userId:'owner',blogId:'myblog'});
   assert.equal(categoryReply.categories[0].id,'29');
   assert.equal(JSON.stringify(categoryReply).includes('secret-test-only'),false);
+  const previousTimeout=sandbox.setTimeout;
+  let waitedForHeartbeat=false;
+  sandbox.setTimeout=resolve=>{waitedForHeartbeat=true;vm.runInContext('busy=false',sandbox);resolve();};
+  vm.runInContext('busy=true',sandbox);
+  assert.equal((await send({type:'categories',userId:'owner',blogId:'myblog'})).categories[0].id,'29');
+  assert.equal(waitedForHeartbeat,true,'주기 상태 확인과 겹치면 완료를 기다려 조회');
+  sandbox.setTimeout=previousTimeout;
+  const beforeBlocked=categoryActions;
+  sandbox.chrome.storage.local.get=async()=>({connection:{blogId:'myblog'},activeTask:{id:'running'}});
+  assert.match((await send({type:'categories',userId:'owner',blogId:'myblog'})).error,/작업이 끝난 뒤/);
+  assert.equal(categoryActions,beforeBlocked,'실제 발행 작업 중에는 조회 금지');
   sandbox.api=originalApi;
   sandbox.command=previousCommand;
   sandbox.editorTab=previousTab;
