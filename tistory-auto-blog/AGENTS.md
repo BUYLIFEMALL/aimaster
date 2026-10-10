@@ -80,6 +80,15 @@
 - **시험**: `tests/extension-content.test.cjs`에 두께가 없는 변이 남지 않는지·색이 연한 회색인지 확인하는 시험 추가(8개). 이미 발행된 글은 바뀌지 않으며 BLOG에서 다시 보내면 적용된다. 확장 코드 변경 없음(ZIP·manifest 버전만 v1.65).
 - **교훈**: CSS 테두리는 `border-style`만 주면 두께를 안 준 변도 3px 기본 두께로 그려진다 — 한 변만 쓸 때는 `border-width`로 네 변 두께를 모두 명시한다.
 
+## v1.66 (2026-10-10) — 게시글 주제 수집에 "유튜브 쇼츠 떡상 분석" 추가 (주인님 지시)
+
+- 주인님 지시: `threads-content-ops`(떡상 콘텐츠 수집 `?tab=viral`)와 `naver-blog-agent`(/collector)에 있는 **유튜브 쇼츠 떡상 분석**을 `/candidates`(게시글 주제 수집)에도 구현 — 수집한 내용을 게시글 주제로 쓴다. `/candidates`의 네 번째 방식 탭 **"유튜브 쇼츠 떡상 분석"**을 추가했다(기존 HTTP·RSS·Perplexity는 그대로).
+- **흐름**: 키워드·게시 기간·정렬·길이·최소 조회수·최대 구독자·프리셋(🔥 지금 떡상 / 🚀 작은 채널 대박 / ⚡ 급상승)으로 쇼츠 검색 → 결과마다 등급(조회수÷구독자: 초대박 10배↑·대박 5배↑·떡상 3배↑·양호 1배↑, 구독자 비공개는 판정불가)·점수·채널평균 대비·하루 조회를 표시 → **"주제로 저장"**을 누르면 AI가 영상이 터진 이유(훅·구조)를 분석해 **블로그 게시글 주제 후보 최대 3건**(제목 25~45자·요약 150~350자·키워드 3~5개)을 저장 → 아래 "수집된 블로그 주제"에서 기존 "이 주제로 글쓰기"로 이어진다. 저장된 주제의 요약 앞에 `[영상 분석] 훅: … / 터진 이유: …`가 붙고, 목록 카드에 `▶ 유튜브 쇼츠` 배지와 영상 링크가 보인다. 통계 카드는 4칸(유튜브 쇼츠 건수 추가).
+- **코드**: `utils/ai/youtubeShorts.ts`(검색·지표·설명/댓글 보조 자료, `threads-content-ops/lib/youtubeShorts.ts`를 옮김), `utils/ai/shortsAnalysis.ts`(분석·프롬프트 — 블로그 주제용, 당해 연도 규칙·"대사·자막을 그대로 옮기지 않기"·`<data>` 지시문 무시 포함), `app/api/candidates/shorts/route.ts`(`GET` 키 등록 여부만 알림, `POST {action:'search'|'analyze'}`), `components/candidates/ShortsSearch.tsx`, `app/candidates/page.tsx`(탭·카드 배지). 설정 화면에 **YouTube Data API 키** 항목과 발급 매뉴얼 버튼(`platform_guides` 72d39d06…)을 추가했다(`user_api_keys.provider='youtube_api_key'`는 공용 체크 제약에 이미 있음).
+- **본인 키 규칙**: YouTube·Gemini·OpenAI 모두 회원 본인 키만 쓴다(운영자·다른 회원 키 폴백 없음). 검색 1회 = 본인 YouTube 할당량 약 100유닛(길이·조회수·구독자 필터는 가져온 결과에 바로 적용되어 추가 할당량 없음), 분석은 본인 Gemini(영상을 직접 보고 분석, `gemini-3.7-flash`) 또는 OpenAI(`gpt-4o-mini`, 제목·수치·설명·댓글 기반 추정 — 화면·소리를 지어내지 않게 지시, 결과에 추정이라고 안내)로 하고 둘 다 없으면 실행하지 않고 등록 안내만 한다. YouTube 키가 있으면 설명·댓글도 근거로 쓴다(약 2유닛).
+- **DB 변경 없음**: 저장은 기존 `tistory_candidates`에 `source_type='http'`, `source_input=https://www.youtube.com/shorts/<id>`로 한다(threads-content-ops와 같은 방식). 화면은 `source_input`이 쇼츠 주소이면 "유튜브 쇼츠"로 보여 준다. **같은 영상을 이미 분석·저장했으면 AI 호출 전에 막는다(409)** — 중복 비용 방지(다른 회원의 저장분은 영향 없음). 카테고리는 본인 카테고리만 지정할 수 있다. 영상의 대사·자막은 저장하지 않는다. 검색 결과는 저장하지 않고 "주제로 저장"을 누른 영상만 저장한다. 30일 자동 삭제(콘텐츠 보관 정책)는 다른 후보와 같이 적용된다.
+- **시험**: `npm run test:shorts` 18개(지표·등급·검색 호출 방식·오류 문구·키 비노출·분석 프롬프트·JSON 정리·Gemini 영상/OpenAI 대체/키 없음·API 접근 권한·키 확인·입력 검증·중복 선차단·본인 카테고리·저장 형식·실패 처리). 모두 가짜 fetch·가짜 DB로 실행하며 **실제 YouTube·Gemini·OpenAI 호출은 아직 해 보지 않았다**(회원 본인 키가 필요하고 호출 비용이 든다). 확인 방법: 설정에서 본인 YouTube(+Gemini 또는 OpenAI) 키를 등록 → `/candidates` → "유튜브 쇼츠 떡상 분석" → 검색 → "주제로 저장".
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.

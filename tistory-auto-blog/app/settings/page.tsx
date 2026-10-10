@@ -12,9 +12,9 @@ import { GuideLinkButton } from '@/blog/components/settings/GuideLinkButton'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 import { ExtensionSettings } from '@/blog/components/settings/ExtensionSettings'
 
-// 본문 생성은 OpenAI·Claude·Gemini 중 고른 플랫폼의 키, 이미지 생성은 Gemini 키, 글감 수집은 Perplexity 키를 쓴다(2026-10-01).
+// 본문 생성은 OpenAI·Claude·Gemini 중 고른 플랫폼의 키, 이미지 생성은 Gemini 키, 글감 수집은 Perplexity 키, 유튜브 쇼츠 떡상 분석은 YouTube Data API 키(+ 분석용 Gemini 또는 OpenAI 키)를 쓴다(2026-10-01, 쇼츠 분석 v1.66).
 // user_api_keys는 AIMaster 전체가 공유하는 테이블이라 여기서 등록한 키는 다른 프로그램에서도 그대로 쓰인다.
-const ALL_PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'gemini', 'perplexity']
+const ALL_PROVIDERS: ApiKeyProvider[] = ['openai', 'anthropic', 'gemini', 'perplexity', 'youtube_api_key']
 
 // app/(main)/guides의 platform_guides.id — "AI 모델 API 키" 섹션의 등록 순서(OpenAI·
 // Anthropic·Google·Perplexity)와 동일하게 맞췄다. 2026-10-01 이미지 저장을 Supabase Storage로 바꾸면서 Cloudinary 항목은 뺐다.
@@ -23,6 +23,7 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: 'd03f65c2-efbb-421f-a041-a075562e3b7a', label: 'Anthropic Claude API 키 발급받기' },
   { guideId: 'f442cd37-f1e0-42a7-a3de-f9a9acf47cc4', label: 'Google Gemini API 키 발급받기' },
   { guideId: '1df95d8b-6a27-4de0-b1d9-8bbc218534ad', label: 'Perplexity API 키 발급받기' },
+  { guideId: '72d39d06-a7ca-4ab0-8327-f9bb085ac394', label: 'YouTube Data API 키 발급받기 (쇼츠 검색·분석용)' },
 ]
 
 // 원래 서버 컴포넌트였는데, 루트 사이트에 내장(app/(main)/blog/settings/*)될 때는 다른 blog
