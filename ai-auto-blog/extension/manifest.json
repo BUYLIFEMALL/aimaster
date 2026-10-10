@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "BLOG(원문) 네이버 입력기 · AIMaster",
-  "version": "1.51.0",
-  "version_name": "v1.51",
+  "version": "1.52.0",
+  "version_name": "v1.52",
   "description": "BLOG(원문)생성 자동화에서 보낸 글을 네이버 블로그 글쓰기 화면에 사람처럼 입력하는 확장 프로그램",
   "minimum_chrome_version": "120",
   "permissions": [
