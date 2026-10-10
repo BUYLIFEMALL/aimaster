@@ -87,8 +87,9 @@ export function ExtensionSettings() {
       <div>
         <h2 className="text-sm font-bold text-zinc-900">🧩 네이버 블로그 입력 확장 프로그램 · {EXTENSION_VERSION}</h2>
         <p className="mt-1 text-xs leading-5 text-zinc-500">
-          글 보기 화면에서 &quot;네이버 입력기로 보내기&quot;를 누른 글을, 네이버 블로그 글쓰기 화면에 제목·본문·이미지 순서대로 사람처럼 한 글자씩
-          입력합니다. 이미지는 네이버에 파일로 직접 올라가서 보관 기간이 지나도 네이버 글에서는 사라지지 않습니다.
+          글 보기 화면에서 &quot;네이버 입력기로 보내기&quot;를 누르면, 확장 프로그램이 <strong className="text-zinc-700">보낸 뒤 30분 안에 자동으로</strong> 네이버 블로그 새 글쓰기 화면을 열어
+          제목·본문·이미지를 순서대로 사람처럼 한 글자씩 입력하고, 저장해 둔 카테고리·태그까지 넣어 발행 직전 상태로 준비합니다. 이미지는 네이버에 파일로 직접 올라가서
+          보관 기간이 지나도 네이버 글에서는 사라지지 않습니다.
           <strong className="text-zinc-700"> 마지막 &quot;발행&quot; 버튼은 내용을 확인한 뒤 직접 눌러 주세요.</strong>
         </p>
       </div>
@@ -193,6 +194,33 @@ export function ExtensionSettings() {
             ))}
           </ul>
         )}
+      </div>
+
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-3">
+        <p className="text-xs font-bold text-zinc-800">3. 확장 프로그램 설정과 사용법</p>
+        <ol className="list-decimal space-y-1.5 pl-5 text-xs leading-5 text-zinc-600">
+          <li>
+            <strong className="text-zinc-800">내 네이버 블로그 ID 저장</strong>: 확장 프로그램 사이드패널의 &quot;내 네이버 블로그&quot;에 블로그 주소의 아이디(예: blog.naver.com/<b>내아이디</b>)를 입력하고 저장합니다.
+            저장한 블로그의 글쓰기 화면에만 입력하며, 다른 계정으로 로그인되어 있으면 입력하지 않고 멈춥니다. <strong className="text-zinc-800">이 설정을 저장하기 전에는 자동 입력이 시작되지 않습니다.</strong>
+          </li>
+          <li>
+            <strong className="text-zinc-800">자동 시작</strong>: 글 보기 화면에서 &quot;네이버 입력기로 보내기&quot;를 누르면 확장이 보낸 뒤 <strong className="text-zinc-800">30분 안에</strong> 자동으로 입력을 시작합니다(크롬이 켜져 있고 확장이 연결되어 있어야 합니다).
+            30분이 지난 글이나 실패한 글은 사이드패널의 &quot;보낸 글&quot;에서 글을 골라 &quot;직접 입력 시작&quot;을 누르세요. 이미 작성 중인 글이 있는 글쓰기 탭은 건드리지 않고 새 탭을 열어 입력합니다.
+          </li>
+          <li>
+            <strong className="text-zinc-800">카테고리·태그</strong>: 사이드패널의 &quot;카테고리·태그 설정&quot;에 저장해 두면 본문 입력 뒤 발행 설정창에 자동으로 넣습니다. 태그를 비워 두면 글 끝의 해시태그를 씁니다.
+          </li>
+          <li>
+            <strong className="text-zinc-800">완료 알림</strong>: 입력이 끝나면 크롬 알림(발행 직전 준비 완료 · 입력 완료 · 입력 중단)이 뜨고, 알림을 누르면 해당 네이버 탭으로 이동합니다. 사이드패널의 &quot;입력이 끝나면 크롬 알림 받기&quot;로 끌 수 있습니다(기본 켜짐).
+          </li>
+          <li>
+            <strong className="text-zinc-800">이미지 &quot;AI 활용&quot; 표시</strong>: 사이드패널의 &quot;이미지에 AI 활용 표시 자동 켜기&quot;를 체크하면 입력한 이미지에 네이버의 AI 활용 표시를 자동으로 켭니다(기본 꺼짐).
+          </li>
+        </ol>
+        <p className="text-[11px] leading-5 text-zinc-500">
+          입력 중에는 네이버 탭을 닫거나 글쓰기 화면을 직접 만지지 마세요. 사이드패널을 닫아도 작업은 계속되며, 글 길이에 따라 5~10분 정도 걸립니다.
+          입력 중 문제가 생기면 사이드패널의 &quot;진행 상태&quot;에 이유가 표시되고, 네이버 편집기에 입력된 내용은 지워지지 않고 그대로 남습니다.
+        </p>
       </div>
     </section>
   )
