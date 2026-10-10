@@ -38,3 +38,12 @@
 4단계에서는 기존 원고 저장·전송 화면의 서버 응답 확인을 함께 처리합니다. 현재 생성 화면의 전송/임시보관 및 보관함 단일·일괄 전송은 응답 확인 전에 로컬 상태/성공 안내를 갱신하는 기존 문제가 있습니다. 이번에 고쳤다고 보고하지 않습니다. 개별 이미지 자동 저장·임시 ID 중복 저장도 같은 후속 범위입니다.
 
 배포 후 설치된 확장은 **최신 ZIP 재다운로드 → 기존 폴더 덮어쓰기 → chrome://extensions 새로고침**, 웹 페이지 새로고침이 필요합니다.
+
+## 운영 완료 증거
+
+- 코드·인수인계 커밋 `bcfc7f87` origin/master 푸시 완료. 공유 작업 폴더의 BLOG 미완료 변경을 제외한 해당 커밋의 별도 worktree에서 에이전트만 배포했습니다.
+- 프로덕션 `dpl_FzTLD8MVbbPtmcio2f2owSnbNj59` READY, 운영 https://naver-blog-agent.vercel.app . 로컬/운영 프로덕션 빌드·타입 검사 통과했습니다.
+- DB version/extension_version v1.66, 라이브 ZIP HTTP200·manifest 1.66.0/v1.66, 버전 API HTTP200/latest v1.66, 라이브 ZIP 전체14파일이 배포 커밋과 줄바꿈 정규화 후 일치합니다. `node scripts/check-extension-release.mjs naver-blog-agent` 실패0/경고0.
+- 비로그인 finish/task/posts 쓰기 HTTP401 확인, finish Cache-Control:no-store. 로그인 페이지 HTTP200. 실제 로그인 준비 E2E를 이 검사로 대신했다고 보고하지 않습니다.
+- 원고2건의 draft/failed 상태·본문/이미지 지문을 배포 전후 확인해 동일했습니다. DB 변경은 프로그램 릴리스 메타데이터만입니다. PC 설치 확장 v1.66 적용은 미실행이며 ZIP 재다운로드 안내가 필요합니다.
+- 연결 해제/재연결 때 lastPrepared 안내를 제거해 다른 연결에 이전 원고 제목·열기 버튼을 표시하지 않습니다. 기존 보호 탭은 유지하여 준비된 글을 다음 작업이 지우지 않게 합니다.

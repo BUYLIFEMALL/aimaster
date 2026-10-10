@@ -12,7 +12,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.66` (발행 전 준비/최종 발행 구분, 운영 결과는 준비 모드 문서 확인)
+- **현재 버전**: `v1.66` (운영 READY·DB·라이브 ZIP 검증 완료, 실제 새 준비 E2E는 후속)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [순차 개선·담당·현재 검수](docs/AUTOMATION_IMPROVEMENT_PLAN_2026-10-10.md), [`docs/CONTINUATION.md`](docs/CONTINUATION.md), [클로드용 BLOG 인수인계](../docs/BLOG_AUTOMATION_HANDOFF_2026-10-10.md). 이전 실제 탭/입력 검수는 v1.63/v1.62 보고 참고.
 
