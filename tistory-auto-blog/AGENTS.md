@@ -72,6 +72,14 @@
 - **시험**: `tests/extension-content.test.cjs`(7개, 변환기를 DB의 실제 생성 HTML 형태로 시험 — 인용 상자·여백·소제목 밑줄·목록·가로줄·이미지 순서·속성 누출 없음), 어댑터 이미지 스타일 시험 1개. `test:extension` 64개 + 서버 36.
 - **확인 방법**: ZIP 덮어쓰기(이미지 모양 부분이 확장 쪽 변경) 후 BLOG에서 같은 글을 다시 보내 발행 결과를 원문과 비교한다. 인용 상자의 큰 따옴표 장식·소제목 밑줄·문단 간격·가로줄·이미지 모서리를 본다.
 
+## v1.65 (2026-10-10) — 인용 상자·소제목 테두리가 진하게 네 변으로 그려지던 문제 수정, 연한 회색으로 (주인님 지시)
+
+- **증상**: v1.64로 보낸 글에서 요약 인용 상자와 추천 링크 상자 둘레에 진한 보라색 사각 테두리가, 소제목 둘레에 회색 사각 테두리가 생겨 튀어 보였다(원문은 왼쪽 줄 하나와 소제목 밑줄 하나뿐).
+- **원인**: v1.64에서 `border-style: solid`를 넣으면서 두께는 왼쪽(`border-left-width: 4px`)·아래(`border-bottom-width: 1px`) 한 변만 줬다. CSS는 모양만 있고 두께가 없는 변을 **기본 두께(medium, 약 3px)로 그린다** — 그래서 나머지 세 변에도 테두리가 생겼다.
+- **수정**(`utils/extensionContent.ts`): 네 변의 두께를 한꺼번에 명시(`border-width: 0 0 1px 0` 소제목, `0 0 0 4px` 인용 상자 — 위 오른쪽 아래 왼쪽)해 있는 변만 그린다. 인용 상자 왼쪽 줄 색은 진한 보라(`#6366f1`)에서 **연한 회색(`#cbd5e1`)**으로 바꿨다(소제목 밑줄은 기존 `#f1f5f9`). 이미지 테두리(`#e2e8f0`)는 이미 연한 색이다.
+- **시험**: `tests/extension-content.test.cjs`에 두께가 없는 변이 남지 않는지·색이 연한 회색인지 확인하는 시험 추가(8개). 이미 발행된 글은 바뀌지 않으며 BLOG에서 다시 보내면 적용된다. 확장 코드 변경 없음(ZIP·manifest 버전만 v1.65).
+- **교훈**: CSS 테두리는 `border-style`만 주면 두께를 안 준 변도 3px 기본 두께로 그려진다 — 한 변만 쓸 때는 `border-width`로 네 변 두께를 모두 명시한다.
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.

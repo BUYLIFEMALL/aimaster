@@ -106,10 +106,12 @@ function tailwindTextStyles(className: string): string[] {
   if (classes.has('leading-tight')) add('line-height: 1.25')
   if (classes.has('list-disc')) add('list-style-type: disc')
   if (classes.has('list-decimal')) add('list-style-type: decimal')
-  if (classes.has('border-l-4')) add('border-left-width: 4px')
-  if (classes.has('border-b')) add('border-bottom-width: 1px')
-  // 테두리 두께만 있고 모양(solid)이 없으면 티스토리에서 테두리가 보이지 않는다(v1.64: 인용 상자의 왼쪽 파란 줄·소제목 밑줄이 사라지던 원인). Tailwind는 border 클래스에 solid를 기본으로 깔아 준다.
-  if (classes.has('border-solid') || classes.has('border-l-4') || classes.has('border-b')) add('border-style: solid')
+  // 테두리: 모양(solid)만 주고 두께를 주지 않은 변은 CSS 기본 두께(medium, 약 3px)로 그려진다 — v1.64에서 이 때문에 인용 상자·소제목 둘레에 진한 사각 테두리가 생겼다(v1.65 수정).
+  // 그래서 "있는 변만 두께를 주고 나머지는 0"으로 네 변의 두께를 한꺼번에 명시한다(위 오른쪽 아래 왼쪽 순서).
+  if (classes.has('border-l-4') || classes.has('border-b')) {
+    add(`border-width: 0 0 ${classes.has('border-b') ? '1px' : '0'} ${classes.has('border-l-4') ? '4px' : '0'}`)
+    add('border-style: solid')
+  } else if (classes.has('border-solid')) add('border-style: solid')
   if (classes.has('list-inside')) add('list-style-position: inside')
   if (classes.has('list-inside') || classes.has('list-disc') || classes.has('list-decimal')) add('padding-left: 0')
   // 여백(m*/p*-N, 1 = 0.25rem): 웹 화면의 문단 간격·소제목 위아래 간격을 그대로 옮긴다(여백이 없으면 티스토리 본문이 붙어 보인다).
@@ -127,7 +129,7 @@ function tailwindTextStyles(className: string): string[] {
   if (classes.has('rounded-r-xl')) add('border-radius: 0 0.75rem 0.75rem 0')
   const colors = [
     ['text-slate-900', 'color: #0f172a'], ['text-slate-800', 'color: #1e293b'], ['text-slate-700', 'color: #334155'],
-    ['text-indigo-600', 'color: #4f46e5'], ['border-indigo-500', 'border-color: #6366f1'],
+    ['text-indigo-600', 'color: #4f46e5'], ['border-indigo-500', 'border-color: #cbd5e1'],
     ['border-slate-100', 'border-color: #f1f5f9'], ['border-slate-200', 'border-color: #e2e8f0'],
     ['bg-indigo-50/60', 'background-color: #eef2ff'], ['bg-indigo-50', 'background-color: #eef2ff'],
   ] as const
