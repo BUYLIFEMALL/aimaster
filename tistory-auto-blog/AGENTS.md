@@ -20,7 +20,7 @@
 - 확장(v1.56 이하)은 아직 이 설정을 쓰지 않는다 — 기존 사이드패널 설정으로 입력한다. 새 확장(v1.59)부터 웹에서 보낸 설정을 쓴다.
 - 시험: `test:extension-api` 34개(기본값 조회 포함), `tsc`, `eslint`(오류 0), `npm run build`.
 
-> **자동 포스팅 업그레이드(v1.57~v1.59) 전체 인수인계:** [`../docs/TISTORY_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md`](../docs/TISTORY_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md)
+> **자동 포스팅 업그레이드(v1.57~v1.65) 전체 인수인계(다른 CLI는 먼저 읽기):** [`../docs/TISTORY_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md`](../docs/TISTORY_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md)
 
 ## v1.59 (2026-10-10) — 확장 작업기 이전: 보내면 확장이 자동으로 입력한다 (BLOG 방식 이식 3/4)
 
