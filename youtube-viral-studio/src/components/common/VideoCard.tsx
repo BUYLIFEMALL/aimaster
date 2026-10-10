@@ -20,6 +20,8 @@ import {
   Link2,
 } from "lucide-react";
 import { useState } from "react";
+import { ScriptAnalysisModal } from "@/components/analysis/ScriptAnalysisModal";
+import type { ScriptAnalysisResult } from "@/lib/ai/scriptAnalyzer";
 
 interface VideoCardProps {
   video: YouTubeVideoItem;
@@ -29,6 +31,43 @@ interface VideoCardProps {
 
 export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked = false }: VideoCardProps) {
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<ScriptAnalysisResult | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleAnalyzeScript = async () => {
+    setAnalyzing(true);
+    try {
+      const res = await fetch("/api/youtube/analyze-script", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoId: video.id,
+          title: video.title,
+          description: video.description,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.needAiKey) {
+          if (confirm(`${data.error}\n\n지금 설정 페이지로 이동하여 API 키를 등록하시겠습니까?`)) {
+            window.location.href = "/settings";
+          }
+        } else {
+          alert(data.error || "대본 분석 중 오류가 발생했습니다.");
+        }
+        return;
+      }
+
+      setAnalysisResult(data.analysis);
+      setModalOpen(true);
+    } catch (err: any) {
+      alert(err.message || "네트워크 오류가 발생했습니다.");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   const getBadgeStyle = (badge: string) => {
     switch (badge) {
@@ -172,38 +211,66 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
         </div>
 
         {/* 액션 버튼 */}
-        <div className="flex items-center gap-1.5 pt-1 border-t border-gray-100">
-          <a
-            href={youtubeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-2 text-xs font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 rounded-md transition-colors"
-          >
-            <span>유튜브 보기</span>
-            <ExternalLink className="w-3.5 h-3.5 text-gray-500" />
-          </a>
-
-          <Link
-            href={`/source-finder?url=${encodeURIComponent(youtubeUrl)}`}
-            className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 border border-gray-200 rounded-md transition-colors"
-            title="쇼츠 원본(롱폼) 추적"
-          >
-            <Link2 className="w-4 h-4" />
-          </Link>
-
+        <div className="space-y-1.5 pt-2 border-t border-gray-100">
+          {/* AI 떡상 분석 실행 버튼 */}
           <button
-            onClick={handleBookmarkToggle}
-            className={`p-1.5 border rounded-md transition-colors ${
-              bookmarked
-                ? "bg-amber-50 text-amber-600 border-amber-200"
-                : "text-gray-500 hover:text-amber-600 hover:bg-amber-50 border-gray-200"
-            }`}
-            title="즐겨찾기 보관"
+            onClick={handleAnalyzeScript}
+            disabled={analyzing}
+            className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 rounded-lg transition-all shadow-xs disabled:opacity-50"
           >
-            <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-amber-500" : ""}`} />
+            {analyzing ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>대본 3단 구조 AI 분석 중...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5 fill-white" />
+                <span>✨ AI 떡상 대본 분석</span>
+              </>
+            )}
           </button>
+
+          <div className="flex items-center gap-1.5">
+            <a
+              href={youtubeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-2 text-xs font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 rounded-md transition-colors"
+            >
+              <span>유튜브 보기</span>
+              <ExternalLink className="w-3.5 h-3.5 text-gray-500" />
+            </a>
+
+            <Link
+              href={`/source-finder?url=${encodeURIComponent(youtubeUrl)}`}
+              className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 border border-gray-200 rounded-md transition-colors"
+              title="쇼츠 원본(롱폼) 추적"
+            >
+              <Link2 className="w-4 h-4" />
+            </Link>
+
+            <button
+              onClick={handleBookmarkToggle}
+              className={`p-1.5 border rounded-md transition-colors ${
+                bookmarked
+                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  : "text-gray-500 hover:text-amber-600 hover:bg-amber-50 border-gray-200"
+              }`}
+              title="즐겨찾기 보관"
+            >
+              <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-amber-500" : ""}`} />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* AI 대본 분석 모달 */}
+      <ScriptAnalysisModal
+        analysis={analysisResult}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }

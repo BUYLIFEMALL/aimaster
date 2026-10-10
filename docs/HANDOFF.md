@@ -1,32 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-10 신규 프로그램 착수 — YouTube Viral Studio (골든 파인더 엔진) v1.01
+## 2026-10-10 신규 프로그램 착수 & Phase 2 완료 — YouTube Viral Studio (골든 파인더 엔진) v1.02
 
-- **주인님 지시**: "1번 컨셉(골든 파인더형 벤치마킹 & 떡상 발굴 엔진)으로 한 단계씩 하나씩 진행하도록 하고, 조사한 내용은 작업리스트로 남겨서 앞으로 작업 진행하면서 필요한 기능을 붙여나가도록 하자"
+- **주인님 지시**: "1번컨셉으로 한단계씩 하나씩 진행하도록 하고 지금 조사한 내용은 작업리스트로 남겨서 앞으로 작업진행하면서 필요한 기능을 붙여나가도록 하자", "항상 작업 끝나면 커밋,푸시,배포까지 하고 작업링크와 함께 결과를 보고 해줘, 가급적 작업이 끝나면 직접 검수,테스트후 결과 보고해줘, 그리고 큰작업이 끝나고나면 작업내용과 핵심내용,주의사항 등을 남겨서 다른 cli가 작업을 이어나갈수 있도록 인수인계 문서화 해줘"
 - **작업 로드맵**: [`docs/YOUTUBE_AUTOMATION_ROADMAP.md`](YOUTUBE_AUTOMATION_ROADMAP.md) 작성 완료 (Phase 1~4 단계별 확장 스펙 정의).
-- **신규 서브프로젝트 구축 (`youtube-viral-studio/`)**:
-  - 버전: `v1.01` (`src/lib/version.ts`)
+- **상세 인수인계 전용 문서**: [`docs/YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md`](YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md) 작성 완료.
+- **서브프로젝트 구축 (`youtube-viral-studio/`)**:
+  - 버전: `v1.02` (`src/lib/version.ts` 및 DB `programs.version`)
   - 환경: Next.js 16.2.11 + React 19 + Tailwind CSS v4 + Supabase SSR
-  - 최상위 절대 불변 규칙: 회원 본인 YouTube Data API v3 키 직접 등록 연동 (BYOK 완벽 준수, 타인/운영자 키 폴백 금지)
+  - 최상위 절대 불변 규칙: 회원 본인 YouTube Data API v3 키 및 AI 키(Gemini/OpenAI) 직접 등록 연동 (BYOK 완벽 준수, 타인/운영자 키 폴백 금지)
   - 화이트 베이스 표준 사이드바 레이아웃 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 준수)
-- **핵심 엔진 & 알고리즘 구현**:
-  - `metrics.ts`: VPH(시간당 조회수 속도), vsRatio(구독자 대비 조회수 배수), viralScore(0~100점 바이럴 지수), 등급 뱃지(초대박/대박/떡상/양호)
-  - `viralShorts.ts`: 키워드 + 업로드 기간 + 소형 채널(구독자 1만/5만 이하) + 최소/최대 조회수 다차원 필터링 & 기여도순 정렬
-  - `goldenChannels.ts`: 구독자 1만명 이하 소형 채널 중 영상당 평균 조회수가 폭발하는 황금 채널 스크리닝
-  - `trendingVideos.ts`: 대한민국 실시간 급상승 영상 수집 및 VPH 속도 실시간 랭킹
-  - `sourceFinder.ts`: 쇼츠 설명란 링크 파싱 + 동일 채널 롱폼 영상의 텍스트 유사도 매칭으로 풀영상 원본 역추적
-- **화면 구현**:
-  - `/viral-shorts` (조회수 폭발 쇼츠 찾기 — 검색 및 추천 키워드 칩, 다차원 필터, 떡상 카드 그리드)
-  - `/golden-channels` (황금 채널 발굴기 — 카테고리별 소형 고효율 채널 카드)
-  - `/trending-videos` (실시간 터진 영상 — 쇼츠/롱폼 탭, VPH 뱃지)
-  - `/source-finder` (쇼츠 원본 찾기 — 설명란 확정 원본 및 롱폼 매칭 후보)
-  - `/favorites` (즐겨찾기 보관함 — 영상/채널 보관 및 CSV 다운로드)
-  - `/settings` (YouTube Data API v3 본인 키 등록, 실시간 유효성 검증, 1분 무료 발급 가이드)
-  - `/guide` (핵심 지표 해석 및 4단계 실전 워크플로우 FAQ)
-- **로컬 빌드 검증**: `npm run build` 100% 정상 통과 (오류 0건).
-- **후속 단계**:
-  - Vercel 프로덕션 배포 (`vercel deploy --prod --yes`)
-  - DB `programs` 테이블 등록 마이그레이션 (`youtube-viral-studio/supabase/migrations/20261010140000_register_youtube_viral_studio.sql`) 승인 및 반영
+- **Phase 1(발굴 엔진) & Phase 2(대본 AI 분석) 구현 완료 내역**:
+  1. `/viral-shorts`: 조회수 폭발 쇼츠 찾기 (소형 채널 1만/5만 이하 필터링, 기여도 정렬) + **[✨ AI 떡상 대본 분석] 원클릭 모달 연동 완료**
+  2. `/golden-channels`: 황금 채널 발굴기 (구독자 1만 이하 고효율 채널 발굴)
+  3. `/trending-videos`: 실시간 터진 영상 (쇼츠/롱폼 탭, VPH 랭킹)
+  4. `/source-finder`: 쇼츠 원본 찾기 (롱폼 텍스트 유사도 매칭 역추적)
+  5. `/favorites`: 즐겨찾기 보관함 (CSV 내보내기 지원)
+  6. `/settings`: YouTube Data API v3 키 + **Google Gemini / OpenAI API 키 등록 폼 추가**
+  7. `/guide`: 핵심 지표 해석 및 4단계 실전 워크플로우 FAQ
+  8. `transcript.ts`: YouTube 영상 자막(Subtitles) 실시간 파싱 엔진
+  9. `scriptAnalyzer.ts`: Gemini 2.0 Flash / GPT-4o-mini 기반 쇼츠 3단 구조(첫 3초 훅킹, 시청 지속력, 행동유도 CTA) 해체 및 카피캣 템플릿 생성
+- **로컬 빌드 검증**: `npm run build` 100% 정상 통과 (16개 라우트 오류 0건).
+- **운영 배포 및 직접 검증**:
+  - Vercel 프로덕션 배포 완료 (`https://youtube-viral-studio.vercel.app`)
+  - DB `programs` (FREE 배지) 및 `pricing_plans` 3단계 요금제 등록 완료
+  - curl 라이브 307 리다이렉트 및 401 비인가 차단 보안 검증 통과
 
 ## 2026-10-10 Codex — 네이버 에이전트 v1.69 실행/복구
 

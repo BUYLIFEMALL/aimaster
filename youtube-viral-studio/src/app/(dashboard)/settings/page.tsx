@@ -249,6 +249,139 @@ export default function SettingsPage() {
           </span>
         </div>
       </div>
+
+      {/* 3. AI 대본 분석용 API 키 등록 카드 (Gemini / OpenAI) */}
+      <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-xs space-y-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+              AI
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900">
+                AI 쇼츠 대본 분석용 API 키 (선택)
+              </h2>
+              <p className="text-xs text-gray-500">
+                떡상 쇼츠의 첫 3초 훅킹 및 시청 유지력 3단 구조를 AI로 심층 해체하고 카피캣 템플릿을 생성합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Gemini 키 */}
+        <div className="p-4 rounded-xl bg-gray-50 border border-gray-200 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                <span>Google Gemini API 키 (추천 - 무료)</span>
+                {keys.gemini?.registered ? (
+                  <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    등록 완료
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+                    미등록
+                  </span>
+                )}
+              </span>
+              {keys.gemini?.registered && (
+                <div className="text-xs font-mono font-bold text-gray-700 mt-1">
+                  {keys.gemini.maskedKey}
+                </div>
+              )}
+            </div>
+
+            {keys.gemini?.registered && (
+              <button
+                onClick={() => handleDeleteKey("gemini")}
+                className="text-xs text-red-600 hover:underline font-semibold"
+              >
+                삭제
+              </button>
+            )}
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const input = (e.currentTarget.elements.namedItem("geminiKey") as HTMLInputElement).value;
+              handleSaveKey("gemini", input);
+            }}
+            className="flex gap-2"
+          >
+            <input
+              name="geminiKey"
+              type="password"
+              placeholder="AIzaSy... 로 시작하는 Gemini API 키"
+              className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-mono"
+            />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition-all"
+            >
+              저장
+            </button>
+          </form>
+        </div>
+
+        {/* OpenAI 키 */}
+        <div className="p-4 rounded-xl bg-gray-50 border border-gray-200 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                <span>OpenAI API 키</span>
+                {keys.openai?.registered ? (
+                  <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    등록 완료
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+                    미등록
+                  </span>
+                )}
+              </span>
+              {keys.openai?.registered && (
+                <div className="text-xs font-mono font-bold text-gray-700 mt-1">
+                  {keys.openai.maskedKey}
+                </div>
+              )}
+            </div>
+
+            {keys.openai?.registered && (
+              <button
+                onClick={() => handleDeleteKey("openai")}
+                className="text-xs text-red-600 hover:underline font-semibold"
+              >
+                삭제
+              </button>
+            )}
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const input = (e.currentTarget.elements.namedItem("openaiKey") as HTMLInputElement).value;
+              handleSaveKey("openai", input);
+            }}
+            className="flex gap-2"
+          >
+            <input
+              name="openaiKey"
+              type="password"
+              placeholder="sk-... 로 시작하는 OpenAI API 키"
+              className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-mono"
+            />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 bg-gray-800 hover:bg-black text-white text-xs font-bold rounded-lg transition-all"
+            >
+              저장
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
