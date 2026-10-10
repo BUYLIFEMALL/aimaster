@@ -31,6 +31,17 @@ Chrome API의 Promise 실패 처리 및 Tab 이벤트 정의는 [공식 Tabs 문
 
 ## 운영 배포
 
-코드/패키지/manifest/ZIP v1.63 준비. 커밋·푸시·프로덕션 배포 후 DB 버전·라이브 ZIP HTTP200/manifest/소스 해시·공개 버전 API·기존 원고 지문을 확인하고 아래에 결과를 이어서 기록합니다.
+코드 커밋 `94310de6`을 origin/master에 푸시했습니다. 해당 커밋의 별도 worktree에서 `vercel deploy --prod --yes --scope buylife`로 배포했습니다. 프로덕션 `dpl_HnRiUiMYwosDdrFCTC6uNhYXEM2Y` READY, 운영 별칭 https://naver-blog-agent.vercel.app . Vercel의 타입·컴파일 빌드 통과(빌드 완료 18초).
+
+- 운영 DB `programs.version`/`extension_version`/`extension_download_url`을 동시 갱신했습니다. SQL 파일 `supabase/migrations/20261010063956_nba_bump_version_v1_63.sql`과 동일한 버전 메타데이터만 적용했습니다.
+- `node scripts/check-extension-release.mjs naver-blog-agent`: DB v1.63 / ext v1.63 / zip v1.63, 실패0·경고0.
+- 공개 `/api/extension/version` HTTP200·latest v1.63, 라이브 고정 ZIP HTTP200·manifest v1.63/1.63.0.
+- 라이브 background/editor/writer/article-plan/web-bridge/manifest 6개 파일은 배포 worktree 파일과 바이트·SHA256이 정확히 일치합니다. Git 객체와는 줄바꿈 LF/CRLF만 달라 정규화 후 일치합니다. 서버 빌드 ZIP44351바이트와 원래 로컬 ZIP44486바이트의 차이를 소스 변경으로 오인하지 않았습니다.
+- `/login` 200, 비로그인 `/api/posts` 401·cache MISS, `/queue` 307·로그인 리다이렉트·no-store 확인. 로그인 필요 경로의 실제 입력 검수는 별도 미실행입니다.
+- 배포 ID를 지정한 최근15분 error 로그 조회 결과 `No logs found`. 짧은 조회 구간의 결과이며 향후 무오류를 보장하지 않습니다.
+- PC v1.63 새로고침 후 기존 오류를 정리하고 여러 폴링 주기 뒤 대상 확장 카드에서 오류 버튼 없음 확인. PC의 새 오류 기록 없음과 탭 소실 모의 검사 통과는 별도 증거입니다.
+- 배포 후 원고 표본2건의 본문/이미지 MD5와 draft/failed 상태가 배포 전과 같습니다.
+
+남은 검수: PC 키보드 제어 복구 후 별도 새 편집기에서 입력 중 탭 닫힘→안내·안전 중지→회원이 명시적으로 다시 시작하는 흐름 확인. 자동 검사16개·배포·ZIP·DB·PC 버전/오류 관찰은 완료했으며 실제 최종 발행은 수행하지 않았습니다.
 
 다른 PC 적용: 최신 ZIP 재다운로드→기존 폴더에 덮어쓰기→`chrome://extensions` 새로고침.

@@ -26,6 +26,7 @@
 - 검수: `test:extension-tabs` 16개 worker 모의 시나리오, `test:extension`, `test:publishing`, `test:edit-save`, JS 문법 검사 및 빌드 통과. 이전 `96a35d20`은 같은 검사에서 닫힌 탭 참조 잔존으로 실패합니다. extension/scripts는 기존 Next ESLint 설정에서 제외되어 린트 통과를 주장하지 않습니다.
 - PC 로컬 확장 ID `jghcffojjhpadflbhmdbophincpciajm` 새로고침→v1.63 표시 확인. 기존 오류 1건 확인·정리 후 추가 오류 관찰. DevTools 키보드는 `window_not_focused`로 제한되어 실제 편집기 입력/탭 소실 검수는 미실행이며 모의 검사와 구분합니다. 기존 원고 2건 본문·이미지 지문/상태 보존. 최종 발행·유료 호출·환경변수/스키마 변경 없음.
 - 배포·라이브 ZIP/DB 결과: [`docs/TAB_LIFECYCLE_VERIFICATION_2026-10-10.md`](docs/TAB_LIFECYCLE_VERIFICATION_2026-10-10.md). 다른 PC는 ZIP 재다운로드→덮어쓰기→`chrome://extensions` 새로고침이 필요합니다.
+- 운영 완료: 코드 `94310de6` 푸시, 프로덕션 `dpl_HnRiUiMYwosDdrFCTC6uNhYXEM2Y` READY. DB/프로그램/확장/ZIP v1.63, 릴리스 실패0·경고0, ZIP200·핵심6파일 배포 worktree 바이트 일치, 버전API200. PC 여러 폴링 주기 후 새 오류 기록 없음. 원고2건 배포 전후 지문/상태 보존. 실제 입력 중 탭 닫힘 검수만 키보드 제어 복구 후 재개합니다.
 
 ## 2026-10-10 v1.62 — 카테고리 조회와 상태 확인 충돌 보완
 

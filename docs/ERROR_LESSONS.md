@@ -6,6 +6,7 @@
 - **원인:** 탭 조회 직후에도 탭이 사라질 수 있고 저장된 번호는 재시작 후 무효가 됩니다. `onRemoved`/`onReplaced` 정리와 이벤트 최상위 실패 처리가 없었습니다. `resume` 및 예약 확인은 발행/검증과 `finish`를 같은 try/catch에 묶어 서버 보고 실패를 작업 실패로 처리했습니다.
 - **해결(위치):** `naver-blog-agent/extension/background.js`의 `getTab`/`requireTab`/`inTab`·순차 참조 갱신·이벤트 처리. `onUpdated`는 전달된 Tab 사용. 작성 재시작은 안전 중지, final 단계는 불확실·자동 재발행 금지. `finish`는 결과 선보관, `resume`/`reportReservation`은 보고 오류와 작업 오류 분리. `scripts/test-extension-tabs.cjs` 16개 회귀 검사.
 - **다음부터 확인:** 조회 직후 주입/이동 전 탭 닫힘, 로그인 대기 중 닫힘, 작성/final 단계 worker 재시작, 오래된 이벤트와 새 세션 경쟁, 성공 후 보고 통신 실패를 실제 worker 코드로 검사합니다. 오류 로그를 지우기 전에 원문을 기록하고, UI 버전 반영·오류 재발 없음과 실제 입력 검수 범위를 구분합니다.
+- **릴리스 해시 점검 추가:** Windows worktree의 CRLF와 Git blob의 LF가 달라 라이브 ZIP을 Git blob 원시 바이트와 비교하면 거짓 실패가 날 수 있습니다. v1.63 ZIP의 핵심6파일은 실제 배포 worktree와 바이트/해시 일치, Git 커밋과 줄바꿈 정규화 후 일치로 확인했습니다. 해시 불일치를 숨기지 말고 차이가 줄바꿈뿐인지 검증합니다.
 
 ## 2026-10-10 — PowerShell의 Stop 설정이 Git 경고를 실패로 처리 (메인 지침 문서 배포)
 
