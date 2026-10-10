@@ -223,6 +223,13 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
    - **상세 절차·프로그램별 다운로드 주소·예외·새 확장 프로그램 만드는 법은 [`docs/EXTENSION_RELEASE_RULES.md`](docs/EXTENSION_RELEASE_RULES.md)에 있다. 확장이 있는 프로그램을 배포하기 전에 반드시 읽는다.**
    - **현황(2026-10-09)**: 확장이 있는 5개 프로그램(`naver-blog-agent`·`ai-auto-blog`·`naver-blog-seo-studio`·`tistory-auto-blog`·`naver-blog-auto-poster-web`)의 DB 칸(`programs.extension_download_url`/`extension_version`)을 2026-10-09 채우고 검증 스크립트로 확인했다(5개 모두 OK). DB 갱신은 배포 때 SQL로 수동이다. **확장 내 새 버전 알림은 확장이 있는 5개 프로그램 모두에 있다(`naver-blog-agent`·`naver-blog-seo-studio`·`ai-auto-blog`·`naver-blog-auto-poster-web`·`tistory-auto-blog`)(현황표: `docs/EXTENSION_RELEASE_RULES.md`). 메인 사이트 프로그램 상세의 다운로드 버튼은 미구현**. `ai-auto-blog`·`naver-blog-seo-studio`·`tistory-auto-blog`는 같은 빌드 스크립트 방식, `naver-blog-auto-poster_web`은 GitHub 릴리스 방식이다. 새로 손대는 프로그램은 이 규칙에 맞춰 부족한 항목을 채운다.
 
+11. **도메인 연동(SSO) 정책 — 프로그램 주소는 `<이름>.buylife.xyz`로 통일하고 로그인 쿠키를 `.buylife.xyz`로 공유한다 (2026-10-10 주인님 확정, 모든 CLI 공통).**
+   - **옛 `vercel.app` 주소는 삭제·해제하지 않는다**(회원이 Meta/Google에 등록한 OAuth 콜백 주소·확장·북마크가 사용). 새 주소는 "추가"만 한다.
+   - **쿠키 `domain=.buylife.xyz`는 요청 호스트가 `buylife.xyz` 계열일 때만** 지정한다(`lib/supabase/cookieDomain.ts` 사용). 미들웨어에서 `sb-*` 쿠키를 `Max-Age=0`으로 일괄 만료시키지 않는다(정상 세션까지 지워져 로그인 불가 — 2026-10-10 사고).
+   - **OAuth 프로그램은 도메인을 옮기기 전에 콜백 주소(`redirect_uri`)가 환경변수 고정인지, 접속 주소를 따라가는지 코드로 먼저 확인**한다. 접속 주소를 따라가면 환경변수 고정으로 바꾸거나 새 콜백 주소를 "추가 등록"해야 한다.
+   - DNS는 Cloudflare 와일드카드 `*` A 레코드(→76.76.21.21, 프록시 끔) 하나로 끝났으므로 프로그램마다 DNS를 만들지 않는다. 프로그램마다 `vercel domains add <이름>.buylife.xyz <프로젝트> --scope buylife` + `programs.app_url` 갱신 + 버전 +0.01을 **한 프로그램씩** 처리한다.
+   - **상세 절차·코드 패턴·점검 대상·진행 현황은 [`docs/DOMAIN_SSO_POLICY.md`](docs/DOMAIN_SSO_POLICY.md)에 있다. 프로그램 주소·쿠키·OAuth 콜백을 만지기 전에 반드시 읽는다.** 새 프로그램 체크리스트에도 `vercel domains add` + `app_url`(새 주소)을 포함한다.
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.

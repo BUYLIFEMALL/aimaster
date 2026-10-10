@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-10 — 도메인(SSO) 이전 시 점검: OAuth 콜백 주소·쿠키 도메인·옛 주소 유지 (전 프로그램 공통)
+
+- **증상/위험:** 프로그램 주소를 `<이름>.buylife.xyz`로 옮기면, 콜백 주소를 접속 주소에서 만드는 프로그램은 회원의 Meta/Google 앱에 등록된 옛 주소와 달라 연동이 거부될 수 있다. 쿠키 도메인을 잘못 지정하면(vercel.app·localhost) 로그인이 깨진다.
+- **원인/확인:** `shots`는 `META_INSTAGRAM_REDIRECT_URI`·`GOOGLE_YOUTUBE_REDIRECT_URI` 환경변수 고정이라 영향 없음(확인). 다른 OAuth 프로그램은 미확인.
+- **다음부터 확인:** 도메인을 옮기기 전 ① `redirect_uri`가 고정인지 `request.nextUrl.origin` 추종인지 grep ② 옛 vercel.app 주소는 삭제하지 않고 새 주소만 추가 ③ 쿠키 domain은 buylife.xyz 호스트에서만 ④ 미들웨어 `sb-*` 일괄 만료 금지(위 2026-10-10 로그인 불가 사고). 전문: `docs/DOMAIN_SSO_POLICY.md`, `CLAUDE.md` 핵심 원칙 11번.
+
 ## 2026-10-10 — BLOG RLS와 GRANT를 함께 제한하고 검증용 작성자는 재사용한다 (v1.39)
 
 - **증상:** owner-only RLS만 적용하면 authenticated의 TRUNCATE/REFERENCES/TRIGGER가 남습니다. 검증용 작성자 추가는 `idx_blog_authors_user_id` 중복 오류로 실패했습니다.
