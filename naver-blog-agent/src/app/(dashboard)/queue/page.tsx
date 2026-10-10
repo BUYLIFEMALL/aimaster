@@ -1223,6 +1223,11 @@ export default function QueuePage() {
 
             {/* 모달 본문 (스크롤 영역) */}
             <div className="p-6 overflow-y-auto space-y-5 flex-1">
+              <NaverPublishSettings postId={viewingDetailPost.id} onBlockingChange={setPublishingBlocked} onSaved={tags => {
+                setPosts(prev => prev.map(p => p.id === viewingDetailPost.id ? { ...p, tags } : p));
+                setViewingDetailPost(prev => prev ? { ...prev, tags } : prev);
+              }} />
+
               {/* 대표 썸네일 */}
               {viewingDetailPost.images?.[0]?.url && (
                 <figure className="rounded-2xl overflow-hidden border border-neutral-200 bg-white shadow-xs">
@@ -1241,11 +1246,6 @@ export default function QueuePage() {
               <div className="p-6 rounded-2xl bg-neutral-50/70 border border-neutral-200 font-sans shadow-inner space-y-2">
                 {renderSmartArticle(viewingDetailPost.content, viewingDetailPost.images)}
               </div>
-
-              <NaverPublishSettings postId={viewingDetailPost.id} onBlockingChange={setPublishingBlocked} onSaved={tags => {
-                setPosts(prev => prev.map(p => p.id === viewingDetailPost.id ? { ...p, tags } : p));
-                setViewingDetailPost(prev => prev ? { ...prev, tags } : prev);
-              }} />
 
               {/* 태그 */}
               {viewingDetailPost.tags && viewingDetailPost.tags.length > 0 && (
