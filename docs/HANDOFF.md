@@ -1,35 +1,27 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-10 신규 프로그램 착수 & Phase 2 완료 — YouTube Viral Studio (골든 파인더 엔진) v1.02
+## 2026-10-10 YouTube Viral Studio (골든 파인더 엔진) v1.03 — 도메인 SSO & 로그인 연동 및 가격 플랜 표준화
 
-- **주인님 지시**: "1번컨셉으로 한단계씩 하나씩 진행하도록 하고 지금 조사한 내용은 작업리스트로 남겨서 앞으로 작업진행하면서 필요한 기능을 붙여나가도록 하자", "항상 작업 끝나면 커밋,푸시,배포까지 하고 작업링크와 함께 결과를 보고 해줘, 가급적 작업이 끝나면 직접 검수,테스트후 결과 보고해줘, 그리고 큰작업이 끝나고나면 작업내용과 핵심내용,주의사항 등을 남겨서 다른 cli가 작업을 이어나갈수 있도록 인수인계 문서화 해줘"
-- **작업 로드맵**: [`docs/YOUTUBE_AUTOMATION_ROADMAP.md`](YOUTUBE_AUTOMATION_ROADMAP.md) 작성 완료 (Phase 1~4 단계별 확장 스펙 정의).
-- **상세 인수인계 전용 문서**: [`docs/YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md`](YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md) 작성 완료.
-- **서브프로젝트 구축 (`youtube-viral-studio/`)**:
-  - 버전: `v1.02` (`src/lib/version.ts` 및 DB `programs.version`)
-  - 환경: Next.js 16.2.11 + React 19 + Tailwind CSS v4 + Supabase SSR
-  - 최상위 절대 불변 규칙: 회원 본인 YouTube Data API v3 키 및 AI 키(Gemini/OpenAI) 직접 등록 연동 (BYOK 완벽 준수, 타인/운영자 키 폴백 금지)
-  - 화이트 베이스 표준 사이드바 레이아웃 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 준수)
-- **Phase 1(발굴 엔진) & Phase 2(대본 AI 분석) 구현 완료 내역**:
-  1. `/viral-shorts`: 조회수 폭발 쇼츠 찾기 (소형 채널 1만/5만 이하 필터링, 기여도 정렬) + **[✨ AI 떡상 대본 분석] 원클릭 모달 연동 완료**
-  2. `/golden-channels`: 황금 채널 발굴기 (구독자 1만 이하 고효율 채널 발굴)
-  3. `/trending-videos`: 실시간 터진 영상 (쇼츠/롱폼 탭, VPH 랭킹)
-  4. `/source-finder`: 쇼츠 원본 찾기 (롱폼 텍스트 유사도 매칭 역추적)
-  5. `/favorites`: 즐겨찾기 보관함 (CSV 내보내기 지원)
-  6. `/settings`: YouTube Data API v3 키 + **Google Gemini / OpenAI API 키 등록 폼 추가**
-  7. `/guide`: 핵심 지표 해석 및 4단계 실전 워크플로우 FAQ
-  8. `transcript.ts`: YouTube 영상 자막(Subtitles) 실시간 파싱 엔진
-  9. `scriptAnalyzer.ts`: Gemini 2.0 Flash / GPT-4o-mini 기반 쇼츠 3단 구조(첫 3초 훅킹, 시청 지속력, 행동유도 CTA) 해체 및 카피캣 템플릿 생성
-- **로컬 빌드 검증**: `npm run build` 100% 정상 통과 (16개 라우트 오류 0건).
-- **운영 배포 및 직접 검증**:
-  - Vercel 프로덕션 배포 완료 (`https://youtube-viral-studio.vercel.app`)
-  - DB `programs` (FREE 배지) 및 `pricing_plans` 3단계 요금제 등록 완료
-  - **카탈로그 썸네일 생성 및 업로드 완료**: `gemini-3-pro-image-preview` 모델로 16:9 떡상 분석 테마 썸네일 자동 생성 후 Supabase Storage(`program-images`) 업로드 및 `programs.thumbnail_url` 반영 완료
-  - **AIMaster 메인 사이트 연동 확인**:
-    - 메인 홈페이지(`https://www.buylife.xyz`) 유튜브 섹션에 프로그램 및 썸네일 실시간 노출 확인
-    - 카탈로그(`https://www.buylife.xyz/programs`) 및 유튜브 카테고리(`https://www.buylife.xyz/programs/category/youtube`) 노출 확인
-    - 상세 페이지(`https://www.buylife.xyz/programs/youtube-viral-studio`) HTTP 200 정상 서빙 확인
-  - curl 라이브 307 리다이렉트 및 401 비인가 차단 보안 검증 통과
+- **작업 내용 (v1.03)**:
+  1. **커스텀 도메인 연동 & SSO 완성**:
+     - `vercel domains add youtube-viral-studio.buylife.xyz` 및 Cloudflare 와일드카드 CNAME/A 연동으로 `https://youtube-viral-studio.buylife.xyz` 라이브 개통.
+     - `cookieDomainForHost` 기반으로 `.buylife.xyz` 도메인 간 Supabase 세션 쿠키 공유.
+  2. **서브프로그램 자체 로그인 화면 구현**:
+     - `src/app/(auth)/login/page.tsx`, `signInAction()`, `signOutAction()` 구축.
+     - 로그인 후 원래 접근하려던 딥링크(`/viral-shorts` 등)로 안전하게 자동 복귀.
+  3. **메인 사이트 로그인 복귀 지원**:
+     - 메인 사이트 `LoginForm.tsx`에 `redirectTo`가 절대 URL인 경우 `window.location.href = redirectTo` 지원 추가 후 프로덕션 배포 완료 (`dpl_4pA8xPbCyujsb9eMKfW3roytXTp8`).
+  4. **가격 플랜 표준화 완료**:
+     - 플랫폼 기본 표준 요금제(1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원)로 `pricing_plans` 테이블 및 등록 스크립트 전면 동기화 완료.
+  5. **DB & 버전 동기화**:
+     - `programs.app_url` = `https://youtube-viral-studio.buylife.xyz`, `programs.version` = `v1.03`.
+- **배포 및 검증 결과**:
+  - `youtube-viral-studio` 프로덕션 배포 완료 (`dpl_3UvzX9GYYiMxsrtbKZPFCxoNa2DA`, READY).
+  - 메인 사이트 `aimaster` 프로덕션 배포 완료 (`dpl_4pA8xPbCyujsb9eMKfW3roytXTp8`, READY).
+  - curl 테스트: `https://youtube-viral-studio.buylife.xyz/viral-shorts` 비인가 시 `307 Location: /login?redirect=%2Fviral-shorts` 정상.
+  - curl 테스트: `https://youtube-viral-studio.buylife.xyz/login` 접근 시 `HTTP 200 OK` 정상.
+  - 관리자 편집 화면(`https://www.buylife.xyz/admin/programs/7d3895af-f1b8-4c24-9a62-cfebf7bd9676/edit`)에서 표준 플랜(1만/2만/3만) 노출 확인.
+- **상세 인수인계 전용 문서**: [`docs/YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md`](YOUTUBE_VIRAL_STUDIO_HANDOFF_2026-10-10.md) 최신화 완료.
 
 ## 2026-10-10 Codex — 네이버 에이전트 v1.69 실행/복구
 

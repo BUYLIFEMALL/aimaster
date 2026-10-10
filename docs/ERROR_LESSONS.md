@@ -1,5 +1,19 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-10 — 신규 서브프로그램 최초 상품등록 시 기본 가격 플랜은 플랫폼 표준(1만/2만/3만)을 준수해야 한다 (youtube-viral-studio v1.03)
+
+- **증상**: 신규 프로그램 등록 스크립트 작성 시 임의의 SaaS 가격대(29,000원 / 54,000원 / 75,000원)로 `pricing_plans`를 등록하여 관리자 화면 및 카탈로그에서 플랫폼 표준과 어긋남.
+- **원인**: 플랫폼 기본 표준 요금제는 `1개월: 10,000원, 2개월: 20,000원, 3개월: 30,000원`으로 확정되어 있으나(`components/admin/ProgramForm.tsx` DEFAULT_PLANS), 등록 스크립트 작성 시 이를 간과하고 임의 요금을 주입함.
+- **해결(위치)**: `scripts/update_pricing_plans.mjs`를 실행해 Supabase DB `pricing_plans`를 표준(1만/2만/3만)으로 즉시 업데이트하고, `scripts/register_youtube_viral_studio.mjs`의 등록 페이로드도 플랫폼 표준으로 수정함.
+- **다음부터 확인**: 새 프로그램 등록 시 `pricing_plans`는 반드시 플랫폼 표준인 `1개월 10,000원 / 2개월 20,000원 / 3개월 30,000원` 3단계 구성을 기본값으로 등록한다.
+
+## 2026-10-10 — 서브프로그램 쿠키 격리 및 자체 로그인 부재로 인한 로그인 불가 사고 (youtube-viral-studio v1.03)
+
+- **증상**: `youtube-viral-studio.vercel.app` 접속 시 로그인이 되지 않고 메인 사이트 로그인 후에도 서브프로그램으로 복귀되지 않음.
+- **원인**: ① 메인 도메인(`buylife.xyz`)에서 발급한 `.buylife.xyz` 세션 쿠키는 `vercel.app` 교차 도메인으로 브라우저가 전송하지 않음 ② 서브프로그램 자체에 `/login` 화면이 없어 메인 사이트로 튕겼으나, 메인에는 서브프로그램 경로가 없어 로그인 후 서브프로그램 복귀 불가 ③ 메인 사이트 `LoginForm.tsx`가 상대 경로만 처리하고 외부 절대 URL 리다이렉트를 처리하지 못함.
+- **해결(위치)**: ① Vercel 커스텀 도메인 `youtube-viral-studio.buylife.xyz` 연동으로 와일드카드 쿠키 공유 보장 ② 서브프로그램 자체 로그인 화면(`src/app/(auth)/login/page.tsx`) 및 프록시 미들웨어(`src/proxy.ts`) 구축 ③ 메인 사이트 `LoginForm.tsx`에 `redirectTo.startsWith("http")` 절대 URL 처리(`window.location.href`) 추가 및 프로덕션 재배포.
+- **다음부터 확인**: 새 서브프로그램 배포 시 ① 반드시 `<slug>.buylife.xyz` 커스텀 도메인을 먼저 연동 ② 서브프로그램 자체 로그인 화면과 프록시 미들웨어를 세트로 함께 구성한다.
+
 ## 2026-10-10 — 문서 반영 스크립트가 쓰기 모드로 먼저 열어 예외 시 docs/HANDOFF.md가 빈 파일로 잘렸다 (릴리스 도구, ai-auto-blog v1.59)
 
 - 증상: 릴리스 보조 스크립트가 HANDOFF 줄 삽입 중 오류(기준 문구 못 찾음)로 멈춘 뒤 `docs/HANDOFF.md`가 0바이트가 됐다(2181줄 삭제로 보임). 같은 스크립트를 부분 실패 뒤 다시 돌리면 `AGENTS.md`에도 같은 항목이 중복 추가될 수 있다.

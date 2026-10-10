@@ -73,8 +73,12 @@ export default function LoginPage() {
       // 세션 생성 실패해도 로그인은 진행
     }
 
-    router.push(redirectTo);
-    router.refresh();
+    if (redirectTo.startsWith("http://") || redirectTo.startsWith("https://")) {
+      window.location.href = redirectTo;
+    } else {
+      router.push(redirectTo);
+      router.refresh();
+    }
     setLoading(false);
   };
 

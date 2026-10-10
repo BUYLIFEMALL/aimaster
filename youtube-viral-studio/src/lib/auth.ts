@@ -11,8 +11,7 @@ export async function requireUser() {
 
   if (!user) {
     const currentPath = (await headers()).get("x-pathname") ?? "/viral-shorts";
-    const mainSiteUrl = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
-    redirect(`${mainSiteUrl}/login?redirect=${encodeURIComponent(currentPath)}`);
+    redirect(`/login?redirect=${encodeURIComponent(currentPath)}`);
   }
 
   return user;
