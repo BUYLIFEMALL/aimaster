@@ -50,7 +50,8 @@ async function blogEditorCommand(command, args = {}) {
       for (const el of components()) {
         if (el.matches(".se-text")) {
           const text = [...el.querySelectorAll(".se-text-paragraph")].map(readText).join("\n");
-          blocks.push({ type: "paragraph", text });
+          // 링크가 실제로 걸렸는지 엔진이 편집기 문서에서 직접 확인할 수 있게 문단 안의 링크 주소를 함께 돌려준다.
+          blocks.push({ type: "paragraph", text, links: [...el.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || "") });
         } else if (el.matches(".se-image") || el.matches("[data-comp-type='image']")) {
           blocks.push({ type: "image", text: "" });
         } else if (el.matches(".se-oglink")) {
@@ -133,11 +134,13 @@ async function blogEditorCommand(command, args = {}) {
       if (isTitle) container = document.querySelector(".se-title-text");
       else {
         const bodyCandidates = [...document.querySelectorAll(".se-text-paragraph")].filter((el) => !isTitleOwned(el) && !el.closest(".se-image, .se-component-image, .se-section-image, .se-module-image, .se-component-content-fit, .se-caption"));
-        // 이미지 뒤에 네이버가 만드는 빈 문단을 우선 — 이미지 설명칸에 입력되지 않게 한다.
+        // 마지막 이미지 뒤의 문단만 후보로 삼는다(이미지 설명칸에 입력되지 않게).
         const lastImage = [...document.querySelectorAll(".se-component.se-image, .se-section-image")].at(-1);
         const afterImage = lastImage ? bodyCandidates.filter((el) => Boolean(lastImage.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) : bodyCandidates;
         const pool = afterImage.length ? afterImage : bodyCandidates;
-        container = pool.find((el) => !(el.innerText || el.textContent || "").trim()) || pool.at(-1);
+        // **항상 문서의 맨 끝 문단**에 커서를 둔다. 예전에는 "처음 만나는 빈 문단"을 골랐는데, 본문의 문단 사이 빈 줄(\n\n)도 빈 문단이라
+        // 링크·다음 글이 이미 입력된 글 한가운데에 들어갔다(v1.45 실제 시험: 추천 링크가 본문 중간에 붙음). 이미지 뒤 새 빈 문단은 맨 끝이므로 그대로 선택된다.
+        container = pool.at(-1);
       }
       if (!container) return { ok: false, reason: isTitle ? "제목 입력 위치를 찾지 못했습니다." : "본문 입력 위치를 찾지 못했습니다." };
       container.scrollIntoView({ block: "center", inline: "nearest" });

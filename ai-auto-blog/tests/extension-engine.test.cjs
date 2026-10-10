@@ -15,6 +15,8 @@ function fakeEditor(options = {}) {
   let closed = false;
   let typeCalls = 0;
   let aliveCalls = 0;
+  let snapshots = 0;
+  let pendingPaste = null;
   const addBody = (text) => {
     const parts = String(text).split('\n');
     const last = doc.blocks[doc.blocks.length - 1];
@@ -27,7 +29,7 @@ function fakeEditor(options = {}) {
     doc, calls,
     async ensureAlive() { aliveCalls += 1; if (options.foreignAtAlive && aliveCalls === options.foreignAtAlive) doc.blocks.push({ type: 'paragraph', text: '외부에서 붙여넣은 문장' }); if (closed || (options.closeAfterCalls && calls.length >= options.closeAfterCalls)) throw new TaskError('TAB_CLOSED', 'closed'); },
     async prepareEditor(args) { calls.push('prepare'); if (options.prepareError) throw options.prepareError; options.onPrepare?.(args); },
-    async snapshot() { return JSON.parse(JSON.stringify(doc)); },
+    async snapshot() { snapshots += 1; if (pendingPaste && snapshots >= pendingPaste.at) { doc.blocks.push(pendingPaste.block); pendingPaste = null; } return JSON.parse(JSON.stringify(doc)); },
     async focusTitle() { calls.push('focusTitle'); cursor = 'title'; },
     async focusBody() { calls.push('focusBody'); cursor = 'body'; },
     async typeText(text, { onProgress, shouldStop }) {
@@ -43,11 +45,15 @@ function fakeEditor(options = {}) {
       if (options.foreignAfterType && typeCalls === options.foreignAfterType) doc.blocks.splice(0, 0, { type: 'paragraph', text: '다른 사람이 쓴 문장' });
       onProgress?.(value.length);
     },
-    async pasteLink(label) {
+    async pasteLink(label, url) {
       calls.push('paste');
       if (options.pasteMode === 'ignored') return { linked: false, inserted: false };
+      // 실제 시험(v1.44)에서 나온 상황: 붙여넣기는 편집기에 들어갔지만 붙여넣은 프레임의 개수는 변하지 않아 {linked:false, inserted:false}가 돌아온다.
+      if (options.pasteMode === 'invisible') { doc.blocks.push({ type: 'paragraph', text: label, links: [url] }); return { linked: false, inserted: false }; }
+      // 붙여넣기 반영이 몇 번의 문서 읽기 뒤에 늦게 나타나는 경우
+      if (options.pasteMode === 'delayed') { pendingPaste = { at: snapshots + 4, block: { type: 'paragraph', text: label, links: [url] } }; return { linked: false, inserted: false }; }
       if (options.pasteMode === 'multi') { for (let i = 0; i < 3; i += 1) doc.blocks.push({ type: 'paragraph', text: label }); return { linked: true, inserted: true }; }
-      doc.blocks.push({ type: 'paragraph', text: label });
+      doc.blocks.push({ type: 'paragraph', text: label, links: [url] });
       return { linked: true, inserted: true };
     },
     async uploadImage() {
@@ -231,4 +237,33 @@ test('imageFileName is unique per image and stable', () => {
 test('parseTagInput and recommended tags keep the shared rules', () => {
   assert.deepEqual(Core.parseTagInput('#a, b, a ,, c'), ['a', 'b', 'c']);
   assert.ok(Core.buildRecommendedTags({ topic: '', keywords: ['알래스카'], title: '', body: '' }).includes('알래스카'));
+});
+
+test('paste that worked but is invisible to the paste frame is not typed a second time (real v1.44 failure)', async () => {
+  const editor = fakeEditor({ pasteMode: 'invisible' });
+  const { result } = await run(editor);
+  assert.equal(result.linkedCount, 1, 'linked count comes from the editor document');
+  const labelCount = editor.doc.blocks.filter((b) => b.type === 'paragraph' && b.text.includes('추천링크 바로가기')).length;
+  assert.equal(labelCount, 1);
+  assert.ok(!editor.calls.some((c) => c.startsWith('type:👉') || c.includes('https://buylife.blog')), 'no fallback typing happened');
+});
+
+test('a paste that appears a little later is still recognised before any fallback typing', async () => {
+  const editor = fakeEditor({ pasteMode: 'delayed' });
+  const { result } = await run(editor);
+  assert.equal(result.linkedCount, 1);
+  assert.equal(editor.doc.blocks.filter((b) => b.type === 'paragraph' && b.text.includes('추천링크 바로가기')).length, 1);
+});
+
+test('ignored paste still falls back to typing exactly once', async () => {
+  const editor = fakeEditor({ pasteMode: 'ignored' });
+  await run(editor);
+  assert.equal(editor.doc.blocks.filter((b) => b.type === 'paragraph' && b.text.includes('https://buylife.blog')).length, 1);
+});
+
+test('countLinks reads linked hrefs from the editor document', () => {
+  const blocks = [{ type: 'paragraph', text: 'a', links: ['https://buylife.blog/'] }, { type: 'paragraph', text: 'b', links: ['https://other.example'] }, { type: 'image' }];
+  assert.equal(Core.countLinks(blocks, 'https://buylife.blog'), 1);
+  assert.equal(Core.countLinks(blocks, 'https://nothing.example'), 0);
+  assert.equal(Core.countLinks(undefined, 'x'), 0);
 });

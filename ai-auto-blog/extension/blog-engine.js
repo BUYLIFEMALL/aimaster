@@ -43,9 +43,9 @@
     const emit = (stage, message, extra) => progress(stage, message, extra);
 
     // 문서를 읽어 기대와 정확히 같아질 때까지 잠깐 기다린다(편집기가 입력을 반영하는 시간). 끝까지 다르면 마지막 차이를 돌려준다.
-    const settle = async (expected, { expectTitle = null, allowEmptyTitle = false } = {}) => {
+    const settle = async (expected, { expectTitle = null, allowEmptyTitle = false, tries = settleTries } = {}) => {
       let last = null;
-      for (let attempt = 0; attempt < settleTries; attempt += 1) {
+      for (let attempt = 0; attempt < tries; attempt += 1) {
         const snapshot = await adapter.snapshot();
         const units = Core.unitsFromSnapshot(snapshot.blocks);
         const body = Core.compareUnits(expected.units, units);
@@ -122,19 +122,25 @@
         await adapter.focusBody();
         if (previous === "text" || previous === "link") await type("\n\n");
         emit("typing", `링크를 넣는 중... (${block.text})`, { typedChars, totalChars });
-        const pasted = await adapter.pasteLink(block.text, block.url);
-        let insertedText = null;
-        if (pasted?.linked || pasted?.inserted) {
-          insertedText = block.text;
-          if (pasted.linked) linkedCount += 1;
+        // 붙여넣기가 됐는지는 붙여넣은 프레임의 개수가 아니라 **편집기 문서의 실제 상태**로 판단한다.
+        // (v1.44 실제 시험: 붙여넣기는 성공했는데 입력용 프레임에서는 변화가 안 보여 "무시됨"으로 오판하고 같은 링크를 글자로 한 번 더 넣었다.)
+        const linksBefore = Core.countLinks((await adapter.snapshot()).blocks, block.url);
+        await adapter.pasteLink(block.text, block.url);
+        const withPaste = expected.clone();
+        withPaste.addText(block.text);
+        const outcome = await settle(withPaste, { expectTitle: title, tries: settleTries * 2 });
+        if (outcome.ok) {
+          if (Core.countLinks(outcome.snapshot.blocks, block.url) > linksBefore) linkedCount += 1;
+          expected.addText(block.text);
         } else {
-          // 붙여넣기가 무시됐으면 예전처럼 글자로 입력한다(내용 손실 없음).
+          // 문서가 붙여넣기 전 그대로일 때만 "무시됨"으로 보고 글자로 입력한다. 그 밖의 차이(중복·섞임)는 중지한다.
+          const unchanged = await settle(expected, { expectTitle: title, tries: 2 });
+          if (!unchanged.ok) fail("LINK_MISMATCH", `링크 붙여넣기 결과가 예상과 다릅니다. ${outcome.body?.reason || ""} 같은 링크를 다시 넣지 않고 중지했습니다.`);
           await type(`${block.text}: ${block.url} `);
-          insertedText = `${block.text}: ${block.url}`;
+          expected.addText(`${block.text}: ${block.url}`);
+          const check = await settle(expected, { expectTitle: title });
+          if (!check.ok) fail("LINK_MISMATCH", `링크 입력 결과가 예상과 다릅니다. ${check.body?.reason || ""} 같은 링크를 다시 넣지 않고 중지했습니다.`);
         }
-        expected.addText(insertedText);
-        const check = await settle(expected, { expectTitle: title });
-        if (!check.ok) fail("LINK_MISMATCH", `링크 입력 결과가 예상과 다릅니다. ${check.body?.reason || ""} 같은 링크를 다시 넣지 않고 중지했습니다.`);
         previous = "link";
         continue;
       }

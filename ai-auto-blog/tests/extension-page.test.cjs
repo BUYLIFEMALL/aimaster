@@ -13,7 +13,7 @@ function run(command, args, screen) {
     body: { innerText: '' },
     activeElement: null,
   };
-  const sandbox = { document, getComputedStyle: () => ({ visibility: 'visible' }), location: { href: 'https://blog.naver.com/myblog/postwrite', hostname: 'blog.naver.com' }, URL, Promise, setTimeout, Math, String, Array, Object, Set, Boolean, console, module: undefined, MouseEvent: class {}, Node: { DOCUMENT_POSITION_FOLLOWING: 4 } };
+  const sandbox = { window: {}, document, getComputedStyle: () => ({ visibility: 'visible' }), location: { href: 'https://blog.naver.com/myblog/postwrite', hostname: 'blog.naver.com' }, URL, Promise, setTimeout, Math, String, Array, Object, Set, Boolean, console, module: undefined, MouseEvent: class {}, Node: { DOCUMENT_POSITION_FOLLOWING: 4 } };
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(path.resolve(__dirname, '..', 'extension/naver-page.js'), 'utf8'), sandbox);
   return sandbox.blogEditorCommand(command, args);
@@ -41,4 +41,37 @@ test('a hidden or title-less .se-popup-container does not block', async () => {
   const bare = (el) => el({ querySelector: () => null });
   const result = await run('focus', { kind: 'body' }, { '.se-popup-container': [hidden, bare] });
   assert.ok(!/팝업/.test(result.reason || ''), result.reason);
+});
+
+// ---- 본문 포커스 위치: 항상 문서의 맨 끝 문단 (v1.45 실제 시험에서 추천 링크가 본문 중간에 붙은 문제) ----
+function focusRun(paragraphs) {
+  const events = [];
+  const range = { selectNodeContents() {}, collapse() {} };
+  const selection = { removeAllRanges() {}, addRange() {} };
+  const ownerDocument = { createRange: () => range, getSelection: () => selection };
+  const make = (name, text) => ({
+    name, innerText: text, textContent: text, isContentEditable: true, ownerDocument,
+    getClientRects: () => [{}], getBoundingClientRect: () => ({ left: 0, top: 0, width: 300, height: 20 }),
+    matches: () => false, closest: () => null, querySelector: () => null, scrollIntoView() {}, focus() {},
+    dispatchEvent: (event) => { events.push([name, event.type]); return true; },
+  });
+  const list = paragraphs.map(([name, text]) => make(name, text));
+  const document = {
+    querySelectorAll: (selector) => (selector === '.se-text-paragraph' ? list : []),
+    querySelector: () => null, body: { innerText: '' }, activeElement: null,
+  };
+  const sandbox = { window: {}, document, getComputedStyle: () => ({ visibility: 'visible' }), location: { href: 'https://blog.naver.com/myblog/postwrite', hostname: 'blog.naver.com' }, URL, Promise, setTimeout, Math, String, Array, Object, Set, Boolean, console, module: undefined, MouseEvent: class { constructor(type) { this.type = type; } }, Node: { DOCUMENT_POSITION_FOLLOWING: 4 } };
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.resolve(__dirname, '..', 'extension/naver-page.js'), 'utf8'), sandbox);
+  return sandbox.blogEditorCommand('focus', { kind: 'body' }).then((result) => ({ result, clicked: [...new Set(events.filter(([, type]) => type === 'mousedown').map(([name]) => name))] }));
+}
+
+test('body focus goes to the last paragraph even when blank lines exist in the middle of the text', async () => {
+  const { result, clicked } = await focusRun([['p1', '첫 문단'], ['blank', ''], ['p2', '둘째 문단'], ['blank2', ''], ['last', '마지막 문단']]);
+  assert.equal(result.ok, true, JSON.stringify(result)); assert.deepEqual(clicked, ["last"]);
+});
+
+test('body focus uses the new empty paragraph at the very end (after an image)', async () => {
+  const { result, clicked } = await focusRun([['p1', '앞 문단'], ['blank', ''], ['newEmpty', '']]);
+  assert.equal(result.ok, true); assert.deepEqual(clicked, ['newEmpty']);
 });

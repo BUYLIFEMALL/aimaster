@@ -39,7 +39,25 @@
       },
       addImage() { units.push({ type: "image" }); },
       imageCount() { return units.filter((unit) => unit.type === "image").length; },
+      // 복사본: 붙여넣기처럼 "됐을 때 / 안 됐을 때" 두 경우를 나란히 비교할 때 쓴다.
+      clone() {
+        const copy = createExpected();
+        for (const unit of units) copy.units.push({ ...unit });
+        return copy;
+      },
     };
+  }
+
+  // 편집기 문서(snapshot.blocks)에서 이 주소로 걸린 링크 수. 붙여넣기가 실제 링크로 들어갔는지 화면 상태로 확인한다.
+  function countLinks(blocks, url) {
+    const target = String(url || "").replace(/\/$/, "");
+    let count = 0;
+    for (const block of Array.isArray(blocks) ? blocks : []) {
+      for (const href of Array.isArray(block.links) ? block.links : []) {
+        if (target && String(href).replace(/\/$/, "").startsWith(target)) count += 1;
+      }
+    }
+    return count;
   }
 
   function describeUnit(unit) {
@@ -152,7 +170,7 @@
     return `${context} 실패: ${message || "알 수 없는 오류"}`;
   }
 
-  const api = { normalize, unitsFromSnapshot, createExpected, compareUnits, titleMatches, imageFileName, buildRecommendedTags, parseTagInput, formatBrowserError };
+  const api = { normalize, unitsFromSnapshot, createExpected, countLinks, compareUnits, titleMatches, imageFileName, buildRecommendedTags, parseTagInput, formatBrowserError };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.BlogCore = api;
 })(typeof self !== "undefined" ? self : globalThis);
