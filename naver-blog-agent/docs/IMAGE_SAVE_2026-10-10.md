@@ -30,4 +30,8 @@
 
 ## 운영 기록
 
-운영 배포·DB/라이브 ZIP·인증·원고 지문 확인은 진행 중입니다. 확인 후 아래에 코드/운영 결과를 기록합니다.
+- 코드/인수인계 커밋 `66cafb7f` origin/master 푸시 완료, 에이전트만 해당 커밋의 격리 worktree에서 배포했습니다. 공용 HANDOFF/ERROR의 새 에이전트 내용은 동시에 작업하던 CLI의 공용 문서 커밋에 먼저 포함되어 그 내용을 유지하고 운영 결과만 보완합니다.
+- 프로덕션 `dpl_9gPCXZQLCLhX92ruovAdH5zj4orx` READY, https://naver-blog-agent.vercel.app . 로컬/운영 빌드·타입 통과. DB version/extension_version/기존 다운로드 URL 같은 SQL 갱신 완료. 스키마/환경변수/키 변경 없음.
+- 프로그램/DB/확장/라이브 ZIP v1.68 일치, 릴리스 실패0/경고0, ZIP200·전체14파일 릴리스 커밋과 줄바꿈 정규화 후 일치, 버전 API200.
+- 로그인200·비로그인 검수GET/POST401+no-store·finish401+no-store·task/posts PUT/generate/generate-image401 확인. 유료 생성 호출이나 로그인 우회 없음.
+- 기존 원고2건의 draft/failed 상태·본문/이미지 지문 배포 전후 동일. 실제 새 네이버/유료 이미지 E2E와 PC v1.68 ZIP 적용은 미실행이며 자동 검사/배포 확인과 구분합니다.
