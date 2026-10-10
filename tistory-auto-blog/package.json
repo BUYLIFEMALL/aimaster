@@ -10,6 +10,7 @@
     "lint": "eslint",
     "build:extension": "node scripts/build-extension-archive.mjs",
     "test:update-banner": "node --test tests/update-banner.test.mjs",
+    "test:extension-api": "node --test tests/extension-api.test.cjs",
     "sync:program-version": "node scripts/sync-program-version.mjs"
   },
   "dependencies": {

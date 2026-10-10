@@ -2,6 +2,15 @@
 
 > **작업 시작 전 필독:** [운영·개발 인수인계 및 검수 체크포인트](docs/OPERATIONS_HANDOFF.md)를 먼저 읽는다. 실제 장애 원인, 금지된 우회 방식, 부분 입력 시 조치, 배포 전 검수 순서가 정리되어 있다.
 
+## v1.57 (2026-10-10) — 자동 입력 큐: 보내면 확장이 가져가는 서버 (BLOG 방식 이식 1/4, DB 칸 3개 추가 승인)
+
+- **방향(주인님 지시)**: 티스토리도 `ai-auto-blog`와 같은 방식으로 — 웹에서 최종 글을 완성해 "티스토리 입력기로 보내기"를 누르면 확장이 알아서 티스토리 새 글에 발행 전 단계까지 입력한다(최종 저장·발행은 회원이 직접). 이 버전은 **서버 쪽 1단계**다. 확장 작업기 이전(v1.58)·알림과 사이드패널 정리(v1.59)·웹에서 발행 설정 선택(v1.60)이 이어진다. 비교 근거와 BLOG 쪽 설계는 `../docs/BLOG_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md`.
+- **DB(승인 후 MCP로 운영 적용, 파일 `supabase/migrations/0002_tistory_run_lease_and_publish.sql`)**: `tistory_posts.tistory_run_id uuid`(실행 번호), `tistory_lease_expires_at timestamptz`(임대 만료), `tistory_publish jsonb`(글별 발행 설정). 기존 행은 모두 null(옛 규칙·기본 발행 설정). RLS·권한 변경 없음.
+- **서버**(`ai-auto-blog` v1.40~v1.43 코드를 `tistory_*` 칸 이름으로 옮김): `utils/extensionTask.ts`(30분 자동 시작 창·3분 임대·허용 상태 이동표), `utils/privateResponse.ts`, `POST /api/extension/task`(대기 글 1건을 가져가며 실행 번호·임대 생성, 응답에 `publish` 포함), `POST /api/extension/posts/[id]/heartbeat`(임대 연장, 대체된 실행은 409), `input-result` 강화(실행 번호 검사·상태 이동 검사·멱등·`success/persisted/status` 명시·DB 오류 503), `POST /api/posts/[id]/extension-handoff`(살아 있는 실행 보호 409, 다시 보내면 실행 번호·임대 초기화, 본문 `publish`가 있으면 저장, 응답에 `ok`·`autoStartMinutes`).
+- **발행 설정**(`utils/tistoryPublish.ts`): `{category, visibility(public|private), comment(allow|deny), topic, timing(now|reserve), reserveDate, reserveTime}`. 예약은 한국 시간 기준으로 "지금보다 뒤"여야 하며 즉시 발행이면 예약 값을 비운다. **보호글(비밀번호)은 자동 입력에서 지원하지 않는다(주인님 결정 — 비밀번호를 DB에 두지 않음).** 저장된 값이 깨졌거나 보호로 되어 있으면 읽을 때 공개로, 지난 예약은 현재 발행으로 낮춘다. 값이 없으면 기본(카테고리 없음·공개·댓글 허용·홈주제 없음·현재 발행).
+- **옛 확장(v1.56 이하) 호환**: `GET /api/extension/posts`와 실행 번호 없는 `input-result` 보고는 예전처럼 동작한다(허용된 상태 이동만 검사). 새 큐는 v1.58 확장부터 쓴다 — 그 전까지는 사용자 화면·확장 동작이 바뀌지 않는다.
+- **시험**: `npm run test:extension-api` 33개(가져가기 경쟁·오래된/진행 중/타인 글 제외·임대·늦은 보고 409·멱등·하트비트·보내기 보호·발행 설정 저장/검증/보호글 거절/예약 검증·옛 확장 호환), `npx tsc --noEmit`, `npm run build`.
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.
