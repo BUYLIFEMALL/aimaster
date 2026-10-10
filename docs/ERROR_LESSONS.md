@@ -1,5 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-10 — "보내기"가 성공해도 화면은 실패로 표시: 응답 필드 이름 불일치 / 결과 보고는 DB 반영을 확인한 뒤 성공 응답 (ai-auto-blog v1.40)
+
+- **증상:** BLOG 글쓰기 화면(`app/write/ai-form`)의 "네이버 입력기 전송"이 서버에서는 성공했는데 화면에는 항상 "크롬 확장 전달에 실패했습니다"가 떴다. 입력 결과 보고 API는 DB 오류·0행이어도 성공 응답을 줄 수 있고, 확장은 보고 실패를 `.catch(()=>{})`로 버렸다.
+- **원인:** 화면은 `data.ok`를 확인하는데 API는 `{ success: true }`만 돌려줬다. 결과 보고는 update의 error·반영 행을 확인하지 않았다.
+- **해결(위치):** `ai-auto-blog/app/api/posts/[id]/extension-handoff/route.ts`는 `ok`와 `success`를 모두 돌려준다. `app/api/extension/posts/[id]/input-result/route.ts`는 DB 오류 503·타인/없음 404·허용 안 되는 상태 이동 409·같은 결과 재보고 멱등·`success/persisted/status` 확인 응답. 테스트 `ai-auto-blog/tests/extension-api.test.cjs`.
+- **다음부터 확인:** 화면과 API가 쓰는 응답 필드 이름이 같은지 실제 호출로 확인한다. 쓰기 API는 `error`와 "실제로 바뀐 행 수"를 모두 확인한 뒤에만 성공을 돌려주고, 클라이언트는 그 확인 응답이 올 때까지 로컬 결과를 지우지 않는다. 늦게 도착한 옛 보고가 새 상태를 덮어쓰지 못하게 "이전 상태" 조건을 둔다.
+
+
 ## 2026-10-10 — HTTP 성공으로 DB 저장 성공을 판정하면 확정 결과가 유실 (naver-blog-agent v1.64)
 
 - **증상:** 기존 finish route는 Supabase가 update error를 반환하거나 반영된 원고가 없어도 HTTP200 success:true. 확장이 실제 발행 결과를 지울 수 있었습니다.

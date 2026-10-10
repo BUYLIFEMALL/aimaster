@@ -1,0 +1,208 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const ts = require('typescript');
+
+// 실제 route 코드를 격리된 메모리 DB로 실행한다. 운영 DB·유료 API 호출 없음.
+const MINUTE = 60 * 1000;
+const iso = (msAgo) => new Date(Date.now() - msAgo).toISOString();
+
+function loadTs(file, mockRequire, sandbox = {}) {
+  const source = fs.readFileSync(path.resolve(__dirname, '..', file), 'utf8');
+  const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+  const module = { exports: {} };
+  vm.runInNewContext(output, { exports: module.exports, module, console: { error() {} }, require: mockRequire, Headers, Date, Promise, ...sandbox });
+  return module.exports;
+}
+
+function harness(route, { user = { userId: 'member-a', email: 'a@test', name: 'A' }, posts, failOn = null, throwOn = null, beforeWrite = null, access = { allowed: true } } = {}) {
+  const rows = { blog_posts: posts ?? [] };
+  const calls = { reads: 0, writes: [] };
+  const client = {
+    from(table) {
+      const filters = [];
+      let op = 'select', values = null, limitN = null, orderBy = null;
+      const q = {
+        select() { return q; },
+        eq(key, value) { filters.push((row) => row[key] === value); return q; },
+        is(key, value) { filters.push((row) => (row[key] ?? null) === value); return q; },
+        gte(key, value) { filters.push((row) => row[key] != null && row[key] >= value); return q; },
+        not(key, operator, value) { assert.equal(operator, 'is'); filters.push((row) => (row[key] ?? null) !== value); return q; },
+        order(key, { ascending }) { orderBy = [key, ascending]; return q; },
+        limit(n) { limitN = n; return q; },
+        update(data) { op = 'update'; values = data; return q; },
+        maybeSingle() { return finish(true); },
+        then(resolve, reject) { return finish(false).then(resolve, reject); },
+      };
+      async function finish(single) {
+        if (throwOn === op) throw new Error('SECRET_THROWN_DETAIL');
+        if (failOn === op) return { data: null, error: { message: 'SECRET_DATABASE_DETAIL' } };
+        let matched = rows[table].filter((row) => filters.every((fn) => fn(row)));
+        if (orderBy) matched = [...matched].sort((a, b) => (a[orderBy[0]] < b[orderBy[0]] ? -1 : 1) * (orderBy[1] ? 1 : -1));
+        if (limitN != null) matched = matched.slice(0, limitN);
+        if (op === 'update') {
+          beforeWrite?.(rows);
+          matched = rows[table].filter((row) => filters.every((fn) => fn(row))).slice(0, limitN ?? Infinity);
+          matched.forEach((row) => Object.assign(row, values));
+          calls.writes.push({ table, values, matched: matched.length });
+        } else calls.reads += 1;
+        const picked = matched.map((row) => ({ ...row }));
+        return { data: single ? picked[0] ?? null : picked, error: null };
+      }
+      return q;
+    },
+  };
+  const privateModule = loadTs('utils/privateResponse.ts', (name) => {
+    if (name === 'next/server') return { NextResponse: { json: (body, init) => Response.json(body, init) } };
+    throw Error(`Unexpected import: ${name}`);
+  });
+  const taskModule = loadTs('utils/extensionTask.ts', () => { throw Error('no imports expected'); });
+  const mockRequire = (name) => {
+    if (name === 'next/server') return { NextResponse: { json: (body, init) => Response.json(body, init) } };
+    if (name.endsWith('/extensionAuth')) return { verifyExtensionToken: async () => user };
+    if (name.endsWith('/supabase/admin')) return { createAdminClient: () => client };
+    if (name.endsWith('/extensionContent')) return { htmlToInputBlocks: (html) => ({ blocks: [{ type: 'text', text: String(html) }], tags: ['태그'] }) };
+    if (name.endsWith('/extensionTask')) return taskModule;
+    if (name.endsWith('/privateResponse')) return privateModule;
+    if (name.endsWith('/access')) return { checkProgramAccessApi: async () => (access.allowed ? { allowed: true, user: { id: 'member-a' } } : access) };
+    throw Error(`Unexpected import: ${name}`);
+  };
+  return { handlers: loadTs(route, mockRequire), rows, calls };
+}
+
+const taskRoute = 'app/api/extension/task/route.ts';
+const resultRoute = 'app/api/extension/posts/[id]/input-result/route.ts';
+const handoffRoute = 'app/api/posts/[id]/extension-handoff/route.ts';
+const post = (extra = {}) => ({ id: 1, user_id: 'member-a', title: 'T', content: 'C', extension_handoff_at: iso(2 * MINUTE), naver_input_status: null, naver_input_completed_at: null, naver_input_error: null, ...extra });
+const req = (body) => new Request('https://test.invalid/api', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}) });
+const ctx = (id) => ({ params: Promise.resolve({ id: String(id) }) });
+
+// ---------- 작업 가져가기 ----------
+test('task: invalid token never opens the database', async () => {
+  const h = harness(taskRoute, { user: null, posts: [post()] });
+  const r = await h.handlers.POST(req());
+  assert.equal(r.status, 401); assert.equal(h.calls.reads + h.calls.writes.length, 0);
+});
+test('task: claims a fresh handed-off post, marks it in_progress and returns blocks', async () => {
+  const h = harness(taskRoute, { posts: [post()] });
+  const r = await h.handlers.POST(req()); const body = await r.json();
+  assert.equal(r.status, 200); assert.equal(body.task.id, 1); assert.equal(body.task.blocks.length, 1); assert.deepEqual(body.task.tags, ['태그']);
+  assert.equal(h.rows.blog_posts[0].naver_input_status, 'in_progress');
+  assert.equal(r.headers.get('Cache-Control'), 'private, no-store, max-age=0');
+});
+test('task: takes the oldest waiting post first', async () => {
+  const h = harness(taskRoute, { posts: [post({ id: 1, extension_handoff_at: iso(1 * MINUTE) }), post({ id: 2, extension_handoff_at: iso(9 * MINUTE) })] });
+  assert.equal((await (await h.handlers.POST(req())).json()).task.id, 2);
+});
+test('task: never auto-starts old, running, finished or foreign posts', async () => {
+  const h = harness(taskRoute, { posts: [
+    post({ id: 1, extension_handoff_at: iso(31 * MINUTE) }),
+    post({ id: 2, naver_input_status: 'in_progress' }),
+    post({ id: 3, naver_input_status: 'publish_ready' }),
+    post({ id: 4, naver_input_status: 'failed' }),
+    post({ id: 5, user_id: 'member-b' }),
+    post({ id: 6, extension_handoff_at: null }),
+  ] });
+  const body = await (await h.handlers.POST(req())).json();
+  assert.equal(body.task, null); assert.equal(h.calls.writes.length, 0);
+});
+test('task: two extensions cannot claim the same post', async () => {
+  const h = harness(taskRoute, { posts: [post()] });
+  const [a, b] = await Promise.all([h.handlers.POST(req()), h.handlers.POST(req())]);
+  const tasks = [(await a.json()).task, (await b.json()).task].filter(Boolean);
+  assert.equal(tasks.length, 1);
+});
+test('task: losing the claim race returns no task instead of a duplicate', async () => {
+  const h = harness(taskRoute, { posts: [post()], beforeWrite: (rows) => { rows.blog_posts[0].naver_input_status = 'in_progress'; } });
+  const body = await (await h.handlers.POST(req())).json();
+  assert.equal(body.task, null);
+});
+test('task: database failure is 503 and hides details', async () => {
+  for (const failOn of ['select', 'update']) {
+    const h = harness(taskRoute, { posts: [post()], failOn });
+    const r = await h.handlers.POST(req()); const text = await r.text();
+    assert.equal(r.status, 503); assert.ok(!text.includes('SECRET'));
+  }
+});
+test('task: thrown error is 503 and hides details', async () => {
+  const h = harness(taskRoute, { posts: [post()], throwOn: 'select' });
+  const r = await h.handlers.POST(req()); assert.equal(r.status, 503); assert.ok(!(await r.text()).includes('SECRET'));
+});
+
+// ---------- 입력 결과 보고 ----------
+test('input-result: invalid ids and statuses are rejected before the database', async () => {
+  for (const id of ['0', '-1', '1.5', 'abc']) {
+    const h = harness(resultRoute, { posts: [post({ naver_input_status: 'in_progress' })] });
+    assert.equal((await h.handlers.POST(req({ status: 'completed' }), ctx(id))).status, 400); assert.equal(h.calls.reads, 0);
+  }
+  const h = harness(resultRoute, { posts: [post()] });
+  assert.equal((await h.handlers.POST(req({ status: 'published' }), ctx(1))).status, 400);
+});
+test('input-result: DB read error, write error and exception are never reported as success', async () => {
+  for (const [failOn, throwOn] of [['select', null], ['update', null], [null, 'select'], [null, 'update']]) {
+    const h = harness(resultRoute, { posts: [post({ naver_input_status: 'in_progress' })], failOn, throwOn });
+    const r = await h.handlers.POST(req({ status: 'completed' }), ctx(1)); const text = await r.text();
+    assert.equal(r.status, 503, `${failOn}/${throwOn}`); assert.ok(!text.includes('SECRET')); assert.ok(!text.includes('"success":true'));
+    assert.equal(h.rows.blog_posts[0].naver_input_status, 'in_progress');
+  }
+});
+test('input-result: foreign or never-sent posts are 404 without mutation', async () => {
+  for (const extra of [{ user_id: 'member-b' }, { extension_handoff_at: null }]) {
+    const h = harness(resultRoute, { posts: [post({ naver_input_status: 'in_progress', ...extra })] });
+    assert.equal((await h.handlers.POST(req({ status: 'completed' }), ctx(1))).status, 404); assert.equal(h.calls.writes.length, 0);
+  }
+});
+test('input-result: a late report cannot overwrite a re-sent post (409)', async () => {
+  const h = harness(resultRoute, { posts: [post({ naver_input_status: null })] });
+  const r = await h.handlers.POST(req({ status: 'completed' }), ctx(1));
+  assert.equal(r.status, 409); assert.equal(h.rows.blog_posts[0].naver_input_status, null);
+});
+test('input-result: status changing between read and write is not overwritten (409)', async () => {
+  const h = harness(resultRoute, { posts: [post({ naver_input_status: 'in_progress' })], beforeWrite: (rows) => { rows.blog_posts[0].naver_input_status = null; } });
+  const r = await h.handlers.POST(req({ status: 'completed' }), ctx(1));
+  assert.equal(r.status, 409); assert.equal(h.rows.blog_posts[0].naver_input_status, null);
+});
+test('input-result: normal flow in_progress -> completed -> publish_ready with explicit acknowledgement', async () => {
+  const h = harness(resultRoute, { posts: [post({ naver_input_status: 'in_progress' })] });
+  for (const status of ['completed', 'publish_ready']) {
+    const r = await h.handlers.POST(req({ status }), ctx(1)); const body = await r.json();
+    assert.equal(r.status, 200); assert.equal(body.success, true); assert.equal(body.persisted, true); assert.equal(body.status, status); assert.equal(body.postId, 1);
+  }
+  assert.equal(h.rows.blog_posts[0].naver_input_status, 'publish_ready'); assert.ok(h.rows.blog_posts[0].naver_input_completed_at);
+});
+test('input-result: repeating the same result is idempotent and keeps the first timestamp', async () => {
+  const h = harness(resultRoute, { posts: [post({ naver_input_status: 'completed', naver_input_completed_at: '2026-10-10T00:00:00.000Z' })] });
+  const body = await (await h.handlers.POST(req({ status: 'completed' }), ctx(1))).json();
+  assert.equal(body.persisted, true); assert.equal(body.unchanged, true);
+  assert.equal(h.rows.blog_posts[0].naver_input_completed_at, '2026-10-10T00:00:00.000Z'); assert.equal(h.calls.writes.length, 0);
+});
+test('input-result: failure stores a trimmed error; success clears it; manual restart from failed is allowed', async () => {
+  const h = harness(resultRoute, { posts: [post({ naver_input_status: 'in_progress' })] });
+  await h.handlers.POST(req({ status: 'failed', error: 'x'.repeat(900) }), ctx(1));
+  assert.equal(h.rows.blog_posts[0].naver_input_error.length, 500);
+  assert.equal((await h.handlers.POST(req({ status: 'in_progress' }), ctx(1))).status, 200);
+  assert.equal(h.rows.blog_posts[0].naver_input_error, null);
+});
+
+// ---------- 보내기 ----------
+test('handoff: running post is not overwritten, stale running post can be re-sent', async () => {
+  const running = harness(handoffRoute, { posts: [post({ naver_input_status: 'in_progress', extension_handoff_at: iso(10 * MINUTE) })] });
+  assert.equal((await running.handlers.POST(req(), ctx(1))).status, 409); assert.equal(running.calls.writes.length, 0);
+  const stale = harness(handoffRoute, { posts: [post({ naver_input_status: 'in_progress', extension_handoff_at: iso(200 * MINUTE) })] });
+  const r = await stale.handlers.POST(req(), ctx(1)); const body = await r.json();
+  assert.equal(r.status, 200); assert.equal(body.ok, true); assert.equal(body.success, true); assert.equal(stale.rows.blog_posts[0].naver_input_status, null);
+});
+test('handoff: only the owner can send and a send makes the post waiting for auto start', async () => {
+  const foreign = harness(handoffRoute, { posts: [post({ user_id: 'member-b' })] });
+  assert.equal((await foreign.handlers.POST(req(), ctx(1))).status, 403); assert.equal(foreign.calls.writes.length, 0);
+  const own = harness(handoffRoute, { posts: [post({ naver_input_status: 'publish_ready', extension_handoff_at: iso(5 * 60 * MINUTE) })] });
+  const body = await (await own.handlers.POST(req(), ctx(1))).json();
+  assert.equal(body.autoStartMinutes, 30); assert.equal(own.rows.blog_posts[0].naver_input_status, null);
+  assert.ok(Date.now() - new Date(own.rows.blog_posts[0].extension_handoff_at).getTime() < 5000);
+});
+test('handoff: access denied never opens the database', async () => {
+  const h = harness(handoffRoute, { posts: [post()], access: { allowed: false, status: 403, error: 'Denied' } });
+  assert.equal((await h.handlers.POST(req(), ctx(1))).status, 403); assert.equal(h.calls.reads + h.calls.writes.length, 0);
+});

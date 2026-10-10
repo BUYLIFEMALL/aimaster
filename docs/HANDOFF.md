@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## BLOG(원문)생성 자동화 개선 — 클로드 담당 (ai-auto-blog v1.40, 2026-10-10)
+
+- 목표: 웹에서 최종 검수한 글을 "네이버 입력기로 보내기"만 하면 확장이 발행 직전(제목·본문·이미지·카테고리·태그)까지 자동 진행. **최종 발행 클릭은 자동화하지 않음(회원이 직접).** 계획: v1.40 서버 → v1.41 확장 작업기(background worker·대상 블로그/빈 편집기 확인·정확한 문서 비교·단일 프레임·결과 선보관 재보고) → v1.42 생성(동적 연도·글자수 단위·뉴스 지표). 상세·진행: `ai-auto-blog/AGENTS.md`(2026-10-10 v1.40 항목), [Codex 인수인계](BLOG_AUTOMATION_HANDOFF_2026-10-10.md).
+- v1.40(서버): 자동 입력 대기 규칙(보낸 뒤 30분 이내·상태 비어 있음, 스키마 변경 없음), `POST /api/extension/task`(경쟁 없는 가져가기), 입력 결과 보고 DB 오류 503·늦은 보고 409·멱등 재보고·성공 ACK(`success/persisted/status`), 입력 중 글 재전송 차단, `write/ai-form` 보내기가 성공해도 실패로 표시되던 버그(`data.ok`) 수정. `npm run test:extension-api` 19개 + 보안 39개 + 빌드 통과. 자동 시작은 v1.41 확장부터(ZIP 재설치 필요).
+
 ## 에이전트 우선 개선·BLOG 클로드 담당 (2026-10-10, v1.64)
 
 - 주인님 지시: 에이전트는 Codex가 기능 단위로 순차 개선, BLOG는 클로드 담당. **Codex는 `ai-auto-blog/` 코드·프로젝트 문서를 수정하지 않습니다.** [클로드용 BLOG 인수인계](BLOG_AUTOMATION_HANDOFF_2026-10-10.md), [에이전트 개선 순서·검수·제한](../naver-blog-agent/docs/AUTOMATION_IMPROVEMENT_PLAN_2026-10-10.md).

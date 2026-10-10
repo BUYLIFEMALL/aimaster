@@ -567,7 +567,7 @@ function AiFormPageInner() {
       if (!res.ok || !data.ok) {
         throw new Error(data.error || '크롬 확장 전달에 실패했습니다.')
       }
-      setHandoffStatus('🧩 네이버 입력기 등록 완료! 네이버 블로그 스마트에디터 ONE 창에서 [글 입력 시작]을 눌러주세요.')
+      setHandoffStatus(`🧩 네이버 입력기로 보냈습니다. 확장 프로그램이 연결돼 있으면 ${data.autoStartMinutes ?? 30}분 안에 네이버 글쓰기 화면을 새로 열어 자동으로 입력합니다. (마지막 발행은 직접 누르세요.)`)
     } catch (err: any) {
       setHandoffStatus(`⚠️ 전달 오류: ${err.message}`)
     } finally {

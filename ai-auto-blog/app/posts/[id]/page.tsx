@@ -494,7 +494,10 @@ export default function PostDetailPage() {
                       const json = await res.json().catch(() => ({}))
                       if (!res.ok) throw new Error(json.error || '네이버 입력기로 보내기에 실패했습니다.')
                       setHandoffState('sent')
-                      alert('BLOG 크롬 확장 목록에 올렸습니다.\n네이버 블로그 글쓰기 화면을 열고 확장 프로그램에서 이 글을 선택해 입력하세요.\n(확장 설치·연결은 설정 페이지에서 할 수 있습니다.)')
+                      alert(`네이버 입력기로 보냈습니다.
+확장 프로그램이 연결돼 있으면 ${json.autoStartMinutes ?? 30}분 안에 네이버 글쓰기 화면을 새로 열어 자동으로 입력을 시작합니다. (마지막 발행은 직접 누르세요.)
+자동으로 시작되지 않으면 확장 사이드패널에서 이 글을 선택해 시작할 수 있습니다.
+(확장 설치·연결은 설정 페이지에서 할 수 있습니다.)`)
                     } catch (err: any) {
                       setHandoffState('idle')
                       alert(err?.message || '네이버 입력기로 보내기에 실패했습니다.')

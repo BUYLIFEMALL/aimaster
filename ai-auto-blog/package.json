@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "build:extension": "node scripts/build-extension-archive.mjs",
-    "test:security": "node --test tests/security.test.cjs"
+    "test:security": "node --test tests/security.test.cjs",
+    "test:extension-api": "node --test tests/extension-api.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
