@@ -3,7 +3,7 @@
 크롬 확장프로그램과 5단계 멀티 AI 에이전트로 네이버 블로그 글 기획·작성·윤문·발행을 지원하는 프로그램입니다. 네이버 보안 차단 여부와 실제 발행 성공은 환경별 검수가 필요하며 보장하지 않습니다.
 
 - **공식 개발 방식**: [AI 에이전트 기반 자율 개발·검수·배포](../docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) — 공통 메인 지침·다른 CLI 인수인계 양식
-- **현재 버전**: 코드 `v1.64` (운영 동기화 결과는 최신 개선 문서 확인)
+- **현재 버전**: `v1.64` (코드·DB·확장·라이브 ZIP 일치)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **아키텍처**: Next.js 16 (Turbopack, App Router) + Supabase + Chrome Extension (Manifest V3)
 - **인수인계 문서**: [`AGENTS.md`](./AGENTS.md) 및 [`docs/CONTINUATION.md`](./docs/CONTINUATION.md)
