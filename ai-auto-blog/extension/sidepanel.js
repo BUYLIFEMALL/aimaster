@@ -126,8 +126,6 @@ function formatPostLabel(post) {
 
 function resetActive() {
   active = null;
-  $("tagSuggestion").hidden = true;
-  $("tagSuggestionList").textContent = "";
   $("postPreview").close();
   $("postPreviewContent").textContent = "";
 }
@@ -183,10 +181,6 @@ async function loadSelectedPost() {
   }
   active = { id: post.id, title: post.title || "", blocks, tags: Array.isArray(post.tags) ? post.tags : [] };
   renderPreview();
-  if (active.tags.length) {
-    $("tagSuggestion").hidden = false;
-    $("tagSuggestionList").textContent = active.tags.map((tag) => `#${tag}`).join(" ");
-  }
   const textLength = blocks.reduce((sum, block) => sum + (block.type === "text" ? block.text.length : 0), 0) + active.title.length;
   const images = blocks.filter((block) => block.type === "image").length;
   const minutes = Math.max(1, Math.round((textLength * 130) / 60000));
@@ -277,12 +271,6 @@ $("closePreview").addEventListener("click", () => $("postPreview").close());
 $("closePreviewFooter").addEventListener("click", () => $("postPreview").close());
 
 // ---- 카테고리·태그 ----
-$("applyTags").addEventListener("click", () => {
-  if (!active?.tags.length) return;
-  $("publishTags").value = active.tags.join(", ");
-  $("postStatus").textContent = "글의 해시태그를 태그 칸에 넣었습니다. 필요하면 고친 뒤 저장하세요.";
-});
-
 $("extractRecommendedTags").addEventListener("click", () => {
   if (!active) { $("publishStatus").textContent = "먼저 보낸 글을 선택해 본문을 불러오세요."; return; }
   const tags = Core.buildRecommendedTags({ topic: "", keywords: active.tags, title: active.title, body: active.blocks.filter((block) => block.type === "text").map((block) => block.text).join("\n") });

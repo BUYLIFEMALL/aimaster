@@ -560,3 +560,8 @@ SEO 스튜디오 확장 v1.59(Codex, 커밋 `3a6c6ea`)의 코드를 **그대로*
 - 서버: `verifyExtensionToken`(`utils/extensionAuth.ts`)이 `profiles.is_admin`을 함께 읽어 `isAdmin`(true일 때만 true)을 돌려주고, `GET /api/extension/whoami` 응답에 `isAdmin`을 넣는다. **화면 표시용 값이며 서버 API 권한 판정에는 쓰지 않는다**(구조 분석은 회원 본인 PC에서 본인 네이버 화면만 읽는 읽기 전용 도구).
 - 확장: `sidepanel.html` 구조 분석 카드를 기본 숨김(`hidden`, "관리자" 배지), `sidepanel.js`가 연결 확인(`renderStatus`·연결 버튼) 결과의 `isAdmin`으로 표시를 결정. 연결 안 됨·오프라인·일반 회원이면 숨김.
 - 시험: `tests/extension-api.test.cjs` 34개(whoami가 관리자 여부를 돌려줌, 토큰 검증이 `is_admin`을 읽고 true가 아니면 일반 회원 처리). `test:extension` 67개, 보안 39, 생성 7, 빌드.
+
+## 2026-10-10 v1.51 — 확장 "글의 해시태그 → 태그로 적용" 버튼 제거 (주인님 지시, 정리 2/6)
+
+- 태그 칸을 비워 두면 자동 입력이 글 끝의 해시태그를 그대로 쓰도록 바뀌어(v1.41) 이 버튼과 역할이 겹쳐 제거했다. 해시태그를 그대로 쓰려면 "카테고리·태그 설정"의 태그 칸을 비워 두면 된다. "추천테그 추출"·"카테고리·태그 저장"·"카테고리·태그 다시 입력"은 그대로다.
+- 코드: `extension/sidepanel.html`(해시태그 안내 상자와 버튼), `sidepanel.js`(표시·적용 처리). 서버 변경 없음. 시험: `test:extension` 67개, 사이드패널이 참조하는 요소 ID가 HTML에 모두 있는지 확인.
