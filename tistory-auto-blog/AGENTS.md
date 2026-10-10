@@ -63,6 +63,15 @@
 - 시험: `test:extension-api` 36개(whoami가 관리자 여부를 돌려줌, 토큰 검증이 `is_admin`을 읽고 true가 아니면 일반 회원 처리). 확장 63개 유지.
 - 확인 방법: `buylifemall@gmail.com`(관리자) 토큰으로 연결하면 카드가 보이고, `buylifemall@naver.com`(일반 회원) 토큰으로 연결하면 보이지 않는다. ZIP 덮어쓰기 후 `chrome://extensions` 새로고침 필요.
 
+## v1.64 (2026-10-10) — 티스토리 발행 글이 BLOG 원문과 같은 모양으로 나오게 서식 변환 보강 (주인님 지시)
+
+- **증상(주인님 화면 비교)**: BLOG 원문은 문단 간격·소제목 밑줄·요약 인용 상자(왼쪽 파란 줄, 기울임)·이미지 둥근 모서리로 보기 좋은데, 티스토리 발행 글은 문단이 붙어 있고 소제목 밑줄이 없고, 요약 상자 위에 큰 따옴표(“) 장식이 가운데에 붙고, 가로줄이 점 세 개(• • •)로 바뀌고, 이미지가 각진 모양이었다.
+- **원인(DB의 원문 HTML과 `utils/extensionContent.ts` 대조)**: 원문 HTML의 모양은 Tailwind 클래스(웹 화면 CSS)로만 표현되는데, 티스토리용 변환(`tailwindTextStyles`)이 글자 크기·굵기·색 정도만 인라인 CSS로 옮기고 ① **여백(`mb-5`·`mt-8`·`my-4`·`p-4`·`pb-1` 등)을 옮기지 않았고** ② **테두리 두께만 옮기고 모양(`solid`)을 안 넣어** 인용 상자의 왼쪽 줄·소제목 밑줄이 그려지지 않았으며 ③ 목록 위치(`list-inside`)·항목 간격(`space-y`)도 빠져 있었다. 또 ④ `<blockquote>`는 티스토리 테마가 큰 따옴표 장식을 자동으로 붙이는데 이는 테마 CSS라 인라인 스타일로 끌 수 없고, ⑤ `<hr>`도 테마가 점 세 개로 바꿔 보여 줬다.
+- **수정**: `utils/extensionContent.ts` — 여백·안쪽 여백(`m/p[trblxy]-N`, 1 = 0.25rem)·테두리 모양·목록 위치·항목 간격을 인라인 CSS로 번역(Tailwind 숫자 규칙 그대로), 우리가 만든 스타일 인용 상자(Tailwind 클래스가 있는 blockquote)는 **같은 모양(왼쪽 파란 줄·옅은 배경·둥근 오른쪽 모서리·기울임)의 문단**으로 보내 테마 장식을 피함(클래스 없는 일반 blockquote는 그대로 인용), `<hr>`은 옅은 실선 문단으로 변환. `attribs`가 속성 제거와 함께 바뀌어 클래스를 잃던 점도 먼저 복사해 막았다. `extension/tistory-adapter.js` — 이미지를 올린 직후 그 이미지에 둥근 모서리·옅은 테두리·그림자를 입힘(`styleTistoryImage`, 실패해도 입력에 영향 없는 선택 기능, 이미지 수·순서·`figure > img` 구조는 그대로).
+- **한계(테마·편집기가 정하는 부분)**: 글꼴과 제목 글자 크기는 티스토리 스킨을 따르고, 웹 화면의 "📷 설명 (클릭하여 고화질 확대)" 이미지 설명은 웹 전용 문구라 넣지 않는다. 이미 발행된 글은 바뀌지 않으며 **BLOG에서 다시 보내면** 새 서식으로 입력된다(서버가 보낼 때 변환).
+- **시험**: `tests/extension-content.test.cjs`(7개, 변환기를 DB의 실제 생성 HTML 형태로 시험 — 인용 상자·여백·소제목 밑줄·목록·가로줄·이미지 순서·속성 누출 없음), 어댑터 이미지 스타일 시험 1개. `test:extension` 64개 + 서버 36.
+- **확인 방법**: ZIP 덮어쓰기(이미지 모양 부분이 확장 쪽 변경) 후 BLOG에서 같은 글을 다시 보내 발행 결과를 원문과 비교한다. 인용 상자의 큰 따옴표 장식·소제목 밑줄·문단 간격·가로줄·이미지 모서리를 본다.
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.

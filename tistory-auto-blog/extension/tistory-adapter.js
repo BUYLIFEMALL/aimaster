@@ -820,6 +820,25 @@
     }
     // ===== 옮겨 온 함수들 끝 =====
 
+    // 웹 화면의 이미지 모양(둥근 모서리·옅은 테두리·옅은 그림자)을 티스토리 본문의 방금 올린 이미지에도 입힌다(v1.64).
+    // 보기 좋게 하는 선택 기능이라 실패해도 입력에는 영향이 없다. 이미지 수·순서는 바꾸지 않는다(figure > img 구조는 그대로).
+    async function styleTistoryImage(tabId, bodyFrame, order) {
+      try {
+        const result = await chrome.scripting.executeScript({
+          target: { tabId, frameIds: [bodyFrame] }, args: [order],
+          func: (position) => {
+            const image = [...document.querySelectorAll("body#tinymce[contenteditable='true'] > figure > img")][position - 1];
+            if (!image) return false;
+            image.style.borderRadius = "1rem";
+            image.style.border = "1px solid #e2e8f0";
+            image.style.boxShadow = "0 1px 2px rgba(15, 23, 42, 0.08)";
+            return true;
+          },
+        });
+        return result[0]?.result === true;
+      } catch { return false; }
+    }
+
     // ---- adapter 인터페이스 ----
     return {
       state,
@@ -895,7 +914,7 @@
       async containsText(value, attempts = 12) { return tistoryEditorContainsText(state.tabId, state.bodyFrame, value, attempts); },
       async insertHtml(html) { await insertTistoryHtml(state.tabId, state.bodyFrame, html, "본문 서식 입력 중…"); },
       async keepsStructure(html) { return tistoryEditorKeepsStructure(state.tabId, state.bodyFrame, html); },
-      async pasteImage(url, order, total) { await pasteTistoryImage(state.tabId, state.bodyFrame, url, order, total); },
+      async pasteImage(url, order, total) { await pasteTistoryImage(state.tabId, state.bodyFrame, url, order, total); await styleTistoryImage(state.tabId, state.bodyFrame, order); },
       async syncForPublish(expectedGroups) { return synchronizeTistoryEditorForPublish(state.tabId, state.bodyFrame, expectedGroups); },
       async closePublishSettings() { await closePublishSettings(state.tabId); },
       async chooseCategory(name) { await chooseTistoryCategory(state.tabId, name); },

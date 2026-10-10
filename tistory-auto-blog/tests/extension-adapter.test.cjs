@@ -216,3 +216,21 @@ test('a failure to attach the guard does not stop the run (the member can still 
   await s.adapter.prepareEditor({ blogName: 'myblog' });
   assert.equal(s.adapter.state.bodyFrame, 3);
 });
+
+test('a pasted image is given the web page look (rounded corners, light border/shadow) as a best-effort step that never breaks the run', async () => {
+  let counts = 0; const styled = [];
+  const scripting = (details) => {
+    const args = details.args || [];
+    if (args.length === 2) return [{ frameId: 3, result: { dispatched: true, defaultPrevented: true } }];
+    if (args.length === 1 && typeof args[0] === 'number') { styled.push(args[0]); return [{ frameId: 3, result: true }]; }
+    counts += 1; return [{ frameId: 3, result: counts === 1 ? 0 : 1 }];
+  };
+  const s = setup({ probes: emptyEditor, scripting });
+  s.adapter.state.tabId = 5; s.adapter.state.bodyFrame = 3;
+  await s.adapter.pasteImage('https://x/a.png', 2, 3);
+  assert.deepEqual(styled, [2], 'the image that was just uploaded (2nd) is styled');
+  const failing = setup({ probes: emptyEditor, scripting: (details) => { const args = details.args || []; if (args.length === 1 && typeof args[0] === 'number') throw new Error('boom'); return scripting(details); } });
+  counts = 0;
+  failing.adapter.state.tabId = 5; failing.adapter.state.bodyFrame = 3;
+  await failing.adapter.pasteImage('https://x/a.png', 1, 1); // 스타일 실패는 무시
+});

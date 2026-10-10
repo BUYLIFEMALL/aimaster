@@ -108,7 +108,21 @@ function tailwindTextStyles(className: string): string[] {
   if (classes.has('list-decimal')) add('list-style-type: decimal')
   if (classes.has('border-l-4')) add('border-left-width: 4px')
   if (classes.has('border-b')) add('border-bottom-width: 1px')
-  if (classes.has('border-solid')) add('border-style: solid')
+  // 테두리 두께만 있고 모양(solid)이 없으면 티스토리에서 테두리가 보이지 않는다(v1.64: 인용 상자의 왼쪽 파란 줄·소제목 밑줄이 사라지던 원인). Tailwind는 border 클래스에 solid를 기본으로 깔아 준다.
+  if (classes.has('border-solid') || classes.has('border-l-4') || classes.has('border-b')) add('border-style: solid')
+  if (classes.has('list-inside')) add('list-style-position: inside')
+  if (classes.has('list-inside') || classes.has('list-disc') || classes.has('list-decimal')) add('padding-left: 0')
+  // 여백(m*/p*-N, 1 = 0.25rem): 웹 화면의 문단 간격·소제목 위아래 간격을 그대로 옮긴다(여백이 없으면 티스토리 본문이 붙어 보인다).
+  for (const name of classes) {
+    const match = /^(m|p)(t|r|b|l|x|y)?-(\d+(?:\.\d+)?)$/.exec(name)
+    if (!match) continue
+    const property = match[1] === 'm' ? 'margin' : 'padding'
+    const number = Number(match[3])
+    const value = number === 0 ? '0' : `${number * 0.25}rem`
+    const sides = match[2] === 'x' ? ['left', 'right'] : match[2] === 'y' ? ['top', 'bottom'] : match[2] === 't' ? ['top'] : match[2] === 'r' ? ['right'] : match[2] === 'b' ? ['bottom'] : match[2] === 'l' ? ['left'] : []
+    if (sides.length) sides.forEach((side) => add(`${property}-${side}: ${value}`))
+    else add(`${property}: ${value}`)
+  }
   if (classes.has('rounded-xl')) add('border-radius: 0.75rem')
   if (classes.has('rounded-r-xl')) add('border-radius: 0 0.75rem 0.75rem 0')
   const colors = [
@@ -128,6 +142,7 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
   copy.find('*').addBack().each((_, node) => {
     const element = node as Element
     const attrs = element.attribs || {}
+    const originalClass = String(attrs.class || '') // attribs는 아래에서 속성을 지우면 함께 바뀌므로 먼저 복사해 둔다
     const tagName = element.tagName?.toLowerCase() || ''
     const alignment = alignedContentTags.has(tagName) ? safeTextAlign(attrs.class || '', attrs.style || '') : ''
     const styles = [...tailwindTextStyles(attrs.class || ''), ...safeInlineStyle(attrs.style || '')]
@@ -143,6 +158,18 @@ function tistorySafeHtml($: cheerio.CheerioAPI, node: AnyNode): string {
     }
     if (alignment) styles.push(`text-align: ${alignment}`)
     else if (alignedContentTags.has(tagName)) styles.push('text-align: left')
+    // 웹 본문의 요약 인용 상자(파란 줄 + 옅은 배경)를 티스토리에 넣으면, 테마의 blockquote 장식(가운데 큰 따옴표 글리프)이 붙어 원문과 달라진다(v1.64, 주인님 화면).
+    // 글리프는 테마 CSS라 인라인 스타일로 끌 수 없으므로, 우리가 만든 스타일 상자(Tailwind 클래스가 있는 blockquote)는 같은 모양을 한 문단으로 보낸다.
+    // 클래스 없는 일반 blockquote는 그대로 인용으로 둔다. 웹 화면에서 이 상자는 기울임체이므로 같게 맞춘다.
+    if (tagName === 'blockquote' && /(^|\s)(border-l|bg-)/.test(originalClass)) {
+      element.name = 'p'
+      styles.push('font-style: italic')
+    }
+    // 목록 항목 사이 간격(space-y-N): 항목마다 아래 간격을 준다.
+    const spaceY = /(?:^|\s)space-y-(\d+(?:\.\d+)?)(?:\s|$)/.exec(originalClass)
+    if (spaceY && (tagName === 'ul' || tagName === 'ol')) {
+      $(element).children('li').each((_, li) => { $(li).attr('style', `margin-bottom: ${Number(spaceY[1]) * 0.25}rem; ${$(li).attr('style') || ''}`.trim()) })
+    }
     if (styles.length) $(element).attr('style', [...new Set(styles)].join('; ') + ';')
   })
   copy.find('img, figure, figcaption').remove()
@@ -189,7 +216,7 @@ export function htmlToInputBlocks(rawHtml: string, postTitle = ''): { blocks: In
     const el = node as Element
     const tag = el.tagName.toLowerCase()
     if (tag === 'hr') {
-      blocks.push({ type: 'html', html: '<hr>', text: '' })
+      blocks.push({ type: 'html', html: '<p style="margin: 1.5rem 0; padding: 0; border-top: 1px solid #e2e8f0; line-height: 1px; font-size: 1px;">&nbsp;</p>', text: '' })
       return
     }
     if (tag === 'script' || tag === 'style') return

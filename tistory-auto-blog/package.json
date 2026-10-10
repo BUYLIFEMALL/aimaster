@@ -10,7 +10,7 @@
     "lint": "eslint",
     "build:extension": "node scripts/build-extension-archive.mjs",
     "test:update-banner": "node --test tests/update-banner.test.mjs",
-    "test:extension": "node --test tests/extension-core.test.cjs tests/extension-engine.test.cjs tests/extension-adapter.test.cjs tests/extension-publish-dialog.test.cjs tests/extension-worker.test.cjs",
+    "test:extension": "node --test tests/extension-core.test.cjs tests/extension-engine.test.cjs tests/extension-adapter.test.cjs tests/extension-publish-dialog.test.cjs tests/extension-worker.test.cjs tests/extension-content.test.cjs",
     "test:extension-api": "node --test tests/extension-api.test.cjs",
     "sync:program-version": "node scripts/sync-program-version.mjs"
   },
