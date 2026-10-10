@@ -23,7 +23,8 @@
 - `extension/writer.js`는 기존 서버 작업도 URL 기준으로 중복 방어하고 파일명을 자산과 일치시킵니다. 업로드 시간 초과 이미지를 자동 재업로드하지 않습니다. 중지 메시지에 단계·파일명을 포함합니다.
 - `background.js`의 `writeArticle()`(입력·검증만)과 `publish()`(최종 발행)를 분리했습니다. 실제 검수는 회원 로그인 Chrome에서 새 글 입력까지만 수행하며 최종 발행은 하지 않습니다.
 - 자동 검수: `npm run test:extension`·`test:edit-save`·빌드 통과. 변경 파일 ESLint 오류 0·경고 5(스마트 편집기 2, 변환 모듈 3). 실제 실패 원고를 새 변환에 넣어 자산 4개·고유 URL 4개·본문 이미지 3개·업로드 이름 일치·저장된 4장 모두 포함을 확인했습니다.
-- 실제 Chrome 검수는 대기 중입니다. UIA 상태 조회는 가능하지만 화면 캡처 실패·키보드 `window_not_focused`(restore 후에도 실패)라 네이버 입력까지 실행하지 못했습니다. 주인님께 PC 화면/Chrome 확인을 요청했습니다. 확장은 로컬 `naver-blog-agent/extension`을 직접 로드한 ID `jghcffojjhpadflbhmdbophincpciajm`입니다. 화면 복구 후 확장 새로고침 → 별도 새 편집기 → `writeArticle()`로 입력·검증까지만 수행하고 4장/중복 0/본문 끝 확인이 필요합니다. **최종 발행하지 않습니다.** 배포 결과는 마감 시 기록합니다.
+- 실제 Chrome 검수는 대기 중입니다. UIA 상태 조회는 가능하지만 화면 캡처 실패·키보드 `window_not_focused`(restore 후에도 실패)라 네이버 입력까지 실행하지 못했습니다. 주인님께 PC 화면/Chrome 확인을 요청했습니다. 확장은 로컬 `naver-blog-agent/extension`을 직접 로드한 ID `jghcffojjhpadflbhmdbophincpciajm`입니다. 화면 복구 후 확장 새로고침 → 별도 새 편집기 → `writeArticle()`로 입력·검증까지만 수행하고 4장/중복 0/본문 끝 확인이 필요합니다. **최종 발행하지 않습니다.**
+- 코드 커밋 `34c023ab`·origin/master 푸시·프로덕션 배포 완료(`dpl_8Pw7dBMuQk4ojPxsXbHA1GdDBr9z`, READY). 운영 DB/확장/라이브 ZIP v1.59 일치, 확장 검증 실패 0·경고 0. 라이브 ZIP의 `background.js`·`writer.js`·`manifest.json` SHA256이 로컬과 일치합니다. 기존 실패 원고 본문·이미지 지문과 상태가 배포 전후 동일하며 이미지 4장을 보존했습니다.
 
 ## 2026-10-10 v1.58 — 결과 작업 버튼 오른쪽 정렬·저장 버튼 강조
 
