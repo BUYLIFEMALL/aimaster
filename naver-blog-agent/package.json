@@ -1,6 +1,6 @@
 {
   "name": "naver-blog-agent",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -14,6 +14,8 @@
     "test:extension": "node scripts/test-extension-bridge.cjs",
     "test:extension-tabs": "node scripts/test-extension-tabs.cjs",
     "test:extension-results": "node --test scripts/test-extension-results.cjs",
+    "test:editor-safety": "node --test scripts/test-editor-safety.cjs",
+    "test:shared-input": "node --test scripts/test-shared-input-rules.cjs",
     "test:publishing": "node scripts/test-naver-publishing.cjs",
     "test:models": "node scripts/test-model-selection.cjs",
     "test:years": "node scripts/test-year-policy.cjs",

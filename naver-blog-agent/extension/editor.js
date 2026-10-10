@@ -1,6 +1,6 @@
 // This function runs only inside the editor's isolated world. No debugger or remote control.
 async function editorCommand(command, args = {}) {
-  const build='20261010.2';let step='locate';
+  const build='20261010.3';let step='locate';
   try {
   const visible = el => Boolean(el && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
   const find = selector => [...document.querySelectorAll(selector)].find(visible);
@@ -11,6 +11,10 @@ async function editorCommand(command, args = {}) {
     }
   };
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  // Image uploads open a library side panel with role=dialog. It does not block
+  // typing. Only visible SmartEditor alert/resume popups stop the operation.
+  const blockingPopup = () => [...document.querySelectorAll('.se-popup-container')].find(el=>visible(el) && el.querySelector('.se-popup-title, .se-popup-alert-text'));
+  const popupLabel = el => String(el.querySelector('.se-popup-title')?.textContent || el.querySelector('.se-popup-alert-text')?.textContent || '').replace(/\s+/g,' ').trim().slice(0,60);
   const findTitle = () => find('.se-title-text .se-text-paragraph, .se-documentTitle .se-text-paragraph, .se-title-text [contenteditable="true"], .se-title [contenteditable="true"], textarea[placeholder*="제목"], input[placeholder*="제목"]');
   const title = findTitle();
   const quoteSelector='.se-component-quotation, .se-section-quotation, .se-quotation-container, .se-module-quotation, .se-module-quote, .se-quote, .se-quotation';
@@ -52,7 +56,8 @@ async function editorCommand(command, args = {}) {
     throw new Error('입력 프레임 중첩 한도를 초과했습니다.');
   };
   const activateParagraph = async el => {
-    if(find('.se-popup-container,[role="dialog"][aria-modal="true"]'))throw new Error('편집기 팝업이 열려 있습니다. 팝업을 처리한 뒤 다시 시작해 주세요.');
+    const popup=blockingPopup();
+    if(popup)throw new Error('편집기 팝업이 열려 있습니다'+(popupLabel(popup)?' ('+popupLabel(popup)+')':'')+'. 팝업을 처리한 뒤 다시 시작해 주세요.');
     const id=el.id;
     el.scrollIntoView({block:'center',behavior:'instant'});
     el=id?document.getElementById(id):el;
