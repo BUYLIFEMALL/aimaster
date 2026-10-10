@@ -33,7 +33,7 @@ CDP로 교체하지 않습니다. 에이전트는 인용구·숨은 입력 프�
 
 - `test:editor-safety` 4개: 라이브러리 허용, 실제 이어쓰기/제목 팝업 차단, 안내문 전용 팝업 차단·문구 표시, 숨은/제목 없는 컨테이너 허용. v1.64 이전 코드에서는 라이브러리 사례가 실패합니다.
 - `test:shared-input` 14개: 공통10개와 에이전트 추가 검증3개, 기존 문서/비정상 링크 카드에서 변경 없이 안전 중지1개.
-- 기존 결과 저장·탭 수명주기·확장·발행·저장 검사와 빌드를 실행합니다. 운영 배포 결과는 후속 기록합니다.
+- 기존 결과 저장14개·탭 수명주기21개·확장·발행·저장·JS 문법 검사와 로컬/운영 빌드·타입 검사 통과. 총53개 번호가 있는 회귀 검사와 기존 관련 검사 통과입니다.
 - BLOG 실제 시험 성공 기록은 클로드/주인님의 AGENTS 기록입니다. Codex가 BLOG의 실제 입력을 재검수한 것으로 보고하지 않습니다. 에이전트의 이번 팝업 검수는 실제 함수 모의 실행이며 네이버 실제 입력 E2E 검수와 구분합니다.
 
 ## 5. 다음 작업
@@ -44,3 +44,11 @@ CDP로 교체하지 않습니다. 에이전트는 인용구·숨은 입력 프�
 4. 양쪽이 같은 원고·실제 빈 네이버 편집기로 입력/설정/안전 중지 검수를 마친 뒤 공통 규칙 C방식을 다시 판단합니다.
 
 참고: [전체 개선 순서](AUTOMATION_IMPROVEMENT_PLAN_2026-10-10.md), [Supabase update/select 계약](https://supabase.com/docs/reference/javascript/update), [Chrome worker 수명주기](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle).
+
+## 6. v1.65 운영 완료 증거
+
+- 코드·인수인계 `9ec4d3e1` origin/master 푸시 완료. 다른 CLI의 BLOG 작업·임시 파일을 제외한 해당 커밋 worktree에서 에이전트만 프로덕션 배포했습니다.
+- `dpl_EHTSpzrZUWZ4dtBVg7K1JBrKvFHC` READY, 운영 https://naver-blog-agent.vercel.app . DB·manifest·라이브 ZIP v1.65 일치, 릴리스 실패0/경고0·ZIP200·핵심6파일 배포 커밋과 줄바꿈 정규화 후 일치·버전API200.
+- 라이브 비로그인 finish POST401/no-store 확인. 원고2건의 draft/failed 상태·본문/이미지 지문은 v1.64 전후 및 v1.65 후 모두 보존됩니다. 회원 최종 발행·유료 호출·키/환경변수/스키마 변경 없음.
+- 실제 에이전트 입력 E2E와 PC 설치 확장 새로고침은 이번 릴리스에서 미실행입니다. 다른 PC는 [최신 ZIP](https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip) 재다운로드 → 기존 폴더 덮어쓰기 → chrome://extensions 새로고침이 필요합니다.
+- 다음 준비 상태 설계 참고: 운영 nba_posts.status는 text이고 상태값 체크 제약은 현재 없습니다(읽기 조회 확인). 새 준비 상태를 쓰려면 API 타입/상태 판정·화면·옛 확장 호환을 함께 구현합니다. run_id/lease_expires_at 추가 승인은 별개입니다.

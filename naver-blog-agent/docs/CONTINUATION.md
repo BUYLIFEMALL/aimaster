@@ -1,6 +1,6 @@
 # 🤖 네이버 블로그 에이전트 (naver-blog-agent) — CLI 인수인계 & 작업 가이드 (CONTINUATION.md)
 
-> **최종 갱신**: 2026-10-10 | **코드 버전**: `v1.65` (운영 확인 진행 중) | **라이브 URL**: https://naver-blog-agent.vercel.app
+> **최종 갱신**: 2026-10-10 | **현재 버전**: `v1.65` (운영 검증 완료) | **라이브 URL**: https://naver-blog-agent.vercel.app
 
 ## v1.65 — 클로드 제안 검토·공통 입력 규칙 적용
 

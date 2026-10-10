@@ -12,7 +12,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: 코드 `v1.65` (운영 동기화 진행 중, 최신 검토 문서 확인)
+- **현재 버전**: `v1.65` (운영·DB·확장·라이브 ZIP 검증 완료, 최신 검토 문서 확인)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [순차 개선·담당·현재 검수](docs/AUTOMATION_IMPROVEMENT_PLAN_2026-10-10.md), [`docs/CONTINUATION.md`](docs/CONTINUATION.md), [클로드용 BLOG 인수인계](../docs/BLOG_AUTOMATION_HANDOFF_2026-10-10.md). 이전 실제 탭/입력 검수는 v1.63/v1.62 보고 참고.
 
@@ -22,7 +22,7 @@
 
 - 클로드 [공통화 제안](../docs/SHARED_NAVER_ENGINE_PROPOSAL_2026-10-10.md)을 검토하고 A(각자 입력기 유지+같은 규칙 검사)를 적용합니다. 에이전트의 이미지 이름·인용구 스타일·링크 카드 출처 확인을 보존하며 BLOG 입력기로 교체하지 않습니다. [판단·실제 검사·남은 일](docs/SHARED_ENGINE_REVIEW_2026-10-10.md).
 - 이미지 라이브러리 role=dialog를 팝업으로 오인하던 activateParagraph 판정을 수정, 실제 제목/안내문 팝업은 차단·문구 표시. 출처 불일치 링크 카드가 있는 빈 문서 검사도 null 예외 대신 기존 내용 보존·안전 중지 안내입니다.
-- editor 모의4개·실제 양쪽 core 비교14개·기존 route14/worker21·확장/발행/저장·문법·빌드/타입 통과. 운영 배포·DB/ZIP 확인은 진행 중, 실제 에이전트 네이버 입력 E2E는 미실행. BLOG 폴더·키/환경변수/스키마 변경 없음. 실행 번호·임대는 별도 DB 승인 항목으로 후속.
+- editor 모의4개·실제 양쪽 core 비교14개·기존 route14/worker21·확장/발행/저장·문법·빌드/타입 통과. 코드9ec4d3e1 푸시·프로덕션 READY·DB/라이브 ZIP v1.65 확인 완료, 실제 에이전트 네이버 입력 E2E는 미실행. BLOG 폴더·키/환경변수/스키마 변경 없음. 실행 번호·임대는 별도 DB 승인 항목으로 후속.
 
 ## 2026-10-10 v1.64 — 1단계 결과 저장 확인
 
