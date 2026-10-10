@@ -20,6 +20,8 @@
 - 확장(v1.56 이하)은 아직 이 설정을 쓰지 않는다 — 기존 사이드패널 설정으로 입력한다. 새 확장(v1.59)부터 웹에서 보낸 설정을 쓴다.
 - 시험: `test:extension-api` 34개(기본값 조회 포함), `tsc`, `eslint`(오류 0), `npm run build`.
 
+> **자동 포스팅 업그레이드(v1.57~v1.59) 전체 인수인계:** [`../docs/TISTORY_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md`](../docs/TISTORY_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md)
+
 ## v1.59 (2026-10-10) — 확장 작업기 이전: 보내면 확장이 자동으로 입력한다 (BLOG 방식 이식 3/4)
 
 - **웹에서 "티스토리 입력기로 보내기"를 누르면 확장이 30분 안에 스스로 가져가** 티스토리 새 글쓰기 탭을 열고 제목·본문·이미지·카테고리·태그·발행 설정(공개 범위·댓글·홈주제·예약)까지 입력해 발행 직전에서 멈춘다. **최종 저장·발행은 회원이 직접 누른다.** 설계·안전 규칙·장애 이력은 [`docs/OPERATIONS_HANDOFF.md`](docs/OPERATIONS_HANDOFF.md) 9절, BLOG 쪽 원형은 `../docs/BLOG_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md`.
