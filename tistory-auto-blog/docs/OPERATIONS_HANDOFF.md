@@ -1,7 +1,7 @@
 # 티스토리 자동화 운영·개발 인수인계 및 검수 체크포인트
 
 기준일: 2026-10-03
-현재 기준 버전: `v1.53`
+현재 기준 버전: `v1.59` (아래 "9. v1.59 구조 변경" 참고 — 입력 코드는 사이드패널에서 작업기로 옮겨졌다)
 운영 주소: `https://tistory-auto-blog-pearl.vercel.app`
 
 이 문서는 다음 작업자가 티스토리 자동화의 **실제 장애 이력, 안전 원칙, 수정 금지 지점, 검수 순서**를 먼저 확인하도록 만든 운영 기준서다. 작업 시작 전에는 이 문서와 상위 `AGENTS.md`, `README.md`, 루트 `docs/ERROR_LESSONS.md`를 모두 읽는다.
@@ -23,8 +23,9 @@
 | AI 원문 생성·정리 | `utils/news/generator.ts` | 프롬프트, 중복 제목·장식 따옴표 방지 |
 | 중복 제목 방어 | `utils/duplicateTitle.ts` | 생성·수정·확장 전달 경로의 제목 중복 제거 |
 | 서버 HTML → 입력 블록 | `utils/extensionContent.ts` | 제목/문단/목록/인용/표/링크/이미지 순서 보존 |
-| 확장 진입·입력·검수 | `extension/sidepanel.js` | TinyMCE 입력, 이미지 업로드, 태그/발행 설정, 중단·재개 |
-| 확장 글 목록 API | `app/api/extension/posts/route.ts` | 선택 글을 안전한 입력 블록으로 변환 |
+| 확장 입력 규칙·순서·화면 조작 (v1.59~) | `extension/tistory-core.js`(순수 규칙), `tistory-engine.js`(입력 순서·검증), `tistory-adapter.js`(TinyMCE·태그·발행 설정 등 실제 화면 조작 — v1.56 `sidepanel.js`에서 그대로 옮김), `background.js`(작업기) | TinyMCE 입력, 이미지 업로드, 태그/발행 설정, 중단 |
+| 서버 자동 입력 큐 (v1.57~) | `app/api/extension/task`, `.../posts/[id]/input-result`, `.../heartbeat`, `utils/extensionTask.ts`, `utils/tistoryPublish.ts` | 대기 글 가져가기·실행 번호·임대·발행 설정 |
+| 확장 글 목록 API | `app/api/extension/posts/route.ts` | 옛 확장(v1.56 이하) 호환용으로 유지. 선택 글을 안전한 입력 블록으로 변환(`utils/extensionContent.ts`는 새 큐도 함께 씀) |
 
 `npm run build`는 확장 ZIP과 `extension/manifest.json`을 현재 `APP_VERSION`에 맞춰 생성한다. 소스만 고치고 ZIP을 갱신하지 않으면 회원이 이전 확장을 받으므로, 확장 변경 때는 반드시 빌드 산출물까지 함께 커밋한다.
 
@@ -55,6 +56,8 @@
 
 ## 5. 안전한 입력·재개 절차
 
+> v1.59부터 아래 "정상 입력"은 확장이 자동으로 한다(9절). 사람이 하는 일은 BLOG에서 글·발행 설정을 완성해 보내는 것과 마지막 확인·발행이다. "중단됐을 때"의 원칙(부분 입력 초안은 발행하지 않고 새 빈 글에서 다시 보내기)은 그대로이며, 옛 "설정 이어서 적용" 버튼은 없어졌다.
+
 ### 정상 입력
 
 1. 티스토리에서 **새 빈 글**을 연다.
@@ -76,7 +79,7 @@
 
 - [ ] `tistory-auto-blog/AGENTS.md`, 이 문서, 루트 `docs/ERROR_LESSONS.md`의 관련 선행 사례를 읽었다.
 - [ ] `git status --short`로 다른 CLI의 변경을 확인하고, 내 작업 파일만 스테이징한다.
-- [ ] `node.exe --check extension/sidepanel.js`를 실행했다.
+- [ ] `node.exe --check extension/*.js`를 실행했고 `npm run test:extension`(확장)·`npm run test:extension-api`(서버)가 통과했다.
 - [ ] `npm.cmd run build`가 성공했고, 현재 버전의 `public/downloads/tistory-auto-blog-extension-vX.YY.zip` 및 manifest가 갱신됐다.
 - [ ] 기능 변경이면 `utils/version.ts`와 공유 DB `programs.version`을 같은 `vX.YY`로 올렸다. 문서만 바꾼 경우에는 버전을 올리지 않는다.
 
@@ -113,7 +116,19 @@
 - 실사용 AI 생성 또는 대량 호출은 비용이 발생할 수 있으므로, 검수는 가능한 기존 글/최소 표본으로 하며 대량 호출은 사전 승인을 받는다.
 - 브라우저 자동화는 티스토리 약관과 사용자 계정 범위 안에서만 사용하고, 탐지 회피나 최종 발행 자동화로 범위를 넓히지 않는다.
 
-## 9. 현재 기준 상태
+## 9. v1.59 구조 변경 — 보내면 확장이 자동으로 입력한다 (BLOG 방식 이식, 2026-10-10)
+
+`ai-auto-blog`(BLOG)의 자동 포스팅 구조(`docs/BLOG_EXTENSION_AUTOPOST_HANDOFF_2026-10-10.md`)를 티스토리에 이식했다. **위 3·4·5절의 안전 원칙과 장애 이력은 그대로 유효하다** — 입력 함수들은 v1.56 `sidepanel.js`에서 내용 변경 없이 `tistory-adapter.js`로 옮겼고, 검증 방식(샘플 조각+의미 구조)도 바꾸지 않았다(BLOG의 "문서 정확 비교"는 티스토리가 HTML을 재구성하므로 쓰지 않는다).
+
+- **흐름**: 웹 "티스토리 입력기로 보내기"(+발행 설정) → 서버가 자동 입력 대기로 올림 → 확장 작업기가 10초마다 `POST /api/extension/task`로 가져감(실행 번호·3분 임대) → **새 탭**으로 `https://<블로그>.tistory.com/manage/newpost` 열기(로그인 대기·본인 블로그 확인·빈 새 글 2초 안정 확인) → 제목 → 본문 블록(문단 입력/서식 블록 `insertContent`/이미지 붙여넣기, 블록마다 확인) → 저장 원본 동기화·전체 확인 → `completed` 보고 → 카테고리·태그·발행 설정 → `publish_ready` 보고. **최종 저장·발행 버튼은 누르지 않는다.** 45초마다 하트비트, 결과는 서버가 `success·persisted·status`를 확인할 때까지 보관·재보고.
+- **사이드패널**은 연결 토큰·내 블로그 이름 저장·알림 체크·진행 상태·중지·구조 분석(진단)만 한다. 보낸 글 목록·미리보기·직접 입력·설정 이어서 적용·카테고리/태그/발행 설정 칸은 삭제했다(설정은 BLOG에서 글마다 정해 보낸다). 블로그 이름을 저장하기 전에는 자동 입력을 가져가지 않는다.
+- **발행 설정**(`tistory_posts.tistory_publish`): 카테고리 이름·공개 범위(공개/비공개)·댓글·홈주제·발행 시점(현재/예약). **보호글은 자동 입력에서 제외**(비밀번호를 DB에 두지 않음). 홈주제는 빈 새 글에서 실제 목록을 읽을 수 없어 기본 목록(`TISTORY_HOME_TOPICS`)에서 고르며, 입력 때 현재 티스토리 목록과 정확히 일치하는 항목만 선택한다. 카테고리 목록은 확장이 새 탭에서 `#category-btn` 목록을 읽어 웹에 돌려준다(`web-bridge.js`, BLOG 사이트 출처만, ping/categories만).
+- **실패 처리**: 코드(`TITLE_MISMATCH`·`TEXT_MISMATCH`(확인 N/M 문단)·`IMAGE_MISMATCH`·`STRUCTURE_LOST`·`SYNC_FAILED`·`EDITOR_NOT_EMPTY`·`ACCOUNT_MISMATCH`·`TAB_CLOSED`·`TAB_NAVIGATED`·`EXTENSION_INTERRUPTED` 등)와 함께 `failed` 보고, 같은 단계를 다시 입력하지 않는다(예외: 서식 블록의 텍스트가 통째로 사라진 경우 그 블록 글자만 1회 복구 — 기존 동작). 설정 단계(카테고리·태그·발행 설정)만 실패하면 `completed`로 두고 경고한다. 부분 입력된 글은 발행하지 않고 BLOG에서 다시 보내 새 빈 글에서 입력한다(옛 "설정 이어서 적용" 기능은 없어졌다).
+- **이미지**: 입력 전에 작업기가 각 이미지 주소를 확인해(HEAD, 안 되면 GET) 사라진 이미지(보관 30일 경과 등)는 건너뛰고 경고로 알린다. 업로드 자체는 예전처럼 편집기 안에서 PNG로 변환해 붙여넣기 이벤트로 올리고 90초까지 확인한다.
+- **알려진 미확인(주인님 PC에서 확인 필요)**: 새 탭 방식의 시작 화면(로그인 복귀·임시저장 이어쓰기 대화상자 처리), 자동 시작·알림·카테고리 불러오기의 실제 화면 동작. 임시저장 이어쓰기가 네이티브 확인창이면 화면 조사가 응답하지 않으므로 작업기가 "확인 대화상자" 안내를 띄우고 5분까지 기다린다(그 안에 취소를 눌러 빈 새 글로 시작).
+- 죽은 코드 정리: `extension/offscreen.html`·`offscreen.js`와 background의 `copy-tistory-image` 처리는 매니페스트에 `offscreen` 권한이 없고 어디서도 호출하지 않아 삭제했다.
+
+## 10. 현재 기준 상태
 
 - `v1.53` 확장 다운로드 파일은 운영 주소에서 HTTP 200으로 확인했다.
 - 직전 핵심 회귀(서식 평문화, 제목 중복, 태그 확인 오탐, 부분 본문 중단, 장식 따옴표)는 위 원칙과 코드 경로로 수정됐다.

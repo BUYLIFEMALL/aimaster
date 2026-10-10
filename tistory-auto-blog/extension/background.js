@@ -1,26 +1,285 @@
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
+"use strict";
 
-const OFFSCREEN_PATH = "offscreen.html";
+// 티스토리 입력기 — 작업기(service worker), 2026-10-10 v1.59.
+// 웹에서 "티스토리 입력기로 보내기"를 누르면 이 작업기가 10초마다 서버의 자동 입력 대기 글을 가져가(POST /api/extension/task)
+// 티스토리 글쓰기 화면을 새로 열고 제목·본문·이미지·카테고리·태그·발행 설정까지 스스로 입력한다. 사이드패널은 상태를 보여주고 중지만 한다.
+// 마지막 "저장·발행" 버튼은 누르지 않는다 — 회원이 내용을 확인하고 직접 누른다.
+importScripts("tistory-core.js", "tistory-engine.js", "tistory-adapter.js");
 
-async function ensureClipboardDocument() {
-  const url = chrome.runtime.getURL(OFFSCREEN_PATH);
-  const contexts = await chrome.runtime.getContexts({ contextTypes: ["OFFSCREEN_DOCUMENT"], documentUrls: [url] });
-  if (contexts.length) return;
-  await chrome.offscreen.createDocument({
-    url: OFFSCREEN_PATH,
-    reasons: ["CLIPBOARD"],
-    justification: "티스토리 편집기 탭이 활성화된 상태에서도 이미지 붙여넣기용 PNG 클립보드를 안전하게 준비합니다.",
+const BASE = "https://tistory-auto-blog-pearl.vercel.app";
+const KEY = {
+  token: "tistoryAutoBlogToken",
+  blogName: "tistoryBlogName", // 내 티스토리 블로그 이름(myblog.tistory.com 의 myblog)
+  active: "tistoryActiveTask", // 지금 입력 중인 작업(작업기가 재시작되면 이 기록으로 중단을 알 수 있다)
+  pending: "tistoryPendingResult", // 서버가 저장을 확인해 줄 때까지 보관하는 결과
+  state: "tistoryTaskState", // 사이드패널에 보여줄 진행 상태
+  notify: "tistoryNotify", // 작업이 끝나면 크롬 알림(기본 켜짐, false면 끔)
+  notifyTab: "tistoryNotifyTab",
+};
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const Core = self.TistoryCore;
+const { TaskError, runInputTask } = self.TistoryEngine;
+
+let busy = false;
+let cancelRequested = false;
+let superseded = false;
+let currentTask = null;
+
+const get = (keys) => chrome.storage.local.get(keys);
+const set = (values) => chrome.storage.local.set(values);
+
+async function recordError(error) {
+  try { await set({ [KEY.state]: { final: true, outcome: "error", message: `작업기 오류: ${error?.message || error}`, updatedAt: Date.now() } }); } catch { /* ignore */ }
+}
+// Chrome은 비동기 이벤트 처리기의 거절을 기다려 주지 않는다 — 모든 진입점이 직접 오류를 처리한다.
+const run = (operation) => Promise.resolve().then(operation).catch(recordError);
+
+async function web(path, { method = "GET", body, token } = {}) {
+  const response = await fetch(`${BASE}${path}`, {
+    method,
+    headers: { ...(body ? { "Content-Type": "application/json" } : {}), Authorization: `Bearer ${token}` },
+    body: body ? JSON.stringify(body) : undefined,
+    cache: "no-store",
+    signal: AbortSignal.timeout(20000),
   });
+  const data = await response.json().catch(() => ({}));
+  return { ok: response.ok, status: response.status, data };
 }
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message?.type !== "copy-tistory-image") return;
-  ensureClipboardDocument()
-    .then(async () => {
-      const result = await chrome.runtime.sendMessage({ type: "offscreen-copy-tistory-image", url: message.url });
-      if (!result?.ok) throw new Error(result?.error || "이미지 클립보드 준비에 실패했습니다.");
-    })
-    .then(() => sendResponse({ ok: true }))
-    .catch((error) => sendResponse({ ok: false, error: error instanceof Error ? error.message : String(error) }));
+// 진행 상태 갱신은 순서대로 한 줄로 처리한다(동시에 읽고 쓰면 나중 것이 앞의 변경을 지워 최종 상태가 틀어질 수 있다).
+let stateQueue = Promise.resolve();
+function setState(patch) {
+  const next = stateQueue.then(async () => {
+    const current = (await get(KEY.state))[KEY.state] || {};
+    await set({ [KEY.state]: { ...current, ...patch, updatedAt: Date.now() } });
+  });
+  stateQueue = next.catch(() => {});
+  return next;
+}
+
+// ---- 결과 보고: 서버가 저장했다고 확인(success·persisted·status 일치)할 때까지 로컬에 보관하고 보고만 다시 시도한다 ----
+async function flushPending() {
+  const stored = await get([KEY.pending, KEY.token]);
+  const pending = stored[KEY.pending];
+  const token = stored[KEY.token];
+  if (!pending || !token) return true;
+  try {
+    const { ok, status, data } = await web(`/api/extension/posts/${encodeURIComponent(pending.id)}/input-result`, { method: "POST", token, body: { status: pending.status, error: pending.error || "", ...(pending.runId ? { runId: pending.runId } : {}) } });
+    if (ok && data.success === true && data.persisted === true && data.status === pending.status) {
+      await chrome.storage.local.remove(KEY.pending);
+      return true;
+    }
+    // 서버가 "이 결과는 기록할 수 없다"고 확실히 답한 경우(글이 다시 보내졌거나 없어짐 등)는 다시 시도해도 같다 — 보관을 끝내고 안내만 남긴다.
+    if ([400, 404, 409].includes(status)) {
+      await chrome.storage.local.remove(KEY.pending);
+      await setState({ reportNote: `서버가 입력 결과(${pending.status})를 기록하지 않았습니다: ${data.error || status}. 웹에서 글이 다시 보내졌거나 삭제됐을 수 있습니다.` });
+      return true;
+    }
+  } catch { /* 네트워크 오류 — 다음에 보고만 다시 시도 */ }
+  return false;
+}
+
+async function reportStatus(id, status, error = "", runId = "") {
+  await set({ [KEY.pending]: { id, status, error: String(error || "").slice(0, 500), runId: runId || "", at: Date.now() } });
+  const done = await flushPending();
+  if (!done) await setState({ reportNote: "서버에 결과를 아직 전달하지 못했습니다. 결과는 확장에 보관되어 있으며 연결되면 다시 보고합니다." });
+  return done;
+}
+
+async function setBadge(text, color) {
+  try { await chrome.action.setBadgeText({ text }); if (text) await chrome.action.setBadgeBackgroundColor({ color }); } catch { /* ignore */ }
+}
+
+// ---- 이미지 사전 확인: 보관 기간이 지나 사라진 이미지는 입력 도중 멈추지 않도록 미리 건너뛴다(경고로 알림) ----
+async function imageAvailable(url) {
+  try {
+    let response = await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(15000) });
+    if (!response.ok && [403, 405].includes(response.status)) response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    return response.ok;
+  } catch { return false; }
+}
+async function precheckImages(blocks, onProgress) {
+  const out = [];
+  let checked = 0;
+  const total = blocks.filter((block) => block.type === "image").length;
+  for (const block of blocks) {
+    if (block.type !== "image") { out.push(block); continue; }
+    checked += 1;
+    onProgress?.(checked, total);
+    out.push(block.url && await imageAvailable(block.url) ? block : { ...block, skip: true });
+  }
+  return out;
+}
+
+// ---- 완료 알림 ----
+// 입력이 끝나면(발행 직전 준비 완료·입력 완료·실패) 크롬 알림으로 알려 준다. 알림을 누르면 그 티스토리 글쓰기 탭으로 이동한다. 사용자가 중지한 경우는 알리지 않는다.
+async function notifyOutcome({ outcome, title, message, tabId }) {
+  try {
+    if (!chrome.notifications || !["publish_ready", "completed", "failed"].includes(outcome)) return;
+    if ((await get(KEY.notify))[KEY.notify] === false) return;
+    const heading = outcome === "publish_ready" ? "발행 직전 준비 완료" : outcome === "completed" ? "티스토리 입력 완료" : "티스토리 입력 중단";
+    const body = outcome === "publish_ready"
+      ? `「${title}」 입력이 끝났습니다. 내용을 확인하고 티스토리의 마지막 저장·발행 버튼만 직접 누르세요.`
+      : outcome === "completed"
+        ? `「${title}」 본문 입력은 끝났습니다. 카테고리·태그·발행 설정을 확인하고 직접 발행해 주세요.`
+        : `「${title}」 ${String(message || "").slice(0, 120)}`;
+    const id = `tistory-${outcome}-${Date.now()}`;
+    await chrome.notifications.create(id, { type: "basic", iconUrl: "icons/icon128.png", title: `티스토리 입력기 · ${heading}`, message: body, priority: 2, requireInteraction: outcome !== "failed" });
+    if (tabId != null) await set({ [KEY.notifyTab]: { id, tabId } });
+  } catch { /* 알림 실패는 작업 결과에 영향이 없다 */ }
+}
+
+// ---- 작업 실행 ----
+async function runTask(task) {
+  const stored = await get([KEY.blogName]);
+  const blogName = Core.normalizeBlogName(stored[KEY.blogName]);
+  currentTask = task.id;
+  cancelRequested = false;
+  superseded = false;
+  const runId = task.runId || "";
+  await set({ [KEY.active]: { id: task.id, runId, title: task.title, startedAt: Date.now(), stage: "preparing" } });
+  // 실행 임대: 입력하는 동안 45초마다 서버에 "살아 있음"을 알린다. 서버가 이 실행이 더는 유효하지 않다고(409) 답하면 입력을 중지한다.
+  const heartbeat = runId ? setInterval(() => run(async () => {
+    const token = (await get(KEY.token))[KEY.token];
+    if (!token) return;
+    try {
+      const { status } = await web(`/api/extension/posts/${encodeURIComponent(task.id)}/heartbeat`, { method: "POST", token, body: { runId } });
+      if (status === 409) { superseded = true; cancelRequested = true; }
+    } catch { /* 네트워크 오류는 무시 — 임대가 끝나면 서버가 알아서 정리한다 */ }
+  }), 45000) : null;
+  await setState({ id: task.id, runId, title: task.title, final: false, outcome: "", stage: "preparing", message: "작업을 준비하는 중...", typedChars: 0, totalChars: 0, warnings: [], reportNote: "" });
+  await setBadge("", "#000000");
+
+  const adapter = self.TistoryAdapter.createTistoryAdapter({ chrome, TaskError, sleep });
+  adapter.state.shouldStop = () => cancelRequested;
+  try {
+    if (!blogName) throw new TaskError("BLOG_NAME_MISSING", "티스토리 블로그 이름이 설정되지 않았습니다. 사이드패널에서 내 블로그 이름을 먼저 저장해주세요.");
+    const originalBlocks = Array.isArray(task.blocks) ? task.blocks : [];
+    const blocks = await precheckImages(originalBlocks, (n, total) => { if (cancelRequested) return; run(() => setState({ stage: "preparing", message: `이미지 ${n}/${total}장을 확인하는 중...` })); });
+    if (cancelRequested) throw new TaskError("CANCELLED", "사용자가 입력을 중지했습니다.");
+    const result = await runInputTask({
+      task: { ...task, blocks }, adapter, blogName,
+      progress: (stage, message, extra) => {
+        run(async () => {
+          await setState({ stage, message, ...(extra || {}) });
+          const active = (await get(KEY.active))[KEY.active];
+          if (active?.id === task.id && active.stage !== stage) await set({ [KEY.active]: { ...active, stage } });
+        });
+      },
+      report: (status, error) => reportStatus(task.id, status, error, runId),
+      isCancelled: () => cancelRequested,
+      sleep,
+    });
+    await setState({ final: true, outcome: result.status, stage: result.status, message: result.message, warnings: result.warnings || [], imageCount: result.imageCount });
+    await setBadge(result.status === "publish_ready" ? "준비" : "완료", result.status === "publish_ready" ? "#16a34a" : "#2563eb");
+    await notifyOutcome({ outcome: result.status, title: task.title, message: result.message, tabId: adapter.state.tabId });
+  } catch (error) {
+    const code = error instanceof TaskError ? error.code : "INPUT_FAILED";
+    const message = error instanceof TaskError ? error.message : Core.formatBrowserError(error, "티스토리 편집기 입력");
+    const stopped = superseded && code === "CANCELLED";
+    await reportStatus(task.id, "failed", `[${code}] ${message}`, runId); // 대체된 실행의 보고는 서버가 거절(409)하고 확장은 보관을 끝낸다
+    await setState({ final: true, outcome: code === "CANCELLED" ? "cancelled" : "failed", stage: "failed", message: stopped ? "웹에서 이 글이 다시 보내졌거나 이 실행이 끝난 것으로 처리되어 입력을 중지했습니다. 티스토리 화면의 내용을 확인한 뒤 필요하면 다시 보내주세요." : message });
+    await setBadge(code === "CANCELLED" ? "" : "실패", "#dc2626");
+    if (code !== "CANCELLED") await notifyOutcome({ outcome: "failed", title: task.title, message, tabId: adapter.state.tabId });
+  } finally {
+    if (heartbeat) clearInterval(heartbeat);
+    try { await adapter.cleanup(); } catch { /* ignore */ }
+    currentTask = null;
+    await chrome.storage.local.remove(KEY.active);
+  }
+}
+
+// 작업 도중 작업기가 재시작된 경우: 입력 중이던 글은 "중단"으로 보고한다. 자동으로 다시 입력하지 않는다(중복 입력 방지).
+async function recoverInterrupted(active) {
+  if (active.stage === "settings" || active.stage === "publish_ready" || active.stage === "completed") {
+    await chrome.storage.local.remove(KEY.active); // 입력은 이미 검증·보고됨
+    return;
+  }
+  await reportStatus(active.id, "failed", "[EXTENSION_INTERRUPTED] 입력 중 확장이 다시 시작되어 중단했습니다. 티스토리 편집기에 일부 입력된 내용이 남아 있을 수 있습니다. 내용을 확인한 뒤 BLOG에서 다시 보내주세요. 자동으로 다시 입력하지 않았습니다.", active.runId || "");
+  await setState({ id: active.id, title: active.title, final: true, outcome: "failed", stage: "failed", message: "입력 중 확장이 다시 시작되어 중단했습니다. 티스토리 화면을 확인하고 BLOG에서 다시 보내주세요." });
+  await chrome.storage.local.remove(KEY.active);
+}
+
+async function pump() {
+  if (busy) return;
+  busy = true;
+  try {
+    const stored = await get([KEY.token, KEY.blogName, KEY.active]);
+    const token = stored[KEY.token];
+    if (!token) return;
+    await flushPending();
+    if (stored[KEY.active] && currentTask === null) { await recoverInterrupted(stored[KEY.active]); }
+    if (!Core.normalizeBlogName(stored[KEY.blogName])) return; // 블로그 이름 없이는 자동 입력을 가져가지 않는다(가져가면 실패로 끝난다)
+    const { ok, status, data } = await web("/api/extension/task", { method: "POST", token, body: {} });
+    if (!ok) { if (status !== 401) await setState({ connection: `서버 연결 확인 실패 (${status})` }); return; }
+    if (data.task) await runTask(data.task);
+  } catch { /* 네트워크 오류 — 다음 주기에 다시 */ } finally { busy = false; }
+}
+
+// ---- BLOG 화면의 카테고리 목록 요청 ----
+// 새 탭에서 티스토리 글쓰기 화면의 카테고리 목록만 읽고 닫는다 — 아무것도 선택·발행하지 않으며, 회원이 쓰던 탭은 건드리지 않는다.
+async function readCategories(sender) {
+  if (busy || currentTask !== null) throw new Error("확장 입력 작업이 끝난 뒤 카테고리를 불러와 주세요.");
+  busy = true;
+  const adapter = self.TistoryAdapter.createTistoryAdapter({ chrome, TaskError, sleep, loginWaitMs: 90000 });
+  try {
+    const stored = await get([KEY.token, KEY.blogName, KEY.active]);
+    if (!stored[KEY.token]) throw new Error("먼저 확장 프로그램을 티스토리 연동 토큰으로 연결해 주세요.");
+    const blogName = Core.normalizeBlogName(stored[KEY.blogName]);
+    if (!blogName) throw new Error("확장 프로그램 사이드패널에서 내 티스토리 블로그 이름을 먼저 저장해 주세요.");
+    if (stored[KEY.active]) throw new Error("이전 작업 정리가 끝나지 않았습니다. 잠시 후 다시 불러와 주세요.");
+    await adapter.prepareEditor({ blogName });
+    return { blogName, categories: await adapter.readCategories() };
+  } catch (error) {
+    throw new Error(error instanceof TaskError ? error.message : Core.formatBrowserError(error, "티스토리 카테고리 읽기"));
+  } finally {
+    try { await adapter.cleanup(); } catch { /* ignore */ }
+    try { await adapter.closeTab(); } catch { /* ignore */ }
+    // 목록을 요청한 BLOG 화면으로 돌아간다(닫혔으면 무시).
+    if (sender?.tab?.id != null) {
+      try { await chrome.tabs.update(sender.tab.id, { active: true }); if (sender.tab.windowId != null) await chrome.windows.update(sender.tab.windowId, { focused: true }); } catch { /* ignore */ }
+    }
+    busy = false;
+  }
+}
+
+// ---- 사이드패널·BLOG 화면 메시지 ----
+chrome.runtime.onMessage.addListener((message, sender, reply) => {
+  (async () => {
+    if (message.type === "status") {
+      const stored = await get([KEY.active, KEY.pending, KEY.state]);
+      run(pump);
+      return { active: stored[KEY.active] || null, pending: stored[KEY.pending] || null, state: stored[KEY.state] || null, running: currentTask !== null };
+    }
+    if (message.type === "cancel") { if (currentTask === null) return { ok: true, idle: true }; cancelRequested = true; return { ok: true }; }
+    // 카테고리 목록은 티스토리 입력기 사이트 화면(web-bridge.js)에서 온 요청만 받는다. 사이드패널·다른 사이트 요청은 거절.
+    if (message.type === "categories") {
+      if (!String(sender?.url || "").startsWith(`${BASE}/`)) throw new Error("허용되지 않은 요청입니다.");
+      return await readCategories(sender);
+    }
+    if (message.type === "ackBadge") { await setBadge("", "#000000"); return { ok: true }; }
+    if (message.type === "pump") { run(pump); return { ok: true }; }
+    throw new Error("지원하지 않는 요청");
+  })().then((result) => { try { reply(result); } catch { /* 패널이 닫힘 */ } }, (error) => { try { reply({ error: error?.message || String(error) }); } catch { /* ignore */ } });
   return true;
 });
+
+// 알림을 누르면 입력한 티스토리 글쓰기 탭으로 이동한다(탭이 이미 닫혔다면 아무것도 하지 않는다).
+chrome.notifications?.onClicked?.addListener((notificationId) => run(async () => {
+  const stored = (await get(KEY.notifyTab))[KEY.notifyTab];
+  try { await chrome.notifications.clear(notificationId); } catch { /* ignore */ }
+  if (!stored || stored.id !== notificationId || stored.tabId == null) return;
+  try {
+    const tab = await chrome.tabs.update(stored.tabId, { active: true });
+    if (tab?.windowId != null) await chrome.windows.update(tab.windowId, { focused: true });
+  } catch { /* 탭이 닫힘 */ }
+}));
+
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
+try { Promise.resolve(chrome.alarms.create("tistory-pump", { periodInMinutes: 0.5 })).catch(() => {}); } catch { /* ignore */ }
+chrome.alarms.onAlarm.addListener((alarm) => { if (alarm.name === "tistory-pump") run(pump); });
+chrome.runtime.onStartup.addListener(() => run(pump));
+chrome.runtime.onInstalled.addListener(() => run(pump));
+// 깨어 있는 동안 10초마다 서버의 자동 입력 대기 글을 확인한다. 작업기가 잠들면 알람(30초)이 깨운다.
+setInterval(() => run(pump), 10000);
+run(pump);

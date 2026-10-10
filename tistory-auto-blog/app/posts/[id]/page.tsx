@@ -573,7 +573,7 @@ export default function PostDetailPage() {
                       const json = await res.json().catch(() => ({}))
                       if (!res.ok) throw new Error(json.error || '티스토리 입력기로 보내기에 실패했습니다.')
                       setHandoffState('sent')
-                      alert('티스토리 크롬 확장 목록에 올렸습니다.\n티스토리 글쓰기 화면을 열고 확장 프로그램에서 이 글을 선택해 입력하세요.\n(확장 설치·연결은 설정 페이지에서 할 수 있습니다.)')
+                      alert(`티스토리 입력기로 보냈습니다.\n확장 프로그램이 연결돼 있으면 ${json.autoStartMinutes ?? 30}분 안에 티스토리 글쓰기 화면을 새로 열어 자동으로 입력을 시작합니다. (마지막 저장·발행은 직접 누르세요.)\n30분 안에 시작되지 않았거나 입력에 실패하면 이 화면에서 다시 보내 주세요.\n(확장 설치·연결은 설정 페이지에서 할 수 있습니다.)`)
                     } catch (err) {
                       setHandoffState('idle')
                       alert(getErrorMessage(err) || '티스토리 입력기로 보내기에 실패했습니다.')

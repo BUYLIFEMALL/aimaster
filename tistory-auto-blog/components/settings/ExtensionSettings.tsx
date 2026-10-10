@@ -88,8 +88,9 @@ export function ExtensionSettings() {
       <div>
         <h2 className="text-sm font-bold text-zinc-900">🧩 티스토리 입력 확장 프로그램 · {EXTENSION_VERSION}</h2>
         <p className="mt-1 text-xs leading-5 text-zinc-500">
-          글 보기 화면에서 &quot;티스토리 입력기로 보내기&quot;를 누른 글을, 티스토리 글쓰기 화면에 제목·본문·이미지 순서대로 사람처럼 한 글자씩
-          입력합니다. 이미지는 티스토리에 파일로 직접 올라가서 보관 기간이 지나도 티스토리 글에서는 사라지지 않습니다.
+          글 보기 화면에서 &quot;티스토리 입력기로 보내기&quot;를 누르면, 확장 프로그램이 <strong className="text-zinc-700">보낸 뒤 30분 안에 자동으로</strong> 티스토리 글쓰기 화면을 새로 열어
+          제목·본문·이미지를 순서대로 사람처럼 한 글자씩 입력하고, BLOG에서 정한 카테고리·태그·공개 범위·댓글·홈주제·발행 시점까지 적용해 발행 직전 상태로 준비합니다.
+          이미지는 티스토리에 파일로 직접 올라가서 보관 기간이 지나도 티스토리 글에서는 사라지지 않습니다.
           <strong className="text-zinc-700"> 마지막 &quot;발행&quot; 버튼은 내용을 확인한 뒤 직접 눌러 주세요.</strong>
         </p>
       </div>
@@ -194,6 +195,31 @@ export function ExtensionSettings() {
             ))}
           </ul>
         )}
+      </div>
+
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-3">
+        <p className="text-xs font-bold text-zinc-800">3. 확장 프로그램 설정과 사용법</p>
+        <ol className="list-decimal space-y-1.5 pl-5 text-xs leading-5 text-zinc-600">
+          <li>
+            <strong className="text-zinc-800">내 티스토리 블로그 이름 저장</strong>: 확장 프로그램 사이드패널의 &quot;내 티스토리 블로그&quot;에 블로그 주소의 앞부분(예: <b>myblog</b>.tistory.com)을 입력하고 저장합니다.
+            저장한 블로그의 글쓰기 화면에만 입력하며, 이 계정으로 열 수 없는 블로그면 입력하지 않고 멈춥니다. <strong className="text-zinc-800">이 설정을 저장하기 전에는 자동 입력이 시작되지 않습니다.</strong>
+          </li>
+          <li>
+            <strong className="text-zinc-800">자동 시작</strong>: 글 보기 화면에서 &quot;티스토리 입력기로 보내기&quot;를 누르면 확장이 보낸 뒤 <strong className="text-zinc-800">30분 안에</strong> 자동으로 입력을 시작합니다(크롬이 켜져 있고 확장이 연결되어 있어야 합니다).
+            30분이 지났거나 입력에 실패한 글은 BLOG에서 &quot;티스토리 입력기로 보내기&quot;를 다시 눌러 주세요. 확장은 항상 새 글쓰기 탭을 열어 입력하며, 이미 작성 중인 탭은 건드리지 않습니다.
+          </li>
+          <li>
+            <strong className="text-zinc-800">발행 설정</strong>: 글 보기 화면의 &quot;발행 설정&quot;에서 카테고리·공개 범위(공개/비공개)·댓글·홈주제·발행 시점(현재/예약)을 글마다 정합니다. &quot;카테고리 불러오기&quot;를 누르면 확장이 내 티스토리 카테고리 목록을 읽어 옵니다(티스토리 창이 잠깐 열렸다 닫힙니다).
+            마지막으로 보낸 글의 설정이 다음 글의 기본값이 됩니다. 태그는 글 끝의 해시태그를 그대로 씁니다. <strong className="text-zinc-800">보호글(비밀번호)은 자동 입력에서 지원하지 않습니다</strong> — 필요하면 티스토리에서 직접 보호로 바꿔 주세요.
+          </li>
+          <li>
+            <strong className="text-zinc-800">완료 알림</strong>: 입력이 끝나면 크롬 알림(발행 직전 준비 완료 · 입력 완료 · 입력 중단)이 뜨고, 알림을 누르면 해당 티스토리 탭으로 이동합니다. 사이드패널의 &quot;입력이 끝나면 크롬 알림 받기&quot;로 끌 수 있습니다(기본 켜짐).
+          </li>
+        </ol>
+        <p className="text-[11px] leading-5 text-zinc-500">
+          입력 중에는 티스토리 탭을 닫거나 글쓰기 화면을 직접 만지지 마세요. 사이드패널을 닫아도 작업은 계속되며, 글 길이에 따라 5~10분 정도 걸립니다.
+          입력 중 문제가 생기면 사이드패널의 &quot;진행 상태&quot;에 이유가 표시되고, 티스토리 편집기에 입력된 내용은 지워지지 않고 그대로 남습니다. 부분만 입력된 글은 발행하지 말고 새 빈 글에서 다시 보내 주세요.
+        </p>
       </div>
     </section>
   )
