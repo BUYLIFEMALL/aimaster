@@ -91,3 +91,22 @@ test('public posts with only a topic use the trusted-click path and also tolerat
   assert.equal(compiledMatches('경제'), false);
   assert.ok(adapter);
 });
+
+test('the real home-topic list shown by Tistory is handed to the topics handler while selecting (v1.67)', async () => {
+  const dialog = fakeDialog({ topics: ['일상', 'IT 인터넷', '경제', '더보기', '선택 안 함'] });
+  const adapter = adapterOn(dialog);
+  const seen = [];
+  adapter.setTopicsHandler((names) => seen.push(...names));
+  const result = await adapter.applyPublish(publish({ topic: '경제' }));
+  assert.deepEqual(seen, ['일상', 'IT 인터넷', '경제'], 'placeholders such as 선택 안 함/더보기 are dropped');
+  assert.equal(result.topics, undefined, 'the list is not part of the apply result');
+});
+
+test('no topic requested: nothing is captured and no handler call happens', async () => {
+  const dialog = fakeDialog();
+  const adapter = adapterOn(dialog);
+  let called = false;
+  adapter.setTopicsHandler(() => { called = true; });
+  await adapter.applyPublish(publish({ topic: '' }));
+  assert.equal(called, false);
+});

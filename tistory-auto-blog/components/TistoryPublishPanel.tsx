@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { DEFAULT_TISTORY_PUBLISH, TISTORY_HOME_TOPICS, type TistoryPublish } from '@/blog/utils/tistoryPublish'
+import { DEFAULT_TISTORY_PUBLISH, mergeHomeTopics, type TistoryPublish } from '@/blog/utils/tistoryPublish'
 
 // "티스토리 입력기로 보내기" 옆의 발행 설정(v1.58): 카테고리·공개 범위·댓글·홈주제·발행 시점을 글마다 정해 글과 함께 확장으로 보낸다.
 // 카테고리 목록은 티스토리 크롬 확장이 읽어 준다(v1.59 이상, 새 탭에서 읽고 닫음). 확장이 없거나 옛 버전이면 이름을 직접 입력한다.
@@ -11,7 +11,7 @@ import { DEFAULT_TISTORY_PUBLISH, TISTORY_HOME_TOPICS, type TistoryPublish } fro
 const APP = 'tistory-publishing-app'
 const EXTENSION = 'tistory-publishing-extension'
 
-function askExtension<T>(type: 'ping' | 'categories', timeoutMs: number): Promise<T | null> {
+function askExtension<T>(type: 'ping' | 'categories' | 'topics', timeoutMs: number): Promise<T | null> {
   return new Promise((resolve) => {
     const requestId = `${type}-${Date.now()}-${Math.random().toString(36).slice(2)}`
     const timer = window.setTimeout(() => { window.removeEventListener('message', onMessage); resolve(null) }, timeoutMs)
@@ -33,6 +33,8 @@ const label = 'text-[11px] font-semibold text-slate-600'
 
 export default function TistoryPublishPanel({ value, onChange, disabled }: { value: TistoryPublish; onChange: (next: TistoryPublish) => void; disabled?: boolean }) {
   const [categories, setCategories] = useState<string[]>([])
+  // 확장이 발행 설정창에서 확인해 둔 실제 홈주제 목록(없으면 기본 목록만 보인다)
+  const [realTopics, setRealTopics] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const defaultLoaded = useRef(false)
@@ -46,6 +48,13 @@ export default function TistoryPublishPanel({ value, onChange, disabled }: { val
       .then((data) => { if (data?.publish) onChange({ ...DEFAULT_TISTORY_PUBLISH, ...(data.publish as TistoryPublish) }) })
       .catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    askExtension<{ ok?: boolean }>('ping', 1500)
+      .then((ping) => (ping?.ok ? askExtension<{ topics?: string[] }>('topics', 3000) : null))
+      .then((result) => { if (result && Array.isArray(result.topics)) setRealTopics(result.topics.filter((name) => typeof name === 'string')) })
+      .catch(() => {})
   }, [])
 
   const set = (patch: Partial<TistoryPublish>) => onChange({ ...value, ...patch })
@@ -75,6 +84,9 @@ export default function TistoryPublishPanel({ value, onChange, disabled }: { val
   }
 
   const categoryOptions = value.category && !categories.includes(value.category) ? [value.category, ...categories] : categories
+  const mergedTopics = mergeHomeTopics(realTopics)
+  const topicKey = (name: string) => name.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')
+  const topicOptions = value.topic && !mergedTopics.some((name) => topicKey(name) === topicKey(value.topic)) ? [value.topic, ...mergedTopics] : mergedTopics
   const busy = disabled || loading
 
   return (
@@ -114,10 +126,10 @@ export default function TistoryPublishPanel({ value, onChange, disabled }: { val
           </select>
         </label>
         <label className="flex flex-col gap-1">
-          <span className={label}>홈주제</span>
+          <span className={label}>홈주제{realTopics.length > 0 ? ' (내 티스토리에서 확인된 목록 포함)' : ''}</span>
           <select disabled={busy} value={value.topic} onChange={(event) => set({ topic: event.target.value })} className={field}>
             <option value="">선택 안 함</option>
-            {TISTORY_HOME_TOPICS.map((name) => <option key={name} value={name}>{name}</option>)}
+            {topicOptions.map((name) => <option key={name} value={name}>{name}</option>)}
           </select>
         </label>
         <label className="flex flex-col gap-1">

@@ -35,6 +35,21 @@ export const TISTORY_HOME_TOPICS = [
   '야구', '축구', '농구', '배구', '골프', '기타 스포츠',
 ] as const
 
+/** 확장이 확인한 실제 홈주제 목록(real)을 앞에 두고, 아직 확인되지 않은 기본 목록 항목을 뒤에 붙인다(공백·문장부호·대소문자만 다른 항목은 같은 것으로 보고 중복 제거). */
+export function mergeHomeTopics(real: readonly string[] | null | undefined): string[] {
+  const key = (value: string) => value.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')
+  const merged: string[] = []
+  const seen = new Set<string>()
+  for (const name of [...(real ?? []), ...TISTORY_HOME_TOPICS]) {
+    const text = typeof name === 'string' ? name.replace(/\s+/g, ' ').trim() : ''
+    const id = key(text)
+    if (!text || !id || seen.has(id)) continue
+    seen.add(id)
+    merged.push(text)
+  }
+  return merged
+}
+
 const clean = (value: unknown, max: number, label: string) => {
   if (value === undefined || value === null || value === '') return ''
   if (typeof value !== 'string') throw new Error(`${label} 형식이 올바르지 않습니다.`)

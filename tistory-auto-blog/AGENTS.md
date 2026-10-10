@@ -90,6 +90,14 @@
 - **DB 변경 없음**: 저장은 기존 `tistory_candidates`에 `source_type='http'`, `source_input=https://www.youtube.com/shorts/<id>`로 한다(threads-content-ops와 같은 방식). 화면은 `source_input`이 쇼츠 주소이면 "유튜브 쇼츠"로 보여 준다. **같은 영상을 이미 분석·저장했으면 AI 호출 전에 막는다(409)** — 중복 비용 방지(다른 회원의 저장분은 영향 없음). 카테고리는 본인 카테고리만 지정할 수 있다. 영상의 대사·자막은 저장하지 않는다. 검색 결과는 저장하지 않고 "주제로 저장"을 누른 영상만 저장한다. 30일 자동 삭제(콘텐츠 보관 정책)는 다른 후보와 같이 적용된다.
 - **시험**: `npm run test:shorts` 18개(지표·등급·검색 호출 방식·오류 문구·키 비노출·분석 프롬프트·JSON 정리·Gemini 영상/OpenAI 대체/키 없음·API 접근 권한·키 확인·입력 검증·중복 선차단·본인 카테고리·저장 형식·실패 처리). 모두 가짜 fetch·가짜 DB로 실행하며 **실제 호출 확인(2026-10-10, 주인님 승인, 테스트 계정 buylifemall@naver.com의 본인 키)**: 검색 "자취 꿀팁"(최근 30일, 조회수순) 50개를 받아 등급·점수·구독자 지표가 정상 계산됐고, 1위 영상을 Gemini가 **영상을 직접 보고 분석**해 훅·터진 이유와 주제 후보 3건(요약 176~183자·키워드 5개)을 만들었으며, 실제 DB에 저장 형식(`source_type=http`+쇼츠 주소)으로 넣고 읽은 뒤 시험 행은 삭제했다. 화면(로그인 필요)에서의 확인은 주인님 PC에서. 확인 방법: 설정에서 본인 YouTube(+Gemini 또는 OpenAI) 키를 등록 → `/candidates` → "유튜브 쇼츠 떡상 분석" → 검색 → "주제로 저장".
 
+## v1.67 (2026-10-10) — 홈주제 목록을 내 티스토리의 실제 목록과 맞추기 (주인님 지시)
+
+- **문제**: 웹의 홈주제 선택 목록은 확장에 내장된 기본 목록(`TISTORY_HOME_TOPICS`)이라 실제 티스토리 목록과 글자가 다를 수 있다(빈 새 글에서는 티스토리가 발행 설정창을 열지 않아 미리 읽을 수 없다. 지금까지 확인된 실제 항목은 `IT 인터넷` 하나).
+- **해결**: 입력 중 발행 설정창에서 홈주제 목록이 열릴 때 **그 실제 목록(티스토리가 보여 주는 글자)을 확장이 기억**한다. 일반 경로는 주입 함수가 `topics`를 함께 돌려주고(`선택 안 함`·`더보기`는 제외), 홈주제만 고르는 신뢰 클릭 경로는 목록이 열린 직후 읽기 전용으로 읽는다(`captureOpenTopicList`). 어댑터가 `setTopicsHandler`로 알리고 작업기(`background.js`)가 `chrome.storage.local`의 `tistoryHomeTopics`({names, at})에 저장한다. 웹 화면(`TistoryPublishPanel`)은 `web-bridge`의 새 `topics` 요청(저장된 값만 돌려줌, 브라우저 작업 없음, 사이트 출처만)으로 받아 **실제 목록을 앞에, 아직 확인 안 된 기본 항목을 뒤에** 보여 준다(공백·문장부호만 다른 항목은 같은 것으로 보고 중복 제거 — `mergeHomeTopics`). 현재 선택값은 목록에 없어도 유지한다.
+- **한계**: 티스토리가 일부 주제를 `더보기` 뒤에 숨기면 그 항목은 읽히지 않는다(그때는 기본 목록·직접 선택으로 보완). 목록은 **홈주제가 지정된 글을 한 번 입력한 뒤부터** 채워지고, 입력 때 선택은 여전히 현재 티스토리 목록과 하나로 일치하는 항목만 고른다(안전 규칙 유지).
+- **시험**: `extension-publish-dialog` 2개(실제 목록 전달·주제 미지정 시 호출 없음), `extension-worker` 1개(사이트에만 응답·타 출처 거절·브라우저 작업 없음), `npm run test:home-topics` 2개(병합·중복 제거). `test:extension` 75개.
+- **회원 안내**: ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → `chrome://extensions` 새로고침. 새 주제는 홈주제를 정해 한 번 보낸 뒤 글 화면을 새로 열면 목록에 나타난다.
+
 ## v1.56 (2026-10-09)
 
 - **확장 다운로드 주소를 버전과 무관한 고정 주소로 통일**: `/downloads/tistory-auto-blog-extension-latest.zip`. 빌드(`scripts/build-extension-archive.mjs`)가 버전별 ZIP과 함께 `-latest.zip` 사본을 만든다. 설정 화면 다운로드 버튼·`GET /api/extension/whoami`의 `downloadUrl`·`npm run sync:program-version`(DB `extension_download_url`)이 모두 이 주소를 쓴다(`naver-blog-agent`와 같은 방식). 기능 변경 없음, 확장 코드 변경 없음(ZIP·manifest만 v1.56). 설치된 확장의 새 버전 알림은 그대로 동작한다.

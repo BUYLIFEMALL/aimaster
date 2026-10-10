@@ -16,7 +16,7 @@
   const LOGIN_WAIT_MS = 5 * 60 * 1000;
 
   function createTistoryAdapter({ chrome, TaskError, sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)), random = Math.random, now = Date.now, loginWaitMs = LOGIN_WAIT_MS, probeTimeoutMs = 8000 }) {
-    const state = { tabId: null, blogName: "", bodyFrame: null, say: () => {}, shouldStop: () => false };
+    const state = { tabId: null, blogName: "", bodyFrame: null, say: () => {}, shouldStop: () => false, onTopics: () => {} };
     const say = (message) => { try { state.say(message); } catch { /* 상태 표시 실패는 입력에 영향이 없다 */ } };
     const between = (min, max) => Math.floor(random() * (max - min + 1)) + min;
     const isMissingTab = (error) => /No tab with id|Invalid tab ID|tab was closed/i.test(String(error?.message || error));
@@ -501,6 +501,30 @@
 
     // 홈주제는 티스토리 React가 관리하는 드롭다운이다. 발행창을 연 뒤 DOM 합성 click으로
     // 고르면 isTrusted=false를 무시할 수 있으므로, 두 번의 실제 포인터 클릭과 화면 문구 확인을 쓴다.
+    // 열려 있는 홈주제 목록의 실제 글자를 읽어 둔다(읽기 전용, 실패해도 입력에는 영향 없음). 더보기 뒤에 숨은 주제는 읽히지 않을 수 있다.
+    async function captureOpenTopicList(tabId) {
+      try {
+        for (let attempt = 0; attempt < 10; attempt += 1) {
+          const read = await chrome.scripting.executeScript({
+            target: { tabId, frameIds: [0] },
+            func: () => {
+              const visible = (node) => Boolean(node?.getClientRects().length) && getComputedStyle(node).visibility !== "hidden";
+              const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
+              if (!list) return null;
+              const names = [...list.querySelectorAll("[role='option'], button, a, li, div")]
+                .filter((node) => visible(node) && node.children.length === 0)
+                .map((node) => String(node.textContent || "").replace(/\s+/g, " ").trim())
+                .filter((value) => value && value !== "선택 안 함" && value !== "더보기");
+              return [...new Set(names)];
+            },
+          });
+          const names = read[0]?.result;
+          if (Array.isArray(names) && names.length) { state.onTopics(names); return; }
+          await sleep(100);
+        }
+      } catch { /* 목록 기억은 선택 기능이다 */ }
+    }
+
     async function applyTistoryTopicWithTrustedClicks(tabId, topic) {
       const button = await chrome.scripting.executeScript({
         target: { tabId, frameIds: [0] }, args: [topic],
@@ -521,6 +545,7 @@
       const buttonPoint = button[0]?.result;
       if (!buttonPoint?.x) throw new Error("홈주제 선택 메뉴를 찾지 못했습니다.");
       await clickTistoryPoint(tabId, buttonPoint);
+      await captureOpenTopicList(tabId);
 
       let optionPoint = null;
       for (let attempt = 0; attempt < 20; attempt += 1) {
@@ -605,12 +630,15 @@
           const selectButtons = [...root.querySelectorAll("button.mce-btn-type1.select_btn")].filter(visible);
           // 티스토리의 실제 글자(예: "IT 인터넷")와 우리 목록(예: "IT·인터넷")이 공백·문장부호만 다른 경우를 같은 항목으로 본다. 그래도 하나로 식별되지 않으면 실제 목록을 보여 주며 중단한다.
           const key = (value) => String(value || "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-          const chooseListOption = async (button, label, required = true) => {
+          // 홈주제를 고를 때 열린 실제 목록(티스토리가 보여 주는 글자)을 함께 돌려줘 웹의 홈주제 목록을 실제와 맞추는 데 쓴다(v1.67).
+          let topicNames = [];
+          const chooseListOption = async (button, label, required = true, capture = false) => {
             if (!button) { if (!required) return; throw new Error("발행 설정 선택 메뉴를 찾지 못했습니다."); }
             await click(button);
             const list = [...document.querySelectorAll("[role='listbox']")].find(visible);
             const wanted = key(label);
             const candidates = [...(list?.querySelectorAll("button, [role='option'], a, li, div") || [])].filter((node) => visible(node) && nodeText(node));
+            if (capture) topicNames = [...new Set(candidates.filter((node) => node.children.length === 0).map(nodeText))].filter((value) => value !== "선택 안 함" && value !== "더보기");
             const matches = candidates
               .filter((node) => key(nodeText(node)) === wanted)
               .filter((node) => ![...node.children].some((child) => key(nodeText(child)) === wanted));
@@ -622,7 +650,7 @@
             if (!key(nodeText(button)).includes(wanted)) throw new Error(`‘${label}’ 선택 적용을 확인하지 못했습니다.`);
           };
           await chooseListOption(selectButtons[0], requested.comment === "allow" ? "댓글 허용" : "댓글 비허용");
-          if (requested.topic) await chooseListOption(selectButtons[1], requested.topic);
+          if (requested.topic) await chooseListOption(selectButtons[1], requested.topic, true, true);
 
           const timingLabel = requested.timing === "now" ? "현재" : "예약";
           const timingButton = [...root.querySelectorAll("button.btn_date")].find((button) => nodeText(button) === timingLabel);
@@ -659,13 +687,15 @@
             setValue(hourInput, String(Number(hour))); setValue(minuteInput, String(Number(minute)));
             if (Number(hourInput.value) !== Number(hour) || Number(minuteInput.value) !== Number(minute)) throw new Error("예약 시간 적용을 확인하지 못했습니다.");
           }
-          return { visibility: visibilityLabel, timing: timingLabel };
+          return { visibility: visibilityLabel, timing: timingLabel, topics: topicNames };
           } catch (error) { return { error: String(error?.message || error) }; }
         },
       });
       if (applied[0]?.result?.error) throw new Error(applied[0].result.error);
       if (!applied[0]?.result) throw new Error("발행 설정 적용 결과를 확인하지 못했습니다.");
-      return applied[0].result;
+      const { topics, ...rest } = applied[0].result;
+      if (Array.isArray(topics) && topics.length) state.onTopics(topics);
+      return rest;
     }
 
     async function readTistoryDraftState(tabId, bodyFrame) {
@@ -844,6 +874,8 @@
       state,
       ownEditorUrl: (url) => Core.isOwnEditorUrl(url, state.blogName),
       setStatus(handler) { state.say = typeof handler === "function" ? handler : () => {}; },
+      // 발행 설정창을 열었을 때 읽은 실제 홈주제 목록을 받는다(웹의 홈주제 선택을 실제와 맞추는 데 쓴다).
+      setTopicsHandler(handler) { state.onTopics = typeof handler === "function" ? handler : () => {}; },
 
       async ensureAlive() {
         const tab = await getTab();

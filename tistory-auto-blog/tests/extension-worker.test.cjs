@@ -273,3 +273,15 @@ test('the web bridge only answers its own origin and only ping/categories; it ne
   assert.match(source, /event\.origin !== location\.origin/);
   assert.ok(!/tistoryAutoBlogToken|storage\.local|"start"|"fill"/.test(source));
 });
+
+// ---- 홈주제 목록: 확장이 확인해 둔 실제 목록을 사이트 화면에만 돌려준다 (v1.67) ----
+test('topics: the stored real home-topic list is returned only to the site and opens nothing', async () => {
+  const w = loadWorker({ storage: { ...base, tistoryHomeTopics: { names: ['일상', 'IT 인터넷'], at: 5 } } });
+  assert.deepEqual(JSON.parse(JSON.stringify(await w.send({ type: 'topics' }, siteSender))), { topics: ['일상', 'IT 인터넷'], at: 5 });
+  for (const sender of [{}, { url: 'chrome-extension://abc/sidepanel.html' }, { url: 'https://tistory-auto-blog-pearl.vercel.app.evil.example/' }]) {
+    assert.match((await w.send({ type: 'topics' }, sender)).error, /허용되지 않은/);
+  }
+  assert.deepEqual(w.adapter.calls, []);
+  const empty = loadWorker({ storage: base });
+  assert.deepEqual(JSON.parse(JSON.stringify(await empty.send({ type: 'topics' }, siteSender))), { topics: [], at: 0 });
+});

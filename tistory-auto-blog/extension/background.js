@@ -15,6 +15,7 @@ const KEY = {
   state: "tistoryTaskState", // 사이드패널에 보여줄 진행 상태
   notify: "tistoryNotify", // 작업이 끝나면 크롬 알림(기본 켜짐, false면 끔)
   notifyTab: "tistoryNotifyTab",
+  topics: "tistoryHomeTopics", // 발행 설정창에서 확인한 실제 홈주제 목록(웹의 홈주제 선택을 실제와 맞추는 데 쓴다)
 };
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const Core = self.TistoryCore;
@@ -152,6 +153,7 @@ async function runTask(task) {
 
   const adapter = self.TistoryAdapter.createTistoryAdapter({ chrome, TaskError, sleep });
   adapter.state.shouldStop = () => cancelRequested;
+  adapter.setTopicsHandler?.((names) => run(() => set({ [KEY.topics]: { names: names.slice(0, 80), at: Date.now() } })));
   try {
     if (!blogName) throw new TaskError("BLOG_NAME_MISSING", "티스토리 블로그 이름이 설정되지 않았습니다. 사이드패널에서 내 블로그 이름을 먼저 저장해주세요.");
     const originalBlocks = Array.isArray(task.blocks) ? task.blocks : [];
@@ -256,6 +258,12 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     if (message.type === "categories") {
       if (!String(sender?.url || "").startsWith(`${BASE}/`)) throw new Error("허용되지 않은 요청입니다.");
       return await readCategories(sender);
+    }
+    // 홈주제 목록은 브라우저 작업 없이 저장해 둔 것만 돌려준다(같은 출처 제한).
+    if (message.type === "topics") {
+      if (!String(sender?.url || "").startsWith(`${BASE}/`)) throw new Error("허용되지 않은 요청입니다.");
+      const stored = (await get(KEY.topics))[KEY.topics];
+      return { topics: Array.isArray(stored?.names) ? stored.names : [], at: stored?.at || 0 };
     }
     if (message.type === "ackBadge") { await setBadge("", "#000000"); return { ok: true }; }
     if (message.type === "pump") { run(pump); return { ok: true }; }
