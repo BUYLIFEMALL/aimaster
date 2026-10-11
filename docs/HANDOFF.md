@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — CARDNEWS STUDIO v1.03 긴급 수정 (cardnews-studio)
+
+v1.02의 배경 생성이 운영에서 sharp(libvips) 누락으로 500이던 문제를 `next.config.ts`로 고쳐 v1.03 배포(API는 JSON 응답 확인, DB 버전 v1.03). **남은 일: 실제 화면에서 배경 1장 생성·표시 확인**(Chrome 창이 가려져 화면 캡처 불가했음). 원인·점검법은 `docs/ERROR_LESSONS.md` 2026-10-11 sharp 항목.
+
 ## 2026-10-11 Antigravity — 신규 프로그램 AI 유튜브 썸네일 프로 v1.01 (seo-thumbnail-pro)
 
 주인님이 주신 SEO Thumbnail Pro 캡처 8장 및 참고 사이트(`seo-thumbnail-pro-99gg.vercel.app`) 분석을 바탕으로, **유튜브 대본 분석 A/B 테스트 전략 수립 + 16:9 고화질 썸네일 제작 + 피드백 수정 루프**를 한 곳에서 완결하는 신규 서브프로그램을 개발하여 배포했습니다.
