@@ -288,13 +288,17 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
     if (type === 'verify') assert.equal(args.imageCount, 4);
     return { ok: true };
   };
+  const originalFinalUi=sandbox.prepareFinalEditorUi;
+  sandbox.prepareFinalEditorUi=async()=>authoringCommands.push('finalUi'); // Window behavior has dedicated worker scenarios.
   const written = await sandbox.writeArticle({ id: 'draft-verification', tabId: 123, blogId: 'myblog', payload: oldPayload }, { checkCancelled: async () => {}, save: async () => {}, onProgress: async () => {} });
+  sandbox.prepareFinalEditorUi=originalFinalUi;
   assert.equal(written.complete, true);
   assert.equal(entered.blocks.filter(b => b.type === 'image').length, 4);
   assert.equal(writer.matchingWriterPrefix(entered, layout.steps), layout.steps.length);
   assert.equal(authoringCommands.includes('click'), false, '실제 편집기 검수와 원고 입력은 최종 발행 버튼을 누르지 않음');
   assert.equal(authoringCommands.includes('settings'), false);
   assert.equal(authoringCommands.at(-1), 'verify', '본문 입력 후 검증까지 완료');
+  assert.ok(authoringCommands.indexOf('finalUi')<authoringCommands.indexOf('imageAi'));
 
   // A resume popup can arrive after an initially valid, empty editor snapshot.
   // Observe it and require a fresh stable interval instead of starting title input.

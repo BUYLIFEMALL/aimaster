@@ -28,7 +28,7 @@ async function browser(initial={}) {
         create:async details=>{const tab={id:100+tabs.size,windowId:1,status:'complete',...details};tabs.set(tab.id,tab);calls.push(['create',tab.id]);return tab;},
         update:async(id,details)=>{calls.push(['update',id]);if(!tabs.has(id))throw absent(id);Object.assign(tabs.get(id),details);return structuredClone(tabs.get(id));},
         remove:async id=>{if(!tabs.delete(id))throw absent(id);},onUpdated:event('updated'),onRemoved:event('removed'),onReplaced:event('replaced')},
-      windows:{update:async()=>({})},scripting:{executeScript:async request=>{calls.push(['script',request.args[0]]);return execute(request);}},
+      windows:{get:async id=>({id,state:'normal'}),update:async(id,details)=>{calls.push(['focus',id,details]);return {};}},scripting:{executeScript:async request=>{calls.push(['script',request.args[0]]);return execute(request);}},
       alarms:{create:async()=>{},onAlarm:event('alarm')},action:{onClicked:event('clicked'),setBadgeText:async()=>{},setBadgeBackgroundColor:async()=>{}},
       runtime:{getManifest:()=>({version_name:'v1.63'}),getURL:f=>'chrome-extension://test/'+f,onStartup:event('startup'),onInstalled:event('installed'),onMessage:event('message')}
     },
@@ -294,6 +294,32 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     b.sandbox.setTimeout=resolve=>{b.data.activeTask.runId='new';resolve();};
     let reply;b.events.message({type:'editorWait',delayMs:50,runId:'current',executionUntil:Date.now()+165000},{id:'own-extension',tab:{id:1,url:'https://blog.naver.com/myblog/postwrite'}},r=>reply=r);
     for(let n=0;n<5;n++)await flush();assert.match(reply.error,/새 실행으로 바뀌어/);
+  });
+  await scenario('final UI verification brings only the current task tab forward after authoring',async()=>{
+    const t={...task('writing'),runId:'current'};
+    const b=await browser({connection,activeTask:t,preparedEditorTabs:[{id:2}]});b.add();b.add({id:2});
+    b.sandbox.buildWriterSteps=()=>({steps:[],plan:[],imageCount:2});b.sandbox.articlePlan=()=>[];
+    b.sandbox.runWriter=async()=>{b.calls.push(['authoring-complete']);};
+    await b.sandbox.writeArticle(t);
+    const completed=b.calls.findIndex(c=>c[0]==='authoring-complete'),focus=b.calls.findIndex(c=>c[0]==='focus'),ai=b.calls.findIndex(c=>c[0]==='script'&&c[1]==='imageAi');
+    assert.ok(completed<focus && focus<ai);assert.deepEqual(b.calls.filter(c=>c[0]==='update').map(c=>c[1]),[1]);
+    assert.equal(b.calls.filter(c=>c[0]==='focus').length,1);assert.equal(b.calls.some(c=>c[0]==='create'),false);
+    assert.equal(b.calls.some(c=>c[0]==='script'&&c[1]==='click'),false);
+  });
+  await scenario('stopped or replaced execution cannot focus an editor for final verification',async()=>{
+    for(const stopped of [true,false]){
+      const t={...task('writing'),runId:'current'};
+      const b=await browser({connection,activeTask:stopped?t:{...t,runId:'new'}});b.add();
+      if(stopped)b.network(async()=>({ok:true,json:async()=>({state:'draft',runId:'current'})}));
+      await assert.rejects(()=>b.sandbox.prepareFinalEditorUi(t),e=>e.code==='RUN_STOPPED');
+      assert.equal(b.calls.some(c=>c[0]==='update'||c[0]==='focus'),false);
+    }
+  });
+  await scenario('final verification restores a minimized task window without moving another tab',async()=>{
+    const b=await browser({connection,activeTask:task('writing')});b.add();
+    b.sandbox.chrome.windows.get=async id=>({id,state:'minimized'});
+    await b.sandbox.prepareFinalEditorUi(task('writing'));
+    const focused=b.calls.find(c=>c[0]==='focus');assert.equal(focused[2].focused,true);assert.equal(focused[2].state,'normal');
   });
   console.log(`${passed} browser lifecycle regression scenarios passed`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

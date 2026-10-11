@@ -277,6 +277,21 @@ async function reportReservation(task) {
   return finish(result);
 }
 // Authoring and final publication are separate so a real editor can be verified without publishing.
+async function prepareFinalEditorUi(task) {
+  if(runFault)throw runFault;
+  if(task.runId){
+    await taskRunning(task);
+    const active=(await stored()).activeTask;
+    if(active?.runId!==task.runId || active.tabId!==task.tabId)throw Object.assign(new Error('현재 실행이 종료되거나 변경되었습니다. 입력한 내용은 보존됩니다.'),{code:'RUN_STOPPED'});
+  }
+  if((await inspect(task.tabId)).status!=='valid')throw new Error('발행 전 확인할 글쓰기 화면이 변경되었습니다. 원고는 보존됩니다.');
+  const tab=await requireTab(task.tabId),window=await chrome.windows.get(tab.windowId);
+  // SmartEditor's image toolbar needs a rendered foreground editor. Focus this
+  // task once at completion, not for each paragraph or image during authoring.
+  await inTab(tab.id,()=>chrome.tabs.update(tab.id,{active:true}));
+  await chrome.windows.update(tab.windowId,{focused:true,...(window.state==='minimized'?{state:'normal'}:{})});
+  await sleep(100);
+}
 async function writeArticle(task,options={}) {
   const tabId=task.tabId, p=task.payload;
   const {steps,plan,imageCount}=buildWriterSteps(p,articlePlan(p.article));
@@ -294,7 +309,7 @@ async function writeArticle(task,options={}) {
     onProgress:options.onProgress || ((done,total,type)=>type==='paragraph' && done!==total ? undefined : api('/progress',{id:task.id,runId:task.runId,done,total,message:`네이버 ${done}/${total} · ${type==='image'?'이미지':type==='quote'?'제목·섹션':'본문'} 입력 확인 완료`})),
     checkCancelled:options.checkCancelled || (()=>taskRunning(task))
   });
-  if(task.runId)await taskRunning(task);
+  await prepareFinalEditorUi(task);
   await command(tabId,'imageAi');
   await command(tabId,'verify',{title:p.title,article:p.article,plan,titleQuote:true,requireAi:true,sectionStyle:'quotation_line',imageCount});
   return {complete:true,imageCount,steps:steps.length};

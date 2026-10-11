@@ -1,5 +1,9 @@
 # 🤖 네이버 블로그 에이전트 — 인수인계 문서 (AGENTS.md)
 
+## 2026-10-11 에이전트 v1.77 — 본문 완료 후 네이버 화면 확인
+
+v1.76 운영/PC 적용 후 실제1장 prepared11/11·2장 전면 조건 prepared12/12 통과.2장 숨겨진 조건은 입력12/12 후 AI 표시 스위치 부재로 실패해 별도 보완했습니다. 본문 입력이 끝나면 현재 작업 탭을 한 번 앞으로 열어 AI표시/전체검수/설정을 마무리합니다. 취소/새 실행·다른 준비 탭 보호 유지. worker40·전체Node131·빌드 통과. 운영v1.77/숨겨진3·4장 실제검수는 완료 증거 후 기록합니다. [최신 작업과 재개 순서](docs/FINAL_EDITOR_UI_2026-10-11.md). 최종 발행·BLOG/올인원 수정 없음.
+
 
 ## 2026-10-11 네이버 블로그 에이전트 v1.76 — 편집기 대기 수정
 
@@ -26,7 +30,7 @@ v1.75 운영 확인 완료: 코드4b9a1d4a 푸시·프로덕션READY·DB/확장/
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 코드 버전**: `v1.76` ([탭 보호·실제 이미지/릴리스 인수인계](docs/RESTORED_EDITOR_SAFETY_2026-10-11.md))
+- **현재 코드 버전**: `v1.77` ([탭 보호·실제 이미지/릴리스 인수인계](docs/RESTORED_EDITOR_SAFETY_2026-10-11.md))
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [순차 개선·담당·현재 검수](docs/AUTOMATION_IMPROVEMENT_PLAN_2026-10-10.md), [`docs/CONTINUATION.md`](docs/CONTINUATION.md), [클로드용 BLOG 인수인계](../docs/BLOG_AUTOMATION_HANDOFF_2026-10-10.md). 이전 실제 탭/입력 검수는 v1.63/v1.62 보고 참고.
 
