@@ -3,7 +3,12 @@ import "server-only";
 import { findImageModel, type ImagePlatform, type ImageRatio } from "./contentModels";
 
 const KOREAN_PEOPLE_RULE = "If the scene includes any people, depict them as Korean/East Asian people by default.";
-const NO_TEXT_RULE = "No visible text, letters, words, captions, logos, or watermarks anywhere in the image.";
+const NO_TEXT_RULE = [
+  "No visible text, letters, words, numbers, captions, logos, or watermarks anywhere in the image, in any language.",
+  "Communicate the topic through objects, arrangement and actions alone; never turn the topic or article title into writing inside the scene.",
+  "Keep paper, notebooks, cards, boards and signs completely blank. Show device screens switched off or with simple abstract shapes only, without app interfaces or written checklists.",
+  "Do not add speech bubbles, instructional diagrams, infographic panels, before/after labels or invented handwriting. Preserve the requested visual style and composition without using lettering.",
+].join(" ");
 
 export function finalizePrompt(prompt: string): string {
   return `${prompt.trim().slice(0, 1500)}\n\n${KOREAN_PEOPLE_RULE} ${NO_TEXT_RULE}`;
