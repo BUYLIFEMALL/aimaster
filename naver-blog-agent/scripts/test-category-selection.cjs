@@ -170,8 +170,15 @@ const categories = [
   assert.equal(state.writingStyle, "concise");
 
   let savedRequest;
+  const saveTransport=async(url,options)=>{
+    savedRequest={url,body:JSON.parse(options.body)};
+    return {ok:true,json:async()=>({success:true,post:{...savedRequest.body,save_revision:'revision-1'}})};
+  };
+  const snapshot=loadModule('lib/postReviewSnapshot.ts');
+  const saving=loadModule('lib/postSaveClient.ts',{'./postReviewSnapshot':snapshot},{fetch:saveTransport,crypto});
   Object.assign(context, { window: browser, localStorage: storage, setSavedPostCount() {}, setCurrentPostId() {},
-    fetch: async (url, options) => { savedRequest = { url, body: JSON.parse(options.body) }; return { ok: true, json: async () => ({}) }; },
+    sourceEpoch:{current:0},postSaveRef:{current:null},postIdRef:{current:null},crypto,
+    PostSaveClient:saving.PostSaveClient,mergeSavedPosts:saving.mergeSavedPosts,setSaveRevision(){},setError(message){throw new Error(message);},
   });
   await evaluate("savePostToStorage", context)("test-draft", { category: requested.overrideCategory, title: "test", content: "test content", tags: [] }, []);
   assert.equal(savedRequest.url, "/api/posts");

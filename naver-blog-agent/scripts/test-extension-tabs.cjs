@@ -267,5 +267,33 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     b.network(async()=>({ok:true,json:async()=>({state:'draft',execution:{runId:'retired',stage:'abandoned'}})}));
     await b.sandbox.pump();assert.equal(b.data.activeTask,undefined);assert.equal(b.data.resultConflicts[0].runId,'retired');assert.equal(b.data.resultConflicts[0].checkpoint.done,4);assert.equal(b.calls.length,0);
   });
+  await scenario('editor wait resumes only our Naver frame and does not renew the lease',async()=>{
+    const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});
+    b.sandbox.chrome.runtime.id='own-extension';
+    const replies=[];
+    assert.equal(b.events.message({type:'editorWait',delayMs:50,runId:'current',executionUntil:Date.now()+165000},{id:'own-extension',tab:{id:1,url:'https://blog.naver.com/myblog/postwrite'}},r=>replies.push(r)),true);
+    for(let n=0;n<5;n++)await flush();
+    assert.equal(replies[0].ok,true);assert.equal(b.calls.length,0);assert.equal(b.reports.length,0);
+  });
+  await scenario('editor wait rejects foreign sender, wrong tab/run, expired lease and excessive delay',async()=>{
+    for(const variant of ['sender','host','tab','run','expiry','delay']){
+      const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});
+      b.sandbox.chrome.runtime.id='own-extension';
+      const message={type:'editorWait',delayMs:50,runId:'current',executionUntil:Date.now()+165000};
+      const sender={id:'own-extension',tab:{id:1,url:'https://blog.naver.com/myblog/postwrite'}};
+      if(variant==='sender')sender.id='foreign';if(variant==='host')sender.tab.url='https://naver-blog-agent.vercel.app/';
+      if(variant==='tab')sender.tab.id=99;if(variant==='run')message.runId='old';
+      if(variant==='expiry')message.executionUntil=Date.now()-1;if(variant==='delay')message.delayMs=1001;
+      let reply;b.events.message(message,sender,r=>reply=r);for(let n=0;n<5;n++)await flush();
+      assert.ok(reply.error,variant);assert.equal(reply.ok,undefined);assert.equal(b.calls.length,0);
+    }
+  });
+  await scenario('a retired execution during worker wait cannot resume page input',async()=>{
+    const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});
+    b.sandbox.chrome.runtime.id='own-extension';
+    b.sandbox.setTimeout=resolve=>{b.data.activeTask.runId='new';resolve();};
+    let reply;b.events.message({type:'editorWait',delayMs:50,runId:'current',executionUntil:Date.now()+165000},{id:'own-extension',tab:{id:1,url:'https://blog.naver.com/myblog/postwrite'}},r=>reply=r);
+    for(let n=0;n<5;n++)await flush();assert.match(reply.error,/새 실행으로 바뀌어/);
+  });
   console.log(`${passed} browser lifecycle regression scenarios passed`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

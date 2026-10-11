@@ -471,6 +471,23 @@ runBackground(pump);
 runBackground(checkUpdate);
 chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
   (async()=>{
+    if(message.type==='editorWait'){
+      // Only our injected isolated-world editor can request a short delay.
+      // Do not expose a timer to the web bridge or renew deadlines here.
+      let url;try{url=new URL(_sender.tab?.url);}catch{}
+      if(_sender.id!==chrome.runtime.id || !Number.isInteger(_sender.tab?.id) || url?.protocol!=='https:' || url?.hostname!=='blog.naver.com')throw new Error('편집기 대기 요청의 출처를 확인하지 못했습니다.');
+      if(!Number.isInteger(message.delayMs) || message.delayMs<1 || message.delayMs>1000)throw new Error('편집기 대기 시간이 올바르지 않습니다.');
+      const assertCurrent=async()=>{
+        if(!message.runId)return;
+        if(runFault)throw runFault;
+        const task=(await stored()).activeTask;
+        if(!Number.isFinite(message.executionUntil) || Date.now()>=message.executionUntil || task?.runId!==message.runId || task?.tabId!==_sender.tab.id || !['writing','final_publish'].includes(task.stage))throw new Error('실행 연결이 만료되거나 새 실행으로 바뀌어 입력을 중지했습니다. 네이버 원고를 확인해 주세요.');
+      };
+      await assertCurrent();
+      await sleep(message.delayMs);
+      await assertCurrent();
+      return {ok:true};
+    }
     if(message.type==='categories'){
       const state=await stored();
       if(!state.connection)throw new Error('확장을 본인 계정으로 먼저 연결해 주세요.');

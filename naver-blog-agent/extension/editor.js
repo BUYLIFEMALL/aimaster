@@ -1,6 +1,6 @@
 // This function runs only inside the editor's isolated world. No debugger or remote control.
 async function editorCommand(command, args = {}) {
-  const build='20261010.4';let step='locate';
+  const build='20261011.1';let step='locate';
   try {
   const assertExecution=()=>{
     if(args.runId && (globalThis.__nbaExecutionRun!==args.runId || !Number.isFinite(args.executionUntil) || Date.now()>=args.executionUntil))throw new Error('실행 연결이 만료되거나 새 실행으로 바뀌어 입력을 중지했습니다. 네이버 원고를 확인해 주세요.');
@@ -14,7 +14,14 @@ async function editorCommand(command, args = {}) {
       if(match)return match;
     }
   };
-  const wait = async ms => {assertExecution();await new Promise(resolve => setTimeout(resolve, ms));assertExecution();};
+  // Hidden pages can batch chained timers once a minute. Wait in our worker,
+  // then resume through a runtime message; never extend an execution's lease.
+  const wait = async ms => {
+    assertExecution();
+    const receipt=await chrome.runtime.sendMessage({type:'editorWait',delayMs:ms,...(args.runId?{runId:args.runId,executionUntil:args.executionUntil}:{})});
+    if(receipt?.ok!==true)throw new Error(receipt?.error || '확장 연결에서 편집기 대기를 확인하지 못했습니다. 원고는 보존됩니다.');
+    assertExecution();
+  };
   // Image uploads open a library side panel with role=dialog. It does not block
   // typing. Only visible SmartEditor alert/resume popups stop the operation.
   const blockingPopup = () => [...document.querySelectorAll('.se-popup-container')].find(el=>visible(el) && el.querySelector('.se-popup-title, .se-popup-alert-text'));
