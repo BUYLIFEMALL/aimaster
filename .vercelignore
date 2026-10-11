@@ -18,3 +18,6 @@ naver-blog-auto-poster_app/node_modules
 
 # shorts-viral-studio/(쇼츠 떡상 분석·대본 자동화, 2026-10-04 신설)는 자체 Vercel 프로젝트로 따로 배포되고 루트 앱이 import하지 않는다.
 /shorts-viral-studio
+
+# cardnews-studio/(CARDNEWS STUDIO, 2026-10-11 신설)는 자체 Vercel 프로젝트로 따로 배포되고 루트 앱이 import하지 않는다.
+/cardnews-studio
