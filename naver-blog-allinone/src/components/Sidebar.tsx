@@ -12,11 +12,12 @@ import {
   LogOut,
   X,
   ExternalLink,
+  Archive,
 } from "lucide-react";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 
-export type MainTabType = "ideas" | "places" | "keyword-finder" | "keyword-fighter";
+export type MainTabType = "ideas" | "places" | "keyword-finder" | "keyword-fighter" | "library";
 
 interface SidebarProps {
   activeTab: MainTabType;
@@ -222,6 +223,21 @@ export function Sidebar({
               유틸리티 & 연동
             </span>
           </div>
+
+          {/* 🗂 내 보관함: 생성한 글·이미지 저장 목록 */}
+          <Link
+            href="/?tab=library"
+            onClick={() => {
+              onSelectTab("library");
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+              activeTab === "library" ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100"
+            }`}
+          >
+            <Archive className={`h-4 w-4 ${activeTab === "library" ? "text-white" : "text-indigo-500"}`} />
+            <span>내 보관함</span>
+          </Link>
 
           {/* 🔑 API키등록·플랫폼연동 링크 */}
           <Link

@@ -9,6 +9,9 @@ import { TopicIdeaSection } from "@/components/TopicIdeaSection";
 import { PlacesVisionSection } from "@/components/PlacesVisionSection";
 import { KeywordFighterSection } from "@/components/KeywordFighterSection";
 import { PostCreationSection } from "@/components/PostCreationSection";
+import { LibrarySection } from "@/components/blog/LibrarySection";
+import { getPost } from "@/lib/blog/postsApi";
+import type { SavedPost } from "@/lib/blog/types";
 import { AppSettings, DEFAULT_SETTINGS, getStoredSettings } from "@/lib/storage";
 import { APP_NAME } from "@/lib/version";
 import { createClient } from "@/lib/supabase/client";
@@ -27,12 +30,26 @@ export default function HomePage() {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [extraPromptHint, setExtraPromptHint] = useState("");
 
+  // 보관함에서 연 글(글 작성 영역이 한 번 읽고 비운다)
+  const [loadedPost, setLoadedPost] = useState<SavedPost | null>(null);
+
+  const openFromLibrary = async (id: string): Promise<string | null> => {
+    try {
+      const saved = await getPost(id);
+      setLoadedPost(saved);
+      setActiveMainTab("ideas");
+      return null;
+    } catch (e) {
+      return e instanceof Error ? e.message : "저장된 글을 불러오지 못했습니다.";
+    }
+  };
+
   // Handle URL query parameters without breaking SSR
   useEffect(() => {
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
       const tabParam = sp.get("tab");
-      if (tabParam === "ideas" || tabParam === "places") {
+      if (tabParam === "ideas" || tabParam === "places" || tabParam === "library") {
         setActiveMainTab(tabParam);
       } else if (tabParam === "keyword-finder" || tabParam === "keyword-fighter") {
         setActiveMainTab("keyword-finder");
@@ -106,16 +123,6 @@ export default function HomePage() {
                 onSelectTopic={handleSelectTopic}
                 onOpenSettings={() => setIsSettingsOpen(true)}
               />
-              {/* 하단 공통 포스트 생성하기 & 에디터 섹션 */}
-              <div id="post-creation-area">
-                <PostCreationSection
-                  topic={selectedTopic}
-                  setTopic={setSelectedTopic}
-                  extraPromptHint={extraPromptHint}
-                  settings={settings}
-                  onOpenSettings={() => setIsSettingsOpen(true)}
-                />
-              </div>
             </>
           )}
 
@@ -135,17 +142,26 @@ export default function HomePage() {
                 onSelectTopic={handleSelectTopic}
                 onOpenSettings={() => setIsSettingsOpen(true)}
               />
-              {/* 하단 공통 포스트 생성하기 & 에디터 섹션 */}
-              <div id="post-creation-area">
-                <PostCreationSection
-                  topic={selectedTopic}
-                  setTopic={setSelectedTopic}
-                  extraPromptHint={extraPromptHint}
-                  settings={settings}
-                  onOpenSettings={() => setIsSettingsOpen(true)}
-                />
-              </div>
             </>
+          )}
+
+          {/* 글 작성·결과 영역은 한 곳에 고정한다(탭을 바꿔도 작업 중인 글·이미지가 사라지지 않게). 맛집 탭·보관함 탭에서는 숨긴다. */}
+          <div id="post-creation-area" className={activeMainTab === "places" || activeMainTab === "library" ? "hidden" : ""}>
+            <PostCreationSection
+              topic={selectedTopic}
+              setTopic={setSelectedTopic}
+              extraPromptHint={extraPromptHint}
+              settings={settings}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              loaded={loadedPost}
+              onLoadedConsumed={() => setLoadedPost(null)}
+              onOpenLibrary={() => setActiveMainTab("library")}
+            />
+          </div>
+
+          {/* Tab 4: 내 보관함 (저장한 글·이미지) */}
+          {activeMainTab === "library" && (
+            <LibrarySection onOpen={openFromLibrary} onGoCreate={() => setActiveMainTab("ideas")} />
           )}
         </main>
 
