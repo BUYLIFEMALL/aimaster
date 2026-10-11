@@ -18,6 +18,10 @@
   - STEP 2 썸네일 상세 설정: 썸네일 제목 문구, 핵심 비주얼 키워드, 10대 장르 프리셋, 10대 분위기 프리셋, 피사체 인물 정밀 설정(국적/연령대/성별/인물 특징/레퍼런스 이미지 업로드), 실시간 프롬프트 모니터링
   - STEP 3 결과물: Gemini 16:9 고화질 렌더링, 전체화면 모달 뷰어, 1080p PNG 다운로드, 프롬프트 복사, 대화형 피드백 수정 루프(이전 이미지 컨텍스트 기반 재수정)
   - JSON 프로젝트 설정 내보내기/불러오기 백업 엔진
-  - 환경설정 모달 (Gemini API 키 연결 테스트 및 브라우저 보관)
+  - 환경설정 모달 (Gemini API 키 연결 테스트 및 브라우저 보관, 계정 동기화)
   - 메인 카탈로그 전용 16:9 실사 썸네일 등록 완료 (`gemini-3-pro-image-preview`, Supabase Storage `program-images/catalog/seo-thumbnail-pro-thumbnail.jpg`)
+  - AIMaster 기본 규칙 완전 준수:
+    - 회원 인증 및 권한 게이트 (`requireProgramAccess`, 비로그인 시 메인 SSO 로그인 자동 리다이렉트)
+    - 좌측 메뉴 표준 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격 Sidebar: 번호형 워크플로우 1·2·3, ← 다른 프로그램 보기, 🔑 API키등록·플랫폼연동, 하단 사용자 이메일 & 로그아웃)
+
 

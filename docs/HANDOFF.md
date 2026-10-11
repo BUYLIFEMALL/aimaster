@@ -18,7 +18,12 @@ v1.02의 배경 생성이 운영에서 sharp(libvips) 누락으로 500이던 문
   - DB `programs` 등록: slug `seo-thumbnail-pro`, version `v1.01`, badges `["new", "free"]`, 카테고리 `youtube`.
   - 카탈로그 전용 16:9 실사 썸네일 생성 및 등록 완료: Gemini 3 Pro Image로 울트라와이드 모니터에서 유튜브 썸네일 분석 대시보드를 보는 한국인 크리에이터 실사 생성 → Supabase Storage `program-images/catalog/seo-thumbnail-pro-thumbnail.jpg` 업로드 및 DB `programs.thumbnail_url` 갱신 (`?v=1791716103377`).
   - 로컬 백업 `seo-thumbnail-pro/public/seo-thumbnail-pro-thumbnail.jpg` 및 마이그레이션 SQL(`0001_register_seo_thumbnail_pro.sql`, `0002_update_thumbnail.sql`) 보존.
+- **AIMaster 기본 규칙 완전 준수**:
+  - 회원 인증 및 권한 게이트 (`requireProgramAccess`, 비로그인 시 메인 SSO 로그인 `https://buylife.xyz/login` 자동 리다이렉트).
+  - 좌측 메뉴 표준 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격 Sidebar: 번호형 워크플로우 1·2·3 배지 & 세로선, ← 다른 프로그램 보기, 🔑 API키등록·플랫폼연동, 하단 사용자 이메일 & 로그아웃).
+  - 사용자 Gemini API 키 계정 동기화 엔드포인트 (`GET/POST /api/user/key`).
 - **검증**: `npm run build` 100% 성공 (Turbopack, Next.js 16).
+
 
 
 ## 2026-10-11 Claude Code — 신규 프로그램 STYLE DNA ANALYZER v1.01 (style-dna-analyzer)
