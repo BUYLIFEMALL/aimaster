@@ -143,11 +143,19 @@ export default function QueuePage() {
   useEffect(()=>{if(!isLoading){try{localStorage.setItem("nba_saved_posts",JSON.stringify(posts));}catch{/* The server remains the source of saved drafts. */}}},[posts,isLoading]);
   const writePost = async (post: SavedPostItem, fields: Record<string,unknown>) => {
     let saver=savers.current.get(post.id);
-    if(saver?.pending && post.save_revision!==saver.pending.body.expected_revision)throw new Error("저장 확인 중인 원고와 편집본이 다릅니다. 현재 내용을 보관한 뒤 다시 열어 주세요.");
+    if(saver?.pending && post.save_revision!==saver.pending.body.expected_revision){
+      const acknowledged=await saver.save(saver.pending.fields);
+      if(post.save_revision!==acknowledged.save_revision)throw new Error("저장 확인 중인 원고와 편집본이 다릅니다. 현재 내용을 보관한 뒤 최신 원고를 다시 열어 주세요.");
+    }
     if(!saver || (!saver.pending && !saver.busy && post.save_revision!==saver.revision)){
       saver=new PostSaveClient(post);savers.current.set(post.id,saver);
     }
     return await saver.save(fields) as SavedPostItem;
+  };
+  const openEditor = (post: SavedPostItem) => {
+    const saver=savers.current.get(post.id);
+    if(!saver?.pending && !saver?.busy)savers.current.set(post.id,new PostSaveClient(post));
+    setEditingPost(post);
   };
 
   // 5. 카테고리 업데이트 핸들러 (모달 연계)
@@ -1021,7 +1029,7 @@ export default function QueuePage() {
                     {/* 3. 스마트 에디터 수정 */}
                     <button
                       type="button"
-                      onClick={() => setEditingPost(post)}
+                            onClick={() => openEditor(post)}
                       className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-neutral-800 flex items-center gap-1 transition-colors cursor-pointer"
                       title="스마트 에디터로 본문 수정"
                     >

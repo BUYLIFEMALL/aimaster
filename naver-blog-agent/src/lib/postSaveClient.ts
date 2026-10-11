@@ -20,7 +20,7 @@ export class PostSaveClient {
     const response = await this.transport.call(globalThis, "/api/posts", {method: operation.method, headers: {"Content-Type": "application/json"}, body: JSON.stringify(operation.body)});
     const data = await response.json();
     if (!response.ok) {
-      if (response.status === 409) this.conflict = true;
+      if (response.status === 409) { this.conflict = true; this.pending = null; }
       if (response.status >= 400 && response.status < 500 && response.status !== 409) this.pending = null;
       throw new Error(data.error || "원고 저장을 확인하지 못했습니다. 같은 내용으로 다시 저장해 주세요.");
     }

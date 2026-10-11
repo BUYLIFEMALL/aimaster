@@ -5,7 +5,7 @@ const shared=fs.readFileSync(path.join(__dirname,'test-post-review.cjs'),'utf8')
 const harness=new Function('require','__dirname',shared+';return harness;')(require,__dirname)();
 const {PostSaveClient,mergeSavedPosts}=harness.load('lib/postSaveClient.ts');
 function handler(file,name,environment) {
-  const ast=ts.createSourceFile(file,fs.readFileSync(path.join(root,file),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+  const ast=ts.createSourceFile(file,(process.env.NBA_QUEUE_BASELINE&&file==='src/app/(dashboard)/queue/page.tsx')?require('node:child_process').execFileSync('git',['show',process.env.NBA_QUEUE_BASELINE+':naver-blog-agent/'+file],{encoding:'utf8'}):fs.readFileSync(path.join(root,file),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
   let arrow;function visit(node){if(ts.isVariableDeclaration(node) && node.name.getText(ast)===name)arrow=node.initializer;ts.forEachChild(node,visit);}visit(ast);assert.ok(arrow,name);
   const code=ts.transpileModule('const actual='+arrow.getText(ast),{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText;
   return new Function(...Object.keys(environment),code+';return actual;')(...Object.values(environment));
@@ -156,7 +156,7 @@ test('late list response cannot replace a newer member save ACK',async()=>{
 
 
 function effect(file,marker,environment){
-  const ast=ts.createSourceFile(file,fs.readFileSync(path.join(root,file),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+  const ast=ts.createSourceFile(file,(process.env.NBA_QUEUE_BASELINE&&file==='src/app/(dashboard)/queue/page.tsx')?require('node:child_process').execFileSync('git',['show',process.env.NBA_QUEUE_BASELINE+':naver-blog-agent/'+file],{encoding:'utf8'}):fs.readFileSync(path.join(root,file),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
   let callback;function visit(node){if(ts.isCallExpression(node)&&node.expression.getText(ast)==='useEffect'&&node.arguments[0]?.getText(ast).includes(marker))callback=node.arguments[0];ts.forEachChild(node,visit);}visit(ast);assert.ok(callback,marker);
   const code=ts.transpileModule('const actual='+callback.getText(ast),{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText;
   return new Function(...Object.keys(environment),code+';return actual;')(...Object.values(environment));
@@ -191,4 +191,27 @@ test('unconfirmed generation fallback save does not start paid images',async()=>
   const h=imageEnvironment(async()=>({ok:true,json:async()=>({saved:false,result})})),starts=[];
   Object.assign(h.env,{preferencesLoaded:true,setLoading(){},setResult(){},setPreferencesNotice(){},setSavedPostCount(){},cleanCurrentYear:value=>value||'',writingStyle:'default',targetCharCount:2000,engine:{provider:'openai'},selectedViral:null,document:{},setTimeout(){},generateImagesFor:async(...args)=>starts.push(args),savePostToStorage:async()=>false});
   await handler(main,'executeGeneration',h.env)({overrideCategory:'category'});assert.equal(starts.length,0);
+});
+
+function queueWriter(lose=0){
+  const h=new Function('require','__dirname',shared+';return harness;')(require,__dirname)(),row=h.seed(),route=h.load('app/api/posts/route.ts');let losses=lose;
+  const transport=async(_url,init)=>{const response=await route[init.method]({json:async()=>JSON.parse(init.body)});if(response.status===200&&losses-->0)throw Error('lost response');return {ok:response.status===200,status:response.status,json:async()=>response.body};};
+  let opened;const env={savers:{current:new Map()},PostSaveClient:class extends PostSaveClient{constructor(post){super(post,false,transport);}},setEditingPost:post=>opened=post};
+  return {h,row,env,write:handler(queue,'writePost',env),get opened(){return opened;},public:()=>h.load('lib/postSaveProtocol.ts').savedPost(structuredClone(row))};
+}
+test('known conflict clears uncertainty; reopening the latest queue row permits a safe new save',async()=>{
+  const q=queueWriter(),old=q.public();q.row.title='another tab';
+  await assert.rejects(()=>q.write(old,{content:'old buffer'}),/변경/);assert.equal(q.env.savers.current.get(UUID).pending,null);
+  const latest=q.public();handler(queue,'openEditor',q.env)(latest);assert.equal(q.opened.save_revision,latest.save_revision);
+  assert.equal((await q.write(latest,{content:'compared new buffer'})).content,'compared new buffer');
+});
+test('a fresh queue read after lost ACK confirms the exact pending write before new edits',async()=>{
+  const q=queueWriter(1),old=q.public();await assert.rejects(()=>q.write(old,{content:'first buffer'}),/lost response/);
+  const latest=q.public();assert.equal((await q.write(latest,{content:'new buffer'})).content,'new buffer');assert.equal(q.h.writes.filter(w=>w.hits===1).length,2);
+});
+test('reopening an unchanged editable revision after metadata CAS conflict resets only the explicit editor',async()=>{
+  const q=queueWriter(),old=q.public();q.h.race(row=>row.updated_at='2026-10-11T02:00:00Z');
+  await assert.rejects(()=>q.write(old,{content:'buffer'}),/변경/);assert.equal(q.public().save_revision,old.save_revision);
+  await assert.rejects(()=>q.write(old,{content:'buffer'}),/변경/);
+  handler(queue,'openEditor',q.env)(q.public());assert.equal((await q.write(q.opened,{content:'buffer'})).content,'buffer');
 });

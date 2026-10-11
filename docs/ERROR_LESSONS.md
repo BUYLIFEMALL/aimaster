@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — 알려진409와 응답 유실 pending을 구분해야 최신 원고 다시 열기가 동작함 (naver-blog-agent v1.73)
+
+- **증상:** 저장 거절 후에도 pending이 남아 정상적인 최신 목록/편집창 다시 열기를 막을 수 있었습니다. 반대로 최신 저장 버전을 구 모달에 빌려주면 덮어쓰기 위험이 있습니다.
+- **원인:** 서버의 명확한 충돌 응답과 결과가 불확실한 통신 실패를 같은 대기로 처리했습니다. editable revision이 같고 메타데이터 CAS만 바뀐 경우도 있었습니다.
+- **해결(위치):** PostSaveClient의409 pending 정리+현재 편집본 충돌 차단 유지, 큐 openEditor에서 명시적인 재개 기준 설정. 유실 요청은 정확히 재확인하고, 새 목록 revision과 ACK 일치 후에만 다음 변경을 저장합니다. test-queue-confirmation.cjs 회귀3개.
+- **다음부터 확인:** 거절된 편집창 버퍼 보존뿐 아니라 닫기→최신 목록→다시 열기→저장, 응답 유실→최신 목록으로 재개, 검수 메타데이터만의 CAS 경쟁을 확인합니다. 원래 열린 구 모달이 최신 버전을 자동으로 받도록 만들지 않습니다.
+
 ## 2026-10-11 — native fetch를 클래스 필드로 호출하면 Chrome Illegal invocation (naver-blog-agent v1.72)
 
 - **증상:** 모의 API 검사·빌드가 통과했지만 실제 Chrome 회원 편집 저장 시 Failed to execute fetch on Window: Illegal invocation. 편집 버퍼는 남고 DB 저장은 발생하지 않았습니다.
