@@ -54,13 +54,19 @@ export default function HomePage() {
   useEffect(() => {
     setSettings(getStoredSettings());
 
-    // Load Supabase user email
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user?.email) {
-        setUserEmail(data.user.email);
-      }
-    });
+    // Load Supabase user email safely
+    try {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => {
+        if (data?.user?.email) {
+          setUserEmail(data.user.email);
+        }
+      }).catch((err) => {
+        console.warn("Failed to load user email:", err);
+      });
+    } catch (e) {
+      console.warn("Supabase client init error:", e);
+    }
   }, []);
 
   const handleSelectTopic = (topic: string, hint?: string) => {

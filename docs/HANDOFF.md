@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.08) Vercel 환경변수 등록 및 This page couldn't load 브라우저 오류 해결
+
+- **This page couldn't load 원인 분석 및 완벽 해결**:
+  1. **Vercel 프로젝트 환경변수 누락**: Vercel `naver-blog-allinone` 프로젝트에 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL` 환경 변수가 등록되어 있지 않아 브라우저 로드 시 Supabase 클라이언트 초기화 에러로 크래시 발생(This page couldn't load).
+  2. **Vercel Production 환경변수 4개 즉시 등록**: Vercel CLI를 통해 공용 Supabase 접속 정보 4개를 Production 환경에 등록 완료.
+  3. **방어 코드 강화**: `client.ts` 및 `page.tsx`에 Supabase 클라이언트 초기화 try-catch 및 안전 폴백을 탑재하여 환경변수 지연 시에도 화면이 깨지지 않도록 조치.
+- **버전 갱신 및 배포 동기화 (v1.08)**:
+  - `src/lib/version.ts` ➔ `v1.08`
+  - `extension/manifest.json` ➔ `v1.08` (`1.08.0`)
+  - `public/downloads/naver-blog-allinone-latest.zip` ➔ v1.08 최신 압축 재생성 완료
+  - 공용 DB `programs.version = 'v1.08'`, `programs.extension_version = 'v1.08'` 동기화 완료.
+- **검증 결과**: `npm run build` 100% 성공.
+
 ## 2026-10-11 Claude Code — shorts-viral-studio v1.07 정식 출시 (A안 완료: 실제 검수·모바일 보정·준비중 배지 제거)
 
 A안(새 프로그램 대신 기존 `shorts-viral-studio` 완성·출시)을 마쳤습니다. **실제 검수:** 로그인 Chrome에서 6단계 전체(검색→영상 직접 분석(Gemini)→소재 6개→주제→대본 12씬→BGM·씬별 이미지/영상 프롬프트)와 프로젝트 자동 저장이 모두 성공. **발견·수정:** 폰 폭에서 사이드바 전체가 본문 위에 쌓이던 문제를 상단 바 + 펼침 메뉴로 수정, 공급사 오류 문구의 키 조각(`sk-proj-****…`)을 화면에서 가림(v1.07). **출시:** DB `programs` 배지에서 `coming` 제거(`0008_release_remove_coming.sql`), 버전 v1.07, 주소 `https://shorts-viral-studio.buylife.xyz`(옛 vercel.app도 유지). 상세: [`shorts-viral-studio/AGENTS.md`](../shorts-viral-studio/AGENTS.md) 변경 이력·검증 기록, 갭 분석 [`shorts-viral-studio/docs/GAP_ANALYSIS_2026-10-11.md`](../shorts-viral-studio/docs/GAP_ANALYSIS_2026-10-11.md).
