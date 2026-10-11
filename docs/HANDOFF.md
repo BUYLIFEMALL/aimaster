@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Antigravity — 신규 프로그램 AI 웹툰 스튜디오 PRO v1.01 플랫폼 규격 연동 완료 (ai-webtoon-studio)
+
+시놉시스 기획부터 캐릭터 일관성 시트, 컷별 콘티 생성, 세로 스크롤 완성 원고 렌더링 및 롱스크롤 이어붙이기(JPG)까지 한 곳에서 완성하는 신규 프로그램 `ai-webtoon-studio` 개발 및 플랫폼 필수 규격 연동 완료.
+- **플랫폼 필수 규격 준수**:
+  - 회원 인증 및 권한 게이트 (`requireProgramAccess`, 비로그인 시 메인 SSO 로그인 `https://buylife.xyz/login` 자동 리다이렉트).
+  - 좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격 Sidebar: 1~4 스텝퍼 배지 & 세로선, ← 다른 프로그램 보기, 🔑 API키등록·플랫폼연동, 하단 사용자 이메일 & 로그아웃).
+  - 사용자 Gemini API 키 브라우저 격리 보관 + 서버 DB 동기화 엔드포인트 (`GET/POST /api/user/key`).
+  - DB `programs` 등록: slug `ai-webtoon-studio`, badges `["new", "free"]`, version `v1.01`, app_url `https://ai-webtoon-studio.buylife.xyz`.
+  - 카탈로그 전용 16:9 실사 썸네일 등록 완료 (`Supabase Storage program-images/catalog/ai-webtoon-studio-thumbnail.jpg`).
+  - Vercel 프로덕션 배포 완료: `https://ai-webtoon-studio.buylife.xyz` (HTTP 307 SSO 게이트 라이브 확인).
+- **남은 일**: 없음 (로컬 빌드 100% 통과, 프로덕션 배포 및 라이브 검증 완료).
+
 ## 2026-10-11 Claude Code — STYLE DNA ANALYZER v1.02 데스크톱 레이아웃 수정 (style-dna-analyzer)
 
 주인님이 띄워 주신 실제 Chrome(데스크톱 폭)에서 1단계 결과 화면이 좁게 눌리는 문제를 발견해 입력 카드 2열 + 결과 전체 폭으로 고쳐 v1.02 배포(DB 버전 v1.02, 라이브 화면으로 1~3단계 확인). 상세: `style-dna-analyzer/AGENTS.md` 6-1.

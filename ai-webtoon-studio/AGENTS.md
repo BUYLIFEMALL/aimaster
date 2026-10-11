@@ -19,6 +19,10 @@
   - STEP 3 시나리오 콘티 생성기 (챕터/장수 조절, 스토리 추가 요청, 컷별 연출·대사 콘티 자동 분할 및 인라인 편집)
   - STEP 4 웹툰 제작 & 뷰어 (메인 표지 생성, 컷 일괄 렌더링, 세로 스크롤 뷰어, HTML5 캔버스 롱스크롤 JPG 병합 저장, ZIP 일괄 다운로드)
   - JSON 프로젝트 설정 내보내기/불러오기 백업 엔진 탑재
-  - 환경설정 모달 (Gemini API 키 연결 테스트 및 브라우저 격리 보관)
+  - 환경설정 모달 (Gemini API 키 연결 테스트 및 브라우저 격리 보관 + `/api/user/key` 동기화)
   - 메인 카탈로그 전용 16:9 실사 썸네일 등록 완료 (`gemini-3-pro-image-preview`, Supabase Storage `program-images/catalog/ai-webtoon-studio-thumbnail.jpg`)
+  - AIMaster 통합 권한 게이트 탑재 (`requireProgramAccess`, 비로그인 시 메인 SSO 로그인 `https://buylife.xyz/login` 자동 리다이렉트)
+  - 좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 준수: 1~4 스텝퍼 배지 & 세로선, ← 다른 프로그램 보기, 🔑 API키등록·플랫폼연동, 하단 로그인 계정 & 로그아웃)
+  - Vercel 프로덕션 배포 완료: `https://ai-webtoon-studio.buylife.xyz` (HTTP 307 SSO 게이트 정상 작동 확인)
+  - DB `programs` 연동 완료: slug `ai-webtoon-studio`, badges `["new", "free"]`, version `v1.01`, app_url `https://ai-webtoon-studio.buylife.xyz`
 

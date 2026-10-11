@@ -292,17 +292,15 @@ export function Sidebar({
           {userEmail || "로그인 계정"}
         </p>
 
-        {signOutAction && (
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              <span>로그아웃</span>
-            </button>
-          </form>
-        )}
+        <form action="/api/auth/logout" method="POST" className="mt-2">
+          <button
+            type="submit"
+            className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span>로그아웃</span>
+          </button>
+        </form>
       </div>
     </div>
   );

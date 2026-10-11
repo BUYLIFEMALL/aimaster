@@ -59,13 +59,24 @@ export function SettingsModal({
   };
 
   const handleSave = () => {
+    const trimmedKey = geminiApiKey.trim();
     const updated: AppSettings = {
-      geminiApiKey: geminiApiKey.trim(),
+      geminiApiKey: trimmedKey,
       textModel,
       imageModel,
     };
     saveStoredSettings(updated);
     onSaveSettings(updated);
+
+    // 서버 DB(user_api_keys)에도 비동기 동기화
+    if (trimmedKey) {
+      fetch("/api/user/key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: trimmedKey }),
+      }).catch((e) => console.warn("Failed to sync key to server:", e));
+    }
+
     onClose();
   };
 
