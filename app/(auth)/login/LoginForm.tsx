@@ -49,7 +49,11 @@ export default function LoginPage() {
 
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) {
-      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      setError(
+        authError.status === 429
+          ? "로그인 시도가 너무 많습니다. 1~2분 뒤에 다시 시도해주세요."
+          : "이메일 또는 비밀번호가 올바르지 않습니다."
+      );
       setLoading(false);
       return;
     }
