@@ -1,7 +1,7 @@
 # ghost-scraper — AI 에이전트 작업 지침
 
 ## 1. 프로그램 개요
-- **프로그램명**: Website Scraper (웹 데이터 크롤러 & AI 추출기)
+- **프로그램명**: Whbsite Scraper (웹 데이터 크롤러 & AI 추출기)
 - **Slug**: `ghost-scraper`
 - **버전**: `v1.03`
 - **배지**: `["new", "free"]` (가입 회원 누구나 무료 사용)

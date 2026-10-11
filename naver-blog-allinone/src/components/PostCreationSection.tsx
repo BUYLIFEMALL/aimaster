@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { AlertCircle, CheckSquare, Loader2, Palette, Settings2, Sparkles, Square } from "lucide-react";
+import { AlertCircle, CheckSquare, Loader2, Palette, RotateCcw, Save, Settings2, Sparkles, Square } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
 import { COLOR_THEMES } from "@/lib/blog/article";
 import { missingKeyMessage, resolveImageEngine, resolveTextEngine } from "@/lib/blog/models";
 import { BLOG_PERSONAS, type BlogPersona } from "@/lib/blog/personas";
 import { runBlogPipeline } from "@/lib/blog/pipeline";
+import { clearGenPrefs, loadGenPrefs, prefsSavedAt, saveGenPrefs } from "@/lib/blog/prefs";
 import { type WritingStyle, type WritingTone } from "@/lib/blog/styles";
 import { IMAGE_RATIOS, type ImageRatio, type SavedPost } from "@/lib/blog/types";
 import { GenerationPanel } from "@/components/blog/GenerationPanel";
@@ -56,6 +57,50 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
   const [personaId, setPersonaId] = useState<string | null>(null);
   const [keywords, setKeywords] = useState("");
   const [purpose, setPurpose] = useState("");
+
+  // ── 설정값 저장(이 브라우저에 기본값으로 저장) ──
+  const [prefsNotice, setPrefsNotice] = useState("");
+  const [prefsAt, setPrefsAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = loadGenPrefs(window.localStorage);
+    setPrefsAt(prefsSavedAt(window.localStorage));
+    if (!saved) return;
+    if (saved.themeId) setThemeId(saved.themeId);
+    if (saved.withThumbnail !== undefined) setWithThumbnail(saved.withThumbnail);
+    if (saved.bodyImages !== undefined) setBodyImages(saved.bodyImages);
+    if (saved.autoImages !== undefined) setAutoImages(saved.autoImages);
+    if (saved.thumbnailText !== undefined) setThumbnailText(saved.thumbnailText);
+    if (saved.ratio) setRatio(saved.ratio);
+    if (saved.interactive !== undefined) setInteractive(saved.interactive);
+    if (saved.tone) setTone(saved.tone);
+    if (saved.style) setStyle(saved.style);
+    if (saved.targetLength) setTargetLength(saved.targetLength);
+    if (saved.personaId !== undefined) setPersonaId(saved.personaId);
+  }, []);
+
+  const savePrefs = () => {
+    const ok = saveGenPrefs(window.localStorage, { themeId, withThumbnail, bodyImages, autoImages, thumbnailText, ratio, interactive, tone, style, targetLength, personaId });
+    setPrefsAt(ok ? prefsSavedAt(window.localStorage) : prefsAt);
+    setPrefsNotice(ok ? "현재 설정값을 이 브라우저에 기본값으로 저장했습니다. 다음 접속부터 자동으로 적용됩니다." : "저장하지 못했습니다. 브라우저 저장 공간을 확인해주세요.");
+  };
+
+  const resetPrefs = () => {
+    clearGenPrefs(window.localStorage);
+    setPrefsAt(null);
+    setThemeId("blue-gray");
+    setWithThumbnail(true);
+    setBodyImages(2);
+    setAutoImages(true);
+    setThumbnailText(false);
+    setRatio("16:9");
+    setInteractive(false);
+    setTone("해요체");
+    setStyle("default");
+    setTargetLength(2000);
+    setPersonaId(null);
+    setPrefsNotice("저장된 기본값을 지우고 처음 설정으로 되돌렸습니다.");
+  };
 
   // ── 결과·저장·이미지 작업(세 탭 공통 작업공간) ──
   const needKey = () => {
@@ -188,6 +233,13 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
           disabled={generating}
         />
 
+        <div className="rounded-2xl border-2 border-sky-300 bg-sky-50/50 p-5 space-y-6">
+        <div className="flex flex-wrap items-center gap-2 border-b border-sky-200 pb-3">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-600 text-white text-sm">🎨</span>
+          <h3 className="text-sm font-extrabold text-sky-950">AI 모델 · 디자인 · 이미지 설정</h3>
+          <span className="text-[11px] text-sky-700/80">글·이미지 AI, 컬러 테마, 이미지 옵션을 정하고 [설정값 저장]으로 기본값으로 남길 수 있습니다</span>
+        </div>
+
         <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -278,6 +330,21 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
               </label>
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-sky-200 pt-4">
+          <p className="text-[11px] text-sky-900/80">
+            {prefsNotice || (prefsAt ? `저장된 기본값이 있습니다 (${new Date(prefsAt).toLocaleString("ko-KR")}). 페르소나·글자수·말끝·문체·컬러 테마·이미지 옵션이 접속할 때 자동 적용됩니다.` : "아직 저장한 기본값이 없습니다. 자주 쓰는 설정을 저장해 두면 다음부터 바로 적용됩니다.")}
+          </p>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={resetPrefs} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50">
+              <RotateCcw className="w-3.5 h-3.5" /> 초기화
+            </button>
+            <button type="button" onClick={savePrefs} className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-sky-600 text-white hover:bg-sky-700">
+              <Save className="w-3.5 h-3.5" /> 설정값 저장
+            </button>
+          </div>
+        </div>
         </div>
 
         {ws.errorMsg && (

@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — Whbsite Scraper (ghost-scraper v1.03) 프로그램 등록 점검 및 요금제·검색 보강
+
+주인님 요청("https://ghost-scraper.buylife.xyz/ 가 프로그램등록되어 있지 않아 확인해보고 조치해줘")에 따라 프로그램 등록 상태를 전수 점검하고 완결 조치했습니다.
+- **명칭 및 키워드 동기화**: 주인님 지정 명칭인 `Whbsite Scraper`로 `programs.name` 및 앱 `APP_NAME`을 완벽 일치시키고, `short_desc`에 `[Whbsite Scraper / Website Scraper / GhostScraper / ghost-scraper]` 검색 키워드를 모두 등록하여 메인 카탈로그 검색창에서 어떤 검색어를 입력해도 즉시 노출되도록 보강.
+- **요금제(pricing_plans) 기본 3종 정식 등록**: 1개월(10,000원), 2개월(20,000원), 3개월(30,000원) 플랜을 DB `pricing_plans` 테이블에 등록 완료.
+- **배포 및 검증**: Vercel 프로덕션 재배포 완료, 메인 카탈로그 및 상세 페이지(`/programs/ghost-scraper`) 정상 동작 확인.
+- **마이그레이션**: `ghost-scraper/supabase/migrations/0004_rename_to_whbsite_scraper.sql`.
+
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.23) 설정 박스 + 설정값 저장
+
+주인님 요청으로 모델·컬러 테마·고급 옵션을 하늘색 한 박스로 묶고 [설정값 저장]/[초기화]를 추가했습니다(localStorage). 확장 ZIP·DB v1.23. **대기 요청: 카테고리 관리(agent 참고, 통합 + 보관함 분리 관리)** 다음 작업.
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.22) 글 생성 설정 한 박스로 묶음
 
 주인님 요청으로 페르소나·글자수·세부 조건·말끝/문체를 보라색 한 박스("글 생성 설정")로 묶어 다른 박스와 색으로 구분했습니다. 확장 ZIP·DB v1.22. **대기 중인 요청: 카테고리 관리 기능(naver-blog-agent 참고, 통합 관리 + 보관함 분리 관리)** — 분석을 시작했고 다음 작업으로 진행합니다.

@@ -350,3 +350,31 @@ test("runBlogPipeline: 사진 기반(비전) — 사진이 컷이 되고 캡션�
     globalThis.fetch = realFetch;
   }
 });
+
+import { sanitizePrefs, saveGenPrefs, loadGenPrefs, clearGenPrefs } from "../src/lib/blog/prefs.ts";
+
+test("설정값 저장: 허용된 값만 남기고 잘못된 값은 버린다", () => {
+  const out = sanitizePrefs({ themeId: "없는테마", bodyImages: 9, ratio: "1:1", tone: "해요체", targetLength: 99999, personaId: "없는사람", hack: 1 });
+  assert.equal(out.themeId, undefined);
+  assert.equal(out.bodyImages, undefined);
+  assert.equal(out.ratio, "1:1");
+  assert.equal(out.tone, "해요체");
+  assert.equal(out.targetLength, 4000);
+  assert.equal(out.personaId, undefined);
+  assert.equal("hack" in out, false);
+});
+
+test("설정값 저장: 저장 → 불러오기 → 초기화", () => {
+  const mem = new Map();
+  const st = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v), removeItem: (k) => mem.delete(k) };
+  assert.equal(loadGenPrefs(st), null);
+  assert.equal(saveGenPrefs(st, { bodyImages: 3, interactive: true, personaId: null }), true);
+  const got = loadGenPrefs(st);
+  assert.equal(got.bodyImages, 3);
+  assert.equal(got.interactive, true);
+  assert.equal(got.personaId, null);
+  clearGenPrefs(st);
+  assert.equal(loadGenPrefs(st), null);
+  mem.set("naver_blog_allinone_gen_prefs_v1", "{깨진json");
+  assert.equal(loadGenPrefs(st), null);
+});
