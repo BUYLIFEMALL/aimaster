@@ -25,7 +25,16 @@
 - 프로그램 폴더에서 최종 문구 반영 후 npm run build: 가이드 컴파일·타입 통과.
 - UI 문서 변경에 새 회귀 테스트는 만들지 않으며 실제 회원 Chrome에서 목차/문제 해결 펼침/링크/표시를 확인합니다.
 - 버전 v1.81. SQL: supabase/migrations/20261011161435_guide_update_v181.sql (릴리스 메타데이터만).
-- 커밋/푸시/프로덕션/DB·ZIP/실제 화면 증거는 배포 후 기록합니다.
+- 코드 커밋 bdbb4a99, origin/master 푸시 성공.
+- 프로덕션 dpl_AKT1sWxGxsAPcLPK3CdqgFnz94F8 READY, 운영 빌드·타입 통과.
+- 배포 https://naver-blog-agent-k6u1svryc-buylife.vercel.app, 라이브 https://naver-blog-agent.vercel.app/guide.
+- DB 프로그램/확장 v1.81, 기존 다운로드 주소 유지. check-extension-release: 실패0·경고0.
+- 라이브 최신 ZIP HTTP200·v1.81·확장 소스14파일 일치(CRLF 정규화), 버전 API200/latest v1.81.
+- 비로그인 /guide는307 → 로그인으로 이동(기존 권한 유지). 실제 회원 세션이 만료되어 Chrome에 이미 채워진 일반 회원 계정으로 로그인하고 안내를 확인했습니다. 비밀번호를 읽거나 변경하지 않았습니다.
+- 실제 일반 회원 buylifemall@naver.com Chrome: v1.81·5단계 빠른 시작·8개 목차·최신 다운로드 버전 표시 정상. 목차의 준비 항목 클릭 → #prepare 이동 및 모드 비교표 가독성 확인. 문제 해결 클릭 → #troubleshooting 이동, 연결 끊김 항목 펼침 및 복구 설명 표시 확인.
+- [실제 안내 첫 화면](evidence/v1.81/guide-overview.png), [문제 해결 펼침](evidence/v1.81/guide-troubleshooting.png).
+- 크롬의 기존 원고 탭은 새로고침하지 않고 새 검수 탭에서 읽었습니다. 원고 저장/검수 기록/전송/유료 생성/최종 발행 실행 없음. PC 확장 재시작 없음(안내 변경은 기존 확장과 호환).
+- 새 UI가 반응형 grid/가로 스크롤 표를 사용하지만 실제 모바일 기기 검수는 하지 않았습니다. 이번 사용 안내 요청의 남은 작업은 없습니다.
 
 ## 다음 CLI
 
