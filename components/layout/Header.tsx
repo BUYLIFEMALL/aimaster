@@ -78,11 +78,11 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center flex-shrink-0">
+          <a href="https://www.buylife.xyz" aria-label="AI Master 메인 사이트" className="flex items-center flex-shrink-0">
             <div className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-gold to-gold-light">
               <span className="text-black font-bold text-xl">AI Master</span>
             </div>
-          </Link>
+          </a>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">

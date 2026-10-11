@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Codex — 메인 프로그램 목록 로고 링크 수정
+
+프로그램 목록의 AI Master 로고를 정식 메인 주소 https://www.buylife.xyz 로 전체 페이지 이동하도록 공통 헤더 링크를 변경했습니다. 루트 빌드·헤더 ESLint 오류0/기존 경고1. 운영/실제 클릭 확인은 [인수인계](HOME_LOGO_LINK_2026-10-12.md)에 이어 기록합니다. 다른 CLI의 올인원 작업은 제외합니다.
+
 ## 2026-10-12 Antigravity — Whbsite Scraper (ghost-scraper v1.03) 프로그램 등록 점검 및 요금제·검색 보강
 
 주인님 요청("https://ghost-scraper.buylife.xyz/ 가 프로그램등록되어 있지 않아 확인해보고 조치해줘")에 따라 프로그램 등록 상태를 전수 점검하고 완결 조치했습니다.
