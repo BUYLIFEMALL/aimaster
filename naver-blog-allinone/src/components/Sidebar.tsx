@@ -8,8 +8,6 @@ import {
   Utensils,
   Search,
   KeyRound,
-  Download,
-  TrendingUp,
   LayoutDashboard,
   LogOut,
   X,
@@ -24,7 +22,6 @@ interface SidebarProps {
   activeTab: MainTabType;
   onSelectTab: (tab: MainTabType) => void;
   onOpenSettings: () => void;
-  onOpenTrends: () => void;
   userEmail?: string;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
@@ -65,7 +62,6 @@ export function Sidebar({
   activeTab,
   onSelectTab,
   onOpenSettings,
-  onOpenTrends,
   userEmail = "buylife@buylife.xyz",
   isOpenMobile = false,
   onCloseMobile,
@@ -239,35 +235,6 @@ export function Sidebar({
           >
             <KeyRound className="h-4 w-4 text-amber-500" />
             <span>API키등록·플랫폼연동</span>
-          </Link>
-
-          {/* 🧩 크롬 확장 프로그램 다운로드 링크 */}
-          <a
-            href="/downloads/naver-blog-allinone-latest.zip"
-            download="naver-blog-allinone-latest.zip"
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <div className="flex items-center gap-2.5">
-              <Download className="h-4 w-4 text-emerald-600" />
-              <span>크롬 확장 프로그램</span>
-            </div>
-            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              ZIP
-            </span>
-          </a>
-
-          {/* 📈 실시간 트렌드 분석 링크 */}
-          <Link
-            href="/?modal=trends"
-            onClick={(e) => {
-              e.preventDefault();
-              onOpenTrends();
-              if (onCloseMobile) onCloseMobile();
-            }}
-            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <TrendingUp className="h-4 w-4 text-indigo-500" />
-            <span>실시간 트렌드 분석</span>
           </Link>
         </div>
       </div>

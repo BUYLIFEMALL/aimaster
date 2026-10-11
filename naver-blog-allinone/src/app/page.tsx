@@ -80,7 +80,6 @@ export default function HomePage() {
         activeTab={activeMainTab}
         onSelectTab={(tab) => setActiveMainTab(tab)}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenTrends={() => setIsTrendsOpen(true)}
         userEmail={userEmail}
         isOpenMobile={isMobileNavOpen}
         onCloseMobile={() => setIsMobileNavOpen(false)}

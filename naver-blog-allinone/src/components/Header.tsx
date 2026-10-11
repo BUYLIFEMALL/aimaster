@@ -7,6 +7,8 @@ import {
   ExternalLink,
   Calendar,
   CloudSun,
+  Download,
+  TrendingUp,
 } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
 
@@ -87,6 +89,28 @@ export function Header({
 
         {/* Model Badges & Action Buttons */}
         <div className="flex items-center flex-wrap gap-2 sm:gap-3">
+          {/* 크롬 확장 프로그램 다운로드 (사이드바에서 상단으로 이동) */}
+          <a
+            href="/downloads/naver-blog-allinone-latest.zip"
+            download="naver-blog-allinone-latest.zip"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-50 transition shadow-xs"
+            title="네이버 스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 다운로드"
+          >
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <span>크롬 확장 프로그램</span>
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">ZIP</span>
+          </a>
+
+          {/* 실시간 트렌드 분석 (사이드바에서 상단으로 이동) */}
+          <button
+            type="button"
+            onClick={onOpenTrends}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-indigo-200 text-indigo-800 hover:bg-indigo-50 transition shadow-xs"
+          >
+            <TrendingUp className="w-3.5 h-3.5 text-indigo-600" />
+            <span>실시간 트렌드 분석</span>
+          </button>
+
           {/* Text Model Badge */}
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 rounded-lg text-xs border border-slate-200">
             <span className="text-slate-500">텍스트:</span>

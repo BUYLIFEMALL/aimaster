@@ -60,3 +60,8 @@
   - 환경설정 모달 (Gemini API 키 연결 테스트 및 로컬 저장, 텍스트/이미지 모델 선택)
   - 5대 주제 아이디어 기획 엔진 탑재 (E-E-A-T 기반, 카테고리별, 에버그린, 롱테일, 메모/파일 기반)
   - 7대 테마 컬러 팔레트 & 스마트에디터 ONE HTML 인라인 서식 복사 엔진 구축
+
+## v1.14 (2026-10-12) — [크롬 확장 프로그램]·[실시간 트렌드 분석]을 상단 헤더로 이동
+- 주인님 요청(Claude Code가 작업): 사이드바 유틸리티 영역의 두 항목을 `Header.tsx` 우측 상단(모델 배지 왼쪽)으로 옮기고 사이드바에서는 제거(사이드바 `onOpenTrends` prop·미사용 import 정리, `page.tsx` 전달 제거). 사이드바 유틸리티에는 [API키등록·플랫폼연동]만 남는다.
+- 확장 규칙 4단계 처리: `extension/manifest.json` 1.14.0/v1.14, `public/downloads/naver-blog-allinone-latest.zip` 재생성(폴더 내용물, 슬래시 경로), DB `programs.version`·`extension_version` v1.14, `node scripts/check-extension-release.mjs naver-blog-allinone` OK.
+- 실제 Chrome 화면 확인: 헤더에 두 버튼 표시, [실시간 트렌드 분석] 클릭 시 트렌드 팝업 열림, 사이드바에서 두 항목 사라짐.
