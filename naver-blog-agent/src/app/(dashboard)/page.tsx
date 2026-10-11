@@ -33,7 +33,7 @@ import {
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import PostReviewGate from "@/components/PostReviewGate";
-import { draftImageList, mergeDraftImage, bodyImageAt, removeImageFromArticle } from "@/lib/draftImages";
+import { draftImageList, mergeDraftImage, bodyImageAt, removeImageFromArticle, generatedDraftImages, pendingDraftImages, type DraftImage } from "@/lib/draftImages";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft } from "@/lib/retention";
@@ -106,7 +106,7 @@ export default function MainPage() {
   const coverImage=generatedImages.find(image=>image.type==="thumbnail");
   const [imagesEdited, setImagesEdited] = useState(false);
   const [imageSaveNotice, setImageSaveNotice] = useState<string | null>(null);
-  const imagesRef = useRef<typeof generatedImages>([]);
+  const imagesRef = useRef<DraftImage[]>([]);
   const sourceEpoch = useRef(0);
   const imageBusy = useRef<number | null>(null);
   const postIdRef = useRef<string | null>(null);
@@ -368,7 +368,7 @@ export default function MainPage() {
     postIdRef.current=post.id;
     postSaveRef.current=new PostSaveClient(post);setSaveRevision(post.save_revision);
     setImagesEdited(!post.images?.length || post.images.some((image:any)=>image.url));
-    imagesRef.current=(post.images || []).filter((image:any)=>image.url);
+    imagesRef.current=post.images || [];
     setImageSaveNotice(null);
     setCurrentPostId(post.id);
     if (post.blog_id) setSelectedBlogId(post.blog_id);
@@ -384,7 +384,7 @@ export default function MainPage() {
       ],
     });
     if (Array.isArray(post.images)) {
-      setGeneratedImages(imagesRef.current);
+      setGeneratedImages(generatedDraftImages(imagesRef.current));
     }
     setIsHistoryModalOpen(false);
     setTimeout(() => {
@@ -547,6 +547,7 @@ export default function MainPage() {
 
       // ★ [본문 + 이미지 원클릭 동시 생성]: 본문 작성이 완료되면 곧바로 추천 이미지 컷 자동 생성 연동!
       if (data.result && Array.isArray(data.result.images) && data.result.images.length > 0) {
+        imagesRef.current=data.result.images;
         await generateImagesFor(data.result,postIdRef.current || newPostId,epoch);
       }
     } catch (err: any) {
@@ -557,7 +558,7 @@ export default function MainPage() {
   };
 
   // Image changes update only the originating draft; content edits are never overwritten.
-  const persistImages = async (postId: string, images: typeof generatedImages, epoch: number, content?: string) => {
+  const persistImages = async (postId: string, images: DraftImage[], epoch: number, content?: string) => {
     if(epoch!==sourceEpoch.current)return false;
     setImageSaveNotice("이미지 변경을 서버에 저장 중입니다.");
     try {
@@ -580,11 +581,15 @@ export default function MainPage() {
 
   const generateImagesFor = async (targetResult: PipelineResult, targetId: string, epoch=sourceEpoch.current) => {
     if(!targetResult || imageBusy.current!==null)return;
-    const promptsToUse=targetResult.images || [];
+    if(postSaveRef.current?.id!==targetId || postSaveRef.current.needsSaveRecovery){setError("원고·이미지 저장을 먼저 확인해 주세요. 보관함 저장으로 재시도하거나 최신 원고를 다시 연 뒤 생성해 주세요.");return;}
+    const plans=imagesRef.current.length?imagesRef.current:targetResult.images || [];
+    const promptsToUse=pendingDraftImages(plans);
     if(!promptsToUse.length)return;
+    imagesRef.current=plans;
     imageBusy.current=epoch;
     setImageGenerating({done:0,total:promptsToUse.length});setError(null);
     let failed=0;
+    const failures:string[]=[];
     try {
       for(let i=0;i<promptsToUse.length;i++){
         if(epoch!==sourceEpoch.current)break;
@@ -595,14 +600,15 @@ export default function MainPage() {
           if(epoch!==sourceEpoch.current)break;
           if(!res.ok || !data.url){if(data.needKey)setNeedKey(true);throw new Error(data.error || "이미지 주소가 없습니다.");}
           const image={url:data.url,type:item.type,caption:item.caption,prompt:item.prompt};
-          const next=mergeDraftImage(imagesRef.current,image,promptsToUse);
-          imagesRef.current=next;setGeneratedImages(next);setImagesEdited(true);
+          const next=mergeDraftImage(imagesRef.current,image,plans);
+          imagesRef.current=next;setGeneratedImages(generatedDraftImages(next));setImagesEdited(true);
+          setResult(previous=>previous?{...previous,images:next}:previous);
           // Each completed image survives a later provider/network failure.
           if(!await persistImages(targetId,next,epoch))break;
-        }catch(err){failed++;if(epoch===sourceEpoch.current)setError(`${i+1}번째 이미지 생성 실패: ${err instanceof Error?err.message:"통신 오류"}`);}
+        }catch(err){failed++;const message=`${item.caption}: ${err instanceof Error?err.message:"통신 오류"}`;failures.push(message);if(epoch===sourceEpoch.current)setError(message);}
         if(epoch===sourceEpoch.current)setImageGenerating({done:i+1,total:promptsToUse.length});
       }
-      if(failed && epoch===sourceEpoch.current)setError(`이미지 ${failed}장 생성에 실패했습니다. 성공한 이미지는 보존합니다. 실패한 컷만 다시 생성해 주세요.`);
+      if(failed && epoch===sourceEpoch.current)setError(`이미지 ${failed}장 생성에 실패했습니다. 성공한 이미지는 보존합니다. 실패한 컷만 다시 생성해 주세요. ${failures.join(" / ")}`);
     }finally{
       if(imageBusy.current===epoch)imageBusy.current=null;
       if(epoch===sourceEpoch.current)setImageGenerating(null);
@@ -616,6 +622,7 @@ export default function MainPage() {
 
   const handleGenerateSingleImage = async (index:number,item:{prompt:string;caption:string;type:"thumbnail"|"body"}) => {
     if(!result || !currentPostId || imageBusy.current!==null)return;
+    if(postSaveRef.current?.id!==currentPostId || postSaveRef.current.needsSaveRecovery){setError("원고·이미지 저장을 먼저 확인해 주세요. 보관함 저장으로 재시도하거나 최신 원고를 다시 연 뒤 생성해 주세요.");return;}
     const epoch=sourceEpoch.current,targetId=currentPostId;
     imageBusy.current=epoch;setSingleGeneratingIndex(index);setError(null);
     try {
@@ -625,7 +632,8 @@ export default function MainPage() {
       if(!res.ok || !data.url){if(data.needKey)setNeedKey(true);throw new Error(data.error || "이미지 생성 실패");}
       const image={url:data.url,type:item.type,caption:item.caption,prompt:item.prompt};
       const next=mergeDraftImage(imagesRef.current,image,result.images);
-      imagesRef.current=next;setGeneratedImages(next);setImagesEdited(true);
+      imagesRef.current=next;setGeneratedImages(generatedDraftImages(next));setImagesEdited(true);
+      setResult(previous=>previous?{...previous,images:next}:previous);
       await persistImages(targetId,next,epoch);
     }catch(err){if(epoch===sourceEpoch.current)setError(err instanceof Error?err.message:"이미지 생성 실패");}
     finally{if(imageBusy.current===epoch)imageBusy.current=null;if(epoch===sourceEpoch.current)setSingleGeneratingIndex(null);}
@@ -634,19 +642,20 @@ export default function MainPage() {
   const handleRemoveGeneratedImage = async (targetIndex:number) => {
     if(!currentPostId || imageBusy.current!==null)return;
     const epoch=sourceEpoch.current;imageBusy.current=epoch;
-    const removed=imagesRef.current[targetIndex];
+    const removed=generatedDraftImages(imagesRef.current)[targetIndex];
+    if(!removed){imageBusy.current=null;return;}
     const content=result && removed?.url?removeImageFromArticle(result.content,removed.url):undefined;
     const changed=content!==undefined && content!==result?.content;
-    const next=imagesRef.current.filter((_,index)=>index!==targetIndex);
-    imagesRef.current=next;setGeneratedImages(next);setImagesEdited(true);
-    if(changed)setResult(previous=>previous?{...previous,content:content!,reviewStatus:undefined,reviewNote:undefined}:previous);
+    const next=imagesRef.current.filter(image=>image.caption!==removed.caption);
+    imagesRef.current=next;setGeneratedImages(generatedDraftImages(next));setImagesEdited(true);
+    setResult(previous=>previous?{...previous,images:next,...(changed?{content:content!,reviewStatus:undefined,reviewNote:undefined}:{})}:previous);
     try{await persistImages(currentPostId,next,epoch,changed?content:undefined);}finally{if(imageBusy.current===epoch)imageBusy.current=null;}
   };
 
   const handlePublishToQueue = async () => {
     if (!result) return;
     if(reviewBlocked || publishingBlocked || imageBusy.current!==null || loading)return;
-    const finalImagesToSave = draftImageList(generatedImages, result.images, imagesEdited);
+    const finalImagesToSave = draftImageList(imagesRef.current, result.images, imagesEdited);
     const targetId = currentPostId || "post-" + Date.now();
     if(!await savePostToStorage(targetId, result, finalImagesToSave, "queued")){alert("작업 대기 등록에 실패했습니다. 오류 안내를 확인하고 원고를 다시 검수해 주세요.");return;}
     alert("크롬 확장의 작업 대기에 등록되었습니다. 저장한 진행 방식에 따라 준비 또는 최종 발행을 진행합니다. 크롬 브라우저가 열려 있으면 스마트에디터 ONE에 직접 타이핑 및 이미지 첨부를 시작합니다.");
@@ -654,9 +663,10 @@ export default function MainPage() {
 
   const handleSaveDraft = async () => {
     if (!result || imageBusy.current!==null || loading) return;
-    const finalImagesToSave = draftImageList(generatedImages, result.images, imagesEdited);
+    const finalImagesToSave = draftImageList(imagesRef.current, result.images, imagesEdited);
     const targetId = currentPostId || "post-" + Date.now();
     const saved=await savePostToStorage(targetId, result, finalImagesToSave, "draft");
+    if(saved){setImageSaveNotice("원고와 이미지 변경을 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");setError(null);}
     alert(saved?"서버 보관함에 원고를 저장했습니다.":"서버 저장에 실패했습니다. 화면과 로컬 원고를 유지하며 오류 안내를 확인해 주세요.");
   };
 
@@ -707,7 +717,7 @@ export default function MainPage() {
           const cached=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
           localStorage.setItem("nba_saved_posts",JSON.stringify(mergeSavedPosts(cached,[post])));
         }catch{/* Server save is complete even when browser caching fails. */}
-      }else if(!await savePostToStorage(currentPostId || "post-"+Date.now(),nextResult,draftImageList(generatedImages,nextResult.images || [],imagesEdited),"draft")){
+      }else if(!await savePostToStorage(currentPostId || "post-"+Date.now(),nextResult,draftImageList(imagesRef.current,nextResult.images || [],imagesEdited),"draft")){
         throw new Error("서버 저장에 실패했습니다. 편집 내용을 보존한 채 다시 저장해 주세요.");
       }
       if(epoch!==sourceEpoch.current)return false;
@@ -1672,7 +1682,7 @@ export default function MainPage() {
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                   <CheckCircle2 size={12} className="text-emerald-600" />
-                  <span>보관함 자동 저장됨</span>
+                  <span>{saveRevision && !imageSaveNotice?.startsWith("이미지 저장 실패") ? "서버 저장 확인됨" : "저장 확인 필요"}</span>
                 </span>
                 {result.personaName && (
                   <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-neutral-100 text-neutral-700">
@@ -1740,7 +1750,7 @@ export default function MainPage() {
                 if (Array.isArray(cache)) localStorage.setItem("nba_saved_posts", JSON.stringify(mergeSavedPosts(cache,[post])));
               } catch { /* Server settings remain saved if the browser cache is unavailable. */ }
             }} />
-            <PostReviewGate key={currentPostId} postId={currentPostId} snapshot={postReviewSnapshot({blog_id:selectedBlogId,title:result.title,content:result.content,tags:result.tags,images:draftImageList(generatedImages,result.images,imagesEdited)})} onBlockingChange={setReviewBlocked} />
+            <PostReviewGate key={currentPostId} postId={currentPostId} snapshot={postReviewSnapshot({blog_id:selectedBlogId,title:result.title,content:result.content,tags:result.tags,images:result.images})} onBlockingChange={setReviewBlocked} />
 
             {/* 5단계 에이전트 단계별 실행 내역 요약 박스 */}
             <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">
@@ -1881,7 +1891,7 @@ export default function MainPage() {
                   <button
                     type="button"
                     onClick={handleGenerateImages}
-                    disabled={imageGenerating !== null || singleGeneratingIndex !== null}
+                    disabled={imageGenerating !== null || singleGeneratingIndex !== null || pendingDraftImages(result.images).length === 0}
                     className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
                   >
                     {imageGenerating ? (
@@ -1892,7 +1902,7 @@ export default function MainPage() {
                     ) : (
                       <>
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>🖼️ AI 이미지 일괄 생성 ({result.images.length}장)</span>
+                        <span>🖼️ 미생성 컷 일괄 생성 ({pendingDraftImages(result.images).length}장)</span>
                       </>
                     )}
                   </button>

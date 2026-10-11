@@ -10,6 +10,7 @@ export class PostSaveClient {
   busy = false;
   private create: boolean;
   private conflict = false;
+  get needsSaveRecovery() { return this.create || !this.revision || this.busy || Boolean(this.pending) || this.conflict; }
   constructor(post: Post, create = false, private transport: typeof fetch = fetch, private uuid = () => crypto.randomUUID()) {
     this.id = post.id; this.initialRevision = post.save_revision; this.revision = post.save_revision; this.create = create;
   }

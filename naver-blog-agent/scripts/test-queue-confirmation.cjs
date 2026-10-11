@@ -54,6 +54,7 @@ function imageEnvironment(fetch){
   const h=environment(fetch),persisted=[],notices=[],shown=[];
   h.env.postSaveRef.current=new PostSaveClient({id:UUID,save_revision:'image-base'},false,fetch);
   Object.assign(h.env,rules,{result:{title:'title',content:'본문',images:rules.buildImagePlan('title','category',[{title:'first'},{title:'second'}],5)},currentPostId:UUID,imageBusy:{current:null},imagesRef:{current:[]},imageSettings:{model:'mock-model',ratio:'1:1'},setImageGenerating(){},setSingleGeneratingIndex(){},setNeedKey(){},setImagesEdited(){},setGeneratedImages:images=>shown.push(images),setImageSaveNotice:notice=>notices.push(notice),persistImages:async(id,images)=>{persisted.push({id,images:structuredClone(images)});return true;}});
+  h.env.setResult=update=>{h.env.result=typeof update==='function'?update(h.env.result):update;};
   return {...h,persisted,notices,shown};
 }
 test('selected 1-5 image plans are distinct, with exact body slots and unchanged facts/source lines',()=>{
@@ -85,9 +86,73 @@ test('last-image deletion remains empty when saving instead of resurrecting plan
 test('five-cut batch saves each success under the supplied new draft ID and preserves partial progress',async()=>{
   let calls=0;
   const h=imageEnvironment(async()=>{calls++;return {ok:calls!==3,json:async()=>calls===3?{error:'mock failure'}:{url:'https://example.com/'+calls}};});
-  await handler(main,'generateImagesFor',h.env)(h.env.result,'new-server-id',1);
-  assert.equal(calls,5);assert.equal(h.persisted.length,4);assert.ok(h.persisted.every(item=>item.id==='new-server-id'));
-  assert.equal(h.env.imagesRef.current.length,4);assert.match(h.errors.at(-1),/1장 생성에 실패/);
+  await handler(main,'generateImagesFor',h.env)(h.env.result,UUID,1);
+  assert.equal(calls,5);assert.equal(h.persisted.length,4);assert.ok(h.persisted.every(item=>item.id===UUID));
+  assert.equal(h.env.imagesRef.current.length,5);assert.equal(h.env.imagesRef.current.filter(image=>image.url).length,4);assert.match(h.errors.at(-1),/1장 생성에 실패/);
+});
+test('partial image save retains all five plans so a refreshed draft can retry only the missing cut',async()=>{
+  let calls=0;
+  const h=imageEnvironment(async()=>{calls++;return {ok:calls!==3,json:async()=>calls===3?{error:'provider quota'}:{url:'https://example.com/'+calls}};});
+  h.env.setResult=update=>{h.env.result=typeof update==='function'?update(h.env.result):update;};
+  await handler(main,'generateImagesFor',h.env)(h.env.result,UUID,1);
+  const saved=h.persisted.at(-1).images;
+  assert.equal(saved.length,5);assert.equal(saved.filter(image=>image.url).length,4);
+  const restored=imageEnvironment(async()=>({ok:true,json:async()=>({url:'https://example.com/recovered'})}));
+  restored.env.result.images=saved;restored.env.imagesRef.current=structuredClone(saved);
+  restored.env.setResult=update=>{restored.env.result=typeof update==='function'?update(restored.env.result):update;};
+  await handler(main,'generateImagesFor',restored.env)(restored.env.result,UUID,1);
+  assert.equal(restored.persisted.length,1);assert.equal(restored.persisted[0].images.length,5);
+  assert.equal(restored.persisted[0].images.filter(image=>image.url).length,5);
+  assert.deepEqual(restored.persisted[0].images.map(image=>image.caption),saved.map(image=>image.caption));
+});
+test('unconfirmed or conflicted image saves block another paid request until saving or reopening',async()=>{
+  let calls=0;const h=imageEnvironment(async()=>{calls++;return {ok:true,json:async()=>({url:'https://example.com/unwanted'})};});
+  h.env.postSaveRef.current.pending={};
+  await handler(main,'generateImagesFor',h.env)(h.env.result,UUID,1);
+  await handler(main,'handleGenerateSingleImage',h.env)(0,h.env.result.images[0]);
+  assert.equal(calls,0);assert.equal(h.persisted.length,0);
+  h.env.postSaveRef.current.pending=null;h.env.postSaveRef.current.conflict=true;
+  await handler(main,'handleGenerateSingleImage',h.env)(0,h.env.result.images[0]);assert.equal(calls,0);
+});
+test('deleting a completed cut removes its plan but preserves pending cuts through saving and reload',async()=>{
+  const h=imageEnvironment(async()=>{throw Error('must not generate');});
+  const plans=h.env.result.images;
+  h.env.imagesRef.current=plans.map((image,index)=>index===3?{...image,url:'https://example.com/body-3'}:image);
+  await handler(main,'handleRemoveGeneratedImage',h.env)(0);
+  assert.equal(h.persisted[0].images.length,4);assert.ok(h.persisted[0].images.every(image=>image.caption!==plans[3].caption));
+  assert.deepEqual(h.env.result.images,h.persisted[0].images);assert.equal(h.shown.at(-1).length,0);
+});
+test('image batch stops at a rejected save before another paid request and leaves all plans in memory',async()=>{
+  let calls=0;const h=imageEnvironment(async()=>{calls++;return {ok:true,json:async()=>({url:'https://example.com/first'})};});
+  h.env.persistImages=async()=>false;
+  await handler(main,'generateImagesFor',h.env)(h.env.result,UUID,1);
+  assert.equal(calls,1);assert.equal(h.env.imagesRef.current.length,5);assert.equal(h.shown.at(-1).length,1);
+});
+test('1-5 cuts survive real save/list/load callbacks and keep extension asset count and order',async()=>{
+  for(const count of [1,2,3,4,5]){
+    const db=new Function('require','__dirname',shared+';return harness;')(require,__dirname)();
+    const row=db.seed(),route=db.load('app/api/posts/route.ts'),plan=rules.buildImagePlan('title','category',[{title:'first'},{title:'second'}],count);
+    row.images=plan;row.content=rules.placePlannedImages('[SECTION - first]\n本文 one\n\n[SECTION - second]\n本文 two\n\nend',plan);
+    let imageCalls=0;
+    const transport=async(url,init)=>{
+      if(url==='/api/generate-image'){imageCalls++;return {ok:true,json:async()=>({url:'https://example.com/cut-'+imageCalls})};}
+      const response=await route[init.method]({json:async()=>JSON.parse(init.body)});
+      return {ok:response.status===200,status:response.status,json:async()=>response.body};
+    };
+    const h=imageEnvironment(transport);h.env.result.images=plan;h.env.imagesRef.current=plan;
+    h.env.postSaveRef.current=new PostSaveClient(db.load('lib/postSaveProtocol.ts').savedPost(row),false,transport);
+    h.env.persistImages=handler(main,'persistImages',h.env);
+    await handler(main,'generateImagesFor',h.env)(h.env.result,UUID,1);
+    assert.equal(imageCalls,count);assert.equal(row.images.length,count);assert.equal(row.images.filter(image=>image.url).length,count);
+    assert.deepEqual(db.writes.filter(write=>write.table==='nba_posts').map(write=>write.patch.images.length),Array(count).fill(count));
+    const listed=(await route.GET({url:'https://test/api/posts'})).body.posts[0];
+    Object.assign(h.env,{setLoading(){},setSelectedBlogId(){},setIsHistoryModalOpen(){},setTimeout(){}});
+    handler(main,'handleLoadSavedPost',h.env)(listed);
+    assert.equal(h.shown.at(-1).length,count);assert.deepEqual(h.env.imagesRef.current,row.images);
+    const payload=db.load('lib/extensionBridge.ts').buildBridgePayload(row);
+    assert.equal(payload.assets.length,count);assert.equal(payload.bodyImages.length,count-1);
+    assert.deepEqual(payload.assets.map(asset=>asset.url),row.images.map(image=>image.url));
+  }
 });
 test('late image response after switching drafts cannot write or continue paid generation',async()=>{
   let resolve,calls=0;
