@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — 대기 건수와 목록 필터 불일치로 입력 중 원고·만료 복구 화면이 숨겨짐 (naver-blog-agent v1.70)
+
+- **증상:** ‘발행 대기 중’에1건이 표시됐지만 버튼을 누르면 실제 publishing 원고와 복구 안내가 목록에서 사라졌습니다.
+- **원인:** 요약 숫자는 queued+publishing, 실제 useMemo 상태 필터는 queued만 통과시켰습니다. 만료 원고도 복구 전까지 publishing입니다.
+- **해결(위치):** `naver-blog-agent/src/app/(dashboard)/queue/page.tsx`의 queued 필터에 publishing 포함. `scripts/test-queue-filter.cjs`가 실제 페이지 콜백을 실행하며 수정 전3개 중2개 실패→수정 후3개 통과합니다.
+- **다음부터 확인:** 숫자·상태 버튼·목록·작업 중/만료 복구를 함께 검수합니다. ‘전체’ 목록에서 보이는 것만으로 대기 필터를 통과했다고 판단하지 않고, 카테고리 필터 결합과 준비/임시보관/발행 완료도 보존합니다.
+
 ## 2026-10-11 — 크롬 GUI 창 ID와 Chrome API 창 ID는 다르며 공유 화면은 검수 중 바뀔 수 있음 (naver-blog-agent v1.69 검수 도구)
 
 - **증상:** 별도 검수 창을 열었는데 다른 CLI의 탭이 추가되었고 요소 인덱스/포커스가 바뀌었습니다. GUI 창 ID22616580을 `chrome.tabs.create({windowId})`에 쓰자 `No window with id`가 났습니다. 원고59개 화면은 접근성 트리가 잘려 하단 탭도 찾지 못했습니다.

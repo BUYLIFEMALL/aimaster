@@ -487,7 +487,11 @@ export default function QueuePage() {
   const filteredPosts = useMemo(() => {
     return posts.filter((p) => {
       // 1) 상태 필터
-      if (filterStatus !== "all" && p.status !== filterStatus) {
+      // The pending card counts both queued and running rows; recovery lives on running rows.
+      const matchesStatus = filterStatus === "queued"
+        ? p.status === "queued" || p.status === "publishing"
+        : filterStatus === "all" || p.status === filterStatus;
+      if (!matchesStatus) {
         return false;
       }
       // 2) 카테고리 필터

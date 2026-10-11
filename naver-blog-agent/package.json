@@ -1,8 +1,9 @@
 {
   "name": "naver-blog-agent",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "private": true,
   "scripts": {
+    "test:queue-filter": "node --test scripts/test-queue-filter.cjs",
     "test:post-review": "node --test scripts/test-post-review.cjs scripts/test-queue-confirmation.cjs",
     "dev": "next dev",
     "prebuild": "node scripts/build-extension-archive.mjs",

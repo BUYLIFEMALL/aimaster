@@ -12,11 +12,15 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.69` (운영 READY·DB/ZIP·PC 적용·실제 준비18/18 검수 완료, 장애/유료/발행 검수는 실행 문서 참조)
+- **현재 버전**: `v1.70` (재시작·만료 복구 검수와 대기 목록 수정, 최종 운영 결과는 [검수 문서](docs/RESTART_RECOVERY_2026-10-11.md) 참조)
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [순차 개선·담당·현재 검수](docs/AUTOMATION_IMPROVEMENT_PLAN_2026-10-10.md), [`docs/CONTINUATION.md`](docs/CONTINUATION.md), [클로드용 BLOG 인수인계](../docs/BLOG_AUTOMATION_HANDOFF_2026-10-10.md). 이전 실제 탭/입력 검수는 v1.63/v1.62 보고 참고.
 
 ---
+
+## 2026-10-11 v1.70 — 재시작·연결 만료 복구 검수와 대기 필터 수정
+
+[검수·운영·재개](docs/RESTART_RECOVERY_2026-10-11.md). 실제 cursor3에서 확장 재로드 후 EDITOR_INTERRUPTED·snapshot/기록 보존·자동 재입력 없음 확인. 별도 수신 응답 유실 원고에서 실제3분 만료와 복구 경계를 검사합니다. 대기 숫자는 publishing을 포함하지만 버튼 목록은 누락하던 오류를 수정했고 실제 목록 콜백 회귀3개 추가(수정 전2개 실패). 관련85개·로컬 빌드 통과. 프로그램/확장/ZIP v1.70, 서버 계약/스키마·BLOG 변경 없음. 최종 실제 복구와 배포 결과는 검수 문서의 운영 증거를 확인합니다.
 
 ## 2026-10-10 v1.69 — 실행 번호·진행 저장·연결 종료 복구
 
