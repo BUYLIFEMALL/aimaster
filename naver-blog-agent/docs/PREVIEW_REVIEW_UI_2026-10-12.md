@@ -14,7 +14,14 @@
 - 두 화면 변경 반영 후 `npm run build`: 성공, 타입·컴파일 통과.
 - 코드/패키지/확장 manifest 및 최신·버전 ZIP v1.80 일치. 확장 실행 코드는 변경하지 않았습니다.
 - DB 갱신 SQL: `supabase/migrations/20261011155239_preview_button_colors_v180.sql` (버전·확장 버전·기존 다운로드 주소만 갱신).
-- 커밋/푸시/운영 배포/DB·ZIP/실제 Chrome 검수: 배포 후 아래에 완료 증거를 기록합니다.
+- 코드 커밋 `70c1b90f`, `origin/master` 푸시 성공.
+- 프로덕션 `dpl_7UBm9duaVomak5ti7o3nRUB4CkgQ` READY, 운영 빌드/타입 검사 성공.
+- 배포 주소: https://naver-blog-agent-lb2i067je-buylife.vercel.app, 라이브: https://naver-blog-agent.vercel.app.
+- DB 프로그램/확장 v1.80 갱신, `node scripts/check-extension-release.mjs naver-blog-agent`: 실패0·경고0.
+- 라이브 최신 ZIP HTTP200·manifest v1.80·확장 소스14파일 일치(CRLF 정규화), 버전 API200/latest v1.80·로그인200.
+- 실제 일반 회원 `buylifemall@naver.com` Chrome v1.80에서 최근 저장된 ‘2026년 현실 직장인 부업 트렌드’ 원고를 불러와 확인했습니다. 확인란 문구/굵기/연한 파란 배경/확대 크기 정상, 미선택 상태에서 검수 기록 버튼 비활성 유지. 원본 텍스트를 선택해 회색을 확인하고 서식 보기로 돌아와 파란색을 확인했습니다. [서식·확인란 화면](evidence/v1.80/smart-review.png), [원본 선택 화면](evidence/v1.80/raw-review.png).
+- 검수 중 Chrome 창 식별자가36576024에서9575542로 바뀌어 새 창 목록을 다시 조회했습니다. 실제 v1.80 회원 화면을 읽어 최근 원고를 불러왔으며 기존 원고 탭에 새로고침/종료 명령을 실행하지 않았습니다. 별도 검수 탭을 만들었지만 원래 창이 최종적으로 유지됐는지는 확인하지 않았습니다.
+- 이번 두 표시 변경 요청의 남은 작업: 없음. 이전 자동화 미검수 항목은 아래대로 유지합니다.
 
 ## 화면 보존 및 다음 작업
 
