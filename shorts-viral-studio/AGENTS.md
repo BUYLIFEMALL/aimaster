@@ -6,7 +6,7 @@
 |---|---|
 | slug | `shorts-viral-studio` (카테고리: 쇼츠, 최소 등급: 일반, 배지: new, **유료 기본 요금제 1·2·3개월**) |
 | 라이브 | https://shorts-viral-studio.buylife.xyz (옛 주소 https://shorts-viral-studio.vercel.app 도 그대로 살아 있음, 자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
-| 버전 | **v1.06** (v1.01 = 2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
+| 버전 | **v1.07** (v1.01 = 2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
 | 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase(공용 DB) — `threads-easy-planner`를 틀로 복사해 만들었다 |
 | 출처 | 주인님이 준 유튜버 튜토리얼 소스(`D:\PDS\index.html`, "남다른AI Shorts 분석기", 단일 HTML) |
 
@@ -64,7 +64,8 @@ supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_gui
 - `npx tsc --noEmit`, `npm run build` 통과. 로컬 `next dev`에서 미로그인 시 `/`·`/search`·`/settings` → 307, `/login` → 200.
 - 지표 계산(등급·구독자 비공개·ISO 길이) 샘플 값 단위 확인, AI 파이프라인은 fetch를 모의해 확인(영상 분석 성공 / 영상 실패 시 메타데이터 폴백 / 소재 6개 제한·점수 0~100 보정 / 2문장 나레이션 압축 / 프롬프트 파싱).
 - 운영 배포 후: `/login` 200, 보호 경로 307, `X-Vercel-Cache: MISS`. 메인 `/programs/shorts-viral-studio`, 매뉴얼 `/guides/72d39d06-…` 200.
-- **아직 못 한 것(실제 키가 필요해서):** 실제 YouTube 키·Gemini 키로 검색 1회 + 영상 1개 분석을 돌려 본 것, 로그인한 화면의 클릭 동작 확인. 회원 키는 저장소·대화에 두지 않는 원칙이라 주인님이 설정 화면에 직접 등록한 뒤 확인해야 한다.
+- **2026-10-11 실제 검수 완료(v1.06~v1.07):** 로그인한 Chrome(`https://shorts-viral-studio.buylife.xyz`, 도메인 로그인 공유로 재로그인 없이 열림)에서 `AI자동화`로 검색(결과 50개·등급 표시) → 영상 1개 **Gemini 3.7 Flash 영상 직접 분석**(약 1분 44초, 11대 메커니즘) → 소재 6개 → 주제 확정 → 대본 12씬 → BGM + 씬별 이미지(9:16)·영상 프롬프트까지 6단계 모두 성공, 프로젝트 자동 저장 확인. 관리자 계정으로 진행(브라우저 세션)해 일반 회원 경로는 실제 DB 데이터로 표준 판정을 읽기 전용으로 돌려 확인(부여 있는 회원 허용·없는 회원 차단·관리자 허용). 이 계정의 OpenAI 키는 OpenAI가 401로 거절(키 문제, 프로그램 문제 아님)해 Gemini로 진행했다. 모바일은 390px 같은 출처 iframe으로 확인.
+- (과거 기록) **v1.01 당시 못 한 것(실제 키가 필요해서):** 실제 YouTube 키·Gemini 키로 검색 1회 + 영상 1개 분석을 돌려 본 것, 로그인한 화면의 클릭 동작 확인. 회원 키는 저장소·대화에 두지 않는 원칙이라 주인님이 설정 화면에 직접 등록한 뒤 확인해야 한다.
 
 ## 남은 일
 
@@ -82,6 +83,8 @@ supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_gui
 - `vercel link`는 이 폴더의 `.env.local`을 덮어쓴다(gitignore 대상) — 로컬 실행용 값이 필요하면 루트 `.env.local`의 Supabase 3개를 다시 복사.
 
 ## 변경 이력
+
+- **v1.07 (2026-10-11):** **정식 출시.** 모바일 사이드바를 상단 바 + 펼침 메뉴로 변경(이전에는 폰 폭에서 메뉴 전체가 본문 위에 쌓여 첫 화면을 차지), 공급사 오류 문구에 섞인 키 조각(`sk-…`, `AIza…`)을 화면에 보이기 전에 가림(`svs.ts`의 `scrubSecrets`), 마이그레이션 `0007_v1_07.sql`. 실제 검수를 마쳐 카탈로그 `coming`(준비중) 배지를 내렸다(`0008_release_remove_coming.sql`).
 
 - **v1.06 (2026-10-11):** 도메인 로그인 공유(`docs/DOMAIN_SSO_POLICY.md`). `src/lib/supabase/cookieDomain.ts`(루트 사본) + `client.ts`/`server.ts`의 쿠키 도메인 + 새 `src/proxy.ts`(세션 갱신·쿠키 `.buylife.xyz`·딥링크 복귀용 `x-pathname`). `vercel domains add shorts-viral-studio.buylife.xyz shorts-viral-studio --scope buylife`, DB `programs.app_url`을 새 주소로 갱신(옛 vercel.app 주소는 삭제하지 않음). 이 프로그램에는 OAuth 외부 계정 연동이 없어 콜백 주소 문제가 없다. 마이그레이션 `0006_v1_06_domain.sql`.
 

@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — shorts-viral-studio v1.07 정식 출시 (A안 완료: 실제 검수·모바일 보정·준비중 배지 제거)
+
+A안(새 프로그램 대신 기존 `shorts-viral-studio` 완성·출시)을 마쳤습니다. **실제 검수:** 로그인 Chrome에서 6단계 전체(검색→영상 직접 분석(Gemini)→소재 6개→주제→대본 12씬→BGM·씬별 이미지/영상 프롬프트)와 프로젝트 자동 저장이 모두 성공. **발견·수정:** 폰 폭에서 사이드바 전체가 본문 위에 쌓이던 문제를 상단 바 + 펼침 메뉴로 수정, 공급사 오류 문구의 키 조각(`sk-proj-****…`)을 화면에서 가림(v1.07). **출시:** DB `programs` 배지에서 `coming` 제거(`0008_release_remove_coming.sql`), 버전 v1.07, 주소 `https://shorts-viral-studio.buylife.xyz`(옛 vercel.app도 유지). 상세: [`shorts-viral-studio/AGENTS.md`](../shorts-viral-studio/AGENTS.md) 변경 이력·검증 기록, 갭 분석 [`shorts-viral-studio/docs/GAP_ANALYSIS_2026-10-11.md`](../shorts-viral-studio/docs/GAP_ANALYSIS_2026-10-11.md).
+
+- 알아둘 점: ① 검수는 브라우저에 로그인된 **관리자 계정**으로 했고(그 계정의 본인 키 사용, Gemini 호출 약 5건·YouTube 검색 1회), 일반 회원 경로는 DB 데이터로 판정만 확인(테스트 회원 naver로 직접 화면 검수는 하지 않음) ② 관리자 계정에 저장된 OpenAI 키는 OpenAI가 401로 거절 — 주인님이 키를 확인·재등록 필요 ③ 검수로 만든 프로젝트 1개가 관리자 계정에 저장됨(30일 뒤 자동 삭제, 필요하면 `/` 대시보드 "내 프로젝트"에서 삭제) ④ 정식 출시는 카탈로그 배지 변경만(공지·마케팅 없음).
+- 남은 일(선택): 30일 지난 `svs_projects` 자동 삭제 크론, 영상 분석 속도 개선(직접 분석 1~2분), 컷 단위 정밀 분석 등 기획안 v1.02+ 후보(`AGENTS.md` 남은 일).
+
 ## 2026-10-11 Claude Code — shorts-viral-studio v1.06 도메인 로그인 공유(shorts-viral-studio.buylife.xyz) (A안 3번째 작업)
 
 `shorts-viral-studio`에 도메인 로그인 공유를 적용했습니다. 쿠키 도우미·client/server 쿠키 도메인·새 `src/proxy.ts` 반영, Vercel 도메인 `shorts-viral-studio.buylife.xyz` 연결(`/login` 200), DB `programs.app_url`과 버전 v1.06 갱신(옛 vercel.app 주소는 유지), 마이그레이션 `0006_v1_06_domain.sql`. 검수: `npm test` 8개·빌드·타입 통과, 프로덕션 READY. **실제 로그인 Chrome에서 다른 프로그램(.buylife.xyz) 로그인 상태로 새 주소에 접속하면 재로그인 없이 대시보드가 열림**(현재 브라우저 세션은 관리자 `buylifemall@gmail.com`이라 관리자 경로로 확인). 회원 경로는 실제 DB 데이터로 표준 판정을 읽기 전용으로 돌려 확인: 관리자 허용, 테스트 회원(naver) 개별 부여로 허용, 부여 없는 회원 차단. 남은 일: 테스트 계정(naver)으로 6단계 실제 키 검수(로그인이 naver일 때) → `coming` 배지 제거·출시.

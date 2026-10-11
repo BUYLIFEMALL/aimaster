@@ -54,8 +54,13 @@ async function resolveLlm(
   return { ok: true, config: { provider: modelConfig.provider, apiKey, model: modelConfig.model } };
 }
 
+// 공급사 오류 문구에는 키의 일부(sk-proj-****...abcd 등)가 들어 있을 수 있어 화면에 보이기 전에 가린다.
+function scrubSecrets(message: string): string {
+  return message.replace(/(sk-|AIza)[^\s"'),]*/g, "[키 가림]");
+}
+
 function fail(err: unknown, fallback: string): ActionResult<never> {
-  return { success: false, error: err instanceof Error ? err.message : fallback };
+  return { success: false, error: err instanceof Error ? scrubSecrets(err.message) : fallback };
 }
 
 /** 1단계: 유튜브 쇼츠 검색 (조회수·구독자 실측값 + 떡상 지표 계산) */

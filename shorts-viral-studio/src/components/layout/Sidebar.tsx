@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
@@ -23,12 +24,30 @@ const UTILITY_ITEMS = [
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <aside className="flex w-full flex-col border-b border-neutral-200 bg-white p-4 md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:border-b-0 md:border-r">
-      <div className="flex h-full flex-col md:min-h-0 md:overflow-y-auto">
+      {/* 모바일: 상단 바(이름·버전 + 메뉴 버튼). 메뉴는 눌러서 펼친다. 데스크톱(md 이상)은 항상 펼쳐진 좌측 바 */}
+      <div className="flex items-center justify-between md:hidden">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-rose-600 text-sm font-bold text-white">▶</span>
+          <span className="truncate text-[15px] font-bold text-neutral-900">쇼츠 떡상 분석·대본</span>
+          <span className="shrink-0 rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] font-semibold text-neutral-600">{APP_VERSION}</span>
+        </div>
+        <button
+          type="button"
+          aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="shrink-0 rounded-lg p-2 text-xl leading-none text-neutral-700 hover:bg-neutral-100"
+        >
+          {open ? "✕" : "☰"}
+        </button>
+      </div>
+      <div className={`${open ? "mt-4 flex" : "hidden md:flex"} h-full flex-col md:mt-0 md:min-h-0 md:overflow-y-auto`}>
         <div className="mb-5">
           <div className="flex items-center gap-2 px-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600 text-sm font-bold text-white">
@@ -51,7 +70,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           </a>
         </div>
 
-        <nav className="space-y-1">
+        <nav className="space-y-1" onClick={() => setOpen(false)}>
           <Link
             href={OVERVIEW_ITEM.href}
             className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
