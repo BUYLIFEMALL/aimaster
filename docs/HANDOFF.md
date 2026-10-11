@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — shorts-viral-studio v1.06 도메인 로그인 공유(shorts-viral-studio.buylife.xyz) (A안 3번째 작업)
+
+`shorts-viral-studio`에 도메인 로그인 공유를 적용했습니다. 쿠키 도우미·client/server 쿠키 도메인·새 `src/proxy.ts` 반영, Vercel 도메인 `shorts-viral-studio.buylife.xyz` 연결(`/login` 200), DB `programs.app_url`과 버전 v1.06 갱신(옛 vercel.app 주소는 유지), 마이그레이션 `0006_v1_06_domain.sql`. 검수: `npm test` 8개·빌드·타입 통과, 프로덕션 READY. **실제 로그인 Chrome에서 다른 프로그램(.buylife.xyz) 로그인 상태로 새 주소에 접속하면 재로그인 없이 대시보드가 열림**(현재 브라우저 세션은 관리자 `buylifemall@gmail.com`이라 관리자 경로로 확인). 회원 경로는 실제 DB 데이터로 표준 판정을 읽기 전용으로 돌려 확인: 관리자 허용, 테스트 회원(naver) 개별 부여로 허용, 부여 없는 회원 차단. 남은 일: 테스트 계정(naver)으로 6단계 실제 키 검수(로그인이 naver일 때) → `coming` 배지 제거·출시.
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.07) 완전한 SSR 정적 HTML 링크 렌더링 복원
 
 - **Suspense fallback 우회 및 초기 SSR 링크 100% 온전 렌더링**: `page.tsx`에서 `useSearchParams()`로 인한 Suspense fallback(초기 정적 HTML에서 `로딩 중...`만 노출되던 현상)을 제거하고, 마운트 시 `window.location.search`를 직접 파싱하도록 전환하여 첫 HTML 로드 시점부터 사이드바, 헤더, 탭 메뉴의 모든 `<a href="...">` 링크 태그가 100% 완전하게 SSR 출력되도록 조치.

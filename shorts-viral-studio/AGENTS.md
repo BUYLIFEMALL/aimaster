@@ -5,8 +5,8 @@
 | 항목 | 내용 |
 |---|---|
 | slug | `shorts-viral-studio` (카테고리: 쇼츠, 최소 등급: 일반, 배지: new, **유료 기본 요금제 1·2·3개월**) |
-| 라이브 | https://shorts-viral-studio.vercel.app (자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
-| 버전 | **v1.05** (v1.01 = 2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
+| 라이브 | https://shorts-viral-studio.buylife.xyz (옛 주소 https://shorts-viral-studio.vercel.app 도 그대로 살아 있음, 자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
+| 버전 | **v1.06** (v1.01 = 2026-10-04 신설) — `src/lib/version.ts`의 `APP_VERSION` + 공용 DB `programs.version` 두 곳을 같이 올린다 |
 | 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase(공용 DB) — `threads-easy-planner`를 틀로 복사해 만들었다 |
 | 출처 | 주인님이 준 유튜버 튜토리얼 소스(`D:\PDS\index.html`, "남다른AI Shorts 분석기", 단일 HTML) |
 
@@ -82,6 +82,8 @@ supabase/migrations/      0001_svs_projects.sql · 0002_register_program_and_gui
 - `vercel link`는 이 폴더의 `.env.local`을 덮어쓴다(gitignore 대상) — 로컬 실행용 값이 필요하면 루트 `.env.local`의 Supabase 3개를 다시 복사.
 
 ## 변경 이력
+
+- **v1.06 (2026-10-11):** 도메인 로그인 공유(`docs/DOMAIN_SSO_POLICY.md`). `src/lib/supabase/cookieDomain.ts`(루트 사본) + `client.ts`/`server.ts`의 쿠키 도메인 + 새 `src/proxy.ts`(세션 갱신·쿠키 `.buylife.xyz`·딥링크 복귀용 `x-pathname`). `vercel domains add shorts-viral-studio.buylife.xyz shorts-viral-studio --scope buylife`, DB `programs.app_url`을 새 주소로 갱신(옛 vercel.app 주소는 삭제하지 않음). 이 프로그램에는 OAuth 외부 계정 연동이 없어 콜백 주소 문제가 없다. 마이그레이션 `0006_v1_06_domain.sql`.
 
 - **v1.05 (2026-10-11):** 이용 권한 판정(`src/lib/access.ts`)을 루트 표준으로 교체. 권한 테이블을 `createAdminClient()`로 조회하고, 판정 규칙은 루트 `lib/access/checkProgramAccess.ts`의 사본 `src/lib/programAccess.ts`를 쓴다(규칙이 바뀌면 사본도 같이 고칠 것). 이전 코드는 로그인 세션 클라이언트(RLS)로 조회했고, 없는 컬럼 `profiles.program_access_expires_at`을 읽는 죽은 분기가 있었으며 등급 ≥ 최소 등급 + 사용기간 규칙이 빠져 있었다. `npm test`(판정 규칙 8개) 추가, `package.json` 버전을 화면 표기와 맞춤. 갭 분석·출시 계획: `docs/GAP_ANALYSIS_2026-10-11.md`.
 
