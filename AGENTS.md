@@ -38,6 +38,7 @@
    22커밋 뒤처진 걸 못 알아채 "최신 작업이 안 보인다"는 혼선이 실제로 있었다.
 3. 참고 스크린샷/문서를 파일명만 듣고 찾아야 하면 먼저 **`D:\PDS`**(및 하위 폴더)를 검색한다 —
    사용자에게 되묻기 전에.
+4. **Google 애드센스(AdSense) 승인 및 광고 운영 지침**: [`docs/ADSENSE_APPROVAL_MANUAL.md`](docs/ADSENSE_APPROVAL_MANUAL.md) — 개인정보처리방침 제13조(광고 쿠키) 보존, 공개 가이드 및 프로그램 상세 리치 콘텐츠 유지, `robots.ts`/`sitemap.xml` 크롤러 설정 유지.
 
 ---
 

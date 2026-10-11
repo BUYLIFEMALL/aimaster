@@ -20,6 +20,8 @@
   4. **푸터(`Footer.tsx`) 및 프로그램 카탈로그(`/programs`) 탐색성 강화**:
      - 푸터 고객지원 메뉴에 `이용 가이드 (API연동)`(`/guides`) 및 약관에 `데이터 삭제 안내`(`/data-deletion`) 링크 추가.
      - 프로그램 카탈로그 하단에 초보자를 위한 무료 가이드 배너 추가.
+  5. **상세 인수인계 및 운영 매뉴얼 작성 완료**:
+     - 신청 절차, RootLayout 애드센스 코드 삽입 위치, 자동 광고 및 페이지 제외 가이드라인: [`docs/ADSENSE_APPROVAL_MANUAL.md`](ADSENSE_APPROVAL_MANUAL.md).
 
 ## 2026-10-11 Codex — 네이버 에이전트 v1.73 원고 저장 안정성
 
