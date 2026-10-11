@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Download, ExternalLink } from "lucide-react";
 import type { AnalyzedVideo } from "@/lib/youtube/types";
 import { formatDate, formatDuration, formatNumber } from "@/lib/youtube/metrics";
+import { downloadCsv, downloadJson } from "@/lib/export";
 
 type FormatFilter = "all" | "long" | "short";
 type SortKey = "popularity" | "viewCount" | "likeCount" | "commentCount" | "date";
@@ -29,21 +30,6 @@ function sortValue(v: AnalyzedVideo, key: SortKey): number {
     case "date":
       return new Date(v.publishedAt).getTime();
   }
-}
-
-function download(filename: string, content: string, mime: string) {
-  const blob = new Blob([content], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function csvCell(value: string | number | null): string {
-  const text = value === null ? "" : String(value);
-  return `"${text.replace(/"/g, '""')}"`;
 }
 
 interface Props {
@@ -85,11 +71,10 @@ export function VideoList({ videos, showChannel, onAnalyzeChannel, onSummarize, 
       v.popularity,
       `https://www.youtube.com/watch?v=${v.id}`,
     ]);
-    const body = [header, ...rows].map((r) => r.map((c) => csvCell(c as string | number | null)).join(",")).join("\r\n");
-    download(`${exportName}.csv`, `﻿${body}`, "text/csv;charset=utf-8");
+    downloadCsv(`${exportName}.csv`, header, rows);
   };
 
-  const exportJson_ = () => download(`${exportName}.json`, JSON.stringify(exportJson, null, 2), "application/json");
+  const exportJson_ = () => downloadJson(`${exportName}.json`, exportJson);
 
   const selectClass = "rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-red-500";
 

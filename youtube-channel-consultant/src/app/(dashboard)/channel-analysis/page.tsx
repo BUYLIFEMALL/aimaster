@@ -165,7 +165,7 @@ function ChannelAnalysisInner() {
                   <p className="truncate text-xs text-gray-500">{result.channel.handle ?? "채널 분석 결과"}</p>
                 </div>
               </div>
-              <div className="flex flex-1 justify-around gap-2 lg:max-w-md">
+              <div className="flex flex-1 flex-wrap justify-around gap-2 lg:max-w-md">
                 <StatBox label="구독자 수" value={formatNumber(result.channel.subscriberCount)} />
                 <StatBox label="총 조회수" value={formatNumber(result.channel.viewCount)} />
                 <StatBox label="총 영상 수" value={result.channel.videoCount.toLocaleString()} />

@@ -7,7 +7,7 @@
 작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`, `docs/SIDEBAR_LAYOUT_STANDARD.md`를 먼저 읽는다.
 
 ## 1. 개요와 현황
-- 프로그램명 `YOUTUBE CHANNEL CONSULTANT` / slug `youtube-channel-consultant` / 현재 버전 **v1.02** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
+- 프로그램명 `YOUTUBE CHANNEL CONSULTANT` / slug `youtube-channel-consultant` / 현재 버전 **v1.03** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
 - 주소: https://youtube-channel-consultant.buylife.xyz (Vercel 프로젝트 `buylife/youtube-channel-consultant`, 별칭 `youtube-channel-consultant.vercel.app`)
 - 기술: Next.js 16 + React 19 + Tailwind 4 + Supabase SSR(공유 DB `esgxyikcnnvmlhygjkth`). 외부 차트 라이브러리 없음(CSS 차트).
 - 기획 배경: 외부 참고 프로그램(AI Studio 앱 "유튜브 채널 컨설턴트")의 기능 흐름을 참고해 새로 만들었다. 이름·디자인은 복제하지 않았고 화면은 흰색 바탕(`docs/PLATFORM_PATTERNS.md` §27-1).
@@ -18,7 +18,7 @@
 |---|---|---|
 | v1.01 | ① 채널 분석 ② 키워드 분석 (+ JSON/CSV 내보내기) | **완료·배포** |
 | v1.02 | AI 분석: 영상 요약, 경쟁 전략, 성장 과정, 채널 진단 (회원 본인 Gemini/OpenAI/Claude 키) | **완료·배포** |
-| v1.03 (예정) | 공략 채널 찾기 — `youtube-viral-studio/src/lib/youtube/goldenChannels.ts` 재사용 검토 | 미착수 |
+| v1.03 | 공략 채널 찾기 (소형 고효율 채널 발굴) | **완료·배포** |
 
 ## 3. 화면과 파일
 - `/dashboard` 대시보드(키 연동 상태·쿼터 안내), `/channel-analysis`, `/keyword-analysis`, `/settings`(API키등록·플랫폼연동 + 📖 연동 매뉴얼 박스), `/login`
@@ -47,7 +47,7 @@
 - 키 저장·삭제 API도 프로그램 이용 권한을 확인한다. 로그에 키가 남지 않게 오류 메시지의 `key=` 값을 가린다.
 
 ## 7. 알려진 한계·다음 작업
-- 모바일 폭은 CSS(반응형 클래스·상단 메뉴)로만 구현했고 실제 폰 폭 브라우저 검수는 아직 못 했다.
+- 모바일 폭: 2026-10-11 같은 출처 iframe(390px 폭)으로 대시보드·채널 분석·공략 채널 찾기와 햄버거 메뉴를 확인했다(Chrome 창 크기 변경 도구는 이 환경에서 적용되지 않아 iframe 방식을 썼다). 실제 폰 기기는 아직 확인하지 않았다.
 - 카탈로그 썸네일: 2026-10-11 전용 실사 썸네일 제작·등록 완료(`program-images/catalog/youtube-channel-consultant-thumbnail.jpg`, `scripts/generate-program-thumbnail.mjs`, 마이그레이션 `20261011170000_...thumbnail.sql`).
 - `npm run lint`는 ESLint 설정 파일이 없어 동작하지 않는다(복사 원본 `youtube-viral-studio`도 같음). 자동 검사는 `npm test`(지표 계산 7개)와 `npm run build`.
 - 이후 검토: 영상 요약 등 AI 기능, 즐겨찾기 보관함, 공략 채널 찾기.
@@ -69,3 +69,11 @@ vercel deploy --prod --yes --scope buylife
 - 프롬프트 규칙: 현재 연도 자동 주입, 제공 데이터에 있는 숫자만 근거, 없는 정보는 `확인 불가`, 추정은 `(추정)`. 채널 분석 AI는 최근 영상 최대 60개만 보낸다. `채널 경쟁 전략`은 경쟁 채널 데이터가 없다고 프롬프트에 알리고 포지셔닝·차별화만 제안한다.
 - 실제 라이브 확인(buylifemall@naver.com 본인 키): Gemini `gemini-3.7-flash` 채널 진단·영상 직접 요약, OpenAI `gpt-4.1` 채널 진단, Claude `claude-sonnet-5` 채널 진단 성공. **Claude Sonnet 5는 응답까지 약 80초**가 걸리고(그래서 route `maxDuration = 300`), `max_tokens 4096`에서는 빈 응답이 나와 8192로 올렸다. 빠르게 쓰려면 Haiku 4.5를 고른다.
 - 자동 검사: `npm test` 14개(지표 7 + AI 7: 레지스트리·프롬프트·요청 형식·키 비노출·오류 매핑). 다른 모델 ID(GPT-6 등)는 이 키로 실제 호출해 보지 않았다.
+
+## 10. v1.03 구현 — 공략 채널 찾기 (2026-10-11)
+- 화면 `/golden-channels`, API `/api/youtube/golden-channels`(로그인+이용 권한+본인 키), 로직 `src/lib/youtube/analysis.ts`의 `findTargetChannels` + 순수 함수 `targets.ts`의 `selectTargetChannels`(자동 검사 대상).
+- 흐름: 키워드로 `search.list`(최근 30/90일·1년, 조회수순, 선택: 4분 미만 영상만, 지역) → 영상 상세(1유닛) → 영상을 올린 채널 상세(1유닛) → 구독자 상한 이하이면서 **채널 평균 조회수(총 조회수 ÷ 영상 수)** 하한 이상인 채널만 남겨 **파괴력 배수(평균 조회수 ÷ 구독자)** 순으로 정렬. 쿼터는 1페이지(영상 50개)당 약 102유닛.
+- 정직한 표시: 평균 조회수는 최근 영상 평균이 아니라 채널 누적 평균, 검색에 잡힌 채널만 대상(시장 전체 아님), 구독자 비공개 채널은 0명으로 보지 않고 제외하며 개수를 알려준다(`youtube-viral-studio` 원본은 0명으로 처리해 통과시키는 문제가 있었다). 구독자 0명은 1명으로 보정해 배수 계산이 터지지 않게 했다.
+- 카드에서 `이 채널 분석하기`를 누르면 `/channel-analysis?q=<채널ID>`로 자동 분석한다. JSON·CSV 내보내기는 `src/lib/export.ts`(VideoList도 공용 사용).
+- 실제 라이브 확인(buylifemall@naver.com 본인 키): `AI자동화`(한국·90일·구독자 1만 이하·평균 1만 이상)로 영상 50개 → 채널 43개 중 4개 조건 충족, 카드·정렬·내보내기 버튼 정상.
+- 자동 검사 `npm test` 17개(지표 7 + AI 7 + 공략 채널 3).

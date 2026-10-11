@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — YOUTUBE CHANNEL CONSULTANT v1.03 공략 채널 찾기·모바일 검수 (youtube-channel-consultant)
+
+주인님 지시로 **공략 채널 찾기**(구독자 적고 평균 조회수 높은 소형 고효율 채널 발굴)를 추가하고 모바일 폭을 검수했습니다. 상세·계산 정의: [`youtube-channel-consultant/AGENTS.md`](../youtube-channel-consultant/AGENTS.md) 10절. 사이드바는 ①채널 분석 ②키워드 분석 ③공략 채널 찾기.
+
+- 배포: 프로덕션 READY(`https://youtube-channel-consultant.buylife.xyz`), DB `programs.version` v1.03·설명 갱신, 마이그레이션 `20261011200000_youtube_channel_consultant_v1_03.sql`.
+- 검수: `npm test` 17개·빌드·타입 검사 통과. 실제 로그인 Chrome(`buylifemall@naver.com`, 본인 키)에서 `AI자동화` 검색(영상 50개→채널 43개→조건 충족 4개) 확인, 로그인 없는 API 401 확인. **모바일**: 같은 출처 iframe(390px)로 대시보드·채널 분석·공략 채널 찾기·햄버거 메뉴 확인, 통계 숫자가 좁은 폭에서 잘리는 것을 발견해 줄바꿈되게 수정(`StatBox`, 채널 분석 머리글).
+- 알아둘 점: 평균 조회수는 채널 누적 평균이며 검색에 잡힌 채널만 대상, 구독자 비공개 채널은 제외. 모바일은 실제 폰 기기가 아니라 iframe 폭 시뮬레이션으로 확인(Chrome 창 크기 변경 도구는 적용되지 않음).
+- 다른 CLI 작업 폴더: `naver-blog-allinone/`은 **Gemini가 작업 중**(2026-10-11 주인님 확인)이라 이번 작업에서 건드리지 않았고, 작업 폴더에 남아 있는 그쪽 미커밋 변경(`naver-blog-allinone/src/lib/version.ts`)도 커밋하지 않았습니다.
+- 남은 일: (선택) 즐겨찾기 보관함, AI로 공략 채널 분석, 실제 폰 기기 확인. 세 단계 로드맵(v1.01~v1.03)은 모두 완료.
+
 ## 2026-10-11 Claude Code — YOUTUBE CHANNEL CONSULTANT v1.02 AI 분석 (youtube-channel-consultant)
 
 주인님 지시로 AI 분석을 추가했습니다: **AI 영상 요약, AI 경쟁 전략 분석(채널·키워드), AI 성장 과정 분석, AI 채널 진단 및 컨설팅.** 회원 본인의 Gemini/OpenAI/Claude 키만 사용(폴백 없음), 결과는 저장하지 않음, 새 테이블 없음. 구조·프롬프트 규칙·모델 레지스트리: [`youtube-channel-consultant/AGENTS.md`](../youtube-channel-consultant/AGENTS.md) 9절.

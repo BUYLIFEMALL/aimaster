@@ -13,7 +13,7 @@ export const SELECT_CLASS =
 
 export function StatBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-[110px] flex-1 text-center">
+    <div className="min-w-[90px] flex-1 text-center">
       <p className="text-xs text-gray-500">{label}</p>
       <p className="mt-1 text-2xl font-extrabold text-red-600">{value}</p>
     </div>

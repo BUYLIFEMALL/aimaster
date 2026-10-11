@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — 버전 올림 스크립트가 값을 못 바꾼 채 배포됨 / 크롬 창 크기 변경이 안 먹을 때 모바일 폭은 iframe으로 확인 (youtube-channel-consultant v1.03)
+
+- **증상:** v1.03 배포 후 화면 사이드바가 `v1.02`로 표시됨(DB·package.json은 v1.03). 모바일 검수에서는 `resize_window`가 성공이라고 해도 화면 폭이 그대로였다.
+- **원인:** 여러 파일을 고치는 파이썬 스크립트에서 `version.ts` 치환이 반영되지 않은 채 다른 치환만 적용됐고, 스크립트 출력만 믿고 확인하지 않았다(버전은 코드·DB·package.json 세 곳이라 한 곳만 어긋나도 눈에 안 띈다). 크롬 창 크기 변경 도구는 이 환경(최대화 창)에서 적용되지 않았다.
+- **해결(위치):** `src/lib/version.ts` 수정 후 재배포, 라이브 사이드바에서 `v1.03` 확인. 모바일 폭은 라이브 페이지에서 `javascript_tool`로 `document.body`를 폭 390px짜리 **같은 출처 iframe** 여러 개로 바꿔(쿠키가 같이 전달됨) 스크린샷으로 확인했다.
+- **다음부터 확인:** 버전을 올린 뒤에는 `grep APP_VERSION src/lib/version.ts`·`package.json`·DB 값을 각각 확인하고, 배포 후 실제 화면의 버전 표기까지 본다. 모바일 반응형 검수에서 창 크기 변경이 안 먹으면 같은 출처 iframe 방식을 쓰고, 좁은 폭에서 `min-w-*`가 큰 가로 배치(통계 숫자 등)는 줄바꿈 가능하게 한다.
+
 ## 2026-10-11 — Claude Sonnet 5가 빈 응답을 돌려줌(max_tokens 4096) / 크롬 확장 도구에서 form_input 직후 버튼 클릭이 무시됨 (youtube-channel-consultant v1.02)
 
 - **증상:** AI 채널 진단에 Claude(claude-sonnet-5)를 고르면 약 40초 뒤 "AI가 빈 응답을 돌려줬습니다"가 나왔다(Gemini·OpenAI는 정상).

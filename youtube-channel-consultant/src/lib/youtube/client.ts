@@ -145,7 +145,16 @@ export async function fetchChannelsDetails(channelIds: string[], apiKey: string,
 
 /** 키워드로 영상 검색 (페이지당 100유닛, 50개) */
 export async function searchVideos(
-  params: { q: string; order: string; regionCode?: string; relevanceLanguage?: string; videoCategoryId?: string; pages: number },
+  params: {
+    q: string;
+    order: string;
+    regionCode?: string;
+    relevanceLanguage?: string;
+    videoCategoryId?: string;
+    publishedAfter?: string;
+    videoDuration?: "short" | "medium" | "long";
+    pages: number;
+  },
   apiKey: string,
   meter: QuotaMeter
 ): Promise<string[]> {
@@ -156,6 +165,8 @@ export async function searchVideos(
     if (params.regionCode) q.regionCode = params.regionCode;
     if (params.relevanceLanguage) q.relevanceLanguage = params.relevanceLanguage;
     if (params.videoCategoryId) q.videoCategoryId = params.videoCategoryId;
+    if (params.publishedAfter) q.publishedAfter = params.publishedAfter;
+    if (params.videoDuration) q.videoDuration = params.videoDuration;
     if (pageToken) q.pageToken = pageToken;
     const data = await call("search", q, apiKey, meter, 100);
     for (const it of data.items ?? []) {

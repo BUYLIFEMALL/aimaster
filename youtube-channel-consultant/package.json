@@ -1,13 +1,13 @@
 {
   "name": "youtube-channel-consultant",
-  "version": "1.02.0",
+  "version": "1.03.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/metrics.test.mjs tests/ai.test.mjs"
+    "test": "node --test tests/metrics.test.mjs tests/ai.test.mjs tests/targets.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

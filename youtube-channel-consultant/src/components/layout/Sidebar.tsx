@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION, APP_NAME } from "@/lib/version";
-import { LayoutDashboard, BarChart3, Search, KeyRound, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, BarChart3, Search, Target, KeyRound, LogOut, Menu, X } from "lucide-react";
 
 interface SidebarProps {
   userEmail?: string;
@@ -15,6 +15,7 @@ const OVERVIEW_ITEM = { href: "/dashboard", label: "대시보드", icon: LayoutD
 const FLOW_STEPS = [
   { step: 1, href: "/channel-analysis", label: "채널 분석", description: "채널·영상 지표 진단", icon: BarChart3 },
   { step: 2, href: "/keyword-analysis", label: "키워드 분석", description: "검색 결과 영상·채널 분석", icon: Search },
+  { step: 3, href: "/golden-channels", label: "공략 채널 찾기", description: "소형 고효율 채널 발굴", icon: Target },
 ];
 const UTILITY_ITEMS = [{ href: "/settings", label: "API키등록·플랫폼연동", icon: KeyRound }];
 

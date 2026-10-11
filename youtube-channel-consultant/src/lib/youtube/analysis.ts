@@ -13,6 +13,7 @@ import {
   type RawChannel,
 } from "./client";
 import { applyPopularity, calculateUploadStats, isShortsVideo, parseDuration } from "./metrics";
+import { selectTargetChannels, type TargetCandidate } from "./targets";
 import type {
   AnalyzedVideo,
   ChannelAnalysisResult,
@@ -20,6 +21,8 @@ import type {
   ChannelInfo,
   KeywordAnalysisResult,
   KeywordSearchParams,
+  TargetChannelsResult,
+  TargetSearchParams,
 } from "./types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -189,6 +192,88 @@ export async function analyzeKeyword(params: KeywordSearchParams, apiKey: string
     videos,
     totals,
     channelShare: Array.from(shareMap.values()).sort((a, b) => b.viewCount - a.viewCount),
+    quotaUsed: meter.used,
+    fetchedAt: new Date().toISOString(),
+  };
+}
+
+const PERIOD_DAYS: Record<TargetSearchParams["period"], number> = { "30d": 30, "90d": 90, "365d": 365 };
+
+/**
+ * 공략 채널 찾기: 키워드로 최근 기간의 인기 영상을 검색해 그 영상을 올린 채널을 모은 뒤,
+ * 구독자가 적은데 채널 평균 조회수가 높은 채널을 고른다. 검색에 잡힌 채널만 대상이다(시장 전체가 아니다).
+ */
+export async function findTargetChannels(params: TargetSearchParams, apiKey: string): Promise<TargetChannelsResult> {
+  const meter = new QuotaMeter();
+  const regionParams =
+    params.region === "kr"
+      ? { regionCode: "KR", relevanceLanguage: "ko" }
+      : params.region === "global"
+        ? { regionCode: "US", relevanceLanguage: "en" }
+        : {};
+  const publishedAfter = new Date(Date.now() - PERIOD_DAYS[params.period] * 86400000).toISOString();
+
+  const ids = await searchVideos(
+    {
+      q: params.keyword,
+      order: "viewCount",
+      publishedAfter,
+      videoDuration: params.shortVideosOnly ? "short" : undefined,
+      pages: params.pages,
+      ...regionParams,
+    },
+    apiKey,
+    meter
+  );
+  const details = await fetchVideosDetails(ids, apiKey, meter);
+
+  // 채널별로 이번 검색에서 잡힌 영상 중 조회수가 가장 높은 영상을 기억한다.
+  const byChannel = new Map<string, { best: any; count: number }>();
+  details.forEach((item: any) => {
+    const channelId = item.snippet?.channelId;
+    if (!channelId) return;
+    const views = Number(item.statistics?.viewCount ?? 0);
+    const cur = byChannel.get(channelId);
+    if (!cur) byChannel.set(channelId, { best: item, count: 1 });
+    else {
+      cur.count += 1;
+      if (views > Number(cur.best.statistics?.viewCount ?? 0)) cur.best = item;
+    }
+  });
+
+  const channels = await fetchChannelsDetails(Array.from(byChannel.keys()), apiKey, meter);
+
+  const candidates: TargetCandidate[] = [];
+  byChannel.forEach(({ best, count }, channelId) => {
+    const ch = channels.get(channelId);
+    if (!ch) return;
+    candidates.push({
+      id: channelId,
+      title: ch.snippet?.title ?? "",
+      handle: ch.snippet?.customUrl,
+      thumbnailUrl: ch.snippet?.thumbnails?.medium?.url ?? ch.snippet?.thumbnails?.default?.url ?? "",
+      publishedAt: ch.snippet?.publishedAt ?? "",
+      subscriberCount: subscriberOf(ch.statistics),
+      viewCount: Number(ch.statistics?.viewCount ?? 0),
+      videoCount: Number(ch.statistics?.videoCount ?? 0),
+      bestVideo: {
+        id: best.id,
+        title: best.snippet?.title ?? "",
+        viewCount: Number(best.statistics?.viewCount ?? 0),
+        publishedAt: best.snippet?.publishedAt ?? "",
+        thumbnailUrl: best.snippet?.thumbnails?.medium?.url ?? best.snippet?.thumbnails?.default?.url ?? "",
+      },
+      matchedVideos: count,
+    });
+  });
+
+  const { channels: picked, hiddenSubscriberExcluded } = selectTargetChannels(candidates, params);
+  return {
+    keyword: params.keyword,
+    channels: picked,
+    scannedVideos: details.size,
+    scannedChannels: candidates.length,
+    hiddenSubscriberExcluded,
     quotaUsed: meter.used,
     fetchedAt: new Date().toISOString(),
   };
