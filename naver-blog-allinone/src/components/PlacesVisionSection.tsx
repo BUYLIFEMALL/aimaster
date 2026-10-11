@@ -34,6 +34,7 @@ import type { ImageRatio } from "@/lib/blog/types";
 import type { WritingStyle, WritingTone } from "@/lib/blog/styles";
 import { GenerationPanel } from "@/components/blog/GenerationPanel";
 import { ModelSettingsCard } from "@/components/blog/ModelSettingsCard";
+import { CategorySelect } from "@/components/blog/CategorySelect";
 import { PostWorkspaceView } from "@/components/blog/PostWorkspaceView";
 import { useBlogWorkspace } from "@/components/blog/useBlogWorkspace";
 
@@ -64,6 +65,7 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
   const [seoMode, setSeoMode] = useState<"homefeed" | "standard">("homefeed");
 
   // SEO Keywords
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [mainKeyword, setMainKeyword] = useState("");
   const [subKeywords, setSubKeywords] = useState("");
   const [isExtractingKeywords, setIsExtractingKeywords] = useState(false);
@@ -278,7 +280,7 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         if (i === 0 && thumbnailText) dataUrl = await overlayThumbnailTitle(dataUrl, result.title, theme.color);
         withUrls.push({ ...result.images[i], url: await uploadImage(dataUrl) });
       }
-      await ws.startFresh({ ...result, images: withUrls });
+      await ws.startFresh({ ...result, images: withUrls, settings: categoryId ? { ...result.settings, categoryId } : result.settings });
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "비전 포스트 생성 중 오류가 발생했습니다.");
     } finally {
@@ -762,6 +764,8 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         </div>
 
         <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} showImage={false} />
+
+        <CategorySelect value={categoryId} onChange={setCategoryId} />
 
         <GenerationPanel
           values={{ personaId, targetLength, keywords: "", purpose: "", tone, style }}

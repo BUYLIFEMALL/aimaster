@@ -31,6 +31,7 @@ export function toSummary(row: Record<string, unknown>): SavedPostSummary {
     thumbnailUrl: images.find((i) => i.type === "thumbnail")?.url ?? images[0]?.url ?? null,
     imageCount: images.length,
     charCount: measureLength((row.article as string) ?? ""),
+    categoryId: ((row.settings as PostSettings | null)?.categoryId) ?? null,
     reviewStatus: ((row.review_status as ReviewStatus) ?? "UNKNOWN"),
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,

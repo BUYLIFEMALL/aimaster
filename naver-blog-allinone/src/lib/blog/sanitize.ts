@@ -63,6 +63,7 @@ export function sanitizePost(raw: unknown, supabaseUrl: string, userId: string):
     withThumbnailText: s.withThumbnailText === true,
     ...(str(s.personaId, 40).trim() ? { personaId: str(s.personaId, 40).trim() } : {}),
     ...(str(s.keywords, 300).trim() ? { keywords: str(s.keywords, 300).trim() } : {}),
+    ...(str(s.categoryId, 80).trim() ? { categoryId: str(s.categoryId, 80).trim() } : {}),
     ...(str(s.purpose, 300).trim() ? { purpose: str(s.purpose, 300).trim() } : {}),
   };
 

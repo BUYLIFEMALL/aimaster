@@ -12,6 +12,7 @@ import { type WritingStyle, type WritingTone } from "@/lib/blog/styles";
 import { IMAGE_RATIOS, type ImageRatio, type SavedPost } from "@/lib/blog/types";
 import { GenerationPanel } from "@/components/blog/GenerationPanel";
 import { ModelSettingsCard } from "@/components/blog/ModelSettingsCard";
+import { CategorySelect } from "@/components/blog/CategorySelect";
 import { PostWorkspaceView } from "@/components/blog/PostWorkspaceView";
 import { useBlogWorkspace } from "@/components/blog/useBlogWorkspace";
 
@@ -55,6 +56,7 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
   const [style, setStyle] = useState<WritingStyle>("default");
   const [targetLength, setTargetLength] = useState(2000);
   const [personaId, setPersonaId] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [keywords, setKeywords] = useState("");
   const [purpose, setPurpose] = useState("");
 
@@ -137,6 +139,7 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
     setRatio(rest.settings.ratio);
     setThumbnailText(rest.settings.withThumbnailText);
     setPersonaId(BLOG_PERSONAS.find((p) => p.name === rest.settings.personaId)?.id ?? null);
+    setCategoryId(rest.settings.categoryId ?? null);
     setKeywords(rest.settings.keywords ?? "");
     setPurpose(rest.settings.purpose ?? "");
     setTopic(rest.settings.topic || rest.title);
@@ -189,7 +192,7 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
         withThumbnailText: thumbnailText,
         onStep: setStepMsg,
       });
-      await ws.startFresh(result);
+      await ws.startFresh(categoryId ? { ...result, settings: { ...result.settings, categoryId } } : result);
       if (autoImages && result.images.length) {
         setGenerating(false);
         await ws.generateAll();
@@ -212,6 +215,8 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
           <h3 className="text-sm font-bold text-slate-900">포스트 생성하기</h3>
           <span className="text-[11px] text-slate-400">기획 → 본문 → 윤문 → 검수 → 이미지까지 한 번에</span>
         </div>
+
+        <CategorySelect value={categoryId} onChange={setCategoryId} />
 
         <GenerationPanel
           values={{ personaId, targetLength, keywords, purpose, tone, style }}

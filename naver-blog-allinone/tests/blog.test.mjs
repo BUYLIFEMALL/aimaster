@@ -378,3 +378,22 @@ test("설정값 저장: 저장 → 불러오기 → 초기화", () => {
   mem.set("naver_blog_allinone_gen_prefs_v1", "{깨진json");
   assert.equal(loadGenPrefs(st), null);
 });
+
+import { sanitizeCategories, categoryName, DEFAULT_CATEGORIES } from "../src/lib/blog/categories.ts";
+
+test("카테고리: 형식 검사·중복 제거·순서 다시 매기기", () => {
+  const out = sanitizeCategories([{ id: "a", name: " 육아 " }, { id: "a", name: "중복" }, { id: "", name: "빈id" }, { id: "b", name: "" }, { id: "c", name: "여행" }, "x", null]);
+  assert.deepEqual(out.map((c) => [c.id, c.name, c.sort_order]), [["a", "육아", 1], ["c", "여행", 2]]);
+  assert.deepEqual(sanitizeCategories("나쁜값"), []);
+  assert.equal(categoryName(out, "c"), "여행");
+  assert.equal(categoryName(out, "없음"), null);
+  assert.equal(DEFAULT_CATEGORIES.length, 6);
+});
+
+test("카테고리: 글 저장 시 categoryId가 남고 길이가 제한된다", () => {
+  const base = { title: "제목", article: "본문", settings: {} };
+  const ok = sanitizePost({ ...base, settings: { categoryId: " cat-1 " } }, "https://x.supabase.co", "u1");
+  assert.equal(ok.value.settings.categoryId, "cat-1");
+  const none = sanitizePost(base, "https://x.supabase.co", "u1");
+  assert.equal("categoryId" in none.value.settings, false);
+});

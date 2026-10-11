@@ -14,7 +14,7 @@ export async function GET() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("aio_posts")
-    .select("id, title, summary, article, images, review_status, created_at, updated_at")
+    .select("id, title, summary, article, images, settings, review_status, created_at, updated_at")
     .eq("user_id", gate.userId)
     .order("updated_at", { ascending: false })
     .limit(MAX_POSTS);

@@ -163,3 +163,8 @@
 
 ## v1.23 (2026-10-12) — 모델·디자인·이미지 설정 하늘색 박스 + 설정값 저장
 - 주인님 요청(Claude Code): `PostCreationSection.tsx`의 [AI 모델 카드·컬러 테마·추가 요청·고급 옵션]을 하늘색(`sky`) 한 박스로 묶고, 하단에 [설정값 저장]/[초기화] 추가. 저장은 `src/lib/blog/prefs.ts`(localStorage `naver_blog_allinone_gen_prefs_v1`, 허용 목록으로 재검증): 페르소나·글자수·말끝·문체·컬러 테마·이미지 옵션. 주제·키워드·AI 모델 선택은 제외(모델은 카드가 자동 저장). 접속 시 자동 적용. 테스트 21개.
+
+## v1.24 (2026-10-12) — 카테고리 관리(통합) + 보관함 분리 관리
+- 주인님 요청(Claude Code): naver-blog-agent의 카테고리 관리 패턴을 이식. **회원별 카테고리 목록 하나**(`aio_categories`, RLS owner-only, API `/api/categories` GET/PUT=목록 전체 교체)를 글 만들기(아이디어·키워드)·맛집/카페/여행·보관함이 함께 쓴다.
+- 글에는 카테고리 **id만** `aio_posts.settings.categoryId`로 저장(이름 변경해도 유지, 삭제되면 화면에서 '미분류'). 글 이동은 `PATCH /api/posts/[id]`(settings.categoryId만 변경). 보관함: 카테고리 칩 필터(글 개수), 카드별 분류 이동 셀렉트, [카테고리 관리] 모달. 모달은 window.confirm 대신 인라인 삭제 확인.
+- 파일: `lib/blog/categories.ts`, `components/blog/{useCategories,CategoryManagerModal,CategorySelect,LibrarySection}`. 서버에 목록이 없으면 기본 6개(생활/살림꿀팁 등)를 보여 주고 처음 편집할 때 저장된다. 마이그레이션 `20261012190000_allinone_categories.sql`(적용 완료). 테스트 23개.

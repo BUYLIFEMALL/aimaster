@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { Archive, FileText, ImageIcon, Loader2, Sparkles, Trash2 } from "lucide-react";
-import { deletePost, listPosts } from "@/lib/blog/postsApi";
+import { Archive, FileText, ImageIcon, Loader2, Settings2, Sparkles, Trash2 } from "lucide-react";
+import { deletePost, listPosts, moveToCategory } from "@/lib/blog/postsApi";
+import { CategoryManagerModal } from "./CategoryManagerModal";
+import { useCategories } from "./useCategories";
 import type { SavedPostSummary } from "@/lib/blog/types";
 
 interface Props {
@@ -23,6 +25,9 @@ export function LibrarySection({ onOpen, onGoCreate }: Props) {
   const [error, setError] = useState("");
   const [opening, setOpening] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const { categories, saveCategories } = useCategories();
+  const [filter, setFilter] = useState<string>("all"); // all | none(미분류) | 카테고리 id
+  const [manageOpen, setManageOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -56,6 +61,28 @@ export function LibrarySection({ onOpen, onGoCreate }: Props) {
     }
   };
 
+  const known = new Set(categories.map((c) => c.id));
+  const catOf = (p: SavedPostSummary): string => (p.categoryId && known.has(p.categoryId) ? p.categoryId : "none");
+  const counts: Record<string, number> = {};
+  for (const p of items ?? []) counts[catOf(p)] = (counts[catOf(p)] ?? 0) + 1;
+  const shown = (items ?? []).filter((p) => filter === "all" || catOf(p) === filter);
+
+  const move = async (id: string, to: string) => {
+    setError("");
+    try {
+      await moveToCategory(id, to === "none" ? null : to);
+      setItems((prev) => (prev ?? []).map((p) => (p.id === id ? { ...p, categoryId: to === "none" ? null : to } : p)));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "카테고리를 바꾸지 못했습니다.");
+    }
+  };
+
+  const chip = (key: string, label: string) => (
+    <button key={key} type="button" onClick={() => setFilter(key)} className={`px-3 py-1.5 text-xs font-bold rounded-full border transition ${filter === key ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"}`}>
+      {label} <span className={filter === key ? "text-indigo-100" : "text-slate-400"}>{key === "all" ? (items?.length ?? 0) : (counts[key] ?? 0)}</span>
+    </button>
+  );
+
   return (
     <div className="space-y-5">
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 flex flex-wrap items-center justify-between gap-3">
@@ -71,6 +98,15 @@ export function LibrarySection({ onOpen, onGoCreate }: Props) {
         </button>
       </div>
 
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 flex flex-wrap items-center gap-2">
+        {chip("all", "전체")}
+        {categories.map((c) => chip(c.id, c.name))}
+        {(counts.none ?? 0) > 0 && chip("none", "미분류")}
+        <button type="button" onClick={() => setManageOpen(true)} className="ml-auto flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50">
+          <Settings2 className="w-3.5 h-3.5" /> 카테고리 관리
+        </button>
+      </div>
+
       {error && <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800">{error}</div>}
 
       {items === null ? (
@@ -81,9 +117,11 @@ export function LibrarySection({ onOpen, onGoCreate }: Props) {
           <p className="text-sm font-bold text-slate-800">저장된 글이 없습니다.</p>
           <p className="text-xs text-slate-500">주제를 정해 [블로그 포스트 생성하기]를 누르면 이곳에 자동으로 보관됩니다.</p>
         </div>
+      ) : shown.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-10 text-center text-sm text-slate-500">이 카테고리에는 아직 글이 없습니다. 다른 카테고리의 글은 카드 아래 [분류]에서 옮길 수 있습니다.</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {items.map((p) => (
+          {shown.map((p) => (
             <div key={p.id} className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
               <button type="button" onClick={() => void open(p.id)} className="text-left">
                 <div className="aspect-video bg-slate-100 flex items-center justify-center overflow-hidden">
@@ -104,6 +142,14 @@ export function LibrarySection({ onOpen, onGoCreate }: Props) {
                   <p className="text-[11px] text-slate-400">본문 {p.charCount.toLocaleString()}자 · 이미지 {p.imageCount}장</p>
                 </div>
               </button>
+              <div className="px-4 pb-2.5">
+                <select aria-label="글 분류 이동" value={catOf(p)} onChange={(e) => void move(p.id, e.target.value)} className="w-full text-[11px] px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700">
+                  <option value="none">미분류</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
               <div className="mt-auto flex items-center justify-between gap-2 px-4 pb-4">
                 <button type="button" disabled={opening === p.id} onClick={() => void open(p.id)} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-60">
                   {opening === p.id && <Loader2 className="w-3.5 h-3.5 animate-spin" />} 열기
@@ -123,6 +169,7 @@ export function LibrarySection({ onOpen, onGoCreate }: Props) {
           ))}
         </div>
       )}
+      {manageOpen && <CategoryManagerModal categories={categories} counts={counts} onSave={saveCategories} onClose={() => setManageOpen(false)} />}
     </div>
   );
 }

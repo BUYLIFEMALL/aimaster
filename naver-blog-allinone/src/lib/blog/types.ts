@@ -46,6 +46,8 @@ export interface PostSettings {
   personaId?: string;
   keywords?: string;
   purpose?: string;
+  /** 글 카테고리 id(목록에 없으면 미분류) */
+  categoryId?: string;
 }
 
 export interface BlogPost {
@@ -73,6 +75,7 @@ export interface SavedPostSummary {
   thumbnailUrl: string | null;
   imageCount: number;
   charCount: number;
+  categoryId: string | null;
   reviewStatus: ReviewStatus;
   createdAt: string;
   updatedAt: string;

@@ -46,3 +46,12 @@ export async function uploadImage(dataUrl: string): Promise<string> {
   });
   return (await parse<{ url: string }>(res, "이미지를 저장하지 못했습니다.")).url;
 }
+
+export async function moveToCategory(id: string, categoryId: string | null): Promise<void> {
+  const res = await fetch(`/api/posts/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ categoryId: categoryId ?? "" }),
+  });
+  await parse<{ success: boolean }>(res, "카테고리를 바꾸지 못했습니다.");
+}
