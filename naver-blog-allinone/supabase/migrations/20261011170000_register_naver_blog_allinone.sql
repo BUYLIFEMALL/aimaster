@@ -14,7 +14,9 @@ with new_program as (
     badges,
     sort_order,
     app_url,
-    version
+    version,
+    extension_version,
+    extension_download_url
   )
   values (
     (select id from public.categories where slug = 'naver' limit 1),
@@ -27,7 +29,9 @@ with new_program as (
     array['new', 'best']::text[],
     (select coalesce(max(sort_order), 0) + 1 from public.programs),
     'https://naver-blog-allinone.buylife.xyz',
-    'v1.04'
+    'v1.04',
+    'v1.04',
+    'https://naver-blog-allinone.buylife.xyz/downloads/naver-blog-allinone-latest.zip'
   )
   on conflict (slug) do update set
     name = excluded.name,
@@ -35,6 +39,8 @@ with new_program as (
     description = excluded.description,
     app_url = excluded.app_url,
     version = excluded.version,
+    extension_version = excluded.extension_version,
+    extension_download_url = excluded.extension_download_url,
     is_active = excluded.is_active,
     badges = excluded.badges,
     updated_at = now()
