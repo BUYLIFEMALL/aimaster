@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.13) 헤더 상단 마케팅 슬로건 문구 강조 배치 완료
+
+- **헤더 상단 마케팅 슬로건 문구 강조 배치 (`Header.tsx`)**:
+  - 사용자 지시에 따라 "AI와 함께 아이디어 발굴부터 SEO 최적화 포스팅까지 한 곳에서 완성하세요." 문구를 헤더 맨 위에 Sparkles 배지와 Indigo-Violet 그라디언트 텍스트(`font-bold text-slate-800 tracking-tight`)로 눈에 띄고 고급스럽게 배치.
+  - 좌측 사이드바와의 로고/프로그램명 중복은 깔끔하게 해소한 상태에서, 핵심 서비스 슬로건을 시각적으로 뚜렷하게 전달.
+- **버전 갱신 및 배포 동기화 (v1.13)**:
+  - `src/lib/version.ts` ➔ `v1.13`
+  - `extension/manifest.json` ➔ `v1.13` (`1.13.0`)
+  - `public/downloads/naver-blog-allinone-latest.zip` ➔ v1.13 최신 압축 재생성 완료
+  - 공용 DB `programs.version = 'v1.13'`, `programs.extension_version = 'v1.13'` 동기화 완료.
+- **검증 결과**: `npm run build` 100% 성공.
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.12) 상단 헤더 내 중복 프로그램 타이틀/로고 박스 완전 삭제
 
 - **헤더 좌측 프로그램 타이틀·로고 블록 완전 삭제 (`Header.tsx`)**:

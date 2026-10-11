@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import {
+  Sparkles,
   Star,
   ExternalLink,
   Calendar,
@@ -55,8 +56,8 @@ export function Header({
     <header className="bg-white border-b border-slate-200 shadow-xs">
       {/* Top Main Bar */}
       <div className="w-full px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-        {/* Left: Mobile Menu Button */}
-        <div className="flex items-center gap-2">
+        {/* Left: Mobile Menu Button + Marketing Slogan */}
+        <div className="flex items-center gap-3">
           {onOpenMobileNav && (
             <button
               type="button"
@@ -69,6 +70,19 @@ export function Header({
               </svg>
             </button>
           )}
+
+          {/* 마케팅 텍스트 문구: 잘 보이게 강조 표시 */}
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-2xs shrink-0">
+              <Sparkles className="h-3.5 w-3.5" />
+            </span>
+            <p className="text-sm sm:text-[15px] font-bold text-slate-800 tracking-tight">
+              <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-black">
+                AI와 함께
+              </span>{" "}
+              아이디어 발굴부터 SEO 최적화 포스팅까지 한 곳에서 완성하세요.
+            </p>
+          </div>
         </div>
 
         {/* Model Badges & Action Buttons */}
