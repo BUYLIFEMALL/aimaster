@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import {
   Lightbulb,
   Utensils,
@@ -21,8 +20,7 @@ import { AppSettings, DEFAULT_SETTINGS, getStoredSettings } from "@/lib/storage"
 import { APP_NAME } from "@/lib/version";
 import { createClient } from "@/lib/supabase/client";
 
-function MainContent() {
-  const searchParams = useSearchParams();
+export default function HomePage() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTrendsOpen, setIsTrendsOpen] = useState(false);
@@ -36,19 +34,22 @@ function MainContent() {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [extraPromptHint, setExtraPromptHint] = useState("");
 
-  // Handle URL query parameters (?tab=ideas|places|keyword-fighter, ?modal=settings|trends)
+  // Handle URL query parameters without breaking SSR
   useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam === "ideas" || tabParam === "places" || tabParam === "keyword-fighter") {
-      setActiveMainTab(tabParam);
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      const tabParam = sp.get("tab");
+      if (tabParam === "ideas" || tabParam === "places" || tabParam === "keyword-fighter") {
+        setActiveMainTab(tabParam);
+      }
+      const modalParam = sp.get("modal");
+      if (modalParam === "settings") {
+        setIsSettingsOpen(true);
+      } else if (modalParam === "trends") {
+        setIsTrendsOpen(true);
+      }
     }
-    const modalParam = searchParams.get("modal");
-    if (modalParam === "settings") {
-      setIsSettingsOpen(true);
-    } else if (modalParam === "trends") {
-      setIsTrendsOpen(true);
-    }
-  }, [searchParams]);
+  }, []);
 
   useEffect(() => {
     setSettings(getStoredSettings());
@@ -212,13 +213,5 @@ function MainContent() {
         onClose={() => setIsTrendsOpen(false)}
       />
     </div>
-  );
-}
-
-export default function HomePage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm text-slate-400">로딩 중...</div>}>
-      <MainContent />
-    </Suspense>
   );
 }
