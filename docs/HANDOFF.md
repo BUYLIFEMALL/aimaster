@@ -1,5 +1,32 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.05) 좌측 사이드바 표준 레이아웃 구축 및 프로그램명 변경 완료
+
+- **프로그램명 정식 변경**: 주인님 지시로 '네이버 블로그 올인원 마스터 PRO' -> '네이버 블로그 올인원 자동화'로 프로그램 명칭 전면 통일 반영 (src/lib/version.ts, 공용 Supabase DB programs.name, 크롬 확장 manifest.json, 웹 사이드바/헤더/푸터).
+- **표준 좌측 사이드바 (Sidebar.tsx) 구축**: docs/SIDEBAR_LAYOUT_STANDARD.md 규격 엄격 준수.
+  1. 헤더: 프로그램명(네이버 블로그 올인원 자동화) + 버전(v1.05) + FREE 배지
+  2. '<- 다른 프로그램 보기' (https://www.buylife.xyz/programs) 통일 링크
+  3. '대시보드 메인': 메인 최상단/개요 원클릭 이동
+  4. 번호가 붙은 핵심 작업 흐름: 원형 번호 배지(1, 2, 3)와 세로 연결선 스텝퍼
+     - Step 1: 주제 아이디어 발굴 (E-E-A-T·카테고리·에버그린 등 5대 엔진)
+     - Step 2: 맛집/카페/여행 비전 (스마트폰 사진 AI 분석 & 감성/정보성)
+     - Step 3: 키워드 파이터 PRO (7대 분석 엔진 & 실시간 노출 분석)
+  5. 구분선
+  6. 유틸리티 항목:
+     - 'API키등록·플랫폼연동' (클릭 시 SettingsModal 즉시 오픈)
+     - '크롬 확장 프로그램' (다운로드 링크: /downloads/naver-blog-allinone-latest.zip)
+     - '실시간 트렌드 분석' (클릭 시 TrendLinksModal 즉시 오픈)
+  7. 하단 고정 사용자 이메일과 로그아웃:
+     - 세션 유저 이메일 표시 (createClient().auth.getUser())
+     - signOutAction 서버 액션을 통한 원클릭 안전 로그아웃
+  8. 모바일 반응형: 상단 햄버거 버튼 토글 시 슬라이드 드로어로 부드럽게 열리고, 항목 선택 시 자동 닫힘.
+- **버전 갱신 및 배포 동기화 (v1.05)**:
+  - src/lib/version.ts -> v1.05
+  - extension/manifest.json -> v1.05 (1.05.0)
+  - public/downloads/naver-blog-allinone-latest.zip -> 최신 압축 재생성 완료
+  - 공용 DB programs.version = 'v1.05', programs.extension_version = 'v1.05', programs.name = '네이버 블로그 올인원 자동화' 동기화 완료.
+- **검증 결과**: npm run build 100% 성공.
+
 ## 2026-10-11 Claude Code — YOUTUBE CHANNEL CONSULTANT v1.03 공략 채널 찾기·모바일 검수 (youtube-channel-consultant)
 
 주인님 지시로 **공략 채널 찾기**(구독자 적고 평균 조회수 높은 소형 고효율 채널 발굴)를 추가하고 모바일 폭을 검수했습니다. 상세·계산 정의: [`youtube-channel-consultant/AGENTS.md`](../youtube-channel-consultant/AGENTS.md) 10절. 사이드바는 ①채널 분석 ②키워드 분석 ③공략 채널 찾기.
