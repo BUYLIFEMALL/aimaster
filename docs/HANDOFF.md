@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — YOUTUBE VIRAL FINDER v1.09 권한 확인 보강·Claude 키 이름 수정 (youtube-viral-studio)
+
+직전 항목(YOUTUBE CHANNEL CONSULTANT v1.01)에서 기록해 둔 기존 문제 2건을 주인님 지시로 고쳤습니다. ① `/api/youtube/*` 5개와 `/api/settings/api-keys`가 로그인만 확인하던 것을 로그인 + 프로그램 이용 권한(`checkProgramAccessApi`) 확인으로 바꾸고, 권한 판정을 루트 표준(사본 `src/lib/programAccess.ts`)으로 통일했습니다. ② Claude 키 provider 이름 `claude`를 DB 체크 제약의 `anthropic`으로 수정했습니다. 코드 `youtube-viral-studio/` v1.09, 마이그레이션 `20261011180000_youtube_viral_studio_v1_09.sql`(버전만 갱신, 구조 변경 없음), DB `programs.version` v1.09. 프로덕션 배포 READY(`youtube-viral-studio.buylife.xyz`), 로그인 없는 API 호출 401 확인, 로그인 회원(buylifemall@naver.com)의 설정 화면(저장된 키 표시) 정상. 이 앱 `AGENTS.md` 5절 참고.
+
 ## 2026-10-11 Claude Code — YOUTUBE CHANNEL CONSULTANT 전용 썸네일 등록 (youtube-channel-consultant)
 
 주인님 지시로 전용 실사 썸네일을 만들어 AIMaster 저장소(Supabase Storage `program-images/catalog/youtube-channel-consultant-thumbnail.jpg`)에 올리고 `programs.thumbnail_url`에 반영했습니다(`scripts/generate-program-thumbnail.mjs`, Gemini `gemini-3-pro-image-preview`, 관리자 본인 키를 주인님 확인 후 사용). 한국인 인물·16:9·글자/로고 없음 규칙을 지켰고 YOUTUBE VIRAL FINDER 썸네일과 나란히 비교해 실사 톤을 확인했습니다. 정적 파일이 아니라 DB 값이라 루트 재배포는 필요 없습니다. 마이그레이션 `youtube-channel-consultant/supabase/migrations/20261011170000_youtube_channel_consultant_thumbnail.sql`. 프로그램 버전은 올리지 않았습니다(코드 변경 없음).

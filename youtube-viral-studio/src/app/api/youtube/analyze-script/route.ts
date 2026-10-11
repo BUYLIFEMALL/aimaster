@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
-import { getUser } from "@/lib/auth";
+import { checkProgramAccessApi } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { fetchVideoTranscript } from "@/lib/youtube/transcript";
 import { analyzeShortsScript } from "@/lib/ai/scriptAnalyzer";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export async function POST(request: Request) {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) {
+      return NextResponse.json({ error: access.error }, { status: access.status });
     }
+    const user = access.user;
 
     const { videoId, title, description } = await request.json();
     if (!videoId) {

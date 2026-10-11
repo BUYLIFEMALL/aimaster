@@ -1,20 +1,20 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type ApiKeyProvider = "youtube_api_key" | "openai" | "gemini" | "claude";
+export type ApiKeyProvider = "youtube_api_key" | "openai" | "gemini" | "anthropic";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   youtube_api_key: "YouTube Data API v3 키 (필수 - 떡상 영상/채널 수집)",
   openai: "OpenAI API 키 (선택 - 영상 분석 및 스크립트 재구성)",
   gemini: "Google Gemini API 키 (선택 - AI 쇼츠 벤치마킹)",
-  claude: "Anthropic Claude API 키 (선택 - 훅킹 대본 분석)",
+  anthropic: "Anthropic Claude API 키 (선택 - 훅킹 대본 분석)",
 };
 
 export const ALL_PROVIDERS: ApiKeyProvider[] = [
   "youtube_api_key",
   "openai",
   "gemini",
-  "claude",
+  "anthropic",
 ];
 
 /**

@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
-import { getUser } from "@/lib/auth";
+import { checkProgramAccessApi } from "@/lib/access";
 import { getRegisteredApiKeys, type ApiKeyProvider, ALL_PROVIDERS } from "@/lib/apiKeys";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyYouTubeApiKey } from "@/lib/youtube/client";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export async function GET() {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) {
+      return NextResponse.json({ error: access.error }, { status: access.status });
     }
+    const user = access.user;
 
     const keys = await getRegisteredApiKeys(user.id);
     return NextResponse.json({ keys });
@@ -20,10 +24,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) {
+      return NextResponse.json({ error: access.error }, { status: access.status });
     }
+    const user = access.user;
 
     const { provider, apiKey } = await request.json();
 
@@ -72,10 +77,11 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) {
+      return NextResponse.json({ error: access.error }, { status: access.status });
     }
+    const user = access.user;
 
     const { searchParams } = new URL(request.url);
     const provider = searchParams.get("provider");

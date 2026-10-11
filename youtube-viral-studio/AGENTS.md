@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.08` (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.09` (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.2.11 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -60,3 +60,10 @@
 - `/favorites`: 즐겨찾기 보관함 (CSV 내보내기 지원)
 - `/settings`: YouTube Data API v3 키 + Gemini / OpenAI API 키 설정
 - `/guide`: 핵심 지표 해석 및 이용 가이드
+
+---
+
+## 5. v1.09 (2026-10-11) — 권한 확인 보강·Claude 키 이름 수정
+- `/api/youtube/*` 5개와 `/api/settings/api-keys`(GET/POST/DELETE)가 로그인뿐 아니라 **프로그램 이용 권한**도 확인한다(`src/lib/access.ts`의 `checkProgramAccessApi()`). 판정 규칙은 루트 `lib/access/checkProgramAccess.ts`의 사본 `src/lib/programAccess.ts`를 쓴다(규칙이 바뀌면 사본도 같이 고칠 것). 각 route에 `dynamic = "force-dynamic"` + `fetchCache = "force-no-store"`를 선언했다.
+- `requireProgramAccess()`도 같은 표준 판정으로 교체했다(정지 → 관리자 → FREE → 구독 → 등급 미지정 허용 → 등급 ≥ 최소 등급 + 사용기간). 현재 DB는 `required_grade_id`가 비어 있어 로그인 회원은 그대로 통과한다.
+- `apiKeys.ts`의 Claude provider 이름을 `claude` → `anthropic`으로 바꿨다(DB `user_api_keys` 체크 제약 기준).
