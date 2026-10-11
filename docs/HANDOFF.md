@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.21) 페르소나 버튼 반반
+
+주인님 요청으로 페르소나 카드의 [페르소나 불러오기]와 [즉시 생성] 버튼을 같은 너비(반반)로 맞췄습니다. 확장 ZIP·DB v1.21.
+
 ## 2026-10-12 Antigravity — Website Scraper (ghost-scraper v1.03) 공식 명칭 변경
 
 주인님 요청으로 프로그램 공식 명칭을 `Website Scraper`로 변경하고 버전을 `v1.03`으로 판올림했습니다.

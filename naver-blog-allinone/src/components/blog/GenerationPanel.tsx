@@ -65,12 +65,12 @@ export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, to
                       onChange({ personaId: p.id });
                       onLoadPersona(p);
                     }}
-                    className={`flex-1 px-2 py-1.5 text-[11px] font-bold rounded-lg ${active ? "bg-emerald-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"} disabled:opacity-50`}
+                    className={`flex-1 basis-0 min-w-0 flex items-center justify-center px-2 py-1.5 text-[11px] font-bold rounded-lg ${active ? "bg-emerald-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"} disabled:opacity-50`}
                   >
                     {active ? "✓ 선택됨 · 다시 불러오기" : "페르소나 불러오기"}
                   </button>
                   {onInstant && (
-                    <button type="button" disabled={disabled} onClick={() => onInstant(p)} className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-slate-900 text-white hover:bg-black disabled:opacity-50">
+                    <button type="button" disabled={disabled} onClick={() => onInstant(p)} className="flex-1 basis-0 min-w-0 flex items-center justify-center gap-1 px-2 py-1.5 text-[11px] font-bold rounded-lg bg-slate-900 text-white hover:bg-black disabled:opacity-50">
                       <Zap className="w-3 h-3" /> 즉시 생성
                     </button>
                   )}
