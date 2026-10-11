@@ -1,5 +1,19 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — Vercel 함수에서 sharp 로드 실패(libvips-cpp.so 없음)로 API가 500 HTML을 돌려줌 (style-dna-analyzer v1.01, cardnews-studio v1.02)
+
+- 증상: `sharp`를 import하는 라우트가 요청 내용과 무관하게 500 HTML(`__next_error__`)을 돌려줌. 화면에는 `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`. Vercel 로그: `Could not load the "sharp" module using the linux-x64 runtime ... libvips-cpp.so.8.18.7: cannot open shared object file`.
+- 원인: Windows에서 `vercel deploy`한 Next.js 빌드의 함수 묶음에 `@img/sharp-libvips-linux-x64`의 공유 라이브러리가 추적되지 않음(로컬·빌드는 정상이라 배포 전에 안 드러남).
+- 해결: `next.config.ts`에 `serverExternalPackages: ["sharp"]`와 `outputFileTracingIncludes: { "/api/**/*": ["./node_modules/@img/sharp-libvips-linux-x64/**/*", "./node_modules/@img/sharp-linux-x64/**/*"] }`를 넣고 재배포 → 같은 요청이 JSON 400으로 정상 응답.
+- 다음부터 확인: sharp를 쓰는 라우트를 배포하면 **배포 직후 빈/잘못된 본문으로 그 API를 한 번 호출해 JSON 응답(400 등)이 오는지** 본다(500 HTML이면 이 문제). 유료 호출 전에 확인할 수 있다. 같은 증상의 옛 기록(2026-09-30)은 순수 JS 대안만 적어 두었으나 이 설정으로도 해결된다.
+
+## 2026-10-11 — 개발·검증을 화면 없이 JS 호출로만 하면 안 됨 (STYLE DNA ANALYZER)
+
+- 증상/지적: 주인님 "왜 실제 브라우저를 띄우고 보면서 작업을 안하나".
+- 원인: 대기 시간이 긴 호출과 응답 확인을 `javascript_tool`·`fetch`로만 처리하고 화면 캡처를 생략함.
+- 해결: 화면이 필요한 작업은 항상 실제 Chrome에서 이동·클릭·입력하고 `screenshot`으로 확인(`CLAUDE.md` §13, `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-1).
+- 다음부터 확인: 검수 보고에 "화면으로 확인한 것 / 못한 것"을 구분해 적는다.
+
 ## 2026-10-11 — 이미지 생성 성공/개별 교체 성공과 글자 품질은 별도 검사 (naver-blog-agent v1.78)
 
 - 증상: 4장 검수 원고의 깨진 글자 이미지를 개별 재생성했으나 새 사진에도 화이트보드 글자와 가짜 화면이 남았습니다. 선택한1개만 교체·다른3개/본문 보존·서버 저장은 정상입니다.

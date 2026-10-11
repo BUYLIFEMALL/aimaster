@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — 신규 프로그램 STYLE DNA ANALYZER v1.01 (style-dna-analyzer)
+
+구글 AI 스튜디오 "스타일 DNA 분석기 V3"를 참고해 만든 새 프로그램입니다. 이미지 1장 → 카메라·조명·실제 팔레트·스타일 DNA·영어/한국어 마스터 프롬프트(복제/변이 모드) → 프롬프트 보정 → 결과 테스트(이미지 생성 + 색감 일치율 측정). https://style-dna-analyzer.buylife.xyz , DB `sda_analyses` + 버킷 `style-dna-images`, 카테고리 멀티미디어, 표준 요금제. 상세: `style-dna-analyzer/AGENTS.md`. 남은 일: 전용 썸네일(관리자 키 사용 확인 필요), 일반 회원 화면 검수.
+
+**운영 규칙 추가:** 개발·테스트·디버깅·검증은 항상 실제 Chrome을 띄워 화면을 같이 보며 진행합니다(`CLAUDE.md` §13, `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-1).
+
+**발견한 문제(다음 작업):** cardnews-studio v1.02의 배경 생성이 운영에서 sharp(libvips) 누락으로 500 — `next.config.ts` 수정 후 v1.03으로 고칩니다(`docs/ERROR_LESSONS.md` 참고).
+
 ## 2026-10-11 Claude Code — CARDNEWS STUDIO v1.02 (cardnews-studio)
 
 전체 ZIP 받기, 내 템플릿 저장(`cns_templates`), 배경 WebP 축소 저장, 안 쓰는 이미지 정리를 추가했습니다. https://cardnews-studio.buylife.xyz 라이브 v1.02 확인. 다음은 v1.03 INSTA 포스팅 연동. 상세: `cardnews-studio/AGENTS.md` §7.

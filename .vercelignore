@@ -21,3 +21,5 @@ naver-blog-auto-poster_app/node_modules
 
 # cardnews-studio/(CARDNEWS STUDIO, 2026-10-11 신설)는 자체 Vercel 프로젝트로 따로 배포되고 루트 앱이 import하지 않는다.
 /cardnews-studio
+
+/style-dna-analyzer
