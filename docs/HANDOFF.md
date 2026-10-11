@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — shorts-viral-studio 갭 분석(A안: 새 프로그램 대신 기존 프로그램 완성·출시)
+
+주인님이 올려주신 유튜브 튜토리얼 원본(남다른AI "Shorts 분석기" index.html 2,270줄)이 **2026-10-04에 만든 `shorts-viral-studio`(v1.04)의 원본과 같은 것**임을 확인해, 새 프로그램을 만들지 않고 기존 프로그램을 완성해 출시하기로 했습니다(주인님 A안 선택). 기능은 원본 6단계(검색→분석→소재→주제→대본→프롬프트)를 모두 포함하고 더 많습니다. 갭 분석: [`shorts-viral-studio/docs/GAP_ANALYSIS_2026-10-11.md`](../shorts-viral-studio/docs/GAP_ANALYSIS_2026-10-11.md). 남은 일(순서): v1.05 권한 판정 표준 교체(`access.ts`가 RLS 클라이언트·없는 컬럼 사용), v1.06 도메인 로그인 공유(`shorts-viral-studio.buylife.xyz`), 실제 키 검수 후 `coming` 배지 제거·출시. 이번 항목에서 코드·DB 변경 없음.
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.05) 좌측 사이드바 표준 레이아웃 구축 및 프로그램명 변경 완료
 
 - **프로그램명 정식 변경**: 주인님 지시로 '네이버 블로그 올인원 마스터 PRO' -> '네이버 블로그 올인원 자동화'로 프로그램 명칭 전면 통일 반영 (src/lib/version.ts, 공용 Supabase DB programs.name, 크롬 확장 manifest.json, 웹 사이드바/헤더/푸터).
