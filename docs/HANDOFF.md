@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — 일반 회원 화면 검수 완료 (style-dna-analyzer v1.02, cardnews-studio v1.03)
+
+실제 Chrome에서 `buylifemall@naver.com`으로 확인: STYLE DNA ANALYZER는 접속·보관함 분리·분석 완료(본인 키), cardnews-studio는 대시보드 접속 정상. 검수용으로 `user_program_access`에 style-dna-analyzer(2026-11-10까지)를 부여했고 naver 계정에 테스트 분석 1건이 남아 있습니다(필요 시 삭제). 남은 일: 없음(전용 썸네일·데스크톱 레이아웃·배경 생성 확인 모두 완료).
+
 ## 2026-10-11 Claude Code — CARDNEWS STUDIO v1.03 배경 생성 화면 검수 결과 (cardnews-studio)
 
 실제 Chrome에서 4단계 배경 생성을 눌러 완료까지 확인했고 저장소에 WebP 182KB가 저장됐습니다(예전 2.3MB JPG). 남은 일: 완료 후 카드 이미지 최종 표시 캡처(창이 가려짐), 일반 회원(`buylifemall@naver.com`) 화면 검수(주인님이 그 계정으로 로그인해야 함). Chrome 창이 일정 시간 뒤 다시 가려지는(탭 hidden) 현상이 반복됨 — 검수 중에는 Chrome 창을 앞에 둬야 캡처가 된다.
