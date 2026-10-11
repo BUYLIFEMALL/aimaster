@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.17) 세 탭 공통 생성 설정 + 모델 선택 + 보관함 STEP 4
+
+주인님 요청으로 naver-blog-agent(읽기만)의 장점(페르소나 6종·글자수 슬라이더·세부 조건·말끝×문체 예시·GPT/Claude/Gemini 글 엔진·NanoBanana/GPT Image/FLUX/Z-Image 이미지 모델·선택 공급사 키만 사용)을 올인원에 **기존 로직을 건드리지 않고 덧붙였습니다**(새 설정 필드는 선택값, 없으면 기존 Gemini 설정 그대로, 주제 추천·키워드 분석 코드는 미수정). 주제 추천·키워드·맛집/카페/여행 세 탭이 같은 파이프라인·결과 화면·보관함을 쓰고, 맛집 탭은 사진을 AI가 보고 쓰며 사진이 이미지 컷이 됩니다. 사이드바 [생성 본문 보관함]은 STEP 4로 이동. FLUX/Z-Image는 Replicate CORS 때문에 `/api/replicate-image` 서버 중계(키 미저장). 확장 ZIP·DB v1.17 OK, 실제 화면으로 주제 추천 탭(페르소나 생성)과 맛집 탭(사진 생성) 확인. 상세·한계: `naver-blog-allinone/AGENTS.md` v1.17. 남은 일: GPT·Claude·FLUX·Z-Image 실제 키로 호출 검수, 키워드 파인더 탭 흐름 화면 확인, 테스트 글 정리.
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.16) 본문·이미지 생성 보강 + 내 보관함
 
 주인님 요청으로 naver-blog-agent(읽기만)의 로직과 올인원을 비교해 믹스했습니다. 4단계 본문 파이프라인(기획·작성·윤문·검수), 말끝 4×문체 7, 목표 글자수, **실제 나노바나나 이미지 생성(기존 pollinations 가짜 주소 폐기)**, 컷별 재생성·교체·삭제·추가, 썸네일 제목 합성, 본문 직접 편집, **내 보관함**(`aio_posts` + 버킷 `allinone-images`, 자동 저장·열기·삭제). 확장 ZIP·DB v1.16, 검증 스크립트 OK, 실제 화면으로 생성→저장→새로고침 복원 확인. 상세·한계: `naver-blog-allinone/AGENTS.md` v1.16. 남은 일: 화면 미확인 항목(썸네일 글자·컷 삭제/추가/업로드·글 삭제), 필요 시 에이전트의 GPT Image·FLUX 이미지 모델 추가. naver 계정에 테스트 글 1건 남아 있음.

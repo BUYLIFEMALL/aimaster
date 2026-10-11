@@ -37,3 +37,27 @@ export function buildWritingStylePrompt(tone: WritingTone, style: WritingStyle):
 실제 사용·방문·구매 경험, 감정, 수치, 출처를 지어내지 않는다. 제공되지 않은 경험은 본인이 경험한 사실처럼 쓰지 않는다.
 문체 변경은 표현만 바꾸며 사실·수치·조건·예외·직접 인용·URL·구조화 태그 및 목표 분량은 보존한다.`;
 }
+
+const EXAMPLE_STEM: Record<WritingStyle, string> = {
+  default: "구매 전 유지비도 함께 확인",
+  concise: "유지비도 확인",
+  gentle: "선택이 고민된다면 유지비부터 살펴보는 것도 좋은 방법",
+  assertive: "유지비는 반드시 살펴볼 비교 항목",
+  plain: "비교 항목은 가격과 유지비",
+  emotional: "작은 조명 하나가 저녁의 분위기를 바꾸기도",
+  detailed: "사용 시간이 길다면 구매 가격뿐 아니라 매달 발생하는 전기요금도 함께 비교하는 것이 도움",
+  conversational: "가격만 비교하기 쉽지만, 유지비도 놓치기 쉬운 부분",
+};
+
+/** 말끝×문체 조합이 문장에서 어떻게 보이는지 보여 주는 짧은 예시(화면 안내용). */
+export function getWritingStyleExample(tone: WritingTone, style: WritingStyle): string {
+  const stem = EXAMPLE_STEM[style];
+  if (style === "default" || style === "concise") {
+    return stem + ({ "해요체": "해요.", "합니다체": "합니다.", "친근한 반말": "해.", "한다체": "한다." } as const)[tone];
+  }
+  if (style === "emotional") {
+    return stem + ({ "해요체": " 해요.", "합니다체": " 합니다.", "친근한 반말": " 해.", "한다체": " 한다." } as const)[tone];
+  }
+  const hasFinalConsonant = (stem.charCodeAt(stem.length - 1) - 0xac00) % 28 !== 0;
+  return stem + ({ "해요체": hasFinalConsonant ? "이에요." : "예요.", "합니다체": "입니다.", "친근한 반말": hasFinalConsonant ? "이야." : "야.", "한다체": hasFinalConsonant ? "이다." : "다." } as const)[tone];
+}

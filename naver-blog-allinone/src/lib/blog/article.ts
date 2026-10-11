@@ -179,20 +179,33 @@ export function measureLength(article: string): number {
 export function alignImageMarkers(article: string, bodySlots: ImageSlot[]): string {
   const captions = bodySlots.map((s) => s.caption.replace(/\]/g, ""));
   const lines = article.split(/\r?\n/);
-  let used = 0;
-  const kept: string[] = [];
-  for (const line of lines) {
-    if (IMAGE_RE.test(line)) {
-      if (used < captions.length) kept.push(`[IMAGE INSERT - ${captions[used++]}]`);
-      continue;
+  // 1) 컷 이름과 정확히 같은 표식은 그대로 두고(사진 기반 글), 같은 이름이 또 나오면 지운다
+  const taken = new Set<string>();
+  const exact = lines.map((line) => {
+    const m = IMAGE_RE.exec(line);
+    if (!m) return null;
+    const name = m[1].trim();
+    if (captions.includes(name) && !taken.has(name)) {
+      taken.add(name);
+      return name;
     }
-    kept.push(line);
-  }
-  if (used >= captions.length) return kept.join("\n");
+    return "";
+  });
+  // 2) 나머지 표식은 아직 쓰지 않은 컷 이름을 순서대로 배정(남는 표식은 지움)
+  const free = captions.filter((c) => !taken.has(c));
+  const kept: string[] = [];
+  lines.forEach((line, i) => {
+    const e = exact[i];
+    if (e === null) kept.push(line);
+    else if (e) kept.push(`[IMAGE INSERT - ${e}]`);
+    else if (free.length) kept.push(`[IMAGE INSERT - ${free.shift()}]`);
+  });
+  const placed = new Set(kept.map((l) => IMAGE_RE.exec(l)?.[1]?.trim()).filter(Boolean) as string[]);
+  const remaining = captions.filter((c) => !placed.has(c));
+  if (!remaining.length) return kept.join("\n");
 
   // 모자란 표식은 본문 단락 사이에 고르게 배치
   const paragraphIdx = kept.map((line, index) => ({ line, index })).filter((x) => x.line.trim() && !SECTION_RE.test(x.line) && !IMAGE_RE.test(x.line)).map((x) => x.index);
-  const remaining = captions.slice(used);
   const inserts = new Map<number, string[]>();
   remaining.forEach((caption, i) => {
     const at = paragraphIdx[Math.min(paragraphIdx.length - 1, Math.floor(((i + 1) * paragraphIdx.length) / (remaining.length + 1)))] ?? kept.length;

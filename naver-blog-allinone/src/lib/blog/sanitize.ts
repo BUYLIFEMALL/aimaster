@@ -55,12 +55,15 @@ export function sanitizePost(raw: unknown, supabaseUrl: string, userId: string):
   const settings: PostSettings = {
     tone: isWritingTone(s.tone) ? s.tone : "해요체",
     style: isWritingStyle(s.style) ? s.style : "default",
-    targetLength: Math.max(500, Math.min(4000, Math.round(Number(s.targetLength) || 2000))),
+    targetLength: Math.max(300, Math.min(4000, Math.round(Number(s.targetLength) || 2000))),
     imageCount: clampImageCount(s.imageCount),
     ratio: RATIOS.includes(s.ratio as ImageRatio) ? (s.ratio as ImageRatio) : "16:9",
     themeId: COLOR_THEMES.some((t) => t.id === s.themeId) ? (s.themeId as string) : "blue-gray",
     topic: str(s.topic, 200),
     withThumbnailText: s.withThumbnailText === true,
+    ...(str(s.personaId, 40).trim() ? { personaId: str(s.personaId, 40).trim() } : {}),
+    ...(str(s.keywords, 300).trim() ? { keywords: str(s.keywords, 300).trim() } : {}),
+    ...(str(s.purpose, 300).trim() ? { purpose: str(s.purpose, 300).trim() } : {}),
   };
 
   const st = typeof r.reviewStatus === "string" ? r.reviewStatus.toUpperCase() : "";

@@ -25,6 +25,9 @@ interface SettingsModalProps {
 
 export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) {
   const [apiKey, setApiKey] = useState("");
+  const [openaiKey, setOpenaiKey] = useState("");
+  const [anthropicKey, setAnthropicKey] = useState("");
+  const [replicateKey, setReplicateKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [textModel, setTextModel] = useState<"gemini-flash-latest" | "gemini-flash-lite-latest">("gemini-flash-latest");
   const [imageModel, setImageModel] = useState<"nano-banana-2" | "nano-banana-2-lite">("nano-banana-2");
@@ -36,6 +39,9 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
     if (isOpen) {
       const s = getStoredSettings();
       setApiKey(s.geminiApiKey);
+      setOpenaiKey(s.openaiApiKey ?? "");
+      setAnthropicKey(s.anthropicApiKey ?? "");
+      setReplicateKey(s.replicateApiKey ?? "");
       setTextModel(s.textModel);
       setImageModel(s.imageModel);
       setTestStatus("idle");
@@ -80,8 +86,13 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
   };
 
   const handleSave = () => {
+    // 모델 선택 등 다른 저장값은 그대로 두고 키·기존 모델 선택만 갱신한다
     const nextSettings: AppSettings = {
+      ...getStoredSettings(),
       geminiApiKey: apiKey.trim(),
+      openaiApiKey: openaiKey.trim(),
+      anthropicApiKey: anthropicKey.trim(),
+      replicateApiKey: replicateKey.trim(),
       textModel,
       imageModel,
     };
@@ -96,6 +107,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
   const handleDeleteKey = () => {
     setApiKey("");
     const nextSettings: AppSettings = {
+      ...getStoredSettings(),
       geminiApiKey: "",
       textModel,
       imageModel,
@@ -251,6 +263,42 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                 입력하신 API 키는 외부 서버 데이터베이스로 전송되지 않으며, 사용자 본인의 브라우저(localStorage)에만 안전하게 보관되어 AI 요청 시 직접 사용됩니다.
               </div>
             </div>
+          </div>
+
+          {/* Section 1-2: 추가 AI 키 (선택) — GPT·Claude 글 생성, GPT Image·FLUX·Z-Image 이미지 */}
+          <div className="p-5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-4">
+            <div className="flex items-center gap-2">
+              <Key className="w-4 h-4 text-indigo-600" />
+              <h3 className="text-sm font-bold text-slate-800">추가 AI 키 (선택)</h3>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              글 생성에 GPT·Claude를, 이미지 생성에 GPT Image·FLUX·Z-Image를 쓰고 싶을 때만 등록하세요. 선택한 모델의 공급사 키만 사용하며, 키가 없으면 다른 공급사로 자동 전환하지 않고 안내만 합니다. 주제 추천·키워드 분석은 기존대로 Gemini 키를 씁니다.
+            </p>
+            {([
+              ["OpenAI API 키 (GPT 글 · GPT Image)", openaiKey, setOpenaiKey, "sk-...", "https://platform.openai.com/api-keys"],
+              ["Anthropic API 키 (Claude 글)", anthropicKey, setAnthropicKey, "sk-ant-...", "https://console.anthropic.com/settings/keys"],
+              ["Replicate API 키 (FLUX 2.0 · Z-Image)", replicateKey, setReplicateKey, "r8_...", "https://replicate.com/account/api-tokens"],
+            ] as const).map(([label, value, setter, placeholder, link]) => (
+              <div key={label} className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="font-medium text-slate-700">{label}</label>
+                  <a href={link} target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium hover:underline">
+                    키 발급받기
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+                <input
+                  type={showKey ? "text" : "password"}
+                  value={value}
+                  onChange={(e) => setter(e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+                />
+              </div>
+            ))}
+            <p className="text-[11px] text-slate-500">
+              키는 이 브라우저(localStorage)에만 저장됩니다. 다만 Replicate(FLUX·Z-Image)는 브라우저에서 직접 호출할 수 없어, 이미지를 만드는 순간에만 키가 AIMaster 서버를 거쳐 전달되며 서버에는 저장하지 않습니다. 입력 후 아래 [로컬에 저장]을 눌러주세요.
+            </p>
           </div>
 
           {/* Section 2: Text Model Selection */}

@@ -57,6 +57,15 @@ const FLOW_STEPS = [
     description: "7대 분석 엔진 & 실시간 노출 분석",
     isProBadge: true,
   },
+  {
+    step: 4,
+    id: "library" as MainTabType,
+    href: "/?tab=library",
+    icon: Archive,
+    iconColor: "text-indigo-500",
+    label: "생성 본문 보관함",
+    description: "생성한 글·이미지 저장·다시 열기",
+  },
 ];
 
 export function Sidebar({
@@ -143,7 +152,7 @@ export function Sidebar({
           {/* 스텝퍼 섹션 라벨 */}
           <div className="px-1 pt-1">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              작업 흐름 (STEP 1~3)
+              작업 흐름 (STEP 1~4)
             </span>
           </div>
 
@@ -223,21 +232,6 @@ export function Sidebar({
               유틸리티 & 연동
             </span>
           </div>
-
-          {/* 🗂 내 보관함: 생성한 글·이미지 저장 목록 */}
-          <Link
-            href="/?tab=library"
-            onClick={() => {
-              onSelectTab("library");
-              if (onCloseMobile) onCloseMobile();
-            }}
-            className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
-              activeTab === "library" ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100"
-            }`}
-          >
-            <Archive className={`h-4 w-4 ${activeTab === "library" ? "text-white" : "text-indigo-500"}`} />
-            <span>내 보관함</span>
-          </Link>
 
           {/* 🔑 API키등록·플랫폼연동 링크 */}
           <Link

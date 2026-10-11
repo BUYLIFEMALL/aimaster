@@ -10,16 +10,6 @@ export function finalizePrompt(prompt: string): string {
   return `${prompt.trim().slice(0, 1500)}\n\n${KOREAN_PEOPLE_RULE} ${NO_TEXT_RULE}`;
 }
 
-export const IMAGE_ENGINES = {
-  "nano-banana-2": { model: "gemini-3.1-flash-image", size: "2K", temperature: 0.7, label: "Nano Banana 2 · 2K" },
-  "nano-banana-2-lite": { model: "gemini-2.5-flash-image", size: "1K", temperature: 0.7, label: "Nano Banana 2 Lite · 1K" },
-} as const;
-export type ImageEngineId = keyof typeof IMAGE_ENGINES;
-
-export function isImageEngine(value: unknown): value is ImageEngineId {
-  return typeof value === "string" && value in IMAGE_ENGINES;
-}
-
 /** 전체 컷 수(대표 포함)를 1~5로 고정한다. */
 export function clampImageCount(count: unknown): number {
   return Math.min(5, Math.max(1, Math.trunc(Number(count) || 2)));

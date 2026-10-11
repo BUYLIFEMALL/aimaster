@@ -42,6 +42,10 @@ export interface PostSettings {
   themeId: string;
   topic: string;
   withThumbnailText: boolean;
+  /** 선택한 화자(페르소나) 이름 */
+  personaId?: string;
+  keywords?: string;
+  purpose?: string;
 }
 
 export interface BlogPost {

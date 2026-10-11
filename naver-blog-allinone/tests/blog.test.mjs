@@ -6,7 +6,11 @@ import { sanitizeBodyYear, sanitizeYear } from "../src/lib/blog/yearPolicy.ts";
 import { buildFallbackPlan, normalizeImagePlan, clampImageCount, finalizePrompt } from "../src/lib/blog/imagePlan.ts";
 import { buildWritingStylePrompt, isWritingStyle, isWritingTone } from "../src/lib/blog/styles.ts";
 import { sanitizePost, imagePaths, removedImagePaths, imagePrefix } from "../src/lib/blog/sanitize.ts";
-import { runBlogPipeline } from "../src/lib/blog/pipeline.ts";
+import { runBlogPipeline, photoSlotOrder, clampTargetLength } from "../src/lib/blog/pipeline.ts";
+import { callLlm, describeHttpError } from "../src/lib/blog/llm.ts";
+import { missingKeyMessage, resolveImageEngine, resolveTextEngine, isKnownTextModel, imagePlatformOf } from "../src/lib/blog/models.ts";
+import { BLOG_PERSONAS } from "../src/lib/blog/personas.ts";
+import { getWritingStyleExample } from "../src/lib/blog/styles.ts";
 
 const ARTICLE = [
   "도입 문단입니다. **핵심**을 먼저 말해요.",
@@ -201,7 +205,8 @@ test("runBlogPipeline: 4단계 호출 순서·정리·이미지 자리·글자�
   try {
     const steps = [];
     const post = await runBlogPipeline({
-      apiKey: "KEY123", textModel: "gemini-flash-latest", topic: "AI 도구", tone: "해요체", style: "default", targetLength: 500,
+      engine: { provider: "gemini", model: "gemini-flash-latest", apiKey: "KEY123" }, topic: "AI 도구", keywords: "AI 도구, 생산성", purpose: "직장인 독자에게 추천",
+      persona: { name: "테스트 화자", badge: "배지", tonePrompt: "친절한 선배 톤" }, tone: "합니다체", style: "plain", targetLength: 500,
       imageCount: 2, withThumbnail: true, ratio: "16:9", themeId: "blue-gray", withInteractive: false, withThumbnailText: false, onStep: (m) => steps.push(m),
     });
     assert.equal(calls.length, 4);
@@ -209,6 +214,16 @@ test("runBlogPipeline: 4단계 호출 순서·정리·이미지 자리·글자�
     assert.equal(calls[0].body.generationConfig.responseMimeType, "application/json");
     assert.equal(calls[1].body.generationConfig.responseMimeType, undefined); // 본문은 JSON이 아니다
     assert.equal(steps.length, 4);
+    // 선택한 페르소나·말끝·문체·키워드·발행 목적·글자수가 본문 작성 프롬프트에 들어갔는지
+    const writerSystem = calls[1].body.systemInstruction.parts[0].text;
+    const writerUser = calls[1].body.contents[0].parts.at(-1).text;
+    assert.match(writerSystem, /테스트 화자/);
+    assert.match(writerSystem, /친절한 선배 톤/);
+    assert.match(writerSystem, /합니다체/);
+    assert.match(writerSystem, /담백한/);
+    assert.match(writerSystem, /500자/);
+    assert.match(writerUser, /AI 도구, 생산성/);
+    assert.match(writerUser, /직장인 독자에게 추천/);
     assert.match(post.title, new RegExp(`${new Date().getFullYear()}년 AI 도구`));
     assert.deepEqual(post.images.map((s) => s.type), ["thumbnail", "body"]);
     assert.match(post.article, /\[IMAGE INSERT - 책상 장면\]/); // 표식이 컷 캡션으로 맞춰짐
@@ -218,6 +233,119 @@ test("runBlogPipeline: 4단계 호출 순서·정리·이미지 자리·글자�
     assert.match(post.reviewNote, /본문 \d+자/);
     assert.equal(post.summary, "요약 두 줄");
     assert.ok(post.steps.length >= 5);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
+test("alignImageMarkers: 컷 이름과 정확히 같은 표식은 순서가 바뀌어도 그대로 유지", () => {
+  const body = [{ type: "body", caption: "사진 2 · 케이크", prompt: "" }, { type: "body", caption: "사진 3 · 내부", prompt: "" }];
+  const a = alignImageMarkers("가\n\n[IMAGE INSERT - 사진 3 · 내부]\n\n나\n\n[IMAGE INSERT - 사진 2 · 케이크]\n\n[IMAGE INSERT - 사진 2 · 케이크]\n\n다", body);
+  const order = [...a.matchAll(/\[IMAGE INSERT - ([^\]]+)\]/g)].map((m) => m[1]);
+  assert.deepEqual(order, ["사진 3 · 내부", "사진 2 · 케이크"]);
+});
+
+test("photoSlotOrder / clampTargetLength", () => {
+  assert.deepEqual(photoSlotOrder(4, 2), [2, 0, 1, 3]);
+  assert.deepEqual(photoSlotOrder(3, 9), [2, 0, 1]);
+  assert.deepEqual(photoSlotOrder(1, 0), [0]);
+  assert.equal(clampTargetLength(1), 300);
+  assert.equal(clampTargetLength(99999), 4000);
+  assert.equal(clampTargetLength(undefined), 2000);
+});
+
+test("callLlm: 공급사별 이미지 페이로드·Anthropic 브라우저 헤더·키 가림", async () => {
+  const sent = {};
+  const mk = (name, response, ok = true, status = 200) => async (url, init) => {
+    sent[name] = { url, headers: init.headers, body: JSON.parse(init.body) };
+    return { ok, status, json: async () => response };
+  };
+  const images = [{ mime: "image/jpeg", base64: "QUJD" }, { mime: "image/jpeg", base64: "REVG" }];
+  const base = { apiKey: "SECRETKEY", system: "s", user: "u", images };
+
+  await callLlm({ ...base, provider: "gemini", model: "m", json: true, maxTokens: 1234 }, mk("gemini", { candidates: [{ content: { parts: [{ text: "ok" }] } }] }));
+  assert.equal(sent.gemini.body.contents[0].parts.length, 3);
+  assert.equal(sent.gemini.body.generationConfig.maxOutputTokens, 1234);
+  assert.equal(sent.gemini.headers["x-goog-api-key"], "SECRETKEY");
+  assert.ok(!sent.gemini.url.includes("SECRETKEY"));
+
+  await callLlm({ ...base, provider: "openai", model: "gpt-4.1", json: true }, mk("openai", { choices: [{ message: { content: "ok" } }] }));
+  assert.equal(sent.openai.body.messages[1].content.length, 3);
+  assert.equal(sent.openai.body.response_format.type, "json_object");
+
+  await callLlm({ ...base, provider: "anthropic", model: "claude-sonnet-5" }, mk("anthropic", { content: [{ type: "text", text: "ok" }] }));
+  assert.equal(sent.anthropic.headers["anthropic-dangerous-direct-browser-access"], "true");
+  assert.equal(sent.anthropic.body.messages[0].content.length, 3);
+  assert.ok(sent.anthropic.body.max_tokens >= 8192);
+
+  await assert.rejects(
+    callLlm({ ...base, provider: "openai", model: "gpt-4.1" }, mk("x", { error: { message: "bad SECRETKEY here" } }, false, 401)),
+    (e) => e.message.includes("OpenAI") && e.message.includes("키가 올바르지") && !e.message.includes("SECRETKEY"),
+  );
+  assert.match(describeHttpError("anthropic", 400, "Your credit balance is too low", "k"), /크레딧/);
+  assert.match(describeHttpError("gemini", 429, "", "k"), /한도/);
+});
+
+test("models: 새 설정이 없으면 기존 Gemini·나노바나나 설정 유지, 선택하면 그대로 반영, 키 없으면 자동 전환 없이 안내", () => {
+  const legacy = { geminiApiKey: "g", textModel: "gemini-flash-lite-latest", imageModel: "nano-banana-2-lite" };
+  const t = resolveTextEngine(legacy);
+  assert.deepEqual([t.provider, t.model, t.apiKey], ["gemini", "gemini-flash-lite-latest", "g"]);
+  const i = resolveImageEngine(legacy);
+  assert.deepEqual([i.platform, i.model, i.keyProvider], ["nanobanana", "nanobanana", "gemini"]);
+  assert.equal(missingKeyMessage("text", legacy), null);
+
+  const picked = { ...legacy, textProvider: "openai", textModelId: "gpt-4.1", openaiApiKey: "o", imageModelId: "black-forest-labs/flux-2-dev" };
+  assert.deepEqual([resolveTextEngine(picked).provider, resolveTextEngine(picked).model, resolveTextEngine(picked).apiKey], ["openai", "gpt-4.1", "o"]);
+  assert.deepEqual([resolveImageEngine(picked).platform, resolveImageEngine(picked).keyProvider], ["flux", "replicate"]);
+  // 선택한 공급사의 키가 없으면 다른 공급사로 바꾸지 않고 안내한다
+  assert.match(missingKeyMessage("image", picked), /Replicate/);
+  assert.match(missingKeyMessage("text", { ...picked, openaiApiKey: "" }), /GPT.*자동 전환하지 않습니다/s);
+  // 모르는 모델 ID 는 해당 공급사의 첫 모델로
+  assert.equal(resolveTextEngine({ ...legacy, textProvider: "anthropic", textModelId: "nope" }).model, "claude-sonnet-5");
+  assert.ok(isKnownTextModel("gemini", "gemini-3.7-flash"));
+  assert.equal(imagePlatformOf("gpt-image-2"), "openai");
+});
+
+test("personas / 문체 예시", () => {
+  assert.equal(BLOG_PERSONAS.length, 6);
+  assert.ok(BLOG_PERSONAS.every((p) => p.id && p.name && p.tonePrompt && p.defaultKeywords && p.defaultPurpose));
+  assert.match(getWritingStyleExample("해요체", "default"), /해요\.$/);
+  assert.match(getWritingStyleExample("한다체", "plain"), /다\.$/);
+  assert.notEqual(getWritingStyleExample("해요체", "plain"), getWritingStyleExample("합니다체", "plain"));
+});
+
+test("runBlogPipeline: 사진 기반(비전) — 사진이 컷이 되고 캡션이 본문 표식과 연결, 사진은 4단계 중 기획·작성에만 전달", async () => {
+  const replies = [
+    JSON.stringify({ finalTitle: "성수 카페 방문", subsections: [{ title: "분위기", keyPoints: ["a"] }], photoCaptions: ["대표 외관", "케이크", "내부 좌석"] }),
+    "도입.\n\n[SECTION - 분위기]\n본문입니다.\n\n[IMAGE INSERT - 사진 3 · 내부 좌석]\n\n둘째.\n\n[IMAGE INSERT - 사진 2 · 케이크]\n\n[SECTION - 참고자료]\n출처",
+    JSON.stringify({ edits: [] }),
+    JSON.stringify({ tags: ["성수"], summary: "요약", reviewStatus: "PASS", reviewNote: "ok" }),
+  ];
+  const calls = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    calls.push(JSON.parse(init.body));
+    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: replies[calls.length - 1] }] } }] }) };
+  };
+  try {
+    const photos = [{ mime: "image/jpeg", base64: "AAA" }, { mime: "image/jpeg", base64: "BBB" }, { mime: "image/jpeg", base64: "CCC" }];
+    const post = await runBlogPipeline({
+      engine: { provider: "gemini", model: "m", apiKey: "k" }, topic: "성수 카페 방문", tone: "해요체", style: "conversational", targetLength: 800,
+      imageCount: 3, withThumbnail: true, ratio: "16:9", themeId: "green-orange", withInteractive: false, withThumbnailText: false,
+      photos, thumbIndex: 0, role: "너는 맛집 인플루언서다.", extraContext: "- 장소명: 성수 카페",
+    });
+    assert.equal(calls[0].contents[0].parts.filter((p) => p.inlineData).length, 3); // 기획: 사진 3장
+    assert.equal(calls[1].contents[0].parts.filter((p) => p.inlineData).length, 3); // 작성: 사진 3장
+    assert.equal(calls[2].contents[0].parts.filter((p) => p.inlineData).length, 0); // 윤문: 텍스트만
+    assert.equal(calls[3].contents[0].parts.filter((p) => p.inlineData).length, 0); // 검수: 텍스트만
+    assert.match(calls[1].systemInstruction.parts[0].text, /맛집 인플루언서/);
+    assert.match(calls[1].systemInstruction.parts[0].text, /지어내지 않는다/);
+    assert.deepEqual(post.images.map((s) => s.type), ["thumbnail", "body", "body"]);
+    assert.deepEqual(post.images.map((s) => s.prompt), ["", "", ""]); // 사진 컷은 생성 프롬프트가 없다
+    assert.match(post.images[0].caption, /^대표 1 · 대표 외관/);
+    assert.match(post.images[1].caption, /^사진 2 · 케이크/);
+    assert.match(post.article, /\[IMAGE INSERT - 사진 3 · 내부 좌석\]/); // 글에서 쓴 순서(3번 먼저) 그대로 연결
+    assert.equal(post.images.length, 3);
   } finally {
     globalThis.fetch = realFetch;
   }

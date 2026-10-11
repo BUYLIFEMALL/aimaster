@@ -131,6 +131,8 @@ export default function HomePage() {
             <PlacesVisionSection
               settings={settings}
               onOpenSettings={() => setIsSettingsOpen(true)}
+              onSettingsChange={setSettings}
+              onOpenLibrary={() => setActiveMainTab("library")}
             />
           )}
 
@@ -153,6 +155,7 @@ export default function HomePage() {
               extraPromptHint={extraPromptHint}
               settings={settings}
               onOpenSettings={() => setIsSettingsOpen(true)}
+              onSettingsChange={setSettings}
               loaded={loadedPost}
               onLoadedConsumed={() => setLoadedPost(null)}
               onOpenLibrary={() => setActiveMainTab("library")}

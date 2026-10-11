@@ -11,6 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
+import { resolveImageEngine, resolveTextEngine } from "@/lib/blog/models";
 
 interface HeaderProps {
   settings: AppSettings;
@@ -115,7 +116,7 @@ export function Header({
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 rounded-lg text-xs border border-slate-200">
             <span className="text-slate-500">텍스트:</span>
             <span className="font-semibold text-indigo-700">
-              {settings.textModel === "gemini-flash-latest" ? "Flash 추천" : "Lite 초고속"}
+              {(() => { const e = resolveTextEngine(settings); return `${e.label} · ${e.model}`; })()}
             </span>
           </div>
 
@@ -123,7 +124,7 @@ export function Header({
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 rounded-lg text-xs border border-slate-200">
             <span className="text-slate-500">이미지:</span>
             <span className="font-semibold text-purple-700">
-              {settings.imageModel === "nano-banana-2" ? "NB 2 고화질" : "NB 2 Lite 초고속"}
+              {resolveImageEngine(settings).label}
             </span>
           </div>
 

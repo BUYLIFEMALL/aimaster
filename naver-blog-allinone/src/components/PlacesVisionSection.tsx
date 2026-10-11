@@ -25,10 +25,24 @@ import {
 } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
 import { UploadedPhoto, processImageFile } from "@/lib/imageUtils";
+import { overlayThumbnailTitle } from "@/lib/blog/canvas";
+import { missingKeyMessage, resolveTextEngine } from "@/lib/blog/models";
+import { BLOG_PERSONAS, type BlogPersona } from "@/lib/blog/personas";
+import { runBlogPipeline } from "@/lib/blog/pipeline";
+import { uploadImage } from "@/lib/blog/postsApi";
+import type { ImageRatio } from "@/lib/blog/types";
+import type { WritingStyle, WritingTone } from "@/lib/blog/styles";
+import { GenerationPanel } from "@/components/blog/GenerationPanel";
+import { ModelSettingsCard } from "@/components/blog/ModelSettingsCard";
+import { PostWorkspaceView } from "@/components/blog/PostWorkspaceView";
+import { useBlogWorkspace } from "@/components/blog/useBlogWorkspace";
 
 interface PlacesVisionSectionProps {
   settings: AppSettings;
   onOpenSettings: () => void;
+  /** 모델 선택을 저장하면 앱 전체 설정도 갱신한다 */
+  onSettingsChange: (next: AppSettings) => void;
+  onOpenLibrary: () => void;
 }
 
 const COLOR_THEMES = [
@@ -41,7 +55,7 @@ const COLOR_THEMES = [
   { id: "nature-green", name: "네이처 그린", desc: "생기 있고 조화로운 느낌", color: "#15803d", subColor: "#22c55e" },
 ];
 
-export function PlacesVisionSection({ settings, onOpenSettings }: PlacesVisionSectionProps) {
+export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange, onOpenLibrary }: PlacesVisionSectionProps) {
   // Photos state
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [processingFiles, setProcessingFiles] = useState(false);
@@ -68,27 +82,22 @@ export function PlacesVisionSection({ settings, onOpenSettings }: PlacesVisionSe
   const [includeFaq, setIncludeFaq] = useState(true);
   const [thumbnailText, setThumbnailText] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "1:1">("16:9");
-  const [humanStyle, setHumanStyle] = useState<"default" | "typeA" | "typeB">("typeA");
+  const [personaId, setPersonaId] = useState<string | null>(null);
+  const [targetLength, setTargetLength] = useState(2000);
+  const [tone, setTone] = useState<WritingTone>("해요체");
+  const [style, setStyle] = useState<WritingStyle>("conversational");
+  const [stepMsg, setStepMsg] = useState("");
   const [extraRequest, setExtraRequest] = useState("");
 
   // Output state
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [generatedResult, setGeneratedResult] = useState<{
-    title: string;
-    summary: string;
-    contentHtml: string;
-    markdown: string;
-    plainText: string;
-    tags: string[];
-    thumbnailUrl?: string;
-  } | null>(null);
-
-  const [resultTab, setResultTab] = useState<"naver" | "markdown" | "text">("naver");
-  const [copiedHtml, setCopiedHtml] = useState(false);
-  const [copiedMarkdown, setCopiedMarkdown] = useState(false);
-  const [copiedText, setCopiedText] = useState(false);
-  const [syncedToExtension, setSyncedToExtension] = useState(false);
+  // 생성 결과·저장·이미지 편집은 세 탭 공통 작업공간을 쓴다
+  const needKey = () => {
+    setErrorMsg("이미지 모델에 필요한 API 키가 없습니다. [API키등록·플랫폼연동]에서 본인 키를 등록해주세요.");
+    onOpenSettings();
+  };
+  const ws = useBlogWorkspace(settings, needKey);
 
   // Handle Photo Upload
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -195,18 +204,17 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
   };
 
   // Generate Post via Gemini Vision
-  const handleGenerateVisionPost = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+  const handleGenerateVisionPost = async (persona?: BlogPersona) => {
+    const textMissing = missingKeyMessage("text", settings);
+    if (textMissing) {
+      setErrorMsg(textMissing);
       onOpenSettings();
       return;
     }
-
     if (!placeName.trim()) {
       setErrorMsg("장소명을 입력해주세요 (예: 성수동 어반플랜트).");
       return;
     }
-
     if (photos.length === 0) {
       setErrorMsg("최소 1장 이상의 방문 사진을 업로드해주세요.");
       return;
@@ -214,180 +222,69 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
 
     setLoading(true);
     setErrorMsg("");
-
-    const currentYear = new Date().getFullYear(); // 2026
-    const chosenTheme = COLOR_THEMES.find((t) => t.id === selectedTheme) || COLOR_THEMES[1];
-
-    // Build Vision parts
-    const parts: unknown[] = [];
-
-    // 1. Add image inline parts
-    photos.forEach((p) => {
-      parts.push({
-        inline_data: {
-          mime_type: p.mimeType,
-          data: p.base64,
-        },
-      });
-    });
-
-    // 2. Add text prompt part
-    const promptText = `당신은 대한민국 네이버 블로그 최상위 0.1% 맛집/카페/여행 전문 인플루언서이자 네이버 D.I.A+ & C-Rank 알고리즘 전문가입니다.
-현재 연도는 반드시 ${currentYear}년입니다. 과거 연도(2023, 2024 등)로 후퇴하지 말고 모든 정보와 방문 시점은 ${currentYear}년 기준입니다.
-
-업로드된 ${photos.length}장의 사진을 순서대로 정밀 관찰하세요.
-- 사진 1부터 사진 ${photos.length}까지 각 사진 속 음식의 비주얼, 플레이팅, 재료, 식감, 매장의 조명과 인테리어 톤, 좌석 분위기, 소품 디테일을 직접 두 눈으로 본 것처럼 구체적으로 묘사하세요.
-- AI가 지어낸 뻔한 글이 아니라, 진짜 블로거가 '내돈내산'으로 직접 방문하여 감탄하고 즐긴 생생한 찐후기 스타일로 작성해야 합니다.
-
-[최적화 모드 및 검색 타겟팅]
-- 최적화 모드: ${
-      seoMode === "homefeed"
-        ? "홈판 노출 모드 (감성 스토리텔링 & 1인칭 에세이 톤. 네이버 MY피드/리빙/푸드/여행 홈판 픽 유도. 감각적인 첫 문단과 디테일한 무드, 감정선 중심의 매력적인 서사)"
-        : "기본 SEO 최적화 모드 (검색 1위 공략 정보형 리뷰. 매장 기본정보, 대표 메뉴 및 가격, 주차 및 대중교통 동선, 웨이팅 꿀팁, 브레이크타임 등 검색 이용자에게 필수적인 핵심 정보 체계적 구성)"
-    }
-${mainKeyword ? `- 메인 공략 키워드: ${mainKeyword} (제목 및 본문 주요 문맥에 자연스럽게 배치)` : ""}
-${subKeywords ? `- 서브 키워드: ${subKeywords}` : ""}
-
-[방문 메타 정보]
-- 장소명: ${placeName} (카테고리: ${category})
-${region ? `- 지역/위치: ${region}` : ""}
-${visitDate ? `- 방문일: ${visitDate}` : ""}
-${companion ? `- 동행자: ${companion}` : ""}
-${oneLineImpression ? `- 한 줄 인상: ${oneLineImpression}` : ""}
-${placeDetails ? `- 상세 정보: ${placeDetails}` : ""}
-${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
-
-[옵션 및 서식]
-- 컬러 테마: ${chosenTheme.name} (포인트 색상: ${chosenTheme.color})
-- FAQ 섹션: ${includeFaq ? "포함 (주차 팁, 웨이팅 방법, 추천 메뉴 등 자주 묻는 질문 3선)" : "미포함"}
-- 글쓰기 스타일: ${
-      humanStyle === "typeA"
-        ? "유형 A (친근하고 발랄한 대화체, 감성적 표현과 풍부한 이모지)"
-        : humanStyle === "typeB"
-        ? "유형 B (신뢰감 있고 꼼꼼한 정보형, 메뉴 가격과 동선을 꼼꼼히 짚어주는 톤)"
-        : "기본 톤"
-    }
-
-[네이버 스마트에디터 ONE 서식 가이드]
-- 각 사진이 들어갈 자리를 본문 흐름에 맞추어 명확히 배치하세요:
-  예: <!-- [사진 1 삽입 위치: 사진 속 묘사] -->
-- 소제목은 <h3 style="color: ${chosenTheme.color}; font-weight: bold; border-left: 4px solid ${chosenTheme.color}; padding-left: 8px; margin: 24px 0 12px 0;"> 태그 사용
-- 인용구/강조박스는 <blockquote style="background: #f8fafc; border-left: 4px solid ${chosenTheme.color}; padding: 12px 16px; margin: 16px 0; border-radius: 4px;"> 태그 사용
-- 본문 문단은 <p style="line-height: 1.8; margin-bottom: 14px; font-size: 15px; color: #1e293b;">
-
-반드시 아래 JSON 형식으로만 응답하세요. 마크다운 따옴표 없이 순수 JSON만 반환:
-{
-  "title": "${currentYear}년 감성 듬뿍 네이버 상위노출 핫플 포스트 제목",
-  "summary": "검색 결과에 노출될 매력적인 2줄 스니펫 요약",
-  "contentHtml": "네이버 스마트에디터 ONE에 붙여넣기 가능한 인라인 스타일 HTML 코드",
-  "markdown": "티스토리 및 워드프레스에 복사할 수 있는 마크다운 본문",
-  "plainText": "일반 텍스트 버전 본문",
-  "tags": ["${placeName.replace(/\s+/g, "")}", "${category}", "핫플추천", "내돈내산", "데이트코스"]
-}`;
-
-    parts.push({ text: promptText });
-
+    ws.setErrorMsg("");
+    setStepMsg("시작하는 중…");
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
+      // 대표 사진을 맨 앞에 두고 최대 6장까지 사용한다(순서 = 이미지 컷 순서)
+      const thumbIdx = Math.max(0, photos.findIndex((x) => x.isThumbnail));
+      const used = [photos[thumbIdx], ...photos.filter((_, i) => i !== thumbIdx)].slice(0, 6);
+      const chosen = persona ?? BLOG_PERSONAS.find((x) => x.id === personaId) ?? null;
+      const eng = resolveTextEngine(settings);
+      const theme = COLOR_THEMES.find((t) => t.id === selectedTheme) || COLOR_THEMES[1];
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error?.message || "Gemini Vision 호출에 실패했습니다.");
+      const context = [
+        `- 최적화 모드: ${
+          seoMode === "homefeed"
+            ? "홈판 노출 모드 (감성 스토리텔링 & 1인칭 에세이 톤. 감각적인 첫 문단과 디테일한 무드, 감정선 중심의 서사)"
+            : "기본 SEO 최적화 모드 (검색 1위 공략 정보형 리뷰. 매장 기본정보, 대표 메뉴 및 가격, 주차·대중교통 동선, 웨이팅 팁 등 검색 이용자에게 필수인 정보를 체계적으로)"
+        }`,
+        `- 장소명: ${placeName} (카테고리: ${category})`,
+        region ? `- 지역/위치: ${region}` : "",
+        visitDate ? `- 방문일: ${visitDate}` : "",
+        companion ? `- 동행자: ${companion}` : "",
+        oneLineImpression ? `- 한 줄 인상: ${oneLineImpression}` : "",
+        placeDetails ? `- 상세 정보(회원이 직접 제공한 사실): ${placeDetails}` : "",
+        includeFaq ? "- FAQ 섹션: 포함 (주차 팁, 웨이팅 방법, 추천 메뉴 등 자주 묻는 질문 3선)" : "- FAQ 섹션: 미포함",
+      ].filter(Boolean).join("\n");
+
+      const result = await runBlogPipeline({
+        engine: { provider: eng.provider, model: eng.model, apiKey: eng.apiKey },
+        topic: `${placeName} ${category} 방문 후기`,
+        extraRequest,
+        keywords: [mainKeyword, subKeywords].filter((k) => k.trim()).join(", "),
+        purpose: seoMode === "homefeed" ? "네이버 홈판(MY피드) 노출을 노리는 감성 방문 후기" : "검색 상위 노출을 노리는 정보형 방문 후기",
+        persona: chosen ? { name: chosen.name, badge: chosen.badge, tonePrompt: chosen.tonePrompt } : null,
+        tone: persona ? persona.preferredTone : tone,
+        style,
+        targetLength,
+        imageCount: used.length,
+        withThumbnail: true,
+        ratio: aspectRatio as ImageRatio,
+        themeId: selectedTheme,
+        withInteractive: false,
+        withThumbnailText: thumbnailText,
+        photos: used.map((x) => ({ mime: x.mimeType, base64: x.base64 })),
+        thumbIndex: 0,
+        role: "너는 대한민국 네이버 블로그 최상위 0.1% 맛집/카페/여행 전문 인플루언서이자 네이버 D.I.A+ & C-Rank 알고리즘 전문가다. 직접 방문해 사진을 찍어 온 '내돈내산' 블로거의 생생한 후기 스타일로 쓴다.",
+        extraContext: context,
+        onStep: setStepMsg,
+      });
+
+      // 올린 사진을 내 보관 폴더에 저장해 컷에 연결한다(대표 사진에는 선택 시 제목 글자 합성)
+      const withUrls = [];
+      for (let i = 0; i < result.images.length; i++) {
+        setStepMsg(`사진 ${i + 1}/${result.images.length} 저장 중…`);
+        let dataUrl = used[i].previewUrl;
+        if (i === 0 && thumbnailText) dataUrl = await overlayThumbnailTitle(dataUrl, result.title, theme.color);
+        withUrls.push({ ...result.images[i], url: await uploadImage(dataUrl) });
       }
-
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      const parsed = JSON.parse(rawText);
-
-      const thumb = photos.find((p) => p.isThumbnail) || photos[0];
-
-      const newResult = {
-        title: parsed.title || `${placeName} 방문 솔직 후기`,
-        summary: parsed.summary || "",
-        contentHtml: parsed.contentHtml || "",
-        markdown: parsed.markdown || parsed.plainText || "",
-        plainText: parsed.plainText || "",
-        tags: parsed.tags || [],
-        thumbnailUrl: thumb?.previewUrl,
-      };
-
-      setGeneratedResult(newResult);
-
-      // 크롬 확장 프로그램으로 원고 자동 브로드캐스트
-      if (typeof window !== "undefined") {
-        window.postMessage(
-          {
-            type: "ALLINONE_SYNC_DRAFT",
-            draft: newResult,
-          },
-          "*"
-        );
-      }
+      await ws.startFresh({ ...result, images: withUrls });
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "비전 포스트 생성 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+      setStepMsg("");
     }
-  };
-
-  const handleSyncToExtension = () => {
-    if (!generatedResult) return;
-    if (typeof window !== "undefined") {
-      window.postMessage(
-        {
-          type: "ALLINONE_SYNC_DRAFT",
-          draft: generatedResult,
-        },
-        "*"
-      );
-    }
-    setSyncedToExtension(true);
-    setTimeout(() => setSyncedToExtension(false), 2000);
-  };
-
-  const copyHtmlToClipboard = async () => {
-    if (!generatedResult?.contentHtml) return;
-    try {
-      const blobHtml = new Blob([generatedResult.contentHtml], { type: "text/html" });
-      const blobText = new Blob([generatedResult.plainText || generatedResult.contentHtml], {
-        type: "text/plain",
-      });
-      const data = [new ClipboardItem({ "text/html": blobHtml, "text/plain": blobText })];
-      await navigator.clipboard.write(data);
-      setCopiedHtml(true);
-      setTimeout(() => setCopiedHtml(false), 2000);
-    } catch {
-      await navigator.clipboard.writeText(generatedResult.contentHtml);
-      setCopiedHtml(true);
-      setTimeout(() => setCopiedHtml(false), 2000);
-    }
-  };
-
-  const copyMarkdownToClipboard = async () => {
-    if (!generatedResult?.markdown) return;
-    await navigator.clipboard.writeText(generatedResult.markdown);
-    setCopiedMarkdown(true);
-    setTimeout(() => setCopiedMarkdown(false), 2000);
-  };
-
-  const copyTextToClipboard = async () => {
-    if (!generatedResult?.plainText) return;
-    await navigator.clipboard.writeText(generatedResult.plainText);
-    setCopiedText(true);
-    setTimeout(() => setCopiedText(false), 2000);
   };
 
   return (
@@ -846,46 +743,6 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  인간적인 글쓰기 스타일 PRO
-                </label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setHumanStyle("default")}
-                    className={`py-1 text-xs font-semibold rounded-lg border transition ${
-                      humanStyle === "default"
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    기본
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setHumanStyle("typeA")}
-                    className={`py-1 text-xs font-semibold rounded-lg border transition ${
-                      humanStyle === "typeA"
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    유형 A (친근)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setHumanStyle("typeB")}
-                    className={`py-1 text-xs font-semibold rounded-lg border transition ${
-                      humanStyle === "typeB"
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    유형 B (전문)
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -904,25 +761,43 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
           </div>
         </div>
 
+        <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} showImage={false} />
+
+        <GenerationPanel
+          values={{ personaId, targetLength, keywords: "", purpose: "", tone, style }}
+          onChange={(patch) => {
+            if ("personaId" in patch) setPersonaId(patch.personaId ?? null);
+            if (patch.targetLength !== undefined) setTargetLength(patch.targetLength);
+            if (patch.tone) setTone(patch.tone);
+            if (patch.style) setStyle(patch.style);
+          }}
+          onLoadPersona={(p) => {
+            setPersonaId(p.id);
+            setTone(p.preferredTone);
+          }}
+          hideDetails
+          disabled={loading}
+        />
+
         {/* Error Msg */}
-        {errorMsg && (
+        {(errorMsg || ws.errorMsg) && (
           <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-            <span>{errorMsg}</span>
+            <span>{errorMsg || ws.errorMsg}</span>
           </div>
         )}
 
         {/* Generate Button */}
         <button
           type="button"
-          onClick={handleGenerateVisionPost}
+          onClick={() => void handleGenerateVisionPost()}
           disabled={loading || processingFiles}
           className="w-full py-4 px-6 bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-700 hover:to-indigo-700 disabled:opacity-50 text-white text-sm font-bold rounded-xl transition shadow-md shadow-emerald-100 flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Gemini 비전이 사진을 관찰하고 네이버 상위노출 원고 작성 중...</span>
+              <span>{stepMsg || "사진을 관찰하고 원고를 작성 중…"}</span>
             </>
           ) : (
             <>
@@ -933,219 +808,8 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
         </button>
       </div>
 
-      {/* Generated Result Output */}
-      {generatedResult && (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-md">
-                  비전 분석 포스트 완성
-                </span>
-                <span className="text-xs text-slate-500">
-                  {new Date().getFullYear()}년 네이버 플레이스 및 D.I.A+ 알고리즘 완벽 반영
-                </span>
-              </div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
-                {generatedResult.title}
-              </h2>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <a
-                href="https://blog.naver.com/GoBlogWrite.naver"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg transition"
-              >
-                <span>네이버 글쓰기 열기</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-
-              <button
-                type="button"
-                onClick={handleSyncToExtension}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-300 rounded-lg transition shadow-2xs"
-                title="설치된 크롬 확장 프로그램으로 원고를 전달하여 네이버 글쓰기에서 1초 자동 주입합니다"
-              >
-                {syncedToExtension ? (
-                  <>
-                    <Check className="w-3.5 h-3.5" />
-                    <span>확장에 전달됨!</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-                    <span>⚡ 크롬 확장에 전달</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={copyHtmlToClipboard}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-xs"
-              >
-                {copiedHtml ? (
-                  <>
-                    <Check className="w-3.5 h-3.5" />
-                    <span>서식 복사됨!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>네이버 스마트에디터 ONE 서식 복사</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={copyMarkdownToClipboard}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg transition"
-              >
-                {copiedMarkdown ? (
-                  <>
-                    <Check className="w-3.5 h-3.5" />
-                    <span>마크다운 복사됨</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>마크다운 복사 (티스토리·워드프레스)</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={copyTextToClipboard}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
-              >
-                {copiedText ? (
-                  <>
-                    <Check className="w-3.5 h-3.5" />
-                    <span>텍스트 복사됨</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>텍스트만 복사</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Thumbnail preview */}
-          {generatedResult.thumbnailUrl && (
-            <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 max-w-lg mx-auto">
-              <img
-                src={generatedResult.thumbnailUrl}
-                alt="대표 썸네일"
-                className="w-full h-auto object-cover"
-              />
-              <div className="p-2 text-center text-[11px] text-slate-500 bg-slate-50 border-t border-slate-200">
-                선택된 대표 썸네일 사진 · 네이버 블로그 스마트에디터 첫 번째 이미지로 삽입하세요
-              </div>
-            </div>
-          )}
-
-          {/* Meta Summary & Tags */}
-          <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-3">
-            <div>
-              <span className="text-[11px] font-bold text-slate-600">검색 스니펫 요약:</span>
-              <p className="text-xs text-slate-700 mt-0.5">{generatedResult.summary}</p>
-            </div>
-
-            {generatedResult.tags && generatedResult.tags.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[11px] font-bold text-slate-600 mr-1">추천 태그:</span>
-                {generatedResult.tags.map((tag, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-0.5 text-xs font-medium bg-white text-emerald-700 border border-slate-200 rounded-md"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 3-Way Format Preview Container */}
-          <div className="border border-slate-200 rounded-xl p-5 bg-white space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-              {/* Tab Selector */}
-              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => setResultTab("naver")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
-                    resultTab === "naver"
-                      ? "bg-white text-emerald-700 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  네이버 블로그 (HTML 서식)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setResultTab("markdown")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
-                    resultTab === "markdown"
-                      ? "bg-white text-indigo-700 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  마크다운 (티스토리·워드프레스)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setResultTab("text")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
-                    resultTab === "text"
-                      ? "bg-white text-slate-900 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  일반 텍스트
-                </button>
-              </div>
-
-              <span className="text-[11px] text-slate-400">
-                {resultTab === "naver"
-                  ? "상단 [서식 복사] 후 스마트에디터에 붙여넣기(Ctrl+V)하시면 서식이 유지됩니다."
-                  : resultTab === "markdown"
-                  ? "마크다운 지원 블로그(티스토리, 워드프레스, 깃허브 등)에 붙여넣기하세요."
-                  : "일반 텍스트 형태로 메모장이나 SNS에 바로 활용하세요."}
-              </span>
-            </div>
-
-            {/* Tab 1: Naver Rich HTML Preview */}
-            {resultTab === "naver" && (
-              <div
-                className="prose prose-slate max-w-none text-xs sm:text-sm"
-                dangerouslySetInnerHTML={{ __html: generatedResult.contentHtml }}
-              />
-            )}
-
-            {/* Tab 2: Markdown Preview */}
-            {resultTab === "markdown" && (
-              <pre className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto">
-                {generatedResult.markdown}
-              </pre>
-            )}
-
-            {/* Tab 3: Plain Text Preview */}
-            {resultTab === "text" && (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto">
-                {generatedResult.plainText}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* 생성 결과: 세 탭 공통 결과 화면(검수·사진 컷·편집·복사·보관함 자동 저장) */}
+      {ws.post && <PostWorkspaceView ws={ws} locked={loading} onOpenLibrary={onOpenLibrary} />}
     </div>
   );
 }
