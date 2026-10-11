@@ -36,13 +36,14 @@ export default function ViralShortsPage() {
 
   const [keyword, setKeyword] = useState(initialKeyword || "이슈 쇼츠");
   const [uploadPeriod, setUploadPeriod] = useState<"7d" | "30d" | "90d" | "365d" | "all">("30d");
-  const [maxSubscribers, setMaxSubscribers] = useState<number | undefined>(50000); // 기본 5만 이하 채널 필터
-  const [minViews, setMinViews] = useState<number>(30000); // 기본 3만회 이상
+  const [maxSubscribers, setMaxSubscribers] = useState<number | undefined>(100000); // 기본 10만 이하 채널 필터
+  const [minViews, setMinViews] = useState<number>(10000); // 기본 1만회 이상
   const [sortBy, setSortBy] = useState<"viralScore" | "vsRatio" | "vph" | "viewCount" | "date">("viralScore");
 
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<YouTubeVideoItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
   const [needApiKey, setNeedApiKey] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
 
@@ -79,6 +80,7 @@ export default function ViralShortsPage() {
       }
 
       setItems(data.items || []);
+      setFallbackNotice(data.fallbackNotice || null);
     } catch (err: any) {
       setError(err.message || "네트워크 오류가 발생했습니다.");
     } finally {
@@ -296,6 +298,14 @@ export default function ViralShortsPage() {
         <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
+        </div>
+      )}
+
+      {/* 스마트 필터 완화 안내 배너 */}
+      {fallbackNotice && !error && (
+        <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+          <span>{fallbackNotice}</span>
         </div>
       )}
 

@@ -1,5 +1,5 @@
 import "server-only";
-import { fetchChannelsDetails, YouTubeApiError } from "./client";
+import { fetchChannelsDetails, fetchVideosDetails, YouTubeApiError } from "./client";
 import {
   calculateViralScore,
   calculateVPH,
@@ -17,6 +17,108 @@ export async function getTrendingVideos(
 ): Promise<YouTubeVideoItem[]> {
   const { type = "shorts", regionCode = "KR", maxResults = 30 } = params;
 
+  // 1. 쇼츠 탭의 경우: 대한민국 실시간 떡상 쇼츠 검색 (최근 48시간 내 VPH 급상승)
+  if (type === "shorts") {
+    const searchUrl = new URL(`${YOUTUBE_API_BASE}/search`);
+    searchUrl.searchParams.set("part", "snippet");
+    searchUrl.searchParams.set("q", "#shorts");
+    searchUrl.searchParams.set("type", "video");
+    searchUrl.searchParams.set("videoDuration", "short");
+    searchUrl.searchParams.set("regionCode", regionCode);
+    searchUrl.searchParams.set("relevanceLanguage", "ko");
+    searchUrl.searchParams.set("order", "viewCount");
+    searchUrl.searchParams.set(
+      "publishedAfter",
+      new Date(Date.now() - 48 * 3600 * 1000).toISOString()
+    );
+    searchUrl.searchParams.set("maxResults", "50");
+    searchUrl.searchParams.set("key", apiKey);
+
+    const sRes = await fetch(searchUrl.toString(), { next: { revalidate: 120 } });
+    const sData = await sRes.json();
+
+    if (!sRes.ok) {
+      throw new YouTubeApiError(
+        sData?.error?.message || "실시간 떡상 쇼츠 조회에 실패했습니다.",
+        sData?.error?.errors?.[0]?.reason || "SEARCH_ERROR",
+        sRes.status
+      );
+    }
+
+    const videoIds = (sData.items || []).map((i: any) => i.id?.videoId).filter(Boolean);
+    if (videoIds.length === 0) return [];
+
+    const videosMap = await fetchVideosDetails(videoIds, apiKey);
+    const channelIds: string[] = [];
+    videosMap.forEach((v) => {
+      if (v.snippet?.channelId) channelIds.push(v.snippet.channelId);
+    });
+    const channelsMap = await fetchChannelsDetails(channelIds, apiKey);
+
+    const processedList: YouTubeVideoItem[] = [];
+
+    for (const vId of videoIds) {
+      const v = videosMap.get(vId);
+      if (!v) continue;
+
+      const durationStr = v.contentDetails?.duration;
+      const durationSeconds = parseDuration(durationStr);
+      const title = v.snippet?.title || "";
+      const description = v.snippet?.description || "";
+      const isShort = durationSeconds <= 180 || isShortsVideo(durationStr, title, description);
+      if (!isShort) continue;
+
+      const channelId = v.snippet?.channelId;
+      const channelDetail = channelsMap.get(channelId);
+      const subCountStr = channelDetail?.statistics?.subscriberCount;
+      const subCount = subCountStr ? parseInt(subCountStr, 10) : undefined;
+
+      const views = parseInt(v.statistics?.viewCount || "0", 10);
+      const likes = v.statistics?.likeCount ? parseInt(v.statistics.likeCount, 10) : undefined;
+      const comments = v.statistics?.commentCount ? parseInt(v.statistics.commentCount, 10) : undefined;
+
+      const publishedAt = v.snippet?.publishedAt || new Date().toISOString();
+      const vph = calculateVPH(views, publishedAt);
+      const vsRatio = calculateVsRatio(views, subCount);
+      const { score: viralScore, badge: viralBadge } = calculateViralScore({
+        views,
+        subscribers: subCount,
+        likes,
+        publishedAt,
+      });
+
+      processedList.push({
+        id: vId,
+        title,
+        description,
+        thumbnailUrl:
+          v.snippet?.thumbnails?.maxres?.url ||
+          v.snippet?.thumbnails?.high?.url ||
+          v.snippet?.thumbnails?.medium?.url ||
+          "",
+        publishedAt,
+        channelId,
+        channelTitle: v.snippet?.channelTitle || "",
+        channelSubscriberCount: subCount,
+        channelThumbnailUrl: channelDetail?.snippet?.thumbnails?.default?.url,
+        viewCount: views,
+        likeCount: likes,
+        commentCount: comments,
+        duration: durationStr,
+        durationSeconds,
+        isShort: true,
+        vph,
+        vsRatio,
+        viralScore,
+        viralBadge,
+      });
+    }
+
+    processedList.sort((a, b) => b.vph - a.vph);
+    return processedList.slice(0, maxResults);
+  }
+
+  // 2. 롱폼 또는 전체 동영상: mostPopular 차트 기반 조회
   const url = new URL(`${YOUTUBE_API_BASE}/videos`);
   url.searchParams.set("part", "snippet,contentDetails,statistics");
   url.searchParams.set("chart", "mostPopular");
@@ -53,8 +155,7 @@ export async function getTrendingVideos(
     const description = item.snippet?.description || "";
     const isShort = durationSeconds <= 60 || isShortsVideo(durationStr, title, description);
 
-    // 필터링: 쇼츠 탭이면 쇼츠만, 롱폼 탭이면 롱폼만
-    if (type === "shorts" && !isShort) continue;
+    // 필터링: 롱폼 탭이면 롱폼만
     if (type === "long" && isShort) continue;
 
     const channelId = item.snippet?.channelId;

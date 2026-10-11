@@ -1,5 +1,18 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — YouTube 떡상 쇼츠 검색 0건, 실시간 쇼츠 빈 결과 및 Gemini 모델 지원 중단 (youtube-viral-studio v1.08)
+
+- **증상:** "AI자동화" 등 키워드 검색 시 떡상 쇼츠가 0건으로 나오고, 실시간 터진 영상 쇼츠 탭에서도 0건이 반환되며, AI 대본 분석 시 500 에러 발생.
+- **원인:**
+  1. `viral-shorts`: 기본 구독자 필터가 5만 이하로 너무 좁게 설정되어 대형 채널 위주의 키워드(AI자동화 등)가 100% 탈락됨. 또한 글로벌 검색으로 인한 해외 영상 유입 문제 존재.
+  2. `trending-videos`: 유튜브 Data API의 `chart=mostPopular`는 100% 롱폼 영상(3~15분)만 반환하므로, 쇼츠 필터링(`duration <= 180s`) 시 결과가 0건이 됨.
+  3. `analyze-script`: Gemini API 모델이 `gemini-2.0-flash`로 지정되어 있어 지원 중단(404 Not Found)으로 500 에러 발생.
+- **해결(위치):**
+  1. `src/lib/youtube/viralShorts.ts` 및 `src/app/(dashboard)/viral-shorts/page.tsx`: 기본 구독자 필터 상한 완화(5만 → 10만), 한국 지역(`regionCode: "KR"`, `relevanceLanguage: "ko"`) 명시, 최신 180초 쇼츠 규격 반영, 필터링 결과가 3개 미만일 때 전체 연관 인기 쇼츠를 스마트 폴백으로 자동 제공하고 사용자 배너(`fallbackNotice`) 노출.
+  2. `src/lib/youtube/trendingVideos.ts`: 쇼츠 탭(`type === 'shorts'`) 요청 시 `chart=mostPopular` 대신 Search API 기반의 48시간 내 대한민국 VPH 급상승 실시간 떡상 쇼츠 수집 파이프라인으로 전면 개편.
+  3. `src/lib/ai/scriptAnalyzer.ts`: Gemini 공식 안정화 최신 모델인 `gemini-2.5-flash`로 변경 완료.
+- **다음부터 확인:** YouTube 쇼츠 검색 시 키워드 특성(소형 채널 희소 키워드)에 따른 0건 방지 스마트 폴백을 항상 갖추고, YouTube `mostPopular` 차트는 쇼츠가 미포함되므로 실시간 쇼츠는 Search API(`videoDuration=short`)를 활용한다. Gemini 모델 엔드포인트는 항상 최신 지원 모델(`gemini-2.5-flash`)을 사용한다.
+
 ## 2026-10-11 — 검수용 UTF-8 스크립트를 atob만으로 실행하면 한글이 깨짐
 
 - **증상:** 운영 신규 POST 재시도 시험은 통과했지만 검수용 새 원고의 제목/분류가 깨졌습니다. 기존 본문/이미지는 보존됐습니다.

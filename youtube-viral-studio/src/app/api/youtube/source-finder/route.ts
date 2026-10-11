@@ -22,11 +22,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    if (!body.url || body.url.trim().length === 0) {
+    const targetUrl = String(body.url || body.shortsUrl || "").trim();
+    if (!targetUrl) {
       return NextResponse.json({ error: "쇼츠 URL 또는 영상 ID를 입력해주세요." }, { status: 400 });
     }
 
-    const result = await findShortsOriginalSource(body.url, apiKey);
+    const result = await findShortsOriginalSource(targetUrl, apiKey);
     return NextResponse.json(result);
   } catch (err: any) {
     console.error("source-finder error:", err);
