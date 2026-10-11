@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — CARDNEWS STUDIO v1.03 배경 생성 화면 검수 결과 (cardnews-studio)
+
+실제 Chrome에서 4단계 배경 생성을 눌러 완료까지 확인했고 저장소에 WebP 182KB가 저장됐습니다(예전 2.3MB JPG). 남은 일: 완료 후 카드 이미지 최종 표시 캡처(창이 가려짐), 일반 회원(`buylifemall@naver.com`) 화면 검수(주인님이 그 계정으로 로그인해야 함). Chrome 창이 일정 시간 뒤 다시 가려지는(탭 hidden) 현상이 반복됨 — 검수 중에는 Chrome 창을 앞에 둬야 캡처가 된다.
+
 ## 2026-10-11 Antigravity — 신규 프로그램 AI 웹툰 스튜디오 PRO v1.01 플랫폼 규격 연동 완료 (ai-webtoon-studio)
 
 시놉시스 기획부터 캐릭터 일관성 시트, 컷별 콘티 생성, 세로 스크롤 완성 원고 렌더링 및 롱스크롤 이어붙이기(JPG)까지 한 곳에서 완성하는 신규 프로그램 `ai-webtoon-studio` 개발 및 플랫폼 필수 규격 연동 완료.
