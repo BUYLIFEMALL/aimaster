@@ -12,7 +12,9 @@
 
 - 로컬 npm run build 통과. 루트 설정이 타입 검사 생략을 사용하므로 빌드를 전체 타입 검사 통과로 표현하지 않습니다.
 - 헤더 ESLint: 오류0·기존 supabase 의존성 경고1. 루트에 ESLint 설정이 없어 임시 next/core-web-vitals 설정을 지정해 해당 파일만 검사했습니다.
-- 명시한 파일만 커밋/푸시하고 분리된 릴리스 worktree에서 aimaster/buylife 프로덕션에 배포합니다.
-- 루트 배포에 필요한 Git 제외 데스크톱 설치 파일을 포함하고 기존 다운로드 주소를 확인합니다.
-- 라이브 programs에서 로고의 실제 href를 확인하고 Chrome 클릭 후 메인 도메인/메인 내용 표시를 확인합니다.
-- 커밋/푸시/배포/라이브 결과는 완료 후 추가합니다.
+- 코드 커밋 `16779659`를 원격 `origin/master`에 푸시했습니다. 분리된 릴리스 worktree에서 `vercel deploy --prod --yes --scope buylife`로 aimaster 프로덕션 배포를 완료했습니다.
+- 루트 배포에 필요한 Git 제외 데스크톱 설치 파일을 포함했습니다. 기존 설치 파일 다운로드는 HTTP 200 / 72,796,208바이트, 기존 확장 ZIP 다운로드도 HTTP 200으로 확인했습니다.
+- 운영 `/programs`와 `/` 모두 HTTP 200이며, 로고의 실제 href가 `https://www.buylife.xyz`인 것을 확인했습니다. 별도 Chrome 창에서 프로그램 목록의 로고를 직접 눌렀고, 주소가 `https://www.buylife.xyz/`로 이동하면서 메인 제목 “마케팅을 자동화하세요”가 표시되는 것을 실제 화면으로 확인했습니다.
+- 운영 배포 `dpl_4nyFTsRJnbs9bWRZJDw5hGSccWiS`는 READY입니다. 배포 주소: https://aimaster-95mbhuzjp-buylife.vercel.app / 운영 주소: https://www.buylife.xyz .
+- 화면 증거: [프로그램 목록](evidence/home-logo-2026-10-12/programs.png), [로고 클릭 후 메인 화면](evidence/home-logo-2026-10-12/home.png).
+- 이번 요청의 남은 작업은 없습니다. 다른 프로그램 자동화 작업의 진행 상태는 해당 프로그램 인수인계 문서에서 별도로 관리합니다.
