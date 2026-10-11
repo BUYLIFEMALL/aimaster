@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.18) 계정 키 불러오기
+
+naver 계정(`buylifemall@naver.com`)의 `user_api_keys`에 gemini·openai·anthropic·replicate 키가 등록돼 있음을 확인(공급사 이름만 조회, 값 미출력). 올인원은 키를 브라우저 localStorage에만 저장하므로 에이전트가 대신 입력하지 않고, 설정창에 [내 AIMaster 계정에 등록된 키 불러오기] 버튼(`GET /api/my-keys`, 본인 키만)을 만들었습니다. **주인님이 설정창에서 버튼 → [로컬에 저장] 한 번**이면 적용됩니다. 확장 ZIP·DB v1.18.
+
 ## 2026-10-12 Antigravity — 신규 프로그램 GhostScraper PRO v1.01 (ghost-scraper)
 
 주인님이 주신 GhostScraper PRO 캡처 5장 및 참고 사이트(`ghost-scraper-gamma-99gg.vercel.app`) 분석을 바탕으로, **웹사이트 URL 크롤링 + 시각적 섹터 선택기(iframe 실시간 캡처) + Gemini 2.5 Flash 지능형 스마트 리스트 변환 + 7대 탭 데이터 분류**를 완결하는 신규 서브프로그램을 개발하여 배포했습니다.

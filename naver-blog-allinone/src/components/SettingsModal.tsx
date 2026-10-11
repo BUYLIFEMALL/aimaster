@@ -34,6 +34,8 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
   const [testMessage, setTestMessage] = useState("");
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [loadingAccountKeys, setLoadingAccountKeys] = useState(false);
+  const [accountKeyMessage, setAccountKeyMessage] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -82,6 +84,35 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
       setTestMessage(
         e instanceof Error ? e.message : "네트워크 연결 오류가 발생했습니다."
       );
+    }
+  };
+
+  // 내 AIMaster 계정(user_api_keys)에 등록해 둔 본인 키를 입력칸에 채운다. 이미 입력된 칸은 덮어쓰지 않고, 저장은 [로컬에 저장]을 눌러야 적용된다.
+  const handleLoadAccountKeys = async () => {
+    setLoadingAccountKeys(true);
+    setAccountKeyMessage("");
+    try {
+      const res = await fetch("/api/my-keys", { cache: "no-store" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "등록된 키를 불러오지 못했습니다.");
+      const k = data.keys as Record<string, string | null>;
+      const filled: string[] = [];
+      if (k.gemini && !apiKey.trim()) { setApiKey(k.gemini); filled.push("Gemini"); }
+      if (k.openai && !openaiKey.trim()) { setOpenaiKey(k.openai); filled.push("OpenAI"); }
+      if (k.anthropic && !anthropicKey.trim()) { setAnthropicKey(k.anthropic); filled.push("Claude"); }
+      if (k.replicate && !replicateKey.trim()) { setReplicateKey(k.replicate); filled.push("Replicate"); }
+      const found = ["gemini", "openai", "anthropic", "replicate"].filter((p) => k[p]).length;
+      setAccountKeyMessage(
+        found === 0
+          ? "AIMaster 계정에 등록된 키가 없습니다."
+          : filled.length
+            ? `${filled.join("·")} 키를 불러왔습니다. 아래 [로컬에 저장]을 눌러 이 브라우저에 적용하세요.`
+            : "계정에 등록된 키가 이미 모두 입력되어 있습니다(입력된 칸은 덮어쓰지 않습니다)."
+      );
+    } catch (e) {
+      setAccountKeyMessage(e instanceof Error ? e.message : "등록된 키를 불러오지 못했습니다.");
+    } finally {
+      setLoadingAccountKeys(false);
     }
   };
 
@@ -274,6 +305,18 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
             <p className="text-xs text-slate-600 leading-relaxed">
               글 생성에 GPT·Claude를, 이미지 생성에 GPT Image·FLUX·Z-Image를 쓰고 싶을 때만 등록하세요. 선택한 모델의 공급사 키만 사용하며, 키가 없으면 다른 공급사로 자동 전환하지 않고 안내만 합니다. 주제 추천·키워드 분석은 기존대로 Gemini 키를 씁니다.
             </p>
+            <div className="flex flex-wrap items-center gap-3 p-3 rounded-lg bg-indigo-50/60 border border-indigo-100">
+              <button
+                type="button"
+                onClick={() => void handleLoadAccountKeys()}
+                disabled={loadingAccountKeys}
+                className="px-3.5 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition shadow-xs"
+              >
+                {loadingAccountKeys ? "불러오는 중..." : "내 AIMaster 계정에 등록된 키 불러오기"}
+              </button>
+              <span className="text-[11px] text-slate-600">Gemini·OpenAI·Claude·Replicate 키를 본인 계정에서 한 번에 채웁니다(본인 키만, 입력된 칸은 덮어쓰지 않음).</span>
+            </div>
+            {accountKeyMessage && <p className="text-xs font-semibold text-indigo-800">{accountKeyMessage}</p>}
             {([
               ["OpenAI API 키 (GPT 글 · GPT Image)", openaiKey, setOpenaiKey, "sk-...", "https://platform.openai.com/api-keys"],
               ["Anthropic API 키 (Claude 글)", anthropicKey, setAnthropicKey, "sk-ant-...", "https://console.anthropic.com/settings/keys"],
