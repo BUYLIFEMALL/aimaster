@@ -55,7 +55,6 @@ const FLOW_STEPS = [
     iconColor: "text-indigo-500",
     label: "키워드 파인더",
     description: "7대 분석 엔진 & 실시간 노출 분석",
-    isProBadge: true,
   },
   {
     step: 4,
@@ -209,11 +208,6 @@ export function Sidebar({
                       >
                         {item.label}
                       </span>
-                      {item.isProBadge && (
-                        <span className="px-1 py-0.2 text-[8px] font-black bg-rose-500 text-white rounded">
-                          PRO
-                        </span>
-                      )}
                     </div>
                     <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 font-normal">
                       {item.description}
