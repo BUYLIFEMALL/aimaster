@@ -56,8 +56,9 @@ export default function AnalyzePage() {
     <div className="space-y-6">
       <StepHeader step={1} title="이미지 분석" desc="이미지를 올리면 카메라·조명·색상·스타일을 분석해 재현용 마스터 프롬프트를 만듭니다. 결과는 자동으로 보관함에 저장됩니다." />
 
-      <div className="grid gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
-        <Card className="space-y-4">
+      <div className="space-y-4">
+        <Card className="grid gap-5 lg:grid-cols-2">
+          <div className="space-y-4">
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -106,6 +107,9 @@ export default function AnalyzePage() {
             <p className="mt-1.5 text-[11px] text-gray-500">{MODES.find((m) => m.value === mode)?.desc}</p>
           </div>
 
+          </div>
+
+          <div className="space-y-4">
           <Field label="시스템 지침 (선택)" hint={mode === "mutate" ? "어떤 방향으로 변형할지 적어주세요. 예: 겨울 눈 내리는 밤 분위기로" : "추가로 강조할 점이 있으면 적어주세요. 예: 옷감 질감을 더 자세히"}>
             <textarea className={`${INPUT} h-24 resize-y`} value={guidance} maxLength={800} onChange={(e) => setGuidance(e.target.value)} placeholder=">> System guidance override..." />
           </Field>
@@ -117,6 +121,7 @@ export default function AnalyzePage() {
           </button>
           <p className="text-[11px] text-gray-500">분석 1회마다 AI 호출 1건(유료)이 발생합니다. 올린 이미지는 보관함에서 다시 불러 쓸 수 있도록 회원님 계정에만 저장됩니다.</p>
           {error && <ErrorNote message={error.message} needKey={error.needKey} />}
+          </div>
         </Card>
 
         <div className="min-w-0">

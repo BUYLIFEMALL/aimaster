@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — STYLE DNA ANALYZER v1.02 데스크톱 레이아웃 수정 (style-dna-analyzer)
+
+주인님이 띄워 주신 실제 Chrome(데스크톱 폭)에서 1단계 결과 화면이 좁게 눌리는 문제를 발견해 입력 카드 2열 + 결과 전체 폭으로 고쳐 v1.02 배포(DB 버전 v1.02, 라이브 화면으로 1~3단계 확인). 상세: `style-dna-analyzer/AGENTS.md` 6-1.
+
 ## 2026-10-11 Claude Code — STYLE DNA ANALYZER 전용 썸네일 등록 (style-dna-analyzer)
 
 주인님 요청으로 관리자 Gemini 키를 1회 사용해 16:9 실사 썸네일을 만들어 `programs.thumbnail_url`에 반영했습니다(마이그레이션 `style-dna-analyzer/supabase/migrations/0003_thumbnail.sql`). **남은 일:** ① cardnews-studio v1.03 배경 생성 화면 확인 ② 일반 회원(`buylifemall@naver.com`) 화면 검수 — 둘 다 Chrome 창이 가려져(탭 `hidden`, 창 위치 x≈3283) 화면 캡처가 안 되어 보류. Chrome 창을 앞으로 가져온 뒤 진행합니다.

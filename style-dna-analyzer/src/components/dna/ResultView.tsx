@@ -106,7 +106,7 @@ export function ResultView({ record }: { record: AnalysisRecord }) {
   const r = record.result;
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-4">
           <Card className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-[minmax(0,260px)_1fr]">
