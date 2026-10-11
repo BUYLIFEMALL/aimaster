@@ -12,6 +12,7 @@ import { SettingsModal } from "@/components/SettingsModal";
 import { TrendLinksModal } from "@/components/TrendLinksModal";
 import { TopicIdeaSection } from "@/components/TopicIdeaSection";
 import { PlacesVisionSection } from "@/components/PlacesVisionSection";
+import { KeywordFighterSection } from "@/components/KeywordFighterSection";
 import { PostCreationSection } from "@/components/PostCreationSection";
 import { AppSettings, DEFAULT_SETTINGS, getStoredSettings } from "@/lib/storage";
 
@@ -127,27 +128,25 @@ export default function HomePage() {
           />
         )}
 
-        {/* Tab 3 Content: 키워드 파이터 PRO 스켈레톤 (STEP 4에서 구현) */}
+        {/* Tab 3 Content: 키워드 파이터 PRO (7대 분석 엔진 탑재) */}
         {activeMainTab === "keyword-fighter" && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4">
-            <div className="w-12 h-12 mx-auto rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <Search className="w-6 h-6" />
+          <>
+            <KeywordFighterSection
+              settings={settings}
+              onSelectTopic={handleSelectTopic}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+            />
+            {/* 하단 공통 포스트 생성하기 & 에디터 섹션 */}
+            <div id="post-creation-area">
+              <PostCreationSection
+                topic={selectedTopic}
+                setTopic={setSelectedTopic}
+                extraPromptHint={extraPromptHint}
+                settings={settings}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+              />
             </div>
-            <div className="max-w-md mx-auto space-y-1">
-              <h3 className="text-sm font-bold text-slate-900">
-                키워드 파이터 PRO (실시간 뉴스 & 키워드 경쟁력)
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Google/Naver 자동완성 키워드, 국내 언론사 실시간 RSS 뉴스 피드, 상위 블로그 PostView 다이렉트 수집기 및 오늘의 전략 키워드 10대 이슈를 제공합니다.
-              </p>
-            </div>
-            <div className="pt-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                <Sparkles className="w-3.5 h-3.5" />
-                STEP 4 단계에서 탑재 예정입니다.
-              </span>
-            </div>
-          </div>
+          </>
         )}
       </main>
 
