@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.26) 옛 확장 감지 안내
+
+실제 화면 확인에서 옛 확장이 카테고리 읽기 요청을 150초 기다리게 하는 문제를 발견해, 버전이 v1.25 미만이면 즉시 업데이트 안내를 띄우도록 고쳤습니다. 확장 ZIP·DB v1.26.
+
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.25) 네이버 실제 카테고리
+
+주인님 요청(다른 블로그 자동화 방식 참고): 웹에서 네이버 실제 카테고리를 고르고(기본=마지막 선택), 확장이 읽어 오고 발행 설정창에서 선택하도록 추가했습니다. 확장 변경이므로 ZIP 다시 받기→덮어쓰기→새로고침 필요. 실제 네이버 화면 검증은 첫 사용 때 주인님 PC에서.
+
 ## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.06) Vercel 프로젝트명·주소(whbsite-scraper.vercel.app) 동기화 & 설명글 전면 재정리
 
 주인님 요청("versel 주소도 whbsite-scraper 로 수정 해줘 나중에 관리하기 편하게", "프로그램 설명글 다시 정리해서 반영해줘 고스트 빼줘 중복되는 내용 삭제하고")에 따라 Vercel 프로젝트 이름을 `ghost-scraper`에서 `whbsite-scraper`로 변경하고, Vercel 기본 주소(`https://whbsite-scraper.vercel.app`, `https://whbsite-scraper-buylife.vercel.app`)를 연동 완료했습니다.

@@ -5,6 +5,8 @@ import { AlertCircle, Archive, Check, CheckCircle2, ChevronDown, ChevronUp, Copy
 import { findTheme, measureLength, renderHtml, renderMarkdown, renderPlainText } from "@/lib/blog/article";
 import type { BlogPost, ReviewStatus } from "@/lib/blog/types";
 import { PostEditorPanel } from "./PostEditorPanel";
+import { NaverCategoryPicker } from "./NaverCategoryPicker";
+import { saveLastNaverCategory } from "@/lib/blog/naverCategory";
 
 export type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
 
@@ -73,6 +75,18 @@ export function PostResultView({ post, saveState, saveError, locked, onChange, o
           <button type="button" onClick={onOpenLibrary} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50">
             <Archive className="w-3.5 h-3.5" /> 내 보관함
           </button>
+          <div className="basis-full">
+            <NaverCategoryPicker
+              value={post.settings.naverCategory ?? null}
+              disabled={locked}
+              onChange={(c) => {
+                saveLastNaverCategory(window.localStorage, c);
+                const { naverCategory: _drop, ...rest } = post.settings;
+                void _drop;
+                onChange({ ...post, settings: c ? { ...rest, naverCategory: c } : rest });
+              }}
+            />
+          </div>
           <a href="https://blog.naver.com/GoBlogWrite.naver" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg transition">
             <span>네이버 글쓰기 열기</span>
             <ExternalLink className="w-3.5 h-3.5" />

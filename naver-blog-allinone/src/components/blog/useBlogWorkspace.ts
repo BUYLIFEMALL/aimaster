@@ -95,6 +95,7 @@ export function useBlogWorkspace(settings: AppSettings, onNeedKey: () => void) {
           tags: p.tags,
           summary: p.summary,
           thumbnailUrl: cover?.url,
+          naverCategory: p.settings.naverCategory ?? null,
         },
       },
       "*"

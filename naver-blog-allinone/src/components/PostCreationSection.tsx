@@ -13,6 +13,8 @@ import { IMAGE_RATIOS, type ImageRatio, type SavedPost } from "@/lib/blog/types"
 import { GenerationPanel } from "@/components/blog/GenerationPanel";
 import { ModelSettingsCard } from "@/components/blog/ModelSettingsCard";
 import { CategorySelect } from "@/components/blog/CategorySelect";
+import { NaverCategoryPicker } from "@/components/blog/NaverCategoryPicker";
+import { loadLastNaverCategory, saveLastNaverCategory, type NaverCategory } from "@/lib/blog/naverCategory";
 import { PostWorkspaceView } from "@/components/blog/PostWorkspaceView";
 import { useBlogWorkspace } from "@/components/blog/useBlogWorkspace";
 
@@ -57,6 +59,11 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
   const [targetLength, setTargetLength] = useState(2000);
   const [personaId, setPersonaId] = useState<string | null>(null);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [naverCategory, setNaverCategory] = useState<NaverCategory | null>(null);
+  // 마지막으로 쓴 네이버 카테고리를 기본값으로 자동 선택
+  useEffect(() => {
+    setNaverCategory(loadLastNaverCategory(window.localStorage));
+  }, []);
   const [keywords, setKeywords] = useState("");
   const [purpose, setPurpose] = useState("");
 
@@ -140,6 +147,7 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
     setThumbnailText(rest.settings.withThumbnailText);
     setPersonaId(BLOG_PERSONAS.find((p) => p.name === rest.settings.personaId)?.id ?? null);
     setCategoryId(rest.settings.categoryId ?? null);
+    setNaverCategory(rest.settings.naverCategory ?? null);
     setKeywords(rest.settings.keywords ?? "");
     setPurpose(rest.settings.purpose ?? "");
     setTopic(rest.settings.topic || rest.title);
@@ -192,7 +200,7 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
         withThumbnailText: thumbnailText,
         onStep: setStepMsg,
       });
-      await ws.startFresh(categoryId ? { ...result, settings: { ...result.settings, categoryId } } : result);
+      await ws.startFresh({ ...result, settings: { ...result.settings, ...(categoryId ? { categoryId } : {}), ...(naverCategory ? { naverCategory } : {}) } });
       if (autoImages && result.images.length) {
         setGenerating(false);
         await ws.generateAll();
@@ -217,6 +225,7 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
         </div>
 
         <CategorySelect value={categoryId} onChange={setCategoryId} />
+        <NaverCategoryPicker value={naverCategory} onChange={(c) => { setNaverCategory(c); saveLastNaverCategory(window.localStorage, c); }} disabled={generating} />
 
         <GenerationPanel
           values={{ personaId, targetLength, keywords, purpose, tone, style }}

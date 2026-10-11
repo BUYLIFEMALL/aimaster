@@ -168,3 +168,13 @@
 - 주인님 요청(Claude Code): naver-blog-agent의 카테고리 관리 패턴을 이식. **회원별 카테고리 목록 하나**(`aio_categories`, RLS owner-only, API `/api/categories` GET/PUT=목록 전체 교체)를 글 만들기(아이디어·키워드)·맛집/카페/여행·보관함이 함께 쓴다.
 - 글에는 카테고리 **id만** `aio_posts.settings.categoryId`로 저장(이름 변경해도 유지, 삭제되면 화면에서 '미분류'). 글 이동은 `PATCH /api/posts/[id]`(settings.categoryId만 변경). 보관함: 카테고리 칩 필터(글 개수), 카드별 분류 이동 셀렉트, [카테고리 관리] 모달. 모달은 window.confirm 대신 인라인 삭제 확인.
 - 파일: `lib/blog/categories.ts`, `components/blog/{useCategories,CategoryManagerModal,CategorySelect,LibrarySection}`. 서버에 목록이 없으면 기본 6개(생활/살림꿀팁 등)를 보여 주고 처음 편집할 때 저장된다. 마이그레이션 `20261012190000_allinone_categories.sql`(적용 완료). 테스트 23개.
+
+## v1.25 (2026-10-12) — 네이버 실제 카테고리 선택(확장이 읽고 적용)
+- 주인님 요청(Claude Code): 다른 블로그 자동화(`ai-auto-blog` v1.57·`naver-blog-agent`)처럼 **글이 발행될 네이버 카테고리**를 웹에서 고르고(기본값=마지막에 쓴 카테고리 자동 선택), 확장이 발행 설정창에서 그 카테고리를 선택한다. 보관함 분류(v1.24, `aio_categories`)와는 별개다.
+- **웹**: `lib/blog/naverCategory.ts`(`{id,name}` 형식 검사, 마지막 선택·불러온 목록은 이 브라우저 localStorage), `components/blog/NaverCategoryPicker.tsx`(선택 + [카테고리 불러오기]). 글 만들기·맛집 탭 폼과 결과 화면(확장 전달 버튼 옆)에 있고, 글 설정 `settings.naverCategory`로 보관함에 함께 저장된다. 확장에 전달하는 draft에 `naverCategory`가 들어간다.
+- **확장(v1.25)**: `naver-category-page.js`(네이버 화면 안 명령: inspect·dismissResume·openPublishSettings·categories·categorySelect — ai-auto-blog가 실제 화면에서 확인한 셀렉터 `categoryItemText_<번호>` 사용, 최종 발행 버튼은 찾지도 누르지도 않음). `background.js`: `READ_NAVER_CATEGORIES`(웹 출처에서만, 새 탭에서 발행 설정창만 열어 읽고 닫음, 쓰던 탭 미사용·90초 로그인 대기) / `APPLY_NAVER_CATEGORY`(네이버 글쓰기 화면 위젯에서만, 번호+이름이 정확히 같을 때만 선택). `content-web.js`: `ALLINONE_READ_CATEGORIES`→`ALLINONE_CATEGORIES_RESULT`, ping 응답 버전을 manifest 값으로. `content-naver.js`: 위젯에 [발행 카테고리 적용] 버튼.
+- 사용 순서: ZIP 덮어쓰기 → chrome://extensions 새로고침 → 웹 새로고침 → [카테고리 불러오기] → 고르기 → [크롬 확장에 전달] → 네이버 글쓰기에서 [1초 원고 자동 주입] → [발행 카테고리 적용] → 최종 발행은 직접.
+- **미검증**: 실제 네이버 발행 설정창에서의 목록 읽기·선택(셀렉터는 ai-auto-blog 실화면 검증분 재사용). 첫 사용 때 주인님 PC에서 확인 필요. 테스트 26개.
+
+## v1.26 (2026-10-12) — 옛 확장 감지
+- 실제 화면 확인 중 발견: 이미 설치된 옛 확장(v1.04 고정 응답)은 연결 확인엔 응답하지만 카테고리 읽기는 몰라 150초를 기다렸다. 이제 연결 확인 때 받은 버전이 v1.25 미만이면 바로 [ZIP 덮어쓰기→새로고침] 안내를 보여 준다(`extensionVersionAtLeast`, 테스트 27개). 옛 확장은 ping 버전을 'v1.04'로 고정해 알렸고 v1.25부터 manifest 값을 알린다.

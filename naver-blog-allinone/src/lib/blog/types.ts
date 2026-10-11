@@ -5,6 +5,7 @@
 //   [IMAGE INSERT - 캡션]     캡션이 같은 이미지 컷이 들어갈 자리
 //   - 항목 / • 항목            목록, > 인용, **강조**
 import type { WritingStyle, WritingTone } from "./styles";
+import type { NaverCategory } from "./naverCategory";
 
 export type ImageType = "thumbnail" | "body";
 export type ReviewStatus = "PASS" | "WARN" | "FAIL" | "UNKNOWN";
@@ -48,6 +49,8 @@ export interface PostSettings {
   purpose?: string;
   /** 글 카테고리 id(목록에 없으면 미분류) */
   categoryId?: string;
+  /** 네이버에 발행할 때 들어갈 실제 카테고리(확장이 읽은 번호·이름) */
+  naverCategory?: NaverCategory;
 }
 
 export interface BlogPost {

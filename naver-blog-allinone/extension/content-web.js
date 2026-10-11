@@ -33,8 +33,21 @@
       }
     }
 
+    if (event.data.type === "ALLINONE_READ_CATEGORIES" && typeof event.data.requestId === "string") {
+      const requestId = event.data.requestId;
+      const reply = (payload) => window.postMessage({ type: "ALLINONE_CATEGORIES_RESULT", requestId, ...payload }, "*");
+      try {
+        chrome.runtime.sendMessage({ action: "READ_NAVER_CATEGORIES" }, (response) => {
+          if (chrome.runtime.lastError) return reply({ error: "확장 프로그램을 새로고침하고 이 화면도 새로고침해 주세요." });
+          reply(response?.categories ? { categories: response.categories } : { error: response?.error || "카테고리를 읽지 못했습니다." });
+        });
+      } catch {
+        reply({ error: "확장 프로그램을 새로고침하고 이 화면도 새로고침해 주세요." });
+      }
+    }
+
     if (event.data.type === "ALLINONE_PING_EXTENSION") {
-      window.postMessage({ type: "ALLINONE_PONG_EXTENSION", version: "v1.04" }, "*");
+      window.postMessage({ type: "ALLINONE_PONG_EXTENSION", version: chrome.runtime.getManifest().version_name || "" }, "*");
     }
   });
 })();

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Camera,
   Upload,
@@ -35,6 +35,8 @@ import type { WritingStyle, WritingTone } from "@/lib/blog/styles";
 import { GenerationPanel } from "@/components/blog/GenerationPanel";
 import { ModelSettingsCard } from "@/components/blog/ModelSettingsCard";
 import { CategorySelect } from "@/components/blog/CategorySelect";
+import { NaverCategoryPicker } from "@/components/blog/NaverCategoryPicker";
+import { loadLastNaverCategory, saveLastNaverCategory, type NaverCategory } from "@/lib/blog/naverCategory";
 import { PostWorkspaceView } from "@/components/blog/PostWorkspaceView";
 import { useBlogWorkspace } from "@/components/blog/useBlogWorkspace";
 
@@ -66,6 +68,11 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
 
   // SEO Keywords
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [naverCategory, setNaverCategory] = useState<NaverCategory | null>(null);
+  // 마지막으로 쓴 네이버 카테고리를 기본값으로 자동 선택
+  useEffect(() => {
+    setNaverCategory(loadLastNaverCategory(window.localStorage));
+  }, []);
   const [mainKeyword, setMainKeyword] = useState("");
   const [subKeywords, setSubKeywords] = useState("");
   const [isExtractingKeywords, setIsExtractingKeywords] = useState(false);
@@ -280,7 +287,7 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         if (i === 0 && thumbnailText) dataUrl = await overlayThumbnailTitle(dataUrl, result.title, theme.color);
         withUrls.push({ ...result.images[i], url: await uploadImage(dataUrl) });
       }
-      await ws.startFresh({ ...result, images: withUrls, settings: categoryId ? { ...result.settings, categoryId } : result.settings });
+      await ws.startFresh({ ...result, images: withUrls, settings: { ...result.settings, ...(categoryId ? { categoryId } : {}), ...(naverCategory ? { naverCategory } : {}) } });
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "비전 포스트 생성 중 오류가 발생했습니다.");
     } finally {
@@ -766,6 +773,7 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} showImage={false} />
 
         <CategorySelect value={categoryId} onChange={setCategoryId} />
+        <NaverCategoryPicker value={naverCategory} onChange={(c) => { setNaverCategory(c); saveLastNaverCategory(window.localStorage, c); }} disabled={loading} />
 
         <GenerationPanel
           values={{ personaId, targetLength, keywords: "", purpose: "", tone, style }}

@@ -397,3 +397,45 @@ test("카테고리: 글 저장 시 categoryId가 남고 길이가 제한된다",
   const none = sanitizePost(base, "https://x.supabase.co", "u1");
   assert.equal("categoryId" in none.value.settings, false);
 });
+
+import { readNaverCategory, readNaverCategoryList, reconcileNaverCategory, loadLastNaverCategory, saveLastNaverCategory } from "../src/lib/blog/naverCategory.ts";
+
+test("네이버 카테고리: 번호·이름 형식 검사와 목록 정리", () => {
+  assert.deepEqual(readNaverCategory({ id: "12", name: " 경제 이야기 " }), { id: "12", name: "경제 이야기" });
+  assert.equal(readNaverCategory({ id: "abc", name: "x" }), null);
+  assert.equal(readNaverCategory({ id: "5", name: "" }), null);
+  assert.equal(readNaverCategory("나쁜값"), null);
+  const list = readNaverCategoryList([{ id: "1", name: "a" }, { id: "1", name: "중복" }, { id: "x", name: "나쁨" }, { id: "2", name: "b" }]);
+  assert.deepEqual(list.map((c) => c.id), ["1", "2"]);
+});
+
+test("네이버 카테고리: 불러온 목록 대조·마지막 선택 기억", () => {
+  const list = [{ id: "1", name: "새 이름" }, { id: "2", name: "b" }];
+  assert.deepEqual(reconcileNaverCategory({ id: "1", name: "옛 이름" }, list), { id: "1", name: "새 이름" });
+  assert.equal(reconcileNaverCategory({ id: "9", name: "삭제됨" }, list), null);
+  const mem = new Map();
+  const st = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v), removeItem: (k) => mem.delete(k) };
+  assert.equal(loadLastNaverCategory(st), null);
+  saveLastNaverCategory(st, { id: "2", name: "b" });
+  assert.deepEqual(loadLastNaverCategory(st), { id: "2", name: "b" });
+  saveLastNaverCategory(st, null);
+  assert.equal(loadLastNaverCategory(st), null);
+});
+
+test("네이버 카테고리: 글 저장 시 올바른 값만 남는다", () => {
+  const base = { title: "제목", article: "본문" };
+  const ok = sanitizePost({ ...base, settings: { naverCategory: { id: "7", name: "여행" } } }, "https://x.supabase.co", "u1");
+  assert.deepEqual(ok.value.settings.naverCategory, { id: "7", name: "여행" });
+  const bad = sanitizePost({ ...base, settings: { naverCategory: { id: "x", name: "여행" } } }, "https://x.supabase.co", "u1");
+  assert.equal("naverCategory" in bad.value.settings, false);
+});
+
+import { extensionVersionAtLeast } from "../src/lib/blog/naverCategory.ts";
+
+test("확장 버전 비교: 옛 확장(v1.04)은 카테고리 읽기를 지원하지 않는다", () => {
+  assert.equal(extensionVersionAtLeast("v1.04", "v1.25"), false);
+  assert.equal(extensionVersionAtLeast("v1.25", "v1.25"), true);
+  assert.equal(extensionVersionAtLeast("v1.30", "v1.25"), true);
+  assert.equal(extensionVersionAtLeast("v2.01", "v1.25"), true);
+  assert.equal(extensionVersionAtLeast(undefined, "v1.25"), false);
+});

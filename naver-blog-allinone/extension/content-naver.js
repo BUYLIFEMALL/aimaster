@@ -126,6 +126,7 @@
 
     const titlePreview = draft?.title || "작성된 원고가 없습니다";
     const hasDraft = Boolean(draft && draft.title);
+    const hasCategory = Boolean(draft && draft.naverCategory && draft.naverCategory.id);
 
     widget.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
@@ -164,6 +165,13 @@
         <span>⚡ 1초 원고 자동 주입</span>
       </button>
 
+      <div id="aio-category-box" style="display: ${hasCategory ? "block" : "none"}; margin-top: 10px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px;">
+        <div style="font-size: 10px; font-weight: 700; color: #0369a1; margin-bottom: 4px;">네이버 발행 카테고리</div>
+        <div id="aio-category-name" style="font-size: 12px; font-weight: 700; color: #0c4a6e; margin-bottom: 8px;"></div>
+        <button id="aio-category-btn" style="width: 100%; padding: 8px 12px; background: #0284c7; color: #ffffff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">📂 발행 카테고리 적용 (발행 설정창 열기)</button>
+        <div id="aio-category-status" style="display: none; font-size: 11px; margin-top: 6px; text-align: center; font-weight: 600;"></div>
+      </div>
+
       <div id="aio-inject-status" style="display: none; font-size: 11px; margin-top: 8px; text-align: center; font-weight: 600;"></div>
     `;
 
@@ -173,6 +181,27 @@
     document.getElementById("aio-close-widget")?.addEventListener("click", () => {
       widget.remove();
     });
+
+    // 발행 카테고리(웹에서 고른 네이버 실제 카테고리). 이름은 textContent로 넣는다.
+    if (hasCategory) {
+      document.getElementById("aio-category-name").textContent = draft.naverCategory.name;
+      const catBtn = document.getElementById("aio-category-btn");
+      const catStatus = document.getElementById("aio-category-status");
+      catBtn?.addEventListener("click", () => {
+        catBtn.disabled = true;
+        catBtn.textContent = "적용 중...";
+        catStatus.style.display = "block";
+        catStatus.style.color = "#475569";
+        catStatus.textContent = "발행 설정창을 열어 카테고리를 선택합니다. 최종 발행은 직접 눌러 주세요.";
+        chrome.runtime.sendMessage({ action: "APPLY_NAVER_CATEGORY", category: draft.naverCategory }, (response) => {
+          catBtn.disabled = false;
+          catBtn.textContent = "📂 발행 카테고리 적용 (발행 설정창 열기)";
+          const failed = chrome.runtime.lastError || !response || response.error;
+          catStatus.style.color = failed ? "#e11d48" : "#059669";
+          catStatus.textContent = failed ? (response?.error || "카테고리를 적용하지 못했습니다.") : `✓ "${response.name}" 선택됨 — 내용을 확인하고 발행하세요.`;
+        });
+      });
+    }
 
     const injectBtn = document.getElementById("aio-inject-btn");
     const statusEl = document.getElementById("aio-inject-status");
