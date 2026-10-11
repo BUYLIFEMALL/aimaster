@@ -25,7 +25,8 @@
   - extension/manifest.json -> v1.05 (1.05.0)
   - public/downloads/naver-blog-allinone-latest.zip -> 최신 압축 재생성 완료
   - 공용 DB programs.version = 'v1.05', programs.extension_version = 'v1.05', programs.name = '네이버 블로그 올인원 자동화' 동기화 완료.
-- **검증 결과**: npm run build 100% 성공.
+- **카탈로그 전용 썸네일 등록 완료**: Gemini(나노바나나 프로 gemini-3-pro-image-preview)를 호출하여 한국인 블로거가 모던 카페에서 노트북과 스마트폰으로 맛집/카페 사진과 블로그 글을 작성하는 16:9 고화질 실사 썸네일을 생성 및 Supabase Storage(program-images/catalog/naver-blog-allinone-thumbnail.jpg)에 업로드 완료. 공용 DB programs.thumbnail_url 반영 완료.
+- **검증 결과**: npm run build 및 라이브 도메인(https://naver-blog-allinone.buylife.xyz) 200, 메인 카탈로그(https://www.buylife.xyz/programs/naver-blog-allinone) 200, 확장 배포 검증 check-extension-release OK 100% 성공.
 
 ## 2026-10-11 Claude Code — YOUTUBE CHANNEL CONSULTANT v1.03 공략 채널 찾기·모바일 검수 (youtube-channel-consultant)
 
