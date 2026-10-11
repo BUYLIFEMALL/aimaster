@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.04) 배포 주소 연동 및 v1.04 판올림
+
+주인님 요청("Whbsite Scraper 로 프로그램 이름 바꾸고 배포 주소도 같이 맞춰서 다시 수정해서 배포해줘")에 따라 공식 배포 주소 및 슬러그를 완벽하게 동기화했습니다.
+- **도메인 및 슬러그 동기화**: `whbsite-scraper.buylife.xyz` 도메인을 Vercel에 추가 및 연동, DB `programs.slug = 'whbsite-scraper'`, `app_url = 'https://whbsite-scraper.buylife.xyz'`, `version = 'v1.04'` 갱신 완료.
+- **코드 동기화**: `lib/version.ts`의 `APP_NAME = "Whbsite Scraper"`, `APP_SLUG = "whbsite-scraper"`, `APP_VERSION = "v1.04"`, `package.json` v1.04.
+- **배포 및 검증**: Vercel 프로덕션 재배포 완료, `https://whbsite-scraper.buylife.xyz` HTTP 307 SSO 게이트 및 상세 페이지(`/programs/whbsite-scraper`) 정상 동작 확인.
+- **마이그레이션**: `ghost-scraper/supabase/migrations/0006_rename_slug_to_whbsite_scraper.sql`.
+
 ## 2026-10-12 Antigravity — Whbsite Scraper (ghost-scraper v1.03) Web Scraping 카테고리 최우선(1순위) 배정
 
 주인님 요청("Web Scraping 카테고리로 넣어줘")에 따라 `Whbsite Scraper`(`ghost-scraper`)를 `Web Scraping` 카테고리(`web-scraping`)에 배정하고 `sort_order = 0`으로 최우선 순위 정렬 완료했습니다.

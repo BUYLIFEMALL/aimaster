@@ -12,7 +12,7 @@ export async function requireUser() {
   if (!user) {
     const mainSiteUrl = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.xyz";
     const headerStore = await headers();
-    const currentHost = headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "ghost-scraper.buylife.xyz";
+    const currentHost = headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "whbsite-scraper.buylife.xyz";
     const redirectUrl = `https://${currentHost}`;
     redirect(`${mainSiteUrl}/login?redirect=${encodeURIComponent(redirectUrl)}`);
   }
