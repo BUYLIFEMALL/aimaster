@@ -26,11 +26,21 @@
 - `node --test scripts/test-*.cjs`: 전체133개 통과(독립 worker 스크립트 포함;42를133에 별도로 더하지 않음).
 - `node --check extension/background.js`: 통과.
 - `npm run build`: TypeScript/프로덕션 컴파일·14파일 확장ZIP v1.79 생성 통과.
-- 프로덕션/DB/ZIP/설치 확장 확인은 아래 운영 기록에서 확정합니다. 자동 검사는 실제 네이버 재실행 성공을 대신하지 않습니다.
+- 프로덕션/DB/ZIP/설치 확장 확인은 아래 운영 기록에서 확인했습니다. 자동 검사는 실제 네이버 재실행 성공을 대신하지 않습니다.
 
 ## 운영 기록
 
-v1.79 코드·manifest·다운로드 ZIP·버전 메타데이터 SQL을 함께 준비했습니다. SQL: `supabase/migrations/20261011130543_jpeg_upload_identity_v179.sql`. 커밋/푸시/배포/라이브 확인 결과는 배포 후 이 절에 기록합니다. 설치된 확장은 자동 갱신되지 않으므로 ZIP 재다운로드→기존 폴더 덮어쓰기→chrome://extensions에서 해당 확장 새로고침이 필요합니다.
+v1.79 코드·manifest·다운로드 ZIP·버전 메타데이터 SQL을 함께 반영했습니다. SQL: `supabase/migrations/20261011130543_jpeg_upload_identity_v179.sql`. 운영 확인 완료:
+
+- 코드 커밋88285c4c, origin/master 푸시 성공.
+- 해당 커밋의 별도 worktree D:/Antigravity/AIMaster-release-nba-v179에서 해당 프로그램만 배포. 프로젝트/팀 naver-blog-agent/buylife.
+- 프로덕션 dpl_C3L4EpAyF62TbihjUjAohUZpSTPF, target production / READY. 배포주소 https://naver-blog-agent-pobgd8f9k-buylife.vercel.app, 운영별칭 https://naver-blog-agent.vercel.app.
+- 같은 SQL로 DB programs.version/extension_version/extension_download_url 갱신, v1.79 일치.
+- 루트 check-extension-release.mjs naver-blog-agent: 실패0/경고0. 라이브 latest ZIP HTTP200·manifest1.79.0/v1.79·14파일(디렉터리 항목 포함 ZIP15항목) 소스와 CRLF 정규화 후 전체 일치. 로그인/공개 버전 API200·latestv1.79.
+- 회원 대기/입력 작업0건을 확인한 뒤 이 PC의 기존 압축해제 확장을 Chrome 세부정보에서 새로고침. ID jghcffojjhpadflbhmdbophincpciajm·경로 D:/Antigravity/AIMaster/naver-blog-agent/extension·v1.79·켜짐을 접근성 화면으로 확인했습니다. 다른 확장/네이버 원고에는 입력하지 않았습니다.
+- 회원 원고0887ba88은 배포/설치 후에도 원래 failed·updated_at12:50:13.915Z·본문/이미지MD5 동일·발행 기록NULL입니다. 기존1/2/3/5장 prepared 및4장 draft의 상태/지문도 그대로입니다.
+- 기존 실패 네이버 탭으로 돌아가 제목/인용구/JPG/AI활용 설정이 보존된 것을 재확인했습니다. 확장 갱신으로 현재 실패 원고가 자동 재실행되거나 성공한 것은 아닙니다.
+- screenshot_failed로 픽셀 캡처는 얻지 못했습니다. 접근성 읽기/탭 선택/확장 새로고침은 실제 상태 확인됐고 키 입력은 window_not_focused 제약입니다. 설치된 확장은 자동 갱신되지 않으므로 ZIP 재다운로드→기존 폴더 덮어쓰기→chrome://extensions에서 해당 확장 새로고침이 필요합니다.
 
 ## 남은 실제 검수와 후속 문제
 
