@@ -99,13 +99,16 @@ export function PostCreationSection({
   const [generatedPost, setGeneratedPost] = useState<{
     title: string;
     contentHtml: string;
+    markdown: string;
     plainText: string;
     tags: string[];
     summary: string;
     thumbnailUrl?: string;
   } | null>(null);
 
+  const [resultTab, setResultTab] = useState<"naver" | "markdown" | "text">("naver");
   const [copiedHtml, setCopiedHtml] = useState(false);
+  const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
 
   const handleGeneratePost = async () => {
@@ -156,6 +159,7 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
   "title": "${currentYear}년 기준 클릭률 극대화 네이버 상위노출 포스트 제목",
   "summary": "네이버 검색결과 스니펫에 노출될 2줄 메타 요약",
   "contentHtml": "네이버 스마트에디터 ONE에 붙여넣기 가능한 인라인 스타일이 적용된 HTML 코드",
+  "markdown": "티스토리 및 워드프레스에 붙여넣을 수 있는 정돈된 마크다운 본문",
   "plainText": "일반 텍스트 버전 본문",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"]
 }`;
@@ -199,6 +203,7 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
       setGeneratedPost({
         title: parsed.title || topic,
         contentHtml: parsed.contentHtml || "",
+        markdown: parsed.markdown || parsed.plainText || "",
         plainText: parsed.plainText || "",
         tags: parsed.tags || [],
         summary: parsed.summary || "",
@@ -229,6 +234,13 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
       setCopiedHtml(true);
       setTimeout(() => setCopiedHtml(false), 2000);
     }
+  };
+
+  const copyMarkdownToClipboard = async () => {
+    if (!generatedPost?.markdown) return;
+    await navigator.clipboard.writeText(generatedPost.markdown);
+    setCopiedMarkdown(true);
+    setTimeout(() => setCopiedMarkdown(false), 2000);
   };
 
   const copyTextToClipboard = async () => {
@@ -539,7 +551,17 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href="https://blog.naver.com/GoBlogWrite.naver"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg transition"
+              >
+                <span>네이버 글쓰기 열기</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+
               <button
                 type="button"
                 onClick={copyHtmlToClipboard}
@@ -553,7 +575,25 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>네이버 스마트에디터 ONE HTML 복사</span>
+                    <span>네이버 스마트에디터 ONE 서식 복사</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={copyMarkdownToClipboard}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg transition"
+              >
+                {copiedMarkdown ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>마크다운 복사됨</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>마크다운 복사 (티스토리·워드프레스)</span>
                   </>
                 )}
               </button>
@@ -561,12 +601,12 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
               <button
                 type="button"
                 onClick={copyTextToClipboard}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
+                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
               >
                 {copiedText ? (
                   <>
                     <Check className="w-3.5 h-3.5" />
-                    <span>복사됨</span>
+                    <span>텍스트 복사됨</span>
                   </>
                 ) : (
                   <>
@@ -614,21 +654,76 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
             )}
           </div>
 
-          {/* Rendered HTML Preview */}
-          <div className="border border-slate-200 rounded-xl p-6 bg-white space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-                원고 리치 프리뷰
-              </span>
+          {/* 3-Way Format Preview Container */}
+          <div className="border border-slate-200 rounded-xl p-5 bg-white space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              {/* Tab Selector */}
+              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setResultTab("naver")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
+                    resultTab === "naver"
+                      ? "bg-white text-emerald-700 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  네이버 블로그 (HTML 서식)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setResultTab("markdown")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
+                    resultTab === "markdown"
+                      ? "bg-white text-indigo-700 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  마크다운 (티스토리·워드프레스)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setResultTab("text")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
+                    resultTab === "text"
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  일반 텍스트
+                </button>
+              </div>
+
               <span className="text-[11px] text-slate-400">
-                [서식 복사] 버튼을 누른 후 네이버 블로그 스마트에디터에 바로 붙여넣기(Ctrl+V)하시면 서식이 유지됩니다.
+                {resultTab === "naver"
+                  ? "상단 [서식 복사] 후 스마트에디터에 붙여넣기(Ctrl+V)하시면 서식이 유지됩니다."
+                  : resultTab === "markdown"
+                  ? "마크다운 지원 블로그(티스토리, 워드프레스, 깃허브 등)에 붙여넣기하세요."
+                  : "일반 텍스트 형태로 메모장이나 SNS에 바로 활용하세요."}
               </span>
             </div>
-            <div
-              className="prose prose-slate max-w-none text-xs sm:text-sm"
-              dangerouslySetInnerHTML={{ __html: generatedPost.contentHtml }}
-            />
+
+            {/* Tab 1: Naver Rich HTML Preview */}
+            {resultTab === "naver" && (
+              <div
+                className="prose prose-slate max-w-none text-xs sm:text-sm"
+                dangerouslySetInnerHTML={{ __html: generatedPost.contentHtml }}
+              />
+            )}
+
+            {/* Tab 2: Markdown Preview */}
+            {resultTab === "markdown" && (
+              <pre className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto">
+                {generatedPost.markdown}
+              </pre>
+            )}
+
+            {/* Tab 3: Plain Text Preview */}
+            {resultTab === "text" && (
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto">
+                {generatedPost.plainText}
+              </div>
+            )}
           </div>
         </div>
       ) : (

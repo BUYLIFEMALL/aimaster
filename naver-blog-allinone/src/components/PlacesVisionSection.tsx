@@ -21,6 +21,7 @@ import {
   Copy,
   Check,
   BookOpen,
+  ExternalLink,
 } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
 import { UploadedPhoto, processImageFile } from "@/lib/imageUtils";
@@ -44,6 +45,14 @@ export function PlacesVisionSection({ settings, onOpenSettings }: PlacesVisionSe
   // Photos state
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [processingFiles, setProcessingFiles] = useState(false);
+
+  // SEO Optimization Mode
+  const [seoMode, setSeoMode] = useState<"homefeed" | "standard">("homefeed");
+
+  // SEO Keywords
+  const [mainKeyword, setMainKeyword] = useState("");
+  const [subKeywords, setSubKeywords] = useState("");
+  const [isExtractingKeywords, setIsExtractingKeywords] = useState(false);
 
   // Visit info fields
   const [placeName, setPlaceName] = useState("");
@@ -69,12 +78,15 @@ export function PlacesVisionSection({ settings, onOpenSettings }: PlacesVisionSe
     title: string;
     summary: string;
     contentHtml: string;
+    markdown: string;
     plainText: string;
     tags: string[];
     thumbnailUrl?: string;
   } | null>(null);
 
+  const [resultTab, setResultTab] = useState<"naver" | "markdown" | "text">("naver");
   const [copiedHtml, setCopiedHtml] = useState(false);
+  const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
 
   // Handle Photo Upload
@@ -121,6 +133,66 @@ export function PlacesVisionSection({ settings, onOpenSettings }: PlacesVisionSe
     });
   };
 
+  // AI SEO Keyword Auto Extractor
+  const handleExtractKeywords = async () => {
+    if (!settings.geminiApiKey) {
+      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+      onOpenSettings();
+      return;
+    }
+    if (!placeName.trim()) {
+      setErrorMsg("키워드를 자동 추출할 장소명을 먼저 입력해주세요.");
+      return;
+    }
+
+    setIsExtractingKeywords(true);
+    setErrorMsg("");
+
+    const currentYear = new Date().getFullYear();
+    const prompt = `당신은 네이버 블로그 검색최적화(SEO) 및 키워드 분석 전문가입니다.
+현재 연도: ${currentYear}년
+장소명: ${placeName}
+카테고리: ${category}
+${region ? `지역: ${region}` : ""}
+${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
+
+네이버 검색창에서 검색량이 높고 클릭 전환율이 우수한 대표 검색 키워드 1개와 서브 연관 키워드 2~3개를 추천해주세요.
+반드시 아래 JSON 형식으로만 응답하세요:
+{
+  "mainKeyword": "네이버 메인 검색 키워드 1개 (예: 성수동 브런치 카페)",
+  "subKeywords": "서브 키워드 2~3개 쉼표 구분 (예: 성수역 감성 맛집, 성수 데이트 코스, 어반플랜트 주차)"
+}`;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.5,
+              responseMimeType: "application/json",
+            },
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error("키워드 추출 호출 실패");
+      const data = await res.json();
+      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+      const parsed = JSON.parse(rawText);
+
+      if (parsed.mainKeyword) setMainKeyword(parsed.mainKeyword);
+      if (parsed.subKeywords) setSubKeywords(parsed.subKeywords);
+    } catch {
+      setErrorMsg("키워드 자동 추출 중 오류가 발생했습니다. 직접 입력해주세요.");
+    } finally {
+      setIsExtractingKeywords(false);
+    }
+  };
+
   // Generate Post via Gemini Vision
   const handleGenerateVisionPost = async () => {
     if (!settings.geminiApiKey) {
@@ -149,7 +221,7 @@ export function PlacesVisionSection({ settings, onOpenSettings }: PlacesVisionSe
     const parts: unknown[] = [];
 
     // 1. Add image inline parts
-    photos.forEach((p, idx) => {
+    photos.forEach((p) => {
       parts.push({
         inline_data: {
           mime_type: p.mimeType,
@@ -159,12 +231,21 @@ export function PlacesVisionSection({ settings, onOpenSettings }: PlacesVisionSe
     });
 
     // 2. Add text prompt part
-    const promptText = `당신은 대한민국 네이버 블로그 최상위 0.1% 맛집/카페/여행 전문 인플루언서이자 네이버 D.I.A+ 알고리즘 전문가입니다.
+    const promptText = `당신은 대한민국 네이버 블로그 최상위 0.1% 맛집/카페/여행 전문 인플루언서이자 네이버 D.I.A+ & C-Rank 알고리즘 전문가입니다.
 현재 연도는 반드시 ${currentYear}년입니다. 과거 연도(2023, 2024 등)로 후퇴하지 말고 모든 정보와 방문 시점은 ${currentYear}년 기준입니다.
 
 업로드된 ${photos.length}장의 사진을 순서대로 정밀 관찰하세요.
 - 사진 1부터 사진 ${photos.length}까지 각 사진 속 음식의 비주얼, 플레이팅, 재료, 식감, 매장의 조명과 인테리어 톤, 좌석 분위기, 소품 디테일을 직접 두 눈으로 본 것처럼 구체적으로 묘사하세요.
 - AI가 지어낸 뻔한 글이 아니라, 진짜 블로거가 '내돈내산'으로 직접 방문하여 감탄하고 즐긴 생생한 찐후기 스타일로 작성해야 합니다.
+
+[최적화 모드 및 검색 타겟팅]
+- 최적화 모드: ${
+      seoMode === "homefeed"
+        ? "홈판 노출 모드 (감성 스토리텔링 & 1인칭 에세이 톤. 네이버 MY피드/리빙/푸드/여행 홈판 픽 유도. 감각적인 첫 문단과 디테일한 무드, 감정선 중심의 매력적인 서사)"
+        : "기본 SEO 최적화 모드 (검색 1위 공략 정보형 리뷰. 매장 기본정보, 대표 메뉴 및 가격, 주차 및 대중교통 동선, 웨이팅 꿀팁, 브레이크타임 등 검색 이용자에게 필수적인 핵심 정보 체계적 구성)"
+    }
+${mainKeyword ? `- 메인 공략 키워드: ${mainKeyword} (제목 및 본문 주요 문맥에 자연스럽게 배치)` : ""}
+${subKeywords ? `- 서브 키워드: ${subKeywords}` : ""}
 
 [방문 메타 정보]
 - 장소명: ${placeName} (카테고리: ${category})
@@ -198,6 +279,7 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
   "title": "${currentYear}년 감성 듬뿍 네이버 상위노출 핫플 포스트 제목",
   "summary": "검색 결과에 노출될 매력적인 2줄 스니펫 요약",
   "contentHtml": "네이버 스마트에디터 ONE에 붙여넣기 가능한 인라인 스타일 HTML 코드",
+  "markdown": "티스토리 및 워드프레스에 복사할 수 있는 마크다운 본문",
   "plainText": "일반 텍스트 버전 본문",
   "tags": ["${placeName.replace(/\s+/g, "")}", "${category}", "핫플추천", "내돈내산", "데이트코스"]
 }`;
@@ -235,6 +317,7 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
         title: parsed.title || `${placeName} 방문 솔직 후기`,
         summary: parsed.summary || "",
         contentHtml: parsed.contentHtml || "",
+        markdown: parsed.markdown || parsed.plainText || "",
         plainText: parsed.plainText || "",
         tags: parsed.tags || [],
         thumbnailUrl: thumb?.previewUrl,
@@ -264,6 +347,13 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
     }
   };
 
+  const copyMarkdownToClipboard = async () => {
+    if (!generatedResult?.markdown) return;
+    await navigator.clipboard.writeText(generatedResult.markdown);
+    setCopiedMarkdown(true);
+    setTimeout(() => setCopiedMarkdown(false), 2000);
+  };
+
   const copyTextToClipboard = async () => {
     if (!generatedResult?.plainText) return;
     await navigator.clipboard.writeText(generatedResult.plainText);
@@ -287,6 +377,84 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
             <p className="text-xs text-slate-500">
               사진을 업로드하면 AI가 멀티모달 분석을 통해 전문적인 블로그 포스트를 작성해 드립니다. 💡 사진을 클릭하면 대표 이미지(썸네일)로 설정됩니다.
             </p>
+          </div>
+        </div>
+
+        {/* SEO Mode Selection (Homefeed vs Standard) */}
+        <div className="bg-slate-50/90 rounded-xl border border-slate-200/90 p-3.5 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              SEO 최적화 모드 선택
+            </span>
+            <span className="text-[11px] text-slate-400">
+              {seoMode === "homefeed"
+                ? "네이버 MY피드/홈판 픽을 겨냥한 감성 스토리텔링"
+                : "네이버 검색 1위 노출을 겨냥한 정보형 구조화"}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={() => setSeoMode("homefeed")}
+              className={`p-3 rounded-xl border text-left transition flex items-start gap-3 ${
+                seoMode === "homefeed"
+                  ? "bg-white border-emerald-500 ring-2 ring-emerald-400/30 shadow-xs"
+                  : "bg-white/60 border-slate-200 hover:bg-white text-slate-600"
+              }`}
+            >
+              <div
+                className={`p-2 rounded-lg mt-0.5 ${
+                  seoMode === "homefeed"
+                    ? "bg-emerald-100 text-emerald-700 font-bold"
+                    : "bg-slate-100 text-slate-400"
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-slate-900">홈판 노출 모드</span>
+                  <span className="px-1.5 py-0.2 text-[9px] font-extrabold bg-emerald-100 text-emerald-700 rounded">
+                    감성 스토리텔링
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  1인칭 감성 에세이 톤으로 여행/푸드/리빙 홈판 픽 및 소셜 공유를 극대화합니다.
+                </p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSeoMode("standard")}
+              className={`p-3 rounded-xl border text-left transition flex items-start gap-3 ${
+                seoMode === "standard"
+                  ? "bg-white border-indigo-500 ring-2 ring-indigo-400/30 shadow-xs"
+                  : "bg-white/60 border-slate-200 hover:bg-white text-slate-600"
+              }`}
+            >
+              <div
+                className={`p-2 rounded-lg mt-0.5 ${
+                  seoMode === "standard"
+                    ? "bg-indigo-100 text-indigo-700 font-bold"
+                    : "bg-slate-100 text-slate-400"
+                }`}
+              >
+                <BookOpen className="w-4 h-4" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-slate-900">기본 SEO 모드</span>
+                  <span className="px-1.5 py-0.2 text-[9px] font-extrabold bg-indigo-100 text-indigo-700 rounded">
+                    정보형 리뷰
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  메뉴, 가격, 주차, 웨이팅 등 검색 이용자 필수 정보로 D.I.A+ 점수를 극대화합니다.
+                </p>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -481,6 +649,65 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
               />
             </div>
           </div>
+        </div>
+
+        {/* SEO Keywords Input & AI Auto Extraction */}
+        <div className="bg-slate-50/80 rounded-xl border border-slate-200/90 p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              <h4 className="text-xs font-bold text-slate-800">SEO 키워드 설정 (선택)</h4>
+            </div>
+            <button
+              type="button"
+              onClick={handleExtractKeywords}
+              disabled={isExtractingKeywords || !placeName.trim()}
+              className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg transition shadow-2xs"
+            >
+              {isExtractingKeywords ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>키워드 추출 중...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3 h-3 text-amber-300" />
+                  <span>AI 키워드 자동 추출</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                메인 타겟 키워드
+              </label>
+              <input
+                type="text"
+                value={mainKeyword}
+                onChange={(e) => setMainKeyword(e.target.value)}
+                placeholder="예: 성수동 브런치 카페, 강릉 감성숙소 등"
+                className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                서브 키워드 (쉼표 구분)
+              </label>
+              <input
+                type="text"
+                value={subKeywords}
+                onChange={(e) => setSubKeywords(e.target.value)}
+                placeholder="예: 성수역 맛집, 주말 데이트 코스, 내돈내산 추천"
+                className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-400">
+            💡 입력하지 않으셔도 업로드된 사진과 장소명을 분석하여 네이버 상위노출 키워드가 본문에 자동으로 자연스럽게 배치됩니다.
+          </p>
         </div>
 
         {/* Color Theme & Advanced Options */}
@@ -695,7 +922,17 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
               </h2>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href="https://blog.naver.com/GoBlogWrite.naver"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg transition"
+              >
+                <span>네이버 글쓰기 열기</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+
               <button
                 type="button"
                 onClick={copyHtmlToClipboard}
@@ -709,7 +946,25 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>네이버 스마트에디터 ONE HTML 복사</span>
+                    <span>네이버 스마트에디터 ONE 서식 복사</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={copyMarkdownToClipboard}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg transition"
+              >
+                {copiedMarkdown ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>마크다운 복사됨</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>마크다운 복사 (티스토리·워드프레스)</span>
                   </>
                 )}
               </button>
@@ -717,12 +972,12 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
               <button
                 type="button"
                 onClick={copyTextToClipboard}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
               >
                 {copiedText ? (
                   <>
                     <Check className="w-3.5 h-3.5" />
-                    <span>복사됨</span>
+                    <span>텍스트 복사됨</span>
                   </>
                 ) : (
                   <>
@@ -770,21 +1025,76 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
             )}
           </div>
 
-          {/* Rendered HTML Preview */}
-          <div className="border border-slate-200 rounded-xl p-6 bg-white space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
-                원고 리치 프리뷰
-              </span>
+          {/* 3-Way Format Preview Container */}
+          <div className="border border-slate-200 rounded-xl p-5 bg-white space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              {/* Tab Selector */}
+              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setResultTab("naver")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
+                    resultTab === "naver"
+                      ? "bg-white text-emerald-700 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  네이버 블로그 (HTML 서식)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setResultTab("markdown")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
+                    resultTab === "markdown"
+                      ? "bg-white text-indigo-700 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  마크다운 (티스토리·워드프레스)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setResultTab("text")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition ${
+                    resultTab === "text"
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  일반 텍스트
+                </button>
+              </div>
+
               <span className="text-[11px] text-slate-400">
-                상단 [서식 복사] 후 스마트에디터에 바로 붙여넣기(Ctrl+V)하시면 서식이 유지됩니다.
+                {resultTab === "naver"
+                  ? "상단 [서식 복사] 후 스마트에디터에 붙여넣기(Ctrl+V)하시면 서식이 유지됩니다."
+                  : resultTab === "markdown"
+                  ? "마크다운 지원 블로그(티스토리, 워드프레스, 깃허브 등)에 붙여넣기하세요."
+                  : "일반 텍스트 형태로 메모장이나 SNS에 바로 활용하세요."}
               </span>
             </div>
-            <div
-              className="prose prose-slate max-w-none text-xs sm:text-sm"
-              dangerouslySetInnerHTML={{ __html: generatedResult.contentHtml }}
-            />
+
+            {/* Tab 1: Naver Rich HTML Preview */}
+            {resultTab === "naver" && (
+              <div
+                className="prose prose-slate max-w-none text-xs sm:text-sm"
+                dangerouslySetInnerHTML={{ __html: generatedResult.contentHtml }}
+              />
+            )}
+
+            {/* Tab 2: Markdown Preview */}
+            {resultTab === "markdown" && (
+              <pre className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto">
+                {generatedResult.markdown}
+              </pre>
+            )}
+
+            {/* Tab 3: Plain Text Preview */}
+            {resultTab === "text" && (
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto">
+                {generatedResult.plainText}
+              </div>
+            )}
           </div>
         </div>
       )}
