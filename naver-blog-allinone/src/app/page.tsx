@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Lightbulb,
   Utensils,
@@ -19,7 +21,8 @@ import { AppSettings, DEFAULT_SETTINGS, getStoredSettings } from "@/lib/storage"
 import { APP_NAME } from "@/lib/version";
 import { createClient } from "@/lib/supabase/client";
 
-export default function HomePage() {
+function MainContent() {
+  const searchParams = useSearchParams();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTrendsOpen, setIsTrendsOpen] = useState(false);
@@ -32,6 +35,20 @@ export default function HomePage() {
   // Selected Topic state passed to PostCreationSection
   const [selectedTopic, setSelectedTopic] = useState("");
   const [extraPromptHint, setExtraPromptHint] = useState("");
+
+  // Handle URL query parameters (?tab=ideas|places|keyword-fighter, ?modal=settings|trends)
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "ideas" || tabParam === "places" || tabParam === "keyword-fighter") {
+      setActiveMainTab(tabParam);
+    }
+    const modalParam = searchParams.get("modal");
+    if (modalParam === "settings") {
+      setIsSettingsOpen(true);
+    } else if (modalParam === "trends") {
+      setIsTrendsOpen(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     setSettings(getStoredSettings());
@@ -79,10 +96,10 @@ export default function HomePage() {
 
         {/* Main Content Area */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-          {/* Main 3 Tabs Quick Switcher Bar */}
+          {/* Main 3 Tabs Quick Switcher Bar with explicit Link tags */}
           <div className="flex items-center gap-2 border-b border-slate-200/90 pb-2 overflow-x-auto">
-            <button
-              type="button"
+            <Link
+              href="/?tab=ideas"
               onClick={() => setActiveMainTab("ideas")}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition shrink-0 ${
                 activeMainTab === "ideas"
@@ -92,10 +109,10 @@ export default function HomePage() {
             >
               <Lightbulb className="w-4 h-4 text-amber-400" />
               <span>주제 아이디어 발굴</span>
-            </button>
+            </Link>
 
-            <button
-              type="button"
+            <Link
+              href="/?tab=places"
               onClick={() => setActiveMainTab("places")}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition shrink-0 ${
                 activeMainTab === "places"
@@ -105,10 +122,10 @@ export default function HomePage() {
             >
               <Utensils className="w-4 h-4 text-emerald-500" />
               <span>맛집/카페/여행 비전</span>
-            </button>
+            </Link>
 
-            <button
-              type="button"
+            <Link
+              href="/?tab=keyword-fighter"
               onClick={() => setActiveMainTab("keyword-fighter")}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition shrink-0 ${
                 activeMainTab === "keyword-fighter"
@@ -121,7 +138,7 @@ export default function HomePage() {
               <span className="px-1.5 py-0.2 text-[9px] font-extrabold bg-rose-500 text-white rounded-md">
                 PRO
               </span>
-            </button>
+            </Link>
           </div>
 
           {/* Tab 1 Content: 주제 아이디어 얻기 (E-E-A-T 기반, 카테고리별, 에버그린, 롱테일, 메모/파일) */}
@@ -195,5 +212,13 @@ export default function HomePage() {
         onClose={() => setIsTrendsOpen(false)}
       />
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm text-slate-400">로딩 중...</div>}>
+      <MainContent />
+    </Suspense>
   );
 }

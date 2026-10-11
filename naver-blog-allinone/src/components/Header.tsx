@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Sparkles,
   Settings,
@@ -76,13 +77,17 @@ export function Header({
             </button>
           )}
 
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+          <Link
+            href="/"
+            className="flex items-center gap-3 hover:opacity-90 transition group"
+            title="메인 홈으로 이동"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-100 group-hover:scale-105 transition-transform">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-black tracking-tight text-slate-900">
+                <h1 className="text-lg font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
                   {APP_NAME}
                 </h1>
                 <span className="px-2 py-0.5 text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-md">
@@ -96,7 +101,7 @@ export function Header({
                 AI와 함께 아이디어 발굴부터 SEO 최적화 포스팅까지 한 곳에서 완성하세요.
               </p>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Model Badges & Action Buttons */}

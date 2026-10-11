@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.06) 메인페이지 링크 전면 개선 및 FREE 배지 연동 완료
+
+- **메인페이지 링크 미작동 원인 분석 및 완벽 조치**:
+  1. **사이드바 메뉴 Link 태그 전면화**: 사이드바의 대시보드 메인(`/`), 스텝 1~3 작업 흐름(`/?tab=ideas`, `/?tab=places`, `/?tab=keyword-fighter`), 유틸리티 모달(`/?modal=settings`, `/?modal=trends`), 상단 로고(`/`)를 단순 `<button>`이 아닌 Next.js 정식 `<Link>` 태그로 전면 교체하여 마우스 오버 시 브라우저 하단 URL 미리보기, 우클릭 '새 탭에서 링크 열기', 링크 복사 등 표준 웹 링크 동작 100% 보장.
+  2. **헤더 로고 & 메인 3개 탭 Link 태그 적용**: 상단 헤더의 프로그램 로고/이름과 3개 메인 탭 전환 버튼을 모두 `<Link>` 태그로 감싸 클릭 시 홈 복귀 및 탭 이동 링크가 브라우저에 명확히 걸리도록 개선.
+  3. **URL 쿼리 파라미터 양방향 연동**: `useSearchParams()`를 Suspense 기반으로 연동하여 URL 파라미터(`?tab=...`, `?modal=...`)로 직접 접속하거나 뒤로가기/앞으로가기 브라우저 네비게이션 시에도 상태가 매끄럽게 동기화.
+  4. **메인 사이트 카탈로그 'free' 배지 DB 등록**: 공용 DB `programs.badges`에 `'free'`가 누락되어 있던 문제를 해결(`['new', 'best', 'free']`)하여, 메인 사이트 카탈로그(`https://www.buylife.xyz/programs/naver-blog-allinone`)에서 로그인 회원이 접속 시 [지금 바로 이용하기] 및 [실행하기] 바로가기 링크가 즉시 활성화되도록 조치.
+- **버전 갱신 및 배포 동기화 (v1.06)**:
+  - `src/lib/version.ts` ➔ `v1.06`
+  - `extension/manifest.json` ➔ `v1.06` (`1.06.0`)
+  - `public/downloads/naver-blog-allinone-latest.zip` ➔ v1.06 최신 압축 재생성 완료
+  - 공용 DB `programs.version = 'v1.06'`, `programs.extension_version = 'v1.06'` 동기화 완료.
+- **검증 결과**: `npm run build` 100% 성공.
+
 ## 2026-10-11 Claude Code — shorts-viral-studio 갭 분석(A안: 새 프로그램 대신 기존 프로그램 완성·출시)
 
 주인님이 올려주신 유튜브 튜토리얼 원본(남다른AI "Shorts 분석기" index.html 2,270줄)이 **2026-10-04에 만든 `shorts-viral-studio`(v1.04)의 원본과 같은 것**임을 확인해, 새 프로그램을 만들지 않고 기존 프로그램을 완성해 출시하기로 했습니다(주인님 A안 선택). 기능은 원본 6단계(검색→분석→소재→주제→대본→프롬프트)를 모두 포함하고 더 많습니다. 갭 분석: [`shorts-viral-studio/docs/GAP_ANALYSIS_2026-10-11.md`](../shorts-viral-studio/docs/GAP_ANALYSIS_2026-10-11.md). 남은 일(순서): v1.05 권한 판정 표준 교체(`access.ts`가 RLS 클라이언트·없는 컬럼 사용), v1.06 도메인 로그인 공유(`shorts-viral-studio.buylife.xyz`), 실제 키 검수 후 `coming` 배지 제거·출시. 이번 항목에서 코드·DB 변경 없음.

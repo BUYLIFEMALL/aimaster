@@ -34,6 +34,7 @@ const FLOW_STEPS = [
   {
     step: 1,
     id: "ideas" as MainTabType,
+    href: "/?tab=ideas",
     icon: Lightbulb,
     iconColor: "text-amber-500",
     label: "주제 아이디어 발굴",
@@ -42,6 +43,7 @@ const FLOW_STEPS = [
   {
     step: 2,
     id: "places" as MainTabType,
+    href: "/?tab=places",
     icon: Utensils,
     iconColor: "text-emerald-500",
     label: "맛집/카페/여행 비전",
@@ -50,6 +52,7 @@ const FLOW_STEPS = [
   {
     step: 3,
     id: "keyword-fighter" as MainTabType,
+    href: "/?tab=keyword-fighter",
     icon: Search,
     iconColor: "text-indigo-500",
     label: "키워드 파이터 PRO",
@@ -73,12 +76,22 @@ export function Sidebar({
       <div>
         <div className="mb-4 border-b border-slate-200/90 pb-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 text-white shadow-md shadow-indigo-100">
+            {/* 메인 홈 링크가 걸린 헤더 로고 & 프로그램명 */}
+            <Link
+              href="/"
+              onClick={() => {
+                onSelectTab("ideas");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                if (onCloseMobile) onCloseMobile();
+              }}
+              className="flex items-center gap-2.5 hover:opacity-90 transition group"
+              title="메인 홈으로 이동"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 text-white shadow-md shadow-indigo-100 group-hover:scale-105 transition-transform">
                 <Sparkles className="h-4.5 w-4.5" />
               </div>
               <div>
-                <h1 className="text-sm font-black text-slate-900 tracking-tight">
+                <h1 className="text-sm font-black text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
                   {APP_NAME}
                 </h1>
                 <div className="flex items-center gap-1.5 mt-0.5">
@@ -90,7 +103,7 @@ export function Sidebar({
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* 모바일 닫기 버튼 */}
             {onCloseMobile && (
@@ -105,9 +118,11 @@ export function Sidebar({
             )}
           </div>
 
+          {/* 메인 카탈로그 전체 프로그램 목록 링크 */}
           <a
             href="https://www.buylife.xyz/programs"
-            className="mt-3 flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition-colors font-medium"
+            className="mt-3 flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 transition-colors font-medium"
+            title="AI Master 전체 프로그램 카탈로그 보기"
           >
             <span>← 다른 프로그램 보기</span>
           </a>
@@ -115,9 +130,9 @@ export function Sidebar({
 
         {/* 2. 대시보드 & 핵심 작업 흐름 (스텝퍼 1 -> 2 -> 3) */}
         <div className="space-y-3">
-          {/* 최상단 대시보드 / 개요 */}
-          <button
-            type="button"
+          {/* 최상단 대시보드 / 개요 링크 */}
+          <Link
+            href="/"
             onClick={() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
               if (onCloseMobile) onCloseMobile();
@@ -126,7 +141,7 @@ export function Sidebar({
           >
             <LayoutDashboard className="h-4 w-4 text-slate-500" />
             <span>대시보드 메인</span>
-          </button>
+          </Link>
 
           {/* 스텝퍼 섹션 라벨 */}
           <div className="px-1 pt-1">
@@ -135,7 +150,7 @@ export function Sidebar({
             </span>
           </div>
 
-          {/* 핵심 작업 흐름: 번호 배지와 세로 연결선 (1 -> 2 -> 3) */}
+          {/* 핵심 작업 흐름: 번호 배지와 세로 연결선 (1 -> 2 -> 3) - Link 태그 적용 */}
           <nav className="relative flex flex-col">
             {FLOW_STEPS.map((item, idx) => {
               const isActive = activeTab === item.id;
@@ -143,10 +158,11 @@ export function Sidebar({
               const Icon = item.icon;
 
               return (
-                <button
+                <Link
                   key={item.id}
-                  type="button"
-                  onClick={() => {
+                  href={item.href}
+                  onClick={(e) => {
+                    // SPA 모드 부드러운 전환
                     onSelectTab(item.id);
                     if (onCloseMobile) onCloseMobile();
                   }}
@@ -195,7 +211,7 @@ export function Sidebar({
                       {item.description}
                     </p>
                   </div>
-                </button>
+                </Link>
               );
             })}
           </nav>
@@ -209,10 +225,11 @@ export function Sidebar({
             </span>
           </div>
 
-          {/* 🔑 API키등록·플랫폼연동 */}
-          <button
-            type="button"
-            onClick={() => {
+          {/* 🔑 API키등록·플랫폼연동 링크 */}
+          <Link
+            href="/?modal=settings"
+            onClick={(e) => {
+              e.preventDefault();
               onOpenSettings();
               if (onCloseMobile) onCloseMobile();
             }}
@@ -220,9 +237,9 @@ export function Sidebar({
           >
             <KeyRound className="h-4 w-4 text-amber-500" />
             <span>API키등록·플랫폼연동</span>
-          </button>
+          </Link>
 
-          {/* 🧩 크롬 확장 프로그램 */}
+          {/* 🧩 크롬 확장 프로그램 다운로드 링크 */}
           <a
             href="/downloads/naver-blog-allinone-latest.zip"
             download="naver-blog-allinone-latest.zip"
@@ -237,10 +254,11 @@ export function Sidebar({
             </span>
           </a>
 
-          {/* 📈 실시간 트렌드 분석 */}
-          <button
-            type="button"
-            onClick={() => {
+          {/* 📈 실시간 트렌드 분석 링크 */}
+          <Link
+            href="/?modal=trends"
+            onClick={(e) => {
+              e.preventDefault();
               onOpenTrends();
               if (onCloseMobile) onCloseMobile();
             }}
@@ -248,7 +266,7 @@ export function Sidebar({
           >
             <TrendingUp className="h-4 w-4 text-indigo-500" />
             <span>실시간 트렌드 분석</span>
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -264,7 +282,7 @@ export function Sidebar({
         <form action={signOutAction}>
           <button
             type="submit"
-            className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+            className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
           >
             <LogOut className="h-3.5 w-3.5" />
             <span>로그아웃</span>
