@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — YOUTUBE CHANNEL CONSULTANT v1.02 AI 분석 (youtube-channel-consultant)
+
+주인님 지시로 AI 분석을 추가했습니다: **AI 영상 요약, AI 경쟁 전략 분석(채널·키워드), AI 성장 과정 분석, AI 채널 진단 및 컨설팅.** 회원 본인의 Gemini/OpenAI/Claude 키만 사용(폴백 없음), 결과는 저장하지 않음, 새 테이블 없음. 구조·프롬프트 규칙·모델 레지스트리: [`youtube-channel-consultant/AGENTS.md`](../youtube-channel-consultant/AGENTS.md) 9절.
+
+- 배포: 프로덕션 READY(`https://youtube-channel-consultant.buylife.xyz`), DB `programs.version` v1.02·설명 갱신, 마이그레이션 `20261011190000_youtube_channel_consultant_v1_02.sql`.
+- 검수: `npm test` 14개·빌드·타입 검사 통과. 실제 로그인 Chrome(`buylifemall@naver.com`, 본인 키)에서 Gemini 채널 진단·영상 직접 요약, OpenAI(gpt-4.1) 채널 진단, Claude(claude-sonnet-5) 채널 진단을 모두 성공 확인(AI 호출 4건, 유료). 로그인 없는 `/api/ai/analyze` 401 확인.
+- 알아둘 점: ① Claude Sonnet 5는 응답이 약 80초 걸린다(`maxDuration` 300초로 설정). 빠른 사용은 Haiku 4.5 ② `max_tokens` 4096에서는 Claude가 빈 응답을 돌려줘 8192로 올림 ③ GPT-6·Gemini 3.8/Flash Lite·Claude Opus 5 등 나머지 모델 ID는 `naver-blog-agent` 레지스트리 값을 옮겼을 뿐 이 앱에서 실제 호출해 보지 않음 ④ 영상 요약 직접 분석은 Gemini + 15분 이하만(그 외는 추정이라고 표시).
+- 남은 일: v1.03 공략 채널 찾기, 모바일 실검수.
+
 ## 2026-10-11 Claude Code — YOUTUBE VIRAL FINDER v1.09 권한 확인 보강·Claude 키 이름 수정 (youtube-viral-studio)
 
 직전 항목(YOUTUBE CHANNEL CONSULTANT v1.01)에서 기록해 둔 기존 문제 2건을 주인님 지시로 고쳤습니다. ① `/api/youtube/*` 5개와 `/api/settings/api-keys`가 로그인만 확인하던 것을 로그인 + 프로그램 이용 권한(`checkProgramAccessApi`) 확인으로 바꾸고, 권한 판정을 루트 표준(사본 `src/lib/programAccess.ts`)으로 통일했습니다. ② Claude 키 provider 이름 `claude`를 DB 체크 제약의 `anthropic`으로 수정했습니다. 코드 `youtube-viral-studio/` v1.09, 마이그레이션 `20261011180000_youtube_viral_studio_v1_09.sql`(버전만 갱신, 구조 변경 없음), DB `programs.version` v1.09. 프로덕션 배포 READY(`youtube-viral-studio.buylife.xyz`), 로그인 없는 API 호출 401 확인, 로그인 회원(buylifemall@naver.com)의 설정 화면(저장된 키 표시) 정상. 이 앱 `AGENTS.md` 5절 참고.

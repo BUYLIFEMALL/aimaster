@@ -7,7 +7,7 @@
 작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`, `docs/SIDEBAR_LAYOUT_STANDARD.md`를 먼저 읽는다.
 
 ## 1. 개요와 현황
-- 프로그램명 `YOUTUBE CHANNEL CONSULTANT` / slug `youtube-channel-consultant` / 현재 버전 **v1.01** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
+- 프로그램명 `YOUTUBE CHANNEL CONSULTANT` / slug `youtube-channel-consultant` / 현재 버전 **v1.02** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
 - 주소: https://youtube-channel-consultant.buylife.xyz (Vercel 프로젝트 `buylife/youtube-channel-consultant`, 별칭 `youtube-channel-consultant.vercel.app`)
 - 기술: Next.js 16 + React 19 + Tailwind 4 + Supabase SSR(공유 DB `esgxyikcnnvmlhygjkth`). 외부 차트 라이브러리 없음(CSS 차트).
 - 기획 배경: 외부 참고 프로그램(AI Studio 앱 "유튜브 채널 컨설턴트")의 기능 흐름을 참고해 새로 만들었다. 이름·디자인은 복제하지 않았고 화면은 흰색 바탕(`docs/PLATFORM_PATTERNS.md` §27-1).
@@ -17,7 +17,7 @@
 | 버전 | 내용 | 상태 |
 |---|---|---|
 | v1.01 | ① 채널 분석 ② 키워드 분석 (+ JSON/CSV 내보내기) | **완료·배포** |
-| v1.02 (예정) | AI 분석: 영상 요약, 경쟁 전략, 성장 과정, 채널 진단 (회원 본인 Gemini/OpenAI/Claude 키, 모델은 `docs/AI_MODEL_INTEGRATION_STANDARD.md` 레지스트리 방식) | 미착수 |
+| v1.02 | AI 분석: 영상 요약, 경쟁 전략, 성장 과정, 채널 진단 (회원 본인 Gemini/OpenAI/Claude 키) | **완료·배포** |
 | v1.03 (예정) | 공략 채널 찾기 — `youtube-viral-studio/src/lib/youtube/goldenChannels.ts` 재사용 검토 | 미착수 |
 
 ## 3. 화면과 파일
@@ -60,3 +60,12 @@ vercel deploy --prod --yes --scope buylife
 ```
 버전을 올릴 때: `src/lib/version.ts` + `package.json`(+lock) + DB `update programs set version='v1.0X' where slug='youtube-channel-consultant';` + `supabase/migrations/`에 새 SQL 파일.
 첫 배포 때 겪은 점: `vercel.json {"framework":"nextjs"}` 필요(빈 프로젝트는 404). 환경변수 4개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_MAIN_SITE_URL`)는 Vercel production에만 등록했다.
+
+## 9. v1.02 구현 — AI 분석 (2026-10-11)
+- 화면: 채널 분석에 `AI 경쟁 전략 분석`·`AI 성장 과정 분석`·`AI 채널 진단 및 컨설팅`, 키워드 분석에 `AI 경쟁 전략 분석`, 영상 카드마다 `AI로 영상 요약하기`. 결과는 오른쪽 서랍(`AiDrawer`)에 마크다운으로 표시(복사 버튼). 서버에 저장하지 않는다.
+- 구조: `src/lib/ai/models.ts`(모델 레지스트리 — ID는 운영 중인 `naver-blog-agent/src/lib/ai/contentModels.ts`와 같은 값, Preview는 기본값 금지), `llm.ts`(공급사 REST 호출, SDK 없음, 키는 헤더로만·오류 메시지에서 제거), `prompts.ts`(프롬프트 5종), `src/app/api/ai/analyze/route.ts`(로그인+이용 권한+본인 키 확인, 입력 길이·형식 제한), `src/components/ai/*`(엔진 선택·서랍·마크다운).
+- 키: `user_api_keys`의 `gemini`/`openai`/`anthropic` 본인 행만 사용(폴백 없음). 키가 없으면 400 + `needApiKey`.
+- 영상 요약: Gemini는 공개 YouTube 주소를 `fileData`로 넘겨 **영상을 직접 보고** 요약(15분 이하만, 초과·GPT·Claude는 제목·설명·지표 기반 **추정**이라고 화면과 프롬프트에 명시).
+- 프롬프트 규칙: 현재 연도 자동 주입, 제공 데이터에 있는 숫자만 근거, 없는 정보는 `확인 불가`, 추정은 `(추정)`. 채널 분석 AI는 최근 영상 최대 60개만 보낸다. `채널 경쟁 전략`은 경쟁 채널 데이터가 없다고 프롬프트에 알리고 포지셔닝·차별화만 제안한다.
+- 실제 라이브 확인(buylifemall@naver.com 본인 키): Gemini `gemini-3.7-flash` 채널 진단·영상 직접 요약, OpenAI `gpt-4.1` 채널 진단, Claude `claude-sonnet-5` 채널 진단 성공. **Claude Sonnet 5는 응답까지 약 80초**가 걸리고(그래서 route `maxDuration = 300`), `max_tokens 4096`에서는 빈 응답이 나와 8192로 올렸다. 빠르게 쓰려면 Haiku 4.5를 고른다.
+- 자동 검사: `npm test` 14개(지표 7 + AI 7: 레지스트리·프롬프트·요청 형식·키 비노출·오류 매핑). 다른 모델 ID(GPT-6 등)는 이 키로 실제 호출해 보지 않았다.

@@ -42,14 +42,14 @@ export default async function DashboardPage() {
           <h2 className="mt-3 flex items-center gap-2 text-base font-bold text-gray-900">
             <BarChart3 size={16} /> 채널 분석
           </h2>
-          <p className="mt-1 text-sm text-gray-500">구독자·조회수·업로드 주기와 최근 영상별 인기 점수, 쇼츠/일반 영상 비율을 진단합니다.</p>
+          <p className="mt-1 text-sm text-gray-500">구독자·조회수·업로드 주기와 최근 영상별 인기 점수, 쇼츠/일반 영상 비율을 진단하고, AI로 경쟁 전략·성장 과정·채널 진단을 받아봅니다.</p>
         </Link>
         <Link href="/keyword-analysis" className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-xs transition hover:border-red-300">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">2</span>
           <h2 className="mt-3 flex items-center gap-2 text-base font-bold text-gray-900">
             <Search size={16} /> 키워드 분석
           </h2>
-          <p className="mt-1 text-sm text-gray-500">키워드 검색 결과의 조회수·좋아요·댓글, 채널 점유율, 영상 게시 시기를 분석합니다.</p>
+          <p className="mt-1 text-sm text-gray-500">키워드 검색 결과의 조회수·좋아요·댓글, 채널 점유율, 영상 게시 시기를 분석하고, AI로 경쟁 전략과 영상 요약을 받아봅니다.</p>
         </Link>
       </div>
 
@@ -60,6 +60,7 @@ export default async function DashboardPage() {
           <li>키워드 검색은 1페이지(영상 50개)당 약 100유닛, 채널을 이름으로 찾으면 약 100유닛이 듭니다.</li>
           <li>@핸들이나 채널 주소로 채널을 분석하면 영상 50개 기준 약 5유닛으로 아주 적게 듭니다.</li>
           <li>각 분석 화면에 예상 쿼터와 실제 사용량이 표시됩니다. 결과의 필터·정렬은 쿼터가 들지 않습니다.</li>
+          <li>AI 분석은 YouTube 쿼터를 쓰지 않고, 회원님 본인의 AI 키(Gemini·OpenAI·Claude)로 호출되어 요금은 해당 AI 계정에 청구됩니다.</li>
           <li>이 프로그램은 분석 결과를 서버에 저장하지 않습니다. 필요하면 JSON·CSV로 내보내세요.</li>
         </ul>
       </div>

@@ -196,11 +196,11 @@ export default function SettingsPage() {
       <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
         <p className="flex items-start gap-2">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
-          <span>아래 AI 키는 이후 업데이트될 AI 분석(영상 요약·경쟁 전략·채널 진단) 기능에 쓰입니다. 지금 등록해 두어도 되고 나중에 등록해도 됩니다.</span>
+          <span>아래 AI 키는 AI 분석(영상 요약·경쟁 전략·성장 과정·채널 진단)에 쓰입니다. 세 가지 중 하나만 등록해도 되며, Gemini는 영상 요약 때 영상을 직접 보고 분석합니다.</span>
         </p>
       </div>
 
-      <KeyCard provider="gemini" title="Google Gemini API 키" description="AI 분석 기능용 (선택)" placeholder="AIzaSy... 로 시작하는 Gemini API 키" {...common} />
+      <KeyCard provider="gemini" title="Google Gemini API 키" description="AI 분석용 (선택) · 영상을 직접 보고 요약" placeholder="AIzaSy... 로 시작하는 Gemini API 키" {...common} />
       <KeyCard provider="openai" title="OpenAI API 키" description="AI 분석 기능용 (선택)" placeholder="sk-... 로 시작하는 OpenAI API 키" {...common} />
       <KeyCard provider="anthropic" title="Anthropic Claude API 키" description="AI 분석 기능용 (선택)" placeholder="sk-ant-... 로 시작하는 Claude API 키" {...common} />
 

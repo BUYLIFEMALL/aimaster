@@ -7,6 +7,9 @@ import type { ChannelAnalysisResult } from "@/lib/youtube/types";
 import { formatDate, formatHours, formatNumber } from "@/lib/youtube/metrics";
 import { BarChart, ChartTabs, ShareChart } from "@/components/analysis/Charts";
 import { VideoList } from "@/components/analysis/VideoList";
+import { AiDrawer, AiEngineBar } from "@/components/ai/AiPanels";
+import { useAiEngine, useAiRunner } from "@/components/ai/useAi";
+import type { AnalyzedVideo } from "@/lib/youtube/types";
 import { ErrorBanner, INPUT_CLASS, MetricTopChart, POPULARITY_NOTE, QuotaNote, SELECT_CLASS, StatBox } from "@/components/analysis/common";
 
 const NAME_SEARCH_HINT = "채널 이름으로 찾으면 약 100유닛이 더 듭니다. @핸들이나 채널 주소로 입력하면 1유닛만 듭니다.";
@@ -25,6 +28,8 @@ function ChannelAnalysisInner() {
   const [error, setError] = useState<{ message: string; needApiKey?: boolean } | null>(null);
   const [result, setResult] = useState<ChannelAnalysisResult | null>(null);
   const autoRan = useRef(false);
+  const aiEngine = useAiEngine();
+  const ai = useAiRunner(aiEngine.provider, aiEngine.model);
 
   const run = useCallback(async (q: string, limit: number) => {
     if (!q.trim()) return;
@@ -75,6 +80,33 @@ function ChannelAnalysisInner() {
       .slice(-24)
       .map(([month, d]) => ({ label: month.slice(2).replace("-", "."), value: d.views, title: `${month} · 영상 ${d.count}개 · 조회수 합계 ${formatNumber(d.views)}` }));
   }, [videos]);
+
+  // AI에 보낼 채널 요약: 근거 데이터만(최대 60개 영상). 성장 과정은 게시일 순, 나머지는 인기 점수 순.
+  const aiChannelPayload = (order: "date" | "popularity") => {
+    if (!result) return null;
+    const sorted = [...result.videos].sort((a, b) =>
+      order === "date" ? new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime() : b.popularity - a.popularity
+    );
+    const picked = order === "date" ? sorted.slice(-60) : sorted.slice(0, 60);
+    return {
+      channel: {
+        title: result.channel.title,
+        handle: result.channel.handle ?? "",
+        subscriberCount: result.channel.subscriberCount,
+        viewCount: result.channel.viewCount,
+        videoCount: result.channel.videoCount,
+        publishedAt: result.channel.publishedAt,
+        averageIntervalHours: result.uploadStats.averageIntervalHours,
+        sinceLastUploadHours: result.uploadStats.sinceLastUploadHours,
+      },
+      videos: picked,
+    };
+  };
+  const runChannelAi = (type: "channel-competition" | "channel-growth" | "channel-diagnosis", title: string, order: "date" | "popularity") => {
+    const payload = aiChannelPayload(order);
+    if (payload) ai.run(type, payload, `${title} · ${result?.channel.title ?? ""}`);
+  };
+  const summarize = (v: AnalyzedVideo) => ai.run("video-summary", { video: v }, `AI 영상 요약 · ${v.title}`);
 
   const formatStats = useMemo(() => {
     const shorts = videos.filter((v) => v.isShort);
@@ -179,6 +211,14 @@ function ChannelAnalysisInner() {
             <p className="rounded-2xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">공개된 업로드 영상이 없습니다.</p>
           ) : (
             <>
+              <AiEngineBar
+                engine={aiEngine}
+                actions={[
+                  { label: "AI 경쟁 전략 분석", onClick: () => runChannelAi("channel-competition", "AI 경쟁 전략 분석", "popularity") },
+                  { label: "AI 성장 과정 분석", onClick: () => runChannelAi("channel-growth", "AI 성장 과정 분석", "date") },
+                  { label: "AI 채널 진단 및 컨설팅", onClick: () => runChannelAi("channel-diagnosis", "AI 채널 진단 및 컨설팅", "popularity") },
+                ]}
+              />
               <ChartTabs
                 title={(label) => (label === "타임라인" ? "월별 조회수 합계 (게시 월 기준)" : label === "콘텐츠 포맷" ? "콘텐츠 포맷 비율 (쇼츠 추정)" : `${label} 분포 (Top 20)`)}
                 tabs={[
@@ -207,11 +247,12 @@ function ChannelAnalysisInner() {
                   },
                 ]}
               />
-              <VideoList videos={videos} exportName={`channel-${result.channel.id}`} exportJson={result} />
+              <VideoList videos={videos} onSummarize={summarize} summarizeDisabled={!aiEngine.ready} exportName={`channel-${result.channel.id}`} exportJson={result} />
             </>
           )}
         </div>
       )}
+      <AiDrawer state={ai.state} onClose={ai.close} />
     </div>
   );
 }

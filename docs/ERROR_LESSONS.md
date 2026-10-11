@@ -1,5 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — Claude Sonnet 5가 빈 응답을 돌려줌(max_tokens 4096) / 크롬 확장 도구에서 form_input 직후 버튼 클릭이 무시됨 (youtube-channel-consultant v1.02)
+
+- **증상:** AI 채널 진단에 Claude(claude-sonnet-5)를 고르면 약 40초 뒤 "AI가 빈 응답을 돌려줬습니다"가 나왔다(Gemini·OpenAI는 정상).
+- **원인:** `max_tokens: 4096`으로 요청하면 Sonnet 5가 답변 본문 전에 토큰을 다 써서 텍스트 블록이 비어 돌아오는 것으로 보인다(8192로 올리자 정상, 단 응답까지 약 80초).
+- **해결(위치):** `src/lib/ai/llm.ts` Anthropic 요청 `max_tokens` 8192, 빈 응답 오류에 `stop_reason`·블록 종류를 덧붙여 원인을 바로 볼 수 있게 함, `src/app/api/ai/analyze/route.ts` `maxDuration = 300`.
+- **다음부터 확인:** 새 AI 모델/공급사를 붙일 때는 모의 검사만으로 끝내지 말고 모델마다 실제 호출을 한 번씩 해 본다(응답 시간·빈 응답·토큰 한도). 긴 응답은 로딩 표시와 실행 시간 상한을 같이 설정한다. Claude는 `content[0]`이 아니라 `type: "text"` 블록을 모두 모아 읽는다.
+- **검수 도구 메모:** 크롬 확장 도구에서 `form_input`으로 셀렉트를 바꾼 직후의 ref 클릭은 무시될 때가 있어 좌표 클릭으로 다시 눌렀다. 클릭 뒤에는 화면이 실제로 바뀌었는지(서랍 열림) 확인한다.
+
 ## 2026-10-11 — 복사해 만든 새 프로그램의 provider 이름이 DB 체크 제약과 달라 저장이 실패함 / tar 복사가 src/lib/supabase 를 빠뜨림 (youtube-channel-consultant v1.01)
 
 - **증상:** 새 프로그램 설정 화면에서 Claude 키를 저장하면 DB 오류가 날 상태였고(복사 원본 youtube-viral-studio 도 동일), 폴더 복사 직후 `src/lib/supabase`가 통째로 없었다.

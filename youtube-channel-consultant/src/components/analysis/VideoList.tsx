@@ -51,12 +51,15 @@ interface Props {
   /** 키워드 분석처럼 여러 채널이 섞인 목록이면 채널명을 보여주고 채널 분석 버튼을 둔다 */
   showChannel?: boolean;
   onAnalyzeChannel?: (channelId: string) => void;
+  /** 영상 카드의 AI 영상 요약 버튼. 없으면 버튼을 숨긴다 */
+  onSummarize?: (video: AnalyzedVideo) => void;
+  summarizeDisabled?: boolean;
   /** 내보내기 파일 이름과 JSON 전체 데이터 */
   exportName: string;
   exportJson: unknown;
 }
 
-export function VideoList({ videos, showChannel, onAnalyzeChannel, exportName, exportJson }: Props) {
+export function VideoList({ videos, showChannel, onAnalyzeChannel, onSummarize, summarizeDisabled, exportName, exportJson }: Props) {
   const [format, setFormat] = useState<FormatFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("popularity");
   const [limit, setLimit] = useState<number>(20);
@@ -183,6 +186,16 @@ export function VideoList({ videos, showChannel, onAnalyzeChannel, exportName, e
                   </div>
                   <span className="text-xs font-bold text-gray-900">{v.popularity.toFixed(1)}</span>
                 </div>
+                {onSummarize && (
+                  <button
+                    type="button"
+                    disabled={summarizeDisabled}
+                    onClick={() => onSummarize(v)}
+                    className="mt-2 w-full rounded-lg border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-bold text-purple-700 hover:bg-purple-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    ✨ AI로 영상 요약하기
+                  </button>
+                )}
               </div>
             </article>
           ))}

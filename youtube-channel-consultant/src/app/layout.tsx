@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "YOUTUBE CHANNEL CONSULTANT - AIMaster",
-  description: "유튜브 채널 지표 진단과 키워드 검색 결과 분석으로 성장 인사이트를 찾는 채널 컨설턴트",
+  description: "유튜브 채널 지표 진단과 키워드 검색 결과 분석으로 성장 인사이트를 찾는 채널 컨설턴트(AI 분석 포함)",
 };
 
 export default function RootLayout({

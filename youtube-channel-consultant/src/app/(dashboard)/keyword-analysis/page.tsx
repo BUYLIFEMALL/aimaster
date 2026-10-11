@@ -7,6 +7,9 @@ import type { KeywordAnalysisResult, SearchOrder, SearchRegion } from "@/lib/you
 import { formatNumber } from "@/lib/youtube/metrics";
 import { BarChart, ChartTabs, ShareChart } from "@/components/analysis/Charts";
 import { VideoList } from "@/components/analysis/VideoList";
+import { AiDrawer, AiEngineBar } from "@/components/ai/AiPanels";
+import { useAiEngine, useAiRunner } from "@/components/ai/useAi";
+import type { AnalyzedVideo } from "@/lib/youtube/types";
 import { ErrorBanner, INPUT_CLASS, MetricTopChart, POPULARITY_NOTE, QuotaNote, SELECT_CLASS, StatBox } from "@/components/analysis/common";
 
 // YouTube 영상 카테고리 ID (videoCategoryId)
@@ -51,6 +54,8 @@ export default function KeywordAnalysisPage() {
   const [result, setResult] = useState<KeywordAnalysisResult | null>(null);
 
   const estimate = pages * 100 + pages + 2;
+  const aiEngine = useAiEngine();
+  const ai = useAiRunner(aiEngine.provider, aiEngine.model);
 
   const run = async () => {
     if (!keyword.trim()) return;
@@ -76,6 +81,17 @@ export default function KeywordAnalysisPage() {
   };
 
   const videos = useMemo(() => result?.videos ?? [], [result]);
+
+  const runCompetition = () => {
+    if (!result) return;
+    const top = [...result.videos].sort((a, b) => b.popularity - a.popularity).slice(0, 30);
+    ai.run(
+      "keyword-competition",
+      { keyword: result.keyword, region, order, totals: result.totals, channelShare: result.channelShare.slice(0, 10), videos: top },
+      `AI 경쟁 전략 분석 · ${result.keyword}`
+    );
+  };
+  const summarize = (v: AnalyzedVideo) => ai.run("video-summary", { video: v }, `AI 영상 요약 · ${v.title}`);
 
   const shareItems = useMemo(() => {
     const list = result?.channelShare ?? [];
@@ -174,6 +190,7 @@ export default function KeywordAnalysisPage() {
             <p className="rounded-2xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500">검색 결과가 없습니다. 키워드나 조건을 바꿔보세요.</p>
           ) : (
             <>
+              <AiEngineBar engine={aiEngine} actions={[{ label: "AI 경쟁 전략 분석", onClick: runCompetition }]} />
               <ChartTabs
                 title={(label) => (label === "채널 점유율" ? "채널별 조회수 점유율 (상위 10개 채널)" : label === "영상 연령" ? "영상 게시 시기 분포" : `"${result.keyword}" 검색 결과 ${label} 분포 (Top 20)`)}
                 tabs={[
@@ -188,6 +205,8 @@ export default function KeywordAnalysisPage() {
               <VideoList
                 videos={videos}
                 showChannel
+                onSummarize={summarize}
+                summarizeDisabled={!aiEngine.ready}
                 onAnalyzeChannel={(channelId) => router.push(`/channel-analysis?q=${encodeURIComponent(channelId)}`)}
                 exportName={`keyword-${result.keyword.replace(/[^\w가-힣]+/g, "_")}`}
                 exportJson={result}
@@ -196,6 +215,7 @@ export default function KeywordAnalysisPage() {
           )}
         </div>
       )}
+      <AiDrawer state={ai.state} onClose={ai.close} />
     </div>
   );
 }
