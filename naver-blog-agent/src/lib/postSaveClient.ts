@@ -17,7 +17,7 @@ export class PostSaveClient {
     if (post.id === this.id && this.revision === expected && !this.pending && !this.busy) this.revision = post.save_revision;
   }
   private async send(operation: Operation): Promise<Post> {
-    const response = await this.transport("/api/posts", {method: operation.method, headers: {"Content-Type": "application/json"}, body: JSON.stringify(operation.body)});
+    const response = await this.transport.call(globalThis, "/api/posts", {method: operation.method, headers: {"Content-Type": "application/json"}, body: JSON.stringify(operation.body)});
     const data = await response.json();
     if (!response.ok) {
       if (response.status === 409) this.conflict = true;

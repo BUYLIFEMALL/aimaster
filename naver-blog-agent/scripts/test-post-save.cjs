@@ -120,3 +120,9 @@ test('simultaneous identical settings saves acknowledge the one accepted receipt
   const h=make(),row=h.seed(),settings=h.load('app/api/posts/[id]/publishing/route.ts'),payload=body(h,row,{category:null,tags:['tag'],executionMode:'prepare'});
   const results=await Promise.all([settings.PUT(raw(payload),h.context),settings.PUT(raw(payload),h.context)]);assert.deepEqual(results.map(r=>r.status),[200,200]);assert.equal(h.writes.filter(w=>w.hits===1).length,1);
 });
+
+test('native browser fetch receives the global receiver instead of the save client object',async()=>{
+  const h=make(),{PostSaveClient}=h.load('lib/postSaveClient.ts');let sent;
+  function nativeLikeFetch(_url,init){assert.equal(this,globalThis,'Illegal invocation: browser receiver');sent=JSON.parse(init.body);return Promise.resolve({ok:true,status:200,json:async()=>({success:true,post:{id:ID,save_revision:'ack'}})});}
+  const client=new PostSaveClient({id:ID},true,nativeLikeFetch);assert.equal((await client.save({title:'test',content:'test'})).id,ID);assert.equal(sent.id,ID);
+});

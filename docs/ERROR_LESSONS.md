@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — native fetch를 클래스 필드로 호출하면 Chrome Illegal invocation (naver-blog-agent v1.72)
+
+- **증상:** 모의 API 검사·빌드가 통과했지만 실제 Chrome 회원 편집 저장 시 Failed to execute fetch on Window: Illegal invocation. 편집 버퍼는 남고 DB 저장은 발생하지 않았습니다.
+- **원인:** 기본 fetch를 클래스 필드에 보관한 뒤 this.transport(...)로 호출해 receiver가 저장 도우미 객체가 됐습니다. 화살표 함수로 만든 전송 모의 구현은 receiver를 검사하지 않았습니다.
+- **해결(위치):** PostSaveClient.send의 transport.call(globalThis,...), test-post-save.cjs의 일반 함수 기반 receiver 검사. 발행 설정용 전송 래퍼도 그대로 지원합니다.
+- **다음부터 확인:** native 브라우저 API를 전달/보관할 때 this 바인딩을 확인합니다. 모의 함수·Node fetch만 통과한 것을 실제 브라우저 저장 성공으로 보고하지 않습니다. 원고/이미지와 실패 편집 버퍼 보존도 함께 확인합니다.
+
 ## 2026-10-11 — 서버에서 읽은 updated_at만으로는 오래된 웹 편집본/응답 유실 중복을 막지 못함 (naver-blog-agent v1.71)
 
 - **증상:** 두 탭이 차례로 저장하면 구 편집본이 최신 저장을 덮고, 신규 POST 저장 응답이 끊긴 뒤 재시도하면 새 행이 생길 수 있었습니다. 다른 저장의 최신 버전을 열린 구 편집창에 공유하거나 부모 갱신으로 입력 버퍼를 초기화하는 문제도 있었습니다.
