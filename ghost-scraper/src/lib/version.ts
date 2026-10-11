@@ -1,7 +1,7 @@
-// GhostScraper PRO 버전 정보
+// GhostScraper 버전 정보
 // 규칙: 버전 형식은 v1.01 형태 (메이저.두자리마이너)
 // 배포할 때마다 마이너 +0.01 갱신
-export const APP_VERSION = "v1.01";
-export const APP_NAME = "GhostScraper PRO";
+export const APP_VERSION = "v1.02";
+export const APP_NAME = "GhostScraper";
 export const APP_SLUG = "ghost-scraper";
 export const THIS_PROGRAM_SLUG = "ghost-scraper";

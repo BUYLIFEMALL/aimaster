@@ -153,7 +153,7 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
       crawlResult,
       aiItems,
       exportedAt: new Date().toISOString(),
-      generator: "GhostScraper PRO v1.01",
+      generator: "GhostScraper v1.02",
     };
     exportDataAsJson(exportData, `ghost_scraper_${new URL(crawlResult.metadata.url).hostname}`);
   };
@@ -237,7 +237,7 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
 
         {/* 푸터 */}
         <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-          <p>© 2026 AIMaster · GhostScraper PRO · 사용자 개인 API 키 격리 보관 원칙 준수</p>
+          <p>© 2026 AIMaster · GhostScraper · 사용자 개인 API 키 격리 보관 원칙 준수</p>
         </footer>
       </div>
 

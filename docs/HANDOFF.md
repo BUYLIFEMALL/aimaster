@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — GhostScraper (ghost-scraper v1.02) 명칭에서 Pro 삭제
+
+주인님 요청으로 프로그램 공식 명칭에서 'PRO'를 삭제하여 `GhostScraper`로 통일했습니다.
+- **코드 및 DB 동기화**: `lib/version.ts`의 `APP_NAME = "GhostScraper"` 및 `APP_VERSION = "v1.02"` 갱신, `package.json` v1.02, DB `programs`의 `name = "GhostScraper"`, `version = "v1.02"` 업데이트 완료.
+- **배포 및 검증**: Vercel 프로덕션 배포 완료 (`https://ghost-scraper.buylife.xyz`), HTTP 307 SSO 게이트 및 명칭 정상 반영 확인.
+- **마이그레이션**: `ghost-scraper/supabase/migrations/0002_rename_to_ghost_scraper.sql`.
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.20) PRO 배지·날짜/날씨 삭제
 
 주인님 요청으로 사이드바 [키워드 파인더]의 PRO 배지와 헤더 하단 바의 날짜·날씨(고정 문구였음)를 삭제했습니다. API 연동 상태 안내는 유지. 확장 ZIP·DB v1.20.
