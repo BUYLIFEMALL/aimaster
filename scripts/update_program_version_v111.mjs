@@ -18,13 +18,13 @@ const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE
 
 async function main() {
   const slug = "naver-blog-allinone";
-  console.log(`Updating ${slug} version to v1.11...`);
+  console.log(`Updating ${slug} version to v1.12...`);
 
   const { data, error } = await supabase
     .from("programs")
     .update({
-      version: "v1.11",
-      extension_version: "v1.11",
+      version: "v1.12",
+      extension_version: "v1.12",
     })
     .eq("slug", slug)
     .select("slug, name, version, extension_version")

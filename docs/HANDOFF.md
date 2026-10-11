@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.12) 상단 헤더 내 중복 프로그램 타이틀/로고 박스 완전 삭제
+
+- **헤더 좌측 프로그램 타이틀·로고 블록 완전 삭제 (`Header.tsx`)**:
+  - 좌측 사이드바 상단에 이미 프로그램명(`네이버 블로그 올인원 자동화`), 버전 배지(`v1.12`), `FREE` 배지가 명확하게 존재하므로, 상단 헤더 좌측의 로고 아이콘, 타이틀, 설명 문구(`<Link href="/" ...>`) 박스를 완전 삭제.
+  - 데스크톱에서는 사이드바 중심의 깔끔한 단일 브랜드 뷰를 확보하고, 모바일에서는 사이드바 토글 햄버거 버튼만 깔끔하게 유지.
+- **버전 갱신 및 배포 동기화 (v1.12)**:
+  - `src/lib/version.ts` ➔ `v1.12`
+  - `extension/manifest.json` ➔ `v1.12` (`1.12.0`)
+  - `public/downloads/naver-blog-allinone-latest.zip` ➔ v1.12 최신 압축 재생성 완료
+  - 공용 DB `programs.version = 'v1.12'`, `programs.extension_version = 'v1.12'` 동기화 완료.
+- **검증 결과**: `npm run build` 100% 성공.
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.11) 헤더 내 사이드바 중복 버튼(설정·트렌드·확장다운로드) 제거 완료
 
 - **헤더 우측 중복 버튼 3개 완전 삭제 (`Header.tsx`)**:
