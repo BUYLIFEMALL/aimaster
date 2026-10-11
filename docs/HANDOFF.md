@@ -2,7 +2,7 @@
 
 ## 2026-10-11 Codex — 네이버 에이전트 v1.70 재시작/만료 복구
 
-남은 작업1번 진행. 실제 cursor3 확장 재로드→EDITOR_INTERRUPTED, snapshot/입력 기록/기존 준비 탭 보존·자동 재입력 없음 확인. 수신 응답 유실 뒤 실제3분 만료·본인 확인 복구를 검수합니다. 대기 숫자는 publishing을 포함하지만 목록에서는 숨기던 필터 오류를 재현·수정(실제 콜백3개, 기존2개 실패). 관련85개·로컬 빌드 통과. 배포·DB/ZIP·실제 복구 최종 증거는 [전용 인수인계](../naver-blog-agent/docs/RESTART_RECOVERY_2026-10-11.md)에 기록합니다. 스키마/키·BLOG 미수정.
+남은 작업1번 실제 검수 완료. cursor3 확장 재로드→EDITOR_INTERRUPTED, snapshot/입력 기록/기존 준비 탭 보존·자동 재입력 없음 확인. 수신 응답 유실 뒤 실제3분 자연 만료→본인 회원 화면 확인란/복구 버튼→draft/abandoned(UTC01:31:12.051), 본문/이미지 지문·준비 원고18/18 보존 확인. 대기 숫자는 publishing을 포함하지만 목록에서는 숨기던 필터 오류를 v1.70으로 수정(실제 콜백3개, 기존2개 실패). 관련85개·로컬/운영 빌드 통과. 코드e728e7e6 푸시·프로덕션dpl_4JGzeFKAFVSPSnwc9cD9Z11bcD4N READY·DB/확장/ZIP v1.70·릴리스 실패0/경고0·14파일 일치. 실제 검수 범위와 콘솔 제어 제한은 [전용 인수인계](../naver-blog-agent/docs/RESTART_RECOVERY_2026-10-11.md). 다음은 다중 웹 탭/POST 응답 유실 저장 보완, 본인 키 새 이미지1~5장, 별도 승인 후 최종 발행 순서입니다. 스키마/키·BLOG 미수정.
 
 ## 2026-10-10 YOUTUBE VIRAL FINDER v1.07 — 자동화 프로그램 명칭 'YOUTUBE VIRAL FINDER'로 전면 변경
 

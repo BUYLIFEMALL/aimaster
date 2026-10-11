@@ -6,6 +6,7 @@
 - **원인:** 요약 숫자는 queued+publishing, 실제 useMemo 상태 필터는 queued만 통과시켰습니다. 만료 원고도 복구 전까지 publishing입니다.
 - **해결(위치):** `naver-blog-agent/src/app/(dashboard)/queue/page.tsx`의 queued 필터에 publishing 포함. `scripts/test-queue-filter.cjs`가 실제 페이지 콜백을 실행하며 수정 전3개 중2개 실패→수정 후3개 통과합니다.
 - **다음부터 확인:** 숫자·상태 버튼·목록·작업 중/만료 복구를 함께 검수합니다. ‘전체’ 목록에서 보이는 것만으로 대기 필터를 통과했다고 판단하지 않고, 카테고리 필터 결합과 준비/임시보관/발행 완료도 보존합니다.
+- **운영 확인:** v1.70 실제 대기 필터에서 만료 원고가 표시되고 본인 확인란/복구 버튼으로 draft/abandoned 저장 후 목록1→0건을 확인했습니다. GUI 클릭 응답은 unverified였지만 후속 화면과 읽기 전용 DB 조회로 실제 저장·본문/이미지 보존을 검증했습니다.
 
 ## 2026-10-11 — 크롬 GUI 창 ID와 Chrome API 창 ID는 다르며 공유 화면은 검수 중 바뀔 수 있음 (naver-blog-agent v1.69 검수 도구)
 
