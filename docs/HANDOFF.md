@@ -1,5 +1,22 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Antigravity — 신규 프로그램 AI 유튜브 썸네일 프로 v1.01 (seo-thumbnail-pro)
+
+주인님이 주신 SEO Thumbnail Pro 캡처 8장 및 참고 사이트(`seo-thumbnail-pro-99gg.vercel.app`) 분석을 바탕으로, **유튜브 대본 분석 A/B 테스트 전략 수립 + 16:9 고화질 썸네일 제작 + 피드백 수정 루프**를 한 곳에서 완결하는 신규 서브프로그램을 개발하여 배포했습니다.
+
+- **핵심 워크플로우 (3-Column Layout, 흰색 베이스 클린 UI)**:
+  - **Step 1: 기획 및 전략**: 대본/기획안 직접 입력 및 텍스트(.txt, .md) 파일 업로드, Gemini 기반 A/B/C 3대 전략(호기심 유발형, 가치/혜택형, 스토리/감성형) 생성, 최적화 제목, SEO 설명(300자), 해시태그(5~8개), 유튜브 스튜디오 전용 태그(500자 쉼표 구분), 고정 댓글 전략 질문, 시각적 구성안, "이 전략으로 상세 설정 채우기" 원클릭 주입, 직접 SEO 메타데이터 역분석기 탑재.
+  - **Step 2: 썸네일 상세 설정**: 썸네일 문구, 핵심 비주얼 키워드, 10대 장르 프리셋, 10대 분위기 프리셋, 피사체(인물) 정밀 설정(한국인 기본 국적, 연령대, 성별, 외형 특징, 레퍼런스 인물 사진 업로드), 실시간 프롬프트 모니터링 & 복사.
+  - **Step 3: 결과물 & 피드백**: Gemini 16:9 고화질 렌더링, 전체화면 모달 뷰어, 1080p PNG 다운로드, 프롬프트 복사, 대화형 AI 피드백 수정 요청 루프(이전 이미지 컨텍스트 유지 기반 연속 수정).
+  - **보안 및 프로젝트 관리**: Google Gemini API 키 브라우저 로컬 스토리지 보관 및 연결 테스트 모달, 전체 프로젝트 JSON 백업/불러오기 지원.
+- **배포 및 DB 연동**:
+  - Vercel 프로덕션 배포: `https://seo-thumbnail-pro.buylife.xyz` (HTTP 200 OK 확인).
+  - DB `programs` 등록: slug `seo-thumbnail-pro`, version `v1.01`, badges `["new", "free"]`, 카테고리 `youtube`.
+  - 카탈로그 전용 16:9 실사 썸네일 생성 및 등록 완료: Gemini 3 Pro Image로 울트라와이드 모니터에서 유튜브 썸네일 분석 대시보드를 보는 한국인 크리에이터 실사 생성 → Supabase Storage `program-images/catalog/seo-thumbnail-pro-thumbnail.jpg` 업로드 및 DB `programs.thumbnail_url` 갱신 (`?v=1791716103377`).
+  - 로컬 백업 `seo-thumbnail-pro/public/seo-thumbnail-pro-thumbnail.jpg` 및 마이그레이션 SQL(`0001_register_seo_thumbnail_pro.sql`, `0002_update_thumbnail.sql`) 보존.
+- **검증**: `npm run build` 100% 성공 (Turbopack, Next.js 16).
+
+
 ## 2026-10-11 Claude Code — 신규 프로그램 STYLE DNA ANALYZER v1.01 (style-dna-analyzer)
 
 구글 AI 스튜디오 "스타일 DNA 분석기 V3"를 참고해 만든 새 프로그램입니다. 이미지 1장 → 카메라·조명·실제 팔레트·스타일 DNA·영어/한국어 마스터 프롬프트(복제/변이 모드) → 프롬프트 보정 → 결과 테스트(이미지 생성 + 색감 일치율 측정). https://style-dna-analyzer.buylife.xyz , DB `sda_analyses` + 버킷 `style-dna-images`, 카테고리 멀티미디어, 표준 요금제. 상세: `style-dna-analyzer/AGENTS.md`. 남은 일: 전용 썸네일(관리자 키 사용 확인 필요), 일반 회원 화면 검수.
