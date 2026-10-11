@@ -5,6 +5,7 @@ import { runBlogGenerationPipeline } from "@/lib/ai/pipeline";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isWritingTone, isWritingStyle } from "@/lib/ai/writingStyles";
 import { reviewFingerprint, withPostReview } from "@/lib/postReview";
+import { savedPost } from "@/lib/postSaveProtocol";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -82,14 +83,15 @@ export async function POST(req: Request) {
 
     const row={user_id:user.id,blog_id:blogId,category_name:result.category,title:result.title,content:result.content,tags:result.tags,images:result.images,status:"draft"};
     const summary=withPostReview(null,{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
-    let post:{id:string}|null=null,saveError:unknown=null;
-    try {const saved=await admin.from("nba_posts").insert({...row,research_summary:summary}).select("id").single();post=saved.data;saveError=saved.error;}
+    let post:any=null,saveError:unknown=null;
+    try {const saved=await admin.from("nba_posts").insert({...row,research_summary:summary}).select("*").single();post=saved.data;saveError=saved.error;}
     catch {saveError=true;}
 
     return NextResponse.json({
       success: true,
       result,
       postId:post?.id || null,
+      post:!saveError && post?.id ? savedPost(post) : null,
       saved:!saveError && Boolean(post?.id),
       ...((saveError || !post?.id)?{saveError:"생성한 원고의 서버 저장에 실패했습니다. 화면의 원고를 저장한 뒤 직접 검수해 주세요."}:{}),
     });

@@ -20,6 +20,7 @@ function harness() {
         if(limit!==null)hits=hits.slice(0,limit);
       }
       if(op==='insert'){
+        if(patch.id && db[table].some(row=>row.id===patch.id))return {data:null,error:{code:'23505',message:'duplicate'}};
         const row={id:'00000000-0000-4000-8000-'+String(++seq).padStart(12,'0'),created_at:'2026-10-10',updated_at:'2026-10-10',...patch};db[table].push(row);hits=[row];
       }
       if(op==='update')hits.forEach(row=>Object.assign(row,patch));
@@ -56,7 +57,7 @@ function harness() {
     if(reviewStatus)row.research_summary=review.withPostReview({sources:['보존']},{status:reviewStatus,source:'ai',note:'AI 결과',fingerprint:review.reviewFingerprint(row),checkedAt:'original'});
     db.nba_posts.push(row);return row;
   }
-  const context={params:Promise.resolve({id:ID})};const request=(body,token='token')=>({url:'https://test/api',headers:{get:()=>`Bearer ${token}`},json:async()=>body});
+  const context={params:Promise.resolve({id:ID})};const request=(body,token='token')=>({url:'https://test/api',headers:{get:()=>`Bearer ${token}`},json:async()=>body.id?{save_request_id:require('node:crypto').randomUUID(),expected_revision:db.nba_posts.find(row=>row.id===body.id)?load('lib/postSaveProtocol.ts').postSaveRevision(db.nba_posts.find(row=>row.id===body.id)):undefined,...body}:body});
   return {db,writes,reads,review,seed,generated,load,context,request,get input(){return input;},deny(){access=false;},fail(value){failure=value;},race(fn){race=fn;}};
 }
 test('manual review requires auth, owner, explicit confirmation and current fingerprint',async()=>{

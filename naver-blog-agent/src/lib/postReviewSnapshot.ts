@@ -6,6 +6,7 @@ function canonical(value: unknown): unknown {
   }
   return value;
 }
+export const stableJson = (value: unknown) => JSON.stringify(canonical(value));
 export function postReviewSnapshot(post: {blog_id?:unknown;title?:unknown;content?:unknown;tags?:unknown;images?:unknown}) {
-  return JSON.stringify(canonical({blog_id:post.blog_id || "",title:post.title || "",content:post.content || "",tags:post.tags || [],images:post.images || []}));
+  return stableJson({blog_id:post.blog_id || "",title:post.title || "",content:post.content || "",tags:post.tags || [],images:post.images || []});
 }

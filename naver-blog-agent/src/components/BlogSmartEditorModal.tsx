@@ -141,8 +141,11 @@ export default function BlogSmartEditorModal({
   const [linkUrlInput, setLinkUrlInput] = useState("");
 
   // 모달이 열릴 때 초기 데이터 세팅
+  const initialized = useRef(false);
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) { initialized.current=false; return; }
+    if (!initialized.current) {
+      initialized.current=true;
       setTitle(initialTitle);
       setExcerpt(initialExcerpt);
       setTags([...initialTags]);

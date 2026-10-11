@@ -32,6 +32,7 @@ import type { ExecutionStatus } from "@/lib/executionStatus";
 import BlogSmartEditorModal from "@/components/BlogSmartEditorModal";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import { bodyImageAt } from "@/lib/draftImages";
+import { PostSaveClient, mergeSavedPosts } from "@/lib/postSaveClient";
 import PostReviewGate from "@/components/PostReviewGate";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import type { CollectorCategory } from "@/types/collector";
@@ -51,6 +52,8 @@ interface SavedPostItem {
   images?: { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[];
   status: "draft" | "queued" | "publishing" | "prepared" | "published" | "failed";
   created_at: string;
+  updated_at?: string;
+  save_revision?: string;
   published_at?: string;
   post_url?: string;
   error_message?: string;
@@ -59,6 +62,7 @@ interface SavedPostItem {
 
 export default function QueuePage() {
   const listEpoch=useRef(0);
+  const savers=useRef(new Map<string,PostSaveClient>());
   const [posts, setPosts] = useState<SavedPostItem[]>([]);
   const [selectedPost, setSelectedPost] = useState<SavedPostItem | null>(null);
   const [viewingDetailPost, setViewingDetailPost] = useState<SavedPostItem | null>(null);
@@ -132,11 +136,18 @@ export default function QueuePage() {
     return ()=>clearInterval(timer);
   },[hasRunning,fetchPosts]);
 
-  const savePosts = (items: SavedPostItem[]) => {
-    listEpoch.current++;
-    setIsLoading(false);
-    setPosts(items);
-    localStorage.setItem("nba_saved_posts", JSON.stringify(items));
+  const mergePosts = (accepted: SavedPostItem[], removed: string[] = []) => {
+    listEpoch.current++;setIsLoading(false);
+    setPosts(current=>mergeSavedPosts(current,accepted,removed));
+  };
+  useEffect(()=>{if(!isLoading){try{localStorage.setItem("nba_saved_posts",JSON.stringify(posts));}catch{/* The server remains the source of saved drafts. */}}},[posts,isLoading]);
+  const writePost = async (post: SavedPostItem, fields: Record<string,unknown>) => {
+    let saver=savers.current.get(post.id);
+    if(saver?.pending && post.save_revision!==saver.pending.body.expected_revision)throw new Error("저장 확인 중인 원고와 편집본이 다릅니다. 현재 내용을 보관한 뒤 다시 열어 주세요.");
+    if(!saver || (!saver.pending && !saver.busy && post.save_revision!==saver.revision)){
+      saver=new PostSaveClient(post);savers.current.set(post.id,saver);
+    }
+    return await saver.save(fields) as SavedPostItem;
   };
 
   // 5. 카테고리 업데이트 핸들러 (모달 연계)
@@ -146,56 +157,19 @@ export default function QueuePage() {
 
   // 6. 카테고리 삭제 시 연계 원고 안전 전환
   const handleCategoryDeleted = async (deletedCategoryName: string) => {
-    const affectedPosts = posts.filter((p) => p.category_name === deletedCategoryName);
-    if (affectedPosts.length === 0) return;
-
-    const updated = posts.map((p) => {
-      if (p.category_name === deletedCategoryName) {
-        return { ...p, category_name: "일반" };
-      }
-      return p;
-    });
-    savePosts(updated);
-
-    // 서버 DB에도 비동기 반영
-    try {
-      await Promise.allSettled(
-        affectedPosts.map((p) =>
-          fetch("/api/posts", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: p.id, category_name: "일반" }),
-          })
-        )
-      );
-    } catch (err) {
-      console.warn("카테고리 삭제 후 원고 일괄 갱신 오류:", err);
-    }
+    const targets=posts.filter(post=>post.category_name===deletedCategoryName);
+    const outcomes=await Promise.allSettled(targets.map(post=>writePost(post,{category_name:"일반"})));
+    const accepted=outcomes.filter((item):item is PromiseFulfilledResult<SavedPostItem>=>item.status==="fulfilled").map(item=>item.value);
+    mergePosts(accepted);
+    if(accepted.length!==targets.length)alert("일부 원고의 분류를 변경하지 못했습니다. 최신 원고를 확인해 주세요.");
   };
 
-  // 7. 단일 원고 카테고리 즉시 변경
   const handleUpdatePostCategory = async (postId: string, newCategory: string) => {
-    const updated = posts.map((p) => {
-      if (p.id === postId) {
-        return { ...p, category_name: newCategory };
-      }
-      return p;
-    });
-    savePosts(updated);
-
-    if (viewingDetailPost?.id === postId) {
-      setViewingDetailPost((prev) => (prev ? { ...prev, category_name: newCategory } : null));
-    }
-
+    const target=posts.find(post=>post.id===postId);if(!target)return;
     try {
-      await fetch("/api/posts", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: postId, category_name: newCategory }),
-      });
-    } catch (err) {
-      console.warn("서버 원고 카테고리 갱신 실패:", err);
-    }
+      const saved=await writePost(target,{category_name:newCategory});mergePosts([saved]);
+      setViewingDetailPost(previous=>previous?.id===postId?{...previous,...saved}:previous);
+    }catch(error){alert(error instanceof Error?error.message:"원고 분류 저장 실패");}
   };
 
   // 8. 다중 선택 체크박스 조작
@@ -231,27 +205,11 @@ export default function QueuePage() {
     const targetCat = bulkMoveCategory;
     const targetIds = [...checkedIds];
 
-    const updated = posts.map((p) => {
-      if (targetIds.includes(p.id)) {
-        return { ...p, category_name: targetCat };
-      }
-      return p;
-    });
-    savePosts(updated);
-
-    try {
-      await Promise.allSettled(
-        targetIds.map((id) =>
-          fetch("/api/posts", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, category_name: targetCat }),
-          })
-        )
-      );
-    } catch (err) {
-      console.warn("서버 카테고리 일괄 이동 실패:", err);
-    }
+    const targets=posts.filter(post=>targetIds.includes(post.id));
+    const outcomes=await Promise.allSettled(targets.map(post=>writePost(post,{category_name:targetCat})));
+    const accepted=outcomes.filter((item):item is PromiseFulfilledResult<SavedPostItem>=>item.status==="fulfilled").map(item=>item.value);
+    mergePosts(accepted);
+    if(accepted.length!==targets.length)alert("일부 원고의 분류를 변경하지 못했습니다. 최신 원고를 확인해 주세요.");
 
     setIsBulkUpdating(false);
     setCheckedIds([]);
@@ -269,14 +227,11 @@ export default function QueuePage() {
     setIsBulkUpdating(true);
     const targetIds = [...checkedIds];
     const outcomes=await Promise.allSettled(targetIds.map(async id=>{
-      const res=await fetch("/api/posts", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, status: "queued", publish_visibility: publishVisibility }),
-      });const data=await res.json();if(!res.ok)throw new Error(data.error || "전송 실패");return data.post;
+      const post=posts.find(item=>item.id===id);if(!post)throw new Error("원고를 다시 확인해 주세요.");
+      return writePost(post,{status:"queued",publish_visibility:publishVisibility});
     }));
     const accepted=outcomes.filter((outcome):outcome is PromiseFulfilledResult<SavedPostItem>=>outcome.status==="fulfilled").map(outcome=>outcome.value);
-    savePosts(posts.map(post=>accepted.find(item=>item.id===post.id) || post));
+    mergePosts(accepted);
 
     setIsBulkUpdating(false);
     setCheckedIds([]);
@@ -297,7 +252,7 @@ export default function QueuePage() {
       const data=await res.json();if(!res.ok || data.success!==true)throw new Error(data.error || "삭제 실패");return id;
     }));
     const accepted=outcomes.filter((item):item is PromiseFulfilledResult<string>=>item.status==="fulfilled").map(item=>item.value);
-    savePosts(posts.filter(post=>!accepted.includes(post.id)));
+    mergePosts([],accepted);
     if(viewingDetailPost && accepted.includes(viewingDetailPost.id))setViewingDetailPost(null);
     setIsBulkUpdating(false);setCheckedIds([]);
     alert(`삭제 ${accepted.length}건 / 실패 ${targetIds.length-accepted.length}건. 진행 중인 원고는 먼저 결과를 확인해 주세요.`);
@@ -307,14 +262,10 @@ export default function QueuePage() {
   const handlePublishNow = async (id: string) => {
     if (publishVisibility === "public" && !confirm("전체공개 설정으로 전송합니다. 저장한 진행 방식이 자동 발행이면 최종 버튼까지 누릅니다. 계속하시겠습니까?")) return;
     try {
-      const res=await fetch("/api/posts", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, status: "queued", publish_visibility: publishVisibility }),
-      });
-      const data=await res.json();if(!res.ok || !data.post)throw new Error(data.error || "전송 실패");
-      savePosts(posts.map(post=>post.id===id?data.post:post));
-    } catch (err) {
+      const target=posts.find(post=>post.id===id);if(!target)throw new Error("원고를 다시 확인해 주세요.");
+      const saved=await writePost(target,{status:"queued",publish_visibility:publishVisibility});
+      mergePosts([saved]);
+    }catch(err){
       alert(err instanceof Error?err.message:"작업 대기 등록 실패");return;
     }
 
@@ -329,7 +280,7 @@ export default function QueuePage() {
     try {
       const res=await fetch(`/api/posts?id=${encodeURIComponent(id)}`,{method:"DELETE"});
       const data=await res.json();if(!res.ok || data.success!==true)throw new Error(data.error || "삭제 저장을 확인하지 못했습니다.");
-      savePosts(posts.filter(post=>post.id!==id));
+      mergePosts([],[id]);
       setCheckedIds(prev=>prev.filter(item=>item!==id));
       if(viewingDetailPost?.id===id)setViewingDetailPost(null);
     }catch(err){alert(err instanceof Error?err.message:"삭제를 확인하지 못했습니다.");}
@@ -371,12 +322,9 @@ export default function QueuePage() {
     isHtml: boolean;
   }) => {
     if(!editingPost)return false;
-    const targetId=editingPost.id;
     try {
-      const res=await fetch("/api/posts",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:targetId,title:updated.title,content:updated.content,excerpt:updated.excerpt,tags:updated.tags,category_name:updated.category || editingPost.category_name || "일반"})});
-      const data=await res.json();
-      if(!res.ok || data.post?.id!==targetId)throw new Error(data.error || "서버 원고 저장 실패");
-      savePosts(posts.map(post=>post.id===targetId?{...post,...data.post}:post));
+      const saved=await writePost(editingPost,{title:updated.title,content:updated.content,tags:updated.tags,category_name:updated.category || editingPost.category_name || "일반"});
+      mergePosts([saved]);
       setEditingPost(null);
       alert("편집한 원고를 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
       return true;
@@ -1188,9 +1136,10 @@ export default function QueuePage() {
 
             {/* 모달 본문 (스크롤 영역) */}
             <div className="p-6 overflow-y-auto space-y-5 flex-1">
-              <NaverPublishSettings postId={viewingDetailPost.id} onBlockingChange={setPublishingBlocked} onSaved={tags => {
-                setPosts(prev => prev.map(p => p.id === viewingDetailPost.id ? { ...p, tags, status:p.status==="prepared"?"draft":p.status } : p));
-                setViewingDetailPost(prev => prev ? { ...prev, tags } : prev);
+              <NaverPublishSettings postId={viewingDetailPost.id} saveRevision={viewingDetailPost.save_revision} onBlockingChange={setPublishingBlocked} onSaved={(_tags,post,expected) => {
+                savers.current.get(post.id)?.adopt(post,expected);
+                mergePosts([post]);
+                setViewingDetailPost(prev => prev?.id===post.id ? mergeSavedPosts([prev],[post])[0] : prev);
               }} />
               <PostReviewGate key={viewingDetailPost.id} postId={viewingDetailPost.id} snapshot={postReviewSnapshot(viewingDetailPost)} onBlockingChange={setReviewBlocked} />
 

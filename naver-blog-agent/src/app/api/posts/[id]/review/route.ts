@@ -3,6 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPostReview, withPostReview } from "@/lib/postReview";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
+import { postSaveRevision } from "@/lib/postSaveProtocol";
 
 export const dynamic="force-dynamic";
 export const fetchCache="force-no-store";
@@ -19,7 +20,7 @@ export async function GET(_req:Request,context:Context) {
   const {data,error}=await owned(context,access.userId);
   if(error)return reply({error:"검수 기록을 확인하지 못했습니다."},503);
   if(!data)return reply({error:"본인 원고를 찾을 수 없습니다."},404);
-  return reply({review:getPostReview(data),snapshot:postReviewSnapshot(data),postStatus:data.status});
+  return reply({review:getPostReview(data),snapshot:postReviewSnapshot(data),postStatus:data.status,save_revision:postSaveRevision(data)});
 }
 export async function POST(req:Request,context:Context) {
   const access=await checkProgramAccessApi();if(!access.allowed)return reply({error:access.error},access.status);

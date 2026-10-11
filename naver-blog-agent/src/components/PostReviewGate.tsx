@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { PostSaveClient } from "@/lib/postSaveClient";
 
 type Review={state:string;allowed:boolean;note:string;source:string;fingerprint:string;aiStatus?:string|null;aiNote?:string|null};
 export default function PostReviewGate({postId,snapshot,onBlockingChange}:{postId:string|null;snapshot:string;onBlockingChange:(blocked:boolean)=>void}) {
@@ -10,8 +11,10 @@ export default function PostReviewGate({postId,snapshot,onBlockingChange}:{postI
   const [reviewFor,setReviewFor]=useState("");
   const [postStatus,setPostStatus]=useState("");
   const [refresh,setRefresh]=useState(0);
-  const latest=useRef(snapshot);latest.current=snapshot;
+  const latest=useRef(snapshot);
+  useEffect(()=>{latest.current=snapshot;},[snapshot]);
   const active=useRef(true);
+  const cancelSaver=useRef<PostSaveClient|null>(null);
   useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
   useEffect(()=>{onBlockingChange(reviewFor!==snapshot || !review?.allowed || busy || Boolean(error));return()=>onBlockingChange(true);},[review,reviewFor,snapshot,busy,error,onBlockingChange]);
   useEffect(()=>{
@@ -23,7 +26,7 @@ export default function PostReviewGate({postId,snapshot,onBlockingChange}:{postI
         const res=await fetch(`/api/posts/${postId}/review`,{cache:"no-store"});const data=await res.json();
         if(!res.ok)throw new Error(data.error || "검수 기록 조회 실패");
         if(data.snapshot!==snapshot)throw new Error("화면 원고와 서버 저장본이 다릅니다. 원고를 저장한 뒤 보관함에서 다시 열어 검수해 주세요.");
-        if(!cancelled){setReview(data.review);setReviewFor(snapshot);setPostStatus(data.postStatus);}
+        if(!cancelled){cancelSaver.current=new PostSaveClient({id:postId,save_revision:data.save_revision});setReview(data.review);setReviewFor(snapshot);setPostStatus(data.postStatus);}
       }catch(e){if(!cancelled)setError(e instanceof Error?e.message:"검수 기록 조회 실패");}
       finally{if(!cancelled)setBusy(false);}
     })();return()=>{cancelled=true;};
@@ -31,8 +34,8 @@ export default function PostReviewGate({postId,snapshot,onBlockingChange}:{postI
   async function cancelQueued() {
     setBusy(true);setError("");
     try {
-      const res=await fetch("/api/posts",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:postId,status:"draft"})});
-      const data=await res.json();if(!res.ok)throw new Error(data.error || "작업 대기 취소 실패");
+      if(!cancelSaver.current)throw new Error("최신 원고를 다시 확인해 주세요.");
+      await cancelSaver.current.save({status:"draft"});
       if(active.current)setRefresh(value=>value+1);
     }catch(e){if(active.current)setError(e instanceof Error?e.message:"작업 대기 취소 실패");}
     finally{if(active.current)setBusy(false);}

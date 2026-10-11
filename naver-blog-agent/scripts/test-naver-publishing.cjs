@@ -2,12 +2,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
+const crypto=require('node:crypto');
 const root = path.resolve(__dirname, '..');
 let access = { allowed: true, userId: 'owner' }, race = false;
 const id = '00000000-0000-4000-8000-000000000001';
 const otherId = '00000000-0000-4000-8000-000000000002';
 const rows = [
-  { id, user_id:'owner', blog_id:'myblog', title:'보존 제목', content:'보존 본문', images:[{url:'https://example.com/a.png'}], tags:['기존'], status:'draft', research_summary:{sources:['기존 자료']} },
+  { id, updated_at:'2026-10-11T00:00:00Z', user_id:'owner', blog_id:'myblog', title:'보존 제목', content:'보존 본문', images:[{url:'https://example.com/a.png'}], tags:['기존'], status:'draft', research_summary:{sources:['기존 자료']} },
   { id:otherId, user_id:'other', blog_id:'myblog', status:'draft', research_summary:null, tags:[] },
 ];
 const accounts = [{id:'a1',user_id:'owner',blog_id:'myblog',default_category:null},{id:'a2',user_id:'other',blog_id:'myblog',default_category:'타인 기본값'}];
@@ -34,13 +35,14 @@ function load(file){
   const req=name=>name==='next/server'?{NextResponse:{json:(body,init)=>({body,status:init?.status||200})}}:
     name==='@/lib/access'?{checkProgramAccessApi:async()=>access}:
     name==='@/lib/supabase/admin'?{createAdminClient:()=>admin}:
-    name==='@/lib/naverPublishing'?load('src/lib/naverPublishing.ts'):require(name);
+    name.startsWith('@/')?load('src/'+name.slice(2)+'.ts'):
+    name.startsWith('.')?load(path.relative(root,path.resolve(root,path.dirname(file),name))+'.ts'):require(name);
   new Function('require','module','exports',js)(req,module,module.exports);
   return module.exports;
 }
 const route=load('src/app/api/posts/[id]/publishing/route.ts');
 const context=value=>({params:Promise.resolve({id:value})});
-const request=body=>({json:async()=>body});
+const request=body=>({json:async()=>({save_request_id:crypto.randomUUID(),expected_revision:load('src/lib/postSaveProtocol.ts').postSaveRevision(rows[0]),...body})});
 (async()=>{
   access={allowed:false,status:403,error:'이용 권한 없음'};
   assert.equal((await route.GET({},context(id))).status,403);

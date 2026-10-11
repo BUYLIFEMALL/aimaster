@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const ts = require('typescript');
+const crypto=require('node:crypto');
 const root = path.resolve(__dirname, '..', 'src');
 
 const cache = new Map();
@@ -20,16 +21,17 @@ function table(name) {
     limit() { return api; },
     eq(col, val) { filters[col] = val; return api; },
     upsert(row) { op = 'upsert'; payload = row; return api; },
-    insert(row) { op = 'upsert'; payload = row; return api; },
+    insert(row) { op = 'insert'; payload = row; return api; },
     update(row) { op = 'update'; payload = row; return api; },
-    maybeSingle: async () => ({ data: db[name].find((r) => Object.entries(filters).every(([k, v]) => r[k] === v)) || null }),
+    maybeSingle: async () => op==='select'?({ data: db[name].find((r) => Object.entries(filters).every(([k, v]) => r[k] === v)) || null }):api.single(),
     single: async () => {
       if(op==='update'){
         upserts.push({...payload});
         const row=db[name].find(r=>Object.entries(filters).every(([k,v])=>r[k]===v));
         return row?{data:Object.assign(row,payload),error:null}:{data:null,error:{message:'not found'}};
       }
-      if (op === 'upsert') {
+      if (op === 'insert' && db[name].some(row=>row.id===payload.id))return {data:null,error:{code:'23505'}};
+      if (op === 'upsert' || op === 'insert') {
         upserts.push({ ...payload });
         const i = db[name].findIndex((r) => r.id === payload.id);
         const merged = i >= 0 ? Object.assign(db[name][i], payload) : (db[name].push({ id: payload.id || 'new-uuid-1', ...payload }), db[name][db[name].length - 1]);
@@ -57,6 +59,8 @@ function loadTS(rel) {
     if (id === '@/lib/postStatus') return loadTS('lib/postStatus.ts');
     if (id === '@/lib/postReview') return loadTS('lib/postReview.ts');
     if (id === './postReviewSnapshot') return loadTS('lib/postReviewSnapshot.ts');
+    if(id.startsWith('@/'))return loadTS(id.slice(2)+'.ts');
+    if(id.startsWith('.'))return loadTS(path.relative(root,path.resolve(path.dirname(filename),id))+'.ts');
     return require(id);
   };
   vm.runInThisContext(`(function(require,module,exports){${js}\n})`, { filename })(mockRequire, module, module.exports);
@@ -88,7 +92,9 @@ assert.equal(resolveSaveStatus('published', 'queued'), 'queued', '명시적 큐 
   );
   const review=loadTS('lib/postReview.ts'),queued=db.nba_posts.find(row=>row.id===B);
   queued.research_summary=review.withPostReview(null,{status:'PASS',source:'ai',fingerprint:review.reviewFingerprint(queued),note:'검수',checkedAt:'now'});
-  const post = (body) => posts.POST({ json: async () => body });
+  for(const row of db.nba_posts)row.updated_at='2026-10-11T00:00:00Z';
+  const request=body=>({json:async()=>({save_request_id:crypto.randomUUID(),expected_revision:db.nba_posts.find(row=>row.id===body.id)?loadTS('lib/postSaveProtocol.ts').postSaveRevision(db.nba_posts.find(row=>row.id===body.id)):undefined,...body})});
+  const post = body => posts.POST(request(body));
 
   // 발행된 글을 "보관함 저장"(draft)해도 상태 유지, 내용은 갱신
   let res = await post({ id: A, title: '수정된 제목', content: '본문', status: 'draft' });
@@ -104,29 +110,27 @@ assert.equal(resolveSaveStatus('published', 'queued'), 'queued', '명시적 큐 
   await post({ id: B, title: '대기', content: '본문' });
   assert.equal(db.nba_posts.find((r) => r.id === B).status, 'queued');
 
-  // 다른 회원의 글 ID로 저장 요청이 와도 그 글을 덮어쓰지 않는다 → 내 새 글로 저장(그 ID는 쓰지 않음)
-  const before = db.nba_posts.length;
-  await post({ id: C, title: '내 글처럼', content: '본문', status: 'draft' });
-  assert.equal(upserts.at(-1).status, 'draft');
-  assert.equal('id' in upserts.at(-1), false, '남의 글 ID를 그대로 쓰면 안 됨');
-  const foreign = db.nba_posts.find((r) => r.id === C);
-  assert.deepEqual([foreign.user_id, foreign.status, foreign.title], ['user-b', 'published', '남의 글'], '남의 글은 그대로');
-  assert.equal(db.nba_posts.length, before + 1, '내 새 글이 따로 생김');
-
-  // 새 글(임시 ID)은 draft, 큐 등록 요청은 queued
-  await post({ id: 'post-1791513869817', title: '새 글', content: '본문', status: 'draft' });
-  assert.equal(upserts.at(-1).status, 'draft');
-  assert.equal((await post({ id: 'post-1791513869818', title: '새 글2', content: '본문', status: 'queued' })).status,422);
-  assert.equal(upserts.at(-1).status, 'draft','미검수 신규 원고는 전송하지 않음');
+  // Foreign IDs are rejected without creating duplicate personal copies.
+  const before=db.nba_posts.length,writesBefore=upserts.length;
+  assert.equal((await post({id:C,create:true,title:'copy',content:'body',status:'draft'})).status,409);
+  const foreign=db.nba_posts.find(row=>row.id===C);
+  assert.deepEqual([foreign.user_id,foreign.status,foreign.title],['user-b','published','남의 글']);
+  assert.equal(db.nba_posts.length,before);assert.equal(upserts.length,writesBefore);
+  assert.equal((await post({id:'post-1791513869817',title:'legacy',content:'body'})).status,409);
+  const D='44444444-4444-4444-8444-444444444444',E='55555555-5555-4555-8555-555555555555';
+  assert.equal((await post({id:D,create:true,title:'new',content:'body',status:'draft'})).status,200);
+  assert.equal(upserts.at(-1).status,'draft');
+  assert.equal((await post({id:E,create:true,title:'unreviewed',content:'body',status:'queued'})).status,422);
+  assert.equal(upserts.at(-1).status,'draft');
 
   db.nba_posts.find(r=>r.id===B).status='prepared';
-  let edited=await posts.PUT({json:async()=>({id:B,title:'준비 후 수정'})});
+  let edited=await posts.PUT(request({id:B,title:'준비 후 수정'}));
   assert.equal(edited.status,200);assert.equal(db.nba_posts.find(r=>r.id===B).status,'draft');
   db.nba_posts.find(r=>r.id===B).status='prepared';
   await post({id:B,title:'준비 후 저장',status:'draft'});
   assert.equal(db.nba_posts.find(r=>r.id===B).status,'draft');
   assert.equal((await post({id:B,title:'허위 준비',status:'prepared'})).status,400);
-  assert.equal((await posts.PUT({json:async()=>({id:B,status:'prepared'})})).status,400);
+  assert.equal((await posts.PUT(request({id:B,status:'prepared'}))).status,400);
   assert.equal(db.nba_posts.find(r=>r.id===B).status,'draft');
 
   console.log('post status ok');

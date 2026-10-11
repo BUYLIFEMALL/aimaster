@@ -3,16 +3,20 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { fetchNaverCategories } from "@/lib/naverExtensionClient";
 import { normalizeNaverTags, type NaverCategory, type NaverExecutionMode } from "@/lib/naverPublishing";
+import { PostSaveClient } from "@/lib/postSaveClient";
 
-type Props = { postId: string | null; onSaved?: (tags: string[]) => void; onBlockingChange?: (blocked: boolean) => void };
+type Props = { postId: string | null; saveRevision?: string; onSaved?: (tags: string[], post:any, expected:string|undefined) => void; onBlockingChange?: (blocked: boolean) => void };
 export default function NaverPublishSettings(props: Props) {
   return <SettingsForm key={props.postId || "unsaved"} {...props} />;
 }
 
-function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
+function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props) {
   const validId = Boolean(postId && /^[\da-f-]{36}$/i.test(postId));
   const id = useId();
   const mounted = useRef(true);
+  const saver=useRef<PostSaveClient|null>(null);
+  const previousRevision=useRef(saveRevision);
+  const [reload, setReload]=useState(0);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const [identity, setIdentity] = useState<{userId: string; blogId: string} | null>(null);
   const [category, setCategory] = useState<NaverCategory | null>(null);
@@ -30,21 +34,31 @@ function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
   const dirty = savedForm !== null && form !== savedForm;
   const pendingTag = Boolean(tagInput.trim());
   useEffect(() => {
-    onBlockingChange?.(Boolean(busy) || dirty || pendingTag || (validId && !identity));
+    onBlockingChange?.(Boolean(busy) || Boolean(error) || dirty || pendingTag || (validId && !identity));
     return () => { onBlockingChange?.(false); };
-  }, [busy, dirty, pendingTag, validId, identity, onBlockingChange]);
+  }, [busy, error, dirty, pendingTag, validId, identity, onBlockingChange]);
+
+  useEffect(() => {
+    if(previousRevision.current === saveRevision)return;
+    previousRevision.current=saveRevision;
+    if(saver.current?.revision === saveRevision)return;
+    if(dirty || pendingTag || busy){setError("원고가 변경됐습니다. 입력한 설정을 복사해 보관한 뒤 최신 설정을 다시 불러와 주세요.");return;}
+    setReload(value=>value+1);
+  }, [saveRevision, dirty, pendingTag, busy]);
 
   useEffect(() => {
     let cancelled = false;
     if (!validId) return;
+    setBusy("load");setError("");setMessage("");
     (async () => {
       try {
         const res = await fetch(`/api/posts/${postId}/publishing`, {cache:"no-store"});
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "발행 설정을 불러오지 못했습니다.");
         if (!cancelled) {
+          saver.current=new PostSaveClient({id:postId!,save_revision:data.save_revision},false,(_url,init)=>fetch(`/api/posts/${postId}/publishing`,init));
           setIdentity({userId:data.userId,blogId:data.blogId}); setCategory(data.category);
-          setDefaultCategory(data.defaultCategory); setTags(data.tags);
+          setDefaultCategory(data.defaultCategory); setTags(data.tags);setTagInput("");setSetDefault(false);
           setExecutionMode(data.executionMode);
           setSavedForm(JSON.stringify({category:data.category,tags:data.tags,setDefault:false,executionMode:data.executionMode}));
         }
@@ -52,7 +66,7 @@ function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
       finally { if (!cancelled) setBusy(null); }
     })();
     return () => { cancelled = true; };
-  }, [postId, validId]);
+  }, [postId, validId, reload]);
 
   async function loadCategories() {
     if (!identity) return;
@@ -74,11 +88,12 @@ function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
     setBusy("save"); setError(""); setMessage("");
     try {
       if (tagInput.trim()) throw new Error("입력 중인 태그를 먼저 추가해 주세요.");
-      const res = await fetch(`/api/posts/${postId}/publishing`, { method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({category,tags,setDefault,executionMode}) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "발행 설정 저장 실패");
+      if(!saver.current)throw new Error("최신 원고의 발행 설정을 다시 열어 주세요.");
+      const expected=saver.current.revision;
+      const post=await saver.current.save({category,tags,setDefault,executionMode});
+      const data={tags:post.tags,executionMode};
       if (!mounted.current) return;
-      setTags(data.tags); setExecutionMode(data.executionMode); onSaved?.(data.tags); setMessage("진행 방식·카테고리·태그를 저장했습니다. 다음 전송에 적용됩니다. 준비 완료 원고의 설정을 바꾸면 다시 준비해야 합니다.");
+      setTags(data.tags); setExecutionMode(data.executionMode); onSaved?.(data.tags,post,expected); setMessage("진행 방식·카테고리·태그를 저장했습니다. 다음 전송에 적용됩니다. 준비 완료 원고의 설정을 바꾸면 다시 준비해야 합니다.");
       if (setDefault) setDefaultCategory(category?.name || "");
       setSetDefault(false); setSavedForm(JSON.stringify({category,tags:data.tags,setDefault:false,executionMode:data.executionMode}));
     } catch (err) { if (mounted.current) setError(err instanceof Error ? err.message : "발행 설정 저장 실패"); }
@@ -108,7 +123,7 @@ function SettingsForm({ postId, onSaved, onBlockingChange }: Props) {
       <p className="text-xs font-semibold text-neutral-700">자동 등록 태그 ({tags.length}/10)</p>
       <div className="flex flex-wrap gap-2">{tags.map(tag=><button type="button" key={tag} aria-label={`${tag} 태그 삭제`} disabled={Boolean(busy)} onClick={()=>{setTags(tags.filter(t=>t!==tag));setMessage("");}} className="rounded-lg border border-neutral-200 px-2 py-1 text-xs text-neutral-700">#{tag} ×</button>)}</div>
       <div className="flex gap-2"><input aria-label="네이버 태그 추가" value={tagInput} onChange={event=>setTagInput(event.target.value)} onKeyDown={event=>{if(event.key==="Enter"){event.preventDefault();addTag();}}} disabled={Boolean(busy)} placeholder="태그 입력 후 추가 또는 Enter" className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900" /><button type="button" disabled={Boolean(busy)} onClick={addTag} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-700">태그 추가</button></div>
-      <div className="flex justify-end"><button type="button" disabled={!identity || Boolean(busy)} onClick={save} className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50">{busy==="save" ? "저장 중…" : "발행 설정 저장"}</button></div>
+      <div className="flex justify-end gap-2"><button type="button" disabled={Boolean(busy)} onClick={()=>{if((dirty || pendingTag) && !confirm("변경한 설정을 먼저 복사해 보관해 주세요. 최신 설정을 다시 불러오면 현재 입력 중인 설정이 바뀝니다. 계속하시겠습니까?"))return;setReload(value=>value+1);}} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-700 disabled:opacity-50">설정 다시 불러오기</button><button type="button" disabled={!identity || Boolean(busy)} onClick={save} className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50">{busy==="save" ? "저장 중…" : "발행 설정 저장"}</button></div>
     </>}
     {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
     {(dirty || pendingTag) && <p className="text-xs text-amber-700">변경한 발행 설정을 저장한 뒤 발행 전송해 주세요.</p>}

@@ -43,7 +43,7 @@ import { BLOG_PERSONAS, type BlogPersona } from "@/types/persona";
 import type { BlogViralCandidate, CollectorCategory } from "@/types/collector";
 import { useContentCategories } from "@/hooks/useContentCategories";
 import { buildEditedPostPatch } from "@/lib/editedPostSave";
-import { resolveSaveStatus } from "@/lib/postStatus";
+import { PostSaveClient, mergeSavedPosts } from "@/lib/postSaveClient";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import {
@@ -110,6 +110,9 @@ export default function MainPage() {
   const sourceEpoch = useRef(0);
   const imageBusy = useRef<number | null>(null);
   const postIdRef = useRef<string | null>(null);
+  const postSaveRef = useRef<PostSaveClient | null>(null);
+  const [saveRevision,setSaveRevision] = useState<string | undefined>();
+  const editorSaveRef = useRef<PostSaveClient | null>(null);
   useEffect(() => () => { sourceEpoch.current++; }, []);
   const [imageGenerating, setImageGenerating] = useState<{ done: number; total: number } | null>(null);
   const [singleGeneratingIndex, setSingleGeneratingIndex] = useState<number | null>(null);
@@ -327,32 +330,28 @@ export default function MainPage() {
     // Queue state is visible only after the server accepted the reviewed content.
     let serverPost:any=null;
     try {
-      const res=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(postItem)});
-      const data=await res.json();
-      if(!res.ok || !data.post?.id)throw new Error(data.error || "서버 원고 저장 실패");
-      serverPost=data.post;
+      if(!postSaveRef.current || postSaveRef.current.id!==postId){
+        const id=/^[0-9a-f-]{36}$/i.test(postId)?postId:crypto.randomUUID();
+        postSaveRef.current=new PostSaveClient({id},true);
+        postId=id;postIdRef.current=id;setCurrentPostId(id);
+      }
+      const {id:_id,created_at:_created,...fields}=postItem;
+      if(status==="draft" && postSaveRef.current.revision)delete (fields as {status?:string}).status;
+      serverPost=await postSaveRef.current.save(fields);
+      if(epoch!==sourceEpoch.current)return false;
+      setSaveRevision(serverPost.save_revision);
       if(epoch===sourceEpoch.current){postIdRef.current=serverPost.id;if(serverPost.id!==postId)setCurrentPostId(serverPost.id);}
-    }catch(err){setError(err instanceof Error?err.message:"서버 저장 실패");}
+    }catch(err){if(epoch!==sourceEpoch.current)return false;setError(err instanceof Error?err.message:"서버 저장 실패");}
     if(status==="queued" && !serverPost)return false;
+    if(!serverPost){
+      try{localStorage.setItem(`nba_unsaved_post_${postId}`,JSON.stringify({...postItem,id:postId}));}catch{}
+      return false;
+    }
 
-    // Keep a local draft on storage failure; it is never reported as queued.
+    // Cache only server acknowledgments; unconfirmed drafts have a separate key.
     try {
       const existing: any[] = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-      const existingIndex = existing.findIndex((p) => p.id === postId);
-      let updatedList: any[];
-      if (existingIndex >= 0) {
-        updatedList = [...existing];
-        updatedList[existingIndex] = {
-          ...updatedList[existingIndex],
-          ...postItem,...serverPost,
-          // 이미 대기·발행 중인 글을 임시보관으로 저장해도 상태는 되돌리지 않는다.
-          status: serverPost?.status || resolveSaveStatus(updatedList[existingIndex].status, status),
-          created_at: updatedList[existingIndex].created_at || postItem.created_at,
-        };
-      } else {
-        updatedList = [{...postItem,...serverPost}, ...existing];
-      }
-
+      const updatedList=mergeSavedPosts(Array.isArray(existing)?existing:[],[serverPost]);
       localStorage.setItem("nba_saved_posts", JSON.stringify(updatedList));
       setSavedPostCount(updatedList.length);
     } catch (err) {
@@ -367,6 +366,7 @@ export default function MainPage() {
     sourceEpoch.current++;
     setLoading(false);setImageGenerating(null);setSingleGeneratingIndex(null);
     postIdRef.current=post.id;
+    postSaveRef.current=new PostSaveClient(post);setSaveRevision(post.save_revision);
     setImagesEdited(!post.images?.length || post.images.some((image:any)=>image.url));
     imagesRef.current=(post.images || []).filter((image:any)=>image.url);
     setImageSaveNotice(null);
@@ -507,16 +507,17 @@ export default function MainPage() {
       }
 
       if(epoch!==sourceEpoch.current)return;
-      const newPostId = data.postId || "post-" + Date.now();
+      const newPostId = data.postId || crypto.randomUUID();
       postIdRef.current=newPostId;
+      postSaveRef.current=new PostSaveClient(data.post || {id:newPostId},!data.saved);setSaveRevision(data.post?.save_revision);
       setCurrentPostId(newPostId);
       setResult(data.result);
       // 생성 완료 즉시 로컬 원고 보관함에 자동 저장
-      if(!data.saved)await savePostToStorage(newPostId,data.result,undefined,"draft");
+      if(!data.saved){if(!await savePostToStorage(newPostId,data.result,undefined,"draft"))return;}
       else {
         try {
           const old=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-          const cache=[{id:newPostId,blog_id:selectedBlogId,category_name:data.result.category,title:data.result.title,content:data.result.content,tags:data.result.tags,images:data.result.images,status:"draft",created_at:new Date().toISOString()},...(Array.isArray(old)?old:[]).filter((post:any)=>post.id!==newPostId)];
+          const cache=mergeSavedPosts(Array.isArray(old)?old:[],[data.post]);
           localStorage.setItem("nba_saved_posts",JSON.stringify(cache));setSavedPostCount(cache.length);
         }catch{/* The server draft remains saved when the optional browser cache fails. */}
       }
@@ -561,12 +562,13 @@ export default function MainPage() {
     setImageSaveNotice("이미지 변경을 서버에 저장 중입니다.");
     try {
       if(!/^[0-9a-f-]{36}$/i.test(postId))throw new Error("원고를 서버에 먼저 저장한 뒤 이미지를 저장해 주세요.");
-      const res=await fetch("/api/posts",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:postId,images,...(content!==undefined?{content}:{})})});
-      const data=await res.json();
-      if(!res.ok || data.post?.id!==postId)throw new Error(data.error || "이미지 저장 확인에 실패했습니다.");
+      if(postSaveRef.current?.id!==postId)throw new Error("원고를 다시 열어 저장해 주세요.");
+      const post=await postSaveRef.current.save({images,...(content!==undefined?{content}:{})});
+      if(epoch!==sourceEpoch.current)return false;
+      setSaveRevision(post.save_revision);
       try {
         const cached=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-        localStorage.setItem("nba_saved_posts",JSON.stringify(cached.map((post:any)=>post.id===postId?{...post,...data.post}:post)));
+        localStorage.setItem("nba_saved_posts",JSON.stringify(mergeSavedPosts(cached,[post])));
       }catch{/* Server storage remains authoritative when the optional cache fails. */}
       if(epoch===sourceEpoch.current)setImageSaveNotice("이미지 변경을 서버에 저장했습니다. 최종 원고를 다시 검수해 주세요.");
       return true;
@@ -694,12 +696,16 @@ export default function MainPage() {
     const patch=buildEditedPostPatch(currentPostId,{title:nextResult.title,content:nextResult.content,category:nextResult.category,tags:nextResult.tags});
     try {
       if(patch){
-        const res=await fetch("/api/posts",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(patch)});
-        const data=await res.json();
-        if(!res.ok || data.post?.id!==patch.id)throw new Error(data.error || "원고 저장 확인에 실패했습니다.");
+        const saver=editorSaveRef.current;
+        if(saver?.id!==patch.id)throw new Error("원고를 다시 열어 저장해 주세요.");
+        const {id:_id,...fields}=patch;
+        const expected=saver.revision;
+        const post=await saver.save(fields);
+        if(epoch!==sourceEpoch.current)return false;
+        postSaveRef.current?.adopt(post,expected);setSaveRevision(post.save_revision);
         try {
           const cached=JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-          localStorage.setItem("nba_saved_posts",JSON.stringify(cached.map((post:any)=>post.id===patch.id?{...post,...data.post}:post)));
+          localStorage.setItem("nba_saved_posts",JSON.stringify(mergeSavedPosts(cached,[post])));
         }catch{/* Server save is complete even when browser caching fails. */}
       }else if(!await savePostToStorage(currentPostId || "post-"+Date.now(),nextResult,draftImageList(generatedImages,nextResult.images || [],imagesEdited),"draft")){
         throw new Error("서버 저장에 실패했습니다. 편집 내용을 보존한 채 다시 저장해 주세요.");
@@ -1698,7 +1704,7 @@ export default function MainPage() {
                 <button
                   type="button"
                   disabled={loading || imageGenerating!==null || singleGeneratingIndex!==null || Boolean(imageSaveNotice?.includes("저장 중"))}
-                  onClick={() => setIsEditorOpen(true)}
+                  onClick={() => {editorSaveRef.current=postSaveRef.current ? new PostSaveClient({id:postSaveRef.current.id,save_revision:postSaveRef.current.revision}) : null;setIsEditorOpen(true);}}
                   className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-xs font-extrabold text-emerald-800 border border-emerald-300 flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
                 >
                   <SquarePen className="w-3.5 h-3.5 text-emerald-600" />
@@ -1724,11 +1730,14 @@ export default function MainPage() {
               </div>
             </div>
 
-            <NaverPublishSettings postId={currentPostId} onBlockingChange={setPublishingBlocked} onSaved={tags => {
+            <NaverPublishSettings postId={currentPostId} saveRevision={saveRevision} onBlockingChange={setPublishingBlocked} onSaved={(tags,post,expected) => {
+              const saver=postSaveRef.current;
+              if(post.id!==postIdRef.current || !saver || saver.revision!==expected){setError("화면 원고와 저장본이 다릅니다. 편집 내용을 보관한 뒤 최신 원고를 다시 열어 주세요.");return;}
+              saver.adopt(post,expected);setSaveRevision(post.save_revision);
               setResult(prev => prev ? { ...prev, tags } : prev);
               try {
                 const cache = JSON.parse(localStorage.getItem("nba_saved_posts") || "[]");
-                if (Array.isArray(cache)) localStorage.setItem("nba_saved_posts", JSON.stringify(cache.map(p => p.id === currentPostId ? { ...p, tags } : p)));
+                if (Array.isArray(cache)) localStorage.setItem("nba_saved_posts", JSON.stringify(mergeSavedPosts(cache,[post])));
               } catch { /* Server settings remain saved if the browser cache is unavailable. */ }
             }} />
             <PostReviewGate key={currentPostId} postId={currentPostId} snapshot={postReviewSnapshot({blog_id:selectedBlogId,title:result.title,content:result.content,tags:result.tags,images:draftImageList(generatedImages,result.images,imagesEdited)})} onBlockingChange={setReviewBlocked} />
@@ -1774,7 +1783,7 @@ export default function MainPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setIsEditorOpen(true)}
+                    onClick={() => {editorSaveRef.current=postSaveRef.current ? new PostSaveClient({id:postSaveRef.current.id,save_revision:postSaveRef.current.revision}) : null;setIsEditorOpen(true);}}
                     className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
                   >
                     <SquarePen className="w-3.5 h-3.5" />

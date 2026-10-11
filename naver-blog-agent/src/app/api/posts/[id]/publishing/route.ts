@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeNaverTags, parseNaverCategory, readNaverCategory, withNaverCategory, parseNaverExecutionMode, readNaverExecutionMode } from "@/lib/naverPublishing";
+import { postSaveRevision, savedPost, saveUuid, saveFingerprint, saveReceipt, withSaveReceipt, SAVE_CONFLICT } from "@/lib/postSaveProtocol";
+import { nextTimestamp } from "@/lib/executionRuns";
+import { stableJson } from "@/lib/postReviewSnapshot";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 type Context = { params: Promise<{ id: string }> };
 
 async function ownedPost(admin: any, userId: string, id: string) {
-  return admin.from("nba_posts").select("id, blog_id, research_summary, status, tags")
+  return admin.from("nba_posts").select("*")
     .eq("id", id).eq("user_id", userId).maybeSingle();
 }
 
@@ -24,7 +27,7 @@ export async function GET(_req: Request, context: Context) {
   const { data: account, error: accountError } = await admin.from("nba_accounts").select("default_category")
     .eq("user_id", access.userId).eq("blog_id", post.blog_id).maybeSingle();
   if (accountError) return NextResponse.json({ error: "블로그 기본 카테고리를 확인하지 못했습니다." }, { status: 500 });
-  return NextResponse.json({ userId: access.userId, blogId: post.blog_id,
+  return NextResponse.json({ userId: access.userId, blogId: post.blog_id, save_revision:postSaveRevision(post),
     executionMode: readNaverExecutionMode(post.research_summary, post.blog_id),
     category: readNaverCategory(post.research_summary, post.blog_id), defaultCategory: account?.default_category || "", tags: normalizeNaverTags(post.tags) });
 }
@@ -41,22 +44,34 @@ export async function PUT(req: Request, context: Context) {
   const { data: post, error } = await ownedPost(admin, access.userId, id);
   if (error) return NextResponse.json({ error: "원고를 확인하지 못했습니다." }, { status: 500 });
   if (!post) return NextResponse.json({ error: "본인 원고를 찾지 못했습니다." }, { status: 404 });
-  if (["queued", "publishing"].includes(post.status)) return NextResponse.json({ error: "대기를 취소한 뒤 발행 설정을 변경해 주세요." }, { status: 409 });
+  if(!saveUuid(body.save_request_id))return NextResponse.json({error:SAVE_CONFLICT},{status:409});
+  const fingerprint=saveFingerprint("SETTINGS",{id,expected_revision:body.expected_revision,content:stableJson({category:body.category,tags:body.tags,setDefault:body.setDefault,executionMode:body.executionMode})});
+  const receipt=saveReceipt(post,body.save_request_id,fingerprint);
+  if(receipt==="changed" || (receipt!=="same" && body.expected_revision!==postSaveRevision(post)))return NextResponse.json({error:SAVE_CONFLICT},{status:409});
+  if(receipt!=="same" && ["queued", "publishing"].includes(post.status)) return NextResponse.json({ error: "대기를 취소한 뒤 발행 설정을 변경해 주세요." }, { status: 409 });
   if (body.tags !== undefined && !Array.isArray(body.tags)) return NextResponse.json({ error: "태그 목록 형식을 확인해 주세요." }, { status: 400 });
   const tags = normalizeNaverTags(body.tags === undefined ? post.tags : body.tags);
   let executionMode;
   try { executionMode = body.executionMode === undefined ? readNaverExecutionMode(post.research_summary, post.blog_id) : parseNaverExecutionMode(body.executionMode); }
   catch { return NextResponse.json({ error: "진행 방식을 확인해 주세요." }, { status: 400 }); }
-  const { data, error: saveError } = await admin.from("nba_posts")
-    .update({ research_summary: withNaverCategory(post.research_summary, post.blog_id, category, executionMode), tags,
-      ...(post.status === "prepared" ? {status:"draft"} : {}), updated_at: new Date().toISOString() })
-    .eq("id", id).eq("user_id", access.userId).not("status", "in", '("queued","publishing")').select("id");
+  if(!post.updated_at)return NextResponse.json({error:"원고 저장 버전을 확인하지 못했습니다."},{status:503});
+  const result = receipt==="same" ? {data:post,error:null} : await admin.from("nba_posts")
+    .update({ research_summary: withSaveReceipt(withNaverCategory(post.research_summary, post.blog_id, category, executionMode),body.save_request_id,fingerprint), tags,
+      ...(post.status === "prepared" ? {status:"draft"} : {}), updated_at: nextTimestamp(post.updated_at) })
+    .eq("id", id).eq("user_id", access.userId).eq("updated_at",post.updated_at).not("status", "in", '("queued","publishing")').select("*").maybeSingle();
+  const saveError=result.error;
+  let data=result.data;
   if (saveError) return NextResponse.json({ error: "카테고리를 저장하지 못했습니다." }, { status: 500 });
-  if (!data?.length) return NextResponse.json({ error: "원고 상태가 변경됐습니다. 새로고침해 주세요." }, { status: 409 });
+  if (!data) {
+    const check=await ownedPost(admin,access.userId,id);
+    if(check.error)return NextResponse.json({error:"저장 결과를 확인하지 못했습니다. 같은 설정으로 다시 저장해 주세요."},{status:503});
+    if(saveReceipt(check.data,body.save_request_id,fingerprint)!=="same")return NextResponse.json({ error: SAVE_CONFLICT }, { status: 409 });
+    data=check.data;
+  }
   if (body.setDefault === true) {
     const { data: defaults, error: defaultError } = await admin.from("nba_accounts").update({ default_category: category?.name || null, updated_at: new Date().toISOString() })
       .eq("user_id", access.userId).eq("blog_id", post.blog_id).select("id");
     if (defaultError || !defaults?.length) return NextResponse.json({ error: "원고 카테고리는 저장했지만 블로그 기본값을 저장하지 못했습니다. 블로그 계정 등록을 확인해 주세요." }, { status: 500 });
   }
-  return NextResponse.json({ success: true, category, tags, executionMode });
+  return NextResponse.json({ success: true, category, tags, executionMode, post:savedPost(data), replayed:receipt==="same" });
 }

@@ -1,5 +1,7 @@
 # 🤖 네이버 블로그 에이전트 — 인수인계 문서 (AGENTS.md)
 
+2026-10-11 v1.71: 오래된 탭/편집창 덮어쓰기 차단, UUID/저장 영수증으로 응답 유실 재시도 중복 방지, ACK만 캐시 반영·편집 버퍼 보존·미확인 저장 후 유료 이미지 시작 차단. 관련105개·기존4개 검사 스크립트·빌드 통과. 운영 및 실제 회원 검수 결과는 [저장 인수인계](docs/POST_SAVE_CONFLICTS_2026-10-11.md)를 확인합니다. BLOG/스키마/키 변경 없음.
+
 이 문서는 **네이버 블로그 에이전트(naver-blog-agent)** 서브프로젝트의 인수인계 문서입니다.
 루트 `CLAUDE.md` 및 `AGENTS.md`를 기반으로 동작합니다.
 
@@ -12,7 +14,7 @@
 - **서브프로젝트 폴더**: `naver-blog-agent/`
 - **프로그램 slug**: `naver-blog-agent`
 - **프로그램명**: `네이버 블로그 에이전트`
-- **현재 버전**: `v1.70` (재시작·만료 복구 검수와 대기 목록 수정, 최종 운영 결과는 [검수 문서](docs/RESTART_RECOVERY_2026-10-11.md) 참조)
+- **현재 버전**: `v1.71` (원고 저장 충돌/응답 유실 보완, [저장 인수인계](docs/POST_SAVE_CONFLICTS_2026-10-11.md))
 - **라이브 URL**: `https://naver-blog-agent.vercel.app`
 - **다음 CLI 필독**: [순차 개선·담당·현재 검수](docs/AUTOMATION_IMPROVEMENT_PLAN_2026-10-10.md), [`docs/CONTINUATION.md`](docs/CONTINUATION.md), [클로드용 BLOG 인수인계](../docs/BLOG_AUTOMATION_HANDOFF_2026-10-10.md). 이전 실제 탭/입력 검수는 v1.63/v1.62 보고 참고.
 
