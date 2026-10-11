@@ -33,23 +33,11 @@ function imageUrl(v: unknown, prefix: string): string | undefined {
   return typeof v === "string" && v.startsWith(prefix) && v.length < 400 && !/[\s"'<>]/.test(v) ? v : undefined;
 }
 
-export function sanitizeProject(
-  raw: unknown,
-  ctx: { supabaseUrl: string; userId: string }
-): { ok: true; data: ProjectData } | { ok: false; error: string } {
-  const r = rec(raw);
-  if (!r.plan || !r.style || !Array.isArray(r.pages)) return { ok: false, error: "프로젝트 데이터 형식이 올바르지 않습니다." };
-  if (r.pages.length > 10) return { ok: false, error: "페이지는 최대 10장입니다." };
-
-  const fb = defaultProject();
-  const plan = rec(r.plan);
-  const style = rec(r.style);
-  const prefix = allowedImagePrefix(ctx.supabaseUrl, ctx.userId);
+/** 디자인 스타일(프로젝트·템플릿 공용)을 허용 목록·범위로 정리한다. */
+export function sanitizeStyle(raw: unknown): CardStyle {
+  const style = rec(raw);
   const ds = defaultStyle();
-
-  const pageCount = (PAGE_COUNTS as readonly number[]).includes(plan.pageCount as number) ? (plan.pageCount as ProjectData["plan"]["pageCount"]) : fb.plan.pageCount;
-
-  const cleanStyle: CardStyle = {
+  return {
     mood: oneOf(style.mood, MOODS, ds.mood),
     visualStyle: oneOf(style.visualStyle, VISUAL_STYLES, ds.visualStyle),
     composition: oneOf(style.composition, COMPOSITIONS, ds.composition),
@@ -61,6 +49,22 @@ export function sanitizeProject(
     headline: textStyle(style.headline, ds.headline, 30, 160),
     sub: textStyle(style.sub, ds.sub, 18, 90),
   };
+}
+
+export function sanitizeProject(
+  raw: unknown,
+  ctx: { supabaseUrl: string; userId: string }
+): { ok: true; data: ProjectData } | { ok: false; error: string } {
+  const r = rec(raw);
+  if (!r.plan || !r.style || !Array.isArray(r.pages)) return { ok: false, error: "프로젝트 데이터 형식이 올바르지 않습니다." };
+  if (r.pages.length > 10) return { ok: false, error: "페이지는 최대 10장입니다." };
+
+  const fb = defaultProject();
+  const plan = rec(r.plan);
+  const prefix = allowedImagePrefix(ctx.supabaseUrl, ctx.userId);
+  const pageCount = (PAGE_COUNTS as readonly number[]).includes(plan.pageCount as number) ? (plan.pageCount as ProjectData["plan"]["pageCount"]) : fb.plan.pageCount;
+
+  const cleanStyle = sanitizeStyle(r.style);
 
   const pages: CardPage[] = r.pages.map((p, i) => {
     const pr = rec(p);
@@ -110,4 +114,10 @@ export function collectImagePaths(data: ProjectData, supabaseUrl: string, userId
     }
   }
   return Array.from(set);
+}
+
+/** 저장 전 데이터에는 있었는데 새 데이터에는 없는 내 이미지 파일 경로(이력에서 밀려난 이미지 등) */
+export function removedImagePaths(before: ProjectData, after: ProjectData, supabaseUrl: string, userId: string): string[] {
+  const keep = new Set(collectImagePaths(after, supabaseUrl, userId));
+  return collectImagePaths(before, supabaseUrl, userId).filter((p) => !keep.has(p));
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authorize, requireOwnKey } from "@/lib/cardnews/apiGuard";
 import { generateBackground } from "@/lib/ai/image";
+import { optimizeBackground } from "@/lib/ai/imageOptimize";
 import { findImageModel } from "@/lib/ai/imageModels";
 import { buildImagePrompt } from "@/lib/ai/imagePrompts";
 import { COMPOSITIONS, MOODS, PLACEMENTS, RATIOS, THEME_COLORS, VISUAL_STYLES } from "@/lib/cardnews/presets";
@@ -50,10 +51,11 @@ export async function POST(request: Request) {
 
     const image = await generateBackground({ apiKey: key.apiKey, imageModel, prompt, ratio });
 
-    const ext = image.mime.includes("jpeg") ? "jpg" : image.mime.includes("webp") ? "webp" : "png";
-    const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+    // 큰 PNG를 WebP로 줄여 저장한다(저장 용량·불러오기 시간 절약).
+    const optimized = await optimizeBackground(image.bytes, image.mime);
+    const path = `${userId}/${crypto.randomUUID()}.${optimized.ext}`;
     const admin = createAdminClient();
-    const { error } = await admin.storage.from("cardnews-images").upload(path, image.bytes, { contentType: image.mime, upsert: false });
+    const { error } = await admin.storage.from("cardnews-images").upload(path, optimized.bytes, { contentType: optimized.mime, upsert: false });
     if (error) {
       console.error("cardnews image upload error:", error.message.slice(0, 200));
       return NextResponse.json({ error: "이미지를 저장하지 못했습니다. 잠시 뒤 다시 시도해주세요." }, { status: 500 });

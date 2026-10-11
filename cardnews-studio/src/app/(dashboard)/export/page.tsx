@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { renderCardToBlob } from "@/lib/cardnews/renderClient";
+import { buildZip } from "@/lib/cardnews/zip";
 import { CardCanvas } from "@/components/studio/CardCanvas";
 import { useStudio } from "@/components/studio/ProjectProvider";
-import { BTN_PRIMARY, Card, ErrorNote, NeedPlan, StepHeader } from "@/components/studio/ui";
+import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, NeedPlan, StepHeader } from "@/components/studio/ui";
 
 function saveBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -59,6 +60,22 @@ export default function ExportPage() {
     }
   };
 
+  const downloadZip = async () => {
+    setBusy("zip");
+    setError(null);
+    try {
+      const entries = [];
+      for (let i = 0; i < pages.length; i++) {
+        entries.push({ name: fileName(i), blob: await renderCardToBlob(pages[i], style, plan.ratio, pages[i].imageUrl) });
+      }
+      saveBlob(await buildZip(entries), `${safeName(title)}.zip`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "저장하지 못했습니다.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <StepHeader step={5} title="내보내기" desc="완성된 카드를 PNG 파일로 저장합니다. 미리보기와 같은 모양으로 저장됩니다." />
@@ -68,7 +85,10 @@ export default function ExportPage() {
           <button type="button" disabled={busy !== null} onClick={() => void downloadAll()} className={BTN_PRIMARY}>
             {busy === "all" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} 전체 {pages.length}장 PNG 받기
           </button>
-          <span className="text-xs text-gray-500">여러 파일이 연속으로 내려받아집니다. 브라우저가 &quot;여러 파일 다운로드&quot;를 물으면 허용해주세요.</span>
+          <button type="button" disabled={busy !== null} onClick={() => void downloadZip()} className={BTN_GHOST}>
+            {busy === "zip" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} 전체 ZIP 한 번에 받기
+          </button>
+          <span className="text-xs text-gray-500">ZIP은 파일 하나로 받아집니다. PNG 여러 개 받기는 브라우저가 여러 파일 다운로드를 물을 수 있습니다. 연속으로 내려받아집니다. 브라우저가 &quot;여러 파일 다운로드&quot;를 물으면 허용해주세요.</span>
         </div>
         {noBg > 0 && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">배경이 없는 {noBg}장은 색 배경으로 저장됩니다. 4단계에서 배경을 만들면 더 좋은 결과가 나옵니다.</p>}
         {error && <ErrorNote message={error} />}

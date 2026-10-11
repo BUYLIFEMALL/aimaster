@@ -46,7 +46,7 @@
 - 일반 회원 경로는 `youtube-channel-consultant`와 같은 권한 판정 사본을 쓰며 `buylifemall@naver.com`에 사용기간(30일)을 부여해 두었다(직접 화면 검수는 하지 않음).
 
 ## 7. 알려진 한계·다음 작업
-- **v1.02 예정:** 전체 PNG를 ZIP 하나로, 템플릿 저장, 이력에서 밀려난 이미지·고아 파일 정리, 이미지 용량 줄이기(Gemini가 1856×2304 PNG 약 2.2MB를 돌려줌 — JPEG/WebP 변환 검토).
+- **v1.02 완료(2026-10-11):** 5단계 "전체 ZIP 한 번에 받기"(브라우저에서 jszip, 서버로 보내지 않음), 3단계 "내 템플릿"(디자인 스타일만 저장·적용·삭제, 회원당 20개, 테이블 `cns_templates` RLS owner-only, `api/templates`), 새 배경은 sharp로 폭 1620 WebP q90 변환 후 저장(`src/lib/ai/imageOptimize.ts`), 프로젝트 저장 시 더는 참조되지 않는 내 이미지 파일 삭제(`removedImagePaths`). 마이그레이션 `0004_v1_02_templates.sql`. 테스트 18개. 라이브에서 템플릿 API 저장·조회·삭제 왕복 확인(ZIP 내려받기는 다운로드 허용 없이 직접 눌러보지 않음). 예전에 만든 PNG 이미지는 그대로 남는다.
 - **v1.03 예정:** INSTA 포스팅(`auto-instagram-posting`)으로 완성 카드를 바로 게시.
 - 카탈로그 전용 실사 썸네일: 2026-10-11 제작·등록 완료(`program-images/catalog/cardnews-studio-thumbnail.jpg`, `scripts/generate-program-thumbnail.mjs`, 관리자 키 사용을 주인님께 확인받고 1회 생성, 마이그레이션 `0003_thumbnail.sql`).
 - 모바일: 같은 출처 iframe(390px)로 기획·디자인·배경 생성 화면을 확인했다(상단 바 + 한 줄 레이아웃, 프로젝트 상태 공유). 실제 폰 기기는 아직 확인하지 않았다. `npm run lint`는 ESLint 설정 파일이 없어 동작하지 않는다(복사 원본과 동일).

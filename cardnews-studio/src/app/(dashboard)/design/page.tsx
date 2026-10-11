@@ -6,6 +6,7 @@ import { COMPOSITIONS, DISPLAY_STYLES, FONTS, MOODS, PLACEMENTS, THEME_COLORS, V
 import type { CardStyle, TextStyle } from "@/lib/cardnews/types";
 import { CardCanvas } from "@/components/studio/CardCanvas";
 import { useStudio } from "@/components/studio/ProjectProvider";
+import { TemplateBox } from "@/components/studio/TemplateBox";
 import { BTN_PRIMARY, Card, Field, NeedPlan, SELECT, StepHeader } from "@/components/studio/ui";
 
 function Slider({ label, value, min, max, step = 1, unit = "", onChange }: { label: string; value: number; min: number; max: number; step?: number; unit?: string; onChange: (n: number) => void }) {
@@ -65,6 +66,7 @@ export default function DesignPage() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="space-y-4">
+          <TemplateBox />
           <Card className="space-y-4">
             <h2 className="text-sm font-bold text-gray-900">스타일 (배경 이미지에 반영)</h2>
             <div className="grid gap-3 sm:grid-cols-2">

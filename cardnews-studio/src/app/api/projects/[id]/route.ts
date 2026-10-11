@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authorize } from "@/lib/cardnews/apiGuard";
-import { collectImagePaths, sanitizeProject } from "@/lib/cardnews/sanitize";
+import { collectImagePaths, removedImagePaths, sanitizeProject } from "@/lib/cardnews/sanitize";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ProjectData } from "@/lib/cardnews/types";
@@ -50,6 +50,7 @@ export async function PUT(request: Request, ctx: Ctx) {
   if (!checked.ok) return NextResponse.json({ error: checked.error }, { status: 400 });
 
   const supabase = await createClient();
+  const { data: previous } = await supabase.from("cns_projects").select("data").eq("id", id).eq("user_id", userId).maybeSingle();
   const { data, error } = await supabase
     .from("cns_projects")
     .update({ title: checked.data.title, data: checked.data, updated_at: new Date().toISOString() })
@@ -59,6 +60,16 @@ export async function PUT(request: Request, ctx: Ctx) {
     .maybeSingle();
   if (error) return NextResponse.json({ error: "프로젝트를 저장하지 못했습니다." }, { status: 500 });
   if (!data) return NextResponse.json({ error: "프로젝트를 찾을 수 없습니다." }, { status: 404 });
+
+  // 이력(최대 6개)에서 밀려나 더 이상 쓰이지 않는 내 이미지 파일을 저장소에서 지운다(실패해도 저장은 완료).
+  try {
+    if (previous?.data) {
+      const paths = removedImagePaths(previous.data as ProjectData, checked.data, process.env.NEXT_PUBLIC_SUPABASE_URL!, userId);
+      if (paths.length) await createAdminClient().storage.from("cardnews-images").remove(paths);
+    }
+  } catch {
+    /* 정리 실패는 무시 */
+  }
   return NextResponse.json({ id: data.id, updatedAt: data.updated_at });
 }
 

@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — CARDNEWS STUDIO v1.02 (cardnews-studio)
+
+전체 ZIP 받기, 내 템플릿 저장(`cns_templates`), 배경 WebP 축소 저장, 안 쓰는 이미지 정리를 추가했습니다. https://cardnews-studio.buylife.xyz 라이브 v1.02 확인. 다음은 v1.03 INSTA 포스팅 연동. 상세: `cardnews-studio/AGENTS.md` §7.
+
 ## 2026-10-11 에이전트 v1.77 — 본문 완료 후 네이버 화면 확인
 
 v1.76 운영/PC 적용 후 실제1장 prepared11/11·2장 전면 조건 prepared12/12 통과.2장 숨겨진 조건은 입력12/12 후 AI 표시 스위치 부재로 실패해 별도 보완했습니다. 본문 입력이 끝나면 현재 작업 탭을 한 번 앞으로 열어 AI표시/전체검수/설정을 마무리합니다. 취소/새 실행·다른 준비 탭 보호 유지. worker40·전체Node131·빌드 통과. 운영v1.77/숨겨진3·4장 실제검수는 완료 증거 후 기록합니다. [최신 작업과 재개 순서](../naver-blog-agent/docs/FINAL_EDITOR_UI_2026-10-11.md). 최종 발행·BLOG/올인원 수정 없음.
@@ -31,6 +35,11 @@ v1.76 운영/PC 적용 후 실제1장 prepared11/11·2장 전면 조건 prepared
   - **프로젝트 백업**: 전체 설정을 JSON으로 내보내기/불러오기 지원.
   - **최상위 불변 규칙 준수**: 회원 본인의 Google Gemini API 키 브라우저 격리 보관.
 - **DB 및 배포**: 공용 DB `programs` 등록 완료 (`v1.01`, FREE 배지, 주소: `https://ai-webtoon-studio.buylife.xyz`).
+- **메인 카탈로그 16:9 실사 썸네일 등록 완료**:
+  - `PLATFORM_PATTERNS.md` §12, §13 실사 원칙 준수 (모던 스튜디오에서 디지털 액정 타블렛으로 웹툰 콘티 및 캐릭터 시트를 작업하는 한국인 작가).
+  - Gemini 3 Pro Image(`gemini-3-pro-image-preview`)로 고화질 생성 → Supabase Storage `program-images/catalog/ai-webtoon-studio-thumbnail.jpg` 업로드.
+  - DB `programs.thumbnail_url` 갱신 (`https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/ai-webtoon-studio-thumbnail.jpg?v=1791712895221`).
+  - 로컬 백업 `ai-webtoon-studio/public/ai-webtoon-studio-thumbnail.jpg` 및 마이그레이션 SQL `0002_update_thumbnail.sql` 완비.
 - **검증 결과**: `npm run build` 100% 성공.
 
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.13) 헤더 상단 마케팅 슬로건 문구 강조 배치 완료

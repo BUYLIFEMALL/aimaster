@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { wrapText, layoutBlock, luminance } from "../src/lib/cardnews/layout.ts";
-import { sanitizeProject, allowedImagePrefix, collectImagePaths } from "../src/lib/cardnews/sanitize.ts";
+import { sanitizeProject, allowedImagePrefix, collectImagePaths, sanitizeStyle, removedImagePaths } from "../src/lib/cardnews/sanitize.ts";
 import { defaultProject, defaultStyle } from "../src/lib/cardnews/defaults.ts";
 import { buildCopyPrompt, buildTopicsPrompt, extractJson, parseCopy, parseTopics } from "../src/lib/ai/copyPrompts.ts";
 import { buildImagePrompt, KOREAN_PEOPLE_RULE, NO_TEXT_RULE } from "../src/lib/ai/imagePrompts.ts";
@@ -119,4 +119,22 @@ test("callLlm json 옵션: Gemini responseMimeType, OpenAI response_format", asy
     return ok({ candidates: [{ content: { parts: [{ text: "x" }] } }] });
   });
   assert.equal("responseMimeType" in body.generationConfig, false);
+});
+
+test("sanitizeStyle: 잘못된 값은 기본값으로, 올바른 값은 유지", () => {
+  const def = defaultStyle();
+  assert.deepEqual(sanitizeStyle(null), def);
+  const s = sanitizeStyle({ visualStyle: "없는값", themeColor: "warm" });
+  assert.equal(s.visualStyle, def.visualStyle);
+  assert.equal(s.themeColor, "warm");
+});
+
+test("removedImagePaths: 새 데이터에서 빠진 내 이미지만 골라낸다", () => {
+  const base = "https://x.supabase.co";
+  const uid = "user-1";
+  const pre = allowedImagePrefix(base, uid);
+  const mk = (urls) => ({ ...defaultProject(), pages: urls.map((u, i) => ({ id: `p${i}`, headline: "a", sub: "", imageUrl: u })) });
+  const before = mk([`${pre}a.webp`, `${pre}b.webp`, "https://evil.com/c.png"]);
+  const after = mk([`${pre}b.webp`]);
+  assert.deepEqual(removedImagePaths(before, after, base, uid), [`${uid}/a.webp`]);
 });

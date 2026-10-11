@@ -20,3 +20,5 @@
   - STEP 4 웹툰 제작 & 뷰어 (메인 표지 생성, 컷 일괄 렌더링, 세로 스크롤 뷰어, HTML5 캔버스 롱스크롤 JPG 병합 저장, ZIP 일괄 다운로드)
   - JSON 프로젝트 설정 내보내기/불러오기 백업 엔진 탑재
   - 환경설정 모달 (Gemini API 키 연결 테스트 및 브라우저 격리 보관)
+  - 메인 카탈로그 전용 16:9 실사 썸네일 등록 완료 (`gemini-3-pro-image-preview`, Supabase Storage `program-images/catalog/ai-webtoon-studio-thumbnail.jpg`)
+
