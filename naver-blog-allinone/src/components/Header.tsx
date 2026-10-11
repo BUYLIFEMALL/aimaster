@@ -4,22 +4,18 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Sparkles,
-  Settings,
-  TrendingUp,
   Star,
   ExternalLink,
-  Key,
   Calendar,
   CloudSun,
-  Download,
 } from "lucide-react";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { AppSettings } from "@/lib/storage";
 
 interface HeaderProps {
   settings: AppSettings;
-  onOpenSettings: () => void;
-  onOpenTrends: () => void;
+  onOpenSettings?: () => void;
+  onOpenTrends?: () => void;
   onOpenMobileNav?: () => void;
 }
 
@@ -122,44 +118,6 @@ export function Header({
             </span>
           </div>
 
-          {/* Settings Button */}
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
-              hasApiKey
-                ? "bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs"
-                : "bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100 animate-pulse"
-            }`}
-          >
-            <Settings className="w-4 h-4 text-slate-600" />
-            <span>{hasApiKey ? "설정" : "API키 설정 필요"}</span>
-            {!hasApiKey && (
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-            )}
-          </button>
-
-          {/* Trend Links Button */}
-          <button
-            type="button"
-            onClick={onOpenTrends}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-          >
-            <TrendingUp className="w-4 h-4 text-indigo-600" />
-            <span>트렌드 바로가기</span>
-          </button>
-
-          {/* Chrome Extension Download Button */}
-          <a
-            href="/downloads/naver-blog-allinone-latest.zip"
-            download="naver-blog-allinone-latest.zip"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-xs"
-            title="네이버 스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 다운로드"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>크롬 확장 다운로드</span>
-          </a>
-
           {/* Naver Creator-Advisor Button */}
           <a
             href="https://creator-advisor.naver.com/"
@@ -190,7 +148,7 @@ export function Header({
             {hasApiKey ? (
               <span className="text-emerald-600 font-medium">● Gemini API 연동 완료 (사용자 브라우저 격리 보관)</span>
             ) : (
-              <span className="text-amber-600 font-medium">⚠️ 상단 [설정]에서 본인 Gemini API 키를 등록해주세요</span>
+              <span className="text-amber-600 font-medium">⚠️ 좌측 [API키등록·플랫폼연동] 메뉴에서 본인 Gemini API 키를 등록해주세요</span>
             )}
           </div>
         </div>
