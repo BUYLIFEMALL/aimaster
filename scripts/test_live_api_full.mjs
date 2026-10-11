@@ -55,6 +55,62 @@ async function testFull() {
     .map(([k, v]) => `${k}=${v}`)
     .join("; ");
 
+  // 1. viral-shorts (쇼츠 검색) 테스트 - "AI자동화"
+  console.log("\n=== 1. Testing /api/youtube/search-shorts (AI자동화) ===");
+  const res1 = await fetch("https://youtube-viral-studio.buylife.xyz/api/youtube/search-shorts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: cookieHeader,
+    },
+    body: JSON.stringify({
+      keyword: "AI자동화",
+      minViews: 10000,
+      maxSubscribers: 100000,
+      minViralScore: 1,
+    }),
+  });
+  console.log("Status:", res1.status);
+  const data1 = await res1.json();
+  console.log("Viral shorts count:", data1.items?.length);
+  console.log("Fallback applied:", data1.fallbackApplied);
+  console.log("Fallback notice:", data1.fallbackNotice);
+  if (data1.items?.length > 0) {
+    console.log("First item:", {
+      title: data1.items[0].title,
+      channel: data1.items[0].channelTitle,
+      subs: data1.items[0].subscriberCount,
+      views: data1.items[0].viewCount,
+      score: data1.items[0].viralScore,
+    });
+  }
+
+  // 2. golden-channels (황금 채널 발굴) 테스트 - "AI"
+  console.log("\n=== 2. Testing /api/youtube/golden-channels (AI) ===");
+  const res2 = await fetch("https://youtube-viral-studio.buylife.xyz/api/youtube/golden-channels", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: cookieHeader,
+    },
+    body: JSON.stringify({
+      keyword: "AI",
+      maxSubscribers: 100000,
+      minGoldenScore: 1,
+    }),
+  });
+  console.log("Status:", res2.status);
+  const data2 = await res2.json();
+  console.log("Golden channels count:", data2.items?.length);
+  if (data2.items?.length > 0) {
+    console.log("First channel:", {
+      channel: data2.items[0].title,
+      subs: data2.items[0].subscriberCount,
+      avgViews: data2.items[0].avgViews,
+      goldenScore: data2.items[0].goldenScore,
+    });
+  }
+
   // 3. trending-videos POST 테스트
   console.log("\n=== 3. Testing /api/youtube/trending (POST) ===");
   const res3 = await fetch("https://youtube-viral-studio.buylife.xyz/api/youtube/trending", {
@@ -124,7 +180,10 @@ async function testFull() {
   const data5 = await res5.json();
   if (data5.error) console.log("Error:", data5.error);
   if (data5.analysis) {
-    console.log("Analysis provider:", data5.provider, "Hooking:", data5.analysis.hooking?.title);
+    console.log("AI Provider Used:", data5.analysis.providerUsed);
+    console.log("Hook Title:", data5.analysis.hookTitle);
+    console.log("Hook Score:", data5.analysis.hookScore);
+    console.log("Viral Secret:", data5.analysis.viralSecret);
   }
 }
 

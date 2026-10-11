@@ -52,6 +52,29 @@ const SYSTEM_PROMPT = `당신은 대한민국 최고의 유튜브 쇼츠 바이�
   }
 }`;
 
+function safeParseJson(str: string): any {
+  let cleaned = (str || "").trim();
+  if (cleaned.startsWith("```json")) {
+    cleaned = cleaned.replace(/^```json\s*/, "").replace(/```$/, "").trim();
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```\s*/, "").replace(/```$/, "").trim();
+  }
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (err) {
+    // LLM이 중첩 객체의 닫는 괄호(})나 대괄호(])를 누락했을 때 자동 복구
+    let openBraces = (cleaned.match(/\{/g) || []).length;
+    let closeBraces = (cleaned.match(/\}/g) || []).length;
+    let repaired = cleaned;
+    while (closeBraces < openBraces) {
+      repaired += "\n}";
+      closeBraces++;
+    }
+    return JSON.parse(repaired);
+  }
+}
+
 /**
  * Gemini API로 대본 분석
  */
@@ -84,7 +107,7 @@ async function analyzeWithGemini(
   }
 
   const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  return JSON.parse(rawText);
+  return safeParseJson(rawText);
 }
 
 /**
@@ -119,7 +142,7 @@ async function analyzeWithOpenAI(
   }
 
   const rawText = data.choices?.[0]?.message?.content;
-  return JSON.parse(rawText);
+  return safeParseJson(rawText);
 }
 
 export async function analyzeShortsScript(params: {
@@ -150,8 +173,18 @@ ${transcript || "자막 없음 (제목 및 설명 기반 분석 모드)"}
   let providerUsed = "";
 
   if (geminiKey) {
-    parsed = await analyzeWithGemini(inputContent, geminiKey);
-    providerUsed = "Google Gemini 2.0 Flash";
+    try {
+      parsed = await analyzeWithGemini(inputContent, geminiKey);
+      providerUsed = "Google Gemini 2.5 Flash";
+    } catch (geminiErr: any) {
+      if (openaiKey) {
+        console.warn("Gemini 분석 실패, OpenAI로 자동 폴백:", geminiErr.message);
+        parsed = await analyzeWithOpenAI(inputContent, openaiKey);
+        providerUsed = "OpenAI GPT-4o-mini";
+      } else {
+        throw geminiErr;
+      }
+    }
   } else if (openaiKey) {
     parsed = await analyzeWithOpenAI(inputContent, openaiKey);
     providerUsed = "OpenAI GPT-4o-mini";
