@@ -76,6 +76,19 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     assert.equal(await b.sandbox.editorTab(true),2);assert.equal(b.data.editorTab,2);
     assert.equal(b.calls.some(c=>c[0]==='create'),false);assert.equal(b.tabs.get(2).url,'https://blog.naver.com/myblog/postwrite');assert.equal(b.data.authoringCheckpoint.done,7);
   });
+  await scenario('fresh task after browser restart never navigates a restored editor with a changed tab id',async()=>{
+    const b=await browser({connection,editorTab:1,preparedEditorTabs:[{id:1}],authoringCheckpoint:{done:7}});b.add(2);
+    const next=await b.sandbox.editorTab(true,{blogId:'myblog',freshEditor:true});
+    assert.notEqual(next,2);assert.equal(b.calls.some(c=>c[0]==='update' && c[1]===2),false);
+    assert.equal(b.tabs.get(2).url,'https://blog.naver.com/myblog/postwrite');assert.equal(b.data.authoringCheckpoint.done,7);
+    assert.equal(b.data.editorTab,next);assert.equal(b.calls.filter(c=>c[0]==='create').length,1);
+  });
+  await scenario('fresh task leaves an unregistered personal editor and read page untouched',async()=>{
+    const b=await browser({connection,editorTab:2});b.add(2);b.add(3);b.tabs.get(3).url='https://blog.naver.com/myblog/123';
+    const next=await b.sandbox.editorTab(false,{blogId:'myblog',freshEditor:true});
+    assert.notEqual(next,2);assert.notEqual(next,3);assert.equal(b.calls.some(c=>c[0]==='update'),false);
+    assert.equal(b.data.editorTab,next);
+  });
   await scenario('selected tab disappears before focus: friendly error without resetting another editor',async()=>{
     const b=await browser({connection,editorTab:1});b.add();
     b.sandbox.chrome.tabs.update=async()=>{b.tabs.delete(1);throw new Error('No tab with id: 1.');};

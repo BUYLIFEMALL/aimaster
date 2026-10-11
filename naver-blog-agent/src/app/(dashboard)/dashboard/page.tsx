@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { APP_VERSION } from "@/lib/version";
 import {
   LayoutDashboard,
   PenLine,
@@ -331,7 +332,7 @@ export default function DashboardPage() {
           </p>
           <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
             <span className="text-neutral-400">다운로드 버전</span>
-            <span className="font-semibold text-neutral-800">v1.8.0 (최신)</span>
+            <span className="font-semibold text-neutral-800">{APP_VERSION} (최신)</span>
           </div>
           <div className="flex gap-2 pt-1">
             <Link

@@ -165,9 +165,12 @@ async function editorTab(interactive = false,task) {
     if(u.pathname===`/${blogId}` || new RegExp('^/'+blogId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'/\\d+/?$').test(u.pathname) || /^\/(PostView|PostList)\.naver$/i.test(u.pathname))return 'read';
     return '';
   };
-  let tab=await getTab(current.editorTab);
+  // Chrome restores editors with new tab IDs after a restart. A protection list
+  // cannot identify every restored or manually opened draft; fresh tasks always
+  // get a new tab, so no existing editor is navigated or cleared.
+  let tab=task?.freshEditor?null:await getTab(current.editorTab);
   if(tab && (!kind(tab) || protectedTab(tab.id)))tab=null;
-  if(!tab){
+  if(!tab && !task?.freshEditor){
     const tabs=await chrome.tabs.query({url:`https://${host}/*`});
     tab=tabs.find(t=>!protectedTab(t.id) && kind(t)==='editor') || tabs.find(t=>!protectedTab(t.id) && kind(t)==='read');
   }
@@ -180,7 +183,7 @@ async function editorTab(interactive = false,task) {
       const snapshot=await command(tab.id,'snapshot',{blogId}).catch(()=>null);
       completed=Boolean(snapshot && JSON.stringify(snapshot)===JSON.stringify(current.completedEditorTab.snapshot));
     }
-    if(task?.freshEditor || kind(tab)==='read' || (kind(tab)==='editor' && completed)){
+    if(kind(tab)==='read' || (kind(tab)==='editor' && completed)){
       tab=await inTab(tab.id,()=>chrome.tabs.update(tab.id,{url,active:interactive}));
       await chrome.storage.local.remove('completedEditorTab');
     }else if(interactive)await inTab(tab.id,()=>chrome.tabs.update(tab.id,{active:true}));
