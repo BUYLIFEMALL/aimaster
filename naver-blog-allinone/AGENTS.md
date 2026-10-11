@@ -65,3 +65,6 @@
 - 주인님 요청(Claude Code가 작업): 사이드바 유틸리티 영역의 두 항목을 `Header.tsx` 우측 상단(모델 배지 왼쪽)으로 옮기고 사이드바에서는 제거(사이드바 `onOpenTrends` prop·미사용 import 정리, `page.tsx` 전달 제거). 사이드바 유틸리티에는 [API키등록·플랫폼연동]만 남는다.
 - 확장 규칙 4단계 처리: `extension/manifest.json` 1.14.0/v1.14, `public/downloads/naver-blog-allinone-latest.zip` 재생성(폴더 내용물, 슬래시 경로), DB `programs.version`·`extension_version` v1.14, `node scripts/check-extension-release.mjs naver-blog-allinone` OK.
 - 실제 Chrome 화면 확인: 헤더에 두 버튼 표시, [실시간 트렌드 분석] 클릭 시 트렌드 팝업 열림, 사이드바에서 두 항목 사라짐.
+
+## v1.15 (2026-10-12) — 헤더 버튼 색 변경(트렌드 초록·확장 노랑)
+- 주인님 요청(Claude Code): 헤더의 [실시간 트렌드 분석] 버튼을 초록(채움, `bg-emerald-600`)으로, [크롬 확장 프로그램]은 노란색(채움, `bg-amber-400`)으로. 확장 ZIP·DB 버전 v1.15 갱신.

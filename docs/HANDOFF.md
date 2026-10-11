@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.15) 트렌드 버튼 초록색
+
+주인님 요청으로 헤더의 [실시간 트렌드 분석] 버튼을 초록색(채움), [크롬 확장 프로그램] 버튼을 노란색(채움)으로 바꿨습니다. 확장 ZIP·DB 버전 v1.15 갱신, 검증 스크립트 OK(배포 후), 실제 화면 확인.
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.14) 상단 이동
 
 주인님 요청으로 [크롬 확장 프로그램](ZIP 다운로드)과 [실시간 트렌드 분석]을 사이드바에서 상단 헤더 우측으로 옮겼습니다. 확장 ZIP·DB 버전(v1.14) 갱신, 검증 스크립트 OK, 실제 화면에서 두 버튼과 트렌드 팝업 확인. (Gemini 담당 폴더이지만 주인님이 직접 요청해 Claude가 작업함 — 변경 파일: Header.tsx, Sidebar.tsx, page.tsx, version.ts, manifest.json, ZIP, README/AGENTS)

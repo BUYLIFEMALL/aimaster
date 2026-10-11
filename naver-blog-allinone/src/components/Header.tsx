@@ -93,21 +93,21 @@ export function Header({
           <a
             href="/downloads/naver-blog-allinone-latest.zip"
             download="naver-blog-allinone-latest.zip"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-50 transition shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 border border-amber-500 text-slate-900 hover:bg-amber-500 transition shadow-xs"
             title="네이버 스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 다운로드"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <Download className="w-3.5 h-3.5 text-slate-900" />
             <span>크롬 확장 프로그램</span>
-            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">ZIP</span>
+            <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-500">ZIP</span>
           </a>
 
           {/* 실시간 트렌드 분석 (사이드바에서 상단으로 이동) */}
           <button
             type="button"
             onClick={onOpenTrends}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-indigo-200 text-indigo-800 hover:bg-indigo-50 transition shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 border border-emerald-700 text-white hover:bg-emerald-700 transition shadow-xs"
           >
-            <TrendingUp className="w-3.5 h-3.5 text-indigo-600" />
+            <TrendingUp className="w-3.5 h-3.5 text-white" />
             <span>실시간 트렌드 분석</span>
           </button>
 
