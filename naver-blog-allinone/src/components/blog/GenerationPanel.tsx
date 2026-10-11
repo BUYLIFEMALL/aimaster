@@ -37,7 +37,13 @@ export function GenerationPanel({ values, onChange, onLoadPersona, onInstant, to
   const input = "w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
   return (
-    <div className="space-y-6">
+    <div className="rounded-2xl border-2 border-violet-300 bg-violet-50/50 p-5 space-y-6">
+      <div className="flex flex-wrap items-center gap-2 border-b border-violet-200 pb-3">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-600 text-white text-sm">📝</span>
+        <h3 className="text-sm font-extrabold text-violet-950">글 생성 설정</h3>
+        <span className="text-[11px] text-violet-700/80">페르소나 · 글자수 · 세부 조건 · 말끝·문체를 정하면 이 설정대로 최종 본문이 만들어집니다</span>
+      </div>
+
       {/* 1. 글의 화자(페르소나) */}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
