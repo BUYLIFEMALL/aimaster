@@ -321,5 +321,44 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     await b.sandbox.prepareFinalEditorUi(task('writing'));
     const focused=b.calls.find(c=>c[0]==='focus');assert.equal(focused[2].focused,true);assert.equal(focused[2].state,'normal');
   });
+  await scenario('image upload names follow fetched MIME even when an old payload says PNG',async()=>{
+    for(const [mime,suffix] of [['image/jpeg','jpg'],['image/png','png'],['image/webp','webp'],['image/gif','gif']]){
+      const b=await browser();
+      b.network(async()=>({ok:true,blob:async()=>new Blob(['synthetic-image'],{type:mime})}));
+      const asset=await b.sandbox.loadAsset({payload:{assets:[{url:'https://example.test/image',name:'blog_img_title.png'}]}},0);
+      assert.equal(asset.mime,mime);assert.equal(asset.name,'blog_img_title.'+suffix);
+      assert.equal(asset.data,btoa('synthetic-image'));
+    }
+  });
+  await scenario('actual writer verifies JPEG identity and still stops on another uploaded filename',async()=>{
+    const writer=require('../extension/writer.js');
+    for(const wrongName of [false,true]){
+      const t={...task('writing'),payload:{title:'제목',article:'',assets:[{url:'https://example.test/cover.jpg',name:'blog_img_title.png'}],titleImageIndex:0,bodyImages:[]}};
+      const b=await browser({connection,activeTask:t,preparedEditorTabs:[{id:2}]});b.add();b.add(2);
+      const protectedTab=structuredClone(b.tabs.get(2));let title='',blocks=[];
+      b.network(async(url)=>url.includes('example.test')?{ok:true,blob:async()=>new Blob(['synthetic-jpeg'],{type:'image/jpeg'})}:{ok:true,json:async()=>({state:'running'})});
+      b.sandbox.buildWriterSteps=writer.buildWriterSteps;b.sandbox.runWriter=writer.runWriter;b.sandbox.articlePlan=()=>[];
+      b.execute(async({args})=>{
+        const [command,value]=args;
+        if(command==='inspect')return [{frameId:0,result:{status:'valid'}}];
+        if(command==='snapshot')return [{frameId:0,result:{ok:true,title,blocks:structuredClone(blocks)}}];
+        if(command==='title')title=value.text;
+        if(command==='quote')blocks.push({id:'quote',type:'quote',text:value.text,style:value.style});
+        if(command==='image'){
+          assert.equal(value.mime,'image/jpeg');
+          blocks.push({id:'image',type:'image',name:wrongName?'another-image.jpg':value.name.replace(/\.[^.]+$/,'.jpg')});
+        }
+        return [{frameId:0,result:{ok:true}}];
+      });
+      if(wrongName){
+        await assert.rejects(()=>b.sandbox.writeArticle(t),/입력 3\/3.*원고와 달라/);
+        assert.equal(b.data.authoringCheckpoint.cursor,2);assert.equal(b.calls.some(c=>c[0]==='focus'),false);
+      }else{
+        assert.equal((await b.sandbox.writeArticle(t)).complete,true);
+        assert.equal(b.data.authoringCheckpoint.cursor,3);assert.equal(b.data.authoringCheckpoint.snapshot.blocks.at(-1).name,'blog_img_title.jpg');
+      }
+      assert.deepEqual(b.tabs.get(2),protectedTab);assert.equal(b.calls.some(c=>c[0]==='create'||(c[0]==='script'&&c[1]==='click')),false);
+    }
+  });
   console.log(`${passed} browser lifecycle regression scenarios passed`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — JPEG 업로드는 성공했지만 PNG 파일명 기대값 때문에 입력 실패 (naver-blog-agent v1.79)
+
+- 증상: 실제 회원 대표 이미지3/28에서 AUTHORING_FAILED. 네이버 접근성은 blog_img_title.jpg/AI 활용 설정인데 worker 기대 단계는 blog_img_title.png였습니다.
+- 원인: 서버 payload의 이미지 이름은 PNG 고정, loadAsset은 실제 JPEG MIME을 유지했습니다. writeArticle이 고정 PNG 이름을 다시 덮어써 네이버가 정한 JPG 이름과 엄격한 snapshot 비교가 달랐습니다.
+- 해결: background.js loadAsset에서 실제 Blob MIME에 맞는 파일명을 정하고 writeArticle에서 같은 이름을 기대 단계/업로드에 적용. writer의 다른 이미지 이름 중지와 실행/탭 보호는 유지합니다.
+- 다음부터 확인: 파일명뿐 아니라 원본 MIME과 실제 첨부 이름을 대조합니다. JPEG/PNG/WebP/GIF·바이트 보존·다른 이름 중지 회귀를 실행하고 설치 확장 갱신 후 별도 prepare 원고로 실제 확인합니다. 모의 통과를 회원 재실행 성공으로 보고하지 않습니다.
+
 ## 2026-10-11 — Vercel 함수에서 sharp 로드 실패(libvips-cpp.so 없음)로 API가 500 HTML을 돌려줌 (style-dna-analyzer v1.01, cardnews-studio v1.02)
 
 - 증상: `sharp`를 import하는 라우트가 요청 내용과 무관하게 500 HTML(`__next_error__`)을 돌려줌. 화면에는 `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`. Vercel 로그: `Could not load the "sharp" module using the linux-x64 runtime ... libvips-cpp.so.8.18.7: cannot open shared object file`.

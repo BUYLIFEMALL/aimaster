@@ -133,7 +133,10 @@ async function loadAsset(task, index) {
   const blob = await response.blob(); const bytes = new Uint8Array(await blob.arrayBuffer()); let binary = '';
   for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
   const mime = blob.type && blob.type.startsWith('image/') ? blob.type : 'image/png';
-  return {data:btoa(binary), name:asset.name || 'blog_img.png', mime};
+  const extension = {'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'}[mime.toLowerCase()];
+  const originalName = asset.name || 'blog_img.png';
+  const name = extension ? originalName.replace(/\.(?:png|jpe?g|webp|gif)$/i,'') + '.' + extension : originalName;
+  return {data:btoa(binary), name, mime};
 }
 async function frameResults(tabId, command, args = {}) {
   const results = await inTab(tabId,()=>chrome.scripting.executeScript({target:{tabId,allFrames:true},func:editorCommand,args:[command,args]}));
@@ -301,6 +304,9 @@ async function writeArticle(task,options={}) {
       if(block.type==='image'){
         const asset=await loadAsset(task,block.index);
         if(task.runId)await taskRunning(task);
+        // Verify the same filename that we send. Naver canonicalizes JPEG uploads
+        // to .jpg even when older task payloads give every asset a .png name.
+        block.name=asset.name || block.name;
         return command(tabId,'image',{...asset,name:block.name,...anchor});
       }
       return command(tabId,block.type,{...block,...anchor,breakSentences:p.breakSentencesInBody});

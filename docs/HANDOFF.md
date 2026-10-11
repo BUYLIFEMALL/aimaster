@@ -1,8 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-11 21:50 네이버 블로그 에이전트 실제 회원 테스트 중단 확인
+## 2026-10-11 네이버 블로그 에이전트 v1.79 — 실제 회원 JPEG 입력 중단 수정
 
-주인님 진행 중인 원고0887ba88의 실제 상태는 failed: 대표 이미지 입력3/28에서 예상 문서와 불일치(완료2/28), 서버 본문/이미지3장 저장·발행 완료 기록 없음. JPEG 원본과 고정PNG 파일명의 불일치를 의심하지만 실제 네이버 snapshot 미확인으로 원인 확정 전입니다. 실패 상태/이유가 보관함 카드에서 보이지 않는 코드 문제, 출처 URL 없는 수치/개인 경험의 AI PASS, prepare 설정 미저장도 확인했습니다. Chrome 키 입력은 window_not_focused/restore1회 실패로 실패한 네이버 탭을 앞으로 열어 두시도록 요청했습니다. 이번 점검은 읽기만 했고 재전송/원고 수정/최종 발행/앱 배포 없음. [결과·증거·후속 순서](../naver-blog-agent/docs/LIVE_TEST_CHECK_2026-10-11.md). 운영 v1.78 유지.
+회원 원고0887ba88/실행cca7d0a7은21:50:13에 failed(완료2/28). 실제 네이버에 blog_img_title.jpg/AI 활용 설정이 존재하는데 확장의 PNG 기대 이름 때문에 중지한 원인을 확인했습니다. 실제 MIME에 맞게 업로드와 단계 이름을 함께 정하고 다른 이미지 이름 검사는 유지합니다. worker42·전체Node133·JS문법·로컬 빌드 통과, 배포/DB/ZIP/PC 확인은 [수정·운영 기록](../naver-blog-agent/docs/JPEG_UPLOAD_IDENTITY_2026-10-11.md)에서 확정합니다. 현재 원고/실패 탭 보존·재전송/최종 발행/유료 호출 없음. failed 표시·출처 없는 통계/경험의 AI PASS·prepare 설정 누락은 별도 후속. 최초 읽기 점검은 [실제 테스트 기록](../naver-blog-agent/docs/LIVE_TEST_CHECK_2026-10-11.md)에 남겼습니다.
 
 ## 2026-10-11 Claude Code — 일반 회원 화면 검수 완료 (style-dna-analyzer v1.02, cardnews-studio v1.03)
 
