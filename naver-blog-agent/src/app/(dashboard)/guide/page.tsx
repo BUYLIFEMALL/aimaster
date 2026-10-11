@@ -1,721 +1,211 @@
 import Link from "next/link";
-import {
-  Globe,
-  CheckCircle2,
-  ArrowRight,
-  ShieldCheck,
-  Zap,
-  BookOpen,
-  Download,
-  Key,
-  Layers,
-  Sparkles,
-  MousePointerClick,
-  HelpCircle,
-  Clock,
-  Laptop,
-  Check,
-  ExternalLink,
-  Flame,
-  FileText,
-  Image as ImageIcon,
-  BookmarkCheck,
-  Calendar,
-  RefreshCw,
-  Edit3,
-  Tag,
-  CheckCheck,
-  AlertTriangle,
-  FolderKanban,
-  Sliders,
-  ChevronRight,
-} from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowRight, BookOpen, CheckCircle2, Download } from "lucide-react";
+import { APP_VERSION } from "@/lib/version";
+import { RETENTION_DAYS } from "@/lib/retention";
+
+const sections = [
+  ["start", "처음 연결하기"],
+  ["generate", "원고 생성하기"],
+  ["images", "이미지 만들기·교체"],
+  ["review", "저장·최종 검수"],
+  ["prepare", "발행 전 준비·직접 발행"],
+  ["status", "진행 상태 확인"],
+  ["troubleshooting", "문제가 생겼을 때"],
+  ["storage", "원고 보관·백업"],
+] as const;
+
+const quickSteps = [
+  ["생성", "글감이나 주제를 고르고 원고를 만듭니다."],
+  ["수정·저장", "본문과 이미지를 확인하고 저장합니다."],
+  ["최종 검수", "확인란이 나오면 체크 후 검수 기록을 남깁니다."],
+  ["발행 전 준비", "진행 방식을 저장하고 확장 작업 대기에 전송합니다."],
+  ["직접 발행", "열린 네이버 원고를 확인하고 최종 발행합니다."],
+];
+
+function GuideSection({ id, number, title, description, children }: {
+  id: string; number: number; title: string; description: string; children: ReactNode;
+}) {
+  return (
+    <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-6 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6 space-y-5">
+      <div className="flex items-start gap-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-sm font-bold text-blue-700">{number}</span>
+        <div>
+          <h2 id={`${id}-title`} className="text-lg font-bold text-neutral-900">{title}</h2>
+          <p className="mt-1 text-sm text-neutral-600">{description}</p>
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Steps({ children }: { children: ReactNode }) {
+  return <ol className="list-decimal space-y-3 pl-5 text-sm leading-7 text-neutral-700 marker:font-bold marker:text-blue-700">{children}</ol>;
+}
 
 export default function GuidePage() {
+  const currentYear = new Date().getFullYear();
   return (
-    <div className="space-y-12 max-w-5xl mx-auto pb-16">
-      {/* 1. 상단 히어로 배너 */}
-      <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold mb-3">
-          <BookOpen className="w-3.5 h-3.5" />
-          <span>네이버 블로그 에이전트 실전 완성 가이드 (최신 개정판)</span>
+    <div className="mx-auto max-w-5xl space-y-6 pb-12">
+      <header className="space-y-3">
+        <span className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+          <BookOpen className="h-4 w-4" /> 사용 안내 · {APP_VERSION}
+        </span>
+        <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900 sm:text-3xl">네이버 블로그 에이전트 사용 방법</h1>
+        <p className="text-sm leading-7 text-neutral-600">원고를 만들고 최종 확인한 뒤, 크롬 확장으로 네이버 글쓰기 화면에 입력하는 방법을 순서대로 안내합니다.</p>
+      </header>
+
+      <section aria-labelledby="quick-start-title" className="rounded-2xl border border-blue-200 bg-blue-50/50 p-5 sm:p-6 space-y-4">
+        <h2 id="quick-start-title" className="text-base font-bold text-neutral-900">추천 사용 순서: 발행 전 준비까지만</h2>
+        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {quickSteps.map(([title, text], index) => (
+            <li key={title} className="rounded-xl border border-blue-100 bg-white p-3">
+              <p className="text-sm font-bold text-blue-800">{index + 1}. {title}</p>
+              <p className="mt-1 text-sm leading-6 text-neutral-600">{text}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="text-sm leading-7 text-blue-900"><strong>전송 전 확인:</strong> ‘확장 진행 방식’에서 <strong>발행 전 준비까지만 · 최종 버튼은 직접 누름</strong>을 선택하고 <strong>발행 설정 저장</strong>을 눌러 주세요. 기존 원고는 자동 발행으로 설정되어 있을 수 있습니다.</p>
+      </section>
+
+      <nav aria-label="사용 안내 목차" className="rounded-2xl border border-neutral-200 bg-white p-5">
+        <p className="mb-3 text-sm font-bold text-neutral-900">필요한 내용 바로 찾기</p>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {sections.map(([id, label], index) => (
+            <a key={id} href={`#${id}`} className="rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-700 hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600">{index + 1}. {label}</a>
+          ))}
         </div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-neutral-900">
-          네이버 블로그 에이전트 연동 & 실전 사용 매뉴얼
-        </h1>
-        <p className="mt-2 text-sm text-neutral-600 leading-relaxed max-w-3xl">
-          떡상 글감 수집부터 5단계 멀티 AI 글 기획·작성, 스마트 에디터 원고 편집, 멀티 AI 이미지 스튜디오,
-          그리고 크롬 확장의 스마트에디터 ONE 100% 자동 타이핑 발행까지 — 초보자도 3분 만에 마스터할 수 있는 완벽한 실전 안내서입니다.
-        </p>
-      </div>
+      </nav>
 
-      {/* 2. 핵심 원리 배너: 왜 안전한가? */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="p-2 rounded-xl bg-neutral-900 text-white">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
-          </span>
-          <div>
-            <h2 className="text-base font-bold text-neutral-900">
-              💡 왜 다른 자동화 봇과 달리 아이디 보호조치 없이 100% 안전할까요?
-            </h2>
-            <p className="text-xs text-neutral-500">
-              네이버 Akamai 보안 시스템과 봇 탐지 캡차를 완벽 우회하는 독자적 하이브리드 아키텍처
-            </p>
-          </div>
+      <GuideSection id="start" number={1} title="처음 연결하기" description="본인 회원 계정·API 키·네이버 계정을 연결합니다. 이미 연결했다면 다음 단계로 이동하세요.">
+        <Steps>
+          <li><Link href="/settings" className="font-semibold text-blue-700 underline">API키등록·플랫폼연동</Link>에서 사용할 AI 공급사의 <strong>본인 API 키</strong>를 등록합니다. 다른 프로그램에서 같은 회원 계정에 등록한 키도 사용할 수 있습니다. 키가 없으면 먼저 등록해야 합니다.</li>
+          <li>같은 설정 화면에서 본인이 운영하는 <strong>네이버 블로그 ID</strong>를 등록합니다. 블로그 주소가 blog.naver.com/myblog라면 ID는 myblog입니다.</li>
+          <li>아래 최신 확장 ZIP을 다운로드하고 압축을 풉니다. 크롬 주소창에 <code className="rounded bg-neutral-100 px-1">chrome://extensions</code>를 입력한 뒤 <strong>개발자 모드 → 압축해제된 확장 프로그램 로드</strong>에서 압축을 푼 폴더를 선택합니다.</li>
+          <li>설정 화면의 <strong>크롬 확장 페어링 코드 발급하기</strong>를 누릅니다. 크롬의 에이전트 확장 아이콘을 열어 <strong>본인 블로그 ID와 8자리 연결 코드</strong>를 입력하고 <strong>이 Chrome 연결</strong>을 누릅니다. 코드는 10분 동안 유효하며 한 번만 사용할 수 있습니다.</li>
+          <li>확장의 <strong>로그인 / 상태 확인</strong>을 눌러 네이버 계정을 확인합니다. 로그인이나 보안 확인이 나오면 네이버 화면에서 직접 완료합니다. 웹에 로그인한 회원과 확장을 연결한 회원, 선택한 블로그가 서로 맞아야 합니다.</li>
+        </Steps>
+        <div className="flex flex-wrap gap-3">
+          <a href="/downloads/naver-blog-agent-extension-latest.zip" download className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700"><Download className="h-4 w-4" />최신 확장 ZIP 다운로드 ({APP_VERSION})</a>
+          <Link href="/settings" className="inline-flex items-center gap-2 rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-semibold text-neutral-700">API키등록·플랫폼연동 <ArrowRight className="h-4 w-4" /></Link>
         </div>
+        <details className="rounded-xl border border-neutral-200 p-4 text-sm">
+          <summary className="cursor-pointer font-semibold text-neutral-900">기존 확장을 업데이트하는 방법</summary>
+          <p className="mt-3 leading-7 text-neutral-600">진행 중인 입력이 끝난 뒤 최신 ZIP을 다시 다운로드합니다. 기존 확장 폴더에 압축을 풀어 덮어쓰고 chrome://extensions에서 해당 확장의 새로고침 버튼을 누릅니다. 설치된 확장은 웹 업데이트만으로 바뀌지 않습니다. 표시되는 버전이 {APP_VERSION}인지 확인해 주세요.</p>
+        </details>
+      </GuideSection>
 
-        <p className="text-xs md:text-sm text-neutral-700 leading-relaxed">
-          파이썬이나 서버 매크로(Playwright, Selenium 등)로 네이버 블로그에 글을 쓰면 <b>네이버 보안 시스템(Akamai)</b>이 봇 브라우저의 지문(헤드리스 세션)을 즉시 감지하여 <b>'아이디 보호조치'</b>나 <b>'캡차(로봇 인증)'</b>를 강제하고 계정이 저품질에 빠집니다.
-          <br />
-          <b>네이버 블로그 에이전트</b>는 사용자가 평소 로그인해서 쓰는 <b>실제 크롬 브라우저 세션</b> 위에서 크롬 확장 프로그램이 작동하며, 스마트에디터 ONE 내부에서 <b>사람의 타자 속도(랜덤 딜레이 30~120ms)</b>로 직접 마우스 클릭과 타이핑을 시뮬레이션하므로 네이버 보안 알고리즘을 100% 완벽히 통과합니다.
-        </p>
+      <GuideSection id="generate" number={2} title="원고 생성하기" description="수집한 글감을 사용하거나 주제를 직접 입력할 수 있습니다.">
+        <Steps>
+          <li><Link href="/collector" className="font-semibold text-blue-700 underline">떡상 콘텐츠 수집</Link>에서 글감을 고르거나 <Link href="/" className="font-semibold text-blue-700 underline">콘텐츠 생성</Link> 화면에 주제를 직접 입력합니다.</li>
+          <li>글의 화자(페르소나), 목표 글자 수, 발행할 블로그 ID, 콘텐츠 카테고리, 검색 키워드와 말투를 확인합니다. 페르소나를 고르면 채워지는 조건도 필요에 따라 수정할 수 있습니다.</li>
+          <li><strong>AI 글·이미지 생성 기본 모델 설정</strong>에서 사용할 글 엔진과 이미지 모델·비율·장수(1~5장)를 선택합니다. <strong>기본 모델 설정 저장</strong>을 누르면 다음 접속에도 적용됩니다. 선택한 공급사의 본인 키가 등록되어 있어야 합니다.</li>
+          <li><strong>5단계 AI 블로그 글 생성 시작</strong>을 누릅니다. 기획 → 초안 → 윤문 → AI 검수 → 이미지 프롬프트 준비가 진행되며, 결과 아래에서 단계별 실행 내역을 볼 수 있습니다. 이 단계에서 네이버에 글이 발행되지는 않습니다.</li>
+        </Steps>
+        <p className="rounded-xl bg-neutral-50 p-4 text-sm leading-7 text-neutral-700">생성 기준은 현재 연도인 <strong>{currentYear}년</strong>입니다. AI 검수 통과 표시가 있어도 사실·통계·출처·본인 경험에 맞는지 최종 원고를 직접 확인해 주세요. 이미지 프롬프트 준비와 실제 이미지 생성은 별도 단계입니다.</p>
+      </GuideSection>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
-          <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-            <div className="text-xs">
-              <span className="font-bold text-neutral-900 block mb-0.5">실제 크롬 브라우저 세션</span>
-              <span className="text-neutral-500 leading-tight">로그인 쿠키와 정상 사용자 브라우징 환경 그대로 작동</span>
-            </div>
+      <GuideSection id="images" number={3} title="이미지 만들기·교체" description="필요한 컷을 생성하고 실제 이미지를 확대해서 확인합니다.">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-neutral-200 p-4">
+            <h3 className="text-sm font-bold text-neutral-900">처음 만들 때·일부 컷이 실패했을 때</h3>
+            <p className="mt-2 text-sm leading-7 text-neutral-600"><strong>미생성 컷 일괄 생성</strong>을 누릅니다. 이미 만들어진 컷은 유지하고 URL이 없는 컷만 생성합니다. 일부 컷이 실패하면 성공한 이미지를 확인한 뒤 남은 컷만 다시 생성합니다.</p>
           </div>
-          <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-            <div className="text-xs">
-              <span className="font-bold text-neutral-900 block mb-0.5">인간 모사 가상 타이핑</span>
-              <span className="text-neutral-500 leading-tight">30~120ms 무작위 지연과 사람의 호흡으로 에디터에 직접 입력</span>
-            </div>
-          </div>
-          <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-            <div className="text-xs">
-              <span className="font-bold text-neutral-900 block mb-0.5">17대 블로그 윤문 (Humanizer)</span>
-              <span className="text-neutral-500 leading-tight">기계적 번호 매기기, 명사형 종결 배제로 AI 티 완벽 제거</span>
-            </div>
-          </div>
-          <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-            <div className="text-xs">
-              <span className="font-bold text-neutral-900 block mb-0.5">2026년 당해 연도 3중 방어</span>
-              <span className="text-neutral-500 leading-tight">과거 연도(2023·2024년) 퇴행을 입력·프롬프트·출력단에서 원천 차단</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. [최초 1회 설정] 3분 연동 준비 */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 text-white font-bold text-xs">
-            A
-          </span>
-          <div>
-            <h2 className="text-lg font-bold text-neutral-900">
-              [최초 1회 설정] 3분 연동 준비 (크롬 확장 & API 키)
-            </h2>
-            <p className="text-xs text-neutral-500">
-              처음 한 번만 연결해 두시면 다음부터는 글 생성 버튼만 누르면 네이버에 자동으로 써집니다.
-            </p>
+          <div className="rounded-xl border border-neutral-200 p-4">
+            <h3 className="text-sm font-bold text-neutral-900">한 장만 바꾸고 싶을 때</h3>
+            <p className="mt-2 text-sm leading-7 text-neutral-600">‘각 컷별 AI 프롬프트 상세’에서 해당 이미지의 <strong>이 컷만 생성</strong>을 누릅니다. 선택한 컷을 생성·교체하고 다른 컷은 유지합니다. 이미지 삭제는 해당 이미지의 휴지통 버튼을 사용합니다.</p>
           </div>
         </div>
+        <ul className="list-disc space-y-2 pl-5 text-sm leading-7 text-neutral-700">
+          <li>이미지를 눌러 확대하고 깨진 글자·로고·인물·내용과의 어울림을 확인합니다. 생성 완료 표시와 이미지 품질 확인은 별개입니다.</li>
+          <li><strong>이미지 변경을 서버에 저장했습니다</strong> 안내를 확인합니다. 이미지 교체·삭제 뒤에는 최종 원고를 다시 검수합니다.</li>
+          <li>이미지 저장 실패가 표시되면 <strong>보관함 저장</strong>으로 저장을 먼저 확인합니다. 확인이 끝나기 전에는 추가 생성을 진행하지 않습니다.</li>
+          <li>이미지를 새로 생성하거나 교체하면 선택한 공급사의 API 사용량이 발생할 수 있습니다.</li>
+        </ul>
+      </GuideSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* STEP 1: 확장 프로그램 설치 */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm flex flex-col justify-between space-y-4">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-800">
-                  STEP 1
-                </span>
-                <span className="text-emerald-600 text-xs font-semibold">소요: 1분</span>
-              </div>
-              <h3 className="text-sm font-bold text-neutral-900">
-                크롬 확장 프로그램 설치
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                최신 확장프로그램 ZIP을 다운받아 크롬 브라우저에 등록합니다.
-              </p>
-
-              <ol className="text-xs text-neutral-600 space-y-1.5 list-decimal list-inside bg-neutral-50 p-3 rounded-xl border border-neutral-200">
-                <li>아래 버튼으로 최신 ZIP 다운로드 후 압축 해제</li>
-                <li>크롬 주소창에 <code className="bg-white px-1 rounded border">chrome://extensions</code> 입력</li>
-                <li>우측 상단 <b>[개발자 모드]</b> 토글 ON</li>
-                <li>좌측 상단 <b>[압축해제된 확장 프로그램 로드]</b> 클릭 후 압축 푼 폴더 선택</li>
-              </ol>
-            </div>
-
-            <div>
-              <a
-                href="/downloads/naver-blog-agent-extension-latest.zip"
-                download
-                className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-xl bg-neutral-900 text-white text-xs font-semibold hover:bg-neutral-800 transition-all shadow-sm"
-              >
-                <Download className="w-3.5 h-3.5 text-emerald-400" />
-                <span>최신 확장 ZIP 다운로드 (v1.27)</span>
-              </a>
-            </div>
-          </div>
-
-          {/* STEP 2: 페어링 코드 연결 */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm flex flex-col justify-between space-y-4">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-800">
-                  STEP 2
-                </span>
-                <span className="text-emerald-600 text-xs font-semibold">소요: 30초</span>
-              </div>
-              <h3 className="text-sm font-bold text-neutral-900">
-                웹 대시보드와 페어링 연결
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                웹 대시보드와 크롬 확장을 8자리 일회용 코드로 1초 만에 연결합니다.
-              </p>
-
-              <ol className="text-xs text-neutral-600 space-y-1.5 list-decimal list-inside bg-neutral-50 p-3 rounded-xl border border-neutral-200">
-                <li>
-                  <Link href="/settings" className="underline font-semibold text-neutral-900">
-                    [API키등록·플랫폼연동]
-                  </Link>
-                  에서 [페어링 코드 발급] 클릭
-                </li>
-                <li>생성된 8자리 코드(예: A1B2C3D4) 복사</li>
-                <li>크롬 브라우저 우측 상단 퍼즐 모양 확장 아이콘 클릭</li>
-                <li>네이버 블로그 ID와 코드를 입력하고 [이 Chrome 연결]을 누르면 연결 완료!</li>
-              </ol>
-            </div>
-
-            <div>
-              <Link
-                href="/settings"
-                className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-all shadow-sm"
-              >
-                <Key className="w-3.5 h-3.5" />
-                <span>페어링 코드 발급하러 가기</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* STEP 3: AI 엔진 키 확인 */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm flex flex-col justify-between space-y-4">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-800">
-                  STEP 3
-                </span>
-                <span className="text-emerald-600 text-xs font-semibold">자동 연동</span>
-              </div>
-              <h3 className="text-sm font-bold text-neutral-900">
-                AI API 키 자동 연동 확인
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                회원님의 AIMaster 통합 계정에 등록된 키가 100% 자동 공유됩니다.
-              </p>
-
-              <div className="bg-emerald-50/60 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-1.5">
-                <div className="font-semibold flex items-center gap-1 text-emerald-950">
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>재입력 없이 즉시 준비 완료!</span>
-                </div>
-                <p className="text-[11px] text-emerald-800 leading-relaxed">
-                  OpenAI(GPT-4o), Anthropic(Claude), Google Gemini 키가 등록되어 있다면 별도 번거로운 설정 없이 바로 모든 기능을 사용하실 수 있습니다.
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <Link
-                href="/settings"
-                className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-xl bg-neutral-100 text-neutral-800 text-xs font-semibold hover:bg-neutral-200 transition-all border border-neutral-300"
-              >
-                <span>내 AI 키 현황 확인하기</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
+      <GuideSection id="review" number={4} title="저장·최종 검수" description="네이버로 보낼 최종 원고와 서버 저장본이 같아야 합니다.">
+        <div className="flex flex-wrap gap-2 text-xs font-bold">
+          <span className="rounded-lg bg-blue-600 px-3 py-2 text-white">파란색 · 서식·이미지 완성 뷰</span>
+          <span className="rounded-lg bg-neutral-600 px-3 py-2 text-white">회색 · 원본 텍스트</span>
         </div>
-      </div>
+        <Steps>
+          <li><strong>서식·이미지 완성 뷰</strong>에서 소제목·문단·이미지 배치를 봅니다. <strong>원본 텍스트</strong>는 저장된 본문 내용을 확인하는 보기입니다.</li>
+          <li><strong>스마트 에디터 편집</strong> 또는 <strong>원고 편집</strong>으로 제목·본문·이미지·태그를 수정합니다. 편집을 저장하고 <strong>서버 저장 확인됨</strong> 안내를 확인합니다. 필요한 경우 <strong>보관함 저장</strong>을 눌러 저장합니다.</li>
+          <li>사실·수치·출처·표현·이미지를 확인합니다. 검수 확인란이 표시되면 아래 문구에 체크한 뒤 <strong>직접 검수 완료 기록</strong>을 누릅니다.</li>
+        </Steps>
+        <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 font-bold text-blue-900"><CheckCircle2 className="h-5 w-5 shrink-0" /><span>최종원고 수정 및 확인 완료</span></div>
+        <p className="text-sm leading-7 text-neutral-600">확인란 체크만으로 검수 기록이 저장되지는 않습니다. <strong>직접 검수 완료 기록</strong>은 회원의 확인 결과를 기록하며, AI 판정을 바꾸거나 네이버 최종 발행을 실행하지 않습니다. 검수한 뒤 제목·본문·태그·이미지를 바꾸면 다시 저장하고 검수해야 합니다.</p>
+      </GuideSection>
 
-      {/* 4. [실전 4단계 완전 자동화 워크플로우] */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 text-white font-bold text-xs">
-            B
-          </span>
-          <div>
-            <h2 className="text-lg font-bold text-neutral-900">
-              [실전 4단계 워크플로우] 글감 수집부터 스마트에디터 ONE 자동 발행까지
-            </h2>
-            <p className="text-xs text-neutral-500">
-              블로그 수익화와 노출을 극대화하는 표준 작업 순서입니다.
-            </p>
-          </div>
+      <GuideSection id="prepare" number={5} title="발행 전 준비·직접 발행" description="전송하기 전에 원고별 진행 방식을 먼저 저장합니다.">
+        <div className="overflow-x-auto rounded-xl border border-neutral-200">
+          <table className="w-full min-w-[520px] text-left text-sm">
+            <caption className="sr-only">확장 진행 방식 두 가지 비교</caption>
+            <thead className="bg-neutral-50 text-neutral-900"><tr><th scope="col" className="p-3">확장 진행 방식</th><th scope="col" className="p-3">확장이 하는 일</th><th scope="col" className="p-3">최종 발행</th></tr></thead>
+            <tbody className="text-neutral-700">
+              <tr className="border-t border-neutral-200"><th scope="row" className="p-3 font-semibold text-blue-800">발행 전 준비까지만 · 최종 버튼은 직접 누름</th><td className="p-3 leading-6">본문·이미지 입력과 발행 설정까지 준비한 뒤 멈춥니다.</td><td className="p-3">회원이 네이버 화면에서 직접 누릅니다.</td></tr>
+              <tr className="border-t border-neutral-200"><th scope="row" className="p-3 font-semibold">최종 발행까지 자동 진행</th><td className="p-3 leading-6">입력·설정 후 최종 발행 버튼까지 누릅니다.</td><td className="p-3">확장이 실행합니다.</td></tr>
+            </tbody>
+          </table>
         </div>
+        <Steps>
+          <li>원고의 <strong>네이버 발행 설정 → 확장 진행 방식</strong>에서 <strong>발행 전 준비까지만 · 최종 버튼은 직접 누름</strong>을 선택합니다.</li>
+          <li><strong>네이버 카테고리 불러오기</strong>로 실제 블로그 메뉴를 가져와 선택합니다. 자동 등록 태그는 최대 10개입니다. 입력한 태그는 ‘추가’ 또는 Enter로 등록하고 <strong>발행 설정 저장</strong>을 누릅니다. 콘텐츠 분류 카테고리와 네이버 발행 카테고리는 서로 다른 설정입니다.</li>
+          <li>공개 범위를 선택하려면 <strong>콘텐츠 보관함 상단 → 발행 공개 범위</strong>에서 비공개 또는 전체공개를 고르고 보관함에서 전송합니다. 처음에는 비공개로 준비해 볼 수 있습니다. 최종 공개 범위는 준비된 네이버 발행창에서도 확인합니다.</li>
+          <li>저장과 최종 검수가 끝나면 생성 화면의 <strong>네이버 확장 작업 대기에 전송</strong> 또는 보관함의 <strong>발행 전송</strong>을 누릅니다. 입력 중에는 크롬을 켜 두고 자동으로 열린 네이버 편집기에서 직접 입력하거나 설정을 바꾸지 마세요.</li>
+          <li>확장이 별도 네이버 글쓰기 탭에서 제목·소제목·본문·이미지를 입력합니다. 본문 입력 후 작업 탭이 앞으로 열리고 이미지 AI 표시와 원고·발행 설정을 확인합니다.</li>
+          <li>보관함에 <strong>발행 전 준비 완료</strong>가 나타나면 열린 네이버 탭을 확인합니다. 확장 연결 화면의 <strong>준비된 원고 열기</strong>로도 열 수 있습니다. 제목·본문·이미지·카테고리·태그·공개 범위를 확인합니다. 예약 발행을 원하면 네이버 발행창에서 예약 시각을 설정·확인한 뒤 <strong>최종 발행 버튼</strong>을 직접 누릅니다.</li>
+        </Steps>
+        <p className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-7 text-blue-900"><strong>준비 완료는 발행 완료가 아닙니다.</strong> 직접 발행한 결과는 네이버 게시글 또는 예약 목록에서 확인합니다. 준비된 글의 발행 설정을 웹에서 바꾸면 다시 준비해야 합니다.</p>
+      </GuideSection>
 
-        <div className="space-y-5">
-          {/* 1단계: 🔥 떡상 글감 수집 */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-200 font-bold text-sm">
-                  1단계
-                </span>
-                <h3 className="text-base font-bold text-neutral-900 flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-rose-600" />
-                  <span>🔥 떡상 글감 수집에서 화제 키워드 발굴</span>
-                </h3>
-              </div>
-              <Link
-                href="/collector"
-                className="text-xs font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 shrink-0"
-              >
-                <span>글감 수집 바로가기</span>
-                <ChevronRight size={14} />
-              </Link>
-            </div>
+      <GuideSection id="status" number={6} title="진행 상태 확인" description="콘텐츠 보관함에서 원고 상태와 입력 진행을 확인합니다.">
+        <dl className="grid gap-3 sm:grid-cols-2">
+          {[
+            ["임시보관", "저장된 원고입니다. 내용·이미지·설정을 수정하고 검수할 수 있습니다."],
+            ["발행 대기 중", "확장이 작업을 가져가기 전이거나 입력 중인 원고입니다. 입력 중이면 단계·완료 수·마지막 확인 시각을 봅니다."],
+            ["발행 전 준비 완료", "네이버 편집기에 원고가 준비되었습니다. 직접 최종 발행해야 합니다."],
+            ["발행 완료", "자동 발행 작업에서 결과가 확인된 원고입니다. 네이버에서도 결과를 확인합니다."],
+          ].map(([title, description]) => <div key={title} className="rounded-xl border border-neutral-200 p-4"><dt className="text-sm font-bold text-neutral-900">{title}</dt><dd className="mt-1 text-sm leading-7 text-neutral-600">{description}</dd></div>)}
+        </dl>
+        <p className="text-sm leading-7 text-neutral-600">여러 원고를 일괄 전송할 때도 각 원고에 저장된 진행 방식을 먼저 확인합니다. 준비 완료된 탭은 검토가 끝날 때까지 유지해 주세요. 직접 발행 후에도 웹에는 준비 완료 상태가 남을 수 있습니다.</p>
+        <Link href="/queue" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 underline">콘텐츠 보관함 열기 <ArrowRight className="h-4 w-4" /></Link>
+      </GuideSection>
 
-            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-              매번 어떤 글을 써야 할지 고민할 필요가 없습니다. <Link href="/collector" className="underline font-bold text-neutral-900">글감 수집</Link>에서 3대 실시간 수집 채널을 활용해 지금 가장 반응이 뜨거운 주제를 1초 만에 가져옵니다:
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1">
-                <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  🔥 네이버 실시간 화제 트렌드
-                </span>
-                <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  현재 포털에서 급상승 중인 검색어와 트렌딩 토픽을 카테고리별로 실시간 자동 수집합니다.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1">
-                <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  📰 네이버 뉴스 속보 & 이슈
-                </span>
-                <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  키워드를 입력하면 최신 뉴스 기사를 검색하여 팩트와 배경 정보를 즉시 글감으로 정리합니다.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1">
-                <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  🌐 타겟 URL 직접 분석
-                </span>
-                <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  참고하고 싶은 웹문서나 기사 링크를 붙여넣으면 핵심 논점과 스토리라인을 자동 추출합니다.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-rose-50/60 border border-rose-200 text-xs text-rose-950 flex items-start gap-2.5">
-              <BookmarkCheck className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
-              <div>
-                <span className="font-bold block mb-0.5">💡 꿀팁: [보관함(초록색 책갈피)] 영구 보호 & 원클릭 글 생성</span>
-                <span className="text-[11px] text-rose-900 leading-relaxed block">
-                  마음에 드는 글감은 <b>초록색 책갈피 아이콘</b>을 누르면 30일 만료 자동 삭제에서 제외되어 영구 보존됩니다. 또한 <b>[✍️ 이 글감으로 포스팅 작성]</b> 버튼을 누르면 AI 글 작성기로 주제와 키워드가 자동 전달됩니다!
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* 2단계: ✍️ 5단계 멀티 AI 글 생성 & 이미지 스튜디오 */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-sky-600 border border-sky-200 font-bold text-sm">
-                  2단계
-                </span>
-                <h3 className="text-base font-bold text-neutral-900 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-sky-600" />
-                  <span>✍️ 5단계 AI 글 생성 & 멀티 AI 이미지 자동 완성</span>
-                </h3>
-              </div>
-              <Link
-                href="/"
-                className="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 shrink-0"
-              >
-                <span>글 생성기 바로가기</span>
-                <ChevronRight size={14} />
-              </Link>
-            </div>
-
-            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-              메인 화면(<Link href="/" className="underline font-bold text-neutral-900">블로그 글 자동 생성</Link>)에서 AI 텍스트 엔진과 멀티 이미지 생성 플랫폼을 자유롭게 선택한 후 버튼 하나로 최고 품질의 포스팅을 제작합니다:
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
-              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">
-                <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  🤖 자유로운 AI 텍스트 엔진 선택
-                </span>
-                <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  <b>GPT-4o</b>(정확하고 논리적), <b>Claude 3.5 Sonnet</b>(자연스럽고 문장력이 탁월함), <b>Gemini 1.5 Pro</b>(최신 트렌드/긴 문맥 분석) 중 취향에 맞는 엔진을 언제든 골라 쓸 수 있습니다.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">
-                <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  🎨 멀티 AI 이미지 스튜디오 (4대 화풍)
-                </span>
-                <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  <b>NanoBanana</b>(극사실 포토리얼리즘), <b>GPT Image</b>(고화질 DALL-E 3), <b>FLUX 2.0</b>, <b>Z-Image</b> 엔진을 지원하여 본문 소제목마다 어울리는 고품질 이미지를 클라우드에 자동 생성·업로드합니다.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs pt-1">
-              <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
-                <span className="font-bold text-neutral-800 block text-[11px]">1. Research</span>
-                <span className="text-[10px] text-neutral-500">독자 검색 의도 & 핵심 팩트 수집</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
-                <span className="font-bold text-neutral-800 block text-[11px]">2. Writer</span>
-                <span className="text-[10px] text-neutral-500">C-Rank 맞춤 서론·본론·결론 초안</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
-                <span className="font-bold text-emerald-800 block text-[11px]">3. Humanizer</span>
-                <span className="text-[10px] text-emerald-700 font-semibold">17대 규칙 AI티 제거 & 자연스러운 구어체</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
-                <span className="font-bold text-neutral-800 block text-[11px]">4. Reviewer</span>
-                <span className="text-[10px] text-neutral-500">체류시간 극대화 & DIA+ 가점 검수</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
-                <span className="font-bold text-neutral-800 block text-[11px]">5. Image</span>
-                <span className="text-[10px] text-neutral-500">본문 문맥 맞춤 컷 자동 렌더링</span>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-sky-50/60 border border-sky-200 text-xs text-sky-950 flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-sky-600 mt-0.5 shrink-0" />
-              <div>
-                <span className="font-bold block mb-0.5">🔒 100% 서버 DB 자동 영구 저장 (Auto-save) 탑재</span>
-                <span className="text-[11px] text-sky-900 leading-relaxed block">
-                  글 작성이 완료되거나 이미지가 생성될 때마다 서버 Supabase DB에 실시간 영구 보관됩니다. 브라우저 창을 닫아도 상단 <b>[📑 생성 원고 보관함]</b> 또는 <b>[최근 원고 열기]</b> 버튼으로 언제든 그대로 불러올 수 있습니다.
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* 3단계: 📑 원고 보관함 & 스마트 에디터 원고 편집 */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 font-bold text-sm">
-                  3단계
-                </span>
-                <h3 className="text-base font-bold text-neutral-900 flex items-center gap-1.5">
-                  <Edit3 className="w-4 h-4 text-indigo-600" />
-                  <span>📑 생성 원고 보관함 & 위지윅 스마트 에디터 편집</span>
-                </h3>
-              </div>
-              <Link
-                href="/queue"
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 shrink-0"
-              >
-                <span>원고 보관함 바로가기</span>
-                <ChevronRight size={14} />
-              </Link>
-            </div>
-
-            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-              사이드바의 <Link href="/queue" className="underline font-bold text-neutral-900">생성 원고 보관함 & 발행 큐</Link>에서는 지금까지 작성된 모든 원고를 체계적으로 관리하고, 네이버 블로그에 올리기 전 자유자재로 편집할 수 있습니다:
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
-                <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  📂 글감 수집 카테고리 연계 분류
-                </span>
-                <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  글감 수집와 100% 동일한 카테고리 칩으로 필터링하고, 원고별 드롭다운 변경 및 <b>체크박스 다중 선택 일괄 이동(Bulk Move)</b>이 가능합니다.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
-                <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  ✏️ Tiptap 듀얼 스마트 에디터
-                </span>
-                <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  제목, 본문 글귀, 소제목, 굵게/기울임 서식, 정렬, 태그를 실제 블로그처럼 위지윅(비주얼) 화면과 마크다운 코드 화면으로 손쉽게 수정합니다.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
-                <span className="font-bold text-neutral-900 flex items-center gap-1">
-                  ✨ PC 이미지 첨부 & AI 이미지 추가
-                </span>
-                <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  내 컴퓨터의 실물 사진을 드래그하여 즉시 첨부하거나, 에디터 내부에서 <b>✨ AI 이미지 추가 생성</b> 버튼으로 커서 위치에 바로 이미지를 넣을 수 있습니다.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 4단계: 🚀 크롬 확장의 스마트에디터 ONE 자동 타이핑 & 네이버 발행 */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold text-sm">
-                  4단계
-                </span>
-                <h3 className="text-base font-bold text-neutral-900 flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-emerald-600" />
-                  <span>🚀 크롬 확장의 스마트에디터 ONE 자동 타이핑 발행</span>
-                </h3>
-              </div>
-            </div>
-
-            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-              원고 작성이 끝나면 <b>[🚀 네이버 블로그로 즉시 발행]</b> 버튼을 누르면 크롬 확장이 백그라운드에서 모든 것을 안전하게 실행합니다:
-            </p>
-
-            <div className="p-4 rounded-xl bg-neutral-900 text-white text-xs space-y-2.5">
-              <div className="font-bold text-emerald-400 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4" />
-                <span>스마트에디터 ONE 자동 타이핑 마법 동작 과정</span>
-              </div>
-              <ol className="list-decimal list-inside space-y-1.5 text-neutral-300 leading-relaxed">
-                <li>크롬 확장이 백그라운드에서 네이버 블로그 글쓰기 탭(<code className="text-neutral-200">blog.naver.com</code>)을 자동으로 열거나 찾습니다.</li>
-                <li>스마트에디터 ONE 내부의 제목 칸을 클릭하고 글 제목을 타이핑합니다.</li>
-                <li>본문 에디터 프레임으로 포커스를 이동하여 본문 문단과 소제목, 줄바꿈을 사람의 호흡처럼 하나씩 가상 타이핑합니다.</li>
-                <li>생성된 AI 이미지 또는 업로드한 사진을 본문 해당 위치에 자동 배치합니다.</li>
-                <li>지정한 카테고리와 태그를 적용한 뒤 사용자가 최종 검토 후 [발행]만 누르면 끝납니다!</li>
-              </ol>
-            </div>
-          </div>
+      <GuideSection id="troubleshooting" number={7} title="문제가 생겼을 때" description="먼저 현재 원고와 네이버 처리 결과를 확인하고 아래 순서로 조치합니다.">
+        <div className="divide-y divide-neutral-200">
+          {[
+            ["전송 버튼이 눌리지 않아요", "원고의 서버 저장, 발행 설정 저장, 최종 검수 완료 여부를 확인합니다. 입력 중인 태그를 추가하고 설정을 저장해 주세요. 이미지 생성·저장이 끝날 때까지 기다립니다."],
+            ["화면 원고와 서버 저장본이 다르다고 나와요", "편집 내용을 먼저 복사해 보관합니다. 현재 원고를 저장한 뒤 최신 원고를 다시 열어 검수합니다. 다른 탭에서 수정했다면 보관함 목록을 갱신하고 최신 원고를 다시 여세요. 오류가 남으면 안내에 따라 저장본을 다시 확인합니다."],
+            ["이미지는 생성됐는데 저장에 실패했어요", "현재 화면을 유지하고 보관함 저장으로 다시 저장합니다. 저장 확인 전에는 추가 유료 생성을 반복하지 마세요. 성공한 이미지는 보존하고 미생성 컷만 다시 생성합니다."],
+            ["네이버 카테고리를 불러오지 못해요", "웹 회원·확장 연결 회원·블로그 ID가 같은지 확인합니다. 확장의 로그인 / 상태 확인에서 네이버 글쓰기 화면을 확인한 뒤, 진행 중인 확장 작업이 끝나면 다시 불러옵니다."],
+            ["확장이 멈췄거나 연결이 끊겼어요", "크롬과 최신 확장이 켜져 있는지, 네이버 로그인·보안 확인이 필요한지 확인합니다. 보관함에서 단계·완료 수·마지막 확인 시각을 봅니다. 연결 만료 복구 안내가 나타나면 네이버 원고·게시글·예약 목록을 먼저 확인하고 확인란 체크 → 확인 후 복구를 누릅니다. 복구는 임시보관으로 돌아가며 자동 재입력이나 재발행을 하지 않습니다."],
+            ["발행 실패 또는 결과가 불확실하다고 나와요", "열린 네이버 원고와 게시글·예약 목록에서 실제 결과를 먼저 확인합니다. 확인하기 전에 같은 원고를 다시 전송하지 마세요. 최종 발행 버튼을 누르기 전후에 따라 작성 실패와 발행 결과 불확실 안내가 달라질 수 있습니다."],
+          ].map(([question, answer]) => (
+            <details key={question} className="py-4 first:pt-0 last:pb-0">
+              <summary className="cursor-pointer text-sm font-bold text-neutral-900">{question}</summary>
+              <p className="mt-3 text-sm leading-7 text-neutral-600">{answer}</p>
+            </details>
+          ))}
         </div>
-      </div>
+      </GuideSection>
 
-      {/* 5. [중요 정책] 생성 콘텐츠 30일 보관 및 자동 삭제 안내 */}
-      <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-lg bg-amber-100 text-amber-800 font-bold text-sm">
-            <Calendar className="w-4 h-4 text-amber-800" />
-          </span>
-          <div>
-            <h2 className="text-base font-bold text-amber-950">
-              📌 [중요 안내] 생성 콘텐츠 30일 보관 및 자동 삭제 정책 (Content Retention)
-            </h2>
-            <p className="text-xs text-amber-800">
-              클라우드 DB 용량 최적화 및 최신 트렌드 데이터 유지를 위한 시스템 안내
-            </p>
-          </div>
-        </div>
+      <GuideSection id="storage" number={8} title="원고 보관·백업" description="저장 확인 후 다시 열고, 보관 기간 안에 필요한 내용을 백업합니다.">
+        <ul className="list-disc space-y-3 pl-5 text-sm leading-7 text-neutral-700">
+          <li>생성 화면 상단 <strong>최근 원고 열기</strong>에서 저장한 원고를 다시 불러오거나 <strong>콘텐츠 보관함</strong>에서 엽니다. 다른 기기에서는 같은 회원 계정으로 로그인해 서버에 저장된 원고를 확인합니다.</li>
+          <li>새로고침이나 화면 이동 전에는 저장 안내를 확인합니다. 저장되지 않은 편집 내용이나 저장 실패 상태는 자동 복원이 보장되지 않으므로 먼저 복사해 보관해 주세요.</li>
+          <li>생성 원고와 이미지에는 <strong>{RETENTION_DAYS}일 보관 정책</strong>이 적용됩니다. 만료 전 원고 복사·이미지 다운로드로 별도 백업합니다. 글감의 책갈피 보호는 원고·이미지 전체를 영구 보관하는 기능이 아닙니다.</li>
+          <li>웹 보관 데이터 정리는 네이버에 이미 발행된 게시글을 삭제하는 작업이 아닙니다. 발행 결과는 네이버에서 확인합니다.</li>
+        </ul>
+      </GuideSection>
 
-        <p className="text-xs md:text-sm text-amber-900 leading-relaxed">
-          AIMaster의 모든 블로그 자동화 솔루션은 공통 표준에 따라 <b>생성된 콘텐츠(수집 글감, 본문 원고, AI 생성 이미지)를 생성일로부터 30일간 보관</b>한 후 매일 새벽 자동으로 정리합니다.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-1 text-xs text-neutral-800">
-          <div className="p-3.5 rounded-xl bg-white border border-amber-200/80 shadow-xs space-y-1">
-            <span className="font-bold text-neutral-900 block flex items-center gap-1">
-              🗓️ D-xx 잔여 일수 실시간 표시
-            </span>
-            <p className="text-[11px] text-neutral-600 leading-relaxed">
-              원고 보관함과 글감 수집 목록에 만료일까지 남은 일수가 <b>[🗓️ D-xx (xx일 후 자동삭제)]</b> 배지로 친절하게 표시됩니다. (만료 7일 전부터 경고색으로 강조)
-            </p>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-white border border-amber-200/80 shadow-xs space-y-1">
-            <span className="font-bold text-neutral-900 block flex items-center gap-1">
-              🛡️ 중요 글감 [보관함 책갈피] 영구 보호
-            </span>
-            <p className="text-[11px] text-neutral-600 leading-relaxed">
-              나중에 언제든 다시 쓰고 싶은 소중한 글감은 글감 수집에서 <b>초록색 책갈피(보관함)</b>를 클릭해 두시면 30일이 지나도 절대 삭제되지 않고 영구 보존됩니다.
-            </p>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-white border border-amber-200/80 shadow-xs space-y-1">
-            <span className="font-bold text-neutral-900 block flex items-center gap-1">
-              ✅ 네이버 블로그 발행 글은 100% 안전
-            </span>
-            <p className="text-[11px] text-neutral-600 leading-relaxed">
-              이미 네이버 블로그에 정상 발행된 글과 이미지는 네이버 자체 서버에 영구 저장되므로, 웹 대시보드의 30일 정리와 완전히 무관하며 절대 지워지지 않습니다!
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 6. 계정 및 대시보드 관리 */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 text-white font-bold text-xs">
-            C
-          </span>
-          <div>
-            <h2 className="text-lg font-bold text-neutral-900">
-              네이버 계정·카테고리 관리 & 운영 대시보드 활용
-            </h2>
-            <p className="text-xs text-neutral-500">
-              다중 블로그 운영과 작업 흐름 효율화 팁
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-sm space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-neutral-900 text-sm flex items-center gap-1.5">
-                👥 네이버 블로그 계정 연결 (/settings)
-              </span>
-              <Link href="/settings" className="text-xs text-neutral-500 hover:text-neutral-900">
-                바로가기 ↗
-              </Link>
-            </div>
-            <p className="text-neutral-600 leading-relaxed">
-              블로그를 여러 개 운영 중이신가요? <Link href="/settings" className="underline font-semibold text-neutral-900">API키등록·플랫폼연동</Link>의 네이버 블로그 계정 연결에서 블로그 ID를 등록·수정할 수 있습니다.
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-neutral-500 text-[11px]">
-              <li>사용자 콘텐츠 카테고리는 생성·수집·보관함의 공통 관리 창에서 등록·수정·정렬합니다.</li>
-              <li>콘텐츠 분류와 네이버 블로그의 실제 메뉴는 서로 다른 설정입니다.</li>
-              <li>검색 키워드와 발행 목적은 콘텐츠 생성 화면에서 직접 지정합니다.</li>
-            </ul>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-sm space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-neutral-900 text-sm flex items-center gap-1.5">
-                📊 운영 대시보드 (/dashboard)
-              </span>
-              <Link href="/dashboard" className="text-xs text-neutral-500 hover:text-neutral-900">
-                바로가기 ↗
-              </Link>
-            </div>
-            <p className="text-neutral-600 leading-relaxed">
-              <Link href="/dashboard" className="underline font-semibold text-neutral-900">운영 대시보드</Link>에서는 수집된 글감 현황, 보관된 원고 수, 발행 완료 통계를 한눈에 모니터링할 수 있습니다.
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-neutral-500 text-[11px]">
-              <li>화면 상단 '원클릭 빠른 작업 시작' 3개 카드로 작업 동선 최적화</li>
-              <li>글감 수집 ➔ 글 생성 ➔ 원고 보관함 순차 이동, 계정 연결은 설정 화면에서 관리</li>
-              <li>발행 성공률 및 크롬 확장 연동 상태 실시간 점검</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* 7. 초보자를 위한 실전 200% 활용 꿀팁 */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-lg bg-neutral-100 text-neutral-800 font-bold text-sm">
-            💡
-          </span>
-          <h2 className="text-base font-bold text-neutral-900">
-            초보자를 위한 실전 200% 활용 꿀팁
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
-            <div className="font-bold text-neutral-900 flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-emerald-600" />
-              <span>1. [발행 큐 대기열] 일괄 연속 발행 활용하기</span>
-            </div>
-            <p className="text-neutral-600 leading-relaxed">
-              글을 쓸 때마다 하나씩 발행하지 않고, 미리 5~10개의 글을 연속으로 생성해 <Link href="/queue" className="underline font-semibold text-neutral-900">[발행 큐]</Link>에 모아두시면, 크롬 확장이 차례대로 가져가서 네이버 글쓰기 화면에 순서대로 채워주므로 포스팅 작업 시간이 10배 절약됩니다.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
-            <div className="font-bold text-neutral-900 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-sky-600" />
-              <span>2. [최근 원고 열기] 퀵 모달 복원</span>
-            </div>
-            <p className="text-neutral-600 leading-relaxed">
-              메인 글 생성기 상단에 있는 <b>[최근 원고 열기]</b> 버튼을 누르면, 이전에 작성했던 원고 내용(제목, 본문, 프롬프트, 이미지)을 클릭 한 번으로 메인 작업창에 즉시 다시 불러와서 추가 작업할 수 있습니다.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 8. 자주 묻는 질문 (FAQ) 6종 */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2">
-          <HelpCircle className="w-5 h-5 text-neutral-700" />
-          <h2 className="text-base font-bold text-neutral-900">자주 묻는 질문 (FAQ)</h2>
-        </div>
-
-        <div className="space-y-4 text-xs divide-y divide-neutral-100">
-          <div className="pt-2 first:pt-0 space-y-1">
-            <p className="font-bold text-neutral-900">Q. 정말 네이버 아이디 보호조치나 저품질 위험이 없나요?</p>
-            <p className="text-neutral-600 leading-relaxed">
-              네, 안전합니다. 네이버의 Akamai 보안 시스템은 헤드리스 봇(서버 브라우저)을 탐지하지만, 본 프로그램은 사용자가 평소 로그인해서 활동하는 <b>일반 크롬 브라우저 세션</b>을 그대로 사용하며 실제 사람의 마우스/키보드 지연 이벤트로 타이핑하므로 정상 유저 활동으로 판정됩니다.
-            </p>
-          </div>
-
-          <div className="pt-3 space-y-1">
-            <p className="font-bold text-neutral-900">Q. 생성된 글을 네이버에 올리기 전에 직접 수정하거나 이미지를 추가할 수 있나요?</p>
-            <p className="text-neutral-600 leading-relaxed">
-              물론입니다! <Link href="/queue" className="underline font-bold text-neutral-900">원고 보관함</Link>에서 언제든 <b>스마트 에디터</b>를 열어 제목, 본문, 소제목, 서식을 비주얼 위지윅 화면으로 자유롭게 편집할 수 있으며, PC 내 실물 사진을 드래그 첨부하거나 <b>✨ AI 이미지 추가 생성</b> 버튼으로 본문 커서 위치에 새 이미지를 즉시 삽입할 수 있습니다.
-            </p>
-          </div>
-
-          <div className="pt-3 space-y-1">
-            <p className="font-bold text-neutral-900">Q. 30일 자동 삭제 후 작성했던 글이 사라지면 어떻게 하나요?</p>
-            <p className="text-neutral-600 leading-relaxed">
-              이미 네이버 블로그에 발행을 완료한 글은 네이버 서버에 영구적으로 안전하게 보관되므로 웹 대시보드 삭제와 전혀 무관합니다. 또한 소중한 글감은 글감 수집에서 <b>[초록색 책갈피(보관함)]</b>를 눌러두시면 30일이 지나도 절대 지워지지 않고 영구 보존됩니다.
-            </p>
-          </div>
-
-          <div className="pt-3 space-y-1">
-            <p className="font-bold text-neutral-900">Q. 다른 컴퓨터나 스마트폰에서도 작성한 원고를 볼 수 있나요?</p>
-            <p className="text-neutral-600 leading-relaxed">
-              네! 생성된 모든 글과 이미지는 브라우저 임시 캐시가 아니라 회원님의 <b>Supabase 클라우드 서버 DB(/api/posts)에 100% 자동 영구 저장</b>되므로, 집/사무실 컴퓨터 어디서 로그인하셔도 동일한 원고 목록을 실시간으로 확인하실 수 있습니다.
-            </p>
-          </div>
-
-          <div className="pt-3 space-y-1">
-            <p className="font-bold text-neutral-900">Q. AI API 키는 꼭 필요한가요?</p>
-            <p className="text-neutral-600 leading-relaxed">
-              AIMaster의 모든 프로그램은 단일 통합 DB를 공유하므로, 메인 사이트나 다른 프로그램에서 한 번이라도 OpenAI, Gemini, Claude 키를 등록하셨다면 별도 등록 없이 <b>자동으로 연동되어 즉시 사용</b>하실 수 있습니다.
-            </p>
-          </div>
-
-          <div className="pt-3 space-y-1">
-            <p className="font-bold text-neutral-900">Q. [즉시 발행] 버튼을 눌렀는데 반응이 없으면 어떻게 하나요?</p>
-            <p className="text-neutral-600 leading-relaxed">
-              크롬 확장이 정상적으로 페어링되어 있는지 확인해 주세요. 크롬 브라우저 우측 상단 퍼즐 모양에서 <b>AIMaster 블로그 에이전트 확장</b>을 누른 뒤 초록색 불이 켜져 있는지 확인하고, 만약 연결이 끊겼다면 <Link href="/settings" className="underline font-semibold text-neutral-900">[설정]</Link>에서 8자리 코드를 재발급받아 입력하시면 즉시 재연결됩니다.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 9. 하단 바로가기 버튼 */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-neutral-200">
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href="/collector"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-neutral-300 text-neutral-800 text-xs font-bold hover:bg-neutral-50 transition-all shadow-xs"
-          >
-            <Flame className="w-3.5 h-3.5 text-rose-500" />
-            <span>1단계 글감 수집</span>
-          </Link>
-
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-xs font-bold hover:bg-neutral-800 transition-all shadow-sm"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>2단계 블로그 글 생성</span>
-          </Link>
-
-          <Link
-            href="/queue"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-neutral-300 text-neutral-800 text-xs font-bold hover:bg-neutral-50 transition-all shadow-xs"
-          >
-            <FileText className="w-3.5 h-3.5 text-sky-600" />
-            <span>3단계 원고 보관함</span>
-          </Link>
-        </div>
-
-        <Link
-          href="/settings"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-neutral-900 transition-colors"
-        >
-          <span>플랫폼 연동 & API 키 설정 페이지로 이동</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
+      <footer className="flex flex-wrap gap-3 border-t border-neutral-200 pt-5">
+        <Link href="/" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">콘텐츠 생성 시작</Link>
+        <Link href="/queue" className="rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-semibold text-neutral-700">콘텐츠 보관함</Link>
+        <Link href="/settings" className="rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-semibold text-neutral-700">API키등록·플랫폼연동</Link>
+      </footer>
     </div>
   );
 }
