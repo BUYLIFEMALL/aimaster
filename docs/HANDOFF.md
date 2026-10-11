@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.05) 프로그램 설명글 리치 콘텐츠화 및 v1.05 판올림
+
+주인님 요청("프로그램 설명글도 맞춰서 수정해줘")에 따라 메인 카탈로그 및 프로그램 상세 페이지의 설명글을 리치 콘텐츠로 완성도 높게 개편하고 버전을 `v1.05`로 판올림했습니다.
+- **설명글 리치 콘텐츠 개편**:
+  - `short_desc`: `"웹사이트 URL 입력 한 번으로 실시간 HTML 파싱, 7대 핵심 데이터 자동 분류, 시각적 섹터 선택 및 Gemini AI 스마트 리스트 구조화 추출까지 지원하는 지능형 웹 데이터 스크래핑 솔루션"` (기존 대괄호 검색 키워드 군더더기 정리 및 매력적인 한 줄 요약).
+  - `description`: 5대 핵심 기능(실시간 웹 크롤링, 7대 핵심 데이터 자동 분류, 시각적 섹터 선택기, Gemini AI 스마트 리스트 추출, CSV/ZIP 내보내기)과 본인 Gemini API 키 안전 격리 보관 원칙을 담은 깔끔한 HTML 리치 텍스트(`<h3>`, `<ul>`, `<li>`, `<strong>`)로 구조화.
+- **코드 및 DB 동기화**: `lib/version.ts`의 `APP_VERSION = "v1.05"`, `package.json` v1.05, `layout.tsx` metadata description 갱신, `ScraperWorkspace.tsx` JSON export generator `v1.05` 동기화 및 DB `programs.version = 'v1.05'` 갱신 완료.
+- **배포 및 검증**: Vercel 프로덕션 재배포 완료, 상세 페이지([https://www.buylife.xyz/programs/whbsite-scraper](https://www.buylife.xyz/programs/whbsite-scraper)) 및 메인 카탈로그 설명글 정상 노출 확인.
+- **마이그레이션**: `ghost-scraper/supabase/migrations/0007_update_descriptions_v105.sql`.
+
 ## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.04) 배포 주소 연동 및 v1.04 판올림
 
 주인님 요청("Whbsite Scraper 로 프로그램 이름 바꾸고 배포 주소도 같이 맞춰서 다시 수정해서 배포해줘")에 따라 공식 배포 주소 및 슬러그를 완벽하게 동기화했습니다.
