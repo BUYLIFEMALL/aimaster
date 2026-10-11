@@ -171,6 +171,17 @@ orca computer click --app chrome --window-id <현재창ID> --element-index <현�
 
 실제 네이버 시험에서는 기존 내용이 있으면 중지하고, 이어쓰기 창 처리 뒤 2초간 빈 편집기를 반복 확인했습니다. 작성만 검사하는 `writeArticle()`과 최종 발행하는 `publish()`를 분리해 발행 없이 실제 입력을 검수했습니다.
 
+### 8-1. Claude Code의 Chrome 화면 제어 (claude-in-chrome) — 필요시 직접 사용 (2026-10-11 주인님 지시)
+
+Claude Code도 Codex(Orca)와 같은 방식으로, 주인님이 로그인해 둔 실제 Chrome을 직접 제어해 디버깅·프로그램 분석·코딩 후 검수에 사용합니다. 화면 확인이 필요하면 주인님께 시키지 않고 먼저 직접 확인합니다.
+
+- 도구: `mcp__claude-in-chrome__*` (탭 목록 `tabs_context_mcp`, 이동 `navigate`, 화면 `computer`, 요소 찾기 `find`·`read_page`, 글자 `get_page_text`, 요청 확인 `read_network_requests`, 스크립트 `javascript_tool`). 도구가 지연 로드이면 `ToolSearch`로 한 번에 불러옵니다.
+- 연결: 승인된 로그인 Chrome에 붙습니다(2026-10-11 기준 GT1_MEGA). 연결된 브라우저가 여러 개면 임의로 고르지 않고 주인님께 먼저 묻습니다. 승인되지 않은 연결에서는 `Couldn't determine which page this action targets` 오류가 납니다.
+- 판정: 화면 결과만으로 성공 처리하지 않고 DB(Supabase)·Vercel 로그와 대조한 뒤 성공으로 판단합니다. 큰 화면 전체 글자 읽기는 피하고 축소 캡처·`find`·DB 조회로 필요한 부분만 확인합니다.
+- 금지·승인: 비밀번호·API 키는 입력하지 않고 주인님의 로그인을 요청합니다. 발행·결제 같은 되돌릴 수 없는 최종 버튼은 사전 허락 없이 누르지 않습니다. 시험은 `buylifemall@naver.com`(일반 회원)으로 합니다.
+- 한계: `*.vercel.app` 프로그램은 origin이 달라 로그인이 따로입니다(도메인 SSO 적용 전). 확인 전에 해당 주소에 로그인되어 있는지 먼저 봅니다.
+- 기록: Claude 메모리에도 같은 지침이 있으나(저장소 밖) 인수인계로는 이 절이 기준입니다.
+
 ## 9. 네이버 사례에서 확정한 구현·검수 원칙
 
 ### 9.1 이미지·본문 입력

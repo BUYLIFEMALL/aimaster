@@ -239,6 +239,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
    - 실패한 단계는 원인을 조사·복구하고, 복구할 수 없으면 **실패 원인·완료한 단계·미완료한 단계**를 명시한다. 각 단계의 성공 여부를 확인한 사실대로 적는다. 상세 절차는 아래 "작업 자율성 지침"을 따른다.
 
 13. **공식 개발 방식 — 「AI 에이전트 기반 자율 개발·검수·배포」(2026-10-10 주인님 명명, 모든 프로그램·CLI 공통).**
+   - **화면 확인이 필요하면 Claude Code도 Codex처럼 주인님의 로그인된 Chrome을 직접 제어해 디버깅·분석·검수한다(claude-in-chrome, 2026-10-11 주인님 지시).** 화면 결과는 DB·로그와 대조해 판정하고, 비밀번호·키 입력과 최종 발행·결제는 하지 않으며, 브라우저가 여러 개면 먼저 묻는다. 상세: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 8-1절.
    - 기존 지침·코드·실제 데이터를 조사하고 승인된 범위의 구현·오류 수정·자동 검사·실제 회원 흐름 검수·인수인계·커밋·푸시·운영 배포·운영 검증·보고를 이어서 수행한다.
    - 자동 검사와 실제 화면 검사, 운영 배포 검사를 구분하고 확인한 증거로 완료를 판단한다. 본인 계정·API 최상위 규칙, 특수 작업 사전 승인 및 클라우드 제한은 유지한다.
    - 다른 프로그램에 적용하거나 다른 CLI가 인수받을 때 필독: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md). 루트 `AGENTS.md` 핵심 원칙 14번도 같은 정의를 사용한다.
