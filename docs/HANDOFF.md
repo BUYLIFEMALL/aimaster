@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.06) 설명글 전면 재정리 (고스트 및 중복 키워드 완전 삭제) & v1.06 판올림
+
+주인님 요청("프로그램 설명글 다시 정리해서 반영해줘 고스트 빼줘 중복되는 내용 삭제하고")에 따라 카드 및 상세 페이지 설명글에서 고스트(`GhostScraper`, `ghost-scraper`) 및 중복 나열 키워드를 완전 삭제하고, 카탈로그 2줄 표시 규격에 최적화하여 재정리했습니다.
+- **설명글 클린업**:
+  - `short_desc`: `"웹사이트 URL 입력으로 본문·표·이미지를 자동 수집하고, AI로 원하는 목록을 구조화하여 추출하는 지능형 웹 스크래퍼"` (고스트 및 `[Whbsite Scraper / ...]` 중복 나열 제거, 카드 2줄 규격 최적화).
+  - `description`: 고스트 단어 없이 5대 핵심 기능 및 본인 API 키 원칙을 정갈하게 리치 HTML로 구조화.
+- **코드 및 DB 동기화**: `lib/version.ts`의 `APP_VERSION = "v1.06"`, `package.json` v1.06.0, `layout.tsx` metadata description 갱신, `ScraperWorkspace.tsx` JSON export 파일명 접두사 및 버전 `whbsite_scraper_` / `v1.06` 동기화, `storage.ts` localStorage 키 `whbsite_scraper_*` 갱신 및 DB `programs.version = 'v1.06'` 반영.
+- **배포 및 검증**: Vercel 프로덕션 재배포 완료 (`https://whbsite-scraper.buylife.xyz`), 카탈로그 및 상세 페이지 확인 완료.
+- **마이그레이션**: `ghost-scraper/supabase/migrations/0008_clean_descriptions_v106.sql`.
+
 ## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.05) 프로그램 설명글 리치 콘텐츠화 및 v1.05 판올림
 
 주인님 요청("프로그램 설명글도 맞춰서 수정해줘")에 따라 메인 카탈로그 및 프로그램 상세 페이지의 설명글을 리치 콘텐츠로 완성도 높게 개편하고 버전을 `v1.05`로 판올림했습니다.

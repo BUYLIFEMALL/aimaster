@@ -3,7 +3,7 @@
 ## 1. 프로그램 개요
 - **프로그램명**: Whbsite Scraper (웹 데이터 크롤러 & AI 추출기)
 - **Slug**: `whbsite-scraper`
-- **버전**: `v1.05`
+- **버전**: `v1.06`
 - **배지**: `["new", "free"]` (가입 회원 누구나 무료 사용)
 - **라이브 도메인**: `https://whbsite-scraper.buylife.xyz` (기존 `https://ghost-scraper.buylife.xyz` 유지)
 - **목적**: 웹사이트 URL을 입력하여 메타데이터, 헤딩 구조, 글목록, 표, 링크, 이미지를 실시간 스크래핑하고, Gemini AI로 비정형 웹 리스트를 구조화된 데이터(순번, 제목, 링크, 썸네일)로 자동 추출하는 지능형 웹 데이터 수집 솔루션.
@@ -12,7 +12,7 @@
 1. **사용자 본인 API 키 원칙 (최상위 규칙)**: Google Gemini API 키는 사용자의 브라우저 `localStorage`에 격리 보관되며, 플랫폼 공용 DB `user_api_keys` 테이블과 `/api/user/key`로 동기화된다. 운영자 공용 키 폴백 없음.
 2. **AIMaster 통합 이용 권한 게이트**: `src/lib/access.ts`의 `requireProgramAccess()` 적용으로 비로그인 접근 시 메인 SSO(`https://buylife.xyz/login`)로 307 리다이렉트. `free` 배지로 로그인 회원은 즉시 무료 사용.
 3. **좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**:
-   - 상단 프로그램명 + 버전 `v1.05` + FREE 배지
+   - 상단 프로그램명 + 버전 `v1.06` + FREE 배지
    - `← 다른 프로그램 보기`
    - 대시보드 메인
    - 번호형 작업 흐름 (1: URL 입력 & 탐색 → 2: 데이터 검토 & 분류 → 3: 시각적 섹터 선택 → 4: AI 지능형 분석)
@@ -29,6 +29,11 @@
 - **POST `/api/auth/logout`**: 안전한 로그아웃 후 메인 로그인으로 리다이렉트.
 
 ## 4. 버전 변경 이력
+- `v1.06` (2026-10-12):
+   - 주인님 지시로 프로그램 설명글 전면 재정리: '고스트', 'GhostScraper', 중복 키워드 나열 완전 삭제.
+   - 카드 표시 최적화: `short_desc`를 직관적인 2줄 문구로 재정리 ("웹사이트 URL 입력으로 본문·표·이미지를 자동 수집하고, AI로 원하는 목록을 구조화하여 추출하는 지능형 웹 스크래퍼").
+   - 코드(`lib/version.ts`, `package.json`, `layout.tsx`, `ScraperWorkspace.tsx`, `storage.ts`) 및 DB `programs.version = 'v1.06'` 판올림.
+   - Vercel 프로덕션 재배포 완료 (`https://whbsite-scraper.buylife.xyz`).
 - `v1.05` (2026-10-12):
    - 주인님 지시로 프로그램 설명글 리치 콘텐츠화 (`short_desc`, HTML `description` 구조화 갱신).
    - 메인 카탈로그 및 프로그램 상세 페이지 가독성 향상 (5대 핵심 기능 및 본인 API 키 보장 안내).

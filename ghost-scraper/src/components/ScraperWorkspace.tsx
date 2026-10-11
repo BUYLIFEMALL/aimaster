@@ -153,9 +153,9 @@ export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
       crawlResult,
       aiItems,
       exportedAt: new Date().toISOString(),
-      generator: "Whbsite Scraper v1.05",
+      generator: "Whbsite Scraper v1.06",
     };
-    exportDataAsJson(exportData, `ghost_scraper_${new URL(crawlResult.metadata.url).hostname}`);
+    exportDataAsJson(exportData, `whbsite_scraper_${new URL(crawlResult.metadata.url).hostname}`);
   };
 
   return (
