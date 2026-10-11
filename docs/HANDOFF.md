@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.19) 모델 선택 섹션 이동
+
+주인님 요청으로 [AI 글 생성 엔진]·[이미지 생성 모델] 섹션을 생성 폼 맨 위에서 [컬러 테마] 바로 위로 옮겼습니다(주제 추천·키워드 탭 공통 폼). 확장 ZIP·DB v1.19.
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.18) 계정 키 불러오기
 
 naver 계정(`buylifemall@naver.com`)의 `user_api_keys`에 gemini·openai·anthropic·replicate 키가 등록돼 있음을 확인(공급사 이름만 조회, 값 미출력). 올인원은 키를 브라우저 localStorage에만 저장하므로 에이전트가 대신 입력하지 않고, 설정창에 [내 AIMaster 계정에 등록된 키 불러오기] 버튼(`GET /api/my-keys`, 본인 키만)을 만들었습니다. **주인님이 설정창에서 버튼 → [로컬에 저장] 한 번**이면 적용됩니다. 확장 ZIP·DB v1.18.

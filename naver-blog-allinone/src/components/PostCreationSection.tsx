@@ -168,8 +168,6 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
           <span className="text-[11px] text-slate-400">기획 → 본문 → 윤문 → 검수 → 이미지까지 한 번에</span>
         </div>
 
-        <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} />
-
         <GenerationPanel
           values={{ personaId, targetLength, keywords, purpose, tone, style }}
           onChange={(patch) => {
@@ -189,6 +187,8 @@ export function PostCreationSection({ topic, setTopic, extraPromptHint, settings
           setTopic={setTopic}
           disabled={generating}
         />
+
+        <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* 왼쪽: 컬러 테마 + 추가 요청 */}
