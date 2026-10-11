@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — Whbsite Scraper (ghost-scraper v1.03) Web Scraping 카테고리 최우선(1순위) 배정
+
+주인님 요청("Web Scraping 카테고리로 넣어줘")에 따라 `Whbsite Scraper`(`ghost-scraper`)를 `Web Scraping` 카테고리(`web-scraping`)에 배정하고 `sort_order = 0`으로 최우선 순위 정렬 완료했습니다.
+- 관리자 프로그램 관리 보드([https://www.buylife.xyz/admin/programs](https://www.buylife.xyz/admin/programs))의 최상단 [Group 1: Web Scraping] 1번 행으로 즉시 노출.
+- 메인 카탈로그([https://www.buylife.xyz/programs/category/web-scraping](https://www.buylife.xyz/programs/category/web-scraping)) 첫 번째 카드로 정렬 완료.
+- 마이그레이션: `ghost-scraper/supabase/migrations/0005_set_web_scraping_category.sql`.
+
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.24) 카테고리 통합 관리
+
+주인님 요청으로 agent의 카테고리 관리를 이식했습니다. 회원별 카테고리 1개 목록(aio_categories)을 글 만들기·맛집/카페/여행·보관함이 공유하고, 보관함에서 칩 필터·글 분류 이동·관리 모달을 쓸 수 있습니다. DB 테이블 적용 완료, 확장 ZIP·DB v1.24.
+
 ## 2026-10-12 Codex — 메인 프로그램 목록 로고 링크 수정
 
 프로그램 목록의 AI Master 로고를 정식 메인 주소 https://www.buylife.xyz 로 전체 페이지 이동하도록 공통 헤더 링크를 변경했습니다. 루트 빌드·헤더 ESLint 오류0/기존 경고1. 운영/실제 클릭 확인은 [인수인계](HOME_LOGO_LINK_2026-10-12.md)에 이어 기록합니다. 다른 CLI의 올인원 작업은 제외합니다.
