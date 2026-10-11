@@ -389,14 +389,14 @@ export default function PostDetailPage() {
             </h1>
 
             {/* Author + meta + Action Buttons */}
-            <div className="flex items-center justify-between gap-4 mb-5 pb-4 border-b border-zinc-100">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 mb-5 pb-4 border-b border-zinc-100">
+              <div className="flex shrink-0 items-center gap-3">
                 {author && (
                   <>
                     <div className="avatar-circle">{getInitials(author.name)}</div>
                     <div>
                       <p className="text-sm font-semibold text-zinc-800 leading-tight">{author.name}</p>
-                      <p className="text-xs text-zinc-400">
+                      <p className="text-xs whitespace-nowrap text-zinc-400">
                         {author.role} · {formatFullDate(post.published_at)} · {post.reading_minutes}분 읽기
                       </p>
                     </div>
@@ -405,7 +405,7 @@ export default function PostDetailPage() {
               </div>
 
               {/* 포스트 관리 (본문 복사 / 수정 / 삭제) 버튼 */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 sm:ml-auto [&>*]:shrink-0 [&>*]:whitespace-nowrap">
                 <button
                   disabled={compressing}
                   onClick={async () => {
@@ -489,7 +489,6 @@ export default function PostDetailPage() {
                 >
                   {compressing ? '⏳ 이미지 750KB 압축 중...' : copied ? '✓ 본문 & 이미지 복사 완료! (Ctrl+V로 붙여넣으세요)' : '📋 본문 복사하기'}
                 </button>
-                <NaverCategoryPicker value={naverCategory} onChange={setNaverCategory} disabled={handoffState === 'sending'} />
                 <button
                   disabled={handoffState === 'sending'}
                   onClick={async () => {
@@ -540,6 +539,9 @@ export default function PostDetailPage() {
                 >
                   🗑️ 삭제
                 </button>
+              </div>
+              <div className="w-full border-t border-zinc-100 pt-3">
+                <NaverCategoryPicker value={naverCategory} onChange={setNaverCategory} disabled={handoffState === 'sending'} />
               </div>
             </div>
 

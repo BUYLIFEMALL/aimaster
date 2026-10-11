@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { NaverCategory } from '@/blog/utils/naverCategory'
 
-// "네이버 입력기로 보내기" 옆의 네이버 카테고리 선택(v1.57).
+// 전송 버튼 아래의 네이버 카테고리 선택(v1.57).
 // 회원의 실제 네이버 카테고리 목록은 BLOG 크롬 확장이 읽어 준다(확장이 새 탭에서 발행 설정창만 열어 읽고 닫음).
 // 고른 카테고리는 글과 함께 확장으로 보내지고, 마지막으로 보낸 글의 선택이 다음 글의 기본값이 된다.
 
@@ -73,15 +73,15 @@ export default function NaverCategoryPicker({ value, onChange, disabled }: { val
   const options = value && !list.some((item) => item.id === value.id) ? [value, ...list] : list
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <label className="text-xs font-semibold text-slate-600" htmlFor="naver-category-select">네이버 카테고리</label>
+    <div className="flex w-full min-w-0 flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <label className="shrink-0 whitespace-nowrap text-xs font-semibold text-slate-600" htmlFor="naver-category-select">네이버 카테고리</label>
         <select
           id="naver-category-select"
           disabled={disabled || loading}
           value={value?.id ?? ''}
           onChange={(event) => onChange(options.find((item) => item.id === event.target.value) ?? null)}
-          className="max-w-[220px] rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700"
+          className="h-9 w-64 max-w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700"
         >
           <option value="">지정 안 함 (네이버 기본 카테고리)</option>
           {options.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -90,7 +90,7 @@ export default function NaverCategoryPicker({ value, onChange, disabled }: { val
           type="button"
           disabled={disabled || loading}
           onClick={loadCategories}
-          className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60 cursor-pointer"
+          className="h-9 shrink-0 whitespace-nowrap rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60 cursor-pointer"
         >
           {loading ? '⏳ 불러오는 중...' : '카테고리 불러오기'}
         </button>
