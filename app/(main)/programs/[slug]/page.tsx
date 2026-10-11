@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Play, Lock } from "lucide-react";
+import { ArrowLeft, Play, Lock, Zap, ShieldCheck, Clock, TrendingUp, CheckCircle2, HelpCircle, ArrowRight, BookOpen, Users, Sparkles } from "lucide-react";
 import Link from "next/link";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import PaymentController from "@/components/payment/PaymentController";
@@ -234,17 +234,221 @@ export default async function ProgramDetailPage({ params }: PageProps) {
       </div>
 
       {/* Description */}
-      {program.description && (
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6">
-            프로그램 <GoldGradientText>소개</GoldGradientText>
-          </h2>
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-white mb-6">
+          프로그램 <GoldGradientText>상세 소개</GoldGradientText>
+        </h2>
+        {program.description ? (
           <div
-            className="prose prose-invert prose-gold max-w-none text-subtext leading-relaxed"
+            className="prose prose-invert prose-gold max-w-none text-subtext leading-relaxed mb-8"
             dangerouslySetInnerHTML={{ __html: program.description }}
           />
-        </section>
-      )}
+        ) : (
+          <p className="text-subtext text-base leading-relaxed mb-8">
+            {program.name}은(는) 인공지능 기반의 고성능 엔진을 탑재하여 일상적인 반복 작업과 마케팅 운영을 획기적으로 자동화하는 전문 도구입니다. 회원 본인의 인증 정보와 API 키를 안전하게 연동하여 계정 제재 위험 없이 신뢰할 수 있는 자동화 환경을 제공합니다.
+          </p>
+        )}
+
+        {/* 4대 핵심 특장점 (Key Features Grid) */}
+        <div className="grid sm:grid-cols-2 gap-6 mt-8">
+          <div className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
+              <Zap size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">실시간 AI 알고리즘 엔진</h3>
+            <p className="text-subtext text-sm leading-relaxed">
+              최신 인공지능 모델과 연동하여 고품질 콘텐츠 생성, 데이터 분석, 키워드 발굴을 사람의 개입 없이 원클릭으로 처리합니다.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
+              <ShieldCheck size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">본인 계정 · API 직접 연동</h3>
+            <p className="text-subtext text-sm leading-relaxed">
+              공용 키를 공유하지 않고 회원 본인의 인증 세션과 독립 API 키를 사용하므로, 플랫폼 정책을 준수하며 계정 정지 위험 없이 안전합니다.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
+              <Clock size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">운영 시간 90% 이상 절감</h3>
+            <p className="text-subtext text-sm leading-relaxed">
+              매일 수 시간씩 소요되던 자료 조사, 대본 작성, 태그 추출 및 업로드 프로세스를 수 초 단위로 단축하여 핵심 비즈니스에 집중할 수 있습니다.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
+              <TrendingUp size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">성과 기반 바이럴 최적화</h3>
+            <p className="text-subtext text-sm leading-relaxed">
+              단순 복사 생성이 아닌 플랫폼별 떡상 지표(VPH, 조회수 배수, 검색 알고리즘 노출도)를 실시간 반영하여 도달률을 극대화합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 사용 순서 및 워크플로우 가이드 (How it Works) */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-white mb-2">
+          실제 <GoldGradientText>사용 순서</GoldGradientText>
+        </h2>
+        <p className="text-subtext mb-8">누구나 4단계로 간편하게 자동화를 시작할 수 있습니다</p>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="glass-card rounded-2xl p-6 border border-white/10 relative">
+            <div className="text-gold font-black text-2xl mb-3">01</div>
+            <h3 className="text-base font-bold text-white mb-2">계정 및 API 연동</h3>
+            <p className="text-subtext text-xs leading-relaxed">
+              프로그램 설정 화면에서 사용할 플랫폼 계정 또는 AI API 키를 직접 등록합니다. (가이드 제공)
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10 relative">
+            <div className="text-gold font-black text-2xl mb-3">02</div>
+            <h3 className="text-base font-bold text-white mb-2">키워드 · 조건 설정</h3>
+            <p className="text-subtext text-xs leading-relaxed">
+              타겟팅할 키워드, 카테고리, 문체 톤앤매너, 주기 및 필터 조건을 원하는 대로 설정합니다.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10 relative">
+            <div className="text-gold font-black text-2xl mb-3">03</div>
+            <h3 className="text-base font-bold text-white mb-2">원클릭 AI 실행 · 검수</h3>
+            <p className="text-subtext text-xs leading-relaxed">
+              실행 버튼 클릭 시 인공지능 엔진이 분석 및 생성을 진행하며, 완성된 결과물을 미리보기로 확인합니다.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10 relative">
+            <div className="text-gold font-black text-2xl mb-3">04</div>
+            <h3 className="text-base font-bold text-white mb-2">자동 발행 및 성과 추적</h3>
+            <p className="text-subtext text-xs leading-relaxed">
+              즉시 발행 또는 원하는 시간에 맞춰 예약 배포하며, 누적된 성과와 반응을 실시간으로 확인합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 추천 대상 및 활용 시나리오 (Use Cases) */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-white mb-2">
+          추천 <GoldGradientText>활용 대상</GoldGradientText>
+        </h2>
+        <p className="text-subtext mb-8">이런 분들께 가장 높은 생산성 향상 효과를 제공합니다</p>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="glass-card rounded-2xl p-6 border border-white/10">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gold mb-4">
+              <Users size={20} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">1인 창업가 · 크리에이터</h3>
+            <p className="text-subtext text-sm leading-relaxed mb-4">
+              콘텐츠 기획부터 제작, 업로드까지 혼자 감당하기 벅찬 분들에게 24시간 일하는 AI 전담 팀원 역할을 해드립니다.
+            </p>
+            <ul className="text-xs text-subtext/80 space-y-1.5">
+              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 매일 끊이지 않는 글감 및 숏폼 대본 수급</li>
+              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 톤앤매너를 유지하는 균일한 퀄리티 보장</li>
+            </ul>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gold mb-4">
+              <Sparkles size={20} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">이커머스 셀러 · 제휴마케터</h3>
+            <p className="text-subtext text-sm leading-relaxed mb-4">
+              상품 상세페이지 기획, 쿠팡 파트너스·스마트스토어 홍보 채널 확장을 빠르게 대량화하고 싶은 셀러에게 최적입니다.
+            </p>
+            <ul className="text-xs text-subtext/80 space-y-1.5">
+              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 상품 키워드 기반 바이럴 포스팅 자동화</li>
+              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 다중 소셜 채널 분산 유입 파이프라인 구축</li>
+            </ul>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gold mb-4">
+              <BookOpen size={20} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">마케팅 대행사 · 브랜드 실무자</h3>
+            <p className="text-subtext text-sm leading-relaxed mb-4">
+              다수의 브랜드 계정을 효율적으로 관리하고 최신 검색 알고리즘에 맞춘 맞춤형 포스팅 전략을 전개할 수 있습니다.
+            </p>
+            <ul className="text-xs text-subtext/80 space-y-1.5">
+              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 표준화된 운영 프로세스로 업무 인계 간소화</li>
+              <li className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-gold" /> 지속적인 검색 노출 및 잠재 고객 확보</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* 자주 묻는 질문 FAQ */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-white mb-2">
+          자주 묻는 <GoldGradientText>질문 (FAQ)</GoldGradientText>
+        </h2>
+        <p className="text-subtext mb-8">프로그램 이용과 관련해 궁금하신 점을 확인하세요</p>
+
+        <div className="space-y-4">
+          <div className="glass-card rounded-2xl p-6 border border-white/10">
+            <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
+              <HelpCircle size={18} className="text-gold shrink-0" />
+              외부 플랫폼(네이버, 인스타그램, 유튜브 등) 계정 제재 위험은 없나요?
+            </h3>
+            <p className="text-subtext text-sm leading-relaxed pl-6">
+              AI Master의 모든 자동화 도구는 플랫폼의 공식 정책과 API 표준을 준수합니다. 무차별적인 매크로 트래픽을 유발하지 않으며, 각 회원이 본인의 계정 인증을 통해 안전하게 동작하도록 분리 설계되어 있어 안심하고 사용하실 수 있습니다.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10">
+            <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
+              <HelpCircle size={18} className="text-gold shrink-0" />
+              API 키나 계정 연동은 어떻게 진행하나요?
+            </h3>
+            <p className="text-subtext text-sm leading-relaxed pl-6">
+              상단의 <Link href="/guides" className="text-gold hover:underline font-semibold">이용 가이드</Link> 메뉴에서 OpenAI, Google Gemini, Anthropic Claude, Meta Threads, YouTube Data API 등 서비스별 발급 절차를 초보자도 쉽게 따라 할 수 있도록 스크린샷과 함께 로그인 없이 제공하고 있습니다.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 border border-white/10">
+            <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
+              <HelpCircle size={18} className="text-gold shrink-0" />
+              무료로도 체험해볼 수 있나요?
+            </h3>
+            <p className="text-subtext text-sm leading-relaxed pl-6">
+              카탈로그에서 [FREE] 배지가 표시된 프로그램은 회원가입만 하시면 등급이나 결제와 무관하게 즉시 무료로 이용하실 수 있습니다. 유료 프로그램은 필요에 따라 1개월/2개월/3개월 단위로 유연하게 구독하실 수 있습니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 가이드 센터 바로가기 배너 */}
+      <section className="mb-16">
+        <div className="glass-card rounded-2xl p-8 border border-gold/30 bg-gradient-to-r from-gold/5 via-surface/40 to-surface/80 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 text-gold text-xs font-semibold">
+              <BookOpen size={13} />
+              공식 연동 가이드
+            </span>
+            <h3 className="text-xl font-bold text-white">API 발급 및 플랫폼 연동이 처음이신가요?</h3>
+            <p className="text-subtext text-sm">
+              누구나 1분 만에 따라 할 수 있는 상세 매뉴얼을 무료로 확인해보세요.
+            </p>
+          </div>
+          <Link
+            href="/guides"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl btn-gold text-sm font-bold shrink-0 hover:scale-105 transition-all shadow-md"
+          >
+            가이드 센터 바로가기
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+      </section>
 
       {/* Pricing */}
       {activePlans.length > 0 && (

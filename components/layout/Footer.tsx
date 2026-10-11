@@ -9,6 +9,7 @@ const FOOTER_LINKS = {
     { href: "/custom", label: "커스텀 제작" },
   ],
   고객지원: [
+    { href: "/guides", label: "이용 가이드 (API연동)" },
     { href: "/support", label: "고객센터" },
     { href: "/support/faq", label: "자주 묻는 질문" },
     { href: "/support/notice", label: "공지사항" },
@@ -17,6 +18,7 @@ const FOOTER_LINKS = {
     { href: "/terms", label: "이용약관" },
     { href: "/privacy", label: "개인정보처리방침" },
     { href: "/refund", label: "환불정책" },
+    { href: "/data-deletion", label: "데이터 삭제 안내" },
   ],
 };
 
