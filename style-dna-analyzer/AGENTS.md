@@ -40,7 +40,7 @@
 
 ## 7. 알려진 한계·다음 작업
 - 일반 회원(`buylifemall@naver.com`) 화면 직접 검수는 하지 않았다(권한 판정은 cardnews-studio와 같은 사본·단위 테스트). 필요하면 사용기간을 부여한 뒤 확인.
-- 전용 카탈로그 썸네일 미등록(관리자 Gemini 키 사용에 주인님 확인이 필요해 보류) — 등록 전에는 기본 이미지.
+- 전용 카탈로그 썸네일: 2026-10-11 제작·등록 완료(`program-images/catalog/style-dna-analyzer-thumbnail.jpg`, `scripts/generate-program-thumbnail.mjs`, 주인님 요청으로 관리자 키 사용·1회 생성, 마이그레이션 `0003_thumbnail.sql`).
 - 한 번에 이미지 1장만 분석(배치 분석 없음). 색감 일치율은 색 분포 비교일 뿐 구도·형태 유사도는 아니다.
 - v1.02 후보: 분석 결과 PDF/텍스트 내보내기, 보관함 검색·태그, 생성 이미지 저장, 비교 보기 확대.
 

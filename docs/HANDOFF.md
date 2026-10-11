@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — STYLE DNA ANALYZER 전용 썸네일 등록 (style-dna-analyzer)
+
+주인님 요청으로 관리자 Gemini 키를 1회 사용해 16:9 실사 썸네일을 만들어 `programs.thumbnail_url`에 반영했습니다(마이그레이션 `style-dna-analyzer/supabase/migrations/0003_thumbnail.sql`). **남은 일:** ① cardnews-studio v1.03 배경 생성 화면 확인 ② 일반 회원(`buylifemall@naver.com`) 화면 검수 — 둘 다 Chrome 창이 가려져(탭 `hidden`, 창 위치 x≈3283) 화면 캡처가 안 되어 보류. Chrome 창을 앞으로 가져온 뒤 진행합니다.
+
 ## 2026-10-11 Claude Code — CARDNEWS STUDIO v1.03 긴급 수정 (cardnews-studio)
 
 v1.02의 배경 생성이 운영에서 sharp(libvips) 누락으로 500이던 문제를 `next.config.ts`로 고쳐 v1.03 배포(API는 JSON 응답 확인, DB 버전 v1.03). **남은 일: 실제 화면에서 배경 1장 생성·표시 확인**(Chrome 창이 가려져 화면 캡처 불가했음). 원인·점검법은 `docs/ERROR_LESSONS.md` 2026-10-11 sharp 항목.
