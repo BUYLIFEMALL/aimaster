@@ -1,0 +1,41 @@
+-- 신규 프로그램 ghost-scraper (GhostScraper PRO) 등록
+INSERT INTO public.programs (
+  category_id,
+  name,
+  slug,
+  short_desc,
+  description,
+  is_active,
+  sort_order,
+  required_grade_id,
+  app_url,
+  badges,
+  version,
+  thumbnail_url,
+  updated_at
+) VALUES (
+  'cb3c7c75-da5e-4474-a185-f069a6dcbda9',
+  'GhostScraper PRO',
+  'ghost-scraper',
+  '웹사이트 URL을 입력하여 메타데이터, 헤딩 구조, 글목록, 표, 링크, 이미지를 실시간 스크래핑하고 Gemini AI로 스마트 리스트를 생성하는 웹 데이터 수집 솔루션',
+  '웹사이트 URL을 입력하면 실시간으로 HTML을 파싱하여 페이지 타이틀, 시맨틱 헤딩(H1~H3), 본문 포스트, 데이터 표, 하이퍼링크, 이미지 갤러리를 자동으로 분류하고 추출합니다. 라이브 iframe 화면에서 원하는 요소를 직접 클릭해 캡처하는 시각적 섹터 선택기와, 불필요한 태그를 정리한 cleanedHtml을 Gemini Flash AI에 전달하여 반복되는 목록 요소를 구조화된 데이터(순번, 제목, 링크, 썸네일)로 자동 추출하는 지능형 웹 데이터 스크래핑 플랫폼입니다. CSV 다운로드와 이미지 일괄 ZIP 다운로드를 완벽 지원합니다.',
+  true,
+  119,
+  '861b7a37-d056-4404-80f5-85edb2e2ebff',
+  'https://ghost-scraper.buylife.xyz',
+  '["new", "free"]'::jsonb,
+  'v1.01',
+  'https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/ghost-scraper-thumbnail.jpg',
+  NOW()
+) ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  name = EXCLUDED.name,
+  short_desc = EXCLUDED.short_desc,
+  description = EXCLUDED.description,
+  is_active = EXCLUDED.is_active,
+  required_grade_id = EXCLUDED.required_grade_id,
+  app_url = EXCLUDED.app_url,
+  badges = EXCLUDED.badges,
+  version = EXCLUDED.version,
+  thumbnail_url = EXCLUDED.thumbnail_url,
+  updated_at = NOW();

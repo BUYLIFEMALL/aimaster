@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 신규 프로그램 GhostScraper PRO v1.01 (ghost-scraper)
+
+주인님이 주신 GhostScraper PRO 캡처 5장 및 참고 사이트(`ghost-scraper-gamma-99gg.vercel.app`) 분석을 바탕으로, **웹사이트 URL 크롤링 + 시각적 섹터 선택기(iframe 실시간 캡처) + Gemini 2.5 Flash 지능형 스마트 리스트 변환 + 7대 탭 데이터 분류**를 완결하는 신규 서브프로그램을 개발하여 배포했습니다.
+- **핵심 기능 및 워크플로우 (흰색 베이스 클린 UI)**:
+  - **Step 1 (URL 입력 & 탐색)**: 대상 사이트 입력창, 프리셋 빠른 선택, `Cheerio` 기반 백엔드 크롤링 API (`/api/crawl`).
+  - **Step 2 (데이터 검토 & 분류)**: 7대 데이터 탭 뷰어 탑재 (`개요`, `AI 분석`, `구조(H1~H3)`, `글목록`, `표`, `링크`, `이미지`). CSV 다운로드 및 CORS 우회 이미지 일괄 ZIP 다운로드 (`JSZip` + `/api/proxy-image`).
+  - **Step 3 (시각적 섹터 선택기)**: 라이브 iframe 프록시 (`/api/proxy`) + 마우스오버 하이라이트 스크립트 주입 + 단축키 지원(클릭: 캡처, Shift+클릭: 부모 컨테이너 선택, Ctrl+클릭: 링크 탐색) + 실시간 DOM 인스펙터 패널.
+  - **Step 4 (AI 지능형 분석)**: Gemini 2.5 Flash 모델 기반, 불필요한 태그를 제거한 `cleanedHtml`에서 반복되는 리스트 요소(순번, 제목, 링크, 썸네일)를 구조화된 JSON 데이터로 자동 추출.
+  - **도움말 & 설정**: 5단계 상세 사용 매뉴얼 모달, Gemini API 키 연결 테스트 및 로컬스토리지 보관 + 서버 DB 연동.
+- **배포 및 DB 연동**:
+  - Vercel 프로덕션 배포 완료: `https://ghost-scraper.buylife.xyz` (비로그인 시 307 SSO 리다이렉트 정상 작동 확인).
+  - DB `programs` 등록: slug `ghost-scraper`, name `GhostScraper PRO`, version `v1.01`, badges `["new", "free"]`, app_url `https://ghost-scraper.buylife.xyz`.
+  - 카탈로그 전용 16:9 실사 썸네일 생성 및 등록 완료: Gemini 3 Pro Image로 데이터 엔지니어 대시보드 실사 생성 → Supabase Storage `program-images/catalog/ghost-scraper-thumbnail.jpg` 업로드 및 DB `programs.thumbnail_url` 갱신 (`?v=1791739260236`).
+  - 로컬 백업 `ghost-scraper/public/ghost-scraper-thumbnail.jpg` 및 마이그레이션 SQL(`0001_register_ghost_scraper.sql`) 보존.
+- **AIMaster 플랫폼 기본 규칙 완전 준수**:
+  - 회원 인증 및 권한 게이트 (`requireProgramAccess`, 비로그인 자동 SSO 이동).
+  - 좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md` 규격 Sidebar: 번호형 워크플로우 1~4 스텝퍼 배지 & 세로선, ← 다른 프로그램 보기, 세션 통계 카드, 데이터 내보내기 JSON, 🔑 API키등록·플랫폼연동, 하단 사용자 이메일 & 로그아웃).
+  - 사용자 Gemini API 키 격리 보관 및 계정 동기화 엔드포인트 (`/api/user/key`).
+- **남은 일**: 없음 (로컬 빌드 100% 통과, 프로덕션 배포 및 라이브 검증 완료).
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.17) 세 탭 공통 생성 설정 + 모델 선택 + 보관함 STEP 4
 
 주인님 요청으로 naver-blog-agent(읽기만)의 장점(페르소나 6종·글자수 슬라이더·세부 조건·말끝×문체 예시·GPT/Claude/Gemini 글 엔진·NanoBanana/GPT Image/FLUX/Z-Image 이미지 모델·선택 공급사 키만 사용)을 올인원에 **기존 로직을 건드리지 않고 덧붙였습니다**(새 설정 필드는 선택값, 없으면 기존 Gemini 설정 그대로, 주제 추천·키워드 분석 코드는 미수정). 주제 추천·키워드·맛집/카페/여행 세 탭이 같은 파이프라인·결과 화면·보관함을 쓰고, 맛집 탭은 사진을 AI가 보고 쓰며 사진이 이미지 컷이 됩니다. 사이드바 [생성 본문 보관함]은 STEP 4로 이동. FLUX/Z-Image는 Replicate CORS 때문에 `/api/replicate-image` 서버 중계(키 미저장). 확장 ZIP·DB v1.17 OK, 실제 화면으로 주제 추천 탭(페르소나 생성)과 맛집 탭(사진 생성) 확인. 상세·한계: `naver-blog-allinone/AGENTS.md` v1.17. 남은 일: GPT·Claude·FLUX·Z-Image 실제 키로 호출 검수, 키워드 파인더 탭 흐름 화면 확인, 테스트 글 정리.
