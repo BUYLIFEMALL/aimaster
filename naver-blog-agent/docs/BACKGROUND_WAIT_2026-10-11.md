@@ -17,11 +17,21 @@ Chrome은 숨겨진 페이지의 반복 타이머를 지연시킵니다. 원고 
 
 새 editor 검사4개와 worker 시나리오3개 추가. 기존 v1.75를 직접 로드했을 때 숨겨진1/5장 타이머 검사는 실패하고, 수정 후 editor10개/worker37개 통과합니다. 연결 종료 후 추가 AI 표시0·기한 만료 중단·다른 실행/탭/출처 차단도 확인했습니다. 전체 scripts/test-*.cjs를 Node test runner로 실행해131개 통과(독립 스크립트 검사 집계 포함, worker37개와 중복 합산하지 않음). JS 문법·로컬 npm run build/TypeScript 통과.
 
-코드/확장/ZIP v1.76을 준비했습니다. 운영 배포·DB3개 릴리스 필드 동시 갱신·라이브ZIP200/14파일 일치·PC 확장 적용은 실제 완료 후 아래에 기록합니다. 이 문서의 코드 수정/모의 검사만으로 실제 Chrome 문제가 해결됐다고 주장하지 않습니다.
+코드 커밋2ea93dbe를 origin/master에 푸시하고 해당 커밋의 격리 worktree로 에이전트만 프로덕션 배포했습니다. 프로젝트prj_uns69mwxF4wJARy1ViF2Lgj0PzWT/team buylife 확인. dpl_G98H1G6twPW39TKiunXAhJQBzJEJ READY·운영alias 확인, 클라우드 빌드/타입도 통과했습니다. 배포URL https://naver-blog-agent-n2e67mc0z-buylife.vercel.app 입니다.
+
+programs.version/extension_version/extension_download_url을 같은 SQL로 갱신했습니다. 릴리스 검사 실패0/경고0, 라이브ZIP HTTP200/manifest v1.76/실제14파일 소스와 줄바꿈 정규화 후 일치(디렉터리 항목 포함하면15개). login/버전API200,15분 범위 서버 error 로그 없음. 장기 무장애 증거나 실제 회원 준비 성공 증거로 간주하지 않습니다.
+
+회원 queued/publishing0 확인 후 전용 Chrome 창에서 에이전트 확장 ID jghcffojjhpadflbhmdbophincpciajm의 새로고침만 실행했습니다. 실제v1.76·사용 설정됨·로드 경로 D:\Antigravity\AIMaster\naver-blog-agent\extension 확인. 다른 확장/기존 편집기 수정 없음. 기존 보호 원고5건과 새5장 prepared 원고의 상태/content/images MD5는 모두 이전 증거와 일치하며 published_at/post_url NULL입니다.
+
+## 실제 Chrome 재검수 재개 조건
+
+현재 검수 전용 창19532794는 일반Chrome PID25100입니다. 공유 창에서 다른 CLI가 화면을 바꾸므로 Chrome 메뉴의 새 창으로 별도 검수 창을 만들었습니다. 주소 Enter 입력은 처음 window_not_focused였고 restore1회도 해결되지 않았지만 주소 제안 항목 클릭으로 확장 화면에 접근했습니다. 별도 새 창에서는 Enter 이동도 확인했습니다. 접근성 호출 성공만으로 페이지 이동을 주장하지 않았습니다.
+
+웹 프로그램 접속은 /login?redirect=%2Fdashboard로 이동했습니다. 회원 세션이 없어1장 재전송을 실행하지 않았습니다. 주인님께 buylifemall@naver.com 직접 로그인만 요청했으며 비밀번호/API 키/쿠키/토큰은 요청하거나 읽지 않습니다. 로그인 완료 응답 없이 관리자 계정/DB 쓰기로 대신 검수하지 않습니다. 따라서 실제1~4장 준비·개별 교체/삭제·부분 실패 복구는 아직 미완료입니다.5장 v1.75 성공 증거와 이번 자동 검사·배포 증거를 구분합니다.
 
 ## 이어서 할 일
 
-1. v1.76 운영 배포/ZIP/DB 확인 후 queued/publishing0을 확인하고 이 PC의 에이전트 확장만 새로고침합니다. 기존 원고를 삭제/이동하지 않습니다. 다른 PC는 ZIP 재다운로드→기존 폴더 덮어쓰기→chrome://extensions 새로고침이 필요합니다.
+1. v1.76 운영 배포/ZIP/DB/PC 갱신은 완료했습니다. 회원 로그인 복구 후 실제 화면의 계정과 준비 모드를 확인합니다. 다른 PC는 ZIP 재다운로드→기존 폴더 덮어쓰기→chrome://extensions 새로고침이 필요합니다.
 2. 1장 실패 원고를 회원 화면에서 확인 후 준비 모드·비공개·예약 없음으로 재전송합니다. 새 탭과 입력/AI 표시/설정/서버 prepared ACK를 확인하며 숨겨진 탭 조건도 별도로 검사합니다. 실제 최종 발행 금지.
 3. 2→3→4장 원고의 실제 준비 확인. 4장 원고 BODY1 이미지에는 깨진 글자가 있어 개별 교체 검수가 필요합니다. 생성 이미지 장수·HTTP200만으로 품질 통과를 선언하지 않습니다.
 4. 개별 교체·삭제/부분 실패 복구는 별도 실제 화면 증거를 남깁니다. 이미 성공한 이미지의 일괄 재생성은 하지 않습니다.
