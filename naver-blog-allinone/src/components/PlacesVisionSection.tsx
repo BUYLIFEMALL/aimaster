@@ -88,6 +88,7 @@ export function PlacesVisionSection({ settings, onOpenSettings }: PlacesVisionSe
   const [copiedHtml, setCopiedHtml] = useState(false);
   const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
+  const [syncedToExtension, setSyncedToExtension] = useState(false);
 
   // Handle Photo Upload
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -313,7 +314,7 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
 
       const thumb = photos.find((p) => p.isThumbnail) || photos[0];
 
-      setGeneratedResult({
+      const newResult = {
         title: parsed.title || `${placeName} 방문 솔직 후기`,
         summary: parsed.summary || "",
         contentHtml: parsed.contentHtml || "",
@@ -321,12 +322,40 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
         plainText: parsed.plainText || "",
         tags: parsed.tags || [],
         thumbnailUrl: thumb?.previewUrl,
-      });
+      };
+
+      setGeneratedResult(newResult);
+
+      // 크롬 확장 프로그램으로 원고 자동 브로드캐스트
+      if (typeof window !== "undefined") {
+        window.postMessage(
+          {
+            type: "ALLINONE_SYNC_DRAFT",
+            draft: newResult,
+          },
+          "*"
+        );
+      }
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "비전 포스트 생성 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSyncToExtension = () => {
+    if (!generatedResult) return;
+    if (typeof window !== "undefined") {
+      window.postMessage(
+        {
+          type: "ALLINONE_SYNC_DRAFT",
+          draft: generatedResult,
+        },
+        "*"
+      );
+    }
+    setSyncedToExtension(true);
+    setTimeout(() => setSyncedToExtension(false), 2000);
   };
 
   const copyHtmlToClipboard = async () => {
@@ -932,6 +961,25 @@ ${extraRequest ? `- 추가 요청: ${extraRequest}` : ""}
                 <span>네이버 글쓰기 열기</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
+
+              <button
+                type="button"
+                onClick={handleSyncToExtension}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-300 rounded-lg transition shadow-2xs"
+                title="설치된 크롬 확장 프로그램으로 원고를 전달하여 네이버 글쓰기에서 1초 자동 주입합니다"
+              >
+                {syncedToExtension ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>확장에 전달됨!</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                    <span>⚡ 크롬 확장에 전달</span>
+                  </>
+                )}
+              </button>
 
               <button
                 type="button"

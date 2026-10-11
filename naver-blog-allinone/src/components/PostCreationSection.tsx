@@ -110,6 +110,7 @@ export function PostCreationSection({
   const [copiedHtml, setCopiedHtml] = useState(false);
   const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
+  const [syncedToExtension, setSyncedToExtension] = useState(false);
 
   const handleGeneratePost = async () => {
     if (!settings.geminiApiKey) {
@@ -200,7 +201,7 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
         thumbUrl = `https://image.pollinations.ai/prompt/${imagePrompt}?width=${w}&height=${h}&nologo=true`;
       }
 
-      setGeneratedPost({
+      const newPost = {
         title: parsed.title || topic,
         contentHtml: parsed.contentHtml || "",
         markdown: parsed.markdown || parsed.plainText || "",
@@ -208,12 +209,40 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
         tags: parsed.tags || [],
         summary: parsed.summary || "",
         thumbnailUrl: thumbUrl,
-      });
+      };
+
+      setGeneratedPost(newPost);
+
+      // 크롬 확장 프로그램으로 원고 자동 브로드캐스트
+      if (typeof window !== "undefined") {
+        window.postMessage(
+          {
+            type: "ALLINONE_SYNC_DRAFT",
+            draft: newPost,
+          },
+          "*"
+        );
+      }
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "포스트 생성 중 오류가 발생했습니다.");
     } finally {
       setGenerating(false);
     }
+  };
+
+  const handleSyncToExtension = () => {
+    if (!generatedPost) return;
+    if (typeof window !== "undefined") {
+      window.postMessage(
+        {
+          type: "ALLINONE_SYNC_DRAFT",
+          draft: generatedPost,
+        },
+        "*"
+      );
+    }
+    setSyncedToExtension(true);
+    setTimeout(() => setSyncedToExtension(false), 2000);
   };
 
   const copyHtmlToClipboard = async () => {
@@ -561,6 +590,25 @@ ${extraRequest ? `3. 추가 요청사항: ${extraRequest}` : ""}
                 <span>네이버 글쓰기 열기</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
+
+              <button
+                type="button"
+                onClick={handleSyncToExtension}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-300 rounded-lg transition shadow-2xs"
+                title="설치된 크롬 확장 프로그램으로 원고를 전달하여 네이버 글쓰기에서 1초 자동 주입합니다"
+              >
+                {syncedToExtension ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>확장에 전달됨!</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                    <span>⚡ 크롬 확장에 전달</span>
+                  </>
+                )}
+              </button>
 
               <button
                 type="button"

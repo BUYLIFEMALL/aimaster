@@ -10,6 +10,7 @@ import {
   Key,
   Calendar,
   CloudSun,
+  Download,
 } from "lucide-react";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { AppSettings } from "@/lib/storage";
@@ -121,6 +122,17 @@ export function Header({ settings, onOpenSettings, onOpenTrends }: HeaderProps) 
             <TrendingUp className="w-4 h-4 text-indigo-600" />
             <span>트렌드 바로가기</span>
           </button>
+
+          {/* Chrome Extension Download Button */}
+          <a
+            href="/downloads/naver-blog-allinone-latest.zip"
+            download="naver-blog-allinone-latest.zip"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-xs"
+            title="네이버 스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 다운로드"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>크롬 확장 다운로드</span>
+          </a>
 
           {/* Naver Creator-Advisor Button */}
           <a

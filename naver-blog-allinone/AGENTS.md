@@ -13,6 +13,10 @@
 
 ## 버전 변경 이력
 - `v1.04` (2026-10-11):
+  - 스마트에디터 ONE 전용 크롬 확장 프로그램 구축 (`extension/`, `manifest.json` v1.04)
+  - 네이버 블로그 글쓰기(`blog.naver.com`) 화면에서 원클릭으로 제목/인라인 서식 HTML 본문 자동 주입 플로팅 위젯 (`content-naver.js`)
+  - 웹 앱-확장 간 원고 자동 동기화 브릿지 (`content-web.js`, `chrome.storage.local`)
+  - 최신 확장 프로그램 ZIP 다운로드 패키징 (`public/downloads/naver-blog-allinone-latest.zip`) 및 헤더 다운로드 링크 배치
   - SEO 최적화 모드 선택 (홈판 노출 모드 감성 스토리텔링 vs 기본 SEO 모드 정보형 리뷰)
   - AI SEO 키워드 자동 추출기 탑재 (Gemini 기반 메인 및 서브 타겟 키워드 실시간 추천)
   - 3단 서식 뷰어 & 원클릭 복사 시스템 (네이버 스마트에디터 ONE HTML / 티스토리·워드프레스 마크다운 / 일반 텍스트)
