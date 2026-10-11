@@ -6,13 +6,12 @@ import {
   Utensils,
   Search,
   Sparkles,
-  Info,
-  ExternalLink,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { SettingsModal } from "@/components/SettingsModal";
 import { TrendLinksModal } from "@/components/TrendLinksModal";
 import { TopicIdeaSection } from "@/components/TopicIdeaSection";
+import { PlacesVisionSection } from "@/components/PlacesVisionSection";
 import { PostCreationSection } from "@/components/PostCreationSection";
 import { AppSettings, DEFAULT_SETTINGS, getStoredSettings } from "@/lib/storage";
 
@@ -37,7 +36,6 @@ export default function HomePage() {
   const handleSelectTopic = (topic: string, hint?: string) => {
     setSelectedTopic(topic);
     setExtraPromptHint(hint || "");
-    // 부드럽게 하단 포스트 생성 섹션으로 스크롤
     window.scrollTo({
       top: document.getElementById("post-creation-area")?.offsetTop || 600,
       behavior: "smooth",
@@ -102,34 +100,31 @@ export default function HomePage() {
 
         {/* Tab 1 Content: 주제 아이디어 얻기 (E-E-A-T 기반, 카테고리별, 에버그린, 롱테일, 메모/파일) */}
         {activeMainTab === "ideas" && (
-          <TopicIdeaSection
-            settings={settings}
-            onSelectTopic={handleSelectTopic}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-          />
+          <>
+            <TopicIdeaSection
+              settings={settings}
+              onSelectTopic={handleSelectTopic}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+            />
+            {/* 하단 공통 포스트 생성하기 & 에디터 섹션 */}
+            <div id="post-creation-area">
+              <PostCreationSection
+                topic={selectedTopic}
+                setTopic={setSelectedTopic}
+                extraPromptHint={extraPromptHint}
+                settings={settings}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+              />
+            </div>
+          </>
         )}
 
-        {/* Tab 2 Content: 맛집/카페/여행 스켈레톤 (STEP 3에서 구현) */}
+        {/* Tab 2 Content: 맛집/카페/여행 멀티모달 비전 엔진 */}
         {activeMainTab === "places" && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4">
-            <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Utensils className="w-6 h-6" />
-            </div>
-            <div className="max-w-md mx-auto space-y-1">
-              <h3 className="text-sm font-bold text-slate-900">
-                맛집/카페/여행 멀티모달 비전 분석 엔진
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                스마트폰으로 촬영한 실제 사진을 다중 업로드하면 Gemini 비전이 사진 속 음식 색감, 인테리어, 디테일을 직접 관찰하여 네이버 플레이스/D.I.A+에 최적화된 생생한 후기 원고를 작성합니다.
-              </p>
-            </div>
-            <div className="pt-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <Sparkles className="w-3.5 h-3.5" />
-                STEP 3 단계에서 탑재 예정입니다.
-              </span>
-            </div>
-          </div>
+          <PlacesVisionSection
+            settings={settings}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+          />
         )}
 
         {/* Tab 3 Content: 키워드 파이터 PRO 스켈레톤 (STEP 4에서 구현) */}
@@ -154,17 +149,6 @@ export default function HomePage() {
             </div>
           </div>
         )}
-
-        {/* 하단 공통 포스트 생성하기 & 에디터 섹션 */}
-        <div id="post-creation-area">
-          <PostCreationSection
-            topic={selectedTopic}
-            setTopic={setSelectedTopic}
-            extraPromptHint={extraPromptHint}
-            settings={settings}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-          />
-        </div>
       </main>
 
       {/* Footer */}
