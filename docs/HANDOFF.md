@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 21:50 네이버 블로그 에이전트 실제 회원 테스트 중단 확인
+
+주인님 진행 중인 원고0887ba88의 실제 상태는 failed: 대표 이미지 입력3/28에서 예상 문서와 불일치(완료2/28), 서버 본문/이미지3장 저장·발행 완료 기록 없음. JPEG 원본과 고정PNG 파일명의 불일치를 의심하지만 실제 네이버 snapshot 미확인으로 원인 확정 전입니다. 실패 상태/이유가 보관함 카드에서 보이지 않는 코드 문제, 출처 URL 없는 수치/개인 경험의 AI PASS, prepare 설정 미저장도 확인했습니다. Chrome 키 입력은 window_not_focused/restore1회 실패로 실패한 네이버 탭을 앞으로 열어 두시도록 요청했습니다. 이번 점검은 읽기만 했고 재전송/원고 수정/최종 발행/앱 배포 없음. [결과·증거·후속 순서](../naver-blog-agent/docs/LIVE_TEST_CHECK_2026-10-11.md). 운영 v1.78 유지.
+
 ## 2026-10-11 Claude Code — 일반 회원 화면 검수 완료 (style-dna-analyzer v1.02, cardnews-studio v1.03)
 
 실제 Chrome에서 `buylifemall@naver.com`으로 확인: STYLE DNA ANALYZER는 접속·보관함 분리·분석 완료(본인 키), cardnews-studio는 대시보드 접속 정상. 검수용으로 `user_program_access`에 style-dna-analyzer(2026-11-10까지)를 부여했고 naver 계정에 테스트 분석 1건이 남아 있습니다(필요 시 삭제). 남은 일: 없음(전용 썸네일·데스크톱 레이아웃·배경 생성 확인 모두 완료).
