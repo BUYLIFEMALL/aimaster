@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — YOUTUBE CHANNEL CONSULTANT 전용 썸네일 등록 (youtube-channel-consultant)
+
+주인님 지시로 전용 실사 썸네일을 만들어 AIMaster 저장소(Supabase Storage `program-images/catalog/youtube-channel-consultant-thumbnail.jpg`)에 올리고 `programs.thumbnail_url`에 반영했습니다(`scripts/generate-program-thumbnail.mjs`, Gemini `gemini-3-pro-image-preview`, 관리자 본인 키를 주인님 확인 후 사용). 한국인 인물·16:9·글자/로고 없음 규칙을 지켰고 YOUTUBE VIRAL FINDER 썸네일과 나란히 비교해 실사 톤을 확인했습니다. 정적 파일이 아니라 DB 값이라 루트 재배포는 필요 없습니다. 마이그레이션 `youtube-channel-consultant/supabase/migrations/20261011170000_youtube_channel_consultant_thumbnail.sql`. 프로그램 버전은 올리지 않았습니다(코드 변경 없음).
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 마스터 PRO (naver-blog-allinone v1.04) SEO 모드 & AI 키워드 추출 & 3단 서식 뷰어 탑재 완료
 
 - **SEO 최적화 모드 선택 & AI 키워드 자동 추출 & 3단 서식 뷰어 탑재 (v1.04)**:

@@ -48,7 +48,7 @@
 
 ## 7. 알려진 한계·다음 작업
 - 모바일 폭은 CSS(반응형 클래스·상단 메뉴)로만 구현했고 실제 폰 폭 브라우저 검수는 아직 못 했다.
-- 카탈로그 썸네일은 전용 이미지가 없어 `youtube-viral-studio` 썸네일을 임시로 쓰고 있다(전용 실사 썸네일 제작 필요, `docs/PLATFORM_PATTERNS.md` §13).
+- 카탈로그 썸네일: 2026-10-11 전용 실사 썸네일 제작·등록 완료(`program-images/catalog/youtube-channel-consultant-thumbnail.jpg`, `scripts/generate-program-thumbnail.mjs`, 마이그레이션 `20261011170000_...thumbnail.sql`).
 - `npm run lint`는 ESLint 설정 파일이 없어 동작하지 않는다(복사 원본 `youtube-viral-studio`도 같음). 자동 검사는 `npm test`(지표 계산 7개)와 `npm run build`.
 - 이후 검토: 영상 요약 등 AI 기능, 즐겨찾기 보관함, 공략 채널 찾기.
 
