@@ -1,9 +1,9 @@
 # ghost-scraper — AI 에이전트 작업 지침
 
 ## 1. 프로그램 개요
-- **프로그램명**: GhostScraper (웹 데이터 크롤러 & AI 추출기)
+- **프로그램명**: Website Scraper (웹 데이터 크롤러 & AI 추출기)
 - **Slug**: `ghost-scraper`
-- **버전**: `v1.02`
+- **버전**: `v1.03`
 - **배지**: `["new", "free"]` (가입 회원 누구나 무료 사용)
 - **라이브 도메인**: `https://ghost-scraper.buylife.xyz`
 - **목적**: 웹사이트 URL을 입력하여 메타데이터, 헤딩 구조, 글목록, 표, 링크, 이미지를 실시간 스크래핑하고, Gemini AI로 비정형 웹 리스트를 구조화된 데이터(순번, 제목, 링크, 썸네일)로 자동 추출하는 지능형 웹 데이터 수집 솔루션.
@@ -12,7 +12,7 @@
 1. **사용자 본인 API 키 원칙 (최상위 규칙)**: Google Gemini API 키는 사용자의 브라우저 `localStorage`에 격리 보관되며, 플랫폼 공용 DB `user_api_keys` 테이블과 `/api/user/key`로 동기화된다. 운영자 공용 키 폴백 없음.
 2. **AIMaster 통합 이용 권한 게이트**: `src/lib/access.ts`의 `requireProgramAccess()` 적용으로 비로그인 접근 시 메인 SSO(`https://buylife.xyz/login`)로 307 리다이렉트. `free` 배지로 로그인 회원은 즉시 무료 사용.
 3. **좌측 메뉴 표준 규격 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)**:
-   - 상단 프로그램명 + 버전 `v1.02` + FREE 배지
+   - 상단 프로그램명 + 버전 `v1.03` + FREE 배지
    - `← 다른 프로그램 보기`
    - 대시보드 메인
    - 번호형 작업 흐름 (1: URL 입력 & 탐색 → 2: 데이터 검토 & 분류 → 3: 시각적 섹터 선택 → 4: AI 지능형 분석)
@@ -29,6 +29,11 @@
 - **POST `/api/auth/logout`**: 안전한 로그아웃 후 메인 로그인으로 리다이렉트.
 
 ## 4. 버전 변경 이력
+- `v1.03` (2026-10-12):
+   - 주인님 지시로 프로그램 공식 명칭을 `Website Scraper`로 변경.
+   - `lib/version.ts`의 `APP_NAME = "Website Scraper"` 및 `APP_VERSION = "v1.03"` 갱신.
+   - DB `programs`의 `name = "Website Scraper"`, `version = "v1.03"` 동기화 완료.
+   - Vercel 프로덕션 재배포 완료 (`https://ghost-scraper.buylife.xyz`).
 - `v1.02` (2026-10-12):
    - 주인님 지시로 프로그램 공식 명칭에서 'PRO' 제거 (`GhostScraper PRO` → `GhostScraper`).
    - `lib/version.ts`의 `APP_NAME = "GhostScraper"` 및 `APP_VERSION = "v1.02"` 갱신.

@@ -51,7 +51,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <div>
               <h3 className="text-sm font-black text-slate-900">상세 사용 매뉴얼</h3>
               <p className="text-[11px] text-slate-500">
-                GhostScraper 5단계 워크플로우 가이드
+                Website Scraper 5단계 워크플로우 가이드
               </p>
             </div>
           </div>

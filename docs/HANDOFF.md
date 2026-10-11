@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — Website Scraper (ghost-scraper v1.03) 공식 명칭 변경
+
+주인님 요청으로 프로그램 공식 명칭을 `Website Scraper`로 변경하고 버전을 `v1.03`으로 판올림했습니다.
+- **코드 및 DB 동기화**: `lib/version.ts`의 `APP_NAME = "Website Scraper"` 및 `APP_VERSION = "v1.03"` 갱신, `package.json` v1.03, DB `programs`의 `name = "Website Scraper"`, `version = "v1.03"` 업데이트 완료.
+- **배포 및 검증**: Vercel 프로덕션 배포 완료 (`https://ghost-scraper.buylife.xyz`), HTTP 307 SSO 게이트 및 명칭 정상 반영 확인.
+- **마이그레이션**: `ghost-scraper/supabase/migrations/0003_rename_to_website_scraper.sql`.
+
 ## 2026-10-12 Antigravity — GhostScraper (ghost-scraper v1.02) 명칭에서 Pro 삭제
 
 주인님 요청으로 프로그램 공식 명칭에서 'PRO'를 삭제하여 `GhostScraper`로 통일했습니다.

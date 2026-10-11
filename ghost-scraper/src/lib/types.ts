@@ -1,4 +1,4 @@
-// GhostScraper 데이터 타입 정의
+// Website Scraper 데이터 타입 정의
 
 export interface Metadata {
   title: string;
