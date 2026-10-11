@@ -6,6 +6,7 @@
 - **버전**: `v1.06`
 - **배지**: `["new", "free"]` (가입 회원 누구나 무료 사용)
 - **라이브 도메인**: `https://whbsite-scraper.buylife.xyz` (기존 `https://ghost-scraper.buylife.xyz` 유지)
+- **Vercel 프로젝트 & 주소**: 프로젝트명 `whbsite-scraper` / `https://whbsite-scraper.vercel.app`
 - **목적**: 웹사이트 URL을 입력하여 메타데이터, 헤딩 구조, 글목록, 표, 링크, 이미지를 실시간 스크래핑하고, Gemini AI로 비정형 웹 리스트를 구조화된 데이터(순번, 제목, 링크, 썸네일)로 자동 추출하는 지능형 웹 데이터 수집 솔루션.
 
 ## 2. 핵심 불변 원칙 준수
@@ -30,10 +31,11 @@
 
 ## 4. 버전 변경 이력
 - `v1.06` (2026-10-12):
-   - 주인님 지시로 프로그램 설명글 전면 재정리: '고스트', 'GhostScraper', 중복 키워드 나열 완전 삭제.
+   - 주인님 지시로 Vercel 프로젝트명 `ghost-scraper` → `whbsite-scraper`로 변경 및 `https://whbsite-scraper.vercel.app` 주소 연결 완료.
+   - 프로그램 설명글 전면 재정리: '고스트', 'GhostScraper', 중복 키워드 나열 완전 삭제.
    - 카드 표시 최적화: `short_desc`를 직관적인 2줄 문구로 재정리 ("웹사이트 URL 입력으로 본문·표·이미지를 자동 수집하고, AI로 원하는 목록을 구조화하여 추출하는 지능형 웹 스크래퍼").
    - 코드(`lib/version.ts`, `package.json`, `layout.tsx`, `ScraperWorkspace.tsx`, `storage.ts`) 및 DB `programs.version = 'v1.06'` 판올림.
-   - Vercel 프로덕션 재배포 완료 (`https://whbsite-scraper.buylife.xyz`).
+   - Vercel 프로덕션 재배포 완료 (`https://whbsite-scraper.vercel.app`, `https://whbsite-scraper.buylife.xyz`).
 - `v1.05` (2026-10-12):
    - 주인님 지시로 프로그램 설명글 리치 콘텐츠화 (`short_desc`, HTML `description` 구조화 갱신).
    - 메인 카탈로그 및 프로그램 상세 페이지 가독성 향상 (5대 핵심 기능 및 본인 API 키 보장 안내).

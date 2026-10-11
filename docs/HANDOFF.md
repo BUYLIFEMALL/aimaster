@@ -1,13 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.06) 설명글 전면 재정리 (고스트 및 중복 키워드 완전 삭제) & v1.06 판올림
+## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.06) Vercel 프로젝트명·주소(whbsite-scraper.vercel.app) 동기화 & 설명글 전면 재정리
 
-주인님 요청("프로그램 설명글 다시 정리해서 반영해줘 고스트 빼줘 중복되는 내용 삭제하고")에 따라 카드 및 상세 페이지 설명글에서 고스트(`GhostScraper`, `ghost-scraper`) 및 중복 나열 키워드를 완전 삭제하고, 카탈로그 2줄 표시 규격에 최적화하여 재정리했습니다.
+주인님 요청("versel 주소도 whbsite-scraper 로 수정 해줘 나중에 관리하기 편하게", "프로그램 설명글 다시 정리해서 반영해줘 고스트 빼줘 중복되는 내용 삭제하고")에 따라 Vercel 프로젝트 이름을 `ghost-scraper`에서 `whbsite-scraper`로 변경하고, Vercel 기본 주소(`https://whbsite-scraper.vercel.app`, `https://whbsite-scraper-buylife.vercel.app`)를 연동 완료했습니다.
+- **Vercel 프로젝트명 & 기본 주소 동기화**:
+  - Vercel 프로젝트 이름 변경: `ghost-scraper` ➔ `whbsite-scraper` (팀: `buylife`).
+  - Vercel 주소 등록 및 별칭(alias) 설정: `https://whbsite-scraper.vercel.app`, `https://whbsite-scraper-buylife.vercel.app` (기존 `ghost-scraper.vercel.app`, `ghost-scraper.buylife.xyz` 하위 호환도 유지).
+  - 로컬 설정: `ghost-scraper/.vercel/project.json`의 `projectName`을 `whbsite-scraper`로 동기화.
 - **설명글 클린업**:
-  - `short_desc`: `"웹사이트 URL 입력으로 본문·표·이미지를 자동 수집하고, AI로 원하는 목록을 구조화하여 추출하는 지능형 웹 스크래퍼"` (고스트 및 `[Whbsite Scraper / ...]` 중복 나열 제거, 카드 2줄 규격 최적화).
+  - `short_desc`: `"웹사이트 URL 입력으로 본문·표·이미지를 자동 수집하고, AI로 원하는 목록을 구조화하여 추출하는 지능형 웹 스크래퍼"` (고스트 및 `[Whbsite Scraper / ...]` 중복 나열 완전 제거, 카드 2줄 규격 최적화).
   - `description`: 고스트 단어 없이 5대 핵심 기능 및 본인 API 키 원칙을 정갈하게 리치 HTML로 구조화.
 - **코드 및 DB 동기화**: `lib/version.ts`의 `APP_VERSION = "v1.06"`, `package.json` v1.06.0, `layout.tsx` metadata description 갱신, `ScraperWorkspace.tsx` JSON export 파일명 접두사 및 버전 `whbsite_scraper_` / `v1.06` 동기화, `storage.ts` localStorage 키 `whbsite_scraper_*` 갱신 및 DB `programs.version = 'v1.06'` 반영.
-- **배포 및 검증**: Vercel 프로덕션 재배포 완료 (`https://whbsite-scraper.buylife.xyz`), 카탈로그 및 상세 페이지 확인 완료.
+- **배포 및 검증**: Vercel 프로덕션 재배포 완료 (`https://whbsite-scraper.vercel.app`, `https://whbsite-scraper.buylife.xyz`), 카탈로그 및 상세 페이지 확인 완료.
 - **마이그레이션**: `ghost-scraper/supabase/migrations/0008_clean_descriptions_v106.sql`.
 
 ## 2026-10-12 Antigravity — Whbsite Scraper (whbsite-scraper v1.05) 프로그램 설명글 리치 콘텐츠화 및 v1.05 판올림
