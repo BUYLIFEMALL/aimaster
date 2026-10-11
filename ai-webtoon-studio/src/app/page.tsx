@@ -1,0 +1,227 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { Sidebar, ActiveTab } from "@/components/Sidebar";
+import { Header } from "@/components/Header";
+import { ProjectSection } from "@/components/ProjectSection";
+import { CharacterSection } from "@/components/CharacterSection";
+import { ScriptEditorSection } from "@/components/ScriptEditorSection";
+import { WebtoonCanvasSection } from "@/components/WebtoonCanvasSection";
+import { SettingsModal } from "@/components/SettingsModal";
+import {
+  AppSettings,
+  DEFAULT_SETTINGS,
+  DEFAULT_PROJECT,
+  getStoredSettings,
+  getStoredProject,
+  saveStoredProject,
+  exportProjectToJson,
+} from "@/lib/storage";
+import { WebtoonProject } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
+import { mergeAndDownloadLongScrollJpg, downloadAllImagesAsZip } from "@/lib/canvasMerge";
+
+export default function WebtoonStudioPage() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>("concept");
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [project, setProject] = useState<WebtoonProject>(DEFAULT_PROJECT);
+  const [userEmail, setUserEmail] = useState<string>("");
+
+  const importFileRef = useRef<HTMLInputElement>(null);
+
+  // 1. Load initial storage data & check URL params
+  useEffect(() => {
+    setSettings(getStoredSettings());
+    setProject(getStoredProject());
+
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      const stepParam = sp.get("step") as ActiveTab;
+      if (["concept", "character", "script", "canvas"].includes(stepParam)) {
+        setActiveTab(stepParam);
+      }
+      if (sp.get("modal") === "settings") {
+        setIsSettingsOpen(true);
+      }
+
+      // Load Supabase user email safely
+      try {
+        const supabase = createClient();
+        supabase.auth
+          .getUser()
+          .then(({ data }) => {
+            if (data?.user?.email) {
+              setUserEmail(data.user.email);
+            }
+          })
+          .catch((err) => {
+            console.warn("Failed to load user email:", err);
+          });
+      } catch (e) {
+        console.warn("Supabase client init error:", e);
+      }
+    }
+  }, []);
+
+  // Update project helper
+  const handleUpdateProject = (updated: Partial<WebtoonProject>) => {
+    setProject((prev) => {
+      const merged = { ...prev, ...updated };
+      saveStoredProject(merged);
+      return merged;
+    });
+  };
+
+  // Export JSON
+  const handleExportProject = () => {
+    exportProjectToJson(project);
+  };
+
+  // Import JSON
+  const handleImportFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const parsed = JSON.parse(content);
+        if (parsed.title || parsed.synopsis || parsed.cuts) {
+          const merged = { ...DEFAULT_PROJECT, ...parsed };
+          setProject(merged);
+          saveStoredProject(merged);
+          alert(`'${merged.title}' 프로젝트를 성공적으로 불러왔습니다!`);
+        } else {
+          alert("올바른 AI 웹툰 스튜디오 프로젝트 파일이 아닙니다.");
+        }
+      } catch (err) {
+        alert("JSON 파일을 파싱하는 데 실패했습니다.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  // Header quick downloads
+  const handleHeaderDownloadZip = () => {
+    downloadAllImagesAsZip(
+      project.cuts || [],
+      project.includeCover ? project.coverImageUrl : undefined,
+      project.title,
+      project.scriptText
+    );
+  };
+
+  const handleHeaderDownloadMergedJpg = () => {
+    mergeAndDownloadLongScrollJpg(
+      project.cuts || [],
+      project.includeCover ? project.coverImageUrl : undefined,
+      project.title
+    );
+  };
+
+  return (
+    <div className="flex min-h-screen bg-slate-50">
+      {/* 1. 좌측 표준 사이드바 */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onExportProject={handleExportProject}
+        onImportProjectClick={() => importFileRef.current?.click()}
+        isOpenMobile={isMobileNavOpen}
+        onCloseMobile={() => setIsMobileNavOpen(false)}
+        userEmail={userEmail}
+      />
+
+      {/* 숨겨진 JSON 불러오기 input */}
+      <input
+        type="file"
+        ref={importFileRef}
+        onChange={handleImportFileChange}
+        accept=".json"
+        className="hidden"
+      />
+
+      {/* 2. 우측 메인 영역 */}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* 상단 헤더 */}
+        <Header
+          settings={settings}
+          onDownloadZip={handleHeaderDownloadZip}
+          onDownloadMergedJpg={handleHeaderDownloadMergedJpg}
+          onOpenMobileNav={() => setIsMobileNavOpen(true)}
+          hasCutsToDownload={(project.cuts || []).some((c) => Boolean(c.imageUrl))}
+        />
+
+        {/* 본문 메인 컨텐츠 */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* STEP 1: 기획 & 시놉시스 */}
+          {activeTab === "concept" && (
+            <ProjectSection
+              project={project}
+              onChangeProject={handleUpdateProject}
+              apiKey={settings.geminiApiKey}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onNextStep={() => setActiveTab("character")}
+              onExportProject={handleExportProject}
+              onImportProjectClick={() => importFileRef.current?.click()}
+            />
+          )}
+
+          {/* STEP 2: 캐릭터 시트 설정 */}
+          {activeTab === "character" && (
+            <CharacterSection
+              project={project}
+              onChangeProject={handleUpdateProject}
+              apiKey={settings.geminiApiKey}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onNextStep={() => setActiveTab("script")}
+              onPrevStep={() => setActiveTab("concept")}
+            />
+          )}
+
+          {/* STEP 3: 시나리오 콘티 생성 */}
+          {activeTab === "script" && (
+            <ScriptEditorSection
+              project={project}
+              onChangeProject={handleUpdateProject}
+              apiKey={settings.geminiApiKey}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onNextStep={() => setActiveTab("canvas")}
+              onPrevStep={() => setActiveTab("character")}
+            />
+          )}
+
+          {/* STEP 4: 웹툰 제작 & 뷰어 */}
+          {activeTab === "canvas" && (
+            <WebtoonCanvasSection
+              project={project}
+              onChangeProject={handleUpdateProject}
+              apiKey={settings.geminiApiKey}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onPrevStep={() => setActiveTab("script")}
+            />
+          )}
+        </main>
+
+        {/* Footer */}
+        <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+          <p>© 2026 AIMaster · AI 웹툰 스튜디오 PRO · 사용자 개인 API 키 격리 보관 원칙 준수</p>
+        </footer>
+      </div>
+
+      {/* API 키 설정 모달 */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={settings}
+        onSaveSettings={setSettings}
+      />
+    </div>
+  );
+}
