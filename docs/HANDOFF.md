@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — 신규 프로그램 YOUTUBE CHANNEL CONSULTANT v1.01 (youtube-channel-consultant)
+
+주인님 기획 확정(참고: Google AI Studio 앱 '유튜브 채널 컨설턴트' 캡처)으로 신규 서브프로그램을 만들고 배포했습니다. **v1.01 범위: ① 채널 분석(구독자·조회수·업로드 주기·최근 영상 50/100/200개 인기 점수 차트·영상 목록·JSON/CSV) ② 키워드 분석(지역/카테고리/검색기준, 조회수·좋아요·댓글·채널 점유율·영상 연령).** AI 분석(영상 요약·경쟁 전략·성장 과정·채널 진단)은 v1.02, 공략 채널 찾기는 v1.03 예정. 회원 본인 YouTube 키만 사용, 분석 결과는 서버에 저장하지 않음(새 테이블 없음). 상세·지표 정의·쿼터: [`youtube-channel-consultant/AGENTS.md`](../youtube-channel-consultant/AGENTS.md).
+
+- 배포: Vercel 프로젝트 `buylife/youtube-channel-consultant`(새로 생성, production 환경변수 4개 등록), 도메인 `https://youtube-channel-consultant.buylife.xyz` 연결·`/login` 200 확인. DB `programs` 등록(v1.01, `app_url` 새 주소, 배지 `new`(FREE 아님), 최소 등급 `일반`, 카테고리 영상/유튜브)과 `pricing_plans` 표준 3단계(1만/2만/3만원). 마이그레이션 SQL: `youtube-channel-consultant/supabase/migrations/20261011160000_register_youtube_channel_consultant.sql`.
+- 검수: `npm test` 7개·`npm run build`·`tsc` 통과. 실제 로그인 Chrome(`buylifemall@naver.com`, .buylife.xyz 도메인 로그인 공유 정상)에서 대시보드, `@YouTube` 채널 분석(차트 탭 전환 포함), 키워드 `AI자동화` 분석을 확인. 로그인 없이 API 호출 시 401 확인. 시험용으로 이 계정에 `user_program_access`(30일, 2026-11-10까지)를 넣었습니다(필요 없으면 관리자 화면에서 삭제).
+- 알아둘 점: ① 쇼츠 구분은 추정(60초 이하 또는 180초 이하+#shorts) ② 인기 점수는 조회된 영상끼리의 상대 점수 ③ 카탈로그 썸네일은 youtube-viral-studio 것을 임시 사용(전용 썸네일 제작 필요) ④ 폰 폭 화면은 실제 브라우저로 검수하지 못함(창 크기 변경이 적용되지 않음) ⑤ ESLint 설정 파일이 없어 lint 불가(복사 원본과 동일).
+- **발견한 기존 문제(수정하지 않음, 다음 작업 후보)**: `youtube-viral-studio`의 `/api/youtube/*`·`/api/settings/api-keys`는 로그인만 확인하고 프로그램 이용 권한(`checkProgramAccessApi`)을 확인하지 않습니다(멀티테넌시 원칙 1). 또 같은 프로그램의 Claude 키 provider 이름이 `claude`인데 DB 체크 제약은 `anthropic`이라 저장에 실패합니다.
+- 남은 일: v1.02 AI 분석, 전용 썸네일, 모바일 실검수, (선택) 즐겨찾기 보관함.
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 마스터 PRO (naver-blog-allinone v1.03) 키워드 파이터 PRO 7대 분석 엔진 탑재 완료
 
 - **키워드 파이터 PRO 7대 분석 엔진 전면 탑재 완료 (v1.03)**:

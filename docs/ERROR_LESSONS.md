@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-11 — 복사해 만든 새 프로그램의 provider 이름이 DB 체크 제약과 달라 저장이 실패함 / tar 복사가 src/lib/supabase 를 빠뜨림 (youtube-channel-consultant v1.01)
+
+- **증상:** 새 프로그램 설정 화면에서 Claude 키를 저장하면 DB 오류가 날 상태였고(복사 원본 youtube-viral-studio 도 동일), 폴더 복사 직후 `src/lib/supabase`가 통째로 없었다.
+- **원인:** ① `user_api_keys.provider` 체크 제약에는 `anthropic`만 있는데 원본 코드는 `claude`를 썼다. ② 복사할 때 `supabase/` 마이그레이션 폴더를 빼려고 `tar --exclude=supabase`를 썼더니 이름이 같은 `src/lib/supabase`까지 제외됐다.
+- **해결(위치):** `youtube-channel-consultant/src/lib/apiKeys.ts`·설정 화면의 provider를 `anthropic`으로 수정, 빠진 폴더는 원본에서 다시 복사. 원본 youtube-viral-studio 는 손대지 않고 HANDOFF에 후속 작업으로 기록.
+- **다음부터 확인:** 새 provider/키 이름은 코드에 쓰기 전에 `pg_get_constraintdef`로 `user_api_keys` 체크 제약 목록을 확인한다. 폴더를 복사해서 새 프로그램을 만들 때는 제외 패턴을 `./supabase`처럼 경로로 한정하고, 복사 후 `src/lib/*` 구성과 `npm run build`로 누락을 바로 확인한다. 복사 원본의 권한 확인(API route의 `checkProgramAccessApi`) 누락 여부도 같이 점검한다.
+
 ## 2026-10-11 — AI PASS도 외부 메뉴·출처 검증을 대신하지 않음 (naver-blog-agent v1.75 실제 검수)
 
 - **증상:** 새5장 검수 원고2174209c…의 AI 판정은PASS였지만, 확인하지 않은 이미지 메뉴 사용법과 공식 가이드를 참고했다는 표현이 본문에 남아 있었습니다.
