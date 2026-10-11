@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 Claude Code — shorts-viral-studio v1.05 이용 권한 판정을 루트 표준으로 교체 (A안 2번째 작업)
+
+갭 분석(P1·P2)에서 찾은 문제를 고쳤습니다. `src/lib/access.ts`가 권한 테이블을 로그인 세션 클라이언트(RLS)로 조회하고 없는 컬럼 `profiles.program_access_expires_at`을 읽던 것을, 루트 표준 판정(`src/lib/programAccess.ts` = 루트 `checkProgramAccess` 사본)과 `createAdminClient()`로 교체했습니다(정지 → 관리자 → FREE → 구독 → 등급 미지정 허용 → 등급 ≥ 최소 등급 + 사용기간). 서버 액션 전부가 이 함수를 쓰므로 모든 쓰기 경로에 적용됩니다. `npm test` 8개(판정 규칙)·빌드·타입 검사 통과, 프로덕션 READY(`shorts-viral-studio.vercel.app`, 로그인 200·보호 경로 307), DB `programs.version` v1.05, 마이그레이션 `shorts-viral-studio/supabase/migrations/0005_v1_05.sql`. 로그인한 화면 검수는 vercel.app이 별도 로그인이라 다음 단계(v1.06 도메인 로그인 공유) 배포 후 `buylifemall@naver.com`으로 실제 확인합니다. 다음: v1.06 도메인 로그인 공유 → 실제 키 검수 → `coming` 배지 제거·출시.
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.06) 메인페이지 링크 전면 개선 및 FREE 배지 연동 완료
 
 - **메인페이지 링크 미작동 원인 분석 및 완벽 조치**:

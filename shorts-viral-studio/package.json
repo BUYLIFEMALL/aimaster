@@ -1,12 +1,13 @@
 {
   "name": "shorts-viral-studio",
-  "version": "0.1.0",
+  "version": "1.05.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test tests/access.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

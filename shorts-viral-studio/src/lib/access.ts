@@ -1,91 +1,33 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { checkProgramAccess } from "@/lib/programAccess";
 
 const THIS_PROGRAM_SLUG = "shorts-viral-studio";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL || "https://www.buylife.xyz";
+
+// 판정 규칙은 루트 lib/access/checkProgramAccess.ts의 사본(src/lib/programAccess.ts)을 그대로 쓴다
+// (정지 → 관리자 → FREE 배지 → 구독 → 등급 미지정 허용 → 등급 ≥ 최소 등급 + 사용기간). 규칙이 바뀌면 사본도 같이 고칠 것.
+// 권한 테이블(profiles·programs·subscriptions·user_program_access)은 RLS·쿠키 때문에 정상 권한자가 막히지 않도록
+// 로그인 세션 클라이언트가 아니라 createAdminClient()로 조회한다(CLAUDE.md 핵심 원칙 6, 로그인 확인은 requireUser()).
+type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 function noAccessUrl(reason?: "suspended") {
   const productPage = `${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}`;
   return reason ? `${productPage}?error=${reason}` : productPage;
 }
 
-function isNotExpired(expiresAt: string | null): boolean {
-  return !expiresAt || new Date(expiresAt) > new Date();
-}
-
-type SupabaseLike = {
-  from: (table: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
-};
-
+/** 로그인 + 프로그램 이용 권한을 확인한다. 권한이 없으면 프로그램 안내 페이지로 보낸다. */
 export async function requireProgramAccess() {
   const user = await requireUser();
-  const supabase = (await createClient()) as unknown as SupabaseLike;
+  const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user.id, THIS_PROGRAM_SLUG);
 
-
-  const { data: suspendCheck } = await supabase
-    .from("profiles")
-    .select("is_suspended, is_admin")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (suspendCheck?.is_suspended) {
+  if (access.reason === "suspended") {
     redirect(noAccessUrl("suspended"));
   }
-
-  const { data: program } = await supabase
-    .from("programs")
-    .select("id, required_grade_id, badges")
-    .eq("slug", THIS_PROGRAM_SLUG)
-    .eq("is_active", true)
-    .maybeSingle();
-
-  if (!program) {
-    // 아직 programs 테이블에 미등록 시 관리자는 통과
-    if (suspendCheck?.is_admin) return user;
+  if (!access.allowed) {
     redirect(noAccessUrl());
   }
-
-  // 1. 관리자 및 FREE 배지 프로그램은 가입한 회원이면 누구나 통과
-  if (suspendCheck?.is_admin || (program.badges ?? []).includes("free")) {
-    return user;
-  }
-
-  // 2. 유료 구독 확인
-  const { data: subs } = await supabase
-    .from("subscriptions")
-    .select("status, expires_at")
-    .eq("user_id", user.id)
-    .eq("program_id", program.id);
-
-  const hasActiveSub = (subs ?? []).some(
-    (s: { status: string; expires_at: string | null }) => s.status === "active" && isNotExpired(s.expires_at)
-  );
-  if (hasActiveSub) return user;
-
-  // 3. 개별 부여 권한 확인
-  const { data: manualAccess } = await supabase
-    .from("user_program_access")
-    .select("expires_at")
-    .eq("user_id", user.id)
-    .eq("program_id", program.id)
-    .maybeSingle();
-
-  if (manualAccess && isNotExpired(manualAccess.expires_at)) {
-    return user;
-  }
-
-  // 4. 회원 등급 + 관리자 부여 사용기간 확인
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("grade_id, program_access_expires_at")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profile?.grade_id && isNotExpired(profile.program_access_expires_at)) {
-    return user;
-  }
-
-  redirect(noAccessUrl());
+  return user;
 }
