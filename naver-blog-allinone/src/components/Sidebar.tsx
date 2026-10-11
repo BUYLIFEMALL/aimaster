@@ -18,7 +18,7 @@ import {
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 
-export type MainTabType = "ideas" | "places" | "keyword-fighter";
+export type MainTabType = "ideas" | "places" | "keyword-finder" | "keyword-fighter";
 
 interface SidebarProps {
   activeTab: MainTabType;
@@ -51,11 +51,11 @@ const FLOW_STEPS = [
   },
   {
     step: 3,
-    id: "keyword-fighter" as MainTabType,
-    href: "/?tab=keyword-fighter",
+    id: "keyword-finder" as MainTabType,
+    href: "/?tab=keyword-finder",
     icon: Search,
     iconColor: "text-indigo-500",
-    label: "키워드 파이터 PRO",
+    label: "키워드 파인더",
     description: "7대 분석 엔진 & 실시간 노출 분석",
     isProBadge: true,
   },
@@ -153,7 +153,9 @@ export function Sidebar({
           {/* 핵심 작업 흐름: 번호 배지와 세로 연결선 (1 -> 2 -> 3) - Link 태그 적용 */}
           <nav className="relative flex flex-col">
             {FLOW_STEPS.map((item, idx) => {
-              const isActive = activeTab === item.id;
+              const isActive =
+                activeTab === item.id ||
+                (item.id === "keyword-finder" && activeTab === "keyword-fighter");
               const isLast = idx === FLOW_STEPS.length - 1;
               const Icon = item.icon;
 

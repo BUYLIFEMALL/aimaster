@@ -32,8 +32,10 @@ export default function HomePage() {
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
       const tabParam = sp.get("tab");
-      if (tabParam === "ideas" || tabParam === "places" || tabParam === "keyword-fighter") {
+      if (tabParam === "ideas" || tabParam === "places") {
         setActiveMainTab(tabParam);
+      } else if (tabParam === "keyword-finder" || tabParam === "keyword-fighter") {
+        setActiveMainTab("keyword-finder");
       }
       const modalParam = sp.get("modal");
       if (modalParam === "settings") {
@@ -126,8 +128,8 @@ export default function HomePage() {
             />
           )}
 
-          {/* Tab 3 Content: 키워드 파이터 PRO (7대 분석 엔진 탑재) */}
-          {activeMainTab === "keyword-fighter" && (
+          {/* Tab 3 Content: 키워드 파인더 PRO (7대 분석 엔진 탑재) */}
+          {(activeMainTab === "keyword-finder" || activeMainTab === "keyword-fighter") && (
             <>
               <KeywordFighterSection
                 settings={settings}

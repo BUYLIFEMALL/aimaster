@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.10) 메뉴 및 관련 문구 '키워드 파인더'로 전면 수정 완료
+
+- **키워드 파이터 ➔ 키워드 파인더 전면 수정**:
+  - 좌측 사이드바 메뉴 3번 라벨: `키워드 파이터 PRO` ➔ **`키워드 파인더`** (PRO 배지 유지)
+  - 탭 URL 및 상태: `keyword-finder`로 통일 (`keyword-fighter` 하위 호환 유지)
+  - README, AGENTS.md, 공용 DB `programs.short_desc` 및 `description`의 모든 '키워드 파이터' 문구를 **'키워드 파인더'**로 정식 수정 완료.
+- **버전 갱신 및 배포 동기화 (v1.10)**:
+  - `src/lib/version.ts` ➔ `v1.10`
+  - `extension/manifest.json` ➔ `v1.10` (`1.10.0`)
+  - `public/downloads/naver-blog-allinone-latest.zip` ➔ v1.10 최신 압축 재생성 완료
+  - 공용 DB `programs.version = 'v1.10'`, `programs.extension_version = 'v1.10'` 동기화 완료.
+- **검증 결과**: `npm run build` 100% 성공.
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.09) 본문 상단 중복 3개 탭 바 제거 및 사이드바 단일화 완료
 
 - **본문 상단 중복 탭 제거**: 좌측 사이드바의 핵심 작업 흐름(Step 1: 주제 아이디어 발굴, Step 2: 맛집/카페/여행 비전, Step 3: 키워드 파이터 PRO)과 중복되던 본문 상단의 3개 탭 바(`Main 3 Tabs Quick Switcher Bar`)를 완전히 제거하여 화면을 한결 넓고 직관적인 단일 사이드바 네비게이션 구조로 개선.
