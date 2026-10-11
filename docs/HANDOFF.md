@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.09) 본문 상단 중복 3개 탭 바 제거 및 사이드바 단일화 완료
+
+- **본문 상단 중복 탭 제거**: 좌측 사이드바의 핵심 작업 흐름(Step 1: 주제 아이디어 발굴, Step 2: 맛집/카페/여행 비전, Step 3: 키워드 파이터 PRO)과 중복되던 본문 상단의 3개 탭 바(`Main 3 Tabs Quick Switcher Bar`)를 완전히 제거하여 화면을 한결 넓고 직관적인 단일 사이드바 네비게이션 구조로 개선.
+- **버전 갱신 및 배포 동기화 (v1.09)**:
+  - `src/lib/version.ts` ➔ `v1.09`
+  - `extension/manifest.json` ➔ `v1.09` (`1.09.0`)
+  - `public/downloads/naver-blog-allinone-latest.zip` ➔ v1.09 최신 압축 재생성 완료
+  - 공용 DB `programs.version = 'v1.09'`, `programs.extension_version = 'v1.09'` 동기화 완료.
+- **검증 결과**: `npm run build` 100% 성공.
+
 ## 2026-10-11 AIMaster — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.08) Vercel 환경변수 등록 및 This page couldn't load 브라우저 오류 해결
 
 - **This page couldn't load 원인 분석 및 완벽 해결**:

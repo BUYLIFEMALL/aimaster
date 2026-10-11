@@ -1,13 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import {
-  Lightbulb,
-  Utensils,
-  Search,
-  Sparkles,
-} from "lucide-react";
 import { Header } from "@/components/Header";
 import { Sidebar, MainTabType } from "@/components/Sidebar";
 import { SettingsModal } from "@/components/SettingsModal";
@@ -103,50 +96,6 @@ export default function HomePage() {
 
         {/* Main Content Area */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-          {/* Main 3 Tabs Quick Switcher Bar with explicit Link tags */}
-          <div className="flex items-center gap-2 border-b border-slate-200/90 pb-2 overflow-x-auto">
-            <Link
-              href="/?tab=ideas"
-              onClick={() => setActiveMainTab("ideas")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition shrink-0 ${
-                activeMainTab === "ideas"
-                  ? "bg-slate-900 text-white shadow-sm"
-                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              <Lightbulb className="w-4 h-4 text-amber-400" />
-              <span>주제 아이디어 발굴</span>
-            </Link>
-
-            <Link
-              href="/?tab=places"
-              onClick={() => setActiveMainTab("places")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition shrink-0 ${
-                activeMainTab === "places"
-                  ? "bg-slate-900 text-white shadow-sm"
-                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              <Utensils className="w-4 h-4 text-emerald-500" />
-              <span>맛집/카페/여행 비전</span>
-            </Link>
-
-            <Link
-              href="/?tab=keyword-fighter"
-              onClick={() => setActiveMainTab("keyword-fighter")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition shrink-0 ${
-                activeMainTab === "keyword-fighter"
-                  ? "bg-slate-900 text-white shadow-sm"
-                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              <Search className="w-4 h-4 text-indigo-500" />
-              <span>키워드 파이터</span>
-              <span className="px-1.5 py-0.2 text-[9px] font-extrabold bg-rose-500 text-white rounded-md">
-                PRO
-              </span>
-            </Link>
-          </div>
 
           {/* Tab 1 Content: 주제 아이디어 얻기 (E-E-A-T 기반, 카테고리별, 에버그린, 롱테일, 메모/파일) */}
           {activeMainTab === "ideas" && (
