@@ -58,7 +58,7 @@ export default function PostReviewGate({postId,snapshot,onBlockingChange}:{postI
     {review?.source==="manual" && review.aiStatus && <p className="text-xs text-neutral-600">이전 AI 판정: {review.aiStatus} · {review.aiNote}</p>}
     {!review?.allowed && review && !error && <>
       <p className="text-xs text-neutral-600">사실·수치·출처·이미지·표현을 직접 확인하고 문제가 있으면 수정·저장한 뒤 검수해 주세요. 직접 검수는 AI 통과 판정을 바꾸지 않으며 최종 발행을 실행하지 않습니다.</p>
-      <label className="flex gap-2 text-xs text-neutral-700"><input type="checkbox" checked={confirmed} disabled={busy} onChange={e=>setConfirmed(e.target.checked)} />저장된 최종 원고 전체를 확인했고 필요한 수정을 마쳤습니다.</label>
+      <label className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-3 text-sm font-bold text-blue-900 cursor-pointer"><input type="checkbox" className="h-5 w-5 shrink-0 accent-blue-600" checked={confirmed} disabled={busy} onChange={e=>setConfirmed(e.target.checked)} /><span>최종원고 수정 및 확인 완료</span></label>
       {postStatus==="queued" ? <button type="button" disabled={busy} onClick={cancelQueued} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs">대기를 취소하고 다시 검수</button> :
       <button type="button" disabled={!confirmed || busy || postStatus==="publishing"} onClick={complete} className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">직접 검수 완료 기록</button>}
     </>}

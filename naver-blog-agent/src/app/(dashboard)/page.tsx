@@ -1805,8 +1805,8 @@ export default function MainPage() {
                       onClick={() => setPreviewMode("smart")}
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                         previewMode === "smart"
-                          ? "bg-white text-emerald-700 shadow-2xs"
-                          : "text-neutral-600 hover:text-neutral-900"
+                          ? "bg-blue-600 text-white shadow-2xs"
+                          : "text-blue-700 hover:bg-blue-50"
                       }`}
                     >
                       🎨 서식·이미지 완성 뷰
@@ -1816,8 +1816,8 @@ export default function MainPage() {
                       onClick={() => setPreviewMode("raw")}
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                         previewMode === "raw"
-                          ? "bg-white text-emerald-700 shadow-2xs"
-                          : "text-neutral-600 hover:text-neutral-900"
+                          ? "bg-neutral-600 text-white shadow-2xs"
+                          : "text-neutral-600 hover:bg-neutral-200"
                       }`}
                     >
                       📄 원본 텍스트
