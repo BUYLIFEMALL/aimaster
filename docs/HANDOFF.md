@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 마스터 PRO (naver-blog-allinone v1.01) 신규 구축 및 1단계 완료
+
+- **신규 서브프로젝트 스캐폴딩 및 기반 UI / E-E-A-T 주제 아이디어 엔진 구축 완료 (v1.01)**:
+  - 주인님께서 캡처해주신 21장 화면과 유튜브 영상(7kOxOs5pMT0)을 완벽 분석하여 신규 서브프로젝트 naver-blog-allinone 신설.
+  - 최상위 절대 규칙 준수: 사용자가 본인 Google Gemini API 키를 직접 등록하여 브라우저 localStorage에 격리 보관 (서버 전송 없음, 연결 테스트 기능 탑재).
+  - 연도 불변 규칙 준수: 모든 기획 및 AI 프롬프트에 당해 연도(현재 2026년) 동적 주입.
+  - 디자인 테마: 다크 테마 원본을 AIMaster 표준 흰색 베이스(Clean White & Slate)로 전면 재설계.
+  - 1단계 탑재 기능: 주제 아이디어 얻기 5대 엔진(E-E-A-T, 카테고리, 에버그린, 롱테일, 메모/파일), 7대 컬러 테마 & 스마트에디터 ONE HTML 인라인 서식 복사, 8대 트렌드 링크 허브 모달.
+  - 검증 결과: npm run build 컴파일 및 정적 페이지 생성 100% 정상 통과.
+  - 다음 작업: STEP 2 (맛집/카페/여행 멀티모달 비전 사진 분석 엔진) 및 STEP 3 (키워드 파이터 PRO 실시간 뉴스/PostView 다이렉트 수집기).
+
 ## 2026-10-11 Claude Code — Chrome 화면 제어(claude-in-chrome) 활용 지침 문서화
 
 주인님 지시로 Claude Code도 필요시 Codex처럼 로그인된 Chrome을 직접 제어해 디버깅·프로그램 분석·검수에 사용하도록 `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1절, 루트 `CLAUDE.md` 13번·`AGENTS.md` 14번에 추가했습니다. 같은 날 확인한 사실: GT1_MEGA Chrome에서 티스토리 쇼츠 분석·주제 저장 검증 완료, `*.vercel.app` 프로그램은 로그인이 따로(BLOG `ai-auto-blog-one.vercel.app`은 로그인 대기 중). 도메인 `aimaster.kr` 추가는 검토만 했고 결정·변경 없음(쿠키가 도메인 간 공유 불가, 하드코딩된 www.buylife.xyz 다수). 코드·DB·배포 변경 없음.
