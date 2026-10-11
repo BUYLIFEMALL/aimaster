@@ -17,15 +17,13 @@
 
 주인님 지시로 전용 실사 썸네일을 만들어 AIMaster 저장소(Supabase Storage `program-images/catalog/youtube-channel-consultant-thumbnail.jpg`)에 올리고 `programs.thumbnail_url`에 반영했습니다(`scripts/generate-program-thumbnail.mjs`, Gemini `gemini-3-pro-image-preview`, 관리자 본인 키를 주인님 확인 후 사용). 한국인 인물·16:9·글자/로고 없음 규칙을 지켰고 YOUTUBE VIRAL FINDER 썸네일과 나란히 비교해 실사 톤을 확인했습니다. 정적 파일이 아니라 DB 값이라 루트 재배포는 필요 없습니다. 마이그레이션 `youtube-channel-consultant/supabase/migrations/20261011170000_youtube_channel_consultant_thumbnail.sql`. 프로그램 버전은 올리지 않았습니다(코드 변경 없음).
 
-## 2026-10-11 AIMaster — 네이버 블로그 올인원 마스터 PRO (naver-blog-allinone v1.04) 크롬 확장 프로그램 & SEO 모드 탑재 완료
+## 2026-10-11 AIMaster — 네이버 블로그 올인원 마스터 PRO (naver-blog-allinone v1.04) DB 등록 및 크롬 확장 배포 전체 완료
 
-- **스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 구축 및 ZIP 배포 (v1.04)**:
-  - **크롬 확장 프로그램 탑재 (`naver-blog-allinone/extension/`)**: Manifest V3 기반. `content-web.js`로 웹에서 생성된 원고를 실시간 자동 수신하고, `content-naver.js`로 네이버 블로그 글쓰기(`blog.naver.com`) 접속 시 플로팅 위젯을 띄워 제목 및 스마트에디터 ONE 본문 서식을 1초 만에 자동 주입.
-  - **ZIP 다운로드 패키징**: `public/downloads/naver-blog-allinone-latest.zip` 최신 패키징 완료 및 웹 헤더 상단 `[크롬 확장 다운로드]` 버튼 제공.
-  - **SEO 최적화 모드 선택**: `홈판 노출 모드`(감성 스토리텔링 1인칭 에세이) vs `기본 SEO 모드`(정보형 리뷰, D.I.A+ 점수 극대화) 토글 스위치 탑재.
-  - **SEO 키워드 설정 & AI 자동 추출**: 장소명과 사진 분석 기반 메인 타겟 키워드 1개 및 서브 키워드 2~3개 Gemini 실시간 자동 추출 버튼 탑재.
-  - **3단 포맷 뷰어 & 원클릭 복사 시스템**: 네이버 블로그 스마트에디터 서식 복사 / 마크다운 복사 / 텍스트만 복사 / 네이버 글쓰기 새 탭 바로가기 지원.
-  - **검증 결과**: `npm run build` 로컬 컴파일 100% 정상 통과 및 ZIP 다운로드 패키지 일치 확인.
+- **프로그램 정식 등록 및 크롬 확장 배포 검증 완료 (v1.04)**:
+  - **공용 DB `programs` 및 `pricing_plans` 등록 완료**: 카테고리 네이버, 최소 등급 일반, 표준 요금제 3단계(1만/2만/3만원), 배지 `['new', 'best']` 등록 완료. 메인 카탈로그(`https://www.buylife.xyz/programs/naver-blog-allinone`) HTTP 200 정상 노출 확인.
+  - **스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 구축 및 ZIP 배포**: Manifest V3 기반, 네이버 블로그 글쓰기(`blog.naver.com`) 접속 시 플로팅 위젯으로 제목 및 인라인 서식 HTML 본문 1초 자동 주입.
+  - **웹-확장 양방향 자동 동기화**: 웹 앱에서 원고 생성 시 크롬 확장에 자동 동기화(`window.postMessage` & `chrome.storage.local`) 및 상단 `[크롬 확장 다운로드]` 버튼 제공.
+  - **공식 검증 통과**: `node scripts/check-extension-release.mjs naver-blog-allinone` ➔ `OK DB v1.04 / ext v1.04 / zip v1.04` 100% 일치 확인.
 
 ## 2026-10-11 Claude Code — 신규 프로그램 YOUTUBE CHANNEL CONSULTANT v1.01 (youtube-channel-consultant)
 
