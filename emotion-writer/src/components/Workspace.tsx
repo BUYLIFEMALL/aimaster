@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
@@ -17,6 +18,16 @@ import {
 } from "@/lib/studio/config";
 import { QuoteCanvas } from "./QuoteCanvas";
 import { KeySettings } from "./KeySettings";
+import {
+  Sparkles,
+  Settings,
+  Search,
+  Sliders,
+  Maximize2,
+  PenLine,
+  ImageIcon,
+  Palette,
+} from "lucide-react";
 
 type Draft = {
   topic: string;
@@ -30,6 +41,7 @@ type Draft = {
   quote: string;
   design: Design;
 };
+
 const DEFAULT: Draft = {
   topic: THEMES[0].name,
   source: "",
@@ -42,6 +54,7 @@ const DEFAULT: Draft = {
   quote: "",
   design: DEFAULT_DESIGN,
 };
+
 function restoreDraft(raw: string | null): Draft | null {
   try {
     const d = JSON.parse(raw || "null");
@@ -67,24 +80,30 @@ function restoreDraft(raw: string | null): Draft | null {
     return null;
   }
 }
+
 function Step({
   number,
   title,
+  icon: Icon,
   children,
 }: {
   number: number;
   title: string;
+  icon?: React.ComponentType<{ className?: string; size?: number }>;
   children: React.ReactNode;
 }) {
   return (
     <section id={`step-${number}`} className="card">
       <h2>
-        {number}. {title}
+        <span className="step-num">{number}</span>
+        {Icon && <Icon size={18} className="text-rose-600" />}
+        <span>{title}</span>
       </h2>
       {children}
     </section>
   );
 }
+
 export function Workspace({
   userId,
   initialKeys,
@@ -108,23 +127,23 @@ export function Workspace({
   const generation = useRef({ value: 0 });
   const closeButton = useRef<HTMLButtonElement>(null);
   const storageKey = `emotion-writer:v1:${userId}`;
+
   useEffect(() => {
     const generationState = generation.current;
     try {
       const restored = restoreDraft(localStorage.getItem(storageKey));
-      // Synchronize an external, user-scoped draft once after hydration.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (restored) setDraft(restored);
     } catch {
       /* Storage may be unavailable; work remains possible in this tab. */
     }
-    // Finish synchronizing external storage before enabling the writer effect.
     setHydrated(true);
     return () => {
       generationState.value++;
       request.current?.abort();
     };
   }, [storageKey]);
+
   useEffect(() => {
     if (!hydrated) return;
     try {
@@ -136,6 +155,7 @@ export function Workspace({
       /* Do not interrupt editing if the browser blocks local storage. */
     }
   }, [draft, storageKey, hydrated]);
+
   useEffect(() => {
     if (!modal) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -164,10 +184,12 @@ export function Workspace({
       previous?.focus();
     };
   }, [modal]);
+
   function change(patch: Partial<Draft>) {
     setDraft((d) => ({ ...d, ...patch }));
     setError("");
   }
+
   function cancel() {
     generation.current.value++;
     request.current?.abort();
@@ -175,6 +197,7 @@ export function Workspace({
     setBusy("");
     setNotice("요청을 취소했습니다. 기존 문구와 배경은 유지됩니다.");
   }
+
   async function run<T>(
     path: string,
     body: unknown,
@@ -221,6 +244,7 @@ export function Workspace({
       }
     }
   }
+
   function makeCopy() {
     if (!keys.gemini) {
       setModal("gemini");
@@ -241,6 +265,7 @@ export function Workspace({
       },
     );
   }
+
   function makeBackground() {
     if (!keys.gemini) {
       setModal("gemini");
@@ -261,6 +286,7 @@ export function Workspace({
       },
     );
   }
+
   function search() {
     if (!draft.source || draft.source === "gemini") return;
     if (!keys[draft.source]) {
@@ -280,6 +306,7 @@ export function Workspace({
       },
     );
   }
+
   function selectPhoto(p: Photo) {
     run<{ image: string }>(
       "/api/photos",
@@ -291,6 +318,7 @@ export function Workspace({
       },
     );
   }
+
   const disabled = Boolean(busy);
   const next = !draft.source
     ? "2단계에서 이미지 방식을 선택해 주세요."
@@ -301,17 +329,24 @@ export function Workspace({
           ? "배경 생성 버튼을 눌러 주세요."
           : "사진을 검색하고 원하는 배경을 선택해 주세요."
         : "문구와 디자인을 확인한 뒤 이미지로 저장하세요.";
+
   return (
     <>
       <header className="page-heading">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200/80 text-rose-700 text-xs font-bold mb-3 shadow-2xs">
+          <Sparkles className="w-3.5 h-3.5 text-rose-500" />
+          <span>감성 글귀 & 배경 카드 제작 스튜디오</span>
+        </div>
         <h1>감성 글귀 이미지</h1>
-        <p>마음을 울리는 한 문장과 이미지를 만들어보세요</p>
+        <p>마음을 울리는 한 문장과 아름다운 배경 이미지를 감성 카드로 제작해보세요</p>
       </header>
+
       <div className="workspace-grid">
         <div className="controls">
           <Step
             number={1}
             title="마음에 드는 주제를 선택하거나 직접 입력하세요"
+            icon={Sparkles}
           >
             <div className="choice-grid">
               {THEMES.map((t) => (
@@ -353,14 +388,23 @@ export function Workspace({
                   disabled={disabled}
                   onChange={(e) => setCustom(e.target.value)}
                 />
-                <button disabled={disabled || !custom.trim()}>적용</button>
+                <button className="primary" disabled={disabled || !custom.trim()}>
+                  적용
+                </button>
               </div>
             </form>
             {!THEMES.some((t) => t.name === draft.topic) && (
-              <p className="status-note">선택한 주제: {draft.topic}</p>
+              <p className="status-note">
+                <span className="font-bold">선택된 맞춤 주제:</span> {draft.topic}
+              </p>
             )}
           </Step>
-          <Step number={2} title="이미지 생성 방식을 선택하세요">
+
+          <Step
+            number={2}
+            title="이미지 생성 방식을 선택하세요"
+            icon={ImageIcon}
+          >
             <div className="choice-grid">
               {SOURCES.map((s) => (
                 <div className="source-wrap" key={s.id}>
@@ -376,28 +420,35 @@ export function Workspace({
                     <span>{s.emoji}</span>
                     <strong>{s.name}</strong>
                     <small className={keys[s.id] ? "connected" : "muted"}>
-                      {keys[s.id] ? "본인 키 등록됨" : "본인 API 키 필요"}
+                      {keys[s.id] ? "✓ 본인 키 등록됨" : "본인 API 키 필요"}
                     </small>
                   </button>
                   <button
-                    className="key-gear"
+                    className="key-gear flex items-center gap-1"
                     aria-label={`${s.id} API 키 설정`}
                     disabled={disabled}
                     onClick={() => setModal(s.id)}
+                    title="API 키 설정"
                   >
-                    ⚙
+                    <Settings size={12} />
+                    <span>설정</span>
                   </button>
                 </div>
               ))}
             </div>
             <p className="muted">
-              무료 사진 방식의 AI 글귀 생성에도 Gemini 키가 필요합니다. 직접
+              💡 무료 사진 방식의 AI 글귀 생성에도 Gemini 키가 필요합니다. 직접
               입력한 문구는 AI 글귀 호출 없이 사용할 수 있습니다.
             </p>
           </Step>
+
           {draft.source && (
             <>
-              <Step number={3} title="이미지 비율을 선택하세요">
+              <Step
+                number={3}
+                title="이미지 비율을 선택하세요"
+                icon={Maximize2}
+              >
                 <div className="choice-grid">
                   {RATIOS.map((r) => (
                     <button
@@ -407,16 +458,24 @@ export function Workspace({
                       aria-pressed={draft.ratio === r}
                       onClick={() => change({ ratio: r })}
                     >
-                      {r === "1:1" ? "🖼️ 정사각형" : "📱 세로형"} ({r})
+                      {r === "1:1"
+                        ? "🔲 정사각형 피드 (1:1)"
+                        : r === "9:16"
+                          ? "📱 세로형 릴스·쇼츠 (9:16)"
+                          : "📄 카드뉴스형 (3:4)"}
                     </button>
                   ))}
                 </div>
                 <p className="muted">
-                  비율을 바꾸면 기존 배경은 새 비율에 맞춰 가운데를 잘라
-                  표시합니다.
+                  비율을 바꾸면 기존 배경은 새 비율에 맞춰 가운데를 잘라 표시합니다.
                 </p>
               </Step>
-              <Step number={4} title="문구의 줄 수를 선택하세요">
+
+              <Step
+                number={4}
+                title="문구의 줄 수를 선택하세요"
+                icon={Sliders}
+              >
                 <div className="four-grid">
                   {[5, 6, 7, 8].map((n) => (
                     <button
@@ -431,11 +490,15 @@ export function Workspace({
                   ))}
                 </div>
                 <p className="muted">
-                  다음 글귀 생성에 적용됩니다. 문구는 선택한 줄 수 이내로
-                  요청합니다.
+                  다음 글귀 생성에 적용됩니다. 문구는 선택한 줄 수 이내로 요청합니다.
                 </p>
               </Step>
-              <Step number={5} title="글귀 스타일을 선택하고 문구를 만드세요">
+
+              <Step
+                number={5}
+                title="글귀 스타일을 선택하고 문구를 만드세요"
+                icon={PenLine}
+              >
                 <div className="choice-grid">
                   {STYLES.map((s) => (
                     <button
@@ -450,7 +513,7 @@ export function Workspace({
                   ))}
                 </div>
                 <label>
-                  글귀 생성 모델
+                  글귀 생성 AI 모델
                   <select
                     value={draft.textModel}
                     disabled={disabled}
@@ -476,7 +539,7 @@ export function Workspace({
                 </p>
                 {draft.quotes.length > 0 && (
                   <div className="quotes">
-                    <h3>마음에 드는 문구를 선택하세요</h3>
+                    <h3>💡 마음에 드는 문구를 선택하세요</h3>
                     {draft.quotes.map((q, i) => (
                       <button
                         key={i}
@@ -491,7 +554,7 @@ export function Workspace({
                   </div>
                 )}
                 <label>
-                  직접 입력·최종 문구 수정
+                  직접 입력 · 최종 문구 수정
                   <textarea
                     value={draft.quote}
                     maxLength={700}
@@ -502,12 +565,16 @@ export function Workspace({
                   />
                 </label>
                 <p className="muted">
-                  {draft.quote.length}/700자 · 이 창의 문구가 이미지에
-                  표시됩니다.
+                  {draft.quote.length}/700자 · 이 창의 문구가 이미지에 표시됩니다.
                 </p>
               </Step>
+
               <section className="card">
-                <h2>배경 준비</h2>
+                <h2>
+                  <span className="step-num">★</span>
+                  <ImageIcon size={18} className="text-rose-600" />
+                  <span>배경 이미지 준비</span>
+                </h2>
                 {draft.source === "gemini" ? (
                   <>
                     <label>
@@ -525,11 +592,12 @@ export function Workspace({
                       </select>
                     </label>
                     <button
-                      className="primary full"
+                      className="primary full flex items-center justify-center gap-2"
                       disabled={disabled || !draft.quote.trim()}
                       onClick={makeBackground}
                     >
-                      {image ? "배경 다시 생성" : "배경 생성"}
+                      <Sparkles size={16} />
+                      <span>{image ? "배경 다시 생성" : "배경 생성"}</span>
                     </button>
                     <p className="muted">
                       문구는 그대로 두고 배경 1장만 생성합니다. 생성 비용은 본인
@@ -553,8 +621,9 @@ export function Workspace({
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="예: sunrise, flowers, peaceful forest"
                       />
-                      <button disabled={disabled || !query.trim()}>
-                        사진 검색
+                      <button className="primary flex items-center gap-1.5" disabled={disabled || !query.trim()}>
+                        <Search size={14} />
+                        <span>사진 검색</span>
                       </button>
                     </form>
                     <p className="muted">
@@ -573,7 +642,6 @@ export function Workspace({
                               : ""
                           }
                         >
-                          {/* Provider URL has been validated by the server; canvas uses a downloaded data URL. */}
                           <Image
                             src={p.preview}
                             alt={`${p.author}의 배경 사진`}
@@ -591,13 +659,19 @@ export function Workspace({
               </section>
             </>
           )}
+
           <p className="muted">
             문구와 기본 선택값은 이 브라우저에 회원별로 임시 저장됩니다.
             새로고침하거나 설정 화면으로 이동하면 사진·디자인은 다시 설정해 주세요.
           </p>
         </div>
+
         <div className="result-column">
-          <Step number={6} title="생성된 감성 이미지">
+          <Step
+            number={6}
+            title="생성된 감성 이미지"
+            icon={Palette}
+          >
             <p className="next-action" role="status">
               {next}
             </p>
@@ -638,7 +712,10 @@ export function Workspace({
             )}
             {image && (
               <div className="design-panel">
-                <h3>글자와 배치 다듬기</h3>
+                <h3 className="flex items-center gap-2">
+                  <Palette size={16} className="text-rose-600" />
+                  <span>글자와 배치 다듬기</span>
+                </h3>
                 <div className="design-grid">
                   <label>
                     글꼴
@@ -752,6 +829,7 @@ export function Workspace({
           </Step>
         </div>
       </div>
+
       {modal && (
         <div
           className="modal-backdrop"

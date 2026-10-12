@@ -1,7 +1,9 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { renderQuote, canvasBlob } from "@/lib/studio/render";
 import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
+import { Download, Image as ImageIcon, Loader2 } from "lucide-react";
 
 export function QuoteCanvas({
   image,
@@ -21,6 +23,7 @@ export function QuoteCanvas({
   const [result, setResult] = useState({ identity: "", image: "", error: "" });
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
+
   useEffect(() => {
     if (!image || !quote) return;
     let cancelled = false;
@@ -48,10 +51,16 @@ export function QuoteCanvas({
       cancelled = true;
     };
   }, [image, quote, ratio, design, identity]);
+
   const ready = Boolean(
-    image && quote && result.identity === identity && result.image === image && !result.error,
+    image &&
+      quote &&
+      result.identity === identity &&
+      result.image === image &&
+      !result.error,
   );
   const size = ratioSize(ratio);
+
   async function download(format: "png" | "jpeg") {
     if (!canvas.current || !ready || busy || saving) return;
     setSaving(true);
@@ -75,6 +84,7 @@ export function QuoteCanvas({
       setSaving(false);
     }
   }
+
   return (
     <>
       <div
@@ -91,38 +101,61 @@ export function QuoteCanvas({
         />
         {!ready && (
           <div className="preview-message">
-            <span className="preview-icon">🎨</span>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 text-rose-400 mb-3 shadow-inner">
+              {image && quote ? (
+                <Loader2 className="h-6 w-6 animate-spin text-rose-400" />
+              ) : (
+                <ImageIcon className="h-6 w-6 text-slate-400" />
+              )}
+            </div>
             <strong>
-              {result.identity === identity && result.image === image && result.error
+              {result.identity === identity &&
+              result.image === image &&
+              result.error
                 ? result.error
                 : image && quote
-                  ? "글꼴과 이미지를 준비하고 있습니다."
-                  : "문구와 배경을 선택해 주세요."}
+                  ? "글꼴과 이미지를 합성하고 있습니다…"
+                  : "문구와 배경을 선택해 주세요"}
             </strong>
-            <p>선택한 문구를 배경 위에 담아드립니다.</p>
+            <p>
+              {image && quote
+                ? "고해상도 캔버스에 렌더링 중입니다"
+                : "선택한 문구를 아름다운 배경 위에 담아드립니다"}
+            </p>
           </div>
         )}
       </div>
-      <p className="muted centered">
-        {size.width} × {size.height}px · {ratio}
-      </p>
+
+      <div className="flex items-center justify-center gap-2 mt-2">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+          {size.width} × {size.height}px
+        </span>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+          {ratio} 비율
+        </span>
+      </div>
+
       <div className="button-row">
         <button
-          className="primary"
+          className="primary flex items-center justify-center gap-2"
           disabled={!ready || busy || saving}
           onClick={() => download("png")}
         >
-          PNG 저장
+          <Download size={16} />
+          <span>PNG 저장</span>
         </button>
         <button
+          className="flex items-center justify-center gap-2"
           disabled={!ready || busy || saving}
           onClick={() => download("jpeg")}
         >
-          JPG 저장
+          <Download size={16} />
+          <span>JPG 저장</span>
         </button>
       </div>
+
       {notice && (
-        <p role="status" className="muted">
+        <p role="status" className="status-note centered">
           {notice}
         </p>
       )}
