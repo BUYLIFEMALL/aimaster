@@ -2,6 +2,7 @@
 import { useState } from "react";
 import {
   VOICES,
+  ARCS,
   type Brief,
   type Album,
   type Track,
@@ -13,6 +14,7 @@ import { missingTracks } from "@/lib/studio/storage";
 import { automaticExclude } from "@/lib/studio/catalog";
 import { BriefControls } from "./BriefControls";
 import { CurrentSelection } from "./CurrentSelection";
+import { AlbumReferencePicker } from "./AlbumReferencePicker";
 import { TrackEditor, downloadFile, trackProblems } from "./TrackEditor";
 export function AlbumPanel({
   brief,
@@ -62,6 +64,7 @@ export function AlbumPanel({
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [opened, setOpened] = useState<Set<string>>(() => new Set());
   const [savedStyle, setSavedStyle] = useState("");
+  const [showSavedStyles, setShowSavedStyles] = useState(false);
   const moods = brief.mood.split(",").map((t) => t.trim());
   function cast(t: Track, voice: string, rap: string) {
     try {
@@ -82,111 +85,171 @@ export function AlbumPanel({
   }
   return (
     <div className="album-layout">
-      <section className="card album-settings">
-        <h2>앨범 컨셉</h2>
-        <fieldset disabled={busy}>
-          <label>
-            앨범 주제 / 컨셉 (필수)
-            <textarea
-              aria-label="앨범 컨셉"
-              rows={4}
-              maxLength={1500}
-              value={brief.concept}
-              onChange={(e) => onChange({ ...brief, concept: e.target.value })}
-              placeholder="12곡으로 담고 싶은 이야기와 감정"
-            />
-          </label>
-          <label>
-            상세 의도 (선택)
-            <textarea
-              rows={3}
-              maxLength={1500}
-              value={brief.intent}
-              onChange={(e) => onChange({ ...brief, intent: e.target.value })}
-              placeholder="곡별 장면·마지막 결말·피할 단어 등"
-            />
-          </label>
-          <div className="actions">
-            <button onClick={onImportBuilder}>현재 빌더 설정 가져오기</button>
-          </div>
-          <button
-            onClick={() =>
-              onChange({
-                ...brief,
-                presetId: "",
-                styleGroup: "",
-                style: "",
-                locked: false,
-                generateStyle: true,
-                genre: "auto",
-                instruments: "auto",
-              })
-            }
-          >
-            참고 프리셋 없음 · 컨셉에서 자동 추론
-          </button>
-          <label>
-            저장 프리셋에서 가져오기
-            <select
-              value={savedStyle}
-              onChange={(e) => {
-                setSavedStyle(e.target.value);
-                const s = styles.find((s) => s.id === e.target.value);
-                if (s) onApplyStyle(s);
-              }}
-            >
-              <option value="">없음 / 선택</option>
-              {styles.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <h3>무드 (다중 선택)</h3>
-          <div className="tag-chips">
-            {ALBUM_MOODS.map(([label, term]) => (
-              <button
-                key={term}
-                className={moods.includes(term) ? "selected" : ""}
-                aria-pressed={moods.includes(term)}
-                onClick={() =>
-                  onChange({
-                    ...brief,
-                    mood: (moods.includes(term)
-                      ? moods.filter((v) => v !== term)
-                      : [...moods, term]
-                    )
-                      .filter(Boolean)
-                      .join(", "),
-                  })
+      <div className="album-left">
+        <section className="card album-settings">
+          <h2>앨범 컨셉</h2>
+          <fieldset disabled={busy}>
+            <label>
+              앨범 주제 / 컨셉 (필수)
+              <textarea
+                aria-label="앨범 컨셉"
+                rows={4}
+                maxLength={1500}
+                value={brief.concept}
+                onChange={(e) =>
+                  onChange({ ...brief, concept: e.target.value })
                 }
+                placeholder="12곡으로 담고 싶은 이야기와 감정"
+              />
+            </label>
+            <label>
+              상세 의도 (선택)
+              <textarea
+                rows={4}
+                maxLength={1500}
+                value={brief.intent}
+                onChange={(e) => onChange({ ...brief, intent: e.target.value })}
+                placeholder="곡별 장면·마지막 결말·피할 단어 등"
+              />
+            </label>
+            <AlbumReferencePicker brief={brief} onChange={onChange} />
+            <div className="actions album-import-actions">
+              <button onClick={onImportBuilder}>현재 빌더 설정 가져오기</button>
+              <button
+                aria-expanded={showSavedStyles}
+                onClick={() => setShowSavedStyles((v) => !v)}
               >
-                {label}
+                저장 프리셋에서 가져오기
               </button>
-            ))}
-          </div>
-          <CurrentSelection brief={brief} />
-          <BriefControls brief={brief} onChange={onChange} busy={busy} album />
-          <button
-            className="primary full"
-            disabled={busy || !brief.concept.trim()}
-            onClick={onGenerate}
-          >
-            {album ? "앨범 다시 기획" : "앨범 기획 생성"} ({brief.count}곡)
-          </button>
-          {album && (
-            <p className="muted">
-              성공하면 현재 트랙 목록을 교체합니다. 먼저 보관하거나 JSON으로
-              백업해 주세요.
-            </p>
-          )}
-          <div className="actions">
-            <button onClick={onReset}>현재 앨범 초기화</button>
-            {canUndo && <button onClick={onUndo}>초기화 되돌리기</button>}
-          </div>
-        </fieldset>
-        <section className="album-saved-panel">
+            </div>
+            {showSavedStyles && (
+              <label>
+                저장 프리셋에서 가져오기
+                <select
+                  value={savedStyle}
+                  onChange={(e) => {
+                    setSavedStyle(e.target.value);
+                    const s = styles.find((s) => s.id === e.target.value);
+                    if (s) onApplyStyle(s);
+                  }}
+                >
+                  <option value="">없음 / 선택</option>
+                  {styles.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+                {!styles.length && (
+                  <small className="muted">
+                    저장한 Style 프리셋이 없습니다. 빌더·검색에서 먼저
+                    저장하세요.
+                  </small>
+                )}
+              </label>
+            )}
+            <h3>무드 (다중 선택)</h3>
+            <div className="tag-chips">
+              {ALBUM_MOODS.map(([label, term]) => (
+                <button
+                  key={term}
+                  className={moods.includes(term) ? "selected" : ""}
+                  aria-pressed={moods.includes(term)}
+                  onClick={() =>
+                    onChange({
+                      ...brief,
+                      mood: (moods.includes(term)
+                        ? moods.filter((v) => v !== term)
+                        : [...moods, term]
+                      )
+                        .filter(Boolean)
+                        .join(", "),
+                    })
+                  }
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <label>
+              앨범 흐름 (CONCEPT ARC)
+              <select
+                aria-label="앨범 흐름"
+                value={brief.arc}
+                onChange={(e) => onChange({ ...brief, arc: e.target.value })}
+              >
+                {ARCS.map((v) => (
+                  <option key={v}>{v}</option>
+                ))}
+              </select>
+            </label>
+            <label className="album-language">
+              <span>
+                가사 언어{" "}
+                <span className="muted">
+                  한국어 {100 - brief.englishPct}% · 영어 {brief.englishPct}%
+                </span>
+              </span>
+              <input
+                type="range"
+                aria-label="가사 영문 비율"
+                min={0}
+                max={100}
+                step={5}
+                disabled={brief.instrumental}
+                value={brief.englishPct}
+                onChange={(e) =>
+                  onChange({ ...brief, englishPct: Number(e.target.value) })
+                }
+              />
+            </label>
+            <div className="actions album-generate-actions">
+              <button
+                className="primary"
+                disabled={busy || !brief.concept.trim()}
+                onClick={onGenerate}
+              >
+                {album ? "앨범 다시 기획" : "앨범 기획 생성"} ({brief.count}곡)
+              </button>
+              <label className="album-count">
+                곡 수
+                <select
+                  aria-label="앨범 곡 수"
+                  value={brief.count}
+                  onChange={(e) =>
+                    onChange({ ...brief, count: Number(e.target.value) })
+                  }
+                >
+                  {Array.from({ length: 10 }, (_, i) => i + 3).map((n) => (
+                    <option key={n} value={n}>
+                      {n}곡
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button onClick={onReset}>현재 앨범 초기화</button>
+              {canUndo && <button onClick={onUndo}>초기화 되돌리기</button>}
+            </div>
+            {album && (
+              <p className="muted">
+                성공하면 현재 트랙 목록을 교체합니다. 먼저 보관하거나 JSON으로
+                백업해 주세요.
+              </p>
+            )}
+            <details className="advanced-settings album-advanced">
+              <summary>AI 모델·보컬·편곡 세부 설정</summary>
+              <CurrentSelection brief={brief} />
+              <BriefControls
+                brief={brief}
+                onChange={onChange}
+                busy={busy}
+                showReference={false}
+                showLanguage={false}
+              />
+            </details>
+          </fieldset>
+        </section>
+        <section className="card album-saved-panel">
           <div className="section-title">
             <h3>저장된 앨범 ({saved.filter((s) => s.draft.album).length})</h3>
             <label className="button import-button">
@@ -206,8 +269,7 @@ export function AlbumPanel({
             </label>
           </div>
           <p className="muted">
-            브라우저 자료는 자동 저장되지만 PC 간 이동은 JSON 백업이 필요합니다.
-            앨범 가져오기는 현재 빌더를 보존합니다.
+            브라우저 초안은 자동 저장됩니다. PC 간 이동은 JSON으로 백업하세요.
           </p>
           {!saved.some((s) => s.draft.album) && (
             <p className="muted">저장된 앨범이 없습니다.</p>
@@ -251,18 +313,13 @@ export function AlbumPanel({
               </div>
             ))}
         </section>
-      </section>
+      </div>
       <div className="album-results">
         {!album ? (
-          <section className="card empty-state">
-            <h2>앨범 트랙 목록</h2>
-            <p>
-              왼쪽에 컨셉과 설정을 입력하고 ‘앨범 기획 생성’을 누르면{" "}
-              {brief.count}곡이 여기에 표시됩니다.
-            </p>
+          <section className="card album-empty">
             <p className="muted">
-              기획은 제목·컨셉·Style을 만듭니다. 가사는 목록 확인 후 곡별로
-              생성합니다.
+              앨범 컨셉을 입력하고 ‘앨범 기획 생성’을 누르면 여기에{" "}
+              {brief.count}곡 트랙리스트가 표시됩니다.
             </p>
           </section>
         ) : (

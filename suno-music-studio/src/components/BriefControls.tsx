@@ -21,6 +21,7 @@ export function BriefControls({
   album = false,
   showReference = true,
   showModel = true,
+  showLanguage = true,
 }: {
   brief: Brief;
   onChange: (b: Brief) => void;
@@ -28,6 +29,7 @@ export function BriefControls({
   album?: boolean;
   showReference?: boolean;
   showModel?: boolean;
+  showLanguage?: boolean;
 }) {
   function edit<K extends keyof Brief>(k: K, value: Brief[K]) {
     onChange({ ...brief, [k]: value });
@@ -39,6 +41,7 @@ export function BriefControls({
           <label>
             AI 모델
             <select
+              aria-label="AI 모델"
               value={brief.customModel ? "custom" : brief.model}
               onChange={(e) => {
                 if (e.target.value === "custom") {
@@ -200,22 +203,24 @@ export function BriefControls({
               detail: `${brief.metaphorPct}%`,
             },
           ] as const
-        ).map((s) => (
-          <label key={s.key}>
-            {s.name}
-            <span className="muted"> {s.detail}</span>
-            <input
-              type="range"
-              aria-label={s.name}
-              min={0}
-              max={100}
-              step={5}
-              disabled={brief.instrumental}
-              value={brief[s.key]}
-              onChange={(e) => edit(s.key, Number(e.target.value))}
-            />
-          </label>
-        ))}
+        )
+          .filter((s) => showLanguage || s.key !== "englishPct")
+          .map((s) => (
+            <label key={s.key}>
+              {s.name}
+              <span className="muted"> {s.detail}</span>
+              <input
+                type="range"
+                aria-label={s.name}
+                min={0}
+                max={100}
+                step={5}
+                disabled={brief.instrumental}
+                value={brief[s.key]}
+                onChange={(e) => edit(s.key, Number(e.target.value))}
+              />
+            </label>
+          ))}
       </div>
       {brief.rapPct === 100 && !brief.instrumental && (
         <p className="info">
