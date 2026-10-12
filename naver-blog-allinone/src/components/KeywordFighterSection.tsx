@@ -18,6 +18,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
+import { askLlmJson } from "@/lib/blog/askJson";
+import { missingKeyMessage } from "@/lib/blog/models";
 
 interface KeywordFighterSectionProps {
   settings: AppSettings;
@@ -104,8 +106,9 @@ export function KeywordFighterSection({
 
   // Tab 1: 키워드 경쟁력 분석 실행 (SERP & PAA)
   const handleAnalyzeCompetition = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -145,24 +148,9 @@ export function KeywordFighterSection({
 }`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("Gemini API 호출에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      setCompetitionResult(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "object", 0.7);
+      setCompetitionResult(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "경쟁력 분석 중 오류가 발생했습니다.");
     } finally {
@@ -199,8 +187,9 @@ export function KeywordFighterSection({
 
   // Tab 3: AI 연관검색어 분석
   const handleAnalyzeRelated = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -231,24 +220,9 @@ export function KeywordFighterSection({
 }`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("Gemini API 호출에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      setRelatedResult(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "object", 0.7);
+      setRelatedResult(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "연관검색어 분석 중 오류가 발생했습니다.");
     } finally {
@@ -281,8 +255,9 @@ export function KeywordFighterSection({
 
   // Tab 5: 상위 블로그 분석
   const handleAnalyzeTopBlogs = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -310,24 +285,9 @@ export function KeywordFighterSection({
 }`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("분석에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      setTopBlogResult(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "object", 0.7);
+      setTopBlogResult(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "상위 블로그 분석 중 오류 발생");
     } finally {
@@ -337,8 +297,9 @@ export function KeywordFighterSection({
 
   // Tab 6: 다각도 블로그 주제 발굴 (4가지 관점)
   const handleAnalyzeAngles = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -381,24 +342,9 @@ export function KeywordFighterSection({
 }`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("다각도 분석에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      setAnglesResult(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "object", 0.7);
+      setAnglesResult(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "다각도 분석 중 오류 발생");
     } finally {
@@ -408,8 +354,9 @@ export function KeywordFighterSection({
 
   // Tab 7: 오늘의 전략 키워드 10선
   const handleFetchTodayStrategy = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -434,24 +381,9 @@ export function KeywordFighterSection({
 ]`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.8,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("전략 키워드 발굴에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-      setStrategyCards(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "array", 0.8);
+      setStrategyCards(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "전략 키워드 발굴 중 오류 발생");
     } finally {
@@ -461,7 +393,7 @@ export function KeywordFighterSection({
 
   // Initialize Strategy Cards on first open of Tab 7 if empty
   useEffect(() => {
-    if (activeTab === "todaystrategy" && strategyCards.length === 0 && settings.geminiApiKey) {
+    if (activeTab === "todaystrategy" && strategyCards.length === 0 && !missingKeyMessage("text", settings)) {
       handleFetchTodayStrategy();
     }
   }, [activeTab]);

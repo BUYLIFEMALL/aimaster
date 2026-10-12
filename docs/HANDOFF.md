@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.39) 구형 Gemini 직접 호출 통일
+
+아이디어 탭 주제 추천 5곳·키워드 파인더 5곳을 선택한 글 AI(Gemini/GPT/Claude)와 본인 키로 호출하도록 통일했습니다(공용 askLlmJson). 확장 ZIP·DB v1.39.
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.38) 맛집 탭 사진 업로드 위치 이동
 
 주인님 요청: 사진 업로드를 페르소나(글 생성 설정) 아래, 이미지 모델 설정 위로 옮겼습니다. 확장 ZIP·DB v1.38.

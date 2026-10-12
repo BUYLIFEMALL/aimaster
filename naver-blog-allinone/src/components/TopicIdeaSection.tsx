@@ -15,6 +15,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { AppSettings } from "@/lib/storage";
+import { askLlmJson } from "@/lib/blog/askJson";
+import { missingKeyMessage } from "@/lib/blog/models";
 
 interface TopicIdeaSectionProps {
   settings: AppSettings;
@@ -58,8 +60,9 @@ export function TopicIdeaSection({
 
   // 1. E-E-A-T 추천 실행
   const handleGenerateEeat = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -88,29 +91,8 @@ export function TopicIdeaSection({
 ]`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error?.message || "Gemini API 호출에 실패했습니다.");
-      }
-
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-      const parsed = JSON.parse(rawText);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "array", 0.7);
       setRecommendedTopics(Array.isArray(parsed) ? parsed : []);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "추천 생성 중 오류가 발생했습니다.");
@@ -121,8 +103,9 @@ export function TopicIdeaSection({
 
   // 2. 카테고리별 추천
   const handleGenerateCategory = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -150,24 +133,9 @@ export function TopicIdeaSection({
 ]`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("Gemini API 호출에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-      setRecommendedTopics(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "array", 0.7);
+      setRecommendedTopics(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "추천 생성 중 오류가 발생했습니다.");
     } finally {
@@ -177,8 +145,9 @@ export function TopicIdeaSection({
 
   // 3. 에버그린 추천
   const handleGenerateEvergreen = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -205,24 +174,9 @@ export function TopicIdeaSection({
 ]`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("Gemini API 호출에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-      setRecommendedTopics(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "array", 0.7);
+      setRecommendedTopics(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "추천 생성 중 오류가 발생했습니다.");
     } finally {
@@ -232,8 +186,9 @@ export function TopicIdeaSection({
 
   // 4. 롱테일 키워드 추천
   const handleGenerateLongtail = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -259,24 +214,9 @@ export function TopicIdeaSection({
 ]`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("Gemini API 호출에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-      setRecommendedTopics(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "array", 0.7);
+      setRecommendedTopics(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "추천 생성 중 오류가 발생했습니다.");
     } finally {
@@ -286,8 +226,9 @@ export function TopicIdeaSection({
 
   // 5. 메모/파일 기반 추천
   const handleGenerateMemo = async () => {
-    if (!settings.geminiApiKey) {
-      setErrorMsg("Google Gemini API 키가 필요합니다. 상단 [설정]에서 본인 키를 등록해주세요.");
+    const keyMissing = missingKeyMessage("text", settings);
+    if (keyMissing) {
+      setErrorMsg(keyMissing);
       onOpenSettings();
       return;
     }
@@ -318,24 +259,9 @@ ${memoText.slice(0, 3000)}
 ]`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${settings.textModel}:generateContent?key=${settings.geminiApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("Gemini API 호출에 실패했습니다.");
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-      setRecommendedTopics(JSON.parse(rawText));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed = await askLlmJson<any>(settings, prompt, "array", 0.7);
+      setRecommendedTopics(parsed);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "추천 생성 중 오류가 발생했습니다.");
     } finally {

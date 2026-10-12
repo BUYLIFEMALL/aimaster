@@ -217,3 +217,6 @@
 
 ## v1.38 (2026-10-12) — 맛집 탭: 사진 업로드를 페르소나 아래·이미지 모델 설정 위로
 - 주인님 요청(아이디어 탭 흐름 기준): 방문 사진 업로드(드래그앤드롭·사진 목록)를 [글 생성 설정] 다음, [AI 모델·디자인·이미지 설정] 앞의 '방문 사진 (선택)' 박스로 이동. 최종 순서: 카테고리 → SEO 모드 → 방문 정보(+SEO 키워드) → 글 생성 설정 → 방문 사진 → 이미지 모델·옵션 → 생성 버튼. 기능 변경 없음.
+
+## v1.39 (2026-10-12) — 아이디어 탭 주제 추천·키워드 파인더의 구형 Gemini 직접 호출 10곳을 선택한 글 AI로 통일
+- 주인님 요청: `TopicIdeaSection`(E-E-A-T·카테고리별·에버그린·롱테일·메모 5곳)과 `KeywordFighterSection`(경쟁력·연관검색어·상위 블로그·다각도·오늘의 전략 5곳)이 항상 Gemini 키·Gemini 모델을 직접 호출하던 것을 공용 `lib/blog/askJson.ts`의 `askLlmJson`(→ `resolveTextEngine`+`callLlm`)으로 교체. 설정에서 고른 글 AI(Gemini/GPT/Claude)와 본인 키를 쓰며 키가 없으면 `missingKeyMessage`로 해당 공급사 등록 안내. 배열 응답은 OpenAI JSON 모드(최상위 객체만 허용)를 쓰지 않고 프롬프트 지시+`extractJson` 파싱으로 처리. 키워드 파인더 [오늘의 전략] 자동 실행 조건도 선택한 AI의 키 기준. 테스트 31개. 남은 구형 Gemini 직접 호출 없음(`grep generativelanguage src/components` → 0).

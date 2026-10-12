@@ -481,3 +481,34 @@ test("runBlogPipeline: 사람 문체 모드·회원 방문 경험이 작성·윤
   assert.doesNotMatch(off.writerUser, /회원이 직접 겪은 경험/);
   assert.doesNotMatch(off.humanizerSystem, /사람 문체 모드 추가 지침/);
 });
+
+import { extractJson, askLlmJson } from "../src/lib/blog/askJson.ts";
+
+test("askJson: 코드 펜스·앞뒤 설명이 있어도 배열/객체 JSON만 꺼낸다", () => {
+  assert.deepEqual(extractJson("```json\n[{\"a\":1}]\n```", "array"), [{ a: 1 }]);
+  assert.deepEqual(extractJson("결과입니다: {\"x\": [1,2]} 끝", "object"), { x: [1, 2] });
+  assert.equal(extractJson("JSON 아님", "array"), null);
+  assert.equal(extractJson("[깨진", "array"), null);
+});
+
+test("askLlmJson: 선택한 글 AI와 본인 키로 호출한다(Gemini 키 없이 GPT) — 배열은 OpenAI JSON 모드를 쓰지 않는다", async () => {
+  const realFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (url, init) => {
+    calls.push({ url: String(url), headers: init.headers, body: JSON.parse(init.body) });
+    return { ok: true, json: async () => ({ choices: [{ message: { content: calls.length === 1 ? '[{"title":"제목","desc":"설명","keywords":["a"]}]' : '{"score": 7}' } }] }) };
+  };
+  try {
+    const settings = { geminiApiKey: "", openaiApiKey: "OPENAI-KEY", textProvider: "openai", textModelId: "gpt-4.1", textModel: "gemini-flash-latest" };
+    const arr = await askLlmJson(settings, "주제 4개", "array");
+    assert.equal(arr[0].title, "제목");
+    assert.ok(calls[0].url.includes("api.openai.com"));
+    assert.equal(calls[0].headers.Authorization, "Bearer OPENAI-KEY");
+    assert.equal(calls[0].body.response_format, undefined); // 배열 응답은 JSON 모드 미사용
+    const obj = await askLlmJson(settings, "분석", "object");
+    assert.equal(obj.score, 7);
+    assert.deepEqual(calls[1].body.response_format, { type: "json_object" });
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
