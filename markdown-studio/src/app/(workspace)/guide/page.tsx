@@ -1,0 +1,5 @@
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export default function GuidePage() {
+  return <><div className="page-heading"><p className="eyebrow">시작 안내</p><h1>연동 & 사용 매뉴얼</h1><p>현재 구현된 기본 문서 작업 흐름입니다.</p></div><div className="card stack"><h2>문서 작업 순서</h2><ol className="manual-list"><li><strong>문서 준비</strong><p>이름과 폴더를 정하고 빈 문서·회의록·사용 안내 중에서 시작할 형식을 선택합니다.</p></li><li><strong>편집·미리보기</strong><p>마크다운 원문을 입력하면 완성된 서식을 확인할 수 있습니다. 변경 내용은 자동 저장되며 Ctrl/Cmd+S로 즉시 저장할 수 있습니다. 모바일에서는 원문과 미리보기 탭을 사용합니다.</p></li><li><strong>원문 내려받기</strong><p>노란색 ‘원문 저장’ 또는 ‘마크다운 내려받기’ 버튼으로 현재 내용이 담긴 .md 파일을 보관합니다.</p></li><li><strong>문서 보관함</strong><p>새 폴더·문서를 만들고 이름 및 위치 변경 버튼으로 정리합니다. 폴더로 끌어놓아 이동할 수도 있습니다. 휴지통 복원과 최근 30개 수정 이력의 본문 복원을 지원합니다.</p></li></ol><h2>저장 상태 확인</h2><p>‘이 기기에 저장됨’은 이 브라우저의 회원별 보관함에 저장됐다는 뜻입니다. 다른 탭에서 같은 문서를 수정하면 오래된 내용으로 덮어쓰지 않고 안내합니다. 현재 원고를 내려받은 뒤 최신 문서를 불러오세요.</p><h2>현재 단계의 범위</h2><p>브라우저 데이터 삭제 시 문서와 수정 이력이 사라질 수 있습니다. 중요한 원고는 .md로 보관하세요. 다른 사람이 함께 사용하는 OS 브라우저 프로필의 데이터는 암호화된 개인 금고가 아닙니다.</p><p>고급 서식 툴바·파일 가져오기·JSON 백업·HTML/PDF/Word/ZIP 변환·본인 Google Drive 연결은 다음 단계에서 구현합니다.</p></div></>;
+}

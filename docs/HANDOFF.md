@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Codex — Markdown Studio 1단계 구현·로컬 검수 (v1.01 출시 후보)
+
+- 사용자 진행 지시로 `markdown-studio` 독립 Next 앱의 공통 로그인·권한·흰색 번호형 메뉴·문서 모델과 기본 화면 구현. 회원별 IndexedDB, 문서/폴더 생성·이름·이동·검색, 750ms 자동 저장/수동 저장/Ctrl+S, 동시 수정 충돌 차단, 30개 이력, 휴지통 배치 복원, 정제 GFM 표·체크리스트, 모바일 탭, `.md` 다운로드.
+- 검수: 프로덕션 빌드·TypeScript 정상, 자동 검사 14/14, 독립 Chrome 컴포넌트 검사 11/11, 실제 Next 프로덕션 빌드의 설정 미등록 차단 검사 9/9, 패키지 취약점 0건. Chrome 작업 화면의 세션은 격리 시험값이며 **실제 일반 회원 로그인 성공은 미검수**. [구현·증거](../markdown-studio/docs/PHASE1_IMPLEMENTATION.md).
+- Vercel `buylife/markdown-studio` 생성·연결 완료. **환경변수 등록·운영 배포·카탈로그·요금제·도메인·썸네일은 미실행**. 기본 틀 버전만 `v1.01` 후보이며 운영 프로그램이 완성·출시된 것은 아님.
+- 다음 의존 작업: 기존 AIMaster 인증 설정 3개(URL/anon/server service role)의 새 프로젝트 Production·Development 및 로컬 검수 연결. 루트 환경변수 사전 승인 규칙에 따라 [구체 설정안](../markdown-studio/docs/PROVISIONING_PLAN.md)을 준비하고 승인 대기. 새 DB 스키마는 1단계에 필요 없음.
+- 독립 후속 순서: 2단계 CodeMirror·20개 서식/목록 3종/기호 32종 → 3단계 가져오기·백업·HTML/텍스트 PDF/표준 DOCX/ZIP → 4단계 본인 Drive → 5단계 실제 회원 운영 검수·등록. [재개 안내](../markdown-studio/AGENTS.md). Suno 검수는 보류 유지, 다른 CLI 작업 미포함.
+
 ## 2026-10-13 Antigravity — AI Audio분석 자동화 (ai-audio-analyzer v1.01) 신규 구축 · 프로덕션 배포 · 카탈로그 1위 등록 완료
 
 주인님 요청("https://gpt-park-ai-audio-lab.vercel.app/ 프로그램 기능 분석을 면밀히 한후에 구현해줘 프로그램명은 AI Audio분석 자동화, 다 만든후 프로그램등록,썸네일 까지 어울리게 등록해줘")에 따라, 레퍼런스 앱 전수 역분석(1MB 메인 JS 번들 및 DSP/오디오 피처/Gemini 프롬프트 분석)을 100% 반영한 신규 서브프로젝트 **`AI Audio분석 자동화` (`ai-audio-analyzer v1.01`)**를 성공적으로 구축하고 프로덕션 배포 및 카탈로그 최상단 1순위(`sort_order: 129`, 카테고리: 음악) 등록을 완벽히 완료했습니다:

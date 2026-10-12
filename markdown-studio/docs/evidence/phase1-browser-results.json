@@ -1,0 +1,52 @@
+{
+  "fixture": true,
+  "realMemberLoginVerified": false,
+  "checks": [
+    {
+      "name": "folder creation, document creation, save, GFM alignment and HTML sanitization",
+      "passed": true
+    },
+    {
+      "name": "literal special-character search",
+      "passed": true
+    },
+    {
+      "name": "active document and body persist across reload",
+      "passed": true
+    },
+    {
+      "name": "download preserves the exact unsanitized Markdown source",
+      "passed": true
+    },
+    {
+      "name": "stale concurrent edit is blocked and the losing draft remains available",
+      "passed": true
+    },
+    {
+      "name": "server connection failure retains unsaved draft and never displays save success",
+      "passed": true
+    },
+    {
+      "name": "390px mobile tabs, no horizontal overflow and account menu spacing",
+      "passed": true,
+      "accountGap": 8
+    },
+    {
+      "name": "revision history is accessible in the library",
+      "passed": true
+    },
+    {
+      "name": "folder trash and restore through real UI",
+      "passed": true
+    },
+    {
+      "name": "switching member scope opens an empty separate library",
+      "passed": true
+    },
+    {
+      "name": "session denial clears workspace content",
+      "passed": true
+    }
+  ],
+  "pageErrors": []
+}
