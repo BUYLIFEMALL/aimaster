@@ -388,20 +388,20 @@ export function SourceInputPanel({
   return (
     <div className="space-y-6">
       {/* 상단 섹션 타이틀 & 안내 뱃지 */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <h2 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-black">
+            <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-black shrink-0">
               01
             </span>
-            원본 문서 자료 넣기
+            <span className="truncate">원본 문서 자료 넣기</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             파일을 끌어다 놓거나, 웹 주소를 붙여 넣거나, 본문을 직접 붙여 넣으세요. 세 가지를 섞어도 한 권으로 묶입니다.
           </p>
         </div>
-        <div className="text-right">
-          <div className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
+        <div className="shrink-0 pt-0.5">
+          <div className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100 whitespace-nowrap">
             총 {sources.length}개 자료 · {totalChars.toLocaleString()}자
           </div>
         </div>
@@ -431,7 +431,7 @@ export function SourceInputPanel({
           }`}
         >
           <Globe className="w-3.5 h-3.5" />
-          <span>웹 주소 가져오기 (최대 12개)</span>
+          <span>웹 주소 가져오기</span>
         </button>
         <button
           type="button"
@@ -639,35 +639,35 @@ export function SourceInputPanel({
       {/* 스마트 목차 확인 & 제목 수정 영역 */}
       {outline.length > 0 && (
         <div className="space-y-3 pt-2">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-            <div>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+            <div className="min-w-0">
               <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                <ListOrdered className="w-3.5 h-3.5 text-indigo-600" />
-                <span>목차 구성 및 장 분할 ({outline.length}개 장)</span>
+                <ListOrdered className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                <span className="truncate">목차 구성 및 장 분할 ({outline.length}개 장)</span>
               </h3>
               <p className="text-[11px] text-slate-500 mt-0.5">
                 여기 보이는 것이 그대로 책의 장이 됩니다. 제목을 직접 클릭해 고칠 수 있습니다.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={handleResetOutlineTitles}
-                className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center gap-1 transition"
+                className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center gap-1 transition whitespace-nowrap"
               >
-                <RotateCcw className="w-3 h-3" />
+                <RotateCcw className="w-3 h-3 shrink-0" />
                 <span>제목 되돌리기</span>
               </button>
               <button
                 type="button"
                 onClick={handleAiSuggestOutline}
                 disabled={isAiSuggesting}
-                className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 px-2.5 py-1 rounded-lg border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 flex items-center gap-1 transition disabled:opacity-50"
+                className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 flex items-center gap-1 transition disabled:opacity-50 whitespace-nowrap"
               >
                 {isAiSuggesting ? (
-                  <RefreshCw className="w-3 h-3 animate-spin" />
+                  <RefreshCw className="w-3 h-3 animate-spin shrink-0" />
                 ) : (
-                  <Sparkles className="w-3 h-3" />
+                  <Sparkles className="w-3 h-3 shrink-0" />
                 )}
                 <span>AI 목차 제안</span>
               </button>

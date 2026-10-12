@@ -1,5 +1,18 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-12 — 버튼·뱃지의 텍스트 줄바꿈(wrap) 및 너비 부족으로 인한 글자 잘림 (eBook Studio v1.02)
+
+- 증상: 테마 선택 버튼명(크리스프 오렌지 등)이 `...`로 잘림, 실시간 뷰어 헤더 제목이 `실시간 독서 뷰어 미` / `리보기`로 쪼개짐, 상단 뱃지가 `총 0개 자료 · 0` / `자`로 세로 줄바꿈됨, 뷰어 iframe 툴바의 목차 버튼이 세로로 길쭉하게 늘어남.
+- 원인: 
+  ① `truncate max-w-[65px]` 지정 및 체크 뱃지를 텍스트 옆에 두어 글자 공간이 부족함.
+  ② flex 행에서 좌측 요소가 공간을 차지하면서 우측 뱃지/헤더에 `shrink-0` 및 `whitespace-nowrap`이 빠져 글자 단위 줄바꿈 발생.
+  ③ iframe 헤더 flex 컨테이너에 `align-items: center`가 없어 `#mobile-btn`이 세로 방향으로 `stretch` 늘어남.
+- 해결: 
+  ① 테마 버튼은 `pr-4 min-h-[68px] break-keep`과 체크 뱃지 우상단 절대 위치 분리로 텍스트 공간 100% 확보.
+  ② 헤더와 뱃지에는 `shrink-0 whitespace-nowrap` 적용, 좁은 화면에서 부가 설명 괄호는 자동 숨김(`hidden 2xl:inline`).
+  ③ iframe header에 `align-items: center; height: 30px`를 명시하여 목차 버튼 및 컨트롤 정렬 교정.
+- 다음부터 확인: 고정폭 2열/3열 그리드나 사이드바/미리보기 컬럼 안의 버튼과 뱃지에는 반드시 `shrink-0 whitespace-nowrap break-keep`을 점검하고, flex 컨테이너의 `align-items` 기본값(stretch)으로 인한 세로 늘어짐을 항상 검사한다.
+
 ## 2026-10-12 — 루트 헤더 단일 ESLint 검사에 설정 파일이 없음
 
 - 증상: 루트에서 eslint components/layout/Header.tsx를 실행하면 설정 파일을 찾지 못해 검사가 종료됐습니다.

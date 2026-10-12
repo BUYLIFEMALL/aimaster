@@ -283,25 +283,46 @@ export function buildStandaloneHtml(project: EbookProject): string {
     main { margin-left: 260px; min-height: 100%; display: flex; flex-direction: column; }
     header {
       display: flex;
-      justify-content: flex-start;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
-      padding: 10px 24px;
+      padding: 8px 16px;
       border-bottom: 1px solid var(--line);
       background: var(--paper);
       position: sticky;
       top: 0;
       z-index: 10;
     }
-    header .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    header .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    header button, header select {
+      font-size: 12px;
+      padding: 5px 9px;
+      height: 30px;
+      line-height: 1.2;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+    #mobile-btn {
+      font-weight: 700;
+      height: 30px;
+      flex-shrink: 0;
+    }
     .slide {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 12px;
+      gap: 5px;
+      font-size: 11px;
       color: var(--muted);
       white-space: nowrap;
+      height: 30px;
     }
-    .slide input { width: 70px; accent-color: var(--accent); cursor: pointer; }
+    .slide input { width: 56px; accent-color: var(--accent); cursor: pointer; }
     .page {
       --pad-x: 48px;
       --pad-y: 44px;

@@ -208,28 +208,31 @@ export function Sidebar({
 
         {/* 3. 통계 요약 카드 */}
         <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3.5 text-xs text-slate-600 space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 border-b border-slate-200/60 pb-2">
-            <span>도서 현황</span>
-            <span className="text-indigo-600 font-extrabold truncate max-w-[100px]">
+          <div className="flex items-center justify-between gap-2 text-[11px] font-bold text-slate-500 border-b border-slate-200/60 pb-2">
+            <span className="shrink-0">도서 현황</span>
+            <span
+              className="text-indigo-600 font-extrabold truncate max-w-[130px] text-right"
+              title={project.title || "새 전자책"}
+            >
               {project.title || "미정"}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center pt-1">
             <div className="bg-white rounded-lg p-1.5 border border-slate-100 shadow-2xs">
               <span className="block text-[10px] text-slate-400">챕터</span>
-              <span className="text-xs font-black text-slate-800">
+              <span className="text-xs font-black text-slate-800 whitespace-nowrap">
                 {totalChapters}장
               </span>
             </div>
             <div className="bg-white rounded-lg p-1.5 border border-slate-100 shadow-2xs">
               <span className="block text-[10px] text-slate-400">총 글자</span>
-              <span className="text-xs font-black text-slate-800">
+              <span className="text-xs font-black text-slate-800 whitespace-nowrap">
                 {totalCharacters.toLocaleString()}자
               </span>
             </div>
             <div className="bg-white rounded-lg p-1.5 border border-slate-100 shadow-2xs">
               <span className="block text-[10px] text-slate-400">읽기시간</span>
-              <span className="text-xs font-black text-slate-800">
+              <span className="text-xs font-black text-slate-800 whitespace-nowrap">
                 약 {readingTimeMin}분
               </span>
             </div>

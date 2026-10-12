@@ -349,7 +349,7 @@ export function StyleDesignPanel({
           <span className="text-[11px] text-slate-400">원클릭 일괄 스타일 적용</span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
           {DESIGN_PRESETS.map((preset, idx) => {
             const isMatch =
               currentStyle.theme === preset.style.theme &&
@@ -361,16 +361,16 @@ export function StyleDesignPanel({
                 key={idx}
                 type="button"
                 onClick={() => handleApplyPreset(preset)}
-                className={`p-2.5 rounded-xl border text-left transition ${
+                className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between min-h-[58px] ${
                   isMatch
                     ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
                     : "bg-slate-50/70 border-slate-200 text-slate-700 hover:bg-slate-100"
                 }`}
               >
-                <span className="text-xs font-bold block truncate">{preset.label}</span>
+                <span className="text-xs font-bold block break-keep">{preset.label}</span>
                 <span
-                  className={`text-[10px] mt-0.5 block truncate ${
-                    isMatch ? "text-indigo-100" : "text-slate-400"
+                  className={`text-[10px] mt-1 block leading-tight break-keep ${
+                    isMatch ? "text-indigo-100" : "text-slate-500"
                   }`}
                 >
                   {preset.note}
@@ -393,7 +393,7 @@ export function StyleDesignPanel({
           </span>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-7 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
           {Object.entries(THEMES).map(([key, t]) => {
             const active = currentStyle.theme === key;
             return (
@@ -402,33 +402,37 @@ export function StyleDesignPanel({
                 type="button"
                 onClick={() => handleUpdateStyle({ theme: key as ThemeKey })}
                 style={{ backgroundColor: t.bg }}
-                className={`p-2 rounded-xl border text-left transition relative flex flex-col justify-between h-16 shadow-2xs ${
+                className={`p-2 rounded-xl border text-left transition relative flex flex-col justify-between min-h-[68px] shadow-2xs ${
                   active
                     ? "ring-2 ring-indigo-600 border-indigo-600 scale-[1.02]"
                     : "border-slate-200/80 hover:border-slate-400"
                 }`}
               >
-                <div className="flex items-center justify-between w-full">
+                {/* 우상단 선택 체크 뱃지 */}
+                {active && (
+                  <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+                    <Check className="w-2.5 h-2.5" />
+                  </div>
+                )}
+
+                <div className="w-full pr-4">
                   <span
                     style={{ color: t.fg }}
-                    className="text-[10px] font-black truncate max-w-[65px]"
+                    className="text-[11px] font-bold leading-tight block break-keep"
                   >
                     {t.label}
                   </span>
-                  {active && (
-                    <div className="w-3.5 h-3.5 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0">
-                      <Check className="w-2 h-2" />
-                    </div>
-                  )}
                 </div>
-                <div className="flex items-center gap-1 mt-auto">
+                <div className="flex items-center gap-1 mt-2">
                   <div
                     style={{ backgroundColor: t.paper }}
-                    className="w-3 h-3 rounded-full border border-black/10"
+                    className="w-3.5 h-3.5 rounded-full border border-black/15 shadow-2xs"
+                    title="종이색"
                   />
                   <div
                     style={{ backgroundColor: t.accent }}
-                    className="w-3 h-3 rounded-full border border-black/10"
+                    className="w-3.5 h-3.5 rounded-full border border-black/15 shadow-2xs"
+                    title="포인트색"
                   />
                 </div>
               </button>

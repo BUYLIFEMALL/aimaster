@@ -7,7 +7,7 @@
 ## 1. 프로그램 개요
 - **프로그램명**: eBook Studio (국문: eBook Studio, 영문: eBook Studio)
 - **슬러그**: `ebook-studio`
-- **버전**: `v1.01`
+- **버전**: `v1.02` (2026-10-12: 텍스트 잘림·버튼 밀림 방지, 21종 테마 피커 및 뷰어 툴바 UI 정돈)
 - **배포 주소**: `https://ebook-studio.buylife.xyz` (Vercel: `ebook-studio-buylife.vercel.app`, 별칭: `ebook.buylife.xyz`)
 - **카테고리**: 콘텐츠 / 퍼블리싱 (contents)
 - **배지**: `["new", "free"]` (초기 가입 회원 누구나 무료 이용)

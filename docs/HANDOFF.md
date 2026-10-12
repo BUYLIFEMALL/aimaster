@@ -1,5 +1,26 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — eBook Studio (v1.02) 텍스트 잘림·버튼 밀림 방지 및 UI/UX 정밀 다듬기 완료
+
+주인님 요청("전반적으로 텍스트가 잘리거나 버튼내 텍스트가 밀리거나 하면 보고 폰트나 버튼크기등을 조정해서 보기좋게 다듬어줘")에 따라 전달해주신 스크린샷 2장을 정밀 분석하여 모든 시각적 결함을 완벽하게 정돈하고 배포했습니다:
+1. **21종 테마 피커 텍스트 잘림 완전 해소**:
+   - `StyleDesignPanel.tsx`: `text-[10px] truncate max-w-[65px]`에 의해 긴 테마명(크리스프 오렌지, 슬레이트 화이트, 딥 포레스트, 블루프린트, 카본 오렌지 등)이 `...`로 잘리던 현상을 `text-[11px] font-bold leading-tight break-keep`, `pr-4 min-h-[68px]`로 전면 개편.
+   - 선택 체크 뱃지를 텍스트 옆 인라인이 아닌 우측 상단 절대 위치(`absolute top-1.5 right-1.5`)로 분리하여 텍스트 표시 공간을 100% 온전히 확보.
+   - 테마 라벨의 불필요하게 긴 `(다크)` 표기를 간결화(`미드나이트`, `딥 포레스트`, `다크 모카`, `블루프린트` 등)하여 가독성 극대화.
+2. **실시간 독서 뷰어 헤더 2줄 쪼개짐 방지**:
+   - `LivePreviewPanel.tsx`: 좁은 우측 5단 컬럼에서 제목과 긴 설명 괄호가 부딪혀 `실시간 독서 뷰어 미` / `리보기`로 쪼개지던 결함을 `whitespace-nowrap text-xs font-bold` 적용 및 부가 설명 `(다운로드 파일과 100% 동일)`은 좁은 화면에서 자동 숨김(`hidden 2xl:inline`) 처리하여 완벽한 단일 라인 유지.
+3. **자료 수집 상단 뱃지 세로 줄바꿈 방지**:
+   - `SourceInputPanel.tsx`: `총 0개 자료 · 0` / `자`로 줄바꿈되던 뱃지에 `shrink-0 pt-0.5 whitespace-nowrap`을 적용하고, 좌측 제목에 `min-w-0 flex-1 truncate`를 주어 좁은 화면에서도 줄바꿈 없이 단정하게 유지.
+   - 3대 입력 탭 바의 `웹 주소 가져오기 (최대 12개)` 라벨을 `웹 주소 가져오기`로 간결화하여 3개 탭의 시각적 대칭 균형 확보.
+4. **뷰어 내부 iframe(template.ts) 툴바 UI 정돈**:
+   - `template.ts`: 뷰어 폭이 좁을 때 좌측 `#mobile-btn`(목차)이 상하로 길쭉하게 늘어나던 결함을 `header { align-items: center; justify-content: space-between; }` 및 `height: 30px`로 완벽 교정.
+   - 테마/폰트 셀렉트 및 줄간격/글자크기 슬라이더 폰트와 여백을 세련되게 정돈.
+5. **사이드바 도서 현황 및 액션 버튼 밀림 방지**:
+   - `Sidebar.tsx`: 도서 현황 제목의 `max-w`를 130px로 확대하고 전체 타이틀 툴팁 제공, 통계 수치에 `whitespace-nowrap` 적용.
+   - `ChapterEditorPanel.tsx`, `ExportPublishPanel.tsx`: 상단 액션 바와 배포용 ZIP 받기 버튼에 `whitespace-nowrap shrink-0` 적용.
+6. **버전 및 DB 판올림**:
+   - `ebook-studio` 버전 `v1.01` ➔ `v1.02` (코드 `APP_VERSION`, `package.json`, Supabase DB `programs.version` 동시 갱신 완료).
+
 ## 2026-10-12 Claude Code — 네이버 블로그 SEO 스튜디오 v1.62 카테고리 기능(Codex 담당 폴더, 주인님 승인 후 수정)
 
 주인님 요청으로 올인원·ai-auto-blog의 카테고리 기능을 SEO 스튜디오에 추가했습니다. ① 생성 기록 분류(`naver_blog_seo_categories`, 글의 `category_id`; 결과 화면 패널·생성 기록 칩 필터·분류 이동·관리 모달) ② 네이버 실제 카테고리(`naver_category`; 웹 [카테고리 불러오기] → 확장이 새 탭에서 읽음 → 입력 뒤 번호+이름이 같을 때만 선택). DB 칸 3개 추가(승인된 기능 범위), 확장 v1.62(ZIP 다시 받기→덮어쓰기→새로고침 필요). 상세·미검증 항목은 `naver-blog-seo-studio/AGENTS.md` '카테고리 기능'. Codex는 이 폴더를 이어받을 때 StudioPage.tsx의 DraftCategoryPanel·생성 기록 칩 부분과 sidepanel.js의 activeDraftNaverCategory를 확인하세요.

@@ -220,21 +220,21 @@ export function ChapterEditorPanel({
     <div className="space-y-6">
       {/* 상단 액션 바 */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
-        <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-indigo-600" />
-          <span className="text-xs font-black text-slate-800">
+        <div className="flex items-center gap-2 min-w-0">
+          <Layers className="w-4 h-4 text-indigo-600 shrink-0" />
+          <span className="text-xs font-black text-slate-800 whitespace-nowrap">
             총 {chapters.length}개 챕터 구성
           </span>
-          <span className="text-[11px] text-slate-400">
-            (선택된 장: {selectedIdx + 1}장)
+          <span className="text-[11px] text-slate-400 whitespace-nowrap">
+            (선택: {selectedIdx + 1}장)
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={handleAddChapter}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition whitespace-nowrap"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>챕터 추가</span>
@@ -244,7 +244,7 @@ export function ChapterEditorPanel({
             type="button"
             onClick={handleWriteAllChapters}
             disabled={isWritingAll || isWritingChapter}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-xs shadow-indigo-100 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-xs shadow-indigo-100 disabled:opacity-50 whitespace-nowrap"
           >
             {isWritingAll ? (
               <>
@@ -368,7 +368,7 @@ export function ChapterEditorPanel({
                   type="button"
                   onClick={() => handleWriteSingleChapter(selectedIdx)}
                   disabled={isWritingChapter}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200 transition disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200 transition disabled:opacity-50 shrink-0 whitespace-nowrap"
                 >
                   {isWritingChapter ? (
                     <>

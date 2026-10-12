@@ -49,16 +49,16 @@ export function LivePreviewPanel({ project }: LivePreviewPanelProps) {
   return (
     <div className="flex flex-col h-full bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
       {/* 뷰어 상단 바 */}
-      <div className="flex items-center justify-between px-4 py-3 bg-slate-950/80 border-b border-slate-800 text-slate-300">
-        <div className="flex items-center gap-2">
-          <Eye className="w-4 h-4 text-indigo-400" />
-          <span className="text-xs font-bold text-white">실시간 독서 뷰어 미리보기</span>
-          <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
-            (다운로드될 파일과 100% 동일)
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-950/80 border-b border-slate-800 text-slate-300 gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <Eye className="w-4 h-4 text-indigo-400 shrink-0" />
+          <span className="text-xs font-bold text-white whitespace-nowrap">실시간 독서 뷰어</span>
+          <span className="text-[10px] text-slate-400 font-mono hidden 2xl:inline truncate">
+            (다운로드 파일과 100% 동일)
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           {/* 기기 전환 버튼 */}
           <div className="flex items-center bg-slate-800/80 p-0.5 rounded-lg border border-slate-700">
             <button

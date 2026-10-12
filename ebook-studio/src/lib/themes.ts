@@ -117,7 +117,7 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     accent: "#ac5f05",
   },
   navy: {
-    label: "미드나이트 (다크)",
+    label: "미드나이트",
     bg: "#17222f",
     paper: "#1e2c3b",
     fg: "#e4e8ed",
@@ -126,7 +126,7 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     accent: "#d4b276",
   },
   forest: {
-    label: "딥 포레스트 (다크)",
+    label: "딥 포레스트",
     bg: "#152420",
     paper: "#1c302a",
     fg: "#e0e9e3",
@@ -135,7 +135,7 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     accent: "#8ec9a3",
   },
   mocha: {
-    label: "다크 모카 (다크)",
+    label: "다크 모카",
     bg: "#241d19",
     paper: "#2f2621",
     fg: "#ece3db",
@@ -144,7 +144,7 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     accent: "#d8a877",
   },
   blueprint: {
-    label: "블루프린트 (다크)",
+    label: "블루프린트",
     bg: "#12243a",
     paper: "#172d47",
     fg: "#dce8f6",
@@ -153,7 +153,7 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     accent: "#6fb2e8",
   },
   charcoal: {
-    label: "차콜 (다크)",
+    label: "차콜",
     bg: "#1b1c1e",
     paper: "#242628",
     fg: "#e6e7e9",
@@ -162,7 +162,7 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     accent: "#9fc2d8",
   },
   carbon: {
-    label: "카본 오렌지 (다크)",
+    label: "카본 오렌지",
     bg: "#121212",
     paper: "#1c1c1c",
     fg: "#f4f4f5",
@@ -171,7 +171,7 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     accent: "#ff4d00",
   },
   indigo: {
-    label: "딥 인디고 (다크)",
+    label: "딥 인디고",
     bg: "#090d16",
     paper: "#131b2e",
     fg: "#f1f5f9",
@@ -180,7 +180,7 @@ export const THEMES: Record<ThemeKey, ThemeDef> = {
     accent: "#60a5fa",
   },
   cyanNight: {
-    label: "사이언 나이트 (다크)",
+    label: "사이언 나이트",
     bg: "#080e1e",
     paper: "#0f1a36",
     fg: "#f1f5f9",
