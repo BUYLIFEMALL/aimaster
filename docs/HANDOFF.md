@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — AI 올인원 그래픽 자동화 (allinone-graphic) 관리자 상세 설명 리치 포맷 재정돈 및 DB 등록 완료
+
+주인님 요청("https://www.buylife.xyz/admin/programs/6fc5e240-9e72-45b2-90aa-b259e74ddd03/edit 프로그램 설명 글 핵심내용으로 보기 정리 정리해서 다시 작성해줘")에 따라:
+- 관리자 에디터(TipTap) 및 메인 웹사이트 상품 소개 페이지(`programs/allinone-graphic`)에서 마크다운 문자열(`###`, `####`, `---`, `**`)로 뭉개져 노출되던 문제를 해결.
+- TipTap 및 Tailwind typography(`prose prose-invert prose-gold`) 표준에 맞춰 **5대 핵심 자동화 기능**과 **19개 직군 123종 템플릿 분야별 요약 목록**, **100% 회원 본인 Google Gemini API 키 연동 원칙**을 일목요연한 리치 HTML(`<h3>`, `<p>`, `<hr>`, `<ul>`, `<li>`, `<strong>`) 구조로 재정돈하여 Supabase DB에 완벽히 반영 완료.
+
 ## 2026-10-13 Antigravity — AI 12단 상세페이지 자동화 (detail-page-12p) 관리자 상세 설명 리치 포맷 재정돈 및 DB 등록 완료
 
 주인님 요청("https://www.buylife.xyz/admin/programs/bb770cbb-c4f1-4bdd-8581-1ff08979e873/edit 프로그램 기능의 핵심적인 내용중심으로 보기좋게 다시 정리해서 등록해줘")에 따라:
