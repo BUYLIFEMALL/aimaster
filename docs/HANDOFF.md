@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Codex — Suno 음악기획 자동화 v1.03 원본 세부 옵션 조사·확장
+
+주인님 요청으로 원본 SU-Note에 실제 Chrome 엔진으로 접속해 243개 그룹·461개 선택 프리셋·861개 방향 버튼·200개 댄스·441개 팔레트·297개 앨범 선택·64개 제어 조건·18개 구간·공급사/모델 설정을 조작했습니다. 필요한 공개 선택 이름/그룹/시대/BPM/보컬 힌트와 자체 음악 레시피를 반영했습니다. 원본 Style/AI 코드 전체 복제·키 조회·원본 유료 AI 호출은 하지 않았습니다. 제목/Style/가사 선택 생성, 내 Style, 별도 랩 보컬, 고음 억제, 구간 삽입, 자동 제외 복원, 이전 백업 호환 추가. 31개 자동 검사·린트·빌드, 실제 컴포넌트 모의 흐름 10개 통과. 운영 반영/실회원 검수의 최신 사실은 [suno-music-studio/docs/RELEASE_V1_03.md](../suno-music-studio/docs/RELEASE_V1_03.md), 상세 설정/결과 비교는 [ORIGINAL_OPTIONS_COMPARISON.md](../suno-music-studio/docs/ORIGINAL_OPTIONS_COMPARISON.md). 공급사 웹 검색·실제 Suno 음악 생성은 포함하지 않으며 개인 키·흰색 화면·메뉴 직후 계정 규칙 유지.
+
+---
+
 ## 2026-10-12 Claude — [작업 대기] suno-music-studio 핸드폰 정책 배포 (Codex 작업 완료 후) + 예약·자동 실행 작업에도 정책 적용
 
 **작업 대기 리스트**: `suno-music-studio`는 현재 Codex가 작업 중이라 핸드폰 필수 정책의 **버전 올리기·배포를 보류**했습니다(판정 파일은 이미 커밋됨). Codex가 끝나면 `docs/PHONE_REQUIRED_POLICY.md` 4번의 순서(커밋 → v1.03 → DB 버전 → 배포 → 차단 확인)로 이어서 처리합니다. 그때까지 이 프로그램만 번호 없는 회원도 쓸 수 있습니다.
@@ -39,6 +45,9 @@
 11. **배포 및 도메인 동기화**:
     - 버전 `v1.02` 상향, DB `programs.version = 'v1.02'` 동기화
     - 프로덕션 배포 완료: `https://ai-influencer-studio-7ufp6d7wo-buylife.vercel.app` & `https://ai-influencer.buylife.xyz` (HTTP 200 확인 완료)
+12. **카탈로그 썸네일 생성 및 DB 연동**:
+    - AI 인플루언서 스튜디오 16:9 실사 카탈로그 썸네일 생성 (`ai-influencer-studio/public/ai-influencer-studio-thumbnail.jpg`)
+    - Supabase Storage `program-images` 버킷 `catalog/ai-influencer-studio-thumbnail.jpg` 업로드 및 `programs.thumbnail_url` 연동 완료 (메인 카탈로그 즉시 노출)
 
 ---
 
