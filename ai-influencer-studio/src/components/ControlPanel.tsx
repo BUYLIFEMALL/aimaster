@@ -20,6 +20,8 @@ import {
   Smile,
   Shield,
   Palette,
+  HelpCircle,
+  Settings,
 } from "lucide-react";
 import {
   GENDERS,
@@ -73,6 +75,67 @@ export function ControlPanel({
   const [isPlanningEvent, setIsPlanningEvent] = useState(false);
   const [timelineScenarios, setTimelineScenarios] = useState<TimelineScenario[]>([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
+  const [isRandomRolling, setIsRandomRolling] = useState(false);
+
+  // 전체 옵션 랜덤 믹스 (주사위 버튼 클릭 시 실행)
+  const handleRandomize = () => {
+    setSelectedScenarioId(null);
+    setIsRandomRolling(true);
+    setTimeout(() => setIsRandomRolling(false), 500);
+
+    try {
+      const pickRandom = <T,>(arr: T[]): T | null =>
+        !arr || arr.length === 0 ? null : arr[Math.floor(Math.random() * arr.length)];
+
+      const allOutfits = OUTFIT_CATEGORIES.flatMap((c) => c.options);
+      const allLocations = LOCATION_CATEGORIES.flatMap((c) => c.options);
+      const allCameras = CAMERA_MODES.flatMap((c) => c.options);
+
+      const randomGender = pickRandom(GENDERS);
+      const randomEthnicity = pickRandom(ETHNICITIES);
+      const randomAge = pickRandom(AGES);
+      const randomHair = pickRandom(HAIR_STYLES);
+      const randomFace = pickRandom(FACE_STYLES);
+      const randomExpression = pickRandom(EXPRESSIONS);
+      const randomPose = pickRandom(POSES);
+      const randomOutfit = pickRandom(allOutfits);
+      const randomLocation = pickRandom(allLocations);
+      const randomLighting = pickRandom(LIGHTINGS);
+      const randomCamera = pickRandom(allCameras);
+      const randomFilm = pickRandom(FILM_STOCKS);
+
+      // 피부 질감 1~2개 무작위 선택
+      const randomSkin1 = pickRandom(SKIN_TEXTURES);
+      const randomSkin2 = pickRandom(SKIN_TEXTURES);
+      const skinList = [randomSkin1?.id, randomSkin2?.id].filter(
+        (id, idx, arr): id is string => Boolean(id) && arr.indexOf(id) === idx
+      );
+
+      const randomAspect = pickRandom(ASPECT_RATIO_OPTIONS);
+
+      setConfig((prev) => ({
+        ...prev,
+        gender: randomGender?.id || "female",
+        ethnicity: randomEthnicity?.id || "kr",
+        age: randomAge?.id || "24",
+        hairStyle: randomHair?.id || "l_str_b",
+        faceStyle: randomFace?.id || "elegant",
+        expression: randomExpression?.detail || "soft gentle smile",
+        pose: randomPose?.detail || "natural portrait selfie pose",
+        outfit: randomOutfit?.detail || "oversized white crisp button-up shirt",
+        location: randomLocation?.detail || "cozy sunlight-filled cafe",
+        lighting: randomLighting?.id || "m_win",
+        camera: randomCamera?.id || "iphone_rear",
+        filmStock: randomFilm?.id || "p_400",
+        skin: skinList,
+        aspectRatio: randomAspect?.id || prev.aspectRatio,
+        storyContext: undefined,
+        isAdMode: false,
+      }));
+    } catch (err) {
+      console.error("랜덤 설정 실패:", err);
+    }
+  };
 
   // 파일 업로드 헬퍼 (Base64 변환)
   const handleFileUpload = (
@@ -222,29 +285,48 @@ export function ControlPanel({
           </p>
         </div>
 
-        {/* 우측 3개 아이콘 도구 */}
+        {/* 우측 툴바 아이콘 도구 (스크린샷 규격 1:1 매칭: 가이드 / 설정 / 주사위 랜덤 믹스 / 히스토리) */}
         <div className="flex items-center gap-1.5">
-          {/* 가이드 */}
+          {/* 1. 가이드 (물음표) */}
           <button
             onClick={onOpenHelpModal}
             className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
             title="사용 가이드"
           >
-            <Sparkles className="w-4 h-4 text-pink-500" />
+            <HelpCircle className="w-4 h-4 text-slate-600 hover:text-pink-600" />
           </button>
-          {/* API 키 설정 */}
+
+          {/* 2. API 키 / 환경 설정 (톱니바퀴) */}
           <button
             onClick={onOpenApiKeyModal}
             className={`p-2 rounded-lg border transition-all ${
               hasApiKey
-                ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
+                ? "text-slate-700 border-slate-200 bg-slate-50 hover:bg-slate-100"
                 : "text-rose-600 border-rose-300 bg-rose-50 hover:bg-rose-100 animate-pulse"
             }`}
-            title="Gemini API 키 설정"
+            title="Gemini API 키 및 설정"
           >
-            <Shield className="w-4 h-4" />
+            <Settings className="w-4 h-4" />
           </button>
-          {/* 히스토리 */}
+
+          {/* 3. 랜덤 설정값 옵션 (주사위: 누를 때마다 전체 옵션 랜덤 믹스) */}
+          <button
+            onClick={handleRandomize}
+            className={`p-2 rounded-lg border transition-all ${
+              isRandomRolling
+                ? "border-pink-400 bg-pink-100 text-pink-700 scale-105 shadow-sm"
+                : "border-slate-200 bg-white hover:border-pink-300 hover:bg-pink-50/50 text-slate-700 hover:text-pink-600 shadow-xs"
+            }`}
+            title="랜덤 설정값 옵션 (클릭 시 전체 설정 랜덤 믹스)"
+          >
+            <Dices
+              className={`w-4 h-4 transition-transform duration-500 ${
+                isRandomRolling ? "rotate-180 scale-110 text-pink-600" : ""
+              }`}
+            />
+          </button>
+
+          {/* 4. 작업 히스토리 */}
           <button
             onClick={onOpenHistory}
             className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors relative"
