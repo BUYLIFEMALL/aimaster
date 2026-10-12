@@ -34,7 +34,7 @@ import { runBlogPipeline } from "@/lib/blog/pipeline";
 import { callLlm } from "@/lib/blog/llm";
 import { parseJsonLoose } from "@/lib/blog/gemini";
 import { uploadImage } from "@/lib/blog/postsApi";
-import type { ImageRatio } from "@/lib/blog/types";
+import { IMAGE_RATIOS, type ImageRatio } from "@/lib/blog/types";
 import type { WritingStyle, WritingTone } from "@/lib/blog/styles";
 import { GenerationPanel } from "@/components/blog/GenerationPanel";
 import { ModelSettingsCard } from "@/components/blog/ModelSettingsCard";
@@ -95,7 +95,12 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
   const [selectedTheme, setSelectedTheme] = useState("green-orange");
   const [includeFaq, setIncludeFaq] = useState(true);
   const [thumbnailText, setThumbnailText] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState<"16:9" | "1:1">("16:9");
+  const [aspectRatio, setAspectRatio] = useState<ImageRatio>("16:9");
+  // 사진이 없을 때 쓰는 AI 이미지 옵션(아이디어 탭과 같은 옵션). 사진을 올리면 사진이 우선이다.
+  const [withThumbnailAi, setWithThumbnailAi] = useState(true);
+  const [bodyImages, setBodyImages] = useState(2);
+  const [autoImages, setAutoImages] = useState(true);
+  const [interactive, setInteractive] = useState(false);
   const [personaId, setPersonaId] = useState<string | null>(null);
   const [purposeText, setPurposeText] = useState("");
   const [angleTopic, setAngleTopic] = useState(""); // 특정 주제·글의 관점(페르소나가 채움, 수정 가능)
@@ -112,7 +117,11 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
     setPrefsAt(prefsSavedAt(window.localStorage, PLACES_PREFS_KEY));
     if (!saved) return;
     if (saved.themeId) setSelectedTheme(saved.themeId);
-    if (saved.ratio === "16:9" || saved.ratio === "1:1") setAspectRatio(saved.ratio);
+    if (saved.ratio) setAspectRatio(saved.ratio);
+    if (saved.withThumbnail !== undefined) setWithThumbnailAi(saved.withThumbnail);
+    if (saved.bodyImages !== undefined) setBodyImages(saved.bodyImages);
+    if (saved.autoImages !== undefined) setAutoImages(saved.autoImages);
+    if (saved.interactive !== undefined) setInteractive(saved.interactive);
     if (saved.thumbnailText !== undefined) setThumbnailText(saved.thumbnailText);
     if (saved.tone) setTone(saved.tone);
     if (saved.style) setStyle(saved.style);
@@ -121,7 +130,7 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
   }, []);
 
   const savePrefs = () => {
-    const ok = saveGenPrefs(window.localStorage, { themeId: selectedTheme, ratio: aspectRatio, thumbnailText, tone, style, targetLength, personaId }, PLACES_PREFS_KEY);
+    const ok = saveGenPrefs(window.localStorage, { themeId: selectedTheme, ratio: aspectRatio, thumbnailText, withThumbnail: withThumbnailAi, bodyImages, autoImages, interactive, tone, style, targetLength, personaId }, PLACES_PREFS_KEY);
     setPrefsAt(ok ? prefsSavedAt(window.localStorage, PLACES_PREFS_KEY) : prefsAt);
     setPrefsNotice(ok ? "현재 설정값을 이 브라우저에 기본값으로 저장했습니다. 다음 접속부터 자동으로 적용됩니다." : "저장하지 못했습니다. 브라우저 저장 공간을 확인해주세요.");
   };
@@ -131,6 +140,10 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
     setPrefsAt(null);
     setSelectedTheme("green-orange");
     setAspectRatio("16:9");
+    setWithThumbnailAi(true);
+    setBodyImages(2);
+    setAutoImages(true);
+    setInteractive(false);
     setThumbnailText(false);
     setTone("해요체");
     setStyle("conversational");
@@ -252,9 +265,15 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
       setErrorMsg("장소명을 입력해주세요 (예: 성수동 어반플랜트).");
       return;
     }
-    if (photos.length === 0) {
-      setErrorMsg("최소 1장 이상의 방문 사진을 업로드해주세요.");
-      return;
+    const hasPhotos = photos.length > 0;
+    // 사진이 없으면 AI 이미지로 만든다(키 확인). 사진이 있으면 사진이 우선이라 이미지 AI 키는 필요 없다.
+    if (!hasPhotos && autoImages && (withThumbnailAi || bodyImages > 0)) {
+      const imageMissing = missingKeyMessage("image", settings);
+      if (imageMissing) {
+        setErrorMsg(`${imageMissing} (또는 사진을 올리면 사진으로 글을 만듭니다.)`);
+        onOpenSettings();
+        return;
+      }
     }
 
     setLoading(true);
@@ -264,7 +283,7 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
     try {
       // 대표 사진을 맨 앞에 두고 최대 6장까지 사용한다(순서 = 이미지 컷 순서)
       const thumbIdx = Math.max(0, photos.findIndex((x) => x.isThumbnail));
-      const used = [photos[thumbIdx], ...photos.filter((_, i) => i !== thumbIdx)].slice(0, 6);
+      const used = hasPhotos ? [photos[thumbIdx], ...photos.filter((_, i) => i !== thumbIdx)].slice(0, 6) : [];
       const chosen = persona ?? BLOG_PERSONAS.find((x) => x.id === personaId) ?? null;
       const eng = resolveTextEngine(settings);
       const theme = COLOR_THEMES.find((t) => t.id === selectedTheme) || COLOR_THEMES[1];
@@ -295,19 +314,31 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         tone: persona ? persona.preferredTone : tone,
         style,
         targetLength,
-        imageCount: used.length,
-        withThumbnail: true,
-        ratio: aspectRatio as ImageRatio,
+        imageCount: hasPhotos ? used.length : (withThumbnailAi ? 1 : 0) + bodyImages,
+        withThumbnail: hasPhotos ? true : withThumbnailAi,
+        ratio: aspectRatio,
         themeId: selectedTheme,
-        withInteractive: false,
+        withInteractive: interactive,
         withThumbnailText: thumbnailText,
-        photos: used.map((x) => ({ mime: x.mimeType, base64: x.base64 })),
+        photos: hasPhotos ? used.map((x) => ({ mime: x.mimeType, base64: x.base64 })) : undefined,
         thumbIndex: 0,
-        role: "너는 대한민국 네이버 블로그 최상위 0.1% 맛집/카페/여행 전문 인플루언서이자 네이버 D.I.A+ & C-Rank 알고리즘 전문가다. 직접 방문해 사진을 찍어 온 '내돈내산' 블로거의 생생한 후기 스타일로 쓴다.",
+        role: hasPhotos
+          ? "너는 대한민국 네이버 블로그 최상위 0.1% 맛집/카페/여행 전문 인플루언서이자 네이버 D.I.A+ & C-Rank 알고리즘 전문가다. 직접 방문해 사진을 찍어 온 '내돈내산' 블로거의 생생한 후기 스타일로 쓴다."
+          : "너는 대한민국 네이버 블로그 최상위 0.1% 맛집/카페/여행 전문 인플루언서이자 네이버 D.I.A+ & C-Rank 알고리즘 전문가다. 회원이 제공한 방문 정보만 근거로 생생한 방문 후기 스타일로 쓰고, 제공되지 않은 메뉴·가격·맛은 지어내지 않는다.",
         extraContext: context,
         onStep: setStepMsg,
       });
 
+      const finalSettings = { ...result.settings, ...(categoryId ? { categoryId } : {}), ...(naverCategory ? { naverCategory } : {}) };
+      if (!hasPhotos) {
+        // 사진이 없으면 AI 이미지 컷을 만든다(글이 먼저 저장되고, 자동 생성을 켰으면 이어서 이미지를 만든다).
+        await ws.startFresh({ ...result, settings: finalSettings });
+        if (autoImages && result.images.length) {
+          setLoading(false);
+          await ws.generateAll();
+        }
+        return;
+      }
       // 올린 사진을 내 보관 폴더에 저장해 컷에 연결한다(대표 사진에는 선택 시 제목 글자 합성)
       const withUrls = [];
       for (let i = 0; i < result.images.length; i++) {
@@ -316,7 +347,7 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         if (i === 0 && thumbnailText) dataUrl = await overlayThumbnailTitle(dataUrl, result.title, theme.color);
         withUrls.push({ ...result.images[i], url: await uploadImage(dataUrl) });
       }
-      await ws.startFresh({ ...result, images: withUrls, settings: { ...result.settings, ...(categoryId ? { categoryId } : {}), ...(naverCategory ? { naverCategory } : {}) } });
+      await ws.startFresh({ ...result, images: withUrls, settings: finalSettings });
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : "비전 포스트 생성 중 오류가 발생했습니다.");
     } finally {
@@ -717,7 +748,7 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
             <span className="text-[11px] text-sky-700/80">글 AI, 컬러 테마, 이미지 옵션을 정하고 [설정값 저장]으로 기본값으로 남길 수 있습니다</span>
           </div>
 
-  <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} showImage={false} />
+  <ModelSettingsCard settings={settings} onSettingsChange={onSettingsChange} onOpenSettings={onOpenSettings} />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* 왼쪽: 컬러 테마 + 추가 요청 */}
@@ -746,19 +777,35 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
               </div>
             </div>
 
-            {/* 오른쪽: 고급 옵션 (맛집 탭 고유 옵션: FAQ·썸네일 글자·비율) */}
+            {/* 오른쪽: 고급 옵션 (아이디어 탭과 같은 구성 + 맛집 고유 FAQ) */}
             <div className="lg:col-span-5 bg-slate-50/80 rounded-xl border border-slate-200/90 p-5 space-y-4">
               <div className="flex items-center gap-2 border-b border-slate-200 pb-2.5">
                 <Settings2 className="w-4 h-4 text-slate-700" />
                 <h4 className="text-xs font-bold text-slate-800">고급 옵션</h4>
               </div>
+              <p className="text-[11px] leading-4 text-sky-800 bg-sky-50 border border-sky-200 rounded-lg px-2.5 py-2">📷 사진을 올리면 올린 사진으로 글을 만듭니다(AI 이미지 옵션은 적용되지 않음). 사진이 없을 때만 아래 AI 이미지 옵션으로 이미지를 생성합니다.</p>
 
               <div className="space-y-3">
-                <label onClick={() => setIncludeFaq(!includeFaq)} className="flex items-start gap-2.5 cursor-pointer text-xs">
-                  {includeFaq ? <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> : <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />}
+                <label onClick={() => setWithThumbnailAi(!withThumbnailAi)} className="flex items-start gap-2.5 cursor-pointer text-xs">
+                  {withThumbnailAi ? <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> : <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />}
                   <div>
-                    <div className="font-bold text-slate-800">FAQ 섹션 포함</div>
-                    <p className="text-[11px] text-slate-500">포스트 하단에 주차, 예약 등 자주 묻는 질문과 답변(FAQ) 섹션을 자동 생성합니다.</p>
+                    <div className="font-bold text-slate-800">대표 이미지 생성</div>
+                    <p className="text-[11px] text-slate-500">사진이 없을 때, 방문 후기에 맞는 AI 이미지를 실제로 생성해 맨 위에 넣습니다.</p>
+                  </div>
+                </label>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1.5">본문 이미지 수</label>
+                  <div className="grid grid-cols-5 gap-1.5">
+                    {[0, 1, 2, 3, 4].map((n) => <button key={n} type="button" onClick={() => setBodyImages(n)} className={`py-1.5 px-2 text-xs font-semibold rounded-lg border transition ${bodyImages === n ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"}`}>{n === 0 ? "없음" : `${n}장`}</button>)}
+                  </div>
+                </div>
+
+                <label onClick={() => setAutoImages(!autoImages)} className="flex items-start gap-2.5 cursor-pointer text-xs">
+                  {autoImages ? <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> : <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />}
+                  <div>
+                    <div className="font-bold text-slate-800">글 완성 후 이미지 자동 생성</div>
+                    <p className="text-[11px] text-slate-500">끄면 글만 먼저 만들고, 이미지는 컷마다 직접 생성합니다.</p>
                   </div>
                 </label>
 
@@ -766,18 +813,33 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
                   {thumbnailText ? <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> : <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />}
                   <div>
                     <div className="font-bold text-slate-800">썸네일에 제목 글자 넣기</div>
-                    <p className="text-[11px] text-slate-500">대표 사진 아래쪽에 제목을 또렷하게 합성합니다.</p>
+                    <p className="text-[11px] text-slate-500">대표 이미지 아래쪽에 제목을 또렷하게 합성합니다(글자는 AI가 아니라 직접 그립니다).</p>
                   </div>
                 </label>
               </div>
 
               <div className="pt-2 border-t border-slate-200 space-y-1.5">
                 <label className="block text-[11px] font-bold text-slate-700">이미지 비율</label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {(["16:9", "1:1"] as const).map((r) => (
-                    <button key={r} type="button" onClick={() => setAspectRatio(r)} className={`py-1.5 px-2 text-xs font-semibold rounded-lg border transition ${aspectRatio === r ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"}`}>{r}</button>
-                  ))}
+                <div className="grid grid-cols-4 gap-1.5">
+                  {IMAGE_RATIOS.map((r) => <button key={r.value} type="button" onClick={() => setAspectRatio(r.value)} className={`py-1.5 px-2 text-xs font-semibold rounded-lg border transition ${aspectRatio === r.value ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"}`}>{r.value}</button>)}
                 </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200 space-y-3">
+                <label onClick={() => setInteractive(!interactive)} className="flex items-start gap-2.5 cursor-pointer text-xs">
+                  {interactive ? <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> : <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />}
+                  <div>
+                    <div className="font-bold text-slate-800">인터랙티브 요소 추가</div>
+                    <p className="text-[11px] text-slate-500">독자가 직접 체크하거나 따져 볼 수 있는 목록·자가진단을 넣습니다.</p>
+                  </div>
+                </label>
+                <label onClick={() => setIncludeFaq(!includeFaq)} className="flex items-start gap-2.5 cursor-pointer text-xs">
+                  {includeFaq ? <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> : <Square className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />}
+                  <div>
+                    <div className="font-bold text-slate-800">FAQ 섹션 포함 <span className="text-[10px] font-semibold text-emerald-700">(맛집 전용)</span></div>
+                    <p className="text-[11px] text-slate-500">포스트 하단에 주차, 예약 등 자주 묻는 질문과 답변(FAQ) 섹션을 자동 생성합니다.</p>
+                  </div>
+                </label>
               </div>
             </div>
           </div>
