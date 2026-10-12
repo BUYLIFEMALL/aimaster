@@ -60,8 +60,9 @@ export async function researchMusic(
   query: string,
   signal: AbortSignal,
   send: typeof fetch = fetch,
+  purpose: "properties" | "recordings" = "properties",
 ): Promise<Research> {
-  const instruction = `Current year ${new Date().getFullYear()}. Search public reliable sources about this musical topic, its genres, instruments, tempo and musical structure. Cite sources. Briefly summarize relevant music properties in Korean. Do not reproduce lyrics. User topic: ${query}`;
+  const instruction = `Current year ${new Date().getFullYear()}. Search public reliable sources about this musical topic, its genres, instruments, tempo and musical structure. ${purpose === "recordings" ? "Find named existing recordings and artists, release years only when supported, and cite reliable sources that identify each recording. Prefer official artist, label, release catalog sources. Include fewer entries if evidence is limited; never invent song titles or years." : ""} Cite sources. Briefly summarize relevant music properties in Korean. Do not reproduce lyrics. User topic: ${query}`;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };

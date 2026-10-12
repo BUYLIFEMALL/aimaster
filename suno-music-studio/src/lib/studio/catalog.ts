@@ -478,7 +478,11 @@ export function automaticExclude(b: Brief): string {
       : []),
   ]);
 }
-export function syncStyleControls(previous: Brief, next: Brief): Brief {
+export function syncStyleControls(
+  previous: Brief,
+  next: Brief,
+  force = false,
+): Brief {
   const keys: (keyof Brief)[] = [
     "voice",
     "rapPct",
@@ -492,8 +496,9 @@ export function syncStyleControls(previous: Brief, next: Brief): Brief {
     "bpm",
   ];
   if (
-    next.style !== previous.style ||
-    !keys.some((k) => previous[k] !== next[k])
+    !force &&
+    (next.style !== previous.style ||
+      !keys.some((k) => previous[k] !== next[k]))
   )
     return next;
   if (!next.style.trim()) return { ...next, style: recipe(next) };

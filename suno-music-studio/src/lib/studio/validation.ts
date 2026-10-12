@@ -239,8 +239,8 @@ function validateDraft(raw: unknown): Draft {
     if (new Set(tracks.map((t) => t.id)).size !== tracks.length)
       throw new AppError("곡 ID가 중복됩니다.");
     album = {
-      title: text(a.title, "앨범명", 100),
-      summary: text(a.summary, "앨범 설명", 1000),
+      title: text(a.title, "앨범명", 100, true),
+      summary: text(a.summary, "앨범 설명", 1000, true),
       tracks,
     };
   }

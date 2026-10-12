@@ -19,11 +19,15 @@ export function BriefControls({
   onChange,
   busy,
   album = false,
+  showReference = true,
+  showModel = true,
 }: {
   brief: Brief;
   onChange: (b: Brief) => void;
   busy: boolean;
   album?: boolean;
+  showReference?: boolean;
+  showModel?: boolean;
 }) {
   function edit<K extends keyof Brief>(k: K, value: Brief[K]) {
     onChange({ ...brief, [k]: value });
@@ -31,32 +35,34 @@ export function BriefControls({
   return (
     <fieldset disabled={busy} className="brief-controls">
       <div className="two-columns">
-        <label>
-          AI 모델
-          <select
-            value={brief.customModel ? "custom" : brief.model}
-            onChange={(e) => {
-              if (e.target.value === "custom") {
-                edit("customModel", true);
-                return;
-              }
-              const model = MODELS.find((m) => m.id === e.target.value)!;
-              onChange({
-                ...brief,
-                model: model.id,
-                provider: model.provider,
-                customModel: false,
-              });
-            }}
-          >
-            {MODELS.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-            <option value="custom">직접 모델 입력</option>
-          </select>
-        </label>
+        {showModel && (
+          <label>
+            AI 모델
+            <select
+              value={brief.customModel ? "custom" : brief.model}
+              onChange={(e) => {
+                if (e.target.value === "custom") {
+                  edit("customModel", true);
+                  return;
+                }
+                const model = MODELS.find((m) => m.id === e.target.value)!;
+                onChange({
+                  ...brief,
+                  model: model.id,
+                  provider: model.provider,
+                  customModel: false,
+                });
+              }}
+            >
+              {MODELS.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+              <option value="custom">직접 모델 입력</option>
+            </select>
+          </label>
+        )}
         <label>
           보컬
           <select
@@ -70,7 +76,7 @@ export function BriefControls({
           </select>
         </label>
       </div>
-      {brief.customModel && (
+      {showModel && brief.customModel && (
         <div className="two-columns">
           <label>
             직접 입력 공급사
@@ -225,6 +231,52 @@ export function BriefControls({
         />
         가사 구간에 짧은 음악 지시 넣기
       </label>
+      <label className="toggle">
+        <input
+          type="checkbox"
+          checked={brief.highPitchRestraint}
+          disabled={brief.instrumental}
+          onChange={(e) => edit("highPitchRestraint", e.target.checked)}
+        />
+        고음 억제 · 편안한 중저음
+      </label>
+      <label className="toggle">
+        <input
+          type="checkbox"
+          checked={brief.bpmHint}
+          onChange={(e) => edit("bpmHint", e.target.checked)}
+        />
+        구성한 Style에 BPM 표시
+      </label>
+      <label>
+        편곡 방식
+        <select
+          value={brief.arrangement}
+          onChange={(e) => edit("arrangement", e.target.value)}
+        >
+          {ARRANGEMENTS.map((v) => (
+            <option key={v}>{v}</option>
+          ))}
+        </select>
+      </label>
+      <label className="toggle">
+        <input
+          type="checkbox"
+          checked={brief.harmony}
+          disabled={brief.instrumental}
+          onChange={(e) => edit("harmony", e.target.checked)}
+        />
+        화음·백킹 코러스
+      </label>
+      <label className="toggle">
+        <input
+          type="checkbox"
+          checked={brief.callResponse}
+          disabled={brief.instrumental}
+          onChange={(e) => edit("callResponse", e.target.checked)}
+        />
+        콜 앤 리스폰스
+      </label>
       <details className="advanced-settings">
         <summary>보컬·랩·코러스 세부 설정</summary>
         <label>
@@ -269,57 +321,18 @@ export function BriefControls({
             </select>
           </label>
         )}
-        <label className="toggle">
-          <input
-            type="checkbox"
-            checked={brief.highPitchRestraint}
-            disabled={brief.instrumental}
-            onChange={(e) => edit("highPitchRestraint", e.target.checked)}
-          />
-          고음 억제 · 편안한 중저음
-        </label>
-        <label className="toggle">
-          <input
-            type="checkbox"
-            checked={brief.bpmHint}
-            onChange={(e) => edit("bpmHint", e.target.checked)}
-          />
-          구성한 Style에 BPM 표시
-        </label>
-        <label>
-          편곡 방식
-          <select
-            value={brief.arrangement}
-            onChange={(e) => edit("arrangement", e.target.value)}
-          >
-            {ARRANGEMENTS.map((v) => (
-              <option key={v}>{v}</option>
-            ))}
-          </select>
-        </label>
-        <label className="toggle">
-          <input
-            type="checkbox"
-            checked={brief.harmony}
-            disabled={brief.instrumental}
-            onChange={(e) => edit("harmony", e.target.checked)}
-          />
-          화음·백킹 코러스
-        </label>
-        <label className="toggle">
-          <input
-            type="checkbox"
-            checked={brief.callResponse}
-            disabled={brief.instrumental}
-            onChange={(e) => edit("callResponse", e.target.checked)}
-          />
-          콜 앤 리스폰스
-        </label>
       </details>
-      <details className="advanced-settings">
-        <summary>시대·스타일 그룹·프리셋 선택</summary>
-        <LibraryPicker compact brief={brief} onChange={onChange} busy={busy} />
-      </details>
+      {showReference && (
+        <details className="advanced-settings">
+          <summary>시대·스타일 그룹·프리셋 선택</summary>
+          <LibraryPicker
+            compact
+            brief={brief}
+            onChange={onChange}
+            busy={busy}
+          />
+        </details>
+      )}
       {album && (
         <div className="two-columns">
           <label>

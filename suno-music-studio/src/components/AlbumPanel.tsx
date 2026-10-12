@@ -12,7 +12,8 @@ import { ALBUM_MOODS, castTrack } from "@/lib/studio/workflows";
 import { missingTracks } from "@/lib/studio/storage";
 import { automaticExclude } from "@/lib/studio/catalog";
 import { BriefControls } from "./BriefControls";
-import { TrackEditor, downloadFile } from "./TrackEditor";
+import { CurrentSelection } from "./CurrentSelection";
+import { TrackEditor, downloadFile, trackProblems } from "./TrackEditor";
 export function AlbumPanel({
   brief,
   album,
@@ -32,6 +33,9 @@ export function AlbumPanel({
   saved,
   onLoad,
   notice,
+  onImportAlbum,
+  onAlbumChange,
+  onMove,
 }: {
   brief: Brief;
   album: Album | null;
@@ -51,7 +55,12 @@ export function AlbumPanel({
   saved: SavedItem[];
   onLoad: (item: SavedItem) => void;
   notice: (s: string) => void;
+  onImportAlbum: (file: File) => Promise<void>;
+  onAlbumChange: (album: Album) => void;
+  onMove: (id: string, offset: number) => void;
 }) {
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [opened, setOpened] = useState<Set<string>>(() => new Set());
   const [savedStyle, setSavedStyle] = useState("");
   const moods = brief.mood.split(",").map((t) => t.trim());
   function cast(t: Track, voice: string, rap: string) {
@@ -62,6 +71,15 @@ export function AlbumPanel({
     }
   }
   const pending = album ? missingTracks(album.tracks) : [];
+  const selectedPending = pending.filter((t) => selected.has(t.id));
+  function toggle(id: string) {
+    setSelected((old) => {
+      const next = new Set(old);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
   return (
     <div className="album-layout">
       <section className="card album-settings">
@@ -148,6 +166,7 @@ export function AlbumPanel({
               </button>
             ))}
           </div>
+          <CurrentSelection brief={brief} />
           <BriefControls brief={brief} onChange={onChange} busy={busy} album />
           <button
             className="primary full"
@@ -167,21 +186,71 @@ export function AlbumPanel({
             {canUndo && <button onClick={onUndo}>초기화 되돌리기</button>}
           </div>
         </fieldset>
-        <details className="advanced-settings">
-          <summary>
-            저장된 앨범 ({saved.filter((s) => s.draft.album).length})
-          </summary>
+        <section className="album-saved-panel">
+          <div className="section-title">
+            <h3>저장된 앨범 ({saved.filter((s) => s.draft.album).length})</h3>
+            <label className="button import-button">
+              앨범 JSON 가져오기
+              <input
+                aria-label="앨범 JSON 가져오기"
+                className="file-input"
+                type="file"
+                accept=".json,application/json"
+                disabled={busy}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void onImportAlbum(file);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </div>
+          <p className="muted">
+            브라우저 자료는 자동 저장되지만 PC 간 이동은 JSON 백업이 필요합니다.
+            앨범 가져오기는 현재 빌더를 보존합니다.
+          </p>
+          {!saved.some((s) => s.draft.album) && (
+            <p className="muted">저장된 앨범이 없습니다.</p>
+          )}
           {saved
             .filter((s) => s.draft.album)
             .map((s) => (
               <div className="saved-row" key={s.id}>
-                <strong>{s.name}</strong>
+                <div>
+                  <strong>{s.name}</strong>
+                  <small>
+                    {s.draft.album?.tracks.length}곡 ·{" "}
+                    {new Date(s.savedAt).toLocaleDateString("ko-KR")}
+                  </small>
+                </div>
                 <button disabled={busy} onClick={() => onLoad(s)}>
                   불러오기
                 </button>
+                <button
+                  className="download"
+                  disabled={busy}
+                  onClick={() =>
+                    downloadFile(
+                      JSON.stringify(
+                        {
+                          schema: 1,
+                          draft: { ...s.draft, song: null },
+                          saved: [],
+                          styles: [],
+                        },
+                        null,
+                        2,
+                      ),
+                      "suno-saved-album.json",
+                      "application/json",
+                    )
+                  }
+                >
+                  JSON 저장
+                </button>
               </div>
             ))}
-        </details>
+        </section>
       </section>
       <div className="album-results">
         {!album ? (
@@ -210,7 +279,44 @@ export function AlbumPanel({
                   /{album.tracks.length}곡 준비
                 </span>
               </div>
-              <p>{album.summary}</p>
+              <div className="two-columns">
+                <label>
+                  앨범 제목
+                  <input
+                    aria-label="앨범 제목"
+                    value={album.title}
+                    maxLength={100}
+                    disabled={busy}
+                    onChange={(e) =>
+                      onAlbumChange({ ...album, title: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  앨범 설명
+                  <textarea
+                    aria-label="앨범 설명"
+                    value={album.summary}
+                    maxLength={1000}
+                    disabled={busy}
+                    onChange={(e) =>
+                      onAlbumChange({ ...album, summary: e.target.value })
+                    }
+                  />
+                </label>
+              </div>
+              <p className="muted">
+                최종 확인{" "}
+                {
+                  album.tracks.filter(
+                    (t) =>
+                      t.reviewed &&
+                      !trackProblems(t, brief.instrumental).length,
+                  ).length
+                }
+                /{album.tracks.length}곡 · 작사 대기{" "}
+                {brief.instrumental ? 0 : pending.length}곡
+              </p>
               <div className="actions">
                 <button
                   className="primary"
@@ -250,6 +356,36 @@ export function AlbumPanel({
                   앨범 JSON 저장
                 </button>
               </div>
+              <div className="actions">
+                <button
+                  disabled={busy}
+                  onClick={() =>
+                    setSelected(new Set(album.tracks.map((t) => t.id)))
+                  }
+                >
+                  트랙 전체 선택
+                </button>
+                <button disabled={busy} onClick={() => setSelected(new Set())}>
+                  트랙 선택 해제
+                </button>
+                <button
+                  className="primary"
+                  disabled={
+                    busy || brief.instrumental || !selectedPending.length
+                  }
+                  onClick={() => onLyrics(selectedPending.map((t) => t.id))}
+                >
+                  선택 트랙 작사 ({selectedPending.length}곡)
+                </button>
+                <button
+                  onClick={() =>
+                    setOpened(new Set(album.tracks.map((t) => t.id)))
+                  }
+                >
+                  전체 펼치기
+                </button>
+                <button onClick={() => setOpened(new Set())}>전체 접기</button>
+              </div>
               <p className="muted">
                 작사는 순서대로 곡마다 1회 호출하며 본인 API 비용이 발생할 수
                 있습니다. 완료된 가사는 건너뜁니다.
@@ -263,7 +399,21 @@ export function AlbumPanel({
               </button>
             </section>
             {album.tracks.map((t, i) => (
-              <details className="album-track" key={t.id}>
+              <details
+                className="album-track"
+                key={t.id}
+                open={opened.has(t.id)}
+                onToggle={(e) => {
+                  const open = e.currentTarget.open;
+                  setOpened((old) => {
+                    if (old.has(t.id) === open) return old;
+                    const next = new Set(old);
+                    if (open) next.add(t.id);
+                    else next.delete(t.id);
+                    return next;
+                  });
+                }}
+              >
                 <summary>
                   <span className="start-number">{i + 1}</span>
                   <div>
@@ -278,6 +428,30 @@ export function AlbumPanel({
                     </small>
                   </div>
                 </summary>
+                <div className="actions track-toolbar">
+                  <label className="toggle">
+                    <input
+                      aria-label={`트랙 ${i + 1} 선택`}
+                      type="checkbox"
+                      checked={selected.has(t.id)}
+                      disabled={busy}
+                      onChange={() => toggle(t.id)}
+                    />
+                    작사할 트랙 선택
+                  </label>
+                  <button
+                    disabled={busy || i === 0}
+                    onClick={() => onMove(t.id, -1)}
+                  >
+                    트랙 위로
+                  </button>
+                  <button
+                    disabled={busy || i === album.tracks.length - 1}
+                    onClick={() => onMove(t.id, 1)}
+                  >
+                    트랙 아래로
+                  </button>
+                </div>
                 <div className="track-casting two-columns">
                   <label>
                     이 곡 보컬

@@ -930,6 +930,75 @@ button.selected {
 .guide-table-wrap {
   overflow-x: auto;
 }
+.builder-editor {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+.builder-editor > .section-title {
+  display: none;
+}
+.builder-editor .editor-style-section,
+.builder-editor .editor-lyrics-section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 22px;
+  margin: 18px 0;
+}
+.builder-toolbar {
+  justify-content: flex-end;
+}
+.builder-editor > .two-columns input:first-child {
+  font-size: 18px;
+}
+.current-selection dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.current-selection dt {
+  font-size: 12px;
+  color: #6b7280;
+}
+.current-selection dd {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.current-selection h2 {
+  font-size: 17px;
+}
+.ai-model-picker {
+  margin-bottom: 16px;
+}
+.ai-model-picker legend {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.album-saved-panel {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 20px;
+  padding-top: 18px;
+}
+.album-saved-panel .section-title {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.album-saved-panel .saved-row {
+  flex-wrap: wrap;
+}
+.album-saved-panel .saved-row small {
+  display: block;
+  color: #6b7280;
+}
+.track-toolbar {
+  margin: 14px 18px;
+}
+.editor-lyrics-section .section-tags {
+  margin-bottom: 12px;
+}
 .guide-table {
   border-collapse: collapse;
   width: 100%;

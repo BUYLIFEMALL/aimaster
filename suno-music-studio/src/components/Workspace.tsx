@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { APP_NAME } from "@/lib/version";
 import {
-  recipe,
   type Brief,
   type Provider,
   type Store,
@@ -43,6 +42,17 @@ import { LibraryGallery } from "./LibraryGallery";
 import { DanceComposer } from "./DanceComposer";
 import { SearchPanel } from "./SearchPanel";
 import { StudioStart } from "./StudioStart";
+import { LibraryPicker } from "./LibraryPicker";
+import { CurrentSelection } from "./CurrentSelection";
+import { AIModelPicker } from "./AIModelPicker";
+import {
+  emptyBuilderTrack,
+  insertSkeleton,
+  resetBuilder,
+  applyBuilderControls,
+  importAlbumBackup,
+  moveAlbumTrack,
+} from "@/lib/studio/builder";
 import {
   albumBrief,
   importBuilderSettings,
@@ -51,6 +61,7 @@ import {
   trackBrief,
   updateAlbumTracks,
 } from "@/lib/studio/workflows";
+import { type RecordingResult } from "@/lib/studio/recordings";
 import { type Research } from "@/lib/studio/research";
 import { runLyricQueue } from "@/lib/studio/queue";
 const TITLES: Record<string, string> = {
@@ -82,11 +93,17 @@ export function Workspace({
         : rawSection === "style"
           ? "presets"
           : rawSection;
+  const [builderUndo, setBuilderUndo] = useState<{
+    brief: Brief;
+    song: Track | null;
+  } | null>(null);
   const [albumUndo, setAlbumUndo] = useState<{
     album: Album | null;
     brief: Brief;
   } | null>(null);
   const [searchResult, setSearchResult] = useState<Track[]>([]);
+  const [recordingResult, setRecordingResult] =
+    useState<RecordingResult | null>(null);
   const [research, setResearch] = useState<Research | null>(null);
   const [compactView, setCompactView] = useState(false);
   const [store, setStore] = useState<Store>(blankStore);
@@ -201,6 +218,51 @@ export function Workspace({
           },
     }));
   }
+  function editBuilder(t: Track) {
+    cancel();
+    const d = current.current.draft;
+    const song = { ...t, id: t.id || crypto.randomUUID() };
+    draftChange({
+      ...d,
+      song,
+      brief: {
+        ...d.brief,
+        style: song.style,
+        bpm: song.bpm,
+        ...(song.exclude !== (d.song || emptyBuilderTrack(d.brief)).exclude
+          ? { exclude: song.exclude }
+          : {}),
+      },
+    });
+  }
+  function builderReset() {
+    const d = current.current.draft;
+    setBuilderUndo({
+      brief: structuredClone(d.brief),
+      song: structuredClone(d.song),
+    });
+    cancel();
+    draftChange(resetBuilder(d));
+    setNotice(
+      "빌더만 초기화했습니다. 앨범과 보관함은 보존됩니다. 되돌리기로 복원할 수 있습니다.",
+    );
+  }
+  function builderSkeleton() {
+    try {
+      editBuilder(
+        insertSkeleton(
+          current.current.draft.song ||
+            emptyBuilderTrack(current.current.draft.brief),
+          current.current.draft.brief,
+        ),
+      );
+      setNotice(
+        "가사 구간 골격을 넣었습니다. 각 구간에 직접 가사를 작성하세요. AI 호출은 없습니다.",
+      );
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "골격 삽입 실패");
+    }
+  }
   function draftChange(draft: Draft) {
     mutate((s) => ({ ...s, draft }));
   }
@@ -306,6 +368,18 @@ export function Workspace({
               ...s,
               draft: {
                 ...s.draft,
+                brief: {
+                  ...s.draft.brief,
+                  ...(b.generateStyle
+                    ? {
+                        style: result.tracks[0].style,
+                        bpm: result.tracks[0].bpm,
+                        exclude: result.tracks[0].exclude,
+                        presetId: "",
+                        styleGroup: "",
+                      }
+                    : {}),
+                },
                 song: {
                   ...result.tracks[0],
                   id: s.draft.song?.id || crypto.randomUUID(),
@@ -492,12 +566,81 @@ export function Workspace({
       setNotice(e instanceof Error ? e.message : "백업을 읽지 못했습니다.");
     }
   }
+  function saveSearchStyle(t: Track) {
+    if (current.current.styles.length >= 100) {
+      setNotice("내 Style은 100개까지입니다.");
+      return;
+    }
+    if (styleIssues(t.style).length) {
+      setNotice(styleIssues(t.style).join(" "));
+      return;
+    }
+    mutate((s) => ({
+      ...s,
+      styles: [
+        {
+          id: crypto.randomUUID(),
+          name: t.title.slice(0, 100),
+          style: t.style,
+          exclude: t.exclude,
+          bpm: t.bpm,
+          savedAt: new Date().toISOString(),
+        },
+        ...s.styles,
+      ],
+    }));
+    setNotice("검색 결과의 음악 Style을 내 프리셋에 저장했습니다.");
+  }
+  function applySearchAlbum(t: Track) {
+    cancel();
+    mutate((s) => ({
+      ...s,
+      draft: {
+        ...s.draft,
+        albumBrief: {
+          ...albumBrief(s.draft),
+          style: t.style,
+          bpm: t.bpm,
+          exclude: t.exclude,
+          locked: true,
+          generateStyle: false,
+          presetId: "",
+          styleGroup: "",
+        },
+      },
+    }));
+    router.push("/?section=album");
+    setNotice(
+      "앨범의 참고 Style에 적용했습니다. 컨셉·기존 트랙·가사는 보존됩니다. 새 앨범 기획에 사용할 수 있습니다.",
+    );
+  }
+  async function importAlbumFile(file: File) {
+    try {
+      if (file.size > 1_000_000)
+        throw new Error("백업은 1MB 이내로 가져와 주세요.");
+      const raw = JSON.parse(await file.text());
+      const next = importAlbumBackup(current.current, raw);
+      cancel();
+      canPersist.current = true;
+      current.current = next;
+      setStore(next);
+      setNotice(
+        "앨범 JSON을 복원하고 보관함을 합쳤습니다. 빌더와 댄스 조합은 보존됩니다.",
+      );
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "앨범 JSON 복원 실패");
+    }
+  }
   function applyStyle(t: Track) {
     changeBrief({
       ...b,
       genre: b.genre,
       style: t.style,
       bpm: t.bpm,
+      exclude: t.exclude,
+      presetId: "",
+      styleGroup: "",
+      generateStyle: false,
       locked: true,
     });
     setNotice("선택한 Style을 기준으로 적용하고 잠갔습니다.");
@@ -532,7 +675,11 @@ export function Workspace({
       setNotice("클립보드 권한을 확인하거나 TXT를 저장해 주세요.");
     }
   }
-  async function search(query: string, useWeb: boolean) {
+  async function search(
+    query: string,
+    useWeb: boolean,
+    mode: "planning" | "recordings" = "planning",
+  ) {
     const c = begin();
     setProgress(
       useWeb
@@ -545,18 +692,21 @@ export function Workspace({
       const r = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, useWeb, brief: b }),
+        body: JSON.stringify({ query, useWeb, mode, brief: b }),
         signal: c.signal,
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "검색 실패");
       if (active.current !== c || c.signal.aborted) return;
       setSearchResult(data.result.tracks);
+      setRecordingResult(data.recordingResult || null);
       setResearch(data.research);
       setNotice(
-        data.usedWeb
-          ? "출처가 확인된 웹 참고 정보와 자체 음악 기획 예시입니다."
-          : "웹 검색 없이 생성한 음악 방향 제안입니다.",
+        data.recordingResult
+          ? "웹 출처에 연결된 곡 후보입니다. 링크에서 곡 정보를 확인하고 AI 음악 분석은 참고로 사용하세요."
+          : data.usedWeb
+            ? "출처가 확인된 웹 참고 정보와 자체 음악 기획 예시입니다."
+            : "웹 검색 없이 생성한 음악 방향 제안입니다.",
       );
     } catch (e) {
       failure(e, c);
@@ -716,7 +866,10 @@ export function Workspace({
           onApplyBrief={applyGallery}
           result={searchResult}
           research={research}
+          recordingResult={recordingResult}
           onApply={applyStyle}
+          onApplyAlbum={applySearchAlbum}
+          onSaveStyle={saveSearchStyle}
           notice={setNotice}
         />
       ) : section === "dance" ? (
@@ -751,6 +904,26 @@ export function Workspace({
           onGenerate={() => generate("album")}
           onLyrics={lyrics}
           onTrack={editTrack}
+          onImportAlbum={importAlbumFile}
+          onAlbumChange={(album) => {
+            cancel();
+            mutate((s) => ({ ...s, draft: { ...s.draft, album } }));
+          }}
+          onMove={(id, offset) => {
+            cancel();
+            mutate((s) => ({
+              ...s,
+              draft: {
+                ...s.draft,
+                album: s.draft.album
+                  ? {
+                      ...s.draft.album,
+                      tracks: moveAlbumTrack(s.draft.album.tracks, id, offset),
+                    }
+                  : null,
+              },
+            }));
+          }}
           onSave={saveDraft}
           styles={store.styles}
           saved={store.saved}
@@ -828,32 +1001,34 @@ export function Workspace({
         <>
           <div className="builder-layout">
             <div className="builder-main">
-              {section === "song" && store.draft.song && (
-                <TrackEditor
-                  track={store.draft.song}
-                  busy={busy}
-                  instrumental={b.instrumental}
-                  notice={setNotice}
-                  onChange={(t) => {
-                    cancel();
-                    const d = current.current.draft;
-                    draftChange({
-                      ...d,
-                      song: t,
-                      brief: {
-                        ...d.brief,
-                        style: t.style,
-                        bpm: t.bpm,
-                        ...(t.exclude !== d.song?.exclude
-                          ? { exclude: t.exclude }
-                          : {}),
-                      },
-                    });
-                  }}
-                />
-              )}
+              <TrackEditor
+                track={store.draft.song || emptyBuilderTrack(b)}
+                busy={busy}
+                instrumental={b.instrumental}
+                notice={setNotice}
+                onChange={editBuilder}
+                builder
+                onSkeleton={builderSkeleton}
+                onReset={builderReset}
+                onUndo={
+                  builderUndo
+                    ? () => {
+                        cancel();
+                        mutate((s) => ({
+                          ...s,
+                          draft: { ...s.draft, ...builderUndo },
+                        }));
+                        setBuilderUndo(null);
+                        setNotice("빌더를 초기화 전 상태로 복원했습니다.");
+                      }
+                    : undefined
+                }
+              />
               <section className="card">
-                <h2>어떤 곡을 만들까요?</h2>
+                <div className="section-title">
+                  <h2>AI 기획·작사</h2>
+                </div>
+                <AIModelPicker brief={b} onChange={changeBrief} busy={busy} />
                 <label>
                   곡 설명
                   <textarea
@@ -881,6 +1056,14 @@ export function Workspace({
                     placeholder="예: 마지막에는 희망으로 끝내기, 특정 단어 제외, 편지 형식"
                   />
                 </label>
+                <div className="actions">
+                  <span className="pill">한글 {100 - b.englishPct}%</span>
+                  <span className="pill">비유 {b.metaphorPct}%</span>
+                  <span className="pill">
+                    보컬 {100 - b.rapPct}% · 랩 {b.rapPct}%
+                  </span>
+                  {b.locked && <span className="pill">Style 보호 중</span>}
+                </div>
                 <p className="info">
                   선택한 항목만 생성합니다. 선택하지 않은 제목·Style·가사는
                   그대로 유지됩니다.
@@ -938,41 +1121,49 @@ export function Workspace({
                   <Sparkles size={17} />
                   선택한 항목 생성
                 </button>
-                {section === "song" && !store.draft.song && (
-                  <button
-                    className="full"
-                    disabled={busy}
-                    onClick={() =>
-                      draftChange({
-                        ...current.current.draft,
-                        song: {
-                          id: crypto.randomUUID(),
-                          title: "",
-                          summary: b.concept.slice(0, 700),
-                          style: b.style || recipe(b),
-                          exclude: automaticExclude(b),
-                          lyrics: "",
-                          bpm: b.bpm,
-                          hook: "",
-                          reviewed: false,
-                        },
-                      })
-                    }
-                  >
-                    직접 제목·가사 작성하기
-                  </button>
-                )}
               </section>
             </div>
             <div className="builder-controls">
               <section className="card">
-                <h2>생성 세부 설정</h2>
+                <h2>시작점 · 참고 프리셋</h2>
+                <LibraryPicker
+                  compact
+                  brief={b}
+                  onChange={changeBrief}
+                  busy={busy}
+                />
+              </section>
+              <CurrentSelection brief={b} />
+              <section className="card">
+                <h2>제어 · 생성 세부 설정</h2>
                 <BriefControls
                   brief={b}
                   onChange={changeBrief}
                   busy={busy}
                   album={false}
+                  showReference={false}
+                  showModel={false}
                 />
+                <button
+                  className="primary full"
+                  disabled={busy}
+                  onClick={() => {
+                    try {
+                      draftChange(applyBuilderControls(current.current.draft));
+                      setNotice(
+                        "현재 제어 설정을 빌더 Style에 적용했습니다. 제목과 가사는 보존됩니다.",
+                      );
+                    } catch (e) {
+                      setNotice(
+                        e instanceof Error ? e.message : "제어 적용 실패",
+                      );
+                    }
+                  }}
+                >
+                  빌더에 제어 설정 적용
+                </button>
+              </section>
+              <section className="card">
                 <StylePalette
                   brief={b}
                   onChange={changeBrief}
@@ -985,10 +1176,7 @@ export function Workspace({
             </div>
           </div>
           <div className="actions bottom-actions">
-            <button
-              disabled={busy || (!store.draft.song && !store.draft.album)}
-              onClick={saveDraft}
-            >
+            <button disabled={busy || !store.draft.song} onClick={saveDraft}>
               <Save size={16} />
               현재 작업 보관
             </button>
