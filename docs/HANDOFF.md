@@ -1,6 +1,24 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — INSTA Cardnews 자동화 (cardnews-studio v1.05) 명칭 리브랜딩 완료
+
+주인님 요청("INSTA Cardnews 자동화 로 수정해줘")에 따라 명칭을 전면 갱신했습니다:
+1. **공식 명칭 리브랜딩**:
+   - `src/lib/version.ts`: `APP_NAME = "INSTA Cardnews 자동화"`, `APP_VERSION = "v1.05"`, `APP_ENG_NAME = "INSTA Cardnews Auto"`.
+   - `package.json`: `version = "1.05.0"`.
+   - `src/app/layout.tsx`: 타이틀 `INSTA Cardnews 자동화 | AIMaster`.
+   - `src/app/(dashboard)/dashboard/page.tsx`: 대시보드 헤더 H1을 `{APP_NAME}`으로 반영하여 "INSTA Cardnews 자동화" 표시.
+   - 사이드바 로고: `INSTA Cardnews 자동화 v1.05`.
+2. **공용 DB 및 마이그레이션**:
+   - DB `programs`: `name = 'INSTA Cardnews 자동화'`, `version = 'v1.05'` 갱신 완료 (`scripts/update_cardnews_to_v105.mjs`).
+   - 마이그레이션 SQL: `cardnews-studio/supabase/migrations/0008_v1_05_rebrand_insta_cardnews.sql`.
+3. **검증 및 배포**:
+   - `npm test`: 19개 단위 테스트 100% 통과.
+   - `npm run build`: Turbopack / TypeScript 정상 컴파일 통과.
+   - Vercel 프로덕션 배포 완료 (`https://cardnews-studio.buylife.xyz`).
+
 ## 2026-10-12 Claude Code — 네이버 블로그 올인원 자동화 (naver-blog-allinone v1.33) 헤더 모델 표시
+
 
 주인님 요청(캡처): 헤더의 텍스트 모델 배지를 저장된 기본 모델의 친숙한 이름(모델 카드와 동일)으로 표시. 헤더는 전 탭 공통이라 한 번에 적용. 확장 ZIP·DB v1.33.
 

@@ -6,6 +6,7 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import type { ProjectSummary } from "@/lib/cardnews/types";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote } from "@/components/studio/ui";
+import { APP_NAME } from "@/lib/version";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -67,9 +68,10 @@ export default function DashboardPage() {
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">CARDNEWS STUDIO</h1>
+            <h1 className="text-xl font-bold text-gray-900">{APP_NAME}</h1>
             <p className="mt-1 text-sm text-gray-500">주제만 넣으면 AI가 페이지별 문구와 배경을 만들고, 글자가 얹힌 카드뉴스를 PNG로 완성합니다. 모든 AI 호출은 회원님 본인의 키로 이루어집니다.</p>
           </div>
+
           <button type="button" onClick={start} className={BTN_PRIMARY}>
             <Plus size={16} /> 새 카드뉴스 만들기
           </button>

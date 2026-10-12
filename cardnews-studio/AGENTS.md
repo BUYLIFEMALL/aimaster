@@ -1,4 +1,4 @@
-# CARDNEWS STUDIO (인스타 카드뉴스 자동화) — AI 에이전트 인수인계 문서 (AGENTS.md)
+# INSTA Cardnews 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
 > # ★★★ 최상위 절대 불변 규칙 (2026-10-09 주인님 지시)
 > **모든 사용자는 본인의 계정과 본인 API 키(Gemini·OpenAI·Claude)를 각각 직접 등록·연동해서 사용한다.**
@@ -7,11 +7,12 @@
 작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`, `docs/SIDEBAR_LAYOUT_STANDARD.md`, `docs/AI_MODEL_INTEGRATION_STANDARD.md`를 먼저 읽는다.
 
 ## 1. 개요와 현황
-- 프로그램명: **인스타 카드뉴스 자동화** (영문 `CARDNEWS STUDIO` / `Insta CardNews Studio`) / slug `cardnews-studio` / 현재 버전 **v1.04** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
+- 프로그램명: **INSTA Cardnews 자동화** (영문 `INSTA Cardnews Auto` / `CARDNEWS STUDIO`) / slug `cardnews-studio` / 현재 버전 **v1.05** (`src/lib/version.ts`, `package.json`, DB `programs.version`, 마이그레이션 SQL 모두 같이 올린다)
 - 주소: https://cardnews-studio.buylife.xyz (Vercel 프로젝트 `buylife/cardnews-studio`, 별칭 `cardnews-studio-lime.vercel.app`)
 - 기술: Next.js 16 + React 19 + Tailwind 4 + Supabase SSR(공유 DB `esgxyikcnnvmlhygjkth`). 글자 얹기는 브라우저 캔버스. 기반 코드는 `youtube-channel-consultant`(로그인·권한·키 저장·사이드바).
-- 기획 배경: 주인님이 Google Flow의 "Carousel Pro" 도구(Flow "도구 빌더"로 만든 카드뉴스 생성 도구, `b2391618-385d-4d96-84aa-a23959efa0ee`) 화면과 기능을 레퍼런스로 요청하심. 카드뉴스 제작뿐 아니라 인스타그램 피드 캡션(후킹 카피, 본문 요약, CTA, 타겟 해시태그 20~25개) 원클릭 생성·복사 패키지 기능을 v1.04에 완전 통합.
+- 기획 배경: 주인님이 Google Flow의 "Carousel Pro" 도구(Flow "도구 빌더"로 만든 카드뉴스 생성 도구, `b2391618-385d-4d96-84aa-a23959efa0ee`) 화면과 기능을 레퍼런스로 요청하심. 카드뉴스 제작뿐 아니라 인스타그램 피드 캡션(후킹 카피, 본문 요약, CTA, 타겟 해시태그 20~25개) 원클릭 생성·복사 패키지 기능 탑재.
 - 기존 프로그램과의 관계: `auto-instagram-posting`(INSTA 포스팅)은 글자 없는 사진 슬라이드 + 게시 자동화, `ai-image-studio`는 이미지 생성만이라 **글자가 얹힌 카드뉴스 디자인 + 인스타 피드 캡션 생성**을 한 번에 완성하는 솔루션임.
+
 
 ## 2. 흐름 (사이드바 번호 = 사용 순서)
 대시보드(내 프로젝트·보관함) → ① 기획 `/plan` → ② 문구 `/copy` → ③ 디자인 `/design` → ④ 배경 생성 `/background` → ⑤ 내보내기 `/export`, 그리고 `API키등록·플랫폼연동 /settings`.
@@ -46,14 +47,17 @@
 - 일반 회원 경로는 `youtube-channel-consultant`와 같은 권한 판정 사본을 쓰며 `buylifemall@naver.com`에 사용기간(30일)을 부여해 두었다(직접 화면 검수는 하지 않음).
 
 ## 7. 버전 이력 및 알려진 한계
-- **v1.04 완료(2026-10-12, 주인님 요청):**
-  - 공식 프로그램명을 **"인스타 카드뉴스 자동화"** (`Insta CardNews Studio`)로 리브랜딩 (`APP_NAME`, `programs` DB, 메타데이터).
+- **v1.05 완료(2026-10-12, 주인님 지시):**
+  - 공식 프로그램명을 **"INSTA Cardnews 자동화"** (`INSTA Cardnews Auto`)로 리브랜딩 (`APP_NAME`, 대시보드 헤더 H1, 레이아웃 메타데이터, DB `programs.name`).
+  - 버전 `v1.05` 판올림 및 배포 완료. 마이그레이션 `0008_v1_05_rebrand_insta_cardnews.sql`.
+- **v1.04 완료(2026-10-12):**
   - Google Flow 방식의 인스타그램 피드 캡션 & 해시태그 패키징 기능 탑재:
     - `src/lib/ai/copyPrompts.ts`: `buildCaptionPrompt`, `parseCaption` (후킹 헤드라인, 3~5단락 본문 요약, 참여 유도 CTA, 타겟 해시태그 20~25개 배열 및 전체 캡션 포맷팅).
     - `src/app/api/cardnews/caption/route.ts`: 회원 본인 키 전용 AI 캡션 생성 API 신규 구축 (`apiGuard` 연동).
     - `src/app/(dashboard)/export/page.tsx`: 5단계 내보내기 화면에 인스타그램 캡션/해시태그 원클릭 AI 생성 및 복사 UI, 인스타그램 웹 바로가기 통합.
     - `src/lib/cardnews/sanitize.ts` 및 `types.ts`: `ProjectData.caption` 데이터 모델 확장 및 정제 로직 반영.
     - 단위 테스트 19개 전체 PASS, 프로덕션 빌드 검증 완료. 마이그레이션 `0006_v1_04_rebrand_and_captions.sql`.
+
 - **v1.03(2026-10-11) 긴급 수정:** v1.02에서 넣은 sharp(WebP 축소)가 운영 Vercel 함수에서 libvips 누락으로 로드되지 않아 `/api/cardnews/image`(배경 생성)가 500이었던 현상 해결.
 - **v1.02 완료(2026-10-11):** 5단계 "전체 ZIP 한 번에 받기", 3단계 "내 템플릿", WebP 최적화.
 - **카탈로그 전용 실사 썸네일 및 최상단 등록 (2026-10-12, 주인님 요청):**
