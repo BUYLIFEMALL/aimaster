@@ -65,7 +65,7 @@ export default function AnalyzePage() {
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [drag, setDrag] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [isDark, setIsDark] = useState(true); // 스크린샷 원본 기준: 기본 Studio Dark 모드
+  const [isDark, setIsDark] = useState(false); // 플랫폼 표준: 기본 흰색 베이스 (Clean White Studio)
   const inputRef = useRef<HTMLInputElement>(null);
 
   const pick = async (file: File | undefined) => {
@@ -121,39 +121,39 @@ export default function AnalyzePage() {
 
   const mutationStage =
     mutationLevel <= 30
-      ? { label: "Stable (보수적 재현)", desc: "원본 DNA 엄격 보존, 미세 질감 개선만", color: "text-cyan-400 border-cyan-800 bg-cyan-950/40" }
+      ? { label: "Stable (보수적 재현)", desc: "원본 DNA 엄격 보존, 미세 질감 개선만", color: "text-cyan-700 border-cyan-200 bg-cyan-50" }
       : mutationLevel <= 70
-        ? { label: "Hybrid (구조 하이브리드)", desc: "구도 유지, 아트스타일·조명 적극 변이", color: "text-purple-400 border-purple-800 bg-purple-950/40" }
-        : { label: "Chaotic (유전체 카오스)", desc: "핵심 축만 유지, 파격적/추상적 재해석", color: "text-rose-400 border-rose-800 bg-rose-950/40" };
+        ? { label: "Hybrid (구조 하이브리드)", desc: "구도 유지, 아트스타일·조명 적극 변이", color: "text-purple-700 border-purple-200 bg-purple-50" }
+        : { label: "Chaotic (유전체 카오스)", desc: "핵심 축만 유지, 파격적/추상적 재해석", color: "text-rose-700 border-rose-200 bg-rose-50" };
 
   const containerTheme = isDark
     ? "bg-[#090e1a] text-slate-100 min-h-screen -m-3 sm:-m-5 md:-m-6 p-4 sm:p-6"
-    : "bg-slate-50 text-slate-900 min-h-screen -m-3 sm:-m-5 md:-m-6 p-4 sm:p-6";
+    : "bg-slate-50/50 text-slate-900 min-h-screen -m-3 sm:-m-5 md:-m-6 p-4 sm:p-6";
 
   const cardTheme = isDark
-    ? "bg-[#0b1329]/95 border-slate-800/80 text-slate-100"
-    : "bg-white border-slate-200 text-slate-900";
+    ? "bg-[#0b1329] border-slate-800 text-slate-100"
+    : "bg-white border-slate-200/90 text-slate-900 shadow-xs";
 
   return (
     <div className={`transition-colors duration-200 ${containerTheme}`}>
       <HelpGuideModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
 
       {/* 1. 상단 스튜디오 헤더 바 */}
-      <header className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/60 pb-3.5">
+      <header className={`mb-5 flex flex-wrap items-center justify-between gap-3 border-b pb-3.5 ${isDark ? "border-slate-800" : "border-slate-200"}`}>
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-            <Microscope className="h-4 w-4" />
+          <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${isDark ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/30" : "bg-cyan-50 text-cyan-700 border-cyan-200 shadow-2xs"}`}>
+            <Microscope className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black tracking-wider uppercase">
-                스타일 DNA 분석기 <span className="text-cyan-400">V3</span>
+              <h1 className="text-base sm:text-lg font-black tracking-wider uppercase text-slate-900">
+                스타일 DNA 분석기 <span className="text-cyan-600">V3</span>
               </h1>
-              <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-mono font-bold text-cyan-300 border border-cyan-500/30">
+              <span className={`rounded-full px-2.5 py-0.5 text-[10.5px] font-mono font-bold border ${isDark ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/30" : "bg-cyan-50 text-cyan-700 border-cyan-200"}`}>
                 PRO STUDIO
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               이미지 한 장으로 카메라·조명·팔레트·스타일 유전자를 100% 해독하는 차세대 생성 프레임워크
             </p>
           </div>
@@ -164,9 +164,9 @@ export default function AnalyzePage() {
           {record && (
             <Link
               href="/test"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-950/40 px-3 py-1.5 text-xs font-bold text-cyan-300 hover:bg-cyan-900/40 transition shadow-xs"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-300 bg-cyan-50 px-3 py-1.5 text-xs font-bold text-cyan-800 hover:bg-cyan-100 transition shadow-2xs"
             >
-              <FlaskConical className="h-3.5 w-3.5 text-cyan-400" />
+              <FlaskConical className="h-3.5 w-3.5 text-cyan-600" />
               <span>3단계 결과 테스트</span>
             </Link>
           )}
@@ -174,28 +174,20 @@ export default function AnalyzePage() {
           <button
             type="button"
             onClick={() => setHelpOpen(true)}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold border transition ${
-              isDark
-                ? "bg-slate-900/80 border-slate-700 text-slate-300 hover:bg-slate-800"
-                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
-            }`}
+            className="inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold border bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs transition"
           >
-            <HelpCircle className="h-3.5 w-3.5 text-cyan-400" />
+            <HelpCircle className="h-3.5 w-3.5 text-cyan-600" />
             <span className="hidden sm:inline">도움말</span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsDark(!isDark)}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold border transition ${
-              isDark
-                ? "bg-slate-900/80 border-slate-700 text-cyan-300 hover:bg-slate-800"
-                : "bg-white border-slate-200 text-slate-800 hover:bg-slate-100"
-            }`}
+            className="inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold border bg-white border-slate-200 text-slate-800 hover:bg-slate-50 shadow-2xs transition"
             title="스튜디오 테마 전환"
           >
-            {isDark ? <Sun className="h-3.5 w-3.5 text-amber-400" /> : <Moon className="h-3.5 w-3.5 text-indigo-600" />}
-            <span className="hidden sm:inline">{isDark ? "라이트 모드" : "스튜디오 다크"}</span>
+            {isDark ? <Sun className="h-3.5 w-3.5 text-amber-500" /> : <Moon className="h-3.5 w-3.5 text-slate-600" />}
+            <span className="hidden sm:inline">{isDark ? "화이트 모드" : "다크 스튜디오"}</span>
           </button>
         </div>
       </header>
@@ -231,12 +223,12 @@ export default function AnalyzePage() {
               role="button"
               tabIndex={0}
               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && inputRef.current?.click()}
-              className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-3 text-center transition ${
+              className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-3.5 text-center transition ${
                 drag
-                  ? "border-cyan-400 bg-cyan-950/40"
+                  ? "border-cyan-500 bg-cyan-50/60"
                   : isDark
                     ? "border-slate-700/80 bg-slate-900/60 hover:border-cyan-500/60 hover:bg-slate-900"
-                    : "border-slate-300 bg-slate-50 hover:bg-slate-100"
+                    : "border-slate-300 bg-slate-50/80 hover:border-cyan-500 hover:bg-slate-100/70"
               }`}
             >
               {shownImage ? (
@@ -247,14 +239,14 @@ export default function AnalyzePage() {
                   className="max-h-36 rounded-md object-contain shadow-xs"
                 />
               ) : (
-                <div className="py-2">
-                  <Upload className={`mx-auto h-6 w-6 ${isDark ? "text-cyan-400" : "text-slate-400"}`} />
-                  <p className="mt-1 text-xs font-bold">클릭 또는 파일 끌어다 놓기</p>
-                  <p className="text-[10px] text-slate-500">JPG · PNG · WebP (최대 5MB)</p>
+                <div className="py-2.5">
+                  <Upload className={`mx-auto h-6 w-6 ${isDark ? "text-cyan-400" : "text-cyan-600"}`} />
+                  <p className="mt-1.5 text-xs font-bold text-slate-800">클릭 또는 파일 끌어다 놓기</p>
+                  <p className="text-[10.5px] text-slate-500">JPG · PNG · WebP (최대 5MB)</p>
                 </div>
               )}
               {fileName && (
-                <p className="max-w-full truncate text-[10.5px] font-mono text-cyan-400">{fileName}</p>
+                <p className="max-w-full truncate text-[10.5px] font-mono font-semibold text-cyan-700">{fileName}</p>
               )}
               <input
                 ref={inputRef}
@@ -270,7 +262,7 @@ export default function AnalyzePage() {
               type="button"
               disabled={(!image && !record?.imageUrl) || busy}
               onClick={() => void analyze()}
-              className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 py-2.5 text-xs sm:text-sm font-black tracking-wider uppercase shadow-[0_0_15px_rgba(0,240,255,0.35)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 text-xs sm:text-sm font-black tracking-wider uppercase shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               <span>{busy ? "시퀀싱 중..." : "이미지 시퀀싱 시작"}</span>
@@ -288,7 +280,7 @@ export default function AnalyzePage() {
 
           {/* 카드 4: 시스템 가이던스 */}
           <div className={`rounded-xl border p-4 shadow-sm backdrop-blur-xs transition-colors space-y-3.5 ${cardTheme}`}>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b pb-2.5 border-slate-100">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm">⚙️</span>
                 <h2 className={`text-xs font-bold tracking-wide uppercase ${isDark ? "text-cyan-400" : "text-slate-900"}`}>
@@ -301,23 +293,27 @@ export default function AnalyzePage() {
                   type="checkbox"
                   checked={includeImageTag}
                   onChange={(e) => setIncludeImageTag(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-cyan-400 cursor-pointer"
+                  className="h-3.5 w-3.5 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
                 />
-                <span className={isDark ? "text-slate-300" : "text-slate-600"}>첨부 이미지 제공</span>
+                <span className={isDark ? "text-slate-300" : "text-slate-700"}>첨부 이미지 제공</span>
               </label>
             </div>
 
             {/* 모드 토글 (유전자 복제 vs 유전자 변이) */}
-            <div className="grid grid-cols-2 gap-1 rounded-lg bg-black/30 p-1 border border-slate-800">
+            <div className={`grid grid-cols-2 gap-1 rounded-xl p-1 border ${isDark ? "bg-black/30 border-slate-800" : "bg-slate-100 border-slate-200"}`}>
               {MODES.map((m) => (
                 <button
                   key={m.value}
                   type="button"
                   onClick={() => setMode(m.value)}
-                  className={`rounded-md px-2 py-1.5 text-xs font-bold transition ${
+                  className={`rounded-lg px-2 py-1.5 text-xs font-bold transition ${
                     mode === m.value
-                      ? "bg-cyan-500 text-slate-950 shadow-xs"
-                      : "text-slate-400 hover:text-white"
+                      ? isDark
+                        ? "bg-cyan-500 text-slate-950 shadow-xs"
+                        : "bg-white text-slate-900 shadow-xs"
+                      : isDark
+                        ? "text-slate-400 hover:text-white"
+                        : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   {m.label}
@@ -327,13 +323,13 @@ export default function AnalyzePage() {
 
             {/* 변이 모드 전용: 변이 강도 슬라이더 */}
             {mode === "mutate" && (
-              <div className="rounded-lg border border-purple-800/60 bg-purple-950/20 p-2.5 space-y-2 animate-in fade-in duration-200">
+              <div className={`rounded-xl border p-3 space-y-2 animate-in fade-in duration-200 ${isDark ? "border-purple-800/60 bg-purple-950/20" : "border-purple-200 bg-purple-50/50"}`}>
                 <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="flex items-center gap-1 text-purple-300">
-                    <Sliders className="h-3 w-3 text-purple-400" />
+                  <span className="flex items-center gap-1 text-purple-800">
+                    <Sliders className="h-3.5 w-3.5 text-purple-600" />
                     변이 강도
                   </span>
-                  <span className="font-mono text-xs font-extrabold text-cyan-300">{mutationLevel}%</span>
+                  <span className="font-mono text-xs font-extrabold text-purple-700">{mutationLevel}%</span>
                 </div>
                 <input
                   type="range"
@@ -341,7 +337,7 @@ export default function AnalyzePage() {
                   max="100"
                   value={mutationLevel}
                   onChange={(e) => setMutationLevel(parseInt(e.target.value))}
-                  className="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-cyan-400"
+                  className="w-full h-1.5 bg-purple-200 rounded-full appearance-none cursor-pointer accent-purple-600"
                 />
                 <div className="flex items-center justify-between">
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm border ${mutationStage.color}`}>
@@ -353,12 +349,12 @@ export default function AnalyzePage() {
 
             {/* 타겟 모델 선택 */}
             <div>
-              <label className={`block mb-1 text-[10.5px] font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+              <label className={`block mb-1 text-[11px] font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 타겟 이미지 모델
               </label>
               <select
-                className={`w-full rounded-lg border text-xs px-2.5 py-1.5 font-medium ${
-                  isDark ? "bg-slate-900 border-slate-800 text-slate-200" : "bg-white border-slate-200 text-slate-800"
+                className={`w-full rounded-xl border text-xs px-3 py-2 font-medium ${
+                  isDark ? "bg-slate-900 border-slate-800 text-slate-200" : "bg-white border-slate-200 text-slate-800 focus:ring-2 focus:ring-cyan-500 focus:outline-hidden"
                 }`}
                 value={targetModel}
                 onChange={(e) => setTargetModel(e.target.value as TargetImageModel)}
@@ -373,14 +369,14 @@ export default function AnalyzePage() {
 
             {/* 시스템 지침 터미널 인풋 */}
             <div>
-              <label className={`block mb-1 text-[10.5px] font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+              <label className={`block mb-1 text-[11px] font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 가이던스 오버라이드
               </label>
               <textarea
-                className={`w-full h-20 rounded-lg border p-2 text-xs font-mono resize-none ${
+                className={`w-full h-20 rounded-xl border p-2.5 text-xs font-mono resize-none ${
                   isDark
                     ? "bg-[#060a17] border-cyan-950/60 text-cyan-300 placeholder:text-slate-600 focus:border-cyan-500 focus:outline-hidden"
-                    : "bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:ring-1 focus:ring-cyan-500"
+                    : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-cyan-500 focus:outline-hidden"
                 }`}
                 value={guidance}
                 maxLength={800}
@@ -390,7 +386,7 @@ export default function AnalyzePage() {
             </div>
 
             {/* AI 엔진 선택 */}
-            <div className="pt-1 border-t border-slate-800/50">
+            <div className={`pt-2 border-t ${isDark ? "border-slate-800" : "border-slate-100"}`}>
               <EnginePicker label="분석 AI" />
             </div>
           </div>
@@ -402,8 +398,8 @@ export default function AnalyzePage() {
         <main className="space-y-4">
           {/* 상단: 스마트 스캔 이미지 뷰어 */}
           <div
-            className={`relative flex min-h-[360px] sm:min-h-[420px] max-h-[500px] items-center justify-center overflow-hidden rounded-xl border p-4 shadow-sm backdrop-blur-xs transition-colors ${
-              isDark ? "bg-[#060b18] border-slate-800/80" : "bg-slate-100 border-slate-200"
+            className={`relative flex min-h-[360px] sm:min-h-[420px] max-h-[500px] items-center justify-center overflow-hidden rounded-2xl border p-4 shadow-xs transition-colors ${
+              isDark ? "bg-[#060b18] border-slate-800/80" : "bg-slate-100/70 border-slate-200/90"
             }`}
           >
             {shownImage ? (
@@ -412,7 +408,7 @@ export default function AnalyzePage() {
                 <img
                   src={shownImage}
                   alt={record?.result.titleKo || "분석 대상 이미지"}
-                  className={`max-h-[440px] w-auto max-w-full rounded-lg object-contain shadow-md transition-all duration-700 ${
+                  className={`max-h-[440px] w-auto max-w-full rounded-xl object-contain shadow-sm transition-all duration-700 ${
                     busy ? "brightness-50 scale-[1.02]" : "brightness-100 scale-100"
                   }`}
                 />
@@ -424,13 +420,13 @@ export default function AnalyzePage() {
                 />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center gap-2.5 text-center text-slate-500 py-12">
-                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-950/30 border border-cyan-500/20 text-cyan-400">
+              <div className="flex flex-col items-center justify-center gap-3 text-center text-slate-500 py-12">
+                <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl border ${isDark ? "bg-cyan-950/30 border-cyan-500/20 text-cyan-400" : "bg-cyan-50 border-cyan-200 text-cyan-600 shadow-2xs"}`}>
                   <Microscope className="h-8 w-8" />
                   <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-cyan-400 animate-ping opacity-60" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-300">
+                  <p className="text-sm font-bold text-slate-800">
                     {busy ? "AI가 이미지의 시각적 유전자를 정밀 스캔하고 있습니다…" : "이미지를 업로드하면 DNA 스캔이 시작됩니다"}
                   </p>
                   <p className="mt-1 text-xs text-slate-500">
@@ -445,8 +441,8 @@ export default function AnalyzePage() {
           {record ? (
             <StudioReportView record={record} isDark={isDark} />
           ) : (
-            <div className={`rounded-xl border p-6 text-center text-xs text-slate-500 ${cardTheme}`}>
-              <p className="font-semibold">분석된 프롬프트 리포트 대기 중</p>
+            <div className={`rounded-xl border p-8 text-center text-xs text-slate-500 ${cardTheme}`}>
+              <p className="font-bold text-slate-700">분석된 프롬프트 리포트 대기 중</p>
               <p className="mt-1 text-slate-400">
                 이미지 분석이 완료되면 구조적 청사진과 마스터 프롬프트가 이곳에 출력됩니다.
               </p>

@@ -15,7 +15,7 @@ interface StudioPaletteProps {
  * - 중간 5색 수평 컬러 바
  * - 하단 각 색상 HEX 및 점유율 (%)
  */
-export function StudioPalette({ palette, dominantName = "미학적\n톤", isDark = true }: StudioPaletteProps) {
+export function StudioPalette({ palette, dominantName = "미학적\n톤", isDark = false }: StudioPaletteProps) {
   const R = 38;
   const C = 2 * Math.PI * R;
 
@@ -27,12 +27,12 @@ export function StudioPalette({ palette, dominantName = "미학적\n톤", isDark
     return acc;
   }, []);
 
-  const cardBg = isDark ? "bg-[#0b1329]/95 border-slate-800/80 text-slate-100" : "bg-white border-slate-200 text-slate-900";
+  const cardBg = isDark ? "bg-[#0b1329] border-slate-800 text-slate-100" : "bg-white border-slate-200/90 text-slate-900 shadow-xs";
   const titleColor = isDark ? "text-cyan-400" : "text-slate-900";
 
   return (
-    <div className={`rounded-xl border p-4 shadow-sm backdrop-blur-xs transition-colors ${cardBg}`}>
-      <div className="flex items-center gap-1.5 mb-3">
+    <div className={`rounded-xl border p-4 transition-colors ${cardBg}`}>
+      <div className="flex items-center gap-1.5 mb-3 border-b pb-2.5 border-slate-100">
         <span className="text-sm">🎨</span>
         <h2 className={`text-xs font-bold tracking-wide uppercase ${titleColor}`}>미학적 팔레트</h2>
       </div>
@@ -57,26 +57,26 @@ export function StudioPalette({ palette, dominantName = "미학적\n톤", isDark
         </svg>
         {/* 도넛 중앙 라벨 */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-          <span className={`text-[10px] font-bold leading-tight ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+          <span className={`text-[11px] font-extrabold leading-tight ${isDark ? "text-slate-300" : "text-slate-800"}`}>
             {dominantName}
           </span>
         </div>
       </div>
 
       {/* 5색 수평 컬러 바 */}
-      <div className="mt-2.5 flex h-4 overflow-hidden rounded-md border border-slate-700/40 shadow-2xs">
+      <div className="mt-2.5 flex h-4 overflow-hidden rounded-md border border-slate-200 shadow-2xs">
         {palette.map((c) => (
           <div key={c.hex} style={{ background: c.hex, width: `${c.percent}%` }} title={`${c.hex} (${c.percent}%)`} />
         ))}
       </div>
 
       {/* 각 색상 HEX 및 점유율 (%) */}
-      <ul className="mt-3 divide-y divide-slate-800/40">
+      <ul className="mt-3 divide-y divide-slate-100">
         {palette.map((c) => (
-          <li key={c.hex} className="flex items-center justify-between py-1.5 text-[11.5px]">
+          <li key={c.hex} className="flex items-center justify-between py-1.5 text-xs">
             <span className="flex items-center gap-2 font-mono">
-              <span className="h-3 w-3 rounded-full border border-slate-600/60 shrink-0" style={{ background: c.hex }} />
-              <span className={isDark ? "text-slate-300" : "text-slate-700"}>{c.hex.toUpperCase()}</span>
+              <span className="h-3.5 w-3.5 rounded-full border border-slate-300 shadow-2xs shrink-0" style={{ background: c.hex }} />
+              <span className={`font-semibold ${isDark ? "text-slate-300" : "text-slate-800"}`}>{c.hex.toUpperCase()}</span>
             </span>
             <span className={`font-bold font-mono ${isDark ? "text-cyan-300" : "text-slate-900"}`}>{c.percent}%</span>
           </li>

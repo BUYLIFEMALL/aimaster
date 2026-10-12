@@ -3,10 +3,10 @@
 > 먼저 읽을 것: 루트 `CLAUDE.md`(핵심 원칙, 특히 최상위 규칙 0번·본인 키 규칙), `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`, `docs/SIDEBAR_LAYOUT_STANDARD.md`.
 > **개발·테스트·디버깅·검증은 실제 Chrome을 띄워 화면을 같이 보며 한다**(루트 `CLAUDE.md` §13, `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-1).
 
-## 1. 개요와 현황 (2026-10-12, v1.05)
+## 1. 개요와 현황 (2026-10-12, v1.06)
 - 이미지 한 장을 올리면 AI가 **카메라·조명·스타일 DNA**를 분석하고, **실제 픽셀로 색상 팔레트**를 계산하며, **영어·한국어 마스터 프롬프트**를 만든다. 「유전자 복제」(스타일 그대로 재현, 피사체 자리표시자 `[INSERT SUBJECT HERE]`/`[주제 입력]`)와 「유전자 변이」(지침에 따라 변형, 0~100% 변이 강도 슬라이더) 두 모드.
-- 라이브: https://style-dna-analyzer.buylife.xyz (Vercel 프로젝트 `buylife/style-dna-analyzer`, alias style-dna-analyzer.vercel.app). 기반: `cardnews-studio` 복사(권한 판정·SSO 쿠키·설정 화면·BYOK 구조 동일). 원본 레퍼런스: `https://style-dna-3.vercel.app/` (스크린샷 1:1 일치 3단 스튜디오 레이아웃 + 위아래 왕복 스캔 레이저 빔 애니메이션 + 전수 JS 번들 스크래핑 역분석 100% 로직 융합).
-- DB: `programs.slug='style-dna-analyzer'`, 카테고리 멀티미디어, 최소 등급 일반, 배지 `new`, 표준 요금제 1·2·3개월(1/2/3만원). 마이그레이션 `0001`(테이블+버킷), `0002`(등록), `0004`(레이아웃), `20261012062000_v1_03_features.sql`, `20261012073000_v1_04_studio_layout.sql`, `20261012074000_v1_05_scan_animation.sql`(버전 v1.05).
+- 라이브: https://style-dna-analyzer.buylife.xyz (Vercel 프로젝트 `buylife/style-dna-analyzer`, alias style-dna-analyzer.vercel.app). 기반: `cardnews-studio` 복사(권한 판정·SSO 쿠키·설정 화면·BYOK 구조 동일). 원본 레퍼런스: `https://style-dna-3.vercel.app/` (스크린샷 1:1 일치 3단 스튜디오 레이아웃 + 위아래 왕복 스캔 레이저 빔 애니메이션 + 흰색 베이스 고가독성 클린 테마 기본 적용).
+- DB: `programs.slug='style-dna-analyzer'`, 카테고리 멀티미디어, 최소 등급 일반, 배지 `new`, 표준 요금제 1·2·3개월(1/2/3만원). 마이그레이션 `0001`(테이블+버킷), `0002`(등록), `0004`(레이아웃), `20261012062000_v1_03_features.sql`, `20261012073000_v1_04_studio_layout.sql`, `20261012074000_v1_05_scan_animation.sql`, `20261012075000_v1_06_white_base_theme.sql`(버전 v1.06).
 
 ## 2. 흐름 (사이드바 번호 = 사용 순서)
 - **보관함(대시보드)**: 분석 목록(썸네일·팔레트 띠), 열기/삭제(삭제는 화면 안 확인 버튼, 브라우저 대화상자 없음).
@@ -88,6 +88,21 @@
      - 스캔 중일 때 좌측 카메라 & 조명 항목들을 스크린샷과 동일하게 `---` (대시 3개)로 표시.
      - 버튼 텍스트 `시퀀싱 중...` (스피너 아이콘)으로 전환.
 - **검수**: `npm test` 23개 통과, `npm run lint` 0 에러, Next.js Turbopack 빌드 성공. Vercel 배포 완료.
+
+## 6-5. v1.06 (2026-10-12) 플랫폼 표준 흰색 베이스(Clean White Theme) 기본 적용 및 고가독성 개편
+- 주인님 요청: `https://style-dna-analyzer.buylife.xyz/analyze` 배경색을 흰색 베이스로 가독성 있게 다시 디자인 (핵심 원칙 8번 표준 준수).
+- 주요 변경사항:
+  1. **기본 테마 흰색 베이스 전환**:
+     - `analyze/page.tsx`: 기본값 `isDark = false` (Clean Light 기본 활성화).
+     - 전체 배경 `bg-slate-50/50 text-slate-900`.
+     - 드롭존(`bg-slate-50 border-slate-300`), 시작 버튼(`bg-cyan-600 hover:bg-cyan-700 text-white font-bold`), 터미널 에디터(`bg-slate-50 border-slate-200 text-slate-900 focus:bg-white`).
+     - 중앙 스캔 뷰어 베이스를 밝은 캔버스(`bg-slate-100/70 border-slate-200/90 rounded-2xl`)로 깔끔하게 정리.
+  2. **컴포넌트 흰색 카드 & 고대비 텍스트 가독성 최적화**:
+     - `StudioCameraLighting.tsx`: 흰색 카드(`bg-white border-slate-200/90 shadow-xs`), 텍스트 `text-slate-900 font-bold`, 조명 골드 뱃지 `text-amber-700 bg-amber-50 border-amber-200`.
+     - `StudioPalette.tsx`: 흰색 카드, 도넛 차트 배경선 `stroke="#f1f5f9"`, 도넛 중앙 텍스트 `text-slate-800 font-extrabold`, HEX 및 비율 `text-slate-900 font-bold font-mono`.
+     - `StudioDnaBars.tsx`: 흰색 카드, DNA 게이지 트랙 `bg-slate-100` / 바 `bg-cyan-600`, 일치율 대형 숫자 `text-slate-900 font-mono text-5xl font-black`, 키워드 칩 `bg-slate-50 text-slate-700 border-slate-200`.
+     - `StudioReportView.tsx`: 흰색 카드, 듀얼 타이틀 `EN: ...` (`text-cyan-700 font-black`), `KR: ...` (`text-slate-900 font-extrabold`), 청사진/분석 박스 `bg-slate-50/70 text-slate-800`, 프로의 팁 `bg-amber-50/40 border-amber-200/70 text-slate-800`, 마스터 프롬프트 박스는 코드 복사 시인성을 위해 선명한 다크 모노 박스(`bg-slate-950 text-slate-100`) 유지.
+- **검수**: `npm test` 23개 통과, `npm run lint` 0 에러, Next.js Turbopack 빌드 성공. Vercel 배포 완료 (HTTP 200 정상 확인).
 
 ## 7. 알려진 한계·다음 작업
 - 일반 회원 검수 완료(2026-10-11, 실제 Chrome에서 `buylifemall@naver.com` 로그인): 사용기간(검수용 2026-11-10까지)을 부여한 뒤 보관함이 비어 보임(관리자 분석이 안 보임 = 회원별 분리), 1단계 업로드→분석 시작→본인 Gemini 키로 분석 완료(결과·팔레트·DNA 표시). 검수용 사용기간과 이 계정의 분석 1건은 남아 있다(필요 시 정리).
