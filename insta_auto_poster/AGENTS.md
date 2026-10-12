@@ -54,3 +54,4 @@ insta_auto_poster는 AIMaster 저장소 안의 서브프로젝트다. 개발/유
   (`insta_posts`, `insta_accounts`, `insta_candidates` 참고).
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`)에서 **로그인한 회원 본인 키만** 쓴다(앱 기본 키·운영자 공용 Meta 앱 없음 — 최상위 규칙 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`, v1.04).
 - v1.05 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+- v1.06 (2026-10-12): 예약·자동 실행(cron/스케줄) 작업에도 핸드폰 번호 필수 정책 적용 — 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않습니다. 상세: `docs/PHONE_REQUIRED_POLICY.md`.

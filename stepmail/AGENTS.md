@@ -81,3 +81,4 @@ stepmail은 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수
   **네이버 SMTP는 동시 연결 제한이 있어(421 Too many concurrent connection) 반드시 순차
   발송**해야 한다 — `lib/dispatch.ts`의 for 루프가 이 규칙을 지킨다(Promise.all 금지).
 - v1.04 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+- v1.05 (2026-10-12): 예약·자동 실행(cron/스케줄) 작업에도 핸드폰 번호 필수 정책 적용 — 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않습니다. 상세: `docs/PHONE_REQUIRED_POLICY.md`.

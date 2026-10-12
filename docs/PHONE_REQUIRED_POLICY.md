@@ -21,10 +21,12 @@
 - 서브프로젝트(45개): 각 `lib/access.ts`(또는 `programAccess.ts`/`checkProgramAccess.ts`)에 같은 조건을 추가했다. 공통 사본 계열은 `evaluateProgramAccess`에 `hasPhone` 입력과 `phone_required` 이유를 넣었고, 인라인 계열은 정지 검사 바로 뒤에 `hasMobilePhone(profile.phone)` 검사를 넣었다. 확장 프로그램 토큰 인증(`naver-blog-seo-studio/lib/extensionAuth.ts`)도 같다.
 - **새 프로그램을 만들 때**: `requireProgramAccess()`/`checkProgramAccessApi()`에 이 조건을 처음부터 넣는다(정지 검사 다음, FREE 검사 앞). 템플릿으로는 `image-convert-studio/src/lib/{programAccess,access}.ts`를 복사한다.
 
-## 4. 의도적으로 하지 않은 것(결정 필요 시 주인님께 확인)
-- **예약·자동 실행(cron) 프로그램의 백그라운드 작업**(`stepmail`·`youtube-auto-reply`·`instagram-comment-reply`·`threads-comment-reply` 댓글 동기화, `real_estate_sales` 수집 디스패치)은 이번에 건드리지 않았다. 번호가 없는 회원의 예약 작업이 조용히 멈추면 혼란이 크므로, 회원에게 먼저 번호 등록을 알린 뒤 별도로 결정한다.
-- `suno-music-studio`: 다른 CLI의 미커밋 작업이 섞여 있어 판정 파일만 수정·커밋하고 **버전·배포는 보류**했다(그 CLI가 다음 배포 때 같이 반영된다).
-- 소셜 로그인은 이 플랫폼에 없다(이메일·비밀번호만) — 소셜 로그인을 추가하면 콜백에서도 번호를 확인해야 한다.
+## 4. 예약·자동 실행(cron) 작업과 대기 중인 항목
+- **예약·자동 실행에도 적용했다(2026-10-12, 주인님 "아직 사용자 별로 없어 진행").** 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다: `stepmail`(캠페인 발송), `youtube-auto-reply`·`instagram-comment-reply`·`threads-comment-reply`(댓글 동기화), `real_estate_sales`(자동 수집·분석·발송), `booking-reminder`·`crm-google-form`(리마인드·팔로업), `kakao_auto_poster`·`trending-product-finder`(보고서·알림), `naver-cafe-poster`(예약 포스팅), `threads`·`insta_auto_poster`·`threads-affiliate-poster`(예약 게시, 전체 회원 대상 호출일 때). `threads-content-ops`는 이미 `checkProgramAccess()`를 쓰므로 자동 적용된다. 새 cron을 만들 때도 `phoneRegisteredUserIds()` 패턴(해당 route 파일 참고)을 적용한다.
+- **회원 이용 중단 영향**: 번호가 없는 회원의 예약 작업은 조용히 건너뛴다(실패 기록 없음). 번호를 등록하면 다음 실행부터 정상 처리된다.
+- 점검 대상에서 뺀 cron: 연결 상태 점검(`check-connection`), 이미지·초안 정리(`cleanup*`, `draft-retention`), 구독 만료 메일(`subscription-expiry`) — 회원 작업이 아니라 시스템 관리·안내용이다.
+- **대기 목록 — `suno-music-studio`(Codex 작업 중)**: 판정 파일(`src/lib/access.ts`, `src/lib/programAccess.ts`)에는 핸드폰 조건이 이미 들어가 있으나(커밋됨) **버전 +0.01·DB 버전·프로덕션 배포는 Codex 작업이 끝난 뒤** 진행한다. 그 전까지 이 프로그램만 번호 없는 회원도 쓸 수 있다. Codex 작업 완료 후 할 일: ① 그 작업을 커밋 ② `version.ts`·`package.json` v1.03 ③ `update programs set version='v1.03' where slug='suno-music-studio'` ④ 배포 ⑤ 번호 없는 계정으로 차단 확인(`docs/PHONE_REQUIRED_POLICY.md` 5번).
+- 소셜 로그인은 이 플랫폼에 없다(이메일·비밀번호만) — 추가하면 콜백에서도 번호를 확인해야 한다.
 
 ## 5. 검수 방법
 1. 번호가 없는 테스트 회원(또는 테스트 계정의 `profiles.phone`을 잠시 NULL로)으로 `https://www.buylife.xyz/programs/<slug>`에서 배너, `/settings?need_phone=1`에서 안내 문구·입력·저장을 확인하고 **반드시 원래 값으로 복원**한다.

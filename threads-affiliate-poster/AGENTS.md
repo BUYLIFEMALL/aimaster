@@ -432,3 +432,4 @@ vercel deploy --prod --yes
     - 시험: `npm run test:naver-key`. 버전 v1.49: `version.ts`, DB `programs.version`, 마이그레이션 `0009_bump_version_v1_49.sql`.
     - 남은 일: Vercel 환경변수 `NAVER_TREND_CLIENT_ID/SECRET`(이제 코드가 안 읽음) 삭제.
 - v1.50 (2026-10-12): 핸드폰 번호 필수 정책 적용 — 핸드폰 번호가 없는 회원(관리자 제외)은 이용할 수 없고 메인 사이트 설정에서 번호를 등록하도록 안내합니다. 공용 규칙은 루트 `lib/utils/phone.ts`, 상세는 `docs/HANDOFF.md` 2026-10-12 항목.
+- v1.51 (2026-10-12): 예약·자동 실행(cron/스케줄) 작업에도 핸드폰 번호 필수 정책 적용 — 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않습니다. 상세: `docs/PHONE_REQUIRED_POLICY.md`.

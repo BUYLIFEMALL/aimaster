@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — [작업 대기] suno-music-studio 핸드폰 정책 배포 (Codex 작업 완료 후) + 예약·자동 실행 작업에도 정책 적용
+
+**작업 대기 리스트**: `suno-music-studio`는 현재 Codex가 작업 중이라 핸드폰 필수 정책의 **버전 올리기·배포를 보류**했습니다(판정 파일은 이미 커밋됨). Codex가 끝나면 `docs/PHONE_REQUIRED_POLICY.md` 4번의 순서(커밋 → v1.03 → DB 버전 → 배포 → 차단 확인)로 이어서 처리합니다. 그때까지 이 프로그램만 번호 없는 회원도 쓸 수 있습니다.
+
+같은 날 주인님 지시로 **예약·자동 실행(cron) 작업**에도 같은 정책을 적용했습니다: 번호가 없는 회원(관리자 제외)의 예약 작업은 실행하지 않음(stepmail, 댓글자동화 3종, real_estate_sales, booking-reminder, crm-google-form, kakao, trending-product-finder, naver-cafe-poster, threads/insta/affiliate 예약 게시). 13개 프로그램 버전 +0.01·재배포(상세 목록은 `docs/PHONE_REQUIRED_POLICY.md` 4번).
+
 ## 2026-10-12 Antigravity — AI 인플루언서 자동화 (ai-influencer-studio v1.02) 레퍼런스 1:1 레이아웃 매칭 & 옵션 확장 배포 완료
 
 주인님 요청(레퍼런스 스크린샷 제시: "레이아웃을 이렇게 맞추고 빠져있는 옵션과 기능 있으면 비교해보고 추가 확장 구현해줘")에 따라, 원본 스튜디오 번들 코드와 스크린샷을 전수 대조하여 1:1 완벽 레이아웃 매칭 및 옵션 확장을 적용하고 프로덕션 배포 완료했습니다:

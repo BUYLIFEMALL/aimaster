@@ -3,6 +3,18 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { currentKstHour, isAlertDue, isWithinActiveHours } from "@/lib/schedule";
 import { checkSavedProduct, type SavedProductRow } from "@/lib/priceAlert";
 
+/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
+async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
+  const ids = Array.from(new Set(userIds.filter(Boolean)));
+  if (ids.length === 0) return new Set();
+  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
+  return new Set(
+    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
+      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
+      .map((p) => p.id)
+  );
+}
+
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
@@ -40,7 +52,8 @@ async function dispatch() {
   let failed = 0;
   const details: { id: string; result: string }[] = [];
 
-  for (const row of dueRows) {
+  const phoneOkUsers = await phoneRegisteredUserIds(admin, (dueRows).map((r: { user_id: string }) => r.user_id));
+  for (const row of (dueRows).filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
     try {
       const result = await checkSavedProduct(admin, row as SavedProductRow);
       if (!result.ok) {

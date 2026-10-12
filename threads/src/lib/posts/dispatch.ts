@@ -4,6 +4,18 @@ import type { Database } from "@/types/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publishPost } from "@/lib/posts/publish-core";
 
+/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
+async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
+  const ids = Array.from(new Set(userIds.filter(Boolean)));
+  if (ids.length === 0) return new Set();
+  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
+  return new Set(
+    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
+      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
+      .map((p) => p.id)
+  );
+}
+
 export interface DispatchResult {
   postId: string;
   success: boolean;
@@ -32,7 +44,9 @@ async function dispatchDuePosts(
 
   const results: DispatchResult[] = [];
 
-  for (const post of duePosts ?? []) {
+  // 핸드폰 번호 필수 정책(2026-10-12): 외부 스케줄러가 전체 회원 대상으로 호출할 때는 번호가 없는 회원의 예약글을 올리지 않는다.
+  const phoneOkUsers = userId ? null : await phoneRegisteredUserIds(supabase, (duePosts ?? []).map((p) => p.user_id));
+  for (const post of (duePosts ?? []).filter((p) => !phoneOkUsers || phoneOkUsers.has(p.user_id))) {
     const { data: account } = await supabase
       .from("threads_accounts")
       .select("*")

@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { runFollowupRule } from "@/lib/crm/followupDispatch";
 
+/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
+async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
+  const ids = Array.from(new Set(userIds.filter(Boolean)));
+  if (ids.length === 0) return new Set();
+  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
+  return new Set(
+    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
+      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
+      .map((p) => p.id)
+  );
+}
+
 export const dynamic = "force-dynamic";
 // dynamic = "force-dynamic"만으로는 supabase-js 내부 fetch가 Next.js Data Cache에 걸려
 // 오래된(첫 호출 시점) 결과를 계속 반환하는 문제가 실제로 재현됨(2026-08-18, 로컬 개발 서버에서
@@ -36,7 +48,8 @@ export async function GET(request: NextRequest) {
 
   const summary: { ruleId: string; ruleName: string; sent: number; failed: number }[] = [];
 
-  for (const rule of rules ?? []) {
+  const phoneOkUsers = await phoneRegisteredUserIds(admin, (rules ?? []).map((r: { user_id: string }) => r.user_id));
+  for (const rule of (rules ?? []).filter((r: { user_id: string }) => phoneOkUsers.has(r.user_id))) {
     try {
       const result = await runFollowupRule({
         ...rule,

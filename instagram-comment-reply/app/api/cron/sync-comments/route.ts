@@ -41,8 +41,10 @@ async function dispatch() {
 
   for (const row of dueRows) {
     // 정지된 계정은 자동 처리 대상에서 제외한다.
-    const { data: profile } = await adminLike.from("profiles").select("is_suspended").eq("id", row.user_id).maybeSingle();
+    const { data: profile } = await adminLike.from("profiles").select("is_suspended, is_admin, phone").eq("id", row.user_id).maybeSingle();
     if (profile?.is_suspended) continue;
+    // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)은 자동 처리에서 제외한다.
+    if (!profile?.is_admin && !/^01[016789]\d{7,8}$/.test(String(profile?.phone ?? "").replace(/[^0-9]/g, ""))) continue; // hasMobilePhone
 
     await admin.from("ig_settings").update({ last_run_at: now.toISOString() }).eq("user_id", row.user_id);
 

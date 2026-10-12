@@ -3,6 +3,18 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { currentKstHour, isCollectDue, isWithinActiveHours } from "@/lib/publicdata/schedule";
 import { collectDistrict, findUnmatchedListingIds, notifyUserForListings } from "@/lib/realestate/collect";
 
+/** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
+async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
+  const ids = Array.from(new Set(userIds.filter(Boolean)));
+  if (ids.length === 0) return new Set();
+  const { data } = await (client as { from: (t: string) => any }).from("profiles").select("id, is_admin, phone").in("id", ids); // eslint-disable-line @typescript-eslint/no-explicit-any
+  return new Set(
+    ((data ?? []) as { id: string; is_admin: boolean | null; phone: string | null }[])
+      .filter((p) => p.is_admin || /^01[016789]\d{7,8}$/.test(String(p.phone ?? "").replace(/[^0-9]/g, "")))
+      .map((p) => p.id)
+  );
+}
+
 // 관심 지역(자치구)에 새 실거래가 신고되면 수집해서 real_estate_listings에 저장하고,
 // 그 지역을 watch 중인 사용자마다 real_estate_user_matches를 만드는 "예약 조회" 배치 잡.
 // threads/vercel.json의 CRON_SECRET Bearer 인증 패턴을 그대로 재사용.
@@ -55,7 +67,9 @@ async function dispatch() {
     .eq("is_suspended", true);
   const suspendedUserIds = new Set((suspendedProfiles ?? []).map((p) => p.id));
 
-  const allRows = (watchRows ?? []).filter((w) => !suspendedUserIds.has(w.user_id));
+  // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)은 자동 수집·분석·발송 대상에서 제외한다.
+  const phoneOkUsers = await phoneRegisteredUserIds(supabase, candidateUserIds);
+  const allRows = (watchRows ?? []).filter((w) => !suspendedUserIds.has(w.user_id) && phoneOkUsers.has(w.user_id));
 
   const dueRows = allRows.filter(
     (w) =>
