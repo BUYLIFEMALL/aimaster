@@ -9,3 +9,5 @@ npm install / npm test / npm run lint / npm run build / npm run dev
 환경변수: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_MAIN_SITE_URL. AI 키는 환경변수에 넣지 않습니다. 공용 user_api_keys에서 로그인 회원 키만 읽습니다. 작업 자료는 회원별 브라우저 저장이며 PC 간 동기화는 JSON 내보내기/가져오기로 합니다.
 
 분석·계획은 docs/ANALYSIS_AND_PLAN.md, 최종 검수·배포 상태는 docs/RELEASE_V1_01.md에 기록합니다.
+
+음악 기획·작사·앨범 구성을 표현한 실사 카탈로그 썸네일을 2026-10-12 제작·등록했습니다. [제작·등록 기록과 원본/프롬프트](docs/THUMBNAIL.md), [운영 상세 페이지](https://www.buylife.xyz/programs/suno-music-studio). 카탈로그 메타데이터 등록으로 v1.01을 유지합니다.

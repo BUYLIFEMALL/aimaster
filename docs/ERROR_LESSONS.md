@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-12 — 서브프로젝트 작업 디렉터리에서 상대 경로를 중복 지정
+
+- 증상: Suno 썸네일 원본을 보관 폴더로 이동할 때 `DirectoryNotFoundException` 발생.
+- 원인: `workdir=suno-music-studio`인 명령에서 `suno-music-studio/docs/assets`를 다시 지정해 중복 하위 폴더를 생성하고 실제 목적 폴더를 만들지 못함.
+- 해결: `D:/Antigravity/AIMaster/suno-music-studio/docs/assets` 절대 경로로 폴더 생성·원본 이동 후 파일 크기/해시 확인. Storage·DB 등록은 이미 정상이며 영향 없음. 기록: `suno-music-studio/docs/THUMBNAIL.md`.
+- 다음부터 확인: 파일 조작 명령의 작업 디렉터리와 최종 목적 경로를 먼저 대조하고, 서브폴더 안에서 프로그램 폴더명을 중복 붙이지 않음.
+
 ## 2026-10-12 — 다운로드 클릭 성공만으로 실제 파일 저장을 판정하면 안 됨
 
 - 증상: Suno 기획의 JSON 백업 2개는 저장됐지만 뒤이은 TXT 클릭에는 파일이 나타나지 않음. 도구는 accessibility_action_unasserted였음.

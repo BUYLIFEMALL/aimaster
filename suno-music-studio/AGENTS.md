@@ -1,5 +1,7 @@
 # Suno 음악기획 자동화 — 인수인계
 
+2026-10-12 카탈로그 실사 썸네일 등록 완료. 음악 기획자·가사 구획·스타일 칩·앨범 트랙·건반을 표현한 내장 image_gen 생성물입니다. 원본/프롬프트/등록 SQL/운영 화면 증거는 [docs/THUMBNAIL.md](docs/THUMBNAIL.md). 카탈로그 메타데이터만 등록했으므로 v1.01 유지, Storage·DB 즉시 반영(앱 재배포 불필요). 공개 이미지·Next 최적화·메인/목록/상세 참조·Headless Chrome 상세와 카테고리 실제 화면·빌드 성공 확인.
+
 2026-10-12 주인님이 프로그램명을 **Suno 음악기획 자동화**로 확정했습니다. 화면·로그인·메타데이터는 `src/lib/version.ts`의 APP_NAME을 공유하고 DB programs.name도 일치합니다. 최초 운영 배포 전 이름 확정이므로 v1.01을 유지합니다. slug·프로젝트·주소는 `suno-music-studio`를 유지합니다.
 
 루트 AGENTS.md·docs/HANDOFF.md·TOP_RULE_PERSONAL_ACCOUNT_API.md·ERROR_LESSONS.md·AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md를 먼저 읽습니다. v1.01 운영 배포 완료: https://suno-music-studio.buylife.xyz/. 공용 접속 설정 등록은 주인님의 후속 “진행해줘”로 승인받았습니다. Next.js 프레임워크를 vercel.json에 명시했으며 배포 ID는 `dpl_CWro2HYAYQmyGU4PPeSU7baKm5AH`입니다. 배포·검수 증거와 남은 확인은 docs/RELEASE_V1_01.md에 기록합니다.

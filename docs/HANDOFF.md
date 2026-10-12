@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Codex — Suno 음악기획 자동화 실사 썸네일 제작·등록 완료
+
+주인님 요청으로 내장 image_gen으로 한국인 음악 기획자·가사 구획·스타일 칩·앨범 트랙·건반/헤드폰을 담은 약 16:9 실사 썸네일을 제작했습니다. 공용 업로드 도구로 Storage `program-images/catalog/suno-music-studio-thumbnail.png` 및 해당 `programs.thumbnail_url`을 등록. 공개 이미지와 로컬 원본 해시 동일, 이미지 최적화 200, 메인/목록/상세 URL 참조 확인. 별도 비로그인 Headless Chrome으로 상세·멀티미디어 카탈로그 렌더링과 인접 썸네일 실사 톤 비교 완료, 빌드 통과. 카탈로그 메타데이터 변경이므로 v1.01 유지, 앱 재배포 불필요. 원본/프롬프트/DML/화면 증거: [suno-music-studio/docs/THUMBNAIL.md](../suno-music-studio/docs/THUMBNAIL.md). 원본 이동 시 작업 폴더 중복 경로 오류는 절대 경로로 수정했고 교훈을 ERROR_LESSONS.md에 기록했습니다. 썸네일 요청의 남은 작업 없음; 기존 기능 미검수 항목은 RELEASE_V1_01.md 유지.
+
 ## 2026-10-12 Claude Code — 이번 세션 전체 인수인계 문서
 
 주인님 지시로 2026-10-11~12 작업(올인원 v1.14~v1.39, SEO 스튜디오 v1.62, 메인 사이트 관리자 기능, cardnews·style-dna)을 한 문서로 정리했습니다: **[docs/HANDOFF_CLAUDE_SESSION_2026-10-12.md](HANDOFF_CLAUDE_SESSION_2026-10-12.md)** — 버전별 커밋 표, 구조·데이터 흐름, DB 변경, 확장 로드·점검 방법, 교훈, 미검증·남은 작업(올인원 시험 글 3개 삭제는 권한 정책으로 보류), 운영 절차. 올인원 v1.39(주제 추천·키워드 파인더 구형 Gemini 호출 통일)까지 반영.
