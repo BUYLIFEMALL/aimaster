@@ -1,5 +1,55 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Antigravity — 신규 프로그램 'AI 인플루언서 자동화' (ai-influencer-studio v1.01) 초기 구축 및 프로덕션 배포 완료
+
+주인님 요청("이프로그램은 AI 인플루언서 자동화로 이름을 정하도록 하고 순서대로 하나씩 구현해나가도록 하자")에 따라, PureGlow PRO 레퍼런스 사이트(`https://pure-glow-pro-99gg.vercel.app/`)를 전수 역분석하여 **'AI 인플루언서 자동화 (ai-influencer-studio v1.01)'**를 AIMaster 플랫폼에 신규 구축 및 프로덕션 배포 완료했습니다.
+
+1. **프로그램 기본 정보**:
+   - 프로그램 명칭: **AI 인플루언서 자동화 (AI Influencer Studio)**
+   - 초기 버전: `v1.01` (`src/lib/version.ts`, DB `programs.version = 'v1.01'`)
+   - 서브프로젝트 폴더: `ai-influencer-studio/`
+   - 프로덕션 배포 URL: `https://ai-influencer-studio-sage.vercel.app`
+   - 연결 도메인: `https://ai-influencer.buylife.xyz` (SSO 로그인 쿠키 연동)
+   - DB 카탈로그 등록: `programs` 테이블에 `slug = 'ai-influencer-studio'`로 등록 완료 (인스타 카테고리, FREE 배지 부여로 가입 회원 누구나 이용 가능)
+
+2. **구현된 핵심 기능 & 엔진 아키텍처**:
+   - **Gemini 3 Pro Image Preview 기반 초정밀 화보 생성 엔진 (`src/lib/gemini.ts`)**:
+     - 1K / 2K 고해상도 화질 지원, 4대 화면비(1:1 피드, 9:16 릴스/스토리, 16:9 가로 화보, 3:4 클래식)
+     - 3각 시점 제어: 거울 셀카(`MIRROR SELFIE` - 스마트폰 노출), 전면 셀카(`FRONT-FACING` - 기기 숨김), 3인칭 화보(`THIRD-PERSON` - 에디토리얼 모델 포즈) 강제 분기
+     - 30종 피부 텍스처 조합: 초정밀 모공, K-Glass 물광, 솜털, 미세한 땀, 주근깨, 보송 매트 등 멀티 선택
+   - **Gemini 3 Flash Preview 기반 AI 일과 플래닝 & 변형 엔진 (`planInfluencerDay`, `planEventVariations`)**:
+     - 자연어로 하루 일정 입력 시 시간대별 5대 핵심 인스타그래머블 시나리오(시간대, 의상, 장소, 조명, 렌즈 등) 실시간 자동 기획
+     - 20가지 대표 K-인플루언서 일과 프리셋 (주사위 랜덤 버튼)
+     - 단일 이벤트 5각 앵글/분위기 변형 기획 (셀카, 전신, 소품 감성컷 등)
+     - 기획된 시나리오 카드 클릭 시 컨트롤 패널 옵션에 원클릭 자동 세팅
+   - **광고 / 공구 모드 (`isAdMode` & PPL 제품 합성)**:
+     - 실물 제품 사진(최대 3장) 업로드 시 제품 디테일을 살린 1:1 자연스러운 손 파지/전면 배치 샷 생성
+     - 5대 광고 유형: 공동구매(긴박감, 링크 유도), 단순협찬, 브랜디드 콘텐츠, 앰버서더, 내돈내산
+   - **일관성 유지 레퍼런스 이미지**:
+     - 인물 고정 사진 업로드 시 이목구비 일관성 유지 (헤어스타일 '✨ 레퍼런스와 동일' 선택 시 머리 모양/색상까지 100% 고정)
+     - 장소 고정 사진 업로드 시 배경 공간 구조/조명 유지
+   - **인스타그램 3종 캡션 & 2중 피드백 미세 보정 루프**:
+     - 옵션 1(감성/스토리텔링), 옵션 2(위트/트렌디 MZ), 옵션 3(질문/소통) + 해시태그 5~10개 자동 생성 & 원클릭 복사
+     - 2중 피드백: 캡션 수정 요청("조금 더 신나는 톤으로") 및 이미지 미세 보정 요청("머리를 조금 더 밝게")
+   - **세션 작업 히스토리 보관함**: 생성 결과가 새로고침으로 사라지지 않도록 슬라이드인 드로어에 자동 보관
+
+3. **플랫폼 규칙 준수**:
+   - **최상위 불변 규칙**: 사용자 본인의 Gemini API 키 (`user_api_keys.provider = 'gemini'`) 안전 연동. 키가 없으면 등록 모달 유도 (타인/운영자 키 폴백 원천 배제).
+   - **핵심 원칙 8번**: 작업 화면 전면 클린 화이트 스튜디오 테마 (`bg-white` / `bg-slate-50`).
+   - **핵심 원칙 9번**: 당해 연도(2026년) 기준 프롬프트 주입.
+
+4. **검수 및 배포 결과**:
+   - Next.js 16 (App Router) 빌드 타입스크립트 100% 정상 검수 완료 (`npm run build`).
+   - Git Commit (`dd3cf58e`) 및 Push 완료.
+   - Vercel 프로덕션 배포 완료 (`https://ai-influencer-studio-sage.vercel.app`).
+   - 도메인 추가 완료 (`ai-influencer.buylife.xyz`).
+
+5. **다음 할 일**:
+   - 카탈로그용 16:9 고화질 대표 썸네일 생성 및 `programs.thumbnail_url` 연동.
+   - 주인님 검수 및 세부 옵션/인터랙션 피드백 반영.
+
+---
+
 ## 2026-10-12 Claude — 뮤직비디오 자동화 카탈로그 썸네일 등록 (music-video-studio)
 
 주인님 요청으로 `scripts/generate-program-thumbnail.mjs`(관리자 Gemini 키 1회, 나노바나나 프로)로 16:9 실사 썸네일을 만들어 Storage `program-images/catalog/music-video-studio-thumbnail.jpg`에 올리고 `programs.thumbnail_url`을 갱신했습니다(공개 주소 200 확인). 내용: 한국인 크리에이터가 이중 모니터(왼쪽 SCENE 1~4 스토리보드, 오른쪽 영상 타임라인)로 작업하는 장면. 기록 SQL 주석: `music-video-studio/supabase/migrations/0002_thumbnail.sql`. 재배포 불필요(DB 값). 남은 일: 없음.
