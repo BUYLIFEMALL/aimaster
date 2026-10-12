@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — 뮤직비디오 스튜디오(music-video-studio v1.01) 신규 제작·배포
+
+Google Flow "뮤직비디오 만들기 V3"(가사 → 스토리보드 → 장면 이미지·Veo 영상)를 실제 Chrome으로 분석해 새로 만든 프로그램입니다(기존에 없던 "영상 클립 생성" 부분). 3단계(음악·가사 / 스토리보드 / 장면 제작) + API키 설정, 회원 본인 Gemini 키만 사용, Veo 3.1 Lite/Fast/Standard·루프·16:9/9:16·예상 비용 확인창·ZIP. 주소 music-video-studio.buylife.xyz, DB programs 등록(멀티미디어, FREE+new, v1.01, 요금제 3종). 단위 테스트 17개 통과, 라이브 Chrome 확인(화면·비용창). **실제 AI·Veo 생성은 미검증**(본인 키·유료) — 첫 사용 점검 항목은 `music-video-studio/README.md` 참고. 문서: `music-video-studio/README.md`, `AGENTS.md`.
+
 ## 2026-10-12 Claude — cardnews-studio v1.06: Flow "Carousel Pro" 옵션 대조 + 카드 아이콘 추가
 
 Flow Carousel Pro(프로젝트 192d5316…)를 실제 Chrome으로 열어 드롭다운 옵션을 전부 수집해 코드와 1:1 대조했습니다(문구 기획은 텍스트만 1회 실행해 결과 화면 확인, 이미지 생성 없음). 분야·어조·모델·비주얼 스타일·구성·테마 컬러·배치·표시 스타일·페이지 수·타이포·캡션·ZIP은 이미 동일했고, **빠져 있던 카드 아이콘**(장마다 헤드라인 위 선 아이콘 + 크기/좌우/상하)을 추가했습니다. lucide 24종을 `scripts/gen-icons.mjs`로 path 데이터화(`src/lib/cardnews/iconData.ts`), AI가 문구 생성 때 아이콘 id를 고르고 2단계에서 장별 변경, 3단계 "아이콘 설정"에서 조절. 무드 이름 임팩트형→볼드형. 테스트 21개 통과, 라이브 `/design`에서 아이콘 설정·미리보기 확인(v1.06, DB 반영). 상세: `cardnews-studio/AGENTS.md` §7. 남은 일: 실제 AI 문구 생성으로 아이콘 선택 품질 점검(회원 본인 키 필요). 참고: 검수 중 member 계정에 "새 카드뉴스"(주제: 매일 1시간 독서의 기적) 프로젝트가 자동 저장되었습니다 — 대시보드에서 삭제하면 됩니다.
