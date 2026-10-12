@@ -7,6 +7,7 @@
 - 생성 Style와 제어값 동기화, 같은 공급사 재선택의 직접 모델 보존, 빈 앨범 수정 초안 복원도 보완했습니다. 본인 키·권한·흰색 화면·계정 8px 간격 유지.
 - 자동 검사 53개와 실제 컴포넌트 모의 흐름 34항목, 린트/타입/빌드 통과. 신규 실제 회원/공급사 호출은 미검수로 유지합니다. Aside 미실행 및 공유 Chrome 다른 CLI 작업으로 인증 세션을 우회하지 않았습니다.
 - 비교·차이·증거·운영 결과·재개 순서: [suno-music-studio/docs/RELEASE_V1_06.md](../suno-music-studio/docs/RELEASE_V1_06.md). 이전 버전의 실호출 성공을 신규 기능 성공으로 계산하지 않습니다.
+- 운영 반영: 구현 `df7bbfcf` 푸시, Vercel `dpl_9HxQRSDy1wW6HMS2jA5PwVDEj2Se` READY/배포 SHA 일치, https://suno-music-studio.buylife.xyz/, DB v1.06. 비로그인 HTTP 14항목과 실제 로그인 JS 8개 정상. 신규 회원 유료 호출 검수만 별도로 남습니다.
 
 ## 2026-10-12 Claude — 무한루프 영상자동화 (infinite-loop-video v1.02) 신규 구축·배포
 

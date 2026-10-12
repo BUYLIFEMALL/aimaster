@@ -51,7 +51,12 @@
 
 APP_VERSION v1.06, package 1.06.0. 버전 SQL: `supabase/migrations/20261012143000_suno_builder_album_search_v106.sql` (프로그램 메타데이터 UPDATE만). 확장 없음. 키·환경변수·DB 스키마·이용권 변경 없음.
 
-구현 검수 후 커밋·푸시·해당 서브프로그램 프로덕션 배포·운영 확인을 진행하며 실제 결과를 이곳에 이어 기록합니다.
+- 구현 커밋 `df7bbfcfd97d485ef27a8d2bade7021e66d1ab52`, `origin/master` 푸시 성공. 다른 CLI의 변경 파일은 포함하지 않았습니다.
+- Vercel 프로덕션 `dpl_9HxQRSDy1wW6HMS2jA5PwVDEj2Se`, READY. 실제 배포 메타데이터 Git SHA가 구현 커밋과 일치합니다. `suno-music-studio`만 배포했습니다.
+- https://suno-music-studio-qcasnbwfh-buylife.vercel.app → https://suno-music-studio.buylife.xyz alias 성공. 기존 vercel.app 주소도 유지합니다.
+- DB `programs.version` v1.06와 코드 버전 일치, 확장 필드는 null. SQL 실행 결과에서 프로그램 ID·slug·주소를 함께 확인했습니다.
+- 2026-10-12 21:33 KST 실제 운영 HTTP 14항목 통과: /login 200, /·/settings 및 7개 메뉴 비로그인 307, generate/search POST와 keys GET/POST 비로그인 401. private,no-store와 X-Vercel-Cache MISS 확인. 실제 로그인 HTML 참조 JS 8개 모두 200. [운영 HTTP 결과](assets/live-v106-http.json).
+- 보호된 실제 회원 화면의 버전 문자열·공급사 실호출은 관측하지 않았습니다. 버전 증거는 소스·실제 배포 SHA·DB 일치입니다. 신규 실제 사용 확인은 아래 미검수 항목을 유지합니다.
 
 ## 차이와 남은 검수
 
