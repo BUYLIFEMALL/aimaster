@@ -103,7 +103,7 @@ export function GradeRow({ grade }: { grade: MemberGrade }) {
           <span className="mx-1 text-white/20">|</span>
           <input type="date" value={until} onChange={(e) => setUntil(e.target.value)} style={{ width: 150 }} className="input-dark py-1 text-sm" />
           <GoldButton size="sm" variant="outline" onClick={() => extend(true)} disabled={busy}>이 날짜로 전원 지정</GoldButton>
-          {msg && <span className="text-xs text-gold">{msg}</span>}
+          {msg && <span className="text-xs text-gold whitespace-nowrap">{msg}</span>}
         </div>
       )}
       {msg && !auto && <p className="mt-2 text-xs text-gold">{msg}</p>}

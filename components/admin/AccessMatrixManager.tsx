@@ -93,10 +93,10 @@ export default function AccessMatrixManager({ grades, programs, initialAccess }:
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-white/10">
-            <th className="text-left text-xs text-subtext font-medium p-3 sticky left-0 bg-surface z-10 min-w-[120px]">
+            <th className="text-left text-xs text-subtext font-medium p-3 sticky left-0 bg-surface z-10 min-w-[160px] whitespace-nowrap">
               등급 / 프로그램
             </th>
-            <th className="text-center text-xs text-subtext font-medium p-3 min-w-[80px]">전체 선택/해제</th>
+            <th className="text-center text-xs text-subtext font-medium p-3 min-w-[120px] whitespace-nowrap">전체 선택/해제</th>
             {programs.map((p) => (
               <th key={p.id} className="text-center text-xs text-subtext font-medium p-3 min-w-[100px]">
                 <div className="truncate max-w-[100px]" title={p.name}>{p.name}</div>
@@ -107,7 +107,7 @@ export default function AccessMatrixManager({ grades, programs, initialAccess }:
         <tbody>
           {grades.map((grade) => (
             <tr key={grade.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-              <td className="p-3 sticky left-0 bg-surface z-10">
+              <td className="p-3 sticky left-0 bg-surface z-10 whitespace-nowrap">
                 <div className="flex items-center gap-2">
                   {grade.color && (
                     <span
@@ -115,7 +115,7 @@ export default function AccessMatrixManager({ grades, programs, initialAccess }:
                       style={{ backgroundColor: grade.color }}
                     />
                   )}
-                  <span className="text-white font-medium">{grade.name}</span>
+                  <span className="text-white font-medium whitespace-nowrap">{grade.name}</span>
                 </div>
               </td>
               <td className="p-3 text-center">
