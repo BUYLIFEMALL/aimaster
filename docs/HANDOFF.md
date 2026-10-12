@@ -1,5 +1,24 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-13 Antigravity — Youtube Playlist 자동화 (yt-playlist-studio v1.02) 명칭 전면 변경 및 도메인 동기화 완료
+
+주인님 요청("프로그램 제목을 Youtube Playlist 자동화 로 수정 변경해주고 프로그램내 명칭도 바꿔주고 vecel 배포 주소도 프로그램 명으로 바꿔서 다시 배포해줘")에 따라, 프로그램 명칭을 'Youtube Playlist 자동화'로 전면 변경하고 신규 도메인 연동 및 DB 동기화를 완료하여 프로덕션 배포 완료했습니다:
+
+1. **프로그램 명칭 및 버전 갱신**:
+   - 공식 명칭: **`Youtube Playlist 자동화`** (`YouTube Playlist Automation`)
+   - 버전: `v1.02` 상향 (`src/lib/version.ts`, `package.json`, Supabase `programs.version = 'v1.02'`)
+   - 레이아웃 메타데이터, 사용 가이드 모달, 사이드바, 매뉴얼 텍스트 전면 동기화 완료.
+2. **배포 주소 및 커스텀 도메인 동기화**:
+   - 공식 커스텀 도메인: [https://youtube-playlist.buylife.xyz](https://youtube-playlist.buylife.xyz) (Cloudflare 와일드카드 CNAME 및 Vercel alias 연동 완비)
+   - 기존 도메인 `https://yt-playlist.buylife.xyz`도 보존(SSO/북마크 호환).
+   - DB `programs.app_url` = `https://youtube-playlist.buylife.xyz` 갱신 완료.
+3. **배포 및 검증**:
+   - Vercel 프로덕션 배포: `dpl_14oLCJpqCYLbxrPHdmNpVyW7hczn` (READY)
+   - HTTP 307 /login SSO 보안 및 HTTP 200 정상 서빙 확인.
+   - DB `programs` 카탈로그 1순위(`sort_order: 124`) 동기화 완료.
+
+---
+
 ## 2026-10-13 Antigravity — 유튜브 플레이리스트 스튜디오 (yt-playlist-studio v1.01) 신규 구축 · WebCodecs 1080p MP4 인코딩 · Gemini AI 배경 생성 · 프로덕션 배포 완료
 
 주인님 요청("https://you-tube-music-playlist-maker-pro-99gg.vercel.app/ 프로그램 자세히 분석후 작업플랜 세워줘", "진행해줘")에 따라, 레퍼런스 사이트(스펙트럼 스튜디오 PRO)를 전수 역분석하여 10종 오디오 스펙트럼, 8종 필터, 10종 오버레이, 6종 EDM 파티 FX, 14종 파티클 시스템, 유튜브 설명란용 타임라인 자동 복사, Gemini Imagen 3 기반 AI 16:9 배경 생성기, WebCodecs 1080p 고속 MP4 렌더링 엔진을 탑재한 신규 프로그램을 완벽하게 구축하여 프로덕션 배포 완료했습니다:
