@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — 프리미엄 권한 강제 완료(0031 전부 적용·검증)
+
+주인님 승인 후 `0031_premium_enforcement.sql`의 나머지(`programs_premium_badge()` 함수, `programs_premium_badge`·`user_program_access_premium_guard` 트리거)를 적용하고 임시 시험 프로그램(`zz-premium-test`, 삭제함)으로 검증했습니다: 뱃지 달기 → 기존 권한 즉시 무효·FREE 자동 제거·등급 채움 / 무효 상태에서 재부여해도 무효 / 뱃지 떼기 → 복원. 현재 프리미엄 뱃지가 달린 실제 프로그램은 0개, 정지된 권한 0건, 실제 권한 8,947건 그대로. 결제 연동 후 주인님이 뱃지를 달면 즉시 적용됩니다. 상세·정책: `docs/GRADE_AND_BILLING_POLICY.md`.
+
 ## 2026-10-12 Antigravity — AI 인플루언서 자동화 (ai-influencer-studio v1.06) 상세 사용 매뉴얼(MANUAL.md) 및 AI 에이전트 인수인계 문서(AGENTS.md) 완비
 
 주인님 요청("커밋 푸시 배포해주고 매뉴얼로 문서화해서 인수인계 문서 만들어줘")에 따라, 사용자와 운영자, 그리고 다른 AI 에이전트가 완벽하게 활용·유지보수할 수 있도록 상세 매뉴얼과 기술 인수인계 문서를 완비하여 배포 완료했습니다:
