@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-12 Claude — 프리미엄 권한 강제(0031) 구현안 작성, DB 일부만 적용 (승인 대기)
+
+주인님 지시("뱃지를 다는 순간 동작, 이미 부여된 권한도 같은 기준", "결제 연동 전이라 실제 실행은 안 함"). `supabase/migrations/0031_premium_enforcement.sql` 작성. **적용된 것**: `user_program_access.premium_suspended`·`premium_prev_expires_at` 열, `user_program_access_premium_guard()` 함수(트리거는 아직 안 걺). **미적용(도구 권한 거부)**: `programs_premium_badge()` 함수와 두 트리거. 현재 DB에는 프리미엄 뱃지가 달린 프로그램이 없어 동작 변화 없음. 관리자 편집 폼은 프리미엄 선택 시 FREE 자동 해제. 다음: 승인 후 0031 나머지 적용 → 임시 프로그램으로 검증 → 정리.
+
 ## 2026-10-12 Claude — 프리미엄 뱃지 추가 (루트 배포)
 
 주인님 지시: 프로그램에 "💎 프리미엄" 뱃지를 달면 소개 페이지에 "서버·트래픽 비용으로 드림팀·드림AI팀도 월 사용료 필요" 안내가 자동 표시되고 뱃지를 떼면 사라지게. 구현: `programs.badges`에 `premium` 허용(DB 제약 `0030_premium_badge.sql`), `components/ui/Badge.tsx`·`ProgramForm.tsx`·`ProgramsAdminBoard.tsx`·`ProgramCard.tsx`·`types/database.types.ts`, 소개 페이지 `app/(main)/programs/[slug]/page.tsx`, 문구 `lib/programs/premium.ts`. 실화면 확인(임시로 뱃지를 달았다 뗌 — 표시/삭제 모두 정상, 원상복구). **뱃지는 표시만 하며 무료 권한 무효화·결제 강제는 미구현**(`docs/GRADE_AND_BILLING_POLICY.md`).

@@ -249,6 +249,9 @@ export default function ProgramForm({ program }: ProgramFormProps) {
       const next = new Set(prev);
       if (next.has(value)) next.delete(value);
       else next.add(value);
+      // 프리미엄은 FREE 와 함께 쓸 수 없다(FREE 면 누구나 열리므로 DB 도 자동으로 FREE 를 뗀다).
+      if (value === "premium" && next.has("premium")) next.delete("free");
+      if (value === "free" && next.has("free")) next.delete("premium");
       return next;
     });
   };
