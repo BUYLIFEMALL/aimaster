@@ -87,32 +87,16 @@ export function Header({
           </div>
         </div>
 
-        {/* Right: Model Badges & Action Buttons */}
+        {/* Right: Download Action Buttons */}
         <div className="flex items-center flex-wrap gap-2 sm:gap-3">
-          {/* Text Model Badge */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 rounded-lg text-xs border border-slate-200">
-            <span className="text-slate-500">텍스트:</span>
-            <span className="font-semibold text-indigo-700">
-              {settings.textModel === "gemini-2.5-flash" ? "Flash 추천" : "Lite 초고속"}
-            </span>
-          </div>
-
-          {/* Image Model Badge */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 rounded-lg text-xs border border-slate-200">
-            <span className="text-slate-500">이미지:</span>
-            <span className="font-semibold text-purple-700">
-              {settings.imageModel === "nano-banana-2" ? "NB 2 고화질" : "Flux 코믹"}
-            </span>
-          </div>
-
           {/* Quick Action: ZIP 일괄 저장 */}
           <button
             type="button"
             onClick={onDownloadZip}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-amber-400 text-xs font-bold bg-yellow-400 hover:bg-yellow-300 text-slate-950 transition shadow-sm cursor-pointer whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
             title="모든 컷 이미지를 ZIP으로 일괄 압축 다운로드"
           >
-            <FileArchive className="w-3.5 h-3.5 text-indigo-600" />
+            <FileArchive className="w-3.5 h-3.5" />
             <span>이미지 일괄 저장 (.zip)</span>
           </button>
 
@@ -120,7 +104,7 @@ export function Header({
           <button
             type="button"
             onClick={onDownloadMergedJpg}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-amber-400 text-xs font-bold bg-yellow-400 hover:bg-yellow-300 text-slate-950 transition shadow-sm cursor-pointer whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
             title="모든 컷을 세로 롱스크롤 웹툰 단일 이미지로 합성 다운로드"
           >
             <Download className="w-3.5 h-3.5" />

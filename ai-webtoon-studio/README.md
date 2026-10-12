@@ -5,7 +5,9 @@
 - **배포 주소**: `https://ai-webtoon-automation.buylife.xyz` (기존 `https://ai-webtoon-studio.buylife.xyz` 병행 지원)
 - **Vercel 주소**: `https://ai-webtoon-automation.vercel.app`
 
-## 핵심 기능 (v1.02)
+## 핵심 기능 (v1.03)
+
+v1.03: 상단 모델 안내 배지 제거, 상단/4단계 ZIP·JPG 저장 버튼 노란색 강조. [검수·릴리스 기록](docs/UI_RELEASE_V1_03.md).
 
 1. **기획 & 컨셉 설정 (STEP 1)**:
    - 작품 제목, 작가명, 핵심 시놉시스 (AI 자동완성/아이디어 확장 마법봉)

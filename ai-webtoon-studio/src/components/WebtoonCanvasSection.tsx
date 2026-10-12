@@ -149,19 +149,19 @@ export function WebtoonCanvasSection({
           </div>
 
           {/* Quick Download Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={handleDownloadZip}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-2xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-400 bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-bold transition shadow-sm cursor-pointer whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
             >
-              <FileArchive className="w-4 h-4 text-indigo-600" />
+              <FileArchive className="w-4 h-4" />
               <span>이미지 일괄 저장 (.zip)</span>
             </button>
             <button
               type="button"
               onClick={handleDownloadMergedJpg}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-amber-400 bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-bold transition shadow-sm cursor-pointer whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
             >
               <Download className="w-4 h-4" />
               <span>전체 이어붙여 저장 (JPG)</span>
