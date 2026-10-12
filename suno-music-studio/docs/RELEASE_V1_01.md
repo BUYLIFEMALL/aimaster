@@ -2,7 +2,7 @@
 
 2026-10-12 / Codex. 주인님 확정 명칭: **Suno 음악기획 자동화**.
 
-이름 확정은 화면·로그인·페이지 메타데이터의 공통 APP_NAME과 DB programs.name에 반영합니다. 최초 운영 배포 전이므로 v1.01을 유지하고 slug·프로젝트·주소는 변경하지 않습니다. 최초 구현 커밋은 `ec5abe2d`이며, 이름 변경 SQL은 `supabase/migrations/20261012060046_finalize_suno_program_name.sql`에 별도로 기록합니다. 환경변수 등록 승인은 여전히 대기 중입니다.
+이름 확정은 화면·로그인·페이지 메타데이터의 공통 APP_NAME과 DB programs.name에 반영합니다. 최초 운영 배포 전이므로 v1.01을 유지하고 slug·프로젝트·주소는 변경하지 않습니다. 최초 구현 커밋은 `ec5abe2d`이며, 이름 변경 SQL은 `supabase/migrations/20261012060046_finalize_suno_program_name.sql`에 별도로 기록합니다. 이름 변경 커밋은 `d3516445`입니다.
 
 이름 변경 후 `npm run build` 타입·컴파일 검수 통과. DB 재조회에서 확정 이름·v1.01·is_active=false 일치를 확인했습니다. 이전 이름은 초기 등록 SQL과 확정 이전 후보 이력에만 남깁니다.
 
@@ -22,7 +22,7 @@
 
 ## 운영 준비
 
-Vercel buylife/suno-music-studio, project ID `prj_BHh3me01sTyn12CQJrOgihl7Fyvu` 생성·연결 완료. 환경변수 0개(조회 확인), 아직 배포하지 않았습니다.
+Vercel buylife/suno-music-studio, project ID `prj_BHh3me01sTyn12CQJrOgihl7Fyvu` 생성·연결 완료. 주인님의 후속 “진행해줘”로 앞서 요청한 환경변수 등록·운영 배포 승인을 확인했습니다. `configure-vercel.mjs --approved`로 공용 접속 설정 4개를 production에 등록하고 이름만 재조회했습니다. 회원 AI 키는 복사·수정하지 않았습니다. `suno-music-studio.buylife.xyz` 도메인 연결 완료. 설정 반영 후 테스트 17/17·린트 0·빌드 성공. 운영 배포와 실제 회원 검수는 이어서 진행합니다.
 
 공용 DB에 프로그램·기본 3요금제 등록 DML 적용. 배포 검수 전 `is_active=false`로 유지하여 회원에게 아직 동작하지 않는 링크를 노출하지 않습니다. 최소 일반 등급 + 사용기간 또는 구독 정책을 사용하며 FREE는 기본 등록하지 않습니다. 스키마 변경 없음. SQL: `supabase/migrations/20261012054845_register_suno_music_studio.sql` (CLI 2.120.0 migration new로 생성).
 
