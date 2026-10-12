@@ -79,8 +79,10 @@ test("곡 구조: 15종, 자동은 장르 추천을 따른다", () => {
   assert.equal(resolveStructure("ballad", "jazz").id, "ballad");
 });
 
-test("카탈로그 개수: 장르 10·스타일 7·글꼴 14", () => {
-  assert.equal(GENRES.length, 10);
+test("카탈로그 개수: 장르 23(기본 14+추천 9)·스타일 7·글꼴 14", () => {
+  assert.equal(GENRES.length, 23);
+  assert.equal(new Set(GENRES.map((g) => g.id)).size, 23);
+  for (const id of ["pop", "study", "workout", "meditation"]) assert.ok(GENRES.some((g) => g.id === id), id);
   assert.equal(THUMB_STYLES.length, 7);
   assert.equal(THUMB_FONTS.length, 14);
 });

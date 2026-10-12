@@ -44,18 +44,32 @@ export const LIMITS = {
   personaImageBytes: 3_000_000,
 };
 
-export interface Genre { id: string; label: string; en: string; emoji: string }
+export interface Genre { id: string; label: string; en: string; emoji: string; group: "base" | "extra" }
+// base: 참고 사이트와 같은 기본 장르(+기존 구성), extra: 플레이리스트 채널에서 수요가 많아 추가한 추천 장르
 export const GENRES: Genre[] = [
-  { id: "lofi", label: "로파이 힙합", en: "Lo-fi Hip Hop", emoji: "🎧" },
-  { id: "kpop", label: "K-Pop", en: "K-Pop", emoji: "🎤" },
-  { id: "jazz", label: "재즈", en: "Jazz", emoji: "🎷" },
-  { id: "rnb", label: "R&B / 소울", en: "R&B / Soul", emoji: "🌙" },
-  { id: "indie", label: "인디 팝", en: "Indie Pop", emoji: "🌿" },
-  { id: "acoustic", label: "어쿠스틱 포크", en: "Acoustic Folk", emoji: "🎸" },
-  { id: "ballad", label: "발라드", en: "Ballad", emoji: "💌" },
-  { id: "citypop", label: "시티팝", en: "City Pop", emoji: "🌆" },
-  { id: "edm", label: "EDM / 하우스", en: "EDM / House", emoji: "⚡" },
-  { id: "cinematic", label: "시네마틱 / 클래식", en: "Cinematic / Classical", emoji: "🎻" },
+  { id: "lofi", label: "로파이 힙합", en: "Lo-fi Hip Hop", emoji: "🎧", group: "base" },
+  { id: "pop", label: "팝", en: "Pop", emoji: "🎉", group: "base" },
+  { id: "jazz", label: "재즈", en: "Jazz", emoji: "🎷", group: "base" },
+  { id: "rnb", label: "R&B / 소울", en: "R&B / Soul", emoji: "🌙", group: "base" },
+  { id: "kpop", label: "K-Pop", en: "K-Pop", emoji: "🎤", group: "base" },
+  { id: "indie", label: "인디 팝", en: "Indie Pop", emoji: "🌿", group: "base" },
+  { id: "study", label: "공부 / 집중", en: "Study / Focus", emoji: "📚", group: "base" },
+  { id: "workout", label: "운동 / 워크아웃", en: "Workout", emoji: "🏋️", group: "base" },
+  { id: "meditation", label: "명상 / 힐링", en: "Meditation", emoji: "🧘", group: "base" },
+  { id: "acoustic", label: "어쿠스틱 포크", en: "Acoustic Folk", emoji: "🎸", group: "base" },
+  { id: "ballad", label: "발라드", en: "Ballad", emoji: "💌", group: "base" },
+  { id: "citypop", label: "시티팝", en: "City Pop", emoji: "🌆", group: "base" },
+  { id: "edm", label: "EDM / 하우스", en: "EDM / House", emoji: "⚡", group: "base" },
+  { id: "cinematic", label: "시네마틱 / 클래식", en: "Cinematic / Classical", emoji: "🎻", group: "base" },
+  { id: "sleep", label: "수면 / 앰비언트", en: "Sleep / Ambient", emoji: "😴", group: "extra" },
+  { id: "cafe", label: "카페 보사노바", en: "Cafe Bossa Nova", emoji: "☕", group: "extra" },
+  { id: "synthwave", label: "드라이브 신스웨이브", en: "Synthwave / Night Drive", emoji: "🚗", group: "extra" },
+  { id: "piano", label: "클래식 피아노", en: "Classical Piano", emoji: "🎹", group: "extra" },
+  { id: "hiphop", label: "힙합", en: "Hip Hop", emoji: "🧢", group: "extra" },
+  { id: "rock", label: "록 / 밴드", en: "Rock / Band", emoji: "🤘", group: "extra" },
+  { id: "trot", label: "트로트", en: "Trot", emoji: "💃", group: "extra" },
+  { id: "christmas", label: "캐럴 / 시즌", en: "Christmas / Seasonal", emoji: "🎄", group: "extra" },
+  { id: "tropical", label: "트로피컬 / 레게", en: "Tropical / Reggae", emoji: "🌴", group: "extra" },
 ];
 /** 장르 카드 id면 영어 이름, 직접 입력한 장르면 그대로 */
 export const genreName = (g: string) => GENRES.find((x) => x.id === g)?.en ?? g;
@@ -99,8 +113,11 @@ export const STRUCTURES: Structure[] = [
   { id: "freeverse", label: "자유시형 (코러스 없음)", sections: ["Stanza 1", "Stanza 2", "Stanza 3", "Stanza 4"] },
 ];
 export const GENRE_BEST_STRUCTURE: Record<string, string> = {
-  lofi: "lofi", kpop: "kpop", jazz: "aaba", rnb: "classic", indie: "simple",
-  acoustic: "acoustic", ballad: "ballad", citypop: "classic", edm: "edm", cinematic: "cinematic",
+  lofi: "lofi", pop: "classic", jazz: "aaba", rnb: "classic", kpop: "kpop", indie: "simple",
+  study: "lofi", workout: "edm", meditation: "mantra", acoustic: "acoustic", ballad: "ballad",
+  citypop: "classic", edm: "edm", cinematic: "cinematic", sleep: "cinematic", cafe: "simple",
+  synthwave: "hookfirst", piano: "cinematic", hiphop: "hookfirst", rock: "classic", trot: "classic",
+  christmas: "simple", tropical: "simple",
 };
 export const structureById = (id: string) => STRUCTURES.find((s) => s.id === id);
 export function resolveStructure(id: string, genre: string): Structure {

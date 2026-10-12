@@ -30,3 +30,6 @@ WHERE p.slug = 'playlist-channel-studio'
 
 -- v1.02 (2026-10-13): 모델 안내 문구 수정 + 카탈로그 썸네일 등록(thumbnail_url은 scripts 임시 스크립트로 program-images 버킷에 업로드)
 UPDATE public.programs SET version = 'v1.02', updated_at = NOW() WHERE slug = 'playlist-channel-studio';
+
+-- v1.03 (2026-10-13): 장르 23개로 확장
+UPDATE public.programs SET version = 'v1.03', updated_at = NOW() WHERE slug = 'playlist-channel-studio';

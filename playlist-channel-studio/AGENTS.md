@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.02** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.03** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-channel-studio.buylife.xyz (옛 `*.vercel.app` 유지) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -15,7 +15,7 @@
 | 참고 원본 | ai-playlist-creator-bice.vercel.app (HTML·번들 전체 분석, 흐름·옵션 참고, 프롬프트·문구는 새로 작성, 제작자 크레딧 미복제) |
 
 ## 2. 무엇을 하는가
-① 장르(카드 10개 + 직접 입력) → ② 제목 10개(`playlist 이모지 한국어 문장 | 영어키워드 & 영어키워드` 형식 검증·보정, 직접 쓰기 가능) → ③ 4개 탭
+① 장르(기본 14개 + 추천 9개 = 카드 23개 + 직접 입력) → ② 제목 10개(`playlist 이모지 한국어 문장 | 영어키워드 & 영어키워드` 형식 검증·보정, 직접 쓰기 가능) → ③ 4개 탭
 - **Suno 프롬프트**: 변형 3개, 각 900자 미만(서버가 쉼표 단위로 자름).
 - **가사**: 언어 5종(ko/en/ja/es/fr), 이중 언어 비율 10~90%, 곡 1~20, 은유 4단계, 곡 구조 15종(자동=장르 BEST), 인트로/아웃트로 가사, 연주곡 모드, 주제 메모. 곡 계획을 먼저 뽑고 4곡씩 병렬로 작성(곡 겹침 방지, 최대 300초).
 - **유튜브 메타데이터**: 설명글, 해시태그 5개(`#playlist` 맨 앞), 키워드 15개.
@@ -63,4 +63,5 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 
 ## 8. 작업 기록 (추가만)
 - **2026-10-13 v1.01** 신규 구축·테이블/버킷 마이그레이션 적용·첫 배포·도메인 연결·프로그램 등록(FREE+new, 유튜브).
+- **2026-10-13 v1.03** 장르 확장: 참고 사이트의 Pop·Study/Focus·Workout·Meditation 추가 + 추천 장르 9개(수면/앰비언트·카페 보사노바·드라이브 신스웨이브·클래식 피아노·힙합·록/밴드·트로트·캐럴/시즌·트로피컬/레게), 화면은 기본/추천 구역으로 나눔, 장르별 BEST 곡 구조 지정.
 - **2026-10-13 v1.02** 모델 안내 문구 중복("Gemini·Gemini") 수정, 카탈로그 썸네일 등록, 인수인계·매뉴얼 문서 작성.

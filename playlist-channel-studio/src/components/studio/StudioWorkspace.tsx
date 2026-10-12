@@ -126,15 +126,20 @@ function Inner({ projectId }: { projectId?: string }) {
       {!project && (
         <section className="space-y-4">
           <h2 className="text-sm font-bold text-neutral-900">① 장르를 선택하세요</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {GENRES.map((g) => (
-              <button key={g.id} type="button" disabled={busy} onClick={() => startWithGenre(g.id)} className="rounded-2xl border border-neutral-200 bg-white p-4 text-left transition hover:border-indigo-400 hover:shadow-sm disabled:opacity-60">
-                <span className="text-2xl">{g.emoji}</span>
-                <p className="mt-2 text-sm font-bold text-neutral-900">{g.label}</p>
-                <p className="text-[11px] text-neutral-400">{g.en}</p>
-              </button>
-            ))}
-          </div>
+          {(["base", "extra"] as const).map((group) => (
+            <div key={group}>
+              <p className="mb-2 text-xs font-medium text-neutral-500">{group === "base" ? "기본 장르" : "추천 장르"}</p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                {GENRES.filter((g) => g.group === group).map((g) => (
+                  <button key={g.id} type="button" disabled={busy} onClick={() => startWithGenre(g.id)} className="rounded-2xl border border-neutral-200 bg-white p-4 text-left transition hover:border-indigo-400 hover:shadow-sm disabled:opacity-60">
+                    <span className="text-2xl">{g.emoji}</span>
+                    <p className="mt-2 text-sm font-bold text-neutral-900">{g.label}</p>
+                    <p className="text-[11px] text-neutral-400">{g.en}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
           <div className="flex flex-col gap-2 rounded-2xl border border-neutral-200 bg-white p-4 sm:flex-row">
             <input value={custom} onChange={(e) => setCustom(e.target.value.slice(0, 60))} onKeyDown={(e) => e.key === "Enter" && !busy && startWithGenre(custom)} placeholder="원하는 장르를 직접 입력 (예: 몽환적인 드림팝, 90년대 감성 R&B)" className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900" />
             <PrimaryButton busy={busy} disabled={!custom.trim()} onClick={() => startWithGenre(custom)}><Sparkles size={15} />이 장르로 제목 만들기</PrimaryButton>
