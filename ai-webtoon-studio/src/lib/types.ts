@@ -3,7 +3,13 @@ export type ArtStyle =
   | "shonen_manga"
   | "romance_fantasy"
   | "chibi_sd_casual"
-  | "american_hero_comic";
+  | "american_hero_comic"
+  | "european_retro_comic"
+  | "noir_monochrome"
+  | "watercolor_fairytale"
+  | "animation_3d"
+  | "korean_ink_wash"
+  | "retro_90s_anime";
 
 export type LayoutType = "webtoon_vertical" | "comic_grid";
 

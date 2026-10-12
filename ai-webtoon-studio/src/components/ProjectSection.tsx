@@ -189,6 +189,12 @@ export function ProjectSection({
               <option value="romance_fantasy">로맨스 순정 풍 (화사하고 섬세한 연출)</option>
               <option value="chibi_sd_casual">귀여운 SD/캐주얼 풍 (일상 및 코믹)</option>
               <option value="american_hero_comic">미국 히어로 코믹스 풍 (강렬한 명암과 잉크선)</option>
+              <option value="european_retro_comic">유럽 복고 명랑만화 풍 (깔끔한 선과 빈티지 색감)</option>
+              <option value="noir_monochrome">느와르 흑백 풍 (진한 명암의 흑백)</option>
+              <option value="watercolor_fairytale">수채화 동화풍 (부드러운 수채 번짐)</option>
+              <option value="animation_3d">3D 애니메이션 풍 (입체적인 영화 렌더)</option>
+              <option value="korean_ink_wash">한국 수묵화 풍 (먹의 농담과 여백)</option>
+              <option value="retro_90s_anime">90년대 레트로 애니 풍 (셀화 질감)</option>
             </select>
           </div>
 

@@ -21,6 +21,30 @@ export const ART_STYLE_PROMPT_MAP: Record<ArtStyle, { label: string; enTag: stri
     label: "미국 히어로 코믹스 풍",
     enTag: "American superhero comic book style, bold ink contours, dramatic chiaroscuro cross-hatching, heroic proportions, gritty cinematic lighting, Marvel and DC graphic novel aesthetic",
   },
+  european_retro_comic: {
+    label: "유럽 복고 명랑만화 풍",
+    enTag: "Franco-Belgian ligne claire retro comic style, clean uniform ink lines, flat vintage colors, charming whimsical characters, detailed background scenery, classic European bande dessinee aesthetic",
+  },
+  noir_monochrome: {
+    label: "느와르 흑백 풍",
+    enTag: "Noir black and white graphic novel style, high contrast monochrome, deep shadows and heavy blacks, dramatic chiaroscuro lighting, rain-soaked moody atmosphere, gritty detective noir aesthetic, no color",
+  },
+  watercolor_fairytale: {
+    label: "수채화 동화풍",
+    enTag: "Soft watercolor storybook illustration style, gentle translucent washes, warm pastel palette, hand-painted paper texture, whimsical fairytale atmosphere, delicate ink outlines",
+  },
+  animation_3d: {
+    label: "3D 애니메이션 풍",
+    enTag: "High quality 3D animated film style, Pixar-like stylized characters, soft global illumination, smooth subsurface skin shading, expressive faces, polished cinematic render",
+  },
+  korean_ink_wash: {
+    label: "한국 수묵화 풍",
+    enTag: "Traditional Korean ink wash painting style, sumi-e brush strokes, flowing black ink gradients on hanji paper, muted earth tones with subtle color accents, elegant minimal composition, oriental aesthetic",
+  },
+  retro_90s_anime: {
+    label: "90년대 레트로 애니 풍",
+    enTag: "1990s retro anime cel animation style, hand-painted cel look, slightly grainy film texture, muted nostalgic color palette, classic sharp lineart, vintage Japanese anime aesthetic",
+  },
 };
 
 export const BALLOON_STYLE_LABEL_MAP: Record<BalloonStyle, string> = {
