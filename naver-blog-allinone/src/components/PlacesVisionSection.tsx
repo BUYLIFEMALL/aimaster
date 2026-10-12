@@ -98,6 +98,8 @@ export function PlacesVisionSection({ settings, onOpenSettings, onSettingsChange
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "1:1">("16:9");
   const [personaId, setPersonaId] = useState<string | null>(null);
   const [purposeText, setPurposeText] = useState("");
+  const [angleTopic, setAngleTopic] = useState(""); // 특정 주제·글의 관점(페르소나가 채움, 수정 가능)
+  const [personaKeywords, setPersonaKeywords] = useState(""); // 페르소나 추천 검색 키워드(수정 가능)
   const [prefsNotice, setPrefsNotice] = useState("");
   const [prefsAt, setPrefsAt] = useState<string | null>(null);
   const [targetLength, setTargetLength] = useState(2000);
@@ -286,8 +288,9 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         engine: { provider: eng.provider, model: eng.model, apiKey: eng.apiKey },
         topic: `${placeName} ${category} 방문 후기`,
         extraRequest,
-        keywords: [mainKeyword, subKeywords].filter((k) => k.trim()).join(", "),
-        purpose: purposeText.trim() || (seoMode === "homefeed" ? "네이버 홈판(MY피드) 노출을 노리는 감성 방문 후기" : "검색 상위 노출을 노리는 정보형 방문 후기"),
+        hint: (persona ? persona.defaultTopic : angleTopic).trim() || undefined,
+        keywords: [mainKeyword, subKeywords, persona ? persona.defaultKeywords : personaKeywords].filter((k) => k.trim()).join(", "),
+        purpose: (persona ? persona.defaultPurpose : purposeText).trim() || (seoMode === "homefeed" ? "네이버 홈판(MY피드) 노출을 노리는 감성 방문 후기" : "검색 상위 노출을 노리는 정보형 방문 후기"),
         persona: chosen ? { name: chosen.name, badge: chosen.badge, tonePrompt: chosen.tonePrompt } : null,
         tone: persona ? persona.preferredTone : tone,
         style,
@@ -675,24 +678,34 @@ ${oneLineImpression ? `특징/인상: ${oneLineImpression}` : ""}
         </div>
 
         <GenerationPanel
-          values={{ personaId, targetLength, keywords: "", purpose: purposeText, tone, style }}
+          values={{ personaId, targetLength, keywords: personaKeywords, purpose: purposeText, tone, style }}
           onChange={(patch) => {
             if ("personaId" in patch) setPersonaId(patch.personaId ?? null);
             if (patch.targetLength !== undefined) setTargetLength(patch.targetLength);
             if (patch.purpose !== undefined) setPurposeText(patch.purpose);
+            if (patch.keywords !== undefined) setPersonaKeywords(patch.keywords);
             if (patch.tone) setTone(patch.tone);
             if (patch.style) setStyle(patch.style);
           }}
           onLoadPersona={(p) => {
             setPersonaId(p.id);
             setTone(p.preferredTone);
+            setAngleTopic(p.defaultTopic);
+            setPurposeText(p.defaultPurpose);
+            setPersonaKeywords(p.defaultKeywords);
           }}
           onInstant={(p) => {
             setPersonaId(p.id);
             setTone(p.preferredTone);
+            setAngleTopic(p.defaultTopic);
+            setPurposeText(p.defaultPurpose);
+            setPersonaKeywords(p.defaultKeywords);
             void handleGenerateVisionPost(p);
           }}
-          hideKeywords
+          topic={angleTopic}
+          setTopic={setAngleTopic}
+          topicLabel="특정 주제 · 글의 관점 (선택 — 장소명은 방문 정보에서 입력)"
+          topicPlaceholder="예: 감성 카페 방문 후기를 20대 에디터 관점으로"
           disabled={loading}
         />
 
